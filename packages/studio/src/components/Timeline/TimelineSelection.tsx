@@ -68,18 +68,25 @@ export type TimelineSelection =
 			readonly frame: number;
 	  };
 
+export type SelectItemOptions = {
+	readonly additive?: boolean;
+};
+
 type TimelineSelectionContextValue = {
 	readonly canSelect: boolean;
-	readonly selectedItem: TimelineSelection | null;
+	readonly selectedItems: readonly TimelineSelection[];
 	readonly isSelected: (item: TimelineSelection) => boolean;
-	readonly selectItem: (item: TimelineSelection) => void;
+	readonly selectItem: (
+		item: TimelineSelection,
+		options?: SelectItemOptions,
+	) => void;
 	readonly containsSelection: (nodePathInfo: SequenceNodePathInfo) => boolean;
 	readonly clearSelection: () => void;
 };
 
 const TimelineSelectionContext = createContext<TimelineSelectionContextValue>({
 	canSelect: false,
-	selectedItem: null,
+	selectedItems: [],
 	isSelected: () => false,
 	selectItem: () => undefined,
 	containsSelection: () => false,
@@ -95,6 +102,46 @@ const getTimelineSelectionKey = (item: TimelineSelection): string => {
 	return `${rowKey}.keyframe.${item.frame}`;
 };
 
+const assertSameType = (items: readonly TimelineSelection[]): void => {
+	if (items.length <= 1) {
+		return;
+	}
+
+	const firstType = items[0].type;
+	for (const item of items) {
+		if (item.type !== firstType) {
+			throw new Error(
+				`Timeline selection contains items of mixed types: expected all "${firstType}" but found "${item.type}".`,
+			);
+		}
+	}
+};
+
+const nodePathDescendsFrom = (
+	descendant: SequenceNodePathInfo,
+	ancestor: SequenceNodePathInfo,
+): boolean => {
+	if (
+		stringifySequenceExpandedRowKey(descendant.sequenceSubscriptionKey) !==
+		stringifySequenceExpandedRowKey(ancestor.sequenceSubscriptionKey)
+	) {
+		return false;
+	}
+
+	if (descendant.index !== ancestor.index) {
+		return false;
+	}
+
+	// Must be strictly deeper than `ancestor` (i.e. a descendant), not the same row.
+	if (descendant.auxiliaryKeys.length <= ancestor.auxiliaryKeys.length) {
+		return false;
+	}
+
+	return ancestor.auxiliaryKeys.every(
+		(key, i) => descendant.auxiliaryKeys[i] === key,
+	);
+};
+
 export const TimelineSelectionProvider: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
@@ -103,82 +150,84 @@ export const TimelineSelectionProvider: React.FC<{
 		SELECTION_ENABLED &&
 		previewServerState.type === 'connected' &&
 		!window.remotion_isReadOnlyStudio;
-	const [selectedItem, setSelectedItem] = useState<TimelineSelection | null>(
-		null,
-	);
+	const [selectedItems, setSelectedItems] = useState<
+		readonly TimelineSelection[]
+	>([]);
 
 	useEffect(() => {
 		if (!canSelect) {
-			setSelectedItem(null);
+			setSelectedItems([]);
 		}
 	}, [canSelect]);
 
+	const selectedKeys = useMemo(
+		() => new Set(selectedItems.map(getTimelineSelectionKey)),
+		[selectedItems],
+	);
+
 	const isSelected = useCallback(
 		(item: TimelineSelection) => {
-			return selectedItem === null
-				? false
-				: getTimelineSelectionKey(selectedItem) ===
-						getTimelineSelectionKey(item);
+			return selectedKeys.has(getTimelineSelectionKey(item));
 		},
-		[selectedItem],
+		[selectedKeys],
 	);
 
 	const selectItem = useCallback(
-		(item: TimelineSelection) => {
+		(item: TimelineSelection, options?: SelectItemOptions) => {
 			if (!canSelect) {
 				return;
 			}
 
-			setSelectedItem(item);
+			const additive = options?.additive ?? false;
+
+			setSelectedItems((prev) => {
+				if (!additive) {
+					return [item];
+				}
+
+				const itemKey = getTimelineSelectionKey(item);
+				const existingIndex = prev.findIndex(
+					(existing) => getTimelineSelectionKey(existing) === itemKey,
+				);
+
+				if (existingIndex !== -1) {
+					// Toggle off when already selected.
+					const without = prev.slice();
+					without.splice(existingIndex, 1);
+					return without;
+				}
+
+				// Mixed types are not allowed; replace selection when adding a
+				// differently-typed item.
+				if (prev.length > 0 && prev[0].type !== item.type) {
+					return [item];
+				}
+
+				const next = [...prev, item];
+				assertSameType(next);
+				return next;
+			});
 		},
 		[canSelect],
 	);
 
 	const clearSelection = useCallback(() => {
-		setSelectedItem(null);
+		setSelectedItems([]);
 	}, []);
 
 	const containsSelection = useCallback(
 		(nodePathInfo: SequenceNodePathInfo) => {
-			if (selectedItem === null) {
-				return false;
-			}
-
-			const selectedNodePath = selectedItem.nodePathInfo;
-
-			if (
-				stringifySequenceExpandedRowKey(
-					selectedNodePath.sequenceSubscriptionKey,
-				) !==
-				stringifySequenceExpandedRowKey(nodePathInfo.sequenceSubscriptionKey)
-			) {
-				return false;
-			}
-
-			if (selectedNodePath.index !== nodePathInfo.index) {
-				return false;
-			}
-
-			// Selection must be strictly deeper than this node (i.e. a descendant),
-			// not the same row.
-			if (
-				selectedNodePath.auxiliaryKeys.length <=
-				nodePathInfo.auxiliaryKeys.length
-			) {
-				return false;
-			}
-
-			return nodePathInfo.auxiliaryKeys.every(
-				(key, i) => selectedNodePath.auxiliaryKeys[i] === key,
+			return selectedItems.some((selected) =>
+				nodePathDescendsFrom(selected.nodePathInfo, nodePathInfo),
 			);
 		},
-		[selectedItem],
+		[selectedItems],
 	);
 
 	const value = useMemo(
 		(): TimelineSelectionContextValue => ({
 			canSelect,
-			selectedItem,
+			selectedItems,
 			isSelected,
 			selectItem,
 			containsSelection,
@@ -186,7 +235,7 @@ export const TimelineSelectionProvider: React.FC<{
 		}),
 		[
 			canSelect,
-			selectedItem,
+			selectedItems,
 			isSelected,
 			selectItem,
 			containsSelection,
@@ -218,13 +267,16 @@ export const useTimelineRowSelection = (
 
 	const selected = selectionItem === null ? false : isSelected(selectionItem);
 
-	const onSelect = useCallback(() => {
-		if (selectionItem === null) {
-			return;
-		}
+	const onSelect = useCallback(
+		(options?: SelectItemOptions) => {
+			if (selectionItem === null) {
+				return;
+			}
 
-		selectItem(selectionItem);
-	}, [selectItem, selectionItem]);
+			selectItem(selectionItem, options);
+		},
+		[selectItem, selectionItem],
+	);
 
 	return {
 		onSelect,
@@ -249,9 +301,12 @@ export const useTimelineKeyframeSelection = (
 
 	const selected = isSelected(selectionItem);
 
-	const onSelect = useCallback(() => {
-		selectItem(selectionItem);
-	}, [selectItem, selectionItem]);
+	const onSelect = useCallback(
+		(options?: SelectItemOptions) => {
+			selectItem(selectionItem, options);
+		},
+		[selectItem, selectionItem],
+	);
 
 	return {
 		onSelect,

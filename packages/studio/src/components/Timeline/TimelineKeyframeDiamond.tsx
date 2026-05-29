@@ -56,7 +56,7 @@ const TimelineKeyframeDiamondUnmemoized: React.FC<{
 		(e: React.PointerEvent<HTMLButtonElement>) => {
 			if (e.button === 0) {
 				e.stopPropagation();
-				onSelect();
+				onSelect({additive: e.shiftKey || e.metaKey || e.ctrlKey});
 			}
 		},
 		[onSelect],
