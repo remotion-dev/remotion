@@ -50,7 +50,6 @@ const InnerTimelineInOutPointerHandle: React.FC<
 		<div
 			ref={type === 'in' ? inPointerHandle : outPointerHandle}
 			style={style}
-			className="handle"
 			onPointerDown={onPointerDown}
 		/>
 	);
