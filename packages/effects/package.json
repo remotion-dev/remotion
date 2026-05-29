@@ -11,6 +11,8 @@
 	"type": "module",
 	"scripts": {
 		"test": "bun test src/test",
+		"testvisual": "vitest src/visual-test/effects-visual.test.ts",
+		"testeffectsvisual": "vitest src/visual-test/effects-visual.test.ts --browser --run",
 		"formatting": "oxfmt src --check",
 		"format": "oxfmt src",
 		"lint": "eslint src",
@@ -241,7 +243,9 @@
 	"homepage": "https://www.remotion.dev/docs/effects/api",
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
+		"@vitest/browser-playwright": "catalog:",
 		"eslint": "catalog:",
+		"vitest": "catalog:",
 		"@typescript/native-preview": "catalog:"
 	},
 	"keywords": [
