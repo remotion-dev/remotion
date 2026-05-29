@@ -14,6 +14,8 @@ Renders a video inside a Vercel Sandbox.
 
 The rendered file stays inside the sandbox. Use [`uploadToVercelBlob()`](/docs/vercel/upload-to-vercel-blob) to upload it to Vercel Blob.
 
+Set [`detached: true`](#detached) to return immediately and poll the render with [`getRenderProgress()`](/docs/vercel/get-render-progress).
+
 ## Example
 
 ```ts twoslash title="route.ts"
@@ -31,6 +33,26 @@ const {sandboxFilePath} = await renderMediaOnVercel({
     if (update.stage === 'render-progress') {
       console.log(`Rendering: ${Math.round(update.progress.progress * 100)}%`);
     }
+  },
+});
+```
+
+## Detached render
+
+```ts twoslash title="route.ts"
+// @module: es2022
+// @target: es2022
+import {renderMediaOnVercel, createSandbox} from '@remotion/vercel';
+const sandbox = await createSandbox();
+// ---cut---
+const {sandboxId, cmdId} = await renderMediaOnVercel({
+  sandbox,
+  compositionId: 'MyComp',
+  inputProps: {title: 'Hello World'},
+  detached: true,
+  vercelBlob: {
+    blobToken: process.env.BLOB_READ_WRITE_TOKEN!,
+    access: 'public',
   },
 });
 ```
@@ -60,6 +82,24 @@ Choose a suitable codec for your output media. Refer to the [Encoding guide](/do
 ### `outputFile?`
 
 The output file path inside the sandbox. Default: `"/tmp/video.mp4"`.
+
+### `detached?`<AvailableFrom v="4.0.469" />
+
+When set to `true`, starts the render and returns `{sandboxId, cmdId, outputFile}` without waiting for it to finish.
+
+Use [`getRenderProgress()`](/docs/vercel/get-render-progress) to poll the returned IDs.
+
+### `vercelBlob?`<AvailableFrom v="4.0.469" />
+
+<TsType type="VercelBlobUploadOptions" source="@remotion/vercel" href="/docs/vercel/types#vercelblobuploadoptions" />
+
+Uploads the rendered video from inside the sandbox to Vercel Blob.
+
+This option is only available when [`detached: true`](#detached), and required in that mode because the route that started the render returns before the video exists.
+
+### `detachedSandboxTimeoutInMilliseconds?`<AvailableFrom v="4.0.469" />
+
+Extends the sandbox lifetime before returning from a detached render. Default: `1800000` (30 minutes).
 
 ### `crf?`
 
@@ -222,7 +262,7 @@ const onProgress = async (update: RenderMediaOnVercelProgress) => {
 
 ## Return value
 
-An object containing:
+When [`detached`](#detached) is unset or `false`, an object containing:
 
 ### `sandboxFilePath`
 
@@ -232,8 +272,23 @@ The path to the rendered video inside the sandbox.
 
 The MIME type of the rendered output (e.g. `"video/mp4"`, `"video/webm"`, `"image/gif"`).
 
+When [`detached`](#detached) is `true`, an object containing:
+
+### `sandboxId`
+
+The ID of the sandbox that is rendering the video.
+
+### `cmdId`
+
+The ID of the command that is rendering the video.
+
+### `outputFile`
+
+The path to the rendered video inside the sandbox.
+
 ## See also
 
 - [`renderStillOnVercel()`](/docs/vercel/render-still-on-vercel)
+- [`getRenderProgress()`](/docs/vercel/get-render-progress)
 - [`uploadToVercelBlob()`](/docs/vercel/upload-to-vercel-blob)
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/vercel/src/render-media-on-vercel.ts)

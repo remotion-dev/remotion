@@ -24,7 +24,7 @@ export const headlessOption = {
 	docLink: 'https://www.remotion.dev/docs/chromium-flags#--disable-headless',
 	type: false as boolean,
 	getValue: ({commandLine}) => {
-		if (commandLine[cliFlag] !== undefined) {
+		if (commandLine[cliFlag] !== undefined && commandLine[cliFlag] !== null) {
 			return {
 				source: 'cli',
 				value: !commandLine[cliFlag],

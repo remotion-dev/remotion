@@ -61,6 +61,7 @@ const Home: NextPage = () => {
             controls
             autoPlay
             loop
+            initiallyMuted
           />
         </div>
         <RenderControls

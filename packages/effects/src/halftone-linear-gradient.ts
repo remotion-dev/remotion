@@ -276,6 +276,10 @@ float gradientProgress(vec2 uv) {
 	return clamp(dot(uv - uFirstStopPosition, stopVector) / stopDistance, 0.0, 1.0);
 }
 
+vec4 sourceOver(vec4 backdrop, vec4 overlay) {
+	return overlay + backdrop * (1.0 - overlay.a);
+}
+
 void main() {
 	vec2 fragPos = vUv * uResolution;
 	vec2 center = uResolution * 0.5;
@@ -303,7 +307,8 @@ void main() {
 
 	vec2 sampleUv = clamp(centerUv, vec2(0.0), vec2(1.0));
 	vec4 texColor = texture(uSource, sampleUv);
-	fragColor = (uUseSourceColor ? texColor : uColor) * coverage;
+	vec4 dotColor = (uUseSourceColor ? texColor : uColor) * coverage;
+	fragColor = uUseSourceColor ? dotColor : sourceOver(texColor, dotColor);
 }
 `;
 

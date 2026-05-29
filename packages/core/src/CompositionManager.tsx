@@ -116,6 +116,7 @@ export type TSequence = {
 	premountDisplay: number | null;
 	postmountDisplay: number | null;
 	controls: SequenceControls | null;
+	refForOutline: React.RefObject<HTMLElement | null> | null;
 	effects: readonly EffectDefinition<unknown>[];
 } & EnhancedTSequenceData;
 

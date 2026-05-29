@@ -241,7 +241,7 @@ export const CompositionSelectorItem: React.FC<{
 	}
 
 	return (
-		<ContextMenu values={contextMenu}>
+		<ContextMenu values={contextMenu} onOpen={null}>
 			<Row align="center">
 				<a
 					ref={compositionRowRef}

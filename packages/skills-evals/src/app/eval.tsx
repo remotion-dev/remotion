@@ -111,6 +111,129 @@ const PromptCard = ({prompt}: {prompt: string}) => (
 	</details>
 );
 
+type DiffRow = {
+	content: string;
+	kind: 'added' | 'context' | 'header' | 'removed';
+	prefix: string;
+};
+
+type DiffFile = {
+	header: string;
+	rows: DiffRow[];
+};
+
+const cleanDiffFileName = (fileName: string) =>
+	fileName
+		.replace(/^a\//, '')
+		.replace(/^b\//, '')
+		.replace(/^.*\/(before|after)-skills\//, '');
+
+const getDiffFileHeader = (line: string) => {
+	const match = line.match(/^diff --git a\/(.+?) b\/(.+)$/);
+	return match ? cleanDiffFileName(match[2]) : 'Diff';
+};
+
+const parseSkillDiff = (skillDiff: string): DiffFile[] => {
+	const files: DiffFile[] = [];
+	let current: DiffFile | null = null;
+
+	for (const line of skillDiff.split('\n')) {
+		if (line.startsWith('diff --git ')) {
+			current = {header: getDiffFileHeader(line), rows: []};
+			files.push(current);
+			continue;
+		}
+
+		if (!current) {
+			current = {header: 'Diff', rows: []};
+			files.push(current);
+		}
+
+		if (
+			line.startsWith('index ') ||
+			line.startsWith('--- ') ||
+			line.startsWith('+++ ')
+		) {
+			continue;
+		}
+
+		if (line.startsWith('@@')) {
+			current.rows.push({content: line, kind: 'header', prefix: ' '});
+			continue;
+		}
+
+		if (line.startsWith('+')) {
+			current.rows.push({content: line.slice(1), kind: 'added', prefix: '+'});
+			continue;
+		}
+
+		if (line.startsWith('-')) {
+			current.rows.push({content: line.slice(1), kind: 'removed', prefix: '-'});
+			continue;
+		}
+
+		current.rows.push({
+			content: line.startsWith(' ') ? line.slice(1) : line,
+			kind: 'context',
+			prefix: ' ',
+		});
+	}
+
+	return files.filter((file) => file.rows.length > 0);
+};
+
+const diffRowClassName = (kind: DiffRow['kind']) => {
+	if (kind === 'added') {
+		return 'bg-green-50 text-green-800';
+	}
+
+	if (kind === 'removed') {
+		return 'bg-red-50 text-red-800';
+	}
+
+	if (kind === 'header') {
+		return 'bg-zinc-100 text-zinc-500';
+	}
+
+	return 'text-zinc-700';
+};
+
+const SkillDiffCard = ({skillDiff}: {skillDiff: string}) => {
+	const files = parseSkillDiff(skillDiff);
+
+	return (
+		<details
+			className="min-w-0 rounded-2xl border border-zinc-200 bg-white p-4"
+			open
+		>
+			<summary className="cursor-pointer text-sm font-semibold">
+				Skill diff
+			</summary>
+			<div className="mt-3 max-h-130 max-w-full min-w-0 overflow-auto rounded-xl border border-zinc-200 bg-zinc-50 font-mono text-xs">
+				{files.map((file) => (
+					<section
+						className="border-t border-zinc-200 py-2 first:border-t-0"
+						key={file.header}
+					>
+						<div className="px-3 pb-2 font-semibold text-zinc-800">
+							{file.header}
+						</div>
+						{file.rows.map((row, index) => (
+							<div
+								className={`grid min-w-max grid-cols-[22px_1fr] whitespace-pre px-3 ${diffRowClassName(row.kind)}`}
+								key={`${index}-${row.prefix}-${row.content}`}
+							>
+								<span className="select-none text-zinc-400">{row.prefix}</span>
+								<span>{row.content}</span>
+							</div>
+						))}
+					</section>
+				))}
+			</div>
+		</details>
+	);
+};
+
 const RunCard = ({
 	label,
 	manifest,
@@ -251,10 +374,13 @@ export const renderEval = (
 							renderOptions={renderOptions}
 						/>
 					) : (
-						<ComparisonEvalResult
-							comparisonData={data.comparisonData}
-							renderOptions={renderOptions}
-						/>
+						<>
+							<ComparisonEvalResult
+								comparisonData={data.comparisonData}
+								renderOptions={renderOptions}
+							/>
+							<SkillDiffCard skillDiff={data.comparisonData.skillDiff} />
+						</>
 					)}
 					{prompt ? <PromptCard prompt={prompt} /> : null}
 				</main>

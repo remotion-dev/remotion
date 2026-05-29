@@ -24,7 +24,7 @@ export const EffectsStarburstPreview: React.FC<{
 			effects={[
 				starburst({
 					rays,
-					colors: ['#ffdd00', '#ff8800'],
+					colors: ['#dff4ff', '#7cc6ff'],
 					rotation,
 					smoothness,
 					origin,

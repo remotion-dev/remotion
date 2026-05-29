@@ -21,6 +21,7 @@ import {TimelineList} from './TimelineList';
 import {TimelinePinchZoom} from './TimelinePinchZoom';
 import {TimelinePlayCursorSyncer} from './TimelinePlayCursorSyncer';
 import {TimelineScrollable} from './TimelineScrollable';
+import {TimelineSelectionProvider} from './TimelineSelection';
 import {TimelineSlider} from './TimelineSlider';
 import {
 	TimelineTimeIndicators,
@@ -87,56 +88,58 @@ const TimelineInner: React.FC = () => {
 			style={container}
 			className={'css-reset ' + VERTICAL_SCROLLBAR_CLASSNAME}
 		>
-			{sequences.map((sequence) => {
-				if (!sequence.controls || !previewConnected || !sequence.getStack()) {
-					return null;
-				}
+			<TimelineSelectionProvider>
+				{sequences.map((sequence) => {
+					if (!sequence.controls || !previewConnected || !sequence.getStack()) {
+						return null;
+					}
 
-				return (
-					<SubscribeToNodePaths
-						key={sequence.id}
-						overrideId={sequence.controls.overrideId}
-						schema={sequence.controls.schema}
-						getStack={sequence.getStack}
-						effects={sequence.effects}
-					/>
-				);
-			})}
-			<SequencePropsObserver />
-			<TimelineHeightContainer shown={shown} hasBeenCut={hasBeenCut}>
-				{isStill ? (
-					<TimelineList timeline={shown} />
-				) : (
-					<TimelineWidthProvider>
-						<TimelinePinchZoom />
-						<SplitterContainer
-							orientation="vertical"
-							defaultFlex={0.2}
-							id="names-to-timeline"
-							maxFlex={0.5}
-							minFlex={0.15}
-						>
-							<SplitterElement
-								type="flexer"
-								sticky={<TimelineTimePlaceholders />}
+					return (
+						<SubscribeToNodePaths
+							key={sequence.id}
+							overrideId={sequence.controls.overrideId}
+							schema={sequence.controls.schema}
+							getStack={sequence.getStack}
+							effects={sequence.effects}
+						/>
+					);
+				})}
+				<SequencePropsObserver />
+				<TimelineHeightContainer shown={shown} hasBeenCut={hasBeenCut}>
+					{isStill ? (
+						<TimelineList timeline={shown} />
+					) : (
+						<TimelineWidthProvider>
+							<TimelinePinchZoom />
+							<SplitterContainer
+								orientation="vertical"
+								defaultFlex={0.2}
+								id="names-to-timeline"
+								maxFlex={0.5}
+								minFlex={0.15}
 							>
-								<TimelineList timeline={shown} />
-							</SplitterElement>
-							<SplitterHandle onCollapse={noop} allowToCollapse="none" />
-							<SplitterElement type="anti-flexer" sticky={null}>
-								<TimelineScrollable>
-									<TimelineTracks timeline={shown} hasBeenCut={hasBeenCut} />
-									<TimelineInOutPointer />
-									<TimelinePlayCursorSyncer />
-									<TimelineDragHandler />
-									<TimelineTimeIndicators />
-									<TimelineSlider />
-								</TimelineScrollable>
-							</SplitterElement>
-						</SplitterContainer>
-					</TimelineWidthProvider>
-				)}
-			</TimelineHeightContainer>
+								<SplitterElement
+									type="flexer"
+									sticky={<TimelineTimePlaceholders />}
+								>
+									<TimelineList timeline={shown} />
+								</SplitterElement>
+								<SplitterHandle onCollapse={noop} allowToCollapse="none" />
+								<SplitterElement type="anti-flexer" sticky={null}>
+									<TimelineScrollable>
+										<TimelineTracks timeline={shown} hasBeenCut={hasBeenCut} />
+										<TimelineInOutPointer />
+										<TimelinePlayCursorSyncer />
+										<TimelineDragHandler />
+										<TimelineTimeIndicators />
+										<TimelineSlider />
+									</TimelineScrollable>
+								</SplitterElement>
+							</SplitterContainer>
+						</TimelineWidthProvider>
+					)}
+				</TimelineHeightContainer>
+			</TimelineSelectionProvider>
 		</div>
 	);
 };

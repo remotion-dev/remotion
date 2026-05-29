@@ -4,6 +4,8 @@ import {EffectsBlurPreview} from '../effects/effects-blur-preview';
 import {EffectsBrightnessPreview} from '../effects/effects-brightness-preview';
 import {EffectsChromaticAberrationPreview} from '../effects/effects-chromatic-aberration-preview';
 import {EffectsContrastPreview} from '../effects/effects-contrast-preview';
+import {EffectsDotGridPreview} from '../effects/effects-dot-grid-preview';
+import {EffectsDropShadowPreview} from '../effects/effects-drop-shadow-preview';
 import {EffectsDuotonePreview} from '../effects/effects-duotone-preview';
 import {EffectsGlowPreview} from '../effects/effects-glow-preview';
 import {EffectsGrayscalePreview} from '../effects/effects-grayscale-preview';
@@ -16,6 +18,7 @@ import {EffectsMirrorPreview} from '../effects/effects-mirror-preview';
 import {EffectsNoisePreview} from '../effects/effects-noise-preview';
 import {EffectsSaturationPreview} from '../effects/effects-saturation-preview';
 import {EffectsScalePreview} from '../effects/effects-scale-preview';
+import {EffectsScanlinesPreview} from '../effects/effects-scanlines-preview';
 import {EffectsShinePreview} from '../effects/effects-shine-preview';
 import {EffectsSpecklePreview} from '../effects/effects-speckle-preview';
 import {EffectsStarburstPreview} from '../effects/effects-starburst-preview';
@@ -1550,6 +1553,62 @@ export const effectsDuotoneDemo: DemoType = {
 	],
 };
 
+export const effectsDropShadowDemo: DemoType = {
+	comp: EffectsDropShadowPreview,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 1,
+	fps: 30,
+	id: 'effects-drop-shadow',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			name: 'radius',
+			type: 'numeric',
+			min: 0,
+			max: 100,
+			step: 1,
+			default: 24,
+			optional: 'no',
+		},
+		{
+			name: 'offsetX',
+			type: 'numeric',
+			min: -100,
+			max: 100,
+			step: 1,
+			default: 28,
+			optional: 'no',
+		},
+		{
+			name: 'offsetY',
+			type: 'numeric',
+			min: -100,
+			max: 100,
+			step: 1,
+			default: 28,
+			optional: 'no',
+		},
+		{
+			name: 'opacity',
+			type: 'numeric',
+			min: 0,
+			max: 1,
+			step: 0.01,
+			default: 0.65,
+			optional: 'no',
+		},
+		{
+			name: 'color',
+			type: 'color',
+			default: '#000000',
+			optional: 'no',
+		},
+	],
+};
+
 export const effectsGlowDemo: DemoType = {
 	comp: EffectsGlowPreview,
 	compHeight: 720,
@@ -2000,6 +2059,62 @@ export const effectsNoiseDemo: DemoType = {
 	],
 };
 
+export const effectsScanlinesDemo: DemoType = {
+	comp: EffectsScanlinesPreview,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 1,
+	fps: 30,
+	id: 'effects-scanlines',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			name: 'amount',
+			type: 'numeric',
+			min: 0,
+			max: 1,
+			step: 0.01,
+			default: 0.6,
+			optional: 'no',
+		},
+		{
+			name: 'spacing',
+			type: 'numeric',
+			min: 0.1,
+			max: 40,
+			step: 0.1,
+			default: 8,
+			optional: 'no',
+		},
+		{
+			name: 'thickness',
+			type: 'numeric',
+			min: 0,
+			max: 20,
+			step: 0.1,
+			default: 2,
+			optional: 'no',
+		},
+		{
+			name: 'offset',
+			type: 'numeric',
+			min: -40,
+			max: 40,
+			step: 0.1,
+			default: 0,
+			optional: 'no',
+		},
+		{
+			name: 'premultiply',
+			type: 'boolean',
+			default: false,
+			optional: 'no',
+		},
+	],
+};
+
 export const effectsVignetteDemo: DemoType = {
 	comp: EffectsVignettePreview,
 	compHeight: 720,
@@ -2026,7 +2141,7 @@ export const effectsVignetteDemo: DemoType = {
 			min: 0,
 			max: 1,
 			step: 0.01,
-			default: 0.55,
+			default: 0.68,
 			optional: 'no',
 		},
 		{
@@ -2237,7 +2352,7 @@ export const effectsHalftoneDemo: DemoType = {
 		{
 			name: 'dotColor',
 			type: 'color',
-			default: '#ff0000',
+			default: '#0B84F3',
 			optional: 'no',
 			showIf: {
 				option: 'colorMode',
@@ -2325,6 +2440,44 @@ export const effectsHalftoneLinearGradientDemo: DemoType = {
 				option: 'colorMode',
 				value: 'solid',
 			},
+		},
+	],
+};
+
+export const effectsDotGridDemo: DemoType = {
+	comp: EffectsDotGridPreview,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 1,
+	fps: 30,
+	id: 'effects-dot-grid',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			name: 'dotSize',
+			type: 'numeric',
+			min: 0,
+			max: 80,
+			step: 1,
+			default: 16,
+			optional: 'no',
+		},
+		{
+			name: 'gridSize',
+			type: 'numeric',
+			min: 1,
+			max: 80,
+			step: 1,
+			default: 20,
+			optional: 'no',
+		},
+		{
+			name: 'invert',
+			type: 'boolean',
+			default: false,
+			optional: 'no',
 		},
 	],
 };

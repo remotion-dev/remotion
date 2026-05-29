@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/effects",
-	"version": "4.0.468",
+	"version": "4.0.469",
 	"description": "Effects that can be applied to Remotion-based canvas components",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -57,6 +57,11 @@
 			"module": "./dist/esm/contrast.mjs",
 			"import": "./dist/esm/contrast.mjs"
 		},
+		"./drop-shadow": {
+			"types": "./dist/drop-shadow.d.ts",
+			"module": "./dist/esm/drop-shadow.mjs",
+			"import": "./dist/esm/drop-shadow.mjs"
+		},
 		"./duotone": {
 			"types": "./dist/duotone.d.ts",
 			"module": "./dist/esm/duotone.mjs",
@@ -92,6 +97,11 @@
 			"module": "./dist/esm/invert.mjs",
 			"import": "./dist/esm/invert.mjs"
 		},
+		"./dot-grid": {
+			"types": "./dist/dot-grid.d.ts",
+			"module": "./dist/esm/dot-grid.mjs",
+			"import": "./dist/esm/dot-grid.mjs"
+		},
 		"./mirror": {
 			"types": "./dist/mirror.d.ts",
 			"module": "./dist/esm/mirror.mjs",
@@ -106,6 +116,11 @@
 			"types": "./dist/saturation.d.ts",
 			"module": "./dist/esm/saturation.mjs",
 			"import": "./dist/esm/saturation.mjs"
+		},
+		"./scanlines": {
+			"types": "./dist/scanlines.d.ts",
+			"module": "./dist/esm/scanlines.mjs",
+			"import": "./dist/esm/scanlines.mjs"
 		},
 		"./scale": {
 			"types": "./dist/scale.d.ts",
@@ -161,6 +176,9 @@
 			"contrast": [
 				"dist/contrast.d.ts"
 			],
+			"drop-shadow": [
+				"dist/drop-shadow.d.ts"
+			],
 			"duotone": [
 				"dist/duotone.d.ts"
 			],
@@ -182,6 +200,9 @@
 			"invert": [
 				"dist/invert.d.ts"
 			],
+			"dot-grid": [
+				"dist/dot-grid.d.ts"
+			],
 			"mirror": [
 				"dist/mirror.d.ts"
 			],
@@ -190,6 +211,9 @@
 			],
 			"saturation": [
 				"dist/saturation.d.ts"
+			],
+			"scanlines": [
+				"dist/scanlines.d.ts"
 			],
 			"scale": [
 				"dist/scale.d.ts"
