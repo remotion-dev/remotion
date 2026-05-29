@@ -12,7 +12,7 @@ import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {timelineNodePathInfoToKey} from '../../helpers/timeline-node-path-key';
-import {TimelineKeyframeKeybindings} from './TimelineKeyframeKeybindings';
+import {TimelineDeleteKeybindings} from './TimelineDeleteKeybindings';
 
 export const TIMELINE_SELECTED_BACKGROUND = '#3B3F42';
 export const TIMELINE_SELECTED_LABEL_BACKGROUND = '#B0B0B0';
@@ -54,8 +54,8 @@ export const getTimelineSelectedTrackHighlightStyle = (
 	width: timelineWidth,
 });
 
-export const SELECTION_ENABLED = true;
-export const TIMELINE_TOP_DRAG = true;
+export const SELECTION_ENABLED = false;
+export const TIMELINE_TOP_DRAG = false;
 
 export type TimelineSelection =
 	| {
@@ -197,7 +197,7 @@ export const TimelineSelectionProvider: React.FC<{
 	return (
 		<TimelineSelectionContext.Provider value={value}>
 			{children}
-			<TimelineKeyframeKeybindings />
+			<TimelineDeleteKeybindings />
 		</TimelineSelectionContext.Provider>
 	);
 };

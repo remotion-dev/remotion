@@ -56,7 +56,7 @@ export const TimelineInOutPointer: React.FC = () => {
 							timelineWidth -
 							getXPositionOfItemInTimelineImperatively(
 								outFrame,
-								videoConfig.durationInFrames,
+								videoConfig.durationInFrames + 1, // last frame also has width of 1 frame
 								timelineWidth,
 							),
 					}}

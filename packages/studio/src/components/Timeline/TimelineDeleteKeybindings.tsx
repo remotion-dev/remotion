@@ -3,10 +3,10 @@ import {useContext, useEffect} from 'react';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {useKeybinding} from '../../helpers/use-keybinding';
-import {deleteSelectedKeyframe} from './delete-selected-keyframe';
+import {deleteSelectedTimelineItem} from './delete-selected-timeline-item';
 import {useTimelineSelection} from './TimelineSelection';
 
-export const TimelineKeyframeKeybindings: React.FC = () => {
+export const TimelineDeleteKeybindings: React.FC = () => {
 	const keybindings = useKeybinding();
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {sequences} = useContext(Internals.SequenceManager);
@@ -20,7 +20,7 @@ export const TimelineKeyframeKeybindings: React.FC = () => {
 		if (
 			!canSelect ||
 			previewServerState.type !== 'connected' ||
-			selectedItem?.type !== 'keyframe'
+			!selectedItem
 		) {
 			return;
 		}
@@ -31,9 +31,8 @@ export const TimelineKeyframeKeybindings: React.FC = () => {
 			event: 'keydown',
 			key: 'Backspace',
 			callback: () => {
-				const deletePromise = deleteSelectedKeyframe({
-					nodePathInfo: currentSelection.nodePathInfo,
-					frame: currentSelection.frame,
+				const deletePromise = deleteSelectedTimelineItem({
+					selection: currentSelection,
 					sequences,
 					overrideIdsToNodePaths: overrideIdToNodePathMappings,
 					setCodeValues,

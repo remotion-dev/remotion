@@ -131,9 +131,9 @@ const TimelineInner: React.FC = () => {
 										<TimelineTracks timeline={shown} hasBeenCut={hasBeenCut} />
 										<TimelinePlayCursorSyncer />
 										<TimelineInOutPointer />
-										<TimelineInOutDragHandler />
 										<TimelineTimeIndicators />
 										<TimelineDragHandler />
+										<TimelineInOutDragHandler />
 										<TimelineSlider />
 									</TimelineScrollable>
 								</SplitterElement>
