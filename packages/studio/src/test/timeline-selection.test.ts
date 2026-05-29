@@ -8,6 +8,6 @@ test('Timeline selection should stay disabled until released publicly', () => {
 	expect(SELECTION_ENABLED).toBe(false);
 });
 
-test('Timeline top drag should be enabled', () => {
+test('Timeline top drag should not be enabled', () => {
 	expect(TIMELINE_TOP_DRAG).toBe(false);
 });
