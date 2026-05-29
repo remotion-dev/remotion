@@ -1890,6 +1890,15 @@ export const articles = [
 		slug: 'effects/scale',
 	},
 	{
+		id: 'effects/scanlines',
+		title: 'scanlines()',
+		relativePath: 'docs/effects/scanlines.mdx',
+		compId: 'articles-docs-effects-scanlines',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/scanlines',
+	},
+	{
 		id: 'effects/shine',
 		title: 'shine()',
 		relativePath: 'docs/effects/shine.mdx',

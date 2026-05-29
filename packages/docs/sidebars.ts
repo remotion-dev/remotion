@@ -286,6 +286,7 @@ const sidebars: SidebarsConfig = {
 				'effects/noise',
 				'effects/saturation',
 				'effects/scale',
+				'effects/scanlines',
 				'effects/shine',
 				'effects/speckle',
 				'effects/tint',
