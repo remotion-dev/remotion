@@ -1,7 +1,10 @@
 import {createContext} from 'react';
-import type {SequenceNodePath} from './SequenceManager';
+import type {SequencePropsSubscriptionKey} from './SequenceManager';
 
-export type OverrideIdToNodePaths = Record<string, SequenceNodePath>;
+export type OverrideIdToNodePaths = Record<
+	string,
+	SequencePropsSubscriptionKey
+>;
 
 export type OverrideToNodePathGetters = {
 	overrideIdToNodePathMappings: OverrideIdToNodePaths;
@@ -10,7 +13,7 @@ export type OverrideToNodePathGetters = {
 export type OverrideToNodeSetters = {
 	setOverrideIdToNodePath: (
 		overrideId: string,
-		nodePath: SequenceNodePath,
+		nodePath: SequencePropsSubscriptionKey,
 	) => void;
 };
 

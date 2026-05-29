@@ -179,6 +179,7 @@ export const addVideoRenderJob = ({
 	codec,
 	concurrency,
 	crf,
+	gopSize,
 	startFrame,
 	endFrame,
 	muted,
@@ -221,6 +222,7 @@ export const addVideoRenderJob = ({
 	codec: Codec;
 	concurrency: number;
 	crf: number | null;
+	gopSize: number | null;
 	startFrame: number;
 	endFrame: number;
 	muted: boolean;
@@ -265,6 +267,7 @@ export const addVideoRenderJob = ({
 		codec,
 		concurrency,
 		crf,
+		gopSize,
 		endFrame,
 		startFrame,
 		muted,
@@ -339,15 +342,18 @@ export const openInFileExplorer = ({directory}: {directory: string}) => {
 export const applyCodemod = ({
 	codemod,
 	dryRun,
+	symbolicatedStack,
 	signal,
 }: {
 	codemod: RecastCodemod;
 	dryRun: boolean;
+	symbolicatedStack: ApplyCodemodRequest['symbolicatedStack'];
 	signal: AbortController['signal'];
 }) => {
 	const body: ApplyCodemodRequest = {
 		codemod,
 		dryRun,
+		symbolicatedStack,
 	};
 	return callApi('/api/apply-codemod', body, signal);
 };

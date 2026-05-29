@@ -12,7 +12,6 @@ import type {
 	TRenderAsset,
 } from './CompositionManager.js';
 import type {DelayRenderScope} from './delay-render.js';
-import {Solid} from './effects/Solid.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import type {StaticFile} from './get-static-files.js';
 import {useIsPlayer} from './is-player.js';
@@ -135,10 +134,18 @@ export type {
 	EffectDefinitionAndStack,
 	EffectDescriptor,
 	EffectsProp,
+	EffectDefinition,
+	EffectFactory,
 } from './effects/index.js';
+/**
+ * @description Renders a solid-color rectangle on a `<canvas>`.
+ * @see [Documentation](https://www.remotion.dev/docs/solid)
+ */
+export {Solid} from './effects/Solid.js';
 export type {SolidProps} from './effects/Solid.js';
 export {
 	HtmlInCanvas,
+	HTML_IN_CANVAS_UNSUPPORTED_MESSAGE,
 	isHtmlInCanvasSupported,
 	type HtmlInCanvasOnInit,
 	type HtmlInCanvasOnInitCleanup,
@@ -153,6 +160,12 @@ export {Artifact} from './Artifact.js';
 export {Audio, Html5Audio, RemotionAudioProps} from './audio/index.js';
 export type {LoopVolumeCurveBehavior} from './audio/use-audio-frame.js';
 export {cancelRender} from './cancel-render.js';
+/**
+ * @description Renders a static image to a `<canvas>` and applies Remotion effects.
+ * @see [Documentation](https://www.remotion.dev/docs/canvasimage)
+ */
+export {CanvasImage} from './canvas-image/index.js';
+export type {CanvasImageProps} from './canvas-image/index.js';
 export type {Codec} from './codec.js';
 export {
 	CalculateMetadataFunction,
@@ -178,6 +191,7 @@ export {interpolateColors} from './interpolate-colors.js';
 export {LogLevel} from './log.js';
 export {Loop} from './loop/index.js';
 export {
+	assertValidInterpolateEasingOption,
 	EasingFunction,
 	ExtrapolateType,
 	interpolate,
@@ -239,7 +253,6 @@ export const Experimental = {
 	 * @see [Documentation](https://www.remotion.dev/docs/null)
 	 */
 	Null,
-	Solid,
 	useIsPlayer,
 };
 

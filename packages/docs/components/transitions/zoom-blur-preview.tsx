@@ -1,40 +1,54 @@
-import React from 'react';
 import {linearTiming, TransitionSeries} from '@remotion/transitions';
 import {zoomBlur} from '@remotion/transitions/zoom-blur';
-import {AbsoluteFill} from 'remotion';
+import React from 'react';
+import {AbsoluteFill, Img} from 'remotion';
+
+const sceneStyle: React.CSSProperties = {
+	justifyContent: 'center',
+	alignItems: 'center',
+	fontFamily: 'sans-serif',
+	fontWeight: 900,
+	color: 'white',
+	fontSize: '40cqmin',
+};
+
+const backgroundImageStyle: React.CSSProperties = {
+	position: 'absolute',
+	inset: 0,
+	width: '100%',
+	height: '100%',
+	objectFit: 'cover',
+};
+
+const letterStyle: React.CSSProperties = {
+	position: 'relative',
+	textShadow: '0 4px 30px rgba(0, 0, 0, 0.55)',
+};
 
 const SceneA: React.FC = () => {
 	return (
-		<AbsoluteFill
-			style={{
-				justifyContent: 'center',
-				alignItems: 'center',
-				backgroundColor: '#0b84f3',
-				fontFamily: 'sans-serif',
-				fontWeight: 900,
-				color: 'white',
-				fontSize: '40cqmin',
-			}}
-		>
-			A
+		<AbsoluteFill style={sceneStyle}>
+			<Img
+				crossOrigin="anonymous"
+				src="https://remotion.media/transition-bg-blue.jpg"
+				style={backgroundImageStyle}
+				alt=""
+			/>
+			<div style={letterStyle}>A</div>
 		</AbsoluteFill>
 	);
 };
 
 const SceneB: React.FC = () => {
 	return (
-		<AbsoluteFill
-			style={{
-				justifyContent: 'center',
-				alignItems: 'center',
-				backgroundColor: 'pink',
-				fontFamily: 'sans-serif',
-				fontWeight: 900,
-				color: 'white',
-				fontSize: '40cqmin',
-			}}
-		>
-			B
+		<AbsoluteFill style={sceneStyle}>
+			<Img
+				crossOrigin="anonymous"
+				src="https://remotion.media/transition-bg-pink.jpg"
+				style={backgroundImageStyle}
+				alt=""
+			/>
+			<div style={letterStyle}>B</div>
 		</AbsoluteFill>
 	);
 };

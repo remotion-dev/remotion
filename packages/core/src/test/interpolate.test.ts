@@ -29,10 +29,29 @@ test('Must be the same length', () => {
 	}, /inputRange \(2\) and outputRange \(3\) must have the same length/);
 });
 
-test('Must pass at least 2 elements for input range', () => {
+test('Must pass at least 1 element for input range', () => {
 	expectToThrow(() => {
-		interpolate(1, [0], [9]);
-	}, /inputRange must have at least 2 elements/);
+		interpolate(1, [], []);
+	}, /inputRange must have at least 1 element/);
+});
+
+test('Can interpolate a single keyframe', () => {
+	expect(interpolate(-10, [20], [9])).toBe(9);
+	expect(interpolate(20, [20], [9])).toBe(9);
+	expect(interpolate(30, [20], [9])).toBe(9);
+	expect(
+		interpolate(30, [20], [9], {
+			extrapolateRight: 'identity',
+		}),
+	).toBe(9);
+});
+
+test('Easing array with one keyframe accepts no entries', () => {
+	expect(
+		interpolate(0.5, [0], [1], {
+			easing: [],
+		}),
+	).toBe(1);
 });
 
 test('Input range must be strictly monotonically non-decreasing', () => {
@@ -99,6 +118,70 @@ test('Easing test', () => {
 			easing: Easing.sin,
 		}),
 	).toEqual(1 - Math.cos((0.5 * Math.PI) / 2));
+});
+
+test('Easing array: one easing per segment between keyframes', () => {
+	const linear = (t: number) => t;
+	const quad = (t: number) => t * t;
+	// Midpoint of second segment [10, 20]: normalized t = 0.5, quad -> 0.25
+	expect(
+		interpolate(15, [0, 10, 20], [0, 10, 20], {
+			easing: [linear, quad],
+		}),
+	).toEqual(12.5);
+});
+
+test('Easing array: first segment easing only affects first segment', () => {
+	const linear = (t: number) => t;
+	const quad = (t: number) => t * t;
+	expect(
+		interpolate(5, [0, 10, 20], [0, 10, 20], {
+			easing: [quad, linear],
+		}),
+	).toEqual(2.5);
+});
+
+test('Easing array: same as single easing when all segments use the same function', () => {
+	const single = interpolate(15, [0, 10, 20], [0, 100, 200], {
+		easing: Easing.linear,
+	});
+	const arrayed = interpolate(15, [0, 10, 20], [0, 100, 200], {
+		easing: [Easing.linear, Easing.linear],
+	});
+	expect(arrayed).toEqual(single);
+});
+
+test('Easing array must have length inputRange.length - 1', () => {
+	expectToThrow(() => {
+		interpolate(1, [0, 10, 20], [0, 1, 2], {
+			easing: [Easing.linear],
+		});
+	}, /When easing is an array, it must have one entry per segment between keyframes \(length inputRange.length - 1 = 2\), but got length 1/);
+});
+
+test('Easing array entries must be functions', () => {
+	expectToThrow(() => {
+		interpolate(5, [0, 10, 20], [0, 10, 20], {
+			// @ts-expect-error
+			easing: [Easing.linear, 'not-a-fn'],
+		});
+	}, /easing\[1\] must be a function/);
+});
+
+test('Easing array with two keyframes uses a single easing entry', () => {
+	expect(
+		interpolate(0.5, [0, 1], [0, 1], {
+			easing: [Easing.sin],
+		}),
+	).toEqual(1 - Math.cos((0.5 * Math.PI) / 2));
+});
+
+test('Easing array with two keyframes rejects more than one entry', () => {
+	expectToThrow(() => {
+		interpolate(0.5, [0, 1], [0, 1], {
+			easing: [Easing.linear, Easing.linear],
+		});
+	}, /When easing is an array, it must have one entry per segment between keyframes \(length inputRange.length - 1 = 1\), but got length 2/);
 });
 
 test('Easing.circle with default extrapolate extend clamps normalized input', () => {

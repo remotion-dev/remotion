@@ -4,14 +4,15 @@ export type {
 	InlineAudioAsset,
 	TRenderAsset,
 } from './CompositionManager';
-export {DownloadBehavior} from './download-behavior';
-export {
+export type {DownloadBehavior} from './download-behavior';
+export {assertValidInterpolateEasingOption, interpolate} from './interpolate';
+export type {
 	EasingFunction,
 	ExtrapolateType,
-	interpolate,
 	InterpolateOptions,
 } from './interpolate';
-export {random, RandomSeed} from './random.js';
+export {random} from './random.js';
+export type {RandomSeed} from './random.js';
 export type {VideoConfig} from './video-config';
 
 import {
@@ -28,6 +29,7 @@ import {
 import {DATE_TOKEN, FILE_TOKEN} from './input-props-serialization.js';
 import {colorNames, processColor} from './interpolate-colors';
 import {proResProfileOptions} from './prores-profile';
+import {sequenceSchema} from './sequence-field-schema';
 import {truthy} from './truthy';
 import {ENABLE_V5_BREAKING_CHANGES} from './v5-flag';
 import {validateFrame} from './validate-frame';
@@ -66,4 +68,5 @@ export const NoReactInternals = {
 	validateCodec,
 	proResProfileOptions,
 	findPropsToDelete,
+	sequenceSchema,
 };

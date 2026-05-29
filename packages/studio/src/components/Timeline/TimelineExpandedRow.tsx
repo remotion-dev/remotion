@@ -1,37 +1,34 @@
-import React, {useMemo} from 'react';
-import type {SequenceSchema, SequenceNodePath} from 'remotion';
+import React from 'react';
+import type {SequencePropsSubscriptionKey, SequenceSchema} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import type {TimelineTreeNode} from '../../helpers/timeline-layout';
 import {
-	EXPANDED_SECTION_PADDING_LEFT,
 	EXPANDED_SECTION_PADDING_RIGHT,
 	getTreeRowHeight,
 	TREE_GROUP_ROW_HEIGHT,
 } from '../../helpers/timeline-layout';
 import type {GetIsExpanded} from '../ExpandedTracksProvider';
-import {Padder} from './Padder';
-import {TimelineExpandArrowButton} from './TimelineExpandArrowButton';
+import {getExpandedRowDepth} from './timeline-row-layout';
+import {TimelineEffectFieldRow} from './TimelineEffectFieldRow';
+import {TimelineEffectGroupRow} from './TimelineEffectGroupRow';
+import {
+	TimelineExpandArrowButton,
+	TimelineExpandArrowSpacer,
+} from './TimelineExpandArrowButton';
 import {TimelineFieldRow} from './TimelineFieldRow';
-import {INDENT} from './TimelineListItem';
-
-const groupRowBase: React.CSSProperties = {
-	height: TREE_GROUP_ROW_HEIGHT,
-	display: 'flex',
-	alignItems: 'center',
-	paddingRight: EXPANDED_SECTION_PADDING_RIGHT,
-};
+import {TimelineLayerEyeSpacer} from './TimelineLayerEye';
+import {TimelineRowChrome} from './TimelineRowChrome';
+import {
+	getTimelineColor,
+	getTimelineSelectedLabelStyle,
+	useTimelineRowSelection,
+} from './TimelineSelection';
 
 const rowLabel: React.CSSProperties = {
 	fontSize: 12,
 	color: 'rgba(255, 255, 255, 0.8)',
 	userSelect: 'none',
-};
-
-const labelOnlyRowBase: React.CSSProperties = {
-	display: 'flex',
-	alignItems: 'center',
-	paddingRight: EXPANDED_SECTION_PADDING_RIGHT,
 };
 
 export const TimelineExpandedRow: React.FC<{
@@ -40,8 +37,8 @@ export const TimelineExpandedRow: React.FC<{
 	readonly nestedDepth: number;
 	readonly getIsExpanded: GetIsExpanded;
 	readonly toggleTrack: (nodePathInfo: SequenceNodePathInfo) => void;
-	readonly validatedLocation: CodePosition | null;
-	readonly nodePath: SequenceNodePath;
+	readonly validatedLocation: CodePosition;
+	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly schema: SequenceSchema;
 }> = ({
 	node,
@@ -53,55 +50,117 @@ export const TimelineExpandedRow: React.FC<{
 	nodePath,
 	schema,
 }) => {
-	const paddingLeft = EXPANDED_SECTION_PADDING_LEFT + depth * INDENT;
-
-	const groupStyle = useMemo(
-		(): React.CSSProperties => ({...groupRowBase, paddingLeft}),
-		[paddingLeft],
-	);
-
-	const labelOnlyStyle = useMemo(
+	const rowDepth = getExpandedRowDepth({nestedDepth, treeDepth: depth});
+	const selection = useTimelineRowSelection(node.nodePathInfo);
+	const labelStyle = React.useMemo(
 		(): React.CSSProperties => ({
-			...labelOnlyRowBase,
-			height: getTreeRowHeight(node),
-			paddingLeft,
+			...rowLabel,
+			...getTimelineSelectedLabelStyle(selection.selected, true),
+			alignSelf: 'stretch',
+			alignItems: 'center',
+			color: getTimelineColor(selection.selected, true),
+			display: 'flex',
+			flex: 1,
+			minWidth: 0,
+			paddingRight: EXPANDED_SECTION_PADDING_RIGHT,
 		}),
-		[node, paddingLeft],
+		[selection.selected],
 	);
 
 	if (node.kind === 'group') {
+		if (node.effectInfo) {
+			return (
+				<TimelineEffectGroupRow
+					label={node.label}
+					nodePathInfo={node.nodePathInfo}
+					effectIndex={node.effectInfo.effectIndex}
+					effectSchema={node.effectInfo.effectSchema}
+					documentationLink={node.effectInfo.documentationLink}
+					nodePath={nodePath}
+					validatedLocation={validatedLocation}
+					rowDepth={rowDepth}
+					getIsExpanded={getIsExpanded}
+					toggleTrack={toggleTrack}
+				/>
+			);
+		}
+
+		// Group like "Effects"
 		const isExpanded = getIsExpanded(node.nodePathInfo);
 		return (
-			<div style={groupStyle}>
-				<Padder depth={nestedDepth + 1} />
-				<TimelineExpandArrowButton
-					isExpanded={isExpanded}
-					onClick={() => toggleTrack(node.nodePathInfo)}
-					label={`${node.label} section`}
-					disabled={false}
-				/>
-				<span style={rowLabel}>{node.label}</span>
-			</div>
+			<TimelineRowChrome
+				depth={rowDepth}
+				eye={<TimelineLayerEyeSpacer />}
+				arrow={
+					<TimelineExpandArrowButton
+						isExpanded={isExpanded}
+						onClick={() => toggleTrack(node.nodePathInfo)}
+						label={`${node.label} section`}
+						disabled={false}
+					/>
+				}
+				style={{
+					height: TREE_GROUP_ROW_HEIGHT,
+				}}
+				selected={selection.selected}
+				selectable={selection.selectable}
+				onSelect={selection.onSelect}
+				showSelectedBackground
+				containsSelection={false}
+				outerHeight={null}
+			>
+				<span style={labelStyle}>{node.label}</span>
+			</TimelineRowChrome>
 		);
 	}
 
 	if (node.field) {
-		return (
-			<TimelineFieldRow
-				field={node.field}
-				validatedLocation={validatedLocation}
-				paddingLeft={paddingLeft}
-				nestedDepth={nestedDepth}
-				nodePath={nodePath}
-				schema={schema}
-			/>
+		if (node.field.kind === 'effect-field') {
+			return (
+				<TimelineEffectFieldRow
+					field={node.field}
+					validatedLocation={validatedLocation}
+					rowDepth={rowDepth}
+					nodePath={nodePath}
+					nodePathInfo={node.nodePathInfo}
+				/>
+			);
+		}
+
+		if (node.field.kind === 'sequence-field') {
+			return (
+				<TimelineFieldRow
+					field={node.field}
+					validatedLocation={validatedLocation}
+					rowDepth={rowDepth}
+					nodePath={nodePath}
+					nodePathInfo={node.nodePathInfo}
+					schema={schema}
+				/>
+			);
+		}
+
+		throw new Error(
+			'Unexpected field kind: ' + JSON.stringify(node.field satisfies never),
 		);
 	}
 
 	return (
-		<div style={labelOnlyStyle}>
-			<Padder depth={nestedDepth + 1} />
-			<span style={rowLabel}>{node.label}</span>
-		</div>
+		<TimelineRowChrome
+			depth={rowDepth}
+			eye={<TimelineLayerEyeSpacer />}
+			arrow={<TimelineExpandArrowSpacer />}
+			style={{
+				height: getTreeRowHeight(node),
+			}}
+			selected={selection.selected}
+			selectable={selection.selectable}
+			onSelect={selection.onSelect}
+			showSelectedBackground
+			containsSelection={false}
+			outerHeight={null}
+		>
+			<span style={labelStyle}>{node.label}</span>
+		</TimelineRowChrome>
 	);
 };

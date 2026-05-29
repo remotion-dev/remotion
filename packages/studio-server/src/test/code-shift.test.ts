@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {updateSequenceProps} from '../codemods/update-sequence-props/update-sequence-props';
 import {lineColumnToNodePath} from './test-utils';
 
@@ -22,7 +22,7 @@ test('Should add style.scale to a Video component and format with prettier', asy
 			bracketSpacing: false,
 			useTabs: true,
 		},
-		schema: Internals.sequenceSchema,
+		schema: NoReactInternals.sequenceSchema,
 	});
 	const oldValueString = oldValueStrings[0];
 

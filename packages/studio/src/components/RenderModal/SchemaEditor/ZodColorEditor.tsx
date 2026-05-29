@@ -1,13 +1,7 @@
 import React, {useCallback, useMemo} from 'react';
-import {colorWithNewOpacity} from '../../../helpers/color-math';
-import {
-	useZodIfPossible,
-	useZodTypesIfPossible,
-} from '../../get-zod-if-possible';
+import {ColorPicker} from '../../ColorPicker/ColorPicker';
 import {Row, Spacing} from '../../layout';
-import {InputDragger} from '../../NewComposition/InputDragger';
 import {RemotionInput} from '../../NewComposition/RemInput';
-import {RemInputTypeColor} from '../../NewComposition/RemInputTypeColor';
 import {Fieldset} from './Fieldset';
 import {SchemaLabel} from './SchemaLabel';
 import {zodSafeParse, type AnyZodSchema} from './zod-schema-type';
@@ -27,41 +21,24 @@ export const ZodColorEditor: React.FC<{
 	readonly onRemove: null | (() => void);
 	readonly mayPad: boolean;
 }> = ({jsonPath, value, setValue, schema, onRemove, mayPad}) => {
-	const z = useZodIfPossible();
-	if (!z) {
-		throw new Error('expected zod');
-	}
-
-	const zodTypes = useZodTypesIfPossible();
-	if (!zodTypes) {
-		throw new Error('expected zod color');
-	}
-
 	const localValue = useMemo(
 		() => zodSafeParse(schema, value),
 		[schema, value],
 	);
 
-	const {a, b, g, r} = localValue.success
-		? zodTypes.ZodZypesInternals.parseColor(value)
-		: {a: 1, b: 0, g: 0, r: 0};
-
-	const onChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
-		(e) => {
-			const newColor = colorWithNewOpacity(
-				e.target.value,
-				Math.round(a),
-				zodTypes,
-			);
-			setValue(() => newColor, {shouldSave: false});
+	const onPickerChange = useCallback(
+		(next: string) => {
+			setValue(() => next, {shouldSave: false});
 		},
-		[a, setValue, zodTypes],
+		[setValue],
 	);
 
-	const onColorBlur: React.FocusEventHandler<HTMLInputElement> =
-		useCallback(() => {
-			setValue(() => value, {shouldSave: true});
-		}, [setValue, value]);
+	const onPickerComplete = useCallback(
+		(next: string) => {
+			setValue(() => next, {shouldSave: true});
+		},
+		[setValue],
+	);
 
 	const onTextChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
@@ -76,55 +53,7 @@ export const ZodColorEditor: React.FC<{
 			setValue(() => value, {shouldSave: true});
 		}, [setValue, value]);
 
-	const rgb = `#${r.toString(16).padStart(2, '0')}${g
-		.toString(16)
-		.padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
-
 	const status = localValue.success ? 'ok' : 'error';
-
-	const colorPicker: React.CSSProperties = useMemo(() => {
-		return {
-			height: 39,
-			width: 45,
-			display: 'inline-block',
-		};
-	}, []);
-
-	const onOpacityChange = useCallback(
-		(newValue: string) => {
-			const newColor = colorWithNewOpacity(
-				value,
-				Math.round((Number(newValue) / 100) * 255),
-				zodTypes,
-			);
-			setValue(() => newColor, {shouldSave: true});
-		},
-		[setValue, value, zodTypes],
-	);
-
-	const onOpacityValueChange = useCallback(
-		(newValue: number) => {
-			const newColor = colorWithNewOpacity(
-				value,
-				Math.round((Number(newValue) / 100) * 255),
-				zodTypes,
-			);
-			setValue(() => newColor, {shouldSave: false});
-		},
-		[setValue, value, zodTypes],
-	);
-
-	const onOpacityValueChangeEnd = useCallback(
-		(newValue: number) => {
-			const newColor = colorWithNewOpacity(
-				value,
-				Math.round((Number(newValue) / 100) * 255),
-				zodTypes,
-			);
-			setValue(() => newColor, {shouldSave: true});
-		},
-		[setValue, value, zodTypes],
-	);
 
 	return (
 		<Fieldset shouldPad={mayPad}>
@@ -137,20 +66,15 @@ export const ZodColorEditor: React.FC<{
 			/>
 			<div style={fullWidth}>
 				<Row align="center">
-					<div style={colorPicker}>
-						<RemInputTypeColor
-							type="color"
-							style={{
-								height: 39,
-							}}
-							value={rgb}
-							onChange={onChange}
-							onBlur={onColorBlur}
-							className="__remotion_color_picker"
-							status={status}
-							name={jsonPath.join('.')}
-						/>
-					</div>
+					<ColorPicker
+						value={value}
+						status={status}
+						onChange={onPickerChange}
+						onChangeComplete={onPickerComplete}
+						width={45}
+						height={39}
+						name={jsonPath.join('.')}
+					/>
 					<Spacing x={1} block />
 					<RemotionInput
 						value={value}
@@ -158,19 +82,6 @@ export const ZodColorEditor: React.FC<{
 						placeholder={jsonPath.join('.')}
 						onChange={onTextChange}
 						onBlur={onTextBlur}
-						rightAlign={false}
-					/>
-					<Spacing x={1} />
-					<InputDragger
-						onTextChange={onOpacityChange}
-						onValueChange={onOpacityValueChange}
-						onValueChangeEnd={onOpacityValueChangeEnd}
-						status={status}
-						value={(a / 255) * 100}
-						min={0}
-						max={100}
-						step={1}
-						formatter={(v) => `${Math.round(Number(v))}%`}
 						rightAlign={false}
 					/>
 				</Row>

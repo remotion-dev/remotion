@@ -3,6 +3,11 @@ import {Thumbnail} from '@remotion/player';
 import type React from 'react';
 import {renderToString} from 'react-dom/server';
 import {useCurrentFrame} from 'remotion';
+import {bookFlip} from '../presentations/book-flip';
+import {crossZoom} from '../presentations/cross-zoom';
+import {dreamyZoom} from '../presentations/dreamy-zoom';
+import {filmBurn} from '../presentations/film-burn';
+import {linearBlur} from '../presentations/linear-blur';
 
 const Comp: React.FC<{}> = () => {
 	const frame = useCurrentFrame();
@@ -24,4 +29,34 @@ test('should work', () => {
 	);
 
 	expect(readStream).toContain('<div>We are on frame 10</div>');
+});
+
+test('bookFlip() should return a presentation', () => {
+	const presentation = bookFlip({direction: 'from-top'});
+	expect(presentation.props).toEqual({direction: 'from-top'});
+	expect(typeof presentation.component).toBe('function');
+});
+
+test('linearBlur() should return a presentation', () => {
+	const presentation = linearBlur({intensity: 0.2});
+	expect(presentation.props).toEqual({intensity: 0.2});
+	expect(typeof presentation.component).toBe('function');
+});
+
+test('dreamyZoom() should return a presentation', () => {
+	const presentation = dreamyZoom({rotation: 8, scale: 1.4});
+	expect(presentation.props).toEqual({rotation: 8, scale: 1.4});
+	expect(typeof presentation.component).toBe('function');
+});
+
+test('crossZoom() should return a presentation', () => {
+	const presentation = crossZoom({strength: 0.8});
+	expect(presentation.props).toEqual({strength: 0.8});
+	expect(typeof presentation.component).toBe('function');
+});
+
+test('filmBurn() should return a presentation', () => {
+	const presentation = filmBurn({seed: 3.14});
+	expect(presentation.props).toEqual({seed: 3.14});
+	expect(typeof presentation.component).toBe('function');
 });

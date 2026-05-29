@@ -85,7 +85,7 @@ export const TimelineRotationField: React.FC<{
 					const newStr = `${parsed}deg`;
 					if (newStr !== propStatus.codeValue) {
 						setDragValue(parsed);
-						onSave(newStr).catch(() => {
+						onSave(newStr).finally(() => {
 							setDragValue(null);
 						});
 					}

@@ -1,5 +1,6 @@
 import {forwardRef, useEffect, useRef, useState} from 'react';
 import {Internals, useDelayRender} from 'remotion';
+import type {EffectDefinitionAndStack} from 'remotion';
 import {Canvas} from './canvas';
 import {volatileGifCache} from './gif-cache';
 import {isCorsError} from './is-cors-error';
@@ -9,7 +10,12 @@ import {getGifCacheKey} from './request-init';
 import {resolveGifSource} from './resolve-gif-source';
 import {useCurrentGifIndex} from './useCurrentGifIndex';
 
-export const GifForRendering = forwardRef<HTMLCanvasElement, RemotionGifProps>(
+export const GifForRendering = forwardRef<
+	HTMLCanvasElement,
+	RemotionGifProps & {
+		readonly effects: EffectDefinitionAndStack<unknown>[];
+	}
+>(
 	(
 		{
 			src,
@@ -22,6 +28,7 @@ export const GifForRendering = forwardRef<HTMLCanvasElement, RemotionGifProps>(
 			fit = 'fill',
 			delayRenderTimeoutInMilliseconds,
 			requestInit,
+			effects,
 			...props
 		},
 		ref,
@@ -162,6 +169,7 @@ export const GifForRendering = forwardRef<HTMLCanvasElement, RemotionGifProps>(
 				frames={state.frames}
 				width={width}
 				height={height}
+				effects={effects}
 				{...props}
 				ref={ref}
 			/>

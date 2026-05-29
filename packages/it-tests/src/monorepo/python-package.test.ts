@@ -106,6 +106,7 @@ test('Python package should create the same renderMedia payload as normal Lambda
 				},
 			},
 			x264Preset: null,
+			gopSize: null,
 			preferLossless: false,
 			indent: false,
 			forcePathStyle: false,

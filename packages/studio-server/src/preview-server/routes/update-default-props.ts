@@ -69,7 +69,7 @@ export const updateDefaultPropsHandler: ApiHandler<
 		});
 		suppressUndoStackInvalidation(projectInfo.rootFile);
 		suppressBundlerUpdateForFile(projectInfo.rootFile);
-		writeFileAndNotifyFileWatchers(projectInfo.rootFile, output);
+		writeFileAndNotifyFileWatchers(projectInfo.rootFile, output, undefined);
 
 		const locationLabel = formatLogFileLocation({
 			remotionRoot,

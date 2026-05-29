@@ -1,9 +1,9 @@
+import {bundle} from '@remotion/bundler';
+import {getCompositions, renderStill} from '@remotion/renderer';
 import {execSync} from 'child_process';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import {bundle} from '@remotion/bundler';
-import {getCompositions, renderStill} from '@remotion/renderer';
 import {readDir} from './get-pages.mjs';
 
 const data: {
@@ -190,6 +190,9 @@ for (const composition of compositions.filter(
 			composition,
 			output,
 			serveUrl,
+			chromiumOptions: {
+				gl: 'angle',
+			},
 		});
 		console.log('Rendered', composition.id);
 	}
@@ -209,6 +212,9 @@ for (const entry of data) {
 		composition,
 		output,
 		serveUrl,
+		chromiumOptions: {
+			gl: 'angle',
+		},
 	});
 	console.log('Rendered', composition.id);
 

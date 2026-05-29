@@ -1,13 +1,13 @@
 import React, {useCallback, useContext, useMemo} from 'react';
 import type {TSequence} from 'remotion';
 import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
-import {TIMELINE_TRACK_SEPARATOR} from '../../helpers/colors';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	getTimelineLayerHeight,
 	TIMELINE_ITEM_BORDER_BOTTOM,
-	TIMELINE_LAYER_HEIGHT_AUDIO,
+	TIMELINE_LIST_ITEM_ROW_HEIGHT,
 } from '../../helpers/timeline-layout';
 import {callApi} from '../call-api';
 import {ContextMenu} from '../ContextMenu';
@@ -17,34 +17,56 @@ import {
 } from '../ExpandedTracksProvider';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {showNotification} from '../Notifications/NotificationCenter';
-import {Padder} from './Padder';
+import {saveSequenceProp} from './save-sequence-prop';
 import {
 	TimelineExpandArrowButton,
 	TimelineExpandArrowSpacer,
 } from './TimelineExpandArrowButton';
 import {TimelineExpandedSection} from './TimelineExpandedSection';
-import {TimelineLayerEye} from './TimelineLayerEye';
-import {TimelineStack} from './TimelineStack';
-import {useResolvedStack} from './use-resolved-stack';
+import {TimelineItemStack} from './TimelineItemStack';
+import {TimelineLayerEye, TimelineLayerEyeSpacer} from './TimelineLayerEye';
+import {
+	TimelineMediaInfo,
+	getTimelineAssetLinkInfo,
+	openTimelineAssetLink,
+} from './TimelineMediaInfo';
+import {TimelineRowChrome} from './TimelineRowChrome';
+import {
+	SELECTION_ENABLED,
+	useTimelineRowContainsSelection,
+	useTimelineRowSelection,
+} from './TimelineSelection';
+import {TimelineSequenceName} from './TimelineSequenceName';
+import {useOpenSequenceInEditor} from './use-open-sequence-in-editor';
 
-export const INDENT = 10;
+const labelContainerStyle: React.CSSProperties = {
+	alignItems: 'center',
+	alignSelf: 'stretch',
+	display: 'flex',
+	flexDirection: 'row',
+	minWidth: 0,
+	gap: 4,
+};
 
 export const TimelineListItem: React.FC<{
 	readonly sequence: TSequence;
 	readonly nestedDepth: number;
-	readonly isCompact: boolean;
 	readonly nodePathInfo: SequenceNodePathInfo | null;
-}> = ({nestedDepth, sequence, isCompact, nodePathInfo}) => {
-	const nodePath = nodePathInfo?.nodePath ?? null;
+}> = ({nestedDepth, sequence, nodePathInfo}) => {
+	const nodePath = nodePathInfo?.sequenceSubscriptionKey ?? null;
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const previewConnected = previewServerState.type === 'connected';
-	const {hidden, setHidden} = useContext(
-		Internals.SequenceVisibilityToggleContext,
-	);
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {toggleTrack} = useContext(ExpandedTracksSetterContext);
+	const {codeValues} = useContext(Internals.VisualModeCodeValuesContext);
+	const {setCodeValues} = useContext(Internals.VisualModeSettersContext);
+	const {setCanvasContent} = useContext(Internals.CompositionSetters);
+	const {onSelect, selectable, selected} =
+		useTimelineRowSelection(nodePathInfo);
+	const containsSelection = useTimelineRowContainsSelection(nodePathInfo);
 
-	const originalLocation = useResolvedStack(sequence.stack ?? null);
+	const {canOpenInEditor, openInEditor, originalLocation} =
+		useOpenSequenceInEditor(sequence);
 
 	const validatedLocation = useMemo(() => {
 		if (
@@ -90,7 +112,7 @@ export const TimelineListItem: React.FC<{
 		try {
 			const result = await callApi('/api/duplicate-jsx-node', {
 				fileName: validatedLocation.source,
-				nodePath,
+				nodePath: nodePath.nodePath,
 			});
 			if (result.success) {
 				showNotification('Duplicated sequence in source file', 2000);
@@ -121,7 +143,7 @@ export const TimelineListItem: React.FC<{
 		try {
 			const result = await callApi('/api/delete-jsx-node', {
 				fileName: validatedLocation.source,
-				nodePath,
+				nodePath: nodePath.nodePath,
 			});
 			if (result.success) {
 				showNotification('Removed sequence from source file', 2000);
@@ -133,14 +155,83 @@ export const TimelineListItem: React.FC<{
 		}
 	}, [nodePath, validatedLocation?.source, nodePathInfo]);
 
+	const mediaSrc =
+		sequence.type === 'audio' ||
+		sequence.type === 'video' ||
+		sequence.type === 'image'
+			? sequence.src
+			: null;
+
+	const assetLinkInfo = useMemo(
+		() => (mediaSrc ? getTimelineAssetLinkInfo(mediaSrc) : null),
+		[mediaSrc],
+	);
+
 	const contextMenuValues = useMemo((): ComboboxValue[] => {
 		if (!previewConnected) {
 			return [];
 		}
 
+		const editorName = window.remotion_editorName;
+		const {documentationLink} = sequence;
+
 		return [
+			editorName
+				? {
+						type: 'item' as const,
+						id: 'show-in-editor',
+						keyHint: null,
+						label: `Show in ${editorName}`,
+						leftItem: null,
+						disabled: !canOpenInEditor,
+						onClick: () => {
+							openInEditor();
+						},
+						quickSwitcherLabel: null,
+						subMenu: null,
+						value: 'show-in-editor',
+					}
+				: null,
+			documentationLink
+				? {
+						type: 'item' as const,
+						id: 'open-component-docs',
+						keyHint: null,
+						label: 'Open component docs',
+						leftItem: null,
+						disabled: false,
+						onClick: () => {
+							window.open(documentationLink, '_blank', 'noopener,noreferrer');
+						},
+						quickSwitcherLabel: null,
+						subMenu: null,
+						value: 'open-component-docs',
+					}
+				: null,
+			assetLinkInfo
+				? {
+						type: 'item' as const,
+						id: 'show-asset',
+						keyHint: null,
+						label: 'Show asset',
+						leftItem: null,
+						disabled: false,
+						onClick: () => {
+							openTimelineAssetLink(assetLinkInfo, setCanvasContent);
+						},
+						quickSwitcherLabel: null,
+						subMenu: null,
+						value: 'show-asset',
+					}
+				: null,
+			documentationLink
+				? {
+						type: 'divider' as const,
+						id: 'open-component-docs-divider',
+					}
+				: null,
 			{
-				type: 'item',
+				type: 'item' as const,
 				id: 'duplicate-sequence',
 				keyHint: null,
 				label: 'Duplicate',
@@ -158,7 +249,7 @@ export const TimelineListItem: React.FC<{
 				value: 'duplicate-sequence',
 			},
 			{
-				type: 'item',
+				type: 'item' as const,
 				id: 'delete-sequence',
 				keyHint: null,
 				label: 'Delete',
@@ -175,13 +266,18 @@ export const TimelineListItem: React.FC<{
 				subMenu: null,
 				value: 'delete-sequence',
 			},
-		];
+		].filter(NoReactInternals.truthy);
 	}, [
+		assetLinkInfo,
 		deleteDisabled,
 		duplicateDisabled,
 		onDeleteSequenceFromSource,
 		onDuplicateSequenceFromSource,
+		canOpenInEditor,
+		openInEditor,
 		previewConnected,
+		sequence,
+		setCanvasContent,
 	]);
 
 	const isExpanded =
@@ -195,92 +291,181 @@ export const TimelineListItem: React.FC<{
 		toggleTrack(nodePathInfo);
 	}, [nodePathInfo, toggleTrack]);
 
+	const onShowInEditorDoubleClick = useCallback(
+		(e: React.MouseEvent<HTMLDivElement>) => {
+			if (!SELECTION_ENABLED || !canOpenInEditor) {
+				return;
+			}
+
+			e.stopPropagation();
+			openInEditor();
+		},
+		[canOpenInEditor, openInEditor],
+	);
+
+	const codeValuesForOverride = useMemo(() => {
+		return nodePath
+			? Internals.getCodeValuesCtx(codeValues, nodePath)
+			: undefined;
+	}, [codeValues, nodePath]);
+
+	const codeHiddenStatus = codeValuesForOverride?.hidden;
+
 	const isItemHidden = useMemo(() => {
-		return hidden[sequence.id] ?? false;
-	}, [hidden, sequence.id]);
+		const codeValue =
+			codeHiddenStatus && codeHiddenStatus.canUpdate
+				? codeHiddenStatus.codeValue
+				: undefined;
+		const runtimeValue =
+			sequence.controls?.currentRuntimeValueDotNotation.hidden;
+		const effective = (codeValue ?? runtimeValue) as boolean | undefined;
+		return effective ?? false;
+	}, [codeHiddenStatus, sequence.controls?.currentRuntimeValueDotNotation]);
 
 	const onToggleVisibility = useCallback(
 		(type: 'enable' | 'disable') => {
-			setHidden((prev) => {
-				return {
-					...prev,
-					[sequence.id]: type !== 'enable',
-				};
+			if (
+				!sequence.controls ||
+				!nodePath ||
+				!validatedLocation ||
+				!codeValuesForOverride ||
+				!codeHiddenStatus ||
+				!codeHiddenStatus.canUpdate ||
+				previewServerState.type !== 'connected'
+			) {
+				return;
+			}
+
+			const newValue = type !== 'enable';
+			const {schema} = sequence.controls;
+
+			const fieldSchema = schema.hidden;
+			const defaultValue =
+				fieldSchema && fieldSchema.type === 'boolean'
+					? JSON.stringify(fieldSchema.default)
+					: null;
+
+			saveSequenceProp({
+				fileName: validatedLocation.source,
+				nodePath,
+				fieldKey: 'hidden',
+				value: newValue,
+				defaultValue,
+				schema,
+				setCodeValues,
+				clientId: previewServerState.clientId,
 			});
 		},
-		[sequence.id, setHidden],
+		[
+			codeHiddenStatus,
+			codeValuesForOverride,
+			nodePath,
+			previewServerState,
+			sequence.controls,
+			setCodeValues,
+			validatedLocation,
+		],
 	);
 
-	const outer: React.CSSProperties = useMemo(() => {
-		return {
-			height:
-				getTimelineLayerHeight(sequence.type) + TIMELINE_ITEM_BORDER_BOTTOM,
-			borderBottom: `1px solid ${TIMELINE_TRACK_SEPARATOR}`,
-		};
-	}, [sequence.type]);
+	const outerHeight = useMemo(
+		() => getTimelineLayerHeight(sequence.type) + TIMELINE_ITEM_BORDER_BOTTOM,
+		[sequence.type],
+	);
 
 	const inner: React.CSSProperties = useMemo(() => {
 		return {
-			// TODO: Not so small
-			height: TIMELINE_LAYER_HEIGHT_AUDIO,
+			height: TIMELINE_LIST_ITEM_ROW_HEIGHT,
 			color: 'white',
 			fontFamily: 'Arial, Helvetica, sans-serif',
-			display: 'flex',
-			flexDirection: 'row',
-			alignItems: 'center',
 			wordBreak: 'break-all',
 			textAlign: 'left',
-			paddingLeft: 5,
+			flexShrink: 0,
 		};
 	}, []);
 
 	const hasExpandableContent =
 		Boolean(sequence.controls) || sequence.effects.length > 0;
 
+	const canToggleVisibility =
+		previewConnected &&
+		Boolean(sequence.controls) &&
+		nodePath !== null &&
+		validatedLocation !== null &&
+		codeHiddenStatus !== undefined &&
+		codeHiddenStatus !== null &&
+		codeHiddenStatus.canUpdate;
+
 	const trackRow = (
-		<div style={outer}>
-			<div style={inner}>
-				<TimelineLayerEye
-					type={sequence.type === 'audio' ? 'speaker' : 'eye'}
-					hidden={isItemHidden}
-					onInvoked={onToggleVisibility}
-				/>
-				<Padder depth={nestedDepth} />
-				{previewConnected ? (
-					hasExpandableContent ? (
-						<TimelineExpandArrowButton
-							isExpanded={isExpanded}
-							onClick={onToggleExpand}
-							label="track properties"
-							disabled={nodePathInfo === null}
-						/>
-					) : (
-						<TimelineExpandArrowSpacer />
-					)
-				) : null}
-				<TimelineStack
+		<TimelineRowChrome
+			depth={nestedDepth}
+			eye={
+				canToggleVisibility ? (
+					<TimelineLayerEye
+						type={sequence.type === 'audio' ? 'speaker' : 'eye'}
+						hidden={isItemHidden}
+						onInvoked={onToggleVisibility}
+					/>
+				) : (
+					<TimelineLayerEyeSpacer />
+				)
+			}
+			arrow={
+				hasExpandableContent ? (
+					<TimelineExpandArrowButton
+						isExpanded={isExpanded}
+						onClick={onToggleExpand}
+						label="track properties"
+						disabled={!previewConnected || nodePathInfo === null}
+					/>
+				) : (
+					<TimelineExpandArrowSpacer />
+				)
+			}
+			style={inner}
+			selected={selected}
+			selectable={selectable}
+			onSelect={onSelect}
+			showSelectedBackground
+			containsSelection={containsSelection}
+			outerHeight={outerHeight}
+			onDoubleClick={
+				SELECTION_ENABLED && canOpenInEditor
+					? onShowInEditorDoubleClick
+					: undefined
+			}
+		>
+			<div style={labelContainerStyle}>
+				<TimelineSequenceName
 					sequence={sequence}
-					isCompact={isCompact}
-					originalLocation={originalLocation}
+					selected={selected}
+					containsSelection={containsSelection}
 				/>
+				{mediaSrc ? <TimelineMediaInfo src={mediaSrc} /> : null}
+				<TimelineItemStack originalLocation={originalLocation} />
 			</div>
-		</div>
+		</TimelineRowChrome>
 	);
 
 	return (
 		<>
 			{previewConnected ? (
-				<ContextMenu values={contextMenuValues}>{trackRow}</ContextMenu>
+				<ContextMenu
+					values={contextMenuValues}
+					onOpen={selectable ? onSelect : null}
+				>
+					{trackRow}
+				</ContextMenu>
 			) : (
 				trackRow
 			)}
 			{previewConnected &&
 			isExpanded &&
 			hasExpandableContent &&
-			nodePathInfo ? (
+			nodePathInfo &&
+			validatedLocation ? (
 				<TimelineExpandedSection
 					sequence={sequence}
-					originalLocation={originalLocation}
+					validatedLocation={validatedLocation}
 					nodePathInfo={nodePathInfo}
 					nestedDepth={nestedDepth}
 				/>

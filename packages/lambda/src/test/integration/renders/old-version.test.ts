@@ -32,6 +32,7 @@ test(
 					privacy: 'public',
 					proResProfile: null,
 					x264Preset: null,
+					gopSize: null,
 					jpegQuality: undefined,
 					scale: 1,
 					timeoutInMilliseconds: 12000,

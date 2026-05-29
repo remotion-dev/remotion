@@ -33,6 +33,7 @@ import {forSeamlessAacConcatenationOption} from './for-seamless-aac-concatenatio
 import {forceNewStudioOption} from './force-new-studio';
 import {framesOption} from './frames';
 import {glOption} from './gl';
+import {gopSizeOption} from './gop-size';
 import {hardwareAccelerationOption} from './hardware-acceleration';
 import {headlessOption} from './headless';
 import {ignoreCertificateErrorsOption} from './ignore-certificate-errors';
@@ -114,6 +115,7 @@ export const allOptions = {
 	folderExpiryOption,
 	enableMultiprocessOnLinuxOption,
 	glOption,
+	gopSizeOption,
 	enableLambdaInsights,
 	encodingMaxRateOption,
 	encodingBufferSizeOption,

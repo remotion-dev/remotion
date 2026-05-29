@@ -28,7 +28,8 @@ type OpenState =
 export const ContextMenu: React.FC<{
 	readonly children: React.ReactNode;
 	readonly values: ComboboxValue[];
-}> = ({children, values}) => {
+	readonly onOpen: (() => void) | null;
+}> = ({children, values, onOpen}) => {
 	const ref = useRef<HTMLDivElement>(null);
 	const [opened, setOpened] = useState<OpenState>({type: 'not-open'});
 	const {currentZIndex} = useZIndex();
@@ -52,6 +53,7 @@ export const ContextMenu: React.FC<{
 		const onClick = (e: MouseEvent) => {
 			e.preventDefault();
 			e.stopPropagation();
+			onOpen?.();
 			setOpened({type: 'open', left: e.clientX, top: e.clientY});
 
 			return false;
@@ -62,7 +64,7 @@ export const ContextMenu: React.FC<{
 		return () => {
 			current.removeEventListener('contextmenu', onClick);
 		};
-	}, [size]);
+	}, [onOpen, size]);
 
 	const spaceToBottom = useMemo(() => {
 		if (size && opened.type === 'open') {

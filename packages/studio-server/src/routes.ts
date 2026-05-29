@@ -4,8 +4,8 @@ import type {IncomingMessage, ServerResponse} from 'node:http';
 import path, {join} from 'node:path';
 import {URLSearchParams} from 'node:url';
 import {BundlerInternals} from '@remotion/bundler';
-import {RenderInternals} from '@remotion/renderer';
 import type {LogLevel} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
 import type {
 	ApiRoutes,
 	CompletedClientRender,
@@ -27,6 +27,7 @@ import {
 	guessEditor,
 	launchEditor,
 } from './helpers/open-in-editor';
+import {resolveCompositionComponent} from './helpers/resolve-composition-component';
 import {resolveOutputPath} from './helpers/resolve-output-path';
 import {allApiRoutes} from './preview-server/api-routes';
 import type {ApiHandler, QueueMethods} from './preview-server/api-types';
@@ -265,6 +266,56 @@ const handleOpenInEditor = async (
 		res.end(
 			JSON.stringify({
 				success: false,
+			}),
+		);
+	}
+};
+
+const handleGetCompositionComponentInfo = async (
+	remotionRoot: string,
+	req: IncomingMessage,
+	res: ServerResponse,
+) => {
+	if (req.method === 'OPTIONS') {
+		res.statusCode = 200;
+		res.end();
+		return;
+	}
+
+	res.setHeader('content-type', 'application/json');
+	try {
+		const body = (await parseRequestBody(req)) as {
+			compositionFile: string;
+			compositionId: string;
+		};
+		if (typeof body.compositionFile !== 'string') {
+			throw new TypeError('Need to pass compositionFile');
+		}
+
+		if (typeof body.compositionId !== 'string') {
+			throw new TypeError('Need to pass compositionId');
+		}
+
+		const location = await resolveCompositionComponent({
+			remotionRoot,
+			compositionFile: body.compositionFile,
+			compositionId: body.compositionId,
+		});
+
+		res.writeHead(200);
+		res.end(
+			JSON.stringify({
+				success: true,
+				location,
+				canAddSequence: location.canAddSequence,
+			}),
+		);
+	} catch (err) {
+		res.writeHead(200);
+		res.end(
+			JSON.stringify({
+				success: false,
+				error: (err as Error).message,
 			}),
 		);
 	}
@@ -510,6 +561,10 @@ export const handleRoutes = ({
 
 	if (url.pathname === '/api/open-in-editor') {
 		return handleOpenInEditor(remotionRoot, request, response, logLevel);
+	}
+
+	if (url.pathname === '/api/composition-component-info') {
+		return handleGetCompositionComponentInfo(remotionRoot, request, response);
 	}
 
 	if (url.pathname === `${staticHash}/api/add-asset`) {

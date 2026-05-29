@@ -18,6 +18,10 @@ export const TableOfContents: React.FC = () => {
 					<strong>renderMediaOnVercel()</strong>
 					<div>Render a video in a sandbox</div>
 				</TOCItem>
+				<TOCItem link="/docs/vercel/get-render-progress">
+					<strong>getRenderProgress()</strong>
+					<div>Poll a detached sandbox render</div>
+				</TOCItem>
 				<TOCItem link="/docs/vercel/render-still-on-vercel">
 					<strong>renderStillOnVercel()</strong>
 					<div>Render a still image in a sandbox</div>

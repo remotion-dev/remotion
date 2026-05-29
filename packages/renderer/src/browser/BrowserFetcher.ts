@@ -18,12 +18,12 @@ import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
 import {promisify} from 'node:util';
-import extractZip from 'extract-zip';
 import {downloadFile} from '../assets/download-file';
 import {makeFileExecutableIfItIsNot} from '../compositor/make-file-executable';
 import type {LogLevel} from '../log-level';
 import {ChromeMode} from '../options/chrome-mode';
 import type {DownloadBrowserProgressFn} from '../options/on-browser-download';
+import {extractZipArchive} from './extract-zip-archive';
 import {
 	getChromeDownloadUrl,
 	isAmazonLinux2023,
@@ -180,7 +180,7 @@ export const downloadBrowser = async ({
 			logLevel,
 			abortSignal: new AbortController().signal,
 		});
-		await extractZip(archivePath, {dir: outputPath});
+		await extractZipArchive(archivePath, outputPath);
 
 		const possibleSubdirs = [
 			'chrome-linux',

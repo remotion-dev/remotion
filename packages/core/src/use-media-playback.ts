@@ -33,6 +33,7 @@ export const useMediaPlayback = ({
 	src,
 	mediaType,
 	playbackRate: localPlaybackRate,
+	preservePitch = true,
 	onlyWarnForMediaSeekingError,
 	acceptableTimeshift,
 	pauseWhenBuffering,
@@ -44,6 +45,7 @@ export const useMediaPlayback = ({
 	src: string | undefined;
 	mediaType: 'audio' | 'video';
 	playbackRate: number;
+	preservePitch: boolean | undefined;
 	onlyWarnForMediaSeekingError: boolean;
 	acceptableTimeshift: number | null;
 	pauseWhenBuffering: boolean;
@@ -203,7 +205,11 @@ export const useMediaPlayback = ({
 		) {
 			mediaRef.current.playbackRate = playbackRateToSet;
 		}
-	}, [mediaRef, playbackRate]);
+
+		if (mediaRef.current && mediaRef.current.preservesPitch !== preservePitch) {
+			mediaRef.current.preservesPitch = preservePitch;
+		}
+	}, [mediaRef, playbackRate, preservePitch]);
 
 	useEffect(() => {
 		const tagName = mediaType === 'audio' ? '<Html5Audio>' : '<Html5Video>';

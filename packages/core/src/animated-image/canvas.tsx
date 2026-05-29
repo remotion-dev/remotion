@@ -1,76 +1,9 @@
-import React, {useCallback, useImperativeHandle, useRef} from 'react';
+import React, {useCallback, useImperativeHandle, useMemo, useRef} from 'react';
+import {calculateImageFit} from '../calculate-image-fit.js';
+import type {EffectDefinitionAndStack} from '../effects/effect-types.js';
+import {runEffectChain} from '../effects/run-effect-chain.js';
+import {useEffectChainState} from '../effects/use-effect-chain-state.js';
 import type {AnimatedImageFillMode} from './props';
-
-const calcArgs = (
-	fit: AnimatedImageFillMode,
-	frameSize: {
-		width: number;
-		height: number;
-	},
-	canvasSize: {
-		width: number;
-		height: number;
-	},
-): [number, number, number, number, number, number, number, number] => {
-	switch (fit) {
-		case 'fill': {
-			return [
-				0,
-				0,
-				frameSize.width,
-				frameSize.height,
-				0,
-				0,
-				canvasSize.width,
-				canvasSize.height,
-			];
-		}
-
-		case 'contain': {
-			const ratio = Math.min(
-				canvasSize.width / frameSize.width,
-				canvasSize.height / frameSize.height,
-			);
-
-			const centerX = (canvasSize.width - frameSize.width * ratio) / 2;
-			const centerY = (canvasSize.height - frameSize.height * ratio) / 2;
-
-			return [
-				0,
-				0,
-				frameSize.width,
-				frameSize.height,
-				centerX,
-				centerY,
-				frameSize.width * ratio,
-				frameSize.height * ratio,
-			];
-		}
-
-		case 'cover': {
-			const ratio = Math.max(
-				canvasSize.width / frameSize.width,
-				canvasSize.height / frameSize.height,
-			);
-			const centerX = (canvasSize.width - frameSize.width * ratio) / 2;
-			const centerY = (canvasSize.height - frameSize.height * ratio) / 2;
-
-			return [
-				0,
-				0,
-				frameSize.width,
-				frameSize.height,
-				centerX,
-				centerY,
-				frameSize.width * ratio,
-				frameSize.height * ratio,
-			];
-		}
-
-		default:
-			throw new Error('Unknown fit: ' + fit);
-	}
-};
 
 type Props = {
 	readonly width?: number;
@@ -81,10 +14,11 @@ type Props = {
 	readonly className?: string;
 
 	readonly style?: React.CSSProperties;
+	readonly effects: EffectDefinitionAndStack<unknown>[];
 };
 
 export type AnimatedImageCanvasRef = {
-	readonly draw: (imageData: VideoFrame) => void;
+	readonly draw: (imageData: VideoFrame) => Promise<boolean>;
 	readonly getCanvas: () => HTMLCanvasElement | null;
 	clear: () => void;
 };
@@ -92,8 +26,17 @@ export type AnimatedImageCanvasRef = {
 const CanvasRefForwardingFunction: React.ForwardRefRenderFunction<
 	AnimatedImageCanvasRef,
 	Props
-> = ({width, height, fit, className, style}, ref) => {
+> = ({width, height, fit, className, style, effects}, ref) => {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
+	const chainState = useEffectChainState();
+
+	const sourceCanvas = useMemo(() => {
+		if (typeof document === 'undefined') {
+			return null;
+		}
+
+		return document.createElement('canvas');
+	}, []);
 
 	const draw = useCallback(
 		(imageData: VideoFrame) => {
@@ -105,17 +48,21 @@ const CanvasRefForwardingFunction: React.ForwardRefRenderFunction<
 				throw new Error('Canvas ref is not set');
 			}
 
-			const ctx = canvasRef.current?.getContext('2d');
-			if (!ctx) {
-				throw new Error('Could not get 2d context');
+			if (!sourceCanvas) {
+				throw new Error('Source canvas is not available');
 			}
 
-			canvas.width = canvasWidth;
-			canvas.height = canvasHeight;
+			sourceCanvas.width = canvasWidth;
+			sourceCanvas.height = canvasHeight;
 
-			ctx.drawImage(
+			const sourceCtx = sourceCanvas.getContext('2d');
+			if (!sourceCtx) {
+				throw new Error('Could not get 2d context for source canvas');
+			}
+
+			sourceCtx.drawImage(
 				imageData,
-				...calcArgs(
+				...calculateImageFit(
 					fit,
 					{
 						height: imageData.displayHeight,
@@ -127,8 +74,20 @@ const CanvasRefForwardingFunction: React.ForwardRefRenderFunction<
 					},
 				),
 			);
+
+			canvas.width = canvasWidth;
+			canvas.height = canvasHeight;
+
+			return runEffectChain({
+				state: chainState.get(canvasWidth, canvasHeight)!,
+				source: sourceCanvas,
+				effects,
+				output: canvas,
+				width: canvasWidth,
+				height: canvasHeight,
+			});
 		},
-		[fit, height, width],
+		[chainState, effects, fit, height, sourceCanvas, width],
 	);
 
 	useImperativeHandle(ref, () => {

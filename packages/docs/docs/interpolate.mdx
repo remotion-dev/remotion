@@ -118,6 +118,10 @@ Takes four arguments:
 3. The range of output values that you want the input to map to.
 4. Options object:
 
+`inputRange` and `outputRange` must have the same length and at least one value.
+With one value, `interpolate()` always returns the only output value.
+Single-value ranges are supported from <AvailableFrom v="4.0.469" inline />.
+
 ### extrapolateLeft?
 
 _Default_: `extend`
@@ -150,7 +154,7 @@ interpolate(1.5, [0, 1], [0, 2], {extrapolateRight: 'wrap'}); // 1
 
 _Default_: `(x) => x`
 
-Function which allows you to customize the input, for example to apply a certain easing function.
+Pass a single function to customize the normalized progress within the **active segment** (between two adjacent keyframes), for example to apply an easing curve.
 By default, the input is left unmodified, resulting in a pure linear interpolation. [Read the documentation for the built-in easing functions](/docs/easing).
 
 ```ts twoslash
@@ -165,11 +169,26 @@ interpolate(frame, [0, 100], [0, 1], {
   extrapolateRight: 'clamp',
 });
 
-//this is Remotion2.0 feature
 interpolate(frame, [0, 10, 40, 100], [0, 0.2, 0.6, 1], {
   easing: Easing.bezier(0.8, 0.22, 0.96, 0.65),
   extrapolateLeft: 'clamp',
   extrapolateRight: 'clamp',
+});
+```
+
+#### Per-segment easing (array)<AvailableFrom v="4.0.462" /> {#per-segment-easing-array}
+
+You can pass an array of easing functions with one entry per segment between consecutive keyframes. Its length must be `inputRange.length - 1` (the same as `outputRange.length - 1`). The first easing applies between the first and second keyframe, the second easing between the second and third, and so on.
+For a single keyframe, pass an empty array.
+
+```ts twoslash
+import {useCurrentFrame} from 'remotion';
+const frame = useCurrentFrame();
+// ---cut---
+import {interpolate, Easing} from 'remotion';
+
+interpolate(frame, [0, 100, 200], [0, 1, 2], {
+  easing: [Easing.out(Easing.cubic), Easing.in(Easing.cubic)],
 });
 ```
 

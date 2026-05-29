@@ -51,7 +51,7 @@
     "postcss": "8.5.10",
     "prettier": "3.8.1",
     "tailwindcss": "4.2.0",
-    "turbo": "2.9.3",
+    "turbo": "2.9.14",
     "typescript": "5.9.3",
     "typescript-eslint": "8.46.0"
   }

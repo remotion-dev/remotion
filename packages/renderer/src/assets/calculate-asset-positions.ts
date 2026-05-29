@@ -73,7 +73,7 @@ export const calculateAssetPositions = (
 				found.duration = frame - found.startInVideo + 1;
 			}
 
-			found.volume = [...found.volume, asset.volume];
+			found.volume.push(asset.volume);
 		}
 	}
 

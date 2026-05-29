@@ -53,6 +53,19 @@ test('parentSequence caps the duration', () => {
 	expect(duration).toBe(100);
 });
 
+test('parentSequence with subframe duration caps without truncation', () => {
+	const duration = getTimelineDuration({
+		compositionDurationInFrames: 300,
+		playbackRate: 1,
+		trimBefore: undefined,
+		trimAfter: undefined,
+		parentSequenceDurationInFrames: 23.5,
+		loop: false,
+	});
+
+	expect(duration).toBe(23.5);
+});
+
 test('parentSequence with playbackRate 2.45 caps correctly', () => {
 	const duration = getTimelineDuration({
 		compositionDurationInFrames: 300,

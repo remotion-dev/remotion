@@ -38,14 +38,47 @@ const aliases = {
 	'@remotion/transitions/zoom-blur': resolveCwd(
 		'@remotion/transitions/zoom-blur',
 	),
+	'@remotion/transitions/linear-blur': resolveCwd(
+		'@remotion/transitions/linear-blur',
+	),
 	'@remotion/transitions/zoom-in-out': resolveCwd(
 		'@remotion/transitions/zoom-in-out',
 	),
+	'@remotion/transitions/book-flip': resolveCwd(
+		'@remotion/transitions/book-flip',
+	),
+	'@remotion/transitions/dissolve': resolveCwd(
+		'@remotion/transitions/dissolve',
+	),
+	'@remotion/transitions/ripple': resolveCwd('@remotion/transitions/ripple'),
+	'@remotion/transitions/crosswarp': resolveCwd(
+		'@remotion/transitions/crosswarp',
+	),
+	'@remotion/transitions/cross-zoom': resolveCwd(
+		'@remotion/transitions/cross-zoom',
+	),
+	'@remotion/transitions/swap': resolveCwd('@remotion/transitions/swap'),
 	'@remotion/transitions/wipe': resolveCwd('@remotion/transitions/wipe'),
 	'@remotion/transitions/iris': resolveCwd('@remotion/transitions/iris'),
 	'@remotion/transitions/none': resolveCwd('@remotion/transitions/none'),
 	'@remotion/transitions': resolveCwd('@remotion/transitions'),
 	'@remotion/zod-types': resolveCwd('@remotion/zod-types'),
+	'@remotion/effects/blur': path.join(
+		process.cwd(),
+		'../effects/dist/esm/blur.mjs',
+	),
+	'@remotion/effects/wave': path.join(
+		process.cwd(),
+		'../effects/dist/esm/wave.mjs',
+	),
+	'@remotion/effects/halftone': path.join(
+		process.cwd(),
+		'../effects/dist/esm/halftone.mjs',
+	),
+	'@remotion/effects/tint': path.join(
+		process.cwd(),
+		'../effects/dist/esm/tint.mjs',
+	),
 };
 
 /**

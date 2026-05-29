@@ -329,6 +329,7 @@ class RenderMediaParams:
     renderer_function_name: Optional[str] = None
     pro_res_profile: Optional[str] = None
     x264_preset: Optional[str] = None
+    gop_size: Optional[int] = None
     pixel_format: Optional[str] = None
     delete_after: Optional[str] = None
     encoding_buffer_size: Optional[str] = None
@@ -387,6 +388,7 @@ class RenderMediaParams:
             'bucketName': self.bucket_name,
             'audioCodec': self.audio_codec,
             'x264Preset': self.x264_preset,
+            'gopSize': self.gop_size,
             'deleteAfter': self.delete_after,
             'encodingBufferSize': self.encoding_buffer_size,
             'encodingMaxRate': self.encoding_max_rate,

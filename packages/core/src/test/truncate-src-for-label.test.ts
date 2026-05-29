@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {truncateSrcForLabel} from '../Img.js';
+import {truncateSrcForLabel} from '../truncate-src-for-label.js';
 
 test('leaves http URLs untouched', () => {
 	const src = 'https://example.com/images/hero.png';

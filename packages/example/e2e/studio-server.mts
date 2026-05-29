@@ -5,10 +5,17 @@ import {
 	EXPANDED_SIDEBAR_STATE,
 	LOGS_FILE,
 	ORIGINAL_CONTENT_FILE,
+	ORIGINAL_ERROR_OVERLAY_E2E_FILE,
+	ORIGINAL_HOOK_ORDER_CHANGE_E2E_FILE,
+	ORIGINAL_LOST_NODE_PATH_E2E_FILE,
 	ORIGINAL_VISUAL_CONTROLS_FILE,
 	STUDIO_PORT,
 	STUDIO_URL,
+	e2eEntryPoint,
+	errorOverlayE2eFile,
 	exampleDir,
+	hookOrderChangeE2eFile,
+	lostNodePathE2eFile,
 	remotionBin,
 	rootFile,
 	visualControlsFile,
@@ -40,10 +47,7 @@ async function waitForServer(
 export async function startStudio(): Promise<void> {
 	// Save original files if not already saved
 	if (!fs.existsSync(ORIGINAL_CONTENT_FILE)) {
-		fs.writeFileSync(
-			ORIGINAL_CONTENT_FILE,
-			fs.readFileSync(rootFile, 'utf-8'),
-		);
+		fs.writeFileSync(ORIGINAL_CONTENT_FILE, fs.readFileSync(rootFile, 'utf-8'));
 	}
 
 	if (!fs.existsSync(ORIGINAL_VISUAL_CONTROLS_FILE)) {
@@ -53,14 +57,44 @@ export async function startStudio(): Promise<void> {
 		);
 	}
 
+	if (!fs.existsSync(ORIGINAL_LOST_NODE_PATH_E2E_FILE)) {
+		fs.writeFileSync(
+			ORIGINAL_LOST_NODE_PATH_E2E_FILE,
+			fs.readFileSync(lostNodePathE2eFile, 'utf-8'),
+		);
+	}
+
+	if (!fs.existsSync(ORIGINAL_ERROR_OVERLAY_E2E_FILE)) {
+		fs.writeFileSync(
+			ORIGINAL_ERROR_OVERLAY_E2E_FILE,
+			fs.readFileSync(errorOverlayE2eFile, 'utf-8'),
+		);
+	}
+
+	if (!fs.existsSync(ORIGINAL_HOOK_ORDER_CHANGE_E2E_FILE)) {
+		fs.writeFileSync(
+			ORIGINAL_HOOK_ORDER_CHANGE_E2E_FILE,
+			fs.readFileSync(hookOrderChangeE2eFile, 'utf-8'),
+		);
+	}
+
 	// Restore original files before starting
-	fs.writeFileSync(
-		rootFile,
-		fs.readFileSync(ORIGINAL_CONTENT_FILE, 'utf-8'),
-	);
+	fs.writeFileSync(rootFile, fs.readFileSync(ORIGINAL_CONTENT_FILE, 'utf-8'));
 	fs.writeFileSync(
 		visualControlsFile,
 		fs.readFileSync(ORIGINAL_VISUAL_CONTROLS_FILE, 'utf-8'),
+	);
+	fs.writeFileSync(
+		lostNodePathE2eFile,
+		fs.readFileSync(ORIGINAL_LOST_NODE_PATH_E2E_FILE, 'utf-8'),
+	);
+	fs.writeFileSync(
+		errorOverlayE2eFile,
+		fs.readFileSync(ORIGINAL_ERROR_OVERLAY_E2E_FILE, 'utf-8'),
+	);
+	fs.writeFileSync(
+		hookOrderChangeE2eFile,
+		fs.readFileSync(ORIGINAL_HOOK_ORDER_CHANGE_E2E_FILE, 'utf-8'),
 	);
 
 	fs.writeFileSync(LOGS_FILE, '');
@@ -86,6 +120,7 @@ export async function startStudio(): Promise<void> {
 		remotionBin,
 		[
 			'studio',
+			e2eEntryPoint,
 			'--port',
 			String(STUDIO_PORT),
 			'--props',
@@ -176,16 +211,34 @@ export async function stopStudio(): Promise<void> {
 
 	// Restore original files
 	if (fs.existsSync(ORIGINAL_CONTENT_FILE)) {
-		fs.writeFileSync(
-			rootFile,
-			fs.readFileSync(ORIGINAL_CONTENT_FILE, 'utf-8'),
-		);
+		fs.writeFileSync(rootFile, fs.readFileSync(ORIGINAL_CONTENT_FILE, 'utf-8'));
 	}
 
 	if (fs.existsSync(ORIGINAL_VISUAL_CONTROLS_FILE)) {
 		fs.writeFileSync(
 			visualControlsFile,
 			fs.readFileSync(ORIGINAL_VISUAL_CONTROLS_FILE, 'utf-8'),
+		);
+	}
+
+	if (fs.existsSync(ORIGINAL_LOST_NODE_PATH_E2E_FILE)) {
+		fs.writeFileSync(
+			lostNodePathE2eFile,
+			fs.readFileSync(ORIGINAL_LOST_NODE_PATH_E2E_FILE, 'utf-8'),
+		);
+	}
+
+	if (fs.existsSync(ORIGINAL_ERROR_OVERLAY_E2E_FILE)) {
+		fs.writeFileSync(
+			errorOverlayE2eFile,
+			fs.readFileSync(ORIGINAL_ERROR_OVERLAY_E2E_FILE, 'utf-8'),
+		);
+	}
+
+	if (fs.existsSync(ORIGINAL_HOOK_ORDER_CHANGE_E2E_FILE)) {
+		fs.writeFileSync(
+			hookOrderChangeE2eFile,
+			fs.readFileSync(ORIGINAL_HOOK_ORDER_CHANGE_E2E_FILE, 'utf-8'),
 		);
 	}
 }

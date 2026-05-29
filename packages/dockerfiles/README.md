@@ -32,6 +32,6 @@ Located in `packages/example/src/BrowserTest/index.tsx`, it tests:
 
 ## html-in-canvas composition
 
-Located in `packages/example/src/HtmlInCanvas/index.tsx`, it tests the experimental [WICG html-in-canvas](https://github.com/WICG/html-in-canvas) `CanvasRenderingContext2D.drawElementImage()` API. If the API is unavailable in the bundled Chrome (e.g. without `chrome://flags/#canvas-draw-element` or Chrome Canary), the composition fails the render with an error.
+Located in `packages/example/src/HtmlInCanvas/index.tsx`, it tests the experimental [WICG html-in-canvas](https://github.com/WICG/html-in-canvas) `CanvasRenderingContext2D.drawElementImage()` API. If the API is unavailable in the bundled Chrome (for example without `chrome://flags/#canvas-draw-element` enabled), the composition fails the render with an error.
 
 The bundle is built from `packages/example` and copied into each Docker container during build.

@@ -55,8 +55,8 @@ test('audio-only file should initialize without `audioStreamIndex` (regression f
 		playing: false,
 		sequenceOffset: 0,
 		credentials: undefined,
+		requestInit: undefined,
 		tagType: 'audio',
-		getCurrentFrame: () => 0,
 		getEffects: () => [],
 		getEffectChainState: () => null,
 	});
@@ -121,10 +121,10 @@ test('dispose should immediately unblock playback delays', async () => {
 		playing: false,
 		sequenceOffset: 0,
 		credentials: undefined,
+		requestInit: undefined,
 		tagType: 'video',
 		getEffects: () => [],
 		getEffectChainState: () => null,
-		getCurrentFrame: () => 0,
 	});
 
 	await player.initialize(0, false);

@@ -6,7 +6,7 @@ export const DecoderDemo: React.FC = () => {
 	const [blob, setBlob] = useState<string | null>(null);
 
 	useEffect(() => {
-		fetch(staticFile('iphone-hevc.mov'))
+		fetch('https://remotion.media/iphone-hevc.mov')
 			.then((res) => res.blob())
 			.then((buffer) => URL.createObjectURL(buffer))
 			.then((url) => setBlob(url));
@@ -20,11 +20,11 @@ export const DecoderDemo: React.FC = () => {
 				<SrcEncoder label="mp4-with-mp3.mp4" src={staticFile('mp4-mp3.mp4')} />
 				<SrcEncoder
 					label="bigbuckbunny.mp4"
-					src={staticFile('bigbuckbunny.mp4')}
+					src="https://remotion.media/bigbuckbunny.mp4"
 				/>
 				<SrcEncoder
 					label="corrupted-timestamps.mp4"
-					src={staticFile('corrupted.mp4')}
+					src="https://remotion.media/corrupted.mp4"
 				/>
 				<SrcEncoder
 					label="lossless-audio.mkv"
@@ -42,10 +42,10 @@ export const DecoderDemo: React.FC = () => {
 					label="mp3-in-mkv.mkv"
 					src={staticFile('matroska-mp3.mkv')}
 				/>
-				<SrcEncoder label="vid1.mp4" src={staticFile('vid1.mp4')} />
+				<SrcEncoder label="vid1.mp4" src="https://remotion.media/vid1.mp4" />
 				<SrcEncoder
 					label="hevc-with-rotation.mov"
-					src={staticFile('iphone-hevc.mov')}
+					src="https://remotion.media/iphone-hevc.mov"
 				/>
 				<SrcEncoder
 					label="https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.720p.vp9.webm"
@@ -53,7 +53,7 @@ export const DecoderDemo: React.FC = () => {
 				/>
 				<SrcEncoder
 					label="vp8-with-stretch.webm"
-					src={staticFile('stretched-vp8.webm')}
+					src="https://remotion.media/stretched-vp8.webm"
 				/>
 				<SrcEncoder
 					label="vp8-vorbis.webm"

@@ -25,9 +25,7 @@ test.describe('visual controls', () => {
 		await expect(rotationFieldset).toBeVisible({timeout: 10_000});
 
 		// Click the dragger button to activate the number input
-		const dragger = rotationFieldset.locator(
-			'button.__remotion_input_dragger',
-		);
+		const dragger = rotationFieldset.locator('button.__remotion_input_dragger');
 		await expect(dragger).toBeVisible({timeout: 5_000});
 		await dragger.click();
 
@@ -109,7 +107,9 @@ test.describe('visual controls', () => {
 			.toBe(true);
 
 		// Now toggle to null via the checkbox
-		const nullCheckbox = page.locator('input[name="subtitle"][type="checkbox"]');
+		const nullCheckbox = page.locator(
+			'input[name="subtitle"][type="checkbox"]',
+		);
 		await expect(nullCheckbox).toBeVisible({timeout: 5_000});
 		await nullCheckbox.check();
 

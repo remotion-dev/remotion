@@ -1,11 +1,18 @@
+import {getAllSchemaKeys} from '@remotion/studio-shared';
 import type {SequenceSchema} from 'remotion';
 import {Internals} from 'remotion';
 import {callApi} from '../call-api';
 
 type Key = string;
 
-const makeKey = (fileName: string, line: number, column: number): Key =>
-	`${fileName}\0${line}\0${column}`;
+const makeKey = (
+	fileName: string,
+	line: number,
+	column: number,
+	sequenceKeys: string[],
+	effectKeys: string[][],
+): Key =>
+	`${fileName}\0${line}\0${column}\0${sequenceKeys.join('\0')}\0${effectKeys.map((keys) => keys.join('\0')).join('\0\0')}`;
 
 type SubscribeResult = Awaited<
 	ReturnType<typeof callApi<'/api/subscribe-to-sequence-props'>>
@@ -28,6 +35,7 @@ export const acquireSequencePropsSubscription = ({
 	line,
 	column,
 	schema,
+	effects,
 	clientId,
 	applyOnce,
 	applyEach,
@@ -36,11 +44,14 @@ export const acquireSequencePropsSubscription = ({
 	line: number;
 	column: number;
 	schema: SequenceSchema;
+	effects: SequenceSchema[];
 	clientId: string;
 	applyOnce: ApplyResult;
 	applyEach: ApplyResult;
 }): {release: () => void} => {
-	const key = makeKey(fileName, line, column);
+	const sequenceKeys = getAllSchemaKeys(schema);
+	const effectKeys = effects.map((effect) => getAllSchemaKeys(effect));
+	const key = makeKey(fileName, line, column, sequenceKeys, effectKeys);
 	let entry = entries.get(key);
 
 	if (!entry) {
@@ -48,7 +59,8 @@ export const acquireSequencePropsSubscription = ({
 			fileName,
 			line,
 			column,
-			schema,
+			keys: getAllSchemaKeys(schema),
+			effects: effectKeys,
 			clientId,
 		});
 		const created: Entry = {
@@ -118,6 +130,8 @@ export const acquireSequencePropsSubscription = ({
 						fileName: acquired.fileName,
 						nodePath: result.nodePath,
 						clientId: acquired.clientId,
+						sequenceKeys,
+						effectKeys,
 					});
 				})
 				.catch(() => {

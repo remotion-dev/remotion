@@ -1,4 +1,5 @@
 dist/test/**
+dist/cjs/test
 src
 tsconfig.tsbuildinfo
 *.tgz
@@ -7,3 +8,4 @@ tsconfig.json
 .prettierrc.js
 bundle.ts
 eslint.config.mjs
+vitest.config.ts

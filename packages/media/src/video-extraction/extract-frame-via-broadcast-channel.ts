@@ -1,6 +1,10 @@
 import {type LogLevel} from 'remotion';
 import type {PcmS16AudioData} from '../convert-audiodata/convert-audiodata';
 import {extractFrameAndAudio} from '../extract-frame-and-audio';
+import {
+	normalizeMediaRequestInit,
+	type MediaRequestInit,
+} from '../request-init';
 import type {
 	ExtractFrameRequest,
 	MessageFromMainTab,
@@ -40,6 +44,7 @@ export const extractFrameViaBroadcastChannel = async ({
 	fps,
 	maxCacheSize,
 	credentials,
+	requestInit,
 }: {
 	src: string;
 	timeInSeconds: number;
@@ -56,6 +61,7 @@ export const extractFrameViaBroadcastChannel = async ({
 	fps: number;
 	maxCacheSize: number;
 	credentials: RequestCredentials | undefined;
+	requestInit?: MediaRequestInit;
 }): Promise<ExtractFrameViaBroadcastChannelResult> => {
 	if (isClientSideRendering || window.remotion_isMainTab) {
 		return extractFrameAndAudio({
@@ -73,6 +79,7 @@ export const extractFrameViaBroadcastChannel = async ({
 			fps,
 			maxCacheSize,
 			credentials,
+			requestInit,
 		});
 	}
 
@@ -199,6 +206,7 @@ export const extractFrameViaBroadcastChannel = async ({
 		fps,
 		maxCacheSize,
 		credentials,
+		requestInit: normalizeMediaRequestInit(requestInit),
 	};
 
 	window.remotion_broadcastChannel!.postMessage(request);

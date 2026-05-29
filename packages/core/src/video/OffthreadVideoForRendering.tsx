@@ -53,6 +53,7 @@ export const OffthreadVideoForRendering: React.FC<AllOffthreadVideoProps> = ({
 	// https://discord.com/channels/809501355504959528/844143007183667220/1311639632496033813
 	crossOrigin,
 	audioStreamIndex,
+	preservePitch: _preservePitch,
 	...props
 }) => {
 	const absoluteFrame = useTimelinePosition();
@@ -123,7 +124,10 @@ export const OffthreadVideoForRendering: React.FC<AllOffthreadVideoProps> = ({
 			mediaFrame: frame,
 			playbackRate,
 			toneFrequency,
-			audioStartFrame: Math.max(0, -(sequenceContext?.relativeFrom ?? 0)),
+			audioStartFrame: Math.max(
+				0,
+				-(sequenceContext?.cumulatedNegativeFrom ?? 0),
+			),
 			audioStreamIndex,
 		});
 
@@ -139,7 +143,7 @@ export const OffthreadVideoForRendering: React.FC<AllOffthreadVideoProps> = ({
 		absoluteFrame,
 		playbackRate,
 		toneFrequency,
-		sequenceContext?.relativeFrom,
+		sequenceContext?.cumulatedNegativeFrom,
 		audioStreamIndex,
 	]);
 
