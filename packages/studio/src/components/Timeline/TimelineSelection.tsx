@@ -42,15 +42,17 @@ export const getTimelineColor = (selected: boolean, subcategory: boolean) => {
 		: 'rgba(255, 255, 255, 0.8)';
 };
 
-export const TIMELINE_SELECTED_TRACK_HIGHLIGHT_STYLE: CSSProperties = {
+export const getTimelineSelectedTrackHighlightStyle = (
+	timelineWidth: number,
+): CSSProperties => ({
 	backgroundColor: TIMELINE_SELECTED_BACKGROUND,
 	bottom: 0,
 	left: -TIMELINE_PADDING,
 	pointerEvents: 'none',
 	position: 'absolute',
-	right: -TIMELINE_PADDING,
 	top: 0,
-};
+	width: timelineWidth,
+});
 
 export const SELECTION_ENABLED = true;
 export const TIMELINE_TOP_DRAG = true;

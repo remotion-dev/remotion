@@ -8,11 +8,12 @@ import {
 import {ExpandedTracksGetterContext} from '../ExpandedTracksProvider';
 import {TimelineExpandedTrackKeyframes} from './TimelineExpandedTrackKeyframes';
 import {
-	TIMELINE_SELECTED_TRACK_HIGHLIGHT_STYLE,
+	getTimelineSelectedTrackHighlightStyle,
 	useTimelineRowContainsSelection,
 	useTimelineRowSelection,
 } from './TimelineSelection';
 import {TimelineSequence} from './TimelineSequence';
+import {TimelineWidthContext} from './TimelineWidthProvider';
 
 const TimelineTrackUnmemoized: React.FC<{
 	readonly track: TrackWithHash;
@@ -20,6 +21,7 @@ const TimelineTrackUnmemoized: React.FC<{
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const previewServerConnected = previewServerState.type === 'connected';
+	const timelineWidth = useContext(TimelineWidthContext);
 	const {selected: rowSelected} = useTimelineRowSelection(track.nodePathInfo);
 	const containsSelection = useTimelineRowContainsSelection(track.nodePathInfo);
 
@@ -43,8 +45,8 @@ const TimelineTrackUnmemoized: React.FC<{
 	return (
 		<div>
 			<div style={layerStyle}>
-				{showRowHighlight ? (
-					<div style={TIMELINE_SELECTED_TRACK_HIGHLIGHT_STYLE} />
+				{showRowHighlight && timelineWidth !== null ? (
+					<div style={getTimelineSelectedTrackHighlightStyle(timelineWidth)} />
 				) : null}
 				<TimelineSequence
 					s={track.sequence}
