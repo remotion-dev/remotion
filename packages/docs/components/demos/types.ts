@@ -2144,12 +2144,12 @@ export const effectsLinesDemo: DemoType = {
 			optional: 'no',
 		},
 		{
-			name: 'spacing',
+			name: 'gap',
 			type: 'numeric',
-			min: 0.1,
+			min: 0,
 			max: 400,
 			step: 0.1,
-			default: 40,
+			default: 0,
 			optional: 'no',
 		},
 		{

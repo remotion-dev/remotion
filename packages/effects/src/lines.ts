@@ -17,7 +17,7 @@ const LINE_DIRECTIONS = ['horizontal', 'vertical'] as const;
 const DEFAULT_COLORS = ['#dff4ff', 'transparent'] as const;
 const DEFAULT_DIRECTION = 'horizontal' as const;
 const DEFAULT_THICKNESS = 40 as const;
-const DEFAULT_SPACING = 40 as const;
+const DEFAULT_GAP = 0 as const;
 const DEFAULT_ANGLE = 0 as const;
 const DEFAULT_OFFSET = 0 as const;
 
@@ -39,13 +39,13 @@ export const linesSchema = {
 		default: DEFAULT_THICKNESS,
 		description: 'Thickness',
 	},
-	spacing: {
+	gap: {
 		type: 'number',
-		min: 0.1,
+		min: 0,
 		max: 400,
 		step: 0.1,
-		default: DEFAULT_SPACING,
-		description: 'Spacing',
+		default: DEFAULT_GAP,
+		description: 'Gap',
 	},
 	angle: {
 		type: 'number',
@@ -70,8 +70,8 @@ export type LinesParams = {
 	readonly direction?: LinesDirection;
 	/** Thickness of each stripe in pixels. Defaults to `40`. */
 	readonly thickness?: number;
-	/** Distance between line starts in pixels. Defaults to `thickness`. */
-	readonly spacing?: number;
+	/** Transparent gap in pixels between each stripe. Defaults to `0` (stripes are packed solid). */
+	readonly gap?: number;
 	/** Rotates the line pattern in degrees. Defaults to `0`. */
 	readonly angle?: number;
 	/** Offset in pixels. Animate this value to scroll the lines. Defaults to `0`. */
@@ -112,12 +112,13 @@ type LinesState = {
 
 const resolve = (p: LinesParams): LinesResolved => {
 	const thickness = p.thickness ?? DEFAULT_THICKNESS;
+	const gap = p.gap ?? DEFAULT_GAP;
 
 	return {
 		colors: p.colors ?? DEFAULT_COLORS,
 		direction: p.direction ?? DEFAULT_DIRECTION,
 		thickness,
-		spacing: p.spacing ?? thickness,
+		spacing: thickness + gap,
 		angle: p.angle ?? DEFAULT_ANGLE,
 		offset: p.offset ?? DEFAULT_OFFSET,
 	};
@@ -142,13 +143,10 @@ const validatePositive = (value: number, name: string): void => {
 	}
 };
 
-const validateSpacingGteThickness = (
-	spacing: number,
-	thickness: number,
-): void => {
-	if (spacing < thickness) {
+const validateNonNegative = (value: number, name: string): void => {
+	if (value < 0) {
 		throw new TypeError(
-			`"spacing" must be greater than or equal to "thickness", but got spacing=${JSON.stringify(spacing)} and thickness=${JSON.stringify(thickness)}`,
+			`"${name}" must be greater than or equal to 0, but got ${JSON.stringify(value)}`,
 		);
 	}
 };
@@ -189,14 +187,14 @@ const validateLinesParams = (params: LinesParams): void => {
 	validateColors(params.colors);
 	validateDirection(params.direction);
 	assertOptionalFiniteNumber(params.thickness, 'thickness');
-	assertOptionalFiniteNumber(params.spacing, 'spacing');
+	assertOptionalFiniteNumber(params.gap, 'gap');
 	assertOptionalFiniteNumber(params.angle, 'angle');
 	assertOptionalFiniteNumber(params.offset, 'offset');
 
-	const {thickness, spacing} = resolve(params);
+	const thickness = params.thickness ?? DEFAULT_THICKNESS;
+	const gap = params.gap ?? DEFAULT_GAP;
 	validatePositive(thickness, 'thickness');
-	validatePositive(spacing, 'spacing');
-	validateSpacingGteThickness(spacing, thickness);
+	validateNonNegative(gap, 'gap');
 };
 
 const LINES_VS = /* glsl */ `#version 300 es

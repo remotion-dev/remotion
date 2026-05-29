@@ -37,7 +37,7 @@ export const MyComp: React.FC = () => {
             colors: ['#dff4ff', 'transparent'],
             direction: 'horizontal',
             thickness: 40,
-            spacing: 64,
+            gap: 24,
             angle: 20,
             offset: frame * 2,
           }),
@@ -66,13 +66,19 @@ Direction of the unrotated lines. Either `'horizontal'` or `'vertical'`. Default
 
 Thickness of each stripe in pixels. Defaults to `40`.
 
-### `spacing?`
+### `gap?`
 
-Distance between line starts in pixels. Must be greater than or equal to `thickness`.
+Transparent gap in pixels between each stripe. Defaults to `0`.
 
-Defaults to `thickness`.
+With `gap: 0` (the default), stripes are packed solid with no gap between them — colors are directly adjacent to each other.  
+With `gap > 0`, a transparent band appears between each stripe, allowing the source content to show through.
 
-When `spacing` is larger than `thickness`, the extra area remains transparent.
+For example, with `colors: ['red', 'blue']` and `gap: 10`:
+- 40px red stripe
+- 10px transparent (source image visible)
+- 40px blue stripe
+- 10px transparent (source image visible)
+- …and so on
 
 ### `angle?`
 
