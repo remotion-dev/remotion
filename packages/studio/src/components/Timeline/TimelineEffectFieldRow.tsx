@@ -7,7 +7,10 @@ import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import type {EffectSchemaFieldInfo} from '../../helpers/timeline-layout';
 import {callApi} from '../call-api';
+import {ContextMenu} from '../ContextMenu';
+import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {getComputedStatusLabel} from './get-timeline-keyframes';
+import {saveEffectProp} from './save-effect-prop';
 import {enqueueSavePropChange} from './save-prop-queue';
 import {timelineFieldValueColumnStyle} from './timeline-field-row-layout';
 import {TimelineExpandArrowSpacer} from './TimelineExpandArrowButton';
@@ -228,6 +231,9 @@ export const TimelineEffectFieldRow: React.FC<{
 	nodePathInfo,
 	keyframeDisplayOffset,
 }) => {
+	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const {setCodeValues} = useContext(Internals.VisualModeSettersContext);
+	const {codeValues} = useContext(Internals.VisualModeCodeValuesContext);
 	const selection = useTimelineRowSelection(nodePathInfo);
 	const style = useMemo(() => {
 		return {
@@ -236,7 +242,95 @@ export const TimelineEffectFieldRow: React.FC<{
 		};
 	}, [field.rowHeight]);
 
-	return (
+	const effectStatus = useMemo(
+		() =>
+			Internals.getEffectCodeValuesCtx({
+				codeValues,
+				nodePath,
+				effectIndex: field.effectIndex,
+			}),
+		[codeValues, nodePath, field.effectIndex],
+	);
+
+	const propStatus =
+		effectStatus.type === 'can-update-effect'
+			? (effectStatus.props?.[field.key] ?? null)
+			: null;
+
+	const isNonDefault = useMemo(() => {
+		if (!propStatus || !propStatus.canUpdate) {
+			return false;
+		}
+
+		const effectiveCodeValue =
+			propStatus.codeValue ?? field.fieldSchema.default;
+		return (
+			JSON.stringify(effectiveCodeValue) !==
+			JSON.stringify(field.fieldSchema.default)
+		);
+	}, [field.fieldSchema.default, propStatus]);
+
+	const canPerformReset =
+		previewServerState.type === 'connected' &&
+		propStatus !== null &&
+		propStatus.canUpdate;
+
+	const onReset = useCallback(() => {
+		if (
+			!canPerformReset ||
+			previewServerState.type !== 'connected' ||
+			!isNonDefault
+		) {
+			return;
+		}
+
+		const defaultValue =
+			field.fieldSchema.default !== undefined
+				? JSON.stringify(field.fieldSchema.default)
+				: null;
+
+		saveEffectProp({
+			fileName: validatedLocation.source,
+			nodePath,
+			effectIndex: field.effectIndex,
+			fieldKey: field.key,
+			value: field.fieldSchema.default,
+			defaultValue,
+			schema: field.effectSchema,
+			setCodeValues,
+			clientId: previewServerState.clientId,
+		});
+	}, [
+		canPerformReset,
+		field.effectIndex,
+		field.effectSchema,
+		field.fieldSchema.default,
+		field.key,
+		isNonDefault,
+		nodePath,
+		previewServerState,
+		setCodeValues,
+		validatedLocation.source,
+	]);
+
+	const contextMenuValues = useMemo((): ComboboxValue[] => {
+		return [
+			{
+				type: 'item',
+				id: 'reset-effect-field',
+				keyHint: null,
+				label: 'Reset',
+				leftItem: null,
+				disabled: !canPerformReset,
+				onClick: onReset,
+				quickSwitcherLabel: null,
+				subMenu: null,
+				value: 'reset-effect-field',
+			},
+		];
+	}, [canPerformReset, onReset]);
+
+	const row = (
 		<TimelineRowChrome
 			depth={rowDepth}
 			eye={<TimelineLayerEyeSpacer />}
@@ -263,5 +357,14 @@ export const TimelineEffectFieldRow: React.FC<{
 				/>
 			</div>
 		</TimelineRowChrome>
+	);
+
+	return (
+		<ContextMenu
+			values={contextMenuValues}
+			onOpen={selection.selectable ? selection.onSelect : null}
+		>
+			{row}
+		</ContextMenu>
 	);
 };

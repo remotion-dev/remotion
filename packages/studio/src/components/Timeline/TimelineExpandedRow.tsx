@@ -16,7 +16,6 @@ import {
 	TimelineExpandArrowButton,
 	TimelineExpandArrowSpacer,
 } from './TimelineExpandArrowButton';
-import {TimelineFieldRow} from './TimelineFieldRow';
 import {TimelineLayerEyeSpacer} from './TimelineLayerEye';
 import {TimelineRowChrome} from './TimelineRowChrome';
 import {
@@ -24,6 +23,7 @@ import {
 	getTimelineSelectedLabelStyle,
 	useTimelineRowSelection,
 } from './TimelineSelection';
+import {TimelineSequenceFieldRow} from './TimelineSequenceFieldRow';
 
 const rowLabel: React.CSSProperties = {
 	fontSize: 12,
@@ -133,7 +133,7 @@ export const TimelineExpandedRow: React.FC<{
 
 		if (node.field.kind === 'sequence-field') {
 			return (
-				<TimelineFieldRow
+				<TimelineSequenceFieldRow
 					field={node.field}
 					validatedLocation={validatedLocation}
 					rowDepth={rowDepth}
