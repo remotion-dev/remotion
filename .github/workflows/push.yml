@@ -124,7 +124,7 @@ jobs:
         with:
           ruby-version: '3.1'
       - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@ac9c95323431b7286870e5aa2bf9b61e8d335e71
         with:
           php-version: '8.4'
       - run: pip install pylint boto3 pytest
