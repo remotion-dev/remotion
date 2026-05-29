@@ -31,6 +31,7 @@ const audioSchema = {
 		description: 'Playback Rate',
 	},
 	loop: {type: 'boolean', default: false, description: 'Loop'},
+	hidden: Internals.hiddenField,
 } as const satisfies SequenceSchema;
 
 const AudioInner: React.FC<
@@ -47,6 +48,7 @@ const AudioInner: React.FC<
 		_experimentalControls: controls,
 		from,
 		durationInFrames,
+		hidden,
 		...otherProps
 	} = props;
 	const environment = useRemotionEnvironment();
@@ -133,9 +135,15 @@ const AudioInner: React.FC<
 			_remotionInternalStack={stack}
 			_remotionInternalIsMedia={isMedia}
 			name={name ?? '<Audio>'}
+			_remotionInternalDocumentationLink={
+				name === undefined
+					? 'https://www.remotion.dev/docs/media/audio'
+					: undefined
+			}
 			_experimentalControls={controls}
 			_remotionInternalLoopDisplay={loopDisplay}
 			showInTimeline={showInTimeline ?? true}
+			hidden={hidden}
 		>
 			{environment.isRendering ? (
 				<AudioForRendering {...otherProps} />

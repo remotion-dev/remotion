@@ -1,0 +1,100 @@
+---
+image: /generated/articles-docs-effects-shine.png
+slug: /effects/shine
+title: shine()
+sidebar_label: shine()
+crumb: '@remotion/effects'
+---
+
+# shine()<AvailableFrom v="4.0.468" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+Adds a glossy light sweep to canvas-based components such as [`<Video>`](/docs/media/video), [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) and [`<Solid>`](/docs/solid).
+
+Use it for stickers, badges, titles, and surfaces that should look reflective.
+
+## Preview
+
+<Demo type="effects-shine" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
+import {Video} from '@remotion/media';
+import {shine} from '@remotion/effects/shine';
+
+export const MyComp: React.FC = () => {
+  const frame = useCurrentFrame();
+  const progress = interpolate(frame, [15, 45], [0, 1], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+  });
+
+  return (
+    <AbsoluteFill>
+      <Video
+        src="https://remotion.media/video.mp4"
+        effects={[
+          shine({
+            progress,
+            angle: 30,
+            haloSigma: 200,
+            coreSigma: 65,
+            haloIntensity: 0.3,
+            coreIntensity: 0.4,
+          }),
+        ]}
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+## API
+
+Pass an object with the following properties. You can also call `shine()` without arguments.
+
+### `progress?`
+
+Position of the shine sweep from `0` to `1`. Defaults to `0.5`.
+
+Use `0` when the band is before the element, `0.5` when it is centered, and `1` when it has left the element.
+
+### `angle?`
+
+Direction the shine sweeps in degrees. Defaults to `30`.
+
+`0` moves rightward. `90` moves upward.
+
+### `haloSigma?`
+
+Soft outer halo width in pixels. Defaults to `200`. Must be greater than `0`.
+
+### `coreSigma?`
+
+Bright core width in pixels. Defaults to `65`. Must be greater than `0`.
+
+### `haloIntensity?`
+
+Peak halo brightness from `0` to `1`. Defaults to `0.3`.
+
+### `coreIntensity?`
+
+Peak core brightness from `0` to `1`. Defaults to `0.4`.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Requirements
+
+`shine()` uses a WebGL2 backend. During renders, enable WebGL via [`Config.setChromiumOpenGlRenderer()`](/docs/config#setchromiumopenglrenderer) (for example `'angle'`). See [Using WebGL during renders](/docs/remotion/html-in-canvas#using-webgl-during-renders).
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`glow()`](/docs/effects/glow)
+- [HTML-in-canvas guide](/docs/html-in-canvas)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/shine.ts)

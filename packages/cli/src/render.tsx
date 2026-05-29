@@ -16,6 +16,7 @@ const {
 	offthreadVideoCacheSizeInBytesOption,
 	scaleOption,
 	crfOption,
+	gopSizeOption,
 	jpegQualityOption,
 	videoBitrateOption,
 	enforceAudioOption,
@@ -178,6 +179,9 @@ export const render = async (
 	const crf = shouldOutputImageSequence
 		? null
 		: crfOption.getValue({commandLine: parsedCli}).value;
+	const gopSize = shouldOutputImageSequence
+		? null
+		: gopSizeOption.getValue({commandLine: parsedCli}).value;
 	const enableMultiProcessOnLinux = enableMultiprocessOnLinuxOption.getValue({
 		commandLine: parsedCli,
 	}).value;
@@ -301,6 +305,7 @@ export const render = async (
 		uiImageFormat: null,
 		cancelSignal: null,
 		crf,
+		gopSize,
 		ffmpegOverride,
 		audioBitrate,
 		muted,

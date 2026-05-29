@@ -26,6 +26,7 @@ const DeleteCompositionLoaded: React.FC<{
 	}
 
 	const {unresolved} = context;
+	const compositionStack = unresolved.stack ?? null;
 
 	const codemod: RecastCodemod = useMemo(() => {
 		return {
@@ -64,6 +65,7 @@ const DeleteCompositionLoaded: React.FC<{
 							`Delete from ${relativeRootPath}`
 						}
 						codemod={codemod}
+						stack={compositionStack}
 						valid
 						onSuccess={null}
 					/>

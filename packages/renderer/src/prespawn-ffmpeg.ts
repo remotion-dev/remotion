@@ -45,6 +45,7 @@ type PreStitcherOptions = {
 	codec: Codec | undefined;
 	crf: number | null | undefined;
 	x264Preset: X264Preset | null;
+	gopSize: number | null;
 	onProgress: (progress: number) => void;
 	proResProfile: _InternalTypes['ProResProfile'] | undefined;
 	logLevel: LogLevel;
@@ -103,6 +104,7 @@ export const prespawnFfmpeg = (options: PreStitcherOptions) => {
 			proResProfileName,
 			pixelFormat,
 			x264Preset: options.x264Preset,
+			gopSize: options.gopSize,
 			codec,
 			crf: options.crf,
 			videoBitrate: options.videoBitrate,

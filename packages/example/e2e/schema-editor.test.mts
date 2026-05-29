@@ -41,7 +41,7 @@ test.describe('visual mode', () => {
 					return content.includes(newTitle);
 				},
 				{
-					message: `Expected Root.tsx to contain "${newTitle}" after prop edit`,
+					message: `Expected E2eTestRoot.tsx to contain "${newTitle}" after prop edit`,
 					timeout: 10_000,
 				},
 			)

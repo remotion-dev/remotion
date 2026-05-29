@@ -1,5 +1,5 @@
-import {expect, test} from '@playwright/test';
 import fs from 'fs';
+import {expect, test} from '@playwright/test';
 import {EXPANDED_SIDEBAR_STATE, rootFile} from './constants.mts';
 import {navigateToSchemaTest} from './helpers.mts';
 import {startStudio, stopStudio} from './studio-server.mts';
@@ -28,9 +28,7 @@ test.describe('visual mode', () => {
 		await stopStudio();
 	});
 
-	test('should edit props via JSON editor and save on blur', async ({
-		page,
-	}) => {
+	test('should edit props via JSON editor and save on blur', async ({page}) => {
 		const textarea = await openJsonEditor(page);
 
 		const currentJson = await textarea.inputValue();
@@ -51,7 +49,7 @@ test.describe('visual mode', () => {
 					return content.includes(newTitle);
 				},
 				{
-					message: `Expected Root.tsx to contain "${newTitle}" after JSON editor edit`,
+					message: `Expected E2eTestRoot.tsx to contain "${newTitle}" after JSON editor edit`,
 					timeout: 10_000,
 				},
 			)

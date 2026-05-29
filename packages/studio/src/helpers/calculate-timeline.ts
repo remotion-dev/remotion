@@ -1,3 +1,4 @@
+import {stringifySequenceSubscriptionKey} from '@remotion/studio-shared';
 import type {LoopDisplay, OverrideIdToNodePaths, TSequence} from 'remotion';
 import {
 	getCascadedStart,
@@ -81,6 +82,8 @@ export const calculateTimeline = ({
 
 		const overrideId = sequence.controls?.overrideId ?? null;
 		const nodePath = overrideId ? overrideIdsToNodePaths[overrideId] : null;
+		const hasKeyframeRows =
+			sequence.controls !== null || sequence.effects.length > 0;
 
 		tracks.push({
 			sequence: {
@@ -96,8 +99,16 @@ export const calculateTimeline = ({
 			hash: actualHash,
 			cascadedStart,
 			cascadedDuration: sequence.duration,
+			keyframeDisplayOffset: hasKeyframeRows
+				? cascadedStart - sequence.from
+				: 0,
 			nodePathInfo: nodePath
-				? {nodePath, index: 0, numberOfSequencesWithThisNodePath: 0}
+				? {
+						sequenceSubscriptionKey: nodePath,
+						auxiliaryKeys: [],
+						index: 0,
+						numberOfSequencesWithThisNodePath: 0,
+					}
 				: null,
 		});
 	}
@@ -139,13 +150,16 @@ export const calculateTimeline = ({
 				return track;
 			}
 
-			const key = track.nodePathInfo.nodePath.join('.');
+			const key = stringifySequenceSubscriptionKey(
+				track.nodePathInfo.sequenceSubscriptionKey,
+			);
 			const index = nodePathIndexCounters.get(key) ?? 0;
 			nodePathIndexCounters.set(key, index + 1);
 			return {
 				...track,
 				nodePathInfo: {
-					nodePath: track.nodePathInfo.nodePath,
+					sequenceSubscriptionKey: track.nodePathInfo.sequenceSubscriptionKey,
+					auxiliaryKeys: track.nodePathInfo.auxiliaryKeys,
 					index,
 					numberOfSequencesWithThisNodePath: 0,
 				},
@@ -156,12 +170,15 @@ export const calculateTimeline = ({
 				return track;
 			}
 
-			const key = track.nodePathInfo.nodePath.join('.');
+			const key = stringifySequenceSubscriptionKey(
+				track.nodePathInfo.sequenceSubscriptionKey,
+			);
 
 			return {
 				...track,
 				nodePathInfo: {
-					nodePath: track.nodePathInfo.nodePath,
+					sequenceSubscriptionKey: track.nodePathInfo.sequenceSubscriptionKey,
+					auxiliaryKeys: track.nodePathInfo.auxiliaryKeys,
 					index: track.nodePathInfo.index,
 					numberOfSequencesWithThisNodePath:
 						nodePathIndexCounters.get(key) ?? 0,

@@ -1,7 +1,11 @@
 import type {VolumeProp} from './volume-prop.js';
 
 export const validateMediaProps = (
-	props: {volume: VolumeProp | undefined; playbackRate: number | undefined},
+	props: {
+		volume: VolumeProp | undefined;
+		playbackRate: number | undefined;
+		preservePitch?: boolean | undefined;
+	},
 	component: 'Html5Video' | 'Html5Audio' | 'Audio' | 'Video',
 ) => {
 	if (
@@ -37,6 +41,15 @@ export const validateMediaProps = (
 	) {
 		throw new TypeError(
 			`You have passed a playbackRate of ${props.playbackRate} to your <${component} /> component. Playback rate must be a real number above 0.`,
+		);
+	}
+
+	if (
+		typeof props.preservePitch !== 'boolean' &&
+		typeof props.preservePitch !== 'undefined'
+	) {
+		throw new TypeError(
+			`'preservePitch' must be a boolean or undefined but got '${typeof props.preservePitch}' instead`,
 		);
 	}
 };

@@ -1,6 +1,15 @@
 import {NoReactInternals} from 'remotion/no-react';
 import type {PropsEditType} from './DataEditor';
 
+export const CANNOT_SAVE_DEFAULT_PROPS_DOCS =
+	'https://www.remotion.dev/docs/troubleshooting/cannot-save-default-props';
+
+export type RenderModalWarning = {
+	readonly id: string;
+	readonly message: string;
+	readonly resolveLink?: string;
+};
+
 export type TypeCanSaveState =
 	| {
 			canUpdate: true;
@@ -10,6 +19,20 @@ export type TypeCanSaveState =
 			reason: string;
 			determined: boolean;
 	  };
+
+const warningOrNull = (
+	id: string,
+	message: string | null,
+): RenderModalWarning | null => {
+	if (message === null) {
+		return null;
+	}
+
+	return {
+		id,
+		message,
+	};
+};
 
 const getInputPropsWarning = ({
 	cliProps,
@@ -30,7 +53,7 @@ const getInputPropsWarning = ({
 
 const getCannotSaveDefaultProps = (
 	canSaveDefaultProps: TypeCanSaveState | null,
-) => {
+): RenderModalWarning | null => {
 	if (canSaveDefaultProps === null) {
 		return null;
 	}
@@ -43,7 +66,11 @@ const getCannotSaveDefaultProps = (
 		return null;
 	}
 
-	return `Can't save default props: ${canSaveDefaultProps.reason}.`;
+	return {
+		id: 'cannot-save-default-props',
+		message: `Can't save default props: ${canSaveDefaultProps.reason}.`,
+		resolveLink: CANNOT_SAVE_DEFAULT_PROPS_DOCS,
+	};
 };
 
 const customDateUsed = (used: boolean | undefined, inJSONEditor: boolean) => {
@@ -96,13 +123,22 @@ export const getRenderModalWarnings = ({
 	jsSetUsed: boolean;
 	inJSONEditor: boolean;
 	propsEditType: PropsEditType;
-}) => {
+}): RenderModalWarning[] => {
 	return [
-		getInputPropsWarning({cliProps, propsEditType}),
+		warningOrNull(
+			'input-props-override',
+			getInputPropsWarning({cliProps, propsEditType}),
+		),
 		getCannotSaveDefaultProps(canSaveDefaultProps),
-		customDateUsed(isCustomDateUsed, inJSONEditor),
-		staticFileUsed(customFileUsed, inJSONEditor),
-		mapUsed(jsMapUsed, inJSONEditor),
-		setUsed(jsSetUsed, inJSONEditor),
+		warningOrNull(
+			'custom-date-used',
+			customDateUsed(isCustomDateUsed, inJSONEditor),
+		),
+		warningOrNull(
+			'static-file-used',
+			staticFileUsed(customFileUsed, inJSONEditor),
+		),
+		warningOrNull('map-used', mapUsed(jsMapUsed, inJSONEditor)),
+		warningOrNull('set-used', setUsed(jsSetUsed, inJSONEditor)),
 	].filter(NoReactInternals.truthy);
 };

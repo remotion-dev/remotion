@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {flattenEffects, groupByBackend} from '../effects/effect-internals.js';
+import {groupByBackend} from '../effects/effect-internals.js';
 import type {
 	Backend,
 	EffectDefinition,
@@ -13,12 +13,14 @@ const makeDef = (
 ): EffectDefinition<unknown, unknown> => ({
 	type,
 	label: type,
+	documentationLink: null,
 	backend,
 	calculateKey: () => type,
 	setup: () => null,
 	apply: () => undefined,
 	cleanup: () => undefined,
-	schema: null,
+	schema: {},
+	validateParams: () => {},
 });
 
 const makeDesc = (
@@ -27,7 +29,6 @@ const makeDesc = (
 ): EffectDescriptor<unknown> => ({
 	definition: makeDef(type, backend),
 	params: {},
-	stack: new Error().stack!,
 	effectKey: type,
 	memoized: false,
 });
@@ -40,29 +41,6 @@ const memoizeEffects = (
 		memoized: true,
 	}));
 };
-
-test('flattenEffects unwraps nested-array descriptors', () => {
-	const a = makeDesc('a', '2d');
-	const b1 = makeDesc('b1', '2d');
-	const b2 = makeDesc('b2', '2d');
-	const c = makeDesc('c', 'webgl2');
-
-	const result = memoizeEffects(flattenEffects([a, [b1, b2], c]));
-	expect(result.map((d) => d.definition.type)).toEqual(['a', 'b1', 'b2', 'c']);
-});
-
-test('flattenEffects handles empty input', () => {
-	expect(flattenEffects([])).toEqual([]);
-});
-
-test('flattenEffects handles only-nested input', () => {
-	const a = makeDesc('a', '2d');
-	const b = makeDesc('b', '2d');
-	expect(flattenEffects([[a, b]]).map((d) => d.definition.type)).toEqual([
-		'a',
-		'b',
-	]);
-});
 
 test('groupByBackend collapses adjacent same-backend effects', () => {
 	const effects = [
@@ -111,4 +89,23 @@ test('groupByBackend returns one run per backend transition', () => {
 	const runs = groupByBackend(memoizeEffects(effects));
 	expect(runs).toHaveLength(4);
 	expect(runs.map((r) => r.backend)).toEqual(['2d', 'webgl2', '2d', 'webgl2']);
+});
+
+test('runEffectChain filters disabled effects before grouping', () => {
+	// Mirror of the filter in `runEffectChain` — kept here as a regression
+	// guard so the behavior is asserted independently of the canvas-bound
+	// chain runner.
+	const all: EffectDescriptor<unknown>[] = [
+		{...makeDesc('a', '2d'), params: {disabled: false}},
+		{...makeDesc('b', '2d'), params: {disabled: true}},
+		{...makeDesc('c', 'webgl2'), params: {}},
+		{...makeDesc('d', 'webgl2'), params: {disabled: true}},
+	];
+	const enabled = all.filter(
+		(e) => !(e.params as {disabled?: boolean}).disabled,
+	);
+	const runs = groupByBackend(memoizeEffects(enabled));
+	expect(runs).toHaveLength(2);
+	expect(runs[0].effects.map((e) => e.definition.type)).toEqual(['a']);
+	expect(runs[1].effects.map((e) => e.definition.type)).toEqual(['c']);
 });

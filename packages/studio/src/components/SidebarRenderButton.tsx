@@ -63,6 +63,7 @@ export const SidebarRenderButton: React.FC<{
 				initialProResProfile:
 					defaults.proResProfile as _InternalTypes['ProResProfile'],
 				initialx264Preset: defaults.x264Preset as X264Preset,
+				initialGopSize: defaults.gopSize,
 				initialPixelFormat: null,
 				initialAudioBitrate: defaults.audioBitrate,
 				initialVideoBitrate: defaults.videoBitrate,

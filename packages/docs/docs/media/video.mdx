@@ -345,7 +345,11 @@ export const MyComposition = () => {
 };
 ```
 
-### `credentials?`<AvailableFrom v="4.0.437" />
+### ~~`credentials?`<AvailableFrom v="4.0.437" />~~
+
+:::note Deprecated
+Use [`requestInit`](#requestinit) instead.
+:::
 
 Controls the [`credentials`](https://developer.mozilla.org/en-US/docs/Web/API/Request/credentials) option of the `fetch()` requests made to retrieve the video data.
 
@@ -360,7 +364,28 @@ import {Video} from '@remotion/media';
 export const MyComposition = () => {
   return (
     <AbsoluteFill>
-      <Video credentials="include" src="https://example.com/protected-video.mp4" />
+      <Video requestInit={{credentials: 'include'}} src="https://example.com/protected-video.mp4" />
+    </AbsoluteFill>
+  );
+};
+```
+
+### `requestInit?`<AvailableFrom v="4.0.465" />
+
+Passes [`RequestInit`](https://developer.mozilla.org/en-US/docs/Web/API/RequestInit) options to the `fetch()` requests made to retrieve the video data.
+
+Set `cache` to `"no-store"` if a CDN or browser cache returns invalid range request responses.
+The value is captured when the component mounts; later updates to the prop are ignored, so passing an inline object is safe.
+
+```tsx twoslash
+import {AbsoluteFill} from 'remotion';
+import {Video} from '@remotion/media';
+
+// ---cut---
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <Video requestInit={{cache: 'no-store'}} src="https://remotion.media/video.mp4" />
     </AbsoluteFill>
   );
 };
@@ -424,6 +449,11 @@ Maps to [`<OffthreadVideo />` -> `pauseWhenBuffering`](/docs/offthreadvideo#paus
 #### `onAutoPlayError?`
 
 Maps to [`<OffthreadVideo />` -> `onAutoPlayError`](/docs/offthreadvideo#onautoplayerror)
+
+#### `preservePitch?`<AvailableFrom v="4.0.463" />
+
+Maps to [`<OffthreadVideo />` -> `preservePitch`](/docs/offthreadvideo#preservepitch).  
+Only affects preview playback when falling back to [`<Html5Video>`](/docs/html5-video) or [`<OffthreadVideo>`](/docs/offthreadvideo).
 
 ### `disallowFallbackToOffthreadVideo?`
 

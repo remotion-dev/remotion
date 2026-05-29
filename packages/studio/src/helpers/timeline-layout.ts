@@ -1,26 +1,37 @@
 import {
+	getEffectFieldsToShow,
 	getFieldsToShow,
+	type AnySchemaFieldInfo,
 	type CodeValues,
 	type DragOverrides,
+	type EffectSchemaFieldInfo,
 	type SchemaFieldInfo,
 	type SequenceControls,
+	type SequenceSchemaFieldInfo,
 } from '@remotion/studio-shared';
 import type {
-	EffectDefinitionAndStack,
-	GetCodeValues,
 	GetDragOverrides,
+	GetEffectDragOverrides,
+	SequenceSchema as SequenceSchemaShape,
 	TSequence,
 } from 'remotion';
-import {NoReactInternals} from 'remotion/no-react';
 import type {GetIsExpanded} from '../components/ExpandedTracksProvider';
 import type {SequenceNodePathInfo} from './get-timeline-sequence-sort-key';
 
-export type {CodeValues, DragOverrides, SchemaFieldInfo, SequenceControls};
 export {
-	SCHEMA_FIELD_ROW_HEIGHT,
-	UNSUPPORTED_FIELD_ROW_HEIGHT,
+	getEffectFieldsToShow,
 	getFieldsToShow,
+	SCHEMA_FIELD_ROW_HEIGHT,
 } from '@remotion/studio-shared';
+export type {
+	AnySchemaFieldInfo,
+	CodeValues,
+	DragOverrides,
+	EffectSchemaFieldInfo,
+	SchemaFieldInfo,
+	SequenceControls,
+	SequenceSchemaFieldInfo,
+};
 
 export const TIMELINE_PADDING = 16;
 export const TIMELINE_BORDER = 1;
@@ -29,36 +40,15 @@ export const TIMELINE_ITEM_BORDER_BOTTOM = 1;
 export const TIMELINE_TRACK_EXPANDED_HEIGHT = 100;
 
 export const TREE_GROUP_ROW_HEIGHT = 22;
-export const EXPANDED_SECTION_PADDING_LEFT = 28;
 export const EXPANDED_SECTION_PADDING_RIGHT = 10;
 
 export type TimelineFieldOnSave = (value: unknown) => Promise<void>;
 export type TimelineFieldOnDragValueChange = (value: unknown) => void;
 
-export type EffectSchemaFieldLabel = {
-	key: string;
-	description: string | undefined;
-};
-
-export const getEffectSchemaLabels = (
-	effect: EffectDefinitionAndStack<unknown>,
-): EffectSchemaFieldLabel[] => {
-	if (!effect.definition.schema) {
-		return [];
-	}
-
-	return Object.entries(effect.definition.schema)
-		.map(([key, fieldSchema]) => {
-			if (fieldSchema.type === 'hidden') {
-				return null;
-			}
-
-			return {
-				key,
-				description: fieldSchema.description,
-			};
-		})
-		.filter(NoReactInternals.truthy);
+export type TimelineEffectGroupInfo = {
+	readonly effectIndex: number;
+	readonly effectSchema: SequenceSchemaShape;
+	readonly documentationLink: string | null;
 };
 
 export type TimelineTreeNode =
@@ -67,71 +57,41 @@ export type TimelineTreeNode =
 			readonly nodePathInfo: SequenceNodePathInfo;
 			readonly label: string;
 			readonly children: TimelineTreeNode[];
+			// Present when this group represents a single effect (not the outer
+			// "Effects" container). Lets the row component render the eye toggle and
+			// wire `disabled` saves without re-deriving the effect index.
+			readonly effectInfo: TimelineEffectGroupInfo | null;
 	  }
 	| {
 			readonly kind: 'field';
 			readonly nodePathInfo: SequenceNodePathInfo;
 			readonly label: string;
-			readonly field: SchemaFieldInfo | null;
+			readonly field: AnySchemaFieldInfo | null;
 	  };
 
 export const buildTimelineTree = ({
 	sequence,
 	nodePathInfo,
 	getDragOverrides,
-	getCodeValues,
+	getEffectDragOverrides,
+	codeValues,
 }: {
 	sequence: TSequence;
 	nodePathInfo: SequenceNodePathInfo;
 	getDragOverrides: GetDragOverrides;
-	getCodeValues: GetCodeValues;
+	getEffectDragOverrides: GetEffectDragOverrides;
+	codeValues: CodeValues;
 }): TimelineTreeNode[] => {
 	const roots: TimelineTreeNode[] = [];
-	const {nodePath, index} = nodePathInfo;
-
-	if (sequence.effects.length > 0) {
-		roots.push({
-			kind: 'group',
-			nodePathInfo: {
-				nodePath: [...nodePath, 'effects'],
-				index,
-				numberOfSequencesWithThisNodePath: 0,
-			},
-			label: 'Effects',
-			children: sequence.effects.map((effect, i): TimelineTreeNode => {
-				const effectNodePath = [...nodePath, 'effects', i];
-				return {
-					kind: 'group',
-					nodePathInfo: {
-						nodePath: effectNodePath,
-						index,
-						numberOfSequencesWithThisNodePath: 0,
-					},
-					label: effect.definition.label,
-					children: getEffectSchemaLabels(effect).map(
-						(label): TimelineTreeNode => ({
-							kind: 'field',
-							nodePathInfo: {
-								nodePath: [...effectNodePath, label.key],
-								index,
-								numberOfSequencesWithThisNodePath: 0,
-							},
-							label: label.description ?? label.key,
-							field: null,
-						}),
-					),
-				};
-			}),
-		});
-	}
+	const {sequenceSubscriptionKey, index, auxiliaryKeys} = nodePathInfo;
 
 	const controlFields = getFieldsToShow({
 		schema: sequence.controls!.schema,
 		currentRuntimeValueDotNotation:
 			sequence.controls!.currentRuntimeValueDotNotation,
 		getDragOverrides,
-		getCodeValues,
-		nodePath,
+		codeValues,
+		nodePath: sequenceSubscriptionKey,
 	});
 
 	if (controlFields && controlFields.length > 0) {
@@ -139,7 +99,8 @@ export const buildTimelineTree = ({
 			roots.push({
 				kind: 'field',
 				nodePathInfo: {
-					nodePath: [...nodePath, 'controls', f.key],
+					sequenceSubscriptionKey,
+					auxiliaryKeys: [...auxiliaryKeys, 'controls', f.key],
 					index,
 					numberOfSequencesWithThisNodePath: 0,
 				},
@@ -147,6 +108,62 @@ export const buildTimelineTree = ({
 				field: f,
 			});
 		}
+	}
+
+	if (sequence.effects.length > 0) {
+		roots.push({
+			kind: 'group',
+			nodePathInfo: {
+				sequenceSubscriptionKey,
+				auxiliaryKeys: [...auxiliaryKeys, 'effects'],
+				index,
+				numberOfSequencesWithThisNodePath: 0,
+			},
+			label: 'Effects',
+			effectInfo: null,
+			children: sequence.effects.map((effect, i): TimelineTreeNode => {
+				const effectFields = getEffectFieldsToShow({
+					effect,
+					effectIndex: i,
+					nodePath: sequenceSubscriptionKey,
+					codeValues,
+					getEffectDragOverrides,
+				});
+				return {
+					kind: 'group',
+					nodePathInfo: {
+						sequenceSubscriptionKey,
+						auxiliaryKeys: [...auxiliaryKeys, 'effects', i.toString()],
+						index,
+						numberOfSequencesWithThisNodePath: 0,
+					},
+					label: effect.label,
+					effectInfo: {
+						effectIndex: i,
+						effectSchema: effect.schema,
+						documentationLink: effect.documentationLink ?? null,
+					},
+					children: effectFields.map(
+						(f): TimelineTreeNode => ({
+							kind: 'field',
+							nodePathInfo: {
+								sequenceSubscriptionKey,
+								auxiliaryKeys: [
+									...auxiliaryKeys,
+									'effects',
+									i.toString(),
+									f.key,
+								],
+								index,
+								numberOfSequencesWithThisNodePath: 0,
+							},
+							label: f.description ?? f.key,
+							field: f,
+						}),
+					),
+				};
+			}),
+		});
 	}
 
 	return roots;
@@ -195,19 +212,20 @@ export const getExpandedTrackHeight = ({
 	sequence,
 	nodePathInfo,
 	getIsExpanded,
-	getCodeValues,
+	codeValues,
 }: {
 	sequence: TSequence;
 	nodePathInfo: SequenceNodePathInfo;
 	getIsExpanded: GetIsExpanded;
-	getCodeValues: GetCodeValues;
+	codeValues: CodeValues;
 }): number => {
 	const tree = buildTimelineTree({
 		sequence,
 		nodePathInfo,
 		// We assume that no drag overrides can change the timeline layout
 		getDragOverrides: () => ({}),
-		getCodeValues,
+		getEffectDragOverrides: () => ({}),
+		codeValues,
 	});
 	const flat = flattenVisibleTreeNodes({nodes: tree, getIsExpanded});
 
@@ -223,9 +241,17 @@ export const getExpandedTrackHeight = ({
 	return totalRowsHeight + separators;
 };
 
-export const TIMELINE_LAYER_HEIGHT_VIDEO = 75;
-export const TIMELINE_LAYER_HEIGHT_IMAGE = 50;
-export const TIMELINE_LAYER_HEIGHT_AUDIO = 25;
+export const TIMELINE_LAYER_FILMSTRIP_HEIGHT = 26;
+// The waveform stripe rendered underneath the filmstrip in TimelineVideoInfo.
+export const TIMELINE_VIDEO_INFO_WAVEFORM_HEIGHT = 17;
+export const TIMELINE_LAYER_HEIGHT_VIDEO =
+	2 + TIMELINE_LAYER_FILMSTRIP_HEIGHT + TIMELINE_VIDEO_INFO_WAVEFORM_HEIGHT;
+
+export const TIMELINE_LAYER_HEIGHT_IMAGE = 26;
+export const TIMELINE_LAYER_HEIGHT_AUDIO = 34;
+export const TIMELINE_LAYER_HEIGHT_DEFAULT = 21;
+// The horizontal row inside a timeline list item (eye + arrow + label).
+export const TIMELINE_LIST_ITEM_ROW_HEIGHT = 21;
 
 export const getTimelineLayerHeight = (
 	type: 'video' | 'image' | 'audio' | 'sequence' | 'other',
@@ -238,5 +264,9 @@ export const getTimelineLayerHeight = (
 		return TIMELINE_LAYER_HEIGHT_IMAGE;
 	}
 
-	return TIMELINE_LAYER_HEIGHT_AUDIO;
+	if (type === 'audio') {
+		return TIMELINE_LAYER_HEIGHT_AUDIO;
+	}
+
+	return TIMELINE_LAYER_HEIGHT_DEFAULT;
 };

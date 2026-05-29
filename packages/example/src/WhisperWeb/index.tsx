@@ -7,9 +7,8 @@ import {
 	transcribe,
 } from '@remotion/whisper-web';
 import {useCallback, useEffect, useState} from 'react';
-import {staticFile} from 'remotion';
 
-const audioFileUrl = staticFile('16khz.wav');
+const audioFileUrl = 'https://remotion.media/16khz.wav';
 
 // Define available models
 const AVAILABLE_MODELS: WhisperWebModel[] = [

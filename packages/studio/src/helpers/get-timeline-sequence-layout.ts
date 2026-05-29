@@ -46,21 +46,22 @@ export const getTimelineSequenceLayout = ({
 }) => {
 	const maxMediaSequenceDuration =
 		(maxMediaDuration ?? Infinity) - startFromMedia;
-	const lastFrame = (video.durationInFrames ?? 1) - 1;
+	const timelineDuration = video.durationInFrames ?? 1;
+	const lastFrame = timelineDuration - 1;
 
 	const spatialDuration = Math.max(
 		0,
 		Math.min(
 			maxMediaSequenceDuration,
-			durationInFrames - 1,
-			lastFrame - startFrom,
+			durationInFrames,
+			timelineDuration - startFrom,
 		),
 	);
 
 	// Unclipped spatial duration: without the lastFrame - startFrom constraint
 	const naturalSpatialDuration = Math.max(
 		0,
-		Math.min(maxMediaSequenceDuration, durationInFrames - 1),
+		Math.min(maxMediaSequenceDuration, durationInFrames),
 	);
 
 	const marginLeft =

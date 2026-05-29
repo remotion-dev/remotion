@@ -4,6 +4,7 @@ import {
 	Sequence,
 	useRemotionEnvironment,
 	useVideoConfig,
+	type EffectsProp,
 	type SequenceControls,
 	type SequenceProps,
 	type SequenceSchema,
@@ -12,12 +13,20 @@ import {GifForDevelopment} from './GifForDevelopment';
 import {GifForRendering} from './GifForRendering';
 import type {RemotionGifProps} from './props';
 
+const {
+	addSequenceStackTraces,
+	useMemoizedEffectDefinitions,
+	useMemoizedEffects,
+	wrapInSchema,
+} = Internals;
+
 export type GifProps = Omit<
 	SequenceProps,
-	'children' | 'durationInFrames' | 'layout'
+	'children' | 'durationInFrames' | 'layout' | '_remotionInternalEffects'
 > &
 	RemotionGifProps & {
 		readonly durationInFrames?: number;
+		readonly effects?: EffectsProp;
 	};
 
 /*
@@ -33,7 +42,8 @@ const gifSchema = {
 		default: 1,
 		description: 'Playback Rate',
 	},
-	...Internals.sequenceStyleSchema,
+	...Internals.sequenceVisualStyleSchema,
+	hidden: Internals.hiddenField,
 } as const satisfies SequenceSchema;
 
 const GifInner = ({
@@ -50,6 +60,7 @@ const GifInner = ({
 	durationInFrames,
 	style,
 	_experimentalControls: controls,
+	effects = [],
 	ref,
 	...sequenceProps
 }: GifProps & {
@@ -60,7 +71,15 @@ const GifInner = ({
 	const {durationInFrames: videoDuration} = useVideoConfig();
 	const resolvedDuration = durationInFrames ?? videoDuration;
 
-	const gifProps: RemotionGifProps = {
+	const memoizedEffectDefinitions = useMemoizedEffectDefinitions(effects);
+	const memoizedEffects = useMemoizedEffects({
+		effects,
+		overrideId: controls?.overrideId ?? null,
+	});
+
+	const gifProps: RemotionGifProps & {
+		readonly effects: typeof memoizedEffects;
+	} = {
 		src,
 		width,
 		height,
@@ -72,6 +91,7 @@ const GifInner = ({
 		id,
 		delayRenderTimeoutInMilliseconds,
 		style,
+		effects: memoizedEffects,
 	};
 
 	const inner = env.isRendering ? (
@@ -85,7 +105,9 @@ const GifInner = ({
 			layout="none"
 			durationInFrames={resolvedDuration}
 			name="<Gif>"
+			_remotionInternalDocumentationLink="https://www.remotion.dev/docs/gif/gif"
 			_experimentalControls={controls}
+			_remotionInternalEffects={memoizedEffectDefinitions}
 			{...sequenceProps}
 		>
 			{inner}
@@ -93,8 +115,8 @@ const GifInner = ({
 	);
 };
 
-export const Gif = Internals.wrapInSchema(GifInner, gifSchema);
+export const Gif = wrapInSchema(GifInner, gifSchema);
 
 Gif.displayName = 'Gif';
 
-Internals.addSequenceStackTraces(Gif);
+addSequenceStackTraces(Gif);

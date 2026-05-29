@@ -38,7 +38,6 @@ export const getDeviceLabel = (device: MediaDeviceInfo): string => {
 
 export const StreamPicker: React.FC<{
   canSelectAudio: boolean;
-  canSelectScreen: boolean;
   onPickVideo: (device: MediaDeviceInfo) => void;
   onPickAudio: (device: MediaDeviceInfo) => void;
   onPickScreenWithoutAudio: () => void;
@@ -46,10 +45,8 @@ export const StreamPicker: React.FC<{
   selectedVideoDevice: string | null;
   selectedAudioDevice: string | null;
   clear: () => void;
-  canClear: boolean;
 }> = ({
   canSelectAudio,
-  canSelectScreen,
   onPickAudio,
   onPickVideo,
   onPickScreenWithoutAudio,
@@ -57,7 +54,6 @@ export const StreamPicker: React.FC<{
   selectedAudioDevice,
   selectedVideoDevice,
   clear,
-  canClear,
 }) => {
   const devices = useDevices();
   const videoInputs = useMemo(() => {
@@ -80,26 +76,18 @@ export const StreamPicker: React.FC<{
           }}
         >
           <div style={title}>Select video</div>
-          {canSelectScreen ? (
-            <DeviceItem
-              handleClick={() => {
-                onPickScreenWithoutAudio();
-              }}
-              deviceLabel={"Screen capture"}
-              type="screen"
-              selected={selectedVideoDevice === "display-without-audio"}
-            />
-          ) : null}
-          {canSelectScreen ? (
-            <DeviceItem
-              handleClick={() => {
-                onPickScreenWithAudio();
-              }}
-              deviceLabel={"Screen capture with audio"}
-              type="screen"
-              selected={selectedVideoDevice === "display-with-audio"}
-            />
-          ) : null}
+          <DeviceItem
+            handleClick={onPickScreenWithoutAudio}
+            deviceLabel={"Screen capture"}
+            type="screen"
+            selected={selectedVideoDevice === "display-without-audio"}
+          />
+          <DeviceItem
+            handleClick={onPickScreenWithAudio}
+            deviceLabel={"Screen capture with audio"}
+            type="screen"
+            selected={selectedVideoDevice === "display-with-audio"}
+          />
           {videoInputs.map((d) => {
             return (
               <DeviceItem
@@ -113,7 +101,7 @@ export const StreamPicker: React.FC<{
               />
             );
           })}
-          {selectedVideoDevice && canClear ? (
+          {selectedVideoDevice ? (
             <a style={clearStyle} onClick={clear}>
               Clear
             </a>

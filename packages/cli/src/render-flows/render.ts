@@ -96,6 +96,7 @@ export const renderVideoFlow = async ({
 	addCleanupCallback,
 	cancelSignal,
 	crf,
+	gopSize,
 	uiCodec,
 	uiImageFormat,
 	ffmpegOverride,
@@ -164,6 +165,7 @@ export const renderVideoFlow = async ({
 	onProgress: JobProgressCallback;
 	addCleanupCallback: (label: string, cb: () => void) => void;
 	crf: Crf | null;
+	gopSize: number | null;
 	cancelSignal: CancelSignal | null;
 	uiCodec: Codec | null;
 	uiImageFormat: VideoImageFormat | null;
@@ -672,6 +674,7 @@ export const renderVideoFlow = async ({
 			durationInFrames: durationInFrames ?? config.durationInFrames,
 		},
 		crf: crf ?? null,
+		gopSize,
 		envVariables,
 		frameRange,
 		serializedInputPropsWithCustomSchema,

@@ -141,6 +141,7 @@ type RenderJobDynamicFields =
 			audioCodec: AudioCodec;
 			concurrency: number;
 			crf: number | null;
+			gopSize: number | null;
 			startFrame: number;
 			endFrame: number;
 			muted: boolean;

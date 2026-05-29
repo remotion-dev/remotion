@@ -26,11 +26,12 @@ export const Component = () => {
 
 const getTranslateStatus = (translateValue: string) => {
 	const input = makeComponent(translateValue);
-	const result = computeSequencePropsStatusFromContent(
-		input,
-		lineColumnToNodePath(input, 7),
-		['style.translate'],
-	);
+	const result = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: lineColumnToNodePath(input, 7),
+		keys: ['style.translate'],
+		effects: [],
+	});
 
 	assert(result.canUpdate);
 	return result.props['style.translate'];

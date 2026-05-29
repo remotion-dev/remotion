@@ -1,5 +1,5 @@
-import type {ComponentType} from 'react';
 import type React from 'react';
+import type {ComponentType} from 'react';
 import type {DrawFunction} from './TransitionSeries';
 
 export type PresentationDirection = 'entering' | 'exiting';

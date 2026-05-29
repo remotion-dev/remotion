@@ -22,6 +22,7 @@ const {
 	offthreadVideoThreadsOption,
 	scaleOption,
 	crfOption,
+	gopSizeOption,
 	jpegQualityOption,
 	videoBitrateOption,
 	enforceAudioOption,
@@ -311,6 +312,9 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 	const crf = crfOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
+	const gopSize = gopSizeOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
 	const jpegQuality = jpegQualityOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
@@ -362,6 +366,7 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 		encodingBufferSize,
 		proResProfile,
 		x264Preset,
+		gopSize,
 		crf,
 		pixelFormat,
 		imageFormat: imageFormat ?? undefined,

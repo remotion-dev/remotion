@@ -1,11 +1,12 @@
-import {useMemo, useState} from 'react';
-import React from 'react';
+import React, {useMemo, useState} from 'react';
 import {
+	Internals,
+	Sequence,
+	useRemotionEnvironment,
 	useVideoConfig,
 	type SequenceControls,
 	type SequenceSchema,
 } from 'remotion';
-import {Internals, Sequence, useRemotionEnvironment} from 'remotion';
 import {getLoopDisplay} from '../show-in-timeline';
 import type {InnerVideoProps, VideoProps} from './props';
 import {VideoForPreview} from './video-for-preview';
@@ -30,8 +31,13 @@ const videoSchema = {
 		default: 1,
 		description: 'Playback Rate',
 	},
+	hidden: {
+		type: 'boolean',
+		default: false,
+		description: 'Hidden',
+	},
 	loop: {type: 'boolean', default: false, description: 'Loop'},
-	...Internals.sequenceStyleSchema,
+	...Internals.sequenceVisualStyleSchema,
 } as const satisfies SequenceSchema;
 
 const InnerVideo: React.FC<
@@ -64,10 +70,11 @@ const InnerVideo: React.FC<
 	headless,
 	onError,
 	credentials,
+	requestInit,
 	_experimentalControls: controls,
 	objectFit,
 	_experimentalInitiallyDrawCachedFrame,
-	_experimentalEffects,
+	effects,
 	setMediaDurationInSeconds,
 }) => {
 	const environment = useRemotionEnvironment();
@@ -125,7 +132,9 @@ const InnerVideo: React.FC<
 				headless={headless}
 				onError={onError}
 				credentials={credentials}
+				requestInit={requestInit}
 				objectFit={objectFit}
+				effects={effects}
 			/>
 		);
 	}
@@ -154,9 +163,10 @@ const InnerVideo: React.FC<
 			headless={headless ?? false}
 			onError={onError}
 			credentials={credentials}
+			requestInit={requestInit}
 			controls={controls}
 			objectFit={objectFit}
-			_experimentalEffects={_experimentalEffects}
+			effects={effects}
 			_experimentalInitiallyDrawCachedFrame={
 				_experimentalInitiallyDrawCachedFrame
 			}
@@ -194,12 +204,14 @@ const VideoInner: React.FC<
 	headless,
 	onError,
 	credentials,
+	requestInit,
 	_experimentalControls: controls,
 	objectFit,
 	_experimentalInitiallyDrawCachedFrame,
-	_experimentalEffects,
+	effects,
 	durationInFrames,
 	from,
+	hidden,
 }) => {
 	const fallbackLogLevel = Internals.useLogLevel();
 	const [mediaVolume] = Internals.useMediaVolumeState();
@@ -259,8 +271,12 @@ const VideoInner: React.FC<
 		[basicInfo],
 	);
 
-	const memoizedEffects = Internals.useMemoizedEffects(
-		Internals.flattenEffects(_experimentalEffects ?? []),
+	const memoizedEffects = Internals.useMemoizedEffects({
+		effects: effects ?? [],
+		overrideId: controls?.overrideId ?? null,
+	});
+	const memoizedEffectDefinitions = Internals.useMemoizedEffectDefinitions(
+		effects ?? [],
 	);
 
 	if (sequenceDurationInFrames === 0) {
@@ -275,10 +291,16 @@ const VideoInner: React.FC<
 			_remotionInternalStack={stack}
 			_remotionInternalIsMedia={isMedia}
 			name={name ?? '<Video>'}
+			_remotionInternalDocumentationLink={
+				name === undefined
+					? 'https://www.remotion.dev/docs/media/video'
+					: undefined
+			}
 			_experimentalControls={controls}
 			_remotionInternalLoopDisplay={loopDisplay}
-			_experimentalEffects={memoizedEffects}
+			_remotionInternalEffects={memoizedEffectDefinitions}
 			showInTimeline={showInTimeline ?? true}
+			hidden={hidden}
 		>
 			<InnerVideo
 				audioStreamIndex={audioStreamIndex ?? 0}
@@ -309,12 +331,13 @@ const VideoInner: React.FC<
 				headless={headless ?? false}
 				onError={onError}
 				credentials={credentials}
+				requestInit={requestInit}
 				_experimentalControls={controls}
 				objectFit={objectFit ?? 'contain'}
 				_experimentalInitiallyDrawCachedFrame={
 					_experimentalInitiallyDrawCachedFrame ?? false
 				}
-				_experimentalEffects={memoizedEffects}
+				effects={memoizedEffects}
 				setMediaDurationInSeconds={setMediaDurationInSeconds}
 			/>
 		</Sequence>

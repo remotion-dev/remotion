@@ -1,10 +1,10 @@
-import {getVideoMetadata} from '@remotion/media-utils';
-import {ALL_FORMATS, Input, InputDisposedError, UrlSource} from 'mediabunny';
 import {useEffect, useState} from 'react';
 import {type TSequence} from 'remotion';
-import {getDurationOrCompute} from './get-duration-or-compute';
+import {getMediaMetadata} from './use-media-metadata';
 
 const cache = new Map<string, number>();
+
+const getCacheKey = (src: string, fps: number) => JSON.stringify([src, fps]);
 
 const getSrc = (s: TSequence) => {
 	if (s.type === 'video') {
@@ -20,48 +20,48 @@ const getSrc = (s: TSequence) => {
 
 export const useMaxMediaDuration = (s: TSequence, fps: number) => {
 	const src = getSrc(s);
+	const cacheKey = src ? getCacheKey(src, fps) : null;
 
 	const [maxMediaDuration, setMaxMediaDuration] = useState(
-		src ? (cache.get(src) ?? null) : Infinity,
+		cacheKey ? (cache.get(cacheKey) ?? null) : Infinity,
 	);
 
 	useEffect(() => {
-		if (!src) {
+		if (!src || !cacheKey) {
 			return;
 		}
 
-		const input = new Input({
-			formats: ALL_FORMATS,
-			source: new UrlSource(src),
-		});
+		const cached = cache.get(cacheKey) ?? null;
+		setMaxMediaDuration(cached);
 
-		getDurationOrCompute(input)
-			.then((duration) => {
-				cache.set(src, Math.floor(duration * fps));
-				setMaxMediaDuration(Math.floor(duration * fps));
-			})
-			.catch((e) => {
-				if (e instanceof InputDisposedError) {
+		if (cached !== null) {
+			return;
+		}
+
+		let cancelled = false;
+
+		getMediaMetadata(src)
+			.then((metadata) => {
+				if (cancelled || !metadata) {
 					return;
 				}
 
-				// In case of CORS errors, fall back to getVideoMetadata
-				return getVideoMetadata(src)
-					.then((metadata) => {
-						const durationOrInfinity = metadata.durationInSeconds ?? Infinity;
+				const duration = Math.floor(metadata.duration * fps);
+				cache.set(cacheKey, duration);
+				setMaxMediaDuration(duration);
+			})
+			.catch(() => {
+				if (cancelled) {
+					return;
+				}
 
-						cache.set(src, Math.floor(durationOrInfinity * fps));
-						setMaxMediaDuration(Math.floor(durationOrInfinity * fps));
-					})
-					.catch(() => {
-						// Silently handle getVideoMetadata failures to prevent unhandled rejections
-					});
+				setMaxMediaDuration(null);
 			});
 
 		return () => {
-			input.dispose();
+			cancelled = true;
 		};
-	}, [src, fps]);
+	}, [cacheKey, fps, src]);
 
 	if (maxMediaDuration !== null && (s.type === 'audio' || s.type === 'video')) {
 		return maxMediaDuration;

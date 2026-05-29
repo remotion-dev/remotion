@@ -1,11 +1,24 @@
 import type {SequenceSchema} from 'remotion';
 import {Internals} from 'remotion';
+import {
+	assertOptionalFiniteNumber,
+	validateUnitInterval,
+} from './color-utils.js';
+import {
+	assertEffectParamsObject,
+	assertRequiredColor,
+} from './validate-effect-param.js';
 
 const {createEffect} = Internals;
 
 const DEFAULT_AMOUNT = 0.5 as const;
 
 export const tintSchema = {
+	color: {
+		type: 'color',
+		default: undefined,
+		description: 'Color',
+	},
 	amount: {
 		type: 'number',
 		min: 0,
@@ -31,12 +44,23 @@ const resolve = (p: TintParams): TintResolved => ({
 	amount: p.amount ?? DEFAULT_AMOUNT,
 });
 
+const validateTintParams = (params: TintParams): void => {
+	assertEffectParamsObject(params, 'Tint');
+	assertRequiredColor(params.color, 'color');
+	assertOptionalFiniteNumber(params.amount, 'amount');
+
+	if (params.amount !== undefined) {
+		validateUnitInterval(params.amount, 'amount');
+	}
+};
+
 // Tints the source with a flat color. `amount` controls the blend strength
 // (0 = no tint, 1 = full color over opaque pixels). Operates on the 2D
 // backend; tinting respects the source's alpha mask.
 export const tint = createEffect<TintParams, null>({
 	type: 'remotion/tint',
-	label: 'Tint',
+	label: 'tint()',
+	documentationLink: 'https://www.remotion.dev/docs/effects/tint',
 	backend: '2d',
 	calculateKey: (params) => {
 		const r = resolve(params);
@@ -71,4 +95,5 @@ export const tint = createEffect<TintParams, null>({
 	},
 	cleanup: () => undefined,
 	schema: tintSchema,
+	validateParams: validateTintParams,
 });

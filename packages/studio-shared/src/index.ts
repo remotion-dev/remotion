@@ -14,6 +14,8 @@ export {
 	UnsubscribeFromSequencePropsRequest,
 	CancelRenderResponse,
 	CopyStillToClipboardRequest,
+	DeleteEffectRequest,
+	DeleteEffectResponse,
 	DeleteJsxNodeRequest,
 	DeleteJsxNodeResponse,
 	DuplicateJsxNodeRequest,
@@ -30,7 +32,10 @@ export {
 	RemoveRenderRequest,
 	RestartStudioRequest,
 	RestartStudioResponse,
+	SaveEffectPropsRequest,
+	SaveEffectPropsResponse,
 	SaveSequencePropsRequest,
+	SaveSequencePropsResponse,
 	SimpleDiff,
 	SubscribeToDefaultPropsRequest,
 	SubscribeToDefaultPropsResponse,
@@ -50,6 +55,7 @@ export {DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS} from './default-buffer-state
 export {EventSourceEvent} from './event-source-event';
 export {formatBytes} from './format-bytes';
 export {getDefaultOutLocation} from './get-default-out-name';
+export {getAllSchemaKeys} from './get-all-keys';
 export {
 	ErrorLocation,
 	getLocationFromBuildError,
@@ -94,14 +100,17 @@ export {
 export type {CompletedClientRender} from './render-job';
 export {
 	SCHEMA_FIELD_ROW_HEIGHT,
-	UNSUPPORTED_FIELD_ROW_HEIGHT,
+	getEffectFieldsToShow,
 	getFieldsToShow,
 } from './schema-field-info';
 export type {
+	AnySchemaFieldInfo,
 	CodeValues,
 	DragOverrides,
+	EffectSchemaFieldInfo,
 	SchemaFieldInfo,
 	SequenceControls,
+	SequenceSchemaFieldInfo,
 } from './schema-field-info';
 export {
 	ScriptLine,
@@ -113,3 +122,6 @@ export {EnumPath, stringifyDefaultProps} from './stringify-default-props';
 
 export type {VisualControlChange} from './codemods';
 export {optimisticUpdateForCodeValues} from './optimistic-update-for-code-values';
+export {optimisticUpdateForEffectCodeValues} from './optimistic-update-for-effect-code-values';
+export {stringifySequenceSubscriptionKey} from './stringify-sequence-subscription-key';
+export {stringifySequenceExpandedRowKey} from './stringify-sequence-subscription-key';

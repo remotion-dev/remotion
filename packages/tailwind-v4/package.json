@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/tailwind-v4"
 	},
 	"name": "@remotion/tailwind-v4",
-	"version": "4.0.461",
+	"version": "4.0.469",
 	"description": "Enable TailwindCSS support in Remotion (TailwindCSS v4)",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
@@ -19,6 +19,7 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"dependencies": {
+		"css-loader": "7.1.4",
 		"style-loader": "4.0.0",
 		"tailwindcss": "4.2.0",
 		"@tailwindcss/webpack": "4.2.0"

@@ -33,6 +33,7 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 				cancelToken: makeCancelSignal(),
 				concurrency: input.concurrency,
 				crf: input.crf,
+				gopSize: input.gopSize,
 				endFrame: input.endFrame,
 				startFrame: input.startFrame,
 				muted: input.muted,

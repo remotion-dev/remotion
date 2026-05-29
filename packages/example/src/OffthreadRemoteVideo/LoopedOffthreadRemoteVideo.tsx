@@ -1,15 +1,10 @@
 import {StudioInternals} from '@remotion/studio';
-import {
-	AbsoluteFill,
-	OffthreadVideo,
-	staticFile,
-	useCurrentFrame,
-} from 'remotion';
+import {AbsoluteFill, OffthreadVideo, useCurrentFrame} from 'remotion';
 import {calculateMetadataFn} from './OffthreadRemoteVideo';
 
 const fps = 30;
 
-const src = staticFile('bigbuckbunny.mp4') + '#t=lol';
+const src = 'https://remotion.media/bigbuckbunny.mp4#t=lol';
 
 export const LoopedOffthreadVideo: React.FC<{
 	durationInFrames: number;

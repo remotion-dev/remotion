@@ -30,6 +30,7 @@ export type RenderDefaults = {
 	enforceAudioTrack: boolean;
 	proResProfile: _InternalTypes['ProResProfile'] | null;
 	x264Preset: X264Preset;
+	gopSize: number | null;
 	pixelFormat: PixelFormat;
 	audioBitrate: string | null;
 	videoBitrate: string | null;

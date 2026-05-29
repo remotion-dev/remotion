@@ -14,6 +14,7 @@ import {playAndHandleNotAllowedError} from '../play-and-handle-not-allowed-error
 import {useRemotionEnvironment} from '../use-remotion-environment.js';
 import type {SharedElementSourceNode} from './shared-element-source-node.js';
 import {makeSharedElementSourceNode} from './shared-element-source-node.js';
+import type {RemotionAudioContextState} from './use-audio-context.js';
 import {useSingletonAudioContext} from './use-audio-context.js';
 import {waitUntilActuallyResumed} from './wait-until-actually-resumed.js';
 
@@ -57,7 +58,6 @@ export type ScheduleAudioNodeResult =
 export type ScheduleAudioNodeOptions = {
 	readonly node: AudioBufferSourceNode;
 	readonly mediaTimestamp: number;
-	readonly currentTime: number;
 	readonly scheduledTime: number;
 	readonly originalUnloopedMediaTimestamp: number;
 	readonly duration: number;
@@ -75,6 +75,7 @@ export type AudioSyncAnchorEmitter = {
 
 type SharedAudioContextValue = {
 	audioContext: AudioContext | null;
+	getAudioContextState: () => RemotionAudioContextState | null;
 	gainNode: GainNode | null;
 	audioSyncAnchor: {value: number};
 	audioSyncAnchorEmitter: AudioSyncAnchorEmitter;
@@ -82,7 +83,7 @@ type SharedAudioContextValue = {
 		options: ScheduleAudioNodeOptions,
 	) => ScheduleAudioNodeResult;
 	resume: () => Promise<void>;
-	suspend: () => void;
+	suspend: () => Promise<void>;
 	getIsResumingAudioContext: () => Promise<void> | null;
 	unscheduleAudioNode: (node: AudioBufferSourceNode) => void;
 };
@@ -170,6 +171,24 @@ type NodeToResume = {
 	duration: number;
 };
 
+const shouldSaveForLater = (
+	state: Exclude<RemotionAudioContextState, 'closed'>,
+) => {
+	if (
+		state === 'suspended' ||
+		state === 'running-to-suspended' ||
+		state === 'interrupted'
+	) {
+		return true;
+	}
+
+	if (state === 'running' || state === 'suspended-to-running') {
+		return false;
+	}
+
+	throw new Error(`Unexpected audio context state: ${state satisfies never}`);
+};
+
 export const SharedAudioContextProvider: React.FC<{
 	readonly children: React.ReactNode;
 	readonly audioLatencyHint: AudioContextLatencyCategory;
@@ -221,7 +240,6 @@ export const SharedAudioContextProvider: React.FC<{
 		return ({
 			node,
 			mediaTimestamp,
-			currentTime,
 			scheduledTime,
 			duration,
 			offset,
@@ -231,8 +249,16 @@ export const SharedAudioContextProvider: React.FC<{
 				throw new Error('Audio context not found');
 			}
 
-			const saveForLater =
-				ctxAndGain.audioContext.state === 'suspended' && !isResuming.current;
+			const currentState = ctxAndGain.getState();
+
+			if (currentState === 'closed') {
+				return {
+					type: 'not-started',
+					reason: 'audio context is closed',
+				};
+			}
+
+			const saveForLater = shouldSaveForLater(currentState);
 
 			if (duration > 0) {
 				if (saveForLater) {
@@ -286,8 +312,7 @@ export const SharedAudioContextProvider: React.FC<{
 					: Math.abs(timeDiff).toFixed(2) +
 							(timeDiff < 0 ? ' delay' : ' ahead'),
 				'',
-				'current=' + currentTime.toFixed(4),
-				'actualcurrent=' + ctxAndGain.audioContext.currentTime.toFixed(4),
+				'current=' + ctxAndGain.audioContext.currentTime.toFixed(4),
 				'offset=' + offset.toFixed(4),
 				'latency=' + latency.toFixed(4),
 				'state=' + ctxAndGain.audioContext.state,
@@ -341,7 +366,7 @@ export const SharedAudioContextProvider: React.FC<{
 		});
 		nodesToResume.current.clear();
 
-		const resumePromise = ctxAndGain.audioContext.resume();
+		const resumePromise = ctxAndGain.resume();
 
 		isResuming.current = new Promise<void>((resolve) => {
 			waitUntilActuallyResumed(ctxAndGain.audioContext, logLevel).then(resolve);
@@ -369,20 +394,21 @@ export const SharedAudioContextProvider: React.FC<{
 
 	const suspend = useCallback(() => {
 		if (!ctxAndGain) {
-			return;
+			return Promise.resolve();
 		}
 
 		if (!audioContextIsPlayingEventually.current) {
-			return;
+			return Promise.resolve();
 		}
 
 		audioContextIsPlayingEventually.current = false;
-		ctxAndGain.audioContext.suspend();
+		return ctxAndGain.suspend();
 	}, [ctxAndGain]);
 
 	const audioContextValue: SharedAudioContextValue = useMemo(() => {
 		return {
 			audioContext: ctxAndGain?.audioContext ?? null,
+			getAudioContextState: () => ctxAndGain?.getState() ?? null,
 			gainNode: ctxAndGain?.gainNode ?? null,
 			audioSyncAnchor,
 			audioSyncAnchorEmitter,

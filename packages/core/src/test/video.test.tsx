@@ -91,3 +91,19 @@ test('It should throw when both endAt and trimAfter are provided', () => {
 		),
 	).toThrow(/Cannot use both endAt and trimAfter props/);
 });
+
+test('It should reject invalid preservePitch values on Video', () => {
+	expect(() =>
+		render(
+			<WrapSequenceContext>
+				<Html5Video
+					// @ts-expect-error
+					preservePitch="yes"
+					src="test"
+				/>
+			</WrapSequenceContext>,
+		),
+	).toThrow(
+		/'preservePitch' must be a boolean or undefined but got 'string' instead/,
+	);
+});

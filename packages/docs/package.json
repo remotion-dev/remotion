@@ -4,7 +4,7 @@
 	},
 	"name": "docs",
 	"private": true,
-	"version": "4.0.461",
+	"version": "4.0.469",
 	"scripts": {
 		"formatting": "oxfmt src --check",
 		"format": "oxfmt src",
@@ -43,6 +43,7 @@
 		"@remotion/cloudrun": "workspace:*",
 		"@remotion/design": "workspace:*",
 		"@remotion/docusaurus-plugin": "workspace:*",
+		"@remotion/effects": "workspace:*",
 		"@remotion/elevenlabs": "workspace:*",
 		"@remotion/enable-scss": "workspace:*",
 		"@remotion/eslint-config-internal": "workspace:*",
@@ -118,7 +119,7 @@
 		"shiki": "3.22.0",
 		"three": "catalog:",
 		"twoslash": "0.3.6",
-		"uuid": "8.3.2",
+		"uuid": "14.0.0",
 		"zod": "catalog:"
 	},
 	"devDependencies": {

@@ -13,6 +13,7 @@ export const experimental_Video = Video;
 export {AudioForPreview} from './audio/audio-for-preview';
 export {AudioProps, FallbackHtml5AudioProps} from './audio/props';
 export {MediaErrorAction} from './on-error';
+export type {MediaRequestInit} from './request-init';
 export {
 	FallbackOffthreadVideoProps,
 	VideoObjectFit,

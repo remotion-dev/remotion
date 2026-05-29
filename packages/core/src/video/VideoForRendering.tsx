@@ -53,6 +53,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		loopVolumeCurveBehavior,
 		audioStreamIndex,
 		onVideoFrame,
+		preservePitch: _preservePitch,
 		...props
 	},
 	ref,
@@ -128,7 +129,10 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			mediaFrame: frame,
 			playbackRate: playbackRate ?? 1,
 			toneFrequency: toneFrequency ?? 1,
-			audioStartFrame: Math.max(0, -(sequenceContext?.relativeFrom ?? 0)),
+			audioStartFrame: Math.max(
+				0,
+				-(sequenceContext?.cumulatedNegativeFrom ?? 0),
+			),
 			audioStreamIndex: audioStreamIndex ?? 0,
 		});
 
@@ -144,7 +148,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		absoluteFrame,
 		playbackRate,
 		toneFrequency,
-		sequenceContext?.relativeFrom,
+		sequenceContext?.cumulatedNegativeFrom,
 		audioStreamIndex,
 	]);
 

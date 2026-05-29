@@ -174,6 +174,7 @@ type RenderMediaCommandOptions = Omit<
 			| 'pixelFormat'
 			| 'proResProfile'
 			| 'x264Preset'
+			| 'gopSize'
 			| 'audioCodec'
 			| 'forSeamlessAacConcatenation'
 			| 'separateAudioTo'
@@ -270,6 +271,7 @@ export const makeReadOnlyStudioRenderCommand = ({
 	enforceAudioTrack,
 	proResProfile,
 	x264Preset,
+	gopSize,
 	pixelFormat,
 	crf,
 	videoBitrate,
@@ -476,6 +478,7 @@ export const makeReadOnlyStudioRenderCommand = ({
 					x264Preset,
 					renderDefaults.x264Preset,
 				),
+				renderMediaValueFlag('gopSize', gopSize, renderDefaults.gopSize),
 				valueFlag(options.crfOption.cliFlag, crf, null),
 				valueFlag(
 					options.jpegQualityOption.cliFlag,
