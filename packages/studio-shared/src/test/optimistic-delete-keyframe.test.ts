@@ -12,6 +12,7 @@ test('optimisticDeleteSequenceKeyframe removes the matching keyframe and an easi
 			'style.opacity': {
 				canUpdate: false,
 				reason: 'keyframed',
+				interpolationFunction: 'interpolate',
 				keyframes: [
 					{frame: 0, value: 0},
 					{frame: 30, value: 0.5},
@@ -53,6 +54,7 @@ test('optimisticDeleteSequenceKeyframe is a no-op when no keyframe matches', () 
 			'style.opacity': {
 				canUpdate: false,
 				reason: 'keyframed',
+				interpolationFunction: 'interpolate',
 				keyframes: [{frame: 0, value: 0}],
 				easing: [],
 				clamping: {left: 'extend', right: 'extend'},
@@ -100,6 +102,7 @@ test('optimisticDeleteEffectKeyframe removes the matching keyframe on the target
 					amount: {
 						canUpdate: false,
 						reason: 'keyframed',
+						interpolationFunction: 'interpolate',
 						keyframes: [
 							{frame: 0, value: 0},
 							{frame: 30, value: 1},

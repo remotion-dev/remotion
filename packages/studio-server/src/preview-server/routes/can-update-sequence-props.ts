@@ -32,6 +32,7 @@ type KeyframedPropStatus = Extract<ComputedPropStatus, {reason: 'keyframed'}>;
 type PropKeyframes = KeyframedPropStatus['keyframes'];
 type PropEasing = KeyframedPropStatus['easing'];
 type PropClamping = KeyframedPropStatus['clamping'];
+type PropInterpolationFunction = KeyframedPropStatus['interpolationFunction'];
 
 export const isStaticValue = (node: Expression): boolean => {
 	switch (node.type) {
@@ -263,16 +264,13 @@ const getKeyframeEasingArray = ({
 };
 
 const getInterpolationMetadata = (
+	interpolationFunction: PropInterpolationFunction,
 	callExpression: CallExpression,
 	keyframeCount: number,
 ): {easing: PropEasing; clamping: PropClamping} | null => {
 	const segments = Math.max(0, keyframeCount - 1);
-	if (callExpression.callee.type !== 'Identifier') {
-		return null;
-	}
-
 	const defaultClamping: PropClamping =
-		callExpression.callee.name === 'interpolateColors'
+		interpolationFunction === 'interpolateColors'
 			? {
 					left: 'clamp',
 					right: 'clamp',
@@ -286,12 +284,8 @@ const getInterpolationMetadata = (
 		clamping: defaultClamping,
 	};
 
-	if (callExpression.callee.name === 'interpolateColors') {
+	if (interpolationFunction === 'interpolateColors') {
 		return defaults;
-	}
-
-	if (callExpression.callee.name !== 'interpolate') {
-		return null;
 	}
 
 	const optionsArg = callExpression.arguments[3];
@@ -360,6 +354,7 @@ const getInterpolationKeyframes = (
 			keyframes: PropKeyframes;
 			easing: PropEasing;
 			clamping: PropClamping;
+			interpolationFunction: PropInterpolationFunction;
 	  }
 	| undefined => {
 	if (node.type === 'TSAsExpression') {
@@ -378,6 +373,8 @@ const getInterpolationKeyframes = (
 	) {
 		return undefined;
 	}
+
+	const interpolationFunction = callExpression.callee.name;
 
 	const inputArg = callExpression.arguments[1];
 	const outputArg = callExpression.arguments[2];
@@ -422,12 +419,17 @@ const getInterpolationKeyframes = (
 		return undefined;
 	}
 
-	const metadata = getInterpolationMetadata(callExpression, keyframes.length);
+	const metadata = getInterpolationMetadata(
+		interpolationFunction,
+		callExpression,
+		keyframes.length,
+	);
 	if (!metadata) {
 		return undefined;
 	}
 
 	return {
+		interpolationFunction,
 		keyframes,
 		easing: metadata.easing,
 		clamping: metadata.clamping,
@@ -443,6 +445,7 @@ export const getComputedStatus = (node: Expression): CanUpdatePropStatus => {
 	return {
 		canUpdate: false,
 		reason: 'keyframed',
+		interpolationFunction: interpolation.interpolationFunction,
 		keyframes: interpolation.keyframes,
 		easing: interpolation.easing,
 		clamping: interpolation.clamping,

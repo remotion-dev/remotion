@@ -23,7 +23,7 @@ export const interpolateKeyframedStatus = ({
 	frame: number;
 	status: CanUpdateSequencePropStatusKeyframed;
 }): number | string | null => {
-	const {keyframes, easing, clamping} = status;
+	const {keyframes, easing, clamping, interpolationFunction} = status;
 	if (keyframes.length === 0) {
 		return null;
 	}
@@ -31,10 +31,11 @@ export const interpolateKeyframedStatus = ({
 	const inputRange = keyframes.map((k) => k.frame);
 	const outputs = keyframes.map((k) => k.value);
 
-	const allNumbers = outputs.every((v) => typeof v === 'number');
-	const allStrings = outputs.every((v) => typeof v === 'string');
+	if (interpolationFunction === 'interpolateColors') {
+		if (!outputs.every((v) => typeof v === 'string')) {
+			return null;
+		}
 
-	if (allStrings) {
 		if (keyframes.length === 1) {
 			return outputs[0] as string;
 		}
@@ -46,17 +47,25 @@ export const interpolateKeyframedStatus = ({
 		}
 	}
 
-	if (allNumbers) {
-		try {
-			return interpolate(frame, inputRange, outputs as number[], {
-				easing: easing.map(easingToFn),
-				extrapolateLeft: clamping.left,
-				extrapolateRight: clamping.right,
-			});
-		} catch {
-			return null;
-		}
+	if (interpolationFunction !== 'interpolate') {
+		return null;
 	}
 
-	return null;
+	if (!outputs.every((v) => typeof v === 'number')) {
+		return null;
+	}
+
+	if (keyframes.length === 1) {
+		return outputs[0] as number;
+	}
+
+	try {
+		return interpolate(frame, inputRange, outputs as number[], {
+			easing: easing.map(easingToFn),
+			extrapolateLeft: clamping.left,
+			extrapolateRight: clamping.right,
+		});
+	} catch {
+		return null;
+	}
 };
