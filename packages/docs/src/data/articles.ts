@@ -1764,15 +1764,6 @@ export const articles = [
 		slug: 'effects/contrast',
 	},
 	{
-		id: 'effects/drop-shadow',
-		title: 'dropShadow()',
-		relativePath: 'docs/effects/drop-shadow.mdx',
-		compId: 'articles-docs-effects-drop-shadow',
-		crumb: '@remotion/effects',
-		noAi: false,
-		slug: 'effects/drop-shadow',
-	},
-	{
 		id: 'effects/dot-grid',
 		title: 'dotGrid()',
 		relativePath: 'docs/effects/dot-grid.mdx',
@@ -1780,6 +1771,15 @@ export const articles = [
 		crumb: '@remotion/effects',
 		noAi: false,
 		slug: 'effects/dot-grid',
+	},
+	{
+		id: 'effects/drop-shadow',
+		title: 'dropShadow()',
+		relativePath: 'docs/effects/drop-shadow.mdx',
+		compId: 'articles-docs-effects-drop-shadow',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/drop-shadow',
 	},
 	{
 		id: 'effects/duotone',
@@ -1852,6 +1852,15 @@ export const articles = [
 		crumb: '@remotion/effects',
 		noAi: false,
 		slug: 'effects/invert',
+	},
+	{
+		id: 'effects/lines',
+		title: 'lines()',
+		relativePath: 'docs/effects/lines.mdx',
+		compId: 'articles-docs-effects-lines',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/lines',
 	},
 	{
 		id: 'effects/mirror',
