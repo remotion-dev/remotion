@@ -13,6 +13,8 @@ import type {
 	TimelineFieldOnDragValueChange,
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
+import {ContextMenu} from '../ContextMenu';
+import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {saveSequenceProp} from './save-sequence-prop';
 import {timelineFieldValueColumnStyle} from './timeline-field-row-layout';
 import {TimelineExpandArrowSpacer} from './TimelineExpandArrowButton';
@@ -142,7 +144,7 @@ const Value: React.FC<{
 	);
 };
 
-export const TimelineFieldRow: React.FC<{
+export const TimelineSequenceFieldRow: React.FC<{
 	readonly field: SchemaFieldInfo;
 	readonly validatedLocation: CodePosition;
 	readonly rowDepth: number;
@@ -153,6 +155,8 @@ export const TimelineFieldRow: React.FC<{
 	const {codeValues: visualModeCodeValues} = useContext(
 		Internals.VisualModeCodeValuesContext,
 	);
+	const {setCodeValues} = useContext(Internals.VisualModeSettersContext);
+	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const selection = useTimelineRowSelection(nodePathInfo);
 
 	const codeValuesForOverride = Internals.getCodeValuesCtx(
@@ -172,7 +176,72 @@ export const TimelineFieldRow: React.FC<{
 		return null;
 	}
 
-	return (
+	const isNonDefault = useMemo(() => {
+		if (!codeValue.canUpdate) {
+			return false;
+		}
+
+		const effectiveCodeValue = codeValue.codeValue ?? field.fieldSchema.default;
+		return (
+			JSON.stringify(effectiveCodeValue) !==
+			JSON.stringify(field.fieldSchema.default)
+		);
+	}, [codeValue, field.fieldSchema.default]);
+
+	const canReset =
+		previewServerState.type === 'connected' &&
+		codeValue.canUpdate &&
+		isNonDefault;
+
+	const onReset = useCallback(() => {
+		if (!canReset || previewServerState.type !== 'connected') {
+			return;
+		}
+
+		const defaultValue =
+			field.fieldSchema.default !== undefined
+				? JSON.stringify(field.fieldSchema.default)
+				: null;
+
+		saveSequenceProp({
+			fileName: validatedLocation.source,
+			nodePath,
+			fieldKey: field.key,
+			value: field.fieldSchema.default,
+			defaultValue,
+			schema,
+			setCodeValues,
+			clientId: previewServerState.clientId,
+		});
+	}, [
+		canReset,
+		field.fieldSchema.default,
+		field.key,
+		nodePath,
+		previewServerState,
+		schema,
+		setCodeValues,
+		validatedLocation.source,
+	]);
+
+	const contextMenuValues = useMemo((): ComboboxValue[] => {
+		return [
+			{
+				type: 'item',
+				id: 'reset-sequence-field',
+				keyHint: null,
+				label: 'Reset',
+				leftItem: null,
+				disabled: false,
+				onClick: onReset,
+				quickSwitcherLabel: null,
+				subMenu: null,
+				value: 'reset-sequence-field',
+			},
+		];
+	}, [onReset]);
+
+	const row = (
 		<TimelineRowChrome
 			depth={rowDepth}
 			eye={<TimelineLayerEyeSpacer />}
@@ -206,5 +275,16 @@ export const TimelineFieldRow: React.FC<{
 				</div>
 			)}
 		</TimelineRowChrome>
+	);
+
+	return canReset ? (
+		<ContextMenu
+			values={contextMenuValues}
+			onOpen={selection.selectable ? selection.onSelect : null}
+		>
+			{row}
+		</ContextMenu>
+	) : (
+		row
 	);
 };
