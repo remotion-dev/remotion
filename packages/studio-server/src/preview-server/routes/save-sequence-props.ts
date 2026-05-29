@@ -1,5 +1,4 @@
 import {readFileSync} from 'node:fs';
-import path from 'node:path';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	SaveSequencePropsRequest,
@@ -9,6 +8,7 @@ import {getAllSchemaKeys} from '@remotion/studio-shared';
 import {NoReactInternals} from 'remotion/no-react';
 import {updateSequenceProps} from '../../codemods/update-sequence-props/update-sequence-props';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
+import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import type {ApiHandler} from '../api-types';
 import {
 	printUndoHint,
@@ -16,7 +16,7 @@ import {
 	suppressUndoStackInvalidation,
 } from '../undo-stack';
 import {suppressBundlerUpdateForFile} from '../watch-ignore-next-change';
-import {computeSequencePropsOnlyStatus} from './can-update-sequence-props';
+import {computeSequencePropsStatusFromContent} from './can-update-sequence-props';
 import {formatPropChange} from './log-updates/format-prop-change';
 import {logUpdate, normalizeQuotes} from './log-updates/log-update';
 import {withSavePropsLock} from './save-props-mutex';
@@ -34,11 +34,11 @@ export const saveSequencePropsHandler: ApiHandler<
 			{indent: false, logLevel},
 			`[save-sequence-props] Received request for fileName="${fileName}" key="${key}"`,
 		);
-		const absolutePath = path.resolve(remotionRoot, fileName);
-		const fileRelativeToRoot = path.relative(remotionRoot, absolutePath);
-		if (fileRelativeToRoot.startsWith('..')) {
-			throw new Error('Cannot modify a file outside the project');
-		}
+		const {absolutePath, fileRelativeToRoot} = resolveFileInsideProject({
+			remotionRoot,
+			fileName,
+			action: 'modify',
+		});
 
 		const fileContents = readFileSync(absolutePath, 'utf-8');
 
@@ -118,12 +118,15 @@ export const saveSequencePropsHandler: ApiHandler<
 
 		printUndoHint(logLevel);
 
-		const newStatus = computeSequencePropsOnlyStatus({
-			fileName,
+		const newStatus = computeSequencePropsStatusFromContent({
+			fileContents: output,
 			keys: getAllSchemaKeys(schema),
 			nodePath: nodePath.nodePath,
-			remotionRoot,
+			effects: [],
 		});
 
-		return newStatus;
+		return {
+			canUpdate: true,
+			props: newStatus.props,
+		};
 	});

@@ -96,6 +96,9 @@ export const Loop: React.FC<LoopProps> & {
 				durationInFrames={durationInFrames}
 				from={from}
 				name={name ?? '<Loop>'}
+				_remotionInternalDocumentationLink={
+					name === undefined ? 'https://www.remotion.dev/docs/loop' : undefined
+				}
 				_remotionInternalLoopDisplay={loopDisplay}
 				layout={props.layout}
 				style={style}

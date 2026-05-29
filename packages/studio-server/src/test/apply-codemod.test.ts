@@ -1,0 +1,194 @@
+import {expect, test} from 'bun:test';
+import {mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import path from 'node:path';
+import type {RecastCodemod} from '@remotion/studio-shared';
+import {
+	createFileWatcherRegistry,
+	setFileWatcherRegistry,
+} from '../file-watcher';
+import {setLiveEventsListener} from '../preview-server/live-events';
+import {applyCodemodHandler} from '../preview-server/routes/apply-codemod';
+import {redoHandler} from '../preview-server/routes/redo';
+import {undoHandler} from '../preview-server/routes/undo';
+import {getRedoStack, getUndoStack} from '../preview-server/undo-stack';
+
+const rootContents = `import React from 'react';
+import {Composition} from 'remotion';
+
+const Component = () => null;
+
+export const RemotionRoot: React.FC = () => {
+	return (
+		<>
+			<Composition
+				id="DeleteMe"
+				component={Component}
+				durationInFrames={120}
+				fps={30}
+				width={1280}
+				height={720}
+			/>
+			<Composition
+				id="KeepMe"
+				component={Component}
+				durationInFrames={120}
+				fps={30}
+				width={1280}
+				height={720}
+			/>
+		</>
+	);
+};
+`;
+
+const clearUndoRedoStacks = () => {
+	(getUndoStack() as unknown as unknown[]).length = 0;
+	(getRedoStack() as unknown as unknown[]).length = 0;
+};
+
+const getHandlerOptions = <T>({
+	input,
+	entryPoint,
+	remotionRoot,
+}: {
+	input: T;
+	entryPoint: string;
+	remotionRoot: string;
+}) => ({
+	input,
+	entryPoint,
+	remotionRoot,
+	request: {} as never,
+	response: {} as never,
+	logLevel: 'error' as const,
+	methods: {
+		removeJob: () => undefined,
+		cancelJob: () => undefined,
+		addJob: () => undefined,
+	},
+	publicDir: remotionRoot,
+	binariesDirectory: null,
+});
+
+const runCompositionCodemodUndoRedoTest = async ({
+	codemod,
+	assertApplied,
+	expectedUndoMessage,
+}: {
+	codemod: RecastCodemod;
+	assertApplied: (contents: string) => void;
+	expectedUndoMessage: string;
+}) => {
+	const remotionRoot = mkdtempSync(path.join(tmpdir(), 'remotion-codemod-'));
+	const cleanupFileWatcher = setFileWatcherRegistry(
+		createFileWatcherRegistry(),
+	);
+	const cleanupLiveEvents = setLiveEventsListener({
+		sendEventToClient: () => undefined,
+		sendEventToClientId: () => undefined,
+		router: () => Promise.resolve(),
+		closeConnections: () => Promise.resolve(),
+		addNewClientListener: () => () => undefined,
+	});
+
+	try {
+		clearUndoRedoStacks();
+		const entryPoint = path.join(remotionRoot, 'Root.tsx');
+		writeFileSync(entryPoint, rootContents);
+
+		const applyResponse = await applyCodemodHandler(
+			getHandlerOptions({
+				input: {
+					codemod,
+					dryRun: false,
+					symbolicatedStack: {
+						originalFunctionName: null,
+						originalFileName: 'Root.tsx',
+						originalLineNumber: 9,
+						originalColumnNumber: 4,
+						originalScriptCode: null,
+					},
+				},
+				entryPoint,
+				remotionRoot,
+			}),
+		);
+
+		expect(applyResponse.success).toBe(true);
+		assertApplied(readFileSync(entryPoint, 'utf-8'));
+		expect(getUndoStack().length).toBe(1);
+		expect(getUndoStack()[0].description.undoMessage).toBe(expectedUndoMessage);
+		expect(getRedoStack().length).toBe(0);
+
+		const undoResponse = await undoHandler(
+			getHandlerOptions({input: {}, entryPoint, remotionRoot}),
+		);
+		expect(undoResponse.success).toBe(true);
+		expect(readFileSync(entryPoint, 'utf-8')).toBe(rootContents);
+		expect(getUndoStack().length).toBe(0);
+		expect(getRedoStack().length).toBe(1);
+
+		const redoResponse = await redoHandler(
+			getHandlerOptions({input: {}, entryPoint, remotionRoot}),
+		);
+		expect(redoResponse.success).toBe(true);
+		assertApplied(readFileSync(entryPoint, 'utf-8'));
+		expect(getUndoStack().length).toBe(1);
+		expect(getRedoStack().length).toBe(0);
+	} finally {
+		clearUndoRedoStacks();
+		cleanupLiveEvents();
+		cleanupFileWatcher();
+		rmSync(remotionRoot, {recursive: true, force: true});
+	}
+};
+
+test('applyCodemodHandler pushes composition deletions to undo and redo stacks', async () => {
+	await runCompositionCodemodUndoRedoTest({
+		codemod: {type: 'delete-composition', idToDelete: 'DeleteMe'},
+		assertApplied: (contents) => {
+			expect(contents).not.toContain('id="DeleteMe"');
+			expect(contents).toContain('id="KeepMe"');
+		},
+		expectedUndoMessage: '↩️  Deletion of composition "DeleteMe"',
+	});
+});
+
+test('applyCodemodHandler pushes composition renames to undo and redo stacks', async () => {
+	await runCompositionCodemodUndoRedoTest({
+		codemod: {
+			type: 'rename-composition',
+			idToRename: 'DeleteMe',
+			newId: 'Renamed',
+		},
+		assertApplied: (contents) => {
+			expect(contents).not.toContain('id="DeleteMe"');
+			expect(contents).toContain('id="Renamed"');
+			expect(contents).toContain('id="KeepMe"');
+		},
+		expectedUndoMessage: '↩️  Rename of composition "DeleteMe" to "Renamed"',
+	});
+});
+
+test('applyCodemodHandler pushes composition duplications to undo and redo stacks', async () => {
+	await runCompositionCodemodUndoRedoTest({
+		codemod: {
+			type: 'duplicate-composition',
+			idToDuplicate: 'DeleteMe',
+			newId: 'Duplicated',
+			newDurationInFrames: null,
+			newFps: null,
+			newHeight: null,
+			newWidth: null,
+			tag: 'Composition',
+		},
+		assertApplied: (contents) => {
+			expect(contents).toContain('id="DeleteMe"');
+			expect(contents).toContain('id="Duplicated"');
+			expect(contents).toContain('id="KeepMe"');
+		},
+		expectedUndoMessage:
+			'↩️  Duplication of composition "DeleteMe" to "Duplicated"',
+	});
+});

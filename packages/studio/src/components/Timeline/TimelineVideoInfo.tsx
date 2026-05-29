@@ -5,8 +5,8 @@ import {
 	extractFrames,
 	fillFrameWhereItFits,
 	fillWithCachedFrames,
-	getLoopDisplayWidth,
 	getAspectRatioFromCache,
+	getLoopDisplayWidth,
 	makeFrameDatabaseKey,
 	resizeVideoFrame,
 	shouldTileLoopDisplay,
@@ -16,13 +16,11 @@ import React, {useEffect, useMemo, useRef, useState} from 'react';
 import type {LoopDisplay} from 'remotion';
 import {useVideoConfig} from 'remotion';
 import {
-	TIMELINE_LAYER_HEIGHT_AUDIO,
-	TIMELINE_LAYER_HEIGHT_IMAGE,
+	TIMELINE_LAYER_FILMSTRIP_HEIGHT,
+	TIMELINE_VIDEO_INFO_WAVEFORM_HEIGHT,
 } from '../../helpers/timeline-layout';
 import {AudioWaveform} from '../AudioWaveform';
 import {getTimelineVideoInfoWidths} from './get-timeline-video-info-widths';
-
-const FILMSTRIP_HEIGHT = TIMELINE_LAYER_HEIGHT_IMAGE - 2;
 
 const outerStyle: React.CSSProperties = {
 	width: '100%',
@@ -32,7 +30,7 @@ const outerStyle: React.CSSProperties = {
 };
 
 const filmstripContainerStyle: React.CSSProperties = {
-	height: FILMSTRIP_HEIGHT,
+	height: TIMELINE_LAYER_FILMSTRIP_HEIGHT,
 	backgroundColor: 'rgba(0, 0, 0, 0.3)',
 	display: 'flex',
 	borderTopLeftRadius: 2,
@@ -93,7 +91,7 @@ export const TimelineVideoInfo: React.FC<{
 
 		const canvas = document.createElement('canvas');
 		canvas.width = mediaVisualizationWidth;
-		canvas.height = FILMSTRIP_HEIGHT;
+		canvas.height = TIMELINE_LAYER_FILMSTRIP_HEIGHT;
 		const ctx = canvas.getContext('2d');
 		if (!ctx) {
 			return;
@@ -160,7 +158,7 @@ export const TimelineVideoInfo: React.FC<{
 				fromSeconds,
 				toSeconds,
 				aspectRatio: aspectRatio.current,
-				frameHeight: FILMSTRIP_HEIGHT,
+				frameHeight: TIMELINE_LAYER_FILMSTRIP_HEIGHT,
 			});
 
 			fillWithCachedFrames({
@@ -171,7 +169,7 @@ export const TimelineVideoInfo: React.FC<{
 				segmentDuration: toSeconds - fromSeconds,
 				fromSeconds,
 				devicePixelRatio: window.devicePixelRatio,
-				frameHeight: FILMSTRIP_HEIGHT,
+				frameHeight: TIMELINE_LAYER_FILMSTRIP_HEIGHT,
 			});
 			repeatTarget();
 
@@ -202,7 +200,7 @@ export const TimelineVideoInfo: React.FC<{
 					toSeconds,
 					naturalWidth: targetWidth,
 					aspectRatio: aspectRatio.current,
-					frameHeight: FILMSTRIP_HEIGHT,
+					frameHeight: TIMELINE_LAYER_FILMSTRIP_HEIGHT,
 				});
 
 				return Array.from(filledSlots.keys()).map(
@@ -215,7 +213,8 @@ export const TimelineVideoInfo: React.FC<{
 				try {
 					frame = sample.toVideoFrame();
 					const scale =
-						(FILMSTRIP_HEIGHT / frame.displayHeight) * window.devicePixelRatio;
+						(TIMELINE_LAYER_FILMSTRIP_HEIGHT / frame.displayHeight) *
+						window.devicePixelRatio;
 
 					const transformed = resizeVideoFrame({
 						frame,
@@ -241,7 +240,7 @@ export const TimelineVideoInfo: React.FC<{
 						toSeconds,
 						naturalWidth: targetWidth,
 						aspectRatio: aspectRatio.current,
-						frameHeight: FILMSTRIP_HEIGHT,
+						frameHeight: TIMELINE_LAYER_FILMSTRIP_HEIGHT,
 					});
 					fillFrameWhereItFits({
 						ctx: targetCtx,
@@ -251,7 +250,7 @@ export const TimelineVideoInfo: React.FC<{
 						segmentDuration: toSeconds - fromSeconds,
 						fromSeconds,
 						devicePixelRatio: window.devicePixelRatio,
-						frameHeight: FILMSTRIP_HEIGHT,
+						frameHeight: TIMELINE_LAYER_FILMSTRIP_HEIGHT,
 					});
 					repeatTarget();
 				} catch (e) {
@@ -279,7 +278,7 @@ export const TimelineVideoInfo: React.FC<{
 					segmentDuration: toSeconds - fromSeconds,
 					fromSeconds,
 					devicePixelRatio: window.devicePixelRatio,
-					frameHeight: FILMSTRIP_HEIGHT,
+					frameHeight: TIMELINE_LAYER_FILMSTRIP_HEIGHT,
 				});
 				repeatTarget();
 			})
@@ -315,7 +314,6 @@ export const TimelineVideoInfo: React.FC<{
 
 	const audioStyle: React.CSSProperties = useMemo(() => {
 		return {
-			height: TIMELINE_LAYER_HEIGHT_AUDIO,
 			width: audioWidth,
 			position: 'relative',
 			marginLeft: premountWidth,
@@ -328,6 +326,7 @@ export const TimelineVideoInfo: React.FC<{
 			<div style={audioStyle}>
 				<AudioWaveform
 					src={src}
+					height={TIMELINE_VIDEO_INFO_WAVEFORM_HEIGHT}
 					visualizationWidth={audioWidth}
 					startFrom={trimBefore}
 					durationInFrames={durationInFrames}

@@ -1,6 +1,6 @@
 import {useContext, useEffect, useMemo, useState} from 'react';
 import {useMediaStartsAt} from './audio/use-audio-frame.js';
-import type {LoopDisplay, SequenceControls} from './CompositionManager.js';
+import type {LoopDisplay} from './CompositionManager.js';
 import {getAssetDisplayName} from './get-asset-file-name.js';
 import {getTimelineDuration} from './get-timeline-duration.js';
 import {useNonce} from './nonce.js';
@@ -128,103 +128,6 @@ export type BasicMediaInTimelineReturnType = ReturnType<
 	typeof useBasicMediaInTimeline
 >;
 
-export const useImageInTimeline = ({
-	src,
-	displayName,
-	id,
-	getStack,
-	showInTimeline,
-	premountDisplay,
-	postmountDisplay,
-	loopDisplay,
-	controls,
-}: {
-	src: string | undefined;
-	displayName: string | null;
-	id: string;
-	getStack: () => string | null;
-	showInTimeline: boolean;
-	premountDisplay: number | null;
-	postmountDisplay: number | null;
-	loopDisplay: LoopDisplay | undefined;
-	controls: SequenceControls | null;
-}) => {
-	const parentSequence = useContext(SequenceContext);
-	const {registerSequence, unregisterSequence} = useContext(SequenceManager);
-
-	const {durationInFrames} = useVideoConfig();
-	const mediaStartsAt = useMediaStartsAt();
-	const {duration, nonce, rootId, finalDisplayName} = useBasicMediaInTimeline({
-		volume: undefined,
-		mediaVolume: 0,
-		mediaType: 'image',
-		src,
-		displayName,
-		trimAfter: undefined,
-		trimBefore: undefined,
-		playbackRate: 1,
-		sequenceDurationInFrames: durationInFrames,
-		mediaStartsAt,
-		loop: false,
-	});
-
-	const {isStudio} = useRemotionEnvironment();
-
-	useEffect(() => {
-		if (!src) {
-			throw new Error('No src passed');
-		}
-
-		if (!isStudio && window.process?.env?.NODE_ENV !== 'test') {
-			return;
-		}
-
-		if (!showInTimeline) {
-			return;
-		}
-
-		registerSequence({
-			type: 'image',
-			src,
-			id,
-			duration,
-			from: 0,
-			parent: parentSequence?.id ?? null,
-			displayName: finalDisplayName,
-			rootId,
-			showInTimeline: true,
-			nonce: nonce.get(),
-			loopDisplay,
-			getStack,
-			premountDisplay,
-			postmountDisplay,
-			controls,
-			effects: [],
-		});
-
-		return () => {
-			unregisterSequence(id);
-		};
-	}, [
-		duration,
-		id,
-		parentSequence,
-		src,
-		registerSequence,
-		unregisterSequence,
-		nonce,
-		getStack,
-		showInTimeline,
-		premountDisplay,
-		postmountDisplay,
-		isStudio,
-		loopDisplay,
-		rootId,
-		finalDisplayName,
-		controls,
-	]);
-};
-
 export const useMediaInTimeline = ({
 	volume,
 	mediaVolume,
@@ -238,6 +141,8 @@ export const useMediaInTimeline = ({
 	premountDisplay,
 	postmountDisplay,
 	loopDisplay,
+	documentationLink,
+	refForOutline,
 }: {
 	volume: VolumeProp | undefined;
 	mediaVolume: number;
@@ -251,6 +156,8 @@ export const useMediaInTimeline = ({
 	premountDisplay: number | null;
 	postmountDisplay: number | null;
 	loopDisplay: LoopDisplay | undefined;
+	documentationLink: string | null;
+	refForOutline: React.RefObject<HTMLElement | null> | null;
 }) => {
 	const parentSequence = useContext(SequenceContext);
 	const startsAt = useMediaStartsAt();
@@ -296,6 +203,7 @@ export const useMediaInTimeline = ({
 			from: 0,
 			parent: parentSequence?.id ?? null,
 			displayName: finalDisplayName,
+			documentationLink,
 			rootId,
 			volume: volumes,
 			showInTimeline: true,
@@ -309,6 +217,7 @@ export const useMediaInTimeline = ({
 			postmountDisplay,
 			controls: null,
 			effects: [],
+			refForOutline,
 		});
 
 		return () => {
@@ -332,8 +241,10 @@ export const useMediaInTimeline = ({
 		premountDisplay,
 		postmountDisplay,
 		loopDisplay,
+		documentationLink,
 		rootId,
 		finalDisplayName,
 		isStudio,
+		refForOutline,
 	]);
 };

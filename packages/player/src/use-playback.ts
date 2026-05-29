@@ -2,12 +2,32 @@ import {useLayoutEffect} from 'react';
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import {useContext, useEffect, useRef} from 'react';
 import {Internals} from 'remotion';
+import type {RemotionAudioContextState} from 'remotion';
 import type {BrowserMediaControlsBehavior} from './browser-mediasession.js';
 import {useBrowserMediaSession} from './browser-mediasession.js';
 import {calculateNextFrame} from './calculate-next-frame.js';
 import {useIsBackgrounded} from './is-backgrounded.js';
 import {setGlobalTimeAnchor} from './set-global-time-anchor.js';
 import {usePlayer} from './use-player.js';
+
+const shouldForceAnchorChange = (newState: RemotionAudioContextState) => {
+	if (newState === 'suspended' || newState === 'running-to-suspended') {
+		return true;
+	}
+
+	if (
+		newState === 'closed' ||
+		newState === 'interrupted' ||
+		newState === 'running' ||
+		newState === 'suspended-to-running'
+	) {
+		return false;
+	}
+
+	throw new Error(
+		`Unexpected audio context state: ${newState satisfies never}`,
+	);
+};
 
 export const usePlayback = ({
 	loop,
@@ -104,7 +124,8 @@ export const usePlayback = ({
 		}
 
 		const callback = () => {
-			if (audioContext.state !== 'running') {
+			const newState = sharedAudioContext?.getAudioContextState();
+			if (newState && shouldForceAnchorChange(newState)) {
 				setGlobalTimeAnchor({
 					audioContext,
 					audioSyncAnchor: sharedAudioContext.audioSyncAnchor,

@@ -1,11 +1,12 @@
-import {useMemo, useState} from 'react';
-import React from 'react';
+import React, {useMemo, useState} from 'react';
 import {
+	Internals,
+	Sequence,
+	useRemotionEnvironment,
 	useVideoConfig,
 	type SequenceControls,
 	type SequenceSchema,
 } from 'remotion';
-import {Internals, Sequence, useRemotionEnvironment} from 'remotion';
 import {getLoopDisplay} from '../show-in-timeline';
 import type {InnerVideoProps, VideoProps} from './props';
 import {VideoForPreview} from './video-for-preview';
@@ -69,6 +70,7 @@ const InnerVideo: React.FC<
 	headless,
 	onError,
 	credentials,
+	requestInit,
 	_experimentalControls: controls,
 	objectFit,
 	_experimentalInitiallyDrawCachedFrame,
@@ -130,7 +132,9 @@ const InnerVideo: React.FC<
 				headless={headless}
 				onError={onError}
 				credentials={credentials}
+				requestInit={requestInit}
 				objectFit={objectFit}
+				effects={effects}
 			/>
 		);
 	}
@@ -159,6 +163,7 @@ const InnerVideo: React.FC<
 			headless={headless ?? false}
 			onError={onError}
 			credentials={credentials}
+			requestInit={requestInit}
 			controls={controls}
 			objectFit={objectFit}
 			effects={effects}
@@ -199,6 +204,7 @@ const VideoInner: React.FC<
 	headless,
 	onError,
 	credentials,
+	requestInit,
 	_experimentalControls: controls,
 	objectFit,
 	_experimentalInitiallyDrawCachedFrame,
@@ -285,6 +291,11 @@ const VideoInner: React.FC<
 			_remotionInternalStack={stack}
 			_remotionInternalIsMedia={isMedia}
 			name={name ?? '<Video>'}
+			_remotionInternalDocumentationLink={
+				name === undefined
+					? 'https://www.remotion.dev/docs/media/video'
+					: undefined
+			}
 			_experimentalControls={controls}
 			_remotionInternalLoopDisplay={loopDisplay}
 			_remotionInternalEffects={memoizedEffectDefinitions}
@@ -320,6 +331,7 @@ const VideoInner: React.FC<
 				headless={headless ?? false}
 				onError={onError}
 				credentials={credentials}
+				requestInit={requestInit}
 				_experimentalControls={controls}
 				objectFit={objectFit ?? 'contain'}
 				_experimentalInitiallyDrawCachedFrame={

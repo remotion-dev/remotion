@@ -160,8 +160,8 @@ const config: Config = {
 							href: 'https://github.com/remotion-dev/remotion',
 						},
 						{
-							label: 'Remotion Pro',
-							href: 'https://remotion.pro',
+							label: 'Company License',
+							href: 'https://remotion.pro/license',
 						},
 					],
 				},

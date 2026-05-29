@@ -6,6 +6,7 @@ import React, {
 	useState,
 } from 'react';
 import type {
+	EffectDefinitionAndStack,
 	LogLevel,
 	LoopVolumeCurveBehavior,
 	OnVideoFrame,
@@ -25,6 +26,7 @@ import {applyVolume} from '../convert-audiodata/apply-volume';
 import {getTargetSampleRate} from '../convert-audiodata/resample-audiodata';
 import {frameForVolumeProp} from '../looped-frame';
 import {type MediaOnError, callOnErrorAndResolve} from '../on-error';
+import type {MediaRequestInit} from '../request-init';
 import {extractFrameViaBroadcastChannel} from '../video-extraction/extract-frame-via-broadcast-channel';
 import type {FallbackOffthreadVideoProps, VideoObjectFit} from './props';
 import {warnAboutObjectFitInStyleOrClassName} from './warn-object-fit-css';
@@ -52,7 +54,9 @@ type InnerVideoProps = {
 	readonly headless: boolean;
 	readonly onError: MediaOnError | undefined;
 	readonly credentials: RequestCredentials | undefined;
+	readonly requestInit: MediaRequestInit | undefined;
 	readonly objectFit: VideoObjectFit;
+	readonly effects: EffectDefinitionAndStack<unknown>[];
 };
 
 type FallbackToOffthreadVideo = {
@@ -82,7 +86,9 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 	headless,
 	onError,
 	credentials,
+	requestInit,
 	objectFit: objectFitProp,
+	effects,
 }) => {
 	if (!src) {
 		throw new TypeError('No `src` was passed to <Video>.');
@@ -120,11 +126,13 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 	const [replaceWithOffthreadVideo, setReplaceWithOffthreadVideo] = useState<
 		FallbackToOffthreadVideo | false
 	>(false);
+	const [initialRequestInit] = useState(requestInit);
 
 	const audioEnabled = Internals.useAudioEnabled();
 	const videoEnabled = Internals.useVideoEnabled();
 
 	const maxCacheSize = useMaxMediaCacheSize(logLevel);
+	const effectChainState = Internals.useEffectChainState();
 
 	const [error, setError] = useState<Error | null>(null);
 
@@ -188,8 +196,9 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 			fps,
 			maxCacheSize,
 			credentials,
+			requestInit: initialRequestInit,
 		})
-			.then((result) => {
+			.then(async (result) => {
 				const handleError = (
 					err: Error,
 					clientSideError: Error,
@@ -292,7 +301,27 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 						context.canvas.height = imageBitmap.height;
 
 						context.canvas.style.aspectRatio = `${context.canvas.width} / ${context.canvas.height}`;
+
 						context.drawImage(imageBitmap, 0, 0);
+
+						if (effects.length > 0) {
+							const completed = await Internals.runEffectChain({
+								state: effectChainState.get(
+									imageBitmap.width,
+									imageBitmap.height,
+								)!,
+								source: context.canvas,
+								effects,
+								output: context.canvas,
+								width: imageBitmap.width,
+								height: imageBitmap.height,
+							});
+
+							if (!completed) {
+								imageBitmap.close();
+								return;
+							}
+						}
 					}
 
 					imageBitmap.close();
@@ -389,6 +418,9 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 		headless,
 		onError,
 		credentials,
+		effectChainState,
+		effects,
+		initialRequestInit,
 	]);
 
 	warnAboutObjectFitInStyleOrClassName({style, className, logLevel});

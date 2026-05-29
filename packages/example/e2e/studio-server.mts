@@ -6,6 +6,7 @@ import {
 	LOGS_FILE,
 	ORIGINAL_CONTENT_FILE,
 	ORIGINAL_ERROR_OVERLAY_E2E_FILE,
+	ORIGINAL_HOOK_ORDER_CHANGE_E2E_FILE,
 	ORIGINAL_LOST_NODE_PATH_E2E_FILE,
 	ORIGINAL_VISUAL_CONTROLS_FILE,
 	STUDIO_PORT,
@@ -13,6 +14,7 @@ import {
 	e2eEntryPoint,
 	errorOverlayE2eFile,
 	exampleDir,
+	hookOrderChangeE2eFile,
 	lostNodePathE2eFile,
 	remotionBin,
 	rootFile,
@@ -69,6 +71,13 @@ export async function startStudio(): Promise<void> {
 		);
 	}
 
+	if (!fs.existsSync(ORIGINAL_HOOK_ORDER_CHANGE_E2E_FILE)) {
+		fs.writeFileSync(
+			ORIGINAL_HOOK_ORDER_CHANGE_E2E_FILE,
+			fs.readFileSync(hookOrderChangeE2eFile, 'utf-8'),
+		);
+	}
+
 	// Restore original files before starting
 	fs.writeFileSync(rootFile, fs.readFileSync(ORIGINAL_CONTENT_FILE, 'utf-8'));
 	fs.writeFileSync(
@@ -82,6 +91,10 @@ export async function startStudio(): Promise<void> {
 	fs.writeFileSync(
 		errorOverlayE2eFile,
 		fs.readFileSync(ORIGINAL_ERROR_OVERLAY_E2E_FILE, 'utf-8'),
+	);
+	fs.writeFileSync(
+		hookOrderChangeE2eFile,
+		fs.readFileSync(ORIGINAL_HOOK_ORDER_CHANGE_E2E_FILE, 'utf-8'),
 	);
 
 	fs.writeFileSync(LOGS_FILE, '');
@@ -219,6 +232,13 @@ export async function stopStudio(): Promise<void> {
 		fs.writeFileSync(
 			errorOverlayE2eFile,
 			fs.readFileSync(ORIGINAL_ERROR_OVERLAY_E2E_FILE, 'utf-8'),
+		);
+	}
+
+	if (fs.existsSync(ORIGINAL_HOOK_ORDER_CHANGE_E2E_FILE)) {
+		fs.writeFileSync(
+			hookOrderChangeE2eFile,
+			fs.readFileSync(ORIGINAL_HOOK_ORDER_CHANGE_E2E_FILE, 'utf-8'),
 		);
 	}
 }

@@ -1,7 +1,11 @@
-import fs from 'fs';
 import {expect, test} from '@playwright/test';
+import fs from 'fs';
 import {EXPANDED_SIDEBAR_STATE, lostNodePathE2eFile} from './constants.mts';
-import {navigateToLostNodePathE2e, readStudioLogs, stripAnsi} from './helpers.mts';
+import {
+	navigateToLostNodePathE2e,
+	readStudioLogs,
+	stripAnsi,
+} from './helpers.mts';
 import {startStudio, stopStudio} from './studio-server.mts';
 
 const getSequenceLine = (content: string): number => {
@@ -13,22 +17,21 @@ const getSequenceLine = (content: string): number => {
 };
 
 const applyIssue7393Refactor = (content: string): string => {
-	if (content.includes('const t = EffectInternals.tint')) {
+	if (content.includes('const t = tint')) {
 		return content;
 	}
 
 	return content
 		.replace(
 			'\tconst memoizedEffects = Internals.useMemoizedEffectDefinitions([',
-			"\tconst t = EffectInternals.tint({color: 'green', amount: 1});\n\tconst memoizedEffects = Internals.useMemoizedEffectDefinitions([",
+			"\tconst t = tint({color: 'green', amount: 1});\n\tconst memoizedEffects = Internals.useMemoizedEffectDefinitions([",
 		)
-		.replace(
-			"\t\tEffectInternals.tint({color: 'green', amount: 1}),",
-			'\t\tt,',
-		);
+		.replace("\t\ttint({color: 'green', amount: 1}),", '\t\tt,');
 };
 
 const stackAttribution = (line: number) => `LostNodePathRepro.tsx:${line}`;
+const expandTintSectionName = /^Expand (?:Tint|tint\(\)) section$/;
+const collapseTintSectionName = /^Collapse (?:Tint|tint\(\)) section$/;
 
 test.use({storageState: EXPANDED_SIDEBAR_STATE});
 
@@ -69,7 +72,7 @@ test.describe('lost node path recovery', () => {
 		await expandEffects.click();
 
 		const expandTint = page.getByRole('button', {
-			name: 'Expand Tint section',
+			name: expandTintSectionName,
 		});
 		await expect(expandTint).toBeVisible({timeout: 10_000});
 		await expandTint.click();
@@ -81,7 +84,7 @@ test.describe('lost node path recovery', () => {
 			page.getByRole('button', {name: 'Collapse Effects section'}),
 		).toBeVisible();
 		await expect(
-			page.getByRole('button', {name: 'Collapse Tint section'}),
+			page.getByRole('button', {name: collapseTintSectionName}),
 		).toBeVisible();
 
 		const logCountBefore = readStudioLogs().length;
@@ -104,7 +107,9 @@ test.describe('lost node path recovery', () => {
 		await expect
 			.poll(
 				async () =>
-					page.getByText(stackAttribution(refactoredLine), {exact: true}).isVisible(),
+					page
+						.getByText(stackAttribution(refactoredLine), {exact: true})
+						.isVisible(),
 				{
 					message: `Expected timeline stack to update to ${stackAttribution(refactoredLine)}`,
 					timeout: 30_000,
@@ -123,7 +128,7 @@ test.describe('lost node path recovery', () => {
 			page.getByRole('button', {name: 'Collapse Effects section'}),
 		).toBeVisible();
 		await expect(
-			page.getByRole('button', {name: 'Collapse Tint section'}),
+			page.getByRole('button', {name: collapseTintSectionName}),
 		).toBeVisible();
 	});
 });

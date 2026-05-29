@@ -188,6 +188,9 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		premountDisplay: sequenceContext?.premountDisplay ?? null,
 		postmountDisplay: sequenceContext?.postmountDisplay ?? null,
 		loopDisplay: undefined,
+		documentationLink:
+			name === undefined ? 'https://www.remotion.dev/docs/html5-audio' : null,
+		refForOutline: null,
 	});
 
 	// putting playback before useVolume

@@ -1,0 +1,138 @@
+---
+image: /generated/articles-docs-effects-halftone-linear-gradient.png
+slug: /effects/halftone-linear-gradient
+title: halftoneLinearGradient()
+sidebar_label: halftoneLinearGradient()
+crumb: '@remotion/effects'
+---
+
+# halftoneLinearGradient()<AvailableFrom v="4.0.469" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+A halftone effect that renders a grid of dots whose size changes across a linear gradient.
+
+Use it for dot-pattern wipes, overlays, and backgrounds on canvas-based components such as [`<Video>`](/docs/media/video), [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) and [`<Solid>`](/docs/solid).
+
+## Preview
+
+<Demo type="effects-halftone-linear-gradient" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {AbsoluteFill} from 'remotion';
+import {Video} from '@remotion/media';
+import {halftoneLinearGradient} from '@remotion/effects/halftone-linear-gradient';
+
+export const MyComp: React.FC = () => {
+  return (
+    <AbsoluteFill>
+      <Video
+        src="https://remotion.media/video.mp4"
+        effects={[
+          halftoneLinearGradient({
+            firstStopDotSize: 0,
+            secondStopDotSize: 42,
+            firstStopPosition: [0, 0.5],
+            secondStopPosition: [1, 0.5],
+            gridSize: 24,
+            dotColor: '#0b84f3',
+          }),
+        ]}
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+To use colors from the previous effect in the chain, set `colorMode` to `'source'`:
+
+```tsx twoslash title="MyComp.tsx"
+import {AbsoluteFill} from 'remotion';
+import {Video} from '@remotion/media';
+import {halftoneLinearGradient} from '@remotion/effects/halftone-linear-gradient';
+
+export const MyComp: React.FC = () => {
+  return (
+    <AbsoluteFill>
+      <Video
+        src="https://remotion.media/video.mp4"
+        effects={[
+          halftoneLinearGradient({
+            firstStopDotSize: 8,
+            secondStopDotSize: 44,
+            firstStopPosition: [0.2, 0],
+            secondStopPosition: [0.8, 1],
+            gridSize: 24,
+            colorMode: 'source',
+          }),
+        ]}
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+## API
+
+Pass an object with the following properties. You can also call `halftoneLinearGradient()` without arguments.
+
+### `firstStopDotSize?`
+
+Dot diameter in pixels on the first side of the gradient. Defaults to `0`. Must be at least `0`.
+
+Set this to `0` for no dots at the first side.
+
+### `secondStopDotSize?`
+
+Dot diameter in pixels on the opposite side of the gradient. Defaults to `40`. Must be at least `0`.
+
+Set both dot sizes to `0` for no coverage. Set both large enough to overlap neighboring cells for full coverage.
+
+### `firstStopPosition?`
+
+UV coordinate where `firstStopDotSize` is reached. Defaults to `[0, 0.5]`.
+
+Pass a `[number, number]` tuple where `[0, 0]` is top-left and `[1, 1]` is bottom-right.
+
+The accepted range is `[-1, 2]` for each coordinate. Values outside `[0, 1]` place the stop outside the visible area.
+
+### `secondStopPosition?`
+
+UV coordinate where `secondStopDotSize` is reached. Defaults to `[1, 0.5]`.
+
+Pass a `[number, number]` tuple.
+
+### `gridSize?`
+
+Distance between adjacent dot centers in pixels. Defaults to `24`. Must be greater than `0`.
+
+### `colorMode?`
+
+Controls how dots are colored. Defaults to `'solid'`.
+
+Allowed values are `'solid'` and `'source'`.
+
+When set to `'solid'`, each dot uses `dotColor` and is composited over the previous effect in the chain. When set to `'source'`, each dot uses the sampled source color at the grid cell.
+
+If `colorMode` is `'source'`, don't pass `dotColor`.
+
+### `dotColor?`
+
+Color of the dots when `colorMode` is `'solid'`. Defaults to `'black'`.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Requirements
+
+`halftoneLinearGradient()` uses a WebGL2 backend. During renders, enable WebGL via [`Config.setChromiumOpenGlRenderer()`](/docs/config#setchromiumopenglrenderer) (for example `'angle'`). See [Using WebGL during renders](/docs/remotion/html-in-canvas#using-webgl-during-renders).
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`halftone()`](/docs/effects/halftone)
+- [HTML-in-canvas guide](/docs/html-in-canvas)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/halftone-linear-gradient.ts)

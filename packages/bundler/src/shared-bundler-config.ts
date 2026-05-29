@@ -120,7 +120,15 @@ export const getSharedModuleRules = () => [
 		test: /\.css$/i,
 		use: [
 			require.resolve('style-loader'),
-			require.resolve('../css-loader/index.js'),
+			{
+				loader: require.resolve('css-loader'),
+				options: {
+					modules: {
+						auto: true,
+						namedExport: false,
+					},
+				},
+			},
 		],
 		type: 'javascript/auto' as const,
 	},

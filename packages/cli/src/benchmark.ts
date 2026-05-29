@@ -30,6 +30,7 @@ const {
 	offthreadVideoCacheSizeInBytesOption,
 	scaleOption,
 	crfOption,
+	gopSizeOption,
 	jpegQualityOption,
 	videoBitrateOption,
 	enforceAudioOption,
@@ -446,6 +447,7 @@ export const benchmarkCommand = async (
 		commandLine: parsedCli,
 	}).value;
 	const configFileCrf = crfOption.getValue({commandLine: parsedCli}).value;
+	const gopSize = gopSizeOption.getValue({commandLine: parsedCli}).value;
 	const jpegQuality = jpegQualityOption.getValue({
 		commandLine: parsedCli,
 	}).value;
@@ -525,6 +527,7 @@ export const benchmarkCommand = async (
 						durationInFrames: durationInFrames ?? composition.durationInFrames,
 					},
 					crf: configFileCrf ?? null,
+					gopSize,
 					envVariables,
 					frameRange: defaultFrameRange,
 					imageFormat: getVideoImageFormat({

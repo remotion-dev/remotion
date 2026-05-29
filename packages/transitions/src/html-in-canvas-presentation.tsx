@@ -1,11 +1,12 @@
-import {useLayoutEffect, useMemo, useRef, useState, useCallback} from 'react';
+import {useCallback, useLayoutEffect, useMemo, useRef, useState} from 'react';
 import {
-	HtmlInCanvas,
+	AbsoluteFill,
 	HTML_IN_CANVAS_UNSUPPORTED_MESSAGE,
+	HtmlInCanvas,
+	Internals,
 	useDelayRender,
 	type EffectsProp,
 } from 'remotion';
-import {AbsoluteFill, Internals} from 'remotion';
 import type {DrawFunction} from './TransitionSeries';
 import type {
 	TransitionPresentation,

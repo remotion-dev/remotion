@@ -1,7 +1,7 @@
 {
 	"name": "@remotion/effects",
-	"version": "4.0.464",
-	"description": "Internal presets for Remotion canvas effect hooks",
+	"version": "4.0.469",
+	"description": "Effects that can be applied to Remotion-based canvas components",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"module": "dist/esm/index.mjs",
@@ -32,8 +32,213 @@
 			"module": "./dist/esm/index.mjs",
 			"import": "./dist/esm/index.mjs"
 		},
+		"./barrel-distortion": {
+			"types": "./dist/barrel-distortion.d.ts",
+			"module": "./dist/esm/barrel-distortion.mjs",
+			"import": "./dist/esm/barrel-distortion.mjs"
+		},
+		"./blur": {
+			"types": "./dist/blur.d.ts",
+			"module": "./dist/esm/blur.mjs",
+			"import": "./dist/esm/blur.mjs"
+		},
+		"./chromatic-aberration": {
+			"types": "./dist/chromatic-aberration.d.ts",
+			"module": "./dist/esm/chromatic-aberration.mjs",
+			"import": "./dist/esm/chromatic-aberration.mjs"
+		},
+		"./brightness": {
+			"types": "./dist/brightness.d.ts",
+			"module": "./dist/esm/brightness.mjs",
+			"import": "./dist/esm/brightness.mjs"
+		},
+		"./contrast": {
+			"types": "./dist/contrast.d.ts",
+			"module": "./dist/esm/contrast.mjs",
+			"import": "./dist/esm/contrast.mjs"
+		},
+		"./drop-shadow": {
+			"types": "./dist/drop-shadow.d.ts",
+			"module": "./dist/esm/drop-shadow.mjs",
+			"import": "./dist/esm/drop-shadow.mjs"
+		},
+		"./duotone": {
+			"types": "./dist/duotone.d.ts",
+			"module": "./dist/esm/duotone.mjs",
+			"import": "./dist/esm/duotone.mjs"
+		},
+		"./glow": {
+			"types": "./dist/glow.d.ts",
+			"module": "./dist/esm/glow.mjs",
+			"import": "./dist/esm/glow.mjs"
+		},
+		"./halftone": {
+			"types": "./dist/halftone.d.ts",
+			"module": "./dist/esm/halftone.mjs",
+			"import": "./dist/esm/halftone.mjs"
+		},
+		"./halftone-linear-gradient": {
+			"types": "./dist/halftone-linear-gradient.d.ts",
+			"module": "./dist/esm/halftone-linear-gradient.mjs",
+			"import": "./dist/esm/halftone-linear-gradient.mjs"
+		},
+		"./grayscale": {
+			"types": "./dist/grayscale.d.ts",
+			"module": "./dist/esm/grayscale.mjs",
+			"import": "./dist/esm/grayscale.mjs"
+		},
+		"./hue": {
+			"types": "./dist/hue.d.ts",
+			"module": "./dist/esm/hue.mjs",
+			"import": "./dist/esm/hue.mjs"
+		},
+		"./invert": {
+			"types": "./dist/invert.d.ts",
+			"module": "./dist/esm/invert.mjs",
+			"import": "./dist/esm/invert.mjs"
+		},
+		"./dot-grid": {
+			"types": "./dist/dot-grid.d.ts",
+			"module": "./dist/esm/dot-grid.mjs",
+			"import": "./dist/esm/dot-grid.mjs"
+		},
+		"./mirror": {
+			"types": "./dist/mirror.d.ts",
+			"module": "./dist/esm/mirror.mjs",
+			"import": "./dist/esm/mirror.mjs"
+		},
+		"./noise": {
+			"types": "./dist/noise.d.ts",
+			"module": "./dist/esm/noise.mjs",
+			"import": "./dist/esm/noise.mjs"
+		},
+		"./saturation": {
+			"types": "./dist/saturation.d.ts",
+			"module": "./dist/esm/saturation.mjs",
+			"import": "./dist/esm/saturation.mjs"
+		},
+		"./scanlines": {
+			"types": "./dist/scanlines.d.ts",
+			"module": "./dist/esm/scanlines.mjs",
+			"import": "./dist/esm/scanlines.mjs"
+		},
+		"./scale": {
+			"types": "./dist/scale.d.ts",
+			"module": "./dist/esm/scale.mjs",
+			"import": "./dist/esm/scale.mjs"
+		},
+		"./shine": {
+			"types": "./dist/shine.d.ts",
+			"module": "./dist/esm/shine.mjs",
+			"import": "./dist/esm/shine.mjs"
+		},
+		"./speckle": {
+			"types": "./dist/speckle.d.ts",
+			"module": "./dist/esm/speckle.mjs",
+			"import": "./dist/esm/speckle.mjs"
+		},
+		"./tint": {
+			"types": "./dist/tint.d.ts",
+			"module": "./dist/esm/tint.mjs",
+			"import": "./dist/esm/tint.mjs"
+		},
+		"./translate": {
+			"types": "./dist/translate.d.ts",
+			"module": "./dist/esm/translate.mjs",
+			"import": "./dist/esm/translate.mjs"
+		},
+		"./vignette": {
+			"types": "./dist/vignette.d.ts",
+			"module": "./dist/esm/vignette.mjs",
+			"import": "./dist/esm/vignette.mjs"
+		},
+		"./wave": {
+			"types": "./dist/wave.d.ts",
+			"module": "./dist/esm/wave.mjs",
+			"import": "./dist/esm/wave.mjs"
+		},
 		"./package.json": "./package.json"
 	},
+	"typesVersions": {
+		">=1.0": {
+			"barrel-distortion": [
+				"dist/barrel-distortion.d.ts"
+			],
+			"blur": [
+				"dist/blur.d.ts"
+			],
+			"chromatic-aberration": [
+				"dist/chromatic-aberration.d.ts"
+			],
+			"brightness": [
+				"dist/brightness.d.ts"
+			],
+			"contrast": [
+				"dist/contrast.d.ts"
+			],
+			"drop-shadow": [
+				"dist/drop-shadow.d.ts"
+			],
+			"duotone": [
+				"dist/duotone.d.ts"
+			],
+			"glow": [
+				"dist/glow.d.ts"
+			],
+			"halftone": [
+				"dist/halftone.d.ts"
+			],
+			"halftone-linear-gradient": [
+				"dist/halftone-linear-gradient.d.ts"
+			],
+			"grayscale": [
+				"dist/grayscale.d.ts"
+			],
+			"hue": [
+				"dist/hue.d.ts"
+			],
+			"invert": [
+				"dist/invert.d.ts"
+			],
+			"dot-grid": [
+				"dist/dot-grid.d.ts"
+			],
+			"mirror": [
+				"dist/mirror.d.ts"
+			],
+			"noise": [
+				"dist/noise.d.ts"
+			],
+			"saturation": [
+				"dist/saturation.d.ts"
+			],
+			"scanlines": [
+				"dist/scanlines.d.ts"
+			],
+			"scale": [
+				"dist/scale.d.ts"
+			],
+			"shine": [
+				"dist/shine.d.ts"
+			],
+			"speckle": [
+				"dist/speckle.d.ts"
+			],
+			"tint": [
+				"dist/tint.d.ts"
+			],
+			"translate": [
+				"dist/translate.d.ts"
+			],
+			"vignette": [
+				"dist/vignette.d.ts"
+			],
+			"wave": [
+				"dist/wave.d.ts"
+			]
+		}
+	},
+	"homepage": "https://www.remotion.dev/docs/effects/api",
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "catalog:",

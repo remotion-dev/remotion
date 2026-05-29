@@ -75,6 +75,7 @@ type AddRenderRequestDynamicFields =
 			logLevel: LogLevel;
 			concurrency: number;
 			crf: number | null;
+			gopSize: number | null;
 			startFrame: number;
 			endFrame: number;
 			muted: boolean;
@@ -280,6 +281,22 @@ export type SaveEffectPropsRequest = {
 
 export type SaveEffectPropsResponse = CanUpdateEffectPropsResponse;
 
+export type DeleteEffectRequest = {
+	fileName: string;
+	sequenceNodePath: SequencePropsSubscriptionKey;
+	effectIndex: number;
+};
+
+export type DeleteEffectResponse =
+	| {
+			success: true;
+	  }
+	| {
+			success: false;
+			reason: string;
+			stack: string;
+	  };
+
 export type DeleteJsxNodeRequest = {
 	fileName: string;
 	nodePath: SequenceNodePath;
@@ -397,6 +414,7 @@ export type ApiRoutes = {
 		SaveEffectPropsRequest,
 		SaveEffectPropsResponse
 	>;
+	'/api/delete-effect': ReqAndRes<DeleteEffectRequest, DeleteEffectResponse>;
 	'/api/delete-jsx-node': ReqAndRes<
 		DeleteJsxNodeRequest,
 		DeleteJsxNodeResponse

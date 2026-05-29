@@ -4,25 +4,20 @@ import type {SequencePropsSubscriptionKey} from 'remotion';
 import {Internals} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
+import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import type {EffectSchemaFieldInfo} from '../../helpers/timeline-layout';
-import {EXPANDED_SECTION_PADDING_RIGHT} from '../../helpers/timeline-layout';
 import {callApi} from '../call-api';
+import {getComputedStatusLabel} from './get-timeline-keyframes';
 import {enqueueSavePropChange} from './save-prop-queue';
-import {getTimelineFieldLabelRowStyle} from './timeline-field-row-layout';
+import {timelineFieldValueColumnStyle} from './timeline-field-row-layout';
 import {TimelineExpandArrowSpacer} from './TimelineExpandArrowButton';
+import {TimelineFieldLabel} from './TimelineFieldLabel';
 import {TimelineLayerEyeSpacer} from './TimelineLayerEye';
 import {TimelineRowChrome} from './TimelineRowChrome';
 import {TimelineFieldValue, UnsupportedStatus} from './TimelineSchemaField';
+import {useTimelineRowSelection} from './TimelineSelection';
 
-const fieldRowBase: React.CSSProperties = {
-	paddingRight: EXPANDED_SECTION_PADDING_RIGHT,
-};
-
-const fieldName: React.CSSProperties = {
-	fontSize: 12,
-	color: 'rgba(255, 255, 255, 0.8)',
-	userSelect: 'none',
-};
+const fieldRowBase: React.CSSProperties = {};
 
 const Value: React.FC<{
 	readonly field: EffectSchemaFieldInfo;
@@ -180,8 +175,11 @@ const Value: React.FC<{
 	}
 
 	if (propStatus === null || !propStatus.canUpdate) {
-		if (propStatus?.reason === 'computed') {
-			return <UnsupportedStatus label="computed" />;
+		if (
+			propStatus?.reason === 'computed' ||
+			propStatus?.reason === 'keyframed'
+		) {
+			return <UnsupportedStatus label={getComputedStatusLabel(propStatus)} />;
 		}
 
 		return null;
@@ -211,7 +209,9 @@ export const TimelineEffectFieldRow: React.FC<{
 	readonly validatedLocation: CodePosition;
 	readonly rowDepth: number;
 	readonly nodePath: SequencePropsSubscriptionKey;
-}> = ({field, validatedLocation, rowDepth, nodePath}) => {
+	readonly nodePathInfo: SequenceNodePathInfo;
+}> = ({field, validatedLocation, rowDepth, nodePath, nodePathInfo}) => {
+	const selection = useTimelineRowSelection(nodePathInfo);
 	const style = useMemo(() => {
 		return {
 			...fieldRowBase,
@@ -219,26 +219,31 @@ export const TimelineEffectFieldRow: React.FC<{
 		};
 	}, [field.rowHeight]);
 
-	const labelRowStyle = useMemo(
-		() => getTimelineFieldLabelRowStyle(rowDepth),
-		[rowDepth],
-	);
-
 	return (
 		<TimelineRowChrome
 			depth={rowDepth}
 			eye={<TimelineLayerEyeSpacer />}
 			arrow={<TimelineExpandArrowSpacer />}
 			style={style}
+			selected={selection.selected}
+			selectable={selection.selectable}
+			onSelect={selection.onSelect}
+			showSelectedBackground
+			containsSelection={false}
+			outerHeight={null}
 		>
-			<div style={labelRowStyle}>
-				<span style={fieldName}>{field.description ?? field.key}</span>
-			</div>
-			<Value
-				field={field}
-				nodePath={nodePath}
-				validatedLocation={validatedLocation}
+			<TimelineFieldLabel
+				rowDepth={rowDepth}
+				selected={selection.selected}
+				label={field.description ?? field.key}
 			/>
+			<div style={timelineFieldValueColumnStyle}>
+				<Value
+					field={field}
+					nodePath={nodePath}
+					validatedLocation={validatedLocation}
+				/>
+			</div>
 		</TimelineRowChrome>
 	);
 };

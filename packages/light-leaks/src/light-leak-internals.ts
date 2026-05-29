@@ -3,13 +3,17 @@ import {Internals} from 'remotion';
 
 const {createEffect, createWebGL2ContextError} = Internals;
 
+const DEFAULT_SEED = 0 as const;
+const DEFAULT_HUE_SHIFT = 0 as const;
+const DEFAULT_PROGRESS = 0.5 as const;
+
 export const lightLeakEffectSchema = {
-	seed: {type: 'number', default: 0, description: 'Seed'},
+	seed: {type: 'number', default: DEFAULT_SEED, description: 'Seed'},
 	hueShift: {
 		type: 'number',
 		min: 0,
 		max: 360,
-		default: 0,
+		default: DEFAULT_HUE_SHIFT,
 		description: 'Hue Shift',
 	},
 	progress: {
@@ -17,7 +21,7 @@ export const lightLeakEffectSchema = {
 		min: 0,
 		max: 1,
 		step: 0.01,
-		default: 0,
+		default: DEFAULT_PROGRESS,
 		description: 'Progress',
 	},
 } as const satisfies SequenceSchema;
@@ -25,7 +29,7 @@ export const lightLeakEffectSchema = {
 export type LightLeakEffectParams = {
 	readonly seed?: number;
 	readonly hueShift?: number;
-	/** Evolve/retract phase from 0 (start) to 1 (end). */
+	/** Evolve/retract phase from 0 (start) to 1 (end). Defaults to 0.5. */
 	readonly progress?: number;
 };
 
@@ -36,10 +40,65 @@ type LightLeakResolved = {
 };
 
 const resolve = (p: LightLeakEffectParams): LightLeakResolved => ({
-	seed: p.seed ?? 0,
-	hueShift: p.hueShift ?? 0,
-	progress: p.progress ?? 0,
+	seed: p.seed ?? DEFAULT_SEED,
+	hueShift: p.hueShift ?? DEFAULT_HUE_SHIFT,
+	progress: p.progress ?? DEFAULT_PROGRESS,
 });
+
+const assertEffectParamsObject = (
+	params: unknown,
+	effectLabel: string,
+): void => {
+	if (params === null || typeof params !== 'object') {
+		throw new TypeError(
+			`${effectLabel} effect requires a parameters object, but got ${JSON.stringify(params)}`,
+		);
+	}
+};
+
+const assertOptionalFiniteNumber = (value: unknown, name: string): void => {
+	if (value === undefined) {
+		return;
+	}
+
+	if (typeof value !== 'number' || !Number.isFinite(value)) {
+		throw new TypeError(
+			`"${name}" must be a finite number, but got ${JSON.stringify(value)}`,
+		);
+	}
+};
+
+const validateUnitInterval = (value: number, name: string): void => {
+	if (value < 0) {
+		throw new TypeError(
+			`"${name}" must be >= 0, but got ${JSON.stringify(value)}`,
+		);
+	}
+
+	if (value > 1) {
+		throw new TypeError(
+			`"${name}" must be <= 1, but got ${JSON.stringify(value)}`,
+		);
+	}
+};
+
+const validateLightLeakParams = (params: LightLeakEffectParams): void => {
+	assertEffectParamsObject(params, 'lightLeak()');
+	assertOptionalFiniteNumber(params.seed, 'seed');
+	assertOptionalFiniteNumber(params.hueShift, 'hueShift');
+	assertOptionalFiniteNumber(params.progress, 'progress');
+
+	const {hueShift, progress} = resolve(params);
+	if (hueShift < 0) {
+		throw new TypeError(`"hueShift" must be >= 0, but got ${hueShift}`);
+	}
+
+	if (hueShift > 360) {
+		throw new TypeError(`"hueShift" must be <= 360, but got ${hueShift}`);
+	}
+
+	validateUnitInterval(progress, 'progress');
+};
 
 const LIGHT_LEAK_VS = /* glsl */ `#version 300 es
 in vec2 aPos;
@@ -190,9 +249,11 @@ const linkProgram = (
 	return program;
 };
 
-const lightLeak = createEffect<LightLeakEffectParams, LightLeakGlState>({
+export const lightLeak = createEffect<LightLeakEffectParams, LightLeakGlState>({
 	type: 'remotion/light-leak',
-	label: 'Light leak',
+	label: 'lightLeak()',
+	documentationLink:
+		'https://www.remotion.dev/docs/light-leaks/light-leak-effect',
 	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
@@ -209,7 +270,6 @@ const lightLeak = createEffect<LightLeakEffectParams, LightLeakGlState>({
 		}
 
 		gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 
 		const vs = compileShader(gl, gl.VERTEX_SHADER, LIGHT_LEAK_VS);
 		const fs = compileShader(gl, gl.FRAGMENT_SHADER, LIGHT_LEAK_FS);
@@ -270,30 +330,10 @@ const lightLeak = createEffect<LightLeakEffectParams, LightLeakGlState>({
 			uResolution: gl.getUniformLocation(program, 'resolution'),
 		};
 	},
-	apply: ({source, width, height, params, state}) => {
+	apply: ({source, width, height, params, state, flipSourceY}) => {
 		const r = resolve(params);
-
-		if (typeof r.seed !== 'number' || !Number.isFinite(r.seed)) {
-			throw new TypeError(
-				`"seed" must be a finite number, but got ${JSON.stringify(r.seed)}`,
-			);
-		}
-
-		if (typeof r.hueShift !== 'number' || !Number.isFinite(r.hueShift)) {
-			throw new TypeError(
-				`"hueShift" must be a finite number, but got ${JSON.stringify(r.hueShift)}`,
-			);
-		}
-
-		if (r.hueShift < 0 || r.hueShift > 360) {
-			throw new RangeError(
-				`"hueShift" must be between 0 and 360, but got ${r.hueShift}`,
-			);
-		}
-
-		const normalized = Math.min(1, Math.max(0, r.progress));
-		const evolveProgress = Math.min(1, normalized * 2);
-		const retractProgress = Math.max(0, normalized * 2 - 1);
+		const evolveProgress = Math.min(1, r.progress * 2);
+		const retractProgress = Math.max(0, r.progress * 2 - 1);
 
 		const {
 			gl,
@@ -320,6 +360,7 @@ const lightLeak = createEffect<LightLeakEffectParams, LightLeakGlState>({
 		gl.bindTexture(gl.TEXTURE_2D, texture);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
 		gl.texImage2D(
 			gl.TEXTURE_2D,
 			0,
@@ -333,7 +374,7 @@ const lightLeak = createEffect<LightLeakEffectParams, LightLeakGlState>({
 		if (uEvolveProgress) gl.uniform1f(uEvolveProgress, evolveProgress);
 		if (uRetractProgress) gl.uniform1f(uRetractProgress, retractProgress);
 		if (uSeed) gl.uniform1f(uSeed, r.seed);
-		if (uRetractSeed) gl.uniform1f(uRetractSeed, r.seed + 42.0);
+		if (uRetractSeed) gl.uniform1f(uRetractSeed, r.seed + 42);
 		if (uHueShift) gl.uniform1f(uHueShift, r.hueShift);
 		if (uResolution) gl.uniform2f(uResolution, width, height);
 
@@ -350,7 +391,7 @@ const lightLeak = createEffect<LightLeakEffectParams, LightLeakGlState>({
 		gl.deleteTexture(texture);
 	},
 	schema: lightLeakEffectSchema,
-	validateParams: () => {},
+	validateParams: validateLightLeakParams,
 });
 
 /**

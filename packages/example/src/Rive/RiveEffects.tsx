@@ -1,4 +1,7 @@
-import {EffectInternals} from '@remotion/effects';
+import {blur} from '@remotion/effects/blur';
+import {halftone} from '@remotion/effects/halftone';
+import {tint} from '@remotion/effects/tint';
+import {wave} from '@remotion/effects/wave';
 import {RemotionRiveCanvas} from '@remotion/rive';
 import {StudioInternals} from '@remotion/studio';
 import React from 'react';
@@ -86,26 +89,24 @@ const AnimatedBlurRive: React.FC = () => {
 		<RemotionRiveCanvas
 			src={RIVE_SRC}
 			style={tileRiveStyle}
-			effects={[EffectInternals.blur({radius: blurRadius})]}
+			effects={[blur({radius: blurRadius})]}
 		/>
 	);
 };
 
 const AnimatedWaveRive: React.FC = () => {
 	const frame = useCurrentFrame();
-	const evolution = frame * 0.2;
+	const phase = frame * 0.2;
 
 	return (
 		<RemotionRiveCanvas
 			src={RIVE_SRC}
 			style={tileRiveStyle}
 			effects={[
-				EffectInternals.wave({
+				wave({
+					phase,
 					amplitude: 22,
 					wavelength: 180,
-					evolution,
-					sliceWidth: 4,
-					background: '#020617',
 				}),
 			]}
 		/>
@@ -114,22 +115,20 @@ const AnimatedWaveRive: React.FC = () => {
 
 const StackedRive: React.FC = () => {
 	const frame = useCurrentFrame();
-	const evolution = frame * 0.2;
+	const phase = frame * 0.2;
 
 	return (
 		<RemotionRiveCanvas
 			src={RIVE_SRC}
 			style={tileRiveStyle}
 			effects={[
-				EffectInternals.tint({color: '#ff5fa2', amount: 0.4}),
-				EffectInternals.wave({
+				tint({color: '#ff5fa2', amount: 0.4}),
+				wave({
+					phase,
 					amplitude: 12,
 					wavelength: 160,
-					evolution,
-					sliceWidth: 4,
-					background: '#020617',
 				}),
-				EffectInternals.blur({radius: 6}),
+				blur({radius: 6}),
 			]}
 		/>
 	);
@@ -164,7 +163,7 @@ const Comp: React.FC = () => {
 					<RemotionRiveCanvas
 						src={RIVE_SRC}
 						style={tileRiveStyle}
-						effects={[EffectInternals.tint({color: '#ff5fa2', amount: 0.6})]}
+						effects={[tint({color: '#ff5fa2', amount: 0.6})]}
 					/>
 				</Tile>
 				<Tile title="halftone" subtitle="circles, dotSize 12, on luminance">
@@ -172,11 +171,11 @@ const Comp: React.FC = () => {
 						src={RIVE_SRC}
 						style={tileRiveStyle}
 						effects={[
-							EffectInternals.halftone({
+							halftone({
 								shape: 'circle',
 								dotSize: 12,
 								dotSpacing: 12,
-								color: '#000',
+								dotColor: '#000',
 							}),
 						]}
 					/>
@@ -186,7 +185,7 @@ const Comp: React.FC = () => {
 				<Tile title="blur" subtitle="separable Gaussian, animated 0→18">
 					<AnimatedBlurRive />
 				</Tile>
-				<Tile title="wave" subtitle="amplitude 22, evolution from frame">
+				<Tile title="wave" subtitle="amplitude 22, phase from frame">
 					<AnimatedWaveRive />
 				</Tile>
 				<Tile title="tint + wave + blur" subtitle="effect chain">

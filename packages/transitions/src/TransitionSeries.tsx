@@ -467,6 +467,11 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 						durationInFrames={durationInFramesProp}
 						{...passedProps}
 						name={passedProps.name || '<TS.Sequence>'}
+						_remotionInternalDocumentationLink={
+							passedProps.name
+								? undefined
+								: 'https://www.remotion.dev/docs/transitions/transitionseries'
+						}
 					>
 						<UppercaseNextPresentation
 							passedProps={nextPresentation.props ?? {}}
@@ -526,6 +531,11 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 						durationInFrames={durationInFramesProp}
 						{...passedProps}
 						name={passedProps.name || '<TS.Sequence>'}
+						_remotionInternalDocumentationLink={
+							passedProps.name
+								? undefined
+								: 'https://www.remotion.dev/docs/transitions/transitionseries'
+						}
 					>
 						<UppercasePrevPresentation
 							passedProps={prevPresentation.props ?? {}}
@@ -565,6 +575,11 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 						durationInFrames={durationInFramesProp}
 						{...passedProps}
 						name={passedProps.name || '<TS.Sequence>'}
+						_remotionInternalDocumentationLink={
+							passedProps.name
+								? undefined
+								: 'https://www.remotion.dev/docs/transitions/transitionseries'
+						}
 					>
 						<UppercaseNextPresentation
 							passedProps={nextPresentation.props ?? {}}
@@ -597,6 +612,11 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 					durationInFrames={durationInFramesProp}
 					{...passedProps}
 					name={passedProps.name || '<TS.Sequence>'}
+					_remotionInternalDocumentationLink={
+						passedProps.name
+							? undefined
+							: 'https://www.remotion.dev/docs/transitions/transitionseries'
+					}
 				>
 					{child}
 				</Sequence>
@@ -620,6 +640,7 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 					from={Math.round(info.overlayFrom)}
 					durationInFrames={info.durationInFrames}
 					name="<TS.Overlay>"
+					_remotionInternalDocumentationLink="https://www.remotion.dev/docs/transitions/transitionseries"
 					layout="absolute-fill"
 					{...(info.stack ? {stack: info.stack} : {})}
 				>
@@ -656,7 +677,16 @@ const TransitionSeries: FC<SequencePropsWithoutDuration> & {
 	}
 
 	return (
-		<Sequence name={displayName} layout={layout} {...otherProps}>
+		<Sequence
+			name={displayName}
+			layout={layout}
+			_remotionInternalDocumentationLink={
+				name === undefined
+					? 'https://www.remotion.dev/docs/transitions/transitionseries'
+					: undefined
+			}
+			{...otherProps}
+		>
 			<TransitionSeriesChildren>{children}</TransitionSeriesChildren>
 		</Sequence>
 	);

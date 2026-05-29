@@ -20,7 +20,7 @@ export const reproOption = {
 	docLink: 'https://www.remotion.dev/docs/render-media#repro',
 	type: false as boolean,
 	getValue: ({commandLine}) => {
-		if (commandLine[cliFlag] !== undefined) {
+		if (commandLine[cliFlag] !== undefined && commandLine[cliFlag] !== null) {
 			return {
 				value: commandLine[cliFlag] as boolean,
 				source: 'cli',

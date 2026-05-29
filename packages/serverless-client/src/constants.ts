@@ -126,6 +126,7 @@ export type ServerlessStartPayload<Provider extends CloudProvider> = {
 	pixelFormat: PixelFormat | undefined | null;
 	proResProfile: _InternalTypes['ProResProfile'] | undefined | null;
 	x264Preset: X264Preset | null;
+	gopSize: number | null;
 	jpegQuality: number | undefined;
 	maxRetries: number;
 	privacy: Privacy;
@@ -190,6 +191,7 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		pixelFormat: PixelFormat | null;
 		proResProfile: _InternalTypes['ProResProfile'] | null;
 		x264Preset: X264Preset | null;
+		gopSize: number | null;
 		jpegQuality: number | undefined;
 		maxRetries: number;
 		privacy: Privacy;
@@ -249,6 +251,7 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		crf: number | null;
 		proResProfile: _InternalTypes['ProResProfile'] | null;
 		x264Preset: X264Preset | null;
+		gopSize: number | null;
 		pixelFormat: PixelFormat | null;
 		jpegQuality: number | undefined;
 		envVariables: Record<string, string> | undefined;

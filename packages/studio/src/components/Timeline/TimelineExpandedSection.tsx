@@ -24,8 +24,8 @@ const expandedSectionBase: React.CSSProperties = {
 };
 
 const separator: React.CSSProperties = {
-	height: 1,
-	backgroundColor: TIMELINE_TRACK_SEPARATOR,
+	height: 0,
+	borderBottom: `1px solid ${TIMELINE_TRACK_SEPARATOR}`,
 };
 
 export const TimelineExpandedSection: React.FC<{
@@ -39,7 +39,7 @@ export const TimelineExpandedSection: React.FC<{
 	const {codeValues: visualModeCodeValues} = useContext(
 		Internals.VisualModeCodeValuesContext,
 	);
-	const {getDragOverrides} = useContext(
+	const {getDragOverrides, getEffectDragOverrides} = useContext(
 		Internals.VisualModeDragOverridesContext,
 	);
 
@@ -49,9 +49,16 @@ export const TimelineExpandedSection: React.FC<{
 				sequence,
 				nodePathInfo,
 				getDragOverrides,
+				getEffectDragOverrides,
 				codeValues: visualModeCodeValues,
 			}),
-		[sequence, nodePathInfo, getDragOverrides, visualModeCodeValues],
+		[
+			sequence,
+			nodePathInfo,
+			getDragOverrides,
+			getEffectDragOverrides,
+			visualModeCodeValues,
+		],
 	);
 
 	const flat = useMemo(

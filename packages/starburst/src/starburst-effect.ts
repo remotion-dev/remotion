@@ -4,6 +4,8 @@ import {hexToRgb} from './hex-to-rgb';
 
 const {createEffect, createWebGL2ContextError} = Internals;
 
+const DEFAULT_ORIGIN = [0.5, 0.5] as const;
+
 export const starburstEffectSchema = {
 	rays: {
 		type: 'number',
@@ -29,40 +31,24 @@ export const starburstEffectSchema = {
 		default: 0,
 		description: 'Edge Smoothness',
 	},
-	vignette: {
-		type: 'number',
+	origin: {
+		type: 'uv-coordinate',
 		min: 0,
 		max: 1,
 		step: 0.01,
-		default: 1,
-		description: 'Vignette',
-	},
-	originOffsetX: {
-		type: 'number',
-		min: -1,
-		max: 1,
-		step: 0.01,
-		default: 0,
-		description: 'Origin Offset X',
-	},
-	originOffsetY: {
-		type: 'number',
-		min: -1,
-		max: 1,
-		step: 0.01,
-		default: 0,
-		description: 'Origin Offset Y',
+		default: DEFAULT_ORIGIN,
+		description: 'Origin',
 	},
 } as const satisfies SequenceSchema;
+
+export type StarburstOrigin = readonly [number, number];
 
 export type StarburstEffectParams = {
 	readonly rays: number;
 	readonly colors: readonly string[];
 	readonly rotation?: number;
 	readonly smoothness?: number;
-	readonly vignette?: number;
-	readonly originOffsetX?: number;
-	readonly originOffsetY?: number;
+	readonly origin?: StarburstOrigin;
 };
 
 type StarburstResolved = {
@@ -70,9 +56,7 @@ type StarburstResolved = {
 	colors: readonly string[];
 	rotation: number;
 	smoothness: number;
-	vignette: number;
-	originOffsetX: number;
-	originOffsetY: number;
+	origin: StarburstOrigin;
 };
 
 const resolve = (p: StarburstEffectParams): StarburstResolved => ({
@@ -80,9 +64,7 @@ const resolve = (p: StarburstEffectParams): StarburstResolved => ({
 	colors: p.colors,
 	rotation: p.rotation ?? 0,
 	smoothness: p.smoothness ?? 0,
-	vignette: p.vignette ?? 1,
-	originOffsetX: p.originOffsetX ?? 0,
-	originOffsetY: p.originOffsetY ?? 0,
+	origin: (p.origin ?? DEFAULT_ORIGIN) as StarburstOrigin,
 });
 
 const validateStarburstEffectParams = (params: StarburstEffectParams): void => {
@@ -130,33 +112,19 @@ const validateStarburstEffectParams = (params: StarburstEffectParams): void => {
 		);
 	}
 
-	if (typeof r.vignette !== 'number' || !Number.isFinite(r.vignette)) {
-		throw new TypeError(
-			`"vignette" must be a finite number, but got ${JSON.stringify(params.vignette)}`,
-		);
+	if (
+		!Array.isArray(r.origin) ||
+		r.origin.length !== 2 ||
+		r.origin.some((coordinate) => {
+			return typeof coordinate !== 'number' || !Number.isFinite(coordinate);
+		})
+	) {
+		throw new TypeError('"origin" must be a [number, number] tuple');
 	}
 
-	if (r.vignette < 0 || r.vignette > 1) {
+	if (r.origin.some((coordinate) => coordinate < 0 || coordinate > 1)) {
 		throw new RangeError(
-			`"vignette" must be between 0 and 1, but got ${r.vignette}`,
-		);
-	}
-
-	if (
-		typeof r.originOffsetX !== 'number' ||
-		!Number.isFinite(r.originOffsetX)
-	) {
-		throw new TypeError(
-			`"originOffsetX" must be a finite number, but got ${JSON.stringify(params.originOffsetX)}`,
-		);
-	}
-
-	if (
-		typeof r.originOffsetY !== 'number' ||
-		!Number.isFinite(r.originOffsetY)
-	) {
-		throw new TypeError(
-			`"originOffsetY" must be a finite number, but got ${JSON.stringify(params.originOffsetY)}`,
+			`"origin" must contain coordinates between 0 and 1, but got ${JSON.stringify(r.origin)}`,
 		);
 	}
 
@@ -178,15 +146,13 @@ void main() {
 const STARBURST_FS = /* glsl */ `#version 300 es
 precision highp float;
 
-uniform sampler2D uSource;
 uniform sampler2D colorPalette;
 uniform float numRays;
 uniform float rotationOffset;
 uniform float smoothEdge;
 uniform vec2 resolution;
 uniform float numColors;
-uniform float vignetteAmount;
-uniform vec2 originOffset;
+uniform vec2 origin;
 
 in vec2 vUv;
 out vec4 fragColor;
@@ -195,7 +161,7 @@ const float Pi = 3.14159265359;
 
 void main() {
 	vec2 uv = vUv;
-	vec2 center = uv - 0.5 - originOffset;
+	vec2 center = uv - origin;
 	center.x *= resolution.x / resolution.y;
 
 	float angle = atan(center.y, center.x) + rotationOffset;
@@ -221,16 +187,7 @@ void main() {
 	vec3 prevCol = texture(colorPalette, vec2(prevTexCoord, 0.5)).rgb;
 	col = mix(col, prevCol, blendStart);
 
-	vec2 vignetteCenter = (uv - 0.5) * vec2(resolution.x / resolution.y, 1.0);
-	float dist = length(vignetteCenter);
-	float radius = vignetteAmount * 3.0;
-	float burstAlpha = smoothstep(radius, radius * 0.5, dist);
-
-	vec4 src = texture(uSource, vUv);
-	vec3 burstPm = col * burstAlpha;
-	vec3 outRgb = burstPm + src.rgb * (1.0 - burstAlpha);
-	float outA = burstAlpha + src.a * (1.0 - burstAlpha);
-	fragColor = vec4(outRgb, outA);
+	fragColor = vec4(col, 1.0);
 }
 `;
 
@@ -239,17 +196,14 @@ type StarburstGlState = {
 	program: WebGLProgram;
 	vao: WebGLVertexArrayObject;
 	vbo: WebGLBuffer;
-	sourceTexture: WebGLTexture;
 	paletteTexture: WebGLTexture;
-	uSource: WebGLUniformLocation | null;
 	uColorPalette: WebGLUniformLocation | null;
 	uNumRays: WebGLUniformLocation | null;
 	uRotationOffset: WebGLUniformLocation | null;
 	uSmoothEdge: WebGLUniformLocation | null;
 	uResolution: WebGLUniformLocation | null;
 	uNumColors: WebGLUniformLocation | null;
-	uVignetteAmount: WebGLUniformLocation | null;
-	uOriginOffset: WebGLUniformLocation | null;
+	uOrigin: WebGLUniformLocation | null;
 	cachedPaletteKey: string;
 	palettePixelData: Uint8Array;
 };
@@ -299,11 +253,12 @@ const linkProgram = (
 
 export const starburst = createEffect<StarburstEffectParams, StarburstGlState>({
 	type: 'remotion/starburst',
-	label: 'Starburst',
+	label: 'starburst()',
+	documentationLink: 'https://www.remotion.dev/docs/starburst/starburst-effect',
 	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
-		return `starburst-${r.rays}-${r.colors.join('|')}-${r.rotation}-${r.smoothness}-${r.vignette}-${r.originOffsetX}-${r.originOffsetY}`;
+		return `starburst-${r.rays}-${r.colors.join('|')}-${r.rotation}-${r.smoothness}-${r.origin.join(':')}`;
 	},
 	setup: (target) => {
 		const gl = target.getContext('webgl2', {
@@ -316,7 +271,6 @@ export const starburst = createEffect<StarburstEffectParams, StarburstGlState>({
 		}
 
 		gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 
 		const vs = compileShader(gl, gl.VERTEX_SHADER, STARBURST_VS);
 		const fs = compileShader(gl, gl.FRAGMENT_SHADER, STARBURST_FS);
@@ -352,16 +306,6 @@ export const starburst = createEffect<StarburstEffectParams, StarburstGlState>({
 
 		gl.bindVertexArray(null);
 
-		const sourceTexture = gl.createTexture();
-		if (!sourceTexture) {
-			throw new Error('Failed to create WebGL source texture');
-		}
-
-		gl.bindTexture(gl.TEXTURE_2D, sourceTexture);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-		gl.bindTexture(gl.TEXTURE_2D, null);
-
 		const paletteTexture = gl.createTexture();
 		if (!paletteTexture) {
 			throw new Error('Failed to create WebGL palette texture');
@@ -379,38 +323,32 @@ export const starburst = createEffect<StarburstEffectParams, StarburstGlState>({
 			program,
 			vao,
 			vbo,
-			sourceTexture,
 			paletteTexture,
-			uSource: gl.getUniformLocation(program, 'uSource'),
 			uColorPalette: gl.getUniformLocation(program, 'colorPalette'),
 			uNumRays: gl.getUniformLocation(program, 'numRays'),
 			uRotationOffset: gl.getUniformLocation(program, 'rotationOffset'),
 			uSmoothEdge: gl.getUniformLocation(program, 'smoothEdge'),
 			uResolution: gl.getUniformLocation(program, 'resolution'),
 			uNumColors: gl.getUniformLocation(program, 'numColors'),
-			uVignetteAmount: gl.getUniformLocation(program, 'vignetteAmount'),
-			uOriginOffset: gl.getUniformLocation(program, 'originOffset'),
+			uOrigin: gl.getUniformLocation(program, 'origin'),
 			cachedPaletteKey: '',
 			palettePixelData: new Uint8Array(0),
 		};
 	},
-	apply: ({source, width, height, params, state}) => {
+	apply: ({width, height, params, state}) => {
 		const r = resolve(params);
 		const {
 			gl,
 			program,
 			vao,
-			sourceTexture,
 			paletteTexture,
-			uSource,
 			uColorPalette,
 			uNumRays,
 			uRotationOffset,
 			uSmoothEdge,
 			uResolution,
 			uNumColors,
-			uVignetteAmount,
-			uOriginOffset,
+			uOrigin,
 		} = state;
 
 		const rotationRad = (r.rotation * Math.PI) / 180;
@@ -442,19 +380,6 @@ export const starburst = createEffect<StarburstEffectParams, StarburstGlState>({
 		gl.bindVertexArray(vao);
 
 		gl.activeTexture(gl.TEXTURE0);
-		gl.bindTexture(gl.TEXTURE_2D, sourceTexture);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-		gl.texImage2D(
-			gl.TEXTURE_2D,
-			0,
-			gl.RGBA,
-			gl.RGBA,
-			gl.UNSIGNED_BYTE,
-			source as TexImageSource,
-		);
-
-		gl.activeTexture(gl.TEXTURE1);
 		gl.bindTexture(gl.TEXTURE_2D, paletteTexture);
 		if (paletteDirty) {
 			gl.texImage2D(
@@ -470,15 +395,12 @@ export const starburst = createEffect<StarburstEffectParams, StarburstGlState>({
 			);
 		}
 
-		if (uSource) gl.uniform1i(uSource, 0);
-		if (uColorPalette) gl.uniform1i(uColorPalette, 1);
+		if (uColorPalette) gl.uniform1i(uColorPalette, 0);
 		if (uNumRays) gl.uniform1f(uNumRays, r.rays);
 		if (uNumColors) gl.uniform1f(uNumColors, r.colors.length);
 		if (uRotationOffset) gl.uniform1f(uRotationOffset, rotationRad);
 		if (uSmoothEdge) gl.uniform1f(uSmoothEdge, r.smoothness);
-		if (uVignetteAmount) gl.uniform1f(uVignetteAmount, r.vignette);
-		if (uOriginOffset)
-			gl.uniform2f(uOriginOffset, r.originOffsetX, r.originOffsetY);
+		if (uOrigin) gl.uniform2f(uOrigin, r.origin[0], 1 - r.origin[1]);
 		if (uResolution) gl.uniform2f(uResolution, width, height);
 
 		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
@@ -487,11 +409,10 @@ export const starburst = createEffect<StarburstEffectParams, StarburstGlState>({
 		gl.bindTexture(gl.TEXTURE_2D, null);
 		gl.useProgram(null);
 	},
-	cleanup: ({gl, program, vao, vbo, sourceTexture, paletteTexture}) => {
+	cleanup: ({gl, program, vao, vbo, paletteTexture}) => {
 		gl.deleteBuffer(vbo);
 		gl.deleteProgram(program);
 		gl.deleteVertexArray(vao);
-		gl.deleteTexture(sourceTexture);
 		gl.deleteTexture(paletteTexture);
 	},
 	schema: starburstEffectSchema,

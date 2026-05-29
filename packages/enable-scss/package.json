@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/enable-scss"
 	},
 	"name": "@remotion/enable-scss",
-	"version": "4.0.464",
+	"version": "4.0.469",
 	"description": "Enable SCSS support in Remotion",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
@@ -22,7 +22,7 @@
 	},
 	"dependencies": {
 		"style-loader": "4.0.0",
-		"css-loader": "5.2.7",
+		"css-loader": "7.1.4",
 		"sass-loader": "14.2.1"
 	},
 	"peerDependencies": {

@@ -17,7 +17,7 @@ export const isProductionOption = {
 	ssrName: 'isProduction' as const,
 	docLink: 'https://www.remotion.dev/docs/licensing',
 	getValue: ({commandLine}) => {
-		if (commandLine[cliFlag] !== undefined) {
+		if (commandLine[cliFlag] !== undefined && commandLine[cliFlag] !== null) {
 			return {
 				source: 'cli',
 				value: commandLine[cliFlag] as boolean | null,

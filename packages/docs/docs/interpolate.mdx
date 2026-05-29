@@ -118,6 +118,10 @@ Takes four arguments:
 3. The range of output values that you want the input to map to.
 4. Options object:
 
+`inputRange` and `outputRange` must have the same length and at least one value.
+With one value, `interpolate()` always returns the only output value.
+Single-value ranges are supported from <AvailableFrom v="4.0.469" inline />.
+
 ### extrapolateLeft?
 
 _Default_: `extend`
@@ -172,9 +176,10 @@ interpolate(frame, [0, 10, 40, 100], [0, 0.2, 0.6, 1], {
 });
 ```
 
-#### Per-segment easing (array) {#per-segment-easing-array}<AvailableFrom v="4.0.462" />
+#### Per-segment easing (array)<AvailableFrom v="4.0.462" /> {#per-segment-easing-array}
 
-You can pass an array of easing functions with **one entry per segment** between consecutive keyframes. Its length must be `inputRange.length - 1` (the same as `outputRange.length - 1`). The first easing applies between the first and second keyframe, the second easing between the second and third, and so on.
+You can pass an array of easing functions with one entry per segment between consecutive keyframes. Its length must be `inputRange.length - 1` (the same as `outputRange.length - 1`). The first easing applies between the first and second keyframe, the second easing between the second and third, and so on.
+For a single keyframe, pass an empty array.
 
 ```ts twoslash
 import {useCurrentFrame} from 'remotion';

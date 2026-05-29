@@ -31,6 +31,15 @@ export type TranslateFieldSchema = {
 	description?: string;
 };
 
+export type UvCoordinateFieldSchema = {
+	type: 'uv-coordinate';
+	min?: number;
+	max?: number;
+	step?: number;
+	default: readonly [number, number] | undefined;
+	description?: string;
+};
+
 export type ColorFieldSchema = {
 	type: 'color';
 	default: string | undefined;
@@ -49,6 +58,7 @@ export type VisibleFieldSchema =
 	| BooleanFieldSchema
 	| RotationFieldSchema
 	| TranslateFieldSchema
+	| UvCoordinateFieldSchema
 	| ColorFieldSchema
 	| EnumFieldSchema;
 

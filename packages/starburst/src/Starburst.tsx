@@ -396,6 +396,7 @@ const StarburstInner: React.FC<
 		<Sequence
 			durationInFrames={resolvedDuration}
 			name="<Starburst>"
+			_remotionInternalDocumentationLink="https://www.remotion.dev/docs/starburst/starburst"
 			_experimentalControls={controls}
 			{...sequenceProps}
 			style={style}

@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/tailwind"
 	},
 	"name": "@remotion/tailwind",
-	"version": "4.0.464",
+	"version": "4.0.469",
 	"description": "Enable TailwindCSS support in Remotion (TailwindCSS v3)",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
@@ -20,6 +20,7 @@
 	},
 	"dependencies": {
 		"autoprefixer": "10.4.20",
+		"css-loader": "7.1.4",
 		"postcss": "8.5.10",
 		"postcss-loader": "7.3.4",
 		"postcss-preset-env": "8.3.2",

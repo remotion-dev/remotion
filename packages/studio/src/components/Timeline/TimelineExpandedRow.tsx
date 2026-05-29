@@ -1,5 +1,5 @@
 import React from 'react';
-import type {SequenceSchema, SequencePropsSubscriptionKey} from 'remotion';
+import type {SequencePropsSubscriptionKey, SequenceSchema} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import type {TimelineTreeNode} from '../../helpers/timeline-layout';
@@ -19,6 +19,11 @@ import {
 import {TimelineFieldRow} from './TimelineFieldRow';
 import {TimelineLayerEyeSpacer} from './TimelineLayerEye';
 import {TimelineRowChrome} from './TimelineRowChrome';
+import {
+	getTimelineColor,
+	getTimelineSelectedLabelStyle,
+	useTimelineRowSelection,
+} from './TimelineSelection';
 
 const rowLabel: React.CSSProperties = {
 	fontSize: 12,
@@ -46,6 +51,21 @@ export const TimelineExpandedRow: React.FC<{
 	schema,
 }) => {
 	const rowDepth = getExpandedRowDepth({nestedDepth, treeDepth: depth});
+	const selection = useTimelineRowSelection(node.nodePathInfo);
+	const labelStyle = React.useMemo(
+		(): React.CSSProperties => ({
+			...rowLabel,
+			...getTimelineSelectedLabelStyle(selection.selected, true),
+			alignSelf: 'stretch',
+			alignItems: 'center',
+			color: getTimelineColor(selection.selected, true),
+			display: 'flex',
+			flex: 1,
+			minWidth: 0,
+			paddingRight: EXPANDED_SECTION_PADDING_RIGHT,
+		}),
+		[selection.selected],
+	);
 
 	if (node.kind === 'group') {
 		if (node.effectInfo) {
@@ -55,6 +75,7 @@ export const TimelineExpandedRow: React.FC<{
 					nodePathInfo={node.nodePathInfo}
 					effectIndex={node.effectInfo.effectIndex}
 					effectSchema={node.effectInfo.effectSchema}
+					documentationLink={node.effectInfo.documentationLink}
 					nodePath={nodePath}
 					validatedLocation={validatedLocation}
 					rowDepth={rowDepth}
@@ -64,6 +85,7 @@ export const TimelineExpandedRow: React.FC<{
 			);
 		}
 
+		// Group like "Effects"
 		const isExpanded = getIsExpanded(node.nodePathInfo);
 		return (
 			<TimelineRowChrome
@@ -79,10 +101,15 @@ export const TimelineExpandedRow: React.FC<{
 				}
 				style={{
 					height: TREE_GROUP_ROW_HEIGHT,
-					paddingRight: EXPANDED_SECTION_PADDING_RIGHT,
 				}}
+				selected={selection.selected}
+				selectable={selection.selectable}
+				onSelect={selection.onSelect}
+				showSelectedBackground
+				containsSelection={false}
+				outerHeight={null}
 			>
-				<span style={rowLabel}>{node.label}</span>
+				<span style={labelStyle}>{node.label}</span>
 			</TimelineRowChrome>
 		);
 	}
@@ -95,6 +122,7 @@ export const TimelineExpandedRow: React.FC<{
 					validatedLocation={validatedLocation}
 					rowDepth={rowDepth}
 					nodePath={nodePath}
+					nodePathInfo={node.nodePathInfo}
 				/>
 			);
 		}
@@ -106,6 +134,7 @@ export const TimelineExpandedRow: React.FC<{
 					validatedLocation={validatedLocation}
 					rowDepth={rowDepth}
 					nodePath={nodePath}
+					nodePathInfo={node.nodePathInfo}
 					schema={schema}
 				/>
 			);
@@ -123,10 +152,15 @@ export const TimelineExpandedRow: React.FC<{
 			arrow={<TimelineExpandArrowSpacer />}
 			style={{
 				height: getTreeRowHeight(node),
-				paddingRight: EXPANDED_SECTION_PADDING_RIGHT,
 			}}
+			selected={selection.selected}
+			selectable={selection.selectable}
+			onSelect={selection.onSelect}
+			showSelectedBackground
+			containsSelection={false}
+			outerHeight={null}
 		>
-			<span style={rowLabel}>{node.label}</span>
+			<span style={labelStyle}>{node.label}</span>
 		</TimelineRowChrome>
 	);
 };

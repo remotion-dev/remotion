@@ -1,12 +1,13 @@
 import type {
 	CodeValues,
 	DragOverrides,
-	SequenceControls,
-	VisibleFieldSchema,
-	SequenceSchema,
-	GetDragOverrides,
-	SequencePropsSubscriptionKey,
 	EffectDefinition,
+	GetDragOverrides,
+	GetEffectDragOverrides,
+	SequenceControls,
+	SequencePropsSubscriptionKey,
+	SequenceSchema,
+	VisibleFieldSchema,
 } from 'remotion';
 import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
@@ -42,6 +43,7 @@ const SUPPORTED_SCHEMA_TYPES = [
 	'boolean',
 	'rotation',
 	'translate',
+	'uv-coordinate',
 	'color',
 	'enum',
 	'hidden',
@@ -104,11 +106,48 @@ export const getFieldsToShow = ({
 		.filter(NoReactInternals.truthy);
 };
 
-export const getEffectFieldsToShow = (
-	effect: EffectDefinition<unknown>,
-	effectIndex: number,
-): EffectSchemaFieldInfo[] => {
-	return Object.entries(effect.schema)
+export const getEffectFieldsToShow = ({
+	effect,
+	effectIndex,
+	nodePath,
+	codeValues,
+	getEffectDragOverrides,
+}: {
+	effect: EffectDefinition<unknown>;
+	effectIndex: number;
+	nodePath: SequencePropsSubscriptionKey | null;
+	codeValues: CodeValues;
+	getEffectDragOverrides: GetEffectDragOverrides;
+}): EffectSchemaFieldInfo[] => {
+	const effectStatus =
+		nodePath === null
+			? null
+			: Internals.getEffectCodeValuesCtx({
+					codeValues,
+					nodePath,
+					effectIndex,
+				});
+	const dragOverrides =
+		nodePath === null ? {} : getEffectDragOverrides(nodePath, effectIndex);
+	const activeSchema = Internals.flattenActiveSchema(effect.schema, (key) => {
+		const dragOverride = dragOverrides[key];
+		if (dragOverride !== undefined) {
+			return dragOverride;
+		}
+
+		if (effectStatus?.type !== 'can-update-effect') {
+			return undefined;
+		}
+
+		const propStatus = effectStatus.props[key];
+		if (!propStatus || !propStatus.canUpdate) {
+			return undefined;
+		}
+
+		return propStatus.codeValue;
+	});
+
+	return Object.entries(activeSchema)
 		.map(([key, fieldSchema]): EffectSchemaFieldInfo | null => {
 			const typeName = fieldSchema.type;
 			if (typeName === 'hidden') {

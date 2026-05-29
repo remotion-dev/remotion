@@ -41,6 +41,12 @@ test('Basic interpolate Colors', () => {
 	);
 });
 
+test('Can interpolate a single color keyframe', () => {
+	expect(interpolateColors(-10, [20], ['blue'])).toBe('rgba(0, 0, 255, 1)');
+	expect(interpolateColors(20, [20], ['blue'])).toBe('rgba(0, 0, 255, 1)');
+	expect(interpolateColors(30, [20], ['blue'])).toBe('rgba(0, 0, 255, 1)');
+});
+
 test('Clamp Right', () => {
 	expect(interpolateColors(2, [0, 1], ['#ffaadd', '#fabfdf'])).toBe(
 		'rgba(250, 191, 223, 1)',

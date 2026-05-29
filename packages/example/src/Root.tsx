@@ -48,18 +48,34 @@ import {
 	HlsMediaVideoTrimmed,
 } from './Hls/HlsMediaVideo';
 import {
+	BookFlipTransitionDoc,
+	BookFlipTransitionDocThumb,
+	CrossZoomTransitionDoc,
+	CrossZoomTransitionDocThumb,
+	CrosswarpTransitionDoc,
+	CrosswarpTransitionDocThumb,
+	DissolveTransitionDoc,
+	DissolveTransitionDocThumb,
+	FilmBurnTransitionDoc,
+	FilmBurnTransitionDocThumb,
 	HtmlInCanvasComplexText,
 	HtmlInCanvasComposeAsyncBitmap,
 	HtmlInCanvasComposeWebGL,
 	HtmlInCanvasComposeWebGLCrt,
 	HtmlInCanvasComposeWebGPU,
+	HtmlInCanvasDemo,
+	HtmlInCanvasDocsDemo2DBlur,
 	HtmlInCanvasDocsMinimalWebGL,
 	HtmlInCanvasDocsMinimalWebGPU,
-	HtmlInCanvasDocsDemo2DBlur,
 	HtmlInCanvasNestedEffects,
-	HtmlInCanvasDemo,
 	HtmlInCanvasPrivacy,
 	HtmlInCanvasReactSvg,
+	LinearBlurTransitionDoc,
+	LinearBlurTransitionDocThumb,
+	RippleTransitionDoc,
+	RippleTransitionDocThumb,
+	SwapTransitionDoc,
+	SwapTransitionDocThumb,
 	ZoomBlurTransitionDoc,
 	ZoomBlurTransitionDocThumb,
 	ZoomInOutTransitionDoc,
@@ -114,8 +130,8 @@ import {
 } from './StudioApis/SaveDefaultProps';
 import {TriggerCalculateMetadata} from './StudioApis/TriggerCalculateMetadata';
 import {WriteStaticFile} from './StudioApis/WriteStaticFile';
-import {SubtitleArtifact} from './SubtitleArtifact/SubtitleArtifact';
 import './style.css';
+import {SubtitleArtifact} from './SubtitleArtifact/SubtitleArtifact';
 import {SvgFilter} from './SvgFilter';
 import {Tailwind} from './Tailwind';
 import {TenFrameTester} from './TenFrameTester';
@@ -160,9 +176,11 @@ import {AudioSmoothnessSlicedVideoComp} from './AudioSmoothness/SlicedVideo';
 import {AudioSmoothnessTrimAfterLoopComp} from './AudioSmoothness/TrimAfterLoop';
 import {AudioSmoothnessTrimButtonComp} from './AudioSmoothness/TrimButton';
 import Amplify from './AudioTesting/Amplify';
+import {Issue7568} from './AudioTesting/Issue7568';
 import {BrowserTest} from './BrowserTest';
 import {EdgeBlur} from './EdgeBlur/EdgeBlur';
 import {EffectsTestbed} from './EffectsTestbed/EffectsTestbed';
+import {HalftoneGradient} from './EffectsTestbed/HalftoneGradient';
 import {VideoEffectsFastRefresh} from './EffectsTestbed/VideoEffectsFastRefresh';
 import {Empty} from './Empty';
 import {JumpCuts, SAMPLE_SECTIONS, calculateMetadataJumpCuts} from './JumpCuts';
@@ -173,6 +191,7 @@ import {NewAudioExample} from './NewAudio/NewAudio';
 import {NewVideoComp} from './NewVideo';
 import {ObjectFitTestComp} from './ObjectFitTest';
 import {ChangingTrimBeforeValue} from './OffthreadRemoteVideo/ChangingTrimBefore';
+import {Issue7562OffthreadVideoCuts} from './OffthreadRemoteVideo/Issue7562OffthreadVideoCuts';
 import {LoopedNewVideo} from './OffthreadRemoteVideo/LoopedNewVideo';
 import {LoopedOffthreadRemoteVideo} from './OffthreadRemoteVideo/LoopedOffthreadRemoteVideo';
 import {MultiChannelAudio} from './OffthreadRemoteVideo/MultiChannelAudio';
@@ -188,10 +207,13 @@ import {
 import {PremountOnTransitionSeries} from './PremountOnTransitionSeries';
 import {PrintProps} from './PrintProps';
 import {SfxExample} from './Sfx';
+import {CanvasImg} from './SimpleImg/CanvasImg';
+import {ImgEffects} from './SimpleImg/ImgEffects';
 import {SmoothTextTransition} from './SmoothTextTransition';
 import {SpringSeason} from './SpringSeason';
 import {StarburstExample} from './Starburst';
 import {Seek} from './StudioApis/Seek';
+import {SubframeAudio} from './SubframeAudio';
 import {TikTokTextBoxPlayground} from './TikTokTextbox/TikTokTextBox';
 import {FitTextOnNLines, fitTextOnNLinesSchema} from './Title/FitTextOnNLines';
 import {Issue7359FitTextOnNLines} from './Title/Issue7359FitTextOnNLines';
@@ -337,6 +359,16 @@ export const Index: React.FC = () => {
 
 	return (
 		<>
+			<Folder name="copilot-tests">
+				<Composition
+					id="keyframed-props-test"
+					lazyComponent={() => import('./KeyframedPropsTest')}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={120}
+				/>
+			</Folder>
 			<Folder name="dynamic-parameters">
 				<Composition
 					id="dynamic-length"
@@ -511,6 +543,22 @@ export const Index: React.FC = () => {
 					durationInFrames={10}
 				/>
 				<Composition
+					id="canvas-img"
+					component={CanvasImg}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={10}
+				/>
+				<Composition
+					id="img-effects"
+					component={ImgEffects}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={10}
+				/>
+				<Composition
 					id="missing-img"
 					component={MissingImg}
 					width={1080}
@@ -542,7 +590,6 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={10}
 				/>
-
 				<Composition
 					id="framer"
 					component={Framer}
@@ -780,7 +827,7 @@ export const Index: React.FC = () => {
 					component={NewAudioExample}
 					fps={30}
 					defaultProps={{
-						src: staticFile('music.mp3'),
+						src: 'https://remotion.media/music.mp3',
 					}}
 					calculateMetadata={async ({props}) => {
 						const fps = 30;
@@ -910,6 +957,7 @@ export const Index: React.FC = () => {
 				<NewVideoBufferStateComp />
 				<LoopDisplayTestComp />
 				<OffthreadRemoteSeries />
+				<Issue7562OffthreadVideoCuts />
 				<LoopedNewVideo />
 				<LoopedOffthreadRemoteVideo />
 				<MultiChannelAudio />
@@ -995,6 +1043,22 @@ export const Index: React.FC = () => {
 						durationInFrames={120}
 					/>
 					<Composition
+						id="book-flip-transition-doc"
+						component={BookFlipTransitionDoc}
+						fps={30}
+						height={1080}
+						width={1920}
+						durationInFrames={90}
+					/>
+					<Composition
+						id="book-flip-transition-doc-thumb"
+						component={BookFlipTransitionDocThumb}
+						fps={30}
+						height={280}
+						width={540}
+						durationInFrames={60}
+					/>
+					<Composition
 						id="zoom-blur-transition-doc"
 						component={ZoomBlurTransitionDoc}
 						fps={30}
@@ -1011,6 +1075,38 @@ export const Index: React.FC = () => {
 						durationInFrames={60}
 					/>
 					<Composition
+						id="film-burn-transition-doc"
+						component={FilmBurnTransitionDoc}
+						fps={30}
+						height={1080}
+						width={1920}
+						durationInFrames={90}
+					/>
+					<Composition
+						id="film-burn-transition-doc-thumb"
+						component={FilmBurnTransitionDocThumb}
+						fps={30}
+						height={280}
+						width={540}
+						durationInFrames={60}
+					/>
+					<Composition
+						id="linear-blur-transition-doc"
+						component={LinearBlurTransitionDoc}
+						fps={30}
+						height={1080}
+						width={1920}
+						durationInFrames={90}
+					/>
+					<Composition
+						id="linear-blur-transition-doc-thumb"
+						component={LinearBlurTransitionDocThumb}
+						fps={30}
+						height={280}
+						width={540}
+						durationInFrames={60}
+					/>
+					<Composition
 						id="zoom-in-out-transition-doc"
 						component={ZoomInOutTransitionDoc}
 						fps={30}
@@ -1021,6 +1117,86 @@ export const Index: React.FC = () => {
 					<Composition
 						id="zoom-in-out-transition-doc-thumb"
 						component={ZoomInOutTransitionDocThumb}
+						fps={30}
+						height={280}
+						width={540}
+						durationInFrames={60}
+					/>
+					<Composition
+						id="dissolve-transition-doc"
+						component={DissolveTransitionDoc}
+						fps={30}
+						height={1080}
+						width={1920}
+						durationInFrames={90}
+					/>
+					<Composition
+						id="dissolve-transition-doc-thumb"
+						component={DissolveTransitionDocThumb}
+						fps={30}
+						height={280}
+						width={540}
+						durationInFrames={60}
+					/>
+					<Composition
+						id="ripple-transition-doc"
+						component={RippleTransitionDoc}
+						fps={30}
+						height={1080}
+						width={1920}
+						durationInFrames={90}
+					/>
+					<Composition
+						id="ripple-transition-doc-thumb"
+						component={RippleTransitionDocThumb}
+						fps={30}
+						height={280}
+						width={540}
+						durationInFrames={60}
+					/>
+					<Composition
+						id="crosswarp-transition-doc"
+						component={CrosswarpTransitionDoc}
+						fps={30}
+						height={1080}
+						width={1920}
+						durationInFrames={90}
+					/>
+					<Composition
+						id="crosswarp-transition-doc-thumb"
+						component={CrosswarpTransitionDocThumb}
+						fps={30}
+						height={280}
+						width={540}
+						durationInFrames={60}
+					/>
+					<Composition
+						id="cross-zoom-transition-doc"
+						component={CrossZoomTransitionDoc}
+						fps={30}
+						height={1080}
+						width={1920}
+						durationInFrames={90}
+					/>
+					<Composition
+						id="cross-zoom-transition-doc-thumb"
+						component={CrossZoomTransitionDocThumb}
+						fps={30}
+						height={280}
+						width={540}
+						durationInFrames={60}
+					/>
+					<Composition
+						id="swap-transition-doc"
+						component={SwapTransitionDoc}
+						fps={30}
+						height={1080}
+						width={1920}
+						durationInFrames={90}
+					/>
+					<Composition
+						id="swap-transition-doc-thumb"
+						component={SwapTransitionDocThumb}
 						fps={30}
 						height={280}
 						width={540}
@@ -1355,6 +1531,14 @@ export const Index: React.FC = () => {
 					durationInFrames={300}
 				/>
 				<Composition
+					id="audio-issue-7568"
+					component={Issue7568}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={120}
+				/>
+				<Composition
 					id="audio-visualization"
 					lazyComponent={() => import('./AudioVisualization')}
 					width={1080}
@@ -1377,6 +1561,14 @@ export const Index: React.FC = () => {
 					height={1080}
 					fps={30}
 					durationInFrames={180 * 30}
+				/>
+				<Composition
+					id="subframe-audio"
+					component={SubframeAudio}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={120}
 				/>
 			</Folder>
 			<Folder name="three">
@@ -1681,6 +1873,14 @@ export const Index: React.FC = () => {
 				<Composition
 					id="effects-testbed"
 					component={EffectsTestbed}
+					width={1920}
+					height={1920}
+					fps={30}
+					durationInFrames={300}
+				/>
+				<Composition
+					id="halftone-gradient"
+					component={HalftoneGradient}
 					width={1920}
 					height={1920}
 					fps={30}

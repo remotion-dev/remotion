@@ -1,7 +1,12 @@
-import {statSync} from 'fs';
+import {randomUUID} from 'crypto';
+import {stat, readFile, rename, writeFile} from 'fs/promises';
 import type {InternalRenderMediaOptions} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import {put} from '@vercel/blob';
 import {NoReactInternals} from 'remotion/no-react';
+import type {SandboxRenderMediaMessage, VercelBlobAccess} from '../types';
+
+const PROGRESS_FILE = '/vercel/sandbox/progress.json';
 
 type RenderVideoConfig = {
 	compositionId: string;
@@ -35,6 +40,7 @@ type RenderVideoConfig = {
 	muted: InternalRenderMediaOptions['muted'];
 	numberOfGifLoops: InternalRenderMediaOptions['numberOfGifLoops'];
 	x264Preset: InternalRenderMediaOptions['x264Preset'];
+	gopSize: InternalRenderMediaOptions['gopSize'];
 	colorSpace: InternalRenderMediaOptions['colorSpace'];
 	jpegQuality: InternalRenderMediaOptions['jpegQuality'];
 	audioCodec: InternalRenderMediaOptions['audioCodec'];
@@ -49,11 +55,69 @@ type RenderVideoConfig = {
 	offthreadVideoThreads: InternalRenderMediaOptions['offthreadVideoThreads'];
 	repro: InternalRenderMediaOptions['repro'];
 	sampleRate: InternalRenderMediaOptions['sampleRate'];
+	vercelBlob: {
+		blobPath: string | null;
+		access: VercelBlobAccess;
+	} | null;
 };
 
 const config: RenderVideoConfig = JSON.parse(process.argv[2]);
 
 const noop = () => undefined;
+let progressWrite = Promise.resolve();
+
+function getExtension(filePath: string): string {
+	const lastDot = filePath.lastIndexOf('.');
+	if (lastDot === -1) {
+		return '';
+	}
+
+	return filePath.slice(lastDot);
+}
+
+const writeProgress = (message: SandboxRenderMediaMessage) => {
+	const tmpFile = `${PROGRESS_FILE}.tmp`;
+	progressWrite = progressWrite.then(async () => {
+		await writeFile(tmpFile, JSON.stringify(message));
+		await rename(tmpFile, PROGRESS_FILE);
+	});
+
+	return progressWrite;
+};
+
+const reportProgress = async (message: SandboxRenderMediaMessage) => {
+	console.log(JSON.stringify(message));
+	await writeProgress(message);
+};
+
+const uploadToVercelBlob = async ({
+	sandboxFilePath,
+	contentType,
+	access,
+	blobPath,
+}: {
+	sandboxFilePath: string;
+	contentType: string;
+	access: VercelBlobAccess;
+	blobPath: string | null;
+}): Promise<{url: string; size: number}> => {
+	const blobToken = process.env.BLOB_READ_WRITE_TOKEN;
+	if (!blobToken) {
+		throw new Error('BLOB_READ_WRITE_TOKEN is not set.');
+	}
+
+	const actualBlobPath =
+		blobPath ?? `renders/${randomUUID()}${getExtension(sandboxFilePath)}`;
+	const fileBuffer = await readFile(sandboxFilePath);
+	const {size} = await stat(sandboxFilePath);
+	const blob = await put(actualBlobPath, fileBuffer, {
+		access,
+		contentType,
+		token: blobToken,
+	});
+
+	return {url: blob.downloadUrl, size};
+};
 
 try {
 	const serializedInputProps = NoReactInternals.serializeJSONWithSpecialTypes({
@@ -62,7 +126,7 @@ try {
 		staticBase: null,
 	}).serializedString;
 
-	console.log(JSON.stringify({stage: 'opening-browser', overallProgress: 0}));
+	await reportProgress({stage: 'opening-browser', overallProgress: 0});
 
 	const browser = await RenderInternals.internalOpenBrowser({
 		browser: 'chrome',
@@ -79,9 +143,7 @@ try {
 		chromeMode: config.chromeMode,
 	});
 
-	console.log(
-		JSON.stringify({stage: 'selecting-composition', overallProgress: 0.02}),
-	);
+	await reportProgress({stage: 'selecting-composition', overallProgress: 0.02});
 
 	const {metadata: composition} =
 		await RenderInternals.internalSelectComposition({
@@ -149,6 +211,7 @@ try {
 		muted: config.muted,
 		numberOfGifLoops: config.numberOfGifLoops,
 		x264Preset: config.x264Preset,
+		gopSize: config.gopSize,
 		colorSpace: config.colorSpace,
 		jpegQuality: config.jpegQuality,
 		audioCodec: config.audioCodec,
@@ -166,21 +229,21 @@ try {
 		// Non-serializable fields with defaults
 		puppeteerInstance: browser,
 		onProgress: (progress) => {
-			console.log(
-				JSON.stringify({
-					stage: 'render-progress',
-					progress: {
-						renderedFrames: progress.renderedFrames,
-						encodedFrames: progress.encodedFrames,
-						encodedDoneIn: progress.encodedDoneIn,
-						renderedDoneIn: progress.renderedDoneIn,
-						renderEstimatedTime: progress.renderEstimatedTime,
-						progress: progress.progress,
-						stitchStage: progress.stitchStage,
-					},
-					overallProgress: 0.04 + progress.progress * 0.96,
-				}),
-			);
+			reportProgress({
+				stage: 'render-progress',
+				progress: {
+					renderedFrames: progress.renderedFrames,
+					encodedFrames: progress.encodedFrames,
+					encodedDoneIn: progress.encodedDoneIn,
+					renderedDoneIn: progress.renderedDoneIn,
+					renderEstimatedTime: progress.renderEstimatedTime,
+					progress: progress.progress,
+					stitchStage: progress.stitchStage,
+				},
+				overallProgress: 0.04 + progress.progress * 0.94,
+			}).catch((error) => {
+				console.error((error as Error).message);
+			});
 		},
 		onDownload: () => undefined,
 		onBrowserLog: null,
@@ -201,14 +264,44 @@ try {
 		}),
 	});
 
-	console.log(JSON.stringify({stage: 'render-complete', overallProgress: 1}));
+	await progressWrite;
+	console.log(
+		JSON.stringify({stage: 'render-complete', overallProgress: 0.98}),
+	);
 	await browser.close({silent: false});
 
-	const {size} = statSync(config.outputLocation ?? '/tmp/video.mp4');
-	console.log(
-		JSON.stringify({stage: 'done', size, contentType, overallProgress: 1}),
-	);
+	const sandboxFilePath = config.outputLocation ?? '/tmp/video.mp4';
+	if (config.vercelBlob) {
+		await reportProgress({stage: 'uploading', overallProgress: 0.99});
+		const {url, size} = await uploadToVercelBlob({
+			sandboxFilePath,
+			contentType,
+			access: config.vercelBlob.access,
+			blobPath: config.vercelBlob.blobPath,
+		});
+		await reportProgress({
+			stage: 'done',
+			url,
+			size,
+			contentType,
+			overallProgress: 1,
+		});
+	} else {
+		const {size} = await stat(sandboxFilePath);
+		await reportProgress({
+			stage: 'done',
+			size,
+			contentType,
+			overallProgress: 1,
+		});
+	}
 } catch (err) {
-	console.error((err as Error).message);
+	const message = (err as Error).message;
+	await writeProgress({
+		stage: 'error',
+		message,
+		overallProgress: 1,
+	}).catch(() => undefined);
+	console.error(message);
 	process.exit(1);
 }

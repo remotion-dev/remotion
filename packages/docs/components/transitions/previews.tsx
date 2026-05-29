@@ -21,9 +21,15 @@ import type {SlideDirection} from '@remotion/transitions/slide';
 import {slide} from '@remotion/transitions/slide';
 import type {WipeDirection} from '@remotion/transitions/wipe';
 import {wipe} from '@remotion/transitions/wipe';
-import React, {useCallback, useEffect, useRef} from 'react';
+import React, {useEffect, useRef} from 'react';
 import type {SpringConfig} from 'remotion';
-import {AbsoluteFill, measureSpring, spring, useVideoConfig} from 'remotion';
+import {
+	AbsoluteFill,
+	Img,
+	measureSpring,
+	spring,
+	useVideoConfig,
+} from 'remotion';
 import {
 	presentationCompositionHeight,
 	presentationCompositionWidth,
@@ -55,7 +61,7 @@ const letterStyle: React.CSSProperties = {
 const SceneA: React.FC<{readonly small: boolean}> = ({small}) => {
 	return (
 		<AbsoluteFill style={sceneStyle}>
-			<img
+			<Img
 				src={`https://remotion.media/transition-bg-blue${small ? '-small' : ''}.jpg`}
 				style={backgroundImageStyle}
 				alt=""
@@ -68,7 +74,7 @@ const SceneA: React.FC<{readonly small: boolean}> = ({small}) => {
 const SceneB: React.FC<{readonly small: boolean}> = ({small}) => {
 	return (
 		<AbsoluteFill style={sceneStyle}>
-			<img
+			<Img
 				src={`https://remotion.media/transition-bg-pink${small ? '-small' : ''}.jpg`}
 				style={backgroundImageStyle}
 				alt=""
@@ -253,53 +259,47 @@ export const PresentationPreview: React.FC<{
 	readonly durationRestThreshold: number;
 }> = ({effect, durationRestThreshold}) => {
 	const ref = useRef<PlayerRef>(null);
-	const wrapperRef = useRef<HTMLDivElement>(null);
 
-	const playFromStart = useCallback(() => {
-		ref.current?.seekTo(0);
-		ref.current?.play();
+	useEffect(() => {
+		const {current} = ref;
+		if (!current) {
+			return;
+		}
+
+		const callback = () => {
+			current?.seekTo(0);
+			current?.play();
+		};
+
+		current?.getContainerNode()?.addEventListener('pointerenter', callback);
+
+		return () => {
+			current
+				?.getContainerNode()
+				?.removeEventListener('pointerenter', callback);
+		};
 	}, []);
 
-	// `pointerenter` only fires when the pointer transitions into the
-	// element, so if the cursor happens to already be inside the tile when
-	// the component mounts (very common on this page because the tiles are
-	// small and tightly packed), the first hover after page load is missed
-	// and the preview never plays. Trigger the preview once on mount in
-	// that case so the behavior is reliable.
-	useEffect(() => {
-		if (wrapperRef.current?.matches(':hover')) {
-			playFromStart();
-		}
-	}, [playFromStart]);
-
 	return (
-		<div
-			ref={wrapperRef}
-			onPointerEnter={playFromStart}
+		<Player
+			ref={ref}
+			acknowledgeRemotionLicense
+			component={SampleTransition}
+			compositionHeight={presentationCompositionHeight}
+			compositionWidth={presentationCompositionWidth}
+			durationInFrames={60}
+			fps={30}
+			initiallyMuted
+			numberOfSharedAudioTags={0}
 			style={{
-				display: 'flex',
+				height: 60,
 				borderRadius: 6,
-				overflow: 'hidden',
 			}}
-		>
-			<Player
-				ref={ref}
-				acknowledgeRemotionLicense
-				component={SampleTransition}
-				compositionHeight={presentationCompositionHeight}
-				compositionWidth={presentationCompositionWidth}
-				durationInFrames={60}
-				fps={30}
-				numberOfSharedAudioTags={0}
-				style={{
-					height: 60,
-				}}
-				inputProps={{
-					effect,
-					durationRestThreshold,
-					small: true,
-				}}
-			/>
-		</div>
+			inputProps={{
+				effect,
+				durationRestThreshold,
+				small: true,
+			}}
+		/>
 	);
 };

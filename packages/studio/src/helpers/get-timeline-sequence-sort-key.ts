@@ -11,6 +11,7 @@ type Track = {
 	sequence: TSequence;
 	depth: number;
 	nodePathInfo: SequenceNodePathInfo | null;
+	keyframeDisplayOffset: number;
 };
 
 export type TrackWithHash = Track & {

@@ -3,13 +3,14 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/example-videos"
 	},
 	"name": "@remotion/example-videos",
-	"version": "4.0.464",
+	"version": "4.0.469",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"scripts": {
 		"formatting": "prettier src --check",
 		"lint": "eslint src",
-		"make": "tsgo -d"
+		"download-media": "bun download-cached-example-media.ts",
+		"make": "tsgo -d && bun download-cached-example-media.ts"
 	},
 	"author": "Jonny Burger",
 	"license": "MIT",
