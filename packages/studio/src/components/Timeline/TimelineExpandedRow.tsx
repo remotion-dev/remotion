@@ -40,6 +40,7 @@ export const TimelineExpandedRow: React.FC<{
 	readonly validatedLocation: CodePosition;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly schema: SequenceSchema;
+	readonly keyframeDisplayOffset: number;
 }> = ({
 	node,
 	depth,
@@ -49,6 +50,7 @@ export const TimelineExpandedRow: React.FC<{
 	validatedLocation,
 	nodePath,
 	schema,
+	keyframeDisplayOffset,
 }) => {
 	const rowDepth = getExpandedRowDepth({nestedDepth, treeDepth: depth});
 	const selection = useTimelineRowSelection(node.nodePathInfo);
@@ -124,6 +126,7 @@ export const TimelineExpandedRow: React.FC<{
 					rowDepth={rowDepth}
 					nodePath={nodePath}
 					nodePathInfo={node.nodePathInfo}
+					keyframeDisplayOffset={keyframeDisplayOffset}
 				/>
 			);
 		}
@@ -137,6 +140,7 @@ export const TimelineExpandedRow: React.FC<{
 					nodePath={nodePath}
 					nodePathInfo={node.nodePathInfo}
 					schema={schema}
+					keyframeDisplayOffset={keyframeDisplayOffset}
 				/>
 			);
 		}

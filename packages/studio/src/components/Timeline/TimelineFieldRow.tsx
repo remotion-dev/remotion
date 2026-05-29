@@ -17,6 +17,7 @@ import {saveSequenceProp} from './save-sequence-prop';
 import {timelineFieldValueColumnStyle} from './timeline-field-row-layout';
 import {TimelineExpandArrowSpacer} from './TimelineExpandArrowButton';
 import {TimelineFieldLabel} from './TimelineFieldLabel';
+import {TimelineKeyframedValue} from './TimelineKeyframedValue';
 import {TimelineLayerEyeSpacer} from './TimelineLayerEye';
 import {TimelineRowChrome} from './TimelineRowChrome';
 import {
@@ -149,7 +150,16 @@ export const TimelineFieldRow: React.FC<{
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly schema: SequenceSchema;
-}> = ({field, validatedLocation, rowDepth, nodePath, nodePathInfo, schema}) => {
+	readonly keyframeDisplayOffset: number;
+}> = ({
+	field,
+	validatedLocation,
+	rowDepth,
+	nodePath,
+	nodePathInfo,
+	schema,
+	keyframeDisplayOffset,
+}) => {
 	const {codeValues: visualModeCodeValues} = useContext(
 		Internals.VisualModeCodeValuesContext,
 	);
@@ -198,6 +208,14 @@ export const TimelineFieldRow: React.FC<{
 						validatedLocation={validatedLocation}
 						schema={schema}
 						codeValue={codeValue}
+					/>
+				</div>
+			) : codeValue.reason === 'keyframed' ? (
+				<div style={timelineFieldValueColumnStyle}>
+					<TimelineKeyframedValue
+						field={field}
+						propStatus={codeValue}
+						keyframeDisplayOffset={keyframeDisplayOffset}
 					/>
 				</div>
 			) : (

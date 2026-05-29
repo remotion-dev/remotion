@@ -70,6 +70,7 @@ export const getFieldsToShow = ({
 			currentValue: currentRuntimeValueDotNotation,
 			overrideValues: getDragOverrides(nodePath),
 			propStatus: Internals.getCodeValuesCtx(codeValues, nodePath),
+			frame: null,
 		});
 
 	const activeSchema = Internals.flattenActiveSchema(

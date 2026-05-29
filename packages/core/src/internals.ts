@@ -80,6 +80,7 @@ import {
 	setInputPropsOverride,
 } from './input-props-override.js';
 import type {SerializedJSONWithCustomFields} from './input-props-serialization.js';
+import {interpolateKeyframedStatus} from './interpolate-keyframed-status.js';
 import {IsPlayerContextProvider, useIsPlayer} from './is-player.js';
 import type {LoggingContextValue} from './log-level-context.js';
 import {LogLevelContext, useLogLevel} from './log-level-context.js';
@@ -179,6 +180,7 @@ import {
 } from './use-media-in-timeline.js';
 import type {
 	CanUpdateSequencePropStatusFalse,
+	CanUpdateSequencePropStatusKeyframed,
 	CanUpdateSequencePropStatusTrue,
 	GetCodeValues,
 	GetDragOverrides,
@@ -361,6 +363,7 @@ export const Internals = {
 	createWebGLContextError,
 	createWebGL2ContextError,
 	computeEffectiveSchemaValuesDotNotation,
+	interpolateKeyframedStatus,
 	OverrideIdsToNodePathsGettersContext,
 	OverrideIdsToNodePathsSettersContext,
 	findPropsToDelete,
@@ -380,6 +383,7 @@ export type {
 	CanUpdateSequencePropsResponseTrue,
 	CanUpdateSequencePropStatus,
 	CanUpdateSequencePropStatusFalse,
+	CanUpdateSequencePropStatusKeyframed,
 	CanUpdateSequencePropStatusTrue,
 	CodeValues,
 	CompositionManagerContext,
@@ -399,6 +403,7 @@ export type {
 	OverrideToNodePathGetters,
 	OverrideToNodeSetters,
 	PlaybackRateContextValue,
+	RemotionAudioContextState,
 	RemotionEnvironment,
 	ResolvedStackLocation,
 	ScheduleAudioNodeOptions,
@@ -417,5 +422,4 @@ export type {
 	TSequence,
 	VisibleFieldSchema,
 	WatchRemotionStaticFilesPayload,
-	RemotionAudioContextState,
 };

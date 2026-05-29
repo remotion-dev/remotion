@@ -12,6 +12,7 @@ import {enqueueSavePropChange} from './save-prop-queue';
 import {timelineFieldValueColumnStyle} from './timeline-field-row-layout';
 import {TimelineExpandArrowSpacer} from './TimelineExpandArrowButton';
 import {TimelineFieldLabel} from './TimelineFieldLabel';
+import {TimelineKeyframedValue} from './TimelineKeyframedValue';
 import {TimelineLayerEyeSpacer} from './TimelineLayerEye';
 import {TimelineRowChrome} from './TimelineRowChrome';
 import {TimelineFieldValue, UnsupportedStatus} from './TimelineSchemaField';
@@ -23,7 +24,8 @@ const Value: React.FC<{
 	readonly field: EffectSchemaFieldInfo;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly validatedLocation: CodePosition;
-}> = ({field, nodePath, validatedLocation}) => {
+	readonly keyframeDisplayOffset: number;
+}> = ({field, nodePath, validatedLocation, keyframeDisplayOffset}) => {
 	const {setEffectDragOverrides, clearEffectDragOverrides, setCodeValues} =
 		useContext(Internals.VisualModeSettersContext);
 
@@ -175,10 +177,17 @@ const Value: React.FC<{
 	}
 
 	if (propStatus === null || !propStatus.canUpdate) {
-		if (
-			propStatus?.reason === 'computed' ||
-			propStatus?.reason === 'keyframed'
-		) {
+		if (propStatus?.reason === 'keyframed') {
+			return (
+				<TimelineKeyframedValue
+					field={field}
+					propStatus={propStatus}
+					keyframeDisplayOffset={keyframeDisplayOffset}
+				/>
+			);
+		}
+
+		if (propStatus?.reason === 'computed') {
 			return <UnsupportedStatus label={getComputedStatusLabel(propStatus)} />;
 		}
 
@@ -210,7 +219,15 @@ export const TimelineEffectFieldRow: React.FC<{
 	readonly rowDepth: number;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly nodePathInfo: SequenceNodePathInfo;
-}> = ({field, validatedLocation, rowDepth, nodePath, nodePathInfo}) => {
+	readonly keyframeDisplayOffset: number;
+}> = ({
+	field,
+	validatedLocation,
+	rowDepth,
+	nodePath,
+	nodePathInfo,
+	keyframeDisplayOffset,
+}) => {
 	const selection = useTimelineRowSelection(nodePathInfo);
 	const style = useMemo(() => {
 		return {
@@ -242,6 +259,7 @@ export const TimelineEffectFieldRow: React.FC<{
 					field={field}
 					nodePath={nodePath}
 					validatedLocation={validatedLocation}
+					keyframeDisplayOffset={keyframeDisplayOffset}
 				/>
 			</div>
 		</TimelineRowChrome>
