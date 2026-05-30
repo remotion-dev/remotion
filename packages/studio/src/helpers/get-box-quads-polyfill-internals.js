@@ -1,3 +1,4 @@
+/* eslint-disable */
 /*
  * Geometry helpers adapted from getBoxQuadsPolyfill
  * https://github.com/jogibear9988/getBoxQuadsPolyfill (MIT)
