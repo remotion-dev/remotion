@@ -6,12 +6,13 @@ const CenteredSolid: React.FC = () => {
 		<Solid
 			width={240}
 			height={240}
-			color="#0b84f3"
+			color={'#d8d8d8'}
 			style={{
 				position: 'absolute',
 				left: '50%',
 				top: '50%',
 				transform: 'translate(-50%, -50%)',
+				rotate: '40deg',
 			}}
 		/>
 	);

@@ -3,9 +3,9 @@ import type {OverrideIdToNodePaths, TSequence} from 'remotion';
 import {Internals} from 'remotion';
 import {calculateTimeline} from '../helpers/calculate-timeline';
 import {BLUE} from '../helpers/colors';
-import {timelineNodePathInfoToKey} from '../helpers/timeline-node-path-key';
 import {
 	ENABLE_OUTLINES,
+	getTimelineSequenceSelectionKey,
 	type TimelineSelection,
 	useTimelineSelection,
 } from './Timeline/TimelineSelection';
@@ -192,13 +192,9 @@ const getSelectedSequenceKeys = (
 	selectedItems: readonly TimelineSelection[],
 ): Set<string> => {
 	return new Set(
-		selectedItems.flatMap((item) => {
-			if (item.type !== 'row' || item.nodePathInfo.auxiliaryKeys.length > 0) {
-				return [];
-			}
-
-			return [timelineNodePathInfoToKey(item.nodePathInfo)];
-		}),
+		selectedItems.map((item) =>
+			getTimelineSequenceSelectionKey(item.nodePathInfo),
+		),
 	);
 };
 
@@ -227,7 +223,7 @@ const getSequencesWithSelectedOutlines = ({
 			}
 
 			return selectedSequenceKeys.has(
-				timelineNodePathInfoToKey(track.nodePathInfo),
+				getTimelineSequenceSelectionKey(track.nodePathInfo),
 			);
 		})
 		.map((track) => track.sequence)

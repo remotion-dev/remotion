@@ -3,6 +3,7 @@ import type {SequenceNodePath, SequencePropsSubscriptionKey} from 'remotion';
 import {
 	ENABLE_OUTLINES,
 	getSelectableTimelineSequenceSelections,
+	getTimelineSequenceSelectionKey,
 	SELECTION_ENABLED,
 	TIMELINE_TOP_DRAG,
 } from '../components/Timeline/TimelineSelection';
@@ -25,16 +26,16 @@ const makeNodePathInfo = (
 	numberOfSequencesWithThisNodePath: 1,
 });
 
-test('Timeline selection should stay disabled until released publicly', () => {
-	expect(SELECTION_ENABLED).toBe(false);
+test('Timeline selection should be enabled', () => {
+	expect(SELECTION_ENABLED).toBe(true);
 });
 
 test('Timeline top drag should not be enabled', () => {
 	expect(TIMELINE_TOP_DRAG).toBe(false);
 });
 
-test('Timeline outlines should not be enabled', () => {
-	expect(ENABLE_OUTLINES).toBe(false);
+test('Timeline outlines should be enabled', () => {
+	expect(ENABLE_OUTLINES).toBe(true);
 });
 
 test('Cmd+A selection only targets selectable timeline sequences', () => {
@@ -53,4 +54,20 @@ test('Cmd+A selection only targets selectable timeline sequences', () => {
 			nodePathInfo: sequenceNodePathInfo,
 		},
 	]);
+});
+
+test('Child timeline selections resolve to the parent sequence selection key', () => {
+	const sequenceNodePathInfo = makeNodePathInfo(['body', 0], []);
+	const effectNodePathInfo = makeNodePathInfo(['body', 0], ['effects', '0']);
+	const propNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['controls', 'opacity'],
+	);
+
+	expect(getTimelineSequenceSelectionKey(effectNodePathInfo)).toBe(
+		getTimelineSequenceSelectionKey(sequenceNodePathInfo),
+	);
+	expect(getTimelineSequenceSelectionKey(propNodePathInfo)).toBe(
+		getTimelineSequenceSelectionKey(sequenceNodePathInfo),
+	);
 });

@@ -58,9 +58,9 @@ export const getTimelineSelectedTrackHighlightStyle = (
 	width: timelineWidth,
 });
 
-export const SELECTION_ENABLED = false;
+export const SELECTION_ENABLED = true;
 export const TIMELINE_TOP_DRAG = false;
-export const ENABLE_OUTLINES = false;
+export const ENABLE_OUTLINES = true;
 
 export type TimelineSelection =
 	| {
@@ -141,6 +141,10 @@ export const getSelectableTimelineSequenceSelections = (
 		return [{type: 'row', nodePathInfo: track.nodePathInfo}];
 	});
 };
+
+export const getTimelineSequenceSelectionKey = (
+	nodePathInfo: SequenceNodePathInfo,
+): string => timelineNodePathInfoToKey({...nodePathInfo, auxiliaryKeys: []});
 
 export const TimelineSelectAllKeybindings: React.FC<{
 	readonly timeline: readonly TrackWithHash[];
