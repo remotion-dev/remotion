@@ -46,7 +46,7 @@ export type CanUpdateSequencePropStatusKeyframed = {
 	keyframes: CanUpdateSequencePropStatusKeyframe[];
 	easing: CanUpdateSequencePropStatusEasing[];
 	clamping: CanUpdateSequencePropStatusClamping;
-	posterize?: number;
+	posterize: number | undefined;
 };
 
 export type CanUpdateSequencePropStatusFalse =

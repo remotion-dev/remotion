@@ -87,6 +87,7 @@ export const Example: React.FC = () => {
 		],
 		easing: ['linear'],
 		clamping: {left: 'clamp', right: 'clamp'},
+		posterize: undefined,
 	});
 });
 
@@ -237,6 +238,7 @@ test('computeSequencePropsStatus should return keyframes for interpolated style 
 		],
 		easing: ['linear'],
 		clamping: {left: 'extend', right: 'extend'},
+		posterize: undefined,
 	});
 });
 
@@ -280,6 +282,7 @@ export const Example: React.FC = () => {
 			left: 'clamp',
 			right: 'identity',
 		},
+		posterize: undefined,
 	});
 });
 
@@ -315,6 +318,42 @@ export const Example: React.FC = () => {
 		],
 		easing: ['linear'],
 		clamping: {left: 'extend', right: 'extend'},
+		posterize: 3,
+	});
+});
+
+test('computeSequencePropsStatus should parse posterize on interpolated color props', () => {
+	const input = `import React from 'react';
+import {Solid, interpolateColors, useCurrentFrame} from 'remotion';
+
+export const Example: React.FC = () => {
+\tconst frame = useCurrentFrame();
+\treturn (
+\t\t<Solid color={interpolateColors(frame, [0, 100], ['red', 'blue'], {posterize: 3})} width={100} height={100} />
+\t);
+};
+`;
+
+	const result = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 7),
+		keys: ['color'],
+		effects: [],
+	});
+
+	expect(result.canUpdate).toBe(true);
+	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
+
+	expect(result.props.color).toEqual({
+		canUpdate: false,
+		reason: 'keyframed',
+		interpolationFunction: 'interpolateColors',
+		keyframes: [
+			{frame: 0, value: 'red'},
+			{frame: 100, value: 'blue'},
+		],
+		easing: ['linear'],
+		clamping: {left: 'clamp', right: 'clamp'},
 		posterize: 3,
 	});
 });
