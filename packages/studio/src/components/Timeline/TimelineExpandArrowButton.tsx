@@ -19,6 +19,11 @@ const arrowButton: React.CSSProperties = {
 	lineHeight: 1,
 };
 
+const arrowSpacer: React.CSSProperties = {
+	...arrowButton,
+	cursor: 'default',
+};
+
 const svgStyle: React.CSSProperties = {display: 'block'};
 
 export const TimelineExpandArrowButton: React.FC<{
@@ -53,5 +58,5 @@ export const TimelineExpandArrowButton: React.FC<{
 };
 
 export const TimelineExpandArrowSpacer: React.FC = () => {
-	return <div style={{...arrowButton, cursor: 'default'}} />;
+	return <div style={arrowSpacer} />;
 };
