@@ -122,6 +122,7 @@ test('keyframe display offsets follow the parent sequence context', () => {
 				],
 				easing: ['linear'],
 				clamping: {left: 'extend', right: 'extend'},
+				posterize: undefined,
 			},
 			getOffset('child'),
 		),

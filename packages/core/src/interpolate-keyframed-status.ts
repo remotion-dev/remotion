@@ -41,7 +41,9 @@ export const interpolateKeyframedStatus = ({
 		}
 
 		try {
-			return interpolateColors(frame, inputRange, outputs as string[]);
+			return interpolateColors(frame, inputRange, outputs as string[], {
+				posterize: status.posterize,
+			});
 		} catch {
 			return null;
 		}
@@ -64,6 +66,7 @@ export const interpolateKeyframedStatus = ({
 			easing: easing.map(easingToFn),
 			extrapolateLeft: clamping.left,
 			extrapolateRight: clamping.right,
+			posterize: status.posterize,
 		});
 	} catch {
 		return null;

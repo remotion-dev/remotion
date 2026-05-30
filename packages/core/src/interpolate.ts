@@ -13,6 +13,7 @@ export type InterpolateOptions = Partial<{
 	easing: EasingFunction | readonly EasingFunction[];
 	extrapolateLeft: ExtrapolateType;
 	extrapolateRight: ExtrapolateType;
+	posterize: number;
 }>;
 
 type InterpolateSegmentResolvedOptions = {
@@ -146,6 +147,24 @@ export function assertValidInterpolateEasingOption(
 	}
 }
 
+export function assertValidInterpolatePosterizeOption(
+	posterize: number | undefined,
+) {
+	if (posterize === undefined) {
+		return;
+	}
+
+	if (
+		typeof posterize !== 'number' ||
+		!Number.isFinite(posterize) ||
+		posterize <= 0
+	) {
+		throw new Error(
+			`posterize must be a positive finite number, but got ${posterize}`,
+		);
+	}
+}
+
 /*
  * @description Allows you to map a range of values to another using a concise syntax.
  * @see [Documentation](https://remotion.dev/docs/interpolate)
@@ -184,6 +203,7 @@ export function interpolate(
 	checkValidInputRange(inputRange);
 
 	assertValidInterpolateEasingOption(options?.easing, inputRange.length);
+	assertValidInterpolatePosterizeOption(options?.posterize);
 
 	const easingOption = options?.easing;
 	const defaultEasing = (num: number): number => num;
@@ -218,9 +238,13 @@ export function interpolate(
 		return outputRange[0];
 	}
 
-	const range = findRange(input, inputRange);
+	const posterizedInput =
+		options?.posterize === undefined
+			? input
+			: Math.floor(input / options.posterize) * options.posterize;
+	const range = findRange(posterizedInput, inputRange);
 	return interpolateFunction(
-		input,
+		posterizedInput,
 		[inputRange[range], inputRange[range + 1]],
 		[outputRange[range], outputRange[range + 1]],
 		{

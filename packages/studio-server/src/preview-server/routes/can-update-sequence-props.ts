@@ -32,6 +32,7 @@ type KeyframedPropStatus = Extract<ComputedPropStatus, {reason: 'keyframed'}>;
 type PropKeyframes = KeyframedPropStatus['keyframes'];
 type PropEasing = KeyframedPropStatus['easing'];
 type PropClamping = KeyframedPropStatus['clamping'];
+type PropPosterize = KeyframedPropStatus['posterize'];
 type PropInterpolationFunction = KeyframedPropStatus['interpolationFunction'];
 
 export const isStaticValue = (node: Expression): boolean => {
@@ -267,7 +268,11 @@ const getInterpolationMetadata = (
 	interpolationFunction: PropInterpolationFunction,
 	callExpression: CallExpression,
 	keyframeCount: number,
-): {easing: PropEasing; clamping: PropClamping} | null => {
+): {
+	easing: PropEasing;
+	clamping: PropClamping;
+	posterize: PropPosterize;
+} | null => {
 	const segments = Math.max(0, keyframeCount - 1);
 	const defaultClamping: PropClamping =
 		interpolationFunction === 'interpolateColors'
@@ -282,11 +287,8 @@ const getInterpolationMetadata = (
 	const defaults = {
 		easing: new Array(segments).fill('linear') as PropEasing,
 		clamping: defaultClamping,
+		posterize: undefined,
 	};
-
-	if (interpolationFunction === 'interpolateColors') {
-		return defaults;
-	}
 
 	const optionsArg = callExpression.arguments[3];
 	if (!optionsArg) {
@@ -299,6 +301,7 @@ const getInterpolationMetadata = (
 
 	let {easing} = defaults;
 	let {clamping}: {clamping: PropClamping} = defaults;
+	let posterize: PropPosterize;
 
 	for (const property of optionsArg.properties) {
 		if (property.type !== 'ObjectProperty' || property.computed) {
@@ -319,6 +322,10 @@ const getInterpolationMetadata = (
 		const value = property.value as Expression;
 
 		if (key === 'easing') {
+			if (interpolationFunction === 'interpolateColors') {
+				return null;
+			}
+
 			const parsedEasing = getKeyframeEasingArray({
 				easingNode: value,
 				segments,
@@ -332,6 +339,10 @@ const getInterpolationMetadata = (
 		}
 
 		if (key === 'extrapolateLeft' || key === 'extrapolateRight') {
+			if (interpolationFunction === 'interpolateColors') {
+				return null;
+			}
+
 			const extrapolateType = getExtrapolateType(value);
 			if (!extrapolateType) {
 				return null;
@@ -341,10 +352,31 @@ const getInterpolationMetadata = (
 				key === 'extrapolateLeft'
 					? {...clamping, left: extrapolateType}
 					: {...clamping, right: extrapolateType};
+			continue;
 		}
+
+		if (key === 'posterize') {
+			const parsedPosterize = getNumericValue(value);
+			if (
+				parsedPosterize === null ||
+				!Number.isFinite(parsedPosterize) ||
+				parsedPosterize <= 0
+			) {
+				return null;
+			}
+
+			posterize = parsedPosterize;
+			continue;
+		}
+
+		return null;
 	}
 
-	return {easing, clamping};
+	return {
+		easing,
+		clamping,
+		posterize,
+	};
 };
 
 const getInterpolationKeyframes = (
@@ -354,6 +386,7 @@ const getInterpolationKeyframes = (
 			keyframes: PropKeyframes;
 			easing: PropEasing;
 			clamping: PropClamping;
+			posterize: PropPosterize;
 			interpolationFunction: PropInterpolationFunction;
 	  }
 	| undefined => {
@@ -433,6 +466,7 @@ const getInterpolationKeyframes = (
 		keyframes,
 		easing: metadata.easing,
 		clamping: metadata.clamping,
+		posterize: metadata.posterize,
 	};
 };
 
@@ -449,6 +483,7 @@ export const getComputedStatus = (node: Expression): CanUpdatePropStatus => {
 		keyframes: interpolation.keyframes,
 		easing: interpolation.easing,
 		clamping: interpolation.clamping,
+		posterize: interpolation.posterize,
 	};
 };
 

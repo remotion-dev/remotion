@@ -5,7 +5,11 @@ export type {
 	TRenderAsset,
 } from './CompositionManager';
 export type {DownloadBehavior} from './download-behavior';
-export {assertValidInterpolateEasingOption, interpolate} from './interpolate';
+export {
+	assertValidInterpolateEasingOption,
+	assertValidInterpolatePosterizeOption,
+	interpolate,
+} from './interpolate';
 export type {
 	EasingFunction,
 	ExtrapolateType,
