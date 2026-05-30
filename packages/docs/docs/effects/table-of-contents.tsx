@@ -198,6 +198,20 @@ const categories: {
 				name: 'speckle()',
 				description: 'Random alpha-hole effect',
 			},
+			{
+				link: '/docs/effects/shine',
+				preview: '/img/effects-shine-preview.png',
+				alt: 'shine effect preview',
+				name: 'shine()',
+				description: 'Glossy light sweep effect',
+			},
+			{
+				link: '/docs/effects/vignette',
+				preview: '/img/effects-vignette-preview.png',
+				alt: 'vignette effect preview',
+				name: 'vignette()',
+				description: 'Edge darkening or transparency effect',
+			},
 		],
 	},
 	{
@@ -224,11 +238,6 @@ const categories: {
 				name: 'whiteNoise()',
 				description: 'Random grayscale noise layer',
 			},
-		],
-	},
-	{
-		title: 'Light',
-		effects: [
 			{
 				link: '/docs/light-leaks/light-leak-effect',
 				preview: '/img/effects-light-leak-preview.png',
@@ -237,25 +246,11 @@ const categories: {
 				description: 'Light leak overlay effect',
 			},
 			{
-				link: '/docs/effects/shine',
-				preview: '/img/effects-shine-preview.png',
-				alt: 'shine effect preview',
-				name: 'shine()',
-				description: 'Glossy light sweep effect',
-			},
-			{
 				link: '/docs/starburst/starburst-effect',
 				preview: '/img/effects-starburst-preview.png',
 				alt: 'starburst effect preview',
 				name: 'starburst()',
 				description: 'Starburst ray effect',
-			},
-			{
-				link: '/docs/effects/vignette',
-				preview: '/img/effects-vignette-preview.png',
-				alt: 'vignette effect preview',
-				name: 'vignette()',
-				description: 'Edge darkening or transparency effect',
 			},
 		],
 	},
