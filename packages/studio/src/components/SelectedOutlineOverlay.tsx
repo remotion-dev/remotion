@@ -57,18 +57,28 @@ const rectToPoints = (
 	];
 };
 
-const quadToPoints = (quad: DOMQuad): SelectedOutline['points'] => {
+const quadToPoints = (
+	quad: DOMQuad,
+	containerRect: DOMRect,
+): SelectedOutline['points'] => {
+	// `getBoxQuads`/the ponyfill returns the quad in viewport coordinates.
+	// The overlay <svg> is unscaled (the canvas `scale()`/pan live on a sibling
+	// container, not the svg), so 1 user unit == 1 px and we only need to move
+	// the quad into the svg's local space by subtracting its viewport origin.
+	// We deliberately do not pass `relativeTo` to the ponyfill: when the target
+	// is not an ancestor of the element, the polyfill cannot resolve the
+	// coordinate space and leaves the quad in viewport coordinates.
 	return [
-		{x: quad.p1.x, y: quad.p1.y},
-		{x: quad.p2.x, y: quad.p2.y},
-		{x: quad.p3.x, y: quad.p3.y},
-		{x: quad.p4.x, y: quad.p4.y},
+		{x: quad.p1.x - containerRect.left, y: quad.p1.y - containerRect.top},
+		{x: quad.p2.x - containerRect.left, y: quad.p2.y - containerRect.top},
+		{x: quad.p3.x - containerRect.left, y: quad.p3.y - containerRect.top},
+		{x: quad.p4.x - containerRect.left, y: quad.p4.y - containerRect.top},
 	];
 };
 
 const getElementOutlinePoints = (
 	element: HTMLElement,
-	relativeTo: Element,
+	containerRect: DOMRect,
 ): SelectedOutline['points'] | null => {
 	const elementRect = element.getBoundingClientRect();
 
@@ -78,15 +88,13 @@ const getElementOutlinePoints = (
 
 	const quads = getBoxQuadsPonyfill(element, {
 		box: 'border',
-		relativeTo,
 	});
 	const quad = quads?.[0];
 	if (!quad) {
-		const containerRect = relativeTo.getBoundingClientRect();
 		return rectToPoints(elementRect, containerRect);
 	}
 
-	return quadToPoints(quad);
+	return quadToPoints(quad, containerRect);
 };
 
 const getSelectedSequenceKeys = (
@@ -135,6 +143,7 @@ const measureOutlines = (
 	container: SVGSVGElement,
 	targets: readonly SelectedOutlineTarget[],
 ): SelectedOutline[] => {
+	const containerRect = container.getBoundingClientRect();
 	const outlines: SelectedOutline[] = [];
 
 	for (const target of targets) {
@@ -143,7 +152,7 @@ const measureOutlines = (
 			continue;
 		}
 
-		const points = getElementOutlinePoints(element, container);
+		const points = getElementOutlinePoints(element, containerRect);
 		if (points === null) {
 			continue;
 		}
