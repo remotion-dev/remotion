@@ -59,13 +59,6 @@ export const TimeValue: React.FC = () => {
 		},
 		[seek],
 	);
-	const onPointerDown = useCallback(
-		(e: React.PointerEvent<HTMLButtonElement>) => {
-			e.stopPropagation();
-		},
-		[],
-	);
-
 	useImperativeHandle(
 		Internals.timeValueRef,
 		() => ({
@@ -119,7 +112,6 @@ export const TimeValue: React.FC = () => {
 				rightAlign
 				status="ok"
 				style={frameStyle}
-				onPointerDown={onPointerDown}
 			/>
 		</div>
 	);
