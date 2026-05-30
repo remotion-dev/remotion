@@ -1791,6 +1791,15 @@ export const articles = [
 		slug: 'effects/duotone',
 	},
 	{
+		id: 'effects/evolve',
+		title: 'evolve()',
+		relativePath: 'docs/effects/evolve.mdx',
+		compId: 'articles-docs-effects-evolve',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/evolve',
+	},
+	{
 		id: 'effects/glow',
 		title: 'glow()',
 		relativePath: 'docs/effects/glow.mdx',

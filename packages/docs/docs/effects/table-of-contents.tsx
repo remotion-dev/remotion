@@ -105,6 +105,13 @@ const categories: {
 		title: 'Transform',
 		effects: [
 			{
+				link: '/docs/effects/evolve',
+				preview: '/img/effects-evolve-preview.png',
+				alt: 'evolve effect preview',
+				name: 'evolve()',
+				description: 'Directional reveal effect',
+			},
+			{
 				link: '/docs/effects/mirror',
 				preview: '/img/effects-mirror-preview.png',
 				alt: 'mirror effect preview',

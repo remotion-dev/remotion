@@ -7,6 +7,7 @@ import {contrast} from '../contrast.js';
 import {dotGrid} from '../dot-grid.js';
 import {dropShadow} from '../drop-shadow/index.js';
 import {duotone} from '../duotone.js';
+import {evolve} from '../evolve.js';
 import {glow} from '../glow/index.js';
 import {grayscale} from '../grayscale.js';
 import {halftoneLinearGradient} from '../halftone-linear-gradient.js';
@@ -45,6 +46,9 @@ test('@remotion/effects expose documentation links', () => {
 	);
 	expect(duotone().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/duotone',
+	);
+	expect(evolve().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/evolve',
 	);
 	expect(dropShadow().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/drop-shadow',
@@ -121,6 +125,7 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(brightness().definition.label).toBe('brightness()');
 	expect(contrast().definition.label).toBe('contrast()');
 	expect(duotone().definition.label).toBe('duotone()');
+	expect(evolve().definition.label).toBe('evolve()');
 	expect(dropShadow().definition.label).toBe('dropShadow()');
 	expect(grayscale().definition.label).toBe('grayscale()');
 	expect(halftone().definition.label).toBe('halftone()');
@@ -469,6 +474,58 @@ test('duotone() parameters produce distinct effect keys', () => {
 			customColors.effectKey,
 		]).size,
 	).toBe(3);
+});
+
+test('evolve() accepts default params', () => {
+	expect(() => evolve()).not.toThrow();
+});
+
+test('evolve() rejects non-finite progress', () => {
+	expect(() => evolve({progress: Number.NaN})).toThrow(
+		'"progress" must be a finite number',
+	);
+});
+
+test('evolve() rejects progress below range', () => {
+	expect(() => evolve({progress: -0.1})).toThrow('"progress" must be >= 0');
+});
+
+test('evolve() rejects progress above range', () => {
+	expect(() => evolve({progress: 1.1})).toThrow('"progress" must be <= 1');
+});
+
+test('evolve() rejects feather below range', () => {
+	expect(() => evolve({feather: -0.1})).toThrow('"feather" must be >= 0');
+});
+
+test('evolve() rejects feather above range', () => {
+	expect(() => evolve({feather: 1.1})).toThrow('"feather" must be <= 1');
+});
+
+test('evolve() rejects direction outside the enum', () => {
+	expect(() => evolve({direction: 'diagonal' as 'left'})).toThrow(
+		'"direction" must be "left", "right", "top" or "bottom", but got "diagonal"',
+	);
+});
+
+test('evolve() parameters produce distinct effect keys', () => {
+	const full = evolve({progress: 1, direction: 'left', feather: 0.1});
+	const half = evolve({progress: 0.5, direction: 'left', feather: 0.1});
+	const otherDirection = evolve({
+		progress: 0.5,
+		direction: 'top',
+		feather: 0.1,
+	});
+	const otherFeather = evolve({progress: 0.5, direction: 'top', feather: 0.2});
+
+	expect(
+		new Set([
+			full.effectKey,
+			half.effectKey,
+			otherDirection.effectKey,
+			otherFeather.effectKey,
+		]).size,
+	).toBe(4);
 });
 
 test('dropShadow() accepts default params', () => {
