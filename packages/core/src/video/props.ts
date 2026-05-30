@@ -113,6 +113,6 @@ export type RemotionOffthreadVideoProps = MandatoryOffthreadVideoProps &
 
 export type OnVideoFrame = (frame: CanvasImageSource) => void;
 export type OnVideoFramePresented = (
-	frame: HTMLVideoElement,
+	now: DOMHighResTimeStamp,
 	metadata: VideoFrameCallbackMetadata,
 ) => void;

@@ -297,7 +297,7 @@ During preview, this is a `HTMLVideoElement` object, during rendering, it is an 
 ### `onVideoFramePresented?`
 
 A callback function that gets called during preview when the browser reports a presented video frame using [`HTMLVideoElement.requestVideoFrameCallback()`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLVideoElement/requestVideoFrameCallback).  
-The callback receives the `HTMLVideoElement` and the [`VideoFrameCallbackMetadata`](https://developer.mozilla.org/en-US/docs/Web/API/VideoFrameCallbackMetadata).
+The callback has the same signature as `requestVideoFrameCallback()`: It receives a `DOMHighResTimeStamp` and the [`VideoFrameCallbackMetadata`](https://developer.mozilla.org/en-US/docs/Web/API/VideoFrameCallbackMetadata).
 
 This callback only fires during preview, since rendering uses image extraction instead of a browser video element.
 

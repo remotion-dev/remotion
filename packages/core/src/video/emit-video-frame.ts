@@ -27,7 +27,7 @@ export const useEmitVideoFrame = ({
 			}
 
 			onVideoFrame?.(ref.current);
-			onVideoFramePresented?.(ref.current, metadata);
+			onVideoFramePresented?.(_now, metadata);
 			handle = ref.current.requestVideoFrameCallback(callback);
 		};
 
