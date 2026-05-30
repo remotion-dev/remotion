@@ -1,14 +1,14 @@
 import {useEffect} from 'react';
-import type {OnVideoFrame, OnVideoFramePresented} from './props';
+import type {OnVideoFrame, OnVideoFrameCallback} from './props';
 
 export const useEmitVideoFrame = ({
 	ref,
 	onVideoFrame,
-	onVideoFramePresented,
+	onVideoFrameCallback,
 }: {
 	ref: React.RefObject<HTMLVideoElement | null>;
 	onVideoFrame: OnVideoFrame | null;
-	onVideoFramePresented: OnVideoFramePresented | null;
+	onVideoFrameCallback: OnVideoFrameCallback | null;
 }) => {
 	useEffect(() => {
 		const {current} = ref;
@@ -16,7 +16,7 @@ export const useEmitVideoFrame = ({
 			return;
 		}
 
-		if (!onVideoFrame && !onVideoFramePresented) {
+		if (!onVideoFrame && !onVideoFrameCallback) {
 			return;
 		}
 
@@ -27,7 +27,7 @@ export const useEmitVideoFrame = ({
 			}
 
 			onVideoFrame?.(ref.current);
-			onVideoFramePresented?.(_now, metadata);
+			onVideoFrameCallback?.(_now, metadata);
 			handle = ref.current.requestVideoFrameCallback(callback);
 		};
 
@@ -43,5 +43,5 @@ export const useEmitVideoFrame = ({
 				current.cancelVideoFrameCallback(handle);
 			}
 		};
-	}, [onVideoFrame, onVideoFramePresented, ref]);
+	}, [onVideoFrame, onVideoFrameCallback, ref]);
 };

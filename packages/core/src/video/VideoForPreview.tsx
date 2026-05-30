@@ -34,7 +34,7 @@ import {MediaPlaybackError} from './MediaPlaybackError.js';
 import type {
 	NativeVideoProps,
 	OnVideoFrame,
-	OnVideoFramePresented,
+	OnVideoFrameCallback,
 	RemotionVideoProps,
 } from './props';
 import {isIosSafari, useAppendVideoFragment} from './video-fragment.js';
@@ -47,7 +47,7 @@ type VideoForPreviewProps = RemotionVideoProps & {
 	readonly _remotionInternalStack: string | null;
 	readonly showInTimeline: boolean;
 	readonly onVideoFrame: null | OnVideoFrame;
-	readonly onVideoFramePresented: null | OnVideoFramePresented;
+	readonly onVideoFrameCallback: null | OnVideoFrameCallback;
 	readonly crossOrigin?: '' | 'anonymous' | 'use-credentials';
 };
 
@@ -120,7 +120,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		onError,
 		onAutoPlayError,
 		onVideoFrame,
-		onVideoFramePresented,
+		onVideoFrameCallback,
 		crossOrigin,
 		delayRenderRetries,
 		delayRenderTimeoutInMilliseconds,
@@ -304,7 +304,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		useRef<VideoForPreviewProps['onDuration']>(onDuration);
 	currentOnDurationCallback.current = onDuration;
 
-	useEmitVideoFrame({ref: videoRef, onVideoFrame, onVideoFramePresented});
+	useEmitVideoFrame({ref: videoRef, onVideoFrame, onVideoFrameCallback});
 
 	useEffect(() => {
 		const {current} = videoRef;
