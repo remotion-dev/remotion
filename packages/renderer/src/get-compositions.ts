@@ -10,6 +10,7 @@ import {defaultOnLog} from './default-on-log';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import {findRemotionRoot} from './find-closest-package-json';
 import {getPageAndCleanupFn} from './get-browser-instance';
+import {Log} from './logger';
 import {getAvailableMemory} from './memory/get-available-memory';
 import type {ChromiumOptions} from './open-browser';
 import {DEFAULT_RENDER_FRAMES_OFFTHREAD_VIDEO_THREADS} from './options/offthreadvideo-threads';
