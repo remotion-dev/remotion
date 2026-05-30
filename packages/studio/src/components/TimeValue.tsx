@@ -59,6 +59,9 @@ export const TimeValue: React.FC = () => {
 		},
 		[seek],
 	);
+	const onPointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+		e.stopPropagation();
+	}, []);
 
 	useImperativeHandle(
 		Internals.timeValueRef,
@@ -101,7 +104,7 @@ export const TimeValue: React.FC = () => {
 	}
 
 	return (
-		<div style={text}>
+		<div style={text} onPointerDown={onPointerDown}>
 			<div style={time}>{renderFrame(frame, config.fps)}</div>
 			<Spacing x={2} />
 			<Flex />
