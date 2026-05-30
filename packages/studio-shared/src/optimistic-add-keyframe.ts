@@ -23,7 +23,7 @@ const addKeyframeToPropStatus = ({
 }): CanUpdateSequencePropStatus => {
 	if (status.canUpdate) {
 		const staticValue = status.codeValue ?? value;
-		const keyframes =
+		const initialKeyframes =
 			frame === 0
 				? [{frame, value}]
 				: [
@@ -35,7 +35,7 @@ const addKeyframeToPropStatus = ({
 			canUpdate: false,
 			reason: 'keyframed',
 			interpolationFunction: getInterpolationFunction(staticValue, value),
-			keyframes,
+			keyframes: initialKeyframes,
 			easing: frame === 0 ? [] : ['linear'],
 			clamping: {left: 'extend', right: 'extend'},
 			posterize: undefined,
@@ -48,13 +48,13 @@ const addKeyframeToPropStatus = ({
 
 	const existingIndex = status.keyframes.findIndex((kf) => kf.frame === frame);
 	if (existingIndex !== -1) {
-		const keyframes = status.keyframes.map((keyframe, index) =>
+		const updatedKeyframes = status.keyframes.map((keyframe, index) =>
 			index === existingIndex ? {frame, value} : keyframe,
 		);
 
 		return {
 			...status,
-			keyframes,
+			keyframes: updatedKeyframes,
 		};
 	}
 

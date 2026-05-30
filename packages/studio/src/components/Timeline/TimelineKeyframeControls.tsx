@@ -176,7 +176,7 @@ export const TimelineKeyframeControls: React.FC<{
 	);
 
 	const onToggleKeyframe = useCallback(
-		(e: React.PointerEvent<HTMLButtonElement>) => {
+		async (e: React.PointerEvent<HTMLButtonElement>) => {
 			e.stopPropagation();
 			if (!clientId || !canToggleKeyframe) {
 				return;
@@ -188,7 +188,7 @@ export const TimelineKeyframeControls: React.FC<{
 				propStatus.reason === 'keyframed'
 			) {
 				if (effectIndex === null) {
-					void callDeleteSequenceKeyframe({
+					await callDeleteSequenceKeyframe({
 						fileName,
 						nodePath,
 						fieldKey,
@@ -200,7 +200,7 @@ export const TimelineKeyframeControls: React.FC<{
 					return;
 				}
 
-				void callDeleteEffectKeyframe({
+				await callDeleteEffectKeyframe({
 					fileName,
 					nodePath,
 					effectIndex,
@@ -224,7 +224,7 @@ export const TimelineKeyframeControls: React.FC<{
 			}
 
 			if (effectIndex === null) {
-				void callAddSequenceKeyframe({
+				await callAddSequenceKeyframe({
 					fileName,
 					nodePath,
 					fieldKey,
@@ -237,7 +237,7 @@ export const TimelineKeyframeControls: React.FC<{
 				return;
 			}
 
-			void callAddEffectKeyframe({
+			await callAddEffectKeyframe({
 				fileName,
 				nodePath,
 				effectIndex,
