@@ -16,7 +16,7 @@ import {
 import type {RemInputStatus} from './RemInput';
 import {RemotionInput, inputBaseStyle} from './RemInput';
 
-type Props = InputHTMLAttributes<HTMLInputElement> & {
+type Props = Omit<InputHTMLAttributes<HTMLInputElement>, 'onPointerDown'> & {
 	readonly onValueChange: (newVal: number) => void;
 	readonly onValueChangeEnd?: (newVal: number) => void;
 	readonly onTextChange: (newVal: string) => void;
@@ -24,6 +24,7 @@ type Props = InputHTMLAttributes<HTMLInputElement> & {
 	readonly formatter?: (str: number | string) => string;
 	readonly rightAlign: boolean;
 	readonly small?: boolean;
+	readonly onPointerDown?: PointerEventHandler<HTMLButtonElement>;
 };
 
 const isInt = (num: number) => {
@@ -46,6 +47,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 		status,
 		rightAlign,
 		small,
+		onPointerDown: onPointerDownProp,
 		...props
 	},
 	ref,
@@ -144,8 +146,9 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 		return Math.ceil(val * factor) / factor;
 	};
 
-	const onPointerDown: PointerEventHandler = useCallback(
+	const onPointerDown: PointerEventHandler<HTMLButtonElement> = useCallback(
 		(e) => {
+			onPointerDownProp?.(e);
 			pointerDownRef.current = true;
 			const target = e.currentTarget as HTMLButtonElement;
 			const {pageX, pageY, button} = e;
@@ -203,7 +206,15 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 				},
 			);
 		},
-		[_step, _min, _max, value, onValueChange, onValueChangeEnd],
+		[
+			_step,
+			_min,
+			_max,
+			value,
+			onValueChange,
+			onValueChangeEnd,
+			onPointerDownProp,
+		],
 	);
 
 	useEffect(() => {
