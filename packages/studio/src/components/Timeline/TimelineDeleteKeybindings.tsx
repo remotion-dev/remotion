@@ -4,6 +4,7 @@ import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {deleteSelectedTimelineItems} from './delete-selected-timeline-item';
+import {duplicateSelectedTimelineItems} from './duplicate-selected-timeline-item';
 import {
 	useCurrentTimelineSelectionStateAsRef,
 	useTimelineSelection,
@@ -55,9 +56,34 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 			triggerIfInputFieldFocused: false,
 			keepRegisteredWhenNotHighestContext: false,
 		});
+		const duplicate = keybindings.registerKeybinding({
+			event: 'keydown',
+			key: 'd',
+			callback: () => {
+				const {selectedItems} = currentSelection.current;
+				if (selectedItems.length === 0) {
+					return;
+				}
+
+				const duplicatePromise = duplicateSelectedTimelineItems({
+					selections: selectedItems,
+				});
+
+				if (duplicatePromise === null) {
+					return;
+				}
+
+				duplicatePromise.catch(() => undefined);
+			},
+			commandCtrlKey: true,
+			preventDefault: true,
+			triggerIfInputFieldFocused: false,
+			keepRegisteredWhenNotHighestContext: false,
+		});
 
 		return () => {
 			backspace.unregister();
+			duplicate.unregister();
 		};
 	}, [
 		canSelect,

@@ -1,5 +1,6 @@
 import {expect, test} from 'bun:test';
 import type {SequenceNodePath, SequencePropsSubscriptionKey} from 'remotion';
+import {isDuplicatableSequenceRowSelection} from '../components/Timeline/duplicate-selected-timeline-item';
 import {
 	ENABLE_OUTLINES,
 	getSelectableTimelineSequenceSelections,
@@ -48,6 +49,28 @@ test('Cmd+A selection only targets selectable timeline sequences', () => {
 			{nodePathInfo: sequenceNodePathInfo},
 			{nodePathInfo: effectNodePathInfo},
 		]),
+	).toEqual([
+		{
+			type: 'row',
+			nodePathInfo: sequenceNodePathInfo,
+		},
+	]);
+});
+
+test('Cmd+D only duplicates selected timeline sequence rows', () => {
+	const sequenceNodePathInfo = makeNodePathInfo(['body', 0], []);
+	const effectNodePathInfo = makeNodePathInfo(['body', 1], ['effects', '0']);
+
+	expect(
+		[
+			{type: 'row' as const, nodePathInfo: sequenceNodePathInfo},
+			{type: 'row' as const, nodePathInfo: effectNodePathInfo},
+			{
+				type: 'keyframe' as const,
+				nodePathInfo: sequenceNodePathInfo,
+				frame: 12,
+			},
+		].filter(isDuplicatableSequenceRowSelection),
 	).toEqual([
 		{
 			type: 'row',
