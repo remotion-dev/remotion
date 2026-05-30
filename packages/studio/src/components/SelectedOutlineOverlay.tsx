@@ -46,7 +46,6 @@ const outlineContainer: React.CSSProperties = {
 	inset: 0,
 	pointerEvents: 'none',
 	overflow: 'visible',
-	zIndex: 1,
 };
 
 const pointToString = (point: OutlinePoint) => `${point.x},${point.y}`;
