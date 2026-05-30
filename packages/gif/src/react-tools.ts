@@ -1,5 +1,6 @@
 import {generate, parse} from './parse-generate';
 import type {GifState} from './props';
+import {normalizeRequestInit} from './request-init';
 import {makeWorker} from './worker';
 
 export const parseGif = async ({
@@ -25,6 +26,7 @@ export const parseWithWorker = ({
 	requestInit?: RequestInit;
 }) => {
 	const worker = makeWorker();
+	const workerRequestInit = normalizeRequestInit(requestInit);
 
 	let handler: ((e: MessageEvent) => void) | null = null;
 
@@ -43,7 +45,12 @@ export const parseWithWorker = ({
 		};
 
 		worker.addEventListener('message', handler as (e: MessageEvent) => void);
-		worker.postMessage({src, cacheKey, requestInit, type: 'parse'});
+		worker.postMessage({
+			src,
+			cacheKey,
+			requestInit: workerRequestInit,
+			type: 'parse',
+		});
 	});
 
 	return {
