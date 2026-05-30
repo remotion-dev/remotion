@@ -97,6 +97,7 @@ type OptionalOffthreadVideoProps = {
 	showInTimeline: boolean;
 	onAutoPlayError: null | (() => void);
 	onVideoFrame: OnVideoFrame | undefined;
+	onVideoFramePresented: OnVideoFramePresented | undefined;
 	crossOrigin: '' | 'anonymous' | 'use-credentials' | undefined;
 	audioStreamIndex: number;
 };
@@ -111,3 +112,7 @@ export type RemotionOffthreadVideoProps = MandatoryOffthreadVideoProps &
 	Partial<DeprecatedOffthreadVideoProps>;
 
 export type OnVideoFrame = (frame: CanvasImageSource) => void;
+export type OnVideoFramePresented = (
+	frame: HTMLVideoElement,
+	metadata: VideoFrameCallbackMetadata,
+) => void;

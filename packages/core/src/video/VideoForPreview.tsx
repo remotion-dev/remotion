@@ -31,7 +31,12 @@ import {evaluateVolume} from '../volume-prop.js';
 import {warnAboutTooHighVolume} from '../volume-safeguard.js';
 import {useEmitVideoFrame} from './emit-video-frame.js';
 import {MediaPlaybackError} from './MediaPlaybackError.js';
-import type {NativeVideoProps, OnVideoFrame, RemotionVideoProps} from './props';
+import type {
+	NativeVideoProps,
+	OnVideoFrame,
+	OnVideoFramePresented,
+	RemotionVideoProps,
+} from './props';
 import {isIosSafari, useAppendVideoFragment} from './video-fragment.js';
 
 type VideoForPreviewProps = RemotionVideoProps & {
@@ -42,6 +47,7 @@ type VideoForPreviewProps = RemotionVideoProps & {
 	readonly _remotionInternalStack: string | null;
 	readonly showInTimeline: boolean;
 	readonly onVideoFrame: null | OnVideoFrame;
+	readonly onVideoFramePresented: null | OnVideoFramePresented;
 	readonly crossOrigin?: '' | 'anonymous' | 'use-credentials';
 };
 
@@ -114,6 +120,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		onError,
 		onAutoPlayError,
 		onVideoFrame,
+		onVideoFramePresented,
 		crossOrigin,
 		delayRenderRetries,
 		delayRenderTimeoutInMilliseconds,
@@ -297,7 +304,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		useRef<VideoForPreviewProps['onDuration']>(onDuration);
 	currentOnDurationCallback.current = onDuration;
 
-	useEmitVideoFrame({ref: videoRef, onVideoFrame});
+	useEmitVideoFrame({ref: videoRef, onVideoFrame, onVideoFramePresented});
 
 	useEffect(() => {
 		const {current} = videoRef;
