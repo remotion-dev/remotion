@@ -13,6 +13,18 @@ test('Should format file locations relative to the project root', () => {
 	).toBe('src/Root.tsx:42');
 });
 
+test('Should remove leading dot slash from relative file locations', () => {
+	expect(
+		formatFileLocation({
+			location: {
+				source: '/Users/example/video/./src/Root.tsx',
+				line: 42,
+			},
+			root: '/Users/example/video',
+		}),
+	).toBe('src/Root.tsx:42');
+});
+
 test('Should format Windows file locations relative to the project root', () => {
 	expect(
 		formatFileLocation({

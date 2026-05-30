@@ -7,6 +7,8 @@ const normalizeSlashes = (path: string) => path.replace(/\\/g, '/');
 
 const stripTrailingSlashes = (path: string) => path.replace(/\/+$/, '');
 
+const stripLeadingDotSlash = (path: string) => path.replace(/^\.\/+/, '');
+
 export const formatFileLocation = ({
 	location,
 	root,
@@ -35,5 +37,5 @@ export const formatFileLocation = ({
 		? source.slice(normalizedRoot.length + 1)
 		: source;
 
-	return `${relativeSource}:${location.line}`;
+	return `${stripLeadingDotSlash(relativeSource)}:${location.line}`;
 };
