@@ -141,7 +141,7 @@ export const getSelectableTimelineSequenceSelections = (
 	});
 };
 
-const TimelineSelectAllKeybindings: React.FC<{
+export const TimelineSelectAllKeybindings: React.FC<{
 	readonly timeline: readonly TrackWithHash[];
 }> = ({timeline}) => {
 	const keybindings = useKeybinding();
@@ -179,8 +179,7 @@ const TimelineSelectAllKeybindings: React.FC<{
 
 export const TimelineSelectionProvider: React.FC<{
 	readonly children: React.ReactNode;
-	readonly timeline: readonly TrackWithHash[];
-}> = ({children, timeline}) => {
+}> = ({children}) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const canSelect =
 		SELECTION_ENABLED &&
@@ -267,7 +266,6 @@ export const TimelineSelectionProvider: React.FC<{
 	return (
 		<TimelineSelectionContext.Provider value={value}>
 			{children}
-			<TimelineSelectAllKeybindings timeline={timeline} />
 			<TimelineDeleteKeybindings />
 		</TimelineSelectionContext.Provider>
 	);
