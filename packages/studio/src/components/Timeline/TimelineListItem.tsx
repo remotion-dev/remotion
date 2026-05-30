@@ -143,8 +143,12 @@ export const TimelineListItem: React.FC<{
 
 		try {
 			const result = await callApi('/api/delete-jsx-node', {
-				fileName: validatedLocation.source,
-				nodePath: nodePath.nodePath,
+				nodes: [
+					{
+						fileName: validatedLocation.source,
+						nodePath: nodePath.nodePath,
+					},
+				],
 			});
 			if (result.success) {
 				showNotification('Removed sequence from source file', 2000);
