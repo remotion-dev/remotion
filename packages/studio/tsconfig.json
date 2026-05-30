@@ -4,7 +4,8 @@
 		"composite": true,
 		"rootDir": "./src",
 		"outDir": "dist",
-		"skipLibCheck": true
+		"skipLibCheck": true,
+		"allowJs": true
 	},
 	"include": ["src"],
 	"references": [
