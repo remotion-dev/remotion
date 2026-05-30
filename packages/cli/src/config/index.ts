@@ -642,7 +642,7 @@ type FlatConfig = RemotionConfigObject &
 		setSampleRate: (sampleRate: number) => void;
 		/**
 		 * Set the audio sample rate for preview playback.
-		 * Default: null, which uses the composition sample rate and then 48000.
+		 * Default: null, which uses 48000 Hz.
 		 */
 		setPreviewSampleRate: (sampleRate: number | null) => void;
 		/**

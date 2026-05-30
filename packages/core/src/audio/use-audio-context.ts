@@ -38,26 +38,12 @@ export const useSingletonAudioContext = ({
 	logLevel: LogLevel;
 	latencyHint: AudioContextLatencyCategory;
 	audioEnabled: boolean;
-	sampleRate: number | null;
+	sampleRate: number;
 }) => {
 	const env = useRemotionEnvironment();
-	const initialSampleRate = useRef<number | null>(null);
+	const initialSampleRate = useRef(sampleRate);
 
-	if (sampleRate === null && initialSampleRate.current !== null) {
-		throw new Error(
-			`Changing the AudioContext sample rate dynamically is not supported. The sample rate was initialized with ${initialSampleRate.current} Hz, but no sample rate was passed later.`,
-		);
-	}
-
-	if (sampleRate !== null && initialSampleRate.current === null) {
-		initialSampleRate.current = sampleRate;
-	}
-
-	if (
-		sampleRate !== null &&
-		initialSampleRate.current !== null &&
-		sampleRate !== initialSampleRate.current
-	) {
+	if (sampleRate !== initialSampleRate.current) {
 		throw new Error(
 			`Changing the AudioContext sample rate dynamically is not supported. The sample rate was initialized with ${initialSampleRate.current} Hz, but ${sampleRate} Hz was passed later.`,
 		);
@@ -69,10 +55,6 @@ export const useSingletonAudioContext = ({
 		}
 
 		if (!audioEnabled) {
-			return null;
-		}
-
-		if (sampleRate === null) {
 			return null;
 		}
 

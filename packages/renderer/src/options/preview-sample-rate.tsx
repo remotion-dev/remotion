@@ -10,8 +10,7 @@ export const previewSampleRateOption = {
 	description: () => (
 		<>
 			Controls the sample rate used for audio playback during preview. When
-			unset, the composition sample rate is used, falling back to{' '}
-			<code>48000</code> Hz.
+			unset, Remotion uses <code>48000</code> Hz.
 		</>
 	),
 	ssrName: null,
