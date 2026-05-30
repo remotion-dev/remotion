@@ -14,36 +14,41 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 		Internals.OverrideIdsToNodePathsGettersContext,
 	);
 	const {setCodeValues} = useContext(Internals.VisualModeSettersContext);
-	const {canSelect, selectedItem, clearSelection} = useTimelineSelection();
+	const {canSelect, selectedItems, clearSelection} = useTimelineSelection();
 
 	useEffect(() => {
 		if (
 			!canSelect ||
 			previewServerState.type !== 'connected' ||
-			!selectedItem
+			selectedItems.length === 0
 		) {
 			return;
 		}
 
 		const {clientId} = previewServerState;
-		const currentSelection = selectedItem;
+		const currentSelection = selectedItems;
 		const backspace = keybindings.registerKeybinding({
 			event: 'keydown',
 			key: 'Backspace',
 			callback: () => {
-				const deletePromise = deleteSelectedTimelineItem({
-					selection: currentSelection,
-					sequences,
-					overrideIdsToNodePaths: overrideIdToNodePathMappings,
-					setCodeValues,
-					clientId,
-				});
-				if (deletePromise === null) {
+				const deletePromises = currentSelection
+					.map((selection) =>
+						deleteSelectedTimelineItem({
+							selection,
+							sequences,
+							overrideIdsToNodePaths: overrideIdToNodePathMappings,
+							setCodeValues,
+							clientId,
+						}),
+					)
+					.filter((promise): promise is Promise<void> => promise !== null);
+
+				if (deletePromises.length === 0) {
 					return;
 				}
 
 				clearSelection();
-				deletePromise.catch(() => undefined);
+				Promise.all(deletePromises).catch(() => undefined);
 			},
 			commandCtrlKey: false,
 			preventDefault: true,
@@ -60,7 +65,7 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 		keybindings,
 		overrideIdToNodePathMappings,
 		previewServerState,
-		selectedItem,
+		selectedItems,
 		sequences,
 		setCodeValues,
 	]);
