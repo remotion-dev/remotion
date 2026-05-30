@@ -21,7 +21,7 @@ export const RemotionRootContexts: React.FC<{
 	readonly numberOfAudioTags: number;
 	readonly logLevel: LogLevel;
 	readonly audioLatencyHint: AudioContextLatencyCategory;
-	readonly previewSampleRate?: number;
+	readonly previewSampleRate: number | null;
 	readonly videoEnabled: boolean;
 	readonly audioEnabled: boolean;
 	readonly frameState: Record<string, number> | null;

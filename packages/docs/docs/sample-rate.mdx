@@ -152,14 +152,12 @@ Choose the sample rate that matches the majority of your sources, or the highest
 
 ## Sample rate during preview
 
-During preview in the [Remotion Studio](/docs/studio), the sample rate now follows your sample-rate configuration.
+During preview in the [Remotion Studio](/docs/studio), the `AudioContext` sample rate uses the composition's `defaultSampleRate`, falling back to `48000` Hz.
 
 You can control it via:
 
 - [`Config.setPreviewSampleRate()`](/docs/config#setpreviewsamplerate)
 - `npx remotion studio --preview-sample-rate=44100`
-
-If you don't set a preview-specific value, Remotion uses [`Config.setSampleRate()`](/docs/config#setsamplerate) / `--sample-rate`.
 
 ## See also
 

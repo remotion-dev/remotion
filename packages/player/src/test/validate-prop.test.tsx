@@ -277,6 +277,39 @@ test('sampleRate should be okay', () => {
 	expect(true).toBe(true);
 });
 
+test('sampleRate cannot be changed dynamically', () => {
+	const initial = (
+		<Player
+			compositionWidth={500}
+			compositionHeight={400}
+			fps={30}
+			durationInFrames={500}
+			component={HelloWorld}
+			controls
+			showVolumeControls
+			sampleRate={44100}
+		/>
+	);
+	const changed = (
+		<Player
+			compositionWidth={500}
+			compositionHeight={400}
+			fps={30}
+			durationInFrames={500}
+			component={HelloWorld}
+			controls
+			showVolumeControls
+			sampleRate={48000}
+		/>
+	);
+
+	const {rerender} = render(initial);
+
+	expect(() => rerender(changed)).toThrow(
+		/Changing the AudioContext sample rate dynamically is not supported/,
+	);
+});
+
 test('invalid sampleRate should give errors', () => {
 	expect(() => {
 		render(

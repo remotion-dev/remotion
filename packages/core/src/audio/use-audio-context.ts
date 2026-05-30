@@ -1,4 +1,4 @@
-import {useMemo} from 'react';
+import {useMemo, useRef} from 'react';
 import type {LogLevel} from '../log';
 import {Log} from '../log';
 import {useRemotionEnvironment} from '../use-remotion-environment';
@@ -38,9 +38,30 @@ export const useSingletonAudioContext = ({
 	logLevel: LogLevel;
 	latencyHint: AudioContextLatencyCategory;
 	audioEnabled: boolean;
-	sampleRate: number;
+	sampleRate: number | null;
 }) => {
 	const env = useRemotionEnvironment();
+	const initialSampleRate = useRef<number | null>(null);
+
+	if (sampleRate === null && initialSampleRate.current !== null) {
+		throw new Error(
+			`Changing the AudioContext sample rate dynamically is not supported. The sample rate was initialized with ${initialSampleRate.current} Hz, but no sample rate was passed later.`,
+		);
+	}
+
+	if (sampleRate !== null && initialSampleRate.current === null) {
+		initialSampleRate.current = sampleRate;
+	}
+
+	if (
+		sampleRate !== null &&
+		initialSampleRate.current !== null &&
+		sampleRate !== initialSampleRate.current
+	) {
+		throw new Error(
+			`Changing the AudioContext sample rate dynamically is not supported. The sample rate was initialized with ${initialSampleRate.current} Hz, but ${sampleRate} Hz was passed later.`,
+		);
+	}
 
 	const context = useMemo(() => {
 		if (env.isRendering) {
@@ -48,6 +69,10 @@ export const useSingletonAudioContext = ({
 		}
 
 		if (!audioEnabled) {
+			return null;
+		}
+
+		if (sampleRate === null) {
 			return null;
 		}
 

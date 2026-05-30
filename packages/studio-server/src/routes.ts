@@ -103,7 +103,7 @@ const handleFallback = async ({
 	getRenderDefaults: () => RenderDefaults;
 	numberOfAudioTags: number;
 	audioLatencyHint: AudioContextLatencyCategory | null;
-	previewSampleRate: number;
+	previewSampleRate: number | null;
 	gitSource: GitSource | null;
 	logLevel: LogLevel;
 	enableCrossSiteIsolation: boolean;
@@ -550,7 +550,7 @@ export const handleRoutes = ({
 	gitSource: GitSource | null;
 	binariesDirectory: string | null;
 	audioLatencyHint: AudioContextLatencyCategory | null;
-	previewSampleRate: number;
+	previewSampleRate: number | null;
 	enableCrossSiteIsolation: boolean;
 }): Promise<void> => {
 	const url = new URL(request.url as string, 'http://localhost');

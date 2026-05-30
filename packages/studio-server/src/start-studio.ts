@@ -78,7 +78,7 @@ export const startStudio = async ({
 	getRenderQueue: () => RenderJob[];
 	numberOfAudioTags: number;
 	audioLatencyHint: AudioContextLatencyCategory | null;
-	previewSampleRate: number;
+	previewSampleRate: number | null;
 	enableCrossSiteIsolation: boolean;
 	queueMethods: QueueMethods;
 	previewEntry: string;

@@ -1,4 +1,3 @@
-import {type AudioHTMLAttributes} from 'react';
 import React, {
 	createContext,
 	createRef,
@@ -8,6 +7,7 @@ import React, {
 	useMemo,
 	useRef,
 	useState,
+	type AudioHTMLAttributes,
 } from 'react';
 import {CompositionManager} from '../CompositionManagerContext.js';
 import {useLogLevel, useMountTime} from '../log-level-context.js';
@@ -195,19 +195,22 @@ export const SharedAudioContextProvider: React.FC<{
 	readonly children: React.ReactNode;
 	readonly audioLatencyHint: AudioContextLatencyCategory;
 	readonly audioEnabled: boolean;
-	readonly previewSampleRate?: number;
+	readonly previewSampleRate: number | null;
 }> = ({children, audioLatencyHint, audioEnabled, previewSampleRate}) => {
 	const logLevel = useLogLevel();
 	const {currentCompositionMetadata} = useContext(CompositionManager);
 	const sampleRate =
-		previewSampleRate ?? currentCompositionMetadata?.defaultSampleRate ?? 48000;
+		previewSampleRate ??
+		(currentCompositionMetadata
+			? (currentCompositionMetadata.defaultSampleRate ?? 48000)
+			: null);
 
 	useEffect(() => {
 		if (typeof window === 'undefined') {
 			return;
 		}
 
-		window.remotion_sampleRate = sampleRate;
+		window.remotion_sampleRate = sampleRate ?? 48000;
 	}, [sampleRate]);
 
 	const ctxAndGain = useSingletonAudioContext({

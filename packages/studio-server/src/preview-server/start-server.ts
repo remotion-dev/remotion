@@ -63,7 +63,7 @@ export const startServer = async (options: {
 	binariesDirectory: string | null;
 	forceIPv4: boolean;
 	audioLatencyHint: AudioContextLatencyCategory | null;
-	previewSampleRate: number;
+	previewSampleRate: number | null;
 	enableCrossSiteIsolation: boolean;
 	askAIEnabled: boolean;
 	forceNew: boolean;

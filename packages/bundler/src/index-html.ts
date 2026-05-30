@@ -42,7 +42,7 @@ export const indexHtml = ({
 	completedClientRenders?: unknown | null;
 	numberOfAudioTags: number;
 	audioLatencyHint: AudioContextLatencyCategory;
-	sampleRate: number;
+	sampleRate: number | null;
 	publicFiles: StaticFile[];
 	publicFolderExists: string | null;
 	includeFavicon: boolean;
@@ -73,6 +73,7 @@ export const indexHtml = ({
 		<script>window.remotion_numberOfAudioTags = ${numberOfAudioTags};</script>
 		<script>window.remotion_audioLatencyHint = "${audioLatencyHint}";</script>
 		<script>window.remotion_sampleRate = ${sampleRate};</script>
+		<script>window.remotion_previewSampleRate = ${sampleRate};</script>
 		${mode === 'dev' ? `<script>window.remotion_logLevel = "${logLevel}";</script>` : ''}
 		<script>window.remotion_staticBase = "${staticHash}";</script>
 		${

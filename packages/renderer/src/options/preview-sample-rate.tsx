@@ -1,5 +1,4 @@
 import type {AnyRemotionOption} from './option';
-import {sampleRateOption} from './sample-rate';
 
 const cliFlag = 'preview-sample-rate' as const;
 
@@ -10,13 +9,14 @@ export const previewSampleRateOption = {
 	cliFlag,
 	description: () => (
 		<>
-			Controls the sample rate used for audio playback during preview. By
-			default, Remotion uses the render sample rate configuration.
+			Controls the sample rate used for audio playback during preview. When
+			unset, the composition sample rate is used, falling back to{' '}
+			<code>48000</code> Hz.
 		</>
 	),
 	ssrName: null,
 	docLink: 'https://www.remotion.dev/docs/config#setpreviewsamplerate',
-	type: 48000 as number,
+	type: null as number | null,
 	getValue: ({commandLine}: {commandLine: Record<string, unknown>}) => {
 		if (commandLine[cliFlag] !== undefined) {
 			return {value: commandLine[cliFlag] as number, source: 'cli'};
@@ -26,11 +26,10 @@ export const previewSampleRateOption = {
 			return {value: currentPreviewSampleRate, source: 'config file'};
 		}
 
-		const fallback = sampleRateOption.getValue({commandLine});
-		return {value: fallback.value, source: fallback.source};
+		return {value: null, source: 'default'};
 	},
-	setConfig: (value: number) => {
+	setConfig: (value: number | null) => {
 		currentPreviewSampleRate = value;
 	},
 	id: cliFlag,
-} satisfies AnyRemotionOption<number>;
+} satisfies AnyRemotionOption<number | null>;
