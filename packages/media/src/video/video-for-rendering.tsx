@@ -460,6 +460,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 				audioStreamIndex={audioStreamIndex ?? 0}
 				className={className}
 				onVideoFrame={onVideoFrame}
+				onVideoFrameCallback={fallbackOffthreadVideoProps?.onVideoFrameCallback}
 				volume={volumeProp}
 				id={id}
 				onError={fallbackOffthreadVideoProps?.onError}
