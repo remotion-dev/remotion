@@ -32,25 +32,11 @@ const categories: {
 				description: 'Contrast adjustment effect',
 			},
 			{
-				link: '/docs/effects/drop-shadow',
-				preview: '/img/effects-drop-shadow-preview.png',
-				alt: 'drop shadow effect preview',
-				name: 'dropShadow()',
-				description: 'Blurred alpha shadow effect',
-			},
-			{
 				link: '/docs/effects/duotone',
 				preview: '/img/effects-duotone-preview.png',
 				alt: 'duotone effect preview',
 				name: 'duotone()',
 				description: 'Two-color threshold effect',
-			},
-			{
-				link: '/docs/effects/glow',
-				preview: '/img/effects-glow-preview.png',
-				alt: 'glow effect preview',
-				name: 'glow()',
-				description: 'Soft halo effect',
 			},
 			{
 				link: '/docs/effects/grayscale',
@@ -87,12 +73,31 @@ const categories: {
 				name: 'tint()',
 				description: 'Color tint effect',
 			},
+		],
+	},
+	{
+		title: 'Blur & Shadow',
+		effects: [
 			{
-				link: '/docs/effects/vignette',
-				preview: '/img/effects-vignette-preview.png',
-				alt: 'vignette effect preview',
-				name: 'vignette()',
-				description: 'Edge darkening or transparency effect',
+				link: '/docs/effects/blur',
+				preview: '/img/effects-blur-preview.png',
+				alt: 'blur effect preview',
+				name: 'blur()',
+				description: 'Gaussian blur effect',
+			},
+			{
+				link: '/docs/effects/drop-shadow',
+				preview: '/img/effects-drop-shadow-preview.png',
+				alt: 'drop shadow effect preview',
+				name: 'dropShadow()',
+				description: 'Blurred alpha shadow effect',
+			},
+			{
+				link: '/docs/effects/glow',
+				preview: '/img/effects-glow-preview.png',
+				alt: 'glow effect preview',
+				name: 'glow()',
+				description: 'Soft halo effect',
 			},
 		],
 	},
@@ -140,13 +145,6 @@ const categories: {
 				description: 'Barrel distortion effect',
 			},
 			{
-				link: '/docs/effects/blur',
-				preview: '/img/effects-blur-preview.png',
-				alt: 'blur effect preview',
-				name: 'blur()',
-				description: 'Gaussian blur effect',
-			},
-			{
 				link: '/docs/effects/chromatic-aberration',
 				preview: '/img/effects-chromatic-aberration-preview.png',
 				alt: 'chromatic aberration effect preview',
@@ -163,7 +161,7 @@ const categories: {
 		],
 	},
 	{
-		title: 'Generative',
+		title: 'Stylize',
 		effects: [
 			{
 				link: '/docs/effects/dot-grid',
@@ -177,21 +175,7 @@ const categories: {
 				preview: '/img/effects-halftone-preview.png',
 				alt: 'halftone effect preview',
 				name: 'halftone()',
-				description: 'Halftone dot grid effect',
-			},
-			{
-				link: '/docs/effects/halftone-linear-gradient',
-				preview: '/img/effects-halftone-linear-gradient-preview.png',
-				alt: 'halftone linear gradient effect preview',
-				name: 'halftoneLinearGradient()',
-				description: 'Linear dot size gradient',
-			},
-			{
-				link: '/docs/light-leaks/light-leak-effect',
-				preview: '/img/effects-light-leak-preview.png',
-				alt: 'light leak effect preview',
-				name: 'lightLeak()',
-				description: 'Light leak overlay effect',
+				description: 'Source-image halftone effect',
 			},
 			{
 				link: '/docs/effects/lines',
@@ -199,6 +183,32 @@ const categories: {
 				alt: 'lines effect preview',
 				name: 'lines()',
 				description: 'Alternating line overlay effect',
+			},
+			{
+				link: '/docs/effects/scanlines',
+				preview: '/img/effects-scanlines-preview.png',
+				alt: 'scanlines effect preview',
+				name: 'scanlines()',
+				description: 'Additive horizontal scanlines',
+			},
+			{
+				link: '/docs/effects/speckle',
+				preview: '/img/effects-speckle-preview.png',
+				alt: 'speckle effect preview',
+				name: 'speckle()',
+				description: 'Random alpha-hole effect',
+			},
+		],
+	},
+	{
+		title: 'Generate',
+		effects: [
+			{
+				link: '/docs/effects/halftone-linear-gradient',
+				preview: '/img/effects-halftone-linear-gradient-preview.png',
+				alt: 'halftone linear gradient effect preview',
+				name: 'halftoneLinearGradient()',
+				description: 'Procedural dot gradient effect',
 			},
 			{
 				link: '/docs/effects/noise',
@@ -214,12 +224,17 @@ const categories: {
 				name: 'whiteNoise()',
 				description: 'Random grayscale noise layer',
 			},
+		],
+	},
+	{
+		title: 'Light',
+		effects: [
 			{
-				link: '/docs/effects/scanlines',
-				preview: '/img/effects-scanlines-preview.png',
-				alt: 'scanlines effect preview',
-				name: 'scanlines()',
-				description: 'Additive horizontal scanlines',
+				link: '/docs/light-leaks/light-leak-effect',
+				preview: '/img/effects-light-leak-preview.png',
+				alt: 'light leak effect preview',
+				name: 'lightLeak()',
+				description: 'Light leak overlay effect',
 			},
 			{
 				link: '/docs/effects/shine',
@@ -229,18 +244,18 @@ const categories: {
 				description: 'Glossy light sweep effect',
 			},
 			{
-				link: '/docs/effects/speckle',
-				preview: '/img/effects-speckle-preview.png',
-				alt: 'speckle effect preview',
-				name: 'speckle()',
-				description: 'Random alpha-hole effect',
-			},
-			{
 				link: '/docs/starburst/starburst-effect',
 				preview: '/img/effects-starburst-preview.png',
 				alt: 'starburst effect preview',
 				name: 'starburst()',
 				description: 'Starburst ray effect',
+			},
+			{
+				link: '/docs/effects/vignette',
+				preview: '/img/effects-vignette-preview.png',
+				alt: 'vignette effect preview',
+				name: 'vignette()',
+				description: 'Edge darkening or transparency effect',
 			},
 		],
 	},
