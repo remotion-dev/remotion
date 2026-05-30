@@ -23,6 +23,7 @@ const chromeColumnStyle: React.CSSProperties = {
 export const TimelineRowChrome: React.FC<{
 	readonly depth: number;
 	readonly eye: React.ReactNode;
+	readonly keyframeControls?: React.ReactNode;
 	readonly arrow: React.ReactNode;
 	readonly children: React.ReactNode;
 	readonly style: React.CSSProperties;
@@ -39,6 +40,7 @@ export const TimelineRowChrome: React.FC<{
 }> = ({
 	depth,
 	eye,
+	keyframeControls,
 	arrow,
 	children,
 	style,
@@ -105,6 +107,7 @@ export const TimelineRowChrome: React.FC<{
 			<div style={chromeColumnStyle}>
 				{eye}
 				{indentWidth > 0 ? <Padder depth={depth} /> : null}
+				{keyframeControls}
 				{arrow}
 			</div>
 			{children}

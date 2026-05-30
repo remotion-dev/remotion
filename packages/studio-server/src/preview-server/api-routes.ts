@@ -1,6 +1,8 @@
 import type {ApiRoutes} from '@remotion/studio-shared';
 import type {ApiHandler} from './api-types';
+import {addEffectKeyframeHandler} from './routes/add-effect-keyframe';
 import {handleAddRender} from './routes/add-render';
+import {addSequenceKeyframeHandler} from './routes/add-sequence-keyframe';
 import {applyCodemodHandler} from './routes/apply-codemod';
 import {applyVisualControlHandler} from './routes/apply-visual-control-change';
 import {handleCancelRender} from './routes/cancel-render';
@@ -50,7 +52,9 @@ export const allApiRoutes: {
 	'/api/save-sequence-props': saveSequencePropsHandler,
 	'/api/save-effect-props': saveEffectPropsHandler,
 	'/api/delete-sequence-keyframe': deleteSequenceKeyframeHandler,
+	'/api/add-sequence-keyframe': addSequenceKeyframeHandler,
 	'/api/delete-effect-keyframe': deleteEffectKeyframeHandler,
+	'/api/add-effect-keyframe': addEffectKeyframeHandler,
 	'/api/delete-effect': deleteEffectHandler,
 	'/api/delete-jsx-node': deleteJsxNodeHandler,
 	'/api/duplicate-jsx-node': duplicateJsxNodeHandler,
