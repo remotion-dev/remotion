@@ -1962,6 +1962,15 @@ export const articles = [
 		slug: 'effects/wave',
 	},
 	{
+		id: 'effects/white-noise',
+		title: 'whiteNoise()',
+		relativePath: 'docs/effects/white-noise.mdx',
+		compId: 'articles-docs-effects-white-noise',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/white-noise',
+	},
+	{
 		id: 'effects/xy-translate',
 		title: 'xyTranslate()',
 		relativePath: 'docs/effects/xy-translate.mdx',

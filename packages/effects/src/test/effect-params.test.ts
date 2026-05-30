@@ -25,6 +25,7 @@ import {tint} from '../tint.js';
 import {uvTranslate, xyTranslate} from '../translate.js';
 import {vignette} from '../vignette.js';
 import {wave} from '../wave/index.js';
+import {whiteNoise} from '../white-noise.js';
 
 test('@remotion/effects expose documentation links', () => {
 	expect(barrelDistortion().definition.documentationLink).toBe(
@@ -108,6 +109,9 @@ test('@remotion/effects expose documentation links', () => {
 	expect(wave().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/wave',
 	);
+	expect(whiteNoise().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/white-noise',
+	);
 });
 
 test('@remotion/effects expose API names as Studio labels', () => {
@@ -139,6 +143,7 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(vignette().definition.label).toBe('vignette()');
 	expect(xyTranslate().definition.label).toBe('xyTranslate()');
 	expect(wave().definition.label).toBe('wave()');
+	expect(whiteNoise().definition.label).toBe('whiteNoise()');
 });
 
 test('barrelDistortion() accepts default params', () => {
@@ -294,6 +299,40 @@ test('wave() direction produces distinct effect keys', () => {
 	const horizontal = wave({direction: 'horizontal'});
 	const vertical = wave({direction: 'vertical'});
 	expect(horizontal.effectKey).not.toBe(vertical.effectKey);
+});
+
+test('whiteNoise() accepts default params', () => {
+	expect(() => whiteNoise()).not.toThrow();
+});
+
+test('whiteNoise() rejects non-finite amount', () => {
+	expect(() => whiteNoise({amount: Number.NaN})).toThrow(
+		'"amount" must be a finite number',
+	);
+});
+
+test('whiteNoise() rejects amount below range', () => {
+	expect(() => whiteNoise({amount: -0.1})).toThrow('"amount" must be >= 0');
+});
+
+test('whiteNoise() rejects amount above range', () => {
+	expect(() => whiteNoise({amount: 1.1})).toThrow('"amount" must be <= 1');
+});
+
+test('whiteNoise() rejects non-finite seed', () => {
+	expect(() => whiteNoise({seed: Number.NaN})).toThrow(
+		'"seed" must be a finite number',
+	);
+});
+
+test('whiteNoise() parameters produce distinct effect keys', () => {
+	const subtle = whiteNoise({amount: 0.2});
+	const strong = whiteNoise({amount: 0.8});
+	const reseeded = whiteNoise({amount: 0.8, seed: 4});
+
+	expect(
+		new Set([subtle.effectKey, strong.effectKey, reseeded.effectKey]).size,
+	).toBe(3);
 });
 
 test('grayscale() accepts default params', () => {
