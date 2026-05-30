@@ -326,12 +326,13 @@ test('whiteNoise() rejects non-finite seed', () => {
 });
 
 test('whiteNoise() parameters produce distinct effect keys', () => {
+	const defaultStatic = whiteNoise();
 	const subtle = whiteNoise({amount: 0.2});
-	const strong = whiteNoise({amount: 0.8});
-	const reseeded = whiteNoise({amount: 0.8, seed: 4});
+	const reseeded = whiteNoise({seed: 4});
 
 	expect(
-		new Set([subtle.effectKey, strong.effectKey, reseeded.effectKey]).size,
+		new Set([defaultStatic.effectKey, subtle.effectKey, reseeded.effectKey])
+			.size,
 	).toBe(3);
 });
 

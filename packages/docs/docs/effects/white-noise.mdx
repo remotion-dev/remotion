@@ -10,9 +10,17 @@ crumb: '@remotion/effects'
 
 _Part of the [`@remotion/effects`](/docs/effects/api) package._
 
-Blends a grayscale white noise layer with canvas-based components such as [`<Video>`](/docs/media/video), [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) and [`<Solid>`](/docs/solid).
+Replaces or blends canvas-based components such as [`<Video>`](/docs/media/video), [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) and [`<Solid>`](/docs/solid) with a grayscale white noise layer.
+
+Use it for TV static, signal loss, or snow-like visuals. For subtle additive film grain, use [`noise()`](/docs/effects/noise) instead.
 
 The effect preserves the source alpha mask. Transparent regions stay transparent.
+
+## Difference from `noise()`
+
+`whiteNoise()` blends the source towards a random grayscale image. By default, it fully replaces visible pixels with white noise.
+
+[`noise()`](/docs/effects/noise) adds centered noise to the existing pixels instead. It is better suited for subtle grain while preserving the image.
 
 ## Preview
 
@@ -32,7 +40,7 @@ export const MyComp: React.FC = () => {
         src="https://remotion.media/video.mp4"
         effects={[
           whiteNoise({
-            amount: 0.3,
+            amount: 1,
             seed: 7,
           }),
         ]}
@@ -48,7 +56,7 @@ Pass an object with the following properties. You can also call `whiteNoise()` w
 
 ### `amount?`
 
-Blend amount from `0` to `1`. Defaults to `0.2`.
+Blend amount from `0` to `1`. Defaults to `1`.
 
 Use `0` to leave the layer unchanged. Use `1` to fully replace the image with white noise inside the source alpha mask.
 

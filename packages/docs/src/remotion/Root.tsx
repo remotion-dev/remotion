@@ -310,7 +310,7 @@ export const RemotionRoot: React.FC = () => {
 					width={1280}
 					height={720}
 					defaultProps={{
-						amount: 0.3,
+						amount: 1,
 						seed: 0,
 					}}
 				/>

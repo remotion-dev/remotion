@@ -8,7 +8,7 @@ import {assertEffectParamsObject} from './validate-effect-param.js';
 
 const {createEffect, createWebGL2ContextError} = Internals;
 
-const DEFAULT_AMOUNT = 0.2 as const;
+const DEFAULT_AMOUNT = 1 as const;
 const DEFAULT_SEED = 0 as const;
 
 const whiteNoiseSchema = {
@@ -29,7 +29,7 @@ const whiteNoiseSchema = {
 } as const satisfies SequenceSchema;
 
 export type WhiteNoiseParams = {
-	/** Blend amount from `0` to `1`. Defaults to `0.2`. */
+	/** Blend amount from `0` to `1`. Defaults to `1`. */
 	readonly amount?: number;
 	/** Seed for the random noise pattern. Defaults to `0`. */
 	readonly seed?: number;
