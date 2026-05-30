@@ -1,6 +1,7 @@
 import {expect, test} from 'bun:test';
 import type {SequenceNodePath, SequencePropsSubscriptionKey} from 'remotion';
 import {
+	ENABLE_OUTLINES,
 	getSelectableTimelineSequenceSelections,
 	SELECTION_ENABLED,
 	TIMELINE_TOP_DRAG,
@@ -30,6 +31,10 @@ test('Timeline selection should stay disabled until released publicly', () => {
 
 test('Timeline top drag should not be enabled', () => {
 	expect(TIMELINE_TOP_DRAG).toBe(false);
+});
+
+test('Timeline outlines should not be enabled', () => {
+	expect(ENABLE_OUTLINES).toBe(false);
 });
 
 test('Cmd+A selection only targets selectable timeline sequences', () => {

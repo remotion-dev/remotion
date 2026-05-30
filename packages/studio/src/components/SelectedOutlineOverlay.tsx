@@ -5,6 +5,7 @@ import {calculateTimeline} from '../helpers/calculate-timeline';
 import {BLUE} from '../helpers/colors';
 import {timelineNodePathInfoToKey} from '../helpers/timeline-node-path-key';
 import {
+	ENABLE_OUTLINES,
 	type TimelineSelection,
 	useTimelineSelection,
 } from './Timeline/TimelineSelection';
@@ -293,6 +294,10 @@ export const SelectedOutlineOverlay: React.FC = () => {
 	const overlayRef = useRef<SVGSVGElement>(null);
 
 	const selectedOutlineTargets = useMemo((): SelectedOutlineTarget[] => {
+		if (!ENABLE_OUTLINES) {
+			return [];
+		}
+
 		return getSequencesWithSelectedOutlines({
 			selectedItems,
 			sequences,
