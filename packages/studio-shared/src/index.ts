@@ -9,23 +9,21 @@ export {
 	CanUpdateDefaultPropsResponse,
 	CanUpdateSequencePropsRequest,
 	CancelRenderRequest,
-	SubscribeToSequencePropsRequest,
-	SubscribeToSequencePropsResponse,
-	UnsubscribeFromSequencePropsRequest,
 	CancelRenderResponse,
 	CopyStillToClipboardRequest,
-	DeleteEffectRequest,
-	DeleteEffectResponse,
 	DeleteEffectKeyframeRequest,
 	DeleteEffectKeyframeResponse,
+	DeleteEffectRequest,
+	DeleteEffectResponse,
+	DeleteJsxNodeRequest,
+	DeleteJsxNodeRequestItem,
+	DeleteJsxNodeResponse,
 	DeleteSequenceKeyframeRequest,
 	DeleteSequenceKeyframeResponse,
-	DeleteJsxNodeRequest,
-	DeleteJsxNodeResponse,
-	DuplicateJsxNodeRequest,
-	DuplicateJsxNodeResponse,
 	DeleteStaticFileRequest,
 	DeleteStaticFileResponse,
+	DuplicateJsxNodeRequest,
+	DuplicateJsxNodeResponse,
 	InstallPackageRequest,
 	InstallPackageResponse,
 	OpenInFileExplorerRequest,
@@ -45,10 +43,13 @@ export {
 	SubscribeToDefaultPropsResponse,
 	SubscribeToFileExistenceRequest,
 	SubscribeToFileExistenceResponse,
+	SubscribeToSequencePropsRequest,
+	SubscribeToSequencePropsResponse,
 	UndoRequest,
 	UndoResponse,
 	UnsubscribeFromDefaultPropsRequest,
 	UnsubscribeFromFileExistenceRequest,
+	UnsubscribeFromSequencePropsRequest,
 	UpdateAvailableRequest,
 	UpdateAvailableResponse,
 	UpdateDefaultPropsRequest,
@@ -58,8 +59,8 @@ export type {ApplyVisualControlCodemod, RecastCodemod} from './codemods';
 export {DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS} from './default-buffer-state-delay-in-milliseconds';
 export {EventSourceEvent} from './event-source-event';
 export {formatBytes} from './format-bytes';
-export {getDefaultOutLocation} from './get-default-out-name';
 export {getAllSchemaKeys} from './get-all-keys';
+export {getDefaultOutLocation} from './get-default-out-name';
 export {
 	ErrorLocation,
 	getLocationFromBuildError,
@@ -131,5 +132,7 @@ export {
 } from './optimistic-delete-keyframe';
 export {optimisticUpdateForCodeValues} from './optimistic-update-for-code-values';
 export {optimisticUpdateForEffectCodeValues} from './optimistic-update-for-effect-code-values';
-export {stringifySequenceSubscriptionKey} from './stringify-sequence-subscription-key';
-export {stringifySequenceExpandedRowKey} from './stringify-sequence-subscription-key';
+export {
+	stringifySequenceExpandedRowKey,
+	stringifySequenceSubscriptionKey,
+} from './stringify-sequence-subscription-key';

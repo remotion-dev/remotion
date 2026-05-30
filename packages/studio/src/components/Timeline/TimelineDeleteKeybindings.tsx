@@ -3,7 +3,7 @@ import {useContext, useEffect} from 'react';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {useKeybinding} from '../../helpers/use-keybinding';
-import {deleteSelectedTimelineItem} from './delete-selected-timeline-item';
+import {deleteSelectedTimelineItems} from './delete-selected-timeline-item';
 import {useTimelineSelection} from './TimelineSelection';
 
 export const TimelineDeleteKeybindings: React.FC = () => {
@@ -31,24 +31,20 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 			event: 'keydown',
 			key: 'Backspace',
 			callback: () => {
-				const deletePromises = currentSelection
-					.map((selection) =>
-						deleteSelectedTimelineItem({
-							selection,
-							sequences,
-							overrideIdsToNodePaths: overrideIdToNodePathMappings,
-							setCodeValues,
-							clientId,
-						}),
-					)
-					.filter((promise): promise is Promise<void> => promise !== null);
+				const deletePromise = deleteSelectedTimelineItems({
+					selections: currentSelection,
+					sequences,
+					overrideIdsToNodePaths: overrideIdToNodePathMappings,
+					setCodeValues,
+					clientId,
+				});
 
-				if (deletePromises.length === 0) {
+				if (deletePromise === null) {
 					return;
 				}
 
 				clearSelection();
-				Promise.all(deletePromises).catch(() => undefined);
+				deletePromise.catch(() => undefined);
 			},
 			commandCtrlKey: false,
 			preventDefault: true,

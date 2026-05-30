@@ -10,16 +10,16 @@ import type {
 	X264Preset,
 } from '@remotion/renderer';
 import type {HardwareAccelerationOption} from '@remotion/renderer/client';
-import type {CannotUpdateSequenceReason} from 'remotion';
 import type {
 	_InternalTypes,
+	CannotUpdateSequenceReason,
 	CanUpdateEffectPropsResponse,
 	CanUpdateSequencePropsResponseFalse,
 	CanUpdateSequencePropsResponseTrue,
 	CanUpdateSequencePropStatus,
-	SequenceSchema,
 	SequenceNodePath,
 	SequencePropsSubscriptionKey,
+	SequenceSchema,
 } from 'remotion';
 import type {RecastCodemod, VisualControlChange} from './codemods';
 import type {PackageManager} from './package-manager';
@@ -320,9 +320,13 @@ export type DeleteEffectResponse =
 			stack: string;
 	  };
 
-export type DeleteJsxNodeRequest = {
+export type DeleteJsxNodeRequestItem = {
 	fileName: string;
 	nodePath: SequenceNodePath;
+};
+
+export type DeleteJsxNodeRequest = {
+	nodes: DeleteJsxNodeRequestItem[];
 };
 
 export type DeleteJsxNodeResponse =
