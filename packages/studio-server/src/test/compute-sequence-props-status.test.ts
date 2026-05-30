@@ -283,6 +283,71 @@ export const Example: React.FC = () => {
 	});
 });
 
+test('computeSequencePropsStatus should parse posterize on interpolated props', () => {
+	const input = `import React from 'react';
+import {Sequence, interpolate, useCurrentFrame} from 'remotion';
+
+export const Example: React.FC = () => {
+\tconst frame = useCurrentFrame();
+\treturn (
+\t\t<Sequence style={{scale: interpolate(frame, [0, 100], [1, 3], {posterize: 3})}} />
+\t);
+};
+`;
+
+	const result = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 7),
+		keys: ['style.scale'],
+		effects: [],
+	});
+
+	expect(result.canUpdate).toBe(true);
+	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
+
+	expect(result.props['style.scale']).toEqual({
+		canUpdate: false,
+		reason: 'keyframed',
+		interpolationFunction: 'interpolate',
+		keyframes: [
+			{frame: 0, value: 1},
+			{frame: 100, value: 3},
+		],
+		easing: ['linear'],
+		clamping: {left: 'extend', right: 'extend'},
+		posterize: 3,
+	});
+});
+
+test('computeSequencePropsStatus should bail on computed posterize expressions', () => {
+	const input = `import React from 'react';
+import {Sequence, interpolate, useCurrentFrame} from 'remotion';
+
+export const Example: React.FC = () => {
+\tconst frame = useCurrentFrame();
+\tconst posterize = 3;
+\treturn (
+\t\t<Sequence style={{scale: interpolate(frame, [0, 100], [1, 3], {posterize})}} />
+\t);
+};
+`;
+
+	const result = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 8),
+		keys: ['style.scale'],
+		effects: [],
+	});
+
+	expect(result.canUpdate).toBe(true);
+	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
+
+	expect(result.props['style.scale']).toEqual({
+		canUpdate: false,
+		reason: 'computed',
+	});
+});
+
 test('computeSequencePropsStatus should bail on unsupported easing expressions', () => {
 	const input = `import React from 'react';
 import {Easing, Sequence, interpolate, useCurrentFrame} from 'remotion';

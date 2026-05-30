@@ -192,6 +192,24 @@ interpolate(frame, [0, 100, 200], [0, 1, 2], {
 });
 ```
 
+### posterize?<AvailableFrom v="4.0.470" />
+
+_Default_: no posterization
+
+Quantizes the input value before interpolation. Use it to sample an animation every `n` frames instead of updating on every frame.
+
+```ts twoslash title="MyComposition.tsx"
+import {interpolate, useCurrentFrame} from 'remotion';
+
+const frame = useCurrentFrame();
+const opacity = interpolate(frame, [0, 60], [0, 1], {
+  posterize: 3,
+});
+```
+
+With `posterize: 3`, frames `0`, `1`, and `2` use the value for frame `0`; frames `3`, `4`, and `5` use the value for frame `3`, and so on.
+`posterize` must be a positive finite number.
+
 ## Types
 
 Since `v3.3.77`, types for the options are exported from Remotion.
@@ -200,7 +218,10 @@ Since `v3.3.77`, types for the options are exported from Remotion.
 import {ExtrapolateType, InterpolateOptions} from 'remotion';
 
 const extrapolate: ExtrapolateType = 'clamp';
-const option: InterpolateOptions = {extrapolateLeft: extrapolate};
+const option: InterpolateOptions = {
+  extrapolateLeft: extrapolate,
+  posterize: 3,
+};
 ```
 
 ## Compatibility

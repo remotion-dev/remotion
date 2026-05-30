@@ -37,6 +37,25 @@ test('clamps when extrapolation is clamp', () => {
 	expect(result).toBe(100);
 });
 
+test('posterizes the frame before interpolating numeric keyframes', () => {
+	const result = interpolateKeyframedStatus({
+		frame: 17,
+		status: {
+			canUpdate: false,
+			reason: 'keyframed',
+			interpolationFunction: 'interpolate',
+			keyframes: [
+				{frame: 0, value: 0},
+				{frame: 60, value: 100},
+			],
+			easing: ['linear'],
+			clamping: {left: 'extend', right: 'extend'},
+			posterize: 3,
+		},
+	});
+	expect(result).toBe(25);
+});
+
 test('returns single keyframe value', () => {
 	const result = interpolateKeyframedStatus({
 		frame: 100,

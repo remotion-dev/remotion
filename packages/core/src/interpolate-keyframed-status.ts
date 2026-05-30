@@ -28,6 +28,10 @@ export const interpolateKeyframedStatus = ({
 		return null;
 	}
 
+	const posterizedFrame =
+		status.posterize === undefined
+			? frame
+			: Math.floor(frame / status.posterize) * status.posterize;
 	const inputRange = keyframes.map((k) => k.frame);
 	const outputs = keyframes.map((k) => k.value);
 
@@ -41,7 +45,11 @@ export const interpolateKeyframedStatus = ({
 		}
 
 		try {
-			return interpolateColors(frame, inputRange, outputs as string[]);
+			return interpolateColors(
+				posterizedFrame,
+				inputRange,
+				outputs as string[],
+			);
 		} catch {
 			return null;
 		}
@@ -60,7 +68,7 @@ export const interpolateKeyframedStatus = ({
 	}
 
 	try {
-		return interpolate(frame, inputRange, outputs as number[], {
+		return interpolate(posterizedFrame, inputRange, outputs as number[], {
 			easing: easing.map(easingToFn),
 			extrapolateLeft: clamping.left,
 			extrapolateRight: clamping.right,

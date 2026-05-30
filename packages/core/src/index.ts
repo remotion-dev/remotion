@@ -192,6 +192,7 @@ export {LogLevel} from './log.js';
 export {Loop} from './loop/index.js';
 export {
 	assertValidInterpolateEasingOption,
+	assertValidInterpolatePosterizeOption,
 	EasingFunction,
 	ExtrapolateType,
 	interpolate,

@@ -32,6 +32,7 @@ type KeyframedPropStatus = Extract<ComputedPropStatus, {reason: 'keyframed'}>;
 type PropKeyframes = KeyframedPropStatus['keyframes'];
 type PropEasing = KeyframedPropStatus['easing'];
 type PropClamping = KeyframedPropStatus['clamping'];
+type PropPosterize = KeyframedPropStatus['posterize'];
 type PropInterpolationFunction = KeyframedPropStatus['interpolationFunction'];
 
 export const isStaticValue = (node: Expression): boolean => {
@@ -267,7 +268,11 @@ const getInterpolationMetadata = (
 	interpolationFunction: PropInterpolationFunction,
 	callExpression: CallExpression,
 	keyframeCount: number,
-): {easing: PropEasing; clamping: PropClamping} | null => {
+): {
+	easing: PropEasing;
+	clamping: PropClamping;
+	posterize?: PropPosterize;
+} | null => {
 	const segments = Math.max(0, keyframeCount - 1);
 	const defaultClamping: PropClamping =
 		interpolationFunction === 'interpolateColors'
@@ -299,6 +304,7 @@ const getInterpolationMetadata = (
 
 	let {easing} = defaults;
 	let {clamping}: {clamping: PropClamping} = defaults;
+	let posterize: PropPosterize;
 
 	for (const property of optionsArg.properties) {
 		if (property.type !== 'ObjectProperty' || property.computed) {
@@ -342,9 +348,26 @@ const getInterpolationMetadata = (
 					? {...clamping, left: extrapolateType}
 					: {...clamping, right: extrapolateType};
 		}
+
+		if (key === 'posterize') {
+			const parsedPosterize = getNumericValue(value);
+			if (
+				parsedPosterize === null ||
+				!Number.isFinite(parsedPosterize) ||
+				parsedPosterize <= 0
+			) {
+				return null;
+			}
+
+			posterize = parsedPosterize;
+		}
 	}
 
-	return {easing, clamping};
+	return {
+		easing,
+		clamping,
+		...(posterize === undefined ? {} : {posterize}),
+	};
 };
 
 const getInterpolationKeyframes = (
@@ -354,6 +377,7 @@ const getInterpolationKeyframes = (
 			keyframes: PropKeyframes;
 			easing: PropEasing;
 			clamping: PropClamping;
+			posterize?: PropPosterize;
 			interpolationFunction: PropInterpolationFunction;
 	  }
 	| undefined => {
@@ -433,6 +457,9 @@ const getInterpolationKeyframes = (
 		keyframes,
 		easing: metadata.easing,
 		clamping: metadata.clamping,
+		...(metadata.posterize === undefined
+			? {}
+			: {posterize: metadata.posterize}),
 	};
 };
 
@@ -449,6 +476,9 @@ export const getComputedStatus = (node: Expression): CanUpdatePropStatus => {
 		keyframes: interpolation.keyframes,
 		easing: interpolation.easing,
 		clamping: interpolation.clamping,
+		...(interpolation.posterize === undefined
+			? {}
+			: {posterize: interpolation.posterize}),
 	};
 };
 
