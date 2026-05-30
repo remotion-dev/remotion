@@ -26,16 +26,16 @@ const makeNodePathInfo = (
 	numberOfSequencesWithThisNodePath: 1,
 });
 
-test('Timeline selection should be enabled', () => {
-	expect(SELECTION_ENABLED).toBe(true);
+test('Timeline selection should stay disabled until released publicly', () => {
+	expect(SELECTION_ENABLED).toBe(false);
 });
 
 test('Timeline top drag should not be enabled', () => {
 	expect(TIMELINE_TOP_DRAG).toBe(false);
 });
 
-test('Timeline outlines should be enabled', () => {
-	expect(ENABLE_OUTLINES).toBe(true);
+test('Timeline outlines should not be enabled', () => {
+	expect(ENABLE_OUTLINES).toBe(false);
 });
 
 test('Cmd+A selection only targets selectable timeline sequences', () => {
