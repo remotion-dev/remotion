@@ -5,6 +5,7 @@ import React, {
 	useContext,
 	useEffect,
 	useMemo,
+	useRef,
 	useState,
 	type CSSProperties,
 } from 'react';
@@ -83,7 +84,7 @@ type TimelineSelectionContextValue = {
 	readonly clearSelection: () => void;
 };
 
-const TimelineSelectionContext = createContext<TimelineSelectionContextValue>({
+const defaultTimelineSelectionContextValue: TimelineSelectionContextValue = {
 	canSelect: false,
 	selectedItems: [],
 	isSelected: () => false,
@@ -91,7 +92,14 @@ const TimelineSelectionContext = createContext<TimelineSelectionContextValue>({
 	selectItems: () => undefined,
 	containsSelection: () => false,
 	clearSelection: () => undefined,
-});
+};
+
+const TimelineSelectionContext = createContext<TimelineSelectionContextValue>(
+	defaultTimelineSelectionContextValue,
+);
+
+const CurrentTimelineSelectionContext =
+	createContext<React.RefObject<TimelineSelectionContextValue> | null>(null);
 
 const getTimelineSelectionKey = (item: TimelineSelection): string => {
 	const rowKey = timelineNodePathInfoToKey(item.nodePathInfo);
@@ -150,15 +158,18 @@ export const TimelineSelectAllKeybindings: React.FC<{
 	readonly timeline: readonly TrackWithHash[];
 }> = ({timeline}) => {
 	const keybindings = useKeybinding();
-	const {canSelect, selectItems} = useTimelineSelection();
+	const {canSelect} = useTimelineSelection();
+	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 
 	const selectableSequenceSelections = useMemo(
 		() => getSelectableTimelineSequenceSelections(timeline),
 		[timeline],
 	);
+	const selectableSequenceSelectionsRef = useRef(selectableSequenceSelections);
+	selectableSequenceSelectionsRef.current = selectableSequenceSelections;
 
 	useEffect(() => {
-		if (!canSelect || selectableSequenceSelections.length === 0) {
+		if (!canSelect) {
 			return;
 		}
 
@@ -166,7 +177,15 @@ export const TimelineSelectAllKeybindings: React.FC<{
 			event: 'keydown',
 			key: 'a',
 			callback: () => {
-				selectItems(selectableSequenceSelections);
+				const latestSelectableSequenceSelections =
+					selectableSequenceSelectionsRef.current;
+				if (latestSelectableSequenceSelections.length === 0) {
+					return;
+				}
+
+				currentSelection.current.selectItems(
+					latestSelectableSequenceSelections,
+				);
 			},
 			commandCtrlKey: true,
 			preventDefault: true,
@@ -177,7 +196,7 @@ export const TimelineSelectAllKeybindings: React.FC<{
 		return () => {
 			selectAll.unregister();
 		};
-	}, [canSelect, keybindings, selectableSequenceSelections, selectItems]);
+	}, [canSelect, currentSelection, keybindings]);
 
 	return null;
 };
@@ -267,17 +286,32 @@ export const TimelineSelectionProvider: React.FC<{
 			clearSelection,
 		],
 	);
+	const currentSelection = useRef(value);
+	currentSelection.current = value;
 
 	return (
-		<TimelineSelectionContext.Provider value={value}>
-			{children}
-			<TimelineDeleteKeybindings />
-		</TimelineSelectionContext.Provider>
+		<CurrentTimelineSelectionContext.Provider value={currentSelection}>
+			<TimelineSelectionContext.Provider value={value}>
+				{children}
+				<TimelineDeleteKeybindings />
+			</TimelineSelectionContext.Provider>
+		</CurrentTimelineSelectionContext.Provider>
 	);
 };
 
 export const useTimelineSelection = () => {
 	return useContext(TimelineSelectionContext);
+};
+
+export const useCurrentTimelineSelectionStateAsRef = () => {
+	const currentSelection = useContext(CurrentTimelineSelectionContext);
+	if (currentSelection === null) {
+		throw new Error(
+			'useCurrentTimelineSelectionStateAsRef must be used inside TimelineSelectionProvider',
+		);
+	}
+
+	return currentSelection;
 };
 
 export const useTimelineRowSelection = (
