@@ -231,7 +231,7 @@ Follow existing effect pages:
 
 Update:
 
-- `packages/docs/sidebars.ts` — add `'effects/<effect-name>'`.
+- `packages/docs/sidebars.ts` — add `'effects/<effect-name>'` in alphabetical order.
 - `packages/docs/docs/effects/table-of-contents.tsx` — add a card in the right category.
 - `packages/docs/src/data/articles.ts` by running the card generator, not by hand.
 
