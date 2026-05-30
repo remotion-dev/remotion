@@ -4,7 +4,10 @@ import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {deleteSelectedTimelineItems} from './delete-selected-timeline-item';
-import {useTimelineSelection} from './TimelineSelection';
+import {
+	useCurrentTimelineSelectionStateAsRef,
+	useTimelineSelection,
+} from './TimelineSelection';
 
 export const TimelineDeleteKeybindings: React.FC = () => {
 	const keybindings = useKeybinding();
@@ -14,25 +17,26 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 		Internals.OverrideIdsToNodePathsGettersContext,
 	);
 	const {setCodeValues} = useContext(Internals.VisualModeSettersContext);
-	const {canSelect, selectedItems, clearSelection} = useTimelineSelection();
+	const {canSelect} = useTimelineSelection();
+	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 
 	useEffect(() => {
-		if (
-			!canSelect ||
-			previewServerState.type !== 'connected' ||
-			selectedItems.length === 0
-		) {
+		if (!canSelect || previewServerState.type !== 'connected') {
 			return;
 		}
 
 		const {clientId} = previewServerState;
-		const currentSelection = selectedItems;
 		const backspace = keybindings.registerKeybinding({
 			event: 'keydown',
 			key: 'Backspace',
 			callback: () => {
+				const {selectedItems, clearSelection} = currentSelection.current;
+				if (selectedItems.length === 0) {
+					return;
+				}
+
 				const deletePromise = deleteSelectedTimelineItems({
-					selections: currentSelection,
+					selections: selectedItems,
 					sequences,
 					overrideIdsToNodePaths: overrideIdToNodePathMappings,
 					setCodeValues,
@@ -57,11 +61,10 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 		};
 	}, [
 		canSelect,
-		clearSelection,
+		currentSelection,
 		keybindings,
 		overrideIdToNodePathMappings,
 		previewServerState,
-		selectedItems,
 		sequences,
 		setCodeValues,
 	]);
