@@ -41,6 +41,7 @@ export const UpdateTime: React.FC<{
 			logLevel={logLevel}
 			numberOfAudioTags={0}
 			audioLatencyHint="interactive"
+			previewSampleRate={null}
 			frameState={{
 				[compId]: frame,
 			}}

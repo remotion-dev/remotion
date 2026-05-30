@@ -34,6 +34,7 @@ const {
 	noOpenOption,
 	portOption,
 	browserOption,
+	previewSampleRateOption,
 } = BrowserSafeApis.options;
 
 export const studioCommand = async (
@@ -183,6 +184,9 @@ export const studioCommand = async (
 		binariesDirectory,
 		forceIPv4: ipv4Option.getValue({commandLine: parsedCli}).value,
 		audioLatencyHint: audioLatencyHintOption.getValue({
+			commandLine: parsedCli,
+		}).value,
+		previewSampleRate: previewSampleRateOption.getValue({
 			commandLine: parsedCli,
 		}).value,
 		enableCrossSiteIsolation,
