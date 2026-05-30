@@ -33,6 +33,7 @@ const effectEntrypoints = [
 	'src/translate.ts',
 	'src/vignette.ts',
 	'src/wave.ts',
+	'src/white-noise.ts',
 ];
 
 console.time('Generated.');

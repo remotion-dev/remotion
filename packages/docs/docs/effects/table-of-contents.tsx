@@ -208,6 +208,13 @@ const categories: {
 				description: 'Procedural grain effect',
 			},
 			{
+				link: '/docs/effects/white-noise',
+				preview: '/img/effects-white-noise-preview.png',
+				alt: 'white noise effect preview',
+				name: 'whiteNoise()',
+				description: 'Random grayscale noise layer',
+			},
+			{
 				link: '/docs/effects/scanlines',
 				preview: '/img/effects-scanlines-preview.png',
 				alt: 'scanlines effect preview',
