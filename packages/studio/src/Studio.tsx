@@ -31,6 +31,7 @@ const StudioInner: React.FC<{
 				logLevel={window.remotion_logLevel ?? 'info'}
 				numberOfAudioTags={window.remotion_numberOfAudioTags}
 				audioLatencyHint={window.remotion_audioLatencyHint ?? 'playback'}
+				previewSampleRate={window.remotion_previewSampleRate}
 			>
 				<StaticFilesProvider>
 					<ResolveCompositionConfigInStudio>

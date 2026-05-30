@@ -164,6 +164,11 @@
 			"module": "./dist/esm/wave.mjs",
 			"import": "./dist/esm/wave.mjs"
 		},
+		"./white-noise": {
+			"types": "./dist/white-noise.d.ts",
+			"module": "./dist/esm/white-noise.mjs",
+			"import": "./dist/esm/white-noise.mjs"
+		},
 		"./package.json": "./package.json"
 	},
 	"typesVersions": {
@@ -245,6 +250,9 @@
 			],
 			"wave": [
 				"dist/wave.d.ts"
+			],
+			"white-noise": [
+				"dist/white-noise.d.ts"
 			]
 		}
 	},

@@ -419,6 +419,7 @@ export const internalBundle = async (
 		logLevel: 'info',
 		mode: 'bundle',
 		audioLatencyHint: actualArgs.audioLatencyHint ?? 'playback',
+		sampleRate: actualArgs.renderDefaults?.sampleRate ?? 48000,
 	});
 
 	fs.writeFileSync(path.join(outDir, 'index.html'), html);

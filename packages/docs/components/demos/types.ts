@@ -30,6 +30,7 @@ import {
 } from '../effects/effects-translate-preview';
 import {EffectsVignettePreview} from '../effects/effects-vignette-preview';
 import {EffectsWavePreview} from '../effects/effects-wave-preview';
+import {EffectsWhiteNoisePreview} from '../effects/effects-white-noise-preview';
 import {
 	ClockWipeDemo,
 	CubeDemo,
@@ -2055,6 +2056,38 @@ export const effectsNoiseDemo: DemoType = {
 			name: 'premultiply',
 			type: 'boolean',
 			default: false,
+			optional: 'no',
+		},
+	],
+};
+
+export const effectsWhiteNoiseDemo: DemoType = {
+	comp: EffectsWhiteNoisePreview,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 1,
+	fps: 30,
+	id: 'effects-white-noise',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			name: 'amount',
+			type: 'numeric',
+			min: 0,
+			max: 1,
+			step: 0.01,
+			default: 1,
+			optional: 'no',
+		},
+		{
+			name: 'seed',
+			type: 'numeric',
+			min: 0,
+			max: 100,
+			step: 1,
+			default: 0,
 			optional: 'no',
 		},
 	],

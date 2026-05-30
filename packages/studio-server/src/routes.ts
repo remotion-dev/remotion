@@ -87,6 +87,7 @@ const handleFallback = async ({
 	getRenderDefaults,
 	numberOfAudioTags,
 	audioLatencyHint,
+	previewSampleRate,
 	gitSource,
 	logLevel,
 	enableCrossSiteIsolation,
@@ -102,6 +103,7 @@ const handleFallback = async ({
 	getRenderDefaults: () => RenderDefaults;
 	numberOfAudioTags: number;
 	audioLatencyHint: AudioContextLatencyCategory | null;
+	previewSampleRate: number | null;
 	gitSource: GitSource | null;
 	logLevel: LogLevel;
 	enableCrossSiteIsolation: boolean;
@@ -183,6 +185,7 @@ const handleFallback = async ({
 			logLevel,
 			mode: 'dev',
 			audioLatencyHint: audioLatencyHint ?? 'playback',
+			sampleRate: previewSampleRate,
 		}),
 	);
 };
@@ -524,6 +527,7 @@ export const handleRoutes = ({
 	gitSource,
 	binariesDirectory,
 	audioLatencyHint,
+	previewSampleRate,
 	enableCrossSiteIsolation,
 }: {
 	staticHash: string;
@@ -546,6 +550,7 @@ export const handleRoutes = ({
 	gitSource: GitSource | null;
 	binariesDirectory: string | null;
 	audioLatencyHint: AudioContextLatencyCategory | null;
+	previewSampleRate: number | null;
 	enableCrossSiteIsolation: boolean;
 }): Promise<void> => {
 	const url = new URL(request.url as string, 'http://localhost');
@@ -689,6 +694,7 @@ export const handleRoutes = ({
 		gitSource,
 		logLevel,
 		audioLatencyHint,
+		previewSampleRate,
 		enableCrossSiteIsolation,
 	});
 };

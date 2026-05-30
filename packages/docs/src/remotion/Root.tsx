@@ -33,6 +33,7 @@ import {
 } from '../../components/effects/effects-translate-preview';
 import {EffectsVignettePreview} from '../../components/effects/effects-vignette-preview';
 import {EffectsWavePreview} from '../../components/effects/effects-wave-preview';
+import {EffectsWhiteNoisePreview} from '../../components/effects/effects-white-noise-preview';
 import {articles} from '../data/articles';
 import {AllTemplates} from './AllTemplates';
 import {Article} from './Article';
@@ -301,6 +302,16 @@ export const RemotionRoot: React.FC = () => {
 						amount: 0.25,
 						seed: 0,
 						premultiply: false,
+					}}
+				/>
+				<Still
+					id="effects-white-noise-preview"
+					component={EffectsWhiteNoisePreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						amount: 1,
+						seed: 0,
 					}}
 				/>
 				<Still

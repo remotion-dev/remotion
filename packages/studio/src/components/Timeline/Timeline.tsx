@@ -1,4 +1,4 @@
-import React, {useContext, useMemo} from 'react';
+import React, {useCallback, useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {calculateTimeline} from '../../helpers/calculate-timeline';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
@@ -22,7 +22,10 @@ import {TimelineList} from './TimelineList';
 import {TimelinePinchZoom} from './TimelinePinchZoom';
 import {TimelinePlayCursorSyncer} from './TimelinePlayCursorSyncer';
 import {TimelineScrollable} from './TimelineScrollable';
-import {TimelineSelectAllKeybindings} from './TimelineSelection';
+import {
+	TimelineSelectAllKeybindings,
+	useTimelineSelection,
+} from './TimelineSelection';
 import {TimelineSlider} from './TimelineSlider';
 import {
 	TimelineTimeIndicators,
@@ -41,6 +44,37 @@ const container: React.CSSProperties = {
 };
 
 const noop = () => undefined;
+
+const TimelineClearSelectionArea: React.FC<{
+	readonly children: React.ReactNode;
+}> = ({children}) => {
+	const {clearSelection} = useTimelineSelection();
+
+	// Selection-triggering click handlers in children call e.stopPropagation(),
+	// so any pointerdown that bubbles up here is by definition on empty space
+	// and should clear the current selection.
+	const onPointerDown = useCallback(
+		(e: React.PointerEvent<HTMLDivElement>) => {
+			if (e.button !== 0) {
+				return;
+			}
+
+			clearSelection();
+		},
+		[clearSelection],
+	);
+
+	return (
+		<div
+			ref={timelineVerticalScroll}
+			style={container}
+			className={'css-reset ' + VERTICAL_SCROLLBAR_CLASSNAME}
+			onPointerDown={onPointerDown}
+		>
+			{children}
+		</div>
+	);
+};
 
 const TimelineInner: React.FC = () => {
 	const {sequences} = useContext(Internals.SequenceManager);
@@ -84,11 +118,7 @@ const TimelineInner: React.FC = () => {
 	const hasBeenCut = filtered.length > shown.length;
 
 	return (
-		<div
-			ref={timelineVerticalScroll}
-			style={container}
-			className={'css-reset ' + VERTICAL_SCROLLBAR_CLASSNAME}
-		>
+		<TimelineClearSelectionArea>
 			{sequences.map((sequence) => {
 				if (!sequence.controls || !previewConnected || !sequence.getStack()) {
 					return null;
@@ -141,7 +171,7 @@ const TimelineInner: React.FC = () => {
 					</TimelineWidthProvider>
 				)}
 			</TimelineHeightContainer>
-		</div>
+		</TimelineClearSelectionArea>
 	);
 };
 
