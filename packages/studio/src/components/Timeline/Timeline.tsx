@@ -89,7 +89,7 @@ const TimelineInner: React.FC = () => {
 			style={container}
 			className={'css-reset ' + VERTICAL_SCROLLBAR_CLASSNAME}
 		>
-			<TimelineSelectionProvider>
+			<TimelineSelectionProvider timeline={shown}>
 				{sequences.map((sequence) => {
 					if (!sequence.controls || !previewConnected || !sequence.getStack()) {
 						return null;

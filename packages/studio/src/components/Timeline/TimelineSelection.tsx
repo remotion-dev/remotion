@@ -9,9 +9,13 @@ import React, {
 	type CSSProperties,
 } from 'react';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
-import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
+import type {
+	SequenceNodePathInfo,
+	TrackWithHash,
+} from '../../helpers/get-timeline-sequence-sort-key';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {timelineNodePathInfoToKey} from '../../helpers/timeline-node-path-key';
+import {useKeybinding} from '../../helpers/use-keybinding';
 import {TimelineDeleteKeybindings} from './TimelineDeleteKeybindings';
 
 export const TIMELINE_SELECTED_BACKGROUND = '#3B3F42';
@@ -73,6 +77,7 @@ type TimelineSelectionContextValue = {
 	readonly selectedItems: readonly TimelineSelection[];
 	readonly isSelected: (item: TimelineSelection) => boolean;
 	readonly selectItem: (item: TimelineSelection) => void;
+	readonly selectItems: (items: readonly TimelineSelection[]) => void;
 	readonly containsSelection: (nodePathInfo: SequenceNodePathInfo) => boolean;
 	readonly clearSelection: () => void;
 };
@@ -82,6 +87,7 @@ const TimelineSelectionContext = createContext<TimelineSelectionContextValue>({
 	selectedItems: [],
 	isSelected: () => false,
 	selectItem: () => undefined,
+	selectItems: () => undefined,
 	containsSelection: () => false,
 	clearSelection: () => undefined,
 });
@@ -120,9 +126,61 @@ const nodePathDescendsFrom = (
 	);
 };
 
+export const getSelectableTimelineSequenceSelections = (
+	tracks: readonly Pick<TrackWithHash, 'nodePathInfo'>[],
+): TimelineSelection[] => {
+	return tracks.flatMap((track): TimelineSelection[] => {
+		if (
+			track.nodePathInfo === null ||
+			track.nodePathInfo.auxiliaryKeys.length > 0
+		) {
+			return [];
+		}
+
+		return [{type: 'row', nodePathInfo: track.nodePathInfo}];
+	});
+};
+
+const TimelineSelectAllKeybindings: React.FC<{
+	readonly timeline: readonly TrackWithHash[];
+}> = ({timeline}) => {
+	const keybindings = useKeybinding();
+	const {canSelect, selectItems} = useTimelineSelection();
+
+	const selectableSequenceSelections = useMemo(
+		() => getSelectableTimelineSequenceSelections(timeline),
+		[timeline],
+	);
+
+	useEffect(() => {
+		if (!canSelect || selectableSequenceSelections.length === 0) {
+			return;
+		}
+
+		const selectAll = keybindings.registerKeybinding({
+			event: 'keydown',
+			key: 'a',
+			callback: () => {
+				selectItems(selectableSequenceSelections);
+			},
+			commandCtrlKey: true,
+			preventDefault: true,
+			triggerIfInputFieldFocused: false,
+			keepRegisteredWhenNotHighestContext: false,
+		});
+
+		return () => {
+			selectAll.unregister();
+		};
+	}, [canSelect, keybindings, selectableSequenceSelections, selectItems]);
+
+	return null;
+};
+
 export const TimelineSelectionProvider: React.FC<{
 	readonly children: React.ReactNode;
-}> = ({children}) => {
+	readonly timeline: readonly TrackWithHash[];
+}> = ({children, timeline}) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const canSelect =
 		SELECTION_ENABLED &&
@@ -161,6 +219,17 @@ export const TimelineSelectionProvider: React.FC<{
 		[canSelect],
 	);
 
+	const selectItems = useCallback(
+		(items: readonly TimelineSelection[]) => {
+			if (!canSelect) {
+				return;
+			}
+
+			setSelectedItems(items);
+		},
+		[canSelect],
+	);
+
 	const clearSelection = useCallback(() => {
 		setSelectedItems([]);
 	}, []);
@@ -180,6 +249,7 @@ export const TimelineSelectionProvider: React.FC<{
 			selectedItems,
 			isSelected,
 			selectItem,
+			selectItems,
 			containsSelection,
 			clearSelection,
 		}),
@@ -188,6 +258,7 @@ export const TimelineSelectionProvider: React.FC<{
 			selectedItems,
 			isSelected,
 			selectItem,
+			selectItems,
 			containsSelection,
 			clearSelection,
 		],
@@ -196,6 +267,7 @@ export const TimelineSelectionProvider: React.FC<{
 	return (
 		<TimelineSelectionContext.Provider value={value}>
 			{children}
+			<TimelineSelectAllKeybindings timeline={timeline} />
 			<TimelineDeleteKeybindings />
 		</TimelineSelectionContext.Provider>
 	);
