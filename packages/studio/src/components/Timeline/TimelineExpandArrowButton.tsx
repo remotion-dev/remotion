@@ -53,5 +53,5 @@ export const TimelineExpandArrowButton: React.FC<{
 };
 
 export const TimelineExpandArrowSpacer: React.FC = () => {
-	return <div style={arrowButton} />;
+	return <div style={{...arrowButton, cursor: 'default'}} />;
 };
