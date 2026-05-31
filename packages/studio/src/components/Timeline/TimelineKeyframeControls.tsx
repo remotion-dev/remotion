@@ -343,7 +343,7 @@ export const TimelineKeyframeControls: React.FC<{
 				aria-label="Go to previous keyframe"
 				title="Previous keyframe"
 			>
-				<svg width="10" height="10" viewBox="0 0 10 10" style={svgStyle}>
+				<svg width="14" height="14" viewBox="0 0 10 10" style={svgStyle}>
 					<path d="M7 1.5L3 5L7 8.5Z" fill="#ccc" />
 				</svg>
 			</button>
@@ -369,7 +369,7 @@ export const TimelineKeyframeControls: React.FC<{
 				aria-label="Go to next keyframe"
 				title="Next keyframe"
 			>
-				<svg width="10" height="10" viewBox="0 0 10 10" style={svgStyle}>
+				<svg width="14" height="14" viewBox="0 0 10 10" style={svgStyle}>
 					<path d="M3 1.5L7 5L3 8.5Z" fill="#ccc" />
 				</svg>
 			</button>
