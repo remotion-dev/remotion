@@ -1,5 +1,10 @@
 import {expect, test} from 'bun:test';
 import type {SequenceNodePath, SequencePropsSubscriptionKey} from 'remotion';
+import {
+	getSelectedEffectFieldsBySequenceKey,
+	getUvCoordinateForPoint,
+	getUvHandlePosition,
+} from '../components/SelectedOutlineOverlay';
 import {deleteSelectedTimelineItems} from '../components/Timeline/delete-selected-timeline-item';
 import {isDuplicatableSequenceRowSelection} from '../components/Timeline/duplicate-selected-timeline-item';
 import {
@@ -41,6 +46,87 @@ test('Timeline top drag should not be enabled', () => {
 
 test('Timeline outlines should not be enabled', () => {
 	expect(ENABLE_OUTLINES).toBe(false);
+});
+
+test('UV handles project semantic outline corners', () => {
+	const points = [
+		{x: 200, y: 200},
+		{x: 100, y: 200},
+		{x: 100, y: 100},
+		{x: 200, y: 100},
+	] as const;
+
+	expect(getUvHandlePosition(points, [0, 0])).toEqual({x: 200, y: 200});
+	expect(getUvHandlePosition(points, [1, 1])).toEqual({x: 100, y: 100});
+	expect(getUvHandlePosition(points, [0.5, 0.5])).toEqual({x: 150, y: 150});
+});
+
+test('UV handles use projective projection for perspective quads', () => {
+	const points = [
+		{x: 0, y: 0},
+		{x: 100, y: 0},
+		{x: 150, y: 100},
+		{x: -50, y: 100},
+	] as const;
+
+	const projectedCenter = getUvHandlePosition(points, [0.5, 0.5]);
+
+	expect(projectedCenter.x).toBeCloseTo(50, 5);
+	expect(projectedCenter.y).toBeCloseTo(100 / 3, 5);
+});
+
+test('UV handle pointer position maps back to UV coordinates', () => {
+	const points = [
+		{x: 20, y: 10},
+		{x: 140, y: 30},
+		{x: 170, y: 120},
+		{x: 40, y: 100},
+	] as const;
+	const uv = [0.25, 0.75] as const;
+	const position = getUvHandlePosition(points, uv);
+	const result = getUvCoordinateForPoint(points, position);
+
+	expect(result[0]).toBeCloseTo(uv[0], 5);
+	expect(result[1]).toBeCloseTo(uv[1], 5);
+});
+
+test('UV handles are requested for selected effect children', () => {
+	const sequenceNodePathInfo = makeNodePathInfo(['body', 0], []);
+	const effectNodePathInfo = makeNodePathInfo(['body', 0], ['effects', '1']);
+	const effectPropNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['effects', '1', 'rays'],
+	);
+	const selectedEffects = getSelectedEffectFieldsBySequenceKey([
+		{
+			type: 'sequence-effect-prop',
+			nodePathInfo: effectPropNodePathInfo,
+			i: 1,
+			key: 'rays',
+		},
+	]);
+
+	expect(
+		selectedEffects
+			.get(getTimelineSequenceSelectionKey(sequenceNodePathInfo))
+			?.get(1),
+	).toEqual({
+		allFields: true,
+		fieldKeys: new Set(),
+	});
+
+	const selectedWholeEffects = getSelectedEffectFieldsBySequenceKey([
+		{type: 'sequence-effect', nodePathInfo: effectNodePathInfo, i: 1},
+	]);
+
+	expect(
+		selectedWholeEffects
+			.get(getTimelineSequenceSelectionKey(sequenceNodePathInfo))
+			?.get(1),
+	).toEqual({
+		allFields: true,
+		fieldKeys: new Set(),
+	});
 });
 
 test('Cmd+A selection only targets selectable timeline sequences', () => {
