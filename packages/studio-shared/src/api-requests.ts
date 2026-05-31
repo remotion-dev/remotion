@@ -24,12 +24,37 @@ import type {
 import type {RecastCodemod, VisualControlChange} from './codemods';
 import type {PackageManager} from './package-manager';
 import type {ProjectInfo} from './project-info';
-import type {RequiredChromiumOptions} from './render-job';
+import type {
+	CompletedClientRender,
+	RequiredChromiumOptions,
+} from './render-job';
 import type {SymbolicatedStackFrame} from './stack-types';
 import type {EnumPath} from './stringify-default-props';
 
 export type OpenInFileExplorerRequest = {
 	directory: string;
+};
+
+export type OpenInEditorRequest = {
+	stack: SymbolicatedStackFrame;
+};
+
+export type OpenInEditorResponse = {
+	success: boolean;
+};
+
+export type CompositionComponentInfoRequest = {
+	compositionFile: string;
+	compositionId: string;
+};
+
+export type CompositionComponentInfoResponse = {
+	location: {
+		source: string;
+		line: number;
+		column: number;
+	};
+	canAddSequence: boolean;
 };
 
 export type CopyStillToClipboardRequest = {
@@ -432,6 +457,10 @@ export type RedoResponse =
 	  };
 
 export type ApiRoutes = {
+	'/api/composition-component-info': ReqAndRes<
+		CompositionComponentInfoRequest,
+		CompositionComponentInfoResponse
+	>;
 	'/api/cancel': ReqAndRes<CancelRenderRequest, CancelRenderResponse>;
 	'/api/render': ReqAndRes<AddRenderRequest, undefined>;
 	'/api/unsubscribe-from-file-existence': ReqAndRes<
@@ -443,7 +472,10 @@ export type ApiRoutes = {
 		SubscribeToFileExistenceResponse
 	>;
 	'/api/remove-render': ReqAndRes<RemoveRenderRequest, undefined>;
+	'/api/open-in-editor': ReqAndRes<OpenInEditorRequest, OpenInEditorResponse>;
 	'/api/open-in-file-explorer': ReqAndRes<OpenInFileExplorerRequest, void>;
+	'/api/register-client-render': ReqAndRes<CompletedClientRender, void>;
+	'/api/unregister-client-render': ReqAndRes<{id: string}, void>;
 	'/api/update-default-props': ReqAndRes<
 		UpdateDefaultPropsRequest,
 		UpdateDefaultPropsResponse
