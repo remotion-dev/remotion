@@ -136,6 +136,35 @@ const isSequenceRowSelection = (
 	type: 'sequence';
 } => selection.type === 'sequence';
 
+const isSequenceEffectSelection = (
+	selection: TimelineSelection,
+): selection is TimelineSelection & {
+	type: 'sequence-effect';
+} => selection.type === 'sequence-effect';
+
+const isKeyframeSelection = (
+	selection: TimelineSelection,
+): selection is TimelineSelection & {
+	type: 'keyframe';
+} => selection.type === 'keyframe';
+
+const assertTimelineSelectionsHaveSameType = (
+	selections: readonly TimelineSelection[],
+): void => {
+	const firstSelection = selections[0];
+	if (!firstSelection) {
+		return;
+	}
+
+	for (const selection of selections) {
+		if (selection.type !== firstSelection.type) {
+			throw new Error(
+				`Assertion failed: Cannot delete timeline selections of different types (${firstSelection.type}, ${selection.type})`,
+			);
+		}
+	}
+};
+
 export const deleteSelectedTimelineItems = ({
 	selections,
 	sequences,
@@ -149,31 +178,57 @@ export const deleteSelectedTimelineItems = ({
 	setCodeValues: SetCodeValues;
 	clientId: string;
 }): Promise<void> | null => {
-	const sequenceSelections = selections.filter(isSequenceRowSelection);
-	const deletePromises = selections
-		.filter((selection) => !isSequenceRowSelection(selection))
-		.map((selection) =>
-			deleteSelectedTimelineItem({
-				selection,
-				sequences,
-				overrideIdsToNodePaths,
-				setCodeValues,
-				clientId,
-			}),
-		)
-		.filter((promise): promise is Promise<void> => promise !== null);
-
-	if (sequenceSelections.length > 0) {
-		deletePromises.push(
-			deleteSequences(
-				sequenceSelections.map((selection) => selection.nodePathInfo),
-			),
-		);
-	}
-
-	if (deletePromises.length === 0) {
+	const firstSelection = selections[0];
+	if (!firstSelection) {
 		return null;
 	}
 
-	return Promise.all(deletePromises).then(() => undefined);
+	assertTimelineSelectionsHaveSameType(selections);
+
+	switch (firstSelection.type) {
+		case 'sequence':
+			return deleteSequences(
+				selections
+					.filter(isSequenceRowSelection)
+					.map((selection) => selection.nodePathInfo),
+			);
+		case 'sequence-effect':
+			return Promise.all(
+				selections
+					.filter(isSequenceEffectSelection)
+					.map((selection) =>
+						deleteEffect(selection.nodePathInfo, selection.i),
+					),
+			).then(() => undefined);
+		case 'keyframe': {
+			const deletePromises = selections
+				.filter(isKeyframeSelection)
+				.map((selection) =>
+					deleteSelectedKeyframe({
+						nodePathInfo: selection.nodePathInfo,
+						frame: selection.frame,
+						sequences,
+						overrideIdsToNodePaths,
+						setCodeValues,
+						clientId,
+					}),
+				)
+				.filter((promise): promise is Promise<void> => promise !== null);
+
+			if (deletePromises.length === 0) {
+				return null;
+			}
+
+			return Promise.all(deletePromises).then(() => undefined);
+		}
+
+		case 'sequence-prop':
+		case 'sequence-all-effects':
+		case 'sequence-effect-prop':
+			return null;
+		default:
+			throw new Error(
+				`Unexpected timeline selection type: ${firstSelection satisfies never}`,
+			);
+	}
 };

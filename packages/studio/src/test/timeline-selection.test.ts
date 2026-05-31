@@ -1,5 +1,6 @@
 import {expect, test} from 'bun:test';
 import type {SequenceNodePath, SequencePropsSubscriptionKey} from 'remotion';
+import {deleteSelectedTimelineItems} from '../components/Timeline/delete-selected-timeline-item';
 import {isDuplicatableSequenceRowSelection} from '../components/Timeline/duplicate-selected-timeline-item';
 import {
 	ENABLE_OUTLINES,
@@ -84,6 +85,28 @@ test('Cmd+D only duplicates selected timeline sequence rows', () => {
 			nodePathInfo: sequenceNodePathInfo,
 		},
 	]);
+});
+
+test('Deleting mixed timeline selection types throws an assertion error', () => {
+	const sequenceNodePathInfo = makeNodePathInfo(['body', 0], []);
+	const effectNodePathInfo = makeNodePathInfo(['body', 1], ['effects', '0']);
+
+	expect(() =>
+		deleteSelectedTimelineItems({
+			selections: [
+				{type: 'sequence', nodePathInfo: sequenceNodePathInfo},
+				{
+					type: 'sequence-effect',
+					nodePathInfo: effectNodePathInfo,
+					i: 0,
+				},
+			],
+			sequences: [],
+			overrideIdsToNodePaths: {},
+			setCodeValues: () => undefined,
+			clientId: 'client',
+		}),
+	).toThrow(/Assertion failed/);
 });
 
 test('Child timeline selections resolve to the parent sequence selection key', () => {
