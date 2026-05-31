@@ -97,6 +97,7 @@ export const TimelineEffectItem: React.FC<{
 		try {
 			const result = await callApi('/api/delete-effect', [
 				{
+					type: 'single-effect',
 					fileName: validatedLocation.source,
 					sequenceNodePath: nodePath,
 					effectIndex,

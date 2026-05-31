@@ -54,10 +54,12 @@ test('deleteEffects removes multiple targeted effects in one pass', async () => 
 		input,
 		effects: [
 			{
+				type: 'single-effect',
 				sequenceNodePath: lineColumnToNodePath(input, 6),
 				effectIndex: 0,
 			},
 			{
+				type: 'single-effect',
 				sequenceNodePath: lineColumnToNodePath(input, 6),
 				effectIndex: 2,
 			},
@@ -79,8 +81,8 @@ test('deleteEffects removes all effects from the target sequence', async () => {
 		input,
 		effects: [
 			{
+				type: 'all-effects',
 				sequenceNodePath: lineColumnToNodePath(input, 6),
-				effectIndex: null,
 			},
 		],
 	});

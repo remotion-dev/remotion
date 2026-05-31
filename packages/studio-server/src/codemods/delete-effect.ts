@@ -29,8 +29,15 @@ const getEffectsArray = (attr: JSXAttribute): ArrayExpression => {
 
 export type EffectDeletionTarget = {
 	sequenceNodePath: SequenceNodePath;
-	effectIndex: number | null;
-};
+} & (
+	| {
+			type: 'single-effect';
+			effectIndex: number;
+	  }
+	| {
+			type: 'all-effects';
+	  }
+);
 
 type EffectsArrayDeletion = {
 	jsxAttributes: Array<JSXAttribute | JSXSpreadAttribute>;
@@ -84,7 +91,8 @@ export const deleteEffects = async ({
 	const ast = parseAst(input);
 	const deletionsByAttr = new Map<JSXAttribute, EffectsArrayDeletion>();
 
-	for (const {sequenceNodePath, effectIndex} of effects) {
+	for (const effect of effects) {
+		const {sequenceNodePath} = effect;
 		const jsx = findJsxElementAtNodePath(ast, sequenceNodePath);
 		if (!jsx) {
 			throw new Error(
@@ -113,7 +121,7 @@ export const deleteEffects = async ({
 
 		deletionsByAttr.set(attr, deletion);
 
-		if (effectIndex === null) {
+		if (effect.type === 'all-effects') {
 			const {effectLabels, logLines} = getAllEffectLabels(effectsArray, attr);
 			deletion.allEffects = true;
 			deletion.effectIndices.clear();
@@ -122,6 +130,7 @@ export const deleteEffects = async ({
 			continue;
 		}
 
+		const {effectIndex} = effect;
 		if (deletion.allEffects || deletion.effectIndices.has(effectIndex)) {
 			continue;
 		}
@@ -198,7 +207,7 @@ export const deleteEffect = async ({
 }> => {
 	const {output, formatted, effectLabels, logLines} = await deleteEffects({
 		input,
-		effects: [{sequenceNodePath, effectIndex}],
+		effects: [{type: 'single-effect', sequenceNodePath, effectIndex}],
 		prettierConfigOverride,
 	});
 

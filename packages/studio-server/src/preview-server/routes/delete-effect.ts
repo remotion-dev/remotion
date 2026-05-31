@@ -58,10 +58,18 @@ export const deleteEffectHandler: ApiHandler<
 				const {output, formatted, effectLabels, logLines} = await deleteEffects(
 					{
 						input: fileContents,
-						effects: fileItems.map((item) => ({
-							sequenceNodePath: item.sequenceNodePath.nodePath,
-							effectIndex: item.effectIndex,
-						})),
+						effects: fileItems.map((item) =>
+							item.type === 'single-effect'
+								? {
+										type: 'single-effect',
+										sequenceNodePath: item.sequenceNodePath.nodePath,
+										effectIndex: item.effectIndex,
+									}
+								: {
+										type: 'all-effects',
+										sequenceNodePath: item.sequenceNodePath.nodePath,
+									},
+						),
 					},
 				);
 

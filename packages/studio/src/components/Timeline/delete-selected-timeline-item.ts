@@ -68,10 +68,17 @@ const deleteSequences = (
 };
 
 const deleteEffects = (
-	effects: {
+	effects: ({
 		nodePathInfo: SequenceNodePathInfo;
-		effectIndex: number | null;
-	}[],
+	} & (
+		| {
+				type: 'single-effect';
+				effectIndex: number;
+		  }
+		| {
+				type: 'all-effects';
+		  }
+	))[],
 ): Promise<void> => {
 	if (effects.length === 0) {
 		return Promise.resolve();
@@ -79,20 +86,27 @@ const deleteEffects = (
 
 	return callApi(
 		'/api/delete-effect',
-		effects.map(({nodePathInfo, effectIndex}) => {
-			const nodePath = nodePathInfo.sequenceSubscriptionKey;
-			return {
-				fileName: nodePath.absolutePath,
-				sequenceNodePath: nodePath,
-				effectIndex,
-			};
+		effects.map((effect) => {
+			const nodePath = effect.nodePathInfo.sequenceSubscriptionKey;
+			return effect.type === 'single-effect'
+				? {
+						type: 'single-effect',
+						fileName: nodePath.absolutePath,
+						sequenceNodePath: nodePath,
+						effectIndex: effect.effectIndex,
+					}
+				: {
+						type: 'all-effects',
+						fileName: nodePath.absolutePath,
+						sequenceNodePath: nodePath,
+					};
 		}),
 	)
 		.then((result) => {
 			if (result.success) {
 				const singleEffect = effects[0];
 				showNotification(
-					effects.length === 1 && singleEffect?.effectIndex !== null
+					effects.length === 1 && singleEffect?.type === 'single-effect'
 						? 'Removed effect from source file'
 						: effects.length === 1
 							? 'Removed effects from source file'
@@ -137,14 +151,18 @@ export const deleteSelectedTimelineItem = ({
 			return deleteSequences([selection.nodePathInfo]);
 		case 'sequence-effect':
 			return deleteEffects([
-				{nodePathInfo: selection.nodePathInfo, effectIndex: selection.i},
+				{
+					type: 'single-effect',
+					nodePathInfo: selection.nodePathInfo,
+					effectIndex: selection.i,
+				},
 			]);
 		case 'sequence-prop':
 		case 'sequence-effect-prop':
 			return null;
 		case 'sequence-all-effects':
 			return deleteEffects([
-				{nodePathInfo: selection.nodePathInfo, effectIndex: null},
+				{type: 'all-effects', nodePathInfo: selection.nodePathInfo},
 			]);
 		default:
 			throw new Error(
@@ -224,6 +242,7 @@ export const deleteSelectedTimelineItems = ({
 		case 'sequence-effect':
 			return deleteEffects(
 				selections.filter(isSequenceEffectSelection).map((selection) => ({
+					type: 'single-effect',
 					nodePathInfo: selection.nodePathInfo,
 					effectIndex: selection.i,
 				})),
@@ -256,8 +275,8 @@ export const deleteSelectedTimelineItems = ({
 		case 'sequence-all-effects':
 			return deleteEffects(
 				selections.filter(isSequenceAllEffectsSelection).map((selection) => ({
+					type: 'all-effects',
 					nodePathInfo: selection.nodePathInfo,
-					effectIndex: null,
 				})),
 			);
 		default:
