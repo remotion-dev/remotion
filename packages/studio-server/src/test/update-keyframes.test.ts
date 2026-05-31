@@ -235,6 +235,38 @@ test('updateSequenceKeyframes keeps an interpolation when one keyframe remains',
 	expect(output).toContain('style={{scale: interpolate(frame, [100], [4])}}');
 });
 
+test('updateSequenceKeyframes converts the last keyframe to a static value', async () => {
+	const input = sequenceInput.replace(
+		'interpolate(frame, [0, 100], [2, 4])',
+		'interpolate(frame, [12], [320])',
+	);
+	const {output, oldValueStrings, newValueStrings, updatedNodePath} =
+		await updateSequenceKeyframes({
+			input,
+			nodePath: lineColumnToNodePath(input, getLine(input, 'scale')),
+			updates: [
+				{
+					key: 'style.scale',
+					operation: {type: 'remove', frame: 12},
+				},
+			],
+		});
+
+	expect(oldValueStrings).toEqual(['interpolate(frame, [12], [320])']);
+	expect(newValueStrings).toEqual(['320']);
+	expect(output).toContain('style={{scale: 320}}');
+	const status = computeSequencePropsStatusFromContent({
+		fileContents: output,
+		nodePath: updatedNodePath,
+		keys: ['style.scale'],
+		effects: [],
+	});
+	expect(status.props['style.scale']).toEqual({
+		canUpdate: true,
+		codeValue: 320,
+	});
+});
+
 test('updateSequenceKeyframes keeps a color interpolation when one keyframe remains', async () => {
 	const {output, oldValueStrings} = await updateSequenceKeyframes({
 		input: colorInput,
@@ -251,6 +283,38 @@ test('updateSequenceKeyframes keeps a color interpolation when one keyframe rema
 		"interpolateColors(frame, [0, 100], ['red', 'blue'])",
 	]);
 	expect(output).toContain("color={interpolateColors(frame, [100], ['blue'])}");
+});
+
+test('updateSequenceKeyframes converts the last color keyframe to a static value', async () => {
+	const input = colorInput.replace(
+		"interpolateColors(frame, [0, 100], ['red', 'blue'])",
+		"interpolateColors(frame, [15], ['blue'])",
+	);
+	const {output, oldValueStrings, newValueStrings, updatedNodePath} =
+		await updateSequenceKeyframes({
+			input,
+			nodePath: lineColumnToNodePath(input, getLine(input, '<Solid')),
+			updates: [
+				{
+					key: 'color',
+					operation: {type: 'remove', frame: 15},
+				},
+			],
+		});
+
+	expect(oldValueStrings).toEqual(["interpolateColors(frame, [15], ['blue'])"]);
+	expect(newValueStrings).toEqual(["'blue'"]);
+	expect(output).toContain("color={'blue'}");
+	const status = computeSequencePropsStatusFromContent({
+		fileContents: output,
+		nodePath: updatedNodePath,
+		keys: ['color'],
+		effects: [],
+	});
+	expect(status.props.color).toEqual({
+		canUpdate: true,
+		codeValue: 'blue',
+	});
 });
 
 test('updateEffectKeyframes removes a keyframe from an effect prop interpolation', () => {
@@ -299,4 +363,31 @@ test('updateEffectKeyframes keeps an effect prop interpolation with one keyframe
 	});
 
 	expect(serialized).toContain('amount: interpolate(frame, [0], [0.2])');
+});
+
+test('updateEffectKeyframes converts the last effect keyframe to a static value', () => {
+	const input = effectInput.replace(
+		'interpolate(frame, [0, 50, 100], [0.2, 0.5, 0.8])',
+		'interpolate(frame, [40], [0.6])',
+	);
+	const {serialized, oldValueStrings, newValueStrings, effectCallee} =
+		updateEffectKeyframesAst({
+			input,
+			sequenceNodePath: lineColumnToNodePath(
+				input,
+				getLine(input, '<HtmlInCanvas'),
+			),
+			effectIndex: 0,
+			updates: [
+				{
+					key: 'amount',
+					operation: {type: 'remove', frame: 40},
+				},
+			],
+		});
+
+	expect(effectCallee).toBe('tint');
+	expect(oldValueStrings).toEqual(['interpolate(frame, [40], [0.6])']);
+	expect(newValueStrings).toEqual(['0.6']);
+	expect(serialized).toContain('amount: 0.6');
 });

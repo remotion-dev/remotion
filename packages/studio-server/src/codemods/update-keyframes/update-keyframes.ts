@@ -325,6 +325,10 @@ const removeKeyframe = ({
 		(_keyframe, index) => index !== keyframeIndex,
 	);
 
+	if (nextKeyframes.length === 0) {
+		return existing.keyframes[keyframeIndex].output;
+	}
+
 	return createInterpolateExpression({
 		callee: existing.callee,
 		input: existing.input,

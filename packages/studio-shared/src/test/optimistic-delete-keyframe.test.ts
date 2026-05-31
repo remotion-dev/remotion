@@ -48,6 +48,39 @@ test('optimisticDeleteSequenceKeyframe removes the matching keyframe and an easi
 	expect(status.easing).toEqual(['linear']);
 });
 
+test('optimisticDeleteSequenceKeyframe converts the last keyframe to a static value', () => {
+	const previous: CanUpdateSequencePropsResponse = {
+		canUpdate: true,
+		props: {
+			width: {
+				canUpdate: false,
+				reason: 'keyframed',
+				interpolationFunction: 'interpolate',
+				keyframes: [{frame: 12, value: 320}],
+				easing: [],
+				clamping: {left: 'extend', right: 'extend'},
+				posterize: undefined,
+			},
+		},
+		effects: [],
+	};
+
+	const updated = optimisticDeleteSequenceKeyframe({
+		previous,
+		fieldKey: 'width',
+		frame: 12,
+	});
+
+	if (!updated.canUpdate) {
+		throw new Error('expected canUpdate true');
+	}
+
+	expect(updated.props.width).toEqual({
+		canUpdate: true,
+		codeValue: 320,
+	});
+});
+
 test('optimisticDeleteSequenceKeyframe is a no-op when no keyframe matches', () => {
 	const previous: CanUpdateSequencePropsResponse = {
 		canUpdate: true,
@@ -141,6 +174,52 @@ test('optimisticDeleteEffectKeyframe removes the matching keyframe on the target
 
 	expect(status.keyframes).toEqual([{frame: 30, value: 1}]);
 	expect(status.easing).toEqual([]);
+});
+
+test('optimisticDeleteEffectKeyframe converts the last keyframe on the target effect to a static value', () => {
+	const previous: CanUpdateSequencePropsResponse = {
+		canUpdate: true,
+		props: {},
+		effects: [
+			{
+				canUpdate: true,
+				effectIndex: 0,
+				callee: 'tint',
+				props: {
+					amount: {
+						canUpdate: false,
+						reason: 'keyframed',
+						interpolationFunction: 'interpolate',
+						keyframes: [{frame: 40, value: 0.6}],
+						easing: [],
+						clamping: {left: 'extend', right: 'extend'},
+						posterize: undefined,
+					},
+				},
+			},
+		],
+	};
+
+	const updated = optimisticDeleteEffectKeyframe({
+		previous,
+		effectIndex: 0,
+		fieldKey: 'amount',
+		frame: 40,
+	});
+
+	if (!updated.canUpdate) {
+		throw new Error('expected canUpdate true');
+	}
+
+	const effect = updated.effects[0];
+	if (!effect.canUpdate) {
+		throw new Error('expected effect canUpdate true');
+	}
+
+	expect(effect.props.amount).toEqual({
+		canUpdate: true,
+		codeValue: 0.6,
+	});
 });
 
 test('optimisticDeleteEffectKeyframe is a no-op when effect index not found', () => {
