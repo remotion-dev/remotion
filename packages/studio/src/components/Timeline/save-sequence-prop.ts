@@ -23,19 +23,26 @@ export type SaveSequencePropChange = {
 	schema: SequenceSchema;
 };
 
+type SaveSequencePropsOptions = {
+	changes: SaveSequencePropChange[];
+	setCodeValues: SetCodeValues;
+	clientId: string;
+	undoLabel: string | null;
+	redoLabel: string | null;
+};
+
+type SaveSequencePropOptions = SaveSequencePropChange & {
+	setCodeValues: SetCodeValues;
+	clientId: string;
+};
+
 export const saveSequenceProps = ({
 	changes,
 	setCodeValues,
 	clientId,
 	undoLabel,
 	redoLabel,
-}: {
-	changes: SaveSequencePropChange[];
-	setCodeValues: SetCodeValues;
-	clientId: string;
-	undoLabel: string | null;
-	redoLabel: string | null;
-}): Promise<void> => {
+}: SaveSequencePropsOptions): Promise<void> => {
 	if (changes.length === 0) {
 		return Promise.resolve();
 	}
@@ -77,16 +84,7 @@ export const saveSequenceProp = ({
 	schema,
 	setCodeValues,
 	clientId,
-}: {
-	fileName: string;
-	nodePath: SequencePropsSubscriptionKey;
-	fieldKey: string;
-	value: unknown;
-	defaultValue: string | null;
-	schema: SequenceSchema;
-	setCodeValues: SetCodeValues;
-	clientId: string;
-}): Promise<void> => {
+}: SaveSequencePropOptions): Promise<void> => {
 	return enqueueSavePropChange({
 		nodePath,
 		setCodeValues,

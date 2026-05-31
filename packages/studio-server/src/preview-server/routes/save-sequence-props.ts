@@ -1,12 +1,17 @@
 import {readFileSync} from 'node:fs';
 import {RenderInternals} from '@remotion/renderer';
 import type {
+	SaveSequencePropEdit,
 	SaveSequencePropsRequest,
 	SaveSequencePropsResponse,
+	SaveSequencePropsResult,
 } from '@remotion/studio-shared';
 import {getAllSchemaKeys} from '@remotion/studio-shared';
 import {NoReactInternals} from 'remotion/no-react';
-import {updateMultipleSequenceProps} from '../../codemods/update-sequence-props/update-sequence-props';
+import {
+	type RemovedProp,
+	updateMultipleSequenceProps,
+} from '../../codemods/update-sequence-props/update-sequence-props';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import type {ApiHandler} from '../api-types';
@@ -20,6 +25,37 @@ import {computeSequencePropsStatusFromContent} from './can-update-sequence-props
 import {formatPropChange} from './log-updates/format-prop-change';
 import {logUpdate, normalizeQuotes} from './log-updates/log-update';
 import {withSavePropsLock} from './save-props-mutex';
+
+type ResolvedSequencePropEdit = {
+	index: number;
+	fileName: SaveSequencePropEdit['fileName'];
+	nodePath: SaveSequencePropEdit['nodePath'];
+	key: SaveSequencePropEdit['key'];
+	value: unknown;
+	valueString: string;
+	defaultValue: unknown | null;
+	defaultValueString: string | null;
+	schema: SaveSequencePropEdit['schema'];
+};
+
+type SequencePropEditGroup = {
+	fileRelativeToRoot: string;
+	edits: ResolvedSequencePropEdit[];
+};
+
+type SequencePropUndoSnapshot = {
+	filePath: string;
+	oldContents: string;
+	newContents: string;
+	logLine: number;
+};
+
+type SequencePropEditResult = {
+	oldValueString: string;
+	logLine: number;
+	removedProps: RemovedProp[];
+	formatted: boolean;
+};
 
 export const saveSequencePropsHandler: ApiHandler<
 	SaveSequencePropsRequest,
@@ -39,23 +75,7 @@ export const saveSequencePropsHandler: ApiHandler<
 			`[save-sequence-props] Received request with ${edits.length} edit(s)`,
 		);
 
-		const editGroups = new Map<
-			string,
-			{
-				fileRelativeToRoot: string;
-				edits: Array<{
-					index: number;
-					fileName: string;
-					nodePath: SaveSequencePropsRequest['edits'][number]['nodePath'];
-					key: string;
-					value: unknown;
-					valueString: string;
-					defaultValue: unknown | null;
-					defaultValueString: string | null;
-					schema: SaveSequencePropsRequest['edits'][number]['schema'];
-				}>;
-			}
-		>();
+		const editGroups = new Map<string, SequencePropEditGroup>();
 
 		for (const [index, edit] of edits.entries()) {
 			const parsedValue = JSON.parse(edit.value);
@@ -88,22 +108,9 @@ export const saveSequencePropsHandler: ApiHandler<
 			editGroups.set(absolutePath, group);
 		}
 
-		const snapshots: Array<{
-			filePath: string;
-			oldContents: string;
-			newContents: string;
-			logLine: number;
-		}> = [];
+		const snapshots: SequencePropUndoSnapshot[] = [];
 		const outputByPath = new Map<string, string>();
-		const resultByIndex = new Map<
-			number,
-			{
-				oldValueString: string;
-				logLine: number;
-				removedProps: Array<{key: string; valueString: string}>;
-				formatted: boolean;
-			}
-		>();
+		const resultByIndex = new Map<number, SequencePropEditResult>();
 
 		for (const [absolutePath, group] of editGroups) {
 			const fileContents = readFileSync(absolutePath, 'utf-8');
@@ -127,6 +134,7 @@ export const saveSequencePropsHandler: ApiHandler<
 						schema: NoReactInternals.sequenceSchema,
 					};
 				}),
+				prettierConfigOverride: null,
 			});
 
 			const [{logLine: firstLogLine}] = updateResults;
@@ -235,7 +243,7 @@ export const saveSequencePropsHandler: ApiHandler<
 
 		printUndoHint(logLevel);
 
-		const results = edits.map((edit) => {
+		const results: SaveSequencePropsResult[] = edits.map((edit) => {
 			const {absolutePath} = resolveFileInsideProject({
 				remotionRoot,
 				fileName: edit.fileName,

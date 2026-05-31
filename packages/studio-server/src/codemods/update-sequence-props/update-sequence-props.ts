@@ -33,6 +33,28 @@ export type SequencePropsNodeUpdate = {
 	schema: SequenceSchema;
 };
 
+export type SequencePropsNodeUpdateResult = {
+	oldValueStrings: string[];
+	logLine: number;
+	removedProps: RemovedProp[];
+};
+
+type PrettierConfigOverride = Record<string, unknown> | null;
+
+type UpdateMultipleSequencePropsResult = {
+	output: string;
+	formatted: boolean;
+	results: SequencePropsNodeUpdateResult[];
+};
+
+type UpdateSequencePropsResult = {
+	output: string;
+	oldValueStrings: string[];
+	formatted: boolean;
+	logLine: number;
+	removedProps: RemovedProp[];
+};
+
 const removeVariantKey = ({
 	node,
 	variantKey,
@@ -290,16 +312,8 @@ export const updateMultipleSequenceProps = async ({
 }: {
 	input: string;
 	changes: SequencePropsNodeUpdate[];
-	prettierConfigOverride?: Record<string, unknown> | null;
-}): Promise<{
-	output: string;
-	formatted: boolean;
-	results: Array<{
-		oldValueStrings: string[];
-		logLine: number;
-		removedProps: RemovedProp[];
-	}>;
-}> => {
+	prettierConfigOverride: PrettierConfigOverride;
+}): Promise<UpdateMultipleSequencePropsResult> => {
 	const ast = parseAst(input);
 	const results = changes.map(({nodePath, updates, schema}) => {
 		const node = findJsxElementAtNodePath(ast, nodePath);
@@ -335,14 +349,8 @@ export const updateSequenceProps = async ({
 	nodePath: SequenceNodePath;
 	updates: SequencePropUpdate[];
 	schema: SequenceSchema;
-	prettierConfigOverride?: Record<string, unknown> | null;
-}): Promise<{
-	output: string;
-	oldValueStrings: string[];
-	formatted: boolean;
-	logLine: number;
-	removedProps: RemovedProp[];
-}> => {
+	prettierConfigOverride: PrettierConfigOverride;
+}): Promise<UpdateSequencePropsResult> => {
 	const {serialized, oldValueStrings, logLine, removedProps} =
 		updateSequencePropsAst({
 			input,

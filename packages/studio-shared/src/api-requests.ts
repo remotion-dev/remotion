@@ -264,15 +264,17 @@ export type SaveSequencePropsRequest = {
 	redoLabel: string | null;
 };
 
+export type SaveSequencePropsResult = {
+	fileName: string;
+	nodePath: SequencePropsSubscriptionKey;
+	props: Record<string, CanUpdateSequencePropStatus>;
+};
+
 export type SaveSequencePropsResponse =
 	| {
 			canUpdate: true;
 			props: Record<string, CanUpdateSequencePropStatus>;
-			results: Array<{
-				fileName: string;
-				nodePath: SequencePropsSubscriptionKey;
-				props: Record<string, CanUpdateSequencePropStatus>;
-			}>;
+			results: SaveSequencePropsResult[];
 	  }
 	| {
 			canUpdate: false;

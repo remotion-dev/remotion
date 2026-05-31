@@ -44,6 +44,7 @@ export {
 	SaveSequencePropEdit,
 	SaveSequencePropsRequest,
 	SaveSequencePropsResponse,
+	SaveSequencePropsResult,
 	SimpleDiff,
 	SubscribeToDefaultPropsRequest,
 	SubscribeToDefaultPropsResponse,
