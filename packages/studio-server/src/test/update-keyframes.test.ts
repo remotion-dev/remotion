@@ -3,6 +3,7 @@ import {
 	updateEffectKeyframesAst,
 	updateSequenceKeyframes,
 } from '../codemods/update-keyframes/update-keyframes';
+import {computeSequencePropsStatusFromContent} from '../preview-server/routes/can-update-sequence-props';
 import {lineColumnToNodePath} from './test-utils';
 
 const sequenceInput = `import React from 'react';
@@ -94,7 +95,7 @@ test('updateSequenceKeyframes converts a static value to an interpolation', asyn
 	});
 
 	expect(oldValueStrings).toEqual(['0.5']);
-	expect(output).toContain('opacity: interpolate(frame, [0, 25], [0.5, 0.75])');
+	expect(output).toContain('opacity: interpolate(frame, [25], [0.75])');
 });
 
 test('updateSequenceKeyframes converts a static value to a single-keyframe interpolation at frame 0', async () => {
@@ -153,9 +154,66 @@ test('updateSequenceKeyframes converts a static string value to a color interpol
 	});
 
 	expect(oldValueStrings).toEqual(["'red'"]);
-	expect(output).toContain(
-		"color={interpolateColors(frame, [0, 50], ['red', 'blue'])}",
-	);
+	expect(output).toContain("color={interpolateColors(frame, [50], ['blue'])}");
+});
+
+test('updateSequenceKeyframes returns a node path that still resolves after inserting a frame hook', async () => {
+	const input = `import {starburst} from '@remotion/starburst';
+import React from 'react';
+import {AbsoluteFill, Solid} from 'remotion';
+
+const CenteredSolid: React.FC = () => {
+\treturn (
+\t\t<AbsoluteFill style={{perspective: 300}}>
+\t\t\t<Solid
+\t\t\t\twidth={240}
+\t\t\t\theight={240}
+\t\t\t\tcolor={'#d8d8d8'}
+\t\t\t\tstyle={{
+\t\t\t\t\tposition: 'absolute',
+\t\t\t\t\tleft: '50%',
+\t\t\t\t\ttop: '50%',
+\t\t\t\t\ttransform: 'translate(-50%, -50%) rotateX(40deg)',
+\t\t\t\t\trotate: '40deg',
+\t\t\t\t\tscale: 2.42,
+\t\t\t\t\ttranslate: '0px 191px',
+\t\t\t\t}}
+\t\t\t\teffects={[starburst({rays: 10, colors: ['#eeeeee', '#bbbbbb']})]}
+\t\t\t/>
+\t\t</AbsoluteFill>
+\t);
+};
+
+export default CenteredSolid;
+`;
+	const nodePath = lineColumnToNodePath(input, getLine(input, '<Solid'));
+	const {output, updatedNodePath} = await updateSequenceKeyframes({
+		input,
+		nodePath,
+		updates: [
+			{
+				key: 'width',
+				operation: {type: 'add', frame: 11, value: 240},
+			},
+		],
+	});
+
+	expect(output).toContain('width={interpolate(frame, [11], [240])}');
+	const status = computeSequencePropsStatusFromContent({
+		fileContents: output,
+		nodePath: updatedNodePath,
+		keys: ['width'],
+		effects: [],
+	});
+	expect(status.props.width).toEqual({
+		canUpdate: false,
+		reason: 'keyframed',
+		interpolationFunction: 'interpolate',
+		keyframes: [{frame: 11, value: 240}],
+		easing: [],
+		clamping: {left: 'extend', right: 'extend'},
+		posterize: undefined,
+	});
 });
 
 test('updateSequenceKeyframes keeps an interpolation when one keyframe remains', async () => {

@@ -41,21 +41,27 @@ export const addSequenceKeyframeHandler: ApiHandler<
 		const fileContents = readFileSync(absolutePath, 'utf-8');
 		const parsedValue = JSON.parse(value);
 
-		const {output, oldValueStrings, newValueStrings, formatted, logLine} =
-			await updateSequenceKeyframes({
-				input: fileContents,
-				nodePath: nodePath.nodePath,
-				updates: [
-					{
-						key,
-						operation: {
-							type: 'add',
-							frame,
-							value: parsedValue,
-						},
+		const {
+			output,
+			oldValueStrings,
+			newValueStrings,
+			formatted,
+			logLine,
+			updatedNodePath,
+		} = await updateSequenceKeyframes({
+			input: fileContents,
+			nodePath: nodePath.nodePath,
+			updates: [
+				{
+					key,
+					operation: {
+						type: 'add',
+						frame,
+						value: parsedValue,
 					},
-				],
-			});
+				},
+			],
+		});
 
 		const oldValueString = oldValueStrings[0];
 		const newValueString = newValueStrings[0];
@@ -99,13 +105,16 @@ export const addSequenceKeyframeHandler: ApiHandler<
 		const status = computeSequencePropsStatusFromContent({
 			fileContents: output,
 			keys: getAllSchemaKeys(schema),
-			nodePath: nodePath.nodePath,
+			nodePath: updatedNodePath,
 			effects: [],
 		});
+		const updatedSubscriptionKey = {...nodePath, nodePath: updatedNodePath};
 
 		return {
 			canUpdate: true,
 			props: status.props,
-			results: [{fileName, nodePath, props: status.props}],
+			results: [
+				{fileName, nodePath: updatedSubscriptionKey, props: status.props},
+			],
 		};
 	});
