@@ -34,6 +34,7 @@ import {
 } from './TimelineMediaInfo';
 import {TimelineRowChrome} from './TimelineRowChrome';
 import {
+	isTimelineSelectionModifierEvent,
 	SELECTION_ENABLED,
 	useTimelineRowContainsSelection,
 	useTimelineRowSelection,
@@ -315,6 +316,11 @@ export const TimelineListItem: React.FC<{
 	const onShowInEditorDoubleClick = useCallback(
 		(e: React.MouseEvent<HTMLDivElement>) => {
 			if (!SELECTION_ENABLED || !canOpenInEditor) {
+				return;
+			}
+
+			if (isTimelineSelectionModifierEvent(e)) {
+				e.stopPropagation();
 				return;
 			}
 
