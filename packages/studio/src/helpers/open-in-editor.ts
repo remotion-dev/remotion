@@ -74,7 +74,7 @@ const getComponentResolutionCacheKey = ({
 	return `${compositionFile}::${compositionId}`;
 };
 
-const loadCompositionComponentInfo = async ({
+export const loadCompositionComponentInfo = async ({
 	compositionFile,
 	compositionId,
 }: {

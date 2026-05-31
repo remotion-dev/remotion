@@ -389,6 +389,23 @@ export type DuplicateJsxNodeResponse =
 			stack: string;
 	  };
 
+export type AddSolidRequest = {
+	compositionFile: string;
+	compositionId: string;
+	width: number;
+	height: number;
+};
+
+export type AddSolidResponse =
+	| {
+			success: true;
+	  }
+	| {
+			success: false;
+			reason: string;
+			stack: string;
+	  };
+
 export type UpdateAvailableRequest = {};
 export type UpdateAvailableResponse = {
 	currentVersion: string;
@@ -501,6 +518,7 @@ export type ApiRoutes = {
 		DuplicateJsxNodeRequest,
 		DuplicateJsxNodeResponse
 	>;
+	'/api/add-solid': ReqAndRes<AddSolidRequest, AddSolidResponse>;
 	'/api/update-available': ReqAndRes<
 		UpdateAvailableRequest,
 		UpdateAvailableResponse

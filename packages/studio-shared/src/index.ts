@@ -1,5 +1,7 @@
 export {splitAnsi, stripAnsi} from './ansi';
 export {
+	AddSolidRequest,
+	AddSolidResponse,
 	AddRenderRequest,
 	ApiRoutes,
 	ApplyCodemodRequest,

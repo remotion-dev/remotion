@@ -3,6 +3,7 @@ import type {ApiHandler} from './api-types';
 import {addEffectKeyframeHandler} from './routes/add-effect-keyframe';
 import {handleAddRender} from './routes/add-render';
 import {addSequenceKeyframeHandler} from './routes/add-sequence-keyframe';
+import {addSolidHandler} from './routes/add-solid';
 import {applyCodemodHandler} from './routes/apply-codemod';
 import {applyVisualControlHandler} from './routes/apply-visual-control-change';
 import {handleCancelRender} from './routes/cancel-render';
@@ -58,6 +59,7 @@ export const allApiRoutes: {
 	'/api/delete-effect': deleteEffectHandler,
 	'/api/delete-jsx-node': deleteJsxNodeHandler,
 	'/api/duplicate-jsx-node': duplicateJsxNodeHandler,
+	'/api/add-solid': addSolidHandler,
 	'/api/update-available': handleUpdate,
 	'/api/project-info': projectInfoHandler,
 	'/api/delete-static-file': deleteStaticFileHandler,
