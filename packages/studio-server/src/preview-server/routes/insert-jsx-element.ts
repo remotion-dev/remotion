@@ -67,6 +67,7 @@ export const insertJsxElementHandler: ApiHandler<
 			pushToUndoStack({
 				filePath: fileName,
 				oldContents,
+				newContents: output,
 				logLevel,
 				remotionRoot,
 				logLine,
