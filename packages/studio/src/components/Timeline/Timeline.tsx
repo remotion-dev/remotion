@@ -60,7 +60,7 @@ const container: React.CSSProperties = {
 
 const noop = () => undefined;
 
-type AddSolidAvailability =
+type InsertElementAvailability =
 	| {
 			type: 'unavailable';
 	  }
@@ -80,8 +80,8 @@ const TimelineClearSelectionArea: React.FC<{
 		Internals.CompositionManager,
 	);
 	const videoConfig = Internals.useUnsafeVideoConfig();
-	const [addSolidAvailability, setAddSolidAvailability] =
-		useState<AddSolidAvailability>({
+	const [insertElementAvailability, setInsertElementAvailability] =
+		useState<InsertElementAvailability>({
 			type: 'unavailable',
 		});
 	const [isAddingSolid, setIsAddingSolid] = useState(false);
@@ -106,7 +106,7 @@ const TimelineClearSelectionArea: React.FC<{
 
 	useEffect(() => {
 		if (currentCompositionId === null || compositionFile === null) {
-			setAddSolidAvailability({type: 'unavailable'});
+			setInsertElementAvailability({type: 'unavailable'});
 			return;
 		}
 
@@ -116,7 +116,7 @@ const TimelineClearSelectionArea: React.FC<{
 				compositionId: currentCompositionId,
 			});
 
-			setAddSolidAvailability(
+			setInsertElementAvailability(
 				cachedInfo
 					? {type: 'loaded', canAddSequence: cachedInfo.canAddSequence}
 					: {type: 'loading'},
@@ -141,17 +141,17 @@ const TimelineClearSelectionArea: React.FC<{
 		[clearSelection],
 	);
 
-	const canAddSolid =
-		addSolidAvailability.type === 'loaded' &&
-		addSolidAvailability.canAddSequence &&
+	const canInsertSolid =
+		insertElementAvailability.type === 'loaded' &&
+		insertElementAvailability.canAddSequence &&
 		currentCompositionId !== null &&
 		compositionFile !== null &&
 		videoConfig !== null &&
 		!isAddingSolid;
 
-	const addSolid = useCallback(async () => {
+	const insertSolid = useCallback(async () => {
 		if (
-			!canAddSolid ||
+			!canInsertSolid ||
 			currentCompositionId === null ||
 			compositionFile === null ||
 			videoConfig === null
@@ -161,11 +161,14 @@ const TimelineClearSelectionArea: React.FC<{
 
 		setIsAddingSolid(true);
 		try {
-			const result = await callApi('/api/add-solid', {
+			const result = await callApi('/api/insert-jsx-element', {
 				compositionFile,
 				compositionId: currentCompositionId,
-				width: videoConfig.width,
-				height: videoConfig.height,
+				element: {
+					type: 'solid',
+					width: videoConfig.width,
+					height: videoConfig.height,
+				},
 			});
 
 			if (result.success) {
@@ -179,24 +182,24 @@ const TimelineClearSelectionArea: React.FC<{
 		} finally {
 			setIsAddingSolid(false);
 		}
-	}, [canAddSolid, compositionFile, currentCompositionId, videoConfig]);
+	}, [canInsertSolid, compositionFile, currentCompositionId, videoConfig]);
 
 	const contextMenuItems = useMemo((): ComboboxValue[] => {
 		return [
 			{
 				type: 'item',
-				id: 'add-solid',
+				id: 'insert-solid',
 				label: 'Add <Solid>',
-				value: 'add-solid',
-				onClick: addSolid,
+				value: 'insert-solid',
+				onClick: insertSolid,
 				keyHint: null,
 				leftItem: null,
 				subMenu: null,
 				quickSwitcherLabel: null,
-				disabled: !canAddSolid,
+				disabled: !canInsertSolid,
 			},
 		];
-	}, [addSolid, canAddSolid]);
+	}, [insertSolid, canInsertSolid]);
 
 	return (
 		<ContextMenu

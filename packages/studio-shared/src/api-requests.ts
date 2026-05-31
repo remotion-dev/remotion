@@ -389,14 +389,19 @@ export type DuplicateJsxNodeResponse =
 			stack: string;
 	  };
 
-export type AddSolidRequest = {
-	compositionFile: string;
-	compositionId: string;
+export type InsertableCompositionElement = {
+	type: 'solid';
 	width: number;
 	height: number;
 };
 
-export type AddSolidResponse =
+export type InsertJsxElementRequest = {
+	compositionFile: string;
+	compositionId: string;
+	element: InsertableCompositionElement;
+};
+
+export type InsertJsxElementResponse =
 	| {
 			success: true;
 	  }
@@ -518,7 +523,10 @@ export type ApiRoutes = {
 		DuplicateJsxNodeRequest,
 		DuplicateJsxNodeResponse
 	>;
-	'/api/add-solid': ReqAndRes<AddSolidRequest, AddSolidResponse>;
+	'/api/insert-jsx-element': ReqAndRes<
+		InsertJsxElementRequest,
+		InsertJsxElementResponse
+	>;
 	'/api/update-available': ReqAndRes<
 		UpdateAvailableRequest,
 		UpdateAvailableResponse

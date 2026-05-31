@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import {
-	addSolidToComposition,
+	insertJsxElementIntoComposition,
 	resolveCompositionComponent,
 } from '../helpers/resolve-composition-component';
 
@@ -339,7 +339,7 @@ test('canAddSequence=false for self-closing root JSX return', async () => {
 	}
 });
 
-test('adds a Solid to the resolved composition component', async () => {
+test('inserts a Solid into the resolved composition component', async () => {
 	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
 	try {
 		await fs.writeFile(
@@ -365,12 +365,15 @@ test('adds a Solid to the resolved composition component', async () => {
 			].join('\n'),
 		);
 
-		const result = await addSolidToComposition({
+		const result = await insertJsxElementIntoComposition({
 			remotionRoot: tempDir,
 			compositionFile: 'Root.tsx',
 			compositionId: 'test',
-			width: 1280,
-			height: 720,
+			element: {
+				type: 'solid',
+				width: 1280,
+				height: 720,
+			},
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 		});
 
@@ -384,7 +387,7 @@ test('adds a Solid to the resolved composition component', async () => {
 	}
 });
 
-test('adds an aliased Solid import if Solid is already defined', async () => {
+test('inserts an aliased Solid import if Solid is already defined', async () => {
 	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
 	try {
 		await fs.writeFile(
@@ -412,12 +415,15 @@ test('adds an aliased Solid import if Solid is already defined', async () => {
 			].join('\n'),
 		);
 
-		const result = await addSolidToComposition({
+		const result = await insertJsxElementIntoComposition({
 			remotionRoot: tempDir,
 			compositionFile: 'Root.tsx',
 			compositionId: 'test',
-			width: 1920,
-			height: 1080,
+			element: {
+				type: 'solid',
+				width: 1920,
+				height: 1080,
+			},
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 		});
 

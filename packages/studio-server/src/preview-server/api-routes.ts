@@ -3,7 +3,6 @@ import type {ApiHandler} from './api-types';
 import {addEffectKeyframeHandler} from './routes/add-effect-keyframe';
 import {handleAddRender} from './routes/add-render';
 import {addSequenceKeyframeHandler} from './routes/add-sequence-keyframe';
-import {addSolidHandler} from './routes/add-solid';
 import {applyCodemodHandler} from './routes/apply-codemod';
 import {applyVisualControlHandler} from './routes/apply-visual-control-change';
 import {handleCancelRender} from './routes/cancel-render';
@@ -13,6 +12,7 @@ import {deleteJsxNodeHandler} from './routes/delete-jsx-node';
 import {deleteSequenceKeyframeHandler} from './routes/delete-sequence-keyframe';
 import {deleteStaticFileHandler} from './routes/delete-static-file';
 import {duplicateJsxNodeHandler} from './routes/duplicate-jsx-node';
+import {insertJsxElementHandler} from './routes/insert-jsx-element';
 import {handleInstallPackage} from './routes/install-dependency';
 import {handleOpenInFileExplorer} from './routes/open-in-file-explorer';
 import {projectInfoHandler} from './routes/project-info';
@@ -54,7 +54,6 @@ export const allApiRoutes: {
 	'/api/save-effect-props': saveEffectPropsHandler,
 	'/api/delete-sequence-keyframe': deleteSequenceKeyframeHandler,
 	'/api/add-sequence-keyframe': addSequenceKeyframeHandler,
-	'/api/add-solid': addSolidHandler,
 	'/api/delete-effect-keyframe': deleteEffectKeyframeHandler,
 	'/api/add-effect-keyframe': addEffectKeyframeHandler,
 	'/api/delete-effect': deleteEffectHandler,
@@ -65,6 +64,7 @@ export const allApiRoutes: {
 	'/api/delete-static-file': deleteStaticFileHandler,
 	'/api/restart-studio': handleRestartStudio,
 	'/api/install-package': handleInstallPackage,
+	'/api/insert-jsx-element': insertJsxElementHandler,
 	'/api/undo': undoHandler,
 	'/api/redo': redoHandler,
 };

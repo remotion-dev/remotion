@@ -1,7 +1,5 @@
 export {splitAnsi, stripAnsi} from './ansi';
 export {
-	AddSolidRequest,
-	AddSolidResponse,
 	AddRenderRequest,
 	ApiRoutes,
 	ApplyCodemodRequest,
@@ -33,6 +31,9 @@ export {
 	DuplicateJsxNodeResponse,
 	InstallPackageRequest,
 	InstallPackageResponse,
+	InsertableCompositionElement,
+	InsertJsxElementRequest,
+	InsertJsxElementResponse,
 	OpenInFileExplorerRequest,
 	ProjectInfoRequest,
 	ProjectInfoResponse,

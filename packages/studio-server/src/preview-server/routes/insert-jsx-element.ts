@@ -1,7 +1,11 @@
 import {RenderInternals} from '@remotion/renderer';
-import type {AddSolidRequest, AddSolidResponse} from '@remotion/studio-shared';
+import type {
+	InsertJsxElementRequest,
+	InsertJsxElementResponse,
+	InsertableCompositionElement,
+} from '@remotion/studio-shared';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
-import {addSolidToComposition} from '../../helpers/resolve-composition-component';
+import {insertJsxElementIntoComposition} from '../../helpers/resolve-composition-component';
 import type {ApiHandler} from '../api-types';
 import {formatLogFileLocation} from '../format-log-file-location';
 import {
@@ -18,28 +22,45 @@ const validateDimension = (name: string, value: number) => {
 	}
 };
 
-export const addSolidHandler: ApiHandler<AddSolidRequest, AddSolidResponse> = ({
-	input: {compositionFile, compositionId, width, height},
+const validateElement = (element: InsertableCompositionElement) => {
+	if (element.type === 'solid') {
+		validateDimension('width', element.width);
+		validateDimension('height', element.height);
+	}
+};
+
+const getElementLabel = (element: InsertableCompositionElement) => {
+	if (element.type === 'solid') {
+		return '<Solid>';
+	}
+
+	throw new Error('Unsupported element type');
+};
+
+export const insertJsxElementHandler: ApiHandler<
+	InsertJsxElementRequest,
+	InsertJsxElementResponse
+> = ({
+	input: {compositionFile, compositionId, element},
 	remotionRoot,
 	logLevel,
 }) =>
 	withSavePropsLock(async () => {
 		try {
-			validateDimension('width', width);
-			validateDimension('height', height);
+			validateElement(element);
+			const elementLabel = getElementLabel(element);
 
 			RenderInternals.Log.trace(
 				{indent: false, logLevel},
-				`[add-solid] Received request for compositionFile="${compositionFile}" compositionId="${compositionId}"`,
+				`[insert-jsx-element] Received request for compositionFile="${compositionFile}" compositionId="${compositionId}" element="${element.type}"`,
 			);
 
 			const {fileName, source, oldContents, output, formatted, logLine} =
-				await addSolidToComposition({
+				await insertJsxElementIntoComposition({
 					remotionRoot,
 					compositionFile,
 					compositionId,
-					width,
-					height,
+					element,
 					prettierConfigOverride: null,
 				});
 
@@ -50,10 +71,10 @@ export const addSolidHandler: ApiHandler<AddSolidRequest, AddSolidResponse> = ({
 				remotionRoot,
 				logLine,
 				description: {
-					undoMessage: '↩️  Added <Solid>',
-					redoMessage: '↪️  Added <Solid>',
+					undoMessage: `↩️  Added ${elementLabel}`,
+					redoMessage: `↪️  Added ${elementLabel}`,
 				},
-				entryType: 'add-solid',
+				entryType: 'insert-jsx-element',
 				suppressHmrOnFileRestore: false,
 			});
 			suppressUndoStackInvalidation(fileName);
@@ -66,7 +87,7 @@ export const addSolidHandler: ApiHandler<AddSolidRequest, AddSolidResponse> = ({
 			});
 			RenderInternals.Log.info(
 				{indent: false, logLevel},
-				`${RenderInternals.chalk.blueBright(`${locationLabel}`)} Added <Solid>`,
+				`${RenderInternals.chalk.blueBright(`${locationLabel}`)} Added ${elementLabel}`,
 			);
 			if (!formatted) {
 				warnAboutPrettierOnce(logLevel);
@@ -74,7 +95,7 @@ export const addSolidHandler: ApiHandler<AddSolidRequest, AddSolidResponse> = ({
 
 			RenderInternals.Log.verbose(
 				{indent: false, logLevel},
-				`[add-solid] Wrote ${source}${formatted ? ' (formatted)' : ''}`,
+				`[insert-jsx-element] Wrote ${source}${formatted ? ' (formatted)' : ''}`,
 			);
 
 			printUndoHint(logLevel);

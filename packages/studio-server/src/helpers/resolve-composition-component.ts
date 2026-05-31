@@ -13,6 +13,7 @@ import type {
 	JSXElement,
 	VariableDeclaration,
 } from '@babel/types';
+import type {InsertableCompositionElement} from '@remotion/studio-shared';
 import type {namedTypes} from 'ast-types';
 import * as recast from 'recast';
 import {formatFileContent} from '../codemods/format-file-content';
@@ -919,7 +920,7 @@ const addElementToComponentRoot = ({
 	}
 
 	if (rootNode.type === 'JSXElement' && rootNode.openingElement.selfClosing) {
-		throw new Error('Cannot add <Solid> to a self-closing root JSX element');
+		throw new Error('Cannot insert into a self-closing root JSX element');
 	}
 
 	if (!rootNode.children) {
@@ -1184,19 +1185,37 @@ export const resolveCompositionComponent = async ({
 	};
 };
 
-export const addSolidToComposition = async ({
+const createInsertableJsxElement = ({
+	ast,
+	element,
+}: {
+	ast: File;
+	element: InsertableCompositionElement;
+}) => {
+	if (element.type === 'solid') {
+		const solidLocalName = ensureSolidImport(ast);
+
+		return createSolidElement({
+			localName: solidLocalName,
+			width: element.width,
+			height: element.height,
+		});
+	}
+
+	throw new Error('Unsupported element type');
+};
+
+export const insertJsxElementIntoComposition = async ({
 	remotionRoot,
 	compositionFile,
 	compositionId,
-	width,
-	height,
+	element,
 	prettierConfigOverride,
 }: {
 	remotionRoot: string;
 	compositionFile: string;
 	compositionId: string;
-	width: number;
-	height: number;
+	element: InsertableCompositionElement;
 	prettierConfigOverride: Record<string, unknown> | null;
 }): Promise<{
 	fileName: string;
@@ -1212,7 +1231,9 @@ export const addSolidToComposition = async ({
 		compositionId,
 	});
 	if (!location.canAddSequence) {
-		throw new Error('Cannot add <Solid> to this composition component');
+		throw new Error(
+			'Cannot insert JSX element into this composition component',
+		);
 	}
 
 	const input = await readSourceFile({
@@ -1220,15 +1241,11 @@ export const addSolidToComposition = async ({
 		fileName: location.fileName,
 	});
 	const ast = parseAst(input);
-	const solidLocalName = ensureSolidImport(ast);
+	const elementToInsert = createInsertableJsxElement({ast, element});
 	const logLine = addElementToComponentRoot({
 		ast,
 		exportName: location.exportName,
-		element: createSolidElement({
-			localName: solidLocalName,
-			width,
-			height,
-		}),
+		element: elementToInsert,
 	});
 
 	const finalFile = serializeAst(ast);

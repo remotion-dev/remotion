@@ -24,7 +24,7 @@ type UndoEntryType =
 	| 'delete-effect'
 	| 'delete-jsx-node'
 	| 'duplicate-jsx-node'
-	| 'add-solid'
+	| 'insert-jsx-element'
 	| 'delete-composition'
 	| 'rename-composition'
 	| 'duplicate-composition';
@@ -45,7 +45,7 @@ type UndoEntry = {
 	| {entryType: 'delete-effect'}
 	| {entryType: 'delete-jsx-node'}
 	| {entryType: 'duplicate-jsx-node'}
-	| {entryType: 'add-solid'}
+	| {entryType: 'insert-jsx-element'}
 	| {entryType: 'delete-composition'}
 	| {entryType: 'rename-composition'}
 	| {entryType: 'duplicate-composition'}
