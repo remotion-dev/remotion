@@ -11,6 +11,10 @@ export {
 	CancelRenderRequest,
 	CancelRenderResponse,
 	CopyStillToClipboardRequest,
+	AddEffectKeyframeRequest,
+	AddEffectKeyframeResponse,
+	AddSequenceKeyframeRequest,
+	AddSequenceKeyframeResponse,
 	DeleteEffectKeyframeRequest,
 	DeleteEffectKeyframeResponse,
 	DeleteEffectRequest,
@@ -130,6 +134,10 @@ export {
 	optimisticDeleteEffectKeyframe,
 	optimisticDeleteSequenceKeyframe,
 } from './optimistic-delete-keyframe';
+export {
+	optimisticAddEffectKeyframe,
+	optimisticAddSequenceKeyframe,
+} from './optimistic-add-keyframe';
 export {optimisticUpdateForCodeValues} from './optimistic-update-for-code-values';
 export {optimisticUpdateForEffectCodeValues} from './optimistic-update-for-effect-code-values';
 export {
