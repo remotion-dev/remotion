@@ -229,85 +229,25 @@ const outlinesAreEqual = (
 	return true;
 };
 
-export const SelectedOutlineOverlay: React.FC<{
+const SelectedOutlinePolygon: React.FC<{
+	readonly outline: SelectedOutline;
 	readonly scale: number;
-}> = ({scale}) => {
-	const {selectedItems} = useTimelineSelection();
-	const {sequences} = useContext(Internals.SequenceManager);
-	const {codeValues} = useContext(Internals.VisualModeCodeValuesContext);
+	readonly target: SelectedOutlineTarget | undefined;
+}> = ({outline, scale, target}) => {
 	const {getDragOverrides} = useContext(
 		Internals.VisualModeDragOverridesContext,
 	);
 	const {setCodeValues, setDragOverrides, clearDragOverrides} = useContext(
 		Internals.VisualModeSettersContext,
 	);
-	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const {overrideIdToNodePathMappings} = useContext(
-		Internals.OverrideIdsToNodePathsGettersContext,
+	const points = useMemo(
+		() => outline.points.map(pointToString).join(' '),
+		[outline.points],
 	);
-	const [outlines, setOutlines] = useState<readonly SelectedOutline[]>([]);
-	const overlayRef = useRef<SVGSVGElement>(null);
-
-	const selectedOutlineTargets = useMemo((): SelectedOutlineTarget[] => {
-		if (!ENABLE_OUTLINES) {
-			return [];
-		}
-
-		return getSequencesWithSelectedOutlines({
-			selectedItems,
-			sequences,
-			overrideIdsToNodePaths: overrideIdToNodePathMappings,
-		}).map(({key, nodePathInfo, sequence}) => {
-			if (sequence.refForOutline === null) {
-				throw new Error('Expected sequence to have a ref for outline');
-			}
-
-			const nodePath = nodePathInfo.sequenceSubscriptionKey;
-			const {controls} = sequence;
-			const fieldSchema = controls?.schema[translateFieldKey];
-			const codeValue = Internals.getCodeValuesCtx(codeValues, nodePath)?.[
-				translateFieldKey
-			];
-			const canDrag =
-				previewServerState.type === 'connected' &&
-				controls !== null &&
-				fieldSchema?.type === 'translate' &&
-				codeValue?.canUpdate === true;
-
-			return {
-				key,
-				ref: sequence.refForOutline,
-				drag: canDrag
-					? {
-							codeValue,
-							clientId: previewServerState.clientId,
-							fieldDefault: fieldSchema.default,
-							nodePath,
-							schema: controls.schema,
-						}
-					: null,
-			};
-		});
-	}, [
-		codeValues,
-		overrideIdToNodePathMappings,
-		previewServerState,
-		selectedItems,
-		sequences,
-	]);
-
-	const targetsByKey = useMemo(() => {
-		return new Map(
-			selectedOutlineTargets.map((target) => [target.key, target]),
-		);
-	}, [selectedOutlineTargets]);
+	const drag = target?.drag ?? null;
 
 	const onPointerDown = React.useCallback(
-		(
-			event: React.PointerEvent<SVGPolygonElement>,
-			target: SelectedOutlineTarget,
-		) => {
-			const {drag} = target;
+		(event: React.PointerEvent<SVGPolygonElement>) => {
 			if (event.button !== 0 || drag === null) {
 				return;
 			}
@@ -384,12 +324,93 @@ export const SelectedOutlineOverlay: React.FC<{
 		},
 		[
 			clearDragOverrides,
+			drag,
 			getDragOverrides,
 			scale,
 			setCodeValues,
 			setDragOverrides,
 		],
 	);
+
+	return (
+		<polygon
+			points={points}
+			fill={drag === null ? 'none' : 'transparent'}
+			stroke={BLUE}
+			strokeWidth={2}
+			vectorEffect="non-scaling-stroke"
+			pointerEvents={drag === null ? undefined : 'all'}
+			onPointerDown={drag === null ? undefined : onPointerDown}
+		/>
+	);
+};
+
+export const SelectedOutlineOverlay: React.FC<{
+	readonly scale: number;
+}> = ({scale}) => {
+	const {selectedItems} = useTimelineSelection();
+	const {sequences} = useContext(Internals.SequenceManager);
+	const {codeValues} = useContext(Internals.VisualModeCodeValuesContext);
+	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const {overrideIdToNodePathMappings} = useContext(
+		Internals.OverrideIdsToNodePathsGettersContext,
+	);
+	const [outlines, setOutlines] = useState<readonly SelectedOutline[]>([]);
+	const overlayRef = useRef<SVGSVGElement>(null);
+
+	const selectedOutlineTargets = useMemo((): SelectedOutlineTarget[] => {
+		if (!ENABLE_OUTLINES) {
+			return [];
+		}
+
+		return getSequencesWithSelectedOutlines({
+			selectedItems,
+			sequences,
+			overrideIdsToNodePaths: overrideIdToNodePathMappings,
+		}).map(({key, nodePathInfo, sequence}) => {
+			if (sequence.refForOutline === null) {
+				throw new Error('Expected sequence to have a ref for outline');
+			}
+
+			const nodePath = nodePathInfo.sequenceSubscriptionKey;
+			const {controls} = sequence;
+			const fieldSchema = controls?.schema[translateFieldKey];
+			const codeValue = Internals.getCodeValuesCtx(codeValues, nodePath)?.[
+				translateFieldKey
+			];
+			const canDrag =
+				previewServerState.type === 'connected' &&
+				controls !== null &&
+				fieldSchema?.type === 'translate' &&
+				codeValue?.canUpdate === true;
+
+			return {
+				key,
+				ref: sequence.refForOutline,
+				drag: canDrag
+					? {
+							codeValue,
+							clientId: previewServerState.clientId,
+							fieldDefault: fieldSchema.default,
+							nodePath,
+							schema: controls.schema,
+						}
+					: null,
+			};
+		});
+	}, [
+		codeValues,
+		overrideIdToNodePathMappings,
+		previewServerState,
+		selectedItems,
+		sequences,
+	]);
+
+	const targetsByKey = useMemo(() => {
+		return new Map(
+			selectedOutlineTargets.map((target) => [target.key, target]),
+		);
+	}, [selectedOutlineTargets]);
 
 	useEffect(() => {
 		if (selectedOutlineTargets.length === 0) {
@@ -438,28 +459,14 @@ export const SelectedOutlineOverlay: React.FC<{
 			height="100%"
 			aria-hidden="true"
 		>
-			{outlines.map((outline) => {
-				const target = targetsByKey.get(outline.key);
-				return (
-					<React.Fragment key={outline.key}>
-						<polygon
-							points={outline.points.map(pointToString).join(' ')}
-							fill="none"
-							stroke={BLUE}
-							strokeWidth={2}
-							vectorEffect="non-scaling-stroke"
-						/>
-						{target?.drag ? (
-							<polygon
-								points={outline.points.map(pointToString).join(' ')}
-								fill="transparent"
-								pointerEvents="all"
-								onPointerDown={(event) => onPointerDown(event, target)}
-							/>
-						) : null}
-					</React.Fragment>
-				);
-			})}
+			{outlines.map((outline) => (
+				<SelectedOutlinePolygon
+					key={outline.key}
+					outline={outline}
+					scale={scale}
+					target={targetsByKey.get(outline.key)}
+				/>
+			))}
 		</svg>
 	);
 };
