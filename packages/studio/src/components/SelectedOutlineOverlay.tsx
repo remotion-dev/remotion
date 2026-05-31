@@ -1,9 +1,22 @@
 import React, {useContext, useEffect, useMemo, useRef, useState} from 'react';
-import type {OverrideIdToNodePaths, TSequence} from 'remotion';
+import type {
+	CanUpdateSequencePropStatusTrue,
+	OverrideIdToNodePaths,
+	SequencePropsSubscriptionKey,
+	SequenceSchema,
+	TSequence,
+} from 'remotion';
 import {Internals} from 'remotion';
 import {calculateTimeline} from '../helpers/calculate-timeline';
+import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {BLUE} from '../helpers/colors';
 import {getBoxQuadsPonyfill} from '../helpers/get-box-quads-ponyfill';
+import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
+import {saveSequenceProp} from './Timeline/save-sequence-prop';
+import {
+	parseTranslate,
+	serializeTranslate,
+} from './Timeline/timeline-translate-utils';
 import {
 	ENABLE_OUTLINES,
 	getTimelineSequenceSelectionKey,
@@ -29,7 +42,24 @@ type SelectedOutline = {
 type SelectedOutlineTarget = {
 	readonly key: string;
 	readonly ref: React.RefObject<HTMLElement | null>;
+	readonly drag: SelectedOutlineDragTarget | null;
 };
+
+type SelectedOutlineDragTarget = {
+	readonly codeValue: CanUpdateSequencePropStatusTrue;
+	readonly clientId: string;
+	readonly fieldDefault: string | undefined;
+	readonly nodePath: SequencePropsSubscriptionKey;
+	readonly schema: SequenceSchema;
+};
+
+type SequenceWithSelectedOutline = {
+	readonly key: string;
+	readonly nodePathInfo: SequenceNodePathInfo;
+	readonly sequence: TSequence;
+};
+
+const translateFieldKey = 'style.translate';
 
 const outlineContainer: React.CSSProperties = {
 	position: 'absolute',
@@ -115,7 +145,7 @@ const getSequencesWithSelectedOutlines = ({
 	readonly selectedItems: readonly TimelineSelection[];
 	readonly sequences: readonly TSequence[];
 	readonly overrideIdsToNodePaths: OverrideIdToNodePaths;
-}): TSequence[] => {
+}): SequenceWithSelectedOutline[] => {
 	const selectedSequenceKeys = getSelectedSequenceKeys(selectedItems);
 
 	if (selectedSequenceKeys.size === 0) {
@@ -135,8 +165,18 @@ const getSequencesWithSelectedOutlines = ({
 				getTimelineSequenceSelectionKey(track.nodePathInfo),
 			);
 		})
-		.map((track) => track.sequence)
-		.filter((sequence) => sequence.refForOutline !== null);
+		.filter((track) => track.sequence.refForOutline !== null)
+		.map((track) => {
+			if (track.nodePathInfo === null) {
+				throw new Error('Expected selected outline to have a node path');
+			}
+
+			return {
+				key: getTimelineSequenceSelectionKey(track.nodePathInfo),
+				nodePathInfo: track.nodePathInfo,
+				sequence: track.sequence,
+			};
+		});
 };
 
 const measureOutlines = (
@@ -189,9 +229,129 @@ const outlinesAreEqual = (
 	return true;
 };
 
-export const SelectedOutlineOverlay: React.FC = () => {
+const SelectedOutlinePolygon: React.FC<{
+	readonly outline: SelectedOutline;
+	readonly scale: number;
+	readonly target: SelectedOutlineTarget | undefined;
+}> = ({outline, scale, target}) => {
+	const {getDragOverrides} = useContext(
+		Internals.VisualModeDragOverridesContext,
+	);
+	const {setCodeValues, setDragOverrides, clearDragOverrides} = useContext(
+		Internals.VisualModeSettersContext,
+	);
+	const points = useMemo(
+		() => outline.points.map(pointToString).join(' '),
+		[outline.points],
+	);
+	const drag = target?.drag ?? null;
+
+	const onPointerDown = React.useCallback(
+		(event: React.PointerEvent<SVGPolygonElement>) => {
+			if (event.button !== 0 || drag === null) {
+				return;
+			}
+
+			event.preventDefault();
+			event.stopPropagation();
+
+			const startPointerX = event.clientX;
+			const startPointerY = event.clientY;
+			const dragOverrideValue = (getDragOverrides(drag.nodePath) ?? {})[
+				translateFieldKey
+			];
+			const effectiveValue = Internals.getEffectiveVisualModeValue({
+				codeValue: drag.codeValue,
+				dragOverrideValue,
+				defaultValue: drag.fieldDefault,
+				shouldResortToDefaultValueIfUndefined: true,
+			});
+			const [startX, startY] = parseTranslate(
+				String(effectiveValue ?? '0px 0px'),
+			);
+			const defaultValue =
+				drag.fieldDefault !== undefined
+					? JSON.stringify(drag.fieldDefault)
+					: null;
+			let lastValue: string | null = null;
+
+			const onPointerMove = (moveEvent: PointerEvent) => {
+				moveEvent.preventDefault();
+
+				const nextX = startX + (moveEvent.clientX - startPointerX) / scale;
+				const nextY = startY + (moveEvent.clientY - startPointerY) / scale;
+				lastValue = serializeTranslate(nextX, nextY);
+				setDragOverrides(drag.nodePath, translateFieldKey, lastValue);
+			};
+
+			const onPointerUp = () => {
+				window.removeEventListener('pointermove', onPointerMove);
+				window.removeEventListener('pointerup', onPointerUp);
+				window.removeEventListener('pointercancel', onPointerUp);
+
+				const stringifiedValue =
+					lastValue === null ? null : JSON.stringify(lastValue);
+				const shouldSave =
+					lastValue !== null &&
+					lastValue !== drag.codeValue.codeValue &&
+					!(
+						defaultValue === stringifiedValue &&
+						drag.codeValue.codeValue === undefined
+					);
+
+				if (!shouldSave) {
+					clearDragOverrides(drag.nodePath);
+					return;
+				}
+
+				saveSequenceProp({
+					fileName: drag.nodePath.absolutePath,
+					nodePath: drag.nodePath,
+					fieldKey: translateFieldKey,
+					value: lastValue,
+					defaultValue,
+					schema: drag.schema,
+					setCodeValues,
+					clientId: drag.clientId,
+				}).finally(() => {
+					clearDragOverrides(drag.nodePath);
+				});
+			};
+
+			window.addEventListener('pointermove', onPointerMove);
+			window.addEventListener('pointerup', onPointerUp);
+			window.addEventListener('pointercancel', onPointerUp);
+		},
+		[
+			clearDragOverrides,
+			drag,
+			getDragOverrides,
+			scale,
+			setCodeValues,
+			setDragOverrides,
+		],
+	);
+
+	return (
+		<polygon
+			points={points}
+			fill={drag === null ? 'none' : 'transparent'}
+			stroke={BLUE}
+			strokeWidth={2}
+			vectorEffect="non-scaling-stroke"
+			pointerEvents={drag === null ? undefined : 'all'}
+			onPointerDown={drag === null ? undefined : onPointerDown}
+		/>
+	);
+};
+
+export const SelectedOutlineOverlay: React.FC<{
+	readonly scale: number;
+}> = ({scale}) => {
 	const {selectedItems} = useTimelineSelection();
 	const {sequences} = useContext(Internals.SequenceManager);
+	const {codeValues} = useContext(Internals.VisualModeCodeValuesContext);
+	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {overrideIdToNodePathMappings} = useContext(
 		Internals.OverrideIdsToNodePathsGettersContext,
 	);
@@ -207,17 +367,50 @@ export const SelectedOutlineOverlay: React.FC = () => {
 			selectedItems,
 			sequences,
 			overrideIdsToNodePaths: overrideIdToNodePathMappings,
-		}).map((sequence) => {
+		}).map(({key, nodePathInfo, sequence}) => {
 			if (sequence.refForOutline === null) {
 				throw new Error('Expected sequence to have a ref for outline');
 			}
 
+			const nodePath = nodePathInfo.sequenceSubscriptionKey;
+			const {controls} = sequence;
+			const fieldSchema = controls?.schema[translateFieldKey];
+			const codeValue = Internals.getCodeValuesCtx(codeValues, nodePath)?.[
+				translateFieldKey
+			];
+			const canDrag =
+				previewServerState.type === 'connected' &&
+				controls !== null &&
+				fieldSchema?.type === 'translate' &&
+				codeValue?.canUpdate === true;
+
 			return {
-				key: sequence.id,
+				key,
 				ref: sequence.refForOutline,
+				drag: canDrag
+					? {
+							codeValue,
+							clientId: previewServerState.clientId,
+							fieldDefault: fieldSchema.default,
+							nodePath,
+							schema: controls.schema,
+						}
+					: null,
 			};
 		});
-	}, [overrideIdToNodePathMappings, selectedItems, sequences]);
+	}, [
+		codeValues,
+		overrideIdToNodePathMappings,
+		previewServerState,
+		selectedItems,
+		sequences,
+	]);
+
+	const targetsByKey = useMemo(() => {
+		return new Map(
+			selectedOutlineTargets.map((target) => [target.key, target]),
+		);
+	}, [selectedOutlineTargets]);
 
 	useEffect(() => {
 		if (selectedOutlineTargets.length === 0) {
@@ -267,13 +460,11 @@ export const SelectedOutlineOverlay: React.FC = () => {
 			aria-hidden="true"
 		>
 			{outlines.map((outline) => (
-				<polygon
+				<SelectedOutlinePolygon
 					key={outline.key}
-					points={outline.points.map(pointToString).join(' ')}
-					fill="none"
-					stroke={BLUE}
-					strokeWidth={2}
-					vectorEffect="non-scaling-stroke"
+					outline={outline}
+					scale={scale}
+					target={targetsByKey.get(outline.key)}
 				/>
 			))}
 		</svg>

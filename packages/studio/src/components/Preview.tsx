@@ -272,7 +272,7 @@ const CompWhenItHasDimensions: React.FC<{
 				xCorrection={xCorrection}
 				yCorrection={yCorrection}
 			/>
-			<SelectedOutlineOverlay />
+			<SelectedOutlineOverlay scale={scale} />
 		</div>
 	);
 };
