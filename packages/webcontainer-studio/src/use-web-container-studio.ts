@@ -1,5 +1,5 @@
 import {WebContainer} from '@webcontainer/api';
-import {useCallback, useEffect, useRef, useState} from 'react';
+import {useCallback, useEffect, useState} from 'react';
 import {templateFiles} from './template-files';
 
 type Phase =
@@ -10,9 +10,18 @@ type Phase =
 	| {type: 'ready'; url: string}
 	| {type: 'error'; message: string};
 
+let webContainerPromise: Promise<WebContainer> | null = null;
+
+const getWebContainer = () => {
+	if (!webContainerPromise) {
+		webContainerPromise = WebContainer.boot();
+	}
+
+	return webContainerPromise;
+};
+
 export function useWebContainerStudio() {
 	const [phase, setPhase] = useState<Phase>({type: 'booting'});
-	const containerRef = useRef<WebContainer | null>(null);
 
 	const appendOutput = useCallback((text: string) => {
 		setPhase((prev) => {
@@ -30,12 +39,8 @@ export function useWebContainerStudio() {
 		async function run() {
 			try {
 				setPhase({type: 'booting'});
-				const container = await WebContainer.boot();
-				containerRef.current = container;
-				if (cancelled) {
-					await container.teardown();
-					return;
-				}
+				const container = await getWebContainer();
+				if (cancelled) return;
 
 				setPhase({type: 'mounting'});
 				await container.mount(templateFiles);
@@ -89,7 +94,6 @@ export function useWebContainerStudio() {
 
 		return () => {
 			cancelled = true;
-			containerRef.current?.teardown();
 		};
 	}, [appendOutput]);
 
