@@ -234,7 +234,6 @@ export const useMenuStructure = (
 	useEffect(() => {
 		if (
 			type !== 'connected' ||
-			!window.remotion_editorName ||
 			!currentComposition ||
 			!resolvedCompositionLocation?.source
 		) {

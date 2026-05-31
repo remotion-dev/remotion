@@ -13,6 +13,7 @@ import {deleteJsxNodeHandler} from './routes/delete-jsx-node';
 import {deleteSequenceKeyframeHandler} from './routes/delete-sequence-keyframe';
 import {deleteStaticFileHandler} from './routes/delete-static-file';
 import {duplicateJsxNodeHandler} from './routes/duplicate-jsx-node';
+import {insertJsxElementHandler} from './routes/insert-jsx-element';
 import {handleInstallPackage} from './routes/install-dependency';
 import {openInEditorHandler} from './routes/open-in-editor';
 import {handleOpenInFileExplorer} from './routes/open-in-file-explorer';
@@ -71,6 +72,7 @@ export const allApiRoutes: {
 	'/api/delete-static-file': deleteStaticFileHandler,
 	'/api/restart-studio': handleRestartStudio,
 	'/api/install-package': handleInstallPackage,
+	'/api/insert-jsx-element': insertJsxElementHandler,
 	'/api/undo': undoHandler,
 	'/api/redo': redoHandler,
 };

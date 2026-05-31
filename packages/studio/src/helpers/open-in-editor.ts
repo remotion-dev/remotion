@@ -2,6 +2,7 @@ import type {
 	CompositionComponentInfoResponse,
 	SymbolicatedStackFrame,
 } from '@remotion/studio-shared';
+import {useSyncExternalStore} from 'react';
 import {callApi} from '../components/call-api';
 import type {OriginalPosition} from '../error-overlay/react-overlay/utils/get-source-map';
 
@@ -37,13 +38,20 @@ export const openOriginalPositionInEditor = async (
 	});
 };
 
+type ResolvedCompositionComponentInfo = {
+	location: CompositionComponentInfoResponse['location'];
+	canAddSequence: boolean;
+};
+
 const componentResolutionCache = new Map<
 	string,
-	Promise<{
-		location: CompositionComponentInfoResponse['location'];
-		canAddSequence: boolean;
-	}>
+	Promise<ResolvedCompositionComponentInfo>
 >();
+const componentResolutionResults = new Map<
+	string,
+	ResolvedCompositionComponentInfo
+>();
+const componentResolutionListeners = new Set<() => void>();
 
 const getComponentResolutionCacheKey = ({
 	compositionFile,
@@ -55,7 +63,58 @@ const getComponentResolutionCacheKey = ({
 	return `${compositionFile}::${compositionId}`;
 };
 
-const loadCompositionComponentInfo = async ({
+const notifyComponentResolutionListeners = () => {
+	for (const listener of componentResolutionListeners) {
+		listener();
+	}
+};
+
+export const subscribeToCompositionComponentInfo = (listener: () => void) => {
+	componentResolutionListeners.add(listener);
+
+	return () => {
+		componentResolutionListeners.delete(listener);
+	};
+};
+
+export const getCachedCompositionComponentInfo = ({
+	compositionFile,
+	compositionId,
+}: {
+	compositionFile: string;
+	compositionId: string;
+}) => {
+	return (
+		componentResolutionResults.get(
+			getComponentResolutionCacheKey({compositionFile, compositionId}),
+		) ?? null
+	);
+};
+
+export const useCachedCompositionComponentInfo = ({
+	compositionFile,
+	compositionId,
+}: {
+	compositionFile: string | null;
+	compositionId: string | null;
+}) => {
+	return useSyncExternalStore(
+		subscribeToCompositionComponentInfo,
+		() => {
+			if (compositionFile === null || compositionId === null) {
+				return null;
+			}
+
+			return getCachedCompositionComponentInfo({
+				compositionFile,
+				compositionId,
+			});
+		},
+		() => null,
+	);
+};
+
+export const loadCompositionComponentInfo = async ({
 	compositionFile,
 	compositionId,
 }: {
@@ -77,10 +136,14 @@ const loadCompositionComponentInfo = async ({
 			compositionId,
 		});
 
-		return {
+		const result = {
 			location: body.location,
 			canAddSequence: body.canAddSequence,
 		};
+		componentResolutionResults.set(cacheKey, result);
+		notifyComponentResolutionListeners();
+
+		return result;
 	})();
 	componentResolutionCache.set(cacheKey, promise);
 
@@ -88,6 +151,8 @@ const loadCompositionComponentInfo = async ({
 		return await promise;
 	} catch (err) {
 		componentResolutionCache.delete(cacheKey);
+		componentResolutionResults.delete(cacheKey);
+		notifyComponentResolutionListeners();
 		throw err;
 	}
 };

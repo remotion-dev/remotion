@@ -5,6 +5,7 @@ import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {deleteSelectedTimelineItems} from './delete-selected-timeline-item';
 import {duplicateSelectedTimelineItems} from './duplicate-selected-timeline-item';
+import {resetSelectedTimelineProps} from './reset-selected-timeline-props';
 import {
 	useCurrentTimelineSelectionStateAsRef,
 	useTimelineSelection,
@@ -17,6 +18,7 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 	const {overrideIdToNodePathMappings} = useContext(
 		Internals.OverrideIdsToNodePathsGettersContext,
 	);
+	const {codeValues} = useContext(Internals.VisualModeCodeValuesContext);
 	const {setCodeValues} = useContext(Internals.VisualModeSettersContext);
 	const {canSelect} = useTimelineSelection();
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
@@ -33,6 +35,20 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 			callback: () => {
 				const {selectedItems, clearSelection} = currentSelection.current;
 				if (selectedItems.length === 0) {
+					return;
+				}
+
+				const resetPromise = resetSelectedTimelineProps({
+					selections: selectedItems,
+					sequences,
+					overrideIdsToNodePaths: overrideIdToNodePathMappings,
+					codeValues,
+					setCodeValues,
+					clientId,
+				});
+
+				if (resetPromise !== null) {
+					resetPromise.catch(() => undefined);
 					return;
 				}
 
@@ -87,6 +103,7 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 		};
 	}, [
 		canSelect,
+		codeValues,
 		currentSelection,
 		keybindings,
 		overrideIdToNodePathMappings,
