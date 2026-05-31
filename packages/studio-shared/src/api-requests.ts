@@ -306,7 +306,7 @@ export type SaveSequencePropsResponse =
 			reason: CannotUpdateSequenceReason;
 	  };
 
-export type SaveEffectPropsRequest = {
+export type SaveEffectPropEdit = {
 	fileName: string;
 	sequenceNodePath: SequencePropsSubscriptionKey;
 	effectIndex: number;
@@ -314,10 +314,25 @@ export type SaveEffectPropsRequest = {
 	value: string;
 	defaultValue: string | null;
 	schema: SequenceSchema;
-	clientId: string;
 };
 
-export type SaveEffectPropsResponse = CanUpdateEffectPropsResponse;
+export type SaveEffectPropsRequest = {
+	edits: SaveEffectPropEdit[];
+	clientId: string;
+	undoLabel: string | null;
+	redoLabel: string | null;
+};
+
+export type SaveEffectPropsResult = {
+	fileName: string;
+	sequenceNodePath: SequencePropsSubscriptionKey;
+	effectIndex: number;
+	status: CanUpdateEffectPropsResponse;
+};
+
+export type SaveEffectPropsResponse = CanUpdateEffectPropsResponse & {
+	results: SaveEffectPropsResult[];
+};
 
 export type DeleteSequenceKeyframeRequest = {
 	fileName: string;
@@ -352,7 +367,7 @@ export type DeleteEffectKeyframeRequest = {
 	clientId: string;
 };
 
-export type DeleteEffectKeyframeResponse = SaveEffectPropsResponse;
+export type DeleteEffectKeyframeResponse = CanUpdateEffectPropsResponse;
 
 export type AddEffectKeyframeRequest = {
 	fileName: string;
@@ -365,7 +380,7 @@ export type AddEffectKeyframeRequest = {
 	clientId: string;
 };
 
-export type AddEffectKeyframeResponse = SaveEffectPropsResponse;
+export type AddEffectKeyframeResponse = CanUpdateEffectPropsResponse;
 
 type BaseDeleteEffectRequestItem = {
 	fileName: string;

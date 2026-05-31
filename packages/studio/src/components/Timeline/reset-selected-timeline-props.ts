@@ -8,8 +8,8 @@ import type {
 } from 'remotion';
 import {Internals} from 'remotion';
 import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
-import {saveEffectProp} from './save-effect-prop';
-import {saveSequenceProp} from './save-sequence-prop';
+import {saveEffectProps} from './save-effect-prop';
+import {saveSequenceProps} from './save-sequence-prop';
 import type {SetCodeValues} from './save-sequence-prop';
 import type {TimelineSelection} from './TimelineSelection';
 
@@ -83,7 +83,10 @@ export const getTimelinePropResetTargets = ({
 
 	const resetTargets: TimelinePropResetTarget[] = [];
 	for (const selection of selections) {
-		if (!isPropResetSelection(selection)) {
+		if (
+			!isPropResetSelection(selection) ||
+			selection.type !== firstSelection.type
+		) {
 			throw new Error(
 				`Assertion failed: Cannot reset timeline selections of different types (${firstSelection.type}, ${selection.type})`,
 			);
@@ -196,32 +199,30 @@ export const resetSelectedTimelineProps = ({
 		return null;
 	}
 
-	const resetPromises = resetTargets.map((target) => {
-		if (target.type === 'sequence-prop') {
-			return saveSequenceProp({
-				fileName: target.fileName,
-				nodePath: target.nodePath,
-				fieldKey: target.fieldKey,
-				value: target.value,
-				defaultValue: target.defaultValue,
-				schema: target.schema,
-				setCodeValues,
-				clientId,
-			});
-		}
+	const sequencePropTargets = resetTargets.filter(
+		(target): target is SequencePropResetTarget =>
+			target.type === 'sequence-prop',
+	);
+	const effectPropTargets = resetTargets.filter(
+		(target): target is EffectPropResetTarget => target.type === 'effect-prop',
+	);
 
-		return saveEffectProp({
-			fileName: target.fileName,
-			nodePath: target.nodePath,
-			effectIndex: target.effectIndex,
-			fieldKey: target.fieldKey,
-			value: target.value,
-			defaultValue: target.defaultValue,
-			schema: target.schema,
+	const resetPromises = [
+		saveSequenceProps({
+			changes: sequencePropTargets,
 			setCodeValues,
 			clientId,
-		});
-	});
+			undoLabel: null,
+			redoLabel: null,
+		}),
+		saveEffectProps({
+			changes: effectPropTargets,
+			setCodeValues,
+			clientId,
+			undoLabel: null,
+			redoLabel: null,
+		}),
+	];
 
 	return Promise.all(resetPromises).then(() => undefined);
 };

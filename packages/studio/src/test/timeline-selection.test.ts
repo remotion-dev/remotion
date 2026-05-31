@@ -14,7 +14,10 @@ import {
 } from '../components/SelectedOutlineOverlay';
 import {deleteSelectedTimelineItems} from '../components/Timeline/delete-selected-timeline-item';
 import {isDuplicatableSequenceRowSelection} from '../components/Timeline/duplicate-selected-timeline-item';
-import {getTimelinePropResetTargets} from '../components/Timeline/reset-selected-timeline-props';
+import {
+	getTimelinePropResetTargets,
+	resetSelectedTimelineProps,
+} from '../components/Timeline/reset-selected-timeline-props';
 import {
 	ENABLE_OUTLINES,
 	getSelectableTimelineSequenceSelections,
@@ -74,6 +77,30 @@ const makeTimelineSequence = ({
 		refForOutline: null,
 		effects,
 	}) as TSequence;
+
+const mockSaveRequests = () => {
+	const originalFetch = globalThis.fetch;
+	const requests: {endpoint: string; body: unknown}[] = [];
+	globalThis.fetch = ((input, init) => {
+		requests.push({
+			endpoint: String(input),
+			body: JSON.parse(String(init?.body)),
+		});
+
+		return Promise.resolve(
+			new Response(JSON.stringify({success: true, data: {}}), {
+				headers: {'content-type': 'application/json'},
+			}),
+		);
+	}) as typeof fetch;
+
+	return {
+		requests,
+		restore: () => {
+			globalThis.fetch = originalFetch;
+		},
+	};
+};
 
 test('Timeline selection should stay disabled until released publicly', () => {
 	expect(SELECTION_ENABLED).toBe(false);
@@ -320,6 +347,139 @@ test('Backspace reset targets selected effect props', () => {
 			schema: effectSchema,
 		},
 	]);
+});
+
+test('Backspace reset saves multiple selected sequence props in one request', async () => {
+	const schema = {
+		opacity: {type: 'number', default: 1},
+		'style.rotate': {type: 'rotation', default: '0deg'},
+	} satisfies SequenceSchema;
+	const opacityNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['controls', 'opacity'],
+	);
+	const rotateNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['controls', 'style.rotate'],
+	);
+	const nodePath = opacityNodePathInfo.sequenceSubscriptionKey;
+	const codeValues = {
+		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			canUpdate: true,
+			props: {
+				opacity: {canUpdate: true, codeValue: 0.5},
+				'style.rotate': {canUpdate: true, codeValue: '45deg'},
+			},
+			effects: [],
+		},
+	} satisfies CodeValues;
+	const {requests, restore} = mockSaveRequests();
+
+	try {
+		await resetSelectedTimelineProps({
+			selections: [
+				{
+					type: 'sequence-prop',
+					nodePathInfo: opacityNodePathInfo,
+					key: 'opacity',
+				},
+				{
+					type: 'sequence-prop',
+					nodePathInfo: rotateNodePathInfo,
+					key: 'style.rotate',
+				},
+			],
+			sequences: [makeTimelineSequence({schema})],
+			overrideIdsToNodePaths: {override: nodePath},
+			codeValues,
+			setCodeValues: () => undefined,
+			clientId: 'test-client',
+		});
+	} finally {
+		restore();
+	}
+
+	expect(requests).toHaveLength(1);
+	expect(requests[0].endpoint).toBe('/api/save-sequence-props');
+	expect(
+		(requests[0].body as {edits: {key: string}[]}).edits.map(
+			(edit) => edit.key,
+		),
+	).toEqual(['opacity', 'style.rotate']);
+});
+
+test('Backspace reset saves multiple selected effect props in one request', async () => {
+	const schema = {} satisfies SequenceSchema;
+	const effectSchema = {
+		intensity: {type: 'number', default: 0},
+		radius: {type: 'number', default: 10},
+	} satisfies SequenceSchema;
+	const intensityNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['effects', '0', 'intensity'],
+	);
+	const radiusNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['effects', '0', 'radius'],
+	);
+	const nodePath = intensityNodePathInfo.sequenceSubscriptionKey;
+	const codeValues = {
+		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			canUpdate: true,
+			props: {},
+			effects: [
+				{
+					canUpdate: true,
+					callee: 'effect',
+					effectIndex: 0,
+					props: {
+						intensity: {canUpdate: true, codeValue: 1},
+						radius: {canUpdate: true, codeValue: 20},
+					},
+				},
+			],
+		},
+	} satisfies CodeValues;
+	const {requests, restore} = mockSaveRequests();
+
+	try {
+		await resetSelectedTimelineProps({
+			selections: [
+				{
+					type: 'sequence-effect-prop',
+					nodePathInfo: intensityNodePathInfo,
+					i: 0,
+					key: 'intensity',
+				},
+				{
+					type: 'sequence-effect-prop',
+					nodePathInfo: radiusNodePathInfo,
+					i: 0,
+					key: 'radius',
+				},
+			],
+			sequences: [
+				makeTimelineSequence({
+					schema,
+					effects: [{schema: effectSchema}],
+				}),
+			],
+			overrideIdsToNodePaths: {override: nodePath},
+			codeValues,
+			setCodeValues: () => undefined,
+			clientId: 'test-client',
+		});
+	} finally {
+		restore();
+	}
+
+	expect(requests).toHaveLength(1);
+	expect(requests[0].endpoint).toBe('/api/save-effect-props');
+	expect(
+		(requests[0].body as {edits: {key: string}[]}).edits.map(
+			(edit) => edit.key,
+		),
+	).toEqual(['intensity', 'radius']);
 });
 
 test('Deleting mixed timeline selection types throws an assertion error', () => {

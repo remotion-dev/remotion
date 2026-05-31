@@ -1,5 +1,20 @@
 import {expect, test} from 'bun:test';
-import {updateEffectPropsAst} from '../codemods/update-effect-props/update-effect-props';
+import {mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import path from 'node:path';
+import {
+	updateEffectPropsAst,
+	updateMultipleEffectProps,
+} from '../codemods/update-effect-props/update-effect-props';
+import {
+	createFileWatcherRegistry,
+	setFileWatcherRegistry,
+} from '../file-watcher';
+import {saveEffectPropsHandler} from '../preview-server/routes/save-effect-props';
+import {
+	clearUndoStackForTests,
+	getUndoStack,
+} from '../preview-server/undo-stack';
 import {lineColumnToNodePath} from './test-utils';
 
 const tintSchema = {
@@ -89,6 +104,99 @@ test('updateEffectProps removes a prop equal to default', () => {
 
 	expect(serialized).not.toContain('opacity:');
 	expect(serialized).toContain('color: "red"');
+});
+
+test('updateMultipleEffectProps applies several updates to one output', async () => {
+	const input = buildInput('[tint({color: "red", opacity: 0.5})]');
+	const {output, results} = await updateMultipleEffectProps({
+		input,
+		changes: [
+			{
+				sequenceNodePath: lineColumnToNodePath(input, 6),
+				effectIndex: 0,
+				update: {key: 'opacity', value: 1, defaultValue: 1},
+				schema: tintSchema,
+			},
+			{
+				sequenceNodePath: lineColumnToNodePath(input, 6),
+				effectIndex: 0,
+				update: {key: 'color', value: 'black', defaultValue: 'black'},
+				schema: tintSchema,
+			},
+		],
+		prettierConfigOverride: null,
+	});
+
+	expect(output).not.toContain('opacity:');
+	expect(output).not.toContain('color:');
+	expect(results).toHaveLength(2);
+});
+
+test('saveEffectPropsHandler pushes one undo entry for multiple edits', async () => {
+	clearUndoStackForTests();
+	const cleanupFileWatcher = setFileWatcherRegistry(
+		createFileWatcherRegistry(),
+	);
+	const dir = mkdtempSync(path.join(tmpdir(), 'remotion-effect-props-'));
+	const input = buildInput('[tint({color: "red", opacity: 0.5})]');
+	const fileName = path.join(dir, 'Comp.tsx');
+	const sequenceNodePath = {
+		absolutePath: fileName,
+		nodePath: lineColumnToNodePath(input, 6),
+		sequenceKeys: [],
+		effectKeys: [['color', 'opacity']],
+	};
+	writeFileSync(fileName, input);
+
+	try {
+		await saveEffectPropsHandler({
+			input: {
+				edits: [
+					{
+						fileName,
+						sequenceNodePath,
+						effectIndex: 0,
+						key: 'opacity',
+						value: '1',
+						defaultValue: '1',
+						schema: tintSchema,
+					},
+					{
+						fileName,
+						sequenceNodePath,
+						effectIndex: 0,
+						key: 'color',
+						value: '"black"',
+						defaultValue: '"black"',
+						schema: tintSchema,
+					},
+				],
+				clientId: 'test-client',
+				undoLabel: null,
+				redoLabel: null,
+			},
+			entryPoint: fileName,
+			remotionRoot: dir,
+			request: {} as never,
+			response: {} as never,
+			logLevel: 'error',
+			methods: {} as never,
+			publicDir: dir,
+			binariesDirectory: null,
+		});
+
+		const output = readFileSync(fileName, 'utf-8');
+		expect(output).not.toContain('opacity:');
+		expect(output).not.toContain('color:');
+		expect(getUndoStack()).toHaveLength(1);
+		expect(getUndoStack()[0].description.undoMessage).toBe(
+			'↩️  Update selected effect props',
+		);
+	} finally {
+		clearUndoStackForTests();
+		cleanupFileWatcher();
+		rmSync(dir, {recursive: true, force: true});
+	}
 });
 
 test('updateEffectProps targets the correct effect by index when there are multiple', () => {

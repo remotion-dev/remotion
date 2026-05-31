@@ -33,6 +33,12 @@ export type UpdateEffectPropsResult = {
 	removedProps: PropDelta[];
 };
 
+export type UpdateMultipleEffectPropsResult = {
+	output: string;
+	formatted: boolean;
+	results: Omit<UpdateEffectPropsResult, 'output' | 'formatted'>[];
+};
+
 export type PropDelta = {
 	key: string;
 	valueString: string;
@@ -371,5 +377,53 @@ export const updateEffectProps = async ({
 		logLine,
 		effectCallee,
 		removedProps,
+	};
+};
+
+export const updateMultipleEffectProps = async ({
+	input,
+	changes,
+	prettierConfigOverride,
+}: {
+	input: string;
+	changes: {
+		sequenceNodePath: SequenceNodePath;
+		effectIndex: number;
+		update: EffectPropUpdate;
+		schema: SequenceSchema;
+	}[];
+	prettierConfigOverride?: Record<string, unknown> | null;
+}): Promise<UpdateMultipleEffectPropsResult> => {
+	let current = input;
+	const results: UpdateMultipleEffectPropsResult['results'] = [];
+
+	for (const change of changes) {
+		const {serialized, oldValueString, logLine, effectCallee, removedProps} =
+			updateEffectPropsAst({
+				input: current,
+				sequenceNodePath: change.sequenceNodePath,
+				effectIndex: change.effectIndex,
+				update: change.update,
+				schema: change.schema,
+			});
+
+		current = serialized;
+		results.push({
+			oldValueString,
+			logLine,
+			effectCallee,
+			removedProps,
+		});
+	}
+
+	const {output, formatted} = await formatFileContent({
+		input: current,
+		prettierConfigOverride,
+	});
+
+	return {
+		output,
+		formatted,
+		results,
 	};
 };

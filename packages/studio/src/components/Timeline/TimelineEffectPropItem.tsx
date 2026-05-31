@@ -126,14 +126,20 @@ const Value: React.FC<{
 					}),
 				apiCall: () =>
 					callApi('/api/save-effect-props', {
-						fileName: validatedLocation.source,
-						sequenceNodePath: nodePath,
-						effectIndex: field.effectIndex,
-						key: field.key,
-						value: stringifiedValue,
-						defaultValue,
-						schema: field.effectSchema,
+						edits: [
+							{
+								fileName: validatedLocation.source,
+								sequenceNodePath: nodePath,
+								effectIndex: field.effectIndex,
+								key: field.key,
+								value: stringifiedValue,
+								defaultValue,
+								schema: field.effectSchema,
+							},
+						],
 						clientId,
+						undoLabel: null,
+						redoLabel: null,
 					}),
 				errorLabel: 'Could not save effect prop',
 			});
