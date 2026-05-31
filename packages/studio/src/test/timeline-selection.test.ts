@@ -1,5 +1,12 @@
 import {expect, test} from 'bun:test';
-import type {SequenceNodePath, SequencePropsSubscriptionKey} from 'remotion';
+import {
+	Internals,
+	type CodeValues,
+	type SequenceNodePath,
+	type SequencePropsSubscriptionKey,
+	type SequenceSchema,
+	type TSequence,
+} from 'remotion';
 import {
 	getSelectedEffectFieldsBySequenceKey,
 	getUvCoordinateForPoint,
@@ -7,6 +14,7 @@ import {
 } from '../components/SelectedOutlineOverlay';
 import {deleteSelectedTimelineItems} from '../components/Timeline/delete-selected-timeline-item';
 import {isDuplicatableSequenceRowSelection} from '../components/Timeline/duplicate-selected-timeline-item';
+import {getTimelinePropResetTargets} from '../components/Timeline/reset-selected-timeline-props';
 import {
 	ENABLE_OUTLINES,
 	getSelectableTimelineSequenceSelections,
@@ -35,6 +43,37 @@ const makeNodePathInfo = (
 	index: 0,
 	numberOfSequencesWithThisNodePath: 1,
 });
+
+const makeTimelineSequence = ({
+	schema,
+	effects = [],
+}: {
+	readonly schema: SequenceSchema;
+	readonly effects?: readonly {readonly schema: SequenceSchema}[];
+}): TSequence =>
+	({
+		type: 'sequence',
+		from: 0,
+		duration: 100,
+		id: 'sequence',
+		displayName: 'Sequence',
+		documentationLink: null,
+		parent: null,
+		rootId: 'root',
+		showInTimeline: true,
+		nonce: [[0, 0]],
+		loopDisplay: undefined,
+		getStack: () => null,
+		premountDisplay: null,
+		postmountDisplay: null,
+		controls: {
+			schema,
+			currentRuntimeValueDotNotation: {},
+			overrideId: 'override',
+		},
+		refForOutline: null,
+		effects,
+	}) as TSequence;
 
 test('Timeline selection should stay disabled until released publicly', () => {
 	expect(SELECTION_ENABLED).toBe(false);
@@ -169,6 +208,116 @@ test('Cmd+D only duplicates selected timeline sequence rows', () => {
 		{
 			type: 'sequence',
 			nodePathInfo: sequenceNodePathInfo,
+		},
+	]);
+});
+
+test('Backspace reset targets multiple selected sequence props', () => {
+	const schema = {
+		opacity: {type: 'number', default: 1},
+		'style.rotate': {type: 'rotation', default: '0deg'},
+	} satisfies SequenceSchema;
+	const opacityNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['controls', 'opacity'],
+	);
+	const rotateNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['controls', 'style.rotate'],
+	);
+	const nodePath = opacityNodePathInfo.sequenceSubscriptionKey;
+	const codeValues = {
+		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			canUpdate: true,
+			props: {
+				opacity: {canUpdate: true, codeValue: 0.5},
+				'style.rotate': {canUpdate: true, codeValue: '45deg'},
+			},
+			effects: [],
+		},
+	} satisfies CodeValues;
+
+	const resetTargets = getTimelinePropResetTargets({
+		selections: [
+			{
+				type: 'sequence-prop',
+				nodePathInfo: opacityNodePathInfo,
+				key: 'opacity',
+			},
+			{
+				type: 'sequence-prop',
+				nodePathInfo: rotateNodePathInfo,
+				key: 'style.rotate',
+			},
+		],
+		sequences: [makeTimelineSequence({schema})],
+		overrideIdsToNodePaths: {override: nodePath},
+		codeValues,
+	});
+
+	expect(resetTargets?.map((target) => target.fieldKey)).toEqual([
+		'opacity',
+		'style.rotate',
+	]);
+	expect(resetTargets?.map((target) => target.value)).toEqual([1, '0deg']);
+});
+
+test('Backspace reset targets selected effect props', () => {
+	const schema = {} satisfies SequenceSchema;
+	const effectSchema = {
+		intensity: {type: 'number', default: 0},
+	} satisfies SequenceSchema;
+	const nodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['effects', '0', 'intensity'],
+	);
+	const nodePath = nodePathInfo.sequenceSubscriptionKey;
+	const codeValues = {
+		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			canUpdate: true,
+			props: {},
+			effects: [
+				{
+					canUpdate: true,
+					callee: 'effect',
+					effectIndex: 0,
+					props: {
+						intensity: {canUpdate: true, codeValue: 10},
+					},
+				},
+			],
+		},
+	} satisfies CodeValues;
+
+	const resetTargets = getTimelinePropResetTargets({
+		selections: [
+			{
+				type: 'sequence-effect-prop',
+				nodePathInfo,
+				i: 0,
+				key: 'intensity',
+			},
+		],
+		sequences: [
+			makeTimelineSequence({
+				schema,
+				effects: [{schema: effectSchema}],
+			}),
+		],
+		overrideIdsToNodePaths: {override: nodePath},
+		codeValues,
+	});
+
+	expect(resetTargets).toEqual([
+		{
+			type: 'effect-prop',
+			fileName: '/project/src/Comp.tsx',
+			nodePath,
+			effectIndex: 0,
+			fieldKey: 'intensity',
+			value: 0,
+			defaultValue: '0',
+			schema: effectSchema,
 		},
 	]);
 });
