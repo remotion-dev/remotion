@@ -1573,7 +1573,7 @@ export const effectsEvolveDemo: DemoType = {
 			min: 0,
 			max: 1,
 			step: 0.01,
-			default: 0.55,
+			default: 0.5,
 			optional: 'no',
 		},
 		{

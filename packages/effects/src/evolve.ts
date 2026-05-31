@@ -10,7 +10,7 @@ const {createEffect, createWebGL2ContextError} = Internals;
 
 const EVOLVE_DIRECTIONS = ['left', 'right', 'top', 'bottom'] as const;
 
-const DEFAULT_PROGRESS = 1 as const;
+const DEFAULT_PROGRESS = 0.5 as const;
 const DEFAULT_FEATHER = 0.1 as const;
 const DEFAULT_DIRECTION = 'left' as const;
 
@@ -47,7 +47,7 @@ export const evolveSchema = {
 } as const satisfies SequenceSchema;
 
 export type EvolveParams = {
-	/** Reveal progress from `0` (hidden) to `1` (fully revealed). Defaults to `1`. */
+	/** Reveal progress from `0` (hidden) to `1` (fully revealed). Defaults to `0.5`. */
 	readonly progress?: number;
 	/** Reveal direction. Defaults to `left`. */
 	readonly direction?: EvolveDirection;
@@ -175,7 +175,7 @@ float maskValue(float t, float progress, float feather) {
 		return step(t, p);
 	}
 
-	return 1.0 - smoothstep(p, p + f, t);
+	return 1.0 - smoothstep(p, min(p + f, 1.0), t);
 }
 
 void main() {
