@@ -267,7 +267,9 @@ export const TimelineEffectFieldRow: React.FC<{
 	}, [getEffectDragOverrides, nodePath, field.effectIndex, field.key]);
 
 	const keyframeControls =
-		selection.selected && propStatus !== null ? (
+		propStatus !== null &&
+		(selection.selected ||
+			(!propStatus.canUpdate && propStatus.reason === 'keyframed')) ? (
 			<TimelineKeyframeControls
 				fieldKey={field.key}
 				propStatus={propStatus}

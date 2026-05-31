@@ -184,7 +184,9 @@ export const TimelineSequenceFieldRow: React.FC<{
 	}, [getDragOverrides, nodePath, field.key]);
 
 	const keyframeControls =
-		selection.selected && codeValue !== null ? (
+		codeValue !== null &&
+		(selection.selected ||
+			(!codeValue.canUpdate && codeValue.reason === 'keyframed')) ? (
 			<TimelineKeyframeControls
 				fieldKey={field.key}
 				propStatus={codeValue}
