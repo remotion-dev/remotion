@@ -4,6 +4,7 @@ import {isDuplicatableSequenceRowSelection} from '../components/Timeline/duplica
 import {
 	ENABLE_OUTLINES,
 	getSelectableTimelineSequenceSelections,
+	getTimelineSelectionAfterInteraction,
 	getTimelineSequenceSelectionKey,
 	SELECTION_ENABLED,
 	TIMELINE_TOP_DRAG,
@@ -93,4 +94,104 @@ test('Child timeline selections resolve to the parent sequence selection key', (
 	expect(getTimelineSequenceSelectionKey(propNodePathInfo)).toBe(
 		getTimelineSequenceSelectionKey(sequenceNodePathInfo),
 	);
+});
+
+test('Cmd/Ctrl+click toggles row selections', () => {
+	const rowA = {
+		type: 'row' as const,
+		nodePathInfo: makeNodePathInfo(['body', 0], []),
+	};
+	const rowB = {
+		type: 'row' as const,
+		nodePathInfo: makeNodePathInfo(['body', 1], []),
+	};
+	const allSelectableItems = [rowA, rowB];
+
+	expect(
+		getTimelineSelectionAfterInteraction({
+			currentState: {
+				selectedItems: [rowA],
+				anchor: rowA,
+			},
+			clickedItem: rowB,
+			interaction: {shiftKey: false, toggleKey: true},
+			allSelectableItems,
+		}),
+	).toEqual({
+		selectedItems: [rowA, rowB],
+		anchor: rowB,
+	});
+
+	expect(
+		getTimelineSelectionAfterInteraction({
+			currentState: {
+				selectedItems: [rowA, rowB],
+				anchor: rowB,
+			},
+			clickedItem: rowA,
+			interaction: {shiftKey: false, toggleKey: true},
+			allSelectableItems,
+		}),
+	).toEqual({
+		selectedItems: [rowB],
+		anchor: rowA,
+	});
+});
+
+test('Shift+click selects a contiguous row range from the anchor', () => {
+	const rowA = {
+		type: 'row' as const,
+		nodePathInfo: makeNodePathInfo(['body', 0], []),
+	};
+	const rowB = {
+		type: 'row' as const,
+		nodePathInfo: makeNodePathInfo(['body', 1], []),
+	};
+	const rowC = {
+		type: 'row' as const,
+		nodePathInfo: makeNodePathInfo(['body', 2], []),
+	};
+	const allSelectableItems = [rowA, rowB, rowC];
+
+	expect(
+		getTimelineSelectionAfterInteraction({
+			currentState: {
+				selectedItems: [rowA],
+				anchor: rowA,
+			},
+			clickedItem: rowC,
+			interaction: {shiftKey: true, toggleKey: false},
+			allSelectableItems,
+		}),
+	).toEqual({
+		selectedItems: [rowA, rowB, rowC],
+		anchor: rowA,
+	});
+});
+
+test('Shift+click with no matching anchor falls back to single selection', () => {
+	const rowA = {
+		type: 'row' as const,
+		nodePathInfo: makeNodePathInfo(['body', 0], []),
+	};
+	const keyframe = {
+		type: 'keyframe' as const,
+		nodePathInfo: makeNodePathInfo(['body', 0], []),
+		frame: 10,
+	};
+
+	expect(
+		getTimelineSelectionAfterInteraction({
+			currentState: {
+				selectedItems: [keyframe],
+				anchor: keyframe,
+			},
+			clickedItem: rowA,
+			interaction: {shiftKey: true, toggleKey: false},
+			allSelectableItems: [rowA],
+		}),
+	).toEqual({
+		selectedItems: [rowA],
+		anchor: rowA,
+	});
 });

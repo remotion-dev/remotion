@@ -6,6 +6,7 @@ import {
 	TIMELINE_ROW_BASE_PADDING,
 	getTimelineRowIndentWidth,
 } from './timeline-row-layout';
+import type {TimelineSelectionInteraction} from './TimelineSelection';
 import {TIMELINE_SELECTED_BACKGROUND} from './TimelineSelection';
 
 const rowBase: React.CSSProperties = {
@@ -38,7 +39,7 @@ export const TimelineRowChrome: React.FC<{
 	readonly style: React.CSSProperties;
 	readonly selected: boolean;
 	readonly selectable: boolean;
-	readonly onSelect: () => void;
+	readonly onSelect: (interaction?: TimelineSelectionInteraction) => void;
 	readonly showSelectedBackground: boolean;
 	readonly containsSelection: boolean;
 	// When set, the chrome is wrapped in an outer container of this height with a
@@ -78,7 +79,10 @@ export const TimelineRowChrome: React.FC<{
 		(e: React.PointerEvent<HTMLDivElement>) => {
 			if (e.button === 0) {
 				e.stopPropagation();
-				onSelect();
+				onSelect({
+					shiftKey: e.shiftKey,
+					toggleKey: e.metaKey || e.ctrlKey,
+				});
 			}
 		},
 		[onSelect],
