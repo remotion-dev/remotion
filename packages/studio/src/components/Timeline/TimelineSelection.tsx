@@ -59,9 +59,9 @@ export const getTimelineSelectedTrackHighlightStyle = (
 	width: timelineWidth,
 });
 
-export const SELECTION_ENABLED = false;
-export const TIMELINE_TOP_DRAG = false;
-export const ENABLE_OUTLINES = false;
+export const SELECTION_ENABLED = true;
+export const TIMELINE_TOP_DRAG = true;
+export const ENABLE_OUTLINES = true;
 
 export type TimelineSelection =
 	| {
@@ -177,12 +177,12 @@ export const getTimelineSelectionAfterInteraction = ({
 		);
 		const existingKeySet = new Set(sameTypeItems.map(getTimelineSelectionKey));
 		if (existingKeySet.has(clickedKey)) {
-			const nextSelection = sameTypeItems.filter(
+			const toggledSelection = sameTypeItems.filter(
 				(item) => getTimelineSelectionKey(item) !== clickedKey,
 			);
 			return {
-				selectedItems: nextSelection,
-				anchor: nextSelection.length === 0 ? null : clickedItem,
+				selectedItems: toggledSelection,
+				anchor: toggledSelection.length === 0 ? null : clickedItem,
 			};
 		}
 
@@ -191,14 +191,14 @@ export const getTimelineSelectionAfterInteraction = ({
 				.filter((item) => getTimelineSelectionType(item) === clickedType)
 				.map((item, index) => [getTimelineSelectionKey(item), index] as const),
 		);
-		const nextSelection = [...sameTypeItems, clickedItem].sort((a, b) => {
+		const extendedSelection = [...sameTypeItems, clickedItem].sort((a, b) => {
 			return (
 				(selectableOrderMap.get(getTimelineSelectionKey(a)) ?? 0) -
 				(selectableOrderMap.get(getTimelineSelectionKey(b)) ?? 0)
 			);
 		});
 		return {
-			selectedItems: nextSelection,
+			selectedItems: extendedSelection,
 			anchor: clickedItem,
 		};
 	}
@@ -387,7 +387,7 @@ export const TimelineSelectionProvider: React.FC<{
 				return;
 			}
 
-			setSelectedItems((currentSelection) => {
+			setSelectedItems((currentSelectedItems) => {
 				const orderedSelectableItems = [
 					...selectableItems.current.values(),
 				].sort((a, b) => {
@@ -400,7 +400,7 @@ export const TimelineSelectionProvider: React.FC<{
 
 				const nextState = getTimelineSelectionAfterInteraction({
 					currentState: {
-						selectedItems: currentSelection,
+						selectedItems: currentSelectedItems,
 						anchor: selectionAnchor.current,
 					},
 					clickedItem: item,
