@@ -1,6 +1,9 @@
 import {expect, test} from 'bun:test';
 import {NoReactInternals} from 'remotion/no-react';
-import {updateSequenceProps} from '../codemods/update-sequence-props/update-sequence-props';
+import {
+	updateMultipleSequenceProps,
+	updateSequenceProps,
+} from '../codemods/update-sequence-props/update-sequence-props';
 import {lineColumnToNodePath} from './test-utils';
 
 const lightLeakInput = `import {LightLeak} from '@remotion/light-leaks';
@@ -123,4 +126,27 @@ test('updateSequenceProps should throw for non-existent nodePath', async () => {
 	).rejects.toThrow(
 		'Could not find a JSX element at the specified line to update',
 	);
+});
+
+test('updateMultipleSequenceProps should update multiple nodes in one format pass', async () => {
+	const {output, results} = await updateMultipleSequenceProps({
+		input: lightLeakInput,
+		changes: [
+			{
+				nodePath: lineColumnToNodePath(lightLeakInput, 8),
+				updates: [{key: 'hueShift', value: 90, defaultValue: null}],
+				schema: NoReactInternals.sequenceSchema,
+			},
+			{
+				nodePath: lineColumnToNodePath(lightLeakInput, 9),
+				updates: [{key: 'durationInFrames', value: 120, defaultValue: null}],
+				schema: NoReactInternals.sequenceSchema,
+			},
+		],
+	});
+
+	expect(results[0].oldValueStrings[0]).toBe('30');
+	expect(results[1].oldValueStrings[0]).toBe('60');
+	expect(output.split('\n')[7]).toContain('hueShift={90}');
+	expect(output.split('\n')[8]).toContain('durationInFrames={120}');
 });

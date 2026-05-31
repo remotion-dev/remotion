@@ -248,20 +248,31 @@ export type UnsubscribeFromSequencePropsRequest = {
 	effectKeys: string[][];
 };
 
-export type SaveSequencePropsRequest = {
+export type SaveSequencePropEdit = {
 	fileName: string;
 	nodePath: SequencePropsSubscriptionKey;
 	key: string;
 	value: string;
 	defaultValue: string | null;
 	schema: SequenceSchema;
+};
+
+export type SaveSequencePropsRequest = {
+	edits: SaveSequencePropEdit[];
 	clientId: string;
+	undoLabel?: string;
+	redoLabel?: string;
 };
 
 export type SaveSequencePropsResponse =
 	| {
 			canUpdate: true;
 			props: Record<string, CanUpdateSequencePropStatus>;
+			results?: Array<{
+				fileName: string;
+				nodePath: SequencePropsSubscriptionKey;
+				props: Record<string, CanUpdateSequencePropStatus>;
+			}>;
 	  }
 	| {
 			canUpdate: false;
