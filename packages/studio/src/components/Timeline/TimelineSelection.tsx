@@ -74,12 +74,151 @@ export type TimelineSelection =
 			readonly frame: number;
 	  };
 
+export type TimelineSelectionInteraction = {
+	readonly shiftKey: boolean;
+	readonly toggleKey: boolean;
+};
+
+export type TimelineSelectionState = {
+	readonly selectedItems: readonly TimelineSelection[];
+	readonly anchor: TimelineSelection | null;
+};
+
+const getTimelineSelectionType = (item: TimelineSelection) => item.type;
+
+const getTimelineSelectionAnchor = (
+	selectedItems: readonly TimelineSelection[],
+	previousAnchor: TimelineSelection | null,
+	targetType: TimelineSelection['type'],
+) => {
+	if (
+		previousAnchor &&
+		getTimelineSelectionType(previousAnchor) === targetType
+	) {
+		return previousAnchor;
+	}
+
+	for (let i = selectedItems.length - 1; i >= 0; i--) {
+		const candidate = selectedItems[i];
+		if (getTimelineSelectionType(candidate) === targetType) {
+			return candidate;
+		}
+	}
+
+	return null;
+};
+
+const getRangeSelection = ({
+	anchor,
+	clickedItem,
+	allSelectableItems,
+}: {
+	readonly anchor: TimelineSelection;
+	readonly clickedItem: TimelineSelection;
+	readonly allSelectableItems: readonly TimelineSelection[];
+}): readonly TimelineSelection[] => {
+	const anchorKey = getTimelineSelectionKey(anchor);
+	const clickedKey = getTimelineSelectionKey(clickedItem);
+	const orderedOfType = allSelectableItems.filter(
+		(item) => getTimelineSelectionType(item) === clickedItem.type,
+	);
+	const anchorIndex = orderedOfType.findIndex(
+		(item) => getTimelineSelectionKey(item) === anchorKey,
+	);
+	const clickedIndex = orderedOfType.findIndex(
+		(item) => getTimelineSelectionKey(item) === clickedKey,
+	);
+
+	if (anchorIndex === -1 || clickedIndex === -1) {
+		return [clickedItem];
+	}
+
+	const [from, to] =
+		anchorIndex < clickedIndex
+			? [anchorIndex, clickedIndex]
+			: [clickedIndex, anchorIndex];
+	return orderedOfType.slice(from, to + 1);
+};
+
+export const getTimelineSelectionAfterInteraction = ({
+	currentState,
+	clickedItem,
+	interaction,
+	allSelectableItems,
+}: {
+	readonly currentState: TimelineSelectionState;
+	readonly clickedItem: TimelineSelection;
+	readonly interaction: TimelineSelectionInteraction;
+	readonly allSelectableItems: readonly TimelineSelection[];
+}): TimelineSelectionState => {
+	const {selectedItems, anchor: previousAnchor} = currentState;
+	const clickedType = getTimelineSelectionType(clickedItem);
+	const nextAnchor = getTimelineSelectionAnchor(
+		selectedItems,
+		previousAnchor,
+		clickedType,
+	);
+	const clickedKey = getTimelineSelectionKey(clickedItem);
+
+	if (interaction.shiftKey && nextAnchor) {
+		return {
+			selectedItems: getRangeSelection({
+				anchor: nextAnchor,
+				clickedItem,
+				allSelectableItems,
+			}),
+			anchor: nextAnchor,
+		};
+	}
+
+	if (interaction.toggleKey) {
+		const sameTypeItems = selectedItems.filter(
+			(item) => getTimelineSelectionType(item) === clickedType,
+		);
+		const existingKeySet = new Set(sameTypeItems.map(getTimelineSelectionKey));
+		if (existingKeySet.has(clickedKey)) {
+			const toggledSelection = sameTypeItems.filter(
+				(item) => getTimelineSelectionKey(item) !== clickedKey,
+			);
+			return {
+				selectedItems: toggledSelection,
+				anchor: toggledSelection.length === 0 ? null : clickedItem,
+			};
+		}
+
+		const selectableOrderMap = new Map(
+			allSelectableItems
+				.filter((item) => getTimelineSelectionType(item) === clickedType)
+				.map((item, index) => [getTimelineSelectionKey(item), index] as const),
+		);
+		const extendedSelection = [...sameTypeItems, clickedItem].sort((a, b) => {
+			return (
+				(selectableOrderMap.get(getTimelineSelectionKey(a)) ?? 0) -
+				(selectableOrderMap.get(getTimelineSelectionKey(b)) ?? 0)
+			);
+		});
+		return {
+			selectedItems: extendedSelection,
+			anchor: clickedItem,
+		};
+	}
+
+	return {
+		selectedItems: [clickedItem],
+		anchor: clickedItem,
+	};
+};
+
 type TimelineSelectionContextValue = {
 	readonly canSelect: boolean;
 	readonly selectedItems: readonly TimelineSelection[];
 	readonly isSelected: (item: TimelineSelection) => boolean;
-	readonly selectItem: (item: TimelineSelection) => void;
+	readonly selectItem: (
+		item: TimelineSelection,
+		interaction?: TimelineSelectionInteraction,
+	) => void;
 	readonly selectItems: (items: readonly TimelineSelection[]) => void;
+	readonly registerSelectableItem: (item: TimelineSelection) => () => void;
 	readonly containsSelection: (nodePathInfo: SequenceNodePathInfo) => boolean;
 	readonly clearSelection: () => void;
 };
@@ -90,6 +229,7 @@ const defaultTimelineSelectionContextValue: TimelineSelectionContextValue = {
 	isSelected: () => false,
 	selectItem: () => undefined,
 	selectItems: () => undefined,
+	registerSelectableItem: () => () => undefined,
 	containsSelection: () => false,
 	clearSelection: () => undefined,
 };
@@ -212,6 +352,10 @@ export const TimelineSelectionProvider: React.FC<{
 	const [selectedItems, setSelectedItems] = useState<
 		readonly TimelineSelection[]
 	>([]);
+	const selectionAnchor = useRef<TimelineSelection | null>(null);
+	const selectableItemsOrder = useRef(new Map<string, number>());
+	const selectableItems = useRef(new Map<string, TimelineSelection>());
+	const registrationCounter = useRef(0);
 
 	useEffect(() => {
 		if (!canSelect) {
@@ -232,12 +376,40 @@ export const TimelineSelectionProvider: React.FC<{
 	);
 
 	const selectItem = useCallback(
-		(item: TimelineSelection) => {
+		(
+			item: TimelineSelection,
+			interaction: TimelineSelectionInteraction = {
+				shiftKey: false,
+				toggleKey: false,
+			},
+		) => {
 			if (!canSelect) {
 				return;
 			}
 
-			setSelectedItems([item]);
+			setSelectedItems((currentSelectedItems) => {
+				const orderedSelectableItems = [
+					...selectableItems.current.values(),
+				].sort((a, b) => {
+					return (
+						(selectableItemsOrder.current.get(getTimelineSelectionKey(a)) ??
+							0) -
+						(selectableItemsOrder.current.get(getTimelineSelectionKey(b)) ?? 0)
+					);
+				});
+
+				const nextState = getTimelineSelectionAfterInteraction({
+					currentState: {
+						selectedItems: currentSelectedItems,
+						anchor: selectionAnchor.current,
+					},
+					clickedItem: item,
+					interaction,
+					allSelectableItems: orderedSelectableItems,
+				});
+				selectionAnchor.current = nextState.anchor;
+				return nextState.selectedItems;
+			});
 		},
 		[canSelect],
 	);
@@ -248,12 +420,27 @@ export const TimelineSelectionProvider: React.FC<{
 				return;
 			}
 
+			selectionAnchor.current =
+				items.length === 0 ? null : items[items.length - 1];
 			setSelectedItems(items);
 		},
 		[canSelect],
 	);
 
+	const registerSelectableItem = useCallback((item: TimelineSelection) => {
+		const key = getTimelineSelectionKey(item);
+		const registrationOrder = registrationCounter.current;
+		registrationCounter.current += 1;
+		selectableItems.current.set(key, item);
+		selectableItemsOrder.current.set(key, registrationOrder);
+		return () => {
+			selectableItems.current.delete(key);
+			selectableItemsOrder.current.delete(key);
+		};
+	}, []);
+
 	const clearSelection = useCallback(() => {
+		selectionAnchor.current = null;
 		setSelectedItems([]);
 	}, []);
 
@@ -273,6 +460,7 @@ export const TimelineSelectionProvider: React.FC<{
 			isSelected,
 			selectItem,
 			selectItems,
+			registerSelectableItem,
 			containsSelection,
 			clearSelection,
 		}),
@@ -282,6 +470,7 @@ export const TimelineSelectionProvider: React.FC<{
 			isSelected,
 			selectItem,
 			selectItems,
+			registerSelectableItem,
 			containsSelection,
 			clearSelection,
 		],
@@ -317,22 +506,34 @@ export const useCurrentTimelineSelectionStateAsRef = () => {
 export const useTimelineRowSelection = (
 	nodePathInfo: SequenceNodePathInfo | null,
 ) => {
-	const {canSelect, isSelected, selectItem} = useTimelineSelection();
+	const {canSelect, isSelected, selectItem, registerSelectableItem} =
+		useTimelineSelection();
 	const selectionItem = useMemo(
 		(): TimelineSelection | null =>
 			nodePathInfo === null ? null : {type: 'row', nodePathInfo},
 		[nodePathInfo],
 	);
 
-	const selected = selectionItem === null ? false : isSelected(selectionItem);
-
-	const onSelect = useCallback(() => {
+	useEffect(() => {
 		if (selectionItem === null) {
 			return;
 		}
 
-		selectItem(selectionItem);
-	}, [selectItem, selectionItem]);
+		return registerSelectableItem(selectionItem);
+	}, [registerSelectableItem, selectionItem]);
+
+	const selected = selectionItem === null ? false : isSelected(selectionItem);
+
+	const onSelect = useCallback(
+		(interaction?: TimelineSelectionInteraction) => {
+			if (selectionItem === null) {
+				return;
+			}
+
+			selectItem(selectionItem, interaction);
+		},
+		[selectItem, selectionItem],
+	);
 
 	return {
 		onSelect,
@@ -345,7 +546,8 @@ export const useTimelineKeyframeSelection = (
 	nodePathInfo: SequenceNodePathInfo,
 	frame: number,
 ) => {
-	const {canSelect, isSelected, selectItem} = useTimelineSelection();
+	const {canSelect, isSelected, selectItem, registerSelectableItem} =
+		useTimelineSelection();
 	const selectionItem = useMemo(
 		(): TimelineSelection => ({
 			type: 'keyframe',
@@ -355,11 +557,18 @@ export const useTimelineKeyframeSelection = (
 		[nodePathInfo, frame],
 	);
 
+	useEffect(() => {
+		return registerSelectableItem(selectionItem);
+	}, [registerSelectableItem, selectionItem]);
+
 	const selected = isSelected(selectionItem);
 
-	const onSelect = useCallback(() => {
-		selectItem(selectionItem);
-	}, [selectItem, selectionItem]);
+	const onSelect = useCallback(
+		(interaction?: TimelineSelectionInteraction) => {
+			selectItem(selectionItem, interaction);
+		},
+		[selectItem, selectionItem],
+	);
 
 	return {
 		onSelect,
