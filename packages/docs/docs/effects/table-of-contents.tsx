@@ -102,7 +102,7 @@ const categories: {
 		],
 	},
 	{
-		title: 'Transform',
+		title: 'Reveal',
 		effects: [
 			{
 				link: '/docs/effects/evolve',
@@ -111,6 +111,11 @@ const categories: {
 				name: 'evolve()',
 				description: 'Directional reveal effect',
 			},
+		],
+	},
+	{
+		title: 'Transform',
+		effects: [
 			{
 				link: '/docs/effects/mirror',
 				preview: '/img/effects-mirror-preview.png',
