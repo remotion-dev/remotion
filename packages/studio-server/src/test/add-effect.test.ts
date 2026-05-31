@@ -22,7 +22,7 @@ test('addEffect adds an effects prop and import', async () => {
 	expect(effectLabel).toBe('brightness()');
 	expect(nodeLabel).toBe('<Solid>');
 	expect(output).toContain(
-		"import { brightness } from '@remotion/effects/brightness';",
+		"import {brightness} from '@remotion/effects/brightness';",
 	);
 	expect(output).toContain('effects={[');
 	expect(output).toContain('brightness({');
@@ -46,7 +46,7 @@ export const Comp = () => {
 	});
 
 	expect(output).toContain(
-		"import { contrast } from '@remotion/effects/contrast';",
+		"import {contrast} from '@remotion/effects/contrast';",
 	);
 	expect(output).toContain('tint({');
 	expect(output).toContain('contrast({');
@@ -71,7 +71,7 @@ export const Comp = () => {
 	});
 
 	expect(output).toContain(
-		"import { brightness as brightnessEffect } from '@remotion/effects/brightness';",
+		"import {brightness as brightnessEffect} from '@remotion/effects/brightness';",
 	);
 	expect(output).toContain('brightnessEffect({');
 });

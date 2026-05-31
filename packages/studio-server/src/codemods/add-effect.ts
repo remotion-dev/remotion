@@ -1,5 +1,6 @@
 import type {
 	ArrayExpression,
+	ClassDeclaration,
 	Expression,
 	File,
 	FunctionDeclaration,
@@ -10,7 +11,6 @@ import type {
 	ObjectExpression,
 	ObjectProperty,
 	VariableDeclaration,
-	ClassDeclaration,
 } from '@babel/types';
 import {stringifyDefaultProps} from '@remotion/studio-shared';
 import * as recast from 'recast';
@@ -176,10 +176,10 @@ const ensureEffectImport = ({
 		}
 
 		importDeclaration = node;
-		const matchingSpecifier = node.specifiers?.find((specifier) => {
+		const matchingSpecifier = node.specifiers?.find((importSpecifier) => {
 			return (
-				specifier.type === 'ImportSpecifier' &&
-				getImportedName(specifier) === effectName
+				importSpecifier.type === 'ImportSpecifier' &&
+				getImportedName(importSpecifier) === effectName
 			);
 		});
 
@@ -196,13 +196,12 @@ const ensureEffectImport = ({
 		local,
 	) as unknown as ImportSpecifier;
 
-	const canAddToExistingImport =
+	if (
 		importDeclaration &&
 		!importDeclaration.specifiers?.some(
 			(importSpecifier) => importSpecifier.type === 'ImportNamespaceSpecifier',
-		);
-
-	if (canAddToExistingImport) {
+		)
+	) {
 		importDeclaration.specifiers = [
 			...(importDeclaration.specifiers ?? []),
 			specifier,
@@ -211,9 +210,10 @@ const ensureEffectImport = ({
 	}
 
 	const newImport = b.importDeclaration(
-		[specifier],
+		[],
 		b.stringLiteral(effectImportPath),
 	) as unknown as ImportDeclaration;
+	newImport.specifiers = [specifier];
 	insertImportDeclaration(ast, newImport);
 	return localName;
 };
@@ -234,7 +234,7 @@ const getEffectsArray = (attr: JSXAttribute): ArrayExpression => {
 const makeEffectsAttr = (array: ArrayExpression): JSXAttribute => {
 	return b.jsxAttribute(
 		b.jsxIdentifier('effects'),
-		b.jsxExpressionContainer(array),
+		b.jsxExpressionContainer(array as never),
 	) as unknown as JSXAttribute;
 };
 
@@ -247,10 +247,10 @@ const makeConfigObjectExpression = (
 				? b.identifier(key)
 				: b.stringLiteral(key);
 			return b.objectProperty(
-				keyNode,
-				parseValueExpression(value),
+				keyNode as never,
+				parseValueExpression(value) as never,
 			) as unknown as ObjectProperty;
-		}),
+		}) as never,
 	) as unknown as ObjectExpression;
 };
 
@@ -295,12 +295,12 @@ export const addEffect = async ({
 
 	const localName = ensureEffectImport({ast, effectName, effectImportPath});
 	const effectCall = b.callExpression(b.identifier(localName), [
-		makeConfigObjectExpression(effectConfig),
+		makeConfigObjectExpression(effectConfig) as never,
 	]);
 
 	const attr = findEffectsAttr(jsx.attributes ?? []);
 	if (attr) {
-		getEffectsArray(attr).elements.push(effectCall);
+		getEffectsArray(attr).elements.push(effectCall as never);
 	} else {
 		const effectsArray = b.arrayExpression([effectCall]) as ArrayExpression;
 		jsx.attributes.push(makeEffectsAttr(effectsArray));
