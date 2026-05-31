@@ -7,6 +7,7 @@ import {
 	getTimelineSelectionAfterInteraction,
 	getTimelineSelectionFromNodePathInfo,
 	getTimelineSequenceSelectionKey,
+	isTimelineSelectionModifierEvent,
 	SELECTION_ENABLED,
 	TIMELINE_TOP_DRAG,
 } from '../components/Timeline/TimelineSelection';
@@ -245,4 +246,35 @@ test('Shift+click with no matching anchor falls back to single selection', () =>
 		selectedItems: [rowA],
 		anchor: rowA,
 	});
+});
+
+test('Timeline double-click actions ignore selection modifier clicks', () => {
+	expect(
+		isTimelineSelectionModifierEvent({
+			shiftKey: true,
+			metaKey: false,
+			ctrlKey: false,
+		}),
+	).toBe(true);
+	expect(
+		isTimelineSelectionModifierEvent({
+			shiftKey: false,
+			metaKey: true,
+			ctrlKey: false,
+		}),
+	).toBe(true);
+	expect(
+		isTimelineSelectionModifierEvent({
+			shiftKey: false,
+			metaKey: false,
+			ctrlKey: true,
+		}),
+	).toBe(true);
+	expect(
+		isTimelineSelectionModifierEvent({
+			shiftKey: false,
+			metaKey: false,
+			ctrlKey: false,
+		}),
+	).toBe(false);
 });

@@ -97,6 +97,18 @@ export type TimelineSelectionInteraction = {
 	readonly toggleKey: boolean;
 };
 
+export const isTimelineSelectionModifierEvent = ({
+	shiftKey,
+	metaKey,
+	ctrlKey,
+}: {
+	readonly shiftKey: boolean;
+	readonly metaKey: boolean;
+	readonly ctrlKey: boolean;
+}) => {
+	return shiftKey || metaKey || ctrlKey;
+};
+
 export type TimelineSelectionState = {
 	readonly selectedItems: readonly TimelineSelection[];
 	readonly anchor: TimelineSelection | null;
