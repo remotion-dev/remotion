@@ -10,6 +10,7 @@ import {EffectsContrastPreview} from '../../components/effects/effects-contrast-
 import {EffectsDotGridPreview} from '../../components/effects/effects-dot-grid-preview';
 import {EffectsDropShadowPreview} from '../../components/effects/effects-drop-shadow-preview';
 import {EffectsDuotonePreview} from '../../components/effects/effects-duotone-preview';
+import {EffectsEvolvePreview} from '../../components/effects/effects-evolve-preview';
 import {EffectsFisheyePreview} from '../../components/effects/effects-fisheye-preview';
 import {EffectsGlowPreview} from '../../components/effects/effects-glow-preview';
 import {EffectsGrayscalePreview} from '../../components/effects/effects-grayscale-preview';
@@ -116,6 +117,17 @@ export const RemotionRoot: React.FC = () => {
 						darkColor: 'black',
 						lightColor: 'white',
 						threshold: 0.18,
+					}}
+				/>
+				<Still
+					id="effects-evolve-preview"
+					component={EffectsEvolvePreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						progress: 0.55,
+						direction: 'left',
+						feather: 0.18,
 					}}
 				/>
 				<Still

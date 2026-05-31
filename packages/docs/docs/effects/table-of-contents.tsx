@@ -102,6 +102,18 @@ const categories: {
 		],
 	},
 	{
+		title: 'Reveal',
+		effects: [
+			{
+				link: '/docs/effects/evolve',
+				preview: '/img/effects-evolve-preview.png',
+				alt: 'evolve effect preview',
+				name: 'evolve()',
+				description: 'Directional reveal effect',
+			},
+		],
+	},
+	{
 		title: 'Transform',
 		effects: [
 			{

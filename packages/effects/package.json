@@ -69,6 +69,11 @@
 			"module": "./dist/esm/duotone.mjs",
 			"import": "./dist/esm/duotone.mjs"
 		},
+		"./evolve": {
+			"types": "./dist/evolve.d.ts",
+			"module": "./dist/esm/evolve.mjs",
+			"import": "./dist/esm/evolve.mjs"
+		},
 		"./fisheye": {
 			"types": "./dist/fisheye.d.ts",
 			"module": "./dist/esm/fisheye.mjs",
@@ -198,6 +203,9 @@
 			],
 			"duotone": [
 				"dist/duotone.d.ts"
+			],
+			"evolve": [
+				"dist/evolve.d.ts"
 			],
 			"fisheye": [
 				"dist/fisheye.d.ts"

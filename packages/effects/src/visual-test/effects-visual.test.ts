@@ -1,5 +1,6 @@
 import {test} from 'vitest';
 import {blur} from '../blur.js';
+import {evolve} from '../evolve.js';
 import {noise} from '../noise.js';
 import {
 	descriptorsToMemoizedEffects,
@@ -19,5 +20,18 @@ test('stacks repeated WebGL effects without blanking or flipping the image', asy
 	await testImage({
 		blob,
 		testId: 'stacked-blur-blur-noise',
+	});
+});
+
+test('evolve() reveals with feather', async () => {
+	const blob = await renderEffectChainToBlob({
+		effects: descriptorsToMemoizedEffects([
+			evolve({progress: 0.55, direction: 'left', feather: 0.18}),
+		]),
+	});
+
+	await testImage({
+		blob,
+		testId: 'evolve-left-feather',
 	});
 });

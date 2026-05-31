@@ -275,6 +275,7 @@ const sidebars: SidebarsConfig = {
 				'effects/contrast',
 				'effects/drop-shadow',
 				'effects/duotone',
+				'effects/evolve',
 				'effects/fisheye',
 				'effects/glow',
 				'effects/grayscale',

@@ -7,6 +7,7 @@ import {EffectsContrastPreview} from '../effects/effects-contrast-preview';
 import {EffectsDotGridPreview} from '../effects/effects-dot-grid-preview';
 import {EffectsDropShadowPreview} from '../effects/effects-drop-shadow-preview';
 import {EffectsDuotonePreview} from '../effects/effects-duotone-preview';
+import {EffectsEvolvePreview} from '../effects/effects-evolve-preview';
 import {EffectsFisheyePreview} from '../effects/effects-fisheye-preview';
 import {EffectsGlowPreview} from '../effects/effects-glow-preview';
 import {EffectsGrayscalePreview} from '../effects/effects-grayscale-preview';
@@ -1546,6 +1547,45 @@ export const effectsDuotoneDemo: DemoType = {
 		},
 		{
 			name: 'threshold',
+			type: 'numeric',
+			min: 0,
+			max: 1,
+			step: 0.01,
+			default: 0.18,
+			optional: 'no',
+		},
+	],
+};
+
+export const effectsEvolveDemo: DemoType = {
+	comp: EffectsEvolvePreview,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 1,
+	fps: 30,
+	id: 'effects-evolve',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			name: 'progress',
+			type: 'numeric',
+			min: 0,
+			max: 1,
+			step: 0.01,
+			default: 0.5,
+			optional: 'no',
+		},
+		{
+			name: 'direction',
+			type: 'enum',
+			values: ['left', 'right', 'top', 'bottom'],
+			default: 'left',
+			optional: 'no',
+		},
+		{
+			name: 'feather',
 			type: 'numeric',
 			min: 0,
 			max: 1,
