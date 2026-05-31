@@ -90,19 +90,19 @@ test('UV handle pointer position maps back to UV coordinates', () => {
 	expect(result[1]).toBeCloseTo(uv[1], 5);
 });
 
-test('UV handles are requested for selected effect props', () => {
+test('UV handles are requested for selected effect children', () => {
 	const sequenceNodePathInfo = makeNodePathInfo(['body', 0], []);
 	const effectNodePathInfo = makeNodePathInfo(['body', 0], ['effects', '1']);
 	const effectPropNodePathInfo = makeNodePathInfo(
 		['body', 0],
-		['effects', '1', 'origin'],
+		['effects', '1', 'rays'],
 	);
 	const selectedEffects = getSelectedEffectFieldsBySequenceKey([
 		{
 			type: 'sequence-effect-prop',
 			nodePathInfo: effectPropNodePathInfo,
 			i: 1,
-			key: 'origin',
+			key: 'rays',
 		},
 	]);
 
@@ -111,8 +111,8 @@ test('UV handles are requested for selected effect props', () => {
 			.get(getTimelineSequenceSelectionKey(sequenceNodePathInfo))
 			?.get(1),
 	).toEqual({
-		allFields: false,
-		fieldKeys: new Set(['origin']),
+		allFields: true,
+		fieldKeys: new Set(),
 	});
 
 	const selectedWholeEffects = getSelectedEffectFieldsBySequenceKey([

@@ -403,11 +403,7 @@ export const getSelectedEffectFieldsBySequenceKey = (
 			fieldKeys: new Set<string>(),
 		};
 
-		if (item.type === 'sequence-effect') {
-			selectedFields.allFields = true;
-		} else {
-			selectedFields.fieldKeys.add(item.key);
-		}
+		selectedFields.allFields = true;
 
 		effectsForSequence.set(item.i, selectedFields);
 		selectedEffects.set(sequenceKey, effectsForSequence);
