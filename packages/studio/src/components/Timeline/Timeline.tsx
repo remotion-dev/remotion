@@ -11,7 +11,10 @@ import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {BACKGROUND} from '../../helpers/colors';
 import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
 import {useIsStill} from '../../helpers/is-current-selected-still';
-import {loadCompositionComponentInfo} from '../../helpers/open-in-editor';
+import {
+	getCachedCompositionComponentInfo,
+	subscribeToCompositionComponentInfo,
+} from '../../helpers/open-in-editor';
 import {callApi} from '../call-api';
 import {ContextMenu} from '../ContextMenu';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
@@ -102,40 +105,26 @@ const TimelineClearSelectionArea: React.FC<{
 	const compositionFile = resolvedCompositionLocation?.source ?? null;
 
 	useEffect(() => {
-		let cancelled = false;
-
 		if (currentCompositionId === null || compositionFile === null) {
 			setAddSolidAvailability({type: 'unavailable'});
-			return () => {
-				cancelled = true;
-			};
+			return;
 		}
 
-		setAddSolidAvailability({type: 'loading'});
-		loadCompositionComponentInfo({
-			compositionFile,
-			compositionId: currentCompositionId,
-		})
-			.then(({canAddSequence}) => {
-				if (cancelled) {
-					return;
-				}
-
-				setAddSolidAvailability({type: 'loaded', canAddSequence});
-			})
-			.catch((err) => {
-				if (cancelled) {
-					return;
-				}
-
-				// eslint-disable-next-line no-console
-				console.error('Could not resolve composition component', err);
-				setAddSolidAvailability({type: 'unavailable'});
+		const updateAvailability = () => {
+			const cachedInfo = getCachedCompositionComponentInfo({
+				compositionFile,
+				compositionId: currentCompositionId,
 			});
 
-		return () => {
-			cancelled = true;
+			setAddSolidAvailability(
+				cachedInfo
+					? {type: 'loaded', canAddSequence: cachedInfo.canAddSequence}
+					: {type: 'loading'},
+			);
 		};
+
+		updateAvailability();
+		return subscribeToCompositionComponentInfo(updateAvailability);
 	}, [compositionFile, currentCompositionId]);
 
 	// Selection-triggering click handlers in children call e.stopPropagation(),

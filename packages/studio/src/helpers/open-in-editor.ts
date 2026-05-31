@@ -56,13 +56,20 @@ type ResolveCompositionComponentResponse =
 			error: string;
 	  };
 
+type ResolvedCompositionComponentInfo = {
+	location: ResolvedCompositionComponentLocation;
+	canAddSequence: boolean;
+};
+
 const componentResolutionCache = new Map<
 	string,
-	Promise<{
-		location: ResolvedCompositionComponentLocation;
-		canAddSequence: boolean;
-	}>
+	Promise<ResolvedCompositionComponentInfo>
 >();
+const componentResolutionResults = new Map<
+	string,
+	ResolvedCompositionComponentInfo
+>();
+const componentResolutionListeners = new Set<() => void>();
 
 const getComponentResolutionCacheKey = ({
 	compositionFile,
@@ -72,6 +79,34 @@ const getComponentResolutionCacheKey = ({
 	compositionId: string;
 }) => {
 	return `${compositionFile}::${compositionId}`;
+};
+
+const notifyComponentResolutionListeners = () => {
+	for (const listener of componentResolutionListeners) {
+		listener();
+	}
+};
+
+export const subscribeToCompositionComponentInfo = (listener: () => void) => {
+	componentResolutionListeners.add(listener);
+
+	return () => {
+		componentResolutionListeners.delete(listener);
+	};
+};
+
+export const getCachedCompositionComponentInfo = ({
+	compositionFile,
+	compositionId,
+}: {
+	compositionFile: string;
+	compositionId: string;
+}) => {
+	return (
+		componentResolutionResults.get(
+			getComponentResolutionCacheKey({compositionFile, compositionId}),
+		) ?? null
+	);
 };
 
 export const loadCompositionComponentInfo = async ({
@@ -106,10 +141,14 @@ export const loadCompositionComponentInfo = async ({
 			throw new Error(body.error);
 		}
 
-		return {
+		const result = {
 			location: body.location,
 			canAddSequence: body.canAddSequence,
 		};
+		componentResolutionResults.set(cacheKey, result);
+		notifyComponentResolutionListeners();
+
+		return result;
 	})();
 	componentResolutionCache.set(cacheKey, promise);
 
@@ -117,6 +156,8 @@ export const loadCompositionComponentInfo = async ({
 		return await promise;
 	} catch (err) {
 		componentResolutionCache.delete(cacheKey);
+		componentResolutionResults.delete(cacheKey);
+		notifyComponentResolutionListeners();
 		throw err;
 	}
 };
