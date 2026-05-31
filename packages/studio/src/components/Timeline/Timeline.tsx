@@ -160,7 +160,7 @@ const TimelineClearSelectionArea: React.FC<{
 		videoConfig !== null &&
 		!isAddingSolid;
 
-	const addSolid = useCallback(() => {
+	const addSolid = useCallback(async () => {
 		if (
 			!canAddSolid ||
 			currentCompositionId === null ||
@@ -171,26 +171,25 @@ const TimelineClearSelectionArea: React.FC<{
 		}
 
 		setIsAddingSolid(true);
-		void callApi('/api/add-solid', {
-			compositionFile,
-			compositionId: currentCompositionId,
-			width: videoConfig.width,
-			height: videoConfig.height,
-		})
-			.then((result) => {
-				if (result.success) {
-					showNotification('Added <Solid> to source file', 2000);
-					return;
-				}
-
-				showNotification(result.reason, 4000);
-			})
-			.catch((err) => {
-				showNotification((err as Error).message, 4000);
-			})
-			.finally(() => {
-				setIsAddingSolid(false);
+		try {
+			const result = await callApi('/api/add-solid', {
+				compositionFile,
+				compositionId: currentCompositionId,
+				width: videoConfig.width,
+				height: videoConfig.height,
 			});
+
+			if (result.success) {
+				showNotification('Added <Solid> to source file', 2000);
+				return;
+			}
+
+			showNotification(result.reason, 4000);
+		} catch (err) {
+			showNotification((err as Error).message, 4000);
+		} finally {
+			setIsAddingSolid(false);
+		}
 	}, [canAddSolid, compositionFile, currentCompositionId, videoConfig]);
 
 	const contextMenuItems = useMemo((): ComboboxValue[] => {

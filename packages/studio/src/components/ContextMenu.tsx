@@ -29,14 +29,24 @@ type ContextMenuProps = {
 	readonly children: React.ReactNode;
 	readonly values: ComboboxValue[];
 	readonly onOpen: (() => void) | null;
+	// eslint-disable-next-line react/require-default-props
 	readonly style?: React.CSSProperties;
+	// eslint-disable-next-line react/require-default-props
 	readonly className?: string;
+	// eslint-disable-next-line react/require-default-props
 	readonly onPointerDown?: React.PointerEventHandler<HTMLDivElement>;
 };
 
 export const ContextMenu = React.forwardRef<HTMLDivElement, ContextMenuProps>(
 	(
-		{children, values, onOpen, style, className, onPointerDown},
+		{
+			children,
+			values,
+			onOpen,
+			style = undefined,
+			className = undefined,
+			onPointerDown = undefined,
+		},
 		forwardedRef,
 	) => {
 		const ref = useRef<HTMLDivElement>(null);
