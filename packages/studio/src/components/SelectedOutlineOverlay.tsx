@@ -65,8 +65,6 @@ type SequenceWithSelectedOutline = {
 
 const translateFieldKey = 'style.translate';
 
-const outlineHitStrokeWidth = 12;
-
 const outlineContainer: React.CSSProperties = {
 	position: 'absolute',
 	inset: 0,
@@ -461,11 +459,8 @@ export const SelectedOutlineOverlay: React.FC<{
 						{target?.drag ? (
 							<polygon
 								points={outline.points.map(pointToString).join(' ')}
-								fill="none"
-								stroke="transparent"
-								strokeWidth={outlineHitStrokeWidth}
-								vectorEffect="non-scaling-stroke"
-								pointerEvents="stroke"
+								fill="transparent"
+								pointerEvents="all"
 								cursor="move"
 								onPointerDown={(event) => onPointerDown(event, target)}
 							/>
