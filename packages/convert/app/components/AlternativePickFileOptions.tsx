@@ -1,6 +1,7 @@
 import {Button} from '@remotion/design';
 import React from 'react';
 import {LoadFromUrl} from './LoadFromUrl';
+import {LoadFromX} from './LoadFromX';
 
 export const AlternativePickFileOptions: React.FC<{
 	readonly onSampleFile: () => void;
@@ -14,6 +15,7 @@ export const AlternativePickFileOptions: React.FC<{
 				Use a sample file
 			</Button>
 			<LoadFromUrl />
+			<LoadFromX />
 		</div>
 	);
 };
