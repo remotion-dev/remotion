@@ -19,6 +19,7 @@ import {saveSequenceProp} from './save-sequence-prop';
 import {timelineFieldValueColumnStyle} from './timeline-field-row-layout';
 import {TimelineExpandArrowSpacer} from './TimelineExpandArrowButton';
 import {TimelineFieldLabel} from './TimelineFieldLabel';
+import {TimelineKeyframeControls} from './TimelineKeyframeControls';
 import {TimelineKeyframedValue} from './TimelineKeyframedValue';
 import {TimelineLayerEyeSpacer} from './TimelineLayerEye';
 import {TimelineRowChrome} from './TimelineRowChrome';
@@ -165,6 +166,9 @@ export const TimelineSequenceFieldRow: React.FC<{
 	const {codeValues: visualModeCodeValues} = useContext(
 		Internals.VisualModeCodeValuesContext,
 	);
+	const {getDragOverrides} = useContext(
+		Internals.VisualModeDragOverridesContext,
+	);
 	const {setCodeValues} = useContext(Internals.VisualModeSettersContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const selection = useTimelineRowSelection(nodePathInfo);
@@ -174,6 +178,25 @@ export const TimelineSequenceFieldRow: React.FC<{
 		nodePath,
 	);
 	const codeValue = codeValuesForOverride?.[field.key] ?? null;
+
+	const dragOverrideValue = useMemo(() => {
+		return (getDragOverrides(nodePath) ?? {})[field.key];
+	}, [getDragOverrides, nodePath, field.key]);
+
+	const keyframeControls =
+		selection.selected && codeValue !== null ? (
+			<TimelineKeyframeControls
+				fieldKey={field.key}
+				propStatus={codeValue}
+				nodePath={nodePath}
+				fileName={validatedLocation.source}
+				keyframeDisplayOffset={keyframeDisplayOffset}
+				defaultValue={field.fieldSchema.default}
+				dragOverrideValue={dragOverrideValue}
+				schema={schema}
+				effectIndex={null}
+			/>
+		) : null;
 
 	const style = useMemo(() => {
 		return {
@@ -262,6 +285,7 @@ export const TimelineSequenceFieldRow: React.FC<{
 		<TimelineRowChrome
 			depth={rowDepth}
 			eye={<TimelineLayerEyeSpacer />}
+			keyframeControls={keyframeControls}
 			arrow={<TimelineExpandArrowSpacer />}
 			style={style}
 			selected={selection.selected}

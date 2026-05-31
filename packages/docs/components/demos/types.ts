@@ -8,6 +8,7 @@ import {EffectsDotGridPreview} from '../effects/effects-dot-grid-preview';
 import {EffectsDropShadowPreview} from '../effects/effects-drop-shadow-preview';
 import {EffectsDuotonePreview} from '../effects/effects-duotone-preview';
 import {EffectsEvolvePreview} from '../effects/effects-evolve-preview';
+import {EffectsFisheyePreview} from '../effects/effects-fisheye-preview';
 import {EffectsGlowPreview} from '../effects/effects-glow-preview';
 import {EffectsGrayscalePreview} from '../effects/effects-grayscale-preview';
 import {EffectsHalftoneLinearGradientPreview} from '../effects/effects-halftone-linear-gradient-preview';
@@ -2058,6 +2059,56 @@ export const effectsBarrelDistortionDemo: DemoType = {
 			max: 1,
 			step: 0.01,
 			default: 0.28,
+			optional: 'no',
+		},
+	],
+};
+
+export const effectsFisheyeDemo: DemoType = {
+	comp: EffectsFisheyePreview,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 1,
+	fps: 30,
+	id: 'effects-fisheye',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			name: 'fieldOfView',
+			type: 'numeric',
+			min: 0,
+			max: Math.PI,
+			step: 0.01,
+			default: 2.5,
+			optional: 'no',
+		},
+		{
+			name: 'center',
+			type: 'uv-coordinate',
+			min: 0,
+			max: 1,
+			step: 0.01,
+			default: [0.5, 0.5],
+			optional: 'no',
+		},
+		{
+			name: 'radius',
+			type: 'numeric',
+			min: 0.01,
+			max: 3,
+			step: 0.01,
+			default: 1.2,
+			optional: 'no',
+		},
+		{
+			name: 'zoom',
+			type: 'numeric',
+			min: 0.1,
+			max: 5,
+			step: 0.01,
+			default: 1,
 			optional: 'no',
 		},
 	],

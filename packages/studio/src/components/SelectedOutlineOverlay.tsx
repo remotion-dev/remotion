@@ -3,6 +3,7 @@ import type {OverrideIdToNodePaths, TSequence} from 'remotion';
 import {Internals} from 'remotion';
 import {calculateTimeline} from '../helpers/calculate-timeline';
 import {BLUE} from '../helpers/colors';
+import {getBoxQuadsPonyfill} from '../helpers/get-box-quads-ponyfill';
 import {
 	ENABLE_OUTLINES,
 	getTimelineSequenceSelectionKey,
@@ -13,17 +14,6 @@ import {
 type OutlinePoint = {
 	readonly x: number;
 	readonly y: number;
-};
-
-type OutlineQuad = {
-	readonly p1: DOMPointReadOnly;
-	readonly p2: DOMPointReadOnly;
-	readonly p3: DOMPointReadOnly;
-	readonly p4: DOMPointReadOnly;
-};
-
-type ElementWithBoxQuads = HTMLElement & {
-	readonly getBoxQuads: () => readonly OutlineQuad[];
 };
 
 type SelectedOutline = {
@@ -50,10 +40,6 @@ const outlineContainer: React.CSSProperties = {
 
 const pointToString = (point: OutlinePoint) => `${point.x},${point.y}`;
 
-const hasBoxQuads = (element: HTMLElement): element is ElementWithBoxQuads => {
-	return typeof (element as {getBoxQuads?: unknown}).getBoxQuads === 'function';
-};
-
 const rectToPoints = (
 	elementRect: DOMRect,
 	containerRect: DOMRect,
@@ -71,88 +57,22 @@ const rectToPoints = (
 	];
 };
 
-const parseTransformOrigin = (transformOrigin: string): OutlinePoint => {
-	const [x = '0', y = '0'] = transformOrigin.split(' ');
-
-	return {
-		x: Number.parseFloat(x) || 0,
-		y: Number.parseFloat(y) || 0,
-	};
-};
-
-const transformPoint = ({
-	matrix,
-	origin,
-	point,
-}: {
-	readonly matrix: DOMMatrix;
-	readonly origin: OutlinePoint;
-	readonly point: OutlinePoint;
-}): OutlinePoint => {
-	const transformed = new DOMPoint(
-		point.x - origin.x,
-		point.y - origin.y,
-	).matrixTransform(matrix);
-
-	return {
-		x: transformed.x + origin.x,
-		y: transformed.y + origin.y,
-	};
-};
-
-// Chromium does not expose getBoxQuads(), so reconstruct the border-box corners
-// from the element transform and scale them into the measured canvas position.
-const getTransformedBorderBoxPoints = ({
-	containerRect,
-	element,
-	elementRect,
-}: {
-	readonly containerRect: DOMRect;
-	readonly element: HTMLElement;
-	readonly elementRect: DOMRect;
-}): SelectedOutline['points'] => {
-	const width = element.offsetWidth;
-	const height = element.offsetHeight;
-
-	if (width === 0 || height === 0) {
-		return rectToPoints(elementRect, containerRect);
-	}
-
-	const style = window.getComputedStyle(element);
-	const matrix =
-		style.transform === 'none'
-			? new DOMMatrix()
-			: new DOMMatrix(style.transform);
-	const origin = parseTransformOrigin(style.transformOrigin);
-	const localPoints: SelectedOutline['points'] = [
-		transformPoint({matrix, origin, point: {x: 0, y: 0}}),
-		transformPoint({matrix, origin, point: {x: width, y: 0}}),
-		transformPoint({matrix, origin, point: {x: width, y: height}}),
-		transformPoint({matrix, origin, point: {x: 0, y: height}}),
-	];
-	const minX = Math.min(...localPoints.map((point) => point.x));
-	const maxX = Math.max(...localPoints.map((point) => point.x));
-	const minY = Math.min(...localPoints.map((point) => point.y));
-	const maxY = Math.max(...localPoints.map((point) => point.y));
-	const localWidth = maxX - minX;
-	const localHeight = maxY - minY;
-
-	if (localWidth === 0 || localHeight === 0) {
-		return rectToPoints(elementRect, containerRect);
-	}
-
-	const scaleX = elementRect.width / localWidth;
-	const scaleY = elementRect.height / localHeight;
-	const projectPoint = (point: OutlinePoint): OutlinePoint => ({
-		x: elementRect.left + (point.x - minX) * scaleX - containerRect.left,
-		y: elementRect.top + (point.y - minY) * scaleY - containerRect.top,
-	});
-
+const quadToPoints = (
+	quad: DOMQuad,
+	containerRect: DOMRect,
+): SelectedOutline['points'] => {
+	// `getBoxQuads`/the ponyfill returns the quad in viewport coordinates.
+	// The overlay <svg> is unscaled (the canvas `scale()`/pan live on a sibling
+	// container, not the svg), so 1 user unit == 1 px and we only need to move
+	// the quad into the svg's local space by subtracting its viewport origin.
+	// We deliberately do not pass `relativeTo` to the ponyfill: when the target
+	// is not an ancestor of the element, the polyfill cannot resolve the
+	// coordinate space and leaves the quad in viewport coordinates.
 	return [
-		projectPoint(localPoints[0]),
-		projectPoint(localPoints[1]),
-		projectPoint(localPoints[2]),
-		projectPoint(localPoints[3]),
+		{x: quad.p1.x - containerRect.left, y: quad.p1.y - containerRect.top},
+		{x: quad.p2.x - containerRect.left, y: quad.p2.y - containerRect.top},
+		{x: quad.p3.x - containerRect.left, y: quad.p3.y - containerRect.top},
+		{x: quad.p4.x - containerRect.left, y: quad.p4.y - containerRect.top},
 	];
 };
 
@@ -166,25 +86,15 @@ const getElementOutlinePoints = (
 		return null;
 	}
 
-	if (!hasBoxQuads(element)) {
-		return getTransformedBorderBoxPoints({
-			containerRect,
-			element,
-			elementRect,
-		});
-	}
-
-	const quad = element.getBoxQuads()[0];
+	const quads = getBoxQuadsPonyfill(element, {
+		box: 'border',
+	});
+	const quad = quads?.[0];
 	if (!quad) {
 		return rectToPoints(elementRect, containerRect);
 	}
 
-	return [
-		{x: quad.p1.x - containerRect.left, y: quad.p1.y - containerRect.top},
-		{x: quad.p2.x - containerRect.left, y: quad.p2.y - containerRect.top},
-		{x: quad.p3.x - containerRect.left, y: quad.p3.y - containerRect.top},
-		{x: quad.p4.x - containerRect.left, y: quad.p4.y - containerRect.top},
-	];
+	return quadToPoints(quad, containerRect);
 };
 
 const getSelectedSequenceKeys = (

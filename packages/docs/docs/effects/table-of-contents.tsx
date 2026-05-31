@@ -164,6 +164,13 @@ const categories: {
 				description: 'RGB channel split effect',
 			},
 			{
+				link: '/docs/effects/fisheye',
+				preview: '/img/effects-fisheye-preview.png',
+				alt: 'fisheye effect preview',
+				name: 'fisheye()',
+				description: 'Ultra-wide-angle lens effect',
+			},
+			{
 				link: '/docs/effects/wave',
 				preview: '/img/effects-wave-preview.png',
 				alt: 'wave effect preview',

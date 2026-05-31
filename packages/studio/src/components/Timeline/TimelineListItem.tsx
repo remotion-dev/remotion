@@ -3,6 +3,7 @@ import type {TSequence} from 'remotion';
 import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
+import {formatFileLocation} from '../../helpers/format-file-location';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	getTimelineLayerHeight,
@@ -68,6 +69,14 @@ export const TimelineListItem: React.FC<{
 
 	const {canOpenInEditor, openInEditor, originalLocation} =
 		useOpenSequenceInEditor(sequence);
+	const fileLocation = useMemo(
+		() =>
+			formatFileLocation({
+				location: originalLocation,
+				root: window.remotion_cwd,
+			}),
+		[originalLocation],
+	);
 
 	const validatedLocation = useMemo(() => {
 		if (
@@ -197,6 +206,34 @@ export const TimelineListItem: React.FC<{
 						value: 'show-in-editor',
 					}
 				: null,
+			{
+				type: 'item' as const,
+				id: 'copy-file-location',
+				keyHint: null,
+				label: 'Copy file location',
+				leftItem: null,
+				disabled: !fileLocation,
+				onClick: () => {
+					if (!fileLocation) {
+						return;
+					}
+
+					navigator.clipboard
+						.writeText(fileLocation)
+						.then(() => {
+							showNotification('Copied file location to clipboard', 1000);
+						})
+						.catch((err) => {
+							showNotification(
+								`Could not copy to clipboard: ${(err as Error).message}`,
+								1000,
+							);
+						});
+				},
+				quickSwitcherLabel: null,
+				subMenu: null,
+				value: 'copy-file-location',
+			},
 			documentationLink
 				? {
 						type: 'item' as const,
@@ -276,6 +313,7 @@ export const TimelineListItem: React.FC<{
 		assetLinkInfo,
 		deleteDisabled,
 		duplicateDisabled,
+		fileLocation,
 		onDeleteSequenceFromSource,
 		onDuplicateSequenceFromSource,
 		canOpenInEditor,

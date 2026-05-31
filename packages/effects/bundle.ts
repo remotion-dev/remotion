@@ -15,6 +15,7 @@ const effectEntrypoints = [
 	'src/drop-shadow.ts',
 	'src/duotone.ts',
 	'src/evolve.ts',
+	'src/fisheye.ts',
 	'src/glow.ts',
 	'src/grayscale.ts',
 	'src/halftone-linear-gradient.ts',

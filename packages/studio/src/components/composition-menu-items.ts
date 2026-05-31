@@ -1,6 +1,7 @@
 import type {SetStateAction} from 'react';
 import type {ResolvedStackLocation, _InternalTypes} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
+import {formatFileLocation} from '../helpers/format-file-location';
 import {
 	openCompositionComponentInEditor,
 	openOriginalPositionInEditor,
@@ -26,10 +27,15 @@ export const getCompositionMenuItems = ({
 	readOnlyStudio: boolean;
 }): ComboboxValue[] => {
 	const editorName = window.remotion_editorName;
+	const fileLocation = formatFileLocation({
+		location: resolvedLocation,
+		root: window.remotion_cwd,
+	});
 	const showInEditorDisabled =
 		!composition || connectionStatus !== 'connected' || !resolvedLocation;
 	const openComponentInEditorDisabled =
 		showInEditorDisabled || !resolvedLocation?.source;
+	const copyFileLocationDisabled = !composition || !fileLocation;
 
 	return [
 		editorName
@@ -57,6 +63,35 @@ export const getCompositionMenuItems = ({
 					disabled: showInEditorDisabled,
 				}
 			: null,
+		{
+			id: 'copy-file-location',
+			keyHint: null,
+			label: `Copy file location`,
+			leftItem: null,
+			onClick: () => {
+				closeMenu();
+				if (!fileLocation) {
+					return;
+				}
+
+				navigator.clipboard
+					.writeText(fileLocation)
+					.then(() => {
+						showNotification('Copied file location to clipboard', 1000);
+					})
+					.catch((err) => {
+						showNotification(
+							`Could not copy to clipboard: ${(err as Error).message}`,
+							1000,
+						);
+					});
+			},
+			quickSwitcherLabel: 'Copy composition file location',
+			subMenu: null,
+			type: 'item' as const,
+			value: 'copy-file-location',
+			disabled: copyFileLocationDisabled,
+		},
 		editorName
 			? {
 					id: 'open-component-in-editor',
@@ -85,7 +120,7 @@ export const getCompositionMenuItems = ({
 					disabled: openComponentInEditorDisabled,
 				}
 			: null,
-		editorName
+		editorName || fileLocation
 			? {
 					type: 'divider' as const,
 					id: 'show-in-editor-divider',

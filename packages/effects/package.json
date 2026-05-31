@@ -74,6 +74,11 @@
 			"module": "./dist/esm/evolve.mjs",
 			"import": "./dist/esm/evolve.mjs"
 		},
+		"./fisheye": {
+			"types": "./dist/fisheye.d.ts",
+			"module": "./dist/esm/fisheye.mjs",
+			"import": "./dist/esm/fisheye.mjs"
+		},
 		"./glow": {
 			"types": "./dist/glow.d.ts",
 			"module": "./dist/esm/glow.mjs",
@@ -201,6 +206,9 @@
 			],
 			"evolve": [
 				"dist/evolve.d.ts"
+			],
+			"fisheye": [
+				"dist/fisheye.d.ts"
 			],
 			"glow": [
 				"dist/glow.d.ts"

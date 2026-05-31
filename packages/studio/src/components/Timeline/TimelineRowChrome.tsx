@@ -2,6 +2,7 @@ import React, {useCallback, useMemo} from 'react';
 import {TIMELINE_TRACK_SEPARATOR} from '../../helpers/colors';
 import {Padder} from './Padder';
 import {
+	TIMELINE_KEYFRAME_CONTROLS_WIDTH,
 	TIMELINE_ROW_BASE_PADDING,
 	getTimelineRowIndentWidth,
 } from './timeline-row-layout';
@@ -12,17 +13,26 @@ const rowBase: React.CSSProperties = {
 	display: 'flex',
 };
 
-const chromeColumnStyle: React.CSSProperties = {
+const leftChromeStyle: React.CSSProperties = {
 	alignItems: 'center',
 	alignSelf: 'stretch',
 	display: 'flex',
 	flexShrink: 0,
-	paddingLeft: TIMELINE_ROW_BASE_PADDING,
+};
+
+const keyframeControlsColumnStyle: React.CSSProperties = {
+	alignItems: 'center',
+	display: 'flex',
+	flexShrink: 0,
+	justifyContent: 'flex-start',
+	marginRight: -(TIMELINE_KEYFRAME_CONTROLS_WIDTH - TIMELINE_ROW_BASE_PADDING),
+	width: TIMELINE_KEYFRAME_CONTROLS_WIDTH,
 };
 
 export const TimelineRowChrome: React.FC<{
 	readonly depth: number;
 	readonly eye: React.ReactNode;
+	readonly keyframeControls?: React.ReactNode;
 	readonly arrow: React.ReactNode;
 	readonly children: React.ReactNode;
 	readonly style: React.CSSProperties;
@@ -39,6 +49,7 @@ export const TimelineRowChrome: React.FC<{
 }> = ({
 	depth,
 	eye,
+	keyframeControls,
 	arrow,
 	children,
 	style,
@@ -51,6 +62,17 @@ export const TimelineRowChrome: React.FC<{
 	onDoubleClick,
 }) => {
 	const indentWidth = getTimelineRowIndentWidth(depth);
+
+	const chromeColumnStyle = useMemo(
+		(): React.CSSProperties => ({
+			alignItems: 'center',
+			alignSelf: 'stretch',
+			display: 'flex',
+			flexShrink: 0,
+			paddingLeft: keyframeControls ? 0 : TIMELINE_ROW_BASE_PADDING,
+		}),
+		[keyframeControls],
+	);
 
 	const onPointerDown = useCallback(
 		(e: React.PointerEvent<HTMLDivElement>) => {
@@ -102,10 +124,15 @@ export const TimelineRowChrome: React.FC<{
 
 	const chrome = (
 		<>
-			<div style={chromeColumnStyle}>
-				{eye}
-				{indentWidth > 0 ? <Padder depth={depth} /> : null}
-				{arrow}
+			<div style={leftChromeStyle}>
+				{keyframeControls ? (
+					<div style={keyframeControlsColumnStyle}>{keyframeControls}</div>
+				) : null}
+				<div style={chromeColumnStyle}>
+					{eye}
+					{indentWidth > 0 ? <Padder depth={depth} /> : null}
+					{arrow}
+				</div>
 			</div>
 			{children}
 		</>
