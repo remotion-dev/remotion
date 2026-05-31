@@ -1,7 +1,7 @@
 import React from 'react';
 import {BACKGROUND} from '../../helpers/colors';
 import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
-import {TimelineListItem} from './TimelineListItem';
+import {TimelineSequenceItem} from './TimelineSequenceItem';
 import {TimelineTimePadding} from './TimelineTimeIndicators';
 
 const container: React.CSSProperties = {
@@ -18,7 +18,7 @@ export const TimelineList: React.FC<{
 			{timeline.map((track) => {
 				return (
 					<div key={track.sequence.id}>
-						<TimelineListItem
+						<TimelineSequenceItem
 							key={track.sequence.id}
 							nestedDepth={track.depth}
 							sequence={track.sequence}

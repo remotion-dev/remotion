@@ -63,16 +63,34 @@ export const SELECTION_ENABLED = false;
 export const TIMELINE_TOP_DRAG = false;
 export const ENABLE_OUTLINES = false;
 
+type TimelineSelectionBase = {
+	readonly nodePathInfo: SequenceNodePathInfo;
+};
+
 export type TimelineSelection =
-	| {
-			readonly type: 'row';
-			readonly nodePathInfo: SequenceNodePathInfo;
-	  }
-	| {
+	| (TimelineSelectionBase & {
+			readonly type: 'sequence';
+	  })
+	| (TimelineSelectionBase & {
+			readonly type: 'sequence-prop';
+			readonly key: string;
+	  })
+	| (TimelineSelectionBase & {
+			readonly type: 'sequence-all-effects';
+	  })
+	| (TimelineSelectionBase & {
+			readonly type: 'sequence-effect';
+			readonly i: number;
+	  })
+	| (TimelineSelectionBase & {
+			readonly type: 'sequence-effect-prop';
+			readonly i: number;
+			readonly key: string;
+	  })
+	| (TimelineSelectionBase & {
 			readonly type: 'keyframe';
-			readonly nodePathInfo: SequenceNodePathInfo;
 			readonly frame: number;
-	  };
+	  });
 
 export type TimelineSelectionInteraction = {
 	readonly shiftKey: boolean;
@@ -253,13 +271,80 @@ const TimelineSelectionContext = createContext<TimelineSelectionContextValue>(
 const CurrentTimelineSelectionContext =
 	createContext<React.RefObject<TimelineSelectionContextValue> | null>(null);
 
-const getTimelineSelectionKey = (item: TimelineSelection): string => {
-	const rowKey = timelineNodePathInfoToKey(item.nodePathInfo);
-	if (item.type === 'row') {
-		return rowKey;
+const parseEffectIndex = (effectIndex: string): number | null => {
+	const parsed = Number(effectIndex);
+	if (!Number.isInteger(parsed) || parsed < 0) {
+		return null;
 	}
 
-	return `${rowKey}.keyframe.${item.frame}`;
+	return parsed;
+};
+
+export const getTimelineSelectionFromNodePathInfo = (
+	nodePathInfo: SequenceNodePathInfo | null,
+): TimelineSelection | null => {
+	if (nodePathInfo === null) {
+		return null;
+	}
+
+	const {auxiliaryKeys} = nodePathInfo;
+	if (auxiliaryKeys.length === 0) {
+		return {type: 'sequence', nodePathInfo};
+	}
+
+	if (auxiliaryKeys.length === 2 && auxiliaryKeys[0] === 'controls') {
+		return {type: 'sequence-prop', nodePathInfo, key: auxiliaryKeys[1]};
+	}
+
+	if (auxiliaryKeys.length === 1 && auxiliaryKeys[0] === 'effects') {
+		return {type: 'sequence-all-effects', nodePathInfo};
+	}
+
+	if (auxiliaryKeys[0] === 'effects') {
+		const effectIndex = parseEffectIndex(auxiliaryKeys[1]);
+		if (effectIndex === null) {
+			return null;
+		}
+
+		if (auxiliaryKeys.length === 2) {
+			return {type: 'sequence-effect', nodePathInfo, i: effectIndex};
+		}
+
+		if (auxiliaryKeys.length === 3) {
+			return {
+				type: 'sequence-effect-prop',
+				nodePathInfo,
+				i: effectIndex,
+				key: auxiliaryKeys[2],
+			};
+		}
+	}
+
+	return null;
+};
+
+const getTimelineSelectionKey = (item: TimelineSelection): string => {
+	const sequenceKey = getTimelineSequenceSelectionKey(item.nodePathInfo);
+	switch (item.type) {
+		case 'sequence':
+			return `${sequenceKey}.sequence`;
+		case 'sequence-prop':
+			return `${sequenceKey}.sequence-prop.${item.key}`;
+		case 'sequence-all-effects':
+			return `${sequenceKey}.sequence-all-effects`;
+		case 'sequence-effect':
+			return `${sequenceKey}.sequence-effect.${item.i}`;
+		case 'sequence-effect-prop':
+			return `${sequenceKey}.sequence-effect-prop.${item.i}.${item.key}`;
+		case 'keyframe':
+			return `${timelineNodePathInfoToKey(item.nodePathInfo)}.keyframe.${
+				item.frame
+			}`;
+		default:
+			throw new Error(
+				`Unexpected timeline selection type: ${item satisfies never}`,
+			);
+	}
 };
 
 const nodePathDescendsFrom = (
@@ -298,7 +383,7 @@ export const getSelectableTimelineSequenceSelections = (
 			return [];
 		}
 
-		return [{type: 'row', nodePathInfo: track.nodePathInfo}];
+		return [{type: 'sequence', nodePathInfo: track.nodePathInfo}];
 	});
 };
 
@@ -522,7 +607,7 @@ export const useTimelineRowSelection = (
 		useTimelineSelection();
 	const selectionItem = useMemo(
 		(): TimelineSelection | null =>
-			nodePathInfo === null ? null : {type: 'row', nodePathInfo},
+			getTimelineSelectionFromNodePathInfo(nodePathInfo),
 		[nodePathInfo],
 	);
 

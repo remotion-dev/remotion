@@ -149,7 +149,7 @@ const Value: React.FC<{
 	);
 };
 
-export const TimelineSequenceFieldRow: React.FC<{
+export const TimelineSequencePropItem: React.FC<{
 	readonly field: SchemaFieldInfo;
 	readonly validatedLocation: CodePosition;
 	readonly rowDepth: number;

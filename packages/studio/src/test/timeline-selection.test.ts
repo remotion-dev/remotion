@@ -5,6 +5,7 @@ import {
 	ENABLE_OUTLINES,
 	getSelectableTimelineSequenceSelections,
 	getTimelineSelectionAfterInteraction,
+	getTimelineSelectionFromNodePathInfo,
 	getTimelineSequenceSelectionKey,
 	isTimelineSelectionModifierEvent,
 	SELECTION_ENABLED,
@@ -53,7 +54,7 @@ test('Cmd+A selection only targets selectable timeline sequences', () => {
 		]),
 	).toEqual([
 		{
-			type: 'row',
+			type: 'sequence',
 			nodePathInfo: sequenceNodePathInfo,
 		},
 	]);
@@ -65,8 +66,12 @@ test('Cmd+D only duplicates selected timeline sequence rows', () => {
 
 	expect(
 		[
-			{type: 'row' as const, nodePathInfo: sequenceNodePathInfo},
-			{type: 'row' as const, nodePathInfo: effectNodePathInfo},
+			{type: 'sequence' as const, nodePathInfo: sequenceNodePathInfo},
+			{
+				type: 'sequence-effect' as const,
+				nodePathInfo: effectNodePathInfo,
+				i: 0,
+			},
 			{
 				type: 'keyframe' as const,
 				nodePathInfo: sequenceNodePathInfo,
@@ -75,7 +80,7 @@ test('Cmd+D only duplicates selected timeline sequence rows', () => {
 		].filter(isDuplicatableSequenceRowSelection),
 	).toEqual([
 		{
-			type: 'row',
+			type: 'sequence',
 			nodePathInfo: sequenceNodePathInfo,
 		},
 	]);
@@ -97,13 +102,59 @@ test('Child timeline selections resolve to the parent sequence selection key', (
 	);
 });
 
+test('Timeline row selections use explicit item variants', () => {
+	const sequenceNodePathInfo = makeNodePathInfo(['body', 0], []);
+	const sequencePropNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['controls', 'opacity'],
+	);
+	const allEffectsNodePathInfo = makeNodePathInfo(['body', 0], ['effects']);
+	const effectNodePathInfo = makeNodePathInfo(['body', 0], ['effects', '1']);
+	const effectPropNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['effects', '1', 'blur'],
+	);
+
+	expect(getTimelineSelectionFromNodePathInfo(sequenceNodePathInfo)).toEqual({
+		type: 'sequence',
+		nodePathInfo: sequenceNodePathInfo,
+	});
+	expect(
+		getTimelineSelectionFromNodePathInfo(sequencePropNodePathInfo),
+	).toEqual({
+		type: 'sequence-prop',
+		nodePathInfo: sequencePropNodePathInfo,
+		key: 'opacity',
+	});
+	expect(getTimelineSelectionFromNodePathInfo(allEffectsNodePathInfo)).toEqual({
+		type: 'sequence-all-effects',
+		nodePathInfo: allEffectsNodePathInfo,
+	});
+	expect(getTimelineSelectionFromNodePathInfo(effectNodePathInfo)).toEqual({
+		type: 'sequence-effect',
+		nodePathInfo: effectNodePathInfo,
+		i: 1,
+	});
+	expect(getTimelineSelectionFromNodePathInfo(effectPropNodePathInfo)).toEqual({
+		type: 'sequence-effect-prop',
+		nodePathInfo: effectPropNodePathInfo,
+		i: 1,
+		key: 'blur',
+	});
+	expect(
+		getTimelineSelectionFromNodePathInfo(
+			makeNodePathInfo(['body', 0], ['effects', 'not-a-number']),
+		),
+	).toBe(null);
+});
+
 test('Cmd/Ctrl+click toggles row selections', () => {
 	const rowA = {
-		type: 'row' as const,
+		type: 'sequence' as const,
 		nodePathInfo: makeNodePathInfo(['body', 0], []),
 	};
 	const rowB = {
-		type: 'row' as const,
+		type: 'sequence' as const,
 		nodePathInfo: makeNodePathInfo(['body', 1], []),
 	};
 	const allSelectableItems = [rowA, rowB];
@@ -141,15 +192,15 @@ test('Cmd/Ctrl+click toggles row selections', () => {
 
 test('Shift+click selects a contiguous row range from the anchor', () => {
 	const rowA = {
-		type: 'row' as const,
+		type: 'sequence' as const,
 		nodePathInfo: makeNodePathInfo(['body', 0], []),
 	};
 	const rowB = {
-		type: 'row' as const,
+		type: 'sequence' as const,
 		nodePathInfo: makeNodePathInfo(['body', 1], []),
 	};
 	const rowC = {
-		type: 'row' as const,
+		type: 'sequence' as const,
 		nodePathInfo: makeNodePathInfo(['body', 2], []),
 	};
 	const allSelectableItems = [rowA, rowB, rowC];
@@ -172,7 +223,7 @@ test('Shift+click selects a contiguous row range from the anchor', () => {
 
 test('Shift+click with no matching anchor falls back to single selection', () => {
 	const rowA = {
-		type: 'row' as const,
+		type: 'sequence' as const,
 		nodePathInfo: makeNodePathInfo(['body', 0], []),
 	};
 	const keyframe = {

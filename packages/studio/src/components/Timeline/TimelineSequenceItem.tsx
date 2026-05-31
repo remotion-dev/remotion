@@ -51,7 +51,7 @@ const labelContainerStyle: React.CSSProperties = {
 	gap: 4,
 };
 
-export const TimelineListItem: React.FC<{
+export const TimelineSequenceItem: React.FC<{
 	readonly sequence: TSequence;
 	readonly nestedDepth: number;
 	readonly nodePathInfo: SequenceNodePathInfo | null;

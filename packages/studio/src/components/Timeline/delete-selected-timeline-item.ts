@@ -114,34 +114,27 @@ export const deleteSelectedTimelineItem = ({
 		});
 	}
 
-	const {nodePathInfo} = selection;
-	const {auxiliaryKeys} = nodePathInfo;
-
-	// The sequence track row itself has no auxiliary keys.
-	if (auxiliaryKeys.length === 0) {
-		return deleteSequences([nodePathInfo]);
-	}
-
-	// An effect group row is ['effects', effectIndex].
-	if (auxiliaryKeys.length === 2 && auxiliaryKeys[0] === 'effects') {
-		const effectIndex = Number(auxiliaryKeys[1]);
-		if (!Number.isInteger(effectIndex) || effectIndex < 0) {
+	switch (selection.type) {
+		case 'sequence':
+			return deleteSequences([selection.nodePathInfo]);
+		case 'sequence-effect':
+			return deleteEffect(selection.nodePathInfo, selection.i);
+		case 'sequence-prop':
+		case 'sequence-all-effects':
+		case 'sequence-effect-prop':
 			return null;
-		}
-
-		return deleteEffect(nodePathInfo, effectIndex);
+		default:
+			throw new Error(
+				`Unexpected timeline selection type: ${selection satisfies never}`,
+			);
 	}
-
-	// Field rows and other intermediate rows are not deletable on their own.
-	return null;
 };
 
 const isSequenceRowSelection = (
 	selection: TimelineSelection,
 ): selection is TimelineSelection & {
-	type: 'row';
-} =>
-	selection.type === 'row' && selection.nodePathInfo.auxiliaryKeys.length === 0;
+	type: 'sequence';
+} => selection.type === 'sequence';
 
 export const deleteSelectedTimelineItems = ({
 	selections,
