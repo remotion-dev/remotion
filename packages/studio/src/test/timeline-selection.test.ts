@@ -47,7 +47,7 @@ test('Timeline outlines should not be enabled', () => {
 	expect(ENABLE_OUTLINES).toBe(false);
 });
 
-test('UV handles interpolate semantic outline corners', () => {
+test('UV handles project semantic outline corners', () => {
 	const points = [
 		{x: 200, y: 200},
 		{x: 100, y: 200},
@@ -58,6 +58,20 @@ test('UV handles interpolate semantic outline corners', () => {
 	expect(getUvHandlePosition(points, [0, 0])).toEqual({x: 200, y: 200});
 	expect(getUvHandlePosition(points, [1, 1])).toEqual({x: 100, y: 100});
 	expect(getUvHandlePosition(points, [0.5, 0.5])).toEqual({x: 150, y: 150});
+});
+
+test('UV handles use projective projection for perspective quads', () => {
+	const points = [
+		{x: 0, y: 0},
+		{x: 100, y: 0},
+		{x: 150, y: 100},
+		{x: -50, y: 100},
+	] as const;
+
+	const projectedCenter = getUvHandlePosition(points, [0.5, 0.5]);
+
+	expect(projectedCenter.x).toBeCloseTo(50, 5);
+	expect(projectedCenter.y).toBeCloseTo(100 / 3, 5);
 });
 
 test('UV handle pointer position maps back to UV coordinates', () => {
