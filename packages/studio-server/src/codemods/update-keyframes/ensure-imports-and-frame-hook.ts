@@ -57,7 +57,7 @@ const insertImportDeclaration = (
 	ast: File,
 	importDecl: ImportDeclaration,
 ): void => {
-	const body = ast.program.body;
+	const {body} = ast.program;
 	let lastImportIndex = -1;
 	for (let i = 0; i < body.length; i++) {
 		if (body[i].type === 'ImportDeclaration') {
@@ -91,7 +91,7 @@ export const ensureRemotionImports = (
 			continue;
 		}
 
-		const imported = (specifier as ImportSpecifier).imported;
+		const {imported} = specifier as ImportSpecifier;
 		if (imported.type === 'Identifier') {
 			existingNames.add(imported.name);
 		} else if (imported.type === 'StringLiteral') {
