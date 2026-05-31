@@ -18,6 +18,7 @@ import {
 } from '../ExpandedTracksProvider';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {showNotification} from '../Notifications/NotificationCenter';
+import {duplicateSequencesFromSource} from './duplicate-selected-timeline-item';
 import {saveSequenceProp} from './save-sequence-prop';
 import {
 	TimelineExpandArrowButton,
@@ -103,36 +104,13 @@ export const TimelineListItem: React.FC<{
 
 	const duplicateDisabled = deleteDisabled;
 
-	const onDuplicateSequenceFromSource = useCallback(async () => {
-		if (!validatedLocation?.source || !nodePath) {
+	const onDuplicateSequenceFromSource = useCallback(() => {
+		if (!validatedLocation?.source || !nodePathInfo) {
 			return;
 		}
 
-		if (nodePathInfo && nodePathInfo.numberOfSequencesWithThisNodePath > 1) {
-			const message =
-				'This sequence is programmatically duplicated ' +
-				nodePathInfo.numberOfSequencesWithThisNodePath +
-				' times in the code. Duplicating inserts another copy. Continue?';
-			// eslint-disable-next-line no-alert -- native confirm before applying duplicate codemod in .map callbacks
-			if (!window.confirm(message)) {
-				return;
-			}
-		}
-
-		try {
-			const result = await callApi('/api/duplicate-jsx-node', {
-				fileName: validatedLocation.source,
-				nodePath: nodePath.nodePath,
-			});
-			if (result.success) {
-				showNotification('Duplicated sequence in source file', 2000);
-			} else {
-				showNotification(result.reason, 4000);
-			}
-		} catch (err) {
-			showNotification((err as Error).message, 4000);
-		}
-	}, [nodePath, validatedLocation?.source, nodePathInfo]);
+		duplicateSequencesFromSource([nodePathInfo]).catch(() => undefined);
+	}, [nodePathInfo, validatedLocation?.source]);
 
 	const onDeleteSequenceFromSource = useCallback(async () => {
 		if (!validatedLocation?.source || !nodePath) {
