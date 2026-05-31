@@ -10,6 +10,7 @@ import {EffectsContrastPreview} from '../../components/effects/effects-contrast-
 import {EffectsDotGridPreview} from '../../components/effects/effects-dot-grid-preview';
 import {EffectsDropShadowPreview} from '../../components/effects/effects-drop-shadow-preview';
 import {EffectsDuotonePreview} from '../../components/effects/effects-duotone-preview';
+import {EffectsFisheyePreview} from '../../components/effects/effects-fisheye-preview';
 import {EffectsGlowPreview} from '../../components/effects/effects-glow-preview';
 import {EffectsGrayscalePreview} from '../../components/effects/effects-grayscale-preview';
 import {EffectsHalftoneLinearGradientPreview} from '../../components/effects/effects-halftone-linear-gradient-preview';
@@ -225,6 +226,18 @@ export const RemotionRoot: React.FC = () => {
 					width={1280}
 					height={720}
 					defaultProps={{amount: 0.28}}
+				/>
+				<Still
+					id="effects-fisheye-preview"
+					component={EffectsFisheyePreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						fieldOfView: 2.5,
+						radius: 1.2,
+						zoom: 1,
+						center: [0.5, 0.5],
+					}}
 				/>
 				<Still
 					id="effects-chromatic-aberration-preview"

@@ -1791,6 +1791,15 @@ export const articles = [
 		slug: 'effects/duotone',
 	},
 	{
+		id: 'effects/fisheye',
+		title: 'fisheye()',
+		relativePath: 'docs/effects/fisheye.mdx',
+		compId: 'articles-docs-effects-fisheye',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/fisheye',
+	},
+	{
 		id: 'effects/glow',
 		title: 'glow()',
 		relativePath: 'docs/effects/glow.mdx',

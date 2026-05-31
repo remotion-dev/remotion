@@ -69,6 +69,11 @@
 			"module": "./dist/esm/duotone.mjs",
 			"import": "./dist/esm/duotone.mjs"
 		},
+		"./fisheye": {
+			"types": "./dist/fisheye.d.ts",
+			"module": "./dist/esm/fisheye.mjs",
+			"import": "./dist/esm/fisheye.mjs"
+		},
 		"./glow": {
 			"types": "./dist/glow.d.ts",
 			"module": "./dist/esm/glow.mjs",
@@ -193,6 +198,9 @@
 			],
 			"duotone": [
 				"dist/duotone.d.ts"
+			],
+			"fisheye": [
+				"dist/fisheye.d.ts"
 			],
 			"glow": [
 				"dist/glow.d.ts"
