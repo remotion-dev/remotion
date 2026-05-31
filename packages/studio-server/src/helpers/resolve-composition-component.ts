@@ -1,14 +1,17 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import type {
+	ClassDeclaration,
 	ExportAllDeclaration,
 	ExportNamedDeclaration,
 	ExportSpecifier,
 	File,
+	FunctionDeclaration,
 	ImportDeclaration,
 	ImportSpecifier,
 	JSXAttribute,
 	JSXElement,
+	VariableDeclaration,
 } from '@babel/types';
 import type {namedTypes} from 'ast-types';
 import * as recast from 'recast';
@@ -755,21 +758,43 @@ const getImportedName = (specifier: ImportSpecifier) => {
 	return specifier.imported.value;
 };
 
+const declarationBindsName = (
+	declaration: FunctionDeclaration | ClassDeclaration | VariableDeclaration,
+	name: string,
+) => {
+	if (
+		declaration.type === 'FunctionDeclaration' ||
+		declaration.type === 'ClassDeclaration'
+	) {
+		return declaration.id?.name === name;
+	}
+
+	return declaration.declarations.some((variableDeclaration) => {
+		return (
+			variableDeclaration.id.type === 'Identifier' &&
+			variableDeclaration.id.name === name
+		);
+	});
+};
+
 const hasTopLevelBinding = ({ast, name}: {ast: File; name: string}) => {
 	return ast.program.body.some((node) => {
 		if (
 			node.type === 'FunctionDeclaration' ||
-			node.type === 'ClassDeclaration'
+			node.type === 'ClassDeclaration' ||
+			node.type === 'VariableDeclaration'
 		) {
-			return node.id?.name === name;
+			return declarationBindsName(node, name);
 		}
 
-		if (node.type === 'VariableDeclaration') {
-			return node.declarations.some((declaration) => {
-				return (
-					declaration.id.type === 'Identifier' && declaration.id.name === name
-				);
-			});
+		if (
+			node.type === 'ExportNamedDeclaration' &&
+			node.declaration &&
+			(node.declaration.type === 'FunctionDeclaration' ||
+				node.declaration.type === 'ClassDeclaration' ||
+				node.declaration.type === 'VariableDeclaration')
+		) {
+			return declarationBindsName(node.declaration, name);
 		}
 
 		if (node.type !== 'ImportDeclaration') {
@@ -828,7 +853,7 @@ const addSolidImport = ({
 	const canAddToExistingRemotionImport =
 		remotionImport &&
 		!remotionImport.specifiers?.some(
-			(specifier) => specifier.type === 'ImportNamespaceSpecifier',
+			(importSpecifier) => importSpecifier.type === 'ImportNamespaceSpecifier',
 		);
 
 	if (canAddToExistingRemotionImport) {

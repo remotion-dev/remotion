@@ -403,7 +403,7 @@ test('adds an aliased Solid import if Solid is already defined', async () => {
 			[
 				"import {AbsoluteFill} from 'remotion';",
 				'',
-				'const Solid = () => null;',
+				'export const Solid = () => null;',
 				'',
 				'export const MyComp: React.FC = () => {',
 				'\treturn <AbsoluteFill>hello</AbsoluteFill>;',
