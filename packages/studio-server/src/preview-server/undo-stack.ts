@@ -127,7 +127,7 @@ export function pushToUndoStack({
 }: {
 	filePath: string;
 	oldContents: string;
-	newContents?: string;
+	newContents: string | null;
 	logLevel: LogLevel;
 	remotionRoot: string;
 	logLine: number;
@@ -140,7 +140,7 @@ export function pushToUndoStack({
 			{
 				filePath,
 				oldContents,
-				newContents: newContents ?? null,
+				newContents,
 				logLine,
 			},
 		],
@@ -224,7 +224,7 @@ export function pushToRedoStack({
 }: {
 	filePath: string;
 	oldContents: string;
-	newContents?: string;
+	newContents: string | null;
 	logLine: number;
 	description: UndoEntryDescription;
 	entryType: UndoEntryType;
@@ -235,7 +235,7 @@ export function pushToRedoStack({
 			{
 				filePath,
 				oldContents,
-				newContents: newContents ?? null,
+				newContents,
 				logLine,
 			},
 		],

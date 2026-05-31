@@ -93,6 +93,7 @@ export const deleteEffectHandler: ApiHandler<
 			pushToUndoStack({
 				filePath: update.absolutePath,
 				oldContents: update.fileContents,
+				newContents: null,
 				logLevel,
 				remotionRoot,
 				logLine: update.logLine,

@@ -64,6 +64,7 @@ export const deleteSequenceKeyframeHandler: ApiHandler<
 		pushToUndoStack({
 			filePath: absolutePath,
 			oldContents: fileContents,
+			newContents: null,
 			logLevel,
 			remotionRoot,
 			logLine,
