@@ -64,6 +64,7 @@ export const deleteSequenceKeyframeHandler: ApiHandler<
 		pushToUndoStack({
 			filePath: absolutePath,
 			oldContents: fileContents,
+			newContents: null,
 			logLevel,
 			remotionRoot,
 			logLine,
@@ -103,5 +104,6 @@ export const deleteSequenceKeyframeHandler: ApiHandler<
 		return {
 			canUpdate: true,
 			props: status.props,
+			results: [{fileName, nodePath, props: status.props}],
 		};
 	});

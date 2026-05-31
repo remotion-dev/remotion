@@ -55,6 +55,7 @@ test('logUpdate emits Monokai-colored output after an AST update', async () => {
 			nodePath: lineColumnToNodePath(input, 8),
 			updates: [{key: 'hueShift', value: 90, defaultValue: null}],
 			schema: NoReactInternals.sequenceSchema,
+			prettierConfigOverride: null,
 		});
 
 	expect(oldValueStrings[0]).toBe('30');
@@ -109,6 +110,7 @@ test('logUpdate emits change-from-default output for discriminated union enum ch
 				},
 			],
 			schema: NoReactInternals.sequenceSchema,
+			prettierConfigOverride: null,
 		});
 
 	expect(oldValueStrings[0]).toBe('"absolute-fill"');
@@ -176,6 +178,7 @@ test('Undo prop change should not nest key={key={value}} for re-added props', as
 			},
 		],
 		schema: NoReactInternals.sequenceSchema,
+		prettierConfigOverride: null,
 	});
 
 	const premount = removedProps.find((p) => p.key === 'premountFor');
