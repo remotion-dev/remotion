@@ -12,10 +12,6 @@ import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {BLUE} from '../helpers/colors';
 import {getBoxQuadsPonyfill} from '../helpers/get-box-quads-ponyfill';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
-import {
-	forceSpecificCursor,
-	stopForcingSpecificCursor,
-} from './ForceSpecificCursor';
 import {saveSequenceProp} from './Timeline/save-sequence-prop';
 import {
 	parseTranslate,
@@ -339,8 +335,6 @@ export const SelectedOutlineOverlay: React.FC<{
 					: null;
 			let lastValue: string | null = null;
 
-			forceSpecificCursor('move');
-
 			const onPointerMove = (moveEvent: PointerEvent) => {
 				moveEvent.preventDefault();
 
@@ -354,7 +348,6 @@ export const SelectedOutlineOverlay: React.FC<{
 				window.removeEventListener('pointermove', onPointerMove);
 				window.removeEventListener('pointerup', onPointerUp);
 				window.removeEventListener('pointercancel', onPointerUp);
-				stopForcingSpecificCursor();
 
 				const stringifiedValue =
 					lastValue === null ? null : JSON.stringify(lastValue);
@@ -461,7 +454,6 @@ export const SelectedOutlineOverlay: React.FC<{
 								points={outline.points.map(pointToString).join(' ')}
 								fill="transparent"
 								pointerEvents="all"
-								cursor="move"
 								onPointerDown={(event) => onPointerDown(event, target)}
 							/>
 						) : null}
