@@ -2,6 +2,7 @@ import type {
 	CompositionComponentInfoResponse,
 	SymbolicatedStackFrame,
 } from '@remotion/studio-shared';
+import {useSyncExternalStore} from 'react';
 import {callApi} from '../components/call-api';
 import type {OriginalPosition} from '../error-overlay/react-overlay/utils/get-source-map';
 
@@ -87,6 +88,29 @@ export const getCachedCompositionComponentInfo = ({
 		componentResolutionResults.get(
 			getComponentResolutionCacheKey({compositionFile, compositionId}),
 		) ?? null
+	);
+};
+
+export const useCachedCompositionComponentInfo = ({
+	compositionFile,
+	compositionId,
+}: {
+	compositionFile: string | null;
+	compositionId: string | null;
+}) => {
+	return useSyncExternalStore(
+		subscribeToCompositionComponentInfo,
+		() => {
+			if (compositionFile === null || compositionId === null) {
+				return null;
+			}
+
+			return getCachedCompositionComponentInfo({
+				compositionFile,
+				compositionId,
+			});
+		},
+		() => null,
 	);
 };
 

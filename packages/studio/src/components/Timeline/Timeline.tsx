@@ -1,20 +1,11 @@
-import React, {
-	useCallback,
-	useContext,
-	useEffect,
-	useMemo,
-	useState,
-} from 'react';
+import React, {useCallback, useContext, useMemo, useState} from 'react';
 import {Internals} from 'remotion';
 import {calculateTimeline} from '../../helpers/calculate-timeline';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {BACKGROUND} from '../../helpers/colors';
 import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
 import {useIsStill} from '../../helpers/is-current-selected-still';
-import {
-	getCachedCompositionComponentInfo,
-	subscribeToCompositionComponentInfo,
-} from '../../helpers/open-in-editor';
+import {useCachedCompositionComponentInfo} from '../../helpers/open-in-editor';
 import {callApi} from '../call-api';
 import {ContextMenu} from '../ContextMenu';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
@@ -60,18 +51,6 @@ const container: React.CSSProperties = {
 
 const noop = () => undefined;
 
-type InsertElementAvailability =
-	| {
-			type: 'unavailable';
-	  }
-	| {
-			type: 'loading';
-	  }
-	| {
-			type: 'loaded';
-			canAddSequence: boolean;
-	  };
-
 const TimelineClearSelectionArea: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
@@ -80,10 +59,6 @@ const TimelineClearSelectionArea: React.FC<{
 		Internals.CompositionManager,
 	);
 	const videoConfig = Internals.useUnsafeVideoConfig();
-	const [insertElementAvailability, setInsertElementAvailability] =
-		useState<InsertElementAvailability>({
-			type: 'unavailable',
-		});
 	const [isAddingSolid, setIsAddingSolid] = useState(false);
 
 	const currentCompositionId =
@@ -103,29 +78,10 @@ const TimelineClearSelectionArea: React.FC<{
 		currentComposition?.stack ?? null,
 	);
 	const compositionFile = resolvedCompositionLocation?.source ?? null;
-
-	useEffect(() => {
-		if (currentCompositionId === null || compositionFile === null) {
-			setInsertElementAvailability({type: 'unavailable'});
-			return;
-		}
-
-		const updateAvailability = () => {
-			const cachedInfo = getCachedCompositionComponentInfo({
-				compositionFile,
-				compositionId: currentCompositionId,
-			});
-
-			setInsertElementAvailability(
-				cachedInfo
-					? {type: 'loaded', canAddSequence: cachedInfo.canAddSequence}
-					: {type: 'loading'},
-			);
-		};
-
-		updateAvailability();
-		return subscribeToCompositionComponentInfo(updateAvailability);
-	}, [compositionFile, currentCompositionId]);
+	const compositionComponentInfo = useCachedCompositionComponentInfo({
+		compositionFile,
+		compositionId: currentCompositionId,
+	});
 
 	// Selection-triggering click handlers in children call e.stopPropagation(),
 	// so any pointerdown that bubbles up here is by definition on empty space
@@ -142,8 +98,7 @@ const TimelineClearSelectionArea: React.FC<{
 	);
 
 	const canInsertSolid =
-		insertElementAvailability.type === 'loaded' &&
-		insertElementAvailability.canAddSequence &&
+		compositionComponentInfo?.canAddSequence === true &&
 		currentCompositionId !== null &&
 		compositionFile !== null &&
 		videoConfig !== null &&
