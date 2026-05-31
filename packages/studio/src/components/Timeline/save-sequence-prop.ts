@@ -33,8 +33,8 @@ export const saveSequenceProps = ({
 	changes: SaveSequencePropChange[];
 	setCodeValues: SetCodeValues;
 	clientId: string;
-	undoLabel?: string;
-	redoLabel?: string;
+	undoLabel: string | null;
+	redoLabel: string | null;
 }): Promise<void> => {
 	if (changes.length === 0) {
 		return Promise.resolve();
@@ -110,6 +110,8 @@ export const saveSequenceProp = ({
 					},
 				],
 				clientId,
+				undoLabel: null,
+				redoLabel: null,
 			}),
 		errorLabel: 'Could not save sequence prop',
 	});

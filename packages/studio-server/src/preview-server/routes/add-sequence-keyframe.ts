@@ -106,5 +106,6 @@ export const addSequenceKeyframeHandler: ApiHandler<
 		return {
 			canUpdate: true,
 			props: status.props,
+			results: [{fileName, nodePath, props: status.props}],
 		};
 	});

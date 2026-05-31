@@ -104,5 +104,6 @@ export const deleteSequenceKeyframeHandler: ApiHandler<
 		return {
 			canUpdate: true,
 			props: status.props,
+			results: [{fileName, nodePath, props: status.props}],
 		};
 	});

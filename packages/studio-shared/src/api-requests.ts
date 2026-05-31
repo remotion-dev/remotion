@@ -260,15 +260,15 @@ export type SaveSequencePropEdit = {
 export type SaveSequencePropsRequest = {
 	edits: SaveSequencePropEdit[];
 	clientId: string;
-	undoLabel?: string;
-	redoLabel?: string;
+	undoLabel: string | null;
+	redoLabel: string | null;
 };
 
 export type SaveSequencePropsResponse =
 	| {
 			canUpdate: true;
 			props: Record<string, CanUpdateSequencePropStatus>;
-			results?: Array<{
+			results: Array<{
 				fileName: string;
 				nodePath: SequencePropsSubscriptionKey;
 				props: Record<string, CanUpdateSequencePropStatus>;

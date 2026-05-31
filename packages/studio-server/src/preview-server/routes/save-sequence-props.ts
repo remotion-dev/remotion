@@ -156,7 +156,7 @@ export const saveSequencePropsHandler: ApiHandler<
 		}
 
 		const undoMessage =
-			undoLabel !== undefined
+			undoLabel !== null
 				? `↩️  ${undoLabel}`
 				: edits.length === 1
 					? `↩️  ${formatPropChange({
@@ -176,7 +176,7 @@ export const saveSequencePropsHandler: ApiHandler<
 						})}`
 					: '↩️  Update selected sequence props';
 		const redoMessage =
-			redoLabel !== undefined
+			redoLabel !== null
 				? `↪️  ${redoLabel}`
 				: edits.length === 1
 					? `↪️  ${formatPropChange({
