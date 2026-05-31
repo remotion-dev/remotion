@@ -29,7 +29,7 @@ const rowLabel: React.CSSProperties = {
 	userSelect: 'none',
 };
 
-export const TimelineEffectGroupRow: React.FC<{
+export const TimelineEffectItem: React.FC<{
 	readonly label: string;
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly effectIndex: number;

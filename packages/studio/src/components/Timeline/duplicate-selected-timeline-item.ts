@@ -82,9 +82,8 @@ export const duplicateSequencesFromSource = (
 export const isDuplicatableSequenceRowSelection = (
 	selection: TimelineSelection,
 ): selection is TimelineSelection & {
-	type: 'row';
-} =>
-	selection.type === 'row' && selection.nodePathInfo.auxiliaryKeys.length === 0;
+	type: 'sequence';
+} => selection.type === 'sequence';
 
 export const duplicateSelectedTimelineItems = ({
 	selections,

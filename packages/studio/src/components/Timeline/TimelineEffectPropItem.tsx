@@ -220,7 +220,7 @@ const Value: React.FC<{
 	);
 };
 
-export const TimelineEffectFieldRow: React.FC<{
+export const TimelineEffectPropItem: React.FC<{
 	readonly field: EffectSchemaFieldInfo;
 	readonly validatedLocation: CodePosition;
 	readonly rowDepth: number;
