@@ -41,6 +41,7 @@
 		"@remotion/captions": "workspace:*",
 		"@remotion/cli": "workspace:*",
 		"@remotion/cloudrun": "workspace:*",
+		"@remotion/convert": "workspace:*",
 		"@remotion/design": "workspace:*",
 		"@remotion/docusaurus-plugin": "workspace:*",
 		"@remotion/effects": "workspace:*",
