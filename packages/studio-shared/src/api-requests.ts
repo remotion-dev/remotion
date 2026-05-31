@@ -427,6 +427,28 @@ export type DuplicateJsxNodeResponse =
 			stack: string;
 	  };
 
+export type InsertableCompositionElement = {
+	type: 'solid';
+	width: number;
+	height: number;
+};
+
+export type InsertJsxElementRequest = {
+	compositionFile: string;
+	compositionId: string;
+	element: InsertableCompositionElement;
+};
+
+export type InsertJsxElementResponse =
+	| {
+			success: true;
+	  }
+	| {
+			success: false;
+			reason: string;
+			stack: string;
+	  };
+
 export type UpdateAvailableRequest = {};
 export type UpdateAvailableResponse = {
 	currentVersion: string;
@@ -545,6 +567,10 @@ export type ApiRoutes = {
 	'/api/duplicate-jsx-node': ReqAndRes<
 		DuplicateJsxNodeRequest,
 		DuplicateJsxNodeResponse
+	>;
+	'/api/insert-jsx-element': ReqAndRes<
+		InsertJsxElementRequest,
+		InsertJsxElementResponse
 	>;
 	'/api/update-available': ReqAndRes<
 		UpdateAvailableRequest,

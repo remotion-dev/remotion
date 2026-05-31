@@ -1,11 +1,16 @@
-import React, {useCallback, useContext, useMemo} from 'react';
+import React, {useCallback, useContext, useMemo, useState} from 'react';
 import {Internals} from 'remotion';
 import {calculateTimeline} from '../../helpers/calculate-timeline';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {BACKGROUND} from '../../helpers/colors';
 import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
 import {useIsStill} from '../../helpers/is-current-selected-still';
+import {useCachedCompositionComponentInfo} from '../../helpers/open-in-editor';
+import {callApi} from '../call-api';
+import {ContextMenu} from '../ContextMenu';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
+import type {ComboboxValue} from '../NewComposition/ComboBox';
+import {showNotification} from '../Notifications/NotificationCenter';
 import {SplitterContainer} from '../Splitter/SplitterContainer';
 import {SplitterElement} from '../Splitter/SplitterElement';
 import {SplitterHandle} from '../Splitter/SplitterHandle';
@@ -33,6 +38,7 @@ import {
 } from './TimelineTimeIndicators';
 import {TimelineTracks} from './TimelineTracks';
 import {TimelineWidthProvider} from './TimelineWidthProvider';
+import {useResolvedStack} from './use-resolved-stack';
 
 const container: React.CSSProperties = {
 	minHeight: '100%',
@@ -49,6 +55,33 @@ const TimelineClearSelectionArea: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
 	const {clearSelection} = useTimelineSelection();
+	const {compositions, canvasContent} = useContext(
+		Internals.CompositionManager,
+	);
+	const videoConfig = Internals.useUnsafeVideoConfig();
+	const [isAddingSolid, setIsAddingSolid] = useState(false);
+
+	const currentCompositionId =
+		canvasContent?.type === 'composition' ? canvasContent.compositionId : null;
+	const currentComposition = useMemo(() => {
+		if (currentCompositionId === null) {
+			return null;
+		}
+
+		return (
+			compositions.find(
+				(composition) => composition.id === currentCompositionId,
+			) ?? null
+		);
+	}, [compositions, currentCompositionId]);
+	const resolvedCompositionLocation = useResolvedStack(
+		currentComposition?.stack ?? null,
+	);
+	const compositionFile = resolvedCompositionLocation?.source ?? null;
+	const compositionComponentInfo = useCachedCompositionComponentInfo({
+		compositionFile,
+		compositionId: currentCompositionId,
+	});
 
 	// Selection-triggering click handlers in children call e.stopPropagation(),
 	// so any pointerdown that bubbles up here is by definition on empty space
@@ -64,15 +97,76 @@ const TimelineClearSelectionArea: React.FC<{
 		[clearSelection],
 	);
 
+	const canInsertSolid =
+		compositionComponentInfo?.canAddSequence === true &&
+		currentCompositionId !== null &&
+		compositionFile !== null &&
+		videoConfig !== null &&
+		!isAddingSolid;
+
+	const insertSolid = useCallback(async () => {
+		if (
+			!canInsertSolid ||
+			currentCompositionId === null ||
+			compositionFile === null ||
+			videoConfig === null
+		) {
+			return;
+		}
+
+		setIsAddingSolid(true);
+		try {
+			const result = await callApi('/api/insert-jsx-element', {
+				compositionFile,
+				compositionId: currentCompositionId,
+				element: {
+					type: 'solid',
+					width: videoConfig.width,
+					height: videoConfig.height,
+				},
+			});
+
+			if (result.success) {
+				showNotification('Added <Solid> to source file', 2000);
+				return;
+			}
+
+			showNotification(result.reason, 4000);
+		} catch (err) {
+			showNotification((err as Error).message, 4000);
+		} finally {
+			setIsAddingSolid(false);
+		}
+	}, [canInsertSolid, compositionFile, currentCompositionId, videoConfig]);
+
+	const contextMenuItems = useMemo((): ComboboxValue[] => {
+		return [
+			{
+				type: 'item',
+				id: 'insert-solid',
+				label: 'Add <Solid>',
+				value: 'insert-solid',
+				onClick: insertSolid,
+				keyHint: null,
+				leftItem: null,
+				subMenu: null,
+				quickSwitcherLabel: null,
+				disabled: !canInsertSolid,
+			},
+		];
+	}, [insertSolid, canInsertSolid]);
+
 	return (
-		<div
+		<ContextMenu
 			ref={timelineVerticalScroll}
+			values={contextMenuItems}
+			onOpen={null}
 			style={container}
 			className={'css-reset ' + VERTICAL_SCROLLBAR_CLASSNAME}
 			onPointerDown={onPointerDown}
 		>
 			{children}
-		</div>
+		</ContextMenu>
 	);
 };
 
