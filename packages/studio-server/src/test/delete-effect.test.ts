@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {deleteEffect} from '../codemods/delete-effect';
+import {deleteEffect, deleteEffects} from '../codemods/delete-effect';
 import {lineColumnToNodePath} from './test-utils';
 
 const buildInput = (
@@ -44,6 +44,51 @@ test('deleteEffect removes the targeted effect by index', async () => {
 	expect(output).not.toMatch(/color: ['"]green['"]/);
 	expect(output).toMatch(/color: ['"]blue['"]/);
 	expect(output).toContain('effects={[');
+});
+
+test('deleteEffects removes multiple targeted effects in one pass', async () => {
+	const input = buildInput(
+		'[tint({color: "red"}), tint({color: "green"}), tint({color: "blue"})]',
+	);
+	const {output, effectLabels} = await deleteEffects({
+		input,
+		effects: [
+			{
+				sequenceNodePath: lineColumnToNodePath(input, 6),
+				effectIndex: 0,
+			},
+			{
+				sequenceNodePath: lineColumnToNodePath(input, 6),
+				effectIndex: 2,
+			},
+		],
+	});
+
+	expect(effectLabels).toEqual(['tint()', 'tint()']);
+	expect(output).not.toMatch(/color: ['"]red['"]/);
+	expect(output).toMatch(/color: ['"]green['"]/);
+	expect(output).not.toMatch(/color: ['"]blue['"]/);
+	expect(output).toContain('effects={[');
+});
+
+test('deleteEffects removes all effects from the target sequence', async () => {
+	const input = buildInput(
+		'[tint({color: "red"}), tint({color: "green"}), tint({color: "blue"})]',
+	);
+	const {output, effectLabels} = await deleteEffects({
+		input,
+		effects: [
+			{
+				sequenceNodePath: lineColumnToNodePath(input, 6),
+				effectIndex: null,
+			},
+		],
+	});
+
+	expect(effectLabels).toEqual(['tint()', 'tint()', 'tint()']);
+	expect(output).not.toContain('effects=');
+	expect(output).not.toContain('tint(');
+	expect(output).toContain('<HtmlInCanvas>');
 });
 
 test('deleteEffect keeps the effects prop when other effects remain', async () => {
