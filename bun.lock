@@ -2523,6 +2523,23 @@
         "vite": "6.4.2",
       },
     },
+    "packages/webcontainer-studio": {
+      "name": "@remotion/webcontainer-studio",
+      "version": "4.0.469",
+      "dependencies": {
+        "@webcontainer/api": "1.6.0",
+        "react": "catalog:",
+        "react-dom": "catalog:",
+      },
+      "devDependencies": {
+        "@types/react": "catalog:",
+        "@types/react-dom": "catalog:",
+        "@vitejs/plugin-react": "catalog:",
+        "eslint": "catalog:",
+        "typescript": "5.9.3",
+        "vite": "6.4.2",
+      },
+    },
     "packages/whisper-web": {
       "name": "@remotion/whisper-web",
       "version": "4.0.469",
@@ -4067,6 +4084,8 @@
 
     "@remotion/webcodecs": ["@remotion/webcodecs@workspace:packages/webcodecs"],
 
+    "@remotion/webcontainer-studio": ["@remotion/webcontainer-studio@workspace:packages/webcontainer-studio"],
+
     "@remotion/whisper-web": ["@remotion/whisper-web@workspace:packages/whisper-web"],
 
     "@remotion/zod-types": ["@remotion/zod-types@workspace:packages/zod-types"],
@@ -5066,6 +5085,8 @@
     "@webassemblyjs/wasm-parser": ["@webassemblyjs/wasm-parser@1.14.1", "", { "dependencies": { "@webassemblyjs/ast": "1.14.1", "@webassemblyjs/helper-api-error": "1.13.2", "@webassemblyjs/helper-wasm-bytecode": "1.13.2", "@webassemblyjs/ieee754": "1.13.2", "@webassemblyjs/leb128": "1.13.2", "@webassemblyjs/utf8": "1.13.2" } }, "sha512-JLBl+KZ0R5qB7mCnud/yyX08jWFw5MsoalJ1pQ4EdFlgj9VdXKGuENGsiCIjegI1W7p91rUlcB/LB5yRJKNTcQ=="],
 
     "@webassemblyjs/wast-printer": ["@webassemblyjs/wast-printer@1.14.1", "", { "dependencies": { "@webassemblyjs/ast": "1.14.1", "@xtuc/long": "4.2.2" } }, "sha512-kPSSXE6De1XOR820C90RIo2ogvZG+c3KiHzqUoO/F34Y2shGzesfqv7o57xrxovZJH/MetF5UjroJ/R/3isoiw=="],
+
+    "@webcontainer/api": ["@webcontainer/api@1.6.0", "", {}, "sha512-U3v9Tc3aFJPQh5J5LPXfHTNJrgJRQofQCOkUFVifOY5J5nPEi3GsrXDlCSYXOMpvMDZXwL7kBVmXEzr0Q0Dbtg=="],
 
     "@webgpu/types": ["@webgpu/types@0.1.21", "", {}, "sha512-pUrWq3V5PiSGFLeLxoGqReTZmiiXwY3jRkIG5sLLKjyqNxrwm/04b4nw7LSmGWJcKk59XOM/YRTUwOzo4MMlow=="],
 

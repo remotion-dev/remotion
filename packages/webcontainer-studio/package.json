@@ -1,0 +1,32 @@
+{
+	"name": "@remotion/webcontainer-studio",
+	"version": "4.0.469",
+	"private": true,
+	"type": "module",
+	"description": "Run Remotion Studio in the browser using WebContainers",
+	"author": "Jonny Burger <jonny@remotion.dev>",
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/webcontainer-studio"
+	},
+	"homepage": "https://webcontainer-studio.remotion.dev",
+	"scripts": {
+		"dev": "vite",
+		"build": "vite build",
+		"preview": "vite preview",
+		"lint": "eslint src",
+		"typecheck": "tsc"
+	},
+	"dependencies": {
+		"@webcontainer/api": "1.6.0",
+		"react": "catalog:",
+		"react-dom": "catalog:"
+	},
+	"devDependencies": {
+		"@types/react": "catalog:",
+		"@types/react-dom": "catalog:",
+		"@vitejs/plugin-react": "catalog:",
+		"eslint": "catalog:",
+		"typescript": "5.9.3",
+		"vite": "6.4.2"
+	}
+}
