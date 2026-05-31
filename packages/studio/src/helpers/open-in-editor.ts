@@ -1,4 +1,8 @@
-import type {SymbolicatedStackFrame} from '@remotion/studio-shared';
+import type {
+	CompositionComponentInfoResponse,
+	SymbolicatedStackFrame,
+} from '@remotion/studio-shared';
+import {callApi} from '../components/call-api';
 import type {OriginalPosition} from '../error-overlay/react-overlay/utils/get-source-map';
 
 export const openInEditor = (stack: SymbolicatedStackFrame) => {
@@ -10,20 +14,14 @@ export const openInEditor = (stack: SymbolicatedStackFrame) => {
 		originalScriptCode,
 	} = stack;
 
-	return fetch(`/api/open-in-editor`, {
-		method: 'post',
-		headers: {
-			'content-type': 'application/json',
+	return callApi('/api/open-in-editor', {
+		stack: {
+			originalFileName,
+			originalLineNumber,
+			originalColumnNumber,
+			originalFunctionName,
+			originalScriptCode,
 		},
-		body: JSON.stringify({
-			stack: {
-				originalFileName,
-				originalLineNumber,
-				originalColumnNumber,
-				originalFunctionName,
-				originalScriptCode,
-			},
-		}),
 	});
 };
 
@@ -39,25 +37,8 @@ export const openOriginalPositionInEditor = async (
 	});
 };
 
-type ResolvedCompositionComponentLocation = {
-	source: string;
-	line: number;
-	column: number;
-};
-
-type ResolveCompositionComponentResponse =
-	| {
-			success: true;
-			location: ResolvedCompositionComponentLocation;
-			canAddSequence: boolean;
-	  }
-	| {
-			success: false;
-			error: string;
-	  };
-
 type ResolvedCompositionComponentInfo = {
-	location: ResolvedCompositionComponentLocation;
+	location: CompositionComponentInfoResponse['location'];
 	canAddSequence: boolean;
 };
 
@@ -126,20 +107,10 @@ export const loadCompositionComponentInfo = async ({
 	}
 
 	const promise = (async () => {
-		const response = await fetch(`/api/composition-component-info`, {
-			method: 'post',
-			headers: {
-				'content-type': 'application/json',
-			},
-			body: JSON.stringify({
-				compositionFile,
-				compositionId,
-			}),
+		const body = await callApi('/api/composition-component-info', {
+			compositionFile,
+			compositionId,
 		});
-		const body = (await response.json()) as ResolveCompositionComponentResponse;
-		if (!body.success) {
-			throw new Error(body.error);
-		}
 
 		const result = {
 			location: body.location,

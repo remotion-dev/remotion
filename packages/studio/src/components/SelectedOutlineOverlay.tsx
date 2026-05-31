@@ -1,7 +1,10 @@
 import React, {useContext, useEffect, useMemo, useRef, useState} from 'react';
 import type {
 	CanUpdateSequencePropStatusTrue,
+	CodeValues,
+	GetEffectDragOverrides,
 	OverrideIdToNodePaths,
+	SequenceFieldSchema,
 	SequencePropsSubscriptionKey,
 	SequenceSchema,
 	TSequence,
@@ -12,7 +15,9 @@ import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {BLUE} from '../helpers/colors';
 import {getBoxQuadsPonyfill} from '../helpers/get-box-quads-ponyfill';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
+import {saveEffectProp} from './Timeline/save-effect-prop';
 import {saveSequenceProp} from './Timeline/save-sequence-prop';
+import {getDecimalPlaces} from './Timeline/timeline-field-utils';
 import {
 	parseTranslate,
 	serializeTranslate,
@@ -39,10 +44,30 @@ type SelectedOutline = {
 	];
 };
 
+type UvCoordinate = readonly [number, number];
+
+type UvCoordinateFieldSchema = Extract<
+	SequenceFieldSchema,
+	{type: 'uv-coordinate'}
+>;
+
+type SelectedOutlineUvHandle = {
+	readonly clientId: string;
+	readonly codeValue: CanUpdateSequencePropStatusTrue;
+	readonly effectIndex: number;
+	readonly fieldDefault: UvCoordinate | undefined;
+	readonly fieldKey: string;
+	readonly fieldSchema: UvCoordinateFieldSchema;
+	readonly nodePath: SequencePropsSubscriptionKey;
+	readonly schema: SequenceSchema;
+	readonly value: UvCoordinate;
+};
+
 type SelectedOutlineTarget = {
 	readonly key: string;
 	readonly ref: React.RefObject<HTMLElement | null>;
 	readonly drag: SelectedOutlineDragTarget | null;
+	readonly uvHandles: readonly SelectedOutlineUvHandle[];
 };
 
 type SelectedOutlineDragTarget = {
@@ -69,6 +94,220 @@ const outlineContainer: React.CSSProperties = {
 };
 
 const pointToString = (point: OutlinePoint) => `${point.x},${point.y}`;
+
+const parseUvCoordinate = (value: unknown): UvCoordinate | null => {
+	if (
+		Array.isArray(value) &&
+		value.length === 2 &&
+		value.every((item) => typeof item === 'number' && Number.isFinite(item))
+	) {
+		return [value[0], value[1]];
+	}
+
+	return null;
+};
+
+const tuplesEqual = (left: unknown, right: UvCoordinate): boolean => {
+	if (!Array.isArray(left) || left.length !== 2) {
+		return false;
+	}
+
+	return left[0] === right[0] && left[1] === right[1];
+};
+
+const mix = (from: number, to: number, progress: number): number => {
+	return from + (to - from) * progress;
+};
+
+const mixPoint = (
+	from: OutlinePoint,
+	to: OutlinePoint,
+	progress: number,
+): OutlinePoint => {
+	return {
+		x: mix(from.x, to.x, progress),
+		y: mix(from.y, to.y, progress),
+	};
+};
+
+const getBilinearUvHandlePosition = (
+	points: SelectedOutline['points'],
+	uv: UvCoordinate,
+): OutlinePoint => {
+	const [tl, tr, br, bl] = points;
+	const top = mixPoint(tl, tr, uv[0]);
+	const bottom = mixPoint(bl, br, uv[0]);
+	return mixPoint(top, bottom, uv[1]);
+};
+
+type ProjectiveTransform = {
+	readonly a: number;
+	readonly b: number;
+	readonly c: number;
+	readonly d: number;
+	readonly e: number;
+	readonly f: number;
+	readonly g: number;
+	readonly h: number;
+};
+
+const projectiveEpsilon = 0.000001;
+
+const getProjectiveTransform = (
+	points: SelectedOutline['points'],
+): ProjectiveTransform | null => {
+	const [tl, tr, br, bl] = points;
+	const dx1 = tr.x - br.x;
+	const dx2 = bl.x - br.x;
+	const dx3 = tl.x - tr.x + br.x - bl.x;
+	const dy1 = tr.y - br.y;
+	const dy2 = bl.y - br.y;
+	const dy3 = tl.y - tr.y + br.y - bl.y;
+
+	let g = 0;
+	let h = 0;
+	if (Math.abs(dx3) > projectiveEpsilon || Math.abs(dy3) > projectiveEpsilon) {
+		const determinant = dx1 * dy2 - dx2 * dy1;
+		if (Math.abs(determinant) < projectiveEpsilon) {
+			return null;
+		}
+
+		g = (dx3 * dy2 - dx2 * dy3) / determinant;
+		h = (dx1 * dy3 - dx3 * dy1) / determinant;
+	}
+
+	return {
+		a: tr.x - tl.x + g * tr.x,
+		b: bl.x - tl.x + h * bl.x,
+		c: tl.x,
+		d: tr.y - tl.y + g * tr.y,
+		e: bl.y - tl.y + h * bl.y,
+		f: tl.y,
+		g,
+		h,
+	};
+};
+
+const applyProjectiveTransform = (
+	transform: ProjectiveTransform,
+	uv: UvCoordinate,
+): OutlinePoint => {
+	const denominator = transform.g * uv[0] + transform.h * uv[1] + 1;
+	return {
+		x: (transform.a * uv[0] + transform.b * uv[1] + transform.c) / denominator,
+		y: (transform.d * uv[0] + transform.e * uv[1] + transform.f) / denominator,
+	};
+};
+
+export const getUvHandlePosition = (
+	points: SelectedOutline['points'],
+	uv: UvCoordinate,
+): OutlinePoint => {
+	const transform = getProjectiveTransform(points);
+	return transform === null
+		? getBilinearUvHandlePosition(points, uv)
+		: applyProjectiveTransform(transform, uv);
+};
+
+const vectorBetween = (from: OutlinePoint, to: OutlinePoint): OutlinePoint => {
+	return {x: to.x - from.x, y: to.y - from.y};
+};
+
+const getBilinearUvCoordinateForPoint = (
+	points: SelectedOutline['points'],
+	point: OutlinePoint,
+): UvCoordinate => {
+	const [tl, tr, br, bl] = points;
+	let u = 0.5;
+	let v = 0.5;
+
+	for (let i = 0; i < 8; i++) {
+		const current = getBilinearUvHandlePosition(points, [u, v]);
+		const errorX = current.x - point.x;
+		const errorY = current.y - point.y;
+		if (Math.abs(errorX) + Math.abs(errorY) < 0.001) {
+			break;
+		}
+
+		const du = {
+			x: mix(tr.x - tl.x, br.x - bl.x, v),
+			y: mix(tr.y - tl.y, br.y - bl.y, v),
+		};
+		const dv = vectorBetween(mixPoint(tl, tr, u), mixPoint(bl, br, u));
+		const determinant = du.x * dv.y - du.y * dv.x;
+		if (Math.abs(determinant) < 0.000001) {
+			break;
+		}
+
+		u -= (errorX * dv.y - errorY * dv.x) / determinant;
+		v -= (du.x * errorY - du.y * errorX) / determinant;
+	}
+
+	return [u, v];
+};
+
+export const getUvCoordinateForPoint = (
+	points: SelectedOutline['points'],
+	point: OutlinePoint,
+): UvCoordinate => {
+	const transform = getProjectiveTransform(points);
+	if (transform === null) {
+		return getBilinearUvCoordinateForPoint(points, point);
+	}
+
+	const determinant =
+		transform.a * (transform.e - transform.f * transform.h) -
+		transform.b * (transform.d - transform.f * transform.g) +
+		transform.c * (transform.d * transform.h - transform.e * transform.g);
+	if (Math.abs(determinant) < projectiveEpsilon) {
+		return getBilinearUvCoordinateForPoint(points, point);
+	}
+
+	const inverseA = transform.e - transform.f * transform.h;
+	const inverseB = transform.c * transform.h - transform.b;
+	const inverseC = transform.b * transform.f - transform.c * transform.e;
+	const inverseD = transform.f * transform.g - transform.d;
+	const inverseE = transform.a - transform.c * transform.g;
+	const inverseF = transform.c * transform.d - transform.a * transform.f;
+	const inverseG = transform.d * transform.h - transform.e * transform.g;
+	const inverseH = transform.b * transform.g - transform.a * transform.h;
+	const inverseI = transform.a * transform.e - transform.b * transform.d;
+
+	const denominator = inverseG * point.x + inverseH * point.y + inverseI;
+	if (Math.abs(denominator) < projectiveEpsilon) {
+		return getBilinearUvCoordinateForPoint(points, point);
+	}
+
+	return [
+		(inverseA * point.x + inverseB * point.y + inverseC) / denominator,
+		(inverseD * point.x + inverseE * point.y + inverseF) / denominator,
+	];
+};
+
+const clamp = (value: number, min: number, max: number): number => {
+	return Math.min(max, Math.max(min, value));
+};
+
+const roundToStep = (value: number, step: number | undefined): number => {
+	if (step === undefined || !Number.isFinite(step) || step <= 0) {
+		return value;
+	}
+
+	const decimals = getDecimalPlaces(step);
+	return Number((Math.round(value / step) * step).toFixed(decimals));
+};
+
+const constrainUv = (
+	value: UvCoordinate,
+	schema: UvCoordinateFieldSchema,
+): UvCoordinate => {
+	const min = schema.min ?? -Infinity;
+	const max = schema.max ?? Infinity;
+	return [
+		clamp(roundToStep(value[0], schema.step), min, max),
+		clamp(roundToStep(value[1], schema.step), min, max),
+	];
+};
 
 const rectToPoints = (
 	elementRect: DOMRect,
@@ -137,6 +376,42 @@ const getSelectedSequenceKeys = (
 	);
 };
 
+type SelectedEffectFields = {
+	allFields: boolean;
+	fieldKeys: Set<string>;
+};
+
+export const getSelectedEffectFieldsBySequenceKey = (
+	selectedItems: readonly TimelineSelection[],
+): Map<string, Map<number, SelectedEffectFields>> => {
+	const selectedEffects = new Map<string, Map<number, SelectedEffectFields>>();
+
+	for (const item of selectedItems) {
+		if (
+			item.type !== 'sequence-effect' &&
+			item.type !== 'sequence-effect-prop'
+		) {
+			continue;
+		}
+
+		const sequenceKey = getTimelineSequenceSelectionKey(item.nodePathInfo);
+		const effectsForSequence =
+			selectedEffects.get(sequenceKey) ??
+			new Map<number, SelectedEffectFields>();
+		const selectedFields = effectsForSequence.get(item.i) ?? {
+			allFields: false,
+			fieldKeys: new Set<string>(),
+		};
+
+		selectedFields.allFields = true;
+
+		effectsForSequence.set(item.i, selectedFields);
+		selectedEffects.set(sequenceKey, effectsForSequence);
+	}
+
+	return selectedEffects;
+};
+
 const getSequencesWithSelectedOutlines = ({
 	selectedItems,
 	sequences,
@@ -177,6 +452,99 @@ const getSequencesWithSelectedOutlines = ({
 				sequence: track.sequence,
 			};
 		});
+};
+
+const getSelectedUvHandles = ({
+	codeValues,
+	clientId,
+	getEffectDragOverrides,
+	nodePath,
+	selectedEffects,
+	sequence,
+}: {
+	readonly codeValues: CodeValues;
+	readonly clientId: string | null;
+	readonly getEffectDragOverrides: GetEffectDragOverrides;
+	readonly nodePath: SequencePropsSubscriptionKey;
+	readonly selectedEffects: Map<number, SelectedEffectFields> | undefined;
+	readonly sequence: TSequence;
+}): SelectedOutlineUvHandle[] => {
+	if (clientId === null || selectedEffects === undefined) {
+		return [];
+	}
+
+	const handles: SelectedOutlineUvHandle[] = [];
+
+	for (const [effectIndex, selectedFields] of selectedEffects) {
+		const effect = sequence.effects[effectIndex];
+		if (!effect) {
+			continue;
+		}
+
+		const effectStatus = Internals.getEffectCodeValuesCtx({
+			codeValues,
+			nodePath,
+			effectIndex,
+		});
+		if (effectStatus.type !== 'can-update-effect') {
+			continue;
+		}
+
+		const dragOverrides = getEffectDragOverrides(nodePath, effectIndex);
+		const activeSchema = Internals.flattenActiveSchema(effect.schema, (key) => {
+			const dragOverride = dragOverrides[key];
+			if (dragOverride !== undefined) {
+				return dragOverride;
+			}
+
+			const propStatus = effectStatus.props[key];
+			if (!propStatus?.canUpdate) {
+				return undefined;
+			}
+
+			return propStatus.codeValue;
+		});
+
+		for (const [fieldKey, fieldSchema] of Object.entries(activeSchema)) {
+			if (
+				fieldSchema.type !== 'uv-coordinate' ||
+				(!selectedFields.allFields && !selectedFields.fieldKeys.has(fieldKey))
+			) {
+				continue;
+			}
+
+			const propStatus = effectStatus.props[fieldKey];
+			if (!propStatus?.canUpdate) {
+				continue;
+			}
+
+			const dragOverrideValue = dragOverrides[fieldKey];
+			const effectiveValue = Internals.getEffectiveVisualModeValue({
+				codeValue: propStatus,
+				dragOverrideValue,
+				defaultValue: fieldSchema.default,
+				shouldResortToDefaultValueIfUndefined: true,
+			});
+			const value = parseUvCoordinate(effectiveValue);
+			if (value === null) {
+				continue;
+			}
+
+			handles.push({
+				clientId,
+				codeValue: propStatus,
+				effectIndex,
+				fieldDefault: fieldSchema.default,
+				fieldKey,
+				fieldSchema,
+				nodePath,
+				schema: effect.schema,
+				value,
+			});
+		}
+	}
+
+	return handles;
 };
 
 const measureOutlines = (
@@ -345,6 +713,142 @@ const SelectedOutlinePolygon: React.FC<{
 	);
 };
 
+const getSvgPointFromPointerEvent = ({
+	event,
+	rect,
+}: {
+	readonly event: Pick<PointerEvent, 'clientX' | 'clientY'>;
+	readonly rect: DOMRect;
+}): OutlinePoint => {
+	return {
+		x: event.clientX - rect.left,
+		y: event.clientY - rect.top,
+	};
+};
+
+const SelectedUvHandleCircle: React.FC<{
+	readonly handle: SelectedOutlineUvHandle;
+	readonly outline: SelectedOutline;
+}> = ({handle, outline}) => {
+	const {setEffectDragOverrides, clearEffectDragOverrides, setCodeValues} =
+		useContext(Internals.VisualModeSettersContext);
+	const position = useMemo(
+		() => getUvHandlePosition(outline.points, handle.value),
+		[handle.value, outline.points],
+	);
+
+	const onPointerDown = React.useCallback(
+		(event: React.PointerEvent<SVGCircleElement>) => {
+			if (event.button !== 0) {
+				return;
+			}
+
+			event.preventDefault();
+			event.stopPropagation();
+
+			const svg = event.currentTarget.ownerSVGElement;
+			if (svg === null) {
+				return;
+			}
+
+			const svgRect = svg.getBoundingClientRect();
+			let lastValue: UvCoordinate | null = null;
+			const defaultValue =
+				handle.fieldDefault !== undefined
+					? JSON.stringify(handle.fieldDefault)
+					: null;
+
+			const updateFromPointerEvent = (
+				pointerEvent: PointerEvent | React.PointerEvent<SVGCircleElement>,
+			) => {
+				const point = getSvgPointFromPointerEvent({
+					event: pointerEvent,
+					rect: svgRect,
+				});
+				const nextValue = constrainUv(
+					getUvCoordinateForPoint(outline.points, point),
+					handle.fieldSchema,
+				);
+				lastValue = nextValue;
+				setEffectDragOverrides(
+					handle.nodePath,
+					handle.effectIndex,
+					handle.fieldKey,
+					nextValue,
+				);
+			};
+
+			updateFromPointerEvent(event);
+
+			const onPointerMove = (moveEvent: PointerEvent) => {
+				moveEvent.preventDefault();
+				updateFromPointerEvent(moveEvent);
+			};
+
+			const onPointerUp = () => {
+				window.removeEventListener('pointermove', onPointerMove);
+				window.removeEventListener('pointerup', onPointerUp);
+				window.removeEventListener('pointercancel', onPointerUp);
+
+				const stringifiedValue =
+					lastValue === null ? null : JSON.stringify(lastValue);
+				const shouldSave =
+					lastValue !== null &&
+					!tuplesEqual(handle.codeValue.codeValue, lastValue) &&
+					!(
+						defaultValue === stringifiedValue &&
+						handle.codeValue.codeValue === undefined
+					);
+
+				if (!shouldSave) {
+					clearEffectDragOverrides(handle.nodePath, handle.effectIndex);
+					return;
+				}
+
+				saveEffectProp({
+					fileName: handle.nodePath.absolutePath,
+					nodePath: handle.nodePath,
+					effectIndex: handle.effectIndex,
+					fieldKey: handle.fieldKey,
+					value: lastValue,
+					defaultValue,
+					schema: handle.schema,
+					setCodeValues,
+					clientId: handle.clientId,
+				}).finally(() => {
+					clearEffectDragOverrides(handle.nodePath, handle.effectIndex);
+				});
+			};
+
+			window.addEventListener('pointermove', onPointerMove);
+			window.addEventListener('pointerup', onPointerUp);
+			window.addEventListener('pointercancel', onPointerUp);
+		},
+		[
+			clearEffectDragOverrides,
+			handle,
+			outline.points,
+			setCodeValues,
+			setEffectDragOverrides,
+		],
+	);
+
+	return (
+		<circle
+			cx={position.x}
+			cy={position.y}
+			r={6}
+			fill="white"
+			stroke={BLUE}
+			strokeWidth={2}
+			vectorEffect="non-scaling-stroke"
+			pointerEvents="all"
+			cursor="move"
+			onPointerDown={onPointerDown}
+		/>
+	);
+};
+
 export const SelectedOutlineOverlay: React.FC<{
 	readonly scale: number;
 }> = ({scale}) => {
@@ -355,6 +859,9 @@ export const SelectedOutlineOverlay: React.FC<{
 	const {overrideIdToNodePathMappings} = useContext(
 		Internals.OverrideIdsToNodePathsGettersContext,
 	);
+	const {getEffectDragOverrides} = useContext(
+		Internals.VisualModeDragOverridesContext,
+	);
 	const [outlines, setOutlines] = useState<readonly SelectedOutline[]>([]);
 	const overlayRef = useRef<SVGSVGElement>(null);
 
@@ -362,6 +869,13 @@ export const SelectedOutlineOverlay: React.FC<{
 		if (!ENABLE_OUTLINES) {
 			return [];
 		}
+
+		const selectedEffectsBySequenceKey =
+			getSelectedEffectFieldsBySequenceKey(selectedItems);
+		const clientId =
+			previewServerState.type === 'connected'
+				? previewServerState.clientId
+				: null;
 
 		return getSequencesWithSelectedOutlines({
 			selectedItems,
@@ -396,10 +910,19 @@ export const SelectedOutlineOverlay: React.FC<{
 							schema: controls.schema,
 						}
 					: null,
+				uvHandles: getSelectedUvHandles({
+					codeValues,
+					clientId,
+					getEffectDragOverrides,
+					nodePath,
+					selectedEffects: selectedEffectsBySequenceKey.get(key),
+					sequence,
+				}),
 			};
 		});
 	}, [
 		codeValues,
+		getEffectDragOverrides,
 		overrideIdToNodePathMappings,
 		previewServerState,
 		selectedItems,
@@ -460,12 +983,20 @@ export const SelectedOutlineOverlay: React.FC<{
 			aria-hidden="true"
 		>
 			{outlines.map((outline) => (
-				<SelectedOutlinePolygon
-					key={outline.key}
-					outline={outline}
-					scale={scale}
-					target={targetsByKey.get(outline.key)}
-				/>
+				<React.Fragment key={outline.key}>
+					<SelectedOutlinePolygon
+						outline={outline}
+						scale={scale}
+						target={targetsByKey.get(outline.key)}
+					/>
+					{targetsByKey.get(outline.key)?.uvHandles.map((handle) => (
+						<SelectedUvHandleCircle
+							key={`${handle.effectIndex}-${handle.fieldKey}`}
+							handle={handle}
+							outline={outline}
+						/>
+					))}
+				</React.Fragment>
 			))}
 		</svg>
 	);
