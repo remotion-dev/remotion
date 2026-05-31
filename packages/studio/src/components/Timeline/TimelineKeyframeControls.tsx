@@ -27,7 +27,7 @@ const controlsContainerStyle: React.CSSProperties = {
 	alignItems: 'center',
 	display: 'flex',
 	flexShrink: 0,
-	gap: 2,
+	gap: 1,
 	marginRight: 4,
 };
 
@@ -46,13 +46,13 @@ const navButtonStyle: React.CSSProperties = {
 	outline: 'none',
 	padding: 0,
 	userSelect: 'none',
-	width: 10,
+	width: 12,
 };
 
 const diamondButtonStyle: React.CSSProperties = {
 	...navButtonStyle,
-	height: 10,
-	width: 10,
+	height: 7,
+	width: 7,
 };
 
 const svgStyle: React.CSSProperties = {display: 'block'};
@@ -333,8 +333,8 @@ export const TimelineKeyframeControls: React.FC<{
 				aria-label="Go to previous keyframe"
 				title="Previous keyframe"
 			>
-				<svg width="8" height="8" viewBox="0 0 8 8" style={svgStyle}>
-					<path d="M5 1L2 4L5 7Z" fill="#ccc" />
+				<svg width="10" height="10" viewBox="0 0 10 10" style={svgStyle}>
+					<path d="M7 1.5L3 5L7 8.5Z" fill="#ccc" />
 				</svg>
 			</button>
 			<button
@@ -357,8 +357,8 @@ export const TimelineKeyframeControls: React.FC<{
 				aria-label="Go to next keyframe"
 				title="Next keyframe"
 			>
-				<svg width="8" height="8" viewBox="0 0 8 8" style={svgStyle}>
-					<path d="M3 1L6 4L3 7Z" fill="#ccc" />
+				<svg width="10" height="10" viewBox="0 0 10 10" style={svgStyle}>
+					<path d="M3 1.5L7 5L3 8.5Z" fill="#ccc" />
 				</svg>
 			</button>
 		</div>
