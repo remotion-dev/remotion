@@ -15,7 +15,10 @@ import {enqueueSavePropChange} from './save-prop-queue';
 import {timelineFieldValueColumnStyle} from './timeline-field-row-layout';
 import {TimelineExpandArrowSpacer} from './TimelineExpandArrowButton';
 import {TimelineFieldLabel} from './TimelineFieldLabel';
-import {TimelineKeyframeControls} from './TimelineKeyframeControls';
+import {
+	shouldShowTimelineKeyframeControls,
+	TimelineKeyframeControls,
+} from './TimelineKeyframeControls';
 import {TimelineKeyframedValue} from './TimelineKeyframedValue';
 import {TimelineLayerEyeSpacer} from './TimelineLayerEye';
 import {TimelineRowChrome} from './TimelineRowChrome';
@@ -267,7 +270,11 @@ export const TimelineEffectFieldRow: React.FC<{
 	}, [getEffectDragOverrides, nodePath, field.effectIndex, field.key]);
 
 	const keyframeControls =
-		selection.selected && propStatus !== null ? (
+		propStatus !== null &&
+		shouldShowTimelineKeyframeControls({
+			propStatus,
+			selected: selection.selected,
+		}) ? (
 			<TimelineKeyframeControls
 				fieldKey={field.key}
 				propStatus={propStatus}

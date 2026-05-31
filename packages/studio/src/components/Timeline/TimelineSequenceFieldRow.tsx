@@ -19,7 +19,10 @@ import {saveSequenceProp} from './save-sequence-prop';
 import {timelineFieldValueColumnStyle} from './timeline-field-row-layout';
 import {TimelineExpandArrowSpacer} from './TimelineExpandArrowButton';
 import {TimelineFieldLabel} from './TimelineFieldLabel';
-import {TimelineKeyframeControls} from './TimelineKeyframeControls';
+import {
+	shouldShowTimelineKeyframeControls,
+	TimelineKeyframeControls,
+} from './TimelineKeyframeControls';
 import {TimelineKeyframedValue} from './TimelineKeyframedValue';
 import {TimelineLayerEyeSpacer} from './TimelineLayerEye';
 import {TimelineRowChrome} from './TimelineRowChrome';
@@ -184,7 +187,11 @@ export const TimelineSequenceFieldRow: React.FC<{
 	}, [getDragOverrides, nodePath, field.key]);
 
 	const keyframeControls =
-		selection.selected && codeValue !== null ? (
+		codeValue !== null &&
+		shouldShowTimelineKeyframeControls({
+			propStatus: codeValue,
+			selected: selection.selected,
+		}) ? (
 			<TimelineKeyframeControls
 				fieldKey={field.key}
 				propStatus={codeValue}

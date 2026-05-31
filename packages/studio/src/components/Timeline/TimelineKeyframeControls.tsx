@@ -21,6 +21,7 @@ import {
 	hasKeyframeAtSourceFrame,
 } from './get-keyframe-navigation';
 import {getTimelineKeyframes} from './get-timeline-keyframes';
+import {SELECTION_ENABLED} from './TimelineSelection';
 
 const controlsContainerStyle: React.CSSProperties = {
 	alignItems: 'center',
@@ -84,6 +85,28 @@ const getCurrentKeyframeValue = ({
 	}
 
 	return null;
+};
+
+export const shouldShowTimelineKeyframeControls = ({
+	propStatus,
+	selected,
+}: {
+	propStatus: CanUpdateSequencePropStatus | null;
+	selected: boolean;
+}): boolean => {
+	if (propStatus === null) {
+		return false;
+	}
+
+	if (selected) {
+		return true;
+	}
+
+	return (
+		SELECTION_ENABLED &&
+		!propStatus.canUpdate &&
+		propStatus.reason === 'keyframed'
+	);
 };
 
 export const TimelineKeyframeControls: React.FC<{
