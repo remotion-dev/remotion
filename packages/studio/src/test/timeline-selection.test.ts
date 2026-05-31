@@ -1,6 +1,7 @@
 import {expect, test} from 'bun:test';
 import type {SequenceNodePath, SequencePropsSubscriptionKey} from 'remotion';
 import {
+	getSelectedEffectFieldsBySequenceKey,
 	getUvCoordinateForPoint,
 	getUvHandlePosition,
 } from '../components/SelectedOutlineOverlay';
@@ -87,6 +88,45 @@ test('UV handle pointer position maps back to UV coordinates', () => {
 
 	expect(result[0]).toBeCloseTo(uv[0], 5);
 	expect(result[1]).toBeCloseTo(uv[1], 5);
+});
+
+test('UV handles are requested for selected effect props', () => {
+	const sequenceNodePathInfo = makeNodePathInfo(['body', 0], []);
+	const effectNodePathInfo = makeNodePathInfo(['body', 0], ['effects', '1']);
+	const effectPropNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['effects', '1', 'origin'],
+	);
+	const selectedEffects = getSelectedEffectFieldsBySequenceKey([
+		{
+			type: 'sequence-effect-prop',
+			nodePathInfo: effectPropNodePathInfo,
+			i: 1,
+			key: 'origin',
+		},
+	]);
+
+	expect(
+		selectedEffects
+			.get(getTimelineSequenceSelectionKey(sequenceNodePathInfo))
+			?.get(1),
+	).toEqual({
+		allFields: false,
+		fieldKeys: new Set(['origin']),
+	});
+
+	const selectedWholeEffects = getSelectedEffectFieldsBySequenceKey([
+		{type: 'sequence-effect', nodePathInfo: effectNodePathInfo, i: 1},
+	]);
+
+	expect(
+		selectedWholeEffects
+			.get(getTimelineSequenceSelectionKey(sequenceNodePathInfo))
+			?.get(1),
+	).toEqual({
+		allFields: true,
+		fieldKeys: new Set(),
+	});
 });
 
 test('Cmd+A selection only targets selectable timeline sequences', () => {

@@ -381,7 +381,7 @@ type SelectedEffectFields = {
 	fieldKeys: Set<string>;
 };
 
-const getSelectedEffectFieldsBySequenceKey = (
+export const getSelectedEffectFieldsBySequenceKey = (
 	selectedItems: readonly TimelineSelection[],
 ): Map<string, Map<number, SelectedEffectFields>> => {
 	const selectedEffects = new Map<string, Map<number, SelectedEffectFields>>();
