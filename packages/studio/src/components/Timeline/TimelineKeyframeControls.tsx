@@ -27,7 +27,7 @@ const controlsContainerStyle: React.CSSProperties = {
 	alignItems: 'center',
 	display: 'flex',
 	flexShrink: 0,
-	gap: 2,
+	gap: 1,
 	marginRight: 4,
 };
 
@@ -39,20 +39,26 @@ const navButtonStyle: React.CSSProperties = {
 	cursor: 'pointer',
 	display: 'flex',
 	flexShrink: 0,
-	fontSize: 8,
 	height: 12,
 	justifyContent: 'center',
 	lineHeight: 1,
 	outline: 'none',
 	padding: 0,
 	userSelect: 'none',
-	width: 10,
+	width: 12,
 };
 
 const diamondButtonStyle: React.CSSProperties = {
 	...navButtonStyle,
-	height: 10,
-	width: 10,
+	background: 'none',
+};
+
+const diamondIconStyle: React.CSSProperties = {
+	borderRadius: 1,
+	boxShadow: '0 0 0 1px rgba(0, 0, 0, 0.4)',
+	height: 7,
+	transform: 'rotate(45deg)',
+	width: 7,
 };
 
 const svgStyle: React.CSSProperties = {display: 'block'};
@@ -313,14 +319,18 @@ export const TimelineKeyframeControls: React.FC<{
 	const diamondStyle = useMemo(
 		(): React.CSSProperties => ({
 			...diamondButtonStyle,
-			backgroundColor: hasKeyframeAtCurrentFrame ? BLUE : LIGHT_TEXT,
-			borderRadius: 1,
-			boxShadow: '0 0 0 1px rgba(0, 0, 0, 0.4)',
 			cursor: canToggleKeyframe && clientId ? 'pointer' : 'default',
 			opacity: canToggleKeyframe && clientId ? 1 : 0.35,
-			transform: 'rotate(45deg)',
 		}),
-		[canToggleKeyframe, clientId, hasKeyframeAtCurrentFrame],
+		[canToggleKeyframe, clientId],
+	);
+
+	const diamondIcon = useMemo(
+		(): React.CSSProperties => ({
+			...diamondIconStyle,
+			backgroundColor: hasKeyframeAtCurrentFrame ? BLUE : LIGHT_TEXT,
+		}),
+		[hasKeyframeAtCurrentFrame],
 	);
 
 	return (
@@ -333,8 +343,8 @@ export const TimelineKeyframeControls: React.FC<{
 				aria-label="Go to previous keyframe"
 				title="Previous keyframe"
 			>
-				<svg width="8" height="8" viewBox="0 0 8 8" style={svgStyle}>
-					<path d="M5 1L2 4L5 7Z" fill="#ccc" />
+				<svg width="14" height="14" viewBox="0 0 10 10" style={svgStyle}>
+					<path d="M7 1.5L3 5L7 8.5Z" fill="#ccc" />
 				</svg>
 			</button>
 			<button
@@ -348,7 +358,9 @@ export const TimelineKeyframeControls: React.FC<{
 					hasKeyframeAtCurrentFrame ? 'Remove keyframe' : 'Add keyframe'
 				}
 				title={hasKeyframeAtCurrentFrame ? 'Remove keyframe' : 'Add keyframe'}
-			/>
+			>
+				<span style={diamondIcon} />
+			</button>
 			<button
 				type="button"
 				style={nextStyle}
@@ -357,8 +369,8 @@ export const TimelineKeyframeControls: React.FC<{
 				aria-label="Go to next keyframe"
 				title="Next keyframe"
 			>
-				<svg width="8" height="8" viewBox="0 0 8 8" style={svgStyle}>
-					<path d="M3 1L6 4L3 7Z" fill="#ccc" />
+				<svg width="14" height="14" viewBox="0 0 10 10" style={svgStyle}>
+					<path d="M3 1.5L7 5L3 8.5Z" fill="#ccc" />
 				</svg>
 			</button>
 		</div>
