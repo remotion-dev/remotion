@@ -40,6 +40,7 @@ export const addSolidHandler: ApiHandler<AddSolidRequest, AddSolidResponse> = ({
 					compositionId,
 					width,
 					height,
+					prettierConfigOverride: null,
 				});
 
 			pushToUndoStack({

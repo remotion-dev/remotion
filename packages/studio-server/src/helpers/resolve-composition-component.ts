@@ -1197,7 +1197,7 @@ export const addSolidToComposition = async ({
 	compositionId: string;
 	width: number;
 	height: number;
-	prettierConfigOverride?: Record<string, unknown> | null;
+	prettierConfigOverride: Record<string, unknown> | null;
 }): Promise<{
 	fileName: string;
 	source: string;
