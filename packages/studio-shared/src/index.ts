@@ -18,6 +18,7 @@ export {
 	DeleteEffectKeyframeRequest,
 	DeleteEffectKeyframeResponse,
 	DeleteEffectRequest,
+	DeleteEffectRequestItem,
 	DeleteEffectResponse,
 	DeleteJsxNodeRequest,
 	DeleteJsxNodeRequestItem,

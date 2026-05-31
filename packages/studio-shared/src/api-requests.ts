@@ -329,11 +329,21 @@ export type AddEffectKeyframeRequest = {
 
 export type AddEffectKeyframeResponse = SaveEffectPropsResponse;
 
-export type DeleteEffectRequest = {
+type BaseDeleteEffectRequestItem = {
 	fileName: string;
 	sequenceNodePath: SequencePropsSubscriptionKey;
-	effectIndex: number;
 };
+
+export type DeleteEffectRequestItem =
+	| (BaseDeleteEffectRequestItem & {
+			type: 'single-effect';
+			effectIndex: number;
+	  })
+	| (BaseDeleteEffectRequestItem & {
+			type: 'all-effects';
+	  });
+
+export type DeleteEffectRequest = DeleteEffectRequestItem[];
 
 export type DeleteEffectResponse =
 	| {
