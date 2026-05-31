@@ -234,10 +234,9 @@ export const RemotionRoot: React.FC = () => {
 					height={720}
 					defaultProps={{
 						fieldOfView: 2.5,
-						radius: 1,
+						radius: 1.2,
 						zoom: 1,
-						centerX: 0.5,
-						centerY: 0.5,
+						center: [0.5, 0.5],
 					}}
 				/>
 				<Still

@@ -27,19 +27,8 @@ void main() {
 	float dist = length(aspectCorrected);
 	float r = dist / max(uRadius, 0.0001);
 
-	if (r >= 1.0 || uFieldOfView <= 0.0001) {
-		vec2 srcUv = uCenter + toCenter / max(uZoom, 0.0001);
-		if (
-			srcUv.x < 0.0 ||
-			srcUv.x > 1.0 ||
-			srcUv.y < 0.0 ||
-			srcUv.y > 1.0
-		) {
-			fragColor = vec4(0.0);
-			return;
-		}
-
-		fragColor = texture(uSource, srcUv);
+	if (r > 1.0 || uFieldOfView <= 0.0001) {
+		fragColor = vec4(0.0);
 		return;
 	}
 
