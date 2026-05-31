@@ -7,8 +7,7 @@ import type {
 	StringLiteral,
 } from '@babel/types';
 import * as recast from 'recast';
-import type {SequenceNodePath} from 'remotion';
-import type {SequenceSchema} from 'remotion';
+import type {SequenceNodePath, SequenceSchema} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {findJsxElementAtNodePath} from '../../preview-server/routes/can-update-sequence-props';
 import {formatFileContent} from '../format-file-content';
@@ -26,6 +25,34 @@ export type SequencePropUpdate = {
 export type RemovedProp = {
 	key: string;
 	valueString: string;
+};
+
+export type SequencePropsNodeUpdate = {
+	nodePath: SequenceNodePath;
+	updates: SequencePropUpdate[];
+	schema: SequenceSchema;
+};
+
+export type SequencePropsNodeUpdateResult = {
+	oldValueStrings: string[];
+	logLine: number;
+	removedProps: RemovedProp[];
+};
+
+type PrettierConfigOverride = Record<string, unknown> | null;
+
+type UpdateMultipleSequencePropsResult = {
+	output: string;
+	formatted: boolean;
+	results: SequencePropsNodeUpdateResult[];
+};
+
+type UpdateSequencePropsResult = {
+	output: string;
+	oldValueStrings: string[];
+	formatted: boolean;
+	logLine: number;
+	removedProps: RemovedProp[];
 };
 
 const removeVariantKey = ({
@@ -92,31 +119,19 @@ type JSXOpeningElementLike = NonNullable<
 	ReturnType<typeof findJsxElementAtNodePath>
 >;
 
-export const updateSequencePropsAst = ({
-	input,
-	nodePath,
+const updateSequencePropsNode = ({
+	node,
 	updates,
 	schema,
 }: {
-	input: string;
-	nodePath: SequenceNodePath;
+	node: JSXOpeningElementLike;
 	updates: SequencePropUpdate[];
 	schema: SequenceSchema;
 }): {
-	serialized: string;
 	oldValueStrings: string[];
 	logLine: number;
 	removedProps: RemovedProp[];
 } => {
-	const ast = parseAst(input);
-
-	const node = findJsxElementAtNodePath(ast, nodePath);
-	if (!node) {
-		throw new Error(
-			'Could not find a JSX element at the specified line to update',
-		);
-	}
-
 	const logLine = node.loc?.start.line ?? 1;
 
 	const oldValueStrings: string[] = [];
@@ -245,10 +260,81 @@ export const updateSequencePropsAst = ({
 	}
 
 	return {
+		oldValueStrings,
+		logLine,
+		removedProps,
+	};
+};
+
+export const updateSequencePropsAst = ({
+	input,
+	nodePath,
+	updates,
+	schema,
+}: {
+	input: string;
+	nodePath: SequenceNodePath;
+	updates: SequencePropUpdate[];
+	schema: SequenceSchema;
+}): {
+	serialized: string;
+	oldValueStrings: string[];
+	logLine: number;
+	removedProps: RemovedProp[];
+} => {
+	const ast = parseAst(input);
+
+	const node = findJsxElementAtNodePath(ast, nodePath);
+	if (!node) {
+		throw new Error(
+			'Could not find a JSX element at the specified line to update',
+		);
+	}
+
+	const {oldValueStrings, logLine, removedProps} = updateSequencePropsNode({
+		node,
+		updates,
+		schema,
+	});
+
+	return {
 		serialized: serializeAst(ast),
 		oldValueStrings,
 		logLine,
 		removedProps,
+	};
+};
+
+export const updateMultipleSequenceProps = async ({
+	input,
+	changes,
+	prettierConfigOverride,
+}: {
+	input: string;
+	changes: SequencePropsNodeUpdate[];
+	prettierConfigOverride: PrettierConfigOverride;
+}): Promise<UpdateMultipleSequencePropsResult> => {
+	const ast = parseAst(input);
+	const results = changes.map(({nodePath, updates, schema}) => {
+		const node = findJsxElementAtNodePath(ast, nodePath);
+		if (!node) {
+			throw new Error(
+				'Could not find a JSX element at the specified line to update',
+			);
+		}
+
+		return updateSequencePropsNode({node, updates, schema});
+	});
+
+	const {output, formatted} = await formatFileContent({
+		input: serializeAst(ast),
+		prettierConfigOverride,
+	});
+
+	return {
+		output,
+		formatted,
+		results,
 	};
 };
 
@@ -263,14 +349,8 @@ export const updateSequenceProps = async ({
 	nodePath: SequenceNodePath;
 	updates: SequencePropUpdate[];
 	schema: SequenceSchema;
-	prettierConfigOverride?: Record<string, unknown> | null;
-}): Promise<{
-	output: string;
-	oldValueStrings: string[];
-	formatted: boolean;
-	logLine: number;
-	removedProps: RemovedProp[];
-}> => {
+	prettierConfigOverride: PrettierConfigOverride;
+}): Promise<UpdateSequencePropsResult> => {
 	const {serialized, oldValueStrings, logLine, removedProps} =
 		updateSequencePropsAst({
 			input,

@@ -1,6 +1,10 @@
 export {splitAnsi, stripAnsi} from './ansi';
 export {
+	AddEffectKeyframeRequest,
+	AddEffectKeyframeResponse,
 	AddRenderRequest,
+	AddSequenceKeyframeRequest,
+	AddSequenceKeyframeResponse,
 	ApiRoutes,
 	ApplyCodemodRequest,
 	ApplyCodemodResponse,
@@ -13,10 +17,6 @@ export {
 	CompositionComponentInfoRequest,
 	CompositionComponentInfoResponse,
 	CopyStillToClipboardRequest,
-	AddEffectKeyframeRequest,
-	AddEffectKeyframeResponse,
-	AddSequenceKeyframeRequest,
-	AddSequenceKeyframeResponse,
 	DeleteEffectKeyframeRequest,
 	DeleteEffectKeyframeResponse,
 	DeleteEffectRequest,
@@ -45,8 +45,10 @@ export {
 	RestartStudioResponse,
 	SaveEffectPropsRequest,
 	SaveEffectPropsResponse,
+	SaveSequencePropEdit,
 	SaveSequencePropsRequest,
 	SaveSequencePropsResponse,
+	SaveSequencePropsResult,
 	SimpleDiff,
 	SubscribeToDefaultPropsRequest,
 	SubscribeToDefaultPropsResponse,
@@ -136,13 +138,13 @@ export {EnumPath, stringifyDefaultProps} from './stringify-default-props';
 
 export type {VisualControlChange} from './codemods';
 export {
-	optimisticDeleteEffectKeyframe,
-	optimisticDeleteSequenceKeyframe,
-} from './optimistic-delete-keyframe';
-export {
 	optimisticAddEffectKeyframe,
 	optimisticAddSequenceKeyframe,
 } from './optimistic-add-keyframe';
+export {
+	optimisticDeleteEffectKeyframe,
+	optimisticDeleteSequenceKeyframe,
+} from './optimistic-delete-keyframe';
 export {optimisticUpdateForCodeValues} from './optimistic-update-for-code-values';
 export {optimisticUpdateForEffectCodeValues} from './optimistic-update-for-effect-code-values';
 export {
