@@ -16,6 +16,7 @@ import type {SequenceNodePath} from 'remotion';
 import {getAstNodePath} from '../../helpers/get-ast-node-path';
 import {
 	extractStaticValue,
+	findNodePathForJsxElement,
 	findJsxElementAtNodePath,
 	isStaticValue,
 } from '../../preview-server/routes/can-update-sequence-props';
@@ -277,14 +278,7 @@ const addKeyframe = ({
 	}
 
 	const staticValue = extractStaticValue(expression);
-	const staticOutput = parseValueExpression(staticValue);
-	const keyframes: InterpolateKeyframe[] =
-		frame === 0
-			? [{frame, output: newOutput, value}]
-			: [
-					{frame: 0, output: staticOutput, value: staticValue},
-					{frame, output: newOutput, value},
-				];
+	const keyframes: InterpolateKeyframe[] = [{frame, output: newOutput, value}];
 
 	const callee = getInterpolationCalleeForValues({
 		staticValue,
@@ -512,6 +506,7 @@ export const updateSequenceKeyframesAst = ({
 	oldValueStrings: string[];
 	newValueStrings: string[];
 	logLine: number;
+	updatedNodePath: SequenceNodePath;
 } => {
 	const ast = parseAst(input);
 	const jsxPath = getAstNodePath(ast, nodePath);
@@ -563,11 +558,19 @@ export const updateSequenceKeyframesAst = ({
 
 	ensureRemotionImports(ast, requiredImports);
 
+	const updatedNodePath = findNodePathForJsxElement(ast, node);
+	if (!updatedNodePath) {
+		throw new Error(
+			'Could not find updated JSX element location after updating keyframes',
+		);
+	}
+
 	return {
 		serialized: serializeAst(ast),
 		oldValueStrings,
 		newValueStrings,
 		logLine: node.loc?.start.line ?? 1,
+		updatedNodePath,
 	};
 };
 
@@ -587,19 +590,32 @@ export const updateSequenceKeyframes = async ({
 	oldValueStrings: string[];
 	newValueStrings: string[];
 	logLine: number;
+	updatedNodePath: SequenceNodePath;
 }> => {
-	const {serialized, oldValueStrings, newValueStrings, logLine} =
-		updateSequenceKeyframesAst({
-			input,
-			nodePath,
-			updates,
-		});
+	const {
+		serialized,
+		oldValueStrings,
+		newValueStrings,
+		logLine,
+		updatedNodePath,
+	} = updateSequenceKeyframesAst({
+		input,
+		nodePath,
+		updates,
+	});
 	const {output, formatted} = await formatFileContent({
 		input: serialized,
 		prettierConfigOverride,
 	});
 
-	return {output, formatted, oldValueStrings, newValueStrings, logLine};
+	return {
+		output,
+		formatted,
+		oldValueStrings,
+		newValueStrings,
+		logLine,
+		updatedNodePath,
+	};
 };
 
 export const updateEffectKeyframesAst = ({
@@ -618,6 +634,7 @@ export const updateEffectKeyframesAst = ({
 	newValueStrings: string[];
 	logLine: number;
 	effectCallee: string;
+	updatedSequenceNodePath: SequenceNodePath;
 } => {
 	const ast = parseAst(input);
 	const jsxPath = getAstNodePath(ast, sequenceNodePath);
@@ -684,12 +701,20 @@ export const updateEffectKeyframesAst = ({
 
 	ensureRemotionImports(ast, requiredImports);
 
+	const updatedSequenceNodePath = findNodePathForJsxElement(ast, jsx);
+	if (!updatedSequenceNodePath) {
+		throw new Error(
+			'Could not find updated JSX element location after updating effect keyframes',
+		);
+	}
+
 	return {
 		serialized: serializeAst(ast),
 		oldValueStrings,
 		newValueStrings,
 		logLine: call.loc?.start.line ?? jsx.loc?.start.line ?? 1,
 		effectCallee,
+		updatedSequenceNodePath,
 	};
 };
 
@@ -712,14 +737,21 @@ export const updateEffectKeyframes = async ({
 	newValueStrings: string[];
 	logLine: number;
 	effectCallee: string;
+	updatedSequenceNodePath: SequenceNodePath;
 }> => {
-	const {serialized, oldValueStrings, newValueStrings, logLine, effectCallee} =
-		updateEffectKeyframesAst({
-			input,
-			sequenceNodePath,
-			effectIndex,
-			updates,
-		});
+	const {
+		serialized,
+		oldValueStrings,
+		newValueStrings,
+		logLine,
+		effectCallee,
+		updatedSequenceNodePath,
+	} = updateEffectKeyframesAst({
+		input,
+		sequenceNodePath,
+		effectIndex,
+		updates,
+	});
 	const {output, formatted} = await formatFileContent({
 		input: serialized,
 		prettierConfigOverride,
@@ -732,5 +764,6 @@ export const updateEffectKeyframes = async ({
 		newValueStrings,
 		logLine,
 		effectCallee,
+		updatedSequenceNodePath,
 	};
 };

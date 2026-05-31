@@ -582,6 +582,26 @@ export const findJsxElementAtNodePath = (
 	return null;
 };
 
+export const findNodePathForJsxElement = (
+	ast: File,
+	target: JSXOpeningElement,
+): SequenceNodePath | null => {
+	let foundPath: SequenceNodePath | null = null;
+
+	recast.types.visit(ast, {
+		visitJSXOpeningElement(p) {
+			if (p.node === target) {
+				foundPath = getNodePathForRecastPath(p);
+				return false;
+			}
+
+			return this.traverse(p);
+		},
+	});
+
+	return foundPath;
+};
+
 export const lineColumnToNodePath = (
 	ast: File,
 	targetLine: number,

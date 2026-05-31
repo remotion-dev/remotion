@@ -44,7 +44,7 @@ export const Example: React.FC = () => {
 		/import\s*\{[^}]*\bAbsoluteFill\b[^}]*\binterpolate\b[^}]*\buseCurrentFrame\b[^}]*\}\s*from\s*['"]remotion['"]/,
 	);
 	expect(serialized).toContain('const frame = useCurrentFrame();');
-	expect(serialized).toContain('interpolate(frame, [0, 30], [0.5, 1])');
+	expect(serialized).toContain('interpolate(frame, [30], [1])');
 });
 
 test('adds interpolateColors import (not interpolate) for color conversion', () => {
@@ -329,7 +329,7 @@ export const Example: React.FC = () => (
 
 	expect(serialized).toContain('const frame = useCurrentFrame();');
 	expect(serialized).toContain('return');
-	expect(serialized).toContain('interpolate(frame, [0, 20], [0.5, 1])');
+	expect(serialized).toContain('interpolate(frame, [20], [1])');
 });
 
 test('does not add a duplicate frame hook when user already has one with a different intermediate statement', () => {
@@ -388,7 +388,7 @@ export const Comp = () => {
 		/import\s*\{[^}]*\binterpolate\b[^}]*\buseCurrentFrame\b[^}]*\}\s*from\s*['"]remotion['"]/,
 	);
 	expect(serialized).toContain('const frame = useCurrentFrame();');
-	expect(serialized).toContain('interpolate(frame, [0, 100], [0.5, 1])');
+	expect(serialized).toContain('interpolate(frame, [100], [1])');
 });
 
 test('effect keyframe remove does not modify imports or insert a frame hook', () => {

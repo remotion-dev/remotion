@@ -59,6 +59,7 @@ export const addEffectKeyframeHandler: ApiHandler<
 			formatted,
 			logLine,
 			effectCallee,
+			updatedSequenceNodePath,
 		} = await updateEffectKeyframes({
 			input: fileContents,
 			sequenceNodePath: sequenceNodePath.nodePath,
@@ -116,7 +117,7 @@ export const addEffectKeyframeHandler: ApiHandler<
 		printUndoHint(logLevel);
 
 		const ast = parseAst(readFileSync(absolutePath, 'utf-8'));
-		const jsx = findJsxElementAtNodePath(ast, sequenceNodePath.nodePath);
+		const jsx = findJsxElementAtNodePath(ast, updatedSequenceNodePath);
 		if (!jsx) {
 			return {
 				canUpdate: false,
