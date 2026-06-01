@@ -29,6 +29,7 @@ import {vignette} from '../vignette.js';
 import {wave} from '../wave/index.js';
 import {waves} from '../waves.js';
 import {whiteNoise} from '../white-noise.js';
+import {zigzag} from '../zigzag.js';
 
 test('@remotion/effects expose documentation links', () => {
 	expect(barrelDistortion().definition.documentationLink).toBe(
@@ -121,6 +122,9 @@ test('@remotion/effects expose documentation links', () => {
 	expect(waves().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/waves',
 	);
+	expect(zigzag().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/zigzag',
+	);
 	expect(whiteNoise().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/white-noise',
 	);
@@ -158,6 +162,7 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(xyTranslate().definition.label).toBe('xyTranslate()');
 	expect(wave().definition.label).toBe('wave()');
 	expect(waves().definition.label).toBe('waves()');
+	expect(zigzag().definition.label).toBe('zigzag()');
 	expect(whiteNoise().definition.label).toBe('whiteNoise()');
 });
 
@@ -220,8 +225,8 @@ test('fisheye() rejects non-positive zoom', () => {
 });
 
 test('fisheye() rejects invalid center', () => {
-	// @ts-expect-error – wrong shape on purpose
-	expect(() => fisheye({center: [0.5]})).toThrow(
+	const invalidCenter = [0.5] as unknown as [number, number];
+	expect(() => fisheye({center: invalidCenter})).toThrow(
 		'"center" must be a [number, number] tuple',
 	);
 });
@@ -428,6 +433,69 @@ test('waves() parameters produce distinct effect keys', () => {
 			phased.effectKey,
 		]).size,
 	).toBe(10);
+});
+
+test('zigzag() accepts default params', () => {
+	expect(() => zigzag()).not.toThrow();
+});
+
+test('zigzag() rejects invalid colors', () => {
+	expect(() => zigzag({colors: ['#dff4ff']})).toThrow(
+		'"colors" must be an array with at least 2 colors',
+	);
+	expect(() => zigzag({colors: ['#dff4ff', '' as unknown as string]})).toThrow(
+		'"colors[1]" must be a non-empty string',
+	);
+});
+
+test('zigzag() rejects invalid direction', () => {
+	expect(() =>
+		zigzag({direction: 'diagonal' as unknown as 'horizontal'}),
+	).toThrow('"direction" must be "horizontal" or "vertical"');
+});
+
+test('zigzag() rejects non-positive wavelength', () => {
+	expect(() => zigzag({wavelength: 0})).toThrow(
+		'"wavelength" must be greater than 0',
+	);
+});
+
+test('zigzag() rejects negative amplitude', () => {
+	expect(() => zigzag({amplitude: -1})).toThrow(
+		'"amplitude" must be greater than or equal to 0',
+	);
+});
+
+test('zigzag() rejects non-positive thickness', () => {
+	expect(() => zigzag({thickness: 0})).toThrow(
+		'"thickness" must be greater than 0',
+	);
+});
+
+test('zigzag() parameters produce distinct effect keys', () => {
+	const defaults = zigzag();
+	const colored = zigzag({colors: ['#ffffff', 'transparent']});
+	const vertical = zigzag({direction: 'vertical'});
+	const thin = zigzag({thickness: 20});
+	const gapped = zigzag({gap: 24});
+	const angled = zigzag({angle: 45});
+	const shifted = zigzag({offset: 10});
+	const stronger = zigzag({amplitude: 30});
+	const longer = zigzag({wavelength: 220});
+
+	expect(
+		new Set([
+			defaults.effectKey,
+			colored.effectKey,
+			vertical.effectKey,
+			thin.effectKey,
+			gapped.effectKey,
+			angled.effectKey,
+			shifted.effectKey,
+			stronger.effectKey,
+			longer.effectKey,
+		]).size,
+	).toBe(9);
 });
 
 test('whiteNoise() accepts default params', () => {

@@ -2007,6 +2007,15 @@ export const articles = [
 		slug: 'effects/xy-translate',
 	},
 	{
+		id: 'effects/zigzag',
+		title: 'zigzag()',
+		relativePath: 'docs/effects/zigzag.mdx',
+		compId: 'articles-docs-effects-zigzag',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/zigzag',
+	},
+	{
 		id: 'electron',
 		title: 'Using Remotion in Electron',
 		relativePath: 'docs/electron.mdx',

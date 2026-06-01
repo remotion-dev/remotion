@@ -37,6 +37,7 @@ import {EffectsVignettePreview} from '../../components/effects/effects-vignette-
 import {EffectsWavePreview} from '../../components/effects/effects-wave-preview';
 import {EffectsWavesPreview} from '../../components/effects/effects-waves-preview';
 import {EffectsWhiteNoisePreview} from '../../components/effects/effects-white-noise-preview';
+import {EffectsZigzagPreview} from '../../components/effects/effects-zigzag-preview';
 import {articles} from '../data/articles';
 import {AllTemplates} from './AllTemplates';
 import {Article} from './Article';
@@ -380,6 +381,21 @@ export const RemotionRoot: React.FC = () => {
 						amplitude: 24,
 						wavelength: 160,
 						phase: 45,
+					}}
+				/>
+				<Still
+					id="effects-zigzag-preview"
+					component={EffectsZigzagPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						direction: 'horizontal',
+						thickness: 40,
+						gap: 0,
+						angle: 0,
+						offset: 0,
+						amplitude: 40,
+						wavelength: 160,
 					}}
 				/>
 				<Still

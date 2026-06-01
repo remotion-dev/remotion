@@ -1,18 +1,16 @@
-import type {WavesDirection} from '@remotion/effects/waves';
-import {waves} from '@remotion/effects/waves';
+import {zigzag} from '@remotion/effects/zigzag';
 import React from 'react';
 import {Solid, useVideoConfig} from 'remotion';
 
-export const EffectsWavesPreview: React.FC<{
-	readonly direction: WavesDirection;
+export const EffectsZigzagPreview: React.FC<{
+	readonly direction: 'horizontal' | 'vertical';
 	readonly thickness: number;
 	readonly gap: number;
 	readonly angle: number;
 	readonly offset: number;
 	readonly amplitude: number;
 	readonly wavelength: number;
-	readonly phase: number;
-}> = ({direction, thickness, gap, angle, offset, amplitude, wavelength, phase}) => {
+}> = ({direction, thickness, gap, angle, offset, amplitude, wavelength}) => {
 	const {width, height} = useVideoConfig();
 
 	return (
@@ -20,7 +18,7 @@ export const EffectsWavesPreview: React.FC<{
 			width={width}
 			height={height}
 			effects={[
-				waves({
+				zigzag({
 					direction,
 					thickness,
 					gap,
@@ -28,7 +26,6 @@ export const EffectsWavesPreview: React.FC<{
 					offset,
 					amplitude,
 					wavelength,
-					phase,
 				}),
 			]}
 		/>

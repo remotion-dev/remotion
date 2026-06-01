@@ -1,7 +1,6 @@
 import {lines} from '@remotion/effects/lines';
 import React from 'react';
-import {CanvasImage} from 'remotion';
-import {EFFECTS_PREVIEW_IMAGE_SRC} from './effects-preview-image';
+import {Solid, useVideoConfig} from 'remotion';
 
 export const EffectsLinesPreview: React.FC<{
 	readonly direction: 'horizontal' | 'vertical';
@@ -10,12 +9,12 @@ export const EffectsLinesPreview: React.FC<{
 	readonly angle: number;
 	readonly offset: number;
 }> = ({direction, thickness, gap, angle, offset}) => {
+	const {width, height} = useVideoConfig();
+
 	return (
-		<CanvasImage
-			src={EFFECTS_PREVIEW_IMAGE_SRC}
-			width={1280}
-			height={720}
-			fit="cover"
+		<Solid
+			width={width}
+			height={height}
 			effects={[lines({direction, thickness, gap, angle, offset})]}
 		/>
 	);

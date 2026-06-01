@@ -12,7 +12,7 @@ import {
 
 const {createEffect, createWebGL2ContextError} = Internals;
 
-const LINE_DIRECTIONS = ['horizontal', 'vertical'] as const;
+const ZIGZAG_DIRECTIONS = ['horizontal', 'vertical'] as const;
 
 const DEFAULT_COLORS = ['#dff4ff', '#7cc6ff'] as const;
 const DEFAULT_DIRECTION = 'horizontal' as const;
@@ -20,8 +20,10 @@ const DEFAULT_THICKNESS = 40 as const;
 const DEFAULT_GAP = 0 as const;
 const DEFAULT_ANGLE = 0 as const;
 const DEFAULT_OFFSET = 0 as const;
+const DEFAULT_AMPLITUDE = 40 as const;
+const DEFAULT_WAVELENGTH = 160 as const;
 
-export const linesSchema = {
+export const zigzagSchema = {
 	direction: {
 		type: 'enum',
 		variants: {
@@ -61,35 +63,57 @@ export const linesSchema = {
 		default: DEFAULT_OFFSET,
 		description: 'Offset',
 	},
+	amplitude: {
+		type: 'number',
+		min: 0,
+		max: 500,
+		step: 0.1,
+		default: DEFAULT_AMPLITUDE,
+		description: 'Amplitude',
+	},
+	wavelength: {
+		type: 'number',
+		min: 1,
+		max: 2000,
+		step: 1,
+		default: DEFAULT_WAVELENGTH,
+		description: 'Wavelength',
+	},
 } as const satisfies SequenceSchema;
 
-export type LinesDirection = (typeof LINE_DIRECTIONS)[number];
+export type ZigzagDirection = (typeof ZIGZAG_DIRECTIONS)[number];
 
-export type LinesParams = {
-	/** Stripe colors, assigned cyclically. Defaults to light blue shades. */
+export type ZigzagParams = {
+	/** Stripe colors, assigned cyclically. Same semantics as lines(). */
 	readonly colors?: readonly string[];
-	/** Line direction. Defaults to `horizontal`. */
-	readonly direction?: LinesDirection;
-	/** Thickness of each stripe in pixels. Defaults to `40`. */
+	/** Base band direction before zig-zag displacement. Same as lines(). */
+	readonly direction?: ZigzagDirection;
+	/** Thickness of each colored band in pixels. Same as lines(). */
 	readonly thickness?: number;
-	/** Transparent gap in pixels between each stripe. Defaults to `0` (stripes are packed solid). */
+	/** Transparent gap in pixels between bands. Same as lines(). */
 	readonly gap?: number;
-	/** Rotates the line pattern in degrees. Defaults to `0`. */
+	/** Rotates the full pattern in degrees. Same as lines(). */
 	readonly angle?: number;
-	/** Offset in pixels. Animate this value to scroll the lines. Defaults to `0`. */
+	/** Offset in pixels. Animate to scroll the bands. Same as lines(). */
 	readonly offset?: number;
+	/** Zig-zag displacement in pixels. */
+	readonly amplitude?: number;
+	/** Distance in pixels before the zig-zag repeats. */
+	readonly wavelength?: number;
 };
 
-type LinesResolved = {
+type ZigzagResolved = {
 	colors: readonly string[];
-	direction: LinesDirection;
+	direction: ZigzagDirection;
 	thickness: number;
 	spacing: number;
 	angle: number;
 	offset: number;
+	amplitude: number;
+	wavelength: number;
 };
 
-type LinesState = {
+type ZigzagState = {
 	readonly gl: WebGL2RenderingContext;
 	readonly program: WebGLProgram;
 	readonly vao: WebGLVertexArrayObject;
@@ -107,12 +131,14 @@ type LinesState = {
 		readonly uSpacing: WebGLUniformLocation | null;
 		readonly uAngle: WebGLUniformLocation | null;
 		readonly uOffset: WebGLUniformLocation | null;
+		readonly uAmplitude: WebGLUniformLocation | null;
+		readonly uWavelength: WebGLUniformLocation | null;
 	};
 	cachedPaletteKey: string;
 	palettePixelData: Uint8Array;
 };
 
-const resolve = (p: LinesParams): LinesResolved => {
+const resolve = (p: ZigzagParams): ZigzagResolved => {
 	const thickness = p.thickness ?? DEFAULT_THICKNESS;
 	const gap = p.gap ?? DEFAULT_GAP;
 
@@ -123,6 +149,8 @@ const resolve = (p: LinesParams): LinesResolved => {
 		spacing: thickness + gap,
 		angle: p.angle ?? DEFAULT_ANGLE,
 		offset: p.offset ?? DEFAULT_OFFSET,
+		amplitude: p.amplitude ?? DEFAULT_AMPLITUDE,
+		wavelength: p.wavelength ?? DEFAULT_WAVELENGTH,
 	};
 };
 
@@ -176,30 +204,37 @@ const validateDirection = (direction: unknown): void => {
 
 	if (
 		typeof direction !== 'string' ||
-		!LINE_DIRECTIONS.includes(direction as LinesDirection)
+		!ZIGZAG_DIRECTIONS.includes(direction as ZigzagDirection)
 	) {
 		throw new TypeError(
-			`"direction" must be ${formatEnum(LINE_DIRECTIONS)}, but got ${JSON.stringify(direction)}`,
+			`"direction" must be ${formatEnum(ZIGZAG_DIRECTIONS)}, but got ${JSON.stringify(direction)}`,
 		);
 	}
 };
 
-const validateLinesParams = (params: LinesParams): void => {
-	assertEffectParamsObject(params, 'Lines');
+const validateZigzagParams = (params: ZigzagParams): void => {
+	assertEffectParamsObject(params, 'Zigzag');
 	validateColors(params.colors);
 	validateDirection(params.direction);
 	assertOptionalFiniteNumber(params.thickness, 'thickness');
 	assertOptionalFiniteNumber(params.gap, 'gap');
 	assertOptionalFiniteNumber(params.angle, 'angle');
 	assertOptionalFiniteNumber(params.offset, 'offset');
+	assertOptionalFiniteNumber(params.amplitude, 'amplitude');
+	assertOptionalFiniteNumber(params.wavelength, 'wavelength');
 
 	const thickness = params.thickness ?? DEFAULT_THICKNESS;
 	const gap = params.gap ?? DEFAULT_GAP;
+	const amplitude = params.amplitude ?? DEFAULT_AMPLITUDE;
+	const wavelength = params.wavelength ?? DEFAULT_WAVELENGTH;
+
 	validatePositive(thickness, 'thickness');
 	validateNonNegative(gap, 'gap');
+	validateNonNegative(amplitude, 'amplitude');
+	validatePositive(wavelength, 'wavelength');
 };
 
-const LINES_VS = /* glsl */ `#version 300 es
+const ZIGZAG_VS = /* glsl */ `#version 300 es
 in vec2 aPos;
 in vec2 aUv;
 out vec2 vUv;
@@ -210,7 +245,7 @@ void main() {
 }
 `;
 
-const LINES_FS = /* glsl */ `#version 300 es
+const ZIGZAG_FS = /* glsl */ `#version 300 es
 precision highp float;
 
 in vec2 vUv;
@@ -225,21 +260,26 @@ uniform float uThickness;
 uniform float uSpacing;
 uniform float uAngle;
 uniform float uOffset;
+uniform float uAmplitude;
+uniform float uWavelength;
 
 void main() {
 	vec4 texColor = texture(uSource, vUv);
 	float thickness = max(uThickness, 0.001);
-float spacing = max(uSpacing, 0.001);
-float cycle = spacing * uNumColors;
-vec2 centered = vUv * uResolution - uResolution * 0.5;
-float s = sin(uAngle);
-float c = cos(uAngle);
+	float spacing = max(uSpacing, 0.001);
+	float cycle = spacing * uNumColors;
+	vec2 centered = vUv * uResolution - uResolution * 0.5;
+	float s = sin(uAngle);
+	float c = cos(uAngle);
 	vec2 rotated = vec2(
 		centered.x * c - centered.y * s,
 		centered.x * s + centered.y * c
 	);
-	float axis = uDirection == 0 ? rotated.y : rotated.x;
-	float position = mod(axis + uOffset, cycle);
+	float baseAxis = uDirection == 0 ? rotated.y : rotated.x;
+	float zigzagAxis = uDirection == 0 ? rotated.x : rotated.y;
+	float wavePhase = fract(zigzagAxis / max(uWavelength, 0.001));
+	float zigzagOffset = (1.0 - abs(wavePhase * 2.0 - 1.0) * 2.0) * uAmplitude;
+	float position = mod(baseAxis + zigzagOffset + uOffset, cycle);
 	if (position < 0.0) {
 		position += cycle;
 	}
@@ -278,7 +318,7 @@ const compileShader = (
 	if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
 		const log = gl.getShaderInfoLog(shader);
 		gl.deleteShader(shader);
-		throw new Error(`Lines shader compile failed: ${log ?? '(no log)'}`);
+		throw new Error(`Zigzag shader compile failed: ${log ?? '(no log)'}`);
 	}
 
 	return shader;
@@ -300,7 +340,7 @@ const linkProgram = (
 	if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
 		const log = gl.getProgramInfoLog(program);
 		gl.deleteProgram(program);
-		throw new Error(`Lines program link failed: ${log ?? '(no log)'}`);
+		throw new Error(`Zigzag program link failed: ${log ?? '(no log)'}`);
 	}
 
 	return program;
@@ -337,19 +377,19 @@ const createTexture = (
 	return texture;
 };
 
-const setupLines = (target: HTMLCanvasElement): LinesState => {
+const setupZigzag = (target: HTMLCanvasElement): ZigzagState => {
 	const gl = target.getContext('webgl2', {
 		premultipliedAlpha: true,
 		alpha: true,
 		preserveDrawingBuffer: true,
 	});
 	if (!gl) {
-		throw createWebGL2ContextError('lines effect');
+		throw createWebGL2ContextError('zigzag effect');
 	}
 
 	gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
 
-	const program = createProgram(gl, LINES_VS, LINES_FS);
+	const program = createProgram(gl, ZIGZAG_VS, ZIGZAG_FS);
 
 	const vao = gl.createVertexArray();
 	if (!vao) {
@@ -405,6 +445,8 @@ const setupLines = (target: HTMLCanvasElement): LinesState => {
 			uSpacing: gl.getUniformLocation(program, 'uSpacing'),
 			uAngle: gl.getUniformLocation(program, 'uAngle'),
 			uOffset: gl.getUniformLocation(program, 'uOffset'),
+			uAmplitude: gl.getUniformLocation(program, 'uAmplitude'),
+			uWavelength: gl.getUniformLocation(program, 'uWavelength'),
 		},
 		cachedPaletteKey: '',
 		palettePixelData: new Uint8Array(0),
@@ -412,7 +454,7 @@ const setupLines = (target: HTMLCanvasElement): LinesState => {
 };
 
 const updatePalette = (
-	state: LinesState,
+	state: ZigzagState,
 	colors: readonly string[],
 ): boolean => {
 	const paletteKey = colors.join('|');
@@ -439,16 +481,16 @@ const updatePalette = (
 	return true;
 };
 
-export const lines = createEffect<LinesParams, LinesState>({
-	type: 'remotion/lines',
-	label: 'lines()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/lines',
+export const zigzag = createEffect<ZigzagParams, ZigzagState>({
+	type: 'remotion/zigzag',
+	label: 'zigzag()',
+	documentationLink: 'https://www.remotion.dev/docs/effects/zigzag',
 	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
-		return `lines-${r.colors.join('|')}-${r.direction}-${r.thickness}-${r.spacing}-${r.angle}-${r.offset}`;
+		return `zigzag-${r.colors.join('|')}-${r.direction}-${r.thickness}-${r.spacing}-${r.angle}-${r.offset}-${r.amplitude}-${r.wavelength}`;
 	},
-	setup: (target) => setupLines(target),
+	setup: (target) => setupZigzag(target),
 	apply: ({source, width, height, params, state, flipSourceY}) => {
 		const r = resolve(params);
 		const paletteDirty = updatePalette(state, r.colors);
@@ -503,6 +545,8 @@ export const lines = createEffect<LinesParams, LinesState>({
 		if (uniforms.uAngle)
 			gl.uniform1f(uniforms.uAngle, (r.angle * Math.PI) / 180);
 		if (uniforms.uOffset) gl.uniform1f(uniforms.uOffset, r.offset);
+		if (uniforms.uAmplitude) gl.uniform1f(uniforms.uAmplitude, r.amplitude);
+		if (uniforms.uWavelength) gl.uniform1f(uniforms.uWavelength, r.wavelength);
 
 		gl.bindVertexArray(vao);
 		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
@@ -510,13 +554,20 @@ export const lines = createEffect<LinesParams, LinesState>({
 		gl.bindTexture(gl.TEXTURE_2D, null);
 		gl.useProgram(null);
 	},
-	cleanup: ({gl, program, vao, vbo, sourceTexture, paletteTexture}) => {
+	cleanup: ({
+		gl,
+		program,
+		vao,
+		vbo,
+		sourceTexture,
+		paletteTexture,
+	}: ZigzagState) => {
 		gl.deleteTexture(sourceTexture);
 		gl.deleteTexture(paletteTexture);
 		gl.deleteBuffer(vbo);
 		gl.deleteProgram(program);
 		gl.deleteVertexArray(vao);
 	},
-	schema: linesSchema,
-	validateParams: validateLinesParams,
+	schema: zigzagSchema,
+	validateParams: validateZigzagParams,
 });
