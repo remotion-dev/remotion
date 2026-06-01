@@ -9,7 +9,8 @@ import {assertEffectParamsObject} from './validate-effect-param.js';
 const {createEffect, createWebGL2ContextError} = Internals;
 
 const DEFAULT_PROGRESS = 0.5 as const;
-const DEFAULT_PIXEL_SIZE = 8 as const;
+const DEFAULT_COLUMNS = 10 as const;
+const DEFAULT_ROWS = 10 as const;
 const DEFAULT_SEED = 0 as const;
 const DEFAULT_FEATHER = 0.15 as const;
 
@@ -22,13 +23,21 @@ const pixelDissolveSchema = {
 		default: DEFAULT_PROGRESS,
 		description: 'Progress',
 	},
-	pixelSize: {
+	columns: {
 		type: 'number',
 		min: 1,
-		max: 100,
+		max: 400,
 		step: 1,
-		default: DEFAULT_PIXEL_SIZE,
-		description: 'Pixel size',
+		default: DEFAULT_COLUMNS,
+		description: 'Columns',
+	},
+	rows: {
+		type: 'number',
+		min: 1,
+		max: 400,
+		step: 1,
+		default: DEFAULT_ROWS,
+		description: 'Rows',
 	},
 	seed: {
 		type: 'number',
@@ -48,39 +57,63 @@ const pixelDissolveSchema = {
 
 export type PixelDissolveParams = {
 	readonly progress?: number;
-	readonly pixelSize?: number;
+	readonly columns?: number;
+	readonly rows?: number;
 	readonly seed?: number;
 	readonly feather?: number;
 };
 
 type PixelDissolveResolved = {
 	readonly progress: number;
-	readonly pixelSize: number;
+	readonly columns: number;
+	readonly rows: number;
 	readonly seed: number;
 	readonly feather: number;
 };
 
 const resolve = (params: PixelDissolveParams): PixelDissolveResolved => ({
 	progress: params.progress ?? DEFAULT_PROGRESS,
-	pixelSize: params.pixelSize ?? DEFAULT_PIXEL_SIZE,
+	columns: params.columns ?? DEFAULT_COLUMNS,
+	rows: params.rows ?? DEFAULT_ROWS,
 	seed: params.seed ?? DEFAULT_SEED,
 	feather: params.feather ?? DEFAULT_FEATHER,
 });
 
+const assertOptionalIntegerNumber = (value: unknown, name: string): void => {
+	if (value === undefined) {
+		return;
+	}
+
+	if (!Number.isInteger(value)) {
+		throw new TypeError(
+			`"${name}" must be an integer, but got ${JSON.stringify(value)}`,
+		);
+	}
+};
+
 const validatePixelDissolveParams = (params: PixelDissolveParams): void => {
 	assertEffectParamsObject(params, 'Pixel Dissolve');
 	assertOptionalFiniteNumber(params.progress, 'progress');
-	assertOptionalFiniteNumber(params.pixelSize, 'pixelSize');
+	assertOptionalFiniteNumber(params.columns, 'columns');
+	assertOptionalFiniteNumber(params.rows, 'rows');
 	assertOptionalFiniteNumber(params.seed, 'seed');
 	assertOptionalFiniteNumber(params.feather, 'feather');
+	assertOptionalIntegerNumber(params.columns, 'columns');
+	assertOptionalIntegerNumber(params.rows, 'rows');
 
 	const r = resolve(params);
 	validateUnitInterval(r.progress, 'progress');
 	validateUnitInterval(r.feather, 'feather');
 
-	if (r.pixelSize < 1) {
+	if (r.columns < 1) {
 		throw new TypeError(
-			`"pixelSize" must be >= 1, but got ${JSON.stringify(r.pixelSize)}`,
+			`"columns" must be >= 1, but got ${JSON.stringify(r.columns)}`,
+		);
+	}
+
+	if (r.rows < 1) {
+		throw new TypeError(
+			`"rows" must be >= 1, but got ${JSON.stringify(r.rows)}`,
 		);
 	}
 };
@@ -92,9 +125,9 @@ type PixelDissolveState = {
 	readonly vbo: WebGLBuffer;
 	readonly texture: WebGLTexture;
 	readonly uSource: WebGLUniformLocation | null;
-	readonly uResolution: WebGLUniformLocation | null;
 	readonly uProgress: WebGLUniformLocation | null;
-	readonly uPixelSize: WebGLUniformLocation | null;
+	readonly uColumns: WebGLUniformLocation | null;
+	readonly uRows: WebGLUniformLocation | null;
 	readonly uSeed: WebGLUniformLocation | null;
 	readonly uFeather: WebGLUniformLocation | null;
 };
@@ -117,9 +150,9 @@ in vec2 vUv;
 out vec4 fragColor;
 
 uniform sampler2D uSource;
-uniform vec2 uResolution;
 uniform float uProgress;
-uniform float uPixelSize;
+uniform float uColumns;
+uniform float uRows;
 uniform float uSeed;
 uniform float uFeather;
 
@@ -139,12 +172,10 @@ float dissolveMask(float noise, float threshold, float feather) {
 }
 
 void main() {
-	float cellSize = max(uPixelSize, 1.0);
-	vec2 fragPos = vUv * uResolution;
-	vec2 cell = floor(fragPos / cellSize);
-	vec2 samplePos = (cell + 0.5) * cellSize;
-	vec2 sampleUv = clamp(samplePos / uResolution, vec2(0.0), vec2(1.0));
-	vec4 color = texture(uSource, sampleUv);
+	vec2 divisions = max(vec2(uColumns, uRows), vec2(1.0));
+	vec2 gridUv = min(vUv, vec2(1.0) - vec2(0.000001));
+	vec2 cell = floor(gridUv * divisions);
+	vec4 color = texture(uSource, vUv);
 
 	float threshold = 1.0 - clamp(uProgress, 0.0, 1.0);
 	float noise = hash21(cell + vec2(uSeed, uSeed * 1.618));
@@ -237,7 +268,7 @@ export const pixelDissolve = createEffect<
 	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
-		return `pixel-dissolve-${r.progress}-${r.pixelSize}-${r.seed}-${r.feather}`;
+		return `pixel-dissolve-${r.progress}-${r.columns}-${r.rows}-${r.seed}-${r.feather}`;
 	},
 	setup: (target) => {
 		const gl = target.getContext('webgl2', {
@@ -285,9 +316,9 @@ export const pixelDissolve = createEffect<
 			vbo,
 			texture,
 			uSource: gl.getUniformLocation(program, 'uSource'),
-			uResolution: gl.getUniformLocation(program, 'uResolution'),
 			uProgress: gl.getUniformLocation(program, 'uProgress'),
-			uPixelSize: gl.getUniformLocation(program, 'uPixelSize'),
+			uColumns: gl.getUniformLocation(program, 'uColumns'),
+			uRows: gl.getUniformLocation(program, 'uRows'),
 			uSeed: gl.getUniformLocation(program, 'uSeed'),
 			uFeather: gl.getUniformLocation(program, 'uFeather'),
 		};
@@ -316,9 +347,9 @@ export const pixelDissolve = createEffect<
 		);
 
 		if (state.uSource) state.gl.uniform1i(state.uSource, 0);
-		if (state.uResolution) state.gl.uniform2f(state.uResolution, width, height);
 		if (state.uProgress) state.gl.uniform1f(state.uProgress, r.progress);
-		if (state.uPixelSize) state.gl.uniform1f(state.uPixelSize, r.pixelSize);
+		if (state.uColumns) state.gl.uniform1f(state.uColumns, r.columns);
+		if (state.uRows) state.gl.uniform1f(state.uRows, r.rows);
 		if (state.uSeed) state.gl.uniform1f(state.uSeed, r.seed);
 		if (state.uFeather) state.gl.uniform1f(state.uFeather, r.feather);
 

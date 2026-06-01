@@ -301,7 +301,8 @@ export const RemotionRoot: React.FC = () => {
 					height={720}
 					defaultProps={{
 						progress: 0.4,
-						pixelSize: 12,
+						columns: 12,
+						rows: 12,
 						seed: 0,
 						feather: 0.15,
 					}}

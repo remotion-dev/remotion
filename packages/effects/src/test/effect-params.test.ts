@@ -1566,9 +1566,17 @@ test('pixelDissolve() rejects progress below range', () => {
 	);
 });
 
-test('pixelDissolve() rejects pixelSize below range', () => {
-	expect(() => pixelDissolve({pixelSize: 0})).toThrow(
-		'"pixelSize" must be >= 1',
+test('pixelDissolve() rejects columns below range', () => {
+	expect(() => pixelDissolve({columns: 0})).toThrow('"columns" must be >= 1');
+});
+
+test('pixelDissolve() rejects rows below range', () => {
+	expect(() => pixelDissolve({rows: 0})).toThrow('"rows" must be >= 1');
+});
+
+test('pixelDissolve() rejects non-integer divisions', () => {
+	expect(() => pixelDissolve({columns: 10.5})).toThrow(
+		'"columns" must be an integer',
 	);
 });
 
@@ -1585,7 +1593,8 @@ test('pixelDissolve() rejects feather above range', () => {
 test('pixelDissolve() parameters produce distinct effect keys', () => {
 	const defaultDissolve = pixelDissolve();
 	const progressed = pixelDissolve({progress: 0.7});
-	const largerPixels = pixelDissolve({pixelSize: 12});
+	const widerGrid = pixelDissolve({columns: 12});
+	const tallerGrid = pixelDissolve({rows: 12});
 	const reseeded = pixelDissolve({seed: 3});
 	const sharper = pixelDissolve({feather: 0.05});
 
@@ -1593,11 +1602,12 @@ test('pixelDissolve() parameters produce distinct effect keys', () => {
 		new Set([
 			defaultDissolve.effectKey,
 			progressed.effectKey,
-			largerPixels.effectKey,
+			widerGrid.effectKey,
+			tallerGrid.effectKey,
 			reseeded.effectKey,
 			sharper.effectKey,
 		]).size,
-	).toBe(5);
+	).toBe(6);
 });
 
 test('xyTranslate() accepts default params', () => {

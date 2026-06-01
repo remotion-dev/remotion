@@ -5,10 +5,11 @@ import {EFFECTS_PREVIEW_IMAGE_SRC} from './effects-preview-image';
 
 export const EffectsPixelDissolvePreview: React.FC<{
 	readonly progress: number;
-	readonly pixelSize: number;
+	readonly columns: number;
+	readonly rows: number;
 	readonly seed: number;
 	readonly feather: number;
-}> = ({progress, pixelSize, seed, feather}) => {
+}> = ({progress, columns, rows, seed, feather}) => {
 	return (
 		<CanvasImage
 			src={EFFECTS_PREVIEW_IMAGE_SRC}
@@ -18,7 +19,8 @@ export const EffectsPixelDissolvePreview: React.FC<{
 			effects={[
 				pixelDissolve({
 					progress,
-					pixelSize,
+					columns,
+					rows,
 					seed,
 					feather,
 				}),

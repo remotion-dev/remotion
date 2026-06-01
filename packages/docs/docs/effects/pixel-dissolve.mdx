@@ -10,7 +10,7 @@ crumb: '@remotion/effects'
 
 _Part of the [`@remotion/effects`](/docs/effects/api) package._
 
-A pixel dissolve effect that breaks the source into square blocks and fades them out in a pseudo-random order.
+A pixel dissolve effect that divides the frame into a grid and fades the cells out in a pseudo-random order while preserving the source image color.
 
 ## Preview
 
@@ -31,7 +31,8 @@ export const MyComp: React.FC = () => {
         effects={[
           pixelDissolve({
             progress: 0.45,
-            pixelSize: 10,
+            columns: 10,
+            rows: 10,
             seed: 0,
             feather: 0.15,
           }),
@@ -50,9 +51,13 @@ Pass an object with the following properties. You can also call `pixelDissolve()
 
 How far the dissolve has progressed, from `0` to `1`. Defaults to `0.5`.
 
-### `pixelSize?`
+### `columns?`
 
-Size of each block in pixels. Defaults to `8`. Must be at least `1`.
+Horizontal divisions across the frame. Defaults to `10`. Must be an integer of at least `1`.
+
+### `rows?`
+
+Vertical divisions across the frame. Defaults to `10`. Must be an integer of at least `1`.
 
 ### `seed?`
 
