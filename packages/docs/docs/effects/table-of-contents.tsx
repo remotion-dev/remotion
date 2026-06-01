@@ -203,6 +203,13 @@ const categories: {
 				description: 'Source-image halftone effect',
 			},
 			{
+				link: '/docs/effects/noise',
+				preview: '/img/effects-noise-preview.png',
+				alt: 'noise effect preview',
+				name: 'noise()',
+				description: 'Procedural grain effect',
+			},
+			{
 				link: '/docs/effects/pixel-dissolve',
 				preview: '/img/effects-pixel-dissolve-preview.png',
 				alt: 'pixel dissolve effect preview',
@@ -248,13 +255,6 @@ const categories: {
 				alt: 'halftone linear gradient effect preview',
 				name: 'halftoneLinearGradient()',
 				description: 'Procedural dot gradient effect',
-			},
-			{
-				link: '/docs/effects/noise',
-				preview: '/img/effects-noise-preview.png',
-				alt: 'noise effect preview',
-				name: 'noise()',
-				description: 'Procedural grain effect',
 			},
 			{
 				link: '/docs/effects/white-noise',
