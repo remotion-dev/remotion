@@ -17,6 +17,7 @@
 		"formatting": "oxfmt src --check",
 		"format": "oxfmt src",
 		"lint": "eslint src",
+		"test": "bun test src/test",
 		"make": "tsgo -d && node build.mjs && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"exports": {
@@ -32,6 +33,7 @@
 		"remotion": "workspace:*"
 	},
 	"devDependencies": {
+		"@testing-library/react": "16.1.0",
 		"esbuild": "0.28.0",
 		"react": "catalog:",
 		"react-dom": "catalog:",
