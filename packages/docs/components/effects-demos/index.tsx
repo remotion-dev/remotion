@@ -149,7 +149,7 @@ export const EffectsDemo: React.FC<{
 				title="Drag this effect into Remotion Studio"
 			>
 				<span aria-hidden="true">::</span>
-				<span>Drag current effect into Studio</span>
+				<span>Drag current effect into a layer in the Studio</span>
 			</div>
 			<div className={styles.containerrow}>
 				{activeFields.map(([fieldKey, field]) => {
