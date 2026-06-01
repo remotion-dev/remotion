@@ -624,10 +624,35 @@ test('inserts a Solid into an empty component returning null', async () => {
 		});
 
 		expect(result.output).toContain("import { Solid } from 'remotion';");
-		expect(result.output).toContain('<Solid');
+		expect(result.output).toContain('export const MyComp: React.FC = () => (');
+		expect(result.output).toContain('\t<>');
+		expect(result.output).toContain('\t\t<Solid');
+		expect(result.output).toContain('\t</>');
 		expect(result.output).toContain('width={640}');
 		expect(result.output).toContain('height={360}');
 		expect(result.output).toContain("position: 'absolute'");
+
+		await fs.writeFile(path.join(tempDir, 'MyComp.tsx'), result.output);
+
+		const afterFirstInsert = await resolveCompositionComponent({
+			remotionRoot: tempDir,
+			compositionFile: 'Root.tsx',
+			compositionId: 'test',
+		});
+		expect(afterFirstInsert.canAddSequence).toBe(true);
+
+		const secondInsert = await insertJsxElementIntoComposition({
+			remotionRoot: tempDir,
+			compositionFile: 'Root.tsx',
+			compositionId: 'test',
+			element: {
+				type: 'solid',
+				width: 320,
+				height: 180,
+			},
+			prettierConfigOverride: {singleQuote: true, useTabs: true},
+		});
+		expect(secondInsert.output.match(/<Solid/g)?.length).toBe(2);
 	} finally {
 		await fs.rm(tempDir, {recursive: true, force: true});
 	}
