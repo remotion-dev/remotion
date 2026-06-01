@@ -1,6 +1,7 @@
 import React, {useRef, useState} from 'react';
 import {IsMutedIcon, NotMutedIcon, PausedIcon, PlayingIcon} from './Demo/icons';
 import {MuxVideo} from './MuxVideo';
+import {SectionTitle} from './VideoAppsTitle';
 
 const tabs = [
 	'Music visualization',
@@ -128,20 +129,14 @@ export const BuiltWithRemotionShowcase: React.FC = () => {
 
 	return (
 		<div ref={containerRef}>
-			<h3 className="text-center text-3xl font-bold fontbrand mt-0 mb-6">
-				Built with Remotion
-			</h3>
-			<div
-				className={
-					'grid justify-center grid-flow-col grid-rows-1 gap-2.5 justify-self-center mb-4 w-[90vw] md:w-auto -mt-4'
-				}
-			>
+			<SectionTitle>Built with Remotion</SectionTitle>
+			<div className="flex flex-wrap justify-center gap-x-8 gap-y-3 mb-6 mt-1">
 				{tabs.map((tab, index) => (
 					<button
 						key={tab}
 						type="button"
 						data-active={index === activeTab}
-						className={`bg-transparent border-none m-0 p-0 lg:mx-3 my-4 cursor-pointer text-base fontbrand font-bold transition-colors text-muted data-[active=true]:text-brand`}
+						className={`bg-transparent border-none m-0 p-0 cursor-pointer text-sm fontbrand font-bold transition-colors text-muted data-[active=true]:text-brand`}
 						onClick={() => handleTabChange(index)}
 					>
 						{tab}
@@ -153,10 +148,10 @@ export const BuiltWithRemotionShowcase: React.FC = () => {
 				// Prevent this from showing up in search engine results
 				data-nosnippet
 			>
-				<div className={'flex-1 flex flex-col lg:flex-row justify-center'}>
+				<div className={'flex-1 grid grid-cols-1 lg:grid-cols-2'}>
 					<div
 						className={
-							'w-full max-w-[500px] aspect-square relative overflow-hidden bg-[#eee] cursor-pointer'
+							'w-full aspect-video lg:aspect-square relative overflow-hidden bg-[#eee] cursor-pointer'
 						}
 						onClick={handlePlayPause}
 					>
@@ -245,11 +240,11 @@ export const BuiltWithRemotionShowcase: React.FC = () => {
 							)}
 						</button>
 					</div>
-					<div className={'p-6 flex-1 flex flex-col h-full'}>
-						<div className="text-4xl font-bold fontbrand mt-0">
+					<div className={'p-6 lg:p-10 flex min-w-0 flex-col justify-center'}>
+						<div className="text-3xl font-bold fontbrand mt-0">
 							{videoApps[activeTab].title}
 						</div>
-						<div className="text-muted mt-4 text-base fontbrand">
+						<div className="text-muted mt-3 text-base fontbrand leading-relaxed">
 							{videoApps[activeTab].description}
 						</div>
 						{videoApps[activeTab].additionalInfo ? (
