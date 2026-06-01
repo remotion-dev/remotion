@@ -191,6 +191,7 @@ export function VideoPlayer({
 						controls={!crop}
 						acknowledgeRemotionLicense
 						style={{width: '100%'}}
+						overflowVisible
 					/>
 				) : (
 					<div
