@@ -339,6 +339,156 @@ test('canAddSequence=false for self-closing root JSX return', async () => {
 	}
 });
 
+test('canAddSequence=false for ThreeCanvas root element', async () => {
+	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
+	try {
+		await fs.writeFile(
+			path.join(tempDir, 'Root.tsx'),
+			[
+				"import {Composition} from 'remotion';",
+				"import {MyComp} from './MyComp';",
+				'export const RemotionRoot = () => {',
+				'\treturn <Composition id="test" component={MyComp} />;',
+				'};',
+				'',
+			].join('\n'),
+		);
+		await fs.writeFile(
+			path.join(tempDir, 'MyComp.tsx'),
+			[
+				"import {ThreeCanvas} from '@remotion/three';",
+				'',
+				'export const MyComp: React.FC = () => {',
+				'\treturn <ThreeCanvas></ThreeCanvas>;',
+				'};',
+				'',
+			].join('\n'),
+		);
+
+		const location = await resolveCompositionComponent({
+			remotionRoot: tempDir,
+			compositionFile: 'Root.tsx',
+			compositionId: 'test',
+		});
+		expect(location.source).toBe('MyComp.tsx');
+		expect(location.canAddSequence).toBe(false);
+	} finally {
+		await fs.rm(tempDir, {recursive: true, force: true});
+	}
+});
+
+test('canAddSequence=false for RiveCanvas root element', async () => {
+	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
+	try {
+		await fs.writeFile(
+			path.join(tempDir, 'Root.tsx'),
+			[
+				"import {Composition} from 'remotion';",
+				"import {MyComp} from './MyComp';",
+				'export const RemotionRoot = () => {',
+				'\treturn <Composition id="test" component={MyComp} />;',
+				'};',
+				'',
+			].join('\n'),
+		);
+		await fs.writeFile(
+			path.join(tempDir, 'MyComp.tsx'),
+			[
+				"import {RiveCanvas} from '@remotion/rive';",
+				'',
+				'export const MyComp: React.FC = () => {',
+				'\treturn <RiveCanvas></RiveCanvas>;',
+				'};',
+				'',
+			].join('\n'),
+		);
+
+		const location = await resolveCompositionComponent({
+			remotionRoot: tempDir,
+			compositionFile: 'Root.tsx',
+			compositionId: 'test',
+		});
+		expect(location.source).toBe('MyComp.tsx');
+		expect(location.canAddSequence).toBe(false);
+	} finally {
+		await fs.rm(tempDir, {recursive: true, force: true});
+	}
+});
+
+test('canAddSequence=false for SkiaCanvas root element', async () => {
+	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
+	try {
+		await fs.writeFile(
+			path.join(tempDir, 'Root.tsx'),
+			[
+				"import {Composition} from 'remotion';",
+				"import {MyComp} from './MyComp';",
+				'export const RemotionRoot = () => {',
+				'\treturn <Composition id="test" component={MyComp} />;',
+				'};',
+				'',
+			].join('\n'),
+		);
+		await fs.writeFile(
+			path.join(tempDir, 'MyComp.tsx'),
+			[
+				"import {SkiaCanvas} from '@remotion/skia';",
+				'',
+				'export const MyComp: React.FC = () => {',
+				'\treturn <SkiaCanvas></SkiaCanvas>;',
+				'};',
+				'',
+			].join('\n'),
+		);
+
+		const location = await resolveCompositionComponent({
+			remotionRoot: tempDir,
+			compositionFile: 'Root.tsx',
+			compositionId: 'test',
+		});
+		expect(location.source).toBe('MyComp.tsx');
+		expect(location.canAddSequence).toBe(false);
+	} finally {
+		await fs.rm(tempDir, {recursive: true, force: true});
+	}
+});
+
+test('canAddSequence=false for plain canvas root element', async () => {
+	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
+	try {
+		await fs.writeFile(
+			path.join(tempDir, 'Root.tsx'),
+			[
+				"import {Composition} from 'remotion';",
+				"import {MyComp} from './MyComp';",
+				'export const RemotionRoot = () => {',
+				'\treturn <Composition id="test" component={MyComp} />;',
+				'};',
+				'',
+			].join('\n'),
+		);
+		await fs.writeFile(
+			path.join(tempDir, 'MyComp.tsx'),
+			[
+				'export const MyComp: React.FC = () => {',
+				'\treturn <canvas></canvas>;',
+				'};',
+				'',
+			].join('\n'),
+		);
+
+		const location = await resolveCompositionComponent({
+			remotionRoot: tempDir,
+			compositionFile: 'Root.tsx',
+			compositionId: 'test',
+		});
+		expect(location.source).toBe('MyComp.tsx');
+		expect(location.canAddSequence).toBe(false);
+	} finally {
+		await fs.rm(tempDir, {recursive: true, force: true});
+	}
+});
+
 test('inserts a Solid into the resolved composition component', async () => {
 	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
 	try {
