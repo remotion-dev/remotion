@@ -1,5 +1,5 @@
 import {getAllSchemaKeys} from '@remotion/studio-shared';
-import type {SequenceSchema} from 'remotion';
+import type {SequenceNodePath, SequenceSchema} from 'remotion';
 import {Internals} from 'remotion';
 import {callApi} from '../call-api';
 
@@ -36,6 +36,7 @@ export const acquireSequencePropsSubscription = ({
 	column,
 	schema,
 	effects,
+	nodePath,
 	clientId,
 	applyOnce,
 	applyEach,
@@ -45,6 +46,7 @@ export const acquireSequencePropsSubscription = ({
 	column: number;
 	schema: SequenceSchema;
 	effects: SequenceSchema[];
+	nodePath: SequenceNodePath | null;
 	clientId: string;
 	applyOnce: ApplyResult;
 	applyEach: ApplyResult;
@@ -59,6 +61,7 @@ export const acquireSequencePropsSubscription = ({
 			fileName,
 			line,
 			column,
+			nodePath,
 			keys: getAllSchemaKeys(schema),
 			effects: effectKeys,
 			clientId,
