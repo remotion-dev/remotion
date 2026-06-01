@@ -94,6 +94,11 @@
 			"module": "./dist/esm/halftone-linear-gradient.mjs",
 			"import": "./dist/esm/halftone-linear-gradient.mjs"
 		},
+		"./pixel-dissolve": {
+			"types": "./dist/pixel-dissolve.d.ts",
+			"module": "./dist/esm/pixel-dissolve.mjs",
+			"import": "./dist/esm/pixel-dissolve.mjs"
+		},
 		"./grayscale": {
 			"types": "./dist/grayscale.d.ts",
 			"module": "./dist/esm/grayscale.mjs",
@@ -223,6 +228,9 @@
 			],
 			"halftone-linear-gradient": [
 				"dist/halftone-linear-gradient.d.ts"
+			],
+			"pixel-dissolve": [
+				"dist/pixel-dissolve.d.ts"
 			],
 			"grayscale": [
 				"dist/grayscale.d.ts"

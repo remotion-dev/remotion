@@ -22,6 +22,7 @@ import {EffectsLightLeakPreview} from '../../components/effects/effects-light-le
 import {EffectsLinesPreview} from '../../components/effects/effects-lines-preview';
 import {EffectsMirrorPreview} from '../../components/effects/effects-mirror-preview';
 import {EffectsNoisePreview} from '../../components/effects/effects-noise-preview';
+import {EffectsPixelDissolvePreview} from '../../components/effects/effects-pixel-dissolve-preview';
 import {EffectsSaturationPreview} from '../../components/effects/effects-saturation-preview';
 import {EffectsScalePreview} from '../../components/effects/effects-scale-preview';
 import {EffectsScanlinesPreview} from '../../components/effects/effects-scanlines-preview';
@@ -291,6 +292,18 @@ export const RemotionRoot: React.FC = () => {
 						colorMode: 'solid',
 						dotColor: '#0B84F3',
 						invert: false,
+					}}
+				/>
+				<Still
+					id="effects-pixel-dissolve-preview"
+					component={EffectsPixelDissolvePreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						progress: 0.4,
+						pixelSize: 12,
+						seed: 0,
+						feather: 0.15,
 					}}
 				/>
 				<Still

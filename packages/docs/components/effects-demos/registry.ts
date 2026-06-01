@@ -17,6 +17,7 @@ import {invert} from '@remotion/effects/invert';
 import {lines} from '@remotion/effects/lines';
 import {mirror} from '@remotion/effects/mirror';
 import {noise} from '@remotion/effects/noise';
+import {pixelDissolve} from '@remotion/effects/pixel-dissolve';
 import {saturation} from '@remotion/effects/saturation';
 import {scale} from '@remotion/effects/scale';
 import {scanlines} from '@remotion/effects/scanlines';
@@ -50,6 +51,7 @@ import {EffectsLightLeakPreview} from '../effects/effects-light-leak-preview';
 import {EffectsLinesPreview} from '../effects/effects-lines-preview';
 import {EffectsMirrorPreview} from '../effects/effects-mirror-preview';
 import {EffectsNoisePreview} from '../effects/effects-noise-preview';
+import {EffectsPixelDissolvePreview} from '../effects/effects-pixel-dissolve-preview';
 import {EffectsSaturationPreview} from '../effects/effects-saturation-preview';
 import {EffectsScalePreview} from '../effects/effects-scale-preview';
 import {EffectsScanlinesPreview} from '../effects/effects-scanlines-preview';
@@ -313,6 +315,14 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/halftone',
 		comp: EffectsHalftonePreview,
 		schema: halftone().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-pixel-dissolve',
+		effectName: 'pixelDissolve',
+		effectImportPath: '@remotion/effects/pixel-dissolve',
+		comp: EffectsPixelDissolvePreview,
+		schema: pixelDissolve().definition.schema,
 	},
 	{
 		...defaults,

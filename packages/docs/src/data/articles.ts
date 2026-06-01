@@ -1899,6 +1899,15 @@ export const articles = [
 		slug: 'effects/noise',
 	},
 	{
+		id: 'effects/pixel-dissolve',
+		title: 'pixelDissolve()',
+		relativePath: 'docs/effects/pixel-dissolve.mdx',
+		compId: 'articles-docs-effects-pixel-dissolve',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/pixel-dissolve',
+	},
+	{
 		id: 'effects/saturation',
 		title: 'saturation()',
 		relativePath: 'docs/effects/saturation.mdx',

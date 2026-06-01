@@ -197,6 +197,13 @@ const categories: {
 				description: 'Source-image halftone effect',
 			},
 			{
+				link: '/docs/effects/pixel-dissolve',
+				preview: '/img/effects-pixel-dissolve-preview.png',
+				alt: 'pixel dissolve effect preview',
+				name: 'pixelDissolve()',
+				description: 'Pixelated dissolve effect',
+			},
+			{
 				link: '/docs/effects/scanlines',
 				preview: '/img/effects-scanlines-preview.png',
 				alt: 'scanlines effect preview',

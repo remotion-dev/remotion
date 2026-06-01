@@ -22,6 +22,7 @@ const effectEntrypoints = [
 	'src/halftone.ts',
 	'src/hue.ts',
 	'src/dot-grid.ts',
+	'src/pixel-dissolve.ts',
 	'src/invert.ts',
 	'src/lines.ts',
 	'src/mirror.ts',
