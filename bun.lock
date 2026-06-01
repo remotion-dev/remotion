@@ -793,6 +793,7 @@
       },
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
+        "@testing-library/react": "16.1.0",
         "@typescript/native-preview": "catalog:",
         "esbuild": "0.28.0",
         "eslint": "catalog:",

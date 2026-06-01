@@ -1,4 +1,4 @@
-import {forwardRef, useEffect, useRef, useState} from 'react';
+import {forwardRef, useEffect, useRef, useState, type RefObject} from 'react';
 import {Internals, useDelayRender} from 'remotion';
 import type {EffectDefinitionAndStack} from 'remotion';
 import {Canvas} from './canvas';
@@ -13,6 +13,7 @@ export const GifForRendering = forwardRef<
 	HTMLCanvasElement,
 	RemotionGifProps & {
 		readonly effects: EffectDefinitionAndStack<unknown>[];
+		readonly refForOutline: RefObject<HTMLElement | null>;
 	}
 >(
 	(
@@ -27,6 +28,7 @@ export const GifForRendering = forwardRef<
 			fit = 'fill',
 			delayRenderTimeoutInMilliseconds,
 			effects,
+			refForOutline,
 			...props
 		},
 		ref,
@@ -160,6 +162,7 @@ export const GifForRendering = forwardRef<
 				width={width}
 				height={height}
 				effects={effects}
+				refForOutline={refForOutline}
 				{...props}
 				ref={ref}
 			/>
