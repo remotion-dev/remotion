@@ -134,6 +134,8 @@ const TimelineDragHandlerInner: React.FC = () => {
 				return;
 			}
 
+			e.stopPropagation();
+
 			document.body.style.userSelect = 'none';
 			document.body.style.webkitUserSelect = 'none';
 

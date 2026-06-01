@@ -6,7 +6,6 @@ import {BACKGROUND} from '../../helpers/colors';
 import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
 import {useIsStill} from '../../helpers/is-current-selected-still';
 import {useCachedCompositionComponentInfo} from '../../helpers/open-in-editor';
-import {getClickLock} from '../../state/input-dragger-click-lock';
 import {callApi} from '../call-api';
 import {ContextMenu} from '../ContextMenu';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
@@ -90,10 +89,6 @@ const TimelineClearSelectionArea: React.FC<{
 	const onPointerDown = useCallback(
 		(e: React.PointerEvent<HTMLDivElement>) => {
 			if (e.button !== 0) {
-				return;
-			}
-
-			if (getClickLock()) {
 				return;
 			}
 
