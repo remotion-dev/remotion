@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="Remotion Athletes Eye Template" xmlns="http://www.topografix.com/GPX/1/1">
+  <trk>
+    <name>Demo Morning Ride</name>
+    <trkseg>
+      <trkpt lat="47.376886" lon="8.541694">
+        <ele>408</ele>
+        <time>2026-05-26T08:00:00Z</time>
+      </trkpt>
+      <trkpt lat="47.377704" lon="8.543872">
+        <ele>411</ele>
+        <time>2026-05-26T08:00:24Z</time>
+      </trkpt>
+      <trkpt lat="47.378840" lon="8.545352">
+        <ele>415</ele>
+        <time>2026-05-26T08:00:48Z</time>
+      </trkpt>
+      <trkpt lat="47.380132" lon="8.544985">
+        <ele>420</ele>
+        <time>2026-05-26T08:01:12Z</time>
+      </trkpt>
+      <trkpt lat="47.381236" lon="8.546590">
+        <ele>427</ele>
+        <time>2026-05-26T08:01:36Z</time>
+      </trkpt>
+      <trkpt lat="47.382530" lon="8.548286">
+        <ele>432</ele>
+        <time>2026-05-26T08:02:00Z</time>
+      </trkpt>
+      <trkpt lat="47.383802" lon="8.550028">
+        <ele>438</ele>
+        <time>2026-05-26T08:02:24Z</time>
+      </trkpt>
+      <trkpt lat="47.384830" lon="8.552164">
+        <ele>445</ele>
+        <time>2026-05-26T08:02:48Z</time>
+      </trkpt>
+      <trkpt lat="47.385610" lon="8.554486">
+        <ele>449</ele>
+        <time>2026-05-26T08:03:12Z</time>
+      </trkpt>
+      <trkpt lat="47.386912" lon="8.555896">
+        <ele>455</ele>
+        <time>2026-05-26T08:03:36Z</time>
+      </trkpt>
+    </trkseg>
+  </trk>
+</gpx>
