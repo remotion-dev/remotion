@@ -27,6 +27,7 @@ const effectEntrypoints = [
 	'src/lines.ts',
 	'src/mirror.ts',
 	'src/noise.ts',
+	'src/rings.ts',
 	'src/saturation.ts',
 	'src/scanlines.ts',
 	'src/scale.ts',

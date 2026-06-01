@@ -19,6 +19,7 @@ import {lines} from '../lines.js';
 import {mirror} from '../mirror.js';
 import {noise} from '../noise.js';
 import {pixelDissolve} from '../pixel-dissolve.js';
+import {rings} from '../rings.js';
 import {saturation} from '../saturation.js';
 import {scale} from '../scale.js';
 import {scanlines} from '../scanlines.js';
@@ -93,6 +94,9 @@ test('@remotion/effects expose documentation links', () => {
 	expect(noise().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/noise',
 	);
+	expect(rings().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/rings',
+	);
 	expect(saturation().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/saturation',
 	);
@@ -156,6 +160,7 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(dotGrid().definition.label).toBe('dotGrid()');
 	expect(mirror().definition.label).toBe('mirror()');
 	expect(noise().definition.label).toBe('noise()');
+	expect(rings().definition.label).toBe('rings()');
 	expect(saturation().definition.label).toBe('saturation()');
 	expect(scanlines().definition.label).toBe('scanlines()');
 	expect(scale({scale: 1}).definition.label).toBe('scale()');
@@ -1434,6 +1439,87 @@ test('lines() parameters produce distinct effect keys', () => {
 			shifted.effectKey,
 		]).size,
 	).toBe(7);
+});
+
+test('rings() accepts default params', () => {
+	expect(() => rings()).not.toThrow();
+});
+
+test('rings() accepts custom colors', () => {
+	expect(() => rings({colors: ['#dff4ff', 'transparent']})).not.toThrow();
+});
+
+test('rings() rejects invalid colors', () => {
+	expect(() => rings({colors: ['#dff4ff']})).toThrow(
+		'"colors" must be an array with at least 2 colors',
+	);
+	expect(() => rings({colors: ['#dff4ff', '' as unknown as string]})).toThrow(
+		'"colors[1]" must be a non-empty string',
+	);
+});
+
+test('rings() rejects invalid center', () => {
+	const invalidCenter = [0.5] as unknown as [number, number];
+	expect(() => rings({center: invalidCenter})).toThrow(
+		'"center" must be a [number, number] tuple',
+	);
+});
+
+test('rings() rejects center outside unit interval', () => {
+	expect(() => rings({center: [1.1, 0.5]})).toThrow('"center[0]" must be <= 1');
+	expect(() => rings({center: [0.5, -0.1]})).toThrow(
+		'"center[1]" must be >= 0',
+	);
+});
+
+test('rings() rejects non-finite thickness', () => {
+	expect(() => rings({thickness: Number.NaN})).toThrow(
+		'"thickness" must be a finite number',
+	);
+});
+
+test('rings() rejects non-positive thickness', () => {
+	expect(() => rings({thickness: 0})).toThrow(
+		'"thickness" must be greater than 0',
+	);
+});
+
+test('rings() rejects non-finite gap', () => {
+	expect(() => rings({gap: Number.NaN})).toThrow(
+		'"gap" must be a finite number',
+	);
+});
+
+test('rings() rejects negative gap', () => {
+	expect(() => rings({gap: -1})).toThrow(
+		'"gap" must be greater than or equal to 0',
+	);
+});
+
+test('rings() rejects non-finite offset', () => {
+	expect(() => rings({offset: Number.NaN})).toThrow(
+		'"offset" must be a finite number',
+	);
+});
+
+test('rings() parameters produce distinct effect keys', () => {
+	const defaultRings = rings();
+	const colored = rings({colors: ['#ffffff', 'transparent']});
+	const centered = rings({center: [0.3, 0.7]});
+	const thin = rings({thickness: 20});
+	const gapped = rings({gap: 24});
+	const shifted = rings({offset: 10});
+
+	expect(
+		new Set([
+			defaultRings.effectKey,
+			colored.effectKey,
+			centered.effectKey,
+			thin.effectKey,
+			gapped.effectKey,
+			shifted.effectKey,
+		]).size,
+	).toBe(6);
 });
 
 test('hue() accepts default params', () => {

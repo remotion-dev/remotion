@@ -18,6 +18,7 @@ import {lines} from '@remotion/effects/lines';
 import {mirror} from '@remotion/effects/mirror';
 import {noise} from '@remotion/effects/noise';
 import {pixelDissolve} from '@remotion/effects/pixel-dissolve';
+import {rings} from '@remotion/effects/rings';
 import {saturation} from '@remotion/effects/saturation';
 import {scale} from '@remotion/effects/scale';
 import {scanlines} from '@remotion/effects/scanlines';
@@ -53,6 +54,7 @@ import {EffectsLinesPreview} from '../effects/effects-lines-preview';
 import {EffectsMirrorPreview} from '../effects/effects-mirror-preview';
 import {EffectsNoisePreview} from '../effects/effects-noise-preview';
 import {EffectsPixelDissolvePreview} from '../effects/effects-pixel-dissolve-preview';
+import {EffectsRingsPreview} from '../effects/effects-rings-preview';
 import {EffectsSaturationPreview} from '../effects/effects-saturation-preview';
 import {EffectsScalePreview} from '../effects/effects-scale-preview';
 import {EffectsScanlinesPreview} from '../effects/effects-scanlines-preview';
@@ -228,6 +230,14 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/lines',
 		comp: EffectsLinesPreview,
 		schema: lines().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-rings',
+		effectName: 'rings',
+		effectImportPath: '@remotion/effects/rings',
+		comp: EffectsRingsPreview,
+		schema: rings().definition.schema,
 	},
 	{
 		...defaults,

@@ -23,6 +23,7 @@ import {EffectsLinesPreview} from '../../components/effects/effects-lines-previe
 import {EffectsMirrorPreview} from '../../components/effects/effects-mirror-preview';
 import {EffectsNoisePreview} from '../../components/effects/effects-noise-preview';
 import {EffectsPixelDissolvePreview} from '../../components/effects/effects-pixel-dissolve-preview';
+import {EffectsRingsPreview} from '../../components/effects/effects-rings-preview';
 import {EffectsSaturationPreview} from '../../components/effects/effects-saturation-preview';
 import {EffectsScalePreview} from '../../components/effects/effects-scale-preview';
 import {EffectsScanlinesPreview} from '../../components/effects/effects-scanlines-preview';
@@ -378,6 +379,18 @@ export const RemotionRoot: React.FC = () => {
 						thickness: 40,
 						gap: 0,
 						angle: 20,
+						offset: 0,
+					}}
+				/>
+				<Still
+					id="effects-rings-preview"
+					component={EffectsRingsPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						center: [0.5, 0.5],
+						thickness: 40,
+						gap: 0,
 						offset: 0,
 					}}
 				/>

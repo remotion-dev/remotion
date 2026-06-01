@@ -1908,6 +1908,15 @@ export const articles = [
 		slug: 'effects/pixel-dissolve',
 	},
 	{
+		id: 'effects/rings',
+		title: 'rings()',
+		relativePath: 'docs/effects/rings.mdx',
+		compId: 'articles-docs-effects-rings',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/rings',
+	},
+	{
 		id: 'effects/saturation',
 		title: 'saturation()',
 		relativePath: 'docs/effects/saturation.mdx',
