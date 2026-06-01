@@ -22,16 +22,16 @@ Colors are composited over the source.
 
 ```tsx twoslash title="MyComp.tsx"
 import {waves} from '@remotion/effects/waves';
-import {Video} from '@remotion/media';
-import {AbsoluteFill, useCurrentFrame} from 'remotion';
+import {AbsoluteFill, Solid, useCurrentFrame} from 'remotion';
 
 export const MyComp: React.FC = () => {
   const frame = useCurrentFrame();
 
   return (
     <AbsoluteFill>
-      <Video
-        src="https://remotion.media/video.mp4"
+      <Solid
+        width={1280}
+        height={720}
         effects={[
           waves({
             colors: ['#dff4ff', '#7cc6ff'],

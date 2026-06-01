@@ -37,4 +37,8 @@ export type CanvasImageProps = CanvasImageSequenceProps &
 		 * @deprecated For internal use only.
 		 */
 		readonly _remotionInternalDocumentationLink?: string;
+		/**
+		 * @deprecated For internal use only.
+		 */
+		readonly _remotionInternalRefForOutline?: React.RefObject<HTMLElement | null> | null;
 	};
