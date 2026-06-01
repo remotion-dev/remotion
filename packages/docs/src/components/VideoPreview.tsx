@@ -1,38 +1,40 @@
-import clsx from 'clsx';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import type {ShowcaseVideo} from '../data/showcase-videos';
 
-const videoStyle: React.CSSProperties = {
+const card: React.CSSProperties = {
+	backgroundColor: 'var(--card-bg)',
+	border: '2px solid var(--border-color)',
+	borderRadius: 18,
+	color: 'var(--text-color)',
+	cursor: 'pointer',
 	display: 'flex',
 	flexDirection: 'column',
-	alignItems: 'center',
-	padding: '2rem 0',
+	overflow: 'hidden',
+	textAlign: 'left',
+	textDecoration: 'none',
 	width: '100%',
 };
 
+const content: React.CSSProperties = {
+	display: 'flex',
+	flex: 1,
+	flexDirection: 'column',
+	gap: 10,
+	padding: 20,
+};
+
 const videoTitle: React.CSSProperties = {
-	marginTop: '1rem',
-	textAlign: 'center',
-	alignSelf: 'center',
-	padding: '10px',
+	fontSize: '1.25rem',
+	fontWeight: 650,
+	letterSpacing: '-0.02em',
+	margin: 0,
 };
 
 const videoDescription: React.CSSProperties = {
-	textAlign: 'center',
-	padding: '10px',
-};
-
-const padding: React.CSSProperties = {
-	display: 'flex',
-	flexDirection: 'column',
-	alignItems: 'center',
-};
-
-const containerTitleDescription: React.CSSProperties = {
-	display: 'flex',
-	flexDirection: 'column',
-	alignItems: 'center',
-	textAlign: 'center',
+	color: 'var(--subtitle)',
+	fontSize: '1rem',
+	lineHeight: 1.6,
+	margin: 0,
 };
 
 export const VideoPreview: React.FC<
@@ -43,11 +45,26 @@ export const VideoPreview: React.FC<
 	}
 > = ({title, description, onClick, muxId, width, height, time}) => {
 	const [hover, setHover] = useState(false);
-
+	const [animatedLoaded, setAnimatedLoaded] = useState(false);
 	const container = useRef<HTMLAnchorElement>(null);
 
 	const animated = `https://image.mux.com/${muxId}/animated.gif?width=600`;
-	const thumbnail = `https://image.mux.com/${muxId}/thumbnail.png?width=600&time=${time}`;
+	const thumbnail = `https://image.mux.com/${muxId}/thumbnail.png?width=600&time=${time ?? 0}`;
+
+	useEffect(() => {
+		setAnimatedLoaded(false);
+
+		const image = new Image();
+		image.onload = () => {
+			setAnimatedLoaded(true);
+		};
+
+		image.src = animated;
+
+		return () => {
+			image.onload = null;
+		};
+	}, [animated]);
 
 	useEffect(() => {
 		const {current} = container;
@@ -72,51 +89,29 @@ export const VideoPreview: React.FC<
 		};
 	}, []);
 
-	const a: React.CSSProperties = useMemo(() => {
+	const previewStyle: React.CSSProperties = useMemo(() => {
 		return {
-			color: 'inherit',
-			cursor: 'pointer',
-			margin: 'auto',
-			display: 'block',
-			flex: 1,
-		};
-	}, []);
-
-	const style = useMemo(() => {
-		return {
-			width: '100%',
-			aspectRatio: `${width} / ${height}`,
-			backgroundImage: `url(${hover ? animated : thumbnail})`,
-			backgroundSize: 'cover',
+			backgroundImage: `url(${hover && animatedLoaded ? animated : thumbnail})`,
 			backgroundPosition: '50% 50%',
+			backgroundSize: 'cover',
+			height: '100%',
+			width: '100%',
 		};
-	}, [width, height, hover, animated, thumbnail]);
+	}, [hover, animatedLoaded, animated, thumbnail]);
 
-	const placeholder: React.CSSProperties = useMemo(() => {
-		return {
-			backgroundColor: 'rgba(0, 0, 0, 0.05)',
-			aspectRatio: `${width} / ${height}`,
-		};
-	}, [height, width]);
-
-	const frameStyle: React.CSSProperties = {
-		border: '2px solid var(--border-color)',
-		borderRadius: 5,
-		backgroundColor: 'var(--ifm-background-color)',
+	const placeholder: React.CSSProperties = {
+		backgroundColor: 'rgba(0, 0, 0, 0.05)',
+		aspectRatio: `${width} / ${height}`,
 		overflow: 'hidden',
+		width: '100%',
 	};
 
 	return (
-		<a
-			ref={container}
-			style={{...a, ...frameStyle}}
-			className={clsx(videoStyle)}
-			onClick={onClick}
-		>
+		<a ref={container} style={card} onClick={onClick}>
 			<div style={placeholder}>
-				<div style={style} />
+				<div style={previewStyle} />
 			</div>
-			<div style={{...padding, ...containerTitleDescription}}>
+			<div style={content}>
 				<h3 style={videoTitle}>{title}</h3>
 				<p style={videoDescription}>{description}</p>
 			</div>
