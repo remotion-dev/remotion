@@ -18,7 +18,7 @@ The effect preserves the source alpha mask. Transparent regions stay transparent
 
 ## Difference from `noise()`
 
-`whiteNoise()` blends the source towards a random grayscale image. By default, it fully replaces visible pixels with white noise.
+`whiteNoise()` blends the source towards a random grayscale image. By default, it fully replaces visible pixels with white noise. This makes it suitable for strong static and signal-loss looks.
 
 [`noise()`](/docs/effects/noise) adds centered noise to the existing pixels instead. It is better suited for subtle grain while preserving the image.
 
