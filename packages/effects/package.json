@@ -184,6 +184,11 @@
 			"module": "./dist/esm/white-noise.mjs",
 			"import": "./dist/esm/white-noise.mjs"
 		},
+		"./zigzag": {
+			"types": "./dist/zigzag.d.ts",
+			"module": "./dist/esm/zigzag.mjs",
+			"import": "./dist/esm/zigzag.mjs"
+		},
 		"./package.json": "./package.json"
 	},
 	"typesVersions": {
@@ -274,6 +279,9 @@
 			],
 			"waves": [
 				"dist/waves.d.ts"
+			],
+			"zigzag": [
+				"dist/zigzag.d.ts"
 			],
 			"white-noise": [
 				"dist/white-noise.d.ts"

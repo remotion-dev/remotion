@@ -28,6 +28,7 @@ import {vignette} from '@remotion/effects/vignette';
 import {wave} from '@remotion/effects/wave';
 import {waves} from '@remotion/effects/waves';
 import {whiteNoise} from '@remotion/effects/white-noise';
+import {zigzag} from '@remotion/effects/zigzag';
 import {lightLeakEffectSchema} from '@remotion/light-leaks';
 import {starburstEffectSchema} from '@remotion/starburst';
 import {EffectsBarrelDistortionPreview} from '../effects/effects-barrel-distortion-preview';
@@ -65,6 +66,7 @@ import {EffectsVignettePreview} from '../effects/effects-vignette-preview';
 import {EffectsWavePreview} from '../effects/effects-wave-preview';
 import {EffectsWavesPreview} from '../effects/effects-waves-preview';
 import {EffectsWhiteNoisePreview} from '../effects/effects-white-noise-preview';
+import {EffectsZigzagPreview} from '../effects/effects-zigzag-preview';
 import type {EffectsDemoType} from './types';
 
 const defaults = {
@@ -303,8 +305,18 @@ export const effectsDemos: EffectsDemoType[] = [
 	{
 		...defaults,
 		id: 'effects-waves',
+		effectName: 'waves',
+		effectImportPath: '@remotion/effects/waves',
 		comp: EffectsWavesPreview,
 		schema: waves().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-zigzag',
+		effectName: 'zigzag',
+		effectImportPath: '@remotion/effects/zigzag',
+		comp: EffectsZigzagPreview,
+		schema: zigzag().definition.schema,
 	},
 	{
 		...defaults,
