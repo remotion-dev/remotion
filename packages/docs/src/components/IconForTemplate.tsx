@@ -114,6 +114,10 @@ export const IconForTemplate: React.FC<{
 		);
 	}
 
+	if (template.cliId === 'athletes-eye') {
+		return <OverlayIcon style={{height: scale * 42}} />;
+	}
+
 	if (template.cliId === 'react-router') {
 		return (
 			<RemixIcon

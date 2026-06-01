@@ -34,6 +34,7 @@ export type Template = {
 		| 'three'
 		| 'still'
 		| 'audiogram'
+		| 'athletes-eye'
 		| 'music-visualization'
 		| 'prompt-to-video'
 		| 'skia'
@@ -447,6 +448,31 @@ export const FEATURED_TEMPLATES: Template[] = [
 		previewLabel: null,
 		templateInMonorepo: 'template-music-visualization',
 		allowEnableTailwind: true,
+		contributedBy: null,
+		showStackblitz: true,
+	},
+	{
+		homePageLabel: 'Athletes Eye',
+		shortName: 'Athletes Eye',
+		org: 'remotion-dev',
+		repoName: 'template-athletes-eye',
+		description: 'Animate a sports activity from video and GPX',
+		longerDescription:
+			'A template that combines a sports video with a GPX route and animated activity stats.',
+		promoVideo: {
+			// Placeholder until a dedicated preview video is available.
+			muxId: 'vKvV6aa7GXGlR01cmpc6J8Zz4Gkj9d2hBSnVYoef00900I',
+			height: 1920,
+			width: 1080,
+		},
+		cliId: 'athletes-eye' as const,
+		type: 'video' as const,
+		defaultBranch: 'main',
+		featuredOnHomePage: null,
+		previewURL: null,
+		previewLabel: null,
+		templateInMonorepo: 'template-athletes-eye',
+		allowEnableTailwind: false,
 		contributedBy: null,
 		showStackblitz: true,
 	},

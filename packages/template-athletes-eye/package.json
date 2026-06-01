@@ -1,0 +1,35 @@
+{
+  "name": "template-athletes-eye",
+  "version": "1.0.0",
+  "description": "Animate a sports activity from a video and GPX file",
+  "scripts": {
+    "dev": "remotion studio",
+    "build": "remotion bundle",
+    "upgrade": "remotion upgrade",
+    "lint": "eslint src && tsc"
+  },
+  "repository": {},
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@remotion/cli": "workspace:*",
+    "@remotion/media": "workspace:*",
+    "@remotion/media-utils": "workspace:*",
+    "@remotion/studio": "workspace:*",
+    "@remotion/zod-types": "workspace:*",
+    "mapbox-gl": "2.14.1",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "remotion": "workspace:*",
+    "zod": "4.3.6"
+  },
+  "devDependencies": {
+    "@remotion/eslint-config-flat": "workspace:*",
+    "@types/mapbox-gl": "2.7.21",
+    "@types/react": "19.2.7",
+    "@types/web": "0.0.166",
+    "eslint": "9.19.0",
+    "prettier": "3.8.1",
+    "typescript": "5.9.3"
+  },
+  "private": true
+}

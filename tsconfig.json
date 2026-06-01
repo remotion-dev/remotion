@@ -181,6 +181,9 @@
 			"path": "./packages/template-music-visualization"
 		},
 		{
+			"path": "./packages/template-athletes-eye"
+		},
+		{
 			"path": "./packages/template-prompt-to-motion-graphics"
 		},
 		{
