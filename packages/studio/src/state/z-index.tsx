@@ -102,8 +102,9 @@ export const HigherZIndex: React.FC<{
 		// If a menu is opened, then this component will also still receive the pointerdown event.
 		// However we may not interpret it as a outside click, so we need to wait for the next tick
 		requestAnimationFrame(() => {
-			// Some Studio elements stop pointerdown propagation while still being outside
-			// the menu, so listen during capture to dismiss menus consistently.
+			// The third argument `true` registers a capture-phase listener. Some Studio
+			// elements stop pointerdown propagation while still being outside the menu,
+			// so bubbling listeners would miss those clicks and keep the menu open.
 			window.addEventListener('pointerdown', listener, true);
 		});
 		return () => {
