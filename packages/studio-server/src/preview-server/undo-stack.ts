@@ -23,6 +23,7 @@ type UndoEntryType =
 	| 'effect-props'
 	| 'add-effect'
 	| 'delete-effect'
+	| 'reorder-effect'
 	| 'delete-jsx-node'
 	| 'duplicate-jsx-node'
 	| 'insert-jsx-element'
@@ -53,6 +54,7 @@ type UndoEntry = {
 	| {entryType: 'effect-props'}
 	| {entryType: 'add-effect'}
 	| {entryType: 'delete-effect'}
+	| {entryType: 'reorder-effect'}
 	| {entryType: 'delete-jsx-node'}
 	| {entryType: 'duplicate-jsx-node'}
 	| {entryType: 'insert-jsx-element'}

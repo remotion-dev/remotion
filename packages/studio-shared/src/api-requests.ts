@@ -339,6 +339,24 @@ export type AddEffectResponse =
 			stack: string;
 	  };
 
+export type ReorderEffectRequest = {
+	fileName: string;
+	sequenceNodePath: SequencePropsSubscriptionKey;
+	fromIndex: number;
+	toIndex: number;
+	clientId: string;
+};
+
+export type ReorderEffectResponse =
+	| {
+			success: true;
+	  }
+	| {
+			success: false;
+			reason: string;
+			stack: string;
+	  };
+
 export type DeleteSequenceKeyframeRequest = {
 	fileName: string;
 	nodePath: SequencePropsSubscriptionKey;
@@ -564,6 +582,7 @@ export type ApiRoutes = {
 		SaveEffectPropsResponse
 	>;
 	'/api/add-effect': ReqAndRes<AddEffectRequest, AddEffectResponse>;
+	'/api/reorder-effect': ReqAndRes<ReorderEffectRequest, ReorderEffectResponse>;
 	'/api/delete-sequence-keyframe': ReqAndRes<
 		DeleteSequenceKeyframeRequest,
 		DeleteSequenceKeyframeResponse

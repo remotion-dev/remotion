@@ -46,6 +46,8 @@ export {
 	RedoRequest,
 	RedoResponse,
 	RemoveRenderRequest,
+	ReorderEffectRequest,
+	ReorderEffectResponse,
 	RestartStudioRequest,
 	RestartStudioResponse,
 	SaveEffectPropsRequest,

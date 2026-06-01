@@ -22,6 +22,7 @@ import {projectInfoHandler} from './routes/project-info';
 import {redoHandler} from './routes/redo';
 import {registerClientRenderHandler} from './routes/register-client-render';
 import {handleRemoveRender} from './routes/remove-render';
+import {reorderEffectHandler} from './routes/reorder-effect';
 import {handleRestartStudio} from './routes/restart-studio';
 import {saveEffectPropsHandler} from './routes/save-effect-props';
 import {saveSequencePropsHandler} from './routes/save-sequence-props';
@@ -62,6 +63,7 @@ export const allApiRoutes: {
 	'/api/save-sequence-props': saveSequencePropsHandler,
 	'/api/save-effect-props': saveEffectPropsHandler,
 	'/api/add-effect': addEffectHandler,
+	'/api/reorder-effect': reorderEffectHandler,
 	'/api/delete-sequence-keyframe': deleteSequenceKeyframeHandler,
 	'/api/add-sequence-keyframe': addSequenceKeyframeHandler,
 	'/api/delete-effect-keyframe': deleteEffectKeyframeHandler,
