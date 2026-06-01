@@ -5,6 +5,7 @@ import {
 	useEffect,
 	useMemo,
 	useState,
+	type RefObject,
 } from 'react';
 import {calculateImageFit} from '../calculate-image-fit.js';
 import type {SequenceControls} from '../CompositionManager.js';
@@ -158,6 +159,7 @@ type CanvasImageContentProps = Pick<
 > & {
 	readonly effects: EffectsProp;
 	readonly controls: SequenceControls | undefined;
+	readonly refForOutline: RefObject<HTMLElement | null> | null;
 } & CanvasImageCanvasProps;
 
 const CanvasImageContent = forwardRef<
@@ -180,6 +182,7 @@ const CanvasImageContent = forwardRef<
 			maxRetries = 2,
 			delayRenderRetries,
 			delayRenderTimeoutInMilliseconds,
+			refForOutline,
 			...canvasProps
 		},
 		ref,
@@ -208,6 +211,9 @@ const CanvasImageContent = forwardRef<
 		const canvasRef = useCallback(
 			(canvas: HTMLCanvasElement | null) => {
 				setOutputCanvas(canvas);
+				if (refForOutline) {
+					refForOutline.current = canvas;
+				}
 
 				if (typeof ref === 'function') {
 					ref(canvas);
@@ -215,7 +221,7 @@ const CanvasImageContent = forwardRef<
 					ref.current = canvas;
 				}
 			},
-			[ref],
+			[ref, refForOutline],
 		);
 
 		useEffect(() => {
@@ -407,6 +413,7 @@ const CanvasImageInner = forwardRef<
 			stack,
 			_experimentalControls: controls,
 			_remotionInternalDocumentationLink,
+			_remotionInternalRefForOutline,
 			...canvasProps
 		},
 		ref,
@@ -433,6 +440,7 @@ const CanvasImageInner = forwardRef<
 				_remotionInternalEffects={memoizedEffectDefinitions}
 				_remotionInternalIsMedia={{type: 'image', src}}
 				_remotionInternalStack={stack}
+				_remotionInternalRefForOutline={_remotionInternalRefForOutline ?? null}
 			>
 				<CanvasImageContent
 					ref={ref}
@@ -450,6 +458,7 @@ const CanvasImageInner = forwardRef<
 					maxRetries={maxRetries}
 					delayRenderRetries={delayRenderRetries}
 					delayRenderTimeoutInMilliseconds={delayRenderTimeoutInMilliseconds}
+					refForOutline={_remotionInternalRefForOutline ?? null}
 					{...canvasProps}
 				/>
 			</Sequence>
