@@ -1,8 +1,7 @@
 import type {WavesDirection} from '@remotion/effects/waves';
 import {waves} from '@remotion/effects/waves';
 import React from 'react';
-import {CanvasImage} from 'remotion';
-import {EFFECTS_PREVIEW_IMAGE_SRC} from './effects-preview-image';
+import {Solid, useVideoConfig} from 'remotion';
 
 export const EffectsWavesPreview: React.FC<{
 	readonly direction: WavesDirection;
@@ -14,12 +13,12 @@ export const EffectsWavesPreview: React.FC<{
 	readonly wavelength: number;
 	readonly phase: number;
 }> = ({direction, thickness, gap, angle, offset, amplitude, wavelength, phase}) => {
+	const {width, height} = useVideoConfig();
+
 	return (
-		<CanvasImage
-			src={EFFECTS_PREVIEW_IMAGE_SRC}
-			width={1280}
-			height={720}
-			fit="cover"
+		<Solid
+			width={width}
+			height={height}
 			effects={[
 				waves({
 					direction,

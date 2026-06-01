@@ -197,20 +197,6 @@ const categories: {
 				description: 'Source-image halftone effect',
 			},
 			{
-				link: '/docs/effects/lines',
-				preview: '/img/effects-lines-preview.png',
-				alt: 'lines effect preview',
-				name: 'lines()',
-				description: 'Alternating line overlay effect',
-			},
-			{
-				link: '/docs/effects/waves',
-				preview: '/img/effects-waves-preview.png',
-				alt: 'waves effect preview',
-				name: 'waves()',
-				description: 'Wavy band overlay effect',
-			},
-			{
 				link: '/docs/effects/scanlines',
 				preview: '/img/effects-scanlines-preview.png',
 				alt: 'scanlines effect preview',
@@ -263,6 +249,20 @@ const categories: {
 				alt: 'white noise effect preview',
 				name: 'whiteNoise()',
 				description: 'Random grayscale noise layer',
+			},
+			{
+				link: '/docs/effects/lines',
+				preview: '/img/effects-lines-preview.png',
+				alt: 'lines effect preview',
+				name: 'lines()',
+				description: 'Alternating line pattern effect',
+			},
+			{
+				link: '/docs/effects/waves',
+				preview: '/img/effects-waves-preview.png',
+				alt: 'waves effect preview',
+				name: 'waves()',
+				description: 'Wavy band pattern effect',
 			},
 			{
 				link: '/docs/light-leaks/light-leak-effect',

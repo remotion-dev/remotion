@@ -14,7 +14,7 @@ const {createEffect, createWebGL2ContextError} = Internals;
 
 const WAVE_DIRECTIONS = ['horizontal', 'vertical'] as const;
 
-const DEFAULT_COLORS = ['#dff4ff', 'transparent'] as const;
+const DEFAULT_COLORS = ['#dff4ff', '#7cc6ff'] as const;
 const DEFAULT_DIRECTION = 'horizontal' as const;
 const DEFAULT_THICKNESS = 40 as const;
 const DEFAULT_GAP = 0 as const;
@@ -93,7 +93,7 @@ export const wavesSchema = {
 export type WavesDirection = (typeof WAVE_DIRECTIONS)[number];
 
 export type WavesParams = {
-	/** Stripe colors, assigned cyclically. Defaults to light blue and transparent. */
+	/** Stripe colors, assigned cyclically. Defaults to light blue shades. */
 	readonly colors?: readonly string[];
 	/** Base band direction. Defaults to `horizontal`. */
 	readonly direction?: WavesDirection;
