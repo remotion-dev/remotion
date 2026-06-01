@@ -9,8 +9,8 @@ import type {
 import {Internals} from 'remotion';
 import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
 import {saveEffectProp} from './save-effect-prop';
-import {saveSequenceProp} from './save-sequence-prop';
 import type {SetCodeValues} from './save-sequence-prop';
+import {saveSequenceProps} from './save-sequence-prop';
 import type {TimelineSelection} from './TimelineSelection';
 
 type SequencePropResetTarget = {
@@ -196,32 +196,56 @@ export const resetSelectedTimelineProps = ({
 		return null;
 	}
 
-	const resetPromises = resetTargets.map((target) => {
-		if (target.type === 'sequence-prop') {
-			return saveSequenceProp({
+	const sequencePropTargets = resetTargets.filter(
+		(target): target is SequencePropResetTarget =>
+			target.type === 'sequence-prop',
+	);
+	const effectPropTargets = resetTargets.filter(
+		(target): target is EffectPropResetTarget => target.type === 'effect-prop',
+	);
+
+	const resetPromises: Promise<void>[] = [];
+
+	if (sequencePropTargets.length > 0) {
+		resetPromises.push(
+			saveSequenceProps({
+				changes: sequencePropTargets.map((target) => ({
+					fileName: target.fileName,
+					nodePath: target.nodePath,
+					fieldKey: target.fieldKey,
+					value: target.value,
+					defaultValue: target.defaultValue,
+					schema: target.schema,
+				})),
+				setCodeValues,
+				clientId,
+				undoLabel:
+					sequencePropTargets.length > 1
+						? 'Reset selected sequence props'
+						: null,
+				redoLabel:
+					sequencePropTargets.length > 1
+						? 'Reapply selected sequence props'
+						: null,
+			}),
+		);
+	}
+
+	for (const target of effectPropTargets) {
+		resetPromises.push(
+			saveEffectProp({
 				fileName: target.fileName,
 				nodePath: target.nodePath,
+				effectIndex: target.effectIndex,
 				fieldKey: target.fieldKey,
 				value: target.value,
 				defaultValue: target.defaultValue,
 				schema: target.schema,
 				setCodeValues,
 				clientId,
-			});
-		}
-
-		return saveEffectProp({
-			fileName: target.fileName,
-			nodePath: target.nodePath,
-			effectIndex: target.effectIndex,
-			fieldKey: target.fieldKey,
-			value: target.value,
-			defaultValue: target.defaultValue,
-			schema: target.schema,
-			setCodeValues,
-			clientId,
-		});
-	});
+			}),
+		);
+	}
 
 	return Promise.all(resetPromises).then(() => undefined);
 };
