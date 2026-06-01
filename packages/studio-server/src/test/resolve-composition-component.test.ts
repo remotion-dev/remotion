@@ -531,7 +531,10 @@ test('inserts a Solid into the resolved composition component', async () => {
 		expect(result.output).toContain(
 			"import { AbsoluteFill, Solid } from 'remotion';",
 		);
-		expect(result.output).toContain('<Solid width={1280} height={720} />');
+		expect(result.output).toContain('<Solid');
+		expect(result.output).toContain('width={1280}');
+		expect(result.output).toContain('height={720}');
+		expect(result.output).toContain("position: 'absolute'");
 	} finally {
 		await fs.rm(tempDir, {recursive: true, force: true});
 	}
@@ -580,9 +583,51 @@ test('inserts an aliased Solid import if Solid is already defined', async () => 
 		expect(result.output).toContain(
 			"import { AbsoluteFill, Solid as RemotionSolid } from 'remotion';",
 		);
-		expect(result.output).toContain(
-			'<RemotionSolid width={1920} height={1080} />',
+		expect(result.output).toContain('<RemotionSolid');
+		expect(result.output).toContain('width={1920}');
+		expect(result.output).toContain('height={1080}');
+		expect(result.output).toContain("position: 'absolute'");
+	} finally {
+		await fs.rm(tempDir, {recursive: true, force: true});
+	}
+});
+
+test('inserts a Solid into an empty component returning null', async () => {
+	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
+	try {
+		await fs.writeFile(
+			path.join(tempDir, 'Root.tsx'),
+			[
+				"import {Composition} from 'remotion';",
+				"import {MyComp} from './MyComp';",
+				'export const RemotionRoot = () => {',
+				'\treturn <Composition id="test" component={MyComp} />;',
+				'};',
+				'',
+			].join('\n'),
 		);
+		await fs.writeFile(
+			path.join(tempDir, 'MyComp.tsx'),
+			['export const MyComp: React.FC = () => null;', ''].join('\n'),
+		);
+
+		const result = await insertJsxElementIntoComposition({
+			remotionRoot: tempDir,
+			compositionFile: 'Root.tsx',
+			compositionId: 'test',
+			element: {
+				type: 'solid',
+				width: 640,
+				height: 360,
+			},
+			prettierConfigOverride: {singleQuote: true, useTabs: true},
+		});
+
+		expect(result.output).toContain("import { Solid } from 'remotion';");
+		expect(result.output).toContain('<Solid');
+		expect(result.output).toContain('width={640}');
+		expect(result.output).toContain('height={360}');
+		expect(result.output).toContain("position: 'absolute'");
 	} finally {
 		await fs.rm(tempDir, {recursive: true, force: true});
 	}
