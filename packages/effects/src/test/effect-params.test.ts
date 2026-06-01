@@ -7,6 +7,8 @@ import {contrast} from '../contrast.js';
 import {dotGrid} from '../dot-grid.js';
 import {dropShadow} from '../drop-shadow/index.js';
 import {duotone} from '../duotone.js';
+import {evolve} from '../evolve.js';
+import {fisheye} from '../fisheye/index.js';
 import {glow} from '../glow/index.js';
 import {grayscale} from '../grayscale.js';
 import {halftoneLinearGradient} from '../halftone-linear-gradient.js';
@@ -25,6 +27,7 @@ import {tint} from '../tint.js';
 import {uvTranslate, xyTranslate} from '../translate.js';
 import {vignette} from '../vignette.js';
 import {wave} from '../wave/index.js';
+import {whiteNoise} from '../white-noise.js';
 
 test('@remotion/effects expose documentation links', () => {
 	expect(barrelDistortion().definition.documentationLink).toBe(
@@ -45,8 +48,14 @@ test('@remotion/effects expose documentation links', () => {
 	expect(duotone().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/duotone',
 	);
+	expect(evolve().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/evolve',
+	);
 	expect(dropShadow().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/drop-shadow',
+	);
+	expect(fisheye().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/fisheye',
 	);
 	expect(glow().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/glow',
@@ -108,6 +117,9 @@ test('@remotion/effects expose documentation links', () => {
 	expect(wave().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/wave',
 	);
+	expect(whiteNoise().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/white-noise',
+	);
 });
 
 test('@remotion/effects expose API names as Studio labels', () => {
@@ -117,7 +129,9 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(brightness().definition.label).toBe('brightness()');
 	expect(contrast().definition.label).toBe('contrast()');
 	expect(duotone().definition.label).toBe('duotone()');
+	expect(evolve().definition.label).toBe('evolve()');
 	expect(dropShadow().definition.label).toBe('dropShadow()');
+	expect(fisheye().definition.label).toBe('fisheye()');
 	expect(grayscale().definition.label).toBe('grayscale()');
 	expect(halftone().definition.label).toBe('halftone()');
 	expect(halftoneLinearGradient().definition.label).toBe(
@@ -139,6 +153,7 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(vignette().definition.label).toBe('vignette()');
 	expect(xyTranslate().definition.label).toBe('xyTranslate()');
 	expect(wave().definition.label).toBe('wave()');
+	expect(whiteNoise().definition.label).toBe('whiteNoise()');
 });
 
 test('barrelDistortion() accepts default params', () => {
@@ -167,6 +182,55 @@ test('barrelDistortion() amount produces distinct effect keys', () => {
 	const none = barrelDistortion({amount: 0});
 	const strong = barrelDistortion({amount: 0.5});
 	expect(none.effectKey).not.toBe(strong.effectKey);
+});
+
+test('fisheye() accepts default params', () => {
+	expect(() => fisheye()).not.toThrow();
+});
+
+test('fisheye() rejects non-finite fieldOfView', () => {
+	expect(() => fisheye({fieldOfView: Number.NaN})).toThrow(
+		'"fieldOfView" must be a finite number',
+	);
+});
+
+test('fisheye() rejects negative fieldOfView', () => {
+	expect(() => fisheye({fieldOfView: -0.1})).toThrow(
+		'"fieldOfView" must be >= 0',
+	);
+});
+
+test('fisheye() rejects fieldOfView above range', () => {
+	expect(() => fisheye({fieldOfView: Math.PI + 0.1})).toThrow(
+		'"fieldOfView" must be <=',
+	);
+});
+
+test('fisheye() rejects non-positive radius', () => {
+	expect(() => fisheye({radius: 0})).toThrow('"radius" must be greater than 0');
+});
+
+test('fisheye() rejects non-positive zoom', () => {
+	expect(() => fisheye({zoom: 0})).toThrow('"zoom" must be greater than 0');
+});
+
+test('fisheye() rejects invalid center', () => {
+	// @ts-expect-error – wrong shape on purpose
+	expect(() => fisheye({center: [0.5]})).toThrow(
+		'"center" must be a [number, number] tuple',
+	);
+});
+
+test('fisheye() params produce distinct effect keys', () => {
+	const a = fisheye({fieldOfView: 1.0});
+	const b = fisheye({fieldOfView: 2.0});
+	const c = fisheye({fieldOfView: 1.0, zoom: 1.5});
+	const d = fisheye({fieldOfView: 1.0, center: [0.3, 0.7]});
+	const e = fisheye({fieldOfView: 1.0, radius: 0.5});
+	expect(a.effectKey).not.toBe(b.effectKey);
+	expect(a.effectKey).not.toBe(c.effectKey);
+	expect(a.effectKey).not.toBe(d.effectKey);
+	expect(a.effectKey).not.toBe(e.effectKey);
 });
 
 test('chromaticAberration() accepts default params', () => {
@@ -294,6 +358,41 @@ test('wave() direction produces distinct effect keys', () => {
 	const horizontal = wave({direction: 'horizontal'});
 	const vertical = wave({direction: 'vertical'});
 	expect(horizontal.effectKey).not.toBe(vertical.effectKey);
+});
+
+test('whiteNoise() accepts default params', () => {
+	expect(() => whiteNoise()).not.toThrow();
+});
+
+test('whiteNoise() rejects non-finite amount', () => {
+	expect(() => whiteNoise({amount: Number.NaN})).toThrow(
+		'"amount" must be a finite number',
+	);
+});
+
+test('whiteNoise() rejects amount below range', () => {
+	expect(() => whiteNoise({amount: -0.1})).toThrow('"amount" must be >= 0');
+});
+
+test('whiteNoise() rejects amount above range', () => {
+	expect(() => whiteNoise({amount: 1.1})).toThrow('"amount" must be <= 1');
+});
+
+test('whiteNoise() rejects non-finite seed', () => {
+	expect(() => whiteNoise({seed: Number.NaN})).toThrow(
+		'"seed" must be a finite number',
+	);
+});
+
+test('whiteNoise() parameters produce distinct effect keys', () => {
+	const defaultStatic = whiteNoise();
+	const subtle = whiteNoise({amount: 0.2});
+	const reseeded = whiteNoise({seed: 4});
+
+	expect(
+		new Set([defaultStatic.effectKey, subtle.effectKey, reseeded.effectKey])
+			.size,
+	).toBe(3);
 });
 
 test('grayscale() accepts default params', () => {
@@ -429,6 +528,58 @@ test('duotone() parameters produce distinct effect keys', () => {
 			customColors.effectKey,
 		]).size,
 	).toBe(3);
+});
+
+test('evolve() accepts default params', () => {
+	expect(() => evolve()).not.toThrow();
+});
+
+test('evolve() rejects non-finite progress', () => {
+	expect(() => evolve({progress: Number.NaN})).toThrow(
+		'"progress" must be a finite number',
+	);
+});
+
+test('evolve() rejects progress below range', () => {
+	expect(() => evolve({progress: -0.1})).toThrow('"progress" must be >= 0');
+});
+
+test('evolve() rejects progress above range', () => {
+	expect(() => evolve({progress: 1.1})).toThrow('"progress" must be <= 1');
+});
+
+test('evolve() rejects feather below range', () => {
+	expect(() => evolve({feather: -0.1})).toThrow('"feather" must be >= 0');
+});
+
+test('evolve() rejects feather above range', () => {
+	expect(() => evolve({feather: 1.1})).toThrow('"feather" must be <= 1');
+});
+
+test('evolve() rejects direction outside the enum', () => {
+	expect(() => evolve({direction: 'diagonal' as 'left'})).toThrow(
+		'"direction" must be "left", "right", "top" or "bottom", but got "diagonal"',
+	);
+});
+
+test('evolve() parameters produce distinct effect keys', () => {
+	const full = evolve({progress: 1, direction: 'left', feather: 0.1});
+	const half = evolve({progress: 0.5, direction: 'left', feather: 0.1});
+	const otherDirection = evolve({
+		progress: 0.5,
+		direction: 'top',
+		feather: 0.1,
+	});
+	const otherFeather = evolve({progress: 0.5, direction: 'top', feather: 0.2});
+
+	expect(
+		new Set([
+			full.effectKey,
+			half.effectKey,
+			otherDirection.effectKey,
+			otherFeather.effectKey,
+		]).size,
+	).toBe(4);
 });
 
 test('dropShadow() accepts default params', () => {

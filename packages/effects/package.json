@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/effects",
-	"version": "4.0.469",
+	"version": "4.0.470",
 	"description": "Effects that can be applied to Remotion-based canvas components",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -68,6 +68,16 @@
 			"types": "./dist/duotone.d.ts",
 			"module": "./dist/esm/duotone.mjs",
 			"import": "./dist/esm/duotone.mjs"
+		},
+		"./evolve": {
+			"types": "./dist/evolve.d.ts",
+			"module": "./dist/esm/evolve.mjs",
+			"import": "./dist/esm/evolve.mjs"
+		},
+		"./fisheye": {
+			"types": "./dist/fisheye.d.ts",
+			"module": "./dist/esm/fisheye.mjs",
+			"import": "./dist/esm/fisheye.mjs"
 		},
 		"./glow": {
 			"types": "./dist/glow.d.ts",
@@ -164,6 +174,11 @@
 			"module": "./dist/esm/wave.mjs",
 			"import": "./dist/esm/wave.mjs"
 		},
+		"./white-noise": {
+			"types": "./dist/white-noise.d.ts",
+			"module": "./dist/esm/white-noise.mjs",
+			"import": "./dist/esm/white-noise.mjs"
+		},
 		"./package.json": "./package.json"
 	},
 	"typesVersions": {
@@ -188,6 +203,12 @@
 			],
 			"duotone": [
 				"dist/duotone.d.ts"
+			],
+			"evolve": [
+				"dist/evolve.d.ts"
+			],
+			"fisheye": [
+				"dist/fisheye.d.ts"
 			],
 			"glow": [
 				"dist/glow.d.ts"
@@ -245,6 +266,9 @@
 			],
 			"wave": [
 				"dist/wave.d.ts"
+			],
+			"white-noise": [
+				"dist/white-noise.d.ts"
 			]
 		}
 	},

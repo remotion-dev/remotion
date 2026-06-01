@@ -2,7 +2,10 @@ import {expect, test} from 'bun:test';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import {resolveCompositionComponent} from '../helpers/resolve-composition-component';
+import {
+	insertJsxElementIntoComposition,
+	resolveCompositionComponent,
+} from '../helpers/resolve-composition-component';
 
 const remotionRoot = path.join(__dirname, '..', '..', '..', 'example');
 
@@ -331,6 +334,105 @@ test('canAddSequence=false for self-closing root JSX return', async () => {
 		});
 		expect(location.source).toBe('MyComp.tsx');
 		expect(location.canAddSequence).toBe(false);
+	} finally {
+		await fs.rm(tempDir, {recursive: true, force: true});
+	}
+});
+
+test('inserts a Solid into the resolved composition component', async () => {
+	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
+	try {
+		await fs.writeFile(
+			path.join(tempDir, 'Root.tsx'),
+			[
+				"import {Composition} from 'remotion';",
+				"import {MyComp} from './MyComp';",
+				'export const RemotionRoot = () => {',
+				'\treturn <Composition id="test" component={MyComp} />;',
+				'};',
+				'',
+			].join('\n'),
+		);
+		await fs.writeFile(
+			path.join(tempDir, 'MyComp.tsx'),
+			[
+				"import {AbsoluteFill} from 'remotion';",
+				'',
+				'export const MyComp: React.FC = () => {',
+				'\treturn <AbsoluteFill>hello</AbsoluteFill>;',
+				'};',
+				'',
+			].join('\n'),
+		);
+
+		const result = await insertJsxElementIntoComposition({
+			remotionRoot: tempDir,
+			compositionFile: 'Root.tsx',
+			compositionId: 'test',
+			element: {
+				type: 'solid',
+				width: 1280,
+				height: 720,
+			},
+			prettierConfigOverride: {singleQuote: true, useTabs: true},
+		});
+
+		expect(result.source).toBe('MyComp.tsx');
+		expect(result.output).toContain(
+			"import { AbsoluteFill, Solid } from 'remotion';",
+		);
+		expect(result.output).toContain('<Solid width={1280} height={720} />');
+	} finally {
+		await fs.rm(tempDir, {recursive: true, force: true});
+	}
+});
+
+test('inserts an aliased Solid import if Solid is already defined', async () => {
+	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
+	try {
+		await fs.writeFile(
+			path.join(tempDir, 'Root.tsx'),
+			[
+				"import {Composition} from 'remotion';",
+				"import {MyComp} from './MyComp';",
+				'export const RemotionRoot = () => {',
+				'\treturn <Composition id="test" component={MyComp} />;',
+				'};',
+				'',
+			].join('\n'),
+		);
+		await fs.writeFile(
+			path.join(tempDir, 'MyComp.tsx'),
+			[
+				"import {AbsoluteFill} from 'remotion';",
+				'',
+				'export const Solid = () => null;',
+				'',
+				'export const MyComp: React.FC = () => {',
+				'\treturn <AbsoluteFill>hello</AbsoluteFill>;',
+				'};',
+				'',
+			].join('\n'),
+		);
+
+		const result = await insertJsxElementIntoComposition({
+			remotionRoot: tempDir,
+			compositionFile: 'Root.tsx',
+			compositionId: 'test',
+			element: {
+				type: 'solid',
+				width: 1920,
+				height: 1080,
+			},
+			prettierConfigOverride: {singleQuote: true, useTabs: true},
+		});
+
+		expect(result.output).toContain(
+			"import { AbsoluteFill, Solid as RemotionSolid } from 'remotion';",
+		);
+		expect(result.output).toContain(
+			'<RemotionSolid width={1920} height={1080} />',
+		);
 	} finally {
 		await fs.rm(tempDir, {recursive: true, force: true});
 	}

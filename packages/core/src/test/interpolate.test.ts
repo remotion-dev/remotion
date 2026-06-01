@@ -184,6 +184,28 @@ test('Easing array with two keyframes rejects more than one entry', () => {
 	}, /When easing is an array, it must have one entry per segment between keyframes \(length inputRange.length - 1 = 1\), but got length 2/);
 });
 
+test('Posterize quantizes the input before interpolating', () => {
+	expect(interpolate(17, [0, 60], [0, 1], {posterize: 3})).toBe(0.25);
+	expect(interpolate(19, [0, 30, 60], [0, 100, 200], {posterize: 10})).toBe(
+		33.33333333333333,
+	);
+});
+
+test('Posterize option must be a positive finite number', () => {
+	expectToThrow(() => {
+		interpolate(10, [0, 20], [0, 1], {posterize: 0});
+	}, /posterize must be a positive finite number, but got 0/);
+	expectToThrow(() => {
+		interpolate(10, [0, 20], [0, 1], {posterize: -1});
+	}, /posterize must be a positive finite number, but got -1/);
+	expectToThrow(() => {
+		interpolate(10, [0, 20], [0, 1], {posterize: Infinity});
+	}, /posterize must be a positive finite number, but got Infinity/);
+	expectToThrow(() => {
+		interpolate(10, [0, 20], [0, 1], {posterize: NaN});
+	}, /posterize must be a positive finite number, but got NaN/);
+});
+
 test('Easing.circle with default extrapolate extend clamps normalized input', () => {
 	expect(
 		interpolate(150, [0, 100], [0, 100], {

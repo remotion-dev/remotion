@@ -28,7 +28,6 @@ export type MenuId =
 	| 'file'
 	| 'view'
 	| 'composition'
-	| 'install'
 	| 'tools'
 	| 'help';
 

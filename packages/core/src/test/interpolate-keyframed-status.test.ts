@@ -14,6 +14,7 @@ test('interpolates linear numeric keyframes', () => {
 			],
 			easing: ['linear'],
 			clamping: {left: 'extend', right: 'extend'},
+			posterize: undefined,
 		},
 	});
 	expect(result).toBe(50);
@@ -32,9 +33,29 @@ test('clamps when extrapolation is clamp', () => {
 			],
 			easing: ['linear'],
 			clamping: {left: 'clamp', right: 'clamp'},
+			posterize: undefined,
 		},
 	});
 	expect(result).toBe(100);
+});
+
+test('posterizes the frame before interpolating numeric keyframes', () => {
+	const result = interpolateKeyframedStatus({
+		frame: 17,
+		status: {
+			canUpdate: false,
+			reason: 'keyframed',
+			interpolationFunction: 'interpolate',
+			keyframes: [
+				{frame: 0, value: 0},
+				{frame: 60, value: 100},
+			],
+			easing: ['linear'],
+			clamping: {left: 'extend', right: 'extend'},
+			posterize: 3,
+		},
+	});
+	expect(result).toBe(25);
 });
 
 test('returns single keyframe value', () => {
@@ -47,6 +68,7 @@ test('returns single keyframe value', () => {
 			keyframes: [{frame: 0, value: 7}],
 			easing: [],
 			clamping: {left: 'extend', right: 'extend'},
+			posterize: undefined,
 		},
 	});
 	expect(result).toBe(7);
@@ -65,10 +87,30 @@ test('interpolates colors', () => {
 			],
 			easing: ['linear'],
 			clamping: {left: 'clamp', right: 'clamp'},
+			posterize: undefined,
 		},
 	});
 	expect(typeof result).toBe('string');
 	expect(result).toMatch(/^rgba?\(/);
+});
+
+test('posterizes the frame before interpolating color keyframes', () => {
+	const result = interpolateKeyframedStatus({
+		frame: 17,
+		status: {
+			canUpdate: false,
+			reason: 'keyframed',
+			interpolationFunction: 'interpolateColors',
+			keyframes: [
+				{frame: 0, value: 'black'},
+				{frame: 60, value: 'white'},
+			],
+			easing: ['linear'],
+			clamping: {left: 'clamp', right: 'clamp'},
+			posterize: 3,
+		},
+	});
+	expect(result).toBe('rgba(64, 64, 64, 1)');
 });
 
 test('uses bezier easing', () => {
@@ -84,6 +126,7 @@ test('uses bezier easing', () => {
 			],
 			easing: [[0.42, 0, 0.58, 1]],
 			clamping: {left: 'extend', right: 'extend'},
+			posterize: undefined,
 		},
 	});
 	expect(result).toBeGreaterThan(0);

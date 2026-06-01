@@ -124,6 +124,27 @@ If you'd like to opt out of this behavior, you can pass `0` to mount native audi
 
 Once you have set this prop, you cannot change it anymore or an error will be thrown.
 
+### `sampleRate?`<AvailableFrom v="4.0.470" />
+
+Controls the sample rate used by the `AudioContext` inside the Player preview. Pass a positive integer. Default `48000`. Once the Player is mounted, this property cannot be changed.
+
+```tsx twoslash
+import {Player} from '@remotion/player';
+
+const MyComp: React.FC = () => null;
+
+// ---cut---
+
+<Player
+  component={MyComp}
+  durationInFrames={120}
+  compositionWidth={1920}
+  compositionHeight={1080}
+  fps={30}
+  sampleRate={44100}
+/>;
+```
+
 ### `playbackRate?`
 
 A number between -10 and 10 (excluding 0) for the speed that the Player will run the media.

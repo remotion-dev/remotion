@@ -8,6 +8,23 @@ crumb: 'How To'
 
 As an alternative to [using TypeScript types](/docs/parameterized-rendering) to define the shape of the props your component accepts, you may use [Zod](https://zod.dev/) to define a schema for your props. You may do so if you want to edit the props visually in the Remotion Studio.
 
+## AI agent prompt
+
+Use this prompt to make an existing composition parameterizable:
+
+```txt
+Make this Remotion composition parameterizable in Remotion Studio.
+
+Find the component that is passed to <Composition> and the file where the composition is registered.
+Define a z.object() schema that describes the props the component accepts.
+Use z.infer<typeof schema> as the React component prop type.
+Attach the schema to the <Composition> using the schema prop.
+Add defaultProps to the <Composition> that match the schema and preserve the current rendered output.
+
+If zod or @remotion/zod-types are missing, install them with npx remotion add @remotion/zod-types zod.
+Keep the existing composition behavior unchanged except for making the props editable in Remotion Studio.
+```
+
 ## Prerequisites
 
 If you want to use this feature, install `zod` and [`@remotion/zod-types`](/docs/zod-types) for Remotion-specific types:

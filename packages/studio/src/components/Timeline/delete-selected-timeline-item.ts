@@ -6,27 +6,58 @@ import {deleteSelectedKeyframe} from './delete-selected-keyframe';
 import type {SetCodeValues} from './save-sequence-prop';
 import type {TimelineSelection} from './TimelineSelection';
 
-const deleteSequence = (nodePathInfo: SequenceNodePathInfo): Promise<void> => {
-	const nodePath = nodePathInfo.sequenceSubscriptionKey;
+const confirmDeletingDuplicatedSequences = (
+	nodePathInfos: SequenceNodePathInfo[],
+): boolean => {
+	const duplicatedNodePathInfos = nodePathInfos.filter(
+		(nodePathInfo) => nodePathInfo.numberOfSequencesWithThisNodePath > 1,
+	);
+	if (duplicatedNodePathInfos.length === 0) {
+		return true;
+	}
 
-	if (nodePathInfo.numberOfSequencesWithThisNodePath > 1) {
-		const message =
+	if (duplicatedNodePathInfos.length === 1) {
+		const [nodePathInfo] = duplicatedNodePathInfos;
+		const singleDuplicatedSequenceMessage =
 			'This sequence is programmatically duplicated ' +
 			nodePathInfo.numberOfSequencesWithThisNodePath +
 			' times in the code. Deleting removes all instances. Continue?';
 		// eslint-disable-next-line no-alert -- native confirm before deleting all instances of a duplicated sequence
-		if (!window.confirm(message)) {
-			return Promise.resolve();
-		}
+		return window.confirm(singleDuplicatedSequenceMessage);
+	}
+
+	const multipleDuplicatedSequencesMessage =
+		duplicatedNodePathInfos.length +
+		' selected sequences are programmatically duplicated in the code. Deleting removes all instances. Continue?';
+	// eslint-disable-next-line no-alert -- native confirm before deleting all instances of duplicated sequences
+	return window.confirm(multipleDuplicatedSequencesMessage);
+};
+
+const deleteSequences = (
+	nodePathInfos: SequenceNodePathInfo[],
+): Promise<void> => {
+	if (!confirmDeletingDuplicatedSequences(nodePathInfos)) {
+		return Promise.resolve();
 	}
 
 	return callApi('/api/delete-jsx-node', {
-		fileName: nodePath.absolutePath,
-		nodePath: nodePath.nodePath,
+		nodes: nodePathInfos.map((nodePathInfo) => {
+			const nodePath = nodePathInfo.sequenceSubscriptionKey;
+
+			return {
+				fileName: nodePath.absolutePath,
+				nodePath: nodePath.nodePath,
+			};
+		}),
 	})
 		.then((result) => {
 			if (result.success) {
-				showNotification('Removed sequence from source file', 2000);
+				showNotification(
+					nodePathInfos.length === 1
+						? 'Removed sequence from source file'
+						: 'Removed sequences from source files',
+					2000,
+				);
 			} else {
 				showNotification(result.reason, 4000);
 			}
@@ -36,20 +67,52 @@ const deleteSequence = (nodePathInfo: SequenceNodePathInfo): Promise<void> => {
 		});
 };
 
-const deleteEffect = (
-	nodePathInfo: SequenceNodePathInfo,
-	effectIndex: number,
+const deleteEffects = (
+	effects: ({
+		nodePathInfo: SequenceNodePathInfo;
+	} & (
+		| {
+				type: 'single-effect';
+				effectIndex: number;
+		  }
+		| {
+				type: 'all-effects';
+		  }
+	))[],
 ): Promise<void> => {
-	const nodePath = nodePathInfo.sequenceSubscriptionKey;
+	if (effects.length === 0) {
+		return Promise.resolve();
+	}
 
-	return callApi('/api/delete-effect', {
-		fileName: nodePath.absolutePath,
-		sequenceNodePath: nodePath,
-		effectIndex,
-	})
+	return callApi(
+		'/api/delete-effect',
+		effects.map((effect) => {
+			const nodePath = effect.nodePathInfo.sequenceSubscriptionKey;
+			return effect.type === 'single-effect'
+				? {
+						type: 'single-effect',
+						fileName: nodePath.absolutePath,
+						sequenceNodePath: nodePath,
+						effectIndex: effect.effectIndex,
+					}
+				: {
+						type: 'all-effects',
+						fileName: nodePath.absolutePath,
+						sequenceNodePath: nodePath,
+					};
+		}),
+	)
 		.then((result) => {
 			if (result.success) {
-				showNotification('Removed effect from source file', 2000);
+				const singleEffect = effects[0];
+				showNotification(
+					effects.length === 1 && singleEffect?.type === 'single-effect'
+						? 'Removed effect from source file'
+						: effects.length === 1
+							? 'Removed effects from source file'
+							: 'Removed effects from source files',
+					2000,
+				);
 			} else {
 				showNotification(result.reason, 4000);
 			}
@@ -83,24 +146,142 @@ export const deleteSelectedTimelineItem = ({
 		});
 	}
 
-	const {nodePathInfo} = selection;
-	const {auxiliaryKeys} = nodePathInfo;
+	switch (selection.type) {
+		case 'sequence':
+			return deleteSequences([selection.nodePathInfo]);
+		case 'sequence-effect':
+			return deleteEffects([
+				{
+					type: 'single-effect',
+					nodePathInfo: selection.nodePathInfo,
+					effectIndex: selection.i,
+				},
+			]);
+		case 'sequence-prop':
+		case 'sequence-effect-prop':
+			return null;
+		case 'sequence-all-effects':
+			return deleteEffects([
+				{type: 'all-effects', nodePathInfo: selection.nodePathInfo},
+			]);
+		default:
+			throw new Error(
+				`Unexpected timeline selection type: ${selection satisfies never}`,
+			);
+	}
+};
 
-	// The sequence track row itself has no auxiliary keys.
-	if (auxiliaryKeys.length === 0) {
-		return deleteSequence(nodePathInfo);
+const isSequenceRowSelection = (
+	selection: TimelineSelection,
+): selection is TimelineSelection & {
+	type: 'sequence';
+} => selection.type === 'sequence';
+
+const isSequenceEffectSelection = (
+	selection: TimelineSelection,
+): selection is TimelineSelection & {
+	type: 'sequence-effect';
+} => selection.type === 'sequence-effect';
+
+const isSequenceAllEffectsSelection = (
+	selection: TimelineSelection,
+): selection is TimelineSelection & {
+	type: 'sequence-all-effects';
+} => selection.type === 'sequence-all-effects';
+
+const isKeyframeSelection = (
+	selection: TimelineSelection,
+): selection is TimelineSelection & {
+	type: 'keyframe';
+} => selection.type === 'keyframe';
+
+const assertTimelineSelectionsHaveSameType = (
+	selections: readonly TimelineSelection[],
+): void => {
+	const firstSelection = selections[0];
+	if (!firstSelection) {
+		return;
 	}
 
-	// An effect group row is ['effects', effectIndex].
-	if (auxiliaryKeys.length === 2 && auxiliaryKeys[0] === 'effects') {
-		const effectIndex = Number(auxiliaryKeys[1]);
-		if (!Number.isInteger(effectIndex) || effectIndex < 0) {
-			return null;
+	for (const selection of selections) {
+		if (selection.type !== firstSelection.type) {
+			throw new Error(
+				`Assertion failed: Cannot delete timeline selections of different types (${firstSelection.type}, ${selection.type})`,
+			);
+		}
+	}
+};
+
+export const deleteSelectedTimelineItems = ({
+	selections,
+	sequences,
+	overrideIdsToNodePaths,
+	setCodeValues,
+	clientId,
+}: {
+	selections: readonly TimelineSelection[];
+	sequences: TSequence[];
+	overrideIdsToNodePaths: OverrideIdToNodePaths;
+	setCodeValues: SetCodeValues;
+	clientId: string;
+}): Promise<void> | null => {
+	const firstSelection = selections[0];
+	if (!firstSelection) {
+		return null;
+	}
+
+	assertTimelineSelectionsHaveSameType(selections);
+
+	switch (firstSelection.type) {
+		case 'sequence':
+			return deleteSequences(
+				selections
+					.filter(isSequenceRowSelection)
+					.map((selection) => selection.nodePathInfo),
+			);
+		case 'sequence-effect':
+			return deleteEffects(
+				selections.filter(isSequenceEffectSelection).map((selection) => ({
+					type: 'single-effect',
+					nodePathInfo: selection.nodePathInfo,
+					effectIndex: selection.i,
+				})),
+			);
+		case 'keyframe': {
+			const deletePromises = selections
+				.filter(isKeyframeSelection)
+				.map((selection) =>
+					deleteSelectedKeyframe({
+						nodePathInfo: selection.nodePathInfo,
+						frame: selection.frame,
+						sequences,
+						overrideIdsToNodePaths,
+						setCodeValues,
+						clientId,
+					}),
+				)
+				.filter((promise): promise is Promise<void> => promise !== null);
+
+			if (deletePromises.length === 0) {
+				return null;
+			}
+
+			return Promise.all(deletePromises).then(() => undefined);
 		}
 
-		return deleteEffect(nodePathInfo, effectIndex);
+		case 'sequence-prop':
+		case 'sequence-effect-prop':
+			return null;
+		case 'sequence-all-effects':
+			return deleteEffects(
+				selections.filter(isSequenceAllEffectsSelection).map((selection) => ({
+					type: 'all-effects',
+					nodePathInfo: selection.nodePathInfo,
+				})),
+			);
+		default:
+			throw new Error(
+				`Unexpected timeline selection type: ${firstSelection satisfies never}`,
+			);
 	}
-
-	// Field rows and other intermediate rows are not deletable on their own.
-	return null;
 };

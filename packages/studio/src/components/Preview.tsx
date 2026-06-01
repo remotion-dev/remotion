@@ -16,6 +16,7 @@ import type {Dimensions} from '../helpers/is-current-selected-still';
 import {CheckerboardContext} from '../state/checkerboard';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from './Menu/is-menu-item';
 import {RenderPreview} from './RenderPreview';
+import {SelectedOutlineOverlay} from './SelectedOutlineOverlay';
 import {Spinner} from './Spinner';
 import {StaticFilePreview} from './StaticFilePreview';
 
@@ -271,6 +272,7 @@ const CompWhenItHasDimensions: React.FC<{
 				xCorrection={xCorrection}
 				yCorrection={yCorrection}
 			/>
+			<SelectedOutlineOverlay scale={scale} />
 		</div>
 	);
 };

@@ -10,6 +10,8 @@ import {EffectsContrastPreview} from '../../components/effects/effects-contrast-
 import {EffectsDotGridPreview} from '../../components/effects/effects-dot-grid-preview';
 import {EffectsDropShadowPreview} from '../../components/effects/effects-drop-shadow-preview';
 import {EffectsDuotonePreview} from '../../components/effects/effects-duotone-preview';
+import {EffectsEvolvePreview} from '../../components/effects/effects-evolve-preview';
+import {EffectsFisheyePreview} from '../../components/effects/effects-fisheye-preview';
 import {EffectsGlowPreview} from '../../components/effects/effects-glow-preview';
 import {EffectsGrayscalePreview} from '../../components/effects/effects-grayscale-preview';
 import {EffectsHalftoneLinearGradientPreview} from '../../components/effects/effects-halftone-linear-gradient-preview';
@@ -33,6 +35,7 @@ import {
 } from '../../components/effects/effects-translate-preview';
 import {EffectsVignettePreview} from '../../components/effects/effects-vignette-preview';
 import {EffectsWavePreview} from '../../components/effects/effects-wave-preview';
+import {EffectsWhiteNoisePreview} from '../../components/effects/effects-white-noise-preview';
 import {articles} from '../data/articles';
 import {AllTemplates} from './AllTemplates';
 import {Article} from './Article';
@@ -114,6 +117,17 @@ export const RemotionRoot: React.FC = () => {
 						darkColor: 'black',
 						lightColor: 'white',
 						threshold: 0.18,
+					}}
+				/>
+				<Still
+					id="effects-evolve-preview"
+					component={EffectsEvolvePreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						progress: 0.55,
+						direction: 'left',
+						feather: 0.18,
 					}}
 				/>
 				<Still
@@ -226,6 +240,18 @@ export const RemotionRoot: React.FC = () => {
 					defaultProps={{amount: 0.28}}
 				/>
 				<Still
+					id="effects-fisheye-preview"
+					component={EffectsFisheyePreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						fieldOfView: 2.5,
+						radius: 1.2,
+						zoom: 1,
+						center: [0.5, 0.5],
+					}}
+				/>
+				<Still
 					id="effects-chromatic-aberration-preview"
 					component={EffectsChromaticAberrationPreview}
 					width={1280}
@@ -301,6 +327,16 @@ export const RemotionRoot: React.FC = () => {
 						amount: 0.25,
 						seed: 0,
 						premultiply: false,
+					}}
+				/>
+				<Still
+					id="effects-white-noise-preview"
+					component={EffectsWhiteNoisePreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						amount: 1,
+						seed: 0,
 					}}
 				/>
 				<Still

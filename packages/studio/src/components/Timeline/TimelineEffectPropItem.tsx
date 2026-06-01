@@ -15,6 +15,10 @@ import {enqueueSavePropChange} from './save-prop-queue';
 import {timelineFieldValueColumnStyle} from './timeline-field-row-layout';
 import {TimelineExpandArrowSpacer} from './TimelineExpandArrowButton';
 import {TimelineFieldLabel} from './TimelineFieldLabel';
+import {
+	shouldShowTimelineKeyframeControls,
+	TimelineKeyframeControls,
+} from './TimelineKeyframeControls';
 import {TimelineKeyframedValue} from './TimelineKeyframedValue';
 import {TimelineLayerEyeSpacer} from './TimelineLayerEye';
 import {TimelineRowChrome} from './TimelineRowChrome';
@@ -216,7 +220,7 @@ const Value: React.FC<{
 	);
 };
 
-export const TimelineEffectFieldRow: React.FC<{
+export const TimelineEffectPropItem: React.FC<{
 	readonly field: EffectSchemaFieldInfo;
 	readonly validatedLocation: CodePosition;
 	readonly rowDepth: number;
@@ -234,6 +238,9 @@ export const TimelineEffectFieldRow: React.FC<{
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {setCodeValues} = useContext(Internals.VisualModeSettersContext);
 	const {codeValues} = useContext(Internals.VisualModeCodeValuesContext);
+	const {getEffectDragOverrides} = useContext(
+		Internals.VisualModeDragOverridesContext,
+	);
 	const selection = useTimelineRowSelection(nodePathInfo);
 	const style = useMemo(() => {
 		return {
@@ -256,6 +263,30 @@ export const TimelineEffectFieldRow: React.FC<{
 		effectStatus.type === 'can-update-effect'
 			? (effectStatus.props?.[field.key] ?? null)
 			: null;
+
+	const dragOverrideValue = useMemo(() => {
+		const overrides = getEffectDragOverrides(nodePath, field.effectIndex);
+		return overrides[field.key];
+	}, [getEffectDragOverrides, nodePath, field.effectIndex, field.key]);
+
+	const keyframeControls =
+		propStatus !== null &&
+		shouldShowTimelineKeyframeControls({
+			propStatus,
+			selected: selection.selected,
+		}) ? (
+			<TimelineKeyframeControls
+				fieldKey={field.key}
+				propStatus={propStatus}
+				nodePath={nodePath}
+				fileName={validatedLocation.source}
+				keyframeDisplayOffset={keyframeDisplayOffset}
+				defaultValue={field.fieldSchema.default}
+				dragOverrideValue={dragOverrideValue}
+				schema={field.effectSchema}
+				effectIndex={field.effectIndex}
+			/>
+		) : null;
 
 	const isNonDefault = useMemo(() => {
 		if (!propStatus || !propStatus.canUpdate) {
@@ -334,6 +365,7 @@ export const TimelineEffectFieldRow: React.FC<{
 		<TimelineRowChrome
 			depth={rowDepth}
 			eye={<TimelineLayerEyeSpacer />}
+			keyframeControls={keyframeControls}
 			arrow={<TimelineExpandArrowSpacer />}
 			style={style}
 			selected={selection.selected}

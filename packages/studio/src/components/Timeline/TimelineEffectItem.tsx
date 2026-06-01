@@ -29,7 +29,7 @@ const rowLabel: React.CSSProperties = {
 	userSelect: 'none',
 };
 
-export const TimelineEffectGroupRow: React.FC<{
+export const TimelineEffectItem: React.FC<{
 	readonly label: string;
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly effectIndex: number;
@@ -95,11 +95,14 @@ export const TimelineEffectGroupRow: React.FC<{
 		}
 
 		try {
-			const result = await callApi('/api/delete-effect', {
-				fileName: validatedLocation.source,
-				sequenceNodePath: nodePath,
-				effectIndex,
-			});
+			const result = await callApi('/api/delete-effect', [
+				{
+					type: 'single-effect',
+					fileName: validatedLocation.source,
+					sequenceNodePath: nodePath,
+					effectIndex,
+				},
+			]);
 			if (result.success) {
 				showNotification('Removed effect from source file', 2000);
 			} else {

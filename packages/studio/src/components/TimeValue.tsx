@@ -59,7 +59,6 @@ export const TimeValue: React.FC = () => {
 		},
 		[seek],
 	);
-
 	useImperativeHandle(
 		Internals.timeValueRef,
 		() => ({

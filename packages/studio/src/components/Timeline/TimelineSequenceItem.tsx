@@ -3,6 +3,7 @@ import type {TSequence} from 'remotion';
 import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
+import {formatFileLocation} from '../../helpers/format-file-location';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	getTimelineLayerHeight,
@@ -17,6 +18,7 @@ import {
 } from '../ExpandedTracksProvider';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {showNotification} from '../Notifications/NotificationCenter';
+import {duplicateSequencesFromSource} from './duplicate-selected-timeline-item';
 import {saveSequenceProp} from './save-sequence-prop';
 import {
 	TimelineExpandArrowButton,
@@ -32,6 +34,7 @@ import {
 } from './TimelineMediaInfo';
 import {TimelineRowChrome} from './TimelineRowChrome';
 import {
+	isTimelineSelectionModifierEvent,
 	SELECTION_ENABLED,
 	useTimelineRowContainsSelection,
 	useTimelineRowSelection,
@@ -48,7 +51,7 @@ const labelContainerStyle: React.CSSProperties = {
 	gap: 4,
 };
 
-export const TimelineListItem: React.FC<{
+export const TimelineSequenceItem: React.FC<{
 	readonly sequence: TSequence;
 	readonly nestedDepth: number;
 	readonly nodePathInfo: SequenceNodePathInfo | null;
@@ -68,6 +71,14 @@ export const TimelineListItem: React.FC<{
 
 	const {canOpenInEditor, openInEditor, originalLocation} =
 		useOpenSequenceInEditor(sequence);
+	const fileLocation = useMemo(
+		() =>
+			formatFileLocation({
+				location: originalLocation,
+				root: window.remotion_cwd,
+			}),
+		[originalLocation],
+	);
 
 	const validatedLocation = useMemo(() => {
 		if (
@@ -94,36 +105,13 @@ export const TimelineListItem: React.FC<{
 
 	const duplicateDisabled = deleteDisabled;
 
-	const onDuplicateSequenceFromSource = useCallback(async () => {
-		if (!validatedLocation?.source || !nodePath) {
+	const onDuplicateSequenceFromSource = useCallback(() => {
+		if (!validatedLocation?.source || !nodePathInfo) {
 			return;
 		}
 
-		if (nodePathInfo && nodePathInfo.numberOfSequencesWithThisNodePath > 1) {
-			const message =
-				'This sequence is programmatically duplicated ' +
-				nodePathInfo.numberOfSequencesWithThisNodePath +
-				' times in the code. Duplicating inserts another copy. Continue?';
-			// eslint-disable-next-line no-alert -- native confirm before applying duplicate codemod in .map callbacks
-			if (!window.confirm(message)) {
-				return;
-			}
-		}
-
-		try {
-			const result = await callApi('/api/duplicate-jsx-node', {
-				fileName: validatedLocation.source,
-				nodePath: nodePath.nodePath,
-			});
-			if (result.success) {
-				showNotification('Duplicated sequence in source file', 2000);
-			} else {
-				showNotification(result.reason, 4000);
-			}
-		} catch (err) {
-			showNotification((err as Error).message, 4000);
-		}
-	}, [nodePath, validatedLocation?.source, nodePathInfo]);
+		duplicateSequencesFromSource([nodePathInfo]).catch(() => undefined);
+	}, [nodePathInfo, validatedLocation?.source]);
 
 	const onDeleteSequenceFromSource = useCallback(async () => {
 		if (!validatedLocation?.source || !nodePath) {
@@ -143,8 +131,12 @@ export const TimelineListItem: React.FC<{
 
 		try {
 			const result = await callApi('/api/delete-jsx-node', {
-				fileName: validatedLocation.source,
-				nodePath: nodePath.nodePath,
+				nodes: [
+					{
+						fileName: validatedLocation.source,
+						nodePath: nodePath.nodePath,
+					},
+				],
 			});
 			if (result.success) {
 				showNotification('Removed sequence from source file', 2000);
@@ -193,6 +185,34 @@ export const TimelineListItem: React.FC<{
 						value: 'show-in-editor',
 					}
 				: null,
+			{
+				type: 'item' as const,
+				id: 'copy-file-location',
+				keyHint: null,
+				label: 'Copy file location',
+				leftItem: null,
+				disabled: !fileLocation,
+				onClick: () => {
+					if (!fileLocation) {
+						return;
+					}
+
+					navigator.clipboard
+						.writeText(fileLocation)
+						.then(() => {
+							showNotification('Copied file location to clipboard', 1000);
+						})
+						.catch((err) => {
+							showNotification(
+								`Could not copy to clipboard: ${(err as Error).message}`,
+								1000,
+							);
+						});
+				},
+				quickSwitcherLabel: null,
+				subMenu: null,
+				value: 'copy-file-location',
+			},
 			documentationLink
 				? {
 						type: 'item' as const,
@@ -272,6 +292,7 @@ export const TimelineListItem: React.FC<{
 		assetLinkInfo,
 		deleteDisabled,
 		duplicateDisabled,
+		fileLocation,
 		onDeleteSequenceFromSource,
 		onDuplicateSequenceFromSource,
 		canOpenInEditor,
@@ -295,6 +316,11 @@ export const TimelineListItem: React.FC<{
 	const onShowInEditorDoubleClick = useCallback(
 		(e: React.MouseEvent<HTMLDivElement>) => {
 			if (!SELECTION_ENABLED || !canOpenInEditor) {
+				return;
+			}
+
+			if (isTimelineSelectionModifierEvent(e)) {
+				e.stopPropagation();
 				return;
 			}
 

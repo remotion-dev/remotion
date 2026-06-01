@@ -65,6 +65,7 @@ import {packageManagerOption} from './package-manager';
 import {pixelFormatOption} from './pixel-format';
 import {portOption} from './port';
 import {preferLosslessAudioOption} from './prefer-lossless';
+import {previewSampleRateOption} from './preview-sample-rate';
 import {propsOption} from './props';
 import {proResProfileOption} from './prores-profile';
 import {publicDirOption} from './public-dir';
@@ -126,6 +127,7 @@ export const allOptions = {
 	noOpenOption,
 	pixelFormatOption,
 	preferLosslessOption: preferLosslessAudioOption,
+	previewSampleRateOption,
 	proResProfileOption,
 	x264Option,
 	logLevelOption,

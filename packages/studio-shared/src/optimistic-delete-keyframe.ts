@@ -24,6 +24,12 @@ const removeKeyframeFromPropStatus = ({
 	}
 
 	const keyframes = status.keyframes.filter((_, i) => i !== index);
+	if (keyframes.length === 0) {
+		return {
+			canUpdate: true,
+			codeValue: status.keyframes[index].value,
+		};
+	}
 
 	// Easing holds one segment per gap between consecutive keyframes
 	// (keyframes.length - 1 entries). Drop the segment adjacent to the removed
