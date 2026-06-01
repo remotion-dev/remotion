@@ -1,6 +1,12 @@
 import React from 'react';
 import {Grid} from '../../components/TableOfContents/Grid';
 import {TOCItem} from '../../components/TableOfContents/TOCItem';
+import {
+	makeEffectDragData,
+	setEffectDragData,
+} from '../../components/effects-demos/effect-drag-data';
+import {getInitialValuesFromSchema} from '../../components/effects-demos/get-default-props-from-schema';
+import {effectsDemos} from '../../components/effects-demos/registry';
 
 type Effect = {
 	readonly link: string;
@@ -197,11 +203,18 @@ const categories: {
 				description: 'Source-image halftone effect',
 			},
 			{
-				link: '/docs/effects/lines',
-				preview: '/img/effects-lines-preview.png',
-				alt: 'lines effect preview',
-				name: 'lines()',
-				description: 'Alternating line overlay effect',
+				link: '/docs/effects/noise',
+				preview: '/img/effects-noise-preview.png',
+				alt: 'noise effect preview',
+				name: 'noise()',
+				description: 'Procedural grain effect',
+			},
+			{
+				link: '/docs/effects/pixel-dissolve',
+				preview: '/img/effects-pixel-dissolve-preview.png',
+				alt: 'pixel dissolve effect preview',
+				name: 'pixelDissolve()',
+				description: 'Pixelated dissolve effect',
 			},
 			{
 				link: '/docs/effects/scanlines',
@@ -244,18 +257,39 @@ const categories: {
 				description: 'Procedural dot gradient effect',
 			},
 			{
-				link: '/docs/effects/noise',
-				preview: '/img/effects-noise-preview.png',
-				alt: 'noise effect preview',
-				name: 'noise()',
-				description: 'Procedural grain effect',
-			},
-			{
 				link: '/docs/effects/white-noise',
 				preview: '/img/effects-white-noise-preview.png',
 				alt: 'white noise effect preview',
 				name: 'whiteNoise()',
 				description: 'Random grayscale noise layer',
+			},
+			{
+				link: '/docs/effects/lines',
+				preview: '/img/effects-lines-preview.png',
+				alt: 'lines effect preview',
+				name: 'lines()',
+				description: 'Alternating line pattern effect',
+			},
+			{
+				link: '/docs/effects/rings',
+				preview: '/img/effects-rings-preview.png',
+				alt: 'rings effect preview',
+				name: 'rings()',
+				description: 'Concentric ring pattern effect',
+			},
+			{
+				link: '/docs/effects/waves',
+				preview: '/img/effects-waves-preview.png',
+				alt: 'waves effect preview',
+				name: 'waves()',
+				description: 'Wavy band pattern effect',
+			},
+			{
+				link: '/docs/effects/zigzag',
+				preview: '/img/effects-zigzag-preview.png',
+				alt: 'zigzag effect preview',
+				name: 'zigzag()',
+				description: 'Zig-zag band pattern effect',
 			},
 			{
 				link: '/docs/light-leaks/light-leak-effect',
@@ -289,11 +323,57 @@ const previewImage: React.CSSProperties = {
 	flexShrink: 0,
 };
 
+const getDemoIdFromLink = (link: string) => {
+	if (link.startsWith('/docs/effects/')) {
+		return `effects-${link.slice('/docs/effects/'.length)}`;
+	}
+
+	if (link === '/docs/light-leaks/light-leak-effect') {
+		return 'effects-light-leak';
+	}
+
+	if (link === '/docs/starburst/starburst-effect') {
+		return 'effects-starburst';
+	}
+
+	return null;
+};
+
 const EffectCard: React.FC<{
 	readonly effect: Effect;
 }> = ({effect}) => {
+	const demo = effectsDemos.find((item) => item.id === getDemoIdFromLink(effect.link));
+	const dragData = demo
+		? makeEffectDragData({
+				effectName: demo.effectName,
+				effectImportPath: demo.effectImportPath,
+				effectConfig: getInitialValuesFromSchema({
+					schema: demo.schema,
+					initialValues: demo.initialValues,
+				}),
+			})
+		: null;
+
 	return (
-		<TOCItem link={effect.link}>
+		<TOCItem
+			link={effect.link}
+			draggable={dragData !== null}
+			onDragStart={
+				dragData === null
+					? undefined
+					: (e) => {
+							setEffectDragData({
+								dataTransfer: e.dataTransfer,
+								dragData,
+							});
+						}
+			}
+			title={
+				dragData === null
+					? undefined
+					: 'Drag this effect into Remotion Studio'
+			}
+		>
 			<div style={row}>
 				<img src={effect.preview} alt={effect.alt} style={previewImage} />
 				<div style={{flex: 1, marginLeft: 10}}>

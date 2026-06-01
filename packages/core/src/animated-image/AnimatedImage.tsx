@@ -237,8 +237,13 @@ const AnimatedImageInner = ({
 }) => {
 	const {durationInFrames: videoDuration} = useVideoConfig();
 	const resolvedDuration = durationInFrames ?? videoDuration;
+	const actualRef = useRef<HTMLCanvasElement | null>(null);
 
 	const memoizedEffectDefinitions = useMemoizedEffectDefinitions(effects);
+
+	useImperativeHandle(ref, () => {
+		return actualRef.current as HTMLCanvasElement;
+	}, []);
 
 	const animatedImageProps: RemotionAnimatedImageProps = {
 		src,
@@ -262,10 +267,11 @@ const AnimatedImageInner = ({
 			_experimentalControls={controls}
 			_remotionInternalEffects={memoizedEffectDefinitions}
 			{...sequenceProps}
+			_remotionInternalRefForOutline={actualRef}
 		>
 			<AnimatedImageContent
 				{...animatedImageProps}
-				ref={ref}
+				ref={actualRef}
 				effects={effects}
 				controls={controls}
 			/>

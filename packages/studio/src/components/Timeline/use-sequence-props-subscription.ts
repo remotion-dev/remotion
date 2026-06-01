@@ -3,8 +3,8 @@ import {
 	stringifySequenceSubscriptionKey,
 } from '@remotion/studio-shared';
 import {useContext, useEffect, useMemo, useRef} from 'react';
-import {Internals} from 'remotion';
 import type {SequencePropsSubscriptionKey, SequenceSchema} from 'remotion';
+import {Internals} from 'remotion';
 import type {OriginalPosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {ExpandedTracksSetterContext} from '../ExpandedTracksProvider';
@@ -84,6 +84,7 @@ export const useSequencePropsSubscription = ({
 			column: locationColumn,
 			schema,
 			effects,
+			nodePath: nodePathAtResubscribe?.nodePath ?? null,
 			clientId,
 			applyOnce: (result) => {
 				if (!result.success) {

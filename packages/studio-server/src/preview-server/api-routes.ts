@@ -1,5 +1,6 @@
 import type {ApiRoutes} from '@remotion/studio-shared';
 import type {ApiHandler} from './api-types';
+import {addEffectHandler} from './routes/add-effect';
 import {addEffectKeyframeHandler} from './routes/add-effect-keyframe';
 import {handleAddRender} from './routes/add-render';
 import {addSequenceKeyframeHandler} from './routes/add-sequence-keyframe';
@@ -8,9 +9,8 @@ import {applyVisualControlHandler} from './routes/apply-visual-control-change';
 import {handleCancelRender} from './routes/cancel-render';
 import {compositionComponentInfoHandler} from './routes/composition-component-info';
 import {deleteEffectHandler} from './routes/delete-effect';
-import {deleteEffectKeyframeHandler} from './routes/delete-effect-keyframe';
 import {deleteJsxNodeHandler} from './routes/delete-jsx-node';
-import {deleteSequenceKeyframeHandler} from './routes/delete-sequence-keyframe';
+import {deleteKeyframesHandler} from './routes/delete-keyframes';
 import {deleteStaticFileHandler} from './routes/delete-static-file';
 import {duplicateJsxNodeHandler} from './routes/duplicate-jsx-node';
 import {insertJsxElementHandler} from './routes/insert-jsx-element';
@@ -21,6 +21,7 @@ import {projectInfoHandler} from './routes/project-info';
 import {redoHandler} from './routes/redo';
 import {registerClientRenderHandler} from './routes/register-client-render';
 import {handleRemoveRender} from './routes/remove-render';
+import {reorderEffectHandler} from './routes/reorder-effect';
 import {handleRestartStudio} from './routes/restart-studio';
 import {saveEffectPropsHandler} from './routes/save-effect-props';
 import {saveSequencePropsHandler} from './routes/save-sequence-props';
@@ -60,9 +61,10 @@ export const allApiRoutes: {
 	'/api/unsubscribe-from-sequence-props': unsubscribeFromSequenceProps,
 	'/api/save-sequence-props': saveSequencePropsHandler,
 	'/api/save-effect-props': saveEffectPropsHandler,
-	'/api/delete-sequence-keyframe': deleteSequenceKeyframeHandler,
+	'/api/add-effect': addEffectHandler,
+	'/api/reorder-effect': reorderEffectHandler,
+	'/api/delete-keyframes': deleteKeyframesHandler,
 	'/api/add-sequence-keyframe': addSequenceKeyframeHandler,
-	'/api/delete-effect-keyframe': deleteEffectKeyframeHandler,
 	'/api/add-effect-keyframe': addEffectKeyframeHandler,
 	'/api/delete-effect': deleteEffectHandler,
 	'/api/delete-jsx-node': deleteJsxNodeHandler,

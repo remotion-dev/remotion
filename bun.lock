@@ -466,6 +466,7 @@
         "@remotion/skia": "workspace:*",
         "@remotion/starburst": "workspace:*",
         "@remotion/studio": "workspace:*",
+        "@remotion/studio-shared": "workspace:*",
         "@remotion/svg-3d-engine": "workspace:*",
         "@remotion/tailwind": "workspace:*",
         "@remotion/tailwind-v4": "workspace:*",
@@ -792,6 +793,7 @@
       },
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
+        "@testing-library/react": "16.1.0",
         "@typescript/native-preview": "catalog:",
         "esbuild": "0.28.0",
         "eslint": "catalog:",

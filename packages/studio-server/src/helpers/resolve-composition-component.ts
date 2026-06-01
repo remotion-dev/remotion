@@ -743,12 +743,107 @@ const createSolidElement = ({
 			[
 				createNumberAttribute('width', width),
 				createNumberAttribute('height', height),
+				recast.types.builders.jsxAttribute(
+					recast.types.builders.jsxIdentifier('style'),
+					recast.types.builders.jsxExpressionContainer(
+						recast.types.builders.objectExpression([
+							recast.types.builders.objectProperty(
+								recast.types.builders.identifier('position'),
+								recast.types.builders.stringLiteral('absolute'),
+							),
+						]),
+					),
+				),
 			],
 			true,
 		),
 		null,
 		[],
 	);
+};
+
+const createFragmentWithElement = (element: namedTypes.JSXElement) => {
+	return recast.types.builders.jsxFragment(
+		recast.types.builders.jsxOpeningFragment(),
+		recast.types.builders.jsxClosingFragment(),
+		[element],
+	);
+};
+
+const replaceNullReturnInFunctionLike = ({
+	fn,
+	element,
+}: {
+	fn: FunctionLikeNode;
+	element: namedTypes.JSXElement;
+}): number | null => {
+	if (fn.type === 'ArrowFunctionExpression' && fn.body.type === 'NullLiteral') {
+		fn.body = createFragmentWithElement(element);
+		return fn.loc?.start.line ?? 1;
+	}
+
+	if (fn.body.type !== 'BlockStatement') {
+		return null;
+	}
+
+	const returnStatement = getTopLevelReturnStatement(fn.body.body);
+	if (
+		!returnStatement?.argument ||
+		returnStatement.argument.type !== 'NullLiteral'
+	) {
+		return null;
+	}
+
+	returnStatement.argument = createFragmentWithElement(element);
+	return returnStatement.loc?.start.line ?? 1;
+};
+
+const addElementToNullComponentReturn = ({
+	declaration,
+	element,
+}: {
+	declaration: LocalComponentDeclaration | DefaultExportDeclaration;
+	element: namedTypes.JSXElement;
+}): number | null => {
+	if (declaration.type === 'VariableDeclarator') {
+		if (
+			!declaration.init ||
+			(declaration.init.type !== 'ArrowFunctionExpression' &&
+				declaration.init.type !== 'FunctionExpression')
+		) {
+			return null;
+		}
+
+		return replaceNullReturnInFunctionLike({fn: declaration.init, element});
+	}
+
+	if (
+		declaration.type === 'ArrowFunctionExpression' ||
+		declaration.type === 'FunctionExpression' ||
+		declaration.type === 'FunctionDeclaration'
+	) {
+		return replaceNullReturnInFunctionLike({fn: declaration, element});
+	}
+
+	if (declaration.type !== 'ClassDeclaration') {
+		return null;
+	}
+
+	const renderMethod = findRenderMethod(declaration);
+	if (!renderMethod) {
+		return null;
+	}
+
+	const returnStatement = getTopLevelReturnStatement(renderMethod.body.body);
+	if (
+		!returnStatement?.argument ||
+		returnStatement.argument.type !== 'NullLiteral'
+	) {
+		return null;
+	}
+
+	returnStatement.argument = createFragmentWithElement(element);
+	return returnStatement.loc?.start.line ?? 1;
 };
 
 const getImportedName = (specifier: ImportSpecifier) => {
@@ -916,11 +1011,33 @@ const addElementToComponentRoot = ({
 
 	const rootNode = getComponentRootNode(declaration);
 	if (!rootNode) {
+		const insertedAt = addElementToNullComponentReturn({declaration, element});
+		if (insertedAt !== null) {
+			return insertedAt;
+		}
+
 		throw new Error('Composition component does not return JSX');
 	}
 
 	if (rootNode.type === 'JSXElement' && rootNode.openingElement.selfClosing) {
 		throw new Error('Cannot insert into a self-closing root JSX element');
+	}
+
+	const CANVAS_ROOT_ELEMENTS = [
+		'ThreeCanvas',
+		'RiveCanvas',
+		'SkiaCanvas',
+		'canvas',
+	];
+
+	if (
+		rootNode.type === 'JSXElement' &&
+		rootNode.openingElement.name.type === 'JSXIdentifier' &&
+		CANVAS_ROOT_ELEMENTS.includes(rootNode.openingElement.name.name)
+	) {
+		throw new Error(
+			`Cannot insert a <Solid> into a composition whose root element is <${rootNode.openingElement.name.name}>`,
+		);
 	}
 
 	if (!rootNode.children) {

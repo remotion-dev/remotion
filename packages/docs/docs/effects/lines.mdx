@@ -12,7 +12,7 @@ _Part of the [`@remotion/effects`](/docs/effects/api) package._
 
 Adds an alternating line pattern to canvas-based components such as [`<Video>`](/docs/media/video), [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) and [`<Solid>`](/docs/solid).
 
-Each line color is composited over the source. Transparent colors leave the source unchanged.
+Each line color is composited over the source.
 
 ## Preview
 
@@ -22,19 +22,19 @@ Each line color is composited over the source. Transparent colors leave the sour
 
 ```tsx twoslash title="MyComp.tsx"
 import {lines} from '@remotion/effects/lines';
-import {Video} from '@remotion/media';
-import {AbsoluteFill, useCurrentFrame} from 'remotion';
+import {AbsoluteFill, Solid, useCurrentFrame} from 'remotion';
 
 export const MyComp: React.FC = () => {
   const frame = useCurrentFrame();
 
   return (
     <AbsoluteFill>
-      <Video
-        src="https://remotion.media/video.mp4"
+      <Solid
+        width={1280}
+        height={720}
         effects={[
           lines({
-            colors: ['#dff4ff', 'transparent'],
+            colors: ['#dff4ff', '#7cc6ff'],
             direction: 'horizontal',
             thickness: 40,
             gap: 24,
@@ -56,7 +56,7 @@ Pass an object with the following properties. You can also call `lines()` withou
 
 An array of color strings for the line stripes. Colors are assigned cyclically. Must contain at least 2 colors.
 
-Defaults to `['#dff4ff', 'transparent']`.
+Defaults to `['#dff4ff', '#7cc6ff']`.
 
 ### `direction?`
 

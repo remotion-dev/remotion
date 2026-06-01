@@ -1,4 +1,5 @@
 import {expect, test} from 'bun:test';
+import {colorToRgb} from '../color-to-rgb.js';
 import {starburst} from '../starburst-effect.js';
 
 test('starburst() throws when rays is not passed', () => {
@@ -13,6 +14,15 @@ test('starburst() accepts valid params', () => {
 	expect(() =>
 		starburst({rays: 12, colors: ['#ff0000', '#00ff00']}),
 	).not.toThrow();
+});
+
+test('starburst() accepts CSS named colors', () => {
+	expect(() => starburst({rays: 12, colors: ['red', 'blue']})).not.toThrow();
+});
+
+test('colorToRgb() parses CSS colors using Remotion color parsing', () => {
+	expect(colorToRgb('red')).toEqual([255, 0, 0]);
+	expect(colorToRgb('hsl(120, 100%, 50%)')).toEqual([0, 255, 0]);
 });
 
 test('starburst() exposes its documentation link', () => {

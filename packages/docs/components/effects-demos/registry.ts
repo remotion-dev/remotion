@@ -17,6 +17,8 @@ import {invert} from '@remotion/effects/invert';
 import {lines} from '@remotion/effects/lines';
 import {mirror} from '@remotion/effects/mirror';
 import {noise} from '@remotion/effects/noise';
+import {pixelDissolve} from '@remotion/effects/pixel-dissolve';
+import {rings} from '@remotion/effects/rings';
 import {saturation} from '@remotion/effects/saturation';
 import {scale} from '@remotion/effects/scale';
 import {scanlines} from '@remotion/effects/scanlines';
@@ -26,7 +28,9 @@ import {tint} from '@remotion/effects/tint';
 import {uvTranslate, xyTranslate} from '@remotion/effects/translate';
 import {vignette} from '@remotion/effects/vignette';
 import {wave} from '@remotion/effects/wave';
+import {waves} from '@remotion/effects/waves';
 import {whiteNoise} from '@remotion/effects/white-noise';
+import {zigzag} from '@remotion/effects/zigzag';
 import {lightLeakEffectSchema} from '@remotion/light-leaks';
 import {starburstEffectSchema} from '@remotion/starburst';
 import {EffectsBarrelDistortionPreview} from '../effects/effects-barrel-distortion-preview';
@@ -49,6 +53,8 @@ import {EffectsLightLeakPreview} from '../effects/effects-light-leak-preview';
 import {EffectsLinesPreview} from '../effects/effects-lines-preview';
 import {EffectsMirrorPreview} from '../effects/effects-mirror-preview';
 import {EffectsNoisePreview} from '../effects/effects-noise-preview';
+import {EffectsPixelDissolvePreview} from '../effects/effects-pixel-dissolve-preview';
+import {EffectsRingsPreview} from '../effects/effects-rings-preview';
 import {EffectsSaturationPreview} from '../effects/effects-saturation-preview';
 import {EffectsScalePreview} from '../effects/effects-scale-preview';
 import {EffectsScanlinesPreview} from '../effects/effects-scanlines-preview';
@@ -62,7 +68,9 @@ import {
 } from '../effects/effects-translate-preview';
 import {EffectsVignettePreview} from '../effects/effects-vignette-preview';
 import {EffectsWavePreview} from '../effects/effects-wave-preview';
+import {EffectsWavesPreview} from '../effects/effects-waves-preview';
 import {EffectsWhiteNoisePreview} from '../effects/effects-white-noise-preview';
+import {EffectsZigzagPreview} from '../effects/effects-zigzag-preview';
 import type {EffectsDemoType} from './types';
 
 const defaults = {
@@ -79,66 +87,88 @@ export const effectsDemos: EffectsDemoType[] = [
 	{
 		...defaults,
 		id: 'effects-brightness',
+		effectName: 'brightness',
+		effectImportPath: '@remotion/effects/brightness',
 		comp: EffectsBrightnessPreview,
 		schema: brightness().definition.schema,
 	},
 	{
 		...defaults,
 		id: 'effects-contrast',
+		effectName: 'contrast',
+		effectImportPath: '@remotion/effects/contrast',
 		comp: EffectsContrastPreview,
 		schema: contrast().definition.schema,
 	},
 	{
 		...defaults,
 		id: 'effects-duotone',
+		effectName: 'duotone',
+		effectImportPath: '@remotion/effects/duotone',
 		comp: EffectsDuotonePreview,
 		schema: duotone().definition.schema,
 	},
 	{
 		...defaults,
 		id: 'effects-evolve',
+		effectName: 'evolve',
+		effectImportPath: '@remotion/effects/evolve',
 		comp: EffectsEvolvePreview,
 		schema: evolve().definition.schema,
 	},
 	{
 		...defaults,
 		id: 'effects-drop-shadow',
+		effectName: 'dropShadow',
+		effectImportPath: '@remotion/effects/drop-shadow',
 		comp: EffectsDropShadowPreview,
 		schema: dropShadow().definition.schema,
 	},
 	{
 		...defaults,
 		id: 'effects-glow',
+		effectName: 'glow',
+		effectImportPath: '@remotion/effects/glow',
 		comp: EffectsGlowPreview,
 		schema: glow().definition.schema,
 	},
 	{
 		...defaults,
 		id: 'effects-grayscale',
+		effectName: 'grayscale',
+		effectImportPath: '@remotion/effects/grayscale',
 		comp: EffectsGrayscalePreview,
 		schema: grayscale().definition.schema,
 	},
 	{
 		...defaults,
 		id: 'effects-hue',
+		effectName: 'hue',
+		effectImportPath: '@remotion/effects/hue',
 		comp: EffectsHuePreview,
 		schema: hue().definition.schema,
 	},
 	{
 		...defaults,
 		id: 'effects-invert',
+		effectName: 'invert',
+		effectImportPath: '@remotion/effects/invert',
 		comp: EffectsInvertPreview,
 		schema: invert().definition.schema,
 	},
 	{
 		...defaults,
 		id: 'effects-saturation',
+		effectName: 'saturation',
+		effectImportPath: '@remotion/effects/saturation',
 		comp: EffectsSaturationPreview,
 		schema: saturation().definition.schema,
 	},
 	{
 		...defaults,
 		id: 'effects-tint',
+		effectName: 'tint',
+		effectImportPath: '@remotion/effects/tint',
 		comp: EffectsTintPreview,
 		schema: tint({color: '#1ec8ff'}).definition.schema,
 		initialValues: {
@@ -148,84 +178,120 @@ export const effectsDemos: EffectsDemoType[] = [
 	{
 		...defaults,
 		id: 'effects-shine',
+		effectName: 'shine',
+		effectImportPath: '@remotion/effects/shine',
 		comp: EffectsShinePreview,
 		schema: shine().definition.schema,
 	},
 	{
 		...defaults,
 		id: 'effects-speckle',
+		effectName: 'speckle',
+		effectImportPath: '@remotion/effects/speckle',
 		comp: EffectsSpecklePreview,
 		schema: speckle().definition.schema,
 	},
 	{
 		...defaults,
 		id: 'effects-mirror',
+		effectName: 'mirror',
+		effectImportPath: '@remotion/effects/mirror',
 		comp: EffectsMirrorPreview,
 		schema: mirror().definition.schema,
 	},
 	{
 		...defaults,
 		id: 'effects-noise',
+		effectName: 'noise',
+		effectImportPath: '@remotion/effects/noise',
 		comp: EffectsNoisePreview,
 		schema: noise().definition.schema,
 	},
 	{
 		...defaults,
 		id: 'effects-white-noise',
+		effectName: 'whiteNoise',
+		effectImportPath: '@remotion/effects/white-noise',
 		comp: EffectsWhiteNoisePreview,
 		schema: whiteNoise().definition.schema,
 	},
 	{
 		...defaults,
 		id: 'effects-scanlines',
+		effectName: 'scanlines',
+		effectImportPath: '@remotion/effects/scanlines',
 		comp: EffectsScanlinesPreview,
 		schema: scanlines().definition.schema,
 	},
 	{
 		...defaults,
 		id: 'effects-lines',
+		effectName: 'lines',
+		effectImportPath: '@remotion/effects/lines',
 		comp: EffectsLinesPreview,
 		schema: lines().definition.schema,
 	},
 	{
 		...defaults,
+		id: 'effects-rings',
+		effectName: 'rings',
+		effectImportPath: '@remotion/effects/rings',
+		comp: EffectsRingsPreview,
+		schema: rings().definition.schema,
+	},
+	{
+		...defaults,
 		id: 'effects-scale',
+		effectName: 'scale',
+		effectImportPath: '@remotion/effects/scale',
 		comp: EffectsScalePreview,
 		schema: scale({scale: 1}).definition.schema,
 	},
 	{
 		...defaults,
 		id: 'effects-xy-translate',
+		effectName: 'xyTranslate',
+		effectImportPath: '@remotion/effects/translate',
 		comp: EffectsXyTranslatePreview,
 		schema: xyTranslate().definition.schema,
 	},
 	{
 		...defaults,
 		id: 'effects-uv-translate',
+		effectName: 'uvTranslate',
+		effectImportPath: '@remotion/effects/translate',
 		comp: EffectsUvTranslatePreview,
 		schema: uvTranslate().definition.schema,
 	},
 	{
 		...defaults,
 		id: 'effects-barrel-distortion',
+		effectName: 'barrelDistortion',
+		effectImportPath: '@remotion/effects/barrel-distortion',
 		comp: EffectsBarrelDistortionPreview,
 		schema: barrelDistortion().definition.schema,
 	},
 	{
 		...defaults,
 		id: 'effects-fisheye',
+		effectName: 'fisheye',
+		effectImportPath: '@remotion/effects/fisheye',
 		comp: EffectsFisheyePreview,
 		schema: fisheye().definition.schema,
 	},
 	{
 		...defaults,
 		id: 'effects-vignette',
+		effectName: 'vignette',
+		effectImportPath: '@remotion/effects/vignette',
 		comp: EffectsVignettePreview,
 		schema: vignette().definition.schema,
 	},
 	{
 		...defaults,
 		id: 'effects-blur',
+		effectName: 'blur',
+		effectImportPath: '@remotion/effects/blur',
 		comp: EffectsBlurPreview,
 		schema: blur({radius: 40}).definition.schema,
 		initialValues: {
@@ -235,36 +301,72 @@ export const effectsDemos: EffectsDemoType[] = [
 	{
 		...defaults,
 		id: 'effects-chromatic-aberration',
+		effectName: 'chromaticAberration',
+		effectImportPath: '@remotion/effects/chromatic-aberration',
 		comp: EffectsChromaticAberrationPreview,
 		schema: chromaticAberration().definition.schema,
 	},
 	{
 		...defaults,
 		id: 'effects-wave',
+		effectName: 'wave',
+		effectImportPath: '@remotion/effects/wave',
 		comp: EffectsWavePreview,
 		schema: wave().definition.schema,
 	},
 	{
 		...defaults,
+		id: 'effects-waves',
+		effectName: 'waves',
+		effectImportPath: '@remotion/effects/waves',
+		comp: EffectsWavesPreview,
+		schema: waves().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-zigzag',
+		effectName: 'zigzag',
+		effectImportPath: '@remotion/effects/zigzag',
+		comp: EffectsZigzagPreview,
+		schema: zigzag().definition.schema,
+	},
+	{
+		...defaults,
 		id: 'effects-halftone',
+		effectName: 'halftone',
+		effectImportPath: '@remotion/effects/halftone',
 		comp: EffectsHalftonePreview,
 		schema: halftone().definition.schema,
 	},
 	{
 		...defaults,
+		id: 'effects-pixel-dissolve',
+		effectName: 'pixelDissolve',
+		effectImportPath: '@remotion/effects/pixel-dissolve',
+		comp: EffectsPixelDissolvePreview,
+		schema: pixelDissolve().definition.schema,
+	},
+	{
+		...defaults,
 		id: 'effects-halftone-linear-gradient',
+		effectName: 'halftoneLinearGradient',
+		effectImportPath: '@remotion/effects/halftone-linear-gradient',
 		comp: EffectsHalftoneLinearGradientPreview,
 		schema: halftoneLinearGradient().definition.schema,
 	},
 	{
 		...defaults,
 		id: 'effects-dot-grid',
+		effectName: 'dotGrid',
+		effectImportPath: '@remotion/effects/dot-grid',
 		comp: EffectsDotGridPreview,
 		schema: dotGrid().definition.schema,
 	},
 	{
 		...defaults,
 		id: 'effects-starburst',
+		effectName: 'starburst',
+		effectImportPath: '@remotion/starburst',
 		comp: EffectsStarburstPreview,
 		schema: starburstEffectSchema,
 		initialValues: {
@@ -274,6 +376,8 @@ export const effectsDemos: EffectsDemoType[] = [
 	{
 		...defaults,
 		id: 'effects-light-leak',
+		effectName: 'lightLeak',
+		effectImportPath: '@remotion/light-leaks',
 		comp: EffectsLightLeakPreview,
 		schema: lightLeakEffectSchema,
 	},

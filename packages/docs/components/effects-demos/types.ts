@@ -3,6 +3,8 @@ import type {LogLevel, SequenceSchema} from 'remotion';
 
 export type EffectsDemoType = {
 	id: string;
+	effectName: string;
+	effectImportPath: string;
 	comp: React.FC;
 	schema: SequenceSchema;
 	initialValues?: Record<string, unknown>;

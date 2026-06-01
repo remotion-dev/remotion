@@ -33,7 +33,7 @@ export const DragAndDropNudge: React.FC = () => {
 				display: 'flex',
 				justifyContent: 'flex-start',
 				paddingBottom: 5,
-				marginTop: 50,
+				marginTop: 18,
 			}}
 			className={'ml-4 lg:-ml-5'}
 		>

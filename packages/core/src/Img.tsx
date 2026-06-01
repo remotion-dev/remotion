@@ -1,10 +1,4 @@
-import React, {
-	useCallback,
-	useContext,
-	useImperativeHandle,
-	useLayoutEffect,
-	useRef,
-} from 'react';
+import React, {useCallback, useContext, useLayoutEffect, useRef} from 'react';
 import type {IsExact} from './audio/props.js';
 import type {ImageFit} from './calculate-image-fit.js';
 import {CanvasImage} from './canvas-image/index.js';
@@ -73,7 +67,9 @@ type ImgContentProps = Omit<
 	| 'from'
 	| 'durationInFrames'
 	| 'effects'
->;
+> & {
+	readonly refForOutline: React.RefObject<HTMLElement | null>;
+};
 
 const ImgContent: React.FC<ImgContentProps> = ({
 	onError,
@@ -86,6 +82,7 @@ const ImgContent: React.FC<ImgContentProps> = ({
 	crossOrigin,
 	decoding,
 	ref,
+	refForOutline,
 	...props
 }) => {
 	const imageRef = useRef<HTMLImageElement>(null);
@@ -99,9 +96,19 @@ const ImgContent: React.FC<ImgContentProps> = ({
 		throw new Error('typecheck error');
 	}
 
-	useImperativeHandle(ref, () => {
-		return imageRef.current as HTMLImageElement;
-	}, []);
+	const imageCallbackRef = useCallback(
+		(img: HTMLImageElement | null) => {
+			imageRef.current = img;
+			refForOutline.current = img;
+
+			if (typeof ref === 'function') {
+				ref(img);
+			} else if (ref) {
+				ref.current = img;
+			}
+		},
+		[ref, refForOutline],
+	);
 
 	const actualSrc = usePreload(src as string);
 
@@ -294,7 +301,7 @@ const ImgContent: React.FC<ImgContentProps> = ({
 	return (
 		<img
 			{...props}
-			ref={imageRef}
+			ref={imageCallbackRef}
 			crossOrigin={crossOriginValue}
 			onError={didGetError}
 			decoding={isRendering ? 'sync' : decoding}
@@ -304,6 +311,7 @@ const ImgContent: React.FC<ImgContentProps> = ({
 
 type NativeImgInnerProps = Omit<ImgProps, 'effects'> & {
 	readonly _experimentalControls: SequenceControls | undefined;
+	readonly _remotionInternalRefForOutline: React.RefObject<HTMLElement | null>;
 };
 
 const NativeImgInner: React.FC<NativeImgInnerProps> = ({
@@ -315,6 +323,7 @@ const NativeImgInner: React.FC<NativeImgInnerProps> = ({
 	from,
 	durationInFrames,
 	_experimentalControls: controls,
+	_remotionInternalRefForOutline: refForOutline,
 	...props
 }) => {
 	if (!src) {
@@ -335,8 +344,9 @@ const NativeImgInner: React.FC<NativeImgInnerProps> = ({
 			_experimentalControls={controls}
 			showInTimeline={showInTimeline ?? true}
 			hidden={hidden}
+			_remotionInternalRefForOutline={refForOutline}
 		>
-			<ImgContent src={src} {...props} />
+			<ImgContent src={src} refForOutline={refForOutline} {...props} />
 		</Sequence>
 	);
 };
@@ -344,6 +354,7 @@ const NativeImgInner: React.FC<NativeImgInnerProps> = ({
 const CanvasImageWithPrivateProps = CanvasImage as React.ComponentType<
 	CanvasImageProps & {
 		readonly _experimentalControls?: SequenceControls | undefined;
+		readonly _remotionInternalRefForOutline?: React.RefObject<HTMLElement | null> | null;
 	}
 >;
 
@@ -453,6 +464,8 @@ const ImgInner: React.FC<
 	delayRenderTimeoutInMilliseconds,
 	...props
 }) => {
+	const refForOutline = useRef<HTMLElement | null>(null);
+
 	if (effects.length === 0) {
 		return (
 			<NativeImgInner
@@ -475,6 +488,7 @@ const ImgInner: React.FC<
 				maxRetries={maxRetries}
 				delayRenderRetries={delayRenderRetries}
 				delayRenderTimeoutInMilliseconds={delayRenderTimeoutInMilliseconds}
+				_remotionInternalRefForOutline={refForOutline}
 			/>
 		);
 	}
@@ -519,6 +533,7 @@ const ImgInner: React.FC<
 				name === undefined ? 'https://www.remotion.dev/docs/img' : undefined
 			}
 			_experimentalControls={controls}
+			_remotionInternalRefForOutline={refForOutline}
 			{...canvasProps}
 		/>
 	);

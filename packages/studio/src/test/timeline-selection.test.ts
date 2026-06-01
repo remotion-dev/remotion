@@ -9,8 +9,11 @@ import {
 } from 'remotion';
 import {
 	getSelectedEffectFieldsBySequenceKey,
+	getSelectedOutlineDragChanges,
+	getSelectedOutlineDragValues,
 	getUvCoordinateForPoint,
 	getUvHandlePosition,
+	type SelectedOutlineDragState,
 } from '../components/SelectedOutlineOverlay';
 import {deleteSelectedTimelineItems} from '../components/Timeline/delete-selected-timeline-item';
 import {isDuplicatableSequenceRowSelection} from '../components/Timeline/duplicate-selected-timeline-item';
@@ -260,6 +263,74 @@ test('Backspace reset targets multiple selected sequence props', () => {
 		'style.rotate',
 	]);
 	expect(resetTargets?.map((target) => target.value)).toEqual([1, '0deg']);
+});
+
+test('Selected outline dragging applies the same delta to all selected sequences', () => {
+	const schema = {
+		'style.translate': {type: 'translate', default: '0px 0px'},
+	} satisfies SequenceSchema;
+	const firstNodePath = makeKey(['body', 0]);
+	const secondNodePath = makeKey(['body', 1]);
+	const dragStates = [
+		{
+			defaultValue: JSON.stringify('0px 0px'),
+			key: Internals.makeSequencePropsSubscriptionKey(firstNodePath),
+			startX: 10,
+			startY: 20,
+			target: {
+				clientId: 'client',
+				codeValue: {canUpdate: true, codeValue: '10px 20px'},
+				fieldDefault: '0px 0px',
+				nodePath: firstNodePath,
+				schema,
+			},
+		},
+		{
+			defaultValue: JSON.stringify('0px 0px'),
+			key: Internals.makeSequencePropsSubscriptionKey(secondNodePath),
+			startX: -5,
+			startY: 3,
+			target: {
+				clientId: 'client',
+				codeValue: {canUpdate: true, codeValue: '-5px 3px'},
+				fieldDefault: '0px 0px',
+				nodePath: secondNodePath,
+				schema,
+			},
+		},
+	] satisfies SelectedOutlineDragState[];
+
+	const lastValues = getSelectedOutlineDragValues({
+		dragStates,
+		deltaX: 7,
+		deltaY: -4,
+	});
+
+	expect(lastValues.get(dragStates[0].key)).toBe('17px 16px');
+	expect(lastValues.get(dragStates[1].key)).toBe('2px -1px');
+	expect(
+		getSelectedOutlineDragChanges({
+			dragStates,
+			lastValues,
+		}),
+	).toEqual([
+		{
+			fileName: '/project/src/Comp.tsx',
+			nodePath: firstNodePath,
+			fieldKey: 'style.translate',
+			value: '17px 16px',
+			defaultValue: JSON.stringify('0px 0px'),
+			schema,
+		},
+		{
+			fileName: '/project/src/Comp.tsx',
+			nodePath: secondNodePath,
+			fieldKey: 'style.translate',
+			value: '2px -1px',
+			defaultValue: JSON.stringify('0px 0px'),
+			schema,
+		},
+	]);
 });
 
 test('Backspace reset targets selected effect props', () => {

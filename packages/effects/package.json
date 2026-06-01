@@ -94,6 +94,11 @@
 			"module": "./dist/esm/halftone-linear-gradient.mjs",
 			"import": "./dist/esm/halftone-linear-gradient.mjs"
 		},
+		"./pixel-dissolve": {
+			"types": "./dist/pixel-dissolve.d.ts",
+			"module": "./dist/esm/pixel-dissolve.mjs",
+			"import": "./dist/esm/pixel-dissolve.mjs"
+		},
 		"./grayscale": {
 			"types": "./dist/grayscale.d.ts",
 			"module": "./dist/esm/grayscale.mjs",
@@ -128,6 +133,11 @@
 			"types": "./dist/noise.d.ts",
 			"module": "./dist/esm/noise.mjs",
 			"import": "./dist/esm/noise.mjs"
+		},
+		"./rings": {
+			"types": "./dist/rings.d.ts",
+			"module": "./dist/esm/rings.mjs",
+			"import": "./dist/esm/rings.mjs"
 		},
 		"./saturation": {
 			"types": "./dist/saturation.d.ts",
@@ -174,10 +184,20 @@
 			"module": "./dist/esm/wave.mjs",
 			"import": "./dist/esm/wave.mjs"
 		},
+		"./waves": {
+			"types": "./dist/waves.d.ts",
+			"module": "./dist/esm/waves.mjs",
+			"import": "./dist/esm/waves.mjs"
+		},
 		"./white-noise": {
 			"types": "./dist/white-noise.d.ts",
 			"module": "./dist/esm/white-noise.mjs",
 			"import": "./dist/esm/white-noise.mjs"
+		},
+		"./zigzag": {
+			"types": "./dist/zigzag.d.ts",
+			"module": "./dist/esm/zigzag.mjs",
+			"import": "./dist/esm/zigzag.mjs"
 		},
 		"./package.json": "./package.json"
 	},
@@ -219,6 +239,9 @@
 			"halftone-linear-gradient": [
 				"dist/halftone-linear-gradient.d.ts"
 			],
+			"pixel-dissolve": [
+				"dist/pixel-dissolve.d.ts"
+			],
 			"grayscale": [
 				"dist/grayscale.d.ts"
 			],
@@ -239,6 +262,9 @@
 			],
 			"noise": [
 				"dist/noise.d.ts"
+			],
+			"rings": [
+				"dist/rings.d.ts"
 			],
 			"saturation": [
 				"dist/saturation.d.ts"
@@ -266,6 +292,12 @@
 			],
 			"wave": [
 				"dist/wave.d.ts"
+			],
+			"waves": [
+				"dist/waves.d.ts"
+			],
+			"zigzag": [
+				"dist/zigzag.d.ts"
 			],
 			"white-noise": [
 				"dist/white-noise.d.ts"

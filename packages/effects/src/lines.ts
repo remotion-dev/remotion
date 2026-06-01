@@ -14,7 +14,7 @@ const {createEffect, createWebGL2ContextError} = Internals;
 
 const LINE_DIRECTIONS = ['horizontal', 'vertical'] as const;
 
-const DEFAULT_COLORS = ['#dff4ff', 'transparent'] as const;
+const DEFAULT_COLORS = ['#dff4ff', '#7cc6ff'] as const;
 const DEFAULT_DIRECTION = 'horizontal' as const;
 const DEFAULT_THICKNESS = 40 as const;
 const DEFAULT_GAP = 0 as const;
@@ -66,7 +66,7 @@ export const linesSchema = {
 export type LinesDirection = (typeof LINE_DIRECTIONS)[number];
 
 export type LinesParams = {
-	/** Stripe colors, assigned cyclically. Defaults to light blue and transparent. */
+	/** Stripe colors, assigned cyclically. Defaults to light blue shades. */
 	readonly colors?: readonly string[];
 	/** Line direction. Defaults to `horizontal`. */
 	readonly direction?: LinesDirection;

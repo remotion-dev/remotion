@@ -249,6 +249,7 @@ export type SubscribeToSequencePropsRequest = {
 	fileName: string;
 	line: number;
 	column: number;
+	nodePath: SequenceNodePath | null;
 	keys: string[];
 	effects: string[][];
 	clientId: string;
@@ -319,16 +320,50 @@ export type SaveEffectPropsRequest = {
 
 export type SaveEffectPropsResponse = CanUpdateEffectPropsResponse;
 
-export type DeleteSequenceKeyframeRequest = {
+export type AddEffectRequest = {
+	fileName: string;
+	sequenceNodePath: SequencePropsSubscriptionKey;
+	effectName: string;
+	effectImportPath: string;
+	effectConfig: Record<string, unknown>;
+	clientId: string;
+};
+
+export type AddEffectResponse =
+	| {
+			success: true;
+	  }
+	| {
+			success: false;
+			reason: string;
+			stack: string;
+	  };
+
+export type ReorderEffectRequest = {
+	fileName: string;
+	sequenceNodePath: SequencePropsSubscriptionKey;
+	fromIndex: number;
+	toIndex: number;
+	clientId: string;
+};
+
+export type ReorderEffectResponse =
+	| {
+			success: true;
+	  }
+	| {
+			success: false;
+			reason: string;
+			stack: string;
+	  };
+
+export type DeleteSequenceKeyframe = {
 	fileName: string;
 	nodePath: SequencePropsSubscriptionKey;
 	key: string;
 	frame: number;
 	schema: SequenceSchema;
-	clientId: string;
 };
-
-export type DeleteSequenceKeyframeResponse = SaveSequencePropsResponse;
 
 export type AddSequenceKeyframeRequest = {
 	fileName: string;
@@ -342,17 +377,24 @@ export type AddSequenceKeyframeRequest = {
 
 export type AddSequenceKeyframeResponse = SaveSequencePropsResponse;
 
-export type DeleteEffectKeyframeRequest = {
+export type DeleteEffectKeyframe = {
 	fileName: string;
 	sequenceNodePath: SequencePropsSubscriptionKey;
 	effectIndex: number;
 	key: string;
 	frame: number;
 	schema: SequenceSchema;
+};
+
+export type DeleteKeyframesRequest = {
+	sequenceKeyframes: DeleteSequenceKeyframe[];
+	effectKeyframes: DeleteEffectKeyframe[];
 	clientId: string;
 };
 
-export type DeleteEffectKeyframeResponse = SaveEffectPropsResponse;
+export type DeleteKeyframesResponse = {
+	success: true;
+};
 
 export type AddEffectKeyframeRequest = {
 	fileName: string;
@@ -543,17 +585,15 @@ export type ApiRoutes = {
 		SaveEffectPropsRequest,
 		SaveEffectPropsResponse
 	>;
-	'/api/delete-sequence-keyframe': ReqAndRes<
-		DeleteSequenceKeyframeRequest,
-		DeleteSequenceKeyframeResponse
+	'/api/add-effect': ReqAndRes<AddEffectRequest, AddEffectResponse>;
+	'/api/reorder-effect': ReqAndRes<ReorderEffectRequest, ReorderEffectResponse>;
+	'/api/delete-keyframes': ReqAndRes<
+		DeleteKeyframesRequest,
+		DeleteKeyframesResponse
 	>;
 	'/api/add-sequence-keyframe': ReqAndRes<
 		AddSequenceKeyframeRequest,
 		AddSequenceKeyframeResponse
-	>;
-	'/api/delete-effect-keyframe': ReqAndRes<
-		DeleteEffectKeyframeRequest,
-		DeleteEffectKeyframeResponse
 	>;
 	'/api/add-effect-keyframe': ReqAndRes<
 		AddEffectKeyframeRequest,

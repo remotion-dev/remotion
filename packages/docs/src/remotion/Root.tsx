@@ -22,6 +22,8 @@ import {EffectsLightLeakPreview} from '../../components/effects/effects-light-le
 import {EffectsLinesPreview} from '../../components/effects/effects-lines-preview';
 import {EffectsMirrorPreview} from '../../components/effects/effects-mirror-preview';
 import {EffectsNoisePreview} from '../../components/effects/effects-noise-preview';
+import {EffectsPixelDissolvePreview} from '../../components/effects/effects-pixel-dissolve-preview';
+import {EffectsRingsPreview} from '../../components/effects/effects-rings-preview';
 import {EffectsSaturationPreview} from '../../components/effects/effects-saturation-preview';
 import {EffectsScalePreview} from '../../components/effects/effects-scale-preview';
 import {EffectsScanlinesPreview} from '../../components/effects/effects-scanlines-preview';
@@ -35,7 +37,9 @@ import {
 } from '../../components/effects/effects-translate-preview';
 import {EffectsVignettePreview} from '../../components/effects/effects-vignette-preview';
 import {EffectsWavePreview} from '../../components/effects/effects-wave-preview';
+import {EffectsWavesPreview} from '../../components/effects/effects-waves-preview';
 import {EffectsWhiteNoisePreview} from '../../components/effects/effects-white-noise-preview';
+import {EffectsZigzagPreview} from '../../components/effects/effects-zigzag-preview';
 import {articles} from '../data/articles';
 import {AllTemplates} from './AllTemplates';
 import {Article} from './Article';
@@ -293,6 +297,19 @@ export const RemotionRoot: React.FC = () => {
 					}}
 				/>
 				<Still
+					id="effects-pixel-dissolve-preview"
+					component={EffectsPixelDissolvePreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						progress: 0.4,
+						columns: 12,
+						rows: 12,
+						seed: 0,
+						feather: 0.15,
+					}}
+				/>
+				<Still
 					id="effects-halftone-linear-gradient-preview"
 					component={EffectsHalftoneLinearGradientPreview}
 					width={1280}
@@ -363,6 +380,49 @@ export const RemotionRoot: React.FC = () => {
 						gap: 0,
 						angle: 20,
 						offset: 0,
+					}}
+				/>
+				<Still
+					id="effects-rings-preview"
+					component={EffectsRingsPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						center: [0.5, 0.5],
+						thickness: 40,
+						gap: 0,
+						offset: 0,
+					}}
+				/>
+				<Still
+					id="effects-waves-preview"
+					component={EffectsWavesPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						direction: 'horizontal',
+						thickness: 40,
+						gap: 0,
+						angle: 0,
+						offset: 0,
+						amplitude: 24,
+						wavelength: 160,
+						phase: 45,
+					}}
+				/>
+				<Still
+					id="effects-zigzag-preview"
+					component={EffectsZigzagPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						direction: 'horizontal',
+						thickness: 40,
+						gap: 0,
+						angle: 0,
+						offset: 0,
+						amplitude: 40,
+						wavelength: 160,
 					}}
 				/>
 				<Still

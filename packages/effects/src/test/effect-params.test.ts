@@ -18,6 +18,8 @@ import {invert} from '../invert.js';
 import {lines} from '../lines.js';
 import {mirror} from '../mirror.js';
 import {noise} from '../noise.js';
+import {pixelDissolve} from '../pixel-dissolve.js';
+import {rings} from '../rings.js';
 import {saturation} from '../saturation.js';
 import {scale} from '../scale.js';
 import {scanlines} from '../scanlines.js';
@@ -27,7 +29,9 @@ import {tint} from '../tint.js';
 import {uvTranslate, xyTranslate} from '../translate.js';
 import {vignette} from '../vignette.js';
 import {wave} from '../wave/index.js';
+import {waves} from '../waves.js';
 import {whiteNoise} from '../white-noise.js';
+import {zigzag} from '../zigzag.js';
 
 test('@remotion/effects expose documentation links', () => {
 	expect(barrelDistortion().definition.documentationLink).toBe(
@@ -69,6 +73,9 @@ test('@remotion/effects expose documentation links', () => {
 	expect(halftoneLinearGradient().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/halftone-linear-gradient',
 	);
+	expect(pixelDissolve().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/pixel-dissolve',
+	);
 	expect(hue().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/hue',
 	);
@@ -86,6 +93,9 @@ test('@remotion/effects expose documentation links', () => {
 	);
 	expect(noise().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/noise',
+	);
+	expect(rings().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/rings',
 	);
 	expect(saturation().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/saturation',
@@ -117,6 +127,12 @@ test('@remotion/effects expose documentation links', () => {
 	expect(wave().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/wave',
 	);
+	expect(waves().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/waves',
+	);
+	expect(zigzag().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/zigzag',
+	);
 	expect(whiteNoise().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/white-noise',
 	);
@@ -137,12 +153,14 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(halftoneLinearGradient().definition.label).toBe(
 		'halftoneLinearGradient()',
 	);
+	expect(pixelDissolve().definition.label).toBe('pixelDissolve()');
 	expect(hue().definition.label).toBe('hue()');
 	expect(invert().definition.label).toBe('invert()');
 	expect(lines().definition.label).toBe('lines()');
 	expect(dotGrid().definition.label).toBe('dotGrid()');
 	expect(mirror().definition.label).toBe('mirror()');
 	expect(noise().definition.label).toBe('noise()');
+	expect(rings().definition.label).toBe('rings()');
 	expect(saturation().definition.label).toBe('saturation()');
 	expect(scanlines().definition.label).toBe('scanlines()');
 	expect(scale({scale: 1}).definition.label).toBe('scale()');
@@ -153,6 +171,8 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(vignette().definition.label).toBe('vignette()');
 	expect(xyTranslate().definition.label).toBe('xyTranslate()');
 	expect(wave().definition.label).toBe('wave()');
+	expect(waves().definition.label).toBe('waves()');
+	expect(zigzag().definition.label).toBe('zigzag()');
 	expect(whiteNoise().definition.label).toBe('whiteNoise()');
 });
 
@@ -215,8 +235,8 @@ test('fisheye() rejects non-positive zoom', () => {
 });
 
 test('fisheye() rejects invalid center', () => {
-	// @ts-expect-error – wrong shape on purpose
-	expect(() => fisheye({center: [0.5]})).toThrow(
+	const invalidCenter = [0.5] as unknown as [number, number];
+	expect(() => fisheye({center: invalidCenter})).toThrow(
 		'"center" must be a [number, number] tuple',
 	);
 });
@@ -358,6 +378,134 @@ test('wave() direction produces distinct effect keys', () => {
 	const horizontal = wave({direction: 'horizontal'});
 	const vertical = wave({direction: 'vertical'});
 	expect(horizontal.effectKey).not.toBe(vertical.effectKey);
+});
+
+test('waves() accepts default params', () => {
+	expect(() => waves()).not.toThrow();
+});
+
+test('waves() rejects invalid colors', () => {
+	expect(() => waves({colors: ['#dff4ff']})).toThrow(
+		'"colors" must be an array with at least 2 colors',
+	);
+	expect(() => waves({colors: ['#dff4ff', '' as unknown as string]})).toThrow(
+		'"colors[1]" must be a non-empty string',
+	);
+});
+
+test('waves() rejects invalid direction', () => {
+	expect(() =>
+		waves({direction: 'diagonal' as unknown as 'horizontal'}),
+	).toThrow('"direction" must be "horizontal" or "vertical"');
+});
+
+test('waves() rejects non-positive wavelength', () => {
+	expect(() => waves({wavelength: 0})).toThrow(
+		'"wavelength" must be greater than 0',
+	);
+});
+
+test('waves() rejects negative amplitude', () => {
+	expect(() => waves({amplitude: -1})).toThrow(
+		'"amplitude" must be greater than or equal to 0',
+	);
+});
+
+test('waves() rejects non-positive thickness', () => {
+	expect(() => waves({thickness: 0})).toThrow(
+		'"thickness" must be greater than 0',
+	);
+});
+
+test('waves() parameters produce distinct effect keys', () => {
+	const defaults = waves();
+	const colored = waves({colors: ['#ffffff', 'transparent']});
+	const vertical = waves({direction: 'vertical'});
+	const thin = waves({thickness: 20});
+	const gapped = waves({gap: 24});
+	const angled = waves({angle: 45});
+	const shifted = waves({offset: 10});
+	const stronger = waves({amplitude: 30});
+	const longer = waves({wavelength: 220});
+	const phased = waves({phase: 90});
+
+	expect(
+		new Set([
+			defaults.effectKey,
+			colored.effectKey,
+			vertical.effectKey,
+			thin.effectKey,
+			gapped.effectKey,
+			angled.effectKey,
+			shifted.effectKey,
+			stronger.effectKey,
+			longer.effectKey,
+			phased.effectKey,
+		]).size,
+	).toBe(10);
+});
+
+test('zigzag() accepts default params', () => {
+	expect(() => zigzag()).not.toThrow();
+});
+
+test('zigzag() rejects invalid colors', () => {
+	expect(() => zigzag({colors: ['#dff4ff']})).toThrow(
+		'"colors" must be an array with at least 2 colors',
+	);
+	expect(() => zigzag({colors: ['#dff4ff', '' as unknown as string]})).toThrow(
+		'"colors[1]" must be a non-empty string',
+	);
+});
+
+test('zigzag() rejects invalid direction', () => {
+	expect(() =>
+		zigzag({direction: 'diagonal' as unknown as 'horizontal'}),
+	).toThrow('"direction" must be "horizontal" or "vertical"');
+});
+
+test('zigzag() rejects non-positive wavelength', () => {
+	expect(() => zigzag({wavelength: 0})).toThrow(
+		'"wavelength" must be greater than 0',
+	);
+});
+
+test('zigzag() rejects negative amplitude', () => {
+	expect(() => zigzag({amplitude: -1})).toThrow(
+		'"amplitude" must be greater than or equal to 0',
+	);
+});
+
+test('zigzag() rejects non-positive thickness', () => {
+	expect(() => zigzag({thickness: 0})).toThrow(
+		'"thickness" must be greater than 0',
+	);
+});
+
+test('zigzag() parameters produce distinct effect keys', () => {
+	const defaults = zigzag();
+	const colored = zigzag({colors: ['#ffffff', 'transparent']});
+	const vertical = zigzag({direction: 'vertical'});
+	const thin = zigzag({thickness: 20});
+	const gapped = zigzag({gap: 24});
+	const angled = zigzag({angle: 45});
+	const shifted = zigzag({offset: 10});
+	const stronger = zigzag({amplitude: 30});
+	const longer = zigzag({wavelength: 220});
+
+	expect(
+		new Set([
+			defaults.effectKey,
+			colored.effectKey,
+			vertical.effectKey,
+			thin.effectKey,
+			gapped.effectKey,
+			angled.effectKey,
+			shifted.effectKey,
+			stronger.effectKey,
+			longer.effectKey,
+		]).size,
+	).toBe(9);
 });
 
 test('whiteNoise() accepts default params', () => {
@@ -1293,6 +1441,87 @@ test('lines() parameters produce distinct effect keys', () => {
 	).toBe(7);
 });
 
+test('rings() accepts default params', () => {
+	expect(() => rings()).not.toThrow();
+});
+
+test('rings() accepts custom colors', () => {
+	expect(() => rings({colors: ['#dff4ff', 'transparent']})).not.toThrow();
+});
+
+test('rings() rejects invalid colors', () => {
+	expect(() => rings({colors: ['#dff4ff']})).toThrow(
+		'"colors" must be an array with at least 2 colors',
+	);
+	expect(() => rings({colors: ['#dff4ff', '' as unknown as string]})).toThrow(
+		'"colors[1]" must be a non-empty string',
+	);
+});
+
+test('rings() rejects invalid center', () => {
+	const invalidCenter = [0.5] as unknown as [number, number];
+	expect(() => rings({center: invalidCenter})).toThrow(
+		'"center" must be a [number, number] tuple',
+	);
+});
+
+test('rings() rejects center outside unit interval', () => {
+	expect(() => rings({center: [1.1, 0.5]})).toThrow('"center[0]" must be <= 1');
+	expect(() => rings({center: [0.5, -0.1]})).toThrow(
+		'"center[1]" must be >= 0',
+	);
+});
+
+test('rings() rejects non-finite thickness', () => {
+	expect(() => rings({thickness: Number.NaN})).toThrow(
+		'"thickness" must be a finite number',
+	);
+});
+
+test('rings() rejects non-positive thickness', () => {
+	expect(() => rings({thickness: 0})).toThrow(
+		'"thickness" must be greater than 0',
+	);
+});
+
+test('rings() rejects non-finite gap', () => {
+	expect(() => rings({gap: Number.NaN})).toThrow(
+		'"gap" must be a finite number',
+	);
+});
+
+test('rings() rejects negative gap', () => {
+	expect(() => rings({gap: -1})).toThrow(
+		'"gap" must be greater than or equal to 0',
+	);
+});
+
+test('rings() rejects non-finite offset', () => {
+	expect(() => rings({offset: Number.NaN})).toThrow(
+		'"offset" must be a finite number',
+	);
+});
+
+test('rings() parameters produce distinct effect keys', () => {
+	const defaultRings = rings();
+	const colored = rings({colors: ['#ffffff', 'transparent']});
+	const centered = rings({center: [0.3, 0.7]});
+	const thin = rings({thickness: 20});
+	const gapped = rings({gap: 24});
+	const shifted = rings({offset: 10});
+
+	expect(
+		new Set([
+			defaultRings.effectKey,
+			colored.effectKey,
+			centered.effectKey,
+			thin.effectKey,
+			gapped.effectKey,
+			shifted.effectKey,
+		]).size,
+	).toBe(6);
+});
+
 test('hue() accepts default params', () => {
 	expect(() => hue()).not.toThrow();
 });
@@ -1473,6 +1702,66 @@ test('speckle() parameters produce distinct effect keys', () => {
 			steadier.effectKey,
 		]).size,
 	).toBe(4);
+});
+
+test('pixelDissolve() accepts default params', () => {
+	expect(() => pixelDissolve()).not.toThrow();
+});
+
+test('pixelDissolve() rejects non-finite progress', () => {
+	expect(() => pixelDissolve({progress: Number.NaN})).toThrow(
+		'"progress" must be a finite number',
+	);
+});
+
+test('pixelDissolve() rejects progress below range', () => {
+	expect(() => pixelDissolve({progress: -0.1})).toThrow(
+		'"progress" must be >= 0',
+	);
+});
+
+test('pixelDissolve() rejects columns below range', () => {
+	expect(() => pixelDissolve({columns: 0})).toThrow('"columns" must be >= 1');
+});
+
+test('pixelDissolve() rejects rows below range', () => {
+	expect(() => pixelDissolve({rows: 0})).toThrow('"rows" must be >= 1');
+});
+
+test('pixelDissolve() rejects non-integer divisions', () => {
+	expect(() => pixelDissolve({columns: 10.5})).toThrow(
+		'"columns" must be an integer',
+	);
+});
+
+test('pixelDissolve() rejects non-finite seed', () => {
+	expect(() => pixelDissolve({seed: Number.NaN})).toThrow(
+		'"seed" must be a finite number',
+	);
+});
+
+test('pixelDissolve() rejects feather above range', () => {
+	expect(() => pixelDissolve({feather: 1.1})).toThrow('"feather" must be <= 1');
+});
+
+test('pixelDissolve() parameters produce distinct effect keys', () => {
+	const defaultDissolve = pixelDissolve();
+	const progressed = pixelDissolve({progress: 0.7});
+	const widerGrid = pixelDissolve({columns: 12});
+	const tallerGrid = pixelDissolve({rows: 12});
+	const reseeded = pixelDissolve({seed: 3});
+	const sharper = pixelDissolve({feather: 0.05});
+
+	expect(
+		new Set([
+			defaultDissolve.effectKey,
+			progressed.effectKey,
+			widerGrid.effectKey,
+			tallerGrid.effectKey,
+			reseeded.effectKey,
+			sharper.effectKey,
+		]).size,
+	).toBe(6);
 });
 
 test('xyTranslate() accepts default params', () => {

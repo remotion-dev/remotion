@@ -3,6 +3,10 @@ import {Player} from '@remotion/player';
 import React, {useCallback, useMemo, useState} from 'react';
 import {AbsoluteFill} from 'remotion';
 import {
+	makeEffectDragData,
+	setEffectDragData,
+} from './effect-drag-data';
+import {
 	fillSchemaDefaults,
 	getActiveSchemaFields,
 	getInitialValuesFromSchema,
@@ -17,6 +21,18 @@ const container: React.CSSProperties = {
 	border: '1px solid var(--ifm-color-emphasis-300)',
 	borderRadius: 'var(--ifm-pre-border-radius)',
 	marginBottom: 40,
+};
+
+const dragHandle: React.CSSProperties = {
+	alignItems: 'center',
+	borderBottom: '1px solid var(--ifm-color-emphasis-300)',
+	cursor: 'grab',
+	display: 'flex',
+	fontSize: 13,
+	fontWeight: 600,
+	gap: 6,
+	padding: '8px 10px',
+	userSelect: 'none',
 };
 
 export const EffectsDemo: React.FC<{
@@ -37,7 +53,9 @@ export const EffectsDemo: React.FC<{
 		});
 	}, [demo.initialValues, demo.schema]);
 
-	const [state, setState] = useState<Record<string, unknown>>(() => initialState);
+	const [state, setState] = useState<Record<string, unknown>>(
+		() => initialState,
+	);
 
 	const activeFields = useMemo(() => {
 		return getActiveSchemaFields({
@@ -50,6 +68,21 @@ export const EffectsDemo: React.FC<{
 		setState(initialState);
 		setKey((k) => k + 1);
 	}, [initialState]);
+
+	const dragData = useMemo(() => {
+		return makeEffectDragData({
+			effectName: demo.effectName,
+			effectImportPath: demo.effectImportPath,
+			effectConfig: state,
+		});
+	}, [demo.effectImportPath, demo.effectName, state]);
+
+	const onDragStart = useCallback(
+		(e: React.DragEvent<HTMLDivElement>) => {
+			setEffectDragData({dataTransfer: e.dataTransfer, dragData});
+		},
+		[dragData],
+	);
 
 	return (
 		<div style={container}>
@@ -101,6 +134,15 @@ export const EffectsDemo: React.FC<{
 				initiallyMuted
 				loop
 			/>
+			<div
+				draggable
+				onDragStart={onDragStart}
+				style={dragHandle}
+				title="Drag this effect into Remotion Studio"
+			>
+				<span aria-hidden="true">::</span>
+				<span>Drag current effect into a layer in the Studio</span>
+			</div>
 			<div className={styles.containerrow}>
 				{activeFields.map(([fieldKey, field]) => {
 					return (
