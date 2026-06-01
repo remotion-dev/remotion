@@ -1,4 +1,8 @@
-import React, {useCallback, useContext, useMemo} from 'react';
+import {
+	EFFECT_DRAG_MIME_TYPE,
+	parseEffectDragData,
+} from '@remotion/studio-shared';
+import React, {useCallback, useContext, useMemo, useState} from 'react';
 import type {TSequence} from 'remotion';
 import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
@@ -51,6 +55,41 @@ const labelContainerStyle: React.CSSProperties = {
 	gap: 4,
 };
 
+const effectDropHighlight: React.CSSProperties = {
+	backgroundColor: 'rgba(0, 155, 255, 0.16)',
+	outline: '1px solid rgba(0, 155, 255, 0.75)',
+	outlineOffset: -1,
+};
+
+const hasEffectDragType = (dataTransfer: DataTransfer) => {
+	return Array.from(dataTransfer.types).some(
+		(type) =>
+			type === EFFECT_DRAG_MIME_TYPE ||
+			type === 'application/json' ||
+			type === 'text/plain',
+	);
+};
+
+const getEffectDragData = (dataTransfer: DataTransfer) => {
+	for (const type of [
+		EFFECT_DRAG_MIME_TYPE,
+		'application/json',
+		'text/plain',
+	]) {
+		const value = dataTransfer.getData(type);
+		if (!value) {
+			continue;
+		}
+
+		const parsed = parseEffectDragData(value);
+		if (parsed) {
+			return parsed;
+		}
+	}
+
+	return null;
+};
+
 export const TimelineSequenceItem: React.FC<{
 	readonly sequence: TSequence;
 	readonly nestedDepth: number;
@@ -68,6 +107,7 @@ export const TimelineSequenceItem: React.FC<{
 	const {onSelect, selectable, selected} =
 		useTimelineRowSelection(nodePathInfo);
 	const containsSelection = useTimelineRowContainsSelection(nodePathInfo);
+	const [effectDropHovered, setEffectDropHovered] = useState(false);
 
 	const {canOpenInEditor, openInEditor, originalLocation} =
 		useOpenSequenceInEditor(sequence);
@@ -410,6 +450,15 @@ export const TimelineSequenceItem: React.FC<{
 		};
 	}, []);
 
+	const rowStyle = useMemo((): React.CSSProperties => {
+		return effectDropHovered
+			? {
+					...inner,
+					...effectDropHighlight,
+				}
+			: inner;
+	}, [effectDropHovered, inner]);
+
 	const hasExpandableContent =
 		Boolean(sequence.controls) || sequence.effects.length > 0;
 
@@ -421,6 +470,79 @@ export const TimelineSequenceItem: React.FC<{
 		codeHiddenStatus !== undefined &&
 		codeHiddenStatus !== null &&
 		codeHiddenStatus.canUpdate;
+
+	const canDropEffect =
+		previewServerState.type === 'connected' &&
+		nodePath !== null &&
+		validatedLocation !== null &&
+		sequence.type !== 'audio';
+
+	const onEffectDragOver = useCallback(
+		(e: React.DragEvent<HTMLDivElement>) => {
+			if (!canDropEffect || !hasEffectDragType(e.dataTransfer)) {
+				return;
+			}
+
+			e.preventDefault();
+			e.dataTransfer.dropEffect = 'copy';
+			setEffectDropHovered(true);
+		},
+		[canDropEffect],
+	);
+
+	const onEffectDragLeave = useCallback(
+		(e: React.DragEvent<HTMLDivElement>) => {
+			if (e.currentTarget.contains(e.relatedTarget as Node | null)) {
+				return;
+			}
+
+			setEffectDropHovered(false);
+		},
+		[],
+	);
+
+	const onEffectDrop = useCallback(
+		async (e: React.DragEvent<HTMLDivElement>) => {
+			if (
+				!canDropEffect ||
+				previewServerState.type !== 'connected' ||
+				nodePath === null ||
+				validatedLocation === null
+			) {
+				return;
+			}
+
+			e.preventDefault();
+			e.stopPropagation();
+			setEffectDropHovered(false);
+
+			const dragData = getEffectDragData(e.dataTransfer);
+			if (!dragData) {
+				showNotification('Could not read effect drag data', 3000);
+				return;
+			}
+
+			try {
+				const result = await callApi('/api/add-effect', {
+					fileName: validatedLocation.source,
+					sequenceNodePath: nodePath,
+					effectName: dragData.effect.name,
+					effectImportPath: dragData.effect.importPath,
+					effectConfig: dragData.effect.config,
+					clientId: previewServerState.clientId,
+				});
+
+				if (result.success) {
+					showNotification(`Added ${dragData.effect.name}()`, 2000);
+				} else {
+					showNotification(result.reason, 4000);
+				}
+			} catch (err) {
+				showNotification((err as Error).message, 4000);
+			}
+		},
+		[canDropEffect, nodePath, previewServerState, validatedLocation],
+	);
 
 	const trackRow = (
 		<TimelineRowChrome
@@ -448,13 +570,16 @@ export const TimelineSequenceItem: React.FC<{
 					<TimelineExpandArrowSpacer />
 				)
 			}
-			style={inner}
+			style={rowStyle}
 			selected={selected}
 			selectable={selectable}
 			onSelect={onSelect}
 			showSelectedBackground
 			containsSelection={containsSelection}
 			outerHeight={outerHeight}
+			onDragLeave={canDropEffect ? onEffectDragLeave : undefined}
+			onDragOver={canDropEffect ? onEffectDragOver : undefined}
+			onDrop={canDropEffect ? onEffectDrop : undefined}
 			onDoubleClick={
 				SELECTION_ENABLED && canOpenInEditor
 					? onShowInEditorDoubleClick

@@ -1,5 +1,6 @@
 import type {ApiRoutes} from '@remotion/studio-shared';
 import type {ApiHandler} from './api-types';
+import {addEffectHandler} from './routes/add-effect';
 import {addEffectKeyframeHandler} from './routes/add-effect-keyframe';
 import {handleAddRender} from './routes/add-render';
 import {addSequenceKeyframeHandler} from './routes/add-sequence-keyframe';
@@ -60,6 +61,7 @@ export const allApiRoutes: {
 	'/api/unsubscribe-from-sequence-props': unsubscribeFromSequenceProps,
 	'/api/save-sequence-props': saveSequencePropsHandler,
 	'/api/save-effect-props': saveEffectPropsHandler,
+	'/api/add-effect': addEffectHandler,
 	'/api/delete-sequence-keyframe': deleteSequenceKeyframeHandler,
 	'/api/add-sequence-keyframe': addSequenceKeyframeHandler,
 	'/api/delete-effect-keyframe': deleteEffectKeyframeHandler,

@@ -319,6 +319,25 @@ export type SaveEffectPropsRequest = {
 
 export type SaveEffectPropsResponse = CanUpdateEffectPropsResponse;
 
+export type AddEffectRequest = {
+	fileName: string;
+	sequenceNodePath: SequencePropsSubscriptionKey;
+	effectName: string;
+	effectImportPath: string;
+	effectConfig: Record<string, unknown>;
+	clientId: string;
+};
+
+export type AddEffectResponse =
+	| {
+			success: true;
+	  }
+	| {
+			success: false;
+			reason: string;
+			stack: string;
+	  };
+
 export type DeleteSequenceKeyframeRequest = {
 	fileName: string;
 	nodePath: SequencePropsSubscriptionKey;
@@ -543,6 +562,7 @@ export type ApiRoutes = {
 		SaveEffectPropsRequest,
 		SaveEffectPropsResponse
 	>;
+	'/api/add-effect': ReqAndRes<AddEffectRequest, AddEffectResponse>;
 	'/api/delete-sequence-keyframe': ReqAndRes<
 		DeleteSequenceKeyframeRequest,
 		DeleteSequenceKeyframeResponse
