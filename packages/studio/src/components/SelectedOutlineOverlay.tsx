@@ -15,6 +15,7 @@ import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {BLUE} from '../helpers/colors';
 import {getBoxQuadsPonyfill} from '../helpers/get-box-quads-ponyfill';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
+import {showNotification} from './Notifications/NotificationCenter';
 import {saveEffectProp} from './Timeline/save-effect-prop';
 import {saveSequenceProps} from './Timeline/save-sequence-prop';
 import {getDecimalPlaces} from './Timeline/timeline-field-utils';
@@ -782,9 +783,18 @@ const SelectedOutlinePolygon: React.FC<{
 					clientId: drag.clientId,
 					undoLabel: changes.length > 1 ? 'Move selected sequences' : null,
 					redoLabel: changes.length > 1 ? 'Move selected sequences back' : null,
-				}).finally(() => {
-					clearSelectedOutlineDragOverrides({clearDragOverrides, dragStates});
-				});
+				})
+					.catch((err) => {
+						showNotification(
+							`Could not save sequence props: ${
+								err instanceof Error ? err.message : String(err)
+							}`,
+							4000,
+						);
+					})
+					.finally(() => {
+						clearSelectedOutlineDragOverrides({clearDragOverrides, dragStates});
+					});
 			};
 
 			window.addEventListener('pointermove', onPointerMove);
