@@ -22,16 +22,16 @@ It uses the same band controls as [`lines()`](/docs/effects/lines), and the same
 
 ```tsx twoslash title="MyComp.tsx"
 import {zigzag} from '@remotion/effects/zigzag';
-import {Video} from '@remotion/media';
-import {AbsoluteFill, useCurrentFrame} from 'remotion';
+import {AbsoluteFill, Solid, useCurrentFrame} from 'remotion';
 
 export const MyComp: React.FC = () => {
   const frame = useCurrentFrame();
 
   return (
     <AbsoluteFill>
-      <Video
-        src="https://remotion.media/video.mp4"
+      <Solid
+        width={1280}
+        height={720}
         effects={[
           zigzag({
             colors: ['#d7b8ff', 'transparent'],
