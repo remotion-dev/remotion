@@ -1,17 +1,23 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import type {
+	ClassDeclaration,
 	ExportAllDeclaration,
 	ExportNamedDeclaration,
 	ExportSpecifier,
 	File,
+	FunctionDeclaration,
 	ImportDeclaration,
+	ImportSpecifier,
 	JSXAttribute,
 	JSXElement,
+	VariableDeclaration,
 } from '@babel/types';
+import type {InsertableCompositionElement} from '@remotion/studio-shared';
 import type {namedTypes} from 'ast-types';
 import * as recast from 'recast';
-import {parseAst} from '../codemods/parse-ast';
+import {formatFileContent} from '../codemods/format-file-content';
+import {parseAst, serializeAst} from '../codemods/parse-ast';
 
 type SourceLocation = {
 	line: number;
@@ -32,6 +38,11 @@ export type ResolvedCompositionComponent = {
 	line: number;
 	column: number;
 	canAddSequence: boolean;
+};
+
+type ResolvedCompositionComponentWithFile = ResolvedCompositionComponent & {
+	fileName: string;
+	exportName: string | 'default';
 };
 
 type ImportTarget = {
@@ -705,6 +716,338 @@ const createSequenceElement = (): namedTypes.JSXElement => {
 	);
 };
 
+const createNumberAttribute = (
+	name: string,
+	value: number,
+): namedTypes.JSXAttribute => {
+	return recast.types.builders.jsxAttribute(
+		recast.types.builders.jsxIdentifier(name),
+		recast.types.builders.jsxExpressionContainer(
+			recast.types.builders.numericLiteral(value),
+		),
+	);
+};
+
+const createSolidElement = ({
+	localName,
+	width,
+	height,
+}: {
+	localName: string;
+	width: number;
+	height: number;
+}): namedTypes.JSXElement => {
+	return recast.types.builders.jsxElement(
+		recast.types.builders.jsxOpeningElement(
+			recast.types.builders.jsxIdentifier(localName),
+			[
+				createNumberAttribute('width', width),
+				createNumberAttribute('height', height),
+				recast.types.builders.jsxAttribute(
+					recast.types.builders.jsxIdentifier('style'),
+					recast.types.builders.jsxExpressionContainer(
+						recast.types.builders.objectExpression([
+							recast.types.builders.objectProperty(
+								recast.types.builders.identifier('position'),
+								recast.types.builders.stringLiteral('absolute'),
+							),
+						]),
+					),
+				),
+			],
+			true,
+		),
+		null,
+		[],
+	);
+};
+
+const createFragmentWithElement = (element: namedTypes.JSXElement) => {
+	return recast.types.builders.jsxFragment(
+		recast.types.builders.jsxOpeningFragment(),
+		recast.types.builders.jsxClosingFragment(),
+		[element],
+	);
+};
+
+const replaceNullReturnInFunctionLike = ({
+	fn,
+	element,
+}: {
+	fn: FunctionLikeNode;
+	element: namedTypes.JSXElement;
+}): number | null => {
+	if (fn.type === 'ArrowFunctionExpression' && fn.body.type === 'NullLiteral') {
+		fn.body = createFragmentWithElement(element);
+		return fn.loc?.start.line ?? 1;
+	}
+
+	if (fn.body.type !== 'BlockStatement') {
+		return null;
+	}
+
+	const returnStatement = getTopLevelReturnStatement(fn.body.body);
+	if (
+		!returnStatement?.argument ||
+		returnStatement.argument.type !== 'NullLiteral'
+	) {
+		return null;
+	}
+
+	returnStatement.argument = createFragmentWithElement(element);
+	return returnStatement.loc?.start.line ?? 1;
+};
+
+const addElementToNullComponentReturn = ({
+	declaration,
+	element,
+}: {
+	declaration: LocalComponentDeclaration | DefaultExportDeclaration;
+	element: namedTypes.JSXElement;
+}): number | null => {
+	if (declaration.type === 'VariableDeclarator') {
+		if (
+			!declaration.init ||
+			(declaration.init.type !== 'ArrowFunctionExpression' &&
+				declaration.init.type !== 'FunctionExpression')
+		) {
+			return null;
+		}
+
+		return replaceNullReturnInFunctionLike({fn: declaration.init, element});
+	}
+
+	if (
+		declaration.type === 'ArrowFunctionExpression' ||
+		declaration.type === 'FunctionExpression' ||
+		declaration.type === 'FunctionDeclaration'
+	) {
+		return replaceNullReturnInFunctionLike({fn: declaration, element});
+	}
+
+	if (declaration.type !== 'ClassDeclaration') {
+		return null;
+	}
+
+	const renderMethod = findRenderMethod(declaration);
+	if (!renderMethod) {
+		return null;
+	}
+
+	const returnStatement = getTopLevelReturnStatement(renderMethod.body.body);
+	if (
+		!returnStatement?.argument ||
+		returnStatement.argument.type !== 'NullLiteral'
+	) {
+		return null;
+	}
+
+	returnStatement.argument = createFragmentWithElement(element);
+	return returnStatement.loc?.start.line ?? 1;
+};
+
+const getImportedName = (specifier: ImportSpecifier) => {
+	if (specifier.imported.type === 'Identifier') {
+		return specifier.imported.name;
+	}
+
+	return specifier.imported.value;
+};
+
+const declarationBindsName = (
+	declaration: FunctionDeclaration | ClassDeclaration | VariableDeclaration,
+	name: string,
+) => {
+	if (
+		declaration.type === 'FunctionDeclaration' ||
+		declaration.type === 'ClassDeclaration'
+	) {
+		return declaration.id?.name === name;
+	}
+
+	return declaration.declarations.some((variableDeclaration) => {
+		return (
+			variableDeclaration.id.type === 'Identifier' &&
+			variableDeclaration.id.name === name
+		);
+	});
+};
+
+const hasTopLevelBinding = ({ast, name}: {ast: File; name: string}) => {
+	return ast.program.body.some((node) => {
+		if (
+			node.type === 'FunctionDeclaration' ||
+			node.type === 'ClassDeclaration' ||
+			node.type === 'VariableDeclaration'
+		) {
+			return declarationBindsName(node, name);
+		}
+
+		if (
+			node.type === 'ExportNamedDeclaration' &&
+			node.declaration &&
+			(node.declaration.type === 'FunctionDeclaration' ||
+				node.declaration.type === 'ClassDeclaration' ||
+				node.declaration.type === 'VariableDeclaration')
+		) {
+			return declarationBindsName(node.declaration, name);
+		}
+
+		if (node.type !== 'ImportDeclaration') {
+			return false;
+		}
+
+		return node.specifiers?.some((specifier) => specifier.local?.name === name);
+	});
+};
+
+const getAvailableSolidLocalName = (ast: File) => {
+	const candidates = ['Solid', 'RemotionSolid'];
+	const available = candidates.find((candidate) => {
+		return !hasTopLevelBinding({ast, name: candidate});
+	});
+
+	if (!available) {
+		throw new Error('Cannot add <Solid> because Solid is already defined');
+	}
+
+	return available;
+};
+
+const insertImportDeclaration = (
+	ast: File,
+	importDeclaration: ImportDeclaration,
+) => {
+	const {body} = ast.program;
+	let lastImportIndex = -1;
+	for (let i = 0; i < body.length; i++) {
+		if (body[i].type === 'ImportDeclaration') {
+			lastImportIndex = i;
+		}
+	}
+
+	body.splice(lastImportIndex + 1, 0, importDeclaration);
+};
+
+const addSolidImport = ({
+	ast,
+	localName,
+	remotionImport,
+}: {
+	ast: File;
+	localName: string;
+	remotionImport: ImportDeclaration | null;
+}) => {
+	const imported = recast.types.builders.identifier('Solid');
+	const local =
+		localName === 'Solid' ? null : recast.types.builders.identifier(localName);
+	const specifier = recast.types.builders.importSpecifier(
+		imported,
+		local,
+	) as unknown as ImportSpecifier;
+
+	const canAddToExistingRemotionImport =
+		remotionImport &&
+		!remotionImport.specifiers?.some(
+			(importSpecifier) => importSpecifier.type === 'ImportNamespaceSpecifier',
+		);
+
+	if (canAddToExistingRemotionImport) {
+		remotionImport.specifiers = [
+			...(remotionImport.specifiers ?? []),
+			specifier,
+		];
+		return;
+	}
+
+	const importDeclaration = recast.types.builders.importDeclaration(
+		[],
+		recast.types.builders.stringLiteral('remotion'),
+	) as unknown as ImportDeclaration;
+	importDeclaration.specifiers = [specifier];
+	insertImportDeclaration(ast, importDeclaration);
+};
+
+const ensureSolidImport = (ast: File) => {
+	let remotionImport: ImportDeclaration | null = null;
+
+	for (const node of ast.program.body) {
+		if (node.type !== 'ImportDeclaration' || node.source.value !== 'remotion') {
+			continue;
+		}
+
+		remotionImport = node;
+
+		const solidSpecifier = node.specifiers?.find((specifier) => {
+			return (
+				specifier.type === 'ImportSpecifier' &&
+				getImportedName(specifier) === 'Solid'
+			);
+		});
+
+		if (solidSpecifier?.local?.name) {
+			return solidSpecifier.local.name;
+		}
+	}
+
+	const localName = getAvailableSolidLocalName(ast);
+	addSolidImport({ast, localName, remotionImport});
+	return localName;
+};
+
+const addElementToComponentRoot = ({
+	ast,
+	exportName,
+	element,
+}: {
+	ast: File;
+	exportName: string | 'default';
+	element: namedTypes.JSXElement;
+}) => {
+	const declaration = getDeclarationByExportName({ast, exportName});
+	if (!declaration) {
+		throw new Error('Could not find composition component declaration');
+	}
+
+	const rootNode = getComponentRootNode(declaration);
+	if (!rootNode) {
+		const insertedAt = addElementToNullComponentReturn({declaration, element});
+		if (insertedAt !== null) {
+			return insertedAt;
+		}
+
+		throw new Error('Composition component does not return JSX');
+	}
+
+	if (rootNode.type === 'JSXElement' && rootNode.openingElement.selfClosing) {
+		throw new Error('Cannot insert into a self-closing root JSX element');
+	}
+
+	const CANVAS_ROOT_ELEMENTS = [
+		'ThreeCanvas',
+		'RiveCanvas',
+		'SkiaCanvas',
+		'canvas',
+	];
+
+	if (
+		rootNode.type === 'JSXElement' &&
+		rootNode.openingElement.name.type === 'JSXIdentifier' &&
+		CANVAS_ROOT_ELEMENTS.includes(rootNode.openingElement.name.name)
+	) {
+		throw new Error(
+			`Cannot insert a <Solid> into a composition whose root element is <${rootNode.openingElement.name.name}>`,
+		);
+	}
+
+	if (!rootNode.children) {
+		throw new Error('Composition component root does not accept children');
+	}
+
+	rootNode.children.push(element);
+	return rootNode.loc?.start.line ?? 1;
+};
+
 const getDefaultExportDeclaration = (
 	ast: File,
 ): LocalComponentDeclaration | DefaultExportDeclaration | null => {
@@ -756,40 +1099,12 @@ const canAddSequenceToComponent = ({
 	ast: File;
 	exportName: string | 'default';
 }): boolean => {
-	const declaration = getDeclarationByExportName({ast, exportName});
-	if (!declaration) {
-		return false;
-	}
-
-	const rootNode = getComponentRootNode(declaration);
-	if (!rootNode) {
-		return false;
-	}
-
-	if (rootNode.type === 'JSXElement') {
-		if (rootNode.openingElement.selfClosing) {
-			return false;
-		}
-
-		if (!rootNode.children) {
-			return false;
-		}
-
-		rootNode.children.push(createSequenceElement());
-		try {
-			recast.print(ast);
-			return true;
-		} catch {
-			return false;
-		}
-	}
-
-	if (!rootNode.children) {
-		return false;
-	}
-
-	rootNode.children.push(createSequenceElement());
 	try {
+		addElementToComponentRoot({
+			ast,
+			exportName,
+			element: createSequenceElement(),
+		});
 		recast.print(ast);
 		return true;
 	} catch {
@@ -805,7 +1120,7 @@ const getComponentLocationInFile = async ({
 	remotionRoot: string;
 	fileName: string;
 	exportName: string | 'default';
-}): Promise<ResolvedCompositionComponent> => {
+}): Promise<ResolvedCompositionComponentWithFile> => {
 	const input = await readSourceFile({remotionRoot, fileName});
 	const ast = parseAst(input);
 	const astForSequenceSimulation = parseAst(input);
@@ -820,6 +1135,8 @@ const getComponentLocationInFile = async ({
 
 	return {
 		source: path.relative(remotionRoot, fileName),
+		fileName,
+		exportName,
 		line: location?.line ?? 1,
 		column: location?.column ?? 0,
 		canAddSequence,
@@ -836,7 +1153,7 @@ const getComponentLocationRecursively = async ({
 	fileName: string;
 	exportName: string | 'default';
 	visited: Set<string>;
-}): Promise<ResolvedCompositionComponent> => {
+}): Promise<ResolvedCompositionComponentWithFile> => {
 	const key = `${fileName}:${exportName}`;
 	if (visited.has(key)) {
 		throw new Error(
@@ -898,7 +1215,7 @@ const getComponentLocationRecursively = async ({
 	}
 };
 
-export const resolveCompositionComponent = async ({
+const resolveCompositionComponentWithFile = async ({
 	remotionRoot,
 	compositionFile,
 	compositionId,
@@ -906,7 +1223,7 @@ export const resolveCompositionComponent = async ({
 	remotionRoot: string;
 	compositionFile: string;
 	compositionId: string;
-}): Promise<ResolvedCompositionComponent> => {
+}): Promise<ResolvedCompositionComponentWithFile> => {
 	const compositionFileName = path.resolve(remotionRoot, compositionFile);
 	const input = await readSourceFile({
 		remotionRoot,
@@ -959,4 +1276,107 @@ export const resolveCompositionComponent = async ({
 		exportName: importTarget.exportName,
 		visited: new Set(),
 	});
+};
+
+export const resolveCompositionComponent = async ({
+	remotionRoot,
+	compositionFile,
+	compositionId,
+}: {
+	remotionRoot: string;
+	compositionFile: string;
+	compositionId: string;
+}): Promise<ResolvedCompositionComponent> => {
+	const {source, line, column, canAddSequence} =
+		await resolveCompositionComponentWithFile({
+			remotionRoot,
+			compositionFile,
+			compositionId,
+		});
+
+	return {
+		source,
+		line,
+		column,
+		canAddSequence,
+	};
+};
+
+const createInsertableJsxElement = ({
+	ast,
+	element,
+}: {
+	ast: File;
+	element: InsertableCompositionElement;
+}) => {
+	if (element.type === 'solid') {
+		const solidLocalName = ensureSolidImport(ast);
+
+		return createSolidElement({
+			localName: solidLocalName,
+			width: element.width,
+			height: element.height,
+		});
+	}
+
+	throw new Error('Unsupported element type');
+};
+
+export const insertJsxElementIntoComposition = async ({
+	remotionRoot,
+	compositionFile,
+	compositionId,
+	element,
+	prettierConfigOverride,
+}: {
+	remotionRoot: string;
+	compositionFile: string;
+	compositionId: string;
+	element: InsertableCompositionElement;
+	prettierConfigOverride: Record<string, unknown> | null;
+}): Promise<{
+	fileName: string;
+	source: string;
+	oldContents: string;
+	output: string;
+	formatted: boolean;
+	logLine: number;
+}> => {
+	const location = await resolveCompositionComponentWithFile({
+		remotionRoot,
+		compositionFile,
+		compositionId,
+	});
+	if (!location.canAddSequence) {
+		throw new Error(
+			'Cannot insert JSX element into this composition component',
+		);
+	}
+
+	const input = await readSourceFile({
+		remotionRoot,
+		fileName: location.fileName,
+	});
+	const ast = parseAst(input);
+	const elementToInsert = createInsertableJsxElement({ast, element});
+	const logLine = addElementToComponentRoot({
+		ast,
+		exportName: location.exportName,
+		element: elementToInsert,
+	});
+
+	const finalFile = serializeAst(ast);
+	const {output, formatted} = await formatFileContent({
+		input: finalFile,
+		prettierConfigOverride,
+	});
+
+	return {
+		fileName: location.fileName,
+		source: location.source,
+		oldContents: input,
+		output,
+		formatted,
+		logLine,
+	};
 };

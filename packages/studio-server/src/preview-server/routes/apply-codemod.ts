@@ -93,6 +93,7 @@ export const applyCodemodHandler: ApiHandler<
 			pushToUndoStack({
 				filePath,
 				oldContents: input,
+				newContents: null,
 				logLevel,
 				remotionRoot,
 				logLine: symbolicatedStack?.originalLineNumber ?? 1,

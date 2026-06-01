@@ -10,13 +10,12 @@ import {
 } from '../../helpers/timeline-layout';
 import type {GetIsExpanded} from '../ExpandedTracksProvider';
 import {getExpandedRowDepth} from './timeline-row-layout';
-import {TimelineEffectFieldRow} from './TimelineEffectFieldRow';
-import {TimelineEffectGroupRow} from './TimelineEffectGroupRow';
+import {TimelineEffectItem} from './TimelineEffectItem';
+import {TimelineEffectPropItem} from './TimelineEffectPropItem';
 import {
 	TimelineExpandArrowButton,
 	TimelineExpandArrowSpacer,
 } from './TimelineExpandArrowButton';
-import {TimelineFieldRow} from './TimelineFieldRow';
 import {TimelineLayerEyeSpacer} from './TimelineLayerEye';
 import {TimelineRowChrome} from './TimelineRowChrome';
 import {
@@ -24,6 +23,7 @@ import {
 	getTimelineSelectedLabelStyle,
 	useTimelineRowSelection,
 } from './TimelineSelection';
+import {TimelineSequencePropItem} from './TimelineSequencePropItem';
 
 const rowLabel: React.CSSProperties = {
 	fontSize: 12,
@@ -40,6 +40,7 @@ export const TimelineExpandedRow: React.FC<{
 	readonly validatedLocation: CodePosition;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly schema: SequenceSchema;
+	readonly keyframeDisplayOffset: number;
 }> = ({
 	node,
 	depth,
@@ -49,6 +50,7 @@ export const TimelineExpandedRow: React.FC<{
 	validatedLocation,
 	nodePath,
 	schema,
+	keyframeDisplayOffset,
 }) => {
 	const rowDepth = getExpandedRowDepth({nestedDepth, treeDepth: depth});
 	const selection = useTimelineRowSelection(node.nodePathInfo);
@@ -71,7 +73,7 @@ export const TimelineExpandedRow: React.FC<{
 		if (node.effectInfo) {
 			return (
 				// A single effect
-				<TimelineEffectGroupRow
+				<TimelineEffectItem
 					label={node.label}
 					nodePathInfo={node.nodePathInfo}
 					effectIndex={node.effectInfo.effectIndex}
@@ -118,25 +120,27 @@ export const TimelineExpandedRow: React.FC<{
 	if (node.field) {
 		if (node.field.kind === 'effect-field') {
 			return (
-				<TimelineEffectFieldRow
+				<TimelineEffectPropItem
 					field={node.field}
 					validatedLocation={validatedLocation}
 					rowDepth={rowDepth}
 					nodePath={nodePath}
 					nodePathInfo={node.nodePathInfo}
+					keyframeDisplayOffset={keyframeDisplayOffset}
 				/>
 			);
 		}
 
 		if (node.field.kind === 'sequence-field') {
 			return (
-				<TimelineFieldRow
+				<TimelineSequencePropItem
 					field={node.field}
 					validatedLocation={validatedLocation}
 					rowDepth={rowDepth}
 					nodePath={nodePath}
 					nodePathInfo={node.nodePathInfo}
 					schema={schema}
+					keyframeDisplayOffset={keyframeDisplayOffset}
 				/>
 			);
 		}

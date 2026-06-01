@@ -41,6 +41,7 @@ export const duplicateJsxNodeHandler: ApiHandler<
 		pushToUndoStack({
 			filePath: absolutePath,
 			oldContents: fileContents,
+			newContents: null,
 			logLevel,
 			remotionRoot,
 			logLine,

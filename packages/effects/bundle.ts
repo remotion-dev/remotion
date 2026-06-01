@@ -14,6 +14,8 @@ const effectEntrypoints = [
 	'src/contrast.ts',
 	'src/drop-shadow.ts',
 	'src/duotone.ts',
+	'src/evolve.ts',
+	'src/fisheye.ts',
 	'src/glow.ts',
 	'src/grayscale.ts',
 	'src/halftone-linear-gradient.ts',
@@ -21,6 +23,7 @@ const effectEntrypoints = [
 	'src/hue.ts',
 	'src/dot-grid.ts',
 	'src/invert.ts',
+	'src/lines.ts',
 	'src/mirror.ts',
 	'src/noise.ts',
 	'src/saturation.ts',
@@ -32,6 +35,8 @@ const effectEntrypoints = [
 	'src/translate.ts',
 	'src/vignette.ts',
 	'src/wave.ts',
+	'src/waves.ts',
+	'src/white-noise.ts',
 ];
 
 console.time('Generated.');

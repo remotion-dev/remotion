@@ -367,6 +367,14 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={120}
 				/>
+				<Composition
+					id="centered-solid"
+					lazyComponent={() => import('./CenteredSolid')}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={60}
+				/>
 			</Folder>
 			<Folder name="dynamic-parameters">
 				<Composition

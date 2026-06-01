@@ -7,6 +7,7 @@ import type {
 } from '../../helpers/timeline-layout';
 import {InputDragger} from '../NewComposition/InputDragger';
 import {getDecimalPlaces} from './timeline-field-utils';
+import {parseTranslate, serializeTranslate} from './timeline-translate-utils';
 
 const leftDraggerStyle: React.CSSProperties = {
 	paddingLeft: 0,
@@ -14,17 +15,6 @@ const leftDraggerStyle: React.CSSProperties = {
 
 const rightDraggerStyle: React.CSSProperties = {
 	paddingRight: 0,
-};
-
-const PIXEL_PATTERN = /^(-?\d+(?:\.\d+)?)px(?:\s+(-?\d+(?:\.\d+)?)px)?$/;
-
-const parseTranslate = (value: string): [number, number] => {
-	const m = value.match(PIXEL_PATTERN);
-	if (!m) {
-		return [0, 0];
-	}
-
-	return [Number(m[1]), m[2] !== undefined ? Number(m[2]) : 0];
 };
 
 const containerStyle: React.CSSProperties = {
@@ -55,8 +45,6 @@ export const TimelineTranslateField: React.FC<{
 		[effectiveValue],
 	);
 
-	const makeString = useCallback((x: number, y: number) => `${x}px ${y}px`, []);
-
 	const step =
 		field.fieldSchema.type === 'translate' ? (field.fieldSchema.step ?? 1) : 1;
 
@@ -77,15 +65,15 @@ export const TimelineTranslateField: React.FC<{
 		(newVal: number) => {
 			setDragX(newVal);
 			const currentY = dragY ?? codeY;
-			onDragValueChange(makeString(newVal, currentY));
+			onDragValueChange(serializeTranslate(newVal, currentY));
 		},
-		[onDragValueChange, dragY, codeY, makeString],
+		[onDragValueChange, dragY, codeY],
 	);
 
 	const onXChangeEnd = useCallback(
 		(newVal: number) => {
 			const currentY = dragY ?? codeY;
-			const newStr = makeString(newVal, currentY);
+			const newStr = serializeTranslate(newVal, currentY);
 			if (propStatus.canUpdate && newStr !== propStatus.codeValue) {
 				onSave(newStr).finally(() => {
 					setDragX(null);
@@ -96,7 +84,7 @@ export const TimelineTranslateField: React.FC<{
 				onDragEnd();
 			}
 		},
-		[dragY, codeY, makeString, propStatus, onSave, onDragEnd],
+		[dragY, codeY, propStatus, onSave, onDragEnd],
 	);
 
 	const onXTextChange = useCallback(
@@ -105,7 +93,7 @@ export const TimelineTranslateField: React.FC<{
 				const parsed = Number(newVal);
 				if (!Number.isNaN(parsed)) {
 					const currentY = dragY ?? codeY;
-					const newStr = makeString(parsed, currentY);
+					const newStr = serializeTranslate(parsed, currentY);
 					if (newStr !== propStatus.codeValue) {
 						setDragX(parsed);
 						onSave(newStr).finally(() => {
@@ -115,7 +103,7 @@ export const TimelineTranslateField: React.FC<{
 				}
 			}
 		},
-		[propStatus, dragY, codeY, makeString, onSave],
+		[propStatus, dragY, codeY, onSave],
 	);
 
 	// --- Y callbacks ---
@@ -123,15 +111,15 @@ export const TimelineTranslateField: React.FC<{
 		(newVal: number) => {
 			setDragY(newVal);
 			const currentX = dragX ?? codeX;
-			onDragValueChange(makeString(currentX, newVal));
+			onDragValueChange(serializeTranslate(currentX, newVal));
 		},
-		[onDragValueChange, dragX, codeX, makeString],
+		[onDragValueChange, dragX, codeX],
 	);
 
 	const onYChangeEnd = useCallback(
 		(newVal: number) => {
 			const currentX = dragX ?? codeX;
-			const newStr = makeString(currentX, newVal);
+			const newStr = serializeTranslate(currentX, newVal);
 			if (propStatus.canUpdate && newStr !== propStatus.codeValue) {
 				onSave(newStr).finally(() => {
 					setDragY(null);
@@ -142,7 +130,7 @@ export const TimelineTranslateField: React.FC<{
 				onDragEnd();
 			}
 		},
-		[dragX, codeX, makeString, propStatus, onSave, onDragEnd],
+		[dragX, codeX, propStatus, onSave, onDragEnd],
 	);
 
 	const onYTextChange = useCallback(
@@ -151,7 +139,7 @@ export const TimelineTranslateField: React.FC<{
 				const parsed = Number(newVal);
 				if (!Number.isNaN(parsed)) {
 					const currentX = dragX ?? codeX;
-					const newStr = makeString(currentX, parsed);
+					const newStr = serializeTranslate(currentX, parsed);
 					if (newStr !== propStatus.codeValue) {
 						setDragY(parsed);
 						onSave(newStr).finally(() => {
@@ -161,7 +149,7 @@ export const TimelineTranslateField: React.FC<{
 				}
 			}
 		},
-		[propStatus, onSave, dragX, codeX, makeString],
+		[propStatus, onSave, dragX, codeX],
 	);
 
 	return (

@@ -18,9 +18,7 @@ import {
 import {suppressBundlerUpdateForFile} from '../watch-ignore-next-change';
 import {computeEffectPropStatus} from './can-update-effect-props';
 import {findJsxElementAtNodePath} from './can-update-sequence-props';
-import {formatEffectPropChange} from './log-updates/format-effect-prop-change';
 import {logEffectUpdate} from './log-updates/log-effect-update';
-import {normalizeQuotes} from './log-updates/log-update';
 import {withSavePropsLock} from './save-props-mutex';
 
 export const deleteEffectKeyframeHandler: ApiHandler<
@@ -76,31 +74,14 @@ export const deleteEffectKeyframeHandler: ApiHandler<
 
 		const oldValueString = oldValueStrings[0];
 		const newValueString = newValueStrings[0];
-		const normalizedOld = normalizeQuotes(oldValueString);
-		const normalizedNew = normalizeQuotes(newValueString);
 
-		const undoPropChange = formatEffectPropChange({
-			effectName: effectCallee,
-			key,
-			oldValueString: normalizedNew,
-			newValueString: normalizedOld,
-			defaultValueString: null,
-			removedProps: [],
-			addedProps: [],
-		});
-		const redoPropChange = formatEffectPropChange({
-			effectName: effectCallee,
-			key,
-			oldValueString: normalizedOld,
-			newValueString: normalizedNew,
-			defaultValueString: null,
-			removedProps: [],
-			addedProps: [],
-		});
+		const undoPropChange = `${key} keyframe restored at frame ${frame}`;
+		const redoPropChange = `${key} keyframe deleted at frame ${frame}`;
 
 		pushToUndoStack({
 			filePath: absolutePath,
 			oldContents: fileContents,
+			newContents: null,
 			logLevel,
 			remotionRoot,
 			logLine,

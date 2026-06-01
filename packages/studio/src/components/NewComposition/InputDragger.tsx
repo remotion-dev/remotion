@@ -144,8 +144,9 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 		return Math.ceil(val * factor) / factor;
 	};
 
-	const onPointerDown: PointerEventHandler = useCallback(
+	const onPointerDown: PointerEventHandler<HTMLButtonElement> = useCallback(
 		(e) => {
+			e.stopPropagation();
 			pointerDownRef.current = true;
 			const target = e.currentTarget as HTMLButtonElement;
 			const {pageX, pageY, button} = e;

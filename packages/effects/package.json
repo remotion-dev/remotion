@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/effects",
-	"version": "4.0.469",
+	"version": "4.0.470",
 	"description": "Effects that can be applied to Remotion-based canvas components",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -69,6 +69,16 @@
 			"module": "./dist/esm/duotone.mjs",
 			"import": "./dist/esm/duotone.mjs"
 		},
+		"./evolve": {
+			"types": "./dist/evolve.d.ts",
+			"module": "./dist/esm/evolve.mjs",
+			"import": "./dist/esm/evolve.mjs"
+		},
+		"./fisheye": {
+			"types": "./dist/fisheye.d.ts",
+			"module": "./dist/esm/fisheye.mjs",
+			"import": "./dist/esm/fisheye.mjs"
+		},
 		"./glow": {
 			"types": "./dist/glow.d.ts",
 			"module": "./dist/esm/glow.mjs",
@@ -98,6 +108,11 @@
 			"types": "./dist/invert.d.ts",
 			"module": "./dist/esm/invert.mjs",
 			"import": "./dist/esm/invert.mjs"
+		},
+		"./lines": {
+			"types": "./dist/lines.d.ts",
+			"module": "./dist/esm/lines.mjs",
+			"import": "./dist/esm/lines.mjs"
 		},
 		"./dot-grid": {
 			"types": "./dist/dot-grid.d.ts",
@@ -159,6 +174,16 @@
 			"module": "./dist/esm/wave.mjs",
 			"import": "./dist/esm/wave.mjs"
 		},
+		"./waves": {
+			"types": "./dist/waves.d.ts",
+			"module": "./dist/esm/waves.mjs",
+			"import": "./dist/esm/waves.mjs"
+		},
+		"./white-noise": {
+			"types": "./dist/white-noise.d.ts",
+			"module": "./dist/esm/white-noise.mjs",
+			"import": "./dist/esm/white-noise.mjs"
+		},
 		"./package.json": "./package.json"
 	},
 	"typesVersions": {
@@ -184,6 +209,12 @@
 			"duotone": [
 				"dist/duotone.d.ts"
 			],
+			"evolve": [
+				"dist/evolve.d.ts"
+			],
+			"fisheye": [
+				"dist/fisheye.d.ts"
+			],
 			"glow": [
 				"dist/glow.d.ts"
 			],
@@ -201,6 +232,9 @@
 			],
 			"invert": [
 				"dist/invert.d.ts"
+			],
+			"lines": [
+				"dist/lines.d.ts"
 			],
 			"dot-grid": [
 				"dist/dot-grid.d.ts"
@@ -237,6 +271,12 @@
 			],
 			"wave": [
 				"dist/wave.d.ts"
+			],
+			"waves": [
+				"dist/waves.d.ts"
+			],
+			"white-noise": [
+				"dist/white-noise.d.ts"
 			]
 		}
 	},

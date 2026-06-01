@@ -7,11 +7,19 @@ import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import type {EffectSchemaFieldInfo} from '../../helpers/timeline-layout';
 import {callApi} from '../call-api';
+import {ContextMenu} from '../ContextMenu';
+import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {getComputedStatusLabel} from './get-timeline-keyframes';
+import {saveEffectProp} from './save-effect-prop';
 import {enqueueSavePropChange} from './save-prop-queue';
 import {timelineFieldValueColumnStyle} from './timeline-field-row-layout';
 import {TimelineExpandArrowSpacer} from './TimelineExpandArrowButton';
 import {TimelineFieldLabel} from './TimelineFieldLabel';
+import {
+	shouldShowTimelineKeyframeControls,
+	TimelineKeyframeControls,
+} from './TimelineKeyframeControls';
+import {TimelineKeyframedValue} from './TimelineKeyframedValue';
 import {TimelineLayerEyeSpacer} from './TimelineLayerEye';
 import {TimelineRowChrome} from './TimelineRowChrome';
 import {TimelineFieldValue, UnsupportedStatus} from './TimelineSchemaField';
@@ -23,7 +31,8 @@ const Value: React.FC<{
 	readonly field: EffectSchemaFieldInfo;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly validatedLocation: CodePosition;
-}> = ({field, nodePath, validatedLocation}) => {
+	readonly keyframeDisplayOffset: number;
+}> = ({field, nodePath, validatedLocation, keyframeDisplayOffset}) => {
 	const {setEffectDragOverrides, clearEffectDragOverrides, setCodeValues} =
 		useContext(Internals.VisualModeSettersContext);
 
@@ -175,10 +184,17 @@ const Value: React.FC<{
 	}
 
 	if (propStatus === null || !propStatus.canUpdate) {
-		if (
-			propStatus?.reason === 'computed' ||
-			propStatus?.reason === 'keyframed'
-		) {
+		if (propStatus?.reason === 'keyframed') {
+			return (
+				<TimelineKeyframedValue
+					field={field}
+					propStatus={propStatus}
+					keyframeDisplayOffset={keyframeDisplayOffset}
+				/>
+			);
+		}
+
+		if (propStatus?.reason === 'computed') {
 			return <UnsupportedStatus label={getComputedStatusLabel(propStatus)} />;
 		}
 
@@ -204,13 +220,27 @@ const Value: React.FC<{
 	);
 };
 
-export const TimelineEffectFieldRow: React.FC<{
+export const TimelineEffectPropItem: React.FC<{
 	readonly field: EffectSchemaFieldInfo;
 	readonly validatedLocation: CodePosition;
 	readonly rowDepth: number;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly nodePathInfo: SequenceNodePathInfo;
-}> = ({field, validatedLocation, rowDepth, nodePath, nodePathInfo}) => {
+	readonly keyframeDisplayOffset: number;
+}> = ({
+	field,
+	validatedLocation,
+	rowDepth,
+	nodePath,
+	nodePathInfo,
+	keyframeDisplayOffset,
+}) => {
+	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const {setCodeValues} = useContext(Internals.VisualModeSettersContext);
+	const {codeValues} = useContext(Internals.VisualModeCodeValuesContext);
+	const {getEffectDragOverrides} = useContext(
+		Internals.VisualModeDragOverridesContext,
+	);
 	const selection = useTimelineRowSelection(nodePathInfo);
 	const style = useMemo(() => {
 		return {
@@ -219,10 +249,123 @@ export const TimelineEffectFieldRow: React.FC<{
 		};
 	}, [field.rowHeight]);
 
-	return (
+	const effectStatus = useMemo(
+		() =>
+			Internals.getEffectCodeValuesCtx({
+				codeValues,
+				nodePath,
+				effectIndex: field.effectIndex,
+			}),
+		[codeValues, nodePath, field.effectIndex],
+	);
+
+	const propStatus =
+		effectStatus.type === 'can-update-effect'
+			? (effectStatus.props?.[field.key] ?? null)
+			: null;
+
+	const dragOverrideValue = useMemo(() => {
+		const overrides = getEffectDragOverrides(nodePath, field.effectIndex);
+		return overrides[field.key];
+	}, [getEffectDragOverrides, nodePath, field.effectIndex, field.key]);
+
+	const keyframeControls =
+		propStatus !== null &&
+		shouldShowTimelineKeyframeControls({
+			propStatus,
+			selected: selection.selected,
+		}) ? (
+			<TimelineKeyframeControls
+				fieldKey={field.key}
+				propStatus={propStatus}
+				nodePath={nodePath}
+				fileName={validatedLocation.source}
+				keyframeDisplayOffset={keyframeDisplayOffset}
+				defaultValue={field.fieldSchema.default}
+				dragOverrideValue={dragOverrideValue}
+				schema={field.effectSchema}
+				effectIndex={field.effectIndex}
+			/>
+		) : null;
+
+	const isNonDefault = useMemo(() => {
+		if (!propStatus || !propStatus.canUpdate) {
+			return false;
+		}
+
+		const effectiveCodeValue =
+			propStatus.codeValue ?? field.fieldSchema.default;
+		return (
+			JSON.stringify(effectiveCodeValue) !==
+			JSON.stringify(field.fieldSchema.default)
+		);
+	}, [field.fieldSchema.default, propStatus]);
+
+	const canPerformReset =
+		previewServerState.type === 'connected' &&
+		propStatus !== null &&
+		propStatus.canUpdate;
+
+	const onReset = useCallback(() => {
+		if (
+			!canPerformReset ||
+			previewServerState.type !== 'connected' ||
+			!isNonDefault
+		) {
+			return;
+		}
+
+		const defaultValue =
+			field.fieldSchema.default !== undefined
+				? JSON.stringify(field.fieldSchema.default)
+				: null;
+
+		saveEffectProp({
+			fileName: validatedLocation.source,
+			nodePath,
+			effectIndex: field.effectIndex,
+			fieldKey: field.key,
+			value: field.fieldSchema.default,
+			defaultValue,
+			schema: field.effectSchema,
+			setCodeValues,
+			clientId: previewServerState.clientId,
+		});
+	}, [
+		canPerformReset,
+		field.effectIndex,
+		field.effectSchema,
+		field.fieldSchema.default,
+		field.key,
+		isNonDefault,
+		nodePath,
+		previewServerState,
+		setCodeValues,
+		validatedLocation.source,
+	]);
+
+	const contextMenuValues = useMemo((): ComboboxValue[] => {
+		return [
+			{
+				type: 'item',
+				id: 'reset-effect-field',
+				keyHint: null,
+				label: 'Reset',
+				leftItem: null,
+				disabled: !canPerformReset,
+				onClick: onReset,
+				quickSwitcherLabel: null,
+				subMenu: null,
+				value: 'reset-effect-field',
+			},
+		];
+	}, [canPerformReset, onReset]);
+
+	const row = (
 		<TimelineRowChrome
 			depth={rowDepth}
 			eye={<TimelineLayerEyeSpacer />}
+			keyframeControls={keyframeControls}
 			arrow={<TimelineExpandArrowSpacer />}
 			style={style}
 			selected={selection.selected}
@@ -242,8 +385,18 @@ export const TimelineEffectFieldRow: React.FC<{
 					field={field}
 					nodePath={nodePath}
 					validatedLocation={validatedLocation}
+					keyframeDisplayOffset={keyframeDisplayOffset}
 				/>
 			</div>
 		</TimelineRowChrome>
+	);
+
+	return (
+		<ContextMenu
+			values={contextMenuValues}
+			onOpen={selection.selectable ? selection.onSelect : null}
+		>
+			{row}
+		</ContextMenu>
 	);
 };

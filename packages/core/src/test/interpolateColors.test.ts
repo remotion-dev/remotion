@@ -41,6 +41,23 @@ test('Basic interpolate Colors', () => {
 	);
 });
 
+test('Posterize quantizes the input before interpolating colors', () => {
+	expect(interpolateColors(17, [0, 60], ['black', 'white'])).toBe(
+		'rgba(72, 72, 72, 1)',
+	);
+	expect(
+		interpolateColors(17, [0, 60], ['black', 'white'], {
+			posterize: 3,
+		}),
+	).toBe('rgba(64, 64, 64, 1)');
+});
+
+test('Posterize option must be a positive finite number for colors', () => {
+	expectToThrow(() => {
+		interpolateColors(17, [0, 60], ['black', 'white'], {posterize: 0});
+	}, /posterize must be a positive finite number, but got 0/);
+});
+
 test('Can interpolate a single color keyframe', () => {
 	expect(interpolateColors(-10, [20], ['blue'])).toBe('rgba(0, 0, 255, 1)');
 	expect(interpolateColors(20, [20], ['blue'])).toBe('rgba(0, 0, 255, 1)');

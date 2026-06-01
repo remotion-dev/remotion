@@ -63,6 +63,7 @@ export const startServer = async (options: {
 	binariesDirectory: string | null;
 	forceIPv4: boolean;
 	audioLatencyHint: AudioContextLatencyCategory | null;
+	previewSampleRate: number | null;
 	enableCrossSiteIsolation: boolean;
 	askAIEnabled: boolean;
 	forceNew: boolean;
@@ -172,6 +173,7 @@ export const startServer = async (options: {
 					gitSource: options.gitSource,
 					binariesDirectory: options.binariesDirectory,
 					audioLatencyHint: options.audioLatencyHint,
+					previewSampleRate: options.previewSampleRate,
 					enableCrossSiteIsolation: options.enableCrossSiteIsolation,
 				});
 			})

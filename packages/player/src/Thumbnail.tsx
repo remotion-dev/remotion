@@ -137,6 +137,7 @@ const ThumbnailFn = <
 				initiallyMuted
 				logLevel={logLevel}
 				audioLatencyHint="playback"
+				sampleRate={48000}
 				inputProps={passedInputProps}
 				audioEnabled={false}
 			>

@@ -30,6 +30,7 @@ export const SharedPlayerContexts: React.FC<{
 	readonly initiallyMuted: boolean;
 	readonly logLevel: LogLevel;
 	readonly audioLatencyHint: AudioContextLatencyCategory;
+	readonly sampleRate: number;
 	readonly volumePersistenceKey?: string;
 	readonly initialVolume?: number;
 	readonly inputProps: Record<string, unknown>;
@@ -47,6 +48,7 @@ export const SharedPlayerContexts: React.FC<{
 	initiallyMuted,
 	logLevel,
 	audioLatencyHint,
+	sampleRate,
 	volumePersistenceKey,
 	initialVolume,
 	inputProps,
@@ -169,6 +171,7 @@ export const SharedPlayerContexts: React.FC<{
 														<Internals.SharedAudioContextProvider
 															audioLatencyHint={audioLatencyHint}
 															audioEnabled={audioEnabled}
+															previewSampleRate={sampleRate}
 														>
 															<Internals.SharedAudioTagsContextProvider
 																numberOfAudioTags={numberOfSharedAudioTags}
