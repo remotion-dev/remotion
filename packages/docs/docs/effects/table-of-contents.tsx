@@ -242,7 +242,7 @@ const categories: {
 				preview: '/img/effects-white-noise-preview.png',
 				alt: 'white noise effect preview',
 				name: 'whiteNoise()',
-				description: 'Random grayscale noise layer',
+				description: 'Full-frame grayscale static effect',
 			},
 		],
 	},
