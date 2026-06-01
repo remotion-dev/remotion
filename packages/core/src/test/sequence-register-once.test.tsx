@@ -1,6 +1,7 @@
 import {afterEach, expect, test} from 'bun:test';
 import {cleanup, render} from '@testing-library/react';
 import React, {useCallback, useMemo, useState} from 'react';
+import {AnimatedImage} from '../animated-image/index.js';
 import type {TSequence} from '../CompositionManager.js';
 import {Img} from '../Img.js';
 import {Internals} from '../internals.js';
@@ -166,4 +167,25 @@ test('Named Img components do not receive the default documentation link', () =>
 	);
 
 	expect(registeredSequences[0]?.documentationLink).toBe(null);
+});
+
+test('AnimatedImage registers its canvas ref for the Studio outline', () => {
+	const registeredSequences: TSequence[] = [];
+	const ref = React.createRef<HTMLCanvasElement>();
+
+	render(
+		<SequenceTestWrapper
+			onRegisterSequence={(sequence) => {
+				registeredSequences.push(sequence);
+			}}
+		>
+			<AnimatedImage ref={ref} onError={() => undefined} src="test.gif" />
+		</SequenceTestWrapper>,
+	);
+
+	const refForOutline = registeredSequences[0]
+		?.refForOutline as React.RefObject<HTMLCanvasElement | null>;
+
+	expect(refForOutline.current).toBeInstanceOf(HTMLCanvasElement);
+	expect(ref.current).toBe(refForOutline.current);
 });
