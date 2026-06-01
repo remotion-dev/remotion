@@ -1,3 +1,4 @@
+import type MediaFox from '@mediafox/core';
 import type {DownloadWhisperModelParams} from '@remotion/whisper-web';
 import React, {useState} from 'react';
 import type {Source} from '~/lib/convert-state';
@@ -9,8 +10,8 @@ import TranscribeAudio from './transcribeAudio';
 const Transcribe: React.FC<{
 	readonly src: Source;
 	readonly name: string;
-	readonly playbackTime: number;
-}> = ({src, name, playbackTime}) => {
+	readonly mediaFox: MediaFox;
+}> = ({src, name, mediaFox}) => {
 	const [state, setState] = useState<TranscriptionState>({type: 'idle'});
 
 	const [selectedModel, setSelectedModel] =
@@ -39,7 +40,7 @@ const Transcribe: React.FC<{
 				/>
 				{state.type === 'transcribing' ? <div className="h-4" /> : null}
 				{state.type === 'done' || state.type === 'transcribing' ? (
-					<Display result={state.result} time={playbackTime} />
+					<Display result={state.result} mediaFox={mediaFox} />
 				) : null}
 			</div>
 		</>

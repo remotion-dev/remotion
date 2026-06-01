@@ -339,31 +339,16 @@ export type AddEffectResponse =
 			stack: string;
 	  };
 
-export type ReorderEffectRequest = {
-	fileName: string;
-	sequenceNodePath: SequencePropsSubscriptionKey;
-	fromIndex: number;
-	toIndex: number;
-	clientId: string;
-};
-
-export type ReorderEffectResponse =
-	| {
-			success: true;
-	  }
-	| {
-			success: false;
-			reason: string;
-			stack: string;
-	  };
-
-export type DeleteSequenceKeyframe = {
+export type DeleteSequenceKeyframeRequest = {
 	fileName: string;
 	nodePath: SequencePropsSubscriptionKey;
 	key: string;
 	frame: number;
 	schema: SequenceSchema;
+	clientId: string;
 };
+
+export type DeleteSequenceKeyframeResponse = SaveSequencePropsResponse;
 
 export type AddSequenceKeyframeRequest = {
 	fileName: string;
@@ -377,24 +362,17 @@ export type AddSequenceKeyframeRequest = {
 
 export type AddSequenceKeyframeResponse = SaveSequencePropsResponse;
 
-export type DeleteEffectKeyframe = {
+export type DeleteEffectKeyframeRequest = {
 	fileName: string;
 	sequenceNodePath: SequencePropsSubscriptionKey;
 	effectIndex: number;
 	key: string;
 	frame: number;
 	schema: SequenceSchema;
-};
-
-export type DeleteKeyframesRequest = {
-	sequenceKeyframes: DeleteSequenceKeyframe[];
-	effectKeyframes: DeleteEffectKeyframe[];
 	clientId: string;
 };
 
-export type DeleteKeyframesResponse = {
-	success: true;
-};
+export type DeleteEffectKeyframeResponse = SaveEffectPropsResponse;
 
 export type AddEffectKeyframeRequest = {
 	fileName: string;
@@ -586,14 +564,17 @@ export type ApiRoutes = {
 		SaveEffectPropsResponse
 	>;
 	'/api/add-effect': ReqAndRes<AddEffectRequest, AddEffectResponse>;
-	'/api/reorder-effect': ReqAndRes<ReorderEffectRequest, ReorderEffectResponse>;
-	'/api/delete-keyframes': ReqAndRes<
-		DeleteKeyframesRequest,
-		DeleteKeyframesResponse
+	'/api/delete-sequence-keyframe': ReqAndRes<
+		DeleteSequenceKeyframeRequest,
+		DeleteSequenceKeyframeResponse
 	>;
 	'/api/add-sequence-keyframe': ReqAndRes<
 		AddSequenceKeyframeRequest,
 		AddSequenceKeyframeResponse
+	>;
+	'/api/delete-effect-keyframe': ReqAndRes<
+		DeleteEffectKeyframeRequest,
+		DeleteEffectKeyframeResponse
 	>;
 	'/api/add-effect-keyframe': ReqAndRes<
 		AddEffectKeyframeRequest,

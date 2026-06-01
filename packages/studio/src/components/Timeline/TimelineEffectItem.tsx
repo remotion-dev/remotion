@@ -1,4 +1,4 @@
-import React, {useCallback, useContext, useMemo, useState} from 'react';
+import React, {useCallback, useContext, useMemo} from 'react';
 import type {SequencePropsSubscriptionKey, SequenceSchema} from 'remotion';
 import {Internals} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
@@ -20,83 +20,13 @@ import {TimelineRowChrome} from './TimelineRowChrome';
 import {
 	getTimelineColor,
 	getTimelineSelectedLabelStyle,
-	SELECTION_ENABLED,
 	useTimelineRowSelection,
 } from './TimelineSelection';
-
-const EFFECT_REORDER_MIME_TYPE = 'application/remotion-effect-reorder';
-
-type EffectReorderDragData = {
-	readonly nodePathKey: string;
-	readonly effectIndex: number;
-};
-
-let currentEffectDrag: EffectReorderDragData | null = null;
 
 const rowLabel: React.CSSProperties = {
 	fontSize: 12,
 	color: 'rgba(255, 255, 255, 0.8)',
 	userSelect: 'none',
-};
-
-const rowStyle: React.CSSProperties = {
-	height: TREE_GROUP_ROW_HEIGHT,
-	cursor: 'default',
-};
-
-const reorderWrapper: React.CSSProperties = {
-	position: 'relative',
-};
-
-const reorderLineBase: React.CSSProperties = {
-	backgroundColor: '#0b84ff',
-	height: 2,
-	left: 0,
-	pointerEvents: 'none',
-	position: 'absolute',
-	right: 0,
-	zIndex: 1,
-};
-
-const hasEffectReorderDragType = (dataTransfer: DataTransfer) => {
-	return Array.from(dataTransfer.types).includes(EFFECT_REORDER_MIME_TYPE);
-};
-
-const getEffectReorderDragData = (
-	dataTransfer: DataTransfer,
-): EffectReorderDragData | null => {
-	if (currentEffectDrag) {
-		return currentEffectDrag;
-	}
-
-	const value = dataTransfer.getData(EFFECT_REORDER_MIME_TYPE);
-	if (!value) {
-		return null;
-	}
-
-	try {
-		const parsed = JSON.parse(value) as EffectReorderDragData;
-		if (
-			typeof parsed.nodePathKey === 'string' &&
-			typeof parsed.effectIndex === 'number'
-		) {
-			return parsed;
-		}
-	} catch {
-		return null;
-	}
-
-	return null;
-};
-
-const getDestinationIndex = ({
-	fromIndex,
-	insertionIndex,
-}: {
-	readonly fromIndex: number;
-	readonly insertionIndex: number;
-}) => {
-	return insertionIndex > fromIndex ? insertionIndex - 1 : insertionIndex;
 };
 
 export const TimelineEffectItem: React.FC<{
@@ -127,9 +57,6 @@ export const TimelineEffectItem: React.FC<{
 	const {codeValues} = useContext(Internals.VisualModeCodeValuesContext);
 	const {setCodeValues} = useContext(Internals.VisualModeSettersContext);
 	const selection = useTimelineRowSelection(nodePathInfo);
-	const [dropIndicator, setDropIndicator] = useState<'before' | 'after' | null>(
-		null,
-	);
 
 	const effectStatus = useMemo(
 		() =>
@@ -161,17 +88,6 @@ export const TimelineEffectItem: React.FC<{
 		!previewConnected ||
 		effectStatus.type !== 'can-update-effect' ||
 		!validatedLocation.source;
-
-	const canReorder =
-		SELECTION_ENABLED &&
-		previewConnected &&
-		effectStatus.type === 'can-update-effect' &&
-		Boolean(validatedLocation.source);
-
-	const nodePathKey = useMemo(
-		() => Internals.makeSequencePropsSubscriptionKey(nodePath),
-		[nodePath],
-	);
 
 	const onDeleteEffectFromSource = useCallback(async () => {
 		if (deleteDisabled) {
@@ -290,6 +206,13 @@ export const TimelineEffectItem: React.FC<{
 
 	const isExpanded = getIsExpanded(nodePathInfo);
 
+	const rowStyle = useMemo(
+		(): React.CSSProperties => ({
+			height: TREE_GROUP_ROW_HEIGHT,
+		}),
+		[],
+	);
+
 	const labelStyle = useMemo((): React.CSSProperties => {
 		return {
 			...rowLabel,
@@ -303,145 +226,6 @@ export const TimelineEffectItem: React.FC<{
 			paddingRight: EXPANDED_SECTION_PADDING_RIGHT,
 		};
 	}, [selection.selected]);
-
-	const getDropTarget = useCallback(
-		(e: React.DragEvent<HTMLDivElement>) => {
-			const dragData = getEffectReorderDragData(e.dataTransfer);
-			if (!dragData || dragData.nodePathKey !== nodePathKey) {
-				return null;
-			}
-
-			const rect = e.currentTarget.getBoundingClientRect();
-			const before = e.clientY < rect.top + rect.height / 2;
-			const insertionIndex = before ? effectIndex : effectIndex + 1;
-			const toIndex = getDestinationIndex({
-				fromIndex: dragData.effectIndex,
-				insertionIndex,
-			});
-
-			if (toIndex === dragData.effectIndex) {
-				return null;
-			}
-
-			return {
-				dragData,
-				toIndex,
-				indicator: before ? ('before' as const) : ('after' as const),
-			};
-		},
-		[effectIndex, nodePathKey],
-	);
-
-	const onDragStart = useCallback(
-		(e: React.DragEvent<HTMLDivElement>) => {
-			if (!canReorder) {
-				e.preventDefault();
-				return;
-			}
-
-			const dragData = {nodePathKey, effectIndex};
-			currentEffectDrag = dragData;
-			e.dataTransfer.effectAllowed = 'move';
-			e.dataTransfer.setData(
-				EFFECT_REORDER_MIME_TYPE,
-				JSON.stringify(dragData),
-			);
-			e.stopPropagation();
-		},
-		[canReorder, effectIndex, nodePathKey],
-	);
-
-	const onDragEnd = useCallback(() => {
-		currentEffectDrag = null;
-		setDropIndicator(null);
-	}, []);
-
-	const onDragOver = useCallback(
-		(e: React.DragEvent<HTMLDivElement>) => {
-			if (!canReorder || !hasEffectReorderDragType(e.dataTransfer)) {
-				return;
-			}
-
-			const dropTarget = getDropTarget(e);
-			if (!dropTarget) {
-				setDropIndicator(null);
-				return;
-			}
-
-			e.preventDefault();
-			e.stopPropagation();
-			e.dataTransfer.dropEffect = 'move';
-			setDropIndicator(dropTarget.indicator);
-		},
-		[canReorder, getDropTarget],
-	);
-
-	const onDragLeave = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-		if (e.currentTarget.contains(e.relatedTarget as Node | null)) {
-			return;
-		}
-
-		setDropIndicator(null);
-	}, []);
-
-	const onDrop = useCallback(
-		async (e: React.DragEvent<HTMLDivElement>) => {
-			if (
-				!canReorder ||
-				previewServerState.type !== 'connected' ||
-				!validatedLocation.source
-			) {
-				return;
-			}
-
-			const dropTarget = getDropTarget(e);
-			if (!dropTarget) {
-				setDropIndicator(null);
-				return;
-			}
-
-			e.preventDefault();
-			e.stopPropagation();
-			setDropIndicator(null);
-			currentEffectDrag = null;
-
-			try {
-				const result = await callApi('/api/reorder-effect', {
-					fileName: validatedLocation.source,
-					sequenceNodePath: nodePath,
-					fromIndex: dropTarget.dragData.effectIndex,
-					toIndex: dropTarget.toIndex,
-					clientId: previewServerState.clientId,
-				});
-
-				if (result.success) {
-					showNotification('Reordered effect', 2000);
-				} else {
-					showNotification(result.reason, 4000);
-				}
-			} catch (err) {
-				showNotification((err as Error).message, 4000);
-			}
-		},
-		[
-			canReorder,
-			getDropTarget,
-			nodePath,
-			previewServerState,
-			validatedLocation.source,
-		],
-	);
-
-	const reorderLineStyle = useMemo((): React.CSSProperties | null => {
-		if (!dropIndicator) {
-			return null;
-		}
-
-		return {
-			...reorderLineBase,
-			...(dropIndicator === 'before' ? {top: -1} : {bottom: -1}),
-		};
-	}, [dropIndicator]);
 
 	const row = (
 		<TimelineRowChrome
@@ -479,31 +263,14 @@ export const TimelineEffectItem: React.FC<{
 		</TimelineRowChrome>
 	);
 
-	const draggableRow = canReorder ? (
-		<div
-			draggable
-			onDragStart={onDragStart}
-			onDragEnd={onDragEnd}
-			onDragOver={onDragOver}
-			onDragLeave={onDragLeave}
-			onDrop={onDrop}
-			style={reorderWrapper}
-		>
-			{reorderLineStyle ? <div style={reorderLineStyle} /> : null}
-			{row}
-		</div>
-	) : (
-		row
-	);
-
 	return previewConnected ? (
 		<ContextMenu
 			values={contextMenuValues}
 			onOpen={selection.selectable ? selection.onSelect : null}
 		>
-			{draggableRow}
+			{row}
 		</ContextMenu>
 	) : (
-		draggableRow
+		row
 	);
 };

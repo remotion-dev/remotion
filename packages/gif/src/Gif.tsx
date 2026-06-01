@@ -70,7 +70,6 @@ const GifInner = ({
 	const env = useRemotionEnvironment();
 	const {durationInFrames: videoDuration} = useVideoConfig();
 	const resolvedDuration = durationInFrames ?? videoDuration;
-	const refForOutline = React.useRef<HTMLElement | null>(null);
 
 	const memoizedEffectDefinitions = useMemoizedEffectDefinitions(effects);
 	const memoizedEffects = useMemoizedEffects({
@@ -98,7 +97,7 @@ const GifInner = ({
 	const inner = env.isRendering ? (
 		<GifForRendering {...gifProps} ref={ref} />
 	) : (
-		<GifForDevelopment {...gifProps} ref={ref} refForOutline={refForOutline} />
+		<GifForDevelopment {...gifProps} ref={ref} />
 	);
 
 	return (
@@ -110,7 +109,6 @@ const GifInner = ({
 			_experimentalControls={controls}
 			_remotionInternalEffects={memoizedEffectDefinitions}
 			{...sequenceProps}
-			_remotionInternalRefForOutline={refForOutline}
 		>
 			{inner}
 		</Sequence>

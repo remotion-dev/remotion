@@ -203,13 +203,6 @@ const categories: {
 				description: 'Source-image halftone effect',
 			},
 			{
-				link: '/docs/effects/noise',
-				preview: '/img/effects-noise-preview.png',
-				alt: 'noise effect preview',
-				name: 'noise()',
-				description: 'Procedural grain effect',
-			},
-			{
 				link: '/docs/effects/pixel-dissolve',
 				preview: '/img/effects-pixel-dissolve-preview.png',
 				alt: 'pixel dissolve effect preview',
@@ -244,6 +237,13 @@ const categories: {
 				name: 'vignette()',
 				description: 'Edge darkening or transparency effect',
 			},
+			{
+				link: '/docs/effects/white-noise',
+				preview: '/img/effects-white-noise-preview.png',
+				alt: 'white noise effect preview',
+				name: 'whiteNoise()',
+				description: 'Random grayscale noise layer',
+			},
 		],
 	},
 	{
@@ -257,11 +257,11 @@ const categories: {
 				description: 'Procedural dot gradient effect',
 			},
 			{
-				link: '/docs/effects/white-noise',
-				preview: '/img/effects-white-noise-preview.png',
-				alt: 'white noise effect preview',
-				name: 'whiteNoise()',
-				description: 'Random grayscale noise layer',
+				link: '/docs/effects/noise',
+				preview: '/img/effects-noise-preview.png',
+				alt: 'noise effect preview',
+				name: 'noise()',
+				description: 'Procedural grain effect',
 			},
 			{
 				link: '/docs/effects/lines',

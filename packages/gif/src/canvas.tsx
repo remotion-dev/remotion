@@ -1,13 +1,11 @@
 /* eslint-disable react/require-default-props */
 import {
 	forwardRef,
-	useCallback,
 	useEffect,
 	useImperativeHandle,
 	useMemo,
 	useRef,
 	useState,
-	type RefObject,
 } from 'react';
 import type {EffectDefinitionAndStack} from 'remotion';
 import {Internals, useDelayRender} from 'remotion';
@@ -110,22 +108,11 @@ type Props = {
 	readonly className?: string;
 	readonly style?: React.CSSProperties;
 	readonly effects: EffectDefinitionAndStack<unknown>[];
-	readonly refForOutline?: RefObject<HTMLElement | null>;
 };
 
 export const Canvas = forwardRef(
 	(
-		{
-			index,
-			frames,
-			width,
-			height,
-			fit,
-			className,
-			style,
-			effects,
-			refForOutline,
-		}: Props,
+		{index, frames, width, height, fit, className, style, effects}: Props,
 		ref,
 	) => {
 		const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -157,15 +144,6 @@ export const Canvas = forwardRef(
 		useImperativeHandle(ref, () => {
 			return canvasRef.current as HTMLCanvasElement;
 		}, []);
-		const canvasCallbackRef = useCallback(
-			(canvas: HTMLCanvasElement | null) => {
-				canvasRef.current = canvas;
-				if (refForOutline) {
-					refForOutline.current = canvas;
-				}
-			},
-			[refForOutline],
-		);
 
 		useEffect(() => {
 			if (!size) {
@@ -312,7 +290,7 @@ export const Canvas = forwardRef(
 
 		return (
 			<canvas
-				ref={canvasCallbackRef}
+				ref={canvasRef}
 				className={className}
 				style={style}
 				width={width ?? size?.width}

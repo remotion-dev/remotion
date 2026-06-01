@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import {forwardRef, useEffect, useRef, useState, type RefObject} from 'react';
+import {forwardRef, useEffect, useRef, useState} from 'react';
 import type {EffectDefinitionAndStack} from 'remotion';
 import {Canvas} from './canvas';
 import {manuallyManagedGifCache, volatileGifCache} from './gif-cache';
@@ -13,7 +13,6 @@ export const GifForDevelopment = forwardRef<
 	HTMLCanvasElement,
 	RemotionGifProps & {
 		readonly effects: EffectDefinitionAndStack<unknown>[];
-		readonly refForOutline: RefObject<HTMLElement | null>;
 	}
 >(
 	(
@@ -27,7 +26,6 @@ export const GifForDevelopment = forwardRef<
 			onLoad,
 			fit = 'fill',
 			effects,
-			refForOutline,
 			...props
 		},
 		ref,
@@ -119,7 +117,6 @@ export const GifForDevelopment = forwardRef<
 				width={width}
 				height={height}
 				effects={effects}
-				refForOutline={refForOutline}
 				{...props}
 				ref={ref}
 			/>

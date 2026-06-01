@@ -2,10 +2,7 @@ import type {OverrideIdToNodePaths, TSequence} from 'remotion';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {callApi} from '../call-api';
 import {showNotification} from '../Notifications/NotificationCenter';
-import {
-	deleteSelectedKeyframe,
-	deleteSelectedKeyframes,
-} from './delete-selected-keyframe';
+import {deleteSelectedKeyframe} from './delete-selected-keyframe';
 import type {SetCodeValues} from './save-sequence-prop';
 import type {TimelineSelection} from './TimelineSelection';
 
@@ -251,16 +248,25 @@ export const deleteSelectedTimelineItems = ({
 				})),
 			);
 		case 'keyframe': {
-			return deleteSelectedKeyframes({
-				keyframes: selections.filter(isKeyframeSelection).map((selection) => ({
-					nodePathInfo: selection.nodePathInfo,
-					frame: selection.frame,
-				})),
-				sequences,
-				overrideIdsToNodePaths,
-				setCodeValues,
-				clientId,
-			});
+			const deletePromises = selections
+				.filter(isKeyframeSelection)
+				.map((selection) =>
+					deleteSelectedKeyframe({
+						nodePathInfo: selection.nodePathInfo,
+						frame: selection.frame,
+						sequences,
+						overrideIdsToNodePaths,
+						setCodeValues,
+						clientId,
+					}),
+				)
+				.filter((promise): promise is Promise<void> => promise !== null);
+
+			if (deletePromises.length === 0) {
+				return null;
+			}
+
+			return Promise.all(deletePromises).then(() => undefined);
 		}
 
 		case 'sequence-prop':

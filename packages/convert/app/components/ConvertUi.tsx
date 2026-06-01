@@ -1,3 +1,4 @@
+import type MediaFox from '@mediafox/core';
 import {Button} from '@remotion/design';
 import type {
 	CropRectangle,
@@ -73,6 +74,7 @@ const ConvertUI = ({
 	sampleRate,
 	name,
 	input,
+	mediafox,
 	crop,
 	cropRect,
 }: {
@@ -100,6 +102,7 @@ const ConvertUI = ({
 	readonly setFlipVertical: React.Dispatch<React.SetStateAction<boolean>>;
 	readonly crop: boolean;
 	readonly sampleRate: number | null;
+	readonly mediafox: MediaFox;
 	readonly cropRect: CropRectangle;
 }) => {
 	const [outputContainer, setOutputContainer] = useState<OutputContainer>(() =>
@@ -523,6 +526,7 @@ const ConvertUI = ({
 		return (
 			<>
 				<ConvertProgress
+					mediafox={mediafox}
 					state={state.state}
 					newName={state.newName}
 					done={false}
@@ -551,6 +555,7 @@ const ConvertUI = ({
 			<>
 				<ConvertProgress
 					done
+					mediafox={mediafox}
 					state={state.state}
 					newName={state.newName}
 					duration={durationInSeconds}

@@ -1,10 +1,10 @@
 'use client';
 
 import React from 'react';
-import AutomationsSection from './homepage/AutomationsSection';
 import {BackgroundAnimation} from './homepage/BackgroundAnimation';
 import CommunityStats from './homepage/CommunityStats';
 import {Demo} from './homepage/Demo';
+import EditorStarterSection from './homepage/EditorStarterSection';
 import EvaluateRemotionSection from './homepage/EvaluateRemotion';
 import {IfYouKnowReact} from './homepage/IfYouKnowReact';
 import type {ColorMode} from './homepage/layout/use-color-mode';
@@ -14,7 +14,7 @@ import {ParameterizeAndEdit} from './homepage/ParameterizeAndEdit';
 import {Pricing} from './homepage/Pricing';
 import {RealMP4Videos} from './homepage/RealMp4Videos';
 import TrustedByBanner from './homepage/TrustedByBanner';
-import {BuiltWithRemotionShowcase} from './homepage/VideoAppsShowcase';
+import VideoAppsShowcase from './homepage/VideoAppsShowcase';
 import {SectionTitle} from './homepage/VideoAppsTitle';
 import {WriteInReact} from './homepage/WriteInReact';
 
@@ -42,16 +42,10 @@ export const NewLanding: React.FC<{
 						<br />
 						<br />
 						<br />
-						<div className="pt-6 md:pt-8">
-							<AutomationsSection />
-						</div>
+						<VideoAppsShowcase />
 						<br />
 						<br />
 						<Demo />
-						<br />
-						<br />
-						<br />
-						<BuiltWithRemotionShowcase />
 						<br />
 						<br />
 						<br />
@@ -64,6 +58,10 @@ export const NewLanding: React.FC<{
 						<br />
 						<br />
 						<CommunityStats />
+						<br />
+						<br />
+						<br />
+						<EditorStarterSection />
 						<br />
 						<br />
 						<br />

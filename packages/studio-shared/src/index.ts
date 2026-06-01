@@ -19,16 +19,16 @@ export {
 	CompositionComponentInfoRequest,
 	CompositionComponentInfoResponse,
 	CopyStillToClipboardRequest,
-	DeleteEffectKeyframe,
+	DeleteEffectKeyframeRequest,
+	DeleteEffectKeyframeResponse,
 	DeleteEffectRequest,
 	DeleteEffectRequestItem,
 	DeleteEffectResponse,
 	DeleteJsxNodeRequest,
 	DeleteJsxNodeRequestItem,
 	DeleteJsxNodeResponse,
-	DeleteKeyframesRequest,
-	DeleteKeyframesResponse,
-	DeleteSequenceKeyframe,
+	DeleteSequenceKeyframeRequest,
+	DeleteSequenceKeyframeResponse,
 	DeleteStaticFileRequest,
 	DeleteStaticFileResponse,
 	DuplicateJsxNodeRequest,
@@ -46,8 +46,6 @@ export {
 	RedoRequest,
 	RedoResponse,
 	RemoveRenderRequest,
-	ReorderEffectRequest,
-	ReorderEffectResponse,
 	RestartStudioRequest,
 	RestartStudioResponse,
 	SaveEffectPropsRequest,
@@ -155,9 +153,7 @@ export {
 } from './optimistic-add-keyframe';
 export {
 	optimisticDeleteEffectKeyframe,
-	optimisticDeleteEffectKeyframes,
 	optimisticDeleteSequenceKeyframe,
-	optimisticDeleteSequenceKeyframes,
 } from './optimistic-delete-keyframe';
 export {optimisticUpdateForCodeValues} from './optimistic-update-for-code-values';
 export {optimisticUpdateForEffectCodeValues} from './optimistic-update-for-effect-code-values';
