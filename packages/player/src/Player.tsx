@@ -97,6 +97,7 @@ export type PlayerProps<
 	readonly noSuspense?: boolean;
 	readonly acknowledgeRemotionLicense?: boolean;
 	readonly audioLatencyHint?: AudioContextLatencyCategory;
+	readonly sampleRate?: number;
 	readonly volumePersistenceKey?: string;
 	readonly initialVolume?: number;
 } & CompProps<Props> &
@@ -168,6 +169,7 @@ const PlayerFn = <
 		noSuspense,
 		acknowledgeRemotionLicense,
 		audioLatencyHint = 'playback',
+		sampleRate = 48000,
 		volumePersistenceKey,
 		initialVolume,
 		...componentProps
@@ -323,6 +325,18 @@ const PlayerFn = <
 	}
 
 	if (
+		typeof sampleRate !== 'number' ||
+		!Number.isFinite(sampleRate) ||
+		Number.isNaN(sampleRate) ||
+		sampleRate <= 0 ||
+		sampleRate % 1 !== 0
+	) {
+		throw new TypeError(
+			`'sampleRate' must be a positive integer but got '${sampleRate}' instead`,
+		);
+	}
+
+	if (
 		typeof initialVolume !== 'undefined' &&
 		typeof initialVolume !== 'number'
 	) {
@@ -436,6 +450,7 @@ const PlayerFn = <
 				initiallyMuted={initiallyMuted}
 				logLevel={logLevel}
 				audioLatencyHint={audioLatencyHint}
+				sampleRate={sampleRate}
 				volumePersistenceKey={volumePersistenceKey}
 				initialVolume={initialVolume}
 				inputProps={actualInputProps}

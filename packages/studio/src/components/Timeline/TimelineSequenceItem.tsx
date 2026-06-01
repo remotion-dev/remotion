@@ -1,8 +1,13 @@
-import React, {useCallback, useContext, useMemo} from 'react';
+import {
+	EFFECT_DRAG_MIME_TYPE,
+	parseEffectDragData,
+} from '@remotion/studio-shared';
+import React, {useCallback, useContext, useMemo, useState} from 'react';
 import type {TSequence} from 'remotion';
 import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
+import {formatFileLocation} from '../../helpers/format-file-location';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	getTimelineLayerHeight,
@@ -17,6 +22,7 @@ import {
 } from '../ExpandedTracksProvider';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {showNotification} from '../Notifications/NotificationCenter';
+import {duplicateSequencesFromSource} from './duplicate-selected-timeline-item';
 import {saveSequenceProp} from './save-sequence-prop';
 import {
 	TimelineExpandArrowButton,
@@ -26,12 +32,13 @@ import {TimelineExpandedSection} from './TimelineExpandedSection';
 import {TimelineItemStack} from './TimelineItemStack';
 import {TimelineLayerEye, TimelineLayerEyeSpacer} from './TimelineLayerEye';
 import {
-	TimelineMediaInfo,
 	getTimelineAssetLinkInfo,
 	openTimelineAssetLink,
+	TimelineMediaInfo,
 } from './TimelineMediaInfo';
 import {TimelineRowChrome} from './TimelineRowChrome';
 import {
+	isTimelineSelectionModifierEvent,
 	SELECTION_ENABLED,
 	useTimelineRowContainsSelection,
 	useTimelineRowSelection,
@@ -48,11 +55,47 @@ const labelContainerStyle: React.CSSProperties = {
 	gap: 4,
 };
 
-export const TimelineListItem: React.FC<{
+const effectDropHighlight: React.CSSProperties = {
+	backgroundColor: 'rgba(0, 155, 255, 0.16)',
+	outline: '1px solid rgba(0, 155, 255, 0.75)',
+	outlineOffset: -1,
+};
+
+const hasEffectDragType = (dataTransfer: DataTransfer) => {
+	return Array.from(dataTransfer.types).some(
+		(type) =>
+			type === EFFECT_DRAG_MIME_TYPE ||
+			type === 'application/json' ||
+			type === 'text/plain',
+	);
+};
+
+const getEffectDragData = (dataTransfer: DataTransfer) => {
+	for (const type of [
+		EFFECT_DRAG_MIME_TYPE,
+		'application/json',
+		'text/plain',
+	]) {
+		const value = dataTransfer.getData(type);
+		if (!value) {
+			continue;
+		}
+
+		const parsed = parseEffectDragData(value);
+		if (parsed) {
+			return parsed;
+		}
+	}
+
+	return null;
+};
+
+export const TimelineSequenceItem: React.FC<{
 	readonly sequence: TSequence;
 	readonly nestedDepth: number;
 	readonly nodePathInfo: SequenceNodePathInfo | null;
-}> = ({nestedDepth, sequence, nodePathInfo}) => {
+	readonly keyframeDisplayOffset: number;
+}> = ({nestedDepth, sequence, nodePathInfo, keyframeDisplayOffset}) => {
 	const nodePath = nodePathInfo?.sequenceSubscriptionKey ?? null;
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const previewConnected = previewServerState.type === 'connected';
@@ -64,9 +107,18 @@ export const TimelineListItem: React.FC<{
 	const {onSelect, selectable, selected} =
 		useTimelineRowSelection(nodePathInfo);
 	const containsSelection = useTimelineRowContainsSelection(nodePathInfo);
+	const [effectDropHovered, setEffectDropHovered] = useState(false);
 
 	const {canOpenInEditor, openInEditor, originalLocation} =
 		useOpenSequenceInEditor(sequence);
+	const fileLocation = useMemo(
+		() =>
+			formatFileLocation({
+				location: originalLocation,
+				root: window.remotion_cwd,
+			}),
+		[originalLocation],
+	);
 
 	const validatedLocation = useMemo(() => {
 		if (
@@ -93,36 +145,13 @@ export const TimelineListItem: React.FC<{
 
 	const duplicateDisabled = deleteDisabled;
 
-	const onDuplicateSequenceFromSource = useCallback(async () => {
-		if (!validatedLocation?.source || !nodePath) {
+	const onDuplicateSequenceFromSource = useCallback(() => {
+		if (!validatedLocation?.source || !nodePathInfo) {
 			return;
 		}
 
-		if (nodePathInfo && nodePathInfo.numberOfSequencesWithThisNodePath > 1) {
-			const message =
-				'This sequence is programmatically duplicated ' +
-				nodePathInfo.numberOfSequencesWithThisNodePath +
-				' times in the code. Duplicating inserts another copy. Continue?';
-			// eslint-disable-next-line no-alert -- native confirm before applying duplicate codemod in .map callbacks
-			if (!window.confirm(message)) {
-				return;
-			}
-		}
-
-		try {
-			const result = await callApi('/api/duplicate-jsx-node', {
-				fileName: validatedLocation.source,
-				nodePath: nodePath.nodePath,
-			});
-			if (result.success) {
-				showNotification('Duplicated sequence in source file', 2000);
-			} else {
-				showNotification(result.reason, 4000);
-			}
-		} catch (err) {
-			showNotification((err as Error).message, 4000);
-		}
-	}, [nodePath, validatedLocation?.source, nodePathInfo]);
+		duplicateSequencesFromSource([nodePathInfo]).catch(() => undefined);
+	}, [nodePathInfo, validatedLocation?.source]);
 
 	const onDeleteSequenceFromSource = useCallback(async () => {
 		if (!validatedLocation?.source || !nodePath) {
@@ -142,8 +171,12 @@ export const TimelineListItem: React.FC<{
 
 		try {
 			const result = await callApi('/api/delete-jsx-node', {
-				fileName: validatedLocation.source,
-				nodePath: nodePath.nodePath,
+				nodes: [
+					{
+						fileName: validatedLocation.source,
+						nodePath: nodePath.nodePath,
+					},
+				],
 			});
 			if (result.success) {
 				showNotification('Removed sequence from source file', 2000);
@@ -192,6 +225,34 @@ export const TimelineListItem: React.FC<{
 						value: 'show-in-editor',
 					}
 				: null,
+			{
+				type: 'item' as const,
+				id: 'copy-file-location',
+				keyHint: null,
+				label: 'Copy file location',
+				leftItem: null,
+				disabled: !fileLocation,
+				onClick: () => {
+					if (!fileLocation) {
+						return;
+					}
+
+					navigator.clipboard
+						.writeText(fileLocation)
+						.then(() => {
+							showNotification('Copied file location to clipboard', 1000);
+						})
+						.catch((err) => {
+							showNotification(
+								`Could not copy to clipboard: ${(err as Error).message}`,
+								1000,
+							);
+						});
+				},
+				quickSwitcherLabel: null,
+				subMenu: null,
+				value: 'copy-file-location',
+			},
 			documentationLink
 				? {
 						type: 'item' as const,
@@ -271,6 +332,7 @@ export const TimelineListItem: React.FC<{
 		assetLinkInfo,
 		deleteDisabled,
 		duplicateDisabled,
+		fileLocation,
 		onDeleteSequenceFromSource,
 		onDuplicateSequenceFromSource,
 		canOpenInEditor,
@@ -294,6 +356,11 @@ export const TimelineListItem: React.FC<{
 	const onShowInEditorDoubleClick = useCallback(
 		(e: React.MouseEvent<HTMLDivElement>) => {
 			if (!SELECTION_ENABLED || !canOpenInEditor) {
+				return;
+			}
+
+			if (isTimelineSelectionModifierEvent(e)) {
+				e.stopPropagation();
 				return;
 			}
 
@@ -383,6 +450,15 @@ export const TimelineListItem: React.FC<{
 		};
 	}, []);
 
+	const rowStyle = useMemo((): React.CSSProperties => {
+		return effectDropHovered
+			? {
+					...inner,
+					...effectDropHighlight,
+				}
+			: inner;
+	}, [effectDropHovered, inner]);
+
 	const hasExpandableContent =
 		Boolean(sequence.controls) || sequence.effects.length > 0;
 
@@ -394,6 +470,79 @@ export const TimelineListItem: React.FC<{
 		codeHiddenStatus !== undefined &&
 		codeHiddenStatus !== null &&
 		codeHiddenStatus.canUpdate;
+
+	const canDropEffect =
+		previewServerState.type === 'connected' &&
+		nodePath !== null &&
+		validatedLocation !== null &&
+		sequence.type !== 'audio';
+
+	const onEffectDragOver = useCallback(
+		(e: React.DragEvent<HTMLDivElement>) => {
+			if (!canDropEffect || !hasEffectDragType(e.dataTransfer)) {
+				return;
+			}
+
+			e.preventDefault();
+			e.dataTransfer.dropEffect = 'copy';
+			setEffectDropHovered(true);
+		},
+		[canDropEffect],
+	);
+
+	const onEffectDragLeave = useCallback(
+		(e: React.DragEvent<HTMLDivElement>) => {
+			if (e.currentTarget.contains(e.relatedTarget as Node | null)) {
+				return;
+			}
+
+			setEffectDropHovered(false);
+		},
+		[],
+	);
+
+	const onEffectDrop = useCallback(
+		async (e: React.DragEvent<HTMLDivElement>) => {
+			if (
+				!canDropEffect ||
+				previewServerState.type !== 'connected' ||
+				nodePath === null ||
+				validatedLocation === null
+			) {
+				return;
+			}
+
+			e.preventDefault();
+			e.stopPropagation();
+			setEffectDropHovered(false);
+
+			const dragData = getEffectDragData(e.dataTransfer);
+			if (!dragData) {
+				showNotification('Could not read effect drag data', 3000);
+				return;
+			}
+
+			try {
+				const result = await callApi('/api/add-effect', {
+					fileName: validatedLocation.source,
+					sequenceNodePath: nodePath,
+					effectName: dragData.effect.name,
+					effectImportPath: dragData.effect.importPath,
+					effectConfig: dragData.effect.config,
+					clientId: previewServerState.clientId,
+				});
+
+				if (result.success) {
+					showNotification(`Added ${dragData.effect.name}()`, 2000);
+				} else {
+					showNotification(result.reason, 4000);
+				}
+			} catch (err) {
+				showNotification((err as Error).message, 4000);
+			}
+		},
+		[canDropEffect, nodePath, previewServerState, validatedLocation],
+	);
 
 	const trackRow = (
 		<TimelineRowChrome
@@ -421,13 +570,16 @@ export const TimelineListItem: React.FC<{
 					<TimelineExpandArrowSpacer />
 				)
 			}
-			style={inner}
+			style={rowStyle}
 			selected={selected}
 			selectable={selectable}
 			onSelect={onSelect}
 			showSelectedBackground
 			containsSelection={containsSelection}
 			outerHeight={outerHeight}
+			onDragLeave={canDropEffect ? onEffectDragLeave : undefined}
+			onDragOver={canDropEffect ? onEffectDragOver : undefined}
+			onDrop={canDropEffect ? onEffectDrop : undefined}
 			onDoubleClick={
 				SELECTION_ENABLED && canOpenInEditor
 					? onShowInEditorDoubleClick
@@ -468,6 +620,7 @@ export const TimelineListItem: React.FC<{
 					validatedLocation={validatedLocation}
 					nodePathInfo={nodePathInfo}
 					nestedDepth={nestedDepth}
+					keyframeDisplayOffset={keyframeDisplayOffset}
 				/>
 			) : null}
 		</>

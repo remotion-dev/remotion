@@ -3,6 +3,7 @@ import {TIMELINE_INDENT} from './timeline-indent';
 export const TIMELINE_ROW_BASE_PADDING = 5;
 export const TIMELINE_EYE_COLUMN_WIDTH = 22;
 export const TIMELINE_ARROW_COLUMN_WIDTH = 16;
+export const TIMELINE_KEYFRAME_CONTROLS_WIDTH = 38;
 export const TIMELINE_FIELD_LABEL_EXTRA_WIDTH = 15;
 
 export const getTimelineRowIndentWidth = (depth: number): number => {

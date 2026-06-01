@@ -56,6 +56,12 @@ const errorMessage: React.CSSProperties = {
 	opacity: 0.75,
 };
 
+const getWaveformErrorMessage = () => {
+	return new Error(
+		'No waveform available. The audio could not be decoded or may not support CORS.',
+	);
+};
+
 const waveformCanvasStyle: React.CSSProperties = {
 	pointerEvents: 'none',
 	width: '100%',
@@ -187,6 +193,7 @@ export const AudioWaveform: React.FC<{
 		}
 
 		const worker = makeAudioWaveformWorker();
+		let workerFailed = false;
 		waveformWorker.current = worker;
 		worker.addEventListener(
 			'message',
@@ -200,6 +207,19 @@ export const AudioWaveform: React.FC<{
 				}
 			},
 		);
+		worker.addEventListener('error', (event) => {
+			event.preventDefault();
+			workerFailed = true;
+
+			if (worker !== waveformWorker.current) {
+				return;
+			}
+
+			worker.terminate();
+			waveformWorker.current = null;
+			hasTransferredCanvas.current = false;
+			setError(getWaveformErrorMessage());
+		});
 
 		let offscreen: OffscreenCanvas;
 		try {
@@ -219,7 +239,10 @@ export const AudioWaveform: React.FC<{
 		worker.postMessage({type: 'init', canvas: offscreen}, [offscreen]);
 
 		return () => {
-			worker.postMessage({type: 'dispose'});
+			if (!workerFailed) {
+				worker.postMessage({type: 'dispose'});
+			}
+
 			worker.terminate();
 			waveformWorker.current = null;
 			hasTransferredCanvas.current = false;
@@ -365,7 +388,8 @@ export const AudioWaveform: React.FC<{
 		return (
 			<div style={getContainerStyle(height)}>
 				<div style={errorMessage}>
-					No waveform available. Audio might not support CORS.
+					No waveform available. The audio could not be decoded or may not
+					support CORS.
 				</div>
 			</div>
 		);

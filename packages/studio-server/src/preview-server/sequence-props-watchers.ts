@@ -1,6 +1,6 @@
 import path from 'node:path';
-import {RenderInternals} from '@remotion/renderer';
 import type {LogLevel} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
 import {
 	stringifySequenceSubscriptionKey,
 	type SubscribeToSequencePropsResponse,
@@ -11,9 +11,9 @@ import {JsxElementNotFoundAtLocationError} from './jsx-element-not-found-at-loca
 import {waitForLiveEventsListener} from './live-events';
 import {getCachedNodePath, setCachedNodePath} from './node-path-cache';
 import {
+	computeSequencePropsStatus,
 	computeSequencePropsStatusFromContent,
 	computeSequencePropsStatusFromFilenameByLine,
-	computeSequencePropsStatus,
 } from './routes/can-update-sequence-props';
 
 type WatcherInfo = {
@@ -27,6 +27,7 @@ const getSequencePropsStatus = ({
 	fileName,
 	line,
 	column,
+	preferredNodePath,
 	keys,
 	effects,
 	remotionRoot,
@@ -35,11 +36,32 @@ const getSequencePropsStatus = ({
 	fileName: string;
 	line: number;
 	column: number;
+	preferredNodePath: SequenceNodePath | null;
 	keys: string[];
 	effects: string[][];
 	remotionRoot: string;
 	logLevel: LogLevel;
 }): SubscribeToSequencePropsResponse => {
+	if (preferredNodePath) {
+		const fromNodePath = computeSequencePropsStatus({
+			fileName,
+			nodePath: preferredNodePath,
+			keys,
+			effects,
+			remotionRoot,
+		});
+		return {
+			status: fromNodePath,
+			nodePath: {
+				absolutePath: path.resolve(remotionRoot, fileName),
+				nodePath: preferredNodePath,
+				sequenceKeys: keys,
+				effectKeys: effects,
+			},
+			success: true,
+		};
+	}
+
 	// Try cached nodePath first (handles stale source maps after suppressed rebuilds)
 	const cachedNodePath = getCachedNodePath(fileName, line, column);
 
@@ -82,6 +104,7 @@ export const subscribeToSequencePropsWatchers = ({
 	fileName,
 	line,
 	column,
+	nodePath: preferredNodePath,
 	keys,
 	effects,
 	remotionRoot,
@@ -91,6 +114,7 @@ export const subscribeToSequencePropsWatchers = ({
 	fileName: string;
 	line: number;
 	column: number;
+	nodePath: SequenceNodePath | null;
 	keys: string[];
 	effects: string[][];
 	remotionRoot: string;
@@ -101,6 +125,7 @@ export const subscribeToSequencePropsWatchers = ({
 		fileName,
 		line,
 		column,
+		preferredNodePath,
 		keys,
 		effects,
 		remotionRoot,

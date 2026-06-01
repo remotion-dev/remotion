@@ -33,7 +33,14 @@ export const TimelineExpandedSection: React.FC<{
 	readonly validatedLocation: CodePosition;
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly nestedDepth: number;
-}> = ({sequence, validatedLocation, nodePathInfo, nestedDepth}) => {
+	readonly keyframeDisplayOffset: number;
+}> = ({
+	sequence,
+	validatedLocation,
+	nodePathInfo,
+	nestedDepth,
+	keyframeDisplayOffset,
+}) => {
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {toggleTrack} = useContext(ExpandedTracksSetterContext);
 	const {codeValues: visualModeCodeValues} = useContext(
@@ -105,6 +112,7 @@ export const TimelineExpandedSection: React.FC<{
 							validatedLocation={validatedLocation}
 							nodePath={nodePathInfo.sequenceSubscriptionKey}
 							schema={schema}
+							keyframeDisplayOffset={keyframeDisplayOffset}
 						/>
 					</React.Fragment>
 				);

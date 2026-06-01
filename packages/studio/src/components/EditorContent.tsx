@@ -7,6 +7,7 @@ import {SplitterElement} from './Splitter/SplitterElement';
 import {SplitterHandle} from './Splitter/SplitterHandle';
 import {Timeline} from './Timeline/Timeline';
 import {TimelineEmptyState} from './Timeline/TimelineEmptyState';
+import {TimelineSelectionProvider} from './Timeline/TimelineSelection';
 
 const noop = () => undefined;
 
@@ -26,25 +27,33 @@ export const EditorContent: React.FC<{
 	const showTimeline =
 		canvasContent !== null && canvasContent.type === 'composition';
 
+	const content = (
+		<SplitterContainer
+			orientation="horizontal"
+			id="top-to-bottom"
+			maxFlex={0.9}
+			minFlex={0.2}
+			defaultFlex={0.75}
+		>
+			<SplitterElement sticky={null} type="flexer">
+				{children}
+			</SplitterElement>
+			<SplitterHandle allowToCollapse="none" onCollapse={noop} />
+			<SplitterElement sticky={null} type="anti-flexer">
+				{showTimeline ? <Timeline /> : <TimelineEmptyState />}
+			</SplitterElement>
+		</SplitterContainer>
+	);
+
 	return (
 		<div style={container}>
 			<InitialCompositionLoader />
 			<MenuToolbar readOnlyStudio={readOnlyStudio} />
-			<SplitterContainer
-				orientation="horizontal"
-				id="top-to-bottom"
-				maxFlex={0.9}
-				minFlex={0.2}
-				defaultFlex={0.75}
-			>
-				<SplitterElement sticky={null} type="flexer">
-					{children}
-				</SplitterElement>
-				<SplitterHandle allowToCollapse="none" onCollapse={noop} />
-				<SplitterElement sticky={null} type="anti-flexer">
-					{showTimeline ? <Timeline /> : <TimelineEmptyState />}
-				</SplitterElement>
-			</SplitterContainer>
+			{showTimeline ? (
+				<TimelineSelectionProvider>{content}</TimelineSelectionProvider>
+			) : (
+				content
+			)}
 		</div>
 	);
 };

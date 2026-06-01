@@ -141,7 +141,6 @@ const getFileMenu = ({
 							originalFunctionName: null,
 							originalScriptCode: null,
 						})
-							.then((res) => res.json())
 							.then(({success}) => {
 								if (!success) {
 									showNotification(
@@ -235,7 +234,6 @@ export const useMenuStructure = (
 	useEffect(() => {
 		if (
 			type !== 'connected' ||
-			!window.remotion_editorName ||
 			!currentComposition ||
 			!resolvedCompositionLocation?.source
 		) {
@@ -761,20 +759,12 @@ export const useMenuStructure = (
 						type: 'item' as const,
 						quickSwitcherLabel: 'Open spring() Editor',
 					},
-				].filter(Internals.truthy),
-				quickSwitcherLabel: null,
-			},
-			readOnlyStudio || remotion_packageManager === 'unknown'
-				? null
-				: {
-						id: 'install' as const,
-						label: 'Packages',
-						leaveLeftPadding: false,
-						items: [
-							{
+					readOnlyStudio || remotion_packageManager === 'unknown'
+						? null
+						: {
 								id: 'install-packages',
 								value: 'install-packages',
-								label: 'Install...',
+								label: 'Install package',
 								onClick: () => {
 									closeMenu();
 									setSelectedModal({
@@ -786,10 +776,11 @@ export const useMenuStructure = (
 								keyHint: null,
 								leftItem: null,
 								subMenu: null,
-								quickSwitcherLabel: `Install packages`,
+								quickSwitcherLabel: `Install package`,
 							},
-						],
-					},
+				].filter(Internals.truthy),
+				quickSwitcherLabel: null,
+			},
 			{
 				id: 'help' as const,
 				label: 'Help',

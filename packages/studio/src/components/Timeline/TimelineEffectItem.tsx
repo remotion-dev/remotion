@@ -1,4 +1,4 @@
-import React, {useCallback, useContext, useMemo, useState} from 'react';
+import React, {useCallback, useContext, useMemo} from 'react';
 import type {SequencePropsSubscriptionKey, SequenceSchema} from 'remotion';
 import {Internals} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
@@ -29,7 +29,7 @@ const rowLabel: React.CSSProperties = {
 	userSelect: 'none',
 };
 
-export const TimelineEffectGroupRow: React.FC<{
+export const TimelineEffectItem: React.FC<{
 	readonly label: string;
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly effectIndex: number;
@@ -52,7 +52,6 @@ export const TimelineEffectGroupRow: React.FC<{
 	getIsExpanded,
 	toggleTrack,
 }) => {
-	const [labelHovered, setLabelHovered] = useState(false);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const previewConnected = previewServerState.type === 'connected';
 	const {codeValues} = useContext(Internals.VisualModeCodeValuesContext);
@@ -96,11 +95,14 @@ export const TimelineEffectGroupRow: React.FC<{
 		}
 
 		try {
-			const result = await callApi('/api/delete-effect', {
-				fileName: validatedLocation.source,
-				sequenceNodePath: nodePath,
-				effectIndex,
-			});
+			const result = await callApi('/api/delete-effect', [
+				{
+					type: 'single-effect',
+					fileName: validatedLocation.source,
+					sequenceNodePath: nodePath,
+					effectIndex,
+				},
+			]);
 			if (result.success) {
 				showNotification('Removed effect from source file', 2000);
 			} else {
@@ -116,27 +118,55 @@ export const TimelineEffectGroupRow: React.FC<{
 			return [];
 		}
 
-		return [
-			{
-				type: 'item',
-				id: 'delete-effect',
-				keyHint: null,
-				label: 'Delete',
-				leftItem: null,
-				disabled: deleteDisabled,
-				onClick: () => {
-					if (deleteDisabled) {
-						return;
-					}
+		const items: ComboboxValue[] = [];
 
-					onDeleteEffectFromSource();
+		if (documentationLink) {
+			items.push({
+				type: 'item',
+				id: 'open-effect-docs',
+				keyHint: null,
+				label: 'Open effect docs',
+				leftItem: null,
+				disabled: false,
+				onClick: () => {
+					window.open(documentationLink, '_blank', 'noopener,noreferrer');
 				},
 				quickSwitcherLabel: null,
 				subMenu: null,
-				value: 'delete-effect',
+				value: 'open-effect-docs',
+			});
+			items.push({
+				type: 'divider',
+				id: 'open-effect-docs-divider',
+			});
+		}
+
+		items.push({
+			type: 'item',
+			id: 'delete-effect',
+			keyHint: null,
+			label: 'Delete',
+			leftItem: null,
+			disabled: deleteDisabled,
+			onClick: () => {
+				if (deleteDisabled) {
+					return;
+				}
+
+				onDeleteEffectFromSource();
 			},
-		];
-	}, [deleteDisabled, onDeleteEffectFromSource, previewConnected]);
+			quickSwitcherLabel: null,
+			subMenu: null,
+			value: 'delete-effect',
+		});
+
+		return items;
+	}, [
+		deleteDisabled,
+		documentationLink,
+		onDeleteEffectFromSource,
+		previewConnected,
+	]);
 
 	const onToggle = useCallback(
 		(type: 'enable' | 'disable') => {
@@ -184,7 +214,6 @@ export const TimelineEffectGroupRow: React.FC<{
 	);
 
 	const labelStyle = useMemo((): React.CSSProperties => {
-		const hoverEffect = labelHovered && documentationLink !== null;
 		return {
 			...rowLabel,
 			...getTimelineSelectedLabelStyle(selection.selected, true),
@@ -195,19 +224,8 @@ export const TimelineEffectGroupRow: React.FC<{
 			flex: 1,
 			minWidth: 0,
 			paddingRight: EXPANDED_SECTION_PADDING_RIGHT,
-			textDecoration: hoverEffect ? 'underline' : 'none',
-			textUnderlineOffset: 2,
-			cursor: hoverEffect ? 'pointer' : undefined,
 		};
-	}, [documentationLink, labelHovered, selection.selected]);
-
-	const onClickLabel = useCallback(() => {
-		if (documentationLink === null) {
-			return;
-		}
-
-		window.open(documentationLink, '_blank', 'noopener,noreferrer');
-	}, [documentationLink]);
+	}, [selection.selected]);
 
 	const row = (
 		<TimelineRowChrome
@@ -239,15 +257,7 @@ export const TimelineEffectGroupRow: React.FC<{
 			containsSelection={false}
 			outerHeight={null}
 		>
-			<span
-				onPointerEnter={() => setLabelHovered(true)}
-				onPointerLeave={() => setLabelHovered(false)}
-				onClick={onClickLabel}
-				title={
-					documentationLink ? `Open documentation: ${documentationLink}` : label
-				}
-				style={labelStyle}
-			>
+			<span title={label} style={labelStyle}>
 				{label}
 			</span>
 		</TimelineRowChrome>

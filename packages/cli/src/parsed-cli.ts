@@ -78,6 +78,7 @@ const {
 	configOption,
 	browserOption,
 	sampleRateOption,
+	previewSampleRateOption,
 } = BrowserSafeApis.options;
 
 export type CommandLineOptions = {
@@ -190,6 +191,9 @@ export type CommandLineOptions = {
 		typeof forceNewStudioOption
 	> | null;
 	[sampleRateOption.cliFlag]: TypeOfOption<typeof sampleRateOption>;
+	[previewSampleRateOption.cliFlag]: TypeOfOption<
+		typeof previewSampleRateOption
+	>;
 	[isProductionOption.cliFlag]: TypeOfOption<typeof isProductionOption> | null;
 };
 

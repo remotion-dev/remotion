@@ -57,6 +57,7 @@ export const updateDefaultPropsHandler: ApiHandler<
 		pushToUndoStack({
 			filePath: projectInfo.rootFile,
 			oldContents: fileContents,
+			newContents: null,
 			logLevel,
 			remotionRoot,
 			logLine,

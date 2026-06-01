@@ -1,5 +1,6 @@
 import {findPropsToDelete} from './find-props-to-delete.js';
 import {getEffectiveVisualModeValue} from './get-effective-visual-mode-value.js';
+import {interpolateKeyframedStatus} from './interpolate-keyframed-status.js';
 import type {ExtrapolateType} from './interpolate.js';
 import type {
 	SequenceFieldSchema,
@@ -29,6 +30,10 @@ export type CanUpdateSequencePropStatusClamping = {
 	right: ExtrapolateType;
 };
 
+export type CanUpdateSequencePropStatusInterpolationFunction =
+	| 'interpolate'
+	| 'interpolateColors';
+
 export type CanUpdateSequencePropStatusComputed = {
 	canUpdate: false;
 	reason: 'computed';
@@ -37,9 +42,11 @@ export type CanUpdateSequencePropStatusComputed = {
 export type CanUpdateSequencePropStatusKeyframed = {
 	canUpdate: false;
 	reason: 'keyframed';
+	interpolationFunction: CanUpdateSequencePropStatusInterpolationFunction;
 	keyframes: CanUpdateSequencePropStatusKeyframe[];
 	easing: CanUpdateSequencePropStatusEasing[];
 	clamping: CanUpdateSequencePropStatusClamping;
+	posterize: number | undefined;
 };
 
 export type CanUpdateSequencePropStatusFalse =
@@ -101,11 +108,13 @@ export const computeEffectiveSchemaValuesDotNotation = ({
 	currentValue,
 	overrideValues,
 	propStatus,
+	frame,
 }: {
 	schema: SequenceSchema;
 	currentValue: Record<string, unknown>;
 	overrideValues: Record<string, unknown>;
 	propStatus: Record<string, CanUpdateSequencePropStatus> | undefined;
+	frame: number | null;
 }): {merged: Record<string, unknown>; propsToDelete: Set<string>} => {
 	const merged: Record<string, unknown> = {};
 	const propsToDelete = new Set<string>();
@@ -117,15 +126,28 @@ export const computeEffectiveSchemaValuesDotNotation = ({
 			continue;
 		}
 
-		const value =
-			codeValueStatus === null || codeValueStatus.canUpdate === false
-				? currentValue[key]
-				: getEffectiveVisualModeValue({
-						codeValue: codeValueStatus,
-						dragOverrideValue: overrideValues[key],
-						defaultValue: field?.default,
-						shouldResortToDefaultValueIfUndefined: false,
-					});
+		let value: unknown;
+		if (codeValueStatus === null) {
+			value = currentValue[key];
+		} else if (codeValueStatus.canUpdate === false) {
+			if (codeValueStatus.reason === 'keyframed' && frame !== null) {
+				const interpolated = interpolateKeyframedStatus({
+					frame,
+					status: codeValueStatus,
+				});
+				value = interpolated ?? currentValue[key];
+			} else {
+				value = currentValue[key];
+			}
+		} else {
+			value = getEffectiveVisualModeValue({
+				codeValue: codeValueStatus,
+				dragOverrideValue: overrideValues[key],
+				defaultValue: field?.default,
+				shouldResortToDefaultValueIfUndefined: false,
+			});
+		}
+
 		if (value === undefined) {
 			propsToDelete.add(key);
 		}

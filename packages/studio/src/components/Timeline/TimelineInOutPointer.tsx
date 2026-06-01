@@ -10,6 +10,7 @@ const areaHighlight: React.CSSProperties = {
 	height: '100%',
 	bottom: 0,
 	top: 0,
+	pointerEvents: 'none',
 };
 
 export const inMarkerAreaRef = createRef<HTMLDivElement>();
@@ -55,7 +56,7 @@ export const TimelineInOutPointer: React.FC = () => {
 							timelineWidth -
 							getXPositionOfItemInTimelineImperatively(
 								outFrame,
-								videoConfig.durationInFrames,
+								videoConfig.durationInFrames + 1, // last frame also has width of 1 frame
 								timelineWidth,
 							),
 					}}

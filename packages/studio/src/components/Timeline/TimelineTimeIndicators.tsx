@@ -20,7 +20,6 @@ export const TIMELINE_TIME_INDICATOR_HEIGHT = 39;
 
 const container: React.CSSProperties = {
 	height: TIMELINE_TIME_INDICATOR_HEIGHT,
-	boxShadow: `0 0 4px ${TIMELINE_BACKGROUND}`,
 	position: 'absolute',
 	backgroundColor: TIMELINE_BACKGROUND,
 	top: 0,

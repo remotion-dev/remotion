@@ -8,26 +8,14 @@ import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	ApiRoutes,
-	CompletedClientRender,
 	GitSource,
 	RenderDefaults,
 	RenderJob,
-	SymbolicatedStackFrame,
 } from '@remotion/studio-shared';
 import {getProjectName} from '@remotion/studio-shared';
-import {
-	addCompletedClientRender,
-	getCompletedClientRenders,
-	removeCompletedClientRender,
-} from './client-render-queue';
+import {getCompletedClientRenders} from './client-render-queue';
 import {getFileSource} from './helpers/get-file-source';
 import {getInstalledInstallablePackages} from './helpers/get-installed-installable-packages';
-import {
-	getDisplayNameForEditor,
-	guessEditor,
-	launchEditor,
-} from './helpers/open-in-editor';
-import {resolveCompositionComponent} from './helpers/resolve-composition-component';
 import {resolveOutputPath} from './helpers/resolve-output-path';
 import {allApiRoutes} from './preview-server/api-routes';
 import type {ApiHandler, QueueMethods} from './preview-server/api-types';
@@ -35,12 +23,12 @@ import {getPackageManager} from './preview-server/get-package-manager';
 import {getStaticFileFallbackHint} from './preview-server/get-static-file-fallback-hint';
 import {handleRequest} from './preview-server/handler';
 import type {LiveEventsServer} from './preview-server/live-events';
-import {parseRequestBody} from './preview-server/parse-body';
 import {fetchFolder, getFiles} from './preview-server/public-folder';
+import {getEditorName} from './preview-server/routes/open-in-editor';
 import {serveStatic} from './preview-server/serve-static';
+import {validateSameOrigin} from './preview-server/validate-same-origin';
 import {reloadPreviouslySuppressedFiles} from './preview-server/watch-ignore-next-change';
 import type {RemotionConfigResponse} from './remotion-config-response';
-const editorGuess = guessEditor();
 const loggedStaticFileHints = new Set<string>();
 
 const static404 = (response: ServerResponse): Promise<void> => {
@@ -87,6 +75,7 @@ const handleFallback = async ({
 	getRenderDefaults,
 	numberOfAudioTags,
 	audioLatencyHint,
+	previewSampleRate,
 	gitSource,
 	logLevel,
 	enableCrossSiteIsolation,
@@ -102,6 +91,7 @@ const handleFallback = async ({
 	getRenderDefaults: () => RenderDefaults;
 	numberOfAudioTags: number;
 	audioLatencyHint: AudioContextLatencyCategory | null;
+	previewSampleRate: number | null;
 	gitSource: GitSource | null;
 	logLevel: LogLevel;
 	enableCrossSiteIsolation: boolean;
@@ -134,8 +124,7 @@ const handleFallback = async ({
 		);
 	}
 
-	const [edit] = await editorGuess;
-	const displayName = getDisplayNameForEditor(edit ? edit.command : null);
+	const displayName = await getEditorName();
 
 	response.setHeader('content-type', 'text/html');
 	if (enableCrossSiteIsolation) {
@@ -183,6 +172,7 @@ const handleFallback = async ({
 			logLevel,
 			mode: 'dev',
 			audioLatencyHint: audioLatencyHint ?? 'playback',
+			sampleRate: previewSampleRate,
 		}),
 	);
 };
@@ -219,116 +209,6 @@ const handleFileSource = async ({
 	response.write(data);
 	response.end();
 	return Promise.resolve();
-};
-
-const handleOpenInEditor = async (
-	remotionRoot: string,
-	req: IncomingMessage,
-	res: ServerResponse,
-	logLevel: LogLevel,
-) => {
-	if (req.method === 'OPTIONS') {
-		res.statusCode = 200;
-		res.end();
-		return;
-	}
-
-	try {
-		const body = (await parseRequestBody(req)) as {
-			stack: SymbolicatedStackFrame;
-		};
-		if (!('stack' in body)) {
-			throw new TypeError('Need to pass stack');
-		}
-
-		const stack = body.stack as SymbolicatedStackFrame;
-
-		const guess = await editorGuess;
-		const didOpen = await launchEditor({
-			colNumber: stack.originalColumnNumber as number,
-			editor: guess[0],
-			fileName: path.resolve(remotionRoot, stack.originalFileName as string),
-			lineNumber: stack.originalLineNumber as number,
-			vsCodeNewWindow: false,
-			logLevel,
-		});
-		res.setHeader('content-type', 'application/json');
-		res.writeHead(200);
-		res.end(
-			JSON.stringify({
-				success: didOpen,
-			}),
-		);
-	} catch {
-		res.setHeader('content-type', 'application/json');
-		res.writeHead(200);
-
-		res.end(
-			JSON.stringify({
-				success: false,
-			}),
-		);
-	}
-};
-
-const handleGetCompositionComponentInfo = async (
-	remotionRoot: string,
-	req: IncomingMessage,
-	res: ServerResponse,
-) => {
-	if (req.method === 'OPTIONS') {
-		res.statusCode = 200;
-		res.end();
-		return;
-	}
-
-	res.setHeader('content-type', 'application/json');
-	try {
-		const body = (await parseRequestBody(req)) as {
-			compositionFile: string;
-			compositionId: string;
-		};
-		if (typeof body.compositionFile !== 'string') {
-			throw new TypeError('Need to pass compositionFile');
-		}
-
-		if (typeof body.compositionId !== 'string') {
-			throw new TypeError('Need to pass compositionId');
-		}
-
-		const location = await resolveCompositionComponent({
-			remotionRoot,
-			compositionFile: body.compositionFile,
-			compositionId: body.compositionId,
-		});
-
-		res.writeHead(200);
-		res.end(
-			JSON.stringify({
-				success: true,
-				location,
-				canAddSequence: location.canAddSequence,
-			}),
-		);
-	} catch (err) {
-		res.writeHead(200);
-		res.end(
-			JSON.stringify({
-				success: false,
-				error: (err as Error).message,
-			}),
-		);
-	}
-};
-
-const validateSameOrigin = (req: IncomingMessage): void => {
-	const {origin, host} = req.headers;
-	if (origin) {
-		const originUrl = new URL(origin);
-		if (originUrl.host !== host) {
-			throw new Error('Request from different origin not allowed');
-		}
-	}
 };
 
 const handleAddAsset = ({
@@ -425,50 +305,6 @@ const handleUploadOutput = ({
 	return Promise.resolve();
 };
 
-const handleRegisterClientRender = async ({
-	req,
-	res,
-	remotionRoot,
-}: {
-	req: IncomingMessage;
-	res: ServerResponse;
-	remotionRoot: string;
-}): Promise<void> => {
-	try {
-		validateSameOrigin(req);
-		const body = (await parseRequestBody(req)) as CompletedClientRender;
-		addCompletedClientRender({render: body, remotionRoot});
-
-		res.setHeader('content-type', 'application/json');
-		res.writeHead(200);
-		res.end(JSON.stringify({success: true}));
-	} catch (err) {
-		res.statusCode = 500;
-		res.end(JSON.stringify({error: (err as Error).message}));
-	}
-};
-
-const handleUnregisterClientRender = async ({
-	req,
-	res,
-}: {
-	req: IncomingMessage;
-	res: ServerResponse;
-}): Promise<void> => {
-	try {
-		validateSameOrigin(req);
-		const body = (await parseRequestBody(req)) as {id: string};
-		removeCompletedClientRender(body.id);
-
-		res.setHeader('content-type', 'application/json');
-		res.writeHead(200);
-		res.end(JSON.stringify({success: true}));
-	} catch (err) {
-		res.statusCode = 500;
-		res.end(JSON.stringify({error: (err as Error).message}));
-	}
-};
-
 const handleFavicon = (
 	_: IncomingMessage,
 	response: ServerResponse,
@@ -524,6 +360,7 @@ export const handleRoutes = ({
 	gitSource,
 	binariesDirectory,
 	audioLatencyHint,
+	previewSampleRate,
 	enableCrossSiteIsolation,
 }: {
 	staticHash: string;
@@ -546,6 +383,7 @@ export const handleRoutes = ({
 	gitSource: GitSource | null;
 	binariesDirectory: string | null;
 	audioLatencyHint: AudioContextLatencyCategory | null;
+	previewSampleRate: number | null;
 	enableCrossSiteIsolation: boolean;
 }): Promise<void> => {
 	const url = new URL(request.url as string, 'http://localhost');
@@ -557,14 +395,6 @@ export const handleRoutes = ({
 			method: request.method as string,
 			response,
 		});
-	}
-
-	if (url.pathname === '/api/open-in-editor') {
-		return handleOpenInEditor(remotionRoot, request, response, logLevel);
-	}
-
-	if (url.pathname === '/api/composition-component-info') {
-		return handleGetCompositionComponentInfo(remotionRoot, request, response);
 	}
 
 	if (url.pathname === `${staticHash}/api/add-asset`) {
@@ -582,21 +412,6 @@ export const handleRoutes = ({
 			res: response,
 			search: url.search,
 			remotionRoot,
-		});
-	}
-
-	if (url.pathname === '/api/register-client-render') {
-		return handleRegisterClientRender({
-			req: request,
-			res: response,
-			remotionRoot,
-		});
-	}
-
-	if (url.pathname === '/api/unregister-client-render') {
-		return handleUnregisterClientRender({
-			req: request,
-			res: response,
 		});
 	}
 
@@ -689,6 +504,7 @@ export const handleRoutes = ({
 		gitSource,
 		logLevel,
 		audioLatencyHint,
+		previewSampleRate,
 		enableCrossSiteIsolation,
 	});
 };

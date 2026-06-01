@@ -1,12 +1,13 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {TIMELINE_ITEM_BORDER_BOTTOM} from '../../helpers/timeline-layout';
 import type {getTimelineKeyframes} from './get-timeline-keyframes';
 import {TimelineKeyframeDiamond} from './TimelineKeyframeDiamond';
 import {
-	TIMELINE_SELECTED_TRACK_HIGHLIGHT_STYLE,
+	getTimelineSelectedTrackHighlightStyle,
 	useTimelineRowSelection,
 } from './TimelineSelection';
+import {TimelineWidthContext} from './TimelineWidthProvider';
 
 const row: React.CSSProperties = {
 	position: 'relative',
@@ -22,14 +23,15 @@ const TimelineExpandedKeyframeRowUnmemoized: React.FC<{
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly showSeparator: boolean;
 }> = ({height, keyframes, nodePathInfo, showSeparator}) => {
+	const timelineWidth = useContext(TimelineWidthContext);
 	const {selected: rowSelected} = useTimelineRowSelection(nodePathInfo);
 
 	return (
 		<>
 			{showSeparator ? <div style={rowSeparator} /> : null}
 			<div style={{...row, height}}>
-				{rowSelected ? (
-					<div style={TIMELINE_SELECTED_TRACK_HIGHLIGHT_STYLE} />
+				{rowSelected && timelineWidth !== null ? (
+					<div style={getTimelineSelectedTrackHighlightStyle(timelineWidth)} />
 				) : null}
 				{keyframes.map((keyframe) => (
 					<TimelineKeyframeDiamond
