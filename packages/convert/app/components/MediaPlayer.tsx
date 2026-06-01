@@ -1,6 +1,9 @@
 import type {MediaFox} from '@mediafox/core';
+import {Player} from '@remotion/player';
 import type {CropRectangle} from 'mediabunny';
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {AbsoluteFill, Video} from 'remotion';
+import type {Dimensions} from '~/lib/calculate-new-dimensions-from-dimensions';
 import type {Source} from '~/lib/convert-state';
 import {cn} from '~/lib/utils';
 import {AudioWaveForm, AudioWaveformContainer} from './AudioWaveform';
@@ -22,6 +25,73 @@ const Separator: React.FC = () => {
 	);
 };
 
+export const getPlayerFps = (fps: number | null | undefined) => {
+	if (typeof fps !== 'number' || !Number.isFinite(fps) || fps <= 0) {
+		return 30;
+	}
+
+	return fps;
+};
+
+export const getDurationInFrames = ({
+	durationInSeconds,
+	fps,
+}: {
+	durationInSeconds: number | null | undefined;
+	fps: number;
+}) => {
+	if (
+		typeof durationInSeconds !== 'number' ||
+		!Number.isFinite(durationInSeconds) ||
+		durationInSeconds <= 0
+	) {
+		return null;
+	}
+
+	return Math.max(1, Math.ceil(durationInSeconds * fps));
+};
+
+const useVideoSourceUrl = (source: Source) => {
+	const [objectUrl, setObjectUrl] = useState<string | null>(null);
+
+	useEffect(() => {
+		if (source.type === 'url') {
+			setObjectUrl(null);
+			return;
+		}
+
+		const url = URL.createObjectURL(source.file);
+		setObjectUrl(url);
+
+		return () => {
+			URL.revokeObjectURL(url);
+		};
+	}, [source]);
+
+	if (source.type === 'url') {
+		return source.url;
+	}
+
+	return objectUrl;
+};
+
+const RemotionVideoPreview: React.FC<{
+	readonly src: string;
+}> = ({src}) => {
+	return (
+		<AbsoluteFill style={{backgroundColor: 'black'}}>
+			<Video
+				src={src}
+				style={{
+					width: '100%',
+					height: '100%',
+					objectFit: 'contain',
+				}}
+			/>
+		</AbsoluteFill>
+	);
+};
+
 export function VideoPlayer({
 	src: source,
 	isAudio,
@@ -30,6 +100,9 @@ export function VideoPlayer({
 	crop,
 	setUnclampedRect,
 	unclampedRect,
+	dimensions,
+	durationInSeconds,
+	fps,
 }: {
 	readonly src: Source;
 	readonly waveform: number[];
@@ -37,12 +110,16 @@ export function VideoPlayer({
 	readonly mediaFox: MediaFox;
 	readonly crop: boolean;
 	readonly unclampedRect: CropRectangle;
+	readonly dimensions: Dimensions | null | undefined;
+	readonly durationInSeconds: number | null | undefined;
+	readonly fps: number | null | undefined;
 	readonly setUnclampedRect: React.Dispatch<
 		React.SetStateAction<CropRectangle>
 	>;
 }) {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
+	const videoSourceUrl = useVideoSourceUrl(source);
 
 	const src = useMemo(() => {
 		if (source.type === 'url') {
@@ -53,6 +130,10 @@ export function VideoPlayer({
 	}, [source]);
 
 	useEffect(() => {
+		if (!isAudio) {
+			return;
+		}
+
 		mediaFox.setRenderTarget(canvasRef.current!);
 
 		// Load media
@@ -61,7 +142,7 @@ export function VideoPlayer({
 		return () => {
 			mediaFox.dispose();
 		};
-	}, [src, mediaFox]);
+	}, [isAudio, src, mediaFox]);
 
 	const [isFullscreen, setIsFullscreen] = useState(false);
 
@@ -89,6 +170,12 @@ export function VideoPlayer({
 		}
 	}, [containerRef]);
 
+	const playerFps = getPlayerFps(fps);
+	const durationInFrames = getDurationInFrames({
+		durationInSeconds,
+		fps: playerFps,
+	});
+
 	return (
 		<div
 			ref={containerRef}
@@ -108,28 +195,51 @@ export function VideoPlayer({
 					'rounded-md',
 					crop ? 'border-transparent' : 'border-black',
 					'overflow-hidden',
+					'relative',
 				)}
 			>
 				{isAudio ? (
-					<AudioWaveformContainer>
-						<AudioWaveForm bars={waveform} mediafox={mediaFox} />
-					</AudioWaveformContainer>
+					<>
+						<AudioWaveformContainer>
+							<AudioWaveForm bars={waveform} mediafox={mediaFox} />
+						</AudioWaveformContainer>
+						<canvas ref={canvasRef} style={{display: 'none'}} />
+					</>
+				) : videoSourceUrl && dimensions && durationInFrames ? (
+					<Player
+						key={videoSourceUrl}
+						component={RemotionVideoPreview}
+						inputProps={{src: videoSourceUrl}}
+						durationInFrames={durationInFrames}
+						compositionWidth={dimensions.width}
+						compositionHeight={dimensions.height}
+						fps={playerFps}
+						controls={!crop}
+						acknowledgeRemotionLicense
+						style={{width: '100%'}}
+					/>
+				) : (
+					<div
+						className="bg-slate-100 text-muted-foreground flex items-center justify-center text-sm"
+						style={{
+							aspectRatio: dimensions
+								? `${dimensions.width} / ${dimensions.height}`
+								: '16 / 9',
+						}}
+					>
+						Loading preview...
+					</div>
+				)}
+				{!isAudio && crop && dimensions ? (
+					<CropUI
+						setUnclampedRect={setUnclampedRect}
+						unclampedRect={unclampedRect}
+						dimensions={dimensions}
+					/>
 				) : null}
-				<canvas
-					ref={canvasRef}
-					style={{width: '100%', display: isAudio ? 'none' : 'block'}}
-					className="group-fullscreen:flex-1"
-				/>
 			</div>
-			{crop ? (
-				<CropUI
-					setUnclampedRect={setUnclampedRect}
-					unclampedRect={unclampedRect}
-					mediaFox={mediaFox}
-				/>
-			) : null}
 			<div className="h-2" />
-			{mediaFox ? (
+			{isAudio ? (
 				<div
 					className={cn(
 						'flex',

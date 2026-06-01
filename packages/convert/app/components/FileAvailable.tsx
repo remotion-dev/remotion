@@ -93,6 +93,9 @@ export const FileAvailable: React.FC<{
 						crop={enableRotateOrMirrow === 'crop'}
 						setUnclampedRect={setCropOperation}
 						unclampedRect={cropOperation}
+						dimensions={probeResult.dimensions}
+						durationInSeconds={probeResult.durationInSeconds}
+						fps={probeResult.fps}
 					/>
 				) : null}
 				<div className="h-8" />
