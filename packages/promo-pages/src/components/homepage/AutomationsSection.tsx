@@ -1,39 +1,47 @@
 import React from 'react';
 import {SectionTitle} from './VideoAppsTitle';
 
-type PipelineIllustrationKind = 'props' | 'preview' | 'render';
+type PipelineIllustrationKind = 'studio' | 'props' | 'preview' | 'render';
 
 const appPipeline: Array<{
 	step: string;
 	title: string;
-	description: string;
+	description: React.ReactNode;
 	link: string;
 	buttonText: string;
 	illustration: PipelineIllustrationKind;
 }> = [
 	{
 		step: '01',
-		title: 'Connect your data',
+		title: 'Design a template',
 		description:
-			'Feed props from user input, APIs, datasets, images, colors, captions, and copy.',
-		link: '/docs/parameterized-rendering',
-		buttonText: 'Pass props',
-		illustration: 'props',
+			'Start in Remotion Studio and build a reusable composition for your video workflow.',
+		link: '/docs/studio',
+		buttonText: 'Remotion Studio',
+		illustration: 'studio',
 	},
 	{
 		step: '02',
-		title: 'Preview in your app',
+		title: 'Build an app around it',
 		description:
-			'Embed @remotion/player so users can preview the video before exporting it.',
-		link: '/player',
-		buttonText: 'Remotion Player',
+			'Expose props for text, images, colors, timing, and layouts to power editors, generators, and automations.',
+		link: '/docs/parameterized-rendering',
+		buttonText: 'Parameterized rendering',
 		illustration: 'preview',
 	},
 	{
 		step: '03',
-		title: 'Render wherever it fits',
-		description:
-			'Export locally, on servers, serverlessly with Lambda or Vercel, or in-browser.',
+		title: 'Preview and render',
+		description: (
+			<>
+				Use the{' '}
+				<a href="/player" className="font-semibold text-text no-underline">
+					Player
+				</a>{' '}
+				for interactive previews, then render locally, on servers, serverlessly,
+				or in-browser.
+			</>
+		),
 		link: '/docs/render',
 		buttonText: 'Rendering options',
 		illustration: 'render',
@@ -95,6 +103,33 @@ const InlineLink: React.FC<{
 
 const illustrationFrame =
 	'relative mb-5 flex h-40 w-full items-center justify-center px-3';
+
+const StudioIllustration: React.FC = () => {
+	return (
+		<div className={illustrationFrame} aria-hidden="true">
+			<div className="relative w-full max-w-[220px] rounded-md bg-pane px-4 py-6 fontbrand">
+				<div className="absolute bottom-5 left-1/2 top-3 flex -translate-x-1/2 flex-col items-center">
+					<div className="h-2 w-1 rounded-full bg-brand" />
+					<div className="w-px flex-1 bg-brand/50" />
+				</div>
+				<div className="space-y-4">
+					<div className="grid grid-cols-[28px_1fr] items-center gap-3">
+						<div className="h-2 rounded-full bg-muted" />
+						<div className="h-3 rounded-full bg-brand" />
+					</div>
+					<div className="grid grid-cols-[28px_1fr] items-center gap-3">
+						<div className="h-2 rounded-full bg-muted" />
+						<div className="ml-8 h-3 rounded-full bg-muted" />
+					</div>
+					<div className="grid grid-cols-[28px_1fr] items-center gap-3">
+						<div className="h-2 rounded-full bg-muted" />
+						<div className="mr-10 h-3 rounded-full bg-muted" />
+					</div>
+				</div>
+			</div>
+		</div>
+	);
+};
 
 const PropsIllustration: React.FC = () => {
 	return (
@@ -181,6 +216,10 @@ const RenderIllustration: React.FC = () => {
 const PipelineIllustration: React.FC<{
 	readonly kind: PipelineIllustrationKind;
 }> = ({kind}) => {
+	if (kind === 'studio') {
+		return <StudioIllustration />;
+	}
+
 	if (kind === 'props') {
 		return <PropsIllustration />;
 	}
@@ -197,9 +236,8 @@ const AutomationsSection: React.FC = () => {
 		<div>
 			<SectionTitle>Create video apps and automations</SectionTitle>
 			<div className="mx-auto mb-8 mt-3 max-w-[70ch] text-center fontbrand text-base leading-relaxed text-muted text-pretty">
-				Use Remotion to build React video apps that customize videos from data,
-				preview them interactively, and render them at scale. Then use the
-				Remotion ecosystem to ship faster.
+				Design a reusable video template in Remotion, expose props for app UIs
+				and automations, then preview and render it wherever your workflow runs.
 			</div>
 
 			<div className="py-4">
