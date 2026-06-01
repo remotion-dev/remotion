@@ -1,6 +1,12 @@
 import React from 'react';
 import {Grid} from '../../components/TableOfContents/Grid';
 import {TOCItem} from '../../components/TableOfContents/TOCItem';
+import {
+	makeEffectDragData,
+	setEffectDragData,
+} from '../../components/effects-demos/effect-drag-data';
+import {getInitialValuesFromSchema} from '../../components/effects-demos/get-default-props-from-schema';
+import {effectsDemos} from '../../components/effects-demos/registry';
 
 type Effect = {
 	readonly link: string;
@@ -296,11 +302,57 @@ const previewImage: React.CSSProperties = {
 	flexShrink: 0,
 };
 
+const getDemoIdFromLink = (link: string) => {
+	if (link.startsWith('/docs/effects/')) {
+		return `effects-${link.slice('/docs/effects/'.length)}`;
+	}
+
+	if (link === '/docs/light-leaks/light-leak-effect') {
+		return 'effects-light-leak';
+	}
+
+	if (link === '/docs/starburst/starburst-effect') {
+		return 'effects-starburst';
+	}
+
+	return null;
+};
+
 const EffectCard: React.FC<{
 	readonly effect: Effect;
 }> = ({effect}) => {
+	const demo = effectsDemos.find((item) => item.id === getDemoIdFromLink(effect.link));
+	const dragData = demo
+		? makeEffectDragData({
+				effectName: demo.effectName,
+				effectImportPath: demo.effectImportPath,
+				effectConfig: getInitialValuesFromSchema({
+					schema: demo.schema,
+					initialValues: demo.initialValues,
+				}),
+			})
+		: null;
+
 	return (
-		<TOCItem link={effect.link}>
+		<TOCItem
+			link={effect.link}
+			draggable={dragData !== null}
+			onDragStart={
+				dragData === null
+					? undefined
+					: (e) => {
+							setEffectDragData({
+								dataTransfer: e.dataTransfer,
+								dragData,
+							});
+						}
+			}
+			title={
+				dragData === null
+					? undefined
+					: 'Drag this effect into Remotion Studio'
+			}
+		>
 			<div style={row}>
 				<img src={effect.preview} alt={effect.alt} style={previewImage} />
 				<div style={{flex: 1, marginLeft: 10}}>

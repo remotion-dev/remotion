@@ -303,6 +303,8 @@ export const effectsDemos: EffectsDemoType[] = [
 	{
 		...defaults,
 		id: 'effects-waves',
+		effectName: 'waves',
+		effectImportPath: '@remotion/effects/waves',
 		comp: EffectsWavesPreview,
 		schema: waves().definition.schema,
 	},
