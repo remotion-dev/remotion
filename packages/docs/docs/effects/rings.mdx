@@ -22,16 +22,16 @@ It uses the same band controls as [`lines()`](/docs/effects/lines), but radiates
 
 ```tsx twoslash title="MyComp.tsx"
 import {rings} from '@remotion/effects/rings';
-import {Video} from '@remotion/media';
-import {AbsoluteFill, useCurrentFrame} from 'remotion';
+import {AbsoluteFill, Solid, useCurrentFrame} from 'remotion';
 
 export const MyComp: React.FC = () => {
   const frame = useCurrentFrame();
 
   return (
     <AbsoluteFill>
-      <Video
-        src="https://remotion.media/video.mp4"
+      <Solid
+        width={1280}
+        height={720}
         effects={[
           rings({
             colors: ['#9fd6ff', 'transparent'],
