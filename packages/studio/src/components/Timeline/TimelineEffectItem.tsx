@@ -39,6 +39,11 @@ const rowLabel: React.CSSProperties = {
 	userSelect: 'none',
 };
 
+const rowStyle: React.CSSProperties = {
+	height: TREE_GROUP_ROW_HEIGHT,
+	cursor: 'default',
+};
+
 const reorderWrapper: React.CSSProperties = {
 	position: 'relative',
 };
@@ -284,14 +289,6 @@ export const TimelineEffectItem: React.FC<{
 	);
 
 	const isExpanded = getIsExpanded(nodePathInfo);
-
-	const rowStyle = useMemo(
-		(): React.CSSProperties => ({
-			height: TREE_GROUP_ROW_HEIGHT,
-			cursor: canReorder ? 'grab' : undefined,
-		}),
-		[canReorder],
-	);
 
 	const labelStyle = useMemo((): React.CSSProperties => {
 		return {
