@@ -35,6 +35,7 @@ import {
 } from '../../components/effects/effects-translate-preview';
 import {EffectsVignettePreview} from '../../components/effects/effects-vignette-preview';
 import {EffectsWavePreview} from '../../components/effects/effects-wave-preview';
+import {EffectsWavesPreview} from '../../components/effects/effects-waves-preview';
 import {EffectsWhiteNoisePreview} from '../../components/effects/effects-white-noise-preview';
 import {articles} from '../data/articles';
 import {AllTemplates} from './AllTemplates';
@@ -363,6 +364,22 @@ export const RemotionRoot: React.FC = () => {
 						gap: 0,
 						angle: 20,
 						offset: 0,
+					}}
+				/>
+				<Still
+					id="effects-waves-preview"
+					component={EffectsWavesPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						direction: 'horizontal',
+						thickness: 40,
+						gap: 0,
+						angle: 0,
+						offset: 0,
+						amplitude: 24,
+						wavelength: 160,
+						phase: 45,
 					}}
 				/>
 				<Still

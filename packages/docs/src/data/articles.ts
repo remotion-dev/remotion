@@ -1980,6 +1980,15 @@ export const articles = [
 		slug: 'effects/wave',
 	},
 	{
+		id: 'effects/waves',
+		title: 'waves()',
+		relativePath: 'docs/effects/waves.mdx',
+		compId: 'articles-docs-effects-waves',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/waves',
+	},
+	{
 		id: 'effects/white-noise',
 		title: 'whiteNoise()',
 		relativePath: 'docs/effects/white-noise.mdx',

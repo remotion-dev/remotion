@@ -26,6 +26,7 @@ import {tint} from '@remotion/effects/tint';
 import {uvTranslate, xyTranslate} from '@remotion/effects/translate';
 import {vignette} from '@remotion/effects/vignette';
 import {wave} from '@remotion/effects/wave';
+import {waves} from '@remotion/effects/waves';
 import {whiteNoise} from '@remotion/effects/white-noise';
 import {lightLeakEffectSchema} from '@remotion/light-leaks';
 import {starburstEffectSchema} from '@remotion/starburst';
@@ -62,6 +63,7 @@ import {
 } from '../effects/effects-translate-preview';
 import {EffectsVignettePreview} from '../effects/effects-vignette-preview';
 import {EffectsWavePreview} from '../effects/effects-wave-preview';
+import {EffectsWavesPreview} from '../effects/effects-waves-preview';
 import {EffectsWhiteNoisePreview} from '../effects/effects-white-noise-preview';
 import type {EffectsDemoType} from './types';
 
@@ -297,6 +299,12 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/wave',
 		comp: EffectsWavePreview,
 		schema: wave().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-waves',
+		comp: EffectsWavesPreview,
+		schema: waves().definition.schema,
 	},
 	{
 		...defaults,

@@ -204,6 +204,13 @@ const categories: {
 				description: 'Alternating line overlay effect',
 			},
 			{
+				link: '/docs/effects/waves',
+				preview: '/img/effects-waves-preview.png',
+				alt: 'waves effect preview',
+				name: 'waves()',
+				description: 'Wavy band overlay effect',
+			},
+			{
 				link: '/docs/effects/scanlines',
 				preview: '/img/effects-scanlines-preview.png',
 				alt: 'scanlines effect preview',
