@@ -14,7 +14,7 @@ import {
 	pushToUndoStack,
 	suppressUndoStackInvalidation,
 } from '../undo-stack';
-import {suppressBundlerUpdateForFile} from '../watch-ignore-next-change';
+import {attrName} from './log-updates/formatting';
 import {warnAboutPrettierOnce} from './log-updates/log-update';
 
 export const addEffectHandler: ApiHandler<
@@ -69,7 +69,6 @@ export const addEffectHandler: ApiHandler<
 			suppressHmrOnFileRestore: false,
 		});
 		suppressUndoStackInvalidation(absolutePath);
-		suppressBundlerUpdateForFile(absolutePath);
 		writeFileAndNotifyFileWatchers(absolutePath, output, clientId);
 
 		const locationLabel = formatLogFileLocation({
@@ -79,7 +78,7 @@ export const addEffectHandler: ApiHandler<
 		});
 		RenderInternals.Log.info(
 			{indent: false, logLevel},
-			`${RenderInternals.chalk.blueBright(`${locationLabel}`)} Added ${effectLabel} to ${nodeLabel}`,
+			`${RenderInternals.chalk.blueBright(`${locationLabel}`)} Added ${attrName(effectLabel)} to ${nodeLabel}`,
 		);
 		if (!formatted) {
 			warnAboutPrettierOnce(logLevel);
