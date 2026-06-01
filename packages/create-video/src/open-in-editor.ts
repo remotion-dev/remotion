@@ -113,7 +113,9 @@ const editorNames = [
 	'zeditor',
 	'zed-editor',
 	'/Applications/Zed.app/Contents/MacOS/zed',
+	'/Applications/Zed.app/Contents/MacOS/cli',
 	'/Applications/Zed Preview.app/Contents/MacOS/zed',
+	'/Applications/Zed Preview.app/Contents/MacOS/cli',
 	'/Applications/Zed Preview.app/Contents/MacOS/Zed Preview',
 ] as const;
 
@@ -174,7 +176,9 @@ const displayNameForEditor: {[key in Editor]: string} = {
 	zeditor: 'Zed',
 	'zed-editor': 'Zed',
 	'/Applications/Zed.app/Contents/MacOS/zed': 'Zed',
+	'/Applications/Zed.app/Contents/MacOS/cli': 'Zed',
 	'/Applications/Zed Preview.app/Contents/MacOS/zed': 'Zed Preview',
+	'/Applications/Zed Preview.app/Contents/MacOS/cli': 'Zed Preview',
 	'/Applications/Zed Preview.app/Contents/MacOS/Zed Preview': 'Zed Preview',
 	gvim: 'GVim',
 	idea: 'IDEA',
@@ -223,11 +227,12 @@ const COMMON_EDITORS_OSX: Record<string, Editor> = {
 		'code-insiders',
 	'/Applications/VSCodium.app/Contents/MacOS/Electron': 'vscodium',
 	'/Applications/Cursor.app/Contents/MacOS/Cursor': 'cursor',
-	'/Applications/Zed.app/Contents/MacOS/zed': 'zed',
+	'/Applications/Zed.app/Contents/MacOS/zed':
+		'/Applications/Zed.app/Contents/MacOS/cli',
 	'/Applications/Zed Preview.app/Contents/MacOS/zed':
-		'/Applications/Zed Preview.app/Contents/MacOS/zed',
+		'/Applications/Zed Preview.app/Contents/MacOS/cli',
 	'/Applications/Zed Preview.app/Contents/MacOS/Zed Preview':
-		'/Applications/Zed Preview.app/Contents/MacOS/Zed Preview',
+		'/Applications/Zed Preview.app/Contents/MacOS/cli',
 	'/Applications/AppCode.app/Contents/MacOS/appcode':
 		'/Applications/AppCode.app/Contents/MacOS/appcode',
 	'/Applications/CLion.app/Contents/MacOS/clion':
@@ -318,6 +323,18 @@ function getArgumentsForLineNumber(
 	colNumber: number,
 ) {
 	const editorBasename = path.basename(editor).replace(/\.(exe|cmd|bat)$/i, '');
+	const isZedEditor =
+		editor === 'zed' ||
+		editor === 'zedit' ||
+		editor === 'zeditor' ||
+		editor === 'zed-editor' ||
+		editor === 'Zed.exe' ||
+		editor.endsWith('/Zed.app/Contents/MacOS/cli') ||
+		editor.endsWith('/Zed Preview.app/Contents/MacOS/cli');
+	if (isZedEditor) {
+		return [fileName + ':' + lineNumber + ':' + colNumber];
+	}
+
 	switch (editorBasename) {
 		case 'atom':
 		case 'Atom':
@@ -355,14 +372,6 @@ function getArgumentsForLineNumber(
 		case 'Windsurf':
 		case 'Windsurf.exe':
 			return ['-g', fileName + ':' + lineNumber + ':' + colNumber];
-		case 'zed':
-		case 'zedit':
-		case 'zeditor':
-		case 'zed-editor':
-		case 'Zed':
-		case 'Zed Preview':
-		case 'Zed.exe':
-			return [fileName + ':' + lineNumber + ':' + colNumber];
 		case 'appcode':
 		case 'clion':
 		case 'clion64':
