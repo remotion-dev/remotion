@@ -923,6 +923,23 @@ const addElementToComponentRoot = ({
 		throw new Error('Cannot insert into a self-closing root JSX element');
 	}
 
+	const CANVAS_ROOT_ELEMENTS = [
+		'ThreeCanvas',
+		'RiveCanvas',
+		'SkiaCanvas',
+		'canvas',
+	];
+
+	if (
+		rootNode.type === 'JSXElement' &&
+		rootNode.openingElement.name.type === 'JSXIdentifier' &&
+		CANVAS_ROOT_ELEMENTS.includes(rootNode.openingElement.name.name)
+	) {
+		throw new Error(
+			`Cannot insert a <Solid> into a composition whose root element is <${rootNode.openingElement.name.name}>`,
+		);
+	}
+
 	if (!rootNode.children) {
 		throw new Error('Composition component root does not accept children');
 	}
