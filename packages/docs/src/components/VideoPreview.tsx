@@ -3,8 +3,7 @@ import type {ShowcaseVideo} from '../data/showcase-videos';
 
 const card: React.CSSProperties = {
 	backgroundColor: 'var(--card-bg)',
-	border: '2px solid var(--box-stroke)',
-	borderBottomWidth: 4,
+	border: '2px solid var(--border-color)',
 	borderRadius: 18,
 	color: 'var(--text-color)',
 	cursor: 'pointer',
