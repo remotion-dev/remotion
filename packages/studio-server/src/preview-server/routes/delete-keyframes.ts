@@ -2,10 +2,10 @@ import {readFileSync} from 'node:fs';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import type {
-	DeleteEffectKeyframeRequestItem,
+	DeleteEffectKeyframe,
 	DeleteKeyframesRequest,
 	DeleteKeyframesResponse,
-	DeleteSequenceKeyframeRequestItem,
+	DeleteSequenceKeyframe,
 	SaveEffectPropsResponse,
 	SaveSequencePropsResult,
 } from '@remotion/studio-shared';
@@ -33,13 +33,13 @@ import {logEffectUpdate} from './log-updates/log-effect-update';
 import {logUpdate} from './log-updates/log-update';
 import {withSavePropsLock} from './save-props-mutex';
 
-type ResolvedSequenceKeyframe = DeleteSequenceKeyframeRequestItem & {
+type ResolvedSequenceKeyframe = DeleteSequenceKeyframe & {
 	index: number;
 	absolutePath: string;
 	fileRelativeToRoot: string;
 };
 
-type ResolvedEffectKeyframe = DeleteEffectKeyframeRequestItem & {
+type ResolvedEffectKeyframe = DeleteEffectKeyframe & {
 	index: number;
 	absolutePath: string;
 	fileRelativeToRoot: string;
@@ -116,8 +116,8 @@ export const deleteKeyframes = async ({
 	remotionRoot,
 	logLevel,
 }: {
-	sequenceKeyframes: DeleteSequenceKeyframeRequestItem[];
-	effectKeyframes: DeleteEffectKeyframeRequestItem[];
+	sequenceKeyframes: DeleteSequenceKeyframe[];
+	effectKeyframes: DeleteEffectKeyframe[];
 	clientId: string;
 	remotionRoot: string;
 	logLevel: LogLevel;

@@ -9,10 +9,8 @@ import {applyVisualControlHandler} from './routes/apply-visual-control-change';
 import {handleCancelRender} from './routes/cancel-render';
 import {compositionComponentInfoHandler} from './routes/composition-component-info';
 import {deleteEffectHandler} from './routes/delete-effect';
-import {deleteEffectKeyframeHandler} from './routes/delete-effect-keyframe';
 import {deleteJsxNodeHandler} from './routes/delete-jsx-node';
 import {deleteKeyframesHandler} from './routes/delete-keyframes';
-import {deleteSequenceKeyframeHandler} from './routes/delete-sequence-keyframe';
 import {deleteStaticFileHandler} from './routes/delete-static-file';
 import {duplicateJsxNodeHandler} from './routes/duplicate-jsx-node';
 import {insertJsxElementHandler} from './routes/insert-jsx-element';
@@ -63,9 +61,7 @@ export const allApiRoutes: {
 	'/api/save-sequence-props': saveSequencePropsHandler,
 	'/api/save-effect-props': saveEffectPropsHandler,
 	'/api/add-effect': addEffectHandler,
-	'/api/delete-sequence-keyframe': deleteSequenceKeyframeHandler,
 	'/api/add-sequence-keyframe': addSequenceKeyframeHandler,
-	'/api/delete-effect-keyframe': deleteEffectKeyframeHandler,
 	'/api/add-effect-keyframe': addEffectKeyframeHandler,
 	'/api/delete-effect': deleteEffectHandler,
 	'/api/delete-keyframes': deleteKeyframesHandler,

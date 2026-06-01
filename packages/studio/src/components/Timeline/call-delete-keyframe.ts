@@ -62,8 +62,8 @@ export const callDeleteSequenceKeyframe = ({
 				frame: sourceFrame,
 			}),
 		apiCall: () =>
-			callApi('/api/delete-sequence-keyframe', {
-				keyframes: [
+			callApi('/api/delete-keyframes', {
+				sequenceKeyframes: [
 					{
 						fileName,
 						nodePath,
@@ -72,6 +72,7 @@ export const callDeleteSequenceKeyframe = ({
 						schema,
 					},
 				],
+				effectKeyframes: [],
 				clientId,
 			}),
 		errorLabel: 'Could not delete keyframe',
@@ -108,8 +109,9 @@ export const callDeleteEffectKeyframe = ({
 				frame: sourceFrame,
 			}),
 		apiCall: () =>
-			callApi('/api/delete-effect-keyframe', {
-				keyframes: [
+			callApi('/api/delete-keyframes', {
+				sequenceKeyframes: [],
+				effectKeyframes: [
 					{
 						fileName,
 						sequenceNodePath: nodePath,
