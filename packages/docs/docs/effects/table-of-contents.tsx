@@ -265,6 +265,13 @@ const categories: {
 				description: 'Wavy band pattern effect',
 			},
 			{
+				link: '/docs/effects/zigzag',
+				preview: '/img/effects-zigzag-preview.png',
+				alt: 'zigzag effect preview',
+				name: 'zigzag()',
+				description: 'Zig-zag band pattern effect',
+			},
+			{
 				link: '/docs/light-leaks/light-leak-effect',
 				preview: '/img/effects-light-leak-preview.png',
 				alt: 'light leak effect preview',
