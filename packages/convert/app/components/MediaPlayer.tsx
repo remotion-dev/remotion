@@ -1,13 +1,7 @@
 import {Player, type PlayerRef} from '@remotion/player';
 import type {CropRectangle} from 'mediabunny';
 import {useEffect, useRef, useState} from 'react';
-import {
-	AbsoluteFill,
-	Audio,
-	useCurrentFrame,
-	useVideoConfig,
-	Video,
-} from 'remotion';
+import {AbsoluteFill, useCurrentFrame, useVideoConfig, Video} from 'remotion';
 import type {Dimensions} from '~/lib/calculate-new-dimensions-from-dimensions';
 import type {Source} from '~/lib/convert-state';
 import {cn} from '~/lib/utils';
@@ -90,7 +84,6 @@ const RemotionMediaPreview: React.FC<{
 
 	return (
 		<AbsoluteFill>
-			<Audio src={src} />
 			<AudioWaveformContainer>
 				<AudioWaveForm bars={waveform} progress={progress} playing />
 			</AudioWaveformContainer>
@@ -125,6 +118,7 @@ export function VideoPlayer({
 }) {
 	const containerRef = useRef<HTMLDivElement>(null);
 	const playerRef = useRef<PlayerRef>(null);
+	const audioRef = useRef<HTMLAudioElement>(null);
 	const videoSourceUrl = useVideoSourceUrl(source);
 
 	const playerFps = getPlayerFps(fps);
@@ -143,17 +137,73 @@ export function VideoPlayer({
 		}
 
 		const onFrameChange = (event: {detail: {frame: number}}) => {
-			onPlaybackTimeChange(event.detail.frame / playerFps);
+			const timeInSeconds = event.detail.frame / playerFps;
+			onPlaybackTimeChange(timeInSeconds);
+
+			if (!isAudio || !audioRef.current || audioRef.current.paused) {
+				return;
+			}
+
+			if (Math.abs(audioRef.current.currentTime - timeInSeconds) > 0.35) {
+				audioRef.current.currentTime = timeInSeconds;
+			}
+		};
+
+		const syncAudioToPlayer = () => {
+			const audio = audioRef.current;
+			if (!isAudio || !audio) {
+				return;
+			}
+
+			audio.currentTime = current.getCurrentFrame() / playerFps;
+			audio.muted = current.isMuted();
+			audio.volume = current.getVolume();
+		};
+
+		const onPlay = () => {
+			const audio = audioRef.current;
+			if (!isAudio || !audio) {
+				return;
+			}
+
+			syncAudioToPlayer();
+			audio.play().catch(() => {});
+		};
+
+		const onPause = () => {
+			audioRef.current?.pause();
+		};
+
+		const onVolumeChange = () => {
+			const audio = audioRef.current;
+			if (!isAudio || !audio) {
+				return;
+			}
+
+			audio.muted = current.isMuted();
+			audio.volume = current.getVolume();
 		};
 
 		current.addEventListener('timeupdate', onFrameChange);
 		current.addEventListener('seeked', onFrameChange);
+		current.addEventListener('seeked', syncAudioToPlayer);
+		current.addEventListener('play', onPlay);
+		current.addEventListener('pause', onPause);
+		current.addEventListener('ended', onPause);
+		current.addEventListener('volumechange', onVolumeChange);
+		current.addEventListener('mutechange', onVolumeChange);
 
 		return () => {
 			current.removeEventListener('timeupdate', onFrameChange);
 			current.removeEventListener('seeked', onFrameChange);
+			current.removeEventListener('seeked', syncAudioToPlayer);
+			current.removeEventListener('play', onPlay);
+			current.removeEventListener('pause', onPause);
+			current.removeEventListener('ended', onPause);
+			current.removeEventListener('volumechange', onVolumeChange);
+			current.removeEventListener('mutechange', onVolumeChange);
 		};
-	}, [onPlaybackTimeChange, playerFps, videoSourceUrl]);
+	}, [isAudio, onPlaybackTimeChange, playerFps, videoSourceUrl]);
 
 	return (
 		<div
@@ -208,6 +258,14 @@ export function VideoPlayer({
 						setUnclampedRect={setUnclampedRect}
 						unclampedRect={unclampedRect}
 						dimensions={dimensions}
+					/>
+				) : null}
+				{isAudio && videoSourceUrl ? (
+					<audio
+						ref={audioRef}
+						src={videoSourceUrl}
+						preload="auto"
+						style={{display: 'none'}}
 					/>
 				) : null}
 			</div>
