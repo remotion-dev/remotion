@@ -1,29 +1,18 @@
-import type {MediaFox} from '@mediafox/core';
-import {Player} from '@remotion/player';
+import {Player, type PlayerRef} from '@remotion/player';
 import type {CropRectangle} from 'mediabunny';
-import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {AbsoluteFill, Video} from 'remotion';
+import {useEffect, useRef, useState} from 'react';
+import {
+	AbsoluteFill,
+	Audio,
+	useCurrentFrame,
+	useVideoConfig,
+	Video,
+} from 'remotion';
 import type {Dimensions} from '~/lib/calculate-new-dimensions-from-dimensions';
 import type {Source} from '~/lib/convert-state';
 import {cn} from '~/lib/utils';
 import {AudioWaveForm, AudioWaveformContainer} from './AudioWaveform';
 import {CropUI} from './crop-ui/CropUi';
-import {PlayerVolume} from './player/mute-button';
-import {PlayPauseButton} from './player/play-button';
-import {PlayerFullscreen} from './player/player-fullscreen';
-import {PlayerSeekBar} from './player/player-seekbar';
-import {TimeDisplay} from './player/time-display';
-
-const Separator: React.FC = () => {
-	return (
-		<div
-			style={{
-				borderRight: `2px solid black`,
-				height: 50,
-			}}
-		/>
-	);
-};
 
 export const getPlayerFps = (fps: number | null | undefined) => {
 	if (typeof fps !== 'number' || !Number.isFinite(fps) || fps <= 0) {
@@ -75,19 +64,36 @@ const useVideoSourceUrl = (source: Source) => {
 	return objectUrl;
 };
 
-const RemotionVideoPreview: React.FC<{
+const RemotionMediaPreview: React.FC<{
 	readonly src: string;
-}> = ({src}) => {
+	readonly isAudio: boolean;
+	readonly waveform: number[];
+}> = ({src, isAudio, waveform}) => {
+	const frame = useCurrentFrame();
+	const {durationInFrames} = useVideoConfig();
+	const progress = frame / Math.max(1, durationInFrames - 1);
+
+	if (!isAudio) {
+		return (
+			<AbsoluteFill style={{backgroundColor: 'black'}}>
+				<Video
+					src={src}
+					style={{
+						width: '100%',
+						height: '100%',
+						objectFit: 'contain',
+					}}
+				/>
+			</AbsoluteFill>
+		);
+	}
+
 	return (
-		<AbsoluteFill style={{backgroundColor: 'black'}}>
-			<Video
-				src={src}
-				style={{
-					width: '100%',
-					height: '100%',
-					objectFit: 'contain',
-				}}
-			/>
+		<AbsoluteFill>
+			<Audio src={src} />
+			<AudioWaveformContainer>
+				<AudioWaveForm bars={waveform} progress={progress} playing />
+			</AudioWaveformContainer>
 		</AbsoluteFill>
 	);
 };
@@ -96,85 +102,58 @@ export function VideoPlayer({
 	src: source,
 	isAudio,
 	waveform,
-	mediaFox,
 	crop,
 	setUnclampedRect,
 	unclampedRect,
 	dimensions,
 	durationInSeconds,
 	fps,
+	onPlaybackTimeChange,
 }: {
 	readonly src: Source;
 	readonly waveform: number[];
 	readonly isAudio: boolean;
-	readonly mediaFox: MediaFox;
 	readonly crop: boolean;
 	readonly unclampedRect: CropRectangle;
 	readonly dimensions: Dimensions | null | undefined;
 	readonly durationInSeconds: number | null | undefined;
 	readonly fps: number | null | undefined;
+	readonly onPlaybackTimeChange: (timeInSeconds: number) => void;
 	readonly setUnclampedRect: React.Dispatch<
 		React.SetStateAction<CropRectangle>
 	>;
 }) {
-	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
+	const playerRef = useRef<PlayerRef>(null);
 	const videoSourceUrl = useVideoSourceUrl(source);
-
-	const src = useMemo(() => {
-		if (source.type === 'url') {
-			return source.url;
-		}
-
-		return source.file;
-	}, [source]);
-
-	useEffect(() => {
-		if (!isAudio) {
-			return;
-		}
-
-		mediaFox.setRenderTarget(canvasRef.current!);
-
-		// Load media
-		mediaFox.load(src).then(() => {});
-
-		return () => {
-			mediaFox.dispose();
-		};
-	}, [isAudio, src, mediaFox]);
-
-	const [isFullscreen, setIsFullscreen] = useState(false);
-
-	useEffect(() => {
-		const handleFullscreenChange = () => {
-			setIsFullscreen(document.fullscreenElement === containerRef.current);
-		};
-
-		document.addEventListener('fullscreenchange', handleFullscreenChange);
-
-		return () => {
-			document.removeEventListener('fullscreenchange', handleFullscreenChange);
-		};
-	}, []);
-
-	const toggleFullscreen = useCallback(() => {
-		if (!containerRef.current) {
-			return;
-		}
-
-		if (!document.fullscreenElement) {
-			containerRef.current.requestFullscreen();
-		} else {
-			document.exitFullscreen();
-		}
-	}, [containerRef]);
 
 	const playerFps = getPlayerFps(fps);
 	const durationInFrames = getDurationInFrames({
 		durationInSeconds,
 		fps: playerFps,
 	});
+	const playerDimensions = isAudio
+		? {width: 732, height: 197}
+		: (dimensions ?? null);
+
+	useEffect(() => {
+		const {current} = playerRef;
+		if (!current) {
+			return;
+		}
+
+		const onFrameChange = (event: {detail: {frame: number}}) => {
+			onPlaybackTimeChange(event.detail.frame / playerFps);
+		};
+
+		current.addEventListener('timeupdate', onFrameChange);
+		current.addEventListener('seeked', onFrameChange);
+
+		return () => {
+			current.removeEventListener('timeupdate', onFrameChange);
+			current.removeEventListener('seeked', onFrameChange);
+		};
+	}, [onPlaybackTimeChange, playerFps, videoSourceUrl]);
 
 	return (
 		<div
@@ -198,21 +177,15 @@ export function VideoPlayer({
 					'relative',
 				)}
 			>
-				{isAudio ? (
-					<>
-						<AudioWaveformContainer>
-							<AudioWaveForm bars={waveform} mediafox={mediaFox} />
-						</AudioWaveformContainer>
-						<canvas ref={canvasRef} style={{display: 'none'}} />
-					</>
-				) : videoSourceUrl && dimensions && durationInFrames ? (
+				{videoSourceUrl && playerDimensions && durationInFrames ? (
 					<Player
+						ref={playerRef}
 						key={videoSourceUrl}
-						component={RemotionVideoPreview}
-						inputProps={{src: videoSourceUrl}}
+						component={RemotionMediaPreview}
+						inputProps={{src: videoSourceUrl, isAudio, waveform}}
 						durationInFrames={durationInFrames}
-						compositionWidth={dimensions.width}
-						compositionHeight={dimensions.height}
+						compositionWidth={playerDimensions.width}
+						compositionHeight={playerDimensions.height}
 						fps={playerFps}
 						controls={!crop}
 						acknowledgeRemotionLicense
@@ -238,36 +211,6 @@ export function VideoPlayer({
 					/>
 				) : null}
 			</div>
-			<div className="h-2" />
-			{isAudio ? (
-				<div
-					className={cn(
-						'flex',
-						'row',
-						'border-2',
-						'border-b-4',
-						'rounded-md',
-						'border-black',
-						'items-center',
-						'bg-white',
-					)}
-				>
-					<PlayPauseButton playerRef={mediaFox} />
-					<Separator />
-					<PlayerVolume playerRef={mediaFox} />
-					<Separator />
-					<div style={{width: 15}} />
-					<TimeDisplay playerRef={mediaFox} />
-					<div style={{width: 15}} />
-					<PlayerSeekBar playerRef={mediaFox} />
-					<div style={{width: 15}} />
-					<Separator />
-					<PlayerFullscreen
-						isFullscreen={isFullscreen}
-						onClick={toggleFullscreen}
-					/>
-				</div>
-			) : null}
 		</div>
 	);
 }
