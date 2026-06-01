@@ -187,7 +187,7 @@ import {LightLeakExample} from './LightLeak';
 import {LightLeakAnimatedSize} from './LightLeak/AnimatedSize';
 import {LoopDisplayTestComp} from './LoopDisplayTest';
 import {NewAudioExample} from './NewAudio/NewAudio';
-import {NewVideoComp} from './NewVideo';
+import {NewVideoComp, PremountSequenceVideoComp} from './NewVideo';
 import {ObjectFitTestComp} from './ObjectFitTest';
 import {ChangingTrimBeforeValue} from './OffthreadRemoteVideo/ChangingTrimBefore';
 import {Issue7562OffthreadVideoCuts} from './OffthreadRemoteVideo/Issue7562OffthreadVideoCuts';
@@ -960,6 +960,7 @@ export const Index: React.FC = () => {
 				/>
 				<OffthreadRemoteVideo />
 				<NewVideoComp />
+				<PremountSequenceVideoComp />
 				<ObjectFitTestComp />
 				<NewVideoBufferStateComp />
 				<LoopDisplayTestComp />
