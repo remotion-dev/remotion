@@ -96,7 +96,7 @@ const GifInner = ({
 	};
 
 	const inner = env.isRendering ? (
-		<GifForRendering {...gifProps} ref={ref} refForOutline={refForOutline} />
+		<GifForRendering {...gifProps} ref={ref} />
 	) : (
 		<GifForDevelopment {...gifProps} ref={ref} refForOutline={refForOutline} />
 	);

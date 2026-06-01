@@ -110,7 +110,7 @@ type Props = {
 	readonly className?: string;
 	readonly style?: React.CSSProperties;
 	readonly effects: EffectDefinitionAndStack<unknown>[];
-	readonly refForOutline: RefObject<HTMLElement | null>;
+	readonly refForOutline?: RefObject<HTMLElement | null>;
 };
 
 export const Canvas = forwardRef(
@@ -160,7 +160,9 @@ export const Canvas = forwardRef(
 		const canvasCallbackRef = useCallback(
 			(canvas: HTMLCanvasElement | null) => {
 				canvasRef.current = canvas;
-				refForOutline.current = canvas;
+				if (refForOutline) {
+					refForOutline.current = canvas;
+				}
 			},
 			[refForOutline],
 		);
