@@ -1,7 +1,7 @@
-import type {MediaFox, PlayerStateData} from '@mediafox/core';
 import type {CropRectangle} from 'mediabunny';
 import type React from 'react';
-import {useEffect, useMemo, useRef, useState} from 'react';
+import {useRef, useState} from 'react';
+import type {Dimensions} from '~/lib/calculate-new-dimensions-from-dimensions';
 import {CropBackdrop} from './Backdrop';
 import {DragHandle} from './DragHandle';
 import {EdgeHandle} from './EdgeHandle';
@@ -12,55 +12,15 @@ import {
 } from './VerticalPositionIndicator';
 
 export const CropUI: React.FC<{
-	readonly mediaFox: MediaFox;
+	readonly dimensions: Dimensions;
 	readonly unclampedRect: CropRectangle;
 	readonly setUnclampedRect: React.Dispatch<
 		React.SetStateAction<CropRectangle>
 	>;
-}> = ({mediaFox, unclampedRect, setUnclampedRect}) => {
-	const [state, setState] = useState<PlayerStateData | null>(() =>
-		mediaFox.getState(),
-	);
-
+}> = ({dimensions, unclampedRect, setUnclampedRect}) => {
 	const [isDragging, setMarkAsDragging] = useState(false);
 
 	const ref = useRef<HTMLDivElement>(null);
-
-	const dimensions = useMemo(() => {
-		if (!state) {
-			return null;
-		}
-
-		const selectedVideoTrack = state.videoTracks.find(
-			(t) => t.id === state.selectedVideoTrack,
-		);
-
-		if (!selectedVideoTrack) {
-			return null;
-		}
-
-		return {
-			width: selectedVideoTrack.width,
-			height: selectedVideoTrack.height,
-		};
-	}, [state]);
-
-	useEffect(() => {
-		const handleTrackChange = () => {
-			setState(mediaFox.getState());
-		};
-
-		mediaFox.on('trackchange', handleTrackChange);
-		mediaFox.on('loadedmetadata', handleTrackChange);
-		return () => {
-			mediaFox.off('trackchange', handleTrackChange);
-			mediaFox.off('loadedmetadata', handleTrackChange);
-		};
-	}, [mediaFox]);
-
-	if (!dimensions) {
-		return null;
-	}
 
 	const rect = (() => {
 		const width = Math.min(
@@ -87,7 +47,7 @@ export const CropUI: React.FC<{
 	return (
 		<div
 			ref={ref}
-			className="absolute w-full"
+			className="absolute left-0 top-0 z-10 w-full"
 			style={{
 				aspectRatio: `${dimensions.width} / ${dimensions.height}`,
 			}}

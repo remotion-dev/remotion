@@ -1,6 +1,5 @@
-import {MediaFox} from '@mediafox/core';
 import type {CropRectangle} from 'mediabunny';
-import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import React, {useCallback, useMemo, useRef, useState} from 'react';
 import {normalizeVideoRotation} from '~/lib/calculate-new-dimensions-from-dimensions';
 import type {Source} from '~/lib/convert-state';
 import type {RotateOrMirrorOrCropState} from '~/lib/default-ui';
@@ -38,20 +37,6 @@ export const FileAvailable: React.FC<{
 		src,
 	});
 
-	const [mediaFox, setMediaFox] = useState<MediaFox | null>(null);
-
-	useEffect(() => {
-		const fox = new MediaFox({
-			renderer: 'webgl',
-			audioContext: new AudioContext({
-				sampleRate: 48000,
-			}),
-		});
-		setMediaFox(fox);
-
-		return () => {};
-	}, []);
-
 	const [userRotation, setRotation] = useState(90);
 	const [flipHorizontal, setFlipHorizontal] = useState(true);
 	const [flipVertical, setFlipVertical] = useState(false);
@@ -78,41 +63,41 @@ export const FileAvailable: React.FC<{
 		setWaveform(bars);
 	}, []);
 	const isAudio = isAudioOnly({tracks: probeResult.tracks});
+	const [playbackTime, setPlaybackTime] = useState(0);
 
 	return (
 		<Page className="lg:justify-center pt-6 pb-10 px-4 lg:flex">
 			<div>
 				<BackButton setSrc={setSrc} />
 				<div className="h-4" />
-				{mediaFox ? (
-					<VideoPlayer
-						src={src}
-						isAudio={isAudio}
-						waveform={waveform}
-						mediaFox={mediaFox}
-						crop={enableRotateOrMirrow === 'crop'}
-						setUnclampedRect={setCropOperation}
-						unclampedRect={cropOperation}
-					/>
-				) : null}
+				<VideoPlayer
+					src={src}
+					isAudio={isAudio}
+					waveform={waveform}
+					crop={enableRotateOrMirrow === 'crop'}
+					setUnclampedRect={setCropOperation}
+					unclampedRect={cropOperation}
+					dimensions={probeResult.dimensions}
+					durationInSeconds={probeResult.durationInSeconds}
+					fps={probeResult.fps}
+					onPlaybackTimeChange={setPlaybackTime}
+				/>
 				<div className="h-8" />
 				<div className="lg:inline-flex lg:flex-row items-start">
-					{mediaFox ? (
-						<Probe
-							isAudio={isAudio}
-							src={src}
-							probeDetails={probeDetails}
-							setProbeDetails={setProbeDetails}
-							probeResult={probeResult}
-							videoThumbnailRef={videoThumbnailRef}
-							userRotation={actualUserRotation}
-							mirrorHorizontal={
-								flipHorizontal && enableRotateOrMirrow === 'mirror'
-							}
-							mirrorVertical={flipVertical && enableRotateOrMirrow === 'mirror'}
-							onWaveformBars={onWaveformBars}
-						/>
-					) : null}
+					<Probe
+						isAudio={isAudio}
+						src={src}
+						probeDetails={probeDetails}
+						setProbeDetails={setProbeDetails}
+						probeResult={probeResult}
+						videoThumbnailRef={videoThumbnailRef}
+						userRotation={actualUserRotation}
+						mirrorHorizontal={
+							flipHorizontal && enableRotateOrMirrow === 'mirror'
+						}
+						mirrorVertical={flipVertical && enableRotateOrMirrow === 'mirror'}
+						onWaveformBars={onWaveformBars}
+					/>
 					{routeAction.type !== 'generic-probe' &&
 					routeAction.type !== 'transcribe' ? (
 						<>
@@ -122,16 +107,13 @@ export const FileAvailable: React.FC<{
 								className="w-full lg:w-[350px] data-[expanded=true]:w-[0px] data-[disabled=true]:opacity-50 data-[disabled=true]:pointer-events-none"
 								data-expanded={probeDetails}
 							>
-								{probeResult.container !== null &&
-								probeResult.name !== null &&
-								mediaFox ? (
+								{probeResult.container !== null && probeResult.name !== null ? (
 									<div
 										className="gap-4 data-[hidden=true]:invisible"
 										data-hidden={probeDetails}
 									>
 										<ConvertUI
 											crop={enableRotateOrMirrow === 'crop'}
-											mediafox={mediaFox}
 											inputContainer={probeResult.container}
 											currentAudioCodec={probeResult.audioCodec ?? null}
 											currentVideoCodec={probeResult.videoCodec ?? null}
@@ -160,11 +142,11 @@ export const FileAvailable: React.FC<{
 							</div>
 						</>
 					) : null}
-					{routeAction.type === 'transcribe' && mediaFox ? (
+					{routeAction.type === 'transcribe' ? (
 						<Transcribe
 							src={src}
 							name={probeResult.name ?? ''}
-							mediaFox={mediaFox}
+							playbackTime={playbackTime}
 						/>
 					) : null}
 				</div>
