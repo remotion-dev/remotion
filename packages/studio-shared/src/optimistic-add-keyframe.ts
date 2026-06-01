@@ -23,20 +23,13 @@ const addKeyframeToPropStatus = ({
 }): CanUpdateSequencePropStatus => {
 	if (status.canUpdate) {
 		const staticValue = status.codeValue ?? value;
-		const initialKeyframes =
-			frame === 0
-				? [{frame, value}]
-				: [
-						{frame: 0, value: staticValue},
-						{frame, value},
-					];
 
 		return {
 			canUpdate: false,
 			reason: 'keyframed',
 			interpolationFunction: getInterpolationFunction(staticValue, value),
-			keyframes: initialKeyframes,
-			easing: frame === 0 ? [] : ['linear'],
+			keyframes: [{frame, value}],
+			easing: [],
 			clamping: {left: 'extend', right: 'extend'},
 			posterize: undefined,
 		};

@@ -5,7 +5,7 @@ import {
 	optimisticAddSequenceKeyframe,
 } from '../optimistic-add-keyframe';
 
-test('optimisticAddSequenceKeyframe converts a static prop to keyframed', () => {
+test('optimisticAddSequenceKeyframe converts a static prop to a single keyframe', () => {
 	const previous: CanUpdateSequencePropsResponse = {
 		canUpdate: true,
 		props: {
@@ -33,11 +33,8 @@ test('optimisticAddSequenceKeyframe converts a static prop to keyframed', () => 
 		throw new Error('expected keyframed status');
 	}
 
-	expect(status.keyframes).toEqual([
-		{frame: 0, value: 0.5},
-		{frame: 25, value: 0.75},
-	]);
-	expect(status.easing).toEqual(['linear']);
+	expect(status.keyframes).toEqual([{frame: 25, value: 0.75}]);
+	expect(status.easing).toEqual([]);
 });
 
 test('optimisticAddSequenceKeyframe appends a keyframe to an existing interpolation', () => {
@@ -134,4 +131,49 @@ test('optimisticAddEffectKeyframe appends a keyframe on the target effect', () =
 		{frame: 0, value: 0.2},
 		{frame: 30, value: 0.5},
 	]);
+});
+
+test('optimisticAddEffectKeyframe converts a static prop to a single keyframe', () => {
+	const previous: CanUpdateSequencePropsResponse = {
+		canUpdate: true,
+		props: {},
+		effects: [
+			{
+				canUpdate: true,
+				effectIndex: 0,
+				callee: 'tint',
+				props: {
+					amount: {
+						canUpdate: true,
+						codeValue: 0.2,
+					},
+				},
+			},
+		],
+	};
+
+	const updated = optimisticAddEffectKeyframe({
+		previous,
+		effectIndex: 0,
+		fieldKey: 'amount',
+		frame: 30,
+		value: 0.5,
+	});
+
+	if (!updated.canUpdate) {
+		throw new Error('expected updateable sequence');
+	}
+
+	const effect = updated.effects[0];
+	if (!effect.canUpdate) {
+		throw new Error('expected updateable effect');
+	}
+
+	const status = effect.props.amount;
+	if (!status || status.canUpdate || status.reason !== 'keyframed') {
+		throw new Error('expected keyframed status');
+	}
+
+	expect(status.keyframes).toEqual([{frame: 30, value: 0.5}]);
+	expect(status.easing).toEqual([]);
 });
