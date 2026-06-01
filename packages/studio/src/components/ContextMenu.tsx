@@ -179,7 +179,28 @@ export const ContextMenu = React.forwardRef<HTMLDivElement, ContextMenuProps>(
 				</div>
 				{portalStyle
 					? ReactDOM.createPortal(
-							<div style={fullScreenOverlay}>
+							<div
+								style={fullScreenOverlay}
+								onPointerDown={onHide}
+								onContextMenu={(e) => {
+									e.preventDefault();
+									e.stopPropagation();
+									onHide();
+									const {clientX, clientY} = e;
+									requestAnimationFrame(() => {
+										const el = document.elementFromPoint(clientX, clientY);
+										if (el) {
+											el.dispatchEvent(
+												new MouseEvent('contextmenu', {
+													bubbles: true,
+													clientX,
+													clientY,
+												}),
+											);
+										}
+									});
+								}}
+							>
 								<div style={outerPortal} className="css-reset">
 									<HigherZIndex onOutsideClick={onHide} onEscape={onHide}>
 										<div style={portalStyle} onPointerDown={onMenuPointerDown}>
