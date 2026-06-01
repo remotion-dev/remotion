@@ -21,6 +21,7 @@ type UndoEntryType =
 	| 'default-props'
 	| 'sequence-props'
 	| 'effect-props'
+	| 'keyframe-delete'
 	| 'add-effect'
 	| 'delete-effect'
 	| 'reorder-effect'
@@ -52,6 +53,7 @@ type UndoEntry = {
 	| {entryType: 'default-props'}
 	| {entryType: 'sequence-props'}
 	| {entryType: 'effect-props'}
+	| {entryType: 'keyframe-delete'}
 	| {entryType: 'add-effect'}
 	| {entryType: 'delete-effect'}
 	| {entryType: 'reorder-effect'}

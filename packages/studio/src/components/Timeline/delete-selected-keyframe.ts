@@ -1,28 +1,31 @@
 import type {OverrideIdToNodePaths, TSequence} from 'remotion';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {
+	callDeleteKeyframes,
 	callDeleteEffectKeyframe,
 	callDeleteSequenceKeyframe,
+	type DeleteEffectKeyframeChange,
+	type DeleteSequenceKeyframeChange,
 } from './call-delete-keyframe';
 import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
 import {parseKeyframeFieldFromNodePath} from './parse-keyframe-field-from-node-path';
 import type {SetCodeValues} from './save-sequence-prop';
 
-export const deleteSelectedKeyframe = ({
+type SelectedKeyframeDeletion =
+	| ({type: 'sequence'} & DeleteSequenceKeyframeChange)
+	| ({type: 'effect'} & DeleteEffectKeyframeChange);
+
+const getSelectedKeyframeDeletion = ({
 	nodePathInfo,
 	frame,
 	sequences,
 	overrideIdsToNodePaths,
-	setCodeValues,
-	clientId,
 }: {
 	nodePathInfo: SequenceNodePathInfo;
 	frame: number;
 	sequences: TSequence[];
 	overrideIdsToNodePaths: OverrideIdToNodePaths;
-	setCodeValues: SetCodeValues;
-	clientId: string;
-}): Promise<void> | null => {
+}): SelectedKeyframeDeletion | null => {
 	const field = parseKeyframeFieldFromNodePath(nodePathInfo.auxiliaryKeys);
 	if (field === null) {
 		return null;
@@ -48,24 +51,115 @@ export const deleteSelectedKeyframe = ({
 			return null;
 		}
 
-		return callDeleteEffectKeyframe({
+		return {
+			type: 'effect',
 			fileName,
 			nodePath,
 			effectIndex: field.effectIndex,
 			fieldKey: field.fieldKey,
 			sourceFrame,
 			schema: effect.schema,
+		};
+	}
+
+	return {
+		type: 'sequence',
+		fileName,
+		nodePath,
+		fieldKey: field.fieldKey,
+		sourceFrame,
+		schema: sequence.controls.schema,
+	};
+};
+
+export const deleteSelectedKeyframe = ({
+	nodePathInfo,
+	frame,
+	sequences,
+	overrideIdsToNodePaths,
+	setCodeValues,
+	clientId,
+}: {
+	nodePathInfo: SequenceNodePathInfo;
+	frame: number;
+	sequences: TSequence[];
+	overrideIdsToNodePaths: OverrideIdToNodePaths;
+	setCodeValues: SetCodeValues;
+	clientId: string;
+}): Promise<void> | null => {
+	const deletion = getSelectedKeyframeDeletion({
+		nodePathInfo,
+		frame,
+		sequences,
+		overrideIdsToNodePaths,
+	});
+	if (deletion === null) {
+		return null;
+	}
+
+	if (deletion.type === 'effect') {
+		return callDeleteEffectKeyframe({
+			...deletion,
 			setCodeValues,
 			clientId,
 		});
 	}
 
 	return callDeleteSequenceKeyframe({
-		fileName,
-		nodePath,
-		fieldKey: field.fieldKey,
-		sourceFrame,
-		schema: sequence.controls.schema,
+		...deletion,
+		setCodeValues,
+		clientId,
+	});
+};
+
+export const deleteSelectedKeyframes = ({
+	keyframes,
+	sequences,
+	overrideIdsToNodePaths,
+	setCodeValues,
+	clientId,
+}: {
+	keyframes: {
+		nodePathInfo: SequenceNodePathInfo;
+		frame: number;
+	}[];
+	sequences: TSequence[];
+	overrideIdsToNodePaths: OverrideIdToNodePaths;
+	setCodeValues: SetCodeValues;
+	clientId: string;
+}): Promise<void> | null => {
+	const deletions = keyframes
+		.map((keyframe) =>
+			getSelectedKeyframeDeletion({
+				nodePathInfo: keyframe.nodePathInfo,
+				frame: keyframe.frame,
+				sequences,
+				overrideIdsToNodePaths,
+			}),
+		)
+		.filter(
+			(deletion): deletion is SelectedKeyframeDeletion => deletion !== null,
+		);
+
+	if (deletions.length === 0) {
+		return null;
+	}
+
+	return callDeleteKeyframes({
+		sequenceKeyframes: deletions.filter(
+			(
+				deletion,
+			): deletion is SelectedKeyframeDeletion & {
+				type: 'sequence';
+			} => deletion.type === 'sequence',
+		),
+		effectKeyframes: deletions.filter(
+			(
+				deletion,
+			): deletion is SelectedKeyframeDeletion & {
+				type: 'effect';
+			} => deletion.type === 'effect',
+		),
 		setCodeValues,
 		clientId,
 	});
