@@ -109,12 +109,12 @@ export const Demo: React.FC = () => {
 	}, []);
 
 	return (
-		<div>
+		<div id="demo">
 			<br />
 			<br />
 			<SectionTitle>Interactive demo</SectionTitle>
 			<div className="max-w-[760px] mx-auto">
-				<div style={{height: 105, position: 'relative'}}>
+				<div className="h-[105px] relative">
 					<DragAndDropNudge />
 					<ThemeNudge />
 				</div>

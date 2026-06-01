@@ -40,12 +40,6 @@ export const PlayerControls: React.FC<{
 				onSeekEnd={() => undefined}
 				onSeekStart={() => undefined}
 			/>
-			<div className="hidden md:block whitespace-nowrap text-xs fontbrand text-muted ml-4">
-				Powered by{' '}
-				<a href="/player" className="text-muted no-underline hover:text-brand">
-					Remotion Player
-				</a>
-			</div>
 			<div style={{width: 20}} />
 			<Separator />
 			{children}
