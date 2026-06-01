@@ -42,5 +42,5 @@
 	},
 	"typescript.tsserver.maxTsServerMemory": 4096,
 	"typescript.experimental.useTsgo": true,
-	"typescript.native-preview.tsdk": "/Users/jonathanburger/copilot-worktrees/remotion2/jonnyburger-literate-funicular/node_modules/@typescript/native-preview"
+	"typescript.native-preview.tsdk": "node_modules/@typescript/native-preview"
 }
