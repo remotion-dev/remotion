@@ -296,6 +296,7 @@ const sidebars: SidebarsConfig = {
 				'effects/uv-translate',
 				'effects/vignette',
 				'effects/wave',
+				'effects/waves',
 				'effects/white-noise',
 				'effects/xy-translate',
 			],

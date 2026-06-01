@@ -27,6 +27,7 @@ import {tint} from '../tint.js';
 import {uvTranslate, xyTranslate} from '../translate.js';
 import {vignette} from '../vignette.js';
 import {wave} from '../wave/index.js';
+import {waves} from '../waves.js';
 import {whiteNoise} from '../white-noise.js';
 
 test('@remotion/effects expose documentation links', () => {
@@ -117,6 +118,9 @@ test('@remotion/effects expose documentation links', () => {
 	expect(wave().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/wave',
 	);
+	expect(waves().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/waves',
+	);
 	expect(whiteNoise().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/white-noise',
 	);
@@ -153,6 +157,7 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(vignette().definition.label).toBe('vignette()');
 	expect(xyTranslate().definition.label).toBe('xyTranslate()');
 	expect(wave().definition.label).toBe('wave()');
+	expect(waves().definition.label).toBe('waves()');
 	expect(whiteNoise().definition.label).toBe('whiteNoise()');
 });
 
@@ -358,6 +363,71 @@ test('wave() direction produces distinct effect keys', () => {
 	const horizontal = wave({direction: 'horizontal'});
 	const vertical = wave({direction: 'vertical'});
 	expect(horizontal.effectKey).not.toBe(vertical.effectKey);
+});
+
+test('waves() accepts default params', () => {
+	expect(() => waves()).not.toThrow();
+});
+
+test('waves() rejects invalid colors', () => {
+	expect(() => waves({colors: ['#dff4ff']})).toThrow(
+		'"colors" must be an array with at least 2 colors',
+	);
+	expect(() => waves({colors: ['#dff4ff', '' as unknown as string]})).toThrow(
+		'"colors[1]" must be a non-empty string',
+	);
+});
+
+test('waves() rejects invalid direction', () => {
+	expect(() =>
+		waves({direction: 'diagonal' as unknown as 'horizontal'}),
+	).toThrow('"direction" must be "horizontal" or "vertical"');
+});
+
+test('waves() rejects non-positive wavelength', () => {
+	expect(() => waves({wavelength: 0})).toThrow(
+		'"wavelength" must be greater than 0',
+	);
+});
+
+test('waves() rejects negative amplitude', () => {
+	expect(() => waves({amplitude: -1})).toThrow(
+		'"amplitude" must be greater than or equal to 0',
+	);
+});
+
+test('waves() rejects non-positive thickness', () => {
+	expect(() => waves({thickness: 0})).toThrow(
+		'"thickness" must be greater than 0',
+	);
+});
+
+test('waves() parameters produce distinct effect keys', () => {
+	const defaults = waves();
+	const colored = waves({colors: ['#ffffff', 'transparent']});
+	const vertical = waves({direction: 'vertical'});
+	const thin = waves({thickness: 20});
+	const gapped = waves({gap: 24});
+	const angled = waves({angle: 45});
+	const shifted = waves({offset: 10});
+	const stronger = waves({amplitude: 30});
+	const longer = waves({wavelength: 220});
+	const phased = waves({phase: 90});
+
+	expect(
+		new Set([
+			defaults.effectKey,
+			colored.effectKey,
+			vertical.effectKey,
+			thin.effectKey,
+			gapped.effectKey,
+			angled.effectKey,
+			shifted.effectKey,
+			stronger.effectKey,
+			longer.effectKey,
+			phased.effectKey,
+		]).size,
+	).toBe(10);
 });
 
 test('whiteNoise() accepts default params', () => {

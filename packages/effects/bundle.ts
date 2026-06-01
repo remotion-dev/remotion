@@ -35,6 +35,7 @@ const effectEntrypoints = [
 	'src/translate.ts',
 	'src/vignette.ts',
 	'src/wave.ts',
+	'src/waves.ts',
 	'src/white-noise.ts',
 ];
 
