@@ -20,6 +20,7 @@ export {
 	CompositionComponentInfoResponse,
 	CopyStillToClipboardRequest,
 	DeleteEffectKeyframeRequest,
+	DeleteEffectKeyframeRequestItem,
 	DeleteEffectKeyframeResponse,
 	DeleteEffectRequest,
 	DeleteEffectRequestItem,
@@ -27,7 +28,10 @@ export {
 	DeleteJsxNodeRequest,
 	DeleteJsxNodeRequestItem,
 	DeleteJsxNodeResponse,
+	DeleteKeyframesRequest,
+	DeleteKeyframesResponse,
 	DeleteSequenceKeyframeRequest,
+	DeleteSequenceKeyframeRequestItem,
 	DeleteSequenceKeyframeResponse,
 	DeleteStaticFileRequest,
 	DeleteStaticFileResponse,
@@ -153,7 +157,9 @@ export {
 } from './optimistic-add-keyframe';
 export {
 	optimisticDeleteEffectKeyframe,
+	optimisticDeleteEffectKeyframes,
 	optimisticDeleteSequenceKeyframe,
+	optimisticDeleteSequenceKeyframes,
 } from './optimistic-delete-keyframe';
 export {optimisticUpdateForCodeValues} from './optimistic-update-for-code-values';
 export {optimisticUpdateForEffectCodeValues} from './optimistic-update-for-effect-code-values';

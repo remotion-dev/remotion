@@ -74,6 +74,24 @@ export const optimisticDeleteSequenceKeyframe = ({
 	};
 };
 
+export const optimisticDeleteSequenceKeyframes = ({
+	previous,
+	keyframes,
+}: {
+	previous: CanUpdateSequencePropsResponse;
+	keyframes: {fieldKey: string; frame: number}[];
+}): CanUpdateSequencePropsResponse => {
+	return keyframes.reduce(
+		(current, keyframe) =>
+			optimisticDeleteSequenceKeyframe({
+				previous: current,
+				fieldKey: keyframe.fieldKey,
+				frame: keyframe.frame,
+			}),
+		previous,
+	);
+};
+
 export const optimisticDeleteEffectKeyframe = ({
 	previous,
 	effectIndex,
@@ -121,4 +139,23 @@ export const optimisticDeleteEffectKeyframe = ({
 		...previous,
 		effects,
 	};
+};
+
+export const optimisticDeleteEffectKeyframes = ({
+	previous,
+	keyframes,
+}: {
+	previous: CanUpdateSequencePropsResponse;
+	keyframes: {effectIndex: number; fieldKey: string; frame: number}[];
+}): CanUpdateSequencePropsResponse => {
+	return keyframes.reduce(
+		(current, keyframe) =>
+			optimisticDeleteEffectKeyframe({
+				previous: current,
+				effectIndex: keyframe.effectIndex,
+				fieldKey: keyframe.fieldKey,
+				frame: keyframe.frame,
+			}),
+		previous,
+	);
 };

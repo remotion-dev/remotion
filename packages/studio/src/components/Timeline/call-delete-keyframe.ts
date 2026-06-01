@@ -1,11 +1,39 @@
 import {
 	optimisticDeleteEffectKeyframe,
+	optimisticDeleteEffectKeyframes,
 	optimisticDeleteSequenceKeyframe,
+	optimisticDeleteSequenceKeyframes,
 } from '@remotion/studio-shared';
 import type {SequencePropsSubscriptionKey, SequenceSchema} from 'remotion';
 import {callApi} from '../call-api';
 import {enqueueSavePropChange} from './save-prop-queue';
 import type {SetCodeValues} from './save-sequence-prop';
+
+export type DeleteSequenceKeyframeChange = {
+	fileName: string;
+	nodePath: SequencePropsSubscriptionKey;
+	fieldKey: string;
+	sourceFrame: number;
+	schema: SequenceSchema;
+};
+
+export type DeleteEffectKeyframeChange = DeleteSequenceKeyframeChange & {
+	effectIndex: number;
+};
+
+const groupByNodePath = <T extends {nodePath: SequencePropsSubscriptionKey}>(
+	keyframes: T[],
+): T[][] => {
+	const groups = new Map<string, T[]>();
+	for (const keyframe of keyframes) {
+		const key = JSON.stringify(keyframe.nodePath);
+		const group = groups.get(key) ?? [];
+		group.push(keyframe);
+		groups.set(key, group);
+	}
+
+	return [...groups.values()];
+};
 
 export const callDeleteSequenceKeyframe = ({
 	fileName,
@@ -35,11 +63,15 @@ export const callDeleteSequenceKeyframe = ({
 			}),
 		apiCall: () =>
 			callApi('/api/delete-sequence-keyframe', {
-				fileName,
-				nodePath,
-				key: fieldKey,
-				frame: sourceFrame,
-				schema,
+				keyframes: [
+					{
+						fileName,
+						nodePath,
+						key: fieldKey,
+						frame: sourceFrame,
+						schema,
+					},
+				],
 				clientId,
 			}),
 		errorLabel: 'Could not delete keyframe',
@@ -77,14 +109,88 @@ export const callDeleteEffectKeyframe = ({
 			}),
 		apiCall: () =>
 			callApi('/api/delete-effect-keyframe', {
-				fileName,
-				sequenceNodePath: nodePath,
-				effectIndex,
-				key: fieldKey,
-				frame: sourceFrame,
-				schema,
+				keyframes: [
+					{
+						fileName,
+						sequenceNodePath: nodePath,
+						effectIndex,
+						key: fieldKey,
+						frame: sourceFrame,
+						schema,
+					},
+				],
 				clientId,
 			}),
 		errorLabel: 'Could not delete keyframe',
 	});
+};
+
+export const callDeleteKeyframes = ({
+	sequenceKeyframes,
+	effectKeyframes,
+	setCodeValues,
+	clientId,
+}: {
+	sequenceKeyframes: DeleteSequenceKeyframeChange[];
+	effectKeyframes: DeleteEffectKeyframeChange[];
+	setCodeValues: SetCodeValues;
+	clientId: string;
+}): Promise<void> => {
+	if (sequenceKeyframes.length === 0 && effectKeyframes.length === 0) {
+		return Promise.resolve();
+	}
+
+	for (const keyframes of groupByNodePath(sequenceKeyframes)) {
+		const [firstKeyframe] = keyframes;
+		if (!firstKeyframe) {
+			continue;
+		}
+
+		setCodeValues(firstKeyframe.nodePath, (prev) =>
+			optimisticDeleteSequenceKeyframes({
+				previous: prev,
+				keyframes: keyframes.map((keyframe) => ({
+					fieldKey: keyframe.fieldKey,
+					frame: keyframe.sourceFrame,
+				})),
+			}),
+		);
+	}
+
+	for (const keyframes of groupByNodePath(effectKeyframes)) {
+		const [firstKeyframe] = keyframes;
+		if (!firstKeyframe) {
+			continue;
+		}
+
+		setCodeValues(firstKeyframe.nodePath, (prev) =>
+			optimisticDeleteEffectKeyframes({
+				previous: prev,
+				keyframes: keyframes.map((keyframe) => ({
+					effectIndex: keyframe.effectIndex,
+					fieldKey: keyframe.fieldKey,
+					frame: keyframe.sourceFrame,
+				})),
+			}),
+		);
+	}
+
+	return callApi('/api/delete-keyframes', {
+		sequenceKeyframes: sequenceKeyframes.map((keyframe) => ({
+			fileName: keyframe.fileName,
+			nodePath: keyframe.nodePath,
+			key: keyframe.fieldKey,
+			frame: keyframe.sourceFrame,
+			schema: keyframe.schema,
+		})),
+		effectKeyframes: effectKeyframes.map((keyframe) => ({
+			fileName: keyframe.fileName,
+			sequenceNodePath: keyframe.nodePath,
+			effectIndex: keyframe.effectIndex,
+			key: keyframe.fieldKey,
+			frame: keyframe.sourceFrame,
+			schema: keyframe.schema,
+		})),
+		clientId,
+	}).then(() => undefined);
 };

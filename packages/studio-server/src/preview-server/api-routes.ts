@@ -11,6 +11,7 @@ import {compositionComponentInfoHandler} from './routes/composition-component-in
 import {deleteEffectHandler} from './routes/delete-effect';
 import {deleteEffectKeyframeHandler} from './routes/delete-effect-keyframe';
 import {deleteJsxNodeHandler} from './routes/delete-jsx-node';
+import {deleteKeyframesHandler} from './routes/delete-keyframes';
 import {deleteSequenceKeyframeHandler} from './routes/delete-sequence-keyframe';
 import {deleteStaticFileHandler} from './routes/delete-static-file';
 import {duplicateJsxNodeHandler} from './routes/duplicate-jsx-node';
@@ -67,6 +68,7 @@ export const allApiRoutes: {
 	'/api/delete-effect-keyframe': deleteEffectKeyframeHandler,
 	'/api/add-effect-keyframe': addEffectKeyframeHandler,
 	'/api/delete-effect': deleteEffectHandler,
+	'/api/delete-keyframes': deleteKeyframesHandler,
 	'/api/delete-jsx-node': deleteJsxNodeHandler,
 	'/api/duplicate-jsx-node': duplicateJsxNodeHandler,
 	'/api/update-available': handleUpdate,
