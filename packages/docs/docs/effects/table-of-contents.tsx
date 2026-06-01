@@ -271,6 +271,13 @@ const categories: {
 				description: 'Alternating line pattern effect',
 			},
 			{
+				link: '/docs/effects/rings',
+				preview: '/img/effects-rings-preview.png',
+				alt: 'rings effect preview',
+				name: 'rings()',
+				description: 'Concentric ring pattern effect',
+			},
+			{
 				link: '/docs/effects/waves',
 				preview: '/img/effects-waves-preview.png',
 				alt: 'waves effect preview',
