@@ -1,11 +1,11 @@
 import {useColorMode} from '@docusaurus/theme-common';
 import {Player} from '@remotion/player';
-import {
-	EFFECT_DRAG_MIME_TYPE,
-	type EffectDragData,
-} from '@remotion/studio-shared';
 import React, {useCallback, useMemo, useState} from 'react';
 import {AbsoluteFill} from 'remotion';
+import {
+	makeEffectDragData,
+	setEffectDragData,
+} from './effect-drag-data';
 import {
 	fillSchemaDefaults,
 	getActiveSchemaFields,
@@ -69,25 +69,17 @@ export const EffectsDemo: React.FC<{
 		setKey((k) => k + 1);
 	}, [initialState]);
 
-	const dragData = useMemo((): EffectDragData => {
-		return {
-			type: 'remotion-effect',
-			version: 1,
-			effect: {
-				name: demo.effectName,
-				importPath: demo.effectImportPath,
-				config: state,
-			},
-		};
+	const dragData = useMemo(() => {
+		return makeEffectDragData({
+			effectName: demo.effectName,
+			effectImportPath: demo.effectImportPath,
+			effectConfig: state,
+		});
 	}, [demo.effectImportPath, demo.effectName, state]);
 
 	const onDragStart = useCallback(
 		(e: React.DragEvent<HTMLDivElement>) => {
-			const serialized = JSON.stringify(dragData);
-			e.dataTransfer.effectAllowed = 'copy';
-			e.dataTransfer.setData(EFFECT_DRAG_MIME_TYPE, serialized);
-			e.dataTransfer.setData('application/json', serialized);
-			e.dataTransfer.setData('text/plain', serialized);
+			setEffectDragData({dataTransfer: e.dataTransfer, dragData});
 		},
 		[dragData],
 	);
