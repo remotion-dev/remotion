@@ -16,7 +16,7 @@ import {BLUE} from '../helpers/colors';
 import {getBoxQuadsPonyfill} from '../helpers/get-box-quads-ponyfill';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 import {saveEffectProp} from './Timeline/save-effect-prop';
-import {saveSequenceProp} from './Timeline/save-sequence-prop';
+import {saveSequenceProps} from './Timeline/save-sequence-prop';
 import {getDecimalPlaces} from './Timeline/timeline-field-utils';
 import {
 	parseTranslate,
@@ -76,6 +76,14 @@ type SelectedOutlineDragTarget = {
 	readonly fieldDefault: string | undefined;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly schema: SequenceSchema;
+};
+
+export type SelectedOutlineDragState = {
+	readonly defaultValue: string | null;
+	readonly key: string;
+	readonly startX: number;
+	readonly startY: number;
+	readonly target: SelectedOutlineDragTarget;
 };
 
 type SequenceWithSelectedOutline = {
@@ -597,11 +605,115 @@ const outlinesAreEqual = (
 	return true;
 };
 
+const getSelectedOutlineDragStates = ({
+	dragTargets,
+	getDragOverrides,
+}: {
+	readonly dragTargets: readonly SelectedOutlineDragTarget[];
+	readonly getDragOverrides: (
+		nodePath: SequencePropsSubscriptionKey,
+	) => Record<string, unknown>;
+}): SelectedOutlineDragState[] => {
+	return dragTargets.map((target) => {
+		const dragOverrideValue = (getDragOverrides(target.nodePath) ?? {})[
+			translateFieldKey
+		];
+		const effectiveValue = Internals.getEffectiveVisualModeValue({
+			codeValue: target.codeValue,
+			dragOverrideValue,
+			defaultValue: target.fieldDefault,
+			shouldResortToDefaultValueIfUndefined: true,
+		});
+		const [startX, startY] = parseTranslate(
+			String(effectiveValue ?? '0px 0px'),
+		);
+
+		return {
+			defaultValue:
+				target.fieldDefault !== undefined
+					? JSON.stringify(target.fieldDefault)
+					: null,
+			key: Internals.makeSequencePropsSubscriptionKey(target.nodePath),
+			startX,
+			startY,
+			target,
+		};
+	});
+};
+
+export const getSelectedOutlineDragValues = ({
+	dragStates,
+	deltaX,
+	deltaY,
+}: {
+	readonly dragStates: readonly SelectedOutlineDragState[];
+	readonly deltaX: number;
+	readonly deltaY: number;
+}): Map<string, string> => {
+	return new Map(
+		dragStates.map((dragState) => [
+			dragState.key,
+			serializeTranslate(dragState.startX + deltaX, dragState.startY + deltaY),
+		]),
+	);
+};
+
+export const getSelectedOutlineDragChanges = ({
+	dragStates,
+	lastValues,
+}: {
+	readonly dragStates: readonly SelectedOutlineDragState[];
+	readonly lastValues: ReadonlyMap<string, string>;
+}) => {
+	return dragStates.flatMap((dragState) => {
+		const value = lastValues.get(dragState.key);
+		if (value === undefined) {
+			return [];
+		}
+
+		const stringifiedValue = JSON.stringify(value);
+		const shouldSave =
+			value !== dragState.target.codeValue.codeValue &&
+			!(
+				dragState.defaultValue === stringifiedValue &&
+				dragState.target.codeValue.codeValue === undefined
+			);
+
+		if (!shouldSave) {
+			return [];
+		}
+
+		return [
+			{
+				fileName: dragState.target.nodePath.absolutePath,
+				nodePath: dragState.target.nodePath,
+				fieldKey: translateFieldKey,
+				value,
+				defaultValue: dragState.defaultValue,
+				schema: dragState.target.schema,
+			},
+		];
+	});
+};
+
+const clearSelectedOutlineDragOverrides = ({
+	clearDragOverrides,
+	dragStates,
+}: {
+	readonly clearDragOverrides: (nodePath: SequencePropsSubscriptionKey) => void;
+	readonly dragStates: readonly SelectedOutlineDragState[];
+}) => {
+	for (const dragState of dragStates) {
+		clearDragOverrides(dragState.target.nodePath);
+	}
+};
+
 const SelectedOutlinePolygon: React.FC<{
+	readonly allDragTargets: readonly SelectedOutlineDragTarget[];
 	readonly outline: SelectedOutline;
 	readonly scale: number;
 	readonly target: SelectedOutlineTarget | undefined;
-}> = ({outline, scale, target}) => {
+}> = ({allDragTargets, outline, scale, target}) => {
 	const {getDragOverrides} = useContext(
 		Internals.VisualModeDragOverridesContext,
 	);
@@ -625,31 +737,28 @@ const SelectedOutlinePolygon: React.FC<{
 
 			const startPointerX = event.clientX;
 			const startPointerY = event.clientY;
-			const dragOverrideValue = (getDragOverrides(drag.nodePath) ?? {})[
-				translateFieldKey
-			];
-			const effectiveValue = Internals.getEffectiveVisualModeValue({
-				codeValue: drag.codeValue,
-				dragOverrideValue,
-				defaultValue: drag.fieldDefault,
-				shouldResortToDefaultValueIfUndefined: true,
+			const dragStates = getSelectedOutlineDragStates({
+				dragTargets: allDragTargets,
+				getDragOverrides,
 			});
-			const [startX, startY] = parseTranslate(
-				String(effectiveValue ?? '0px 0px'),
-			);
-			const defaultValue =
-				drag.fieldDefault !== undefined
-					? JSON.stringify(drag.fieldDefault)
-					: null;
-			let lastValue: string | null = null;
+			let lastValues = new Map<string, string>();
 
 			const onPointerMove = (moveEvent: PointerEvent) => {
 				moveEvent.preventDefault();
 
-				const nextX = startX + (moveEvent.clientX - startPointerX) / scale;
-				const nextY = startY + (moveEvent.clientY - startPointerY) / scale;
-				lastValue = serializeTranslate(nextX, nextY);
-				setDragOverrides(drag.nodePath, translateFieldKey, lastValue);
+				lastValues = getSelectedOutlineDragValues({
+					dragStates,
+					deltaX: (moveEvent.clientX - startPointerX) / scale,
+					deltaY: (moveEvent.clientY - startPointerY) / scale,
+				});
+				for (const dragState of dragStates) {
+					const value = lastValues.get(dragState.key);
+					if (value === undefined) {
+						throw new Error('Expected drag value to be available');
+					}
+
+					setDragOverrides(dragState.target.nodePath, translateFieldKey, value);
+				}
 			};
 
 			const onPointerUp = () => {
@@ -657,32 +766,24 @@ const SelectedOutlinePolygon: React.FC<{
 				window.removeEventListener('pointerup', onPointerUp);
 				window.removeEventListener('pointercancel', onPointerUp);
 
-				const stringifiedValue =
-					lastValue === null ? null : JSON.stringify(lastValue);
-				const shouldSave =
-					lastValue !== null &&
-					lastValue !== drag.codeValue.codeValue &&
-					!(
-						defaultValue === stringifiedValue &&
-						drag.codeValue.codeValue === undefined
-					);
+				const changes = getSelectedOutlineDragChanges({
+					dragStates,
+					lastValues,
+				});
 
-				if (!shouldSave) {
-					clearDragOverrides(drag.nodePath);
+				if (changes.length === 0) {
+					clearSelectedOutlineDragOverrides({clearDragOverrides, dragStates});
 					return;
 				}
 
-				saveSequenceProp({
-					fileName: drag.nodePath.absolutePath,
-					nodePath: drag.nodePath,
-					fieldKey: translateFieldKey,
-					value: lastValue,
-					defaultValue,
-					schema: drag.schema,
+				saveSequenceProps({
+					changes,
 					setCodeValues,
 					clientId: drag.clientId,
+					undoLabel: changes.length > 1 ? 'Move selected sequences' : null,
+					redoLabel: changes.length > 1 ? 'Move selected sequences back' : null,
 				}).finally(() => {
-					clearDragOverrides(drag.nodePath);
+					clearSelectedOutlineDragOverrides({clearDragOverrides, dragStates});
 				});
 			};
 
@@ -691,6 +792,7 @@ const SelectedOutlinePolygon: React.FC<{
 			window.addEventListener('pointercancel', onPointerUp);
 		},
 		[
+			allDragTargets,
 			clearDragOverrides,
 			drag,
 			getDragOverrides,
@@ -934,6 +1036,11 @@ export const SelectedOutlineOverlay: React.FC<{
 			selectedOutlineTargets.map((target) => [target.key, target]),
 		);
 	}, [selectedOutlineTargets]);
+	const allDragTargets = useMemo(() => {
+		return selectedOutlineTargets.flatMap((target) =>
+			target.drag === null ? [] : [target.drag],
+		);
+	}, [selectedOutlineTargets]);
 
 	useEffect(() => {
 		if (selectedOutlineTargets.length === 0) {
@@ -985,6 +1092,7 @@ export const SelectedOutlineOverlay: React.FC<{
 			{outlines.map((outline) => (
 				<React.Fragment key={outline.key}>
 					<SelectedOutlinePolygon
+						allDragTargets={allDragTargets}
 						outline={outline}
 						scale={scale}
 						target={targetsByKey.get(outline.key)}
