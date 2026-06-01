@@ -3,7 +3,9 @@ import {
 	useCallback,
 	useContext,
 	useEffect,
+	useImperativeHandle,
 	useMemo,
+	useRef,
 	useState,
 } from 'react';
 import {calculateImageFit} from '../calculate-image-fit.js';
@@ -416,6 +418,10 @@ const CanvasImageInner = forwardRef<
 		}
 
 		const memoizedEffectDefinitions = useMemoizedEffectDefinitions(effects);
+		const actualRef = useRef<HTMLCanvasElement | null>(null);
+		useImperativeHandle(ref, () => {
+			return actualRef.current as HTMLCanvasElement;
+		}, []);
 
 		return (
 			<Sequence
@@ -433,9 +439,10 @@ const CanvasImageInner = forwardRef<
 				_remotionInternalEffects={memoizedEffectDefinitions}
 				_remotionInternalIsMedia={{type: 'image', src}}
 				_remotionInternalStack={stack}
+				_remotionInternalRefForOutline={actualRef}
 			>
 				<CanvasImageContent
-					ref={ref}
+					ref={actualRef}
 					src={src}
 					width={width}
 					height={height}
