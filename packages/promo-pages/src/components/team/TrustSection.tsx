@@ -188,7 +188,7 @@ export const TrustSection: React.FC = () => {
 					<div className="font-brand">
 						Remotion is profitable. Aside from our{' '}
 						<a
-							href="/investors"
+							href="/docs/investors"
 							className="text-brand hover:underline underline-offset-4"
 						>
 							early investors

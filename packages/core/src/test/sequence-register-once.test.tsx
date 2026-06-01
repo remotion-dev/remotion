@@ -189,3 +189,19 @@ test('AnimatedImage registers its canvas ref for the Studio outline', () => {
 	expect(refForOutline.current).toBeInstanceOf(HTMLCanvasElement);
 	expect(ref.current).toBe(refForOutline.current);
 });
+
+test('Img registers a refForOutline pointing to the rendered image element', () => {
+	const registeredSequences: TSequence[] = [];
+
+	render(
+		<SequenceTestWrapper
+			onRegisterSequence={(sequence) => {
+				registeredSequences.push(sequence);
+			}}
+		>
+			<Img src="test.png" />
+		</SequenceTestWrapper>,
+	);
+
+	expect(registeredSequences[0]?.refForOutline?.current?.tagName).toBe('IMG');
+});

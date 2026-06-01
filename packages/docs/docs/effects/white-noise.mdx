@@ -29,15 +29,16 @@ The effect preserves the source alpha mask. Transparent regions stay transparent
 ## Example
 
 ```tsx twoslash title="MyComp.tsx"
-import {AbsoluteFill} from 'remotion';
-import {Video} from '@remotion/media';
+import {AbsoluteFill, Solid} from 'remotion';
 import {whiteNoise} from '@remotion/effects/white-noise';
 
 export const MyComp: React.FC = () => {
   return (
     <AbsoluteFill>
-      <Video
-        src="https://remotion.media/video.mp4"
+      <Solid
+        width={1280}
+        height={720}
+        color="black"
         effects={[
           whiteNoise({
             amount: 1,

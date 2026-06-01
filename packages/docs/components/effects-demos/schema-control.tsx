@@ -32,6 +32,21 @@ const getNumberValue = (
 	return getDefaultValueFromSchema(field) as number;
 };
 
+const getDemoNumberRange = (
+	fieldKey: string,
+	field: Extract<SequenceFieldSchema, {type: 'number'}>,
+): {min: number; max: number} | null => {
+	if (field.min !== undefined && field.max !== undefined) {
+		return {min: field.min, max: field.max};
+	}
+
+	if (fieldKey === 'offset') {
+		return {min: -400, max: 400};
+	}
+
+	return null;
+};
+
 const getStringValue = (value: unknown, fallback: unknown): string => {
 	if (typeof value === 'string') {
 		return value;
@@ -96,14 +111,18 @@ export const SchemaControl = ({
 	}
 
 	const label = field.description ?? fieldKey;
+	const numberRange =
+		field.type === 'number' ? getDemoNumberRange(fieldKey, field) : null;
 
 	return (
 		<label style={labelStyle} className={styles.item}>
 			<div style={left}>{label}</div>
 			{field.type === 'number' ? (
-				field.min === undefined || field.max === undefined ? (
+				numberRange ? (
 					<input
-						type="number"
+						type="range"
+						min={numberRange.min}
+						max={numberRange.max}
 						step={field.step}
 						value={getNumberValue(value, field)}
 						style={inputStyle}
@@ -111,9 +130,7 @@ export const SchemaControl = ({
 					/>
 				) : (
 					<input
-						type="range"
-						min={field.min}
-						max={field.max}
+						type="number"
 						step={field.step}
 						value={getNumberValue(value, field)}
 						style={inputStyle}
