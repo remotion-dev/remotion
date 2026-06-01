@@ -18,6 +18,7 @@ export type RemotionAnimatedImageProps = {
 	loopBehavior?: RemotionAnimatedImageLoopBehavior;
 	id?: string;
 	className?: string;
+	requestInit?: RequestInit;
 };
 
 export type AnimatedImageProps = Omit<

@@ -1,5 +1,6 @@
 import {manuallyManagedGifCache, volatileGifCache} from './gif-cache';
 import {parseWithWorker} from './react-tools';
+import {getGifCacheKey} from './request-init';
 import {resolveGifSource} from './resolve-gif-source';
 
 /**
@@ -8,33 +9,44 @@ import {resolveGifSource} from './resolve-gif-source';
  */
 export const preloadGif = (
 	src: string,
+	options?: {
+		requestInit?: RequestInit;
+	},
 ): {
 	waitUntilDone: () => Promise<void>;
 	free: () => void;
 } => {
 	const resolvedSrc = resolveGifSource(src);
+	const cacheKey = getGifCacheKey({
+		resolvedSrc,
+		requestInit: options?.requestInit,
+	});
 
-	if (volatileGifCache.has(resolvedSrc)) {
+	if (volatileGifCache.has(cacheKey)) {
 		return {
 			waitUntilDone: () => Promise.resolve(),
-			free: () => volatileGifCache.delete(resolvedSrc),
+			free: () => volatileGifCache.delete(cacheKey),
 		};
 	}
 
-	if (manuallyManagedGifCache.has(resolvedSrc)) {
+	if (manuallyManagedGifCache.has(cacheKey)) {
 		return {
 			waitUntilDone: () => Promise.resolve(),
-			free: () => manuallyManagedGifCache.delete(resolvedSrc),
+			free: () => manuallyManagedGifCache.delete(cacheKey),
 		};
 	}
 
-	const {prom, cancel} = parseWithWorker(resolvedSrc);
+	const {prom, cancel} = parseWithWorker({
+		src: resolvedSrc,
+		cacheKey,
+		requestInit: options?.requestInit,
+	});
 
 	let deleted = false;
 
 	prom.then((p) => {
 		if (!deleted) {
-			manuallyManagedGifCache.set(resolvedSrc, p);
+			manuallyManagedGifCache.set(cacheKey, p);
 		}
 	});
 
@@ -43,7 +55,7 @@ export const preloadGif = (
 		free: () => {
 			cancel();
 			deleted = true;
-			manuallyManagedGifCache.delete(resolvedSrc);
+			manuallyManagedGifCache.delete(cacheKey);
 		},
 	};
 };

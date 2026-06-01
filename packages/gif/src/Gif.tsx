@@ -57,6 +57,7 @@ const GifInner = ({
 	loopBehavior,
 	id,
 	delayRenderTimeoutInMilliseconds,
+	requestInit,
 	durationInFrames,
 	style,
 	_experimentalControls: controls,
@@ -91,6 +92,7 @@ const GifInner = ({
 		loopBehavior,
 		id,
 		delayRenderTimeoutInMilliseconds,
+		requestInit,
 		style,
 		effects: memoizedEffects,
 	};
