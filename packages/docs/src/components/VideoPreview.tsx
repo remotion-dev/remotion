@@ -58,6 +58,7 @@ export const VideoPreview: React.FC<
 		image.onload = () => {
 			setAnimatedLoaded(true);
 		};
+
 		image.src = animated;
 
 		return () => {
@@ -100,7 +101,7 @@ export const VideoPreview: React.FC<
 
 	const placeholder: React.CSSProperties = {
 		backgroundColor: 'rgba(0, 0, 0, 0.05)',
-		aspectRatio: '16 / 9',
+		aspectRatio: `${width} / ${height}`,
 		overflow: 'hidden',
 		width: '100%',
 	};
