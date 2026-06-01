@@ -281,6 +281,7 @@ const sidebars: SidebarsConfig = {
 				'effects/grayscale',
 				'effects/halftone',
 				'effects/halftone-linear-gradient',
+				'effects/pixel-dissolve',
 				'effects/hue',
 				'effects/dot-grid',
 				'effects/invert',

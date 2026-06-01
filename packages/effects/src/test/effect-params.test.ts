@@ -18,6 +18,7 @@ import {invert} from '../invert.js';
 import {lines} from '../lines.js';
 import {mirror} from '../mirror.js';
 import {noise} from '../noise.js';
+import {pixelDissolve} from '../pixel-dissolve.js';
 import {saturation} from '../saturation.js';
 import {scale} from '../scale.js';
 import {scanlines} from '../scanlines.js';
@@ -70,6 +71,9 @@ test('@remotion/effects expose documentation links', () => {
 	);
 	expect(halftoneLinearGradient().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/halftone-linear-gradient',
+	);
+	expect(pixelDissolve().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/pixel-dissolve',
 	);
 	expect(hue().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/hue',
@@ -145,6 +149,7 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(halftoneLinearGradient().definition.label).toBe(
 		'halftoneLinearGradient()',
 	);
+	expect(pixelDissolve().definition.label).toBe('pixelDissolve()');
 	expect(hue().definition.label).toBe('hue()');
 	expect(invert().definition.label).toBe('invert()');
 	expect(lines().definition.label).toBe('lines()');
@@ -1611,6 +1616,66 @@ test('speckle() parameters produce distinct effect keys', () => {
 			steadier.effectKey,
 		]).size,
 	).toBe(4);
+});
+
+test('pixelDissolve() accepts default params', () => {
+	expect(() => pixelDissolve()).not.toThrow();
+});
+
+test('pixelDissolve() rejects non-finite progress', () => {
+	expect(() => pixelDissolve({progress: Number.NaN})).toThrow(
+		'"progress" must be a finite number',
+	);
+});
+
+test('pixelDissolve() rejects progress below range', () => {
+	expect(() => pixelDissolve({progress: -0.1})).toThrow(
+		'"progress" must be >= 0',
+	);
+});
+
+test('pixelDissolve() rejects columns below range', () => {
+	expect(() => pixelDissolve({columns: 0})).toThrow('"columns" must be >= 1');
+});
+
+test('pixelDissolve() rejects rows below range', () => {
+	expect(() => pixelDissolve({rows: 0})).toThrow('"rows" must be >= 1');
+});
+
+test('pixelDissolve() rejects non-integer divisions', () => {
+	expect(() => pixelDissolve({columns: 10.5})).toThrow(
+		'"columns" must be an integer',
+	);
+});
+
+test('pixelDissolve() rejects non-finite seed', () => {
+	expect(() => pixelDissolve({seed: Number.NaN})).toThrow(
+		'"seed" must be a finite number',
+	);
+});
+
+test('pixelDissolve() rejects feather above range', () => {
+	expect(() => pixelDissolve({feather: 1.1})).toThrow('"feather" must be <= 1');
+});
+
+test('pixelDissolve() parameters produce distinct effect keys', () => {
+	const defaultDissolve = pixelDissolve();
+	const progressed = pixelDissolve({progress: 0.7});
+	const widerGrid = pixelDissolve({columns: 12});
+	const tallerGrid = pixelDissolve({rows: 12});
+	const reseeded = pixelDissolve({seed: 3});
+	const sharper = pixelDissolve({feather: 0.05});
+
+	expect(
+		new Set([
+			defaultDissolve.effectKey,
+			progressed.effectKey,
+			widerGrid.effectKey,
+			tallerGrid.effectKey,
+			reseeded.effectKey,
+			sharper.effectKey,
+		]).size,
+	).toBe(6);
 });
 
 test('xyTranslate() accepts default params', () => {
