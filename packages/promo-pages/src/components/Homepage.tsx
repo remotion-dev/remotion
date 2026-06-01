@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import AutomationsSection from './homepage/AutomationsSection';
 import {BackgroundAnimation} from './homepage/BackgroundAnimation';
 import CommunityStats from './homepage/CommunityStats';
 import {Demo} from './homepage/Demo';
@@ -13,9 +14,7 @@ import {ParameterizeAndEdit} from './homepage/ParameterizeAndEdit';
 import {Pricing} from './homepage/Pricing';
 import {RealMP4Videos} from './homepage/RealMp4Videos';
 import TrustedByBanner from './homepage/TrustedByBanner';
-import VideoAppsShowcase, {
-	BuiltWithRemotionShowcase,
-} from './homepage/VideoAppsShowcase';
+import {BuiltWithRemotionShowcase} from './homepage/VideoAppsShowcase';
 import {SectionTitle} from './homepage/VideoAppsTitle';
 import {WriteInReact} from './homepage/WriteInReact';
 
@@ -43,7 +42,9 @@ export const NewLanding: React.FC<{
 						<br />
 						<br />
 						<br />
-						<VideoAppsShowcase />
+						<div className="pt-6 md:pt-8">
+							<AutomationsSection />
+						</div>
 						<br />
 						<br />
 						<Demo />
