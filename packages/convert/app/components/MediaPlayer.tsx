@@ -174,7 +174,6 @@ export function VideoPlayer({
 					crop ? 'border-0' : 'border-2',
 					'rounded-md',
 					crop ? 'border-transparent' : 'border-black',
-					'overflow-hidden',
 					'relative',
 				)}
 			>
