@@ -267,7 +267,7 @@ export const Combobox: React.FC<{
 			</button>
 			{portalStyle
 				? ReactDOM.createPortal(
-						<div style={fullScreenOverlay}>
+						<div style={fullScreenOverlay} onPointerDown={onHide}>
 							<div style={outerPortal} className="css-reset">
 								<HigherZIndex onOutsideClick={onHide} onEscape={onHide}>
 									<div style={portalStyle}>
