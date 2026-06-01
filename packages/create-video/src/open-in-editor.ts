@@ -108,8 +108,13 @@ const editorNames = [
 	'windsurf',
 	'Windsurf.exe',
 	'Zed.exe',
-	'Cursor.exe',
 	'zed',
+	'zedit',
+	'zeditor',
+	'zed-editor',
+	'/Applications/Zed.app/Contents/MacOS/zed',
+	'/Applications/Zed Preview.app/Contents/MacOS/zed',
+	'/Applications/Zed Preview.app/Contents/MacOS/Zed Preview',
 ] as const;
 
 const displayNameForEditor: {[key in Editor]: string} = {
@@ -165,6 +170,12 @@ const displayNameForEditor: {[key in Editor]: string} = {
 	emacs: 'emacs',
 	windsurf: 'Windsurf',
 	zed: 'Zed',
+	zedit: 'Zed',
+	zeditor: 'Zed',
+	'zed-editor': 'Zed',
+	'/Applications/Zed.app/Contents/MacOS/zed': 'Zed',
+	'/Applications/Zed Preview.app/Contents/MacOS/zed': 'Zed Preview',
+	'/Applications/Zed Preview.app/Contents/MacOS/Zed Preview': 'Zed Preview',
 	gvim: 'GVim',
 	idea: 'IDEA',
 	mvim: 'mvim',
@@ -212,6 +223,11 @@ const COMMON_EDITORS_OSX: Record<string, Editor> = {
 		'code-insiders',
 	'/Applications/VSCodium.app/Contents/MacOS/Electron': 'vscodium',
 	'/Applications/Cursor.app/Contents/MacOS/Cursor': 'cursor',
+	'/Applications/Zed.app/Contents/MacOS/zed': 'zed',
+	'/Applications/Zed Preview.app/Contents/MacOS/zed':
+		'/Applications/Zed Preview.app/Contents/MacOS/zed',
+	'/Applications/Zed Preview.app/Contents/MacOS/Zed Preview':
+		'/Applications/Zed Preview.app/Contents/MacOS/Zed Preview',
 	'/Applications/AppCode.app/Contents/MacOS/appcode':
 		'/Applications/AppCode.app/Contents/MacOS/appcode',
 	'/Applications/CLion.app/Contents/MacOS/clion':
@@ -242,6 +258,11 @@ const COMMON_EDITORS_LINUX: Record<string, Editor> = {
 	'code-insiders': 'code-insiders',
 	vscodium: 'vscodium',
 	cursor: 'cursor',
+	windsurf: 'windsurf',
+	zed: 'zed',
+	zedit: 'zedit',
+	zeditor: 'zeditor',
+	'zed-editor': 'zed-editor',
 	emacs: 'emacs',
 	gvim: 'gvim',
 	'idea.sh': 'idea',
@@ -261,6 +282,8 @@ const COMMON_EDITORS_WIN: Editor[] = [
 	'Code - Insiders.exe',
 	'VSCodium.exe',
 	'Cursor.exe',
+	'Windsurf.exe',
+	'Zed.exe',
 	'atom.exe',
 	'sublime_text.exe',
 	'notepad++.exe',
@@ -328,7 +351,18 @@ function getArgumentsForLineNumber(
 		case 'VSCodium':
 		case 'Cursor.exe':
 		case 'cursor':
+		case 'windsurf':
+		case 'Windsurf':
+		case 'Windsurf.exe':
 			return ['-g', fileName + ':' + lineNumber + ':' + colNumber];
+		case 'zed':
+		case 'zedit':
+		case 'zeditor':
+		case 'zed-editor':
+		case 'Zed':
+		case 'Zed Preview':
+		case 'Zed.exe':
+			return [fileName + ':' + lineNumber + ':' + colNumber];
 		case 'appcode':
 		case 'clion':
 		case 'clion64':
