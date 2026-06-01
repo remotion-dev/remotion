@@ -3,7 +3,9 @@ import {
 	useCallback,
 	useContext,
 	useEffect,
+	useImperativeHandle,
 	useMemo,
+	useRef,
 	useState,
 	type RefObject,
 } from 'react';
@@ -423,6 +425,10 @@ const CanvasImageInner = forwardRef<
 		}
 
 		const memoizedEffectDefinitions = useMemoizedEffectDefinitions(effects);
+		const actualRef = useRef<HTMLCanvasElement | null>(null);
+		useImperativeHandle(ref, () => {
+			return actualRef.current as HTMLCanvasElement;
+		}, []);
 
 		return (
 			<Sequence
@@ -440,10 +446,12 @@ const CanvasImageInner = forwardRef<
 				_remotionInternalEffects={memoizedEffectDefinitions}
 				_remotionInternalIsMedia={{type: 'image', src}}
 				_remotionInternalStack={stack}
-				_remotionInternalRefForOutline={_remotionInternalRefForOutline ?? null}
+				_remotionInternalRefForOutline={
+					_remotionInternalRefForOutline ?? actualRef
+				}
 			>
 				<CanvasImageContent
-					ref={ref}
+					ref={actualRef}
 					src={src}
 					width={width}
 					height={height}
