@@ -1,5 +1,7 @@
 export {splitAnsi, stripAnsi} from './ansi';
 export {
+	AddEffectRequest,
+	AddEffectResponse,
 	AddEffectKeyframeRequest,
 	AddEffectKeyframeResponse,
 	AddRenderRequest,
@@ -71,6 +73,11 @@ export {
 } from './api-requests';
 export type {ApplyVisualControlCodemod, RecastCodemod} from './codemods';
 export {DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS} from './default-buffer-state-delay-in-milliseconds';
+export {
+	EFFECT_DRAG_MIME_TYPE,
+	parseEffectDragData,
+	type EffectDragData,
+} from './effect-drag-data';
 export {EventSourceEvent} from './event-source-event';
 export {formatBytes} from './format-bytes';
 export {getAllSchemaKeys} from './get-all-keys';
