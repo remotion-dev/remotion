@@ -249,6 +249,7 @@ export type SubscribeToSequencePropsRequest = {
 	fileName: string;
 	line: number;
 	column: number;
+	nodePath: SequenceNodePath | null;
 	keys: string[];
 	effects: string[][];
 	clientId: string;
