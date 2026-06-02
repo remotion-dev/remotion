@@ -10,27 +10,33 @@ const isGeoJsonSource = (
   return Boolean(source && "setData" in source);
 };
 
-const getRemainingRoute = (targetRoute: RoutePoint[], index: number) => {
-  const remainingRoute = targetRoute.slice(index);
-
-  if (remainingRoute.length >= 2) {
-    return remainingRoute;
+const getRemainingRoute = (targetRoute: RoutePoint[]) => {
+  if (targetRoute.length >= 2) {
+    return targetRoute;
   }
 
   return targetRoute.slice(-2);
 };
 
-export const moveMap = (map: Map, targetRoute: RoutePoint[], index: number) => {
+export const moveMapToPoint = ({
+  currentPoint,
+  map,
+  route,
+}: {
+  currentPoint: RoutePoint | undefined;
+  map: Map;
+  route: RoutePoint[];
+}) => {
   const cameraAltitude = 4000;
-  const currentPoint = targetRoute[index];
 
   if (!currentPoint) {
-    throw new Error(`No route point found for index ${index}`);
+    throw new Error("No route point found");
   }
 
+  const targetRoute = [currentPoint, ...route.slice(1)];
   const futurePoint = findFuturePointWithMinimumDistancePassedSinceThen({
     currentPoint,
-    index,
+    index: 0,
     minimumDistanceInKm: 0.025,
     targetRoute,
   });
@@ -48,48 +54,48 @@ export const moveMap = (map: Map, targetRoute: RoutePoint[], index: number) => {
     cameraAltitude,
   );
 
-  map.setCenter({
-    lat: currentPoint.latitude,
-    lng: currentPoint.longitude,
-  });
-  map.setBearing(bearing);
-
-  const point = map.getSource("currentpoint");
-
-  if (isGeoJsonSource(point)) {
-    point.setData({
-      type: "Feature",
-      properties: {},
-      geometry: {
-        type: "Point",
-        coordinates: [currentPoint.longitude, currentPoint.latitude],
-      },
-    });
-  }
-
-  const line = map.getSource("trace");
-
-  if (isGeoJsonSource(line)) {
-    line.setData({
-      type: "Feature",
-      properties: {},
-      geometry: {
-        type: "LineString",
-        coordinates: getRemainingRoute(targetRoute, index).map((point) => [
-          point.longitude,
-          point.latitude,
-        ]),
-      },
-    });
-  }
-
-  map.setZoom(MAP_ZOOM);
-  map.setPitch(60);
-  map.resize();
-
   return new Promise<void>((resolve) => {
     map.once("idle", () => {
       resolve();
     });
+
+    map.setCenter({
+      lat: currentPoint.latitude,
+      lng: currentPoint.longitude,
+    });
+    map.setBearing(bearing);
+
+    const point = map.getSource("currentpoint");
+
+    if (isGeoJsonSource(point)) {
+      point.setData({
+        type: "Feature",
+        properties: {},
+        geometry: {
+          type: "Point",
+          coordinates: [currentPoint.longitude, currentPoint.latitude],
+        },
+      });
+    }
+
+    const line = map.getSource("trace");
+
+    if (isGeoJsonSource(line)) {
+      line.setData({
+        type: "Feature",
+        properties: {},
+        geometry: {
+          type: "LineString",
+          coordinates: getRemainingRoute(targetRoute).map((point) => [
+            point.longitude,
+            point.latitude,
+          ]),
+        },
+      });
+    }
+
+    map.setZoom(MAP_ZOOM);
+    map.setPitch(60);
+    map.resize();
   });
 };

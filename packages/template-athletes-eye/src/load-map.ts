@@ -18,16 +18,29 @@ const getMapboxToken = () => {
 };
 
 const addImage = (map: Map, name: string, path: string) => {
-  map.loadImage(staticFile(path), (err, image) => {
-    if (err) {
-      throw err;
+  return new Promise<void>((resolve, reject) => {
+    if (map.hasImage(name)) {
+      resolve();
+      return;
     }
 
-    if (!image) {
-      throw new Error(`Could not load map image "${path}"`);
-    }
+    map.loadImage(staticFile(path), (err, image) => {
+      if (err) {
+        reject(err);
+        return;
+      }
 
-    map.addImage(name, image);
+      if (!image) {
+        reject(new Error(`Could not load map image "${path}"`));
+        return;
+      }
+
+      if (!map.hasImage(name)) {
+        map.addImage(name, image);
+      }
+
+      resolve();
+    });
   });
 };
 
@@ -53,7 +66,7 @@ const routePointToPoint = (point: RoutePoint) => {
   };
 };
 
-export const loadMap = (targetRoute: RoutePoint[]) => {
+export const loadMap = (targetRoute: RoutePoint[], container: HTMLElement) => {
   const firstPoint = targetRoute[0];
   const lastPoint = targetRoute[targetRoute.length - 1];
 
@@ -66,7 +79,7 @@ export const loadMap = (targetRoute: RoutePoint[]) => {
   const map = new mapboxgl.Map({
     bearing: -180,
     center: [firstPoint.longitude, firstPoint.latitude],
-    container: "map",
+    container,
     fadeDuration: 0,
     interactive: false,
     pitch: 65,
@@ -74,101 +87,104 @@ export const loadMap = (targetRoute: RoutePoint[]) => {
     zoom: MAP_ZOOM,
   });
 
-  addImage(map, "location", "location.png");
-  addImage(map, "end", "end.png");
-  addImage(map, "poi", "poi.png");
+  return new Promise<Map>((resolve, reject) => {
+    map.once("load", () => {
+      Promise.all([
+        addImage(map, "location", "location.png"),
+        addImage(map, "end", "end.png"),
+        addImage(map, "poi", "poi.png"),
+      ])
+        .then(() => {
+          map.addSource("trace", {
+            data: routeToLineString(targetRoute),
+            type: "geojson",
+          });
+          map.addSource("currentpoint", {
+            data: routePointToPoint(firstPoint),
+            type: "geojson",
+          });
+          map.addSource("endpoint", {
+            data: routePointToPoint(lastPoint),
+            type: "geojson",
+          });
 
-  map.on("style.load", () => {
-    map.addSource("trace", {
-      data: routeToLineString(targetRoute),
-      type: "geojson",
-    });
-    map.addSource("currentpoint", {
-      data: routePointToPoint(firstPoint),
-      type: "geojson",
-    });
-    map.addSource("endpoint", {
-      data: routePointToPoint(lastPoint),
-      type: "geojson",
-    });
+          const beforeLayerId = map.getLayer("building-extrusion")
+            ? "building-extrusion"
+            : undefined;
 
-    const beforeLayerId = map.getLayer("building-extrusion")
-      ? "building-extrusion"
-      : undefined;
+          map.addLayer(
+            {
+              id: "linestroke",
+              layout: {
+                "line-cap": "round",
+                "line-join": "round",
+              },
+              paint: {
+                "line-color": "#004DE8",
+                "line-width": 30,
+              },
+              source: "trace",
+              type: "line",
+            },
+            beforeLayerId,
+          );
+          map.addLayer(
+            {
+              id: "line",
+              layout: {
+                "line-cap": "round",
+                "line-join": "round",
+              },
+              paint: {
+                "line-color": "#0D96FF",
+                "line-width": 20,
+              },
+              source: "trace",
+              type: "line",
+            },
+            beforeLayerId,
+          );
+          map.addLayer({
+            id: "endpoint",
+            layout: {
+              "icon-allow-overlap": true,
+              "icon-image": "end",
+              "icon-pitch-alignment": "map",
+              "icon-size": 0.6,
+            },
+            source: "endpoint",
+            type: "symbol",
+          });
+          map.addLayer({
+            id: "currentpoint",
+            layout: {
+              "icon-allow-overlap": true,
+              "icon-image": "location",
+              "icon-pitch-alignment": "map",
+              "icon-size": 0.75,
+            },
+            source: "currentpoint",
+            type: "symbol",
+          });
 
-    map.addLayer(
-      {
-        id: "linestroke",
-        layout: {
-          "line-cap": "round",
-          "line-join": "round",
-        },
-        paint: {
-          "line-color": "#004DE8",
-          "line-width": 30,
-        },
-        source: "trace",
-        type: "line",
-      },
-      beforeLayerId,
-    );
-    map.addLayer(
-      {
-        id: "line",
-        layout: {
-          "line-cap": "round",
-          "line-join": "round",
-        },
-        paint: {
-          "line-color": "#0D96FF",
-          "line-width": 20,
-        },
-        source: "trace",
-        type: "line",
-      },
-      beforeLayerId,
-    );
-    map.addLayer({
-      id: "endpoint",
-      layout: {
-        "icon-allow-overlap": true,
-        "icon-image": "end",
-        "icon-pitch-alignment": "map",
-        "icon-size": 0.6,
-      },
-      source: "endpoint",
-      type: "symbol",
-    });
-    map.addLayer({
-      id: "currentpoint",
-      layout: {
-        "icon-allow-overlap": true,
-        "icon-image": "location",
-        "icon-pitch-alignment": "map",
-        "icon-size": 0.75,
-      },
-      source: "currentpoint",
-      type: "symbol",
-    });
+          for (const layer of map.getStyle().layers ?? []) {
+            if (
+              layer.id === "currentpoint" ||
+              layer.id === "endpoint" ||
+              layer.id === "line" ||
+              layer.id === "linestroke" ||
+              layer.type === "symbol"
+            ) {
+              continue;
+            }
 
-    for (const layer of map.getStyle().layers ?? []) {
-      if (
-        layer.id === "currentpoint" ||
-        layer.id === "endpoint" ||
-        layer.id === "line" ||
-        layer.id === "linestroke" ||
-        layer.type === "symbol"
-      ) {
-        continue;
-      }
-
-      map.setPaintProperty(layer.id, `${layer.type}-opacity`, 0.3);
-    }
-  });
-
-  return new Promise<Map>((resolve) => {
-    map.on("load", () => {
-      resolve(map);
+            map.setPaintProperty(layer.id, `${layer.type}-opacity`, 0.3);
+          }
+          resolve(map);
+        })
+        .catch((err: unknown) => {
+          reject(err);
+        });
     });
   });
 };

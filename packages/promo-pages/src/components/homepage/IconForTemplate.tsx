@@ -1,5 +1,6 @@
 import type {Template} from 'create-video';
 import React from 'react';
+import {AthletesEyeIcon} from '../icons/athletes-eye';
 import {Blank} from '../icons/blank';
 import {BrainIcon} from '../icons/brain';
 import {CodeHike} from '../icons/code-hike';
@@ -107,7 +108,7 @@ export const IconForTemplate: React.FC<{
 	}
 
 	if (template.cliId === 'athletes-eye') {
-		return <OverlayIcon style={{height: scale * 42}} />;
+		return <AthletesEyeIcon style={{height: scale * 42}} />;
 	}
 
 	if (template.cliId === 'react-router') {

@@ -1,9 +1,9 @@
 import type { Map } from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
-import { useEffect, useLayoutEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { AbsoluteFill, continueRender, delayRender } from "remotion";
 import { loadMap } from "./load-map";
-import { moveMap } from "./move-map";
+import { moveMapToPoint } from "./move-map";
 import type { RoutePoint } from "./route-utils";
 
 const toError = (err: unknown) => {
@@ -11,19 +11,28 @@ const toError = (err: unknown) => {
 };
 
 export const RouteMap: React.FC<{
-  route: RoutePoint[];
-  index: number;
-}> = ({ route, index }) => {
+  currentPoint: RoutePoint;
+  remainingRoute: RoutePoint[];
+}> = ({ currentPoint, remainingRoute }) => {
   const [handle] = useState(() => delayRender("Loading map..."));
+  const [initialRoute] = useState(() => remainingRoute);
   const [map, setMap] = useState<Map | null>(null);
   const [error, setError] = useState<Error | null>(null);
+  const mapContainer = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let isMounted = true;
     let loadedMap: Map | null = null;
+    const container = mapContainer.current;
+
+    if (!container) {
+      continueRender(handle);
+      setError(new Error("Could not find map container"));
+      return;
+    }
 
     try {
-      loadMap(route)
+      loadMap(initialRoute, container)
         .then((_map) => {
           loadedMap = _map;
           continueRender(handle);
@@ -53,7 +62,7 @@ export const RouteMap: React.FC<{
       isMounted = false;
       loadedMap?.remove();
     };
-  }, [handle, route]);
+  }, [handle, initialRoute]);
 
   useLayoutEffect(() => {
     if (!map) {
@@ -63,7 +72,11 @@ export const RouteMap: React.FC<{
     const moveHandle = delayRender("Moving point...");
 
     try {
-      moveMap(map, route, index)
+      moveMapToPoint({
+        currentPoint,
+        map,
+        route: remainingRoute,
+      })
         .then(() => {
           continueRender(moveHandle);
         })
@@ -75,11 +88,21 @@ export const RouteMap: React.FC<{
       continueRender(moveHandle);
       setError(toError(err));
     }
-  }, [index, map, route]);
+  }, [currentPoint, map, remainingRoute]);
 
   if (error) {
     throw error;
   }
 
-  return <AbsoluteFill id="map" />;
+  return (
+    <AbsoluteFill>
+      <div
+        ref={mapContainer}
+        style={{
+          height: "100%",
+          width: "100%",
+        }}
+      />
+    </AbsoluteFill>
+  );
 };

@@ -138,6 +138,7 @@ export const getRouteProgress = (route: RoutePoint[], progress: number) => {
   };
 
   const completedRoute = [...route.slice(0, startIndex + 1), currentPoint];
+  const remainingRoute = [currentPoint, ...route.slice(endIndex)];
   const completedStats = getRouteStats(completedRoute);
   const seconds =
     start.time === null || end.time === null
@@ -152,6 +153,7 @@ export const getRouteProgress = (route: RoutePoint[], progress: number) => {
     completedRoute,
     currentPoint,
     distanceInKm: completedStats.distanceInKm,
+    remainingRoute,
     speedInKmh,
   };
 };

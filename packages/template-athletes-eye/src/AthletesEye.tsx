@@ -138,10 +138,6 @@ export const AthletesEye: React.FC<AthletesEyeProps> = ({
       extrapolateRight: "clamp",
     },
   );
-  const currentRouteIndex = Math.min(
-    route.length - 1,
-    Math.floor(progress * (route.length - 1)),
-  );
 
   return (
     <AbsoluteFill
@@ -175,7 +171,11 @@ export const AthletesEye: React.FC<AthletesEyeProps> = ({
           top: "60%",
         }}
       >
-        <RouteMap index={currentRouteIndex} route={route} />
+        <RouteMap
+          currentPoint={routeProgress.currentPoint}
+          key={gpxSrc}
+          remainingRoute={routeProgress.remainingRoute}
+        />
       </AbsoluteFill>
       <AbsoluteFill
         style={{
