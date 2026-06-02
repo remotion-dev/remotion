@@ -7,6 +7,7 @@ import type React from 'react';
 import {useContext, useEffect} from 'react';
 import {Internals, type SequencePropsSubscriptionKey} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
+import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {callApi} from '../call-api';
 import {showNotification} from '../Notifications/NotificationCenter';
@@ -28,18 +29,71 @@ const makeTargetKey = (nodePath: SequencePropsSubscriptionKey): string => {
 	});
 };
 
-const getTargetSequenceNodePath = (
+export type PasteEffectsTarget =
+	| {
+			readonly type: 'valid';
+			readonly nodePathInfo: SequenceNodePathInfo;
+	  }
+	| {
+			readonly type: 'none';
+	  }
+	| {
+			readonly type: 'multiple';
+	  }
+	| {
+			readonly type: 'unsupported';
+	  };
+
+const getTargetSequenceNodePathInfo = (
 	selection: TimelineSelection,
-): SequencePropsSubscriptionKey | null => {
+): SequenceNodePathInfo | null => {
 	if (
 		selection.type === 'sequence' ||
 		selection.type === 'sequence-effect' ||
 		selection.type === 'sequence-all-effects'
 	) {
-		return selection.nodePathInfo.sequenceSubscriptionKey;
+		return selection.nodePathInfo;
 	}
 
 	return null;
+};
+
+export const getPasteEffectsTarget = (
+	selectedItems: readonly TimelineSelection[],
+): PasteEffectsTarget => {
+	const targetNodePathInfos = selectedItems
+		.map(getTargetSequenceNodePathInfo)
+		.filter(
+			(targetNodePathInfo): targetNodePathInfo is SequenceNodePathInfo =>
+				targetNodePathInfo !== null,
+		);
+	const uniqueTargetKeys = new Set(
+		targetNodePathInfos.map((targetNodePathInfo) =>
+			makeTargetKey(targetNodePathInfo.sequenceSubscriptionKey),
+		),
+	);
+
+	if (uniqueTargetKeys.size === 0) {
+		return {type: 'none'};
+	}
+
+	if (uniqueTargetKeys.size !== 1) {
+		return {type: 'multiple'};
+	}
+
+	const [nodePathInfo] = targetNodePathInfos;
+	if (!nodePathInfo) {
+		return {type: 'none'};
+	}
+
+	if (!nodePathInfo.supportsEffects) {
+		return {type: 'unsupported'};
+	}
+
+	return {
+		type: 'valid',
+		nodePathInfo,
+	};
 };
 
 type CopyableEffectStatus = {
@@ -237,17 +291,8 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 
 						e.preventDefault();
 
-						const targetNodePaths = selectedItems
-							.map(getTargetSequenceNodePath)
-							.filter(
-								(nodePath): nodePath is SequencePropsSubscriptionKey =>
-									nodePath !== null,
-							);
-						const uniqueTargetKeys = new Set(
-							targetNodePaths.map(makeTargetKey),
-						);
-
-						if (uniqueTargetKeys.size !== 1) {
+						const target = getPasteEffectsTarget(selectedItems);
+						if (target.type === 'multiple') {
 							showNotification(
 								'Select one target sequence to paste effects',
 								3000,
@@ -255,12 +300,18 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 							return;
 						}
 
-						const [targetSequenceNodePath] = targetNodePaths;
-						if (!targetSequenceNodePath) {
+						if (target.type === 'none') {
 							showNotification('Select a sequence to paste effects onto', 3000);
 							return;
 						}
 
+						if (target.type === 'unsupported') {
+							showNotification('This sequence does not support effects', 3000);
+							return;
+						}
+
+						const {sequenceSubscriptionKey: targetSequenceNodePath} =
+							target.nodePathInfo;
 						return callApi('/api/paste-effects', {
 							targetFileName: targetSequenceNodePath.absolutePath,
 							targetSequenceNodePath,

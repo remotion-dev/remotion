@@ -19,6 +19,10 @@ import {deleteSelectedTimelineItems} from '../components/Timeline/delete-selecte
 import {isDuplicatableSequenceRowSelection} from '../components/Timeline/duplicate-selected-timeline-item';
 import {getTimelinePropResetTargets} from '../components/Timeline/reset-selected-timeline-props';
 import {
+	getPasteEffectsTarget,
+	type PasteEffectsTarget,
+} from '../components/Timeline/TimelineClipboardKeybindings';
+import {
 	ENABLE_OUTLINES,
 	getSelectableTimelineSequenceSelections,
 	getTimelineSelectionAfterInteraction,
@@ -40,11 +44,13 @@ const makeKey = (nodePath: SequenceNodePath): SequencePropsSubscriptionKey => ({
 const makeNodePathInfo = (
 	nodePath: SequenceNodePath,
 	auxiliaryKeys: string[],
+	supportsEffects = true,
 ): SequenceNodePathInfo => ({
 	sequenceSubscriptionKey: makeKey(nodePath),
 	auxiliaryKeys,
 	index: 0,
 	numberOfSequencesWithThisNodePath: 1,
+	supportsEffects,
 });
 
 const makeTimelineSequence = ({
@@ -73,6 +79,7 @@ const makeTimelineSequence = ({
 			schema,
 			currentRuntimeValueDotNotation: {},
 			overrideId: 'override',
+			supportsEffects: true,
 		},
 		refForOutline: null,
 		effects,
@@ -80,6 +87,31 @@ const makeTimelineSequence = ({
 
 test('Timeline selection should stay disabled until released publicly', () => {
 	expect(SELECTION_ENABLED).toBe(false);
+});
+
+test('pasting effects is blocked for sequences that do not support effects', () => {
+	const unsupportedSequenceNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		[],
+		false,
+	);
+	const supportedSequenceNodePathInfo = makeNodePathInfo(['body', 1], [], true);
+
+	expect(
+		getPasteEffectsTarget([
+			{type: 'sequence', nodePathInfo: unsupportedSequenceNodePathInfo},
+		]),
+	).toEqual({
+		type: 'unsupported',
+	} satisfies PasteEffectsTarget);
+	expect(
+		getPasteEffectsTarget([
+			{type: 'sequence', nodePathInfo: supportedSequenceNodePathInfo},
+		]),
+	).toEqual({
+		type: 'valid',
+		nodePathInfo: supportedSequenceNodePathInfo,
+	} satisfies PasteEffectsTarget);
 });
 
 test('Timeline top drag should not be enabled', () => {
