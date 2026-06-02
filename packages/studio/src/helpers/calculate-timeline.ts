@@ -1,12 +1,5 @@
 import {stringifySequenceSubscriptionKey} from '@remotion/studio-shared';
-import type {
-	CodeValues,
-	GetDragOverrides,
-	LoopDisplay,
-	OverrideIdToNodePaths,
-	TSequence,
-} from 'remotion';
-import {Internals} from 'remotion';
+import type {LoopDisplay, OverrideIdToNodePaths, TSequence} from 'remotion';
 import {
 	getCascadedStart,
 	getTimelineVisibleDuration,
@@ -41,77 +34,14 @@ const getInheritedLoopDisplay = (
 	return getInheritedLoopDisplay(parent, sequences);
 };
 
-const getEffectiveDurationInFrames = ({
-	sequence,
-	codeValues,
-	getDragOverrides,
-	overrideIdsToNodePaths,
-}: {
-	sequence: TSequence;
-	codeValues: CodeValues;
-	getDragOverrides: GetDragOverrides;
-	overrideIdsToNodePaths: OverrideIdToNodePaths;
-}): number => {
-	if (sequence.type !== 'sequence') {
-		return sequence.duration;
-	}
-
-	const overrideId = sequence.controls?.overrideId ?? null;
-	if (!overrideId) {
-		return sequence.duration;
-	}
-
-	const nodePath = overrideIdsToNodePaths[overrideId];
-	if (!nodePath) {
-		return sequence.duration;
-	}
-
-	const dragValue = getDragOverrides(nodePath)?.durationInFrames;
-	if (typeof dragValue === 'number' && Number.isFinite(dragValue)) {
-		return Math.max(1, dragValue);
-	}
-
-	const codeValuesForOverride = Internals.getCodeValuesCtx(
-		codeValues,
-		nodePath,
-	);
-	const codeValue = codeValuesForOverride?.durationInFrames;
-	if (codeValue && codeValue.canUpdate) {
-		const value = codeValue.codeValue;
-		if (typeof value === 'number' && Number.isFinite(value)) {
-			return Math.max(1, value);
-		}
-	}
-
-	return sequence.duration;
-};
-
 export const calculateTimeline = ({
 	sequences,
 	overrideIdsToNodePaths,
-	codeValues = {},
-	getDragOverrides = () => ({}),
 }: {
 	sequences: TSequence[];
 	overrideIdsToNodePaths: OverrideIdToNodePaths;
-	codeValues?: CodeValues;
-	getDragOverrides?: GetDragOverrides;
 }): TrackWithHash[] => {
-	const sortedSequences = sortItemsByNonceHistory(sequences).map(
-		(sequence): TSequence => {
-			const effectiveDuration = getEffectiveDurationInFrames({
-				sequence,
-				codeValues,
-				getDragOverrides,
-				overrideIdsToNodePaths,
-			});
-			if (effectiveDuration === sequence.duration) {
-				return sequence;
-			}
-
-			return {...sequence, duration: effectiveDuration};
-		},
-	);
+	const sortedSequences = sortItemsByNonceHistory(sequences);
 	const tracks: TrackWithHashAndOriginalTimings[] = [];
 
 	if (sortedSequences.length === 0) {

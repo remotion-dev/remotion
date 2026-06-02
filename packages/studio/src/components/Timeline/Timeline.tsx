@@ -177,10 +177,6 @@ const TimelineInner: React.FC = () => {
 	const {overrideIdToNodePathMappings} = useContext(
 		Internals.OverrideIdsToNodePathsGettersContext,
 	);
-	const {codeValues} = useContext(Internals.VisualModeCodeValuesContext);
-	const {getDragOverrides} = useContext(
-		Internals.VisualModeDragOverridesContext,
-	);
 
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 
@@ -196,16 +192,8 @@ const TimelineInner: React.FC = () => {
 		return calculateTimeline({
 			sequences,
 			overrideIdsToNodePaths: overrideIdToNodePathMappings,
-			codeValues,
-			getDragOverrides,
 		});
-	}, [
-		videoConfigIsNull,
-		sequences,
-		overrideIdToNodePathMappings,
-		codeValues,
-		getDragOverrides,
-	]);
+	}, [sequences, videoConfigIsNull, overrideIdToNodePathMappings]);
 
 	const durationInFrames = videoConfig?.durationInFrames ?? 0;
 
