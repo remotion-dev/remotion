@@ -34,8 +34,6 @@ export const halftoneSchema = {
 	},
 	rotation: {
 		type: 'rotation-degrees',
-		min: -180,
-		max: 180,
 		step: 1,
 		default: 0,
 		description: 'Rotation',
