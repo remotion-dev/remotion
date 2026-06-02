@@ -4,8 +4,6 @@ import type {
 	Expression,
 	File,
 	FunctionDeclaration,
-	ImportDeclaration,
-	ImportSpecifier,
 	JSXAttribute,
 	JSXOpeningElement,
 	ObjectExpression,
@@ -15,6 +13,7 @@ import type {
 import {stringifyDefaultProps} from '@remotion/studio-shared';
 import * as recast from 'recast';
 import type {SequenceNodePath} from 'remotion';
+import {ensureNamedImport} from '../helpers/imports';
 import {findJsxElementAtNodePath} from '../preview-server/routes/can-update-sequence-props';
 import {formatFileContent} from './format-file-content';
 import {parseAst, serializeAst} from './parse-ast';
@@ -57,14 +56,6 @@ const parseValueExpression = (value: unknown): Expression => {
 	}
 
 	return stmt.expression.right as Expression;
-};
-
-const getImportedName = (specifier: ImportSpecifier) => {
-	if (specifier.imported.type === 'Identifier') {
-		return specifier.imported.name;
-	}
-
-	return specifier.imported.value;
 };
 
 const declarationBindsName = (
@@ -115,21 +106,6 @@ const hasTopLevelBinding = ({ast, name}: {ast: File; name: string}) => {
 	});
 };
 
-const insertImportDeclaration = (
-	ast: File,
-	importDeclaration: ImportDeclaration,
-) => {
-	const {body} = ast.program;
-	let lastImportIndex = -1;
-	for (let i = 0; i < body.length; i++) {
-		if (body[i].type === 'ImportDeclaration') {
-			lastImportIndex = i;
-		}
-	}
-
-	body.splice(lastImportIndex + 1, 0, importDeclaration);
-};
-
 const getAvailableLocalName = ({
 	ast,
 	effectName,
@@ -165,57 +141,13 @@ export const ensureEffectImport = ({
 	effectName: string;
 	effectImportPath: string;
 }) => {
-	let importDeclaration: ImportDeclaration | null = null;
-
-	for (const node of ast.program.body) {
-		if (
-			node.type !== 'ImportDeclaration' ||
-			node.source.value !== effectImportPath
-		) {
-			continue;
-		}
-
-		importDeclaration = node;
-		const matchingSpecifier = node.specifiers?.find((importSpecifier) => {
-			return (
-				importSpecifier.type === 'ImportSpecifier' &&
-				getImportedName(importSpecifier) === effectName
-			);
-		});
-
-		if (matchingSpecifier?.local?.name) {
-			return matchingSpecifier.local.name;
-		}
-	}
-
 	const localName = getAvailableLocalName({ast, effectName});
-	const imported = b.identifier(effectName);
-	const local = localName === effectName ? null : b.identifier(localName);
-	const specifier = b.importSpecifier(
-		imported,
-		local,
-	) as unknown as ImportSpecifier;
-
-	if (
-		importDeclaration &&
-		!importDeclaration.specifiers?.some(
-			(importSpecifier) => importSpecifier.type === 'ImportNamespaceSpecifier',
-		)
-	) {
-		importDeclaration.specifiers = [
-			...(importDeclaration.specifiers ?? []),
-			specifier,
-		];
-		return localName;
-	}
-
-	const newImport = b.importDeclaration(
-		[],
-		b.stringLiteral(effectImportPath),
-	) as unknown as ImportDeclaration;
-	newImport.specifiers = [specifier];
-	insertImportDeclaration(ast, newImport);
-	return localName;
+	return ensureNamedImport({
+		ast,
+		importedName: effectName,
+		sourcePath: effectImportPath,
+		localName,
+	});
 };
 
 const getEffectsArray = (attr: JSXAttribute): ArrayExpression => {
