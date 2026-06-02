@@ -10,9 +10,9 @@ export const parseAst = (input: string) => {
 };
 
 export const serializeAst = (ast: File) => {
-	return normalizeImportSpacing(
-		recast.print(ast, {
-			parser: tsParser,
-		}).code,
-	);
+	const raw = recast.print(ast, {
+		parser: tsParser,
+	}).code;
+	// Normalize Windows line endings so normalizeImportSpacing regex works
+	return normalizeImportSpacing(raw.replace(/\r\n/g, '\n'));
 };
