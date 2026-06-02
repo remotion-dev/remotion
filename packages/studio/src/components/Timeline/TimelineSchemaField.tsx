@@ -1,7 +1,7 @@
 import React from 'react';
 import type {
 	CanUpdateSequencePropStatusFalse,
-	CanUpdaterSequencePropStatusStatic,
+	CanUpdateSequencePropStatusStatic,
 } from 'remotion';
 import type {
 	SchemaFieldInfo,
@@ -26,12 +26,6 @@ const unsupportedLabel: React.CSSProperties = {
 	WebkitUserSelect: 'none',
 };
 
-const notEditableBackground: React.CSSProperties = {
-	backgroundColor: 'rgba(255, 0, 0, 0.2)',
-	borderRadius: 3,
-	padding: '0 4px',
-};
-
 const inlineWrapper: React.CSSProperties = {
 	fontSize: 12,
 };
@@ -45,11 +39,7 @@ export const UnsupportedStatus: React.FC<{
 export const TimelineNonEditableStatus: React.FC<{
 	readonly propStatus: CanUpdateSequencePropStatusFalse;
 }> = ({propStatus}) => {
-	if (propStatus.canUpdate) {
-		return null;
-	}
-
-	if (propStatus.reason === 'computed') {
+	if (propStatus.status === 'computed') {
 		return (
 			<span style={unsupportedLabel}>{getComputedStatusLabel(propStatus)}</span>
 		);
@@ -61,7 +51,7 @@ export const TimelineFieldValue: React.FC<{
 	readonly onSave: TimelineFieldOnSave;
 	readonly onDragValueChange: TimelineFieldOnDragValueChange;
 	readonly onDragEnd: () => void;
-	readonly propStatus: CanUpdaterSequencePropStatusStatic;
+	readonly propStatus: CanUpdateSequencePropStatusStatic;
 	readonly effectiveValue: unknown;
 }> = ({
 	field,
@@ -71,13 +61,9 @@ export const TimelineFieldValue: React.FC<{
 	propStatus,
 	effectiveValue,
 }) => {
-	const wrapperStyle: React.CSSProperties | undefined = !propStatus.canUpdate
-		? notEditableBackground
-		: undefined;
-
 	if (field.typeName === 'number') {
 		return (
-			<span style={wrapperStyle}>
+			<span>
 				<TimelineNumberField
 					field={field}
 					effectiveValue={effectiveValue}
@@ -95,7 +81,7 @@ export const TimelineFieldValue: React.FC<{
 		field.typeName === 'rotation-degrees'
 	) {
 		return (
-			<span style={wrapperStyle}>
+			<span>
 				<TimelineRotationField
 					field={field}
 					effectiveValue={effectiveValue}
@@ -110,7 +96,7 @@ export const TimelineFieldValue: React.FC<{
 
 	if (field.typeName === 'translate') {
 		return (
-			<span style={wrapperStyle}>
+			<span>
 				<TimelineTranslateField
 					field={field}
 					effectiveValue={effectiveValue}
@@ -125,7 +111,7 @@ export const TimelineFieldValue: React.FC<{
 
 	if (field.typeName === 'scale') {
 		return (
-			<span style={wrapperStyle}>
+			<span>
 				<TimelineScaleField
 					field={field}
 					effectiveValue={effectiveValue}
@@ -140,7 +126,7 @@ export const TimelineFieldValue: React.FC<{
 
 	if (field.typeName === 'uv-coordinate') {
 		return (
-			<span style={wrapperStyle}>
+			<span>
 				<TimelineUvCoordinateField
 					field={field}
 					effectiveValue={effectiveValue}
@@ -155,7 +141,7 @@ export const TimelineFieldValue: React.FC<{
 
 	if (field.typeName === 'boolean') {
 		return (
-			<span style={wrapperStyle}>
+			<span>
 				<TimelineBooleanField
 					field={field}
 					propStatus={propStatus}
@@ -168,7 +154,7 @@ export const TimelineFieldValue: React.FC<{
 
 	if (field.typeName === 'color') {
 		return (
-			<span style={wrapperStyle}>
+			<span>
 				<TimelineColorField
 					field={field}
 					propStatus={propStatus}

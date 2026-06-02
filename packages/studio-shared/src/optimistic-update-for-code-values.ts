@@ -22,7 +22,7 @@ export const optimisticUpdateForCodeValues = ({
 
 	const props: Record<string, CanUpdateSequencePropStatus> = {
 		...previous.props,
-		[fieldKey]: {canUpdate: true, codeValue: value, keyframed: false},
+		[fieldKey]: {status: 'static', codeValue: value},
 	};
 
 	if (schema[fieldKey]?.type === 'enum') {

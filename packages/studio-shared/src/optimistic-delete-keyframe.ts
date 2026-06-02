@@ -10,7 +10,7 @@ const removeKeyframeFromPropStatus = ({
 	status: CanUpdateSequencePropStatus;
 	frame: number;
 }): CanUpdateSequencePropStatus => {
-	if (!('keyframes' in status)) {
+	if (status.status !== 'keyframed') {
 		return status;
 	}
 
@@ -22,9 +22,8 @@ const removeKeyframeFromPropStatus = ({
 	const keyframes = status.keyframes.filter((_, i) => i !== index);
 	if (keyframes.length === 0) {
 		return {
-			canUpdate: true,
+			status: 'static',
 			codeValue: status.keyframes[index].value,
-			keyframed: false,
 		};
 	}
 

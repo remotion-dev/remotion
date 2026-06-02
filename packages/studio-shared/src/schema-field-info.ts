@@ -147,7 +147,7 @@ export const getEffectFieldsToShow = ({
 		}
 
 		const propStatus = effectStatus.props[key];
-		if (!propStatus || !propStatus.canUpdate) {
+		if (propStatus?.status !== 'static') {
 			return undefined;
 		}
 

@@ -1,5 +1,5 @@
 import React, {useCallback, useMemo, useRef, useState} from 'react';
-import type {CanUpdateSequencePropStatus} from 'remotion';
+import type {CanUpdateSequencePropStatusStatic} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {LIGHT_COLOR} from '../../helpers/colors';
 import type {
@@ -142,7 +142,7 @@ const LinkToggle: React.FC<{
 
 export const TimelineScaleField: React.FC<{
 	readonly field: SchemaFieldInfo;
-	readonly propStatus: CanUpdateSequencePropStatus;
+	readonly propStatus: CanUpdateSequencePropStatusStatic;
 	readonly effectiveValue: unknown;
 	readonly onSave: TimelineFieldOnSave;
 	readonly onDragValueChange: TimelineFieldOnDragValueChange;
@@ -260,10 +260,7 @@ export const TimelineScaleField: React.FC<{
 				onDragEnd();
 			};
 
-			if (
-				propStatus.canUpdate &&
-				!valuesEqual(newScale, propStatus.codeValue)
-			) {
+			if (!valuesEqual(newScale, propStatus.codeValue)) {
 				onSave(newScale).finally(clearDragState);
 			} else {
 				clearDragState();
@@ -285,10 +282,6 @@ export const TimelineScaleField: React.FC<{
 
 	const onXTextChange = useCallback(
 		(newVal: string) => {
-			if (!propStatus.canUpdate) {
-				return;
-			}
-
 			const parsed = Number(newVal);
 			if (Number.isNaN(parsed)) {
 				return;
@@ -373,10 +366,7 @@ export const TimelineScaleField: React.FC<{
 				onDragEnd();
 			};
 
-			if (
-				propStatus.canUpdate &&
-				!valuesEqual(newScale, propStatus.codeValue)
-			) {
+			if (!valuesEqual(newScale, propStatus.codeValue)) {
 				onSave(newScale).finally(clearDragState);
 			} else {
 				clearDragState();
@@ -398,10 +388,6 @@ export const TimelineScaleField: React.FC<{
 
 	const onYTextChange = useCallback(
 		(newVal: string) => {
-			if (!propStatus.canUpdate) {
-				return;
-			}
-
 			const parsed = Number(newVal);
 			if (Number.isNaN(parsed)) {
 				return;

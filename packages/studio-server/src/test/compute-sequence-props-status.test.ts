@@ -45,20 +45,17 @@ test('canUpdateSequenceProps should flag computed props', () => {
 	}
 
 	expect(result.props.durationInFrames).toEqual({
-		canUpdate: true,
+		status: 'static',
 		codeValue: 60,
-		keyframed: false,
 	});
 	expect(result.props.hueShift).toEqual({
-		canUpdate: true,
+		status: 'static',
 		codeValue: 30,
-		keyframed: false,
 	});
-	expect(result.props.seed).toEqual({canUpdate: false, reason: 'computed'});
+	expect(result.props.seed).toEqual({status: 'computed'});
 	expect(result.props.nonExistentProp).toEqual({
-		canUpdate: true,
+		status: 'static',
 		codeValue: undefined,
-		keyframed: false,
 	});
 });
 
@@ -84,9 +81,8 @@ export const Example: React.FC = () => {
 	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
 
 	expect(result.props.color).toEqual({
-		canUpdate: true,
+		status: 'keyframed',
 		codeValue: undefined,
-		keyframed: true,
 		interpolationFunction: 'interpolateColors',
 		keyframes: [
 			{frame: 0, value: 'red'},
@@ -130,14 +126,12 @@ test('computeSequencePropsStatus should detect static nested props', () => {
 	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
 
 	expect(result.props['style.opacity']).toEqual({
-		canUpdate: true,
+		status: 'static',
 		codeValue: 0.5,
-		keyframed: false,
 	});
 	expect(result.props['style.scale']).toEqual({
-		canUpdate: true,
+		status: 'static',
 		codeValue: 2,
-		keyframed: false,
 	});
 });
 
@@ -156,14 +150,12 @@ test('computeSequencePropsStatus should flag computed nested props', () => {
 
 	// opacity uses getOpacity() — computed
 	expect(result.props['style.opacity']).toEqual({
-		canUpdate: false,
-		reason: 'computed',
+		status: 'computed',
 	});
 	// scale is static
 	expect(result.props['style.scale']).toEqual({
-		canUpdate: true,
+		status: 'static',
 		codeValue: 2,
-		keyframed: false,
 	});
 });
 
@@ -182,8 +174,7 @@ test('computeSequencePropsStatus should flag computed when parent is not an obje
 
 	// style={dynamicStyles} — entire parent is computed
 	expect(result.props['style.opacity']).toEqual({
-		canUpdate: false,
-		reason: 'computed',
+		status: 'computed',
 	});
 });
 
@@ -201,9 +192,8 @@ test('computeSequencePropsStatus should report unset nested props as undefined',
 	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
 
 	expect(result.props['style.rotate']).toEqual({
-		canUpdate: true,
+		status: 'static',
 		codeValue: undefined,
-		keyframed: false,
 	});
 });
 
@@ -221,9 +211,8 @@ test('computeSequencePropsStatus should report unset when parent attribute missi
 	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
 
 	expect(result.props['style.opacity']).toEqual({
-		canUpdate: true,
+		status: 'static',
 		codeValue: undefined,
-		keyframed: false,
 	});
 });
 
@@ -241,9 +230,8 @@ test('computeSequencePropsStatus should return keyframes for interpolated style 
 	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
 
 	expect(result.props['style.scale']).toEqual({
-		canUpdate: true,
+		status: 'keyframed',
 		codeValue: undefined,
-		keyframed: true,
 		interpolationFunction: 'interpolate',
 		keyframes: [
 			{frame: 0, value: 2},
@@ -282,9 +270,8 @@ export const Example: React.FC = () => {
 	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
 
 	expect(result.props['style.scale']).toEqual({
-		canUpdate: true,
+		status: 'keyframed',
 		codeValue: undefined,
-		keyframed: true,
 		interpolationFunction: 'interpolate',
 		keyframes: [
 			{frame: 0, value: 1},
@@ -323,9 +310,8 @@ export const Example: React.FC = () => {
 	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
 
 	expect(result.props['style.scale']).toEqual({
-		canUpdate: true,
+		status: 'keyframed',
 		codeValue: undefined,
-		keyframed: true,
 		interpolationFunction: 'interpolate',
 		keyframes: [
 			{frame: 0, value: 1},
@@ -360,9 +346,8 @@ export const Example: React.FC = () => {
 	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
 
 	expect(result.props.color).toEqual({
-		canUpdate: true,
+		status: 'keyframed',
 		codeValue: undefined,
-		keyframed: true,
 		interpolationFunction: 'interpolateColors',
 		keyframes: [
 			{frame: 0, value: 'red'},
@@ -398,8 +383,7 @@ export const Example: React.FC = () => {
 	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
 
 	expect(result.props['style.scale']).toEqual({
-		canUpdate: false,
-		reason: 'computed',
+		status: 'computed',
 	});
 });
 
@@ -428,7 +412,6 @@ export const Example: React.FC = () => {
 	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
 
 	expect(result.props['style.scale']).toEqual({
-		canUpdate: false,
-		reason: 'computed',
+		status: 'computed',
 	});
 });

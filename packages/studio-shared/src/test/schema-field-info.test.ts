@@ -62,9 +62,8 @@ test('getEffectFieldsToShow uses the active enum variant', () => {
 						effectIndex: 0,
 						props: {
 							colorMode: {
-								canUpdate: true,
+								status: 'static',
 								codeValue: 'source',
-								keyframed: false,
 							},
 						},
 					},
