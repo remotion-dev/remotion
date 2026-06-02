@@ -1,7 +1,7 @@
 import React from 'react';
 import type {
 	CanUpdateSequencePropStatusFalse,
-	CanUpdateSequencePropStatusTrue,
+	CanUpdaterSequencePropStatusStatic,
 } from 'remotion';
 import type {
 	SchemaFieldInfo,
@@ -61,7 +61,7 @@ export const TimelineFieldValue: React.FC<{
 	readonly onSave: TimelineFieldOnSave;
 	readonly onDragValueChange: TimelineFieldOnDragValueChange;
 	readonly onDragEnd: () => void;
-	readonly propStatus: CanUpdateSequencePropStatusTrue;
+	readonly propStatus: CanUpdaterSequencePropStatusStatic;
 	readonly effectiveValue: unknown;
 }> = ({
 	field,

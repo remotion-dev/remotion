@@ -11,10 +11,10 @@ import type {
 	SequencePropsSubscriptionKey,
 } from './SequenceManager.js';
 
-export type CanUpdateSequencePropStatusTrue = {
+export type CanUpdaterSequencePropStatusStatic = {
 	canUpdate: true;
 	codeValue: unknown;
-	keyframed: boolean;
+	keyframed: false;
 };
 
 export type CanUpdateSequencePropStatusKeyframe = {
@@ -55,7 +55,7 @@ export type CanUpdateSequencePropStatusFalse =
 	CanUpdateSequencePropStatusComputed;
 
 export type CanUpdateSequencePropStatus =
-	| CanUpdateSequencePropStatusTrue
+	| CanUpdaterSequencePropStatusStatic
 	| CanUpdateSequencePropStatusKeyframed
 	| CanUpdateSequencePropStatusFalse;
 

@@ -1,7 +1,7 @@
 import React, {useMemo} from 'react';
 import type {
 	CanUpdateSequencePropStatus,
-	CanUpdateSequencePropStatusTrue,
+	CanUpdaterSequencePropStatusStatic,
 } from 'remotion';
 import {Internals} from 'remotion';
 import type {SchemaFieldInfo} from '../../helpers/timeline-layout';
@@ -39,7 +39,7 @@ export const TimelineKeyframedValue: React.FC<{
 		return raw;
 	}, [jsxFrame, propStatus]);
 
-	const fakeStatus: CanUpdateSequencePropStatusTrue = useMemo(
+	const fakeStatus: CanUpdaterSequencePropStatusStatic = useMemo(
 		() => ({
 			canUpdate: true,
 			codeValue: computedValue,

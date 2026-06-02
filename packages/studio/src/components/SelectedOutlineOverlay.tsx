@@ -1,6 +1,6 @@
 import React, {useContext, useEffect, useMemo, useRef, useState} from 'react';
 import type {
-	CanUpdateSequencePropStatus,
+	CanUpdaterSequencePropStatusStatic,
 	CodeValues,
 	GetEffectDragOverrides,
 	OverrideIdToNodePaths,
@@ -54,7 +54,7 @@ type UvCoordinateFieldSchema = Extract<
 
 type SelectedOutlineUvHandle = {
 	readonly clientId: string;
-	readonly codeValue: Extract<CanUpdateSequencePropStatus, {canUpdate: true}>;
+	readonly codeValue: CanUpdaterSequencePropStatusStatic;
 	readonly effectIndex: number;
 	readonly fieldDefault: UvCoordinate | undefined;
 	readonly fieldKey: string;
@@ -72,7 +72,7 @@ type SelectedOutlineTarget = {
 };
 
 type SelectedOutlineDragTarget = {
-	readonly codeValue: Extract<CanUpdateSequencePropStatus, {canUpdate: true}>;
+	readonly codeValue: CanUpdaterSequencePropStatusStatic;
 	readonly clientId: string;
 	readonly fieldDefault: string | undefined;
 	readonly nodePath: SequencePropsSubscriptionKey;
@@ -523,7 +523,7 @@ const getSelectedUvHandles = ({
 			}
 
 			const propStatus = effectStatus.props[fieldKey];
-			if (!propStatus?.canUpdate) {
+			if (!propStatus?.canUpdate || propStatus.keyframed) {
 				continue;
 			}
 
@@ -1008,7 +1008,8 @@ export const SelectedOutlineOverlay: React.FC<{
 				previewServerState.type === 'connected' &&
 				controls !== null &&
 				fieldSchema?.type === 'translate' &&
-				codeValue?.canUpdate === true;
+				codeValue?.canUpdate === true &&
+				codeValue.keyframed === false;
 
 			return {
 				key,

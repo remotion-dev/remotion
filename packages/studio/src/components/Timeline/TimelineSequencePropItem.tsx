@@ -1,8 +1,8 @@
 import React, {useCallback, useContext, useMemo} from 'react';
 import type {
+	CanUpdaterSequencePropStatusStatic,
 	CanUpdateSequencePropStatus,
 	CanUpdateSequencePropStatusKeyframed,
-	CanUpdateSequencePropStatusTrue,
 	SequencePropsSubscriptionKey,
 	SequenceSchema,
 } from 'remotion';
@@ -47,7 +47,7 @@ const Value: React.FC<{
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly validatedLocation: CodePosition;
 	readonly schema: SequenceSchema;
-	readonly codeValue: CanUpdateSequencePropStatusTrue;
+	readonly codeValue: CanUpdaterSequencePropStatusStatic;
 }> = ({field, nodePath, validatedLocation, schema, codeValue}) => {
 	const {getDragOverrides} = useContext(
 		Internals.VisualModeDragOverridesContext,
