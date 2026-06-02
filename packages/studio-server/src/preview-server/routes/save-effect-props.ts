@@ -109,6 +109,7 @@ export const saveEffectPropsHandler: ApiHandler<
 		pushToUndoStack({
 			filePath: absolutePath,
 			oldContents: fileContents,
+			newContents: null,
 			logLevel,
 			remotionRoot,
 			logLine,
@@ -150,6 +151,7 @@ export const saveEffectPropsHandler: ApiHandler<
 		}
 
 		return computeEffectPropStatus({
+			ast,
 			jsx,
 			effectIndex,
 			keys: getAllSchemaKeys(schema),

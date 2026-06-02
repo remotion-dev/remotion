@@ -1,6 +1,6 @@
 import type {SequenceSchema} from 'remotion';
 import {Internals} from 'remotion';
-import {hexToRgb} from './hex-to-rgb';
+import {colorToRgb} from './color-to-rgb';
 
 const {createEffect, createWebGL2ContextError} = Internals;
 
@@ -129,7 +129,7 @@ const validateStarburstEffectParams = (params: StarburstEffectParams): void => {
 	}
 
 	for (const c of r.colors) {
-		hexToRgb(c);
+		colorToRgb(c);
 	}
 };
 
@@ -364,10 +364,10 @@ export const starburst = createEffect<StarburstEffectParams, StarburstGlState>({
 
 			const {palettePixelData} = state;
 			for (let i = 0; i < r.colors.length; i++) {
-				const rgb = hexToRgb(r.colors[i]);
-				palettePixelData[i * 4] = Math.round(rgb[0] * 255);
-				palettePixelData[i * 4 + 1] = Math.round(rgb[1] * 255);
-				palettePixelData[i * 4 + 2] = Math.round(rgb[2] * 255);
+				const rgb = colorToRgb(r.colors[i]);
+				palettePixelData[i * 4] = rgb[0];
+				palettePixelData[i * 4 + 1] = rgb[1];
+				palettePixelData[i * 4 + 2] = rgb[2];
 				palettePixelData[i * 4 + 3] = 255;
 			}
 		}

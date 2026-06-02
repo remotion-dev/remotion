@@ -1,0 +1,82 @@
+---
+image: /generated/articles-docs-effects-evolve.png
+slug: /effects/evolve
+title: evolve()
+sidebar_label: evolve()
+crumb: '@remotion/effects'
+---
+
+# evolve()<AvailableFrom v="4.0.470" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+Reveals a canvas-based component from a direction with an optional soft edge.
+
+Use it for wipes, reveals, and intro/outro animations on [`<Video>`](/docs/media/video), [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) and [`<Solid>`](/docs/solid).
+
+## Preview
+
+<EffectsDemo type="effects-evolve" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
+import {Video} from '@remotion/media';
+import {evolve} from '@remotion/effects/evolve';
+
+export const MyComp: React.FC = () => {
+  const frame = useCurrentFrame();
+  const progress = interpolate(frame, [0, 30], [0, 1], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+  });
+
+  return (
+    <AbsoluteFill>
+      <Video
+        src="https://remotion.media/video.mp4"
+        effects={[
+          evolve({
+            progress,
+            direction: 'left',
+            feather: 0.18,
+          }),
+        ]}
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+## API
+
+Pass an object with the following properties. You can also call `evolve()` without arguments.
+
+### `progress?`
+
+Reveal progress from `0` (fully hidden) to `1` (fully revealed). Defaults to `0.5`.
+
+### `direction?`
+
+Direction the component is revealed from. Defaults to `left`.
+
+Possible values: `left`, `right`, `top`, `bottom`.
+
+### `feather?`
+
+Softness of the evolving edge from `0` (sharp edge) to `1` (fully feathered). Defaults to `0.1`.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Requirements
+
+`evolve()` uses a WebGL2 backend. During renders, enable WebGL via [`Config.setChromiumOpenGlRenderer('angle')`](/docs/config#setchromiumopenglrenderer). See [Using WebGL during renders](/docs/remotion/html-in-canvas#using-webgl-during-renders).
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [HTML-in-canvas guide](/docs/html-in-canvas)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/evolve.ts)

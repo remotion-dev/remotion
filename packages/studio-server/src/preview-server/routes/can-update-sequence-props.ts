@@ -22,6 +22,7 @@ import type {
 } from 'remotion';
 import {parseAst} from '../../codemods/parse-ast';
 import {getAstNodePath} from '../../helpers/get-ast-node-path';
+import {toImportAgnosticNodePath} from '../../helpers/import-agnostic-node-path';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import {JsxElementNotFoundAtLocationError} from '../jsx-element-not-found-at-location-error';
 import {computeEffectPropStatus} from './can-update-effect-props';
@@ -32,6 +33,8 @@ type KeyframedPropStatus = Extract<ComputedPropStatus, {reason: 'keyframed'}>;
 type PropKeyframes = KeyframedPropStatus['keyframes'];
 type PropEasing = KeyframedPropStatus['easing'];
 type PropClamping = KeyframedPropStatus['clamping'];
+type PropPosterize = KeyframedPropStatus['posterize'];
+type PropInterpolationFunction = KeyframedPropStatus['interpolationFunction'];
 
 export const isStaticValue = (node: Expression): boolean => {
 	switch (node.type) {
@@ -263,16 +266,17 @@ const getKeyframeEasingArray = ({
 };
 
 const getInterpolationMetadata = (
+	interpolationFunction: PropInterpolationFunction,
 	callExpression: CallExpression,
 	keyframeCount: number,
-): {easing: PropEasing; clamping: PropClamping} | null => {
+): {
+	easing: PropEasing;
+	clamping: PropClamping;
+	posterize: PropPosterize;
+} | null => {
 	const segments = Math.max(0, keyframeCount - 1);
-	if (callExpression.callee.type !== 'Identifier') {
-		return null;
-	}
-
 	const defaultClamping: PropClamping =
-		callExpression.callee.name === 'interpolateColors'
+		interpolationFunction === 'interpolateColors'
 			? {
 					left: 'clamp',
 					right: 'clamp',
@@ -284,15 +288,8 @@ const getInterpolationMetadata = (
 	const defaults = {
 		easing: new Array(segments).fill('linear') as PropEasing,
 		clamping: defaultClamping,
+		posterize: undefined,
 	};
-
-	if (callExpression.callee.name === 'interpolateColors') {
-		return defaults;
-	}
-
-	if (callExpression.callee.name !== 'interpolate') {
-		return null;
-	}
 
 	const optionsArg = callExpression.arguments[3];
 	if (!optionsArg) {
@@ -305,6 +302,7 @@ const getInterpolationMetadata = (
 
 	let {easing} = defaults;
 	let {clamping}: {clamping: PropClamping} = defaults;
+	let posterize: PropPosterize;
 
 	for (const property of optionsArg.properties) {
 		if (property.type !== 'ObjectProperty' || property.computed) {
@@ -325,6 +323,10 @@ const getInterpolationMetadata = (
 		const value = property.value as Expression;
 
 		if (key === 'easing') {
+			if (interpolationFunction === 'interpolateColors') {
+				return null;
+			}
+
 			const parsedEasing = getKeyframeEasingArray({
 				easingNode: value,
 				segments,
@@ -338,6 +340,10 @@ const getInterpolationMetadata = (
 		}
 
 		if (key === 'extrapolateLeft' || key === 'extrapolateRight') {
+			if (interpolationFunction === 'interpolateColors') {
+				return null;
+			}
+
 			const extrapolateType = getExtrapolateType(value);
 			if (!extrapolateType) {
 				return null;
@@ -347,10 +353,31 @@ const getInterpolationMetadata = (
 				key === 'extrapolateLeft'
 					? {...clamping, left: extrapolateType}
 					: {...clamping, right: extrapolateType};
+			continue;
 		}
+
+		if (key === 'posterize') {
+			const parsedPosterize = getNumericValue(value);
+			if (
+				parsedPosterize === null ||
+				!Number.isFinite(parsedPosterize) ||
+				parsedPosterize <= 0
+			) {
+				return null;
+			}
+
+			posterize = parsedPosterize;
+			continue;
+		}
+
+		return null;
 	}
 
-	return {easing, clamping};
+	return {
+		easing,
+		clamping,
+		posterize,
+	};
 };
 
 const getInterpolationKeyframes = (
@@ -360,6 +387,8 @@ const getInterpolationKeyframes = (
 			keyframes: PropKeyframes;
 			easing: PropEasing;
 			clamping: PropClamping;
+			posterize: PropPosterize;
+			interpolationFunction: PropInterpolationFunction;
 	  }
 	| undefined => {
 	if (node.type === 'TSAsExpression') {
@@ -378,6 +407,8 @@ const getInterpolationKeyframes = (
 	) {
 		return undefined;
 	}
+
+	const interpolationFunction = callExpression.callee.name;
 
 	const inputArg = callExpression.arguments[1];
 	const outputArg = callExpression.arguments[2];
@@ -422,15 +453,21 @@ const getInterpolationKeyframes = (
 		return undefined;
 	}
 
-	const metadata = getInterpolationMetadata(callExpression, keyframes.length);
+	const metadata = getInterpolationMetadata(
+		interpolationFunction,
+		callExpression,
+		keyframes.length,
+	);
 	if (!metadata) {
 		return undefined;
 	}
 
 	return {
+		interpolationFunction,
 		keyframes,
 		easing: metadata.easing,
 		clamping: metadata.clamping,
+		posterize: metadata.posterize,
 	};
 };
 
@@ -443,9 +480,11 @@ export const getComputedStatus = (node: Expression): CanUpdatePropStatus => {
 	return {
 		canUpdate: false,
 		reason: 'keyframed',
+		interpolationFunction: interpolation.interpolationFunction,
 		keyframes: interpolation.keyframes,
 		easing: interpolation.easing,
 		clamping: interpolation.clamping,
+		posterize: interpolation.posterize,
 	};
 };
 
@@ -511,6 +550,7 @@ const getPropsStatus = (
 const getNodePathForRecastPath = (
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	recastPath: any,
+	ast: File,
 ): SequenceNodePath => {
 	const segments: Array<string | number> = [];
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -522,10 +562,10 @@ const getNodePathForRecastPath = (
 
 	// Recast paths start with "root" which doesn't correspond to a real AST property
 	if (segments.length > 0 && segments[0] === 'root') {
-		return segments.slice(1);
+		return toImportAgnosticNodePath({ast, nodePath: segments.slice(1)});
 	}
 
-	return segments;
+	return toImportAgnosticNodePath({ast, nodePath: segments});
 };
 
 export const findJsxElementAtNodePath = (
@@ -544,6 +584,26 @@ export const findJsxElementAtNodePath = (
 	return null;
 };
 
+export const findNodePathForJsxElement = (
+	ast: File,
+	target: JSXOpeningElement,
+): SequenceNodePath | null => {
+	let foundPath: SequenceNodePath | null = null;
+
+	recast.types.visit(ast, {
+		visitJSXOpeningElement(p) {
+			if (p.node === target) {
+				foundPath = getNodePathForRecastPath(p, ast);
+				return false;
+			}
+
+			return this.traverse(p);
+		},
+	});
+
+	return foundPath;
+};
+
 export const lineColumnToNodePath = (
 	ast: File,
 	targetLine: number,
@@ -554,7 +614,7 @@ export const lineColumnToNodePath = (
 		visitJSXOpeningElement(p) {
 			const {node} = p;
 			if (node.loc && node.loc.start.line === targetLine) {
-				foundPath = getNodePathForRecastPath(p);
+				foundPath = getNodePathForRecastPath(p, ast);
 				return false;
 			}
 
@@ -641,14 +701,17 @@ const getNestedPropStatus = (
 };
 
 const computeEffectsForJsx = ({
+	ast,
 	jsxElement,
 	effects,
 }: {
+	ast: File;
 	jsxElement: JSXOpeningElement;
 	effects: string[][];
 }) => {
 	return effects.map((effect, effectIndex) =>
 		computeEffectPropStatus({
+			ast,
 			jsx: jsxElement,
 			effectIndex,
 			keys: effect,
@@ -703,7 +766,7 @@ export const computeSequencePropsStatusFromContent = ({
 	}
 
 	const filteredProps = computeSequenceOnlyPropsRecord({jsxElement, keys});
-	const effectsStatuses = computeEffectsForJsx({jsxElement, effects});
+	const effectsStatuses = computeEffectsForJsx({ast, jsxElement, effects});
 
 	return {
 		canUpdate: true as const,

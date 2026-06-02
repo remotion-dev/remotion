@@ -25,6 +25,24 @@ waitUntilDone().then(() => {
 });
 ```
 
+## Options
+
+### `requestInit?`<AvailableFrom v="4.0.471" />
+
+Options that are passed to the internal [`fetch()`](https://developer.mozilla.org/en-US/docs/Web/API/fetch) call when preloading the GIF. This can be used to pass credentials or headers for authenticated GIFs.
+
+Remotion manages the internal `signal` option itself, so passing a `signal` in `requestInit` has no effect.
+
+```ts twoslash
+import { preloadGif } from "@remotion/gif";
+
+preloadGif("https://example.com/authenticated-gif.gif", {
+  requestInit: {
+    credentials: 'include',
+  },
+});
+```
+
 ## See also
 
 - [`<Gif>`](/docs/gif)

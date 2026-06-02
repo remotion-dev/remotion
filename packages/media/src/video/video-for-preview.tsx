@@ -1,4 +1,5 @@
 import React, {
+	useCallback,
 	useContext,
 	useEffect,
 	useLayoutEffect,
@@ -70,6 +71,7 @@ type VideoForPreviewProps = {
 	readonly setMediaDurationInSeconds: (durationInSeconds: number) => void;
 	readonly _experimentalInitiallyDrawCachedFrame: boolean;
 	readonly effects: EffectDefinitionAndStack<unknown>[];
+	readonly refForOutline: React.RefObject<HTMLElement | null>;
 };
 
 type VideoForPreviewAssertedShowingProps = VideoForPreviewProps;
@@ -103,10 +105,11 @@ const VideoForPreviewAssertedShowing: React.FC<
 	_experimentalInitiallyDrawCachedFrame,
 	effects,
 	setMediaDurationInSeconds,
+	refForOutline,
 }) => {
 	const src = usePreload(unpreloadedSrc);
 
-	const canvasRef = useRef<HTMLCanvasElement>(null);
+	const canvasRef = useRef<HTMLCanvasElement | null>(null);
 	const videoConfig = useUnsafeVideoConfig();
 	const frame = useCurrentFrame();
 	const mediaPlayerRef = useRef<MediaPlayer | null>(null);
@@ -123,6 +126,21 @@ const VideoForPreviewAssertedShowing: React.FC<
 	const {playbackRate: globalPlaybackRate} = Internals.usePlaybackRate();
 	const sharedAudioContext = useContext(SharedAudioContext);
 	const buffer = useBufferState();
+
+	const canvasRefCallback = useCallback(
+		(canvas: HTMLCanvasElement | null) => {
+			canvasRef.current = canvas;
+			refForOutline.current = canvas;
+		},
+		[refForOutline],
+	);
+
+	const fallbackVideoRef = useCallback(
+		(video: HTMLVideoElement | null) => {
+			refForOutline.current = video;
+		},
+		[refForOutline],
+	);
 
 	const [mediaMuted] = useMediaMutedState();
 	const [mediaVolume] = useMediaVolumeState();
@@ -220,9 +238,9 @@ const VideoForPreviewAssertedShowing: React.FC<
 			return;
 		}
 
-		const canvas = canvasRef.current;
-
 		return () => {
+			const canvas = canvasRef.current;
+
 			if (
 				!canvas ||
 				!hasDrawnRealFrameRef.current ||
@@ -496,6 +514,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 		// not using <OffthreadVideo> because it does not support looping
 		return (
 			<Html5Video
+				ref={fallbackVideoRef}
 				src={src}
 				style={actualStyle}
 				className={className}
@@ -520,7 +539,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 
 	return (
 		<canvas
-			ref={canvasRef}
+			ref={canvasRefCallback}
 			// Don't set width and height here.
 			// Width is set in the video iterator manager, if props are being updated, they are being applied again by React.
 			// This will lead to inefficient resizes.

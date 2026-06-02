@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/convert",
-	"version": "4.0.469",
+	"version": "4.0.471",
 	"private": true,
 	"type": "module",
 	"author": "Jonny Burger <jonny@remotion.dev>, Hunain Ahmed <junaidhunain6@gmail.com>",
@@ -17,8 +17,6 @@
 		"@mediabunny/aac-encoder": "catalog:",
 		"@mediabunny/flac-encoder": "catalog:",
 		"@mediabunny/ac3": "catalog:",
-		"@mediafox/core": "1.0.4",
-		"@mediafox/react": "1.0.4",
 		"@mux/upchunk": "3.5.0",
 		"@radix-ui/react-checkbox": "1.1.2",
 		"@radix-ui/react-dialog": "1.1.15",

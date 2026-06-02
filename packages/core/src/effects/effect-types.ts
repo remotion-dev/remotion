@@ -28,8 +28,8 @@ export type EffectApplyParams<P, S> = {
 	readonly gpuDevice: AnyGpuDevice | null;
 	/**
 	 * When `true`, WebGL `texImage2D` uploads use `UNPACK_FLIP_Y_WEBGL` so DOM-style
-	 * 2D frame canvases match clip-space UVs. Set by `runEffectChain` — `false` for
-	 * prior WebGL outputs and `ImageBitmap` bridges from WebGL.
+	 * canvas sources match clip-space UVs. Set by `runEffectChain` — `false` for
+	 * `ImageBitmap` bridges from WebGL, which are already oriented for upload.
 	 */
 	readonly flipSourceY: boolean;
 };

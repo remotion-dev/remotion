@@ -1,18 +1,28 @@
 import type {ApiRoutes} from '@remotion/studio-shared';
 import type {ApiHandler} from './api-types';
+import {addEffectHandler} from './routes/add-effect';
+import {addEffectKeyframeHandler} from './routes/add-effect-keyframe';
 import {handleAddRender} from './routes/add-render';
+import {addSequenceKeyframeHandler} from './routes/add-sequence-keyframe';
 import {applyCodemodHandler} from './routes/apply-codemod';
 import {applyVisualControlHandler} from './routes/apply-visual-control-change';
 import {handleCancelRender} from './routes/cancel-render';
+import {compositionComponentInfoHandler} from './routes/composition-component-info';
 import {deleteEffectHandler} from './routes/delete-effect';
 import {deleteJsxNodeHandler} from './routes/delete-jsx-node';
+import {deleteKeyframesHandler} from './routes/delete-keyframes';
 import {deleteStaticFileHandler} from './routes/delete-static-file';
 import {duplicateJsxNodeHandler} from './routes/duplicate-jsx-node';
+import {insertJsxElementHandler} from './routes/insert-jsx-element';
 import {handleInstallPackage} from './routes/install-dependency';
+import {openInEditorHandler} from './routes/open-in-editor';
 import {handleOpenInFileExplorer} from './routes/open-in-file-explorer';
+import {pasteEffectsHandler} from './routes/paste-effects';
 import {projectInfoHandler} from './routes/project-info';
 import {redoHandler} from './routes/redo';
+import {registerClientRenderHandler} from './routes/register-client-render';
 import {handleRemoveRender} from './routes/remove-render';
+import {reorderEffectHandler} from './routes/reorder-effect';
 import {handleRestartStudio} from './routes/restart-studio';
 import {saveEffectPropsHandler} from './routes/save-effect-props';
 import {saveSequencePropsHandler} from './routes/save-sequence-props';
@@ -20,6 +30,7 @@ import {subscribeToDefaultProps} from './routes/subscribe-to-default-props';
 import {subscribeToFileExistence} from './routes/subscribe-to-file-existence';
 import {subscribeToSequenceProps} from './routes/subscribe-to-sequence-props';
 import {undoHandler} from './routes/undo';
+import {unregisterClientRenderHandler} from './routes/unregister-client-render';
 import {unsubscribeFromDefaultProps} from './routes/unsubscribe-from-default-props';
 import {unsubscribeFromFileExistence} from './routes/unsubscribe-from-file-existence';
 import {unsubscribeFromSequenceProps} from './routes/unsubscribe-from-sequence-props';
@@ -32,12 +43,16 @@ export const allApiRoutes: {
 		ApiRoutes[key]['Response']
 	>;
 } = {
+	'/api/composition-component-info': compositionComponentInfoHandler,
 	'/api/cancel': handleCancelRender,
 	'/api/render': handleAddRender,
 	'/api/unsubscribe-from-file-existence': unsubscribeFromFileExistence,
 	'/api/subscribe-to-file-existence': subscribeToFileExistence,
 	'/api/remove-render': handleRemoveRender,
+	'/api/open-in-editor': openInEditorHandler,
 	'/api/open-in-file-explorer': handleOpenInFileExplorer,
+	'/api/register-client-render': registerClientRenderHandler,
+	'/api/unregister-client-render': unregisterClientRenderHandler,
 	'/api/update-default-props': updateDefaultPropsHandler,
 	'/api/apply-visual-control-change': applyVisualControlHandler,
 	'/api/apply-codemod': applyCodemodHandler,
@@ -47,7 +62,13 @@ export const allApiRoutes: {
 	'/api/unsubscribe-from-sequence-props': unsubscribeFromSequenceProps,
 	'/api/save-sequence-props': saveSequencePropsHandler,
 	'/api/save-effect-props': saveEffectPropsHandler,
+	'/api/add-effect': addEffectHandler,
+	'/api/reorder-effect': reorderEffectHandler,
+	'/api/delete-keyframes': deleteKeyframesHandler,
+	'/api/add-sequence-keyframe': addSequenceKeyframeHandler,
+	'/api/add-effect-keyframe': addEffectKeyframeHandler,
 	'/api/delete-effect': deleteEffectHandler,
+	'/api/paste-effects': pasteEffectsHandler,
 	'/api/delete-jsx-node': deleteJsxNodeHandler,
 	'/api/duplicate-jsx-node': duplicateJsxNodeHandler,
 	'/api/update-available': handleUpdate,
@@ -55,6 +76,7 @@ export const allApiRoutes: {
 	'/api/delete-static-file': deleteStaticFileHandler,
 	'/api/restart-studio': handleRestartStudio,
 	'/api/install-package': handleInstallPackage,
+	'/api/insert-jsx-element': insertJsxElementHandler,
 	'/api/undo': undoHandler,
 	'/api/redo': redoHandler,
 };

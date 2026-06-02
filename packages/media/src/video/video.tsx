@@ -44,6 +44,7 @@ const InnerVideo: React.FC<
 	InnerVideoProps & {
 		readonly _experimentalControls: SequenceControls | undefined;
 		readonly setMediaDurationInSeconds: (durationInSeconds: number) => void;
+		readonly refForOutline: React.RefObject<HTMLElement | null>;
 	}
 > = ({
 	src,
@@ -76,6 +77,7 @@ const InnerVideo: React.FC<
 	_experimentalInitiallyDrawCachedFrame,
 	effects,
 	setMediaDurationInSeconds,
+	refForOutline,
 }) => {
 	const environment = useRemotionEnvironment();
 
@@ -170,6 +172,7 @@ const InnerVideo: React.FC<
 			_experimentalInitiallyDrawCachedFrame={
 				_experimentalInitiallyDrawCachedFrame
 			}
+			refForOutline={refForOutline}
 		/>
 	);
 };
@@ -278,6 +281,7 @@ const VideoInner: React.FC<
 	const memoizedEffectDefinitions = Internals.useMemoizedEffectDefinitions(
 		effects ?? [],
 	);
+	const refForOutline = React.useRef<HTMLElement | null>(null);
 
 	if (sequenceDurationInFrames === 0) {
 		return null;
@@ -299,6 +303,7 @@ const VideoInner: React.FC<
 			_experimentalControls={controls}
 			_remotionInternalLoopDisplay={loopDisplay}
 			_remotionInternalEffects={memoizedEffectDefinitions}
+			_remotionInternalRefForOutline={refForOutline}
 			showInTimeline={showInTimeline ?? true}
 			hidden={hidden}
 		>
@@ -339,11 +344,16 @@ const VideoInner: React.FC<
 				}
 				effects={memoizedEffects}
 				setMediaDurationInSeconds={setMediaDurationInSeconds}
+				refForOutline={refForOutline}
 			/>
 		</Sequence>
 	);
 };
 
-export const Video = Internals.wrapInSchema(VideoInner, videoSchema);
+export const Video = Internals.wrapInSchema({
+	Component: VideoInner,
+	schema: videoSchema,
+	supportsEffects: true,
+});
 
 Internals.addSequenceStackTraces(Video);

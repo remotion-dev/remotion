@@ -35,11 +35,13 @@ const getActualTime = ({
 export const decodeImage = async ({
 	resolvedSrc,
 	signal,
+	requestInit,
 	currentTime,
 	initialLoopBehavior,
 }: {
 	resolvedSrc: string;
 	signal: AbortSignal;
+	requestInit?: RequestInit;
 	currentTime: number;
 	initialLoopBehavior: RemotionAnimatedImageLoopBehavior;
 }): Promise<RemotionImageDecoder> => {
@@ -49,7 +51,7 @@ export const decodeImage = async ({
 		);
 	}
 
-	const res = await fetch(resolvedSrc, {signal});
+	const res = await fetch(resolvedSrc, {...requestInit, signal});
 	const {body} = res;
 
 	if (!body) {

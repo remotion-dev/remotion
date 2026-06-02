@@ -84,7 +84,8 @@ declare global {
 		remotion_envVariables: string;
 		remotion_isMainTab: boolean;
 		remotion_mediaCacheSizeInBytes: number | null;
-		remotion_sampleRate: number;
+		remotion_sampleRate: number | null;
+		remotion_previewSampleRate: number | null;
 		remotion_initialMemoryAvailable: number | null;
 		remotion_collectAssets: () => TRenderAsset[];
 		remotion_isPlayer: boolean;
@@ -131,21 +132,26 @@ checkMultipleRemotionVersions();
 export * from './AbsoluteFill.js';
 export * from './animated-image/index.js';
 export type {
+	EffectDefinition,
 	EffectDefinitionAndStack,
 	EffectDescriptor,
-	EffectsProp,
-	EffectDefinition,
 	EffectFactory,
+	EffectsProp,
 } from './effects/index.js';
 /**
  * @description Renders a solid-color rectangle on a `<canvas>`.
  * @see [Documentation](https://www.remotion.dev/docs/solid)
  */
+export type {AnyZodObject} from './any-zod-type.js';
+export {Artifact} from './Artifact.js';
+export {Audio, Html5Audio, RemotionAudioProps} from './audio/index.js';
+export type {LoopVolumeCurveBehavior} from './audio/use-audio-frame.js';
+export {cancelRender} from './cancel-render.js';
 export {Solid} from './effects/Solid.js';
 export type {SolidProps} from './effects/Solid.js';
 export {
-	HtmlInCanvas,
 	HTML_IN_CANVAS_UNSUPPORTED_MESSAGE,
+	HtmlInCanvas,
 	isHtmlInCanvasSupported,
 	type HtmlInCanvasOnInit,
 	type HtmlInCanvasOnInitCleanup,
@@ -155,11 +161,6 @@ export type {
 	HtmlInCanvasOnPaintParams,
 	HtmlInCanvasProps,
 } from './HtmlInCanvas.js';
-export type {AnyZodObject} from './any-zod-type.js';
-export {Artifact} from './Artifact.js';
-export {Audio, Html5Audio, RemotionAudioProps} from './audio/index.js';
-export type {LoopVolumeCurveBehavior} from './audio/use-audio-frame.js';
-export {cancelRender} from './cancel-render.js';
 /**
  * @description Renders a static image to a `<canvas>` and applies Remotion effects.
  * @see [Documentation](https://www.remotion.dev/docs/canvasimage)
@@ -181,17 +182,24 @@ export {DownloadBehavior} from './download-behavior.js';
 export * from './easing.js';
 export * from './Folder.js';
 export * from './freeze.js';
-export type {NonceHistory} from './nonce.js';
 export {getRemotionEnvironment} from './get-remotion-environment.js';
 export {getStaticFiles, StaticFile} from './get-static-files.js';
 export * from './IFrame.js';
 export {Img, ImgProps} from './Img.js';
 export * from './internals.js';
-export {interpolateColors} from './interpolate-colors.js';
+export {
+	interpolateColors,
+	type InterpolateColorsOptions,
+} from './interpolate-colors.js';
+export {
+	interpolateTranslate,
+	type InterpolateTranslateOptions,
+} from './interpolate-translate.js';
 export {LogLevel} from './log.js';
 export {Loop} from './loop/index.js';
 export {
 	assertValidInterpolateEasingOption,
+	assertValidInterpolatePosterizeOption,
 	EasingFunction,
 	ExtrapolateType,
 	interpolate,
@@ -199,6 +207,7 @@ export {
 	random,
 	RandomSeed,
 } from './no-react';
+export type {NonceHistory} from './nonce.js';
 export {prefetch, PrefetchOnProgress} from './prefetch.js';
 export {registerRoot} from './register-root.js';
 export type {PixelFormat, VideoImageFormat} from './render-types.js';

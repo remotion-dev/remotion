@@ -5,6 +5,10 @@
 
 import {interpolate} from './interpolate.js';
 
+export type InterpolateColorsOptions = {
+	posterize: number | undefined;
+};
+
 type MatcherType = RegExp | undefined;
 
 // var INTEGER = '[-+]?\\d+';
@@ -659,6 +663,7 @@ const interpolateColorsRGB = (
 	value: number,
 	inputRange: readonly number[],
 	colors: readonly number[],
+	options: InterpolateColorsOptions | undefined,
 ) => {
 	const [r, g, b, a] = [red, green, blue, opacity].map((f) => {
 		const unrounded = interpolate(
@@ -668,6 +673,7 @@ const interpolateColorsRGB = (
 			{
 				extrapolateLeft: 'clamp',
 				extrapolateRight: 'clamp',
+				posterize: options?.posterize,
 			},
 		);
 		if (f === opacity) {
@@ -687,6 +693,7 @@ export const interpolateColors = (
 	input: number,
 	inputRange: readonly number[],
 	outputRange: readonly string[],
+	options?: InterpolateColorsOptions,
 ): string => {
 	if (typeof input === 'undefined') {
 		throw new TypeError('input can not be undefined');
@@ -712,5 +719,5 @@ export const interpolateColors = (
 
 	const processedOutputRange = outputRange.map((c) => processColor(c));
 
-	return interpolateColorsRGB(input, inputRange, processedOutputRange);
+	return interpolateColorsRGB(input, inputRange, processedOutputRange, options);
 };

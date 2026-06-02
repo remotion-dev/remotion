@@ -265,6 +265,7 @@ export type HtmlInCanvasProps = Omit<
 	| 'durationInFrames'
 	| keyof LayoutAndStyle
 	| '_remotionInternalEffects'
+	| '_remotionInternalRefForOutline'
 > &
 	Omit<
 		AbsoluteFillLayout,
@@ -564,6 +565,19 @@ const HtmlInCanvasInner = forwardRef<
 		const resolvedDuration = durationInFrames ?? videoDuration;
 
 		const memoizedEffectDefinitions = useMemoizedEffectDefinitions(effects);
+		const actualRef = useRef<HTMLCanvasElement | null>(null);
+		const setCanvasRef = useCallback(
+			(node: HTMLCanvasElement | null) => {
+				actualRef.current = node;
+				if (typeof ref === 'function') {
+					ref(node);
+				} else if (ref) {
+					(ref as React.MutableRefObject<HTMLCanvasElement | null>).current =
+						node;
+				}
+			},
+			[ref],
+		);
 
 		return (
 			<Sequence
@@ -576,11 +590,12 @@ const HtmlInCanvasInner = forwardRef<
 				}
 				_experimentalControls={controls}
 				_remotionInternalEffects={memoizedEffectDefinitions}
+				_remotionInternalRefForOutline={actualRef}
 				layout="none"
 				{...sequenceProps}
 			>
 				<HtmlInCanvasContent
-					ref={ref}
+					ref={setCanvasRef}
 					width={width}
 					height={height}
 					effects={effects}
@@ -603,7 +618,11 @@ const htmlInCanvasSchema = {
 	hidden: hiddenField,
 };
 
-const HtmlInCanvasWrapped = wrapInSchema(HtmlInCanvasInner, htmlInCanvasSchema);
+const HtmlInCanvasWrapped = wrapInSchema({
+	Component: HtmlInCanvasInner,
+	schema: htmlInCanvasSchema,
+	supportsEffects: true,
+});
 
 export const HtmlInCanvas = Object.assign(HtmlInCanvasWrapped, {
 	isSupported: isHtmlInCanvasSupported,

@@ -539,4 +539,8 @@ const SequenceInner = forwardRef(SequenceRefForwardingFunction);
  * @description A component that time-shifts its children and wraps them in an absolutely positioned <div>.
  * @see [Documentation](https://www.remotion.dev/docs/sequence)
  */
-export const Sequence = wrapInSchema(SequenceInner, sequenceSchema);
+export const Sequence = wrapInSchema({
+	Component: SequenceInner,
+	schema: sequenceSchema,
+	supportsEffects: false,
+});

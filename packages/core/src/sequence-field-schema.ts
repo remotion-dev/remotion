@@ -17,10 +17,19 @@ export type BooleanFieldSchema = {
 	description?: string;
 };
 
-export type RotationFieldSchema = {
-	type: 'rotation';
+export type RotationCssFieldSchema = {
+	type: 'rotation-css';
 	step?: number;
 	default: string | undefined;
+	description?: string;
+};
+
+export type RotationDegreesFieldSchema = {
+	type: 'rotation-degrees';
+	min?: number;
+	max?: number;
+	step?: number;
+	default: number | undefined;
 	description?: string;
 };
 
@@ -28,6 +37,15 @@ export type TranslateFieldSchema = {
 	type: 'translate';
 	step?: number;
 	default: string | undefined;
+	description?: string;
+};
+
+export type ScaleFieldSchema = {
+	type: 'scale';
+	min?: number;
+	max?: number;
+	step?: number;
+	default: number | string | undefined;
 	description?: string;
 };
 
@@ -56,8 +74,10 @@ export type EnumFieldSchema = {
 export type VisibleFieldSchema =
 	| NumberFieldSchema
 	| BooleanFieldSchema
-	| RotationFieldSchema
+	| RotationCssFieldSchema
+	| RotationDegreesFieldSchema
 	| TranslateFieldSchema
+	| ScaleFieldSchema
 	| UvCoordinateFieldSchema
 	| ColorFieldSchema
 	| EnumFieldSchema;
@@ -79,7 +99,7 @@ export const sequenceVisualStyleSchema = {
 		description: 'Offset',
 	},
 	'style.scale': {
-		type: 'number',
+		type: 'scale',
 		min: 0.05,
 		max: 100,
 		step: 0.01,
@@ -87,7 +107,7 @@ export const sequenceVisualStyleSchema = {
 		description: 'Scale',
 	},
 	'style.rotate': {
-		type: 'rotation',
+		type: 'rotation-css',
 		step: 1,
 		default: '0deg',
 		description: 'Rotation',

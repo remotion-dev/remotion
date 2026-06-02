@@ -10,26 +10,55 @@ import type {
 	X264Preset,
 } from '@remotion/renderer';
 import type {HardwareAccelerationOption} from '@remotion/renderer/client';
-import type {CannotUpdateSequenceReason} from 'remotion';
 import type {
 	_InternalTypes,
+	CannotUpdateSequenceReason,
 	CanUpdateEffectPropsResponse,
 	CanUpdateSequencePropsResponseFalse,
 	CanUpdateSequencePropsResponseTrue,
 	CanUpdateSequencePropStatus,
-	SequenceSchema,
 	SequenceNodePath,
 	SequencePropsSubscriptionKey,
+	SequenceSchema,
 } from 'remotion';
 import type {RecastCodemod, VisualControlChange} from './codemods';
+import type {
+	EffectClipboardPasteType,
+	EffectClipboardSnapshot,
+} from './effect-clipboard-data';
 import type {PackageManager} from './package-manager';
 import type {ProjectInfo} from './project-info';
-import type {RequiredChromiumOptions} from './render-job';
+import type {
+	CompletedClientRender,
+	RequiredChromiumOptions,
+} from './render-job';
 import type {SymbolicatedStackFrame} from './stack-types';
 import type {EnumPath} from './stringify-default-props';
 
 export type OpenInFileExplorerRequest = {
 	directory: string;
+};
+
+export type OpenInEditorRequest = {
+	stack: SymbolicatedStackFrame;
+};
+
+export type OpenInEditorResponse = {
+	success: boolean;
+};
+
+export type CompositionComponentInfoRequest = {
+	compositionFile: string;
+	compositionId: string;
+};
+
+export type CompositionComponentInfoResponse = {
+	location: {
+		source: string;
+		line: number;
+		column: number;
+	};
+	canAddSequence: boolean;
 };
 
 export type CopyStillToClipboardRequest = {
@@ -224,6 +253,7 @@ export type SubscribeToSequencePropsRequest = {
 	fileName: string;
 	line: number;
 	column: number;
+	nodePath: SequenceNodePath | null;
 	keys: string[];
 	effects: string[][];
 	clientId: string;
@@ -248,20 +278,33 @@ export type UnsubscribeFromSequencePropsRequest = {
 	effectKeys: string[][];
 };
 
-export type SaveSequencePropsRequest = {
+export type SaveSequencePropEdit = {
 	fileName: string;
 	nodePath: SequencePropsSubscriptionKey;
 	key: string;
 	value: string;
 	defaultValue: string | null;
 	schema: SequenceSchema;
+};
+
+export type SaveSequencePropsRequest = {
+	edits: SaveSequencePropEdit[];
 	clientId: string;
+	undoLabel: string | null;
+	redoLabel: string | null;
+};
+
+export type SaveSequencePropsResult = {
+	fileName: string;
+	nodePath: SequencePropsSubscriptionKey;
+	props: Record<string, CanUpdateSequencePropStatus>;
 };
 
 export type SaveSequencePropsResponse =
 	| {
 			canUpdate: true;
 			props: Record<string, CanUpdateSequencePropStatus>;
+			results: SaveSequencePropsResult[];
 	  }
 	| {
 			canUpdate: false;
@@ -281,11 +324,110 @@ export type SaveEffectPropsRequest = {
 
 export type SaveEffectPropsResponse = CanUpdateEffectPropsResponse;
 
-export type DeleteEffectRequest = {
+export type AddEffectRequest = {
+	fileName: string;
+	sequenceNodePath: SequencePropsSubscriptionKey;
+	effectName: string;
+	effectImportPath: string;
+	effectConfig: Record<string, unknown>;
+	clientId: string;
+};
+
+export type AddEffectResponse =
+	| {
+			success: true;
+	  }
+	| {
+			success: false;
+			reason: string;
+			stack: string;
+	  };
+
+export type ReorderEffectRequest = {
+	fileName: string;
+	sequenceNodePath: SequencePropsSubscriptionKey;
+	fromIndex: number;
+	toIndex: number;
+	clientId: string;
+};
+
+export type ReorderEffectResponse =
+	| {
+			success: true;
+	  }
+	| {
+			success: false;
+			reason: string;
+			stack: string;
+	  };
+
+export type DeleteSequenceKeyframe = {
+	fileName: string;
+	nodePath: SequencePropsSubscriptionKey;
+	key: string;
+	frame: number;
+	schema: SequenceSchema;
+};
+
+export type AddSequenceKeyframeRequest = {
+	fileName: string;
+	nodePath: SequencePropsSubscriptionKey;
+	key: string;
+	frame: number;
+	value: string;
+	schema: SequenceSchema;
+	clientId: string;
+};
+
+export type AddSequenceKeyframeResponse = SaveSequencePropsResponse;
+
+export type DeleteEffectKeyframe = {
 	fileName: string;
 	sequenceNodePath: SequencePropsSubscriptionKey;
 	effectIndex: number;
+	key: string;
+	frame: number;
+	schema: SequenceSchema;
 };
+
+export type DeleteKeyframesRequest = {
+	sequenceKeyframes: DeleteSequenceKeyframe[];
+	effectKeyframes: DeleteEffectKeyframe[];
+	clientId: string;
+};
+
+export type DeleteKeyframesResponse = {
+	success: true;
+};
+
+export type AddEffectKeyframeRequest = {
+	fileName: string;
+	sequenceNodePath: SequencePropsSubscriptionKey;
+	effectIndex: number;
+	key: string;
+	frame: number;
+	value: string;
+	schema: SequenceSchema;
+	clientId: string;
+};
+
+export type AddEffectKeyframeResponse = SaveEffectPropsResponse;
+
+type BaseDeleteEffectRequestItem = {
+	fileName: string;
+	sequenceNodePath: SequencePropsSubscriptionKey;
+};
+
+export type DeleteEffectRequestItem =
+	| (BaseDeleteEffectRequestItem & {
+			type: 'single-effect';
+			effectIndex: number;
+	  })
+	| (BaseDeleteEffectRequestItem & {
+			type: 'all-effects';
+	  });
+
+export type DeleteEffectRequest = DeleteEffectRequestItem[];
 
 export type DeleteEffectResponse =
 	| {
@@ -297,9 +439,31 @@ export type DeleteEffectResponse =
 			stack: string;
 	  };
 
-export type DeleteJsxNodeRequest = {
+export type PasteEffectsRequest = {
+	targetFileName: string;
+	targetSequenceNodePath: SequencePropsSubscriptionKey;
+	type: EffectClipboardPasteType;
+	effects: EffectClipboardSnapshot[];
+	clientId: string;
+};
+
+export type PasteEffectsResponse =
+	| {
+			success: true;
+	  }
+	| {
+			success: false;
+			reason: string;
+			stack: string;
+	  };
+
+export type DeleteJsxNodeRequestItem = {
 	fileName: string;
 	nodePath: SequenceNodePath;
+};
+
+export type DeleteJsxNodeRequest = {
+	nodes: DeleteJsxNodeRequestItem[];
 };
 
 export type DeleteJsxNodeResponse =
@@ -318,6 +482,28 @@ export type DuplicateJsxNodeRequest = {
 };
 
 export type DuplicateJsxNodeResponse =
+	| {
+			success: true;
+	  }
+	| {
+			success: false;
+			reason: string;
+			stack: string;
+	  };
+
+export type InsertableCompositionElement = {
+	type: 'solid';
+	width: number;
+	height: number;
+};
+
+export type InsertJsxElementRequest = {
+	compositionFile: string;
+	compositionId: string;
+	element: InsertableCompositionElement;
+};
+
+export type InsertJsxElementResponse =
 	| {
 			success: true;
 	  }
@@ -370,6 +556,10 @@ export type RedoResponse =
 	  };
 
 export type ApiRoutes = {
+	'/api/composition-component-info': ReqAndRes<
+		CompositionComponentInfoRequest,
+		CompositionComponentInfoResponse
+	>;
 	'/api/cancel': ReqAndRes<CancelRenderRequest, CancelRenderResponse>;
 	'/api/render': ReqAndRes<AddRenderRequest, undefined>;
 	'/api/unsubscribe-from-file-existence': ReqAndRes<
@@ -381,7 +571,10 @@ export type ApiRoutes = {
 		SubscribeToFileExistenceResponse
 	>;
 	'/api/remove-render': ReqAndRes<RemoveRenderRequest, undefined>;
+	'/api/open-in-editor': ReqAndRes<OpenInEditorRequest, OpenInEditorResponse>;
 	'/api/open-in-file-explorer': ReqAndRes<OpenInFileExplorerRequest, void>;
+	'/api/register-client-render': ReqAndRes<CompletedClientRender, void>;
+	'/api/unregister-client-render': ReqAndRes<{id: string}, void>;
 	'/api/update-default-props': ReqAndRes<
 		UpdateDefaultPropsRequest,
 		UpdateDefaultPropsResponse
@@ -414,7 +607,22 @@ export type ApiRoutes = {
 		SaveEffectPropsRequest,
 		SaveEffectPropsResponse
 	>;
+	'/api/add-effect': ReqAndRes<AddEffectRequest, AddEffectResponse>;
+	'/api/reorder-effect': ReqAndRes<ReorderEffectRequest, ReorderEffectResponse>;
+	'/api/delete-keyframes': ReqAndRes<
+		DeleteKeyframesRequest,
+		DeleteKeyframesResponse
+	>;
+	'/api/add-sequence-keyframe': ReqAndRes<
+		AddSequenceKeyframeRequest,
+		AddSequenceKeyframeResponse
+	>;
+	'/api/add-effect-keyframe': ReqAndRes<
+		AddEffectKeyframeRequest,
+		AddEffectKeyframeResponse
+	>;
 	'/api/delete-effect': ReqAndRes<DeleteEffectRequest, DeleteEffectResponse>;
+	'/api/paste-effects': ReqAndRes<PasteEffectsRequest, PasteEffectsResponse>;
 	'/api/delete-jsx-node': ReqAndRes<
 		DeleteJsxNodeRequest,
 		DeleteJsxNodeResponse
@@ -422,6 +630,10 @@ export type ApiRoutes = {
 	'/api/duplicate-jsx-node': ReqAndRes<
 		DuplicateJsxNodeRequest,
 		DuplicateJsxNodeResponse
+	>;
+	'/api/insert-jsx-element': ReqAndRes<
+		InsertJsxElementRequest,
+		InsertJsxElementResponse
 	>;
 	'/api/update-available': ReqAndRes<
 		UpdateAvailableRequest,

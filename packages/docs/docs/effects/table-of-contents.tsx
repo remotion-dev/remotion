@@ -1,6 +1,12 @@
 import React from 'react';
 import {Grid} from '../../components/TableOfContents/Grid';
 import {TOCItem} from '../../components/TableOfContents/TOCItem';
+import {
+	makeEffectDragData,
+	setEffectDragData,
+} from '../../components/effects-demos/effect-drag-data';
+import {getInitialValuesFromSchema} from '../../components/effects-demos/get-default-props-from-schema';
+import {effectsDemos} from '../../components/effects-demos/registry';
 
 type Effect = {
 	readonly link: string;
@@ -32,11 +38,11 @@ const categories: {
 				description: 'Contrast adjustment effect',
 			},
 			{
-				link: '/docs/effects/drop-shadow',
-				preview: '/img/effects-drop-shadow-preview.png',
-				alt: 'drop shadow effect preview',
-				name: 'dropShadow()',
-				description: 'Blurred alpha shadow effect',
+				link: '/docs/effects/color-key',
+				preview: '/img/effects-color-key-preview.png',
+				alt: 'color key effect preview',
+				name: 'colorKey()',
+				description: 'Remove a key color (greenscreen)',
 			},
 			{
 				link: '/docs/effects/duotone',
@@ -44,13 +50,6 @@ const categories: {
 				alt: 'duotone effect preview',
 				name: 'duotone()',
 				description: 'Two-color threshold effect',
-			},
-			{
-				link: '/docs/effects/glow',
-				preview: '/img/effects-glow-preview.png',
-				alt: 'glow effect preview',
-				name: 'glow()',
-				description: 'Soft halo effect',
 			},
 			{
 				link: '/docs/effects/grayscale',
@@ -87,12 +86,43 @@ const categories: {
 				name: 'tint()',
 				description: 'Color tint effect',
 			},
+		],
+	},
+	{
+		title: 'Blur & Shadow',
+		effects: [
 			{
-				link: '/docs/effects/vignette',
-				preview: '/img/effects-vignette-preview.png',
-				alt: 'vignette effect preview',
-				name: 'vignette()',
-				description: 'Edge darkening or transparency effect',
+				link: '/docs/effects/blur',
+				preview: '/img/effects-blur-preview.png',
+				alt: 'blur effect preview',
+				name: 'blur()',
+				description: 'Gaussian blur effect',
+			},
+			{
+				link: '/docs/effects/drop-shadow',
+				preview: '/img/effects-drop-shadow-preview.png',
+				alt: 'drop shadow effect preview',
+				name: 'dropShadow()',
+				description: 'Blurred alpha shadow effect',
+			},
+			{
+				link: '/docs/effects/glow',
+				preview: '/img/effects-glow-preview.png',
+				alt: 'glow effect preview',
+				name: 'glow()',
+				description: 'Soft halo effect',
+			},
+		],
+	},
+	{
+		title: 'Reveal',
+		effects: [
+			{
+				link: '/docs/effects/evolve',
+				preview: '/img/effects-evolve-preview.png',
+				alt: 'evolve effect preview',
+				name: 'evolve()',
+				description: 'Directional reveal effect',
 			},
 		],
 	},
@@ -140,18 +170,18 @@ const categories: {
 				description: 'Barrel distortion effect',
 			},
 			{
-				link: '/docs/effects/blur',
-				preview: '/img/effects-blur-preview.png',
-				alt: 'blur effect preview',
-				name: 'blur()',
-				description: 'Gaussian blur effect',
-			},
-			{
 				link: '/docs/effects/chromatic-aberration',
 				preview: '/img/effects-chromatic-aberration-preview.png',
 				alt: 'chromatic aberration effect preview',
 				name: 'chromaticAberration()',
 				description: 'RGB channel split effect',
+			},
+			{
+				link: '/docs/effects/fisheye',
+				preview: '/img/effects-fisheye-preview.png',
+				alt: 'fisheye effect preview',
+				name: 'fisheye()',
+				description: 'Ultra-wide-angle lens effect',
 			},
 			{
 				link: '/docs/effects/wave',
@@ -163,7 +193,7 @@ const categories: {
 		],
 	},
 	{
-		title: 'Generative',
+		title: 'Stylize',
 		effects: [
 			{
 				link: '/docs/effects/dot-grid',
@@ -177,21 +207,7 @@ const categories: {
 				preview: '/img/effects-halftone-preview.png',
 				alt: 'halftone effect preview',
 				name: 'halftone()',
-				description: 'Halftone dot grid effect',
-			},
-			{
-				link: '/docs/effects/halftone-linear-gradient',
-				preview: '/img/effects-halftone-linear-gradient-preview.png',
-				alt: 'halftone linear gradient effect preview',
-				name: 'halftoneLinearGradient()',
-				description: 'Linear dot size gradient',
-			},
-			{
-				link: '/docs/light-leaks/light-leak-effect',
-				preview: '/img/effects-light-leak-preview.png',
-				alt: 'light leak effect preview',
-				name: 'lightLeak()',
-				description: 'Light leak overlay effect',
+				description: 'Source-image halftone effect',
 			},
 			{
 				link: '/docs/effects/noise',
@@ -201,11 +217,25 @@ const categories: {
 				description: 'Procedural grain effect',
 			},
 			{
+				link: '/docs/effects/pixel-dissolve',
+				preview: '/img/effects-pixel-dissolve-preview.png',
+				alt: 'pixel dissolve effect preview',
+				name: 'pixelDissolve()',
+				description: 'Pixelated dissolve effect',
+			},
+			{
 				link: '/docs/effects/scanlines',
 				preview: '/img/effects-scanlines-preview.png',
 				alt: 'scanlines effect preview',
 				name: 'scanlines()',
 				description: 'Additive horizontal scanlines',
+			},
+			{
+				link: '/docs/effects/speckle',
+				preview: '/img/effects-speckle-preview.png',
+				alt: 'speckle effect preview',
+				name: 'speckle()',
+				description: 'Random alpha-hole effect',
 			},
 			{
 				link: '/docs/effects/shine',
@@ -215,11 +245,65 @@ const categories: {
 				description: 'Glossy light sweep effect',
 			},
 			{
-				link: '/docs/effects/speckle',
-				preview: '/img/effects-speckle-preview.png',
-				alt: 'speckle effect preview',
-				name: 'speckle()',
-				description: 'Random alpha-hole effect',
+				link: '/docs/effects/vignette',
+				preview: '/img/effects-vignette-preview.png',
+				alt: 'vignette effect preview',
+				name: 'vignette()',
+				description: 'Edge darkening or transparency effect',
+			},
+		],
+	},
+	{
+		title: 'Generate',
+		effects: [
+			{
+				link: '/docs/effects/halftone-linear-gradient',
+				preview: '/img/effects-halftone-linear-gradient-preview.png',
+				alt: 'halftone linear gradient effect preview',
+				name: 'halftoneLinearGradient()',
+				description: 'Procedural dot gradient effect',
+			},
+			{
+				link: '/docs/effects/white-noise',
+				preview: '/img/effects-white-noise-preview.png',
+				alt: 'white noise effect preview',
+				name: 'whiteNoise()',
+				description: 'Random grayscale noise layer',
+			},
+			{
+				link: '/docs/effects/lines',
+				preview: '/img/effects-lines-preview.png',
+				alt: 'lines effect preview',
+				name: 'lines()',
+				description: 'Alternating line pattern effect',
+			},
+			{
+				link: '/docs/effects/rings',
+				preview: '/img/effects-rings-preview.png',
+				alt: 'rings effect preview',
+				name: 'rings()',
+				description: 'Concentric ring pattern effect',
+			},
+			{
+				link: '/docs/effects/waves',
+				preview: '/img/effects-waves-preview.png',
+				alt: 'waves effect preview',
+				name: 'waves()',
+				description: 'Wavy band pattern effect',
+			},
+			{
+				link: '/docs/effects/zigzag',
+				preview: '/img/effects-zigzag-preview.png',
+				alt: 'zigzag effect preview',
+				name: 'zigzag()',
+				description: 'Zig-zag band pattern effect',
+			},
+			{
+				link: '/docs/light-leaks/light-leak-effect',
+				preview: '/img/effects-light-leak-preview.png',
+				alt: 'light leak effect preview',
+				name: 'lightLeak()',
+				description: 'Light leak overlay effect',
 			},
 			{
 				link: '/docs/starburst/starburst-effect',
@@ -246,11 +330,57 @@ const previewImage: React.CSSProperties = {
 	flexShrink: 0,
 };
 
+const getDemoIdFromLink = (link: string) => {
+	if (link.startsWith('/docs/effects/')) {
+		return `effects-${link.slice('/docs/effects/'.length)}`;
+	}
+
+	if (link === '/docs/light-leaks/light-leak-effect') {
+		return 'effects-light-leak';
+	}
+
+	if (link === '/docs/starburst/starburst-effect') {
+		return 'effects-starburst';
+	}
+
+	return null;
+};
+
 const EffectCard: React.FC<{
 	readonly effect: Effect;
 }> = ({effect}) => {
+	const demo = effectsDemos.find((item) => item.id === getDemoIdFromLink(effect.link));
+	const dragData = demo
+		? makeEffectDragData({
+				effectName: demo.effectName,
+				effectImportPath: demo.effectImportPath,
+				effectConfig: getInitialValuesFromSchema({
+					schema: demo.schema,
+					initialValues: demo.initialValues,
+				}),
+			})
+		: null;
+
 	return (
-		<TOCItem link={effect.link}>
+		<TOCItem
+			link={effect.link}
+			draggable={dragData !== null}
+			onDragStart={
+				dragData === null
+					? undefined
+					: (e) => {
+							setEffectDragData({
+								dataTransfer: e.dataTransfer,
+								dragData,
+							});
+						}
+			}
+			title={
+				dragData === null
+					? undefined
+					: 'Drag this effect into Remotion Studio'
+			}
+		>
 			<div style={row}>
 				<img src={effect.preview} alt={effect.alt} style={previewImage} />
 				<div style={{flex: 1, marginLeft: 10}}>

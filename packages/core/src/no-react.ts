@@ -5,12 +5,20 @@ export type {
 	TRenderAsset,
 } from './CompositionManager';
 export type {DownloadBehavior} from './download-behavior';
-export {assertValidInterpolateEasingOption, interpolate} from './interpolate';
+export {
+	assertValidInterpolateEasingOption,
+	assertValidInterpolatePosterizeOption,
+	interpolate,
+} from './interpolate';
 export type {
 	EasingFunction,
 	ExtrapolateType,
 	InterpolateOptions,
 } from './interpolate';
+export {
+	interpolateTranslate,
+	type InterpolateTranslateOptions,
+} from './interpolate-translate';
 export {random} from './random.js';
 export type {RandomSeed} from './random.js';
 export type {VideoConfig} from './video-config';
@@ -29,6 +37,7 @@ import {
 import {DATE_TOKEN, FILE_TOKEN} from './input-props-serialization.js';
 import {colorNames, processColor} from './interpolate-colors';
 import {proResProfileOptions} from './prores-profile';
+import {parseScaleValue, serializeScaleValue} from './scale-value';
 import {sequenceSchema} from './sequence-field-schema';
 import {truthy} from './truthy';
 import {ENABLE_V5_BREAKING_CHANGES} from './v5-flag';
@@ -69,4 +78,6 @@ export const NoReactInternals = {
 	proResProfileOptions,
 	findPropsToDelete,
 	sequenceSchema,
+	parseScaleValue,
+	serializeScaleValue,
 };

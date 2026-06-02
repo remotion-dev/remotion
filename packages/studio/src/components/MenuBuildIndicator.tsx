@@ -72,7 +72,6 @@ export const MenuBuildIndicator: React.FC = () => {
 				originalFunctionName: null,
 				originalScriptCode: null,
 			})
-				.then((res) => res.json())
 				.then(({success}) => {
 					if (!success) {
 						showNotification(

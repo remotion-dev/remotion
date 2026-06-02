@@ -19,7 +19,7 @@ const speakerIcon: React.CSSProperties = {
 	marginLeft: -1,
 };
 
-const container: React.CSSProperties = {
+export const timelineLayerIconContainer: React.CSSProperties = {
 	height: 16,
 	width: 16,
 	borderRadius: 2,
@@ -106,7 +106,7 @@ export const TimelineLayerEye: React.FC<{
 
 	return (
 		<div
-			style={container}
+			style={timelineLayerIconContainer}
 			onPointerEnter={onPointerEnter}
 			onPointerDown={onPointerDown}
 		>

@@ -1,5 +1,4 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
-import {type SequenceControls, type SequenceSchema} from 'remotion';
 import {
 	AbsoluteFill,
 	Internals,
@@ -8,9 +7,11 @@ import {
 	useVideoConfig,
 	type AbsoluteFillLayout,
 	type LayoutAndStyle,
+	type SequenceControls,
 	type SequenceProps,
+	type SequenceSchema,
 } from 'remotion';
-import {hexToRgb} from './hex-to-rgb';
+import {colorToRgb} from './color-to-rgb';
 
 export type StarburstProps = Omit<
 	SequenceProps,
@@ -218,10 +219,10 @@ const StarburstCanvas: React.FC<{
 
 		const pixelData = new Uint8Array(colors.length * 4);
 		for (let i = 0; i < colors.length; i++) {
-			const rgb = hexToRgb(colors[i]);
-			pixelData[i * 4] = Math.round(rgb[0] * 255);
-			pixelData[i * 4 + 1] = Math.round(rgb[1] * 255);
-			pixelData[i * 4 + 2] = Math.round(rgb[2] * 255);
+			const rgb = colorToRgb(colors[i]);
+			pixelData[i * 4] = rgb[0];
+			pixelData[i * 4 + 1] = rgb[1];
+			pixelData[i * 4 + 2] = rgb[2];
 			pixelData[i * 4 + 3] = 255;
 		}
 
@@ -414,10 +415,11 @@ const StarburstInner: React.FC<
 	);
 };
 
-export const Starburst = Internals.wrapInSchema(
-	StarburstInner,
-	starburstSchema,
-);
+export const Starburst = Internals.wrapInSchema({
+	Component: StarburstInner,
+	schema: starburstSchema,
+	supportsEffects: false,
+});
 
 Starburst.displayName = 'Starburst';
 

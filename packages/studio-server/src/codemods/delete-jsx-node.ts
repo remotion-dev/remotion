@@ -408,6 +408,63 @@ export const deleteJsxElementAtPath = (
 	jsxPath.replace(b.nullLiteral());
 };
 
+export const deleteJsxNodes = async ({
+	input,
+	nodePaths,
+	prettierConfigOverride,
+}: {
+	input: string;
+	nodePaths: SequenceNodePath[];
+	prettierConfigOverride?: Record<string, unknown> | null;
+}): Promise<{
+	output: string;
+	formatted: boolean;
+	nodeLabels: string[];
+	logLines: number[];
+}> => {
+	if (nodePaths.length === 0) {
+		throw new Error('No JSX nodes were specified for deletion');
+	}
+
+	const ast = parseAst(input);
+	const pathsToDelete = nodePaths.map((nodePath) => {
+		const jsxPath = findJsxElementPathForDeletion(ast, nodePath);
+		if (!jsxPath) {
+			throw new Error(
+				'Could not find a JSX element at the specified location to delete',
+			);
+		}
+
+		const jsxElement = jsxPath.node as JSXElement;
+
+		return {
+			jsxPath,
+			nodeLabel: getJsxElementTagLabel(jsxElement),
+			logLine:
+				jsxElement.openingElement.loc?.start.line ??
+				jsxElement.loc?.start.line ??
+				1,
+		};
+	});
+
+	for (const {jsxPath} of pathsToDelete) {
+		deleteJsxElementAtPath(jsxPath);
+	}
+
+	const finalFile = serializeAst(ast);
+	const {output, formatted} = await formatFileContent({
+		input: finalFile,
+		prettierConfigOverride,
+	});
+
+	return {
+		output,
+		formatted,
+		nodeLabels: pathsToDelete.map(({nodeLabel}) => nodeLabel),
+		logLines: pathsToDelete.map(({logLine}) => logLine),
+	};
+};
+
 export const deleteJsxNode = async ({
 	input,
 	nodePath,
@@ -422,33 +479,16 @@ export const deleteJsxNode = async ({
 	nodeLabel: string;
 	logLine: number;
 }> => {
-	const ast = parseAst(input);
-	const jsxPath = findJsxElementPathForDeletion(ast, nodePath);
-	if (!jsxPath) {
-		throw new Error(
-			'Could not find a JSX element at the specified location to delete',
-		);
-	}
-
-	const jsxElement = jsxPath.node as JSXElement;
-	const nodeLabel = getJsxElementTagLabel(jsxElement);
-	const logLine =
-		jsxElement.openingElement.loc?.start.line ??
-		jsxElement.loc?.start.line ??
-		1;
-
-	deleteJsxElementAtPath(jsxPath);
-
-	const finalFile = serializeAst(ast);
-	const {output, formatted} = await formatFileContent({
-		input: finalFile,
+	const {output, formatted, nodeLabels, logLines} = await deleteJsxNodes({
+		input,
+		nodePaths: [nodePath],
 		prettierConfigOverride,
 	});
 
 	return {
 		output,
 		formatted,
-		nodeLabel,
-		logLine,
+		nodeLabel: nodeLabels[0],
+		logLine: logLines[0],
 	};
 };

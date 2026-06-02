@@ -83,7 +83,8 @@ export const buildTimelineTree = ({
 	codeValues: CodeValues;
 }): TimelineTreeNode[] => {
 	const roots: TimelineTreeNode[] = [];
-	const {sequenceSubscriptionKey, index, auxiliaryKeys} = nodePathInfo;
+	const {sequenceSubscriptionKey, index, auxiliaryKeys, supportsEffects} =
+		nodePathInfo;
 
 	const controlFields = getFieldsToShow({
 		schema: sequence.controls!.schema,
@@ -103,6 +104,7 @@ export const buildTimelineTree = ({
 					auxiliaryKeys: [...auxiliaryKeys, 'controls', f.key],
 					index,
 					numberOfSequencesWithThisNodePath: 0,
+					supportsEffects,
 				},
 				label: f.description ?? f.key,
 				field: f,
@@ -118,6 +120,7 @@ export const buildTimelineTree = ({
 				auxiliaryKeys: [...auxiliaryKeys, 'effects'],
 				index,
 				numberOfSequencesWithThisNodePath: 0,
+				supportsEffects,
 			},
 			label: 'Effects',
 			effectInfo: null,
@@ -136,6 +139,7 @@ export const buildTimelineTree = ({
 						auxiliaryKeys: [...auxiliaryKeys, 'effects', i.toString()],
 						index,
 						numberOfSequencesWithThisNodePath: 0,
+						supportsEffects,
 					},
 					label: effect.label,
 					effectInfo: {
@@ -156,6 +160,7 @@ export const buildTimelineTree = ({
 								],
 								index,
 								numberOfSequencesWithThisNodePath: 0,
+								supportsEffects,
 							},
 							label: f.description ?? f.key,
 							field: f,

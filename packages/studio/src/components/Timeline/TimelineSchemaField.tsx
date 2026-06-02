@@ -14,6 +14,7 @@ import {TimelineColorField} from './TimelineColorField';
 import {TimelineEnumField} from './TimelineEnumField';
 import {TimelineNumberField} from './TimelineNumberField';
 import {TimelineRotationField} from './TimelineRotationField';
+import {TimelineScaleField} from './TimelineScaleField';
 import {TimelineTranslateField} from './TimelineTranslateField';
 import {TimelineUvCoordinateField} from './TimelineUvCoordinateField';
 
@@ -89,7 +90,10 @@ export const TimelineFieldValue: React.FC<{
 		);
 	}
 
-	if (field.typeName === 'rotation') {
+	if (
+		field.typeName === 'rotation-css' ||
+		field.typeName === 'rotation-degrees'
+	) {
 		return (
 			<span style={wrapperStyle}>
 				<TimelineRotationField
@@ -108,6 +112,21 @@ export const TimelineFieldValue: React.FC<{
 		return (
 			<span style={wrapperStyle}>
 				<TimelineTranslateField
+					field={field}
+					effectiveValue={effectiveValue}
+					propStatus={propStatus}
+					onSave={onSave}
+					onDragValueChange={onDragValueChange}
+					onDragEnd={onDragEnd}
+				/>
+			</span>
+		);
+	}
+
+	if (field.typeName === 'scale') {
+		return (
+			<span style={wrapperStyle}>
+				<TimelineScaleField
 					field={field}
 					effectiveValue={effectiveValue}
 					propStatus={propStatus}

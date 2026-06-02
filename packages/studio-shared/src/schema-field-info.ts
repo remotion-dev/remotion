@@ -41,8 +41,10 @@ export const SCHEMA_FIELD_ROW_HEIGHT = 22;
 const SUPPORTED_SCHEMA_TYPES = [
 	'number',
 	'boolean',
-	'rotation',
+	'rotation-css',
+	'rotation-degrees',
 	'translate',
+	'scale',
 	'uv-coordinate',
 	'color',
 	'enum',
@@ -70,6 +72,7 @@ export const getFieldsToShow = ({
 			currentValue: currentRuntimeValueDotNotation,
 			overrideValues: getDragOverrides(nodePath),
 			propStatus: Internals.getCodeValuesCtx(codeValues, nodePath),
+			frame: null,
 		});
 
 	const activeSchema = Internals.flattenActiveSchema(

@@ -33,17 +33,26 @@ export const useExpandedTrackKeyframeRows = ({
 } => {
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {codeValues} = useContext(Internals.VisualModeCodeValuesContext);
+	const {getDragOverrides, getEffectDragOverrides} = useContext(
+		Internals.VisualModeDragOverridesContext,
+	);
 
 	const tree = useMemo(
 		() =>
 			buildTimelineTree({
 				sequence,
 				nodePathInfo,
-				getDragOverrides: () => ({}),
-				getEffectDragOverrides: () => ({}),
+				getDragOverrides,
+				getEffectDragOverrides,
 				codeValues,
 			}),
-		[codeValues, nodePathInfo, sequence],
+		[
+			codeValues,
+			getDragOverrides,
+			getEffectDragOverrides,
+			nodePathInfo,
+			sequence,
+		],
 	);
 
 	const flat = useMemo(

@@ -473,6 +473,18 @@ Config.setSampleRate(44100);
 
 The [command line flag](/docs/cli/render#--sample-rate) `--sample-rate` will take precedence over this option.
 
+## `setPreviewSampleRate()`<AvailableFrom v="4.0.470" />
+
+<Options id="preview-sample-rate" />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setPreviewSampleRate(44100);
+```
+
+The [command line flag](/docs/cli/studio#--preview-sample-rate) `--preview-sample-rate` will take precedence over this option.
+
 ## `setForSeamlessAacConcatenation()`<AvailableFrom v="4.0.123" />
 
 <Options id="for-seamless-aac-concatenation" />

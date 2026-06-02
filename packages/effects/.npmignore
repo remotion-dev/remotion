@@ -7,3 +7,5 @@ tsconfig.tsbuildinfo
 tsconfig.json
 bundle.ts
 eslint.config.mjs
+vitest.config.ts
+.vitest-attachments

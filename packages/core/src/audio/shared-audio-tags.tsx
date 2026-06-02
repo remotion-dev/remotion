@@ -1,12 +1,13 @@
-import {type AudioHTMLAttributes} from 'react';
 import React, {
 	createContext,
 	createRef,
 	useCallback,
 	useContext,
+	useEffect,
 	useMemo,
 	useRef,
 	useState,
+	type AudioHTMLAttributes,
 } from 'react';
 import {useLogLevel, useMountTime} from '../log-level-context.js';
 import {Log} from '../log.js';
@@ -193,12 +194,24 @@ export const SharedAudioContextProvider: React.FC<{
 	readonly children: React.ReactNode;
 	readonly audioLatencyHint: AudioContextLatencyCategory;
 	readonly audioEnabled: boolean;
-}> = ({children, audioLatencyHint, audioEnabled}) => {
+	readonly previewSampleRate: number | null;
+}> = ({children, audioLatencyHint, audioEnabled, previewSampleRate}) => {
 	const logLevel = useLogLevel();
+	const sampleRate = previewSampleRate ?? 48000;
+
+	useEffect(() => {
+		if (typeof window === 'undefined') {
+			return;
+		}
+
+		window.remotion_sampleRate = sampleRate;
+	}, [sampleRate]);
+
 	const ctxAndGain = useSingletonAudioContext({
 		logLevel,
 		latencyHint: audioLatencyHint,
 		audioEnabled,
+		sampleRate,
 	});
 	const audioContextIsPlayingEventually = useRef(false);
 	const isResuming = useRef<Promise<void> | null>(null);

@@ -13,8 +13,10 @@ import type {
 import type {ExpressionKind, SpreadElementKind} from 'ast-types/lib/gen/kinds';
 import * as recast from 'recast';
 import type {SequenceNodePath} from 'remotion';
+import {getAstNodePath} from '../../helpers/get-ast-node-path';
 import {
 	extractStaticValue,
+	findNodePathForJsxElement,
 	findJsxElementAtNodePath,
 	isStaticValue,
 } from '../../preview-server/routes/can-update-sequence-props';
@@ -25,6 +27,11 @@ import {
 	findEffectsAttr,
 } from '../update-effect-props/update-effect-props';
 import {parseValueExpression} from '../update-nested-prop';
+import {
+	ensureRemotionImports,
+	ensureUseCurrentFrameHook,
+	findEnclosingFunctionPath,
+} from './ensure-imports-and-frame-hook';
 
 const b = recast.types.builders;
 
@@ -220,6 +227,16 @@ const createInterpolateExpression = ({
 	]) as ExpressionKind;
 };
 
+export type IntroducedKeyframeIdentifiers = {
+	calleeName: 'interpolate' | 'interpolateColors' | null;
+	needsFrameHook: boolean;
+};
+
+const noIntroducedIdentifiers: IntroducedKeyframeIdentifiers = {
+	calleeName: null,
+	needsFrameHook: false,
+};
+
 const addKeyframe = ({
 	expression,
 	frame,
@@ -228,7 +245,7 @@ const addKeyframe = ({
 	expression: Expression;
 	frame: number;
 	value: unknown;
-}): ExpressionKind => {
+}): {expression: ExpressionKind; introduced: IntroducedKeyframeIdentifiers} => {
 	const existing = getInterpolationExpression(expression);
 	const newOutput = parseValueExpression(value);
 
@@ -245,12 +262,15 @@ const addKeyframe = ({
 							: keyframe,
 					);
 
-		return createInterpolateExpression({
-			callee: existing.callee,
-			input: existing.input,
-			extraArgs: existing.extraArgs,
-			keyframes: nextKeyframes,
-		});
+		return {
+			expression: createInterpolateExpression({
+				callee: existing.callee,
+				input: existing.input,
+				extraArgs: existing.extraArgs,
+				keyframes: nextKeyframes,
+			}),
+			introduced: noIntroducedIdentifiers,
+		};
 	}
 
 	if (!isStaticValue(expression)) {
@@ -258,24 +278,28 @@ const addKeyframe = ({
 	}
 
 	const staticValue = extractStaticValue(expression);
-	const staticOutput = parseValueExpression(staticValue);
-	const keyframes: InterpolateKeyframe[] =
-		frame === 0
-			? [{frame, output: newOutput, value}]
-			: [
-					{frame: 0, output: staticOutput, value: staticValue},
-					{frame, output: newOutput, value},
-				];
+	const keyframes: InterpolateKeyframe[] = [{frame, output: newOutput, value}];
 
-	return createInterpolateExpression({
-		callee: getInterpolationCalleeForValues({
-			staticValue,
-			newValue: value,
-		}),
-		input: b.identifier('frame'),
-		extraArgs: [],
-		keyframes,
+	const callee = getInterpolationCalleeForValues({
+		staticValue,
+		newValue: value,
 	});
+
+	return {
+		expression: createInterpolateExpression({
+			callee,
+			input: b.identifier('frame'),
+			extraArgs: [],
+			keyframes,
+		}),
+		introduced: {
+			calleeName:
+				callee.type === 'Identifier'
+					? (callee.name as 'interpolate' | 'interpolateColors')
+					: null,
+			needsFrameHook: true,
+		},
+	};
 };
 
 const removeKeyframe = ({
@@ -301,6 +325,10 @@ const removeKeyframe = ({
 		(_keyframe, index) => index !== keyframeIndex,
 	);
 
+	if (nextKeyframes.length === 0) {
+		return existing.keyframes[keyframeIndex].output;
+	}
+
 	return createInterpolateExpression({
 		callee: existing.callee,
 		input: existing.input,
@@ -315,7 +343,7 @@ const applyKeyframeOperation = ({
 }: {
 	expression: Expression;
 	operation: KeyframeOperation;
-}): ExpressionKind => {
+}): {expression: ExpressionKind; introduced: IntroducedKeyframeIdentifiers} => {
 	if (operation.type === 'add') {
 		return addKeyframe({
 			expression,
@@ -324,7 +352,10 @@ const applyKeyframeOperation = ({
 		});
 	}
 
-	return removeKeyframe({expression, frame: operation.frame});
+	return {
+		expression: removeKeyframe({expression, frame: operation.frame}),
+		introduced: noIntroducedIdentifiers,
+	};
 };
 
 const getExpressionFromJsxAttribute = (
@@ -477,11 +508,14 @@ export const updateSequenceKeyframesAst = ({
 }): {
 	serialized: string;
 	oldValueStrings: string[];
+	newValueStrings: string[];
 	logLine: number;
+	updatedNodePath: SequenceNodePath;
 } => {
 	const ast = parseAst(input);
+	const jsxPath = getAstNodePath(ast, nodePath);
 	const node = findJsxElementAtNodePath(ast, nodePath);
-	if (!node) {
+	if (!node || !jsxPath) {
 		throw new Error(
 			'Could not find a JSX element at the specified location to update keyframes',
 		);
@@ -491,25 +525,56 @@ export const updateSequenceKeyframesAst = ({
 		node.attributes = [];
 	}
 
+	const requiredImports = new Set<string>();
+	let needsFrameHook = false;
+
 	const oldValueStrings: string[] = [];
+	const newValueStrings: string[] = [];
 	for (const update of updates) {
 		const prop = getSequenceWritableProp({
 			attributes: node.attributes,
 			key: update.key,
 		});
 		oldValueStrings.push(recast.print(prop.expression).code);
-		prop.setExpression(
-			applyKeyframeOperation({
-				expression: prop.expression,
-				operation: update.operation,
-			}),
+		const {expression: nextExpression, introduced} = applyKeyframeOperation({
+			expression: prop.expression,
+			operation: update.operation,
+		});
+		newValueStrings.push(recast.print(nextExpression).code);
+		prop.setExpression(nextExpression);
+
+		if (introduced.calleeName) {
+			requiredImports.add(introduced.calleeName);
+		}
+
+		if (introduced.needsFrameHook) {
+			requiredImports.add('useCurrentFrame');
+			needsFrameHook = true;
+		}
+	}
+
+	if (needsFrameHook) {
+		const fnPath = findEnclosingFunctionPath(jsxPath);
+		if (fnPath) {
+			ensureUseCurrentFrameHook(fnPath);
+		}
+	}
+
+	ensureRemotionImports(ast, requiredImports);
+
+	const updatedNodePath = findNodePathForJsxElement(ast, node);
+	if (!updatedNodePath) {
+		throw new Error(
+			'Could not find updated JSX element location after updating keyframes',
 		);
 	}
 
 	return {
 		serialized: serializeAst(ast),
 		oldValueStrings,
+		newValueStrings,
 		logLine: node.loc?.start.line ?? 1,
+		updatedNodePath,
 	};
 };
 
@@ -527,9 +592,17 @@ export const updateSequenceKeyframes = async ({
 	output: string;
 	formatted: boolean;
 	oldValueStrings: string[];
+	newValueStrings: string[];
 	logLine: number;
+	updatedNodePath: SequenceNodePath;
 }> => {
-	const {serialized, oldValueStrings, logLine} = updateSequenceKeyframesAst({
+	const {
+		serialized,
+		oldValueStrings,
+		newValueStrings,
+		logLine,
+		updatedNodePath,
+	} = updateSequenceKeyframesAst({
 		input,
 		nodePath,
 		updates,
@@ -539,7 +612,14 @@ export const updateSequenceKeyframes = async ({
 		prettierConfigOverride,
 	});
 
-	return {output, formatted, oldValueStrings, logLine};
+	return {
+		output,
+		formatted,
+		oldValueStrings,
+		newValueStrings,
+		logLine,
+		updatedNodePath,
+	};
 };
 
 export const updateEffectKeyframesAst = ({
@@ -555,12 +635,15 @@ export const updateEffectKeyframesAst = ({
 }): {
 	serialized: string;
 	oldValueStrings: string[];
+	newValueStrings: string[];
 	logLine: number;
 	effectCallee: string;
+	updatedSequenceNodePath: SequenceNodePath;
 } => {
 	const ast = parseAst(input);
+	const jsxPath = getAstNodePath(ast, sequenceNodePath);
 	const jsx = findJsxElementAtNodePath(ast, sequenceNodePath);
-	if (!jsx) {
+	if (!jsx || !jsxPath) {
 		throw new Error(
 			'Could not find a JSX element at the specified location to update effect keyframes',
 		);
@@ -586,6 +669,9 @@ export const updateEffectKeyframesAst = ({
 
 	const objExpr = call.arguments[0] as ObjectExpression;
 	const oldValueStrings: string[] = [];
+	const newValueStrings: string[] = [];
+	const requiredImports = new Set<string>();
+	let needsFrameHook = false;
 	for (const update of updates) {
 		const {prop} = findObjectProperty(objExpr, update.key);
 		if (!prop) {
@@ -593,17 +679,46 @@ export const updateEffectKeyframesAst = ({
 		}
 
 		oldValueStrings.push(recast.print(prop.value).code);
-		prop.value = applyKeyframeOperation({
+		const {expression: nextExpression, introduced} = applyKeyframeOperation({
 			expression: prop.value as Expression,
 			operation: update.operation,
-		}) as ObjectProperty['value'];
+		});
+		newValueStrings.push(recast.print(nextExpression).code);
+		prop.value = nextExpression as ObjectProperty['value'];
+
+		if (introduced.calleeName) {
+			requiredImports.add(introduced.calleeName);
+		}
+
+		if (introduced.needsFrameHook) {
+			requiredImports.add('useCurrentFrame');
+			needsFrameHook = true;
+		}
+	}
+
+	if (needsFrameHook) {
+		const fnPath = findEnclosingFunctionPath(jsxPath);
+		if (fnPath) {
+			ensureUseCurrentFrameHook(fnPath);
+		}
+	}
+
+	ensureRemotionImports(ast, requiredImports);
+
+	const updatedSequenceNodePath = findNodePathForJsxElement(ast, jsx);
+	if (!updatedSequenceNodePath) {
+		throw new Error(
+			'Could not find updated JSX element location after updating effect keyframes',
+		);
 	}
 
 	return {
 		serialized: serializeAst(ast),
 		oldValueStrings,
+		newValueStrings,
 		logLine: call.loc?.start.line ?? jsx.loc?.start.line ?? 1,
 		effectCallee,
+		updatedSequenceNodePath,
 	};
 };
 
@@ -623,20 +738,36 @@ export const updateEffectKeyframes = async ({
 	output: string;
 	formatted: boolean;
 	oldValueStrings: string[];
+	newValueStrings: string[];
 	logLine: number;
 	effectCallee: string;
+	updatedSequenceNodePath: SequenceNodePath;
 }> => {
-	const {serialized, oldValueStrings, logLine, effectCallee} =
-		updateEffectKeyframesAst({
-			input,
-			sequenceNodePath,
-			effectIndex,
-			updates,
-		});
+	const {
+		serialized,
+		oldValueStrings,
+		newValueStrings,
+		logLine,
+		effectCallee,
+		updatedSequenceNodePath,
+	} = updateEffectKeyframesAst({
+		input,
+		sequenceNodePath,
+		effectIndex,
+		updates,
+	});
 	const {output, formatted} = await formatFileContent({
 		input: serialized,
 		prettierConfigOverride,
 	});
 
-	return {output, formatted, oldValueStrings, logLine, effectCallee};
+	return {
+		output,
+		formatted,
+		oldValueStrings,
+		newValueStrings,
+		logLine,
+		effectCallee,
+		updatedSequenceNodePath,
+	};
 };

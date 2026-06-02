@@ -1,5 +1,4 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
-import {type SequenceControls, type SequenceSchema} from 'remotion';
 import {
 	AbsoluteFill,
 	Internals,
@@ -9,7 +8,9 @@ import {
 	useVideoConfig,
 	type AbsoluteFillLayout,
 	type LayoutAndStyle,
+	type SequenceControls,
 	type SequenceProps,
+	type SequenceSchema,
 } from 'remotion';
 
 const {createWebGLContextError} = Internals;
@@ -291,10 +292,11 @@ const LightLeakInner: React.FC<
 	);
 };
 
-export const LightLeak = Internals.wrapInSchema(
-	LightLeakInner,
-	lightLeakSchema,
-);
+export const LightLeak = Internals.wrapInSchema({
+	Component: LightLeakInner,
+	schema: lightLeakSchema,
+	supportsEffects: false,
+});
 
 LightLeak.displayName = 'LightLeak';
 

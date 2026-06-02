@@ -1,6 +1,9 @@
 import {expect, test} from 'bun:test';
 import {NoReactInternals} from 'remotion/no-react';
-import {updateSequenceProps} from '../codemods/update-sequence-props/update-sequence-props';
+import {
+	updateMultipleSequenceProps,
+	updateSequenceProps,
+} from '../codemods/update-sequence-props/update-sequence-props';
 import {lineColumnToNodePath} from './test-utils';
 
 const lightLeakInput = `import {LightLeak} from '@remotion/light-leaks';
@@ -23,6 +26,7 @@ test('updateSequenceProps should update a number value', async () => {
 		nodePath: lineColumnToNodePath(lightLeakInput, 8),
 		updates: [{key: 'hueShift', value: 90, defaultValue: null}],
 		schema: NoReactInternals.sequenceSchema,
+		prettierConfigOverride: null,
 	});
 	const oldValueString = oldValueStrings[0];
 
@@ -38,6 +42,7 @@ test('updateSequenceProps should update durationInFrames', async () => {
 		nodePath: lineColumnToNodePath(lightLeakInput, 9),
 		updates: [{key: 'durationInFrames', value: 120, defaultValue: null}],
 		schema: NoReactInternals.sequenceSchema,
+		prettierConfigOverride: null,
 	});
 	const oldValueString = oldValueStrings[0];
 
@@ -53,6 +58,7 @@ test('updateSequenceProps should add a new attribute', async () => {
 		nodePath: lineColumnToNodePath(lightLeakInput, 9),
 		updates: [{key: 'speed', value: 2, defaultValue: null}],
 		schema: NoReactInternals.sequenceSchema,
+		prettierConfigOverride: null,
 	});
 	const oldValueString = oldValueStrings[0];
 
@@ -66,6 +72,7 @@ test('updateSequenceProps should remove attribute when value equals default', as
 		nodePath: lineColumnToNodePath(lightLeakInput, 9),
 		updates: [{key: 'hueShift', value: 0, defaultValue: 0}],
 		schema: NoReactInternals.sequenceSchema,
+		prettierConfigOverride: null,
 	});
 	const oldValueString = oldValueStrings[0];
 
@@ -81,6 +88,7 @@ test('updateSequenceProps should set boolean true as shorthand', async () => {
 		nodePath: lineColumnToNodePath(lightLeakInput, 8),
 		updates: [{key: 'loop', value: true, defaultValue: false}],
 		schema: NoReactInternals.sequenceSchema,
+		prettierConfigOverride: null,
 	});
 
 	// true booleans become shorthand: `loop` not `loop={true}`
@@ -94,6 +102,7 @@ test('updateSequenceProps should report oldValueString for computed expressions'
 		nodePath: lineColumnToNodePath(lightLeakInput, 8),
 		updates: [{key: 'seed', value: 5, defaultValue: null}],
 		schema: NoReactInternals.sequenceSchema,
+		prettierConfigOverride: null,
 	});
 	const oldValueString = oldValueStrings[0];
 
@@ -106,6 +115,7 @@ test('updateSequenceProps should report default as oldValueString for missing at
 		nodePath: lineColumnToNodePath(lightLeakInput, 8),
 		updates: [{key: 'speed', value: 2, defaultValue: 1}],
 		schema: NoReactInternals.sequenceSchema,
+		prettierConfigOverride: null,
 	});
 	const oldValueString = oldValueStrings[0];
 
@@ -119,8 +129,33 @@ test('updateSequenceProps should throw for non-existent nodePath', async () => {
 			nodePath: ['program', 'body', 999],
 			updates: [{key: 'hueShift', value: 90, defaultValue: null}],
 			schema: NoReactInternals.sequenceSchema,
+			prettierConfigOverride: null,
 		}),
 	).rejects.toThrow(
 		'Could not find a JSX element at the specified line to update',
 	);
+});
+
+test('updateMultipleSequenceProps should update multiple nodes in one format pass', async () => {
+	const {output, results} = await updateMultipleSequenceProps({
+		input: lightLeakInput,
+		changes: [
+			{
+				nodePath: lineColumnToNodePath(lightLeakInput, 8),
+				updates: [{key: 'hueShift', value: 90, defaultValue: null}],
+				schema: NoReactInternals.sequenceSchema,
+			},
+			{
+				nodePath: lineColumnToNodePath(lightLeakInput, 9),
+				updates: [{key: 'durationInFrames', value: 120, defaultValue: null}],
+				schema: NoReactInternals.sequenceSchema,
+			},
+		],
+		prettierConfigOverride: null,
+	});
+
+	expect(results[0].oldValueStrings[0]).toBe('30');
+	expect(results[1].oldValueStrings[0]).toBe('60');
+	expect(output.split('\n')[7]).toContain('hueShift={90}');
+	expect(output.split('\n')[8]).toContain('durationInFrames={120}');
 });

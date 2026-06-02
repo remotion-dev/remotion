@@ -2,11 +2,15 @@ import {afterEach, beforeEach, expect, test} from 'bun:test';
 import {cleanup, render, waitFor} from '@testing-library/react';
 import React from 'react';
 import {CanvasImage} from '../canvas-image/index.js';
+import type {TSequence} from '../CompositionManager.js';
 import type {
 	EffectApplyParams,
 	EffectDefinition,
 	EffectDescriptor,
 } from '../effects/effect-types.js';
+import {Internals} from '../internals.js';
+import type {SequenceManagerContext} from '../SequenceManager.js';
+import {SequenceManager} from '../SequenceManager.js';
 import {WrapSequenceContext} from './wrap-sequence-context.js';
 
 type DrawImageCall = {
@@ -68,6 +72,45 @@ class MockImage {
 
 const OriginalImage = globalThis.Image;
 
+const studioEnv = {
+	isRendering: false,
+	isClientSideRendering: false,
+	isPlayer: false,
+	isStudio: true,
+	isReadOnlyStudio: false,
+};
+
+const SequenceRegistrationWrapper: React.FC<{
+	readonly children: React.ReactNode;
+	readonly onRegisterSequence: (sequence: TSequence) => void;
+}> = ({children, onRegisterSequence}) => {
+	const registerSequence = React.useCallback(
+		(sequence: TSequence) => {
+			onRegisterSequence(sequence);
+		},
+		[onRegisterSequence],
+	);
+	const unregisterSequence = React.useCallback(() => undefined, []);
+	const sequenceManagerContext: SequenceManagerContext = React.useMemo(
+		() => ({
+			registerSequence,
+			unregisterSequence,
+			sequences: [],
+		}),
+		[registerSequence, unregisterSequence],
+	);
+
+	return (
+		<WrapSequenceContext>
+			<Internals.RemotionEnvironmentContext value={studioEnv}>
+				<SequenceManager.Provider value={sequenceManagerContext}>
+					{children}
+				</SequenceManager.Provider>
+			</Internals.RemotionEnvironmentContext>
+		</WrapSequenceContext>
+	);
+};
+
 beforeEach(() => {
 	drawImageCalls.length = 0;
 	globalThis.Image = MockImage as unknown as typeof Image;
@@ -107,6 +150,26 @@ test('<CanvasImage> forwards a canvas ref', async () => {
 		expect(ref.current?.tagName).toBe('CANVAS');
 		expect(ref.current?.getAttribute('width')).toBe('120');
 		expect(ref.current?.getAttribute('height')).toBe('80');
+	});
+});
+
+test('<CanvasImage> registers its canvas as the outline ref', async () => {
+	const registeredSequences: TSequence[] = [];
+
+	render(
+		<SequenceRegistrationWrapper
+			onRegisterSequence={(sequence) => {
+				registeredSequences.push(sequence);
+			}}
+		>
+			<CanvasImage src="test.png" width={120} height={80} />
+		</SequenceRegistrationWrapper>,
+	);
+
+	await waitFor(() => {
+		expect(registeredSequences[0]?.refForOutline?.current?.tagName).toBe(
+			'CANVAS',
+		);
 	});
 });
 

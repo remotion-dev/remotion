@@ -16,6 +16,7 @@ import type {Dimensions} from '../helpers/is-current-selected-still';
 import {CheckerboardContext} from '../state/checkerboard';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from './Menu/is-menu-item';
 import {RenderPreview} from './RenderPreview';
+import {SelectedOutlineOverlay} from './SelectedOutlineOverlay';
 import {Spinner} from './Spinner';
 import {StaticFilePreview} from './StaticFilePreview';
 
@@ -102,6 +103,7 @@ const containerStyle = (options: {
 		width: options.width,
 		height: options.height,
 		display: 'flex',
+		overflow: 'hidden',
 		position: 'absolute',
 		backgroundColor: checkerboardBackgroundColor(options.checkerboard),
 		backgroundImage: checkerboardBackgroundImage(options.checkerboard),
@@ -211,7 +213,7 @@ const CompWhenItHasDimensions: React.FC<{
 			position: 'absolute',
 			left: centerX - previewSize.translation.x,
 			top: centerY - previewSize.translation.y,
-			overflow: 'hidden',
+			overflow: canvasContent.type === 'composition' ? 'visible' : 'hidden',
 			justifyContent: canvasContent.type === 'asset' ? 'center' : 'flex-start',
 			alignItems:
 				canvasContent.type === 'asset' &&
@@ -271,6 +273,7 @@ const CompWhenItHasDimensions: React.FC<{
 				xCorrection={xCorrection}
 				yCorrection={yCorrection}
 			/>
+			<SelectedOutlineOverlay scale={scale} />
 		</div>
 	);
 };

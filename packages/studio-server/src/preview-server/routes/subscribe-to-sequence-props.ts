@@ -9,7 +9,7 @@ export const subscribeToSequenceProps: ApiHandler<
 	SubscribeToSequencePropsRequest,
 	SubscribeToSequencePropsResponse
 > = ({
-	input: {fileName, line, column, keys, effects, clientId},
+	input: {fileName, line, column, nodePath, keys, effects, clientId},
 	remotionRoot,
 	logLevel,
 }) => {
@@ -17,6 +17,7 @@ export const subscribeToSequenceProps: ApiHandler<
 		fileName,
 		line,
 		column,
+		nodePath,
 		keys,
 		effects,
 		remotionRoot,
