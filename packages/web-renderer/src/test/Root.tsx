@@ -71,6 +71,7 @@ import {letterSpacing} from './fixtures/text/letter-spacing';
 import {paragraphs} from './fixtures/text/paragraphs';
 import {textFixture} from './fixtures/text/text';
 import {textShadow} from './fixtures/text/text-shadow';
+import {textShadowScale} from './fixtures/text/text-shadow-scale';
 import {textTransform} from './fixtures/text/text-transform';
 import {webkitTextFillColor} from './fixtures/text/webkit-text-fill-color';
 import {webkitTextStroke} from './fixtures/text/webkit-text-stroke';
@@ -165,6 +166,7 @@ export const Root: React.FC = () => {
 				<Composition {...backgroundClipText} />
 				<Composition {...backgroundClipText3dTransform} />
 				<Composition {...textShadow} />
+				<Composition {...textShadowScale} />
 				<Composition {...whiteSpaceCollapsing} />
 				<Composition {...whiteSpaceCollapsing2} />
 				<Composition {...filterText} />

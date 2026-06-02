@@ -96,6 +96,10 @@ export const drawText = ({
 
 		const textShadows = parseTextShadow(textShadowValue);
 
+		// Shadow offset/blur ignore the CTM (unlike fillText), so apply it manually.
+		const ctm = contextToDraw.getTransform();
+		const blurScale = Math.hypot(ctm.a, ctm.b);
+
 		const {strokeFirst} = parsePaintOrder(paintOrder);
 
 		for (const token of tokens) {
@@ -115,9 +119,11 @@ export const drawText = ({
 			for (let i = textShadows.length - 1; i >= 0; i--) {
 				const shadow = textShadows[i];
 				contextToDraw.shadowColor = shadow.color;
-				contextToDraw.shadowBlur = shadow.blurRadius;
-				contextToDraw.shadowOffsetX = shadow.offsetX;
-				contextToDraw.shadowOffsetY = shadow.offsetY;
+				contextToDraw.shadowBlur = shadow.blurRadius * blurScale;
+				contextToDraw.shadowOffsetX =
+					shadow.offsetX * ctm.a + shadow.offsetY * ctm.c;
+				contextToDraw.shadowOffsetY =
+					shadow.offsetX * ctm.b + shadow.offsetY * ctm.d;
 				contextToDraw.fillText(token.text, x, y);
 			}
 
