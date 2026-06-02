@@ -132,3 +132,22 @@ test('uses bezier easing', () => {
 	expect(result).toBeGreaterThan(0);
 	expect(result).toBeLessThan(100);
 });
+
+test('interpolates scale strings component-wise', () => {
+	const result = interpolateKeyframedStatus({
+		frame: 30,
+		status: {
+			canUpdate: false,
+			reason: 'keyframed',
+			interpolationFunction: 'interpolate',
+			keyframes: [
+				{frame: 0, value: 2},
+				{frame: 60, value: '4 8 3'},
+			],
+			easing: ['linear'],
+			clamping: {left: 'extend', right: 'extend'},
+			posterize: undefined,
+		},
+	});
+	expect(result).toBe('3 5 2');
+});

@@ -39,18 +39,19 @@ const navButtonStyle: React.CSSProperties = {
 	cursor: 'pointer',
 	display: 'flex',
 	flexShrink: 0,
-	height: 12,
+	height: 14,
 	justifyContent: 'center',
 	lineHeight: 1,
 	outline: 'none',
 	padding: 0,
 	userSelect: 'none',
-	width: 12,
+	width: 14,
 };
 
 const diamondButtonStyle: React.CSSProperties = {
 	...navButtonStyle,
 	background: 'none',
+	translate: '0 -0.5px',
 };
 
 const diamondIconStyle: React.CSSProperties = {
@@ -161,6 +162,17 @@ export const TimelineKeyframeControls: React.FC<{
 		return hasKeyframeAtSourceFrame(propStatus.keyframes, jsxFrame);
 	}, [jsxFrame, propStatus]);
 
+	const currentKeyframeValue = useMemo(
+		() =>
+			getCurrentKeyframeValue({
+				propStatus,
+				jsxFrame,
+				defaultValue,
+				dragOverrideValue,
+			}),
+		[defaultValue, dragOverrideValue, jsxFrame, propStatus],
+	);
+
 	const previousDisplayFrame = useMemo(
 		() => getPreviousKeyframeDisplayFrame(keyframes, timelinePosition),
 		[keyframes, timelinePosition],
@@ -170,8 +182,12 @@ export const TimelineKeyframeControls: React.FC<{
 		[keyframes, timelinePosition],
 	);
 
+	const fieldSchema = schema[fieldKey];
+	const canAddKeyframe =
+		fieldSchema?.type !== 'scale' || typeof currentKeyframeValue === 'number';
 	const canToggleKeyframe =
-		propStatus.canUpdate || propStatus.reason === 'keyframed';
+		(propStatus.canUpdate || propStatus.reason === 'keyframed') &&
+		(hasKeyframeAtCurrentFrame || canAddKeyframe);
 
 	const seekToDisplayFrame = useCallback(
 		(frame: number) => {
@@ -242,12 +258,7 @@ export const TimelineKeyframeControls: React.FC<{
 				return;
 			}
 
-			const value = getCurrentKeyframeValue({
-				propStatus,
-				jsxFrame,
-				defaultValue,
-				dragOverrideValue,
-			});
+			const value = currentKeyframeValue;
 			if (value === null) {
 				return;
 			}
@@ -281,12 +292,11 @@ export const TimelineKeyframeControls: React.FC<{
 		[
 			canToggleKeyframe,
 			clientId,
-			defaultValue,
-			dragOverrideValue,
 			effectIndex,
 			fieldKey,
 			fileName,
 			hasKeyframeAtCurrentFrame,
+			currentKeyframeValue,
 			jsxFrame,
 			nodePath,
 			propStatus,
