@@ -14,7 +14,7 @@ import type {
 export type CanUpdateSequencePropStatusTrue = {
 	canUpdate: true;
 	codeValue: unknown;
-	reason?: undefined;
+	keyframed: boolean;
 };
 
 export type CanUpdateSequencePropStatusKeyframe = {
@@ -43,7 +43,7 @@ export type CanUpdateSequencePropStatusComputed = {
 export type CanUpdateSequencePropStatusKeyframed = {
 	canUpdate: true;
 	codeValue: unknown;
-	reason: 'keyframed';
+	keyframed: true;
 	interpolationFunction: CanUpdateSequencePropStatusInterpolationFunction;
 	keyframes: CanUpdateSequencePropStatusKeyframe[];
 	easing: CanUpdateSequencePropStatusEasing[];
@@ -80,6 +80,12 @@ export type GetEffectDragOverrides = (
 	nodePath: SequencePropsSubscriptionKey,
 	effectIndex: number,
 ) => Record<string, unknown>;
+
+export const isKeyframedStatus = (
+	status: CanUpdateSequencePropStatus | null,
+): status is CanUpdateSequencePropStatusKeyframed => {
+	return status !== null && status.canUpdate && 'keyframes' in status;
+};
 
 const findFieldInSchema = (
 	schema: SequenceSchema,
@@ -131,10 +137,7 @@ export const computeEffectiveSchemaValuesDotNotation = ({
 		let value: unknown;
 		if (codeValueStatus === null) {
 			value = currentValue[key];
-		} else if (
-			'reason' in codeValueStatus &&
-			codeValueStatus.reason === 'keyframed'
-		) {
+		} else if (isKeyframedStatus(codeValueStatus)) {
 			if (frame !== null) {
 				const interpolated = interpolateKeyframedStatus({
 					frame,

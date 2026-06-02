@@ -49,7 +49,7 @@ export const TimelineNonEditableStatus: React.FC<{
 		return null;
 	}
 
-	if (propStatus.reason === 'computed' || propStatus.reason === 'keyframed') {
+	if (propStatus.reason === 'computed') {
 		return (
 			<span style={unsupportedLabel}>{getComputedStatusLabel(propStatus)}</span>
 		);

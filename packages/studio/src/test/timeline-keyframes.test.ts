@@ -116,7 +116,7 @@ test('keyframe display offsets follow the parent sequence context', () => {
 			{
 				canUpdate: true,
 				codeValue: undefined,
-				reason: 'keyframed',
+				keyframed: true,
 				interpolationFunction: 'interpolate',
 				keyframes: [
 					{frame: 0, value: 2},

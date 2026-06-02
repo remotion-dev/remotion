@@ -1,6 +1,6 @@
 import React, {useMemo} from 'react';
 import type {
-	CanUpdateSequencePropStatusKeyframed,
+	CanUpdateSequencePropStatus,
 	CanUpdateSequencePropStatusTrue,
 } from 'remotion';
 import {Internals} from 'remotion';
@@ -17,13 +17,17 @@ const noopAsync = () => Promise.resolve();
 
 export const TimelineKeyframedValue: React.FC<{
 	readonly field: SchemaFieldInfo;
-	readonly propStatus: CanUpdateSequencePropStatusKeyframed;
+	readonly propStatus: CanUpdateSequencePropStatus;
 	readonly keyframeDisplayOffset: number;
 }> = ({field, propStatus, keyframeDisplayOffset}) => {
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const jsxFrame = timelinePosition - keyframeDisplayOffset;
 
 	const computedValue = useMemo(() => {
+		if (!('keyframes' in propStatus)) {
+			return null;
+		}
+
 		const raw = Internals.interpolateKeyframedStatus({
 			frame: jsxFrame,
 			status: propStatus,
@@ -39,6 +43,7 @@ export const TimelineKeyframedValue: React.FC<{
 		() => ({
 			canUpdate: true,
 			codeValue: computedValue,
+			keyframed: false,
 		}),
 		[computedValue],
 	);

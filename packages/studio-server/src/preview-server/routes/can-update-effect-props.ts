@@ -158,7 +158,7 @@ const getPropsFromObjectExpression = ({
 		) as ObjectProperty | undefined;
 
 		if (!prop) {
-			out[key] = {canUpdate: true, codeValue: undefined};
+			out[key] = {canUpdate: true, codeValue: undefined, keyframed: false};
 			continue;
 		}
 
@@ -171,6 +171,7 @@ const getPropsFromObjectExpression = ({
 		out[key] = {
 			canUpdate: true,
 			codeValue: extractStaticValue(valueExpr),
+			keyframed: false,
 		};
 	}
 
@@ -225,7 +226,11 @@ export const computeEffectPropStatus = ({
 	if (call.arguments.length === 0) {
 		const emptyProps: Record<string, CanUpdateSequencePropStatus> = {};
 		for (const key of keys) {
-			emptyProps[key] = {canUpdate: true, codeValue: undefined};
+			emptyProps[key] = {
+				canUpdate: true,
+				codeValue: undefined,
+				keyframed: false,
+			};
 		}
 
 		return {

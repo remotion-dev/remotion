@@ -12,6 +12,7 @@ test('optimisticAddSequenceKeyframe converts a static prop to a single keyframe'
 			opacity: {
 				canUpdate: true,
 				codeValue: 0.5,
+				keyframed: false,
 			},
 		},
 		effects: [],
@@ -29,7 +30,7 @@ test('optimisticAddSequenceKeyframe converts a static prop to a single keyframe'
 	}
 
 	const status = updated.props.opacity;
-	if (!status || !status.canUpdate || status.reason !== 'keyframed') {
+	if (!status || !status.canUpdate || !('keyframes' in status)) {
 		throw new Error('expected keyframed status');
 	}
 
@@ -44,7 +45,7 @@ test('optimisticAddSequenceKeyframe appends a keyframe to an existing interpolat
 			scale: {
 				canUpdate: true,
 				codeValue: undefined,
-				reason: 'keyframed',
+				keyframed: true,
 				interpolationFunction: 'interpolate',
 				keyframes: [
 					{frame: 0, value: 1},
@@ -70,7 +71,7 @@ test('optimisticAddSequenceKeyframe appends a keyframe to an existing interpolat
 	}
 
 	const status = updated.props.scale;
-	if (!status || !status.canUpdate || status.reason !== 'keyframed') {
+	if (!status || !status.canUpdate || !('keyframes' in status)) {
 		throw new Error('expected keyframed status');
 	}
 
@@ -96,7 +97,7 @@ test('optimisticAddEffectKeyframe appends a keyframe on the target effect', () =
 					amount: {
 						canUpdate: true,
 						codeValue: undefined,
-						reason: 'keyframed',
+						keyframed: true,
 						interpolationFunction: 'interpolate',
 						keyframes: [{frame: 0, value: 0.2}],
 						easing: [],
@@ -126,7 +127,7 @@ test('optimisticAddEffectKeyframe appends a keyframe on the target effect', () =
 	}
 
 	const status = effect.props.amount;
-	if (!status || !status.canUpdate || status.reason !== 'keyframed') {
+	if (!status || !status.canUpdate || !('keyframes' in status)) {
 		throw new Error('expected keyframed status');
 	}
 
@@ -150,6 +151,7 @@ test('optimisticAddEffectKeyframe converts a static prop to a single keyframe', 
 					amount: {
 						canUpdate: true,
 						codeValue: 0.2,
+						keyframed: false,
 					},
 				},
 			},
@@ -174,7 +176,7 @@ test('optimisticAddEffectKeyframe converts a static prop to a single keyframe', 
 	}
 
 	const status = effect.props.amount;
-	if (!status || !status.canUpdate || status.reason !== 'keyframed') {
+	if (!status || !status.canUpdate || !('keyframes' in status)) {
 		throw new Error('expected keyframed status');
 	}
 

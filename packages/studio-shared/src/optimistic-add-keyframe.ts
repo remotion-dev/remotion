@@ -21,7 +21,7 @@ const addKeyframeToPropStatus = ({
 	frame: number;
 	value: unknown;
 }): CanUpdateSequencePropStatus => {
-	if (status.reason === 'keyframed') {
+	if ('keyframes' in status) {
 		const existingIndex = status.keyframes.findIndex(
 			(kf) => kf.frame === frame,
 		);
@@ -57,7 +57,7 @@ const addKeyframeToPropStatus = ({
 		return {
 			canUpdate: true,
 			codeValue: undefined,
-			reason: 'keyframed',
+			keyframed: true,
 			interpolationFunction: getInterpolationFunction(staticValue, value),
 			keyframes: [{frame, value}],
 			easing: [],

@@ -1,5 +1,7 @@
 import React, {useCallback, useContext, useMemo} from 'react';
 import type {
+	CanUpdateSequencePropStatus,
+	CanUpdateSequencePropStatusKeyframed,
 	CanUpdateSequencePropStatusTrue,
 	SequencePropsSubscriptionKey,
 	SequenceSchema,
@@ -33,6 +35,12 @@ import {
 import {useTimelineRowSelection} from './TimelineSelection';
 
 const fieldRowBase: React.CSSProperties = {};
+
+const isKeyframedStatus = (
+	status: CanUpdateSequencePropStatus,
+): status is CanUpdateSequencePropStatusKeyframed => {
+	return 'keyframes' in status;
+};
 
 const Value: React.FC<{
 	readonly field: SchemaFieldInfo;
@@ -307,7 +315,7 @@ export const TimelineSequencePropItem: React.FC<{
 				selected={selection.selected}
 				label={field.description ?? field.key}
 			/>
-			{codeValue.reason === 'keyframed' ? (
+			{isKeyframedStatus(codeValue) ? (
 				<div style={timelineFieldValueColumnStyle}>
 					<TimelineKeyframedValue
 						field={field}

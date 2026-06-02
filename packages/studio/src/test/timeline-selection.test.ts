@@ -294,8 +294,8 @@ test('Backspace reset targets multiple selected sequence props', () => {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
 			canUpdate: true,
 			props: {
-				opacity: {canUpdate: true, codeValue: 0.5},
-				'style.rotate': {canUpdate: true, codeValue: '45deg'},
+				opacity: {canUpdate: true, codeValue: 0.5, keyframed: false},
+				'style.rotate': {canUpdate: true, codeValue: '45deg', keyframed: false},
 			},
 			effects: [],
 		},
@@ -340,7 +340,7 @@ test('Selected outline dragging applies the same delta to all selected sequences
 			startY: 20,
 			target: {
 				clientId: 'client',
-				codeValue: {canUpdate: true, codeValue: '10px 20px'},
+				codeValue: {canUpdate: true, codeValue: '10px 20px', keyframed: false},
 				fieldDefault: '0px 0px',
 				nodePath: firstNodePath,
 				schema,
@@ -353,7 +353,7 @@ test('Selected outline dragging applies the same delta to all selected sequences
 			startY: 3,
 			target: {
 				clientId: 'client',
-				codeValue: {canUpdate: true, codeValue: '-5px 3px'},
+				codeValue: {canUpdate: true, codeValue: '-5px 3px', keyframed: false},
 				fieldDefault: '0px 0px',
 				nodePath: secondNodePath,
 				schema,
@@ -415,7 +415,7 @@ test('Backspace reset targets selected effect props', () => {
 					importPath: null,
 					effectIndex: 0,
 					props: {
-						intensity: {canUpdate: true, codeValue: 10},
+						intensity: {canUpdate: true, codeValue: 10, keyframed: false},
 					},
 				},
 			],

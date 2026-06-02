@@ -208,7 +208,7 @@ export default CenteredSolid;
 	expect(status.props.width).toEqual({
 		canUpdate: true,
 		codeValue: undefined,
-		reason: 'keyframed',
+		keyframed: true,
 		interpolationFunction: 'interpolate',
 		keyframes: [{frame: 11, value: 240}],
 		easing: [],
@@ -265,6 +265,7 @@ test('updateSequenceKeyframes converts the last keyframe to a static value', asy
 	expect(status.props['style.scale']).toEqual({
 		canUpdate: true,
 		codeValue: 320,
+		keyframed: false,
 	});
 });
 
@@ -315,6 +316,7 @@ test('updateSequenceKeyframes converts the last color keyframe to a static value
 	expect(status.props.color).toEqual({
 		canUpdate: true,
 		codeValue: 'blue',
+		keyframed: false,
 	});
 });
 

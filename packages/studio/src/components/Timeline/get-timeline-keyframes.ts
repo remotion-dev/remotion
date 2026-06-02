@@ -21,12 +21,15 @@ export const getTimelineKeyframes = (
 		return [];
 	}
 
-	if (propStatus.reason === 'computed') {
+	if (!propStatus.canUpdate) {
 		return [];
 	}
 
-	if (propStatus.reason === 'keyframed') {
-		const {keyframes} = propStatus;
+	if ('keyframes' in propStatus) {
+		const {keyframes} = propStatus as Extract<
+			CanUpdateSequencePropStatus,
+			{keyframes: unknown}
+		>;
 		if (keyframeDisplayOffset === 0) {
 			return keyframes;
 		}

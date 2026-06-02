@@ -1,9 +1,4 @@
-import type {CanUpdateSequencePropStatus} from './use-schema';
-
-type UpdateableSequencePropStatus = Extract<
-	CanUpdateSequencePropStatus,
-	{canUpdate: true}
->;
+import type {CanUpdateSequencePropStatusTrue} from './use-schema';
 
 export const getEffectiveVisualModeValue = ({
 	codeValue,
@@ -11,7 +6,7 @@ export const getEffectiveVisualModeValue = ({
 	defaultValue,
 	shouldResortToDefaultValueIfUndefined = false,
 }: {
-	codeValue: UpdateableSequencePropStatus;
+	codeValue: CanUpdateSequencePropStatusTrue;
 	dragOverrideValue: unknown;
 	defaultValue: unknown;
 	shouldResortToDefaultValueIfUndefined: boolean;

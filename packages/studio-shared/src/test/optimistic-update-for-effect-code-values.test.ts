@@ -11,8 +11,8 @@ test('optimisticUpdateForEffectCodeValues updates the matching effect prop', () 
 				canUpdate: true,
 				effectIndex: 0,
 				props: {
-					color: {canUpdate: true, codeValue: 'red'},
-					opacity: {canUpdate: true, codeValue: 0.5},
+					color: {canUpdate: true, codeValue: 'red', keyframed: false},
+					opacity: {canUpdate: true, codeValue: 0.5, keyframed: false},
 				},
 				callee: 'tint',
 				importPath: null,
@@ -37,8 +37,16 @@ test('optimisticUpdateForEffectCodeValues updates the matching effect prop', () 
 		throw new Error('expected effect canUpdate true');
 	}
 
-	expect(effect.props.opacity).toEqual({canUpdate: true, codeValue: 0.8});
-	expect(effect.props.color).toEqual({canUpdate: true, codeValue: 'red'});
+	expect(effect.props.opacity).toEqual({
+		canUpdate: true,
+		codeValue: 0.8,
+		keyframed: false,
+	});
+	expect(effect.props.color).toEqual({
+		canUpdate: true,
+		codeValue: 'red',
+		keyframed: false,
+	});
 });
 
 test('optimisticUpdateForEffectCodeValues is a no-op when sequence is not updateable', () => {
@@ -87,7 +95,7 @@ test('optimisticUpdateForEffectCodeValues applies when effect props are unset (z
 				callee: 'tint',
 				importPath: null,
 				props: {
-					amount: {canUpdate: true, codeValue: undefined},
+					amount: {canUpdate: true, codeValue: undefined, keyframed: false},
 				},
 			},
 		],
@@ -110,5 +118,9 @@ test('optimisticUpdateForEffectCodeValues applies when effect props are unset (z
 		throw new Error('expected effect canUpdate true');
 	}
 
-	expect(effect.props.amount).toEqual({canUpdate: true, codeValue: 0.5});
+	expect(effect.props.amount).toEqual({
+		canUpdate: true,
+		codeValue: 0.5,
+		keyframed: false,
+	});
 });

@@ -1,6 +1,10 @@
 import {optimisticUpdateForEffectCodeValues} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useMemo} from 'react';
-import type {SequencePropsSubscriptionKey} from 'remotion';
+import type {
+	CanUpdateSequencePropStatus,
+	CanUpdateSequencePropStatusKeyframed,
+	SequencePropsSubscriptionKey,
+} from 'remotion';
 import {Internals} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
@@ -26,6 +30,12 @@ import {TimelineFieldValue, UnsupportedStatus} from './TimelineSchemaField';
 import {useTimelineRowSelection} from './TimelineSelection';
 
 const fieldRowBase: React.CSSProperties = {};
+
+const isKeyframedStatus = (
+	status: CanUpdateSequencePropStatus,
+): status is CanUpdateSequencePropStatusKeyframed => {
+	return 'keyframes' in status;
+};
 
 const Value: React.FC<{
 	readonly field: EffectSchemaFieldInfo;
@@ -187,7 +197,7 @@ const Value: React.FC<{
 		return null;
 	}
 
-	if (propStatus.reason === 'keyframed') {
+	if (isKeyframedStatus(propStatus)) {
 		return (
 			<TimelineKeyframedValue
 				field={field}
