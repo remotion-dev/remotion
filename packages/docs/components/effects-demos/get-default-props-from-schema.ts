@@ -1,4 +1,8 @@
-import {Internals, type SequenceFieldSchema, type SequenceSchema} from 'remotion';
+import {
+	Internals,
+	type SequenceFieldSchema,
+	type SequenceSchema,
+} from 'remotion';
 
 const shouldSkipField = (key: string, field: SequenceFieldSchema): boolean => {
 	return field.type === 'hidden' || key === 'disabled';
@@ -23,8 +27,12 @@ export const getDefaultValueFromSchema = (
 		return '#000000';
 	}
 
-	if (field.type === 'rotation') {
+	if (field.type === 'rotation-css') {
 		return '0deg';
+	}
+
+	if (field.type === 'rotation-degrees') {
+		return 0;
 	}
 
 	if (field.type === 'translate') {
@@ -49,7 +57,10 @@ export const fillSchemaDefaults = ({
 
 	for (let i = 0; i < 10; i++) {
 		let changed = false;
-		const activeSchema = Internals.flattenActiveSchema(schema, (key) => next[key]);
+		const activeSchema = Internals.flattenActiveSchema(
+			schema,
+			(key) => next[key],
+		);
 
 		for (const [key, field] of Object.entries(activeSchema)) {
 			if (shouldSkipField(key, field) || next[key] !== undefined) {

@@ -51,7 +51,7 @@ export const wavesSchema = {
 		description: 'Gap',
 	},
 	angle: {
-		type: 'number',
+		type: 'rotation-degrees',
 		min: -180,
 		max: 180,
 		step: 1,

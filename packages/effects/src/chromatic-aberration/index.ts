@@ -27,7 +27,7 @@ const chromaticAberrationSchema = {
 		description: 'Amount',
 	},
 	angle: {
-		type: 'number',
+		type: 'rotation-degrees',
 		step: 1,
 		default: DEFAULT_CHROMATIC_ABERRATION_ANGLE,
 		description: 'Angle',
