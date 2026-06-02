@@ -120,7 +120,7 @@ export const RemotionRoot: React.FC = () => {
 					height={720}
 					defaultProps={{
 						keyColor: '#00ff00',
-						similarity: 0.37,
+						similarity: 0.45,
 						smoothness: 0.08,
 						spillSuppression: 0.25,
 					}}

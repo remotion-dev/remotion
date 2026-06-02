@@ -111,6 +111,9 @@ export const effectsDemos: EffectsDemoType[] = [
 		schema: colorKey().definition.schema,
 		durationInFrames: 150,
 		autoPlay: true,
+		initialValues: {
+			similarity: 0.45,
+		},
 	},
 	{
 		...defaults,
