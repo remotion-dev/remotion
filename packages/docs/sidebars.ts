@@ -1001,6 +1001,7 @@ const sidebars: SidebarsConfig = {
 				'assets',
 				'layers',
 				'transitioning',
+				'effects',
 				'fonts',
 				'measuring',
 				'using-randomness',

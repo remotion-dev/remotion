@@ -196,6 +196,7 @@ export const config: VercelConfig = {
 		routes.redirect('/transitions', '/docs/transitioning', {
 			permanent: false,
 		}),
+		routes.redirect('/effects', '/docs/effects', {permanent: false}),
 		routes.redirect(
 			'/repro',
 			'https://stackblitz.com/fork/github/remotion-dev/template-helloworld',

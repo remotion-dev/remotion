@@ -1719,6 +1719,15 @@ export const articles = [
 		slug: 'editor-starter/vs-studio',
 	},
 	{
+		id: 'effects',
+		title: 'Effects',
+		relativePath: 'docs/effects.mdx',
+		compId: 'articles-docs-effects',
+		crumb: 'Designing visuals',
+		noAi: false,
+		slug: 'effects',
+	},
+	{
 		id: 'effects/barrel-distortion',
 		title: 'barrelDistortion()',
 		relativePath: 'docs/effects/barrel-distortion.mdx',
