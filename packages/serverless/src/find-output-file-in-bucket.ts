@@ -1,16 +1,15 @@
 import type {
 	CloudProvider,
 	CustomCredentials,
+	OutputFileMetadata,
 	ProviderSpecifics,
 	RenderMetadata,
 } from '@remotion/serverless-client';
-import {getExpectedOutName} from '@remotion/serverless-client';
+import {findOutputFileInBucket as findOutputFileInBucketShared} from '@remotion/serverless-client';
 
-export type OutputFileMetadata = {
-	url: string;
-};
+export type {OutputFileMetadata} from '@remotion/serverless-client';
 
-export const findOutputFileInBucket = async <Provider extends CloudProvider>({
+export const findOutputFileInBucket = <Provider extends CloudProvider>({
 	region,
 	renderMetadata,
 	bucketName,
@@ -33,50 +32,14 @@ export const findOutputFileInBucket = async <Provider extends CloudProvider>({
 		throw new Error('unexpectedly did not get renderMetadata');
 	}
 
-	const {renderBucketName, key} = getExpectedOutName({
+	return findOutputFileInBucketShared({
+		region,
 		renderMetadata,
 		bucketName,
 		customCredentials,
-		bucketNamePrefix: providerSpecifics.getBucketPrefix(),
+		currentRegion,
+		providerSpecifics,
+		forcePathStyle,
+		requestHandler,
 	});
-
-	try {
-		await providerSpecifics.headFile({
-			bucketName,
-			key,
-			region,
-			customCredentials,
-			forcePathStyle,
-			requestHandler,
-		});
-		return {
-			url: providerSpecifics.getOutputUrl({
-				renderMetadata,
-				bucketName,
-				customCredentials,
-				currentRegion,
-			}).url,
-		};
-	} catch (err) {
-		if ((err as Error).name === 'NotFound') {
-			return null;
-		}
-
-		if (
-			(err as Error).message === 'UnknownError' ||
-			(err as {$metadata: {httpStatusCode: number}}).$metadata
-				.httpStatusCode === 403
-		) {
-			throw new Error(
-				`Unable to access item "${key}" from bucket "${renderBucketName}" ${
-					customCredentials?.endpoint
-						? `(S3 Endpoint = ${customCredentials?.endpoint})`
-						: ''
-				} - got a 403 error when heading the file. Check your credentials and permissions. The Lambda role must have permission for both "s3:GetObject" and "s3:ListBucket" actions.`,
-				{cause: err},
-			);
-		}
-
-		throw err;
-	}
 };

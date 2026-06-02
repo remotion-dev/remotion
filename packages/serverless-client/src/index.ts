@@ -74,6 +74,10 @@ export {
 	getCredentialsFromOutName,
 	getExpectedOutName,
 } from './expected-out-name';
+export {
+	findOutputFileInBucket,
+	type OutputFileMetadata,
+} from './find-output-file-in-bucket';
 export {formatCostsInfo} from './format-costs-info';
 export {FileNameAndSize, GetFolderFiles} from './get-files-in-folder';
 export {
