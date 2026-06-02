@@ -475,7 +475,7 @@ export const TimelineSequenceItem: React.FC<{
 		previewServerState.type === 'connected' &&
 		nodePath !== null &&
 		validatedLocation !== null &&
-		sequence.type !== 'audio';
+		sequence.controls?.supportsEffects === true;
 
 	const onEffectDragOver = useCallback(
 		(e: React.DragEvent<HTMLDivElement>) => {

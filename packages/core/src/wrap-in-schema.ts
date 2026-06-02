@@ -101,12 +101,17 @@ export const mergeValues = ({
 
 const stackToOverrideMap: Record<string, string> = {};
 
-export const wrapInSchema = <S extends SequenceSchema, Props extends object>(
+export const wrapInSchema = <S extends SequenceSchema, Props extends object>({
+	Component,
+	schema,
+	supportsEffects,
+}: {
 	Component: React.ComponentType<
 		Props & {readonly _experimentalControls: SequenceControls | undefined}
-	>,
-	schema: S,
-): React.ComponentType<Props> => {
+	>;
+	schema: S;
+	supportsEffects: boolean;
+}): React.ComponentType<Props> => {
 	// Schema is static for a component, so we move this outside
 	const flatSchema = getFlatSchemaWithAllKeys(schema);
 	const flatKeys = Object.keys(flatSchema);
@@ -180,13 +185,14 @@ export const wrapInSchema = <S extends SequenceSchema, Props extends object>(
 		);
 
 		// eslint-disable-next-line react-hooks/rules-of-hooks
-		const controls = useMemo(() => {
+		const controls = useMemo((): SequenceControls => {
 			return {
 				schema,
 				currentRuntimeValueDotNotation,
 				overrideId,
+				supportsEffects,
 			};
-		}, [currentRuntimeValueDotNotation, overrideId]);
+		}, [currentRuntimeValueDotNotation, overrideId, schema, supportsEffects]);
 
 		// 3. Apply drag/code overrides on top of the runtime values.
 		// eslint-disable-next-line react-hooks/rules-of-hooks

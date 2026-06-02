@@ -543,5 +543,9 @@ const ImgInner: React.FC<
  * @description Works just like a regular HTML img tag. When you use the <Img> tag, Remotion will ensure that the image is loaded before rendering the frame.
  * @see [Documentation](https://remotion.dev/docs/img)
  */
-export const Img = wrapInSchema(ImgInner, imgSchema);
+export const Img = wrapInSchema({
+	Component: ImgInner,
+	schema: imgSchema,
+	supportsEffects: true,
+});
 addSequenceStackTraces(Img);

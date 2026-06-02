@@ -119,7 +119,11 @@ const GifInner = ({
 	);
 };
 
-export const Gif = wrapInSchema(GifInner, gifSchema);
+export const Gif = wrapInSchema({
+	Component: GifInner,
+	schema: gifSchema,
+	supportsEffects: true,
+});
 
 Gif.displayName = 'Gif';
 
