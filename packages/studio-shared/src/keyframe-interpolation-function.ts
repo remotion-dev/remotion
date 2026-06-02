@@ -1,9 +1,21 @@
 import type {SequenceFieldSchema, SequenceSchema} from 'remotion';
 
+export const keyframeInterpolationFunctions = [
+	'interpolate',
+	'interpolateColors',
+	'interpolateTranslate',
+] as const;
+
 export type KeyframeInterpolationFunction =
-	| 'interpolate'
-	| 'interpolateColors'
-	| 'interpolateTranslate';
+	(typeof keyframeInterpolationFunctions)[number];
+
+export const isKeyframeInterpolationFunction = (
+	name: string,
+): name is KeyframeInterpolationFunction => {
+	return keyframeInterpolationFunctions.includes(
+		name as KeyframeInterpolationFunction,
+	);
+};
 
 const findFieldInSchema = (
 	schema: SequenceSchema,

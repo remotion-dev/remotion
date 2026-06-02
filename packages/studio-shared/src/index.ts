@@ -107,6 +107,8 @@ export {
 export {
 	getKeyframeInterpolationFunction,
 	getKeyframeInterpolationFunctionForSchemaField,
+	isKeyframeInterpolationFunction,
+	keyframeInterpolationFunctions,
 	type KeyframeInterpolationFunction,
 } from './keyframe-interpolation-function';
 export {DEFAULT_TIMELINE_TRACKS} from './max-timeline-tracks';

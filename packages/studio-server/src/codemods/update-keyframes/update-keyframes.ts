@@ -13,6 +13,7 @@ import type {
 import {
 	getKeyframeInterpolationFunction,
 	getKeyframeInterpolationFunctionForSchemaField,
+	isKeyframeInterpolationFunction,
 	type KeyframeInterpolationFunction,
 } from '@remotion/studio-shared';
 import type {ExpressionKind, SpreadElementKind} from 'ast-types/lib/gen/kinds';
@@ -123,9 +124,7 @@ const getInterpolationExpression = (
 	if (
 		node.type !== 'CallExpression' ||
 		node.callee.type !== 'Identifier' ||
-		(node.callee.name !== 'interpolate' &&
-			node.callee.name !== 'interpolateColors' &&
-			node.callee.name !== 'interpolateTranslate')
+		!isKeyframeInterpolationFunction(node.callee.name)
 	) {
 		return null;
 	}
