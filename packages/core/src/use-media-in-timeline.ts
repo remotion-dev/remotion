@@ -218,6 +218,7 @@ export const useMediaInTimeline = ({
 			controls: null,
 			effects: [],
 			refForOutline,
+			isInsideSeries: false,
 		});
 
 		return () => {

@@ -17,6 +17,7 @@ import {sequenceSchema} from './sequence-field-schema.js';
 import type {SequenceContextType} from './SequenceContext.js';
 import {SequenceContext} from './SequenceContext.js';
 import {SequenceManager} from './SequenceManager.js';
+import {IsInsideSeriesContext} from './series/is-inside-series.js';
 import {
 	useTimelineContext,
 	useTimelinePosition,
@@ -272,6 +273,8 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	const env = useRemotionEnvironment();
 
+	const isInsideSeries = useContext(IsInsideSeriesContext);
+
 	const inheritedStack = (other as any)?.stack ?? null;
 	// Our assumption: Stack doesnt' change. After we symbolicate we assign it a nodePath
 	// and if it changes, it would lead to-remounting of the sequence.
@@ -304,6 +307,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 					src: isMedia.src,
 					getStack: () => stackRef.current,
 					refForOutline: refForOutline ?? null,
+					isInsideSeries,
 				});
 			} else {
 				registerSequence({
@@ -329,6 +333,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 					startMediaFrom: isMedia.data.startMediaFrom,
 					volume: isMedia.data.volumes,
 					refForOutline: refForOutline ?? null,
+					isInsideSeries,
 				});
 			}
 
@@ -355,6 +360,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			controls: controls ?? null,
 			effects: _remotionInternalEffects ?? EMPTY_EFFECTS,
 			refForOutline: refForOutline ?? null,
+			isInsideSeries,
 		});
 		return () => {
 			unregisterSequence(id);
@@ -381,6 +387,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		isMedia,
 		resolvedDocumentationLink,
 		refForOutline,
+		isInsideSeries,
 	]);
 
 	// Ceil to support floats

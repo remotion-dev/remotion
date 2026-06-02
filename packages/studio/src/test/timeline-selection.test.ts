@@ -86,6 +86,7 @@ const makeTimelineSequence = ({
 			supportsEffects: true,
 		},
 		refForOutline: null,
+		isInsideSeries: false,
 		effects,
 	}) as TSequence;
 

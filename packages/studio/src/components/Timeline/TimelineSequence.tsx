@@ -265,6 +265,7 @@ const TimelineSequenceInner: React.FC<{
 		TIMELINE_TOP_DRAG &&
 		(s.type === 'sequence' || s.type === 'image') &&
 		!s.loopDisplay &&
+		!s.isInsideSeries &&
 		nodePath !== null &&
 		validatedLocation !== null &&
 		durationCanUpdate;
