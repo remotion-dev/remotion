@@ -31,6 +31,15 @@ export type TranslateFieldSchema = {
 	description?: string;
 };
 
+export type ScaleFieldSchema = {
+	type: 'scale';
+	min?: number;
+	max?: number;
+	step?: number;
+	default: number | string | undefined;
+	description?: string;
+};
+
 export type UvCoordinateFieldSchema = {
 	type: 'uv-coordinate';
 	min?: number;
@@ -58,6 +67,7 @@ export type VisibleFieldSchema =
 	| BooleanFieldSchema
 	| RotationFieldSchema
 	| TranslateFieldSchema
+	| ScaleFieldSchema
 	| UvCoordinateFieldSchema
 	| ColorFieldSchema
 	| EnumFieldSchema;
@@ -79,7 +89,7 @@ export const sequenceVisualStyleSchema = {
 		description: 'Offset',
 	},
 	'style.scale': {
-		type: 'number',
+		type: 'scale',
 		min: 0.05,
 		max: 100,
 		step: 0.01,

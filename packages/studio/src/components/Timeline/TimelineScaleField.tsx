@@ -1,0 +1,476 @@
+import React, {useCallback, useMemo, useRef, useState} from 'react';
+import type {CanUpdateSequencePropStatus} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
+import {LIGHT_COLOR} from '../../helpers/colors';
+import type {
+	SchemaFieldInfo,
+	TimelineFieldOnDragValueChange,
+	TimelineFieldOnSave,
+} from '../../helpers/timeline-layout';
+import {InputDragger} from '../NewComposition/InputDragger';
+import {getDecimalPlaces} from './timeline-field-utils';
+import {timelineLayerIconContainer} from './TimelineLayerEye';
+
+const leftDraggerStyle: React.CSSProperties = {
+	paddingLeft: 0,
+};
+
+const rightDraggerStyle: React.CSSProperties = {
+	paddingRight: 0,
+};
+
+const containerStyle: React.CSSProperties = {
+	alignItems: 'center',
+	display: 'flex',
+	gap: 4,
+};
+
+const toggleStyle: React.CSSProperties = {
+	...timelineLayerIconContainer,
+	border: 'none',
+	color: LIGHT_COLOR,
+	cursor: 'pointer',
+	marginRight: 0,
+	padding: 0,
+};
+
+const linkIconStyle: React.CSSProperties = {
+	width: 12,
+	height: 12,
+	pointerEvents: 'none',
+};
+
+const gapStyle: React.CSSProperties = {
+	marginLeft: -6,
+	marginRight: -6,
+};
+
+const clamp = (value: number, min: number, max: number): number => {
+	return Math.min(max, Math.max(min, value));
+};
+
+const getLinkedScale = ({
+	axis,
+	newValue,
+	baseX,
+	baseY,
+	min,
+	max,
+}: {
+	readonly axis: 'x' | 'y';
+	readonly newValue: number;
+	readonly baseX: number;
+	readonly baseY: number;
+	readonly min: number;
+	readonly max: number;
+}): [number, number] => {
+	const drivingBase = axis === 'x' ? baseX : baseY;
+	const linkedBase = axis === 'x' ? baseY : baseX;
+
+	if (drivingBase === 0 || linkedBase === 0) {
+		const clamped = clamp(newValue, min, max);
+		return [clamped, clamped];
+	}
+
+	let factor = newValue / drivingBase;
+	let driving = newValue;
+	let linked = linkedBase * factor;
+	const clampedLinked = clamp(linked, min, max);
+
+	if (clampedLinked !== linked) {
+		factor = clampedLinked / linkedBase;
+		linked = clampedLinked;
+		driving = drivingBase * factor;
+	}
+
+	const clampedDriving = clamp(driving, min, max);
+
+	return axis === 'x' ? [clampedDriving, linked] : [linked, clampedDriving];
+};
+
+const valuesEqual = (left: unknown, right: unknown): boolean => {
+	return JSON.stringify(left) === JSON.stringify(right);
+};
+
+const LinkToggle: React.FC<{
+	readonly linked: boolean;
+	readonly onToggle: () => void;
+}> = ({linked, onToggle}) => {
+	const onPointerDown = useCallback(
+		(e: React.PointerEvent<HTMLButtonElement>) => {
+			if (e.button !== 0) {
+				return;
+			}
+
+			e.stopPropagation();
+			onToggle();
+		},
+		[onToggle],
+	);
+
+	return (
+		<button
+			type="button"
+			style={toggleStyle}
+			onPointerDown={onPointerDown}
+			title={linked ? 'Unlink scale axes' : 'Link scale axes'}
+			aria-label={linked ? 'Unlink scale axes' : 'Link scale axes'}
+		>
+			<svg viewBox="0 0 16 16" fill="none" style={linkIconStyle}>
+				<path
+					d="M6.3 5.1L5.1 6.3C4.2 7.2 4.2 8.8 5.1 9.7C6 10.6 7.6 10.6 8.5 9.7L9.7 8.5"
+					stroke="currentColor"
+					strokeWidth="1.5"
+					strokeLinecap="round"
+				/>
+				<path
+					d="M9.7 10.9L10.9 9.7C11.8 8.8 11.8 7.2 10.9 6.3C10 5.4 8.4 5.4 7.5 6.3L6.3 7.5"
+					stroke="currentColor"
+					strokeWidth="1.5"
+					strokeLinecap="round"
+				/>
+				{linked ? null : (
+					<path
+						d="M3 13L13 3"
+						stroke="currentColor"
+						strokeWidth="1.5"
+						strokeLinecap="round"
+					/>
+				)}
+			</svg>
+		</button>
+	);
+};
+
+export const TimelineScaleField: React.FC<{
+	readonly field: SchemaFieldInfo;
+	readonly propStatus: CanUpdateSequencePropStatus;
+	readonly effectiveValue: unknown;
+	readonly onSave: TimelineFieldOnSave;
+	readonly onDragValueChange: TimelineFieldOnDragValueChange;
+	readonly onDragEnd: () => void;
+}> = ({
+	field,
+	propStatus,
+	effectiveValue,
+	onSave,
+	onDragValueChange,
+	onDragEnd,
+}) => {
+	const [dragX, setDragX] = useState<number | null>(null);
+	const [dragY, setDragY] = useState<number | null>(null);
+	const dragStartRef = useRef<readonly [number, number] | null>(null);
+
+	const [codeX, codeY, codeZ] = useMemo(
+		() => NoReactInternals.parseScaleValue(effectiveValue),
+		[effectiveValue],
+	);
+
+	const [linked, setLinked] = useState(() => codeX === codeY);
+
+	const step =
+		field.fieldSchema.type === 'scale'
+			? (field.fieldSchema.step ?? 0.01)
+			: 0.01;
+	const min =
+		field.fieldSchema.type === 'scale'
+			? (field.fieldSchema.min ?? -Infinity)
+			: -Infinity;
+	const max =
+		field.fieldSchema.type === 'scale'
+			? (field.fieldSchema.max ?? Infinity)
+			: Infinity;
+
+	const stepDecimals = useMemo(() => getDecimalPlaces(step), [step]);
+
+	const formatter = useCallback(
+		(v: number | string) => {
+			const num = Number(v);
+			const digits = Math.max(stepDecimals, getDecimalPlaces(num));
+			return digits === 0 ? String(num) : num.toFixed(digits);
+		},
+		[stepDecimals],
+	);
+
+	const getDragStart = useCallback((): readonly [number, number] => {
+		if (dragStartRef.current === null) {
+			dragStartRef.current = [dragX ?? codeX, dragY ?? codeY];
+		}
+
+		return dragStartRef.current;
+	}, [codeX, codeY, dragX, dragY]);
+
+	const serialize = useCallback(
+		(x: number, y: number) => {
+			return NoReactInternals.serializeScaleValue([x, y, codeZ]);
+		},
+		[codeZ],
+	);
+
+	const onXChange = useCallback(
+		(newVal: number) => {
+			if (linked) {
+				const [baseX, baseY] = getDragStart();
+				const [newX, newY] = getLinkedScale({
+					axis: 'x',
+					newValue: newVal,
+					baseX,
+					baseY,
+					min,
+					max,
+				});
+				setDragX(newX);
+				setDragY(newY);
+				onDragValueChange(serialize(newX, newY));
+				return;
+			}
+
+			setDragX(newVal);
+			const currentY = dragY ?? codeY;
+			onDragValueChange(serialize(newVal, currentY));
+		},
+		[
+			codeY,
+			dragY,
+			getDragStart,
+			linked,
+			max,
+			min,
+			onDragValueChange,
+			serialize,
+		],
+	);
+
+	const onXChangeEnd = useCallback(
+		(newVal: number) => {
+			const [newX, newY] = linked
+				? getLinkedScale({
+						axis: 'x',
+						newValue: newVal,
+						baseX: dragStartRef.current?.[0] ?? codeX,
+						baseY: dragStartRef.current?.[1] ?? codeY,
+						min,
+						max,
+					})
+				: [newVal, dragY ?? codeY];
+			const newScale = serialize(newX, newY);
+
+			const clearDragState = () => {
+				dragStartRef.current = null;
+				setDragX(null);
+				setDragY(null);
+				onDragEnd();
+			};
+
+			if (
+				propStatus.canUpdate &&
+				!valuesEqual(newScale, propStatus.codeValue)
+			) {
+				onSave(newScale).finally(clearDragState);
+			} else {
+				clearDragState();
+			}
+		},
+		[
+			codeX,
+			codeY,
+			dragY,
+			linked,
+			max,
+			min,
+			onDragEnd,
+			onSave,
+			propStatus,
+			serialize,
+		],
+	);
+
+	const onXTextChange = useCallback(
+		(newVal: string) => {
+			if (!propStatus.canUpdate) {
+				return;
+			}
+
+			const parsed = Number(newVal);
+			if (Number.isNaN(parsed)) {
+				return;
+			}
+
+			const [newX, newY] = linked
+				? getLinkedScale({
+						axis: 'x',
+						newValue: parsed,
+						baseX: codeX,
+						baseY: codeY,
+						min,
+						max,
+					})
+				: [parsed, dragY ?? codeY];
+			const newScale = serialize(newX, newY);
+			if (!valuesEqual(newScale, propStatus.codeValue)) {
+				setDragX(newX);
+				setDragY(newY);
+				onSave(newScale).finally(() => {
+					dragStartRef.current = null;
+					setDragX(null);
+					setDragY(null);
+				});
+			}
+		},
+		[codeX, codeY, dragY, linked, max, min, onSave, propStatus, serialize],
+	);
+
+	const onYChange = useCallback(
+		(newVal: number) => {
+			if (linked) {
+				const [baseX, baseY] = getDragStart();
+				const [newX, newY] = getLinkedScale({
+					axis: 'y',
+					newValue: newVal,
+					baseX,
+					baseY,
+					min,
+					max,
+				});
+				setDragX(newX);
+				setDragY(newY);
+				onDragValueChange(serialize(newX, newY));
+				return;
+			}
+
+			setDragY(newVal);
+			const currentX = dragX ?? codeX;
+			onDragValueChange(serialize(currentX, newVal));
+		},
+		[
+			codeX,
+			dragX,
+			getDragStart,
+			linked,
+			max,
+			min,
+			onDragValueChange,
+			serialize,
+		],
+	);
+
+	const onYChangeEnd = useCallback(
+		(newVal: number) => {
+			const [newX, newY] = linked
+				? getLinkedScale({
+						axis: 'y',
+						newValue: newVal,
+						baseX: dragStartRef.current?.[0] ?? codeX,
+						baseY: dragStartRef.current?.[1] ?? codeY,
+						min,
+						max,
+					})
+				: [dragX ?? codeX, newVal];
+			const newScale = serialize(newX, newY);
+
+			const clearDragState = () => {
+				dragStartRef.current = null;
+				setDragX(null);
+				setDragY(null);
+				onDragEnd();
+			};
+
+			if (
+				propStatus.canUpdate &&
+				!valuesEqual(newScale, propStatus.codeValue)
+			) {
+				onSave(newScale).finally(clearDragState);
+			} else {
+				clearDragState();
+			}
+		},
+		[
+			codeX,
+			codeY,
+			dragX,
+			linked,
+			max,
+			min,
+			onDragEnd,
+			onSave,
+			propStatus,
+			serialize,
+		],
+	);
+
+	const onYTextChange = useCallback(
+		(newVal: string) => {
+			if (!propStatus.canUpdate) {
+				return;
+			}
+
+			const parsed = Number(newVal);
+			if (Number.isNaN(parsed)) {
+				return;
+			}
+
+			const [newX, newY] = linked
+				? getLinkedScale({
+						axis: 'y',
+						newValue: parsed,
+						baseX: codeX,
+						baseY: codeY,
+						min,
+						max,
+					})
+				: [dragX ?? codeX, parsed];
+			const newScale = serialize(newX, newY);
+			if (!valuesEqual(newScale, propStatus.codeValue)) {
+				setDragX(newX);
+				setDragY(newY);
+				onSave(newScale).finally(() => {
+					dragStartRef.current = null;
+					setDragX(null);
+					setDragY(null);
+				});
+			}
+		},
+		[codeX, codeY, dragX, linked, max, min, onSave, propStatus, serialize],
+	);
+
+	const onToggleLink = useCallback(() => {
+		setLinked((current) => !current);
+	}, []);
+
+	return (
+		<span style={containerStyle}>
+			<LinkToggle linked={linked} onToggle={onToggleLink} />
+			<InputDragger
+				type="number"
+				value={dragX ?? codeX}
+				style={leftDraggerStyle}
+				status="ok"
+				small
+				onValueChange={onXChange}
+				onValueChangeEnd={onXChangeEnd}
+				onTextChange={onXTextChange}
+				min={min}
+				max={max}
+				step={step}
+				formatter={formatter}
+				rightAlign={false}
+			/>
+			<div style={gapStyle} />
+			<InputDragger
+				type="number"
+				value={dragY ?? codeY}
+				style={rightDraggerStyle}
+				status="ok"
+				small
+				onValueChange={onYChange}
+				onValueChangeEnd={onYChangeEnd}
+				onTextChange={onYTextChange}
+				min={min}
+				max={max}
+				step={step}
+				formatter={formatter}
+				rightAlign={false}
+			/>
+		</span>
+	);
+};
