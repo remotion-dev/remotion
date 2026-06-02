@@ -478,7 +478,11 @@ const CanvasImageInner = forwardRef<
  * @description Renders a static image to a `<canvas>` and applies Remotion effects.
  * @see [Documentation](https://www.remotion.dev/docs/canvasimage)
  */
-export const CanvasImage = wrapInSchema(CanvasImageInner, canvasImageSchema);
+export const CanvasImage = wrapInSchema({
+	Component: CanvasImageInner,
+	schema: canvasImageSchema,
+	supportsEffects: true,
+});
 
 CanvasImage.displayName = 'CanvasImage';
 

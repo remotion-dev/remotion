@@ -151,6 +151,7 @@ export const saveEffectPropsHandler: ApiHandler<
 		}
 
 		return computeEffectPropStatus({
+			ast,
 			jsx,
 			effectIndex,
 			keys: getAllSchemaKeys(schema),

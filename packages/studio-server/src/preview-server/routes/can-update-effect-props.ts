@@ -2,6 +2,7 @@ import {readFileSync} from 'node:fs';
 import type {
 	CallExpression,
 	Expression,
+	File,
 	JSXAttribute,
 	JSXOpeningElement,
 	ObjectExpression,
@@ -55,6 +56,89 @@ const getEffectsArrayElements = (
 	return enumerateEffectArrayElements(expr);
 };
 
+const getImportedName = (specifier: {
+	readonly imported?: {
+		readonly type: string;
+		readonly name?: string;
+		readonly value?: string;
+	};
+}) => {
+	if (!specifier.imported) {
+		return null;
+	}
+
+	if (specifier.imported.type === 'Identifier') {
+		return specifier.imported.name ?? null;
+	}
+
+	return specifier.imported.value ?? null;
+};
+
+const resolveEffectImport = ({
+	ast,
+	call,
+	fallbackCallee,
+}: {
+	ast: File;
+	call: CallExpression;
+	fallbackCallee: string;
+}): {callee: string; importPath: string | null} => {
+	const {callee} = call;
+
+	if (callee.type === 'Identifier') {
+		const localName = callee.name;
+		for (const node of ast.program.body) {
+			if (node.type !== 'ImportDeclaration') {
+				continue;
+			}
+
+			const matchingSpecifier = node.specifiers?.find((specifier) => {
+				return (
+					specifier.type === 'ImportSpecifier' &&
+					specifier.local?.name === localName
+				);
+			});
+
+			if (matchingSpecifier?.type === 'ImportSpecifier') {
+				return {
+					callee: getImportedName(matchingSpecifier) ?? fallbackCallee,
+					importPath: String(node.source.value),
+				};
+			}
+		}
+	}
+
+	if (
+		callee.type === 'MemberExpression' &&
+		callee.object.type === 'Identifier' &&
+		callee.property.type === 'Identifier' &&
+		!callee.computed
+	) {
+		const namespaceName = callee.object.name;
+		for (const node of ast.program.body) {
+			if (node.type !== 'ImportDeclaration') {
+				continue;
+			}
+
+			const matchingSpecifier = node.specifiers?.find((specifier) => {
+				return (
+					specifier.type === 'ImportNamespaceSpecifier' &&
+					specifier.local?.name === namespaceName
+				);
+			});
+
+			if (matchingSpecifier) {
+				return {
+					callee: callee.property.name,
+					importPath: String(node.source.value),
+				};
+			}
+		}
+	}
+
+	return {callee: fallbackCallee, importPath: null};
+};
+
 const getPropsFromObjectExpression = ({
 	objExpr,
 	keys,
@@ -94,10 +178,12 @@ const getPropsFromObjectExpression = ({
 };
 
 export const computeEffectPropStatus = ({
+	ast,
 	jsx,
 	effectIndex,
 	keys,
 }: {
+	ast: File;
 	jsx: JSXOpeningElement;
 	effectIndex: number;
 	keys: string[];
@@ -131,6 +217,11 @@ export const computeEffectPropStatus = ({
 	}
 
 	const call: CallExpression = target.node;
+	const effectImport = resolveEffectImport({
+		ast,
+		call,
+		fallbackCallee: target.callee,
+	});
 	if (call.arguments.length === 0) {
 		const emptyProps: Record<string, CanUpdateSequencePropStatus> = {};
 		for (const key of keys) {
@@ -139,7 +230,8 @@ export const computeEffectPropStatus = ({
 
 		return {
 			canUpdate: true,
-			callee: target.callee,
+			callee: effectImport.callee,
+			importPath: effectImport.importPath,
 			effectIndex,
 			props: emptyProps,
 		};
@@ -162,7 +254,8 @@ export const computeEffectPropStatus = ({
 	return {
 		canUpdate: true,
 		effectIndex,
-		callee: target.callee,
+		callee: effectImport.callee,
+		importPath: effectImport.importPath,
 		props: resolvedProps,
 	};
 };
@@ -190,6 +283,7 @@ export const computeEffectPropsStatusesFromContent = ({
 
 	return effects.map((effect, effectIndex) =>
 		computeEffectPropStatus({
+			ast,
 			jsx,
 			effectIndex,
 			keys: keysFor(effect),

@@ -492,14 +492,15 @@ const RemotionRiveCanvasInner = forwardRef(
 	RemotionRiveCanvasInnerForwardRefFunction,
 );
 
-export const RemotionRiveCanvas = wrapInSchema(
-	RemotionRiveCanvasInner as unknown as React.ComponentType<
+export const RemotionRiveCanvas = wrapInSchema({
+	Component: RemotionRiveCanvasInner as unknown as React.ComponentType<
 		RemotionRiveCanvasProps & {
 			readonly _experimentalControls: SequenceControls | undefined;
 		}
 	>,
-	riveCanvasSchema,
-) as React.ForwardRefExoticComponent<
+	schema: riveCanvasSchema,
+	supportsEffects: true,
+}) as React.ForwardRefExoticComponent<
 	RemotionRiveCanvasProps & React.RefAttributes<RiveCanvasRef>
 >;
 

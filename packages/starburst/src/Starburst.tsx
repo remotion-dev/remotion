@@ -415,10 +415,11 @@ const StarburstInner: React.FC<
 	);
 };
 
-export const Starburst = Internals.wrapInSchema(
-	StarburstInner,
-	starburstSchema,
-);
+export const Starburst = Internals.wrapInSchema({
+	Component: StarburstInner,
+	schema: starburstSchema,
+	supportsEffects: false,
+});
 
 Starburst.displayName = 'Starburst';
 

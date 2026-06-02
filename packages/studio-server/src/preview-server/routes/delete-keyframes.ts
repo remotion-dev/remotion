@@ -364,6 +364,7 @@ export const deleteKeyframes = async ({
 		}
 
 		return computeEffectPropStatus({
+			ast,
 			jsx,
 			effectIndex: keyframe.effectIndex,
 			keys: getAllSchemaKeys(keyframe.schema),

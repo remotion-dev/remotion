@@ -58,6 +58,7 @@ test('getEffectFieldsToShow uses the active enum variant', () => {
 					{
 						canUpdate: true,
 						callee: 'halftone',
+						importPath: null,
 						effectIndex: 0,
 						props: {
 							colorMode: {canUpdate: true, codeValue: 'source'},
