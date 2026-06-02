@@ -192,7 +192,7 @@ export const wrapInSchema = <S extends SequenceSchema, Props extends object>({
 				overrideId,
 				supportsEffects,
 			};
-		}, [currentRuntimeValueDotNotation, overrideId, schema, supportsEffects]);
+		}, [currentRuntimeValueDotNotation, overrideId]);
 
 		// 3. Apply drag/code overrides on top of the runtime values.
 		// eslint-disable-next-line react-hooks/rules-of-hooks
