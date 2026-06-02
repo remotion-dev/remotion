@@ -491,11 +491,21 @@ export type DuplicateJsxNodeResponse =
 			stack: string;
 	  };
 
-export type InsertableCompositionElement = {
-	type: 'solid';
-	width: number;
-	height: number;
-};
+export type InsertableCompositionElement =
+	| {
+			type: 'solid';
+			width: number;
+			height: number;
+	  }
+	| {
+			type: 'asset';
+			assetType: 'image' | 'video' | 'gif';
+			src: string;
+			dimensions: {
+				width: number;
+				height: number;
+			} | null;
+	  };
 
 export type InsertJsxElementRequest = {
 	compositionFile: string;

@@ -1,4 +1,5 @@
 import type {Size} from '@remotion/player';
+import type {InsertableCompositionElement} from '@remotion/studio-shared';
 import React, {
 	useCallback,
 	useContext,
@@ -9,13 +10,19 @@ import React, {
 } from 'react';
 import type {CanvasContent} from 'remotion';
 import {Internals, watchStaticFile} from 'remotion';
+import {getStaticFiles} from '../api/get-static-files';
+import {writeStaticFile} from '../api/write-static-file';
+import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {BACKGROUND} from '../helpers/colors';
+import {detectFileType} from '../helpers/detect-file-type';
+import type {FileType} from '../helpers/detect-file-type';
 import type {AssetMetadata} from '../helpers/get-asset-metadata';
 import {getAssetMetadata} from '../helpers/get-asset-metadata';
 import {
 	applyZoomAroundFocalPoint,
 	getEffectiveTranslation,
 } from '../helpers/get-effective-translation';
+import {useCachedCompositionComponentInfo} from '../helpers/open-in-editor';
 import {
 	MAX_ZOOM,
 	MIN_ZOOM,
@@ -26,12 +33,15 @@ import {useKeybinding} from '../helpers/use-keybinding';
 import {canvasRef} from '../state/canvas-ref';
 import {EditorShowGuidesContext} from '../state/editor-guides';
 import {EditorZoomGesturesContext} from '../state/editor-zoom-gestures';
+import {callApi} from './call-api';
 import EditorGuides from './EditorGuides';
 import {EditorRulers} from './EditorRuler';
 import {useIsRulerVisible} from './EditorRuler/use-is-ruler-visible';
 import {SPACING_UNIT} from './layout';
+import {showNotification} from './Notifications/NotificationCenter';
 import {VideoPreview} from './Preview';
 import {ResetZoomButton} from './ResetZoomButton';
+import {useResolvedStack} from './Timeline/use-resolved-stack';
 
 const getContainerStyle = (
 	editorZoomGestures: boolean,
@@ -51,6 +61,69 @@ const resetZoom: React.CSSProperties = {
 };
 
 const ZOOM_PX_FACTOR = 0.003;
+
+const getAssetElement = ({
+	fileType,
+	src,
+}: {
+	fileType: FileType;
+	src: string;
+}): InsertableCompositionElement | null => {
+	if (
+		fileType.type === 'png' ||
+		fileType.type === 'jpeg' ||
+		fileType.type === 'webp' ||
+		fileType.type === 'bmp'
+	) {
+		return {
+			type: 'asset',
+			assetType: 'image',
+			src,
+			dimensions: fileType.dimensions,
+		};
+	}
+
+	if (fileType.type === 'gif') {
+		return {
+			type: 'asset',
+			assetType: 'gif',
+			src,
+			dimensions: fileType.dimensions,
+		};
+	}
+
+	if (
+		fileType.type === 'riff' ||
+		fileType.type === 'webm' ||
+		fileType.type === 'iso-base-media' ||
+		fileType.type === 'transport-stream'
+	) {
+		return {
+			type: 'asset',
+			assetType: 'video',
+			src,
+			dimensions: null,
+		};
+	}
+
+	return null;
+};
+
+const getAssetLabel = (element: InsertableCompositionElement) => {
+	if (element.type !== 'asset') {
+		throw new Error('Expected asset element');
+	}
+
+	if (element.assetType === 'image') {
+		return '<Img>';
+	}
+
+	if (element.assetType === 'video') {
+		return '<Video>';
+	}
+
+	return '<Gif>';
+};
 
 type WebKitGestureEvent = UIEvent & {
 	scale: number;
@@ -79,10 +152,42 @@ export const Canvas: React.FC<{
 	const config = Internals.useUnsafeVideoConfig();
 	const areRulersVisible = useIsRulerVisible();
 	const {editorShowGuides} = useContext(EditorShowGuidesContext);
+	const {compositions} = useContext(Internals.CompositionManager);
+	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const [isAddingAsset, setIsAddingAsset] = useState(false);
 
 	const [assetResolution, setAssetResolution] = useState<AssetMetadata | null>(
 		null,
 	);
+
+	const currentCompositionId =
+		canvasContent.type === 'composition' ? canvasContent.compositionId : null;
+	const currentComposition = useMemo(() => {
+		if (currentCompositionId === null) {
+			return null;
+		}
+
+		return (
+			compositions.find(
+				(composition) => composition.id === currentCompositionId,
+			) ?? null
+		);
+	}, [compositions, currentCompositionId]);
+	const resolvedCompositionLocation = useResolvedStack(
+		currentComposition?.stack ?? null,
+	);
+	const compositionFile = resolvedCompositionLocation?.source ?? null;
+	const compositionComponentInfo = useCachedCompositionComponentInfo({
+		compositionFile,
+		compositionId: currentCompositionId,
+	});
+	const canDropAssets =
+		previewServerState.type === 'connected' &&
+		!window.remotion_isReadOnlyStudio &&
+		compositionComponentInfo?.canAddSequence === true &&
+		currentCompositionId !== null &&
+		compositionFile !== null &&
+		!isAddingAsset;
 
 	const contentDimensions = useMemo(() => {
 		if (
@@ -534,9 +639,121 @@ export const Canvas: React.FC<{
 		fetchMetadata();
 	}, [fetchMetadata]);
 
+	const onDragOver: React.DragEventHandler<HTMLDivElement> = useCallback(
+		(event) => {
+			if (!canDropAssets) {
+				return;
+			}
+
+			event.preventDefault();
+		},
+		[canDropAssets],
+	);
+
+	const onDrop: React.DragEventHandler<HTMLDivElement> = useCallback(
+		async (event) => {
+			if (
+				!canDropAssets ||
+				compositionFile === null ||
+				currentCompositionId === null
+			) {
+				return;
+			}
+
+			event.preventDefault();
+			event.stopPropagation();
+
+			const files = Array.from(event.dataTransfer.files);
+			if (files.length === 0) {
+				return;
+			}
+
+			setIsAddingAsset(true);
+			const insertedLabels: string[] = [];
+			const unsupportedFiles: string[] = [];
+			try {
+				for (const file of files) {
+					const contents = await file.arrayBuffer();
+					const fileType = detectFileType(new Uint8Array(contents));
+					const element = getAssetElement({
+						fileType,
+						src: file.name,
+					});
+
+					if (element === null) {
+						unsupportedFiles.push(file.name);
+						continue;
+					}
+
+					const alreadyExists = getStaticFiles().some(
+						(staticFile) =>
+							staticFile.name === file.name &&
+							staticFile.sizeInBytes === file.size,
+					);
+
+					if (!alreadyExists) {
+						await writeStaticFile({
+							contents,
+							filePath: file.name,
+						});
+					}
+
+					const result = await callApi('/api/insert-jsx-element', {
+						compositionFile,
+						compositionId: currentCompositionId,
+						element,
+					});
+
+					if (!result.success) {
+						showNotification(result.reason, 4000);
+						return;
+					}
+
+					insertedLabels.push(getAssetLabel(element));
+				}
+
+				if (insertedLabels.length === 1) {
+					showNotification(`Added ${insertedLabels[0]} to source file`, 2000);
+				} else if (insertedLabels.length > 1) {
+					showNotification(
+						`Added ${insertedLabels.length} assets to source file`,
+						2000,
+					);
+				}
+
+				if (unsupportedFiles.length === 1) {
+					showNotification(
+						`Cannot add ${unsupportedFiles[0]}: Unsupported file type`,
+						3000,
+					);
+				} else if (unsupportedFiles.length > 1) {
+					showNotification(
+						`Skipped ${unsupportedFiles.length} unsupported files`,
+						3000,
+					);
+				}
+			} catch (error) {
+				showNotification(
+					`Could not add asset: ${
+						error instanceof Error ? error.message : String(error)
+					}`,
+					4000,
+				);
+			} finally {
+				setIsAddingAsset(false);
+			}
+		},
+		[canDropAssets, compositionFile, currentCompositionId],
+	);
+
 	return (
 		<>
-			<div ref={canvasRef} style={getContainerStyle(editorZoomGestures)}>
+			<div
+				ref={canvasRef}
+				style={getContainerStyle(editorZoomGestures)}
+				onDragOver={canDropAssets ? onDragOver : undefined}
+				onDrop={canDropAssets ? onDrop : undefined}
+			>
 				{size ? (
 					<VideoPreview
 						canvasContent={canvasContent}

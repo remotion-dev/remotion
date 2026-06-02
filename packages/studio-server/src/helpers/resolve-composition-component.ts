@@ -728,6 +728,38 @@ const createNumberAttribute = (
 	);
 };
 
+const createPositionAbsoluteStyleAttribute = (): namedTypes.JSXAttribute => {
+	return recast.types.builders.jsxAttribute(
+		recast.types.builders.jsxIdentifier('style'),
+		recast.types.builders.jsxExpressionContainer(
+			recast.types.builders.objectExpression([
+				recast.types.builders.objectProperty(
+					recast.types.builders.identifier('position'),
+					recast.types.builders.stringLiteral('absolute'),
+				),
+			]),
+		),
+	);
+};
+
+const createStaticFileSrcAttribute = ({
+	staticFileLocalName,
+	src,
+}: {
+	staticFileLocalName: string;
+	src: string;
+}): namedTypes.JSXAttribute => {
+	return recast.types.builders.jsxAttribute(
+		recast.types.builders.jsxIdentifier('src'),
+		recast.types.builders.jsxExpressionContainer(
+			recast.types.builders.callExpression(
+				recast.types.builders.identifier(staticFileLocalName),
+				[recast.types.builders.stringLiteral(src)],
+			),
+		),
+	);
+};
+
 const createSolidElement = ({
 	localName,
 	width,
@@ -743,17 +775,38 @@ const createSolidElement = ({
 			[
 				createNumberAttribute('width', width),
 				createNumberAttribute('height', height),
-				recast.types.builders.jsxAttribute(
-					recast.types.builders.jsxIdentifier('style'),
-					recast.types.builders.jsxExpressionContainer(
-						recast.types.builders.objectExpression([
-							recast.types.builders.objectProperty(
-								recast.types.builders.identifier('position'),
-								recast.types.builders.stringLiteral('absolute'),
-							),
-						]),
-					),
-				),
+				createPositionAbsoluteStyleAttribute(),
+			],
+			true,
+		),
+		null,
+		[],
+	);
+};
+
+const createAssetElement = ({
+	localName,
+	staticFileLocalName,
+	src,
+	dimensions,
+}: {
+	localName: string;
+	staticFileLocalName: string;
+	src: string;
+	dimensions: {width: number; height: number} | null;
+}): namedTypes.JSXElement => {
+	return recast.types.builders.jsxElement(
+		recast.types.builders.jsxOpeningElement(
+			recast.types.builders.jsxIdentifier(localName),
+			[
+				createStaticFileSrcAttribute({staticFileLocalName, src}),
+				createPositionAbsoluteStyleAttribute(),
+				...(dimensions
+					? [
+							createNumberAttribute('width', dimensions.width),
+							createNumberAttribute('height', dimensions.height),
+						]
+					: []),
 			],
 			true,
 		),
@@ -915,6 +968,78 @@ const ensureSolidImport = (ast: File) => {
 	});
 };
 
+const getAvailableLocalName = ({
+	ast,
+	candidates,
+	label,
+}: {
+	ast: File;
+	candidates: readonly string[];
+	label: string;
+}) => {
+	const available = candidates.find((candidate) => {
+		return !hasTopLevelBinding({ast, name: candidate});
+	});
+
+	if (!available) {
+		throw new Error(`Cannot add ${label} because all local names are defined`);
+	}
+
+	return available;
+};
+
+const ensureStaticFileImport = (ast: File) => {
+	return ensureNamedImport({
+		ast,
+		importedName: 'staticFile',
+		sourcePath: 'remotion',
+		localName: getAvailableLocalName({
+			ast,
+			candidates: ['staticFile', 'remotionStaticFile'],
+			label: 'staticFile()',
+		}),
+	});
+};
+
+const ensureImgImport = (ast: File) => {
+	return ensureNamedImport({
+		ast,
+		importedName: 'Img',
+		sourcePath: 'remotion',
+		localName: getAvailableLocalName({
+			ast,
+			candidates: ['Img', 'RemotionImg'],
+			label: '<Img>',
+		}),
+	});
+};
+
+const ensureVideoImport = (ast: File) => {
+	return ensureNamedImport({
+		ast,
+		importedName: 'Video',
+		sourcePath: '@remotion/media',
+		localName: getAvailableLocalName({
+			ast,
+			candidates: ['Video', 'RemotionVideo'],
+			label: '<Video>',
+		}),
+	});
+};
+
+const ensureGifImport = (ast: File) => {
+	return ensureNamedImport({
+		ast,
+		importedName: 'Gif',
+		sourcePath: '@remotion/gif',
+		localName: getAvailableLocalName({
+			ast,
+			candidates: ['Gif', 'RemotionGif'],
+			label: '<Gif>',
+		}),
+	});
+};
+
 const addElementToComponentRoot = ({
 	ast,
 	exportName,
@@ -956,7 +1081,7 @@ const addElementToComponentRoot = ({
 		CANVAS_ROOT_ELEMENTS.includes(rootNode.openingElement.name.name)
 	) {
 		throw new Error(
-			`Cannot insert a <Solid> into a composition whose root element is <${rootNode.openingElement.name.name}>`,
+			`Cannot insert a JSX element into a composition whose root element is <${rootNode.openingElement.name.name}>`,
 		);
 	}
 
@@ -1236,6 +1361,23 @@ const createInsertableJsxElement = ({
 			localName: solidLocalName,
 			width: element.width,
 			height: element.height,
+		});
+	}
+
+	if (element.type === 'asset') {
+		const staticFileLocalName = ensureStaticFileImport(ast);
+		const localName =
+			element.assetType === 'image'
+				? ensureImgImport(ast)
+				: element.assetType === 'video'
+					? ensureVideoImport(ast)
+					: ensureGifImport(ast);
+
+		return createAssetElement({
+			localName,
+			staticFileLocalName,
+			src: element.src,
+			dimensions: element.dimensions,
 		});
 	}
 

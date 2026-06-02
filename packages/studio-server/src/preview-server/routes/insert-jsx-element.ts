@@ -26,12 +26,42 @@ const validateElement = (element: InsertableCompositionElement) => {
 	if (element.type === 'solid') {
 		validateDimension('width', element.width);
 		validateDimension('height', element.height);
+		return;
 	}
+
+	if (element.type === 'asset') {
+		if (!element.src || element.src.includes('\\')) {
+			throw new Error('Asset path must be a static file path');
+		}
+
+		if (element.dimensions) {
+			validateDimension('width', element.dimensions.width);
+			validateDimension('height', element.dimensions.height);
+		}
+
+		return;
+	}
+
+	throw new Error('Unsupported element type');
 };
 
 const getElementLabel = (element: InsertableCompositionElement) => {
 	if (element.type === 'solid') {
 		return '<Solid>';
+	}
+
+	if (element.type === 'asset') {
+		if (element.assetType === 'image') {
+			return '<Img>';
+		}
+
+		if (element.assetType === 'video') {
+			return '<Video>';
+		}
+
+		if (element.assetType === 'gif') {
+			return '<Gif>';
+		}
 	}
 
 	throw new Error('Unsupported element type');
