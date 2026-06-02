@@ -20,6 +20,7 @@ import {isDuplicatableSequenceRowSelection} from '../components/Timeline/duplica
 import {getTimelinePropResetTargets} from '../components/Timeline/reset-selected-timeline-props';
 import {
 	getPasteEffectsTarget,
+	getSnapshotsFromSelection,
 	type PasteEffectsTarget,
 } from '../components/Timeline/TimelineClipboardKeybindings';
 import {
@@ -141,6 +142,53 @@ test('pasting effects treats effect selections on one sequence as one target', (
 		type: 'valid',
 		nodePathInfo: firstEffectNodePathInfo,
 	} satisfies PasteEffectsTarget);
+});
+
+test('copying a keyframed effect is blocked', () => {
+	const effectNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['effects', '0'],
+		true,
+		[['0']],
+	);
+	const nodePath = effectNodePathInfo.sequenceSubscriptionKey;
+	const codeValues = {
+		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			canUpdate: true,
+			props: {},
+			effects: [
+				{
+					canUpdate: true,
+					callee: 'effect',
+					importPath: '@remotion/effect',
+					effectIndex: 0,
+					props: {
+						intensity: {
+							canUpdate: true,
+							codeValue: 10,
+							keyframed: true,
+							interpolationFunction: 'interpolate',
+							keyframes: [{frame: 0, value: 10}],
+							easing: ['linear'],
+							clamping: {left: 'clamp', right: 'clamp'},
+							posterize: undefined,
+						},
+					},
+				},
+			],
+		},
+	} satisfies CodeValues;
+
+	expect(
+		getSnapshotsFromSelection({
+			selection: {
+				type: 'sequence-effect',
+				nodePathInfo: effectNodePathInfo,
+				i: 0,
+			},
+			codeValues,
+		}),
+	).toBe(null);
 });
 
 test('Timeline top drag should not be enabled', () => {

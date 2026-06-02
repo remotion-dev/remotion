@@ -119,6 +119,7 @@ type CopyableEffectStatus = {
 		| {
 				readonly canUpdate: true;
 				readonly codeValue?: unknown;
+				readonly keyframed?: boolean;
 		  }
 		| {
 				readonly canUpdate: false;
@@ -139,6 +140,10 @@ const effectStatusToSnapshot = (
 			return null;
 		}
 
+		if (prop.keyframed) {
+			return null;
+		}
+
 		if (prop.codeValue !== undefined) {
 			params[key] = prop.codeValue;
 		}
@@ -151,7 +156,7 @@ const effectStatusToSnapshot = (
 	};
 };
 
-const getSnapshotsFromSelection = ({
+export const getSnapshotsFromSelection = ({
 	selection,
 	codeValues,
 }: {
