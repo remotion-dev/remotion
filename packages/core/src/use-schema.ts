@@ -11,9 +11,10 @@ import type {
 	SequencePropsSubscriptionKey,
 } from './SequenceManager.js';
 
-export type CanUpdateSequencePropStatusTrue = {
+export type CanUpdaterSequencePropStatusStatic = {
 	canUpdate: true;
 	codeValue: unknown;
+	keyframed: false;
 };
 
 export type CanUpdateSequencePropStatusKeyframe = {
@@ -40,8 +41,9 @@ export type CanUpdateSequencePropStatusComputed = {
 };
 
 export type CanUpdateSequencePropStatusKeyframed = {
-	canUpdate: false;
-	reason: 'keyframed';
+	canUpdate: true;
+	codeValue: unknown;
+	keyframed: true;
 	interpolationFunction: CanUpdateSequencePropStatusInterpolationFunction;
 	keyframes: CanUpdateSequencePropStatusKeyframe[];
 	easing: CanUpdateSequencePropStatusEasing[];
@@ -50,11 +52,11 @@ export type CanUpdateSequencePropStatusKeyframed = {
 };
 
 export type CanUpdateSequencePropStatusFalse =
-	| CanUpdateSequencePropStatusComputed
-	| CanUpdateSequencePropStatusKeyframed;
+	CanUpdateSequencePropStatusComputed;
 
 export type CanUpdateSequencePropStatus =
-	| CanUpdateSequencePropStatusTrue
+	| CanUpdaterSequencePropStatusStatic
+	| CanUpdateSequencePropStatusKeyframed
 	| CanUpdateSequencePropStatusFalse;
 
 export type DragOverrides = Record<string, Record<string, unknown>>;
@@ -78,6 +80,12 @@ export type GetEffectDragOverrides = (
 	nodePath: SequencePropsSubscriptionKey,
 	effectIndex: number,
 ) => Record<string, unknown>;
+
+export const isKeyframedStatus = (
+	status: CanUpdateSequencePropStatus | null,
+): status is CanUpdateSequencePropStatusKeyframed => {
+	return status !== null && status.canUpdate && 'keyframes' in status;
+};
 
 const findFieldInSchema = (
 	schema: SequenceSchema,
@@ -129,8 +137,8 @@ export const computeEffectiveSchemaValuesDotNotation = ({
 		let value: unknown;
 		if (codeValueStatus === null) {
 			value = currentValue[key];
-		} else if (codeValueStatus.canUpdate === false) {
-			if (codeValueStatus.reason === 'keyframed' && frame !== null) {
+		} else if (isKeyframedStatus(codeValueStatus)) {
+			if (frame !== null) {
 				const interpolated = interpolateKeyframedStatus({
 					frame,
 					status: codeValueStatus,
@@ -139,6 +147,8 @@ export const computeEffectiveSchemaValuesDotNotation = ({
 			} else {
 				value = currentValue[key];
 			}
+		} else if (codeValueStatus.canUpdate === false) {
+			value = currentValue[key];
 		} else {
 			value = getEffectiveVisualModeValue({
 				codeValue: codeValueStatus,

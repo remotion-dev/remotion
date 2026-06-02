@@ -10,6 +10,7 @@ test('optimisticUpdateForCodeValues should return the correct response', () => {
 			'style.opacity': {
 				canUpdate: true,
 				codeValue: 0.5,
+				keyframed: false,
 			},
 		},
 		effects: [],
@@ -27,6 +28,7 @@ test('optimisticUpdateForCodeValues should return the correct response', () => {
 			'style.opacity': {
 				canUpdate: true,
 				codeValue: 0.6,
+				keyframed: false,
 			},
 		},
 		effects: [],
@@ -44,6 +46,7 @@ test('optimisticUpdateForCodeValues should return the correct response', () => {
 			layout: {
 				canUpdate: true,
 				codeValue: 'none',
+				keyframed: false,
 			},
 		},
 		effects: [],

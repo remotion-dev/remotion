@@ -1,7 +1,7 @@
 import React from 'react';
 import type {
 	CanUpdateSequencePropStatusFalse,
-	CanUpdateSequencePropStatusTrue,
+	CanUpdaterSequencePropStatusStatic,
 } from 'remotion';
 import type {
 	SchemaFieldInfo,
@@ -49,7 +49,7 @@ export const TimelineNonEditableStatus: React.FC<{
 		return null;
 	}
 
-	if (propStatus.reason === 'computed' || propStatus.reason === 'keyframed') {
+	if (propStatus.reason === 'computed') {
 		return (
 			<span style={unsupportedLabel}>{getComputedStatusLabel(propStatus)}</span>
 		);
@@ -61,7 +61,7 @@ export const TimelineFieldValue: React.FC<{
 	readonly onSave: TimelineFieldOnSave;
 	readonly onDragValueChange: TimelineFieldOnDragValueChange;
 	readonly onDragEnd: () => void;
-	readonly propStatus: CanUpdateSequencePropStatusTrue;
+	readonly propStatus: CanUpdaterSequencePropStatusStatic;
 	readonly effectiveValue: unknown;
 }> = ({
 	field,

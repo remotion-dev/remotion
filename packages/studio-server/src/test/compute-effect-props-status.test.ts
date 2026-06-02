@@ -43,8 +43,16 @@ test('computeEffectPropStatus reports static props as canUpdate=true with codeVa
 		throw new Error('expected canUpdate true');
 	}
 
-	expect(result.props.color).toEqual({canUpdate: true, codeValue: 'red'});
-	expect(result.props.opacity).toEqual({canUpdate: true, codeValue: 0.5});
+	expect(result.props.color).toEqual({
+		canUpdate: true,
+		codeValue: 'red',
+		keyframed: false,
+	});
+	expect(result.props.opacity).toEqual({
+		canUpdate: true,
+		codeValue: 0.5,
+		keyframed: false,
+	});
 	expect(result.importPath).toBe('@remotion/effects/tint');
 });
 
@@ -64,7 +72,11 @@ test('computeEffectPropStatus reports computed props', () => {
 	}
 
 	expect(result.props.color).toEqual({canUpdate: false, reason: 'computed'});
-	expect(result.props.opacity).toEqual({canUpdate: true, codeValue: 0.5});
+	expect(result.props.opacity).toEqual({
+		canUpdate: true,
+		codeValue: 0.5,
+		keyframed: false,
+	});
 });
 
 test('computeEffectPropStatus reports keyframes for inline interpolated effect props', () => {
@@ -85,8 +97,9 @@ test('computeEffectPropStatus reports keyframes for inline interpolated effect p
 	}
 
 	expect(result.props.amount).toEqual({
-		canUpdate: false,
-		reason: 'keyframed',
+		canUpdate: true,
+		codeValue: undefined,
+		keyframed: true,
 		interpolationFunction: 'interpolate',
 		keyframes: [
 			{frame: 0, value: 0.2},
@@ -113,8 +126,16 @@ test('computeEffectPropStatus reports unset props as undefined codeValue', () =>
 		throw new Error('expected canUpdate true');
 	}
 
-	expect(result.props.color).toEqual({canUpdate: true, codeValue: 'red'});
-	expect(result.props.opacity).toEqual({canUpdate: true, codeValue: undefined});
+	expect(result.props.color).toEqual({
+		canUpdate: true,
+		codeValue: 'red',
+		keyframed: false,
+	});
+	expect(result.props.opacity).toEqual({
+		canUpdate: true,
+		codeValue: undefined,
+		keyframed: false,
+	});
 });
 
 test('computeEffectPropStatus flags non-call expressions', () => {
@@ -189,5 +210,6 @@ test('computeEffectPropStatus treats zero-arg effect as editable with undefined 
 	expect(result.props.amount).toEqual({
 		canUpdate: true,
 		codeValue: undefined,
+		keyframed: false,
 	});
 });

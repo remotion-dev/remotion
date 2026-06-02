@@ -28,8 +28,7 @@ import {JsxElementNotFoundAtLocationError} from '../jsx-element-not-found-at-loc
 import {computeEffectPropStatus} from './can-update-effect-props';
 
 type CanUpdatePropStatus = CanUpdateSequencePropStatus;
-type ComputedPropStatus = Extract<CanUpdatePropStatus, {canUpdate: false}>;
-type KeyframedPropStatus = Extract<ComputedPropStatus, {reason: 'keyframed'}>;
+type KeyframedPropStatus = Extract<CanUpdatePropStatus, {keyframed: true}>;
 type PropKeyframes = KeyframedPropStatus['keyframes'];
 type PropEasing = KeyframedPropStatus['easing'];
 type PropClamping = KeyframedPropStatus['clamping'];
@@ -478,8 +477,9 @@ export const getComputedStatus = (node: Expression): CanUpdatePropStatus => {
 	}
 
 	return {
-		canUpdate: false,
-		reason: 'keyframed',
+		canUpdate: true,
+		codeValue: undefined,
+		keyframed: true,
 		interpolationFunction: interpolation.interpolationFunction,
 		keyframes: interpolation.keyframes,
 		easing: interpolation.easing,
@@ -510,7 +510,7 @@ const getPropsStatus = (
 		const {value} = attr as JSXAttribute;
 
 		if (!value) {
-			props[name] = {canUpdate: true, codeValue: true};
+			props[name] = {canUpdate: true, codeValue: true, keyframed: false};
 			continue;
 		}
 
@@ -518,6 +518,7 @@ const getPropsStatus = (
 			props[name] = {
 				canUpdate: true,
 				codeValue: (value as {value: string}).value,
+				keyframed: false,
 			};
 			continue;
 		}
@@ -537,6 +538,7 @@ const getPropsStatus = (
 			props[name] = {
 				canUpdate: true,
 				codeValue: extractStaticValue(expression),
+				keyframed: false,
 			};
 			continue;
 		}
@@ -658,7 +660,7 @@ const getNestedPropStatus = (
 
 	if (!attr || !attr.value) {
 		// Parent attribute doesn't exist, nested prop can be added
-		return {canUpdate: true, codeValue: undefined};
+		return {canUpdate: true, codeValue: undefined, keyframed: false};
 	}
 
 	if (attr.value.type !== 'JSXExpressionContainer') {
@@ -684,7 +686,7 @@ const getNestedPropStatus = (
 
 	if (!prop) {
 		// Property not set in the object, can be added
-		return {canUpdate: true, codeValue: undefined};
+		return {canUpdate: true, codeValue: undefined, keyframed: false};
 	}
 
 	const propValue = prop.value as Expression;
@@ -697,7 +699,7 @@ const getNestedPropStatus = (
 		return {canUpdate: false, reason: 'computed'};
 	}
 
-	return {canUpdate: true, codeValue};
+	return {canUpdate: true, codeValue, keyframed: false};
 };
 
 const computeEffectsForJsx = ({
@@ -739,7 +741,11 @@ const computeSequenceOnlyPropsRecord = ({
 		} else if (key in allProps) {
 			filteredProps[key] = allProps[key];
 		} else {
-			filteredProps[key] = {canUpdate: true, codeValue: undefined};
+			filteredProps[key] = {
+				canUpdate: true,
+				codeValue: undefined,
+				keyframed: false,
+			};
 		}
 	}
 

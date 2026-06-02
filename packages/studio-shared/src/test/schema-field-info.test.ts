@@ -61,7 +61,11 @@ test('getEffectFieldsToShow uses the active enum variant', () => {
 						importPath: null,
 						effectIndex: 0,
 						props: {
-							colorMode: {canUpdate: true, codeValue: 'source'},
+							colorMode: {
+								canUpdate: true,
+								codeValue: 'source',
+								keyframed: false,
+							},
 						},
 					},
 				],

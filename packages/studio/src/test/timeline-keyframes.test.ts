@@ -114,8 +114,9 @@ test('keyframe display offsets follow the parent sequence context', () => {
 	expect(
 		getTimelineKeyframes(
 			{
-				canUpdate: false,
-				reason: 'keyframed',
+				canUpdate: true,
+				codeValue: undefined,
+				keyframed: true,
 				interpolationFunction: 'interpolate',
 				keyframes: [
 					{frame: 0, value: 2},

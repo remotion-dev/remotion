@@ -1,6 +1,7 @@
 import React, {useCallback, useContext, useMemo} from 'react';
 import type {
 	CanUpdateSequencePropStatus,
+	CanUpdateSequencePropStatusKeyframed,
 	SequencePropsSubscriptionKey,
 	SequenceSchema,
 } from 'remotion';
@@ -48,6 +49,12 @@ const navButtonStyle: React.CSSProperties = {
 	width: 14,
 };
 
+const isKeyframedStatus = (
+	status: CanUpdateSequencePropStatus,
+): status is CanUpdateSequencePropStatusKeyframed => {
+	return 'keyframes' in status;
+};
+
 const diamondButtonStyle: React.CSSProperties = {
 	...navButtonStyle,
 	background: 'none',
@@ -75,19 +82,20 @@ const getCurrentKeyframeValue = ({
 	defaultValue: unknown;
 	dragOverrideValue: unknown;
 }): unknown | null => {
+	if (isKeyframedStatus(propStatus)) {
+		const keyframedStatus = propStatus as CanUpdateSequencePropStatusKeyframed;
+		return Internals.interpolateKeyframedStatus({
+			frame: jsxFrame,
+			status: keyframedStatus,
+		});
+	}
+
 	if (propStatus.canUpdate) {
 		return Internals.getEffectiveVisualModeValue({
 			codeValue: propStatus,
 			dragOverrideValue,
 			defaultValue,
 			shouldResortToDefaultValueIfUndefined: true,
-		});
-	}
-
-	if (propStatus.reason === 'keyframed') {
-		return Internals.interpolateKeyframedStatus({
-			frame: jsxFrame,
-			status: propStatus,
 		});
 	}
 
@@ -109,11 +117,7 @@ export const shouldShowTimelineKeyframeControls = ({
 		return true;
 	}
 
-	return (
-		SELECTION_ENABLED &&
-		!propStatus.canUpdate &&
-		propStatus.reason === 'keyframed'
-	);
+	return SELECTION_ENABLED && isKeyframedStatus(propStatus);
 };
 
 export const TimelineKeyframeControls: React.FC<{
@@ -155,11 +159,14 @@ export const TimelineKeyframeControls: React.FC<{
 	);
 
 	const hasKeyframeAtCurrentFrame = useMemo(() => {
-		if (propStatus.canUpdate || propStatus.reason === 'computed') {
+		if (!isKeyframedStatus(propStatus)) {
 			return false;
 		}
 
-		return hasKeyframeAtSourceFrame(propStatus.keyframes, jsxFrame);
+		return hasKeyframeAtSourceFrame(
+			(propStatus as CanUpdateSequencePropStatusKeyframed).keyframes,
+			jsxFrame,
+		);
 	}, [jsxFrame, propStatus]);
 
 	const currentKeyframeValue = useMemo(
@@ -186,8 +193,7 @@ export const TimelineKeyframeControls: React.FC<{
 	const canAddKeyframe =
 		fieldSchema?.type !== 'scale' || typeof currentKeyframeValue === 'number';
 	const canToggleKeyframe =
-		(propStatus.canUpdate || propStatus.reason === 'keyframed') &&
-		(hasKeyframeAtCurrentFrame || canAddKeyframe);
+		propStatus.canUpdate && (hasKeyframeAtCurrentFrame || canAddKeyframe);
 
 	const seekToDisplayFrame = useCallback(
 		(frame: number) => {
@@ -227,11 +233,7 @@ export const TimelineKeyframeControls: React.FC<{
 				return;
 			}
 
-			if (
-				hasKeyframeAtCurrentFrame &&
-				!propStatus.canUpdate &&
-				propStatus.reason === 'keyframed'
-			) {
+			if (hasKeyframeAtCurrentFrame && isKeyframedStatus(propStatus)) {
 				if (effectIndex === null) {
 					await callDeleteSequenceKeyframe({
 						fileName,

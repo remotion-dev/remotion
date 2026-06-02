@@ -1,6 +1,8 @@
 import React, {useCallback, useContext, useMemo} from 'react';
 import type {
-	CanUpdateSequencePropStatusTrue,
+	CanUpdaterSequencePropStatusStatic,
+	CanUpdateSequencePropStatus,
+	CanUpdateSequencePropStatusKeyframed,
 	SequencePropsSubscriptionKey,
 	SequenceSchema,
 } from 'remotion';
@@ -34,12 +36,18 @@ import {useTimelineRowSelection} from './TimelineSelection';
 
 const fieldRowBase: React.CSSProperties = {};
 
+const isKeyframedStatus = (
+	status: CanUpdateSequencePropStatus,
+): status is CanUpdateSequencePropStatusKeyframed => {
+	return 'keyframes' in status;
+};
+
 const Value: React.FC<{
 	readonly field: SchemaFieldInfo;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly validatedLocation: CodePosition;
 	readonly schema: SequenceSchema;
-	readonly codeValue: CanUpdateSequencePropStatusTrue;
+	readonly codeValue: CanUpdaterSequencePropStatusStatic;
 }> = ({field, nodePath, validatedLocation, schema, codeValue}) => {
 	const {getDragOverrides} = useContext(
 		Internals.VisualModeDragOverridesContext,
@@ -307,7 +315,15 @@ export const TimelineSequencePropItem: React.FC<{
 				selected={selection.selected}
 				label={field.description ?? field.key}
 			/>
-			{codeValue.canUpdate ? (
+			{isKeyframedStatus(codeValue) ? (
+				<div style={timelineFieldValueColumnStyle}>
+					<TimelineKeyframedValue
+						field={field}
+						propStatus={codeValue}
+						keyframeDisplayOffset={keyframeDisplayOffset}
+					/>
+				</div>
+			) : codeValue.canUpdate ? (
 				<div style={timelineFieldValueColumnStyle}>
 					<Value
 						field={field}
@@ -315,14 +331,6 @@ export const TimelineSequencePropItem: React.FC<{
 						validatedLocation={validatedLocation}
 						schema={schema}
 						codeValue={codeValue}
-					/>
-				</div>
-			) : codeValue.reason === 'keyframed' ? (
-				<div style={timelineFieldValueColumnStyle}>
-					<TimelineKeyframedValue
-						field={field}
-						propStatus={codeValue}
-						keyframeDisplayOffset={keyframeDisplayOffset}
 					/>
 				</div>
 			) : (

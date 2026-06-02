@@ -110,21 +110,13 @@ export const getPasteEffectsTarget = (
 	};
 };
 
-type CopyableEffectStatus = {
-	readonly canUpdate: true;
-	readonly callee: string;
-	readonly importPath: string | null;
-	readonly props: Record<
-		string,
-		| {
-				readonly canUpdate: true;
-				readonly codeValue?: unknown;
-		  }
-		| {
-				readonly canUpdate: false;
-		  }
-	>;
-};
+type CopyableEffectStatus = React.ContextType<
+	typeof Internals.VisualModeCodeValuesContext
+>['codeValues'][string] extends infer TCodeValue
+	? TCodeValue extends {canUpdate: true; effects: readonly unknown[]}
+		? Extract<TCodeValue['effects'][number], {canUpdate: true}>
+		: never
+	: never;
 
 const effectStatusToSnapshot = (
 	effect: CopyableEffectStatus,
@@ -136,6 +128,10 @@ const effectStatusToSnapshot = (
 	const params: Record<string, unknown> = {};
 	for (const [key, prop] of Object.entries(effect.props)) {
 		if (!prop.canUpdate) {
+			return null;
+		}
+
+		if (prop.keyframed) {
 			return null;
 		}
 
@@ -151,7 +147,7 @@ const effectStatusToSnapshot = (
 	};
 };
 
-const getSnapshotsFromSelection = ({
+export const getSnapshotsFromSelection = ({
 	selection,
 	codeValues,
 }: {

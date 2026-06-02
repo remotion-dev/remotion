@@ -12,8 +12,9 @@ test('optimisticDeleteSequenceKeyframe removes the matching keyframe and an easi
 		canUpdate: true,
 		props: {
 			'style.opacity': {
-				canUpdate: false,
-				reason: 'keyframed',
+				canUpdate: true,
+				codeValue: undefined,
+				keyframed: true,
 				interpolationFunction: 'interpolate',
 				keyframes: [
 					{frame: 0, value: 0},
@@ -39,7 +40,7 @@ test('optimisticDeleteSequenceKeyframe removes the matching keyframe and an easi
 	}
 
 	const status = updated.props['style.opacity'];
-	if (status.canUpdate || status.reason !== 'keyframed') {
+	if (!status.canUpdate || !('keyframes' in status)) {
 		throw new Error('expected keyframed status');
 	}
 
@@ -55,8 +56,9 @@ test('optimisticDeleteSequenceKeyframe converts the last keyframe to a static va
 		canUpdate: true,
 		props: {
 			width: {
-				canUpdate: false,
-				reason: 'keyframed',
+				canUpdate: true,
+				codeValue: undefined,
+				keyframed: true,
 				interpolationFunction: 'interpolate',
 				keyframes: [{frame: 12, value: 320}],
 				easing: [],
@@ -80,6 +82,7 @@ test('optimisticDeleteSequenceKeyframe converts the last keyframe to a static va
 	expect(updated.props.width).toEqual({
 		canUpdate: true,
 		codeValue: 320,
+		keyframed: false,
 	});
 });
 
@@ -88,8 +91,9 @@ test('optimisticDeleteSequenceKeyframe is a no-op when no keyframe matches', () 
 		canUpdate: true,
 		props: {
 			'style.opacity': {
-				canUpdate: false,
-				reason: 'keyframed',
+				canUpdate: true,
+				codeValue: undefined,
+				keyframed: true,
 				interpolationFunction: 'interpolate',
 				keyframes: [{frame: 0, value: 0}],
 				easing: [],
@@ -131,8 +135,9 @@ test('optimisticDeleteSequenceKeyframes deletes multiple keyframes in one pass',
 		canUpdate: true,
 		props: {
 			width: {
-				canUpdate: false,
-				reason: 'keyframed',
+				canUpdate: true,
+				codeValue: undefined,
+				keyframed: true,
 				interpolationFunction: 'interpolate',
 				keyframes: [
 					{frame: 0, value: 100},
@@ -160,7 +165,7 @@ test('optimisticDeleteSequenceKeyframes deletes multiple keyframes in one pass',
 	}
 
 	const status = updated.props.width;
-	if (status.canUpdate || status.reason !== 'keyframed') {
+	if (!status.canUpdate || !('keyframes' in status)) {
 		throw new Error('expected keyframed status');
 	}
 
@@ -180,8 +185,9 @@ test('optimisticDeleteEffectKeyframe removes the matching keyframe on the target
 				importPath: null,
 				props: {
 					amount: {
-						canUpdate: false,
-						reason: 'keyframed',
+						canUpdate: true,
+						codeValue: undefined,
+						keyframed: true,
 						interpolationFunction: 'interpolate',
 						keyframes: [
 							{frame: 0, value: 0},
@@ -213,7 +219,7 @@ test('optimisticDeleteEffectKeyframe removes the matching keyframe on the target
 	}
 
 	const status = effect.props.amount;
-	if (status.canUpdate || status.reason !== 'keyframed') {
+	if (!status.canUpdate || !('keyframes' in status)) {
 		throw new Error('expected keyframed status');
 	}
 
@@ -233,8 +239,9 @@ test('optimisticDeleteEffectKeyframe converts the last keyframe on the target ef
 				importPath: null,
 				props: {
 					amount: {
-						canUpdate: false,
-						reason: 'keyframed',
+						canUpdate: true,
+						codeValue: undefined,
+						keyframed: true,
 						interpolationFunction: 'interpolate',
 						keyframes: [{frame: 40, value: 0.6}],
 						easing: [],
@@ -265,6 +272,7 @@ test('optimisticDeleteEffectKeyframe converts the last keyframe on the target ef
 	expect(effect.props.amount).toEqual({
 		canUpdate: true,
 		codeValue: 0.6,
+		keyframed: false,
 	});
 });
 
@@ -297,8 +305,9 @@ test('optimisticDeleteEffectKeyframes deletes multiple keyframes in one pass', (
 				importPath: null,
 				props: {
 					amount: {
-						canUpdate: false,
-						reason: 'keyframed',
+						canUpdate: true,
+						codeValue: undefined,
+						keyframed: true,
 						interpolationFunction: 'interpolate',
 						keyframes: [
 							{frame: 0, value: 0},
@@ -332,7 +341,7 @@ test('optimisticDeleteEffectKeyframes deletes multiple keyframes in one pass', (
 	}
 
 	const status = effect.props.amount;
-	if (status.canUpdate || status.reason !== 'keyframed') {
+	if (!status.canUpdate || !('keyframes' in status)) {
 		throw new Error('expected keyframed status');
 	}
 

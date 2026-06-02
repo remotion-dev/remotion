@@ -20,6 +20,7 @@ import {isDuplicatableSequenceRowSelection} from '../components/Timeline/duplica
 import {getTimelinePropResetTargets} from '../components/Timeline/reset-selected-timeline-props';
 import {
 	getPasteEffectsTarget,
+	getSnapshotsFromSelection,
 	type PasteEffectsTarget,
 } from '../components/Timeline/TimelineClipboardKeybindings';
 import {
@@ -141,6 +142,53 @@ test('pasting effects treats effect selections on one sequence as one target', (
 		type: 'valid',
 		nodePathInfo: firstEffectNodePathInfo,
 	} satisfies PasteEffectsTarget);
+});
+
+test('copying a keyframed effect is blocked', () => {
+	const effectNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['effects', '0'],
+		true,
+		[['0']],
+	);
+	const nodePath = effectNodePathInfo.sequenceSubscriptionKey;
+	const codeValues = {
+		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			canUpdate: true,
+			props: {},
+			effects: [
+				{
+					canUpdate: true,
+					callee: 'effect',
+					importPath: '@remotion/effect',
+					effectIndex: 0,
+					props: {
+						intensity: {
+							canUpdate: true,
+							codeValue: 10,
+							keyframed: true,
+							interpolationFunction: 'interpolate',
+							keyframes: [{frame: 0, value: 10}],
+							easing: ['linear'],
+							clamping: {left: 'clamp', right: 'clamp'},
+							posterize: undefined,
+						},
+					},
+				},
+			],
+		},
+	} satisfies CodeValues;
+
+	expect(
+		getSnapshotsFromSelection({
+			selection: {
+				type: 'sequence-effect',
+				nodePathInfo: effectNodePathInfo,
+				i: 0,
+			},
+			codeValues,
+		}),
+	).toBe(null);
 });
 
 test('Timeline top drag should not be enabled', () => {
@@ -294,8 +342,8 @@ test('Backspace reset targets multiple selected sequence props', () => {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
 			canUpdate: true,
 			props: {
-				opacity: {canUpdate: true, codeValue: 0.5},
-				'style.rotate': {canUpdate: true, codeValue: '45deg'},
+				opacity: {canUpdate: true, codeValue: 0.5, keyframed: false},
+				'style.rotate': {canUpdate: true, codeValue: '45deg', keyframed: false},
 			},
 			effects: [],
 		},
@@ -340,7 +388,7 @@ test('Selected outline dragging applies the same delta to all selected sequences
 			startY: 20,
 			target: {
 				clientId: 'client',
-				codeValue: {canUpdate: true, codeValue: '10px 20px'},
+				codeValue: {canUpdate: true, codeValue: '10px 20px', keyframed: false},
 				fieldDefault: '0px 0px',
 				nodePath: firstNodePath,
 				schema,
@@ -353,7 +401,7 @@ test('Selected outline dragging applies the same delta to all selected sequences
 			startY: 3,
 			target: {
 				clientId: 'client',
-				codeValue: {canUpdate: true, codeValue: '-5px 3px'},
+				codeValue: {canUpdate: true, codeValue: '-5px 3px', keyframed: false},
 				fieldDefault: '0px 0px',
 				nodePath: secondNodePath,
 				schema,
@@ -415,7 +463,7 @@ test('Backspace reset targets selected effect props', () => {
 					importPath: null,
 					effectIndex: 0,
 					props: {
-						intensity: {canUpdate: true, codeValue: 10},
+						intensity: {canUpdate: true, codeValue: 10, keyframed: false},
 					},
 				},
 			],
