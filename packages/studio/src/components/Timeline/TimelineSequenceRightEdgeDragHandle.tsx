@@ -1,4 +1,10 @@
-import React, {useCallback, useContext, useRef, useState} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useRef,
+	useState,
+} from 'react';
 import type {SequencePropsSubscriptionKey} from 'remotion';
 import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
@@ -43,7 +49,80 @@ export const TimelineSequenceRightEdgeDragHandle: React.FC<{
 		initialDuration: number;
 		pxPerFrame: number;
 		latestValue: number;
+		pointerId: number;
 	} | null>(null);
+
+	// Keep latest props/setters available to window listeners installed once at pointerdown.
+	const latestRef = useRef({
+		nodePath,
+		validatedLocation,
+		setCodeValues,
+		setDragOverrides,
+		clearDragOverrides,
+		previewServerState,
+	});
+	latestRef.current = {
+		nodePath,
+		validatedLocation,
+		setCodeValues,
+		setDragOverrides,
+		clearDragOverrides,
+		previewServerState,
+	};
+
+	const finishDrag = useCallback((commit: boolean) => {
+		const dragState = dragStateRef.current;
+		dragStateRef.current = null;
+		document.body.style.userSelect = '';
+		document.body.style.webkitUserSelect = '';
+		setDragging(false);
+
+		if (!dragState) {
+			return;
+		}
+
+		const {
+			nodePath: latestNodePath,
+			validatedLocation: latestLocation,
+			setCodeValues: latestSetCodeValues,
+			clearDragOverrides: latestClear,
+			previewServerState: latestServerState,
+		} = latestRef.current;
+
+		const shouldCommit =
+			commit &&
+			latestServerState.type === 'connected' &&
+			dragState.latestValue !== dragState.initialDuration;
+
+		if (!shouldCommit) {
+			latestClear(latestNodePath);
+			return;
+		}
+
+		saveSequenceProp({
+			fileName: latestLocation.source,
+			nodePath: latestNodePath,
+			fieldKey: 'durationInFrames',
+			value: dragState.latestValue,
+			defaultValue: null,
+			schema: NoReactInternals.sequenceSchema,
+			setCodeValues: latestSetCodeValues,
+			clientId:
+				latestServerState.type === 'connected'
+					? latestServerState.clientId
+					: '',
+		})
+			.catch((err) => {
+				Internals.Log.error(
+					{logLevel: 'error', tag: null},
+					'Could not save durationInFrames',
+					err,
+				);
+			})
+			.finally(() => {
+				latestClear(latestNodePath);
+			});
+	}, []);
 
 	const onPointerDown = useCallback(
 		(e: React.PointerEvent<HTMLDivElement>) => {
@@ -61,12 +140,12 @@ export const TimelineSequenceRightEdgeDragHandle: React.FC<{
 
 			e.stopPropagation();
 			e.preventDefault();
-			(e.target as Element).setPointerCapture(e.pointerId);
 			dragStateRef.current = {
 				initialClientX: e.clientX,
 				initialDuration: currentDurationInFrames,
 				pxPerFrame,
 				latestValue: currentDurationInFrames,
+				pointerId: e.pointerId,
 			};
 			document.body.style.userSelect = 'none';
 			document.body.style.webkitUserSelect = 'none';
@@ -75,10 +154,17 @@ export const TimelineSequenceRightEdgeDragHandle: React.FC<{
 		[currentDurationInFrames, timelineDurationInFrames, windowWidth],
 	);
 
-	const onPointerMove = useCallback(
-		(e: React.PointerEvent<HTMLDivElement>) => {
+	// Install global pointer listeners while dragging. They survive parent re-renders
+	// and element remounts that would otherwise drop React's synthetic handlers or
+	// pointer capture.
+	useEffect(() => {
+		if (!dragging) {
+			return;
+		}
+
+		const onMove = (e: PointerEvent) => {
 			const dragState = dragStateRef.current;
-			if (!dragState) {
+			if (!dragState || e.pointerId !== dragState.pointerId) {
 				return;
 			}
 
@@ -86,82 +172,48 @@ export const TimelineSequenceRightEdgeDragHandle: React.FC<{
 			const deltaFrames = Math.round(dx / dragState.pxPerFrame);
 			const next = Math.max(1, dragState.initialDuration + deltaFrames);
 			dragState.latestValue = next;
-			setDragOverrides(nodePath, 'durationInFrames', next);
-		},
-		[nodePath, setDragOverrides],
-	);
+			latestRef.current.setDragOverrides(
+				latestRef.current.nodePath,
+				'durationInFrames',
+				next,
+			);
+		};
 
-	const finishDrag = useCallback(
-		(commit: boolean) => {
+		const onUp = (e: PointerEvent) => {
 			const dragState = dragStateRef.current;
-			dragStateRef.current = null;
-			document.body.style.userSelect = '';
-			document.body.style.webkitUserSelect = '';
-			setDragging(false);
-
-			if (!dragState) {
+			if (!dragState || e.pointerId !== dragState.pointerId) {
 				return;
 			}
 
-			const shouldCommit =
-				commit &&
-				previewServerState.type === 'connected' &&
-				dragState.latestValue !== dragState.initialDuration;
-
-			if (!shouldCommit) {
-				clearDragOverrides(nodePath);
-				return;
-			}
-
-			saveSequenceProp({
-				fileName: validatedLocation.source,
-				nodePath,
-				fieldKey: 'durationInFrames',
-				value: dragState.latestValue,
-				defaultValue: null,
-				schema: NoReactInternals.sequenceSchema,
-				setCodeValues,
-				clientId:
-					previewServerState.type === 'connected'
-						? previewServerState.clientId
-						: '',
-			})
-				.catch((err) => {
-					Internals.Log.error(
-						{logLevel: 'error', tag: null},
-						'Could not save durationInFrames',
-						err,
-					);
-				})
-				.finally(() => {
-					clearDragOverrides(nodePath);
-				});
-		},
-		[
-			clearDragOverrides,
-			nodePath,
-			previewServerState,
-			setCodeValues,
-			validatedLocation.source,
-		],
-	);
-
-	const onPointerUp = useCallback(
-		(e: React.PointerEvent<HTMLDivElement>) => {
-			if (!dragStateRef.current) {
-				return;
-			}
-
-			e.stopPropagation();
-			(e.target as Element).releasePointerCapture(e.pointerId);
 			finishDrag(true);
-		},
-		[finishDrag],
-	);
+		};
 
-	const onPointerCancel = useCallback(() => {
-		finishDrag(false);
-	}, [finishDrag]);
+		const onCancel = (e: PointerEvent) => {
+			const dragState = dragStateRef.current;
+			if (!dragState || e.pointerId !== dragState.pointerId) {
+				return;
+			}
+
+			finishDrag(false);
+		};
+
+		// Bail if the page loses focus mid-drag.
+		const onWindowBlur = () => {
+			finishDrag(false);
+		};
+
+		window.addEventListener('pointermove', onMove);
+		window.addEventListener('pointerup', onUp);
+		window.addEventListener('pointercancel', onCancel);
+		window.addEventListener('blur', onWindowBlur);
+
+		return () => {
+			window.removeEventListener('pointermove', onMove);
+			window.removeEventListener('pointerup', onUp);
+			window.removeEventListener('pointercancel', onCancel);
+			window.removeEventListener('blur', onWindowBlur);
+		};
+	}, [dragging, finishDrag]);
 
 	const style: React.CSSProperties = {
 		...baseStyle,
@@ -176,9 +228,6 @@ export const TimelineSequenceRightEdgeDragHandle: React.FC<{
 			title="Drag to change duration"
 			style={style}
 			onPointerDown={onPointerDown}
-			onPointerMove={onPointerMove}
-			onPointerUp={onPointerUp}
-			onPointerCancel={onPointerCancel}
 		/>
 	);
 };
