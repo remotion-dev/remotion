@@ -26,6 +26,7 @@ export const tintSchema = {
 		step: 0.01,
 		default: DEFAULT_AMOUNT,
 		description: 'Amount',
+		hiddenFromList: false,
 	},
 } as const satisfies SequenceSchema;
 

@@ -35,6 +35,7 @@ export const duotoneSchema = {
 		step: 0.01,
 		default: DEFAULT_LUMINANCE_THRESHOLD,
 		description: 'Luminance threshold',
+		hiddenFromList: false,
 	},
 } as const satisfies SequenceSchema;
 

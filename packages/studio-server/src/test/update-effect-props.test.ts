@@ -10,10 +10,12 @@ const tintSchema = {
 	opacity: {
 		type: 'number',
 		default: 1,
+		hiddenFromList: false,
 	},
 	amount: {
 		type: 'number',
 		default: 1,
+		hiddenFromList: false,
 	},
 	position: {
 		type: 'uv-coordinate',
@@ -174,6 +176,7 @@ test('updateEffectProps removes props from inactive enum variants', () => {
 			opacity: {
 				type: 'number',
 				default: 1,
+				hiddenFromList: false,
 			},
 		},
 	});

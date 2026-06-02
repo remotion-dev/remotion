@@ -20,6 +20,7 @@ export const dotGridSchema = {
 		step: 1,
 		default: DEFAULT_DOT_SIZE,
 		description: 'Dot size',
+		hiddenFromList: false,
 	},
 	gridSize: {
 		type: 'number',
@@ -28,6 +29,7 @@ export const dotGridSchema = {
 		step: 1,
 		default: DEFAULT_GRID_SIZE,
 		description: 'Grid size',
+		hiddenFromList: false,
 	},
 	invert: {
 		type: 'boolean',

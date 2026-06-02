@@ -23,6 +23,7 @@ import {usePreload} from '../prefetch.js';
 import {
 	hiddenField,
 	sequenceVisualStyleSchema,
+	durationInFramesField,
 	type SequenceSchema,
 } from '../sequence-field-schema.js';
 import {Sequence} from '../Sequence.js';
@@ -34,6 +35,7 @@ import {wrapInSchema} from '../wrap-in-schema.js';
 import type {CanvasImageCanvasProps, CanvasImageProps} from './props.js';
 
 export const canvasImageSchema = {
+	durationInFrames: durationInFramesField,
 	fit: {
 		type: 'enum',
 		default: 'fill',

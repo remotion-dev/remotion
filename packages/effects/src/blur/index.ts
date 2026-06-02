@@ -41,6 +41,7 @@ const blurSchema = {
 		step: 1,
 		default: undefined,
 		description: 'Radius',
+		hiddenFromList: false,
 	},
 	horizontal: {
 		type: 'boolean',

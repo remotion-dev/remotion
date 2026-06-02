@@ -20,6 +20,7 @@ test('getAllSchemaKeys returns every key across all enum variants', () => {
 			'postmountFor',
 			'styleWhilePremounted',
 			'styleWhilePostmounted',
+			'durationInFrames',
 		].sort(),
 	);
 });
@@ -35,12 +36,14 @@ test('getFlatSchema throws when discriminated union variants share a key', () =>
 					shared: {
 						type: 'number',
 						default: 1,
+						hiddenFromList: false,
 					},
 				},
 				b: {
 					shared: {
 						type: 'number',
 						default: 2,
+						hiddenFromList: false,
 					},
 				},
 			},

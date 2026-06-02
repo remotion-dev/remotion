@@ -47,6 +47,7 @@ const makeSequence = ({
 	loopDisplay: undefined,
 	getStack,
 	refForOutline: null,
+	isInsideSeries: false,
 	premountDisplay: null,
 	postmountDisplay: null,
 	controls: overrideId ? makeControls(overrideId) : null,

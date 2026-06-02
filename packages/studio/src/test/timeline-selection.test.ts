@@ -87,6 +87,7 @@ const makeTimelineSequence = ({
 			supportsEffects: true,
 		},
 		refForOutline: null,
+		isInsideSeries: false,
 		effects,
 	}) as TSequence;
 
@@ -326,7 +327,7 @@ test('Cmd+D only duplicates selected timeline sequence rows', () => {
 
 test('Backspace reset targets multiple selected sequence props', () => {
 	const schema = {
-		opacity: {type: 'number', default: 1},
+		opacity: {type: 'number', default: 1, hiddenFromList: false},
 		'style.rotate': {type: 'rotation-css', default: '0deg'},
 	} satisfies SequenceSchema;
 	const opacityNodePathInfo = makeNodePathInfo(
@@ -445,7 +446,7 @@ test('Selected outline dragging applies the same delta to all selected sequences
 test('Backspace reset targets selected effect props', () => {
 	const schema = {} satisfies SequenceSchema;
 	const effectSchema = {
-		intensity: {type: 'number', default: 0},
+		intensity: {type: 'number', default: 0, hiddenFromList: false},
 	} satisfies SequenceSchema;
 	const nodePathInfo = makeNodePathInfo(
 		['body', 0],
