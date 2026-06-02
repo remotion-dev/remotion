@@ -98,6 +98,42 @@ export const Example: React.FC = () => {
 	});
 });
 
+test('computeSequencePropsStatus should return keyframes for interpolated translate props', () => {
+	const input = `import React from 'react';
+import {Sequence, interpolateTranslate, useCurrentFrame} from 'remotion';
+
+export const Example: React.FC = () => {
+\tconst frame = useCurrentFrame();
+\treturn (
+\t\t<Sequence style={{translate: interpolateTranslate(frame, [0, 100], ['0px 59px', '100px 20px'])}} />
+\t);
+};
+`;
+	const result = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 7),
+		keys: ['style.translate'],
+		effects: [],
+	});
+
+	expect(result.canUpdate).toBe(true);
+	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
+
+	expect(result.props['style.translate']).toEqual({
+		canUpdate: true,
+		codeValue: undefined,
+		keyframed: true,
+		interpolationFunction: 'interpolateTranslate',
+		keyframes: [
+			{frame: 0, value: '0px 59px'},
+			{frame: 100, value: '100px 20px'},
+		],
+		easing: ['linear'],
+		clamping: {left: 'extend', right: 'extend'},
+		posterize: undefined,
+	});
+});
+
 test('computeSequencePropsStatus should explain why outside-project file reads were blocked', () => {
 	const remotionRoot = path.join(__dirname, 'snapshots');
 	const fileName = '../outside.tsx';

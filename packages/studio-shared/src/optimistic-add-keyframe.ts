@@ -1,25 +1,22 @@
 import {
 	type CanUpdateSequencePropStatus,
 	type CanUpdateSequencePropsResponse,
+	type SequenceSchema,
 } from 'remotion';
-
-const getInterpolationFunction = (
-	staticValue: unknown,
-	newValue: unknown,
-): 'interpolate' | 'interpolateColors' => {
-	return typeof staticValue === 'string' && typeof newValue === 'string'
-		? 'interpolateColors'
-		: 'interpolate';
-};
+import {getKeyframeInterpolationFunction} from './keyframe-interpolation-function';
 
 const addKeyframeToPropStatus = ({
 	status,
+	fieldKey,
 	frame,
 	value,
+	schema,
 }: {
 	status: CanUpdateSequencePropStatus;
+	fieldKey: string;
 	frame: number;
 	value: unknown;
+	schema: SequenceSchema | null;
 }): CanUpdateSequencePropStatus => {
 	if ('keyframes' in status) {
 		const existingIndex = status.keyframes.findIndex(
@@ -58,7 +55,12 @@ const addKeyframeToPropStatus = ({
 			canUpdate: true,
 			codeValue: undefined,
 			keyframed: true,
-			interpolationFunction: getInterpolationFunction(staticValue, value),
+			interpolationFunction: getKeyframeInterpolationFunction({
+				schema,
+				key: fieldKey,
+				staticValue,
+				newValue: value,
+			}),
 			keyframes: [{frame, value}],
 			easing: [],
 			clamping: {left: 'extend', right: 'extend'},
@@ -74,11 +76,13 @@ export const optimisticAddSequenceKeyframe = ({
 	fieldKey,
 	frame,
 	value,
+	schema,
 }: {
 	previous: CanUpdateSequencePropsResponse;
 	fieldKey: string;
 	frame: number;
 	value: unknown;
+	schema?: SequenceSchema;
 }): CanUpdateSequencePropsResponse => {
 	if (!previous.canUpdate) {
 		return previous;
@@ -93,7 +97,13 @@ export const optimisticAddSequenceKeyframe = ({
 		...previous,
 		props: {
 			...previous.props,
-			[fieldKey]: addKeyframeToPropStatus({status, frame, value}),
+			[fieldKey]: addKeyframeToPropStatus({
+				status,
+				fieldKey,
+				frame,
+				value,
+				schema: schema ?? null,
+			}),
 		},
 	};
 };
@@ -104,12 +114,14 @@ export const optimisticAddEffectKeyframe = ({
 	fieldKey,
 	frame,
 	value,
+	schema,
 }: {
 	previous: CanUpdateSequencePropsResponse;
 	effectIndex: number;
 	fieldKey: string;
 	frame: number;
 	value: unknown;
+	schema?: SequenceSchema;
 }): CanUpdateSequencePropsResponse => {
 	if (!previous.canUpdate) {
 		return previous;
@@ -136,7 +148,13 @@ export const optimisticAddEffectKeyframe = ({
 		...target,
 		props: {
 			...target.props,
-			[fieldKey]: addKeyframeToPropStatus({status, frame, value}),
+			[fieldKey]: addKeyframeToPropStatus({
+				status,
+				fieldKey,
+				frame,
+				value,
+				schema: schema ?? null,
+			}),
 		},
 	};
 

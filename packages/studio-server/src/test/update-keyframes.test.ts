@@ -1,4 +1,5 @@
 import {expect, test} from 'bun:test';
+import type {SequenceSchema} from 'remotion';
 import {
 	updateEffectKeyframesAst,
 	updateSequenceKeyframes,
@@ -27,6 +28,25 @@ export const Example: React.FC = () => {
 \tconst frame = useCurrentFrame();
 \treturn (
 \t\t<Solid color={interpolateColors(frame, [0, 100], ['red', 'blue'])} width={100} height={100} />
+\t);
+};
+`;
+
+const translateSchema = {
+	'style.translate': {
+		type: 'translate',
+		default: '0px 0px',
+	},
+} satisfies SequenceSchema;
+
+const translateInput = `import React from 'react';
+import {AbsoluteFill} from 'remotion';
+
+export const Example: React.FC = () => {
+\treturn (
+\t\t<AbsoluteFill>
+\t\t\t<div style={{translate: '0px 59px'}} />
+\t\t</AbsoluteFill>
 \t);
 };
 `;
@@ -155,6 +175,60 @@ test('updateSequenceKeyframes converts a static string value to a color interpol
 
 	expect(oldValueStrings).toEqual(["'red'"]);
 	expect(output).toContain("color={interpolateColors(frame, [50], ['blue'])}");
+});
+
+test('updateSequenceKeyframes converts static translate to interpolateTranslate', async () => {
+	const {output, oldValueStrings} = await updateSequenceKeyframes({
+		input: translateInput,
+		nodePath: lineColumnToNodePath(
+			translateInput,
+			getLine(translateInput, 'translate'),
+		),
+		schema: translateSchema,
+		updates: [
+			{
+				key: 'style.translate',
+				operation: {type: 'add', frame: 44, value: '0px 59px'},
+			},
+		],
+	});
+
+	expect(oldValueStrings).toEqual(["'0px 59px'"]);
+	expect(output).toContain(
+		"translate: interpolateTranslate(frame, [44], ['0px 59px'])",
+	);
+	expect(output).toContain('interpolateTranslate');
+});
+
+test('updateSequenceKeyframes migrates translate away from interpolateColors', async () => {
+	const input = translateInput
+		.replace(
+			"import {AbsoluteFill} from 'remotion';",
+			"import {AbsoluteFill, interpolateColors, useCurrentFrame} from 'remotion';",
+		)
+		.replace('return (', 'const frame = useCurrentFrame();\n\treturn (')
+		.replace(
+			"translate: '0px 59px'",
+			"translate: interpolateColors(frame, [44], ['0px 59px'])",
+		);
+	const {output, oldValueStrings} = await updateSequenceKeyframes({
+		input,
+		nodePath: lineColumnToNodePath(input, getLine(input, 'translate')),
+		schema: translateSchema,
+		updates: [
+			{
+				key: 'style.translate',
+				operation: {type: 'add', frame: 88, value: '100px 20px'},
+			},
+		],
+	});
+
+	expect(oldValueStrings).toEqual([
+		"interpolateColors(frame, [44], ['0px 59px'])",
+	]);
+	expect(output).toContain(
+		"translate: interpolateTranslate(frame, [44, 88], ['0px 59px', '100px 20px'])",
+	);
 });
 
 test('updateSequenceKeyframes returns a node path that still resolves after inserting a frame hook', async () => {

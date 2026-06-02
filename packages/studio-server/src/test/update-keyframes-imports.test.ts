@@ -1,4 +1,5 @@
 import {expect, test} from 'bun:test';
+import type {SequenceSchema} from 'remotion';
 import {
 	updateEffectKeyframesAst,
 	updateSequenceKeyframesAst,
@@ -15,6 +16,13 @@ const getLine = (input: string, needle: string): number => {
 
 	return lineIndex + 1;
 };
+
+const translateSchema = {
+	'style.translate': {
+		type: 'translate',
+		default: '0px 0px',
+	},
+} satisfies SequenceSchema;
 
 // ---------------------------------------------------------------------------
 // Sequence: imports
@@ -65,6 +73,32 @@ export const Example: React.FC = () => {
 
 	expect(serialized).toContain('interpolateColors');
 	expect(serialized).not.toContain('{interpolate,');
+	expect(serialized).toContain('useCurrentFrame');
+	expect(serialized).toContain('const frame = useCurrentFrame();');
+});
+
+test('adds interpolateTranslate import for translate conversion', () => {
+	const input = `import React from 'react';
+import {AbsoluteFill} from 'remotion';
+
+export const Example: React.FC = () => {
+\treturn <AbsoluteFill style={{translate: '0px 59px'}} />;
+};
+`;
+	const {serialized} = updateSequenceKeyframesAst({
+		input,
+		nodePath: lineColumnToNodePath(input, getLine(input, '<AbsoluteFill')),
+		schema: translateSchema,
+		updates: [
+			{
+				key: 'style.translate',
+				operation: {type: 'add', frame: 44, value: '0px 59px'},
+			},
+		],
+	});
+
+	expect(serialized).toContain('interpolateTranslate');
+	expect(serialized).not.toContain('interpolateColors');
 	expect(serialized).toContain('useCurrentFrame');
 	expect(serialized).toContain('const frame = useCurrentFrame();');
 });

@@ -402,7 +402,8 @@ const getInterpolationKeyframes = (
 	if (
 		callExpression.callee.type !== 'Identifier' ||
 		(callExpression.callee.name !== 'interpolate' &&
-			callExpression.callee.name !== 'interpolateColors')
+			callExpression.callee.name !== 'interpolateColors' &&
+			callExpression.callee.name !== 'interpolateTranslate')
 	) {
 		return undefined;
 	}

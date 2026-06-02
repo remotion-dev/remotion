@@ -51,6 +51,7 @@ export const addSequenceKeyframeHandler: ApiHandler<
 		} = await updateSequenceKeyframes({
 			input: fileContents,
 			nodePath: nodePath.nodePath,
+			schema,
 			updates: [
 				{
 					key,

@@ -35,6 +35,7 @@ export const callAddSequenceKeyframe = ({
 				fieldKey,
 				frame: sourceFrame,
 				value,
+				schema,
 			}),
 		apiCall: () =>
 			callApi('/api/add-sequence-keyframe', {
@@ -81,6 +82,7 @@ export const callAddEffectKeyframe = ({
 				fieldKey,
 				frame: sourceFrame,
 				value,
+				schema,
 			}),
 		apiCall: () =>
 			callApi('/api/add-effect-keyframe', {

@@ -10,9 +10,14 @@ import type {
 	ObjectProperty,
 	StringLiteral,
 } from '@babel/types';
+import {
+	getKeyframeInterpolationFunction,
+	getKeyframeInterpolationFunctionForSchemaField,
+	type KeyframeInterpolationFunction,
+} from '@remotion/studio-shared';
 import type {ExpressionKind, SpreadElementKind} from 'ast-types/lib/gen/kinds';
 import * as recast from 'recast';
-import type {SequenceNodePath} from 'remotion';
+import type {SequenceNodePath, SequenceSchema} from 'remotion';
 import {getAstNodePath} from '../../helpers/get-ast-node-path';
 import {
 	extractStaticValue,
@@ -119,7 +124,8 @@ const getInterpolationExpression = (
 		node.type !== 'CallExpression' ||
 		node.callee.type !== 'Identifier' ||
 		(node.callee.name !== 'interpolate' &&
-			node.callee.name !== 'interpolateColors')
+			node.callee.name !== 'interpolateColors' &&
+			node.callee.name !== 'interpolateTranslate')
 	) {
 		return null;
 	}
@@ -186,16 +192,23 @@ const getInterpolationExpression = (
 };
 
 const getInterpolationCalleeForValues = ({
+	schema,
+	key,
 	staticValue,
 	newValue,
 }: {
+	schema: SequenceSchema | null;
+	key: string;
 	staticValue: unknown;
 	newValue: unknown;
 }): ExpressionKind => {
 	return b.identifier(
-		typeof staticValue === 'string' && typeof newValue === 'string'
-			? 'interpolateColors'
-			: 'interpolate',
+		getKeyframeInterpolationFunction({
+			schema,
+			key,
+			staticValue,
+			newValue,
+		}),
 	);
 };
 
@@ -228,7 +241,7 @@ const createInterpolateExpression = ({
 };
 
 export type IntroducedKeyframeIdentifiers = {
-	calleeName: 'interpolate' | 'interpolateColors' | null;
+	calleeName: KeyframeInterpolationFunction | null;
 	needsFrameHook: boolean;
 };
 
@@ -239,17 +252,30 @@ const noIntroducedIdentifiers: IntroducedKeyframeIdentifiers = {
 
 const addKeyframe = ({
 	expression,
+	key,
 	frame,
 	value,
+	schema,
 }: {
 	expression: Expression;
+	key: string;
 	frame: number;
 	value: unknown;
+	schema: SequenceSchema | null;
 }): {expression: ExpressionKind; introduced: IntroducedKeyframeIdentifiers} => {
 	const existing = getInterpolationExpression(expression);
 	const newOutput = parseValueExpression(value);
 
 	if (existing) {
+		const existingCalleeName =
+			existing.callee.type === 'Identifier'
+				? (existing.callee.name as KeyframeInterpolationFunction)
+				: 'interpolate';
+		const schemaCalleeName = getKeyframeInterpolationFunctionForSchemaField({
+			schema,
+			key,
+		});
+		const nextCalleeName = schemaCalleeName ?? existingCalleeName;
 		const existingIndex = existing.keyframes.findIndex(
 			(keyframe) => keyframe.frame === frame,
 		);
@@ -264,12 +290,18 @@ const addKeyframe = ({
 
 		return {
 			expression: createInterpolateExpression({
-				callee: existing.callee,
+				callee: b.identifier(nextCalleeName),
 				input: existing.input,
 				extraArgs: existing.extraArgs,
 				keyframes: nextKeyframes,
 			}),
-			introduced: noIntroducedIdentifiers,
+			introduced: {
+				calleeName:
+					schemaCalleeName && schemaCalleeName !== existingCalleeName
+						? schemaCalleeName
+						: null,
+				needsFrameHook: false,
+			},
 		};
 	}
 
@@ -281,6 +313,8 @@ const addKeyframe = ({
 	const keyframes: InterpolateKeyframe[] = [{frame, output: newOutput, value}];
 
 	const callee = getInterpolationCalleeForValues({
+		schema,
+		key,
 		staticValue,
 		newValue: value,
 	});
@@ -295,7 +329,7 @@ const addKeyframe = ({
 		introduced: {
 			calleeName:
 				callee.type === 'Identifier'
-					? (callee.name as 'interpolate' | 'interpolateColors')
+					? (callee.name as KeyframeInterpolationFunction)
 					: null,
 			needsFrameHook: true,
 		},
@@ -339,16 +373,22 @@ const removeKeyframe = ({
 
 const applyKeyframeOperation = ({
 	expression,
+	key,
 	operation,
+	schema,
 }: {
 	expression: Expression;
+	key: string;
 	operation: KeyframeOperation;
+	schema: SequenceSchema | null;
 }): {expression: ExpressionKind; introduced: IntroducedKeyframeIdentifiers} => {
 	if (operation.type === 'add') {
 		return addKeyframe({
 			expression,
+			key,
 			frame: operation.frame,
 			value: operation.value,
+			schema,
 		});
 	}
 
@@ -501,10 +541,12 @@ export const updateSequenceKeyframesAst = ({
 	input,
 	nodePath,
 	updates,
+	schema,
 }: {
 	input: string;
 	nodePath: SequenceNodePath;
 	updates: SequenceKeyframeUpdate[];
+	schema?: SequenceSchema;
 }): {
 	serialized: string;
 	oldValueStrings: string[];
@@ -538,7 +580,9 @@ export const updateSequenceKeyframesAst = ({
 		oldValueStrings.push(recast.print(prop.expression).code);
 		const {expression: nextExpression, introduced} = applyKeyframeOperation({
 			expression: prop.expression,
+			key: update.key,
 			operation: update.operation,
+			schema: schema ?? null,
 		});
 		newValueStrings.push(recast.print(nextExpression).code);
 		prop.setExpression(nextExpression);
@@ -582,11 +626,13 @@ export const updateSequenceKeyframes = async ({
 	input,
 	nodePath,
 	updates,
+	schema,
 	prettierConfigOverride,
 }: {
 	input: string;
 	nodePath: SequenceNodePath;
 	updates: SequenceKeyframeUpdate[];
+	schema?: SequenceSchema;
 	prettierConfigOverride?: Record<string, unknown> | null;
 }): Promise<{
 	output: string;
@@ -606,6 +652,7 @@ export const updateSequenceKeyframes = async ({
 		input,
 		nodePath,
 		updates,
+		schema,
 	});
 	const {output, formatted} = await formatFileContent({
 		input: serialized,
@@ -627,11 +674,13 @@ export const updateEffectKeyframesAst = ({
 	sequenceNodePath,
 	effectIndex,
 	updates,
+	schema,
 }: {
 	input: string;
 	sequenceNodePath: SequenceNodePath;
 	effectIndex: number;
 	updates: EffectKeyframeUpdate[];
+	schema?: SequenceSchema;
 }): {
 	serialized: string;
 	oldValueStrings: string[];
@@ -681,7 +730,9 @@ export const updateEffectKeyframesAst = ({
 		oldValueStrings.push(recast.print(prop.value).code);
 		const {expression: nextExpression, introduced} = applyKeyframeOperation({
 			expression: prop.value as Expression,
+			key: update.key,
 			operation: update.operation,
+			schema: schema ?? null,
 		});
 		newValueStrings.push(recast.print(nextExpression).code);
 		prop.value = nextExpression as ObjectProperty['value'];
@@ -727,12 +778,14 @@ export const updateEffectKeyframes = async ({
 	sequenceNodePath,
 	effectIndex,
 	updates,
+	schema,
 	prettierConfigOverride,
 }: {
 	input: string;
 	sequenceNodePath: SequenceNodePath;
 	effectIndex: number;
 	updates: EffectKeyframeUpdate[];
+	schema?: SequenceSchema;
 	prettierConfigOverride?: Record<string, unknown> | null;
 }): Promise<{
 	output: string;
@@ -755,6 +808,7 @@ export const updateEffectKeyframes = async ({
 		sequenceNodePath,
 		effectIndex,
 		updates,
+		schema,
 	});
 	const {output, formatted} = await formatFileContent({
 		input: serialized,

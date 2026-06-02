@@ -119,6 +119,26 @@ test('posterizes the frame before interpolating color keyframes', () => {
 	expect(result).toBe('rgba(64, 64, 64, 1)');
 });
 
+test('interpolates translate keyframes', () => {
+	const result = interpolateKeyframedStatus({
+		frame: 30,
+		status: {
+			canUpdate: true,
+			codeValue: undefined,
+			keyframed: true,
+			interpolationFunction: 'interpolateTranslate',
+			keyframes: [
+				{frame: 0, value: '0px 0px'},
+				{frame: 60, value: '120px 60px'},
+			],
+			easing: ['linear'],
+			clamping: {left: 'extend', right: 'extend'},
+			posterize: undefined,
+		},
+	});
+	expect(result).toBe('60px 30px');
+});
+
 test('uses bezier easing', () => {
 	const result = interpolateKeyframedStatus({
 		frame: 30,
