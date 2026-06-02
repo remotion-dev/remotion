@@ -279,7 +279,7 @@ test('Cmd+D only duplicates selected timeline sequence rows', () => {
 test('Backspace reset targets multiple selected sequence props', () => {
 	const schema = {
 		opacity: {type: 'number', default: 1},
-		'style.rotate': {type: 'rotation', default: '0deg'},
+		'style.rotate': {type: 'rotation-css', default: '0deg'},
 	} satisfies SequenceSchema;
 	const opacityNodePathInfo = makeNodePathInfo(
 		['body', 0],

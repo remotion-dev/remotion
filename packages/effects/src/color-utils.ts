@@ -32,7 +32,7 @@ export const brightnessAmountSchema = {
 } as const satisfies SequenceSchema['amount'];
 
 export const hueDegreesSchema = {
-	type: 'number',
+	type: 'rotation-degrees',
 	step: 1,
 	default: DEFAULT_HUE_DEGREES,
 	description: 'Degrees',
