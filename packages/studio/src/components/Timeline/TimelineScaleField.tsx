@@ -49,6 +49,10 @@ const clamp = (value: number, min: number, max: number): number => {
 	return Math.min(max, Math.max(min, value));
 };
 
+const normalizeScaleNumber = (value: number): number => {
+	return Math.round(value * 1000000) / 1000000;
+};
+
 const getLinkedScale = ({
 	axis,
 	newValue,
@@ -68,7 +72,7 @@ const getLinkedScale = ({
 	const linkedBase = axis === 'x' ? baseY : baseX;
 
 	if (drivingBase === 0 || linkedBase === 0) {
-		const clamped = clamp(newValue, min, max);
+		const clamped = normalizeScaleNumber(clamp(newValue, min, max));
 		return [clamped, clamped];
 	}
 
@@ -84,8 +88,12 @@ const getLinkedScale = ({
 	}
 
 	const clampedDriving = clamp(driving, min, max);
+	const normalizedDriving = normalizeScaleNumber(clampedDriving);
+	const normalizedLinked = normalizeScaleNumber(linked);
 
-	return axis === 'x' ? [clampedDriving, linked] : [linked, clampedDriving];
+	return axis === 'x'
+		? [normalizedDriving, normalizedLinked]
+		: [normalizedLinked, normalizedDriving];
 };
 
 const valuesEqual = (left: unknown, right: unknown): boolean => {
