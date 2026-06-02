@@ -13,11 +13,12 @@ import {
 	selectActiveKeys,
 } from '../wrap-in-schema.js';
 
-test('sequenceStyleSchema is the union of visual style and premount fields', () => {
+test('sequenceStyleSchema is the union of visual style, premount fields, and durationInFrames', () => {
 	expect(Object.keys(sequenceStyleSchema).sort()).toEqual(
 		[
 			...Object.keys(sequenceVisualStyleSchema),
 			...Object.keys(sequencePremountSchema),
+			'durationInFrames',
 		].sort(),
 	);
 });
@@ -36,6 +37,7 @@ test('getFlatSchema(sequenceSchema) exposes every variant key', () => {
 			'postmountFor',
 			'styleWhilePremounted',
 			'styleWhilePostmounted',
+			'durationInFrames',
 		].sort(),
 	);
 });

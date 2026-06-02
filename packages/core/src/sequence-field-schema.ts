@@ -134,6 +134,9 @@ export const sequencePremountSchema = {
 export const sequenceStyleSchema = {
 	...sequenceVisualStyleSchema,
 	...sequencePremountSchema,
+	durationInFrames: {
+		type: 'hidden',
+	},
 } as const satisfies SequenceSchema;
 
 export const hiddenField: SequenceFieldSchema = {

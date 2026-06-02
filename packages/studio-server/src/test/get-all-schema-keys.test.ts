@@ -20,6 +20,7 @@ test('getAllSchemaKeys returns every key across all enum variants', () => {
 			'postmountFor',
 			'styleWhilePremounted',
 			'styleWhilePostmounted',
+			'durationInFrames',
 		].sort(),
 	);
 });

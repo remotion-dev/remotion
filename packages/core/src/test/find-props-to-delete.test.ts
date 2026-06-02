@@ -42,6 +42,7 @@ test('find right values to delete when upgrading a discriminated union', () => {
 		'postmountFor',
 		'styleWhilePremounted',
 		'styleWhilePostmounted',
+		'durationInFrames',
 	]);
 
 	expect(
