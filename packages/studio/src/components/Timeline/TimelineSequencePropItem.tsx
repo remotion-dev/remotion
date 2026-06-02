@@ -1,8 +1,8 @@
 import React, {useCallback, useContext, useMemo} from 'react';
 import type {
-	CanUpdaterSequencePropStatusStatic,
 	CanUpdateSequencePropStatus,
 	CanUpdateSequencePropStatusKeyframed,
+	CanUpdateSequencePropStatusStatic,
 	SequencePropsSubscriptionKey,
 	SequenceSchema,
 } from 'remotion';
@@ -39,7 +39,7 @@ const fieldRowBase: React.CSSProperties = {};
 const isKeyframedStatus = (
 	status: CanUpdateSequencePropStatus,
 ): status is CanUpdateSequencePropStatusKeyframed => {
-	return 'keyframes' in status;
+	return status.status === 'keyframed';
 };
 
 const Value: React.FC<{
@@ -47,7 +47,7 @@ const Value: React.FC<{
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly validatedLocation: CodePosition;
 	readonly schema: SequenceSchema;
-	readonly codeValue: CanUpdaterSequencePropStatusStatic;
+	readonly codeValue: CanUpdateSequencePropStatusStatic;
 }> = ({field, nodePath, validatedLocation, schema, codeValue}) => {
 	const {getDragOverrides} = useContext(
 		Internals.VisualModeDragOverridesContext,
@@ -77,10 +77,6 @@ const Value: React.FC<{
 
 	const onSave = useCallback<TimelineFieldOnSave>(
 		(value) => {
-			if (!codeValue || !codeValue.canUpdate) {
-				return Promise.reject(new Error('Cannot save'));
-			}
-
 			if (!clientId) {
 				return Promise.reject(new Error('Not connected to studio server'));
 			}
@@ -221,7 +217,7 @@ export const TimelineSequencePropItem: React.FC<{
 	}, [field.rowHeight]);
 
 	const isNonDefault = useMemo(() => {
-		if (!codeValue || !codeValue.canUpdate) {
+		if (!codeValue || codeValue.status === 'computed') {
 			return false;
 		}
 
@@ -235,7 +231,7 @@ export const TimelineSequencePropItem: React.FC<{
 	const canPerformReset =
 		previewServerState.type === 'connected' &&
 		codeValue !== null &&
-		codeValue.canUpdate;
+		codeValue.status !== 'computed';
 
 	const onReset = useCallback(() => {
 		if (
@@ -323,7 +319,7 @@ export const TimelineSequencePropItem: React.FC<{
 						keyframeDisplayOffset={keyframeDisplayOffset}
 					/>
 				</div>
-			) : codeValue.canUpdate ? (
+			) : codeValue.status === 'static' ? (
 				<div style={timelineFieldValueColumnStyle}>
 					<Value
 						field={field}

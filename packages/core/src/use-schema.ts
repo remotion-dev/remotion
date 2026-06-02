@@ -11,10 +11,9 @@ import type {
 	SequencePropsSubscriptionKey,
 } from './SequenceManager.js';
 
-export type CanUpdaterSequencePropStatusStatic = {
-	canUpdate: true;
+export type CanUpdateSequencePropStatusStatic = {
+	status: 'static';
 	codeValue: unknown;
-	keyframed: false;
 };
 
 export type CanUpdateSequencePropStatusKeyframe = {
@@ -36,14 +35,12 @@ export type CanUpdateSequencePropStatusInterpolationFunction =
 	| 'interpolateColors';
 
 export type CanUpdateSequencePropStatusComputed = {
-	canUpdate: false;
-	reason: 'computed';
+	status: 'computed';
 };
 
 export type CanUpdateSequencePropStatusKeyframed = {
-	canUpdate: true;
+	status: 'keyframed';
 	codeValue: unknown;
-	keyframed: true;
 	interpolationFunction: CanUpdateSequencePropStatusInterpolationFunction;
 	keyframes: CanUpdateSequencePropStatusKeyframe[];
 	easing: CanUpdateSequencePropStatusEasing[];
@@ -55,7 +52,7 @@ export type CanUpdateSequencePropStatusFalse =
 	CanUpdateSequencePropStatusComputed;
 
 export type CanUpdateSequencePropStatus =
-	| CanUpdaterSequencePropStatusStatic
+	| CanUpdateSequencePropStatusStatic
 	| CanUpdateSequencePropStatusKeyframed
 	| CanUpdateSequencePropStatusFalse;
 
@@ -84,7 +81,7 @@ export type GetEffectDragOverrides = (
 export const isKeyframedStatus = (
 	status: CanUpdateSequencePropStatus | null,
 ): status is CanUpdateSequencePropStatusKeyframed => {
-	return status !== null && status.canUpdate && 'keyframes' in status;
+	return status !== null && status.status === 'keyframed';
 };
 
 const findFieldInSchema = (
@@ -147,7 +144,7 @@ export const computeEffectiveSchemaValuesDotNotation = ({
 			} else {
 				value = currentValue[key];
 			}
-		} else if (codeValueStatus.canUpdate === false) {
+		} else if (codeValueStatus.status === 'computed') {
 			value = currentValue[key];
 		} else {
 			value = getEffectiveVisualModeValue({

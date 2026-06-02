@@ -183,7 +183,7 @@ import {
 	useMediaInTimeline,
 } from './use-media-in-timeline.js';
 import type {
-	CanUpdaterSequencePropStatusStatic,
+	CanUpdateSequencePropStatusStatic,
 	CanUpdateSequencePropStatusFalse,
 	CanUpdateSequencePropStatusKeyframed,
 	GetCodeValues,
@@ -384,7 +384,7 @@ export type {
 	CanUpdateEffectPropsResponse,
 	CanUpdateEffectPropsResponseFalse,
 	CanUpdateEffectPropsResponseTrue,
-	CanUpdaterSequencePropStatusStatic,
+	CanUpdateSequencePropStatusStatic,
 	CanUpdateSequencePropsResponse,
 	CanUpdateSequencePropsResponseFalse,
 	CanUpdateSequencePropsResponseTrue,

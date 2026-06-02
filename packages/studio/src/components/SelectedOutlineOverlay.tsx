@@ -1,6 +1,6 @@
 import React, {useContext, useEffect, useMemo, useRef, useState} from 'react';
 import type {
-	CanUpdaterSequencePropStatusStatic,
+	CanUpdateSequencePropStatusStatic,
 	CodeValues,
 	GetEffectDragOverrides,
 	OverrideIdToNodePaths,
@@ -54,7 +54,7 @@ type UvCoordinateFieldSchema = Extract<
 
 type SelectedOutlineUvHandle = {
 	readonly clientId: string;
-	readonly codeValue: CanUpdaterSequencePropStatusStatic;
+	readonly codeValue: CanUpdateSequencePropStatusStatic;
 	readonly effectIndex: number;
 	readonly fieldDefault: UvCoordinate | undefined;
 	readonly fieldKey: string;
@@ -72,7 +72,7 @@ type SelectedOutlineTarget = {
 };
 
 type SelectedOutlineDragTarget = {
-	readonly codeValue: CanUpdaterSequencePropStatusStatic;
+	readonly codeValue: CanUpdateSequencePropStatusStatic;
 	readonly clientId: string;
 	readonly fieldDefault: string | undefined;
 	readonly nodePath: SequencePropsSubscriptionKey;
@@ -507,7 +507,7 @@ const getSelectedUvHandles = ({
 			}
 
 			const propStatus = effectStatus.props[key];
-			if (!propStatus?.canUpdate) {
+			if (propStatus?.status !== 'static') {
 				return undefined;
 			}
 
@@ -523,7 +523,7 @@ const getSelectedUvHandles = ({
 			}
 
 			const propStatus = effectStatus.props[fieldKey];
-			if (!propStatus?.canUpdate || propStatus.keyframed) {
+			if (propStatus?.status !== 'static') {
 				continue;
 			}
 
@@ -1008,8 +1008,7 @@ export const SelectedOutlineOverlay: React.FC<{
 				previewServerState.type === 'connected' &&
 				controls !== null &&
 				fieldSchema?.type === 'translate' &&
-				codeValue?.canUpdate === true &&
-				codeValue.keyframed === false;
+				codeValue?.status === 'static';
 
 			return {
 				key,

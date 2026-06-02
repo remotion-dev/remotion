@@ -11,8 +11,8 @@ test('optimisticUpdateForEffectCodeValues updates the matching effect prop', () 
 				canUpdate: true,
 				effectIndex: 0,
 				props: {
-					color: {canUpdate: true, codeValue: 'red', keyframed: false},
-					opacity: {canUpdate: true, codeValue: 0.5, keyframed: false},
+					color: {status: 'static', codeValue: 'red'},
+					opacity: {status: 'static', codeValue: 0.5},
 				},
 				callee: 'tint',
 				importPath: null,
@@ -38,14 +38,12 @@ test('optimisticUpdateForEffectCodeValues updates the matching effect prop', () 
 	}
 
 	expect(effect.props.opacity).toEqual({
-		canUpdate: true,
+		status: 'static',
 		codeValue: 0.8,
-		keyframed: false,
 	});
 	expect(effect.props.color).toEqual({
-		canUpdate: true,
+		status: 'static',
 		codeValue: 'red',
-		keyframed: false,
 	});
 });
 
@@ -95,7 +93,7 @@ test('optimisticUpdateForEffectCodeValues applies when effect props are unset (z
 				callee: 'tint',
 				importPath: null,
 				props: {
-					amount: {canUpdate: true, codeValue: undefined, keyframed: false},
+					amount: {status: 'static', codeValue: undefined},
 				},
 			},
 		],
@@ -119,8 +117,7 @@ test('optimisticUpdateForEffectCodeValues applies when effect props are unset (z
 	}
 
 	expect(effect.props.amount).toEqual({
-		canUpdate: true,
+		status: 'static',
 		codeValue: 0.5,
-		keyframed: false,
 	});
 });

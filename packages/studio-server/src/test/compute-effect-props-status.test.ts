@@ -44,14 +44,12 @@ test('computeEffectPropStatus reports static props as canUpdate=true with codeVa
 	}
 
 	expect(result.props.color).toEqual({
-		canUpdate: true,
+		status: 'static',
 		codeValue: 'red',
-		keyframed: false,
 	});
 	expect(result.props.opacity).toEqual({
-		canUpdate: true,
+		status: 'static',
 		codeValue: 0.5,
-		keyframed: false,
 	});
 	expect(result.importPath).toBe('@remotion/effects/tint');
 });
@@ -71,11 +69,10 @@ test('computeEffectPropStatus reports computed props', () => {
 		throw new Error('expected canUpdate true');
 	}
 
-	expect(result.props.color).toEqual({canUpdate: false, reason: 'computed'});
+	expect(result.props.color).toEqual({status: 'computed'});
 	expect(result.props.opacity).toEqual({
-		canUpdate: true,
+		status: 'static',
 		codeValue: 0.5,
-		keyframed: false,
 	});
 });
 
@@ -97,9 +94,8 @@ test('computeEffectPropStatus reports keyframes for inline interpolated effect p
 	}
 
 	expect(result.props.amount).toEqual({
-		canUpdate: true,
+		status: 'keyframed',
 		codeValue: undefined,
-		keyframed: true,
 		interpolationFunction: 'interpolate',
 		keyframes: [
 			{frame: 0, value: 0.2},
@@ -127,14 +123,12 @@ test('computeEffectPropStatus reports unset props as undefined codeValue', () =>
 	}
 
 	expect(result.props.color).toEqual({
-		canUpdate: true,
+		status: 'static',
 		codeValue: 'red',
-		keyframed: false,
 	});
 	expect(result.props.opacity).toEqual({
-		canUpdate: true,
+		status: 'static',
 		codeValue: undefined,
-		keyframed: false,
 	});
 });
 
@@ -208,8 +202,7 @@ test('computeEffectPropStatus treats zero-arg effect as editable with undefined 
 	}
 
 	expect(result.props.amount).toEqual({
-		canUpdate: true,
+		status: 'static',
 		codeValue: undefined,
-		keyframed: false,
 	});
 });

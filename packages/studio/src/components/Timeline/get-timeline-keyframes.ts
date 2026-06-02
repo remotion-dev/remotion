@@ -6,11 +6,13 @@ import type {
 export const getComputedStatusLabel: (
 	propStatus: CanUpdateSequencePropStatusFalse,
 ) => string = (propStatus) => {
-	if (propStatus.reason === 'computed') {
+	if (propStatus.status === 'computed') {
 		return 'computed';
 	}
 
-	return 'keyframed';
+	throw new Error(
+		`Unsupported prop status: ${propStatus.status satisfies never}`,
+	);
 };
 
 export const getTimelineKeyframes = (
@@ -21,24 +23,17 @@ export const getTimelineKeyframes = (
 		return [];
 	}
 
-	if (!propStatus.canUpdate) {
+	if (propStatus.status !== 'keyframed') {
 		return [];
 	}
 
-	if ('keyframes' in propStatus) {
-		const {keyframes} = propStatus as Extract<
-			CanUpdateSequencePropStatus,
-			{keyframes: unknown}
-		>;
-		if (keyframeDisplayOffset === 0) {
-			return keyframes;
-		}
-
-		return keyframes.map((keyframe) => ({
-			...keyframe,
-			frame: keyframe.frame + keyframeDisplayOffset,
-		}));
+	const {keyframes} = propStatus;
+	if (keyframeDisplayOffset === 0) {
+		return keyframes;
 	}
 
-	return [];
+	return keyframes.map((keyframe) => ({
+		...keyframe,
+		frame: keyframe.frame + keyframeDisplayOffset,
+	}));
 };

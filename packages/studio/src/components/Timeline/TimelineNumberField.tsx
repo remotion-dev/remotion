@@ -1,5 +1,5 @@
 import React, {useCallback, useMemo, useState} from 'react';
-import type {CanUpdateSequencePropStatus} from 'remotion';
+import type {CanUpdateSequencePropStatusStatic} from 'remotion';
 import type {
 	SchemaFieldInfo,
 	TimelineFieldOnDragValueChange,
@@ -11,7 +11,7 @@ import {draggerStyle, getDecimalPlaces} from './timeline-field-utils';
 export const TimelineNumberField: React.FC<{
 	readonly field: SchemaFieldInfo;
 	readonly effectiveValue: unknown;
-	readonly propStatus: CanUpdateSequencePropStatus;
+	readonly propStatus: CanUpdateSequencePropStatusStatic;
 	readonly onSave: TimelineFieldOnSave;
 	readonly onDragValueChange: TimelineFieldOnDragValueChange;
 	readonly onDragEnd: () => void;
@@ -35,7 +35,7 @@ export const TimelineNumberField: React.FC<{
 
 	const onValueChangeEnd = useCallback(
 		(newVal: number) => {
-			if (propStatus.canUpdate && newVal !== propStatus.codeValue) {
+			if (newVal !== propStatus.codeValue) {
 				onSave(newVal).finally(() => {
 					setDragValue(null);
 					onDragEnd();
@@ -50,18 +50,12 @@ export const TimelineNumberField: React.FC<{
 
 	const onTextChange = useCallback(
 		(newVal: string) => {
-			if (propStatus.canUpdate) {
-				const parsed = Number(newVal);
-				if (
-					!Number.isNaN(parsed) &&
-					propStatus.canUpdate &&
-					parsed !== propStatus.codeValue
-				) {
-					setDragValue(parsed);
-					onSave(parsed).finally(() => {
-						setDragValue(null);
-					});
-				}
+			const parsed = Number(newVal);
+			if (!Number.isNaN(parsed) && parsed !== propStatus.codeValue) {
+				setDragValue(parsed);
+				onSave(parsed).finally(() => {
+					setDragValue(null);
+				});
 			}
 		},
 		[onSave, propStatus],

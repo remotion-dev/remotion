@@ -34,7 +34,7 @@ const fieldRowBase: React.CSSProperties = {};
 const isKeyframedStatus = (
 	status: CanUpdateSequencePropStatus,
 ): status is CanUpdateSequencePropStatusKeyframed => {
-	return 'keyframes' in status;
+	return status.status === 'keyframed';
 };
 
 const Value: React.FC<{
@@ -97,7 +97,7 @@ const Value: React.FC<{
 				return Promise.reject(new Error('Cannot save'));
 			}
 
-			if (!propStatus.canUpdate) {
+			if (propStatus.status !== 'static') {
 				return Promise.reject(new Error('Cannot save'));
 			}
 
@@ -207,7 +207,7 @@ const Value: React.FC<{
 		);
 	}
 
-	if (!propStatus.canUpdate) {
+	if (propStatus.status === 'computed') {
 		return <UnsupportedStatus label={getComputedStatusLabel(propStatus)} />;
 	}
 
@@ -299,7 +299,7 @@ export const TimelineEffectPropItem: React.FC<{
 		) : null;
 
 	const isNonDefault = useMemo(() => {
-		if (!propStatus || !propStatus.canUpdate) {
+		if (!propStatus || propStatus.status === 'computed') {
 			return false;
 		}
 
@@ -314,7 +314,7 @@ export const TimelineEffectPropItem: React.FC<{
 	const canPerformReset =
 		previewServerState.type === 'connected' &&
 		propStatus !== null &&
-		propStatus.canUpdate;
+		propStatus.status !== 'computed';
 
 	const onReset = useCallback(() => {
 		if (

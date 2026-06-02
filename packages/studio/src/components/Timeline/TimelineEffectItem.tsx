@@ -147,15 +147,14 @@ export const TimelineEffectItem: React.FC<{
 			: null;
 
 	const isDisabled = useMemo(() => {
-		if (disabledStatus && disabledStatus.canUpdate) {
+		if (disabledStatus?.status === 'static') {
 			return Boolean(disabledStatus.codeValue);
 		}
 
 		return false;
 	}, [disabledStatus]);
 
-	const canToggle =
-		previewConnected && disabledStatus !== null && disabledStatus.canUpdate;
+	const canToggle = previewConnected && disabledStatus?.status === 'static';
 
 	const deleteDisabled =
 		!previewConnected ||
