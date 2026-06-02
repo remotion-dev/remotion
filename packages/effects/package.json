@@ -49,6 +49,11 @@
 			"module": "./dist/esm/chromatic-aberration.mjs",
 			"import": "./dist/esm/chromatic-aberration.mjs"
 		},
+		"./color-key": {
+			"types": "./dist/color-key.d.ts",
+			"module": "./dist/esm/color-key.mjs",
+			"import": "./dist/esm/color-key.mjs"
+		},
 		"./brightness": {
 			"types": "./dist/brightness.d.ts",
 			"module": "./dist/esm/brightness.mjs",
@@ -211,6 +216,9 @@
 			],
 			"chromatic-aberration": [
 				"dist/chromatic-aberration.d.ts"
+			],
+			"color-key": [
+				"dist/color-key.d.ts"
 			],
 			"brightness": [
 				"dist/brightness.d.ts"

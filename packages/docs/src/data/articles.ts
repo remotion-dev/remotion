@@ -1755,6 +1755,15 @@ export const articles = [
 		slug: 'effects/chromatic-aberration',
 	},
 	{
+		id: 'effects/color-key',
+		title: 'colorKey()',
+		relativePath: 'docs/effects/color-key.mdx',
+		compId: 'articles-docs-effects-color-key',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/color-key',
+	},
+	{
 		id: 'effects/contrast',
 		title: 'contrast()',
 		relativePath: 'docs/effects/contrast.mdx',

@@ -3,6 +3,7 @@ import {barrelDistortion} from '../barrel-distortion/index.js';
 import {blur} from '../blur/index.js';
 import {brightness} from '../brightness.js';
 import {chromaticAberration} from '../chromatic-aberration/index.js';
+import {colorKey} from '../color-key.js';
 import {contrast} from '../contrast.js';
 import {dotGrid} from '../dot-grid.js';
 import {dropShadow} from '../drop-shadow/index.js';
@@ -42,6 +43,9 @@ test('@remotion/effects expose documentation links', () => {
 	);
 	expect(chromaticAberration().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/chromatic-aberration',
+	);
+	expect(colorKey().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/color-key',
 	);
 	expect(brightness().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/brightness',
@@ -142,6 +146,7 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(barrelDistortion().definition.label).toBe('barrelDistortion()');
 	expect(blur({radius: 1}).definition.label).toBe('blur()');
 	expect(chromaticAberration().definition.label).toBe('chromaticAberration()');
+	expect(colorKey().definition.label).toBe('colorKey()');
 	expect(brightness().definition.label).toBe('brightness()');
 	expect(contrast().definition.label).toBe('contrast()');
 	expect(duotone().definition.label).toBe('duotone()');
@@ -283,6 +288,60 @@ test('chromaticAberration() parameters produce distinct effect keys', () => {
 	expect(
 		new Set([none.effectKey, shifted.effectKey, angled.effectKey]).size,
 	).toBe(3);
+});
+
+test('colorKey() accepts default params', () => {
+	expect(() => colorKey()).not.toThrow();
+});
+
+test('colorKey() rejects empty color strings', () => {
+	expect(() => colorKey({color: ''})).toThrow(
+		'"color" must be a non-empty string, but got ""',
+	);
+});
+
+test('colorKey() rejects non-finite threshold', () => {
+	expect(() => colorKey({threshold: Number.NaN})).toThrow(
+		'"threshold" must be a finite number',
+	);
+});
+
+test('colorKey() rejects threshold below range', () => {
+	expect(() => colorKey({threshold: -0.1})).toThrow('"threshold" must be >= 0');
+});
+
+test('colorKey() rejects threshold above range', () => {
+	expect(() => colorKey({threshold: 1.1})).toThrow('"threshold" must be <= 1');
+});
+
+test('colorKey() rejects non-finite feather', () => {
+	expect(() => colorKey({feather: Number.NaN})).toThrow(
+		'"feather" must be a finite number',
+	);
+});
+
+test('colorKey() rejects feather below range', () => {
+	expect(() => colorKey({feather: -0.1})).toThrow('"feather" must be >= 0');
+});
+
+test('colorKey() rejects feather above range', () => {
+	expect(() => colorKey({feather: 1.1})).toThrow('"feather" must be <= 1');
+});
+
+test('colorKey() parameters produce distinct effect keys', () => {
+	const defaults = colorKey();
+	const blue = colorKey({color: '#0000ff'});
+	const tighterThreshold = colorKey({threshold: 0.1});
+	const softerEdges = colorKey({feather: 0.3});
+
+	expect(
+		new Set([
+			defaults.effectKey,
+			blue.effectKey,
+			tighterThreshold.effectKey,
+			softerEdges.effectKey,
+		]).size,
+	).toBe(4);
 });
 
 test('tint() throws when color is not passed', () => {

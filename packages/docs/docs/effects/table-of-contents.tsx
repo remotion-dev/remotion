@@ -38,6 +38,13 @@ const categories: {
 				description: 'Contrast adjustment effect',
 			},
 			{
+				link: '/docs/effects/color-key',
+				preview: '/img/effects-color-key-preview.png',
+				alt: 'color key effect preview',
+				name: 'colorKey()',
+				description: 'Remove a keyed color range',
+			},
+			{
 				link: '/docs/effects/duotone',
 				preview: '/img/effects-duotone-preview.png',
 				alt: 'duotone effect preview',
