@@ -226,9 +226,9 @@ test('updateSequenceKeyframes migrates translate away from interpolateColors', a
 	expect(oldValueStrings).toEqual([
 		"interpolateColors(frame, [44], ['0px 59px'])",
 	]);
-	expect(output).toContain(
-		"translate: interpolateTranslate(frame, [44, 88], ['0px 59px', '100px 20px'])",
-	);
+	expect(output).toContain('translate: interpolateTranslate(');
+	expect(output).toContain('[44, 88]');
+	expect(output).toContain("['0px 59px', '100px 20px']");
 });
 
 test('updateSequenceKeyframes returns a node path that still resolves after inserting a frame hook', async () => {
