@@ -39,18 +39,19 @@ const navButtonStyle: React.CSSProperties = {
 	cursor: 'pointer',
 	display: 'flex',
 	flexShrink: 0,
-	height: 12,
+	height: 14,
 	justifyContent: 'center',
 	lineHeight: 1,
 	outline: 'none',
 	padding: 0,
 	userSelect: 'none',
-	width: 12,
+	width: 14,
 };
 
 const diamondButtonStyle: React.CSSProperties = {
 	...navButtonStyle,
 	background: 'none',
+	translate: '0 -0.5px',
 };
 
 const diamondIconStyle: React.CSSProperties = {
