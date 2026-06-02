@@ -6,13 +6,13 @@ sidebar_label: Greenscreen
 crumb: 'How To'
 ---
 
-import {VideoCanvasExamples} from '../components/GreenscreenExamples/index';
+import {EffectsDemo} from '../components/effects-demos';
 
 Use the [`colorKey()`](/docs/effects/color-key) effect from [`@remotion/effects`](/docs/effects/api) to remove the green background of a video.
 
 Drag the slider below to adjust how close a pixel has to be to the key color to become transparent.
 
-<VideoCanvasExamples type="greenscreen" />
+<EffectsDemo type="effects-color-key" />
 <br />
 
 ```tsx twoslash title="Greenscreen.tsx"
@@ -37,17 +37,6 @@ export const Greenscreen: React.FC = () => {
   );
 };
 ```
-
-## Tuning the key
-
-`colorKey()` accepts the following options:
-
-- `keyColor` — the color to remove (default `'#00ff00'`).
-- `similarity` — how close a pixel has to be to `keyColor` to be turned transparent.
-- `smoothness` — softness of the keyed edges.
-- `spillSuppression` — strength of key-color spill suppression on the remaining pixels.
-
-See the [`colorKey()`](/docs/effects/color-key) page for the full API.
 
 ## Requirements
 
