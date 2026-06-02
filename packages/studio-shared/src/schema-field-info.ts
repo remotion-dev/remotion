@@ -90,6 +90,10 @@ export const getFieldsToShow = ({
 				return null;
 			}
 
+			if (fieldSchema.type === 'number' && fieldSchema.hiddenFromList) {
+				return null;
+			}
+
 			// `hidden` is represented as the eye/speaker icon on the timeline track,
 			// so we don't render it as a regular field in the expanded section.
 			if (key === 'hidden') {
@@ -153,6 +157,10 @@ export const getEffectFieldsToShow = ({
 		.map(([key, fieldSchema]): EffectSchemaFieldInfo | null => {
 			const typeName = fieldSchema.type;
 			if (typeName === 'hidden') {
+				return null;
+			}
+
+			if (fieldSchema.type === 'number' && fieldSchema.hiddenFromList) {
 				return null;
 			}
 

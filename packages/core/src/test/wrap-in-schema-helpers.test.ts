@@ -13,12 +13,11 @@ import {
 	selectActiveKeys,
 } from '../wrap-in-schema.js';
 
-test('sequenceStyleSchema is the union of visual style, premount fields, and durationInFrames', () => {
+test('sequenceStyleSchema is the union of visual style and premount fields', () => {
 	expect(Object.keys(sequenceStyleSchema).sort()).toEqual(
 		[
 			...Object.keys(sequenceVisualStyleSchema),
 			...Object.keys(sequencePremountSchema),
-			'durationInFrames',
 		].sort(),
 	);
 });
@@ -61,7 +60,7 @@ test('selectActiveKeys returns only the hidden + layout keys when layout=none', 
 		'style.scale': 2,
 	};
 	expect(selectActiveKeys(sequenceSchema, values).sort()).toEqual(
-		['hidden', 'layout'].sort(),
+		['hidden', 'layout', 'durationInFrames'].sort(),
 	);
 });
 
@@ -74,11 +73,13 @@ test('selectActiveKeys exposes style.* keys when layout=absolute-fill', () => {
 		[
 			'hidden',
 			'layout',
+			'durationInFrames',
 			'style.translate',
 			'style.scale',
 			'style.rotate',
 			'style.opacity',
 			'premountFor',
+			'postmountFor',
 		].sort(),
 	);
 
@@ -87,7 +88,7 @@ test('selectActiveKeys exposes style.* keys when layout=absolute-fill', () => {
 		'style.scale': 2,
 	};
 	expect(selectActiveKeys(sequenceSchema, values2).sort()).toEqual(
-		['hidden', 'layout'].sort(),
+		['hidden', 'layout', 'durationInFrames'].sort(),
 	);
 });
 
@@ -115,7 +116,9 @@ test('end-to-end: layout=none drops style.scale from active props', () => {
 		schemaKeys: activeKeys,
 		propsToDelete: new Set(),
 	});
-	expect(activeKeys.sort()).toEqual(['hidden', 'layout'].sort());
+	expect(activeKeys.sort()).toEqual(
+		['hidden', 'layout', 'durationInFrames'].sort(),
+	);
 	// style.scale was not in activeKeys → original style preserved, not overwritten
 	expect((merged.style as {scale: number}).scale).toBe(2);
 });

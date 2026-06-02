@@ -141,13 +141,6 @@ export const sequencePremountSchema = {
 export const sequenceStyleSchema = {
 	...sequenceVisualStyleSchema,
 	...sequencePremountSchema,
-	durationInFrames: {
-		type: 'number',
-		default: undefined,
-		min: 1,
-		step: 1,
-		hiddenFromList: true,
-	},
 } as const satisfies SequenceSchema;
 
 export const hiddenField: SequenceFieldSchema = {
@@ -158,6 +151,13 @@ export const hiddenField: SequenceFieldSchema = {
 
 export const sequenceSchema = {
 	hidden: hiddenField,
+	durationInFrames: {
+		type: 'number',
+		default: undefined,
+		min: 1,
+		step: 1,
+		hiddenFromList: true,
+	},
 	layout: {
 		type: 'enum',
 		default: 'absolute-fill',
