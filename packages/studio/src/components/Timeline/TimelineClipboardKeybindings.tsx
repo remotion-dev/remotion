@@ -1,11 +1,11 @@
 import {
 	parseEffectClipboardData,
 	type EffectClipboardData,
-	type EffectClipboardSource,
+	type EffectClipboardSnapshot,
 } from '@remotion/studio-shared';
 import type React from 'react';
 import {useContext, useEffect} from 'react';
-import type {SequencePropsSubscriptionKey} from 'remotion';
+import {Internals, type SequencePropsSubscriptionKey} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {callApi} from '../call-api';
@@ -28,31 +28,6 @@ const makeTargetKey = (nodePath: SequencePropsSubscriptionKey): string => {
 	});
 };
 
-const sourceFromSelection = (
-	selection: TimelineSelection,
-): EffectClipboardSource | null => {
-	if (selection.type === 'sequence-effect') {
-		const {sequenceSubscriptionKey} = selection.nodePathInfo;
-		return {
-			type: 'single-effect',
-			fileName: sequenceSubscriptionKey.absolutePath,
-			sequenceNodePath: sequenceSubscriptionKey,
-			effectIndex: selection.i,
-		};
-	}
-
-	if (selection.type === 'sequence-all-effects') {
-		const {sequenceSubscriptionKey} = selection.nodePathInfo;
-		return {
-			type: 'all-effects',
-			fileName: sequenceSubscriptionKey.absolutePath,
-			sequenceNodePath: sequenceSubscriptionKey,
-		};
-	}
-
-	return null;
-};
-
 const getTargetSequenceNodePath = (
 	selection: TimelineSelection,
 ): SequencePropsSubscriptionKey | null => {
@@ -67,11 +42,106 @@ const getTargetSequenceNodePath = (
 	return null;
 };
 
+type CopyableEffectStatus = {
+	readonly canUpdate: true;
+	readonly callee: string;
+	readonly importPath: string | null;
+	readonly props: Record<
+		string,
+		| {
+				readonly canUpdate: true;
+				readonly codeValue?: unknown;
+		  }
+		| {
+				readonly canUpdate: false;
+		  }
+	>;
+};
+
+const effectStatusToSnapshot = (
+	effect: CopyableEffectStatus,
+): EffectClipboardSnapshot | null => {
+	if (effect.importPath === null) {
+		return null;
+	}
+
+	const params: Record<string, unknown> = {};
+	for (const [key, prop] of Object.entries(effect.props)) {
+		if (!prop.canUpdate) {
+			return null;
+		}
+
+		if (prop.codeValue !== undefined) {
+			params[key] = prop.codeValue;
+		}
+	}
+
+	return {
+		callee: effect.callee,
+		importPath: effect.importPath,
+		params,
+	};
+};
+
+const getSnapshotsFromSelection = ({
+	selection,
+	codeValues,
+}: {
+	selection: TimelineSelection;
+	codeValues: React.ContextType<
+		typeof Internals.VisualModeCodeValuesContext
+	>['codeValues'];
+}): EffectClipboardSnapshot[] | null => {
+	if (
+		selection.type !== 'sequence-effect' &&
+		selection.type !== 'sequence-all-effects'
+	) {
+		return null;
+	}
+
+	const {sequenceSubscriptionKey} = selection.nodePathInfo;
+	const sequenceStatus =
+		codeValues[
+			Internals.makeSequencePropsSubscriptionKey(sequenceSubscriptionKey)
+		];
+	if (!sequenceStatus || !sequenceStatus.canUpdate) {
+		return null;
+	}
+
+	const effects =
+		selection.type === 'sequence-effect'
+			? sequenceStatus.effects.filter(
+					(effect) => effect.effectIndex === selection.i,
+				)
+			: sequenceStatus.effects;
+
+	if (selection.type === 'sequence-effect' && effects.length !== 1) {
+		return null;
+	}
+
+	const snapshots: EffectClipboardSnapshot[] = [];
+	for (const effect of effects) {
+		if (!effect.canUpdate) {
+			return null;
+		}
+
+		const snapshot = effectStatusToSnapshot(effect);
+		if (snapshot === null) {
+			return null;
+		}
+
+		snapshots.push(snapshot);
+	}
+
+	return snapshots;
+};
+
 export const TimelineClipboardKeybindings: React.FC = () => {
 	const keybindings = useKeybinding();
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {canSelect} = useTimelineSelection();
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
+	const {codeValues} = useContext(Internals.VisualModeCodeValuesContext);
 
 	useEffect(() => {
 		if (!canSelect || previewServerState.type !== 'connected') {
@@ -89,11 +159,6 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 					return;
 				}
 
-				const sources = selectedItems.map(sourceFromSelection);
-				if (sources.some((source) => source === null)) {
-					return;
-				}
-
 				const firstSelection = selectedItems[0];
 				const type =
 					firstSelection?.type === 'sequence-effect'
@@ -106,19 +171,35 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 					return;
 				}
 
+				const snapshots = selectedItems.flatMap((selection) => {
+					const itemSnapshots = getSnapshotsFromSelection({
+						selection,
+						codeValues,
+					});
+					return itemSnapshots ?? [null];
+				});
+				if (snapshots.some((snapshot) => snapshot === null)) {
+					e.preventDefault();
+					showNotification(
+						'Cannot copy effects because one of them contains values that cannot be copied',
+						3000,
+					);
+					return;
+				}
+
 				e.preventDefault();
 				navigator.clipboard
 					.writeText(
 						makeClipboardText({
 							type,
-							version: 1,
+							version: 2,
 							remotionClipboard: 'effects',
-							sources: sources as EffectClipboardSource[],
+							effects: snapshots as EffectClipboardSnapshot[],
 						}),
 					)
 					.then(() => {
 						showNotification(
-							sources.length === 1
+							snapshots.length === 1
 								? 'Copied effect to clipboard'
 								: 'Copied effects to clipboard',
 							1000,
@@ -184,7 +265,7 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 							targetFileName: targetSequenceNodePath.absolutePath,
 							targetSequenceNodePath,
 							type: payload.type,
-							sources: payload.sources,
+							effects: payload.effects,
 							clientId,
 						}).then((result) => {
 							if (result.success) {
@@ -211,7 +292,13 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 			copy.unregister();
 			paste.unregister();
 		};
-	}, [canSelect, currentSelection, keybindings, previewServerState]);
+	}, [
+		canSelect,
+		codeValues,
+		currentSelection,
+		keybindings,
+		previewServerState,
+	]);
 
 	return null;
 };

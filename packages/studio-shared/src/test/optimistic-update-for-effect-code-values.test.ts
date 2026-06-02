@@ -15,6 +15,7 @@ test('optimisticUpdateForEffectCodeValues updates the matching effect prop', () 
 					opacity: {canUpdate: true, codeValue: 0.5},
 				},
 				callee: 'tint',
+				importPath: null,
 			},
 		],
 	};
@@ -84,6 +85,7 @@ test('optimisticUpdateForEffectCodeValues applies when effect props are unset (z
 				canUpdate: true,
 				effectIndex: 0,
 				callee: 'tint',
+				importPath: null,
 				props: {
 					amount: {canUpdate: true, codeValue: undefined},
 				},

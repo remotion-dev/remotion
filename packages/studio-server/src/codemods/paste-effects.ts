@@ -1,37 +1,30 @@
-import type {
-	ArrayExpression,
-	CallExpression,
-	Expression,
-	JSXAttribute,
-} from '@babel/types';
+import type {ArrayExpression, CallExpression, JSXAttribute} from '@babel/types';
 import type {
 	EffectClipboardPasteType,
-	EffectClipboardSource,
+	EffectClipboardSnapshot,
 } from '@remotion/studio-shared';
 import * as recast from 'recast';
 import type {SequenceNodePath} from 'remotion';
 import {findJsxElementAtNodePath} from '../preview-server/routes/can-update-sequence-props';
+import {
+	assertValidEffect,
+	ensureEffectImport,
+	makeConfigObjectExpression,
+} from './add-effect';
 import {formatFileContent} from './format-file-content';
 import {parseAst, serializeAst} from './parse-ast';
-import {
-	enumerateEffectArrayElements,
-	findEffectCallExpression,
-	findEffectsAttr,
-} from './update-effect-props/update-effect-props';
+import {findEffectsAttr} from './update-effect-props/update-effect-props';
 
 const b = recast.types.builders;
 
-const getEffectsArray = (
-	attr: JSXAttribute,
-	action: 'read' | 'append',
-): ArrayExpression => {
+const getEffectsArray = (attr: JSXAttribute): ArrayExpression => {
 	if (!attr.value || attr.value.type !== 'JSXExpressionContainer') {
-		throw new Error(`Cannot ${action} effects: effects prop is not an array`);
+		throw new Error('Cannot append effects: effects prop is not an array');
 	}
 
-	const expr = attr.value.expression as Expression;
+	const expr = attr.value.expression;
 	if (expr.type !== 'ArrayExpression') {
-		throw new Error(`Cannot ${action} effects: effects prop is not an array`);
+		throw new Error('Cannot append effects: effects prop is not an array');
 	}
 
 	return expr;
@@ -48,88 +41,26 @@ const makeEffectsArray = (calls: CallExpression[]): ArrayExpression => {
 	return b.arrayExpression(calls as never) as unknown as ArrayExpression;
 };
 
-const cloneCallExpression = (call: CallExpression): CallExpression => {
-	const {code} = recast.print(call);
-	const ast = parseAst(`const __remotionEffect = ${code};`);
-	const stmt = ast.program.body[0];
-	if (
-		stmt.type !== 'VariableDeclaration' ||
-		stmt.declarations[0]?.init?.type !== 'CallExpression'
-	) {
-		throw new Error('Cannot paste effects: failed to clone effect expression');
-	}
-
-	return stmt.declarations[0].init as CallExpression;
-};
-
-const getSourceEffects = ({
-	source,
-	targetFileName,
+const makeEffectCall = ({
 	ast,
+	effect,
 }: {
-	readonly source: EffectClipboardSource;
-	readonly targetFileName: string;
-	readonly ast: ReturnType<typeof parseAst>;
-}): {calls: CallExpression[]; labels: string[]} => {
-	if (source.fileName !== targetFileName) {
-		throw new Error(
-			'Cannot paste effects from a different source file yet. Paste between sequences in the same file to preserve keyframes and referenced values.',
-		);
-	}
-
-	const jsx = findJsxElementAtNodePath(
+	ast: ReturnType<typeof parseAst>;
+	effect: EffectClipboardSnapshot;
+}): CallExpression => {
+	assertValidEffect({
+		effectName: effect.callee,
+		effectImportPath: effect.importPath,
+	});
+	const localName = ensureEffectImport({
 		ast,
-		source.sequenceNodePath.nodePath as SequenceNodePath,
-	);
-	if (!jsx) {
-		throw new Error(
-			'Could not find a JSX element at the specified location to copy effects',
-		);
-	}
+		effectName: effect.callee,
+		effectImportPath: effect.importPath,
+	});
 
-	const attr = findEffectsAttr(jsx.attributes ?? []);
-	if (!attr) {
-		if (source.type === 'all-effects') {
-			return {calls: [], labels: []};
-		}
-
-		throw new Error('Could not find effects on the source JSX element');
-	}
-
-	if (source.type === 'single-effect') {
-		const found = findEffectCallExpression({
-			attr,
-			effectIndex: source.effectIndex,
-		});
-		if (found.kind === 'error') {
-			throw new Error(
-				`Cannot paste source effect at index ${source.effectIndex}: ${found.reason}`,
-			);
-		}
-
-		return {
-			calls: [cloneCallExpression(found.call)],
-			labels: [`${found.callee}()`],
-		};
-	}
-
-	const effectsArray = getEffectsArray(attr, 'read');
-	const elements = enumerateEffectArrayElements(effectsArray);
-	const calls: CallExpression[] = [];
-	const labels: string[] = [];
-
-	for (const [index, effect] of elements.entries()) {
-		if (effect.kind !== 'call') {
-			throw new Error(
-				`Cannot paste source effect at index ${index}: ${effect.reason}`,
-			);
-		}
-
-		calls.push(cloneCallExpression(effect.node));
-		labels.push(`${effect.callee}()`);
-	}
-
-	return {calls, labels};
+	return b.callExpression(b.identifier(localName), [
+		makeConfigObjectExpression(effect.params) as never,
+	]) as unknown as CallExpression;
 };
 
 const removeEffectsAttr = (
@@ -146,17 +77,16 @@ const removeEffectsAttr = (
 
 export const pasteEffects = async ({
 	input,
-	targetFileName,
 	targetSequenceNodePath,
 	type,
-	sources,
+	effects,
 	prettierConfigOverride,
 }: {
 	readonly input: string;
 	readonly targetFileName: string;
 	readonly targetSequenceNodePath: SequenceNodePath;
 	readonly type: EffectClipboardPasteType;
-	readonly sources: EffectClipboardSource[];
+	readonly effects: EffectClipboardSnapshot[];
 	readonly prettierConfigOverride?: Record<string, unknown> | null;
 }): Promise<{
 	readonly output: string;
@@ -165,18 +95,15 @@ export const pasteEffects = async ({
 	readonly logLine: number;
 }> => {
 	const ast = parseAst(input);
-	const copied = sources.map((source) =>
-		getSourceEffects({source, targetFileName, ast}),
-	);
-	const effectCalls = copied.flatMap((item) => item.calls);
-	const effectLabels = copied.flatMap((item) => item.labels);
-
 	const targetJsx = findJsxElementAtNodePath(ast, targetSequenceNodePath);
 	if (!targetJsx) {
 		throw new Error(
 			'Could not find a JSX element at the specified location to paste effects',
 		);
 	}
+
+	const effectCalls = effects.map((effect) => makeEffectCall({ast, effect}));
+	const effectLabels = effects.map((effect) => `${effect.callee}()`);
 
 	const existingAttr = findEffectsAttr(targetJsx.attributes ?? []);
 
@@ -189,7 +116,7 @@ export const pasteEffects = async ({
 			targetJsx.attributes.push(makeEffectsAttr(makeEffectsArray(effectCalls)));
 		}
 	} else if (existingAttr) {
-		getEffectsArray(existingAttr, 'append').elements.push(
+		getEffectsArray(existingAttr).elements.push(
 			...(effectCalls as ArrayExpression['elements']),
 		);
 	} else if (effectCalls.length > 0) {

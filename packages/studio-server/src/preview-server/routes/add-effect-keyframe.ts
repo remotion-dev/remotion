@@ -127,6 +127,7 @@ export const addEffectKeyframeHandler: ApiHandler<
 		}
 
 		return computeEffectPropStatus({
+			ast,
 			jsx,
 			effectIndex,
 			keys: getAllSchemaKeys(schema),

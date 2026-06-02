@@ -24,7 +24,7 @@ import type {
 import type {RecastCodemod, VisualControlChange} from './codemods';
 import type {
 	EffectClipboardPasteType,
-	EffectClipboardSource,
+	EffectClipboardSnapshot,
 } from './effect-clipboard-data';
 import type {PackageManager} from './package-manager';
 import type {ProjectInfo} from './project-info';
@@ -443,7 +443,7 @@ export type PasteEffectsRequest = {
 	targetFileName: string;
 	targetSequenceNodePath: SequencePropsSubscriptionKey;
 	type: EffectClipboardPasteType;
-	sources: EffectClipboardSource[];
+	effects: EffectClipboardSnapshot[];
 	clientId: string;
 };
 

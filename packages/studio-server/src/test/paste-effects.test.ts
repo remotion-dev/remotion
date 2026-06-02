@@ -10,8 +10,8 @@ import {tint} from '@remotion/effects/tint';
 import {interpolate, useCurrentFrame} from 'remotion';
 
 export const Comp = () => {
-\tconst frame = useCurrentFrame();
-\treturn ${jsx};
+	const frame = useCurrentFrame();
+	return ${jsx};
 };
 `;
 
@@ -24,50 +24,50 @@ const makeNodePath = (input: string, line: number) => ({
 
 test('pasteEffects appends a copied effect to a target sequence', async () => {
 	const input = buildInput(`<>
-\t\t<HtmlInCanvas effects={[tint({color: "red"})]} />
-\t\t<HtmlInCanvas effects={[blur({radius: 5})]} />
-\t</>`);
-	const source = makeNodePath(input, 9);
-	const target = makeNodePath(input, 10);
+		<HtmlInCanvas effects={[blur({radius: 5})]} />
+	</>`);
+	const target = makeNodePath(input, 9);
 
 	const {output, effectLabels} = await pasteEffects({
 		input,
 		targetFileName: 'Comp.tsx',
 		targetSequenceNodePath: target.nodePath,
 		type: 'effects-additive',
-		sources: [
+		effects: [
 			{
-				type: 'single-effect',
-				fileName: 'Comp.tsx',
-				sequenceNodePath: source,
-				effectIndex: 0,
+				callee: 'tint',
+				importPath: '@remotion/effects/tint',
+				params: {color: 'red'},
 			},
 		],
 	});
 
 	expect(effectLabels).toEqual(['tint()']);
 	expect(output).toContain('blur({radius: 5})');
-	expect(output).toMatch(/tint\(\{color: ['"]red['"]\}\)/);
+	expect(output).toMatch(/tint\(\{\s*color: ['"]red['"],?\s*\}\)/);
 });
 
 test('pasteEffects replaces existing effects with all copied effects', async () => {
 	const input = buildInput(`<>
-\t\t<HtmlInCanvas effects={[tint({color: "red"}), blur({radius: 10})]} />
-\t\t<HtmlInCanvas effects={[tint({color: "blue"})]} />
-\t</>`);
-	const source = makeNodePath(input, 9);
-	const target = makeNodePath(input, 10);
+		<HtmlInCanvas effects={[tint({color: "blue"})]} />
+	</>`);
+	const target = makeNodePath(input, 9);
 
 	const {output, effectLabels} = await pasteEffects({
 		input,
 		targetFileName: 'Comp.tsx',
 		targetSequenceNodePath: target.nodePath,
 		type: 'effects-replacing',
-		sources: [
+		effects: [
 			{
-				type: 'all-effects',
-				fileName: 'Comp.tsx',
-				sequenceNodePath: source,
+				callee: 'tint',
+				importPath: '@remotion/effects/tint',
+				params: {color: 'red'},
+			},
+			{
+				callee: 'blur',
+				importPath: '@remotion/effects/blur',
+				params: {radius: 10},
 			},
 		],
 	});
@@ -78,58 +78,53 @@ test('pasteEffects replaces existing effects with all copied effects', async () 
 	expect(output).not.toMatch(/color: ['"]blue['"]/);
 });
 
-test('pasteEffects preserves inline effect keyframes in the same file', async () => {
+test('pasteEffects can paste after the source sequence no longer exists', async () => {
 	const input = buildInput(`<>
-\t\t<HtmlInCanvas
-\t\t\teffects={[tint({amount: interpolate(frame, [0, 20], [0.2, 0.8])})]}
-\t\t/>
-\t\t<HtmlInCanvas />
-\t</>`);
-	const source = makeNodePath(input, 9);
-	const target = makeNodePath(input, 12);
+		<HtmlInCanvas />
+	</>`);
+	const target = makeNodePath(input, 9);
 
 	const {output} = await pasteEffects({
 		input,
 		targetFileName: 'Comp.tsx',
 		targetSequenceNodePath: target.nodePath,
 		type: 'effects-additive',
-		sources: [
+		effects: [
 			{
-				type: 'single-effect',
-				fileName: 'Comp.tsx',
-				sequenceNodePath: source,
-				effectIndex: 0,
+				callee: 'tint',
+				importPath: '@remotion/effects/tint',
+				params: {amount: 0.8},
 			},
 		],
 	});
 
-	expect(output).toContain(
-		'tint({amount: interpolate(frame, [0, 20], [0.2, 0.8])})',
-	);
+	expect(output).toMatch(/tint\(\{\s*amount: 0.8,?\s*\}\)/);
 });
 
-test('pasteEffects rejects cross-file pastes to avoid broken keyframe references', async () => {
+test('pasteEffects inserts imports for copied effects', async () => {
 	const input = buildInput(`<>
-\t\t<HtmlInCanvas effects={[tint({color: "red"})]} />
-\t\t<HtmlInCanvas />
-\t</>`);
-	const source = makeNodePath(input, 9);
-	const target = makeNodePath(input, 10);
+		<HtmlInCanvas />
+	</>`);
+	const inputWithoutTintImport = input.replace(
+		"import {tint} from '@remotion/effects/tint';\n",
+		'',
+	);
+	const target = makeNodePath(inputWithoutTintImport, 8);
 
-	await expect(
-		pasteEffects({
-			input,
-			targetFileName: 'Comp.tsx',
-			targetSequenceNodePath: target.nodePath,
-			type: 'effects-additive',
-			sources: [
-				{
-					type: 'single-effect',
-					fileName: 'Other.tsx',
-					sequenceNodePath: source,
-					effectIndex: 0,
-				},
-			],
-		}),
-	).rejects.toThrow(/different source file/);
+	const {output} = await pasteEffects({
+		input: inputWithoutTintImport,
+		targetFileName: 'Comp.tsx',
+		targetSequenceNodePath: target.nodePath,
+		type: 'effects-additive',
+		effects: [
+			{
+				callee: 'tint',
+				importPath: '@remotion/effects/tint',
+				params: {color: 'red'},
+			},
+		],
+	});
+
+	expect(output).toContain("import {tint} from '@remotion/effects/tint';");
+	expect(output).toMatch(/tint\(\{\s*color: ['"]red['"],?\s*\}\)/);
 });

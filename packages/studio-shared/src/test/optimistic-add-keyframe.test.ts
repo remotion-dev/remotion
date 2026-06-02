@@ -90,6 +90,7 @@ test('optimisticAddEffectKeyframe appends a keyframe on the target effect', () =
 				canUpdate: true,
 				effectIndex: 0,
 				callee: 'tint',
+				importPath: null,
 				props: {
 					amount: {
 						canUpdate: false,
@@ -142,6 +143,7 @@ test('optimisticAddEffectKeyframe converts a static prop to a single keyframe', 
 				canUpdate: true,
 				effectIndex: 0,
 				callee: 'tint',
+				importPath: null,
 				props: {
 					amount: {
 						canUpdate: true,

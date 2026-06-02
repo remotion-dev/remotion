@@ -24,7 +24,7 @@ const b = recast.types.builders;
 
 const identifierRegex = /^[A-Za-z_$][0-9A-Za-z_$]*$/;
 
-const assertValidEffect = ({
+export const assertValidEffect = ({
 	effectName,
 	effectImportPath,
 }: {
@@ -156,7 +156,7 @@ const getAvailableLocalName = ({
 	throw new Error(`Cannot find a local name for ${effectName}`);
 };
 
-const ensureEffectImport = ({
+export const ensureEffectImport = ({
 	ast,
 	effectName,
 	effectImportPath,
@@ -238,7 +238,7 @@ const makeEffectsAttr = (array: ArrayExpression): JSXAttribute => {
 	) as unknown as JSXAttribute;
 };
 
-const makeConfigObjectExpression = (
+export const makeConfigObjectExpression = (
 	config: Record<string, unknown>,
 ): ObjectExpression => {
 	return b.objectExpression(

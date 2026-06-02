@@ -64,6 +64,7 @@ export type VisualModeSetters = {
 export type CanUpdateEffectPropsResponseTrue = {
 	canUpdate: true;
 	callee: string;
+	importPath: string | null;
 	effectIndex: number;
 	props: Record<string, CanUpdateSequencePropStatus>;
 };

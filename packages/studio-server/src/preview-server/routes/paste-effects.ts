@@ -29,18 +29,18 @@ export const pasteEffectsHandler: ApiHandler<
 	PasteEffectsRequest,
 	PasteEffectsResponse
 > = async ({
-	input: {targetFileName, targetSequenceNodePath, type, sources, clientId},
+	input: {targetFileName, targetSequenceNodePath, type, effects, clientId},
 	remotionRoot,
 	logLevel,
 }) => {
 	try {
-		if (sources.length === 0) {
+		if (effects.length === 0 && type !== 'effects-replacing') {
 			throw new Error('No effects were specified for pasting');
 		}
 
 		RenderInternals.Log.trace(
 			{indent: false, logLevel},
-			`[paste-effects] Received request to paste ${sources.length} effect source${sources.length === 1 ? '' : 's'} into fileName="${targetFileName}"`,
+			`[paste-effects] Received request to paste ${effects.length} effect${effects.length === 1 ? '' : 's'} into fileName="${targetFileName}"`,
 		);
 
 		const {absolutePath, fileRelativeToRoot} = resolveFileInsideProject({
@@ -55,7 +55,7 @@ export const pasteEffectsHandler: ApiHandler<
 			targetFileName,
 			targetSequenceNodePath: targetSequenceNodePath.nodePath,
 			type,
-			sources,
+			effects,
 		});
 
 		const effectDescription = getPastedEffectDescription(effectLabels);

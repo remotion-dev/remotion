@@ -351,6 +351,7 @@ test('Backspace reset targets selected effect props', () => {
 				{
 					canUpdate: true,
 					callee: 'effect',
+					importPath: null,
 					effectIndex: 0,
 					props: {
 						intensity: {canUpdate: true, codeValue: 10},

@@ -82,7 +82,7 @@ export {
 	parseEffectClipboardData,
 	type EffectClipboardData,
 	type EffectClipboardPasteType,
-	type EffectClipboardSource,
+	type EffectClipboardSnapshot,
 } from './effect-clipboard-data';
 export {
 	EFFECT_DRAG_MIME_TYPE,

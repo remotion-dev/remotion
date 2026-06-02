@@ -699,14 +699,17 @@ const getNestedPropStatus = (
 };
 
 const computeEffectsForJsx = ({
+	ast,
 	jsxElement,
 	effects,
 }: {
+	ast: File;
 	jsxElement: JSXOpeningElement;
 	effects: string[][];
 }) => {
 	return effects.map((effect, effectIndex) =>
 		computeEffectPropStatus({
+			ast,
 			jsx: jsxElement,
 			effectIndex,
 			keys: effect,
@@ -761,7 +764,7 @@ export const computeSequencePropsStatusFromContent = ({
 	}
 
 	const filteredProps = computeSequenceOnlyPropsRecord({jsxElement, keys});
-	const effectsStatuses = computeEffectsForJsx({jsxElement, effects});
+	const effectsStatuses = computeEffectsForJsx({ast, jsxElement, effects});
 
 	return {
 		canUpdate: true as const,
