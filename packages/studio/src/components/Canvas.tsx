@@ -131,6 +131,30 @@ type WebKitGestureEvent = UIEvent & {
 	clientY: number;
 };
 
+const isFileDragEvent = (event: DragEvent): boolean => {
+	return Array.from(event.dataTransfer?.types ?? []).includes('Files');
+};
+
+const isDragEventInsideCanvas = (event: DragEvent): boolean => {
+	const {current} = canvasRef;
+	if (!current) {
+		return false;
+	}
+
+	const targetIsNode = event.target instanceof Node;
+	if (targetIsNode && current.contains(event.target as Node)) {
+		return true;
+	}
+
+	const rect = current.getBoundingClientRect();
+	return (
+		event.clientX >= rect.left &&
+		event.clientX <= rect.right &&
+		event.clientY >= rect.top &&
+		event.clientY <= rect.bottom
+	);
+};
+
 export const Canvas: React.FC<{
 	readonly canvasContent: CanvasContent;
 	readonly size: Size;
@@ -641,11 +665,18 @@ export const Canvas: React.FC<{
 
 	const onDragOver = useCallback(
 		(event: DragEvent) => {
-			if (!canDropAssets) {
+			if (
+				!canDropAssets ||
+				!isFileDragEvent(event) ||
+				!isDragEventInsideCanvas(event)
+			) {
 				return;
 			}
 
 			event.preventDefault();
+			if (event.dataTransfer) {
+				event.dataTransfer.dropEffect = 'copy';
+			}
 		},
 		[canDropAssets],
 	);
@@ -655,7 +686,9 @@ export const Canvas: React.FC<{
 			if (
 				!canDropAssets ||
 				compositionFile === null ||
-				currentCompositionId === null
+				currentCompositionId === null ||
+				!isFileDragEvent(event) ||
+				!isDragEventInsideCanvas(event)
 			) {
 				return;
 			}
@@ -747,17 +780,16 @@ export const Canvas: React.FC<{
 	);
 
 	useEffect(() => {
-		const {current} = canvasRef;
-		if (!current || !canDropAssets) {
+		if (!canDropAssets) {
 			return;
 		}
 
-		current.addEventListener('dragover', onDragOver, {capture: true});
-		current.addEventListener('drop', onDrop, {capture: true});
+		document.addEventListener('dragover', onDragOver, {capture: true});
+		document.addEventListener('drop', onDrop, {capture: true});
 
 		return () => {
-			current.removeEventListener('dragover', onDragOver, {capture: true});
-			current.removeEventListener('drop', onDrop, {capture: true});
+			document.removeEventListener('dragover', onDragOver, {capture: true});
+			document.removeEventListener('drop', onDrop, {capture: true});
 		};
 	}, [canDropAssets, onDragOver, onDrop]);
 
