@@ -11,6 +11,10 @@ import {NoReactInternals} from 'remotion/no-react';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
+import {
+	forceSpecificCursor,
+	stopForcingSpecificCursor,
+} from '../ForceSpecificCursor';
 import {saveSequenceProp} from './save-sequence-prop';
 
 const HANDLE_WIDTH = 6;
@@ -75,6 +79,7 @@ export const TimelineSequenceRightEdgeDragHandle: React.FC<{
 		dragStateRef.current = null;
 		document.body.style.userSelect = '';
 		document.body.style.webkitUserSelect = '';
+		stopForcingSpecificCursor();
 		setDragging(false);
 
 		if (!dragState) {
@@ -149,6 +154,7 @@ export const TimelineSequenceRightEdgeDragHandle: React.FC<{
 			};
 			document.body.style.userSelect = 'none';
 			document.body.style.webkitUserSelect = 'none';
+			forceSpecificCursor('ew-resize');
 			setDragging(true);
 		},
 		[currentDurationInFrames, timelineDurationInFrames, windowWidth],
