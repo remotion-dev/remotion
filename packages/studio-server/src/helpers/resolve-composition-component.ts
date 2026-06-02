@@ -8,7 +8,6 @@ import type {
 	File,
 	FunctionDeclaration,
 	ImportDeclaration,
-	ImportSpecifier,
 	JSXAttribute,
 	JSXElement,
 	VariableDeclaration,
@@ -18,6 +17,7 @@ import type {namedTypes} from 'ast-types';
 import * as recast from 'recast';
 import {formatFileContent} from '../codemods/format-file-content';
 import {parseAst, serializeAst} from '../codemods/parse-ast';
+import {ensureNamedImport} from './imports';
 
 type SourceLocation = {
 	line: number;
@@ -846,14 +846,6 @@ const addElementToNullComponentReturn = ({
 	return returnStatement.loc?.start.line ?? 1;
 };
 
-const getImportedName = (specifier: ImportSpecifier) => {
-	if (specifier.imported.type === 'Identifier') {
-		return specifier.imported.name;
-	}
-
-	return specifier.imported.value;
-};
-
 const declarationBindsName = (
 	declaration: FunctionDeclaration | ClassDeclaration | VariableDeclaration,
 	name: string,
@@ -914,85 +906,13 @@ const getAvailableSolidLocalName = (ast: File) => {
 	return available;
 };
 
-const insertImportDeclaration = (
-	ast: File,
-	importDeclaration: ImportDeclaration,
-) => {
-	const {body} = ast.program;
-	let lastImportIndex = -1;
-	for (let i = 0; i < body.length; i++) {
-		if (body[i].type === 'ImportDeclaration') {
-			lastImportIndex = i;
-		}
-	}
-
-	body.splice(lastImportIndex + 1, 0, importDeclaration);
-};
-
-const addSolidImport = ({
-	ast,
-	localName,
-	remotionImport,
-}: {
-	ast: File;
-	localName: string;
-	remotionImport: ImportDeclaration | null;
-}) => {
-	const imported = recast.types.builders.identifier('Solid');
-	const local =
-		localName === 'Solid' ? null : recast.types.builders.identifier(localName);
-	const specifier = recast.types.builders.importSpecifier(
-		imported,
-		local,
-	) as unknown as ImportSpecifier;
-
-	const canAddToExistingRemotionImport =
-		remotionImport &&
-		!remotionImport.specifiers?.some(
-			(importSpecifier) => importSpecifier.type === 'ImportNamespaceSpecifier',
-		);
-
-	if (canAddToExistingRemotionImport) {
-		remotionImport.specifiers = [
-			...(remotionImport.specifiers ?? []),
-			specifier,
-		];
-		return;
-	}
-
-	const importDeclaration = recast.types.builders.importDeclaration(
-		[],
-		recast.types.builders.stringLiteral('remotion'),
-	) as unknown as ImportDeclaration;
-	importDeclaration.specifiers = [specifier];
-	insertImportDeclaration(ast, importDeclaration);
-};
-
 const ensureSolidImport = (ast: File) => {
-	let remotionImport: ImportDeclaration | null = null;
-
-	for (const node of ast.program.body) {
-		if (node.type !== 'ImportDeclaration' || node.source.value !== 'remotion') {
-			continue;
-		}
-
-		remotionImport = node;
-
-		const solidSpecifier = node.specifiers?.find((specifier) => {
-			return (
-				specifier.type === 'ImportSpecifier' &&
-				getImportedName(specifier) === 'Solid'
-			);
-		});
-
-		if (solidSpecifier?.local?.name) {
-			return solidSpecifier.local.name;
-		}
-	}
-
-	const localName = getAvailableSolidLocalName(ast);
-	addSolidImport({ast, localName, remotionImport});
-	return localName;
+	return ensureNamedImport({
+		ast,
+		importedName: 'Solid',
+		sourcePath: 'remotion',
+		localName: getAvailableSolidLocalName(ast),
+	});
 };
 
 const addElementToComponentRoot = ({

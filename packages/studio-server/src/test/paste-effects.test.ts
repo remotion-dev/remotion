@@ -128,3 +128,28 @@ test('pasteEffects inserts imports for copied effects', async () => {
 	expect(output).toContain("import {tint} from '@remotion/effects/tint';");
 	expect(output).toMatch(/tint\(\{\s*color: ['"]red['"],?\s*\}\)/);
 });
+
+test('pasteEffects does not duplicate an existing copied effect import', async () => {
+	const input = buildInput(`<>
+		<HtmlInCanvas />
+	</>`);
+	const target = makeNodePath(input, 9);
+
+	const {output} = await pasteEffects({
+		input,
+		targetFileName: 'Comp.tsx',
+		targetSequenceNodePath: target.nodePath,
+		type: 'effects-additive',
+		effects: [
+			{
+				callee: 'tint',
+				importPath: '@remotion/effects/tint',
+				params: {color: 'red'},
+			},
+		],
+	});
+
+	expect(
+		output.match(/import \{tint\} from '@remotion\/effects\/tint';/g)?.length,
+	).toBe(1);
+});
