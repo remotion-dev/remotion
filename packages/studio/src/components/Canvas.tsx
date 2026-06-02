@@ -639,8 +639,8 @@ export const Canvas: React.FC<{
 		fetchMetadata();
 	}, [fetchMetadata]);
 
-	const onDragOver: React.DragEventHandler<HTMLDivElement> = useCallback(
-		(event) => {
+	const onDragOver = useCallback(
+		(event: DragEvent) => {
 			if (!canDropAssets) {
 				return;
 			}
@@ -650,8 +650,8 @@ export const Canvas: React.FC<{
 		[canDropAssets],
 	);
 
-	const onDrop: React.DragEventHandler<HTMLDivElement> = useCallback(
-		async (event) => {
+	const onDrop = useCallback(
+		async (event: DragEvent) => {
 			if (
 				!canDropAssets ||
 				compositionFile === null ||
@@ -663,7 +663,7 @@ export const Canvas: React.FC<{
 			event.preventDefault();
 			event.stopPropagation();
 
-			const files = Array.from(event.dataTransfer.files);
+			const files = Array.from(event.dataTransfer?.files ?? []);
 			if (files.length === 0) {
 				return;
 			}
@@ -746,14 +746,24 @@ export const Canvas: React.FC<{
 		[canDropAssets, compositionFile, currentCompositionId],
 	);
 
+	useEffect(() => {
+		const {current} = canvasRef;
+		if (!current || !canDropAssets) {
+			return;
+		}
+
+		current.addEventListener('dragover', onDragOver, {capture: true});
+		current.addEventListener('drop', onDrop, {capture: true});
+
+		return () => {
+			current.removeEventListener('dragover', onDragOver, {capture: true});
+			current.removeEventListener('drop', onDrop, {capture: true});
+		};
+	}, [canDropAssets, onDragOver, onDrop]);
+
 	return (
 		<>
-			<div
-				ref={canvasRef}
-				style={getContainerStyle(editorZoomGestures)}
-				onDragOver={canDropAssets ? onDragOver : undefined}
-				onDrop={canDropAssets ? onDrop : undefined}
-			>
+			<div ref={canvasRef} style={getContainerStyle(editorZoomGestures)}>
 				{size ? (
 					<VideoPreview
 						canvasContent={canvasContent}
