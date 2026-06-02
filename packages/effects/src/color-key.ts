@@ -31,6 +31,7 @@ export const colorKeySchema = {
 		step: 0.01,
 		default: DEFAULT_SIMILARITY,
 		description: 'Similarity',
+		hiddenFromList: false,
 	},
 	smoothness: {
 		type: 'number',
@@ -39,6 +40,7 @@ export const colorKeySchema = {
 		step: 0.01,
 		default: DEFAULT_SMOOTHNESS,
 		description: 'Smoothness',
+		hiddenFromList: false,
 	},
 	spillSuppression: {
 		type: 'number',
@@ -47,6 +49,7 @@ export const colorKeySchema = {
 		step: 0.01,
 		default: DEFAULT_SPILL_SUPPRESSION,
 		description: 'Spill suppression',
+		hiddenFromList: false,
 	},
 } as const satisfies SequenceSchema;
 
