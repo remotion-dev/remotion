@@ -6,6 +6,7 @@ import {EffectsBarrelDistortionPreview} from '../../components/effects/effects-b
 import {EffectsBlurPreview} from '../../components/effects/effects-blur-preview';
 import {EffectsBrightnessPreview} from '../../components/effects/effects-brightness-preview';
 import {EffectsChromaticAberrationPreview} from '../../components/effects/effects-chromatic-aberration-preview';
+import {EffectsColorKeyPreview} from '../../components/effects/effects-color-key-preview';
 import {EffectsContrastPreview} from '../../components/effects/effects-contrast-preview';
 import {EffectsDotGridPreview} from '../../components/effects/effects-dot-grid-preview';
 import {EffectsDropShadowPreview} from '../../components/effects/effects-drop-shadow-preview';
@@ -111,6 +112,18 @@ export const RemotionRoot: React.FC = () => {
 					width={1280}
 					height={720}
 					defaultProps={{amount: 1.5}}
+				/>
+				<Still
+					id="effects-color-key-preview"
+					component={EffectsColorKeyPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						keyColor: '#00ff00',
+						similarity: 0.45,
+						smoothness: 0.08,
+						spillSuppression: 0.25,
+					}}
 				/>
 				<Still
 					id="effects-duotone-preview"

@@ -1719,6 +1719,15 @@ export const articles = [
 		slug: 'editor-starter/vs-studio',
 	},
 	{
+		id: 'effects',
+		title: 'Effects',
+		relativePath: 'docs/effects.mdx',
+		compId: 'articles-docs-effects',
+		crumb: 'Designing visuals',
+		noAi: false,
+		slug: 'effects',
+	},
+	{
 		id: 'effects/barrel-distortion',
 		title: 'barrelDistortion()',
 		relativePath: 'docs/effects/barrel-distortion.mdx',
@@ -1753,6 +1762,15 @@ export const articles = [
 		crumb: '@remotion/effects',
 		noAi: false,
 		slug: 'effects/chromatic-aberration',
+	},
+	{
+		id: 'effects/color-key',
+		title: 'colorKey()',
+		relativePath: 'docs/effects/color-key.mdx',
+		compId: 'articles-docs-effects-color-key',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/color-key',
 	},
 	{
 		id: 'effects/contrast',
@@ -2356,6 +2374,15 @@ export const articles = [
 		crumb: 'Need for Speed',
 		noAi: false,
 		slug: 'gpu',
+	},
+	{
+		id: 'greenscreen',
+		title: 'Greenscreen',
+		relativePath: 'docs/greenscreen.mdx',
+		compId: 'articles-docs-greenscreen',
+		crumb: 'How To',
+		noAi: false,
+		slug: 'greenscreen',
 	},
 	{
 		id: 'hardware-acceleration',
