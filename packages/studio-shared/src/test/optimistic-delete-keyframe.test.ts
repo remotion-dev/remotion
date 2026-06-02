@@ -12,7 +12,8 @@ test('optimisticDeleteSequenceKeyframe removes the matching keyframe and an easi
 		canUpdate: true,
 		props: {
 			'style.opacity': {
-				canUpdate: false,
+				canUpdate: true,
+				codeValue: undefined,
 				reason: 'keyframed',
 				interpolationFunction: 'interpolate',
 				keyframes: [
@@ -39,7 +40,7 @@ test('optimisticDeleteSequenceKeyframe removes the matching keyframe and an easi
 	}
 
 	const status = updated.props['style.opacity'];
-	if (status.canUpdate || status.reason !== 'keyframed') {
+	if (!status.canUpdate || status.reason !== 'keyframed') {
 		throw new Error('expected keyframed status');
 	}
 
@@ -55,7 +56,8 @@ test('optimisticDeleteSequenceKeyframe converts the last keyframe to a static va
 		canUpdate: true,
 		props: {
 			width: {
-				canUpdate: false,
+				canUpdate: true,
+				codeValue: undefined,
 				reason: 'keyframed',
 				interpolationFunction: 'interpolate',
 				keyframes: [{frame: 12, value: 320}],
@@ -88,7 +90,8 @@ test('optimisticDeleteSequenceKeyframe is a no-op when no keyframe matches', () 
 		canUpdate: true,
 		props: {
 			'style.opacity': {
-				canUpdate: false,
+				canUpdate: true,
+				codeValue: undefined,
 				reason: 'keyframed',
 				interpolationFunction: 'interpolate',
 				keyframes: [{frame: 0, value: 0}],
@@ -131,7 +134,8 @@ test('optimisticDeleteSequenceKeyframes deletes multiple keyframes in one pass',
 		canUpdate: true,
 		props: {
 			width: {
-				canUpdate: false,
+				canUpdate: true,
+				codeValue: undefined,
 				reason: 'keyframed',
 				interpolationFunction: 'interpolate',
 				keyframes: [
@@ -160,7 +164,7 @@ test('optimisticDeleteSequenceKeyframes deletes multiple keyframes in one pass',
 	}
 
 	const status = updated.props.width;
-	if (status.canUpdate || status.reason !== 'keyframed') {
+	if (!status.canUpdate || status.reason !== 'keyframed') {
 		throw new Error('expected keyframed status');
 	}
 
@@ -180,7 +184,8 @@ test('optimisticDeleteEffectKeyframe removes the matching keyframe on the target
 				importPath: null,
 				props: {
 					amount: {
-						canUpdate: false,
+						canUpdate: true,
+						codeValue: undefined,
 						reason: 'keyframed',
 						interpolationFunction: 'interpolate',
 						keyframes: [
@@ -213,7 +218,7 @@ test('optimisticDeleteEffectKeyframe removes the matching keyframe on the target
 	}
 
 	const status = effect.props.amount;
-	if (status.canUpdate || status.reason !== 'keyframed') {
+	if (!status.canUpdate || status.reason !== 'keyframed') {
 		throw new Error('expected keyframed status');
 	}
 
@@ -233,7 +238,8 @@ test('optimisticDeleteEffectKeyframe converts the last keyframe on the target ef
 				importPath: null,
 				props: {
 					amount: {
-						canUpdate: false,
+						canUpdate: true,
+						codeValue: undefined,
 						reason: 'keyframed',
 						interpolationFunction: 'interpolate',
 						keyframes: [{frame: 40, value: 0.6}],
@@ -297,7 +303,8 @@ test('optimisticDeleteEffectKeyframes deletes multiple keyframes in one pass', (
 				importPath: null,
 				props: {
 					amount: {
-						canUpdate: false,
+						canUpdate: true,
+						codeValue: undefined,
 						reason: 'keyframed',
 						interpolationFunction: 'interpolate',
 						keyframes: [
@@ -332,7 +339,7 @@ test('optimisticDeleteEffectKeyframes deletes multiple keyframes in one pass', (
 	}
 
 	const status = effect.props.amount;
-	if (status.canUpdate || status.reason !== 'keyframed') {
+	if (!status.canUpdate || status.reason !== 'keyframed') {
 		throw new Error('expected keyframed status');
 	}
 

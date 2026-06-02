@@ -28,8 +28,7 @@ import {JsxElementNotFoundAtLocationError} from '../jsx-element-not-found-at-loc
 import {computeEffectPropStatus} from './can-update-effect-props';
 
 type CanUpdatePropStatus = CanUpdateSequencePropStatus;
-type ComputedPropStatus = Extract<CanUpdatePropStatus, {canUpdate: false}>;
-type KeyframedPropStatus = Extract<ComputedPropStatus, {reason: 'keyframed'}>;
+type KeyframedPropStatus = Extract<CanUpdatePropStatus, {reason: 'keyframed'}>;
 type PropKeyframes = KeyframedPropStatus['keyframes'];
 type PropEasing = KeyframedPropStatus['easing'];
 type PropClamping = KeyframedPropStatus['clamping'];
@@ -478,7 +477,8 @@ export const getComputedStatus = (node: Expression): CanUpdatePropStatus => {
 	}
 
 	return {
-		canUpdate: false,
+		canUpdate: true,
+		codeValue: undefined,
 		reason: 'keyframed',
 		interpolationFunction: interpolation.interpolationFunction,
 		keyframes: interpolation.keyframes,

@@ -1,6 +1,6 @@
 import React, {useContext, useEffect, useMemo, useRef, useState} from 'react';
 import type {
-	CanUpdateSequencePropStatusTrue,
+	CanUpdateSequencePropStatus,
 	CodeValues,
 	GetEffectDragOverrides,
 	OverrideIdToNodePaths,
@@ -54,7 +54,7 @@ type UvCoordinateFieldSchema = Extract<
 
 type SelectedOutlineUvHandle = {
 	readonly clientId: string;
-	readonly codeValue: CanUpdateSequencePropStatusTrue;
+	readonly codeValue: Extract<CanUpdateSequencePropStatus, {canUpdate: true}>;
 	readonly effectIndex: number;
 	readonly fieldDefault: UvCoordinate | undefined;
 	readonly fieldKey: string;
@@ -72,7 +72,7 @@ type SelectedOutlineTarget = {
 };
 
 type SelectedOutlineDragTarget = {
-	readonly codeValue: CanUpdateSequencePropStatusTrue;
+	readonly codeValue: Extract<CanUpdateSequencePropStatus, {canUpdate: true}>;
 	readonly clientId: string;
 	readonly fieldDefault: string | undefined;
 	readonly nodePath: SequencePropsSubscriptionKey;

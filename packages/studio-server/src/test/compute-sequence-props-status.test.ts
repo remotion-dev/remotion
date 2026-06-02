@@ -78,7 +78,8 @@ export const Example: React.FC = () => {
 	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
 
 	expect(result.props.color).toEqual({
-		canUpdate: false,
+		canUpdate: true,
+		codeValue: undefined,
 		reason: 'keyframed',
 		interpolationFunction: 'interpolateColors',
 		keyframes: [
@@ -229,7 +230,8 @@ test('computeSequencePropsStatus should return keyframes for interpolated style 
 	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
 
 	expect(result.props['style.scale']).toEqual({
-		canUpdate: false,
+		canUpdate: true,
+		codeValue: undefined,
 		reason: 'keyframed',
 		interpolationFunction: 'interpolate',
 		keyframes: [
@@ -269,7 +271,8 @@ export const Example: React.FC = () => {
 	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
 
 	expect(result.props['style.scale']).toEqual({
-		canUpdate: false,
+		canUpdate: true,
+		codeValue: undefined,
 		reason: 'keyframed',
 		interpolationFunction: 'interpolate',
 		keyframes: [
@@ -309,7 +312,8 @@ export const Example: React.FC = () => {
 	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
 
 	expect(result.props['style.scale']).toEqual({
-		canUpdate: false,
+		canUpdate: true,
+		codeValue: undefined,
 		reason: 'keyframed',
 		interpolationFunction: 'interpolate',
 		keyframes: [
@@ -345,7 +349,8 @@ export const Example: React.FC = () => {
 	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
 
 	expect(result.props.color).toEqual({
-		canUpdate: false,
+		canUpdate: true,
+		codeValue: undefined,
 		reason: 'keyframed',
 		interpolationFunction: 'interpolateColors',
 		keyframes: [

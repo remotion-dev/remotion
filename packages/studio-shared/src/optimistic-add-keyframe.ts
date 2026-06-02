@@ -21,11 +21,42 @@ const addKeyframeToPropStatus = ({
 	frame: number;
 	value: unknown;
 }): CanUpdateSequencePropStatus => {
+	if (status.reason === 'keyframed') {
+		const existingIndex = status.keyframes.findIndex(
+			(kf) => kf.frame === frame,
+		);
+		if (existingIndex !== -1) {
+			const updatedKeyframes = status.keyframes.map((keyframe, index) =>
+				index === existingIndex ? {frame, value} : keyframe,
+			);
+
+			return {
+				...status,
+				keyframes: updatedKeyframes,
+			};
+		}
+
+		const keyframes = [...status.keyframes, {frame, value}].sort(
+			(first, second) => first.frame - second.frame,
+		);
+		const easing = [...status.easing];
+		while (easing.length < keyframes.length - 1) {
+			easing.push('linear');
+		}
+
+		return {
+			...status,
+			keyframes,
+			easing,
+		};
+	}
+
 	if (status.canUpdate) {
 		const staticValue = status.codeValue ?? value;
 
 		return {
-			canUpdate: false,
+			canUpdate: true,
+			codeValue: undefined,
 			reason: 'keyframed',
 			interpolationFunction: getInterpolationFunction(staticValue, value),
 			keyframes: [{frame, value}],
@@ -35,35 +66,7 @@ const addKeyframeToPropStatus = ({
 		};
 	}
 
-	if (status.reason !== 'keyframed') {
-		return status;
-	}
-
-	const existingIndex = status.keyframes.findIndex((kf) => kf.frame === frame);
-	if (existingIndex !== -1) {
-		const updatedKeyframes = status.keyframes.map((keyframe, index) =>
-			index === existingIndex ? {frame, value} : keyframe,
-		);
-
-		return {
-			...status,
-			keyframes: updatedKeyframes,
-		};
-	}
-
-	const keyframes = [...status.keyframes, {frame, value}].sort(
-		(first, second) => first.frame - second.frame,
-	);
-	const easing = [...status.easing];
-	while (easing.length < keyframes.length - 1) {
-		easing.push('linear');
-	}
-
-	return {
-		...status,
-		keyframes,
-		easing,
-	};
+	return status;
 };
 
 export const optimisticAddSequenceKeyframe = ({

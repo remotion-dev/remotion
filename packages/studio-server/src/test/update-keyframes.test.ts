@@ -206,7 +206,8 @@ export default CenteredSolid;
 		effects: [],
 	});
 	expect(status.props.width).toEqual({
-		canUpdate: false,
+		canUpdate: true,
+		codeValue: undefined,
 		reason: 'keyframed',
 		interpolationFunction: 'interpolate',
 		keyframes: [{frame: 11, value: 240}],

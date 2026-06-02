@@ -307,7 +307,15 @@ export const TimelineSequencePropItem: React.FC<{
 				selected={selection.selected}
 				label={field.description ?? field.key}
 			/>
-			{codeValue.canUpdate ? (
+			{codeValue.reason === 'keyframed' ? (
+				<div style={timelineFieldValueColumnStyle}>
+					<TimelineKeyframedValue
+						field={field}
+						propStatus={codeValue}
+						keyframeDisplayOffset={keyframeDisplayOffset}
+					/>
+				</div>
+			) : codeValue.canUpdate ? (
 				<div style={timelineFieldValueColumnStyle}>
 					<Value
 						field={field}
@@ -315,14 +323,6 @@ export const TimelineSequencePropItem: React.FC<{
 						validatedLocation={validatedLocation}
 						schema={schema}
 						codeValue={codeValue}
-					/>
-				</div>
-			) : codeValue.reason === 'keyframed' ? (
-				<div style={timelineFieldValueColumnStyle}>
-					<TimelineKeyframedValue
-						field={field}
-						propStatus={codeValue}
-						keyframeDisplayOffset={keyframeDisplayOffset}
 					/>
 				</div>
 			) : (

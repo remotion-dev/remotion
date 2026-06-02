@@ -75,19 +75,19 @@ const getCurrentKeyframeValue = ({
 	defaultValue: unknown;
 	dragOverrideValue: unknown;
 }): unknown | null => {
+	if (propStatus.reason === 'keyframed') {
+		return Internals.interpolateKeyframedStatus({
+			frame: jsxFrame,
+			status: propStatus,
+		});
+	}
+
 	if (propStatus.canUpdate) {
 		return Internals.getEffectiveVisualModeValue({
 			codeValue: propStatus,
 			dragOverrideValue,
 			defaultValue,
 			shouldResortToDefaultValueIfUndefined: true,
-		});
-	}
-
-	if (propStatus.reason === 'keyframed') {
-		return Internals.interpolateKeyframedStatus({
-			frame: jsxFrame,
-			status: propStatus,
 		});
 	}
 
@@ -109,11 +109,7 @@ export const shouldShowTimelineKeyframeControls = ({
 		return true;
 	}
 
-	return (
-		SELECTION_ENABLED &&
-		!propStatus.canUpdate &&
-		propStatus.reason === 'keyframed'
-	);
+	return SELECTION_ENABLED && propStatus.reason === 'keyframed';
 };
 
 export const TimelineKeyframeControls: React.FC<{
@@ -155,7 +151,7 @@ export const TimelineKeyframeControls: React.FC<{
 	);
 
 	const hasKeyframeAtCurrentFrame = useMemo(() => {
-		if (propStatus.canUpdate || propStatus.reason === 'computed') {
+		if (propStatus.reason !== 'keyframed') {
 			return false;
 		}
 
@@ -186,8 +182,7 @@ export const TimelineKeyframeControls: React.FC<{
 	const canAddKeyframe =
 		fieldSchema?.type !== 'scale' || typeof currentKeyframeValue === 'number';
 	const canToggleKeyframe =
-		(propStatus.canUpdate || propStatus.reason === 'keyframed') &&
-		(hasKeyframeAtCurrentFrame || canAddKeyframe);
+		propStatus.canUpdate && (hasKeyframeAtCurrentFrame || canAddKeyframe);
 
 	const seekToDisplayFrame = useCallback(
 		(frame: number) => {
@@ -227,11 +222,7 @@ export const TimelineKeyframeControls: React.FC<{
 				return;
 			}
 
-			if (
-				hasKeyframeAtCurrentFrame &&
-				!propStatus.canUpdate &&
-				propStatus.reason === 'keyframed'
-			) {
+			if (hasKeyframeAtCurrentFrame && propStatus.reason === 'keyframed') {
 				if (effectIndex === null) {
 					await callDeleteSequenceKeyframe({
 						fileName,

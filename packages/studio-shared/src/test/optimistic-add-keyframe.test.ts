@@ -29,7 +29,7 @@ test('optimisticAddSequenceKeyframe converts a static prop to a single keyframe'
 	}
 
 	const status = updated.props.opacity;
-	if (!status || status.canUpdate || status.reason !== 'keyframed') {
+	if (!status || !status.canUpdate || status.reason !== 'keyframed') {
 		throw new Error('expected keyframed status');
 	}
 
@@ -42,7 +42,8 @@ test('optimisticAddSequenceKeyframe appends a keyframe to an existing interpolat
 		canUpdate: true,
 		props: {
 			scale: {
-				canUpdate: false,
+				canUpdate: true,
+				codeValue: undefined,
 				reason: 'keyframed',
 				interpolationFunction: 'interpolate',
 				keyframes: [
@@ -69,7 +70,7 @@ test('optimisticAddSequenceKeyframe appends a keyframe to an existing interpolat
 	}
 
 	const status = updated.props.scale;
-	if (!status || status.canUpdate || status.reason !== 'keyframed') {
+	if (!status || !status.canUpdate || status.reason !== 'keyframed') {
 		throw new Error('expected keyframed status');
 	}
 
@@ -93,7 +94,8 @@ test('optimisticAddEffectKeyframe appends a keyframe on the target effect', () =
 				importPath: null,
 				props: {
 					amount: {
-						canUpdate: false,
+						canUpdate: true,
+						codeValue: undefined,
 						reason: 'keyframed',
 						interpolationFunction: 'interpolate',
 						keyframes: [{frame: 0, value: 0.2}],
@@ -124,7 +126,7 @@ test('optimisticAddEffectKeyframe appends a keyframe on the target effect', () =
 	}
 
 	const status = effect.props.amount;
-	if (!status || status.canUpdate || status.reason !== 'keyframed') {
+	if (!status || !status.canUpdate || status.reason !== 'keyframed') {
 		throw new Error('expected keyframed status');
 	}
 
@@ -172,7 +174,7 @@ test('optimisticAddEffectKeyframe converts a static prop to a single keyframe', 
 	}
 
 	const status = effect.props.amount;
-	if (!status || status.canUpdate || status.reason !== 'keyframed') {
+	if (!status || !status.canUpdate || status.reason !== 'keyframed') {
 		throw new Error('expected keyframed status');
 	}
 

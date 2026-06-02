@@ -5,7 +5,8 @@ test('interpolates linear numeric keyframes', () => {
 	const result = interpolateKeyframedStatus({
 		frame: 30,
 		status: {
-			canUpdate: false,
+			canUpdate: true,
+			codeValue: undefined,
 			reason: 'keyframed',
 			interpolationFunction: 'interpolate',
 			keyframes: [
@@ -24,7 +25,8 @@ test('clamps when extrapolation is clamp', () => {
 	const result = interpolateKeyframedStatus({
 		frame: 120,
 		status: {
-			canUpdate: false,
+			canUpdate: true,
+			codeValue: undefined,
 			reason: 'keyframed',
 			interpolationFunction: 'interpolate',
 			keyframes: [
@@ -43,7 +45,8 @@ test('posterizes the frame before interpolating numeric keyframes', () => {
 	const result = interpolateKeyframedStatus({
 		frame: 17,
 		status: {
-			canUpdate: false,
+			canUpdate: true,
+			codeValue: undefined,
 			reason: 'keyframed',
 			interpolationFunction: 'interpolate',
 			keyframes: [
@@ -62,7 +65,8 @@ test('returns single keyframe value', () => {
 	const result = interpolateKeyframedStatus({
 		frame: 100,
 		status: {
-			canUpdate: false,
+			canUpdate: true,
+			codeValue: undefined,
 			reason: 'keyframed',
 			interpolationFunction: 'interpolate',
 			keyframes: [{frame: 0, value: 7}],
@@ -78,7 +82,8 @@ test('interpolates colors', () => {
 	const result = interpolateKeyframedStatus({
 		frame: 30,
 		status: {
-			canUpdate: false,
+			canUpdate: true,
+			codeValue: undefined,
 			reason: 'keyframed',
 			interpolationFunction: 'interpolateColors',
 			keyframes: [
@@ -98,7 +103,8 @@ test('posterizes the frame before interpolating color keyframes', () => {
 	const result = interpolateKeyframedStatus({
 		frame: 17,
 		status: {
-			canUpdate: false,
+			canUpdate: true,
+			codeValue: undefined,
 			reason: 'keyframed',
 			interpolationFunction: 'interpolateColors',
 			keyframes: [
@@ -117,7 +123,8 @@ test('uses bezier easing', () => {
 	const result = interpolateKeyframedStatus({
 		frame: 30,
 		status: {
-			canUpdate: false,
+			canUpdate: true,
+			codeValue: undefined,
 			reason: 'keyframed',
 			interpolationFunction: 'interpolate',
 			keyframes: [
@@ -137,7 +144,8 @@ test('interpolates scale strings component-wise', () => {
 	const result = interpolateKeyframedStatus({
 		frame: 30,
 		status: {
-			canUpdate: false,
+			canUpdate: true,
+			codeValue: undefined,
 			reason: 'keyframed',
 			interpolationFunction: 'interpolate',
 			keyframes: [

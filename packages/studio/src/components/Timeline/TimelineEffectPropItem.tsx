@@ -183,22 +183,22 @@ const Value: React.FC<{
 		);
 	}
 
-	if (propStatus === null || !propStatus.canUpdate) {
-		if (propStatus?.reason === 'keyframed') {
-			return (
-				<TimelineKeyframedValue
-					field={field}
-					propStatus={propStatus}
-					keyframeDisplayOffset={keyframeDisplayOffset}
-				/>
-			);
-		}
-
-		if (propStatus?.reason === 'computed') {
-			return <UnsupportedStatus label={getComputedStatusLabel(propStatus)} />;
-		}
-
+	if (propStatus === null) {
 		return null;
+	}
+
+	if (propStatus.reason === 'keyframed') {
+		return (
+			<TimelineKeyframedValue
+				field={field}
+				propStatus={propStatus}
+				keyframeDisplayOffset={keyframeDisplayOffset}
+			/>
+		);
+	}
+
+	if (!propStatus.canUpdate) {
+		return <UnsupportedStatus label={getComputedStatusLabel(propStatus)} />;
 	}
 
 	const effectiveValue = Internals.getEffectiveVisualModeValue({

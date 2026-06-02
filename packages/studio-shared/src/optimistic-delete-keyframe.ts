@@ -10,10 +10,6 @@ const removeKeyframeFromPropStatus = ({
 	status: CanUpdateSequencePropStatus;
 	frame: number;
 }): CanUpdateSequencePropStatus => {
-	if (status.canUpdate) {
-		return status;
-	}
-
 	if (status.reason !== 'keyframed') {
 		return status;
 	}

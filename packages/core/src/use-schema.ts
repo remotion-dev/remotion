@@ -14,6 +14,7 @@ import type {
 export type CanUpdateSequencePropStatusTrue = {
 	canUpdate: true;
 	codeValue: unknown;
+	reason?: undefined;
 };
 
 export type CanUpdateSequencePropStatusKeyframe = {
@@ -40,7 +41,8 @@ export type CanUpdateSequencePropStatusComputed = {
 };
 
 export type CanUpdateSequencePropStatusKeyframed = {
-	canUpdate: false;
+	canUpdate: true;
+	codeValue: unknown;
 	reason: 'keyframed';
 	interpolationFunction: CanUpdateSequencePropStatusInterpolationFunction;
 	keyframes: CanUpdateSequencePropStatusKeyframe[];
@@ -50,11 +52,11 @@ export type CanUpdateSequencePropStatusKeyframed = {
 };
 
 export type CanUpdateSequencePropStatusFalse =
-	| CanUpdateSequencePropStatusComputed
-	| CanUpdateSequencePropStatusKeyframed;
+	CanUpdateSequencePropStatusComputed;
 
 export type CanUpdateSequencePropStatus =
 	| CanUpdateSequencePropStatusTrue
+	| CanUpdateSequencePropStatusKeyframed
 	| CanUpdateSequencePropStatusFalse;
 
 export type DragOverrides = Record<string, Record<string, unknown>>;
@@ -129,8 +131,11 @@ export const computeEffectiveSchemaValuesDotNotation = ({
 		let value: unknown;
 		if (codeValueStatus === null) {
 			value = currentValue[key];
-		} else if (codeValueStatus.canUpdate === false) {
-			if (codeValueStatus.reason === 'keyframed' && frame !== null) {
+		} else if (
+			'reason' in codeValueStatus &&
+			codeValueStatus.reason === 'keyframed'
+		) {
+			if (frame !== null) {
 				const interpolated = interpolateKeyframedStatus({
 					frame,
 					status: codeValueStatus,
@@ -139,6 +144,8 @@ export const computeEffectiveSchemaValuesDotNotation = ({
 			} else {
 				value = currentValue[key];
 			}
+		} else if (codeValueStatus.canUpdate === false) {
+			value = currentValue[key];
 		} else {
 			value = getEffectiveVisualModeValue({
 				codeValue: codeValueStatus,
