@@ -160,6 +160,7 @@ const sidebars: SidebarsConfig = {
 				'iframe',
 				'img',
 				'interpolate-colors',
+				'interpolate-translate',
 				'interpolate',
 				'loop',
 				'measure-spring',
