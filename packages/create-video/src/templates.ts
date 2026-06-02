@@ -45,7 +45,8 @@ export type Template = {
 		| 'recorder'
 		| 'prompt-to-motion-graphics'
 		| 'electron'
-		| 'vercel';
+		| 'vercel'
+		| 'athletes-eye';
 	defaultBranch: string;
 	featuredOnHomePage: string | null;
 	previewURL: string | null;
@@ -598,6 +599,30 @@ export const FEATURED_TEMPLATES: Template[] = [
 		previewLabel: null,
 		templateInMonorepo: 'template-tiktok',
 		allowEnableTailwind: true,
+		contributedBy: null,
+		showStackblitz: true,
+	},
+	{
+		homePageLabel: 'Athletes Eye',
+		shortName: 'Athletes Eye',
+		org: 'remotion-dev',
+		repoName: 'athletes-eye',
+		description: 'Visualize athletic performance with GPX data',
+		longerDescription:
+			'Create videos from GPS route data with animated maps, route visualization, and athletic statistics.',
+		promoVideo: {
+			muxId: 'BzwCAYgGPqNtLk301tsgWCDvuWVWfEvaO2bIo2lGEd300',
+			height: 1080,
+			width: 1080,
+		},
+		cliId: 'athletes-eye' as const,
+		type: 'video' as const,
+		defaultBranch: 'main',
+		featuredOnHomePage: null,
+		previewURL: null,
+		previewLabel: null,
+		templateInMonorepo: 'template-athletes-eye',
+		allowEnableTailwind: false,
 		contributedBy: null,
 		showStackblitz: true,
 	},

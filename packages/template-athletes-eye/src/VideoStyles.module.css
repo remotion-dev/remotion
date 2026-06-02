@@ -1,0 +1,54 @@
+@import url("https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,500;0,700;0,800;1,400;1,500;1,700;1,800&display=swap");
+
+.flexbox-container {
+    display: flex;
+    justify-content: space-between; /*centers on main axis (horizontal)*/
+    align-items: center; /*centers on cross axis (vertical)*/
+    font-size: 40px;
+    min-height: 280px;
+}
+
+.flexbox-hr {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    margin: 10px;
+    background-color: rgb(141, 141, 141, 0.3);
+    font-variant-numeric: tabular-nums;
+    text-transform: full-width;
+    border-radius: 20px;
+}
+
+.flexbox-speed {
+    display: flex;
+    margin: 10px;
+    background-color: rgb(141, 141, 141, 0.3);
+    justify-content: center;
+    border-radius: 20px;
+    background-color: rgb(141, 141, 141, 0.3);
+}
+
+.flexbox-elevation {
+    font-variant-numeric: tabular-nums;
+    display: flex;
+    justify-content: center;
+    margin: 10px;
+    background-color: rgb(141, 141, 141, 0.3);
+    text-transform: full-width;
+    border-radius: 20px;
+}
+
+.flexbox-time {
+    display: flex;
+    margin: 10px;
+    background-color: rgb(141, 141, 141, 0.3);
+    justify-content: center;
+    border-radius: 20px;
+}
+
+.flexbox-route {
+    display: flex;
+    margin: 10px;
+    justify-content: flex-end;
+    border-radius: 20px;
+}
