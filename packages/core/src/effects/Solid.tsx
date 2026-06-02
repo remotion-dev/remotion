@@ -10,6 +10,7 @@ import React, {
 import type {SequenceControls} from '../CompositionManager.js';
 import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
 import {
+	durationInFramesField,
 	hiddenField,
 	sequenceVisualStyleSchema,
 	type SequenceSchema,
@@ -45,6 +46,7 @@ type InnerSolidProps = MandatoryProps &
 export type SolidProps = MandatoryProps & Partial<OptionalProps>;
 
 const solidSchema = {
+	durationInFrames: durationInFramesField,
 	color: {
 		type: 'color',
 		default: 'transparent',

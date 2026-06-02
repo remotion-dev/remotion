@@ -14,6 +14,7 @@ import {usePreload} from './prefetch.js';
 import {
 	hiddenField,
 	sequenceVisualStyleSchema,
+	durationInFramesField,
 	type SequenceSchema,
 } from './sequence-field-schema.js';
 import type {SequenceProps} from './Sequence.js';
@@ -359,6 +360,7 @@ const CanvasImageWithPrivateProps = CanvasImage as React.ComponentType<
 >;
 
 export const imgSchema = {
+	durationInFrames: durationInFramesField,
 	...sequenceVisualStyleSchema,
 	hidden: hiddenField,
 } as const satisfies SequenceSchema;

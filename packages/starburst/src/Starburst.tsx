@@ -275,6 +275,7 @@ const StarburstCanvas: React.FC<{
  * @see [Documentation](https://www.remotion.dev/docs/starburst/starburst)
  */
 const starburstSchema = {
+	durationInFrames: Internals.durationInFramesField,
 	rays: {
 		type: 'number',
 		min: 2,

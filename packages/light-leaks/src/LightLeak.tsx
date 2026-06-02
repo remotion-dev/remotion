@@ -234,6 +234,7 @@ const LightLeakCanvas: React.FC<{
  * @see [Documentation](https://www.remotion.dev/docs/light-leaks/light-leak)
  */
 const lightLeakSchema = {
+	durationInFrames: Internals.durationInFramesField,
 	seed: {
 		type: 'number',
 		default: 0,

@@ -263,7 +263,7 @@ const TimelineSequenceInner: React.FC<{
 
 	const showRightEdgeDragHandle =
 		TIMELINE_TOP_DRAG &&
-		s.type === 'sequence' &&
+		(s.type === 'sequence' || s.type === 'image') &&
 		!s.loopDisplay &&
 		nodePath !== null &&
 		validatedLocation !== null &&

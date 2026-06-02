@@ -18,6 +18,7 @@ import {
 } from './effects/use-memoized-effects.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import {
+	durationInFramesField,
 	hiddenField,
 	sequenceVisualStyleSchema,
 } from './sequence-field-schema.js';
@@ -614,6 +615,7 @@ const HtmlInCanvasInner = forwardRef<
 HtmlInCanvasInner.displayName = 'HtmlInCanvas';
 
 const htmlInCanvasSchema = {
+	durationInFrames: durationInFramesField,
 	...sequenceVisualStyleSchema,
 	hidden: hiddenField,
 };

@@ -115,6 +115,7 @@ import {
 	useResolvedVideoConfig,
 } from './ResolveCompositionConfig.js';
 import {
+	durationInFramesField,
 	hiddenField,
 	sequencePremountSchema,
 	sequenceSchema,
@@ -377,6 +378,7 @@ export const Internals = {
 	getCodeValuesCtx,
 	getEffectCodeValuesCtx,
 	hiddenField,
+	durationInFramesField,
 } as const;
 
 export type {

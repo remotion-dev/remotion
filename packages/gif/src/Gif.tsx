@@ -18,6 +18,7 @@ const {
 	useMemoizedEffectDefinitions,
 	useMemoizedEffects,
 	wrapInSchema,
+	durationInFramesField,
 } = Internals;
 
 export type GifProps = Omit<
@@ -34,6 +35,7 @@ export type GifProps = Omit<
  * @see [Documentation](https://remotion.dev/docs/gif)
  */
 const gifSchema = {
+	durationInFrames: durationInFramesField,
 	playbackRate: {
 		type: 'number',
 		min: 0,

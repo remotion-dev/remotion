@@ -159,15 +159,17 @@ export const hiddenField: SequenceFieldSchema = {
 	description: 'Hidden',
 };
 
+export const durationInFramesField = {
+	type: 'number',
+	default: undefined,
+	min: 1,
+	step: 1,
+	hiddenFromList: true,
+} as const satisfies SequenceFieldSchema;
+
 export const sequenceSchema = {
 	hidden: hiddenField,
-	durationInFrames: {
-		type: 'number',
-		default: undefined,
-		min: 1,
-		step: 1,
-		hiddenFromList: true,
-	},
+	durationInFrames: durationInFramesField,
 	layout: {
 		type: 'enum',
 		default: 'absolute-fill',
