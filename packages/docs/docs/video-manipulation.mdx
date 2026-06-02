@@ -68,38 +68,9 @@ export const VideoOnCanvas: React.FC = () => {
 };
 ```
 
-## Greenscreen example
+## Alternative: Effects
 
-Use [`colorKey()`](/docs/effects/color-key) to remove the green background from a video.  
-Drag the slider below to adjust the similarity.
-
-`colorKey()` uses WebGL2. During rendering, enable WebGL using [`Config.setChromiumOpenGlRenderer()`](/docs/config#setchromiumopenglrenderer).
-
-<VideoCanvasExamples type="greenscreen" />
-<br />
-
-```tsx twoslash title="MyComp.tsx"
-import {colorKey} from '@remotion/effects/color-key';
-import {Video} from '@remotion/media';
-import React from 'react';
-import {AbsoluteFill} from 'remotion';
-
-// ---cut---
-export const Greenscreen: React.FC = () => {
-  return (
-    <AbsoluteFill>
-      <Video
-        src="https://remotion.media/greenscreen.mp4"
-        effects={[
-          colorKey({
-            similarity: 0.37,
-          }),
-        ]}
-      />
-    </AbsoluteFill>
-  );
-};
-```
+You can also apply effects to canvas-based components such as [`<Video>`](/docs/media/video) using [`@remotion/effects`](/docs/effects/api). For example, [`colorKey()`](/docs/effects/color-key) removes a chosen color — see the [Greenscreen](/docs/greenscreen) page.
 
 ## Before v4.0.190
 

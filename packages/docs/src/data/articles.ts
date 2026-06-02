@@ -2367,6 +2367,15 @@ export const articles = [
 		slug: 'gpu',
 	},
 	{
+		id: 'greenscreen',
+		title: 'Greenscreen',
+		relativePath: 'docs/greenscreen.mdx',
+		compId: 'articles-docs-greenscreen',
+		crumb: 'How To',
+		noAi: false,
+		slug: 'greenscreen',
+	},
+	{
 		id: 'hardware-acceleration',
 		title: 'Hardware accelerated encoding',
 		relativePath: 'docs/hardware-acceleration.mdx',

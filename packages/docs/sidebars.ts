@@ -1023,6 +1023,7 @@ const sidebars: SidebarsConfig = {
 				'videos/sequence',
 				'videos/transparency',
 				'video-manipulation',
+				'greenscreen',
 				'miscellaneous/snippets/accelerated-video',
 				'miscellaneous/snippets/jumpcuts',
 				'miscellaneous/snippets/freeze-portions',
