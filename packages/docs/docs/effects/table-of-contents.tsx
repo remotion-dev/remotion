@@ -42,7 +42,7 @@ const categories: {
 				preview: '/img/effects-color-key-preview.png',
 				alt: 'color key effect preview',
 				name: 'colorKey()',
-				description: 'Remove a keyed color range',
+				description: 'Remove a key color (greenscreen)',
 			},
 			{
 				link: '/docs/effects/duotone',

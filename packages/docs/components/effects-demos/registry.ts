@@ -109,6 +109,8 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/color-key',
 		comp: EffectsColorKeyPreview,
 		schema: colorKey().definition.schema,
+		durationInFrames: 150,
+		autoPlay: true,
 	},
 	{
 		...defaults,

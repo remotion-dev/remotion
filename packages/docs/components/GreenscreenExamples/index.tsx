@@ -1,55 +1,22 @@
+import {colorKey} from '@remotion/effects/color-key';
+import {Video} from '@remotion/media';
 import {Player} from '@remotion/player';
 import React, {useCallback, useRef, useState} from 'react';
 import {AbsoluteFill, OffthreadVideo, useVideoConfig} from 'remotion';
 
 export const Greenscreen: React.FC<{
-	readonly opacity: number;
-}> = ({opacity}) => {
-	const canvas = useRef<HTMLCanvasElement>(null);
-	const {width, height} = useVideoConfig();
-
-	const onVideoFrame = useCallback(
-		(frame: CanvasImageSource) => {
-			if (!canvas.current) {
-				return;
-			}
-
-			const context = canvas.current.getContext('2d');
-
-			if (!context) {
-				return;
-			}
-
-			context.drawImage(frame, 0, 0, width, height);
-			const imageFrame = context.getImageData(0, 0, width, height);
-			const {length} = imageFrame.data;
-
-			for (let i = 0; i < length; i += 4) {
-				const red = imageFrame.data[i + 0];
-				const green = imageFrame.data[i + 1];
-				const blue = imageFrame.data[i + 2];
-				if (green > 100 && red < 100 && blue < 100) {
-					imageFrame.data[i + 3] = opacity * 255;
-				}
-			}
-
-			context.putImageData(imageFrame, 0, 0);
-		},
-		[height, opacity, width],
-	);
-
+	readonly similarity: number;
+}> = ({similarity}) => {
 	return (
 		<AbsoluteFill>
-			<AbsoluteFill>
-				<OffthreadVideo
-					style={{opacity: 0}}
-					onVideoFrame={onVideoFrame}
-					src="https://remotion.media/greenscreen.mp4"
-				/>
-			</AbsoluteFill>
-			<AbsoluteFill>
-				<canvas ref={canvas} width={width} height={height} />
-			</AbsoluteFill>
+			<Video
+				src="https://remotion.media/greenscreen.mp4"
+				effects={[
+					colorKey({
+						similarity,
+					}),
+				]}
+			/>
 		</AbsoluteFill>
 	);
 };
@@ -103,7 +70,7 @@ export const VideoCanvasExamples: React.FC<{
 
 		return VideoOnCanvas;
 	})();
-	const [effect, setEffect] = useState(0);
+	const [similarity, setSimilarity] = useState(0.37);
 	return (
 		<div>
 			<Player
@@ -120,7 +87,7 @@ export const VideoCanvasExamples: React.FC<{
 				}}
 				loop
 				inputProps={{
-					opacity: 1 - effect,
+					similarity,
 				}}
 			/>
 			{type === 'greenscreen' ? (
@@ -133,14 +100,14 @@ export const VideoCanvasExamples: React.FC<{
 							display: 'flex',
 						}}
 					>
-						Slide to adjust transparency:
+						Slide to adjust similarity:
 						<input
-							onChange={(e) => setEffect(Number(e.target.value))}
+							onChange={(e) => setSimilarity(Number(e.target.value))}
 							type="range"
-							min={0}
+							min={0.1}
 							max={1}
 							step={1 / 255}
-							value={effect}
+							value={similarity}
 							style={{marginLeft: 10}}
 						/>
 					</div>

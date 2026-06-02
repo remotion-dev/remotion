@@ -11,7 +11,7 @@ export const Greenscreen: React.FC = () => {
 					src="https://remotion.media/greenscreen.mp4"
 					effects={[
 						colorKey({
-							threshold: 0.37,
+							similarity: 0.37,
 						}),
 					]}
 				/>

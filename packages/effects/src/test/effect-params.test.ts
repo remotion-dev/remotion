@@ -294,54 +294,76 @@ test('colorKey() accepts default params', () => {
 	expect(() => colorKey()).not.toThrow();
 });
 
-test('colorKey() rejects empty color strings', () => {
-	expect(() => colorKey({color: ''})).toThrow(
-		'"color" must be a non-empty string, but got ""',
+test('colorKey() rejects empty keyColor strings', () => {
+	expect(() => colorKey({keyColor: ''})).toThrow(
+		'"keyColor" must be a non-empty string, but got ""',
 	);
 });
 
-test('colorKey() rejects non-finite threshold', () => {
-	expect(() => colorKey({threshold: Number.NaN})).toThrow(
-		'"threshold" must be a finite number',
+test('colorKey() rejects non-finite similarity', () => {
+	expect(() => colorKey({similarity: Number.NaN})).toThrow(
+		'"similarity" must be a finite number',
 	);
 });
 
-test('colorKey() rejects threshold below range', () => {
-	expect(() => colorKey({threshold: -0.1})).toThrow('"threshold" must be >= 0');
-});
-
-test('colorKey() rejects threshold above range', () => {
-	expect(() => colorKey({threshold: 1.1})).toThrow('"threshold" must be <= 1');
-});
-
-test('colorKey() rejects non-finite feather', () => {
-	expect(() => colorKey({feather: Number.NaN})).toThrow(
-		'"feather" must be a finite number',
+test('colorKey() rejects similarity below range', () => {
+	expect(() => colorKey({similarity: -0.1})).toThrow(
+		'"similarity" must be >= 0',
 	);
 });
 
-test('colorKey() rejects feather below range', () => {
-	expect(() => colorKey({feather: -0.1})).toThrow('"feather" must be >= 0');
+test('colorKey() rejects similarity above range', () => {
+	expect(() => colorKey({similarity: 1.1})).toThrow(
+		'"similarity" must be <= 1',
+	);
 });
 
-test('colorKey() rejects feather above range', () => {
-	expect(() => colorKey({feather: 1.1})).toThrow('"feather" must be <= 1');
+test('colorKey() rejects non-finite smoothness', () => {
+	expect(() => colorKey({smoothness: Number.NaN})).toThrow(
+		'"smoothness" must be a finite number',
+	);
+});
+
+test('colorKey() rejects smoothness below range', () => {
+	expect(() => colorKey({smoothness: -0.1})).toThrow(
+		'"smoothness" must be >= 0',
+	);
+});
+
+test('colorKey() rejects smoothness above range', () => {
+	expect(() => colorKey({smoothness: 1.1})).toThrow(
+		'"smoothness" must be <= 1',
+	);
+});
+
+test('colorKey() rejects spillSuppression below range', () => {
+	expect(() => colorKey({spillSuppression: -0.1})).toThrow(
+		'"spillSuppression" must be >= 0',
+	);
+});
+
+test('colorKey() rejects spillSuppression above range', () => {
+	expect(() => colorKey({spillSuppression: 1.1})).toThrow(
+		'"spillSuppression" must be <= 1',
+	);
 });
 
 test('colorKey() parameters produce distinct effect keys', () => {
 	const defaults = colorKey();
-	const blue = colorKey({color: '#0000ff'});
-	const tighterThreshold = colorKey({threshold: 0.1});
-	const softerEdges = colorKey({feather: 0.3});
+	const blue = colorKey({keyColor: '#0000ff'});
+	const tighterSimilarity = colorKey({similarity: 0.1});
+	const softerEdges = colorKey({smoothness: 0.3});
+	const moreSpill = colorKey({spillSuppression: 0.5});
 
 	expect(
 		new Set([
 			defaults.effectKey,
 			blue.effectKey,
-			tighterThreshold.effectKey,
+			tighterSimilarity.effectKey,
 			softerEdges.effectKey,
+			moreSpill.effectKey,
 		]).size,
-	).toBe(4);
+	).toBe(5);
 });
 
 test('tint() throws when color is not passed', () => {

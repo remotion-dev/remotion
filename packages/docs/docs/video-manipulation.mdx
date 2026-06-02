@@ -70,79 +70,32 @@ export const VideoOnCanvas: React.FC = () => {
 
 ## Greenscreen example
 
-In this example, we loop over each pixel in the image buffer and if it's green, we transparentize it. Drag the slider below to turn the video transparent.
+Use [`colorKey()`](/docs/effects/color-key) to remove the green background from a video.  
+Drag the slider below to adjust the similarity.
+
+`colorKey()` uses WebGL2. During rendering, enable WebGL using [`Config.setChromiumOpenGlRenderer()`](/docs/config#setchromiumopenglrenderer).
 
 <VideoCanvasExamples type="greenscreen" />
 <br />
 
-```tsx twoslash
-declare global {
-  interface VideoFrameMetadata {
-    presentationTime: DOMHighResTimeStamp;
-    expectedDisplayTime: DOMHighResTimeStamp;
-    width: number;
-    height: number;
-    mediaTime: number;
-    presentedFrames: number;
-    processingDuration?: number;
-    captureTime?: DOMHighResTimeStamp;
-    receiveTime?: DOMHighResTimeStamp;
-    rtpTimestamp?: number;
-  }
-  type VideoFrameRequestCallbackId = number;
-  interface HTMLVideoElement extends HTMLMediaElement {
-    requestVideoFrameCallback(callback: (now: DOMHighResTimeStamp, metadata: VideoFrameMetadata) => any): VideoFrameRequestCallbackId;
-    cancelVideoFrameCallback(handle: VideoFrameRequestCallbackId): void;
-  }
-}
-import React, {useCallback, useEffect, useRef} from 'react';
-import {AbsoluteFill, useVideoConfig, OffthreadVideo} from 'remotion';
+```tsx twoslash title="MyComp.tsx"
+import {colorKey} from '@remotion/effects/color-key';
+import {Video} from '@remotion/media';
+import React from 'react';
+import {AbsoluteFill} from 'remotion';
 
 // ---cut---
-export const Greenscreen: React.FC<{
-  opacity: number;
-}> = ({opacity}) => {
-  const canvas = useRef<HTMLCanvasElement>(null);
-  const {width, height} = useVideoConfig();
-
-  // Process a frame
-  const onVideoFrame = useCallback(
-    (frame: CanvasImageSource) => {
-      if (!canvas.current) {
-        return;
-      }
-      const context = canvas.current.getContext('2d');
-
-      if (!context) {
-        return;
-      }
-
-      context.drawImage(frame, 0, 0, width, height);
-      const imageFrame = context.getImageData(0, 0, width, height);
-      const {length} = imageFrame.data;
-
-      // If the pixel is very green, reduce the alpha channel
-      for (let i = 0; i < length; i += 4) {
-        const red = imageFrame.data[i + 0];
-        const green = imageFrame.data[i + 1];
-        const blue = imageFrame.data[i + 2];
-        if (green > 100 && red < 100 && blue < 100) {
-          imageFrame.data[i + 3] = opacity * 255;
-        }
-      }
-      context.putImageData(imageFrame, 0, 0);
-    },
-    [height, width],
-  );
-
+export const Greenscreen: React.FC = () => {
   return (
     <AbsoluteFill>
-      <AbsoluteFill>
-        <OffthreadVideo style={{opacity: 0}} onVideoFrame={onVideoFrame} src="https://remotion.media/greenscreen.mp4" />
-      </AbsoluteFill>
-      <AbsoluteFill>
-        <canvas ref={canvas} width={width} height={height} />
-      </AbsoluteFill>
+      <Video
+        src="https://remotion.media/greenscreen.mp4"
+        effects={[
+          colorKey({
+            similarity: 0.37,
+          }),
+        ]}
+      />
     </AbsoluteFill>
   );
 };
