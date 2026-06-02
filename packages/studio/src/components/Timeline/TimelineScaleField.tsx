@@ -35,8 +35,8 @@ const toggleStyle: React.CSSProperties = {
 };
 
 const linkIconStyle: React.CSSProperties = {
-	width: 12,
-	height: 12,
+	width: 14,
+	height: 14,
 	pointerEvents: 'none',
 };
 
@@ -116,28 +116,18 @@ const LinkToggle: React.FC<{
 			title={linked ? 'Unlink scale axes' : 'Link scale axes'}
 			aria-label={linked ? 'Unlink scale axes' : 'Link scale axes'}
 		>
-			<svg viewBox="0 0 16 16" fill="none" style={linkIconStyle}>
-				<path
-					d="M6.3 5.1L5.1 6.3C4.2 7.2 4.2 8.8 5.1 9.7C6 10.6 7.6 10.6 8.5 9.7L9.7 8.5"
-					stroke="currentColor"
-					strokeWidth="1.5"
-					strokeLinecap="round"
-				/>
-				<path
-					d="M9.7 10.9L10.9 9.7C11.8 8.8 11.8 7.2 10.9 6.3C10 5.4 8.4 5.4 7.5 6.3L6.3 7.5"
-					stroke="currentColor"
-					strokeWidth="1.5"
-					strokeLinecap="round"
-				/>
-				{linked ? null : (
+			{linked ? (
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					viewBox="0 0 640 640"
+					style={linkIconStyle}
+				>
 					<path
-						d="M3 13L13 3"
-						stroke="currentColor"
-						strokeWidth="1.5"
-						strokeLinecap="round"
+						fill="currentcolor"
+						d="M32 320C32 214 118 128 224 128L288 128L288 192L224 192C153.3 192 96 249.3 96 320C96 390.7 153.3 448 224 448L288 448L288 512L224 512C118 512 32 426 32 320zM608 320C608 426 522 512 416 512L352 512L352 448L416 448C486.7 448 544 390.7 544 320C544 249.3 486.7 192 416 192L352 192L352 128L416 128C522 128 608 214 608 320zM224 288L448 288L448 352L192 352L192 288L224 288z"
 					/>
-				)}
-			</svg>
+				</svg>
+			) : null}
 		</button>
 	);
 };
