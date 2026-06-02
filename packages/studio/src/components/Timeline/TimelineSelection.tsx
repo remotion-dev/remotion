@@ -17,6 +17,7 @@ import type {
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {timelineNodePathInfoToKey} from '../../helpers/timeline-node-path-key';
 import {useKeybinding} from '../../helpers/use-keybinding';
+import {TimelineClipboardKeybindings} from './TimelineClipboardKeybindings';
 import {TimelineDeleteKeybindings} from './TimelineDeleteKeybindings';
 
 export const TIMELINE_SELECTED_BACKGROUND = '#3B3F42';
@@ -579,6 +580,7 @@ export const TimelineSelectionProvider: React.FC<{
 		<CurrentTimelineSelectionContext.Provider value={currentSelection}>
 			<TimelineSelectionContext.Provider value={value}>
 				{children}
+				<TimelineClipboardKeybindings />
 				<TimelineDeleteKeybindings />
 			</TimelineSelectionContext.Provider>
 		</CurrentTimelineSelectionContext.Provider>

@@ -17,6 +17,7 @@ import {insertJsxElementHandler} from './routes/insert-jsx-element';
 import {handleInstallPackage} from './routes/install-dependency';
 import {openInEditorHandler} from './routes/open-in-editor';
 import {handleOpenInFileExplorer} from './routes/open-in-file-explorer';
+import {pasteEffectsHandler} from './routes/paste-effects';
 import {projectInfoHandler} from './routes/project-info';
 import {redoHandler} from './routes/redo';
 import {registerClientRenderHandler} from './routes/register-client-render';
@@ -67,6 +68,7 @@ export const allApiRoutes: {
 	'/api/add-sequence-keyframe': addSequenceKeyframeHandler,
 	'/api/add-effect-keyframe': addEffectKeyframeHandler,
 	'/api/delete-effect': deleteEffectHandler,
+	'/api/paste-effects': pasteEffectsHandler,
 	'/api/delete-jsx-node': deleteJsxNodeHandler,
 	'/api/duplicate-jsx-node': duplicateJsxNodeHandler,
 	'/api/update-available': handleUpdate,

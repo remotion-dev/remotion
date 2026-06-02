@@ -22,6 +22,10 @@ import type {
 	SequenceSchema,
 } from 'remotion';
 import type {RecastCodemod, VisualControlChange} from './codemods';
+import type {
+	EffectClipboardPasteType,
+	EffectClipboardSource,
+} from './effect-clipboard-data';
 import type {PackageManager} from './package-manager';
 import type {ProjectInfo} from './project-info';
 import type {
@@ -435,6 +439,24 @@ export type DeleteEffectResponse =
 			stack: string;
 	  };
 
+export type PasteEffectsRequest = {
+	targetFileName: string;
+	targetSequenceNodePath: SequencePropsSubscriptionKey;
+	type: EffectClipboardPasteType;
+	sources: EffectClipboardSource[];
+	clientId: string;
+};
+
+export type PasteEffectsResponse =
+	| {
+			success: true;
+	  }
+	| {
+			success: false;
+			reason: string;
+			stack: string;
+	  };
+
 export type DeleteJsxNodeRequestItem = {
 	fileName: string;
 	nodePath: SequenceNodePath;
@@ -600,6 +622,7 @@ export type ApiRoutes = {
 		AddEffectKeyframeResponse
 	>;
 	'/api/delete-effect': ReqAndRes<DeleteEffectRequest, DeleteEffectResponse>;
+	'/api/paste-effects': ReqAndRes<PasteEffectsRequest, PasteEffectsResponse>;
 	'/api/delete-jsx-node': ReqAndRes<
 		DeleteJsxNodeRequest,
 		DeleteJsxNodeResponse

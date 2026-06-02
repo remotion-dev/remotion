@@ -1,9 +1,9 @@
 export {splitAnsi, stripAnsi} from './ansi';
 export {
-	AddEffectRequest,
-	AddEffectResponse,
 	AddEffectKeyframeRequest,
 	AddEffectKeyframeResponse,
+	AddEffectRequest,
+	AddEffectResponse,
 	AddRenderRequest,
 	AddSequenceKeyframeRequest,
 	AddSequenceKeyframeResponse,
@@ -33,14 +33,16 @@ export {
 	DeleteStaticFileResponse,
 	DuplicateJsxNodeRequest,
 	DuplicateJsxNodeResponse,
-	InstallPackageRequest,
-	InstallPackageResponse,
-	InsertableCompositionElement,
 	InsertJsxElementRequest,
 	InsertJsxElementResponse,
+	InsertableCompositionElement,
+	InstallPackageRequest,
+	InstallPackageResponse,
 	OpenInEditorRequest,
 	OpenInEditorResponse,
 	OpenInFileExplorerRequest,
+	PasteEffectsRequest,
+	PasteEffectsResponse,
 	ProjectInfoRequest,
 	ProjectInfoResponse,
 	RedoRequest,
@@ -75,6 +77,13 @@ export {
 } from './api-requests';
 export type {ApplyVisualControlCodemod, RecastCodemod} from './codemods';
 export {DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS} from './default-buffer-state-delay-in-milliseconds';
+export {
+	EFFECT_CLIPBOARD_MIME_TYPE,
+	parseEffectClipboardData,
+	type EffectClipboardData,
+	type EffectClipboardPasteType,
+	type EffectClipboardSource,
+} from './effect-clipboard-data';
 export {
 	EFFECT_DRAG_MIME_TYPE,
 	parseEffectDragData,
