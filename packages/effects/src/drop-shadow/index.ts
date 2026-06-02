@@ -33,18 +33,21 @@ const dropShadowSchema = {
 		step: 1,
 		default: DEFAULT_RADIUS,
 		description: 'Radius',
+		hiddenFromList: false,
 	},
 	offsetX: {
 		type: 'number',
 		step: 1,
 		default: DEFAULT_OFFSET_X,
 		description: 'Offset X',
+		hiddenFromList: false,
 	},
 	offsetY: {
 		type: 'number',
 		step: 1,
 		default: DEFAULT_OFFSET_Y,
 		description: 'Offset Y',
+		hiddenFromList: false,
 	},
 	opacity: {
 		type: 'number',
@@ -53,6 +56,7 @@ const dropShadowSchema = {
 		step: 0.01,
 		default: DEFAULT_OPACITY,
 		description: 'Opacity',
+		hiddenFromList: false,
 	},
 	color: {
 		type: 'color',

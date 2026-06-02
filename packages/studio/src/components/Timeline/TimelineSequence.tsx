@@ -1,4 +1,4 @@
-import React, {useCallback, useContext, useMemo, useState} from 'react';
+import React, {useCallback, useContext, useMemo} from 'react';
 import type {TSequence} from 'remotion';
 import {Internals, useCurrentFrame} from 'remotion';
 import {BLUE} from '../../helpers/colors';
@@ -183,10 +183,6 @@ const TimelineSequenceInner: React.FC<{
 	const maxMediaDuration = useMaxMediaDuration(s, video?.fps ?? 30);
 	const effectiveMaxMediaDuration = s.loopDisplay ? null : maxMediaDuration;
 
-	const [localDurationOverride, setLocalDurationOverride] = useState<
-		number | null
-	>(null);
-
 	const originalLocation = useResolveStackAndReactToChange(s.getStack);
 	const validatedLocation = useMemo(() => {
 		if (
@@ -219,12 +215,9 @@ const TimelineSequenceInner: React.FC<{
 		throw new TypeError('Expected video config');
 	}
 
-	const effectiveSequenceDuration =
-		localDurationOverride !== null ? localDurationOverride : s.duration;
-
 	const displayDurationInFrames = s.loopDisplay
 		? s.loopDisplay.durationInFrames * s.loopDisplay.numberOfTimes
-		: effectiveSequenceDuration;
+		: s.duration;
 
 	const {marginLeft, width, naturalWidth, premountWidth, postmountWidth} =
 		useMemo(() => {
@@ -327,8 +320,7 @@ const TimelineSequenceInner: React.FC<{
 				<TimelineSequenceRightEdgeDragHandle
 					nodePath={nodePath}
 					validatedLocation={validatedLocation}
-					currentDurationInFrames={effectiveSequenceDuration}
-					onLocalDurationChange={setLocalDurationOverride}
+					currentDurationInFrames={s.duration}
 					windowWidth={windowWidth}
 					timelineDurationInFrames={video.durationInFrames ?? 1}
 				/>

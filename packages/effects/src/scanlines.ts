@@ -23,6 +23,7 @@ const scanlinesSchema = {
 		step: 0.01,
 		default: DEFAULT_AMOUNT,
 		description: 'Amount',
+		hiddenFromList: false,
 	},
 	spacing: {
 		type: 'number',
@@ -31,6 +32,7 @@ const scanlinesSchema = {
 		step: 0.1,
 		default: DEFAULT_SPACING,
 		description: 'Spacing',
+		hiddenFromList: false,
 	},
 	thickness: {
 		type: 'number',
@@ -39,12 +41,14 @@ const scanlinesSchema = {
 		step: 0.1,
 		default: DEFAULT_THICKNESS,
 		description: 'Thickness',
+		hiddenFromList: false,
 	},
 	offset: {
 		type: 'number',
 		step: 0.1,
 		default: DEFAULT_OFFSET,
 		description: 'Offset',
+		hiddenFromList: false,
 	},
 	premultiply: {
 		type: 'boolean',

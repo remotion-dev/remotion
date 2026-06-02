@@ -23,6 +23,7 @@ export const halftoneSchema = {
 		step: 1,
 		default: 20,
 		description: 'Dot size',
+		hiddenFromList: false,
 	},
 	dotSpacing: {
 		type: 'number',
@@ -31,6 +32,7 @@ export const halftoneSchema = {
 		step: 1,
 		default: 20,
 		description: 'Dot spacing',
+		hiddenFromList: false,
 	},
 	rotation: {
 		type: 'number',
@@ -39,18 +41,21 @@ export const halftoneSchema = {
 		step: 1,
 		default: 0,
 		description: 'Rotation',
+		hiddenFromList: false,
 	},
 	offsetX: {
 		type: 'number',
 		step: 1,
 		default: 0,
 		description: 'Offset X',
+		hiddenFromList: false,
 	},
 	offsetY: {
 		type: 'number',
 		step: 1,
 		default: 0,
 		description: 'Offset Y',
+		hiddenFromList: false,
 	},
 	shape: {
 		type: 'enum',

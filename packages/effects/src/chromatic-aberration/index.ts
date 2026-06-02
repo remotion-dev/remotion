@@ -25,12 +25,14 @@ const chromaticAberrationSchema = {
 		step: 1,
 		default: DEFAULT_CHROMATIC_ABERRATION_AMOUNT,
 		description: 'Amount',
+		hiddenFromList: false,
 	},
 	angle: {
 		type: 'number',
 		step: 1,
 		default: DEFAULT_CHROMATIC_ABERRATION_ANGLE,
 		description: 'Angle',
+		hiddenFromList: false,
 	},
 } as const satisfies SequenceSchema;
 

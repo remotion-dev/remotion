@@ -30,6 +30,7 @@ export const vignetteSchema = {
 		step: 0.01,
 		default: DEFAULT_AMOUNT,
 		description: 'Amount',
+		hiddenFromList: false,
 	},
 	radius: {
 		type: 'number',
@@ -38,6 +39,7 @@ export const vignetteSchema = {
 		step: 0.01,
 		default: DEFAULT_RADIUS,
 		description: 'Radius',
+		hiddenFromList: false,
 	},
 	feather: {
 		type: 'number',
@@ -46,6 +48,7 @@ export const vignetteSchema = {
 		step: 0.01,
 		default: DEFAULT_FEATHER,
 		description: 'Feather',
+		hiddenFromList: false,
 	},
 	roundness: {
 		type: 'number',
@@ -54,6 +57,7 @@ export const vignetteSchema = {
 		step: 0.01,
 		default: DEFAULT_ROUNDNESS,
 		description: 'Roundness',
+		hiddenFromList: false,
 	},
 	color: {
 		type: 'color',

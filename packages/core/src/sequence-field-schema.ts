@@ -9,6 +9,7 @@ export type NumberFieldSchema = {
 	step?: number;
 	default: number | undefined;
 	description?: string;
+	hiddenFromList: boolean;
 };
 
 export type BooleanFieldSchema = {
@@ -109,6 +110,7 @@ export const sequenceVisualStyleSchema = {
 		step: 0.01,
 		default: 1,
 		description: 'Opacity',
+		hiddenFromList: false,
 	},
 } as const satisfies SequenceSchema;
 
@@ -119,9 +121,14 @@ export const sequencePremountSchema = {
 		description: 'Premount For',
 		min: 0,
 		step: 1,
+		hiddenFromList: false,
 	},
 	postmountFor: {
-		type: 'hidden',
+		type: 'number',
+		default: 0,
+		min: 0,
+		step: 1,
+		hiddenFromList: true,
 	},
 	styleWhilePremounted: {
 		type: 'hidden',
@@ -135,7 +142,11 @@ export const sequenceStyleSchema = {
 	...sequenceVisualStyleSchema,
 	...sequencePremountSchema,
 	durationInFrames: {
-		type: 'hidden',
+		type: 'number',
+		default: undefined,
+		min: 1,
+		step: 1,
+		hiddenFromList: true,
 	},
 } as const satisfies SequenceSchema;
 

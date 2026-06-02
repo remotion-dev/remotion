@@ -20,12 +20,14 @@ const noiseSchema = {
 		step: 0.01,
 		default: DEFAULT_AMOUNT,
 		description: 'Amount',
+		hiddenFromList: false,
 	},
 	seed: {
 		type: 'number',
 		step: 1,
 		default: DEFAULT_SEED,
 		description: 'Seed',
+		hiddenFromList: false,
 	},
 	premultiply: {
 		type: 'boolean',

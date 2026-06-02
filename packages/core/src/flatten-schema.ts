@@ -11,6 +11,8 @@ export const flattenActiveSchema = (
 		const field = schema[key];
 		if (field.type === 'hidden') {
 			continue;
+		} else if (field.type === 'number' && field.hiddenFromList) {
+			continue;
 		} else if (field.type === 'enum') {
 			out[key] = field;
 			const current = (resolve(key) as string | undefined) ?? field.default;

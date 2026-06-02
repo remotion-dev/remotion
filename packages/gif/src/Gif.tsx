@@ -41,6 +41,7 @@ const gifSchema = {
 		step: 0.1,
 		default: 1,
 		description: 'Playback Rate',
+		hiddenFromList: false,
 	},
 	...Internals.sequenceVisualStyleSchema,
 	hidden: Internals.hiddenField,

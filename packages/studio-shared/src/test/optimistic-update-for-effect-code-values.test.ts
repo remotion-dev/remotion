@@ -24,7 +24,7 @@ test('optimisticUpdateForEffectCodeValues updates the matching effect prop', () 
 		effectIndex: 0,
 		fieldKey: 'opacity',
 		value: 0.8,
-		schema: {opacity: {type: 'number', default: 1}},
+		schema: {opacity: {type: 'number', default: 1, hiddenFromList: false}},
 	});
 
 	if (!updated.canUpdate) {
@@ -51,7 +51,7 @@ test('optimisticUpdateForEffectCodeValues is a no-op when sequence is not update
 		effectIndex: 0,
 		fieldKey: 'opacity',
 		value: 0.8,
-		schema: {opacity: {type: 'number', default: 1}},
+		schema: {opacity: {type: 'number', default: 1, hiddenFromList: false}},
 	});
 
 	expect(result).toBe(previous);
@@ -69,7 +69,7 @@ test('optimisticUpdateForEffectCodeValues is a no-op when effect index not found
 		effectIndex: 0,
 		fieldKey: 'opacity',
 		value: 0.8,
-		schema: {opacity: {type: 'number', default: 1}},
+		schema: {opacity: {type: 'number', default: 1, hiddenFromList: false}},
 	});
 
 	expect(result).toBe(previous);
@@ -96,7 +96,7 @@ test('optimisticUpdateForEffectCodeValues applies when effect props are unset (z
 		effectIndex: 0,
 		fieldKey: 'amount',
 		value: 0.5,
-		schema: {amount: {type: 'number', default: 1}},
+		schema: {amount: {type: 'number', default: 1, hiddenFromList: false}},
 	});
 
 	if (!updated.canUpdate) {

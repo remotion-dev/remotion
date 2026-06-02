@@ -12,6 +12,7 @@ export const colorAmountSchema = {
 	step: 0.01,
 	default: DEFAULT_AMOUNT,
 	description: 'Amount',
+	hiddenFromList: false,
 } as const satisfies SequenceSchema['amount'];
 
 export const colorMultiplierSchema = {
@@ -20,6 +21,7 @@ export const colorMultiplierSchema = {
 	step: 0.01,
 	default: DEFAULT_AMOUNT,
 	description: 'Amount',
+	hiddenFromList: false,
 } as const satisfies SequenceSchema['amount'];
 
 export const brightnessAmountSchema = {
@@ -29,6 +31,7 @@ export const brightnessAmountSchema = {
 	step: 0.01,
 	default: DEFAULT_BRIGHTNESS_AMOUNT,
 	description: 'Amount',
+	hiddenFromList: false,
 } as const satisfies SequenceSchema['amount'];
 
 export const hueDegreesSchema = {
@@ -36,6 +39,7 @@ export const hueDegreesSchema = {
 	step: 1,
 	default: DEFAULT_HUE_DEGREES,
 	description: 'Degrees',
+	hiddenFromList: false,
 } as const satisfies SequenceSchema['degrees'];
 
 export const assertOptionalFiniteNumber = (

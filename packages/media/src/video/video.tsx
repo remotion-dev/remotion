@@ -23,6 +23,7 @@ const videoSchema = {
 		step: 0.01,
 		default: 1,
 		description: 'Volume',
+		hiddenFromList: false,
 	},
 	playbackRate: {
 		type: 'number',
@@ -30,6 +31,7 @@ const videoSchema = {
 		step: 0.01,
 		default: 1,
 		description: 'Playback Rate',
+		hiddenFromList: false,
 	},
 	hidden: {
 		type: 'boolean',

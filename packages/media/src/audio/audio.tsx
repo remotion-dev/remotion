@@ -1,12 +1,12 @@
-import {useState} from 'react';
-import React from 'react';
-import {useMemo} from 'react';
+import React, {useMemo, useState} from 'react';
 import {
+	Internals,
+	Sequence,
+	useRemotionEnvironment,
 	useVideoConfig,
 	type SequenceControls,
 	type SequenceSchema,
 } from 'remotion';
-import {Internals, Sequence, useRemotionEnvironment} from 'remotion';
 import {getLoopDisplay} from '../show-in-timeline';
 import {AudioForPreview} from './audio-for-preview';
 import {AudioForRendering} from './audio-for-rendering';
@@ -22,6 +22,7 @@ const audioSchema = {
 		step: 0.01,
 		default: 1,
 		description: 'Volume',
+		hiddenFromList: false,
 	},
 	playbackRate: {
 		type: 'number',
@@ -29,6 +30,7 @@ const audioSchema = {
 		step: 0.01,
 		default: 1,
 		description: 'Playback Rate',
+		hiddenFromList: false,
 	},
 	loop: {type: 'boolean', default: false, description: 'Loop'},
 	hidden: Internals.hiddenField,

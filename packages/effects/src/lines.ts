@@ -38,6 +38,7 @@ export const linesSchema = {
 		step: 0.1,
 		default: DEFAULT_THICKNESS,
 		description: 'Thickness',
+		hiddenFromList: false,
 	},
 	gap: {
 		type: 'number',
@@ -46,6 +47,7 @@ export const linesSchema = {
 		step: 0.1,
 		default: DEFAULT_GAP,
 		description: 'Gap',
+		hiddenFromList: false,
 	},
 	angle: {
 		type: 'number',
@@ -54,12 +56,14 @@ export const linesSchema = {
 		step: 1,
 		default: DEFAULT_ANGLE,
 		description: 'Angle',
+		hiddenFromList: false,
 	},
 	offset: {
 		type: 'number',
 		step: 0.1,
 		default: DEFAULT_OFFSET,
 		description: 'Offset',
+		hiddenFromList: false,
 	},
 } as const satisfies SequenceSchema;
 

@@ -56,6 +56,7 @@ const solidSchema = {
 		step: 1,
 		default: 1920,
 		description: 'Width',
+		hiddenFromList: false,
 	},
 	height: {
 		type: 'number',
@@ -63,6 +64,7 @@ const solidSchema = {
 		step: 1,
 		default: 1080,
 		description: 'Height',
+		hiddenFromList: false,
 	},
 	...sequenceVisualStyleSchema,
 	hidden: hiddenField,

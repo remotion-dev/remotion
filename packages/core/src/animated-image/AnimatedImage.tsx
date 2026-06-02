@@ -41,6 +41,7 @@ const animatedImageSchema = {
 		step: 0.1,
 		default: 1,
 		description: 'Playback Rate',
+		hiddenFromList: false,
 	},
 	...sequenceVisualStyleSchema,
 	hidden: hiddenField,

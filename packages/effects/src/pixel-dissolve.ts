@@ -22,6 +22,7 @@ const pixelDissolveSchema = {
 		step: 0.01,
 		default: DEFAULT_PROGRESS,
 		description: 'Progress',
+		hiddenFromList: false,
 	},
 	columns: {
 		type: 'number',
@@ -30,6 +31,7 @@ const pixelDissolveSchema = {
 		step: 1,
 		default: DEFAULT_COLUMNS,
 		description: 'Columns',
+		hiddenFromList: false,
 	},
 	rows: {
 		type: 'number',
@@ -38,12 +40,14 @@ const pixelDissolveSchema = {
 		step: 1,
 		default: DEFAULT_ROWS,
 		description: 'Rows',
+		hiddenFromList: false,
 	},
 	seed: {
 		type: 'number',
 		step: 1,
 		default: DEFAULT_SEED,
 		description: 'Seed',
+		hiddenFromList: false,
 	},
 	feather: {
 		type: 'number',
@@ -52,6 +56,7 @@ const pixelDissolveSchema = {
 		step: 0.01,
 		default: DEFAULT_FEATHER,
 		description: 'Feather',
+		hiddenFromList: false,
 	},
 } as const satisfies SequenceSchema;
 

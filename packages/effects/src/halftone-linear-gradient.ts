@@ -29,6 +29,7 @@ export const halftoneLinearGradientSchema = {
 		step: 1,
 		default: DEFAULT_FIRST_STOP_DOT_SIZE,
 		description: 'First stop dot size',
+		hiddenFromList: false,
 	},
 	secondStopDotSize: {
 		type: 'number',
@@ -37,6 +38,7 @@ export const halftoneLinearGradientSchema = {
 		step: 1,
 		default: DEFAULT_SECOND_STOP_DOT_SIZE,
 		description: 'Second stop dot size',
+		hiddenFromList: false,
 	},
 	firstStopPosition: {
 		type: 'uv-coordinate',
@@ -61,6 +63,7 @@ export const halftoneLinearGradientSchema = {
 		step: 1,
 		default: DEFAULT_GRID_SIZE,
 		description: 'Grid size',
+		hiddenFromList: false,
 	},
 	colorMode: {
 		type: 'enum',
