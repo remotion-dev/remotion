@@ -218,7 +218,7 @@ export const TimelineSequenceRightEdgeDragHandle: React.FC<{
 	const style: React.CSSProperties = {
 		...baseStyle,
 		right: 0,
-		background: dragging ? 'rgba(255, 255, 255, 0.5)' : 'transparent',
+		background: 'transparent',
 	};
 
 	return (
