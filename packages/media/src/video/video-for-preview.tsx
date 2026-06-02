@@ -238,9 +238,9 @@ const VideoForPreviewAssertedShowing: React.FC<
 			return;
 		}
 
-		const canvas = canvasRef.current;
-
 		return () => {
+			const canvas = canvasRef.current;
+
 			if (
 				!canvas ||
 				!hasDrawnRealFrameRef.current ||
