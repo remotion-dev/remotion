@@ -191,6 +191,10 @@ export {
 	interpolateColors,
 	type InterpolateColorsOptions,
 } from './interpolate-colors.js';
+export {
+	interpolateTranslate,
+	type InterpolateTranslateOptions,
+} from './interpolate-translate.js';
 export {LogLevel} from './log.js';
 export {Loop} from './loop/index.js';
 export {

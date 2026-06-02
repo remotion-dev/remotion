@@ -2538,6 +2538,15 @@ export const articles = [
 		slug: 'interpolate-colors',
 	},
 	{
+		id: 'interpolate-translate',
+		title: 'interpolateTranslate()',
+		relativePath: 'docs/interpolate-translate.mdx',
+		compId: 'articles-docs-interpolate-translate',
+		crumb: 'API',
+		noAi: false,
+		slug: 'interpolate-translate',
+	},
+	{
 		id: 'interpolate',
 		title: 'interpolate()',
 		relativePath: 'docs/interpolate.mdx',
