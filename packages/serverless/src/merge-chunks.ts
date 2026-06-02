@@ -148,6 +148,7 @@ export const mergeChunksAndFinishRender = async <
 		errorExplanations,
 		timeToDelete: (await cleanupProm).reduce((a, b) => Math.max(a, b), 0),
 		outputFile: {
+			sizeInBytes: outputSize,
 			url: outputUrl,
 		},
 		outputSize,
