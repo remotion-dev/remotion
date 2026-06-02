@@ -1,6 +1,7 @@
 import {
 	parseEffectClipboardData,
 	type EffectClipboardData,
+	type EffectClipboardPasteType,
 	type EffectClipboardSnapshot,
 } from '@remotion/studio-shared';
 import type React from 'react';
@@ -25,7 +26,6 @@ const makeTargetKey = (nodePath: SequencePropsSubscriptionKey): string => {
 		absolutePath: nodePath.absolutePath,
 		nodePath: nodePath.nodePath,
 		sequenceKeys: nodePath.sequenceKeys,
-		effectKeys: nodePath.effectKeys,
 	});
 };
 
@@ -53,6 +53,20 @@ const getTargetSequenceNodePathInfo = (
 		selection.type === 'sequence-all-effects'
 	) {
 		return selection.nodePathInfo;
+	}
+
+	return null;
+};
+
+const getCopyType = (
+	selection: TimelineSelection,
+): EffectClipboardPasteType | null => {
+	if (selection.type === 'sequence-effect') {
+		return 'effects-additive';
+	}
+
+	if (selection.type === 'sequence-all-effects') {
+		return 'effects-replacing';
 	}
 
 	return null;
@@ -214,14 +228,20 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 				}
 
 				const firstSelection = selectedItems[0];
-				const type =
-					firstSelection?.type === 'sequence-effect'
-						? 'effects-additive'
-						: firstSelection?.type === 'sequence-all-effects'
-							? 'effects-replacing'
-							: null;
+				const type = firstSelection ? getCopyType(firstSelection) : null;
 
 				if (type === null) {
+					return;
+				}
+
+				if (
+					selectedItems.some((selection) => getCopyType(selection) !== type)
+				) {
+					e.preventDefault();
+					showNotification(
+						'Cannot copy individual effects together with all effects',
+						3000,
+					);
 					return;
 				}
 

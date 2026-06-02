@@ -1,6 +1,3 @@
-export const EFFECT_CLIPBOARD_MIME_TYPE =
-	'application/vnd.remotion.effects-clipboard+json';
-
 export type EffectClipboardPasteType = 'effects-additive' | 'effects-replacing';
 
 export type EffectClipboardSnapshot = {

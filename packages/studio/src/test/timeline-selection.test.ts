@@ -34,19 +34,23 @@ import {
 } from '../components/Timeline/TimelineSelection';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 
-const makeKey = (nodePath: SequenceNodePath): SequencePropsSubscriptionKey => ({
+const makeKey = (
+	nodePath: SequenceNodePath,
+	effectKeys: string[][] = [],
+): SequencePropsSubscriptionKey => ({
 	absolutePath: '/project/src/Comp.tsx',
 	nodePath,
 	sequenceKeys: ['from', 'durationInFrames'],
-	effectKeys: [],
+	effectKeys,
 });
 
 const makeNodePathInfo = (
 	nodePath: SequenceNodePath,
 	auxiliaryKeys: string[],
 	supportsEffects = true,
+	effectKeys: string[][] = [],
 ): SequenceNodePathInfo => ({
-	sequenceSubscriptionKey: makeKey(nodePath),
+	sequenceSubscriptionKey: makeKey(nodePath, effectKeys),
 	auxiliaryKeys,
 	index: 0,
 	numberOfSequencesWithThisNodePath: 1,
@@ -111,6 +115,31 @@ test('pasting effects is blocked for sequences that do not support effects', () 
 	).toEqual({
 		type: 'valid',
 		nodePathInfo: supportedSequenceNodePathInfo,
+	} satisfies PasteEffectsTarget);
+});
+
+test('pasting effects treats effect selections on one sequence as one target', () => {
+	const firstEffectNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['effects', '0'],
+		true,
+		[['0']],
+	);
+	const secondEffectNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['effects', '1'],
+		true,
+		[['1']],
+	);
+
+	expect(
+		getPasteEffectsTarget([
+			{type: 'sequence-effect', nodePathInfo: firstEffectNodePathInfo, i: 0},
+			{type: 'sequence-effect', nodePathInfo: secondEffectNodePathInfo, i: 1},
+		]),
+	).toEqual({
+		type: 'valid',
+		nodePathInfo: firstEffectNodePathInfo,
 	} satisfies PasteEffectsTarget);
 });
 
