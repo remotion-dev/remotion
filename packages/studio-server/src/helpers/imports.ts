@@ -78,11 +78,11 @@ export const ensureNamedImport = ({
 }) => {
 	const existingImports = findImportDeclarations(ast, sourcePath);
 
-	for (const existingImport of existingImports) {
-		const matchingSpecifier = existingImport.specifiers?.find(
-			(specifier) =>
-				specifier.type === 'ImportSpecifier' &&
-				getImportedName(specifier) === importedName,
+	for (const existingImportDeclaration of existingImports) {
+		const matchingSpecifier = existingImportDeclaration.specifiers?.find(
+			(importSpecifierCandidate) =>
+				importSpecifierCandidate.type === 'ImportSpecifier' &&
+				getImportedName(importSpecifierCandidate) === importedName,
 		);
 
 		if (matchingSpecifier) {
@@ -91,18 +91,19 @@ export const ensureNamedImport = ({
 	}
 
 	const existingImport = existingImports.find(
-		(importDeclaration) => !hasNamespaceSpecifier(importDeclaration),
+		(candidateImportDeclaration) =>
+			!hasNamespaceSpecifier(candidateImportDeclaration),
 	);
 
 	if (existingImport) {
-		const specifier = b.importSpecifier(
+		const importSpecifier = b.importSpecifier(
 			b.identifier(importedName),
 			localName === importedName ? null : b.identifier(localName),
 		) as unknown as ImportSpecifier;
 
 		existingImport.specifiers = [
 			...(existingImport.specifiers ?? []),
-			specifier,
+			importSpecifier,
 		];
 		return localName;
 	}
@@ -135,18 +136,20 @@ export const ensureNamedImports = ({
 	const existingImports = findImportDeclarations(ast, sourcePath);
 	const existingNames = new Set<string>();
 
-	for (const existingImport of existingImports) {
-		for (const specifier of existingImport.specifiers ?? []) {
-			if (specifier.type !== 'ImportSpecifier') {
+	for (const existingImportDeclaration of existingImports) {
+		for (const importSpecifierCandidate of existingImportDeclaration.specifiers ??
+			[]) {
+			if (importSpecifierCandidate.type !== 'ImportSpecifier') {
 				continue;
 			}
 
-			existingNames.add(getImportedName(specifier));
+			existingNames.add(getImportedName(importSpecifierCandidate));
 		}
 	}
 
 	const existingImport = existingImports.find(
-		(importDeclaration) => !hasNamespaceSpecifier(importDeclaration),
+		(candidateImportDeclaration) =>
+			!hasNamespaceSpecifier(candidateImportDeclaration),
 	);
 
 	if (existingImport) {
@@ -163,6 +166,7 @@ export const ensureNamedImports = ({
 			];
 			existingNames.add(importedName);
 		}
+
 		return;
 	}
 
