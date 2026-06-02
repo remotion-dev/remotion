@@ -22,6 +22,7 @@ import type {
 } from 'remotion';
 import {parseAst} from '../../codemods/parse-ast';
 import {getAstNodePath} from '../../helpers/get-ast-node-path';
+import {toImportAgnosticNodePath} from '../../helpers/import-agnostic-node-path';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import {JsxElementNotFoundAtLocationError} from '../jsx-element-not-found-at-location-error';
 import {computeEffectPropStatus} from './can-update-effect-props';
@@ -549,6 +550,7 @@ const getPropsStatus = (
 const getNodePathForRecastPath = (
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	recastPath: any,
+	ast: File,
 ): SequenceNodePath => {
 	const segments: Array<string | number> = [];
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -560,10 +562,10 @@ const getNodePathForRecastPath = (
 
 	// Recast paths start with "root" which doesn't correspond to a real AST property
 	if (segments.length > 0 && segments[0] === 'root') {
-		return segments.slice(1);
+		return toImportAgnosticNodePath({ast, nodePath: segments.slice(1)});
 	}
 
-	return segments;
+	return toImportAgnosticNodePath({ast, nodePath: segments});
 };
 
 export const findJsxElementAtNodePath = (
@@ -591,7 +593,7 @@ export const findNodePathForJsxElement = (
 	recast.types.visit(ast, {
 		visitJSXOpeningElement(p) {
 			if (p.node === target) {
-				foundPath = getNodePathForRecastPath(p);
+				foundPath = getNodePathForRecastPath(p, ast);
 				return false;
 			}
 
@@ -612,7 +614,7 @@ export const lineColumnToNodePath = (
 		visitJSXOpeningElement(p) {
 			const {node} = p;
 			if (node.loc && node.loc.start.line === targetLine) {
-				foundPath = getNodePathForRecastPath(p);
+				foundPath = getNodePathForRecastPath(p, ast);
 				return false;
 			}
 
