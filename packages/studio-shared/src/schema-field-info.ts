@@ -41,7 +41,8 @@ export const SCHEMA_FIELD_ROW_HEIGHT = 22;
 const SUPPORTED_SCHEMA_TYPES = [
 	'number',
 	'boolean',
-	'rotation',
+	'rotation-css',
+	'rotation-degrees',
 	'translate',
 	'scale',
 	'uv-coordinate',

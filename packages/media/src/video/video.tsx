@@ -352,6 +352,10 @@ const VideoInner: React.FC<
 	);
 };
 
-export const Video = Internals.wrapInSchema(VideoInner, videoSchema);
+export const Video = Internals.wrapInSchema({
+	Component: VideoInner,
+	schema: videoSchema,
+	supportsEffects: true,
+});
 
 Internals.addSequenceStackTraces(Video);

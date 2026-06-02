@@ -1,5 +1,10 @@
-import {type FC, type PropsWithChildren} from 'react';
-import React, {Children, forwardRef, useMemo} from 'react';
+import React, {
+	Children,
+	forwardRef,
+	useMemo,
+	type FC,
+	type PropsWithChildren,
+} from 'react';
 import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
 import {sequenceSchemaDefaultLayoutNone} from '../sequence-field-schema.js';
 import type {LayoutAndStyle, SequenceProps} from '../Sequence.js';
@@ -145,9 +150,16 @@ const SeriesInner: FC<SeriesProps> = (props) => {
  */
 const Series: React.ComponentType<SeriesProps> & {
 	Sequence: typeof SeriesSequence;
-} = Object.assign(wrapInSchema(SeriesInner, sequenceSchemaDefaultLayoutNone), {
-	Sequence: SeriesSequence,
-});
+} = Object.assign(
+	wrapInSchema({
+		Component: SeriesInner,
+		schema: sequenceSchemaDefaultLayoutNone,
+		supportsEffects: false,
+	}),
+	{
+		Sequence: SeriesSequence,
+	},
+);
 
 export {Series};
 

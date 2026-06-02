@@ -90,7 +90,10 @@ export const TimelineFieldValue: React.FC<{
 		);
 	}
 
-	if (field.typeName === 'rotation') {
+	if (
+		field.typeName === 'rotation-css' ||
+		field.typeName === 'rotation-degrees'
+	) {
 		return (
 			<span style={wrapperStyle}>
 				<TimelineRotationField

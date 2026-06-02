@@ -618,7 +618,11 @@ const htmlInCanvasSchema = {
 	hidden: hiddenField,
 };
 
-const HtmlInCanvasWrapped = wrapInSchema(HtmlInCanvasInner, htmlInCanvasSchema);
+const HtmlInCanvasWrapped = wrapInSchema({
+	Component: HtmlInCanvasInner,
+	schema: htmlInCanvasSchema,
+	supportsEffects: true,
+});
 
 export const HtmlInCanvas = Object.assign(HtmlInCanvasWrapped, {
 	isSupported: isHtmlInCanvasSupported,

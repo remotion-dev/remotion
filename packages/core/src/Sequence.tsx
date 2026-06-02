@@ -28,6 +28,8 @@ import {useVideoConfig} from './use-video-config.js';
 import {ENABLE_V5_BREAKING_CHANGES} from './v5-flag.js';
 import {wrapInSchema} from './wrap-in-schema.js';
 
+const EMPTY_EFFECTS: readonly EffectDefinition<unknown>[] = [];
+
 export type AbsoluteFillLayout = {
 	layout?: 'absolute-fill';
 	premountFor?: number;
@@ -286,7 +288,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 				registerSequence({
 					type: 'image',
 					controls: controls ?? null,
-					effects: _remotionInternalEffects ?? [],
+					effects: _remotionInternalEffects ?? EMPTY_EFFECTS,
 					displayName: timelineClipName,
 					documentationLink: resolvedDocumentationLink,
 					duration: actualDurationInFrames,
@@ -307,7 +309,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 				registerSequence({
 					type: isMedia.type,
 					controls: controls ?? null,
-					effects: _remotionInternalEffects ?? [],
+					effects: _remotionInternalEffects ?? EMPTY_EFFECTS,
 					displayName: timelineClipName,
 					documentationLink: resolvedDocumentationLink,
 					doesVolumeChange: isMedia.data.doesVolumeChange,
@@ -351,7 +353,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			premountDisplay: premountDisplay ?? null,
 			postmountDisplay: postmountDisplay ?? null,
 			controls: controls ?? null,
-			effects: _remotionInternalEffects ?? [],
+			effects: _remotionInternalEffects ?? EMPTY_EFFECTS,
 			refForOutline: refForOutline ?? null,
 		});
 		return () => {
@@ -539,4 +541,8 @@ const SequenceInner = forwardRef(SequenceRefForwardingFunction);
  * @description A component that time-shifts its children and wraps them in an absolutely positioned <div>.
  * @see [Documentation](https://www.remotion.dev/docs/sequence)
  */
-export const Sequence = wrapInSchema(SequenceInner, sequenceSchema);
+export const Sequence = wrapInSchema({
+	Component: SequenceInner,
+	schema: sequenceSchema,
+	supportsEffects: false,
+});

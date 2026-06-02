@@ -289,10 +289,11 @@ const AnimatedImageInner = ({
 	);
 };
 
-export const AnimatedImage = wrapInSchema(
-	AnimatedImageInner,
-	animatedImageSchema,
-);
+export const AnimatedImage = wrapInSchema({
+	Component: AnimatedImageInner,
+	schema: animatedImageSchema,
+	supportsEffects: true,
+});
 
 AnimatedImage.displayName = 'AnimatedImage';
 

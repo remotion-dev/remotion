@@ -24,6 +24,7 @@ type UndoEntryType =
 	| 'keyframe-delete'
 	| 'add-effect'
 	| 'delete-effect'
+	| 'paste-effects'
 	| 'reorder-effect'
 	| 'delete-jsx-node'
 	| 'duplicate-jsx-node'
@@ -56,6 +57,7 @@ type UndoEntry = {
 	| {entryType: 'keyframe-delete'}
 	| {entryType: 'add-effect'}
 	| {entryType: 'delete-effect'}
+	| {entryType: 'paste-effects'}
 	| {entryType: 'reorder-effect'}
 	| {entryType: 'delete-jsx-node'}
 	| {entryType: 'duplicate-jsx-node'}

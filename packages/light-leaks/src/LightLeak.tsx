@@ -298,10 +298,11 @@ const LightLeakInner: React.FC<
 	);
 };
 
-export const LightLeak = Internals.wrapInSchema(
-	LightLeakInner,
-	lightLeakSchema,
-);
+export const LightLeak = Internals.wrapInSchema({
+	Component: LightLeakInner,
+	schema: lightLeakSchema,
+	supportsEffects: false,
+});
 
 LightLeak.displayName = 'LightLeak';
 

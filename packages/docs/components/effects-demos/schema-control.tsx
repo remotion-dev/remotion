@@ -1,7 +1,7 @@
 import React, {useMemo} from 'react';
 import type {SequenceFieldSchema} from 'remotion';
-import {getDefaultValueFromSchema} from './get-default-props-from-schema';
 import styles from '../demos/styles.module.css';
+import {getDefaultValueFromSchema} from './get-default-props-from-schema';
 
 const left: React.CSSProperties = {
 	fontFamily: 'GTPlanar',
@@ -23,7 +23,10 @@ const right: React.CSSProperties = {
 
 const getNumberValue = (
 	value: unknown,
-	field: Extract<SequenceFieldSchema, {type: 'number'}>,
+	field: Extract<
+		SequenceFieldSchema,
+		{type: 'number'} | {type: 'rotation-degrees'}
+	>,
 ): number => {
 	if (typeof value === 'number') {
 		return value;
@@ -34,7 +37,10 @@ const getNumberValue = (
 
 const getDemoNumberRange = (
 	fieldKey: string,
-	field: Extract<SequenceFieldSchema, {type: 'number'}>,
+	field: Extract<
+		SequenceFieldSchema,
+		{type: 'number'} | {type: 'rotation-degrees'}
+	>,
 ): {min: number; max: number} | null => {
 	if (field.min !== undefined && field.max !== undefined) {
 		return {min: field.min, max: field.max};
@@ -112,12 +118,14 @@ export const SchemaControl = ({
 
 	const label = field.description ?? fieldKey;
 	const numberRange =
-		field.type === 'number' ? getDemoNumberRange(fieldKey, field) : null;
+		field.type === 'number' || field.type === 'rotation-degrees'
+			? getDemoNumberRange(fieldKey, field)
+			: null;
 
 	return (
 		<label style={labelStyle} className={styles.item}>
 			<div style={left}>{label}</div>
-			{field.type === 'number' ? (
+			{field.type === 'number' || field.type === 'rotation-degrees' ? (
 				numberRange ? (
 					<input
 						type="range"
@@ -169,7 +177,7 @@ export const SchemaControl = ({
 					/>
 				</>
 			) : null}
-			{field.type === 'number' ? (
+			{field.type === 'number' || field.type === 'rotation-degrees' ? (
 				<div style={right}>
 					<code>{getNumberValue(value, field)}</code>
 				</div>
@@ -209,7 +217,7 @@ export const SchemaControl = ({
 					onChange={(e) => setValue(e.target.value)}
 					value={getStringValue(value, getDefaultValueFromSchema(field))}
 				/>
-			) : field.type === 'rotation' || field.type === 'translate' ? (
+			) : field.type === 'rotation-css' || field.type === 'translate' ? (
 				<input
 					onChange={(e) => setValue(e.target.value)}
 					style={textInputStyle}

@@ -177,6 +177,7 @@ test('optimisticDeleteEffectKeyframe removes the matching keyframe on the target
 				canUpdate: true,
 				effectIndex: 0,
 				callee: 'tint',
+				importPath: null,
 				props: {
 					amount: {
 						canUpdate: false,
@@ -229,6 +230,7 @@ test('optimisticDeleteEffectKeyframe converts the last keyframe on the target ef
 				canUpdate: true,
 				effectIndex: 0,
 				callee: 'tint',
+				importPath: null,
 				props: {
 					amount: {
 						canUpdate: false,
@@ -292,6 +294,7 @@ test('optimisticDeleteEffectKeyframes deletes multiple keyframes in one pass', (
 				canUpdate: true,
 				effectIndex: 0,
 				callee: 'tint',
+				importPath: null,
 				props: {
 					amount: {
 						canUpdate: false,

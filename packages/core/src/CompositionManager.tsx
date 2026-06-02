@@ -99,6 +99,7 @@ export type SequenceControls = {
 	schema: SequenceSchema;
 	currentRuntimeValueDotNotation: Record<string, unknown>;
 	overrideId: string;
+	supportsEffects: boolean;
 };
 
 export type TSequence = {

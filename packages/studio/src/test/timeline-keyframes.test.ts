@@ -18,6 +18,7 @@ const makeControls = (
 	schema: {},
 	currentRuntimeValueDotNotation: {},
 	overrideId,
+	supportsEffects: false,
 });
 
 const makeSequence = ({

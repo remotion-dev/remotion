@@ -19,6 +19,10 @@ import {deleteSelectedTimelineItems} from '../components/Timeline/delete-selecte
 import {isDuplicatableSequenceRowSelection} from '../components/Timeline/duplicate-selected-timeline-item';
 import {getTimelinePropResetTargets} from '../components/Timeline/reset-selected-timeline-props';
 import {
+	getPasteEffectsTarget,
+	type PasteEffectsTarget,
+} from '../components/Timeline/TimelineClipboardKeybindings';
+import {
 	ENABLE_OUTLINES,
 	getSelectableTimelineSequenceSelections,
 	getTimelineSelectionAfterInteraction,
@@ -30,21 +34,27 @@ import {
 } from '../components/Timeline/TimelineSelection';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 
-const makeKey = (nodePath: SequenceNodePath): SequencePropsSubscriptionKey => ({
+const makeKey = (
+	nodePath: SequenceNodePath,
+	effectKeys: string[][] = [],
+): SequencePropsSubscriptionKey => ({
 	absolutePath: '/project/src/Comp.tsx',
 	nodePath,
 	sequenceKeys: ['from', 'durationInFrames'],
-	effectKeys: [],
+	effectKeys,
 });
 
 const makeNodePathInfo = (
 	nodePath: SequenceNodePath,
 	auxiliaryKeys: string[],
+	supportsEffects = true,
+	effectKeys: string[][] = [],
 ): SequenceNodePathInfo => ({
-	sequenceSubscriptionKey: makeKey(nodePath),
+	sequenceSubscriptionKey: makeKey(nodePath, effectKeys),
 	auxiliaryKeys,
 	index: 0,
 	numberOfSequencesWithThisNodePath: 1,
+	supportsEffects,
 });
 
 const makeTimelineSequence = ({
@@ -73,6 +83,7 @@ const makeTimelineSequence = ({
 			schema,
 			currentRuntimeValueDotNotation: {},
 			overrideId: 'override',
+			supportsEffects: true,
 		},
 		refForOutline: null,
 		effects,
@@ -80,6 +91,56 @@ const makeTimelineSequence = ({
 
 test('Timeline selection should stay disabled until released publicly', () => {
 	expect(SELECTION_ENABLED).toBe(false);
+});
+
+test('pasting effects is blocked for sequences that do not support effects', () => {
+	const unsupportedSequenceNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		[],
+		false,
+	);
+	const supportedSequenceNodePathInfo = makeNodePathInfo(['body', 1], [], true);
+
+	expect(
+		getPasteEffectsTarget([
+			{type: 'sequence', nodePathInfo: unsupportedSequenceNodePathInfo},
+		]),
+	).toEqual({
+		type: 'unsupported',
+	} satisfies PasteEffectsTarget);
+	expect(
+		getPasteEffectsTarget([
+			{type: 'sequence', nodePathInfo: supportedSequenceNodePathInfo},
+		]),
+	).toEqual({
+		type: 'valid',
+		nodePathInfo: supportedSequenceNodePathInfo,
+	} satisfies PasteEffectsTarget);
+});
+
+test('pasting effects treats effect selections on one sequence as one target', () => {
+	const firstEffectNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['effects', '0'],
+		true,
+		[['0']],
+	);
+	const secondEffectNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['effects', '1'],
+		true,
+		[['1']],
+	);
+
+	expect(
+		getPasteEffectsTarget([
+			{type: 'sequence-effect', nodePathInfo: firstEffectNodePathInfo, i: 0},
+			{type: 'sequence-effect', nodePathInfo: secondEffectNodePathInfo, i: 1},
+		]),
+	).toEqual({
+		type: 'valid',
+		nodePathInfo: firstEffectNodePathInfo,
+	} satisfies PasteEffectsTarget);
 });
 
 test('Timeline top drag should not be enabled', () => {
@@ -218,7 +279,7 @@ test('Cmd+D only duplicates selected timeline sequence rows', () => {
 test('Backspace reset targets multiple selected sequence props', () => {
 	const schema = {
 		opacity: {type: 'number', default: 1, hiddenFromList: false},
-		'style.rotate': {type: 'rotation', default: '0deg'},
+		'style.rotate': {type: 'rotation-css', default: '0deg'},
 	} satisfies SequenceSchema;
 	const opacityNodePathInfo = makeNodePathInfo(
 		['body', 0],
@@ -351,6 +412,7 @@ test('Backspace reset targets selected effect props', () => {
 				{
 					canUpdate: true,
 					callee: 'effect',
+					importPath: null,
 					effectIndex: 0,
 					props: {
 						intensity: {canUpdate: true, codeValue: 10},

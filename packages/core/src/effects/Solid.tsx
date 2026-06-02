@@ -263,7 +263,11 @@ const SolidOuter = forwardRef<
 	},
 );
 
-export const Solid = wrapInSchema(SolidOuter, solidSchema);
+export const Solid = wrapInSchema({
+	Component: SolidOuter,
+	schema: solidSchema,
+	supportsEffects: true,
+});
 
 Solid.displayName = 'Solid';
 

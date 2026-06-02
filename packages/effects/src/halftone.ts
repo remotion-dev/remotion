@@ -35,13 +35,10 @@ export const halftoneSchema = {
 		hiddenFromList: false,
 	},
 	rotation: {
-		type: 'number',
-		min: -180,
-		max: 180,
+		type: 'rotation-degrees',
 		step: 1,
 		default: 0,
 		description: 'Rotation',
-		hiddenFromList: false,
 	},
 	offsetX: {
 		type: 'number',

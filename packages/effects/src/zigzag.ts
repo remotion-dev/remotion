@@ -52,13 +52,10 @@ export const zigzagSchema = {
 		hiddenFromList: false,
 	},
 	angle: {
-		type: 'number',
-		min: -180,
-		max: 180,
+		type: 'rotation-degrees',
 		step: 1,
 		default: DEFAULT_ANGLE,
 		description: 'Angle',
-		hiddenFromList: false,
 	},
 	offset: {
 		type: 'number',

@@ -161,6 +161,10 @@ const AudioInner: React.FC<
 	);
 };
 
-export const Audio = Internals.wrapInSchema(AudioInner, audioSchema);
+export const Audio = Internals.wrapInSchema({
+	Component: AudioInner,
+	schema: audioSchema,
+	supportsEffects: false,
+});
 
 Internals.addSequenceStackTraces(Audio);

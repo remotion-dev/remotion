@@ -25,13 +25,15 @@ const findJsx = (input: string) => {
 		throw new Error('JSX not found');
 	}
 
-	return jsx;
+	return {ast, jsx};
 };
 
 test('computeEffectPropStatus reports static props as canUpdate=true with codeValue', () => {
 	const input = buildInput('[tint({color: "red", opacity: 0.5})]');
+	const {ast, jsx} = findJsx(input);
 	const result = computeEffectPropStatus({
-		jsx: findJsx(input),
+		ast,
+		jsx,
 		effectIndex: 0,
 		keys: ['color', 'opacity'],
 	});
@@ -43,12 +45,15 @@ test('computeEffectPropStatus reports static props as canUpdate=true with codeVa
 
 	expect(result.props.color).toEqual({canUpdate: true, codeValue: 'red'});
 	expect(result.props.opacity).toEqual({canUpdate: true, codeValue: 0.5});
+	expect(result.importPath).toBe('@remotion/effects/tint');
 });
 
 test('computeEffectPropStatus reports computed props', () => {
 	const input = buildInput('[tint({color: getColor(), opacity: 0.5})]');
+	const {ast, jsx} = findJsx(input);
 	const result = computeEffectPropStatus({
-		jsx: findJsx(input),
+		ast,
+		jsx,
 		effectIndex: 0,
 		keys: ['color', 'opacity'],
 	});
@@ -66,8 +71,10 @@ test('computeEffectPropStatus reports keyframes for inline interpolated effect p
 	const input = buildInput(
 		'[tint({amount: interpolate(frame, [0, 100], [0.2, 0.8])})]',
 	);
+	const {ast, jsx} = findJsx(input);
 	const result = computeEffectPropStatus({
-		jsx: findJsx(input),
+		ast,
+		jsx,
 		effectIndex: 0,
 		keys: ['amount'],
 	});
@@ -93,8 +100,10 @@ test('computeEffectPropStatus reports keyframes for inline interpolated effect p
 
 test('computeEffectPropStatus reports unset props as undefined codeValue', () => {
 	const input = buildInput('[tint({color: "red"})]');
+	const {ast, jsx} = findJsx(input);
 	const result = computeEffectPropStatus({
-		jsx: findJsx(input),
+		ast,
+		jsx,
 		effectIndex: 0,
 		keys: ['color', 'opacity'],
 	});
@@ -110,8 +119,10 @@ test('computeEffectPropStatus reports unset props as undefined codeValue', () =>
 
 test('computeEffectPropStatus flags non-call expressions', () => {
 	const input = buildInput('[someEffect, tint({color: "red"})]');
+	const {ast, jsx} = findJsx(input);
 	const result = computeEffectPropStatus({
-		jsx: findJsx(input),
+		ast,
+		jsx,
 		effectIndex: 0,
 		keys: ['color'],
 	});
@@ -126,8 +137,10 @@ test('computeEffectPropStatus flags non-call expressions', () => {
 
 test('computeEffectPropStatus flags out-of-range effect indices', () => {
 	const input = buildInput('[tint({color: "red"})]');
+	const {ast, jsx} = findJsx(input);
 	const result = computeEffectPropStatus({
-		jsx: findJsx(input),
+		ast,
+		jsx,
 		effectIndex: 5,
 		keys: ['color'],
 	});
@@ -142,8 +155,10 @@ test('computeEffectPropStatus flags out-of-range effect indices', () => {
 
 test('computeEffectPropStatus treats non-object first arg as computed', () => {
 	const input = buildInput('[tint(getParams())]');
+	const {ast, jsx} = findJsx(input);
 	const result = computeEffectPropStatus({
-		jsx: findJsx(input),
+		ast,
+		jsx,
 		effectIndex: 0,
 		keys: ['color'],
 	});
@@ -158,8 +173,10 @@ test('computeEffectPropStatus treats non-object first arg as computed', () => {
 
 test('computeEffectPropStatus treats zero-arg effect as editable with undefined props', () => {
 	const input = buildInput('[tint()]');
+	const {ast, jsx} = findJsx(input);
 	const result = computeEffectPropStatus({
-		jsx: findJsx(input),
+		ast,
+		jsx,
 		effectIndex: 0,
 		keys: ['amount'],
 	});
