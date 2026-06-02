@@ -8,6 +8,7 @@ import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {saveSequenceProp} from './save-sequence-prop';
 
 const HANDLE_WIDTH = 6;
+const DURATION_FIELD_KEY = 'durationInFrames';
 
 const baseStyle: React.CSSProperties = {
 	position: 'absolute',
@@ -23,18 +24,18 @@ export const TimelineSequenceRightEdgeDragHandle: React.FC<{
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly validatedLocation: CodePosition;
 	readonly currentDurationInFrames: number;
-	readonly onLocalDurationChange: (durationInFrames: number | null) => void;
 	readonly windowWidth: number;
 	readonly timelineDurationInFrames: number;
 }> = ({
 	nodePath,
 	validatedLocation,
 	currentDurationInFrames,
-	onLocalDurationChange,
 	windowWidth,
 	timelineDurationInFrames,
 }) => {
-	const {setCodeValues} = useContext(Internals.VisualModeSettersContext);
+	const {setCodeValues, setDragOverrides, clearDragOverrides} = useContext(
+		Internals.VisualModeSettersContext,
+	);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 
 	const [dragging, setDragging] = useState(false);
@@ -42,6 +43,7 @@ export const TimelineSequenceRightEdgeDragHandle: React.FC<{
 		initialClientX: number;
 		initialDuration: number;
 		pxPerFrame: number;
+		latestValue: number;
 	} | null>(null);
 
 	const onPointerDown = useCallback(
@@ -65,6 +67,7 @@ export const TimelineSequenceRightEdgeDragHandle: React.FC<{
 				initialClientX: e.clientX,
 				initialDuration: currentDurationInFrames,
 				pxPerFrame,
+				latestValue: currentDurationInFrames,
 			};
 			document.body.style.userSelect = 'none';
 			document.body.style.webkitUserSelect = 'none';
@@ -83,9 +86,10 @@ export const TimelineSequenceRightEdgeDragHandle: React.FC<{
 			const dx = e.clientX - dragState.initialClientX;
 			const deltaFrames = Math.round(dx / dragState.pxPerFrame);
 			const next = Math.max(1, dragState.initialDuration + deltaFrames);
-			onLocalDurationChange(next);
+			dragState.latestValue = next;
+			setDragOverrides(nodePath, DURATION_FIELD_KEY, next);
 		},
-		[onLocalDurationChange],
+		[nodePath, setDragOverrides],
 	);
 
 	const finishDrag = useCallback(
@@ -100,26 +104,28 @@ export const TimelineSequenceRightEdgeDragHandle: React.FC<{
 				return;
 			}
 
-			if (!commit || previewServerState.type !== 'connected') {
-				onLocalDurationChange(null);
-				return;
-			}
+			const shouldCommit =
+				commit &&
+				previewServerState.type === 'connected' &&
+				dragState.latestValue !== dragState.initialDuration;
 
-			const newValue = currentDurationInFrames;
-			if (newValue === dragState.initialDuration) {
-				onLocalDurationChange(null);
+			if (!shouldCommit) {
+				clearDragOverrides(nodePath);
 				return;
 			}
 
 			saveSequenceProp({
 				fileName: validatedLocation.source,
 				nodePath,
-				fieldKey: 'durationInFrames',
-				value: newValue,
+				fieldKey: DURATION_FIELD_KEY,
+				value: dragState.latestValue,
 				defaultValue: null,
 				schema: NoReactInternals.sequenceSchema,
 				setCodeValues,
-				clientId: previewServerState.clientId,
+				clientId:
+					previewServerState.type === 'connected'
+						? previewServerState.clientId
+						: '',
 			})
 				.catch((err) => {
 					Internals.Log.error(
@@ -129,13 +135,12 @@ export const TimelineSequenceRightEdgeDragHandle: React.FC<{
 					);
 				})
 				.finally(() => {
-					onLocalDurationChange(null);
+					clearDragOverrides(nodePath);
 				});
 		},
 		[
-			currentDurationInFrames,
+			clearDragOverrides,
 			nodePath,
-			onLocalDurationChange,
 			previewServerState,
 			setCodeValues,
 			validatedLocation.source,
