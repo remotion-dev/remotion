@@ -8,6 +8,13 @@ type Bug = {
 
 export const bugs: Bug[] = [
 	{
+		title: 'H.264 VideoDecoder key frame detection fails for packets with an AUD not at the start',
+		description:
+			'This is a Chromium browser bug affecting WebCodecs H.264 decoding. No fix is available yet.',
+		link: 'https://issues.chromium.org/issues/519012430',
+		versions: [],
+	},
+	{
 		title: '@remotion/media Audio is broken',
 		description: 'Audio would play heavily offset',
 		link: 'https://remotion.dev/changelog',
