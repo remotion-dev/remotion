@@ -1,0 +1,66 @@
+---
+image: /generated/articles-docs-effects.png
+id: effects
+title: Effects
+crumb: 'Designing visuals'
+---
+
+# Effects<AvailableFrom v="4.0.464" />
+
+Pixels of canvas-based components can be manipulated using effects.  
+
+## Supported components
+
+The following components support effects:
+
+- [`<Solid>`](/docs/solid)
+- [`<HtmlInCanvas>`](/docs/html-in-canvas)
+- [`<Video>`](/docs/media/video)
+- [`<Img>`](/docs/img)
+- [`<CanvasImage>`](/docs/canvasimage)
+- [`<AnimatedImage>`](/docs/animatedimage)
+- [`<Gif>`](/docs/gif/gif)
+
+## Usage
+
+Pass effects through the `effects` prop as an array of effect functions:
+
+```tsx twoslash title="MyComp.tsx"
+import {Video} from '@remotion/media';
+import {blur} from '@remotion/effects/blur';
+
+export const MyComp: React.FC = () => {
+  return (
+    <Video
+      src="https://remotion.media/video.mp4"
+      effects={[blur({radius: 40})]}
+    />
+  );
+};
+```
+
+## Multipass
+
+Multiple effects can be combined. They apply in the order they are specified.  
+
+## Available effects
+
+import {TableOfContents} from './effects/table-of-contents';
+
+<TableOfContents />
+
+## Visual editing in Studio
+
+When you select a component with effects in [Remotion Studio](/docs/studio), you can edit effect parameters in the timeline and toggle effects.
+
+<img style={{width: '400px'}} src="/img/effects-studio-panel.png" alt="Effects panel in Remotion Studio" />
+
+## Custom effects
+
+It will be possible in a future version of Remotion to create your own effects based on 2D Canvas APIs, WebGL or WebGPU and to mix them together.  
+
+We are working on a nice API that shall be future-proof, which is why we have not released it yet.
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)

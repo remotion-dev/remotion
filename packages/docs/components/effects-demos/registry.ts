@@ -2,6 +2,7 @@ import {barrelDistortion} from '@remotion/effects/barrel-distortion';
 import {blur} from '@remotion/effects/blur';
 import {brightness} from '@remotion/effects/brightness';
 import {chromaticAberration} from '@remotion/effects/chromatic-aberration';
+import {colorKey} from '@remotion/effects/color-key';
 import {contrast} from '@remotion/effects/contrast';
 import {dotGrid} from '@remotion/effects/dot-grid';
 import {dropShadow} from '@remotion/effects/drop-shadow';
@@ -37,6 +38,7 @@ import {EffectsBarrelDistortionPreview} from '../effects/effects-barrel-distorti
 import {EffectsBlurPreview} from '../effects/effects-blur-preview';
 import {EffectsBrightnessPreview} from '../effects/effects-brightness-preview';
 import {EffectsChromaticAberrationPreview} from '../effects/effects-chromatic-aberration-preview';
+import {EffectsColorKeyPreview} from '../effects/effects-color-key-preview';
 import {EffectsContrastPreview} from '../effects/effects-contrast-preview';
 import {EffectsDotGridPreview} from '../effects/effects-dot-grid-preview';
 import {EffectsDropShadowPreview} from '../effects/effects-drop-shadow-preview';
@@ -99,6 +101,19 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/contrast',
 		comp: EffectsContrastPreview,
 		schema: contrast().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-color-key',
+		effectName: 'colorKey',
+		effectImportPath: '@remotion/effects/color-key',
+		comp: EffectsColorKeyPreview,
+		schema: colorKey().definition.schema,
+		durationInFrames: 150,
+		autoPlay: true,
+		initialValues: {
+			similarity: 0.45,
+		},
 	},
 	{
 		...defaults,

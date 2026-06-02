@@ -1,0 +1,49 @@
+---
+image: /generated/articles-docs-greenscreen.png
+id: greenscreen
+title: Greenscreen
+sidebar_label: Greenscreen
+crumb: 'How To'
+---
+
+import {EffectsDemo} from '../components/effects-demos';
+
+Use the [`colorKey()`](/docs/effects/color-key) effect from [`@remotion/effects`](/docs/effects/api) to remove the green background of a video.
+
+Drag the slider below to adjust how close a pixel has to be to the key color to become transparent.
+
+<EffectsDemo type="effects-color-key" />
+<br />
+
+```tsx twoslash title="Greenscreen.tsx"
+import {colorKey} from '@remotion/effects/color-key';
+import {Video} from '@remotion/media';
+import React from 'react';
+import {AbsoluteFill} from 'remotion';
+
+// ---cut---
+export const Greenscreen: React.FC = () => {
+  return (
+    <AbsoluteFill>
+      <Video
+        src="https://remotion.media/greenscreen.mp4"
+        effects={[
+          colorKey({
+            similarity: 0.45,
+          }),
+        ]}
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+## Requirements
+
+`colorKey()` uses WebGL2. During rendering, enable WebGL via [`Config.setChromiumOpenGlRenderer('angle')`](/docs/config#setchromiumopenglrenderer).
+
+## See also
+
+- [`colorKey()`](/docs/effects/color-key)
+- [`@remotion/effects`](/docs/effects/api)
+- [Manipulating pixels](/docs/video-manipulation)
