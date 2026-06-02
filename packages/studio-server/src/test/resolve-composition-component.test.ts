@@ -701,7 +701,7 @@ test('inserts an Img asset into the resolved composition component', async () =>
 		});
 
 		expect(result.output).toContain(
-			"import { AbsoluteFill, Img, staticFile } from 'remotion';",
+			"import { AbsoluteFill, staticFile, Img } from 'remotion';",
 		);
 		expect(result.output).toContain('<Img');
 		expect(result.output).toContain("src={staticFile('image.png')}");
