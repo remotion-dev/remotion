@@ -3,6 +3,7 @@ import {barrelDistortion} from '../barrel-distortion/index.js';
 import {blur} from '../blur/index.js';
 import {brightness} from '../brightness.js';
 import {chromaticAberration} from '../chromatic-aberration/index.js';
+import {colorKey} from '../color-key.js';
 import {contrast} from '../contrast.js';
 import {dotGrid} from '../dot-grid.js';
 import {dropShadow} from '../drop-shadow/index.js';
@@ -42,6 +43,9 @@ test('@remotion/effects expose documentation links', () => {
 	);
 	expect(chromaticAberration().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/chromatic-aberration',
+	);
+	expect(colorKey().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/color-key',
 	);
 	expect(brightness().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/brightness',
@@ -142,6 +146,7 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(barrelDistortion().definition.label).toBe('barrelDistortion()');
 	expect(blur({radius: 1}).definition.label).toBe('blur()');
 	expect(chromaticAberration().definition.label).toBe('chromaticAberration()');
+	expect(colorKey().definition.label).toBe('colorKey()');
 	expect(brightness().definition.label).toBe('brightness()');
 	expect(contrast().definition.label).toBe('contrast()');
 	expect(duotone().definition.label).toBe('duotone()');
@@ -283,6 +288,82 @@ test('chromaticAberration() parameters produce distinct effect keys', () => {
 	expect(
 		new Set([none.effectKey, shifted.effectKey, angled.effectKey]).size,
 	).toBe(3);
+});
+
+test('colorKey() accepts default params', () => {
+	expect(() => colorKey()).not.toThrow();
+});
+
+test('colorKey() rejects empty keyColor strings', () => {
+	expect(() => colorKey({keyColor: ''})).toThrow(
+		'"keyColor" must be a non-empty string, but got ""',
+	);
+});
+
+test('colorKey() rejects non-finite similarity', () => {
+	expect(() => colorKey({similarity: Number.NaN})).toThrow(
+		'"similarity" must be a finite number',
+	);
+});
+
+test('colorKey() rejects similarity below range', () => {
+	expect(() => colorKey({similarity: -0.1})).toThrow(
+		'"similarity" must be >= 0',
+	);
+});
+
+test('colorKey() rejects similarity above range', () => {
+	expect(() => colorKey({similarity: 1.1})).toThrow(
+		'"similarity" must be <= 1',
+	);
+});
+
+test('colorKey() rejects non-finite smoothness', () => {
+	expect(() => colorKey({smoothness: Number.NaN})).toThrow(
+		'"smoothness" must be a finite number',
+	);
+});
+
+test('colorKey() rejects smoothness below range', () => {
+	expect(() => colorKey({smoothness: -0.1})).toThrow(
+		'"smoothness" must be >= 0',
+	);
+});
+
+test('colorKey() rejects smoothness above range', () => {
+	expect(() => colorKey({smoothness: 1.1})).toThrow(
+		'"smoothness" must be <= 1',
+	);
+});
+
+test('colorKey() rejects spillSuppression below range', () => {
+	expect(() => colorKey({spillSuppression: -0.1})).toThrow(
+		'"spillSuppression" must be >= 0',
+	);
+});
+
+test('colorKey() rejects spillSuppression above range', () => {
+	expect(() => colorKey({spillSuppression: 1.1})).toThrow(
+		'"spillSuppression" must be <= 1',
+	);
+});
+
+test('colorKey() parameters produce distinct effect keys', () => {
+	const defaults = colorKey();
+	const blue = colorKey({keyColor: '#0000ff'});
+	const tighterSimilarity = colorKey({similarity: 0.1});
+	const softerEdges = colorKey({smoothness: 0.3});
+	const moreSpill = colorKey({spillSuppression: 0.5});
+
+	expect(
+		new Set([
+			defaults.effectKey,
+			blue.effectKey,
+			tighterSimilarity.effectKey,
+			softerEdges.effectKey,
+			moreSpill.effectKey,
+		]).size,
+	).toBe(5);
 });
 
 test('tint() throws when color is not passed', () => {

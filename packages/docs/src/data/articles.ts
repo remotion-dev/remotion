@@ -1764,6 +1764,15 @@ export const articles = [
 		slug: 'effects/chromatic-aberration',
 	},
 	{
+		id: 'effects/color-key',
+		title: 'colorKey()',
+		relativePath: 'docs/effects/color-key.mdx',
+		compId: 'articles-docs-effects-color-key',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/color-key',
+	},
+	{
 		id: 'effects/contrast',
 		title: 'contrast()',
 		relativePath: 'docs/effects/contrast.mdx',
@@ -2365,6 +2374,15 @@ export const articles = [
 		crumb: 'Need for Speed',
 		noAi: false,
 		slug: 'gpu',
+	},
+	{
+		id: 'greenscreen',
+		title: 'Greenscreen',
+		relativePath: 'docs/greenscreen.mdx',
+		compId: 'articles-docs-greenscreen',
+		crumb: 'How To',
+		noAi: false,
+		slug: 'greenscreen',
 	},
 	{
 		id: 'hardware-acceleration',
