@@ -30,6 +30,7 @@ import {
 } from './DiscriminatedUnionSchemaTest';
 import {DynamicDuration, dynamicDurationSchema} from './DynamicDuration';
 import {EasingVisualizer} from './EasingVisualizer/EasingVisualizer';
+import {EffectCopySource, EffectCopyTarget} from './EffectCopyTestbed';
 import {EmojiTestbed} from './Emoji';
 import {ErrorOnFrame10} from './ErrorOnFrame10';
 import {ExperimentalControlsShowcase} from './ExperimentalControls';
@@ -374,6 +375,22 @@ export const Index: React.FC = () => {
 					height={1080}
 					fps={30}
 					durationInFrames={60}
+				/>
+				<Composition
+					id="effect-copy-source"
+					component={EffectCopySource}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={120}
+				/>
+				<Composition
+					id="effect-copy-target"
+					component={EffectCopyTarget}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={120}
 				/>
 			</Folder>
 			<Folder name="dynamic-parameters">

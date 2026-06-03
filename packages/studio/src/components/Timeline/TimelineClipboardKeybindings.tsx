@@ -1,6 +1,8 @@
 import {
-	parseEffectClipboardData,
+	parseEffectClipboardDataResult,
 	type EffectClipboardData,
+	type EffectClipboardInterpolationFunction,
+	type EffectClipboardParam,
 	type EffectClipboardPasteType,
 	type EffectClipboardSnapshot,
 } from '@remotion/studio-shared';
@@ -118,6 +120,12 @@ type CopyableEffectStatus = React.ContextType<
 		: never
 	: never;
 
+const isClipboardInterpolationFunction = (
+	value: string,
+): value is EffectClipboardInterpolationFunction => {
+	return value === 'interpolate' || value === 'interpolateColors';
+};
+
 const effectStatusToSnapshot = (
 	effect: CopyableEffectStatus,
 ): EffectClipboardSnapshot | null => {
@@ -125,15 +133,35 @@ const effectStatusToSnapshot = (
 		return null;
 	}
 
-	const params: Record<string, unknown> = {};
+	const params: Record<string, EffectClipboardParam> = {};
 	for (const [key, prop] of Object.entries(effect.props)) {
-		if (prop.status !== 'static') {
+		if (prop.status === 'computed') {
 			return null;
 		}
 
-		if (prop.codeValue !== undefined) {
-			params[key] = prop.codeValue;
+		if (prop.status === 'static') {
+			if (prop.codeValue !== undefined) {
+				params[key] = {
+					type: 'static',
+					value: prop.codeValue,
+				};
+			}
+
+			continue;
 		}
+
+		if (!isClipboardInterpolationFunction(prop.interpolationFunction)) {
+			return null;
+		}
+
+		params[key] = {
+			type: 'keyframed',
+			interpolationFunction: prop.interpolationFunction,
+			keyframes: prop.keyframes,
+			easing: prop.easing,
+			clamping: prop.clamping,
+			...(prop.posterize === undefined ? {} : {posterize: prop.posterize}),
+		};
 	}
 
 	return {
@@ -258,7 +286,7 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 					.writeText(
 						makeClipboardText({
 							type,
-							version: 2,
+							version: 3,
 							remotionClipboard: 'effects',
 							effects: snapshots as EffectClipboardSnapshot[],
 						}),
@@ -296,13 +324,22 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 				navigator.clipboard
 					.readText()
 					.then((text) => {
-						const payload = parseEffectClipboardData(text);
-						if (payload === null) {
+						const result = parseEffectClipboardDataResult(text);
+						if (result.status === 'invalid') {
 							return;
 						}
 
 						e.preventDefault();
 
+						if (result.status === 'unsupported-version') {
+							showNotification(
+								'Cannot paste effects copied from a different Remotion Studio version',
+								4000,
+							);
+							return;
+						}
+
+						const {data: payload} = result;
 						const target = getPasteEffectsTarget(selectedItems);
 						if (target.type === 'multiple') {
 							showNotification(
@@ -330,11 +367,11 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 							type: payload.type,
 							effects: payload.effects,
 							clientId,
-						}).then((result) => {
-							if (result.success) {
+						}).then((pasteResult) => {
+							if (pasteResult.success) {
 								showNotification('Pasted effects', 2000);
 							} else {
-								showNotification(result.reason, 4000);
+								showNotification(pasteResult.reason, 4000);
 							}
 						});
 					})

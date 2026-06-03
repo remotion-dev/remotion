@@ -177,7 +177,7 @@ test('pasting effects treats effect selections on one sequence as one target', (
 	} satisfies PasteEffectsTarget);
 });
 
-test('copying a keyframed effect is blocked', () => {
+test('copying a keyframed effect creates a structured snapshot', () => {
 	const effectNodePathInfo = makeNodePathInfo(
 		['body', 0],
 		['effects', '0'],
@@ -200,7 +200,10 @@ test('copying a keyframed effect is blocked', () => {
 							status: 'keyframed',
 							codeValue: 10,
 							interpolationFunction: 'interpolate',
-							keyframes: [{frame: 0, value: 10}],
+							keyframes: [
+								{frame: 0, value: 10},
+								{frame: 100, value: 20},
+							],
 							easing: ['linear'],
 							clamping: {left: 'clamp', right: 'clamp'},
 							posterize: undefined,
@@ -220,7 +223,24 @@ test('copying a keyframed effect is blocked', () => {
 			},
 			codeValues,
 		}),
-	).toBe(null);
+	).toEqual([
+		{
+			callee: 'effect',
+			importPath: '@remotion/effect',
+			params: {
+				intensity: {
+					type: 'keyframed',
+					interpolationFunction: 'interpolate',
+					keyframes: [
+						{frame: 0, value: 10},
+						{frame: 100, value: 20},
+					],
+					easing: ['linear'],
+					clamping: {left: 'clamp', right: 'clamp'},
+				},
+			},
+		},
+	]);
 });
 
 test('Timeline top drag should not be enabled', () => {

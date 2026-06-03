@@ -45,9 +45,13 @@ export const ensureRemotionImports = (
 	ensureNamedImports({ast, importedNames: names, sourcePath: 'remotion'});
 };
 
-const componentBodyHasFrameDeclaration = (
-	body: FunctionNode['body'],
-): boolean => {
+const componentBodyHasFrameDeclaration = ({
+	body,
+	hookName,
+}: {
+	body: FunctionNode['body'];
+	hookName: string;
+}): boolean => {
 	if (!n.BlockStatement.check(body)) {
 		return false;
 	}
@@ -68,7 +72,7 @@ const componentBodyHasFrameDeclaration = (
 				decl.init &&
 				decl.init.type === 'CallExpression' &&
 				decl.init.callee.type === 'Identifier' &&
-				decl.init.callee.name === 'useCurrentFrame'
+				decl.init.callee.name === hookName
 			) {
 				return true;
 			}
@@ -80,6 +84,7 @@ const componentBodyHasFrameDeclaration = (
 
 export const ensureUseCurrentFrameHook = (
 	functionPath: recast.types.NodePath,
+	hookName = 'useCurrentFrame',
 ): void => {
 	const fn = functionPath.value as FunctionNode;
 
@@ -92,7 +97,7 @@ export const ensureUseCurrentFrameHook = (
 		]) as unknown as FunctionNode['body'];
 	}
 
-	if (componentBodyHasFrameDeclaration(fn.body)) {
+	if (componentBodyHasFrameDeclaration({body: fn.body, hookName})) {
 		return;
 	}
 
@@ -103,7 +108,7 @@ export const ensureUseCurrentFrameHook = (
 	const frameDecl = b.variableDeclaration('const', [
 		b.variableDeclarator(
 			b.identifier('frame'),
-			b.callExpression(b.identifier('useCurrentFrame'), []),
+			b.callExpression(b.identifier(hookName), []),
 		),
 	]);
 

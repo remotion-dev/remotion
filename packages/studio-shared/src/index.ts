@@ -79,9 +79,19 @@ export type {ApplyVisualControlCodemod, RecastCodemod} from './codemods';
 export {DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS} from './default-buffer-state-delay-in-milliseconds';
 export {
 	parseEffectClipboardData,
+	parseEffectClipboardDataResult,
+	type EffectClipboardClamping,
 	type EffectClipboardData,
+	type EffectClipboardDataParseResult,
+	type EffectClipboardEasing,
+	type EffectClipboardExtrapolateType,
+	type EffectClipboardInterpolationFunction,
+	type EffectClipboardKeyframe,
+	type EffectClipboardKeyframedParam,
+	type EffectClipboardParam,
 	type EffectClipboardPasteType,
 	type EffectClipboardSnapshot,
+	type EffectClipboardStaticParam,
 } from './effect-clipboard-data';
 export {
 	EFFECT_DRAG_MIME_TYPE,
