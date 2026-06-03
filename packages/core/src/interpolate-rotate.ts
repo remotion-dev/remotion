@@ -3,7 +3,14 @@ import {normalizeNumber} from './normalize-number.js';
 
 export type InterpolateRotateOptions = InterpolateOptions;
 
-const degreesValueRegex = /^([+-]?(?:\d+\.?\d*|\.\d+))deg$/;
+const angleValueRegex = /^([+-]?(?:\d+\.?\d*|\.\d+))(deg|rad|grad|turn)$/;
+
+const angleUnitToDegrees: Record<string, number> = {
+	deg: 1,
+	rad: 180 / Math.PI,
+	grad: 360 / 400,
+	turn: 360,
+};
 
 const parseRotate = (value: string): number => {
 	if (typeof value !== 'string') {
@@ -12,18 +19,18 @@ const parseRotate = (value: string): number => {
 		);
 	}
 
-	const match = degreesValueRegex.exec(value.trim());
+	const match = angleValueRegex.exec(value.trim());
 	if (match === null) {
 		throw new TypeError(
-			`interpolateRotate() only supports deg values, but got "${value}"`,
+			`interpolateRotate() only supports deg, rad, grad and turn values, but got "${value}"`,
 		);
 	}
 
-	return Number(match[1]);
+	return Number(match[1]) * angleUnitToDegrees[match[2]];
 };
 
 /*
- * @description Allows you to map a range of values to CSS rotate values using degree units.
+ * @description Allows you to map a range of values to CSS rotate values using angle units.
  * @see [Documentation](https://remotion.dev/docs/interpolate-rotate)
  */
 export const interpolateRotate = (

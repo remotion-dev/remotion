@@ -7,7 +7,7 @@ crumb: 'API'
 
 # interpolateRotate()<AvailableFrom v="4.0.472" />
 
-Allows you to map a range of values to CSS rotate values using degree units.
+Allows you to map a range of values to CSS rotate values using angle units.
 
 ## API
 
@@ -21,7 +21,8 @@ Takes three to four arguments:
 `inputRange` and `outputRange` must have the same length and at least one rotate value.
 With one rotate value, `interpolateRotate()` always returns the only output value.
 
-Rotate values must be `deg` values, for example `0deg`, `-45deg`, or `180.5deg`.
+Rotate values may use CSS angle units: `deg`, `rad`, `grad`, or `turn`.
+Mixed units are supported, for example `0deg`, `3.14rad`, `100grad`, and `0.5turn`.
 
 ## Returns
 
@@ -54,8 +55,10 @@ export const MyComposition: React.FC = () => {
 
 ## Supported units
 
-Only `deg` values are supported.
-Other CSS angle units such as `rad`, `grad`, `turn`, or unitless values will throw an error.
+The `outputRange` may contain `deg`, `rad`, `grad`, and `turn` values.
+Values are converted to degrees before interpolation, and `interpolateRotate()` returns a `deg` value.
+
+Other CSS units such as `px`, `%`, or unitless values will throw an error.
 
 ## Options
 

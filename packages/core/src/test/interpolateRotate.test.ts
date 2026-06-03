@@ -14,6 +14,26 @@ describe('interpolateRotate()', () => {
 		);
 	});
 
+	test('interpolates radian values', () => {
+		expect(interpolateRotate(15, [0, 30], ['0rad', `${Math.PI}rad`])).toBe(
+			'90deg',
+		);
+	});
+
+	test('interpolates gradian values', () => {
+		expect(interpolateRotate(15, [0, 30], ['0grad', '200grad'])).toBe('90deg');
+	});
+
+	test('interpolates turn values', () => {
+		expect(interpolateRotate(15, [0, 30], ['0turn', '0.5turn'])).toBe('90deg');
+	});
+
+	test('interpolates mixed angle units', () => {
+		expect(interpolateRotate(15, [0, 30], ['0.25turn', '200grad'])).toBe(
+			'135deg',
+		);
+	});
+
 	test('supports multiple keyframes', () => {
 		expect(interpolateRotate(45, [0, 30, 60], ['0deg', '60deg', '0deg'])).toBe(
 			'30deg',
@@ -54,18 +74,14 @@ describe('interpolateRotate()', () => {
 		expect(interpolateRotate(15, [0], ['10deg'])).toBe('10deg');
 	});
 
-	test('throws if output range contains non-degree units', () => {
+	test('throws if output range contains unsupported units', () => {
 		expectToThrow(
-			() => interpolateRotate(15, [0, 30], ['0deg', '1turn']),
-			/only supports deg values/,
-		);
-		expectToThrow(
-			() => interpolateRotate(15, [0, 30], ['0deg', '1rad']),
-			/only supports deg values/,
+			() => interpolateRotate(15, [0, 30], ['0deg', '100px']),
+			/only supports deg, rad, grad and turn values/,
 		);
 		expectToThrow(
 			() => interpolateRotate(15, [0, 30], ['0deg', '10']),
-			/only supports deg values/,
+			/only supports deg, rad, grad and turn values/,
 		);
 	});
 });
