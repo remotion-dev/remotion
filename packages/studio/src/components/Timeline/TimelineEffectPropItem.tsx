@@ -1,4 +1,7 @@
-import {optimisticUpdateForEffectCodeValues} from '@remotion/studio-shared';
+import {
+	isSchemaFieldKeyframable,
+	optimisticUpdateForEffectCodeValues,
+} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useMemo} from 'react';
 import type {
 	CanUpdateSequencePropStatus,
@@ -328,7 +331,10 @@ export const TimelineEffectPropItem: React.FC<{
 		shouldShowTimelineKeyframeControls({
 			propStatus,
 			selected: selection.selected,
-			keyframable: field.fieldSchema.keyframable !== false,
+			keyframable: isSchemaFieldKeyframable({
+				schema: field.effectSchema,
+				key: field.key,
+			}),
 		}) ? (
 			<TimelineKeyframeControls
 				fieldKey={field.key}
