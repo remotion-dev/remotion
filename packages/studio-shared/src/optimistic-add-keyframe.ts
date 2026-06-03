@@ -65,7 +65,7 @@ const addKeyframeToPropStatus = ({
 			}),
 			keyframes: [{frame, value}],
 			easing: [],
-			clamping: {left: 'extend', right: 'extend'},
+			clamping: {left: 'clamp', right: 'clamp'},
 			posterize: undefined,
 		};
 	}

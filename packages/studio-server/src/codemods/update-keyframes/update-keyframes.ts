@@ -72,6 +72,10 @@ type WritableProp = {
 	setExpression: (expression: ExpressionKind) => void;
 };
 
+type MissingPropInitialValue = {
+	value: unknown;
+};
+
 type InterpolateKeyframe = {
 	frame: number;
 	output: ExpressionKind;
@@ -220,6 +224,16 @@ const createFrameExpression = (frame: number): ExpressionKind => {
 	return parseValueExpression(frame);
 };
 
+const createClampOptionsExpression = (): ExpressionKind => {
+	return b.objectExpression([
+		b.objectProperty(b.identifier('extrapolateLeft'), b.stringLiteral('clamp')),
+		b.objectProperty(
+			b.identifier('extrapolateRight'),
+			b.stringLiteral('clamp'),
+		),
+	]) as ExpressionKind;
+};
+
 const createInterpolateExpression = ({
 	callee,
 	input,
@@ -326,12 +340,16 @@ const addKeyframe = ({
 		staticValue,
 		newValue: value,
 	});
+	const extraArgs =
+		callee.type === 'Identifier' && callee.name === 'interpolateColors'
+			? []
+			: [createClampOptionsExpression()];
 
 	return {
 		expression: createInterpolateExpression({
 			callee,
 			input: b.identifier('frame'),
-			extraArgs: [],
+			extraArgs,
 			keyframes,
 		}),
 		introduced: {
@@ -499,23 +517,21 @@ const findFieldInSchema = (
 	return undefined;
 };
 
-const getDefaultExpressionForKey = ({
-	key,
+const getInitialValueForMissingProp = ({
 	schema,
+	key,
+	newValue,
 }: {
-	readonly key: string;
-	readonly schema: SequenceSchema | null;
-}): ExpressionKind | null => {
-	if (schema === null) {
-		return null;
+	schema: SequenceSchema | null;
+	key: string;
+	newValue: unknown;
+}): unknown => {
+	const field = schema ? findFieldInSchema(schema, key) : undefined;
+	if (field && field.type !== 'hidden' && field.default !== undefined) {
+		return field.default;
 	}
 
-	const field = findFieldInSchema(schema, key);
-	if (field === undefined || !('default' in field)) {
-		return null;
-	}
-
-	return parseValueExpression(field.default);
+	return newValue;
 };
 
 const getObjectExpression = (attr: JSXAttribute): ObjectExpression | null => {
@@ -530,21 +546,64 @@ const getObjectExpression = (attr: JSXAttribute): ObjectExpression | null => {
 	return attr.value.expression as ObjectExpression;
 };
 
+const createJsxExpressionAttribute = (
+	key: string,
+	expression: ExpressionKind,
+): JSXAttribute => {
+	return b.jsxAttribute(
+		b.jsxIdentifier(key),
+		b.jsxExpressionContainer(expression),
+	) as JSXAttribute;
+};
+
+const createObjectProperty = (key: string, value: ExpressionKind) =>
+	b.objectProperty(b.identifier(key), value);
+
+const createObjectExpressionAttribute = ({
+	parentKey,
+	childKey,
+	expression,
+}: {
+	parentKey: string;
+	childKey: string;
+	expression: ExpressionKind;
+}): JSXAttribute => {
+	return createJsxExpressionAttribute(
+		parentKey,
+		b.objectExpression([
+			createObjectProperty(childKey, expression),
+		]) as ExpressionKind,
+	);
+};
+
+const createMissingPropExpression = (
+	missingPropInitialValue: MissingPropInitialValue,
+): Expression => {
+	return parseValueExpression(missingPropInitialValue.value) as Expression;
+};
+
 const getSequenceWritableProp = ({
 	attributes,
-	createFromDefault,
 	key,
-	schema,
+	missingPropInitialValue,
 }: {
 	attributes: (JSXAttribute | JSXSpreadAttribute)[];
-	createFromDefault: boolean;
 	key: string;
-	schema: SequenceSchema | null;
+	missingPropInitialValue: MissingPropInitialValue | null;
 }): WritableProp => {
 	const dotIndex = key.indexOf('.');
 	if (dotIndex === -1) {
 		const {attr: topLevelAttr} = findJsxAttribute(attributes, key);
 		if (!topLevelAttr) {
+			if (missingPropInitialValue) {
+				return {
+					expression: createMissingPropExpression(missingPropInitialValue),
+					setExpression: (nextExpression) => {
+						attributes.push(createJsxExpressionAttribute(key, nextExpression));
+					},
+				};
+			}
+
 			throw new Error(`Cannot update keyframes: "${key}" is not set`);
 		}
 
@@ -571,25 +630,17 @@ const getSequenceWritableProp = ({
 	const childKey = key.slice(dotIndex + 1);
 	const {attr: parentAttr} = findJsxAttribute(attributes, parentKey);
 	if (!parentAttr) {
-		const defaultExpression = createFromDefault
-			? getDefaultExpressionForKey({key, schema})
-			: null;
-		if (defaultExpression !== null) {
-			const prop = b.objectProperty(
-				b.identifier(childKey),
-				defaultExpression,
-			) as ObjectProperty;
-			const objExpr = b.objectExpression([prop as never]);
-			const newAttr = b.jsxAttribute(
-				b.jsxIdentifier(parentKey),
-				b.jsxExpressionContainer(objExpr),
-			);
-			attributes.push(newAttr as JSXAttribute | JSXSpreadAttribute);
-
+		if (missingPropInitialValue) {
 			return {
-				expression: prop.value as Expression,
+				expression: createMissingPropExpression(missingPropInitialValue),
 				setExpression: (nextExpression) => {
-					prop.value = nextExpression as ObjectProperty['value'];
+					attributes.push(
+						createObjectExpressionAttribute({
+							parentKey,
+							childKey,
+							expression: nextExpression,
+						}),
+					);
 				},
 			};
 		}
@@ -604,20 +655,13 @@ const getSequenceWritableProp = ({
 
 	const {prop} = findObjectProperty(objExpr, childKey);
 	if (!prop) {
-		const defaultExpression = createFromDefault
-			? getDefaultExpressionForKey({key, schema})
-			: null;
-		if (defaultExpression !== null) {
-			const newProp = b.objectProperty(
-				b.identifier(childKey),
-				defaultExpression,
-			) as ObjectProperty;
-			objExpr.properties.push(newProp);
-
+		if (missingPropInitialValue) {
 			return {
-				expression: newProp.value as Expression,
+				expression: createMissingPropExpression(missingPropInitialValue),
 				setExpression: (nextExpression) => {
-					newProp.value = nextExpression as ObjectProperty['value'];
+					objExpr.properties.push(
+						createObjectProperty(childKey, nextExpression) as ObjectProperty,
+					);
 				},
 			};
 		}
@@ -671,9 +715,17 @@ export const updateSequenceKeyframesAst = ({
 	for (const update of updates) {
 		const prop = getSequenceWritableProp({
 			attributes: node.attributes,
-			createFromDefault: update.operation.type === 'add',
 			key: update.key,
-			schema: schema ?? null,
+			missingPropInitialValue:
+				update.operation.type === 'add'
+					? {
+							value: getInitialValueForMissingProp({
+								schema: schema ?? null,
+								key: update.key,
+								newValue: update.operation.value,
+							}),
+						}
+					: null,
 		});
 		oldValueStrings.push(recast.print(prop.expression).code);
 		const {expression: nextExpression, introduced} = applyKeyframeOperation({
