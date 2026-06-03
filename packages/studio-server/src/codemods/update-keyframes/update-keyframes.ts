@@ -19,7 +19,11 @@ import {
 } from '@remotion/studio-shared';
 import type {ExpressionKind, SpreadElementKind} from 'ast-types/lib/gen/kinds';
 import * as recast from 'recast';
-import type {SequenceNodePath, SequenceSchema} from 'remotion';
+import type {
+	SequenceFieldSchema,
+	SequenceNodePath,
+	SequenceSchema,
+} from 'remotion';
 import {getAstNodePath} from '../../helpers/get-ast-node-path';
 import {
 	extractStaticValue,
@@ -66,6 +70,10 @@ export type EffectKeyframeUpdate = {
 type WritableProp = {
 	expression: Expression;
 	setExpression: (expression: ExpressionKind) => void;
+};
+
+type MissingPropInitialValue = {
+	value: unknown;
 };
 
 type InterpolateKeyframe = {
@@ -471,6 +479,47 @@ const findObjectProperty = (
 	};
 };
 
+const findFieldInSchema = (
+	schema: SequenceSchema,
+	key: string,
+): SequenceFieldSchema | undefined => {
+	if (key in schema) {
+		return schema[key];
+	}
+
+	for (const field of Object.values(schema)) {
+		if (field.type !== 'enum') {
+			continue;
+		}
+
+		for (const variant of Object.values(field.variants)) {
+			const found = findFieldInSchema(variant, key);
+			if (found) {
+				return found;
+			}
+		}
+	}
+
+	return undefined;
+};
+
+const getInitialValueForMissingProp = ({
+	schema,
+	key,
+	newValue,
+}: {
+	schema: SequenceSchema | null;
+	key: string;
+	newValue: unknown;
+}): unknown => {
+	const field = schema ? findFieldInSchema(schema, key) : undefined;
+	if (field && field.type !== 'hidden' && field.default !== undefined) {
+		return field.default;
+	}
+
+	return newValue;
+};
+
 const getObjectExpression = (attr: JSXAttribute): ObjectExpression | null => {
 	if (!attr.value || attr.value.type !== 'JSXExpressionContainer') {
 		return null;
@@ -486,14 +535,32 @@ const getObjectExpression = (attr: JSXAttribute): ObjectExpression | null => {
 const getSequenceWritableProp = ({
 	attributes,
 	key,
+	missingPropInitialValue,
 }: {
 	attributes: (JSXAttribute | JSXSpreadAttribute)[];
 	key: string;
+	missingPropInitialValue: MissingPropInitialValue | null;
 }): WritableProp => {
 	const dotIndex = key.indexOf('.');
 	if (dotIndex === -1) {
 		const {attr: topLevelAttr} = findJsxAttribute(attributes, key);
 		if (!topLevelAttr) {
+			if (missingPropInitialValue) {
+				return {
+					expression: parseValueExpression(
+						missingPropInitialValue.value,
+					) as Expression,
+					setExpression: (nextExpression) => {
+						attributes.push(
+							b.jsxAttribute(
+								b.jsxIdentifier(key),
+								b.jsxExpressionContainer(nextExpression),
+							) as JSXAttribute,
+						);
+					},
+				};
+			}
+
 			throw new Error(`Cannot update keyframes: "${key}" is not set`);
 		}
 
@@ -520,6 +587,26 @@ const getSequenceWritableProp = ({
 	const childKey = key.slice(dotIndex + 1);
 	const {attr: parentAttr} = findJsxAttribute(attributes, parentKey);
 	if (!parentAttr) {
+		if (missingPropInitialValue) {
+			return {
+				expression: parseValueExpression(
+					missingPropInitialValue.value,
+				) as Expression,
+				setExpression: (nextExpression) => {
+					attributes.push(
+						b.jsxAttribute(
+							b.jsxIdentifier(parentKey),
+							b.jsxExpressionContainer(
+								b.objectExpression([
+									b.objectProperty(b.identifier(childKey), nextExpression),
+								]),
+							),
+						) as JSXAttribute,
+					);
+				},
+			};
+		}
+
 		throw new Error(`Cannot update keyframes: "${parentKey}" is not set`);
 	}
 
@@ -530,6 +617,22 @@ const getSequenceWritableProp = ({
 
 	const {prop} = findObjectProperty(objExpr, childKey);
 	if (!prop) {
+		if (missingPropInitialValue) {
+			return {
+				expression: parseValueExpression(
+					missingPropInitialValue.value,
+				) as Expression,
+				setExpression: (nextExpression) => {
+					objExpr.properties.push(
+						b.objectProperty(
+							b.identifier(childKey),
+							nextExpression,
+						) as ObjectProperty,
+					);
+				},
+			};
+		}
+
 		throw new Error(`Cannot update keyframes: "${key}" is not set`);
 	}
 
@@ -580,6 +683,16 @@ export const updateSequenceKeyframesAst = ({
 		const prop = getSequenceWritableProp({
 			attributes: node.attributes,
 			key: update.key,
+			missingPropInitialValue:
+				update.operation.type === 'add'
+					? {
+							value: getInitialValueForMissingProp({
+								schema: schema ?? null,
+								key: update.key,
+								newValue: update.operation.value,
+							}),
+						}
+					: null,
 		});
 		oldValueStrings.push(recast.print(prop.expression).code);
 		const {expression: nextExpression, introduced} = applyKeyframeOperation({

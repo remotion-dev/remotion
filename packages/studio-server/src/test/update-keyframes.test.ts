@@ -228,6 +228,54 @@ test('updateSequenceKeyframes converts static translate to interpolateTranslate'
 	expect(output).toContain('interpolateTranslate');
 });
 
+test('updateSequenceKeyframes adds a missing nested prop before keyframing it', async () => {
+	const input = `import React from 'react';
+import {AbsoluteFill} from 'remotion';
+
+export const Example: React.FC = () => {
+\treturn (
+\t\t<AbsoluteFill>
+\t\t\t<div style={{opacity: 1}} />
+\t\t</AbsoluteFill>
+\t);
+};
+`;
+	const {output, oldValueStrings, updatedNodePath} =
+		await updateSequenceKeyframes({
+			input,
+			nodePath: lineColumnToNodePath(input, getLine(input, '<div')),
+			schema: translateSchema,
+			updates: [
+				{
+					key: 'style.translate',
+					operation: {type: 'add', frame: 44, value: '100px 20px'},
+				},
+			],
+		});
+
+	expect(oldValueStrings).toEqual(['"0px 0px"']);
+	expect(output).toContain(
+		"translate: interpolateTranslate(frame, [44], ['100px 20px'])",
+	);
+	expect(output).toContain('useCurrentFrame');
+	expect(output).toContain('interpolateTranslate');
+	const status = computeSequencePropsStatusFromContent({
+		fileContents: output,
+		nodePath: updatedNodePath,
+		keys: ['style.translate'],
+		effects: [],
+	});
+	expect(status.props['style.translate']).toEqual({
+		status: 'keyframed',
+		codeValue: undefined,
+		interpolationFunction: 'interpolateTranslate',
+		keyframes: [{frame: 44, value: '100px 20px'}],
+		easing: [],
+		clamping: {left: 'extend', right: 'extend'},
+		posterize: undefined,
+	});
+});
+
 test('updateSequenceKeyframes migrates translate away from interpolateColors', async () => {
 	const input = translateInput
 		.replace(
