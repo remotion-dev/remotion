@@ -56,6 +56,7 @@ export const TimelineKeyframedValue: React.FC<{
 				onSave={noopAsync}
 				onDragValueChange={noop}
 				onDragEnd={noop}
+				scaleLockNodePath={null}
 			/>
 		</div>
 	);

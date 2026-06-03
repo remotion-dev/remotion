@@ -1,5 +1,8 @@
-import React, {useCallback, useMemo, useRef, useState} from 'react';
-import type {CanUpdateSequencePropStatusStatic} from 'remotion';
+import React, {useCallback, useContext, useMemo, useRef, useState} from 'react';
+import type {
+	CanUpdateSequencePropStatusStatic,
+	SequencePropsSubscriptionKey,
+} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {LIGHT_COLOR} from '../../helpers/colors';
 import type {
@@ -7,6 +10,7 @@ import type {
 	TimelineFieldOnDragValueChange,
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
+import {ScaleLockContext} from '../../state/scale-lock';
 import {InputDragger} from '../NewComposition/InputDragger';
 import {getDecimalPlaces} from './timeline-field-utils';
 import {timelineLayerIconContainer} from './TimelineLayerEye';
@@ -53,7 +57,7 @@ const normalizeScaleNumber = (value: number): number => {
 	return Math.round(value * 1000000) / 1000000;
 };
 
-const getLinkedScale = ({
+export const getLinkedScale = ({
 	axis,
 	newValue,
 	baseX,
@@ -147,6 +151,7 @@ export const TimelineScaleField: React.FC<{
 	readonly onSave: TimelineFieldOnSave;
 	readonly onDragValueChange: TimelineFieldOnDragValueChange;
 	readonly onDragEnd: () => void;
+	readonly scaleLockNodePath: SequencePropsSubscriptionKey | null;
 }> = ({
 	field,
 	propStatus,
@@ -154,17 +159,28 @@ export const TimelineScaleField: React.FC<{
 	onSave,
 	onDragValueChange,
 	onDragEnd,
+	scaleLockNodePath,
 }) => {
 	const [dragX, setDragX] = useState<number | null>(null);
 	const [dragY, setDragY] = useState<number | null>(null);
 	const dragStartRef = useRef<readonly [number, number] | null>(null);
+	const {getScaleLockState, setScaleLockState} = useContext(ScaleLockContext);
 
 	const [codeX, codeY, codeZ] = useMemo(
 		() => NoReactInternals.parseScaleValue(effectiveValue),
 		[effectiveValue],
 	);
 
-	const [linked, setLinked] = useState(() => codeX === codeY);
+	const [localLinked, setLocalLinked] = useState(() => codeX === codeY);
+	const defaultLinked = codeX === codeY;
+	const linked =
+		scaleLockNodePath === null
+			? localLinked
+			: getScaleLockState({
+					nodePath: scaleLockNodePath,
+					fieldKey: field.key,
+					defaultValue: defaultLinked,
+				});
 
 	const step =
 		field.fieldSchema.type === 'scale'
@@ -418,8 +434,17 @@ export const TimelineScaleField: React.FC<{
 	);
 
 	const onToggleLink = useCallback(() => {
-		setLinked((current) => !current);
-	}, []);
+		if (scaleLockNodePath === null) {
+			setLocalLinked((current) => !current);
+			return;
+		}
+
+		setScaleLockState({
+			nodePath: scaleLockNodePath,
+			fieldKey: field.key,
+			linked: !linked,
+		});
+	}, [field.key, linked, scaleLockNodePath, setScaleLockState]);
 
 	return (
 		<span style={containerStyle}>

@@ -11,9 +11,13 @@ import {
 	getSelectedEffectFieldsBySequenceKey,
 	getSelectedOutlineDragChanges,
 	getSelectedOutlineDragValues,
+	getSelectedOutlineScaleDragChanges,
+	getSelectedOutlineScaleDragValues,
+	getSelectedOutlineScaleEdgeInfo,
 	getUvCoordinateForPoint,
 	getUvHandlePosition,
 	type SelectedOutlineDragState,
+	type SelectedOutlineScaleDragState,
 } from '../components/SelectedOutlineOverlay';
 import {deleteSelectedTimelineItems} from '../components/Timeline/delete-selected-timeline-item';
 import {isDuplicatableSequenceRowSelection} from '../components/Timeline/duplicate-selected-timeline-item';
@@ -712,6 +716,105 @@ test('Selected outline dragging applies the same delta to all selected sequences
 			schema,
 		},
 	]);
+});
+
+test('Selected outline edge dragging scales one axis when scale is unlinked', () => {
+	const schema = {
+		'style.scale': {type: 'scale', default: 1, min: 0.05, max: 100},
+	} satisfies SequenceSchema;
+	const nodePath = makeKey(['body', 0]);
+	const dragStates = [
+		{
+			defaultValue: JSON.stringify(1),
+			key: Internals.makeSequencePropsSubscriptionKey(nodePath),
+			startX: 2,
+			startY: 3,
+			startZ: 1,
+			target: {
+				clientId: 'client',
+				codeValue: {status: 'static', codeValue: '2 3'},
+				fieldDefault: 1,
+				fieldSchema: schema['style.scale'],
+				linked: false,
+				nodePath,
+				schema,
+			},
+		},
+	] satisfies SelectedOutlineScaleDragState[];
+
+	const lastValues = getSelectedOutlineScaleDragValues({
+		dragStates,
+		axis: 'x',
+		scaleFactor: 1.25,
+	});
+
+	expect(lastValues.get(dragStates[0].key)).toBe('2.5 3');
+	expect(
+		getSelectedOutlineScaleDragChanges({
+			dragStates,
+			lastValues,
+		}),
+	).toEqual([
+		{
+			fileName: '/project/src/Comp.tsx',
+			nodePath,
+			fieldKey: 'style.scale',
+			value: '2.5 3',
+			defaultValue: JSON.stringify(1),
+			schema,
+		},
+	]);
+});
+
+test('Selected outline edge dragging preserves aspect ratio when scale is linked', () => {
+	const schema = {
+		'style.scale': {type: 'scale', default: 1, min: 0.05, max: 100},
+	} satisfies SequenceSchema;
+	const nodePath = makeKey(['body', 0]);
+	const dragStates = [
+		{
+			defaultValue: JSON.stringify(1),
+			key: Internals.makeSequencePropsSubscriptionKey(nodePath),
+			startX: 2,
+			startY: 3,
+			startZ: 1,
+			target: {
+				clientId: 'client',
+				codeValue: {status: 'static', codeValue: '2 3'},
+				fieldDefault: 1,
+				fieldSchema: schema['style.scale'],
+				linked: true,
+				nodePath,
+				schema,
+			},
+		},
+	] satisfies SelectedOutlineScaleDragState[];
+
+	const lastValues = getSelectedOutlineScaleDragValues({
+		dragStates,
+		axis: 'x',
+		scaleFactor: 1.25,
+	});
+
+	expect(lastValues.get(dragStates[0].key)).toBe('2.5 3.75');
+});
+
+test('Selected outline scale edges project pointer movement onto the edge normal', () => {
+	const points = [
+		{x: 0, y: 0},
+		{x: 100, y: 0},
+		{x: 100, y: 50},
+		{x: 0, y: 50},
+	] as const;
+	const right = getSelectedOutlineScaleEdgeInfo(points, 'right');
+	const top = getSelectedOutlineScaleEdgeInfo(points, 'top');
+
+	expect(right?.axis).toBe('x');
+	expect(right?.extent).toBe(100);
+	expect(right?.normal).toEqual({x: 1, y: 0});
+	expect(top?.axis).toBe('y');
+	expect(top?.extent).toBe(50);
+	expect(top?.normal).toEqual({x: 0, y: -1});
 });
 
 test('Backspace reset targets selected effect props', () => {
