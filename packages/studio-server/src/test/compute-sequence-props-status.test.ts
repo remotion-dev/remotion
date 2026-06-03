@@ -96,12 +96,12 @@ export const Example: React.FC = () => {
 
 test('computeSequencePropsStatus should return keyframes for interpolated translate props', () => {
 	const input = `import React from 'react';
-import {Sequence, interpolateTranslate, useCurrentFrame} from 'remotion';
+import {Sequence, interpolate, useCurrentFrame} from 'remotion';
 
 export const Example: React.FC = () => {
 \tconst frame = useCurrentFrame();
 \treturn (
-\t\t<Sequence style={{translate: interpolateTranslate(frame, [0, 100], ['0px 59px', '100px 20px'])}} />
+\t\t<Sequence style={{translate: interpolate(frame, [0, 100], ['0px 59px', '100px 20px'])}} />
 \t);
 };
 `;
@@ -118,7 +118,7 @@ export const Example: React.FC = () => {
 	expect(result.props['style.translate']).toEqual({
 		status: 'keyframed',
 		codeValue: undefined,
-		interpolationFunction: 'interpolateTranslate',
+		interpolationFunction: 'interpolate',
 		keyframes: [
 			{frame: 0, value: '0px 59px'},
 			{frame: 100, value: '100px 20px'},
@@ -131,12 +131,12 @@ export const Example: React.FC = () => {
 
 test('computeSequencePropsStatus should return keyframes for interpolated rotate props', () => {
 	const input = `import React from 'react';
-import {Sequence, interpolateRotate, useCurrentFrame} from 'remotion';
+import {Sequence, interpolate, useCurrentFrame} from 'remotion';
 
 export const Example: React.FC = () => {
 \tconst frame = useCurrentFrame();
 \treturn (
-\t\t<Sequence style={{rotate: interpolateRotate(frame, [55, 68], ['19deg', '23deg'])}} />
+\t\t<Sequence style={{rotate: interpolate(frame, [55, 68], ['19deg', '23deg'])}} />
 \t);
 };
 `;
@@ -153,7 +153,7 @@ export const Example: React.FC = () => {
 	expect(result.props['style.rotate']).toEqual({
 		status: 'keyframed',
 		codeValue: undefined,
-		interpolationFunction: 'interpolateRotate',
+		interpolationFunction: 'interpolate',
 		keyframes: [
 			{frame: 55, value: '19deg'},
 			{frame: 68, value: '23deg'},

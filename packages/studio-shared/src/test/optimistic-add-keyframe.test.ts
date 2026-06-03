@@ -38,7 +38,7 @@ test('optimisticAddSequenceKeyframe converts a static prop to a single keyframe'
 	expect(status.clamping).toEqual({left: 'clamp', right: 'clamp'});
 });
 
-test('optimisticAddSequenceKeyframe uses interpolateTranslate for translate fields', () => {
+test('optimisticAddSequenceKeyframe uses interpolate for translate fields', () => {
 	const previous: CanUpdateSequencePropsResponse = {
 		canUpdate: true,
 		props: {
@@ -73,12 +73,12 @@ test('optimisticAddSequenceKeyframe uses interpolateTranslate for translate fiel
 		throw new Error('expected keyframed status');
 	}
 
-	expect(status.interpolationFunction).toBe('interpolateTranslate');
+	expect(status.interpolationFunction).toBe('interpolate');
 	expect(status.keyframes).toEqual([{frame: 44, value: '0px 59px'}]);
 	expect(status.clamping).toEqual({left: 'clamp', right: 'clamp'});
 });
 
-test('optimisticAddSequenceKeyframe uses interpolateRotate for rotation-css fields', () => {
+test('optimisticAddSequenceKeyframe uses interpolate for rotation-css fields', () => {
 	const previous: CanUpdateSequencePropsResponse = {
 		canUpdate: true,
 		props: {
@@ -113,7 +113,7 @@ test('optimisticAddSequenceKeyframe uses interpolateRotate for rotation-css fiel
 		throw new Error('expected keyframed status');
 	}
 
-	expect(status.interpolationFunction).toBe('interpolateRotate');
+	expect(status.interpolationFunction).toBe('interpolate');
 	expect(status.keyframes).toEqual([{frame: 44, value: '19deg'}]);
 	expect(status.clamping).toEqual({left: 'clamp', right: 'clamp'});
 });

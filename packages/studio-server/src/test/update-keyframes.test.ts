@@ -260,7 +260,7 @@ test('updateSequenceKeyframes converts a static string value to a color interpol
 	expect(output).toContain("color={interpolateColors(frame, [50], ['blue'])}");
 });
 
-test('updateSequenceKeyframes converts static translate to interpolateTranslate', async () => {
+test('updateSequenceKeyframes converts static translate to interpolate', async () => {
 	const {output, oldValueStrings} = await updateSequenceKeyframes({
 		input: translateInput,
 		nodePath: lineColumnToNodePath(
@@ -278,11 +278,11 @@ test('updateSequenceKeyframes converts static translate to interpolateTranslate'
 
 	expect(oldValueStrings).toEqual(["'0px 59px'"]);
 	expect(output).toContain(
-		"translate: interpolateTranslate(frame, [44], ['0px 59px'], {",
+		"translate: interpolate(frame, [44], ['0px 59px'], {",
 	);
 	expect(output).toContain("extrapolateLeft: 'clamp'");
 	expect(output).toContain("extrapolateRight: 'clamp'");
-	expect(output).toContain('interpolateTranslate');
+	expect(output).toContain('interpolate');
 });
 
 test('updateSequenceKeyframes adds a missing nested prop before keyframing it', async () => {
@@ -312,12 +312,12 @@ export const Example: React.FC = () => {
 
 	expect(oldValueStrings).toEqual(['"0px 0px"']);
 	expect(output).toContain(
-		"translate: interpolateTranslate(frame, [44], ['100px 20px'], {",
+		"translate: interpolate(frame, [44], ['100px 20px'], {",
 	);
 	expect(output).toContain("extrapolateLeft: 'clamp'");
 	expect(output).toContain("extrapolateRight: 'clamp'");
 	expect(output).toContain('useCurrentFrame');
-	expect(output).toContain('interpolateTranslate');
+	expect(output).toContain('interpolate');
 	const status = computeSequencePropsStatusFromContent({
 		fileContents: output,
 		nodePath: updatedNodePath,
@@ -327,7 +327,7 @@ export const Example: React.FC = () => {
 	expect(status.props['style.translate']).toEqual({
 		status: 'keyframed',
 		codeValue: undefined,
-		interpolationFunction: 'interpolateTranslate',
+		interpolationFunction: 'interpolate',
 		keyframes: [{frame: 44, value: '100px 20px'}],
 		easing: [],
 		clamping: {left: 'clamp', right: 'clamp'},
@@ -361,12 +361,12 @@ test('updateSequenceKeyframes migrates translate away from interpolateColors', a
 	expect(oldValueStrings).toEqual([
 		"interpolateColors(frame, [44], ['0px 59px'])",
 	]);
-	expect(output).toContain('translate: interpolateTranslate(');
+	expect(output).toContain('translate: interpolate(');
 	expect(output).toContain('[44, 88]');
 	expect(output).toContain("['0px 59px', '100px 20px']");
 });
 
-test('updateSequenceKeyframes converts static rotate to interpolateRotate', async () => {
+test('updateSequenceKeyframes converts static rotate to interpolate', async () => {
 	const {output, oldValueStrings} = await updateSequenceKeyframes({
 		input: rotateInput,
 		nodePath: lineColumnToNodePath(rotateInput, getLine(rotateInput, 'rotate')),
@@ -380,12 +380,10 @@ test('updateSequenceKeyframes converts static rotate to interpolateRotate', asyn
 	});
 
 	expect(oldValueStrings).toEqual(["'19deg'"]);
-	expect(output).toContain(
-		"rotate: interpolateRotate(frame, [55], ['19deg'], {",
-	);
+	expect(output).toContain("rotate: interpolate(frame, [55], ['19deg'], {");
 	expect(output).toContain("extrapolateLeft: 'clamp'");
 	expect(output).toContain("extrapolateRight: 'clamp'");
-	expect(output).toContain('interpolateRotate');
+	expect(output).toContain('interpolate');
 });
 
 test('updateSequenceKeyframes migrates rotate away from interpolateColors', async () => {
@@ -414,7 +412,7 @@ test('updateSequenceKeyframes migrates rotate away from interpolateColors', asyn
 	expect(oldValueStrings).toEqual([
 		"interpolateColors(frame, [55], ['19deg'])",
 	]);
-	expect(output).toContain('rotate: interpolateRotate(');
+	expect(output).toContain('rotate: interpolate(');
 	expect(output).toContain('[55, 68]');
 	expect(output).toContain("['19deg', '23deg']");
 });

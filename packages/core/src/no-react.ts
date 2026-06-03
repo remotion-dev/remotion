@@ -15,14 +15,6 @@ export type {
 	ExtrapolateType,
 	InterpolateOptions,
 } from './interpolate';
-export {
-	interpolateRotate,
-	type InterpolateRotateOptions,
-} from './interpolate-rotate';
-export {
-	interpolateTranslate,
-	type InterpolateTranslateOptions,
-} from './interpolate-translate';
 export {random} from './random.js';
 export type {RandomSeed} from './random.js';
 export type {VideoConfig} from './video-config';

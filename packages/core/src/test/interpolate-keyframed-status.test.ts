@@ -119,7 +119,7 @@ test('interpolates translate keyframes', () => {
 		status: {
 			status: 'keyframed',
 			codeValue: undefined,
-			interpolationFunction: 'interpolateTranslate',
+			interpolationFunction: 'interpolate',
 			keyframes: [
 				{frame: 0, value: '0px 0px'},
 				{frame: 60, value: '120px 60px'},
@@ -138,7 +138,7 @@ test('interpolates rotate keyframes', () => {
 		status: {
 			status: 'keyframed',
 			codeValue: undefined,
-			interpolationFunction: 'interpolateRotate',
+			interpolationFunction: 'interpolate',
 			keyframes: [
 				{frame: 0, value: '0deg'},
 				{frame: 60, value: '120deg'},
