@@ -35,6 +35,7 @@ test('optimisticAddSequenceKeyframe converts a static prop to a single keyframe'
 
 	expect(status.keyframes).toEqual([{frame: 25, value: 0.75}]);
 	expect(status.easing).toEqual([]);
+	expect(status.clamping).toEqual({left: 'clamp', right: 'clamp'});
 });
 
 test('optimisticAddSequenceKeyframe uses interpolateTranslate for translate fields', () => {
@@ -74,6 +75,7 @@ test('optimisticAddSequenceKeyframe uses interpolateTranslate for translate fiel
 
 	expect(status.interpolationFunction).toBe('interpolateTranslate');
 	expect(status.keyframes).toEqual([{frame: 44, value: '0px 59px'}]);
+	expect(status.clamping).toEqual({left: 'clamp', right: 'clamp'});
 });
 
 test('optimisticAddSequenceKeyframe uses interpolateRotate for rotation-css fields', () => {
@@ -287,4 +289,5 @@ test('optimisticAddEffectKeyframe converts a static prop to a single keyframe', 
 
 	expect(status.keyframes).toEqual([{frame: 30, value: 0.5}]);
 	expect(status.easing).toEqual([]);
+	expect(status.clamping).toEqual({left: 'clamp', right: 'clamp'});
 });
