@@ -86,7 +86,7 @@ export const Example: React.FC = () => {
 	expect(serialized).toContain('const frame = useCurrentFrame();');
 });
 
-test('adds interpolateTranslate import for translate conversion', () => {
+test('adds interpolate import for translate conversion', () => {
 	const input = `import React from 'react';
 import {AbsoluteFill} from 'remotion';
 
@@ -106,13 +106,13 @@ export const Example: React.FC = () => {
 		],
 	});
 
-	expect(serialized).toContain('interpolateTranslate');
+	expect(serialized).toContain('interpolate');
 	expect(serialized).not.toContain('interpolateColors');
 	expect(serialized).toContain('useCurrentFrame');
 	expect(serialized).toContain('const frame = useCurrentFrame();');
 });
 
-test('adds interpolateRotate import for rotate conversion', () => {
+test('adds interpolate import for rotate conversion', () => {
 	const input = `import React from 'react';
 import {AbsoluteFill} from 'remotion';
 
@@ -132,7 +132,7 @@ export const Example: React.FC = () => {
 		],
 	});
 
-	expect(serialized).toContain('interpolateRotate');
+	expect(serialized).toContain('interpolate');
 	expect(serialized).not.toContain('interpolateColors');
 	expect(serialized).toContain('extrapolateLeft: "clamp"');
 	expect(serialized).toContain('extrapolateRight: "clamp"');

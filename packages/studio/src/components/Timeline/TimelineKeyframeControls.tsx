@@ -197,9 +197,7 @@ export const TimelineKeyframeControls: React.FC<{
 
 	const fieldSchema = schema[fieldKey];
 	const keyframable = fieldSchema?.keyframable !== false;
-	const canAddKeyframe =
-		keyframable &&
-		(fieldSchema?.type !== 'scale' || typeof currentKeyframeValue === 'number');
+	const canAddKeyframe = keyframable;
 	const canToggleKeyframe =
 		propStatus.status !== 'computed' &&
 		(hasKeyframeAtCurrentFrame || canAddKeyframe);

@@ -299,7 +299,7 @@ test('pasteEffects replaces existing effects with mixed static and keyframed par
 	expect(output).not.toMatch(/color: ['"]blue['"]/);
 });
 
-test('pasteEffects supports interpolateRotate keyframed params', async () => {
+test('pasteEffects supports interpolated rotate keyframed params', async () => {
 	const input = buildInput(`<>
 		<HtmlInCanvas effects={[tint({color: "blue"})]} />
 	</>`);
@@ -317,7 +317,7 @@ test('pasteEffects supports interpolateRotate keyframed params', async () => {
 				params: {
 					angle: {
 						type: 'keyframed',
-						interpolationFunction: 'interpolateRotate',
+						interpolationFunction: 'interpolate',
 						keyframes: [
 							{frame: 0, value: '0deg'},
 							{frame: 100, value: '90deg'},
@@ -331,6 +331,6 @@ test('pasteEffects supports interpolateRotate keyframed params', async () => {
 	});
 
 	expect(output).toContain(
-		"angle: interpolateRotate(frame, [0, 100], ['0deg', '90deg'])",
+		"angle: interpolate(frame, [0, 100], ['0deg', '90deg'])",
 	);
 });
