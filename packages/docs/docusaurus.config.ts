@@ -299,6 +299,19 @@ const config: Config = {
 	],
 	plugins: [
 		[
+			'@docusaurus/plugin-content-docs',
+			{
+				id: 'examples',
+				path: './examples',
+				routeBasePath: 'examples',
+				sidebarPath: './examples-sidebars.ts',
+				editUrl:
+					'https://github.com/remotion-dev/remotion/edit/main/packages/docs/',
+				showLastUpdateTime: true,
+				remarkPlugins: [remarkExportRaw],
+			},
+		],
+		[
 			'@docusaurus/plugin-content-blog',
 			{
 				/**
