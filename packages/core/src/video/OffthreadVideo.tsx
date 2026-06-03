@@ -107,7 +107,6 @@ export const InnerOffthreadVideo: React.FC<AllOffthreadVideoProps> = (
 		toneMapped,
 		onAutoPlayError,
 		onVideoFrame,
-		onVideoFrameCallback,
 		crossOrigin,
 		delayRenderRetries,
 		delayRenderTimeoutInMilliseconds,
@@ -123,7 +122,6 @@ export const InnerOffthreadVideo: React.FC<AllOffthreadVideoProps> = (
 			showInTimeline={showInTimeline ?? true}
 			onAutoPlayError={onAutoPlayError ?? undefined}
 			onVideoFrame={onVideoFrame ?? null}
-			onVideoFrameCallback={onVideoFrameCallback ?? null}
 			crossOrigin={crossOrigin}
 			{...propsForPreview}
 			_remotionInternalNativeLoopPassed={false}
@@ -152,7 +150,6 @@ export const OffthreadVideo: React.FC<RemotionOffthreadVideoProps> = ({
 	onAutoPlayError,
 	onError,
 	onVideoFrame,
-	onVideoFrameCallback,
 	pauseWhenBuffering,
 	playbackRate,
 	preservePitch,
@@ -193,7 +190,6 @@ export const OffthreadVideo: React.FC<RemotionOffthreadVideoProps> = ({
 			onAutoPlayError={onAutoPlayError ?? null}
 			onError={onError}
 			onVideoFrame={onVideoFrame}
-			onVideoFrameCallback={onVideoFrameCallback}
 			pauseWhenBuffering={pauseWhenBuffering ?? true}
 			playbackRate={playbackRate ?? 1}
 			preservePitch={preservePitch}
