@@ -4,7 +4,10 @@ import {
 	type EffectDefinition,
 	type SequencePropsSubscriptionKey,
 } from 'remotion';
-import {getEffectFieldsToShow} from '../schema-field-info';
+import {
+	SCHEMA_FIELD_ROW_HEIGHT,
+	getEffectFieldsToShow,
+} from '../schema-field-info';
 
 const effect = {
 	type: 'test/effect',
@@ -119,4 +122,37 @@ test('getEffectFieldsToShow returns array fields', () => {
 
 	const colors = fields.find((field) => field.key === 'colors');
 	expect(colors?.typeName).toBe('array');
+	expect(colors?.rowHeight).toBe(SCHEMA_FIELD_ROW_HEIGHT * 3);
+});
+
+test('getEffectFieldsToShow sizes array fields from the current value', () => {
+	const fields = getEffectFieldsToShow({
+		effect,
+		effectIndex: 0,
+		nodePath,
+		codeValues: {
+			[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+				canUpdate: true,
+				props: {},
+				effects: [
+					{
+						canUpdate: true,
+						callee: 'starburst',
+						importPath: null,
+						effectIndex: 0,
+						props: {
+							colors: {
+								status: 'static',
+								codeValue: ['red', 'green', 'blue'],
+							},
+						},
+					},
+				],
+			},
+		},
+		getEffectDragOverrides: () => ({}),
+	});
+
+	const colors = fields.find((field) => field.key === 'colors');
+	expect(colors?.rowHeight).toBe(SCHEMA_FIELD_ROW_HEIGHT * 4);
 });

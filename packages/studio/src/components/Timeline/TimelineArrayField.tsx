@@ -20,17 +20,26 @@ import {TimelineUvCoordinateField} from './TimelineUvCoordinateField';
 
 const container: React.CSSProperties = {
 	display: 'flex',
-	alignItems: 'center',
-	gap: 4,
+	flexDirection: 'column',
+	alignItems: 'flex-start',
 	minWidth: 0,
-	overflowX: 'auto',
 };
 
 const itemContainer: React.CSSProperties = {
 	display: 'flex',
 	alignItems: 'center',
-	gap: 2,
+	gap: 6,
 	flexShrink: 0,
+	height: 22,
+	minWidth: 0,
+};
+
+const itemLabel: React.CSSProperties = {
+	color: 'rgba(255, 255, 255, 0.45)',
+	fontSize: 11,
+	fontVariantNumeric: 'tabular-nums',
+	width: 18,
+	textAlign: 'right',
 };
 
 const button: React.CSSProperties = {
@@ -49,6 +58,11 @@ const disabledButton: React.CSSProperties = {
 	...button,
 	cursor: 'default',
 	opacity: 0.4,
+};
+
+const addButtonRow: React.CSSProperties = {
+	...itemContainer,
+	paddingLeft: 24,
 };
 
 const getFallbackItemValue = (field: ArrayFieldSchema): unknown => {
@@ -389,6 +403,7 @@ export const TimelineArrayField: React.FC<{
 		<span style={container}>
 			{items.map((_item, index) => (
 				<span style={itemContainer} key={index}>
+					<span style={itemLabel}>{index + 1}</span>
 					<ItemEditor
 						field={field}
 						arrayField={arrayField}
@@ -409,15 +424,13 @@ export const TimelineArrayField: React.FC<{
 					</button>
 				</span>
 			))}
-			<button
-				type="button"
-				style={canAdd ? button : disabledButton}
-				disabled={!canAdd}
-				onClick={onAdd}
-				title="Add item"
-			>
-				+
-			</button>
+			{canAdd ? (
+				<span style={addButtonRow}>
+					<button type="button" style={button} onClick={onAdd} title="Add item">
+						+
+					</button>
+				</span>
+			) : null}
 		</span>
 	);
 };
