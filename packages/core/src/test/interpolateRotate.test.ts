@@ -44,6 +44,12 @@ describe('interpolateRotate()', () => {
 		).toBe('30deg');
 	});
 
+	test('rounds floating point noise', () => {
+		expect(interpolateRotate(0.1, [0, 1], ['0deg', '100.2deg'])).toBe(
+			'10.02deg',
+		);
+	});
+
 	test('returns the only output value for a single keyframe', () => {
 		expect(interpolateRotate(15, [0], ['10deg'])).toBe('10deg');
 	});

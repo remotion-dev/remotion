@@ -6,7 +6,10 @@ import type {
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
 import {InputDragger} from '../NewComposition/InputDragger';
-import {getDecimalPlaces} from './timeline-field-utils';
+import {
+	getDecimalPlaces,
+	normalizeTimelineNumber,
+} from './timeline-field-utils';
 import {parseTranslate, serializeTranslate} from './timeline-translate-utils';
 
 const leftDraggerStyle: React.CSSProperties = {
@@ -52,7 +55,7 @@ export const TimelineTranslateField: React.FC<{
 
 	const formatter = useCallback(
 		(v: number | string) => {
-			const num = Number(v);
+			const num = normalizeTimelineNumber(Number(v));
 			const digits = Math.max(stepDecimals, getDecimalPlaces(num));
 			const formatted = digits === 0 ? String(num) : num.toFixed(digits);
 			return `${formatted}px`;

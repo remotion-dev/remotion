@@ -1,4 +1,5 @@
 import {interpolate, type InterpolateOptions} from './interpolate.js';
+import {normalizeNumber} from './normalize-number.js';
 
 export type InterpolateRotateOptions = InterpolateOptions;
 
@@ -67,5 +68,5 @@ export const interpolateRotate = (
 		options,
 	);
 
-	return `${interpolatedValue}deg`;
+	return `${normalizeNumber(interpolatedValue)}deg`;
 };
