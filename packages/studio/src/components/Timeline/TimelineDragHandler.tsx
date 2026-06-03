@@ -55,6 +55,55 @@ const getClientXWithScroll = (x: number) => {
 	return x + (scrollableRef.current?.scrollLeft as number);
 };
 
+const getKeyframeButtonAtPoint = (
+	clientX: number,
+	clientY: number,
+): HTMLButtonElement | null => {
+	for (const element of document.querySelectorAll<HTMLButtonElement>(
+		'button[title^="Drag keyframe at frame"]',
+	)) {
+		const rect = element.getBoundingClientRect();
+		if (
+			clientX >= rect.left &&
+			clientX <= rect.right &&
+			clientY >= rect.top &&
+			clientY <= rect.bottom
+		) {
+			return element;
+		}
+	}
+
+	return null;
+};
+
+const forwardPointerDownToKeyframe = (
+	e: React.PointerEvent<HTMLDivElement>,
+): boolean => {
+	const keyframeButton = getKeyframeButtonAtPoint(e.clientX, e.clientY);
+	if (keyframeButton === null) {
+		return false;
+	}
+
+	e.stopPropagation();
+	e.preventDefault();
+	keyframeButton.dispatchEvent(
+		new PointerEvent('pointerdown', {
+			bubbles: true,
+			cancelable: true,
+			button: e.button,
+			buttons: e.buttons,
+			clientX: e.clientX,
+			clientY: e.clientY,
+			ctrlKey: e.ctrlKey,
+			metaKey: e.metaKey,
+			pointerId: e.pointerId,
+			pointerType: e.pointerType,
+			shiftKey: e.shiftKey,
+		}),
+	);
+	return true;
+};
+
 export const TimelineDragHandler: React.FC = () => {
 	const video = Internals.useUnsafeVideoConfig();
 
@@ -126,6 +175,10 @@ const TimelineDragHandlerInner: React.FC = () => {
 			}
 
 			if (!isHighestContext) {
+				return;
+			}
+
+			if (forwardPointerDownToKeyframe(e)) {
 				return;
 			}
 

@@ -57,6 +57,7 @@ const TimelineKeyframeDiamondUnmemoized: React.FC<{
 			touchAction: 'none',
 			top: rowHeight / 2,
 			transform: 'translate(-50%, -50%) rotate(45deg)',
+			zIndex: 2,
 		};
 	}, [
 		dragging,
