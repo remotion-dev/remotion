@@ -33,6 +33,11 @@ import {
 	SELECTION_ENABLED,
 	TIMELINE_TOP_DRAG,
 } from '../components/Timeline/TimelineSelection';
+import {
+	getTimelineSequenceDurationDragChanges,
+	getTimelineSequenceDurationDragTargets,
+	getTimelineSequenceDurationDragValue,
+} from '../components/Timeline/TimelineSequenceRightEdgeDragHandle';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 
 const makeKey = (
@@ -61,16 +66,26 @@ const makeNodePathInfo = (
 const makeTimelineSequence = ({
 	schema,
 	effects = [],
+	id = 'sequence',
+	overrideId = 'override',
+	duration = 100,
+	from = 0,
+	type = 'sequence',
 }: {
 	readonly schema: SequenceSchema;
 	readonly effects?: readonly {readonly schema: SequenceSchema}[];
+	readonly id?: string;
+	readonly overrideId?: string;
+	readonly duration?: number;
+	readonly from?: number;
+	readonly type?: TSequence['type'];
 }): TSequence =>
 	({
-		type: 'sequence',
-		from: 0,
-		duration: 100,
-		id: 'sequence',
-		displayName: 'Sequence',
+		type,
+		from,
+		duration,
+		id,
+		displayName: id,
 		documentationLink: null,
 		parent: null,
 		rootId: 'root',
@@ -83,13 +98,30 @@ const makeTimelineSequence = ({
 		controls: {
 			schema,
 			currentRuntimeValueDotNotation: {},
-			overrideId: 'override',
+			overrideId,
 			supportsEffects: true,
 		},
 		refForOutline: null,
 		isInsideSeries: false,
 		effects,
 	}) as TSequence;
+
+const makeDurationCodeValues = (
+	nodePaths: readonly SequencePropsSubscriptionKey[],
+): CodeValues => {
+	const codeValues: CodeValues = {};
+	for (const nodePath of nodePaths) {
+		codeValues[Internals.makeSequencePropsSubscriptionKey(nodePath)] = {
+			canUpdate: true,
+			props: {
+				durationInFrames: {status: 'static', codeValue: 100},
+			},
+			effects: [],
+		};
+	}
+
+	return codeValues;
+};
 
 test('Timeline selection should stay disabled until released publicly', () => {
 	expect(SELECTION_ENABLED).toBe(false);
@@ -193,6 +225,166 @@ test('copying a keyframed effect is blocked', () => {
 
 test('Timeline top drag should not be enabled', () => {
 	expect(TIMELINE_TOP_DRAG).toBe(false);
+});
+
+test('Timeline duration drag applies the same delta to selected sequences', () => {
+	const schema = {} satisfies SequenceSchema;
+	const firstNodePathInfo = makeNodePathInfo(['body', 0], []);
+	const secondNodePathInfo = makeNodePathInfo(['body', 1], []);
+	const sequences = [
+		makeTimelineSequence({
+			schema,
+			id: 'first',
+			overrideId: 'first',
+			duration: 40,
+			from: 0,
+		}),
+		makeTimelineSequence({
+			schema,
+			id: 'second',
+			overrideId: 'second',
+			duration: 15,
+			from: 10,
+		}),
+	];
+	const targets = getTimelineSequenceDurationDragTargets({
+		draggedNodePathInfo: firstNodePathInfo,
+		selectedItems: [
+			{type: 'sequence', nodePathInfo: firstNodePathInfo},
+			{type: 'sequence', nodePathInfo: secondNodePathInfo},
+		],
+		sequences,
+		overrideIdsToNodePaths: {
+			first: firstNodePathInfo.sequenceSubscriptionKey,
+			second: secondNodePathInfo.sequenceSubscriptionKey,
+		},
+		codeValues: makeDurationCodeValues([
+			firstNodePathInfo.sequenceSubscriptionKey,
+			secondNodePathInfo.sequenceSubscriptionKey,
+		]),
+	});
+
+	expect(targets?.map((target) => target.initialDuration)).toEqual([40, 15]);
+	expect(
+		getTimelineSequenceDurationDragChanges({
+			targets: targets ?? [],
+			deltaFrames: -10,
+		}).map((change) => change.value),
+	).toEqual([30, 5]);
+});
+
+test('Timeline duration drag clamps each selected sequence to one frame', () => {
+	expect(
+		getTimelineSequenceDurationDragValue({
+			initialDuration: 4,
+			deltaFrames: -10,
+		}),
+	).toBe(1);
+	expect(
+		getTimelineSequenceDurationDragValue({
+			initialDuration: 20,
+			deltaFrames: -10,
+		}),
+	).toBe(10);
+});
+
+test('Timeline duration drag is blocked if one selected sequence cannot update duration', () => {
+	const schema = {} satisfies SequenceSchema;
+	const firstNodePathInfo = makeNodePathInfo(['body', 0], []);
+	const secondNodePathInfo = makeNodePathInfo(['body', 1], []);
+	const codeValues = makeDurationCodeValues([
+		firstNodePathInfo.sequenceSubscriptionKey,
+	]);
+
+	codeValues[
+		Internals.makeSequencePropsSubscriptionKey(
+			secondNodePathInfo.sequenceSubscriptionKey,
+		)
+	] = {
+		canUpdate: true,
+		props: {},
+		effects: [],
+	};
+
+	expect(
+		getTimelineSequenceDurationDragTargets({
+			draggedNodePathInfo: firstNodePathInfo,
+			selectedItems: [
+				{type: 'sequence', nodePathInfo: firstNodePathInfo},
+				{type: 'sequence', nodePathInfo: secondNodePathInfo},
+			],
+			sequences: [
+				makeTimelineSequence({
+					schema,
+					id: 'first',
+					overrideId: 'first',
+					duration: 40,
+				}),
+				makeTimelineSequence({
+					schema,
+					id: 'second',
+					overrideId: 'second',
+					duration: 15,
+					from: 10,
+				}),
+			],
+			overrideIdsToNodePaths: {
+				first: firstNodePathInfo.sequenceSubscriptionKey,
+				second: secondNodePathInfo.sequenceSubscriptionKey,
+			},
+			codeValues,
+		}),
+	).toBe(null);
+});
+
+test('Timeline duration drag ignores selection if dragged sequence is not selected', () => {
+	const schema = {} satisfies SequenceSchema;
+	const firstNodePathInfo = makeNodePathInfo(['body', 0], []);
+	const secondNodePathInfo = makeNodePathInfo(['body', 1], []);
+	const thirdNodePathInfo = makeNodePathInfo(['body', 2], []);
+	const targets = getTimelineSequenceDurationDragTargets({
+		draggedNodePathInfo: firstNodePathInfo,
+		selectedItems: [
+			{type: 'sequence', nodePathInfo: secondNodePathInfo},
+			{type: 'sequence', nodePathInfo: thirdNodePathInfo},
+		],
+		sequences: [
+			makeTimelineSequence({
+				schema,
+				id: 'first',
+				overrideId: 'first',
+				duration: 40,
+			}),
+			makeTimelineSequence({
+				schema,
+				id: 'second',
+				overrideId: 'second',
+				duration: 15,
+				from: 10,
+			}),
+			makeTimelineSequence({
+				schema,
+				id: 'third',
+				overrideId: 'third',
+				duration: 25,
+				from: 20,
+			}),
+		],
+		overrideIdsToNodePaths: {
+			first: firstNodePathInfo.sequenceSubscriptionKey,
+			second: secondNodePathInfo.sequenceSubscriptionKey,
+			third: thirdNodePathInfo.sequenceSubscriptionKey,
+		},
+		codeValues: makeDurationCodeValues([
+			firstNodePathInfo.sequenceSubscriptionKey,
+			secondNodePathInfo.sequenceSubscriptionKey,
+			thirdNodePathInfo.sequenceSubscriptionKey,
+		]),
+	});
+
+	expect(targets?.map((target) => target.nodePath)).toEqual([
+		firstNodePathInfo.sequenceSubscriptionKey,
+	]);
 });
 
 test('Timeline outlines should not be enabled', () => {
