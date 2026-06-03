@@ -280,8 +280,10 @@ export const Example: React.FC = () => {
 
 	expect(oldValueStrings).toEqual(['"0px 0px"']);
 	expect(output).toContain(
-		"translate: interpolateTranslate(frame, [44], ['100px 20px'])",
+		"translate: interpolateTranslate(frame, [44], ['100px 20px'], {",
 	);
+	expect(output).toContain("extrapolateLeft: 'clamp'");
+	expect(output).toContain("extrapolateRight: 'clamp'");
 	expect(output).toContain('useCurrentFrame');
 	expect(output).toContain('interpolateTranslate');
 	const status = computeSequencePropsStatusFromContent({
@@ -296,7 +298,7 @@ export const Example: React.FC = () => {
 		interpolationFunction: 'interpolateTranslate',
 		keyframes: [{frame: 44, value: '100px 20px'}],
 		easing: [],
-		clamping: {left: 'extend', right: 'extend'},
+		clamping: {left: 'clamp', right: 'clamp'},
 		posterize: undefined,
 	});
 });
