@@ -9,6 +9,7 @@ import type {
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
 import {getComputedStatusLabel} from './get-timeline-keyframes';
+import {TimelineArrayField} from './TimelineArrayField';
 import {TimelineBooleanField} from './TimelineBooleanField';
 import {TimelineColorField} from './TimelineColorField';
 import {TimelineEnumField} from './TimelineEnumField';
@@ -177,6 +178,20 @@ export const TimelineFieldValue: React.FC<{
 					effectiveValue={effectiveValue}
 					onDragValueChange={onDragValueChange}
 					onDragEnd={onDragEnd}
+				/>
+			</span>
+		);
+	}
+
+	if (field.typeName === 'array') {
+		return (
+			<span>
+				<TimelineArrayField
+					field={field}
+					onSave={onSave}
+					onDragValueChange={onDragValueChange}
+					onDragEnd={onDragEnd}
+					effectiveValue={effectiveValue}
 				/>
 			</span>
 		);

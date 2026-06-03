@@ -137,7 +137,9 @@ export const computeEffectiveSchemaValuesDotNotation = ({
 		if (codeValueStatus === null) {
 			value = currentValue[key];
 		} else if (isKeyframedStatus(codeValueStatus)) {
-			if (frame !== null) {
+			if (field?.type === 'array' || field?.keyframable === false) {
+				value = currentValue[key];
+			} else if (frame !== null) {
 				const interpolated = interpolateKeyframedStatus({
 					frame,
 					status: codeValueStatus,

@@ -121,6 +121,8 @@ import {
 	sequenceSchema,
 	sequenceStyleSchema,
 	sequenceVisualStyleSchema,
+	type ArrayFieldSchema,
+	type ArrayItemFieldSchema,
 	type SequenceFieldSchema,
 	type SequenceSchema,
 	type VisibleFieldSchema,
@@ -184,9 +186,9 @@ import {
 	useMediaInTimeline,
 } from './use-media-in-timeline.js';
 import type {
-	CanUpdateSequencePropStatusStatic,
 	CanUpdateSequencePropStatusFalse,
 	CanUpdateSequencePropStatusKeyframed,
+	CanUpdateSequencePropStatusStatic,
 	GetCodeValues,
 	GetDragOverrides,
 	GetEffectCodeValues,
@@ -382,17 +384,19 @@ export const Internals = {
 } as const;
 
 export type {
+	ArrayFieldSchema,
+	ArrayItemFieldSchema,
 	CannotUpdateSequenceReason,
 	CanUpdateEffectPropsResponse,
 	CanUpdateEffectPropsResponseFalse,
 	CanUpdateEffectPropsResponseTrue,
-	CanUpdateSequencePropStatusStatic,
 	CanUpdateSequencePropsResponse,
 	CanUpdateSequencePropsResponseFalse,
 	CanUpdateSequencePropsResponseTrue,
 	CanUpdateSequencePropStatus,
 	CanUpdateSequencePropStatusFalse,
 	CanUpdateSequencePropStatusKeyframed,
+	CanUpdateSequencePropStatusStatic,
 	CodeValues,
 	CompositionManagerContext,
 	CompProps,

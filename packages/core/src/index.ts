@@ -21,6 +21,8 @@ import {Null} from './Null.js';
 import type {ProResProfile} from './prores-profile.js';
 import type {PixelFormat, VideoImageFormat} from './render-types.js';
 import type {
+	ArrayFieldSchema,
+	ArrayItemFieldSchema,
 	SequenceFieldSchema,
 	SequenceSchema,
 } from './sequence-field-schema.js';
@@ -322,6 +324,8 @@ export type _InternalTypes = {
 
 export type {
 	AnyComposition,
+	ArrayFieldSchema,
+	ArrayItemFieldSchema,
 	DelayRenderScope,
 	LoopDisplay,
 	SequenceControls,

@@ -47,6 +47,7 @@ const SUPPORTED_SCHEMA_TYPES = [
 	'scale',
 	'uv-coordinate',
 	'color',
+	'array',
 	'enum',
 	'hidden',
 ] as const;

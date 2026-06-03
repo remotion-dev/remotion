@@ -63,6 +63,25 @@ test('starburst() exposes origin as a UV coordinate control', () => {
 	});
 });
 
+test('starburst() exposes colors as an array control', () => {
+	const {schema} = starburst({
+		rays: 12,
+		colors: ['#ff0000', '#00ff00'],
+	}).definition;
+
+	expect(schema.colors).toEqual({
+		type: 'array',
+		item: {
+			type: 'color',
+		},
+		default: undefined,
+		minLength: 2,
+		newItemDefault: '#ff0000',
+		description: 'Colors',
+		keyframable: false,
+	});
+});
+
 test('starburst() parameters produce distinct effect keys', () => {
 	const defaultStarburst = starburst({
 		rays: 12,

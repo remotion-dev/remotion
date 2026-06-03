@@ -18,6 +18,20 @@ export const isKeyframeInterpolationFunction = (
 	);
 };
 
+export const isSequenceFieldSchemaKeyframable = (
+	field: SequenceFieldSchema | undefined,
+): boolean => {
+	if (!field) {
+		return true;
+	}
+
+	if (field.type === 'array') {
+		return false;
+	}
+
+	return field.keyframable !== false;
+};
+
 const findFieldInSchema = (
 	schema: SequenceSchema,
 	key: string,
@@ -50,7 +64,7 @@ export const isSchemaFieldKeyframable = ({
 	key: string;
 }): boolean => {
 	const field = schema ? findFieldInSchema(schema, key) : undefined;
-	return field?.keyframable !== false;
+	return isSequenceFieldSchemaKeyframable(field);
 };
 
 export const getKeyframeInterpolationFunctionForSchemaField = ({

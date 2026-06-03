@@ -1,3 +1,4 @@
+import {isSequenceFieldSchemaKeyframable} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useMemo} from 'react';
 import type {
 	CanUpdateSequencePropStatus,
@@ -195,7 +196,7 @@ export const TimelineSequencePropItem: React.FC<{
 		shouldShowTimelineKeyframeControls({
 			propStatus: codeValue,
 			selected: selection.selected,
-			keyframable: field.fieldSchema.keyframable !== false,
+			keyframable: isSequenceFieldSchemaKeyframable(field.fieldSchema),
 		}) ? (
 			<TimelineKeyframeControls
 				fieldKey={field.key}
@@ -232,7 +233,8 @@ export const TimelineSequencePropItem: React.FC<{
 	const canPerformReset =
 		previewServerState.type === 'connected' &&
 		codeValue !== null &&
-		codeValue.status !== 'computed';
+		codeValue.status !== 'computed' &&
+		field.fieldSchema.default !== undefined;
 
 	const onReset = useCallback(() => {
 		if (

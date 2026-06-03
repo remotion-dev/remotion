@@ -35,6 +35,17 @@ const effect = {
 			default: [0, 0.5] as const,
 			description: 'Position',
 		},
+		colors: {
+			type: 'array',
+			item: {
+				type: 'color',
+			},
+			default: undefined,
+			minLength: 2,
+			newItemDefault: '#ff0000',
+			description: 'Colors',
+			keyframable: false,
+		},
 	},
 } satisfies EffectDefinition<unknown>;
 
@@ -73,7 +84,11 @@ test('getEffectFieldsToShow uses the active enum variant', () => {
 		getEffectDragOverrides: () => ({}),
 	});
 
-	expect(fields.map((field) => field.key)).toEqual(['colorMode', 'position']);
+	expect(fields.map((field) => field.key)).toEqual([
+		'colorMode',
+		'position',
+		'colors',
+	]);
 });
 
 test('getEffectFieldsToShow uses default enum variant if no code value exists', () => {
@@ -89,5 +104,19 @@ test('getEffectFieldsToShow uses default enum variant if no code value exists', 
 		'colorMode',
 		'dotColor',
 		'position',
+		'colors',
 	]);
+});
+
+test('getEffectFieldsToShow returns array fields', () => {
+	const fields = getEffectFieldsToShow({
+		effect,
+		effectIndex: 0,
+		nodePath: null,
+		codeValues: {},
+		getEffectDragOverrides: () => ({}),
+	});
+
+	const colors = fields.find((field) => field.key === 'colors');
+	expect(colors?.typeName).toBe('array');
 });
