@@ -134,7 +134,9 @@ test('updateSequenceKeyframes converts a static value to an interpolation', asyn
 	});
 
 	expect(oldValueStrings).toEqual(['0.5']);
-	expect(output).toContain('opacity: interpolate(frame, [25], [0.75])');
+	expect(output).toContain('opacity: interpolate(frame, [25], [0.75], {');
+	expect(output).toContain("extrapolateLeft: 'clamp'");
+	expect(output).toContain("extrapolateRight: 'clamp'");
 });
 
 test('updateSequenceKeyframes rejects non-keyframable fields', async () => {
@@ -181,7 +183,9 @@ test('updateSequenceKeyframes converts a static value to a single-keyframe inter
 	});
 
 	expect(oldValueStrings).toEqual(['0.5']);
-	expect(output).toContain('opacity: interpolate(frame, [0], [0.75])');
+	expect(output).toContain('opacity: interpolate(frame, [0], [0.75], {');
+	expect(output).toContain("extrapolateLeft: 'clamp'");
+	expect(output).toContain("extrapolateRight: 'clamp'");
 });
 
 test('updateSequenceKeyframes adds a keyframe to an existing color interpolation', async () => {
@@ -242,8 +246,10 @@ test('updateSequenceKeyframes converts static translate to interpolateTranslate'
 
 	expect(oldValueStrings).toEqual(["'0px 59px'"]);
 	expect(output).toContain(
-		"translate: interpolateTranslate(frame, [44], ['0px 59px'])",
+		"translate: interpolateTranslate(frame, [44], ['0px 59px'], {",
 	);
+	expect(output).toContain("extrapolateLeft: 'clamp'");
+	expect(output).toContain("extrapolateRight: 'clamp'");
 	expect(output).toContain('interpolateTranslate');
 });
 
@@ -292,7 +298,11 @@ test('updateSequenceKeyframes converts static rotate to interpolateRotate', asyn
 	});
 
 	expect(oldValueStrings).toEqual(["'19deg'"]);
-	expect(output).toContain("rotate: interpolateRotate(frame, [55], ['19deg'])");
+	expect(output).toContain(
+		"rotate: interpolateRotate(frame, [55], ['19deg'], {",
+	);
+	expect(output).toContain("extrapolateLeft: 'clamp'");
+	expect(output).toContain("extrapolateRight: 'clamp'");
 	expect(output).toContain('interpolateRotate');
 });
 
@@ -368,8 +378,10 @@ export default CenteredSolid;
 		],
 	});
 
-	expect(output).toContain('width={interpolate(frame, [11], [240])}');
 	expect(updatedNodePath).toEqual(nodePath);
+	expect(output).toContain('width={interpolate(frame, [11], [240], {');
+	expect(output).toContain("extrapolateLeft: 'clamp'");
+	expect(output).toContain("extrapolateRight: 'clamp'");
 	const status = computeSequencePropsStatusFromContent({
 		fileContents: output,
 		nodePath: updatedNodePath,
@@ -382,7 +394,7 @@ export default CenteredSolid;
 		interpolationFunction: 'interpolate',
 		keyframes: [{frame: 11, value: 240}],
 		easing: [],
-		clamping: {left: 'extend', right: 'extend'},
+		clamping: {left: 'clamp', right: 'clamp'},
 		posterize: undefined,
 	});
 });
@@ -454,6 +466,32 @@ test('updateSequenceKeyframes keeps a color interpolation when one keyframe rema
 		"interpolateColors(frame, [0, 100], ['red', 'blue'])",
 	]);
 	expect(output).toContain("color={interpolateColors(frame, [100], ['blue'])}");
+});
+
+test('updateEffectKeyframes converts a static value to a clamped interpolation', () => {
+	const input = effectInput.replace(
+		'interpolate(frame, [0, 50, 100], [0.2, 0.5, 0.8])',
+		'0.2',
+	);
+	const {serialized, oldValueStrings} = updateEffectKeyframesAst({
+		input,
+		sequenceNodePath: lineColumnToNodePath(
+			input,
+			getLine(input, '<HtmlInCanvas'),
+		),
+		effectIndex: 0,
+		updates: [
+			{
+				key: 'amount',
+				operation: {type: 'add', frame: 40, value: 0.6},
+			},
+		],
+	});
+
+	expect(oldValueStrings).toEqual(['0.2']);
+	expect(serialized).toContain('amount: interpolate(frame, [40], [0.6], {');
+	expect(serialized).toContain('extrapolateLeft: "clamp"');
+	expect(serialized).toContain('extrapolateRight: "clamp"');
 });
 
 test('updateSequenceKeyframes converts the last color keyframe to a static value', async () => {

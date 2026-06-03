@@ -216,6 +216,16 @@ const createFrameExpression = (frame: number): ExpressionKind => {
 	return parseValueExpression(frame);
 };
 
+const createClampOptionsExpression = (): ExpressionKind => {
+	return b.objectExpression([
+		b.objectProperty(b.identifier('extrapolateLeft'), b.stringLiteral('clamp')),
+		b.objectProperty(
+			b.identifier('extrapolateRight'),
+			b.stringLiteral('clamp'),
+		),
+	]) as ExpressionKind;
+};
+
 const createInterpolateExpression = ({
 	callee,
 	input,
@@ -322,12 +332,16 @@ const addKeyframe = ({
 		staticValue,
 		newValue: value,
 	});
+	const extraArgs =
+		callee.type === 'Identifier' && callee.name === 'interpolateColors'
+			? []
+			: [createClampOptionsExpression()];
 
 	return {
 		expression: createInterpolateExpression({
 			callee,
 			input: b.identifier('frame'),
-			extraArgs: [],
+			extraArgs,
 			keyframes,
 		}),
 		introduced: {
