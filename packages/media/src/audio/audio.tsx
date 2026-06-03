@@ -31,6 +31,7 @@ const audioSchema = {
 		default: 1,
 		description: 'Playback Rate',
 		hiddenFromList: false,
+		keyframable: false,
 	},
 	loop: {type: 'boolean', default: false, description: 'Loop'},
 	hidden: Internals.hiddenField,

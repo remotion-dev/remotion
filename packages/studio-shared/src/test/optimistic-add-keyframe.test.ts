@@ -76,6 +76,37 @@ test('optimisticAddSequenceKeyframe uses interpolateTranslate for translate fiel
 	expect(status.keyframes).toEqual([{frame: 44, value: '0px 59px'}]);
 });
 
+test('optimisticAddSequenceKeyframe ignores non-keyframable fields', () => {
+	const previous: CanUpdateSequencePropsResponse = {
+		canUpdate: true,
+		props: {
+			playbackRate: {
+				status: 'static',
+				codeValue: 1,
+			},
+		},
+		effects: [],
+	};
+	const schema = {
+		playbackRate: {
+			type: 'number',
+			default: 1,
+			hiddenFromList: false,
+			keyframable: false,
+		},
+	} satisfies SequenceSchema;
+
+	const updated = optimisticAddSequenceKeyframe({
+		previous,
+		fieldKey: 'playbackRate',
+		frame: 25,
+		value: 2,
+		schema,
+	});
+
+	expect(updated).toEqual(previous);
+});
+
 test('optimisticAddSequenceKeyframe appends a keyframe to an existing interpolation', () => {
 	const previous: CanUpdateSequencePropsResponse = {
 		canUpdate: true,

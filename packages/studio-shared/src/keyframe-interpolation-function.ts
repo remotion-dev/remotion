@@ -41,6 +41,17 @@ const findFieldInSchema = (
 	return undefined;
 };
 
+export const isSchemaFieldKeyframable = ({
+	schema,
+	key,
+}: {
+	schema: SequenceSchema | null;
+	key: string;
+}): boolean => {
+	const field = schema ? findFieldInSchema(schema, key) : undefined;
+	return field?.keyframable !== false;
+};
+
 export const getKeyframeInterpolationFunctionForSchemaField = ({
 	schema,
 	key,

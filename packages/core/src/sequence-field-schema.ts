@@ -1,5 +1,6 @@
 export type HiddenFieldSchema = {
 	type: 'hidden';
+	keyframable?: boolean;
 };
 
 export type NumberFieldSchema = {
@@ -10,12 +11,14 @@ export type NumberFieldSchema = {
 	default: number | undefined;
 	description?: string;
 	hiddenFromList: boolean;
+	keyframable?: boolean;
 };
 
 export type BooleanFieldSchema = {
 	type: 'boolean';
 	default: boolean;
 	description?: string;
+	keyframable?: boolean;
 };
 
 export type RotationCssFieldSchema = {
@@ -23,6 +26,7 @@ export type RotationCssFieldSchema = {
 	step?: number;
 	default: string | undefined;
 	description?: string;
+	keyframable?: boolean;
 };
 
 export type RotationDegreesFieldSchema = {
@@ -32,6 +36,7 @@ export type RotationDegreesFieldSchema = {
 	step?: number;
 	default: number | undefined;
 	description?: string;
+	keyframable?: boolean;
 };
 
 export type TranslateFieldSchema = {
@@ -39,6 +44,7 @@ export type TranslateFieldSchema = {
 	step?: number;
 	default: string | undefined;
 	description?: string;
+	keyframable?: boolean;
 };
 
 export type ScaleFieldSchema = {
@@ -48,6 +54,7 @@ export type ScaleFieldSchema = {
 	step?: number;
 	default: number | string | undefined;
 	description?: string;
+	keyframable?: boolean;
 };
 
 export type UvCoordinateFieldSchema = {
@@ -57,12 +64,14 @@ export type UvCoordinateFieldSchema = {
 	step?: number;
 	default: readonly [number, number] | undefined;
 	description?: string;
+	keyframable?: boolean;
 };
 
 export type ColorFieldSchema = {
 	type: 'color';
 	default: string | undefined;
 	description?: string;
+	keyframable?: boolean;
 };
 
 export type EnumFieldSchema = {
@@ -70,6 +79,7 @@ export type EnumFieldSchema = {
 	default: string;
 	description?: string;
 	variants: Record<string, SequenceSchema>;
+	keyframable?: boolean;
 };
 
 export type VisibleFieldSchema =

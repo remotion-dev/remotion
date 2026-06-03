@@ -14,6 +14,7 @@ import {
 	getKeyframeInterpolationFunction,
 	getKeyframeInterpolationFunctionForSchemaField,
 	isKeyframeInterpolationFunction,
+	isSchemaFieldKeyframable,
 	type KeyframeInterpolationFunction,
 } from '@remotion/studio-shared';
 import type {ExpressionKind, SpreadElementKind} from 'ast-types/lib/gen/kinds';
@@ -22,8 +23,8 @@ import type {SequenceNodePath, SequenceSchema} from 'remotion';
 import {getAstNodePath} from '../../helpers/get-ast-node-path';
 import {
 	extractStaticValue,
-	findNodePathForJsxElement,
 	findJsxElementAtNodePath,
+	findNodePathForJsxElement,
 	isStaticValue,
 } from '../../preview-server/routes/can-update-sequence-props';
 import {formatFileContent} from '../format-file-content';
@@ -262,6 +263,10 @@ const addKeyframe = ({
 	value: unknown;
 	schema: SequenceSchema | null;
 }): {expression: ExpressionKind; introduced: IntroducedKeyframeIdentifiers} => {
+	if (!isSchemaFieldKeyframable({schema, key})) {
+		throw new Error(`Cannot add keyframe: "${key}" is not keyframable`);
+	}
+
 	const existing = getInterpolationExpression(expression);
 	const newOutput = parseValueExpression(value);
 

@@ -105,11 +105,17 @@ const getCurrentKeyframeValue = ({
 export const shouldShowTimelineKeyframeControls = ({
 	propStatus,
 	selected,
+	keyframable,
 }: {
 	propStatus: CanUpdateSequencePropStatus | null;
 	selected: boolean;
+	keyframable: boolean;
 }): boolean => {
 	if (propStatus === null) {
+		return false;
+	}
+
+	if (!keyframable && !isKeyframedStatus(propStatus)) {
 		return false;
 	}
 
@@ -190,8 +196,10 @@ export const TimelineKeyframeControls: React.FC<{
 	);
 
 	const fieldSchema = schema[fieldKey];
+	const keyframable = fieldSchema?.keyframable !== false;
 	const canAddKeyframe =
-		fieldSchema?.type !== 'scale' || typeof currentKeyframeValue === 'number';
+		keyframable &&
+		(fieldSchema?.type !== 'scale' || typeof currentKeyframeValue === 'number');
 	const canToggleKeyframe =
 		propStatus.status !== 'computed' &&
 		(hasKeyframeAtCurrentFrame || canAddKeyframe);
