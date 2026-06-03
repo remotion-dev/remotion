@@ -4,6 +4,7 @@ import {getErrorRecord} from '../react-overlay/listen-to-runtime-errors';
 import type {OnRetry} from './ErrorDisplay';
 import {ErrorDisplay} from './ErrorDisplay';
 import {ErrorTitle} from './ErrorTitle';
+import {logStudioError} from './log-studio-error';
 
 const container: React.CSSProperties = {
 	width: '100%',
@@ -54,6 +55,10 @@ export const ErrorLoader: React.FC<{
 	const [state, setState] = useState<State>({
 		type: 'loading',
 	});
+
+	useEffect(() => {
+		logStudioError(error);
+	}, [error]);
 
 	useEffect(() => {
 		getErrorRecord(error)

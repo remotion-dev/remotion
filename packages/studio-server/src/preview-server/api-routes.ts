@@ -15,6 +15,7 @@ import {deleteStaticFileHandler} from './routes/delete-static-file';
 import {duplicateJsxNodeHandler} from './routes/duplicate-jsx-node';
 import {insertJsxElementHandler} from './routes/insert-jsx-element';
 import {handleInstallPackage} from './routes/install-dependency';
+import {logStudioErrorHandler} from './routes/log-studio-error';
 import {openInEditorHandler} from './routes/open-in-editor';
 import {handleOpenInFileExplorer} from './routes/open-in-file-explorer';
 import {pasteEffectsHandler} from './routes/paste-effects';
@@ -79,4 +80,5 @@ export const allApiRoutes: {
 	'/api/insert-jsx-element': insertJsxElementHandler,
 	'/api/undo': undoHandler,
 	'/api/redo': redoHandler,
+	'/api/log-studio-error': logStudioErrorHandler,
 };

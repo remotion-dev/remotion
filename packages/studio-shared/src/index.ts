@@ -38,6 +38,8 @@ export {
 	InsertableCompositionElement,
 	InstallPackageRequest,
 	InstallPackageResponse,
+	LogStudioErrorRequest,
+	LogStudioErrorResponse,
 	OpenInEditorRequest,
 	OpenInEditorResponse,
 	OpenInFileExplorerRequest,

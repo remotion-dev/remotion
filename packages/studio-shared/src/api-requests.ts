@@ -565,6 +565,13 @@ export type RedoResponse =
 			reason: string;
 	  };
 
+export type LogStudioErrorRequest = {
+	name: string | null;
+	message: string;
+	stack: string | null;
+};
+export type LogStudioErrorResponse = {};
+
 export type ApiRoutes = {
 	'/api/composition-component-info': ReqAndRes<
 		CompositionComponentInfoRequest,
@@ -662,4 +669,8 @@ export type ApiRoutes = {
 	>;
 	'/api/undo': ReqAndRes<UndoRequest, UndoResponse>;
 	'/api/redo': ReqAndRes<RedoRequest, RedoResponse>;
+	'/api/log-studio-error': ReqAndRes<
+		LogStudioErrorRequest,
+		LogStudioErrorResponse
+	>;
 };
