@@ -1,3 +1,4 @@
+import type {Size} from '@remotion/player';
 import React, {useCallback, useContext, useEffect, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {useMobileLayout} from '../helpers/mobile-layout';
@@ -57,8 +58,15 @@ const TopPanelInner: React.FC<{
 	readonly readOnlyStudio: boolean;
 	readonly onMounted: () => void;
 	readonly drawRef: React.RefObject<HTMLDivElement | null>;
+	readonly size: Size | null;
 	readonly bufferStateDelayInMilliseconds: number;
-}> = ({readOnlyStudio, onMounted, drawRef, bufferStateDelayInMilliseconds}) => {
+}> = ({
+	readOnlyStudio,
+	onMounted,
+	drawRef,
+	size,
+	bufferStateDelayInMilliseconds,
+}) => {
 	const {setSidebarCollapsedState, sidebarCollapsedStateRight} =
 		useContext(SidebarContext);
 	const rulersAreVisible = useIsRulerVisible();
@@ -144,7 +152,7 @@ const TopPanelInner: React.FC<{
 							>
 								<SplitterElement sticky={null} type="flexer">
 									<div ref={drawRef} style={canvasContainerStyle}>
-										<CanvasIfSizeIsAvailable />
+										<CanvasIfSizeIsAvailable size={size} />
 									</div>
 								</SplitterElement>
 								{actualStateRight === 'expanded' ? (

@@ -96,6 +96,7 @@ export const Editor: React.FC<{
 									<EditorContent readOnlyStudio={readOnlyStudio}>
 										<TopPanel
 											drawRef={drawRef}
+											size={size}
 											bufferStateDelayInMilliseconds={
 												BUFFER_STATE_DELAY_IN_MILLISECONDS
 											}
