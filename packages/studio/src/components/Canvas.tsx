@@ -701,6 +701,22 @@ export const Canvas: React.FC<{
 				return;
 			}
 
+			const staticFiles = getStaticFiles();
+			const differentExistingFile = files.find((file) => {
+				return staticFiles.some(
+					(staticFile) =>
+						staticFile.name === file.name &&
+						staticFile.sizeInBytes !== file.size,
+				);
+			});
+			if (differentExistingFile) {
+				showNotification(
+					`File with name ${differentExistingFile.name} already exists and is different`,
+					4000,
+				);
+				return;
+			}
+
 			setIsAddingAsset(true);
 			const insertedLabels: string[] = [];
 			const addedStaticFiles: string[] = [];
@@ -735,7 +751,7 @@ export const Canvas: React.FC<{
 						continue;
 					}
 
-					const alreadyExists = getStaticFiles().some(
+					const alreadyExists = staticFiles.some(
 						(staticFile) =>
 							staticFile.name === file.name &&
 							staticFile.sizeInBytes === file.size,

@@ -110,6 +110,24 @@ export const AssetSelector: React.FC<{
 					return [assetPath, file.name].filter(Boolean).join('/');
 				};
 
+				const differentExistingFile = Array.from(files).find((file) => {
+					const filePath = makePath(file);
+					return staticFiles.some(
+						(staticFile) =>
+							staticFile.name === filePath &&
+							staticFile.sizeInBytes !== file.size,
+					);
+				});
+				if (differentExistingFile) {
+					showNotification(
+						`File with name ${makePath(
+							differentExistingFile,
+						)} already exists and is different`,
+						4000,
+					);
+					return;
+				}
+
 				for (const file of files) {
 					const body = await file.arrayBuffer();
 					await writeStaticFile({
@@ -129,7 +147,7 @@ export const AssetSelector: React.FC<{
 				setDropLocation(null);
 			}
 		},
-		[dropLocation],
+		[dropLocation, staticFiles],
 	);
 
 	return (
