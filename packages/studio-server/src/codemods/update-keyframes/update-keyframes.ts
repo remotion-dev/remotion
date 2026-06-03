@@ -19,7 +19,11 @@ import {
 } from '@remotion/studio-shared';
 import type {ExpressionKind, SpreadElementKind} from 'ast-types/lib/gen/kinds';
 import * as recast from 'recast';
-import type {SequenceNodePath, SequenceSchema} from 'remotion';
+import type {
+	SequenceFieldSchema,
+	SequenceNodePath,
+	SequenceSchema,
+} from 'remotion';
 import {getAstNodePath} from '../../helpers/get-ast-node-path';
 import {
 	extractStaticValue,
@@ -471,6 +475,49 @@ const findObjectProperty = (
 	};
 };
 
+const findFieldInSchema = (
+	schema: SequenceSchema,
+	key: string,
+): SequenceFieldSchema | undefined => {
+	if (key in schema) {
+		return schema[key];
+	}
+
+	for (const field of Object.values(schema)) {
+		if (field.type !== 'enum') {
+			continue;
+		}
+
+		for (const variant of Object.values(field.variants)) {
+			const found = findFieldInSchema(variant, key);
+			if (found) {
+				return found;
+			}
+		}
+	}
+
+	return undefined;
+};
+
+const getDefaultExpressionForKey = ({
+	key,
+	schema,
+}: {
+	readonly key: string;
+	readonly schema: SequenceSchema | null;
+}): ExpressionKind | null => {
+	if (schema === null) {
+		return null;
+	}
+
+	const field = findFieldInSchema(schema, key);
+	if (field === undefined || !('default' in field)) {
+		return null;
+	}
+
+	return parseValueExpression(field.default);
+};
+
 const getObjectExpression = (attr: JSXAttribute): ObjectExpression | null => {
 	if (!attr.value || attr.value.type !== 'JSXExpressionContainer') {
 		return null;
@@ -485,10 +532,14 @@ const getObjectExpression = (attr: JSXAttribute): ObjectExpression | null => {
 
 const getSequenceWritableProp = ({
 	attributes,
+	createFromDefault,
 	key,
+	schema,
 }: {
 	attributes: (JSXAttribute | JSXSpreadAttribute)[];
+	createFromDefault: boolean;
 	key: string;
+	schema: SequenceSchema | null;
 }): WritableProp => {
 	const dotIndex = key.indexOf('.');
 	if (dotIndex === -1) {
@@ -520,6 +571,29 @@ const getSequenceWritableProp = ({
 	const childKey = key.slice(dotIndex + 1);
 	const {attr: parentAttr} = findJsxAttribute(attributes, parentKey);
 	if (!parentAttr) {
+		const defaultExpression = createFromDefault
+			? getDefaultExpressionForKey({key, schema})
+			: null;
+		if (defaultExpression !== null) {
+			const prop = b.objectProperty(
+				b.identifier(childKey),
+				defaultExpression,
+			) as ObjectProperty;
+			const objExpr = b.objectExpression([prop as never]);
+			const newAttr = b.jsxAttribute(
+				b.jsxIdentifier(parentKey),
+				b.jsxExpressionContainer(objExpr),
+			);
+			attributes.push(newAttr as JSXAttribute | JSXSpreadAttribute);
+
+			return {
+				expression: prop.value as Expression,
+				setExpression: (nextExpression) => {
+					prop.value = nextExpression as ObjectProperty['value'];
+				},
+			};
+		}
+
 		throw new Error(`Cannot update keyframes: "${parentKey}" is not set`);
 	}
 
@@ -530,6 +604,24 @@ const getSequenceWritableProp = ({
 
 	const {prop} = findObjectProperty(objExpr, childKey);
 	if (!prop) {
+		const defaultExpression = createFromDefault
+			? getDefaultExpressionForKey({key, schema})
+			: null;
+		if (defaultExpression !== null) {
+			const newProp = b.objectProperty(
+				b.identifier(childKey),
+				defaultExpression,
+			) as ObjectProperty;
+			objExpr.properties.push(newProp);
+
+			return {
+				expression: newProp.value as Expression,
+				setExpression: (nextExpression) => {
+					newProp.value = nextExpression as ObjectProperty['value'];
+				},
+			};
+		}
+
 		throw new Error(`Cannot update keyframes: "${key}" is not set`);
 	}
 
@@ -579,7 +671,9 @@ export const updateSequenceKeyframesAst = ({
 	for (const update of updates) {
 		const prop = getSequenceWritableProp({
 			attributes: node.attributes,
+			createFromDefault: update.operation.type === 'add',
 			key: update.key,
+			schema: schema ?? null,
 		});
 		oldValueStrings.push(recast.print(prop.expression).code);
 		const {expression: nextExpression, introduced} = applyKeyframeOperation({
