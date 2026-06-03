@@ -703,7 +703,24 @@ export const Canvas: React.FC<{
 
 			setIsAddingAsset(true);
 			const insertedLabels: string[] = [];
+			const addedStaticFiles: string[] = [];
 			const unsupportedFiles: string[] = [];
+			const notifyAddedStaticFiles = () => {
+				if (addedStaticFiles.length === 1) {
+					showNotification(
+						`Created ${addedStaticFiles[0]} in public folder`,
+						3000,
+					);
+				} else if (addedStaticFiles.length > 1) {
+					showNotification(
+						`Added ${addedStaticFiles.length} files to public folder`,
+						3000,
+					);
+				}
+
+				addedStaticFiles.length = 0;
+			};
+
 			try {
 				for (const file of files) {
 					const contents = await file.arrayBuffer();
@@ -729,6 +746,7 @@ export const Canvas: React.FC<{
 							contents,
 							filePath: file.name,
 						});
+						addedStaticFiles.push(file.name);
 					}
 
 					const result = await callApi('/api/insert-jsx-element', {
@@ -738,12 +756,15 @@ export const Canvas: React.FC<{
 					});
 
 					if (!result.success) {
+						notifyAddedStaticFiles();
 						showNotification(result.reason, 4000);
 						return;
 					}
 
 					insertedLabels.push(getAssetLabel(element));
 				}
+
+				notifyAddedStaticFiles();
 
 				if (insertedLabels.length === 1) {
 					showNotification(`Added ${insertedLabels[0]} to source file`, 2000);
