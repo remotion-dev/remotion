@@ -2,9 +2,9 @@ import React, {useCallback, useMemo} from 'react';
 import {TIMELINE_TRACK_SEPARATOR} from '../../helpers/colors';
 import {Padder} from './Padder';
 import {
-	TIMELINE_KEYFRAME_CONTROLS_WIDTH,
 	TIMELINE_ROW_BASE_PADDING,
 	getTimelineRowIndentWidth,
+	getTimelineRowLeftChromeWidth,
 } from './timeline-row-layout';
 import type {TimelineSelectionInteraction} from './TimelineSelection';
 import {TIMELINE_SELECTED_BACKGROUND} from './TimelineSelection';
@@ -21,13 +21,11 @@ const leftChromeStyle: React.CSSProperties = {
 	flexShrink: 0,
 };
 
-const keyframeControlsColumnStyle: React.CSSProperties = {
+const keyframeControlsColumnBaseStyle: React.CSSProperties = {
 	alignItems: 'center',
 	display: 'flex',
 	flexShrink: 0,
 	justifyContent: 'flex-start',
-	marginRight: -(TIMELINE_KEYFRAME_CONTROLS_WIDTH - TIMELINE_ROW_BASE_PADDING),
-	width: TIMELINE_KEYFRAME_CONTROLS_WIDTH,
 };
 
 export const TimelineRowChrome: React.FC<{
@@ -70,15 +68,23 @@ export const TimelineRowChrome: React.FC<{
 }) => {
 	const indentWidth = getTimelineRowIndentWidth(depth);
 
+	const keyframeControlsColumnStyle = useMemo(
+		(): React.CSSProperties => ({
+			...keyframeControlsColumnBaseStyle,
+			width: getTimelineRowLeftChromeWidth(depth),
+		}),
+		[depth],
+	);
+
 	const chromeColumnStyle = useMemo(
 		(): React.CSSProperties => ({
 			alignItems: 'center',
 			alignSelf: 'stretch',
 			display: 'flex',
 			flexShrink: 0,
-			paddingLeft: keyframeControls ? 0 : TIMELINE_ROW_BASE_PADDING,
+			paddingLeft: TIMELINE_ROW_BASE_PADDING,
 		}),
-		[keyframeControls],
+		[],
 	);
 
 	const onPointerDown = useCallback(
@@ -137,12 +143,13 @@ export const TimelineRowChrome: React.FC<{
 			<div style={leftChromeStyle}>
 				{keyframeControls ? (
 					<div style={keyframeControlsColumnStyle}>{keyframeControls}</div>
-				) : null}
-				<div style={chromeColumnStyle}>
-					{eye}
-					{indentWidth > 0 ? <Padder depth={depth} /> : null}
-					{arrow}
-				</div>
+				) : (
+					<div style={chromeColumnStyle}>
+						{eye}
+						{indentWidth > 0 ? <Padder depth={depth} /> : null}
+						{arrow}
+					</div>
+				)}
 			</div>
 			{children}
 		</>
