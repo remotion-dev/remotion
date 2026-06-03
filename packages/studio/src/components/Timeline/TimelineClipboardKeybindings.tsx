@@ -1,6 +1,7 @@
 import {
 	parseEffectClipboardData,
 	type EffectClipboardData,
+	type EffectClipboardParam,
 	type EffectClipboardPasteType,
 	type EffectClipboardSnapshot,
 } from '@remotion/studio-shared';
@@ -125,15 +126,31 @@ const effectStatusToSnapshot = (
 		return null;
 	}
 
-	const params: Record<string, unknown> = {};
+	const params: Record<string, EffectClipboardParam> = {};
 	for (const [key, prop] of Object.entries(effect.props)) {
-		if (prop.status !== 'static') {
+		if (prop.status === 'computed') {
 			return null;
 		}
 
-		if (prop.codeValue !== undefined) {
-			params[key] = prop.codeValue;
+		if (prop.status === 'static') {
+			if (prop.codeValue !== undefined) {
+				params[key] = {
+					type: 'static',
+					value: prop.codeValue,
+				};
+			}
+
+			continue;
 		}
+
+		params[key] = {
+			type: 'keyframed',
+			interpolationFunction: prop.interpolationFunction,
+			keyframes: prop.keyframes,
+			easing: prop.easing,
+			clamping: prop.clamping,
+			...(prop.posterize === undefined ? {} : {posterize: prop.posterize}),
+		};
 	}
 
 	return {
@@ -258,7 +275,7 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 					.writeText(
 						makeClipboardText({
 							type,
-							version: 2,
+							version: 3,
 							remotionClipboard: 'effects',
 							effects: snapshots as EffectClipboardSnapshot[],
 						}),
