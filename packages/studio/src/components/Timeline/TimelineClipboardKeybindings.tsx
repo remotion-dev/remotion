@@ -1,5 +1,5 @@
 import {
-	parseEffectClipboardData,
+	parseEffectClipboardDataResult,
 	type EffectClipboardData,
 	type EffectClipboardInterpolationFunction,
 	type EffectClipboardParam,
@@ -324,13 +324,22 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 				navigator.clipboard
 					.readText()
 					.then((text) => {
-						const payload = parseEffectClipboardData(text);
-						if (payload === null) {
+						const result = parseEffectClipboardDataResult(text);
+						if (result.status === 'invalid') {
 							return;
 						}
 
 						e.preventDefault();
 
+						if (result.status === 'unsupported-version') {
+							showNotification(
+								'Cannot paste effects copied from a different Remotion Studio version',
+								4000,
+							);
+							return;
+						}
+
+						const {data: payload} = result;
 						const target = getPasteEffectsTarget(selectedItems);
 						if (target.type === 'multiple') {
 							showNotification(

@@ -79,8 +79,10 @@ export type {ApplyVisualControlCodemod, RecastCodemod} from './codemods';
 export {DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS} from './default-buffer-state-delay-in-milliseconds';
 export {
 	parseEffectClipboardData,
+	parseEffectClipboardDataResult,
 	type EffectClipboardClamping,
 	type EffectClipboardData,
+	type EffectClipboardDataParseResult,
 	type EffectClipboardEasing,
 	type EffectClipboardExtrapolateType,
 	type EffectClipboardInterpolationFunction,

@@ -53,6 +53,19 @@ export type EffectClipboardData = {
 	readonly effects: EffectClipboardSnapshot[];
 };
 
+export type EffectClipboardDataParseResult =
+	| {
+			readonly status: 'valid';
+			readonly data: EffectClipboardData;
+	  }
+	| {
+			readonly status: 'unsupported-version';
+			readonly version: unknown;
+	  }
+	| {
+			readonly status: 'invalid';
+	  };
+
 const isRecord = (value: unknown): value is Record<string, unknown> => {
 	return typeof value === 'object' && value !== null && !Array.isArray(value);
 };
@@ -135,72 +148,67 @@ const isEffectClipboardSnapshotV3 = (
 	);
 };
 
-const normalizeV2Snapshot = (
-	value: unknown,
-): EffectClipboardSnapshot | null => {
-	if (!isRecord(value)) {
-		return null;
-	}
+export const parseEffectClipboardDataResult = (
+	value: string,
+): EffectClipboardDataParseResult => {
+	try {
+		const parsed: unknown = JSON.parse(value);
+		if (!isRecord(parsed)) {
+			return {status: 'invalid'};
+		}
 
-	if (
-		typeof value.callee !== 'string' ||
-		typeof value.importPath !== 'string' ||
-		!isRecord(value.params)
-	) {
-		return null;
-	}
+		if (parsed.remotionClipboard !== 'effects') {
+			return {status: 'invalid'};
+		}
 
-	const params: Record<string, EffectClipboardParam> = {};
-	for (const [key, paramValue] of Object.entries(value.params)) {
-		params[key] = {
-			type: 'static',
-			value: paramValue,
+		if (parsed.version !== 3) {
+			return {
+				status: 'unsupported-version',
+				version: parsed.version,
+			};
+		}
+
+		if (
+			parsed.type !== 'effects-additive' &&
+			parsed.type !== 'effects-replacing'
+		) {
+			return {status: 'invalid'};
+		}
+
+		if (!Array.isArray(parsed.effects)) {
+			return {status: 'invalid'};
+		}
+
+		const effects: EffectClipboardSnapshot[] = [];
+		for (const effect of parsed.effects) {
+			if (!isEffectClipboardSnapshotV3(effect)) {
+				return {status: 'invalid'};
+			}
+
+			effects.push(effect);
+		}
+
+		return {
+			status: 'valid',
+			data: {
+				type: parsed.type,
+				version: 3,
+				remotionClipboard: 'effects',
+				effects,
+			},
 		};
+	} catch {
+		return {status: 'invalid'};
 	}
-
-	return {
-		callee: value.callee,
-		importPath: value.importPath,
-		params,
-	};
 };
 
 export const parseEffectClipboardData = (
 	value: string,
 ): EffectClipboardData | null => {
-	try {
-		const parsed: unknown = JSON.parse(value);
-		if (!isRecord(parsed)) {
-			return null;
-		}
-
-		if (
-			parsed.remotionClipboard !== 'effects' ||
-			(parsed.type !== 'effects-additive' &&
-				parsed.type !== 'effects-replacing') ||
-			!Array.isArray(parsed.effects)
-		) {
-			return null;
-		}
-
-		const effects =
-			parsed.version === 2
-				? parsed.effects.map(normalizeV2Snapshot)
-				: parsed.version === 3 &&
-					  parsed.effects.every(isEffectClipboardSnapshotV3)
-					? parsed.effects
-					: null;
-		if (!effects || effects.some((effect) => effect === null)) {
-			return null;
-		}
-
-		return {
-			type: parsed.type,
-			version: 3,
-			remotionClipboard: 'effects',
-			effects: effects as EffectClipboardSnapshot[],
-		};
-	} catch {
+	const result = parseEffectClipboardDataResult(value);
+	if (result.status !== 'valid') {
 		return null;
 	}
+
+	return result.data;
 };

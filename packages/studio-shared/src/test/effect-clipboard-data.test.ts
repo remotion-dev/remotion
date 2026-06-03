@@ -1,5 +1,8 @@
 import {expect, test} from 'bun:test';
-import {parseEffectClipboardData} from '../effect-clipboard-data';
+import {
+	parseEffectClipboardData,
+	parseEffectClipboardDataResult,
+} from '../effect-clipboard-data';
 
 test('parseEffectClipboardData accepts keyframed v3 effect payloads', () => {
 	const parsed = parseEffectClipboardData(
@@ -53,25 +56,10 @@ test('parseEffectClipboardData accepts keyframed v3 effect payloads', () => {
 	});
 });
 
-test('parseEffectClipboardData normalizes old v2 static effect payloads', () => {
-	const parsed = parseEffectClipboardData(
-		JSON.stringify({
-			type: 'effects-replacing',
-			version: 2,
-			remotionClipboard: 'effects',
-			effects: [
-				{
-					callee: 'blur',
-					importPath: '@remotion/effects/blur',
-					params: {radius: 10},
-				},
-			],
-		}),
-	);
-
-	expect(parsed).toEqual({
+test('parseEffectClipboardData reports old v2 effect payloads as unsupported', () => {
+	const payload = JSON.stringify({
 		type: 'effects-replacing',
-		version: 3,
+		version: 2,
 		remotionClipboard: 'effects',
 		effects: [
 			{
@@ -79,12 +67,21 @@ test('parseEffectClipboardData normalizes old v2 static effect payloads', () => 
 				importPath: '@remotion/effects/blur',
 				params: {
 					radius: {
-						type: 'static',
-						value: 10,
+						type: 'keyframed',
+						keyframes: [
+							{frame: 0, value: 10},
+							{frame: 30, value: 20},
+						],
 					},
 				},
 			},
 		],
+	});
+
+	expect(parseEffectClipboardData(payload)).toBe(null);
+	expect(parseEffectClipboardDataResult(payload)).toEqual({
+		status: 'unsupported-version',
+		version: 2,
 	});
 });
 
