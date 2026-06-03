@@ -63,6 +63,7 @@ const TimelineClearSelectionArea: React.FC<{
 	const [isAddingSolid, setIsAddingSolid] = useState(false);
 	const [isAddingAsset, setIsAddingAsset] = useState(false);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const previewConnected = previewServerState.type === 'connected';
 
 	const currentCompositionId =
 		canvasContent?.type === 'composition' ? canvasContent.compositionId : null;
@@ -101,6 +102,7 @@ const TimelineClearSelectionArea: React.FC<{
 	);
 
 	const canInsertSolid =
+		previewConnected &&
 		compositionComponentInfo?.canAddSequence === true &&
 		currentCompositionId !== null &&
 		compositionFile !== null &&
@@ -108,7 +110,7 @@ const TimelineClearSelectionArea: React.FC<{
 		!isAddingSolid;
 
 	const canInsertAsset =
-		previewServerState.type === 'connected' &&
+		previewConnected &&
 		!window.remotion_isReadOnlyStudio &&
 		compositionComponentInfo?.canAddSequence === true &&
 		currentCompositionId !== null &&
