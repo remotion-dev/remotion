@@ -1,5 +1,6 @@
 import {expect, test} from 'bun:test';
 import type {SequenceSchema} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {
 	updateEffectKeyframesAst,
 	updateSequenceKeyframes,
@@ -205,6 +206,37 @@ test('updateSequenceKeyframes converts a static value to a single-keyframe inter
 
 	expect(oldValueStrings).toEqual(['0.5']);
 	expect(output).toContain('opacity: interpolate(frame, [0], [0.75], {');
+	expect(output).toContain("extrapolateLeft: 'clamp'");
+	expect(output).toContain("extrapolateRight: 'clamp'");
+});
+
+test('updateSequenceKeyframes adds a missing nested prop before keyframing it', async () => {
+	const input = `import React from 'react';
+import {AbsoluteFill} from 'remotion';
+
+export const Example: React.FC = () => {
+\treturn (
+\t\t<AbsoluteFill>
+\t\t\t<div style={{opacity: 0.5}} />
+\t\t</AbsoluteFill>
+\t);
+};
+`;
+	const {output, oldValueStrings} = await updateSequenceKeyframes({
+		input,
+		nodePath: lineColumnToNodePath(input, getLine(input, 'opacity')),
+		schema: NoReactInternals.sequenceSchema,
+		updates: [
+			{
+				key: 'style.scale',
+				operation: {type: 'add', frame: 30, value: 2},
+			},
+		],
+	});
+
+	expect(oldValueStrings).toEqual(['1']);
+	expect(output).toContain('opacity: 0.5');
+	expect(output).toContain('scale: interpolate(frame, [30], [2], {');
 	expect(output).toContain("extrapolateLeft: 'clamp'");
 	expect(output).toContain("extrapolateRight: 'clamp'");
 });

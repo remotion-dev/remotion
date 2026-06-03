@@ -21,6 +21,7 @@ import {
 import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
 import {usePreload} from '../prefetch.js';
 import {
+	fromField,
 	hiddenField,
 	sequenceVisualStyleSchema,
 	durationInFramesField,
@@ -36,6 +37,7 @@ import type {CanvasImageCanvasProps, CanvasImageProps} from './props.js';
 
 export const canvasImageSchema = {
 	durationInFrames: durationInFramesField,
+	from: fromField,
 	fit: {
 		type: 'enum',
 		default: 'fill',

@@ -195,6 +195,10 @@ const Value: React.FC<{
 		],
 	);
 
+	if (field.fieldSchema.type === 'scale') {
+		throw new Error(`Effects do not support scale fields: ${field.key}`);
+	}
+
 	if (effectStatus.type === 'cannot-update-effect') {
 		if (effectStatus.reason === 'computed') {
 			return <UnsupportedStatus label="computed" />;
@@ -241,6 +245,7 @@ const Value: React.FC<{
 				onSave={onSaveKeyframed}
 				onDragValueChange={onDragValueChange}
 				onDragEnd={onDragEnd}
+				scaleLockNodePath={nodePath}
 			/>
 		);
 	}
@@ -264,6 +269,7 @@ const Value: React.FC<{
 			onDragValueChange={onDragValueChange}
 			onDragEnd={onDragEnd}
 			effectiveValue={effectiveValue}
+			scaleLockNodePath={null}
 		/>
 	);
 };

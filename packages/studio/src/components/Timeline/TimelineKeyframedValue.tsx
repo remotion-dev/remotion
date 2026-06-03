@@ -2,6 +2,7 @@ import React, {useCallback, useMemo} from 'react';
 import type {
 	CanUpdateSequencePropStatusKeyframed,
 	CanUpdateSequencePropStatusStatic,
+	SequencePropsSubscriptionKey,
 } from 'remotion';
 import {Internals} from 'remotion';
 import type {
@@ -23,6 +24,7 @@ export const TimelineKeyframedValue: React.FC<{
 	readonly onSave: (value: unknown, sourceFrame: number) => Promise<void>;
 	readonly onDragValueChange: TimelineFieldOnDragValueChange;
 	readonly onDragEnd: () => void;
+	readonly scaleLockNodePath: SequencePropsSubscriptionKey;
 }> = ({
 	field,
 	propStatus,
@@ -31,6 +33,7 @@ export const TimelineKeyframedValue: React.FC<{
 	onSave,
 	onDragValueChange,
 	onDragEnd,
+	scaleLockNodePath,
 }) => {
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const jsxFrame = timelinePosition - keyframeDisplayOffset;
@@ -87,6 +90,7 @@ export const TimelineKeyframedValue: React.FC<{
 			onSave={onSaveIfChanged}
 			onDragValueChange={onDragValueChange}
 			onDragEnd={onDragEnd}
+			scaleLockNodePath={scaleLockNodePath}
 		/>
 	);
 };
