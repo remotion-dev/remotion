@@ -1,64 +1,231 @@
-import type {File, Statement} from '@babel/types';
+import type {File, Node} from '@babel/types';
 import type {SequenceNodePath} from 'remotion';
 
-const getActualProgramBodyIndex = ({
-	body,
-	importAgnosticIndex,
+type ArrayContext = {
+	parent: Node;
+	property: string;
+};
+
+type IgnoredNodePredicate = (node: Node, context: ArrayContext) => boolean;
+
+const getActualIndex = ({
+	items,
+	agnosticIndex,
+	shouldIgnore,
+	context,
 }: {
-	body: Statement[];
-	importAgnosticIndex: number;
+	items: Node[];
+	agnosticIndex: number;
+	shouldIgnore: IgnoredNodePredicate;
+	context: ArrayContext;
 }): number | null => {
-	let seenNonImports = 0;
-	for (let i = 0; i < body.length; i++) {
-		if (body[i].type === 'ImportDeclaration') {
+	let seenIncludedNodes = 0;
+	for (let i = 0; i < items.length; i++) {
+		if (shouldIgnore(items[i], context)) {
 			continue;
 		}
 
-		if (seenNonImports === importAgnosticIndex) {
+		if (seenIncludedNodes === agnosticIndex) {
 			return i;
 		}
 
-		seenNonImports++;
+		seenIncludedNodes++;
 	}
 
 	return null;
 };
 
-const getImportAgnosticProgramBodyIndex = ({
-	body,
+const getAgnosticIndex = ({
+	items,
 	actualIndex,
+	shouldIgnore,
+	context,
 }: {
-	body: Statement[];
+	items: Node[];
 	actualIndex: number;
+	shouldIgnore: IgnoredNodePredicate;
+	context: ArrayContext;
 }): number | null => {
-	if (actualIndex < 0 || actualIndex >= body.length) {
+	if (actualIndex < 0 || actualIndex >= items.length) {
 		return null;
 	}
 
-	let seenNonImports = 0;
+	let seenIncludedNodes = 0;
 	for (let i = 0; i <= actualIndex; i++) {
-		if (body[i].type === 'ImportDeclaration') {
+		if (shouldIgnore(items[i], context)) {
 			continue;
 		}
 
 		if (i === actualIndex) {
-			return seenNonImports;
+			return seenIncludedNodes;
 		}
 
-		seenNonImports++;
+		seenIncludedNodes++;
 	}
 
 	return null;
 };
 
-const hasProgramBodyIndex = (
-	nodePath: SequenceNodePath,
-): nodePath is ['program', 'body', number, ...Array<string | number>] => {
+const getUseCurrentFrameLocalNames = (ast: File): Set<string> => {
+	const names = new Set(['useCurrentFrame']);
+	for (const statement of ast.program.body) {
+		if (
+			statement.type !== 'ImportDeclaration' ||
+			statement.source.value !== 'remotion'
+		) {
+			continue;
+		}
+
+		for (const specifier of statement.specifiers) {
+			if (
+				specifier.type === 'ImportSpecifier' &&
+				specifier.imported.type === 'Identifier' &&
+				specifier.imported.name === 'useCurrentFrame'
+			) {
+				names.add(specifier.local?.name ?? 'useCurrentFrame');
+			}
+		}
+	}
+
+	return names;
+};
+
+const isUseCurrentFrameCall = (
+	node: Node | null | undefined,
+	useCurrentFrameLocalNames: ReadonlySet<string>,
+): boolean => {
 	return (
-		nodePath[0] === 'program' &&
-		nodePath[1] === 'body' &&
-		typeof nodePath[2] === 'number'
+		node?.type === 'CallExpression' &&
+		node.callee.type === 'Identifier' &&
+		useCurrentFrameLocalNames.has(node.callee.name)
 	);
+};
+
+const isUseCurrentFrameStatement = (
+	node: Node,
+	useCurrentFrameLocalNames: ReadonlySet<string>,
+): boolean => {
+	if (node.type === 'ExpressionStatement') {
+		return isUseCurrentFrameCall(node.expression, useCurrentFrameLocalNames);
+	}
+
+	if (node.type !== 'VariableDeclaration' || node.declarations.length !== 1) {
+		return false;
+	}
+
+	return isUseCurrentFrameCall(
+		node.declarations[0].init,
+		useCurrentFrameLocalNames,
+	);
+};
+
+const getIgnoredNodePredicate = (ast: File): IgnoredNodePredicate => {
+	const useCurrentFrameLocalNames = getUseCurrentFrameLocalNames(ast);
+	return (node, {parent, property}) => {
+		if (
+			parent.type === 'Program' &&
+			property === 'body' &&
+			node.type === 'ImportDeclaration'
+		) {
+			return true;
+		}
+
+		if (parent.type === 'BlockStatement' && property === 'body') {
+			return isUseCurrentFrameStatement(node, useCurrentFrameLocalNames);
+		}
+
+		return false;
+	};
+};
+
+const getChild = (value: unknown, segment: string | number): unknown => {
+	if (value === null || value === undefined) {
+		return null;
+	}
+
+	if (Array.isArray(value)) {
+		return value[segment as number] ?? null;
+	}
+
+	if (typeof value !== 'object') {
+		return null;
+	}
+
+	return (value as Record<string, unknown>)[segment] ?? null;
+};
+
+const transformNodePathIndices = ({
+	ast,
+	nodePath,
+	direction,
+}: {
+	ast: File;
+	nodePath: SequenceNodePath;
+	direction: 'to-agnostic' | 'from-agnostic';
+}): SequenceNodePath | null => {
+	const shouldIgnore = getIgnoredNodePredicate(ast);
+	const transformed: SequenceNodePath = [];
+	let current: unknown = ast;
+	let arrayContext: ArrayContext | null = null;
+
+	for (const segment of nodePath) {
+		if (typeof segment === 'string') {
+			const parent = current;
+			current = getChild(current, segment);
+			if (
+				Array.isArray(current) &&
+				parent &&
+				typeof parent === 'object' &&
+				'type' in parent
+			) {
+				arrayContext = {parent: parent as Node, property: segment};
+			} else {
+				arrayContext = null;
+			}
+
+			transformed.push(segment);
+			continue;
+		}
+
+		if (!Array.isArray(current) || !arrayContext) {
+			current = getChild(current, segment);
+			transformed.push(segment);
+			continue;
+		}
+
+		const mappedIndex =
+			direction === 'to-agnostic'
+				? getAgnosticIndex({
+						items: current as Node[],
+						actualIndex: segment,
+						shouldIgnore,
+						context: arrayContext,
+					})
+				: getActualIndex({
+						items: current as Node[],
+						agnosticIndex: segment,
+						shouldIgnore,
+						context: arrayContext,
+					});
+		if (mappedIndex === null) {
+			if (direction === 'from-agnostic') {
+				return null;
+			}
+
+			current = getChild(current, segment);
+			transformed.push(segment);
+			continue;
+		}
+
+		current = getChild(
+			current,
+			direction === 'to-agnostic' ? segment : mappedIndex,
+		);
+		arrayContext = null;
+		transformed.push(mappedIndex);
+	}
+
+	return transformed;
 };
 
 export const toImportAgnosticNodePath = ({
@@ -68,19 +235,10 @@ export const toImportAgnosticNodePath = ({
 	ast: File;
 	nodePath: SequenceNodePath;
 }): SequenceNodePath => {
-	if (!hasProgramBodyIndex(nodePath)) {
-		return nodePath;
-	}
-
-	const importAgnosticIndex = getImportAgnosticProgramBodyIndex({
-		body: ast.program.body,
-		actualIndex: nodePath[2],
-	});
-	if (importAgnosticIndex === null) {
-		return nodePath;
-	}
-
-	return ['program', 'body', importAgnosticIndex, ...nodePath.slice(3)];
+	return (
+		transformNodePathIndices({ast, nodePath, direction: 'to-agnostic'}) ??
+		nodePath
+	);
 };
 
 export const fromImportAgnosticNodePath = ({
@@ -90,17 +248,5 @@ export const fromImportAgnosticNodePath = ({
 	ast: File;
 	nodePath: SequenceNodePath;
 }): SequenceNodePath | null => {
-	if (!hasProgramBodyIndex(nodePath)) {
-		return nodePath;
-	}
-
-	const actualIndex = getActualProgramBodyIndex({
-		body: ast.program.body,
-		importAgnosticIndex: nodePath[2],
-	});
-	if (actualIndex === null) {
-		return null;
-	}
-
-	return ['program', 'body', actualIndex, ...nodePath.slice(3)];
+	return transformNodePathIndices({ast, nodePath, direction: 'from-agnostic'});
 };

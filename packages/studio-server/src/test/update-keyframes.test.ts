@@ -301,6 +301,7 @@ export default CenteredSolid;
 	});
 
 	expect(output).toContain('width={interpolate(frame, [11], [240])}');
+	expect(updatedNodePath).toEqual(nodePath);
 	const status = computeSequencePropsStatusFromContent({
 		fileContents: output,
 		nodePath: updatedNodePath,
