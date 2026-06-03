@@ -149,6 +149,7 @@ const Value: React.FC<{
 			onDragValueChange={onDragValueChange}
 			onDragEnd={onDragEnd}
 			effectiveValue={effectiveValue}
+			scaleLockNodePath={nodePath}
 		/>
 	);
 };
@@ -318,6 +319,7 @@ export const TimelineSequencePropItem: React.FC<{
 						field={field}
 						propStatus={codeValue}
 						keyframeDisplayOffset={keyframeDisplayOffset}
+						scaleLockNodePath={nodePath}
 					/>
 				</div>
 			) : codeValue.status === 'static' ? (
