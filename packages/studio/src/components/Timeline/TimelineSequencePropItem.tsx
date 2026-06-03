@@ -319,6 +319,7 @@ export const TimelineSequencePropItem: React.FC<{
 						field={field}
 						propStatus={codeValue}
 						keyframeDisplayOffset={keyframeDisplayOffset}
+						scaleLockNodePath={nodePath}
 					/>
 				</div>
 			) : codeValue.status === 'static' ? (

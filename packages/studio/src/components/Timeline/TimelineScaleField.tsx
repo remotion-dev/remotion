@@ -150,7 +150,7 @@ export const TimelineScaleField: React.FC<{
 	readonly onSave: TimelineFieldOnSave;
 	readonly onDragValueChange: TimelineFieldOnDragValueChange;
 	readonly onDragEnd: () => void;
-	readonly scaleLockNodePath: SequencePropsSubscriptionKey | null;
+	readonly scaleLockNodePath: SequencePropsSubscriptionKey;
 }> = ({
 	field,
 	propStatus,
@@ -170,16 +170,12 @@ export const TimelineScaleField: React.FC<{
 		[effectiveValue],
 	);
 
-	const [localLinked, setLocalLinked] = useState(() => codeX === codeY);
 	const defaultLinked = codeX === codeY;
-	const linked =
-		scaleLockNodePath === null
-			? localLinked
-			: getScaleLockState({
-					nodePath: scaleLockNodePath,
-					fieldKey: field.key,
-					defaultValue: defaultLinked,
-				});
+	const linked = getScaleLockState({
+		nodePath: scaleLockNodePath,
+		fieldKey: field.key,
+		defaultValue: defaultLinked,
+	});
 
 	const step =
 		field.fieldSchema.type === 'scale'
@@ -433,11 +429,6 @@ export const TimelineScaleField: React.FC<{
 	);
 
 	const onToggleLink = useCallback(() => {
-		if (scaleLockNodePath === null) {
-			setLocalLinked((current) => !current);
-			return;
-		}
-
 		setScaleLockState({
 			nodePath: scaleLockNodePath,
 			fieldKey: field.key,

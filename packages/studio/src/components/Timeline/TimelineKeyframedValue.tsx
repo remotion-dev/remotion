@@ -2,6 +2,7 @@ import React, {useMemo} from 'react';
 import type {
 	CanUpdateSequencePropStatusKeyframed,
 	CanUpdateSequencePropStatusStatic,
+	SequencePropsSubscriptionKey,
 } from 'remotion';
 import {Internals} from 'remotion';
 import type {SchemaFieldInfo} from '../../helpers/timeline-layout';
@@ -19,7 +20,8 @@ export const TimelineKeyframedValue: React.FC<{
 	readonly field: SchemaFieldInfo;
 	readonly propStatus: CanUpdateSequencePropStatusKeyframed;
 	readonly keyframeDisplayOffset: number;
-}> = ({field, propStatus, keyframeDisplayOffset}) => {
+	readonly scaleLockNodePath: SequencePropsSubscriptionKey;
+}> = ({field, propStatus, keyframeDisplayOffset, scaleLockNodePath}) => {
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const jsxFrame = timelinePosition - keyframeDisplayOffset;
 
@@ -56,7 +58,7 @@ export const TimelineKeyframedValue: React.FC<{
 				onSave={noopAsync}
 				onDragValueChange={noop}
 				onDragEnd={noop}
-				scaleLockNodePath={null}
+				scaleLockNodePath={scaleLockNodePath}
 			/>
 		</div>
 	);

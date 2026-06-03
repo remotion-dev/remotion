@@ -113,6 +113,10 @@ export const TimelineFieldValue: React.FC<{
 	}
 
 	if (field.typeName === 'scale') {
+		if (scaleLockNodePath === null) {
+			throw new Error('Expected scale lock node path for scale field');
+		}
+
 		return (
 			<span>
 				<TimelineScaleField
