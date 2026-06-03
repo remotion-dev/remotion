@@ -118,6 +118,27 @@ test('updateSequenceKeyframes adds a keyframe to an existing interpolation', asy
 	);
 });
 
+test('updateSequenceKeyframes updates a keyframe at the same frame', async () => {
+	const {output, oldValueStrings, newValueStrings} =
+		await updateSequenceKeyframes({
+			input: sequenceInput,
+			nodePath: lineColumnToNodePath(
+				sequenceInput,
+				getLine(sequenceInput, 'scale'),
+			),
+			updates: [
+				{
+					key: 'style.scale',
+					operation: {type: 'add', frame: 100, value: 5},
+				},
+			],
+		});
+
+	expect(oldValueStrings).toEqual(['interpolate(frame, [0, 100], [2, 4])']);
+	expect(newValueStrings).toEqual(['interpolate(frame, [0, 100], [2, 5])']);
+	expect(output).toContain('scale: interpolate(frame, [0, 100], [2, 5])');
+});
+
 test('updateSequenceKeyframes converts a static value to an interpolation', async () => {
 	const {output, oldValueStrings} = await updateSequenceKeyframes({
 		input: sequenceInput,
@@ -280,8 +301,10 @@ export const Example: React.FC = () => {
 
 	expect(oldValueStrings).toEqual(['"0px 0px"']);
 	expect(output).toContain(
-		"translate: interpolateTranslate(frame, [44], ['100px 20px'])",
+		"translate: interpolateTranslate(frame, [44], ['100px 20px'], {",
 	);
+	expect(output).toContain("extrapolateLeft: 'clamp'");
+	expect(output).toContain("extrapolateRight: 'clamp'");
 	expect(output).toContain('useCurrentFrame');
 	expect(output).toContain('interpolateTranslate');
 	const status = computeSequencePropsStatusFromContent({
@@ -296,7 +319,7 @@ export const Example: React.FC = () => {
 		interpolationFunction: 'interpolateTranslate',
 		keyframes: [{frame: 44, value: '100px 20px'}],
 		easing: [],
-		clamping: {left: 'extend', right: 'extend'},
+		clamping: {left: 'clamp', right: 'clamp'},
 		posterize: undefined,
 	});
 });

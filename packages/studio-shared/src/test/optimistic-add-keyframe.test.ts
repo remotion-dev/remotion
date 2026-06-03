@@ -193,6 +193,49 @@ test('optimisticAddSequenceKeyframe appends a keyframe to an existing interpolat
 	expect(status.easing).toEqual(['linear', 'linear']);
 });
 
+test('optimisticAddSequenceKeyframe updates an existing keyframe at the same frame', () => {
+	const previous: CanUpdateSequencePropsResponse = {
+		canUpdate: true,
+		props: {
+			scale: {
+				status: 'keyframed',
+				codeValue: undefined,
+				interpolationFunction: 'interpolate',
+				keyframes: [
+					{frame: 0, value: 1},
+					{frame: 60, value: 2},
+				],
+				easing: ['linear'],
+				clamping: {left: 'extend', right: 'extend'},
+				posterize: undefined,
+			},
+		},
+		effects: [],
+	};
+
+	const updated = optimisticAddSequenceKeyframe({
+		previous,
+		fieldKey: 'scale',
+		frame: 60,
+		value: 3,
+	});
+
+	if (!updated.canUpdate) {
+		throw new Error('expected updateable sequence');
+	}
+
+	const status = updated.props.scale;
+	if (!status || status.status !== 'keyframed') {
+		throw new Error('expected keyframed status');
+	}
+
+	expect(status.keyframes).toEqual([
+		{frame: 0, value: 1},
+		{frame: 60, value: 3},
+	]);
+	expect(status.easing).toEqual(['linear']);
+});
+
 test('optimisticAddEffectKeyframe appends a keyframe on the target effect', () => {
 	const previous: CanUpdateSequencePropsResponse = {
 		canUpdate: true,

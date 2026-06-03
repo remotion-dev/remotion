@@ -13,6 +13,7 @@ import type {EffectSchemaFieldInfo} from '../../helpers/timeline-layout';
 import {callApi} from '../call-api';
 import {ContextMenu} from '../ContextMenu';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
+import {callAddEffectKeyframe} from './call-add-keyframe';
 import {getComputedStatusLabel} from './get-timeline-keyframes';
 import {saveEffectProp} from './save-effect-prop';
 import {enqueueSavePropChange} from './save-prop-queue';
@@ -161,6 +162,39 @@ const Value: React.FC<{
 		],
 	);
 
+	const onSaveKeyframed = useCallback(
+		(value: unknown, sourceFrame: number) => {
+			if (!validatedLocation) {
+				return Promise.reject(new Error('Cannot save'));
+			}
+
+			if (!clientId) {
+				return Promise.reject(new Error('Not connected to studio server'));
+			}
+
+			return callAddEffectKeyframe({
+				fileName: validatedLocation.source,
+				nodePath,
+				effectIndex: field.effectIndex,
+				fieldKey: field.key,
+				sourceFrame,
+				value,
+				schema: field.effectSchema,
+				setCodeValues,
+				clientId,
+			});
+		},
+		[
+			clientId,
+			field.effectIndex,
+			field.effectSchema,
+			field.key,
+			nodePath,
+			setCodeValues,
+			validatedLocation,
+		],
+	);
+
 	if (effectStatus.type === 'cannot-update-effect') {
 		if (effectStatus.reason === 'computed') {
 			return <UnsupportedStatus label="computed" />;
@@ -203,6 +237,10 @@ const Value: React.FC<{
 				field={field}
 				propStatus={propStatus}
 				keyframeDisplayOffset={keyframeDisplayOffset}
+				dragOverrideValue={dragOverrideValue}
+				onSave={onSaveKeyframed}
+				onDragValueChange={onDragValueChange}
+				onDragEnd={onDragEnd}
 			/>
 		);
 	}

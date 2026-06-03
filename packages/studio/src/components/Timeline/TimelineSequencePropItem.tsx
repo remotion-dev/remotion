@@ -17,6 +17,7 @@ import type {
 } from '../../helpers/timeline-layout';
 import {ContextMenu} from '../ContextMenu';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
+import {callAddSequenceKeyframe} from './call-add-keyframe';
 import {saveSequenceProp} from './save-sequence-prop';
 import {timelineFieldValueColumnStyle} from './timeline-field-row-layout';
 import {TimelineExpandArrowSpacer} from './TimelineExpandArrowButton';
@@ -176,9 +177,15 @@ export const TimelineSequencePropItem: React.FC<{
 	const {getDragOverrides} = useContext(
 		Internals.VisualModeDragOverridesContext,
 	);
-	const {setCodeValues} = useContext(Internals.VisualModeSettersContext);
+	const {setCodeValues, setDragOverrides, clearDragOverrides} = useContext(
+		Internals.VisualModeSettersContext,
+	);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const selection = useTimelineRowSelection(nodePathInfo);
+	const clientId =
+		previewServerState.type === 'connected'
+			? previewServerState.clientId
+			: null;
 
 	const codeValuesForOverride = Internals.getCodeValuesCtx(
 		visualModeCodeValues,
@@ -272,6 +279,45 @@ export const TimelineSequencePropItem: React.FC<{
 		codeValue,
 	]);
 
+	const onSaveKeyframed = useCallback(
+		(value: unknown, sourceFrame: number) => {
+			if (!clientId) {
+				return Promise.reject(new Error('Not connected to studio server'));
+			}
+
+			return callAddSequenceKeyframe({
+				fileName: validatedLocation.source,
+				nodePath,
+				fieldKey: field.key,
+				sourceFrame,
+				value,
+				schema,
+				setCodeValues,
+				clientId,
+			});
+		},
+		[
+			clientId,
+			field.key,
+			nodePath,
+			schema,
+			setCodeValues,
+			validatedLocation.source,
+		],
+	);
+
+	const onKeyframedDragValueChange =
+		useCallback<TimelineFieldOnDragValueChange>(
+			(value) => {
+				setDragOverrides(nodePath, field.key, value);
+			},
+			[field.key, nodePath, setDragOverrides],
+		);
+
+	const onKeyframedDragEnd = useCallback(() => {
+		clearDragOverrides(nodePath);
+	}, [clearDragOverrides, nodePath]);
+
 	const contextMenuValues = useMemo((): ComboboxValue[] => {
 		return [
 			{
@@ -318,6 +364,10 @@ export const TimelineSequencePropItem: React.FC<{
 						field={field}
 						propStatus={codeValue}
 						keyframeDisplayOffset={keyframeDisplayOffset}
+						dragOverrideValue={dragOverrideValue}
+						onSave={onSaveKeyframed}
+						onDragValueChange={onKeyframedDragValueChange}
+						onDragEnd={onKeyframedDragEnd}
 					/>
 				</div>
 			) : codeValue.status === 'static' ? (
