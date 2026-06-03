@@ -119,6 +119,27 @@ test('updateSequenceKeyframes adds a keyframe to an existing interpolation', asy
 	);
 });
 
+test('updateSequenceKeyframes updates a keyframe at the same frame', async () => {
+	const {output, oldValueStrings, newValueStrings} =
+		await updateSequenceKeyframes({
+			input: sequenceInput,
+			nodePath: lineColumnToNodePath(
+				sequenceInput,
+				getLine(sequenceInput, 'scale'),
+			),
+			updates: [
+				{
+					key: 'style.scale',
+					operation: {type: 'add', frame: 100, value: 5},
+				},
+			],
+		});
+
+	expect(oldValueStrings).toEqual(['interpolate(frame, [0, 100], [2, 4])']);
+	expect(newValueStrings).toEqual(['interpolate(frame, [0, 100], [2, 5])']);
+	expect(output).toContain('scale: interpolate(frame, [0, 100], [2, 5])');
+});
+
 test('updateSequenceKeyframes converts a static value to an interpolation', async () => {
 	const {output, oldValueStrings} = await updateSequenceKeyframes({
 		input: sequenceInput,
