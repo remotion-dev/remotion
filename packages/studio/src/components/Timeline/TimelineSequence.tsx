@@ -317,11 +317,9 @@ const TimelineSequenceInner: React.FC<{
 			{s.loopDisplay === undefined ? null : (
 				<LoopedTimelineIndicator loops={s.loopDisplay.numberOfTimes} />
 			)}
-			{showRightEdgeDragHandle && nodePath && validatedLocation ? (
+			{showRightEdgeDragHandle && nodePathInfo && validatedLocation ? (
 				<TimelineSequenceRightEdgeDragHandle
-					nodePath={nodePath}
-					validatedLocation={validatedLocation}
-					currentDurationInFrames={s.duration}
+					nodePathInfo={nodePathInfo}
 					windowWidth={windowWidth}
 					timelineDurationInFrames={video.durationInFrames ?? 1}
 				/>
