@@ -29,12 +29,21 @@ import {JsxElementNotFoundAtLocationError} from '../jsx-element-not-found-at-loc
 import {computeEffectPropStatus} from './can-update-effect-props';
 
 type CanUpdatePropStatus = CanUpdateSequencePropStatus;
-type KeyframedPropStatus = Extract<CanUpdatePropStatus, {keyframed: true}>;
+type KeyframedPropStatus = Extract<CanUpdatePropStatus, {status: 'keyframed'}>;
 type PropKeyframes = KeyframedPropStatus['keyframes'];
 type PropEasing = KeyframedPropStatus['easing'];
 type PropClamping = KeyframedPropStatus['clamping'];
 type PropPosterize = KeyframedPropStatus['posterize'];
 type PropInterpolationFunction = KeyframedPropStatus['interpolationFunction'];
+
+const staticStatus = (codeValue: unknown): CanUpdatePropStatus => ({
+	status: 'static',
+	codeValue,
+});
+
+const computedStatus = (): CanUpdatePropStatus => ({
+	status: 'computed',
+});
 
 export const isStaticValue = (node: Expression): boolean => {
 	switch (node.type) {
@@ -473,13 +482,12 @@ const getInterpolationKeyframes = (
 export const getComputedStatus = (node: Expression): CanUpdatePropStatus => {
 	const interpolation = getInterpolationKeyframes(node);
 	if (!interpolation) {
-		return {canUpdate: false, reason: 'computed'};
+		return computedStatus();
 	}
 
 	return {
-		canUpdate: true,
+		status: 'keyframed',
 		codeValue: undefined,
-		keyframed: true,
 		interpolationFunction: interpolation.interpolationFunction,
 		keyframes: interpolation.keyframes,
 		easing: interpolation.easing,
@@ -510,23 +518,19 @@ const getPropsStatus = (
 		const {value} = attr as JSXAttribute;
 
 		if (!value) {
-			props[name] = {canUpdate: true, codeValue: true, keyframed: false};
+			props[name] = staticStatus(true);
 			continue;
 		}
 
 		if (value.type === 'StringLiteral') {
-			props[name] = {
-				canUpdate: true,
-				codeValue: (value as {value: string}).value,
-				keyframed: false,
-			};
+			props[name] = staticStatus((value as {value: string}).value);
 			continue;
 		}
 
 		if (value.type === 'JSXExpressionContainer') {
 			const {expression} = value;
 			if (expression.type === 'JSXEmptyExpression') {
-				props[name] = {canUpdate: false, reason: 'computed'};
+				props[name] = computedStatus();
 				continue;
 			}
 
@@ -535,15 +539,11 @@ const getPropsStatus = (
 				continue;
 			}
 
-			props[name] = {
-				canUpdate: true,
-				codeValue: extractStaticValue(expression),
-				keyframed: false,
-			};
+			props[name] = staticStatus(extractStaticValue(expression));
 			continue;
 		}
 
-		props[name] = {canUpdate: false, reason: 'computed'};
+		props[name] = computedStatus();
 	}
 
 	return props;
@@ -660,11 +660,11 @@ const getNestedPropStatus = (
 
 	if (!attr || !attr.value) {
 		// Parent attribute doesn't exist, nested prop can be added
-		return {canUpdate: true, codeValue: undefined, keyframed: false};
+		return staticStatus(undefined);
 	}
 
 	if (attr.value.type !== 'JSXExpressionContainer') {
-		return {canUpdate: false, reason: 'computed'};
+		return computedStatus();
 	}
 
 	const {expression} = attr.value;
@@ -673,7 +673,7 @@ const getNestedPropStatus = (
 		expression.type !== 'ObjectExpression'
 	) {
 		// Parent is not an object literal (e.g. style={myStyles})
-		return {canUpdate: false, reason: 'computed'};
+		return computedStatus();
 	}
 
 	const objExpr = expression as ObjectExpression;
@@ -686,7 +686,7 @@ const getNestedPropStatus = (
 
 	if (!prop) {
 		// Property not set in the object, can be added
-		return {canUpdate: true, codeValue: undefined, keyframed: false};
+		return staticStatus(undefined);
 	}
 
 	const propValue = prop.value as Expression;
@@ -696,10 +696,10 @@ const getNestedPropStatus = (
 
 	const codeValue = extractStaticValue(propValue);
 	if (!validateStyleValue(childKey, codeValue)) {
-		return {canUpdate: false, reason: 'computed'};
+		return computedStatus();
 	}
 
-	return {canUpdate: true, codeValue, keyframed: false};
+	return staticStatus(codeValue);
 };
 
 const computeEffectsForJsx = ({
@@ -741,11 +741,7 @@ const computeSequenceOnlyPropsRecord = ({
 		} else if (key in allProps) {
 			filteredProps[key] = allProps[key];
 		} else {
-			filteredProps[key] = {
-				canUpdate: true,
-				codeValue: undefined,
-				keyframed: false,
-			};
+			filteredProps[key] = staticStatus(undefined);
 		}
 	}
 

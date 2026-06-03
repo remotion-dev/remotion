@@ -15,6 +15,7 @@ const scaleSchema = {
 		step: 0.1,
 		default: 1,
 		description: 'Factor',
+		hiddenFromList: false,
 	},
 	horizontal: {
 		type: 'boolean',

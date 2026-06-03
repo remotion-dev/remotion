@@ -17,6 +17,7 @@ import {sequenceSchema} from './sequence-field-schema.js';
 import type {SequenceContextType} from './SequenceContext.js';
 import {SequenceContext} from './SequenceContext.js';
 import {SequenceManager} from './SequenceManager.js';
+import {IsInsideSeriesContext} from './series/is-inside-series.js';
 import {
 	useTimelineContext,
 	useTimelinePosition,
@@ -27,6 +28,8 @@ import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {useVideoConfig} from './use-video-config.js';
 import {ENABLE_V5_BREAKING_CHANGES} from './v5-flag.js';
 import {wrapInSchema} from './wrap-in-schema.js';
+
+const EMPTY_EFFECTS: readonly EffectDefinition<unknown>[] = [];
 
 export type AbsoluteFillLayout = {
 	layout?: 'absolute-fill';
@@ -270,6 +273,8 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	const env = useRemotionEnvironment();
 
+	const isInsideSeries = useContext(IsInsideSeriesContext);
+
 	const inheritedStack = (other as any)?.stack ?? null;
 	// Our assumption: Stack doesnt' change. After we symbolicate we assign it a nodePath
 	// and if it changes, it would lead to-remounting of the sequence.
@@ -286,7 +291,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 				registerSequence({
 					type: 'image',
 					controls: controls ?? null,
-					effects: _remotionInternalEffects ?? [],
+					effects: _remotionInternalEffects ?? EMPTY_EFFECTS,
 					displayName: timelineClipName,
 					documentationLink: resolvedDocumentationLink,
 					duration: actualDurationInFrames,
@@ -302,12 +307,13 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 					src: isMedia.src,
 					getStack: () => stackRef.current,
 					refForOutline: refForOutline ?? null,
+					isInsideSeries,
 				});
 			} else {
 				registerSequence({
 					type: isMedia.type,
 					controls: controls ?? null,
-					effects: _remotionInternalEffects ?? [],
+					effects: _remotionInternalEffects ?? EMPTY_EFFECTS,
 					displayName: timelineClipName,
 					documentationLink: resolvedDocumentationLink,
 					doesVolumeChange: isMedia.data.doesVolumeChange,
@@ -327,6 +333,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 					startMediaFrom: isMedia.data.startMediaFrom,
 					volume: isMedia.data.volumes,
 					refForOutline: refForOutline ?? null,
+					isInsideSeries,
 				});
 			}
 
@@ -351,8 +358,9 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			premountDisplay: premountDisplay ?? null,
 			postmountDisplay: postmountDisplay ?? null,
 			controls: controls ?? null,
-			effects: _remotionInternalEffects ?? [],
+			effects: _remotionInternalEffects ?? EMPTY_EFFECTS,
 			refForOutline: refForOutline ?? null,
+			isInsideSeries,
 		});
 		return () => {
 			unregisterSequence(id);
@@ -379,6 +387,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		isMedia,
 		resolvedDocumentationLink,
 		refForOutline,
+		isInsideSeries,
 	]);
 
 	// Ceil to support floats

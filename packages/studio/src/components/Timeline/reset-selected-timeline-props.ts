@@ -112,7 +112,7 @@ export const getTimelinePropResetTargets = ({
 			)?.[selection.key];
 			if (
 				!isVisibleFieldSchema(sequenceFieldSchema) ||
-				!sequencePropStatus?.canUpdate ||
+				sequencePropStatus?.status !== 'static' ||
 				!isNonDefaultCodeValue({
 					codeValue: sequencePropStatus.codeValue,
 					defaultValue: sequenceFieldSchema.default,
@@ -147,7 +147,7 @@ export const getTimelinePropResetTargets = ({
 		if (
 			!effect ||
 			!isVisibleFieldSchema(fieldSchema) ||
-			!propStatus?.canUpdate ||
+			propStatus?.status !== 'static' ||
 			!isNonDefaultCodeValue({
 				codeValue: propStatus.codeValue,
 				defaultValue: fieldSchema.default,

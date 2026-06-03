@@ -32,6 +32,7 @@ const mirrorSchema = {
 		step: 0.01,
 		default: 0.5,
 		description: 'Position',
+		hiddenFromList: false,
 	},
 	invert: {
 		type: 'boolean',

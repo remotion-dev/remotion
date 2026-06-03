@@ -119,6 +119,7 @@ export type TSequence = {
 	controls: SequenceControls | null;
 	refForOutline: React.RefObject<HTMLElement | null> | null;
 	effects: readonly EffectDefinition<unknown>[];
+	isInsideSeries: boolean;
 } & EnhancedTSequenceData;
 
 export type AudioOrVideoAsset = {

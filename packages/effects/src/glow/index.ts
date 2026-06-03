@@ -32,6 +32,7 @@ const glowSchema = {
 		step: 1,
 		default: DEFAULT_RADIUS,
 		description: 'Radius',
+		hiddenFromList: false,
 	},
 	intensity: {
 		type: 'number',
@@ -40,6 +41,7 @@ const glowSchema = {
 		step: 0.1,
 		default: DEFAULT_INTENSITY,
 		description: 'Intensity',
+		hiddenFromList: false,
 	},
 	threshold: {
 		type: 'number',
@@ -48,6 +50,7 @@ const glowSchema = {
 		step: 0.01,
 		default: DEFAULT_THRESHOLD,
 		description: 'Threshold',
+		hiddenFromList: false,
 	},
 	color: {
 		type: 'color',

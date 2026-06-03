@@ -16,6 +16,7 @@ import {
 } from '../effects/use-memoized-effects.js';
 import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
 import {
+	durationInFramesField,
 	hiddenField,
 	sequenceVisualStyleSchema,
 	type SequenceSchema,
@@ -34,6 +35,7 @@ import {serializeRequestInit} from './request-init';
 import {resolveAnimatedImageSource} from './resolve-image-source';
 
 const animatedImageSchema = {
+	durationInFrames: durationInFramesField,
 	playbackRate: {
 		type: 'number',
 		min: 0,
@@ -41,6 +43,7 @@ const animatedImageSchema = {
 		step: 0.1,
 		default: 1,
 		description: 'Playback Rate',
+		hiddenFromList: false,
 	},
 	...sequenceVisualStyleSchema,
 	hidden: hiddenField,

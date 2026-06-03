@@ -36,6 +36,7 @@ import {mapToAlignment, mapToFit} from './map-enums.js';
 
 const {
 	addSequenceStackTraces,
+	durationInFramesField,
 	hiddenField,
 	runEffectChain,
 	sequenceVisualStyleSchema,
@@ -103,6 +104,7 @@ const riveAlignmentVariants: Record<
 };
 
 const riveCanvasSchema = {
+	durationInFrames: durationInFramesField,
 	fit: {
 		type: 'enum',
 		default: 'contain',

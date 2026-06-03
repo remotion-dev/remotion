@@ -27,6 +27,11 @@ import {
 	isStaticValue,
 } from './can-update-sequence-props';
 
+const staticStatus = (codeValue: unknown): CanUpdateSequencePropStatus => ({
+	status: 'static',
+	codeValue,
+});
+
 const findEffectsAttr = (jsx: JSXOpeningElement): JSXAttribute | null => {
 	for (const attr of jsx.attributes) {
 		if (attr.type !== 'JSXAttribute') {
@@ -158,7 +163,7 @@ const getPropsFromObjectExpression = ({
 		) as ObjectProperty | undefined;
 
 		if (!prop) {
-			out[key] = {canUpdate: true, codeValue: undefined, keyframed: false};
+			out[key] = staticStatus(undefined);
 			continue;
 		}
 
@@ -169,9 +174,8 @@ const getPropsFromObjectExpression = ({
 		}
 
 		out[key] = {
-			canUpdate: true,
+			status: 'static',
 			codeValue: extractStaticValue(valueExpr),
-			keyframed: false,
 		};
 	}
 
@@ -226,11 +230,7 @@ export const computeEffectPropStatus = ({
 	if (call.arguments.length === 0) {
 		const emptyProps: Record<string, CanUpdateSequencePropStatus> = {};
 		for (const key of keys) {
-			emptyProps[key] = {
-				canUpdate: true,
-				codeValue: undefined,
-				keyframed: false,
-			};
+			emptyProps[key] = staticStatus(undefined);
 		}
 
 		return {

@@ -1,5 +1,5 @@
 import React, {useCallback, useMemo, useState} from 'react';
-import type {CanUpdateSequencePropStatus} from 'remotion';
+import type {CanUpdateSequencePropStatusStatic} from 'remotion';
 import type {
 	SchemaFieldInfo,
 	TimelineFieldOnDragValueChange,
@@ -24,7 +24,7 @@ const containerStyle: React.CSSProperties = {
 
 export const TimelineTranslateField: React.FC<{
 	readonly field: SchemaFieldInfo;
-	readonly propStatus: CanUpdateSequencePropStatus;
+	readonly propStatus: CanUpdateSequencePropStatusStatic;
 	readonly effectiveValue: unknown;
 	readonly onSave: TimelineFieldOnSave;
 	readonly onDragValueChange: TimelineFieldOnDragValueChange;
@@ -74,7 +74,7 @@ export const TimelineTranslateField: React.FC<{
 		(newVal: number) => {
 			const currentY = dragY ?? codeY;
 			const newStr = serializeTranslate(newVal, currentY);
-			if (propStatus.canUpdate && newStr !== propStatus.codeValue) {
+			if (newStr !== propStatus.codeValue) {
 				onSave(newStr).finally(() => {
 					setDragX(null);
 					onDragEnd();
@@ -89,17 +89,15 @@ export const TimelineTranslateField: React.FC<{
 
 	const onXTextChange = useCallback(
 		(newVal: string) => {
-			if (propStatus.canUpdate) {
-				const parsed = Number(newVal);
-				if (!Number.isNaN(parsed)) {
-					const currentY = dragY ?? codeY;
-					const newStr = serializeTranslate(parsed, currentY);
-					if (newStr !== propStatus.codeValue) {
-						setDragX(parsed);
-						onSave(newStr).finally(() => {
-							setDragX(null);
-						});
-					}
+			const parsed = Number(newVal);
+			if (!Number.isNaN(parsed)) {
+				const currentY = dragY ?? codeY;
+				const newStr = serializeTranslate(parsed, currentY);
+				if (newStr !== propStatus.codeValue) {
+					setDragX(parsed);
+					onSave(newStr).finally(() => {
+						setDragX(null);
+					});
 				}
 			}
 		},
@@ -120,7 +118,7 @@ export const TimelineTranslateField: React.FC<{
 		(newVal: number) => {
 			const currentX = dragX ?? codeX;
 			const newStr = serializeTranslate(currentX, newVal);
-			if (propStatus.canUpdate && newStr !== propStatus.codeValue) {
+			if (newStr !== propStatus.codeValue) {
 				onSave(newStr).finally(() => {
 					setDragY(null);
 					onDragEnd();
@@ -135,17 +133,15 @@ export const TimelineTranslateField: React.FC<{
 
 	const onYTextChange = useCallback(
 		(newVal: string) => {
-			if (propStatus.canUpdate) {
-				const parsed = Number(newVal);
-				if (!Number.isNaN(parsed)) {
-					const currentX = dragX ?? codeX;
-					const newStr = serializeTranslate(currentX, parsed);
-					if (newStr !== propStatus.codeValue) {
-						setDragY(parsed);
-						onSave(newStr).finally(() => {
-							setDragY(null);
-						});
-					}
+			const parsed = Number(newVal);
+			if (!Number.isNaN(parsed)) {
+				const currentX = dragX ?? codeX;
+				const newStr = serializeTranslate(currentX, parsed);
+				if (newStr !== propStatus.codeValue) {
+					setDragY(parsed);
+					onSave(newStr).finally(() => {
+						setDragY(null);
+					});
 				}
 			}
 		},

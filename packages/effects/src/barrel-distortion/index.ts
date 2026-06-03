@@ -24,6 +24,7 @@ const barrelDistortionSchema = {
 		step: 0.01,
 		default: DEFAULT_BARREL_DISTORTION_AMOUNT,
 		description: 'Amount',
+		hiddenFromList: false,
 	},
 } as const satisfies SequenceSchema;
 

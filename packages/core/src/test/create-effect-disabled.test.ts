@@ -54,7 +54,12 @@ test('createEffect injects `disabled` into the schema for save-effect-props', ()
 		apply: () => undefined,
 		cleanup: () => undefined,
 		schema: {
-			amount: {type: 'number', default: 0, description: 'Amount'},
+			amount: {
+				type: 'number',
+				default: 0,
+				description: 'Amount',
+				hiddenFromList: false,
+			},
 		},
 		validateParams: () => {},
 	});
@@ -68,6 +73,7 @@ test('createEffect injects `disabled` into the schema for save-effect-props', ()
 		type: 'number',
 		default: 0,
 		description: 'Amount',
+		hiddenFromList: false,
 	});
 });
 

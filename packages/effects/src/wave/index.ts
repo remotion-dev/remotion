@@ -20,6 +20,7 @@ const waveSchema = {
 		type: 'number',
 		default: 0,
 		description: 'Phase',
+		hiddenFromList: false,
 	},
 	direction: {
 		type: 'enum',
@@ -37,6 +38,7 @@ const waveSchema = {
 		step: 1,
 		default: 60,
 		description: 'Amplitude',
+		hiddenFromList: false,
 	},
 	wavelength: {
 		type: 'number',
@@ -45,6 +47,7 @@ const waveSchema = {
 		step: 1,
 		default: 240,
 		description: 'Wavelength',
+		hiddenFromList: false,
 	},
 } as const satisfies SequenceSchema;
 

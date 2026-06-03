@@ -21,6 +21,7 @@ const speckleSchema = {
 		step: 0.01,
 		default: DEFAULT_DENSITY,
 		description: 'Density',
+		hiddenFromList: false,
 	},
 	size: {
 		type: 'number',
@@ -29,6 +30,7 @@ const speckleSchema = {
 		step: 0.1,
 		default: DEFAULT_SIZE,
 		description: 'Size',
+		hiddenFromList: false,
 	},
 	randomness: {
 		type: 'number',
@@ -37,6 +39,7 @@ const speckleSchema = {
 		step: 0.01,
 		default: DEFAULT_RANDOMNESS,
 		description: 'Randomness',
+		hiddenFromList: false,
 	},
 } as const satisfies SequenceSchema;
 
