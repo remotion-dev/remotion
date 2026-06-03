@@ -970,6 +970,7 @@ test('vignette() accepts valid color mode params', () => {
 			roundness: 0.9,
 			color: '#221144',
 			mode: 'color',
+			center: [0.3, 0.8],
 		}),
 	).not.toThrow();
 });
@@ -1001,6 +1002,17 @@ test('vignette() rejects roundness above range', () => {
 	expect(() => vignette({roundness: 1.1})).toThrow('"roundness" must be <= 1');
 });
 
+test('vignette() rejects invalid center', () => {
+	const invalidCenter = [0.5] as unknown as [number, number];
+	expect(() => vignette({center: invalidCenter})).toThrow(
+		'"center" must be a [number, number] tuple',
+	);
+});
+
+test('vignette() accepts center outside the unit square', () => {
+	expect(() => vignette({center: [-0.25, 1.25]})).not.toThrow();
+});
+
 test('vignette() rejects empty color strings', () => {
 	expect(() => vignette({color: ''})).toThrow(
 		'"color" must be a non-empty string, but got ""',
@@ -1026,6 +1038,7 @@ test('vignette() parameters produce distinct effect keys', () => {
 	const rectangularVignette = vignette({roundness: 0});
 	const coloredVignette = vignette({color: '#0000ff'});
 	const alphaVignette = vignette({mode: 'alpha'});
+	const shiftedVignette = vignette({center: [0.3, 0.7]});
 
 	expect(
 		new Set([
@@ -1036,8 +1049,9 @@ test('vignette() parameters produce distinct effect keys', () => {
 			rectangularVignette.effectKey,
 			coloredVignette.effectKey,
 			alphaVignette.effectKey,
+			shiftedVignette.effectKey,
 		]).size,
-	).toBe(7);
+	).toBe(8);
 });
 
 test('halftone() accepts default params', () => {

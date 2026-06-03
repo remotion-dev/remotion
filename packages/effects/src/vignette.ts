@@ -21,6 +21,7 @@ const DEFAULT_FEATHER = 0.35 as const;
 const DEFAULT_ROUNDNESS = 1 as const;
 const DEFAULT_COLOR = '#000000' as const;
 const DEFAULT_MODE = 'color' as const;
+const DEFAULT_CENTER = [0.5, 0.5] as const;
 
 export const vignetteSchema = {
 	amount: {
@@ -73,9 +74,16 @@ export const vignetteSchema = {
 			alpha: {},
 		},
 	},
+	center: {
+		type: 'uv-coordinate',
+		step: 0.01,
+		default: DEFAULT_CENTER,
+		description: 'Center',
+	},
 } as const satisfies SequenceSchema;
 
 export type VignetteMode = (typeof VIGNETTE_MODES)[number];
+export type VignetteCenter = readonly [number, number];
 
 export type VignetteParams = {
 	/** Strength of the vignette from `0` to `1`. Defaults to `0.5`. */
@@ -90,6 +98,8 @@ export type VignetteParams = {
 	readonly color?: string;
 	/** `color` blends a color into the edges, `alpha` fades edges transparent. Defaults to `color`. */
 	readonly mode?: VignetteMode;
+	/** Center of the vignette in UV coordinates. Defaults to `[0.5, 0.5]`. */
+	readonly center?: VignetteCenter;
 };
 
 type VignetteResolved = {
@@ -99,6 +109,7 @@ type VignetteResolved = {
 	roundness: number;
 	color: string;
 	mode: VignetteMode;
+	center: VignetteCenter;
 };
 
 type VignetteState = {
@@ -115,6 +126,7 @@ type VignetteState = {
 		readonly uRoundness: WebGLUniformLocation | null;
 		readonly uColor: WebGLUniformLocation | null;
 		readonly uMode: WebGLUniformLocation | null;
+		readonly uCenter: WebGLUniformLocation | null;
 	};
 	readonly colorCtx: CanvasRenderingContext2D;
 	cachedColor: string;
@@ -155,7 +167,22 @@ const resolve = (p: VignetteParams): VignetteResolved => ({
 	roundness: p.roundness ?? DEFAULT_ROUNDNESS,
 	color: p.color ?? DEFAULT_COLOR,
 	mode: p.mode ?? DEFAULT_MODE,
+	center: [...(p.center ?? DEFAULT_CENTER)] as VignetteCenter,
 });
+
+const assertOptionalUvCoordinate = (value: unknown, name: string): void => {
+	if (value === undefined) {
+		return;
+	}
+
+	if (
+		!Array.isArray(value) ||
+		value.length !== 2 ||
+		value.some((item) => typeof item !== 'number' || !Number.isFinite(item))
+	) {
+		throw new TypeError(`"${name}" must be a [number, number] tuple`);
+	}
+};
 
 const validateVignetteParams = (params: VignetteParams): void => {
 	assertEffectParamsObject(params, 'Vignette');
@@ -165,6 +192,7 @@ const validateVignetteParams = (params: VignetteParams): void => {
 	assertOptionalFiniteNumber(params.roundness, 'roundness');
 	assertOptionalColor(params.color, 'color');
 	assertOptionalEnum(params.mode, 'mode', VIGNETTE_MODES);
+	assertOptionalUvCoordinate(params.center, 'center');
 
 	const r = resolve(params);
 	validateUnitInterval(r.amount, 'amount');
@@ -197,9 +225,10 @@ uniform float uFeather;
 uniform float uRoundness;
 uniform vec4 uColor;
 uniform int uMode;
+uniform vec2 uCenter;
 
 float vignetteMask() {
-	vec2 centered = abs(vUv * 2.0 - 1.0);
+	vec2 centered = abs(vUv - uCenter) * 2.0;
 	float rectangleDistance = max(centered.x, centered.y);
 	float ellipseDistance = length(centered);
 	float distanceFromCenter = mix(rectangleDistance, ellipseDistance, uRoundness);
@@ -367,6 +396,7 @@ const setupVignette = (target: HTMLCanvasElement): VignetteState => {
 			uRoundness: gl.getUniformLocation(program, 'uRoundness'),
 			uColor: gl.getUniformLocation(program, 'uColor'),
 			uMode: gl.getUniformLocation(program, 'uMode'),
+			uCenter: gl.getUniformLocation(program, 'uCenter'),
 		},
 		colorCtx,
 		cachedColor: '',
@@ -399,7 +429,7 @@ export const vignette = createEffect<VignetteParams, VignetteState>({
 	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
-		return `vignette-${r.amount}-${r.radius}-${r.feather}-${r.roundness}-${r.color}-${r.mode}`;
+		return `vignette-${r.amount}-${r.radius}-${r.feather}-${r.roundness}-${r.color}-${r.mode}-${r.center.join(':')}`;
 	},
 	setup: (target) => setupVignette(target),
 	apply: ({source, width, height, params, state, flipSourceY}) => {
@@ -434,6 +464,8 @@ export const vignette = createEffect<VignetteParams, VignetteState>({
 		if (uniforms.uColor) gl.uniform4f(uniforms.uColor, red, green, blue, alpha);
 		if (uniforms.uMode)
 			gl.uniform1i(uniforms.uMode, r.mode === 'alpha' ? 1 : 0);
+		if (uniforms.uCenter)
+			gl.uniform2f(uniforms.uCenter, r.center[0], r.center[1]);
 
 		gl.bindVertexArray(vao);
 		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
