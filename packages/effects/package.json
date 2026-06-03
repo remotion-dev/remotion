@@ -124,6 +124,11 @@
 			"module": "./dist/esm/lines.mjs",
 			"import": "./dist/esm/lines.mjs"
 		},
+		"./linear-progressive-blur": {
+			"types": "./dist/linear-progressive-blur.d.ts",
+			"module": "./dist/esm/linear-progressive-blur.mjs",
+			"import": "./dist/esm/linear-progressive-blur.mjs"
+		},
 		"./dot-grid": {
 			"types": "./dist/dot-grid.d.ts",
 			"module": "./dist/esm/dot-grid.mjs",
@@ -261,6 +266,9 @@
 			],
 			"lines": [
 				"dist/lines.d.ts"
+			],
+			"linear-progressive-blur": [
+				"dist/linear-progressive-blur.d.ts"
 			],
 			"dot-grid": [
 				"dist/dot-grid.d.ts"

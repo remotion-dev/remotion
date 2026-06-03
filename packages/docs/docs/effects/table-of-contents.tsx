@@ -99,6 +99,13 @@ const categories: {
 				description: 'Gaussian blur effect',
 			},
 			{
+				link: '/docs/effects/linear-progressive-blur',
+				preview: '/img/effects-linear-progressive-blur-preview.png',
+				alt: 'linear progressive blur effect preview',
+				name: 'linearProgressiveBlur()',
+				description: 'Gradient-controlled blur effect',
+			},
+			{
 				link: '/docs/effects/drop-shadow',
 				preview: '/img/effects-drop-shadow-preview.png',
 				alt: 'drop shadow effect preview',
