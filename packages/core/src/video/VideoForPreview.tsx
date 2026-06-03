@@ -1,12 +1,12 @@
 import React, {
 	forwardRef,
+	useCallback,
 	useContext,
 	useEffect,
 	useImperativeHandle,
 	useMemo,
 	useRef,
 	useState,
-	useCallback,
 } from 'react';
 import type {IsExact} from '../audio/props.js';
 import {SharedAudioContext} from '../audio/shared-audio-tags.js';
@@ -31,10 +31,15 @@ import {evaluateVolume} from '../volume-prop.js';
 import {warnAboutTooHighVolume} from '../volume-safeguard.js';
 import {useEmitVideoFrame} from './emit-video-frame.js';
 import {MediaPlaybackError} from './MediaPlaybackError.js';
-import type {NativeVideoProps, OnVideoFrame, RemotionVideoProps} from './props';
+import type {
+	NativeVideoProps,
+	OnVideoFrame,
+	OnVideoFrameCallback,
+	RemotionVideoProps,
+} from './props';
 import {isIosSafari, useAppendVideoFragment} from './video-fragment.js';
 
-type VideoForPreviewProps = RemotionVideoProps & {
+type VideoForPreviewProps = Omit<RemotionVideoProps, 'onVideoFrameCallback'> & {
 	readonly onlyWarnForMediaSeekingError: boolean;
 	readonly onDuration: (src: string, durationInSeconds: number) => void;
 	readonly pauseWhenBuffering: boolean;
@@ -42,6 +47,7 @@ type VideoForPreviewProps = RemotionVideoProps & {
 	readonly _remotionInternalStack: string | null;
 	readonly showInTimeline: boolean;
 	readonly onVideoFrame: null | OnVideoFrame;
+	readonly onVideoFrameCallback: null | OnVideoFrameCallback;
 	readonly crossOrigin?: '' | 'anonymous' | 'use-credentials';
 };
 
@@ -114,6 +120,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		onError,
 		onAutoPlayError,
 		onVideoFrame,
+		onVideoFrameCallback,
 		crossOrigin,
 		delayRenderRetries,
 		delayRenderTimeoutInMilliseconds,
@@ -297,7 +304,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		useRef<VideoForPreviewProps['onDuration']>(onDuration);
 	currentOnDurationCallback.current = onDuration;
 
-	useEmitVideoFrame({ref: videoRef, onVideoFrame});
+	useEmitVideoFrame({ref: videoRef, onVideoFrame, onVideoFrameCallback});
 
 	useEffect(() => {
 		const {current} = videoRef;
@@ -349,7 +356,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	const crossOriginValue = getCrossOriginValue({
 		crossOrigin,
-		requestsVideoFrame: Boolean(onVideoFrame),
+		requestsVideoFrame: Boolean(onVideoFrame || onVideoFrameCallback),
 		isClientSideRendering: false,
 	});
 

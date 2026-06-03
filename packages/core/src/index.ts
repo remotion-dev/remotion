@@ -192,6 +192,10 @@ export {
 	type InterpolateColorsOptions,
 } from './interpolate-colors.js';
 export {
+	interpolateRotate,
+	type InterpolateRotateOptions,
+} from './interpolate-rotate.js';
+export {
 	interpolateTranslate,
 	type InterpolateTranslateOptions,
 } from './interpolate-translate.js';
@@ -247,7 +251,7 @@ export {
 	Video,
 } from './video/index.js';
 export {MediaPlaybackError} from './video/MediaPlaybackError.js';
-export type {OnVideoFrame} from './video/props.js';
+export type {OnVideoFrame, OnVideoFrameCallback} from './video/props.js';
 export type {VolumeProp} from './volume-prop.js';
 export {watchStaticFile} from './watch-static-file.js';
 

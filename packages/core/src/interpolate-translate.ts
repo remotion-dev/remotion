@@ -1,4 +1,5 @@
 import {interpolate, type InterpolateOptions} from './interpolate.js';
+import {normalizeNumber} from './normalize-number.js';
 
 export type InterpolateTranslateOptions = InterpolateOptions;
 
@@ -102,7 +103,7 @@ export const interpolateTranslate = (
 				options,
 			);
 
-			return `${interpolatedValue}px`;
+			return `${normalizeNumber(interpolatedValue)}px`;
 		})
 		.join(' ');
 };

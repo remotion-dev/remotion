@@ -12,7 +12,10 @@ import type {
 } from '../../helpers/timeline-layout';
 import {ScaleLockContext} from '../../state/scale-lock';
 import {InputDragger} from '../NewComposition/InputDragger';
-import {getDecimalPlaces} from './timeline-field-utils';
+import {
+	getDecimalPlaces,
+	normalizeTimelineNumber,
+} from './timeline-field-utils';
 import {timelineLayerIconContainer} from './TimelineLayerEye';
 
 const leftDraggerStyle: React.CSSProperties = {
@@ -53,10 +56,6 @@ const clamp = (value: number, min: number, max: number): number => {
 	return Math.min(max, Math.max(min, value));
 };
 
-const normalizeScaleNumber = (value: number): number => {
-	return Math.round(value * 1000000) / 1000000;
-};
-
 export const getLinkedScale = ({
 	axis,
 	newValue,
@@ -76,7 +75,7 @@ export const getLinkedScale = ({
 	const linkedBase = axis === 'x' ? baseY : baseX;
 
 	if (drivingBase === 0 || linkedBase === 0) {
-		const clamped = normalizeScaleNumber(clamp(newValue, min, max));
+		const clamped = normalizeTimelineNumber(clamp(newValue, min, max));
 		return [clamped, clamped];
 	}
 
@@ -92,8 +91,8 @@ export const getLinkedScale = ({
 	}
 
 	const clampedDriving = clamp(driving, min, max);
-	const normalizedDriving = normalizeScaleNumber(clampedDriving);
-	const normalizedLinked = normalizeScaleNumber(linked);
+	const normalizedDriving = normalizeTimelineNumber(clampedDriving);
+	const normalizedLinked = normalizeTimelineNumber(linked);
 
 	return axis === 'x'
 		? [normalizedDriving, normalizedLinked]

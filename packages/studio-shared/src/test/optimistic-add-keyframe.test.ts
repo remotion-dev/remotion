@@ -76,6 +76,45 @@ test('optimisticAddSequenceKeyframe uses interpolateTranslate for translate fiel
 	expect(status.keyframes).toEqual([{frame: 44, value: '0px 59px'}]);
 });
 
+test('optimisticAddSequenceKeyframe uses interpolateRotate for rotation-css fields', () => {
+	const previous: CanUpdateSequencePropsResponse = {
+		canUpdate: true,
+		props: {
+			'style.rotate': {
+				status: 'static',
+				codeValue: '0deg',
+			},
+		},
+		effects: [],
+	};
+	const schema = {
+		'style.rotate': {
+			type: 'rotation-css',
+			default: '0deg',
+		},
+	} satisfies SequenceSchema;
+
+	const updated = optimisticAddSequenceKeyframe({
+		previous,
+		fieldKey: 'style.rotate',
+		frame: 44,
+		value: '19deg',
+		schema,
+	});
+
+	if (!updated.canUpdate) {
+		throw new Error('expected updateable sequence');
+	}
+
+	const status = updated.props['style.rotate'];
+	if (!status || status.status !== 'keyframed') {
+		throw new Error('expected keyframed status');
+	}
+
+	expect(status.interpolationFunction).toBe('interpolateRotate');
+	expect(status.keyframes).toEqual([{frame: 44, value: '19deg'}]);
+});
+
 test('optimisticAddSequenceKeyframe ignores non-keyframable fields', () => {
 	const previous: CanUpdateSequencePropsResponse = {
 		canUpdate: true,

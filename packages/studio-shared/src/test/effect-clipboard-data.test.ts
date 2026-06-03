@@ -56,6 +56,45 @@ test('parseEffectClipboardData accepts keyframed v3 effect payloads', () => {
 	});
 });
 
+test('parseEffectClipboardData accepts rotate interpolation functions', () => {
+	const parsed = parseEffectClipboardData(
+		JSON.stringify({
+			type: 'effects-additive',
+			version: 3,
+			remotionClipboard: 'effects',
+			effects: [
+				{
+					callee: 'customEffect',
+					importPath: '@remotion/effects/custom-effect',
+					params: {
+						angle: {
+							type: 'keyframed',
+							interpolationFunction: 'interpolateRotate',
+							keyframes: [
+								{frame: 0, value: '0deg'},
+								{frame: 100, value: '90deg'},
+							],
+							easing: ['linear'],
+							clamping: {left: 'extend', right: 'extend'},
+						},
+					},
+				},
+			],
+		}),
+	);
+
+	expect(parsed?.effects[0]?.params.angle).toEqual({
+		type: 'keyframed',
+		interpolationFunction: 'interpolateRotate',
+		keyframes: [
+			{frame: 0, value: '0deg'},
+			{frame: 100, value: '90deg'},
+		],
+		easing: ['linear'],
+		clamping: {left: 'extend', right: 'extend'},
+	});
+});
+
 test('parseEffectClipboardData reports old v2 effect payloads as unsupported', () => {
 	const payload = JSON.stringify({
 		type: 'effects-replacing',

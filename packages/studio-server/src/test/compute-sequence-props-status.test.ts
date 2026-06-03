@@ -129,6 +129,41 @@ export const Example: React.FC = () => {
 	});
 });
 
+test('computeSequencePropsStatus should return keyframes for interpolated rotate props', () => {
+	const input = `import React from 'react';
+import {Sequence, interpolateRotate, useCurrentFrame} from 'remotion';
+
+export const Example: React.FC = () => {
+\tconst frame = useCurrentFrame();
+\treturn (
+\t\t<Sequence style={{rotate: interpolateRotate(frame, [55, 68], ['19deg', '23deg'])}} />
+\t);
+};
+`;
+	const result = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 7),
+		keys: ['style.rotate'],
+		effects: [],
+	});
+
+	expect(result.canUpdate).toBe(true);
+	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
+
+	expect(result.props['style.rotate']).toEqual({
+		status: 'keyframed',
+		codeValue: undefined,
+		interpolationFunction: 'interpolateRotate',
+		keyframes: [
+			{frame: 55, value: '19deg'},
+			{frame: 68, value: '23deg'},
+		],
+		easing: ['linear'],
+		clamping: {left: 'extend', right: 'extend'},
+		posterize: undefined,
+	});
+});
+
 test('computeSequencePropsStatus should explain why outside-project file reads were blocked', () => {
 	const remotionRoot = path.join(__dirname, 'snapshots');
 	const fileName = '../outside.tsx';

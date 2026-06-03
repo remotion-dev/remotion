@@ -293,6 +293,11 @@ If you don't pass a callback, the video will be muted and be retried once.
 This prop is useful if you want to handle the error yourself, e.g. for pausing the Player.  
 Read more here about [autoplay restrictions](/docs/player/autoplay).
 
+### `onVideoFrameCallback?`<AvailableFrom v="4.0.472" />
+
+A callback function that gets called when the browser reports a presented video frame using [`HTMLVideoElement.requestVideoFrameCallback()`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLVideoElement/requestVideoFrameCallback).
+The callback has the same signature as `requestVideoFrameCallback()`: It receives a `DOMHighResTimeStamp` and the [`VideoFrameCallbackMetadata`](https://developer.mozilla.org/en-US/docs/Web/API/VideoFrameCallbackMetadata).
+
 ### `crossOrigin?`<AvailableFrom v="4.0.190" />
 
 Corresponds to the [`crossOrigin`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video#attr-crossorigin) attribute of the `<video>` element.  

@@ -1,12 +1,14 @@
 import {useEffect} from 'react';
-import type {OnVideoFrame} from './props';
+import type {OnVideoFrame, OnVideoFrameCallback} from './props';
 
 export const useEmitVideoFrame = ({
 	ref,
 	onVideoFrame,
+	onVideoFrameCallback,
 }: {
 	ref: React.RefObject<HTMLVideoElement | null>;
 	onVideoFrame: OnVideoFrame | null;
+	onVideoFrameCallback: OnVideoFrameCallback | null;
 }) => {
 	useEffect(() => {
 		const {current} = ref;
@@ -14,24 +16,32 @@ export const useEmitVideoFrame = ({
 			return;
 		}
 
-		if (!onVideoFrame) {
+		if (!onVideoFrame && !onVideoFrameCallback) {
 			return;
 		}
 
 		let handle = 0;
-		const callback = () => {
+		const callback: VideoFrameRequestCallback = (_now, metadata) => {
 			if (!ref.current) {
 				return;
 			}
 
-			onVideoFrame(ref.current);
+			onVideoFrame?.(ref.current);
+			onVideoFrameCallback?.(_now, metadata);
 			handle = ref.current.requestVideoFrameCallback(callback);
 		};
 
-		callback();
+		onVideoFrame?.(current);
+		if (!current.requestVideoFrameCallback) {
+			return;
+		}
+
+		handle = current.requestVideoFrameCallback(callback);
 
 		return () => {
-			current.cancelVideoFrameCallback(handle);
+			if (handle) {
+				current.cancelVideoFrameCallback(handle);
+			}
 		};
-	}, [onVideoFrame, ref]);
+	}, [onVideoFrame, onVideoFrameCallback, ref]);
 };

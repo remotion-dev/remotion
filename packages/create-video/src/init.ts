@@ -148,7 +148,9 @@ export const init = async () => {
 		}
 	}
 
-	const latestRemotionVersionPromise = getLatestRemotionVersion();
+	const latestRemotionVersionPromise = getLatestRemotionVersion({
+		onError: Log.warn,
+	});
 
 	const shouldOverrideTailwind = selectedTemplate.allowEnableTailwind
 		? isYesFlagSelected()

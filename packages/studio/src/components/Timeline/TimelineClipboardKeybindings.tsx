@@ -1,4 +1,5 @@
 import {
+	isKeyframeInterpolationFunction,
 	parseEffectClipboardDataResult,
 	type EffectClipboardData,
 	type EffectClipboardInterpolationFunction,
@@ -123,7 +124,7 @@ type CopyableEffectStatus = React.ContextType<
 const isClipboardInterpolationFunction = (
 	value: string,
 ): value is EffectClipboardInterpolationFunction => {
-	return value === 'interpolate' || value === 'interpolateColors';
+	return isKeyframeInterpolationFunction(value);
 };
 
 const effectStatusToSnapshot = (
