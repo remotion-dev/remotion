@@ -101,7 +101,7 @@ const isEffectClipboardParam = (
 		return false;
 	}
 
-	const posterize = value.posterize;
+	const {posterize} = value;
 	const easingLength =
 		Array.isArray(value.keyframes) && value.keyframes.length > 0
 			? value.keyframes.length - 1
