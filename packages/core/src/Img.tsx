@@ -12,6 +12,7 @@ import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import {getCrossOriginValue} from './get-cross-origin-value.js';
 import {usePreload} from './prefetch.js';
 import {
+	fromField,
 	hiddenField,
 	sequenceVisualStyleSchema,
 	durationInFramesField,
@@ -361,6 +362,7 @@ const CanvasImageWithPrivateProps = CanvasImage as React.ComponentType<
 
 export const imgSchema = {
 	durationInFrames: durationInFramesField,
+	from: fromField,
 	...sequenceVisualStyleSchema,
 	hidden: hiddenField,
 } as const satisfies SequenceSchema;
