@@ -37,6 +37,7 @@ test('getFlatSchema(sequenceSchema) exposes every variant key', () => {
 			'styleWhilePremounted',
 			'styleWhilePostmounted',
 			'durationInFrames',
+			'from',
 		].sort(),
 	);
 });
@@ -60,7 +61,7 @@ test('selectActiveKeys returns only the hidden + layout keys when layout=none', 
 		'style.scale': 2,
 	};
 	expect(selectActiveKeys(sequenceSchema, values).sort()).toEqual(
-		['hidden', 'layout', 'durationInFrames'].sort(),
+		['hidden', 'layout', 'durationInFrames', 'from'].sort(),
 	);
 });
 
@@ -74,6 +75,7 @@ test('selectActiveKeys exposes style.* keys when layout=absolute-fill', () => {
 			'hidden',
 			'layout',
 			'durationInFrames',
+			'from',
 			'style.translate',
 			'style.scale',
 			'style.rotate',
@@ -88,7 +90,7 @@ test('selectActiveKeys exposes style.* keys when layout=absolute-fill', () => {
 		'style.scale': 2,
 	};
 	expect(selectActiveKeys(sequenceSchema, values2).sort()).toEqual(
-		['hidden', 'layout', 'durationInFrames'].sort(),
+		['hidden', 'layout', 'durationInFrames', 'from'].sort(),
 	);
 });
 
@@ -117,7 +119,7 @@ test('end-to-end: layout=none drops style.scale from active props', () => {
 		propsToDelete: new Set(),
 	});
 	expect(activeKeys.sort()).toEqual(
-		['hidden', 'layout', 'durationInFrames'].sort(),
+		['hidden', 'layout', 'durationInFrames', 'from'].sort(),
 	);
 	// style.scale was not in activeKeys → original style preserved, not overwritten
 	expect((merged.style as {scale: number}).scale).toBe(2);

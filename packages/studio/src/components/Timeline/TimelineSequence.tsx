@@ -17,7 +17,10 @@ import {LoopedTimelineIndicator} from './LoopedTimelineIndicators';
 import {TimelineImageInfo} from './TimelineImageInfo';
 import {TIMELINE_TOP_DRAG, useTimelineRowSelection} from './TimelineSelection';
 import {TimelineSequenceFrame} from './TimelineSequenceFrame';
-import {TimelineSequenceRightEdgeDragHandle} from './TimelineSequenceRightEdgeDragHandle';
+import {
+	TimelineSequenceRightEdgeDragHandle,
+	useTimelineSequenceFromDrag,
+} from './TimelineSequenceRightEdgeDragHandle';
 import {TimelineVideoInfo} from './TimelineVideoInfo';
 import {TimelineWidthContext} from './TimelineWidthProvider';
 import {useResolveStackAndReactToChange} from './use-resolved-stack-react-to-change';
@@ -53,6 +56,10 @@ const TimelineSequenceCurrentFrame: React.FC<{
 	readonly style: React.CSSProperties;
 	readonly children: React.ReactNode;
 	readonly nodePathInfo: SequenceNodePathInfo | null;
+	readonly fromCanUpdate: boolean;
+	readonly onMoveDragPointerDown: (
+		e: React.PointerEvent<HTMLDivElement>,
+	) => void;
 }> = ({
 	s,
 	displayDurationInFrames,
@@ -61,6 +68,8 @@ const TimelineSequenceCurrentFrame: React.FC<{
 	style,
 	children,
 	nodePathInfo,
+	fromCanUpdate,
+	onMoveDragPointerDown,
 }) => {
 	const {onSelect, selectable} = useTimelineRowSelection(nodePathInfo);
 
@@ -72,9 +81,12 @@ const TimelineSequenceCurrentFrame: React.FC<{
 					shiftKey: e.shiftKey,
 					toggleKey: e.metaKey || e.ctrlKey,
 				});
+				if (TIMELINE_TOP_DRAG && fromCanUpdate) {
+					onMoveDragPointerDown(e);
+				}
 			}
 		},
-		[onSelect],
+		[fromCanUpdate, onMoveDragPointerDown, onSelect],
 	);
 	const frame = useCurrentFrame();
 	const relativeFrame = frame - s.from;
@@ -98,9 +110,9 @@ const TimelineSequenceCurrentFrame: React.FC<{
 		return {
 			...style,
 			opacity: isInRange ? 1 : 0.5,
-			...(TIMELINE_TOP_DRAG ? {cursor: 'pointer'} : {}),
+			...(TIMELINE_TOP_DRAG && fromCanUpdate ? {cursor: 'grab'} : {}),
 		};
-	}, [isInRange, style]);
+	}, [fromCanUpdate, isInRange, style]);
 
 	return (
 		<div
@@ -210,6 +222,15 @@ const TimelineSequenceInner: React.FC<{
 	const durationCanUpdate = Boolean(
 		codeValuesForOverride?.durationInFrames?.status === 'static',
 	);
+	const fromCanUpdate = Boolean(
+		codeValuesForOverride?.from?.status === 'static',
+	);
+
+	const {onPointerDown: onMoveDragPointerDown} = useTimelineSequenceFromDrag({
+		nodePathInfo,
+		windowWidth,
+		timelineDurationInFrames: video?.durationInFrames ?? 1,
+	});
 
 	if (!video) {
 		throw new TypeError('Expected video config');
@@ -282,6 +303,8 @@ const TimelineSequenceInner: React.FC<{
 			postmountWidth={postmountWidth}
 			style={style}
 			nodePathInfo={nodePathInfo}
+			fromCanUpdate={fromCanUpdate}
+			onMoveDragPointerDown={onMoveDragPointerDown}
 		>
 			{s.type === 'audio' ? (
 				<AudioWaveform
