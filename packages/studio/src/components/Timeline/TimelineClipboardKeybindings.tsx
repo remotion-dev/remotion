@@ -367,11 +367,11 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 							type: payload.type,
 							effects: payload.effects,
 							clientId,
-						}).then((result) => {
-							if (result.success) {
+						}).then((pasteResult) => {
+							if (pasteResult.success) {
 								showNotification('Pasted effects', 2000);
 							} else {
-								showNotification(result.reason, 4000);
+								showNotification(pasteResult.reason, 4000);
 							}
 						});
 					})
