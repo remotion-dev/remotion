@@ -56,6 +56,7 @@ export type RemotionVideoProps = NativeVideoProps & {
 	delayRenderRetries?: number;
 	onError?: (err: Error) => void;
 	onAutoPlayError?: null | (() => void);
+	onVideoFrameCallback?: OnVideoFrameCallback;
 	audioStreamIndex?: number;
 };
 

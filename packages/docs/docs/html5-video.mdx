@@ -293,46 +293,10 @@ If you don't pass a callback, the video will be muted and be retried once.
 This prop is useful if you want to handle the error yourself, e.g. for pausing the Player.  
 Read more here about [autoplay restrictions](/docs/player/autoplay).
 
-### `requestVideoFrameCallback()`
+### `onVideoFrameCallback?`<AvailableFrom v="4.0.472" />
 
-`<Html5Video>` exposes a native [`HTMLVideoElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLVideoElement) through its ref. To receive presented-frame callbacks, use the browser's [`requestVideoFrameCallback()`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLVideoElement/requestVideoFrameCallback) API on the element.
-
-The `onVideoFrameCallback` prop is only available on [`<OffthreadVideo>`](/docs/offthreadvideo#onvideoframecallback).
-
-```tsx twoslash title="MyComposition.tsx"
-import {AbsoluteFill, Html5Video, staticFile} from 'remotion';
-import {useEffect, useRef} from 'react';
-
-// ---cut---
-export const MyComposition = () => {
-  const ref = useRef<HTMLVideoElement>(null);
-
-  useEffect(() => {
-    const video = ref.current;
-
-    if (!video?.requestVideoFrameCallback) {
-      return;
-    }
-
-    let handle: number;
-
-    const callback = (now: DOMHighResTimeStamp, metadata: VideoFrameCallbackMetadata) => {
-      console.log(now, metadata);
-      handle = video.requestVideoFrameCallback(callback);
-    };
-
-    handle = video.requestVideoFrameCallback(callback);
-
-    return () => video.cancelVideoFrameCallback(handle);
-  }, []);
-
-  return (
-    <AbsoluteFill>
-      <Html5Video ref={ref} src={staticFile('video.webm')} />
-    </AbsoluteFill>
-  );
-};
-```
+A callback function that gets called when the browser reports a presented video frame using [`HTMLVideoElement.requestVideoFrameCallback()`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLVideoElement/requestVideoFrameCallback).
+The callback has the same signature as `requestVideoFrameCallback()`: It receives a `DOMHighResTimeStamp` and the [`VideoFrameCallbackMetadata`](https://developer.mozilla.org/en-US/docs/Web/API/VideoFrameCallbackMetadata).
 
 ### `crossOrigin?`<AvailableFrom v="4.0.190" />
 

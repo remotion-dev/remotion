@@ -1,12 +1,12 @@
 import React, {
 	forwardRef,
+	useCallback,
 	useContext,
 	useEffect,
 	useImperativeHandle,
 	useMemo,
 	useRef,
 	useState,
-	useCallback,
 } from 'react';
 import type {IsExact} from '../audio/props.js';
 import {SharedAudioContext} from '../audio/shared-audio-tags.js';
@@ -39,7 +39,7 @@ import type {
 } from './props';
 import {isIosSafari, useAppendVideoFragment} from './video-fragment.js';
 
-type VideoForPreviewProps = RemotionVideoProps & {
+type VideoForPreviewProps = Omit<RemotionVideoProps, 'onVideoFrameCallback'> & {
 	readonly onlyWarnForMediaSeekingError: boolean;
 	readonly onDuration: (src: string, durationInSeconds: number) => void;
 	readonly pauseWhenBuffering: boolean;
