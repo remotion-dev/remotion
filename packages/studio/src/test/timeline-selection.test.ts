@@ -25,6 +25,10 @@ import {
 } from '../components/SelectedOutlineOverlay';
 import {deleteSelectedTimelineItems} from '../components/Timeline/delete-selected-timeline-item';
 import {isDuplicatableSequenceRowSelection} from '../components/Timeline/duplicate-selected-timeline-item';
+import {
+	getTimelineKeyframeMoveChanges,
+	getTimelineKeyframeMoveTargets,
+} from '../components/Timeline/move-selected-keyframe';
 import {getTimelinePropResetTargets} from '../components/Timeline/reset-selected-timeline-props';
 import {
 	getPasteEffectsTarget,
@@ -155,8 +159,34 @@ const makeFromCodeValues = (
 	return codeValues;
 };
 
-test('Timeline selection should stay disabled until released publicly', () => {
-	expect(SELECTION_ENABLED).toBe(false);
+const makeKeyframeCodeValues = ({
+	nodePath,
+	fieldKey,
+	frames,
+}: {
+	readonly nodePath: SequencePropsSubscriptionKey;
+	readonly fieldKey: string;
+	readonly frames: readonly number[];
+}): CodeValues => ({
+	[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+		canUpdate: true,
+		props: {
+			[fieldKey]: {
+				status: 'keyframed',
+				codeValue: undefined,
+				interpolationFunction: 'interpolate',
+				keyframes: frames.map((frame) => ({frame, value: frame})),
+				easing: frames.slice(1).map(() => 'linear'),
+				clamping: {left: 'clamp', right: 'clamp'},
+				posterize: undefined,
+			},
+		},
+		effects: [],
+	},
+});
+
+test('Timeline selection is enabled for keyframe dragging', () => {
+	expect(SELECTION_ENABLED).toBe(true);
 });
 
 test('pasting effects is blocked for sequences that do not support effects', () => {
@@ -207,6 +237,106 @@ test('pasting effects treats effect selections on one sequence as one target', (
 		type: 'valid',
 		nodePathInfo: firstEffectNodePathInfo,
 	} satisfies PasteEffectsTarget);
+});
+
+test('Timeline keyframe drag applies the same delta to selected keyframes', () => {
+	const schema = {
+		opacity: {type: 'number', default: 0, hiddenFromList: false},
+	} satisfies SequenceSchema;
+	const nodePathInfo = makeNodePathInfo(['body', 0], ['controls', 'opacity']);
+	const targets = getTimelineKeyframeMoveTargets({
+		draggedNodePathInfo: nodePathInfo,
+		draggedFrame: 10,
+		selectedItems: [
+			{type: 'keyframe', nodePathInfo, frame: 10},
+			{type: 'keyframe', nodePathInfo, frame: 20},
+		],
+		sequences: [makeTimelineSequence({schema})],
+		overrideIdsToNodePaths: {
+			override: nodePathInfo.sequenceSubscriptionKey,
+		},
+		codeValues: makeKeyframeCodeValues({
+			nodePath: nodePathInfo.sequenceSubscriptionKey,
+			fieldKey: 'opacity',
+			frames: [10, 20],
+		}),
+	});
+	const changes = getTimelineKeyframeMoveChanges({
+		targets: targets ?? [],
+		deltaFrames: 5,
+		durationInFrames: 100,
+	});
+
+	expect(changes?.sequenceKeyframes.map((change) => change.fromFrame)).toEqual([
+		10, 20,
+	]);
+	expect(changes?.sequenceKeyframes.map((change) => change.toFrame)).toEqual([
+		15, 25,
+	]);
+	expect(changes?.appliedDeltaFrames).toBe(5);
+});
+
+test('Timeline keyframe drag clamps the shared delta to the composition bounds', () => {
+	const schema = {
+		opacity: {type: 'number', default: 0, hiddenFromList: false},
+	} satisfies SequenceSchema;
+	const nodePathInfo = makeNodePathInfo(['body', 0], ['controls', 'opacity']);
+	const targets = getTimelineKeyframeMoveTargets({
+		draggedNodePathInfo: nodePathInfo,
+		draggedFrame: 2,
+		selectedItems: [
+			{type: 'keyframe', nodePathInfo, frame: 2},
+			{type: 'keyframe', nodePathInfo, frame: 98},
+		],
+		sequences: [makeTimelineSequence({schema})],
+		overrideIdsToNodePaths: {
+			override: nodePathInfo.sequenceSubscriptionKey,
+		},
+		codeValues: makeKeyframeCodeValues({
+			nodePath: nodePathInfo.sequenceSubscriptionKey,
+			fieldKey: 'opacity',
+			frames: [2, 98],
+		}),
+	});
+	const changes = getTimelineKeyframeMoveChanges({
+		targets: targets ?? [],
+		deltaFrames: -10,
+		durationInFrames: 100,
+	});
+
+	expect(changes?.sequenceKeyframes.map((change) => change.toFrame)).toEqual([
+		0, 96,
+	]);
+	expect(changes?.appliedDeltaFrames).toBe(-2);
+});
+
+test('Timeline keyframe drag blocks collisions with unmoved keyframes', () => {
+	const schema = {
+		opacity: {type: 'number', default: 0, hiddenFromList: false},
+	} satisfies SequenceSchema;
+	const nodePathInfo = makeNodePathInfo(['body', 0], ['controls', 'opacity']);
+	const targets = getTimelineKeyframeMoveTargets({
+		draggedNodePathInfo: nodePathInfo,
+		draggedFrame: 10,
+		selectedItems: [{type: 'keyframe', nodePathInfo, frame: 10}],
+		sequences: [makeTimelineSequence({schema})],
+		overrideIdsToNodePaths: {
+			override: nodePathInfo.sequenceSubscriptionKey,
+		},
+		codeValues: makeKeyframeCodeValues({
+			nodePath: nodePathInfo.sequenceSubscriptionKey,
+			fieldKey: 'opacity',
+			frames: [10, 20],
+		}),
+	});
+
+	expect(
+		getTimelineKeyframeMoveChanges({
+			targets: targets ?? [],
+			deltaFrames: 10,
+			durationInFrames: 100,
+		}),
+	).toBe(null);
 });
 
 test('copying a keyframed effect creates a structured snapshot', () => {

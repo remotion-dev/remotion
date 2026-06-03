@@ -6,6 +6,7 @@ import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sor
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {useTimelineKeyframeSelection} from './TimelineSelection';
 import {TimelineWidthContext} from './TimelineWidthProvider';
+import {useTimelineKeyframeDrag} from './use-timeline-keyframe-drag';
 
 const diamondBase: React.CSSProperties = {
 	position: 'absolute',
@@ -27,6 +28,12 @@ const TimelineKeyframeDiamondUnmemoized: React.FC<{
 		nodePathInfo,
 		frame,
 	);
+	const {dragging, onPointerDown: onDragPointerDown} = useTimelineKeyframeDrag({
+		nodePathInfo,
+		frame,
+		timelineWidth,
+		timelineDurationInFrames: videoConfig.durationInFrames,
+	});
 
 	const style = useMemo((): React.CSSProperties | null => {
 		if (timelineWidth === null) {
@@ -38,7 +45,7 @@ const TimelineKeyframeDiamondUnmemoized: React.FC<{
 			backgroundColor: LIGHT_TEXT,
 			outline: selected ? '2px solid ' + BLUE : 'none',
 			border: 'none',
-			cursor: 'pointer',
+			cursor: dragging ? 'grabbing' : 'ew-resize',
 			left:
 				getXPositionOfItemInTimelineImperatively(
 					frame,
@@ -47,10 +54,18 @@ const TimelineKeyframeDiamondUnmemoized: React.FC<{
 				) - TIMELINE_PADDING,
 			padding: 0,
 			pointerEvents: 'auto',
+			touchAction: 'none',
 			top: rowHeight / 2,
 			transform: 'translate(-50%, -50%) rotate(45deg)',
 		};
-	}, [frame, rowHeight, selected, timelineWidth, videoConfig.durationInFrames]);
+	}, [
+		dragging,
+		frame,
+		rowHeight,
+		selected,
+		timelineWidth,
+		videoConfig.durationInFrames,
+	]);
 
 	const onPointerDown = useCallback(
 		(e: React.PointerEvent<HTMLButtonElement>) => {
@@ -60,9 +75,10 @@ const TimelineKeyframeDiamondUnmemoized: React.FC<{
 					shiftKey: e.shiftKey,
 					toggleKey: e.metaKey || e.ctrlKey,
 				});
+				onDragPointerDown(e);
 			}
 		},
-		[onSelect],
+		[onDragPointerDown, onSelect],
 	);
 
 	if (style === null) {
@@ -73,8 +89,8 @@ const TimelineKeyframeDiamondUnmemoized: React.FC<{
 		<button
 			type="button"
 			style={style}
-			title={`Keyframe at frame ${frame}`}
-			aria-label={`Select keyframe at frame ${frame}`}
+			title={`Drag keyframe at frame ${frame}`}
+			aria-label={`Drag keyframe at frame ${frame}`}
 			onPointerDown={selectable ? onPointerDown : undefined}
 		/>
 	);

@@ -55,6 +55,11 @@ export type KeyframeOperation =
 	| {
 			type: 'remove';
 			frame: number;
+	  }
+	| {
+			type: 'move';
+			fromFrame: number;
+			toFrame: number;
 	  };
 
 export type SequenceKeyframeUpdate = {
@@ -397,6 +402,48 @@ const removeKeyframe = ({
 	});
 };
 
+const moveKeyframe = ({
+	expression,
+	fromFrame,
+	toFrame,
+}: {
+	expression: Expression;
+	fromFrame: number;
+	toFrame: number;
+}): ExpressionKind => {
+	if (fromFrame === toFrame) {
+		return expression as ExpressionKind;
+	}
+
+	const existing = getInterpolationExpression(expression);
+	if (!existing) {
+		throw new Error('Cannot move keyframe in non-interpolated expression');
+	}
+
+	const keyframeIndex = existing.keyframes.findIndex(
+		(keyframe) => keyframe.frame === fromFrame,
+	);
+	if (keyframeIndex === -1) {
+		throw new Error(`Cannot move keyframe at frame ${fromFrame}: not found`);
+	}
+
+	const collision = existing.keyframes.some(
+		(keyframe) => keyframe.frame === toFrame,
+	);
+	if (collision) {
+		throw new Error(`Cannot move keyframe to frame ${toFrame}: already exists`);
+	}
+
+	return createInterpolateExpression({
+		callee: existing.callee,
+		input: existing.input,
+		extraArgs: existing.extraArgs,
+		keyframes: existing.keyframes.map((keyframe, index) =>
+			index === keyframeIndex ? {...keyframe, frame: toFrame} : keyframe,
+		),
+	});
+};
+
 const applyKeyframeOperation = ({
 	expression,
 	key,
@@ -416,6 +463,17 @@ const applyKeyframeOperation = ({
 			value: operation.value,
 			schema,
 		});
+	}
+
+	if (operation.type === 'move') {
+		return {
+			expression: moveKeyframe({
+				expression,
+				fromFrame: operation.fromFrame,
+				toFrame: operation.toFrame,
+			}),
+			introduced: noIntroducedIdentifiers,
+		};
 	}
 
 	return {

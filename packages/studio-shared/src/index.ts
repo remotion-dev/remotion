@@ -41,6 +41,10 @@ export {
 	OpenInEditorRequest,
 	OpenInEditorResponse,
 	OpenInFileExplorerRequest,
+	MoveEffectKeyframe,
+	MoveKeyframesRequest,
+	MoveKeyframesResponse,
+	MoveSequenceKeyframe,
 	PasteEffectsRequest,
 	PasteEffectsResponse,
 	ProjectInfoRequest,
@@ -185,6 +189,12 @@ export {
 	optimisticDeleteSequenceKeyframe,
 	optimisticDeleteSequenceKeyframes,
 } from './optimistic-delete-keyframe';
+export {
+	optimisticMoveEffectKeyframe,
+	optimisticMoveEffectKeyframes,
+	optimisticMoveSequenceKeyframe,
+	optimisticMoveSequenceKeyframes,
+} from './optimistic-move-keyframe';
 export {optimisticUpdateForCodeValues} from './optimistic-update-for-code-values';
 export {optimisticUpdateForEffectCodeValues} from './optimistic-update-for-effect-code-values';
 export {

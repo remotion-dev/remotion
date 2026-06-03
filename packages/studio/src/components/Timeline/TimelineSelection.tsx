@@ -60,7 +60,7 @@ export const getTimelineSelectedTrackHighlightStyle = (
 	width: timelineWidth,
 });
 
-export const SELECTION_ENABLED = false;
+export const SELECTION_ENABLED = true;
 export const TIMELINE_TOP_DRAG = false;
 export const ENABLE_OUTLINES = false;
 

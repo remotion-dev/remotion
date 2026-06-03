@@ -140,6 +140,45 @@ test('updateSequenceKeyframes updates a keyframe at the same frame', async () =>
 	expect(output).toContain('scale: interpolate(frame, [0, 100], [2, 5])');
 });
 
+test('updateSequenceKeyframes moves a keyframe to a new frame', async () => {
+	const {output, oldValueStrings, newValueStrings} =
+		await updateSequenceKeyframes({
+			input: sequenceInput,
+			nodePath: lineColumnToNodePath(
+				sequenceInput,
+				getLine(sequenceInput, 'scale'),
+			),
+			updates: [
+				{
+					key: 'style.scale',
+					operation: {type: 'move', fromFrame: 100, toFrame: 50},
+				},
+			],
+		});
+
+	expect(oldValueStrings).toEqual(['interpolate(frame, [0, 100], [2, 4])']);
+	expect(newValueStrings).toEqual(['interpolate(frame, [0, 50], [2, 4])']);
+	expect(output).toContain('scale: interpolate(frame, [0, 50], [2, 4])');
+});
+
+test('updateSequenceKeyframes rejects moving a keyframe onto an existing frame', async () => {
+	await expect(
+		updateSequenceKeyframes({
+			input: sequenceInput,
+			nodePath: lineColumnToNodePath(
+				sequenceInput,
+				getLine(sequenceInput, 'scale'),
+			),
+			updates: [
+				{
+					key: 'style.scale',
+					operation: {type: 'move', fromFrame: 100, toFrame: 0},
+				},
+			],
+		}),
+	).rejects.toThrow(/already exists/);
+});
+
 test('updateSequenceKeyframes converts a static value to an interpolation', async () => {
 	const {output, oldValueStrings} = await updateSequenceKeyframes({
 		input: sequenceInput,
@@ -649,6 +688,35 @@ test('updateEffectKeyframes removes a keyframe from an effect prop interpolation
 	]);
 	expect(serialized).toContain(
 		'amount: interpolate(frame, [0, 100], [0.2, 0.8])',
+	);
+});
+
+test('updateEffectKeyframes moves a keyframe in an effect prop interpolation', () => {
+	const {serialized, oldValueStrings, newValueStrings, effectCallee} =
+		updateEffectKeyframesAst({
+			input: effectInput,
+			sequenceNodePath: lineColumnToNodePath(
+				effectInput,
+				getLine(effectInput, '<HtmlInCanvas'),
+			),
+			effectIndex: 0,
+			updates: [
+				{
+					key: 'amount',
+					operation: {type: 'move', fromFrame: 50, toFrame: 75},
+				},
+			],
+		});
+
+	expect(effectCallee).toBe('tint');
+	expect(oldValueStrings).toEqual([
+		'interpolate(frame, [0, 50, 100], [0.2, 0.5, 0.8])',
+	]);
+	expect(newValueStrings).toEqual([
+		'interpolate(frame, [0, 75, 100], [0.2, 0.5, 0.8])',
+	]);
+	expect(serialized).toContain(
+		'amount: interpolate(frame, [0, 75, 100], [0.2, 0.5, 0.8])',
 	);
 });
 
