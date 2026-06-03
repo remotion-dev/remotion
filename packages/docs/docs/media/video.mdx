@@ -327,8 +327,6 @@ A callback function that gets called when a frame is extracted from the video.
 Useful for [video manipulation](/docs/video-manipulation).  
 The callback is called with a [`CanvasImageSource`](https://developer.mozilla.org/en-US/docs/Web/API/CanvasImageSource) object, more specifically, either an `ImageBitmap` or a `VideoFrame`.
 
-Unlike [`<Html5Video>`](/docs/html5-video#onvideoframe) and [`<OffthreadVideo>`](/docs/offthreadvideo#onvideoframe), this component does not pass `requestVideoFrameCallback()` timing metadata to `onVideoFrame`.
-
 ### `audioStreamIndex?`
 
 Select the audio stream to use. The default is `0`.
