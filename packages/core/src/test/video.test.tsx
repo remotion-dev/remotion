@@ -72,6 +72,16 @@ test('It should render Video with trimBefore and trimAfter props', () => {
 	).not.toThrow();
 });
 
+test('It should render Video with onVideoFrameCallback prop', () => {
+	expect(() =>
+		render(
+			<WrapSequenceContext>
+				<Html5Video src="test" onVideoFrameCallback={() => undefined} />
+			</WrapSequenceContext>,
+		),
+	).not.toThrow();
+});
+
 test('It should throw when both startFrom and trimBefore are provided', () => {
 	expect(() =>
 		render(

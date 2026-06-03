@@ -107,6 +107,16 @@ describe('OffthreadVideo render correctly with props', () => {
 		).not.toThrow();
 	});
 
+	test('It should render OffthreadVideo with onVideoFrameCallback prop', () => {
+		expect(() =>
+			render(
+				<WrapSequenceContext>
+					<OffthreadVideo src="test" onVideoFrameCallback={() => undefined} />
+				</WrapSequenceContext>,
+			),
+		).not.toThrow();
+	});
+
 	test('It should throw when both startFrom and trimBefore are provided', () => {
 		expect(() =>
 			render(
