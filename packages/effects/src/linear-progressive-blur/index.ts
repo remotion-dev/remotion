@@ -47,16 +47,12 @@ export type LinearProgressiveBlurResolved = {
 const linearProgressiveBlurSchema = {
 	start: {
 		type: 'uv-coordinate',
-		min: -1,
-		max: 2,
 		step: 0.01,
 		default: DEFAULT_START,
 		description: 'Start',
 	},
 	end: {
 		type: 'uv-coordinate',
-		min: -1,
-		max: 2,
 		step: 0.01,
 		default: DEFAULT_END,
 		description: 'End',

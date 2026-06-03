@@ -1533,6 +1533,23 @@ test('linearProgressiveBlur() accepts default params', () => {
 	expect(() => linearProgressiveBlur()).not.toThrow();
 });
 
+test('linearProgressiveBlur() has unbounded UV coordinate schema', () => {
+	const schema = linearProgressiveBlur().definition.schema;
+	expect(schema.start).not.toHaveProperty('min');
+	expect(schema.start).not.toHaveProperty('max');
+	expect(schema.end).not.toHaveProperty('min');
+	expect(schema.end).not.toHaveProperty('max');
+});
+
+test('linearProgressiveBlur() accepts UV coordinates outside the visible area', () => {
+	expect(() =>
+		linearProgressiveBlur({
+			start: [-10, 12],
+			end: [20, -8],
+		}),
+	).not.toThrow();
+});
+
 test('linearProgressiveBlur() rejects invalid start', () => {
 	expect(() =>
 		linearProgressiveBlur({

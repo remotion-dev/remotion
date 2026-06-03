@@ -148,9 +148,13 @@ export const SchemaControl = ({
 			) : field.type === 'uv-coordinate' ? (
 				<>
 					<input
-						type="range"
-						min={field.min ?? 0}
-						max={field.max ?? 1}
+						type={
+							field.min === undefined || field.max === undefined
+								? 'number'
+								: 'range'
+						}
+						min={field.min}
+						max={field.max}
 						step={field.step ?? 0.01}
 						value={getUvValue(value, field)[0]}
 						style={inputStyle}
@@ -162,9 +166,13 @@ export const SchemaControl = ({
 						}
 					/>
 					<input
-						type="range"
-						min={field.min ?? 0}
-						max={field.max ?? 1}
+						type={
+							field.min === undefined || field.max === undefined
+								? 'number'
+								: 'range'
+						}
+						min={field.min}
+						max={field.max}
 						step={field.step ?? 0.01}
 						value={getUvValue(value, field)[1]}
 						style={inputStyle}
