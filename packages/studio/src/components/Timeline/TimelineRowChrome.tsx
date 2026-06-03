@@ -27,7 +27,9 @@ const keyframeControlsColumnStyle: React.CSSProperties = {
 	flexShrink: 0,
 	justifyContent: 'flex-start',
 	marginRight: -(TIMELINE_KEYFRAME_CONTROLS_WIDTH - TIMELINE_ROW_BASE_PADDING),
+	position: 'relative',
 	width: TIMELINE_KEYFRAME_CONTROLS_WIDTH,
+	zIndex: 1,
 };
 
 export const TimelineRowChrome: React.FC<{
