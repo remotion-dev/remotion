@@ -54,6 +54,12 @@ describe('interpolateTranslate()', () => {
 		).toBe('30px 10px');
 	});
 
+	test('rounds floating point noise', () => {
+		expect(
+			interpolateTranslate(0.1, [0, 1], ['0px 0px', '100.2px 302.4px']),
+		).toBe('10.02px 30.24px');
+	});
+
 	test('returns the only output value for a single keyframe', () => {
 		expect(interpolateTranslate(15, [0], ['10px 20px'])).toBe('10px 20px');
 	});

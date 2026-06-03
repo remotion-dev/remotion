@@ -39,6 +39,13 @@ const translateSchema = {
 	},
 } satisfies SequenceSchema;
 
+const rotateSchema = {
+	'style.rotate': {
+		type: 'rotation-css',
+		default: '0deg',
+	},
+} satisfies SequenceSchema;
+
 const translateInput = `import React from 'react';
 import {AbsoluteFill} from 'remotion';
 
@@ -46,6 +53,18 @@ export const Example: React.FC = () => {
 \treturn (
 \t\t<AbsoluteFill>
 \t\t\t<div style={{translate: '0px 59px'}} />
+\t\t</AbsoluteFill>
+\t);
+};
+`;
+
+const rotateInput = `import React from 'react';
+import {AbsoluteFill} from 'remotion';
+
+export const Example: React.FC = () => {
+\treturn (
+\t\t<AbsoluteFill>
+\t\t\t<div style={{rotate: '19deg'}} />
 \t\t</AbsoluteFill>
 \t);
 };
@@ -257,6 +276,55 @@ test('updateSequenceKeyframes migrates translate away from interpolateColors', a
 	expect(output).toContain('translate: interpolateTranslate(');
 	expect(output).toContain('[44, 88]');
 	expect(output).toContain("['0px 59px', '100px 20px']");
+});
+
+test('updateSequenceKeyframes converts static rotate to interpolateRotate', async () => {
+	const {output, oldValueStrings} = await updateSequenceKeyframes({
+		input: rotateInput,
+		nodePath: lineColumnToNodePath(rotateInput, getLine(rotateInput, 'rotate')),
+		schema: rotateSchema,
+		updates: [
+			{
+				key: 'style.rotate',
+				operation: {type: 'add', frame: 55, value: '19deg'},
+			},
+		],
+	});
+
+	expect(oldValueStrings).toEqual(["'19deg'"]);
+	expect(output).toContain("rotate: interpolateRotate(frame, [55], ['19deg'])");
+	expect(output).toContain('interpolateRotate');
+});
+
+test('updateSequenceKeyframes migrates rotate away from interpolateColors', async () => {
+	const input = rotateInput
+		.replace(
+			"import {AbsoluteFill} from 'remotion';",
+			"import {AbsoluteFill, interpolateColors, useCurrentFrame} from 'remotion';",
+		)
+		.replace('return (', 'const frame = useCurrentFrame();\n\treturn (')
+		.replace(
+			"rotate: '19deg'",
+			"rotate: interpolateColors(frame, [55], ['19deg'])",
+		);
+	const {output, oldValueStrings} = await updateSequenceKeyframes({
+		input,
+		nodePath: lineColumnToNodePath(input, getLine(input, 'rotate')),
+		schema: rotateSchema,
+		updates: [
+			{
+				key: 'style.rotate',
+				operation: {type: 'add', frame: 68, value: '23deg'},
+			},
+		],
+	});
+
+	expect(oldValueStrings).toEqual([
+		"interpolateColors(frame, [55], ['19deg'])",
+	]);
+	expect(output).toContain('rotate: interpolateRotate(');
+	expect(output).toContain('[55, 68]');
+	expect(output).toContain("['19deg', '23deg']");
 });
 
 test('updateSequenceKeyframes returns a node path that still resolves after inserting a frame hook', async () => {

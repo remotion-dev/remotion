@@ -192,6 +192,10 @@ export {
 	type InterpolateColorsOptions,
 } from './interpolate-colors.js';
 export {
+	interpolateRotate,
+	type InterpolateRotateOptions,
+} from './interpolate-rotate.js';
+export {
 	interpolateTranslate,
 	type InterpolateTranslateOptions,
 } from './interpolate-translate.js';

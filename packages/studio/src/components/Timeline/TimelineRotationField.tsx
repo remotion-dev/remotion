@@ -6,7 +6,11 @@ import type {
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
 import {InputDragger} from '../NewComposition/InputDragger';
-import {draggerStyle, getDecimalPlaces} from './timeline-field-utils';
+import {
+	draggerStyle,
+	getDecimalPlaces,
+	normalizeTimelineNumber,
+} from './timeline-field-utils';
 
 const unitPattern = /^([+-]?(?:\d+\.?\d*|\.\d+))(deg|rad|turn|grad)$/;
 
@@ -20,12 +24,12 @@ const unitToDegrees: Record<string, number> = {
 const parseCssRotationToDegrees = (value: string): number => {
 	const match = value.trim().match(unitPattern);
 	if (match) {
-		return Number(match[1]) * unitToDegrees[match[2]];
+		return normalizeTimelineNumber(Number(match[1]) * unitToDegrees[match[2]]);
 	}
 
 	try {
 		const m = new DOMMatrix(`rotate(${value})`);
-		return Math.round(Math.atan2(m.b, m.a) * (180 / Math.PI) * 1e6) / 1e6;
+		return normalizeTimelineNumber(Math.atan2(m.b, m.a) * (180 / Math.PI));
 	} catch {
 		return 0;
 	}
@@ -58,7 +62,10 @@ export const TimelineRotationField: React.FC<{
 	}, [effectiveValue, isCssRotation]);
 
 	const serializeValue = useCallback(
-		(value: number) => (isCssRotation ? `${value}deg` : value),
+		(value: number) => {
+			const normalized = normalizeTimelineNumber(value);
+			return isCssRotation ? `${normalized}deg` : normalized;
+		},
 		[isCssRotation],
 	);
 
@@ -120,7 +127,7 @@ export const TimelineRotationField: React.FC<{
 
 	const formatter = useCallback(
 		(v: number | string) => {
-			const num = Number(v);
+			const num = normalizeTimelineNumber(Number(v));
 			const digits = Math.max(stepDecimals, getDecimalPlaces(num));
 			const formatted = digits === 0 ? String(num) : num.toFixed(digits);
 			return `${formatted}\u00B0`;

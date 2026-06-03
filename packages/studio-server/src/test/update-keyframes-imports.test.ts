@@ -24,6 +24,13 @@ const translateSchema = {
 	},
 } satisfies SequenceSchema;
 
+const rotateSchema = {
+	'style.rotate': {
+		type: 'rotation-css',
+		default: '0deg',
+	},
+} satisfies SequenceSchema;
+
 // ---------------------------------------------------------------------------
 // Sequence: imports
 // ---------------------------------------------------------------------------
@@ -98,6 +105,32 @@ export const Example: React.FC = () => {
 	});
 
 	expect(serialized).toContain('interpolateTranslate');
+	expect(serialized).not.toContain('interpolateColors');
+	expect(serialized).toContain('useCurrentFrame');
+	expect(serialized).toContain('const frame = useCurrentFrame();');
+});
+
+test('adds interpolateRotate import for rotate conversion', () => {
+	const input = `import React from 'react';
+import {AbsoluteFill} from 'remotion';
+
+export const Example: React.FC = () => {
+\treturn <AbsoluteFill style={{rotate: '0deg'}} />;
+};
+`;
+	const {serialized} = updateSequenceKeyframesAst({
+		input,
+		nodePath: lineColumnToNodePath(input, getLine(input, '<AbsoluteFill')),
+		schema: rotateSchema,
+		updates: [
+			{
+				key: 'style.rotate',
+				operation: {type: 'add', frame: 44, value: '19deg'},
+			},
+		],
+	});
+
+	expect(serialized).toContain('interpolateRotate');
 	expect(serialized).not.toContain('interpolateColors');
 	expect(serialized).toContain('useCurrentFrame');
 	expect(serialized).toContain('const frame = useCurrentFrame();');

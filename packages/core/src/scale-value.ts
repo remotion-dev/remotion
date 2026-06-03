@@ -1,10 +1,8 @@
+import {normalizeNumber} from './normalize-number.js';
+
 export type ScaleValue = readonly [number, number, number];
 
 const defaultScaleValue: ScaleValue = [1, 1, 1];
-
-const normalizeScaleNumber = (value: number): number => {
-	return Math.round(value * 1000000) / 1000000;
-};
 
 const parseScaleString = (value: string): ScaleValue | null => {
 	const parts = value.trim().split(/\s+/);
@@ -41,9 +39,9 @@ export const parseScaleValue = (value: unknown): ScaleValue => {
 };
 
 export const serializeScaleValue = ([x, y, z]: ScaleValue): number | string => {
-	const normalizedX = normalizeScaleNumber(x);
-	const normalizedY = normalizeScaleNumber(y);
-	const normalizedZ = normalizeScaleNumber(z);
+	const normalizedX = normalizeNumber(x);
+	const normalizedY = normalizeNumber(y);
+	const normalizedZ = normalizeNumber(z);
 
 	if (normalizedX === normalizedY && normalizedZ === 1) {
 		return normalizedX;
