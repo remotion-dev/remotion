@@ -134,6 +134,8 @@ export const Example: React.FC = () => {
 
 	expect(serialized).toContain('interpolateRotate');
 	expect(serialized).not.toContain('interpolateColors');
+	expect(serialized).toContain('extrapolateLeft: "clamp"');
+	expect(serialized).toContain('extrapolateRight: "clamp"');
 	expect(serialized).toContain('useCurrentFrame');
 	expect(serialized).toContain('const frame = useCurrentFrame();');
 });

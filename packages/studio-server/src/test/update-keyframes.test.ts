@@ -298,7 +298,11 @@ test('updateSequenceKeyframes converts static rotate to interpolateRotate', asyn
 	});
 
 	expect(oldValueStrings).toEqual(["'19deg'"]);
-	expect(output).toContain("rotate: interpolateRotate(frame, [55], ['19deg'])");
+	expect(output).toContain(
+		"rotate: interpolateRotate(frame, [55], ['19deg'], {",
+	);
+	expect(output).toContain("extrapolateLeft: 'clamp'");
+	expect(output).toContain("extrapolateRight: 'clamp'");
 	expect(output).toContain('interpolateRotate');
 });
 

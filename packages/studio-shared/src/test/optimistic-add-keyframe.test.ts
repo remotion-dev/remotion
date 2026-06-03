@@ -115,6 +115,7 @@ test('optimisticAddSequenceKeyframe uses interpolateRotate for rotation-css fiel
 
 	expect(status.interpolationFunction).toBe('interpolateRotate');
 	expect(status.keyframes).toEqual([{frame: 44, value: '19deg'}]);
+	expect(status.clamping).toEqual({left: 'clamp', right: 'clamp'});
 });
 
 test('optimisticAddSequenceKeyframe ignores non-keyframable fields', () => {
