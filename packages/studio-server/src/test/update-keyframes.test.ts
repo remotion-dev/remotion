@@ -189,6 +189,25 @@ test('updateSequenceKeyframes rejects non-keyframable fields', async () => {
 	).rejects.toThrow(/not keyframable/);
 });
 
+test('updateSequenceKeyframes rejects enum fields', async () => {
+	await expect(
+		updateSequenceKeyframes({
+			input: sequenceInput,
+			nodePath: lineColumnToNodePath(
+				sequenceInput,
+				getLine(sequenceInput, '<AbsoluteFill>'),
+			),
+			schema: NoReactInternals.sequenceSchema,
+			updates: [
+				{
+					key: 'layout',
+					operation: {type: 'add', frame: 25, value: 'none'},
+				},
+			],
+		}),
+	).rejects.toThrow(/not keyframable/);
+});
+
 test('updateSequenceKeyframes converts a static value to a single-keyframe interpolation at frame 0', async () => {
 	const {output, oldValueStrings} = await updateSequenceKeyframes({
 		input: sequenceInput,

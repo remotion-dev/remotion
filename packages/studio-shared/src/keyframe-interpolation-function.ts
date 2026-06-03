@@ -48,7 +48,7 @@ export const isSchemaFieldKeyframable = ({
 	key: string;
 }): boolean => {
 	const field = schema ? findFieldInSchema(schema, key) : undefined;
-	return field?.keyframable !== false;
+	return field?.type !== 'enum' && field?.keyframable !== false;
 };
 
 export const getKeyframeInterpolationFunctionForSchemaField = ({

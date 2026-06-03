@@ -149,6 +149,39 @@ test('optimisticAddSequenceKeyframe ignores non-keyframable fields', () => {
 	expect(updated).toEqual(previous);
 });
 
+test('optimisticAddSequenceKeyframe ignores enum fields', () => {
+	const previous: CanUpdateSequencePropsResponse = {
+		canUpdate: true,
+		props: {
+			layout: {
+				status: 'static',
+				codeValue: 'absolute-fill',
+			},
+		},
+		effects: [],
+	};
+	const schema = {
+		layout: {
+			type: 'enum',
+			default: 'absolute-fill',
+			variants: {
+				'absolute-fill': {},
+				none: {},
+			},
+		},
+	} satisfies SequenceSchema;
+
+	const updated = optimisticAddSequenceKeyframe({
+		previous,
+		fieldKey: 'layout',
+		frame: 25,
+		value: 'none',
+		schema,
+	});
+
+	expect(updated).toEqual(previous);
+});
+
 test('optimisticAddSequenceKeyframe appends a keyframe to an existing interpolation', () => {
 	const previous: CanUpdateSequencePropsResponse = {
 		canUpdate: true,
