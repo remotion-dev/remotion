@@ -87,6 +87,7 @@ const makeTimelineSequence = ({
 			supportsEffects: true,
 		},
 		refForOutline: null,
+		isInsideSeries: false,
 		effects,
 	}) as TSequence;
 
@@ -164,9 +165,8 @@ test('copying a keyframed effect is blocked', () => {
 					effectIndex: 0,
 					props: {
 						intensity: {
-							canUpdate: true,
+							status: 'keyframed',
 							codeValue: 10,
-							keyframed: true,
 							interpolationFunction: 'interpolate',
 							keyframes: [{frame: 0, value: 10}],
 							easing: ['linear'],
@@ -326,7 +326,7 @@ test('Cmd+D only duplicates selected timeline sequence rows', () => {
 
 test('Backspace reset targets multiple selected sequence props', () => {
 	const schema = {
-		opacity: {type: 'number', default: 1},
+		opacity: {type: 'number', default: 1, hiddenFromList: false},
 		'style.rotate': {type: 'rotation-css', default: '0deg'},
 	} satisfies SequenceSchema;
 	const opacityNodePathInfo = makeNodePathInfo(
@@ -342,8 +342,8 @@ test('Backspace reset targets multiple selected sequence props', () => {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
 			canUpdate: true,
 			props: {
-				opacity: {canUpdate: true, codeValue: 0.5, keyframed: false},
-				'style.rotate': {canUpdate: true, codeValue: '45deg', keyframed: false},
+				opacity: {status: 'static', codeValue: 0.5},
+				'style.rotate': {status: 'static', codeValue: '45deg'},
 			},
 			effects: [],
 		},
@@ -388,7 +388,7 @@ test('Selected outline dragging applies the same delta to all selected sequences
 			startY: 20,
 			target: {
 				clientId: 'client',
-				codeValue: {canUpdate: true, codeValue: '10px 20px', keyframed: false},
+				codeValue: {status: 'static', codeValue: '10px 20px'},
 				fieldDefault: '0px 0px',
 				nodePath: firstNodePath,
 				schema,
@@ -401,7 +401,7 @@ test('Selected outline dragging applies the same delta to all selected sequences
 			startY: 3,
 			target: {
 				clientId: 'client',
-				codeValue: {canUpdate: true, codeValue: '-5px 3px', keyframed: false},
+				codeValue: {status: 'static', codeValue: '-5px 3px'},
 				fieldDefault: '0px 0px',
 				nodePath: secondNodePath,
 				schema,
@@ -445,7 +445,7 @@ test('Selected outline dragging applies the same delta to all selected sequences
 test('Backspace reset targets selected effect props', () => {
 	const schema = {} satisfies SequenceSchema;
 	const effectSchema = {
-		intensity: {type: 'number', default: 0},
+		intensity: {type: 'number', default: 0, hiddenFromList: false},
 	} satisfies SequenceSchema;
 	const nodePathInfo = makeNodePathInfo(
 		['body', 0],
@@ -463,7 +463,7 @@ test('Backspace reset targets selected effect props', () => {
 					importPath: null,
 					effectIndex: 0,
 					props: {
-						intensity: {canUpdate: true, codeValue: 10, keyframed: false},
+						intensity: {status: 'static', codeValue: 10},
 					},
 				},
 			],

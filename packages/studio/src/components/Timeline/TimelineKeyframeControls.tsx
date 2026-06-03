@@ -52,7 +52,7 @@ const navButtonStyle: React.CSSProperties = {
 const isKeyframedStatus = (
 	status: CanUpdateSequencePropStatus,
 ): status is CanUpdateSequencePropStatusKeyframed => {
-	return 'keyframes' in status;
+	return status.status === 'keyframed';
 };
 
 const diamondButtonStyle: React.CSSProperties = {
@@ -90,7 +90,7 @@ const getCurrentKeyframeValue = ({
 		});
 	}
 
-	if (propStatus.canUpdate) {
+	if (propStatus.status === 'static') {
 		return Internals.getEffectiveVisualModeValue({
 			codeValue: propStatus,
 			dragOverrideValue,
@@ -193,7 +193,8 @@ export const TimelineKeyframeControls: React.FC<{
 	const canAddKeyframe =
 		fieldSchema?.type !== 'scale' || typeof currentKeyframeValue === 'number';
 	const canToggleKeyframe =
-		propStatus.canUpdate && (hasKeyframeAtCurrentFrame || canAddKeyframe);
+		propStatus.status !== 'computed' &&
+		(hasKeyframeAtCurrentFrame || canAddKeyframe);
 
 	const seekToDisplayFrame = useCallback(
 		(frame: number) => {

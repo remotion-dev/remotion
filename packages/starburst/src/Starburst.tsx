@@ -275,6 +275,7 @@ const StarburstCanvas: React.FC<{
  * @see [Documentation](https://www.remotion.dev/docs/starburst/starburst)
  */
 const starburstSchema = {
+	durationInFrames: Internals.durationInFramesField,
 	rays: {
 		type: 'number',
 		min: 2,
@@ -282,6 +283,7 @@ const starburstSchema = {
 		step: 1,
 		default: 12,
 		description: 'Number of Rays',
+		hiddenFromList: false,
 	},
 	rotation: {
 		type: 'number',
@@ -290,6 +292,7 @@ const starburstSchema = {
 		step: 1,
 		default: 0,
 		description: 'Rotation',
+		hiddenFromList: false,
 	},
 	smoothness: {
 		type: 'number',
@@ -298,6 +301,7 @@ const starburstSchema = {
 		step: 0.01,
 		default: 0,
 		description: 'Edge Smoothness',
+		hiddenFromList: false,
 	},
 	vignette: {
 		type: 'number',
@@ -306,6 +310,7 @@ const starburstSchema = {
 		step: 0.01,
 		default: 1,
 		description: 'Vignette',
+		hiddenFromList: false,
 	},
 	originOffsetX: {
 		type: 'number',
@@ -314,6 +319,7 @@ const starburstSchema = {
 		step: 0.01,
 		default: 0,
 		description: 'Origin Offset X',
+		hiddenFromList: false,
 	},
 	originOffsetY: {
 		type: 'number',
@@ -322,6 +328,7 @@ const starburstSchema = {
 		step: 0.01,
 		default: 0,
 		description: 'Origin Offset Y',
+		hiddenFromList: false,
 	},
 	...Internals.sequenceStyleSchema,
 	hidden: Internals.hiddenField,

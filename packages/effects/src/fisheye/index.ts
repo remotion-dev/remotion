@@ -30,6 +30,7 @@ const fisheyeSchema = {
 		step: 0.01,
 		default: DEFAULT_FISHEYE_FIELD_OF_VIEW,
 		description: 'Field of view',
+		hiddenFromList: false,
 	},
 	center: {
 		type: 'uv-coordinate',
@@ -46,6 +47,7 @@ const fisheyeSchema = {
 		step: 0.01,
 		default: DEFAULT_FISHEYE_RADIUS,
 		description: 'Radius',
+		hiddenFromList: false,
 	},
 	zoom: {
 		type: 'number',
@@ -54,6 +56,7 @@ const fisheyeSchema = {
 		step: 0.01,
 		default: DEFAULT_FISHEYE_ZOOM,
 		description: 'Zoom',
+		hiddenFromList: false,
 	},
 } as const satisfies SequenceSchema;
 

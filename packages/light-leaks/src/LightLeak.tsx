@@ -234,13 +234,20 @@ const LightLeakCanvas: React.FC<{
  * @see [Documentation](https://www.remotion.dev/docs/light-leaks/light-leak)
  */
 const lightLeakSchema = {
-	seed: {type: 'number', default: 0, description: 'Seed'},
+	durationInFrames: Internals.durationInFramesField,
+	seed: {
+		type: 'number',
+		default: 0,
+		description: 'Seed',
+		hiddenFromList: false,
+	},
 	hueShift: {
 		type: 'number',
 		min: 0,
 		max: 360,
 		default: 0,
 		description: 'Hue Shift',
+		hiddenFromList: false,
 	},
 	...Internals.sequenceStyleSchema,
 	hidden: Internals.hiddenField,

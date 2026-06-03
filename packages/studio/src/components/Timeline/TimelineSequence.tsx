@@ -17,8 +17,10 @@ import {LoopedTimelineIndicator} from './LoopedTimelineIndicators';
 import {TimelineImageInfo} from './TimelineImageInfo';
 import {TIMELINE_TOP_DRAG, useTimelineRowSelection} from './TimelineSelection';
 import {TimelineSequenceFrame} from './TimelineSequenceFrame';
+import {TimelineSequenceRightEdgeDragHandle} from './TimelineSequenceRightEdgeDragHandle';
 import {TimelineVideoInfo} from './TimelineVideoInfo';
 import {TimelineWidthContext} from './TimelineWidthProvider';
+import {useResolveStackAndReactToChange} from './use-resolved-stack-react-to-change';
 
 const AUDIO_GRADIENT = 'linear-gradient(rgb(16 171 58), rgb(43 165 63) 60%)';
 const VIDEO_GRADIENT = 'linear-gradient(to top, #8e44ad, #9b59b6)';
@@ -181,6 +183,35 @@ const TimelineSequenceInner: React.FC<{
 	const maxMediaDuration = useMaxMediaDuration(s, video?.fps ?? 30);
 	const effectiveMaxMediaDuration = s.loopDisplay ? null : maxMediaDuration;
 
+	const originalLocation = useResolveStackAndReactToChange(s.getStack);
+	const validatedLocation = useMemo(() => {
+		if (
+			!originalLocation ||
+			!originalLocation.source ||
+			!originalLocation.line
+		) {
+			return null;
+		}
+
+		return {
+			source: originalLocation.source,
+			line: originalLocation.line,
+			column: originalLocation.column ?? 0,
+		};
+	}, [originalLocation]);
+
+	const {codeValues} = useContext(Internals.VisualModeCodeValuesContext);
+	const nodePath = nodePathInfo?.sequenceSubscriptionKey ?? null;
+	const codeValuesForOverride = useMemo(() => {
+		return nodePath
+			? Internals.getCodeValuesCtx(codeValues, nodePath)
+			: undefined;
+	}, [codeValues, nodePath]);
+	const durationCanUpdate = Boolean(
+		codeValuesForOverride?.durationInFrames?.status === 'static' ||
+		codeValuesForOverride?.durationInFrames?.status === 'keyframed',
+	);
+
 	if (!video) {
 		throw new TypeError('Expected video config');
 	}
@@ -231,6 +262,15 @@ const TimelineSequenceInner: React.FC<{
 		};
 	}, [marginLeft, s.type, width]);
 
+	const showRightEdgeDragHandle =
+		TIMELINE_TOP_DRAG &&
+		(s.type === 'sequence' || s.type === 'image') &&
+		!s.loopDisplay &&
+		!s.isInsideSeries &&
+		nodePath !== null &&
+		validatedLocation !== null &&
+		durationCanUpdate;
+
 	if (maxMediaDuration === null && !s.loopDisplay) {
 		return null;
 	}
@@ -278,6 +318,15 @@ const TimelineSequenceInner: React.FC<{
 			{s.loopDisplay === undefined ? null : (
 				<LoopedTimelineIndicator loops={s.loopDisplay.numberOfTimes} />
 			)}
+			{showRightEdgeDragHandle && nodePath && validatedLocation ? (
+				<TimelineSequenceRightEdgeDragHandle
+					nodePath={nodePath}
+					validatedLocation={validatedLocation}
+					currentDurationInFrames={s.duration}
+					windowWidth={windowWidth}
+					timelineDurationInFrames={video.durationInFrames ?? 1}
+				/>
+			) : null}
 		</TimelineSequenceCurrentFrame>
 	);
 };

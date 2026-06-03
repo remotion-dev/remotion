@@ -14,6 +14,7 @@ export const starburstEffectSchema = {
 		step: 1,
 		default: undefined,
 		description: 'Number of Rays',
+		hiddenFromList: false,
 	},
 	rotation: {
 		type: 'number',
@@ -22,6 +23,7 @@ export const starburstEffectSchema = {
 		step: 1,
 		default: 0,
 		description: 'Rotation',
+		hiddenFromList: false,
 	},
 	smoothness: {
 		type: 'number',
@@ -30,6 +32,7 @@ export const starburstEffectSchema = {
 		step: 0.01,
 		default: 0,
 		description: 'Edge Smoothness',
+		hiddenFromList: false,
 	},
 	origin: {
 		type: 'uv-coordinate',

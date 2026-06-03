@@ -22,6 +22,7 @@ const audioSchema = {
 		step: 0.01,
 		default: 1,
 		description: 'Volume',
+		hiddenFromList: false,
 	},
 	playbackRate: {
 		type: 'number',
@@ -29,6 +30,7 @@ const audioSchema = {
 		step: 0.01,
 		default: 1,
 		description: 'Playback Rate',
+		hiddenFromList: false,
 	},
 	loop: {type: 'boolean', default: false, description: 'Loop'},
 	hidden: Internals.hiddenField,

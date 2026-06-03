@@ -380,7 +380,7 @@ export const TimelineSequenceItem: React.FC<{
 
 	const isItemHidden = useMemo(() => {
 		const codeValue =
-			codeHiddenStatus && codeHiddenStatus.canUpdate
+			codeHiddenStatus && codeHiddenStatus.status === 'static'
 				? codeHiddenStatus.codeValue
 				: undefined;
 		const runtimeValue =
@@ -397,7 +397,7 @@ export const TimelineSequenceItem: React.FC<{
 				!validatedLocation ||
 				!codeValuesForOverride ||
 				!codeHiddenStatus ||
-				!codeHiddenStatus.canUpdate ||
+				codeHiddenStatus.status !== 'static' ||
 				previewServerState.type !== 'connected'
 			) {
 				return;
@@ -469,7 +469,7 @@ export const TimelineSequenceItem: React.FC<{
 		validatedLocation !== null &&
 		codeHiddenStatus !== undefined &&
 		codeHiddenStatus !== null &&
-		codeHiddenStatus.canUpdate;
+		codeHiddenStatus.status === 'static';
 
 	const canDropEffect =
 		previewServerState.type === 'connected' &&

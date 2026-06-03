@@ -38,22 +38,26 @@ export const shapeComponents: ShapeComponent[] = [
 				type: 'number',
 				description:
 					'The total length of the arrow along its direction axis. Default 300.',
+				hiddenFromList: false,
 			},
 			{
 				name: 'headWidth',
 				type: 'number',
 				description:
 					'The width of the arrowhead at its widest point. Default 185.',
+				hiddenFromList: false,
 			},
 			{
 				name: 'headLength',
 				type: 'number',
 				description: 'The length of the arrowhead portion. Default 120.',
+				hiddenFromList: false,
 			},
 			{
 				name: 'shaftWidth',
 				type: 'number',
 				description: 'The width of the arrow shaft. Default 80.',
+				hiddenFromList: false,
 			},
 			{
 				name: 'direction',
@@ -65,6 +69,7 @@ export const shapeComponents: ShapeComponent[] = [
 				type: 'number',
 				description:
 					"Rounds the corner using an arc. Similar to CSS's border-radius.",
+				hiddenFromList: false,
 			},
 		],
 	},
@@ -76,11 +81,13 @@ export const shapeComponents: ShapeComponent[] = [
 				name: 'width',
 				type: 'number',
 				description: 'The width of the rectangle.',
+				hiddenFromList: false,
 			},
 			{
 				name: 'height',
 				type: 'number',
 				description: 'The height of the rectangle.',
+				hiddenFromList: false,
 			},
 		],
 	},
@@ -92,6 +99,7 @@ export const shapeComponents: ShapeComponent[] = [
 				name: 'radius',
 				type: 'number',
 				description: 'The radius of the circle.',
+				hiddenFromList: false,
 			},
 		],
 	},
@@ -103,23 +111,27 @@ export const shapeComponents: ShapeComponent[] = [
 				name: 'height',
 				type: 'number',
 				description: 'The height of the heart.',
+				hiddenFromList: false,
 			},
 			{
 				name: 'aspectRatio',
 				type: 'number',
 				description: 'The aspect ratio of the heart. Default 1.1.',
+				hiddenFromList: false,
 			},
 			{
 				name: 'bottomRoundnessAdjustment',
 				type: 'number',
 				description:
 					'The amount of bottom roundness deviation from the default. Negative values make the bottom point sharper, positive values make it rounder.',
+				hiddenFromList: false,
 			},
 			{
 				name: 'depthAdjustment',
 				type: 'number',
 				description:
 					'The deviation of the default depth (how deep the top of the heart is). Negative values make the heart deeper, positive values make it shallower.',
+				hiddenFromList: false,
 			},
 		],
 	},
@@ -131,6 +143,7 @@ export const shapeComponents: ShapeComponent[] = [
 				name: 'radius',
 				type: 'number',
 				description: 'The radius of the circle.',
+				hiddenFromList: false,
 			},
 			{
 				name: 'progress',
@@ -141,6 +154,7 @@ export const shapeComponents: ShapeComponent[] = [
 						fully empty, <code>1</code> means fully filled.
 					</>
 				),
+				hiddenFromList: false,
 			},
 			{
 				name: 'counterClockwise',
@@ -167,6 +181,7 @@ export const shapeComponents: ShapeComponent[] = [
 						<code>Math.PI * 2</code> means 1 full clockwise rotation{' '}
 					</>
 				),
+				hiddenFromList: false,
 			},
 		],
 	},
@@ -178,11 +193,13 @@ export const shapeComponents: ShapeComponent[] = [
 				name: 'rx',
 				type: 'number',
 				description: 'The radius of the ellipse on the X axis.',
+				hiddenFromList: false,
 			},
 			{
 				name: 'ry',
 				type: 'number',
 				description: 'The radius of the ellipse on the Y axis.',
+				hiddenFromList: false,
 			},
 		],
 	},
@@ -194,6 +211,7 @@ export const shapeComponents: ShapeComponent[] = [
 				name: 'length',
 				type: 'number',
 				description: 'The length of one triangle side.',
+				hiddenFromList: false,
 			},
 			{
 				name: 'direction',
@@ -210,16 +228,19 @@ export const shapeComponents: ShapeComponent[] = [
 				name: 'points',
 				type: 'number',
 				description: 'The amount of points of the star.',
+				hiddenFromList: false,
 			},
 			{
 				name: 'innerRadius',
 				type: 'number',
 				description: 'The inner radius of the star.',
+				hiddenFromList: false,
 			},
 			{
 				name: 'outerRadius',
 				type: 'number',
 				description: 'The outer radius of the star.',
+				hiddenFromList: false,
 			},
 		],
 	},
@@ -231,11 +252,13 @@ export const shapeComponents: ShapeComponent[] = [
 				name: 'points',
 				type: 'number',
 				description: 'The number of points in the polygon.',
+				hiddenFromList: false,
 			},
 			{
 				name: 'radius',
 				type: 'number',
 				description: 'The radius of the polygon.',
+				hiddenFromList: false,
 			},
 			{
 				name: 'edgeRoundness',
@@ -248,6 +271,7 @@ export const shapeComponents: ShapeComponent[] = [
 				type: 'number',
 				description:
 					"Rounds the corner using an arc. Similar to CSS's border-radius. Cannot be used together with edgeRoundness.",
+				hiddenFromList: false,
 			},
 		],
 	},

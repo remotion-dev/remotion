@@ -127,11 +127,7 @@ const effectStatusToSnapshot = (
 
 	const params: Record<string, unknown> = {};
 	for (const [key, prop] of Object.entries(effect.props)) {
-		if (!prop.canUpdate) {
-			return null;
-		}
-
-		if (prop.keyframed) {
+		if (prop.status !== 'static') {
 			return null;
 		}
 

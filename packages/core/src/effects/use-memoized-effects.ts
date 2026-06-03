@@ -57,9 +57,7 @@ const mergeOverrides = ({
 };
 
 const extractCodeOverrides = (
-	propStatus:
-		| Record<string, {canUpdate: boolean; codeValue?: unknown}>
-		| undefined,
+	propStatus: Record<string, CanUpdateSequencePropStatus> | undefined,
 ): Record<string, unknown> | null => {
 	if (!propStatus) {
 		return null;
@@ -68,7 +66,7 @@ const extractCodeOverrides = (
 	const out: Record<string, unknown> = {};
 	let hasAny = false;
 	for (const [key, status] of Object.entries(propStatus)) {
-		if (status.canUpdate) {
+		if (status.status !== 'computed') {
 			out[key] = status.codeValue;
 			hasAny = true;
 		}

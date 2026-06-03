@@ -1,5 +1,5 @@
 import React, {useCallback, useMemo, useState} from 'react';
-import type {CanUpdateSequencePropStatus} from 'remotion';
+import type {CanUpdateSequencePropStatusStatic} from 'remotion';
 import type {
 	SchemaFieldInfo,
 	TimelineFieldOnDragValueChange,
@@ -34,7 +34,7 @@ const parseCssRotationToDegrees = (value: string): number => {
 export const TimelineRotationField: React.FC<{
 	readonly field: SchemaFieldInfo;
 	readonly effectiveValue: unknown;
-	readonly propStatus: CanUpdateSequencePropStatus;
+	readonly propStatus: CanUpdateSequencePropStatusStatic;
 	readonly onSave: TimelineFieldOnSave;
 	readonly onDragValueChange: TimelineFieldOnDragValueChange;
 	readonly onDragEnd: () => void;
@@ -73,7 +73,7 @@ export const TimelineRotationField: React.FC<{
 	const onValueChangeEnd = useCallback(
 		(newVal: number) => {
 			const newValue = serializeValue(newVal);
-			if (propStatus.canUpdate && newValue !== propStatus.codeValue) {
+			if (newValue !== propStatus.codeValue) {
 				onSave(newValue).finally(() => {
 					setDragValue(null);
 					onDragEnd();
@@ -88,16 +88,14 @@ export const TimelineRotationField: React.FC<{
 
 	const onTextChange = useCallback(
 		(newVal: string) => {
-			if (propStatus.canUpdate) {
-				const parsed = Number(newVal);
-				if (!Number.isNaN(parsed)) {
-					const newValue = serializeValue(parsed);
-					if (newValue !== propStatus.codeValue) {
-						setDragValue(parsed);
-						onSave(newValue).finally(() => {
-							setDragValue(null);
-						});
-					}
+			const parsed = Number(newVal);
+			if (!Number.isNaN(parsed)) {
+				const newValue = serializeValue(parsed);
+				if (newValue !== propStatus.codeValue) {
+					setDragValue(parsed);
+					onSave(newValue).finally(() => {
+						setDragValue(null);
+					});
 				}
 			}
 		},

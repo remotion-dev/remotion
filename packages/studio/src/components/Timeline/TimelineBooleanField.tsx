@@ -1,5 +1,5 @@
 import React, {useCallback} from 'react';
-import type {CanUpdateSequencePropStatus} from 'remotion';
+import type {CanUpdateSequencePropStatusStatic} from 'remotion';
 import type {
 	SchemaFieldInfo,
 	TimelineFieldOnSave,
@@ -12,7 +12,7 @@ const checkboxContainer: React.CSSProperties = {
 
 export const TimelineBooleanField: React.FC<{
 	readonly field: SchemaFieldInfo;
-	readonly propStatus: CanUpdateSequencePropStatus;
+	readonly propStatus: CanUpdateSequencePropStatusStatic;
 	readonly effectiveValue: unknown;
 	readonly onSave: TimelineFieldOnSave;
 }> = ({field, propStatus, effectiveValue, onSave}) => {
@@ -20,7 +20,7 @@ export const TimelineBooleanField: React.FC<{
 
 	const onChange = useCallback(() => {
 		const newValue = !checked;
-		if (propStatus.canUpdate && newValue !== propStatus.codeValue) {
+		if (newValue !== propStatus.codeValue) {
 			onSave(newValue);
 		}
 	}, [propStatus, onSave, checked]);
@@ -31,7 +31,7 @@ export const TimelineBooleanField: React.FC<{
 				checked={checked}
 				onChange={onChange}
 				name={field.key}
-				disabled={!propStatus.canUpdate}
+				disabled={false}
 				variant="small"
 			/>
 		</div>

@@ -8,9 +8,8 @@ test('optimisticUpdateForCodeValues should return the correct response', () => {
 		canUpdate: true,
 		props: {
 			'style.opacity': {
-				canUpdate: true,
+				status: 'static',
 				codeValue: 0.5,
-				keyframed: false,
 			},
 		},
 		effects: [],
@@ -26,9 +25,8 @@ test('optimisticUpdateForCodeValues should return the correct response', () => {
 		canUpdate: true,
 		props: {
 			'style.opacity': {
-				canUpdate: true,
+				status: 'static',
 				codeValue: 0.6,
-				keyframed: false,
 			},
 		},
 		effects: [],
@@ -44,9 +42,8 @@ test('optimisticUpdateForCodeValues should return the correct response', () => {
 		canUpdate: true,
 		props: {
 			layout: {
-				canUpdate: true,
+				status: 'static',
 				codeValue: 'none',
-				keyframed: false,
 			},
 		},
 		effects: [],

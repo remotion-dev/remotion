@@ -115,6 +115,7 @@ import {
 	useResolvedVideoConfig,
 } from './ResolveCompositionConfig.js';
 import {
+	durationInFramesField,
 	hiddenField,
 	sequencePremountSchema,
 	sequenceSchema,
@@ -183,7 +184,7 @@ import {
 	useMediaInTimeline,
 } from './use-media-in-timeline.js';
 import type {
-	CanUpdaterSequencePropStatusStatic,
+	CanUpdateSequencePropStatusStatic,
 	CanUpdateSequencePropStatusFalse,
 	CanUpdateSequencePropStatusKeyframed,
 	GetCodeValues,
@@ -377,6 +378,7 @@ export const Internals = {
 	getCodeValuesCtx,
 	getEffectCodeValuesCtx,
 	hiddenField,
+	durationInFramesField,
 } as const;
 
 export type {
@@ -384,7 +386,7 @@ export type {
 	CanUpdateEffectPropsResponse,
 	CanUpdateEffectPropsResponseFalse,
 	CanUpdateEffectPropsResponseTrue,
-	CanUpdaterSequencePropStatusStatic,
+	CanUpdateSequencePropStatusStatic,
 	CanUpdateSequencePropsResponse,
 	CanUpdateSequencePropsResponseFalse,
 	CanUpdateSequencePropsResponseTrue,

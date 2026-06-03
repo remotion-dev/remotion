@@ -11,12 +11,14 @@ const xyTranslateSchema = {
 		step: 1,
 		default: 0,
 		description: 'X',
+		hiddenFromList: false,
 	},
 	y: {
 		type: 'number',
 		step: 1,
 		default: 0,
 		description: 'Y',
+		hiddenFromList: false,
 	},
 } as const satisfies SequenceSchema;
 
@@ -26,12 +28,14 @@ const uvTranslateSchema = {
 		step: 0.01,
 		default: 0,
 		description: 'U',
+		hiddenFromList: false,
 	},
 	v: {
 		type: 'number',
 		step: 0.01,
 		default: 0,
 		description: 'V',
+		hiddenFromList: false,
 	},
 } as const satisfies SequenceSchema;
 

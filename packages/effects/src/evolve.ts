@@ -24,6 +24,7 @@ export const evolveSchema = {
 		step: 0.01,
 		default: DEFAULT_PROGRESS,
 		description: 'Progress',
+		hiddenFromList: false,
 	},
 	direction: {
 		type: 'enum',
@@ -43,6 +44,7 @@ export const evolveSchema = {
 		step: 0.01,
 		default: DEFAULT_FEATHER,
 		description: 'Feather',
+		hiddenFromList: false,
 	},
 } as const satisfies SequenceSchema;
 

@@ -11,8 +11,8 @@ test('optimisticUpdateForEffectCodeValues updates the matching effect prop', () 
 				canUpdate: true,
 				effectIndex: 0,
 				props: {
-					color: {canUpdate: true, codeValue: 'red', keyframed: false},
-					opacity: {canUpdate: true, codeValue: 0.5, keyframed: false},
+					color: {status: 'static', codeValue: 'red'},
+					opacity: {status: 'static', codeValue: 0.5},
 				},
 				callee: 'tint',
 				importPath: null,
@@ -25,7 +25,7 @@ test('optimisticUpdateForEffectCodeValues updates the matching effect prop', () 
 		effectIndex: 0,
 		fieldKey: 'opacity',
 		value: 0.8,
-		schema: {opacity: {type: 'number', default: 1}},
+		schema: {opacity: {type: 'number', default: 1, hiddenFromList: false}},
 	});
 
 	if (!updated.canUpdate) {
@@ -38,14 +38,12 @@ test('optimisticUpdateForEffectCodeValues updates the matching effect prop', () 
 	}
 
 	expect(effect.props.opacity).toEqual({
-		canUpdate: true,
+		status: 'static',
 		codeValue: 0.8,
-		keyframed: false,
 	});
 	expect(effect.props.color).toEqual({
-		canUpdate: true,
+		status: 'static',
 		codeValue: 'red',
-		keyframed: false,
 	});
 });
 
@@ -60,7 +58,7 @@ test('optimisticUpdateForEffectCodeValues is a no-op when sequence is not update
 		effectIndex: 0,
 		fieldKey: 'opacity',
 		value: 0.8,
-		schema: {opacity: {type: 'number', default: 1}},
+		schema: {opacity: {type: 'number', default: 1, hiddenFromList: false}},
 	});
 
 	expect(result).toBe(previous);
@@ -78,7 +76,7 @@ test('optimisticUpdateForEffectCodeValues is a no-op when effect index not found
 		effectIndex: 0,
 		fieldKey: 'opacity',
 		value: 0.8,
-		schema: {opacity: {type: 'number', default: 1}},
+		schema: {opacity: {type: 'number', default: 1, hiddenFromList: false}},
 	});
 
 	expect(result).toBe(previous);
@@ -95,7 +93,7 @@ test('optimisticUpdateForEffectCodeValues applies when effect props are unset (z
 				callee: 'tint',
 				importPath: null,
 				props: {
-					amount: {canUpdate: true, codeValue: undefined, keyframed: false},
+					amount: {status: 'static', codeValue: undefined},
 				},
 			},
 		],
@@ -106,7 +104,7 @@ test('optimisticUpdateForEffectCodeValues applies when effect props are unset (z
 		effectIndex: 0,
 		fieldKey: 'amount',
 		value: 0.5,
-		schema: {amount: {type: 'number', default: 1}},
+		schema: {amount: {type: 'number', default: 1, hiddenFromList: false}},
 	});
 
 	if (!updated.canUpdate) {
@@ -119,8 +117,7 @@ test('optimisticUpdateForEffectCodeValues applies when effect props are unset (z
 	}
 
 	expect(effect.props.amount).toEqual({
-		canUpdate: true,
+		status: 'static',
 		codeValue: 0.5,
-		keyframed: false,
 	});
 });
