@@ -32,6 +32,7 @@ const videoSchema = {
 		default: 1,
 		description: 'Playback Rate',
 		hiddenFromList: false,
+		keyframable: false,
 	},
 	hidden: {
 		type: 'boolean',

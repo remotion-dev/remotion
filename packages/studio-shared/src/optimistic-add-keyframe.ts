@@ -3,7 +3,10 @@ import {
 	type CanUpdateSequencePropsResponse,
 	type SequenceSchema,
 } from 'remotion';
-import {getKeyframeInterpolationFunction} from './keyframe-interpolation-function';
+import {
+	getKeyframeInterpolationFunction,
+	isSchemaFieldKeyframable,
+} from './keyframe-interpolation-function';
 
 const addKeyframeToPropStatus = ({
 	status,
@@ -87,6 +90,10 @@ export const optimisticAddSequenceKeyframe = ({
 		return previous;
 	}
 
+	if (!isSchemaFieldKeyframable({schema: schema ?? null, key: fieldKey})) {
+		return previous;
+	}
+
 	const status = previous.props[fieldKey];
 	if (!status) {
 		return previous;
@@ -123,6 +130,10 @@ export const optimisticAddEffectKeyframe = ({
 	schema?: SequenceSchema;
 }): CanUpdateSequencePropsResponse => {
 	if (!previous.canUpdate) {
+		return previous;
+	}
+
+	if (!isSchemaFieldKeyframable({schema: schema ?? null, key: fieldKey})) {
 		return previous;
 	}
 

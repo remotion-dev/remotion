@@ -108,6 +108,7 @@ export {
 	getKeyframeInterpolationFunction,
 	getKeyframeInterpolationFunctionForSchemaField,
 	isKeyframeInterpolationFunction,
+	isSchemaFieldKeyframable,
 	keyframeInterpolationFunctions,
 	type KeyframeInterpolationFunction,
 } from './keyframe-interpolation-function';

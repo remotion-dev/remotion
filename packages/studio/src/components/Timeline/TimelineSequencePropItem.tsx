@@ -195,6 +195,7 @@ export const TimelineSequencePropItem: React.FC<{
 		shouldShowTimelineKeyframeControls({
 			propStatus: codeValue,
 			selected: selection.selected,
+			keyframable: field.fieldSchema.keyframable !== false,
 		}) ? (
 			<TimelineKeyframeControls
 				fieldKey={field.key}
