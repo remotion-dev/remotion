@@ -713,7 +713,7 @@ test('inserts an Img asset into the resolved composition component', async () =>
 	}
 });
 
-test('inserts an aliased Video asset if Video is already defined', async () => {
+test('rejects inserting a Video asset if Video is already defined', async () => {
 	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
 	try {
 		await fs.writeFile(
@@ -741,28 +741,20 @@ test('inserts an aliased Video asset if Video is already defined', async () => {
 			].join('\n'),
 		);
 
-		const result = await insertJsxElementIntoComposition({
-			remotionRoot: tempDir,
-			compositionFile: 'Root.tsx',
-			compositionId: 'test',
-			element: {
-				type: 'asset',
-				assetType: 'video',
-				src: 'clip.mp4',
-				dimensions: null,
-			},
-			prettierConfigOverride: {singleQuote: true, useTabs: true},
-		});
-
-		expect(result.output).toContain(
-			"import { Video as RemotionVideo } from '@remotion/media';",
-		);
-		expect(result.output).toContain(
-			"import { AbsoluteFill, staticFile } from 'remotion';",
-		);
-		expect(result.output).toContain('<RemotionVideo');
-		expect(result.output).toContain("src={staticFile('clip.mp4')}");
-		expect(result.output).toContain("position: 'absolute'");
+		await expect(
+			insertJsxElementIntoComposition({
+				remotionRoot: tempDir,
+				compositionFile: 'Root.tsx',
+				compositionId: 'test',
+				element: {
+					type: 'asset',
+					assetType: 'video',
+					src: 'clip.mp4',
+					dimensions: null,
+				},
+				prettierConfigOverride: {singleQuote: true, useTabs: true},
+			}),
+		).rejects.toThrow('Cannot add <Video> because Video is already defined');
 	} finally {
 		await fs.rm(tempDir, {recursive: true, force: true});
 	}

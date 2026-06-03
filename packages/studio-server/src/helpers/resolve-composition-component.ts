@@ -8,6 +8,7 @@ import type {
 	File,
 	FunctionDeclaration,
 	ImportDeclaration,
+	ImportSpecifier,
 	JSXAttribute,
 	JSXElement,
 	VariableDeclaration,
@@ -17,7 +18,11 @@ import type {namedTypes} from 'ast-types';
 import * as recast from 'recast';
 import {formatFileContent} from '../codemods/format-file-content';
 import {parseAst, serializeAst} from '../codemods/parse-ast';
-import {ensureNamedImport} from './imports';
+import {
+	ensureNamedImport,
+	getImportedName,
+	insertImportDeclaration,
+} from './imports';
 
 type SourceLocation = {
 	line: number;
@@ -968,75 +973,139 @@ const ensureSolidImport = (ast: File) => {
 	});
 };
 
-const getAvailableLocalName = ({
+const getImportDeclarations = ({
 	ast,
-	candidates,
+	sourcePath,
+}: {
+	ast: File;
+	sourcePath: string;
+}) => {
+	return ast.program.body.filter(
+		(node): node is ImportDeclaration =>
+			node.type === 'ImportDeclaration' &&
+			node.source.type === 'StringLiteral' &&
+			node.source.value === sourcePath,
+	);
+};
+
+const importDeclarationHasNamespaceSpecifier = (
+	importDeclaration: ImportDeclaration,
+) => {
+	return importDeclaration.specifiers?.some(
+		(specifier) => specifier.type === 'ImportNamespaceSpecifier',
+	);
+};
+
+const hasOfficialLocalImport = ({
+	ast,
+	importedName,
+	sourcePath,
+}: {
+	ast: File;
+	importedName: string;
+	sourcePath: string;
+}) => {
+	return getImportDeclarations({ast, sourcePath}).some((importDeclaration) => {
+		return importDeclaration.specifiers?.some((specifier) => {
+			return (
+				specifier.type === 'ImportSpecifier' &&
+				getImportedName(specifier) === importedName &&
+				(specifier.local?.name ?? importedName) === importedName
+			);
+		});
+	});
+};
+
+const addOfficialNamedImport = ({
+	ast,
+	importedName,
+	sourcePath,
+}: {
+	ast: File;
+	importedName: string;
+	sourcePath: string;
+}) => {
+	const existingImport = getImportDeclarations({ast, sourcePath}).find(
+		(importDeclaration) =>
+			!importDeclarationHasNamespaceSpecifier(importDeclaration),
+	);
+	const importSpecifier = recast.types.builders.importSpecifier(
+		recast.types.builders.identifier(importedName),
+	) as unknown as ImportSpecifier;
+
+	if (existingImport) {
+		existingImport.specifiers = [
+			...(existingImport.specifiers ?? []),
+			importSpecifier,
+		];
+		return;
+	}
+
+	const importDeclaration = recast.types.builders.importDeclaration(
+		[importSpecifier as never],
+		recast.types.builders.stringLiteral(sourcePath),
+	) as unknown as ImportDeclaration;
+	insertImportDeclaration(ast, importDeclaration);
+};
+
+const ensureOfficialNamedImport = ({
+	ast,
+	importedName,
+	sourcePath,
 	label,
 }: {
 	ast: File;
-	candidates: readonly string[];
+	importedName: string;
+	sourcePath: string;
 	label: string;
 }) => {
-	const available = candidates.find((candidate) => {
-		return !hasTopLevelBinding({ast, name: candidate});
-	});
-
-	if (!available) {
-		throw new Error(`Cannot add ${label} because all local names are defined`);
+	if (hasOfficialLocalImport({ast, importedName, sourcePath})) {
+		return importedName;
 	}
 
-	return available;
+	if (hasTopLevelBinding({ast, name: importedName})) {
+		throw new Error(
+			`Cannot add ${label} because ${importedName} is already defined`,
+		);
+	}
+
+	addOfficialNamedImport({ast, importedName, sourcePath});
+	return importedName;
 };
 
 const ensureStaticFileImport = (ast: File) => {
-	return ensureNamedImport({
+	return ensureOfficialNamedImport({
 		ast,
 		importedName: 'staticFile',
 		sourcePath: 'remotion',
-		localName: getAvailableLocalName({
-			ast,
-			candidates: ['staticFile', 'remotionStaticFile'],
-			label: 'staticFile()',
-		}),
+		label: 'staticFile()',
 	});
 };
 
 const ensureImgImport = (ast: File) => {
-	return ensureNamedImport({
+	return ensureOfficialNamedImport({
 		ast,
 		importedName: 'Img',
 		sourcePath: 'remotion',
-		localName: getAvailableLocalName({
-			ast,
-			candidates: ['Img', 'RemotionImg'],
-			label: '<Img>',
-		}),
+		label: '<Img>',
 	});
 };
 
 const ensureVideoImport = (ast: File) => {
-	return ensureNamedImport({
+	return ensureOfficialNamedImport({
 		ast,
 		importedName: 'Video',
 		sourcePath: '@remotion/media',
-		localName: getAvailableLocalName({
-			ast,
-			candidates: ['Video', 'RemotionVideo'],
-			label: '<Video>',
-		}),
+		label: '<Video>',
 	});
 };
 
 const ensureGifImport = (ast: File) => {
-	return ensureNamedImport({
+	return ensureOfficialNamedImport({
 		ast,
 		importedName: 'Gif',
 		sourcePath: '@remotion/gif',
-		localName: getAvailableLocalName({
-			ast,
-			candidates: ['Gif', 'RemotionGif'],
-			label: '<Gif>',
-		}),
+		label: '<Gif>',
 	});
 };
 
