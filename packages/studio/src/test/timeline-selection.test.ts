@@ -75,7 +75,7 @@ const makeTimelineSequence = ({
 	effects = [],
 	id = 'sequence',
 	overrideId = 'override',
-	parent = null,
+	parentId = null,
 	refForOutline = null,
 	duration = 100,
 	from = 0,
@@ -85,7 +85,7 @@ const makeTimelineSequence = ({
 	readonly effects?: readonly {readonly schema: SequenceSchema}[];
 	readonly id?: string;
 	readonly overrideId?: string;
-	readonly parent?: string | null;
+	readonly parentId?: string | null;
 	readonly refForOutline?: RefObject<HTMLElement | null> | null;
 	readonly duration?: number;
 	readonly from?: number;
@@ -98,7 +98,7 @@ const makeTimelineSequence = ({
 		id,
 		displayName: id,
 		documentationLink: null,
-		parent,
+		parent: parentId,
 		rootId: 'root',
 		showInTimeline: true,
 		nonce: [[0, 0]],
@@ -523,7 +523,7 @@ test('Canvas outline hit targets render nested sequences above parents', () => {
 				schema,
 				id: 'child',
 				overrideId: 'child',
-				parent: 'parent',
+				parentId: 'parent',
 				refForOutline,
 			}),
 		],
