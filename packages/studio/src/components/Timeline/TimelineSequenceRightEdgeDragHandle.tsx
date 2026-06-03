@@ -413,7 +413,6 @@ export const useTimelineSequenceFromDrag = ({
 		dragStateRef.current = null;
 		document.body.style.userSelect = '';
 		document.body.style.webkitUserSelect = '';
-		stopForcingSpecificCursor();
 		setDragging(false);
 
 		if (!dragState) {
@@ -520,7 +519,6 @@ export const useTimelineSequenceFromDrag = ({
 			};
 			document.body.style.userSelect = 'none';
 			document.body.style.webkitUserSelect = 'none';
-			forceSpecificCursor('grabbing');
 			setDragging(true);
 		},
 		[timelineDurationInFrames, windowWidth],

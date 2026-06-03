@@ -110,9 +110,8 @@ const TimelineSequenceCurrentFrame: React.FC<{
 		return {
 			...style,
 			opacity: isInRange ? 1 : 0.5,
-			...(TIMELINE_TOP_DRAG && fromCanUpdate ? {cursor: 'grab'} : {}),
 		};
-	}, [fromCanUpdate, isInRange, style]);
+	}, [isInRange, style]);
 
 	return (
 		<div
