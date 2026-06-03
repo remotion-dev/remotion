@@ -8,6 +8,7 @@ import {useIsStill} from '../../helpers/is-current-selected-still';
 import {useCachedCompositionComponentInfo} from '../../helpers/open-in-editor';
 import {callApi} from '../call-api';
 import {ContextMenu} from '../ContextMenu';
+import {importAssets, pickFilesToImport} from '../import-assets';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {showNotification} from '../Notifications/NotificationCenter';
@@ -60,6 +61,8 @@ const TimelineClearSelectionArea: React.FC<{
 	);
 	const videoConfig = Internals.useUnsafeVideoConfig();
 	const [isAddingSolid, setIsAddingSolid] = useState(false);
+	const [isAddingAsset, setIsAddingAsset] = useState(false);
+	const {previewServerState} = useContext(StudioServerConnectionCtx);
 
 	const currentCompositionId =
 		canvasContent?.type === 'composition' ? canvasContent.compositionId : null;
@@ -104,6 +107,14 @@ const TimelineClearSelectionArea: React.FC<{
 		videoConfig !== null &&
 		!isAddingSolid;
 
+	const canInsertAsset =
+		previewServerState.type === 'connected' &&
+		!window.remotion_isReadOnlyStudio &&
+		compositionComponentInfo?.canAddSequence === true &&
+		currentCompositionId !== null &&
+		compositionFile !== null &&
+		!isAddingAsset;
+
 	const insertSolid = useCallback(async () => {
 		if (
 			!canInsertSolid ||
@@ -139,6 +150,32 @@ const TimelineClearSelectionArea: React.FC<{
 		}
 	}, [canInsertSolid, compositionFile, currentCompositionId, videoConfig]);
 
+	const insertAsset = useCallback(async () => {
+		if (
+			!canInsertAsset ||
+			currentCompositionId === null ||
+			compositionFile === null
+		) {
+			return;
+		}
+
+		const files = await pickFilesToImport();
+		if (files.length === 0) {
+			return;
+		}
+
+		setIsAddingAsset(true);
+		try {
+			await importAssets({
+				files,
+				compositionFile,
+				compositionId: currentCompositionId,
+			});
+		} finally {
+			setIsAddingAsset(false);
+		}
+	}, [canInsertAsset, compositionFile, currentCompositionId]);
+
 	const contextMenuItems = useMemo((): ComboboxValue[] => {
 		return [
 			{
@@ -153,8 +190,20 @@ const TimelineClearSelectionArea: React.FC<{
 				quickSwitcherLabel: null,
 				disabled: !canInsertSolid,
 			},
+			{
+				type: 'item',
+				id: 'insert-asset',
+				label: 'Add asset',
+				value: 'insert-asset',
+				onClick: insertAsset,
+				keyHint: null,
+				leftItem: null,
+				subMenu: null,
+				quickSwitcherLabel: null,
+				disabled: !canInsertAsset,
+			},
 		];
-	}, [insertSolid, canInsertSolid]);
+	}, [insertSolid, canInsertSolid, insertAsset, canInsertAsset]);
 
 	return (
 		<ContextMenu

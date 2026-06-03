@@ -1,0 +1,217 @@
+import type {InsertableCompositionElement} from '@remotion/studio-shared';
+import {getStaticFiles} from '../api/get-static-files';
+import {writeStaticFile} from '../api/write-static-file';
+import {detectFileType, type FileType} from '../helpers/detect-file-type';
+import {callApi} from './call-api';
+import {showNotification} from './Notifications/NotificationCenter';
+
+const getAssetElement = ({
+	fileType,
+	src,
+}: {
+	fileType: FileType;
+	src: string;
+}): InsertableCompositionElement | null => {
+	if (
+		fileType.type === 'png' ||
+		fileType.type === 'jpeg' ||
+		fileType.type === 'webp' ||
+		fileType.type === 'bmp'
+	) {
+		return {
+			type: 'asset',
+			assetType: 'image',
+			src,
+			dimensions: fileType.dimensions,
+		};
+	}
+
+	if (fileType.type === 'gif') {
+		return {
+			type: 'asset',
+			assetType: 'gif',
+			src,
+			dimensions: fileType.dimensions,
+		};
+	}
+
+	if (
+		fileType.type === 'riff' ||
+		fileType.type === 'webm' ||
+		fileType.type === 'iso-base-media' ||
+		fileType.type === 'transport-stream'
+	) {
+		return {
+			type: 'asset',
+			assetType: 'video',
+			src,
+			dimensions: null,
+		};
+	}
+
+	return null;
+};
+
+const getAssetLabel = (element: InsertableCompositionElement) => {
+	if (element.type !== 'asset') {
+		throw new Error('Expected asset element');
+	}
+
+	if (element.assetType === 'image') {
+		return '<Img>';
+	}
+
+	if (element.assetType === 'video') {
+		return '<Video>';
+	}
+
+	return '<Gif>';
+};
+
+export const pickFilesToImport = (): Promise<File[]> => {
+	return new Promise((resolve) => {
+		const input = document.createElement('input');
+		input.type = 'file';
+		input.multiple = true;
+		input.style.display = 'none';
+
+		let didResolve = false;
+		const resolveOnce = (files: File[]) => {
+			if (didResolve) {
+				return;
+			}
+
+			didResolve = true;
+			input.removeEventListener('change', onChange);
+			input.removeEventListener('cancel', onCancel);
+			input.remove();
+			resolve(files);
+		};
+
+		const onChange = () => resolveOnce(Array.from(input.files ?? []));
+		const onCancel = () => resolveOnce([]);
+
+		input.addEventListener('change', onChange);
+		input.addEventListener('cancel', onCancel);
+		document.body.appendChild(input);
+		input.click();
+	});
+};
+
+export const importAssets = async ({
+	compositionFile,
+	compositionId,
+	files,
+}: {
+	compositionFile: string;
+	compositionId: string;
+	files: File[];
+}) => {
+	if (files.length === 0) {
+		return;
+	}
+
+	const staticFiles = getStaticFiles();
+	const differentExistingFile = files.find((file) => {
+		return staticFiles.some(
+			(staticFile) =>
+				staticFile.name === file.name && staticFile.sizeInBytes !== file.size,
+		);
+	});
+	if (differentExistingFile) {
+		showNotification(
+			`File with name ${differentExistingFile.name} already exists and is different`,
+			4000,
+		);
+		return;
+	}
+
+	const insertedLabels: string[] = [];
+	const addedStaticFiles: string[] = [];
+	const unsupportedFiles: string[] = [];
+	const notifyAddedStaticFiles = () => {
+		if (addedStaticFiles.length === 1) {
+			showNotification(`Created ${addedStaticFiles[0]} in public folder`, 3000);
+		} else if (addedStaticFiles.length > 1) {
+			showNotification(
+				`Added ${addedStaticFiles.length} files to public folder`,
+				3000,
+			);
+		}
+
+		addedStaticFiles.length = 0;
+	};
+
+	try {
+		for (const file of files) {
+			const contents = await file.arrayBuffer();
+			const fileType = detectFileType(new Uint8Array(contents));
+			const element = getAssetElement({
+				fileType,
+				src: file.name,
+			});
+
+			if (element === null) {
+				unsupportedFiles.push(file.name);
+				continue;
+			}
+
+			const alreadyExists = staticFiles.some(
+				(staticFile) =>
+					staticFile.name === file.name && staticFile.sizeInBytes === file.size,
+			);
+
+			if (!alreadyExists) {
+				await writeStaticFile({
+					contents,
+					filePath: file.name,
+				});
+				addedStaticFiles.push(file.name);
+			}
+
+			const result = await callApi('/api/insert-jsx-element', {
+				compositionFile,
+				compositionId,
+				element,
+			});
+
+			if (!result.success) {
+				notifyAddedStaticFiles();
+				showNotification(result.reason, 4000);
+				return;
+			}
+
+			insertedLabels.push(getAssetLabel(element));
+		}
+
+		notifyAddedStaticFiles();
+
+		if (insertedLabels.length === 1) {
+			showNotification(`Added ${insertedLabels[0]} to source file`, 2000);
+		} else if (insertedLabels.length > 1) {
+			showNotification(
+				`Added ${insertedLabels.length} assets to source file`,
+				2000,
+			);
+		}
+
+		if (unsupportedFiles.length === 1) {
+			showNotification(
+				`Cannot add ${unsupportedFiles[0]}: Unsupported file type`,
+				3000,
+			);
+		} else if (unsupportedFiles.length > 1) {
+			showNotification(
+				`Skipped ${unsupportedFiles.length} unsupported files`,
+				3000,
+			);
+		}
+	} catch (error) {
+		showNotification(
+			`Could not add asset: ${
+				error instanceof Error ? error.message : String(error)
+			}`,
+			4000,
+		);
+	}
+};
