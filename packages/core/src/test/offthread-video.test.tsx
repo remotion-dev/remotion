@@ -107,11 +107,14 @@ describe('OffthreadVideo render correctly with props', () => {
 		).not.toThrow();
 	});
 
-	test('It should render OffthreadVideo with onVideoFrameCallback prop', () => {
+	test('It should render OffthreadVideo with onVideoFrame metadata arguments', () => {
 		expect(() =>
 			render(
 				<WrapSequenceContext>
-					<OffthreadVideo src="test" onVideoFrameCallback={() => undefined} />
+					<OffthreadVideo
+						src="test"
+						onVideoFrame={(_frame, _now, _metadata) => undefined}
+					/>
 				</WrapSequenceContext>,
 			),
 		).not.toThrow();

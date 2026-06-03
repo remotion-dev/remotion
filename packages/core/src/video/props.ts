@@ -56,7 +56,7 @@ export type RemotionVideoProps = NativeVideoProps & {
 	delayRenderRetries?: number;
 	onError?: (err: Error) => void;
 	onAutoPlayError?: null | (() => void);
-	onVideoFrameCallback?: OnVideoFrameCallback;
+	onVideoFrame?: OnVideoFrame;
 	audioStreamIndex?: number;
 };
 
@@ -98,7 +98,6 @@ type OptionalOffthreadVideoProps = {
 	showInTimeline: boolean;
 	onAutoPlayError: null | (() => void);
 	onVideoFrame: OnVideoFrame | undefined;
-	onVideoFrameCallback: OnVideoFrameCallback | undefined;
 	crossOrigin: '' | 'anonymous' | 'use-credentials' | undefined;
 	audioStreamIndex: number;
 };
@@ -112,8 +111,8 @@ export type RemotionOffthreadVideoProps = MandatoryOffthreadVideoProps &
 	Partial<CommonVideoProps> &
 	Partial<DeprecatedOffthreadVideoProps>;
 
-export type OnVideoFrame = (frame: CanvasImageSource) => void;
-export type OnVideoFrameCallback = (
-	now: DOMHighResTimeStamp,
-	metadata: VideoFrameCallbackMetadata,
+export type OnVideoFrame = (
+	frame: CanvasImageSource,
+	now?: DOMHighResTimeStamp,
+	metadata?: VideoFrameCallbackMetadata,
 ) => void;

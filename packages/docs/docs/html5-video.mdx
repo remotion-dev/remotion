@@ -293,10 +293,14 @@ If you don't pass a callback, the video will be muted and be retried once.
 This prop is useful if you want to handle the error yourself, e.g. for pausing the Player.  
 Read more here about [autoplay restrictions](/docs/player/autoplay).
 
-### `onVideoFrameCallback?`<AvailableFrom v="4.0.472" />
+### `onVideoFrame?`<AvailableFrom v="4.0.472" />
 
-A callback function that gets called when the browser reports a presented video frame using [`HTMLVideoElement.requestVideoFrameCallback()`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLVideoElement/requestVideoFrameCallback).
-The callback has the same signature as `requestVideoFrameCallback()`: It receives a `DOMHighResTimeStamp` and the [`VideoFrameCallbackMetadata`](https://developer.mozilla.org/en-US/docs/Web/API/VideoFrameCallbackMetadata).
+A callback function that gets called when a frame is extracted from the video.  
+Useful for [video manipulation](/docs/video-manipulation).  
+The first argument is a [`CanvasImageSource`](https://developer.mozilla.org/en-US/docs/Web/API/CanvasImageSource), more specifically a `HTMLVideoElement`.
+
+When the browser reports a presented frame using [`HTMLVideoElement.requestVideoFrameCallback()`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLVideoElement/requestVideoFrameCallback), the callback also receives the `DOMHighResTimeStamp` and [`VideoFrameCallbackMetadata`](https://developer.mozilla.org/en-US/docs/Web/API/VideoFrameCallbackMetadata) as the second and third argument.  
+These arguments are `undefined` for the first synchronous callback and in browsers that don't support `requestVideoFrameCallback()`.
 
 ### `crossOrigin?`<AvailableFrom v="4.0.190" />
 
