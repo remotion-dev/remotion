@@ -1,4 +1,5 @@
 import {expect, test} from 'bun:test';
+import type {RefObject} from 'react';
 import {
 	Internals,
 	type CodeValues,
@@ -9,6 +10,8 @@ import {
 } from 'remotion';
 import {
 	getSelectedEffectFieldsBySequenceKey,
+	getOutlineSelectionInteraction,
+	getSequencesWithSelectableOutlines,
 	getSelectedOutlineDragChanges,
 	getSelectedOutlineDragValues,
 	getSelectedOutlineScaleDragChanges,
@@ -72,6 +75,8 @@ const makeTimelineSequence = ({
 	effects = [],
 	id = 'sequence',
 	overrideId = 'override',
+	parent = null,
+	refForOutline = null,
 	duration = 100,
 	from = 0,
 	type = 'sequence',
@@ -80,6 +85,8 @@ const makeTimelineSequence = ({
 	readonly effects?: readonly {readonly schema: SequenceSchema}[];
 	readonly id?: string;
 	readonly overrideId?: string;
+	readonly parent?: string | null;
+	readonly refForOutline?: RefObject<HTMLElement | null> | null;
 	readonly duration?: number;
 	readonly from?: number;
 	readonly type?: TSequence['type'];
@@ -91,7 +98,7 @@ const makeTimelineSequence = ({
 		id,
 		displayName: id,
 		documentationLink: null,
-		parent: null,
+		parent,
 		rootId: 'root',
 		showInTimeline: true,
 		nonce: [[0, 0]],
@@ -105,7 +112,7 @@ const makeTimelineSequence = ({
 			overrideId,
 			supportsEffects: true,
 		},
-		refForOutline: null,
+		refForOutline,
 		isInsideSeries: false,
 		effects,
 	}) as TSequence;
@@ -473,6 +480,63 @@ test('Timeline duration drag ignores selection if dragged sequence is not select
 
 test('Timeline outlines should not be enabled', () => {
 	expect(ENABLE_OUTLINES).toBe(false);
+});
+
+test('Canvas outline selection uses conventional modifier keys', () => {
+	expect(
+		getOutlineSelectionInteraction({
+			shiftKey: true,
+			metaKey: false,
+			ctrlKey: false,
+		}),
+	).toEqual({shiftKey: true, toggleKey: false});
+	expect(
+		getOutlineSelectionInteraction({
+			shiftKey: false,
+			metaKey: true,
+			ctrlKey: false,
+		}),
+	).toEqual({shiftKey: false, toggleKey: true});
+	expect(
+		getOutlineSelectionInteraction({
+			shiftKey: false,
+			metaKey: false,
+			ctrlKey: true,
+		}),
+	).toEqual({shiftKey: false, toggleKey: true});
+});
+
+test('Canvas outline hit targets render nested sequences above parents', () => {
+	const schema = {} satisfies SequenceSchema;
+	const refForOutline = {current: null};
+	const parentNodePathInfo = makeNodePathInfo(['body', 0], []);
+	const childNodePathInfo = makeNodePathInfo(['body', 0, 'children', 0], []);
+	const outlines = getSequencesWithSelectableOutlines({
+		sequences: [
+			makeTimelineSequence({
+				schema,
+				id: 'parent',
+				overrideId: 'parent',
+				refForOutline,
+			}),
+			makeTimelineSequence({
+				schema,
+				id: 'child',
+				overrideId: 'child',
+				parent: 'parent',
+				refForOutline,
+			}),
+		],
+		overrideIdsToNodePaths: {
+			parent: parentNodePathInfo.sequenceSubscriptionKey,
+			child: childNodePathInfo.sequenceSubscriptionKey,
+		},
+	});
+
+	expect(outlines.map((outline) => outline.key)).toEqual([
+		getTimelineSequenceSelectionKey(parentNodePathInfo),
+		getTimelineSequenceSelectionKey(childNodePathInfo),
+	]);
 });
 
 test('UV handles project semantic outline corners', () => {
