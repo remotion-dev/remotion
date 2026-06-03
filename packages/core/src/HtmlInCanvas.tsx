@@ -19,6 +19,7 @@ import {
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import {
 	durationInFramesField,
+	fromField,
 	hiddenField,
 	sequenceVisualStyleSchema,
 } from './sequence-field-schema.js';
@@ -616,6 +617,7 @@ HtmlInCanvasInner.displayName = 'HtmlInCanvas';
 
 const htmlInCanvasSchema = {
 	durationInFrames: durationInFramesField,
+	from: fromField,
 	...sequenceVisualStyleSchema,
 	hidden: hiddenField,
 };

@@ -116,6 +116,7 @@ import {
 } from './ResolveCompositionConfig.js';
 import {
 	durationInFramesField,
+	fromField,
 	hiddenField,
 	sequencePremountSchema,
 	sequenceSchema,
@@ -379,6 +380,7 @@ export const Internals = {
 	getEffectCodeValuesCtx,
 	hiddenField,
 	durationInFramesField,
+	fromField,
 } as const;
 
 export type {
