@@ -1026,8 +1026,7 @@ const addOfficialNamedImport = ({
 	sourcePath: string;
 }) => {
 	const existingImport = getImportDeclarations({ast, sourcePath}).find(
-		(importDeclaration) =>
-			!importDeclarationHasNamespaceSpecifier(importDeclaration),
+		(candidate) => !importDeclarationHasNamespaceSpecifier(candidate),
 	);
 	const importSpecifier = recast.types.builders.importSpecifier(
 		recast.types.builders.identifier(importedName),
