@@ -177,8 +177,16 @@ export const durationInFramesField = {
 	hiddenFromList: true,
 } as const satisfies SequenceFieldSchema;
 
+export const fromField = {
+	type: 'number',
+	default: 0,
+	step: 1,
+	hiddenFromList: true,
+} as const satisfies SequenceFieldSchema;
+
 export const sequenceSchema = {
 	hidden: hiddenField,
+	from: fromField,
 	durationInFrames: durationInFramesField,
 	layout: {
 		type: 'enum',
