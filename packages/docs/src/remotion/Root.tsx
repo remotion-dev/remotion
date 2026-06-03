@@ -220,6 +220,7 @@ export const RemotionRoot: React.FC = () => {
 						roundness: 1,
 						mode: 'color',
 						color: '#000000',
+						center: [0.5, 0.5],
 					}}
 				/>
 				<Still
