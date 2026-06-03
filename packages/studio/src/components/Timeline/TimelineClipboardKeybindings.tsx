@@ -1,6 +1,7 @@
 import {
 	parseEffectClipboardData,
 	type EffectClipboardData,
+	type EffectClipboardInterpolationFunction,
 	type EffectClipboardParam,
 	type EffectClipboardPasteType,
 	type EffectClipboardSnapshot,
@@ -119,6 +120,12 @@ type CopyableEffectStatus = React.ContextType<
 		: never
 	: never;
 
+const isClipboardInterpolationFunction = (
+	value: string,
+): value is EffectClipboardInterpolationFunction => {
+	return value === 'interpolate' || value === 'interpolateColors';
+};
+
 const effectStatusToSnapshot = (
 	effect: CopyableEffectStatus,
 ): EffectClipboardSnapshot | null => {
@@ -141,6 +148,10 @@ const effectStatusToSnapshot = (
 			}
 
 			continue;
+		}
+
+		if (!isClipboardInterpolationFunction(prop.interpolationFunction)) {
+			return null;
 		}
 
 		params[key] = {
