@@ -1890,6 +1890,15 @@ export const articles = [
 		slug: 'effects/invert',
 	},
 	{
+		id: 'effects/linear-progressive-blur',
+		title: 'linearProgressiveBlur()',
+		relativePath: 'docs/effects/linear-progressive-blur.mdx',
+		compId: 'articles-docs-effects-linear-progressive-blur',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/linear-progressive-blur',
+	},
+	{
 		id: 'effects/lines',
 		title: 'lines()',
 		relativePath: 'docs/effects/lines.mdx',

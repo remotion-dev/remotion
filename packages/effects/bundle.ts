@@ -26,6 +26,7 @@ const effectEntrypoints = [
 	'src/pixel-dissolve.ts',
 	'src/invert.ts',
 	'src/lines.ts',
+	'src/linear-progressive-blur.ts',
 	'src/mirror.ts',
 	'src/noise.ts',
 	'src/rings.ts',

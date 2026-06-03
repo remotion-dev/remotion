@@ -16,6 +16,7 @@ import {halftoneLinearGradient} from '../halftone-linear-gradient.js';
 import {halftone} from '../halftone.js';
 import {hue} from '../hue.js';
 import {invert} from '../invert.js';
+import {linearProgressiveBlur} from '../linear-progressive-blur/index.js';
 import {lines} from '../lines.js';
 import {mirror} from '../mirror.js';
 import {noise} from '../noise.js';
@@ -88,6 +89,9 @@ test('@remotion/effects expose documentation links', () => {
 	);
 	expect(lines().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/lines',
+	);
+	expect(linearProgressiveBlur().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/linear-progressive-blur',
 	);
 	expect(dotGrid().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/dot-grid',
@@ -162,6 +166,9 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(hue().definition.label).toBe('hue()');
 	expect(invert().definition.label).toBe('invert()');
 	expect(lines().definition.label).toBe('lines()');
+	expect(linearProgressiveBlur().definition.label).toBe(
+		'linearProgressiveBlur()',
+	);
 	expect(dotGrid().definition.label).toBe('dotGrid()');
 	expect(mirror().definition.label).toBe('mirror()');
 	expect(noise().definition.label).toBe('noise()');
@@ -1520,6 +1527,59 @@ test('lines() parameters produce distinct effect keys', () => {
 			shifted.effectKey,
 		]).size,
 	).toBe(7);
+});
+
+test('linearProgressiveBlur() accepts default params', () => {
+	expect(() => linearProgressiveBlur()).not.toThrow();
+});
+
+test('linearProgressiveBlur() rejects invalid start', () => {
+	expect(() =>
+		linearProgressiveBlur({
+			start: [0.5] as unknown as [number, number],
+		}),
+	).toThrow('"start" must be a [number, number] tuple');
+});
+
+test('linearProgressiveBlur() rejects invalid end', () => {
+	expect(() =>
+		linearProgressiveBlur({
+			end: [0.5, Number.NaN],
+		}),
+	).toThrow('"end" must be a [number, number] tuple');
+});
+
+test('linearProgressiveBlur() rejects non-finite blur radii', () => {
+	expect(() => linearProgressiveBlur({startBlur: Number.NaN})).toThrow(
+		'"startBlur" must be a finite number',
+	);
+	expect(() => linearProgressiveBlur({endBlur: Number.NaN})).toThrow(
+		'"endBlur" must be a finite number',
+	);
+});
+
+test('linearProgressiveBlur() clamps negative blur radii', () => {
+	const clamped = linearProgressiveBlur({startBlur: -10, endBlur: -1});
+	const zero = linearProgressiveBlur({startBlur: 0, endBlur: 0});
+	expect(clamped.effectKey).toBe(zero.effectKey);
+});
+
+test('linearProgressiveBlur() parameters produce distinct effect keys', () => {
+	const defaults = linearProgressiveBlur();
+	const shiftedStart = linearProgressiveBlur({start: [0.2, 0.5]});
+	const shiftedEnd = linearProgressiveBlur({end: [0.8, 0.5]});
+	const moreStartBlur = linearProgressiveBlur({startBlur: 12});
+	const moreEndBlur = linearProgressiveBlur({endBlur: 80});
+
+	expect(
+		new Set([
+			defaults.effectKey,
+			shiftedStart.effectKey,
+			shiftedEnd.effectKey,
+			moreStartBlur.effectKey,
+			moreEndBlur.effectKey,
+		]).size,
+	).toBe(5);
 });
 
 test('rings() accepts default params', () => {

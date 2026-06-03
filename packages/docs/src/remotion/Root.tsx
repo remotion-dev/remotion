@@ -20,6 +20,7 @@ import {EffectsHalftonePreview} from '../../components/effects/effects-halftone-
 import {EffectsHuePreview} from '../../components/effects/effects-hue-preview';
 import {EffectsInvertPreview} from '../../components/effects/effects-invert-preview';
 import {EffectsLightLeakPreview} from '../../components/effects/effects-light-leak-preview';
+import {EffectsLinearProgressiveBlurPreview} from '../../components/effects/effects-linear-progressive-blur-preview';
 import {EffectsLinesPreview} from '../../components/effects/effects-lines-preview';
 import {EffectsMirrorPreview} from '../../components/effects/effects-mirror-preview';
 import {EffectsNoisePreview} from '../../components/effects/effects-noise-preview';
@@ -281,6 +282,18 @@ export const RemotionRoot: React.FC = () => {
 					width={1280}
 					height={720}
 					defaultProps={{radius: 40, horizontal: true, vertical: true}}
+				/>
+				<Still
+					id="effects-linear-progressive-blur-preview"
+					component={EffectsLinearProgressiveBlurPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						start: [0, 0.5],
+						end: [1, 0.5],
+						startBlur: 0,
+						endBlur: 50,
+					}}
 				/>
 				<Still
 					id="effects-wave-preview"

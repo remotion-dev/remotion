@@ -288,6 +288,7 @@ const sidebars: SidebarsConfig = {
 				'effects/dot-grid',
 				'effects/invert',
 				'effects/lines',
+				'effects/linear-progressive-blur',
 				'effects/mirror',
 				'effects/noise',
 				'effects/rings',
