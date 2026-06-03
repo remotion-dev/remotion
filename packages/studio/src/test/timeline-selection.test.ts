@@ -337,6 +337,66 @@ test('Timeline duration drag is blocked if one selected sequence cannot update d
 	).toBe(null);
 });
 
+test('Timeline duration drag is blocked if one selected sequence duration is keyframed', () => {
+	const schema = {} satisfies SequenceSchema;
+	const firstNodePathInfo = makeNodePathInfo(['body', 0], []);
+	const secondNodePathInfo = makeNodePathInfo(['body', 1], []);
+	const codeValues = makeDurationCodeValues([
+		firstNodePathInfo.sequenceSubscriptionKey,
+		secondNodePathInfo.sequenceSubscriptionKey,
+	]);
+
+	codeValues[
+		Internals.makeSequencePropsSubscriptionKey(
+			secondNodePathInfo.sequenceSubscriptionKey,
+		)
+	] = {
+		canUpdate: true,
+		props: {
+			durationInFrames: {
+				status: 'keyframed',
+				codeValue: 15,
+				interpolationFunction: 'interpolate',
+				keyframes: [{frame: 0, value: 15}],
+				easing: ['linear'],
+				clamping: {left: 'clamp', right: 'clamp'},
+				posterize: undefined,
+			},
+		},
+		effects: [],
+	};
+
+	expect(
+		getTimelineSequenceDurationDragTargets({
+			draggedNodePathInfo: firstNodePathInfo,
+			selectedItems: [
+				{type: 'sequence', nodePathInfo: firstNodePathInfo},
+				{type: 'sequence', nodePathInfo: secondNodePathInfo},
+			],
+			sequences: [
+				makeTimelineSequence({
+					schema,
+					id: 'first',
+					overrideId: 'first',
+					duration: 40,
+				}),
+				makeTimelineSequence({
+					schema,
+					id: 'second',
+					overrideId: 'second',
+					duration: 15,
+					from: 10,
+				}),
+			],
+			overrideIdsToNodePaths: {
+				first: firstNodePathInfo.sequenceSubscriptionKey,
+				second: secondNodePathInfo.sequenceSubscriptionKey,
+			},
+			codeValues,
+		}),
+	).toBe(null);
+});
+
 test('Timeline duration drag ignores selection if dragged sequence is not selected', () => {
 	const schema = {} satisfies SequenceSchema;
 	const firstNodePathInfo = makeNodePathInfo(['body', 0], []);

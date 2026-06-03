@@ -61,7 +61,7 @@ const canUpdateDurationInFrames = ({
 	const status = Internals.getCodeValuesCtx(codeValues, nodePath)
 		?.durationInFrames?.status;
 
-	return status === 'static' || status === 'keyframed';
+	return status === 'static';
 };
 
 const isDurationDraggableSequence = (sequence: TSequence) => {

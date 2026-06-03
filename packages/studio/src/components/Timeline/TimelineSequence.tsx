@@ -208,8 +208,7 @@ const TimelineSequenceInner: React.FC<{
 			: undefined;
 	}, [codeValues, nodePath]);
 	const durationCanUpdate = Boolean(
-		codeValuesForOverride?.durationInFrames?.status === 'static' ||
-		codeValuesForOverride?.durationInFrames?.status === 'keyframed',
+		codeValuesForOverride?.durationInFrames?.status === 'static',
 	);
 
 	if (!video) {
