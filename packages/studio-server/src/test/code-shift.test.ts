@@ -44,3 +44,17 @@ export const Component = () => {
 };
 `);
 });
+
+test('Should resolve prettier config if override is null', async () => {
+	const {output, formatted} = await updateSequenceProps({
+		input: componentInput,
+		nodePath: lineColumnToNodePath(componentInput, 6),
+		updates: [{key: 'style.scale', value: 2, defaultValue: null}],
+		prettierConfigOverride: null,
+		schema: NoReactInternals.sequenceSchema,
+	});
+
+	expect(formatted).toBe(true);
+	expect(output).toContain('\treturn (');
+	expect(output).toContain('style={{');
+});

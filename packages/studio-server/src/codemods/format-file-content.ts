@@ -23,7 +23,7 @@ export const formatFileContent = async ({
 
 	let prettierConfig: Record<string, unknown> | null;
 
-	if (prettierConfigOverride !== undefined) {
+	if (prettierConfigOverride !== undefined && prettierConfigOverride !== null) {
 		prettierConfig = prettierConfigOverride;
 	} else {
 		const configFilePath = await resolveConfigFile();
