@@ -132,6 +132,25 @@ test('interpolates translate keyframes', () => {
 	expect(result).toBe('60px 30px');
 });
 
+test('interpolates rotate keyframes', () => {
+	const result = interpolateKeyframedStatus({
+		frame: 30,
+		status: {
+			status: 'keyframed',
+			codeValue: undefined,
+			interpolationFunction: 'interpolateRotate',
+			keyframes: [
+				{frame: 0, value: '0deg'},
+				{frame: 60, value: '120deg'},
+			],
+			easing: ['linear'],
+			clamping: {left: 'extend', right: 'extend'},
+			posterize: undefined,
+		},
+	});
+	expect(result).toBe('60deg');
+});
+
 test('uses bezier easing', () => {
 	const result = interpolateKeyframedStatus({
 		frame: 30,

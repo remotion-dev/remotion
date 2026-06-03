@@ -16,6 +16,10 @@ export type {
 	InterpolateOptions,
 } from './interpolate';
 export {
+	interpolateRotate,
+	type InterpolateRotateOptions,
+} from './interpolate-rotate';
+export {
 	interpolateTranslate,
 	type InterpolateTranslateOptions,
 } from './interpolate-translate';

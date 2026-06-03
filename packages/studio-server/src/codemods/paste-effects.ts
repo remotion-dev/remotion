@@ -35,6 +35,8 @@ type RemotionImportName =
 	| 'Easing'
 	| 'interpolate'
 	| 'interpolateColors'
+	| 'interpolateRotate'
+	| 'interpolateTranslate'
 	| 'useCurrentFrame';
 
 type RemotionLocalNames = Partial<Record<RemotionImportName, string>>;
@@ -71,7 +73,7 @@ const keyframedParamNeedsEasingImport = (
 	param: EffectClipboardKeyframedParam,
 ) => {
 	return (
-		param.interpolationFunction === 'interpolate' &&
+		param.interpolationFunction !== 'interpolateColors' &&
 		param.easing.some(isNonLinearEasing)
 	);
 };
@@ -147,7 +149,7 @@ const makeKeyframedOptions = ({
 }): ObjectExpression | null => {
 	const properties: ObjectProperty[] = [];
 
-	if (param.interpolationFunction === 'interpolate') {
+	if (param.interpolationFunction !== 'interpolateColors') {
 		if (param.clamping.left !== 'extend') {
 			properties.push(
 				b.objectProperty(

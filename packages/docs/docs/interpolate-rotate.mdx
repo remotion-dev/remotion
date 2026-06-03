@@ -1,0 +1,76 @@
+---
+image: /generated/articles-docs-interpolate-rotate.png
+title: interpolateRotate()
+id: interpolate-rotate
+crumb: 'API'
+---
+
+# interpolateRotate()<AvailableFrom v="4.0.472" />
+
+Allows you to map a range of values to CSS rotate values using degree units.
+
+## API
+
+Takes three to four arguments:
+
+1. The input value.
+2. The range of values that you expect the input to assume.
+3. The range of output rotate values that you want the input to map to.
+4. Options object. Optional.
+
+`inputRange` and `outputRange` must have the same length and at least one rotate value.
+With one rotate value, `interpolateRotate()` always returns the only output value.
+
+Rotate values must be `deg` values, for example `0deg`, `-45deg`, or `180.5deg`.
+
+## Returns
+
+A CSS rotate value using `deg` units.
+
+## Example
+
+```tsx twoslash
+import {interpolateRotate, useCurrentFrame} from 'remotion';
+
+const frame = useCurrentFrame();
+
+const rotate = interpolateRotate(frame, [0, 30], ['0deg', '90deg']);
+```
+
+This returns `45deg` at frame `15`.
+
+You can use the value with the CSS `rotate` property:
+
+```tsx twoslash
+import {interpolateRotate, useCurrentFrame} from 'remotion';
+
+export const MyComposition: React.FC = () => {
+  const frame = useCurrentFrame();
+  const rotate = interpolateRotate(frame, [0, 30], ['0deg', '90deg']);
+
+  return <div style={{rotate}}>Hello</div>;
+};
+```
+
+## Supported units
+
+Only `deg` values are supported.
+Other CSS angle units such as `rad`, `grad`, `turn`, or unitless values will throw an error.
+
+## Options
+
+The options are the same as [`interpolate()`](/docs/interpolate):
+
+- [`extrapolateLeft`](/docs/interpolate#extrapolateleft)
+- [`extrapolateRight`](/docs/interpolate#extrapolateright)
+- [`easing`](/docs/interpolate#easing)
+- [`posterize`](/docs/interpolate#posterize)
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/interpolate-rotate.ts)
+- [interpolate()](/docs/interpolate)
