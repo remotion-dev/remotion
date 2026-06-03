@@ -11,6 +11,7 @@ import type {
 	UnaryExpression,
 } from '@babel/types';
 import {RenderInternals} from '@remotion/renderer';
+import {isKeyframeInterpolationFunction} from '@remotion/studio-shared';
 import type {SubscribeToSequencePropsResponse} from '@remotion/studio-shared';
 import * as recast from 'recast';
 import type {
@@ -410,8 +411,7 @@ const getInterpolationKeyframes = (
 	const callExpression = node as CallExpression;
 	if (
 		callExpression.callee.type !== 'Identifier' ||
-		(callExpression.callee.name !== 'interpolate' &&
-			callExpression.callee.name !== 'interpolateColors')
+		!isKeyframeInterpolationFunction(callExpression.callee.name)
 	) {
 		return undefined;
 	}

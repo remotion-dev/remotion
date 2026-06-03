@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import type {CanUpdateSequencePropsResponse} from 'remotion';
+import type {CanUpdateSequencePropsResponse, SequenceSchema} from 'remotion';
 import {
 	optimisticAddEffectKeyframe,
 	optimisticAddSequenceKeyframe,
@@ -35,6 +35,45 @@ test('optimisticAddSequenceKeyframe converts a static prop to a single keyframe'
 
 	expect(status.keyframes).toEqual([{frame: 25, value: 0.75}]);
 	expect(status.easing).toEqual([]);
+});
+
+test('optimisticAddSequenceKeyframe uses interpolateTranslate for translate fields', () => {
+	const previous: CanUpdateSequencePropsResponse = {
+		canUpdate: true,
+		props: {
+			'style.translate': {
+				status: 'static',
+				codeValue: '0px 59px',
+			},
+		},
+		effects: [],
+	};
+	const schema = {
+		'style.translate': {
+			type: 'translate',
+			default: '0px 0px',
+		},
+	} satisfies SequenceSchema;
+
+	const updated = optimisticAddSequenceKeyframe({
+		previous,
+		fieldKey: 'style.translate',
+		frame: 44,
+		value: '0px 59px',
+		schema,
+	});
+
+	if (!updated.canUpdate) {
+		throw new Error('expected updateable sequence');
+	}
+
+	const status = updated.props['style.translate'];
+	if (!status || status.status !== 'keyframed') {
+		throw new Error('expected keyframed status');
+	}
+
+	expect(status.interpolationFunction).toBe('interpolateTranslate');
+	expect(status.keyframes).toEqual([{frame: 44, value: '0px 59px'}]);
 });
 
 test('optimisticAddSequenceKeyframe appends a keyframe to an existing interpolation', () => {
