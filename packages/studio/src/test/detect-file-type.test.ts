@@ -1,0 +1,47 @@
+import {expect, test} from 'bun:test';
+import {detectFileType} from '../helpers/detect-file-type';
+
+test('detects PNG dimensions', () => {
+	const png = new Uint8Array(24);
+	png.set([0x89, 0x50, 0x4e, 0x47, 13, 10, 26, 10], 0);
+	png.set([0, 0, 0, 13], 8);
+	png.set([0x49, 0x48, 0x44, 0x52], 12);
+	png.set([0, 0, 7, 128], 16);
+	png.set([0, 0, 4, 56], 20);
+
+	expect(detectFileType(png)).toEqual({
+		type: 'png',
+		dimensions: {
+			width: 1920,
+			height: 1080,
+		},
+	});
+});
+
+test('detects GIF dimensions', () => {
+	const gif = new Uint8Array([
+		0x47, 0x49, 0x46, 0x38, 0x39, 0x61, 0x20, 0x03, 0x58, 0x02,
+	]);
+
+	expect(detectFileType(gif)).toEqual({
+		type: 'gif',
+		dimensions: {
+			width: 800,
+			height: 600,
+		},
+	});
+});
+
+test('detects iso base media and WebM files as videos', () => {
+	const mp4 = new Uint8Array([0, 0, 0, 24, 0x66, 0x74, 0x79, 0x70]);
+	const webm = new Uint8Array([0x1a, 0x45, 0xdf, 0xa3]);
+
+	expect(detectFileType(mp4)).toEqual({type: 'iso-base-media'});
+	expect(detectFileType(webm)).toEqual({type: 'webm'});
+});
+
+test('returns unknown for unsupported signatures', () => {
+	expect(detectFileType(new Uint8Array([1, 2, 3, 4]))).toEqual({
+		type: 'unknown',
+	});
+});

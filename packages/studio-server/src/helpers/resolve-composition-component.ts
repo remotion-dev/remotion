@@ -8,6 +8,7 @@ import type {
 	File,
 	FunctionDeclaration,
 	ImportDeclaration,
+	ImportSpecifier,
 	JSXAttribute,
 	JSXElement,
 	VariableDeclaration,
@@ -17,7 +18,11 @@ import type {namedTypes} from 'ast-types';
 import * as recast from 'recast';
 import {formatFileContent} from '../codemods/format-file-content';
 import {parseAst, serializeAst} from '../codemods/parse-ast';
-import {ensureNamedImport} from './imports';
+import {
+	ensureNamedImport,
+	getImportedName,
+	insertImportDeclaration,
+} from './imports';
 
 type SourceLocation = {
 	line: number;
@@ -728,6 +733,38 @@ const createNumberAttribute = (
 	);
 };
 
+const createPositionAbsoluteStyleAttribute = (): namedTypes.JSXAttribute => {
+	return recast.types.builders.jsxAttribute(
+		recast.types.builders.jsxIdentifier('style'),
+		recast.types.builders.jsxExpressionContainer(
+			recast.types.builders.objectExpression([
+				recast.types.builders.objectProperty(
+					recast.types.builders.identifier('position'),
+					recast.types.builders.stringLiteral('absolute'),
+				),
+			]),
+		),
+	);
+};
+
+const createStaticFileSrcAttribute = ({
+	staticFileLocalName,
+	src,
+}: {
+	staticFileLocalName: string;
+	src: string;
+}): namedTypes.JSXAttribute => {
+	return recast.types.builders.jsxAttribute(
+		recast.types.builders.jsxIdentifier('src'),
+		recast.types.builders.jsxExpressionContainer(
+			recast.types.builders.callExpression(
+				recast.types.builders.identifier(staticFileLocalName),
+				[recast.types.builders.stringLiteral(src)],
+			),
+		),
+	);
+};
+
 const createSolidElement = ({
 	localName,
 	width,
@@ -743,17 +780,38 @@ const createSolidElement = ({
 			[
 				createNumberAttribute('width', width),
 				createNumberAttribute('height', height),
-				recast.types.builders.jsxAttribute(
-					recast.types.builders.jsxIdentifier('style'),
-					recast.types.builders.jsxExpressionContainer(
-						recast.types.builders.objectExpression([
-							recast.types.builders.objectProperty(
-								recast.types.builders.identifier('position'),
-								recast.types.builders.stringLiteral('absolute'),
-							),
-						]),
-					),
-				),
+				createPositionAbsoluteStyleAttribute(),
+			],
+			true,
+		),
+		null,
+		[],
+	);
+};
+
+const createAssetElement = ({
+	localName,
+	staticFileLocalName,
+	src,
+	dimensions,
+}: {
+	localName: string;
+	staticFileLocalName: string;
+	src: string;
+	dimensions: {width: number; height: number} | null;
+}): namedTypes.JSXElement => {
+	return recast.types.builders.jsxElement(
+		recast.types.builders.jsxOpeningElement(
+			recast.types.builders.jsxIdentifier(localName),
+			[
+				createStaticFileSrcAttribute({staticFileLocalName, src}),
+				createPositionAbsoluteStyleAttribute(),
+				...(dimensions
+					? [
+							createNumberAttribute('width', dimensions.width),
+							createNumberAttribute('height', dimensions.height),
+						]
+					: []),
 			],
 			true,
 		),
@@ -915,6 +973,141 @@ const ensureSolidImport = (ast: File) => {
 	});
 };
 
+const getImportDeclarations = ({
+	ast,
+	sourcePath,
+}: {
+	ast: File;
+	sourcePath: string;
+}) => {
+	return ast.program.body.filter(
+		(node): node is ImportDeclaration =>
+			node.type === 'ImportDeclaration' &&
+			node.source.type === 'StringLiteral' &&
+			node.source.value === sourcePath,
+	);
+};
+
+const importDeclarationHasNamespaceSpecifier = (
+	importDeclaration: ImportDeclaration,
+) => {
+	return importDeclaration.specifiers?.some(
+		(specifier) => specifier.type === 'ImportNamespaceSpecifier',
+	);
+};
+
+const hasOfficialLocalImport = ({
+	ast,
+	importedName,
+	sourcePath,
+}: {
+	ast: File;
+	importedName: string;
+	sourcePath: string;
+}) => {
+	return getImportDeclarations({ast, sourcePath}).some((importDeclaration) => {
+		return importDeclaration.specifiers?.some((specifier) => {
+			return (
+				specifier.type === 'ImportSpecifier' &&
+				getImportedName(specifier) === importedName &&
+				(specifier.local?.name ?? importedName) === importedName
+			);
+		});
+	});
+};
+
+const addOfficialNamedImport = ({
+	ast,
+	importedName,
+	sourcePath,
+}: {
+	ast: File;
+	importedName: string;
+	sourcePath: string;
+}) => {
+	const existingImport = getImportDeclarations({ast, sourcePath}).find(
+		(candidate) => !importDeclarationHasNamespaceSpecifier(candidate),
+	);
+	const importSpecifier = recast.types.builders.importSpecifier(
+		recast.types.builders.identifier(importedName),
+	) as unknown as ImportSpecifier;
+
+	if (existingImport) {
+		existingImport.specifiers = [
+			...(existingImport.specifiers ?? []),
+			importSpecifier,
+		];
+		return;
+	}
+
+	const importDeclaration = recast.types.builders.importDeclaration(
+		[importSpecifier as never],
+		recast.types.builders.stringLiteral(sourcePath),
+	) as unknown as ImportDeclaration;
+	insertImportDeclaration(ast, importDeclaration);
+};
+
+const ensureOfficialNamedImport = ({
+	ast,
+	importedName,
+	sourcePath,
+	label,
+}: {
+	ast: File;
+	importedName: string;
+	sourcePath: string;
+	label: string;
+}) => {
+	if (hasOfficialLocalImport({ast, importedName, sourcePath})) {
+		return importedName;
+	}
+
+	if (hasTopLevelBinding({ast, name: importedName})) {
+		throw new Error(
+			`Cannot add ${label} because ${importedName} is already defined`,
+		);
+	}
+
+	addOfficialNamedImport({ast, importedName, sourcePath});
+	return importedName;
+};
+
+const ensureStaticFileImport = (ast: File) => {
+	return ensureOfficialNamedImport({
+		ast,
+		importedName: 'staticFile',
+		sourcePath: 'remotion',
+		label: 'staticFile()',
+	});
+};
+
+const ensureImgImport = (ast: File) => {
+	return ensureOfficialNamedImport({
+		ast,
+		importedName: 'Img',
+		sourcePath: 'remotion',
+		label: '<Img>',
+	});
+};
+
+const ensureVideoImport = (ast: File) => {
+	return ensureOfficialNamedImport({
+		ast,
+		importedName: 'Video',
+		sourcePath: '@remotion/media',
+		label: '<Video>',
+	});
+};
+
+const ensureGifImport = (ast: File) => {
+	return ensureOfficialNamedImport({
+		ast,
+		importedName: 'Gif',
+		sourcePath: '@remotion/gif',
+		label: '<Gif>',
+	});
+};
+
 const addElementToComponentRoot = ({
 	ast,
 	exportName,
@@ -956,7 +1149,7 @@ const addElementToComponentRoot = ({
 		CANVAS_ROOT_ELEMENTS.includes(rootNode.openingElement.name.name)
 	) {
 		throw new Error(
-			`Cannot insert a <Solid> into a composition whose root element is <${rootNode.openingElement.name.name}>`,
+			`Cannot insert a JSX element into a composition whose root element is <${rootNode.openingElement.name.name}>`,
 		);
 	}
 
@@ -1236,6 +1429,23 @@ const createInsertableJsxElement = ({
 			localName: solidLocalName,
 			width: element.width,
 			height: element.height,
+		});
+	}
+
+	if (element.type === 'asset') {
+		const staticFileLocalName = ensureStaticFileImport(ast);
+		const localName =
+			element.assetType === 'image'
+				? ensureImgImport(ast)
+				: element.assetType === 'video'
+					? ensureVideoImport(ast)
+					: ensureGifImport(ast);
+
+		return createAssetElement({
+			localName,
+			staticFileLocalName,
+			src: element.src,
+			dimensions: element.dimensions,
 		});
 	}
 
