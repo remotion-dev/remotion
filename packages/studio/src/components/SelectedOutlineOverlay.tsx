@@ -1067,13 +1067,6 @@ const SelectedOutlinePolygon: React.FC<{
 			strokeWidth={2}
 			vectorEffect="non-scaling-stroke"
 			pointerEvents={target === undefined ? undefined : 'all'}
-			cursor={
-				target === undefined
-					? undefined
-					: selected && drag !== null
-						? 'move'
-						: 'pointer'
-			}
 			onPointerEnter={() => onHoverChange(outline.key)}
 			onPointerLeave={() => onHoverChange(null)}
 			onPointerDown={onPointerDown}
