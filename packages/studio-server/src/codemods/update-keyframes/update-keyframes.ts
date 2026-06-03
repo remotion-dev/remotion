@@ -532,6 +532,42 @@ const getObjectExpression = (attr: JSXAttribute): ObjectExpression | null => {
 	return attr.value.expression as ObjectExpression;
 };
 
+const createJsxExpressionAttribute = (
+	key: string,
+	expression: ExpressionKind,
+): JSXAttribute => {
+	return b.jsxAttribute(
+		b.jsxIdentifier(key),
+		b.jsxExpressionContainer(expression),
+	) as JSXAttribute;
+};
+
+const createObjectProperty = (key: string, value: ExpressionKind) =>
+	b.objectProperty(b.identifier(key), value);
+
+const createObjectExpressionAttribute = ({
+	parentKey,
+	childKey,
+	expression,
+}: {
+	parentKey: string;
+	childKey: string;
+	expression: ExpressionKind;
+}): JSXAttribute => {
+	return createJsxExpressionAttribute(
+		parentKey,
+		b.objectExpression([
+			createObjectProperty(childKey, expression),
+		]) as ExpressionKind,
+	);
+};
+
+const createMissingPropExpression = (
+	missingPropInitialValue: MissingPropInitialValue,
+): Expression => {
+	return parseValueExpression(missingPropInitialValue.value) as Expression;
+};
+
 const getSequenceWritableProp = ({
 	attributes,
 	key,
@@ -547,16 +583,9 @@ const getSequenceWritableProp = ({
 		if (!topLevelAttr) {
 			if (missingPropInitialValue) {
 				return {
-					expression: parseValueExpression(
-						missingPropInitialValue.value,
-					) as Expression,
+					expression: createMissingPropExpression(missingPropInitialValue),
 					setExpression: (nextExpression) => {
-						attributes.push(
-							b.jsxAttribute(
-								b.jsxIdentifier(key),
-								b.jsxExpressionContainer(nextExpression),
-							) as JSXAttribute,
-						);
+						attributes.push(createJsxExpressionAttribute(key, nextExpression));
 					},
 				};
 			}
@@ -589,19 +618,14 @@ const getSequenceWritableProp = ({
 	if (!parentAttr) {
 		if (missingPropInitialValue) {
 			return {
-				expression: parseValueExpression(
-					missingPropInitialValue.value,
-				) as Expression,
+				expression: createMissingPropExpression(missingPropInitialValue),
 				setExpression: (nextExpression) => {
 					attributes.push(
-						b.jsxAttribute(
-							b.jsxIdentifier(parentKey),
-							b.jsxExpressionContainer(
-								b.objectExpression([
-									b.objectProperty(b.identifier(childKey), nextExpression),
-								]),
-							),
-						) as JSXAttribute,
+						createObjectExpressionAttribute({
+							parentKey,
+							childKey,
+							expression: nextExpression,
+						}),
 					);
 				},
 			};
@@ -619,15 +643,10 @@ const getSequenceWritableProp = ({
 	if (!prop) {
 		if (missingPropInitialValue) {
 			return {
-				expression: parseValueExpression(
-					missingPropInitialValue.value,
-				) as Expression,
+				expression: createMissingPropExpression(missingPropInitialValue),
 				setExpression: (nextExpression) => {
 					objExpr.properties.push(
-						b.objectProperty(
-							b.identifier(childKey),
-							nextExpression,
-						) as ObjectProperty,
+						createObjectProperty(childKey, nextExpression) as ObjectProperty,
 					);
 				},
 			};
