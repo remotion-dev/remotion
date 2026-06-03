@@ -1,7 +1,14 @@
 import {expect, test} from 'bun:test';
-import type {SequencePropsSubscriptionKey, TSequence} from 'remotion';
+import {Internals, type CodeValues} from 'remotion';
+import type {
+	CanUpdateSequencePropStatusKeyframed,
+	SequencePropsSubscriptionKey,
+	TSequence,
+} from 'remotion';
+import {getNodeKeyframes} from '../components/Timeline/get-node-keyframes';
 import {getTimelineKeyframes} from '../components/Timeline/get-timeline-keyframes';
 import {calculateTimeline} from '../helpers/calculate-timeline';
+import type {TimelineTreeNode} from '../helpers/timeline-layout';
 
 const getStack = () => null;
 
@@ -52,6 +59,94 @@ const makeSequence = ({
 	postmountDisplay: null,
 	controls: overrideId ? makeControls(overrideId) : null,
 	effects: [],
+});
+
+const numberFieldSchema = {
+	type: 'number',
+	default: 1,
+	hiddenFromList: false,
+} as const;
+
+const makeKeyframedStatus = (): CanUpdateSequencePropStatusKeyframed => ({
+	status: 'keyframed',
+	codeValue: undefined,
+	interpolationFunction: 'interpolate',
+	keyframes: [
+		{frame: 0, value: 2},
+		{frame: 60, value: 4},
+	],
+	easing: ['linear'],
+	clamping: {left: 'extend', right: 'extend'},
+	posterize: undefined,
+});
+
+const makeSequenceFieldNode = (key: string): TimelineTreeNode => ({
+	kind: 'field',
+	label: key,
+	nodePathInfo: {
+		sequenceSubscriptionKey: makeNodePath('sequence'),
+		auxiliaryKeys: ['controls', key],
+		index: 0,
+		numberOfSequencesWithThisNodePath: 1,
+		supportsEffects: true,
+	},
+	field: {
+		kind: 'sequence-field',
+		key,
+		description: undefined,
+		typeName: 'number',
+		rowHeight: 22,
+		fieldSchema: numberFieldSchema,
+	},
+});
+
+const makeEffectFieldNode = (
+	key: string,
+	effectIndex: number,
+): TimelineTreeNode => ({
+	kind: 'field',
+	label: key,
+	nodePathInfo: {
+		sequenceSubscriptionKey: makeNodePath('sequence'),
+		auxiliaryKeys: ['effects', String(effectIndex), key],
+		index: 0,
+		numberOfSequencesWithThisNodePath: 1,
+		supportsEffects: true,
+	},
+	field: {
+		kind: 'effect-field',
+		key,
+		description: undefined,
+		typeName: 'number',
+		rowHeight: 22,
+		fieldSchema: numberFieldSchema,
+		effectIndex,
+		effectSchema: {
+			[key]: numberFieldSchema,
+		},
+	},
+});
+
+const makeCodeValues = (
+	nodePath: SequencePropsSubscriptionKey,
+): CodeValues => ({
+	[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+		canUpdate: true,
+		props: {
+			'style.scale': makeKeyframedStatus(),
+		},
+		effects: [
+			{
+				canUpdate: true,
+				effectIndex: 0,
+				callee: 'blur',
+				importPath: null,
+				props: {
+					amount: makeKeyframedStatus(),
+				},
+			},
+		],
+	},
 });
 
 test('keyframe display offsets follow the parent sequence context', () => {
@@ -131,5 +226,44 @@ test('keyframe display offsets follow the parent sequence context', () => {
 	).toEqual([
 		{frame: 30, value: 2},
 		{frame: 90, value: 4},
+	]);
+});
+
+test('getNodeKeyframes shows a temporary sequence keyframe from drag overrides', () => {
+	const nodePath = makeNodePath('sequence');
+
+	expect(
+		getNodeKeyframes({
+			node: makeSequenceFieldNode('style.scale'),
+			nodePath,
+			codeValues: makeCodeValues(nodePath),
+			keyframeDisplayOffset: 30,
+			getDragOverrides: () => ({'style.scale': 3}),
+			getEffectDragOverrides: () => ({}),
+			timelinePosition: 60,
+		}),
+	).toEqual([
+		{frame: 30, value: 2},
+		{frame: 60, value: 3},
+		{frame: 90, value: 4},
+	]);
+});
+
+test('getNodeKeyframes shows a temporary effect keyframe from drag overrides', () => {
+	const nodePath = makeNodePath('sequence');
+
+	expect(
+		getNodeKeyframes({
+			node: makeEffectFieldNode('amount', 0),
+			nodePath,
+			codeValues: makeCodeValues(nodePath),
+			keyframeDisplayOffset: 30,
+			getDragOverrides: () => ({}),
+			getEffectDragOverrides: () => ({amount: 5}),
+			timelinePosition: 90,
+		}),
+	).toEqual([
+		{frame: 30, value: 2},
+		{frame: 90, value: 5},
 	]);
 });
