@@ -20,7 +20,7 @@ import {ModalsContext} from '../../state/modals';
 import {ContextMenu} from '../ContextMenu';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {callAddSequenceKeyframe} from './call-add-keyframe';
-import {saveSequenceProp} from './save-sequence-prop';
+import {saveSequenceProps} from './save-sequence-prop';
 import {timelineFieldValueColumnStyle} from './timeline-field-row-layout';
 import {TimelineExpandArrowSpacer} from './TimelineExpandArrowButton';
 import {TimelineFieldLabel} from './TimelineFieldLabel';
@@ -113,6 +113,7 @@ const Value: React.FC<{
 					: null;
 
 			const stringifiedValue = JSON.stringify(value);
+			const fieldLabel = field.description ?? field.key;
 
 			if (value === codeValue.codeValue) {
 				return Promise.resolve();
@@ -125,20 +126,27 @@ const Value: React.FC<{
 				return Promise.resolve();
 			}
 
-			return saveSequenceProp({
-				fileName: validatedLocation.source,
-				nodePath,
-				fieldKey: field.key,
-				value,
-				defaultValue,
-				schema,
+			return saveSequenceProps({
+				changes: [
+					{
+						fileName: validatedLocation.source,
+						nodePath,
+						fieldKey: field.key,
+						value,
+						defaultValue,
+						schema,
+					},
+				],
 				setCodeValues,
 				clientId,
+				undoLabel: `Update ${fieldLabel}`,
+				redoLabel: `Update ${fieldLabel} again`,
 			});
 		},
 		[
 			codeValue,
 			clientId,
+			field.description,
 			field.fieldSchema.default,
 			field.key,
 			nodePath,
@@ -292,20 +300,28 @@ export const TimelineSequencePropItem: React.FC<{
 			field.fieldSchema.default !== undefined
 				? JSON.stringify(field.fieldSchema.default)
 				: null;
+		const fieldLabel = field.description ?? field.key;
 
-		saveSequenceProp({
-			fileName: validatedLocation.source,
-			nodePath,
-			fieldKey: field.key,
-			value: field.fieldSchema.default,
-			defaultValue,
-			schema,
+		saveSequenceProps({
+			changes: [
+				{
+					fileName: validatedLocation.source,
+					nodePath,
+					fieldKey: field.key,
+					value: field.fieldSchema.default,
+					defaultValue,
+					schema,
+				},
+			],
 			setCodeValues,
 			clientId: previewServerState.clientId,
+			undoLabel: `Reset ${fieldLabel}`,
+			redoLabel: `Reapply ${fieldLabel}`,
 		});
 	}, [
 		canResetToDefault,
 		canShowReset,
+		field.description,
 		field.fieldSchema.default,
 		field.key,
 		nodePath,

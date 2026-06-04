@@ -291,8 +291,8 @@ export type SaveSequencePropEdit = {
 export type SaveSequencePropsRequest = {
 	edits: SaveSequencePropEdit[];
 	clientId: string;
-	undoLabel: string | null;
-	redoLabel: string | null;
+	undoLabel: string;
+	redoLabel: string;
 };
 
 export type SaveSequencePropsResult = {
