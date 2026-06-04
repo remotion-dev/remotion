@@ -232,9 +232,15 @@ When needing to visualize audio (spectrum bars, waveforms, bass-reactive effects
 
 When needing to use sound effects, load the [./rules/sfx.md](./rules/sfx.md) file for more information.
 
-## Visual effects
+## Visual and pixel effects
 
-When needing a canvas/WebGL visual effect, only use a listed effect if it matches the requested look. Load [rules/effects.md](rules/effects.md) before using one. Docs: https://www.remotion.dev/docs/effects
+When creating a visual effect, choose the simplest fitting approach:
+
+1. If the look can be achieved with normal Remotion components, HTML, CSS, SVG, masks, filters, blending, or animation, use that first.
+2. If pixel manipulation is useful and a listed effect matches the requested look, load [rules/effects.md](rules/effects.md). Existing effects can also be applied to HTML rendered through `<HtmlInCanvas>`.
+3. If no existing effect fits and custom pixel manipulation is needed, load [rules/html-in-canvas.md](rules/html-in-canvas.md) and use `<HtmlInCanvas>` with a custom `onPaint` handler.
+
+For light leak overlays, see [rules/light-leaks.md](rules/light-leaks.md). Docs: https://www.remotion.dev/docs/effects
 
 Available effects: `barrelDistortion()`, `blur()`, `brightness()`, `chromaticAberration()`, `colorKey()`, `contrast()`, `dotGrid()`, `dropShadow()`, `duotone()`, `evolve()`, `fisheye()`, `glow()`, `grayscale()`, `halftone()`, `halftoneLinearGradient()`, `hue()`, `invert()`, `lightLeak()`, `linearProgressiveBlur()`, `lines()`, `mirror()`, `noise()`, `pixelDissolve()`, `rings()`, `saturation()`, `scale()`, `scanlines()`, `shine()`, `speckle()`, `starburst()`, `tint()`, `uvTranslate()`, `vignette()`, `wave()`, `waves()`, `whiteNoise()`, `xyTranslate()`, `zigzag()`.
 
@@ -282,17 +288,9 @@ See [rules/gifs.md](rules/gifs.md) for how to display GIFs synchronized with Rem
 
 See [rules/images.md](rules/images.md) for sizing and positioning images, dynamic image paths, and getting image dimensions.
 
-## Light leaks
-
-See [rules/light-leaks.md](rules/light-leaks.md) for light leak overlay effects using `@remotion/light-leaks`.
-
 ## Lottie animations
 
 See [rules/lottie.md](rules/lottie.md) for embedding Lottie animations in Remotion.
-
-## HTML in canvas
-
-See [rules/html-in-canvas.md](rules/html-in-canvas.md) if you need to render HTML into a `<canvas>` to apply 2D or WebGL effects via `<HtmlInCanvas>`.
 
 ## Measuring DOM nodes
 

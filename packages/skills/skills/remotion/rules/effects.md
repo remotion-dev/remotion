@@ -9,6 +9,14 @@ Use this rule only when the user asks for a visual effect that matches one of th
 
 Docs: https://www.remotion.dev/docs/effects
 
+## Choosing an approach
+
+Prefer normal Remotion components, HTML, CSS, SVG, masks, filters, blending, and animation when they can create the requested look without pixel manipulation.
+
+If pixel manipulation is useful, use an existing effect from this list when it fits. To apply an existing effect to HTML, render the HTML through `<HtmlInCanvas>` and pass the effect in its `effects` prop.
+
+Use `<HtmlInCanvas onPaint>` with custom canvas or WebGL code as a last resort when the requested effect is too specific or complex for HTML/CSS and no existing effect matches.
+
 ## Usage
 
 Install the package that provides the chosen effect:
