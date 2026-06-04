@@ -1,19 +1,25 @@
 import React, {useCallback, useContext, useMemo} from 'react';
 import {useVideoConfig} from 'remotion';
-import {BLUE, LIGHT_TEXT} from '../../helpers/colors';
+import {LIGHT_TEXT} from '../../helpers/colors';
 import {getXPositionOfItemInTimelineImperatively} from '../../helpers/get-left-of-timeline-slider';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
+import {TimelineKeyframeDiamondIcon} from './TimelineKeyframeDiamondIcon';
 import {useTimelineKeyframeSelection} from './TimelineSelection';
 import {TimelineWidthContext} from './TimelineWidthProvider';
 
+const diamondSize = 12;
+
 const diamondBase: React.CSSProperties = {
+	alignItems: 'center',
+	background: 'none',
+	border: 'none',
+	display: 'flex',
+	height: diamondSize,
+	justifyContent: 'center',
+	padding: 0,
 	position: 'absolute',
-	width: 8,
-	height: 8,
-	backgroundColor: LIGHT_TEXT,
-	borderRadius: 1,
-	boxShadow: '0 0 0 1px rgba(0, 0, 0, 0.4)',
+	width: diamondSize,
 };
 
 const TimelineKeyframeDiamondUnmemoized: React.FC<{
@@ -35,9 +41,6 @@ const TimelineKeyframeDiamondUnmemoized: React.FC<{
 
 		return {
 			...diamondBase,
-			backgroundColor: LIGHT_TEXT,
-			outline: selected ? '2px solid ' + BLUE : 'none',
-			border: 'none',
 			cursor: 'pointer',
 			left:
 				getXPositionOfItemInTimelineImperatively(
@@ -45,12 +48,11 @@ const TimelineKeyframeDiamondUnmemoized: React.FC<{
 					videoConfig.durationInFrames,
 					timelineWidth,
 				) - TIMELINE_PADDING,
-			padding: 0,
 			pointerEvents: 'auto',
 			top: rowHeight / 2,
-			transform: 'translate(-50%, -50%) rotate(45deg)',
+			transform: 'translate(-50%, -50%)',
 		};
-	}, [frame, rowHeight, selected, timelineWidth, videoConfig.durationInFrames]);
+	}, [frame, rowHeight, timelineWidth, videoConfig.durationInFrames]);
 
 	const onPointerDown = useCallback(
 		(e: React.PointerEvent<HTMLButtonElement>) => {
@@ -76,7 +78,13 @@ const TimelineKeyframeDiamondUnmemoized: React.FC<{
 			title={`Keyframe at frame ${frame}`}
 			aria-label={`Select keyframe at frame ${frame}`}
 			onPointerDown={selectable ? onPointerDown : undefined}
-		/>
+		>
+			<TimelineKeyframeDiamondIcon
+				color={LIGHT_TEXT}
+				selected={selected}
+				size={diamondSize}
+			/>
+		</button>
 	);
 };
 
