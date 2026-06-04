@@ -3,6 +3,7 @@ import React, {useCallback, useContext, useMemo} from 'react';
 import type {
 	CanUpdateSequencePropStatus,
 	CanUpdateSequencePropStatusKeyframed,
+	DragOverrideValue,
 	SequencePropsSubscriptionKey,
 	SequenceSchema,
 } from 'remotion';
@@ -81,13 +82,15 @@ const getCurrentKeyframeValue = ({
 	propStatus: CanUpdateSequencePropStatus;
 	jsxFrame: number;
 	defaultValue: unknown;
-	dragOverrideValue: unknown;
+	dragOverrideValue: DragOverrideValue | undefined;
 }): unknown | null => {
 	if (isKeyframedStatus(propStatus)) {
-		const keyframedStatus = propStatus as CanUpdateSequencePropStatusKeyframed;
-		return Internals.interpolateKeyframedStatus({
+		return Internals.getEffectiveVisualModeValue({
+			codeValue: propStatus,
+			dragOverrideValue,
 			frame: jsxFrame,
-			status: keyframedStatus,
+			defaultValue,
+			shouldResortToDefaultValueIfUndefined: true,
 		});
 	}
 
@@ -95,6 +98,7 @@ const getCurrentKeyframeValue = ({
 		return Internals.getEffectiveVisualModeValue({
 			codeValue: propStatus,
 			dragOverrideValue,
+			frame: jsxFrame,
 			defaultValue,
 			shouldResortToDefaultValueIfUndefined: true,
 		});
@@ -134,7 +138,7 @@ export const TimelineKeyframeControls: React.FC<{
 	readonly fileName: string;
 	readonly keyframeDisplayOffset: number;
 	readonly defaultValue: unknown;
-	readonly dragOverrideValue: unknown | undefined;
+	readonly dragOverrideValue: DragOverrideValue | undefined;
 	readonly schema: SequenceSchema;
 	readonly effectIndex: number | null;
 }> = ({
