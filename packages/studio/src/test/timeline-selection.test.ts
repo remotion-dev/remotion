@@ -1072,12 +1072,12 @@ test('Selected outline dragging applies the same delta to all selected sequences
 
 	const lastValues = getSelectedOutlineDragValues({
 		dragStates,
-		deltaX: 7,
-		deltaY: -4,
+		deltaX: 7.333333,
+		deltaY: -4.666667,
 	});
 
-	expect(lastValues.get(dragStates[0].key)).toBe('17px 16px');
-	expect(lastValues.get(dragStates[1].key)).toBe('2px -1px');
+	expect(lastValues.get(dragStates[0].key)).toBe('17.3px 15.3px');
+	expect(lastValues.get(dragStates[1].key)).toBe('2.3px -1.7px');
 	expect(
 		getSelectedOutlineDragChanges({
 			dragStates,
@@ -1089,7 +1089,7 @@ test('Selected outline dragging applies the same delta to all selected sequences
 			fileName: '/project/src/Comp.tsx',
 			nodePath: firstNodePath,
 			fieldKey: 'style.translate',
-			value: '17px 16px',
+			value: '17.3px 15.3px',
 			defaultValue: JSON.stringify('0px 0px'),
 			schema,
 		},
@@ -1098,7 +1098,7 @@ test('Selected outline dragging applies the same delta to all selected sequences
 			fileName: '/project/src/Comp.tsx',
 			nodePath: secondNodePath,
 			fieldKey: 'style.translate',
-			value: '2px -1px',
+			value: '2.3px -1.7px',
 			defaultValue: JSON.stringify('0px 0px'),
 			schema,
 		},
