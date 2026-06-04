@@ -156,6 +156,7 @@ export {
 	type HtmlInCanvasOnInit,
 	type HtmlInCanvasOnInitCleanup,
 	type HtmlInCanvasOnPaint,
+	type HtmlInCanvasPixelDensity,
 } from './HtmlInCanvas.js';
 export type {
 	HtmlInCanvasOnPaintParams,
