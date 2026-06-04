@@ -17,6 +17,7 @@ import type {
 	CanUpdateSequencePropsResponseFalse,
 	CanUpdateSequencePropsResponseTrue,
 	CanUpdateSequencePropStatus,
+	ExtrapolateType,
 	SequenceNodePath,
 	SequencePropsSubscriptionKey,
 	SequenceSchema,
@@ -413,6 +414,39 @@ export type AddEffectKeyframeRequest = {
 
 export type AddEffectKeyframeResponse = SaveEffectPropsResponse;
 
+export type KeyframeSettings = {
+	clamping:
+		| {
+				left: ExtrapolateType;
+				right: ExtrapolateType;
+		  }
+		| undefined;
+	posterize: number | undefined;
+};
+
+export type UpdateSequenceKeyframeSettingsRequest = {
+	fileName: string;
+	nodePath: SequencePropsSubscriptionKey;
+	key: string;
+	settings: KeyframeSettings;
+	schema: SequenceSchema;
+	clientId: string;
+};
+
+export type UpdateSequenceKeyframeSettingsResponse = SaveSequencePropsResponse;
+
+export type UpdateEffectKeyframeSettingsRequest = {
+	fileName: string;
+	sequenceNodePath: SequencePropsSubscriptionKey;
+	effectIndex: number;
+	key: string;
+	settings: KeyframeSettings;
+	schema: SequenceSchema;
+	clientId: string;
+};
+
+export type UpdateEffectKeyframeSettingsResponse = SaveEffectPropsResponse;
+
 type BaseDeleteEffectRequestItem = {
 	fileName: string;
 	sequenceNodePath: SequencePropsSubscriptionKey;
@@ -630,6 +664,14 @@ export type ApiRoutes = {
 	'/api/add-effect-keyframe': ReqAndRes<
 		AddEffectKeyframeRequest,
 		AddEffectKeyframeResponse
+	>;
+	'/api/update-sequence-keyframe-settings': ReqAndRes<
+		UpdateSequenceKeyframeSettingsRequest,
+		UpdateSequenceKeyframeSettingsResponse
+	>;
+	'/api/update-effect-keyframe-settings': ReqAndRes<
+		UpdateEffectKeyframeSettingsRequest,
+		UpdateEffectKeyframeSettingsResponse
 	>;
 	'/api/delete-effect': ReqAndRes<DeleteEffectRequest, DeleteEffectResponse>;
 	'/api/paste-effects': ReqAndRes<PasteEffectsRequest, PasteEffectsResponse>;

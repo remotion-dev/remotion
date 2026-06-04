@@ -36,6 +36,8 @@ import {unsubscribeFromFileExistence} from './routes/unsubscribe-from-file-exist
 import {unsubscribeFromSequenceProps} from './routes/unsubscribe-from-sequence-props';
 import {handleUpdate} from './routes/update-available';
 import {updateDefaultPropsHandler} from './routes/update-default-props';
+import {updateEffectKeyframeSettingsHandler} from './routes/update-effect-keyframe-settings';
+import {updateSequenceKeyframeSettingsHandler} from './routes/update-sequence-keyframe-settings';
 
 export const allApiRoutes: {
 	[key in keyof ApiRoutes]: ApiHandler<
@@ -67,6 +69,9 @@ export const allApiRoutes: {
 	'/api/delete-keyframes': deleteKeyframesHandler,
 	'/api/add-sequence-keyframe': addSequenceKeyframeHandler,
 	'/api/add-effect-keyframe': addEffectKeyframeHandler,
+	'/api/update-sequence-keyframe-settings':
+		updateSequenceKeyframeSettingsHandler,
+	'/api/update-effect-keyframe-settings': updateEffectKeyframeSettingsHandler,
 	'/api/delete-effect': deleteEffectHandler,
 	'/api/paste-effects': pasteEffectsHandler,
 	'/api/delete-jsx-node': deleteJsxNodeHandler,

@@ -70,10 +70,15 @@ export {
 	UnsubscribeFromDefaultPropsRequest,
 	UnsubscribeFromFileExistenceRequest,
 	UnsubscribeFromSequencePropsRequest,
+	UpdateEffectKeyframeSettingsRequest,
+	UpdateEffectKeyframeSettingsResponse,
 	UpdateAvailableRequest,
 	UpdateAvailableResponse,
 	UpdateDefaultPropsRequest,
 	UpdateDefaultPropsResponse,
+	UpdateSequenceKeyframeSettingsRequest,
+	UpdateSequenceKeyframeSettingsResponse,
+	type KeyframeSettings,
 } from './api-requests';
 export type {ApplyVisualControlCodemod, RecastCodemod} from './codemods';
 export {DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS} from './default-buffer-state-delay-in-milliseconds';
@@ -188,6 +193,10 @@ export {
 } from './optimistic-delete-keyframe';
 export {optimisticUpdateForCodeValues} from './optimistic-update-for-code-values';
 export {optimisticUpdateForEffectCodeValues} from './optimistic-update-for-effect-code-values';
+export {
+	optimisticUpdateEffectKeyframeSettings,
+	optimisticUpdateSequenceKeyframeSettings,
+} from './optimistic-update-keyframe-settings';
 export {
 	stringifySequenceExpandedRowKey,
 	stringifySequenceSubscriptionKey,
