@@ -1,23 +1,18 @@
-import React, {useCallback, useMemo} from 'react';
+import React, {useCallback, useMemo, useRef} from 'react';
 import type {
 	ArrayFieldSchema,
 	CanUpdateSequencePropStatusStatic,
 	SequencePropsSubscriptionKey,
-	VisibleFieldSchema,
 } from 'remotion';
 import type {
 	SchemaFieldInfo,
 	TimelineFieldOnDragValueChange,
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
-import {TimelineBooleanField} from './TimelineBooleanField';
-import {TimelineColorField} from './TimelineColorField';
-import {TimelineEnumField} from './TimelineEnumField';
-import {TimelineNumberField} from './TimelineNumberField';
-import {TimelineRotationField} from './TimelineRotationField';
-import {TimelineScaleField} from './TimelineScaleField';
-import {TimelineTranslateField} from './TimelineTranslateField';
-import {TimelineUvCoordinateField} from './TimelineUvCoordinateField';
+import {
+	TimelinePrimitiveFieldValue,
+	type TimelinePrimitiveFieldInfo,
+} from './TimelinePrimitiveFieldValue';
 
 const container: React.CSSProperties = {
 	display: 'flex',
@@ -99,8 +94,14 @@ const getFallbackItemValue = (field: ArrayFieldSchema): unknown => {
 		return '#000000';
 	}
 
-	const [firstVariant] = field.item.variants;
-	return firstVariant;
+	if (field.item.type === 'enum') {
+		const [firstVariant] = field.item.variants;
+		return firstVariant;
+	}
+
+	throw new Error(
+		`Unsupported array item field: ${JSON.stringify(field.item satisfies never)}`,
+	);
 };
 
 const isUvCoordinateDefault = (
@@ -119,7 +120,7 @@ const makeItemFieldSchema = ({
 }: {
 	field: ArrayFieldSchema;
 	defaultValue: unknown;
-}): VisibleFieldSchema => {
+}): TimelinePrimitiveFieldInfo['fieldSchema'] => {
 	if (field.item.type === 'number') {
 		return {
 			...field.item,
@@ -180,16 +181,22 @@ const makeItemFieldSchema = ({
 		};
 	}
 
-	return {
-		type: 'enum',
-		default:
-			typeof defaultValue === 'string'
-				? defaultValue
-				: (field.item.variants[0] ?? ''),
-		variants: Object.fromEntries(
-			field.item.variants.map((variant) => [variant, {}]),
-		),
-	};
+	if (field.item.type === 'enum') {
+		return {
+			type: 'enum',
+			default:
+				typeof defaultValue === 'string'
+					? defaultValue
+					: (field.item.variants[0] ?? ''),
+			variants: Object.fromEntries(
+				field.item.variants.map((variant) => [variant, {}]),
+			),
+		};
+	}
+
+	throw new Error(
+		`Unsupported array item field: ${JSON.stringify(field.item satisfies never)}`,
+	);
 };
 
 const replaceAtIndex = (
@@ -222,7 +229,7 @@ const ItemEditor: React.FC<{
 		[arrayField],
 	);
 	const value = items[index] ?? fallback;
-	const itemField = useMemo<SchemaFieldInfo>(() => {
+	const itemField = useMemo<TimelinePrimitiveFieldInfo>(() => {
 		const fieldSchema = makeItemFieldSchema({
 			field: arrayField,
 			defaultValue: fallback,
@@ -254,107 +261,15 @@ const ItemEditor: React.FC<{
 		[index, items, onDragValueChange],
 	);
 
-	if (itemField.typeName === 'number') {
-		return (
-			<TimelineNumberField
-				field={itemField}
-				effectiveValue={value}
-				propStatus={propStatus}
-				onSave={onSaveItem}
-				onDragValueChange={onDragItem}
-				onDragEnd={onDragEnd}
-			/>
-		);
-	}
-
-	if (
-		itemField.typeName === 'rotation-css' ||
-		itemField.typeName === 'rotation-degrees'
-	) {
-		return (
-			<TimelineRotationField
-				field={itemField}
-				effectiveValue={value}
-				propStatus={propStatus}
-				onSave={onSaveItem}
-				onDragValueChange={onDragItem}
-				onDragEnd={onDragEnd}
-			/>
-		);
-	}
-
-	if (itemField.typeName === 'translate') {
-		return (
-			<TimelineTranslateField
-				field={itemField}
-				effectiveValue={value}
-				propStatus={propStatus}
-				onSave={onSaveItem}
-				onDragValueChange={onDragItem}
-				onDragEnd={onDragEnd}
-			/>
-		);
-	}
-
-	if (itemField.typeName === 'scale') {
-		return (
-			<TimelineScaleField
-				field={itemField}
-				effectiveValue={value}
-				propStatus={propStatus}
-				onSave={onSaveItem}
-				onDragValueChange={onDragItem}
-				onDragEnd={onDragEnd}
-				scaleLockNodePath={scaleLockNodePath}
-			/>
-		);
-	}
-
-	if (itemField.typeName === 'uv-coordinate') {
-		return (
-			<TimelineUvCoordinateField
-				field={itemField}
-				effectiveValue={value}
-				propStatus={propStatus}
-				onSave={onSaveItem}
-				onDragValueChange={onDragItem}
-				onDragEnd={onDragEnd}
-			/>
-		);
-	}
-
-	if (itemField.typeName === 'boolean') {
-		return (
-			<TimelineBooleanField
-				field={itemField}
-				effectiveValue={value}
-				propStatus={propStatus}
-				onSave={onSaveItem}
-			/>
-		);
-	}
-
-	if (itemField.typeName === 'color') {
-		return (
-			<TimelineColorField
-				field={itemField}
-				effectiveValue={value}
-				propStatus={propStatus}
-				onSave={onSaveItem}
-				onDragValueChange={onDragItem}
-				onDragEnd={onDragEnd}
-			/>
-		);
-	}
-
 	return (
-		<TimelineEnumField
-			field={itemField}
+		<TimelinePrimitiveFieldValue
 			effectiveValue={value}
-			propStatus={propStatus}
-			onSave={onSaveItem}
-			onDragValueChange={onDragItem}
+			field={itemField}
 			onDragEnd={onDragEnd}
+			onDragValueChange={onDragItem}
+			onSave={onSaveItem}
+			propStatus={propStatus}
+			scaleLockNodePath={scaleLockNodePath}
 		/>
 	);
 };
@@ -391,14 +306,27 @@ export const TimelineArrayField: React.FC<{
 	const maxLength = arrayField.maxLength ?? Infinity;
 	const canAdd = items.length < maxLength;
 	const canRemove = items.length > minLength;
+	const itemKeys = useRef<string[]>([]);
+	const nextItemKey = useRef(0);
+
+	while (itemKeys.current.length < items.length) {
+		itemKeys.current.push(`${field.key}-${nextItemKey.current}`);
+		nextItemKey.current++;
+	}
+
+	if (itemKeys.current.length > items.length) {
+		itemKeys.current.length = items.length;
+	}
 
 	const onAdd = useCallback(() => {
 		if (!canAdd) {
 			return;
 		}
 
+		itemKeys.current.push(`${field.key}-${nextItemKey.current}`);
+		nextItemKey.current++;
 		onSave([...items, getFallbackItemValue(arrayField)]);
-	}, [arrayField, canAdd, items, onSave]);
+	}, [arrayField, canAdd, field.key, items, onSave]);
 
 	const onRemove = useCallback(
 		(index: number) => {
@@ -406,6 +334,7 @@ export const TimelineArrayField: React.FC<{
 				return;
 			}
 
+			itemKeys.current.splice(index, 1);
 			onSave(items.filter((_item, i) => i !== index));
 		},
 		[canRemove, items, onSave],
@@ -413,30 +342,34 @@ export const TimelineArrayField: React.FC<{
 
 	return (
 		<span style={container}>
-			{items.map((_item, index) => (
-				<span style={itemContainer} key={index}>
-					<span style={itemLabel}>{index + 1}</span>
-					<ItemEditor
-						field={field}
-						arrayField={arrayField}
-						items={items}
-						index={index}
-						onSave={onSave}
-						onDragValueChange={onDragValueChange}
-						onDragEnd={onDragEnd}
-						scaleLockNodePath={scaleLockNodePath}
-					/>
-					<button
-						type="button"
-						style={canRemove ? button : disabledButton}
-						disabled={!canRemove}
-						onClick={() => onRemove(index)}
-						title={`Remove item ${index + 1}`}
-					>
-						-
-					</button>
-				</span>
-			))}
+			{items.map((_item, index) => {
+				const itemKey = itemKeys.current[index];
+
+				return (
+					<span key={itemKey} style={itemContainer}>
+						<span style={itemLabel}>{index}</span>
+						<ItemEditor
+							arrayField={arrayField}
+							field={field}
+							index={index}
+							items={items}
+							onDragEnd={onDragEnd}
+							onDragValueChange={onDragValueChange}
+							onSave={onSave}
+							scaleLockNodePath={scaleLockNodePath}
+						/>
+						<button
+							disabled={!canRemove}
+							onClick={() => onRemove(index)}
+							style={canRemove ? button : disabledButton}
+							title={`Remove item ${index}`}
+							type="button"
+						>
+							-
+						</button>
+					</span>
+				);
+			})}
 			{canAdd ? (
 				<span style={addButtonRow}>
 					<button type="button" style={button} onClick={onAdd} title="Add item">
