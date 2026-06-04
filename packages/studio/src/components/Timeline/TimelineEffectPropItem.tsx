@@ -387,13 +387,10 @@ export const TimelineEffectPropItem: React.FC<{
 		previewServerState.type === 'connected' &&
 		propStatus !== null &&
 		propStatus.status !== 'computed';
+	const canShowReset = canPerformReset && canResetToDefault;
 
 	const onReset = useCallback(() => {
-		if (
-			!canPerformReset ||
-			previewServerState.type !== 'connected' ||
-			!canResetToDefault
-		) {
+		if (!canShowReset || previewServerState.type !== 'connected') {
 			return;
 		}
 
@@ -414,8 +411,7 @@ export const TimelineEffectPropItem: React.FC<{
 			clientId: previewServerState.clientId,
 		});
 	}, [
-		canPerformReset,
-		canResetToDefault,
+		canShowReset,
 		field.effectIndex,
 		field.effectSchema,
 		field.fieldSchema.default,
@@ -434,14 +430,14 @@ export const TimelineEffectPropItem: React.FC<{
 				keyHint: null,
 				label: 'Reset',
 				leftItem: null,
-				disabled: !canPerformReset,
+				disabled: !canShowReset,
 				onClick: onReset,
 				quickSwitcherLabel: null,
 				subMenu: null,
 				value: 'reset-effect-field',
 			},
 		];
-	}, [canPerformReset, onReset]);
+	}, [canShowReset, onReset]);
 
 	const row = (
 		<TimelineRowChrome

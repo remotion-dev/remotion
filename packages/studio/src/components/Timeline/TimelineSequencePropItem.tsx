@@ -267,13 +267,13 @@ export const TimelineSequencePropItem: React.FC<{
 		previewServerState.type === 'connected' &&
 		codeValue !== null &&
 		codeValue.status !== 'computed';
+	const canShowReset = canPerformReset && canResetToDefault;
 
 	const onReset = useCallback(() => {
 		if (
-			!canPerformReset ||
+			!canShowReset ||
 			previewServerState.type !== 'connected' ||
-			codeValue === null ||
-			!canResetToDefault
+			codeValue === null
 		) {
 			return;
 		}
@@ -294,8 +294,7 @@ export const TimelineSequencePropItem: React.FC<{
 			clientId: previewServerState.clientId,
 		});
 	}, [
-		canPerformReset,
-		canResetToDefault,
+		canShowReset,
 		field.fieldSchema.default,
 		field.key,
 		nodePath,
@@ -353,14 +352,14 @@ export const TimelineSequencePropItem: React.FC<{
 				keyHint: null,
 				label: 'Reset',
 				leftItem: null,
-				disabled: !canPerformReset,
+				disabled: !canShowReset,
 				onClick: onReset,
 				quickSwitcherLabel: null,
 				subMenu: null,
 				value: 'reset-sequence-field',
 			},
 		];
-	}, [canPerformReset, onReset]);
+	}, [canShowReset, onReset]);
 
 	if (codeValue === null) {
 		return null;
