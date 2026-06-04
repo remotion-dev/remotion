@@ -157,6 +157,7 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(evolve().definition.label).toBe('evolve()');
 	expect(dropShadow().definition.label).toBe('dropShadow()');
 	expect(fisheye().definition.label).toBe('fisheye()');
+	expect(glow().definition.label).toBe('glow()');
 	expect(grayscale().definition.label).toBe('grayscale()');
 	expect(halftone().definition.label).toBe('halftone()');
 	expect(halftoneLinearGradient().definition.label).toBe(
