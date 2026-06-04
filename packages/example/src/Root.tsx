@@ -1009,7 +1009,7 @@ export const Index: React.FC = () => {
 						component={HtmlInCanvasPixelDensity}
 						fps={30}
 						height={80}
-						width={140}
+						width={250}
 						durationInFrames={60}
 					/>
 					<Composition
@@ -2106,8 +2106,8 @@ export const Index: React.FC = () => {
 				durationInFrames={120}
 			/>
 			{/**
-     * 
-     * 
+     *
+     *
      * disabled for react   19
     <Folder name="Skia">
         <Composition

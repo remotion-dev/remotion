@@ -226,7 +226,7 @@ export type HtmlInCanvasOnInit = (
 	params: HtmlInCanvasOnPaintParams,
 ) => HtmlInCanvasOnInitCleanup | Promise<HtmlInCanvasOnInitCleanup>;
 
-export type HtmlInCanvasPixelDensity = number | 'auto';
+export type HtmlInCanvasPixelDensity = number;
 
 function assertHtmlInCanvasDimensions(width: unknown, height: unknown): void {
 	if (typeof width !== 'number' || typeof height !== 'number') {
@@ -255,24 +255,13 @@ function resolveHtmlInCanvasPixelDensity(
 		return 1;
 	}
 
-	if (pixelDensity === 'auto') {
-		if (typeof window === 'undefined') {
-			return 1;
-		}
-
-		const {devicePixelRatio} = window;
-		return Number.isFinite(devicePixelRatio) && devicePixelRatio > 0
-			? devicePixelRatio
-			: 1;
-	}
-
 	if (
 		typeof pixelDensity !== 'number' ||
 		!Number.isFinite(pixelDensity) ||
 		pixelDensity <= 0
 	) {
 		throw new Error(
-			`HtmlInCanvas: \`pixelDensity\` must be a positive finite number or "auto". Received: ${String(pixelDensity)}.`,
+			`HtmlInCanvas: \`pixelDensity\` must be a positive finite number. Received: ${String(pixelDensity)}.`,
 		);
 	}
 

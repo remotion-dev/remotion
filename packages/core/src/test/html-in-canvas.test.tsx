@@ -110,19 +110,7 @@ Object.defineProperties(HTMLCanvasElement.prototype, {
 	},
 });
 
-const originalDevicePixelRatio = Object.getOwnPropertyDescriptor(
-	window,
-	'devicePixelRatio',
-);
-
-afterEach(() => {
-	cleanup();
-	if (originalDevicePixelRatio) {
-		Object.defineProperty(window, 'devicePixelRatio', originalDevicePixelRatio);
-	} else {
-		Reflect.deleteProperty(window, 'devicePixelRatio');
-	}
-});
+afterEach(cleanup);
 
 const SequenceTestWrapper: React.FC<{
 	readonly children: React.ReactNode;
@@ -273,12 +261,7 @@ test('<HtmlInCanvas> keeps refs current when the canvas remounts', async () => {
 	expect(registeredSequences[0]?.refForOutline?.current).toBe(nextCanvas);
 });
 
-test('<HtmlInCanvas> can use device pixel ratio as backing density', async () => {
-	Object.defineProperty(window, 'devicePixelRatio', {
-		configurable: true,
-		value: 2,
-	});
-
+test('<HtmlInCanvas> can use a higher backing density', async () => {
 	let paintParams: HtmlInCanvasOnPaintParams | undefined;
 
 	const {container} = render(
@@ -286,7 +269,7 @@ test('<HtmlInCanvas> can use device pixel ratio as backing density', async () =>
 			<HtmlInCanvas
 				width={50}
 				height={50}
-				pixelDensity="auto"
+				pixelDensity={2}
 				onPaint={(params) => {
 					paintParams = params;
 				}}
@@ -323,14 +306,9 @@ test('<HtmlInCanvas> can use device pixel ratio as backing density', async () =>
 });
 
 test('<HtmlInCanvas> does not apply pixel density to the live DOM transform', async () => {
-	Object.defineProperty(window, 'devicePixelRatio', {
-		configurable: true,
-		value: 2,
-	});
-
 	const {container} = render(
 		<SequenceTestWrapper onRegisterSequence={() => undefined}>
-			<HtmlInCanvas width={50} height={50} pixelDensity="auto">
+			<HtmlInCanvas width={50} height={50} pixelDensity={2}>
 				<div>Test</div>
 			</HtmlInCanvas>
 		</SequenceTestWrapper>,

@@ -3,7 +3,7 @@ import {AbsoluteFill, HtmlInCanvas} from 'remotion';
 
 const Tile: React.FC<{
 	readonly label: string;
-	readonly pixelDensity: number | 'auto';
+	readonly pixelDensity: number;
 }> = ({label, pixelDensity}) => {
 	return (
 		<div style={{display: 'flex', flexDirection: 'column', gap: 6}}>
@@ -59,7 +59,8 @@ export const HtmlInCanvasPixelDensity: React.FC = () => {
 			}}
 		>
 			<Tile label="1x" pixelDensity={1} />
-			<Tile label="DPR" pixelDensity="auto" />
+			<Tile label="2x" pixelDensity={2} />
+			<Tile label="10x" pixelDensity={10} />
 		</AbsoluteFill>
 	);
 };
