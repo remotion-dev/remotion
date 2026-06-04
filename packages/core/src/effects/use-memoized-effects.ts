@@ -1,4 +1,5 @@
 import {useContext, useRef} from 'react';
+import {resolveDragOverrideValue} from '../get-effective-visual-mode-value.js';
 import {OverrideIdsToNodePathsGettersContext} from '../sequence-node-path.js';
 import type {
 	CannotUpdateEffectReason,
@@ -14,7 +15,6 @@ import {
 } from '../SequenceManager.js';
 import {useCurrentFrame} from '../use-current-frame.js';
 import {
-	resolveDragOverrideValue,
 	type CanUpdateSequencePropStatus,
 	type CodeValues,
 	type DragOverrideValue,

@@ -284,6 +284,7 @@ const Value: React.FC<{
 		codeValue: propStatus,
 		dragOverrideValue,
 		defaultValue: field.fieldSchema.default,
+		frame: jsxFrame,
 		shouldResortToDefaultValueIfUndefined: true,
 	});
 

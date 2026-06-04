@@ -1,5 +1,8 @@
 import {findPropsToDelete} from './find-props-to-delete.js';
-import {getEffectiveVisualModeValue} from './get-effective-visual-mode-value.js';
+import {
+	getEffectiveVisualModeValue,
+	resolveDragOverrideValue,
+} from './get-effective-visual-mode-value.js';
 import {interpolateKeyframedStatus} from './interpolate-keyframed-status.js';
 import type {ExtrapolateType} from './interpolate.js';
 import type {
@@ -134,45 +137,6 @@ export const makeKeyframedDragOverride = ({
 	};
 };
 
-export type ResolvedDragOverrideValue =
-	| {
-			readonly type: 'none';
-	  }
-	| {
-			readonly type: 'resolved';
-			readonly value: unknown;
-	  };
-
-export const resolveDragOverrideValue = ({
-	dragOverrideValue,
-	frame,
-}: {
-	dragOverrideValue: DragOverrideValue | undefined;
-	frame: number | null;
-}): ResolvedDragOverrideValue => {
-	if (dragOverrideValue === undefined) {
-		return {type: 'none'};
-	}
-
-	if (dragOverrideValue.type === 'static') {
-		return {type: 'resolved', value: dragOverrideValue.value};
-	}
-
-	if (frame === null) {
-		return {type: 'none'};
-	}
-
-	const interpolated = interpolateKeyframedStatus({
-		frame,
-		status: dragOverrideValue.status,
-	});
-	if (interpolated === null) {
-		return {type: 'none'};
-	}
-
-	return {type: 'resolved', value: interpolated};
-};
-
 export const getStaticDragOverrideValue = (
 	dragOverrideValue: DragOverrideValue | undefined,
 ): unknown => {
@@ -262,6 +226,7 @@ export const computeEffectiveSchemaValuesDotNotation = ({
 				codeValue: codeValueStatus,
 				dragOverrideValue: overrideValues[key],
 				defaultValue: field?.default,
+				frame,
 				shouldResortToDefaultValueIfUndefined: false,
 			});
 		}

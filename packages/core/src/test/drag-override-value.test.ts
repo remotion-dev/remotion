@@ -1,8 +1,11 @@
 import {expect, test} from 'bun:test';
 import {
+	getEffectiveVisualModeValue,
+	resolveDragOverrideValue,
+} from '../get-effective-visual-mode-value';
+import {
 	computeEffectiveSchemaValuesDotNotation,
 	makeKeyframedDragOverride,
-	resolveDragOverrideValue,
 	type CanUpdateSequencePropStatusKeyframed,
 } from '../use-schema';
 
@@ -92,4 +95,25 @@ test('computeEffectiveSchemaValuesDotNotation resolves keyframed drag overrides 
 	});
 
 	expect(merged.opacity).toBe(3);
+});
+
+test('getEffectiveVisualModeValue resolves keyframed drag overrides at the source frame', () => {
+	const status = makeKeyframedStatus();
+
+	expect(
+		getEffectiveVisualModeValue({
+			codeValue: {
+				status: 'static',
+				codeValue: 2,
+			},
+			dragOverrideValue: makeKeyframedDragOverride({
+				status,
+				frame: 30,
+				value: 3,
+			}),
+			defaultValue: 1,
+			frame: 30,
+			shouldResortToDefaultValueIfUndefined: true,
+		}),
+	).toBe(3);
 });

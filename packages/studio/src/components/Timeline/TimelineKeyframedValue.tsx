@@ -60,12 +60,14 @@ export const TimelineKeyframedValue: React.FC<{
 	);
 
 	const effectiveValue = useMemo(() => {
-		const resolved = Internals.resolveDragOverrideValue({
+		return Internals.getEffectiveVisualModeValue({
+			codeValue: fakeStatus,
 			dragOverrideValue,
 			frame: jsxFrame,
+			defaultValue: field.fieldSchema.default,
+			shouldResortToDefaultValueIfUndefined: true,
 		});
-		return resolved.type === 'resolved' ? resolved.value : computedValue;
-	}, [computedValue, dragOverrideValue, jsxFrame]);
+	}, [dragOverrideValue, fakeStatus, field.fieldSchema.default, jsxFrame]);
 
 	const onSaveIfChanged = useCallback<TimelineFieldOnSave>(
 		(value) => {

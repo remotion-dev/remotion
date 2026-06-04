@@ -73,7 +73,10 @@ import {
 	getFlatSchemaWithAllKeys,
 } from './flatten-schema.js';
 import {getAssetDisplayName} from './get-asset-file-name.js';
-import {getEffectiveVisualModeValue} from './get-effective-visual-mode-value.js';
+import {
+	getEffectiveVisualModeValue,
+	resolveDragOverrideValue,
+} from './get-effective-visual-mode-value.js';
 import {
 	getPreviewDomElement,
 	REMOTION_STUDIO_CONTAINER_ELEMENT,
@@ -204,7 +207,6 @@ import {
 	getStaticDragOverrideValue,
 	makeKeyframedDragOverride,
 	makeStaticDragOverride,
-	resolveDragOverrideValue,
 } from './use-schema.js';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config.js';
 import {useVideo} from './use-video.js';

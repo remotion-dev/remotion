@@ -85,18 +85,12 @@ const getCurrentKeyframeValue = ({
 	dragOverrideValue: DragOverrideValue | undefined;
 }): unknown | null => {
 	if (isKeyframedStatus(propStatus)) {
-		const dragOverride = Internals.resolveDragOverrideValue({
+		return Internals.getEffectiveVisualModeValue({
+			codeValue: propStatus,
 			dragOverrideValue,
 			frame: jsxFrame,
-		});
-		if (dragOverride.type === 'resolved') {
-			return dragOverride.value;
-		}
-
-		const keyframedStatus = propStatus as CanUpdateSequencePropStatusKeyframed;
-		return Internals.interpolateKeyframedStatus({
-			frame: jsxFrame,
-			status: keyframedStatus,
+			defaultValue,
+			shouldResortToDefaultValueIfUndefined: true,
 		});
 	}
 
@@ -104,6 +98,7 @@ const getCurrentKeyframeValue = ({
 		return Internals.getEffectiveVisualModeValue({
 			codeValue: propStatus,
 			dragOverrideValue,
+			frame: jsxFrame,
 			defaultValue,
 			shouldResortToDefaultValueIfUndefined: true,
 		});
