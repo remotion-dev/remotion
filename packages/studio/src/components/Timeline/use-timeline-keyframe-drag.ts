@@ -16,6 +16,7 @@ import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {callMoveKeyframes} from './call-move-keyframe';
 import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
 import {parseKeyframeFieldFromNodePath} from './parse-keyframe-field-from-node-path';
+import {useTimelineKeyframeDragState} from './TimelineKeyframeDragState';
 import {
 	useCurrentTimelineSelectionStateAsRef,
 	type TimelineSelection,
@@ -333,6 +334,8 @@ export const useTimelineKeyframeDrag = ({
 		setEffectDragOverrides,
 	} = useContext(Internals.VisualModeSettersContext);
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
+	const {clearDraggedKeyframes, setDraggedKeyframes} =
+		useTimelineKeyframeDragState();
 
 	return useCallback(
 		(e: React.PointerEvent<HTMLButtonElement>) => {
@@ -425,6 +428,7 @@ export const useTimelineKeyframeDrag = ({
 				const targets = resolveDragTargets();
 				if (targets.length === 0) {
 					cleanup();
+					clearDraggedKeyframes();
 					return;
 				}
 
@@ -441,6 +445,12 @@ export const useTimelineKeyframeDrag = ({
 
 				hasDragged = true;
 				lastDelta = delta;
+				setDraggedKeyframes(
+					targets.map((target) => ({
+						nodePathInfo: target.nodePathInfo,
+						frame: target.displayFrame + delta,
+					})),
+				);
 				applyDragOverrides({
 					delta,
 					setDragOverrides,
@@ -451,10 +461,11 @@ export const useTimelineKeyframeDrag = ({
 
 			const onPointerUp = () => {
 				cleanup();
-				clearActiveOverrides();
 
 				const targets = dragTargets;
 				if (!hasDragged || lastDelta === 0 || targets === null) {
+					clearActiveOverrides();
+					clearDraggedKeyframes();
 					return;
 				}
 
@@ -465,6 +476,9 @@ export const useTimelineKeyframeDrag = ({
 						frame: target.displayFrame + lastDelta,
 					})),
 				);
+
+				clearActiveOverrides();
+				clearDraggedKeyframes();
 
 				callMoveKeyframes({
 					sequenceKeyframes: targets
@@ -508,6 +522,7 @@ export const useTimelineKeyframeDrag = ({
 			const onPointerCancel = () => {
 				cleanup();
 				clearActiveOverrides();
+				clearDraggedKeyframes();
 			};
 
 			window.addEventListener('pointermove', onPointerMove);
@@ -517,6 +532,7 @@ export const useTimelineKeyframeDrag = ({
 		[
 			clearDragOverrides,
 			clearEffectDragOverrides,
+			clearDraggedKeyframes,
 			codeValues,
 			currentSelection,
 			frame,
@@ -529,6 +545,7 @@ export const useTimelineKeyframeDrag = ({
 			sequences,
 			setCodeValues,
 			setDragOverrides,
+			setDraggedKeyframes,
 			setEffectDragOverrides,
 			timelineWidth,
 			videoConfig.durationInFrames,

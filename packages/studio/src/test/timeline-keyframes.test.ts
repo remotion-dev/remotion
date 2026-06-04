@@ -1,12 +1,13 @@
 import {expect, test} from 'bun:test';
-import {Internals, type CodeValues} from 'remotion';
 import type {
 	CanUpdateSequencePropStatusKeyframed,
 	SequencePropsSubscriptionKey,
 	TSequence,
 } from 'remotion';
+import {Internals, type CodeValues} from 'remotion';
 import {getNodeKeyframes} from '../components/Timeline/get-node-keyframes';
 import {getTimelineKeyframes} from '../components/Timeline/get-timeline-keyframes';
+import {getTimelineKeyframeDragKey} from '../components/Timeline/TimelineKeyframeDragState';
 import {calculateTimeline} from '../helpers/calculate-timeline';
 import type {TimelineTreeNode} from '../helpers/timeline-layout';
 
@@ -321,4 +322,20 @@ test('getNodeKeyframes replaces existing keyframes from keyframed drag overrides
 		{frame: 30, value: 2},
 		{frame: 90, value: 5},
 	]);
+});
+
+test('timeline keyframe drag keys follow the current display frame', () => {
+	const {nodePathInfo} = makeSequenceFieldNode('style.scale');
+
+	expect(
+		getTimelineKeyframeDragKey({
+			nodePathInfo,
+			frame: 30,
+		}),
+	).not.toBe(
+		getTimelineKeyframeDragKey({
+			nodePathInfo,
+			frame: 60,
+		}),
+	);
 });
