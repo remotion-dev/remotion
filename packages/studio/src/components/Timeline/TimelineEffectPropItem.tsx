@@ -41,6 +41,29 @@ const isKeyframedStatus = (
 	return status.status === 'keyframed';
 };
 
+const isResettableStatus = ({
+	status,
+	defaultValue,
+}: {
+	readonly status: CanUpdateSequencePropStatus;
+	readonly defaultValue: unknown;
+}) => {
+	if (defaultValue === undefined) {
+		return false;
+	}
+
+	if (status.status === 'keyframed') {
+		return true;
+	}
+
+	if (status.status === 'computed') {
+		return false;
+	}
+
+	const effectiveCodeValue = status.codeValue ?? defaultValue;
+	return JSON.stringify(effectiveCodeValue) !== JSON.stringify(defaultValue);
+};
+
 const Value: React.FC<{
 	readonly field: EffectSchemaFieldInfo;
 	readonly nodePath: SequencePropsSubscriptionKey;
@@ -349,17 +372,15 @@ export const TimelineEffectPropItem: React.FC<{
 			/>
 		) : null;
 
-	const isNonDefault = useMemo(() => {
+	const canResetToDefault = useMemo(() => {
 		if (!propStatus || propStatus.status === 'computed') {
 			return false;
 		}
 
-		const effectiveCodeValue =
-			propStatus.codeValue ?? field.fieldSchema.default;
-		return (
-			JSON.stringify(effectiveCodeValue) !==
-			JSON.stringify(field.fieldSchema.default)
-		);
+		return isResettableStatus({
+			status: propStatus,
+			defaultValue: field.fieldSchema.default,
+		});
 	}, [field.fieldSchema.default, propStatus]);
 
 	const canPerformReset =
@@ -371,7 +392,7 @@ export const TimelineEffectPropItem: React.FC<{
 		if (
 			!canPerformReset ||
 			previewServerState.type !== 'connected' ||
-			!isNonDefault
+			!canResetToDefault
 		) {
 			return;
 		}
@@ -394,11 +415,11 @@ export const TimelineEffectPropItem: React.FC<{
 		});
 	}, [
 		canPerformReset,
+		canResetToDefault,
 		field.effectIndex,
 		field.effectSchema,
 		field.fieldSchema.default,
 		field.key,
-		isNonDefault,
 		nodePath,
 		previewServerState,
 		setCodeValues,
