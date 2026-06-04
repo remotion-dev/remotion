@@ -4,7 +4,7 @@ import type {SidebarsConfig} from '@docusaurus/plugin-content-docs';
 const sidebars: SidebarsConfig = {
 	examplesSidebar: [
 		'index',
-		'suggest-an-example',
+		'submit-an-example',
 		{
 			type: 'html',
 			value:
@@ -57,7 +57,10 @@ const sidebars: SidebarsConfig = {
 			label: 'Motion design system',
 			link: {type: 'doc', id: 'motion-design-system/index'},
 			collapsed: false,
-			items: ['motion-design-system/lower-third', 'motion-design-system/code-example'],
+			items: [
+				'motion-design-system/lower-third/index',
+				'motion-design-system/code-example',
+			],
 		},
 		{
 			type: 'category',

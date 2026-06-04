@@ -1,0 +1,31 @@
+---
+title: Example title
+description: One sentence describing what this example shows.
+---
+
+import {ExamplePage} from '@site/src/components/Examples/ExamplePage';
+import {
+	ExampleComponent,
+	durationInFrames,
+	fps,
+	height,
+	width,
+} from './example';
+
+# Example title
+
+One short paragraph explaining what this example demonstrates and when to use it.
+
+<ExamplePage
+	component={ExampleComponent}
+	durationInFrames={durationInFrames}
+	fps={fps}
+	height={height}
+	width={width}
+>
+
+```tsx twoslash title="example.tsx"
+source:./example.tsx
+```
+
+</ExamplePage>
