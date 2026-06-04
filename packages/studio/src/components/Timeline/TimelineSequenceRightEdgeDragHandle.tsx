@@ -23,7 +23,6 @@ import {
 	stopForcingSpecificCursor,
 } from '../ForceSpecificCursor';
 import {
-	saveSequenceProp,
 	saveSequenceProps,
 	type SaveSequencePropChange,
 } from './save-sequence-prop';
@@ -449,20 +448,13 @@ export const useTimelineSequenceFromDrag = ({
 			return;
 		}
 
-		const savePromise =
-			changes.length === 1
-				? saveSequenceProp({
-						...changes[0],
-						setCodeValues: latestSetCodeValues,
-						clientId: latestServerState.clientId,
-					})
-				: saveSequenceProps({
-						changes,
-						setCodeValues: latestSetCodeValues,
-						clientId: latestServerState.clientId,
-						undoLabel: 'Move selected sequences',
-						redoLabel: 'Move selected sequences back',
-					});
+		const savePromise = saveSequenceProps({
+			changes,
+			setCodeValues: latestSetCodeValues,
+			clientId: latestServerState.clientId,
+			undoLabel: changes.length > 1 ? 'Move selected sequences' : null,
+			redoLabel: changes.length > 1 ? 'Move selected sequences back' : null,
+		});
 
 		savePromise
 			.catch((err) => {
@@ -684,20 +676,13 @@ export const TimelineSequenceRightEdgeDragHandle: React.FC<{
 			return;
 		}
 
-		const savePromise =
-			changes.length === 1
-				? saveSequenceProp({
-						...changes[0],
-						setCodeValues: latestSetCodeValues,
-						clientId: latestServerState.clientId,
-					})
-				: saveSequenceProps({
-						changes,
-						setCodeValues: latestSetCodeValues,
-						clientId: latestServerState.clientId,
-						undoLabel: 'Resize selected sequences',
-						redoLabel: 'Resize selected sequences back',
-					});
+		const savePromise = saveSequenceProps({
+			changes,
+			setCodeValues: latestSetCodeValues,
+			clientId: latestServerState.clientId,
+			undoLabel: changes.length > 1 ? 'Resize selected sequences' : null,
+			redoLabel: changes.length > 1 ? 'Resize selected sequences back' : null,
+		});
 
 		savePromise
 			.catch((err) => {

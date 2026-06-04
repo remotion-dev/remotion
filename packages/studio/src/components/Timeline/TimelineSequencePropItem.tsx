@@ -20,7 +20,7 @@ import {ModalsContext} from '../../state/modals';
 import {ContextMenu} from '../ContextMenu';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {callAddSequenceKeyframe} from './call-add-keyframe';
-import {saveSequenceProp} from './save-sequence-prop';
+import {saveSequenceProps} from './save-sequence-prop';
 import {timelineFieldValueColumnStyle} from './timeline-field-row-layout';
 import {TimelineExpandArrowSpacer} from './TimelineExpandArrowButton';
 import {TimelineFieldLabel} from './TimelineFieldLabel';
@@ -125,13 +125,17 @@ const Value: React.FC<{
 				return Promise.resolve();
 			}
 
-			return saveSequenceProp({
-				fileName: validatedLocation.source,
-				nodePath,
-				fieldKey: field.key,
-				value,
-				defaultValue,
-				schema,
+			return saveSequenceProps({
+				changes: [
+					{
+						fileName: validatedLocation.source,
+						nodePath,
+						fieldKey: field.key,
+						value,
+						defaultValue,
+						schema,
+					},
+				],
 				setCodeValues,
 				clientId,
 			});
@@ -293,13 +297,17 @@ export const TimelineSequencePropItem: React.FC<{
 				? JSON.stringify(field.fieldSchema.default)
 				: null;
 
-		saveSequenceProp({
-			fileName: validatedLocation.source,
-			nodePath,
-			fieldKey: field.key,
-			value: field.fieldSchema.default,
-			defaultValue,
-			schema,
+		saveSequenceProps({
+			changes: [
+				{
+					fileName: validatedLocation.source,
+					nodePath,
+					fieldKey: field.key,
+					value: field.fieldSchema.default,
+					defaultValue,
+					schema,
+				},
+			],
 			setCodeValues,
 			clientId: previewServerState.clientId,
 		});

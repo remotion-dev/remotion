@@ -27,24 +27,55 @@ type SaveSequencePropsOptions = {
 	changes: SaveSequencePropChange[];
 	setCodeValues: SetCodeValues;
 	clientId: string;
-	undoLabel: string | null;
-	redoLabel: string | null;
-};
-
-type SaveSequencePropOptions = SaveSequencePropChange & {
-	setCodeValues: SetCodeValues;
-	clientId: string;
+	undoLabel?: string | null;
+	redoLabel?: string | null;
 };
 
 export const saveSequenceProps = ({
 	changes,
 	setCodeValues,
 	clientId,
-	undoLabel,
-	redoLabel,
+	undoLabel = null,
+	redoLabel = null,
 }: SaveSequencePropsOptions): Promise<void> => {
 	if (changes.length === 0) {
 		return Promise.resolve();
+	}
+
+	if (changes.length === 1 && undoLabel === null && redoLabel === null) {
+		const change = changes[0];
+		if (change === undefined) {
+			throw new Error('Expected a sequence prop change');
+		}
+
+		return enqueueSavePropChange({
+			nodePath: change.nodePath,
+			setCodeValues,
+			applyOptimistic: (prev) =>
+				optimisticUpdateForCodeValues({
+					previous: prev,
+					fieldKey: change.fieldKey,
+					value: change.value,
+					schema: change.schema,
+				}),
+			apiCall: () =>
+				callApi('/api/save-sequence-props', {
+					edits: [
+						{
+							fileName: change.fileName,
+							nodePath: change.nodePath,
+							key: change.fieldKey,
+							value: JSON.stringify(change.value),
+							defaultValue: change.defaultValue,
+							schema: change.schema,
+						},
+					],
+					clientId,
+					undoLabel,
+					redoLabel,
+				}),
+			errorLabel: 'Could not save sequence prop',
+		});
 	}
 
 	for (const change of changes) {
@@ -73,44 +104,4 @@ export const saveSequenceProps = ({
 		undoLabel,
 		redoLabel,
 	}).then(() => undefined);
-};
-
-export const saveSequenceProp = ({
-	fileName,
-	nodePath,
-	fieldKey,
-	value,
-	defaultValue,
-	schema,
-	setCodeValues,
-	clientId,
-}: SaveSequencePropOptions): Promise<void> => {
-	return enqueueSavePropChange({
-		nodePath,
-		setCodeValues,
-		applyOptimistic: (prev) =>
-			optimisticUpdateForCodeValues({
-				previous: prev,
-				fieldKey,
-				value,
-				schema,
-			}),
-		apiCall: () =>
-			callApi('/api/save-sequence-props', {
-				edits: [
-					{
-						fileName,
-						nodePath,
-						key: fieldKey,
-						value: JSON.stringify(value),
-						defaultValue,
-						schema,
-					},
-				],
-				clientId,
-				undoLabel: null,
-				redoLabel: null,
-			}),
-		errorLabel: 'Could not save sequence prop',
-	});
 };
