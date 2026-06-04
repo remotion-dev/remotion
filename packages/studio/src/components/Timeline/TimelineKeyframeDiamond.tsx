@@ -1,11 +1,13 @@
-import React, {useCallback, useContext, useMemo} from 'react';
+import React, {useContext, useMemo} from 'react';
 import {useVideoConfig} from 'remotion';
 import {BLUE, LIGHT_TEXT} from '../../helpers/colors';
 import {getXPositionOfItemInTimelineImperatively} from '../../helpers/get-left-of-timeline-slider';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
+import {useTimelineKeyframeDragState} from './TimelineKeyframeDragState';
 import {useTimelineKeyframeSelection} from './TimelineSelection';
 import {TimelineWidthContext} from './TimelineWidthProvider';
+import {useTimelineKeyframeDrag} from './use-timeline-keyframe-drag';
 
 const diamondBase: React.CSSProperties = {
 	position: 'absolute',
@@ -27,6 +29,9 @@ const TimelineKeyframeDiamondUnmemoized: React.FC<{
 		nodePathInfo,
 		frame,
 	);
+	const {isKeyframeDragging} = useTimelineKeyframeDragState();
+	const visuallySelected =
+		selected || isKeyframeDragging({nodePathInfo, frame});
 
 	const style = useMemo((): React.CSSProperties | null => {
 		if (timelineWidth === null) {
@@ -36,9 +41,8 @@ const TimelineKeyframeDiamondUnmemoized: React.FC<{
 		return {
 			...diamondBase,
 			backgroundColor: LIGHT_TEXT,
-			outline: selected ? '2px solid ' + BLUE : 'none',
+			outline: visuallySelected ? '2px solid ' + BLUE : 'none',
 			border: 'none',
-			cursor: 'pointer',
 			left:
 				getXPositionOfItemInTimelineImperatively(
 					frame,
@@ -50,20 +54,21 @@ const TimelineKeyframeDiamondUnmemoized: React.FC<{
 			top: rowHeight / 2,
 			transform: 'translate(-50%, -50%) rotate(45deg)',
 		};
-	}, [frame, rowHeight, selected, timelineWidth, videoConfig.durationInFrames]);
+	}, [
+		frame,
+		rowHeight,
+		timelineWidth,
+		videoConfig.durationInFrames,
+		visuallySelected,
+	]);
 
-	const onPointerDown = useCallback(
-		(e: React.PointerEvent<HTMLButtonElement>) => {
-			if (e.button === 0) {
-				e.stopPropagation();
-				onSelect({
-					shiftKey: e.shiftKey,
-					toggleKey: e.metaKey || e.ctrlKey,
-				});
-			}
-		},
-		[onSelect],
-	);
+	const onPointerDown = useTimelineKeyframeDrag({
+		frame,
+		nodePathInfo,
+		onSelect,
+		selectable,
+		selected,
+	});
 
 	if (style === null) {
 		return null;
