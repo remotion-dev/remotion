@@ -93,8 +93,8 @@ You can also build your own — see [Making a custom HTML-in-canvas presentation
 HTML-in-canvas is only available in Chrome 149 and later with the `chrome://flags/#canvas-draw-element` flag enabled.  
 The API is unstable - Chrome may change the API or even remove it in the future.
 
-Nesting `<HtmlInCanvas>` inside another `<HtmlInCanvas>` is not supported. Chrome would only display the outer effect, so this is invalid in Remotion. It will throw an error.  
-If you need to combine multiple effects, try to merge them into a single `onPaint` callback.
+Nesting `<HtmlInCanvas>` inside another `<HtmlInCanvas>` is supported from <AvailableFrom v="4.0.461" inline />.
+The inner canvas paints to its own `OffscreenCanvas` and notifies the outer canvas so the next paint captures the freshly composited bitmap.
 
 ## Rendering
 
@@ -120,7 +120,7 @@ If your machine has no GPU, we recommend `--gl=swangle` instead (default on Lamb
 
 ## AI agents
 
-Remotion publishes [Agent Skills](/docs/ai/skills) that teach AI agents like Claude Code, Codex and Cursor how to use [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) correctly — including the [`onInit`](/docs/remotion/html-in-canvas#oninit) / [`onPaint`](/docs/remotion/html-in-canvas#onpaint) lifecycle, the [`--gl=angle` flag](#rendering) and the [no-nesting rule](#limitations).
+Remotion publishes [Agent Skills](/docs/ai/skills) that teach AI agents like Claude Code, Codex and Cursor how to use [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) correctly — including the [`onInit`](/docs/remotion/html-in-canvas#oninit) / [`onPaint`](/docs/remotion/html-in-canvas#onpaint) lifecycle, the [`--gl=angle` flag](#rendering) and nested HTML-in-canvas behavior.
 
 Install them with:
 
@@ -134,7 +134,7 @@ Not directly related, but also leveraging the same technology is the [HTML-in-ca
 
 When enabled, the [client-side renderer](/docs/client-side-rendering) uses HTML-in-canvas to capture full frames in the browser, which can produce more accurate output than the default DOM compositor.
 
-This mode cannot render compositions that contain [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) elements, because doing so would [nest HTML-in-canvas](#limitations) captures, which Chrome does not support.
+This mode can render compositions that contain [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) elements from <AvailableFrom v="4.0.461" inline /> because nested HTML-in-canvas captures are handled automatically.
 
 ## See also
 

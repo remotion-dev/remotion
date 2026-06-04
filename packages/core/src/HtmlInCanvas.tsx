@@ -287,7 +287,16 @@ export type HtmlInCanvasProps = Omit<
 	};
 /* eslint-enable react/require-default-props */
 
-const HtmlInCanvasAncestorContext = createContext(false);
+type HtmlInCanvasAncestor = {
+	readonly requestParentPaint: () => void;
+};
+
+// When a nested <HtmlInCanvas> sits inside another one, the inner canvas
+// must notify the outer canvas after each paint so the outer captures the
+// already-painted nested bitmap (not a stale frame).
+const HtmlInCanvasAncestorContext = createContext<HtmlInCanvasAncestor | null>(
+	null,
+);
 
 type HtmlInCanvasContentProps = {
 	readonly width: number;
@@ -308,9 +317,7 @@ const HtmlInCanvasContent = forwardRef<
 		{width, height, effects, children, onPaint, onInit, controls, style},
 		ref,
 	) => {
-		const isInsideAncestorHtmlInCanvas = useContext(
-			HtmlInCanvasAncestorContext,
-		);
+		const ancestor = useContext(HtmlInCanvasAncestorContext);
 
 		assertHtmlInCanvasDimensions(width, height);
 		const {continueRender, cancelRender} = useDelayRender();
@@ -354,6 +361,8 @@ const HtmlInCanvasContent = forwardRef<
 		const initializedRef = useRef(false);
 		const onInitCleanupRef = useRef<HtmlInCanvasOnInitCleanup | null>(null);
 		const unmountedRef = useRef(false);
+		const ancestorRef = useRef(ancestor);
+		ancestorRef.current = ancestor;
 
 		const onPaintCb = useCallback(async () => {
 			const element = divRef.current;
@@ -437,6 +446,11 @@ const HtmlInCanvasContent = forwardRef<
 					height,
 				});
 
+				// Nested <HtmlInCanvas>: tell the outer canvas to re-paint, so that
+				// the parent captures this freshly-painted bitmap instead of a stale
+				// (or empty) one. The parent will skip work if nothing changed.
+				ancestorRef.current?.requestParentPaint();
+
 				continueRender(handle);
 			} catch (error) {
 				cancelRender(error);
@@ -515,14 +529,19 @@ const HtmlInCanvasContent = forwardRef<
 			};
 		}, [width, height]);
 
-		if (isInsideAncestorHtmlInCanvas) {
-			throw new Error(
-				'<HtmlInCanvas> effects cannot be nested together. Chrome will only display the outer effect. Consider merging the effects into one if you can.',
-			);
-		}
+		// Context value for descendant <HtmlInCanvas> instances: when they finish
+		// painting, ask this canvas to repaint so the new pixels make it onto our
+		// offscreen surface on the next paint event.
+		const ancestorValue = useMemo<HtmlInCanvasAncestor>(() => {
+			return {
+				requestParentPaint: () => {
+					canvas2dRef.current?.requestPaint?.();
+				},
+			};
+		}, []);
 
 		return (
-			<HtmlInCanvasAncestorContext.Provider value>
+			<HtmlInCanvasAncestorContext.Provider value={ancestorValue}>
 				<canvas
 					key={canvasSizeKey}
 					ref={setLayoutCanvasRef}

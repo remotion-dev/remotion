@@ -77,11 +77,8 @@ Height of the canvas and the inner layout area, in pixels. Must be a positive in
 Children to draw to the canvas.  
 Children will be wrapped in a `<div>` with the given `width` and `height`.
 
-Do not nest `<HtmlInCanvas>` inside another `<HtmlInCanvas>`. Nesting is not supported and throws:
-
-```
-<HtmlInCanvas> effects cannot be nested together. Chrome will only display the outer effect. Consider merging the effects into one if you can.
-```
+Nesting `<HtmlInCanvas>` inside another `<HtmlInCanvas>` is supported from <AvailableFrom v="4.0.461" inline />.
+The inner canvas paints to its own `OffscreenCanvas` and then asks the outer canvas to repaint so it captures the freshly composited bitmap on the next frame.
 
 ### `onPaint?`
 

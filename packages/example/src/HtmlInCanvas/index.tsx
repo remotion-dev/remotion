@@ -34,6 +34,7 @@ export {
 } from './linear-blur-doc';
 export {HtmlInCanvasDocsMinimalWebGL} from './minimal-docs-webgl';
 export {HtmlInCanvasDocsMinimalWebGPU} from './minimal-docs-webgpu';
+export {HtmlInCanvasNestedEffects} from './nested-effects';
 export {HtmlInCanvasPrivacy} from './privacy';
 export {HtmlInCanvasReactSvg} from './react-svg';
 export {RippleTransitionDoc, RippleTransitionDocThumb} from './ripple-doc';
