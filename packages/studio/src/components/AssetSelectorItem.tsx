@@ -1,3 +1,4 @@
+import {ASSET_DRAG_MIME_TYPE, makeAssetDragData} from '@remotion/studio-shared';
 import React, {
 	useCallback,
 	useContext,
@@ -27,6 +28,7 @@ import {ClipboardIcon} from '../icons/clipboard';
 import {FileIcon} from '../icons/file';
 import {CollapsedFolderIcon, ExpandedFolderIcon} from '../icons/folder';
 import {SidebarContext} from '../state/sidebar';
+import {getAssetElementFromPath} from './import-assets';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
 import {Row, Spacing} from './layout';
@@ -279,6 +281,10 @@ const AssetSelectorItem: React.FC<{
 		return false;
 	}, [canvasContent, relativePath]);
 
+	const canDragAsset = useMemo(() => {
+		return !readOnlyStudio && getAssetElementFromPath(relativePath) !== null;
+	}, [readOnlyStudio, relativePath]);
+
 	const onPointerLeave = useCallback(() => {
 		setHovered(false);
 	}, []);
@@ -306,6 +312,22 @@ const AssetSelectorItem: React.FC<{
 		setSidebarCollapsedState,
 	]);
 
+	const onDragStart: React.DragEventHandler<HTMLDivElement> = useCallback(
+		(e) => {
+			if (!canDragAsset) {
+				e.preventDefault();
+				return;
+			}
+
+			e.dataTransfer.effectAllowed = 'copy';
+			e.dataTransfer.setData(
+				ASSET_DRAG_MIME_TYPE,
+				JSON.stringify(makeAssetDragData(relativePath)),
+			);
+		},
+		[canDragAsset, relativePath],
+	);
+
 	const style: React.CSSProperties = useMemo(() => {
 		return {
 			...itemStyle,
@@ -317,9 +339,10 @@ const AssetSelectorItem: React.FC<{
 				: selected
 					? SELECTED_BACKGROUND
 					: 'transparent',
+			cursor: canDragAsset ? 'grab' : 'default',
 			paddingLeft: 12 + level * 8,
 		};
-	}, [hovered, level, selected]);
+	}, [canDragAsset, hovered, level, selected]);
 
 	const label = useMemo(() => {
 		return {
@@ -378,6 +401,8 @@ const AssetSelectorItem: React.FC<{
 				onPointerEnter={onPointerEnter}
 				onPointerLeave={onPointerLeave}
 				onClick={onClick}
+				draggable={canDragAsset}
+				onDragStart={onDragStart}
 				tabIndex={tabIndex}
 				title={item.name}
 			>
