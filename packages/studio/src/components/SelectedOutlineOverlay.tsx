@@ -74,6 +74,17 @@ type SelectedOutlineUvHandle = {
 	readonly value: UvCoordinate;
 };
 
+type UvConnectionHandle = Pick<
+	SelectedOutlineUvHandle,
+	'effectIndex' | 'fieldKey' | 'fieldSchema' | 'value'
+>;
+
+type UvHandleConnectionLine = {
+	readonly key: string;
+	readonly from: OutlinePoint;
+	readonly to: OutlinePoint;
+};
+
 type SelectedOutlineTarget = {
 	readonly key: string;
 	readonly nodePathInfo: SequenceNodePathInfo;
@@ -270,6 +281,54 @@ export const getUvHandlePosition = (
 	return transform === null
 		? getBilinearUvHandlePosition(points, uv)
 		: applyProjectiveTransform(transform, uv);
+};
+
+export const getUvHandleConnectionLines = ({
+	handles,
+	points,
+}: {
+	readonly handles: readonly UvConnectionHandle[];
+	readonly points: SelectedOutline['points'];
+}): UvHandleConnectionLine[] => {
+	const handlesByField = new Map(
+		handles.map((handle) => [
+			`${handle.effectIndex}\u0000${handle.fieldKey}`,
+			handle,
+		]),
+	);
+	const seenPairs = new Set<string>();
+	const lines: UvHandleConnectionLine[] = [];
+
+	for (const handle of handles) {
+		const targetFieldKey = handle.fieldSchema.lineTo;
+		if (targetFieldKey === undefined || targetFieldKey === handle.fieldKey) {
+			continue;
+		}
+
+		const target = handlesByField.get(
+			`${handle.effectIndex}\u0000${targetFieldKey}`,
+		);
+		if (target === undefined) {
+			continue;
+		}
+
+		const pairKey = [
+			handle.effectIndex,
+			...[handle.fieldKey, targetFieldKey].sort(),
+		].join('\u0000');
+		if (seenPairs.has(pairKey)) {
+			continue;
+		}
+
+		seenPairs.add(pairKey);
+		lines.push({
+			key: `${handle.effectIndex}-${handle.fieldKey}-${targetFieldKey}`,
+			from: getUvHandlePosition(points, handle.value),
+			to: getUvHandlePosition(points, target.value),
+		});
+	}
+
+	return lines;
 };
 
 const vectorBetween = (from: OutlinePoint, to: OutlinePoint): OutlinePoint => {
@@ -1370,6 +1429,34 @@ const getSvgPointFromPointerEvent = ({
 	};
 };
 
+const SelectedUvHandleConnectionLines: React.FC<{
+	readonly handles: readonly SelectedOutlineUvHandle[];
+	readonly outline: SelectedOutline;
+}> = ({handles, outline}) => {
+	const lines = useMemo(
+		() => getUvHandleConnectionLines({handles, points: outline.points}),
+		[handles, outline.points],
+	);
+
+	return (
+		<>
+			{lines.map((line) => (
+				<line
+					key={line.key}
+					x1={line.from.x}
+					y1={line.from.y}
+					x2={line.to.x}
+					y2={line.to.y}
+					stroke={BLUE}
+					strokeWidth={2}
+					vectorEffect="non-scaling-stroke"
+					pointerEvents="none"
+				/>
+			))}
+		</>
+	);
+};
+
 const SelectedUvHandleCircle: React.FC<{
 	readonly handle: SelectedOutlineUvHandle;
 	readonly outline: SelectedOutline;
@@ -1723,15 +1810,25 @@ export const SelectedOutlineOverlay: React.FC<{
 							))
 						: null}
 					{targetsByKey.get(outline.key)?.selected
-						? targetsByKey
-								.get(outline.key)
-								?.uvHandles.map((handle) => (
-									<SelectedUvHandleCircle
-										key={`${handle.effectIndex}-${handle.fieldKey}`}
-										handle={handle}
-										outline={outline}
-									/>
-								))
+						? (() => {
+								const uvHandles =
+									targetsByKey.get(outline.key)?.uvHandles ?? [];
+								return (
+									<>
+										<SelectedUvHandleConnectionLines
+											handles={uvHandles}
+											outline={outline}
+										/>
+										{uvHandles.map((handle) => (
+											<SelectedUvHandleCircle
+												key={`${handle.effectIndex}-${handle.fieldKey}`}
+												handle={handle}
+												outline={outline}
+											/>
+										))}
+									</>
+								);
+							})()
 						: null}
 				</React.Fragment>
 			))}

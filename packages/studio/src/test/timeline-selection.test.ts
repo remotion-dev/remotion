@@ -19,6 +19,7 @@ import {
 	getSelectedOutlineScaleEdgeInfo,
 	getSequencesWithSelectableOutlines,
 	getUvCoordinateForPoint,
+	getUvHandleConnectionLines,
 	getUvHandlePosition,
 	type SelectedOutlineDragState,
 	type SelectedOutlineScaleDragState,
@@ -794,6 +795,104 @@ test('UV handle pointer position maps back to UV coordinates', () => {
 
 	expect(result[0]).toBeCloseTo(uv[0], 5);
 	expect(result[1]).toBeCloseTo(uv[1], 5);
+});
+
+test('UV handle connection lines connect fields from schema metadata', () => {
+	const points = [
+		{x: 0, y: 0},
+		{x: 100, y: 0},
+		{x: 100, y: 100},
+		{x: 0, y: 100},
+	] as const;
+
+	const lines = getUvHandleConnectionLines({
+		points,
+		handles: [
+			{
+				effectIndex: 0,
+				fieldKey: 'start',
+				fieldSchema: {
+					type: 'uv-coordinate',
+					default: [0, 0],
+					lineTo: 'end',
+				},
+				value: [0.2, 0.3],
+			},
+			{
+				effectIndex: 0,
+				fieldKey: 'end',
+				fieldSchema: {
+					type: 'uv-coordinate',
+					default: [1, 1],
+				},
+				value: [0.8, 0.7],
+			},
+		],
+	});
+
+	expect(lines).toEqual([
+		{
+			key: '0-start-end',
+			from: {x: 20, y: 30},
+			to: {x: 80, y: 70},
+		},
+	]);
+});
+
+test('UV handle connection lines stay within the same effect instance', () => {
+	const points = [
+		{x: 0, y: 0},
+		{x: 100, y: 0},
+		{x: 100, y: 100},
+		{x: 0, y: 100},
+	] as const;
+
+	const lines = getUvHandleConnectionLines({
+		points,
+		handles: [
+			{
+				effectIndex: 0,
+				fieldKey: 'start',
+				fieldSchema: {
+					type: 'uv-coordinate',
+					default: [0, 0],
+					lineTo: 'end',
+				},
+				value: [0.2, 0.3],
+			},
+			{
+				effectIndex: 1,
+				fieldKey: 'end',
+				fieldSchema: {
+					type: 'uv-coordinate',
+					default: [1, 1],
+				},
+				value: [0.8, 0.7],
+			},
+			{
+				effectIndex: 2,
+				fieldKey: 'start',
+				fieldSchema: {
+					type: 'uv-coordinate',
+					default: [0, 0],
+					lineTo: 'end',
+				},
+				value: [0.2, 0.3],
+			},
+			{
+				effectIndex: 2,
+				fieldKey: 'end',
+				fieldSchema: {
+					type: 'uv-coordinate',
+					default: [1, 1],
+					lineTo: 'start',
+				},
+				value: [0.8, 0.7],
+			},
+		],
+	});
+
+	expect(lines.map((line) => line.key)).toEqual(['2-start-end']);
 });
 
 test('UV handles are requested for selected effect children', () => {
