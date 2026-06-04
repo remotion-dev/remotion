@@ -1,12 +1,14 @@
-import React, {useCallback, useContext, useMemo} from 'react';
+import React, {useContext, useMemo} from 'react';
 import {useVideoConfig} from 'remotion';
 import {LIGHT_TEXT} from '../../helpers/colors';
 import {getXPositionOfItemInTimelineImperatively} from '../../helpers/get-left-of-timeline-slider';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {TimelineKeyframeDiamondIcon} from './TimelineKeyframeDiamondIcon';
+import {useTimelineKeyframeDragState} from './TimelineKeyframeDragState';
 import {useTimelineKeyframeSelection} from './TimelineSelection';
 import {TimelineWidthContext} from './TimelineWidthProvider';
+import {useTimelineKeyframeDrag} from './use-timeline-keyframe-drag';
 
 const diamondSize = 12;
 
@@ -33,6 +35,9 @@ const TimelineKeyframeDiamondUnmemoized: React.FC<{
 		nodePathInfo,
 		frame,
 	);
+	const {isKeyframeDragging} = useTimelineKeyframeDragState();
+	const visuallySelected =
+		selected || isKeyframeDragging({nodePathInfo, frame});
 
 	const style = useMemo((): React.CSSProperties | null => {
 		if (timelineWidth === null) {
@@ -54,18 +59,13 @@ const TimelineKeyframeDiamondUnmemoized: React.FC<{
 		};
 	}, [frame, rowHeight, timelineWidth, videoConfig.durationInFrames]);
 
-	const onPointerDown = useCallback(
-		(e: React.PointerEvent<HTMLButtonElement>) => {
-			if (e.button === 0) {
-				e.stopPropagation();
-				onSelect({
-					shiftKey: e.shiftKey,
-					toggleKey: e.metaKey || e.ctrlKey,
-				});
-			}
-		},
-		[onSelect],
-	);
+	const onPointerDown = useTimelineKeyframeDrag({
+		frame,
+		nodePathInfo,
+		onSelect,
+		selectable,
+		selected,
+	});
 
 	if (style === null) {
 		return null;
@@ -81,7 +81,7 @@ const TimelineKeyframeDiamondUnmemoized: React.FC<{
 		>
 			<TimelineKeyframeDiamondIcon
 				color={LIGHT_TEXT}
-				selected={selected}
+				selected={visuallySelected}
 				size={diamondSize}
 			/>
 		</button>

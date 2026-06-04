@@ -1,5 +1,6 @@
 build.mjs
 dist/tsconfig.tsbuildinfo
+dist/cjs/test
 src
 tsconfig.json
 .eslintrc

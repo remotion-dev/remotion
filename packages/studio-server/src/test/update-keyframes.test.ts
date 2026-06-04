@@ -538,6 +538,101 @@ test('updateSequenceKeyframes keeps an interpolation when one keyframe remains',
 	expect(output).toContain('style={{scale: interpolate(frame, [100], [4])}}');
 });
 
+test('updateSequenceKeyframes moves overlapping selected keyframes together', async () => {
+	const input = sequenceInput.replace(
+		'interpolate(frame, [0, 100], [2, 4])',
+		'interpolate(frame, [0, 50, 100], [2, 3, 4])',
+	);
+	const {output, oldValueStrings, newValueStrings} =
+		await updateSequenceKeyframes({
+			input,
+			nodePath: lineColumnToNodePath(input, getLine(input, 'scale')),
+			updates: [
+				{
+					key: 'style.scale',
+					operation: {
+						type: 'move',
+						moves: [
+							{fromFrame: 0, toFrame: 50},
+							{fromFrame: 50, toFrame: 80},
+						],
+					},
+				},
+			],
+		});
+
+	expect(oldValueStrings).toEqual([
+		'interpolate(frame, [0, 50, 100], [2, 3, 4])',
+	]);
+	expect(newValueStrings).toEqual([
+		'interpolate(frame, [50, 80, 100], [2, 3, 4])',
+	]);
+	expect(output).toContain(
+		'style={{scale: interpolate(frame, [50, 80, 100], [2, 3, 4])}}',
+	);
+});
+
+test('updateSequenceKeyframes resorts keyframes when moving past an adjacent keyframe', async () => {
+	const input = sequenceInput.replace(
+		'interpolate(frame, [0, 100], [2, 4])',
+		'interpolate(frame, [0, 50, 100], [2, 3, 4])',
+	);
+	const {output, oldValueStrings, newValueStrings} =
+		await updateSequenceKeyframes({
+			input,
+			nodePath: lineColumnToNodePath(input, getLine(input, 'scale')),
+			updates: [
+				{
+					key: 'style.scale',
+					operation: {
+						type: 'move',
+						moves: [{fromFrame: 0, toFrame: 75}],
+					},
+				},
+			],
+		});
+
+	expect(oldValueStrings).toEqual([
+		'interpolate(frame, [0, 50, 100], [2, 3, 4])',
+	]);
+	expect(newValueStrings).toEqual([
+		'interpolate(frame, [50, 75, 100], [3, 2, 4])',
+	]);
+	expect(output).toContain(
+		'style={{scale: interpolate(frame, [50, 75, 100], [3, 2, 4])}}',
+	);
+});
+
+test('updateSequenceKeyframes allows moving keyframes outside the sequence range', async () => {
+	const input = sequenceInput.replace(
+		'interpolate(frame, [0, 100], [2, 4])',
+		'interpolate(frame, [0, 50, 100], [2, 3, 4])',
+	);
+	const {output, newValueStrings} = await updateSequenceKeyframes({
+		input,
+		nodePath: lineColumnToNodePath(input, getLine(input, 'scale')),
+		updates: [
+			{
+				key: 'style.scale',
+				operation: {
+					type: 'move',
+					moves: [
+						{fromFrame: 0, toFrame: -15},
+						{fromFrame: 100, toFrame: 140},
+					],
+				},
+			},
+		],
+	});
+
+	expect(newValueStrings).toEqual([
+		'interpolate(frame, [-15, 50, 140], [2, 3, 4])',
+	]);
+	expect(output).toContain(
+		'style={{scale: interpolate(frame, [-15, 50, 140], [2, 3, 4])}}',
+	);
+});
+
 test('updateSequenceKeyframes converts the last keyframe to a static value', async () => {
 	const input = sequenceInput.replace(
 		'interpolate(frame, [0, 100], [2, 4])',
@@ -668,6 +763,36 @@ test('updateEffectKeyframes removes a keyframe from an effect prop interpolation
 	]);
 	expect(serialized).toContain(
 		'amount: interpolate(frame, [0, 100], [0.2, 0.8])',
+	);
+});
+
+test('updateEffectKeyframes allows moving keyframes outside the sequence range', () => {
+	const {serialized, newValueStrings} = updateEffectKeyframesAst({
+		input: effectInput,
+		sequenceNodePath: lineColumnToNodePath(
+			effectInput,
+			getLine(effectInput, '<HtmlInCanvas'),
+		),
+		effectIndex: 0,
+		updates: [
+			{
+				key: 'amount',
+				operation: {
+					type: 'move',
+					moves: [
+						{fromFrame: 0, toFrame: -20},
+						{fromFrame: 100, toFrame: 150},
+					],
+				},
+			},
+		],
+	});
+
+	expect(newValueStrings).toEqual([
+		'interpolate(frame, [-20, 50, 150], [0.2, 0.5, 0.8])',
+	]);
+	expect(serialized).toContain(
+		'amount: interpolate(frame, [-20, 50, 150], [0.2, 0.5, 0.8])',
 	);
 });
 

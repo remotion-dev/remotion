@@ -185,12 +185,22 @@ export const TimelineKeyframeControls: React.FC<{
 	);
 
 	const previousDisplayFrame = useMemo(
-		() => getPreviousKeyframeDisplayFrame(keyframes, timelinePosition),
-		[keyframes, timelinePosition],
+		() =>
+			getPreviousKeyframeDisplayFrame(
+				keyframes,
+				timelinePosition,
+				videoConfig.durationInFrames,
+			),
+		[keyframes, timelinePosition, videoConfig.durationInFrames],
 	);
 	const nextDisplayFrame = useMemo(
-		() => getNextKeyframeDisplayFrame(keyframes, timelinePosition),
-		[keyframes, timelinePosition],
+		() =>
+			getNextKeyframeDisplayFrame(
+				keyframes,
+				timelinePosition,
+				videoConfig.durationInFrames,
+			),
+		[keyframes, timelinePosition, videoConfig.durationInFrames],
 	);
 
 	const keyframable = isSchemaFieldKeyframable({
