@@ -68,6 +68,7 @@ import {
 	HtmlInCanvasDocsDemo2DBlur,
 	HtmlInCanvasDocsMinimalWebGL,
 	HtmlInCanvasDocsMinimalWebGPU,
+	HtmlInCanvasPixelDensity,
 	HtmlInCanvasPrivacy,
 	HtmlInCanvasReactSvg,
 	LinearBlurTransitionDoc,
@@ -1002,6 +1003,14 @@ export const Index: React.FC = () => {
 						height={1080}
 						width={1920}
 						durationInFrames={120}
+					/>
+					<Composition
+						id="html-in-canvas-pixel-density"
+						component={HtmlInCanvasPixelDensity}
+						fps={30}
+						height={80}
+						width={250}
+						durationInFrames={60}
 					/>
 					<Composition
 						id="html-in-canvas-compose-async-bitmap"
@@ -2097,8 +2106,8 @@ export const Index: React.FC = () => {
 				durationInFrames={120}
 			/>
 			{/**
-     * 
-     * 
+     *
+     *
      * disabled for react   19
     <Folder name="Skia">
         <Composition
