@@ -22,8 +22,13 @@ import {
 } from '../ExpandedTracksProvider';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {showNotification} from '../Notifications/NotificationCenter';
+import {useSelectAsset} from '../use-select-asset';
 import {duplicateSequencesFromSource} from './duplicate-selected-timeline-item';
 import {saveSequenceProps} from './save-sequence-prop';
+import {
+	getTimelineAssetLinkInfo,
+	openTimelineAssetLink,
+} from './timeline-asset-link';
 import {
 	TimelineExpandArrowButton,
 	TimelineExpandArrowSpacer,
@@ -31,11 +36,7 @@ import {
 import {TimelineExpandedSection} from './TimelineExpandedSection';
 import {TimelineItemStack} from './TimelineItemStack';
 import {TimelineLayerEye, TimelineLayerEyeSpacer} from './TimelineLayerEye';
-import {
-	getTimelineAssetLinkInfo,
-	openTimelineAssetLink,
-	TimelineMediaInfo,
-} from './TimelineMediaInfo';
+import {TimelineMediaInfo} from './TimelineMediaInfo';
 import {TimelineRowChrome} from './TimelineRowChrome';
 import {
 	isTimelineSelectionModifierEvent,
@@ -103,7 +104,7 @@ export const TimelineSequenceItem: React.FC<{
 	const {toggleTrack} = useContext(ExpandedTracksSetterContext);
 	const {codeValues} = useContext(Internals.VisualModeCodeValuesContext);
 	const {setCodeValues} = useContext(Internals.VisualModeSettersContext);
-	const {setCanvasContent} = useContext(Internals.CompositionSetters);
+	const selectAsset = useSelectAsset();
 	const {onSelect, selectable, selected} =
 		useTimelineRowSelection(nodePathInfo);
 	const containsSelection = useTimelineRowContainsSelection(nodePathInfo);
@@ -278,7 +279,7 @@ export const TimelineSequenceItem: React.FC<{
 						leftItem: null,
 						disabled: false,
 						onClick: () => {
-							openTimelineAssetLink(assetLinkInfo, setCanvasContent);
+							openTimelineAssetLink(assetLinkInfo, selectAsset);
 						},
 						quickSwitcherLabel: null,
 						subMenu: null,
@@ -338,8 +339,8 @@ export const TimelineSequenceItem: React.FC<{
 		canOpenInEditor,
 		openInEditor,
 		previewConnected,
+		selectAsset,
 		sequence,
-		setCanvasContent,
 	]);
 
 	const isExpanded =

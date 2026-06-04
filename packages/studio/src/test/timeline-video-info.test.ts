@@ -1,5 +1,57 @@
-import {expect, test} from 'bun:test';
+import {afterEach, expect, test} from 'bun:test';
 import {getTimelineVideoInfoWidths} from '../components/Timeline/get-timeline-video-info-widths';
+import {
+	getTimelineAssetLinkInfo,
+	openTimelineAssetLink,
+} from '../components/Timeline/timeline-asset-link';
+
+type TestWindow = Pick<
+	Window,
+	| 'history'
+	| 'location'
+	| 'open'
+	| 'remotion_isReadOnlyStudio'
+	| 'remotion_staticBase'
+>;
+
+const originalWindowDescriptor = Object.getOwnPropertyDescriptor(
+	globalThis,
+	'window',
+);
+
+afterEach(() => {
+	if (originalWindowDescriptor) {
+		Object.defineProperty(globalThis, 'window', originalWindowDescriptor);
+		return;
+	}
+
+	Reflect.deleteProperty(globalThis, 'window');
+});
+
+const installTestWindow = ({
+	onPushState,
+	onOpen,
+}: {
+	onPushState: (url: string | URL | null | undefined) => void;
+	onOpen: Window['open'];
+}) => {
+	const testWindow: TestWindow = {
+		remotion_staticBase: '/static-abcdef',
+		remotion_isReadOnlyStudio: false,
+		history: {
+			pushState: (_state, _title, url) => onPushState(url),
+		} as History,
+		location: {
+			pathname: '/',
+		} as Location,
+		open: onOpen,
+	};
+
+	Object.defineProperty(globalThis, 'window', {
+		configurable: true,
+		value: testWindow,
+	});
+};
 
 test('video timeline thumbnails ignore premount and postmount width', () => {
 	const withoutPremount = getTimelineVideoInfoWidths({
@@ -30,4 +82,71 @@ test('video timeline thumbnail widths never go negative', () => {
 		mediaVisualizationWidth: 0,
 		mediaNaturalWidth: 0,
 	});
+});
+
+test('timeline local asset links select the asset and push the asset route', () => {
+	const pushedUrls: (string | URL | null | undefined)[] = [];
+	installTestWindow({
+		onPushState: (url) => {
+			pushedUrls.push(url);
+		},
+		onOpen: () => null,
+	});
+
+	const linkInfo = getTimelineAssetLinkInfo(
+		'/static-abcdef/folder%20name/image.png',
+	);
+	const selectedAssets: string[] = [];
+
+	expect(linkInfo).toEqual({
+		kind: 'local',
+		assetPath: 'folder name/image.png',
+		title: 'folder name/image.png',
+	});
+
+	if (!linkInfo) {
+		throw new Error('Expected local asset link');
+	}
+
+	openTimelineAssetLink(linkInfo, (asset) => {
+		selectedAssets.push(asset);
+	});
+
+	expect(selectedAssets).toEqual(['folder name/image.png']);
+	expect(pushedUrls).toEqual(['/assets/folder name/image.png']);
+});
+
+test('timeline remote asset links still open in a new tab', () => {
+	const pushedUrls: (string | URL | null | undefined)[] = [];
+	const openedUrls: Parameters<Window['open']>[] = [];
+	installTestWindow({
+		onPushState: (url) => {
+			pushedUrls.push(url);
+		},
+		onOpen: (...args) => {
+			openedUrls.push(args);
+			return null;
+		},
+	});
+
+	const linkInfo = getTimelineAssetLinkInfo('https://example.com/image.png');
+
+	expect(linkInfo).toEqual({
+		kind: 'remote',
+		href: 'https://example.com/image.png',
+		title: 'example.com',
+	});
+
+	if (!linkInfo) {
+		throw new Error('Expected remote asset link');
+	}
+
+	openTimelineAssetLink(linkInfo, () => {
+		throw new Error('Remote links should not select assets');
+	});
+
+	expect(openedUrls).toEqual([
+		['https://example.com/image.png', '_blank', 'noopener,noreferrer'],
+	]);
+	expect(pushedUrls).toEqual([]);
 });
