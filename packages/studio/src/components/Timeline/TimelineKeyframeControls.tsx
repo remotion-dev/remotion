@@ -61,7 +61,6 @@ const isKeyframedStatus = (
 const diamondButtonStyle: React.CSSProperties = {
 	...navButtonStyle,
 	background: 'none',
-	translate: '0 -0.5px',
 };
 
 const svgStyle: React.CSSProperties = {display: 'block'};
@@ -382,7 +381,7 @@ export const TimelineKeyframeControls: React.FC<{
 				}
 				title={hasKeyframeAtCurrentFrame ? 'Remove keyframe' : 'Add keyframe'}
 			>
-				<TimelineKeyframeDiamondIcon color={diamondColor} size={10} />
+				<TimelineKeyframeDiamondIcon color={diamondColor} size={12} />
 			</button>
 			<button
 				type="button"

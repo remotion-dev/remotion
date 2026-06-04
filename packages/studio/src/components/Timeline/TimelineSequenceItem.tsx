@@ -23,7 +23,7 @@ import {
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {duplicateSequencesFromSource} from './duplicate-selected-timeline-item';
-import {saveSequenceProp} from './save-sequence-prop';
+import {saveSequenceProps} from './save-sequence-prop';
 import {
 	TimelineExpandArrowButton,
 	TimelineExpandArrowSpacer,
@@ -412,15 +412,21 @@ export const TimelineSequenceItem: React.FC<{
 					? JSON.stringify(fieldSchema.default)
 					: null;
 
-			saveSequenceProp({
-				fileName: validatedLocation.source,
-				nodePath,
-				fieldKey: 'hidden',
-				value: newValue,
-				defaultValue,
-				schema,
+			saveSequenceProps({
+				changes: [
+					{
+						fileName: validatedLocation.source,
+						nodePath,
+						fieldKey: 'hidden',
+						value: newValue,
+						defaultValue,
+						schema,
+					},
+				],
 				setCodeValues,
 				clientId: previewServerState.clientId,
+				undoLabel: newValue ? 'Hide sequence' : 'Show sequence',
+				redoLabel: newValue ? 'Hide sequence again' : 'Show sequence again',
 			});
 		},
 		[
