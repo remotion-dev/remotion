@@ -72,6 +72,29 @@ test('optimisticMoveSequenceKeyframes moves multiple keyframes in one field', ()
 	expect(status.easing).toEqual(['linear', 'linear']);
 });
 
+test('optimisticMoveSequenceKeyframes resorts when moving past an adjacent keyframe', () => {
+	const updated = optimisticMoveSequenceKeyframes({
+		previous,
+		keyframes: [{fieldKey: 'scale', fromFrame: 0, toFrame: 30}],
+	});
+
+	if (!updated.canUpdate) {
+		throw new Error('expected updateable sequence');
+	}
+
+	const status = updated.props.scale;
+	if (!status || status.status !== 'keyframed') {
+		throw new Error('expected keyframed status');
+	}
+
+	expect(status.keyframes).toEqual([
+		{frame: 20, value: 2},
+		{frame: 30, value: 1},
+		{frame: 40, value: 3},
+	]);
+	expect(status.easing).toEqual(['linear', 'linear']);
+});
+
 test('optimisticMoveEffectKeyframes moves effect keyframes', () => {
 	const updated = optimisticMoveEffectKeyframes({
 		previous,

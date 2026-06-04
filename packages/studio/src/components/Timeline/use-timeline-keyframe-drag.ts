@@ -308,34 +308,6 @@ const getAllowedDelta = ({
 		max = Math.min(max, durationInFrames - 1 - target.displayFrame);
 	}
 
-	for (const group of groupTargets(targets)) {
-		const selectedSourceFrames = new Set(
-			group.map((target) => target.sourceFrame),
-		);
-		for (const target of group) {
-			const previousUnselected = target.propStatus.keyframes
-				.map((keyframe) => keyframe.frame)
-				.filter(
-					(frame) =>
-						frame < target.sourceFrame && !selectedSourceFrames.has(frame),
-				)
-				.at(-1);
-			if (previousUnselected !== undefined) {
-				min = Math.max(min, previousUnselected + 1 - target.sourceFrame);
-			}
-
-			const nextUnselected = target.propStatus.keyframes
-				.map((keyframe) => keyframe.frame)
-				.find(
-					(frame) =>
-						frame > target.sourceFrame && !selectedSourceFrames.has(frame),
-				);
-			if (nextUnselected !== undefined) {
-				max = Math.min(max, nextUnselected - 1 - target.sourceFrame);
-			}
-		}
-	}
-
 	if (max < min) {
 		return 0;
 	}

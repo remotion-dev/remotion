@@ -572,6 +572,37 @@ test('updateSequenceKeyframes moves overlapping selected keyframes together', as
 	);
 });
 
+test('updateSequenceKeyframes resorts keyframes when moving past an adjacent keyframe', async () => {
+	const input = sequenceInput.replace(
+		'interpolate(frame, [0, 100], [2, 4])',
+		'interpolate(frame, [0, 50, 100], [2, 3, 4])',
+	);
+	const {output, oldValueStrings, newValueStrings} =
+		await updateSequenceKeyframes({
+			input,
+			nodePath: lineColumnToNodePath(input, getLine(input, 'scale')),
+			updates: [
+				{
+					key: 'style.scale',
+					operation: {
+						type: 'move',
+						moves: [{fromFrame: 0, toFrame: 75}],
+					},
+				},
+			],
+		});
+
+	expect(oldValueStrings).toEqual([
+		'interpolate(frame, [0, 50, 100], [2, 3, 4])',
+	]);
+	expect(newValueStrings).toEqual([
+		'interpolate(frame, [50, 75, 100], [3, 2, 4])',
+	]);
+	expect(output).toContain(
+		'style={{scale: interpolate(frame, [50, 75, 100], [3, 2, 4])}}',
+	);
+});
+
 test('updateSequenceKeyframes converts the last keyframe to a static value', async () => {
 	const input = sequenceInput.replace(
 		'interpolate(frame, [0, 100], [2, 4])',
