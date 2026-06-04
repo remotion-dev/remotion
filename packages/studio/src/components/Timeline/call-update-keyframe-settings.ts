@@ -5,6 +5,7 @@ import {
 } from '@remotion/studio-shared';
 import type {SequencePropsSubscriptionKey, SequenceSchema} from 'remotion';
 import {callApi} from '../call-api';
+import {applyEffectResponseToCodeValues} from './apply-effect-response-to-code-values';
 import {enqueueSavePropChange} from './save-prop-queue';
 import type {SetCodeValues} from './save-sequence-prop';
 
@@ -76,6 +77,8 @@ export const callUpdateEffectKeyframeSettings = ({
 				fieldKey,
 				settings,
 			}),
+		applyServerResponse: (prev, response) =>
+			applyEffectResponseToCodeValues({previous: prev, response}),
 		apiCall: () =>
 			callApi('/api/update-effect-keyframe-settings', {
 				fileName,
