@@ -1099,6 +1099,15 @@ const ensureVideoImport = (ast: File) => {
 	});
 };
 
+const ensureAudioImport = (ast: File) => {
+	return ensureOfficialNamedImport({
+		ast,
+		importedName: 'Audio',
+		sourcePath: '@remotion/media',
+		label: '<Audio>',
+	});
+};
+
 const ensureGifImport = (ast: File) => {
 	return ensureOfficialNamedImport({
 		ast,
@@ -1434,12 +1443,18 @@ const createInsertableJsxElement = ({
 
 	if (element.type === 'asset') {
 		const staticFileLocalName = ensureStaticFileImport(ast);
-		const localName =
-			element.assetType === 'image'
-				? ensureImgImport(ast)
-				: element.assetType === 'video'
-					? ensureVideoImport(ast)
-					: ensureGifImport(ast);
+		let localName: string;
+		if (element.assetType === 'image') {
+			localName = ensureImgImport(ast);
+		} else if (element.assetType === 'video') {
+			localName = ensureVideoImport(ast);
+		} else if (element.assetType === 'gif') {
+			localName = ensureGifImport(ast);
+		} else if (element.assetType === 'audio') {
+			localName = ensureAudioImport(ast);
+		} else {
+			throw new Error('Unsupported asset type');
+		}
 
 		return createAssetElement({
 			localName,

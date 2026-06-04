@@ -5,7 +5,7 @@ import {detectFileType, type FileType} from '../helpers/detect-file-type';
 import {callApi} from './call-api';
 import {showNotification} from './Notifications/NotificationCenter';
 
-const getAssetElement = ({
+export const getAssetElement = ({
 	fileType,
 	src,
 }: {
@@ -49,6 +49,20 @@ const getAssetElement = ({
 		};
 	}
 
+	if (
+		fileType.type === 'wav' ||
+		fileType.type === 'mp3' ||
+		fileType.type === 'aac' ||
+		fileType.type === 'flac'
+	) {
+		return {
+			type: 'asset',
+			assetType: 'audio',
+			src,
+			dimensions: null,
+		};
+	}
+
 	return null;
 };
 
@@ -65,7 +79,15 @@ const getAssetLabel = (element: InsertableCompositionElement) => {
 		return '<Video>';
 	}
 
-	return '<Gif>';
+	if (element.assetType === 'gif') {
+		return '<Gif>';
+	}
+
+	if (element.assetType === 'audio') {
+		return '<Audio>';
+	}
+
+	throw new Error('Unsupported asset type');
 };
 
 export const pickFilesToImport = (): Promise<File[]> => {
