@@ -14,11 +14,11 @@ Then run
 
 ```
 bun run build
-bun run formatting
+bun run stylecheck
 
 ```
 
-to ensure we compile.
+to ensure we compile and CI linting/formatting passes.
 
 Commit the changes. The title of the PR must be according to the [`pr-name`](../pr-name/SKILL.md) skill.
 

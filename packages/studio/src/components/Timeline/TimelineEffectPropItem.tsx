@@ -41,6 +41,29 @@ const isKeyframedStatus = (
 	return status.status === 'keyframed';
 };
 
+const isResettableStatus = ({
+	status,
+	defaultValue,
+}: {
+	readonly status: CanUpdateSequencePropStatus;
+	readonly defaultValue: unknown;
+}) => {
+	if (defaultValue === undefined) {
+		return false;
+	}
+
+	if (status.status === 'keyframed') {
+		return true;
+	}
+
+	if (status.status === 'computed') {
+		return false;
+	}
+
+	const effectiveCodeValue = status.codeValue ?? defaultValue;
+	return JSON.stringify(effectiveCodeValue) !== JSON.stringify(defaultValue);
+};
+
 const Value: React.FC<{
 	readonly field: EffectSchemaFieldInfo;
 	readonly nodePath: SequencePropsSubscriptionKey;
@@ -349,30 +372,29 @@ export const TimelineEffectPropItem: React.FC<{
 			/>
 		) : null;
 
-	const isNonDefault = useMemo(() => {
+	const canResetToDefault = useMemo(() => {
 		if (!propStatus || propStatus.status === 'computed') {
 			return false;
 		}
 
-		const effectiveCodeValue =
-			propStatus.codeValue ?? field.fieldSchema.default;
-		return (
-			JSON.stringify(effectiveCodeValue) !==
-			JSON.stringify(field.fieldSchema.default)
-		);
+		return isResettableStatus({
+			status: propStatus,
+			defaultValue: field.fieldSchema.default,
+		});
 	}, [field.fieldSchema.default, propStatus]);
 
 	const canPerformReset =
 		previewServerState.type === 'connected' &&
 		propStatus !== null &&
-		propStatus.status !== 'computed' &&
-		field.fieldSchema.default !== undefined;
+		propStatus.status !== 'computed';
+	const canShowReset =
+		canPerformReset && field.fieldSchema.default !== undefined;
 
 	const onReset = useCallback(() => {
 		if (
-			!canPerformReset ||
-			previewServerState.type !== 'connected' ||
-			!isNonDefault
+			!canShowReset ||
+			!canResetToDefault ||
+			previewServerState.type !== 'connected'
 		) {
 			return;
 		}
@@ -394,12 +416,12 @@ export const TimelineEffectPropItem: React.FC<{
 			clientId: previewServerState.clientId,
 		});
 	}, [
-		canPerformReset,
+		canResetToDefault,
+		canShowReset,
 		field.effectIndex,
 		field.effectSchema,
 		field.fieldSchema.default,
 		field.key,
-		isNonDefault,
 		nodePath,
 		previewServerState,
 		setCodeValues,
@@ -414,14 +436,14 @@ export const TimelineEffectPropItem: React.FC<{
 				keyHint: null,
 				label: 'Reset',
 				leftItem: null,
-				disabled: !canPerformReset,
+				disabled: !canShowReset,
 				onClick: onReset,
 				quickSwitcherLabel: null,
 				subMenu: null,
 				value: 'reset-effect-field',
 			},
 		];
-	}, [canPerformReset, onReset]);
+	}, [canShowReset, onReset]);
 
 	const row = (
 		<TimelineRowChrome

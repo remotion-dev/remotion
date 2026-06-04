@@ -186,6 +186,7 @@ import {
 	useBasicMediaInTimeline,
 	useMediaInTimeline,
 } from './use-media-in-timeline.js';
+import {PixelDensityContext} from './use-pixel-density.js';
 import type {
 	CanUpdateSequencePropStatusFalse,
 	CanUpdateSequencePropStatusKeyframed,
@@ -335,6 +336,7 @@ export const Internals = {
 	BufferingContextReact,
 	getComponentsToAddStacksTo,
 	CurrentScaleContext,
+	PixelDensityContext,
 	PreviewSizeContext,
 	calculateScale,
 	validateRenderAsset,

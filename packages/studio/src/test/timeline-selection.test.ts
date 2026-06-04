@@ -10,14 +10,14 @@ import {
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {
-	getSelectedEffectFieldsBySequenceKey,
 	getOutlineSelectionInteraction,
-	getSequencesWithSelectableOutlines,
+	getSelectedEffectFieldsBySequenceKey,
 	getSelectedOutlineDragChanges,
 	getSelectedOutlineDragValues,
 	getSelectedOutlineScaleDragChanges,
 	getSelectedOutlineScaleDragValues,
 	getSelectedOutlineScaleEdgeInfo,
+	getSequencesWithSelectableOutlines,
 	getUvCoordinateForPoint,
 	getUvHandlePosition,
 	type SelectedOutlineDragState,
@@ -901,6 +901,108 @@ test('Backspace reset targets multiple selected sequence props', () => {
 	expect(resetTargets?.map((target) => target.value)).toEqual([1, '0deg']);
 });
 
+test('Backspace reset targets selected keyframed sequence props', () => {
+	const schema = {
+		opacity: {type: 'number', default: 1, hiddenFromList: false},
+	} satisfies SequenceSchema;
+	const opacityNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['controls', 'opacity'],
+	);
+	const nodePath = opacityNodePathInfo.sequenceSubscriptionKey;
+	const codeValues = {
+		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			canUpdate: true,
+			props: {
+				opacity: {
+					status: 'keyframed',
+					codeValue: undefined,
+					interpolationFunction: 'interpolate',
+					keyframes: [
+						{frame: 0, value: 0},
+						{frame: 20, value: 0.5},
+					],
+					easing: ['linear'],
+					clamping: {left: 'extend', right: 'extend'},
+					posterize: undefined,
+				},
+			},
+			effects: [],
+		},
+	} satisfies CodeValues;
+
+	const resetTargets = getTimelinePropResetTargets({
+		selections: [
+			{
+				type: 'sequence-prop',
+				nodePathInfo: opacityNodePathInfo,
+				key: 'opacity',
+			},
+		],
+		sequences: [makeTimelineSequence({schema})],
+		overrideIdsToNodePaths: {override: nodePath},
+		codeValues,
+	});
+
+	expect(resetTargets).toEqual([
+		{
+			type: 'sequence-prop',
+			fileName: '/project/src/Comp.tsx',
+			nodePath,
+			fieldKey: 'opacity',
+			value: 1,
+			defaultValue: '1',
+			schema,
+		},
+	]);
+});
+
+test('Backspace reset skips keyframed sequence props without defaults', () => {
+	const schema = {
+		opacity: {type: 'number', default: undefined, hiddenFromList: false},
+	} satisfies SequenceSchema;
+	const opacityNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['controls', 'opacity'],
+	);
+	const nodePath = opacityNodePathInfo.sequenceSubscriptionKey;
+	const codeValues = {
+		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			canUpdate: true,
+			props: {
+				opacity: {
+					status: 'keyframed',
+					codeValue: undefined,
+					interpolationFunction: 'interpolate',
+					keyframes: [
+						{frame: 0, value: 0},
+						{frame: 20, value: 0.5},
+					],
+					easing: ['linear'],
+					clamping: {left: 'extend', right: 'extend'},
+					posterize: undefined,
+				},
+			},
+			effects: [],
+		},
+	} satisfies CodeValues;
+
+	const resetTargets = getTimelinePropResetTargets({
+		selections: [
+			{
+				type: 'sequence-prop',
+				nodePathInfo: opacityNodePathInfo,
+				key: 'opacity',
+			},
+		],
+		sequences: [makeTimelineSequence({schema})],
+		overrideIdsToNodePaths: {override: nodePath},
+		codeValues,
+	});
+
+	expect(resetTargets).toEqual([]);
+});
+
 test('Selected outline dragging applies the same delta to all selected sequences', () => {
 	const schema = {
 		'style.translate': {type: 'translate', default: '0px 0px'},
@@ -1127,6 +1229,139 @@ test('Backspace reset targets selected effect props', () => {
 			schema: effectSchema,
 		},
 	]);
+});
+
+test('Backspace reset targets selected keyframed effect props', () => {
+	const schema = {} satisfies SequenceSchema;
+	const effectSchema = {
+		intensity: {type: 'number', default: 0, hiddenFromList: false},
+	} satisfies SequenceSchema;
+	const nodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['effects', '0', 'intensity'],
+	);
+	const nodePath = nodePathInfo.sequenceSubscriptionKey;
+	const codeValues = {
+		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			canUpdate: true,
+			props: {},
+			effects: [
+				{
+					canUpdate: true,
+					callee: 'effect',
+					importPath: null,
+					effectIndex: 0,
+					props: {
+						intensity: {
+							status: 'keyframed',
+							codeValue: undefined,
+							interpolationFunction: 'interpolate',
+							keyframes: [
+								{frame: 0, value: 10},
+								{frame: 20, value: 20},
+							],
+							easing: ['linear'],
+							clamping: {left: 'extend', right: 'extend'},
+							posterize: undefined,
+						},
+					},
+				},
+			],
+		},
+	} satisfies CodeValues;
+
+	const resetTargets = getTimelinePropResetTargets({
+		selections: [
+			{
+				type: 'sequence-effect-prop',
+				nodePathInfo,
+				i: 0,
+				key: 'intensity',
+			},
+		],
+		sequences: [
+			makeTimelineSequence({
+				schema,
+				effects: [{schema: effectSchema}],
+			}),
+		],
+		overrideIdsToNodePaths: {override: nodePath},
+		codeValues,
+	});
+
+	expect(resetTargets).toEqual([
+		{
+			type: 'effect-prop',
+			fileName: '/project/src/Comp.tsx',
+			nodePath,
+			effectIndex: 0,
+			fieldKey: 'intensity',
+			value: 0,
+			defaultValue: '0',
+			schema: effectSchema,
+		},
+	]);
+});
+
+test('Backspace reset skips keyframed effect props without defaults', () => {
+	const schema = {} satisfies SequenceSchema;
+	const effectSchema = {
+		intensity: {type: 'number', default: undefined, hiddenFromList: false},
+	} satisfies SequenceSchema;
+	const nodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['effects', '0', 'intensity'],
+	);
+	const nodePath = nodePathInfo.sequenceSubscriptionKey;
+	const codeValues = {
+		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			canUpdate: true,
+			props: {},
+			effects: [
+				{
+					canUpdate: true,
+					callee: 'effect',
+					importPath: null,
+					effectIndex: 0,
+					props: {
+						intensity: {
+							status: 'keyframed',
+							codeValue: undefined,
+							interpolationFunction: 'interpolate',
+							keyframes: [
+								{frame: 0, value: 10},
+								{frame: 20, value: 20},
+							],
+							easing: ['linear'],
+							clamping: {left: 'extend', right: 'extend'},
+							posterize: undefined,
+						},
+					},
+				},
+			],
+		},
+	} satisfies CodeValues;
+
+	const resetTargets = getTimelinePropResetTargets({
+		selections: [
+			{
+				type: 'sequence-effect-prop',
+				nodePathInfo,
+				i: 0,
+				key: 'intensity',
+			},
+		],
+		sequences: [
+			makeTimelineSequence({
+				schema,
+				effects: [{schema: effectSchema}],
+			}),
+		],
+		overrideIdsToNodePaths: {override: nodePath},
+		codeValues,
+	});
+
+	expect(resetTargets).toEqual([]);
 });
 
 test('Deleting mixed timeline selection types throws an assertion error', () => {

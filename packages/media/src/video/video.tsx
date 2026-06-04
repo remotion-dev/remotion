@@ -81,6 +81,7 @@ const InnerVideo: React.FC<
 	effects,
 	setMediaDurationInSeconds,
 	refForOutline,
+	...props
 }) => {
 	const environment = useRemotionEnvironment();
 
@@ -111,6 +112,7 @@ const InnerVideo: React.FC<
 	if (environment.isRendering) {
 		return (
 			<VideoForRendering
+				{...props}
 				audioStreamIndex={audioStreamIndex ?? 0}
 				className={className}
 				delayRenderRetries={delayRenderRetries ?? null}
@@ -146,6 +148,7 @@ const InnerVideo: React.FC<
 
 	return (
 		<VideoForPreview
+			{...props}
 			setMediaDurationInSeconds={setMediaDurationInSeconds}
 			audioStreamIndex={audioStreamIndex ?? 0}
 			className={className}
@@ -218,6 +221,7 @@ const VideoInner: React.FC<
 	durationInFrames,
 	from,
 	hidden,
+	...props
 }) => {
 	const fallbackLogLevel = Internals.useLogLevel();
 	const [mediaVolume] = Internals.useMediaVolumeState();
@@ -311,6 +315,7 @@ const VideoInner: React.FC<
 			hidden={hidden}
 		>
 			<InnerVideo
+				{...props}
 				audioStreamIndex={audioStreamIndex ?? 0}
 				className={className}
 				delayRenderRetries={delayRenderRetries ?? null}
