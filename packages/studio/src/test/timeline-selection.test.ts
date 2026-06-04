@@ -1013,12 +1013,14 @@ test('Selected outline dragging applies the same delta to all selected sequences
 		{
 			defaultValue: JSON.stringify('0px 0px'),
 			key: Internals.makeSequencePropsSubscriptionKey(firstNodePath),
+			sourceFrame: 12,
 			startX: 10,
 			startY: 20,
 			target: {
 				clientId: 'client',
 				codeValue: {status: 'static', codeValue: '10px 20px'},
 				fieldDefault: '0px 0px',
+				keyframeDisplayOffset: 30,
 				nodePath: firstNodePath,
 				schema,
 			},
@@ -1026,12 +1028,14 @@ test('Selected outline dragging applies the same delta to all selected sequences
 		{
 			defaultValue: JSON.stringify('0px 0px'),
 			key: Internals.makeSequencePropsSubscriptionKey(secondNodePath),
+			sourceFrame: 12,
 			startX: -5,
 			startY: 3,
 			target: {
 				clientId: 'client',
 				codeValue: {status: 'static', codeValue: '-5px 3px'},
 				fieldDefault: '0px 0px',
+				keyframeDisplayOffset: 30,
 				nodePath: secondNodePath,
 				schema,
 			},
@@ -1053,6 +1057,7 @@ test('Selected outline dragging applies the same delta to all selected sequences
 		}),
 	).toEqual([
 		{
+			type: 'static',
 			fileName: '/project/src/Comp.tsx',
 			nodePath: firstNodePath,
 			fieldKey: 'style.translate',
@@ -1061,6 +1066,7 @@ test('Selected outline dragging applies the same delta to all selected sequences
 			schema,
 		},
 		{
+			type: 'static',
 			fileName: '/project/src/Comp.tsx',
 			nodePath: secondNodePath,
 			fieldKey: 'style.translate',
@@ -1069,6 +1075,72 @@ test('Selected outline dragging applies the same delta to all selected sequences
 			schema,
 		},
 	]);
+});
+
+test('Selected outline dragging keyframed translate adds a keyframe at the source frame', () => {
+	const schema = {
+		'style.translate': {type: 'translate', default: '0px 0px'},
+	} satisfies SequenceSchema;
+	const nodePath = makeKey(['body', 0]);
+	const dragStates = [
+		{
+			defaultValue: JSON.stringify('0px 0px'),
+			key: Internals.makeSequencePropsSubscriptionKey(nodePath),
+			sourceFrame: 20,
+			startX: 50,
+			startY: 25,
+			target: {
+				clientId: 'client',
+				codeValue: {
+					status: 'keyframed',
+					codeValue: undefined,
+					interpolationFunction: 'interpolate',
+					keyframes: [
+						{frame: 0, value: '0px 0px'},
+						{frame: 40, value: '100px 50px'},
+					],
+					easing: ['linear'],
+					clamping: {left: 'extend', right: 'extend'},
+					posterize: undefined,
+				},
+				fieldDefault: '0px 0px',
+				keyframeDisplayOffset: 30,
+				nodePath,
+				schema,
+			},
+		},
+	] satisfies SelectedOutlineDragState[];
+
+	const lastValues = getSelectedOutlineDragValues({
+		dragStates,
+		deltaX: 7,
+		deltaY: -4,
+	});
+
+	expect(lastValues.get(dragStates[0].key)).toBe('57px 21px');
+	expect(
+		getSelectedOutlineDragChanges({
+			dragStates,
+			lastValues,
+		}),
+	).toEqual([
+		{
+			type: 'keyframed',
+			fileName: '/project/src/Comp.tsx',
+			nodePath,
+			fieldKey: 'style.translate',
+			sourceFrame: 20,
+			value: '57px 21px',
+			schema,
+			clientId: 'client',
+		},
+	]);
+	expect(
+		getSelectedOutlineDragChanges({
+			dragStates,
+			lastValues: new Map([[dragStates[0].key, '50px 25px']]),
+		}),
+	).toEqual([]);
 });
 
 test('Selected outline edge dragging scales one axis when scale is unlinked', () => {
