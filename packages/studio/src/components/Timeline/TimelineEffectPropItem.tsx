@@ -74,12 +74,35 @@ const Value: React.FC<{
 		effectStatus.type === 'can-update-effect'
 			? (effectStatus.props?.[field.key] ?? null)
 			: null;
+	const timelinePosition = Internals.Timeline.useTimelinePosition();
+	const jsxFrame = timelinePosition - keyframeDisplayOffset;
 
 	const onDragValueChange = useCallback(
 		(value: unknown) => {
-			setEffectDragOverrides(nodePath, field.effectIndex, field.key, value);
+			const nextDragOverrideValue =
+				propStatus !== null && isKeyframedStatus(propStatus)
+					? Internals.makeKeyframedDragOverride({
+							status: propStatus,
+							frame: jsxFrame,
+							value,
+						})
+					: Internals.makeStaticDragOverride(value);
+
+			setEffectDragOverrides(
+				nodePath,
+				field.effectIndex,
+				field.key,
+				nextDragOverrideValue,
+			);
 		},
-		[setEffectDragOverrides, nodePath, field.effectIndex, field.key],
+		[
+			field.effectIndex,
+			field.key,
+			jsxFrame,
+			nodePath,
+			propStatus,
+			setEffectDragOverrides,
+		],
 	);
 
 	const onDragEnd = useCallback(() => {

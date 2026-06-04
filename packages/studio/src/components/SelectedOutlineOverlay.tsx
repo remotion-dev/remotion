@@ -2,6 +2,7 @@ import React, {useContext, useEffect, useMemo, useRef, useState} from 'react';
 import type {
 	CanUpdateSequencePropStatusStatic,
 	CodeValues,
+	GetDragOverrides,
 	GetEffectDragOverrides,
 	OverrideIdToNodePaths,
 	SequenceFieldSchema,
@@ -549,7 +550,9 @@ const getSelectedUvHandles = ({
 
 		const dragOverrides = getEffectDragOverrides(nodePath, effectIndex);
 		const activeSchema = Internals.flattenActiveSchema(effect.schema, (key) => {
-			const dragOverride = dragOverrides[key];
+			const dragOverride = Internals.getStaticDragOverrideValue(
+				dragOverrides[key],
+			);
 			if (dragOverride !== undefined) {
 				return dragOverride;
 			}
@@ -659,9 +662,7 @@ const getSelectedOutlineDragStates = ({
 	getDragOverrides,
 }: {
 	readonly dragTargets: readonly SelectedOutlineDragTarget[];
-	readonly getDragOverrides: (
-		nodePath: SequencePropsSubscriptionKey,
-	) => Record<string, unknown>;
+	readonly getDragOverrides: GetDragOverrides;
 }): SelectedOutlineDragState[] => {
 	return dragTargets.map((target) => {
 		const dragOverrideValue = (getDragOverrides(target.nodePath) ?? {})[
@@ -794,9 +795,7 @@ export const getSelectedOutlineScaleDragStates = ({
 	getDragOverrides,
 }: {
 	readonly dragTargets: readonly SelectedOutlineScaleDragTarget[];
-	readonly getDragOverrides: (
-		nodePath: SequencePropsSubscriptionKey,
-	) => Record<string, unknown>;
+	readonly getDragOverrides: GetDragOverrides;
 }): SelectedOutlineScaleDragState[] => {
 	return dragTargets.map((target) => {
 		const dragOverrideValue = (getDragOverrides(target.nodePath) ?? {})[
@@ -1001,7 +1000,11 @@ const SelectedOutlinePolygon: React.FC<{
 						throw new Error('Expected drag value to be available');
 					}
 
-					setDragOverrides(dragState.target.nodePath, translateFieldKey, value);
+					setDragOverrides(
+						dragState.target.nodePath,
+						translateFieldKey,
+						Internals.makeStaticDragOverride(value),
+					);
 				}
 			};
 
@@ -1157,7 +1160,11 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 						throw new Error('Expected scale drag value to be available');
 					}
 
-					setDragOverrides(dragState.target.nodePath, scaleFieldKey, value);
+					setDragOverrides(
+						dragState.target.nodePath,
+						scaleFieldKey,
+						Internals.makeStaticDragOverride(value),
+					);
 				}
 			};
 
@@ -1304,7 +1311,7 @@ const SelectedUvHandleCircle: React.FC<{
 					handle.nodePath,
 					handle.effectIndex,
 					handle.fieldKey,
-					nextValue,
+					Internals.makeStaticDragOverride(nextValue),
 				);
 			};
 

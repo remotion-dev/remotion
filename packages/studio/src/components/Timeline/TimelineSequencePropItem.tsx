@@ -130,7 +130,11 @@ const Value: React.FC<{
 				throw new Error('Cannot drag value');
 			}
 
-			setDragOverrides(nodePath, field.key, value);
+			setDragOverrides(
+				nodePath,
+				field.key,
+				Internals.makeStaticDragOverride(value),
+			);
 		},
 		[setDragOverrides, nodePath, field.key],
 	);
@@ -194,6 +198,8 @@ export const TimelineSequencePropItem: React.FC<{
 		nodePath,
 	);
 	const codeValue = codeValuesForOverride?.[field.key] ?? null;
+	const timelinePosition = Internals.Timeline.useTimelinePosition();
+	const jsxFrame = timelinePosition - keyframeDisplayOffset;
 
 	const dragOverrideValue = useMemo(() => {
 		return (getDragOverrides(nodePath) ?? {})[field.key];
@@ -314,9 +320,21 @@ export const TimelineSequencePropItem: React.FC<{
 	const onKeyframedDragValueChange =
 		useCallback<TimelineFieldOnDragValueChange>(
 			(value) => {
-				setDragOverrides(nodePath, field.key, value);
+				if (codeValue === null || !isKeyframedStatus(codeValue)) {
+					throw new Error('Expected keyframed status');
+				}
+
+				setDragOverrides(
+					nodePath,
+					field.key,
+					Internals.makeKeyframedDragOverride({
+						status: codeValue,
+						frame: jsxFrame,
+						value,
+					}),
+				);
 			},
-			[field.key, nodePath, setDragOverrides],
+			[codeValue, field.key, jsxFrame, nodePath, setDragOverrides],
 		);
 
 	const onKeyframedDragEnd = useCallback(() => {

@@ -3,6 +3,7 @@ import type {TSequence} from './CompositionManager.js';
 import type {
 	CanUpdateSequencePropStatus,
 	CodeValues,
+	DragOverrideValue,
 	DragOverrides,
 	EffectDragOverrides,
 	GetDragOverrides,
@@ -40,14 +41,14 @@ export type VisualModeSetters = {
 	setDragOverrides: (
 		nodePath: SequencePropsSubscriptionKey,
 		key: string,
-		value: unknown,
+		value: DragOverrideValue,
 	) => void;
 	clearDragOverrides: (nodePath: SequencePropsSubscriptionKey) => void;
 	setEffectDragOverrides: (
 		nodePath: SequencePropsSubscriptionKey,
 		effectIndex: number,
 		key: string,
-		value: unknown,
+		value: DragOverrideValue,
 	) => void;
 	clearEffectDragOverrides: (
 		nodePath: SequencePropsSubscriptionKey,
@@ -165,7 +166,11 @@ export const SequenceManagerProvider: React.FC<{
 	const [codeValues, setCodeValuesMapState] = useState<CodeValues>({});
 
 	const setDragOverrides = useCallback(
-		(nodePath: SequencePropsSubscriptionKey, key: string, value: unknown) => {
+		(
+			nodePath: SequencePropsSubscriptionKey,
+			key: string,
+			value: DragOverrideValue,
+		) => {
 			setControlOverrides((prev) => ({
 				...prev,
 				[makeSequencePropsSubscriptionKey(nodePath)]: {
@@ -198,7 +203,7 @@ export const SequenceManagerProvider: React.FC<{
 			nodePath: SequencePropsSubscriptionKey,
 			effectIndex: number,
 			key: string,
-			value: unknown,
+			value: DragOverrideValue,
 		) => {
 			setEffectDragOverridesState((prev) => {
 				const mapKey = effectDragOverridesKey(nodePath, effectIndex);

@@ -1,4 +1,7 @@
-import type {CanUpdateSequencePropStatusStatic} from './use-schema';
+import type {
+	CanUpdateSequencePropStatusStatic,
+	DragOverrideValue,
+} from './use-schema';
 
 export const getEffectiveVisualModeValue = ({
 	codeValue,
@@ -7,12 +10,16 @@ export const getEffectiveVisualModeValue = ({
 	shouldResortToDefaultValueIfUndefined = false,
 }: {
 	codeValue: CanUpdateSequencePropStatusStatic;
-	dragOverrideValue: unknown;
+	dragOverrideValue: DragOverrideValue | undefined;
 	defaultValue: unknown;
 	shouldResortToDefaultValueIfUndefined: boolean;
 }) => {
-	if (dragOverrideValue !== undefined) {
-		return dragOverrideValue;
+	if (
+		dragOverrideValue !== undefined &&
+		dragOverrideValue.type === 'static' &&
+		dragOverrideValue.value !== undefined
+	) {
+		return dragOverrideValue.value;
 	}
 
 	if (

@@ -2,6 +2,7 @@ import React, {useCallback, useMemo} from 'react';
 import type {
 	CanUpdateSequencePropStatusKeyframed,
 	CanUpdateSequencePropStatusStatic,
+	DragOverrideValue,
 	SequencePropsSubscriptionKey,
 } from 'remotion';
 import {Internals} from 'remotion';
@@ -20,7 +21,7 @@ export const TimelineKeyframedValue: React.FC<{
 	readonly field: SchemaFieldInfo;
 	readonly propStatus: CanUpdateSequencePropStatusKeyframed;
 	readonly keyframeDisplayOffset: number;
-	readonly dragOverrideValue: unknown;
+	readonly dragOverrideValue: DragOverrideValue | undefined;
 	readonly onSave: (value: unknown, sourceFrame: number) => Promise<void>;
 	readonly onDragValueChange: TimelineFieldOnDragValueChange;
 	readonly onDragEnd: () => void;
@@ -58,8 +59,13 @@ export const TimelineKeyframedValue: React.FC<{
 		[computedValue],
 	);
 
-	const effectiveValue =
-		dragOverrideValue === undefined ? computedValue : dragOverrideValue;
+	const effectiveValue = useMemo(() => {
+		const resolved = Internals.resolveDragOverrideValue({
+			dragOverrideValue,
+			frame: jsxFrame,
+		});
+		return resolved.type === 'resolved' ? resolved.value : computedValue;
+	}, [computedValue, dragOverrideValue, jsxFrame]);
 
 	const onSaveIfChanged = useCallback<TimelineFieldOnSave>(
 		(value) => {

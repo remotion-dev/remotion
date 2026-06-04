@@ -56,8 +56,21 @@ export type CanUpdateSequencePropStatus =
 	| CanUpdateSequencePropStatusKeyframed
 	| CanUpdateSequencePropStatusFalse;
 
-export type DragOverrides = Record<string, Record<string, unknown>>;
-export type EffectDragOverrides = Record<string, Record<string, unknown>>;
+export type DragOverrideValue =
+	| {
+			readonly type: 'static';
+			readonly value: unknown;
+	  }
+	| {
+			readonly type: 'keyframed';
+			readonly status: CanUpdateSequencePropStatusKeyframed;
+	  };
+
+export type DragOverrides = Record<string, Record<string, DragOverrideValue>>;
+export type EffectDragOverrides = Record<
+	string,
+	Record<string, DragOverrideValue>
+>;
 export type CodeValues = Record<string, CanUpdateSequencePropsResponse>;
 
 export type GetCodeValues = (
@@ -76,7 +89,99 @@ export type GetDragOverrides = (
 export type GetEffectDragOverrides = (
 	nodePath: SequencePropsSubscriptionKey,
 	effectIndex: number,
-) => Record<string, unknown>;
+) => Record<string, DragOverrideValue>;
+
+export const makeStaticDragOverride = (value: unknown): DragOverrideValue => {
+	return {type: 'static', value};
+};
+
+export const makeKeyframedDragOverride = ({
+	status,
+	frame,
+	value,
+}: {
+	status: CanUpdateSequencePropStatusKeyframed;
+	frame: number;
+	value: unknown;
+}): DragOverrideValue => {
+	const existingIndex = status.keyframes.findIndex(
+		(keyframe) => keyframe.frame === frame,
+	);
+	const keyframes =
+		existingIndex === -1
+			? [...status.keyframes, {frame, value}].sort(
+					(first, second) => first.frame - second.frame,
+				)
+			: status.keyframes.map((keyframe, index) =>
+					index === existingIndex ? {frame, value} : keyframe,
+				);
+	const easing = [...status.easing];
+	while (easing.length < keyframes.length - 1) {
+		easing.push('linear');
+	}
+
+	if (easing.length > keyframes.length - 1) {
+		easing.length = keyframes.length - 1;
+	}
+
+	return {
+		type: 'keyframed',
+		status: {
+			...status,
+			keyframes,
+			easing,
+		},
+	};
+};
+
+export type ResolvedDragOverrideValue =
+	| {
+			readonly type: 'none';
+	  }
+	| {
+			readonly type: 'resolved';
+			readonly value: unknown;
+	  };
+
+export const resolveDragOverrideValue = ({
+	dragOverrideValue,
+	frame,
+}: {
+	dragOverrideValue: DragOverrideValue | undefined;
+	frame: number | null;
+}): ResolvedDragOverrideValue => {
+	if (dragOverrideValue === undefined) {
+		return {type: 'none'};
+	}
+
+	if (dragOverrideValue.type === 'static') {
+		return {type: 'resolved', value: dragOverrideValue.value};
+	}
+
+	if (frame === null) {
+		return {type: 'none'};
+	}
+
+	const interpolated = interpolateKeyframedStatus({
+		frame,
+		status: dragOverrideValue.status,
+	});
+	if (interpolated === null) {
+		return {type: 'none'};
+	}
+
+	return {type: 'resolved', value: interpolated};
+};
+
+export const getStaticDragOverrideValue = (
+	dragOverrideValue: DragOverrideValue | undefined,
+): unknown => {
+	if (dragOverrideValue?.type !== 'static') {
+		return undefined;
+	}
+
+	return dragOverrideValue.value;
+};
 
 export const isKeyframedStatus = (
 	status: CanUpdateSequencePropStatus | null,
@@ -117,7 +222,7 @@ export const computeEffectiveSchemaValuesDotNotation = ({
 }: {
 	schema: SequenceSchema;
 	currentValue: Record<string, unknown>;
-	overrideValues: Record<string, unknown>;
+	overrideValues: Record<string, DragOverrideValue>;
 	propStatus: Record<string, CanUpdateSequencePropStatus> | undefined;
 	frame: number | null;
 }): {merged: Record<string, unknown>; propsToDelete: Set<string>} => {
@@ -135,7 +240,13 @@ export const computeEffectiveSchemaValuesDotNotation = ({
 		if (codeValueStatus === null) {
 			value = currentValue[key];
 		} else if (isKeyframedStatus(codeValueStatus)) {
-			if (frame !== null) {
+			const dragOverride = resolveDragOverrideValue({
+				dragOverrideValue: overrideValues[key],
+				frame,
+			});
+			if (dragOverride.type === 'resolved') {
+				value = dragOverride.value;
+			} else if (frame !== null) {
 				const interpolated = interpolateKeyframedStatus({
 					frame,
 					status: codeValueStatus,

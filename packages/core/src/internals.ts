@@ -189,6 +189,7 @@ import type {
 	CanUpdateSequencePropStatusStatic,
 	CanUpdateSequencePropStatusFalse,
 	CanUpdateSequencePropStatusKeyframed,
+	DragOverrideValue,
 	GetCodeValues,
 	GetDragOverrides,
 	GetEffectCodeValues,
@@ -200,6 +201,10 @@ import {
 	type CodeValues,
 	type DragOverrides,
 	type EffectDragOverrides,
+	getStaticDragOverrideValue,
+	makeKeyframedDragOverride,
+	makeStaticDragOverride,
+	resolveDragOverrideValue,
 } from './use-schema.js';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config.js';
 import {useVideo} from './use-video.js';
@@ -374,6 +379,10 @@ export const Internals = {
 	createWebGL2ContextError,
 	computeEffectiveSchemaValuesDotNotation,
 	interpolateKeyframedStatus,
+	makeStaticDragOverride,
+	makeKeyframedDragOverride,
+	resolveDragOverrideValue,
+	getStaticDragOverrideValue,
 	OverrideIdsToNodePathsGettersContext,
 	OverrideIdsToNodePathsSettersContext,
 	findPropsToDelete,
@@ -401,6 +410,7 @@ export type {
 	CompositionManagerContext,
 	CompProps,
 	DragOverrides,
+	DragOverrideValue,
 	EffectDragOverrides,
 	GetCodeValues,
 	GetDragOverrides,

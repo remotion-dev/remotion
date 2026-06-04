@@ -238,7 +238,9 @@ test('getNodeKeyframes shows a temporary sequence keyframe from drag overrides',
 			nodePath,
 			codeValues: makeCodeValues(nodePath),
 			keyframeDisplayOffset: 30,
-			getDragOverrides: () => ({'style.scale': 3}),
+			getDragOverrides: () => ({
+				'style.scale': Internals.makeStaticDragOverride(3),
+			}),
 			getEffectDragOverrides: () => ({}),
 			timelinePosition: 60,
 		}),
@@ -259,7 +261,60 @@ test('getNodeKeyframes shows a temporary effect keyframe from drag overrides', (
 			codeValues: makeCodeValues(nodePath),
 			keyframeDisplayOffset: 30,
 			getDragOverrides: () => ({}),
-			getEffectDragOverrides: () => ({amount: 5}),
+			getEffectDragOverrides: () => ({
+				amount: Internals.makeStaticDragOverride(5),
+			}),
+			timelinePosition: 90,
+		}),
+	).toEqual([
+		{frame: 30, value: 2},
+		{frame: 90, value: 5},
+	]);
+});
+
+test('getNodeKeyframes shows sequence keyframes from keyframed drag overrides', () => {
+	const nodePath = makeNodePath('sequence');
+
+	expect(
+		getNodeKeyframes({
+			node: makeSequenceFieldNode('style.scale'),
+			nodePath,
+			codeValues: makeCodeValues(nodePath),
+			keyframeDisplayOffset: 30,
+			getDragOverrides: () => ({
+				'style.scale': Internals.makeKeyframedDragOverride({
+					status: makeKeyframedStatus(),
+					frame: 30,
+					value: 3,
+				}),
+			}),
+			getEffectDragOverrides: () => ({}),
+			timelinePosition: 60,
+		}),
+	).toEqual([
+		{frame: 30, value: 2},
+		{frame: 60, value: 3},
+		{frame: 90, value: 4},
+	]);
+});
+
+test('getNodeKeyframes replaces existing keyframes from keyframed drag overrides', () => {
+	const nodePath = makeNodePath('sequence');
+
+	expect(
+		getNodeKeyframes({
+			node: makeEffectFieldNode('amount', 0),
+			nodePath,
+			codeValues: makeCodeValues(nodePath),
+			keyframeDisplayOffset: 30,
+			getDragOverrides: () => ({}),
+			getEffectDragOverrides: () => ({
+				amount: Internals.makeKeyframedDragOverride({
+					status: makeKeyframedStatus(),
+					frame: 60,
+					value: 5,
+				}),
+			}),
 			timelinePosition: 90,
 		}),
 	).toEqual([

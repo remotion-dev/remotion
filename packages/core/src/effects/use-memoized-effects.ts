@@ -12,7 +12,13 @@ import {
 	VisualModeCodeValuesContext,
 	VisualModeDragOverridesContext,
 } from '../SequenceManager.js';
-import type {CanUpdateSequencePropStatus, CodeValues} from '../use-schema.js';
+import {useCurrentFrame} from '../use-current-frame.js';
+import {
+	resolveDragOverrideValue,
+	type CanUpdateSequencePropStatus,
+	type CodeValues,
+	type DragOverrideValue,
+} from '../use-schema.js';
 import type {
 	EffectDefinition,
 	EffectDefinitionAndStack,
@@ -23,10 +29,12 @@ const mergeOverrides = ({
 	descriptor,
 	codeOverrides,
 	dragOverrides,
+	frame,
 }: {
 	descriptor: EffectDescriptor<unknown>;
 	codeOverrides: Record<string, unknown> | null;
-	dragOverrides: Record<string, unknown> | null;
+	dragOverrides: Record<string, DragOverrideValue> | null;
+	frame: number;
 }): {params: unknown; effectKey: string} => {
 	if (!codeOverrides && !dragOverrides) {
 		return {params: descriptor.params, effectKey: descriptor.effectKey};
@@ -46,7 +54,13 @@ const mergeOverrides = ({
 
 	if (dragOverrides) {
 		for (const [key, value] of Object.entries(dragOverrides)) {
-			merged[key] = value;
+			const resolved = resolveDragOverrideValue({
+				dragOverrideValue: value,
+				frame,
+			});
+			if (resolved.type === 'resolved') {
+				merged[key] = resolved.value;
+			}
 		}
 	}
 
@@ -169,6 +183,7 @@ export const useMemoizedEffects = ({
 
 	const {codeValues} = useContext(VisualModeCodeValuesContext);
 	const {getEffectDragOverrides} = useContext(VisualModeDragOverridesContext);
+	const frame = useCurrentFrame();
 
 	const {overrideIdToNodePathMappings} = useContext(
 		OverrideIdsToNodePathsGettersContext,
@@ -206,6 +221,7 @@ export const useMemoizedEffects = ({
 			descriptor,
 			codeOverrides,
 			dragOverrides,
+			frame,
 		});
 
 		return {descriptor, params, effectKey};

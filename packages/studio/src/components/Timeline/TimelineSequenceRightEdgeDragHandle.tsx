@@ -542,10 +542,12 @@ export const useTimelineSequenceFromDrag = ({
 				latestRef.current.setDragOverrides(
 					target.nodePath,
 					'from',
-					getTimelineSequenceFromDragValue({
-						initialFrom: target.initialFrom,
-						deltaFrames,
-					}),
+					Internals.makeStaticDragOverride(
+						getTimelineSequenceFromDragValue({
+							initialFrom: target.initialFrom,
+							deltaFrames,
+						}),
+					),
 				);
 			}
 		};
@@ -776,10 +778,12 @@ export const TimelineSequenceRightEdgeDragHandle: React.FC<{
 				latestRef.current.setDragOverrides(
 					target.nodePath,
 					'durationInFrames',
-					getTimelineSequenceDurationDragValue({
-						initialDuration: target.initialDuration,
-						deltaFrames,
-					}),
+					Internals.makeStaticDragOverride(
+						getTimelineSequenceDurationDragValue({
+							initialDuration: target.initialDuration,
+							deltaFrames,
+						}),
+					),
 				);
 			}
 		};

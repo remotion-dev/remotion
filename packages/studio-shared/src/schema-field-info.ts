@@ -137,7 +137,9 @@ export const getEffectFieldsToShow = ({
 	const dragOverrides =
 		nodePath === null ? {} : getEffectDragOverrides(nodePath, effectIndex);
 	const activeSchema = Internals.flattenActiveSchema(effect.schema, (key) => {
-		const dragOverride = dragOverrides[key];
+		const dragOverride = Internals.getStaticDragOverrideValue(
+			dragOverrides[key],
+		);
 		if (dragOverride !== undefined) {
 			return dragOverride;
 		}
