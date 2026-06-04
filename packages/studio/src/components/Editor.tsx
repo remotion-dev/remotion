@@ -38,7 +38,8 @@ export const Editor: React.FC<{
 	readonly Root: React.FC;
 	readonly readOnlyStudio: boolean;
 }> = ({Root, readOnlyStudio}) => {
-	const size = PlayerInternals.useElementSize(drawRef, {
+	const [drawElement, setDrawElement] = useState<HTMLDivElement | null>(null);
+	const size = PlayerInternals.useElementSize(drawElement, {
 		triggerOnWindowResize: false,
 		shouldApplyCssTransforms: true,
 	});
@@ -47,6 +48,13 @@ export const Editor: React.FC<{
 
 	const onMounted = useCallback(() => {
 		setCanvasMounted(true);
+	}, []);
+
+	// Use a callback ref so the late-mounted canvas container triggers a render
+	// and useElementSize() can observe it. See GitHub issue #8098.
+	const setDrawRef = useCallback((node: HTMLDivElement | null) => {
+		drawRef.current = node;
+		setDrawElement(node);
 	}, []);
 
 	const value: CurrentScaleContextType | null = useMemo(() => {
@@ -97,8 +105,7 @@ export const Editor: React.FC<{
 									<RenderErrorContext.Provider value={renderErrorContextValue}>
 										<EditorContent readOnlyStudio={readOnlyStudio}>
 											<TopPanel
-												drawRef={drawRef}
-												size={size}
+												drawRef={setDrawRef}
 												bufferStateDelayInMilliseconds={
 													BUFFER_STATE_DELAY_IN_MILLISECONDS
 												}
