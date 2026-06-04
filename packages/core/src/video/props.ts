@@ -56,7 +56,7 @@ export type RemotionVideoProps = NativeVideoProps & {
 	delayRenderRetries?: number;
 	onError?: (err: Error) => void;
 	onAutoPlayError?: null | (() => void);
-	onVideoFrameCallback?: OnVideoFrameCallback;
+	onVideoFrame?: OnVideoFrame;
 	audioStreamIndex?: number;
 };
 
@@ -72,9 +72,7 @@ type MandatoryOffthreadVideoProps = {
 };
 
 type OptionalOffthreadVideoProps = {
-	className: string | undefined;
 	name: string | undefined;
-	id: string | undefined;
 	style: React.CSSProperties | undefined;
 	volume: VolumeProp | undefined;
 	playbackRate: number;
@@ -98,22 +96,33 @@ type OptionalOffthreadVideoProps = {
 	showInTimeline: boolean;
 	onAutoPlayError: null | (() => void);
 	onVideoFrame: OnVideoFrame | undefined;
-	onVideoFrameCallback: OnVideoFrameCallback | undefined;
 	crossOrigin: '' | 'anonymous' | 'use-credentials' | undefined;
 	audioStreamIndex: number;
 };
 
+type NativeOffthreadVideoProps = Omit<
+	React.HTMLAttributes<HTMLElement>,
+	| keyof MandatoryOffthreadVideoProps
+	| keyof OptionalOffthreadVideoProps
+	| keyof CommonVideoProps
+	| keyof DeprecatedOffthreadVideoProps
+	| 'onError'
+> &
+	Record<`data-${string}`, string | undefined>;
+
 export type AllOffthreadVideoProps = MandatoryOffthreadVideoProps &
 	OptionalOffthreadVideoProps &
-	CommonVideoProps;
+	CommonVideoProps &
+	NativeOffthreadVideoProps;
 
 export type RemotionOffthreadVideoProps = MandatoryOffthreadVideoProps &
 	Partial<OptionalOffthreadVideoProps> &
 	Partial<CommonVideoProps> &
-	Partial<DeprecatedOffthreadVideoProps>;
+	Partial<DeprecatedOffthreadVideoProps> &
+	NativeOffthreadVideoProps;
 
-export type OnVideoFrame = (frame: CanvasImageSource) => void;
-export type OnVideoFrameCallback = (
-	now: DOMHighResTimeStamp,
-	metadata: VideoFrameCallbackMetadata,
+export type OnVideoFrame = (
+	frame: CanvasImageSource,
+	now?: DOMHighResTimeStamp,
+	metadata?: VideoFrameCallbackMetadata,
 ) => void;

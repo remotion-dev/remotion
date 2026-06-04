@@ -1,7 +1,9 @@
+import {isSchemaFieldKeyframable} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useMemo} from 'react';
 import type {
 	CanUpdateSequencePropStatus,
 	CanUpdateSequencePropStatusKeyframed,
+	DragOverrideValue,
 	SequencePropsSubscriptionKey,
 	SequenceSchema,
 } from 'remotion';
@@ -22,6 +24,7 @@ import {
 	hasKeyframeAtSourceFrame,
 } from './get-keyframe-navigation';
 import {getTimelineKeyframes} from './get-timeline-keyframes';
+import {TimelineKeyframeDiamondIcon} from './TimelineKeyframeDiamondIcon';
 import {SELECTION_ENABLED} from './TimelineSelection';
 
 const controlsContainerStyle: React.CSSProperties = {
@@ -58,15 +61,6 @@ const isKeyframedStatus = (
 const diamondButtonStyle: React.CSSProperties = {
 	...navButtonStyle,
 	background: 'none',
-	translate: '0 -0.5px',
-};
-
-const diamondIconStyle: React.CSSProperties = {
-	borderRadius: 1,
-	boxShadow: '0 0 0 1px rgba(0, 0, 0, 0.4)',
-	height: 7,
-	transform: 'rotate(45deg)',
-	width: 7,
 };
 
 const svgStyle: React.CSSProperties = {display: 'block'};
@@ -80,13 +74,15 @@ const getCurrentKeyframeValue = ({
 	propStatus: CanUpdateSequencePropStatus;
 	jsxFrame: number;
 	defaultValue: unknown;
-	dragOverrideValue: unknown;
+	dragOverrideValue: DragOverrideValue | undefined;
 }): unknown | null => {
 	if (isKeyframedStatus(propStatus)) {
-		const keyframedStatus = propStatus as CanUpdateSequencePropStatusKeyframed;
-		return Internals.interpolateKeyframedStatus({
+		return Internals.getEffectiveVisualModeValue({
+			codeValue: propStatus,
+			dragOverrideValue,
 			frame: jsxFrame,
-			status: keyframedStatus,
+			defaultValue,
+			shouldResortToDefaultValueIfUndefined: true,
 		});
 	}
 
@@ -94,6 +90,7 @@ const getCurrentKeyframeValue = ({
 		return Internals.getEffectiveVisualModeValue({
 			codeValue: propStatus,
 			dragOverrideValue,
+			frame: jsxFrame,
 			defaultValue,
 			shouldResortToDefaultValueIfUndefined: true,
 		});
@@ -133,7 +130,7 @@ export const TimelineKeyframeControls: React.FC<{
 	readonly fileName: string;
 	readonly keyframeDisplayOffset: number;
 	readonly defaultValue: unknown;
-	readonly dragOverrideValue: unknown | undefined;
+	readonly dragOverrideValue: DragOverrideValue | undefined;
 	readonly schema: SequenceSchema;
 	readonly effectIndex: number | null;
 }> = ({
@@ -187,19 +184,29 @@ export const TimelineKeyframeControls: React.FC<{
 	);
 
 	const previousDisplayFrame = useMemo(
-		() => getPreviousKeyframeDisplayFrame(keyframes, timelinePosition),
-		[keyframes, timelinePosition],
+		() =>
+			getPreviousKeyframeDisplayFrame(
+				keyframes,
+				timelinePosition,
+				videoConfig.durationInFrames,
+			),
+		[keyframes, timelinePosition, videoConfig.durationInFrames],
 	);
 	const nextDisplayFrame = useMemo(
-		() => getNextKeyframeDisplayFrame(keyframes, timelinePosition),
-		[keyframes, timelinePosition],
+		() =>
+			getNextKeyframeDisplayFrame(
+				keyframes,
+				timelinePosition,
+				videoConfig.durationInFrames,
+			),
+		[keyframes, timelinePosition, videoConfig.durationInFrames],
 	);
 
-	const fieldSchema = schema[fieldKey];
-	const keyframable = fieldSchema?.keyframable !== false;
-	const canAddKeyframe =
-		keyframable &&
-		(fieldSchema?.type !== 'scale' || typeof currentKeyframeValue === 'number');
+	const keyframable = isSchemaFieldKeyframable({
+		schema,
+		key: fieldKey,
+	});
+	const canAddKeyframe = keyframable;
 	const canToggleKeyframe =
 		propStatus.status !== 'computed' &&
 		(hasKeyframeAtCurrentFrame || canAddKeyframe);
@@ -346,13 +353,7 @@ export const TimelineKeyframeControls: React.FC<{
 		[canToggleKeyframe, clientId],
 	);
 
-	const diamondIcon = useMemo(
-		(): React.CSSProperties => ({
-			...diamondIconStyle,
-			backgroundColor: hasKeyframeAtCurrentFrame ? BLUE : LIGHT_TEXT,
-		}),
-		[hasKeyframeAtCurrentFrame],
-	);
+	const diamondColor = hasKeyframeAtCurrentFrame ? BLUE : LIGHT_TEXT;
 
 	return (
 		<div style={controlsContainerStyle}>
@@ -380,7 +381,7 @@ export const TimelineKeyframeControls: React.FC<{
 				}
 				title={hasKeyframeAtCurrentFrame ? 'Remove keyframe' : 'Add keyframe'}
 			>
-				<span style={diamondIcon} />
+				<TimelineKeyframeDiamondIcon color={diamondColor} size={12} />
 			</button>
 			<button
 				type="button"

@@ -19,7 +19,12 @@ import {
 } from '@remotion/studio-shared';
 import type {ExpressionKind, SpreadElementKind} from 'ast-types/lib/gen/kinds';
 import * as recast from 'recast';
-import type {SequenceNodePath, SequenceSchema} from 'remotion';
+import type {
+	ExtrapolateType,
+	SequenceFieldSchema,
+	SequenceNodePath,
+	SequenceSchema,
+} from 'remotion';
 import {getAstNodePath} from '../../helpers/get-ast-node-path';
 import {
 	extractStaticValue,
@@ -51,6 +56,23 @@ export type KeyframeOperation =
 	| {
 			type: 'remove';
 			frame: number;
+	  }
+	| {
+			type: 'settings';
+			clamping:
+				| {
+						left: ExtrapolateType;
+						right: ExtrapolateType;
+				  }
+				| undefined;
+			posterize: number | undefined;
+	  }
+	| {
+			type: 'move';
+			moves: {
+				fromFrame: number;
+				toFrame: number;
+			}[];
 	  };
 
 export type SequenceKeyframeUpdate = {
@@ -66,6 +88,10 @@ export type EffectKeyframeUpdate = {
 type WritableProp = {
 	expression: Expression;
 	setExpression: (expression: ExpressionKind) => void;
+};
+
+type MissingPropInitialValue = {
+	value: unknown;
 };
 
 type InterpolateKeyframe = {
@@ -216,6 +242,152 @@ const createFrameExpression = (frame: number): ExpressionKind => {
 	return parseValueExpression(frame);
 };
 
+const createClampOptionsExpression = (): ExpressionKind => {
+	return b.objectExpression([
+		b.objectProperty(b.identifier('extrapolateLeft'), b.stringLiteral('clamp')),
+		b.objectProperty(
+			b.identifier('extrapolateRight'),
+			b.stringLiteral('clamp'),
+		),
+	]) as ExpressionKind;
+};
+
+const createEmptyOptionsExpression = (): ObjectExpression =>
+	b.objectExpression([]) as ObjectExpression;
+
+const findObjectOptionProperty = (
+	options: ObjectExpression,
+	propertyName: string,
+): {propIndex: number; prop: ObjectProperty | undefined} => {
+	const propIndex = options.properties.findIndex(
+		(prop) =>
+			prop.type === 'ObjectProperty' &&
+			!prop.computed &&
+			((prop.key.type === 'Identifier' && prop.key.name === propertyName) ||
+				(prop.key.type === 'StringLiteral' && prop.key.value === propertyName)),
+	);
+
+	return {
+		propIndex,
+		prop:
+			propIndex === -1
+				? undefined
+				: (options.properties[propIndex] as ObjectProperty),
+	};
+};
+
+const setOptionsProperty = ({
+	options,
+	propertyName,
+	value,
+}: {
+	options: ObjectExpression;
+	propertyName: string;
+	value: ExpressionKind | null;
+}) => {
+	const {propIndex, prop} = findObjectOptionProperty(options, propertyName);
+	if (value === null) {
+		if (propIndex !== -1) {
+			options.properties.splice(propIndex, 1);
+		}
+
+		return;
+	}
+
+	if (prop) {
+		prop.value = value as ObjectProperty['value'];
+		return;
+	}
+
+	options.properties.push(
+		b.objectProperty(b.identifier(propertyName), value) as ObjectProperty,
+	);
+};
+
+const validatePosterize = (posterize: number | undefined) => {
+	if (posterize === undefined) {
+		return;
+	}
+
+	if (!Number.isFinite(posterize) || posterize <= 0) {
+		throw new Error('Cannot update keyframe settings: posterize must be > 0');
+	}
+};
+
+const updateKeyframeSettings = ({
+	expression,
+	clamping,
+	posterize,
+}: {
+	expression: Expression;
+	clamping:
+		| {
+				left: ExtrapolateType;
+				right: ExtrapolateType;
+		  }
+		| undefined;
+	posterize: number | undefined;
+}): ExpressionKind => {
+	validatePosterize(posterize);
+
+	const existing = getInterpolationExpression(expression);
+	if (!existing) {
+		throw new Error('Cannot update keyframe settings on non-keyframed value');
+	}
+
+	const calleeName =
+		existing.callee.type === 'Identifier' ? existing.callee.name : null;
+	const isColorInterpolation = calleeName === 'interpolateColors';
+	const extraArgs = [...existing.extraArgs];
+	const existingOptions = extraArgs[0];
+	if (existingOptions && existingOptions.type !== 'ObjectExpression') {
+		throw new Error('Cannot update keyframe settings: options must be inline');
+	}
+
+	const options =
+		existingOptions?.type === 'ObjectExpression'
+			? (existingOptions as ObjectExpression)
+			: createEmptyOptionsExpression();
+
+	if (isColorInterpolation) {
+		setOptionsProperty({options, propertyName: 'extrapolateLeft', value: null});
+		setOptionsProperty({
+			options,
+			propertyName: 'extrapolateRight',
+			value: null,
+		});
+	} else if (clamping) {
+		setOptionsProperty({
+			options,
+			propertyName: 'extrapolateLeft',
+			value: b.stringLiteral(clamping.left),
+		});
+		setOptionsProperty({
+			options,
+			propertyName: 'extrapolateRight',
+			value: b.stringLiteral(clamping.right),
+		});
+	}
+
+	setOptionsProperty({
+		options,
+		propertyName: 'posterize',
+		value: posterize === undefined ? null : b.numericLiteral(posterize),
+	});
+
+	const nextExtraArgs =
+		options.properties.length === 0
+			? extraArgs.slice(1)
+			: [options as ExpressionKind, ...extraArgs.slice(1)];
+
+	return createInterpolateExpression({
+		callee: existing.callee,
+		input: existing.input,
+		extraArgs: nextExtraArgs,
+		keyframes: existing.keyframes,
+	});
+};
+
 const createInterpolateExpression = ({
 	callee,
 	input,
@@ -322,12 +494,16 @@ const addKeyframe = ({
 		staticValue,
 		newValue: value,
 	});
+	const extraArgs =
+		callee.type === 'Identifier' && callee.name === 'interpolateColors'
+			? []
+			: [createClampOptionsExpression()];
 
 	return {
 		expression: createInterpolateExpression({
 			callee,
 			input: b.identifier('frame'),
-			extraArgs: [],
+			extraArgs,
 			keyframes,
 		}),
 		introduced: {
@@ -375,6 +551,75 @@ const removeKeyframe = ({
 	});
 };
 
+const moveKeyframes = ({
+	expression,
+	moves,
+}: {
+	expression: Expression;
+	moves: {
+		fromFrame: number;
+		toFrame: number;
+	}[];
+}): ExpressionKind => {
+	const existing = getInterpolationExpression(expression);
+	if (!existing) {
+		throw new Error('Cannot move keyframe in non-interpolated expression');
+	}
+
+	const moveMap = new Map<number, number>();
+	for (const move of moves) {
+		if (move.fromFrame === move.toFrame) {
+			continue;
+		}
+
+		if (moveMap.has(move.fromFrame)) {
+			throw new Error(`Cannot move keyframe at frame ${move.fromFrame} twice`);
+		}
+
+		moveMap.set(move.fromFrame, move.toFrame);
+	}
+
+	if (moveMap.size === 0) {
+		return expression as ExpressionKind;
+	}
+
+	const frames = new Set(existing.keyframes.map((keyframe) => keyframe.frame));
+	for (const fromFrame of moveMap.keys()) {
+		if (!frames.has(fromFrame)) {
+			throw new Error(`Cannot move keyframe at frame ${fromFrame}: not found`);
+		}
+	}
+
+	const movedFromFrames = new Set(moveMap.keys());
+	const nextFrames = new Set<number>();
+	for (const keyframe of existing.keyframes) {
+		const nextFrame = moveMap.get(keyframe.frame) ?? keyframe.frame;
+		if (nextFrames.has(nextFrame)) {
+			throw new Error(
+				`Cannot move keyframe to frame ${nextFrame}: frame already exists`,
+			);
+		}
+
+		if (!movedFromFrames.has(keyframe.frame) && moveMap.has(nextFrame)) {
+			throw new Error(
+				`Cannot move keyframe to frame ${nextFrame}: frame already exists`,
+			);
+		}
+
+		nextFrames.add(nextFrame);
+	}
+
+	return createInterpolateExpression({
+		callee: existing.callee,
+		input: existing.input,
+		extraArgs: existing.extraArgs,
+		keyframes: existing.keyframes.map((keyframe) => ({
+			...keyframe,
+			frame: moveMap.get(keyframe.frame) ?? keyframe.frame,
+		})),
+	});
+};
+
 const applyKeyframeOperation = ({
 	expression,
 	key,
@@ -394,6 +639,24 @@ const applyKeyframeOperation = ({
 			value: operation.value,
 			schema,
 		});
+	}
+
+	if (operation.type === 'settings') {
+		return {
+			expression: updateKeyframeSettings({
+				expression,
+				clamping: operation.clamping,
+				posterize: operation.posterize,
+			}),
+			introduced: noIntroducedIdentifiers,
+		};
+	}
+
+	if (operation.type === 'move') {
+		return {
+			expression: moveKeyframes({expression, moves: operation.moves}),
+			introduced: noIntroducedIdentifiers,
+		};
 	}
 
 	return {
@@ -471,6 +734,47 @@ const findObjectProperty = (
 	};
 };
 
+const findFieldInSchema = (
+	schema: SequenceSchema,
+	key: string,
+): SequenceFieldSchema | undefined => {
+	if (key in schema) {
+		return schema[key];
+	}
+
+	for (const field of Object.values(schema)) {
+		if (field.type !== 'enum') {
+			continue;
+		}
+
+		for (const variant of Object.values(field.variants)) {
+			const found = findFieldInSchema(variant, key);
+			if (found) {
+				return found;
+			}
+		}
+	}
+
+	return undefined;
+};
+
+const getInitialValueForMissingProp = ({
+	schema,
+	key,
+	newValue,
+}: {
+	schema: SequenceSchema | null;
+	key: string;
+	newValue: unknown;
+}): unknown => {
+	const field = schema ? findFieldInSchema(schema, key) : undefined;
+	if (field && field.type !== 'hidden' && field.default !== undefined) {
+		return field.default;
+	}
+
+	return newValue;
+};
+
 const getObjectExpression = (attr: JSXAttribute): ObjectExpression | null => {
 	if (!attr.value || attr.value.type !== 'JSXExpressionContainer') {
 		return null;
@@ -483,17 +787,64 @@ const getObjectExpression = (attr: JSXAttribute): ObjectExpression | null => {
 	return attr.value.expression as ObjectExpression;
 };
 
+const createJsxExpressionAttribute = (
+	key: string,
+	expression: ExpressionKind,
+): JSXAttribute => {
+	return b.jsxAttribute(
+		b.jsxIdentifier(key),
+		b.jsxExpressionContainer(expression),
+	) as JSXAttribute;
+};
+
+const createObjectProperty = (key: string, value: ExpressionKind) =>
+	b.objectProperty(b.identifier(key), value);
+
+const createObjectExpressionAttribute = ({
+	parentKey,
+	childKey,
+	expression,
+}: {
+	parentKey: string;
+	childKey: string;
+	expression: ExpressionKind;
+}): JSXAttribute => {
+	return createJsxExpressionAttribute(
+		parentKey,
+		b.objectExpression([
+			createObjectProperty(childKey, expression),
+		]) as ExpressionKind,
+	);
+};
+
+const createMissingPropExpression = (
+	missingPropInitialValue: MissingPropInitialValue,
+): Expression => {
+	return parseValueExpression(missingPropInitialValue.value) as Expression;
+};
+
 const getSequenceWritableProp = ({
 	attributes,
 	key,
+	missingPropInitialValue,
 }: {
 	attributes: (JSXAttribute | JSXSpreadAttribute)[];
 	key: string;
+	missingPropInitialValue: MissingPropInitialValue | null;
 }): WritableProp => {
 	const dotIndex = key.indexOf('.');
 	if (dotIndex === -1) {
 		const {attr: topLevelAttr} = findJsxAttribute(attributes, key);
 		if (!topLevelAttr) {
+			if (missingPropInitialValue) {
+				return {
+					expression: createMissingPropExpression(missingPropInitialValue),
+					setExpression: (nextExpression) => {
+						attributes.push(createJsxExpressionAttribute(key, nextExpression));
+					},
+				};
+			}
+
 			throw new Error(`Cannot update keyframes: "${key}" is not set`);
 		}
 
@@ -520,6 +871,21 @@ const getSequenceWritableProp = ({
 	const childKey = key.slice(dotIndex + 1);
 	const {attr: parentAttr} = findJsxAttribute(attributes, parentKey);
 	if (!parentAttr) {
+		if (missingPropInitialValue) {
+			return {
+				expression: createMissingPropExpression(missingPropInitialValue),
+				setExpression: (nextExpression) => {
+					attributes.push(
+						createObjectExpressionAttribute({
+							parentKey,
+							childKey,
+							expression: nextExpression,
+						}),
+					);
+				},
+			};
+		}
+
 		throw new Error(`Cannot update keyframes: "${parentKey}" is not set`);
 	}
 
@@ -530,6 +896,17 @@ const getSequenceWritableProp = ({
 
 	const {prop} = findObjectProperty(objExpr, childKey);
 	if (!prop) {
+		if (missingPropInitialValue) {
+			return {
+				expression: createMissingPropExpression(missingPropInitialValue),
+				setExpression: (nextExpression) => {
+					objExpr.properties.push(
+						createObjectProperty(childKey, nextExpression) as ObjectProperty,
+					);
+				},
+			};
+		}
+
 		throw new Error(`Cannot update keyframes: "${key}" is not set`);
 	}
 
@@ -580,6 +957,16 @@ export const updateSequenceKeyframesAst = ({
 		const prop = getSequenceWritableProp({
 			attributes: node.attributes,
 			key: update.key,
+			missingPropInitialValue:
+				update.operation.type === 'add'
+					? {
+							value: getInitialValueForMissingProp({
+								schema: schema ?? null,
+								key: update.key,
+								newValue: update.operation.value,
+							}),
+						}
+					: null,
 		});
 		oldValueStrings.push(recast.print(prop.expression).code);
 		const {expression: nextExpression, introduced} = applyKeyframeOperation({

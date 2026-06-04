@@ -17,7 +17,10 @@ import {LoopedTimelineIndicator} from './LoopedTimelineIndicators';
 import {TimelineImageInfo} from './TimelineImageInfo';
 import {TIMELINE_TOP_DRAG, useTimelineRowSelection} from './TimelineSelection';
 import {TimelineSequenceFrame} from './TimelineSequenceFrame';
-import {TimelineSequenceRightEdgeDragHandle} from './TimelineSequenceRightEdgeDragHandle';
+import {
+	TimelineSequenceRightEdgeDragHandle,
+	useTimelineSequenceFromDrag,
+} from './TimelineSequenceRightEdgeDragHandle';
 import {TimelineVideoInfo} from './TimelineVideoInfo';
 import {TimelineWidthContext} from './TimelineWidthProvider';
 import {useResolveStackAndReactToChange} from './use-resolved-stack-react-to-change';
@@ -29,7 +32,8 @@ const IMAGE_GRADIENT = 'linear-gradient(to top, #2980b9, #3498db)';
 const TimelineSequenceFn: React.FC<{
 	readonly s: TSequence;
 	readonly nodePathInfo: SequenceNodePathInfo | null;
-}> = ({s, nodePathInfo}) => {
+	readonly sequenceFrameOffset: number;
+}> = ({s, nodePathInfo, sequenceFrameOffset}) => {
 	const windowWidth = useContext(TimelineWidthContext);
 
 	if (windowWidth === null) {
@@ -41,6 +45,7 @@ const TimelineSequenceFn: React.FC<{
 			windowWidth={windowWidth}
 			s={s}
 			nodePathInfo={nodePathInfo}
+			sequenceFrameOffset={sequenceFrameOffset}
 		/>
 	);
 };
@@ -53,6 +58,11 @@ const TimelineSequenceCurrentFrame: React.FC<{
 	readonly style: React.CSSProperties;
 	readonly children: React.ReactNode;
 	readonly nodePathInfo: SequenceNodePathInfo | null;
+	readonly sequenceFrameOffset: number;
+	readonly fromCanUpdate: boolean;
+	readonly onMoveDragPointerDown: (
+		e: React.PointerEvent<HTMLDivElement>,
+	) => void;
 }> = ({
 	s,
 	displayDurationInFrames,
@@ -61,6 +71,9 @@ const TimelineSequenceCurrentFrame: React.FC<{
 	style,
 	children,
 	nodePathInfo,
+	sequenceFrameOffset,
+	fromCanUpdate,
+	onMoveDragPointerDown,
 }) => {
 	const {onSelect, selectable} = useTimelineRowSelection(nodePathInfo);
 
@@ -72,16 +85,20 @@ const TimelineSequenceCurrentFrame: React.FC<{
 					shiftKey: e.shiftKey,
 					toggleKey: e.metaKey || e.ctrlKey,
 				});
+				if (TIMELINE_TOP_DRAG && fromCanUpdate) {
+					onMoveDragPointerDown(e);
+				}
 			}
 		},
-		[onSelect],
+		[fromCanUpdate, onMoveDragPointerDown, onSelect],
 	);
 	const frame = useCurrentFrame();
 	const relativeFrame = frame - s.from;
+	const sequenceFrame = relativeFrame + sequenceFrameOffset;
 	const relativeFrameWithPremount = relativeFrame + (s.premountDisplay ?? 0);
 	const relativeFrameWithPostmount = relativeFrame - displayDurationInFrames;
 
-	const roundedFrame = Math.round(relativeFrame * 100) / 100;
+	const roundedFrame = Math.round(sequenceFrame * 100) / 100;
 
 	const isInRange =
 		relativeFrame >= 0 && relativeFrame < displayDurationInFrames;
@@ -98,7 +115,6 @@ const TimelineSequenceCurrentFrame: React.FC<{
 		return {
 			...style,
 			opacity: isInRange ? 1 : 0.5,
-			...(TIMELINE_TOP_DRAG ? {cursor: 'pointer'} : {}),
 		};
 	}, [isInRange, style]);
 
@@ -173,7 +189,8 @@ const TimelineSequenceInner: React.FC<{
 	readonly s: TSequence;
 	readonly windowWidth: number;
 	readonly nodePathInfo: SequenceNodePathInfo | null;
-}> = ({s, windowWidth, nodePathInfo}) => {
+	readonly sequenceFrameOffset: number;
+}> = ({s, windowWidth, nodePathInfo, sequenceFrameOffset}) => {
 	// If a duration is 1, it is essentially a still and it should have width 0
 	// Some compositions may not be longer than their media duration,
 	// if that is the case, it needs to be asynchronously determined
@@ -210,6 +227,15 @@ const TimelineSequenceInner: React.FC<{
 	const durationCanUpdate = Boolean(
 		codeValuesForOverride?.durationInFrames?.status === 'static',
 	);
+	const fromCanUpdate = Boolean(
+		codeValuesForOverride?.from?.status === 'static',
+	);
+
+	const {onPointerDown: onMoveDragPointerDown} = useTimelineSequenceFromDrag({
+		nodePathInfo,
+		windowWidth,
+		timelineDurationInFrames: video?.durationInFrames ?? 1,
+	});
 
 	if (!video) {
 		throw new TypeError('Expected video config');
@@ -282,6 +308,9 @@ const TimelineSequenceInner: React.FC<{
 			postmountWidth={postmountWidth}
 			style={style}
 			nodePathInfo={nodePathInfo}
+			sequenceFrameOffset={sequenceFrameOffset}
+			fromCanUpdate={fromCanUpdate}
+			onMoveDragPointerDown={onMoveDragPointerDown}
 		>
 			{s.type === 'audio' ? (
 				<AudioWaveform

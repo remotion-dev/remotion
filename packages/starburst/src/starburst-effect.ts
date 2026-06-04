@@ -16,6 +16,17 @@ export const starburstEffectSchema = {
 		description: 'Number of Rays',
 		hiddenFromList: false,
 	},
+	colors: {
+		type: 'array',
+		item: {
+			type: 'color',
+		},
+		default: undefined,
+		minLength: 2,
+		newItemDefault: '#ff0000',
+		description: 'Colors',
+		keyframable: false,
+	},
 	rotation: {
 		type: 'number',
 		min: 0,

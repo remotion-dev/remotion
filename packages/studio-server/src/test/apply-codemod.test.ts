@@ -3,6 +3,7 @@ import {mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
 import type {RecastCodemod} from '@remotion/studio-shared';
+import {parseAndApplyCodemod} from '../codemods/duplicate-composition';
 import {
 	createFileWatcherRegistry,
 	setFileWatcherRegistry,
@@ -37,6 +38,43 @@ export const RemotionRoot: React.FC = () => {
 				width={1280}
 				height={720}
 			/>
+		</>
+	);
+};
+`;
+
+const folderRootContents = `import React from 'react';
+import {Composition, Folder} from 'remotion';
+
+const Component = () => null;
+
+export const RemotionRoot: React.FC = () => {
+	return (
+		<>
+			<Folder name="Parent">
+				<Folder name="Shared">
+					<Composition
+						id="NestedA"
+						component={Component}
+						durationInFrames={120}
+						fps={30}
+						width={1280}
+						height={720}
+					/>
+				</Folder>
+			</Folder>
+			<Folder name="Other">
+				<Folder name="Shared">
+					<Composition
+						id="NestedB"
+						component={Component}
+						durationInFrames={120}
+						fps={30}
+						width={1280}
+						height={720}
+					/>
+				</Folder>
+			</Folder>
 		</>
 	);
 };
@@ -191,4 +229,56 @@ test('applyCodemodHandler pushes composition duplications to undo and redo stack
 		expectedUndoMessage:
 			'↩️  Duplication of composition "DeleteMe" to "Duplicated"',
 	});
+});
+
+test('renames a nested folder by parent path', () => {
+	const {changesMade, newContents} = parseAndApplyCodemod({
+		input: folderRootContents,
+		codeMod: {
+			type: 'rename-folder',
+			folderName: 'Shared',
+			parentName: 'Parent',
+			newName: 'Renamed',
+		},
+	});
+
+	expect(changesMade.length).toBe(1);
+	expect(newContents).toContain('<Folder name="Renamed">');
+	expect(newContents.match(/<Folder name="Shared">/g)?.length).toBe(1);
+	expect(newContents).toContain('id="NestedA"');
+	expect(newContents).toContain('id="NestedB"');
+});
+
+test('deletes a nested folder by unwrapping its children', () => {
+	const {changesMade, newContents} = parseAndApplyCodemod({
+		input: folderRootContents,
+		codeMod: {
+			type: 'delete-folder',
+			folderName: 'Shared',
+			parentName: 'Parent',
+		},
+	});
+
+	expect(changesMade.length).toBe(1);
+	expect(newContents.match(/<Folder name="Shared">/g)?.length).toBe(1);
+	expect(newContents).toContain('<Folder name="Parent">');
+	expect(newContents).toContain('id="NestedA"');
+	expect(newContents).toContain('id="NestedB"');
+});
+
+test('deletes a top-level folder by unwrapping its children', () => {
+	const {changesMade, newContents} = parseAndApplyCodemod({
+		input: folderRootContents,
+		codeMod: {
+			type: 'delete-folder',
+			folderName: 'Parent',
+			parentName: null,
+		},
+	});
+
+	expect(changesMade.length).toBe(1);
+	expect(newContents).not.toContain('<Folder name="Parent">');
+	expect(newContents.match(/<Folder name="Shared">/g)?.length).toBe(2);
+	expect(newContents).toContain('id="NestedA"');
+	expect(newContents).toContain('id="NestedB"');
 });

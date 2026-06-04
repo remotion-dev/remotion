@@ -2547,15 +2547,6 @@ export const articles = [
 		slug: 'interpolate-colors',
 	},
 	{
-		id: 'interpolate-translate',
-		title: 'interpolateTranslate()',
-		relativePath: 'docs/interpolate-translate.mdx',
-		compId: 'articles-docs-interpolate-translate',
-		crumb: 'API',
-		noAi: false,
-		slug: 'interpolate-translate',
-	},
-	{
 		id: 'interpolate',
 		title: 'interpolate()',
 		relativePath: 'docs/interpolate.mdx',
@@ -4950,6 +4941,15 @@ export const articles = [
 		crumb: '@remotion/player',
 		noAi: false,
 		slug: 'player/thumbnail',
+	},
+	{
+		id: 'posterization',
+		title: 'Posterization',
+		relativePath: 'docs/posterization.mdx',
+		compId: 'articles-docs-posterization',
+		crumb: 'Designing visuals',
+		noAi: false,
+		slug: 'posterization',
 	},
 	{
 		id: 'prefetch',
@@ -7464,6 +7464,15 @@ export const articles = [
 		crumb: 'Best practices',
 		noAi: false,
 		slug: 'use-img-and-iframe',
+	},
+	{
+		id: 'use-pixel-density',
+		title: 'usePixelDensity()',
+		relativePath: 'docs/use-pixel-density.mdx',
+		compId: 'articles-docs-use-pixel-density',
+		crumb: 'API',
+		noAi: false,
+		slug: 'use-pixel-density',
 	},
 	{
 		id: 'use-remotion-environment',

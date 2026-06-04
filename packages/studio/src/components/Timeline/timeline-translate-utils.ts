@@ -1,4 +1,7 @@
+import {normalizeTimelineNumber} from './timeline-field-utils';
+
 const PIXEL_PATTERN = /^(-?\d+(?:\.\d+)?)px(?:\s+(-?\d+(?:\.\d+)?)px)?$/;
+const translateDecimalPlaces = 1;
 
 export const parseTranslate = (value: string): [number, number] => {
 	const m = value.match(PIXEL_PATTERN);
@@ -6,11 +9,16 @@ export const parseTranslate = (value: string): [number, number] => {
 		return [0, 0];
 	}
 
-	return [Number(m[1]), m[2] !== undefined ? Number(m[2]) : 0];
+	return [
+		normalizeTimelineNumber(Number(m[1])),
+		m[2] !== undefined ? normalizeTimelineNumber(Number(m[2])) : 0,
+	];
 };
 
 const formatTranslateCoordinate = (value: number): string => {
-	const rounded = Math.round(value * 1000) / 1000;
+	const normalized = normalizeTimelineNumber(value);
+	const factor = 10 ** translateDecimalPlaces;
+	const rounded = Math.round(normalized * factor) / factor;
 	return String(Object.is(rounded, -0) ? 0 : rounded);
 };
 

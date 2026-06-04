@@ -274,8 +274,9 @@ const StarburstCanvas: React.FC<{
  * @description Renders a static WebGL-based starburst ray pattern as a Sequence.
  * @see [Documentation](https://www.remotion.dev/docs/starburst/starburst)
  */
-const starburstSchema = {
+export const starburstSchema = {
 	durationInFrames: Internals.durationInFramesField,
+	from: Internals.fromField,
 	rays: {
 		type: 'number',
 		min: 2,
@@ -284,6 +285,17 @@ const starburstSchema = {
 		default: 12,
 		description: 'Number of Rays',
 		hiddenFromList: false,
+	},
+	colors: {
+		type: 'array',
+		item: {
+			type: 'color',
+		},
+		default: undefined,
+		minLength: 2,
+		newItemDefault: '#ff0000',
+		description: 'Colors',
+		keyframable: false,
 	},
 	rotation: {
 		type: 'number',

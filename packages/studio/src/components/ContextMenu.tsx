@@ -25,6 +25,8 @@ type OpenState =
 			top: number;
 	  };
 
+type OpenedState = Extract<OpenState, {type: 'open'}>;
+
 type ContextMenuProps = {
 	readonly children: React.ReactNode;
 	readonly values: ComboboxValue[];
@@ -35,6 +37,113 @@ type ContextMenuProps = {
 	readonly className?: string;
 	// eslint-disable-next-line react/require-default-props
 	readonly onPointerDown?: React.PointerEventHandler<HTMLDivElement>;
+};
+
+const ContextMenuPortal: React.FC<{
+	readonly containerRef: React.RefObject<HTMLDivElement | null>;
+	readonly currentZIndex: number;
+	readonly onHide: () => void;
+	readonly opened: OpenedState;
+	readonly values: ComboboxValue[];
+}> = ({containerRef, currentZIndex, onHide, opened, values}) => {
+	const size = PlayerInternals.useElementSize(containerRef, {
+		triggerOnWindowResize: true,
+		shouldApplyCssTransforms: true,
+	});
+	const isMobileLayout = useMobileLayout();
+
+	const spaceToBottom = useMemo(() => {
+		if (size) {
+			return size.windowSize.height - opened.top;
+		}
+
+		return 0;
+	}, [opened.top, size]);
+
+	const spaceToTop = useMemo(() => {
+		if (size) {
+			return opened.top;
+		}
+
+		return 0;
+	}, [opened.top, size]);
+
+	const portalStyle = useMemo(() => {
+		if (!size) {
+			return;
+		}
+
+		const spaceToRight = size.windowSize.width - size.left;
+		const spaceToLeft = size.left + size.width;
+
+		const minSpaceRequired = isMobileLayout
+			? MAX_MOBILE_MENU_WIDTH
+			: MAX_MENU_WIDTH;
+
+		const verticalLayout = spaceToTop > spaceToBottom ? 'bottom' : 'top';
+		const canOpenOnLeft = spaceToLeft >= minSpaceRequired;
+		const canOpenOnRight = spaceToRight >= minSpaceRequired;
+		const horizontalLayout = canOpenOnRight ? 'left' : 'right';
+
+		return {
+			...menuContainerTowardsTop,
+			...(verticalLayout === 'top'
+				? {
+						top: opened.top,
+					}
+				: {
+						bottom: size.windowSize.height - opened.top,
+					}),
+			...(horizontalLayout === 'left'
+				? {
+						left: opened.left,
+					}
+				: {
+						right: canOpenOnLeft ? size.windowSize.width - opened.left : 0,
+					}),
+		};
+	}, [
+		opened.left,
+		opened.top,
+		size,
+		isMobileLayout,
+		spaceToTop,
+		spaceToBottom,
+	]);
+
+	// Prevent deselection of a selected item
+	const onMenuPointerDown = useCallback(
+		(e: React.PointerEvent<HTMLDivElement>) => {
+			e.stopPropagation();
+		},
+		[],
+	);
+
+	if (!portalStyle) {
+		return null;
+	}
+
+	return ReactDOM.createPortal(
+		<div style={fullScreenOverlay}>
+			<div style={outerPortal} className="css-reset">
+				<HigherZIndex onOutsideClick={onHide} onEscape={onHide}>
+					<div style={portalStyle} onPointerDown={onMenuPointerDown}>
+						<MenuContent
+							onNextMenu={noop}
+							onPreviousMenu={noop}
+							values={values}
+							onHide={onHide}
+							leaveLeftSpace
+							preselectIndex={false}
+							topItemCanBeUnselected={false}
+							fixedHeight={null}
+						/>
+					</div>
+				</HigherZIndex>
+			</div>
+		</div>,
+		getPortal(currentZIndex),
+	);
 };
 
 export const ContextMenu = React.forwardRef<HTMLDivElement, ContextMenuProps>(
@@ -70,12 +179,6 @@ export const ContextMenu = React.forwardRef<HTMLDivElement, ContextMenuProps>(
 			[forwardedRef],
 		);
 
-		const size = PlayerInternals.useElementSize(ref, {
-			triggerOnWindowResize: true,
-			shouldApplyCssTransforms: true,
-		});
-		const isMobileLayout = useMobileLayout();
-
 		useEffect(() => {
 			const {current} = ref;
 			if (!current) {
@@ -96,75 +199,11 @@ export const ContextMenu = React.forwardRef<HTMLDivElement, ContextMenuProps>(
 			return () => {
 				current.removeEventListener('contextmenu', onClick);
 			};
-		}, [onOpen, size]);
-
-		const spaceToBottom = useMemo(() => {
-			if (size && opened.type === 'open') {
-				return size.windowSize.height - opened.top;
-			}
-
-			return 0;
-		}, [opened, size]);
-
-		const spaceToTop = useMemo(() => {
-			if (size && opened.type === 'open') {
-				return opened.top;
-			}
-
-			return 0;
-		}, [opened, size]);
-
-		const portalStyle = useMemo(() => {
-			if (opened.type === 'not-open') {
-				return;
-			}
-
-			if (!size) {
-				return;
-			}
-
-			const spaceToRight = size.windowSize.width - size.left;
-			const spaceToLeft = size.left + size.width;
-
-			const minSpaceRequired = isMobileLayout
-				? MAX_MOBILE_MENU_WIDTH
-				: MAX_MENU_WIDTH;
-
-			const verticalLayout = spaceToTop > spaceToBottom ? 'bottom' : 'top';
-			const canOpenOnLeft = spaceToLeft >= minSpaceRequired;
-			const canOpenOnRight = spaceToRight >= minSpaceRequired;
-			const horizontalLayout = canOpenOnRight ? 'left' : 'right';
-
-			return {
-				...menuContainerTowardsTop,
-				...(verticalLayout === 'top'
-					? {
-							top: opened.top,
-						}
-					: {
-							bottom: size.windowSize.height - opened.top,
-						}),
-				...(horizontalLayout === 'left'
-					? {
-							left: opened.left,
-						}
-					: {
-							right: canOpenOnLeft ? size.windowSize.width - opened.left : 0,
-						}),
-			};
-		}, [opened, size, isMobileLayout, spaceToTop, spaceToBottom]);
+		}, [onOpen]);
 
 		const onHide = useCallback(() => {
 			setOpened({type: 'not-open'});
 		}, []);
-
-		// Prevent deselection of a selected item
-		const onMenuPointerDown = useCallback(
-			(e: React.PointerEvent<HTMLDivElement>) => {
-				e.stopPropagation();
-			},
-			[],
-		);
 
 		return (
 			<>
@@ -177,29 +216,15 @@ export const ContextMenu = React.forwardRef<HTMLDivElement, ContextMenuProps>(
 				>
 					{children}
 				</div>
-				{portalStyle
-					? ReactDOM.createPortal(
-							<div style={fullScreenOverlay}>
-								<div style={outerPortal} className="css-reset">
-									<HigherZIndex onOutsideClick={onHide} onEscape={onHide}>
-										<div style={portalStyle} onPointerDown={onMenuPointerDown}>
-											<MenuContent
-												onNextMenu={noop}
-												onPreviousMenu={noop}
-												values={values}
-												onHide={onHide}
-												leaveLeftSpace
-												preselectIndex={false}
-												topItemCanBeUnselected={false}
-												fixedHeight={null}
-											/>
-										</div>
-									</HigherZIndex>
-								</div>
-							</div>,
-							getPortal(currentZIndex),
-						)
-					: null}
+				{opened.type === 'open' ? (
+					<ContextMenuPortal
+						containerRef={ref}
+						currentZIndex={currentZIndex}
+						onHide={onHide}
+						opened={opened}
+						values={values}
+					/>
+				) : null}
 			</>
 		);
 	},

@@ -3,7 +3,6 @@ import type {SequenceFieldSchema, SequenceSchema} from 'remotion';
 export const keyframeInterpolationFunctions = [
 	'interpolate',
 	'interpolateColors',
-	'interpolateTranslate',
 ] as const;
 
 export type KeyframeInterpolationFunction =
@@ -15,6 +14,20 @@ export const isKeyframeInterpolationFunction = (
 	return keyframeInterpolationFunctions.includes(
 		name as KeyframeInterpolationFunction,
 	);
+};
+
+export const isSequenceFieldSchemaKeyframable = (
+	field: SequenceFieldSchema | undefined,
+): boolean => {
+	if (!field) {
+		return true;
+	}
+
+	if (field.type === 'array' || field.type === 'enum') {
+		return false;
+	}
+
+	return field.keyframable !== false;
 };
 
 const findFieldInSchema = (
@@ -49,7 +62,7 @@ export const isSchemaFieldKeyframable = ({
 	key: string;
 }): boolean => {
 	const field = schema ? findFieldInSchema(schema, key) : undefined;
-	return field?.keyframable !== false;
+	return isSequenceFieldSchemaKeyframable(field);
 };
 
 export const getKeyframeInterpolationFunctionForSchemaField = ({
@@ -61,12 +74,16 @@ export const getKeyframeInterpolationFunctionForSchemaField = ({
 }): KeyframeInterpolationFunction | null => {
 	const field = schema ? findFieldInSchema(schema, key) : undefined;
 
-	if (field?.type === 'translate') {
-		return 'interpolateTranslate';
-	}
-
 	if (field?.type === 'color') {
 		return 'interpolateColors';
+	}
+
+	if (
+		field?.type === 'scale' ||
+		field?.type === 'translate' ||
+		field?.type === 'rotation-css'
+	) {
+		return 'interpolate';
 	}
 
 	return null;

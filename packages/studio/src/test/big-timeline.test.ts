@@ -5,12 +5,13 @@ import {calculateTimeline} from '../helpers/calculate-timeline';
 const getStack = () => null;
 
 const withoutKeyframeDisplayOffset = <
-	T extends {keyframeDisplayOffset: number},
+	T extends {keyframeDisplayOffset: number; sequenceFrameOffset: number},
 >(
 	tracks: T[],
 ) =>
-	tracks.map(({keyframeDisplayOffset, ...track}) => {
+	tracks.map(({keyframeDisplayOffset, sequenceFrameOffset, ...track}) => {
 		expect(keyframeDisplayOffset).toBe(0);
+		expect(sequenceFrameOffset).toBeGreaterThanOrEqual(0);
 		return track;
 	});
 

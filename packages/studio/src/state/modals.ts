@@ -26,6 +26,7 @@ import type {_InternalTypes} from 'remotion';
 import type {CompType} from '../components/NewComposition/DuplicateComposition';
 import type {QuickSwitcherMode} from '../components/QuickSwitcher/NoResults';
 import type {RenderType} from '../components/RenderModal/RenderModalAdvanced';
+import type {KeyframeSettingsModalState} from '../components/Timeline/KeyframeSettingsModal';
 import type {Bug, UpdateInfo} from '../components/UpdateCheck';
 
 export type WebRenderModalState = {
@@ -123,8 +124,21 @@ export type ModalState =
 			compositionId: string;
 	  }
 	| {
+			type: 'delete-folder';
+			folderName: string;
+			parentName: string | null;
+			stack: string | null;
+	  }
+	| {
+			type: 'rename-folder';
+			folderName: string;
+			parentName: string | null;
+			stack: string | null;
+	  }
+	| {
 			type: 'input-props-override';
 	  }
+	| KeyframeSettingsModalState
 	| RenderModalState
 	| WebRenderModalState
 	| {

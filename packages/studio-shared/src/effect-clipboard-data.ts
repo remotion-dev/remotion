@@ -1,3 +1,8 @@
+import {
+	isKeyframeInterpolationFunction,
+	type KeyframeInterpolationFunction,
+} from './keyframe-interpolation-function';
+
 export type EffectClipboardPasteType = 'effects-additive' | 'effects-replacing';
 
 export type EffectClipboardStaticParam = {
@@ -6,8 +11,7 @@ export type EffectClipboardStaticParam = {
 };
 
 export type EffectClipboardInterpolationFunction =
-	| 'interpolate'
-	| 'interpolateColors';
+	KeyframeInterpolationFunction;
 
 export type EffectClipboardKeyframe = {
 	readonly frame: number;
@@ -120,8 +124,8 @@ const isEffectClipboardParam = (
 			? value.keyframes.length - 1
 			: null;
 	return (
-		(value.interpolationFunction === 'interpolate' ||
-			value.interpolationFunction === 'interpolateColors') &&
+		typeof value.interpolationFunction === 'string' &&
+		isKeyframeInterpolationFunction(value.interpolationFunction) &&
 		Array.isArray(value.keyframes) &&
 		value.keyframes.length > 0 &&
 		value.keyframes.every(isKeyframe) &&

@@ -68,6 +68,7 @@ import {
 	HtmlInCanvasDocsDemo2DBlur,
 	HtmlInCanvasDocsMinimalWebGL,
 	HtmlInCanvasDocsMinimalWebGPU,
+	HtmlInCanvasPixelDensity,
 	HtmlInCanvasPrivacy,
 	HtmlInCanvasReactSvg,
 	LinearBlurTransitionDoc,
@@ -94,6 +95,7 @@ import {OffthreadVideoToCanvas} from './OffthreadVideoToCanvas';
 import {OrbScene} from './Orb';
 import {ShapesMorph} from './Paths/ShapesMorph';
 import {SlicePath} from './Paths/SlicePath';
+import {PosterizationComparison} from './Posterization';
 import {
 	PostmountExample,
 	PostmountWithStyles,
@@ -215,6 +217,7 @@ import {StarburstExample} from './Starburst';
 import {Seek} from './StudioApis/Seek';
 import {SubframeAudio} from './SubframeAudio';
 import {TikTokTextBoxPlayground} from './TikTokTextbox/TikTokTextBox';
+import {TimelineNegativeFromResize} from './TimelineNegativeFromResize';
 import {FitTextOnNLines, fitTextOnNLinesSchema} from './Title/FitTextOnNLines';
 import {Issue7359FitTextOnNLines} from './Title/Issue7359FitTextOnNLines';
 import {TransitionRounding} from './TransitionRounding';
@@ -545,6 +548,16 @@ export const Index: React.FC = () => {
 					height={1080}
 					fps={30}
 					durationInFrames={100}
+				/>
+			</Folder>
+			<Folder name="documentation">
+				<Composition
+					id="posterization-comparison"
+					component={PosterizationComparison}
+					width={1800}
+					height={600}
+					fps={30}
+					durationInFrames={120}
 				/>
 			</Folder>
 			<Folder name="easing">
@@ -1002,6 +1015,14 @@ export const Index: React.FC = () => {
 						height={1080}
 						width={1920}
 						durationInFrames={120}
+					/>
+					<Composition
+						id="html-in-canvas-pixel-density"
+						component={HtmlInCanvasPixelDensity}
+						fps={30}
+						height={80}
+						width={250}
+						durationInFrames={60}
 					/>
 					<Composition
 						id="html-in-canvas-compose-async-bitmap"
@@ -2097,8 +2118,8 @@ export const Index: React.FC = () => {
 				durationInFrames={120}
 			/>
 			{/**
-     * 
-     * 
+     *
+     *
      * disabled for react   19
     <Folder name="Skia">
         <Composition
@@ -2367,6 +2388,14 @@ export const Index: React.FC = () => {
 				<Composition
 					id="starburst"
 					component={StarburstExample}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={90}
+				/>
+				<Composition
+					id="starburst-negative-from-resize"
+					component={TimelineNegativeFromResize}
 					width={1080}
 					height={1080}
 					fps={30}

@@ -112,7 +112,7 @@ export const CodemodFooter: React.FC<{
 		if (!stack) {
 			setCanApplyCodemod({
 				type: 'fail',
-				error: 'Could not determine where this composition is defined',
+				error: 'Could not determine where this item is defined',
 			});
 			return;
 		}
@@ -124,7 +124,7 @@ export const CodemodFooter: React.FC<{
 		if (!symbolicatedStack) {
 			setCanApplyCodemod({
 				type: 'fail',
-				error: 'Could not resolve the source location of this composition',
+				error: 'Could not resolve the source location of this item',
 			});
 			return;
 		}

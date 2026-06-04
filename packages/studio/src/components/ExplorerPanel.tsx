@@ -1,8 +1,9 @@
-import {createRef, useCallback, useImperativeHandle, useState} from 'react';
+import {useCallback, useImperativeHandle, useState} from 'react';
 import {BACKGROUND} from '../helpers/colors';
 import {AssetSelector} from './AssetSelector';
 import {CompositionSelector} from './CompositionSelector';
 import {CompSelectorRef} from './CompSelectorRef';
+import {explorerSidebarTabs} from './ExplorerPanelRef';
 import {Tab, Tabs} from './Tabs';
 
 const container: React.CSSProperties = {
@@ -34,11 +35,6 @@ const tabsContainer: React.CSSProperties = {
 const persistSelectedOptionsSidebarPanel = (panel: OptionsSidebarPanel) => {
 	localStorage.setItem(localStorageKey, panel);
 };
-
-export const explorerSidebarTabs = createRef<{
-	selectAssetsPanel: () => void;
-	selectCompositionPanel: () => void;
-}>();
 
 export const ExplorerPanel: React.FC<{
 	readOnlyStudio: boolean;

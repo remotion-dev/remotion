@@ -1,12 +1,12 @@
 import React, {useContext, useMemo} from 'react';
 import type {PreviewSize} from 'remotion';
 import {Internals} from 'remotion';
+import type {AssetFileType} from '../helpers/get-preview-file-type';
+import {getPreviewFileType} from '../helpers/get-preview-file-type';
 import {Checkmark} from '../icons/Checkmark';
 import {CONTROL_BUTTON_PADDING} from './ControlButton';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {Combobox} from './NewComposition/ComboBox';
-import type {AssetFileType} from './Preview';
-import {getPreviewFileType} from './Preview';
 
 const commonPreviewSizes: PreviewSize[] = [
 	{

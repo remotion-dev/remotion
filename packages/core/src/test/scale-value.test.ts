@@ -27,3 +27,7 @@ test('serializes non-uniform scale as CSS scale syntax', () => {
 	expect(serializeScaleValue([2, 3, 1])).toBe('2 3');
 	expect(serializeScaleValue([2, 3, 4])).toBe('2 3 4');
 });
+
+test('serializes scale values without floating point noise', () => {
+	expect(serializeScaleValue([0.1 + 0.2, 0.1 + 0.2, 1])).toBe(0.3);
+});

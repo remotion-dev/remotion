@@ -46,6 +46,10 @@ export type EnqueueSaveOptions<TResponse> = {
 	applyOptimistic: (
 		prev: CanUpdateSequencePropsResponse,
 	) => CanUpdateSequencePropsResponse;
+	applyServerResponse?: (
+		prev: CanUpdateSequencePropsResponse,
+		response: TResponse,
+	) => CanUpdateSequencePropsResponse;
 	apiCall: () => Promise<TResponse>;
 	errorLabel: string;
 };
@@ -54,6 +58,7 @@ export const enqueueSavePropChange = <TResponse>({
 	nodePath,
 	setCodeValues,
 	applyOptimistic,
+	applyServerResponse,
 	apiCall,
 	errorLabel,
 }: EnqueueSaveOptions<TResponse>): Promise<void> => {
@@ -74,13 +79,19 @@ export const enqueueSavePropChange = <TResponse>({
 		}
 
 		try {
-			await apiCall();
+			const response = await apiCall();
 			if (myQueue.cancelled) {
 				return;
 			}
 
 			// If nothing more is queued, reset baseline so the next round starts fresh.
 			if (myQueue.chain === next) {
+				if (applyServerResponse) {
+					setCodeValues(nodePath, (prev) =>
+						applyServerResponse(prev, response),
+					);
+				}
+
 				dropQueue(nodePath, myQueue);
 			}
 		} catch (err) {

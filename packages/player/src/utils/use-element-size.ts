@@ -26,19 +26,37 @@ export const updateAllElementsSizes = () => {
 	}
 };
 
+type ElementSizeSource =
+	| React.RefObject<HTMLElement | null>
+	| HTMLElement
+	| null;
+
+const getElement = (source: ElementSizeSource): HTMLElement | null => {
+	if (!source) {
+		return null;
+	}
+
+	if ('current' in source) {
+		return source.current;
+	}
+
+	return source;
+};
+
 export const useElementSize = (
-	ref: React.RefObject<HTMLElement | null>,
+	source: ElementSizeSource,
 	options: {
 		triggerOnWindowResize: boolean;
 		shouldApplyCssTransforms: boolean;
 	},
 ): Size | null => {
 	const [size, setSize] = useState<Omit<Size, 'refresh'> | null>(() => {
-		if (!ref.current) {
+		const element = getElement(source);
+		if (!element) {
 			return null;
 		}
 
-		const rect = ref.current.getClientRects();
+		const rect = element.getClientRects();
 		if (!rect[0]) {
 			return null;
 		}
@@ -115,11 +133,12 @@ export const useElementSize = (
 	}, [options.shouldApplyCssTransforms]);
 
 	const updateSize = useCallback(() => {
-		if (!ref.current) {
+		const element = getElement(source);
+		if (!element) {
 			return;
 		}
 
-		const rect = ref.current.getClientRects();
+		const rect = element.getClientRects();
 		if (!rect[0]) {
 			setSize(null);
 			return;
@@ -149,24 +168,28 @@ export const useElementSize = (
 				},
 			};
 		});
-	}, [ref]);
+	}, [source]);
+
+	useEffect(() => {
+		updateSize();
+	}, [updateSize]);
 
 	useEffect(() => {
 		if (!observer) {
 			return;
 		}
 
-		const {current} = ref;
-		if (current) {
-			observer.observe(current);
+		const element = getElement(source);
+		if (element) {
+			observer.observe(element);
 		}
 
 		return (): void => {
-			if (current) {
-				observer.unobserve(current);
+			if (element) {
+				observer.unobserve(element);
 			}
 		};
-	}, [observer, ref, updateSize]);
+	}, [observer, source]);
 
 	useEffect(() => {
 		if (!options.triggerOnWindowResize) {

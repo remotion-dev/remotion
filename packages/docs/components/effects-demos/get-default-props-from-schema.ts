@@ -43,6 +43,14 @@ export const getDefaultValueFromSchema = (
 		return [0.5, 0.5] as const;
 	}
 
+	if (field.type === 'array') {
+		if (field.default !== undefined) {
+			return field.default;
+		}
+
+		return Array.from({length: field.minLength ?? 0}, () => field.newItemDefault);
+	}
+
 	return undefined;
 };
 

@@ -298,3 +298,39 @@ test('pasteEffects replaces existing effects with mixed static and keyframed par
 	expect(output).toContain('amount: 0.7');
 	expect(output).not.toMatch(/color: ['"]blue['"]/);
 });
+
+test('pasteEffects supports interpolated rotate keyframed params', async () => {
+	const input = buildInput(`<>
+		<HtmlInCanvas effects={[tint({color: "blue"})]} />
+	</>`);
+	const target = makeNodePath(input, 9);
+
+	const {output} = await pasteEffects({
+		input,
+		targetFileName: 'Comp.tsx',
+		targetSequenceNodePath: target.nodePath,
+		type: 'effects-replacing',
+		effects: [
+			{
+				callee: 'tint',
+				importPath: '@remotion/effects/tint',
+				params: {
+					angle: {
+						type: 'keyframed',
+						interpolationFunction: 'interpolate',
+						keyframes: [
+							{frame: 0, value: '0deg'},
+							{frame: 100, value: '90deg'},
+						],
+						easing: ['linear'],
+						clamping: {left: 'extend', right: 'extend'},
+					},
+				},
+			},
+		],
+	});
+
+	expect(output).toContain(
+		"angle: interpolate(frame, [0, 100], ['0deg', '90deg'])",
+	);
+});

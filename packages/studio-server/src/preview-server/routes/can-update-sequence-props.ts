@@ -391,6 +391,7 @@ const getInterpolationMetadata = (
 
 const getInterpolationKeyframes = (
 	node: Expression,
+	ast: File,
 ):
 	| {
 			keyframes: PropKeyframes;
@@ -401,7 +402,7 @@ const getInterpolationKeyframes = (
 	  }
 	| undefined => {
 	if (node.type === 'TSAsExpression') {
-		return getInterpolationKeyframes(node.expression as Expression);
+		return getInterpolationKeyframes(node.expression as Expression, ast);
 	}
 
 	if (node.type !== 'CallExpression') {
@@ -418,9 +419,13 @@ const getInterpolationKeyframes = (
 
 	const interpolationFunction = callExpression.callee.name;
 
+	const frameArg = callExpression.arguments[0];
 	const inputArg = callExpression.arguments[1];
 	const outputArg = callExpression.arguments[2];
 	if (
+		!frameArg ||
+		frameArg.type === 'SpreadElement' ||
+		!isCurrentFrameIdentifier(frameArg as Expression, ast) ||
 		!inputArg ||
 		!outputArg ||
 		inputArg.type !== 'ArrayExpression' ||
@@ -479,8 +484,52 @@ const getInterpolationKeyframes = (
 	};
 };
 
-export const getComputedStatus = (node: Expression): CanUpdatePropStatus => {
-	const interpolation = getInterpolationKeyframes(node);
+const isUseCurrentFrameCall = (node: Expression): boolean => {
+	return (
+		node.type === 'CallExpression' &&
+		node.callee.type === 'Identifier' &&
+		node.callee.name === 'useCurrentFrame' &&
+		node.arguments.length === 0
+	);
+};
+
+const isCurrentFrameIdentifier = (node: Expression, ast: File): boolean => {
+	if (node.type === 'TSAsExpression') {
+		return isCurrentFrameIdentifier(node.expression as Expression, ast);
+	}
+
+	if (node.type !== 'Identifier') {
+		return false;
+	}
+
+	let hasUseCurrentFrameDeclaration = false;
+	let hasOtherDeclaration = false;
+
+	recast.types.visit(ast, {
+		visitVariableDeclarator(p) {
+			const {id, init} = p.node;
+			if (id.type !== 'Identifier' || id.name !== node.name) {
+				return this.traverse(p);
+			}
+
+			if (init && isUseCurrentFrameCall(init as Expression)) {
+				hasUseCurrentFrameDeclaration = true;
+			} else {
+				hasOtherDeclaration = true;
+			}
+
+			return false;
+		},
+	});
+
+	return hasUseCurrentFrameDeclaration && !hasOtherDeclaration;
+};
+
+export const getComputedStatus = (
+	node: Expression,
+	ast: File,
+): CanUpdatePropStatus => {
+	const interpolation = getInterpolationKeyframes(node, ast);
 	if (!interpolation) {
 		return computedStatus();
 	}
@@ -498,6 +547,7 @@ export const getComputedStatus = (node: Expression): CanUpdatePropStatus => {
 
 const getPropsStatus = (
 	jsxElement: JSXOpeningElement,
+	ast: File,
 ): Record<string, CanUpdatePropStatus> => {
 	const props: Record<string, CanUpdatePropStatus> = {};
 
@@ -535,7 +585,7 @@ const getPropsStatus = (
 			}
 
 			if (!isStaticValue(expression)) {
-				props[name] = getComputedStatus(expression);
+				props[name] = getComputedStatus(expression, ast);
 				continue;
 			}
 
@@ -648,6 +698,7 @@ const validateStyleValue = (childKey: string, value: unknown): boolean => {
 
 const getNestedPropStatus = (
 	jsxElement: JSXOpeningElement,
+	ast: File,
 	parentKey: string,
 	childKey: string,
 ): CanUpdatePropStatus => {
@@ -691,7 +742,7 @@ const getNestedPropStatus = (
 
 	const propValue = prop.value as Expression;
 	if (!isStaticValue(propValue)) {
-		return getComputedStatus(propValue);
+		return getComputedStatus(propValue, ast);
 	}
 
 	const codeValue = extractStaticValue(propValue);
@@ -723,18 +774,21 @@ const computeEffectsForJsx = ({
 
 const computeSequenceOnlyPropsRecord = ({
 	jsxElement,
+	ast,
 	keys,
 }: {
 	jsxElement: JSXOpeningElement;
+	ast: File;
 	keys: string[];
 }): Record<string, CanUpdatePropStatus> => {
-	const allProps = getPropsStatus(jsxElement);
+	const allProps = getPropsStatus(jsxElement, ast);
 	const filteredProps: Record<string, CanUpdatePropStatus> = {};
 	for (const key of keys) {
 		const dotIndex = key.indexOf('.');
 		if (dotIndex !== -1) {
 			filteredProps[key] = getNestedPropStatus(
 				jsxElement,
+				ast,
 				key.slice(0, dotIndex),
 				key.slice(dotIndex + 1),
 			);
@@ -767,7 +821,7 @@ export const computeSequencePropsStatusFromContent = ({
 		throw new JsxElementNotFoundAtLocationError();
 	}
 
-	const filteredProps = computeSequenceOnlyPropsRecord({jsxElement, keys});
+	const filteredProps = computeSequenceOnlyPropsRecord({jsxElement, ast, keys});
 	const effectsStatuses = computeEffectsForJsx({ast, jsxElement, effects});
 
 	return {

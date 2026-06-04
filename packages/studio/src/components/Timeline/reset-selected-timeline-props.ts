@@ -1,4 +1,5 @@
 import type {
+	CanUpdateSequencePropStatus,
 	CodeValues,
 	OverrideIdToNodePaths,
 	SequenceFieldSchema,
@@ -58,6 +59,31 @@ const isNonDefaultCodeValue = ({
 }) =>
 	JSON.stringify(codeValue ?? defaultValue) !== JSON.stringify(defaultValue);
 
+const isResettablePropStatus = ({
+	propStatus,
+	defaultValue,
+}: {
+	readonly propStatus: CanUpdateSequencePropStatus | null | undefined;
+	readonly defaultValue: unknown;
+}) => {
+	if (!propStatus || propStatus.status === 'computed') {
+		return false;
+	}
+
+	if (defaultValue === undefined) {
+		return false;
+	}
+
+	if (propStatus.status === 'keyframed') {
+		return true;
+	}
+
+	return isNonDefaultCodeValue({
+		codeValue: propStatus.codeValue,
+		defaultValue,
+	});
+};
+
 const getDefaultValue = (
 	fieldSchema: Exclude<SequenceFieldSchema, {type: 'hidden'}>,
 ) =>
@@ -112,9 +138,8 @@ export const getTimelinePropResetTargets = ({
 			)?.[selection.key];
 			if (
 				!isVisibleFieldSchema(sequenceFieldSchema) ||
-				sequencePropStatus?.status !== 'static' ||
-				!isNonDefaultCodeValue({
-					codeValue: sequencePropStatus.codeValue,
+				!isResettablePropStatus({
+					propStatus: sequencePropStatus,
 					defaultValue: sequenceFieldSchema.default,
 				})
 			) {
@@ -147,9 +172,8 @@ export const getTimelinePropResetTargets = ({
 		if (
 			!effect ||
 			!isVisibleFieldSchema(fieldSchema) ||
-			propStatus?.status !== 'static' ||
-			!isNonDefaultCodeValue({
-				codeValue: propStatus.codeValue,
+			!isResettablePropStatus({
+				propStatus,
 				defaultValue: fieldSchema.default,
 			})
 		) {
@@ -222,11 +246,11 @@ export const resetSelectedTimelineProps = ({
 				undoLabel:
 					sequencePropTargets.length > 1
 						? 'Reset selected sequence props'
-						: null,
+						: 'Reset sequence prop',
 				redoLabel:
 					sequencePropTargets.length > 1
 						? 'Reapply selected sequence props'
-						: null,
+						: 'Reapply sequence prop',
 			}),
 		);
 	}

@@ -22,8 +22,7 @@ import {
 } from '../undo-stack';
 import {suppressBundlerUpdateForFile} from '../watch-ignore-next-change';
 import {computeSequencePropsStatusFromContent} from './can-update-sequence-props';
-import {formatPropChange} from './log-updates/format-prop-change';
-import {logUpdate, normalizeQuotes} from './log-updates/log-update';
+import {logUpdate} from './log-updates/log-update';
 import {withSavePropsLock} from './save-props-mutex';
 
 type ResolvedSequencePropEdit = {
@@ -157,52 +156,8 @@ export const saveSequencePropsHandler: ApiHandler<
 			}
 		}
 
-		const [firstEdit] = edits;
-		const firstResult = resultByIndex.get(0);
-		if (!firstResult) {
-			throw new Error('Could not compute sequence prop edit result');
-		}
-
-		const undoMessage =
-			undoLabel !== null
-				? `↩️  ${undoLabel}`
-				: edits.length === 1
-					? `↩️  ${formatPropChange({
-							key: firstEdit.key,
-							oldValueString: normalizeQuotes(
-								JSON.stringify(JSON.parse(firstEdit.value)),
-							),
-							newValueString: normalizeQuotes(firstResult.oldValueString),
-							defaultValueString:
-								firstEdit.defaultValue !== null
-									? normalizeQuotes(
-											JSON.stringify(JSON.parse(firstEdit.defaultValue)),
-										)
-									: null,
-							removedProps: [],
-							addedProps: firstResult.removedProps,
-						})}`
-					: '↩️  Update selected sequence props';
-		const redoMessage =
-			redoLabel !== null
-				? `↪️  ${redoLabel}`
-				: edits.length === 1
-					? `↪️  ${formatPropChange({
-							key: firstEdit.key,
-							oldValueString: normalizeQuotes(firstResult.oldValueString),
-							newValueString: normalizeQuotes(
-								JSON.stringify(JSON.parse(firstEdit.value)),
-							),
-							defaultValueString:
-								firstEdit.defaultValue !== null
-									? normalizeQuotes(
-											JSON.stringify(JSON.parse(firstEdit.defaultValue)),
-										)
-									: null,
-							removedProps: firstResult.removedProps,
-							addedProps: [],
-						})}`
-					: '↪️  Update selected sequence props';
+		const undoMessage = `↩️  ${undoLabel}`;
+		const redoMessage = `↪️  ${redoLabel}`;
 
 		pushTransactionToUndoStack({
 			snapshots,

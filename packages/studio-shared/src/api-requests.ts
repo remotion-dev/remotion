@@ -17,6 +17,7 @@ import type {
 	CanUpdateSequencePropsResponseFalse,
 	CanUpdateSequencePropsResponseTrue,
 	CanUpdateSequencePropStatus,
+	ExtrapolateType,
 	SequenceNodePath,
 	SequencePropsSubscriptionKey,
 	SequenceSchema,
@@ -290,8 +291,8 @@ export type SaveSequencePropEdit = {
 export type SaveSequencePropsRequest = {
 	edits: SaveSequencePropEdit[];
 	clientId: string;
-	undoLabel: string | null;
-	redoLabel: string | null;
+	undoLabel: string;
+	redoLabel: string;
 };
 
 export type SaveSequencePropsResult = {
@@ -369,6 +370,15 @@ export type DeleteSequenceKeyframe = {
 	schema: SequenceSchema;
 };
 
+export type MoveSequenceKeyframe = {
+	fileName: string;
+	nodePath: SequencePropsSubscriptionKey;
+	key: string;
+	fromFrame: number;
+	toFrame: number;
+	schema: SequenceSchema;
+};
+
 export type AddSequenceKeyframeRequest = {
 	fileName: string;
 	nodePath: SequencePropsSubscriptionKey;
@@ -390,6 +400,16 @@ export type DeleteEffectKeyframe = {
 	schema: SequenceSchema;
 };
 
+export type MoveEffectKeyframe = {
+	fileName: string;
+	sequenceNodePath: SequencePropsSubscriptionKey;
+	effectIndex: number;
+	key: string;
+	fromFrame: number;
+	toFrame: number;
+	schema: SequenceSchema;
+};
+
 export type DeleteKeyframesRequest = {
 	sequenceKeyframes: DeleteSequenceKeyframe[];
 	effectKeyframes: DeleteEffectKeyframe[];
@@ -397,6 +417,16 @@ export type DeleteKeyframesRequest = {
 };
 
 export type DeleteKeyframesResponse = {
+	success: true;
+};
+
+export type MoveKeyframesRequest = {
+	sequenceKeyframes: MoveSequenceKeyframe[];
+	effectKeyframes: MoveEffectKeyframe[];
+	clientId: string;
+};
+
+export type MoveKeyframesResponse = {
 	success: true;
 };
 
@@ -412,6 +442,39 @@ export type AddEffectKeyframeRequest = {
 };
 
 export type AddEffectKeyframeResponse = SaveEffectPropsResponse;
+
+export type KeyframeSettings = {
+	clamping:
+		| {
+				left: ExtrapolateType;
+				right: ExtrapolateType;
+		  }
+		| undefined;
+	posterize: number | undefined;
+};
+
+export type UpdateSequenceKeyframeSettingsRequest = {
+	fileName: string;
+	nodePath: SequencePropsSubscriptionKey;
+	key: string;
+	settings: KeyframeSettings;
+	schema: SequenceSchema;
+	clientId: string;
+};
+
+export type UpdateSequenceKeyframeSettingsResponse = SaveSequencePropsResponse;
+
+export type UpdateEffectKeyframeSettingsRequest = {
+	fileName: string;
+	sequenceNodePath: SequencePropsSubscriptionKey;
+	effectIndex: number;
+	key: string;
+	settings: KeyframeSettings;
+	schema: SequenceSchema;
+	clientId: string;
+};
+
+export type UpdateEffectKeyframeSettingsResponse = SaveEffectPropsResponse;
 
 type BaseDeleteEffectRequestItem = {
 	fileName: string;
@@ -499,7 +562,7 @@ export type InsertableCompositionElement =
 	  }
 	| {
 			type: 'asset';
-			assetType: 'image' | 'video' | 'gif';
+			assetType: 'image' | 'video' | 'gif' | 'audio';
 			src: string;
 			dimensions: {
 				width: number;
@@ -623,6 +686,7 @@ export type ApiRoutes = {
 		DeleteKeyframesRequest,
 		DeleteKeyframesResponse
 	>;
+	'/api/move-keyframes': ReqAndRes<MoveKeyframesRequest, MoveKeyframesResponse>;
 	'/api/add-sequence-keyframe': ReqAndRes<
 		AddSequenceKeyframeRequest,
 		AddSequenceKeyframeResponse
@@ -630,6 +694,14 @@ export type ApiRoutes = {
 	'/api/add-effect-keyframe': ReqAndRes<
 		AddEffectKeyframeRequest,
 		AddEffectKeyframeResponse
+	>;
+	'/api/update-sequence-keyframe-settings': ReqAndRes<
+		UpdateSequenceKeyframeSettingsRequest,
+		UpdateSequenceKeyframeSettingsResponse
+	>;
+	'/api/update-effect-keyframe-settings': ReqAndRes<
+		UpdateEffectKeyframeSettingsRequest,
+		UpdateEffectKeyframeSettingsResponse
 	>;
 	'/api/delete-effect': ReqAndRes<DeleteEffectRequest, DeleteEffectResponse>;
 	'/api/paste-effects': ReqAndRes<PasteEffectsRequest, PasteEffectsResponse>;

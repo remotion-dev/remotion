@@ -1,10 +1,22 @@
+const isKeyframeInTimelineRange = (
+	frame: number,
+	durationInFrames: number,
+): boolean => {
+	return frame >= 0 && frame < durationInFrames;
+};
+
 export const getPreviousKeyframeDisplayFrame = (
 	keyframes: readonly {frame: number}[],
 	currentDisplayFrame: number,
+	durationInFrames: number,
 ): number | null => {
 	let previous: number | null = null;
 	for (const keyframe of keyframes) {
-		if (keyframe.frame < currentDisplayFrame) {
+		if (
+			isKeyframeInTimelineRange(keyframe.frame, durationInFrames) &&
+			keyframe.frame < currentDisplayFrame &&
+			(previous === null || keyframe.frame > previous)
+		) {
 			previous = keyframe.frame;
 		}
 	}
@@ -15,14 +27,20 @@ export const getPreviousKeyframeDisplayFrame = (
 export const getNextKeyframeDisplayFrame = (
 	keyframes: readonly {frame: number}[],
 	currentDisplayFrame: number,
+	durationInFrames: number,
 ): number | null => {
+	let next: number | null = null;
 	for (const keyframe of keyframes) {
-		if (keyframe.frame > currentDisplayFrame) {
-			return keyframe.frame;
+		if (
+			isKeyframeInTimelineRange(keyframe.frame, durationInFrames) &&
+			keyframe.frame > currentDisplayFrame &&
+			(next === null || keyframe.frame < next)
+		) {
+			next = keyframe.frame;
 		}
 	}
 
-	return null;
+	return next;
 };
 
 export const hasKeyframeAtSourceFrame = (

@@ -1,4 +1,5 @@
 import type {
+	ArrayFieldSchema,
 	CodeValues,
 	DragOverrides,
 	EffectDefinition,
@@ -47,11 +48,74 @@ const SUPPORTED_SCHEMA_TYPES = [
 	'scale',
 	'uv-coordinate',
 	'color',
+	'array',
 	'enum',
 	'hidden',
 ] as const;
 
 type SupportedSchemaType = (typeof SUPPORTED_SCHEMA_TYPES)[number];
+
+const getArrayRowCount = ({
+	fieldSchema,
+	value,
+}: {
+	fieldSchema: ArrayFieldSchema;
+	value: unknown;
+}): number => {
+	const items = Array.isArray(value)
+		? value
+		: Array.isArray(fieldSchema.default)
+			? fieldSchema.default
+			: Array.from({length: fieldSchema.minLength ?? 0});
+	const canAdd = items.length < (fieldSchema.maxLength ?? Infinity);
+
+	return Math.max(1, items.length + (canAdd ? 1 : 0));
+};
+
+const getSchemaFieldRowHeight = ({
+	fieldSchema,
+	value,
+}: {
+	fieldSchema: VisibleFieldSchema;
+	value: unknown;
+}) => {
+	if (fieldSchema.type === 'array') {
+		return (
+			getArrayRowCount({
+				fieldSchema,
+				value,
+			}) * SCHEMA_FIELD_ROW_HEIGHT
+		);
+	}
+
+	return SCHEMA_FIELD_ROW_HEIGHT;
+};
+
+const getEffectFieldValue = ({
+	key,
+	dragOverrides,
+	effectStatus,
+}: {
+	key: string;
+	dragOverrides: DragOverrides[string];
+	effectStatus: ReturnType<typeof Internals.getEffectCodeValuesCtx> | null;
+}): unknown => {
+	const dragOverride = Internals.getStaticDragOverrideValue(dragOverrides[key]);
+	if (dragOverride !== undefined) {
+		return dragOverride;
+	}
+
+	if (effectStatus?.type !== 'can-update-effect') {
+		return undefined;
+	}
+
+	const propStatus = effectStatus.props[key];
+	if (propStatus?.status !== 'static') {
+		return undefined;
+	}
+
+	return propStatus.codeValue;
+};
 
 export const getFieldsToShow = ({
 	getDragOverrides,
@@ -106,7 +170,10 @@ export const getFieldsToShow = ({
 				key,
 				description: fieldSchema.description,
 				typeName,
-				rowHeight: SCHEMA_FIELD_ROW_HEIGHT,
+				rowHeight: getSchemaFieldRowHeight({
+					fieldSchema,
+					value: valuesDotNotation[key],
+				}),
 				fieldSchema,
 			};
 		})
@@ -137,21 +204,7 @@ export const getEffectFieldsToShow = ({
 	const dragOverrides =
 		nodePath === null ? {} : getEffectDragOverrides(nodePath, effectIndex);
 	const activeSchema = Internals.flattenActiveSchema(effect.schema, (key) => {
-		const dragOverride = dragOverrides[key];
-		if (dragOverride !== undefined) {
-			return dragOverride;
-		}
-
-		if (effectStatus?.type !== 'can-update-effect') {
-			return undefined;
-		}
-
-		const propStatus = effectStatus.props[key];
-		if (propStatus?.status !== 'static') {
-			return undefined;
-		}
-
-		return propStatus.codeValue;
+		return getEffectFieldValue({key, dragOverrides, effectStatus});
 	});
 
 	return Object.entries(activeSchema)
@@ -180,7 +233,10 @@ export const getEffectFieldsToShow = ({
 				key,
 				description: fieldSchema.description,
 				typeName,
-				rowHeight: SCHEMA_FIELD_ROW_HEIGHT,
+				rowHeight: getSchemaFieldRowHeight({
+					fieldSchema,
+					value: getEffectFieldValue({key, dragOverrides, effectStatus}),
+				}),
 				fieldSchema,
 				effectSchema: effect.schema,
 				effectIndex,

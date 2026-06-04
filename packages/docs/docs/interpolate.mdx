@@ -109,6 +109,60 @@ const scale = interpolate(frame, [0, 20], [0, 1], {
 });
 ```
 
+## Example: CSS transform values<AvailableFrom v="4.0.472" />
+
+`outputRange` may contain scale, translate, or rotate strings.
+Each value may contain up to three components.
+
+```tsx twoslash title="MyComposition.tsx"
+import {interpolate, useCurrentFrame} from 'remotion';
+
+export const MyComposition: React.FC = () => {
+  const frame = useCurrentFrame();
+
+  return (
+    <div
+      style={{
+        scale: interpolate(frame, [0, 30], ['1', '2 3']),
+        translate: interpolate(frame, [0, 30], ['0px 0px', '100px 50px']),
+        rotate: interpolate(frame, [0, 30], ['0deg', '90deg']),
+      }}
+    />
+  );
+};
+```
+
+Scale values use unitless numbers.
+Translate values use length or percentage units.
+Rotate values use `deg`, `rad`, `grad`, or `turn`.
+
+All values in one interpolation must have the same type.
+For each component, units must match.
+For missing dimensions, CSS defaults are used: scale defaults to `1`, translate and rotate default to `0`.
+
+## Example: Numeric tuples<AvailableFrom v="4.0.473" />
+
+`outputRange` may contain numeric tuples.
+Each tuple must contain the same number of numbers.
+
+```tsx twoslash title="MyComposition.tsx"
+import {interpolate, useCurrentFrame} from 'remotion';
+
+export const MyComposition: React.FC = () => {
+  const frame = useCurrentFrame();
+  const start: readonly [number, number] = interpolate(
+    frame,
+    [0, 60],
+    [
+      [0, 0.5],
+      [1, 0.5],
+    ],
+  );
+
+  return <div>{start.join(', ')}</div>;
+};
+```
+
 ## API
 
 Takes four arguments:
