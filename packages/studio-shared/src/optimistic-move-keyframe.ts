@@ -9,6 +9,65 @@ export type OptimisticKeyframeMove = {
 	readonly toFrame: number;
 };
 
+const getMoveMap = (
+	moves: readonly {fromFrame: number; toFrame: number}[],
+): Map<number, number> | null => {
+	const moveMap = new Map<number, number>();
+	for (const move of moves) {
+		if (move.fromFrame === move.toFrame) {
+			continue;
+		}
+
+		if (moveMap.has(move.fromFrame)) {
+			return null;
+		}
+
+		moveMap.set(move.fromFrame, move.toFrame);
+	}
+
+	return moveMap;
+};
+
+export const canMoveKeyframesWithoutCollisions = ({
+	status,
+	moves,
+}: {
+	status: CanUpdateSequencePropStatus;
+	moves: readonly {fromFrame: number; toFrame: number}[];
+}): boolean => {
+	if (status.status !== 'keyframed') {
+		return false;
+	}
+
+	const moveMap = getMoveMap(moves);
+	if (moveMap === null) {
+		return false;
+	}
+
+	if (moveMap.size === 0) {
+		return true;
+	}
+
+	const frames = new Set(status.keyframes.map((keyframe) => keyframe.frame));
+	for (const fromFrame of moveMap.keys()) {
+		if (!frames.has(fromFrame)) {
+			return false;
+		}
+	}
+
+	const nextFrames = new Set<number>();
+	for (const keyframe of status.keyframes) {
+		const frame = moveMap.get(keyframe.frame) ?? keyframe.frame;
+		if (nextFrames.has(frame)) {
+			return false;
+		}
+
+		nextFrames.add(frame);
+	}
+
+	return true;
+};
+
 const moveKeyframesInPropStatus = ({
 	status,
 	moves,
@@ -20,51 +79,27 @@ const moveKeyframesInPropStatus = ({
 		return status;
 	}
 
-	const moveMap = new Map<number, number>();
-	for (const move of moves) {
-		if (move.fromFrame !== move.toFrame) {
-			moveMap.set(move.fromFrame, move.toFrame);
-		}
+	if (!canMoveKeyframesWithoutCollisions({status, moves})) {
+		return status;
+	}
+
+	const moveMap = getMoveMap(moves);
+	if (moveMap === null) {
+		return status;
 	}
 
 	if (moveMap.size === 0) {
 		return status;
 	}
 
-	const sourceFrames = new Set(
-		status.keyframes.map((keyframe) => keyframe.frame),
-	);
-	for (const fromFrame of moveMap.keys()) {
-		if (!sourceFrames.has(fromFrame)) {
-			return status;
-		}
-	}
-
-	const nextFrames = new Set<number>();
-	const keyframes = status.keyframes
-		.map((keyframe) => {
-			const frame = moveMap.get(keyframe.frame) ?? keyframe.frame;
-			if (nextFrames.has(frame)) {
-				return null;
-			}
-
-			nextFrames.add(frame);
-			return {
-				...keyframe,
-				frame,
-			};
-		})
-		.filter((keyframe): keyframe is NonNullable<typeof keyframe> => {
-			return keyframe !== null;
-		});
-
-	if (keyframes.length !== status.keyframes.length) {
-		return status;
-	}
-
 	return {
 		...status,
-		keyframes: keyframes.sort((a, b) => a.frame - b.frame),
+		keyframes: status.keyframes
+			.map((keyframe) => ({
+				...keyframe,
+				frame: moveMap.get(keyframe.frame) ?? keyframe.frame,
+			}))
+			.sort((a, b) => a.frame - b.frame),
 	};
 };
 

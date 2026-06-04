@@ -40,6 +40,20 @@ test('detects iso base media and WebM files as videos', () => {
 	expect(detectFileType(webm)).toEqual({type: 'webm'});
 });
 
+test('detects audio file signatures', () => {
+	const wav = new Uint8Array([
+		0x52, 0x49, 0x46, 0x46, 0, 0, 0, 0, 0x57, 0x41, 0x56, 0x45,
+	]);
+	const mp3 = new Uint8Array([0x49, 0x44, 0x33, 3]);
+	const aac = new Uint8Array([0xff, 0xf1]);
+	const flac = new Uint8Array([0x66, 0x4c, 0x61, 0x43]);
+
+	expect(detectFileType(wav)).toEqual({type: 'wav'});
+	expect(detectFileType(mp3)).toEqual({type: 'mp3'});
+	expect(detectFileType(aac)).toEqual({type: 'aac'});
+	expect(detectFileType(flac)).toEqual({type: 'flac'});
+});
+
 test('returns unknown for unsupported signatures', () => {
 	expect(detectFileType(new Uint8Array([1, 2, 3, 4]))).toEqual({
 		type: 'unknown',
