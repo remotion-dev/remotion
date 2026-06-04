@@ -16,6 +16,7 @@ import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sor
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {callMoveKeyframes} from './call-move-keyframe';
 import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
+import {getBoundedKeyframeDragDelta} from './get-bounded-keyframe-drag-delta';
 import {parseKeyframeFieldFromNodePath} from './parse-keyframe-field-from-node-path';
 import {useTimelineKeyframeDragState} from './TimelineKeyframeDragState';
 import {
@@ -469,7 +470,11 @@ export const useTimelineKeyframeDrag = ({
 					durationInFrames: videoConfig.durationInFrames,
 					timelineWidth,
 				});
-				const delta = rawDelta;
+				const delta = getBoundedKeyframeDragDelta({
+					delta: rawDelta,
+					durationInFrames: videoConfig.durationInFrames,
+					targets,
+				});
 
 				if (hasDragged && delta === lastDelta) {
 					return;
