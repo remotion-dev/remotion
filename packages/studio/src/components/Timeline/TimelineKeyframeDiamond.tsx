@@ -1,21 +1,27 @@
 import React, {useContext, useMemo} from 'react';
 import {useVideoConfig} from 'remotion';
-import {BLUE, LIGHT_TEXT} from '../../helpers/colors';
+import {LIGHT_TEXT} from '../../helpers/colors';
 import {getXPositionOfItemInTimelineImperatively} from '../../helpers/get-left-of-timeline-slider';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
+import {TimelineKeyframeDiamondIcon} from './TimelineKeyframeDiamondIcon';
 import {useTimelineKeyframeDragState} from './TimelineKeyframeDragState';
 import {useTimelineKeyframeSelection} from './TimelineSelection';
 import {TimelineWidthContext} from './TimelineWidthProvider';
 import {useTimelineKeyframeDrag} from './use-timeline-keyframe-drag';
 
+const diamondSize = 12;
+
 const diamondBase: React.CSSProperties = {
+	alignItems: 'center',
+	background: 'none',
+	border: 'none',
+	display: 'flex',
+	height: diamondSize,
+	justifyContent: 'center',
+	padding: 0,
 	position: 'absolute',
-	width: 8,
-	height: 8,
-	backgroundColor: LIGHT_TEXT,
-	borderRadius: 1,
-	boxShadow: '0 0 0 1px rgba(0, 0, 0, 0.4)',
+	width: diamondSize,
 };
 
 const TimelineKeyframeDiamondUnmemoized: React.FC<{
@@ -40,27 +46,18 @@ const TimelineKeyframeDiamondUnmemoized: React.FC<{
 
 		return {
 			...diamondBase,
-			backgroundColor: LIGHT_TEXT,
-			outline: visuallySelected ? '2px solid ' + BLUE : 'none',
-			border: 'none',
+			cursor: 'pointer',
 			left:
 				getXPositionOfItemInTimelineImperatively(
 					frame,
 					videoConfig.durationInFrames,
 					timelineWidth,
 				) - TIMELINE_PADDING,
-			padding: 0,
 			pointerEvents: 'auto',
 			top: rowHeight / 2,
-			transform: 'translate(-50%, -50%) rotate(45deg)',
+			transform: 'translate(-50%, -50%)',
 		};
-	}, [
-		frame,
-		rowHeight,
-		timelineWidth,
-		videoConfig.durationInFrames,
-		visuallySelected,
-	]);
+	}, [frame, rowHeight, timelineWidth, videoConfig.durationInFrames]);
 
 	const onPointerDown = useTimelineKeyframeDrag({
 		frame,
@@ -81,7 +78,13 @@ const TimelineKeyframeDiamondUnmemoized: React.FC<{
 			title={`Keyframe at frame ${frame}`}
 			aria-label={`Select keyframe at frame ${frame}`}
 			onPointerDown={selectable ? onPointerDown : undefined}
-		/>
+		>
+			<TimelineKeyframeDiamondIcon
+				color={LIGHT_TEXT}
+				selected={visuallySelected}
+				size={diamondSize}
+			/>
+		</button>
 	);
 };
 

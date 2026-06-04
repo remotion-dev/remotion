@@ -24,6 +24,7 @@ import {
 	hasKeyframeAtSourceFrame,
 } from './get-keyframe-navigation';
 import {getTimelineKeyframes} from './get-timeline-keyframes';
+import {TimelineKeyframeDiamondIcon} from './TimelineKeyframeDiamondIcon';
 import {SELECTION_ENABLED} from './TimelineSelection';
 
 const controlsContainerStyle: React.CSSProperties = {
@@ -61,14 +62,6 @@ const diamondButtonStyle: React.CSSProperties = {
 	...navButtonStyle,
 	background: 'none',
 	translate: '0 -0.5px',
-};
-
-const diamondIconStyle: React.CSSProperties = {
-	borderRadius: 1,
-	boxShadow: '0 0 0 1px rgba(0, 0, 0, 0.4)',
-	height: 7,
-	transform: 'rotate(45deg)',
-	width: 7,
 };
 
 const svgStyle: React.CSSProperties = {display: 'block'};
@@ -361,13 +354,7 @@ export const TimelineKeyframeControls: React.FC<{
 		[canToggleKeyframe, clientId],
 	);
 
-	const diamondIcon = useMemo(
-		(): React.CSSProperties => ({
-			...diamondIconStyle,
-			backgroundColor: hasKeyframeAtCurrentFrame ? BLUE : LIGHT_TEXT,
-		}),
-		[hasKeyframeAtCurrentFrame],
-	);
+	const diamondColor = hasKeyframeAtCurrentFrame ? BLUE : LIGHT_TEXT;
 
 	return (
 		<div style={controlsContainerStyle}>
@@ -395,7 +382,7 @@ export const TimelineKeyframeControls: React.FC<{
 				}
 				title={hasKeyframeAtCurrentFrame ? 'Remove keyframe' : 'Add keyframe'}
 			>
-				<span style={diamondIcon} />
+				<TimelineKeyframeDiamondIcon color={diamondColor} size={10} />
 			</button>
 			<button
 				type="button"
