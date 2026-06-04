@@ -8,6 +8,7 @@ import {
 } from '../helpers/is-current-selected-still';
 import {useMobileLayout} from '../helpers/mobile-layout';
 import {TIMELINE_PADDING} from '../helpers/timeline-layout';
+import {ENABLE_OUTLINES} from '../state/editor-outlines';
 import {loadLoopOption} from '../state/loop';
 import {CheckboardToggle} from './CheckboardToggle';
 import {FpsCounter} from './FpsCounter';
@@ -15,6 +16,7 @@ import {FullScreenToggle} from './FullscreenToggle';
 import {Flex, Spacing} from './layout';
 import {LoopToggle} from './LoopToggle';
 import {MuteToggle} from './MuteToggle';
+import {OutlineToggle} from './OutlineToggle';
 import {PlaybackKeyboardShortcutsManager} from './PlaybackKeyboardShortcutsManager';
 import {PlaybackRatePersistor} from './PlaybackRatePersistor';
 import {PlaybackRateSelector} from './PlaybackRateSelector';
@@ -194,6 +196,9 @@ export const PreviewToolbar: React.FC<{
 				</>
 			) : null}
 			{canvasContent?.type === 'composition' ? <CheckboardToggle /> : null}
+			{ENABLE_OUTLINES && canvasContent?.type === 'composition' ? (
+				<OutlineToggle />
+			) : null}
 			<Spacing x={1} />
 			{canvasContent && isFullscreenSupported ? <FullScreenToggle /> : null}
 			<Flex />

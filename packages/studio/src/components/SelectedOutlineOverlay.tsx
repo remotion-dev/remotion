@@ -18,6 +18,10 @@ import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {BLUE} from '../helpers/colors';
 import {getBoxQuadsPonyfill} from '../helpers/get-box-quads-ponyfill';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
+import {
+	EditorShowOutlinesContext,
+	ENABLE_OUTLINES,
+} from '../state/editor-outlines';
 import {ScaleLockContext} from '../state/scale-lock';
 import {showNotification} from './Notifications/NotificationCenter';
 import {callAddSequenceKeyframe} from './Timeline/call-add-keyframe';
@@ -33,7 +37,6 @@ import {
 } from './Timeline/timeline-translate-utils';
 import {getLinkedScale} from './Timeline/TimelineScaleField';
 import {
-	ENABLE_OUTLINES,
 	getTimelineSequenceSelectionKey,
 	type TimelineSelection,
 	type TimelineSelectionInteraction,
@@ -1500,6 +1503,7 @@ export const SelectedOutlineOverlay: React.FC<{
 		Internals.VisualModeDragOverridesContext,
 	);
 	const {getScaleLockState} = useContext(ScaleLockContext);
+	const {editorShowOutlines} = useContext(EditorShowOutlinesContext);
 	const [outlines, setOutlines] = useState<readonly SelectedOutline[]>([]);
 	const [hoveredOutlineKey, setHoveredOutlineKey] = useState<string | null>(
 		null,
@@ -1507,7 +1511,7 @@ export const SelectedOutlineOverlay: React.FC<{
 	const overlayRef = useRef<SVGSVGElement>(null);
 
 	const outlineTargets = useMemo((): SelectedOutlineTarget[] => {
-		if (!ENABLE_OUTLINES) {
+		if (!ENABLE_OUTLINES || !editorShowOutlines) {
 			return [];
 		}
 
@@ -1614,6 +1618,7 @@ export const SelectedOutlineOverlay: React.FC<{
 		getDragOverrides,
 		getEffectDragOverrides,
 		getScaleLockState,
+		editorShowOutlines,
 		overrideIdToNodePathMappings,
 		previewServerState,
 		selectedItems,
