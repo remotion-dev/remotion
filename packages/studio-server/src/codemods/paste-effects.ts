@@ -35,8 +35,6 @@ type RemotionImportName =
 	| 'Easing'
 	| 'interpolate'
 	| 'interpolateColors'
-	| 'interpolateRotate'
-	| 'interpolateTranslate'
 	| 'useCurrentFrame';
 
 type RemotionLocalNames = Partial<Record<RemotionImportName, string>>;

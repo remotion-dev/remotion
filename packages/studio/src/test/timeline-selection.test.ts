@@ -1,4 +1,5 @@
 import {expect, test} from 'bun:test';
+import type {RefObject} from 'react';
 import {
 	Internals,
 	type CodeValues,
@@ -7,13 +8,20 @@ import {
 	type SequenceSchema,
 	type TSequence,
 } from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {
 	getSelectedEffectFieldsBySequenceKey,
+	getOutlineSelectionInteraction,
+	getSequencesWithSelectableOutlines,
 	getSelectedOutlineDragChanges,
 	getSelectedOutlineDragValues,
+	getSelectedOutlineScaleDragChanges,
+	getSelectedOutlineScaleDragValues,
+	getSelectedOutlineScaleEdgeInfo,
 	getUvCoordinateForPoint,
 	getUvHandlePosition,
 	type SelectedOutlineDragState,
+	type SelectedOutlineScaleDragState,
 } from '../components/SelectedOutlineOverlay';
 import {deleteSelectedTimelineItems} from '../components/Timeline/delete-selected-timeline-item';
 import {isDuplicatableSequenceRowSelection} from '../components/Timeline/duplicate-selected-timeline-item';
@@ -37,6 +45,9 @@ import {
 	getTimelineSequenceDurationDragChanges,
 	getTimelineSequenceDurationDragTargets,
 	getTimelineSequenceDurationDragValue,
+	getTimelineSequenceFromDragChanges,
+	getTimelineSequenceFromDragTargets,
+	getTimelineSequenceFromDragValue,
 } from '../components/Timeline/TimelineSequenceRightEdgeDragHandle';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 
@@ -68,6 +79,8 @@ const makeTimelineSequence = ({
 	effects = [],
 	id = 'sequence',
 	overrideId = 'override',
+	parentId = null,
+	refForOutline = null,
 	duration = 100,
 	from = 0,
 	type = 'sequence',
@@ -76,6 +89,8 @@ const makeTimelineSequence = ({
 	readonly effects?: readonly {readonly schema: SequenceSchema}[];
 	readonly id?: string;
 	readonly overrideId?: string;
+	readonly parentId?: string | null;
+	readonly refForOutline?: RefObject<HTMLElement | null> | null;
 	readonly duration?: number;
 	readonly from?: number;
 	readonly type?: TSequence['type'];
@@ -87,7 +102,7 @@ const makeTimelineSequence = ({
 		id,
 		displayName: id,
 		documentationLink: null,
-		parent: null,
+		parent: parentId,
 		rootId: 'root',
 		showInTimeline: true,
 		nonce: [[0, 0]],
@@ -101,7 +116,7 @@ const makeTimelineSequence = ({
 			overrideId,
 			supportsEffects: true,
 		},
-		refForOutline: null,
+		refForOutline,
 		isInsideSeries: false,
 		effects,
 	}) as TSequence;
@@ -115,6 +130,23 @@ const makeDurationCodeValues = (
 			canUpdate: true,
 			props: {
 				durationInFrames: {status: 'static', codeValue: 100},
+			},
+			effects: [],
+		};
+	}
+
+	return codeValues;
+};
+
+const makeFromCodeValues = (
+	nodePaths: readonly SequencePropsSubscriptionKey[],
+): CodeValues => {
+	const codeValues: CodeValues = {};
+	for (const nodePath of nodePaths) {
+		codeValues[Internals.makeSequencePropsSubscriptionKey(nodePath)] = {
+			canUpdate: true,
+			props: {
+				from: {status: 'static', codeValue: 0},
 			},
 			effects: [],
 		};
@@ -467,8 +499,231 @@ test('Timeline duration drag ignores selection if dragged sequence is not select
 	]);
 });
 
+test('Timeline from drag applies the same delta to selected sequences', () => {
+	const schema = {} satisfies SequenceSchema;
+	const firstNodePathInfo = makeNodePathInfo(['body', 0], []);
+	const secondNodePathInfo = makeNodePathInfo(['body', 1], []);
+	const sequences = [
+		makeTimelineSequence({
+			schema,
+			id: 'first',
+			overrideId: 'first',
+			duration: 40,
+			from: 0,
+		}),
+		makeTimelineSequence({
+			schema,
+			id: 'second',
+			overrideId: 'second',
+			duration: 15,
+			from: 10,
+			type: 'audio',
+		}),
+	];
+	const targets = getTimelineSequenceFromDragTargets({
+		draggedNodePathInfo: firstNodePathInfo,
+		selectedItems: [
+			{type: 'sequence', nodePathInfo: firstNodePathInfo},
+			{type: 'sequence', nodePathInfo: secondNodePathInfo},
+		],
+		sequences,
+		overrideIdsToNodePaths: {
+			first: firstNodePathInfo.sequenceSubscriptionKey,
+			second: secondNodePathInfo.sequenceSubscriptionKey,
+		},
+		codeValues: makeFromCodeValues([
+			firstNodePathInfo.sequenceSubscriptionKey,
+			secondNodePathInfo.sequenceSubscriptionKey,
+		]),
+	});
+
+	expect(targets?.map((target) => target.initialFrom)).toEqual([0, 10]);
+	expect(
+		getTimelineSequenceFromDragChanges({
+			targets: targets ?? [],
+			deltaFrames: 12,
+		}).map((change) => change.value),
+	).toEqual([12, 22]);
+});
+
+test('Timeline from drag supports negative offsets', () => {
+	expect(
+		getTimelineSequenceFromDragValue({
+			initialFrom: 4,
+			deltaFrames: -10,
+		}),
+	).toBe(-6);
+});
+
+test('Timeline from drag saves relative from for nested sequences', () => {
+	const schema = {} satisfies SequenceSchema;
+	const childNodePathInfo = makeNodePathInfo(['body', 1], []);
+	const targets = getTimelineSequenceFromDragTargets({
+		draggedNodePathInfo: childNodePathInfo,
+		selectedItems: [{type: 'sequence', nodePathInfo: childNodePathInfo}],
+		sequences: [
+			makeTimelineSequence({
+				schema,
+				id: 'parent',
+				overrideId: 'parent',
+				duration: 100,
+				from: 50,
+			}),
+			makeTimelineSequence({
+				schema,
+				id: 'child',
+				overrideId: 'child',
+				duration: 20,
+				from: 10,
+				parentId: 'parent',
+			}),
+		],
+		overrideIdsToNodePaths: {
+			child: childNodePathInfo.sequenceSubscriptionKey,
+		},
+		codeValues: makeFromCodeValues([childNodePathInfo.sequenceSubscriptionKey]),
+	});
+
+	expect(targets?.map((target) => target.initialFrom)).toEqual([10]);
+	expect(
+		getTimelineSequenceFromDragChanges({
+			targets: targets ?? [],
+			deltaFrames: 5,
+		}).map((change) => change.value),
+	).toEqual([15]);
+});
+
+test('Timeline from drag is blocked if one selected sequence cannot update from', () => {
+	const schema = {} satisfies SequenceSchema;
+	const firstNodePathInfo = makeNodePathInfo(['body', 0], []);
+	const secondNodePathInfo = makeNodePathInfo(['body', 1], []);
+	const codeValues = makeFromCodeValues([
+		firstNodePathInfo.sequenceSubscriptionKey,
+	]);
+
+	codeValues[
+		Internals.makeSequencePropsSubscriptionKey(
+			secondNodePathInfo.sequenceSubscriptionKey,
+		)
+	] = {
+		canUpdate: true,
+		props: {},
+		effects: [],
+	};
+
+	expect(
+		getTimelineSequenceFromDragTargets({
+			draggedNodePathInfo: firstNodePathInfo,
+			selectedItems: [
+				{type: 'sequence', nodePathInfo: firstNodePathInfo},
+				{type: 'sequence', nodePathInfo: secondNodePathInfo},
+			],
+			sequences: [
+				makeTimelineSequence({
+					schema,
+					id: 'first',
+					overrideId: 'first',
+					duration: 40,
+				}),
+				makeTimelineSequence({
+					schema,
+					id: 'second',
+					overrideId: 'second',
+					duration: 15,
+					from: 10,
+				}),
+			],
+			overrideIdsToNodePaths: {
+				first: firstNodePathInfo.sequenceSubscriptionKey,
+				second: secondNodePathInfo.sequenceSubscriptionKey,
+			},
+			codeValues,
+		}),
+	).toBe(null);
+});
+
+test('Timeline from drag removes the prop at the default value', () => {
+	const nodePathInfo = makeNodePathInfo(['body', 0], []);
+	const [change] = getTimelineSequenceFromDragChanges({
+		targets: [
+			{
+				fileName: nodePathInfo.sequenceSubscriptionKey.absolutePath,
+				initialFrom: 5,
+				nodePath: nodePathInfo.sequenceSubscriptionKey,
+			},
+		],
+		deltaFrames: -5,
+	});
+
+	expect(change).toEqual({
+		fileName: nodePathInfo.sequenceSubscriptionKey.absolutePath,
+		nodePath: nodePathInfo.sequenceSubscriptionKey,
+		fieldKey: 'from',
+		value: 0,
+		defaultValue: '0',
+		schema: NoReactInternals.sequenceSchema,
+	});
+});
+
 test('Timeline outlines should not be enabled', () => {
 	expect(ENABLE_OUTLINES).toBe(false);
+});
+
+test('Canvas outline selection uses conventional modifier keys', () => {
+	expect(
+		getOutlineSelectionInteraction({
+			shiftKey: true,
+			metaKey: false,
+			ctrlKey: false,
+		}),
+	).toEqual({shiftKey: true, toggleKey: false});
+	expect(
+		getOutlineSelectionInteraction({
+			shiftKey: false,
+			metaKey: true,
+			ctrlKey: false,
+		}),
+	).toEqual({shiftKey: false, toggleKey: true});
+	expect(
+		getOutlineSelectionInteraction({
+			shiftKey: false,
+			metaKey: false,
+			ctrlKey: true,
+		}),
+	).toEqual({shiftKey: false, toggleKey: true});
+});
+
+test('Canvas outline hit targets render nested sequences above parents', () => {
+	const schema = {} satisfies SequenceSchema;
+	const refForOutline = {current: null};
+	const parentNodePathInfo = makeNodePathInfo(['body', 0], []);
+	const childNodePathInfo = makeNodePathInfo(['body', 0, 'children', 0], []);
+	const outlines = getSequencesWithSelectableOutlines({
+		sequences: [
+			makeTimelineSequence({
+				schema,
+				id: 'parent',
+				overrideId: 'parent',
+				refForOutline,
+			}),
+			makeTimelineSequence({
+				schema,
+				id: 'child',
+				overrideId: 'child',
+				parentId: 'parent',
+				refForOutline,
+			}),
+		],
+		overrideIdsToNodePaths: {
+			parent: parentNodePathInfo.sequenceSubscriptionKey,
+			child: childNodePathInfo.sequenceSubscriptionKey,
+		},
+	});
+
+	expect(outlines.map((outline) => outline.key)).toEqual([
+		getTimelineSequenceSelectionKey(parentNodePathInfo),
+		getTimelineSequenceSelectionKey(childNodePathInfo),
+	]);
 });
 
 test('UV handles project semantic outline corners', () => {
@@ -712,6 +967,105 @@ test('Selected outline dragging applies the same delta to all selected sequences
 			schema,
 		},
 	]);
+});
+
+test('Selected outline edge dragging scales one axis when scale is unlinked', () => {
+	const schema = {
+		'style.scale': {type: 'scale', default: 1, min: 0.05, max: 100},
+	} satisfies SequenceSchema;
+	const nodePath = makeKey(['body', 0]);
+	const dragStates = [
+		{
+			defaultValue: JSON.stringify(1),
+			key: Internals.makeSequencePropsSubscriptionKey(nodePath),
+			startX: 2,
+			startY: 3,
+			startZ: 1,
+			target: {
+				clientId: 'client',
+				codeValue: {status: 'static', codeValue: '2 3'},
+				fieldDefault: 1,
+				fieldSchema: schema['style.scale'],
+				linked: false,
+				nodePath,
+				schema,
+			},
+		},
+	] satisfies SelectedOutlineScaleDragState[];
+
+	const lastValues = getSelectedOutlineScaleDragValues({
+		dragStates,
+		axis: 'x',
+		scaleFactor: 1.25,
+	});
+
+	expect(lastValues.get(dragStates[0].key)).toBe('2.5 3');
+	expect(
+		getSelectedOutlineScaleDragChanges({
+			dragStates,
+			lastValues,
+		}),
+	).toEqual([
+		{
+			fileName: '/project/src/Comp.tsx',
+			nodePath,
+			fieldKey: 'style.scale',
+			value: '2.5 3',
+			defaultValue: JSON.stringify(1),
+			schema,
+		},
+	]);
+});
+
+test('Selected outline edge dragging preserves aspect ratio when scale is linked', () => {
+	const schema = {
+		'style.scale': {type: 'scale', default: 1, min: 0.05, max: 100},
+	} satisfies SequenceSchema;
+	const nodePath = makeKey(['body', 0]);
+	const dragStates = [
+		{
+			defaultValue: JSON.stringify(1),
+			key: Internals.makeSequencePropsSubscriptionKey(nodePath),
+			startX: 2,
+			startY: 3,
+			startZ: 1,
+			target: {
+				clientId: 'client',
+				codeValue: {status: 'static', codeValue: '2 3'},
+				fieldDefault: 1,
+				fieldSchema: schema['style.scale'],
+				linked: true,
+				nodePath,
+				schema,
+			},
+		},
+	] satisfies SelectedOutlineScaleDragState[];
+
+	const lastValues = getSelectedOutlineScaleDragValues({
+		dragStates,
+		axis: 'x',
+		scaleFactor: 1.25,
+	});
+
+	expect(lastValues.get(dragStates[0].key)).toBe('2.5 3.75');
+});
+
+test('Selected outline scale edges project pointer movement onto the edge normal', () => {
+	const points = [
+		{x: 0, y: 0},
+		{x: 100, y: 0},
+		{x: 100, y: 50},
+		{x: 0, y: 50},
+	] as const;
+	const right = getSelectedOutlineScaleEdgeInfo(points, 'right');
+	const top = getSelectedOutlineScaleEdgeInfo(points, 'top');
+
+	expect(right?.axis).toBe('x');
+	expect(right?.extent).toBe(100);
+	expect(right?.normal).toEqual({x: 1, y: 0});
+	expect(top?.axis).toBe('y');
+	expect(top?.extent).toBe(50);
+	expect(top?.normal).toEqual({x: 0, y: -1});
 });
 
 test('Backspace reset targets selected effect props', () => {

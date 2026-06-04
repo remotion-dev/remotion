@@ -1,5 +1,8 @@
-import React, {useCallback, useMemo, useRef, useState} from 'react';
-import type {CanUpdateSequencePropStatusStatic} from 'remotion';
+import React, {useCallback, useContext, useMemo, useRef, useState} from 'react';
+import type {
+	CanUpdateSequencePropStatusStatic,
+	SequencePropsSubscriptionKey,
+} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {LIGHT_COLOR} from '../../helpers/colors';
 import type {
@@ -7,6 +10,7 @@ import type {
 	TimelineFieldOnDragValueChange,
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
+import {ScaleLockContext} from '../../state/scale-lock';
 import {InputDragger} from '../NewComposition/InputDragger';
 import {
 	getDecimalPlaces,
@@ -52,7 +56,7 @@ const clamp = (value: number, min: number, max: number): number => {
 	return Math.min(max, Math.max(min, value));
 };
 
-const getLinkedScale = ({
+export const getLinkedScale = ({
 	axis,
 	newValue,
 	baseX,
@@ -146,6 +150,7 @@ export const TimelineScaleField: React.FC<{
 	readonly onSave: TimelineFieldOnSave;
 	readonly onDragValueChange: TimelineFieldOnDragValueChange;
 	readonly onDragEnd: () => void;
+	readonly scaleLockNodePath: SequencePropsSubscriptionKey | null;
 }> = ({
 	field,
 	propStatus,
@@ -153,17 +158,24 @@ export const TimelineScaleField: React.FC<{
 	onSave,
 	onDragValueChange,
 	onDragEnd,
+	scaleLockNodePath,
 }) => {
 	const [dragX, setDragX] = useState<number | null>(null);
 	const [dragY, setDragY] = useState<number | null>(null);
 	const dragStartRef = useRef<readonly [number, number] | null>(null);
+	const {getScaleLockState, setScaleLockState} = useContext(ScaleLockContext);
 
 	const [codeX, codeY, codeZ] = useMemo(
 		() => NoReactInternals.parseScaleValue(effectiveValue),
 		[effectiveValue],
 	);
 
-	const [linked, setLinked] = useState(() => codeX === codeY);
+	const defaultLinked = codeX === codeY;
+	const linked = getScaleLockState({
+		nodePath: scaleLockNodePath,
+		fieldKey: field.key,
+		defaultValue: defaultLinked,
+	});
 
 	const step =
 		field.fieldSchema.type === 'scale'
@@ -417,8 +429,12 @@ export const TimelineScaleField: React.FC<{
 	);
 
 	const onToggleLink = useCallback(() => {
-		setLinked((current) => !current);
-	}, []);
+		setScaleLockState({
+			nodePath: scaleLockNodePath,
+			fieldKey: field.key,
+			linked: !linked,
+		});
+	}, [field.key, linked, scaleLockNodePath, setScaleLockState]);
 
 	return (
 		<span style={containerStyle}>

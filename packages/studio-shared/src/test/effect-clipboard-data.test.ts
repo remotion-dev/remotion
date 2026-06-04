@@ -69,7 +69,7 @@ test('parseEffectClipboardData accepts rotate interpolation functions', () => {
 					params: {
 						angle: {
 							type: 'keyframed',
-							interpolationFunction: 'interpolateRotate',
+							interpolationFunction: 'interpolate',
 							keyframes: [
 								{frame: 0, value: '0deg'},
 								{frame: 100, value: '90deg'},
@@ -85,7 +85,7 @@ test('parseEffectClipboardData accepts rotate interpolation functions', () => {
 
 	expect(parsed?.effects[0]?.params.angle).toEqual({
 		type: 'keyframed',
-		interpolationFunction: 'interpolateRotate',
+		interpolationFunction: 'interpolate',
 		keyframes: [
 			{frame: 0, value: '0deg'},
 			{frame: 100, value: '90deg'},

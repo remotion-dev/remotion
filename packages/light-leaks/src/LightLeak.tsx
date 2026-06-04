@@ -235,6 +235,7 @@ const LightLeakCanvas: React.FC<{
  */
 const lightLeakSchema = {
 	durationInFrames: Internals.durationInFramesField,
+	from: Internals.fromField,
 	seed: {
 		type: 'number',
 		default: 0,

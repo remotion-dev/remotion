@@ -1,4 +1,4 @@
-import {isSequenceFieldSchemaKeyframable} from '@remotion/studio-shared';
+import {isSchemaFieldKeyframable} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useMemo} from 'react';
 import type {
 	CanUpdateSequencePropStatus,
@@ -196,11 +196,11 @@ export const TimelineKeyframeControls: React.FC<{
 		[keyframes, timelinePosition],
 	);
 
-	const fieldSchema = schema[fieldKey];
-	const keyframable = isSequenceFieldSchemaKeyframable(fieldSchema);
-	const canAddKeyframe =
-		keyframable &&
-		(fieldSchema?.type !== 'scale' || typeof currentKeyframeValue === 'number');
+	const keyframable = isSchemaFieldKeyframable({
+		schema,
+		key: fieldKey,
+	});
+	const canAddKeyframe = keyframable;
 	const canToggleKeyframe =
 		propStatus.status !== 'computed' &&
 		(hasKeyframeAtCurrentFrame || canAddKeyframe);

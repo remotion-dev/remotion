@@ -2,6 +2,7 @@ import React from 'react';
 import type {
 	CanUpdateSequencePropStatusFalse,
 	CanUpdateSequencePropStatusStatic,
+	SequencePropsSubscriptionKey,
 } from 'remotion';
 import type {
 	SchemaFieldInfo,
@@ -54,6 +55,7 @@ export const TimelineFieldValue: React.FC<{
 	readonly onDragEnd: () => void;
 	readonly propStatus: CanUpdateSequencePropStatusStatic;
 	readonly effectiveValue: unknown;
+	readonly scaleLockNodePath: SequencePropsSubscriptionKey | null;
 }> = ({
 	field,
 	onSave,
@@ -61,6 +63,7 @@ export const TimelineFieldValue: React.FC<{
 	onDragEnd,
 	propStatus,
 	effectiveValue,
+	scaleLockNodePath,
 }) => {
 	if (field.typeName === 'number') {
 		return (
@@ -111,6 +114,10 @@ export const TimelineFieldValue: React.FC<{
 	}
 
 	if (field.typeName === 'scale') {
+		if (scaleLockNodePath === null) {
+			throw new Error('Expected scale lock node path for scale field');
+		}
+
 		return (
 			<span>
 				<TimelineScaleField
@@ -120,6 +127,7 @@ export const TimelineFieldValue: React.FC<{
 					onSave={onSave}
 					onDragValueChange={onDragValueChange}
 					onDragEnd={onDragEnd}
+					scaleLockNodePath={scaleLockNodePath}
 				/>
 			</span>
 		);
@@ -192,6 +200,7 @@ export const TimelineFieldValue: React.FC<{
 					onDragValueChange={onDragValueChange}
 					onDragEnd={onDragEnd}
 					effectiveValue={effectiveValue}
+					scaleLockNodePath={scaleLockNodePath}
 				/>
 			</span>
 		);

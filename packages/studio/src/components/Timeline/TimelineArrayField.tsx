@@ -2,6 +2,7 @@ import React, {useCallback, useMemo} from 'react';
 import type {
 	ArrayFieldSchema,
 	CanUpdateSequencePropStatusStatic,
+	SequencePropsSubscriptionKey,
 	VisibleFieldSchema,
 } from 'remotion';
 import type {
@@ -205,6 +206,7 @@ const ItemEditor: React.FC<{
 	readonly onSave: TimelineFieldOnSave;
 	readonly onDragValueChange: TimelineFieldOnDragValueChange;
 	readonly onDragEnd: () => void;
+	readonly scaleLockNodePath: SequencePropsSubscriptionKey | null;
 }> = ({
 	field,
 	arrayField,
@@ -213,6 +215,7 @@ const ItemEditor: React.FC<{
 	onSave,
 	onDragValueChange,
 	onDragEnd,
+	scaleLockNodePath,
 }) => {
 	const fallback = useMemo(
 		() => getFallbackItemValue(arrayField),
@@ -302,6 +305,7 @@ const ItemEditor: React.FC<{
 				onSave={onSaveItem}
 				onDragValueChange={onDragItem}
 				onDragEnd={onDragEnd}
+				scaleLockNodePath={scaleLockNodePath}
 			/>
 		);
 	}
@@ -361,7 +365,15 @@ export const TimelineArrayField: React.FC<{
 	readonly onSave: TimelineFieldOnSave;
 	readonly onDragValueChange: TimelineFieldOnDragValueChange;
 	readonly onDragEnd: () => void;
-}> = ({field, effectiveValue, onSave, onDragValueChange, onDragEnd}) => {
+	readonly scaleLockNodePath: SequencePropsSubscriptionKey | null;
+}> = ({
+	field,
+	effectiveValue,
+	onSave,
+	onDragValueChange,
+	onDragEnd,
+	scaleLockNodePath,
+}) => {
 	const arrayField = field.fieldSchema;
 	if (arrayField.type !== 'array') {
 		throw new Error('TimelineArrayField rendered for non-array field');
@@ -412,6 +424,7 @@ export const TimelineArrayField: React.FC<{
 						onSave={onSave}
 						onDragValueChange={onDragValueChange}
 						onDragEnd={onDragEnd}
+						scaleLockNodePath={scaleLockNodePath}
 					/>
 					<button
 						type="button"

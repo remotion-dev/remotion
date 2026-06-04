@@ -10,11 +10,13 @@ import type {
 	TSequence,
 } from 'remotion';
 import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {calculateTimeline} from '../helpers/calculate-timeline';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {BLUE} from '../helpers/colors';
 import {getBoxQuadsPonyfill} from '../helpers/get-box-quads-ponyfill';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
+import {ScaleLockContext} from '../state/scale-lock';
 import {showNotification} from './Notifications/NotificationCenter';
 import {saveEffectProp} from './Timeline/save-effect-prop';
 import {saveSequenceProps} from './Timeline/save-sequence-prop';
@@ -23,10 +25,12 @@ import {
 	parseTranslate,
 	serializeTranslate,
 } from './Timeline/timeline-translate-utils';
+import {getLinkedScale} from './Timeline/TimelineScaleField';
 import {
 	ENABLE_OUTLINES,
 	getTimelineSequenceSelectionKey,
 	type TimelineSelection,
+	type TimelineSelectionInteraction,
 	useTimelineSelection,
 } from './Timeline/TimelineSelection';
 
@@ -66,8 +70,12 @@ type SelectedOutlineUvHandle = {
 
 type SelectedOutlineTarget = {
 	readonly key: string;
+	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly ref: React.RefObject<HTMLElement | null>;
+	readonly selected: boolean;
+	readonly selection: TimelineSelection;
 	readonly drag: SelectedOutlineDragTarget | null;
+	readonly scaleDrag: SelectedOutlineScaleDragTarget | null;
 	readonly uvHandles: readonly SelectedOutlineUvHandle[];
 };
 
@@ -75,6 +83,18 @@ type SelectedOutlineDragTarget = {
 	readonly codeValue: CanUpdateSequencePropStatusStatic;
 	readonly clientId: string;
 	readonly fieldDefault: string | undefined;
+	readonly nodePath: SequencePropsSubscriptionKey;
+	readonly schema: SequenceSchema;
+};
+
+type ScaleFieldSchema = Extract<SequenceFieldSchema, {type: 'scale'}>;
+
+type SelectedOutlineScaleDragTarget = {
+	readonly codeValue: CanUpdateSequencePropStatusStatic;
+	readonly clientId: string;
+	readonly fieldDefault: number | string | undefined;
+	readonly fieldSchema: ScaleFieldSchema;
+	readonly linked: boolean;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly schema: SequenceSchema;
 };
@@ -87,13 +107,24 @@ export type SelectedOutlineDragState = {
 	readonly target: SelectedOutlineDragTarget;
 };
 
+export type SelectedOutlineScaleDragState = {
+	readonly defaultValue: string | null;
+	readonly key: string;
+	readonly startX: number;
+	readonly startY: number;
+	readonly startZ: number;
+	readonly target: SelectedOutlineScaleDragTarget;
+};
+
 type SequenceWithSelectedOutline = {
+	readonly depth: number;
 	readonly key: string;
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly sequence: TSequence;
 };
 
 const translateFieldKey = 'style.translate';
+const scaleFieldKey = 'style.scale';
 
 const outlineContainer: React.CSSProperties = {
 	position: 'absolute',
@@ -137,6 +168,18 @@ const mixPoint = (
 		x: mix(from.x, to.x, progress),
 		y: mix(from.y, to.y, progress),
 	};
+};
+
+const midpoint = (from: OutlinePoint, to: OutlinePoint): OutlinePoint => {
+	return mixPoint(from, to, 0.5);
+};
+
+const dot = (left: OutlinePoint, right: OutlinePoint): number => {
+	return left.x * right.x + left.y * right.y;
+};
+
+const vectorLength = (vector: OutlinePoint): number => {
+	return Math.hypot(vector.x, vector.y);
 };
 
 const getBilinearUvHandlePosition = (
@@ -385,6 +428,19 @@ const getSelectedSequenceKeys = (
 	);
 };
 
+export const getOutlineSelectionInteraction = ({
+	shiftKey,
+	metaKey,
+	ctrlKey,
+}: {
+	readonly shiftKey: boolean;
+	readonly metaKey: boolean;
+	readonly ctrlKey: boolean;
+}): TimelineSelectionInteraction => ({
+	shiftKey,
+	toggleKey: metaKey || ctrlKey,
+});
+
 type SelectedEffectFields = {
 	allFields: boolean;
 	fieldKeys: Set<string>;
@@ -421,21 +477,13 @@ export const getSelectedEffectFieldsBySequenceKey = (
 	return selectedEffects;
 };
 
-const getSequencesWithSelectedOutlines = ({
-	selectedItems,
+export const getSequencesWithSelectableOutlines = ({
 	sequences,
 	overrideIdsToNodePaths,
 }: {
-	readonly selectedItems: readonly TimelineSelection[];
 	readonly sequences: readonly TSequence[];
 	readonly overrideIdsToNodePaths: OverrideIdToNodePaths;
 }): SequenceWithSelectedOutline[] => {
-	const selectedSequenceKeys = getSelectedSequenceKeys(selectedItems);
-
-	if (selectedSequenceKeys.size === 0) {
-		return [];
-	}
-
 	return calculateTimeline({
 		sequences: [...sequences],
 		overrideIdsToNodePaths,
@@ -445,17 +493,17 @@ const getSequencesWithSelectedOutlines = ({
 				return false;
 			}
 
-			return selectedSequenceKeys.has(
-				getTimelineSequenceSelectionKey(track.nodePathInfo),
-			);
+			return track.nodePathInfo.auxiliaryKeys.length === 0;
 		})
 		.filter((track) => track.sequence.refForOutline !== null)
+		.sort((a, b) => a.depth - b.depth)
 		.map((track) => {
 			if (track.nodePathInfo === null) {
 				throw new Error('Expected selected outline to have a node path');
 			}
 
 			return {
+				depth: track.depth,
 				key: getTimelineSequenceSelectionKey(track.nodePathInfo),
 				nodePathInfo: track.nodePathInfo,
 				sequence: track.sequence,
@@ -697,6 +745,162 @@ export const getSelectedOutlineDragChanges = ({
 	});
 };
 
+export type SelectedOutlineScaleEdge = 'top' | 'right' | 'bottom' | 'left';
+
+type SelectedOutlineScaleEdgeInfo = {
+	readonly axis: 'x' | 'y';
+	readonly cursor: React.CSSProperties['cursor'];
+	readonly end: OutlinePoint;
+	readonly extent: number;
+	readonly normal: OutlinePoint;
+	readonly start: OutlinePoint;
+};
+
+export const getSelectedOutlineScaleEdgeInfo = (
+	points: SelectedOutline['points'],
+	edge: SelectedOutlineScaleEdge,
+): SelectedOutlineScaleEdgeInfo | null => {
+	const [tl, tr, br, bl] = points;
+	const edgePoints = {
+		top: {start: tl, end: tr, oppositeStart: bl, oppositeEnd: br},
+		right: {start: tr, end: br, oppositeStart: tl, oppositeEnd: bl},
+		bottom: {start: bl, end: br, oppositeStart: tl, oppositeEnd: tr},
+		left: {start: tl, end: bl, oppositeStart: tr, oppositeEnd: br},
+	}[edge];
+	const edgeMidpoint = midpoint(edgePoints.start, edgePoints.end);
+	const oppositeMidpoint = midpoint(
+		edgePoints.oppositeStart,
+		edgePoints.oppositeEnd,
+	);
+	const outward = vectorBetween(oppositeMidpoint, edgeMidpoint);
+	const length = vectorLength(outward);
+
+	if (length < 0.001) {
+		return null;
+	}
+
+	return {
+		axis: edge === 'left' || edge === 'right' ? 'x' : 'y',
+		cursor: edge === 'left' || edge === 'right' ? 'ew-resize' : 'ns-resize',
+		end: edgePoints.end,
+		extent: length,
+		normal: {x: outward.x / length, y: outward.y / length},
+		start: edgePoints.start,
+	};
+};
+
+export const getSelectedOutlineScaleDragStates = ({
+	dragTargets,
+	getDragOverrides,
+}: {
+	readonly dragTargets: readonly SelectedOutlineScaleDragTarget[];
+	readonly getDragOverrides: (
+		nodePath: SequencePropsSubscriptionKey,
+	) => Record<string, unknown>;
+}): SelectedOutlineScaleDragState[] => {
+	return dragTargets.map((target) => {
+		const dragOverrideValue = (getDragOverrides(target.nodePath) ?? {})[
+			scaleFieldKey
+		];
+		const effectiveValue = Internals.getEffectiveVisualModeValue({
+			codeValue: target.codeValue,
+			dragOverrideValue,
+			defaultValue: target.fieldDefault,
+			shouldResortToDefaultValueIfUndefined: true,
+		});
+		const [startX, startY, startZ] =
+			NoReactInternals.parseScaleValue(effectiveValue);
+
+		return {
+			defaultValue:
+				target.fieldDefault !== undefined
+					? JSON.stringify(target.fieldDefault)
+					: null,
+			key: Internals.makeSequencePropsSubscriptionKey(target.nodePath),
+			startX,
+			startY,
+			startZ,
+			target,
+		};
+	});
+};
+
+export const getSelectedOutlineScaleDragValues = ({
+	axis,
+	dragStates,
+	scaleFactor,
+}: {
+	readonly axis: 'x' | 'y';
+	readonly dragStates: readonly SelectedOutlineScaleDragState[];
+	readonly scaleFactor: number;
+}): Map<string, number | string> => {
+	return new Map(
+		dragStates.map((dragState) => {
+			const min = dragState.target.fieldSchema.min ?? -Infinity;
+			const max = dragState.target.fieldSchema.max ?? Infinity;
+			const baseX = dragState.startX;
+			const baseY = dragState.startY;
+			const newValue = (axis === 'x' ? baseX : baseY) * scaleFactor;
+			const [x, y] = dragState.target.linked
+				? getLinkedScale({
+						axis,
+						newValue,
+						baseX,
+						baseY,
+						min,
+						max,
+					})
+				: axis === 'x'
+					? [clamp(newValue, min, max), baseY]
+					: [baseX, clamp(newValue, min, max)];
+
+			return [
+				dragState.key,
+				NoReactInternals.serializeScaleValue([x, y, dragState.startZ]),
+			];
+		}),
+	);
+};
+
+export const getSelectedOutlineScaleDragChanges = ({
+	dragStates,
+	lastValues,
+}: {
+	readonly dragStates: readonly SelectedOutlineScaleDragState[];
+	readonly lastValues: ReadonlyMap<string, number | string>;
+}) => {
+	return dragStates.flatMap((dragState) => {
+		const value = lastValues.get(dragState.key);
+		if (value === undefined) {
+			return [];
+		}
+
+		const stringifiedValue = JSON.stringify(value);
+		const shouldSave =
+			stringifiedValue !==
+				JSON.stringify(dragState.target.codeValue.codeValue) &&
+			!(
+				dragState.defaultValue === stringifiedValue &&
+				dragState.target.codeValue.codeValue === undefined
+			);
+
+		if (!shouldSave) {
+			return [];
+		}
+
+		return [
+			{
+				fileName: dragState.target.nodePath.absolutePath,
+				nodePath: dragState.target.nodePath,
+				fieldKey: scaleFieldKey,
+				value,
+				defaultValue: dragState.defaultValue,
+				schema: dragState.target.schema,
+			},
+		];
+	});
+};
+
 const clearSelectedOutlineDragOverrides = ({
 	clearDragOverrides,
 	dragStates,
@@ -709,12 +913,38 @@ const clearSelectedOutlineDragOverrides = ({
 	}
 };
 
+const clearSelectedOutlineScaleDragOverrides = ({
+	clearDragOverrides,
+	dragStates,
+}: {
+	readonly clearDragOverrides: (nodePath: SequencePropsSubscriptionKey) => void;
+	readonly dragStates: readonly SelectedOutlineScaleDragState[];
+}) => {
+	for (const dragState of dragStates) {
+		clearDragOverrides(dragState.target.nodePath);
+	}
+};
+
 const SelectedOutlinePolygon: React.FC<{
 	readonly allDragTargets: readonly SelectedOutlineDragTarget[];
+	readonly hovered: boolean;
 	readonly outline: SelectedOutline;
+	readonly onHoverChange: (key: string | null) => void;
+	readonly onSelect: (
+		item: TimelineSelection,
+		interaction: TimelineSelectionInteraction,
+	) => void;
 	readonly scale: number;
 	readonly target: SelectedOutlineTarget | undefined;
-}> = ({allDragTargets, outline, scale, target}) => {
+}> = ({
+	allDragTargets,
+	hovered,
+	outline,
+	onHoverChange,
+	onSelect,
+	scale,
+	target,
+}) => {
 	const {getDragOverrides} = useContext(
 		Internals.VisualModeDragOverridesContext,
 	);
@@ -726,20 +956,33 @@ const SelectedOutlinePolygon: React.FC<{
 		[outline.points],
 	);
 	const drag = target?.drag ?? null;
+	const selected = target?.selected ?? false;
+	const visible = selected || hovered;
 
 	const onPointerDown = React.useCallback(
 		(event: React.PointerEvent<SVGPolygonElement>) => {
-			if (event.button !== 0 || drag === null) {
+			if (event.button !== 0 || target === undefined) {
 				return;
 			}
 
 			event.preventDefault();
 			event.stopPropagation();
 
+			const interaction = getOutlineSelectionInteraction(event);
+			const shouldUpdateSelection =
+				!selected || interaction.shiftKey || interaction.toggleKey;
+			if (shouldUpdateSelection) {
+				onSelect(target.selection, interaction);
+			}
+
+			if (drag === null || interaction.shiftKey || interaction.toggleKey) {
+				return;
+			}
+
 			const startPointerX = event.clientX;
 			const startPointerY = event.clientY;
 			const dragStates = getSelectedOutlineDragStates({
-				dragTargets: allDragTargets,
+				dragTargets: selected ? allDragTargets : [drag],
 				getDragOverrides,
 			});
 			let lastValues = new Map<string, string>();
@@ -806,21 +1049,196 @@ const SelectedOutlinePolygon: React.FC<{
 			clearDragOverrides,
 			drag,
 			getDragOverrides,
+			onSelect,
 			scale,
+			selected,
 			setCodeValues,
 			setDragOverrides,
+			target,
 		],
 	);
 
 	return (
 		<polygon
 			points={points}
-			fill={drag === null ? 'none' : 'transparent'}
+			fill="transparent"
 			stroke={BLUE}
+			strokeOpacity={visible ? 1 : 0}
 			strokeWidth={2}
 			vectorEffect="non-scaling-stroke"
-			pointerEvents={drag === null ? undefined : 'all'}
-			onPointerDown={drag === null ? undefined : onPointerDown}
+			pointerEvents={target === undefined ? undefined : 'all'}
+			onPointerEnter={() => onHoverChange(outline.key)}
+			onPointerLeave={() => onHoverChange(null)}
+			onPointerDown={onPointerDown}
+		/>
+	);
+};
+
+const SelectedOutlineScaleEdgeLine: React.FC<{
+	readonly allScaleDragTargets: readonly SelectedOutlineScaleDragTarget[];
+	readonly edge: SelectedOutlineScaleEdge;
+	readonly outline: SelectedOutline;
+	readonly onHoverChange: (key: string | null) => void;
+	readonly onSelect: (
+		item: TimelineSelection,
+		interaction: TimelineSelectionInteraction,
+	) => void;
+	readonly target: SelectedOutlineTarget | undefined;
+}> = ({
+	allScaleDragTargets,
+	edge,
+	outline,
+	onHoverChange,
+	onSelect,
+	target,
+}) => {
+	const {getDragOverrides} = useContext(
+		Internals.VisualModeDragOverridesContext,
+	);
+	const {setCodeValues, setDragOverrides, clearDragOverrides} = useContext(
+		Internals.VisualModeSettersContext,
+	);
+	const scaleDrag = target?.scaleDrag ?? null;
+	const selected = target?.selected ?? false;
+	const edgeInfo = useMemo(
+		() => getSelectedOutlineScaleEdgeInfo(outline.points, edge),
+		[edge, outline.points],
+	);
+
+	const onPointerDown = React.useCallback(
+		(event: React.PointerEvent<SVGLineElement>) => {
+			if (event.button !== 0 || scaleDrag === null || edgeInfo === null) {
+				return;
+			}
+
+			event.preventDefault();
+			event.stopPropagation();
+
+			const interaction = getOutlineSelectionInteraction(event);
+			const shouldUpdateSelection =
+				!selected || interaction.shiftKey || interaction.toggleKey;
+			if (shouldUpdateSelection && target !== undefined) {
+				onSelect(target.selection, interaction);
+			}
+
+			if (interaction.shiftKey || interaction.toggleKey) {
+				return;
+			}
+
+			const startPointer = {x: event.clientX, y: event.clientY};
+			const dragStates = getSelectedOutlineScaleDragStates({
+				dragTargets: selected ? allScaleDragTargets : [scaleDrag],
+				getDragOverrides,
+			});
+			let lastValues = new Map<string, number | string>();
+
+			const onPointerMove = (moveEvent: PointerEvent) => {
+				moveEvent.preventDefault();
+
+				const delta = {
+					x: moveEvent.clientX - startPointer.x,
+					y: moveEvent.clientY - startPointer.y,
+				};
+				const projectedDelta = dot(delta, edgeInfo.normal);
+				const scaleFactor = Math.max(
+					0.001,
+					1 + projectedDelta / edgeInfo.extent,
+				);
+
+				lastValues = getSelectedOutlineScaleDragValues({
+					dragStates,
+					axis: edgeInfo.axis,
+					scaleFactor,
+				});
+
+				for (const dragState of dragStates) {
+					const value = lastValues.get(dragState.key);
+					if (value === undefined) {
+						throw new Error('Expected scale drag value to be available');
+					}
+
+					setDragOverrides(dragState.target.nodePath, scaleFieldKey, value);
+				}
+			};
+
+			const onPointerUp = () => {
+				window.removeEventListener('pointermove', onPointerMove);
+				window.removeEventListener('pointerup', onPointerUp);
+				window.removeEventListener('pointercancel', onPointerUp);
+
+				const changes = getSelectedOutlineScaleDragChanges({
+					dragStates,
+					lastValues,
+				});
+
+				if (changes.length === 0) {
+					clearSelectedOutlineScaleDragOverrides({
+						clearDragOverrides,
+						dragStates,
+					});
+					return;
+				}
+
+				saveSequenceProps({
+					changes,
+					setCodeValues,
+					clientId: scaleDrag.clientId,
+					undoLabel: changes.length > 1 ? 'Scale selected sequences' : null,
+					redoLabel:
+						changes.length > 1 ? 'Scale selected sequences back' : null,
+				})
+					.catch((err) => {
+						showNotification(
+							`Could not save sequence props: ${
+								err instanceof Error ? err.message : String(err)
+							}`,
+							4000,
+						);
+					})
+					.finally(() => {
+						clearSelectedOutlineScaleDragOverrides({
+							clearDragOverrides,
+							dragStates,
+						});
+					});
+			};
+
+			window.addEventListener('pointermove', onPointerMove);
+			window.addEventListener('pointerup', onPointerUp);
+			window.addEventListener('pointercancel', onPointerUp);
+		},
+		[
+			allScaleDragTargets,
+			clearDragOverrides,
+			edgeInfo,
+			getDragOverrides,
+			onSelect,
+			scaleDrag,
+			selected,
+			setCodeValues,
+			setDragOverrides,
+			target,
+		],
+	);
+
+	if (scaleDrag === null || edgeInfo === null) {
+		return null;
+	}
+
+	return (
+		<line
+			x1={edgeInfo.start.x}
+			y1={edgeInfo.start.y}
+			x2={edgeInfo.end.x}
+			y2={edgeInfo.end.y}
+			stroke="transparent"
+			strokeWidth={12}
+			vectorEffect="non-scaling-stroke"
+			pointerEvents="stroke"
+			cursor={edgeInfo.cursor}
+			onPointerEnter={() => onHoverChange(outline.key)}
+			onPointerLeave={() => onHoverChange(null)}
+			onPointerDown={onPointerDown}
 		/>
 	);
 };
@@ -964,24 +1382,29 @@ const SelectedUvHandleCircle: React.FC<{
 export const SelectedOutlineOverlay: React.FC<{
 	readonly scale: number;
 }> = ({scale}) => {
-	const {selectedItems} = useTimelineSelection();
+	const {selectedItems, selectItem} = useTimelineSelection();
 	const {sequences} = useContext(Internals.SequenceManager);
 	const {codeValues} = useContext(Internals.VisualModeCodeValuesContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {overrideIdToNodePathMappings} = useContext(
 		Internals.OverrideIdsToNodePathsGettersContext,
 	);
-	const {getEffectDragOverrides} = useContext(
+	const {getDragOverrides, getEffectDragOverrides} = useContext(
 		Internals.VisualModeDragOverridesContext,
 	);
+	const {getScaleLockState} = useContext(ScaleLockContext);
 	const [outlines, setOutlines] = useState<readonly SelectedOutline[]>([]);
+	const [hoveredOutlineKey, setHoveredOutlineKey] = useState<string | null>(
+		null,
+	);
 	const overlayRef = useRef<SVGSVGElement>(null);
 
-	const selectedOutlineTargets = useMemo((): SelectedOutlineTarget[] => {
+	const outlineTargets = useMemo((): SelectedOutlineTarget[] => {
 		if (!ENABLE_OUTLINES) {
 			return [];
 		}
 
+		const selectedSequenceKeys = getSelectedSequenceKeys(selectedItems);
 		const selectedEffectsBySequenceKey =
 			getSelectedEffectFieldsBySequenceKey(selectedItems);
 		const clientId =
@@ -989,8 +1412,7 @@ export const SelectedOutlineOverlay: React.FC<{
 				? previewServerState.clientId
 				: null;
 
-		return getSequencesWithSelectedOutlines({
-			selectedItems,
+		return getSequencesWithSelectableOutlines({
 			sequences,
 			overrideIdsToNodePaths: overrideIdToNodePathMappings,
 		}).map(({key, nodePathInfo, sequence}) => {
@@ -998,21 +1420,34 @@ export const SelectedOutlineOverlay: React.FC<{
 				throw new Error('Expected sequence to have a ref for outline');
 			}
 
+			const selected = selectedSequenceKeys.has(key);
 			const nodePath = nodePathInfo.sequenceSubscriptionKey;
 			const {controls} = sequence;
 			const fieldSchema = controls?.schema[translateFieldKey];
 			const codeValue = Internals.getCodeValuesCtx(codeValues, nodePath)?.[
 				translateFieldKey
 			];
+			const scaleFieldSchema = controls?.schema[scaleFieldKey];
+			const scaleCodeValue = Internals.getCodeValuesCtx(codeValues, nodePath)?.[
+				scaleFieldKey
+			];
 			const canDrag =
 				previewServerState.type === 'connected' &&
 				controls !== null &&
 				fieldSchema?.type === 'translate' &&
 				codeValue?.status === 'static';
+			const canScaleDrag =
+				previewServerState.type === 'connected' &&
+				controls !== null &&
+				scaleFieldSchema?.type === 'scale' &&
+				scaleCodeValue?.status === 'static';
 
 			return {
 				key,
+				nodePathInfo,
 				ref: sequence.refForOutline,
+				selected,
+				selection: {type: 'sequence', nodePathInfo},
 				drag: canDrag
 					? {
 							codeValue,
@@ -1022,38 +1457,82 @@ export const SelectedOutlineOverlay: React.FC<{
 							schema: controls.schema,
 						}
 					: null,
-				uvHandles: getSelectedUvHandles({
-					codeValues,
-					clientId,
-					getEffectDragOverrides,
-					nodePath,
-					selectedEffects: selectedEffectsBySequenceKey.get(key),
-					sequence,
-				}),
+				scaleDrag: canScaleDrag
+					? {
+							codeValue: scaleCodeValue,
+							clientId: previewServerState.clientId,
+							fieldDefault: scaleFieldSchema.default,
+							fieldSchema: scaleFieldSchema,
+							linked: getScaleLockState({
+								nodePath,
+								fieldKey: scaleFieldKey,
+								defaultValue: (() => {
+									const dragOverrideValue = (getDragOverrides(nodePath) ?? {})[
+										scaleFieldKey
+									];
+									const effectiveValue = Internals.getEffectiveVisualModeValue({
+										codeValue: scaleCodeValue,
+										dragOverrideValue,
+										defaultValue: scaleFieldSchema.default,
+										shouldResortToDefaultValueIfUndefined: true,
+									});
+									const [x, y] =
+										NoReactInternals.parseScaleValue(effectiveValue);
+									return x === y;
+								})(),
+							}),
+							nodePath,
+							schema: controls.schema,
+						}
+					: null,
+				uvHandles: selected
+					? getSelectedUvHandles({
+							codeValues,
+							clientId,
+							getEffectDragOverrides,
+							nodePath,
+							selectedEffects: selectedEffectsBySequenceKey.get(key),
+							sequence,
+						})
+					: [],
 			};
 		});
 	}, [
 		codeValues,
+		getDragOverrides,
 		getEffectDragOverrides,
+		getScaleLockState,
 		overrideIdToNodePathMappings,
 		previewServerState,
 		selectedItems,
 		sequences,
 	]);
 
+	useEffect(() => {
+		if (
+			hoveredOutlineKey !== null &&
+			!outlineTargets.some((target) => target.key === hoveredOutlineKey)
+		) {
+			setHoveredOutlineKey(null);
+		}
+	}, [hoveredOutlineKey, outlineTargets]);
+
 	const targetsByKey = useMemo(() => {
-		return new Map(
-			selectedOutlineTargets.map((target) => [target.key, target]),
-		);
-	}, [selectedOutlineTargets]);
+		return new Map(outlineTargets.map((target) => [target.key, target]));
+	}, [outlineTargets]);
 	const allDragTargets = useMemo(() => {
-		return selectedOutlineTargets.flatMap((target) =>
-			target.drag === null ? [] : [target.drag],
+		return outlineTargets.flatMap((target) =>
+			target.selected && target.drag !== null ? [target.drag] : [],
 		);
-	}, [selectedOutlineTargets]);
+	}, [outlineTargets]);
+	const allScaleDragTargets = useMemo(() => {
+		return outlineTargets.flatMap((target) =>
+			target.selected && target.scaleDrag !== null ? [target.scaleDrag] : [],
+		);
+	}, [outlineTargets]);
 
 	useEffect(() => {
-		if (selectedOutlineTargets.length === 0) {
+		if (outlineTargets.length === 0) {
 			setOutlines((prevOutlines) =>
 				prevOutlines.length === 0 ? prevOutlines : [],
 			);
@@ -1066,7 +1545,7 @@ export const SelectedOutlineOverlay: React.FC<{
 			if (overlayRef.current) {
 				const nextOutlines = measureOutlines(
 					overlayRef.current,
-					selectedOutlineTargets,
+					outlineTargets,
 				);
 				setOutlines((prevOutlines) =>
 					outlinesAreEqual(prevOutlines, nextOutlines)
@@ -1085,9 +1564,9 @@ export const SelectedOutlineOverlay: React.FC<{
 				cancelAnimationFrame(animationFrame);
 			}
 		};
-	}, [selectedOutlineTargets]);
+	}, [outlineTargets]);
 
-	if (selectedOutlineTargets.length === 0) {
+	if (outlineTargets.length === 0) {
 		return null;
 	}
 
@@ -1103,17 +1582,38 @@ export const SelectedOutlineOverlay: React.FC<{
 				<React.Fragment key={outline.key}>
 					<SelectedOutlinePolygon
 						allDragTargets={allDragTargets}
+						hovered={hoveredOutlineKey === outline.key}
 						outline={outline}
+						onHoverChange={setHoveredOutlineKey}
+						onSelect={selectItem}
 						scale={scale}
 						target={targetsByKey.get(outline.key)}
 					/>
-					{targetsByKey.get(outline.key)?.uvHandles.map((handle) => (
-						<SelectedUvHandleCircle
-							key={`${handle.effectIndex}-${handle.fieldKey}`}
-							handle={handle}
-							outline={outline}
-						/>
-					))}
+					{targetsByKey.get(outline.key)?.selected ||
+					hoveredOutlineKey === outline.key
+						? (['top', 'right', 'bottom', 'left'] as const).map((edge) => (
+								<SelectedOutlineScaleEdgeLine
+									key={edge}
+									allScaleDragTargets={allScaleDragTargets}
+									edge={edge}
+									outline={outline}
+									onHoverChange={setHoveredOutlineKey}
+									onSelect={selectItem}
+									target={targetsByKey.get(outline.key)}
+								/>
+							))
+						: null}
+					{targetsByKey.get(outline.key)?.selected
+						? targetsByKey
+								.get(outline.key)
+								?.uvHandles.map((handle) => (
+									<SelectedUvHandleCircle
+										key={`${handle.effectIndex}-${handle.fieldKey}`}
+										handle={handle}
+										outline={outline}
+									/>
+								))
+						: null}
 				</React.Fragment>
 			))}
 		</svg>

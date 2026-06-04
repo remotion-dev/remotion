@@ -32,9 +32,7 @@ export type CanUpdateSequencePropStatusClamping = {
 
 export type CanUpdateSequencePropStatusInterpolationFunction =
 	| 'interpolate'
-	| 'interpolateColors'
-	| 'interpolateRotate'
-	| 'interpolateTranslate';
+	| 'interpolateColors';
 
 export type CanUpdateSequencePropStatusComputed = {
 	status: 'computed';

@@ -38,7 +38,7 @@ test('optimisticAddSequenceKeyframe converts a static prop to a single keyframe'
 	expect(status.clamping).toEqual({left: 'clamp', right: 'clamp'});
 });
 
-test('optimisticAddSequenceKeyframe uses interpolateTranslate for translate fields', () => {
+test('optimisticAddSequenceKeyframe uses interpolate for translate fields', () => {
 	const previous: CanUpdateSequencePropsResponse = {
 		canUpdate: true,
 		props: {
@@ -73,12 +73,12 @@ test('optimisticAddSequenceKeyframe uses interpolateTranslate for translate fiel
 		throw new Error('expected keyframed status');
 	}
 
-	expect(status.interpolationFunction).toBe('interpolateTranslate');
+	expect(status.interpolationFunction).toBe('interpolate');
 	expect(status.keyframes).toEqual([{frame: 44, value: '0px 59px'}]);
 	expect(status.clamping).toEqual({left: 'clamp', right: 'clamp'});
 });
 
-test('optimisticAddSequenceKeyframe uses interpolateRotate for rotation-css fields', () => {
+test('optimisticAddSequenceKeyframe uses interpolate for rotation-css fields', () => {
 	const previous: CanUpdateSequencePropsResponse = {
 		canUpdate: true,
 		props: {
@@ -113,7 +113,7 @@ test('optimisticAddSequenceKeyframe uses interpolateRotate for rotation-css fiel
 		throw new Error('expected keyframed status');
 	}
 
-	expect(status.interpolationFunction).toBe('interpolateRotate');
+	expect(status.interpolationFunction).toBe('interpolate');
 	expect(status.keyframes).toEqual([{frame: 44, value: '19deg'}]);
 	expect(status.clamping).toEqual({left: 'clamp', right: 'clamp'});
 });
@@ -143,6 +143,39 @@ test('optimisticAddSequenceKeyframe ignores non-keyframable fields', () => {
 		fieldKey: 'playbackRate',
 		frame: 25,
 		value: 2,
+		schema,
+	});
+
+	expect(updated).toEqual(previous);
+});
+
+test('optimisticAddSequenceKeyframe ignores enum fields', () => {
+	const previous: CanUpdateSequencePropsResponse = {
+		canUpdate: true,
+		props: {
+			layout: {
+				status: 'static',
+				codeValue: 'absolute-fill',
+			},
+		},
+		effects: [],
+	};
+	const schema = {
+		layout: {
+			type: 'enum',
+			default: 'absolute-fill',
+			variants: {
+				'absolute-fill': {},
+				none: {},
+			},
+		},
+	} satisfies SequenceSchema;
+
+	const updated = optimisticAddSequenceKeyframe({
+		previous,
+		fieldKey: 'layout',
+		frame: 25,
+		value: 'none',
 		schema,
 	});
 
@@ -191,6 +224,49 @@ test('optimisticAddSequenceKeyframe appends a keyframe to an existing interpolat
 		{frame: 60, value: 2},
 	]);
 	expect(status.easing).toEqual(['linear', 'linear']);
+});
+
+test('optimisticAddSequenceKeyframe updates an existing keyframe at the same frame', () => {
+	const previous: CanUpdateSequencePropsResponse = {
+		canUpdate: true,
+		props: {
+			scale: {
+				status: 'keyframed',
+				codeValue: undefined,
+				interpolationFunction: 'interpolate',
+				keyframes: [
+					{frame: 0, value: 1},
+					{frame: 60, value: 2},
+				],
+				easing: ['linear'],
+				clamping: {left: 'extend', right: 'extend'},
+				posterize: undefined,
+			},
+		},
+		effects: [],
+	};
+
+	const updated = optimisticAddSequenceKeyframe({
+		previous,
+		fieldKey: 'scale',
+		frame: 60,
+		value: 3,
+	});
+
+	if (!updated.canUpdate) {
+		throw new Error('expected updateable sequence');
+	}
+
+	const status = updated.props.scale;
+	if (!status || status.status !== 'keyframed') {
+		throw new Error('expected keyframed status');
+	}
+
+	expect(status.keyframes).toEqual([
+		{frame: 0, value: 1},
+		{frame: 60, value: 3},
+	]);
+	expect(status.easing).toEqual(['linear']);
 });
 
 test('optimisticAddEffectKeyframe appends a keyframe on the target effect', () => {

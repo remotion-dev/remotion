@@ -1,25 +1,40 @@
-import React, {useMemo} from 'react';
+import React, {useCallback, useMemo} from 'react';
 import type {
 	CanUpdateSequencePropStatusKeyframed,
 	CanUpdateSequencePropStatusStatic,
+	SequencePropsSubscriptionKey,
 } from 'remotion';
 import {Internals} from 'remotion';
-import type {SchemaFieldInfo} from '../../helpers/timeline-layout';
+import type {
+	SchemaFieldInfo,
+	TimelineFieldOnDragValueChange,
+	TimelineFieldOnSave,
+} from '../../helpers/timeline-layout';
 import {TimelineFieldValue} from './TimelineSchemaField';
 
-const wrapperStyle: React.CSSProperties = {
-	opacity: 0.5,
-	pointerEvents: 'none',
+const valuesEqual = (left: unknown, right: unknown): boolean => {
+	return JSON.stringify(left) === JSON.stringify(right);
 };
-
-const noop = () => undefined;
-const noopAsync = () => Promise.resolve();
 
 export const TimelineKeyframedValue: React.FC<{
 	readonly field: SchemaFieldInfo;
 	readonly propStatus: CanUpdateSequencePropStatusKeyframed;
 	readonly keyframeDisplayOffset: number;
-}> = ({field, propStatus, keyframeDisplayOffset}) => {
+	readonly dragOverrideValue: unknown;
+	readonly onSave: (value: unknown, sourceFrame: number) => Promise<void>;
+	readonly onDragValueChange: TimelineFieldOnDragValueChange;
+	readonly onDragEnd: () => void;
+	readonly scaleLockNodePath: SequencePropsSubscriptionKey;
+}> = ({
+	field,
+	propStatus,
+	keyframeDisplayOffset,
+	dragOverrideValue,
+	onSave,
+	onDragValueChange,
+	onDragEnd,
+	scaleLockNodePath,
+}) => {
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const jsxFrame = timelinePosition - keyframeDisplayOffset;
 
@@ -43,20 +58,39 @@ export const TimelineKeyframedValue: React.FC<{
 		[computedValue],
 	);
 
+	const effectiveValue =
+		dragOverrideValue === undefined ? computedValue : dragOverrideValue;
+
+	const onSaveIfChanged = useCallback<TimelineFieldOnSave>(
+		(value) => {
+			const existingKeyframe = propStatus.keyframes.find(
+				(keyframe) => keyframe.frame === jsxFrame,
+			);
+			if (
+				valuesEqual(value, computedValue) ||
+				(existingKeyframe && valuesEqual(value, existingKeyframe.value))
+			) {
+				return Promise.resolve();
+			}
+
+			return onSave(value, jsxFrame);
+		},
+		[computedValue, jsxFrame, onSave, propStatus.keyframes],
+	);
+
 	if (computedValue === null) {
 		return null;
 	}
 
 	return (
-		<div style={wrapperStyle}>
-			<TimelineFieldValue
-				field={field}
-				propStatus={fakeStatus}
-				effectiveValue={computedValue}
-				onSave={noopAsync}
-				onDragValueChange={noop}
-				onDragEnd={noop}
-			/>
-		</div>
+		<TimelineFieldValue
+			field={field}
+			propStatus={fakeStatus}
+			effectiveValue={effectiveValue}
+			onSave={onSaveIfChanged}
+			onDragValueChange={onDragValueChange}
+			onDragEnd={onDragEnd}
+			scaleLockNodePath={scaleLockNodePath}
+		/>
 	);
 };

@@ -444,7 +444,7 @@ export const TimelineSelectionProvider: React.FC<{
 }> = ({children}) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const canSelect =
-		SELECTION_ENABLED &&
+		(SELECTION_ENABLED || ENABLE_OUTLINES) &&
 		previewServerState.type === 'connected' &&
 		!window.remotion_isReadOnlyStudio;
 	const [selectedItems, setSelectedItems] = useState<
