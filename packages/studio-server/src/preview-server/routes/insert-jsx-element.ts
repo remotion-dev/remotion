@@ -62,6 +62,10 @@ const getElementLabel = (element: InsertableCompositionElement) => {
 		if (element.assetType === 'gif') {
 			return '<Gif>';
 		}
+
+		if (element.assetType === 'audio') {
+			return '<Audio>';
+		}
 	}
 
 	throw new Error('Unsupported element type');

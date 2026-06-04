@@ -562,7 +562,7 @@ export type InsertableCompositionElement =
 	  }
 	| {
 			type: 'asset';
-			assetType: 'image' | 'video' | 'gif';
+			assetType: 'image' | 'video' | 'gif' | 'audio';
 			src: string;
 			dimensions: {
 				width: number;
