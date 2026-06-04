@@ -19,13 +19,21 @@ import {BLUE} from '../helpers/colors';
 import {getBoxQuadsPonyfill} from '../helpers/get-box-quads-ponyfill';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 import {ScaleLockContext} from '../state/scale-lock';
+import {useContextMenu} from './ContextMenu';
+import {ExpandedTracksSetterContext} from './ExpandedTracksProvider';
+import type {ComboboxValue} from './NewComposition/ComboBox';
 import {showNotification} from './Notifications/NotificationCenter';
 import {callAddSequenceKeyframe} from './Timeline/call-add-keyframe';
+import {
+	getTimelineRevealAncestorNodePathInfos,
+	scrollTimelineSequenceIntoView,
+} from './Timeline/reveal-timeline-selection';
 import {saveEffectProp} from './Timeline/save-effect-prop';
 import {
 	saveSequenceProps,
 	type SaveSequencePropChange,
 } from './Timeline/save-sequence-prop';
+import {useSequenceSourceContextMenuItems} from './Timeline/sequence-source-context-menu-items';
 import {getDecimalPlaces} from './Timeline/timeline-field-utils';
 import {
 	parseTranslate,
@@ -78,6 +86,7 @@ type SelectedOutlineTarget = {
 	readonly key: string;
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly ref: React.RefObject<HTMLElement | null>;
+	readonly sequence: TSequence;
 	readonly selected: boolean;
 	readonly selection: TimelineSelection;
 	readonly drag: SelectedOutlineDragTarget | null;
@@ -142,6 +151,12 @@ const outlineContainer: React.CSSProperties = {
 	inset: 0,
 	pointerEvents: 'none',
 	overflow: 'visible',
+};
+
+const outlineContextMenuAnchor: React.CSSProperties = {
+	position: 'absolute',
+	inset: 0,
+	pointerEvents: 'none',
 };
 
 const pointToString = (point: OutlinePoint) => `${point.x},${point.y}`;
@@ -985,6 +1000,7 @@ const SelectedOutlinePolygon: React.FC<{
 	readonly allDragTargets: readonly SelectedOutlineDragTarget[];
 	readonly hovered: boolean;
 	readonly outline: SelectedOutline;
+	readonly onContextMenu?: React.MouseEventHandler<SVGPolygonElement>;
 	readonly onHoverChange: (key: string | null) => void;
 	readonly onSelect: (
 		item: TimelineSelection,
@@ -996,6 +1012,7 @@ const SelectedOutlinePolygon: React.FC<{
 	allDragTargets,
 	hovered,
 	outline,
+	onContextMenu,
 	onHoverChange,
 	onSelect,
 	scale,
@@ -1177,6 +1194,7 @@ const SelectedOutlinePolygon: React.FC<{
 			onPointerEnter={() => onHoverChange(outline.key)}
 			onPointerLeave={() => onHoverChange(null)}
 			onPointerDown={onPointerDown}
+			onContextMenu={selected ? onContextMenu : undefined}
 		/>
 	);
 };
@@ -1185,6 +1203,7 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 	readonly allScaleDragTargets: readonly SelectedOutlineScaleDragTarget[];
 	readonly edge: SelectedOutlineScaleEdge;
 	readonly outline: SelectedOutline;
+	readonly onContextMenu?: React.MouseEventHandler<SVGLineElement>;
 	readonly onHoverChange: (key: string | null) => void;
 	readonly onSelect: (
 		item: TimelineSelection,
@@ -1195,6 +1214,7 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 	allScaleDragTargets,
 	edge,
 	outline,
+	onContextMenu,
 	onHoverChange,
 	onSelect,
 	target,
@@ -1353,6 +1373,7 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 			onPointerEnter={() => onHoverChange(outline.key)}
 			onPointerLeave={() => onHoverChange(null)}
 			onPointerDown={onPointerDown}
+			onContextMenu={selected ? onContextMenu : undefined}
 		/>
 	);
 };
@@ -1493,6 +1514,106 @@ const SelectedUvHandleCircle: React.FC<{
 	);
 };
 
+const SelectedOutlineTargetGroup: React.FC<{
+	readonly allDragTargets: readonly SelectedOutlineDragTarget[];
+	readonly allScaleDragTargets: readonly SelectedOutlineScaleDragTarget[];
+	readonly contextMenuContainerRef: React.RefObject<HTMLDivElement | null>;
+	readonly hovered: boolean;
+	readonly outline: SelectedOutline;
+	readonly onHoverChange: (key: string | null) => void;
+	readonly onSelect: (
+		item: TimelineSelection,
+		interaction?: TimelineSelectionInteraction,
+	) => void;
+	readonly scale: number;
+	readonly target: SelectedOutlineTarget;
+}> = ({
+	allDragTargets,
+	allScaleDragTargets,
+	contextMenuContainerRef,
+	hovered,
+	outline,
+	onHoverChange,
+	onSelect,
+	scale,
+	target,
+}) => {
+	const {expandTracks} = useContext(ExpandedTracksSetterContext);
+	const {sequenceSourceContextMenuItems} = useSequenceSourceContextMenuItems(
+		target.sequence,
+	);
+	const revealInTimeline = React.useCallback(() => {
+		onSelect(target.selection);
+		expandTracks(getTimelineRevealAncestorNodePathInfos(target.nodePathInfo));
+		window.requestAnimationFrame(() => {
+			scrollTimelineSequenceIntoView(target.nodePathInfo);
+		});
+	}, [expandTracks, onSelect, target.nodePathInfo, target.selection]);
+
+	const contextMenuValues = useMemo((): ComboboxValue[] => {
+		return [
+			...sequenceSourceContextMenuItems,
+			{
+				type: 'item',
+				id: 'reveal-in-timeline',
+				keyHint: null,
+				label: 'Reveal in timeline',
+				leftItem: null,
+				disabled: false,
+				onClick: revealInTimeline,
+				quickSwitcherLabel: null,
+				subMenu: null,
+				value: 'reveal-in-timeline',
+			},
+		];
+	}, [revealInTimeline, sequenceSourceContextMenuItems]);
+
+	const {onContextMenu, portal} = useContextMenu({
+		containerRef: contextMenuContainerRef,
+		onOpen: null,
+		values: contextMenuValues,
+	});
+
+	return (
+		<>
+			<SelectedOutlinePolygon
+				allDragTargets={allDragTargets}
+				hovered={hovered}
+				outline={outline}
+				onContextMenu={onContextMenu}
+				onHoverChange={onHoverChange}
+				onSelect={onSelect}
+				scale={scale}
+				target={target}
+			/>
+			{target.selected || hovered
+				? (['top', 'right', 'bottom', 'left'] as const).map((edge) => (
+						<SelectedOutlineScaleEdgeLine
+							key={edge}
+							allScaleDragTargets={allScaleDragTargets}
+							edge={edge}
+							outline={outline}
+							onContextMenu={onContextMenu}
+							onHoverChange={onHoverChange}
+							onSelect={onSelect}
+							target={target}
+						/>
+					))
+				: null}
+			{target.selected
+				? target.uvHandles.map((handle) => (
+						<SelectedUvHandleCircle
+							key={`${handle.effectIndex}-${handle.fieldKey}`}
+							handle={handle}
+							outline={outline}
+						/>
+					))
+				: null}
+			{portal}
+		</>
+	);
+};
+
 export const SelectedOutlineOverlay: React.FC<{
 	readonly scale: number;
 }> = ({scale}) => {
@@ -1512,6 +1633,7 @@ export const SelectedOutlineOverlay: React.FC<{
 		null,
 	);
 	const overlayRef = useRef<SVGSVGElement>(null);
+	const contextMenuContainerRef = useRef<HTMLDivElement>(null);
 
 	const outlineTargets = useMemo((): SelectedOutlineTarget[] => {
 		if (!ENABLE_OUTLINES) {
@@ -1564,6 +1686,7 @@ export const SelectedOutlineOverlay: React.FC<{
 				key,
 				nodePathInfo,
 				ref: sequence.refForOutline,
+				sequence,
 				selected,
 				selection: {type: 'sequence', nodePathInfo},
 				drag: canDrag
@@ -1690,51 +1813,48 @@ export const SelectedOutlineOverlay: React.FC<{
 	}
 
 	return (
-		<svg
-			ref={overlayRef}
-			style={outlineContainer}
-			width="100%"
-			height="100%"
-			aria-hidden="true"
-		>
-			{outlines.map((outline) => (
-				<React.Fragment key={outline.key}>
-					<SelectedOutlinePolygon
-						allDragTargets={allDragTargets}
-						hovered={hoveredOutlineKey === outline.key}
-						outline={outline}
-						onHoverChange={setHoveredOutlineKey}
-						onSelect={selectItem}
-						scale={scale}
-						target={targetsByKey.get(outline.key)}
-					/>
-					{targetsByKey.get(outline.key)?.selected ||
-					hoveredOutlineKey === outline.key
-						? (['top', 'right', 'bottom', 'left'] as const).map((edge) => (
-								<SelectedOutlineScaleEdgeLine
-									key={edge}
+		<>
+			<div ref={contextMenuContainerRef} style={outlineContextMenuAnchor} />
+			<svg
+				ref={overlayRef}
+				style={outlineContainer}
+				width="100%"
+				height="100%"
+				aria-hidden="true"
+			>
+				{outlines.map((outline) => {
+					const target = targetsByKey.get(outline.key);
+					const hovered = hoveredOutlineKey === outline.key;
+
+					return (
+						<React.Fragment key={outline.key}>
+							{target ? (
+								<SelectedOutlineTargetGroup
+									allDragTargets={allDragTargets}
 									allScaleDragTargets={allScaleDragTargets}
-									edge={edge}
+									contextMenuContainerRef={contextMenuContainerRef}
+									hovered={hovered}
 									outline={outline}
 									onHoverChange={setHoveredOutlineKey}
 									onSelect={selectItem}
-									target={targetsByKey.get(outline.key)}
+									scale={scale}
+									target={target}
 								/>
-							))
-						: null}
-					{targetsByKey.get(outline.key)?.selected
-						? targetsByKey
-								.get(outline.key)
-								?.uvHandles.map((handle) => (
-									<SelectedUvHandleCircle
-										key={`${handle.effectIndex}-${handle.fieldKey}`}
-										handle={handle}
-										outline={outline}
-									/>
-								))
-						: null}
-				</React.Fragment>
-			))}
-		</svg>
+							) : (
+								<SelectedOutlinePolygon
+									allDragTargets={allDragTargets}
+									hovered={hovered}
+									outline={outline}
+									onHoverChange={setHoveredOutlineKey}
+									onSelect={selectItem}
+									scale={scale}
+									target={undefined}
+								/>
+							)}
+						</React.Fragment>
+					);
+				})}
+			</svg>
+		</>
 	);
 };

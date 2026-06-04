@@ -26,6 +26,8 @@ import {
 import {deleteSelectedTimelineItems} from '../components/Timeline/delete-selected-timeline-item';
 import {isDuplicatableSequenceRowSelection} from '../components/Timeline/duplicate-selected-timeline-item';
 import {getTimelinePropResetTargets} from '../components/Timeline/reset-selected-timeline-props';
+import {getTimelineRevealAncestorNodePathInfos} from '../components/Timeline/reveal-timeline-selection';
+import {getSequenceSourceContextMenuItems} from '../components/Timeline/sequence-source-context-menu-items';
 import {
 	getPasteEffectsTarget,
 	getSnapshotsFromSelection,
@@ -695,6 +697,74 @@ test('Timeline from drag removes the prop at the default value', () => {
 
 test('Timeline outlines should not be enabled', () => {
 	expect(ENABLE_OUTLINES).toBe(false);
+});
+
+test('Timeline reveal expands ancestor rows only', () => {
+	const sequenceNodePathInfo = makeNodePathInfo(['body', 0], []);
+	const effectPropNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['effects', '1', 'opacity'],
+	);
+
+	expect(getTimelineRevealAncestorNodePathInfos(sequenceNodePathInfo)).toEqual(
+		[],
+	);
+	expect(
+		getTimelineRevealAncestorNodePathInfos(effectPropNodePathInfo).map(
+			(info) => info.auxiliaryKeys,
+		),
+	).toEqual([[], ['effects'], ['effects', '1']]);
+});
+
+test('Sequence source context menu exposes editor and file location actions', () => {
+	let didShowInEditor = false;
+	let didCopyFileLocation = false;
+	const items = getSequenceSourceContextMenuItems({
+		canOpenInEditor: true,
+		editorName: 'VS Code',
+		fileLocation: '/project/src/Comp.tsx:12',
+		onCopyFileLocation: () => {
+			didCopyFileLocation = true;
+		},
+		onShowInEditor: () => {
+			didShowInEditor = true;
+		},
+	});
+
+	expect(items.map((item) => item.id)).toEqual([
+		'show-in-editor',
+		'copy-file-location',
+	]);
+	expect(items.map((item) => item.type === 'item' && item.disabled)).toEqual([
+		false,
+		false,
+	]);
+	const [showInEditor, copyFileLocation] = items;
+	if (showInEditor.type !== 'item' || copyFileLocation.type !== 'item') {
+		throw new Error('Expected menu items');
+	}
+
+	showInEditor.onClick('show-in-editor', null);
+	copyFileLocation.onClick('copy-file-location', null);
+	expect(didShowInEditor).toBe(true);
+	expect(didCopyFileLocation).toBe(true);
+});
+
+test('Sequence source context menu disables missing source actions', () => {
+	const items = getSequenceSourceContextMenuItems({
+		canOpenInEditor: false,
+		editorName: null,
+		fileLocation: null,
+		onCopyFileLocation: () => {
+			throw new Error('Should not copy');
+		},
+		onShowInEditor: () => {
+			throw new Error('Should not open');
+		},
+	});
+
+	expect(items.map((item) => item.id)).toEqual(['copy-file-location']);
+	expect(items[0].type === 'item' && items[0].disabled).toBe(true);
 });
 
 test('Canvas outline selection uses conventional modifier keys', () => {

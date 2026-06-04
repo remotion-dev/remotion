@@ -22,6 +22,9 @@ type ExpandedTracksGetterContextValue = {
 };
 
 type ExpandedTracksSetterContextValue = {
+	readonly expandTracks: (
+		nodePathInfos: readonly SequenceNodePathInfo[],
+	) => void;
 	readonly toggleTrack: (nodePathInfo: SequenceNodePathInfo) => void;
 	readonly migrateExpandedTracksForSubscriptionKey: (
 		oldKey: SequencePropsSubscriptionKey,
@@ -38,6 +41,9 @@ export const ExpandedTracksGetterContext =
 
 export const ExpandedTracksSetterContext =
 	createContext<ExpandedTracksSetterContextValue>({
+		expandTracks: () => {
+			throw new Error('ExpandedTracksSetterContext not initialized');
+		},
 		toggleTrack: () => {
 			throw new Error('ExpandedTracksSetterContext not initialized');
 		},
@@ -51,6 +57,34 @@ export const ExpandedTracksProvider: React.FC<{
 }> = ({children}) => {
 	const [expandedTracks, setExpandedTracks] =
 		useState<Record<string, boolean>>(loadExpandedTracks);
+
+	const expandTracks = useCallback(
+		(nodePathInfos: readonly SequenceNodePathInfo[]) => {
+			if (nodePathInfos.length === 0) {
+				return;
+			}
+
+			setExpandedTracks((prev) => {
+				let changed = false;
+				const next = {...prev};
+				for (const nodePathInfo of nodePathInfos) {
+					const key = timelineNodePathInfoToKey(nodePathInfo);
+					if (next[key] !== true) {
+						next[key] = true;
+						changed = true;
+					}
+				}
+
+				if (!changed) {
+					return prev;
+				}
+
+				persistBooleanMap(SESSION_STORAGE_KEY, next);
+				return next;
+			});
+		},
+		[],
+	);
 
 	const toggleTrack = useCallback((nodePathInfo: SequenceNodePathInfo) => {
 		setExpandedTracks((prev) => {
@@ -93,10 +127,11 @@ export const ExpandedTracksProvider: React.FC<{
 
 	const setterValue = useMemo(
 		(): ExpandedTracksSetterContextValue => ({
+			expandTracks,
 			toggleTrack,
 			migrateExpandedTracksForSubscriptionKey: migrateExpandedTracks,
 		}),
-		[toggleTrack, migrateExpandedTracks],
+		[expandTracks, toggleTrack, migrateExpandedTracks],
 	);
 
 	return (

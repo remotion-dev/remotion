@@ -7,7 +7,6 @@ import type {TSequence} from 'remotion';
 import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
-import {formatFileLocation} from '../../helpers/format-file-location';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	getTimelineLayerHeight,
@@ -24,7 +23,9 @@ import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {useSelectAsset} from '../use-select-asset';
 import {duplicateSequencesFromSource} from './duplicate-selected-timeline-item';
+import {registerTimelineSequenceRow} from './reveal-timeline-selection';
 import {saveSequenceProps} from './save-sequence-prop';
+import {useSequenceSourceContextMenuItems} from './sequence-source-context-menu-items';
 import {
 	getTimelineAssetLinkInfo,
 	openTimelineAssetLink,
@@ -45,7 +46,6 @@ import {
 	useTimelineRowSelection,
 } from './TimelineSelection';
 import {TimelineSequenceName} from './TimelineSequenceName';
-import {useOpenSequenceInEditor} from './use-open-sequence-in-editor';
 
 const labelContainerStyle: React.CSSProperties = {
 	alignItems: 'center',
@@ -110,16 +110,12 @@ export const TimelineSequenceItem: React.FC<{
 	const containsSelection = useTimelineRowContainsSelection(nodePathInfo);
 	const [effectDropHovered, setEffectDropHovered] = useState(false);
 
-	const {canOpenInEditor, openInEditor, originalLocation} =
-		useOpenSequenceInEditor(sequence);
-	const fileLocation = useMemo(
-		() =>
-			formatFileLocation({
-				location: originalLocation,
-				root: window.remotion_cwd,
-			}),
-		[originalLocation],
-	);
+	const {
+		canOpenInEditor,
+		openInEditor,
+		originalLocation,
+		sequenceSourceContextMenuItems,
+	} = useSequenceSourceContextMenuItems(sequence);
 
 	const validatedLocation = useMemo(() => {
 		if (
@@ -206,54 +202,10 @@ export const TimelineSequenceItem: React.FC<{
 			return [];
 		}
 
-		const editorName = window.remotion_editorName;
 		const {documentationLink} = sequence;
 
 		return [
-			editorName
-				? {
-						type: 'item' as const,
-						id: 'show-in-editor',
-						keyHint: null,
-						label: `Show in ${editorName}`,
-						leftItem: null,
-						disabled: !canOpenInEditor,
-						onClick: () => {
-							openInEditor();
-						},
-						quickSwitcherLabel: null,
-						subMenu: null,
-						value: 'show-in-editor',
-					}
-				: null,
-			{
-				type: 'item' as const,
-				id: 'copy-file-location',
-				keyHint: null,
-				label: 'Copy file location',
-				leftItem: null,
-				disabled: !fileLocation,
-				onClick: () => {
-					if (!fileLocation) {
-						return;
-					}
-
-					navigator.clipboard
-						.writeText(fileLocation)
-						.then(() => {
-							showNotification('Copied file location to clipboard', 1000);
-						})
-						.catch((err) => {
-							showNotification(
-								`Could not copy to clipboard: ${(err as Error).message}`,
-								1000,
-							);
-						});
-				},
-				quickSwitcherLabel: null,
-				subMenu: null,
-				value: 'copy-file-location',
-			},
+			...sequenceSourceContextMenuItems,
 			documentationLink
 				? {
 						type: 'item' as const,
@@ -333,14 +285,12 @@ export const TimelineSequenceItem: React.FC<{
 		assetLinkInfo,
 		deleteDisabled,
 		duplicateDisabled,
-		fileLocation,
 		onDeleteSequenceFromSource,
 		onDuplicateSequenceFromSource,
-		canOpenInEditor,
-		openInEditor,
 		previewConnected,
 		selectAsset,
 		sequence,
+		sequenceSourceContextMenuItems,
 	]);
 
 	const isExpanded =
@@ -484,6 +434,20 @@ export const TimelineSequenceItem: React.FC<{
 		validatedLocation !== null &&
 		sequence.controls?.supportsEffects === true;
 
+	const rowRef = useCallback(
+		(element: HTMLDivElement | null) => {
+			if (nodePathInfo === null) {
+				return;
+			}
+
+			registerTimelineSequenceRow({
+				element,
+				nodePathInfo,
+			});
+		},
+		[nodePathInfo],
+	);
+
 	const onEffectDragOver = useCallback(
 		(e: React.DragEvent<HTMLDivElement>) => {
 			if (!canDropEffect || !hasEffectDragType(e.dataTransfer)) {
@@ -606,7 +570,7 @@ export const TimelineSequenceItem: React.FC<{
 	);
 
 	return (
-		<>
+		<div ref={rowRef}>
 			{previewConnected ? (
 				<ContextMenu
 					values={contextMenuValues}
@@ -630,6 +594,6 @@ export const TimelineSequenceItem: React.FC<{
 					keyframeDisplayOffset={keyframeDisplayOffset}
 				/>
 			) : null}
-		</>
+		</div>
 	);
 };

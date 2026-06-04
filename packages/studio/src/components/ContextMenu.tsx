@@ -1,5 +1,5 @@
 import {PlayerInternals} from '@remotion/player';
-import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import React, {useCallback, useMemo, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
 import {useMobileLayout} from '../helpers/mobile-layout';
 import {noop} from '../helpers/noop';
@@ -38,6 +38,11 @@ type ContextMenuProps = {
 	// eslint-disable-next-line react/require-default-props
 	readonly onPointerDown?: React.PointerEventHandler<HTMLDivElement>;
 };
+
+type ContextMenuOpenEvent = Pick<
+	MouseEvent | React.MouseEvent,
+	'clientX' | 'clientY' | 'preventDefault' | 'stopPropagation'
+>;
 
 const ContextMenuPortal: React.FC<{
 	readonly containerRef: React.RefObject<HTMLDivElement | null>;
@@ -146,6 +151,48 @@ const ContextMenuPortal: React.FC<{
 	);
 };
 
+export const useContextMenu = ({
+	containerRef,
+	onOpen,
+	values,
+}: {
+	readonly containerRef: React.RefObject<HTMLDivElement | null>;
+	readonly onOpen: (() => void) | null;
+	readonly values: ComboboxValue[];
+}) => {
+	const [opened, setOpened] = useState<OpenState>({type: 'not-open'});
+	const {currentZIndex} = useZIndex();
+
+	const onContextMenu = useCallback(
+		(e: ContextMenuOpenEvent) => {
+			e.preventDefault();
+			e.stopPropagation();
+			onOpen?.();
+			setOpened({type: 'open', left: e.clientX, top: e.clientY});
+
+			return false;
+		},
+		[onOpen],
+	);
+
+	const onHide = useCallback(() => {
+		setOpened({type: 'not-open'});
+	}, []);
+
+	const portal =
+		opened.type === 'open' ? (
+			<ContextMenuPortal
+				containerRef={containerRef}
+				currentZIndex={currentZIndex}
+				onHide={onHide}
+				opened={opened}
+				values={values}
+			/>
+		) : null;
+
+	return {onContextMenu, portal};
+};
+
 export const ContextMenu = React.forwardRef<HTMLDivElement, ContextMenuProps>(
 	(
 		{
@@ -159,8 +206,11 @@ export const ContextMenu = React.forwardRef<HTMLDivElement, ContextMenuProps>(
 		forwardedRef,
 	) => {
 		const ref = useRef<HTMLDivElement>(null);
-		const [opened, setOpened] = useState<OpenState>({type: 'not-open'});
-		const {currentZIndex} = useZIndex();
+		const {onContextMenu, portal} = useContextMenu({
+			containerRef: ref,
+			onOpen,
+			values,
+		});
 
 		const setRef = useCallback(
 			(node: HTMLDivElement | null) => {
@@ -179,52 +229,18 @@ export const ContextMenu = React.forwardRef<HTMLDivElement, ContextMenuProps>(
 			[forwardedRef],
 		);
 
-		useEffect(() => {
-			const {current} = ref;
-			if (!current) {
-				return;
-			}
-
-			const onClick = (e: MouseEvent) => {
-				e.preventDefault();
-				e.stopPropagation();
-				onOpen?.();
-				setOpened({type: 'open', left: e.clientX, top: e.clientY});
-
-				return false;
-			};
-
-			current.addEventListener('contextmenu', onClick);
-
-			return () => {
-				current.removeEventListener('contextmenu', onClick);
-			};
-		}, [onOpen]);
-
-		const onHide = useCallback(() => {
-			setOpened({type: 'not-open'});
-		}, []);
-
 		return (
 			<>
 				<div
 					ref={setRef}
-					onContextMenu={() => false}
+					onContextMenu={onContextMenu}
 					style={style}
 					className={className}
 					onPointerDown={onPointerDown}
 				>
 					{children}
 				</div>
-				{opened.type === 'open' ? (
-					<ContextMenuPortal
-						containerRef={ref}
-						currentZIndex={currentZIndex}
-						onHide={onHide}
-						opened={opened}
-						values={values}
-					/>
-				) : null}
+				{portal}
 			</>
 		);
 	},
