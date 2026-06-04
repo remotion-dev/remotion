@@ -3,6 +3,7 @@ import React, {useContext, useMemo} from 'react';
 import {Internals, staticFile} from 'remotion';
 import {BACKGROUND, BORDER_COLOR} from '../helpers/colors';
 import {formatMediaDuration} from '../helpers/format-media-duration';
+import {getPreviewFileType} from '../helpers/get-preview-file-type';
 import {useMediaMetadata} from '../helpers/use-media-metadata';
 import {useStaticFiles} from './use-static-files';
 
@@ -40,6 +41,17 @@ const row: React.CSSProperties = {
 	backgroundColor: BACKGROUND,
 };
 
+export const getCurrentAssetMetadataSource = (assetName: string | null) => {
+	if (!assetName) {
+		return null;
+	}
+
+	const fileType = getPreviewFileType(assetName);
+	return fileType === 'audio' || fileType === 'video'
+		? staticFile(assetName)
+		: null;
+};
+
 export const CurrentAsset: React.FC = () => {
 	const {canvasContent} = useContext(Internals.CompositionManager);
 
@@ -57,7 +69,7 @@ export const CurrentAsset: React.FC = () => {
 		return file?.sizeInBytes ?? null;
 	}, [assetName, staticFiles]);
 
-	const src = assetName ? staticFile(assetName) : null;
+	const src = getCurrentAssetMetadataSource(assetName);
 	const mediaMetadata = useMediaMetadata(src);
 
 	if (!assetName) {
