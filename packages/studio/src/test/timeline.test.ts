@@ -4,12 +4,13 @@ import {calculateTimeline} from '../helpers/calculate-timeline';
 const getStack = () => null;
 
 const withoutKeyframeDisplayOffset = <
-	T extends {keyframeDisplayOffset: number},
+	T extends {keyframeDisplayOffset: number; sequenceFrameOffset: number},
 >(
 	tracks: T[],
 ) =>
-	tracks.map(({keyframeDisplayOffset, ...track}) => {
+	tracks.map(({keyframeDisplayOffset, sequenceFrameOffset, ...track}) => {
 		expect(keyframeDisplayOffset).toBe(0);
+		expect(sequenceFrameOffset).toBe(0);
 		return track;
 	});
 
@@ -237,4 +238,35 @@ test('Should inherit loop display from parent for media tracks', () => {
 		numberOfTimes: 3,
 		startOffset: -50,
 	});
+});
+
+test('Should calculate sequence frame offset for negative from values', () => {
+	const calculated = calculateTimeline({
+		overrideIdsToNodePaths: {},
+		sequences: [
+			{
+				displayName: 'Trimmed',
+				documentationLink: null,
+				duration: 137,
+				from: -37,
+				id: 'trimmed',
+				parent: null,
+				rootId: 'trimmed',
+				showInTimeline: true,
+				type: 'sequence',
+				nonce: [[0, 0]],
+				getStack,
+				refForOutline: null,
+				isInsideSeries: false,
+				premountDisplay: null,
+				postmountDisplay: null,
+				controls: null,
+				loopDisplay: undefined,
+				effects: [],
+			},
+		],
+	});
+
+	expect(calculated[0].sequence.from).toBe(0);
+	expect(calculated[0].sequenceFrameOffset).toBe(37);
 });

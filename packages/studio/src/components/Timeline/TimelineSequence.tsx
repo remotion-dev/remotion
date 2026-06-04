@@ -32,7 +32,8 @@ const IMAGE_GRADIENT = 'linear-gradient(to top, #2980b9, #3498db)';
 const TimelineSequenceFn: React.FC<{
 	readonly s: TSequence;
 	readonly nodePathInfo: SequenceNodePathInfo | null;
-}> = ({s, nodePathInfo}) => {
+	readonly sequenceFrameOffset: number;
+}> = ({s, nodePathInfo, sequenceFrameOffset}) => {
 	const windowWidth = useContext(TimelineWidthContext);
 
 	if (windowWidth === null) {
@@ -44,6 +45,7 @@ const TimelineSequenceFn: React.FC<{
 			windowWidth={windowWidth}
 			s={s}
 			nodePathInfo={nodePathInfo}
+			sequenceFrameOffset={sequenceFrameOffset}
 		/>
 	);
 };
@@ -56,6 +58,7 @@ const TimelineSequenceCurrentFrame: React.FC<{
 	readonly style: React.CSSProperties;
 	readonly children: React.ReactNode;
 	readonly nodePathInfo: SequenceNodePathInfo | null;
+	readonly sequenceFrameOffset: number;
 	readonly fromCanUpdate: boolean;
 	readonly onMoveDragPointerDown: (
 		e: React.PointerEvent<HTMLDivElement>,
@@ -68,6 +71,7 @@ const TimelineSequenceCurrentFrame: React.FC<{
 	style,
 	children,
 	nodePathInfo,
+	sequenceFrameOffset,
 	fromCanUpdate,
 	onMoveDragPointerDown,
 }) => {
@@ -90,10 +94,11 @@ const TimelineSequenceCurrentFrame: React.FC<{
 	);
 	const frame = useCurrentFrame();
 	const relativeFrame = frame - s.from;
+	const sequenceFrame = relativeFrame + sequenceFrameOffset;
 	const relativeFrameWithPremount = relativeFrame + (s.premountDisplay ?? 0);
 	const relativeFrameWithPostmount = relativeFrame - displayDurationInFrames;
 
-	const roundedFrame = Math.round(relativeFrame * 100) / 100;
+	const roundedFrame = Math.round(sequenceFrame * 100) / 100;
 
 	const isInRange =
 		relativeFrame >= 0 && relativeFrame < displayDurationInFrames;
@@ -184,7 +189,8 @@ const TimelineSequenceInner: React.FC<{
 	readonly s: TSequence;
 	readonly windowWidth: number;
 	readonly nodePathInfo: SequenceNodePathInfo | null;
-}> = ({s, windowWidth, nodePathInfo}) => {
+	readonly sequenceFrameOffset: number;
+}> = ({s, windowWidth, nodePathInfo, sequenceFrameOffset}) => {
 	// If a duration is 1, it is essentially a still and it should have width 0
 	// Some compositions may not be longer than their media duration,
 	// if that is the case, it needs to be asynchronously determined
@@ -302,6 +308,7 @@ const TimelineSequenceInner: React.FC<{
 			postmountWidth={postmountWidth}
 			style={style}
 			nodePathInfo={nodePathInfo}
+			sequenceFrameOffset={sequenceFrameOffset}
 			fromCanUpdate={fromCanUpdate}
 			onMoveDragPointerDown={onMoveDragPointerDown}
 		>

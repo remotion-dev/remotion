@@ -102,6 +102,7 @@ export const calculateTimeline = ({
 			keyframeDisplayOffset: hasKeyframeRows
 				? cascadedStart - sequence.from
 				: 0,
+			sequenceFrameOffset: visibleStart - cascadedStart,
 			nodePathInfo: nodePath
 				? {
 						sequenceSubscriptionKey: nodePath,
