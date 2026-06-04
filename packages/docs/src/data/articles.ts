@@ -4943,6 +4943,15 @@ export const articles = [
 		slug: 'player/thumbnail',
 	},
 	{
+		id: 'posterization',
+		title: 'Posterization',
+		relativePath: 'docs/posterization.mdx',
+		compId: 'articles-docs-posterization',
+		crumb: 'Designing visuals',
+		noAi: false,
+		slug: 'posterization',
+	},
+	{
 		id: 'prefetch',
 		title: 'prefetch()',
 		relativePath: 'docs/prefetch.mdx',
