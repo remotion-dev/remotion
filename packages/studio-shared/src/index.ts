@@ -196,6 +196,7 @@ export {
 	optimisticDeleteSequenceKeyframes,
 } from './optimistic-delete-keyframe';
 export {
+	canMoveKeyframesWithoutCollisions,
 	optimisticMoveEffectKeyframes,
 	optimisticMoveSequenceKeyframes,
 	type OptimisticKeyframeMove,
