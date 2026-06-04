@@ -322,6 +322,7 @@ const internalRenderMediaOnWeb = async <
 		defaultCodec: resolved.defaultCodec,
 		defaultOutName: resolved.defaultOutName,
 		allowHtmlInCanvas,
+		pixelDensity: scale,
 	});
 
 	const {
