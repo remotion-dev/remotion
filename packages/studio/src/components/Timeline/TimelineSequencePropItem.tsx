@@ -267,11 +267,13 @@ export const TimelineSequencePropItem: React.FC<{
 		previewServerState.type === 'connected' &&
 		codeValue !== null &&
 		codeValue.status !== 'computed';
-	const canShowReset = canPerformReset && canResetToDefault;
+	const canShowReset =
+		canPerformReset && field.fieldSchema.default !== undefined;
 
 	const onReset = useCallback(() => {
 		if (
 			!canShowReset ||
+			!canResetToDefault ||
 			previewServerState.type !== 'connected' ||
 			codeValue === null
 		) {
@@ -294,6 +296,7 @@ export const TimelineSequencePropItem: React.FC<{
 			clientId: previewServerState.clientId,
 		});
 	}, [
+		canResetToDefault,
 		canShowReset,
 		field.fieldSchema.default,
 		field.key,

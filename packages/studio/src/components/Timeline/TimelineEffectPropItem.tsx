@@ -387,10 +387,15 @@ export const TimelineEffectPropItem: React.FC<{
 		previewServerState.type === 'connected' &&
 		propStatus !== null &&
 		propStatus.status !== 'computed';
-	const canShowReset = canPerformReset && canResetToDefault;
+	const canShowReset =
+		canPerformReset && field.fieldSchema.default !== undefined;
 
 	const onReset = useCallback(() => {
-		if (!canShowReset || previewServerState.type !== 'connected') {
+		if (
+			!canShowReset ||
+			!canResetToDefault ||
+			previewServerState.type !== 'connected'
+		) {
 			return;
 		}
 
@@ -411,6 +416,7 @@ export const TimelineEffectPropItem: React.FC<{
 			clientId: previewServerState.clientId,
 		});
 	}, [
+		canResetToDefault,
 		canShowReset,
 		field.effectIndex,
 		field.effectSchema,
