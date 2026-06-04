@@ -13,6 +13,7 @@ import type {
 } from './CompositionManager.js';
 import type {DelayRenderScope} from './delay-render.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
+import {Folder, type TFolder} from './Folder.js';
 import type {StaticFile} from './get-static-files.js';
 import {useIsPlayer} from './is-player.js';
 import type {LogLevel} from './log.js';
@@ -302,9 +303,11 @@ export const Config = new Proxy(proxyObj, {
 Sequence.displayName = 'Sequence';
 addSequenceStackTraces(Sequence);
 addSequenceStackTraces(Composition);
+addSequenceStackTraces(Folder);
 
 export type _InternalTypes = {
 	AnyComposition: AnyComposition;
+	TFolder: TFolder;
 	BundleCompositionState: BundleCompositionState;
 	BundleState: BundleState;
 	VideoConfigWithSerializedProps: VideoConfigWithSerializedProps;

@@ -31,7 +31,9 @@ type UndoEntryType =
 	| 'insert-jsx-element'
 	| 'delete-composition'
 	| 'rename-composition'
-	| 'duplicate-composition';
+	| 'duplicate-composition'
+	| 'delete-folder'
+	| 'rename-folder';
 
 type UndoEntrySnapshot = {
 	filePath: string;
@@ -65,6 +67,8 @@ type UndoEntry = {
 	| {entryType: 'delete-composition'}
 	| {entryType: 'rename-composition'}
 	| {entryType: 'duplicate-composition'}
+	| {entryType: 'delete-folder'}
+	| {entryType: 'rename-folder'}
 );
 
 const MAX_ENTRIES = 100;
