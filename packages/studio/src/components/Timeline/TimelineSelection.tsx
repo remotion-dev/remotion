@@ -17,6 +17,7 @@ import type {
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {timelineNodePathInfoToKey} from '../../helpers/timeline-node-path-key';
 import {useKeybinding} from '../../helpers/use-keybinding';
+import {ExpandedTracksSetterContext} from '../ExpandedTracksProvider';
 import {TimelineClipboardKeybindings} from './TimelineClipboardKeybindings';
 import {TimelineDeleteKeybindings} from './TimelineDeleteKeybindings';
 
@@ -392,6 +393,39 @@ export const getTimelineSequenceSelectionKey = (
 	nodePathInfo: SequenceNodePathInfo,
 ): string => timelineNodePathInfoToKey({...nodePathInfo, auxiliaryKeys: []});
 
+export const getTimelineSelectionExpansionTargets = (
+	item: TimelineSelection,
+): SequenceNodePathInfo[] => {
+	const {nodePathInfo} = item;
+	const {auxiliaryKeys} = nodePathInfo;
+
+	if (auxiliaryKeys.length === 0) {
+		return [];
+	}
+
+	const sequenceTarget: SequenceNodePathInfo = {
+		...nodePathInfo,
+		auxiliaryKeys: [],
+	};
+	if (auxiliaryKeys[0] !== 'effects') {
+		return [sequenceTarget];
+	}
+
+	const targets: SequenceNodePathInfo[] = [sequenceTarget];
+	if (auxiliaryKeys.length > 1) {
+		targets.push({...nodePathInfo, auxiliaryKeys: ['effects']});
+	}
+
+	if (auxiliaryKeys.length > 2) {
+		targets.push({
+			...nodePathInfo,
+			auxiliaryKeys: ['effects', auxiliaryKeys[1]],
+		});
+	}
+
+	return targets;
+};
+
 export const TimelineSelectAllKeybindings: React.FC<{
 	readonly timeline: readonly TrackWithHash[];
 }> = ({timeline}) => {
@@ -450,6 +484,7 @@ export const TimelineSelectionProvider: React.FC<{
 	const [selectedItems, setSelectedItems] = useState<
 		readonly TimelineSelection[]
 	>([]);
+	const {expandTracks} = useContext(ExpandedTracksSetterContext);
 	const selectionAnchor = useRef<TimelineSelection | null>(null);
 	const selectableItemsOrder = useRef(new Map<string, number>());
 	const selectableItems = useRef(new Map<string, TimelineSelection>());
@@ -460,6 +495,17 @@ export const TimelineSelectionProvider: React.FC<{
 			setSelectedItems([]);
 		}
 	}, [canSelect]);
+
+	useEffect(() => {
+		const expansionTargets = selectedItems.flatMap(
+			getTimelineSelectionExpansionTargets,
+		);
+		if (expansionTargets.length === 0) {
+			return;
+		}
+
+		expandTracks(expansionTargets);
+	}, [expandTracks, selectedItems]);
 
 	const selectedKeys = useMemo(
 		() => new Set(selectedItems.map(getTimelineSelectionKey)),

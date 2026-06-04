@@ -35,6 +35,7 @@ import {
 	ENABLE_OUTLINES,
 	getSelectableTimelineSequenceSelections,
 	getTimelineSelectionAfterInteraction,
+	getTimelineSelectionExpansionTargets,
 	getTimelineSelectionFromNodePathInfo,
 	getTimelineSequenceSelectionKey,
 	isTimelineSelectionModifierEvent,
@@ -1546,6 +1547,52 @@ test('Timeline row selections use explicit item variants', () => {
 			makeNodePathInfo(['body', 0], ['effects', 'not-a-number']),
 		),
 	).toBe(null);
+});
+
+test('Timeline selections expand parent rows to reveal the selected row', () => {
+	const sequenceNodePathInfo = makeNodePathInfo(['body', 0], []);
+	const sequencePropNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['controls', 'opacity'],
+	);
+	const effectNodePathInfo = makeNodePathInfo(['body', 0], ['effects', '1']);
+	const effectPropNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['effects', '1', 'radius'],
+	);
+
+	expect(
+		getTimelineSelectionExpansionTargets({
+			type: 'sequence',
+			nodePathInfo: sequenceNodePathInfo,
+		}),
+	).toEqual([]);
+	expect(
+		getTimelineSelectionExpansionTargets({
+			type: 'sequence-prop',
+			nodePathInfo: sequencePropNodePathInfo,
+			key: 'opacity',
+		}),
+	).toEqual([sequenceNodePathInfo]);
+	expect(
+		getTimelineSelectionExpansionTargets({
+			type: 'sequence-effect',
+			nodePathInfo: effectNodePathInfo,
+			i: 1,
+		}),
+	).toEqual([sequenceNodePathInfo, makeNodePathInfo(['body', 0], ['effects'])]);
+	expect(
+		getTimelineSelectionExpansionTargets({
+			type: 'sequence-effect-prop',
+			nodePathInfo: effectPropNodePathInfo,
+			i: 1,
+			key: 'radius',
+		}),
+	).toEqual([
+		sequenceNodePathInfo,
+		makeNodePathInfo(['body', 0], ['effects']),
+		effectNodePathInfo,
+	]);
 });
 
 test('Cmd/Ctrl+click toggles row selections', () => {
