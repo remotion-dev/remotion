@@ -6,15 +6,13 @@ import {
 	useVideoConfig,
 } from 'remotion';
 
-const panelBackgrounds = ['#f8fbff', '#f9f7ff', '#fff8f2'];
 const accentColors = ['#0b84f3', '#7c3aed', '#f97316'];
 
 const PosterizationPanel: React.FC<{
 	readonly index: number;
 	readonly label: string;
 	readonly posterize: number | undefined;
-	readonly subtitle: string;
-}> = ({index, label, posterize, subtitle}) => {
+}> = ({index, label, posterize}) => {
 	const frame = useCurrentFrame();
 	const {durationInFrames} = useVideoConfig();
 
@@ -24,8 +22,11 @@ const PosterizationPanel: React.FC<{
 		...(posterize === undefined ? {} : {posterize}),
 	});
 
-	const x = interpolate(progress, [0, 1], [-185, 185]);
-	const y = interpolate(progress, [0, 0.5, 1], [80, -95, 80]);
+	const translate = interpolate(
+		progress,
+		[0, 0.5, 1],
+		['-185px 80px', '0px -95px', '185px 80px'],
+	);
 	const rotate = interpolate(progress, [0, 1], [-10, 350]);
 	const scale = interpolate(progress, [0, 0.5, 1], [0.94, 1.12, 0.94]);
 	const dotSize = interpolate(progress, [0, 0.5, 1], [72, 92, 72]);
@@ -37,7 +38,6 @@ const PosterizationPanel: React.FC<{
 				height: '100%',
 				position: 'relative',
 				overflow: 'hidden',
-				backgroundColor: panelBackgrounds[index],
 				borderRight:
 					index === 2 ? undefined : '2px solid rgba(15, 23, 42, 0.08)',
 			}}
@@ -53,8 +53,7 @@ const PosterizationPanel: React.FC<{
 						position: 'absolute',
 						width: 410,
 						height: 2,
-						background:
-							'linear-gradient(90deg, rgba(15, 23, 42, 0), rgba(15, 23, 42, 0.24), rgba(15, 23, 42, 0))',
+						backgroundColor: 'rgba(15, 23, 42, 0.24)',
 						top: 372,
 					}}
 				/>
@@ -81,8 +80,9 @@ const PosterizationPanel: React.FC<{
 						height: dotSize,
 						borderRadius: 26,
 						backgroundColor: accentColors[index],
-						boxShadow: `0 28px 60px ${accentColors[index]}55`,
-						transform: `translate(${x}px, ${y}px) rotate(${rotate}deg) scale(${scale})`,
+						translate,
+						rotate: `${rotate}deg`,
+						scale,
 						display: 'flex',
 						justifyContent: 'center',
 						alignItems: 'center',
@@ -109,23 +109,14 @@ const PosterizationPanel: React.FC<{
 			>
 				<div
 					style={{
-						fontSize: 42,
+						fontSize: 32,
 						fontWeight: 800,
 						letterSpacing: -1.4,
 						lineHeight: 1,
+						fontFamily: 'GT Planar, sans-serif',
 					}}
 				>
 					{label}
-				</div>
-				<div
-					style={{
-						marginTop: 12,
-						fontSize: 22,
-						color: 'rgba(15, 23, 42, 0.62)',
-						fontWeight: 600,
-					}}
-				>
-					{subtitle}
 				</div>
 			</div>
 			<div
@@ -157,30 +148,17 @@ export const PosterizationComparison: React.FC = () => {
 	return (
 		<AbsoluteFill
 			style={{
-				backgroundColor: '#ffffff',
 				flexDirection: 'row',
-				fontFamily:
-					'Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+				fontFamily: 'GT Planar, sans-serif',
 			}}
 		>
 			<PosterizationPanel
 				index={0}
-				label="Smooth"
+				label="posterize: 0"
 				posterize={undefined}
-				subtitle="Updates every frame"
 			/>
-			<PosterizationPanel
-				index={1}
-				label="Posterized"
-				posterize={6}
-				subtitle="Updates every 6 frames"
-			/>
-			<PosterizationPanel
-				index={2}
-				label="Heavy"
-				posterize={15}
-				subtitle="Updates every 15 frames"
-			/>
+			<PosterizationPanel index={1} label="posterize: 3" posterize={3} />
+			<PosterizationPanel index={2} label="posterize: 8" posterize={8} />
 		</AbsoluteFill>
 	);
 };

@@ -7,6 +7,9 @@ crumb: 'Designing visuals'
 
 # Posterization<AvailableFrom v="4.0.470" />
 
+Posterization makes an animation update in steps instead of changing on every frame.
+Use it for stop-motion, low-frame-rate motion, or a choppy graphic style.
+
 <video
   src="/img/posterization-comparison.mp4"
   autoPlay
@@ -16,13 +19,10 @@ crumb: 'Designing visuals'
   style={{width: '100%', borderRadius: 'var(--ifm-global-radius)', marginBottom: 0, aspectRatio: '3 / 1'}}
 />
 
-Posterization makes an animation update in steps instead of changing on every frame.
-Use it for stop-motion, low-frame-rate motion, or a choppy graphic style.
-
 ## Using `interpolate()`
 
 Pass `posterize` to [`interpolate()`](/docs/interpolate).
-If the input value is the current frame, `posterize: 6` samples the animation every 6 frames.
+If the input value is the current frame, `posterize: 3` samples the animation every 3 frames.
 
 ```tsx twoslash title="MyComposition.tsx"
 import React from 'react';
@@ -30,12 +30,6 @@ import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
 
 export const MyComposition: React.FC = () => {
   const frame = useCurrentFrame();
-
-  const translateX = interpolate(frame, [0, 60], [-200, 200], {
-    posterize: 6,
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-  });
 
   return (
     <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center'}}>
@@ -45,7 +39,11 @@ export const MyComposition: React.FC = () => {
           height: 120,
           borderRadius: 24,
           backgroundColor: '#0b84f3',
-          transform: `translateX(${translateX}px)`,
+          translate: interpolate(frame, [0, 60], ['-200px', '200px'], {
+            posterize: 3,
+            extrapolateLeft: 'clamp',
+            extrapolateRight: 'clamp',
+          }),
         }}
       />
     </AbsoluteFill>
@@ -54,7 +52,7 @@ export const MyComposition: React.FC = () => {
 ```
 
 `posterize` quantizes the input before interpolation.
-With `posterize: 6`, frames `0` through `5` use the value for frame `0`, frames `6` through `11` use the value for frame `6`, and so on.
+With `posterize: 3`, frames `0` through `2` use the value for frame `0`, frames `3` through `5` use the value for frame `3`, and so on.
 
 ## Colors and styles
 
