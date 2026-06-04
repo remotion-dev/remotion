@@ -132,6 +132,45 @@ test('computeEffectPropStatus reports unset props as undefined codeValue', () =>
 	});
 });
 
+test('computeEffectPropStatus reports static array props', () => {
+	const input = buildInput('[tint({colors: ["red", "blue"]})]');
+	const {ast, jsx} = findJsx(input);
+	const result = computeEffectPropStatus({
+		ast,
+		jsx,
+		effectIndex: 0,
+		keys: ['colors'],
+	});
+
+	expect(result.canUpdate).toBe(true);
+	if (!result.canUpdate) {
+		throw new Error('expected canUpdate true');
+	}
+
+	expect(result.props.colors).toEqual({
+		status: 'static',
+		codeValue: ['red', 'blue'],
+	});
+});
+
+test('computeEffectPropStatus reports arrays with computed items as computed', () => {
+	const input = buildInput('[tint({colors: ["red", getColor()]})]');
+	const {ast, jsx} = findJsx(input);
+	const result = computeEffectPropStatus({
+		ast,
+		jsx,
+		effectIndex: 0,
+		keys: ['colors'],
+	});
+
+	expect(result.canUpdate).toBe(true);
+	if (!result.canUpdate) {
+		throw new Error('expected canUpdate true');
+	}
+
+	expect(result.props.colors).toEqual({status: 'computed'});
+});
+
 test('computeEffectPropStatus flags non-call expressions', () => {
 	const input = buildInput('[someEffect, tint({color: "red"})]');
 	const {ast, jsx} = findJsx(input);

@@ -396,6 +396,7 @@ export const effectsDemos: EffectsDemoType[] = [
 		schema: starburstEffectSchema,
 		initialValues: {
 			rays: 16,
+			colors: ['#ff6600', '#ffff00'],
 		},
 	},
 	{

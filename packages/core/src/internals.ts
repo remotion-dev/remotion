@@ -125,6 +125,8 @@ import {
 	sequenceSchema,
 	sequenceStyleSchema,
 	sequenceVisualStyleSchema,
+	type ArrayFieldSchema,
+	type ArrayItemFieldSchema,
 	type SequenceFieldSchema,
 	type SequenceSchema,
 	type VisibleFieldSchema,
@@ -189,9 +191,9 @@ import {
 } from './use-media-in-timeline.js';
 import {PixelDensityContext} from './use-pixel-density.js';
 import type {
-	CanUpdateSequencePropStatusStatic,
 	CanUpdateSequencePropStatusFalse,
 	CanUpdateSequencePropStatusKeyframed,
+	CanUpdateSequencePropStatusStatic,
 	DragOverrideValue,
 	GetCodeValues,
 	GetDragOverrides,
@@ -200,13 +202,13 @@ import type {
 } from './use-schema.js';
 import {
 	computeEffectiveSchemaValuesDotNotation,
+	getStaticDragOverrideValue,
+	makeKeyframedDragOverride,
+	makeStaticDragOverride,
 	type CanUpdateSequencePropStatus,
 	type CodeValues,
 	type DragOverrides,
 	type EffectDragOverrides,
-	getStaticDragOverrideValue,
-	makeKeyframedDragOverride,
-	makeStaticDragOverride,
 } from './use-schema.js';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config.js';
 import {useVideo} from './use-video.js';
@@ -403,17 +405,19 @@ export const Internals = {
 } as const;
 
 export type {
+	ArrayFieldSchema,
+	ArrayItemFieldSchema,
 	CannotUpdateSequenceReason,
 	CanUpdateEffectPropsResponse,
 	CanUpdateEffectPropsResponseFalse,
 	CanUpdateEffectPropsResponseTrue,
-	CanUpdateSequencePropStatusStatic,
 	CanUpdateSequencePropsResponse,
 	CanUpdateSequencePropsResponseFalse,
 	CanUpdateSequencePropsResponseTrue,
 	CanUpdateSequencePropStatus,
 	CanUpdateSequencePropStatusFalse,
 	CanUpdateSequencePropStatusKeyframed,
+	CanUpdateSequencePropStatusStatic,
 	CodeValues,
 	CompositionManagerContext,
 	CompProps,

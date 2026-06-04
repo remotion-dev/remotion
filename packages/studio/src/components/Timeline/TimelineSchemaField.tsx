@@ -10,14 +10,11 @@ import type {
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
 import {getComputedStatusLabel} from './get-timeline-keyframes';
-import {TimelineBooleanField} from './TimelineBooleanField';
-import {TimelineColorField} from './TimelineColorField';
-import {TimelineEnumField} from './TimelineEnumField';
-import {TimelineNumberField} from './TimelineNumberField';
-import {TimelineRotationField} from './TimelineRotationField';
-import {TimelineScaleField} from './TimelineScaleField';
-import {TimelineTranslateField} from './TimelineTranslateField';
-import {TimelineUvCoordinateField} from './TimelineUvCoordinateField';
+import {TimelineArrayField} from './TimelineArrayField';
+import {
+	isTimelinePrimitiveFieldInfo,
+	TimelinePrimitiveFieldValue,
+} from './TimelinePrimitiveFieldValue';
 
 const unsupportedLabel: React.CSSProperties = {
 	color: 'rgba(255, 255, 255, 0.4)',
@@ -25,10 +22,6 @@ const unsupportedLabel: React.CSSProperties = {
 	fontStyle: 'italic',
 	userSelect: 'none',
 	WebkitUserSelect: 'none',
-};
-
-const inlineWrapper: React.CSSProperties = {
-	fontSize: 12,
 };
 
 export const UnsupportedStatus: React.FC<{
@@ -64,127 +57,29 @@ export const TimelineFieldValue: React.FC<{
 	effectiveValue,
 	scaleLockNodePath,
 }) => {
-	if (field.typeName === 'number') {
+	if (isTimelinePrimitiveFieldInfo(field)) {
 		return (
-			<span>
-				<TimelineNumberField
-					field={field}
-					effectiveValue={effectiveValue}
-					onSave={onSave}
-					propStatus={propStatus}
-					onDragValueChange={onDragValueChange}
-					onDragEnd={onDragEnd}
-				/>
-			</span>
+			<TimelinePrimitiveFieldValue
+				effectiveValue={effectiveValue}
+				field={field}
+				onDragEnd={onDragEnd}
+				onDragValueChange={onDragValueChange}
+				onSave={onSave}
+				propStatus={propStatus}
+				scaleLockNodePath={scaleLockNodePath}
+			/>
 		);
 	}
 
-	if (
-		field.typeName === 'rotation-css' ||
-		field.typeName === 'rotation-degrees'
-	) {
+	if (field.typeName === 'array') {
 		return (
 			<span>
-				<TimelineRotationField
-					field={field}
+				<TimelineArrayField
 					effectiveValue={effectiveValue}
-					propStatus={propStatus}
-					onSave={onSave}
-					onDragValueChange={onDragValueChange}
+					field={field}
 					onDragEnd={onDragEnd}
-				/>
-			</span>
-		);
-	}
-
-	if (field.typeName === 'translate') {
-		return (
-			<span>
-				<TimelineTranslateField
-					field={field}
-					effectiveValue={effectiveValue}
-					propStatus={propStatus}
-					onSave={onSave}
 					onDragValueChange={onDragValueChange}
-					onDragEnd={onDragEnd}
-				/>
-			</span>
-		);
-	}
-
-	if (field.typeName === 'scale') {
-		if (scaleLockNodePath === null) {
-			throw new Error('Expected scale lock node path for scale field');
-		}
-
-		return (
-			<span>
-				<TimelineScaleField
-					field={field}
-					effectiveValue={effectiveValue}
-					propStatus={propStatus}
 					onSave={onSave}
-					onDragValueChange={onDragValueChange}
-					onDragEnd={onDragEnd}
-					scaleLockNodePath={scaleLockNodePath}
-				/>
-			</span>
-		);
-	}
-
-	if (field.typeName === 'uv-coordinate') {
-		return (
-			<span>
-				<TimelineUvCoordinateField
-					field={field}
-					effectiveValue={effectiveValue}
-					propStatus={propStatus}
-					onSave={onSave}
-					onDragValueChange={onDragValueChange}
-					onDragEnd={onDragEnd}
-				/>
-			</span>
-		);
-	}
-
-	if (field.typeName === 'boolean') {
-		return (
-			<span>
-				<TimelineBooleanField
-					field={field}
-					propStatus={propStatus}
-					onSave={onSave}
-					effectiveValue={effectiveValue}
-				/>
-			</span>
-		);
-	}
-
-	if (field.typeName === 'color') {
-		return (
-			<span>
-				<TimelineColorField
-					field={field}
-					propStatus={propStatus}
-					onSave={onSave}
-					onDragValueChange={onDragValueChange}
-					onDragEnd={onDragEnd}
-					effectiveValue={effectiveValue}
-				/>
-			</span>
-		);
-	}
-
-	if (field.typeName === 'enum') {
-		return (
-			<span style={inlineWrapper}>
-				<TimelineEnumField
-					field={field}
-					propStatus={propStatus}
-					onSave={onSave}
-					effectiveValue={effectiveValue}
-					onDragValueChange={onDragValueChange}
-					onDragEnd={onDragEnd}
 				/>
 			</span>
 		);

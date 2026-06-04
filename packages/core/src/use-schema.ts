@@ -204,20 +204,24 @@ export const computeEffectiveSchemaValuesDotNotation = ({
 		if (codeValueStatus === null) {
 			value = currentValue[key];
 		} else if (isKeyframedStatus(codeValueStatus)) {
-			const dragOverride = resolveDragOverrideValue({
-				dragOverrideValue: overrideValues[key],
-				frame,
-			});
-			if (dragOverride.type === 'resolved') {
-				value = dragOverride.value;
-			} else if (frame !== null) {
-				const interpolated = interpolateKeyframedStatus({
-					frame,
-					status: codeValueStatus,
-				});
-				value = interpolated ?? currentValue[key];
-			} else {
+			if (field?.type === 'array' || field?.keyframable === false) {
 				value = currentValue[key];
+			} else {
+				const dragOverride = resolveDragOverrideValue({
+					dragOverrideValue: overrideValues[key],
+					frame,
+				});
+				if (dragOverride.type === 'resolved') {
+					value = dragOverride.value;
+				} else if (frame !== null) {
+					const interpolated = interpolateKeyframedStatus({
+						frame,
+						status: codeValueStatus,
+					});
+					value = interpolated ?? currentValue[key];
+				} else {
+					value = currentValue[key];
+				}
 			}
 		} else if (codeValueStatus.status === 'computed') {
 			value = currentValue[key];
