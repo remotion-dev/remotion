@@ -97,10 +97,10 @@ const getEffectFieldValue = ({
 	effectStatus,
 }: {
 	key: string;
-	dragOverrides: Record<string, unknown>;
+	dragOverrides: DragOverrides[string];
 	effectStatus: ReturnType<typeof Internals.getEffectCodeValuesCtx> | null;
 }): unknown => {
-	const dragOverride = dragOverrides[key];
+	const dragOverride = Internals.getStaticDragOverrideValue(dragOverrides[key]);
 	if (dragOverride !== undefined) {
 		return dragOverride;
 	}

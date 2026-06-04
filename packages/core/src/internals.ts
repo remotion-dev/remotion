@@ -73,7 +73,10 @@ import {
 	getFlatSchemaWithAllKeys,
 } from './flatten-schema.js';
 import {getAssetDisplayName} from './get-asset-file-name.js';
-import {getEffectiveVisualModeValue} from './get-effective-visual-mode-value.js';
+import {
+	getEffectiveVisualModeValue,
+	resolveDragOverrideValue,
+} from './get-effective-visual-mode-value.js';
 import {
 	getPreviewDomElement,
 	REMOTION_STUDIO_CONTAINER_ELEMENT,
@@ -191,6 +194,7 @@ import type {
 	CanUpdateSequencePropStatusFalse,
 	CanUpdateSequencePropStatusKeyframed,
 	CanUpdateSequencePropStatusStatic,
+	DragOverrideValue,
 	GetCodeValues,
 	GetDragOverrides,
 	GetEffectCodeValues,
@@ -198,6 +202,9 @@ import type {
 } from './use-schema.js';
 import {
 	computeEffectiveSchemaValuesDotNotation,
+	getStaticDragOverrideValue,
+	makeKeyframedDragOverride,
+	makeStaticDragOverride,
 	type CanUpdateSequencePropStatus,
 	type CodeValues,
 	type DragOverrides,
@@ -376,6 +383,10 @@ export const Internals = {
 	createWebGL2ContextError,
 	computeEffectiveSchemaValuesDotNotation,
 	interpolateKeyframedStatus,
+	makeStaticDragOverride,
+	makeKeyframedDragOverride,
+	resolveDragOverrideValue,
+	getStaticDragOverrideValue,
 	OverrideIdsToNodePathsGettersContext,
 	OverrideIdsToNodePathsSettersContext,
 	findPropsToDelete,
@@ -405,6 +416,7 @@ export type {
 	CompositionManagerContext,
 	CompProps,
 	DragOverrides,
+	DragOverrideValue,
 	EffectDragOverrides,
 	GetCodeValues,
 	GetDragOverrides,

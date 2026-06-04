@@ -1,6 +1,7 @@
 import {
 	Internals,
 	type CodeValues,
+	type DragOverrideValue,
 	type GetDragOverrides,
 	type GetEffectDragOverrides,
 	type SequencePropsSubscriptionKey,
@@ -9,7 +10,7 @@ import type {TimelineTreeNode} from '../../helpers/timeline-layout';
 import {getTimelineKeyframes} from './get-timeline-keyframes';
 
 const hasOverride = (
-	overrides: Record<string, unknown>,
+	overrides: Record<string, DragOverrideValue>,
 	key: string,
 ): boolean => Object.prototype.hasOwnProperty.call(overrides, key);
 
@@ -23,16 +24,26 @@ const withDragOverrideKeyframe = ({
 	propStatus: Parameters<typeof getTimelineKeyframes>[0];
 	keyframeDisplayOffset: number;
 	timelinePosition: number;
-	dragOverrideValue: unknown;
+	dragOverrideValue: DragOverrideValue | undefined;
 	hasDragOverride: boolean;
 }): ReturnType<typeof getTimelineKeyframes> => {
+	if (dragOverrideValue?.type === 'keyframed') {
+		return getTimelineKeyframes(
+			dragOverrideValue.status,
+			keyframeDisplayOffset,
+		);
+	}
+
 	const keyframes = getTimelineKeyframes(propStatus, keyframeDisplayOffset);
 
 	if (!hasDragOverride || propStatus?.status !== 'keyframed') {
 		return keyframes;
 	}
 
-	const dragKeyframe = {frame: timelinePosition, value: dragOverrideValue};
+	const dragKeyframe = {
+		frame: timelinePosition,
+		value: dragOverrideValue?.value,
+	};
 	const existingIndex = keyframes.findIndex(
 		(keyframe) => keyframe.frame === timelinePosition,
 	);
