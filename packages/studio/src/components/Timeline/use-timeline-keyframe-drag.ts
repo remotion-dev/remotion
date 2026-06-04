@@ -1,3 +1,4 @@
+import {canMoveKeyframesWithoutCollisions} from '@remotion/studio-shared';
 import type React from 'react';
 import {useCallback, useContext} from 'react';
 import type {
@@ -179,6 +180,37 @@ const groupTargets = (targets: readonly TimelineKeyframeDragTarget[]) => {
 	return [...groups.values()];
 };
 
+const getMovesForGroup = ({
+	group,
+	delta,
+}: {
+	readonly group: readonly TimelineKeyframeDragTarget[];
+	readonly delta: number;
+}) =>
+	group.map((target) => ({
+		fromFrame: target.sourceFrame,
+		toFrame: target.sourceFrame + delta,
+	}));
+
+const canMoveTimelineKeyframeDragTargets = ({
+	targets,
+	delta,
+}: {
+	readonly targets: readonly TimelineKeyframeDragTarget[];
+	readonly delta: number;
+}) =>
+	groupTargets(targets).every((group) => {
+		const [first] = group;
+		if (!first) {
+			return true;
+		}
+
+		return canMoveKeyframesWithoutCollisions({
+			status: first.propStatus,
+			moves: getMovesForGroup({group, delta}),
+		});
+	});
+
 const makeMovedKeyframedDragOverride = ({
 	group,
 	delta,
@@ -192,8 +224,8 @@ const makeMovedKeyframedDragOverride = ({
 	}
 
 	const moves = new Map(
-		group.map(
-			(target) => [target.sourceFrame, target.sourceFrame + delta] as const,
+		getMovesForGroup({group, delta}).map(
+			(move) => [move.fromFrame, move.toFrame] as const,
 		),
 	);
 
@@ -445,6 +477,12 @@ export const useTimelineKeyframeDrag = ({
 
 				hasDragged = true;
 				lastDelta = delta;
+				if (!canMoveTimelineKeyframeDragTargets({targets, delta})) {
+					clearActiveOverrides();
+					clearDraggedKeyframes();
+					return;
+				}
+
 				setDraggedKeyframes(
 					targets.map((target) => ({
 						nodePathInfo: target.nodePathInfo,
@@ -464,6 +502,17 @@ export const useTimelineKeyframeDrag = ({
 
 				const targets = dragTargets;
 				if (!hasDragged || lastDelta === 0 || targets === null) {
+					clearActiveOverrides();
+					clearDraggedKeyframes();
+					return;
+				}
+
+				if (
+					!canMoveTimelineKeyframeDragTargets({
+						targets,
+						delta: lastDelta,
+					})
+				) {
 					clearActiveOverrides();
 					clearDraggedKeyframes();
 					return;
