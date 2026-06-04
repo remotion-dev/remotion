@@ -36,6 +36,7 @@ export const useExpandedTrackKeyframeRows = ({
 	const {getDragOverrides, getEffectDragOverrides} = useContext(
 		Internals.VisualModeDragOverridesContext,
 	);
+	const timelinePosition = Internals.Timeline.useTimelinePosition();
 
 	const tree = useMemo(
 		() =>
@@ -80,6 +81,9 @@ export const useExpandedTrackKeyframeRows = ({
 					nodePath: nodePathInfo.sequenceSubscriptionKey,
 					codeValues,
 					keyframeDisplayOffset,
+					getDragOverrides,
+					getEffectDragOverrides,
+					timelinePosition,
 				}),
 				rowKey: timelineNodePathInfoToKey(node.nodePathInfo),
 				nodePathInfo: node.nodePathInfo,
@@ -87,8 +91,11 @@ export const useExpandedTrackKeyframeRows = ({
 		[
 			codeValues,
 			flat,
+			getDragOverrides,
+			getEffectDragOverrides,
 			keyframeDisplayOffset,
 			nodePathInfo.sequenceSubscriptionKey,
+			timelinePosition,
 		],
 	);
 

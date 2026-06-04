@@ -232,6 +232,14 @@ When needing to visualize audio (spectrum bars, waveforms, bass-reactive effects
 
 When needing to use sound effects, load the [./rules/sfx.md](./rules/sfx.md) file for more information.
 
+## Visual and pixel effects
+
+When creating a visual effect, prefer: 1. normal Remotion/HTML/CSS/SVG/filter/blend/mask animation, 2. a listed effect via [rules/effects.md](rules/effects.md), including on HTML rendered through `<HtmlInCanvas>`, 3. custom `<HtmlInCanvas onPaint>` via [rules/html-in-canvas.md](rules/html-in-canvas.md) only if no listed effect fits.
+
+For light leak overlays, see [rules/light-leaks.md](rules/light-leaks.md). Docs: https://www.remotion.dev/docs/effects
+
+Available effects: `barrelDistortion()`, `blur()`, `brightness()`, `chromaticAberration()`, `colorKey()`, `contrast()`, `dotGrid()`, `dropShadow()`, `duotone()`, `evolve()`, `fisheye()`, `glow()`, `grayscale()`, `halftone()`, `halftoneLinearGradient()`, `hue()`, `invert()`, `lightLeak()`, `linearProgressiveBlur()`, `lines()`, `mirror()`, `noise()`, `pixelDissolve()`, `rings()`, `saturation()`, `scale()`, `scanlines()`, `shine()`, `speckle()`, `starburst()`, `tint()`, `uvTranslate()`, `vignette()`, `wave()`, `waves()`, `whiteNoise()`, `xyTranslate()`, `zigzag()`.
+
 ## 3D content
 
 See [rules/3d.md](rules/3d.md) for 3D content in Remotion using Three.js and React Three Fiber.
@@ -276,17 +284,9 @@ See [rules/gifs.md](rules/gifs.md) for how to display GIFs synchronized with Rem
 
 See [rules/images.md](rules/images.md) for sizing and positioning images, dynamic image paths, and getting image dimensions.
 
-## Light leaks
-
-See [rules/light-leaks.md](rules/light-leaks.md) for light leak overlay effects using `@remotion/light-leaks`.
-
 ## Lottie animations
 
 See [rules/lottie.md](rules/lottie.md) for embedding Lottie animations in Remotion.
-
-## HTML in canvas
-
-See [rules/html-in-canvas.md](rules/html-in-canvas.md) if you need to render HTML into a `<canvas>` to apply 2D or WebGL effects via `<HtmlInCanvas>`.
 
 ## Measuring DOM nodes
 

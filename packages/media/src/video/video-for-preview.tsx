@@ -26,7 +26,11 @@ import {MediaPlayer} from '../media-player';
 import {type MediaOnError, callOnErrorAndResolve} from '../on-error';
 import type {MediaRequestInit} from '../request-init';
 import {useCommonEffects} from '../use-common-effects';
-import type {FallbackOffthreadVideoProps, VideoObjectFit} from './props';
+import type {
+	FallbackOffthreadVideoProps,
+	NativeVideoProps,
+	VideoObjectFit,
+} from './props';
 import {cacheVideoFrame, getCachedVideoFrame} from './video-frame-cache';
 import {warnAboutObjectFitInStyleOrClassName} from './warn-object-fit-css';
 
@@ -44,7 +48,7 @@ const {
 	useEffectChainState,
 } = Internals;
 
-type VideoForPreviewProps = {
+type VideoForPreviewProps = NativeVideoProps & {
 	readonly src: string;
 	readonly style: React.CSSProperties | undefined;
 	readonly playbackRate: number;
@@ -106,6 +110,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 	effects,
 	setMediaDurationInSeconds,
 	refForOutline,
+	...props
 }) => {
 	const src = usePreload(unpreloadedSrc);
 
@@ -514,6 +519,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 		// not using <OffthreadVideo> because it does not support looping
 		return (
 			<Html5Video
+				{...props}
 				ref={fallbackVideoRef}
 				src={src}
 				style={actualStyle}
@@ -539,6 +545,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 
 	return (
 		<canvas
+			{...props}
 			ref={canvasRefCallback}
 			// Don't set width and height here.
 			// Width is set in the video iterator manager, if props are being updated, they are being applied again by React.

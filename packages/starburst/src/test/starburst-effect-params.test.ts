@@ -1,6 +1,7 @@
 import {expect, test} from 'bun:test';
 import {colorToRgb} from '../color-to-rgb.js';
 import {starburst} from '../starburst-effect.js';
+import {starburstSchema} from '../Starburst.js';
 
 test('starburst() throws when rays is not passed', () => {
 	expect(() =>
@@ -60,6 +61,39 @@ test('starburst() exposes origin as a UV coordinate control', () => {
 		step: 0.01,
 		default: [0.5, 0.5],
 		description: 'Origin',
+	});
+});
+
+test('starburst() exposes colors as an array control', () => {
+	const {schema} = starburst({
+		rays: 12,
+		colors: ['#ff0000', '#00ff00'],
+	}).definition;
+
+	expect(schema.colors).toEqual({
+		type: 'array',
+		item: {
+			type: 'color',
+		},
+		default: undefined,
+		minLength: 2,
+		newItemDefault: '#ff0000',
+		description: 'Colors',
+		keyframable: false,
+	});
+});
+
+test('<Starburst> exposes colors as an array control', () => {
+	expect(starburstSchema.colors).toEqual({
+		type: 'array',
+		item: {
+			type: 'color',
+		},
+		default: undefined,
+		minLength: 2,
+		newItemDefault: '#ff0000',
+		description: 'Colors',
+		keyframable: false,
 	});
 });
 

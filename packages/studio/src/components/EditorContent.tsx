@@ -7,6 +7,7 @@ import {SplitterElement} from './Splitter/SplitterElement';
 import {SplitterHandle} from './Splitter/SplitterHandle';
 import {Timeline} from './Timeline/Timeline';
 import {TimelineEmptyState} from './Timeline/TimelineEmptyState';
+import {TimelineKeyframeDragStateProvider} from './Timeline/TimelineKeyframeDragState';
 import {TimelineSelectionProvider} from './Timeline/TimelineSelection';
 
 const noop = () => undefined;
@@ -50,7 +51,11 @@ export const EditorContent: React.FC<{
 			<InitialCompositionLoader />
 			<MenuToolbar readOnlyStudio={readOnlyStudio} />
 			{showTimeline ? (
-				<TimelineSelectionProvider>{content}</TimelineSelectionProvider>
+				<TimelineSelectionProvider>
+					<TimelineKeyframeDragStateProvider>
+						{content}
+					</TimelineKeyframeDragStateProvider>
+				</TimelineSelectionProvider>
 			) : (
 				content
 			)}

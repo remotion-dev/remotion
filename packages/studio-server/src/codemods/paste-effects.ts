@@ -71,7 +71,7 @@ const keyframedParamNeedsEasingImport = (
 	param: EffectClipboardKeyframedParam,
 ) => {
 	return (
-		param.interpolationFunction === 'interpolate' &&
+		param.interpolationFunction !== 'interpolateColors' &&
 		param.easing.some(isNonLinearEasing)
 	);
 };
@@ -147,7 +147,7 @@ const makeKeyframedOptions = ({
 }): ObjectExpression | null => {
 	const properties: ObjectProperty[] = [];
 
-	if (param.interpolationFunction === 'interpolate') {
+	if (param.interpolationFunction !== 'interpolateColors') {
 		if (param.clamping.left !== 'extend') {
 			properties.push(
 				b.objectProperty(

@@ -5,6 +5,7 @@ import {Internals} from 'remotion';
 import {BACKGROUND} from '../helpers/colors';
 import {noop} from '../helpers/noop';
 import {drawRef} from '../state/canvas-ref';
+import {ScaleLockProvider} from '../state/scale-lock';
 import {TimelineZoomContext} from '../state/timeline-zoom';
 import {HigherZIndex} from '../state/z-index';
 import {EditorContent} from './EditorContent';
@@ -37,7 +38,8 @@ export const Editor: React.FC<{
 	readonly Root: React.FC;
 	readonly readOnlyStudio: boolean;
 }> = ({Root, readOnlyStudio}) => {
-	const size = PlayerInternals.useElementSize(drawRef, {
+	const [drawElement, setDrawElement] = useState<HTMLDivElement | null>(null);
+	const size = PlayerInternals.useElementSize(drawElement, {
 		triggerOnWindowResize: false,
 		shouldApplyCssTransforms: true,
 	});
@@ -46,6 +48,13 @@ export const Editor: React.FC<{
 
 	const onMounted = useCallback(() => {
 		setCanvasMounted(true);
+	}, []);
+
+	// Use a callback ref so the late-mounted canvas container triggers a render
+	// and useElementSize() can observe it. See GitHub issue #8098.
+	const setDrawRef = useCallback((node: HTMLDivElement | null) => {
+		drawRef.current = node;
+		setDrawElement(node);
 	}, []);
 
 	const value: CurrentScaleContextType | null = useMemo(() => {
@@ -85,29 +94,30 @@ export const Editor: React.FC<{
 				<SequencePropsSubscriptionProvider>
 					<Internals.CurrentScaleContext.Provider value={value}>
 						<ForceSpecificCursor />
-						<div style={background}>
-							<Internals.CompositionRenderErrorContext.Provider
-								value={compositionRenderErrorContextValue}
-							>
-								{canvasMounted ? <MemoRoot /> : null}
-							</Internals.CompositionRenderErrorContext.Provider>
-							<Internals.CanUseRemotionHooksProvider>
-								<RenderErrorContext.Provider value={renderErrorContextValue}>
-									<EditorContent readOnlyStudio={readOnlyStudio}>
-										<TopPanel
-											drawRef={drawRef}
-											size={size}
-											bufferStateDelayInMilliseconds={
-												BUFFER_STATE_DELAY_IN_MILLISECONDS
-											}
-											onMounted={onMounted}
-											readOnlyStudio={readOnlyStudio}
-										/>
-									</EditorContent>
-								</RenderErrorContext.Provider>
-								<GlobalKeybindings />
-							</Internals.CanUseRemotionHooksProvider>
-						</div>
+						<ScaleLockProvider>
+							<div style={background}>
+								<Internals.CompositionRenderErrorContext.Provider
+									value={compositionRenderErrorContextValue}
+								>
+									{canvasMounted ? <MemoRoot /> : null}
+								</Internals.CompositionRenderErrorContext.Provider>
+								<Internals.CanUseRemotionHooksProvider>
+									<RenderErrorContext.Provider value={renderErrorContextValue}>
+										<EditorContent readOnlyStudio={readOnlyStudio}>
+											<TopPanel
+												drawRef={setDrawRef}
+												bufferStateDelayInMilliseconds={
+													BUFFER_STATE_DELAY_IN_MILLISECONDS
+												}
+												onMounted={onMounted}
+												readOnlyStudio={readOnlyStudio}
+											/>
+										</EditorContent>
+									</RenderErrorContext.Provider>
+									<GlobalKeybindings />
+								</Internals.CanUseRemotionHooksProvider>
+							</div>
+						</ScaleLockProvider>
 					</Internals.CurrentScaleContext.Provider>
 					<Modals readOnlyStudio={readOnlyStudio} />
 					<NotificationCenter />

@@ -84,6 +84,7 @@ export const TimelineLayerEye: React.FC<{
 				return;
 			}
 
+			e.preventDefault();
 			e.stopPropagation();
 			layerPointedDown = hidden ? 'enable' : 'disable';
 			onInvoked(layerPointedDown);
@@ -98,6 +99,14 @@ export const TimelineLayerEye: React.FC<{
 		[hidden, onInvoked],
 	);
 
+	const onDragStart: React.DragEventHandler<HTMLDivElement> = useCallback(
+		(e) => {
+			e.preventDefault();
+			e.stopPropagation();
+		},
+		[],
+	);
+
 	const onPointerEnter = useCallback(() => {
 		if (layerPointedDown) {
 			onInvoked(layerPointedDown);
@@ -107,6 +116,8 @@ export const TimelineLayerEye: React.FC<{
 	return (
 		<div
 			style={timelineLayerIconContainer}
+			draggable={false}
+			onDragStart={onDragStart}
 			onPointerEnter={onPointerEnter}
 			onPointerDown={onPointerDown}
 		>

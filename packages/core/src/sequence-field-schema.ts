@@ -82,6 +82,67 @@ export type EnumFieldSchema = {
 	keyframable?: boolean;
 };
 
+export type NumberArrayItemSchema = Omit<
+	NumberFieldSchema,
+	'default' | 'description' | 'hiddenFromList' | 'keyframable'
+>;
+
+export type BooleanArrayItemSchema = Omit<
+	BooleanFieldSchema,
+	'default' | 'description' | 'keyframable'
+>;
+
+export type RotationCssArrayItemSchema = Omit<
+	RotationCssFieldSchema,
+	'default' | 'description' | 'keyframable'
+>;
+
+export type RotationDegreesArrayItemSchema = Omit<
+	RotationDegreesFieldSchema,
+	'default' | 'description' | 'keyframable'
+>;
+
+export type TranslateArrayItemSchema = Omit<
+	TranslateFieldSchema,
+	'default' | 'description' | 'keyframable'
+>;
+
+export type UvCoordinateArrayItemSchema = Omit<
+	UvCoordinateFieldSchema,
+	'default' | 'description' | 'keyframable'
+>;
+
+export type ColorArrayItemSchema = Omit<
+	ColorFieldSchema,
+	'default' | 'description' | 'keyframable'
+>;
+
+export type EnumArrayItemSchema = {
+	type: 'enum';
+	variants: readonly string[];
+};
+
+export type ArrayItemFieldSchema =
+	| NumberArrayItemSchema
+	| BooleanArrayItemSchema
+	| RotationCssArrayItemSchema
+	| RotationDegreesArrayItemSchema
+	| TranslateArrayItemSchema
+	| UvCoordinateArrayItemSchema
+	| ColorArrayItemSchema
+	| EnumArrayItemSchema;
+
+export type ArrayFieldSchema = {
+	type: 'array';
+	item: ArrayItemFieldSchema;
+	default: readonly unknown[] | undefined;
+	minLength?: number;
+	maxLength?: number;
+	newItemDefault: unknown;
+	description?: string;
+	keyframable?: false;
+};
+
 export type VisibleFieldSchema =
 	| NumberFieldSchema
 	| BooleanFieldSchema
@@ -91,6 +152,7 @@ export type VisibleFieldSchema =
 	| ScaleFieldSchema
 	| UvCoordinateFieldSchema
 	| ColorFieldSchema
+	| ArrayFieldSchema
 	| EnumFieldSchema;
 
 export type SequenceFieldSchema = VisibleFieldSchema | HiddenFieldSchema;
@@ -177,8 +239,16 @@ export const durationInFramesField = {
 	hiddenFromList: true,
 } as const satisfies SequenceFieldSchema;
 
+export const fromField = {
+	type: 'number',
+	default: 0,
+	step: 1,
+	hiddenFromList: true,
+} as const satisfies SequenceFieldSchema;
+
 export const sequenceSchema = {
 	hidden: hiddenField,
+	from: fromField,
 	durationInFrames: durationInFramesField,
 	layout: {
 		type: 'enum',

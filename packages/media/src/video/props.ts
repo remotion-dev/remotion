@@ -1,10 +1,10 @@
+import type React from 'react';
 import type {
 	EffectDefinitionAndStack,
 	EffectsProp,
 	LogLevel,
 	LoopVolumeCurveBehavior,
 	OnVideoFrame,
-	OnVideoFrameCallback,
 	SequenceProps,
 	VolumeProp,
 } from 'remotion';
@@ -32,7 +32,6 @@ export type FallbackOffthreadVideoProps = {
 	pauseWhenBuffering?: boolean;
 	onAutoPlayError?: null | (() => void);
 	preservePitch?: boolean;
-	onVideoFrameCallback?: OnVideoFrameCallback;
 };
 
 type MandatoryVideoProps = {
@@ -81,13 +80,24 @@ type OptionalVideoProps = {
 	effects: EffectsProp;
 };
 
+export type NativeVideoProps = Omit<
+	React.HTMLAttributes<HTMLElement>,
+	| keyof MandatoryVideoProps
+	| keyof OuterVideoProps
+	| keyof OptionalVideoProps
+	| 'onError'
+> &
+	Record<`data-${string}`, string | undefined>;
+
 export type InnerVideoProps = MandatoryVideoProps &
 	OuterVideoProps &
-	Omit<OptionalVideoProps, 'effects'> & {
+	Omit<OptionalVideoProps, 'effects'> &
+	NativeVideoProps & {
 		effects: EffectDefinitionAndStack<unknown>[];
 	};
 
 export type VideoProps = MandatoryVideoProps &
 	Partial<OuterVideoProps> &
 	Partial<OptionalVideoProps> &
+	NativeVideoProps &
 	Pick<SequenceProps, 'durationInFrames' | 'from' | 'name' | 'hidden'>;

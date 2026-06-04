@@ -40,6 +40,10 @@ export {
 	InstallPackageResponse,
 	LogStudioErrorRequest,
 	LogStudioErrorResponse,
+	MoveEffectKeyframe,
+	MoveKeyframesRequest,
+	MoveKeyframesResponse,
+	MoveSequenceKeyframe,
 	OpenInEditorRequest,
 	OpenInEditorResponse,
 	OpenInFileExplorerRequest,
@@ -121,6 +125,7 @@ export {
 	getKeyframeInterpolationFunctionForSchemaField,
 	isKeyframeInterpolationFunction,
 	isSchemaFieldKeyframable,
+	isSequenceFieldSchemaKeyframable,
 	keyframeInterpolationFunctions,
 	type KeyframeInterpolationFunction,
 } from './keyframe-interpolation-function';
@@ -187,6 +192,11 @@ export {
 	optimisticDeleteSequenceKeyframe,
 	optimisticDeleteSequenceKeyframes,
 } from './optimistic-delete-keyframe';
+export {
+	optimisticMoveEffectKeyframes,
+	optimisticMoveSequenceKeyframes,
+	type OptimisticKeyframeMove,
+} from './optimistic-move-keyframe';
 export {optimisticUpdateForCodeValues} from './optimistic-update-for-code-values';
 export {optimisticUpdateForEffectCodeValues} from './optimistic-update-for-effect-code-values';
 export {

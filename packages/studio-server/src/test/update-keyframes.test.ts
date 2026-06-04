@@ -1,5 +1,6 @@
 import {expect, test} from 'bun:test';
 import type {SequenceSchema} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {
 	updateEffectKeyframesAst,
 	updateSequenceKeyframes,
@@ -39,6 +40,13 @@ const translateSchema = {
 	},
 } satisfies SequenceSchema;
 
+const rotateSchema = {
+	'style.rotate': {
+		type: 'rotation-css',
+		default: '0deg',
+	},
+} satisfies SequenceSchema;
+
 const translateInput = `import React from 'react';
 import {AbsoluteFill} from 'remotion';
 
@@ -46,6 +54,18 @@ export const Example: React.FC = () => {
 \treturn (
 \t\t<AbsoluteFill>
 \t\t\t<div style={{translate: '0px 59px'}} />
+\t\t</AbsoluteFill>
+\t);
+};
+`;
+
+const rotateInput = `import React from 'react';
+import {AbsoluteFill} from 'remotion';
+
+export const Example: React.FC = () => {
+\treturn (
+\t\t<AbsoluteFill>
+\t\t\t<div style={{rotate: '19deg'}} />
 \t\t</AbsoluteFill>
 \t);
 };
@@ -99,6 +119,27 @@ test('updateSequenceKeyframes adds a keyframe to an existing interpolation', asy
 	);
 });
 
+test('updateSequenceKeyframes updates a keyframe at the same frame', async () => {
+	const {output, oldValueStrings, newValueStrings} =
+		await updateSequenceKeyframes({
+			input: sequenceInput,
+			nodePath: lineColumnToNodePath(
+				sequenceInput,
+				getLine(sequenceInput, 'scale'),
+			),
+			updates: [
+				{
+					key: 'style.scale',
+					operation: {type: 'add', frame: 100, value: 5},
+				},
+			],
+		});
+
+	expect(oldValueStrings).toEqual(['interpolate(frame, [0, 100], [2, 4])']);
+	expect(newValueStrings).toEqual(['interpolate(frame, [0, 100], [2, 5])']);
+	expect(output).toContain('scale: interpolate(frame, [0, 100], [2, 5])');
+});
+
 test('updateSequenceKeyframes converts a static value to an interpolation', async () => {
 	const {output, oldValueStrings} = await updateSequenceKeyframes({
 		input: sequenceInput,
@@ -115,7 +156,9 @@ test('updateSequenceKeyframes converts a static value to an interpolation', asyn
 	});
 
 	expect(oldValueStrings).toEqual(['0.5']);
-	expect(output).toContain('opacity: interpolate(frame, [25], [0.75])');
+	expect(output).toContain('opacity: interpolate(frame, [25], [0.75], {');
+	expect(output).toContain("extrapolateLeft: 'clamp'");
+	expect(output).toContain("extrapolateRight: 'clamp'");
 });
 
 test('updateSequenceKeyframes rejects non-keyframable fields', async () => {
@@ -146,6 +189,25 @@ test('updateSequenceKeyframes rejects non-keyframable fields', async () => {
 	).rejects.toThrow(/not keyframable/);
 });
 
+test('updateSequenceKeyframes rejects enum fields', async () => {
+	await expect(
+		updateSequenceKeyframes({
+			input: sequenceInput,
+			nodePath: lineColumnToNodePath(
+				sequenceInput,
+				getLine(sequenceInput, '<AbsoluteFill>'),
+			),
+			schema: NoReactInternals.sequenceSchema,
+			updates: [
+				{
+					key: 'layout',
+					operation: {type: 'add', frame: 25, value: 'none'},
+				},
+			],
+		}),
+	).rejects.toThrow(/not keyframable/);
+});
+
 test('updateSequenceKeyframes converts a static value to a single-keyframe interpolation at frame 0', async () => {
 	const {output, oldValueStrings} = await updateSequenceKeyframes({
 		input: sequenceInput,
@@ -162,7 +224,40 @@ test('updateSequenceKeyframes converts a static value to a single-keyframe inter
 	});
 
 	expect(oldValueStrings).toEqual(['0.5']);
-	expect(output).toContain('opacity: interpolate(frame, [0], [0.75])');
+	expect(output).toContain('opacity: interpolate(frame, [0], [0.75], {');
+	expect(output).toContain("extrapolateLeft: 'clamp'");
+	expect(output).toContain("extrapolateRight: 'clamp'");
+});
+
+test('updateSequenceKeyframes adds a missing nested prop before keyframing it', async () => {
+	const input = `import React from 'react';
+import {AbsoluteFill} from 'remotion';
+
+export const Example: React.FC = () => {
+\treturn (
+\t\t<AbsoluteFill>
+\t\t\t<div style={{opacity: 0.5}} />
+\t\t</AbsoluteFill>
+\t);
+};
+`;
+	const {output, oldValueStrings} = await updateSequenceKeyframes({
+		input,
+		nodePath: lineColumnToNodePath(input, getLine(input, 'opacity')),
+		schema: NoReactInternals.sequenceSchema,
+		updates: [
+			{
+				key: 'style.scale',
+				operation: {type: 'add', frame: 30, value: 2},
+			},
+		],
+	});
+
+	expect(oldValueStrings).toEqual(['1']);
+	expect(output).toContain('opacity: 0.5');
+	expect(output).toContain('scale: interpolate(frame, [30], [2], {');
+	expect(output).toContain("extrapolateLeft: 'clamp'");
+	expect(output).toContain("extrapolateRight: 'clamp'");
 });
 
 test('updateSequenceKeyframes adds a keyframe to an existing color interpolation', async () => {
@@ -205,7 +300,7 @@ test('updateSequenceKeyframes converts a static string value to a color interpol
 	expect(output).toContain("color={interpolateColors(frame, [50], ['blue'])}");
 });
 
-test('updateSequenceKeyframes converts static translate to interpolateTranslate', async () => {
+test('updateSequenceKeyframes converts static translate to interpolate', async () => {
 	const {output, oldValueStrings} = await updateSequenceKeyframes({
 		input: translateInput,
 		nodePath: lineColumnToNodePath(
@@ -223,9 +318,61 @@ test('updateSequenceKeyframes converts static translate to interpolateTranslate'
 
 	expect(oldValueStrings).toEqual(["'0px 59px'"]);
 	expect(output).toContain(
-		"translate: interpolateTranslate(frame, [44], ['0px 59px'])",
+		"translate: interpolate(frame, [44], ['0px 59px'], {",
 	);
-	expect(output).toContain('interpolateTranslate');
+	expect(output).toContain("extrapolateLeft: 'clamp'");
+	expect(output).toContain("extrapolateRight: 'clamp'");
+	expect(output).toContain('interpolate');
+});
+
+test('updateSequenceKeyframes adds a missing nested prop before keyframing it', async () => {
+	const input = `import React from 'react';
+import {AbsoluteFill} from 'remotion';
+
+export const Example: React.FC = () => {
+\treturn (
+\t\t<AbsoluteFill>
+\t\t\t<div style={{opacity: 1}} />
+\t\t</AbsoluteFill>
+\t);
+};
+`;
+	const {output, oldValueStrings, updatedNodePath} =
+		await updateSequenceKeyframes({
+			input,
+			nodePath: lineColumnToNodePath(input, getLine(input, '<div')),
+			schema: translateSchema,
+			updates: [
+				{
+					key: 'style.translate',
+					operation: {type: 'add', frame: 44, value: '100px 20px'},
+				},
+			],
+		});
+
+	expect(oldValueStrings).toEqual(['"0px 0px"']);
+	expect(output).toContain(
+		"translate: interpolate(frame, [44], ['100px 20px'], {",
+	);
+	expect(output).toContain("extrapolateLeft: 'clamp'");
+	expect(output).toContain("extrapolateRight: 'clamp'");
+	expect(output).toContain('useCurrentFrame');
+	expect(output).toContain('interpolate');
+	const status = computeSequencePropsStatusFromContent({
+		fileContents: output,
+		nodePath: updatedNodePath,
+		keys: ['style.translate'],
+		effects: [],
+	});
+	expect(status.props['style.translate']).toEqual({
+		status: 'keyframed',
+		codeValue: undefined,
+		interpolationFunction: 'interpolate',
+		keyframes: [{frame: 44, value: '100px 20px'}],
+		easing: [],
+		clamping: {left: 'clamp', right: 'clamp'},
+		posterize: undefined,
+	});
 });
 
 test('updateSequenceKeyframes migrates translate away from interpolateColors', async () => {
@@ -254,9 +401,60 @@ test('updateSequenceKeyframes migrates translate away from interpolateColors', a
 	expect(oldValueStrings).toEqual([
 		"interpolateColors(frame, [44], ['0px 59px'])",
 	]);
-	expect(output).toContain('translate: interpolateTranslate(');
+	expect(output).toContain('translate: interpolate(');
 	expect(output).toContain('[44, 88]');
 	expect(output).toContain("['0px 59px', '100px 20px']");
+});
+
+test('updateSequenceKeyframes converts static rotate to interpolate', async () => {
+	const {output, oldValueStrings} = await updateSequenceKeyframes({
+		input: rotateInput,
+		nodePath: lineColumnToNodePath(rotateInput, getLine(rotateInput, 'rotate')),
+		schema: rotateSchema,
+		updates: [
+			{
+				key: 'style.rotate',
+				operation: {type: 'add', frame: 55, value: '19deg'},
+			},
+		],
+	});
+
+	expect(oldValueStrings).toEqual(["'19deg'"]);
+	expect(output).toContain("rotate: interpolate(frame, [55], ['19deg'], {");
+	expect(output).toContain("extrapolateLeft: 'clamp'");
+	expect(output).toContain("extrapolateRight: 'clamp'");
+	expect(output).toContain('interpolate');
+});
+
+test('updateSequenceKeyframes migrates rotate away from interpolateColors', async () => {
+	const input = rotateInput
+		.replace(
+			"import {AbsoluteFill} from 'remotion';",
+			"import {AbsoluteFill, interpolateColors, useCurrentFrame} from 'remotion';",
+		)
+		.replace('return (', 'const frame = useCurrentFrame();\n\treturn (')
+		.replace(
+			"rotate: '19deg'",
+			"rotate: interpolateColors(frame, [55], ['19deg'])",
+		);
+	const {output, oldValueStrings} = await updateSequenceKeyframes({
+		input,
+		nodePath: lineColumnToNodePath(input, getLine(input, 'rotate')),
+		schema: rotateSchema,
+		updates: [
+			{
+				key: 'style.rotate',
+				operation: {type: 'add', frame: 68, value: '23deg'},
+			},
+		],
+	});
+
+	expect(oldValueStrings).toEqual([
+		"interpolateColors(frame, [55], ['19deg'])",
+	]);
+	expect(output).toContain('rotate: interpolate(');
+	expect(output).toContain('[55, 68]');
+	expect(output).toContain("['19deg', '23deg']");
 });
 
 test('updateSequenceKeyframes returns a node path that still resolves after inserting a frame hook', async () => {
@@ -300,7 +498,10 @@ export default CenteredSolid;
 		],
 	});
 
-	expect(output).toContain('width={interpolate(frame, [11], [240])}');
+	expect(updatedNodePath).toEqual(nodePath);
+	expect(output).toContain('width={interpolate(frame, [11], [240], {');
+	expect(output).toContain("extrapolateLeft: 'clamp'");
+	expect(output).toContain("extrapolateRight: 'clamp'");
 	const status = computeSequencePropsStatusFromContent({
 		fileContents: output,
 		nodePath: updatedNodePath,
@@ -313,7 +514,7 @@ export default CenteredSolid;
 		interpolationFunction: 'interpolate',
 		keyframes: [{frame: 11, value: 240}],
 		easing: [],
-		clamping: {left: 'extend', right: 'extend'},
+		clamping: {left: 'clamp', right: 'clamp'},
 		posterize: undefined,
 	});
 });
@@ -335,6 +536,101 @@ test('updateSequenceKeyframes keeps an interpolation when one keyframe remains',
 
 	expect(oldValueStrings).toEqual(['interpolate(frame, [0, 100], [2, 4])']);
 	expect(output).toContain('style={{scale: interpolate(frame, [100], [4])}}');
+});
+
+test('updateSequenceKeyframes moves overlapping selected keyframes together', async () => {
+	const input = sequenceInput.replace(
+		'interpolate(frame, [0, 100], [2, 4])',
+		'interpolate(frame, [0, 50, 100], [2, 3, 4])',
+	);
+	const {output, oldValueStrings, newValueStrings} =
+		await updateSequenceKeyframes({
+			input,
+			nodePath: lineColumnToNodePath(input, getLine(input, 'scale')),
+			updates: [
+				{
+					key: 'style.scale',
+					operation: {
+						type: 'move',
+						moves: [
+							{fromFrame: 0, toFrame: 50},
+							{fromFrame: 50, toFrame: 80},
+						],
+					},
+				},
+			],
+		});
+
+	expect(oldValueStrings).toEqual([
+		'interpolate(frame, [0, 50, 100], [2, 3, 4])',
+	]);
+	expect(newValueStrings).toEqual([
+		'interpolate(frame, [50, 80, 100], [2, 3, 4])',
+	]);
+	expect(output).toContain(
+		'style={{scale: interpolate(frame, [50, 80, 100], [2, 3, 4])}}',
+	);
+});
+
+test('updateSequenceKeyframes resorts keyframes when moving past an adjacent keyframe', async () => {
+	const input = sequenceInput.replace(
+		'interpolate(frame, [0, 100], [2, 4])',
+		'interpolate(frame, [0, 50, 100], [2, 3, 4])',
+	);
+	const {output, oldValueStrings, newValueStrings} =
+		await updateSequenceKeyframes({
+			input,
+			nodePath: lineColumnToNodePath(input, getLine(input, 'scale')),
+			updates: [
+				{
+					key: 'style.scale',
+					operation: {
+						type: 'move',
+						moves: [{fromFrame: 0, toFrame: 75}],
+					},
+				},
+			],
+		});
+
+	expect(oldValueStrings).toEqual([
+		'interpolate(frame, [0, 50, 100], [2, 3, 4])',
+	]);
+	expect(newValueStrings).toEqual([
+		'interpolate(frame, [50, 75, 100], [3, 2, 4])',
+	]);
+	expect(output).toContain(
+		'style={{scale: interpolate(frame, [50, 75, 100], [3, 2, 4])}}',
+	);
+});
+
+test('updateSequenceKeyframes allows moving keyframes outside the sequence range', async () => {
+	const input = sequenceInput.replace(
+		'interpolate(frame, [0, 100], [2, 4])',
+		'interpolate(frame, [0, 50, 100], [2, 3, 4])',
+	);
+	const {output, newValueStrings} = await updateSequenceKeyframes({
+		input,
+		nodePath: lineColumnToNodePath(input, getLine(input, 'scale')),
+		updates: [
+			{
+				key: 'style.scale',
+				operation: {
+					type: 'move',
+					moves: [
+						{fromFrame: 0, toFrame: -15},
+						{fromFrame: 100, toFrame: 140},
+					],
+				},
+			},
+		],
+	});
+
+	expect(newValueStrings).toEqual([
+		'interpolate(frame, [-15, 50, 140], [2, 3, 4])',
+	]);
+	expect(output).toContain(
+		'style={{scale: interpolate(frame, [-15, 50, 140], [2, 3, 4])}}',
+	);
 });
 
 test('updateSequenceKeyframes converts the last keyframe to a static value', async () => {
@@ -385,6 +681,32 @@ test('updateSequenceKeyframes keeps a color interpolation when one keyframe rema
 		"interpolateColors(frame, [0, 100], ['red', 'blue'])",
 	]);
 	expect(output).toContain("color={interpolateColors(frame, [100], ['blue'])}");
+});
+
+test('updateEffectKeyframes converts a static value to a clamped interpolation', () => {
+	const input = effectInput.replace(
+		'interpolate(frame, [0, 50, 100], [0.2, 0.5, 0.8])',
+		'0.2',
+	);
+	const {serialized, oldValueStrings} = updateEffectKeyframesAst({
+		input,
+		sequenceNodePath: lineColumnToNodePath(
+			input,
+			getLine(input, '<HtmlInCanvas'),
+		),
+		effectIndex: 0,
+		updates: [
+			{
+				key: 'amount',
+				operation: {type: 'add', frame: 40, value: 0.6},
+			},
+		],
+	});
+
+	expect(oldValueStrings).toEqual(['0.2']);
+	expect(serialized).toContain('amount: interpolate(frame, [40], [0.6], {');
+	expect(serialized).toContain('extrapolateLeft: "clamp"');
+	expect(serialized).toContain('extrapolateRight: "clamp"');
 });
 
 test('updateSequenceKeyframes converts the last color keyframe to a static value', async () => {
@@ -441,6 +763,36 @@ test('updateEffectKeyframes removes a keyframe from an effect prop interpolation
 	]);
 	expect(serialized).toContain(
 		'amount: interpolate(frame, [0, 100], [0.2, 0.8])',
+	);
+});
+
+test('updateEffectKeyframes allows moving keyframes outside the sequence range', () => {
+	const {serialized, newValueStrings} = updateEffectKeyframesAst({
+		input: effectInput,
+		sequenceNodePath: lineColumnToNodePath(
+			effectInput,
+			getLine(effectInput, '<HtmlInCanvas'),
+		),
+		effectIndex: 0,
+		updates: [
+			{
+				key: 'amount',
+				operation: {
+					type: 'move',
+					moves: [
+						{fromFrame: 0, toFrame: -20},
+						{fromFrame: 100, toFrame: 150},
+					],
+				},
+			},
+		],
+	});
+
+	expect(newValueStrings).toEqual([
+		'interpolate(frame, [-20, 50, 150], [0.2, 0.5, 0.8])',
+	]);
+	expect(serialized).toContain(
+		'amount: interpolate(frame, [-20, 50, 150], [0.2, 0.5, 0.8])',
 	);
 });
 

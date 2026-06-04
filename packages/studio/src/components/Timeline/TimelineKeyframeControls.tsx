@@ -1,7 +1,9 @@
+import {isSchemaFieldKeyframable} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useMemo} from 'react';
 import type {
 	CanUpdateSequencePropStatus,
 	CanUpdateSequencePropStatusKeyframed,
+	DragOverrideValue,
 	SequencePropsSubscriptionKey,
 	SequenceSchema,
 } from 'remotion';
@@ -80,13 +82,15 @@ const getCurrentKeyframeValue = ({
 	propStatus: CanUpdateSequencePropStatus;
 	jsxFrame: number;
 	defaultValue: unknown;
-	dragOverrideValue: unknown;
+	dragOverrideValue: DragOverrideValue | undefined;
 }): unknown | null => {
 	if (isKeyframedStatus(propStatus)) {
-		const keyframedStatus = propStatus as CanUpdateSequencePropStatusKeyframed;
-		return Internals.interpolateKeyframedStatus({
+		return Internals.getEffectiveVisualModeValue({
+			codeValue: propStatus,
+			dragOverrideValue,
 			frame: jsxFrame,
-			status: keyframedStatus,
+			defaultValue,
+			shouldResortToDefaultValueIfUndefined: true,
 		});
 	}
 
@@ -94,6 +98,7 @@ const getCurrentKeyframeValue = ({
 		return Internals.getEffectiveVisualModeValue({
 			codeValue: propStatus,
 			dragOverrideValue,
+			frame: jsxFrame,
 			defaultValue,
 			shouldResortToDefaultValueIfUndefined: true,
 		});
@@ -133,7 +138,7 @@ export const TimelineKeyframeControls: React.FC<{
 	readonly fileName: string;
 	readonly keyframeDisplayOffset: number;
 	readonly defaultValue: unknown;
-	readonly dragOverrideValue: unknown | undefined;
+	readonly dragOverrideValue: DragOverrideValue | undefined;
 	readonly schema: SequenceSchema;
 	readonly effectIndex: number | null;
 }> = ({
@@ -187,19 +192,29 @@ export const TimelineKeyframeControls: React.FC<{
 	);
 
 	const previousDisplayFrame = useMemo(
-		() => getPreviousKeyframeDisplayFrame(keyframes, timelinePosition),
-		[keyframes, timelinePosition],
+		() =>
+			getPreviousKeyframeDisplayFrame(
+				keyframes,
+				timelinePosition,
+				videoConfig.durationInFrames,
+			),
+		[keyframes, timelinePosition, videoConfig.durationInFrames],
 	);
 	const nextDisplayFrame = useMemo(
-		() => getNextKeyframeDisplayFrame(keyframes, timelinePosition),
-		[keyframes, timelinePosition],
+		() =>
+			getNextKeyframeDisplayFrame(
+				keyframes,
+				timelinePosition,
+				videoConfig.durationInFrames,
+			),
+		[keyframes, timelinePosition, videoConfig.durationInFrames],
 	);
 
-	const fieldSchema = schema[fieldKey];
-	const keyframable = fieldSchema?.keyframable !== false;
-	const canAddKeyframe =
-		keyframable &&
-		(fieldSchema?.type !== 'scale' || typeof currentKeyframeValue === 'number');
+	const keyframable = isSchemaFieldKeyframable({
+		schema,
+		key: fieldKey,
+	});
+	const canAddKeyframe = keyframable;
 	const canToggleKeyframe =
 		propStatus.status !== 'computed' &&
 		(hasKeyframeAtCurrentFrame || canAddKeyframe);

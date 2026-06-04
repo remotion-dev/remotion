@@ -123,6 +123,18 @@ export type ModalState =
 			compositionId: string;
 	  }
 	| {
+			type: 'delete-folder';
+			folderName: string;
+			parentName: string | null;
+			stack: string | null;
+	  }
+	| {
+			type: 'rename-folder';
+			folderName: string;
+			parentName: string | null;
+			stack: string | null;
+	  }
+	| {
 			type: 'input-props-override';
 	  }
 	| RenderModalState

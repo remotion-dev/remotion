@@ -1,4 +1,7 @@
-import {optimisticUpdateForEffectCodeValues} from '@remotion/studio-shared';
+import {
+	isSchemaFieldKeyframable,
+	optimisticUpdateForEffectCodeValues,
+} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useMemo} from 'react';
 import type {
 	CanUpdateSequencePropStatus,
@@ -13,6 +16,7 @@ import type {EffectSchemaFieldInfo} from '../../helpers/timeline-layout';
 import {callApi} from '../call-api';
 import {ContextMenu} from '../ContextMenu';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
+import {callAddEffectKeyframe} from './call-add-keyframe';
 import {getComputedStatusLabel} from './get-timeline-keyframes';
 import {saveEffectProp} from './save-effect-prop';
 import {enqueueSavePropChange} from './save-prop-queue';
@@ -35,6 +39,29 @@ const isKeyframedStatus = (
 	status: CanUpdateSequencePropStatus,
 ): status is CanUpdateSequencePropStatusKeyframed => {
 	return status.status === 'keyframed';
+};
+
+const isResettableStatus = ({
+	status,
+	defaultValue,
+}: {
+	readonly status: CanUpdateSequencePropStatus;
+	readonly defaultValue: unknown;
+}) => {
+	if (defaultValue === undefined) {
+		return false;
+	}
+
+	if (status.status === 'keyframed') {
+		return true;
+	}
+
+	if (status.status === 'computed') {
+		return false;
+	}
+
+	const effectiveCodeValue = status.codeValue ?? defaultValue;
+	return JSON.stringify(effectiveCodeValue) !== JSON.stringify(defaultValue);
 };
 
 const Value: React.FC<{
@@ -70,12 +97,35 @@ const Value: React.FC<{
 		effectStatus.type === 'can-update-effect'
 			? (effectStatus.props?.[field.key] ?? null)
 			: null;
+	const timelinePosition = Internals.Timeline.useTimelinePosition();
+	const jsxFrame = timelinePosition - keyframeDisplayOffset;
 
 	const onDragValueChange = useCallback(
 		(value: unknown) => {
-			setEffectDragOverrides(nodePath, field.effectIndex, field.key, value);
+			const nextDragOverrideValue =
+				propStatus !== null && isKeyframedStatus(propStatus)
+					? Internals.makeKeyframedDragOverride({
+							status: propStatus,
+							frame: jsxFrame,
+							value,
+						})
+					: Internals.makeStaticDragOverride(value);
+
+			setEffectDragOverrides(
+				nodePath,
+				field.effectIndex,
+				field.key,
+				nextDragOverrideValue,
+			);
 		},
-		[setEffectDragOverrides, nodePath, field.effectIndex, field.key],
+		[
+			field.effectIndex,
+			field.key,
+			jsxFrame,
+			nodePath,
+			propStatus,
+			setEffectDragOverrides,
+		],
 	);
 
 	const onDragEnd = useCallback(() => {
@@ -161,6 +211,43 @@ const Value: React.FC<{
 		],
 	);
 
+	const onSaveKeyframed = useCallback(
+		(value: unknown, sourceFrame: number) => {
+			if (!validatedLocation) {
+				return Promise.reject(new Error('Cannot save'));
+			}
+
+			if (!clientId) {
+				return Promise.reject(new Error('Not connected to studio server'));
+			}
+
+			return callAddEffectKeyframe({
+				fileName: validatedLocation.source,
+				nodePath,
+				effectIndex: field.effectIndex,
+				fieldKey: field.key,
+				sourceFrame,
+				value,
+				schema: field.effectSchema,
+				setCodeValues,
+				clientId,
+			});
+		},
+		[
+			clientId,
+			field.effectIndex,
+			field.effectSchema,
+			field.key,
+			nodePath,
+			setCodeValues,
+			validatedLocation,
+		],
+	);
+
+	if (field.fieldSchema.type === 'scale') {
+		throw new Error(`Effects do not support scale fields: ${field.key}`);
+	}
+
 	if (effectStatus.type === 'cannot-update-effect') {
 		if (effectStatus.reason === 'computed') {
 			return <UnsupportedStatus label="computed" />;
@@ -203,6 +290,11 @@ const Value: React.FC<{
 				field={field}
 				propStatus={propStatus}
 				keyframeDisplayOffset={keyframeDisplayOffset}
+				dragOverrideValue={dragOverrideValue}
+				onSave={onSaveKeyframed}
+				onDragValueChange={onDragValueChange}
+				onDragEnd={onDragEnd}
+				scaleLockNodePath={nodePath}
 			/>
 		);
 	}
@@ -215,6 +307,7 @@ const Value: React.FC<{
 		codeValue: propStatus,
 		dragOverrideValue,
 		defaultValue: field.fieldSchema.default,
+		frame: jsxFrame,
 		shouldResortToDefaultValueIfUndefined: true,
 	});
 
@@ -226,6 +319,7 @@ const Value: React.FC<{
 			onDragValueChange={onDragValueChange}
 			onDragEnd={onDragEnd}
 			effectiveValue={effectiveValue}
+			scaleLockNodePath={null}
 		/>
 	);
 };
@@ -284,7 +378,10 @@ export const TimelineEffectPropItem: React.FC<{
 		shouldShowTimelineKeyframeControls({
 			propStatus,
 			selected: selection.selected,
-			keyframable: field.fieldSchema.keyframable !== false,
+			keyframable: isSchemaFieldKeyframable({
+				schema: field.effectSchema,
+				key: field.key,
+			}),
 		}) ? (
 			<TimelineKeyframeControls
 				fieldKey={field.key}
@@ -299,29 +396,29 @@ export const TimelineEffectPropItem: React.FC<{
 			/>
 		) : null;
 
-	const isNonDefault = useMemo(() => {
+	const canResetToDefault = useMemo(() => {
 		if (!propStatus || propStatus.status === 'computed') {
 			return false;
 		}
 
-		const effectiveCodeValue =
-			propStatus.codeValue ?? field.fieldSchema.default;
-		return (
-			JSON.stringify(effectiveCodeValue) !==
-			JSON.stringify(field.fieldSchema.default)
-		);
+		return isResettableStatus({
+			status: propStatus,
+			defaultValue: field.fieldSchema.default,
+		});
 	}, [field.fieldSchema.default, propStatus]);
 
 	const canPerformReset =
 		previewServerState.type === 'connected' &&
 		propStatus !== null &&
 		propStatus.status !== 'computed';
+	const canShowReset =
+		canPerformReset && field.fieldSchema.default !== undefined;
 
 	const onReset = useCallback(() => {
 		if (
-			!canPerformReset ||
-			previewServerState.type !== 'connected' ||
-			!isNonDefault
+			!canShowReset ||
+			!canResetToDefault ||
+			previewServerState.type !== 'connected'
 		) {
 			return;
 		}
@@ -343,12 +440,12 @@ export const TimelineEffectPropItem: React.FC<{
 			clientId: previewServerState.clientId,
 		});
 	}, [
-		canPerformReset,
+		canResetToDefault,
+		canShowReset,
 		field.effectIndex,
 		field.effectSchema,
 		field.fieldSchema.default,
 		field.key,
-		isNonDefault,
 		nodePath,
 		previewServerState,
 		setCodeValues,
@@ -363,14 +460,14 @@ export const TimelineEffectPropItem: React.FC<{
 				keyHint: null,
 				label: 'Reset',
 				leftItem: null,
-				disabled: !canPerformReset,
+				disabled: !canShowReset,
 				onClick: onReset,
 				quickSwitcherLabel: null,
 				subMenu: null,
 				value: 'reset-effect-field',
 			},
 		];
-	}, [canPerformReset, onReset]);
+	}, [canShowReset, onReset]);
 
 	const row = (
 		<TimelineRowChrome

@@ -28,20 +28,12 @@ import {warnAboutTooHighVolume} from '../volume-safeguard.js';
 import {useEmitVideoFrame} from './emit-video-frame.js';
 import {getMediaTime} from './get-current-time.js';
 import {MediaPlaybackError} from './MediaPlaybackError.js';
-import type {
-	OnVideoFrame,
-	OnVideoFrameCallback,
-	RemotionVideoProps,
-} from './props';
+import type {OnVideoFrame, RemotionVideoProps} from './props';
 import {seekToTimeMultipleUntilRight} from './seek-until-right.js';
 
-type VideoForRenderingProps = Omit<
-	RemotionVideoProps,
-	'onVideoFrameCallback'
-> & {
+type VideoForRenderingProps = Omit<RemotionVideoProps, 'onVideoFrame'> & {
 	readonly onDuration: (src: string, durationInSeconds: number) => void;
 	readonly onVideoFrame: null | OnVideoFrame;
-	readonly onVideoFrameCallback: null | OnVideoFrameCallback;
 };
 
 const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
@@ -62,7 +54,6 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		loopVolumeCurveBehavior,
 		audioStreamIndex,
 		onVideoFrame,
-		onVideoFrameCallback,
 		preservePitch: _preservePitch,
 		...props
 	},
@@ -166,7 +157,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		return videoRef.current as HTMLVideoElement;
 	}, []);
 
-	useEmitVideoFrame({ref: videoRef, onVideoFrame, onVideoFrameCallback});
+	useEmitVideoFrame({ref: videoRef, onVideoFrame});
 
 	useEffect(() => {
 		if (!window.remotion_videoEnabled) {

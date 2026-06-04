@@ -19,6 +19,7 @@ import {
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import {
 	durationInFramesField,
+	fromField,
 	hiddenField,
 	sequenceVisualStyleSchema,
 } from './sequence-field-schema.js';
@@ -184,6 +185,7 @@ export type HtmlInCanvasOnPaintParams = {
 	readonly canvas: OffscreenCanvas;
 	readonly element: HTMLDivElement;
 	readonly elementImage: ElementImage;
+	readonly pixelDensity: number;
 };
 
 // Memoize the support check across the session — neither the platform
@@ -224,6 +226,8 @@ export type HtmlInCanvasOnInit = (
 	params: HtmlInCanvasOnPaintParams,
 ) => HtmlInCanvasOnInitCleanup | Promise<HtmlInCanvasOnInitCleanup>;
 
+export type HtmlInCanvasPixelDensity = number;
+
 function assertHtmlInCanvasDimensions(width: unknown, height: unknown): void {
 	if (typeof width !== 'number' || typeof height !== 'number') {
 		throw new Error(
@@ -243,6 +247,44 @@ function assertHtmlInCanvasDimensions(width: unknown, height: unknown): void {
 		);
 	}
 }
+
+function resolveHtmlInCanvasPixelDensity(
+	pixelDensity: HtmlInCanvasPixelDensity | undefined,
+): number {
+	if (pixelDensity === undefined) {
+		return 1;
+	}
+
+	if (
+		typeof pixelDensity !== 'number' ||
+		!Number.isFinite(pixelDensity) ||
+		pixelDensity <= 0
+	) {
+		throw new Error(
+			`HtmlInCanvas: \`pixelDensity\` must be a positive finite number. Received: ${String(pixelDensity)}.`,
+		);
+	}
+
+	return pixelDensity;
+}
+
+const resizeOffscreenCanvas = ({
+	offscreen,
+	width,
+	height,
+}: {
+	offscreen: OffscreenCanvas;
+	width: number;
+	height: number;
+}) => {
+	if (offscreen.width !== width) {
+		offscreen.width = width;
+	}
+
+	if (offscreen.height !== height) {
+		offscreen.height = height;
+	}
+};
 
 const defaultOnPaint: HtmlInCanvasOnPaint = ({
 	canvas,
@@ -283,6 +325,7 @@ export type HtmlInCanvasProps = Omit<
 		readonly children: React.ReactNode;
 		readonly onPaint?: HtmlInCanvasOnPaint;
 		readonly onInit?: HtmlInCanvasOnInit;
+		readonly pixelDensity?: HtmlInCanvasPixelDensity;
 	};
 /* eslint-enable react/require-default-props */
 
@@ -295,6 +338,7 @@ type HtmlInCanvasContentProps = {
 	readonly children: React.ReactNode;
 	readonly onPaint: HtmlInCanvasOnPaint | undefined;
 	readonly onInit: HtmlInCanvasOnInit | undefined;
+	readonly pixelDensity: HtmlInCanvasPixelDensity | undefined;
 	readonly controls: SequenceControls | undefined;
 	readonly style: React.CSSProperties | undefined;
 };
@@ -304,7 +348,17 @@ const HtmlInCanvasContent = forwardRef<
 	HtmlInCanvasContentProps
 >(
 	(
-		{width, height, effects, children, onPaint, onInit, controls, style},
+		{
+			width,
+			height,
+			effects,
+			children,
+			onPaint,
+			onInit,
+			pixelDensity,
+			controls,
+			style,
+		},
 		ref,
 	) => {
 		const isInsideAncestorHtmlInCanvas = useContext(
@@ -312,6 +366,9 @@ const HtmlInCanvasContent = forwardRef<
 		);
 
 		assertHtmlInCanvasDimensions(width, height);
+		const resolvedPixelDensity = resolveHtmlInCanvasPixelDensity(pixelDensity);
+		const canvasWidth = Math.ceil(width * resolvedPixelDensity);
+		const canvasHeight = Math.ceil(height * resolvedPixelDensity);
 		const {continueRender, cancelRender} = useDelayRender();
 
 		if (!isHtmlInCanvasSupported()) {
@@ -321,7 +378,7 @@ const HtmlInCanvasContent = forwardRef<
 		const canvas2dRef = useRef<HTMLCanvasElement | null>(null);
 		const offscreenRef = useRef<OffscreenCanvas | null>(null);
 		const divRef = useRef<HTMLDivElement | null>(null);
-		const canvasSizeKey = `${width}x${height}`;
+		const canvasSizeKey = `${width}x${height}@${resolvedPixelDensity}`;
 
 		const setLayoutCanvasRef = useCallback(
 			(node: HTMLCanvasElement | null) => {
@@ -368,8 +425,11 @@ const HtmlInCanvasContent = forwardRef<
 				);
 			}
 
-			offscreen.width = width;
-			offscreen.height = height;
+			resizeOffscreenCanvas({
+				offscreen,
+				width: canvasWidth,
+				height: canvasHeight,
+			});
 
 			try {
 				const placeholderCanvas = canvas2dRef.current;
@@ -403,6 +463,7 @@ const HtmlInCanvasContent = forwardRef<
 							canvas: offscreen,
 							element,
 							elementImage: initImage!,
+							pixelDensity: resolvedPixelDensity,
 						});
 						if (typeof cleanup !== 'function') {
 							throw new Error(
@@ -425,22 +486,30 @@ const HtmlInCanvasContent = forwardRef<
 					canvas: offscreen,
 					element,
 					elementImage: elImage!,
+					pixelDensity: resolvedPixelDensity,
 				});
 
 				await runEffectChain({
-					state: chainState.get(width, height)!,
+					state: chainState.get(canvasWidth, canvasHeight)!,
 					source: offscreen,
 					effects: effectsRef.current,
 					output: offscreen,
-					width,
-					height,
+					width: canvasWidth,
+					height: canvasHeight,
 				});
 
 				continueRender(handle);
 			} catch (error) {
 				cancelRender(error);
 			}
-		}, [chainState, continueRender, cancelRender, width, height]);
+		}, [
+			canvasHeight,
+			canvasWidth,
+			chainState,
+			continueRender,
+			cancelRender,
+			resolvedPixelDensity,
+		]);
 
 		// Transfer control once per layout canvas instance, then listen for paint on
 		// the placeholder (capture) while drawing on the linked offscreen surface.
@@ -454,8 +523,11 @@ const HtmlInCanvasContent = forwardRef<
 
 			const offscreen = placeholder.transferControlToOffscreen();
 			offscreenRef.current = offscreen;
-			offscreen.width = width;
-			offscreen.height = height;
+			resizeOffscreenCanvas({
+				offscreen,
+				width: canvasWidth,
+				height: canvasHeight,
+			});
 
 			initializedRef.current = false;
 			unmountedRef.current = false;
@@ -470,7 +542,7 @@ const HtmlInCanvasContent = forwardRef<
 				onInitCleanupRef.current?.();
 				onInitCleanupRef.current = null;
 			};
-		}, [onPaintCb, cancelRender, width, height]);
+		}, [onPaintCb, cancelRender, canvasWidth, canvasHeight]);
 
 		const onPaintChangedRef = useRef(false);
 		useLayoutEffect(() => {
@@ -514,6 +586,14 @@ const HtmlInCanvasContent = forwardRef<
 			};
 		}, [width, height]);
 
+		const canvasStyle = useMemo(() => {
+			return {
+				width,
+				height,
+				...(style ?? {}),
+			};
+		}, [height, style, width]);
+
 		if (isInsideAncestorHtmlInCanvas) {
 			throw new Error(
 				'<HtmlInCanvas> effects cannot be nested together. Chrome will only display the outer effect. Consider merging the effects into one if you can.',
@@ -525,9 +605,9 @@ const HtmlInCanvasContent = forwardRef<
 				<canvas
 					key={canvasSizeKey}
 					ref={setLayoutCanvasRef}
-					width={width}
-					height={height}
-					style={style}
+					width={canvasWidth}
+					height={canvasHeight}
+					style={canvasStyle}
 				>
 					<div ref={divRef} style={innerStyle}>
 						{children}
@@ -554,6 +634,7 @@ const HtmlInCanvasInner = forwardRef<
 			children,
 			onPaint,
 			onInit,
+			pixelDensity,
 			_experimentalControls: controls,
 			style,
 			durationInFrames,
@@ -602,6 +683,7 @@ const HtmlInCanvasInner = forwardRef<
 					effects={effects}
 					onPaint={onPaint}
 					onInit={onInit}
+					pixelDensity={pixelDensity}
 					controls={controls}
 					style={style}
 				>
@@ -616,6 +698,7 @@ HtmlInCanvasInner.displayName = 'HtmlInCanvas';
 
 const htmlInCanvasSchema = {
 	durationInFrames: durationInFramesField,
+	from: fromField,
 	...sequenceVisualStyleSchema,
 	hidden: hiddenField,
 };

@@ -51,6 +51,7 @@ const TimelineTrackUnmemoized: React.FC<{
 				<TimelineSequence
 					s={track.sequence}
 					nodePathInfo={track.nodePathInfo}
+					sequenceFrameOffset={track.sequenceFrameOffset}
 				/>
 			</div>
 			{showExpandedKeyframes && track.nodePathInfo ? (

@@ -13,6 +13,7 @@ import type {
 } from './CompositionManager.js';
 import type {DelayRenderScope} from './delay-render.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
+import {Folder, type TFolder} from './Folder.js';
 import type {StaticFile} from './get-static-files.js';
 import {useIsPlayer} from './is-player.js';
 import type {LogLevel} from './log.js';
@@ -21,6 +22,8 @@ import {Null} from './Null.js';
 import type {ProResProfile} from './prores-profile.js';
 import type {PixelFormat, VideoImageFormat} from './render-types.js';
 import type {
+	ArrayFieldSchema,
+	ArrayItemFieldSchema,
 	SequenceFieldSchema,
 	SequenceSchema,
 } from './sequence-field-schema.js';
@@ -156,6 +159,7 @@ export {
 	type HtmlInCanvasOnInit,
 	type HtmlInCanvasOnInitCleanup,
 	type HtmlInCanvasOnPaint,
+	type HtmlInCanvasPixelDensity,
 } from './HtmlInCanvas.js';
 export type {
 	HtmlInCanvasOnPaintParams,
@@ -191,10 +195,6 @@ export {
 	interpolateColors,
 	type InterpolateColorsOptions,
 } from './interpolate-colors.js';
-export {
-	interpolateTranslate,
-	type InterpolateTranslateOptions,
-} from './interpolate-translate.js';
 export {LogLevel} from './log.js';
 export {Loop} from './loop/index.js';
 export {
@@ -233,6 +233,7 @@ export {
 	useCurrentScale,
 } from './use-current-scale';
 export {useDelayRender} from './use-delay-render';
+export {usePixelDensity} from './use-pixel-density';
 export {useRemotionEnvironment} from './use-remotion-environment.js';
 export * from './use-video-config.js';
 export * from './version.js';
@@ -247,7 +248,7 @@ export {
 	Video,
 } from './video/index.js';
 export {MediaPlaybackError} from './video/MediaPlaybackError.js';
-export type {OnVideoFrame, OnVideoFrameCallback} from './video/props.js';
+export type {OnVideoFrame} from './video/props.js';
 export type {VolumeProp} from './volume-prop.js';
 export {watchStaticFile} from './watch-static-file.js';
 
@@ -304,9 +305,11 @@ export const Config = new Proxy(proxyObj, {
 Sequence.displayName = 'Sequence';
 addSequenceStackTraces(Sequence);
 addSequenceStackTraces(Composition);
+addSequenceStackTraces(Folder);
 
 export type _InternalTypes = {
 	AnyComposition: AnyComposition;
+	TFolder: TFolder;
 	BundleCompositionState: BundleCompositionState;
 	BundleState: BundleState;
 	VideoConfigWithSerializedProps: VideoConfigWithSerializedProps;
@@ -318,6 +321,8 @@ export type _InternalTypes = {
 
 export type {
 	AnyComposition,
+	ArrayFieldSchema,
+	ArrayItemFieldSchema,
 	DelayRenderScope,
 	LoopDisplay,
 	SequenceControls,

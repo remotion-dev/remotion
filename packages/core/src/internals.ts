@@ -73,7 +73,10 @@ import {
 	getFlatSchemaWithAllKeys,
 } from './flatten-schema.js';
 import {getAssetDisplayName} from './get-asset-file-name.js';
-import {getEffectiveVisualModeValue} from './get-effective-visual-mode-value.js';
+import {
+	getEffectiveVisualModeValue,
+	resolveDragOverrideValue,
+} from './get-effective-visual-mode-value.js';
 import {
 	getPreviewDomElement,
 	REMOTION_STUDIO_CONTAINER_ELEMENT,
@@ -116,11 +119,14 @@ import {
 } from './ResolveCompositionConfig.js';
 import {
 	durationInFramesField,
+	fromField,
 	hiddenField,
 	sequencePremountSchema,
 	sequenceSchema,
 	sequenceStyleSchema,
 	sequenceVisualStyleSchema,
+	type ArrayFieldSchema,
+	type ArrayItemFieldSchema,
 	type SequenceFieldSchema,
 	type SequenceSchema,
 	type VisibleFieldSchema,
@@ -183,10 +189,12 @@ import {
 	useBasicMediaInTimeline,
 	useMediaInTimeline,
 } from './use-media-in-timeline.js';
+import {PixelDensityContext} from './use-pixel-density.js';
 import type {
-	CanUpdateSequencePropStatusStatic,
 	CanUpdateSequencePropStatusFalse,
 	CanUpdateSequencePropStatusKeyframed,
+	CanUpdateSequencePropStatusStatic,
+	DragOverrideValue,
 	GetCodeValues,
 	GetDragOverrides,
 	GetEffectCodeValues,
@@ -194,6 +202,9 @@ import type {
 } from './use-schema.js';
 import {
 	computeEffectiveSchemaValuesDotNotation,
+	getStaticDragOverrideValue,
+	makeKeyframedDragOverride,
+	makeStaticDragOverride,
 	type CanUpdateSequencePropStatus,
 	type CodeValues,
 	type DragOverrides,
@@ -211,6 +222,10 @@ import {
 	invalidCompositionErrorMessage,
 	isCompositionIdValid,
 } from './validation/validate-composition-id.js';
+import {
+	invalidFolderNameErrorMessage,
+	isFolderNameValid,
+} from './validation/validate-folder-name.js';
 import {DurationsContextProvider} from './video/duration-state.js';
 import {InnerOffthreadVideo} from './video/OffthreadVideo.js';
 import {isIosSafari} from './video/video-fragment.js';
@@ -296,8 +311,10 @@ export const Internals = {
 	SharedAudioTagsContext,
 	SharedAudioTagsContextProvider,
 	invalidCompositionErrorMessage,
+	invalidFolderNameErrorMessage,
 	calculateMediaDuration,
 	isCompositionIdValid,
+	isFolderNameValid,
 	getPreviewDomElement,
 	compositionsRef,
 	portalNode,
@@ -332,6 +349,7 @@ export const Internals = {
 	BufferingContextReact,
 	getComponentsToAddStacksTo,
 	CurrentScaleContext,
+	PixelDensityContext,
 	PreviewSizeContext,
 	calculateScale,
 	validateRenderAsset,
@@ -371,6 +389,10 @@ export const Internals = {
 	createWebGL2ContextError,
 	computeEffectiveSchemaValuesDotNotation,
 	interpolateKeyframedStatus,
+	makeStaticDragOverride,
+	makeKeyframedDragOverride,
+	resolveDragOverrideValue,
+	getStaticDragOverrideValue,
 	OverrideIdsToNodePathsGettersContext,
 	OverrideIdsToNodePathsSettersContext,
 	findPropsToDelete,
@@ -379,24 +401,28 @@ export const Internals = {
 	getEffectCodeValuesCtx,
 	hiddenField,
 	durationInFramesField,
+	fromField,
 } as const;
 
 export type {
+	ArrayFieldSchema,
+	ArrayItemFieldSchema,
 	CannotUpdateSequenceReason,
 	CanUpdateEffectPropsResponse,
 	CanUpdateEffectPropsResponseFalse,
 	CanUpdateEffectPropsResponseTrue,
-	CanUpdateSequencePropStatusStatic,
 	CanUpdateSequencePropsResponse,
 	CanUpdateSequencePropsResponseFalse,
 	CanUpdateSequencePropsResponseTrue,
 	CanUpdateSequencePropStatus,
 	CanUpdateSequencePropStatusFalse,
 	CanUpdateSequencePropStatusKeyframed,
+	CanUpdateSequencePropStatusStatic,
 	CodeValues,
 	CompositionManagerContext,
 	CompProps,
 	DragOverrides,
+	DragOverrideValue,
 	EffectDragOverrides,
 	GetCodeValues,
 	GetDragOverrides,

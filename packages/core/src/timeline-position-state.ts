@@ -47,6 +47,13 @@ export const getFrameForComposition = (composition: string) => {
 	return window.remotion_initialFrame ?? 0;
 };
 
+export const clampFrameToCompositionRange = (
+	frame: number,
+	durationInFrames: number,
+) => {
+	return Math.max(0, Math.min(Math.max(0, durationInFrames - 1), frame));
+};
+
 const useTimelinePositionFromContext = (
 	state: TimelineContextValue,
 ): number => {
@@ -63,7 +70,7 @@ const useTimelinePositionFromContext = (
 		state.frame[videoConfig.id] ??
 		(env.isPlayer ? 0 : getFrameForComposition(videoConfig.id));
 
-	return Math.min(videoConfig.durationInFrames - 1, unclamped);
+	return clampFrameToCompositionRange(unclamped, videoConfig.durationInFrames);
 };
 
 export const useTimelineContext = (): TimelineContextValue => {

@@ -17,6 +17,7 @@ import {
 import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
 import {
 	durationInFramesField,
+	fromField,
 	hiddenField,
 	sequenceVisualStyleSchema,
 	type SequenceSchema,
@@ -36,6 +37,7 @@ import {resolveAnimatedImageSource} from './resolve-image-source';
 
 const animatedImageSchema = {
 	durationInFrames: durationInFramesField,
+	from: fromField,
 	playbackRate: {
 		type: 'number',
 		min: 0,
