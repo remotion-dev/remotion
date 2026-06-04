@@ -78,7 +78,8 @@ _number_
 
 Controls the backing bitmap density. Default: `1`.
 
-Set a higher value to paint to a higher-resolution backing canvas while keeping the logical canvas size unchanged.
+Set a higher value to paint to a higher-resolution backing canvas while keeping the logical canvas size unchanged.  
+This is useful to counteract quality loss when the canvas is scaled up – for example via the [`scale`](/docs/scaling) render option, or on a high-DPI display in the preview. Pass [`usePixelDensity()`](/docs/use-pixel-density) to use the render `scale` while rendering and `window.devicePixelRatio` while previewing.
 
 ### `children`
 
