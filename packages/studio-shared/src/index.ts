@@ -38,6 +38,10 @@ export {
 	InsertableCompositionElement,
 	InstallPackageRequest,
 	InstallPackageResponse,
+	MoveEffectKeyframe,
+	MoveKeyframesRequest,
+	MoveKeyframesResponse,
+	MoveSequenceKeyframe,
 	OpenInEditorRequest,
 	OpenInEditorResponse,
 	OpenInFileExplorerRequest,
@@ -191,6 +195,11 @@ export {
 	optimisticDeleteSequenceKeyframe,
 	optimisticDeleteSequenceKeyframes,
 } from './optimistic-delete-keyframe';
+export {
+	optimisticMoveEffectKeyframes,
+	optimisticMoveSequenceKeyframes,
+	type OptimisticKeyframeMove,
+} from './optimistic-move-keyframe';
 export {optimisticUpdateForCodeValues} from './optimistic-update-for-code-values';
 export {optimisticUpdateForEffectCodeValues} from './optimistic-update-for-effect-code-values';
 export {

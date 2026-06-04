@@ -240,7 +240,14 @@ export const getTimelineSequenceDurationDragTargets = ({
 
 	for (const nodePathInfo of targetNodePathInfos) {
 		const track = findSequenceTrack({tracks, nodePathInfo});
-		if (!track || !isDurationDraggableSequence(track.sequence)) {
+		const originalSequence = track
+			? sequences.find((sequence) => sequence.id === track.sequence.id)
+			: null;
+		if (
+			!track ||
+			!originalSequence ||
+			!isDurationDraggableSequence(originalSequence)
+		) {
 			return null;
 		}
 
@@ -253,7 +260,7 @@ export const getTimelineSequenceDurationDragTargets = ({
 		if (!targets.has(key)) {
 			targets.set(key, {
 				fileName: nodePath.absolutePath,
-				initialDuration: track.sequence.duration,
+				initialDuration: originalSequence.duration,
 				nodePath,
 			});
 		}

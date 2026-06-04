@@ -66,6 +66,13 @@ export type KeyframeOperation =
 				  }
 				| undefined;
 			posterize: number | undefined;
+	  }
+	| {
+			type: 'move';
+			moves: {
+				fromFrame: number;
+				toFrame: number;
+			}[];
 	  };
 
 export type SequenceKeyframeUpdate = {
@@ -544,6 +551,75 @@ const removeKeyframe = ({
 	});
 };
 
+const moveKeyframes = ({
+	expression,
+	moves,
+}: {
+	expression: Expression;
+	moves: {
+		fromFrame: number;
+		toFrame: number;
+	}[];
+}): ExpressionKind => {
+	const existing = getInterpolationExpression(expression);
+	if (!existing) {
+		throw new Error('Cannot move keyframe in non-interpolated expression');
+	}
+
+	const moveMap = new Map<number, number>();
+	for (const move of moves) {
+		if (move.fromFrame === move.toFrame) {
+			continue;
+		}
+
+		if (moveMap.has(move.fromFrame)) {
+			throw new Error(`Cannot move keyframe at frame ${move.fromFrame} twice`);
+		}
+
+		moveMap.set(move.fromFrame, move.toFrame);
+	}
+
+	if (moveMap.size === 0) {
+		return expression as ExpressionKind;
+	}
+
+	const frames = new Set(existing.keyframes.map((keyframe) => keyframe.frame));
+	for (const fromFrame of moveMap.keys()) {
+		if (!frames.has(fromFrame)) {
+			throw new Error(`Cannot move keyframe at frame ${fromFrame}: not found`);
+		}
+	}
+
+	const movedFromFrames = new Set(moveMap.keys());
+	const nextFrames = new Set<number>();
+	for (const keyframe of existing.keyframes) {
+		const nextFrame = moveMap.get(keyframe.frame) ?? keyframe.frame;
+		if (nextFrames.has(nextFrame)) {
+			throw new Error(
+				`Cannot move keyframe to frame ${nextFrame}: frame already exists`,
+			);
+		}
+
+		if (!movedFromFrames.has(keyframe.frame) && moveMap.has(nextFrame)) {
+			throw new Error(
+				`Cannot move keyframe to frame ${nextFrame}: frame already exists`,
+			);
+		}
+
+		nextFrames.add(nextFrame);
+	}
+
+	return createInterpolateExpression({
+		callee: existing.callee,
+		input: existing.input,
+		extraArgs: existing.extraArgs,
+		keyframes: existing.keyframes.map((keyframe) => ({
+			...keyframe,
+			frame: moveMap.get(keyframe.frame) ?? keyframe.frame,
+		})),
+	});
+};
+
 const applyKeyframeOperation = ({
 	expression,
 	key,
@@ -572,6 +648,13 @@ const applyKeyframeOperation = ({
 				clamping: operation.clamping,
 				posterize: operation.posterize,
 			}),
+			introduced: noIntroducedIdentifiers,
+		};
+	}
+
+	if (operation.type === 'move') {
+		return {
+			expression: moveKeyframes({expression, moves: operation.moves}),
 			introduced: noIntroducedIdentifiers,
 		};
 	}

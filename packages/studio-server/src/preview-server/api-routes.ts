@@ -15,6 +15,7 @@ import {deleteStaticFileHandler} from './routes/delete-static-file';
 import {duplicateJsxNodeHandler} from './routes/duplicate-jsx-node';
 import {insertJsxElementHandler} from './routes/insert-jsx-element';
 import {handleInstallPackage} from './routes/install-dependency';
+import {moveKeyframesHandler} from './routes/move-keyframes';
 import {openInEditorHandler} from './routes/open-in-editor';
 import {handleOpenInFileExplorer} from './routes/open-in-file-explorer';
 import {pasteEffectsHandler} from './routes/paste-effects';
@@ -67,6 +68,7 @@ export const allApiRoutes: {
 	'/api/add-effect': addEffectHandler,
 	'/api/reorder-effect': reorderEffectHandler,
 	'/api/delete-keyframes': deleteKeyframesHandler,
+	'/api/move-keyframes': moveKeyframesHandler,
 	'/api/add-sequence-keyframe': addSequenceKeyframeHandler,
 	'/api/add-effect-keyframe': addEffectKeyframeHandler,
 	'/api/update-sequence-keyframe-settings':

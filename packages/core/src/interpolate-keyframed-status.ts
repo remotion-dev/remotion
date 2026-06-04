@@ -28,8 +28,9 @@ export const interpolateKeyframedStatus = ({
 		return null;
 	}
 
-	const inputRange = keyframes.map((k) => k.frame);
-	const outputs = keyframes.map((k) => k.value);
+	const sortedKeyframes = [...keyframes].sort((a, b) => a.frame - b.frame);
+	const inputRange = sortedKeyframes.map((k) => k.frame);
+	const outputs = sortedKeyframes.map((k) => k.value);
 
 	if (interpolationFunction === 'interpolateColors') {
 		if (!outputs.every((v) => typeof v === 'string')) {

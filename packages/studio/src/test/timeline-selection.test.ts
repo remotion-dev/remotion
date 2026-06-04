@@ -325,6 +325,34 @@ test('Timeline duration drag applies the same delta to selected sequences', () =
 	).toEqual([30, 5]);
 });
 
+test('Timeline duration drag uses the declared duration for negative from values', () => {
+	const schema = {} satisfies SequenceSchema;
+	const nodePathInfo = makeNodePathInfo(['body', 0], []);
+	const targets = getTimelineSequenceDurationDragTargets({
+		draggedNodePathInfo: nodePathInfo,
+		selectedItems: [{type: 'sequence', nodePathInfo}],
+		sequences: [
+			makeTimelineSequence({
+				schema,
+				duration: 36,
+				from: -3,
+			}),
+		],
+		overrideIdsToNodePaths: {
+			override: nodePathInfo.sequenceSubscriptionKey,
+		},
+		codeValues: makeDurationCodeValues([nodePathInfo.sequenceSubscriptionKey]),
+	});
+
+	expect(targets?.map((target) => target.initialDuration)).toEqual([36]);
+	expect(
+		getTimelineSequenceDurationDragChanges({
+			targets: targets ?? [],
+			deltaFrames: 0,
+		}),
+	).toEqual([]);
+});
+
 test('Timeline duration drag clamps each selected sequence to one frame', () => {
 	expect(
 		getTimelineSequenceDurationDragValue({

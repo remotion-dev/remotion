@@ -370,6 +370,15 @@ export type DeleteSequenceKeyframe = {
 	schema: SequenceSchema;
 };
 
+export type MoveSequenceKeyframe = {
+	fileName: string;
+	nodePath: SequencePropsSubscriptionKey;
+	key: string;
+	fromFrame: number;
+	toFrame: number;
+	schema: SequenceSchema;
+};
+
 export type AddSequenceKeyframeRequest = {
 	fileName: string;
 	nodePath: SequencePropsSubscriptionKey;
@@ -391,6 +400,16 @@ export type DeleteEffectKeyframe = {
 	schema: SequenceSchema;
 };
 
+export type MoveEffectKeyframe = {
+	fileName: string;
+	sequenceNodePath: SequencePropsSubscriptionKey;
+	effectIndex: number;
+	key: string;
+	fromFrame: number;
+	toFrame: number;
+	schema: SequenceSchema;
+};
+
 export type DeleteKeyframesRequest = {
 	sequenceKeyframes: DeleteSequenceKeyframe[];
 	effectKeyframes: DeleteEffectKeyframe[];
@@ -398,6 +417,16 @@ export type DeleteKeyframesRequest = {
 };
 
 export type DeleteKeyframesResponse = {
+	success: true;
+};
+
+export type MoveKeyframesRequest = {
+	sequenceKeyframes: MoveSequenceKeyframe[];
+	effectKeyframes: MoveEffectKeyframe[];
+	clientId: string;
+};
+
+export type MoveKeyframesResponse = {
 	success: true;
 };
 
@@ -657,6 +686,7 @@ export type ApiRoutes = {
 		DeleteKeyframesRequest,
 		DeleteKeyframesResponse
 	>;
+	'/api/move-keyframes': ReqAndRes<MoveKeyframesRequest, MoveKeyframesResponse>;
 	'/api/add-sequence-keyframe': ReqAndRes<
 		AddSequenceKeyframeRequest,
 		AddSequenceKeyframeResponse
