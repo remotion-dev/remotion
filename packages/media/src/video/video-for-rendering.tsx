@@ -28,10 +28,14 @@ import {frameForVolumeProp} from '../looped-frame';
 import {type MediaOnError, callOnErrorAndResolve} from '../on-error';
 import type {MediaRequestInit} from '../request-init';
 import {extractFrameViaBroadcastChannel} from '../video-extraction/extract-frame-via-broadcast-channel';
-import type {FallbackOffthreadVideoProps, VideoObjectFit} from './props';
+import type {
+	FallbackOffthreadVideoProps,
+	NativeVideoProps,
+	VideoObjectFit,
+} from './props';
 import {warnAboutObjectFitInStyleOrClassName} from './warn-object-fit-css';
 
-type InnerVideoProps = {
+type InnerVideoProps = NativeVideoProps & {
 	readonly className: string | undefined;
 	readonly loop: boolean;
 	readonly src: string;
@@ -89,6 +93,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 	requestInit,
 	objectFit: objectFitProp,
 	effects,
+	...props
 }) => {
 	if (!src) {
 		throw new TypeError('No `src` was passed to <Video>.');
@@ -441,6 +446,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 	if (replaceWithOffthreadVideo) {
 		const fallback = (
 			<Internals.InnerOffthreadVideo
+				{...props}
 				src={src}
 				playbackRate={playbackRate ?? 1}
 				muted={muted ?? false}
@@ -518,6 +524,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 
 	return (
 		<canvas
+			{...props}
 			ref={canvasRef}
 			style={styleWithObjectFit}
 			className={classNameValue}
