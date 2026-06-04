@@ -61,7 +61,6 @@ const isKeyframedStatus = (
 const diamondButtonStyle: React.CSSProperties = {
 	...navButtonStyle,
 	background: 'none',
-	paddingTop: 1,
 };
 
 const svgStyle: React.CSSProperties = {display: 'block'};
