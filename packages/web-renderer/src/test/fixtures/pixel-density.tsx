@@ -1,12 +1,12 @@
 import {AbsoluteFill, usePixelDensity} from 'remotion';
 
 const Component = () => {
-	const pixelDensity = usePixelDensity();
+	const currentPixelDensity = usePixelDensity();
 
 	return (
 		<AbsoluteFill
 			style={{
-				backgroundColor: `rgb(${Math.round(pixelDensity * 100)}, 0, 0)`,
+				backgroundColor: `rgb(${Math.round(currentPixelDensity * 100)}, 0, 0)`,
 			}}
 		/>
 	);
