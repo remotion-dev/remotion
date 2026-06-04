@@ -42,6 +42,11 @@ test('getFlatSchema(sequenceSchema) exposes every variant key', () => {
 	);
 });
 
+test('style.scale does not impose a minimum value', () => {
+	const scaleSchema = sequenceVisualStyleSchema['style.scale'];
+	expect('min' in scaleSchema).toBe(false);
+});
+
 test('readValuesFromProps reads dot-notation keys via getNestedValue', () => {
 	const props = {
 		layout: 'absolute-fill',

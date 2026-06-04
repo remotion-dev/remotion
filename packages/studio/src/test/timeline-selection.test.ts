@@ -1173,7 +1173,7 @@ test('Selected outline dragging keyframed translate adds a keyframe at the sourc
 
 test('Selected outline edge dragging scales one axis when scale is unlinked', () => {
 	const schema = {
-		'style.scale': {type: 'scale', default: 1, min: 0.05, max: 100},
+		'style.scale': {type: 'scale', default: 1, max: 100},
 	} satisfies SequenceSchema;
 	const nodePath = makeKey(['body', 0]);
 	const dragStates = [
@@ -1217,11 +1217,19 @@ test('Selected outline edge dragging scales one axis when scale is unlinked', ()
 			schema,
 		},
 	]);
+
+	const negativeValues = getSelectedOutlineScaleDragValues({
+		dragStates,
+		axis: 'x',
+		scaleFactor: -0.5,
+	});
+
+	expect(negativeValues.get(dragStates[0].key)).toBe('-1 3');
 });
 
 test('Selected outline edge dragging preserves aspect ratio when scale is linked', () => {
 	const schema = {
-		'style.scale': {type: 'scale', default: 1, min: 0.05, max: 100},
+		'style.scale': {type: 'scale', default: 1, max: 100},
 	} satisfies SequenceSchema;
 	const nodePath = makeKey(['body', 0]);
 	const dragStates = [

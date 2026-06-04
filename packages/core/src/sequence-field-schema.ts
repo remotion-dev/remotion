@@ -173,7 +173,6 @@ export const sequenceVisualStyleSchema = {
 	},
 	'style.scale': {
 		type: 'scale',
-		min: 0.05,
 		max: 100,
 		step: 0.01,
 		default: 1,
