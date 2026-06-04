@@ -139,11 +139,9 @@ export const OffthreadVideo: React.FC<RemotionOffthreadVideoProps> = ({
 	acceptableTimeShiftInSeconds,
 	allowAmplificationDuringRender,
 	audioStreamIndex,
-	className,
 	crossOrigin,
 	delayRenderRetries,
 	delayRenderTimeoutInMilliseconds,
-	id,
 	loopVolumeCurveBehavior,
 	muted,
 	name,
@@ -180,11 +178,9 @@ export const OffthreadVideo: React.FC<RemotionOffthreadVideoProps> = ({
 			acceptableTimeShiftInSeconds={acceptableTimeShiftInSeconds}
 			allowAmplificationDuringRender={allowAmplificationDuringRender ?? true}
 			audioStreamIndex={audioStreamIndex ?? 0}
-			className={className}
 			crossOrigin={crossOrigin}
 			delayRenderRetries={delayRenderRetries}
 			delayRenderTimeoutInMilliseconds={delayRenderTimeoutInMilliseconds}
-			id={id}
 			loopVolumeCurveBehavior={loopVolumeCurveBehavior ?? 'repeat'}
 			muted={muted ?? false}
 			name={name}

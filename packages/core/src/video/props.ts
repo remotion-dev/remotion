@@ -72,9 +72,7 @@ type MandatoryOffthreadVideoProps = {
 };
 
 type OptionalOffthreadVideoProps = {
-	className: string | undefined;
 	name: string | undefined;
-	id: string | undefined;
 	style: React.CSSProperties | undefined;
 	volume: VolumeProp | undefined;
 	playbackRate: number;
