@@ -167,6 +167,7 @@ export const OffthreadVideo: React.FC<RemotionOffthreadVideoProps> = ({
 	stack,
 	startFrom,
 	imageFormat,
+	...props
 }) => {
 	if (imageFormat) {
 		throw new TypeError(
@@ -209,6 +210,7 @@ export const OffthreadVideo: React.FC<RemotionOffthreadVideoProps> = ({
 			trimBefore={trimBefore}
 			useWebAudioApi={useWebAudioApi ?? false}
 			volume={volume}
+			{...props}
 		/>
 	);
 };

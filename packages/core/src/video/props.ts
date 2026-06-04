@@ -102,14 +102,26 @@ type OptionalOffthreadVideoProps = {
 	audioStreamIndex: number;
 };
 
+type NativeOffthreadVideoProps = Omit<
+	React.HTMLAttributes<HTMLElement>,
+	| keyof MandatoryOffthreadVideoProps
+	| keyof OptionalOffthreadVideoProps
+	| keyof CommonVideoProps
+	| keyof DeprecatedOffthreadVideoProps
+	| 'onError'
+> &
+	Record<`data-${string}`, string | undefined>;
+
 export type AllOffthreadVideoProps = MandatoryOffthreadVideoProps &
 	OptionalOffthreadVideoProps &
-	CommonVideoProps;
+	CommonVideoProps &
+	NativeOffthreadVideoProps;
 
 export type RemotionOffthreadVideoProps = MandatoryOffthreadVideoProps &
 	Partial<OptionalOffthreadVideoProps> &
 	Partial<CommonVideoProps> &
-	Partial<DeprecatedOffthreadVideoProps>;
+	Partial<DeprecatedOffthreadVideoProps> &
+	NativeOffthreadVideoProps;
 
 export type OnVideoFrame = (
 	frame: CanvasImageSource,
