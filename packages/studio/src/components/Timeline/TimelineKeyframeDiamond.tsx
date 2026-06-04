@@ -39,7 +39,6 @@ const TimelineKeyframeDiamondUnmemoized: React.FC<{
 			backgroundColor: LIGHT_TEXT,
 			outline: selected ? '2px solid ' + BLUE : 'none',
 			border: 'none',
-			cursor: selectable ? 'grab' : 'pointer',
 			left:
 				getXPositionOfItemInTimelineImperatively(
 					frame,
@@ -51,14 +50,7 @@ const TimelineKeyframeDiamondUnmemoized: React.FC<{
 			top: rowHeight / 2,
 			transform: 'translate(-50%, -50%) rotate(45deg)',
 		};
-	}, [
-		frame,
-		rowHeight,
-		selectable,
-		selected,
-		timelineWidth,
-		videoConfig.durationInFrames,
-	]);
+	}, [frame, rowHeight, selected, timelineWidth, videoConfig.durationInFrames]);
 
 	const onPointerDown = useTimelineKeyframeDrag({
 		frame,
