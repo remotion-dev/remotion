@@ -33,6 +33,10 @@ The URL of the image. Can be a remote URL or a local file path from [`staticFile
 
 Remote images need to support [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) because the image is drawn onto a canvas.
 
+### `effects?`
+
+An array of Remotion [effects](/docs/effects/api) to apply to the image after it has been drawn to the source canvas.
+
 ### `width?`
 
 The canvas width in pixels.  
@@ -50,10 +54,6 @@ Must be one of these values:
 - `'fill'`: The image will completely fill the canvas, and will be stretched if necessary. (_default_)
 - `'contain'`: The image is scaled to fit the canvas, while aspect ratio is maintained.
 - `'cover'`: The image completely fills the canvas and maintains its aspect ratio. It will be cropped if necessary.
-
-### `effects?`
-
-An array of Remotion [effects](/docs/effects/api) to apply to the image after it has been drawn to the source canvas.
 
 ### `className?`
 
