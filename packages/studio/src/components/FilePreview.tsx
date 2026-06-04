@@ -1,9 +1,9 @@
 import {formatBytes} from '@remotion/studio-shared';
 import React from 'react';
 import type {AssetMetadata} from '../helpers/get-asset-metadata';
+import type {AssetFileType} from '../helpers/get-preview-file-type';
 import {JSONViewer} from './JSONViewer';
 import {Spacing} from './layout';
-import type {AssetFileType} from './Preview';
 import {TextViewer} from './TextViewer';
 
 const msgStyle: React.CSSProperties = {
