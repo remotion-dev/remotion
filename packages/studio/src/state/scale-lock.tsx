@@ -7,11 +7,8 @@ const makeScaleLockKey = ({
 	nodePath,
 }: {
 	readonly fieldKey: string;
-	readonly nodePath: SequencePropsSubscriptionKey | null;
-}) =>
-	nodePath === null
-		? `non-sequence.${fieldKey}`
-		: `${Internals.makeSequencePropsSubscriptionKey(nodePath)}.${fieldKey}`;
+	readonly nodePath: SequencePropsSubscriptionKey;
+}) => `${Internals.makeSequencePropsSubscriptionKey(nodePath)}.${fieldKey}`;
 
 export type ScaleLockContextValue = {
 	readonly getScaleLockState: ({
@@ -21,7 +18,7 @@ export type ScaleLockContextValue = {
 	}: {
 		readonly defaultValue: boolean;
 		readonly fieldKey: string;
-		readonly nodePath: SequencePropsSubscriptionKey | null;
+		readonly nodePath: SequencePropsSubscriptionKey;
 	}) => boolean;
 	readonly setScaleLockState: ({
 		fieldKey,
@@ -30,7 +27,7 @@ export type ScaleLockContextValue = {
 	}: {
 		readonly fieldKey: string;
 		readonly linked: boolean;
-		readonly nodePath: SequencePropsSubscriptionKey | null;
+		readonly nodePath: SequencePropsSubscriptionKey;
 	}) => void;
 };
 

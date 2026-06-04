@@ -150,7 +150,7 @@ export const TimelineScaleField: React.FC<{
 	readonly onSave: TimelineFieldOnSave;
 	readonly onDragValueChange: TimelineFieldOnDragValueChange;
 	readonly onDragEnd: () => void;
-	readonly scaleLockNodePath: SequencePropsSubscriptionKey | null;
+	readonly scaleLockNodePath: SequencePropsSubscriptionKey;
 }> = ({
 	field,
 	propStatus,

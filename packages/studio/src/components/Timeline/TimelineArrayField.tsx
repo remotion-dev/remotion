@@ -2,7 +2,6 @@ import React, {useCallback, useMemo, useRef} from 'react';
 import type {
 	ArrayFieldSchema,
 	CanUpdateSequencePropStatusStatic,
-	SequencePropsSubscriptionKey,
 } from 'remotion';
 import type {
 	SchemaFieldInfo,
@@ -82,10 +81,6 @@ const getFallbackItemValue = (field: ArrayFieldSchema): unknown => {
 		return '0px 0px';
 	}
 
-	if (field.item.type === 'scale') {
-		return 1;
-	}
-
 	if (field.item.type === 'uv-coordinate') {
 		return [0.5, 0.5] as const;
 	}
@@ -157,16 +152,6 @@ const makeItemFieldSchema = ({
 		};
 	}
 
-	if (field.item.type === 'scale') {
-		return {
-			...field.item,
-			default:
-				typeof defaultValue === 'number' || typeof defaultValue === 'string'
-					? defaultValue
-					: undefined,
-		};
-	}
-
 	if (field.item.type === 'uv-coordinate') {
 		return {
 			...field.item,
@@ -213,7 +198,6 @@ const ItemEditor: React.FC<{
 	readonly onSave: TimelineFieldOnSave;
 	readonly onDragValueChange: TimelineFieldOnDragValueChange;
 	readonly onDragEnd: () => void;
-	readonly scaleLockNodePath: SequencePropsSubscriptionKey | null;
 }> = ({
 	field,
 	arrayField,
@@ -222,7 +206,6 @@ const ItemEditor: React.FC<{
 	onSave,
 	onDragValueChange,
 	onDragEnd,
-	scaleLockNodePath,
 }) => {
 	const fallback = useMemo(
 		() => getFallbackItemValue(arrayField),
@@ -269,7 +252,7 @@ const ItemEditor: React.FC<{
 			onDragValueChange={onDragItem}
 			onSave={onSaveItem}
 			propStatus={propStatus}
-			scaleLockNodePath={scaleLockNodePath}
+			scaleLockNodePath={null}
 		/>
 	);
 };
@@ -280,15 +263,7 @@ export const TimelineArrayField: React.FC<{
 	readonly onSave: TimelineFieldOnSave;
 	readonly onDragValueChange: TimelineFieldOnDragValueChange;
 	readonly onDragEnd: () => void;
-	readonly scaleLockNodePath: SequencePropsSubscriptionKey | null;
-}> = ({
-	field,
-	effectiveValue,
-	onSave,
-	onDragValueChange,
-	onDragEnd,
-	scaleLockNodePath,
-}) => {
+}> = ({field, effectiveValue, onSave, onDragValueChange, onDragEnd}) => {
 	const arrayField = field.fieldSchema;
 	if (arrayField.type !== 'array') {
 		throw new Error('TimelineArrayField rendered for non-array field');
@@ -356,7 +331,6 @@ export const TimelineArrayField: React.FC<{
 							onDragEnd={onDragEnd}
 							onDragValueChange={onDragValueChange}
 							onSave={onSave}
-							scaleLockNodePath={scaleLockNodePath}
 						/>
 						<button
 							disabled={!canRemove}

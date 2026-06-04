@@ -107,11 +107,6 @@ export type TranslateArrayItemSchema = Omit<
 	'default' | 'description' | 'keyframable'
 >;
 
-export type ScaleArrayItemSchema = Omit<
-	ScaleFieldSchema,
-	'default' | 'description' | 'keyframable'
->;
-
 export type UvCoordinateArrayItemSchema = Omit<
 	UvCoordinateFieldSchema,
 	'default' | 'description' | 'keyframable'
@@ -133,7 +128,6 @@ export type ArrayItemFieldSchema =
 	| RotationCssArrayItemSchema
 	| RotationDegreesArrayItemSchema
 	| TranslateArrayItemSchema
-	| ScaleArrayItemSchema
 	| UvCoordinateArrayItemSchema
 	| ColorArrayItemSchema
 	| EnumArrayItemSchema;

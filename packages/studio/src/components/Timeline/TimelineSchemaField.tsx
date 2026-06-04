@@ -75,12 +75,11 @@ export const TimelineFieldValue: React.FC<{
 		return (
 			<span>
 				<TimelineArrayField
-					field={field}
-					onSave={onSave}
-					onDragValueChange={onDragValueChange}
-					onDragEnd={onDragEnd}
 					effectiveValue={effectiveValue}
-					scaleLockNodePath={scaleLockNodePath}
+					field={field}
+					onDragEnd={onDragEnd}
+					onDragValueChange={onDragValueChange}
+					onSave={onSave}
 				/>
 			</span>
 		);

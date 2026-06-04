@@ -177,16 +177,6 @@ const makeArrayItemFieldSchema = ({
 		};
 	}
 
-	if (item.type === 'scale') {
-		return {
-			...item,
-			default:
-				typeof defaultValue === 'number' || typeof defaultValue === 'string'
-					? defaultValue
-					: undefined,
-		};
-	}
-
 	if (item.type === 'enum') {
 		return {
 			type: 'enum',
