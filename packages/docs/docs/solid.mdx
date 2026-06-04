@@ -43,7 +43,7 @@ _number_
 Controls the backing bitmap density. Default: `1`.
 
 Set a higher value to paint to a higher-resolution backing canvas while keeping the logical canvas size unchanged.  
-This is useful to counteract quality loss when the `<Solid>` is scaled up – for example via the [`scale`](/docs/scaling) render option. Pass [`usePixelDensity()`](/docs/use-pixel-density) to match the render scale:
+This is useful to counteract quality loss when the `<Solid>` is scaled up – for example via the [`scale`](/docs/scaling) render option, or on a high-DPI display in the preview. Pass [`usePixelDensity()`](/docs/use-pixel-density) to use the render `scale` while rendering and `window.devicePixelRatio` while previewing:
 
 ```tsx twoslash title="MyComp.tsx"
 import {AbsoluteFill, Solid, usePixelDensity} from 'remotion';
