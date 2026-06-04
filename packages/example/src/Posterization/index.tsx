@@ -6,7 +6,7 @@ import {
 	useVideoConfig,
 } from 'remotion';
 
-const accentColors = ['#0b84f3', '#7c3aed', '#f97316'];
+const accentColor = '#0b84f3';
 
 const PosterizationPanel: React.FC<{
 	readonly index: number;
@@ -79,7 +79,7 @@ const PosterizationPanel: React.FC<{
 						width: dotSize,
 						height: dotSize,
 						borderRadius: 26,
-						backgroundColor: accentColors[index],
+						backgroundColor: accentColor,
 						translate,
 						rotate: `${rotate}deg`,
 						scale,
@@ -128,7 +128,7 @@ const PosterizationPanel: React.FC<{
 						width: `${progress * 100}%`,
 						height: '100%',
 						borderRadius: 999,
-						backgroundColor: accentColors[index],
+						backgroundColor: accentColor,
 					}}
 				/>
 			</div>
