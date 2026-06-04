@@ -567,13 +567,13 @@ export function interpolate(
 	inputRange: readonly number[],
 	outputRange: readonly (number | string | readonly number[])[],
 	options?: InterpolateOptions,
-): number | string | number[];
+): number | string | readonly number[];
 export function interpolate(
 	input: number,
 	inputRange: readonly number[],
 	outputRange: readonly InterpolateOutputValue[],
 	options?: InterpolateOptions,
-): number | string | number[] {
+): number | string | readonly number[] {
 	if (typeof input === 'undefined') {
 		throw new Error('input can not be undefined');
 	}
