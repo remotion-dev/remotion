@@ -39,13 +39,6 @@ const label: React.CSSProperties = {
 	fontSize: 13,
 };
 
-const helperText: React.CSSProperties = {
-	color: 'rgba(255, 255, 255, 0.6)',
-	fontSize: 12,
-	lineHeight: 1.4,
-	marginTop: 4,
-};
-
 const comboStyle: React.CSSProperties = {
 	minWidth: 150,
 };
@@ -197,15 +190,10 @@ export const KeyframeSettingsModal: React.FC<{
 							/>
 						</div>
 					</>
-				) : (
-					<div style={{...helperText, marginBottom: 12}}>
-						Color keyframes only support posterization.
-					</div>
-				)}
+				) : null}
 				<div style={row}>
 					<div>
 						<div style={label}>Posterize</div>
-						<div style={helperText}>Use 0 to turn posterization off.</div>
 					</div>
 					<InputDragger
 						type="number"
