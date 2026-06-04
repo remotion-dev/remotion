@@ -7457,6 +7457,15 @@ export const articles = [
 		slug: 'use-img-and-iframe',
 	},
 	{
+		id: 'use-pixel-density',
+		title: 'usePixelDensity()',
+		relativePath: 'docs/use-pixel-density.mdx',
+		compId: 'articles-docs-use-pixel-density',
+		crumb: 'API',
+		noAi: false,
+		slug: 'use-pixel-density',
+	},
+	{
 		id: 'use-remotion-environment',
 		title: 'useRemotionEnvironment()',
 		relativePath: 'docs/use-remotion-environment.mdx',

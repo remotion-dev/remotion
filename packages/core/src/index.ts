@@ -229,6 +229,7 @@ export {
 	useCurrentScale,
 } from './use-current-scale';
 export {useDelayRender} from './use-delay-render';
+export {usePixelDensity} from './use-pixel-density';
 export {useRemotionEnvironment} from './use-remotion-environment.js';
 export * from './use-video-config.js';
 export * from './version.js';
