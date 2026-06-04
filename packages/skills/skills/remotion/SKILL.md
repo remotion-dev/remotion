@@ -234,11 +234,7 @@ When needing to use sound effects, load the [./rules/sfx.md](./rules/sfx.md) fil
 
 ## Visual and pixel effects
 
-When creating a visual effect, choose the simplest fitting approach:
-
-1. If the look can be achieved with normal Remotion components, HTML, CSS, SVG, masks, filters, blending, or animation, use that first.
-2. If pixel manipulation is useful and a listed effect matches the requested look, load [rules/effects.md](rules/effects.md). Existing effects can also be applied to HTML rendered through `<HtmlInCanvas>`.
-3. If no existing effect fits and custom pixel manipulation is needed, load [rules/html-in-canvas.md](rules/html-in-canvas.md) and use `<HtmlInCanvas>` with a custom `onPaint` handler.
+When creating a visual effect, prefer: 1. normal Remotion/HTML/CSS/SVG/filter/blend/mask animation, 2. a listed effect via [rules/effects.md](rules/effects.md), including on HTML rendered through `<HtmlInCanvas>`, 3. custom `<HtmlInCanvas onPaint>` via [rules/html-in-canvas.md](rules/html-in-canvas.md) only if no listed effect fits.
 
 For light leak overlays, see [rules/light-leaks.md](rules/light-leaks.md). Docs: https://www.remotion.dev/docs/effects
 

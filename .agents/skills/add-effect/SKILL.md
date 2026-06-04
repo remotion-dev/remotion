@@ -329,15 +329,11 @@ Keep the agent-facing Remotion skill in sync with the new effect.
 
 Update `packages/skills/skills/remotion/SKILL.md`:
 
-- Add `effectName()` to the `Available effects:` line under `## Visual effects`.
+- Add `effectName()` to the `Available effects:` line under `## Visual and pixel effects`.
 - Keep the list sorted in the same order as `packages/docs/docs/effects/table-of-contents.tsx`.
 - Keep this top-level entry concise; do not add props or examples here.
 
-Update `packages/skills/skills/remotion/rules/effects.md`:
-
-- Add `effectName()` to the right category under `## Available effects`.
-- Add the subpath import under `## Imports`: `` `effectName` from `@remotion/effects/<effect-name>` ``.
-- Ensure the docs URL still resolves to `https://www.remotion.dev/docs/effects/<effect-name>`.
+Do not duplicate the full list in `packages/skills/skills/remotion/rules/effects.md`; keep that rule limited to general usage mechanics unless the new effect changes import or installation conventions.
 
 ## 10. Format, build, and verify
 
@@ -364,7 +360,7 @@ git status --short
 
 - Do not forget `package.json` `exports` and `typesVersions`; subpath imports like `@remotion/effects/my-effect` depend on them.
 - Do not forget `bundle.ts`; otherwise the ESM subpath will not be built.
-- Do not forget to update `packages/skills/skills/remotion/SKILL.md` and `packages/skills/skills/remotion/rules/effects.md`.
+- Do not forget to update the top-level available effects list in `packages/skills/skills/remotion/SKILL.md`.
 - Do not leave temporary render entry points in `packages/docs/src/remotion`.
 - Do not use a hand-written SVG for the effect TOC preview.
 - Preserve alpha unless the effect intentionally changes it.
