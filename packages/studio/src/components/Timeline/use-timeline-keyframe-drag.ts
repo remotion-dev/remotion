@@ -51,10 +51,6 @@ const isKeyframeSelection = (
 	selection: TimelineSelection,
 ): selection is TimelineKeyframeSelection => selection.type === 'keyframe';
 
-const clamp = (value: number, min: number, max: number) => {
-	return Math.min(Math.max(value, min), max);
-};
-
 const getCodeValueForTarget = ({
 	codeValues,
 	nodePath,
@@ -291,30 +287,6 @@ const clearDragOverridesForTargets = ({
 	}
 };
 
-const getAllowedDelta = ({
-	delta,
-	durationInFrames,
-	targets,
-}: {
-	readonly delta: number;
-	readonly durationInFrames: number;
-	readonly targets: readonly TimelineKeyframeDragTarget[];
-}) => {
-	let min = Number.NEGATIVE_INFINITY;
-	let max = Number.POSITIVE_INFINITY;
-
-	for (const target of targets) {
-		min = Math.max(min, -target.sourceFrame, -target.displayFrame);
-		max = Math.min(max, durationInFrames - 1 - target.displayFrame);
-	}
-
-	if (max < min) {
-		return 0;
-	}
-
-	return clamp(delta, min, max);
-};
-
 const getFrameDelta = ({
 	clientXDelta,
 	durationInFrames,
@@ -461,11 +433,7 @@ export const useTimelineKeyframeDrag = ({
 					durationInFrames: videoConfig.durationInFrames,
 					timelineWidth,
 				});
-				const delta = getAllowedDelta({
-					delta: rawDelta,
-					durationInFrames: videoConfig.durationInFrames,
-					targets,
-				});
+				const delta = rawDelta;
 
 				if (hasDragged && delta === lastDelta) {
 					return;

@@ -95,6 +95,28 @@ test('optimisticMoveSequenceKeyframes resorts when moving past an adjacent keyfr
 	expect(status.easing).toEqual(['linear', 'linear']);
 });
 
+test('optimisticMoveSequenceKeyframes allows moving keyframes before frame 0', () => {
+	const updated = optimisticMoveSequenceKeyframes({
+		previous,
+		keyframes: [{fieldKey: 'scale', fromFrame: 0, toFrame: -12}],
+	});
+
+	if (!updated.canUpdate) {
+		throw new Error('expected updateable sequence');
+	}
+
+	const status = updated.props.scale;
+	if (!status || status.status !== 'keyframed') {
+		throw new Error('expected keyframed status');
+	}
+
+	expect(status.keyframes).toEqual([
+		{frame: -12, value: 1},
+		{frame: 20, value: 2},
+		{frame: 40, value: 3},
+	]);
+});
+
 test('optimisticMoveEffectKeyframes moves effect keyframes', () => {
 	const updated = optimisticMoveEffectKeyframes({
 		previous,
@@ -120,5 +142,33 @@ test('optimisticMoveEffectKeyframes moves effect keyframes', () => {
 	expect(status.keyframes).toEqual([
 		{frame: 12, value: 0.2},
 		{frame: 20, value: 0.5},
+	]);
+});
+
+test('optimisticMoveEffectKeyframes allows moving keyframes beyond the sequence range', () => {
+	const updated = optimisticMoveEffectKeyframes({
+		previous,
+		keyframes: [
+			{effectIndex: 0, fieldKey: 'amount', fromFrame: 20, toFrame: 140},
+		],
+	});
+
+	if (!updated.canUpdate) {
+		throw new Error('expected updateable sequence');
+	}
+
+	const effect = updated.effects[0];
+	if (!effect.canUpdate) {
+		throw new Error('expected updateable effect');
+	}
+
+	const status = effect.props.amount;
+	if (!status || status.status !== 'keyframed') {
+		throw new Error('expected keyframed status');
+	}
+
+	expect(status.keyframes).toEqual([
+		{frame: 0, value: 0.2},
+		{frame: 140, value: 0.5},
 	]);
 });
