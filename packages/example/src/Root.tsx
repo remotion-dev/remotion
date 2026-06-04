@@ -216,6 +216,7 @@ import {StarburstExample} from './Starburst';
 import {Seek} from './StudioApis/Seek';
 import {SubframeAudio} from './SubframeAudio';
 import {TikTokTextBoxPlayground} from './TikTokTextbox/TikTokTextBox';
+import {TimelineNegativeFromResize} from './TimelineNegativeFromResize';
 import {FitTextOnNLines, fitTextOnNLinesSchema} from './Title/FitTextOnNLines';
 import {Issue7359FitTextOnNLines} from './Title/Issue7359FitTextOnNLines';
 import {TransitionRounding} from './TransitionRounding';
@@ -2376,6 +2377,14 @@ export const Index: React.FC = () => {
 				<Composition
 					id="starburst"
 					component={StarburstExample}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={90}
+				/>
+				<Composition
+					id="starburst-negative-from-resize"
+					component={TimelineNegativeFromResize}
 					width={1080}
 					height={1080}
 					fps={30}
