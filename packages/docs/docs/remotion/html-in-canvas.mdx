@@ -92,6 +92,11 @@ Do not nest `<HtmlInCanvas>` inside another `<HtmlInCanvas>`. Nesting is not sup
 <HtmlInCanvas> effects cannot be nested together. Chrome will only display the outer effect. Consider merging the effects into one if you can.
 ```
 
+### `effects?`<AvailableFrom v="4.0.464" />
+
+Apply [effects](/docs/effects/api) after the children have been painted to the canvas.  
+If you also pass [`onPaint`](#onpaint), effects are applied after `onPaint` has finished drawing.
+
 ### `onPaint?`
 
 Called when the children are updated and can be painted onto the canvas.  

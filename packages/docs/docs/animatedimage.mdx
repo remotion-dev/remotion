@@ -64,6 +64,10 @@ Must be one of these values:
 - `'contain'`: The image is scaled to fit the box, while aspect ratio is maintained.
 - `'cover'`: The image completely fills the container and maintains it's aspect ratio. It will be cropped if necessary.
 
+### `effects?`<AvailableFrom v="4.0.464" />
+
+Apply [effects](/docs/effects/api) to each frame after it has been drawn to the canvas.
+
 ### `style?`
 
 Allows to pass in custom CSS styles. You may not pass `width` and `height`, instead use the props `width` and `height` to set the size of the image.
