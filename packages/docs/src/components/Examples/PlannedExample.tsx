@@ -14,8 +14,8 @@ const label: React.CSSProperties = {
 };
 
 export const PlannedExample: React.FC<{
-	category: string;
-	description: string;
+	readonly category: string;
+	readonly description: string;
 }> = ({category, description}) => {
 	return (
 		<>
