@@ -87,16 +87,7 @@ const PosterizationPanel: React.FC<{
 						justifyContent: 'center',
 						alignItems: 'center',
 					}}
-				>
-					<div
-						style={{
-							width: 24,
-							height: 24,
-							borderRadius: 999,
-							backgroundColor: 'rgba(255, 255, 255, 0.92)',
-						}}
-					/>
-				</div>
+				></div>
 			</AbsoluteFill>
 			<div
 				style={{
@@ -110,7 +101,8 @@ const PosterizationPanel: React.FC<{
 				<div
 					style={{
 						fontSize: 32,
-						fontWeight: 800,
+						fontWeight: 500,
+						fontFeatureSettings: "'ss03' 1",
 						letterSpacing: -1.4,
 						lineHeight: 1,
 						fontFamily: 'GT Planar, sans-serif',
@@ -150,6 +142,7 @@ export const PosterizationComparison: React.FC = () => {
 			style={{
 				flexDirection: 'row',
 				fontFamily: 'GT Planar, sans-serif',
+				background: 'white',
 			}}
 		>
 			<PosterizationPanel
