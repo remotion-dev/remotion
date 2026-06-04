@@ -1,6 +1,6 @@
 ---
 name: add-effect
-description: Add a new effect to @remotion/effects, including implementation, package exports, docs, demos, preview images, tests, formatting, and builds.
+description: Add a new effect to @remotion/effects, including implementation, package exports, docs, demos, preview images, Remotion skill updates, tests, formatting, and builds.
 ---
 
 # Add a new `@remotion/effects` effect
@@ -323,7 +323,19 @@ Commit the generated `packages/docs/static/generated/articles-docs-effects-<effe
 
 If `render-cards.ts` opportunistically generates unrelated missing cards, remove those unrelated files unless they belong to the current change.
 
-## 9. Format, build, and verify
+## 9. Update the Remotion skill
+
+Keep the agent-facing Remotion skill in sync with the new effect.
+
+Update `packages/skills/skills/remotion/SKILL.md`:
+
+- Add `effectName()` to the `Available effects:` line under `## Visual and pixel effects`.
+- Keep the list sorted in the same order as `packages/docs/docs/effects/table-of-contents.tsx`.
+- Keep this top-level entry concise; do not add props or examples here.
+
+Do not duplicate the full list in `packages/skills/skills/remotion/rules/effects.md`; keep that rule limited to general usage mechanics unless the new effect changes import or installation conventions.
+
+## 10. Format, build, and verify
 
 Run:
 
@@ -348,6 +360,7 @@ git status --short
 
 - Do not forget `package.json` `exports` and `typesVersions`; subpath imports like `@remotion/effects/my-effect` depend on them.
 - Do not forget `bundle.ts`; otherwise the ESM subpath will not be built.
+- Do not forget to update the top-level available effects list in `packages/skills/skills/remotion/SKILL.md`.
 - Do not leave temporary render entry points in `packages/docs/src/remotion`.
 - Do not use a hand-written SVG for the effect TOC preview.
 - Preserve alpha unless the effect intentionally changes it.
