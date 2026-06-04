@@ -8,7 +8,11 @@ import type {
 	CanUpdateSequencePropStatusKeyframed,
 } from './use-schema.js';
 
-type InterpolateKeyframedStatusResult = number | string | number[] | null;
+type InterpolateKeyframedStatusResult =
+	| number
+	| string
+	| readonly number[]
+	| null;
 
 const easingToFn = (e: CanUpdateSequencePropStatusEasing): EasingFunction => {
 	if (e === 'linear') {
