@@ -1,0 +1,73 @@
+---
+image: /generated/articles-docs-posterization.png
+title: Posterization
+id: posterization
+crumb: 'Designing visuals'
+---
+
+# Posterization<AvailableFrom v="4.0.470" />
+
+<video
+  src="/img/posterization-comparison.mp4"
+  autoPlay
+  loop
+  muted
+  playsInline
+  style={{width: '100%', borderRadius: 'var(--ifm-global-radius)', marginBottom: 0, aspectRatio: '3 / 1'}}
+/>
+
+Posterization makes an animation update in steps instead of changing on every frame.
+Use it for stop-motion, low-frame-rate motion, or a choppy graphic style.
+
+## Using `interpolate()`
+
+Pass `posterize` to [`interpolate()`](/docs/interpolate).
+If the input value is the current frame, `posterize: 6` samples the animation every 6 frames.
+
+```tsx twoslash title="MyComposition.tsx"
+import React from 'react';
+import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
+
+export const MyComposition: React.FC = () => {
+  const frame = useCurrentFrame();
+
+  const translateX = interpolate(frame, [0, 60], [-200, 200], {
+    posterize: 6,
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+  });
+
+  return (
+    <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center'}}>
+      <div
+        style={{
+          width: 120,
+          height: 120,
+          borderRadius: 24,
+          backgroundColor: '#0b84f3',
+          transform: `translateX(${translateX}px)`,
+        }}
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+`posterize` quantizes the input before interpolation.
+With `posterize: 6`, frames `0` through `5` use the value for frame `0`, frames `6` through `11` use the value for frame `6`, and so on.
+
+## Colors and styles
+
+[`interpolateColors()`](/docs/interpolate-colors) also accepts `posterize`.
+The same option is available for [`interpolateStyles()`](/docs/animation-utils/interpolate-styles) from [`@remotion/animation-utils`](/docs/animation-utils).
+
+## Studio
+
+When a prop or effect parameter is keyframed in [Remotion Studio](/docs/studio), a `posterize` option in the source interpolation is respected by the preview and timeline data.
+This works for values created with [`interpolate()`](/docs/interpolate) and [`interpolateColors()`](/docs/interpolate-colors).
+
+## See also
+
+- [`interpolate()`](/docs/interpolate)
+- [`interpolateColors()`](/docs/interpolate-colors)
+- [`interpolateStyles()`](/docs/animation-utils/interpolate-styles)

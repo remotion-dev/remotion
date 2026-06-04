@@ -1010,6 +1010,7 @@ const sidebars: SidebarsConfig = {
 				'using-randomness',
 				'maps',
 				'animation-math',
+				'posterization',
 				'html-in-canvas',
 				'noise-visualization',
 				'shaders',

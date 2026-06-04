@@ -95,6 +95,7 @@ import {OffthreadVideoToCanvas} from './OffthreadVideoToCanvas';
 import {OrbScene} from './Orb';
 import {ShapesMorph} from './Paths/ShapesMorph';
 import {SlicePath} from './Paths/SlicePath';
+import {PosterizationComparison} from './Posterization';
 import {
 	PostmountExample,
 	PostmountWithStyles,
@@ -547,6 +548,16 @@ export const Index: React.FC = () => {
 					height={1080}
 					fps={30}
 					durationInFrames={100}
+				/>
+			</Folder>
+			<Folder name="documentation">
+				<Composition
+					id="posterization-comparison"
+					component={PosterizationComparison}
+					width={1800}
+					height={600}
+					fps={30}
+					durationInFrames={120}
 				/>
 			</Folder>
 			<Folder name="easing">
