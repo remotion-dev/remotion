@@ -52,6 +52,7 @@ const linearProgressiveBlurSchema = {
 		step: 0.01,
 		default: DEFAULT_START,
 		description: 'Start',
+		lineTo: 'end',
 	},
 	end: {
 		type: 'uv-coordinate',

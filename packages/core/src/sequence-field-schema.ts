@@ -62,6 +62,7 @@ export type UvCoordinateFieldSchema = {
 	min?: number;
 	max?: number;
 	step?: number;
+	lineTo?: string;
 	default: readonly [number, number] | undefined;
 	description?: string;
 	keyframable?: boolean;
