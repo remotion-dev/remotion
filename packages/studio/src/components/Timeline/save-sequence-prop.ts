@@ -27,22 +27,22 @@ type SaveSequencePropsOptions = {
 	changes: SaveSequencePropChange[];
 	setCodeValues: SetCodeValues;
 	clientId: string;
-	undoLabel?: string | null;
-	redoLabel?: string | null;
+	undoLabel: string;
+	redoLabel: string;
 };
 
 export const saveSequenceProps = ({
 	changes,
 	setCodeValues,
 	clientId,
-	undoLabel = null,
-	redoLabel = null,
+	undoLabel,
+	redoLabel,
 }: SaveSequencePropsOptions): Promise<void> => {
 	if (changes.length === 0) {
 		return Promise.resolve();
 	}
 
-	if (changes.length === 1 && undoLabel === null && redoLabel === null) {
+	if (changes.length === 1) {
 		const change = changes[0];
 		if (change === undefined) {
 			throw new Error('Expected a sequence prop change');

@@ -1112,9 +1112,13 @@ const SelectedOutlinePolygon: React.FC<{
 								setCodeValues,
 								clientId: drag.clientId,
 								undoLabel:
-									changes.length > 1 ? 'Move selected sequences' : null,
+									changes.length > 1
+										? 'Move selected sequences'
+										: 'Move sequence',
 								redoLabel:
-									changes.length > 1 ? 'Move selected sequences back' : null,
+									changes.length > 1
+										? 'Move selected sequences back'
+										: 'Move sequence back',
 							})
 						: Promise.resolve(),
 					...keyframedChanges.map((change) =>
@@ -1290,9 +1294,12 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 					changes,
 					setCodeValues,
 					clientId: scaleDrag.clientId,
-					undoLabel: changes.length > 1 ? 'Scale selected sequences' : null,
+					undoLabel:
+						changes.length > 1 ? 'Scale selected sequences' : 'Scale sequence',
 					redoLabel:
-						changes.length > 1 ? 'Scale selected sequences back' : null,
+						changes.length > 1
+							? 'Scale selected sequences back'
+							: 'Scale sequence back',
 				})
 					.catch((err) => {
 						showNotification(

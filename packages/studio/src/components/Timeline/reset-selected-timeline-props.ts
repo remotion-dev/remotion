@@ -246,11 +246,11 @@ export const resetSelectedTimelineProps = ({
 				undoLabel:
 					sequencePropTargets.length > 1
 						? 'Reset selected sequence props'
-						: null,
+						: 'Reset sequence prop',
 				redoLabel:
 					sequencePropTargets.length > 1
 						? 'Reapply selected sequence props'
-						: null,
+						: 'Reapply sequence prop',
 			}),
 		);
 	}

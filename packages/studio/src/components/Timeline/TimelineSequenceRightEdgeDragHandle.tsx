@@ -452,8 +452,12 @@ export const useTimelineSequenceFromDrag = ({
 			changes,
 			setCodeValues: latestSetCodeValues,
 			clientId: latestServerState.clientId,
-			undoLabel: changes.length > 1 ? 'Move selected sequences' : null,
-			redoLabel: changes.length > 1 ? 'Move selected sequences back' : null,
+			undoLabel:
+				changes.length > 1 ? 'Move selected sequences' : 'Move sequence',
+			redoLabel:
+				changes.length > 1
+					? 'Move selected sequences back'
+					: 'Move sequence back',
 		});
 
 		savePromise
@@ -680,8 +684,12 @@ export const TimelineSequenceRightEdgeDragHandle: React.FC<{
 			changes,
 			setCodeValues: latestSetCodeValues,
 			clientId: latestServerState.clientId,
-			undoLabel: changes.length > 1 ? 'Resize selected sequences' : null,
-			redoLabel: changes.length > 1 ? 'Resize selected sequences back' : null,
+			undoLabel:
+				changes.length > 1 ? 'Resize selected sequences' : 'Resize sequence',
+			redoLabel:
+				changes.length > 1
+					? 'Resize selected sequences back'
+					: 'Resize sequence back',
 		});
 
 		savePromise

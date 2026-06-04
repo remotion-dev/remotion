@@ -425,6 +425,8 @@ export const TimelineSequenceItem: React.FC<{
 				],
 				setCodeValues,
 				clientId: previewServerState.clientId,
+				undoLabel: newValue ? 'Hide sequence' : 'Show sequence',
+				redoLabel: newValue ? 'Hide sequence again' : 'Show sequence again',
 			});
 		},
 		[

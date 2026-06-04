@@ -113,6 +113,7 @@ const Value: React.FC<{
 					: null;
 
 			const stringifiedValue = JSON.stringify(value);
+			const fieldLabel = field.description ?? field.key;
 
 			if (value === codeValue.codeValue) {
 				return Promise.resolve();
@@ -138,11 +139,14 @@ const Value: React.FC<{
 				],
 				setCodeValues,
 				clientId,
+				undoLabel: `Update ${fieldLabel}`,
+				redoLabel: `Update ${fieldLabel} again`,
 			});
 		},
 		[
 			codeValue,
 			clientId,
+			field.description,
 			field.fieldSchema.default,
 			field.key,
 			nodePath,
@@ -296,6 +300,7 @@ export const TimelineSequencePropItem: React.FC<{
 			field.fieldSchema.default !== undefined
 				? JSON.stringify(field.fieldSchema.default)
 				: null;
+		const fieldLabel = field.description ?? field.key;
 
 		saveSequenceProps({
 			changes: [
@@ -310,10 +315,13 @@ export const TimelineSequencePropItem: React.FC<{
 			],
 			setCodeValues,
 			clientId: previewServerState.clientId,
+			undoLabel: `Reset ${fieldLabel}`,
+			redoLabel: `Reapply ${fieldLabel}`,
 		});
 	}, [
 		canResetToDefault,
 		canShowReset,
+		field.description,
 		field.fieldSchema.default,
 		field.key,
 		nodePath,
