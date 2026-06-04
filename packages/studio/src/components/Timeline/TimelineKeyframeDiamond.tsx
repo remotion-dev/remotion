@@ -1,4 +1,4 @@
-import React, {useCallback, useContext, useMemo} from 'react';
+import React, {useContext, useMemo} from 'react';
 import {useVideoConfig} from 'remotion';
 import {BLUE, LIGHT_TEXT} from '../../helpers/colors';
 import {getXPositionOfItemInTimelineImperatively} from '../../helpers/get-left-of-timeline-slider';
@@ -6,6 +6,7 @@ import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sor
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {useTimelineKeyframeSelection} from './TimelineSelection';
 import {TimelineWidthContext} from './TimelineWidthProvider';
+import {useTimelineKeyframeDrag} from './use-timeline-keyframe-drag';
 
 const diamondBase: React.CSSProperties = {
 	position: 'absolute',
@@ -38,7 +39,7 @@ const TimelineKeyframeDiamondUnmemoized: React.FC<{
 			backgroundColor: LIGHT_TEXT,
 			outline: selected ? '2px solid ' + BLUE : 'none',
 			border: 'none',
-			cursor: 'pointer',
+			cursor: selectable ? 'grab' : 'pointer',
 			left:
 				getXPositionOfItemInTimelineImperatively(
 					frame,
@@ -50,20 +51,22 @@ const TimelineKeyframeDiamondUnmemoized: React.FC<{
 			top: rowHeight / 2,
 			transform: 'translate(-50%, -50%) rotate(45deg)',
 		};
-	}, [frame, rowHeight, selected, timelineWidth, videoConfig.durationInFrames]);
+	}, [
+		frame,
+		rowHeight,
+		selectable,
+		selected,
+		timelineWidth,
+		videoConfig.durationInFrames,
+	]);
 
-	const onPointerDown = useCallback(
-		(e: React.PointerEvent<HTMLButtonElement>) => {
-			if (e.button === 0) {
-				e.stopPropagation();
-				onSelect({
-					shiftKey: e.shiftKey,
-					toggleKey: e.metaKey || e.ctrlKey,
-				});
-			}
-		},
-		[onSelect],
-	);
+	const onPointerDown = useTimelineKeyframeDrag({
+		frame,
+		nodePathInfo,
+		onSelect,
+		selectable,
+		selected,
+	});
 
 	if (style === null) {
 		return null;
