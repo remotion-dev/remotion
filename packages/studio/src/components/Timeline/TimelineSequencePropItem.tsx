@@ -44,6 +44,29 @@ const isKeyframedStatus = (
 	return status.status === 'keyframed';
 };
 
+const isResettableStatus = ({
+	status,
+	defaultValue,
+}: {
+	readonly status: CanUpdateSequencePropStatus;
+	readonly defaultValue: unknown;
+}) => {
+	if (defaultValue === undefined) {
+		return false;
+	}
+
+	if (status.status === 'keyframed') {
+		return true;
+	}
+
+	if (status.status === 'computed') {
+		return false;
+	}
+
+	const effectiveCodeValue = status.codeValue ?? defaultValue;
+	return JSON.stringify(effectiveCodeValue) !== JSON.stringify(defaultValue);
+};
+
 const Value: React.FC<{
 	readonly field: SchemaFieldInfo;
 	readonly nodePath: SequencePropsSubscriptionKey;
@@ -229,29 +252,30 @@ export const TimelineSequencePropItem: React.FC<{
 		};
 	}, [field.rowHeight]);
 
-	const isNonDefault = useMemo(() => {
+	const canResetToDefault = useMemo(() => {
 		if (!codeValue || codeValue.status === 'computed') {
 			return false;
 		}
 
-		const effectiveCodeValue = codeValue.codeValue ?? field.fieldSchema.default;
-		return (
-			JSON.stringify(effectiveCodeValue) !==
-			JSON.stringify(field.fieldSchema.default)
-		);
+		return isResettableStatus({
+			status: codeValue,
+			defaultValue: field.fieldSchema.default,
+		});
 	}, [codeValue, field.fieldSchema.default]);
 
 	const canPerformReset =
 		previewServerState.type === 'connected' &&
 		codeValue !== null &&
 		codeValue.status !== 'computed';
+	const canShowReset =
+		canPerformReset && field.fieldSchema.default !== undefined;
 
 	const onReset = useCallback(() => {
 		if (
-			!canPerformReset ||
+			!canShowReset ||
+			!canResetToDefault ||
 			previewServerState.type !== 'connected' ||
-			codeValue === null ||
-			!isNonDefault
+			codeValue === null
 		) {
 			return;
 		}
@@ -272,10 +296,10 @@ export const TimelineSequencePropItem: React.FC<{
 			clientId: previewServerState.clientId,
 		});
 	}, [
-		canPerformReset,
+		canResetToDefault,
+		canShowReset,
 		field.fieldSchema.default,
 		field.key,
-		isNonDefault,
 		nodePath,
 		previewServerState,
 		schema,
@@ -331,14 +355,14 @@ export const TimelineSequencePropItem: React.FC<{
 				keyHint: null,
 				label: 'Reset',
 				leftItem: null,
-				disabled: !canPerformReset,
+				disabled: !canShowReset,
 				onClick: onReset,
 				quickSwitcherLabel: null,
 				subMenu: null,
 				value: 'reset-sequence-field',
 			},
 		];
-	}, [canPerformReset, onReset]);
+	}, [canShowReset, onReset]);
 
 	if (codeValue === null) {
 		return null;
