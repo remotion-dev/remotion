@@ -39,7 +39,7 @@ export const applyCodemod = ({
 	}
 
 	const body = file.program.body.map((node) => {
-		return mapAll(node, codeMod, changesMade);
+		return mapAll(node, codeMod, changesMade, null);
 	});
 
 	return {
@@ -58,9 +58,15 @@ const mapAll = <T extends Statement | Expression>(
 	node: T,
 	transformation: RecastCodemod,
 	changesMade: Change[],
+	parentFolderName: string | null,
 ): T => {
 	if (isRecognizedType(node)) {
-		return mapRecognizedType(node, transformation, changesMade);
+		return mapRecognizedType(
+			node,
+			transformation,
+			changesMade,
+			parentFolderName,
+		);
 	}
 
 	return node;
@@ -97,11 +103,17 @@ const mapVariableDeclarator = (
 	variableDeclarator: VariableDeclarator,
 	transformation: RecastCodemod,
 	changesMade: Change[],
+	parentFolderName: string | null,
 ): VariableDeclarator => {
 	return {
 		...variableDeclarator,
 		init: variableDeclarator.init
-			? mapAll(variableDeclarator.init, transformation, changesMade)
+			? mapAll(
+					variableDeclarator.init,
+					transformation,
+					changesMade,
+					parentFolderName,
+				)
 			: variableDeclarator.init,
 	};
 };
@@ -110,11 +122,12 @@ const mapBlockStatement = (
 	blockStatement: BlockStatement,
 	transformation: RecastCodemod,
 	changesMade: Change[],
+	parentFolderName: string | null,
 ): BlockStatement => {
 	return {
 		...blockStatement,
 		body: blockStatement.body.map((a) => {
-			return mapAll(a, transformation, changesMade);
+			return mapAll(a, transformation, changesMade, parentFolderName);
 		}),
 	};
 };
@@ -123,6 +136,7 @@ const mapReturnStatement = (
 	statement: ReturnStatement,
 	transformation: RecastCodemod,
 	changesMade: Change[],
+	parentFolderName: string | null,
 ): ReturnStatement => {
 	if (!statement.argument) {
 		return statement;
@@ -132,6 +146,7 @@ const mapReturnStatement = (
 		statement.argument,
 		transformation,
 		changesMade,
+		parentFolderName,
 	);
 	if (replacement !== null) {
 		return {...statement, argument: replacement};
@@ -139,7 +154,12 @@ const mapReturnStatement = (
 
 	return {
 		...statement,
-		argument: mapAll(statement.argument, transformation, changesMade),
+		argument: mapAll(
+			statement.argument,
+			transformation,
+			changesMade,
+			parentFolderName,
+		),
 	};
 };
 
@@ -166,12 +186,28 @@ const stripParenthesizedExtra = <T extends {extra?: unknown}>(node: T): T => {
 	return {...node, extra: rest};
 };
 
-const wrapInJsxFragment = (children: JSXElement[]): JSXFragment => ({
+const wrapInJsxFragment = (children: JSXFragment['children']): JSXFragment => ({
 	type: 'JSXFragment',
 	openingFragment: {type: 'JSXOpeningFragment'},
 	closingFragment: {type: 'JSXClosingFragment'},
-	children: children.map(stripParenthesizedExtra),
+	children: children.map((child) => {
+		if (child.type === 'JSXElement' || child.type === 'JSXFragment') {
+			return stripParenthesizedExtra(child);
+		}
+
+		return child;
+	}),
 });
+
+const isJsxExpression = (
+	child: JSXFragment['children'][number],
+): child is JSXElement | JSXFragment => {
+	return child.type === 'JSXElement' || child.type === 'JSXFragment';
+};
+
+const isMeaningfulJsxChild = (child: JSXFragment['children'][number]) => {
+	return child.type !== 'JSXText' || child.value.trim() !== '';
+};
 
 // When a <Composition> JSX element appears in a position where it cannot
 // simply be removed from a parent's children list (e.g. as the sole return
@@ -182,14 +218,27 @@ const transformLoneJsxElement = (
 	expression: Expression,
 	transformation: RecastCodemod,
 	changesMade: Change[],
+	parentFolderName: string | null,
 ): Expression | null => {
 	if (expression.type !== 'JSXElement') {
 		return null;
 	}
 
 	const compId = getCompositionIdFromJSXElement(expression);
+	const folderName = getFolderNameFromJSXElement(expression);
 	if (compId === null) {
-		return null;
+		const isFolderMatch =
+			folderName !== null &&
+			((transformation.type === 'delete-folder' &&
+				folderName === transformation.folderName &&
+				parentFolderName === transformation.parentName) ||
+				(transformation.type === 'rename-folder' &&
+					folderName === transformation.folderName &&
+					parentFolderName === transformation.parentName));
+
+		if (!isFolderMatch) {
+			return null;
+		}
 	}
 
 	const isMatch =
@@ -198,20 +247,32 @@ const transformLoneJsxElement = (
 		(transformation.type === 'rename-composition' &&
 			compId === transformation.idToRename) ||
 		(transformation.type === 'duplicate-composition' &&
-			compId === transformation.idToDuplicate);
+			compId === transformation.idToDuplicate) ||
+		(transformation.type === 'delete-folder' &&
+			folderName === transformation.folderName &&
+			parentFolderName === transformation.parentName) ||
+		(transformation.type === 'rename-folder' &&
+			folderName === transformation.folderName &&
+			parentFolderName === transformation.parentName);
 
 	if (!isMatch) {
 		return null;
 	}
 
-	const transformed = mapJsxChild(expression, transformation, changesMade);
+	const transformed = mapJsxChild(
+		expression,
+		transformation,
+		changesMade,
+		parentFolderName,
+	);
+	const meaningful = transformed.filter(isMeaningfulJsxChild);
 
-	if (transformed.length === 0) {
+	if (meaningful.length === 0) {
 		return nullLiteral();
 	}
 
-	if (transformed.length === 1) {
-		return transformed[0];
+	if (meaningful.length === 1 && isJsxExpression(meaningful[0])) {
+		return meaningful[0];
 	}
 
 	return wrapInJsxFragment(transformed);
@@ -221,6 +282,7 @@ const mapJsxElementOrFragment = <T extends JSXFragment | JSXElement>(
 	jsxFragment: T,
 	transformation: RecastCodemod,
 	changesMade: Change[],
+	parentFolderName: string | null,
 ): T => {
 	return {
 		...jsxFragment,
@@ -230,18 +292,30 @@ const mapJsxElementOrFragment = <T extends JSXFragment | JSXElement>(
 					return c;
 				}
 
-				return mapJsxChild(c, transformation, changesMade);
+				return mapJsxChild(c, transformation, changesMade, parentFolderName);
 			})
 			.flat(1),
 	};
+};
+
+const getChildFolderParentName = ({
+	folderName,
+	parentFolderName,
+}: {
+	folderName: string;
+	parentFolderName: string | null;
+}) => {
+	return [parentFolderName, folderName].filter(Boolean).join('/');
 };
 
 const mapJsxChild = (
 	c: JSXElement,
 	transformation: RecastCodemod | null,
 	changesMade: Change[],
-): JSXElement[] => {
+	parentFolderName: string | null,
+): JSXFragment['children'] => {
 	const compId = getCompositionIdFromJSXElement(c);
+	const folderName = getFolderNameFromJSXElement(c);
 
 	if (transformation === null) {
 		return [c];
@@ -294,19 +368,50 @@ const mapJsxChild = (
 		return [];
 	}
 
-	return [mapAll(c, transformation, changesMade)];
+	if (
+		transformation.type === 'rename-folder' &&
+		folderName === transformation.folderName &&
+		parentFolderName === transformation.parentName
+	) {
+		return [
+			changeFolderName({
+				jsxElement: c,
+				newFolderName: transformation.newName,
+				changesMade,
+			}),
+		];
+	}
+
+	if (
+		transformation.type === 'delete-folder' &&
+		folderName === transformation.folderName &&
+		parentFolderName === transformation.parentName
+	) {
+		changesMade.push({
+			description: 'Deleted folder',
+		});
+		return c.children;
+	}
+
+	const childParentFolderName = folderName
+		? getChildFolderParentName({folderName, parentFolderName})
+		: parentFolderName;
+
+	return [mapAll(c, transformation, changesMade, childParentFolderName)];
 };
 
 const mapRecognizedType = <T extends RecognizedType>(
 	expression: T,
 	transformation: RecastCodemod,
 	changesMade: Change[],
+	parentFolderName: string | null,
 ): T => {
 	if (expression.type === 'JSXFragment' || expression.type === 'JSXElement') {
 		return mapJsxElementOrFragment(
 			expression,
 			transformation,
 			changesMade,
+			parentFolderName,
 		) as T;
 	}
 
@@ -322,6 +427,7 @@ const mapRecognizedType = <T extends RecognizedType>(
 				expression.body,
 				transformation,
 				changesMade,
+				parentFolderName,
 			);
 			if (replacement !== null) {
 				return {
@@ -333,13 +439,23 @@ const mapRecognizedType = <T extends RecognizedType>(
 
 		return {
 			...expression,
-			body: mapAll(expression.body, transformation, changesMade),
+			body: mapAll(
+				expression.body,
+				transformation,
+				changesMade,
+				parentFolderName,
+			),
 		};
 	}
 
 	if (expression.type === 'VariableDeclaration') {
 		const declarations = expression.declarations.map((d) => {
-			return mapVariableDeclarator(d, transformation, changesMade);
+			return mapVariableDeclarator(
+				d,
+				transformation,
+				changesMade,
+				parentFolderName,
+			);
 		});
 		return {...expression, declarations};
 	}
@@ -347,7 +463,12 @@ const mapRecognizedType = <T extends RecognizedType>(
 	if (expression.type === 'FunctionDeclaration') {
 		return {
 			...expression,
-			body: mapBlockStatement(expression.body, transformation, changesMade),
+			body: mapBlockStatement(
+				expression.body,
+				transformation,
+				changesMade,
+				parentFolderName,
+			),
 		};
 	}
 
@@ -361,16 +482,31 @@ const mapRecognizedType = <T extends RecognizedType>(
 
 		return {
 			...expression,
-			declaration: mapAll(expression.declaration, transformation, changesMade),
+			declaration: mapAll(
+				expression.declaration,
+				transformation,
+				changesMade,
+				parentFolderName,
+			),
 		};
 	}
 
 	if (expression.type === 'ReturnStatement') {
-		return mapReturnStatement(expression, transformation, changesMade) as T;
+		return mapReturnStatement(
+			expression,
+			transformation,
+			changesMade,
+			parentFolderName,
+		) as T;
 	}
 
 	if (expression.type === 'BlockStatement') {
-		return mapBlockStatement(expression, transformation, changesMade) as T;
+		return mapBlockStatement(
+			expression,
+			transformation,
+			changesMade,
+			parentFolderName,
+		) as T;
 	}
 
 	return expression;
@@ -427,6 +563,136 @@ const getCompositionIdFromJSXElement = (
 		.filter(Boolean);
 
 	return id[0];
+};
+
+const getFolderNameFromJSXElement = (
+	jsxElement: JSXFragment['children'][number],
+) => {
+	if (jsxElement.type !== 'JSXElement') {
+		return null;
+	}
+
+	const {openingElement} = jsxElement;
+	const {name} = openingElement;
+	if (name.type !== 'JSXIdentifier') {
+		return null;
+	}
+
+	if (name.name !== 'Folder') {
+		return null;
+	}
+
+	const folderName = openingElement.attributes
+		.map((attribute) => {
+			if (attribute.type === 'JSXSpreadAttribute') {
+				return null;
+			}
+
+			if (attribute.name.type === 'JSXNamespacedName') {
+				return null;
+			}
+
+			if (attribute.name.name !== 'name') {
+				return null;
+			}
+
+			if (!attribute.value) {
+				return null;
+			}
+
+			if (attribute.value.type === 'StringLiteral') {
+				return attribute.value.value;
+			}
+
+			if (
+				attribute.value.type === 'JSXExpressionContainer' &&
+				attribute.value.expression.type === 'StringLiteral'
+			) {
+				return attribute.value.expression.value;
+			}
+
+			return null;
+		})
+		.filter(Boolean);
+
+	return folderName[0];
+};
+
+const changeFolderName = ({
+	jsxElement,
+	newFolderName,
+	changesMade,
+}: {
+	jsxElement: JSXElement;
+	newFolderName: string;
+	changesMade: Change[];
+}): JSXElement => {
+	const {openingElement} = jsxElement;
+	const {name} = openingElement;
+	if (name.type !== 'JSXIdentifier') {
+		return jsxElement;
+	}
+
+	if (name.name !== 'Folder') {
+		return jsxElement;
+	}
+
+	const attributes = openingElement.attributes.map((attribute) => {
+		if (attribute.type === 'JSXSpreadAttribute') {
+			return attribute;
+		}
+
+		if (attribute.name.type === 'JSXNamespacedName') {
+			return attribute;
+		}
+
+		if (
+			attribute.name.name === 'name' &&
+			attribute.value &&
+			attribute.value.type === 'StringLiteral'
+		) {
+			changesMade.push({
+				description: 'Replaced folder name',
+			});
+
+			return {
+				...attribute,
+				value: {...attribute.value, value: newFolderName},
+			};
+		}
+
+		if (
+			attribute.name.name === 'name' &&
+			attribute.value &&
+			attribute.value.type === 'JSXExpressionContainer' &&
+			attribute.value.expression.type === 'StringLiteral'
+		) {
+			changesMade.push({
+				description: 'Replaced folder name',
+			});
+
+			return {
+				...attribute,
+				value: {
+					...attribute.value,
+					expression: {
+						...attribute.value.expression,
+						value: newFolderName,
+					},
+				},
+			};
+		}
+
+		return attribute;
+	});
+
+	return {
+		...jsxElement,
+		openingElement: {
+			...jsxElement.openingElement,
+			attributes,
+		},
+	};
 };
 
 const changeComposition = ({

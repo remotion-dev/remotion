@@ -32,4 +32,15 @@ export type RecastCodemod =
 			type: 'delete-composition';
 			idToDelete: string;
 	  }
+	| {
+			type: 'rename-folder';
+			folderName: string;
+			parentName: string | null;
+			newName: string;
+	  }
+	| {
+			type: 'delete-folder';
+			folderName: string;
+			parentName: string | null;
+	  }
 	| ApplyVisualControlCodemod;

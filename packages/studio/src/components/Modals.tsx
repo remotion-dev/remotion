@@ -4,8 +4,10 @@ import {ModalsContext} from '../state/modals';
 import {AskAiModal} from './AskAiModal';
 import {InstallPackageModal} from './InstallPackage';
 import {DeleteComposition} from './NewComposition/DeleteComposition';
+import {DeleteFolder} from './NewComposition/DeleteFolder';
 import {DuplicateComposition} from './NewComposition/DuplicateComposition';
 import {RenameComposition} from './NewComposition/RenameComposition';
+import {RenameFolder} from './NewComposition/RenameFolder';
 import {OverrideInputPropsModal} from './OverrideInputProps';
 import QuickSwitcher from './QuickSwitcher/QuickSwitcher';
 import {RenderStatusModal} from './RenderModal/RenderStatusModal';
@@ -34,6 +36,20 @@ export const Modals: React.FC<{
 			)}
 			{modalContextType && modalContextType.type === 'rename-comp' && (
 				<RenameComposition compositionId={modalContextType.compositionId} />
+			)}
+			{modalContextType && modalContextType.type === 'delete-folder' && (
+				<DeleteFolder
+					folderName={modalContextType.folderName}
+					parentName={modalContextType.parentName}
+					stack={modalContextType.stack}
+				/>
+			)}
+			{modalContextType && modalContextType.type === 'rename-folder' && (
+				<RenameFolder
+					folderName={modalContextType.folderName}
+					parentName={modalContextType.parentName}
+					stack={modalContextType.stack}
+				/>
 			)}
 			{modalContextType && modalContextType.type === 'input-props-override' && (
 				<OverrideInputPropsModal />

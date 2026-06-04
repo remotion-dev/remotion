@@ -10,6 +10,7 @@ export type TFolder = {
 	name: string;
 	parent: string | null;
 	nonce: NonceHistory;
+	stack: string | null;
 };
 
 type FolderContextType = {
@@ -29,10 +30,12 @@ export const FolderContext = createContext<FolderContextType>({
 export const Folder: FC<{
 	readonly name: string;
 	readonly children: React.ReactNode;
-}> = ({name, children}) => {
+}> = (props) => {
+	const {name, children} = props;
 	const parent = useContext(FolderContext);
 	const {registerFolder, unregisterFolder} = useContext(CompositionSetters);
 	const nonce = useNonce();
+	const stack = (props as {stack?: string}).stack ?? null;
 
 	validateFolderName(name);
 
@@ -49,7 +52,7 @@ export const Folder: FC<{
 	}, [name, parentName]);
 
 	useEffect(() => {
-		registerFolder(name, parentName, nonce.get());
+		registerFolder(name, parentName, nonce.get(), stack);
 
 		return () => {
 			unregisterFolder(name, parentName);
@@ -61,6 +64,7 @@ export const Folder: FC<{
 		registerFolder,
 		unregisterFolder,
 		nonce,
+		stack,
 	]);
 
 	return (

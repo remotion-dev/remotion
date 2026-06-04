@@ -47,6 +47,26 @@ const getCodemodUndoDescription = (codemod: ApplyCodemodRequest['codemod']) => {
 		};
 	}
 
+	if (codemod.type === 'delete-folder') {
+		const label = `folder "${codemod.parentName ? `${codemod.parentName}/` : ''}${codemod.folderName}"`;
+		return {
+			undoMessage: `↩️  Deletion of ${label}`,
+			redoMessage: `↪️  Deletion of ${label}`,
+			entryType: codemod.type,
+		};
+	}
+
+	if (codemod.type === 'rename-folder') {
+		const oldName = `${codemod.parentName ? `${codemod.parentName}/` : ''}${codemod.folderName}`;
+		const newName = `${codemod.parentName ? `${codemod.parentName}/` : ''}${codemod.newName}`;
+		const label = `folder "${oldName}" to "${newName}"`;
+		return {
+			undoMessage: `↩️  Rename of ${label}`,
+			redoMessage: `↪️  Rename of ${label}`,
+			entryType: codemod.type,
+		};
+	}
+
 	return {
 		undoMessage: '↩️  Visual control change',
 		redoMessage: '↪️  Visual control change',

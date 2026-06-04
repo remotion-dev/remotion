@@ -220,6 +220,10 @@ import {
 	invalidCompositionErrorMessage,
 	isCompositionIdValid,
 } from './validation/validate-composition-id.js';
+import {
+	invalidFolderNameErrorMessage,
+	isFolderNameValid,
+} from './validation/validate-folder-name.js';
 import {DurationsContextProvider} from './video/duration-state.js';
 import {InnerOffthreadVideo} from './video/OffthreadVideo.js';
 import {isIosSafari} from './video/video-fragment.js';
@@ -305,8 +309,10 @@ export const Internals = {
 	SharedAudioTagsContext,
 	SharedAudioTagsContextProvider,
 	invalidCompositionErrorMessage,
+	invalidFolderNameErrorMessage,
 	calculateMediaDuration,
 	isCompositionIdValid,
+	isFolderNameValid,
 	getPreviewDomElement,
 	compositionsRef,
 	portalNode,
