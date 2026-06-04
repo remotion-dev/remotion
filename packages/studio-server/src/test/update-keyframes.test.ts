@@ -140,6 +140,64 @@ test('updateSequenceKeyframes updates a keyframe at the same frame', async () =>
 	expect(output).toContain('scale: interpolate(frame, [0, 100], [2, 5])');
 });
 
+test('updateSequenceKeyframes updates keyframe settings while preserving easing', async () => {
+	const input = `import React from 'react';
+import {AbsoluteFill, Easing, interpolate, useCurrentFrame} from 'remotion';
+
+export const Example: React.FC = () => {
+\tconst frame = useCurrentFrame();
+\treturn (
+\t\t<AbsoluteFill>
+\t\t\t<div style={{scale: interpolate(frame, [0, 100], [2, 4], {easing: Easing.linear, extrapolateLeft: 'clamp', posterize: 2})}} />
+\t\t</AbsoluteFill>
+\t);
+};
+`;
+	const {output} = await updateSequenceKeyframes({
+		input,
+		nodePath: lineColumnToNodePath(input, getLine(input, 'scale')),
+		updates: [
+			{
+				key: 'style.scale',
+				operation: {
+					type: 'settings',
+					clamping: {left: 'extend', right: 'wrap'},
+					posterize: undefined,
+				},
+			},
+		],
+	});
+
+	expect(output).toContain('easing: Easing.linear');
+	expect(output).toContain("extrapolateLeft: 'extend'");
+	expect(output).toContain("extrapolateRight: 'wrap'");
+	expect(output).not.toContain('posterize');
+});
+
+test('updateSequenceKeyframes only updates posterize for color keyframes', async () => {
+	const {output} = await updateSequenceKeyframes({
+		input: colorInput,
+		nodePath: lineColumnToNodePath(colorInput, getLine(colorInput, '<Solid')),
+		updates: [
+			{
+				key: 'color',
+				operation: {
+					type: 'settings',
+					clamping: {left: 'extend', right: 'wrap'},
+					posterize: 3,
+				},
+			},
+		],
+	});
+
+	expect(output).toContain(
+		"color={interpolateColors(frame, [0, 100], ['red', 'blue'], {",
+	);
+	expect(output).toContain('posterize: 3');
+	expect(output).not.toContain('extrapolateLeft');
+	expect(output).not.toContain('extrapolateRight');
+});
+
 test('updateSequenceKeyframes converts a static value to an interpolation', async () => {
 	const {output, oldValueStrings} = await updateSequenceKeyframes({
 		input: sequenceInput,

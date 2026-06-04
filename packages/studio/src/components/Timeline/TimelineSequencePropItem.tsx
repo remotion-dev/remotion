@@ -16,6 +16,7 @@ import type {
 	TimelineFieldOnDragValueChange,
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
+import {ModalsContext} from '../../state/modals';
 import {ContextMenu} from '../ContextMenu';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {callAddSequenceKeyframe} from './call-add-keyframe';
@@ -210,6 +211,7 @@ export const TimelineSequencePropItem: React.FC<{
 		Internals.VisualModeSettersContext,
 	);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const {setSelectedModal} = useContext(ModalsContext);
 	const selection = useTimelineRowSelection(nodePathInfo);
 	const clientId =
 		previewServerState.type === 'connected'
@@ -365,8 +367,33 @@ export const TimelineSequencePropItem: React.FC<{
 		clearDragOverrides(nodePath);
 	}, [clearDragOverrides, nodePath]);
 
+	const onOpenKeyframeSettings = useCallback(() => {
+		if (codeValue === null || !isKeyframedStatus(codeValue)) {
+			return;
+		}
+
+		setSelectedModal({
+			type: 'keyframe-settings',
+			fileName: validatedLocation.source,
+			nodePath,
+			fieldKey: field.key,
+			fieldLabel: field.description ?? field.key,
+			status: codeValue,
+			schema,
+			effectIndex: null,
+		});
+	}, [
+		codeValue,
+		field.description,
+		field.key,
+		nodePath,
+		schema,
+		setSelectedModal,
+		validatedLocation.source,
+	]);
+
 	const contextMenuValues = useMemo((): ComboboxValue[] => {
-		return [
+		const values: ComboboxValue[] = [
 			{
 				type: 'item',
 				id: 'reset-sequence-field',
@@ -380,7 +407,30 @@ export const TimelineSequencePropItem: React.FC<{
 				value: 'reset-sequence-field',
 			},
 		];
-	}, [canShowReset, onReset]);
+
+		if (codeValue !== null && isKeyframedStatus(codeValue)) {
+			values.push({
+				type: 'item',
+				id: 'keyframe-settings-sequence-field',
+				keyHint: null,
+				label: 'Keyframe settings...',
+				leftItem: null,
+				disabled: previewServerState.type !== 'connected',
+				onClick: onOpenKeyframeSettings,
+				quickSwitcherLabel: null,
+				subMenu: null,
+				value: 'keyframe-settings-sequence-field',
+			});
+		}
+
+		return values;
+	}, [
+		canShowReset,
+		codeValue,
+		onOpenKeyframeSettings,
+		onReset,
+		previewServerState,
+	]);
 
 	if (codeValue === null) {
 		return null;
