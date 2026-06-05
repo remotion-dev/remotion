@@ -328,9 +328,15 @@ export const makeKeyframeBank = async ({
 
 		const roundedTimestamp = roundTo4Digits(timestamp);
 		const firstFrameTimestamp = roundTo4Digits(frameTimestamps[0]);
+		const range = getRangeOfTimestamps();
+		if (!range) {
+			return false;
+		}
+
 		const lastFrameTimestamp = roundTo4Digits(
 			frameTimestamps[frameTimestamps.length - 1],
 		);
+		const lastFrameEndTimestamp = roundTo4Digits(range.lastTimestamp);
 
 		if (hasReachedEndOfVideo && roundedTimestamp > lastFrameTimestamp) {
 			return true;
@@ -348,7 +354,7 @@ export const makeKeyframeBank = async ({
 
 		if (
 			roundedTimestamp - BIGGEST_ALLOWED_JUMP_FORWARD_SECONDS >
-			lastFrameTimestamp
+			lastFrameEndTimestamp
 		) {
 			return false;
 		}
