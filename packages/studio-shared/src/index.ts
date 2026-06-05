@@ -152,6 +152,10 @@ export {PackageManager} from './package-manager';
 export {ProjectInfo} from './project-info';
 export type {RenderDefaults} from './render-defaults';
 export {
+	getRequiredPackageForEffectImportPath,
+	getRequiredPackageForInsertableElement,
+} from './required-package';
+export {
 	AggregateRenderProgress,
 	ArtifactProgress,
 	BrowserDownloadState,
