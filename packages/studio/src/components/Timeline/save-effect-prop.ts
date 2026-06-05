@@ -8,40 +8,52 @@ import {applyEffectResponseToCodeValues} from './apply-effect-response-to-code-v
 import {enqueueSavePropChange} from './save-prop-queue';
 import type {SetCodeValues} from './save-sequence-prop';
 
-export const saveEffectProp = ({
-	fileName,
-	nodePath,
-	effectIndex,
-	fieldKey,
-	value,
-	effectParam,
-	defaultValue,
-	schema,
-	setCodeValues,
-	clientId,
-}: {
+type SaveEffectPropBase = {
 	fileName: string;
 	nodePath: SequencePropsSubscriptionKey;
 	effectIndex: number;
 	fieldKey: string;
-	value?: unknown;
-	effectParam?: EffectClipboardParam;
 	defaultValue: string | null;
 	schema: SequenceSchema;
 	setCodeValues: SetCodeValues;
 	clientId: string;
-}): Promise<void> => {
+};
+
+type SaveEffectPropValue = SaveEffectPropBase & {
+	type: 'value';
+	value: unknown;
+};
+
+type SaveEffectPropEffectParam = SaveEffectPropBase & {
+	type: 'effect-param';
+	effectParam: EffectClipboardParam;
+};
+
+type SaveEffectPropInput = SaveEffectPropValue | SaveEffectPropEffectParam;
+
+export const saveEffectProp = (input: SaveEffectPropInput): Promise<void> => {
+	const {
+		fileName,
+		nodePath,
+		effectIndex,
+		fieldKey,
+		defaultValue,
+		schema,
+		setCodeValues,
+		clientId,
+	} = input;
+
 	return enqueueSavePropChange({
 		nodePath,
 		setCodeValues,
 		applyOptimistic: (prev) =>
-			effectParam
+			input.type === 'effect-param'
 				? prev
 				: optimisticUpdateForEffectCodeValues({
 						previous: prev,
 						effectIndex,
 						fieldKey,
-						value,
+						value: input.value,
 						schema,
 					}),
 		applyServerResponse: (prev, response) =>
@@ -49,24 +61,25 @@ export const saveEffectProp = ({
 		apiCall: () =>
 			callApi(
 				'/api/save-effect-props',
-				effectParam
+				input.type === 'effect-param'
 					? {
 							type: 'effect-param',
 							fileName,
 							sequenceNodePath: nodePath,
 							effectIndex,
 							key: fieldKey,
-							effectParam,
+							effectParam: input.effectParam,
 							defaultValue,
 							schema,
 							clientId,
 						}
 					: {
+							type: 'value',
 							fileName,
 							sequenceNodePath: nodePath,
 							effectIndex,
 							key: fieldKey,
-							value: JSON.stringify(value),
+							value: JSON.stringify(input.value),
 							defaultValue,
 							schema,
 							clientId,

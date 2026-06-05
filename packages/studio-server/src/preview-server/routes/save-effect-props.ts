@@ -52,6 +52,29 @@ export const saveEffectPropsHandler: ApiHandler<
 		const parsedDefault =
 			defaultValue !== null ? JSON.parse(defaultValue) : null;
 
+		const update = (() => {
+			switch (input.type) {
+				case 'value':
+					return {
+						key,
+						value: JSON.parse(input.value),
+						defaultValue: parsedDefault,
+					};
+				case 'effect-param':
+					return {
+						key,
+						effectParam: input.effectParam,
+						defaultValue: parsedDefault,
+					};
+				default:
+					throw new Error(
+						`Unsupported save effect props request type: ${
+							(input as {type?: unknown}).type
+						}`,
+					);
+			}
+		})();
+
 		const {
 			output,
 			oldValueString,
@@ -64,13 +87,7 @@ export const saveEffectPropsHandler: ApiHandler<
 			input: fileContents,
 			sequenceNodePath: sequenceNodePath.nodePath,
 			effectIndex,
-			update: {
-				key,
-				...(input.type === 'effect-param'
-					? {effectParam: input.effectParam}
-					: {value: JSON.parse(input.value)}),
-				defaultValue: parsedDefault,
-			},
+			update,
 			schema,
 		});
 

@@ -187,6 +187,7 @@ const Value: React.FC<{
 					}),
 				apiCall: () =>
 					callApi('/api/save-effect-props', {
+						type: 'value',
 						fileName: validatedLocation.source,
 						sequenceNodePath: nodePath,
 						effectIndex: field.effectIndex,
@@ -431,6 +432,7 @@ export const TimelineEffectPropItem: React.FC<{
 				: null;
 
 		saveEffectProp({
+			type: 'value',
 			fileName: validatedLocation.source,
 			nodePath,
 			effectIndex: field.effectIndex,

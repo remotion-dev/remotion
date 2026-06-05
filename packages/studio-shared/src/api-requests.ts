@@ -325,7 +325,7 @@ type SaveEffectPropsRequestBase = {
 
 export type SaveEffectPropsRequest =
 	| (SaveEffectPropsRequestBase & {
-			type?: 'value';
+			type: 'value';
 			value: string;
 	  })
 	| (SaveEffectPropsRequestBase & {

@@ -265,6 +265,7 @@ export const TimelineEffectItem: React.FC<{
 					: null;
 
 			saveEffectProp({
+				type: 'value',
 				fileName: validatedLocation.source,
 				nodePath,
 				effectIndex,

@@ -658,8 +658,14 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 								effectIndex: effectPropTarget.effectIndex,
 								fieldKey: effectPropTarget.fieldKey,
 								...(effectPropResult.data.param.type === 'static'
-									? {value: effectPropResult.data.param.value}
-									: {effectParam: effectPropResult.data.param}),
+									? {
+											type: 'value' as const,
+											value: effectPropResult.data.param.value,
+										}
+									: {
+											type: 'effect-param' as const,
+											effectParam: effectPropResult.data.param,
+										}),
 								defaultValue: effectPropTarget.defaultValue,
 								schema: effectPropTarget.schema,
 								setCodeValues,
