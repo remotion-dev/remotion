@@ -1,6 +1,12 @@
 import type {Size} from '@remotion/player';
 import {PlayerInternals} from '@remotion/player';
-import React, {useContext, useEffect, useMemo, useRef} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useRef,
+} from 'react';
 import type {CanvasContent} from 'remotion';
 import {Internals} from 'remotion';
 import {ErrorLoader} from '../error-overlay/remotion-overlay/ErrorLoader';
@@ -20,6 +26,8 @@ import {RenderPreview} from './RenderPreview';
 import {SelectedOutlineOverlay} from './SelectedOutlineOverlay';
 import {Spinner} from './Spinner';
 import {StaticFilePreview} from './StaticFilePreview';
+import {shouldClearSelectionOnPointerDown} from './Timeline/should-clear-selection-on-pointer-down';
+import {useTimelineSelection} from './Timeline/TimelineSelection';
 
 const centeredContainer: React.CSSProperties = {
 	display: 'flex',
@@ -242,6 +250,8 @@ const PortalContainer: React.FC<{
 	readonly contentDimensions: Dimensions;
 }> = ({scale, xCorrection, yCorrection, contentDimensions}) => {
 	const {checkerboard} = useContext(CheckerboardContext);
+	const {clearSelection} = useTimelineSelection();
+	const portalContainer = useRef<HTMLDivElement>(null);
 
 	const style = useMemo((): React.CSSProperties => {
 		return containerStyle({
@@ -269,7 +279,29 @@ const PortalContainer: React.FC<{
 		};
 	}, []);
 
-	const portalContainer = useRef<HTMLDivElement>(null);
+	const onPointerDown = useCallback(
+		(event: PointerEvent) => {
+			if (!shouldClearSelectionOnPointerDown(event)) {
+				return;
+			}
+
+			clearSelection();
+		},
+		[clearSelection],
+	);
+
+	useEffect(() => {
+		const {current} = portalContainer;
+		if (!current) {
+			return;
+		}
+
+		current.addEventListener('pointerdown', onPointerDown);
+
+		return () => {
+			current.removeEventListener('pointerdown', onPointerDown);
+		};
+	}, [onPointerDown]);
 
 	return <div ref={portalContainer} style={style} />;
 };

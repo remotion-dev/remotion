@@ -67,7 +67,7 @@ const ShiftedEffect = () => {
 				height: 200,
 				borderRadius: 24,
 				overflow: 'hidden',
-				translate: '254.854512px 393.565342px',
+				translate: '207.6px 546.1px',
 			}}
 			effects={[
 				blur({
@@ -133,6 +133,8 @@ const KeyframedPropsTest: React.FC = () => {
 					color={interpolateColors(frame, [0, 100], ['#0b84f3', '#f43b00'])}
 					style={{
 						borderRadius: 24,
+						translate: '594.2px 662.8px',
+						scale: 2.645613,
 					}}
 				/>
 			</Sequence>
@@ -166,10 +168,12 @@ const KeyframedPropsTest: React.FC = () => {
 						height: 200,
 						borderRadius: 24,
 						overflow: 'hidden',
+						translate: '420px 35.2px',
+						scale: 0.984401,
 					}}
 					effects={[
 						blur({
-							radius: interpolate(frame, [0, 60, 119], [0, 24, 4]),
+							radius: interpolate(frame, [0, 53, 60, 119], [0, 15, 24, 4]),
 						}),
 						scale({
 							scale: 2.2,

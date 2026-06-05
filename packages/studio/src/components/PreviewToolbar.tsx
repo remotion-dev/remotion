@@ -82,6 +82,15 @@ const padding: React.CSSProperties = {
 	width: TIMELINE_PADDING,
 };
 
+const isInteractiveToolbarTarget = (target: EventTarget) => {
+	return (
+		target instanceof Element &&
+		target.closest(
+			'button, input, select, textarea, a[href], [aria-label], [role="button"], [role="slider"]',
+		) !== null
+	);
+};
+
 export const PreviewToolbar: React.FC<{
 	readonly readOnlyStudio: boolean;
 	readonly bufferStateDelayInMilliseconds: number;
@@ -105,7 +114,9 @@ export const PreviewToolbar: React.FC<{
 	const isMobileLayout = useMobileLayout();
 
 	const onPointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
-		e.stopPropagation();
+		if (isInteractiveToolbarTarget(e.target)) {
+			e.stopPropagation();
+		}
 	}, []);
 
 	useEffect(() => {
