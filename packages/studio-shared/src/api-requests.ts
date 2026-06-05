@@ -598,6 +598,7 @@ export type LogStudioErrorRequest = {
 	name: string | null;
 	message: string;
 	stack: string | null;
+	symbolicatedStackFrames: SymbolicatedStackFrame[] | null;
 };
 export type LogStudioErrorResponse = {};
 

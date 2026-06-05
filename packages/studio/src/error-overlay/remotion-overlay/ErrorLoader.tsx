@@ -58,10 +58,6 @@ const shouldIncludeFrameInServerLog = (
 	);
 };
 
-const formatFrameForServerLog = (frame: ErrorRecord['stackFrames'][number]) => {
-	return `    at ${frame.originalFunctionName || '<anonymous>'} (${frame.originalFileName || 'unknown'}:${frame.originalLineNumber || '?'}:${frame.originalColumnNumber || '?'})`;
-};
-
 const logSymbolicatedStudioError = (record: ErrorRecord) => {
 	const name = typeof record.error.name === 'string' ? record.error.name : null;
 	const message =
@@ -75,12 +71,12 @@ const logSymbolicatedStudioError = (record: ErrorRecord) => {
 			: record.stackFrames[0]
 				? [record.stackFrames[0]]
 				: [];
-	const stack = stackFrames.map(formatFrameForServerLog).join('\n');
 
 	logStudioErrorData({
 		name,
 		message,
-		stack: stack.length > 0 ? stack : null,
+		stack: typeof record.error.stack === 'string' ? record.error.stack : null,
+		symbolicatedStackFrames: stackFrames.length > 0 ? stackFrames : null,
 	});
 };
 

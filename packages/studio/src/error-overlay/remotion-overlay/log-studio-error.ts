@@ -25,5 +25,6 @@ export const logStudioError = (error: Error) => {
 		name: typeof error.name === 'string' ? error.name : null,
 		message: typeof error.message === 'string' ? error.message : '',
 		stack: typeof error.stack === 'string' ? error.stack : null,
+		symbolicatedStackFrames: null,
 	});
 };
