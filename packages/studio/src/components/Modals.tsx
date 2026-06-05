@@ -2,6 +2,7 @@ import React, {useContext} from 'react';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {ModalsContext} from '../state/modals';
 import {AskAiModal} from './AskAiModal';
+import {ConfirmationDialog} from './ConfirmationDialog';
 import {InstallPackageModal} from './InstallPackage';
 import {DeleteComposition} from './NewComposition/DeleteComposition';
 import {DeleteFolder} from './NewComposition/DeleteFolder';
@@ -157,6 +158,9 @@ export const Modals: React.FC<{
 					invocationTimestamp={modalContextType.invocationTimestamp}
 					initialMode={modalContextType.mode}
 				/>
+			)}
+			{modalContextType && modalContextType.type === 'confirmation-dialog' && (
+				<ConfirmationDialog state={modalContextType} />
 			)}
 			{process.env.ASK_AI_ENABLED && <AskAiModal />}
 		</>

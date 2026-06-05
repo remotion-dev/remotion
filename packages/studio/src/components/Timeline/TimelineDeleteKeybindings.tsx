@@ -3,6 +3,7 @@ import {useContext, useEffect} from 'react';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {useKeybinding} from '../../helpers/use-keybinding';
+import {useConfirmationDialog} from '../ConfirmationDialog';
 import {deleteSelectedTimelineItems} from './delete-selected-timeline-item';
 import {duplicateSelectedTimelineItems} from './duplicate-selected-timeline-item';
 import {resetSelectedTimelineProps} from './reset-selected-timeline-props';
@@ -22,6 +23,7 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 	const {setCodeValues} = useContext(Internals.VisualModeSettersContext);
 	const {canSelect} = useTimelineSelection();
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
+	const confirm = useConfirmationDialog();
 
 	useEffect(() => {
 		if (!canSelect || previewServerState.type !== 'connected') {
@@ -58,14 +60,20 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 					overrideIdsToNodePaths: overrideIdToNodePathMappings,
 					setCodeValues,
 					clientId,
+					confirm,
 				});
 
 				if (deletePromise === null) {
 					return;
 				}
 
-				clearSelection();
-				deletePromise.catch(() => undefined);
+				deletePromise
+					.then((deleted) => {
+						if (deleted) {
+							clearSelection();
+						}
+					})
+					.catch(() => undefined);
 			},
 			commandCtrlKey: false,
 			preventDefault: true,
@@ -83,6 +91,7 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 
 				const duplicatePromise = duplicateSelectedTimelineItems({
 					selections: selectedItems,
+					confirm,
 				});
 
 				if (duplicatePromise === null) {
@@ -104,6 +113,7 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 	}, [
 		canSelect,
 		codeValues,
+		confirm,
 		currentSelection,
 		keybindings,
 		overrideIdToNodePathMappings,

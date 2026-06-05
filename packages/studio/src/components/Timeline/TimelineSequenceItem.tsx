@@ -15,6 +15,7 @@ import {
 	TIMELINE_LIST_ITEM_ROW_HEIGHT,
 } from '../../helpers/timeline-layout';
 import {callApi} from '../call-api';
+import {useConfirmationDialog} from '../ConfirmationDialog';
 import {ContextMenu} from '../ContextMenu';
 import {
 	ExpandedTracksGetterContext,
@@ -138,6 +139,7 @@ export const TimelineSequenceItem: React.FC<{
 	}, [originalLocation]);
 
 	const canDeleteFromSource = Boolean(nodePath && validatedLocation?.source);
+	const confirm = useConfirmationDialog();
 
 	const deleteDisabled = useMemo(
 		() => !previewConnected || !sequence.controls || !canDeleteFromSource,
@@ -151,8 +153,10 @@ export const TimelineSequenceItem: React.FC<{
 			return;
 		}
 
-		duplicateSequencesFromSource([nodePathInfo]).catch(() => undefined);
-	}, [nodePathInfo, validatedLocation?.source]);
+		duplicateSequencesFromSource([nodePathInfo], confirm).catch(
+			() => undefined,
+		);
+	}, [confirm, nodePathInfo, validatedLocation?.source]);
 
 	const onDeleteSequenceFromSource = useCallback(async () => {
 		if (!validatedLocation?.source || !nodePath) {
@@ -160,12 +164,15 @@ export const TimelineSequenceItem: React.FC<{
 		}
 
 		if (nodePathInfo && nodePathInfo.numberOfSequencesWithThisNodePath > 1) {
-			const message =
-				'This sequence is programmatically duplicated ' +
-				nodePathInfo.numberOfSequencesWithThisNodePath +
-				' times in the code. Deleting removes all instances. Continue?';
-			// eslint-disable-next-line no-alert -- native confirm before applying duplicate codemod in .map callbacks
-			if (!window.confirm(message)) {
+			const shouldDelete = await confirm({
+				title: 'Delete sequence?',
+				message:
+					'This sequence is programmatically duplicated ' +
+					nodePathInfo.numberOfSequencesWithThisNodePath +
+					' times in the code. Deleting removes all instances. Continue?',
+				confirmLabel: 'Delete',
+			});
+			if (!shouldDelete) {
 				return;
 			}
 		}
@@ -187,7 +194,7 @@ export const TimelineSequenceItem: React.FC<{
 		} catch (err) {
 			showNotification((err as Error).message, 4000);
 		}
-	}, [nodePath, validatedLocation?.source, nodePathInfo]);
+	}, [confirm, nodePath, validatedLocation?.source, nodePathInfo]);
 
 	const mediaSrc =
 		sequence.type === 'audio' ||
