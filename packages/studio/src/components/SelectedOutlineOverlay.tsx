@@ -6,6 +6,7 @@ import type {
 	GetDragOverrides,
 	GetEffectDragOverrides,
 	OverrideIdToNodePaths,
+	ResolvedStackLocation,
 	SequenceFieldSchema,
 	SequencePropsSubscriptionKey,
 	SequenceSchema,
@@ -19,6 +20,7 @@ import {BLUE} from '../helpers/colors';
 import {formatFileLocation} from '../helpers/format-file-location';
 import {getBoxQuadsPonyfill} from '../helpers/get-box-quads-ponyfill';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
+import {openOriginalPositionInEditor} from '../helpers/open-in-editor';
 import {ScaleLockContext} from '../state/scale-lock';
 import {ContextMenuForTarget} from './ContextMenu';
 import type {ComboboxValue} from './NewComposition/ComboBox';
@@ -42,7 +44,7 @@ import {
 	type TimelineSelection,
 	type TimelineSelectionInteraction,
 } from './Timeline/TimelineSelection';
-import {useOpenSequenceInEditor} from './Timeline/use-open-sequence-in-editor';
+import {getOriginalLocationFromStack} from './Timeline/TimelineStack/get-stack';
 
 type OutlinePoint = {
 	readonly x: number;
@@ -88,6 +90,15 @@ type UvHandleConnectionLine = {
 	readonly from: OutlinePoint;
 	readonly to: OutlinePoint;
 };
+
+type SelectedOutlineContextMenuOpenResult =
+	| false
+	| void
+	| readonly ComboboxValue[];
+
+type SelectedOutlineContextMenuOpenHandler = () =>
+	| SelectedOutlineContextMenuOpenResult
+	| Promise<SelectedOutlineContextMenuOpenResult>;
 
 type SelectedOutlineTarget = {
 	readonly key: string;
@@ -160,77 +171,7 @@ const outlineContainer: React.CSSProperties = {
 	overflow: 'visible',
 };
 
-const useSelectedOutlineContextMenuValues = (
-	target: SelectedOutlineTarget | undefined,
-): ComboboxValue[] => {
-	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const previewConnected = previewServerState.type === 'connected';
-	const {canOpenInEditor, openInEditor, originalLocation} =
-		useOpenSequenceInEditor(target?.sequence ?? null);
-	const fileLocation = useMemo(
-		() =>
-			formatFileLocation({
-				location: originalLocation,
-				root: window.remotion_cwd,
-			}),
-		[originalLocation],
-	);
-
-	return useMemo((): ComboboxValue[] => {
-		if (!previewConnected) {
-			return [];
-		}
-
-		const editorName = window.remotion_editorName;
-
-		return [
-			editorName
-				? {
-						type: 'item' as const,
-						id: 'show-outline-in-editor',
-						keyHint: null,
-						label: `Show in ${editorName}`,
-						leftItem: null,
-						disabled: !canOpenInEditor,
-						onClick: () => {
-							openInEditor();
-						},
-						quickSwitcherLabel: null,
-						subMenu: null,
-						value: 'show-outline-in-editor',
-					}
-				: null,
-			{
-				type: 'item' as const,
-				id: 'copy-outline-file-location',
-				keyHint: null,
-				label: 'Copy file location',
-				leftItem: null,
-				disabled: !fileLocation,
-				onClick: () => {
-					if (!fileLocation) {
-						return;
-					}
-
-					navigator.clipboard
-						.writeText(fileLocation)
-						.then(() => {
-							showNotification('Copied file location to clipboard', 1000);
-						})
-						.catch((err) => {
-							showNotification(
-								`Could not copy to clipboard: ${(err as Error).message}`,
-								1000,
-							);
-						});
-				},
-				quickSwitcherLabel: null,
-				subMenu: null,
-				value: 'copy-outline-file-location',
-			},
-		].filter(NoReactInternals.truthy);
-	}, [canOpenInEditor, fileLocation, openInEditor, previewConnected]);
-};
+const emptyContextMenuValues: readonly ComboboxValue[] = [];
 
 const pointToString = (point: OutlinePoint) => `${point.x},${point.y}`;
 
@@ -1122,7 +1063,7 @@ const SelectedOutlinePolygon: React.FC<{
 	readonly contextMenuValues: readonly ComboboxValue[];
 	readonly dragging: boolean;
 	readonly hovered: boolean;
-	readonly onContextMenuOpen: () => false | void;
+	readonly onContextMenuOpen: SelectedOutlineContextMenuOpenHandler;
 	readonly outline: SelectedOutline;
 	readonly onDraggingChange: (dragging: boolean) => void;
 	readonly onHoverChange: (key: string | null) => void;
@@ -1352,7 +1293,7 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 	readonly edge: SelectedOutlineScaleEdge;
 	readonly outline: SelectedOutline;
 	readonly onDraggingChange: (dragging: boolean) => void;
-	readonly onContextMenuOpen: () => false | void;
+	readonly onContextMenuOpen: SelectedOutlineContextMenuOpenHandler;
 	readonly onHoverChange: (key: string | null) => void;
 	readonly onSelect: (
 		item: TimelineSelection,
@@ -1744,23 +1685,102 @@ const SelectedOutlineElement: React.FC<{
 	scale,
 	target,
 }) => {
-	const contextMenuValues = useSelectedOutlineContextMenuValues(target);
+	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const updateResolvedStackTrace = useContext(
+		Internals.SequenceStackTracesUpdateContext,
+	);
 
-	const onContextMenuOpen = React.useCallback(() => {
-		if (target === undefined || contextMenuValues.length === 0) {
+	const onContextMenuOpen = React.useCallback(async () => {
+		if (target === undefined || previewServerState.type !== 'connected') {
 			return false;
 		}
 
 		if (!target.selected) {
 			onSelect(target.selection, {shiftKey: false, toggleKey: false});
 		}
-	}, [contextMenuValues.length, onSelect, target]);
+
+		const stack = target.sequence.getStack();
+		let originalLocation: ResolvedStackLocation | null = null;
+		if (stack) {
+			try {
+				originalLocation = await getOriginalLocationFromStack(
+					stack,
+					'sequence',
+				);
+			} catch (err) {
+				showNotification((err as Error).message, 2000);
+			}
+		}
+
+		if (stack) {
+			updateResolvedStackTrace(stack, originalLocation);
+		}
+
+		const fileLocation = formatFileLocation({
+			location: originalLocation,
+			root: window.remotion_cwd,
+		});
+		const editorName = window.remotion_editorName;
+
+		return [
+			editorName
+				? {
+						type: 'item' as const,
+						id: 'show-outline-in-editor',
+						keyHint: null,
+						label: `Show in ${editorName}`,
+						leftItem: null,
+						disabled: !originalLocation,
+						onClick: () => {
+							if (!originalLocation) {
+								return;
+							}
+
+							openOriginalPositionInEditor(originalLocation).catch((err) => {
+								showNotification((err as Error).message, 2000);
+							});
+						},
+						quickSwitcherLabel: null,
+						subMenu: null,
+						value: 'show-outline-in-editor',
+					}
+				: null,
+			{
+				type: 'item' as const,
+				id: 'copy-outline-file-location',
+				keyHint: null,
+				label: 'Copy file location',
+				leftItem: null,
+				disabled: !fileLocation,
+				onClick: () => {
+					if (!fileLocation) {
+						return;
+					}
+
+					navigator.clipboard
+						.writeText(fileLocation)
+						.then(() => {
+							showNotification('Copied file location to clipboard', 1000);
+						})
+						.catch((err) => {
+							showNotification(
+								`Could not copy to clipboard: ${(err as Error).message}`,
+								1000,
+							);
+						});
+				},
+				quickSwitcherLabel: null,
+				subMenu: null,
+				value: 'copy-outline-file-location',
+			},
+		].filter(NoReactInternals.truthy);
+	}, [onSelect, previewServerState.type, target, updateResolvedStackTrace]);
 
 	return (
 		<>
 			<SelectedOutlinePolygon
 				allDragTargets={allDragTargets}
-				contextMenuValues={contextMenuValues}
+				contextMenuValues={emptyContextMenuValues}
 				dragging={dragging}
 				hovered={hovered}
 				outline={outline}
@@ -1776,7 +1796,7 @@ const SelectedOutlineElement: React.FC<{
 						<SelectedOutlineScaleEdgeLine
 							key={edge}
 							allScaleDragTargets={allScaleDragTargets}
-							contextMenuValues={contextMenuValues}
+							contextMenuValues={emptyContextMenuValues}
 							dragging={dragging}
 							edge={edge}
 							outline={outline}

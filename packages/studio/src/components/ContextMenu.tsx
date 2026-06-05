@@ -28,7 +28,10 @@ type OpenState =
 type OpenedState = Extract<OpenState, {type: 'open'}>;
 
 type ContextMenuOpenHandler = () => false | void;
-type ContextMenuTargetOpenHandler = (event: MouseEvent) => false | void;
+type ContextMenuTargetOpenResult = false | void | readonly ComboboxValue[];
+type ContextMenuTargetOpenHandler = (
+	event: MouseEvent,
+) => ContextMenuTargetOpenResult | Promise<ContextMenuTargetOpenResult>;
 
 type ContextMenuSizeSource =
 	| React.RefObject<HTMLElement | null>
@@ -249,6 +252,8 @@ export const ContextMenuForTarget: React.FC<{
 	readonly onOpen: ContextMenuTargetOpenHandler | null;
 }> = ({triggerRef, values, onOpen}) => {
 	const [opened, setOpened] = useState<OpenState>({type: 'not-open'});
+	const [openedValues, setOpenedValues] =
+		useState<readonly ComboboxValue[]>(values);
 	const [body, setBody] = useState<HTMLElement | null>(null);
 	const {currentZIndex} = useZIndex();
 
@@ -262,15 +267,22 @@ export const ContextMenuForTarget: React.FC<{
 			return;
 		}
 
-		const onClick = (event: Event) => {
+		const onClick = async (event: Event) => {
 			const e = event as MouseEvent;
 			e.preventDefault();
 			e.stopPropagation();
 
-			if (values.length === 0 || onOpen?.(e) === false) {
+			const result = await onOpen?.(e);
+			if (result === false) {
 				return false;
 			}
 
+			const nextValues = Array.isArray(result) ? result : values;
+			if (nextValues.length === 0) {
+				return false;
+			}
+
+			setOpenedValues(nextValues);
 			setOpened({type: 'open', left: e.clientX, top: e.clientY});
 
 			return false;
@@ -281,7 +293,7 @@ export const ContextMenuForTarget: React.FC<{
 		return () => {
 			current.removeEventListener('contextmenu', onClick);
 		};
-	}, [onOpen, triggerRef, values.length]);
+	}, [onOpen, triggerRef, values]);
 
 	const onHide = useCallback(() => {
 		setOpened({type: 'not-open'});
@@ -293,7 +305,7 @@ export const ContextMenuForTarget: React.FC<{
 			currentZIndex={currentZIndex}
 			onHide={onHide}
 			opened={opened}
-			values={values}
+			values={[...openedValues]}
 		/>
 	) : null;
 };
