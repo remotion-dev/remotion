@@ -89,6 +89,22 @@ const sequenceReorderLineBase: React.CSSProperties = {
 	zIndex: 1,
 };
 
+const sequenceReorderRejectionStyle: React.CSSProperties = {
+	backgroundColor: 'rgba(0, 0, 0, 0.85)',
+	border: '1px solid rgba(255, 255, 255, 0.2)',
+	borderRadius: 4,
+	color: 'white',
+	fontSize: 11,
+	lineHeight: 1.2,
+	maxWidth: 260,
+	padding: '3px 6px',
+	pointerEvents: 'none',
+	position: 'absolute',
+	right: 6,
+	top: 2,
+	zIndex: 2,
+};
+
 const hasSequenceReorderDragType = (dataTransfer: DataTransfer) => {
 	return Array.from(dataTransfer.types).includes(SEQUENCE_REORDER_MIME_TYPE);
 };
@@ -133,6 +149,17 @@ const getDestinationIndex = ({
 }) => {
 	return insertionIndex > fromIndex ? insertionIndex - 1 : insertionIndex;
 };
+
+type SequenceDropTarget =
+	| {
+			readonly type: 'valid';
+			readonly dragData: SequenceReorderDragData;
+			readonly position: ReorderSequencePosition;
+	  }
+	| {
+			readonly type: 'invalid';
+			readonly reason: string;
+	  };
 
 const hasEffectDragType = (dataTransfer: DataTransfer) => {
 	return Array.from(dataTransfer.types).some(
@@ -190,6 +217,9 @@ export const TimelineSequenceItem: React.FC<{
 	const [effectDropHovered, setEffectDropHovered] = useState(false);
 	const [sequenceDropIndicator, setSequenceDropIndicator] =
 		useState<ReorderSequencePosition | null>(null);
+	const [sequenceDropRejection, setSequenceDropRejection] = useState<
+		string | null
+	>(null);
 
 	const {canOpenInEditor, openInEditor, originalLocation} =
 		useOpenSequenceInEditor(sequence);
@@ -230,6 +260,7 @@ export const TimelineSequenceItem: React.FC<{
 		previewConnected &&
 		Boolean(nodePath && nodePathKey && validatedLocation?.source) &&
 		nodePathInfo?.numberOfSequencesWithThisNodePath === 1;
+	const canHandleSequenceDrag = SELECTION_ENABLED && previewConnected;
 
 	const deleteDisabled = useMemo(
 		() => !previewConnected || !sequence.controls || !canDeleteFromSource,
@@ -282,19 +313,41 @@ export const TimelineSequenceItem: React.FC<{
 	}, [nodePath, validatedLocation?.source, nodePathInfo]);
 
 	const getSequenceDropTarget = useCallback(
-		(e: React.DragEvent<HTMLDivElement>) => {
-			if (!nodePath || !nodePathKey || !validatedLocation?.source) {
+		(e: React.DragEvent<HTMLDivElement>): SequenceDropTarget | null => {
+			const dragData = getSequenceReorderDragData(e.dataTransfer);
+			if (!dragData) {
 				return null;
 			}
 
-			const dragData = getSequenceReorderDragData(e.dataTransfer);
+			if (!nodePath || !nodePathKey || !validatedLocation?.source) {
+				return {
+					type: 'invalid',
+					reason: 'This sequence cannot be reordered from source.',
+				};
+			}
+
+			if (dragData.nodePathKey === nodePathKey) {
+				return {
+					type: 'invalid',
+					reason: 'Drop onto another sequence to reorder.',
+				};
+			}
+
+			if (nodePathInfo?.numberOfSequencesWithThisNodePath !== 1) {
+				return {
+					type: 'invalid',
+					reason: 'Programmatically duplicated sequences cannot be reordered.',
+				};
+			}
+
 			if (
-				!dragData ||
-				dragData.nodePathKey === nodePathKey ||
 				dragData.parentId !== parentId ||
 				dragData.fileName !== validatedLocation.source
 			) {
-				return null;
+				return {
+					type: 'invalid',
+					reason: 'Sequences can only be reordered with direct JSX siblings.',
+				};
 			}
 
 			const rect = e.currentTarget.getBoundingClientRect();
@@ -306,15 +359,26 @@ export const TimelineSequenceItem: React.FC<{
 			});
 
 			if (toIndex === dragData.trackIndex) {
-				return null;
+				return {
+					type: 'invalid',
+					reason: 'This sequence is already in that position.',
+				};
 			}
 
 			return {
+				type: 'valid',
 				dragData,
 				position: before ? ('before' as const) : ('after' as const),
 			};
 		},
-		[nodePath, nodePathKey, parentId, trackIndex, validatedLocation?.source],
+		[
+			nodePath,
+			nodePathInfo?.numberOfSequencesWithThisNodePath,
+			nodePathKey,
+			parentId,
+			trackIndex,
+			validatedLocation?.source,
+		],
 	);
 
 	const onSequenceDragStart = useCallback(
@@ -357,17 +421,26 @@ export const TimelineSequenceItem: React.FC<{
 	const onSequenceDragEnd = useCallback(() => {
 		currentSequenceDrag = null;
 		setSequenceDropIndicator(null);
+		setSequenceDropRejection(null);
 	}, []);
 
 	const onSequenceDragOver = useCallback(
 		(e: React.DragEvent<HTMLDivElement>) => {
-			if (!canReorderSequence || !hasSequenceReorderDragType(e.dataTransfer)) {
+			if (!hasSequenceReorderDragType(e.dataTransfer)) {
 				return;
 			}
 
 			const dropTarget = getSequenceDropTarget(e);
 			if (!dropTarget) {
 				setSequenceDropIndicator(null);
+				setSequenceDropRejection(null);
+				return;
+			}
+
+			if (dropTarget.type === 'invalid') {
+				setSequenceDropIndicator(null);
+				setSequenceDropRejection(dropTarget.reason);
+				e.dataTransfer.dropEffect = 'none';
 				return;
 			}
 
@@ -375,8 +448,9 @@ export const TimelineSequenceItem: React.FC<{
 			e.stopPropagation();
 			e.dataTransfer.dropEffect = 'move';
 			setSequenceDropIndicator(dropTarget.position);
+			setSequenceDropRejection(null);
 		},
-		[canReorderSequence, getSequenceDropTarget],
+		[getSequenceDropTarget],
 	);
 
 	const onSequenceDragLeave = useCallback(
@@ -386,6 +460,7 @@ export const TimelineSequenceItem: React.FC<{
 			}
 
 			setSequenceDropIndicator(null);
+			setSequenceDropRejection(null);
 		},
 		[],
 	);
@@ -402,14 +477,18 @@ export const TimelineSequenceItem: React.FC<{
 			}
 
 			const dropTarget = getSequenceDropTarget(e);
-			if (!dropTarget) {
+			if (!dropTarget || dropTarget.type === 'invalid') {
 				setSequenceDropIndicator(null);
+				setSequenceDropRejection(
+					dropTarget?.type === 'invalid' ? dropTarget.reason : null,
+				);
 				return;
 			}
 
 			e.preventDefault();
 			e.stopPropagation();
 			setSequenceDropIndicator(null);
+			setSequenceDropRejection(null);
 			currentSequenceDrag = null;
 
 			try {
@@ -866,9 +945,9 @@ export const TimelineSequenceItem: React.FC<{
 		</TimelineRowChrome>
 	);
 
-	const draggableTrackRow = canReorderSequence ? (
+	const draggableTrackRow = canHandleSequenceDrag ? (
 		<div
-			draggable
+			draggable={canReorderSequence}
 			onDragStart={onSequenceDragStart}
 			onDragEnd={onSequenceDragEnd}
 			onDragOver={onSequenceDragOver}
@@ -878,6 +957,9 @@ export const TimelineSequenceItem: React.FC<{
 		>
 			{sequenceReorderLineStyle ? (
 				<div style={sequenceReorderLineStyle} />
+			) : null}
+			{sequenceDropRejection ? (
+				<div style={sequenceReorderRejectionStyle}>{sequenceDropRejection}</div>
 			) : null}
 			{trackRow}
 		</div>
