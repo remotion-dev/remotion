@@ -73,8 +73,8 @@ const Value: React.FC<{
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly validatedLocation: CodePosition;
 	readonly schema: SequenceSchema;
-	readonly codeValue: CanUpdateSequencePropStatusStatic;
-}> = ({field, nodePath, validatedLocation, schema, codeValue}) => {
+	readonly propStatus: CanUpdateSequencePropStatusStatic;
+}> = ({field, nodePath, validatedLocation, schema, propStatus}) => {
 	const {getDragOverrides} = useContext(
 		Internals.VisualModeDragOverridesContext,
 	);
@@ -88,13 +88,13 @@ const Value: React.FC<{
 	}, [getDragOverrides, nodePath, field.key]);
 
 	const effectiveValue = Internals.getEffectiveVisualModeValue({
-		codeValue,
+		propStatus,
 		dragOverrideValue,
 		defaultValue: field.fieldSchema.default,
 		shouldResortToDefaultValueIfUndefined: true,
 	});
 
-	const {setCodeValues} = useContext(Internals.VisualModeSettersContext);
+	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const clientId =
 		previewServerState.type === 'connected'
@@ -115,13 +115,13 @@ const Value: React.FC<{
 			const stringifiedValue = JSON.stringify(value);
 			const fieldLabel = field.description ?? field.key;
 
-			if (value === codeValue.codeValue) {
+			if (value === propStatus.codeValue) {
 				return Promise.resolve();
 			}
 
 			if (
 				defaultValue === stringifiedValue &&
-				codeValue.codeValue === undefined
+				propStatus.codeValue === undefined
 			) {
 				return Promise.resolve();
 			}
@@ -137,21 +137,21 @@ const Value: React.FC<{
 						schema,
 					},
 				],
-				setCodeValues,
+				setPropStatuses,
 				clientId,
 				undoLabel: `Update ${fieldLabel}`,
 				redoLabel: `Update ${fieldLabel} again`,
 			});
 		},
 		[
-			codeValue,
+			propStatus,
 			clientId,
 			field.description,
 			field.fieldSchema.default,
 			field.key,
 			nodePath,
 			schema,
-			setCodeValues,
+			setPropStatuses,
 			validatedLocation,
 		],
 	);
@@ -182,7 +182,7 @@ const Value: React.FC<{
 	return (
 		<TimelineFieldValue
 			field={field}
-			propStatus={codeValue}
+			propStatus={propStatus}
 			onSave={onSave}
 			onDragValueChange={onDragValueChange}
 			onDragEnd={onDragEnd}
@@ -209,13 +209,13 @@ export const TimelineSequencePropItem: React.FC<{
 	schema,
 	keyframeDisplayOffset,
 }) => {
-	const {codeValues: visualModeCodeValues} = useContext(
-		Internals.VisualModeCodeValuesContext,
+	const {propStatuses: visualModePropStatuses} = useContext(
+		Internals.VisualModePropStatusesContext,
 	);
 	const {getDragOverrides} = useContext(
 		Internals.VisualModeDragOverridesContext,
 	);
-	const {setCodeValues, setDragOverrides, clearDragOverrides} = useContext(
+	const {setPropStatuses, setDragOverrides, clearDragOverrides} = useContext(
 		Internals.VisualModeSettersContext,
 	);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
@@ -226,11 +226,11 @@ export const TimelineSequencePropItem: React.FC<{
 			? previewServerState.clientId
 			: null;
 
-	const codeValuesForOverride = Internals.getCodeValuesCtx(
-		visualModeCodeValues,
+	const propStatusesForOverride = Internals.getPropStatusesCtx(
+		visualModePropStatuses,
 		nodePath,
 	);
-	const codeValue = codeValuesForOverride?.[field.key] ?? null;
+	const propStatus = propStatusesForOverride?.[field.key] ?? null;
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const jsxFrame = timelinePosition - keyframeDisplayOffset;
 
@@ -239,9 +239,9 @@ export const TimelineSequencePropItem: React.FC<{
 	}, [getDragOverrides, nodePath, field.key]);
 
 	const keyframeControls =
-		codeValue !== null &&
+		propStatus !== null &&
 		shouldShowTimelineKeyframeControls({
-			propStatus: codeValue,
+			propStatus,
 			selected: selection.selected,
 			keyframable: isSchemaFieldKeyframable({
 				schema,
@@ -250,7 +250,7 @@ export const TimelineSequencePropItem: React.FC<{
 		}) ? (
 			<TimelineKeyframeControls
 				fieldKey={field.key}
-				propStatus={codeValue}
+				propStatus={propStatus}
 				nodePath={nodePath}
 				fileName={validatedLocation.source}
 				keyframeDisplayOffset={keyframeDisplayOffset}
@@ -269,20 +269,20 @@ export const TimelineSequencePropItem: React.FC<{
 	}, [field.rowHeight]);
 
 	const canResetToDefault = useMemo(() => {
-		if (!codeValue || codeValue.status === 'computed') {
+		if (!propStatus || propStatus.status === 'computed') {
 			return false;
 		}
 
 		return isResettableStatus({
-			status: codeValue,
+			status: propStatus,
 			defaultValue: field.fieldSchema.default,
 		});
-	}, [codeValue, field.fieldSchema.default]);
+	}, [propStatus, field.fieldSchema.default]);
 
 	const canPerformReset =
 		previewServerState.type === 'connected' &&
-		codeValue !== null &&
-		codeValue.status !== 'computed';
+		propStatus !== null &&
+		propStatus.status !== 'computed';
 	const canShowReset =
 		canPerformReset && field.fieldSchema.default !== undefined;
 
@@ -291,7 +291,7 @@ export const TimelineSequencePropItem: React.FC<{
 			!canShowReset ||
 			!canResetToDefault ||
 			previewServerState.type !== 'connected' ||
-			codeValue === null
+			propStatus === null
 		) {
 			return;
 		}
@@ -313,7 +313,7 @@ export const TimelineSequencePropItem: React.FC<{
 					schema,
 				},
 			],
-			setCodeValues,
+			setPropStatuses,
 			clientId: previewServerState.clientId,
 			undoLabel: `Reset ${fieldLabel}`,
 			redoLabel: `Reapply ${fieldLabel}`,
@@ -327,9 +327,9 @@ export const TimelineSequencePropItem: React.FC<{
 		nodePath,
 		previewServerState,
 		schema,
-		setCodeValues,
+		setPropStatuses,
 		validatedLocation.source,
-		codeValue,
+		propStatus,
 	]);
 
 	const onSaveKeyframed = useCallback(
@@ -345,7 +345,7 @@ export const TimelineSequencePropItem: React.FC<{
 				sourceFrame,
 				value,
 				schema,
-				setCodeValues,
+				setPropStatuses,
 				clientId,
 			});
 		},
@@ -354,7 +354,7 @@ export const TimelineSequencePropItem: React.FC<{
 			field.key,
 			nodePath,
 			schema,
-			setCodeValues,
+			setPropStatuses,
 			validatedLocation.source,
 		],
 	);
@@ -362,7 +362,7 @@ export const TimelineSequencePropItem: React.FC<{
 	const onKeyframedDragValueChange =
 		useCallback<TimelineFieldOnDragValueChange>(
 			(value) => {
-				if (codeValue === null || !isKeyframedStatus(codeValue)) {
+				if (propStatus === null || !isKeyframedStatus(propStatus)) {
 					throw new Error('Expected keyframed status');
 				}
 
@@ -370,13 +370,13 @@ export const TimelineSequencePropItem: React.FC<{
 					nodePath,
 					field.key,
 					Internals.makeKeyframedDragOverride({
-						status: codeValue,
+						status: propStatus,
 						frame: jsxFrame,
 						value,
 					}),
 				);
 			},
-			[codeValue, field.key, jsxFrame, nodePath, setDragOverrides],
+			[propStatus, field.key, jsxFrame, nodePath, setDragOverrides],
 		);
 
 	const onKeyframedDragEnd = useCallback(() => {
@@ -384,7 +384,7 @@ export const TimelineSequencePropItem: React.FC<{
 	}, [clearDragOverrides, nodePath]);
 
 	const onOpenKeyframeSettings = useCallback(() => {
-		if (codeValue === null || !isKeyframedStatus(codeValue)) {
+		if (propStatus === null || !isKeyframedStatus(propStatus)) {
 			return;
 		}
 
@@ -394,12 +394,12 @@ export const TimelineSequencePropItem: React.FC<{
 			nodePath,
 			fieldKey: field.key,
 			fieldLabel: field.description ?? field.key,
-			status: codeValue,
+			status: propStatus,
 			schema,
 			effectIndex: null,
 		});
 	}, [
-		codeValue,
+		propStatus,
 		field.description,
 		field.key,
 		nodePath,
@@ -424,7 +424,7 @@ export const TimelineSequencePropItem: React.FC<{
 			},
 		];
 
-		if (codeValue !== null && isKeyframedStatus(codeValue)) {
+		if (propStatus !== null && isKeyframedStatus(propStatus)) {
 			values.push({
 				type: 'item',
 				id: 'keyframe-settings-sequence-field',
@@ -442,13 +442,13 @@ export const TimelineSequencePropItem: React.FC<{
 		return values;
 	}, [
 		canShowReset,
-		codeValue,
+		propStatus,
 		onOpenKeyframeSettings,
 		onReset,
 		previewServerState,
 	]);
 
-	if (codeValue === null) {
+	if (propStatus === null) {
 		return null;
 	}
 
@@ -471,11 +471,11 @@ export const TimelineSequencePropItem: React.FC<{
 				selected={selection.selected}
 				label={field.description ?? field.key}
 			/>
-			{isKeyframedStatus(codeValue) ? (
+			{isKeyframedStatus(propStatus) ? (
 				<div style={timelineFieldValueColumnStyle}>
 					<TimelineKeyframedValue
 						field={field}
-						propStatus={codeValue}
+						propStatus={propStatus}
 						keyframeDisplayOffset={keyframeDisplayOffset}
 						dragOverrideValue={dragOverrideValue}
 						onSave={onSaveKeyframed}
@@ -484,19 +484,19 @@ export const TimelineSequencePropItem: React.FC<{
 						scaleLockNodePath={nodePath}
 					/>
 				</div>
-			) : codeValue.status === 'static' ? (
+			) : propStatus.status === 'static' ? (
 				<div style={timelineFieldValueColumnStyle}>
 					<Value
 						field={field}
 						nodePath={nodePath}
 						validatedLocation={validatedLocation}
 						schema={schema}
-						codeValue={codeValue}
+						propStatus={propStatus}
 					/>
 				</div>
 			) : (
 				<div style={timelineFieldValueColumnStyle}>
-					<TimelineNonEditableStatus propStatus={codeValue} />
+					<TimelineNonEditableStatus propStatus={propStatus} />
 				</div>
 			)}
 		</TimelineRowChrome>

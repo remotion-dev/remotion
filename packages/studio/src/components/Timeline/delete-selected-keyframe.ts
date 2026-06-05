@@ -1,15 +1,15 @@
 import type {OverrideIdToNodePaths, TSequence} from 'remotion';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {
-	callDeleteKeyframes,
 	callDeleteEffectKeyframe,
+	callDeleteKeyframes,
 	callDeleteSequenceKeyframe,
 	type DeleteEffectKeyframeChange,
 	type DeleteSequenceKeyframeChange,
 } from './call-delete-keyframe';
 import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
 import {parseKeyframeFieldFromNodePath} from './parse-keyframe-field-from-node-path';
-import type {SetCodeValues} from './save-sequence-prop';
+import type {SetPropStatuses} from './save-sequence-prop';
 
 type SelectedKeyframeDeletion =
 	| ({type: 'sequence'} & DeleteSequenceKeyframeChange)
@@ -77,14 +77,14 @@ export const deleteSelectedKeyframe = ({
 	frame,
 	sequences,
 	overrideIdsToNodePaths,
-	setCodeValues,
+	setPropStatuses,
 	clientId,
 }: {
 	nodePathInfo: SequenceNodePathInfo;
 	frame: number;
 	sequences: TSequence[];
 	overrideIdsToNodePaths: OverrideIdToNodePaths;
-	setCodeValues: SetCodeValues;
+	setPropStatuses: SetPropStatuses;
 	clientId: string;
 }): Promise<void> | null => {
 	const deletion = getSelectedKeyframeDeletion({
@@ -100,14 +100,14 @@ export const deleteSelectedKeyframe = ({
 	if (deletion.type === 'effect') {
 		return callDeleteEffectKeyframe({
 			...deletion,
-			setCodeValues,
+			setPropStatuses,
 			clientId,
 		});
 	}
 
 	return callDeleteSequenceKeyframe({
 		...deletion,
-		setCodeValues,
+		setPropStatuses,
 		clientId,
 	});
 };
@@ -116,7 +116,7 @@ export const deleteSelectedKeyframes = ({
 	keyframes,
 	sequences,
 	overrideIdsToNodePaths,
-	setCodeValues,
+	setPropStatuses,
 	clientId,
 }: {
 	keyframes: {
@@ -125,7 +125,7 @@ export const deleteSelectedKeyframes = ({
 	}[];
 	sequences: TSequence[];
 	overrideIdsToNodePaths: OverrideIdToNodePaths;
-	setCodeValues: SetCodeValues;
+	setPropStatuses: SetPropStatuses;
 	clientId: string;
 }): Promise<void> | null => {
 	const deletions = keyframes
@@ -160,7 +160,7 @@ export const deleteSelectedKeyframes = ({
 				type: 'effect';
 			} => deletion.type === 'effect',
 		),
-		setCodeValues,
+		setPropStatuses,
 		clientId,
 	});
 };

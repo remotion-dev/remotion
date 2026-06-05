@@ -6,7 +6,6 @@ test('interpolates linear numeric keyframes', () => {
 		frame: 30,
 		status: {
 			status: 'keyframed',
-			codeValue: undefined,
 			interpolationFunction: 'interpolate',
 			keyframes: [
 				{frame: 0, value: 0},
@@ -25,7 +24,6 @@ test('interpolates linear tuple keyframes', () => {
 		frame: 30,
 		status: {
 			status: 'keyframed',
-			codeValue: undefined,
 			interpolationFunction: 'interpolate',
 			keyframes: [
 				{frame: 0, value: [0, 0.5]},
@@ -44,7 +42,6 @@ test('sorts keyframes before interpolating numeric values', () => {
 		frame: 75,
 		status: {
 			status: 'keyframed',
-			codeValue: undefined,
 			interpolationFunction: 'interpolate',
 			keyframes: [
 				{frame: 100, value: 100},
@@ -64,7 +61,6 @@ test('clamps when extrapolation is clamp', () => {
 		frame: 120,
 		status: {
 			status: 'keyframed',
-			codeValue: undefined,
 			interpolationFunction: 'interpolate',
 			keyframes: [
 				{frame: 0, value: 0},
@@ -83,7 +79,6 @@ test('posterizes the frame before interpolating numeric keyframes', () => {
 		frame: 17,
 		status: {
 			status: 'keyframed',
-			codeValue: undefined,
 			interpolationFunction: 'interpolate',
 			keyframes: [
 				{frame: 0, value: 0},
@@ -102,7 +97,6 @@ test('returns single keyframe value', () => {
 		frame: 100,
 		status: {
 			status: 'keyframed',
-			codeValue: undefined,
 			interpolationFunction: 'interpolate',
 			keyframes: [{frame: 0, value: 7}],
 			easing: [],
@@ -118,7 +112,6 @@ test('interpolates colors', () => {
 		frame: 30,
 		status: {
 			status: 'keyframed',
-			codeValue: undefined,
 			interpolationFunction: 'interpolateColors',
 			keyframes: [
 				{frame: 0, value: '#000000'},
@@ -138,7 +131,6 @@ test('posterizes the frame before interpolating color keyframes', () => {
 		frame: 17,
 		status: {
 			status: 'keyframed',
-			codeValue: undefined,
 			interpolationFunction: 'interpolateColors',
 			keyframes: [
 				{frame: 0, value: 'black'},
@@ -157,7 +149,6 @@ test('interpolates translate keyframes', () => {
 		frame: 30,
 		status: {
 			status: 'keyframed',
-			codeValue: undefined,
 			interpolationFunction: 'interpolate',
 			keyframes: [
 				{frame: 0, value: '0px 0px'},
@@ -176,7 +167,6 @@ test('interpolates rotate keyframes', () => {
 		frame: 30,
 		status: {
 			status: 'keyframed',
-			codeValue: undefined,
 			interpolationFunction: 'interpolate',
 			keyframes: [
 				{frame: 0, value: '0deg'},
@@ -195,7 +185,6 @@ test('uses bezier easing', () => {
 		frame: 30,
 		status: {
 			status: 'keyframed',
-			codeValue: undefined,
 			interpolationFunction: 'interpolate',
 			keyframes: [
 				{frame: 0, value: 0},
@@ -215,7 +204,6 @@ test('interpolates scale strings component-wise', () => {
 		frame: 30,
 		status: {
 			status: 'keyframed',
-			codeValue: undefined,
 			interpolationFunction: 'interpolate',
 			keyframes: [
 				{frame: 0, value: 2},

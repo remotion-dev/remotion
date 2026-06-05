@@ -82,7 +82,6 @@ export const Example: React.FC = () => {
 
 	expect(result.props.color).toEqual({
 		status: 'keyframed',
-		codeValue: undefined,
 		interpolationFunction: 'interpolateColors',
 		keyframes: [
 			{frame: 0, value: 'red'},
@@ -117,7 +116,6 @@ export const Example: React.FC = () => {
 
 	expect(result.props['style.translate']).toEqual({
 		status: 'keyframed',
-		codeValue: undefined,
 		interpolationFunction: 'interpolate',
 		keyframes: [
 			{frame: 0, value: '0px 59px'},
@@ -179,7 +177,6 @@ export const Example: React.FC = () => {
 
 	expect(result.props['style.rotate']).toEqual({
 		status: 'keyframed',
-		codeValue: undefined,
 		interpolationFunction: 'interpolate',
 		keyframes: [
 			{frame: 55, value: '19deg'},
@@ -328,7 +325,6 @@ test('computeSequencePropsStatus should return keyframes for interpolated style 
 
 	expect(result.props['style.scale']).toEqual({
 		status: 'keyframed',
-		codeValue: undefined,
 		interpolationFunction: 'interpolate',
 		keyframes: [
 			{frame: 0, value: 2},
@@ -368,7 +364,6 @@ export const Example: React.FC = () => {
 
 	expect(result.props['style.scale']).toEqual({
 		status: 'keyframed',
-		codeValue: undefined,
 		interpolationFunction: 'interpolate',
 		keyframes: [
 			{frame: 0, value: 1},
@@ -408,7 +403,6 @@ export const Example: React.FC = () => {
 
 	expect(result.props['style.scale']).toEqual({
 		status: 'keyframed',
-		codeValue: undefined,
 		interpolationFunction: 'interpolate',
 		keyframes: [
 			{frame: 0, value: 1},
@@ -444,7 +438,6 @@ export const Example: React.FC = () => {
 
 	expect(result.props.color).toEqual({
 		status: 'keyframed',
-		codeValue: undefined,
 		interpolationFunction: 'interpolateColors',
 		keyframes: [
 			{frame: 0, value: 'red'},

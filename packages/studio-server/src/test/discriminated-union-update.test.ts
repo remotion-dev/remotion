@@ -21,7 +21,7 @@ test('Should correctly separate discriminated union for layout', () => {
 			sequenceKeys: [],
 			effectKeys: [],
 		},
-		codeValues: {},
+		propStatuses: {},
 		getDragOverrides: () => ({}),
 	});
 	expect(schemaFields?.map((s) => s.key)).toEqual(['layout']);
@@ -39,7 +39,7 @@ test('Should expose absolute-fill variant fields when active', () => {
 			sequenceKeys: [],
 			effectKeys: [],
 		},
-		codeValues: {},
+		propStatuses: {},
 		getDragOverrides: () => ({}),
 	});
 	expect(schemaFields?.map((s) => s.key)).toEqual([

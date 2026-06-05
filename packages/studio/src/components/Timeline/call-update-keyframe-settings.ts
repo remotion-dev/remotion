@@ -5,9 +5,9 @@ import {
 } from '@remotion/studio-shared';
 import type {SequencePropsSubscriptionKey, SequenceSchema} from 'remotion';
 import {callApi} from '../call-api';
-import {applyEffectResponseToCodeValues} from './apply-effect-response-to-code-values';
+import {applyEffectResponseToPropStatuses} from './apply-effect-response-to-prop-statuses';
 import {enqueueSavePropChange} from './save-prop-queue';
-import type {SetCodeValues} from './save-sequence-prop';
+import type {SetPropStatuses} from './save-sequence-prop';
 
 export const callUpdateSequenceKeyframeSettings = ({
 	fileName,
@@ -15,7 +15,7 @@ export const callUpdateSequenceKeyframeSettings = ({
 	fieldKey,
 	settings,
 	schema,
-	setCodeValues,
+	setPropStatuses,
 	clientId,
 }: {
 	fileName: string;
@@ -23,12 +23,12 @@ export const callUpdateSequenceKeyframeSettings = ({
 	fieldKey: string;
 	settings: KeyframeSettings;
 	schema: SequenceSchema;
-	setCodeValues: SetCodeValues;
+	setPropStatuses: SetPropStatuses;
 	clientId: string;
 }): Promise<void> => {
 	return enqueueSavePropChange({
 		nodePath,
-		setCodeValues,
+		setPropStatuses,
 		applyOptimistic: (prev) =>
 			optimisticUpdateSequenceKeyframeSettings({
 				previous: prev,
@@ -55,7 +55,7 @@ export const callUpdateEffectKeyframeSettings = ({
 	fieldKey,
 	settings,
 	schema,
-	setCodeValues,
+	setPropStatuses,
 	clientId,
 }: {
 	fileName: string;
@@ -64,12 +64,12 @@ export const callUpdateEffectKeyframeSettings = ({
 	fieldKey: string;
 	settings: KeyframeSettings;
 	schema: SequenceSchema;
-	setCodeValues: SetCodeValues;
+	setPropStatuses: SetPropStatuses;
 	clientId: string;
 }): Promise<void> => {
 	return enqueueSavePropChange({
 		nodePath,
-		setCodeValues,
+		setPropStatuses,
 		applyOptimistic: (prev) =>
 			optimisticUpdateEffectKeyframeSettings({
 				previous: prev,
@@ -78,7 +78,7 @@ export const callUpdateEffectKeyframeSettings = ({
 				settings,
 			}),
 		applyServerResponse: (prev, response) =>
-			applyEffectResponseToCodeValues({previous: prev, response}),
+			applyEffectResponseToPropStatuses({previous: prev, response}),
 		apiCall: () =>
 			callApi('/api/update-effect-keyframe-settings', {
 				fileName,

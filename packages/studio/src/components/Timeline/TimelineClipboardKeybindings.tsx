@@ -13,8 +13,8 @@ import type React from 'react';
 import {useContext, useEffect} from 'react';
 import {
 	Internals,
-	type CodeValues,
 	type OverrideIdToNodePaths,
+	type PropStatuses,
 	type SequenceFieldSchema,
 	type SequencePropsSubscriptionKey,
 	type SequenceSchema,
@@ -159,8 +159,8 @@ export const getPasteEffectsTarget = (
 };
 
 type CopyableEffectStatus = React.ContextType<
-	typeof Internals.VisualModeCodeValuesContext
->['codeValues'][string] extends infer TCodeValue
+	typeof Internals.VisualModePropStatusesContext
+>['propStatuses'][string] extends infer TCodeValue
 	? TCodeValue extends {canUpdate: true; effects: readonly unknown[]}
 		? Extract<TCodeValue['effects'][number], {canUpdate: true}>
 		: never
@@ -234,12 +234,12 @@ const effectStatusToSnapshot = (
 
 export const getSnapshotsFromSelection = ({
 	selection,
-	codeValues,
+	propStatuses,
 }: {
 	selection: TimelineSelection;
-	codeValues: React.ContextType<
-		typeof Internals.VisualModeCodeValuesContext
-	>['codeValues'];
+	propStatuses: React.ContextType<
+		typeof Internals.VisualModePropStatusesContext
+	>['propStatuses'];
 }): EffectClipboardSnapshot[] | null => {
 	if (
 		selection.type !== 'sequence-effect' &&
@@ -250,7 +250,7 @@ export const getSnapshotsFromSelection = ({
 
 	const {sequenceSubscriptionKey} = selection.nodePathInfo;
 	const sequenceStatus =
-		codeValues[
+		propStatuses[
 			Internals.makeSequencePropsSubscriptionKey(sequenceSubscriptionKey)
 		];
 	if (!sequenceStatus || !sequenceStatus.canUpdate) {
@@ -287,17 +287,17 @@ export const getSnapshotsFromSelection = ({
 
 export const getEffectPropClipboardDataFromSelection = ({
 	selection,
-	codeValues,
+	propStatuses,
 }: {
 	selection: TimelineSelection;
-	codeValues: CodeValues;
+	propStatuses: PropStatuses;
 }): EffectPropClipboardData | null => {
 	if (selection.type !== 'sequence-effect-prop') {
 		return null;
 	}
 
 	const sequenceStatus =
-		codeValues[
+		propStatuses[
 			Internals.makeSequencePropsSubscriptionKey(
 				selection.nodePathInfo.sequenceSubscriptionKey,
 			)
@@ -339,13 +339,13 @@ export const getEffectPropClipboardDataFromSelection = ({
 export const getPasteEffectPropTarget = ({
 	selectedItems,
 	payload,
-	codeValues,
+	propStatuses,
 	sequences,
 	overrideIdsToNodePaths,
 }: {
 	readonly selectedItems: readonly TimelineSelection[];
 	readonly payload: EffectPropClipboardData;
-	readonly codeValues: CodeValues;
+	readonly propStatuses: PropStatuses;
 	readonly sequences: TSequence[];
 	readonly overrideIdsToNodePaths: OverrideIdToNodePaths;
 }): PasteEffectPropTarget => {
@@ -407,7 +407,7 @@ export const getPasteEffectPropTarget = ({
 	}
 
 	const sequenceStatus =
-		codeValues[
+		propStatuses[
 			Internals.makeSequencePropsSubscriptionKey(
 				selection.nodePathInfo.sequenceSubscriptionKey,
 			)
@@ -448,8 +448,8 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {canSelect} = useTimelineSelection();
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
-	const {codeValues} = useContext(Internals.VisualModeCodeValuesContext);
-	const {setCodeValues} = useContext(Internals.VisualModeSettersContext);
+	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
+	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {sequences} = useContext(Internals.SequenceManager);
 	const {overrideIdToNodePathMappings} = useContext(
 		Internals.OverrideIdsToNodePathsGettersContext,
@@ -487,7 +487,7 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 
 					const payload = getEffectPropClipboardDataFromSelection({
 						selection: selectedItems[0],
-						codeValues,
+						propStatuses,
 					});
 					if (payload === null) {
 						showNotification(
@@ -532,7 +532,7 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 				const snapshots = selectedItems.flatMap((selection) => {
 					const itemSnapshots = getSnapshotsFromSelection({
 						selection,
-						codeValues,
+						propStatuses,
 					});
 					return itemSnapshots ?? [null];
 				});
@@ -602,7 +602,7 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 							const effectPropTarget = getPasteEffectPropTarget({
 								selectedItems,
 								payload: effectPropResult.data,
-								codeValues,
+								propStatuses,
 								sequences,
 								overrideIdsToNodePaths: overrideIdToNodePathMappings,
 							});
@@ -668,7 +668,7 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 										}),
 								defaultValue: effectPropTarget.defaultValue,
 								schema: effectPropTarget.schema,
-								setCodeValues,
+								setPropStatuses,
 								clientId,
 							}).then(() => {
 								showNotification('Pasted effect prop', 2000);
@@ -745,13 +745,13 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 		};
 	}, [
 		canSelect,
-		codeValues,
+		propStatuses,
 		currentSelection,
 		keybindings,
 		overrideIdToNodePathMappings,
 		previewServerState,
 		sequences,
-		setCodeValues,
+		setPropStatuses,
 	]);
 
 	return null;

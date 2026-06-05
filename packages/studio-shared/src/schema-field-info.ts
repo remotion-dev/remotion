@@ -1,10 +1,10 @@
 import type {
 	ArrayFieldSchema,
-	CodeValues,
 	DragOverrides,
 	EffectDefinition,
 	GetDragOverrides,
 	GetEffectDragOverrides,
+	PropStatuses,
 	SequenceControls,
 	SequencePropsSubscriptionKey,
 	SequenceSchema,
@@ -13,7 +13,7 @@ import type {
 import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 
-export type {CodeValues, DragOverrides, SequenceControls};
+export type {DragOverrides, PropStatuses, SequenceControls};
 
 export type SchemaFieldInfo = {
 	key: string;
@@ -98,7 +98,7 @@ const getEffectFieldValue = ({
 }: {
 	key: string;
 	dragOverrides: DragOverrides[string];
-	effectStatus: ReturnType<typeof Internals.getEffectCodeValuesCtx> | null;
+	effectStatus: ReturnType<typeof Internals.getEffectPropStatusesCtx> | null;
 }): unknown => {
 	const dragOverride = Internals.getStaticDragOverrideValue(dragOverrides[key]);
 	if (dragOverride !== undefined) {
@@ -119,7 +119,7 @@ const getEffectFieldValue = ({
 
 export const getFieldsToShow = ({
 	getDragOverrides,
-	codeValues,
+	propStatuses,
 	nodePath,
 	schema,
 	currentRuntimeValueDotNotation,
@@ -127,7 +127,7 @@ export const getFieldsToShow = ({
 	schema: SequenceSchema;
 	currentRuntimeValueDotNotation: Record<string, unknown>;
 	getDragOverrides: GetDragOverrides;
-	codeValues: CodeValues;
+	propStatuses: PropStatuses;
 	nodePath: SequencePropsSubscriptionKey;
 }): SequenceSchemaFieldInfo[] | null => {
 	const {merged: valuesDotNotation} =
@@ -135,7 +135,7 @@ export const getFieldsToShow = ({
 			schema,
 			currentValue: currentRuntimeValueDotNotation,
 			overrideValues: getDragOverrides(nodePath),
-			propStatus: Internals.getCodeValuesCtx(codeValues, nodePath),
+			propStatus: Internals.getPropStatusesCtx(propStatuses, nodePath),
 			frame: null,
 		});
 
@@ -184,20 +184,20 @@ export const getEffectFieldsToShow = ({
 	effect,
 	effectIndex,
 	nodePath,
-	codeValues,
+	propStatuses,
 	getEffectDragOverrides,
 }: {
 	effect: EffectDefinition<unknown>;
 	effectIndex: number;
 	nodePath: SequencePropsSubscriptionKey | null;
-	codeValues: CodeValues;
+	propStatuses: PropStatuses;
 	getEffectDragOverrides: GetEffectDragOverrides;
 }): EffectSchemaFieldInfo[] => {
 	const effectStatus =
 		nodePath === null
 			? null
-			: Internals.getEffectCodeValuesCtx({
-					codeValues,
+			: Internals.getEffectPropStatusesCtx({
+					propStatuses,
 					nodePath,
 					effectIndex,
 				});

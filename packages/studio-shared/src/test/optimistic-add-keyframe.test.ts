@@ -188,7 +188,6 @@ test('optimisticAddSequenceKeyframe appends a keyframe to an existing interpolat
 		props: {
 			scale: {
 				status: 'keyframed',
-				codeValue: undefined,
 				interpolationFunction: 'interpolate',
 				keyframes: [
 					{frame: 0, value: 1},
@@ -232,7 +231,6 @@ test('optimisticAddSequenceKeyframe updates an existing keyframe at the same fra
 		props: {
 			scale: {
 				status: 'keyframed',
-				codeValue: undefined,
 				interpolationFunction: 'interpolate',
 				keyframes: [
 					{frame: 0, value: 1},
@@ -282,7 +280,6 @@ test('optimisticAddEffectKeyframe appends a keyframe on the target effect', () =
 				props: {
 					amount: {
 						status: 'keyframed',
-						codeValue: undefined,
 						interpolationFunction: 'interpolate',
 						keyframes: [{frame: 0, value: 0.2}],
 						easing: [],

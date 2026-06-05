@@ -1,5 +1,6 @@
 import {useContext, useRef} from 'react';
 import {resolveDragOverrideValue} from '../get-effective-visual-mode-value.js';
+import {interpolateKeyframedStatus} from '../interpolate-keyframed-status.js';
 import {OverrideIdsToNodePathsGettersContext} from '../sequence-node-path.js';
 import type {
 	CannotUpdateEffectReason,
@@ -7,17 +8,15 @@ import type {
 } from '../SequenceManager.js';
 import {
 	makeSequencePropsSubscriptionKey,
-	type SequencePropsSubscriptionKey,
-} from '../SequenceManager.js';
-import {
-	VisualModeCodeValuesContext,
 	VisualModeDragOverridesContext,
+	VisualModePropStatusesContext,
+	type SequencePropsSubscriptionKey,
 } from '../SequenceManager.js';
 import {useCurrentFrame} from '../use-current-frame.js';
 import {
 	type CanUpdateSequencePropStatus,
-	type CodeValues,
 	type DragOverrideValue,
+	type PropStatuses,
 } from '../use-schema.js';
 import type {
 	EffectDefinition,
@@ -27,16 +26,16 @@ import type {
 
 const mergeOverrides = ({
 	descriptor,
-	codeOverrides,
+	propStatusOverrides,
 	dragOverrides,
 	frame,
 }: {
 	descriptor: EffectDescriptor<unknown>;
-	codeOverrides: Record<string, unknown> | null;
+	propStatusOverrides: Record<string, unknown> | null;
 	dragOverrides: Record<string, DragOverrideValue> | null;
 	frame: number;
 }): {params: unknown; effectKey: string} => {
-	if (!codeOverrides && !dragOverrides) {
+	if (!propStatusOverrides && !dragOverrides) {
 		return {params: descriptor.params, effectKey: descriptor.effectKey};
 	}
 
@@ -44,8 +43,8 @@ const mergeOverrides = ({
 		...(descriptor.params as Record<string, unknown>),
 	};
 
-	if (codeOverrides) {
-		for (const [key, value] of Object.entries(codeOverrides)) {
+	if (propStatusOverrides) {
+		for (const [key, value] of Object.entries(propStatusOverrides)) {
 			if (value !== undefined) {
 				merged[key] = value;
 			}
@@ -70,8 +69,9 @@ const mergeOverrides = ({
 	};
 };
 
-const extractCodeOverrides = (
+const resolvePropStatusOverrides = (
 	propStatus: Record<string, CanUpdateSequencePropStatus> | undefined,
+	frame: number,
 ): Record<string, unknown> | null => {
 	if (!propStatus) {
 		return null;
@@ -80,9 +80,21 @@ const extractCodeOverrides = (
 	const out: Record<string, unknown> = {};
 	let hasAny = false;
 	for (const [key, status] of Object.entries(propStatus)) {
-		if (status.status !== 'computed') {
+		if (status.status === 'static') {
 			out[key] = status.codeValue;
 			hasAny = true;
+			continue;
+		}
+
+		if (status.status === 'keyframed') {
+			const value = interpolateKeyframedStatus({
+				frame,
+				status,
+			});
+			if (value !== null) {
+				out[key] = value;
+				hasAny = true;
+			}
 		}
 	}
 
@@ -124,16 +136,16 @@ type EffectStatus =
 			props: Record<string, CanUpdateSequencePropStatus>;
 	  };
 
-export const getEffectCodeValuesCtx = ({
-	codeValues,
+export const getEffectPropStatusesCtx = ({
+	propStatuses,
 	nodePath,
 	effectIndex,
 }: {
-	codeValues: CodeValues;
+	propStatuses: PropStatuses;
 	nodePath: SequencePropsSubscriptionKey;
 	effectIndex: number;
 }): EffectStatus => {
-	const status = codeValues[makeSequencePropsSubscriptionKey(nodePath)];
+	const status = propStatuses[makeSequencePropsSubscriptionKey(nodePath)];
 	if (!status) {
 		return {type: 'cannot-update-sequence', reason: 'not-found'};
 	}
@@ -154,11 +166,11 @@ export const getEffectCodeValuesCtx = ({
 	return {type: 'can-update-effect', props: effect.props};
 };
 
-export const getCodeValuesCtx = (
-	codeValues: CodeValues,
+export const getPropStatusesCtx = (
+	propStatuses: PropStatuses,
 	nodePath: SequencePropsSubscriptionKey,
 ) => {
-	const status = codeValues[makeSequencePropsSubscriptionKey(nodePath)];
+	const status = propStatuses[makeSequencePropsSubscriptionKey(nodePath)];
 	if (!status) {
 		return undefined;
 	}
@@ -170,7 +182,7 @@ export const getCodeValuesCtx = (
 	return status.props;
 };
 
-export type GetCodeValuesType = typeof getCodeValuesCtx;
+export type GetPropStatusesType = typeof getPropStatusesCtx;
 
 export const useMemoizedEffects = ({
 	effects,
@@ -181,7 +193,7 @@ export const useMemoizedEffects = ({
 }): EffectDefinitionAndStack<unknown>[] => {
 	const previousRef = useRef<EffectDefinitionAndStack<unknown>[] | null>(null);
 
-	const {codeValues} = useContext(VisualModeCodeValuesContext);
+	const {propStatuses} = useContext(VisualModePropStatusesContext);
 	const {getEffectDragOverrides} = useContext(VisualModeDragOverridesContext);
 	const frame = useCurrentFrame();
 
@@ -204,14 +216,14 @@ export const useMemoizedEffects = ({
 			};
 		}
 
-		const effectStatus = getEffectCodeValuesCtx({
-			codeValues,
+		const effectStatus = getEffectPropStatusesCtx({
+			propStatuses,
 			nodePath,
 			effectIndex: index,
 		});
-		const codeOverrides =
+		const propStatusOverrides =
 			effectStatus.type === 'can-update-effect'
-				? extractCodeOverrides(effectStatus.props)
+				? resolvePropStatusOverrides(effectStatus.props, frame)
 				: null;
 		const dragOverridesMap = getEffectDragOverrides(nodePath, index);
 		const dragOverrides =
@@ -219,7 +231,7 @@ export const useMemoizedEffects = ({
 
 		const {params, effectKey} = mergeOverrides({
 			descriptor,
-			codeOverrides,
+			propStatusOverrides,
 			dragOverrides,
 			frame,
 		});

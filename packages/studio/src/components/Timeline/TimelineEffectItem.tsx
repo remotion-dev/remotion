@@ -124,8 +124,8 @@ export const TimelineEffectItem: React.FC<{
 }) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const previewConnected = previewServerState.type === 'connected';
-	const {codeValues} = useContext(Internals.VisualModeCodeValuesContext);
-	const {setCodeValues} = useContext(Internals.VisualModeSettersContext);
+	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
+	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const selection = useTimelineRowSelection(nodePathInfo);
 	const [dropIndicator, setDropIndicator] = useState<'before' | 'after' | null>(
 		null,
@@ -133,12 +133,12 @@ export const TimelineEffectItem: React.FC<{
 
 	const effectStatus = useMemo(
 		() =>
-			Internals.getEffectCodeValuesCtx({
-				codeValues,
+			Internals.getEffectPropStatusesCtx({
+				propStatuses,
 				nodePath,
 				effectIndex,
 			}),
-		[codeValues, nodePath, effectIndex],
+		[propStatuses, nodePath, effectIndex],
 	);
 
 	const disabledStatus =
@@ -273,7 +273,7 @@ export const TimelineEffectItem: React.FC<{
 				value: newValue,
 				defaultValue,
 				schema: effectSchema,
-				setCodeValues,
+				setPropStatuses,
 				clientId: previewServerState.clientId,
 			});
 		},
@@ -283,7 +283,7 @@ export const TimelineEffectItem: React.FC<{
 			effectSchema,
 			nodePath,
 			previewServerState,
-			setCodeValues,
+			setPropStatuses,
 			validatedLocation.source,
 		],
 	);

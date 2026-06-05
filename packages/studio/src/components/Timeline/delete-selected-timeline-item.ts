@@ -7,7 +7,7 @@ import {
 	deleteSelectedKeyframe,
 	deleteSelectedKeyframes,
 } from './delete-selected-keyframe';
-import type {SetCodeValues} from './save-sequence-prop';
+import type {SetPropStatuses} from './save-sequence-prop';
 import type {TimelineSelection} from './TimelineSelection';
 
 const confirmDeletingDuplicatedSequences = (
@@ -142,14 +142,14 @@ export const deleteSelectedTimelineItem = ({
 	selection,
 	sequences,
 	overrideIdsToNodePaths,
-	setCodeValues,
+	setPropStatuses,
 	clientId,
 	confirm,
 }: {
 	selection: TimelineSelection;
 	sequences: TSequence[];
 	overrideIdsToNodePaths: OverrideIdToNodePaths;
-	setCodeValues: SetCodeValues;
+	setPropStatuses: SetPropStatuses;
 	clientId: string;
 	confirm: ConfirmationDialogFunction;
 }): Promise<boolean> | null => {
@@ -159,7 +159,7 @@ export const deleteSelectedTimelineItem = ({
 			frame: selection.frame,
 			sequences,
 			overrideIdsToNodePaths,
-			setCodeValues,
+			setPropStatuses,
 			clientId,
 		});
 		return promise?.then(() => true) ?? null;
@@ -235,14 +235,14 @@ export const deleteSelectedTimelineItems = ({
 	selections,
 	sequences,
 	overrideIdsToNodePaths,
-	setCodeValues,
+	setPropStatuses,
 	clientId,
 	confirm,
 }: {
 	selections: readonly TimelineSelection[];
 	sequences: TSequence[];
 	overrideIdsToNodePaths: OverrideIdToNodePaths;
-	setCodeValues: SetCodeValues;
+	setPropStatuses: SetPropStatuses;
 	clientId: string;
 	confirm: ConfirmationDialogFunction;
 }): Promise<boolean> | null => {
@@ -277,7 +277,7 @@ export const deleteSelectedTimelineItems = ({
 				})),
 				sequences,
 				overrideIdsToNodePaths,
-				setCodeValues,
+				setPropStatuses,
 				clientId,
 			});
 			return promise?.then(() => true) ?? null;

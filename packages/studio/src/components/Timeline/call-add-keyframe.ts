@@ -4,9 +4,9 @@ import {
 } from '@remotion/studio-shared';
 import type {SequencePropsSubscriptionKey, SequenceSchema} from 'remotion';
 import {callApi} from '../call-api';
-import {applyEffectResponseToCodeValues} from './apply-effect-response-to-code-values';
+import {applyEffectResponseToPropStatuses} from './apply-effect-response-to-prop-statuses';
 import {enqueueSavePropChange} from './save-prop-queue';
-import type {SetCodeValues} from './save-sequence-prop';
+import type {SetPropStatuses} from './save-sequence-prop';
 
 export const callAddSequenceKeyframe = ({
 	fileName,
@@ -15,7 +15,7 @@ export const callAddSequenceKeyframe = ({
 	sourceFrame,
 	value,
 	schema,
-	setCodeValues,
+	setPropStatuses,
 	clientId,
 }: {
 	fileName: string;
@@ -24,12 +24,12 @@ export const callAddSequenceKeyframe = ({
 	sourceFrame: number;
 	value: unknown;
 	schema: SequenceSchema;
-	setCodeValues: SetCodeValues;
+	setPropStatuses: SetPropStatuses;
 	clientId: string;
 }): Promise<void> => {
 	return enqueueSavePropChange({
 		nodePath,
-		setCodeValues,
+		setPropStatuses,
 		applyOptimistic: (prev) =>
 			optimisticAddSequenceKeyframe({
 				previous: prev,
@@ -60,7 +60,7 @@ export const callAddEffectKeyframe = ({
 	sourceFrame,
 	value,
 	schema,
-	setCodeValues,
+	setPropStatuses,
 	clientId,
 }: {
 	fileName: string;
@@ -70,12 +70,12 @@ export const callAddEffectKeyframe = ({
 	sourceFrame: number;
 	value: unknown;
 	schema: SequenceSchema;
-	setCodeValues: SetCodeValues;
+	setPropStatuses: SetPropStatuses;
 	clientId: string;
 }): Promise<void> => {
 	return enqueueSavePropChange({
 		nodePath,
-		setCodeValues,
+		setPropStatuses,
 		applyOptimistic: (prev) =>
 			optimisticAddEffectKeyframe({
 				previous: prev,
@@ -86,7 +86,7 @@ export const callAddEffectKeyframe = ({
 				schema,
 			}),
 		applyServerResponse: (prev, response) =>
-			applyEffectResponseToCodeValues({previous: prev, response}),
+			applyEffectResponseToPropStatuses({previous: prev, response}),
 		apiCall: () =>
 			callApi('/api/add-effect-keyframe', {
 				fileName,

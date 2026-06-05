@@ -1,8 +1,8 @@
 import {expect, test} from 'bun:test';
 import type {CanUpdateSequencePropsResponse} from 'remotion';
-import {optimisticUpdateForEffectCodeValues} from '../optimistic-update-for-effect-code-values';
+import {optimisticUpdateForEffectPropStatuses} from '../optimistic-update-for-effect-prop-statuses';
 
-test('optimisticUpdateForEffectCodeValues updates the matching effect prop', () => {
+test('optimisticUpdateForEffectPropStatuses updates the matching effect prop', () => {
 	const previous: CanUpdateSequencePropsResponse = {
 		canUpdate: true,
 		props: {},
@@ -20,7 +20,7 @@ test('optimisticUpdateForEffectCodeValues updates the matching effect prop', () 
 		],
 	};
 
-	const updated = optimisticUpdateForEffectCodeValues({
+	const updated = optimisticUpdateForEffectPropStatuses({
 		previous,
 		effectIndex: 0,
 		fieldKey: 'opacity',
@@ -47,13 +47,13 @@ test('optimisticUpdateForEffectCodeValues updates the matching effect prop', () 
 	});
 });
 
-test('optimisticUpdateForEffectCodeValues is a no-op when sequence is not updateable', () => {
+test('optimisticUpdateForEffectPropStatuses is a no-op when sequence is not updateable', () => {
 	const previous: CanUpdateSequencePropsResponse = {
 		canUpdate: false,
 		reason: 'not-found',
 	};
 
-	const result = optimisticUpdateForEffectCodeValues({
+	const result = optimisticUpdateForEffectPropStatuses({
 		previous,
 		effectIndex: 0,
 		fieldKey: 'opacity',
@@ -64,14 +64,14 @@ test('optimisticUpdateForEffectCodeValues is a no-op when sequence is not update
 	expect(result).toBe(previous);
 });
 
-test('optimisticUpdateForEffectCodeValues is a no-op when effect index not found', () => {
+test('optimisticUpdateForEffectPropStatuses is a no-op when effect index not found', () => {
 	const previous: CanUpdateSequencePropsResponse = {
 		canUpdate: true,
 		props: {},
 		effects: [],
 	};
 
-	const result = optimisticUpdateForEffectCodeValues({
+	const result = optimisticUpdateForEffectPropStatuses({
 		previous,
 		effectIndex: 0,
 		fieldKey: 'opacity',
@@ -82,7 +82,7 @@ test('optimisticUpdateForEffectCodeValues is a no-op when effect index not found
 	expect(result).toBe(previous);
 });
 
-test('optimisticUpdateForEffectCodeValues applies when effect props are unset (zero-arg style)', () => {
+test('optimisticUpdateForEffectPropStatuses applies when effect props are unset (zero-arg style)', () => {
 	const previous: CanUpdateSequencePropsResponse = {
 		canUpdate: true,
 		props: {},
@@ -99,7 +99,7 @@ test('optimisticUpdateForEffectCodeValues applies when effect props are unset (z
 		],
 	};
 
-	const updated = optimisticUpdateForEffectCodeValues({
+	const updated = optimisticUpdateForEffectPropStatuses({
 		previous,
 		effectIndex: 0,
 		fieldKey: 'amount',

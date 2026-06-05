@@ -56,7 +56,6 @@ const addKeyframeToPropStatus = ({
 
 		return {
 			status: 'keyframed',
-			codeValue: undefined,
 			interpolationFunction: getKeyframeInterpolationFunction({
 				schema,
 				key: fieldKey,

@@ -11,7 +11,6 @@ const previous: CanUpdateSequencePropsResponse = {
 	props: {
 		scale: {
 			status: 'keyframed',
-			codeValue: undefined,
 			interpolationFunction: 'interpolate',
 			keyframes: [
 				{frame: 0, value: 1},
@@ -32,7 +31,6 @@ const previous: CanUpdateSequencePropsResponse = {
 			props: {
 				amount: {
 					status: 'keyframed',
-					codeValue: undefined,
 					interpolationFunction: 'interpolate',
 					keyframes: [
 						{frame: 0, value: 0.2},

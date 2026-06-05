@@ -1,9 +1,9 @@
 import {expect, test} from 'bun:test';
 import {type CanUpdateSequencePropsResponse} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
-import {optimisticUpdateForCodeValues} from '../optimistic-update-for-code-values';
+import {optimisticUpdateForPropStatuses} from '../optimistic-update-for-prop-statuses';
 
-test('optimisticUpdateForCodeValues should return the correct response', () => {
+test('optimisticUpdateForPropStatuses should return the correct response', () => {
 	const previous: CanUpdateSequencePropsResponse = {
 		canUpdate: true,
 		props: {
@@ -14,7 +14,7 @@ test('optimisticUpdateForCodeValues should return the correct response', () => {
 		},
 		effects: [],
 	};
-	const updated = optimisticUpdateForCodeValues({
+	const updated = optimisticUpdateForPropStatuses({
 		previous,
 		fieldKey: 'style.opacity',
 		value: 0.6,
@@ -32,7 +32,7 @@ test('optimisticUpdateForCodeValues should return the correct response', () => {
 		effects: [],
 	});
 
-	const layout = optimisticUpdateForCodeValues({
+	const layout = optimisticUpdateForPropStatuses({
 		previous: updated,
 		fieldKey: 'layout',
 		value: 'none',

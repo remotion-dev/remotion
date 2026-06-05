@@ -11,7 +11,6 @@ import {
 
 const makeKeyframedStatus = (): CanUpdateSequencePropStatusKeyframed => ({
 	status: 'keyframed',
-	codeValue: undefined,
 	interpolationFunction: 'interpolate',
 	keyframes: [
 		{frame: 0, value: 2},
@@ -102,7 +101,7 @@ test('getEffectiveVisualModeValue resolves keyframed drag overrides at the sourc
 
 	expect(
 		getEffectiveVisualModeValue({
-			codeValue: {
+			propStatus: {
 				status: 'static',
 				codeValue: 2,
 			},

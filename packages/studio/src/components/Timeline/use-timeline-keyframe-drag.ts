@@ -3,9 +3,9 @@ import type React from 'react';
 import {useCallback, useContext} from 'react';
 import type {
 	CanUpdateSequencePropStatusKeyframed,
-	CodeValues,
 	DragOverrideValue,
 	OverrideIdToNodePaths,
+	PropStatuses,
 	SequencePropsSubscriptionKey,
 	SequenceSchema,
 	TSequence,
@@ -55,21 +55,21 @@ const isKeyframeSelection = (
 ): selection is TimelineKeyframeSelection => selection.type === 'keyframe';
 
 const getCodeValueForTarget = ({
-	codeValues,
+	propStatuses,
 	nodePath,
 }: {
-	readonly codeValues: CodeValues;
+	readonly propStatuses: PropStatuses;
 	readonly nodePath: SequencePropsSubscriptionKey;
-}) => codeValues[Internals.makeSequencePropsSubscriptionKey(nodePath)];
+}) => propStatuses[Internals.makeSequencePropsSubscriptionKey(nodePath)];
 
 const getTimelineKeyframeDragTarget = ({
-	codeValues,
+	propStatuses,
 	displayFrame,
 	nodePathInfo,
 	overrideIdsToNodePaths,
 	sequences,
 }: {
-	readonly codeValues: CodeValues;
+	readonly propStatuses: PropStatuses;
 	readonly displayFrame: number;
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly overrideIdsToNodePaths: OverrideIdToNodePaths;
@@ -93,7 +93,7 @@ const getTimelineKeyframeDragTarget = ({
 	const sourceFrame = displayFrame - (track?.keyframeDisplayOffset ?? 0);
 	const nodePath = nodePathInfo.sequenceSubscriptionKey;
 	const fileName = nodePath.absolutePath;
-	const sequenceStatus = getCodeValueForTarget({codeValues, nodePath});
+	const sequenceStatus = getCodeValueForTarget({propStatuses, nodePath});
 	if (!sequenceStatus?.canUpdate) {
 		return null;
 	}
@@ -358,11 +358,11 @@ export const useTimelineKeyframeDrag = ({
 	const {overrideIdToNodePathMappings} = useContext(
 		Internals.OverrideIdsToNodePathsGettersContext,
 	);
-	const {codeValues} = useContext(Internals.VisualModeCodeValuesContext);
+	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 	const {
 		clearDragOverrides,
 		clearEffectDragOverrides,
-		setCodeValues,
+		setPropStatuses,
 		setDragOverrides,
 		setEffectDragOverrides,
 	} = useContext(Internals.VisualModeSettersContext);
@@ -420,7 +420,7 @@ export const useTimelineKeyframeDrag = ({
 				dragTargets = keyframesToDrag
 					.map((keyframe) =>
 						getTimelineKeyframeDragTarget({
-							codeValues,
+							propStatuses,
 							displayFrame: keyframe.frame,
 							nodePathInfo: keyframe.nodePathInfo,
 							overrideIdsToNodePaths: overrideIdToNodePathMappings,
@@ -568,7 +568,7 @@ export const useTimelineKeyframeDrag = ({
 							toFrame: target.sourceFrame + lastDelta,
 							schema: target.schema,
 						})),
-					setCodeValues,
+					setPropStatuses,
 					clientId: previewServerState.clientId,
 				}).catch(() => undefined);
 			};
@@ -587,7 +587,7 @@ export const useTimelineKeyframeDrag = ({
 			clearDragOverrides,
 			clearEffectDragOverrides,
 			clearDraggedKeyframes,
-			codeValues,
+			propStatuses,
 			currentSelection,
 			frame,
 			nodePathInfo,
@@ -597,7 +597,7 @@ export const useTimelineKeyframeDrag = ({
 			selectable,
 			selected,
 			sequences,
-			setCodeValues,
+			setPropStatuses,
 			setDragOverrides,
 			setDraggedKeyframes,
 			setEffectDragOverrides,

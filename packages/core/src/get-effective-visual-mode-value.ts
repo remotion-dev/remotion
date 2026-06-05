@@ -45,13 +45,13 @@ export const resolveDragOverrideValue = ({
 };
 
 export const getEffectiveVisualModeValue = ({
-	codeValue,
+	propStatus,
 	dragOverrideValue,
 	defaultValue,
 	frame = null,
 	shouldResortToDefaultValueIfUndefined = false,
 }: {
-	codeValue:
+	propStatus:
 		| CanUpdateSequencePropStatusStatic
 		| CanUpdateSequencePropStatusKeyframed;
 	dragOverrideValue: DragOverrideValue | undefined;
@@ -67,19 +67,23 @@ export const getEffectiveVisualModeValue = ({
 		return dragOverride.value;
 	}
 
-	if (codeValue.status === 'keyframed' && frame !== null) {
-		return interpolateKeyframedStatus({
-			frame,
-			status: codeValue,
-		});
+	if (propStatus.status === 'keyframed') {
+		if (frame !== null) {
+			return interpolateKeyframedStatus({
+				frame,
+				status: propStatus,
+			});
+		}
+
+		return shouldResortToDefaultValueIfUndefined ? defaultValue : undefined;
 	}
 
 	if (
-		codeValue.codeValue === undefined &&
+		propStatus.codeValue === undefined &&
 		shouldResortToDefaultValueIfUndefined
 	) {
 		return defaultValue;
 	}
 
-	return codeValue.codeValue;
+	return propStatus.codeValue;
 };

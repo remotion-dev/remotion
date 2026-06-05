@@ -1,20 +1,17 @@
 import {
-	type CanUpdateEffectPropsResponse,
 	type CanUpdateSequencePropsResponse,
 	type CanUpdateSequencePropStatus,
 	type SequenceSchema,
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 
-export const optimisticUpdateForEffectCodeValues = ({
+export const optimisticUpdateForPropStatuses = ({
 	previous,
-	effectIndex,
 	fieldKey,
 	value,
 	schema,
 }: {
 	previous: CanUpdateSequencePropsResponse;
-	effectIndex: number;
 	fieldKey: string;
 	value: unknown;
 	schema: SequenceSchema;
@@ -23,20 +20,8 @@ export const optimisticUpdateForEffectCodeValues = ({
 		return previous;
 	}
 
-	const targetIndex = previous.effects.findIndex(
-		(e) => e.effectIndex === effectIndex,
-	);
-	if (targetIndex === -1) {
-		return previous;
-	}
-
-	const target = previous.effects[targetIndex];
-	if (!target.canUpdate) {
-		return previous;
-	}
-
 	const props: Record<string, CanUpdateSequencePropStatus> = {
-		...target.props,
+		...previous.props,
 		[fieldKey]: {status: 'static', codeValue: value},
 	};
 
@@ -51,16 +36,9 @@ export const optimisticUpdateForEffectCodeValues = ({
 		}
 	}
 
-	const updatedEffect: CanUpdateEffectPropsResponse = {
-		...target,
-		props,
-	};
-
-	const effects = [...previous.effects];
-	effects[targetIndex] = updatedEffect;
-
 	return {
-		...previous,
-		effects,
+		canUpdate: true,
+		props,
+		effects: previous.effects,
 	};
 };

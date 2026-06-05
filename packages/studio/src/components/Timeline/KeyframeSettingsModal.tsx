@@ -99,7 +99,7 @@ export const KeyframeSettingsModal: React.FC<{
 	readonly state: KeyframeSettingsModalState;
 }> = ({state}) => {
 	const {setSelectedModal} = useContext(ModalsContext);
-	const {setCodeValues} = useContext(Internals.VisualModeSettersContext);
+	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const [left, setLeft] = useState(state.status.clamping.left);
 	const [right, setRight] = useState(state.status.clamping.right);
@@ -142,7 +142,7 @@ export const KeyframeSettingsModal: React.FC<{
 						fieldKey: state.fieldKey,
 						settings,
 						schema: state.schema,
-						setCodeValues,
+						setPropStatuses,
 						clientId: previewServerState.clientId,
 					})
 				: callUpdateEffectKeyframeSettings({
@@ -152,7 +152,7 @@ export const KeyframeSettingsModal: React.FC<{
 						fieldKey: state.fieldKey,
 						settings,
 						schema: state.schema,
-						setCodeValues,
+						setPropStatuses,
 						clientId: previewServerState.clientId,
 					});
 
@@ -166,7 +166,7 @@ export const KeyframeSettingsModal: React.FC<{
 		posterize,
 		previewServerState,
 		right,
-		setCodeValues,
+		setPropStatuses,
 		state,
 	]);
 

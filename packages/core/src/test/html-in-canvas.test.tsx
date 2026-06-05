@@ -8,8 +8,8 @@ import {Internals} from '../internals.js';
 import type {SequenceManagerContext} from '../SequenceManager.js';
 import {
 	SequenceManager,
-	VisualModeCodeValuesContext,
 	VisualModeDragOverridesContext,
+	VisualModePropStatusesContext,
 	VisualModeSettersContext,
 } from '../SequenceManager.js';
 import {WrapSequenceContext} from './wrap-sequence-context.js';
@@ -133,9 +133,9 @@ const SequenceTestWrapper: React.FC<{
 		};
 	}, [registerSequence, unregisterSequence]);
 
-	const visualCodeValues = useMemo(
+	const visualPropStatuses = useMemo(
 		() => ({
-			codeValues: {},
+			propStatuses: {},
 		}),
 		[],
 	);
@@ -156,7 +156,7 @@ const SequenceTestWrapper: React.FC<{
 		() => ({
 			clearDragOverrides: () => undefined,
 			clearEffectDragOverrides: () => undefined,
-			setCodeValues: () => undefined,
+			setPropStatuses: () => undefined,
 			setDragOverrides: () => undefined,
 			setEffectDragOverrides: () => undefined,
 		}),
@@ -175,7 +175,7 @@ const SequenceTestWrapper: React.FC<{
 				}}
 			>
 				<SequenceManager.Provider value={sequenceManagerContext}>
-					<VisualModeCodeValuesContext.Provider value={visualCodeValues}>
+					<VisualModePropStatusesContext.Provider value={visualPropStatuses}>
 						<VisualModeDragOverridesContext.Provider
 							value={visualDragOverrides}
 						>
@@ -183,7 +183,7 @@ const SequenceTestWrapper: React.FC<{
 								{children}
 							</VisualModeSettersContext.Provider>
 						</VisualModeDragOverridesContext.Provider>
-					</VisualModeCodeValuesContext.Provider>
+					</VisualModePropStatusesContext.Provider>
 				</SequenceManager.Provider>
 			</Internals.RemotionEnvironmentContext>
 		</WrapSequenceContext>

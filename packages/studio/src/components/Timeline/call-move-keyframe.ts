@@ -4,7 +4,7 @@ import {
 } from '@remotion/studio-shared';
 import type {SequencePropsSubscriptionKey, SequenceSchema} from 'remotion';
 import {callApi} from '../call-api';
-import type {SetCodeValues} from './save-sequence-prop';
+import type {SetPropStatuses} from './save-sequence-prop';
 
 export type MoveSequenceKeyframeChange = {
 	fileName: string;
@@ -36,12 +36,12 @@ const groupByNodePath = <T extends {nodePath: SequencePropsSubscriptionKey}>(
 export const callMoveKeyframes = ({
 	sequenceKeyframes,
 	effectKeyframes,
-	setCodeValues,
+	setPropStatuses,
 	clientId,
 }: {
 	sequenceKeyframes: MoveSequenceKeyframeChange[];
 	effectKeyframes: MoveEffectKeyframeChange[];
-	setCodeValues: SetCodeValues;
+	setPropStatuses: SetPropStatuses;
 	clientId: string;
 }): Promise<void> => {
 	if (sequenceKeyframes.length === 0 && effectKeyframes.length === 0) {
@@ -54,7 +54,7 @@ export const callMoveKeyframes = ({
 			continue;
 		}
 
-		setCodeValues(firstKeyframe.nodePath, (prev) =>
+		setPropStatuses(firstKeyframe.nodePath, (prev) =>
 			optimisticMoveSequenceKeyframes({
 				previous: prev,
 				keyframes: keyframes.map((keyframe) => ({
@@ -72,7 +72,7 @@ export const callMoveKeyframes = ({
 			continue;
 		}
 
-		setCodeValues(firstKeyframe.nodePath, (prev) =>
+		setPropStatuses(firstKeyframe.nodePath, (prev) =>
 			optimisticMoveEffectKeyframes({
 				previous: prev,
 				keyframes: keyframes.map((keyframe) => ({

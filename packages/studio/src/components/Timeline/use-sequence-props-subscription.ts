@@ -21,7 +21,7 @@ export const useSequencePropsSubscription = ({
 	effects: SequenceSchema[];
 	originalLocation: OriginalPosition | null;
 }) => {
-	const {setCodeValues} = useContext(Internals.VisualModeSettersContext);
+	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {setOverrideIdToNodePath} = useContext(
 		Internals.OverrideIdsToNodePathsSettersContext,
 	);
@@ -91,7 +91,7 @@ export const useSequencePropsSubscription = ({
 					return;
 				}
 
-				setCodeValues(result.nodePath, () => result.status);
+				setPropStatuses(result.nodePath, () => result.status);
 			},
 			applyEach: (result) => {
 				if (!result.success) {
@@ -135,7 +135,7 @@ export const useSequencePropsSubscription = ({
 		migrateExpandedTracksForSubscriptionKey,
 		overrideId,
 		schema,
-		setCodeValues,
+		setPropStatuses,
 		setOverrideIdToNodePath,
 	]);
 };
