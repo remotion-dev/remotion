@@ -47,6 +47,7 @@ export const RenameStaticFileModal: React.FC<{
 	const newRelativePath = useMemo(() => {
 		return [parent, newName].filter(Boolean).join('/');
 	}, [newName, parent]);
+	const changed = newRelativePath !== relativePath;
 
 	const validationMessage = useMemo(() => {
 		const trimmedName = newName.trim();
@@ -62,10 +63,6 @@ export const RenameStaticFileModal: React.FC<{
 			return 'Name cannot include slashes';
 		}
 
-		if (newRelativePath === relativePath) {
-			return 'Choose a different name';
-		}
-
 		const existingFile = staticFiles.find((file) => {
 			return file.name === newRelativePath && file.name !== relativePath;
 		});
@@ -77,7 +74,7 @@ export const RenameStaticFileModal: React.FC<{
 		return null;
 	}, [newName, newRelativePath, relativePath, staticFiles]);
 
-	const valid = validationMessage === null;
+	const valid = changed && validationMessage === null;
 
 	const onNameChange: ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
@@ -119,6 +116,7 @@ export const RenameStaticFileModal: React.FC<{
 			});
 	}, [
 		canvasContent,
+		changed,
 		newRelativePath,
 		relativePath,
 		setCanvasContent,
