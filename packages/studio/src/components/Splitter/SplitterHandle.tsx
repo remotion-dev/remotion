@@ -46,6 +46,7 @@ export const SplitterHandle: React.FC<{
 				return;
 			}
 
+			// Prevent deselection of currently selected items
 			e.stopPropagation();
 
 			// Capture the context and starting flex once, at drag start. The flex

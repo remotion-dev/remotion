@@ -33,6 +33,7 @@ export const SubMenuComponent: React.FC<{
 	);
 
 	const onPointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+		// Prevent deselection of currently selected items
 		e.stopPropagation();
 	}, []);
 

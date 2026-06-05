@@ -40,6 +40,7 @@ export const ModalContainer: React.FC<{
 	readonly noZIndex?: boolean;
 }> = ({children, onEscape, onOutsideClick, noZIndex}) => {
 	const onPointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+		// Prevent deselection of currently selected items
 		e.stopPropagation();
 	}, []);
 

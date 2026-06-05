@@ -102,6 +102,7 @@ export const Combobox: React.FC<{
 
 	const onOverlayPointerDown = useCallback(
 		(e: React.PointerEvent<HTMLDivElement>) => {
+			// Prevent deselection of currently selected items
 			e.stopPropagation();
 		},
 		[],
@@ -116,6 +117,7 @@ export const Combobox: React.FC<{
 		const onMouseEnter = () => setIsHovered(true);
 		const onMouseLeave = () => setIsHovered(false);
 		const onPointerDown = (e: PointerEvent) => {
+			// Prevent deselection of currently selected items
 			e.stopPropagation();
 
 			return setOpened((o) => {

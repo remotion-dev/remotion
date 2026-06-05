@@ -137,6 +137,7 @@ export const RenderButton: React.FC<{readonly readOnlyStudio: boolean}> = ({
 
 	const onPointerDown = useCallback(
 		(e: React.PointerEvent<HTMLButtonElement>) => {
+			// Prevent deselection of currently selected items
 			e.stopPropagation();
 			setDropdownOpened((o) => {
 				if (!o) {
@@ -151,6 +152,7 @@ export const RenderButton: React.FC<{readonly readOnlyStudio: boolean}> = ({
 
 	const onMenuPointerDown = useCallback(
 		(e: React.PointerEvent<HTMLDivElement>) => {
+			// Prevent deselection of currently selected items
 			e.stopPropagation();
 		},
 		[],

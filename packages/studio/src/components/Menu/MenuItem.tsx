@@ -102,6 +102,7 @@ export const MenuItem: React.FC<{
 	const onPointerDown: React.PointerEventHandler<HTMLButtonElement> =
 		useCallback(
 			(e) => {
+				// Prevent deselection of currently selected items
 				e.stopPropagation();
 				if (e.button !== 0) {
 					return;
@@ -126,6 +127,7 @@ export const MenuItem: React.FC<{
 
 	const onMenuPointerDown = useCallback(
 		(e: React.PointerEvent<HTMLDivElement>) => {
+			// Prevent deselection of currently selected items
 			e.stopPropagation();
 		},
 		[],

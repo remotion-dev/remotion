@@ -90,6 +90,7 @@ const PreviewToolbarControl: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
 	const onPointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+		// Prevent deselection of currently selected items
 		e.stopPropagation();
 	}, []);
 
