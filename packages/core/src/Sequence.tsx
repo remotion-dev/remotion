@@ -75,7 +75,7 @@ export type SequencePropsWithoutDuration = {
 	/**
 	 * @deprecated For internal use only.
 	 */
-	readonly _remotionInternalStack?: string | null;
+	readonly _remotionInternalStack?: string;
 	/**
 	 * @deprecated For internal use only.
 	 */
@@ -282,7 +282,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	// Our assumption: Stack doesnt' change. After we symbolicate we assign it a nodePath
 	// and if it changes, it would lead to-remounting of the sequence.
 	const stackRef = useRef<string | null>(null);
-	stackRef.current = stack === undefined ? inheritedStack : stack;
+	stackRef.current = stack ?? inheritedStack;
 
 	useEffect(() => {
 		if (!env.isStudio) {
@@ -546,6 +546,7 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 };
 
 const SequenceInner = forwardRef(SequenceRefForwardingFunction);
+export const SequenceWithoutSchema = SequenceInner;
 
 /*
  * @description A component that time-shifts its children and wraps them in an absolutely positioned <div>.

@@ -8,7 +8,7 @@ import React, {
 import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
 import {sequenceSchemaDefaultLayoutNone} from '../sequence-field-schema.js';
 import type {LayoutAndStyle, SequenceProps} from '../Sequence.js';
-import {Sequence, SequenceWithoutFrom} from '../Sequence.js';
+import {Sequence, SequenceWithoutSchema} from '../Sequence.js';
 import {validateDurationInFrames} from '../validation/validate-duration-in-frames.js';
 import {wrapInSchema} from '../wrap-in-schema.js';
 import {flattenChildren} from './flatten-children.js';
@@ -23,10 +23,6 @@ type SeriesSequenceProps = PropsWithChildren<
 		readonly durationInFrames: number;
 		readonly offset?: number;
 		readonly className?: string;
-		/**
-		 * @deprecated For internal use only.
-		 */
-		readonly stack?: string;
 	} & Pick<SequenceProps, 'layout' | 'name' | 'hidden'> &
 		LayoutAndStyle
 >;
@@ -44,9 +40,10 @@ const SeriesSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 const SeriesSequence = forwardRef(SeriesSequenceRefForwardingFunction);
 
 type SeriesProps = SequenceProps;
-const SequenceWithoutFromWithRef = SequenceWithoutFrom as React.ComponentType<
-	SequenceProps & {readonly ref?: React.Ref<HTMLDivElement>}
->;
+const SequenceWithoutSchemaWithRef =
+	SequenceWithoutSchema as React.ComponentType<
+		SequenceProps & {readonly ref?: React.Ref<HTMLDivElement>}
+	>;
 
 const SeriesInner: FC<SeriesProps> = (props) => {
 	const childrenValue = useMemo(() => {
@@ -119,10 +116,9 @@ const SeriesInner: FC<SeriesProps> = (props) => {
 
 			const currentStartFrame = startFrame + offset;
 			startFrame += durationInFramesProp + offset;
-			const sequenceStack = passedProps.stack ?? null;
 
 			return (
-				<SequenceWithoutFromWithRef
+				<SequenceWithoutSchemaWithRef
 					ref={castedChild.ref}
 					name={name || '<Series.Sequence>'}
 					_remotionInternalDocumentationLink={
@@ -131,14 +127,12 @@ const SeriesInner: FC<SeriesProps> = (props) => {
 					from={currentStartFrame}
 					durationInFrames={durationInFramesProp}
 					{...passedProps}
-					_remotionInternalStack={sequenceStack}
 				>
 					{child}
-				</SequenceWithoutFromWithRef>
+				</SequenceWithoutSchemaWithRef>
 			);
 		});
 	}, [props.children]);
-	const seriesStack = (props as {readonly stack?: string}).stack ?? null;
 
 	return (
 		<IsInsideSeriesContainer>
@@ -147,7 +141,6 @@ const SeriesInner: FC<SeriesProps> = (props) => {
 				name="<Series>"
 				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/series"
 				{...props}
-				_remotionInternalStack={seriesStack}
 			>
 				{childrenValue}
 			</Sequence>
@@ -171,8 +164,5 @@ const Series: React.ComponentType<SeriesProps> & {
 		Sequence: SeriesSequence,
 	},
 );
-
 export {Series};
-
 addSequenceStackTraces(Series);
-addSequenceStackTraces(SeriesSequence);
