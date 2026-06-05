@@ -20,6 +20,7 @@ import {
 import type {ExpressionKind, SpreadElementKind} from 'ast-types/lib/gen/kinds';
 import * as recast from 'recast';
 import type {
+	ExtrapolateType,
 	SequenceFieldSchema,
 	SequenceNodePath,
 	SequenceSchema,
@@ -55,6 +56,16 @@ export type KeyframeOperation =
 	| {
 			type: 'remove';
 			frame: number;
+	  }
+	| {
+			type: 'settings';
+			clamping:
+				| {
+						left: ExtrapolateType;
+						right: ExtrapolateType;
+				  }
+				| undefined;
+			posterize: number | undefined;
 	  }
 	| {
 			type: 'move';
@@ -239,6 +250,142 @@ const createClampOptionsExpression = (): ExpressionKind => {
 			b.stringLiteral('clamp'),
 		),
 	]) as ExpressionKind;
+};
+
+const createEmptyOptionsExpression = (): ObjectExpression =>
+	b.objectExpression([]) as ObjectExpression;
+
+const findObjectOptionProperty = (
+	options: ObjectExpression,
+	propertyName: string,
+): {propIndex: number; prop: ObjectProperty | undefined} => {
+	const propIndex = options.properties.findIndex(
+		(prop) =>
+			prop.type === 'ObjectProperty' &&
+			!prop.computed &&
+			((prop.key.type === 'Identifier' && prop.key.name === propertyName) ||
+				(prop.key.type === 'StringLiteral' && prop.key.value === propertyName)),
+	);
+
+	return {
+		propIndex,
+		prop:
+			propIndex === -1
+				? undefined
+				: (options.properties[propIndex] as ObjectProperty),
+	};
+};
+
+const setOptionsProperty = ({
+	options,
+	propertyName,
+	value,
+}: {
+	options: ObjectExpression;
+	propertyName: string;
+	value: ExpressionKind | null;
+}) => {
+	const {propIndex, prop} = findObjectOptionProperty(options, propertyName);
+	if (value === null) {
+		if (propIndex !== -1) {
+			options.properties.splice(propIndex, 1);
+		}
+
+		return;
+	}
+
+	if (prop) {
+		prop.value = value as ObjectProperty['value'];
+		return;
+	}
+
+	options.properties.push(
+		b.objectProperty(b.identifier(propertyName), value) as ObjectProperty,
+	);
+};
+
+const validatePosterize = (posterize: number | undefined) => {
+	if (posterize === undefined) {
+		return;
+	}
+
+	if (!Number.isFinite(posterize) || posterize <= 0) {
+		throw new Error('Cannot update keyframe settings: posterize must be > 0');
+	}
+};
+
+const updateKeyframeSettings = ({
+	expression,
+	clamping,
+	posterize,
+}: {
+	expression: Expression;
+	clamping:
+		| {
+				left: ExtrapolateType;
+				right: ExtrapolateType;
+		  }
+		| undefined;
+	posterize: number | undefined;
+}): ExpressionKind => {
+	validatePosterize(posterize);
+
+	const existing = getInterpolationExpression(expression);
+	if (!existing) {
+		throw new Error('Cannot update keyframe settings on non-keyframed value');
+	}
+
+	const calleeName =
+		existing.callee.type === 'Identifier' ? existing.callee.name : null;
+	const isColorInterpolation = calleeName === 'interpolateColors';
+	const extraArgs = [...existing.extraArgs];
+	const existingOptions = extraArgs[0];
+	if (existingOptions && existingOptions.type !== 'ObjectExpression') {
+		throw new Error('Cannot update keyframe settings: options must be inline');
+	}
+
+	const options =
+		existingOptions?.type === 'ObjectExpression'
+			? (existingOptions as ObjectExpression)
+			: createEmptyOptionsExpression();
+
+	if (isColorInterpolation) {
+		setOptionsProperty({options, propertyName: 'extrapolateLeft', value: null});
+		setOptionsProperty({
+			options,
+			propertyName: 'extrapolateRight',
+			value: null,
+		});
+	} else if (clamping) {
+		setOptionsProperty({
+			options,
+			propertyName: 'extrapolateLeft',
+			value: b.stringLiteral(clamping.left),
+		});
+		setOptionsProperty({
+			options,
+			propertyName: 'extrapolateRight',
+			value: b.stringLiteral(clamping.right),
+		});
+	}
+
+	setOptionsProperty({
+		options,
+		propertyName: 'posterize',
+		value: posterize === undefined ? null : b.numericLiteral(posterize),
+	});
+
+	const nextExtraArgs =
+		options.properties.length === 0
+			? extraArgs.slice(1)
+			: [options as ExpressionKind, ...extraArgs.slice(1)];
+
+	return createInterpolateExpression({
+		callee: existing.callee,
+		input: existing.input,
+		extraArgs: nextExtraArgs,
+		keyframes: existing.keyframes,
+	});
 };
 
 const createInterpolateExpression = ({
@@ -492,6 +639,17 @@ const applyKeyframeOperation = ({
 			value: operation.value,
 			schema,
 		});
+	}
+
+	if (operation.type === 'settings') {
+		return {
+			expression: updateKeyframeSettings({
+				expression,
+				clamping: operation.clamping,
+				posterize: operation.posterize,
+			}),
+			introduced: noIntroducedIdentifiers,
+		};
 	}
 
 	if (operation.type === 'move') {

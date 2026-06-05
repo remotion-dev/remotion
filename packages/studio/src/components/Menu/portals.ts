@@ -1,12 +1,23 @@
-export const portals = [
-	document.getElementById('menuportal-0') as Element,
-	document.getElementById('menuportal-1') as Element,
-	document.getElementById('menuportal-2') as Element,
-	document.getElementById('menuportal-3') as Element,
-	document.getElementById('menuportal-4') as Element,
-	document.getElementById('menuportal-5') as Element,
+const portalIds = [
+	'menuportal-0',
+	'menuportal-1',
+	'menuportal-2',
+	'menuportal-3',
+	'menuportal-4',
+	'menuportal-5',
 ];
 
+export const portals: Element[] =
+	// This module is imported by Bun tests that run without a DOM.
+	typeof document === 'undefined'
+		? []
+		: portalIds.map((id) => document.getElementById(id) as Element);
+
 export const getPortal = (i: number) => {
-	return portals[i];
+	const portal = portals[i];
+	if (!portal) {
+		throw new Error(`Expected menu portal ${i} to exist`);
+	}
+
+	return portal;
 };

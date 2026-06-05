@@ -1,6 +1,7 @@
 import type {OverrideIdToNodePaths, TSequence} from 'remotion';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {callApi} from '../call-api';
+import type {ConfirmationDialogFunction} from '../ConfirmationDialog-types';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {
 	deleteSelectedKeyframe,
@@ -11,36 +12,42 @@ import type {TimelineSelection} from './TimelineSelection';
 
 const confirmDeletingDuplicatedSequences = (
 	nodePathInfos: SequenceNodePathInfo[],
-): boolean => {
+	confirm: ConfirmationDialogFunction,
+): Promise<boolean> => {
 	const duplicatedNodePathInfos = nodePathInfos.filter(
 		(nodePathInfo) => nodePathInfo.numberOfSequencesWithThisNodePath > 1,
 	);
 	if (duplicatedNodePathInfos.length === 0) {
-		return true;
+		return Promise.resolve(true);
 	}
 
 	if (duplicatedNodePathInfos.length === 1) {
 		const [nodePathInfo] = duplicatedNodePathInfos;
-		const singleDuplicatedSequenceMessage =
-			'This sequence is programmatically duplicated ' +
-			nodePathInfo.numberOfSequencesWithThisNodePath +
-			' times in the code. Deleting removes all instances. Continue?';
-		// eslint-disable-next-line no-alert -- native confirm before deleting all instances of a duplicated sequence
-		return window.confirm(singleDuplicatedSequenceMessage);
+		return confirm({
+			title: 'Delete sequence?',
+			message:
+				'This sequence is programmatically duplicated ' +
+				nodePathInfo.numberOfSequencesWithThisNodePath +
+				' times in the code. Deleting removes all instances. Continue?',
+			confirmLabel: 'Delete',
+		});
 	}
 
-	const multipleDuplicatedSequencesMessage =
-		duplicatedNodePathInfos.length +
-		' selected sequences are programmatically duplicated in the code. Deleting removes all instances. Continue?';
-	// eslint-disable-next-line no-alert -- native confirm before deleting all instances of duplicated sequences
-	return window.confirm(multipleDuplicatedSequencesMessage);
+	return confirm({
+		title: 'Delete sequences?',
+		message:
+			duplicatedNodePathInfos.length +
+			' selected sequences are programmatically duplicated in the code. Deleting removes all instances. Continue?',
+		confirmLabel: 'Delete',
+	});
 };
 
-const deleteSequences = (
+const deleteSequences = async (
 	nodePathInfos: SequenceNodePathInfo[],
-): Promise<void> => {
-	if (!confirmDeletingDuplicatedSequences(nodePathInfos)) {
-		return Promise.resolve();
+	confirm: ConfirmationDialogFunction,
+): Promise<boolean> => {
+	if (!(await confirmDeletingDuplicatedSequences(nodePathInfos, confirm))) {
+		return false;
 	}
 
 	return callApi('/api/delete-jsx-node', {
@@ -64,9 +71,12 @@ const deleteSequences = (
 			} else {
 				showNotification(result.reason, 4000);
 			}
+
+			return true;
 		})
 		.catch((err) => {
 			showNotification((err as Error).message, 4000);
+			return true;
 		});
 };
 
@@ -82,9 +92,9 @@ const deleteEffects = (
 				type: 'all-effects';
 		  }
 	))[],
-): Promise<void> => {
+): Promise<boolean> => {
 	if (effects.length === 0) {
-		return Promise.resolve();
+		return Promise.resolve(false);
 	}
 
 	return callApi(
@@ -119,9 +129,12 @@ const deleteEffects = (
 			} else {
 				showNotification(result.reason, 4000);
 			}
+
+			return true;
 		})
 		.catch((err) => {
 			showNotification((err as Error).message, 4000);
+			return true;
 		});
 };
 
@@ -131,15 +144,17 @@ export const deleteSelectedTimelineItem = ({
 	overrideIdsToNodePaths,
 	setCodeValues,
 	clientId,
+	confirm,
 }: {
 	selection: TimelineSelection;
 	sequences: TSequence[];
 	overrideIdsToNodePaths: OverrideIdToNodePaths;
 	setCodeValues: SetCodeValues;
 	clientId: string;
-}): Promise<void> | null => {
+	confirm: ConfirmationDialogFunction;
+}): Promise<boolean> | null => {
 	if (selection.type === 'keyframe') {
-		return deleteSelectedKeyframe({
+		const promise = deleteSelectedKeyframe({
 			nodePathInfo: selection.nodePathInfo,
 			frame: selection.frame,
 			sequences,
@@ -147,11 +162,12 @@ export const deleteSelectedTimelineItem = ({
 			setCodeValues,
 			clientId,
 		});
+		return promise?.then(() => true) ?? null;
 	}
 
 	switch (selection.type) {
 		case 'sequence':
-			return deleteSequences([selection.nodePathInfo]);
+			return deleteSequences([selection.nodePathInfo], confirm);
 		case 'sequence-effect':
 			return deleteEffects([
 				{
@@ -221,13 +237,15 @@ export const deleteSelectedTimelineItems = ({
 	overrideIdsToNodePaths,
 	setCodeValues,
 	clientId,
+	confirm,
 }: {
 	selections: readonly TimelineSelection[];
 	sequences: TSequence[];
 	overrideIdsToNodePaths: OverrideIdToNodePaths;
 	setCodeValues: SetCodeValues;
 	clientId: string;
-}): Promise<void> | null => {
+	confirm: ConfirmationDialogFunction;
+}): Promise<boolean> | null => {
 	const firstSelection = selections[0];
 	if (!firstSelection) {
 		return null;
@@ -241,6 +259,7 @@ export const deleteSelectedTimelineItems = ({
 				selections
 					.filter(isSequenceRowSelection)
 					.map((selection) => selection.nodePathInfo),
+				confirm,
 			);
 		case 'sequence-effect':
 			return deleteEffects(
@@ -251,7 +270,7 @@ export const deleteSelectedTimelineItems = ({
 				})),
 			);
 		case 'keyframe': {
-			return deleteSelectedKeyframes({
+			const promise = deleteSelectedKeyframes({
 				keyframes: selections.filter(isKeyframeSelection).map((selection) => ({
 					nodePathInfo: selection.nodePathInfo,
 					frame: selection.frame,
@@ -261,6 +280,7 @@ export const deleteSelectedTimelineItems = ({
 				setCodeValues,
 				clientId,
 			});
+			return promise?.then(() => true) ?? null;
 		}
 
 		case 'sequence-prop':

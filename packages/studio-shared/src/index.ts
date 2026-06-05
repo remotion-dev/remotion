@@ -31,6 +31,8 @@ export {
 	DeleteSequenceKeyframe,
 	DeleteStaticFileRequest,
 	DeleteStaticFileResponse,
+	DownloadRemoteAssetRequest,
+	DownloadRemoteAssetResponse,
 	DuplicateJsxNodeRequest,
 	DuplicateJsxNodeResponse,
 	InsertJsxElementRequest,
@@ -38,6 +40,8 @@ export {
 	InsertableCompositionElement,
 	InstallPackageRequest,
 	InstallPackageResponse,
+	LogStudioErrorRequest,
+	LogStudioErrorResponse,
 	MoveEffectKeyframe,
 	MoveKeyframesRequest,
 	MoveKeyframesResponse,
@@ -54,6 +58,11 @@ export {
 	RemoveRenderRequest,
 	ReorderEffectRequest,
 	ReorderEffectResponse,
+	ReorderSequencePosition,
+	ReorderSequenceRequest,
+	ReorderSequenceResponse,
+	RenameStaticFileRequest,
+	RenameStaticFileResponse,
 	RestartStudioRequest,
 	RestartStudioResponse,
 	SaveEffectPropsRequest,
@@ -78,12 +87,32 @@ export {
 	UpdateAvailableResponse,
 	UpdateDefaultPropsRequest,
 	UpdateDefaultPropsResponse,
+	UpdateEffectKeyframeSettingsRequest,
+	UpdateEffectKeyframeSettingsResponse,
+	UpdateSequenceKeyframeSettingsRequest,
+	UpdateSequenceKeyframeSettingsResponse,
+	type KeyframeSettings,
 } from './api-requests';
+export {
+	ASSET_DRAG_MIME_TYPE,
+	makeAssetDragData,
+	parseAssetDragData,
+	type AssetDragData,
+} from './asset-drag-data';
 export type {ApplyVisualControlCodemod, RecastCodemod} from './codemods';
 export {DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS} from './default-buffer-state-delay-in-milliseconds';
 export {
+	detectFileType,
+	isImageFileType,
+	type FileDimensions,
+	type FileType,
+	type ImageFileType,
+} from './detect-file-type';
+export {
 	parseEffectClipboardData,
 	parseEffectClipboardDataResult,
+	parseEffectPropClipboardData,
+	parseEffectPropClipboardDataResult,
 	type EffectClipboardClamping,
 	type EffectClipboardData,
 	type EffectClipboardDataParseResult,
@@ -96,6 +125,8 @@ export {
 	type EffectClipboardPasteType,
 	type EffectClipboardSnapshot,
 	type EffectClipboardStaticParam,
+	type EffectPropClipboardData,
+	type EffectPropClipboardDataParseResult,
 } from './effect-clipboard-data';
 export {
 	EFFECT_DRAG_MIME_TYPE,
@@ -158,6 +189,10 @@ export {
 } from './render-job';
 export type {CompletedClientRender} from './render-job';
 export {
+	getRequiredPackageForEffectImportPath,
+	getRequiredPackageForInsertableElement,
+} from './required-package';
+export {
 	SCHEMA_FIELD_ROW_HEIGHT,
 	getEffectFieldsToShow,
 	getFieldsToShow,
@@ -191,12 +226,17 @@ export {
 	optimisticDeleteSequenceKeyframes,
 } from './optimistic-delete-keyframe';
 export {
+	canMoveKeyframesWithoutCollisions,
 	optimisticMoveEffectKeyframes,
 	optimisticMoveSequenceKeyframes,
 	type OptimisticKeyframeMove,
 } from './optimistic-move-keyframe';
 export {optimisticUpdateForCodeValues} from './optimistic-update-for-code-values';
 export {optimisticUpdateForEffectCodeValues} from './optimistic-update-for-effect-code-values';
+export {
+	optimisticUpdateEffectKeyframeSettings,
+	optimisticUpdateSequenceKeyframeSettings,
+} from './optimistic-update-keyframe-settings';
 export {
 	stringifySequenceExpandedRowKey,
 	stringifySequenceSubscriptionKey,

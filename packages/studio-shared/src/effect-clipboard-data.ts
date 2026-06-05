@@ -57,10 +57,35 @@ export type EffectClipboardData = {
 	readonly effects: EffectClipboardSnapshot[];
 };
 
+export type EffectPropClipboardData = {
+	readonly type: 'effect-prop';
+	readonly version: 1;
+	readonly remotionClipboard: 'effect-prop';
+	readonly effect: {
+		readonly callee: string;
+		readonly importPath: string;
+	};
+	readonly key: string;
+	readonly param: EffectClipboardParam;
+};
+
 export type EffectClipboardDataParseResult =
 	| {
 			readonly status: 'valid';
 			readonly data: EffectClipboardData;
+	  }
+	| {
+			readonly status: 'unsupported-version';
+			readonly version: unknown;
+	  }
+	| {
+			readonly status: 'invalid';
+	  };
+
+export type EffectPropClipboardDataParseResult =
+	| {
+			readonly status: 'valid';
+			readonly data: EffectPropClipboardData;
 	  }
 	| {
 			readonly status: 'unsupported-version';
@@ -210,6 +235,79 @@ export const parseEffectClipboardData = (
 	value: string,
 ): EffectClipboardData | null => {
 	const result = parseEffectClipboardDataResult(value);
+	if (result.status !== 'valid') {
+		return null;
+	}
+
+	return result.data;
+};
+
+export const parseEffectPropClipboardDataResult = (
+	value: string,
+): EffectPropClipboardDataParseResult => {
+	try {
+		const parsed: unknown = JSON.parse(value);
+		if (!isRecord(parsed)) {
+			return {status: 'invalid'};
+		}
+
+		if (parsed.remotionClipboard !== 'effect-prop') {
+			return {status: 'invalid'};
+		}
+
+		if (parsed.version !== 1) {
+			return {
+				status: 'unsupported-version',
+				version: parsed.version,
+			};
+		}
+
+		if (parsed.type !== 'effect-prop') {
+			return {status: 'invalid'};
+		}
+
+		if (!isRecord(parsed.effect)) {
+			return {status: 'invalid'};
+		}
+
+		if (
+			typeof parsed.effect.callee !== 'string' ||
+			typeof parsed.effect.importPath !== 'string'
+		) {
+			return {status: 'invalid'};
+		}
+
+		if (typeof parsed.key !== 'string') {
+			return {status: 'invalid'};
+		}
+
+		if (!isEffectClipboardParam(parsed.param)) {
+			return {status: 'invalid'};
+		}
+
+		return {
+			status: 'valid',
+			data: {
+				type: 'effect-prop',
+				version: 1,
+				remotionClipboard: 'effect-prop',
+				effect: {
+					callee: parsed.effect.callee,
+					importPath: parsed.effect.importPath,
+				},
+				key: parsed.key,
+				param: parsed.param,
+			},
+		};
+	} catch {
+		return {status: 'invalid'};
+	}
+};
+
+export const parseEffectPropClipboardData = (
+	value: string,
+): EffectPropClipboardData | null => {
+	const result = parseEffectPropClipboardDataResult(value);
 	if (result.status !== 'valid') {
 		return null;
 	}

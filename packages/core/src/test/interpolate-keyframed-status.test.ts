@@ -20,6 +20,25 @@ test('interpolates linear numeric keyframes', () => {
 	expect(result).toBe(50);
 });
 
+test('interpolates linear tuple keyframes', () => {
+	const result = interpolateKeyframedStatus({
+		frame: 30,
+		status: {
+			status: 'keyframed',
+			codeValue: undefined,
+			interpolationFunction: 'interpolate',
+			keyframes: [
+				{frame: 0, value: [0, 0.5]},
+				{frame: 60, value: [1, 0.5]},
+			],
+			easing: ['linear'],
+			clamping: {left: 'extend', right: 'extend'},
+			posterize: undefined,
+		},
+	});
+	expect(result).toEqual([0.5, 0.5]);
+});
+
 test('sorts keyframes before interpolating numeric values', () => {
 	const result = interpolateKeyframedStatus({
 		frame: 75,

@@ -47,6 +47,7 @@ export const halftoneLinearGradientSchema = {
 		step: 0.01,
 		default: DEFAULT_FIRST_STOP_POSITION,
 		description: 'First stop position',
+		lineTo: 'secondStopPosition',
 	},
 	secondStopPosition: {
 		type: 'uv-coordinate',

@@ -8,8 +8,10 @@ const buildInput = (
 	effects: string,
 ) => `import {HtmlInCanvas} from '@remotion/html-in-canvas';
 import {tint} from '@remotion/effects/tint';
+import {interpolate, useCurrentFrame} from 'remotion';
 
 export const Comp = () => {
+\tconst frame = useCurrentFrame();
 \treturn (
 \t\t<HtmlInCanvas effects={${effects}}>
 \t\t\thi
@@ -18,9 +20,21 @@ export const Comp = () => {
 };
 `;
 
+const getLine = (input: string, search: string) => {
+	const line = input.split('\n').findIndex((l) => l.includes(search));
+	if (line === -1) {
+		throw new Error(`Could not find line containing ${search}`);
+	}
+
+	return line + 1;
+};
+
 const findJsx = (input: string) => {
 	const ast = parseAst(input);
-	const jsx = findJsxElementAtNodePath(ast, lineColumnToNodePath(input, 6));
+	const jsx = findJsxElementAtNodePath(
+		ast,
+		lineColumnToNodePath(input, getLine(input, '<HtmlInCanvas')),
+	);
 	if (!jsx) {
 		throw new Error('JSX not found');
 	}
@@ -105,6 +119,37 @@ test('computeEffectPropStatus reports keyframes for inline interpolated effect p
 		clamping: {left: 'extend', right: 'extend'},
 		posterize: undefined,
 	});
+});
+
+test('computeEffectPropStatus reports interpolations over computed values as computed', () => {
+	const input = `import {HtmlInCanvas} from '@remotion/html-in-canvas';
+import {tint} from '@remotion/effects/tint';
+import {interpolate, useCurrentFrame} from 'remotion';
+
+export const Comp = () => {
+\tconst frame = useCurrentFrame();
+\tconst progress = interpolate(frame, [0, 100], [0, 1], {posterize: 3});
+\treturn (
+\t\t<HtmlInCanvas effects={[tint({amount: interpolate(progress, [0, 1], [0.2, 0.8])})]}>
+\t\t\thi
+\t\t</HtmlInCanvas>
+\t);
+};
+`;
+	const {ast, jsx} = findJsx(input);
+	const result = computeEffectPropStatus({
+		ast,
+		jsx,
+		effectIndex: 0,
+		keys: ['amount'],
+	});
+
+	expect(result.canUpdate).toBe(true);
+	if (!result.canUpdate) {
+		throw new Error('expected canUpdate true');
+	}
+
+	expect(result.props.amount).toEqual({status: 'computed'});
 });
 
 test('computeEffectPropStatus reports unset props as undefined codeValue', () => {

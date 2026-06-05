@@ -13,6 +13,7 @@ import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-sou
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import type {EffectSchemaFieldInfo} from '../../helpers/timeline-layout';
+import {ModalsContext} from '../../state/modals';
 import {callApi} from '../call-api';
 import {ContextMenu} from '../ContextMenu';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
@@ -186,6 +187,7 @@ const Value: React.FC<{
 					}),
 				apiCall: () =>
 					callApi('/api/save-effect-props', {
+						type: 'value',
 						fileName: validatedLocation.source,
 						sequenceNodePath: nodePath,
 						effectIndex: field.effectIndex,
@@ -340,6 +342,7 @@ export const TimelineEffectPropItem: React.FC<{
 	keyframeDisplayOffset,
 }) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const {setSelectedModal} = useContext(ModalsContext);
 	const {setCodeValues} = useContext(Internals.VisualModeSettersContext);
 	const {codeValues} = useContext(Internals.VisualModeCodeValuesContext);
 	const {getEffectDragOverrides} = useContext(
@@ -429,6 +432,7 @@ export const TimelineEffectPropItem: React.FC<{
 				: null;
 
 		saveEffectProp({
+			type: 'value',
 			fileName: validatedLocation.source,
 			nodePath,
 			effectIndex: field.effectIndex,
@@ -452,8 +456,34 @@ export const TimelineEffectPropItem: React.FC<{
 		validatedLocation.source,
 	]);
 
+	const onOpenKeyframeSettings = useCallback(() => {
+		if (propStatus === null || !isKeyframedStatus(propStatus)) {
+			return;
+		}
+
+		setSelectedModal({
+			type: 'keyframe-settings',
+			fileName: validatedLocation.source,
+			nodePath,
+			fieldKey: field.key,
+			fieldLabel: field.description ?? field.key,
+			status: propStatus,
+			schema: field.effectSchema,
+			effectIndex: field.effectIndex,
+		});
+	}, [
+		field.description,
+		field.effectIndex,
+		field.effectSchema,
+		field.key,
+		nodePath,
+		propStatus,
+		setSelectedModal,
+		validatedLocation.source,
+	]);
+
 	const contextMenuValues = useMemo((): ComboboxValue[] => {
-		return [
+		const values: ComboboxValue[] = [
 			{
 				type: 'item',
 				id: 'reset-effect-field',
@@ -467,7 +497,30 @@ export const TimelineEffectPropItem: React.FC<{
 				value: 'reset-effect-field',
 			},
 		];
-	}, [canShowReset, onReset]);
+
+		if (propStatus !== null && isKeyframedStatus(propStatus)) {
+			values.push({
+				type: 'item',
+				id: 'keyframe-settings-effect-field',
+				keyHint: null,
+				label: 'Keyframe settings...',
+				leftItem: null,
+				disabled: previewServerState.type !== 'connected',
+				onClick: onOpenKeyframeSettings,
+				quickSwitcherLabel: null,
+				subMenu: null,
+				value: 'keyframe-settings-effect-field',
+			});
+		}
+
+		return values;
+	}, [
+		canShowReset,
+		onOpenKeyframeSettings,
+		onReset,
+		previewServerState,
+		propStatus,
+	]);
 
 	const row = (
 		<TimelineRowChrome

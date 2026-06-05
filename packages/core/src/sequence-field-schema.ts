@@ -62,6 +62,7 @@ export type UvCoordinateFieldSchema = {
 	min?: number;
 	max?: number;
 	step?: number;
+	lineTo?: string;
 	default: readonly [number, number] | undefined;
 	description?: string;
 	keyframable?: boolean;
@@ -173,7 +174,6 @@ export const sequenceVisualStyleSchema = {
 	},
 	'style.scale': {
 		type: 'scale',
-		min: 0.05,
 		max: 100,
 		step: 0.01,
 		default: 1,

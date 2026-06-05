@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {detectFileType} from '../helpers/detect-file-type';
+import {detectFileType} from '../detect-file-type';
 
 test('detects PNG dimensions', () => {
 	const png = new Uint8Array(24);
@@ -32,12 +32,33 @@ test('detects GIF dimensions', () => {
 	});
 });
 
+test('returns null dimensions for short GIF signatures', () => {
+	expect(detectFileType(new Uint8Array([0x47, 0x49, 0x46, 0x38]))).toEqual({
+		type: 'gif',
+		dimensions: null,
+	});
+});
+
 test('detects iso base media and WebM files as videos', () => {
 	const mp4 = new Uint8Array([0, 0, 0, 24, 0x66, 0x74, 0x79, 0x70]);
 	const webm = new Uint8Array([0x1a, 0x45, 0xdf, 0xa3]);
 
 	expect(detectFileType(mp4)).toEqual({type: 'iso-base-media'});
 	expect(detectFileType(webm)).toEqual({type: 'webm'});
+});
+
+test('detects audio file signatures', () => {
+	const wav = new Uint8Array([
+		0x52, 0x49, 0x46, 0x46, 0, 0, 0, 0, 0x57, 0x41, 0x56, 0x45,
+	]);
+	const mp3 = new Uint8Array([0x49, 0x44, 0x33, 3]);
+	const aac = new Uint8Array([0xff, 0xf1]);
+	const flac = new Uint8Array([0x66, 0x4c, 0x61, 0x43]);
+
+	expect(detectFileType(wav)).toEqual({type: 'wav'});
+	expect(detectFileType(mp3)).toEqual({type: 'mp3'});
+	expect(detectFileType(aac)).toEqual({type: 'aac'});
+	expect(detectFileType(flac)).toEqual({type: 'flac'});
 });
 
 test('returns unknown for unsupported signatures', () => {

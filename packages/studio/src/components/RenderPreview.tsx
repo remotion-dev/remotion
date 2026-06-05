@@ -3,8 +3,8 @@ import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {LIGHT_TEXT} from '../helpers/colors';
 import type {AssetMetadata} from '../helpers/get-asset-metadata';
 import {remotion_outputsBase} from '../helpers/get-asset-metadata';
+import {getPreviewFileType} from '../helpers/get-preview-file-type';
 import {FilePreview} from './FilePreview';
-import {getPreviewFileType} from './Preview';
 
 const msgStyle: React.CSSProperties = {
 	fontSize: 13,

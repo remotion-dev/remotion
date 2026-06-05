@@ -8,6 +8,12 @@ import type {
 	CanUpdateSequencePropStatusKeyframed,
 } from './use-schema.js';
 
+type InterpolateKeyframedStatusResult =
+	| number
+	| string
+	| readonly number[]
+	| null;
+
 const easingToFn = (e: CanUpdateSequencePropStatusEasing): EasingFunction => {
 	if (e === 'linear') {
 		return Easing.linear;
@@ -22,7 +28,7 @@ export const interpolateKeyframedStatus = ({
 }: {
 	frame: number;
 	status: CanUpdateSequencePropStatusKeyframed;
-}): number | string | null => {
+}): InterpolateKeyframedStatusResult => {
 	const {keyframes, easing, clamping, interpolationFunction} = status;
 	if (keyframes.length === 0) {
 		return null;
@@ -55,12 +61,17 @@ export const interpolateKeyframedStatus = ({
 	}
 
 	try {
-		return interpolate(frame, inputRange, outputs as (number | string)[], {
-			easing: easing.map(easingToFn),
-			extrapolateLeft: clamping.left,
-			extrapolateRight: clamping.right,
-			posterize: status.posterize,
-		});
+		return interpolate(
+			frame,
+			inputRange,
+			outputs as (number | string | number[])[],
+			{
+				easing: easing.map(easingToFn),
+				extrapolateLeft: clamping.left,
+				extrapolateRight: clamping.right,
+				posterize: status.posterize,
+			},
+		);
 	} catch {
 		return null;
 	}

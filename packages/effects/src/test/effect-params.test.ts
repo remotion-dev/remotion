@@ -157,6 +157,7 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(evolve().definition.label).toBe('evolve()');
 	expect(dropShadow().definition.label).toBe('dropShadow()');
 	expect(fisheye().definition.label).toBe('fisheye()');
+	expect(glow().definition.label).toBe('glow()');
 	expect(grayscale().definition.label).toBe('grayscale()');
 	expect(halftone().definition.label).toBe('halftone()');
 	expect(halftoneLinearGradient().definition.label).toBe(
@@ -1130,6 +1131,15 @@ test('halftoneLinearGradient() accepts default params', () => {
 	expect(() => halftoneLinearGradient()).not.toThrow();
 });
 
+test('halftoneLinearGradient() connects its stop position controls', () => {
+	expect(
+		halftoneLinearGradient().definition.schema.firstStopPosition,
+	).toMatchObject({
+		type: 'uv-coordinate',
+		lineTo: 'secondStopPosition',
+	});
+});
+
 test('halftoneLinearGradient() rejects first stop dot size below range', () => {
 	expect(() => halftoneLinearGradient({firstStopDotSize: -1})).toThrow(
 		'"firstStopDotSize" must be >= 0',
@@ -1545,6 +1555,13 @@ test('lines() parameters produce distinct effect keys', () => {
 
 test('linearProgressiveBlur() accepts default params', () => {
 	expect(() => linearProgressiveBlur()).not.toThrow();
+});
+
+test('linearProgressiveBlur() connects its start and end controls', () => {
+	expect(linearProgressiveBlur().definition.schema.start).toMatchObject({
+		type: 'uv-coordinate',
+		lineTo: 'end',
+	});
 });
 
 test('linearProgressiveBlur() rejects invalid start', () => {

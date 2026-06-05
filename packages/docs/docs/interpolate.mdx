@@ -140,6 +140,29 @@ All values in one interpolation must have the same type.
 For each component, units must match.
 For missing dimensions, CSS defaults are used: scale defaults to `1`, translate and rotate default to `0`.
 
+## Example: Numeric tuples<AvailableFrom v="4.0.473" />
+
+`outputRange` may contain numeric tuples.
+Each tuple must contain the same number of numbers.
+
+```tsx twoslash title="MyComposition.tsx"
+import {interpolate, useCurrentFrame} from 'remotion';
+
+export const MyComposition: React.FC = () => {
+  const frame = useCurrentFrame();
+  const start: readonly [number, number] = interpolate(
+    frame,
+    [0, 60],
+    [
+      [0, 0.5],
+      [1, 0.5],
+    ],
+  );
+
+  return <div>{start.join(', ')}</div>;
+};
+```
+
 ## API
 
 Takes four arguments:

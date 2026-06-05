@@ -129,6 +129,33 @@ export const Example: React.FC = () => {
 	});
 });
 
+test('computeSequencePropsStatus should flag interpolations over computed values as computed', () => {
+	const input = `import React from 'react';
+import {Sequence, interpolate, useCurrentFrame} from 'remotion';
+
+export const Example: React.FC = () => {
+\tconst frame = useCurrentFrame();
+\tconst progress = interpolate(frame, [0, 100], [0, 1], {posterize: 3});
+\treturn (
+\t\t<Sequence style={{translate: interpolate(progress, [0, 1], ['0px 59px', '100px 20px'])}} />
+\t);
+};
+`;
+	const result = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 8),
+		keys: ['style.translate'],
+		effects: [],
+	});
+
+	expect(result.canUpdate).toBe(true);
+	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
+
+	expect(result.props['style.translate']).toEqual({
+		status: 'computed',
+	});
+});
+
 test('computeSequencePropsStatus should return keyframes for interpolated rotate props', () => {
 	const input = `import React from 'react';
 import {Sequence, interpolate, useCurrentFrame} from 'remotion';

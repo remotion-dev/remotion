@@ -17,12 +17,14 @@ import type {
 	CanUpdateSequencePropsResponseFalse,
 	CanUpdateSequencePropsResponseTrue,
 	CanUpdateSequencePropStatus,
+	ExtrapolateType,
 	SequenceNodePath,
 	SequencePropsSubscriptionKey,
 	SequenceSchema,
 } from 'remotion';
 import type {RecastCodemod, VisualControlChange} from './codemods';
 import type {
+	EffectClipboardParam,
 	EffectClipboardPasteType,
 	EffectClipboardSnapshot,
 } from './effect-clipboard-data';
@@ -221,6 +223,15 @@ export type DeleteStaticFileResponse = {
 	existed: boolean;
 };
 
+export type RenameStaticFileRequest = {
+	oldRelativePath: string;
+	newRelativePath: string;
+};
+
+export type RenameStaticFileResponse = {
+	success: boolean;
+};
+
 export type CanUpdateDefaultPropsResponse =
 	| {
 			canUpdate: true;
@@ -290,8 +301,8 @@ export type SaveSequencePropEdit = {
 export type SaveSequencePropsRequest = {
 	edits: SaveSequencePropEdit[];
 	clientId: string;
-	undoLabel: string | null;
-	redoLabel: string | null;
+	undoLabel: string;
+	redoLabel: string;
 };
 
 export type SaveSequencePropsResult = {
@@ -311,16 +322,25 @@ export type SaveSequencePropsResponse =
 			reason: CannotUpdateSequenceReason;
 	  };
 
-export type SaveEffectPropsRequest = {
+type SaveEffectPropsRequestBase = {
 	fileName: string;
 	sequenceNodePath: SequencePropsSubscriptionKey;
 	effectIndex: number;
 	key: string;
-	value: string;
 	defaultValue: string | null;
 	schema: SequenceSchema;
 	clientId: string;
 };
+
+export type SaveEffectPropsRequest =
+	| (SaveEffectPropsRequestBase & {
+			type: 'value';
+			value: string;
+	  })
+	| (SaveEffectPropsRequestBase & {
+			type: 'effect-param';
+			effectParam: EffectClipboardParam;
+	  });
 
 export type SaveEffectPropsResponse = CanUpdateEffectPropsResponse;
 
@@ -352,6 +372,26 @@ export type ReorderEffectRequest = {
 };
 
 export type ReorderEffectResponse =
+	| {
+			success: true;
+	  }
+	| {
+			success: false;
+			reason: string;
+			stack: string;
+	  };
+
+export type ReorderSequencePosition = 'before' | 'after';
+
+export type ReorderSequenceRequest = {
+	fileName: string;
+	sourceNodePath: SequencePropsSubscriptionKey;
+	targetNodePath: SequencePropsSubscriptionKey;
+	position: ReorderSequencePosition;
+	clientId: string;
+};
+
+export type ReorderSequenceResponse =
 	| {
 			success: true;
 	  }
@@ -442,6 +482,39 @@ export type AddEffectKeyframeRequest = {
 
 export type AddEffectKeyframeResponse = SaveEffectPropsResponse;
 
+export type KeyframeSettings = {
+	clamping:
+		| {
+				left: ExtrapolateType;
+				right: ExtrapolateType;
+		  }
+		| undefined;
+	posterize: number | undefined;
+};
+
+export type UpdateSequenceKeyframeSettingsRequest = {
+	fileName: string;
+	nodePath: SequencePropsSubscriptionKey;
+	key: string;
+	settings: KeyframeSettings;
+	schema: SequenceSchema;
+	clientId: string;
+};
+
+export type UpdateSequenceKeyframeSettingsResponse = SaveSequencePropsResponse;
+
+export type UpdateEffectKeyframeSettingsRequest = {
+	fileName: string;
+	sequenceNodePath: SequencePropsSubscriptionKey;
+	effectIndex: number;
+	key: string;
+	settings: KeyframeSettings;
+	schema: SequenceSchema;
+	clientId: string;
+};
+
+export type UpdateEffectKeyframeSettingsResponse = SaveEffectPropsResponse;
+
 type BaseDeleteEffectRequestItem = {
 	fileName: string;
 	sequenceNodePath: SequencePropsSubscriptionKey;
@@ -528,7 +601,7 @@ export type InsertableCompositionElement =
 	  }
 	| {
 			type: 'asset';
-			assetType: 'image' | 'video' | 'gif';
+			assetType: 'image' | 'video' | 'gif' | 'audio';
 			src: string;
 			dimensions: {
 				width: number;
@@ -551,6 +624,17 @@ export type InsertJsxElementResponse =
 			reason: string;
 			stack: string;
 	  };
+
+export type DownloadRemoteAssetRequest = {
+	url: string;
+};
+
+export type DownloadRemoteAssetResponse = {
+	assetPath: string;
+	sizeInBytes: number;
+	created: boolean;
+	element: InsertableCompositionElement;
+};
 
 export type UpdateAvailableRequest = {};
 export type UpdateAvailableResponse = {
@@ -593,6 +677,14 @@ export type RedoResponse =
 			success: false;
 			reason: string;
 	  };
+
+export type LogStudioErrorRequest = {
+	name: string | null;
+	message: string;
+	stack: string | null;
+	symbolicatedStackFrames: SymbolicatedStackFrame[] | null;
+};
+export type LogStudioErrorResponse = {};
 
 export type ApiRoutes = {
 	'/api/composition-component-info': ReqAndRes<
@@ -648,6 +740,10 @@ export type ApiRoutes = {
 	>;
 	'/api/add-effect': ReqAndRes<AddEffectRequest, AddEffectResponse>;
 	'/api/reorder-effect': ReqAndRes<ReorderEffectRequest, ReorderEffectResponse>;
+	'/api/reorder-sequence': ReqAndRes<
+		ReorderSequenceRequest,
+		ReorderSequenceResponse
+	>;
 	'/api/delete-keyframes': ReqAndRes<
 		DeleteKeyframesRequest,
 		DeleteKeyframesResponse
@@ -660,6 +756,14 @@ export type ApiRoutes = {
 	'/api/add-effect-keyframe': ReqAndRes<
 		AddEffectKeyframeRequest,
 		AddEffectKeyframeResponse
+	>;
+	'/api/update-sequence-keyframe-settings': ReqAndRes<
+		UpdateSequenceKeyframeSettingsRequest,
+		UpdateSequenceKeyframeSettingsResponse
+	>;
+	'/api/update-effect-keyframe-settings': ReqAndRes<
+		UpdateEffectKeyframeSettingsRequest,
+		UpdateEffectKeyframeSettingsResponse
 	>;
 	'/api/delete-effect': ReqAndRes<DeleteEffectRequest, DeleteEffectResponse>;
 	'/api/paste-effects': ReqAndRes<PasteEffectsRequest, PasteEffectsResponse>;
@@ -675,6 +779,10 @@ export type ApiRoutes = {
 		InsertJsxElementRequest,
 		InsertJsxElementResponse
 	>;
+	'/api/download-remote-asset': ReqAndRes<
+		DownloadRemoteAssetRequest,
+		DownloadRemoteAssetResponse
+	>;
 	'/api/update-available': ReqAndRes<
 		UpdateAvailableRequest,
 		UpdateAvailableResponse
@@ -685,6 +793,10 @@ export type ApiRoutes = {
 		DeleteStaticFileRequest,
 		DeleteStaticFileResponse
 	>;
+	'/api/rename-static-file': ReqAndRes<
+		RenameStaticFileRequest,
+		RenameStaticFileResponse
+	>;
 	'/api/restart-studio': ReqAndRes<RestartStudioRequest, RestartStudioResponse>;
 	'/api/install-package': ReqAndRes<
 		InstallPackageRequest,
@@ -692,4 +804,8 @@ export type ApiRoutes = {
 	>;
 	'/api/undo': ReqAndRes<UndoRequest, UndoResponse>;
 	'/api/redo': ReqAndRes<RedoRequest, RedoResponse>;
+	'/api/log-studio-error': ReqAndRes<
+		LogStudioErrorRequest,
+		LogStudioErrorResponse
+	>;
 };

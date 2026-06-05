@@ -33,6 +33,12 @@ type ParsedStringInterpolationValue = {
 	dimensions: number;
 };
 
+type NumericTuple = readonly [number, ...number[]];
+type InterpolateOutputValue = number | string | readonly number[];
+type WidenNumericTuple<T extends readonly number[]> = {
+	readonly [Key in keyof T]: number;
+};
+
 const angleUnits = new Set(['deg', 'rad', 'grad', 'turn']);
 const lengthUnits = new Set([
 	'%',
@@ -397,6 +403,62 @@ const interpolateString = ({
 	});
 };
 
+const validateTupleOutputRange = (
+	outputRange: readonly (readonly unknown[])[],
+): number => {
+	const dimensions = outputRange[0]?.length;
+	if (dimensions === undefined) {
+		throw new Error('outputRange must have at least 1 element');
+	}
+
+	if (dimensions === 0) {
+		throw new TypeError('outputRange tuples must contain at least 1 number');
+	}
+
+	for (const output of outputRange) {
+		if (output.length !== dimensions) {
+			throw new TypeError(
+				`outputRange tuples must all have the same length, but got ${dimensions} and ${output.length}`,
+			);
+		}
+
+		for (const value of output) {
+			if (typeof value !== 'number' || !Number.isFinite(value)) {
+				throw new TypeError(
+					`outputRange tuples must contain only finite numbers, but got [${output.join(
+						',',
+					)}]`,
+				);
+			}
+		}
+	}
+
+	return dimensions;
+};
+
+const interpolateTuple = ({
+	input,
+	inputRange,
+	outputRange,
+	options,
+}: {
+	input: number;
+	inputRange: readonly number[];
+	outputRange: readonly (readonly unknown[])[];
+	options: InterpolateOptions | undefined;
+}): number[] => {
+	const dimensions = validateTupleOutputRange(outputRange);
+
+	return new Array(dimensions).fill(true).map((_, axis) =>
+		interpolateNumber({
+			input,
+			inputRange,
+			outputRange: outputRange.map((output) => output[axis] as number),
+			options,
+		}),
+	);
+};
+
 function checkValidInputRange(arr: readonly number[]) {
 	for (let i = 1; i < arr.length; ++i) {
 		if (!(arr[i] > arr[i - 1])) {
@@ -488,18 +550,30 @@ export function interpolate(
 	outputRange: readonly string[],
 	options?: InterpolateOptions,
 ): string;
+export function interpolate<const Tuple extends NumericTuple>(
+	input: number,
+	inputRange: readonly number[],
+	outputRange: readonly Tuple[],
+	options?: InterpolateOptions,
+): WidenNumericTuple<Tuple>;
 export function interpolate(
 	input: number,
 	inputRange: readonly number[],
-	outputRange: readonly (number | string)[],
+	outputRange: readonly (readonly number[])[],
 	options?: InterpolateOptions,
-): number | string;
+): number[];
 export function interpolate(
 	input: number,
 	inputRange: readonly number[],
-	outputRange: readonly (number | string)[],
+	outputRange: readonly (number | string | readonly number[])[],
 	options?: InterpolateOptions,
-): number | string {
+): number | string | readonly number[];
+export function interpolate(
+	input: number,
+	inputRange: readonly number[],
+	outputRange: readonly InterpolateOutputValue[],
+	options?: InterpolateOptions,
+): number | string | readonly number[] {
 	if (typeof input === 'undefined') {
 		throw new Error('input can not be undefined');
 	}
@@ -553,9 +627,13 @@ export function interpolate(
 		return interpolateString({input, inputRange, outputRange, options});
 	}
 
+	if (outputRange.every((output) => Array.isArray(output))) {
+		return interpolateTuple({input, inputRange, outputRange, options});
+	}
+
 	if (!outputRange.every((output) => typeof output === 'number')) {
 		throw new TypeError(
-			'outputRange must contain only numbers, or supported scale, translate, and rotate strings',
+			'outputRange must contain only numbers, numeric tuples, or supported scale, translate, and rotate strings',
 		);
 	}
 

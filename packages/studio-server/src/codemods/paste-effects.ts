@@ -1,24 +1,25 @@
 import type {
 	ArrayExpression,
 	CallExpression,
-	File,
 	JSXAttribute,
 	ObjectExpression,
 	ObjectProperty,
 } from '@babel/types';
 import type {
-	EffectClipboardKeyframedParam,
-	EffectClipboardParam,
 	EffectClipboardPasteType,
 	EffectClipboardSnapshot,
 } from '@remotion/studio-shared';
-import type {ExpressionKind} from 'ast-types/lib/gen/kinds';
 import * as recast from 'recast';
 import type {SequenceNodePath} from 'remotion';
 import {getAstNodePath} from '../helpers/get-ast-node-path';
-import {ensureNamedImport} from '../helpers/imports';
 import {findJsxElementAtNodePath} from '../preview-server/routes/can-update-sequence-props';
 import {assertValidEffect, ensureEffectImport} from './add-effect';
+import {
+	ensureRemotionImportLocalNames,
+	getRequiredRemotionImports,
+	makeParamExpression,
+	type RemotionLocalNames,
+} from './effect-param-expression';
 import {formatFileContent} from './format-file-content';
 import {parseAst, serializeAst} from './parse-ast';
 import {findEffectsAttr} from './update-effect-props/update-effect-props';
@@ -26,18 +27,9 @@ import {
 	ensureUseCurrentFrameHook,
 	findEnclosingFunctionPath,
 } from './update-keyframes/ensure-imports-and-frame-hook';
-import {parseValueExpression} from './update-nested-prop';
 
 const b = recast.types.builders;
 const identifierRegex = /^[A-Za-z_$][0-9A-Za-z_$]*$/;
-
-type RemotionImportName =
-	| 'Easing'
-	| 'interpolate'
-	| 'interpolateColors'
-	| 'useCurrentFrame';
-
-type RemotionLocalNames = Partial<Record<RemotionImportName, string>>;
 
 const getEffectsArray = (attr: JSXAttribute): ArrayExpression => {
 	if (!attr.value || attr.value.type !== 'JSXExpressionContainer') {
@@ -61,193 +53,6 @@ const makeEffectsAttr = (array: ArrayExpression): JSXAttribute => {
 
 const makeEffectsArray = (calls: CallExpression[]): ArrayExpression => {
 	return b.arrayExpression(calls as never) as unknown as ArrayExpression;
-};
-
-const isNonLinearEasing = (
-	easing: EffectClipboardKeyframedParam['easing'][number],
-) => easing !== 'linear';
-
-const keyframedParamNeedsEasingImport = (
-	param: EffectClipboardKeyframedParam,
-) => {
-	return (
-		param.interpolationFunction !== 'interpolateColors' &&
-		param.easing.some(isNonLinearEasing)
-	);
-};
-
-const getRequiredRemotionImports = (
-	effects: EffectClipboardSnapshot[],
-): Set<RemotionImportName> => {
-	const requiredImports = new Set<RemotionImportName>();
-
-	for (const effect of effects) {
-		for (const param of Object.values(effect.params)) {
-			if (param.type !== 'keyframed') {
-				continue;
-			}
-
-			requiredImports.add('useCurrentFrame');
-			requiredImports.add(param.interpolationFunction);
-			if (keyframedParamNeedsEasingImport(param)) {
-				requiredImports.add('Easing');
-			}
-		}
-	}
-
-	return requiredImports;
-};
-
-const ensureRemotionImportLocalNames = ({
-	ast,
-	requiredImports,
-}: {
-	ast: File;
-	requiredImports: Set<RemotionImportName>;
-}): RemotionLocalNames => {
-	const localNames: RemotionLocalNames = {};
-	for (const importedName of requiredImports) {
-		localNames[importedName] = ensureNamedImport({
-			ast,
-			importedName,
-			sourcePath: 'remotion',
-			localName: importedName,
-		});
-	}
-
-	return localNames;
-};
-
-const makeEasingExpression = ({
-	easing,
-	easingLocalName,
-}: {
-	easing: EffectClipboardKeyframedParam['easing'][number];
-	easingLocalName: string;
-}): ExpressionKind => {
-	if (easing === 'linear') {
-		return b.memberExpression(
-			b.identifier(easingLocalName),
-			b.identifier('linear'),
-		) as ExpressionKind;
-	}
-
-	return b.callExpression(
-		b.memberExpression(b.identifier(easingLocalName), b.identifier('bezier')),
-		easing.map((value) => parseValueExpression(value)) as never,
-	) as ExpressionKind;
-};
-
-const makeKeyframedOptions = ({
-	param,
-	remotionLocalNames,
-}: {
-	param: EffectClipboardKeyframedParam;
-	remotionLocalNames: RemotionLocalNames;
-}): ObjectExpression | null => {
-	const properties: ObjectProperty[] = [];
-
-	if (param.interpolationFunction !== 'interpolateColors') {
-		if (param.clamping.left !== 'extend') {
-			properties.push(
-				b.objectProperty(
-					b.identifier('extrapolateLeft'),
-					b.stringLiteral(param.clamping.left),
-				) as ObjectProperty,
-			);
-		}
-
-		if (param.clamping.right !== 'extend') {
-			properties.push(
-				b.objectProperty(
-					b.identifier('extrapolateRight'),
-					b.stringLiteral(param.clamping.right),
-				) as ObjectProperty,
-			);
-		}
-
-		if (keyframedParamNeedsEasingImport(param)) {
-			const easingLocalName = remotionLocalNames.Easing ?? 'Easing';
-			properties.push(
-				b.objectProperty(
-					b.identifier('easing'),
-					b.arrayExpression(
-						param.easing.map((easing) =>
-							makeEasingExpression({easing, easingLocalName}),
-						) as never,
-					),
-				) as ObjectProperty,
-			);
-		}
-	}
-
-	if (param.posterize !== undefined) {
-		properties.push(
-			b.objectProperty(
-				b.identifier('posterize'),
-				parseValueExpression(param.posterize) as never,
-			) as ObjectProperty,
-		);
-	}
-
-	if (properties.length === 0) {
-		return null;
-	}
-
-	return b.objectExpression(properties as never) as ObjectExpression;
-};
-
-const makeKeyframedExpression = ({
-	param,
-	remotionLocalNames,
-}: {
-	param: EffectClipboardKeyframedParam;
-	remotionLocalNames: RemotionLocalNames;
-}): ExpressionKind => {
-	const expectedEasingCount = Math.max(0, param.keyframes.length - 1);
-	if (param.easing.length !== expectedEasingCount) {
-		throw new Error('Cannot paste keyframed effect: invalid easing metadata');
-	}
-
-	const calleeName =
-		remotionLocalNames[param.interpolationFunction] ??
-		param.interpolationFunction;
-	const args: ExpressionKind[] = [
-		b.identifier('frame') as ExpressionKind,
-		b.arrayExpression(
-			param.keyframes.map((keyframe) =>
-				parseValueExpression(keyframe.frame),
-			) as never,
-		) as ExpressionKind,
-		b.arrayExpression(
-			param.keyframes.map((keyframe) =>
-				parseValueExpression(keyframe.value),
-			) as never,
-		) as ExpressionKind,
-	];
-	const options = makeKeyframedOptions({param, remotionLocalNames});
-	if (options) {
-		args.push(options as ExpressionKind);
-	}
-
-	return b.callExpression(
-		b.identifier(calleeName),
-		args as never,
-	) as ExpressionKind;
-};
-
-const makeParamExpression = ({
-	param,
-	remotionLocalNames,
-}: {
-	param: EffectClipboardParam;
-	remotionLocalNames: RemotionLocalNames;
-}): ExpressionKind => {
-	if (param.type === 'static') {
-		return parseValueExpression(param.value);
-	}
-
-	return makeKeyframedExpression({param, remotionLocalNames});
 };
 
 const makeParamsObjectExpression = ({

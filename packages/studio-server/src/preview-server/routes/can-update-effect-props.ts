@@ -145,9 +145,11 @@ const resolveEffectImport = ({
 };
 
 const getPropsFromObjectExpression = ({
+	ast,
 	objExpr,
 	keys,
 }: {
+	ast: File;
 	objExpr: ObjectExpression;
 	keys: string[];
 }): Record<string, CanUpdateSequencePropStatus> => {
@@ -169,7 +171,7 @@ const getPropsFromObjectExpression = ({
 
 		const valueExpr = prop.value as Expression;
 		if (!isStaticValue(valueExpr)) {
-			out[key] = getComputedStatus(valueExpr);
+			out[key] = getComputedStatus(valueExpr, ast);
 			continue;
 		}
 
@@ -252,6 +254,7 @@ export const computeEffectPropStatus = ({
 	}
 
 	const resolvedProps = getPropsFromObjectExpression({
+		ast,
 		objExpr: firstArg as ObjectExpression,
 		keys,
 	});

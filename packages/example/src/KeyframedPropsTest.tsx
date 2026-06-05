@@ -67,6 +67,7 @@ const ShiftedEffect = () => {
 				height: 200,
 				borderRadius: 24,
 				overflow: 'hidden',
+				translate: '254.854512px 393.565342px',
 			}}
 			effects={[
 				blur({
