@@ -34,17 +34,11 @@ type Listeners = {
 	listener: (event: EventSourceEvent) => void;
 }[];
 
-type UndoRedoState = {
-	undoFile: string | null;
-	redoFile: string | null;
-};
-
 export const PreviewServerConnection: React.FC<{
 	readonly children: React.ReactNode;
 	readonly readOnlyStudio: boolean;
 }> = ({children, readOnlyStudio}) => {
 	const listeners = useRef<Listeners>([]);
-	const undoRedoState = useRef<UndoRedoState | null>(null);
 
 	const subscribeToEvent = useCallback(
 		(
@@ -52,17 +46,6 @@ export const PreviewServerConnection: React.FC<{
 			listener: (event: EventSourceEvent) => void,
 		) => {
 			listeners.current.push({type, listener});
-
-			if (
-				type === 'undo-redo-stack-changed' &&
-				undoRedoState.current !== null
-			) {
-				listener({
-					type: 'undo-redo-stack-changed',
-					undoFile: undoRedoState.current.undoFile,
-					redoFile: undoRedoState.current.redoFile,
-				});
-			}
 
 			return () => {
 				listeners.current = listeners.current.filter(
@@ -91,11 +74,6 @@ export const PreviewServerConnection: React.FC<{
 			}
 
 			if (newEvent.type === 'init') {
-				undoRedoState.current = {
-					undoFile: newEvent.undoFile,
-					redoFile: newEvent.redoFile,
-				};
-
 				listeners.current.forEach((l) => {
 					if (l.type === 'undo-redo-stack-changed') {
 						l.listener({
@@ -105,13 +83,6 @@ export const PreviewServerConnection: React.FC<{
 						});
 					}
 				});
-			}
-
-			if (newEvent.type === 'undo-redo-stack-changed') {
-				undoRedoState.current = {
-					undoFile: newEvent.undoFile,
-					redoFile: newEvent.redoFile,
-				};
 			}
 
 			if (newEvent.type === 'render-queue-updated') {
