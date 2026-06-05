@@ -109,13 +109,9 @@ export const wrapInSchema = <S extends SequenceSchema, Props extends object>({
 	Component: React.ComponentType<
 		Props & {readonly _experimentalControls: SequenceControls | undefined}
 	>;
-	schema: S;
+	schema: S | ((props: Props) => S);
 	supportsEffects: boolean;
 }): React.ComponentType<Props> => {
-	// Schema is static for a component, so we move this outside
-	const flatSchema = getFlatSchemaWithAllKeys(schema);
-	const flatKeys = Object.keys(flatSchema);
-
 	const Wrapped = forwardRef<unknown, Props>((props, ref) => {
 		const env = useRemotionEnvironment();
 
@@ -150,6 +146,14 @@ export const wrapInSchema = <S extends SequenceSchema, Props extends object>({
 				ref: typeof ref;
 			});
 		}
+
+		const resolvedSchema =
+			typeof schema === 'function' ? schema(props as Props) : schema;
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		const flatKeys = useMemo(
+			() => Object.keys(getFlatSchemaWithAllKeys(resolvedSchema)),
+			[resolvedSchema],
+		);
 
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		const [overrideId] = useState(() => {
@@ -187,18 +191,18 @@ export const wrapInSchema = <S extends SequenceSchema, Props extends object>({
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		const controls = useMemo((): SequenceControls => {
 			return {
-				schema,
+				schema: resolvedSchema,
 				currentRuntimeValueDotNotation,
 				overrideId,
 				supportsEffects,
 			};
-		}, [currentRuntimeValueDotNotation, overrideId]);
+		}, [currentRuntimeValueDotNotation, overrideId, resolvedSchema]);
 
 		// 3. Apply drag/code overrides on top of the runtime values.
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		const {merged: valuesDotNotation, propsToDelete} = useMemo(() => {
 			return computeEffectiveSchemaValuesDotNotation({
-				schema,
+				schema: resolvedSchema,
 				currentValue: currentRuntimeValueDotNotation,
 				overrideValues: nodePath === null ? {} : getDragOverrides(nodePath),
 				propStatus:
@@ -213,10 +217,11 @@ export const wrapInSchema = <S extends SequenceSchema, Props extends object>({
 			nodePath,
 			codeValues,
 			frame,
+			resolvedSchema,
 		]);
 
 		// 4. Eliminate values forbidden by the resolved discriminated union.
-		const activeKeys = selectActiveKeys(schema, valuesDotNotation);
+		const activeKeys = selectActiveKeys(resolvedSchema, valuesDotNotation);
 
 		// 5. Apply the active values back onto the props.
 		const mergedProps = mergeValues({

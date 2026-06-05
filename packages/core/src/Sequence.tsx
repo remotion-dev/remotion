@@ -13,7 +13,7 @@ import type {EffectDefinition} from './effects/effect-types.js';
 import {Freeze} from './freeze.js';
 import {useNonce} from './nonce.js';
 import {PremountContext} from './PremountContext.js';
-import {sequenceSchema} from './sequence-field-schema.js';
+import {sequenceSchema, type SequenceSchema} from './sequence-field-schema.js';
 import type {SequenceContextType} from './SequenceContext.js';
 import {SequenceContext} from './SequenceContext.js';
 import {SequenceManager} from './SequenceManager.js';
@@ -80,6 +80,10 @@ export type SequencePropsWithoutDuration = {
 	/**
 	 * @deprecated For internal use only.
 	 */
+	readonly _remotionInternalSchema?: SequenceSchema;
+	/**
+	 * @deprecated For internal use only.
+	 */
 	readonly _remotionInternalIsPremounting?: boolean;
 	/**
 	 * @deprecated For internal use only.
@@ -125,6 +129,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		_remotionInternalLoopDisplay: loopDisplay,
 		_remotionInternalStack: stack,
 		_remotionInternalDocumentationLink: documentationLink,
+		_remotionInternalSchema: _schema,
 		_remotionInternalPremountDisplay: premountDisplay,
 		_remotionInternalPostmountDisplay: postmountDisplay,
 		_remotionInternalIsMedia: isMedia,
@@ -550,6 +555,7 @@ const SequenceInner = forwardRef(SequenceRefForwardingFunction);
  */
 export const Sequence = wrapInSchema({
 	Component: SequenceInner,
-	schema: sequenceSchema,
+	schema: (props: SequenceProps) =>
+		props._remotionInternalSchema ?? sequenceSchema,
 	supportsEffects: false,
 });

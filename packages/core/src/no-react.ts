@@ -34,7 +34,10 @@ import {DATE_TOKEN, FILE_TOKEN} from './input-props-serialization.js';
 import {colorNames, processColor} from './interpolate-colors';
 import {proResProfileOptions} from './prores-profile';
 import {parseScaleValue, serializeScaleValue} from './scale-value';
-import {sequenceSchema} from './sequence-field-schema';
+import {
+	sequenceSchema,
+	sequenceSchemaWithoutFrom,
+} from './sequence-field-schema';
 import {truthy} from './truthy';
 import {ENABLE_V5_BREAKING_CHANGES} from './v5-flag';
 import {validateFrame} from './validate-frame';
@@ -74,6 +77,7 @@ export const NoReactInternals = {
 	proResProfileOptions,
 	findPropsToDelete,
 	sequenceSchema,
+	sequenceSchemaWithoutFrom,
 	parseScaleValue,
 	serializeScaleValue,
 };

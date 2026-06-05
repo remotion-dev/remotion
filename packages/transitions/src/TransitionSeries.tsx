@@ -344,8 +344,9 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 			const {
 				durationInFrames,
 				children: _children,
+				from: _from,
 				...passedProps
-			} = castedChildAgain.props;
+			} = castedChildAgain.props as SeriesSequenceProps & {from: never};
 			validateDurationInFrames(durationInFramesProp, {
 				component: `of a <TransitionSeries.Sequence /> component`,
 				allowFloats: true,
@@ -466,6 +467,7 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 						from={actualStartFrame}
 						durationInFrames={durationInFramesProp}
 						{...passedProps}
+						_remotionInternalSchema={NoReactInternals.sequenceSchemaWithoutFrom}
 						name={passedProps.name || '<TS.Sequence>'}
 						_remotionInternalDocumentationLink={
 							passedProps.name
@@ -530,6 +532,7 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 						from={actualStartFrame}
 						durationInFrames={durationInFramesProp}
 						{...passedProps}
+						_remotionInternalSchema={NoReactInternals.sequenceSchemaWithoutFrom}
 						name={passedProps.name || '<TS.Sequence>'}
 						_remotionInternalDocumentationLink={
 							passedProps.name
@@ -574,6 +577,7 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 						from={actualStartFrame}
 						durationInFrames={durationInFramesProp}
 						{...passedProps}
+						_remotionInternalSchema={NoReactInternals.sequenceSchemaWithoutFrom}
 						name={passedProps.name || '<TS.Sequence>'}
 						_remotionInternalDocumentationLink={
 							passedProps.name
@@ -611,6 +615,7 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 					from={actualStartFrame}
 					durationInFrames={durationInFramesProp}
 					{...passedProps}
+					_remotionInternalSchema={NoReactInternals.sequenceSchemaWithoutFrom}
 					name={passedProps.name || '<TS.Sequence>'}
 					_remotionInternalDocumentationLink={
 						passedProps.name

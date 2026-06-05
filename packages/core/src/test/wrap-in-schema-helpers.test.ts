@@ -3,6 +3,7 @@ import {getFlatSchemaWithAllKeys} from '../flatten-schema.js';
 import {
 	sequencePremountSchema,
 	sequenceSchema,
+	sequenceSchemaWithoutFrom,
 	sequenceStyleSchema,
 	sequenceVisualStyleSchema,
 } from '../sequence-field-schema.js';
@@ -40,6 +41,12 @@ test('getFlatSchema(sequenceSchema) exposes every variant key', () => {
 			'from',
 		].sort(),
 	);
+});
+
+test('sequenceSchemaWithoutFrom does not expose from', () => {
+	const flat = getFlatSchemaWithAllKeys(sequenceSchemaWithoutFrom);
+	expect(Object.keys(flat)).not.toContain('from');
+	expect(Object.keys(flat)).toContain('durationInFrames');
 });
 
 test('style.scale does not impose a minimum value', () => {
