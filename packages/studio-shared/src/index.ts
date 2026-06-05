@@ -95,6 +95,8 @@ export {DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS} from './default-buffer-state
 export {
 	parseEffectClipboardData,
 	parseEffectClipboardDataResult,
+	parseEffectPropClipboardData,
+	parseEffectPropClipboardDataResult,
 	type EffectClipboardClamping,
 	type EffectClipboardData,
 	type EffectClipboardDataParseResult,
@@ -107,6 +109,8 @@ export {
 	type EffectClipboardPasteType,
 	type EffectClipboardSnapshot,
 	type EffectClipboardStaticParam,
+	type EffectPropClipboardData,
+	type EffectPropClipboardDataParseResult,
 } from './effect-clipboard-data';
 export {
 	EFFECT_DRAG_MIME_TYPE,

@@ -26,21 +26,17 @@ import {withSavePropsLock} from './save-props-mutex';
 export const saveEffectPropsHandler: ApiHandler<
 	SaveEffectPropsRequest,
 	SaveEffectPropsResponse
-> = ({
-	input: {
-		fileName,
-		sequenceNodePath,
-		effectIndex,
-		key,
-		value,
-		defaultValue,
-		schema,
-		clientId,
-	},
-	remotionRoot,
-	logLevel,
-}) =>
+> = ({input, remotionRoot, logLevel}) =>
 	withSavePropsLock(async () => {
+		const {
+			fileName,
+			sequenceNodePath,
+			effectIndex,
+			key,
+			defaultValue,
+			schema,
+			clientId,
+		} = input;
 		RenderInternals.Log.trace(
 			{indent: false, logLevel},
 			`[save-effect-props] Received request for fileName="${fileName}" effectIndex=${effectIndex} key="${key}"`,
@@ -59,6 +55,7 @@ export const saveEffectPropsHandler: ApiHandler<
 		const {
 			output,
 			oldValueString,
+			newValueString,
 			formatted,
 			logLine,
 			effectCallee,
@@ -69,7 +66,9 @@ export const saveEffectPropsHandler: ApiHandler<
 			effectIndex,
 			update: {
 				key,
-				value: JSON.parse(value),
+				...(input.type === 'effect-param'
+					? {effectParam: input.effectParam}
+					: {value: JSON.parse(input.value)}),
 				defaultValue: parsedDefault,
 			},
 			schema,
@@ -79,7 +78,7 @@ export const saveEffectPropsHandler: ApiHandler<
 			parsedDefault !== null ? JSON.stringify(parsedDefault) : null;
 
 		const normalizedOld = normalizeQuotes(oldValueString);
-		const normalizedNew = normalizeQuotes(value);
+		const normalizedNew = normalizeQuotes(newValueString);
 		const normalizedDefault =
 			defaultValueString !== null ? normalizeQuotes(defaultValueString) : null;
 		const normalizedRemovedProps = removedProps.map((prop) => ({
@@ -130,7 +129,7 @@ export const saveEffectPropsHandler: ApiHandler<
 			effectName: effectCallee,
 			propKey: key,
 			oldValueString,
-			newValueString: value,
+			newValueString,
 			defaultValueString,
 			formatted,
 			logLevel,
