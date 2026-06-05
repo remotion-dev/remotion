@@ -1574,6 +1574,7 @@ test('Backspace reset skips keyframed effect props without defaults', () => {
 test('Deleting mixed timeline selection types throws an assertion error', () => {
 	const sequenceNodePathInfo = makeNodePathInfo(['body', 0], []);
 	const effectNodePathInfo = makeNodePathInfo(['body', 1], ['effects', '0']);
+	const confirm = () => Promise.resolve(true);
 
 	expect(() =>
 		deleteSelectedTimelineItems({
@@ -1589,6 +1590,7 @@ test('Deleting mixed timeline selection types throws an assertion error', () => 
 			overrideIdsToNodePaths: {},
 			setCodeValues: () => undefined,
 			clientId: 'client',
+			confirm,
 		}),
 	).toThrow(/Assertion failed/);
 });

@@ -109,6 +109,17 @@ export type RenderModalState = {
 	renderDefaults: RenderDefaults;
 };
 
+export type ConfirmationDialogState = {
+	type: 'confirmation-dialog';
+	id: string;
+	title: string;
+	message: React.ReactNode;
+	confirmLabel: string;
+	cancelLabel: string;
+	onConfirm: () => void;
+	onCancel: () => void;
+};
+
 export type ModalState =
 	| {
 			type: 'duplicate-comp';
@@ -158,7 +169,8 @@ export type ModalState =
 			type: 'quick-switcher';
 			mode: QuickSwitcherMode;
 			invocationTimestamp: number;
-	  };
+	  }
+	| ConfirmationDialogState;
 
 export type ModalContextType = {
 	selectedModal: ModalState | null;
