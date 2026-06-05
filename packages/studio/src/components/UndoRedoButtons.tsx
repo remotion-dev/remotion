@@ -3,6 +3,7 @@ import React, {
 	useCallback,
 	useContext,
 	useEffect,
+	useLayoutEffect,
 	useRef,
 	useState,
 } from 'react';
@@ -31,7 +32,7 @@ export const UndoRedoButtons: React.FC = () => {
 	const undoInFlight = useRef(false);
 	const redoInFlight = useRef(false);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		const unsub = subscribeToEvent(
 			'undo-redo-stack-changed',
 			(event: EventSourceEvent) => {
