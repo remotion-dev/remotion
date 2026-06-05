@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {detectFileType} from '../helpers/detect-file-type';
+import {detectFileType} from '../detect-file-type';
 
 test('detects PNG dimensions', () => {
 	const png = new Uint8Array(24);
@@ -29,6 +29,13 @@ test('detects GIF dimensions', () => {
 			width: 800,
 			height: 600,
 		},
+	});
+});
+
+test('returns null dimensions for short GIF signatures', () => {
+	expect(detectFileType(new Uint8Array([0x47, 0x49, 0x46, 0x38]))).toEqual({
+		type: 'gif',
+		dimensions: null,
 	});
 });
 

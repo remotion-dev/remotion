@@ -76,24 +76,31 @@ export {
 	UnsubscribeFromDefaultPropsRequest,
 	UnsubscribeFromFileExistenceRequest,
 	UnsubscribeFromSequencePropsRequest,
-	UpdateEffectKeyframeSettingsRequest,
-	UpdateEffectKeyframeSettingsResponse,
 	UpdateAvailableRequest,
 	UpdateAvailableResponse,
 	UpdateDefaultPropsRequest,
 	UpdateDefaultPropsResponse,
+	UpdateEffectKeyframeSettingsRequest,
+	UpdateEffectKeyframeSettingsResponse,
 	UpdateSequenceKeyframeSettingsRequest,
 	UpdateSequenceKeyframeSettingsResponse,
 	type KeyframeSettings,
 } from './api-requests';
-export type {ApplyVisualControlCodemod, RecastCodemod} from './codemods';
 export {
 	ASSET_DRAG_MIME_TYPE,
 	makeAssetDragData,
 	parseAssetDragData,
 	type AssetDragData,
 } from './asset-drag-data';
+export type {ApplyVisualControlCodemod, RecastCodemod} from './codemods';
 export {DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS} from './default-buffer-state-delay-in-milliseconds';
+export {
+	detectFileType,
+	isImageFileType,
+	type FileDimensions,
+	type FileType,
+	type ImageFileType,
+} from './detect-file-type';
 export {
 	parseEffectClipboardData,
 	parseEffectClipboardDataResult,
@@ -154,10 +161,6 @@ export {PackageManager} from './package-manager';
 export {ProjectInfo} from './project-info';
 export type {RenderDefaults} from './render-defaults';
 export {
-	getRequiredPackageForEffectImportPath,
-	getRequiredPackageForInsertableElement,
-} from './required-package';
-export {
 	AggregateRenderProgress,
 	ArtifactProgress,
 	BrowserDownloadState,
@@ -174,6 +177,10 @@ export {
 	UiOpenGlOptions,
 } from './render-job';
 export type {CompletedClientRender} from './render-job';
+export {
+	getRequiredPackageForEffectImportPath,
+	getRequiredPackageForInsertableElement,
+} from './required-package';
 export {
 	SCHEMA_FIELD_ROW_HEIGHT,
 	getEffectFieldsToShow,

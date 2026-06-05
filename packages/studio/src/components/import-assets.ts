@@ -1,11 +1,12 @@
 import {
+	detectFileType,
 	getRequiredPackageForInsertableElement,
 	type DownloadRemoteAssetResponse,
+	type FileType,
 	type InsertableCompositionElement,
 } from '@remotion/studio-shared';
 import {getStaticFiles} from '../api/get-static-files';
 import {writeStaticFile} from '../api/write-static-file';
-import {detectFileType, type FileType} from '../helpers/detect-file-type';
 import {installRequiredPackages} from '../helpers/install-required-package';
 import {callApi} from './call-api';
 import {showNotification} from './Notifications/NotificationCenter';
