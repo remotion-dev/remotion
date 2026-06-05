@@ -6,7 +6,10 @@ import type {
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
 import {InputDragger} from '../NewComposition/InputDragger';
-import {getDecimalPlaces} from './timeline-field-utils';
+import {
+	formatTimelineNumber,
+	getTimelineDisplayDecimalPlaces,
+} from './timeline-field-utils';
 
 const leftDraggerStyle: React.CSSProperties = {
 	paddingLeft: 0,
@@ -67,10 +70,11 @@ export const TimelineUvCoordinateField: React.FC<{
 		[effectiveValue],
 	);
 
-	const step =
+	const configuredStep =
 		field.fieldSchema.type === 'uv-coordinate'
-			? (field.fieldSchema.step ?? 0.01)
-			: 0.01;
+			? field.fieldSchema.step
+			: undefined;
+	const step = configuredStep ?? 0.01;
 
 	const min =
 		field.fieldSchema.type === 'uv-coordinate'
@@ -82,15 +86,24 @@ export const TimelineUvCoordinateField: React.FC<{
 			? (field.fieldSchema.max ?? Infinity)
 			: Infinity;
 
-	const stepDecimals = useMemo(() => getDecimalPlaces(step), [step]);
+	const decimalPlaces = useMemo(
+		() =>
+			getTimelineDisplayDecimalPlaces({
+				defaultDecimalPlaces: 2,
+				step: configuredStep,
+			}),
+		[configuredStep],
+	);
 
 	const formatter = useCallback(
 		(v: number | string) => {
-			const num = Number(v);
-			const digits = Math.max(stepDecimals, getDecimalPlaces(num));
-			return digits === 0 ? String(num) : num.toFixed(digits);
+			return formatTimelineNumber({
+				decimalPlaces,
+				fixed: true,
+				value: v,
+			});
 		},
-		[stepDecimals],
+		[decimalPlaces],
 	);
 
 	const onXChange = useCallback(

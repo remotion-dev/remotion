@@ -6,7 +6,11 @@ import type {
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
 import {InputDragger} from '../NewComposition/InputDragger';
-import {draggerStyle, getDecimalPlaces} from './timeline-field-utils';
+import {
+	draggerStyle,
+	formatTimelineNumber,
+	getDecimalPlaces,
+} from './timeline-field-utils';
 
 export const TimelineNumberField: React.FC<{
 	readonly field: SchemaFieldInfo;
@@ -61,16 +65,29 @@ export const TimelineNumberField: React.FC<{
 		[onSave, propStatus],
 	);
 
-	const step =
-		field.fieldSchema.type === 'number' ? (field.fieldSchema.step ?? 1) : 1;
+	const configuredStep =
+		field.fieldSchema.type === 'number' ? field.fieldSchema.step : undefined;
+	const step = configuredStep ?? 1;
 
-	const stepDecimals = useMemo(() => getDecimalPlaces(step), [step]);
+	const stepDecimals = useMemo(
+		() =>
+			configuredStep === undefined ? null : getDecimalPlaces(configuredStep),
+		[configuredStep],
+	);
 
 	const formatter = useCallback(
 		(v: number | string) => {
 			const num = Number(v);
-			const digits = Math.max(stepDecimals, getDecimalPlaces(num));
-			return digits === 0 ? String(num) : num.toFixed(digits);
+			if (stepDecimals === null) {
+				const digits = getDecimalPlaces(num);
+				return digits === 0 ? String(num) : num.toFixed(digits);
+			}
+
+			return formatTimelineNumber({
+				decimalPlaces: stepDecimals,
+				fixed: true,
+				value: num,
+			});
 		},
 		[stepDecimals],
 	);

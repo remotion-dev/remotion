@@ -8,7 +8,8 @@ import type {
 import {InputDragger} from '../NewComposition/InputDragger';
 import {
 	draggerStyle,
-	getDecimalPlaces,
+	formatTimelineNumber,
+	getTimelineDisplayDecimalPlaces,
 	normalizeTimelineNumber,
 } from './timeline-field-utils';
 
@@ -109,11 +110,12 @@ export const TimelineRotationField: React.FC<{
 		[propStatus, onSave, serializeValue],
 	);
 
-	const step =
+	const configuredStep =
 		field.fieldSchema.type === 'rotation-css' ||
 		field.fieldSchema.type === 'rotation-degrees'
-			? (field.fieldSchema.step ?? 1)
-			: 1;
+			? field.fieldSchema.step
+			: undefined;
+	const step = configuredStep ?? 1;
 	const min =
 		field.fieldSchema.type === 'rotation-degrees'
 			? (field.fieldSchema.min ?? -Infinity)
@@ -123,16 +125,25 @@ export const TimelineRotationField: React.FC<{
 			? (field.fieldSchema.max ?? Infinity)
 			: Infinity;
 
-	const stepDecimals = useMemo(() => getDecimalPlaces(step), [step]);
+	const decimalPlaces = useMemo(
+		() =>
+			getTimelineDisplayDecimalPlaces({
+				defaultDecimalPlaces: 1,
+				step: configuredStep,
+			}),
+		[configuredStep],
+	);
 
 	const formatter = useCallback(
 		(v: number | string) => {
-			const num = normalizeTimelineNumber(Number(v));
-			const digits = Math.max(stepDecimals, getDecimalPlaces(num));
-			const formatted = digits === 0 ? String(num) : num.toFixed(digits);
+			const formatted = formatTimelineNumber({
+				decimalPlaces,
+				fixed: false,
+				value: normalizeTimelineNumber(Number(v)),
+			});
 			return `${formatted}\u00B0`;
 		},
-		[stepDecimals],
+		[decimalPlaces],
 	);
 
 	return (

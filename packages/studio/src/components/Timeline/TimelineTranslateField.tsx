@@ -7,8 +7,8 @@ import type {
 } from '../../helpers/timeline-layout';
 import {InputDragger} from '../NewComposition/InputDragger';
 import {
-	getDecimalPlaces,
-	normalizeTimelineNumber,
+	formatTimelineNumber,
+	getTimelineDisplayDecimalPlaces,
 } from './timeline-field-utils';
 import {parseTranslate, serializeTranslate} from './timeline-translate-utils';
 
@@ -48,19 +48,29 @@ export const TimelineTranslateField: React.FC<{
 		[effectiveValue],
 	);
 
-	const step =
-		field.fieldSchema.type === 'translate' ? (field.fieldSchema.step ?? 1) : 1;
+	const configuredStep =
+		field.fieldSchema.type === 'translate' ? field.fieldSchema.step : undefined;
+	const step = configuredStep ?? 1;
 
-	const stepDecimals = useMemo(() => getDecimalPlaces(step), [step]);
+	const decimalPlaces = useMemo(
+		() =>
+			getTimelineDisplayDecimalPlaces({
+				defaultDecimalPlaces: 1,
+				step: configuredStep,
+			}),
+		[configuredStep],
+	);
 
 	const formatter = useCallback(
 		(v: number | string) => {
-			const num = normalizeTimelineNumber(Number(v));
-			const digits = Math.max(stepDecimals, getDecimalPlaces(num));
-			const formatted = digits === 0 ? String(num) : num.toFixed(digits);
+			const formatted = formatTimelineNumber({
+				decimalPlaces,
+				fixed: false,
+				value: v,
+			});
 			return `${formatted}px`;
 		},
-		[stepDecimals],
+		[decimalPlaces],
 	);
 
 	// --- X callbacks ---
@@ -68,15 +78,15 @@ export const TimelineTranslateField: React.FC<{
 		(newVal: number) => {
 			setDragX(newVal);
 			const currentY = dragY ?? codeY;
-			onDragValueChange(serializeTranslate(newVal, currentY));
+			onDragValueChange(serializeTranslate(newVal, currentY, decimalPlaces));
 		},
-		[onDragValueChange, dragY, codeY],
+		[onDragValueChange, dragY, codeY, decimalPlaces],
 	);
 
 	const onXChangeEnd = useCallback(
 		(newVal: number) => {
 			const currentY = dragY ?? codeY;
-			const newStr = serializeTranslate(newVal, currentY);
+			const newStr = serializeTranslate(newVal, currentY, decimalPlaces);
 			if (newStr !== propStatus.codeValue) {
 				onSave(newStr).finally(() => {
 					setDragX(null);
@@ -87,7 +97,7 @@ export const TimelineTranslateField: React.FC<{
 				onDragEnd();
 			}
 		},
-		[dragY, codeY, propStatus, onSave, onDragEnd],
+		[dragY, codeY, decimalPlaces, propStatus, onSave, onDragEnd],
 	);
 
 	const onXTextChange = useCallback(
@@ -95,7 +105,7 @@ export const TimelineTranslateField: React.FC<{
 			const parsed = Number(newVal);
 			if (!Number.isNaN(parsed)) {
 				const currentY = dragY ?? codeY;
-				const newStr = serializeTranslate(parsed, currentY);
+				const newStr = serializeTranslate(parsed, currentY, decimalPlaces);
 				if (newStr !== propStatus.codeValue) {
 					setDragX(parsed);
 					onSave(newStr).finally(() => {
@@ -104,7 +114,7 @@ export const TimelineTranslateField: React.FC<{
 				}
 			}
 		},
-		[propStatus, dragY, codeY, onSave],
+		[propStatus, dragY, codeY, decimalPlaces, onSave],
 	);
 
 	// --- Y callbacks ---
@@ -112,15 +122,15 @@ export const TimelineTranslateField: React.FC<{
 		(newVal: number) => {
 			setDragY(newVal);
 			const currentX = dragX ?? codeX;
-			onDragValueChange(serializeTranslate(currentX, newVal));
+			onDragValueChange(serializeTranslate(currentX, newVal, decimalPlaces));
 		},
-		[onDragValueChange, dragX, codeX],
+		[onDragValueChange, dragX, codeX, decimalPlaces],
 	);
 
 	const onYChangeEnd = useCallback(
 		(newVal: number) => {
 			const currentX = dragX ?? codeX;
-			const newStr = serializeTranslate(currentX, newVal);
+			const newStr = serializeTranslate(currentX, newVal, decimalPlaces);
 			if (newStr !== propStatus.codeValue) {
 				onSave(newStr).finally(() => {
 					setDragY(null);
@@ -131,7 +141,7 @@ export const TimelineTranslateField: React.FC<{
 				onDragEnd();
 			}
 		},
-		[dragX, codeX, propStatus, onSave, onDragEnd],
+		[dragX, codeX, decimalPlaces, propStatus, onSave, onDragEnd],
 	);
 
 	const onYTextChange = useCallback(
@@ -139,7 +149,7 @@ export const TimelineTranslateField: React.FC<{
 			const parsed = Number(newVal);
 			if (!Number.isNaN(parsed)) {
 				const currentX = dragX ?? codeX;
-				const newStr = serializeTranslate(currentX, parsed);
+				const newStr = serializeTranslate(currentX, parsed, decimalPlaces);
 				if (newStr !== propStatus.codeValue) {
 					setDragY(parsed);
 					onSave(newStr).finally(() => {
@@ -148,7 +158,7 @@ export const TimelineTranslateField: React.FC<{
 				}
 			}
 		},
-		[propStatus, onSave, dragX, codeX],
+		[propStatus, onSave, dragX, codeX, decimalPlaces],
 	);
 
 	return (
