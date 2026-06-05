@@ -32,6 +32,8 @@ export const useResolveStackAndReactToChange = (
 	const resolvedLocationRef = useRef(resolvedLocation);
 	resolvedLocationRef.current = resolvedLocation;
 
+	// The sequence can change while this hook stays mounted, for example in the
+	// selected outline context menu.
 	useEffect(() => {
 		setStack(getStack());
 	}, [getStack]);
