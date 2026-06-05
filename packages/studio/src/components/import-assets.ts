@@ -66,6 +66,57 @@ export const getAssetElement = ({
 	return null;
 };
 
+export const getAssetElementFromPath = (
+	assetPath: string,
+): InsertableCompositionElement | null => {
+	if (!assetPath || assetPath.includes('\\')) {
+		return null;
+	}
+
+	const extension = assetPath.split('.').pop()?.toLowerCase();
+	if (!extension || extension === assetPath.toLowerCase()) {
+		return null;
+	}
+
+	if (['png', 'jpg', 'jpeg', 'webp', 'bmp'].includes(extension)) {
+		return {
+			type: 'asset',
+			assetType: 'image',
+			src: assetPath,
+			dimensions: null,
+		};
+	}
+
+	if (extension === 'gif') {
+		return {
+			type: 'asset',
+			assetType: 'gif',
+			src: assetPath,
+			dimensions: null,
+		};
+	}
+
+	if (['mp4', 'm4v', 'mov', 'avi', 'webm', 'ts', 'm2ts'].includes(extension)) {
+		return {
+			type: 'asset',
+			assetType: 'video',
+			src: assetPath,
+			dimensions: null,
+		};
+	}
+
+	if (['wav', 'mp3', 'aac', 'flac'].includes(extension)) {
+		return {
+			type: 'asset',
+			assetType: 'audio',
+			src: assetPath,
+			dimensions: null,
+		};
+	}
+
+	return null;
+};
+
 const getAssetLabel = (element: InsertableCompositionElement) => {
 	if (element.type !== 'asset') {
 		throw new Error('Expected asset element');
@@ -118,6 +169,54 @@ export const pickFilesToImport = (): Promise<File[]> => {
 		document.body.appendChild(input);
 		input.click();
 	});
+};
+
+const notifyInsertedAssets = (insertedLabels: string[]) => {
+	if (insertedLabels.length === 1) {
+		showNotification(`Added ${insertedLabels[0]} to source file`, 2000);
+	} else if (insertedLabels.length > 1) {
+		showNotification(
+			`Added ${insertedLabels.length} assets to source file`,
+			2000,
+		);
+	}
+};
+
+const notifyUnsupportedFiles = (unsupportedFiles: string[]) => {
+	if (unsupportedFiles.length === 1) {
+		showNotification(
+			`Cannot add ${unsupportedFiles[0]}: Unsupported file type`,
+			3000,
+		);
+	} else if (unsupportedFiles.length > 1) {
+		showNotification(
+			`Skipped ${unsupportedFiles.length} unsupported files`,
+			3000,
+		);
+	}
+};
+
+const insertAssetElement = async ({
+	compositionFile,
+	compositionId,
+	element,
+}: {
+	compositionFile: string;
+	compositionId: string;
+	element: InsertableCompositionElement;
+}) => {
+	const result = await callApi('/api/insert-jsx-element', {
+		compositionFile,
+		compositionId,
+		element,
+	});
+
+	if (!result.success) {
+		showNotification(result.reason, 4000);
+		return false;
+	}
+
+	return true;
 };
 
 export const importAssets = async ({
@@ -191,15 +290,14 @@ export const importAssets = async ({
 				addedStaticFiles.push(file.name);
 			}
 
-			const result = await callApi('/api/insert-jsx-element', {
+			const inserted = await insertAssetElement({
 				compositionFile,
 				compositionId,
 				element,
 			});
 
-			if (!result.success) {
+			if (!inserted) {
 				notifyAddedStaticFiles();
-				showNotification(result.reason, 4000);
 				return;
 			}
 
@@ -207,27 +305,57 @@ export const importAssets = async ({
 		}
 
 		notifyAddedStaticFiles();
+		notifyInsertedAssets(insertedLabels);
+		notifyUnsupportedFiles(unsupportedFiles);
+	} catch (error) {
+		showNotification(
+			`Could not add asset: ${
+				error instanceof Error ? error.message : String(error)
+			}`,
+			4000,
+		);
+	}
+};
 
-		if (insertedLabels.length === 1) {
-			showNotification(`Added ${insertedLabels[0]} to source file`, 2000);
-		} else if (insertedLabels.length > 1) {
-			showNotification(
-				`Added ${insertedLabels.length} assets to source file`,
-				2000,
-			);
+export const insertExistingAssets = async ({
+	assetPaths,
+	compositionFile,
+	compositionId,
+}: {
+	assetPaths: string[];
+	compositionFile: string;
+	compositionId: string;
+}) => {
+	if (assetPaths.length === 0) {
+		return;
+	}
+
+	const insertedLabels: string[] = [];
+	const unsupportedFiles: string[] = [];
+
+	try {
+		for (const assetPath of assetPaths) {
+			const element = getAssetElementFromPath(assetPath);
+			if (element === null) {
+				unsupportedFiles.push(assetPath);
+				continue;
+			}
+
+			const inserted = await insertAssetElement({
+				compositionFile,
+				compositionId,
+				element,
+			});
+
+			if (!inserted) {
+				return;
+			}
+
+			insertedLabels.push(getAssetLabel(element));
 		}
 
-		if (unsupportedFiles.length === 1) {
-			showNotification(
-				`Cannot add ${unsupportedFiles[0]}: Unsupported file type`,
-				3000,
-			);
-		} else if (unsupportedFiles.length > 1) {
-			showNotification(
-				`Skipped ${unsupportedFiles.length} unsupported files`,
-				3000,
-			);
-		}
+		notifyInsertedAssets(insertedLabels);
+		notifyUnsupportedFiles(unsupportedFiles);
 	} catch (error) {
 		showNotification(
 			`Could not add asset: ${

@@ -85,6 +85,12 @@ export {
 	type KeyframeSettings,
 } from './api-requests';
 export type {ApplyVisualControlCodemod, RecastCodemod} from './codemods';
+export {
+	ASSET_DRAG_MIME_TYPE,
+	makeAssetDragData,
+	parseAssetDragData,
+	type AssetDragData,
+} from './asset-drag-data';
 export {DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS} from './default-buffer-state-delay-in-milliseconds';
 export {
 	parseEffectClipboardData,
