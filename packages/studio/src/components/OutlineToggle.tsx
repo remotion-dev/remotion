@@ -3,8 +3,6 @@ import {BLUE} from '../helpers/colors';
 import {EditorShowOutlinesContext} from '../state/editor-outlines';
 import {ControlButton} from './ControlButton';
 
-const size = 3;
-
 export const OutlineToggle: React.FC = () => {
 	const {editorShowOutlines, setEditorShowOutlines} = useContext(
 		EditorShowOutlinesContext,
@@ -26,16 +24,13 @@ export const OutlineToggle: React.FC = () => {
 			onClick={onClick}
 		>
 			<svg
-				viewBox="0 0 20 20"
 				style={{width: 18, height: 18}}
+				viewBox="0 0 512 512"
+				fill={color}
 				aria-hidden="true"
 				focusable="false"
 			>
-				<path d="M5 5H15V15H5Z" fill="none" stroke={color} strokeWidth={1.8} />
-				<rect x={3.5} y={3.5} width={size} height={size} fill={color} />
-				<rect x={13.5} y={3.5} width={size} height={size} fill={color} />
-				<rect x={13.5} y={13.5} width={size} height={size} fill={color} />
-				<rect x={3.5} y={13.5} width={size} height={size} fill={color} />
+				<path d="M384 0l128 0 0 128-32 0 0 256 32 0 0 128-128 0 0-32-256 0 0 32-128 0 0-128 32 0 0-256-32 0 0-128 128 0 0 32 256 0 0-32zM96 128l0 256 32 0 0 32 256 0 0-32 32 0 0-256-32 0 0-32-256 0 0 32-32 0z" />
 			</svg>
 		</ControlButton>
 	);
