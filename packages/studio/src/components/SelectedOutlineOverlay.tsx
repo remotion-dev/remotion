@@ -35,9 +35,9 @@ import {getLinkedScale} from './Timeline/TimelineScaleField';
 import {
 	ENABLE_OUTLINES,
 	getTimelineSequenceSelectionKey,
+	useTimelineSelection,
 	type TimelineSelection,
 	type TimelineSelectionInteraction,
-	useTimelineSelection,
 } from './Timeline/TimelineSelection';
 
 type OutlinePoint = {
@@ -1572,6 +1572,7 @@ const SelectedUvHandleCircle: React.FC<{
 				}
 
 				saveEffectProp({
+					type: 'value',
 					fileName: handle.nodePath.absolutePath,
 					nodePath: handle.nodePath,
 					effectIndex: handle.effectIndex,

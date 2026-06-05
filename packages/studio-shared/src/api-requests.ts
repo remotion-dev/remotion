@@ -24,6 +24,7 @@ import type {
 } from 'remotion';
 import type {RecastCodemod, VisualControlChange} from './codemods';
 import type {
+	EffectClipboardParam,
 	EffectClipboardPasteType,
 	EffectClipboardSnapshot,
 } from './effect-clipboard-data';
@@ -222,6 +223,15 @@ export type DeleteStaticFileResponse = {
 	existed: boolean;
 };
 
+export type RenameStaticFileRequest = {
+	oldRelativePath: string;
+	newRelativePath: string;
+};
+
+export type RenameStaticFileResponse = {
+	success: boolean;
+};
+
 export type CanUpdateDefaultPropsResponse =
 	| {
 			canUpdate: true;
@@ -312,16 +322,25 @@ export type SaveSequencePropsResponse =
 			reason: CannotUpdateSequenceReason;
 	  };
 
-export type SaveEffectPropsRequest = {
+type SaveEffectPropsRequestBase = {
 	fileName: string;
 	sequenceNodePath: SequencePropsSubscriptionKey;
 	effectIndex: number;
 	key: string;
-	value: string;
 	defaultValue: string | null;
 	schema: SequenceSchema;
 	clientId: string;
 };
+
+export type SaveEffectPropsRequest =
+	| (SaveEffectPropsRequestBase & {
+			type: 'value';
+			value: string;
+	  })
+	| (SaveEffectPropsRequestBase & {
+			type: 'effect-param';
+			effectParam: EffectClipboardParam;
+	  });
 
 export type SaveEffectPropsResponse = CanUpdateEffectPropsResponse;
 
@@ -606,6 +625,17 @@ export type InsertJsxElementResponse =
 			stack: string;
 	  };
 
+export type DownloadRemoteAssetRequest = {
+	url: string;
+};
+
+export type DownloadRemoteAssetResponse = {
+	assetPath: string;
+	sizeInBytes: number;
+	created: boolean;
+	element: InsertableCompositionElement;
+};
+
 export type UpdateAvailableRequest = {};
 export type UpdateAvailableResponse = {
 	currentVersion: string;
@@ -741,6 +771,10 @@ export type ApiRoutes = {
 		InsertJsxElementRequest,
 		InsertJsxElementResponse
 	>;
+	'/api/download-remote-asset': ReqAndRes<
+		DownloadRemoteAssetRequest,
+		DownloadRemoteAssetResponse
+	>;
 	'/api/update-available': ReqAndRes<
 		UpdateAvailableRequest,
 		UpdateAvailableResponse
@@ -750,6 +784,10 @@ export type ApiRoutes = {
 	'/api/delete-static-file': ReqAndRes<
 		DeleteStaticFileRequest,
 		DeleteStaticFileResponse
+	>;
+	'/api/rename-static-file': ReqAndRes<
+		RenameStaticFileRequest,
+		RenameStaticFileResponse
 	>;
 	'/api/restart-studio': ReqAndRes<RestartStudioRequest, RestartStudioResponse>;
 	'/api/install-package': ReqAndRes<

@@ -117,22 +117,30 @@ const getJpegDimensions = (data: Uint8Array): FileDimensions | null => {
 		return (data[o] << 8) | data[o + 1];
 	};
 
-	if (readUint16BE(offset) !== 0xffd8) {
+	if (data.length < 4 || readUint16BE(offset) !== 0xffd8) {
 		return null;
 	}
 
 	offset += 2;
 
-	while (offset < data.length) {
+	while (offset + 3 < data.length) {
 		if (data[offset] === 0xff) {
 			const marker = data[offset + 1];
 			if (marker === 0xc0 || marker === 0xc2) {
+				if (offset + 8 >= data.length) {
+					return null;
+				}
+
 				const height = readUint16BE(offset + 5);
 				const width = readUint16BE(offset + 7);
 				return {width, height};
 			}
 
 			const length = readUint16BE(offset + 2);
+			if (length <= 0) {
+				return null;
+			}
+
 			offset += length + 2;
 		} else {
 			offset++;
@@ -154,7 +162,11 @@ const isJpeg = (data: Uint8Array): JpegType | null => {
 	return {dimensions: dim, type: 'jpeg'};
 };
 
-const getGifDimensions = (data: Uint8Array) => {
+const getGifDimensions = (data: Uint8Array): FileDimensions | null => {
+	if (data.length < 10) {
+		return null;
+	}
+
 	const view = new DataView(data.buffer, data.byteOffset);
 
 	const width = view.getUint16(6, true);
@@ -308,7 +320,7 @@ export type WavType = {
 
 export type GifType = {
 	type: 'gif';
-	dimensions: FileDimensions;
+	dimensions: FileDimensions | null;
 };
 
 export type FlacType = {
@@ -365,6 +377,20 @@ export type FileType =
 	| FlacType
 	| M3uType
 	| UnknownType;
+
+export type ImageFileType = JpegType | WebpType | GifType | PngType | BmpType;
+
+export const isImageFileType = (
+	fileType: FileType,
+): fileType is ImageFileType => {
+	return (
+		fileType.type === 'jpeg' ||
+		fileType.type === 'webp' ||
+		fileType.type === 'gif' ||
+		fileType.type === 'png' ||
+		fileType.type === 'bmp'
+	);
+};
 
 export const detectFileType = (data: Uint8Array): FileType => {
 	if (isRiffWave(data)) {
