@@ -122,6 +122,7 @@ const Ruler: React.FC<RulerProps> = ({
 			}
 
 			e.preventDefault();
+			e.stopPropagation();
 			shouldCreateGuideRef.current = true;
 			forceSpecificCursor('no-drop');
 			const guideId = makeGuideId();

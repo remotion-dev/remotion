@@ -32,9 +32,17 @@ export const SubMenuComponent: React.FC<{
 		[mobileLayout, onQuitFullMenu, onQuitSubMenu],
 	);
 
+	const onPointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+		e.stopPropagation();
+	}, []);
+
 	return (
 		<HigherZIndex onEscape={onQuitFullMenu} onOutsideClick={onOutsideClick}>
-			<div style={portalStyle} className="css-reset">
+			<div
+				style={portalStyle}
+				className="css-reset"
+				onPointerDown={onPointerDown}
+			>
 				<MenuContent
 					onNextMenu={noop}
 					onPreviousMenu={onQuitSubMenu}

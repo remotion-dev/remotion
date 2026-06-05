@@ -114,8 +114,17 @@ export const MenuToolbar: React.FC<{
 		setSelected(null);
 	}, [setSelected]);
 
+	const onPointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+		e.stopPropagation();
+	}, []);
+
 	return (
-		<Row align="center" className="css-reset" style={row}>
+		<Row
+			align="center"
+			className="css-reset"
+			style={row}
+			onPointerDown={onPointerDown}
+		>
 			<div style={fixedWidthLeft}>
 				{structure.map((s) => {
 					return (

@@ -265,8 +265,12 @@ export const OptionsPanel: React.FC<{
 		[compositionId, compositionDefaultProps, saveToFile, updateProps],
 	);
 
+	const onPointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+		e.stopPropagation();
+	}, []);
+
 	return (
-		<div style={container} className="css-reset">
+		<div style={container} className="css-reset" onPointerDown={onPointerDown}>
 			<div style={tabsContainer}>
 				<Tabs>
 					{visualControlsTabActivated ? (

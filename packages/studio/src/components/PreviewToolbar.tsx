@@ -1,4 +1,10 @@
-import React, {useContext, useEffect, useRef, useState} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useRef,
+	useState,
+} from 'react';
 import {Internals} from 'remotion';
 import {checkFullscreenSupport} from '../helpers/check-fullscreen-support';
 import {BACKGROUND, BACKGROUND__TRANSPARENT} from '../helpers/colors';
@@ -98,6 +104,10 @@ export const PreviewToolbar: React.FC<{
 
 	const isMobileLayout = useMobileLayout();
 
+	const onPointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+		e.stopPropagation();
+	}, []);
+
 	useEffect(() => {
 		if (isMobileLayout && previewToolbarRef.current) {
 			const updateScrollableIndicatorProps = (target: HTMLDivElement) => {
@@ -157,6 +167,7 @@ export const PreviewToolbar: React.FC<{
 			ref={previewToolbarRef}
 			style={isMobileLayout ? mobileContainer : container}
 			className="css-reset"
+			onPointerDown={onPointerDown}
 		>
 			<div ref={leftScrollIndicatorRef} style={scrollIndicatorLeft} />
 			{isMobileLayout ? null : (
