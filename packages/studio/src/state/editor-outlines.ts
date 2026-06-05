@@ -7,8 +7,6 @@ type State = {
 
 const key = 'remotion.editorShowOutlines';
 
-export const ENABLE_OUTLINES = true;
-
 export const persistEditorShowOutlinesOption = (option: boolean) => {
 	localStorage.setItem(key, String(option));
 };

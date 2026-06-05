@@ -17,10 +17,7 @@ import type {
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {timelineNodePathInfoToKey} from '../../helpers/timeline-node-path-key';
 import {useKeybinding} from '../../helpers/use-keybinding';
-import {
-	EditorShowOutlinesContext,
-	ENABLE_OUTLINES as ENABLE_OUTLINES_FLAG,
-} from '../../state/editor-outlines';
+import {EditorShowOutlinesContext} from '../../state/editor-outlines';
 import {TimelineClipboardKeybindings} from './TimelineClipboardKeybindings';
 import {TimelineDeleteKeybindings} from './TimelineDeleteKeybindings';
 
@@ -64,9 +61,9 @@ export const getTimelineSelectedTrackHighlightStyle = (
 	width: timelineWidth,
 });
 
-export const SELECTION_ENABLED = false;
-export const TIMELINE_TOP_DRAG = false;
-export {ENABLE_OUTLINES} from '../../state/editor-outlines';
+export const SELECTION_ENABLED = true;
+export const TIMELINE_TOP_DRAG = true;
+export const ENABLE_OUTLINES = true;
 
 type TimelineSelectionBase = {
 	readonly nodePathInfo: SequenceNodePathInfo;
@@ -449,7 +446,7 @@ export const TimelineSelectionProvider: React.FC<{
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {editorShowOutlines} = useContext(EditorShowOutlinesContext);
 	const canSelect =
-		(SELECTION_ENABLED || (ENABLE_OUTLINES_FLAG && editorShowOutlines)) &&
+		(SELECTION_ENABLED || (ENABLE_OUTLINES && editorShowOutlines)) &&
 		previewServerState.type === 'connected' &&
 		!window.remotion_isReadOnlyStudio;
 	const [selectedItems, setSelectedItems] = useState<

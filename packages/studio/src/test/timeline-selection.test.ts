@@ -36,6 +36,7 @@ import {
 	type PasteEffectsTarget,
 } from '../components/Timeline/TimelineClipboardKeybindings';
 import {
+	ENABLE_OUTLINES,
 	getSelectableTimelineSequenceSelections,
 	getTimelineSelectionAfterInteraction,
 	getTimelineSelectionFromNodePathInfo,
@@ -54,7 +55,6 @@ import {
 } from '../components/Timeline/TimelineSequenceRightEdgeDragHandle';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 import {
-	ENABLE_OUTLINES,
 	loadEditorShowOutlinesOption,
 	persistEditorShowOutlinesOption,
 } from '../state/editor-outlines';

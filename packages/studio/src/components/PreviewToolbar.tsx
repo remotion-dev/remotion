@@ -8,7 +8,6 @@ import {
 } from '../helpers/is-current-selected-still';
 import {useMobileLayout} from '../helpers/mobile-layout';
 import {TIMELINE_PADDING} from '../helpers/timeline-layout';
-import {ENABLE_OUTLINES} from '../state/editor-outlines';
 import {loadLoopOption} from '../state/loop';
 import {CheckboardToggle} from './CheckboardToggle';
 import {FpsCounter} from './FpsCounter';
@@ -23,6 +22,7 @@ import {PlaybackRateSelector} from './PlaybackRateSelector';
 import {PlayPause} from './PlayPause';
 import {RenderButton} from './RenderButton';
 import {SizeSelector} from './SizeSelector';
+import {ENABLE_OUTLINES} from './Timeline/TimelineSelection';
 import {TimelineZoomControls} from './Timeline/TimelineZoomControls';
 import {TimelineInOutPointToggle} from './TimelineInOutToggle';
 
@@ -195,12 +195,18 @@ export const PreviewToolbar: React.FC<{
 					<Spacing x={2} />
 				</>
 			) : null}
-			{canvasContent?.type === 'composition' ? <CheckboardToggle /> : null}
-			{ENABLE_OUTLINES && canvasContent?.type === 'composition' ? (
-				<OutlineToggle />
+			{canvasContent?.type === 'composition' ? (
+				<>
+					<CheckboardToggle />
+					{ENABLE_OUTLINES ? <OutlineToggle /> : null}
+				</>
 			) : null}
-			<Spacing x={1} />
-			{canvasContent && isFullscreenSupported ? <FullScreenToggle /> : null}
+			{canvasContent && isFullscreenSupported ? (
+				<>
+					<Spacing x={2} />
+					<FullScreenToggle />
+				</>
+			) : null}
 			<Flex />
 			{isMobileLayout && (
 				<>
