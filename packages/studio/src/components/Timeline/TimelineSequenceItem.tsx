@@ -1,5 +1,6 @@
 import {
 	EFFECT_DRAG_MIME_TYPE,
+	getRequiredPackageForEffectImportPath,
 	parseEffectDragData,
 } from '@remotion/studio-shared';
 import React, {useCallback, useContext, useMemo, useState} from 'react';
@@ -9,6 +10,7 @@ import {NoReactInternals} from 'remotion/no-react';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {formatFileLocation} from '../../helpers/format-file-location';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
+import {installRequiredPackages} from '../../helpers/install-required-package';
 import {
 	getTimelineLayerHeight,
 	TIMELINE_ITEM_BORDER_BOTTOM,
@@ -530,6 +532,11 @@ export const TimelineSequenceItem: React.FC<{
 			}
 
 			try {
+				const requiredPackage = getRequiredPackageForEffectImportPath(
+					dragData.effect.importPath,
+				);
+				await installRequiredPackages(requiredPackage ? [requiredPackage] : []);
+
 				const result = await callApi('/api/add-effect', {
 					fileName: validatedLocation.source,
 					sequenceNodePath: nodePath,
