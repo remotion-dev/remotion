@@ -1,6 +1,7 @@
 import React, {useCallback, useContext, useMemo} from 'react';
 import type {TSequence} from 'remotion';
 import {Internals, useCurrentFrame} from 'remotion';
+import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {BLUE} from '../../helpers/colors';
 import {
 	getTimelineSequenceLayout,
@@ -13,6 +14,10 @@ import {
 } from '../../helpers/timeline-layout';
 import {useMaxMediaDuration} from '../../helpers/use-max-media-duration';
 import {AudioWaveform} from '../AudioWaveform';
+import {
+	effectDropHighlight,
+	useEffectDropTarget,
+} from './effect-drag-to-sequence';
 import {LoopedTimelineIndicator} from './LoopedTimelineIndicators';
 import {TimelineImageInfo} from './TimelineImageInfo';
 import {TIMELINE_TOP_DRAG, useTimelineRowSelection} from './TimelineSelection';
@@ -63,6 +68,10 @@ const TimelineSequenceCurrentFrame: React.FC<{
 	readonly onMoveDragPointerDown: (
 		e: React.PointerEvent<HTMLDivElement>,
 	) => void;
+	readonly canDropEffect: boolean;
+	readonly onEffectDragLeave: (e: React.DragEvent<HTMLDivElement>) => void;
+	readonly onEffectDragOver: (e: React.DragEvent<HTMLDivElement>) => void;
+	readonly onEffectDrop: (e: React.DragEvent<HTMLDivElement>) => void;
 }> = ({
 	s,
 	displayDurationInFrames,
@@ -74,6 +83,10 @@ const TimelineSequenceCurrentFrame: React.FC<{
 	sequenceFrameOffset,
 	fromCanUpdate,
 	onMoveDragPointerDown,
+	canDropEffect,
+	onEffectDragLeave,
+	onEffectDragOver,
+	onEffectDrop,
 }) => {
 	const {onSelect, selectable} = useTimelineRowSelection(nodePathInfo);
 
@@ -122,6 +135,9 @@ const TimelineSequenceCurrentFrame: React.FC<{
 		<div
 			style={actualStyle}
 			title={s.displayName}
+			onDragLeave={canDropEffect ? onEffectDragLeave : undefined}
+			onDragOver={canDropEffect ? onEffectDragOver : undefined}
+			onDrop={canDropEffect ? onEffectDrop : undefined}
 			onPointerDown={selectable ? onPointerDown : undefined}
 		>
 			{premountWidth ? (
@@ -218,6 +234,7 @@ const TimelineSequenceInner: React.FC<{
 	}, [originalLocation]);
 
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
+	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const nodePath = nodePathInfo?.sequenceSubscriptionKey ?? null;
 	const propStatusesForOverride = useMemo(() => {
 		return nodePath
@@ -235,6 +252,18 @@ const TimelineSequenceInner: React.FC<{
 		nodePathInfo,
 		windowWidth,
 		timelineDurationInFrames: video?.durationInFrames ?? 1,
+	});
+	const {
+		canDropEffect,
+		effectDropHovered,
+		onEffectDragLeave,
+		onEffectDragOver,
+		onEffectDrop,
+	} = useEffectDropTarget({
+		fileName: validatedLocation?.source ?? null,
+		nodePath,
+		previewServerState,
+		supportsEffects: s.controls?.supportsEffects === true,
 	});
 
 	if (!video) {
@@ -284,8 +313,9 @@ const TimelineSequenceInner: React.FC<{
 			width,
 			color: 'white',
 			overflow: 'hidden',
+			...(effectDropHovered ? effectDropHighlight : null),
 		};
-	}, [marginLeft, s.type, width]);
+	}, [effectDropHovered, marginLeft, s.type, width]);
 
 	const showRightEdgeDragHandle =
 		TIMELINE_TOP_DRAG &&
@@ -311,6 +341,10 @@ const TimelineSequenceInner: React.FC<{
 			sequenceFrameOffset={sequenceFrameOffset}
 			fromCanUpdate={fromCanUpdate}
 			onMoveDragPointerDown={onMoveDragPointerDown}
+			canDropEffect={canDropEffect}
+			onEffectDragLeave={onEffectDragLeave}
+			onEffectDragOver={onEffectDragOver}
+			onEffectDrop={onEffectDrop}
 		>
 			{s.type === 'audio' ? (
 				<AudioWaveform

@@ -1,9 +1,4 @@
-import {
-	EFFECT_DRAG_MIME_TYPE,
-	getRequiredPackageForEffectImportPath,
-	parseEffectDragData,
-	type ReorderSequencePosition,
-} from '@remotion/studio-shared';
+import {type ReorderSequencePosition} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useMemo, useState} from 'react';
 import type {SequencePropsSubscriptionKey, TSequence} from 'remotion';
 import {Internals} from 'remotion';
@@ -11,7 +6,6 @@ import {NoReactInternals} from 'remotion/no-react';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {formatFileLocation} from '../../helpers/format-file-location';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
-import {installRequiredPackages} from '../../helpers/install-required-package';
 import {
 	getTimelineLayerHeight,
 	TIMELINE_ITEM_BORDER_BOTTOM,
@@ -28,6 +22,10 @@ import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {useSelectAsset} from '../use-select-asset';
 import {duplicateSequencesFromSource} from './duplicate-selected-timeline-item';
+import {
+	effectDropHighlight,
+	useEffectDropTarget,
+} from './effect-drag-to-sequence';
 import {saveSequenceProps} from './save-sequence-prop';
 import {
 	getTimelineAssetLinkInfo,
@@ -58,12 +56,6 @@ const labelContainerStyle: React.CSSProperties = {
 	flexDirection: 'row',
 	minWidth: 0,
 	gap: 4,
-};
-
-const effectDropHighlight: React.CSSProperties = {
-	backgroundColor: 'rgba(0, 155, 255, 0.16)',
-	outline: '1px solid rgba(0, 155, 255, 0.75)',
-	outlineOffset: -1,
 };
 
 const SEQUENCE_REORDER_MIME_TYPE = 'application/remotion-sequence-reorder';
@@ -164,35 +156,6 @@ type SequenceDropTarget =
 			readonly reason: string;
 	  };
 
-const hasEffectDragType = (dataTransfer: DataTransfer) => {
-	return Array.from(dataTransfer.types).some(
-		(type) =>
-			type === EFFECT_DRAG_MIME_TYPE ||
-			type === 'application/json' ||
-			type === 'text/plain',
-	);
-};
-
-const getEffectDragData = (dataTransfer: DataTransfer) => {
-	for (const type of [
-		EFFECT_DRAG_MIME_TYPE,
-		'application/json',
-		'text/plain',
-	]) {
-		const value = dataTransfer.getData(type);
-		if (!value) {
-			continue;
-		}
-
-		const parsed = parseEffectDragData(value);
-		if (parsed) {
-			return parsed;
-		}
-	}
-
-	return null;
-};
-
 export const TimelineSequenceItem: React.FC<{
 	readonly sequence: TSequence;
 	readonly nestedDepth: number;
@@ -217,7 +180,6 @@ export const TimelineSequenceItem: React.FC<{
 	const {onSelect, selectable, selected} =
 		useTimelineRowSelection(nodePathInfo);
 	const containsSelection = useTimelineRowContainsSelection(nodePathInfo);
-	const [effectDropHovered, setEffectDropHovered] = useState(false);
 	const [sequenceDropIndicator, setSequenceDropIndicator] =
 		useState<ReorderSequencePosition | null>(null);
 	const [sequenceDropRejection, setSequenceDropRejection] = useState<
@@ -795,6 +757,19 @@ export const TimelineSequenceItem: React.FC<{
 		};
 	}, []);
 
+	const {
+		canDropEffect,
+		effectDropHovered,
+		onEffectDragLeave,
+		onEffectDragOver,
+		onEffectDrop,
+	} = useEffectDropTarget({
+		fileName: validatedLocation?.source ?? null,
+		nodePath,
+		previewServerState,
+		supportsEffects: sequence.controls?.supportsEffects === true,
+	});
+
 	const rowStyle = useMemo((): React.CSSProperties => {
 		return effectDropHovered
 			? {
@@ -816,12 +791,6 @@ export const TimelineSequenceItem: React.FC<{
 		codeHiddenStatus !== null &&
 		codeHiddenStatus.status === 'static';
 
-	const canDropEffect =
-		previewServerState.type === 'connected' &&
-		nodePath !== null &&
-		validatedLocation !== null &&
-		sequence.controls?.supportsEffects === true;
-
 	const sequenceReorderLineStyle = useMemo((): React.CSSProperties | null => {
 		if (!sequenceDropIndicator) {
 			return null;
@@ -832,78 +801,6 @@ export const TimelineSequenceItem: React.FC<{
 			...(sequenceDropIndicator === 'before' ? {top: -1} : {bottom: -1}),
 		};
 	}, [sequenceDropIndicator]);
-
-	const onEffectDragOver = useCallback(
-		(e: React.DragEvent<HTMLDivElement>) => {
-			if (!canDropEffect || !hasEffectDragType(e.dataTransfer)) {
-				return;
-			}
-
-			e.preventDefault();
-			e.dataTransfer.dropEffect = 'copy';
-			setEffectDropHovered(true);
-		},
-		[canDropEffect],
-	);
-
-	const onEffectDragLeave = useCallback(
-		(e: React.DragEvent<HTMLDivElement>) => {
-			if (e.currentTarget.contains(e.relatedTarget as Node | null)) {
-				return;
-			}
-
-			setEffectDropHovered(false);
-		},
-		[],
-	);
-
-	const onEffectDrop = useCallback(
-		async (e: React.DragEvent<HTMLDivElement>) => {
-			if (
-				!canDropEffect ||
-				previewServerState.type !== 'connected' ||
-				nodePath === null ||
-				validatedLocation === null
-			) {
-				return;
-			}
-
-			e.preventDefault();
-			e.stopPropagation();
-			setEffectDropHovered(false);
-
-			const dragData = getEffectDragData(e.dataTransfer);
-			if (!dragData) {
-				showNotification('Could not read effect drag data', 3000);
-				return;
-			}
-
-			try {
-				const requiredPackage = getRequiredPackageForEffectImportPath(
-					dragData.effect.importPath,
-				);
-				await installRequiredPackages(requiredPackage ? [requiredPackage] : []);
-
-				const result = await callApi('/api/add-effect', {
-					fileName: validatedLocation.source,
-					sequenceNodePath: nodePath,
-					effectName: dragData.effect.name,
-					effectImportPath: dragData.effect.importPath,
-					effectConfig: dragData.effect.config,
-					clientId: previewServerState.clientId,
-				});
-
-				if (result.success) {
-					showNotification(`Added ${dragData.effect.name}()`, 2000);
-				} else {
-					showNotification(result.reason, 4000);
-				}
-			} catch (err) {
-				showNotification((err as Error).message, 4000);
-			}
-		},
-		[canDropEffect, nodePath, previewServerState, validatedLocation],
-	);
 
 	const trackRow = (
 		<TimelineRowChrome
