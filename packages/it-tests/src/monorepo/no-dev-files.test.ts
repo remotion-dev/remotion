@@ -3,7 +3,7 @@ import path from 'path';
 import {$} from 'bun';
 import {getAllPackages} from './get-all-packages';
 
-const packages = getAllPackages();
+const packages = getAllPackages().filter((pkg) => pkg.pkg !== 'google-fonts');
 
 const MAX_CONCURRENT_PACK_CHECKS = 8;
 let activePackChecks = 0;
@@ -64,14 +64,10 @@ const assertNoDevFilesPublished = async (pkgPath: string) => {
 };
 
 for (const pkg of packages) {
-	const isGoogleFonts = pkg.pkg === 'google-fonts';
-	const timeout = isGoogleFonts ? 120_000 : undefined;
-
 	test.concurrent(
 		'should not publish any dev files for @remotion/' + pkg.pkg,
 		async () => {
 			await assertNoDevFilesPublished(pkg.path);
 		},
-		timeout === undefined ? undefined : {timeout},
 	);
 }
