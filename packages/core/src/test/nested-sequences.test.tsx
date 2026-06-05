@@ -1,6 +1,7 @@
 import {afterEach, expect, test} from 'bun:test';
 import {cleanup, render} from '@testing-library/react';
 import {AbsoluteFill} from '../AbsoluteFill.js';
+import {getTimelineDuration} from '../get-timeline-duration.js';
 import {Sequence} from '../Sequence.js';
 import {TimelineContext} from '../TimelineContext.js';
 import {useCurrentFrame} from '../use-current-frame.js';
@@ -152,4 +153,25 @@ test('Floats', () => {
 	expect(getForFrame(133, content)(/^Two$/i)).toBe(null);
 	cleanup();
 	expect(getForFrame(134, content)(/^Two$/i)).not.toBe(null);
+});
+
+test('Nested media sequence with subframe duration stays mounted for final visible frame', () => {
+	const durationInFrames = 10.920000000000016;
+	const mediaSequenceDuration = getTimelineDuration({
+		compositionDurationInFrames: durationInFrames,
+		playbackRate: 1,
+		trimBefore: undefined,
+		trimAfter: undefined,
+		parentSequenceDurationInFrames: durationInFrames,
+		loop: false,
+	});
+	const content = (
+		<Sequence durationInFrames={durationInFrames}>
+			<Sequence layout="none" durationInFrames={mediaSequenceDuration}>
+				<h1>Video</h1>
+			</Sequence>
+		</Sequence>
+	);
+
+	expect(getForFrame(10, content)(/^Video$/i)).not.toBe(null);
 });

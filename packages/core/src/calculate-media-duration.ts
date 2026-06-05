@@ -23,5 +23,5 @@ export const calculateMediaDuration = ({
 
 	const actualDuration = duration / playbackRate;
 
-	return Math.floor(actualDuration);
+	return Number(actualDuration.toFixed(10));
 };
