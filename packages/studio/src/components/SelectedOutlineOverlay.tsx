@@ -38,9 +38,9 @@ import {getLinkedScale} from './Timeline/TimelineScaleField';
 import {
 	ENABLE_OUTLINES,
 	getTimelineSequenceSelectionKey,
+	useTimelineSelection,
 	type TimelineSelection,
 	type TimelineSelectionInteraction,
-	useTimelineSelection,
 } from './Timeline/TimelineSelection';
 import {useOpenSequenceInEditor} from './Timeline/use-open-sequence-in-editor';
 
@@ -1120,9 +1120,11 @@ const clearSelectedOutlineScaleDragOverrides = ({
 const SelectedOutlinePolygon: React.FC<{
 	readonly allDragTargets: readonly SelectedOutlineDragTarget[];
 	readonly contextMenuValues: readonly ComboboxValue[];
+	readonly dragging: boolean;
 	readonly hovered: boolean;
 	readonly onContextMenuOpen: () => false | void;
 	readonly outline: SelectedOutline;
+	readonly onDraggingChange: (dragging: boolean) => void;
 	readonly onHoverChange: (key: string | null) => void;
 	readonly onSelect: (
 		item: TimelineSelection,
@@ -1133,9 +1135,11 @@ const SelectedOutlinePolygon: React.FC<{
 }> = ({
 	allDragTargets,
 	contextMenuValues,
+	dragging,
 	hovered,
 	onContextMenuOpen,
 	outline,
+	onDraggingChange,
 	onHoverChange,
 	onSelect,
 	scale,
@@ -1178,6 +1182,8 @@ const SelectedOutlinePolygon: React.FC<{
 			if (drag === null || interaction.shiftKey || interaction.toggleKey) {
 				return;
 			}
+
+			onDraggingChange(true);
 
 			const startPointerX = event.clientX;
 			const startPointerY = event.clientY;
@@ -1226,6 +1232,7 @@ const SelectedOutlinePolygon: React.FC<{
 				window.removeEventListener('pointermove', onPointerMove);
 				window.removeEventListener('pointerup', onPointerUp);
 				window.removeEventListener('pointercancel', onPointerUp);
+				onDraggingChange(false);
 
 				const changes = getSelectedOutlineDragChanges({
 					dragStates,
@@ -1297,6 +1304,7 @@ const SelectedOutlinePolygon: React.FC<{
 			clearDragOverrides,
 			drag,
 			getDragOverrides,
+			onDraggingChange,
 			onSelect,
 			scale,
 			selected,
@@ -1305,7 +1313,6 @@ const SelectedOutlinePolygon: React.FC<{
 			target,
 		],
 	);
-
 	return (
 		<>
 			<polygon
@@ -1317,8 +1324,16 @@ const SelectedOutlinePolygon: React.FC<{
 				strokeWidth={2}
 				vectorEffect="non-scaling-stroke"
 				pointerEvents={target === undefined ? undefined : 'all'}
-				onPointerEnter={() => onHoverChange(outline.key)}
-				onPointerLeave={() => onHoverChange(null)}
+				onPointerEnter={() => {
+					if (!dragging) {
+						onHoverChange(outline.key);
+					}
+				}}
+				onPointerLeave={() => {
+					if (!dragging) {
+						onHoverChange(null);
+					}
+				}}
 				onPointerDown={onPointerDown}
 			/>
 			<ContextMenuForTarget
@@ -1333,8 +1348,10 @@ const SelectedOutlinePolygon: React.FC<{
 const SelectedOutlineScaleEdgeLine: React.FC<{
 	readonly allScaleDragTargets: readonly SelectedOutlineScaleDragTarget[];
 	readonly contextMenuValues: readonly ComboboxValue[];
+	readonly dragging: boolean;
 	readonly edge: SelectedOutlineScaleEdge;
 	readonly outline: SelectedOutline;
+	readonly onDraggingChange: (dragging: boolean) => void;
 	readonly onContextMenuOpen: () => false | void;
 	readonly onHoverChange: (key: string | null) => void;
 	readonly onSelect: (
@@ -1345,8 +1362,10 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 }> = ({
 	allScaleDragTargets,
 	contextMenuValues,
+	dragging,
 	edge,
 	outline,
+	onDraggingChange,
 	onContextMenuOpen,
 	onHoverChange,
 	onSelect,
@@ -1385,6 +1404,8 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 			if (interaction.shiftKey || interaction.toggleKey) {
 				return;
 			}
+
+			onDraggingChange(true);
 
 			const startPointer = {x: event.clientX, y: event.clientY};
 			const dragStates = getSelectedOutlineScaleDragStates({
@@ -1430,6 +1451,7 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 				window.removeEventListener('pointermove', onPointerMove);
 				window.removeEventListener('pointerup', onPointerUp);
 				window.removeEventListener('pointercancel', onPointerUp);
+				onDraggingChange(false);
 
 				const changes = getSelectedOutlineScaleDragChanges({
 					dragStates,
@@ -1480,6 +1502,7 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 			clearDragOverrides,
 			edgeInfo,
 			getDragOverrides,
+			onDraggingChange,
 			onSelect,
 			scaleDrag,
 			selected,
@@ -1492,7 +1515,6 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 	if (scaleDrag === null || edgeInfo === null) {
 		return null;
 	}
-
 	return (
 		<>
 			<line
@@ -1506,8 +1528,16 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 				vectorEffect="non-scaling-stroke"
 				pointerEvents="stroke"
 				cursor={edgeInfo.cursor}
-				onPointerEnter={() => onHoverChange(outline.key)}
-				onPointerLeave={() => onHoverChange(null)}
+				onPointerEnter={() => {
+					if (!dragging) {
+						onHoverChange(outline.key);
+					}
+				}}
+				onPointerLeave={() => {
+					if (!dragging) {
+						onHoverChange(null);
+					}
+				}}
 				onPointerDown={onPointerDown}
 			/>
 			<ContextMenuForTarget
@@ -1561,9 +1591,10 @@ const SelectedUvHandleConnectionLines: React.FC<{
 };
 
 const SelectedUvHandleCircle: React.FC<{
+	readonly onDraggingChange: (dragging: boolean) => void;
 	readonly handle: SelectedOutlineUvHandle;
 	readonly outline: SelectedOutline;
-}> = ({handle, outline}) => {
+}> = ({handle, onDraggingChange, outline}) => {
 	const {setEffectDragOverrides, clearEffectDragOverrides, setCodeValues} =
 		useContext(Internals.VisualModeSettersContext);
 	const position = useMemo(
@@ -1587,6 +1618,7 @@ const SelectedUvHandleCircle: React.FC<{
 
 			const svgRect = svg.getBoundingClientRect();
 			let lastValue: UvCoordinate | null = null;
+			onDraggingChange(true);
 			const defaultValue =
 				handle.fieldDefault !== undefined
 					? JSON.stringify(handle.fieldDefault)
@@ -1623,6 +1655,7 @@ const SelectedUvHandleCircle: React.FC<{
 				window.removeEventListener('pointermove', onPointerMove);
 				window.removeEventListener('pointerup', onPointerUp);
 				window.removeEventListener('pointercancel', onPointerUp);
+				onDraggingChange(false);
 
 				const stringifiedValue =
 					lastValue === null ? null : JSON.stringify(lastValue);
@@ -1661,6 +1694,7 @@ const SelectedUvHandleCircle: React.FC<{
 		[
 			clearEffectDragOverrides,
 			handle,
+			onDraggingChange,
 			outline.points,
 			setCodeValues,
 			setEffectDragOverrides,
@@ -1686,8 +1720,10 @@ const SelectedUvHandleCircle: React.FC<{
 const SelectedOutlineElement: React.FC<{
 	readonly allDragTargets: readonly SelectedOutlineDragTarget[];
 	readonly allScaleDragTargets: readonly SelectedOutlineScaleDragTarget[];
+	readonly dragging: boolean;
 	readonly hovered: boolean;
 	readonly outline: SelectedOutline;
+	readonly onDraggingChange: (dragging: boolean) => void;
 	readonly onHoverChange: (key: string | null) => void;
 	readonly onSelect: (
 		item: TimelineSelection,
@@ -1698,8 +1734,10 @@ const SelectedOutlineElement: React.FC<{
 }> = ({
 	allDragTargets,
 	allScaleDragTargets,
+	dragging,
 	hovered,
 	outline,
+	onDraggingChange,
 	onHoverChange,
 	onSelect,
 	scale,
@@ -1722,9 +1760,11 @@ const SelectedOutlineElement: React.FC<{
 			<SelectedOutlinePolygon
 				allDragTargets={allDragTargets}
 				contextMenuValues={contextMenuValues}
+				dragging={dragging}
 				hovered={hovered}
 				outline={outline}
 				onContextMenuOpen={onContextMenuOpen}
+				onDraggingChange={onDraggingChange}
 				onHoverChange={onHoverChange}
 				onSelect={onSelect}
 				scale={scale}
@@ -1736,9 +1776,11 @@ const SelectedOutlineElement: React.FC<{
 							key={edge}
 							allScaleDragTargets={allScaleDragTargets}
 							contextMenuValues={contextMenuValues}
+							dragging={dragging}
 							edge={edge}
 							outline={outline}
 							onContextMenuOpen={onContextMenuOpen}
+							onDraggingChange={onDraggingChange}
 							onHoverChange={onHoverChange}
 							onSelect={onSelect}
 							target={target}
@@ -1758,6 +1800,7 @@ const SelectedOutlineElement: React.FC<{
 									<SelectedUvHandleCircle
 										key={`${handle.effectIndex}-${handle.fieldKey}`}
 										handle={handle}
+										onDraggingChange={onDraggingChange}
 										outline={outline}
 									/>
 								))}
@@ -1787,7 +1830,15 @@ export const SelectedOutlineOverlay: React.FC<{
 	const [hoveredOutlineKey, setHoveredOutlineKey] = useState<string | null>(
 		null,
 	);
+	const [draggingOutline, setDraggingOutline] = useState(false);
 	const overlayRef = useRef<SVGSVGElement>(null);
+
+	const onDraggingChange = React.useCallback((dragging: boolean) => {
+		setDraggingOutline(dragging);
+		if (dragging) {
+			setHoveredOutlineKey(null);
+		}
+	}, []);
 
 	const outlineTargets = useMemo((): SelectedOutlineTarget[] => {
 		if (!ENABLE_OUTLINES) {
@@ -1979,8 +2030,10 @@ export const SelectedOutlineOverlay: React.FC<{
 					key={outline.key}
 					allDragTargets={allDragTargets}
 					allScaleDragTargets={allScaleDragTargets}
+					dragging={draggingOutline}
 					hovered={hoveredOutlineKey === outline.key}
 					outline={outline}
+					onDraggingChange={onDraggingChange}
 					onHoverChange={setHoveredOutlineKey}
 					onSelect={selectItem}
 					scale={scale}

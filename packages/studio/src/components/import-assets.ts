@@ -1,7 +1,11 @@
-import type {InsertableCompositionElement} from '@remotion/studio-shared';
+import {
+	getRequiredPackageForInsertableElement,
+	type InsertableCompositionElement,
+} from '@remotion/studio-shared';
 import {getStaticFiles} from '../api/get-static-files';
 import {writeStaticFile} from '../api/write-static-file';
 import {detectFileType, type FileType} from '../helpers/detect-file-type';
+import {installRequiredPackages} from '../helpers/install-required-package';
 import {callApi} from './call-api';
 import {showNotification} from './Notifications/NotificationCenter';
 
@@ -205,6 +209,9 @@ const insertAssetElement = async ({
 	compositionId: string;
 	element: InsertableCompositionElement;
 }) => {
+	const requiredPackage = getRequiredPackageForInsertableElement(element);
+	await installRequiredPackages(requiredPackage ? [requiredPackage] : []);
+
 	const result = await callApi('/api/insert-jsx-element', {
 		compositionFile,
 		compositionId,

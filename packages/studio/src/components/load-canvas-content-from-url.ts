@@ -1,14 +1,19 @@
 import type {CanvasContent} from 'remotion';
 import {getRoute} from '../helpers/url-state';
 
-export const deriveCanvasContentFromUrl = (): CanvasContent | null => {
-	const route = getRoute();
+export const deriveCanvasContentFromRoute = (
+	route: string,
+): CanvasContent | null => {
 	const substrings = route.split('/').filter(Boolean);
 
 	// CJK-named composition IDs are not automatically reselected after page refresh
 	const lastPart = substrings[substrings.length - 1];
 
 	if (substrings[0] === 'assets') {
+		if (!lastPart || substrings.length === 1) {
+			return null;
+		}
+
 		return {
 			type: 'asset',
 			asset: decodeURIComponent(route.substring('/assets/'.length)),
@@ -30,4 +35,8 @@ export const deriveCanvasContentFromUrl = (): CanvasContent | null => {
 	}
 
 	return null;
+};
+
+export const deriveCanvasContentFromUrl = (): CanvasContent | null => {
+	return deriveCanvasContentFromRoute(getRoute());
 };
