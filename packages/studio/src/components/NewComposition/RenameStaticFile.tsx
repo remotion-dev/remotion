@@ -148,6 +148,8 @@ export const RenameStaticFileModal: React.FC<{
 									onChange={onNameChange}
 									type="text"
 									autoFocus
+									autoComplete="off"
+									data-1p-ignore
 									placeholder="Asset name"
 									status={validationMessage ? 'error' : 'ok'}
 									rightAlign
