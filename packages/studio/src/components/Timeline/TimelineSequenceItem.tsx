@@ -1,5 +1,6 @@
 import {
 	EFFECT_DRAG_MIME_TYPE,
+	getRequiredPackageForEffectImportPath,
 	parseEffectDragData,
 	type ReorderSequencePosition,
 } from '@remotion/studio-shared';
@@ -10,12 +11,14 @@ import {NoReactInternals} from 'remotion/no-react';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {formatFileLocation} from '../../helpers/format-file-location';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
+import {installRequiredPackages} from '../../helpers/install-required-package';
 import {
 	getTimelineLayerHeight,
 	TIMELINE_ITEM_BORDER_BOTTOM,
 	TIMELINE_LIST_ITEM_ROW_HEIGHT,
 } from '../../helpers/timeline-layout';
 import {callApi} from '../call-api';
+import {useConfirmationDialog} from '../ConfirmationDialog';
 import {ContextMenu} from '../ContextMenu';
 import {
 	ExpandedTracksGetterContext,
@@ -261,6 +264,7 @@ export const TimelineSequenceItem: React.FC<{
 		Boolean(nodePath && nodePathKey && validatedLocation?.source) &&
 		nodePathInfo?.numberOfSequencesWithThisNodePath === 1;
 	const canHandleSequenceDrag = SELECTION_ENABLED && previewConnected;
+	const confirm = useConfirmationDialog();
 
 	const deleteDisabled = useMemo(
 		() => !previewConnected || !sequence.controls || !canDeleteFromSource,
@@ -274,8 +278,10 @@ export const TimelineSequenceItem: React.FC<{
 			return;
 		}
 
-		duplicateSequencesFromSource([nodePathInfo]).catch(() => undefined);
-	}, [nodePathInfo, validatedLocation?.source]);
+		duplicateSequencesFromSource([nodePathInfo], confirm).catch(
+			() => undefined,
+		);
+	}, [confirm, nodePathInfo, validatedLocation?.source]);
 
 	const onDeleteSequenceFromSource = useCallback(async () => {
 		if (!validatedLocation?.source || !nodePath) {
@@ -283,12 +289,15 @@ export const TimelineSequenceItem: React.FC<{
 		}
 
 		if (nodePathInfo && nodePathInfo.numberOfSequencesWithThisNodePath > 1) {
-			const message =
-				'This sequence is programmatically duplicated ' +
-				nodePathInfo.numberOfSequencesWithThisNodePath +
-				' times in the code. Deleting removes all instances. Continue?';
-			// eslint-disable-next-line no-alert -- native confirm before applying duplicate codemod in .map callbacks
-			if (!window.confirm(message)) {
+			const shouldDelete = await confirm({
+				title: 'Delete sequence?',
+				message:
+					'This sequence is programmatically duplicated ' +
+					nodePathInfo.numberOfSequencesWithThisNodePath +
+					' times in the code. Deleting removes all instances. Continue?',
+				confirmLabel: 'Delete',
+			});
+			if (!shouldDelete) {
 				return;
 			}
 		}
@@ -310,7 +319,7 @@ export const TimelineSequenceItem: React.FC<{
 		} catch (err) {
 			showNotification((err as Error).message, 4000);
 		}
-	}, [nodePath, validatedLocation?.source, nodePathInfo]);
+	}, [confirm, nodePath, validatedLocation?.source, nodePathInfo]);
 
 	const getSequenceDropTarget = useCallback(
 		(e: React.DragEvent<HTMLDivElement>): SequenceDropTarget | null => {
@@ -870,6 +879,11 @@ export const TimelineSequenceItem: React.FC<{
 			}
 
 			try {
+				const requiredPackage = getRequiredPackageForEffectImportPath(
+					dragData.effect.importPath,
+				);
+				await installRequiredPackages(requiredPackage ? [requiredPackage] : []);
+
 				const result = await callApi('/api/add-effect', {
 					fileName: validatedLocation.source,
 					sequenceNodePath: nodePath,
