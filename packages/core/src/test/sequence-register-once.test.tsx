@@ -136,7 +136,7 @@ test('Sequence registers its documentation link', () => {
 	);
 });
 
-test('Series.Sequence registers controls without a from field', () => {
+test('Series.Sequence registers without visual controls', () => {
 	const registeredSequences: TSequence[] = [];
 
 	render(
@@ -146,7 +146,9 @@ test('Series.Sequence registers controls without a from field', () => {
 			}}
 		>
 			<Series>
-				<Series.Sequence durationInFrames={10}>First</Series.Sequence>
+				<Series.Sequence durationInFrames={10} premountFor={30}>
+					First
+				</Series.Sequence>
 				<Series.Sequence durationInFrames={20}>Second</Series.Sequence>
 			</Series>
 		</SequenceTestWrapper>,
@@ -156,11 +158,9 @@ test('Series.Sequence registers controls without a from field', () => {
 		(sequence) => sequence.displayName === '<Series.Sequence>',
 	);
 
-	expect(seriesSequences.map((sequence) => sequence.from)).toEqual([0, 10]);
 	expect(seriesSequences).toHaveLength(2);
 	for (const sequence of seriesSequences) {
-		expect(sequence.controls?.schema.from).toBeUndefined();
-		expect(sequence.controls?.schema.durationInFrames).toBeDefined();
+		expect(sequence.controls).toBe(null);
 	}
 });
 

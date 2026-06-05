@@ -278,7 +278,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	const isInsideSeries = useContext(IsInsideSeriesContext);
 
-	const inheritedStack = (other as any)?.stack ?? null;
+	const inheritedStack = (other as {readonly stack?: string})?.stack ?? null;
 	// Our assumption: Stack doesnt' change. After we symbolicate we assign it a nodePath
 	// and if it changes, it would lead to-remounting of the sequence.
 	const stackRef = useRef<string | null>(null);
@@ -546,6 +546,7 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 };
 
 const SequenceInner = forwardRef(SequenceRefForwardingFunction);
+export const SequenceWithoutSchema = SequenceInner;
 
 /*
  * @description A component that time-shifts its children and wraps them in an absolutely positioned <div>.
