@@ -1515,6 +1515,7 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 	if (scaleDrag === null || edgeInfo === null) {
 		return null;
 	}
+
 	return (
 		<>
 			<line
