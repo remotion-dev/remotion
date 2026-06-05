@@ -73,27 +73,19 @@ export const EditorContent: React.FC<{
 		</SplitterContainer>
 	);
 
-	if (!showTimeline) {
-		return (
-			<div style={container}>
+	return (
+		<TimelineSelectionProvider>
+			<StudioClearSelectionArea>
 				<InitialCompositionLoader />
 				<MenuToolbar readOnlyStudio={readOnlyStudio} />
-				{content}
-			</div>
-		);
-	}
-
-	return (
-		<div style={container}>
-			<InitialCompositionLoader />
-			<MenuToolbar readOnlyStudio={readOnlyStudio} />
-			<TimelineSelectionProvider>
-				<StudioClearSelectionArea>
+				{showTimeline ? (
 					<TimelineKeyframeDragStateProvider>
 						{content}
 					</TimelineKeyframeDragStateProvider>
-				</StudioClearSelectionArea>
-			</TimelineSelectionProvider>
-		</div>
+				) : (
+					content
+				)}
+			</StudioClearSelectionArea>
+		</TimelineSelectionProvider>
 	);
 };
