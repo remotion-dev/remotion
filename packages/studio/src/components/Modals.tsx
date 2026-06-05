@@ -6,7 +6,6 @@ import {ConfirmationDialog} from './ConfirmationDialog';
 import {InstallPackageModal} from './InstallPackage';
 import {DeleteComposition} from './NewComposition/DeleteComposition';
 import {DeleteFolder} from './NewComposition/DeleteFolder';
-import {DeleteStaticFileModal} from './NewComposition/DeleteStaticFile';
 import {DuplicateComposition} from './NewComposition/DuplicateComposition';
 import {RenameComposition} from './NewComposition/RenameComposition';
 import {RenameFolder} from './NewComposition/RenameFolder';
@@ -54,9 +53,6 @@ export const Modals: React.FC<{
 					parentName={modalContextType.parentName}
 					stack={modalContextType.stack}
 				/>
-			)}
-			{modalContextType && modalContextType.type === 'delete-static-file' && (
-				<DeleteStaticFileModal relativePath={modalContextType.relativePath} />
 			)}
 			{modalContextType && modalContextType.type === 'rename-static-file' && (
 				<RenameStaticFileModal relativePath={modalContextType.relativePath} />
