@@ -56,13 +56,13 @@ export {
 	RedoRequest,
 	RedoResponse,
 	RemoveRenderRequest,
+	RenameStaticFileRequest,
+	RenameStaticFileResponse,
 	ReorderEffectRequest,
 	ReorderEffectResponse,
 	ReorderSequencePosition,
 	ReorderSequenceRequest,
 	ReorderSequenceResponse,
-	RenameStaticFileRequest,
-	RenameStaticFileResponse,
 	RestartStudioRequest,
 	RestartStudioResponse,
 	SaveEffectPropsRequest,
@@ -199,9 +199,9 @@ export {
 } from './schema-field-info';
 export type {
 	AnySchemaFieldInfo,
-	CodeValues,
 	DragOverrides,
 	EffectSchemaFieldInfo,
+	PropStatuses,
 	SchemaFieldInfo,
 	SequenceControls,
 	SequenceSchemaFieldInfo,
@@ -231,8 +231,8 @@ export {
 	optimisticMoveSequenceKeyframes,
 	type OptimisticKeyframeMove,
 } from './optimistic-move-keyframe';
-export {optimisticUpdateForCodeValues} from './optimistic-update-for-code-values';
-export {optimisticUpdateForEffectCodeValues} from './optimistic-update-for-effect-code-values';
+export {optimisticUpdateForPropStatuses} from './optimistic-update-for-prop-statuses';
+export {optimisticUpdateForEffectPropStatuses} from './optimistic-update-for-effect-prop-statuses';
 export {
 	optimisticUpdateEffectKeyframeSettings,
 	optimisticUpdateSequenceKeyframeSettings,

@@ -1,9 +1,9 @@
 import {
 	Internals,
-	type CodeValues,
 	type DragOverrideValue,
 	type GetDragOverrides,
 	type GetEffectDragOverrides,
+	type PropStatuses,
 	type SequencePropsSubscriptionKey,
 } from 'remotion';
 import type {TimelineTreeNode} from '../../helpers/timeline-layout';
@@ -62,7 +62,7 @@ const withDragOverrideKeyframe = ({
 export const getNodeKeyframes = ({
 	node,
 	nodePath,
-	codeValues,
+	propStatuses,
 	keyframeDisplayOffset,
 	getDragOverrides,
 	getEffectDragOverrides,
@@ -70,7 +70,7 @@ export const getNodeKeyframes = ({
 }: {
 	node: TimelineTreeNode;
 	nodePath: SequencePropsSubscriptionKey;
-	codeValues: CodeValues;
+	propStatuses: PropStatuses;
 	keyframeDisplayOffset: number;
 	getDragOverrides: GetDragOverrides;
 	getEffectDragOverrides: GetEffectDragOverrides;
@@ -83,7 +83,7 @@ export const getNodeKeyframes = ({
 	if (node.field.kind === 'sequence-field') {
 		const dragOverrides = getDragOverrides(nodePath);
 		return withDragOverrideKeyframe({
-			propStatus: Internals.getCodeValuesCtx(codeValues, nodePath)?.[
+			propStatus: Internals.getPropStatusesCtx(propStatuses, nodePath)?.[
 				node.field.key
 			],
 			keyframeDisplayOffset,
@@ -93,8 +93,8 @@ export const getNodeKeyframes = ({
 		});
 	}
 
-	const effectStatus = Internals.getEffectCodeValuesCtx({
-		codeValues,
+	const effectStatus = Internals.getEffectPropStatusesCtx({
+		propStatuses,
 		nodePath,
 		effectIndex: node.field.effectIndex,
 	});

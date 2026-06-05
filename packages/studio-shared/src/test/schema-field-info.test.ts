@@ -64,7 +64,7 @@ test('getEffectFieldsToShow uses the active enum variant', () => {
 		effect,
 		effectIndex: 0,
 		nodePath,
-		codeValues: {
+		propStatuses: {
 			[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
 				canUpdate: true,
 				props: {},
@@ -99,7 +99,7 @@ test('getEffectFieldsToShow uses default enum variant if no code value exists', 
 		effect,
 		effectIndex: 0,
 		nodePath: null,
-		codeValues: {},
+		propStatuses: {},
 		getEffectDragOverrides: () => ({}),
 	});
 
@@ -116,7 +116,7 @@ test('getEffectFieldsToShow returns array fields', () => {
 		effect,
 		effectIndex: 0,
 		nodePath: null,
-		codeValues: {},
+		propStatuses: {},
 		getEffectDragOverrides: () => ({}),
 	});
 
@@ -130,7 +130,7 @@ test('getEffectFieldsToShow sizes array fields from the current value', () => {
 		effect,
 		effectIndex: 0,
 		nodePath,
-		codeValues: {
+		propStatuses: {
 			[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
 				canUpdate: true,
 				props: {},

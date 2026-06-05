@@ -217,18 +217,18 @@ const TimelineSequenceInner: React.FC<{
 		};
 	}, [originalLocation]);
 
-	const {codeValues} = useContext(Internals.VisualModeCodeValuesContext);
+	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 	const nodePath = nodePathInfo?.sequenceSubscriptionKey ?? null;
-	const codeValuesForOverride = useMemo(() => {
+	const propStatusesForOverride = useMemo(() => {
 		return nodePath
-			? Internals.getCodeValuesCtx(codeValues, nodePath)
+			? Internals.getPropStatusesCtx(propStatuses, nodePath)
 			: undefined;
-	}, [codeValues, nodePath]);
+	}, [propStatuses, nodePath]);
 	const durationCanUpdate = Boolean(
-		codeValuesForOverride?.durationInFrames?.status === 'static',
+		propStatusesForOverride?.durationInFrames?.status === 'static',
 	);
 	const fromCanUpdate = Boolean(
-		codeValuesForOverride?.from?.status === 'static',
+		propStatusesForOverride?.from?.status === 'static',
 	);
 
 	const {onPointerDown: onMoveDragPointerDown} = useTimelineSequenceFromDrag({

@@ -54,8 +54,8 @@ import {
 } from './effects/run-effect-chain.js';
 import {useEffectChainState} from './effects/use-effect-chain-state.js';
 import {
-	getCodeValuesCtx,
-	getEffectCodeValuesCtx,
+	getEffectPropStatusesCtx,
+	getPropStatusesCtx,
 	useMemoizedEffectDefinitions,
 	useMemoizedEffects,
 } from './effects/use-memoized-effects.js';
@@ -148,8 +148,8 @@ import type {CannotUpdateSequenceReason} from './SequenceManager.js';
 import {
 	makeSequencePropsSubscriptionKey,
 	SequenceManager,
-	VisualModeCodeValuesContext,
 	VisualModeDragOverridesContext,
+	VisualModePropStatusesContext,
 	VisualModeSettersContext,
 	type CanUpdateEffectPropsResponse,
 	type CanUpdateEffectPropsResponseFalse,
@@ -196,10 +196,10 @@ import type {
 	CanUpdateSequencePropStatusKeyframed,
 	CanUpdateSequencePropStatusStatic,
 	DragOverrideValue,
-	GetCodeValues,
 	GetDragOverrides,
-	GetEffectCodeValues,
 	GetEffectDragOverrides,
+	GetEffectPropStatuses,
+	GetPropStatuses,
 } from './use-schema.js';
 import {
 	computeEffectiveSchemaValuesDotNotation,
@@ -207,9 +207,9 @@ import {
 	makeKeyframedDragOverride,
 	makeStaticDragOverride,
 	type CanUpdateSequencePropStatus,
-	type CodeValues,
 	type DragOverrides,
 	type EffectDragOverrides,
+	type PropStatuses,
 } from './use-schema.js';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config.js';
 import {useVideo} from './use-video.js';
@@ -277,7 +277,7 @@ export const Internals = {
 	VideoForPreview,
 	CompositionManager,
 	CompositionSetters,
-	VisualModeCodeValuesContext,
+	VisualModePropStatusesContext,
 	VisualModeDragOverridesContext,
 	VisualModeSettersContext,
 	SequenceManager,
@@ -399,8 +399,8 @@ export const Internals = {
 	OverrideIdsToNodePathsSettersContext,
 	findPropsToDelete,
 	makeSequencePropsSubscriptionKey,
-	getCodeValuesCtx,
-	getEffectCodeValuesCtx,
+	getPropStatusesCtx,
+	getEffectPropStatusesCtx,
 	hiddenField,
 	durationInFramesField,
 	fromField,
@@ -420,16 +420,15 @@ export type {
 	CanUpdateSequencePropStatusFalse,
 	CanUpdateSequencePropStatusKeyframed,
 	CanUpdateSequencePropStatusStatic,
-	CodeValues,
 	CompositionManagerContext,
 	CompProps,
 	DragOverrides,
 	DragOverrideValue,
 	EffectDragOverrides,
-	GetCodeValues,
 	GetDragOverrides,
-	GetEffectCodeValues,
 	GetEffectDragOverrides,
+	GetEffectPropStatuses,
+	GetPropStatuses,
 	LoggingContextValue,
 	MediaVolumeContextValue,
 	NonceHistory,
@@ -439,6 +438,7 @@ export type {
 	OverrideToNodePathGetters,
 	OverrideToNodeSetters,
 	PlaybackRateContextValue,
+	PropStatuses,
 	RemotionAudioContextState,
 	RemotionEnvironment,
 	ResolvedStackLocation,

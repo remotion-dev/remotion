@@ -13,7 +13,6 @@ test('optimisticDeleteSequenceKeyframe removes the matching keyframe and an easi
 		props: {
 			'style.opacity': {
 				status: 'keyframed',
-				codeValue: undefined,
 				interpolationFunction: 'interpolate',
 				keyframes: [
 					{frame: 0, value: 0},
@@ -56,7 +55,6 @@ test('optimisticDeleteSequenceKeyframe converts the last keyframe to a static va
 		props: {
 			width: {
 				status: 'keyframed',
-				codeValue: undefined,
 				interpolationFunction: 'interpolate',
 				keyframes: [{frame: 12, value: 320}],
 				easing: [],
@@ -89,7 +87,6 @@ test('optimisticDeleteSequenceKeyframe is a no-op when no keyframe matches', () 
 		props: {
 			'style.opacity': {
 				status: 'keyframed',
-				codeValue: undefined,
 				interpolationFunction: 'interpolate',
 				keyframes: [{frame: 0, value: 0}],
 				easing: [],
@@ -132,7 +129,6 @@ test('optimisticDeleteSequenceKeyframes deletes multiple keyframes in one pass',
 		props: {
 			width: {
 				status: 'keyframed',
-				codeValue: undefined,
 				interpolationFunction: 'interpolate',
 				keyframes: [
 					{frame: 0, value: 100},
@@ -181,7 +177,6 @@ test('optimisticDeleteEffectKeyframe removes the matching keyframe on the target
 				props: {
 					amount: {
 						status: 'keyframed',
-						codeValue: undefined,
 						interpolationFunction: 'interpolate',
 						keyframes: [
 							{frame: 0, value: 0},
@@ -234,7 +229,6 @@ test('optimisticDeleteEffectKeyframe converts the last keyframe on the target ef
 				props: {
 					amount: {
 						status: 'keyframed',
-						codeValue: undefined,
 						interpolationFunction: 'interpolate',
 						keyframes: [{frame: 40, value: 0.6}],
 						easing: [],
@@ -298,7 +292,6 @@ test('optimisticDeleteEffectKeyframes deletes multiple keyframes in one pass', (
 				props: {
 					amount: {
 						status: 'keyframed',
-						codeValue: undefined,
 						interpolationFunction: 'interpolate',
 						keyframes: [
 							{frame: 0, value: 0},

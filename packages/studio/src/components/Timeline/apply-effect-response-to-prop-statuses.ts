@@ -3,7 +3,7 @@ import type {
 	CanUpdateSequencePropsResponse,
 } from 'remotion';
 
-export const applyEffectResponseToCodeValues = ({
+export const applyEffectResponseToPropStatuses = ({
 	previous,
 	response,
 }: {

@@ -32,7 +32,7 @@ export const useExpandedTrackKeyframeRows = ({
 	readonly expandedHeight: number;
 } => {
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
-	const {codeValues} = useContext(Internals.VisualModeCodeValuesContext);
+	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 	const {getDragOverrides, getEffectDragOverrides} = useContext(
 		Internals.VisualModeDragOverridesContext,
 	);
@@ -45,10 +45,10 @@ export const useExpandedTrackKeyframeRows = ({
 				nodePathInfo,
 				getDragOverrides,
 				getEffectDragOverrides,
-				codeValues,
+				propStatuses,
 			}),
 		[
-			codeValues,
+			propStatuses,
 			getDragOverrides,
 			getEffectDragOverrides,
 			nodePathInfo,
@@ -67,9 +67,9 @@ export const useExpandedTrackKeyframeRows = ({
 				sequence,
 				nodePathInfo,
 				getIsExpanded,
-				codeValues,
+				propStatuses,
 			}),
-		[codeValues, getIsExpanded, nodePathInfo, sequence],
+		[propStatuses, getIsExpanded, nodePathInfo, sequence],
 	);
 
 	const rows = useMemo(
@@ -79,7 +79,7 @@ export const useExpandedTrackKeyframeRows = ({
 				keyframes: getNodeKeyframes({
 					node,
 					nodePath: nodePathInfo.sequenceSubscriptionKey,
-					codeValues,
+					propStatuses,
 					keyframeDisplayOffset,
 					getDragOverrides,
 					getEffectDragOverrides,
@@ -89,7 +89,7 @@ export const useExpandedTrackKeyframeRows = ({
 				nodePathInfo: node.nodePathInfo,
 			})),
 		[
-			codeValues,
+			propStatuses,
 			flat,
 			getDragOverrides,
 			getEffectDragOverrides,

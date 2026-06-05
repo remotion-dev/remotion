@@ -2,10 +2,10 @@ import React, {useContext, useEffect, useMemo, useRef, useState} from 'react';
 import type {
 	CanUpdateSequencePropStatusKeyframed,
 	CanUpdateSequencePropStatusStatic,
-	CodeValues,
 	GetDragOverrides,
 	GetEffectDragOverrides,
 	OverrideIdToNodePaths,
+	PropStatuses,
 	ResolvedStackLocation,
 	SequenceFieldSchema,
 	SequencePropsSubscriptionKey,
@@ -71,7 +71,7 @@ type UvCoordinateFieldSchema = Extract<
 
 type SelectedOutlineUvHandle = {
 	readonly clientId: string;
-	readonly codeValue: CanUpdateSequencePropStatusStatic;
+	readonly propStatus: CanUpdateSequencePropStatusStatic;
 	readonly effectIndex: number;
 	readonly fieldDefault: UvCoordinate | undefined;
 	readonly fieldKey: string;
@@ -114,7 +114,7 @@ type SelectedOutlineTarget = {
 };
 
 type SelectedOutlineDragTarget = {
-	readonly codeValue:
+	readonly propStatus:
 		| CanUpdateSequencePropStatusStatic
 		| CanUpdateSequencePropStatusKeyframed;
 	readonly clientId: string;
@@ -127,7 +127,7 @@ type SelectedOutlineDragTarget = {
 type ScaleFieldSchema = Extract<SequenceFieldSchema, {type: 'scale'}>;
 
 type SelectedOutlineScaleDragTarget = {
-	readonly codeValue: CanUpdateSequencePropStatusStatic;
+	readonly propStatus: CanUpdateSequencePropStatusStatic;
 	readonly clientId: string;
 	readonly fieldDefault: number | string | undefined;
 	readonly fieldSchema: ScaleFieldSchema;
@@ -602,14 +602,14 @@ export const getSequencesWithSelectableOutlines = ({
 };
 
 const getSelectedUvHandles = ({
-	codeValues,
+	propStatuses,
 	clientId,
 	getEffectDragOverrides,
 	nodePath,
 	selectedEffects,
 	sequence,
 }: {
-	readonly codeValues: CodeValues;
+	readonly propStatuses: PropStatuses;
 	readonly clientId: string | null;
 	readonly getEffectDragOverrides: GetEffectDragOverrides;
 	readonly nodePath: SequencePropsSubscriptionKey;
@@ -628,8 +628,8 @@ const getSelectedUvHandles = ({
 			continue;
 		}
 
-		const effectStatus = Internals.getEffectCodeValuesCtx({
-			codeValues,
+		const effectStatus = Internals.getEffectPropStatusesCtx({
+			propStatuses,
 			nodePath,
 			effectIndex,
 		});
@@ -669,7 +669,7 @@ const getSelectedUvHandles = ({
 
 			const dragOverrideValue = dragOverrides[fieldKey];
 			const effectiveValue = Internals.getEffectiveVisualModeValue({
-				codeValue: propStatus,
+				propStatus,
 				dragOverrideValue,
 				defaultValue: fieldSchema.default,
 				shouldResortToDefaultValueIfUndefined: true,
@@ -681,7 +681,7 @@ const getSelectedUvHandles = ({
 
 			handles.push({
 				clientId,
-				codeValue: propStatus,
+				propStatus,
 				effectIndex,
 				fieldDefault: fieldSchema.default,
 				fieldKey,
@@ -761,7 +761,7 @@ const getSelectedOutlineDragStates = ({
 		];
 		const sourceFrame = timelinePosition - target.keyframeDisplayOffset;
 		const effectiveValue = Internals.getEffectiveVisualModeValue({
-			codeValue: target.codeValue,
+			propStatus: target.propStatus,
 			dragOverrideValue,
 			defaultValue: target.fieldDefault,
 			frame: sourceFrame,
@@ -836,7 +836,7 @@ export const getSelectedOutlineDragChanges = ({
 			continue;
 		}
 
-		if (dragState.target.codeValue.status === 'keyframed') {
+		if (dragState.target.propStatus.status === 'keyframed') {
 			const startValue = serializeTranslate(dragState.startX, dragState.startY);
 			if (value === startValue) {
 				continue;
@@ -857,10 +857,10 @@ export const getSelectedOutlineDragChanges = ({
 
 		const stringifiedValue = JSON.stringify(value);
 		const shouldSave =
-			value !== dragState.target.codeValue.codeValue &&
+			value !== dragState.target.propStatus.codeValue &&
 			!(
 				dragState.defaultValue === stringifiedValue &&
-				dragState.target.codeValue.codeValue === undefined
+				dragState.target.propStatus.codeValue === undefined
 			);
 
 		if (!shouldSave) {
@@ -937,7 +937,7 @@ export const getSelectedOutlineScaleDragStates = ({
 			scaleFieldKey
 		];
 		const effectiveValue = Internals.getEffectiveVisualModeValue({
-			codeValue: target.codeValue,
+			propStatus: target.propStatus,
 			dragOverrideValue,
 			defaultValue: target.fieldDefault,
 			shouldResortToDefaultValueIfUndefined: true,
@@ -1012,10 +1012,10 @@ export const getSelectedOutlineScaleDragChanges = ({
 		const stringifiedValue = JSON.stringify(value);
 		const shouldSave =
 			stringifiedValue !==
-				JSON.stringify(dragState.target.codeValue.codeValue) &&
+				JSON.stringify(dragState.target.propStatus.codeValue) &&
 			!(
 				dragState.defaultValue === stringifiedValue &&
-				dragState.target.codeValue.codeValue === undefined
+				dragState.target.propStatus.codeValue === undefined
 			);
 
 		if (!shouldSave) {
@@ -1090,7 +1090,7 @@ const SelectedOutlinePolygon: React.FC<{
 	const {getDragOverrides} = useContext(
 		Internals.VisualModeDragOverridesContext,
 	);
-	const {setCodeValues, setDragOverrides, clearDragOverrides} = useContext(
+	const {setPropStatuses, setDragOverrides, clearDragOverrides} = useContext(
 		Internals.VisualModeSettersContext,
 	);
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
@@ -1150,12 +1150,12 @@ const SelectedOutlinePolygon: React.FC<{
 						throw new Error('Expected drag value to be available');
 					}
 
-					if (dragState.target.codeValue.status === 'keyframed') {
+					if (dragState.target.propStatus.status === 'keyframed') {
 						setDragOverrides(
 							dragState.target.nodePath,
 							translateFieldKey,
 							Internals.makeKeyframedDragOverride({
-								status: dragState.target.codeValue,
+								status: dragState.target.propStatus,
 								frame: dragState.sourceFrame,
 								value,
 							}),
@@ -1199,7 +1199,7 @@ const SelectedOutlinePolygon: React.FC<{
 					staticChanges.length > 0
 						? saveSequenceProps({
 								changes: staticChanges,
-								setCodeValues,
+								setPropStatuses,
 								clientId: drag.clientId,
 								undoLabel:
 									changes.length > 1
@@ -1219,7 +1219,7 @@ const SelectedOutlinePolygon: React.FC<{
 							sourceFrame: change.sourceFrame,
 							value: change.value,
 							schema: change.schema,
-							setCodeValues,
+							setPropStatuses,
 							clientId: change.clientId,
 						}),
 					),
@@ -1250,7 +1250,7 @@ const SelectedOutlinePolygon: React.FC<{
 			onSelect,
 			scale,
 			selected,
-			setCodeValues,
+			setPropStatuses,
 			setDragOverrides,
 			target,
 		],
@@ -1316,7 +1316,7 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 	const {getDragOverrides} = useContext(
 		Internals.VisualModeDragOverridesContext,
 	);
-	const {setCodeValues, setDragOverrides, clearDragOverrides} = useContext(
+	const {setPropStatuses, setDragOverrides, clearDragOverrides} = useContext(
 		Internals.VisualModeSettersContext,
 	);
 	const scaleDrag = target?.scaleDrag ?? null;
@@ -1410,7 +1410,7 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 
 				saveSequenceProps({
 					changes,
-					setCodeValues,
+					setPropStatuses,
 					clientId: scaleDrag.clientId,
 					undoLabel:
 						changes.length > 1 ? 'Scale selected sequences' : 'Scale sequence',
@@ -1448,7 +1448,7 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 			onSelect,
 			scaleDrag,
 			selected,
-			setCodeValues,
+			setPropStatuses,
 			setDragOverrides,
 			target,
 		],
@@ -1538,7 +1538,7 @@ const SelectedUvHandleCircle: React.FC<{
 	readonly handle: SelectedOutlineUvHandle;
 	readonly outline: SelectedOutline;
 }> = ({handle, onDraggingChange, outline}) => {
-	const {setEffectDragOverrides, clearEffectDragOverrides, setCodeValues} =
+	const {setEffectDragOverrides, clearEffectDragOverrides, setPropStatuses} =
 		useContext(Internals.VisualModeSettersContext);
 	const position = useMemo(
 		() => getUvHandlePosition(outline.points, handle.value),
@@ -1604,10 +1604,10 @@ const SelectedUvHandleCircle: React.FC<{
 					lastValue === null ? null : JSON.stringify(lastValue);
 				const shouldSave =
 					lastValue !== null &&
-					!tuplesEqual(handle.codeValue.codeValue, lastValue) &&
+					!tuplesEqual(handle.propStatus.codeValue, lastValue) &&
 					!(
 						defaultValue === stringifiedValue &&
-						handle.codeValue.codeValue === undefined
+						handle.propStatus.codeValue === undefined
 					);
 
 				if (!shouldSave) {
@@ -1624,7 +1624,7 @@ const SelectedUvHandleCircle: React.FC<{
 					value: lastValue,
 					defaultValue,
 					schema: handle.schema,
-					setCodeValues,
+					setPropStatuses,
 					clientId: handle.clientId,
 				}).finally(() => {
 					clearEffectDragOverrides(handle.nodePath, handle.effectIndex);
@@ -1640,7 +1640,7 @@ const SelectedUvHandleCircle: React.FC<{
 			handle,
 			onDraggingChange,
 			outline.points,
-			setCodeValues,
+			setPropStatuses,
 			setEffectDragOverrides,
 		],
 	);
@@ -1840,7 +1840,7 @@ export const SelectedOutlineOverlay: React.FC<{
 }> = ({scale}) => {
 	const {selectedItems, selectItem} = useTimelineSelection();
 	const {sequences} = useContext(Internals.SequenceManager);
-	const {codeValues} = useContext(Internals.VisualModeCodeValuesContext);
+	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {overrideIdToNodePathMappings} = useContext(
 		Internals.OverrideIdsToNodePathsGettersContext,
@@ -1889,17 +1889,18 @@ export const SelectedOutlineOverlay: React.FC<{
 			const nodePath = nodePathInfo.sequenceSubscriptionKey;
 			const {controls} = sequence;
 			const fieldSchema = controls?.schema[translateFieldKey];
-			const codeValue = Internals.getCodeValuesCtx(codeValues, nodePath)?.[
+			const propStatus = Internals.getPropStatusesCtx(propStatuses, nodePath)?.[
 				translateFieldKey
 			];
 			const scaleFieldSchema = controls?.schema[scaleFieldKey];
-			const scaleCodeValue = Internals.getCodeValuesCtx(codeValues, nodePath)?.[
-				scaleFieldKey
-			];
+			const scalePropStatus = Internals.getPropStatusesCtx(
+				propStatuses,
+				nodePath,
+			)?.[scaleFieldKey];
 			const canDragStatus =
-				codeValue?.status === 'static' ||
-				(codeValue?.status === 'keyframed' &&
-					codeValue.interpolationFunction === 'interpolate');
+				propStatus?.status === 'static' ||
+				(propStatus?.status === 'keyframed' &&
+					propStatus.interpolationFunction === 'interpolate');
 			const canDrag =
 				previewServerState.type === 'connected' &&
 				controls !== null &&
@@ -1909,7 +1910,7 @@ export const SelectedOutlineOverlay: React.FC<{
 				previewServerState.type === 'connected' &&
 				controls !== null &&
 				scaleFieldSchema?.type === 'scale' &&
-				scaleCodeValue?.status === 'static';
+				scalePropStatus?.status === 'static';
 
 			return {
 				key,
@@ -1920,7 +1921,7 @@ export const SelectedOutlineOverlay: React.FC<{
 				sequence,
 				drag: canDrag
 					? {
-							codeValue,
+							propStatus,
 							clientId: previewServerState.clientId,
 							fieldDefault: fieldSchema.default,
 							keyframeDisplayOffset,
@@ -1930,7 +1931,7 @@ export const SelectedOutlineOverlay: React.FC<{
 					: null,
 				scaleDrag: canScaleDrag
 					? {
-							codeValue: scaleCodeValue,
+							propStatus: scalePropStatus,
 							clientId: previewServerState.clientId,
 							fieldDefault: scaleFieldSchema.default,
 							fieldSchema: scaleFieldSchema,
@@ -1942,7 +1943,7 @@ export const SelectedOutlineOverlay: React.FC<{
 										scaleFieldKey
 									];
 									const effectiveValue = Internals.getEffectiveVisualModeValue({
-										codeValue: scaleCodeValue,
+										propStatus: scalePropStatus,
 										dragOverrideValue,
 										defaultValue: scaleFieldSchema.default,
 										shouldResortToDefaultValueIfUndefined: true,
@@ -1958,7 +1959,7 @@ export const SelectedOutlineOverlay: React.FC<{
 					: null,
 				uvHandles: selected
 					? getSelectedUvHandles({
-							codeValues,
+							propStatuses,
 							clientId,
 							getEffectDragOverrides,
 							nodePath,
@@ -1969,7 +1970,7 @@ export const SelectedOutlineOverlay: React.FC<{
 			};
 		});
 	}, [
-		codeValues,
+		propStatuses,
 		getDragOverrides,
 		getEffectDragOverrides,
 		getScaleLockState,

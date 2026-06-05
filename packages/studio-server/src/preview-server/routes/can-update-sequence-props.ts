@@ -11,8 +11,8 @@ import type {
 	UnaryExpression,
 } from '@babel/types';
 import {RenderInternals} from '@remotion/renderer';
-import {isKeyframeInterpolationFunction} from '@remotion/studio-shared';
 import type {SubscribeToSequencePropsResponse} from '@remotion/studio-shared';
+import {isKeyframeInterpolationFunction} from '@remotion/studio-shared';
 import * as recast from 'recast';
 import type {
 	CanUpdateSequencePropsResponseTrue,
@@ -536,7 +536,6 @@ export const getComputedStatus = (
 
 	return {
 		status: 'keyframed',
-		codeValue: undefined,
 		interpolationFunction: interpolation.interpolationFunction,
 		keyframes: interpolation.keyframes,
 		easing: interpolation.easing,
@@ -745,12 +744,12 @@ const getNestedPropStatus = (
 		return getComputedStatus(propValue, ast);
 	}
 
-	const codeValue = extractStaticValue(propValue);
-	if (!validateStyleValue(childKey, codeValue)) {
+	const propStatus = extractStaticValue(propValue);
+	if (!validateStyleValue(childKey, propStatus)) {
 		return computedStatus();
 	}
 
-	return staticStatus(codeValue);
+	return staticStatus(propStatus);
 };
 
 const computeEffectsForJsx = ({

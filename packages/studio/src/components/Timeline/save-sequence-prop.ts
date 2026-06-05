@@ -1,4 +1,4 @@
-import {optimisticUpdateForCodeValues} from '@remotion/studio-shared';
+import {optimisticUpdateForPropStatuses} from '@remotion/studio-shared';
 import type {
 	CanUpdateSequencePropsResponse,
 	SequencePropsSubscriptionKey,
@@ -7,7 +7,7 @@ import type {
 import {callApi} from '../call-api';
 import {enqueueSavePropChange} from './save-prop-queue';
 
-export type SetCodeValues = (
+export type SetPropStatuses = (
 	nodePath: SequencePropsSubscriptionKey,
 	values: (
 		prev: CanUpdateSequencePropsResponse,
@@ -25,7 +25,7 @@ export type SaveSequencePropChange = {
 
 type SaveSequencePropsOptions = {
 	changes: SaveSequencePropChange[];
-	setCodeValues: SetCodeValues;
+	setPropStatuses: SetPropStatuses;
 	clientId: string;
 	undoLabel: string;
 	redoLabel: string;
@@ -33,7 +33,7 @@ type SaveSequencePropsOptions = {
 
 export const saveSequenceProps = ({
 	changes,
-	setCodeValues,
+	setPropStatuses,
 	clientId,
 	undoLabel,
 	redoLabel,
@@ -50,9 +50,9 @@ export const saveSequenceProps = ({
 
 		return enqueueSavePropChange({
 			nodePath: change.nodePath,
-			setCodeValues,
+			setPropStatuses,
 			applyOptimistic: (prev) =>
-				optimisticUpdateForCodeValues({
+				optimisticUpdateForPropStatuses({
 					previous: prev,
 					fieldKey: change.fieldKey,
 					value: change.value,
@@ -79,8 +79,8 @@ export const saveSequenceProps = ({
 	}
 
 	for (const change of changes) {
-		setCodeValues(change.nodePath, (prev) =>
-			optimisticUpdateForCodeValues({
+		setPropStatuses(change.nodePath, (prev) =>
+			optimisticUpdateForPropStatuses({
 				previous: prev,
 				fieldKey: change.fieldKey,
 				value: change.value,

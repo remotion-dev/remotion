@@ -61,7 +61,7 @@ export const TimelineKeyframedValue: React.FC<{
 
 	const effectiveValue = useMemo(() => {
 		return Internals.getEffectiveVisualModeValue({
-			codeValue: fakeStatus,
+			propStatus: fakeStatus,
 			dragOverrideValue,
 			frame: jsxFrame,
 			defaultValue: field.fieldSchema.default,

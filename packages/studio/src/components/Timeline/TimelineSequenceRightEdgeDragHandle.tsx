@@ -7,8 +7,8 @@ import React, {
 	useState,
 } from 'react';
 import type {
-	CodeValues,
 	OverrideIdToNodePaths,
+	PropStatuses,
 	SequencePropsSubscriptionKey,
 	TSequence,
 } from 'remotion';
@@ -28,8 +28,8 @@ import {
 } from './save-sequence-prop';
 import {
 	getTimelineSequenceSelectionKey,
-	type TimelineSelection,
 	useTimelineSelection,
+	type TimelineSelection,
 } from './TimelineSelection';
 
 const HANDLE_WIDTH = 6;
@@ -57,26 +57,27 @@ export type TimelineSequenceFromDragTarget = {
 };
 
 const canUpdateDurationInFrames = ({
-	codeValues,
+	propStatuses,
 	nodePath,
 }: {
-	readonly codeValues: CodeValues;
+	readonly propStatuses: PropStatuses;
 	readonly nodePath: SequencePropsSubscriptionKey;
 }) => {
-	const status = Internals.getCodeValuesCtx(codeValues, nodePath)
+	const status = Internals.getPropStatusesCtx(propStatuses, nodePath)
 		?.durationInFrames?.status;
 
 	return status === 'static';
 };
 
 const canUpdateFrom = ({
-	codeValues,
+	propStatuses,
 	nodePath,
 }: {
-	readonly codeValues: CodeValues;
+	readonly propStatuses: PropStatuses;
 	readonly nodePath: SequencePropsSubscriptionKey;
 }) => {
-	const status = Internals.getCodeValuesCtx(codeValues, nodePath)?.from?.status;
+	const status = Internals.getPropStatusesCtx(propStatuses, nodePath)?.from
+		?.status;
 
 	return status === 'static';
 };
@@ -203,13 +204,13 @@ export const getTimelineSequenceDurationDragTargets = ({
 	selectedItems,
 	sequences,
 	overrideIdsToNodePaths,
-	codeValues,
+	propStatuses,
 }: {
 	readonly draggedNodePathInfo: SequenceNodePathInfo;
 	readonly selectedItems: readonly TimelineSelection[];
 	readonly sequences: TSequence[];
 	readonly overrideIdsToNodePaths: OverrideIdToNodePaths;
-	readonly codeValues: CodeValues;
+	readonly propStatuses: PropStatuses;
 }): TimelineSequenceDurationDragTarget[] | null => {
 	const draggedSelectionKey =
 		getTimelineSequenceSelectionKey(draggedNodePathInfo);
@@ -251,7 +252,7 @@ export const getTimelineSequenceDurationDragTargets = ({
 		}
 
 		const nodePath = nodePathInfo.sequenceSubscriptionKey;
-		if (!canUpdateDurationInFrames({codeValues, nodePath})) {
+		if (!canUpdateDurationInFrames({propStatuses, nodePath})) {
 			return null;
 		}
 
@@ -273,13 +274,13 @@ export const getTimelineSequenceFromDragTargets = ({
 	selectedItems,
 	sequences,
 	overrideIdsToNodePaths,
-	codeValues,
+	propStatuses,
 }: {
 	readonly draggedNodePathInfo: SequenceNodePathInfo;
 	readonly selectedItems: readonly TimelineSelection[];
 	readonly sequences: TSequence[];
 	readonly overrideIdsToNodePaths: OverrideIdToNodePaths;
-	readonly codeValues: CodeValues;
+	readonly propStatuses: PropStatuses;
 }): TimelineSequenceFromDragTarget[] | null => {
 	const draggedSelectionKey =
 		getTimelineSequenceSelectionKey(draggedNodePathInfo);
@@ -321,7 +322,7 @@ export const getTimelineSequenceFromDragTargets = ({
 		}
 
 		const nodePath = nodePathInfo.sequenceSubscriptionKey;
-		if (!canUpdateFrom({codeValues, nodePath})) {
+		if (!canUpdateFrom({propStatuses, nodePath})) {
 			return null;
 		}
 
@@ -371,10 +372,10 @@ export const useTimelineSequenceFromDrag = ({
 	readonly windowWidth: number;
 	readonly timelineDurationInFrames: number;
 }) => {
-	const {setCodeValues, setDragOverrides, clearDragOverrides} = useContext(
+	const {setPropStatuses, setDragOverrides, clearDragOverrides} = useContext(
 		Internals.VisualModeSettersContext,
 	);
-	const {codeValues} = useContext(Internals.VisualModeCodeValuesContext);
+	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 	const {sequences} = useContext(Internals.SequenceManager);
 	const {overrideIdToNodePathMappings} = useContext(
 		Internals.OverrideIdsToNodePathsGettersContext,
@@ -393,22 +394,22 @@ export const useTimelineSequenceFromDrag = ({
 
 	const latestRef = useRef({
 		nodePathInfo,
-		setCodeValues,
+		setPropStatuses,
 		setDragOverrides,
 		clearDragOverrides,
 		previewServerState,
-		codeValues,
+		propStatuses,
 		sequences,
 		overrideIdToNodePathMappings,
 		selectedItems,
 	});
 	latestRef.current = {
 		nodePathInfo,
-		setCodeValues,
+		setPropStatuses,
 		setDragOverrides,
 		clearDragOverrides,
 		previewServerState,
-		codeValues,
+		propStatuses,
 		sequences,
 		overrideIdToNodePathMappings,
 		selectedItems,
@@ -426,7 +427,7 @@ export const useTimelineSequenceFromDrag = ({
 		}
 
 		const {
-			setCodeValues: latestSetCodeValues,
+			setPropStatuses: latestSetPropStatuses,
 			clearDragOverrides: latestClear,
 			previewServerState: latestServerState,
 		} = latestRef.current;
@@ -450,7 +451,7 @@ export const useTimelineSequenceFromDrag = ({
 
 		const savePromise = saveSequenceProps({
 			changes,
-			setCodeValues: latestSetCodeValues,
+			setPropStatuses: latestSetPropStatuses,
 			clientId: latestServerState.clientId,
 			undoLabel:
 				changes.length > 1 ? 'Move selected sequences' : 'Move sequence',
@@ -495,7 +496,7 @@ export const useTimelineSequenceFromDrag = ({
 				selectedItems: latestSelectedItems,
 				sequences: latestSequences,
 				overrideIdToNodePathMappings: latestOverrideIdsToNodePaths,
-				codeValues: latestCodeValues,
+				propStatuses: latestPropStatuses,
 			} = latestRef.current;
 			if (latestNodePathInfo === null) {
 				return;
@@ -506,7 +507,7 @@ export const useTimelineSequenceFromDrag = ({
 				selectedItems: latestSelectedItems,
 				sequences: latestSequences,
 				overrideIdsToNodePaths: latestOverrideIdsToNodePaths,
-				codeValues: latestCodeValues,
+				propStatuses: latestPropStatuses,
 			});
 			if (targets === null || targets.length === 0) {
 				return;
@@ -601,10 +602,10 @@ export const TimelineSequenceRightEdgeDragHandle: React.FC<{
 	readonly windowWidth: number;
 	readonly timelineDurationInFrames: number;
 }> = ({nodePathInfo, windowWidth, timelineDurationInFrames}) => {
-	const {setCodeValues, setDragOverrides, clearDragOverrides} = useContext(
+	const {setPropStatuses, setDragOverrides, clearDragOverrides} = useContext(
 		Internals.VisualModeSettersContext,
 	);
-	const {codeValues} = useContext(Internals.VisualModeCodeValuesContext);
+	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 	const {sequences} = useContext(Internals.SequenceManager);
 	const {overrideIdToNodePathMappings} = useContext(
 		Internals.OverrideIdsToNodePathsGettersContext,
@@ -624,22 +625,22 @@ export const TimelineSequenceRightEdgeDragHandle: React.FC<{
 	// Keep latest props/setters available to window listeners installed once at pointerdown.
 	const latestRef = useRef({
 		nodePathInfo,
-		setCodeValues,
+		setPropStatuses,
 		setDragOverrides,
 		clearDragOverrides,
 		previewServerState,
-		codeValues,
+		propStatuses,
 		sequences,
 		overrideIdToNodePathMappings,
 		selectedItems,
 	});
 	latestRef.current = {
 		nodePathInfo,
-		setCodeValues,
+		setPropStatuses,
 		setDragOverrides,
 		clearDragOverrides,
 		previewServerState,
-		codeValues,
+		propStatuses,
 		sequences,
 		overrideIdToNodePathMappings,
 		selectedItems,
@@ -658,7 +659,7 @@ export const TimelineSequenceRightEdgeDragHandle: React.FC<{
 		}
 
 		const {
-			setCodeValues: latestSetCodeValues,
+			setPropStatuses: latestSetPropStatuses,
 			clearDragOverrides: latestClear,
 			previewServerState: latestServerState,
 		} = latestRef.current;
@@ -682,7 +683,7 @@ export const TimelineSequenceRightEdgeDragHandle: React.FC<{
 
 		const savePromise = saveSequenceProps({
 			changes,
-			setCodeValues: latestSetCodeValues,
+			setPropStatuses: latestSetPropStatuses,
 			clientId: latestServerState.clientId,
 			undoLabel:
 				changes.length > 1 ? 'Resize selected sequences' : 'Resize sequence',
@@ -727,14 +728,14 @@ export const TimelineSequenceRightEdgeDragHandle: React.FC<{
 				selectedItems: latestSelectedItems,
 				sequences: latestSequences,
 				overrideIdToNodePathMappings: latestOverrideIdsToNodePaths,
-				codeValues: latestCodeValues,
+				propStatuses: latestPropStatuses,
 			} = latestRef.current;
 			const targets = getTimelineSequenceDurationDragTargets({
 				draggedNodePathInfo: latestNodePathInfo,
 				selectedItems: latestSelectedItems,
 				sequences: latestSequences,
 				overrideIdsToNodePaths: latestOverrideIdsToNodePaths,
-				codeValues: latestCodeValues,
+				propStatuses: latestPropStatuses,
 			});
 			if (targets === null || targets.length === 0) {
 				return;

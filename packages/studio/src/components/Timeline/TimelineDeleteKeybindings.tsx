@@ -19,8 +19,8 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 	const {overrideIdToNodePathMappings} = useContext(
 		Internals.OverrideIdsToNodePathsGettersContext,
 	);
-	const {codeValues} = useContext(Internals.VisualModeCodeValuesContext);
-	const {setCodeValues} = useContext(Internals.VisualModeSettersContext);
+	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
+	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {canSelect} = useTimelineSelection();
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	const confirm = useConfirmationDialog();
@@ -44,8 +44,8 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 					selections: selectedItems,
 					sequences,
 					overrideIdsToNodePaths: overrideIdToNodePathMappings,
-					codeValues,
-					setCodeValues,
+					propStatuses,
+					setPropStatuses,
 					clientId,
 				});
 
@@ -58,7 +58,7 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 					selections: selectedItems,
 					sequences,
 					overrideIdsToNodePaths: overrideIdToNodePathMappings,
-					setCodeValues,
+					setPropStatuses,
 					clientId,
 					confirm,
 				});
@@ -112,14 +112,14 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 		};
 	}, [
 		canSelect,
-		codeValues,
+		propStatuses,
 		confirm,
 		currentSelection,
 		keybindings,
 		overrideIdToNodePathMappings,
 		previewServerState,
 		sequences,
-		setCodeValues,
+		setPropStatuses,
 	]);
 
 	return null;

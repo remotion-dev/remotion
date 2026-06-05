@@ -211,8 +211,8 @@ export const TimelineSequenceItem: React.FC<{
 	const previewConnected = previewServerState.type === 'connected';
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {toggleTrack} = useContext(ExpandedTracksSetterContext);
-	const {codeValues} = useContext(Internals.VisualModeCodeValuesContext);
-	const {setCodeValues} = useContext(Internals.VisualModeSettersContext);
+	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
+	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const selectAsset = useSelectAsset();
 	const {onSelect, selectable, selected} =
 		useTimelineRowSelection(nodePathInfo);
@@ -709,22 +709,22 @@ export const TimelineSequenceItem: React.FC<{
 		[canOpenInEditor, openInEditor],
 	);
 
-	const codeValuesForOverride = useMemo(() => {
+	const propStatusesForOverride = useMemo(() => {
 		return nodePath
-			? Internals.getCodeValuesCtx(codeValues, nodePath)
+			? Internals.getPropStatusesCtx(propStatuses, nodePath)
 			: undefined;
-	}, [codeValues, nodePath]);
+	}, [propStatuses, nodePath]);
 
-	const codeHiddenStatus = codeValuesForOverride?.hidden;
+	const codeHiddenStatus = propStatusesForOverride?.hidden;
 
 	const isItemHidden = useMemo(() => {
-		const codeValue =
+		const propStatus =
 			codeHiddenStatus && codeHiddenStatus.status === 'static'
 				? codeHiddenStatus.codeValue
 				: undefined;
 		const runtimeValue =
 			sequence.controls?.currentRuntimeValueDotNotation.hidden;
-		const effective = (codeValue ?? runtimeValue) as boolean | undefined;
+		const effective = (propStatus ?? runtimeValue) as boolean | undefined;
 		return effective ?? false;
 	}, [codeHiddenStatus, sequence.controls?.currentRuntimeValueDotNotation]);
 
@@ -734,7 +734,7 @@ export const TimelineSequenceItem: React.FC<{
 				!sequence.controls ||
 				!nodePath ||
 				!validatedLocation ||
-				!codeValuesForOverride ||
+				!propStatusesForOverride ||
 				!codeHiddenStatus ||
 				codeHiddenStatus.status !== 'static' ||
 				previewServerState.type !== 'connected'
@@ -762,7 +762,7 @@ export const TimelineSequenceItem: React.FC<{
 						schema,
 					},
 				],
-				setCodeValues,
+				setPropStatuses,
 				clientId: previewServerState.clientId,
 				undoLabel: newValue ? 'Hide sequence' : 'Show sequence',
 				redoLabel: newValue ? 'Hide sequence again' : 'Show sequence again',
@@ -770,11 +770,11 @@ export const TimelineSequenceItem: React.FC<{
 		},
 		[
 			codeHiddenStatus,
-			codeValuesForOverride,
+			propStatusesForOverride,
 			nodePath,
 			previewServerState,
 			sequence.controls,
-			setCodeValues,
+			setPropStatuses,
 			validatedLocation,
 		],
 	);

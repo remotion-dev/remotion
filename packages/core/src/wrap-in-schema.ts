@@ -1,7 +1,7 @@
 import React, {forwardRef, useContext, useMemo, useState} from 'react';
 import type {SequenceControls} from './CompositionManager.js';
 import {deleteNestedKey} from './delete-nested-key.js';
-import {getCodeValuesCtx} from './effects/use-memoized-effects.js';
+import {getPropStatusesCtx} from './effects/use-memoized-effects.js';
 import {
 	flattenActiveSchema,
 	getFlatSchemaWithAllKeys,
@@ -9,8 +9,8 @@ import {
 import type {SequenceSchema} from './sequence-field-schema.js';
 import {OverrideIdsToNodePathsGettersContext} from './sequence-node-path.js';
 import {
-	VisualModeCodeValuesContext,
 	VisualModeDragOverridesContext,
+	VisualModePropStatusesContext,
 } from './SequenceManager.js';
 import {useCurrentFrame} from './use-current-frame.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
@@ -131,7 +131,7 @@ export const wrapInSchema = <S extends SequenceSchema, Props extends object>({
 		}
 
 		// eslint-disable-next-line react-hooks/rules-of-hooks
-		const {codeValues} = useContext(VisualModeCodeValuesContext);
+		const {propStatuses} = useContext(VisualModePropStatusesContext);
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		const {getDragOverrides} = useContext(VisualModeDragOverridesContext);
 		// eslint-disable-next-line react-hooks/rules-of-hooks
@@ -204,14 +204,14 @@ export const wrapInSchema = <S extends SequenceSchema, Props extends object>({
 				propStatus:
 					nodePath === null
 						? undefined
-						: getCodeValuesCtx(codeValues, nodePath),
+						: getPropStatusesCtx(propStatuses, nodePath),
 				frame,
 			});
 		}, [
 			currentRuntimeValueDotNotation,
 			getDragOverrides,
 			nodePath,
-			codeValues,
+			propStatuses,
 			frame,
 		]);
 

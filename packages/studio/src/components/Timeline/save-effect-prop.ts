@@ -1,12 +1,12 @@
 import {
-	optimisticUpdateForEffectCodeValues,
+	optimisticUpdateForEffectPropStatuses,
 	type EffectClipboardParam,
 } from '@remotion/studio-shared';
 import type {SequencePropsSubscriptionKey, SequenceSchema} from 'remotion';
 import {callApi} from '../call-api';
-import {applyEffectResponseToCodeValues} from './apply-effect-response-to-code-values';
+import {applyEffectResponseToPropStatuses} from './apply-effect-response-to-prop-statuses';
 import {enqueueSavePropChange} from './save-prop-queue';
-import type {SetCodeValues} from './save-sequence-prop';
+import type {SetPropStatuses} from './save-sequence-prop';
 
 type SaveEffectPropBase = {
 	fileName: string;
@@ -15,7 +15,7 @@ type SaveEffectPropBase = {
 	fieldKey: string;
 	defaultValue: string | null;
 	schema: SequenceSchema;
-	setCodeValues: SetCodeValues;
+	setPropStatuses: SetPropStatuses;
 	clientId: string;
 };
 
@@ -39,17 +39,17 @@ export const saveEffectProp = (input: SaveEffectPropInput): Promise<void> => {
 		fieldKey,
 		defaultValue,
 		schema,
-		setCodeValues,
+		setPropStatuses,
 		clientId,
 	} = input;
 
 	return enqueueSavePropChange({
 		nodePath,
-		setCodeValues,
+		setPropStatuses,
 		applyOptimistic: (prev) =>
 			input.type === 'effect-param'
 				? prev
-				: optimisticUpdateForEffectCodeValues({
+				: optimisticUpdateForEffectPropStatuses({
 						previous: prev,
 						effectIndex,
 						fieldKey,
@@ -57,7 +57,7 @@ export const saveEffectProp = (input: SaveEffectPropInput): Promise<void> => {
 						schema,
 					}),
 		applyServerResponse: (prev, response) =>
-			applyEffectResponseToCodeValues({previous: prev, response}),
+			applyEffectResponseToPropStatuses({previous: prev, response}),
 		apiCall: () =>
 			callApi(
 				'/api/save-effect-props',

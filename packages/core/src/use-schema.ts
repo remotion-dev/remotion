@@ -43,7 +43,6 @@ export type CanUpdateSequencePropStatusComputed = {
 
 export type CanUpdateSequencePropStatusKeyframed = {
 	status: 'keyframed';
-	codeValue: unknown;
 	interpolationFunction: CanUpdateSequencePropStatusInterpolationFunction;
 	keyframes: CanUpdateSequencePropStatusKeyframe[];
 	easing: CanUpdateSequencePropStatusEasing[];
@@ -74,13 +73,13 @@ export type EffectDragOverrides = Record<
 	string,
 	Record<string, DragOverrideValue>
 >;
-export type CodeValues = Record<string, CanUpdateSequencePropsResponse>;
+export type PropStatuses = Record<string, CanUpdateSequencePropsResponse>;
 
-export type GetCodeValues = (
+export type GetPropStatuses = (
 	nodePath: SequencePropsSubscriptionKey,
 ) => Record<string, CanUpdateSequencePropStatus> | undefined;
 
-export type GetEffectCodeValues = (
+export type GetEffectPropStatuses = (
 	nodePath: SequencePropsSubscriptionKey,
 	effectIndex: number,
 ) => Record<string, CanUpdateSequencePropStatus> | undefined;
@@ -193,7 +192,7 @@ export const computeEffectiveSchemaValuesDotNotation = ({
 	const merged: Record<string, unknown> = {};
 	const propsToDelete = new Set<string>();
 	for (const key of Object.keys(currentValue)) {
-		const codeValueStatus = propStatus?.[key] ?? null;
+		const status = propStatus?.[key] ?? null;
 		const field = findFieldInSchema(schema, key);
 
 		if (field?.type === 'hidden') {
@@ -201,9 +200,9 @@ export const computeEffectiveSchemaValuesDotNotation = ({
 		}
 
 		let value: unknown;
-		if (codeValueStatus === null) {
+		if (status === null) {
 			value = currentValue[key];
-		} else if (isKeyframedStatus(codeValueStatus)) {
+		} else if (isKeyframedStatus(status)) {
 			if (field?.type === 'array' || field?.keyframable === false) {
 				value = currentValue[key];
 			} else {
@@ -216,18 +215,18 @@ export const computeEffectiveSchemaValuesDotNotation = ({
 				} else if (frame !== null) {
 					const interpolated = interpolateKeyframedStatus({
 						frame,
-						status: codeValueStatus,
+						status,
 					});
 					value = interpolated ?? currentValue[key];
 				} else {
 					value = currentValue[key];
 				}
 			}
-		} else if (codeValueStatus.status === 'computed') {
+		} else if (status.status === 'computed') {
 			value = currentValue[key];
 		} else {
 			value = getEffectiveVisualModeValue({
-				codeValue: codeValueStatus,
+				propStatus: status,
 				dragOverrideValue: overrideValues[key],
 				defaultValue: field?.default,
 				frame,

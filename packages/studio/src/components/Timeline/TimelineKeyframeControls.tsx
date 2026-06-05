@@ -78,7 +78,7 @@ const getCurrentKeyframeValue = ({
 }): unknown | null => {
 	if (isKeyframedStatus(propStatus)) {
 		return Internals.getEffectiveVisualModeValue({
-			codeValue: propStatus,
+			propStatus,
 			dragOverrideValue,
 			frame: jsxFrame,
 			defaultValue,
@@ -88,7 +88,7 @@ const getCurrentKeyframeValue = ({
 
 	if (propStatus.status === 'static') {
 		return Internals.getEffectiveVisualModeValue({
-			codeValue: propStatus,
+			propStatus,
 			dragOverrideValue,
 			frame: jsxFrame,
 			defaultValue,
@@ -147,7 +147,7 @@ export const TimelineKeyframeControls: React.FC<{
 	const videoConfig = useVideoConfig();
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const setFrame = Internals.useTimelineSetFrame();
-	const {setCodeValues} = useContext(Internals.VisualModeSettersContext);
+	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 
 	const clientId =
@@ -257,7 +257,7 @@ export const TimelineKeyframeControls: React.FC<{
 						fieldKey,
 						sourceFrame: jsxFrame,
 						schema,
-						setCodeValues,
+						setPropStatuses,
 						clientId,
 					});
 					return;
@@ -270,7 +270,7 @@ export const TimelineKeyframeControls: React.FC<{
 					fieldKey,
 					sourceFrame: jsxFrame,
 					schema,
-					setCodeValues,
+					setPropStatuses,
 					clientId,
 				});
 				return;
@@ -289,7 +289,7 @@ export const TimelineKeyframeControls: React.FC<{
 					sourceFrame: jsxFrame,
 					value,
 					schema,
-					setCodeValues,
+					setPropStatuses,
 					clientId,
 				});
 				return;
@@ -303,7 +303,7 @@ export const TimelineKeyframeControls: React.FC<{
 				sourceFrame: jsxFrame,
 				value,
 				schema,
-				setCodeValues,
+				setPropStatuses,
 				clientId,
 			});
 		},
@@ -319,7 +319,7 @@ export const TimelineKeyframeControls: React.FC<{
 			nodePath,
 			propStatus,
 			schema,
-			setCodeValues,
+			setPropStatuses,
 		],
 	);
 

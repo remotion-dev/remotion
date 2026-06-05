@@ -7,7 +7,7 @@ import {
 import type {SequencePropsSubscriptionKey, SequenceSchema} from 'remotion';
 import {callApi} from '../call-api';
 import {enqueueSavePropChange} from './save-prop-queue';
-import type {SetCodeValues} from './save-sequence-prop';
+import type {SetPropStatuses} from './save-sequence-prop';
 
 export type DeleteSequenceKeyframeChange = {
 	fileName: string;
@@ -41,7 +41,7 @@ export const callDeleteSequenceKeyframe = ({
 	fieldKey,
 	sourceFrame,
 	schema,
-	setCodeValues,
+	setPropStatuses,
 	clientId,
 }: {
 	fileName: string;
@@ -49,12 +49,12 @@ export const callDeleteSequenceKeyframe = ({
 	fieldKey: string;
 	sourceFrame: number;
 	schema: SequenceSchema;
-	setCodeValues: SetCodeValues;
+	setPropStatuses: SetPropStatuses;
 	clientId: string;
 }): Promise<void> => {
 	return enqueueSavePropChange({
 		nodePath,
-		setCodeValues,
+		setPropStatuses,
 		applyOptimistic: (prev) =>
 			optimisticDeleteSequenceKeyframe({
 				previous: prev,
@@ -86,7 +86,7 @@ export const callDeleteEffectKeyframe = ({
 	fieldKey,
 	sourceFrame,
 	schema,
-	setCodeValues,
+	setPropStatuses,
 	clientId,
 }: {
 	fileName: string;
@@ -95,12 +95,12 @@ export const callDeleteEffectKeyframe = ({
 	fieldKey: string;
 	sourceFrame: number;
 	schema: SequenceSchema;
-	setCodeValues: SetCodeValues;
+	setPropStatuses: SetPropStatuses;
 	clientId: string;
 }): Promise<void> => {
 	return enqueueSavePropChange({
 		nodePath,
-		setCodeValues,
+		setPropStatuses,
 		applyOptimistic: (prev) =>
 			optimisticDeleteEffectKeyframe({
 				previous: prev,
@@ -130,12 +130,12 @@ export const callDeleteEffectKeyframe = ({
 export const callDeleteKeyframes = ({
 	sequenceKeyframes,
 	effectKeyframes,
-	setCodeValues,
+	setPropStatuses,
 	clientId,
 }: {
 	sequenceKeyframes: DeleteSequenceKeyframeChange[];
 	effectKeyframes: DeleteEffectKeyframeChange[];
-	setCodeValues: SetCodeValues;
+	setPropStatuses: SetPropStatuses;
 	clientId: string;
 }): Promise<void> => {
 	if (sequenceKeyframes.length === 0 && effectKeyframes.length === 0) {
@@ -148,7 +148,7 @@ export const callDeleteKeyframes = ({
 			continue;
 		}
 
-		setCodeValues(firstKeyframe.nodePath, (prev) =>
+		setPropStatuses(firstKeyframe.nodePath, (prev) =>
 			optimisticDeleteSequenceKeyframes({
 				previous: prev,
 				keyframes: keyframes.map((keyframe) => ({
@@ -165,7 +165,7 @@ export const callDeleteKeyframes = ({
 			continue;
 		}
 
-		setCodeValues(firstKeyframe.nodePath, (prev) =>
+		setPropStatuses(firstKeyframe.nodePath, (prev) =>
 			optimisticDeleteEffectKeyframes({
 				previous: prev,
 				keyframes: keyframes.map((keyframe) => ({

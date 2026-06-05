@@ -20,7 +20,7 @@ export const useTimelineHeight = ({
 }): number => {
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const {codeValues} = useContext(Internals.VisualModeCodeValuesContext);
+	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 
 	const previewServerConnected = previewServerState.type === 'connected';
 
@@ -39,7 +39,7 @@ export const useTimelineHeight = ({
 							sequence: track.sequence,
 							nodePathInfo: track.nodePathInfo,
 							getIsExpanded,
-							codeValues,
+							propStatuses,
 						}) + TIMELINE_ITEM_BORDER_BOTTOM
 					: 0;
 			return acc + layerHeight + expandedHeight;
@@ -51,5 +51,5 @@ export const useTimelineHeight = ({
 			(hasBeenCut ? MAX_TIMELINE_TRACKS_NOTICE_HEIGHT : 0) +
 			TIMELINE_TIME_INDICATOR_HEIGHT
 		);
-	}, [shown, hasBeenCut, previewServerConnected, getIsExpanded, codeValues]);
+	}, [shown, hasBeenCut, previewServerConnected, getIsExpanded, propStatuses]);
 };

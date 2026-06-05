@@ -4,7 +4,7 @@ import type {
 	SequencePropsSubscriptionKey,
 	TSequence,
 } from 'remotion';
-import {Internals, type CodeValues} from 'remotion';
+import {Internals, type PropStatuses} from 'remotion';
 import {getBoundedKeyframeDragDelta} from '../components/Timeline/get-bounded-keyframe-drag-delta';
 import {getNodeKeyframes} from '../components/Timeline/get-node-keyframes';
 import {getTimelineKeyframes} from '../components/Timeline/get-timeline-keyframes';
@@ -71,7 +71,6 @@ const numberFieldSchema = {
 
 const makeKeyframedStatus = (): CanUpdateSequencePropStatusKeyframed => ({
 	status: 'keyframed',
-	codeValue: undefined,
 	interpolationFunction: 'interpolate',
 	keyframes: [
 		{frame: 0, value: 2},
@@ -129,9 +128,9 @@ const makeEffectFieldNode = (
 	},
 });
 
-const makeCodeValues = (
+const makePropStatuses = (
 	nodePath: SequencePropsSubscriptionKey,
-): CodeValues => ({
+): PropStatuses => ({
 	[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
 		canUpdate: true,
 		props: {
@@ -213,7 +212,6 @@ test('keyframe display offsets follow the parent sequence context', () => {
 		getTimelineKeyframes(
 			{
 				status: 'keyframed',
-				codeValue: undefined,
 				interpolationFunction: 'interpolate',
 				keyframes: [
 					{frame: 0, value: 2},
@@ -286,7 +284,7 @@ test('getNodeKeyframes shows a temporary sequence keyframe from drag overrides',
 		getNodeKeyframes({
 			node: makeSequenceFieldNode('style.scale'),
 			nodePath,
-			codeValues: makeCodeValues(nodePath),
+			propStatuses: makePropStatuses(nodePath),
 			keyframeDisplayOffset: 30,
 			getDragOverrides: () => ({
 				'style.scale': Internals.makeStaticDragOverride(3),
@@ -308,7 +306,7 @@ test('getNodeKeyframes shows a temporary effect keyframe from drag overrides', (
 		getNodeKeyframes({
 			node: makeEffectFieldNode('amount', 0),
 			nodePath,
-			codeValues: makeCodeValues(nodePath),
+			propStatuses: makePropStatuses(nodePath),
 			keyframeDisplayOffset: 30,
 			getDragOverrides: () => ({}),
 			getEffectDragOverrides: () => ({
@@ -329,7 +327,7 @@ test('getNodeKeyframes shows sequence keyframes from keyframed drag overrides', 
 		getNodeKeyframes({
 			node: makeSequenceFieldNode('style.scale'),
 			nodePath,
-			codeValues: makeCodeValues(nodePath),
+			propStatuses: makePropStatuses(nodePath),
 			keyframeDisplayOffset: 30,
 			getDragOverrides: () => ({
 				'style.scale': Internals.makeKeyframedDragOverride({
@@ -355,7 +353,7 @@ test('getNodeKeyframes replaces existing keyframes from keyframed drag overrides
 		getNodeKeyframes({
 			node: makeEffectFieldNode('amount', 0),
 			nodePath,
-			codeValues: makeCodeValues(nodePath),
+			propStatuses: makePropStatuses(nodePath),
 			keyframeDisplayOffset: 30,
 			getDragOverrides: () => ({}),
 			getEffectDragOverrides: () => ({

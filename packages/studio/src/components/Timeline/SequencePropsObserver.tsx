@@ -5,7 +5,7 @@ import {StudioServerConnectionCtx} from '../../helpers/client-id';
 
 export const SequencePropsObserver = () => {
 	const {subscribeToEvent} = useContext(StudioServerConnectionCtx);
-	const {setCodeValues} = useContext(Internals.VisualModeSettersContext);
+	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 
 	useEffect(() => {
 		const handleEvent = (event: EventSourceEvent) => {
@@ -13,7 +13,7 @@ export const SequencePropsObserver = () => {
 				return;
 			}
 
-			setCodeValues(event.nodePath, () => event.result);
+			setPropStatuses(event.nodePath, () => event.result);
 		};
 
 		const unsubscribe = subscribeToEvent('sequence-props-updated', handleEvent);
@@ -21,7 +21,7 @@ export const SequencePropsObserver = () => {
 		return () => {
 			unsubscribe();
 		};
-	}, [setCodeValues, subscribeToEvent]);
+	}, [setPropStatuses, subscribeToEvent]);
 
 	return null;
 };
