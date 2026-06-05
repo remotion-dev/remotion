@@ -23,7 +23,9 @@ import {
 	maybeScrollAssetSidebarRowIntoView,
 } from '../helpers/sidebar-scroll-into-view';
 import {pushUrl} from '../helpers/url-state';
-import useAssetDragEvents from '../helpers/use-asset-drag-events';
+import useAssetDragEvents, {
+	isFileDragEvent,
+} from '../helpers/use-asset-drag-events';
 import {ClipboardIcon} from '../icons/clipboard';
 import {FileIcon} from '../icons/file';
 import {CollapsedFolderIcon, ExpandedFolderIcon} from '../icons/folder';
@@ -154,14 +156,22 @@ const AssetFolderItem: React.FC<{
 				tabIndex={tabIndex}
 				title={item.name}
 				onClick={onClick}
-				onDragEnter={() => {
+				onDragEnter={(event) => {
+					if (!isFileDragEvent(event)) {
+						return;
+					}
+
 					if (!item.expanded) {
 						openFolderTimerRef.current = window.setTimeout(() => {
 							toggleFolder(item.name, parentFolder);
 						}, 1000);
 					}
 				}}
-				onDragLeave={() => {
+				onDragLeave={(event) => {
+					if (!isFileDragEvent(event)) {
+						return;
+					}
+
 					if (openFolderTimerRef.current) {
 						clearTimeout(openFolderTimerRef.current);
 					}
@@ -261,6 +271,7 @@ const AssetSelectorItem: React.FC<{
 }> = ({item, tabIndex, level, parentFolder, readOnlyStudio}) => {
 	const isMobileLayout = useMobileLayout();
 	const [hovered, setHovered] = useState(false);
+	const [isDragging, setIsDragging] = useState(false);
 	const {setSidebarCollapsedState} = useContext(SidebarContext);
 	const onPointerEnter = useCallback(() => {
 		setHovered(true);
@@ -319,6 +330,7 @@ const AssetSelectorItem: React.FC<{
 				return;
 			}
 
+			setIsDragging(true);
 			e.dataTransfer.effectAllowed = 'copy';
 			e.dataTransfer.setData(
 				ASSET_DRAG_MIME_TYPE,
@@ -327,6 +339,10 @@ const AssetSelectorItem: React.FC<{
 		},
 		[canDragAsset, relativePath],
 	);
+
+	const onDragEnd: React.DragEventHandler<HTMLDivElement> = useCallback(() => {
+		setIsDragging(false);
+	}, []);
 
 	const style: React.CSSProperties = useMemo(() => {
 		return {
@@ -339,10 +355,9 @@ const AssetSelectorItem: React.FC<{
 				: selected
 					? SELECTED_BACKGROUND
 					: 'transparent',
-			cursor: canDragAsset ? 'grab' : 'default',
 			paddingLeft: 12 + level * 8,
 		};
-	}, [canDragAsset, hovered, level, selected]);
+	}, [hovered, level, selected]);
 
 	const label = useMemo(() => {
 		return {
@@ -403,13 +418,14 @@ const AssetSelectorItem: React.FC<{
 				onClick={onClick}
 				draggable={canDragAsset}
 				onDragStart={onDragStart}
+				onDragEnd={onDragEnd}
 				tabIndex={tabIndex}
 				title={item.name}
 			>
 				<FileIcon style={iconStyle} color={LIGHT_TEXT} />
 				<Spacing x={1} />
 				<div style={label}>{item.name}</div>
-				{hovered ? (
+				{hovered && !isDragging ? (
 					<>
 						<Spacing x={0.5} />
 						<InlineAction
