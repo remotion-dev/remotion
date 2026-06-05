@@ -78,13 +78,9 @@ export const EditorContent: React.FC<{
 			<StudioClearSelectionArea>
 				<InitialCompositionLoader />
 				<MenuToolbar readOnlyStudio={readOnlyStudio} />
-				{showTimeline ? (
-					<TimelineKeyframeDragStateProvider>
-						{content}
-					</TimelineKeyframeDragStateProvider>
-				) : (
-					content
-				)}
+				<TimelineKeyframeDragStateProvider>
+					{content}
+				</TimelineKeyframeDragStateProvider>
 			</StudioClearSelectionArea>
 		</TimelineSelectionProvider>
 	);
