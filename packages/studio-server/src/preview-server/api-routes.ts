@@ -12,6 +12,7 @@ import {deleteEffectHandler} from './routes/delete-effect';
 import {deleteJsxNodeHandler} from './routes/delete-jsx-node';
 import {deleteKeyframesHandler} from './routes/delete-keyframes';
 import {deleteStaticFileHandler} from './routes/delete-static-file';
+import {downloadRemoteAssetHandler} from './routes/download-remote-asset';
 import {duplicateJsxNodeHandler} from './routes/duplicate-jsx-node';
 import {insertJsxElementHandler} from './routes/insert-jsx-element';
 import {handleInstallPackage} from './routes/install-dependency';
@@ -84,6 +85,7 @@ export const allApiRoutes: {
 	'/api/restart-studio': handleRestartStudio,
 	'/api/install-package': handleInstallPackage,
 	'/api/insert-jsx-element': insertJsxElementHandler,
+	'/api/download-remote-asset': downloadRemoteAssetHandler,
 	'/api/undo': undoHandler,
 	'/api/redo': redoHandler,
 };

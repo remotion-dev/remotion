@@ -31,6 +31,8 @@ export {
 	DeleteSequenceKeyframe,
 	DeleteStaticFileRequest,
 	DeleteStaticFileResponse,
+	DownloadRemoteAssetRequest,
+	DownloadRemoteAssetResponse,
 	DuplicateJsxNodeRequest,
 	DuplicateJsxNodeResponse,
 	InsertJsxElementRequest,

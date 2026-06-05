@@ -1,5 +1,6 @@
 import {
 	getRequiredPackageForInsertableElement,
+	type DownloadRemoteAssetResponse,
 	type InsertableCompositionElement,
 } from '@remotion/studio-shared';
 import {getStaticFiles} from '../api/get-static-files';
@@ -226,6 +227,12 @@ const insertAssetElement = async ({
 	return true;
 };
 
+const downloadRemoteAsset = async (
+	url: string,
+): Promise<DownloadRemoteAssetResponse> => {
+	return callApi('/api/download-remote-asset', {url});
+};
+
 export const importAssets = async ({
 	compositionFile,
 	compositionId,
@@ -317,6 +324,43 @@ export const importAssets = async ({
 	} catch (error) {
 		showNotification(
 			`Could not add asset: ${
+				error instanceof Error ? error.message : String(error)
+			}`,
+			4000,
+		);
+	}
+};
+
+export const importRemoteAsset = async ({
+	compositionFile,
+	compositionId,
+	url,
+}: {
+	compositionFile: string;
+	compositionId: string;
+	url: string;
+}) => {
+	try {
+		const {assetPath, created, element} = await downloadRemoteAsset(url);
+
+		if (created) {
+			showNotification(`Created ${assetPath} in public folder`, 3000);
+		}
+
+		const inserted = await insertAssetElement({
+			compositionFile,
+			compositionId,
+			element,
+		});
+
+		if (!inserted) {
+			return;
+		}
+
+		notifyInsertedAssets([getAssetLabel(element)]);
+	} catch (error) {
+		showNotification(
+			`Could not add remote asset: ${
 				error instanceof Error ? error.message : String(error)
 			}`,
 			4000,

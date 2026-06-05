@@ -23,6 +23,10 @@ import {
 } from '../helpers/get-effective-translation';
 import {useCachedCompositionComponentInfo} from '../helpers/open-in-editor';
 import {
+	getRemoteAssetUrlFromDataTransfer,
+	hasRemoteAssetDragData,
+} from '../helpers/remote-asset-drag';
+import {
 	MAX_ZOOM,
 	MIN_ZOOM,
 	smoothenZoom,
@@ -35,7 +39,11 @@ import {EditorZoomGesturesContext} from '../state/editor-zoom-gestures';
 import EditorGuides from './EditorGuides';
 import {EditorRulers} from './EditorRuler';
 import {useIsRulerVisible} from './EditorRuler/use-is-ruler-visible';
-import {importAssets, insertExistingAssets} from './import-assets';
+import {
+	importAssets,
+	importRemoteAsset,
+	insertExistingAssets,
+} from './import-assets';
 import {SPACING_UNIT} from './layout';
 import {VideoPreview} from './Preview';
 import {ResetZoomButton} from './ResetZoomButton';
@@ -73,6 +81,14 @@ const isFileDragEvent = (event: DragEvent): boolean => {
 const isAssetDragEvent = (event: DragEvent): boolean => {
 	return Array.from(event.dataTransfer?.types ?? []).includes(
 		ASSET_DRAG_MIME_TYPE,
+	);
+};
+
+const isRemoteAssetDragEvent = (event: DragEvent): boolean => {
+	return (
+		!isFileDragEvent(event) &&
+		!isAssetDragEvent(event) &&
+		hasRemoteAssetDragData(event.dataTransfer)
 	);
 };
 
@@ -617,7 +633,9 @@ export const Canvas: React.FC<{
 		(event: DragEvent) => {
 			if (
 				!canDropAssets ||
-				(!isFileDragEvent(event) && !isAssetDragEvent(event)) ||
+				(!isFileDragEvent(event) &&
+					!isAssetDragEvent(event) &&
+					!isRemoteAssetDragEvent(event)) ||
 				!isDragEventInsideCanvas(event)
 			) {
 				return;
@@ -637,7 +655,9 @@ export const Canvas: React.FC<{
 				!canDropAssets ||
 				compositionFile === null ||
 				currentCompositionId === null ||
-				(!isFileDragEvent(event) && !isAssetDragEvent(event)) ||
+				(!isFileDragEvent(event) &&
+					!isAssetDragEvent(event) &&
+					!isRemoteAssetDragEvent(event)) ||
 				!isDragEventInsideCanvas(event)
 			) {
 				return;
@@ -659,7 +679,7 @@ export const Canvas: React.FC<{
 						compositionFile,
 						compositionId: currentCompositionId,
 					});
-				} else {
+				} else if (isAssetDragEvent(event)) {
 					const assetPath = getAssetDragPath(event);
 					if (assetPath === null) {
 						return;
@@ -667,6 +687,17 @@ export const Canvas: React.FC<{
 
 					await insertExistingAssets({
 						assetPaths: [assetPath],
+						compositionFile,
+						compositionId: currentCompositionId,
+					});
+				} else {
+					const url = getRemoteAssetUrlFromDataTransfer(event.dataTransfer);
+					if (url === null) {
+						return;
+					}
+
+					await importRemoteAsset({
+						url,
 						compositionFile,
 						compositionId: currentCompositionId,
 					});

@@ -586,6 +586,17 @@ export type InsertJsxElementResponse =
 			stack: string;
 	  };
 
+export type DownloadRemoteAssetRequest = {
+	url: string;
+};
+
+export type DownloadRemoteAssetResponse = {
+	assetPath: string;
+	sizeInBytes: number;
+	created: boolean;
+	element: InsertableCompositionElement;
+};
+
 export type UpdateAvailableRequest = {};
 export type UpdateAvailableResponse = {
 	currentVersion: string;
@@ -716,6 +727,10 @@ export type ApiRoutes = {
 	'/api/insert-jsx-element': ReqAndRes<
 		InsertJsxElementRequest,
 		InsertJsxElementResponse
+	>;
+	'/api/download-remote-asset': ReqAndRes<
+		DownloadRemoteAssetRequest,
+		DownloadRemoteAssetResponse
 	>;
 	'/api/update-available': ReqAndRes<
 		UpdateAvailableRequest,
