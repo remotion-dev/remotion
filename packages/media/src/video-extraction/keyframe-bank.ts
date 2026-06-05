@@ -72,11 +72,11 @@ export const makeKeyframeBank = async ({
 		}
 
 		const nextTimestamp = frameTimestamps[index + 1];
-		if (!nextTimestamp) {
+		if (nextTimestamp === undefined) {
 			return null;
 		}
 
-		return nextTimestamp - timestamp;
+		return Math.max(0, nextTimestamp - timestamp);
 	};
 
 	const deleteFrameAtTimestamp = (timestamp: number) => {
@@ -126,9 +126,25 @@ export const makeKeyframeBank = async ({
 		}
 	};
 
-	const hasDecodedEnoughForTimestamp = (timestamp: number) => {
+	const findFrameIndexAtOrBeforeTimestamp = (timestamp: number) => {
+		for (let i = frameTimestamps.length - 1; i >= 0; i--) {
+			const frameTimestamp = frameTimestamps[i];
+			if (
+				roundTo4Digits(frameTimestamp) <= roundTo4Digits(timestamp) ||
+				// Match 0.3333333333 to 0.33355555
+				// this does not satisfy the previous condition, since one rounds up and one rounds down
+				Math.abs(frameTimestamp - timestamp) <= 0.001
+			) {
+				return i;
+			}
+		}
+
+		return null;
+	};
+
+	const hasDecodedEnoughForTimestamp = (timestamp: number, fps: number) => {
 		const lastFrameTimestamp = frameTimestamps[frameTimestamps.length - 1];
-		if (!lastFrameTimestamp) {
+		if (lastFrameTimestamp === undefined) {
 			return false;
 		}
 
@@ -139,13 +155,50 @@ export const makeKeyframeBank = async ({
 			return true;
 		}
 
+		const frameIndex = findFrameIndexAtOrBeforeTimestamp(timestamp);
+		if (frameIndex === null) {
+			return true;
+		}
+
+		const frameTimestamp = frameTimestamps[frameIndex];
+		const frame = frames[frameTimestamp];
+		if (!frame) {
+			return true;
+		}
+
 		const duration =
-			getDurationOfFrame(lastFrameTimestamp) ??
-			(lastFrame as VideoSample).duration;
+			getDurationOfFrame(frameTimestamp) ?? (frame as VideoSample).duration;
+
+		if (
+			roundTo4Digits(frameTimestamp + duration) <= roundTo4Digits(timestamp)
+		) {
+			return false;
+		}
+
+		const nextTimestamp = frameTimestamps[frameIndex + 1];
+		const hasSuspiciousGap =
+			nextTimestamp !== undefined && nextTimestamp - frameTimestamp > 1.5 / fps;
+
+		if (!hasSuspiciousGap) {
+			return true;
+		}
 
 		return (
-			roundTo4Digits(lastFrameTimestamp + duration) > roundTo4Digits(timestamp)
+			roundTo4Digits(lastFrameTimestamp) >=
+			roundTo4Digits(timestamp + getSafeWindowOfMonotonicity(fps))
 		);
+	};
+
+	const insertFrameTimestamp = (timestamp: number) => {
+		const index = frameTimestamps.findIndex(
+			(frameTimestamp) => frameTimestamp > timestamp,
+		);
+		if (index === -1) {
+			frameTimestamps.push(timestamp);
+			return;
+		}
+
+		frameTimestamps.splice(index, 0, timestamp);
 	};
 
 	const addFrame = (frame: VideoSample, logLevel: LogLevel) => {
@@ -154,7 +207,7 @@ export const makeKeyframeBank = async ({
 		}
 
 		frames[frame.timestamp] = frame;
-		frameTimestamps.push(frame.timestamp);
+		insertFrameTimestamp(frame.timestamp);
 		allocationSize += getAllocationSize(frame);
 
 		lastUsed = Date.now();
@@ -169,7 +222,7 @@ export const makeKeyframeBank = async ({
 		logLevel: LogLevel,
 		fps: number,
 	) => {
-		while (!hasDecodedEnoughForTimestamp(timestampInSeconds)) {
+		while (!hasDecodedEnoughForTimestamp(timestampInSeconds, fps)) {
 			const sample = await sampleIterator.next();
 
 			if (sample.value) {
