@@ -136,6 +136,14 @@ export type ModalState =
 			stack: string | null;
 	  }
 	| {
+			type: 'delete-static-file';
+			relativePath: string;
+	  }
+	| {
+			type: 'rename-static-file';
+			relativePath: string;
+	  }
+	| {
 			type: 'input-props-override';
 	  }
 	| KeyframeSettingsModalState

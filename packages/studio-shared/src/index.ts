@@ -54,6 +54,8 @@ export {
 	RemoveRenderRequest,
 	ReorderEffectRequest,
 	ReorderEffectResponse,
+	RenameStaticFileRequest,
+	RenameStaticFileResponse,
 	RestartStudioRequest,
 	RestartStudioResponse,
 	SaveEffectPropsRequest,
