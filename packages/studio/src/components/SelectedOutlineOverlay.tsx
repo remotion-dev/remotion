@@ -16,9 +16,12 @@ import {NoReactInternals} from 'remotion/no-react';
 import {calculateTimeline} from '../helpers/calculate-timeline';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {BLUE} from '../helpers/colors';
+import {formatFileLocation} from '../helpers/format-file-location';
 import {getBoxQuadsPonyfill} from '../helpers/get-box-quads-ponyfill';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 import {ScaleLockContext} from '../state/scale-lock';
+import {ContextMenuForTarget} from './ContextMenu';
+import type {ComboboxValue} from './NewComposition/ComboBox';
 import {showNotification} from './Notifications/NotificationCenter';
 import {callAddSequenceKeyframe} from './Timeline/call-add-keyframe';
 import {saveEffectProp} from './Timeline/save-effect-prop';
@@ -39,6 +42,7 @@ import {
 	type TimelineSelectionInteraction,
 	useTimelineSelection,
 } from './Timeline/TimelineSelection';
+import {useOpenSequenceInEditor} from './Timeline/use-open-sequence-in-editor';
 
 type OutlinePoint = {
 	readonly x: number;
@@ -91,6 +95,7 @@ type SelectedOutlineTarget = {
 	readonly ref: React.RefObject<HTMLElement | null>;
 	readonly selected: boolean;
 	readonly selection: TimelineSelection;
+	readonly sequence: TSequence;
 	readonly drag: SelectedOutlineDragTarget | null;
 	readonly scaleDrag: SelectedOutlineScaleDragTarget | null;
 	readonly uvHandles: readonly SelectedOutlineUvHandle[];
@@ -153,6 +158,78 @@ const outlineContainer: React.CSSProperties = {
 	inset: 0,
 	pointerEvents: 'none',
 	overflow: 'visible',
+};
+
+const useSelectedOutlineContextMenuValues = (
+	target: SelectedOutlineTarget | undefined,
+): ComboboxValue[] => {
+	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const previewConnected = previewServerState.type === 'connected';
+	const {canOpenInEditor, openInEditor, originalLocation} =
+		useOpenSequenceInEditor(target?.sequence ?? null);
+	const fileLocation = useMemo(
+		() =>
+			formatFileLocation({
+				location: originalLocation,
+				root: window.remotion_cwd,
+			}),
+		[originalLocation],
+	);
+
+	return useMemo((): ComboboxValue[] => {
+		if (!previewConnected) {
+			return [];
+		}
+
+		const editorName = window.remotion_editorName;
+
+		return [
+			editorName
+				? {
+						type: 'item' as const,
+						id: 'show-outline-in-editor',
+						keyHint: null,
+						label: `Show in ${editorName}`,
+						leftItem: null,
+						disabled: !canOpenInEditor,
+						onClick: () => {
+							openInEditor();
+						},
+						quickSwitcherLabel: null,
+						subMenu: null,
+						value: 'show-outline-in-editor',
+					}
+				: null,
+			{
+				type: 'item' as const,
+				id: 'copy-outline-file-location',
+				keyHint: null,
+				label: 'Copy file location',
+				leftItem: null,
+				disabled: !fileLocation,
+				onClick: () => {
+					if (!fileLocation) {
+						return;
+					}
+
+					navigator.clipboard
+						.writeText(fileLocation)
+						.then(() => {
+							showNotification('Copied file location to clipboard', 1000);
+						})
+						.catch((err) => {
+							showNotification(
+								`Could not copy to clipboard: ${(err as Error).message}`,
+								1000,
+							);
+						});
+				},
+				quickSwitcherLabel: null,
+				subMenu: null,
+				value: 'copy-outline-file-location',
+			},
+		].filter(NoReactInternals.truthy);
+	}, [canOpenInEditor, fileLocation, openInEditor, previewConnected]);
 };
 
 const pointToString = (point: OutlinePoint) => `${point.x},${point.y}`;
@@ -1042,7 +1119,9 @@ const clearSelectedOutlineScaleDragOverrides = ({
 
 const SelectedOutlinePolygon: React.FC<{
 	readonly allDragTargets: readonly SelectedOutlineDragTarget[];
+	readonly contextMenuValues: readonly ComboboxValue[];
 	readonly hovered: boolean;
+	readonly onContextMenuOpen: () => false | void;
 	readonly outline: SelectedOutline;
 	readonly onHoverChange: (key: string | null) => void;
 	readonly onSelect: (
@@ -1053,7 +1132,9 @@ const SelectedOutlinePolygon: React.FC<{
 	readonly target: SelectedOutlineTarget | undefined;
 }> = ({
 	allDragTargets,
+	contextMenuValues,
 	hovered,
+	onContextMenuOpen,
 	outline,
 	onHoverChange,
 	onSelect,
@@ -1069,6 +1150,7 @@ const SelectedOutlinePolygon: React.FC<{
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const timelinePositionRef = useRef(timelinePosition);
 	timelinePositionRef.current = timelinePosition;
+	const polygonRef = useRef<SVGPolygonElement>(null);
 	const points = useMemo(
 		() => outline.points.map(pointToString).join(' '),
 		[outline.points],
@@ -1225,25 +1307,35 @@ const SelectedOutlinePolygon: React.FC<{
 	);
 
 	return (
-		<polygon
-			points={points}
-			fill="transparent"
-			stroke={BLUE}
-			strokeOpacity={visible ? 1 : 0}
-			strokeWidth={2}
-			vectorEffect="non-scaling-stroke"
-			pointerEvents={target === undefined ? undefined : 'all'}
-			onPointerEnter={() => onHoverChange(outline.key)}
-			onPointerLeave={() => onHoverChange(null)}
-			onPointerDown={onPointerDown}
-		/>
+		<>
+			<polygon
+				ref={polygonRef}
+				points={points}
+				fill="transparent"
+				stroke={BLUE}
+				strokeOpacity={visible ? 1 : 0}
+				strokeWidth={2}
+				vectorEffect="non-scaling-stroke"
+				pointerEvents={target === undefined ? undefined : 'all'}
+				onPointerEnter={() => onHoverChange(outline.key)}
+				onPointerLeave={() => onHoverChange(null)}
+				onPointerDown={onPointerDown}
+			/>
+			<ContextMenuForTarget
+				triggerRef={polygonRef}
+				values={[...contextMenuValues]}
+				onOpen={onContextMenuOpen}
+			/>
+		</>
 	);
 };
 
 const SelectedOutlineScaleEdgeLine: React.FC<{
 	readonly allScaleDragTargets: readonly SelectedOutlineScaleDragTarget[];
+	readonly contextMenuValues: readonly ComboboxValue[];
 	readonly edge: SelectedOutlineScaleEdge;
 	readonly outline: SelectedOutline;
+	readonly onContextMenuOpen: () => false | void;
 	readonly onHoverChange: (key: string | null) => void;
 	readonly onSelect: (
 		item: TimelineSelection,
@@ -1252,8 +1344,10 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 	readonly target: SelectedOutlineTarget | undefined;
 }> = ({
 	allScaleDragTargets,
+	contextMenuValues,
 	edge,
 	outline,
+	onContextMenuOpen,
 	onHoverChange,
 	onSelect,
 	target,
@@ -1266,6 +1360,7 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 	);
 	const scaleDrag = target?.scaleDrag ?? null;
 	const selected = target?.selected ?? false;
+	const lineRef = useRef<SVGLineElement>(null);
 	const edgeInfo = useMemo(
 		() => getSelectedOutlineScaleEdgeInfo(outline.points, edge),
 		[edge, outline.points],
@@ -1399,20 +1494,28 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 	}
 
 	return (
-		<line
-			x1={edgeInfo.start.x}
-			y1={edgeInfo.start.y}
-			x2={edgeInfo.end.x}
-			y2={edgeInfo.end.y}
-			stroke="transparent"
-			strokeWidth={12}
-			vectorEffect="non-scaling-stroke"
-			pointerEvents="stroke"
-			cursor={edgeInfo.cursor}
-			onPointerEnter={() => onHoverChange(outline.key)}
-			onPointerLeave={() => onHoverChange(null)}
-			onPointerDown={onPointerDown}
-		/>
+		<>
+			<line
+				ref={lineRef}
+				x1={edgeInfo.start.x}
+				y1={edgeInfo.start.y}
+				x2={edgeInfo.end.x}
+				y2={edgeInfo.end.y}
+				stroke="transparent"
+				strokeWidth={12}
+				vectorEffect="non-scaling-stroke"
+				pointerEvents="stroke"
+				cursor={edgeInfo.cursor}
+				onPointerEnter={() => onHoverChange(outline.key)}
+				onPointerLeave={() => onHoverChange(null)}
+				onPointerDown={onPointerDown}
+			/>
+			<ContextMenuForTarget
+				triggerRef={lineRef}
+				values={[...contextMenuValues]}
+				onOpen={onContextMenuOpen}
+			/>
+		</>
 	);
 };
 
@@ -1580,6 +1683,92 @@ const SelectedUvHandleCircle: React.FC<{
 	);
 };
 
+const SelectedOutlineElement: React.FC<{
+	readonly allDragTargets: readonly SelectedOutlineDragTarget[];
+	readonly allScaleDragTargets: readonly SelectedOutlineScaleDragTarget[];
+	readonly hovered: boolean;
+	readonly outline: SelectedOutline;
+	readonly onHoverChange: (key: string | null) => void;
+	readonly onSelect: (
+		item: TimelineSelection,
+		interaction: TimelineSelectionInteraction,
+	) => void;
+	readonly scale: number;
+	readonly target: SelectedOutlineTarget | undefined;
+}> = ({
+	allDragTargets,
+	allScaleDragTargets,
+	hovered,
+	outline,
+	onHoverChange,
+	onSelect,
+	scale,
+	target,
+}) => {
+	const contextMenuValues = useSelectedOutlineContextMenuValues(target);
+
+	const onContextMenuOpen = React.useCallback(() => {
+		if (target === undefined || contextMenuValues.length === 0) {
+			return false;
+		}
+
+		if (!target.selected) {
+			onSelect(target.selection, {shiftKey: false, toggleKey: false});
+		}
+	}, [contextMenuValues.length, onSelect, target]);
+
+	return (
+		<>
+			<SelectedOutlinePolygon
+				allDragTargets={allDragTargets}
+				contextMenuValues={contextMenuValues}
+				hovered={hovered}
+				outline={outline}
+				onContextMenuOpen={onContextMenuOpen}
+				onHoverChange={onHoverChange}
+				onSelect={onSelect}
+				scale={scale}
+				target={target}
+			/>
+			{target?.selected || hovered
+				? (['top', 'right', 'bottom', 'left'] as const).map((edge) => (
+						<SelectedOutlineScaleEdgeLine
+							key={edge}
+							allScaleDragTargets={allScaleDragTargets}
+							contextMenuValues={contextMenuValues}
+							edge={edge}
+							outline={outline}
+							onContextMenuOpen={onContextMenuOpen}
+							onHoverChange={onHoverChange}
+							onSelect={onSelect}
+							target={target}
+						/>
+					))
+				: null}
+			{target?.selected
+				? (() => {
+						const {uvHandles} = target;
+						return (
+							<>
+								<SelectedUvHandleConnectionLines
+									handles={uvHandles}
+									outline={outline}
+								/>
+								{uvHandles.map((handle) => (
+									<SelectedUvHandleCircle
+										key={`${handle.effectIndex}-${handle.fieldKey}`}
+										handle={handle}
+										outline={outline}
+									/>
+								))}
+							</>
+						);
+					})()
+				: null}
+		</>
+	);
+};
+
 export const SelectedOutlineOverlay: React.FC<{
 	readonly scale: number;
 }> = ({scale}) => {
@@ -1653,6 +1842,7 @@ export const SelectedOutlineOverlay: React.FC<{
 				ref: sequence.refForOutline,
 				selected,
 				selection: {type: 'sequence', nodePathInfo},
+				sequence,
 				drag: canDrag
 					? {
 							codeValue,
@@ -1785,52 +1975,17 @@ export const SelectedOutlineOverlay: React.FC<{
 			aria-hidden="true"
 		>
 			{outlines.map((outline) => (
-				<React.Fragment key={outline.key}>
-					<SelectedOutlinePolygon
-						allDragTargets={allDragTargets}
-						hovered={hoveredOutlineKey === outline.key}
-						outline={outline}
-						onHoverChange={setHoveredOutlineKey}
-						onSelect={selectItem}
-						scale={scale}
-						target={targetsByKey.get(outline.key)}
-					/>
-					{targetsByKey.get(outline.key)?.selected ||
-					hoveredOutlineKey === outline.key
-						? (['top', 'right', 'bottom', 'left'] as const).map((edge) => (
-								<SelectedOutlineScaleEdgeLine
-									key={edge}
-									allScaleDragTargets={allScaleDragTargets}
-									edge={edge}
-									outline={outline}
-									onHoverChange={setHoveredOutlineKey}
-									onSelect={selectItem}
-									target={targetsByKey.get(outline.key)}
-								/>
-							))
-						: null}
-					{targetsByKey.get(outline.key)?.selected
-						? (() => {
-								const uvHandles =
-									targetsByKey.get(outline.key)?.uvHandles ?? [];
-								return (
-									<>
-										<SelectedUvHandleConnectionLines
-											handles={uvHandles}
-											outline={outline}
-										/>
-										{uvHandles.map((handle) => (
-											<SelectedUvHandleCircle
-												key={`${handle.effectIndex}-${handle.fieldKey}`}
-												handle={handle}
-												outline={outline}
-											/>
-										))}
-									</>
-								);
-							})()
-						: null}
-				</React.Fragment>
+				<SelectedOutlineElement
+					key={outline.key}
+					allDragTargets={allDragTargets}
+					allScaleDragTargets={allScaleDragTargets}
+					hovered={hoveredOutlineKey === outline.key}
+					outline={outline}
+					onHoverChange={setHoveredOutlineKey}
+					onSelect={selectItem}
+					scale={scale}
+					target={targetsByKey.get(outline.key)}
+				/>
 			))}
 		</svg>
 	);

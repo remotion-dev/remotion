@@ -33,6 +33,10 @@ export const useResolveStackAndReactToChange = (
 	resolvedLocationRef.current = resolvedLocation;
 
 	useEffect(() => {
+		setStack(getStack());
+	}, [getStack]);
+
+	useEffect(() => {
 		let interval: Timer | null = null;
 
 		const handleEvent = (event: EventSourceEvent) => {

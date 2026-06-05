@@ -5,10 +5,11 @@ import {openOriginalPositionInEditor} from '../../helpers/open-in-editor';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {useResolveStackAndReactToChange} from './use-resolved-stack-react-to-change';
 
-export const useOpenSequenceInEditor = (sequence: TSequence) => {
+export const useOpenSequenceInEditor = (sequence: TSequence | null) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const previewConnected = previewServerState.type === 'connected';
-	const originalLocation = useResolveStackAndReactToChange(sequence.getStack);
+	const getStack = useCallback(() => sequence?.getStack() ?? null, [sequence]);
+	const originalLocation = useResolveStackAndReactToChange(getStack);
 
 	const canOpenInEditor = useMemo(
 		() =>
