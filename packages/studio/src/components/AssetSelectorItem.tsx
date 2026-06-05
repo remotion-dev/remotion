@@ -9,6 +9,7 @@ import React, {
 } from 'react';
 import {Internals, type StaticFile} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
+import {deleteStaticFile} from '../api/delete-static-file';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {
 	BACKGROUND,
@@ -32,11 +33,13 @@ import {FileIcon} from '../icons/file';
 import {CollapsedFolderIcon, ExpandedFolderIcon} from '../icons/folder';
 import {ModalsContext} from '../state/modals';
 import {SidebarContext} from '../state/sidebar';
+import {useConfirmationDialog} from './ConfirmationDialog';
 import {ContextMenu} from './ContextMenu';
 import {getAssetElementFromPath} from './import-assets';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
 import {Row, Spacing} from './layout';
+import {inlineCodeSnippet} from './Menu/styles';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {showNotification} from './Notifications/NotificationCenter';
 import {openInFileExplorer} from './RenderQueue/actions';
@@ -278,6 +281,7 @@ const AssetSelectorItem: React.FC<{
 	const [isDragging, setIsDragging] = useState(false);
 	const {setSidebarCollapsedState} = useContext(SidebarContext);
 	const {setSelectedModal} = useContext(ModalsContext);
+	const confirm = useConfirmationDialog();
 	const connectionStatus = useContext(StudioServerConnectionCtx)
 		.previewServerState.type;
 	const onPointerEnter = useCallback(() => {
@@ -418,6 +422,47 @@ const AssetSelectorItem: React.FC<{
 	const serverActionDisabled =
 		readOnlyStudio || connectionStatus !== 'connected';
 
+	const deleteAsset = useCallback(() => {
+		confirm({
+			title: 'Delete asset',
+			message: (
+				<>
+					Do you want to delete the asset{' '}
+					<code style={inlineCodeSnippet}>{relativePath}</code> from your public
+					folder?
+				</>
+			),
+			confirmLabel: 'Delete',
+		})
+			.then((confirmed) => {
+				if (!confirmed) {
+					return;
+				}
+
+				const notification = showNotification(
+					`Deleting ${relativePath}...`,
+					null,
+				);
+
+				deleteStaticFile(relativePath)
+					.then(() => {
+						notification.replaceContent(`Deleted ${relativePath}`, 2000);
+					})
+					.catch((err) => {
+						notification.replaceContent(
+							`Could not delete ${relativePath}: ${(err as Error).message}`,
+							3000,
+						);
+					});
+			})
+			.catch((err) => {
+				showNotification(
+					`Could not delete ${relativePath}: ${(err as Error).message}`,
+					3000,
+				);
+			});
+	}, [confirm, relativePath]);
+
 	const contextMenu = useMemo((): ComboboxValue[] => {
 		return [
 			{
@@ -481,12 +526,7 @@ const AssetSelectorItem: React.FC<{
 				keyHint: null,
 				label: 'Delete...',
 				leftItem: null,
-				onClick: () => {
-					setSelectedModal({
-						type: 'delete-static-file',
-						relativePath,
-					});
-				},
+				onClick: deleteAsset,
 				quickSwitcherLabel: 'Delete asset...',
 				subMenu: null,
 				type: 'item',
@@ -498,6 +538,7 @@ const AssetSelectorItem: React.FC<{
 		copyFileName,
 		copyStaticFilePath,
 		openAssetInExplorer,
+		deleteAsset,
 		relativePath,
 		serverActionDisabled,
 		setSelectedModal,
