@@ -23,6 +23,7 @@ import {projectInfoHandler} from './routes/project-info';
 import {redoHandler} from './routes/redo';
 import {registerClientRenderHandler} from './routes/register-client-render';
 import {handleRemoveRender} from './routes/remove-render';
+import {renameStaticFileHandler} from './routes/rename-static-file';
 import {reorderEffectHandler} from './routes/reorder-effect';
 import {handleRestartStudio} from './routes/restart-studio';
 import {saveEffectPropsHandler} from './routes/save-effect-props';
@@ -81,6 +82,7 @@ export const allApiRoutes: {
 	'/api/update-available': handleUpdate,
 	'/api/project-info': projectInfoHandler,
 	'/api/delete-static-file': deleteStaticFileHandler,
+	'/api/rename-static-file': renameStaticFileHandler,
 	'/api/restart-studio': handleRestartStudio,
 	'/api/install-package': handleInstallPackage,
 	'/api/insert-jsx-element': insertJsxElementHandler,

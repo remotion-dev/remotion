@@ -9,6 +9,7 @@ import React, {
 } from 'react';
 import {Internals, type StaticFile} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
+import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {
 	BACKGROUND,
 	CLEAR_HOVER,
@@ -29,11 +30,14 @@ import useAssetDragEvents, {
 import {ClipboardIcon} from '../icons/clipboard';
 import {FileIcon} from '../icons/file';
 import {CollapsedFolderIcon, ExpandedFolderIcon} from '../icons/folder';
+import {ModalsContext} from '../state/modals';
 import {SidebarContext} from '../state/sidebar';
+import {ContextMenu} from './ContextMenu';
 import {getAssetElementFromPath} from './import-assets';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
 import {Row, Spacing} from './layout';
+import type {ComboboxValue} from './NewComposition/ComboBox';
 import {showNotification} from './Notifications/NotificationCenter';
 import {openInFileExplorer} from './RenderQueue/actions';
 
@@ -273,6 +277,9 @@ const AssetSelectorItem: React.FC<{
 	const [hovered, setHovered] = useState(false);
 	const [isDragging, setIsDragging] = useState(false);
 	const {setSidebarCollapsedState} = useContext(SidebarContext);
+	const {setSelectedModal} = useContext(ModalsContext);
+	const connectionStatus = useContext(StudioServerConnectionCtx)
+		.previewServerState.type;
 	const onPointerEnter = useCallback(() => {
 		setHovered(true);
 	}, []);
@@ -374,78 +381,186 @@ const AssetSelectorItem: React.FC<{
 		return <ClipboardIcon style={revealIconStyle} color={color} />;
 	}, []);
 
+	const copyFileName = useCallback(() => {
+		copyText(item.name)
+			.then(() => {
+				showNotification(`Copied '${item.name}' to clipboard`, 1000);
+			})
+			.catch((err) => {
+				showNotification(`Could not copy: ${err.message}`, 2000);
+			});
+	}, [item.name]);
+
+	const copyStaticFilePath = useCallback(() => {
+		const content = `staticFile("${relativePath}")`;
+		copyText(content)
+			.then(() => {
+				showNotification(`Copied '${content}' to clipboard`, 1000);
+			})
+			.catch((err) => {
+				showNotification(`Could not copy: ${err.message}`, 2000);
+			});
+	}, [relativePath]);
+
+	const openAssetInExplorer = useCallback(() => {
+		if (!window.remotion_publicFolderExists) {
+			showNotification('Could not find the public folder', 2000);
+			return;
+		}
+
+		openInFileExplorer({
+			directory: window.remotion_publicFolderExists + '/' + relativePath,
+		}).catch((err) => {
+			showNotification(`Could not open file: ${err.message}`, 2000);
+		});
+	}, [relativePath]);
+
+	const serverActionDisabled =
+		readOnlyStudio || connectionStatus !== 'connected';
+
+	const contextMenu = useMemo((): ComboboxValue[] => {
+		return [
+			{
+				id: 'copy-asset-file-name',
+				keyHint: null,
+				label: 'Copy file name',
+				leftItem: null,
+				onClick: copyFileName,
+				quickSwitcherLabel: 'Copy asset file name',
+				subMenu: null,
+				type: 'item',
+				value: 'copy-asset-file-name',
+			},
+			{
+				id: 'copy-asset-static-file-path',
+				keyHint: null,
+				label: 'Copy staticFile() path',
+				leftItem: null,
+				onClick: copyStaticFilePath,
+				quickSwitcherLabel: 'Copy staticFile() path',
+				subMenu: null,
+				type: 'item',
+				value: 'copy-asset-static-file-path',
+			},
+			{
+				type: 'divider',
+				id: 'asset-file-actions-divider',
+			},
+			{
+				id: 'open-asset-in-explorer',
+				keyHint: null,
+				label: 'Open in Explorer',
+				leftItem: null,
+				onClick: openAssetInExplorer,
+				quickSwitcherLabel: 'Open asset in Explorer',
+				subMenu: null,
+				type: 'item',
+				value: 'open-asset-in-explorer',
+				disabled:
+					serverActionDisabled || window.remotion_publicFolderExists === null,
+			},
+			{
+				id: 'rename-asset',
+				keyHint: null,
+				label: 'Rename...',
+				leftItem: null,
+				onClick: () => {
+					setSelectedModal({
+						type: 'rename-static-file',
+						relativePath,
+					});
+				},
+				quickSwitcherLabel: 'Rename asset...',
+				subMenu: null,
+				type: 'item',
+				value: 'rename-asset',
+				disabled: serverActionDisabled,
+			},
+			{
+				id: 'delete-asset',
+				keyHint: null,
+				label: 'Delete...',
+				leftItem: null,
+				onClick: () => {
+					setSelectedModal({
+						type: 'delete-static-file',
+						relativePath,
+					});
+				},
+				quickSwitcherLabel: 'Delete asset...',
+				subMenu: null,
+				type: 'item',
+				value: 'delete-asset',
+				disabled: serverActionDisabled,
+			},
+		];
+	}, [
+		copyFileName,
+		copyStaticFilePath,
+		openAssetInExplorer,
+		relativePath,
+		serverActionDisabled,
+		setSelectedModal,
+	]);
+
 	const revealInExplorer: React.MouseEventHandler<HTMLButtonElement> =
-		React.useCallback(
+		useCallback(
 			(e) => {
 				e.stopPropagation();
-				openInFileExplorer({
-					directory:
-						window.remotion_publicFolderExists +
-						'/' +
-						parentFolder +
-						'/' +
-						item.name,
-				}).catch((err) => {
-					showNotification(`Could not open file: ${err.message}`, 2000);
-				});
+				openAssetInExplorer();
 			},
-			[item.name, parentFolder],
+			[openAssetInExplorer],
 		);
 
 	const copyToClipboard: React.MouseEventHandler<HTMLButtonElement> =
 		useCallback(
 			(e) => {
 				e.stopPropagation();
-				const content = `staticFile("${[parentFolder, item.name].join('/')}")`;
-				copyText(content)
-					.then(() => {
-						showNotification(`Copied '${content}' to clipboard`, 1000);
-					})
-					.catch((err) => {
-						showNotification(`Could not copy: ${err.message}`, 2000);
-					});
+				copyStaticFilePath();
 			},
-			[item.name, parentFolder],
+			[copyStaticFilePath],
 		);
 
 	return (
-		<Row align="center">
-			<div
-				ref={rowRef}
-				style={style}
-				onPointerEnter={onPointerEnter}
-				onPointerLeave={onPointerLeave}
-				onClick={onClick}
-				draggable={canDragAsset}
-				onDragStart={onDragStart}
-				onDragEnd={onDragEnd}
-				tabIndex={tabIndex}
-				title={item.name}
-			>
-				<FileIcon style={iconStyle} color={LIGHT_TEXT} />
-				<Spacing x={1} />
-				<div style={label}>{item.name}</div>
-				{hovered && !isDragging ? (
-					<>
-						<Spacing x={0.5} />
-						<InlineAction
-							title="Copy staticFile() name"
-							renderAction={renderCopyAction}
-							onClick={copyToClipboard}
-						/>
-						{readOnlyStudio ? null : (
-							<>
-								<Spacing x={0.5} />
-								<InlineAction
-									title="Open in Explorer"
-									renderAction={renderFileExplorerAction}
-									onClick={revealInExplorer}
-								/>
-							</>
-						)}
-					</>
-				) : null}
-			</div>
-		</Row>
+		<ContextMenu values={contextMenu} onOpen={null}>
+			<Row align="center">
+				<div
+					ref={rowRef}
+					style={style}
+					onPointerEnter={onPointerEnter}
+					onPointerLeave={onPointerLeave}
+					onClick={onClick}
+					draggable={canDragAsset}
+					onDragStart={onDragStart}
+					onDragEnd={onDragEnd}
+					tabIndex={tabIndex}
+					title={item.name}
+				>
+					<FileIcon style={iconStyle} color={LIGHT_TEXT} />
+					<Spacing x={1} />
+					<div style={label}>{item.name}</div>
+					{hovered && !isDragging ? (
+						<>
+							<Spacing x={0.5} />
+							<InlineAction
+								title="Copy staticFile() path"
+								renderAction={renderCopyAction}
+								onClick={copyToClipboard}
+							/>
+							{serverActionDisabled ? null : (
+								<>
+									<Spacing x={0.5} />
+									<InlineAction
+										title="Open in Explorer"
+										renderAction={renderFileExplorerAction}
+										onClick={revealInExplorer}
+									/>
+								</>
+							)}
+						</>
+					) : null}
+				</div>
+			</Row>
+		</ContextMenu>
 	);
 };

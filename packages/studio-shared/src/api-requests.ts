@@ -222,6 +222,15 @@ export type DeleteStaticFileResponse = {
 	existed: boolean;
 };
 
+export type RenameStaticFileRequest = {
+	oldRelativePath: string;
+	newRelativePath: string;
+};
+
+export type RenameStaticFileResponse = {
+	success: boolean;
+};
+
 export type CanUpdateDefaultPropsResponse =
 	| {
 			canUpdate: true;
@@ -726,6 +735,10 @@ export type ApiRoutes = {
 	'/api/delete-static-file': ReqAndRes<
 		DeleteStaticFileRequest,
 		DeleteStaticFileResponse
+	>;
+	'/api/rename-static-file': ReqAndRes<
+		RenameStaticFileRequest,
+		RenameStaticFileResponse
 	>;
 	'/api/restart-studio': ReqAndRes<RestartStudioRequest, RestartStudioResponse>;
 	'/api/install-package': ReqAndRes<
