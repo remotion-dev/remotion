@@ -54,6 +54,10 @@ import {
 	getTimelineSequenceFromDragValue,
 } from '../components/Timeline/TimelineSequenceRightEdgeDragHandle';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
+import {
+	loadEditorShowOutlinesOption,
+	persistEditorShowOutlinesOption,
+} from '../state/editor-outlines';
 
 const makeKey = (
 	nodePath: SequenceNodePath,
@@ -64,6 +68,39 @@ const makeKey = (
 	sequenceKeys: ['from', 'durationInFrames'],
 	effectKeys,
 });
+
+const withMockLocalStorage = (callback: () => void) => {
+	const previousDescriptor = Object.getOwnPropertyDescriptor(
+		globalThis,
+		'localStorage',
+	);
+	const values = new Map<string, string>();
+	const localStorageMock: Storage = {
+		clear: () => values.clear(),
+		getItem: (key: string) => values.get(key) ?? null,
+		key: (index: number) => [...values.keys()][index] ?? null,
+		removeItem: (key: string) => values.delete(key),
+		setItem: (key: string, value: string) => values.set(key, value),
+		get length() {
+			return values.size;
+		},
+	};
+
+	Object.defineProperty(globalThis, 'localStorage', {
+		configurable: true,
+		value: localStorageMock,
+	});
+
+	try {
+		callback();
+	} finally {
+		if (previousDescriptor) {
+			Object.defineProperty(globalThis, 'localStorage', previousDescriptor);
+		} else {
+			Reflect.deleteProperty(globalThis, 'localStorage');
+		}
+	}
+};
 
 const makeNodePathInfo = (
 	nodePath: SequenceNodePath,
@@ -913,8 +950,20 @@ test('Timeline from drag removes the prop at the default value', () => {
 	});
 });
 
-test('Timeline outlines should not be enabled', () => {
-	expect(ENABLE_OUTLINES).toBe(false);
+test('Timeline outlines should be enabled', () => {
+	expect(ENABLE_OUTLINES).toBe(true);
+});
+
+test('Timeline outlines visibility is enabled by default and persisted', () => {
+	withMockLocalStorage(() => {
+		expect(loadEditorShowOutlinesOption()).toBe(true);
+
+		persistEditorShowOutlinesOption(false);
+		expect(loadEditorShowOutlinesOption()).toBe(false);
+
+		persistEditorShowOutlinesOption(true);
+		expect(loadEditorShowOutlinesOption()).toBe(true);
+	});
 });
 
 test('Canvas outline selection uses conventional modifier keys', () => {

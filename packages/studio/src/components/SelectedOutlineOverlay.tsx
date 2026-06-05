@@ -21,6 +21,7 @@ import {formatFileLocation} from '../helpers/format-file-location';
 import {getBoxQuadsPonyfill} from '../helpers/get-box-quads-ponyfill';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 import {openOriginalPositionInEditor} from '../helpers/open-in-editor';
+import {EditorShowOutlinesContext} from '../state/editor-outlines';
 import {ScaleLockContext} from '../state/scale-lock';
 import {ContextMenuForTarget} from './ContextMenu';
 import type {ComboboxValue} from './NewComposition/ComboBox';
@@ -1848,6 +1849,7 @@ export const SelectedOutlineOverlay: React.FC<{
 		Internals.VisualModeDragOverridesContext,
 	);
 	const {getScaleLockState} = useContext(ScaleLockContext);
+	const {editorShowOutlines} = useContext(EditorShowOutlinesContext);
 	const [outlines, setOutlines] = useState<readonly SelectedOutline[]>([]);
 	const [hoveredOutlineKey, setHoveredOutlineKey] = useState<string | null>(
 		null,
@@ -1863,7 +1865,7 @@ export const SelectedOutlineOverlay: React.FC<{
 	}, []);
 
 	const outlineTargets = useMemo((): SelectedOutlineTarget[] => {
-		if (!ENABLE_OUTLINES) {
+		if (!ENABLE_OUTLINES || !editorShowOutlines) {
 			return [];
 		}
 
@@ -1971,6 +1973,7 @@ export const SelectedOutlineOverlay: React.FC<{
 		getDragOverrides,
 		getEffectDragOverrides,
 		getScaleLockState,
+		editorShowOutlines,
 		overrideIdToNodePathMappings,
 		previewServerState,
 		selectedItems,
