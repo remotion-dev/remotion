@@ -3,7 +3,7 @@ name: issue
 description: Create or update GitHub issues with correct Remotion naming and safe multiline Markdown handling
 ---
 
-Use this skill when creating, editing, commenting on, or linking GitHub issues.
+Use this skill when creating, editing, or commenting on GitHub issues. For parent issues, sub-issues, blocked-by, and blocking relationships, use the [`issue-management`](../issue-management/SKILL.md) skill.
 
 ## Issue title format
 
@@ -125,39 +125,13 @@ For multiline comments, also use a file:
 gh issue comment 1234 --body-file /tmp/remotion-issue-comment.md
 ```
 
-## Creating a sub-issue
+## Creating or linking related issues
 
-Create the child issue first, then link it as a sub-issue.
+For parent issues, sub-issues, blocked-by, and blocking relationships, use the [`issue-management`](../issue-management/SKILL.md) skill. Prefer the new `gh issue create` and `gh issue edit` relationship flags over hand-written GraphQL mutations.
 
-1. Create the child issue:
+## Updating a PR or issue after linking a related issue
 
-```bash
-gh issue create \
-  --title 'Docs: Add a skill for creating examples' \
-  --body-file /tmp/remotion-issue-body.md
-```
-
-2. Get both GraphQL node IDs:
-
-```bash
-gh issue view <parent-number> --json id,number,title
-gh issue view <child-number> --json id,number,title
-```
-
-3. Link the child as a sub-issue:
-
-```bash
-gh api graphql \
-  -f query='mutation($issueId:ID!,$subIssueId:ID!){ addSubIssue(input:{issueId:$issueId, subIssueId:$subIssueId}) { issue { number } subIssue { number } } }' \
-  -f issueId='<parent-node-id>' \
-  -f subIssueId='<child-node-id>'
-```
-
-4. Verify the issue relationship in GitHub or with `gh issue view`.
-
-## Updating a PR or issue after creating a sub-issue
-
-If a PR or parent issue mentions follow-up work, replace vague checklist items with the concrete issue number.
+If a PR or issue mentions follow-up work that is now tracked by a related issue, replace vague checklist items with the concrete issue number.
 
 Prefer:
 
@@ -181,4 +155,4 @@ After creating or editing an issue:
 - [ ] Confirm Markdown has real newlines
 - [ ] Confirm the title follows the package/docs/studio naming convention
 - [ ] Confirm issue references such as `#1234` are correct
-- [ ] If it is a sub-issue, confirm it is linked to the intended parent issue
+- [ ] If adding issue relationships, follow the `issue-management` skill and confirm the intended links
