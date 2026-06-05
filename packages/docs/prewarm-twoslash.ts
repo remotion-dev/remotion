@@ -93,27 +93,6 @@ function replaceIncludes(map: Map<string, string>, code: string): string {
 	return newCode;
 }
 
-function replaceSourceDirective(code: string, filePath: string): string {
-	const sourcePrefix = 'source:';
-	const trimmed = code.trim();
-
-	if (!trimmed.startsWith(sourcePrefix)) {
-		return code;
-	}
-
-	const sourcePath = trimmed.slice(sourcePrefix.length).trim();
-	const resolved = resolve(
-		sourcePath.startsWith('.') ? resolve(filePath, '..') : DOCS_ROOT,
-		sourcePath,
-	);
-
-	if (!resolved.startsWith(DOCS_ROOT + '/')) {
-		throw new Error(`Cannot read source code outside of ${DOCS_ROOT}: ${sourcePath}`);
-	}
-
-	return readFileSync(resolved, 'utf8').trimEnd();
-}
-
 function extractTwoslashBlocks(
 	content: string,
 	filePath: string,
@@ -144,10 +123,7 @@ function extractTwoslashBlocks(
 			continue;
 		}
 
-		const importedCode = replaceSourceDirective(
-			replaceIncludes(includes, code),
-			filePath,
-		);
+		const importedCode = replaceIncludes(includes, code);
 		const cachePath = computeCachePath(importedCode);
 		validCachePaths.add(cachePath);
 

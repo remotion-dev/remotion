@@ -1,7 +1,6 @@
 import path from 'path';
 import type {DocusaurusContext} from '@docusaurus/types';
 import {remarkTwoslash} from './shiki';
-import {remarkSourceCode} from './source-code';
 /**
  * @param {import("@docusaurus/types").DocusaurusContext} context
  * @param {import("remark-shiki-twoslash").Settings} pluginOptions
@@ -59,7 +58,6 @@ export function shiki(context: DocusaurusContext, pluginOptions: any) {
 			a.beforeDefaultRemarkPlugins = [];
 		}
 
-		a.beforeDefaultRemarkPlugins.push([remarkSourceCode, {root: process.cwd()}]);
 		a.beforeDefaultRemarkPlugins.push([remarkTwoslash, options]);
 		return a;
 	};
@@ -71,10 +69,6 @@ export function shiki(context: DocusaurusContext, pluginOptions: any) {
 			a[1].beforeDefaultRemarkPlugins = [];
 		}
 
-		a[1].beforeDefaultRemarkPlugins.push([
-			remarkSourceCode,
-			{root: process.cwd()},
-		]);
 		a[1].beforeDefaultRemarkPlugins.push([remarkTwoslash, options]);
 		return a;
 	};

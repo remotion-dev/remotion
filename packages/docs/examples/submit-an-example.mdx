@@ -18,7 +18,7 @@ Put the MDX page at `packages/docs/examples/<category>/<slug>/index.mdx` and the
 
 Start from the reusable template in `packages/docs/examples-template/`.
 
-The same TSX file should be used for both the live preview and the displayed source code whenever possible.
+The MDX page imports that TSX file for the live preview, and shows the exact same code in a fenced `tsx` code block. Keeping the displayed code inline (rather than generating it at build time) means both readers in the browser and AI agents reading the served Markdown see the full source. A test (`src/test/examples.test.ts`) enforces that the code block stays identical to the source file.
 
 The preferred format is:
 
@@ -80,11 +80,14 @@ import {
 >
 
 ```tsx twoslash title="my-example.tsx"
-source:./my-example.tsx
+// Paste the full contents of my-example.tsx here.
+// It must match the file exactly — a test enforces this.
 ```
 
 </ExamplePage>
 ````
+
+The fenced code block must be an exact copy of the colocated TSX file. This is intentional: it keeps the source visible in the served Markdown for agents while the imported module powers the live preview.
 
 If an example needs binary assets, they should be referenced by URL:
 
