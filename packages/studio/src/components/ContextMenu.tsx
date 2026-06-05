@@ -258,6 +258,8 @@ export const ContextMenuForTarget: React.FC<{
 	const {currentZIndex} = useZIndex();
 
 	useEffect(() => {
+		// Access document.body after mount so importing this component stays safe
+		// in DOM-less test environments.
 		setBody(document.body);
 	}, []);
 
