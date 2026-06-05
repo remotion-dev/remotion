@@ -1,5 +1,5 @@
 import {afterEach, expect, test} from 'bun:test';
-import {cleanup, render} from '@testing-library/react';
+import {cleanup, render, waitFor} from '@testing-library/react';
 import React, {useCallback, useMemo, useState} from 'react';
 import {AnimatedImage} from '../animated-image/index.js';
 import type {TSequence} from '../CompositionManager.js';
@@ -9,8 +9,11 @@ import {Sequence} from '../Sequence.js';
 import type {SequenceManagerContext} from '../SequenceManager.js';
 import {
 	SequenceManager,
+	SequenceManagerProvider,
+	SequenceManagerRefContext,
 	VisualModeDragOverridesContext,
 	VisualModePropStatusesContext,
+	VisualModePropStatusesRefContext,
 	VisualModeSettersContext,
 } from '../SequenceManager.js';
 import {Series} from '../series/index.js';
@@ -233,4 +236,55 @@ test('Img registers a refForOutline pointing to the rendered image element', () 
 	);
 
 	expect(registeredSequences[0]?.refForOutline?.current?.tagName).toBe('IMG');
+});
+
+test('Imperative sequence refs update without rerendering ref-only consumers', async () => {
+	const nodePath = {
+		absolutePath: 'test.tsx',
+		nodePath: ['root'],
+		sequenceKeys: [],
+		effectKeys: [],
+	};
+	let renders = 0;
+	let sequencesRef: React.ContextType<typeof SequenceManagerRefContext> | null =
+		null;
+	let propStatusesRef: React.ContextType<
+		typeof VisualModePropStatusesRefContext
+	> | null = null;
+
+	const RefOnlyConsumer = React.memo(() => {
+		renders++;
+		sequencesRef = React.useContext(SequenceManagerRefContext);
+		propStatusesRef = React.useContext(VisualModePropStatusesRefContext);
+		return null;
+	});
+
+	const Mutator = () => {
+		const {registerSequence} = React.useContext(SequenceManager);
+		const {setPropStatuses} = React.useContext(VisualModeSettersContext);
+
+		React.useEffect(() => {
+			registerSequence({id: 'imperative-sequence'} as TSequence);
+			setPropStatuses(nodePath, () => ({
+				canUpdate: true,
+				props: {},
+				effects: [],
+			}));
+		}, [registerSequence, setPropStatuses]);
+
+		return null;
+	};
+
+	render(
+		<SequenceManagerProvider>
+			<RefOnlyConsumer />
+			<Mutator />
+		</SequenceManagerProvider>,
+	);
+
+	await waitFor(() => {
+		expect(sequencesRef?.current).toHaveLength(1);
+		expect(Object.keys(propStatusesRef?.current ?? {})).toHaveLength(1);
+	});
+	expect(renders).toBe(1);
 });
