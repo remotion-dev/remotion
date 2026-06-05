@@ -36,6 +36,7 @@ import {ErrorOnFrame10} from './ErrorOnFrame10';
 import {ExperimentalControlsShowcase} from './ExperimentalControls';
 import {Expert} from './Expert';
 import {FontDemo} from './Fonts';
+import {FractionalSequenceVideo} from './FractionalSequenceVideo';
 import {Framer} from './Framer';
 import {FreezeExample} from './Freeze/FreezeExample';
 import {FreezePortion} from './FreezePortion/FreezePortion';
@@ -1332,6 +1333,14 @@ export const Index: React.FC = () => {
 						url: PLAY_RANGES_MEDIA_VIDEO_URL_DEFAULT,
 						playRanges: PLAY_RANGES_MEDIA_ZIP_DEFAULT,
 					}}
+				/>
+				<Composition
+					id="fractional-sequence-video"
+					component={FractionalSequenceVideo}
+					width={640}
+					height={360}
+					fps={24}
+					durationInFrames={600}
 				/>
 				<Composition
 					id="corrupt-video"
