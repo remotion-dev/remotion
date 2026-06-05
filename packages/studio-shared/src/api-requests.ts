@@ -24,6 +24,7 @@ import type {
 } from 'remotion';
 import type {RecastCodemod, VisualControlChange} from './codemods';
 import type {
+	EffectClipboardParam,
 	EffectClipboardPasteType,
 	EffectClipboardSnapshot,
 } from './effect-clipboard-data';
@@ -321,16 +322,25 @@ export type SaveSequencePropsResponse =
 			reason: CannotUpdateSequenceReason;
 	  };
 
-export type SaveEffectPropsRequest = {
+type SaveEffectPropsRequestBase = {
 	fileName: string;
 	sequenceNodePath: SequencePropsSubscriptionKey;
 	effectIndex: number;
 	key: string;
-	value: string;
 	defaultValue: string | null;
 	schema: SequenceSchema;
 	clientId: string;
 };
+
+export type SaveEffectPropsRequest =
+	| (SaveEffectPropsRequestBase & {
+			type: 'value';
+			value: string;
+	  })
+	| (SaveEffectPropsRequestBase & {
+			type: 'effect-param';
+			effectParam: EffectClipboardParam;
+	  });
 
 export type SaveEffectPropsResponse = CanUpdateEffectPropsResponse;
 
