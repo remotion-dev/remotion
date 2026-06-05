@@ -282,7 +282,12 @@ const config: Config = {
 						'https://github.com/remotion-dev/remotion/edit/main/packages/docs/blog/',
 				},
 				theme: {
-					customCss: [require.resolve('./src/css/custom.css')],
+					customCss: [
+						require.resolve('./src/css/custom.css'),
+						require.resolve(
+							'./docusaurus-theme-shiki-twoslash/theme/CodeBlock/styles.css',
+						),
+					],
 				},
 			},
 		],
@@ -298,6 +303,19 @@ const config: Config = {
 		],
 	],
 	plugins: [
+		[
+			'@docusaurus/plugin-content-docs',
+			{
+				id: 'examples',
+				path: './examples',
+				routeBasePath: 'examples',
+				sidebarPath: './examples-sidebars.ts',
+				editUrl:
+					'https://github.com/remotion-dev/remotion/edit/main/packages/docs/',
+				showLastUpdateTime: true,
+				remarkPlugins: [remarkExportRaw],
+			},
+		],
 		[
 			'@docusaurus/plugin-content-blog',
 			{
