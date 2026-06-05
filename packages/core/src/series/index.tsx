@@ -6,12 +6,9 @@ import React, {
 	type PropsWithChildren,
 } from 'react';
 import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
-import {
-	sequenceSchemaDefaultLayoutNone,
-	sequenceSchemaWithoutFrom,
-} from '../sequence-field-schema.js';
+import {sequenceSchemaDefaultLayoutNone} from '../sequence-field-schema.js';
 import type {LayoutAndStyle, SequenceProps} from '../Sequence.js';
-import {Sequence} from '../Sequence.js';
+import {Sequence, SequenceWithoutFrom} from '../Sequence.js';
 import {validateDurationInFrames} from '../validation/validate-duration-in-frames.js';
 import {wrapInSchema} from '../wrap-in-schema.js';
 import {flattenChildren} from './flatten-children.js';
@@ -43,7 +40,7 @@ const SeriesSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 const SeriesSequence = forwardRef(SeriesSequenceRefForwardingFunction);
 
 type SeriesProps = SequenceProps;
-const SequenceWithRef = Sequence as React.ComponentType<
+const SequenceWithoutFromWithRef = SequenceWithoutFrom as React.ComponentType<
 	SequenceProps & {readonly ref?: React.Ref<HTMLDivElement>}
 >;
 
@@ -120,7 +117,7 @@ const SeriesInner: FC<SeriesProps> = (props) => {
 			startFrame += durationInFramesProp + offset;
 
 			return (
-				<SequenceWithRef
+				<SequenceWithoutFromWithRef
 					ref={castedChild.ref}
 					name={name || '<Series.Sequence>'}
 					_remotionInternalDocumentationLink={
@@ -129,10 +126,9 @@ const SeriesInner: FC<SeriesProps> = (props) => {
 					from={currentStartFrame}
 					durationInFrames={durationInFramesProp}
 					{...passedProps}
-					_remotionInternalSchema={sequenceSchemaWithoutFrom}
 				>
 					{child}
-				</SequenceWithRef>
+				</SequenceWithoutFromWithRef>
 			);
 		});
 	}, [props.children]);

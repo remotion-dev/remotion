@@ -19,6 +19,8 @@ import type {
 } from './types.js';
 import {validateDurationInFrames} from './validate.js';
 
+const {SequenceWithoutFrom} = Internals;
+
 const TransitionSeriesTransition = function <
 	PresentationProps extends Record<string, unknown>,
 >(_props: TransitionSeriesTransitionProps<PresentationProps>) {
@@ -461,13 +463,12 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 				const UppercasePrevPresentation = prevPresentation.component;
 
 				return (
-					<Sequence
+					<SequenceWithoutFrom
 						// eslint-disable-next-line react/no-array-index-key
 						key={i}
 						from={actualStartFrame}
 						durationInFrames={durationInFramesProp}
 						{...passedProps}
-						_remotionInternalSchema={NoReactInternals.sequenceSchemaWithoutFrom}
 						name={passedProps.name || '<TS.Sequence>'}
 						_remotionInternalDocumentationLink={
 							passedProps.name
@@ -516,7 +517,7 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 								</UppercasePrevPresentation>
 							</WrapInExitingProgressContext>
 						</UppercaseNextPresentation>
-					</Sequence>
+					</SequenceWithoutFrom>
 				);
 			}
 
@@ -526,13 +527,12 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 				const UppercasePrevPresentation = prevPresentation.component;
 
 				return (
-					<Sequence
+					<SequenceWithoutFrom
 						// eslint-disable-next-line react/no-array-index-key
 						key={i}
 						from={actualStartFrame}
 						durationInFrames={durationInFramesProp}
 						{...passedProps}
-						_remotionInternalSchema={NoReactInternals.sequenceSchemaWithoutFrom}
 						name={passedProps.name || '<TS.Sequence>'}
 						_remotionInternalDocumentationLink={
 							passedProps.name
@@ -561,7 +561,7 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 								{child}
 							</WrapInEnteringProgressContext>
 						</UppercasePrevPresentation>
-					</Sequence>
+					</SequenceWithoutFrom>
 				);
 			}
 
@@ -571,13 +571,12 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 				const UppercaseNextPresentation = nextPresentation.component;
 
 				return (
-					<Sequence
+					<SequenceWithoutFrom
 						// eslint-disable-next-line react/no-array-index-key
 						key={i}
 						from={actualStartFrame}
 						durationInFrames={durationInFramesProp}
 						{...passedProps}
-						_remotionInternalSchema={NoReactInternals.sequenceSchemaWithoutFrom}
 						name={passedProps.name || '<TS.Sequence>'}
 						_remotionInternalDocumentationLink={
 							passedProps.name
@@ -604,18 +603,17 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 								{child}
 							</WrapInExitingProgressContext>
 						</UppercaseNextPresentation>
-					</Sequence>
+					</SequenceWithoutFrom>
 				);
 			}
 
 			return (
-				<Sequence
+				<SequenceWithoutFrom
 					// eslint-disable-next-line react/no-array-index-key
 					key={i}
 					from={actualStartFrame}
 					durationInFrames={durationInFramesProp}
 					{...passedProps}
-					_remotionInternalSchema={NoReactInternals.sequenceSchemaWithoutFrom}
 					name={passedProps.name || '<TS.Sequence>'}
 					_remotionInternalDocumentationLink={
 						passedProps.name
@@ -624,7 +622,7 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 					}
 				>
 					{child}
-				</Sequence>
+				</SequenceWithoutFrom>
 			);
 		});
 
