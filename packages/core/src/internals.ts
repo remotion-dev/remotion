@@ -142,6 +142,7 @@ import {
 } from './sequence-node-path.js';
 import type {ResolvedStackLocation} from './sequence-stack-traces.js';
 import {SequenceStackTracesUpdateContext} from './sequence-stack-traces.js';
+import {SequenceWithoutFrom} from './Sequence.js';
 import {SequenceContext} from './SequenceContext.js';
 import type {CannotUpdateSequenceReason} from './SequenceManager.js';
 import {
@@ -283,6 +284,7 @@ export const Internals = {
 	SequenceStackTracesUpdateContext,
 	wrapInSchema,
 	sequenceSchema,
+	SequenceWithoutFrom,
 	sequenceStyleSchema,
 	sequenceVisualStyleSchema,
 	sequencePremountSchema,

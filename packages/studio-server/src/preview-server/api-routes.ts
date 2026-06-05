@@ -12,9 +12,11 @@ import {deleteEffectHandler} from './routes/delete-effect';
 import {deleteJsxNodeHandler} from './routes/delete-jsx-node';
 import {deleteKeyframesHandler} from './routes/delete-keyframes';
 import {deleteStaticFileHandler} from './routes/delete-static-file';
+import {downloadRemoteAssetHandler} from './routes/download-remote-asset';
 import {duplicateJsxNodeHandler} from './routes/duplicate-jsx-node';
 import {insertJsxElementHandler} from './routes/insert-jsx-element';
 import {handleInstallPackage} from './routes/install-dependency';
+import {logStudioErrorHandler} from './routes/log-studio-error';
 import {moveKeyframesHandler} from './routes/move-keyframes';
 import {openInEditorHandler} from './routes/open-in-editor';
 import {handleOpenInFileExplorer} from './routes/open-in-file-explorer';
@@ -23,7 +25,9 @@ import {projectInfoHandler} from './routes/project-info';
 import {redoHandler} from './routes/redo';
 import {registerClientRenderHandler} from './routes/register-client-render';
 import {handleRemoveRender} from './routes/remove-render';
+import {renameStaticFileHandler} from './routes/rename-static-file';
 import {reorderEffectHandler} from './routes/reorder-effect';
+import {reorderSequenceHandler} from './routes/reorder-sequence';
 import {handleRestartStudio} from './routes/restart-studio';
 import {saveEffectPropsHandler} from './routes/save-effect-props';
 import {saveSequencePropsHandler} from './routes/save-sequence-props';
@@ -67,6 +71,7 @@ export const allApiRoutes: {
 	'/api/save-effect-props': saveEffectPropsHandler,
 	'/api/add-effect': addEffectHandler,
 	'/api/reorder-effect': reorderEffectHandler,
+	'/api/reorder-sequence': reorderSequenceHandler,
 	'/api/delete-keyframes': deleteKeyframesHandler,
 	'/api/move-keyframes': moveKeyframesHandler,
 	'/api/add-sequence-keyframe': addSequenceKeyframeHandler,
@@ -81,9 +86,12 @@ export const allApiRoutes: {
 	'/api/update-available': handleUpdate,
 	'/api/project-info': projectInfoHandler,
 	'/api/delete-static-file': deleteStaticFileHandler,
+	'/api/rename-static-file': renameStaticFileHandler,
 	'/api/restart-studio': handleRestartStudio,
 	'/api/install-package': handleInstallPackage,
 	'/api/insert-jsx-element': insertJsxElementHandler,
+	'/api/download-remote-asset': downloadRemoteAssetHandler,
 	'/api/undo': undoHandler,
 	'/api/redo': redoHandler,
+	'/api/log-studio-error': logStudioErrorHandler,
 };

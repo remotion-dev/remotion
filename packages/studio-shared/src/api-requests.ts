@@ -24,6 +24,7 @@ import type {
 } from 'remotion';
 import type {RecastCodemod, VisualControlChange} from './codemods';
 import type {
+	EffectClipboardParam,
 	EffectClipboardPasteType,
 	EffectClipboardSnapshot,
 } from './effect-clipboard-data';
@@ -222,6 +223,15 @@ export type DeleteStaticFileResponse = {
 	existed: boolean;
 };
 
+export type RenameStaticFileRequest = {
+	oldRelativePath: string;
+	newRelativePath: string;
+};
+
+export type RenameStaticFileResponse = {
+	success: boolean;
+};
+
 export type CanUpdateDefaultPropsResponse =
 	| {
 			canUpdate: true;
@@ -312,16 +322,25 @@ export type SaveSequencePropsResponse =
 			reason: CannotUpdateSequenceReason;
 	  };
 
-export type SaveEffectPropsRequest = {
+type SaveEffectPropsRequestBase = {
 	fileName: string;
 	sequenceNodePath: SequencePropsSubscriptionKey;
 	effectIndex: number;
 	key: string;
-	value: string;
 	defaultValue: string | null;
 	schema: SequenceSchema;
 	clientId: string;
 };
+
+export type SaveEffectPropsRequest =
+	| (SaveEffectPropsRequestBase & {
+			type: 'value';
+			value: string;
+	  })
+	| (SaveEffectPropsRequestBase & {
+			type: 'effect-param';
+			effectParam: EffectClipboardParam;
+	  });
 
 export type SaveEffectPropsResponse = CanUpdateEffectPropsResponse;
 
@@ -353,6 +372,26 @@ export type ReorderEffectRequest = {
 };
 
 export type ReorderEffectResponse =
+	| {
+			success: true;
+	  }
+	| {
+			success: false;
+			reason: string;
+			stack: string;
+	  };
+
+export type ReorderSequencePosition = 'before' | 'after';
+
+export type ReorderSequenceRequest = {
+	fileName: string;
+	sourceNodePath: SequencePropsSubscriptionKey;
+	targetNodePath: SequencePropsSubscriptionKey;
+	position: ReorderSequencePosition;
+	clientId: string;
+};
+
+export type ReorderSequenceResponse =
 	| {
 			success: true;
 	  }
@@ -586,6 +625,17 @@ export type InsertJsxElementResponse =
 			stack: string;
 	  };
 
+export type DownloadRemoteAssetRequest = {
+	url: string;
+};
+
+export type DownloadRemoteAssetResponse = {
+	assetPath: string;
+	sizeInBytes: number;
+	created: boolean;
+	element: InsertableCompositionElement;
+};
+
 export type UpdateAvailableRequest = {};
 export type UpdateAvailableResponse = {
 	currentVersion: string;
@@ -627,6 +677,14 @@ export type RedoResponse =
 			success: false;
 			reason: string;
 	  };
+
+export type LogStudioErrorRequest = {
+	name: string | null;
+	message: string;
+	stack: string | null;
+	symbolicatedStackFrames: SymbolicatedStackFrame[] | null;
+};
+export type LogStudioErrorResponse = {};
 
 export type ApiRoutes = {
 	'/api/composition-component-info': ReqAndRes<
@@ -682,6 +740,10 @@ export type ApiRoutes = {
 	>;
 	'/api/add-effect': ReqAndRes<AddEffectRequest, AddEffectResponse>;
 	'/api/reorder-effect': ReqAndRes<ReorderEffectRequest, ReorderEffectResponse>;
+	'/api/reorder-sequence': ReqAndRes<
+		ReorderSequenceRequest,
+		ReorderSequenceResponse
+	>;
 	'/api/delete-keyframes': ReqAndRes<
 		DeleteKeyframesRequest,
 		DeleteKeyframesResponse
@@ -717,6 +779,10 @@ export type ApiRoutes = {
 		InsertJsxElementRequest,
 		InsertJsxElementResponse
 	>;
+	'/api/download-remote-asset': ReqAndRes<
+		DownloadRemoteAssetRequest,
+		DownloadRemoteAssetResponse
+	>;
 	'/api/update-available': ReqAndRes<
 		UpdateAvailableRequest,
 		UpdateAvailableResponse
@@ -727,6 +793,10 @@ export type ApiRoutes = {
 		DeleteStaticFileRequest,
 		DeleteStaticFileResponse
 	>;
+	'/api/rename-static-file': ReqAndRes<
+		RenameStaticFileRequest,
+		RenameStaticFileResponse
+	>;
 	'/api/restart-studio': ReqAndRes<RestartStudioRequest, RestartStudioResponse>;
 	'/api/install-package': ReqAndRes<
 		InstallPackageRequest,
@@ -734,4 +804,8 @@ export type ApiRoutes = {
 	>;
 	'/api/undo': ReqAndRes<UndoRequest, UndoResponse>;
 	'/api/redo': ReqAndRes<RedoRequest, RedoResponse>;
+	'/api/log-studio-error': ReqAndRes<
+		LogStudioErrorRequest,
+		LogStudioErrorResponse
+	>;
 };

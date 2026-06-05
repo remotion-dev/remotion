@@ -1,7 +1,13 @@
-import type {InsertableCompositionElement} from '@remotion/studio-shared';
+import {
+	detectFileType,
+	getRequiredPackageForInsertableElement,
+	type DownloadRemoteAssetResponse,
+	type FileType,
+	type InsertableCompositionElement,
+} from '@remotion/studio-shared';
 import {getStaticFiles} from '../api/get-static-files';
 import {writeStaticFile} from '../api/write-static-file';
-import {detectFileType, type FileType} from '../helpers/detect-file-type';
+import {installRequiredPackages} from '../helpers/install-required-package';
 import {callApi} from './call-api';
 import {showNotification} from './Notifications/NotificationCenter';
 
@@ -66,6 +72,57 @@ export const getAssetElement = ({
 	return null;
 };
 
+export const getAssetElementFromPath = (
+	assetPath: string,
+): InsertableCompositionElement | null => {
+	if (!assetPath || assetPath.includes('\\')) {
+		return null;
+	}
+
+	const extension = assetPath.split('.').pop()?.toLowerCase();
+	if (!extension || extension === assetPath.toLowerCase()) {
+		return null;
+	}
+
+	if (['png', 'jpg', 'jpeg', 'webp', 'bmp'].includes(extension)) {
+		return {
+			type: 'asset',
+			assetType: 'image',
+			src: assetPath,
+			dimensions: null,
+		};
+	}
+
+	if (extension === 'gif') {
+		return {
+			type: 'asset',
+			assetType: 'gif',
+			src: assetPath,
+			dimensions: null,
+		};
+	}
+
+	if (['mp4', 'm4v', 'mov', 'avi', 'webm', 'ts', 'm2ts'].includes(extension)) {
+		return {
+			type: 'asset',
+			assetType: 'video',
+			src: assetPath,
+			dimensions: null,
+		};
+	}
+
+	if (['wav', 'mp3', 'aac', 'flac'].includes(extension)) {
+		return {
+			type: 'asset',
+			assetType: 'audio',
+			src: assetPath,
+			dimensions: null,
+		};
+	}
+
+	return null;
+};
+
 const getAssetLabel = (element: InsertableCompositionElement) => {
 	if (element.type !== 'asset') {
 		throw new Error('Expected asset element');
@@ -118,6 +175,63 @@ export const pickFilesToImport = (): Promise<File[]> => {
 		document.body.appendChild(input);
 		input.click();
 	});
+};
+
+const notifyInsertedAssets = (insertedLabels: string[]) => {
+	if (insertedLabels.length === 1) {
+		showNotification(`Added ${insertedLabels[0]} to source file`, 2000);
+	} else if (insertedLabels.length > 1) {
+		showNotification(
+			`Added ${insertedLabels.length} assets to source file`,
+			2000,
+		);
+	}
+};
+
+const notifyUnsupportedFiles = (unsupportedFiles: string[]) => {
+	if (unsupportedFiles.length === 1) {
+		showNotification(
+			`Cannot add ${unsupportedFiles[0]}: Unsupported file type`,
+			3000,
+		);
+	} else if (unsupportedFiles.length > 1) {
+		showNotification(
+			`Skipped ${unsupportedFiles.length} unsupported files`,
+			3000,
+		);
+	}
+};
+
+const insertAssetElement = async ({
+	compositionFile,
+	compositionId,
+	element,
+}: {
+	compositionFile: string;
+	compositionId: string;
+	element: InsertableCompositionElement;
+}) => {
+	const requiredPackage = getRequiredPackageForInsertableElement(element);
+	await installRequiredPackages(requiredPackage ? [requiredPackage] : []);
+
+	const result = await callApi('/api/insert-jsx-element', {
+		compositionFile,
+		compositionId,
+		element,
+	});
+
+	if (!result.success) {
+		showNotification(result.reason, 4000);
+		return false;
+	}
+
+	return true;
+};
+
+const downloadRemoteAsset = async (
+	url: string,
+): Promise<DownloadRemoteAssetResponse> => {
+	return callApi('/api/download-remote-asset', {url});
 };
 
 export const importAssets = async ({
@@ -191,15 +305,14 @@ export const importAssets = async ({
 				addedStaticFiles.push(file.name);
 			}
 
-			const result = await callApi('/api/insert-jsx-element', {
+			const inserted = await insertAssetElement({
 				compositionFile,
 				compositionId,
 				element,
 			});
 
-			if (!result.success) {
+			if (!inserted) {
 				notifyAddedStaticFiles();
-				showNotification(result.reason, 4000);
 				return;
 			}
 
@@ -207,27 +320,94 @@ export const importAssets = async ({
 		}
 
 		notifyAddedStaticFiles();
+		notifyInsertedAssets(insertedLabels);
+		notifyUnsupportedFiles(unsupportedFiles);
+	} catch (error) {
+		showNotification(
+			`Could not add asset: ${
+				error instanceof Error ? error.message : String(error)
+			}`,
+			4000,
+		);
+	}
+};
 
-		if (insertedLabels.length === 1) {
-			showNotification(`Added ${insertedLabels[0]} to source file`, 2000);
-		} else if (insertedLabels.length > 1) {
-			showNotification(
-				`Added ${insertedLabels.length} assets to source file`,
-				2000,
-			);
+export const importRemoteAsset = async ({
+	compositionFile,
+	compositionId,
+	url,
+}: {
+	compositionFile: string;
+	compositionId: string;
+	url: string;
+}) => {
+	try {
+		const {assetPath, created, element} = await downloadRemoteAsset(url);
+
+		if (created) {
+			showNotification(`Created ${assetPath} in public folder`, 3000);
 		}
 
-		if (unsupportedFiles.length === 1) {
-			showNotification(
-				`Cannot add ${unsupportedFiles[0]}: Unsupported file type`,
-				3000,
-			);
-		} else if (unsupportedFiles.length > 1) {
-			showNotification(
-				`Skipped ${unsupportedFiles.length} unsupported files`,
-				3000,
-			);
+		const inserted = await insertAssetElement({
+			compositionFile,
+			compositionId,
+			element,
+		});
+
+		if (!inserted) {
+			return;
 		}
+
+		notifyInsertedAssets([getAssetLabel(element)]);
+	} catch (error) {
+		showNotification(
+			`Could not add remote asset: ${
+				error instanceof Error ? error.message : String(error)
+			}`,
+			4000,
+		);
+	}
+};
+
+export const insertExistingAssets = async ({
+	assetPaths,
+	compositionFile,
+	compositionId,
+}: {
+	assetPaths: string[];
+	compositionFile: string;
+	compositionId: string;
+}) => {
+	if (assetPaths.length === 0) {
+		return;
+	}
+
+	const insertedLabels: string[] = [];
+	const unsupportedFiles: string[] = [];
+
+	try {
+		for (const assetPath of assetPaths) {
+			const element = getAssetElementFromPath(assetPath);
+			if (element === null) {
+				unsupportedFiles.push(assetPath);
+				continue;
+			}
+
+			const inserted = await insertAssetElement({
+				compositionFile,
+				compositionId,
+				element,
+			});
+
+			if (!inserted) {
+				return;
+			}
+
+			insertedLabels.push(getAssetLabel(element));
+		}
+
+		notifyInsertedAssets(insertedLabels);
+		notifyUnsupportedFiles(unsupportedFiles);
 	} catch (error) {
 		showNotification(
 			`Could not add asset: ${

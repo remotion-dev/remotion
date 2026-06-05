@@ -1,4 +1,8 @@
 import type {Size} from '@remotion/player';
+import {
+	ASSET_DRAG_MIME_TYPE,
+	parseAssetDragData,
+} from '@remotion/studio-shared';
 import React, {
 	useCallback,
 	useContext,
@@ -19,6 +23,10 @@ import {
 } from '../helpers/get-effective-translation';
 import {useCachedCompositionComponentInfo} from '../helpers/open-in-editor';
 import {
+	getRemoteAssetUrlFromDataTransfer,
+	hasRemoteAssetDragData,
+} from '../helpers/remote-asset-drag';
+import {
 	MAX_ZOOM,
 	MIN_ZOOM,
 	smoothenZoom,
@@ -31,7 +39,11 @@ import {EditorZoomGesturesContext} from '../state/editor-zoom-gestures';
 import EditorGuides from './EditorGuides';
 import {EditorRulers} from './EditorRuler';
 import {useIsRulerVisible} from './EditorRuler/use-is-ruler-visible';
-import {importAssets} from './import-assets';
+import {
+	importAssets,
+	importRemoteAsset,
+	insertExistingAssets,
+} from './import-assets';
 import {SPACING_UNIT} from './layout';
 import {VideoPreview} from './Preview';
 import {ResetZoomButton} from './ResetZoomButton';
@@ -64,6 +76,29 @@ type WebKitGestureEvent = UIEvent & {
 
 const isFileDragEvent = (event: DragEvent): boolean => {
 	return Array.from(event.dataTransfer?.types ?? []).includes('Files');
+};
+
+const isAssetDragEvent = (event: DragEvent): boolean => {
+	return Array.from(event.dataTransfer?.types ?? []).includes(
+		ASSET_DRAG_MIME_TYPE,
+	);
+};
+
+const isRemoteAssetDragEvent = (event: DragEvent): boolean => {
+	return (
+		!isFileDragEvent(event) &&
+		!isAssetDragEvent(event) &&
+		hasRemoteAssetDragData(event.dataTransfer)
+	);
+};
+
+const getAssetDragPath = (event: DragEvent): string | null => {
+	const value = event.dataTransfer?.getData(ASSET_DRAG_MIME_TYPE);
+	if (!value) {
+		return null;
+	}
+
+	return parseAssetDragData(value)?.assetPath ?? null;
 };
 
 const isDragEventInsideCanvas = (event: DragEvent): boolean => {
@@ -598,7 +633,9 @@ export const Canvas: React.FC<{
 		(event: DragEvent) => {
 			if (
 				!canDropAssets ||
-				!isFileDragEvent(event) ||
+				(!isFileDragEvent(event) &&
+					!isAssetDragEvent(event) &&
+					!isRemoteAssetDragEvent(event)) ||
 				!isDragEventInsideCanvas(event)
 			) {
 				return;
@@ -618,7 +655,9 @@ export const Canvas: React.FC<{
 				!canDropAssets ||
 				compositionFile === null ||
 				currentCompositionId === null ||
-				!isFileDragEvent(event) ||
+				(!isFileDragEvent(event) &&
+					!isAssetDragEvent(event) &&
+					!isRemoteAssetDragEvent(event)) ||
 				!isDragEventInsideCanvas(event)
 			) {
 				return;
@@ -627,18 +666,42 @@ export const Canvas: React.FC<{
 			event.preventDefault();
 			event.stopPropagation();
 
-			const files = Array.from(event.dataTransfer?.files ?? []);
-			if (files.length === 0) {
-				return;
-			}
-
 			setIsAddingAsset(true);
 			try {
-				await importAssets({
-					files,
-					compositionFile,
-					compositionId: currentCompositionId,
-				});
+				if (isFileDragEvent(event)) {
+					const files = Array.from(event.dataTransfer?.files ?? []);
+					if (files.length === 0) {
+						return;
+					}
+
+					await importAssets({
+						files,
+						compositionFile,
+						compositionId: currentCompositionId,
+					});
+				} else if (isAssetDragEvent(event)) {
+					const assetPath = getAssetDragPath(event);
+					if (assetPath === null) {
+						return;
+					}
+
+					await insertExistingAssets({
+						assetPaths: [assetPath],
+						compositionFile,
+						compositionId: currentCompositionId,
+					});
+				} else {
+					const url = getRemoteAssetUrlFromDataTransfer(event.dataTransfer);
+					if (url === null) {
+						return;
+					}
+
+					await importRemoteAsset({
+						url,
+						compositionFile,
+						compositionId: currentCompositionId,
+					});
+				}
 			} finally {
 				setIsAddingAsset(false);
 			}

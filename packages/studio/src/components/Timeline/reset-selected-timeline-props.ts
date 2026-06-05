@@ -258,6 +258,7 @@ export const resetSelectedTimelineProps = ({
 	for (const target of effectPropTargets) {
 		resetPromises.push(
 			saveEffectProp({
+				type: 'value',
 				fileName: target.fileName,
 				nodePath: target.nodePath,
 				effectIndex: target.effectIndex,

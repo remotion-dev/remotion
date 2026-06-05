@@ -2,6 +2,8 @@ import {expect, test} from 'bun:test';
 import {
 	parseEffectClipboardData,
 	parseEffectClipboardDataResult,
+	parseEffectPropClipboardData,
+	parseEffectPropClipboardDataResult,
 } from '../effect-clipboard-data';
 
 test('parseEffectClipboardData accepts keyframed v3 effect payloads', () => {
@@ -149,4 +151,70 @@ test('parseEffectClipboardData rejects malformed keyframed payloads', () => {
 			}),
 		),
 	).toBe(null);
+});
+
+test('parseEffectPropClipboardData accepts keyframed effect prop payloads', () => {
+	const parsed = parseEffectPropClipboardData(
+		JSON.stringify({
+			type: 'effect-prop',
+			version: 1,
+			remotionClipboard: 'effect-prop',
+			effect: {
+				callee: 'brightness',
+				importPath: '@remotion/effects/brightness',
+			},
+			key: 'amount',
+			param: {
+				type: 'keyframed',
+				interpolationFunction: 'interpolate',
+				keyframes: [
+					{frame: 0, value: 0},
+					{frame: 100, value: 1},
+				],
+				easing: ['linear'],
+				clamping: {left: 'clamp', right: 'clamp'},
+			},
+		}),
+	);
+
+	expect(parsed).toEqual({
+		type: 'effect-prop',
+		version: 1,
+		remotionClipboard: 'effect-prop',
+		effect: {
+			callee: 'brightness',
+			importPath: '@remotion/effects/brightness',
+		},
+		key: 'amount',
+		param: {
+			type: 'keyframed',
+			interpolationFunction: 'interpolate',
+			keyframes: [
+				{frame: 0, value: 0},
+				{frame: 100, value: 1},
+			],
+			easing: ['linear'],
+			clamping: {left: 'clamp', right: 'clamp'},
+		},
+	});
+});
+
+test('parseEffectPropClipboardData reports old payloads as unsupported', () => {
+	const payload = JSON.stringify({
+		type: 'effect-prop',
+		version: 0,
+		remotionClipboard: 'effect-prop',
+		effect: {
+			callee: 'brightness',
+			importPath: '@remotion/effects/brightness',
+		},
+		key: 'amount',
+		param: {type: 'static', value: 1},
+	});
+
+	expect(parseEffectPropClipboardData(payload)).toBe(null);
+	expect(parseEffectPropClipboardDataResult(payload)).toEqual({
+		status: 'unsupported-version',
+		version: 0,
+	});
 });

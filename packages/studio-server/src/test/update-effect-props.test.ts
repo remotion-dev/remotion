@@ -213,3 +213,41 @@ test('updateEffectProps removes props from inactive enum variants', () => {
 	expect(serialized).toContain('opacity: 0.5');
 	expect(removedProps).toEqual([{key: 'dotColor', valueString: '"red  blue"'}]);
 });
+
+test('updateEffectProps writes keyframed effect params from clipboard data', () => {
+	const input = buildInput('[tint({color: "red"})]');
+	const {serialized, newValueString} = updateEffectPropsAst({
+		input,
+		sequenceNodePath: lineColumnToNodePath(input, 6),
+		effectIndex: 0,
+		update: {
+			key: 'opacity',
+			effectParam: {
+				type: 'keyframed',
+				interpolationFunction: 'interpolate',
+				keyframes: [
+					{frame: 0, value: 0},
+					{frame: 30, value: 1},
+				],
+				easing: [[0.1, 0.2, 0.3, 0.4]],
+				clamping: {left: 'clamp', right: 'extend'},
+				posterize: 2,
+			},
+			defaultValue: null,
+		},
+		schema: tintSchema,
+	});
+
+	expect(serialized).toContain('Easing');
+	expect(serialized).toContain('interpolate');
+	expect(serialized).toContain('useCurrentFrame');
+	expect(serialized).toContain('from "remotion"');
+	expect(serialized).toContain('const frame = useCurrentFrame();');
+	expect(serialized).toContain(
+		'opacity: interpolate(frame, [0, 30], [0, 1], {',
+	);
+	expect(serialized).toContain('extrapolateLeft: "clamp"');
+	expect(serialized).toContain('easing: [Easing.bezier(0.1, 0.2, 0.3, 0.4)]');
+	expect(serialized).toContain('posterize: 2');
+	expect(newValueString).toContain('interpolate(frame, [0, 30], [0, 1]');
+});

@@ -1,9 +1,12 @@
+import {getLocationFromBuildError} from '@remotion/studio-shared';
 import React, {useEffect, useState} from 'react';
+import {wasErrorLoggedByServer} from '../error-origin';
 import type {ErrorRecord} from '../react-overlay/listen-to-runtime-errors';
 import {getErrorRecord} from '../react-overlay/listen-to-runtime-errors';
 import type {OnRetry} from './ErrorDisplay';
 import {ErrorDisplay} from './ErrorDisplay';
 import {ErrorTitle} from './ErrorTitle';
+import {logStudioError, logStudioErrorData} from './log-studio-error';
 
 const container: React.CSSProperties = {
 	width: '100%',
@@ -38,6 +41,45 @@ type State =
 			err: Error;
 	  };
 
+const shouldLogError = (error: Error) => {
+	return (
+		!wasErrorLoggedByServer(error) && getLocationFromBuildError(error) === null
+	);
+};
+
+const shouldIncludeFrameInServerLog = (
+	frame: ErrorRecord['stackFrames'][number],
+) => {
+	return !(
+		frame.originalFileName?.includes('node_modules') ||
+		frame.originalFileName?.startsWith('webpack/') ||
+		frame.originalFileName?.includes('/bundler/dist/fast-refresh/') ||
+		frame.originalFileName?.includes('bundler/dist/fast-refresh/')
+	);
+};
+
+const logSymbolicatedStudioError = (record: ErrorRecord) => {
+	const name = typeof record.error.name === 'string' ? record.error.name : null;
+	const message =
+		typeof record.error.message === 'string' ? record.error.message : '';
+	const filteredStackFrames = record.stackFrames.filter(
+		shouldIncludeFrameInServerLog,
+	);
+	const stackFrames =
+		filteredStackFrames.length > 0
+			? filteredStackFrames
+			: record.stackFrames[0]
+				? [record.stackFrames[0]]
+				: [];
+
+	logStudioErrorData({
+		name,
+		message,
+		stack: typeof record.error.stack === 'string' ? record.error.stack : null,
+		symbolicatedStackFrames: stackFrames.length > 0 ? stackFrames : null,
+	});
+};
+
 export const ErrorLoader: React.FC<{
 	readonly error: Error;
 	readonly keyboardShortcuts: boolean;
@@ -59,17 +101,29 @@ export const ErrorLoader: React.FC<{
 		getErrorRecord(error)
 			.then((record) => {
 				if (record) {
+					if (shouldLogError(error)) {
+						logSymbolicatedStudioError(record);
+					}
+
 					setState({
 						type: 'symbolicated',
 						record,
 					});
 				} else {
+					if (shouldLogError(error)) {
+						logStudioError(error);
+					}
+
 					setState({
 						type: 'no-record',
 					});
 				}
 			})
 			.catch((err) => {
+				if (shouldLogError(error)) {
+					logStudioError(error);
+				}
+
 				setState({
 					err,
 					type: 'error',

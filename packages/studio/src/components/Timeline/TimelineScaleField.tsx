@@ -438,7 +438,6 @@ export const TimelineScaleField: React.FC<{
 
 	return (
 		<span style={containerStyle}>
-			<LinkToggle linked={linked} onToggle={onToggleLink} />
 			<InputDragger
 				type="number"
 				value={dragX ?? codeX}
@@ -470,6 +469,7 @@ export const TimelineScaleField: React.FC<{
 				formatter={formatter}
 				rightAlign={false}
 			/>
+			<LinkToggle linked={linked} onToggle={onToggleLink} />
 		</span>
 	);
 };

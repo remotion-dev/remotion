@@ -234,7 +234,7 @@ async function main() {
 	const startTime = performance.now();
 
 	const glob = new Glob('**/*.{mdx,md}');
-	const dirs = ['docs', 'blog', 'learn', 'new-docs'];
+	const dirs = ['docs', 'blog', 'learn', 'new-docs', 'examples'];
 
 	const allFiles: string[] = [];
 	for (const dir of dirs) {
