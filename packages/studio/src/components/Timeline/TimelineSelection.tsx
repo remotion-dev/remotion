@@ -17,7 +17,6 @@ import type {
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {timelineNodePathInfoToKey} from '../../helpers/timeline-node-path-key';
 import {useKeybinding} from '../../helpers/use-keybinding';
-import {EditorShowOutlinesContext} from '../../state/editor-outlines';
 import {TimelineClipboardKeybindings} from './TimelineClipboardKeybindings';
 import {TimelineDeleteKeybindings} from './TimelineDeleteKeybindings';
 
@@ -444,9 +443,8 @@ export const TimelineSelectionProvider: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const {editorShowOutlines} = useContext(EditorShowOutlinesContext);
 	const canSelect =
-		(SELECTION_ENABLED || (ENABLE_OUTLINES && editorShowOutlines)) &&
+		(SELECTION_ENABLED || ENABLE_OUTLINES) &&
 		previewServerState.type === 'connected' &&
 		!window.remotion_isReadOnlyStudio;
 	const [selectedItems, setSelectedItems] = useState<
