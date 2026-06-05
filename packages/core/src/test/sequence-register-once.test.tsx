@@ -13,6 +13,7 @@ import {
 	VisualModeDragOverridesContext,
 	VisualModeSettersContext,
 } from '../SequenceManager.js';
+import {Series} from '../series/index.js';
 import {WrapSequenceContext} from './wrap-sequence-context.js';
 
 afterEach(cleanup);
@@ -133,6 +134,34 @@ test('Sequence registers its documentation link', () => {
 	expect(registeredSequences[0]?.documentationLink).toBe(
 		'https://www.remotion.dev/docs/img',
 	);
+});
+
+test('Series.Sequence registers controls without a from field', () => {
+	const registeredSequences: TSequence[] = [];
+
+	render(
+		<SequenceTestWrapper
+			onRegisterSequence={(sequence) => {
+				registeredSequences.push(sequence);
+			}}
+		>
+			<Series>
+				<Series.Sequence durationInFrames={10}>First</Series.Sequence>
+				<Series.Sequence durationInFrames={20}>Second</Series.Sequence>
+			</Series>
+		</SequenceTestWrapper>,
+	);
+
+	const seriesSequences = registeredSequences.filter(
+		(sequence) => sequence.displayName === '<Series.Sequence>',
+	);
+
+	expect(seriesSequences.map((sequence) => sequence.from)).toEqual([0, 10]);
+	expect(seriesSequences).toHaveLength(2);
+	for (const sequence of seriesSequences) {
+		expect(sequence.controls?.schema.from).toBeUndefined();
+		expect(sequence.controls?.schema.durationInFrames).toBeDefined();
+	}
 });
 
 test('Img registers its documentation link for default labels', () => {

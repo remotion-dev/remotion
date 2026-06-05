@@ -13,7 +13,10 @@ import type {EffectDefinition} from './effects/effect-types.js';
 import {Freeze} from './freeze.js';
 import {useNonce} from './nonce.js';
 import {PremountContext} from './PremountContext.js';
-import {sequenceSchema} from './sequence-field-schema.js';
+import {
+	sequenceSchema,
+	sequenceSchemaWithoutFrom,
+} from './sequence-field-schema.js';
 import type {SequenceContextType} from './SequenceContext.js';
 import {SequenceContext} from './SequenceContext.js';
 import {SequenceManager} from './SequenceManager.js';
@@ -551,5 +554,11 @@ const SequenceInner = forwardRef(SequenceRefForwardingFunction);
 export const Sequence = wrapInSchema({
 	Component: SequenceInner,
 	schema: sequenceSchema,
+	supportsEffects: false,
+});
+
+export const SequenceWithoutFrom = wrapInSchema({
+	Component: SequenceInner,
+	schema: sequenceSchemaWithoutFrom,
 	supportsEffects: false,
 });

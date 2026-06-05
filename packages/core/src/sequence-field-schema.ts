@@ -261,6 +261,12 @@ export const sequenceSchema = {
 	},
 } as const satisfies SequenceSchema;
 
+export const sequenceSchemaWithoutFrom = {
+	hidden: hiddenField,
+	durationInFrames: durationInFramesField,
+	layout: sequenceSchema.layout,
+} as const satisfies SequenceSchema;
+
 export const sequenceSchemaDefaultLayoutNone: SequenceSchema = {
 	...sequenceSchema,
 	layout: {
