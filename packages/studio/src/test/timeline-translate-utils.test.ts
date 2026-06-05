@@ -17,3 +17,9 @@ test('serializeTranslate normalizes floating point noise', () => {
 test('serializeTranslate limits coordinates to one decimal place', () => {
 	expect(serializeTranslate(254.854512, 393.565342)).toBe('254.9px 393.6px');
 });
+
+test('serializeTranslate respects more precise steps', () => {
+	expect(serializeTranslate(254.854512, 393.565342, 2)).toBe(
+		'254.85px 393.57px',
+	);
+});

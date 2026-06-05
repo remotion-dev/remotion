@@ -13,7 +13,8 @@ import type {
 import {ScaleLockContext} from '../../state/scale-lock';
 import {InputDragger} from '../NewComposition/InputDragger';
 import {
-	getDecimalPlaces,
+	formatTimelineNumber,
+	getTimelineDisplayDecimalPlaces,
 	normalizeTimelineNumber,
 } from './timeline-field-utils';
 import {timelineLayerIconContainer} from './TimelineLayerEye';
@@ -177,10 +178,9 @@ export const TimelineScaleField: React.FC<{
 		defaultValue: defaultLinked,
 	});
 
-	const step =
-		field.fieldSchema.type === 'scale'
-			? (field.fieldSchema.step ?? 0.01)
-			: 0.01;
+	const configuredStep =
+		field.fieldSchema.type === 'scale' ? field.fieldSchema.step : undefined;
+	const step = configuredStep ?? 0.01;
 	const min =
 		field.fieldSchema.type === 'scale'
 			? (field.fieldSchema.min ?? -Infinity)
@@ -190,15 +190,24 @@ export const TimelineScaleField: React.FC<{
 			? (field.fieldSchema.max ?? Infinity)
 			: Infinity;
 
-	const stepDecimals = useMemo(() => getDecimalPlaces(step), [step]);
+	const decimalPlaces = useMemo(
+		() =>
+			getTimelineDisplayDecimalPlaces({
+				defaultDecimalPlaces: 2,
+				step: configuredStep,
+			}),
+		[configuredStep],
+	);
 
 	const formatter = useCallback(
 		(v: number | string) => {
-			const num = Number(v);
-			const digits = Math.max(stepDecimals, getDecimalPlaces(num));
-			return digits === 0 ? String(num) : num.toFixed(digits);
+			return formatTimelineNumber({
+				decimalPlaces,
+				fixed: true,
+				value: v,
+			});
 		},
-		[stepDecimals],
+		[decimalPlaces],
 	);
 
 	const getDragStart = useCallback((): readonly [number, number] => {
