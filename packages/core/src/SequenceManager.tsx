@@ -16,6 +16,10 @@ export type SequenceManagerContext = {
 	sequences: TSequence[];
 };
 
+export type SequenceManagerRef = {
+	current: TSequence[];
+};
+
 export type SequenceNodePath = Array<string | number>;
 
 export const SequenceManager = React.createContext<SequenceManagerContext>({
@@ -28,8 +32,17 @@ export const SequenceManager = React.createContext<SequenceManagerContext>({
 	sequences: [],
 });
 
+export const SequenceManagerRefContext =
+	React.createContext<SequenceManagerRef>({
+		current: [],
+	});
+
 export type VisualModePropStatuses = {
 	propStatuses: PropStatuses;
+};
+
+export type VisualModePropStatusesRef = {
+	current: PropStatuses;
 };
 
 export type VisualModeDragOverrides = {
@@ -113,6 +126,11 @@ export const VisualModePropStatusesContext =
 		propStatuses: {},
 	});
 
+export const VisualModePropStatusesRefContext =
+	React.createContext<VisualModePropStatusesRef>({
+		current: {},
+	});
+
 export const VisualModeDragOverridesContext =
 	React.createContext<VisualModeDragOverrides>({
 		getDragOverrides: () => {
@@ -158,12 +176,16 @@ export const SequenceManagerProvider: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
 	const [sequences, setSequences] = useState<TSequence[]>([]);
+	const sequencesRef = useRef(sequences);
+	sequencesRef.current = sequences;
 	const [dragOverrides, setControlOverrides] = useState<DragOverrides>({});
 	const controlOverridesRef = useRef(dragOverrides);
 	controlOverridesRef.current = dragOverrides;
 	const [effectDragOverridesState, setEffectDragOverridesState] =
 		useState<EffectDragOverrides>({});
 	const [propStatuses, setPropStatusesMapState] = useState<PropStatuses>({});
+	const propStatusesRef = useRef(propStatuses);
+	propStatusesRef.current = propStatuses;
 
 	const setDragOverrides = useCallback(
 		(
@@ -324,14 +346,20 @@ export const SequenceManagerProvider: React.FC<{
 	]);
 
 	return (
-		<SequenceManager.Provider value={sequenceContext}>
-			<VisualModePropStatusesContext.Provider value={propStatusesContext}>
-				<VisualModeDragOverridesContext.Provider value={dragOverridesContext}>
-					<VisualModeSettersContext.Provider value={settersContext}>
-						{children}
-					</VisualModeSettersContext.Provider>
-				</VisualModeDragOverridesContext.Provider>
-			</VisualModePropStatusesContext.Provider>
-		</SequenceManager.Provider>
+		<SequenceManagerRefContext.Provider value={sequencesRef}>
+			<SequenceManager.Provider value={sequenceContext}>
+				<VisualModePropStatusesRefContext.Provider value={propStatusesRef}>
+					<VisualModePropStatusesContext.Provider value={propStatusesContext}>
+						<VisualModeDragOverridesContext.Provider
+							value={dragOverridesContext}
+						>
+							<VisualModeSettersContext.Provider value={settersContext}>
+								{children}
+							</VisualModeSettersContext.Provider>
+						</VisualModeDragOverridesContext.Provider>
+					</VisualModePropStatusesContext.Provider>
+				</VisualModePropStatusesRefContext.Provider>
+			</SequenceManager.Provider>
+		</SequenceManagerRefContext.Provider>
 	);
 };

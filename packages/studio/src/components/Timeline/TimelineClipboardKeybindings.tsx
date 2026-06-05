@@ -448,9 +448,11 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {canSelect} = useTimelineSelection();
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
-	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
+	const propStatusesRef = useContext(
+		Internals.VisualModePropStatusesRefContext,
+	);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
-	const {sequences} = useContext(Internals.SequenceManager);
+	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
 	const {overrideIdToNodePathMappings} = useContext(
 		Internals.OverrideIdsToNodePathsGettersContext,
 	);
@@ -467,6 +469,7 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 			key: 'c',
 			callback: (e) => {
 				const {selectedItems} = currentSelection.current;
+				const propStatuses = propStatusesRef.current;
 				if (selectedItems.length === 0) {
 					return;
 				}
@@ -588,6 +591,8 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 				navigator.clipboard
 					.readText()
 					.then((text) => {
+						const propStatuses = propStatusesRef.current;
+						const sequences = sequencesRef.current;
 						const effectPropResult = parseEffectPropClipboardDataResult(text);
 						if (effectPropResult.status !== 'invalid') {
 							e.preventDefault();
@@ -745,12 +750,12 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 		};
 	}, [
 		canSelect,
-		propStatuses,
 		currentSelection,
 		keybindings,
 		overrideIdToNodePathMappings,
+		propStatusesRef,
 		previewServerState,
-		sequences,
+		sequencesRef,
 		setPropStatuses,
 	]);
 
