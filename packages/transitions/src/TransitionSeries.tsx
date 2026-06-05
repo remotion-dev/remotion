@@ -469,6 +469,7 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 						from={actualStartFrame}
 						durationInFrames={durationInFramesProp}
 						{...passedProps}
+						_remotionInternalStack={passedProps.stack ?? null}
 						name={passedProps.name || '<TS.Sequence>'}
 						_remotionInternalDocumentationLink={
 							passedProps.name
@@ -533,6 +534,7 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 						from={actualStartFrame}
 						durationInFrames={durationInFramesProp}
 						{...passedProps}
+						_remotionInternalStack={passedProps.stack ?? null}
 						name={passedProps.name || '<TS.Sequence>'}
 						_remotionInternalDocumentationLink={
 							passedProps.name
@@ -577,6 +579,7 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 						from={actualStartFrame}
 						durationInFrames={durationInFramesProp}
 						{...passedProps}
+						_remotionInternalStack={passedProps.stack ?? null}
 						name={passedProps.name || '<TS.Sequence>'}
 						_remotionInternalDocumentationLink={
 							passedProps.name
@@ -614,6 +617,7 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 					from={actualStartFrame}
 					durationInFrames={durationInFramesProp}
 					{...passedProps}
+					_remotionInternalStack={passedProps.stack ?? null}
 					name={passedProps.name || '<TS.Sequence>'}
 					_remotionInternalDocumentationLink={
 						passedProps.name
@@ -646,6 +650,7 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 					_remotionInternalDocumentationLink="https://www.remotion.dev/docs/transitions/transitionseries"
 					layout="absolute-fill"
 					{...(info.stack ? {stack: info.stack} : {})}
+					_remotionInternalStack={info.stack ?? null}
 				>
 					{info.children}
 				</Sequence>
@@ -689,6 +694,9 @@ const TransitionSeries: FC<SequencePropsWithoutDuration> & {
 					: undefined
 			}
 			{...otherProps}
+			_remotionInternalStack={
+				(otherProps as {readonly stack?: string}).stack ?? null
+			}
 		>
 			<TransitionSeriesChildren>{children}</TransitionSeriesChildren>
 		</Sequence>

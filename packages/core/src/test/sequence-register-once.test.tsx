@@ -164,6 +164,58 @@ test('Series.Sequence registers controls without a from field', () => {
 	}
 });
 
+test('Sequence can ignore internally injected stack traces', () => {
+	const registeredSequences: TSequence[] = [];
+	const SequenceWithStack = Sequence as React.ComponentType<
+		React.ComponentProps<typeof Sequence> & {readonly stack?: string}
+	>;
+
+	render(
+		<SequenceTestWrapper
+			onRegisterSequence={(sequence) => {
+				registeredSequences.push(sequence);
+			}}
+		>
+			<SequenceWithStack stack="core-stack" _remotionInternalStack={null}>
+				hi
+			</SequenceWithStack>
+		</SequenceTestWrapper>,
+	);
+
+	expect(registeredSequences[0]?.getStack()).toBe(null);
+});
+
+test('Series forwards userland stack traces to its internal sequences', () => {
+	const registeredSequences: TSequence[] = [];
+	const seriesSequenceProps = {
+		durationInFrames: 10,
+		premountFor: 30,
+		stack: 'sequence-userland-stack',
+	} as React.ComponentProps<typeof Series.Sequence> & {readonly stack: string};
+
+	render(
+		<SequenceTestWrapper
+			onRegisterSequence={(sequence) => {
+				registeredSequences.push(sequence);
+			}}
+		>
+			<Series {...({stack: 'series-userland-stack'} as {stack: string})}>
+				<Series.Sequence {...seriesSequenceProps}>First</Series.Sequence>
+			</Series>
+		</SequenceTestWrapper>,
+	);
+
+	const series = registeredSequences.find(
+		(sequence) => sequence.displayName === '<Series>',
+	);
+	const seriesSequence = registeredSequences.find(
+		(sequence) => sequence.displayName === '<Series.Sequence>',
+	);
+
+	expect(series?.getStack()).toBe('series-userland-stack');
+	expect(seriesSequence?.getStack()).toBe('sequence-userland-stack');
+});
+
 test('Img registers its documentation link for default labels', () => {
 	const registeredSequences: TSequence[] = [];
 

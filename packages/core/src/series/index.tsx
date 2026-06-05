@@ -23,6 +23,10 @@ type SeriesSequenceProps = PropsWithChildren<
 		readonly durationInFrames: number;
 		readonly offset?: number;
 		readonly className?: string;
+		/**
+		 * @deprecated For internal use only.
+		 */
+		readonly stack?: string;
 	} & Pick<SequenceProps, 'layout' | 'name' | 'hidden'> &
 		LayoutAndStyle
 >;
@@ -115,6 +119,7 @@ const SeriesInner: FC<SeriesProps> = (props) => {
 
 			const currentStartFrame = startFrame + offset;
 			startFrame += durationInFramesProp + offset;
+			const sequenceStack = passedProps.stack ?? null;
 
 			return (
 				<SequenceWithoutFromWithRef
@@ -126,12 +131,14 @@ const SeriesInner: FC<SeriesProps> = (props) => {
 					from={currentStartFrame}
 					durationInFrames={durationInFramesProp}
 					{...passedProps}
+					_remotionInternalStack={sequenceStack}
 				>
 					{child}
 				</SequenceWithoutFromWithRef>
 			);
 		});
 	}, [props.children]);
+	const seriesStack = (props as {readonly stack?: string}).stack ?? null;
 
 	return (
 		<IsInsideSeriesContainer>
@@ -140,6 +147,7 @@ const SeriesInner: FC<SeriesProps> = (props) => {
 				name="<Series>"
 				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/series"
 				{...props}
+				_remotionInternalStack={seriesStack}
 			>
 				{childrenValue}
 			</Sequence>
