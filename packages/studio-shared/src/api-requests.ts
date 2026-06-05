@@ -381,6 +381,26 @@ export type ReorderEffectResponse =
 			stack: string;
 	  };
 
+export type ReorderSequencePosition = 'before' | 'after';
+
+export type ReorderSequenceRequest = {
+	fileName: string;
+	sourceNodePath: SequencePropsSubscriptionKey;
+	targetNodePath: SequencePropsSubscriptionKey;
+	position: ReorderSequencePosition;
+	clientId: string;
+};
+
+export type ReorderSequenceResponse =
+	| {
+			success: true;
+	  }
+	| {
+			success: false;
+			reason: string;
+			stack: string;
+	  };
+
 export type DeleteSequenceKeyframe = {
 	fileName: string;
 	nodePath: SequencePropsSubscriptionKey;
@@ -712,6 +732,10 @@ export type ApiRoutes = {
 	>;
 	'/api/add-effect': ReqAndRes<AddEffectRequest, AddEffectResponse>;
 	'/api/reorder-effect': ReqAndRes<ReorderEffectRequest, ReorderEffectResponse>;
+	'/api/reorder-sequence': ReqAndRes<
+		ReorderSequenceRequest,
+		ReorderSequenceResponse
+	>;
 	'/api/delete-keyframes': ReqAndRes<
 		DeleteKeyframesRequest,
 		DeleteKeyframesResponse

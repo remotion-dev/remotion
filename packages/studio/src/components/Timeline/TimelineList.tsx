@@ -15,11 +15,12 @@ export const TimelineList: React.FC<{
 	return (
 		<div style={container}>
 			<TimelineTimePadding />
-			{timeline.map((track) => {
+			{timeline.map((track, trackIndex) => {
 				return (
 					<div key={track.sequence.id}>
 						<TimelineSequenceItem
 							key={track.sequence.id}
+							trackIndex={trackIndex}
 							nestedDepth={track.depth}
 							sequence={track.sequence}
 							nodePathInfo={track.nodePathInfo}
