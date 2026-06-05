@@ -40,6 +40,8 @@ export {
 	InsertableCompositionElement,
 	InstallPackageRequest,
 	InstallPackageResponse,
+	LogStudioErrorRequest,
+	LogStudioErrorResponse,
 	MoveEffectKeyframe,
 	MoveKeyframesRequest,
 	MoveKeyframesResponse,

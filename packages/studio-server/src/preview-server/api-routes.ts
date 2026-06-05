@@ -16,6 +16,7 @@ import {downloadRemoteAssetHandler} from './routes/download-remote-asset';
 import {duplicateJsxNodeHandler} from './routes/duplicate-jsx-node';
 import {insertJsxElementHandler} from './routes/insert-jsx-element';
 import {handleInstallPackage} from './routes/install-dependency';
+import {logStudioErrorHandler} from './routes/log-studio-error';
 import {moveKeyframesHandler} from './routes/move-keyframes';
 import {openInEditorHandler} from './routes/open-in-editor';
 import {handleOpenInFileExplorer} from './routes/open-in-file-explorer';
@@ -92,4 +93,5 @@ export const allApiRoutes: {
 	'/api/download-remote-asset': downloadRemoteAssetHandler,
 	'/api/undo': undoHandler,
 	'/api/redo': redoHandler,
+	'/api/log-studio-error': logStudioErrorHandler,
 };
