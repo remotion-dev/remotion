@@ -6,7 +6,7 @@ import type {
 } from '@remotion/studio-shared';
 import type {ApiHandler} from '../api-types';
 
-const {chalk} = RenderInternals;
+const {chalk, isColorSupported} = RenderInternals;
 
 const coerceString = (value: unknown) => {
 	return typeof value === 'string' && value.length > 0 ? value : null;
@@ -28,8 +28,11 @@ const formatSymbolicatedStack = (
 	message: string,
 	frames: SymbolicatedStackFrame[],
 ) => {
-	const badge = chalk.bgRed(chalk.white(` ${name ?? 'Error'} `));
-	const lines: string[] = [`${badge} ${message}`];
+	const label = name ?? 'Error';
+	const firstLine = isColorSupported()
+		? `${chalk.bgRed(chalk.white(` ${label} `))} ${message}`
+		: `${label}: ${message}`;
+	const lines: string[] = [firstLine];
 
 	for (const frame of frames) {
 		const formatted = formatFrame(frame);
@@ -70,9 +73,10 @@ export const logStudioErrorHandler: ApiHandler<
 	}
 
 	RenderInternals.Log.error(
-		{indent: false, logLevel, tag: 'studio-frontend'},
-		output,
+		{indent: false, logLevel},
+		chalk.red('An error occurred in the Studio:'),
 	);
+	RenderInternals.Log.error({indent: false, logLevel}, output);
 
 	return Promise.resolve({});
 };

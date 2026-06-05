@@ -2,7 +2,7 @@ import {expect, spyOn, test} from 'bun:test';
 import {stripAnsi} from '@remotion/studio-shared';
 import {logStudioErrorHandler} from '../preview-server/routes/log-studio-error';
 
-test('logStudioErrorHandler logs Studio frontend errors with a studio-frontend tag', async () => {
+test('logStudioErrorHandler logs Studio frontend errors with an intro phrase', async () => {
 	const consoleSpy = spyOn(console, 'error').mockImplementation(
 		() => undefined,
 	);
@@ -18,10 +18,10 @@ test('logStudioErrorHandler logs Studio frontend errors with a studio-frontend t
 			logLevel: 'error',
 		} as Parameters<typeof logStudioErrorHandler>[0]);
 
-		expect(consoleSpy).toHaveBeenCalledTimes(1);
-
-		const logged = stripAnsi(consoleSpy.mock.calls[0].join(' '));
-		expect(logged).toContain('studio-frontend');
+		const logged = consoleSpy.mock.calls
+			.map((call) => stripAnsi(call.join(' ')))
+			.join('\n');
+		expect(logged).toContain('An error occurred in the Studio:');
 		expect(logged).toContain('TypeError: Cannot read properties of undefined');
 		expect(logged).toContain('Component.tsx:1:1');
 	} finally {
@@ -64,10 +64,10 @@ test('logStudioErrorHandler formats symbolicated stack frames with a code frame'
 			logLevel: 'error',
 		} as Parameters<typeof logStudioErrorHandler>[0]);
 
-		expect(consoleSpy).toHaveBeenCalledTimes(1);
-
-		const logged = stripAnsi(consoleSpy.mock.calls[0].join(' '));
-		expect(logged).toContain('studio-frontend');
+		const logged = consoleSpy.mock.calls
+			.map((call) => stripAnsi(call.join(' ')))
+			.join('\n');
+		expect(logged).toContain('An error occurred in the Studio:');
 		expect(logged).toContain('RangeError');
 		expect(logged).toContain('Invalid array length');
 		expect(logged).toContain('at src/ErrorOnFrame10/index.tsx:5:8');
