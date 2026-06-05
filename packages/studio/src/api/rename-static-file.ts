@@ -2,7 +2,7 @@ import type {RenameStaticFileResponse} from '@remotion/studio-shared';
 import {getRemotionEnvironment} from 'remotion';
 import {callApi} from '../components/call-api';
 
-export const renameStaticFile = async ({
+export const renameStaticFile = ({
 	oldRelativePath,
 	newRelativePath,
 }: {

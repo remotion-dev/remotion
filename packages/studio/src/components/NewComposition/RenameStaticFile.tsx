@@ -116,7 +116,6 @@ export const RenameStaticFileModal: React.FC<{
 			});
 	}, [
 		canvasContent,
-		changed,
 		newRelativePath,
 		relativePath,
 		setCanvasContent,
