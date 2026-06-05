@@ -100,6 +100,14 @@ export const Combobox: React.FC<{
 		setOpened(false);
 	}, []);
 
+	const onOverlayPointerDown = useCallback(
+		(e: React.PointerEvent<HTMLDivElement>) => {
+			// Prevent deselection of currently selected items
+			e.stopPropagation();
+		},
+		[],
+	);
+
 	useEffect(() => {
 		const {current} = ref;
 		if (!current) {
@@ -108,7 +116,10 @@ export const Combobox: React.FC<{
 
 		const onMouseEnter = () => setIsHovered(true);
 		const onMouseLeave = () => setIsHovered(false);
-		const onPointerDown = () => {
+		const onPointerDown = (e: PointerEvent) => {
+			// Prevent deselection of currently selected items
+			e.stopPropagation();
+
 			return setOpened((o) => {
 				if (!o) {
 					refresh?.();
@@ -267,7 +278,7 @@ export const Combobox: React.FC<{
 			</button>
 			{portalStyle
 				? ReactDOM.createPortal(
-						<div style={fullScreenOverlay}>
+						<div style={fullScreenOverlay} onPointerDown={onOverlayPointerDown}>
 							<div style={outerPortal} className="css-reset">
 								<HigherZIndex onOutsideClick={onHide} onEscape={onHide}>
 									<div style={portalStyle}>

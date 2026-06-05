@@ -950,8 +950,8 @@ test('Timeline from drag removes the prop at the default value', () => {
 	});
 });
 
-test('Timeline outlines should be enabled', () => {
-	expect(ENABLE_OUTLINES).toBe(true);
+test('Timeline outlines should not be enabled', () => {
+	expect(ENABLE_OUTLINES).toBe(false);
 });
 
 test('Timeline outlines visibility is enabled by default and persisted', () => {

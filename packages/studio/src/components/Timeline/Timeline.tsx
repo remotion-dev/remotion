@@ -28,10 +28,7 @@ import {TimelineList} from './TimelineList';
 import {TimelinePinchZoom} from './TimelinePinchZoom';
 import {TimelinePlayCursorSyncer} from './TimelinePlayCursorSyncer';
 import {TimelineScrollable} from './TimelineScrollable';
-import {
-	TimelineSelectAllKeybindings,
-	useTimelineSelection,
-} from './TimelineSelection';
+import {TimelineSelectAllKeybindings} from './TimelineSelection';
 import {TimelineSlider} from './TimelineSlider';
 import {
 	TimelineTimeIndicators,
@@ -52,10 +49,9 @@ const container: React.CSSProperties = {
 
 const noop = () => undefined;
 
-const TimelineClearSelectionArea: React.FC<{
+const TimelineContextMenuArea: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
-	const {clearSelection} = useTimelineSelection();
 	const {compositions, canvasContent} = useContext(
 		Internals.CompositionManager,
 	);
@@ -86,20 +82,6 @@ const TimelineClearSelectionArea: React.FC<{
 		compositionFile,
 		compositionId: currentCompositionId,
 	});
-
-	// Selection-triggering click handlers in children call e.stopPropagation(),
-	// so any pointerdown that bubbles up here is by definition on empty space
-	// and should clear the current selection.
-	const onPointerDown = useCallback(
-		(e: React.PointerEvent<HTMLDivElement>) => {
-			if (e.button !== 0) {
-				return;
-			}
-
-			clearSelection();
-		},
-		[clearSelection],
-	);
 
 	const canInsertSolid =
 		previewConnected &&
@@ -214,7 +196,6 @@ const TimelineClearSelectionArea: React.FC<{
 			onOpen={null}
 			style={container}
 			className={'css-reset ' + VERTICAL_SCROLLBAR_CLASSNAME}
-			onPointerDown={onPointerDown}
 		>
 			{children}
 		</ContextMenu>
@@ -263,7 +244,7 @@ const TimelineInner: React.FC = () => {
 	const hasBeenCut = filtered.length > shown.length;
 
 	return (
-		<TimelineClearSelectionArea>
+		<TimelineContextMenuArea>
 			{sequences.map((sequence) => {
 				if (!sequence.controls || !previewConnected || !sequence.getStack()) {
 					return null;
@@ -316,7 +297,7 @@ const TimelineInner: React.FC = () => {
 					</TimelineWidthProvider>
 				)}
 			</TimelineHeightContainer>
-		</TimelineClearSelectionArea>
+		</TimelineContextMenuArea>
 	);
 };
 

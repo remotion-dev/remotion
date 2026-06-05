@@ -46,6 +46,9 @@ export const SplitterHandle: React.FC<{
 				return;
 			}
 
+			// Prevent deselection of currently selected items
+			e.stopPropagation();
+
 			// Capture the context and starting flex once, at drag start. The flex
 			// value updates on every pointermove, so it must not be re-read live.
 			const dragContext = latest.current.context;

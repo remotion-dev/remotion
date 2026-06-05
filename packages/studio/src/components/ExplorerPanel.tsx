@@ -65,9 +65,18 @@ export const ExplorerPanel: React.FC<{
 		};
 	}, []);
 
+	const onPointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+		// Prevent deselection of currently selected items
+		e.stopPropagation();
+	}, []);
+
 	return (
 		<CompSelectorRef>
-			<div style={container} className="css-reset">
+			<div
+				style={container}
+				className="css-reset"
+				onPointerDown={onPointerDown}
+			>
 				<div style={tabsContainer}>
 					<Tabs>
 						<Tab

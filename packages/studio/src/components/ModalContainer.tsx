@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useCallback} from 'react';
 import {BACKGROUND} from '../helpers/colors';
 import {HigherZIndex} from '../state/z-index';
 
@@ -39,12 +39,18 @@ export const ModalContainer: React.FC<{
 	readonly children: React.ReactNode;
 	readonly noZIndex?: boolean;
 }> = ({children, onEscape, onOutsideClick, noZIndex}) => {
+	const onPointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+		// Prevent deselection of currently selected items
+		e.stopPropagation();
+	}, []);
+
 	return (
 		<div
 			className="css-reset"
 			style={backgroundOverlay}
 			role="dialog"
 			aria-modal="true"
+			onPointerDown={onPointerDown}
 		>
 			<HigherZIndex
 				disabled={noZIndex}

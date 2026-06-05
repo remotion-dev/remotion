@@ -1,4 +1,10 @@
-import React, {useContext, useEffect, useRef, useState} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useRef,
+	useState,
+} from 'react';
 import {Internals} from 'remotion';
 import {checkFullscreenSupport} from '../helpers/check-fullscreen-support';
 import {BACKGROUND, BACKGROUND__TRANSPARENT} from '../helpers/colors';
@@ -76,6 +82,25 @@ const sideContainer: React.CSSProperties = {
 
 const padding: React.CSSProperties = {
 	width: TIMELINE_PADDING,
+};
+
+const toolbarControl: React.CSSProperties = {
+	display: 'contents',
+};
+
+const PreviewToolbarControl: React.FC<{
+	readonly children: React.ReactNode;
+}> = ({children}) => {
+	const onPointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+		// Prevent deselection of currently selected items
+		e.stopPropagation();
+	}, []);
+
+	return (
+		<div style={toolbarControl} onPointerDown={onPointerDown}>
+			{children}
+		</div>
+	);
 };
 
 export const PreviewToolbar: React.FC<{
@@ -165,15 +190,21 @@ export const PreviewToolbar: React.FC<{
 				<>
 					<div style={sideContainer}>
 						<div style={padding} />
-						<TimelineZoomControls />
+						<PreviewToolbarControl>
+							<TimelineZoomControls />
+						</PreviewToolbarControl>
 					</div>
 					<Flex />
-					<SizeSelector />
+					<PreviewToolbarControl>
+						<SizeSelector />
+					</PreviewToolbarControl>
 					{isStill || isVideoComposition ? (
-						<PlaybackRateSelector
-							setPlaybackRate={setPlaybackRate}
-							playbackRate={playbackRate}
-						/>
+						<PreviewToolbarControl>
+							<PlaybackRateSelector
+								setPlaybackRate={setPlaybackRate}
+								playbackRate={playbackRate}
+							/>
+						</PreviewToolbarControl>
 					) : null}
 				</>
 			)}
@@ -181,42 +212,60 @@ export const PreviewToolbar: React.FC<{
 			{isVideoComposition ? (
 				<>
 					<Spacing x={2} />
-					<PlayPause
-						bufferStateDelayInMilliseconds={bufferStateDelayInMilliseconds}
-						loop={loop}
-						playbackRate={playbackRate}
-						muted={mediaMuted}
-					/>
+					<PreviewToolbarControl>
+						<PlayPause
+							bufferStateDelayInMilliseconds={bufferStateDelayInMilliseconds}
+							loop={loop}
+							playbackRate={playbackRate}
+							muted={mediaMuted}
+						/>
+					</PreviewToolbarControl>
 					<Spacing x={2} />
-					<LoopToggle loop={loop} setLoop={setLoop} />
-					<MuteToggle muted={mediaMuted} setMuted={setMediaMuted} />
+					<PreviewToolbarControl>
+						<LoopToggle loop={loop} setLoop={setLoop} />
+					</PreviewToolbarControl>
+					<PreviewToolbarControl>
+						<MuteToggle muted={mediaMuted} setMuted={setMediaMuted} />
+					</PreviewToolbarControl>
 					<Spacing x={2} />
-					<TimelineInOutPointToggle />
+					<PreviewToolbarControl>
+						<TimelineInOutPointToggle />
+					</PreviewToolbarControl>
 					<Spacing x={2} />
 				</>
 			) : null}
 			{canvasContent?.type === 'composition' ? (
 				<>
-					<CheckboardToggle />
-					{ENABLE_OUTLINES ? <OutlineToggle /> : null}
+					<PreviewToolbarControl>
+						<CheckboardToggle />
+					</PreviewToolbarControl>
+					{ENABLE_OUTLINES ? (
+						<PreviewToolbarControl>
+							<OutlineToggle />
+						</PreviewToolbarControl>
+					) : null}
 				</>
 			) : null}
+			<Spacing x={1} />
 			{canvasContent && isFullscreenSupported ? (
-				<>
-					<Spacing x={2} />
+				<PreviewToolbarControl>
 					<FullScreenToggle />
-				</>
+				</PreviewToolbarControl>
 			) : null}
 			<Flex />
 			{isMobileLayout && (
 				<>
 					<Flex />
-					<SizeSelector />
+					<PreviewToolbarControl>
+						<SizeSelector />
+					</PreviewToolbarControl>
 					{isStill || isVideoComposition ? (
-						<PlaybackRateSelector
-							setPlaybackRate={setPlaybackRate}
-							playbackRate={playbackRate}
-						/>
+						<PreviewToolbarControl>
+							<PlaybackRateSelector
+								setPlaybackRate={setPlaybackRate}
+								playbackRate={playbackRate}
+							/>
+						</PreviewToolbarControl>
 					) : null}
 				</>
 			)}
@@ -224,7 +273,9 @@ export const PreviewToolbar: React.FC<{
 				<Flex />
 				{!isMobileLayout && <FpsCounter playbackSpeed={playbackRate} />}
 				<Spacing x={2} />
-				<RenderButton readOnlyStudio={readOnlyStudio} />
+				<PreviewToolbarControl>
+					<RenderButton readOnlyStudio={readOnlyStudio} />
+				</PreviewToolbarControl>
 				<Spacing x={1.5} />
 			</div>
 			<PlaybackKeyboardShortcutsManager setPlaybackRate={setPlaybackRate} />

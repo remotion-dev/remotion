@@ -102,6 +102,8 @@ export const MenuItem: React.FC<{
 	const onPointerDown: React.PointerEventHandler<HTMLButtonElement> =
 		useCallback(
 			(e) => {
+				// Prevent deselection of currently selected items
+				e.stopPropagation();
 				if (e.button !== 0) {
 					return;
 				}
@@ -122,6 +124,14 @@ export const MenuItem: React.FC<{
 			},
 			[id, onItemQuit, onItemSelected],
 		);
+
+	const onMenuPointerDown = useCallback(
+		(e: React.PointerEvent<HTMLDivElement>) => {
+			// Prevent deselection of currently selected items
+			e.stopPropagation();
+		},
+		[],
+	);
 
 	const onClick: React.MouseEventHandler<HTMLButtonElement> = useCallback(
 		(e) => {
@@ -166,7 +176,7 @@ export const MenuItem: React.FC<{
 				? ReactDOM.createPortal(
 						<div className="css-reset" style={outerStyle}>
 							<HigherZIndex onEscape={onItemQuit} onOutsideClick={onItemQuit}>
-								<div style={portalStyle}>
+								<div style={portalStyle} onPointerDown={onMenuPointerDown}>
 									<MenuContent
 										onNextMenu={onPreviousMenu}
 										onPreviousMenu={onNextMenu}

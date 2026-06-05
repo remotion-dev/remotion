@@ -135,15 +135,28 @@ export const RenderButton: React.FC<{readonly readOnlyStudio: boolean}> = ({
 
 	const refresh = size?.refresh;
 
-	const onPointerDown = useCallback(() => {
-		setDropdownOpened((o) => {
-			if (!o) {
-				refresh?.();
-			}
+	const onPointerDown = useCallback(
+		(e: React.PointerEvent<HTMLButtonElement>) => {
+			// Prevent deselection of currently selected items
+			e.stopPropagation();
+			setDropdownOpened((o) => {
+				if (!o) {
+					refresh?.();
+				}
 
-			return !o;
-		});
-	}, [refresh]);
+				return !o;
+			});
+		},
+		[refresh],
+	);
+
+	const onMenuPointerDown = useCallback(
+		(e: React.PointerEvent<HTMLDivElement>) => {
+			// Prevent deselection of currently selected items
+			e.stopPropagation();
+		},
+		[],
+	);
 
 	const onClickDropdown = useCallback(
 		(e: React.MouseEvent) => {
@@ -558,7 +571,7 @@ export const RenderButton: React.FC<{readonly readOnlyStudio: boolean}> = ({
 									onOutsideClick={onHideDropdown}
 									onEscape={onHideDropdown}
 								>
-									<div style={portalStyle}>
+									<div style={portalStyle} onPointerDown={onMenuPointerDown}>
 										<MenuContent
 											onNextMenu={() => {}}
 											onPreviousMenu={() => {}}
