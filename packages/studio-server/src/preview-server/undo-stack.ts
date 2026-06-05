@@ -26,6 +26,7 @@ type UndoEntryType =
 	| 'delete-effect'
 	| 'paste-effects'
 	| 'reorder-effect'
+	| 'reorder-sequence'
 	| 'delete-jsx-node'
 	| 'duplicate-jsx-node'
 	| 'insert-jsx-element'
@@ -61,6 +62,7 @@ type UndoEntry = {
 	| {entryType: 'delete-effect'}
 	| {entryType: 'paste-effects'}
 	| {entryType: 'reorder-effect'}
+	| {entryType: 'reorder-sequence'}
 	| {entryType: 'delete-jsx-node'}
 	| {entryType: 'duplicate-jsx-node'}
 	| {entryType: 'insert-jsx-element'}
