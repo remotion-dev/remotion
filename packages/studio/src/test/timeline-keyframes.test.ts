@@ -7,6 +7,7 @@ import type {
 import {Internals, type PropStatuses} from 'remotion';
 import {getBoundedKeyframeDragDelta} from '../components/Timeline/get-bounded-keyframe-drag-delta';
 import {getNodeKeyframes} from '../components/Timeline/get-node-keyframes';
+import {getTimelineEasingSegments} from '../components/Timeline/get-timeline-easing-segments';
 import {getTimelineKeyframes} from '../components/Timeline/get-timeline-keyframes';
 import {getTimelineKeyframeDragKey} from '../components/Timeline/TimelineKeyframeDragState';
 import {calculateTimeline} from '../helpers/calculate-timeline';
@@ -226,6 +227,23 @@ test('keyframe display offsets follow the parent sequence context', () => {
 	).toEqual([
 		{frame: 30, value: 2},
 		{frame: 90, value: 4},
+	]);
+});
+
+test('timeline easing segments connect adjacent display keyframes', () => {
+	const status: CanUpdateSequencePropStatusKeyframed = {
+		...makeKeyframedStatus(),
+		keyframes: [
+			{frame: 0, value: 2},
+			{frame: 30, value: 3},
+			{frame: 60, value: 4},
+		],
+		easing: ['linear', 'linear'],
+	};
+
+	expect(getTimelineEasingSegments(getTimelineKeyframes(status, 30))).toEqual([
+		{fromFrame: 30, toFrame: 60, segmentIndex: 0},
+		{fromFrame: 60, toFrame: 90, segmentIndex: 1},
 	]);
 });
 

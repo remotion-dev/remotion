@@ -1,8 +1,10 @@
 import React, {useContext} from 'react';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {TIMELINE_ITEM_BORDER_BOTTOM} from '../../helpers/timeline-layout';
+import {getTimelineEasingSegments} from './get-timeline-easing-segments';
 import type {getTimelineKeyframes} from './get-timeline-keyframes';
 import {TimelineKeyframeDiamond} from './TimelineKeyframeDiamond';
+import {TimelineKeyframeEasingLine} from './TimelineKeyframeEasingLine';
 import {
 	getTimelineSelectedTrackHighlightStyle,
 	useTimelineRowSelection,
@@ -25,6 +27,7 @@ const TimelineExpandedKeyframeRowUnmemoized: React.FC<{
 }> = ({height, keyframes, nodePathInfo, showSeparator}) => {
 	const timelineWidth = useContext(TimelineWidthContext);
 	const {selected: rowSelected} = useTimelineRowSelection(nodePathInfo);
+	const easingSegments = getTimelineEasingSegments(keyframes);
 
 	return (
 		<>
@@ -33,6 +36,16 @@ const TimelineExpandedKeyframeRowUnmemoized: React.FC<{
 				{rowSelected && timelineWidth !== null ? (
 					<div style={getTimelineSelectedTrackHighlightStyle(timelineWidth)} />
 				) : null}
+				{easingSegments.map((segment) => (
+					<TimelineKeyframeEasingLine
+						key={`${segment.segmentIndex}-${segment.fromFrame}-${segment.toFrame}`}
+						fromFrame={segment.fromFrame}
+						toFrame={segment.toFrame}
+						rowHeight={height}
+						nodePathInfo={nodePathInfo}
+						segmentIndex={segment.segmentIndex}
+					/>
+				))}
 				{keyframes.map((keyframe) => (
 					<TimelineKeyframeDiamond
 						key={keyframe.frame}
