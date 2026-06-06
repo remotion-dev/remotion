@@ -308,8 +308,9 @@ const globalParams: Param[] = [
 		type: 'string',
 		description: (
 			<>
-				CSS properties that will be applied to the <code>{'<svg>'}</code> tag.
-				Default style: <code>{"overflow: 'visible'"}</code>
+				CSS properties that will be applied to the <code>{'<svg>'}</code> tag,
+				or to the generated <code>{'<canvas>'}</code> if <code>effects</code>{' '}
+				are passed. Default style: <code>{"overflow: 'visible'"}</code>
 			</>
 		),
 	},
@@ -344,6 +345,31 @@ const globalParams: Param[] = [
 			<>
 				Allows to animate a path. See{' '}
 				<a href="/docs/paths/evolve-path">evolvePath()</a> for an example.
+			</>
+		),
+	},
+	{
+		name: 'effects',
+		type: 'EffectsProp',
+		description: (
+			<>
+				Apply <a href="/docs/effects/api">effects</a> after the shape has been
+				painted to a canvas. Available from v4.0.474. If this is a non-empty
+				array, the shape is wrapped in{' '}
+				<a href="/docs/remotion/html-in-canvas">
+					<code>{'<HtmlInCanvas>'}</code>
+				</a>
+				.
+			</>
+		),
+	},
+	{
+		name: 'pixelDensity',
+		type: 'number',
+		description: (
+			<>
+				Controls the backing bitmap density when <code>effects</code> are
+				passed. Default: <code>1</code>. Available from v4.0.474.
 			</>
 		),
 	},

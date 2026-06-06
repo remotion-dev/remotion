@@ -1,6 +1,11 @@
 import type {Instruction} from '@remotion/paths';
 import React, {useMemo} from 'react';
 import {version} from 'react-dom';
+import {
+	HtmlInCanvas,
+	type EffectsProp,
+	type HtmlInCanvasPixelDensity,
+} from 'remotion';
 import {doesReactSupportTransformOriginProperty} from '../utils/does-react-support-canary';
 
 export type AllShapesProps = Omit<
@@ -8,7 +13,9 @@ export type AllShapesProps = Omit<
 	'width' | 'height' | 'd'
 > & {
 	readonly debug?: boolean;
+	readonly effects?: EffectsProp;
 	readonly pathStyle?: React.CSSProperties;
+	readonly pixelDensity?: HtmlInCanvasPixelDensity;
 };
 
 export const RenderSvg = ({
@@ -19,7 +26,9 @@ export const RenderSvg = ({
 	pathStyle,
 	transformOrigin,
 	debug,
+	effects = [],
 	instructions,
+	pixelDensity,
 	...props
 }: {
 	readonly width: number;
@@ -45,13 +54,13 @@ export const RenderSvg = ({
 	const reactSupportsTransformOrigin =
 		doesReactSupportTransformOriginProperty(version);
 
-	return (
+	const svg = (
 		<svg
 			width={width}
 			height={height}
 			viewBox={`0 0 ${width} ${height}`}
 			xmlns="http://www.w3.org/2000/svg"
-			style={actualStyle}
+			style={effects.length === 0 ? actualStyle : {overflow: 'visible'}}
 		>
 			<path
 				{...(reactSupportsTransformOrigin
@@ -128,5 +137,21 @@ export const RenderSvg = ({
 					})
 				: null}
 		</svg>
+	);
+
+	if (effects.length === 0) {
+		return svg;
+	}
+
+	return (
+		<HtmlInCanvas
+			width={Math.ceil(width)}
+			height={Math.ceil(height)}
+			effects={effects}
+			pixelDensity={pixelDensity}
+			style={actualStyle}
+		>
+			{svg}
+		</HtmlInCanvas>
 	);
 };

@@ -1443,6 +1443,7 @@
       "version": "4.0.473",
       "dependencies": {
         "@remotion/paths": "workspace:*",
+        "remotion": "workspace:*",
       },
       "devDependencies": {
         "@happy-dom/global-registrator": "14.5.1",

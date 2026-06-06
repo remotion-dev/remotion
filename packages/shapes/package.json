@@ -51,7 +51,8 @@
 		"react-dom": ">=16.8.0"
 	},
 	"dependencies": {
-		"@remotion/paths": "workspace:*"
+		"@remotion/paths": "workspace:*",
+		"remotion": "workspace:*"
 	},
 	"homepage": "https://www.remotion.dev/docs/shapes"
 }
