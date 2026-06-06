@@ -28,7 +28,7 @@ import {
 } from './save-sequence-prop';
 import {
 	getTimelineSequenceSelectionKey,
-	useTimelineSelection,
+	useCurrentTimelineSelectionStateAsRef,
 	type TimelineSelection,
 } from './TimelineSelection';
 
@@ -375,13 +375,15 @@ export const useTimelineSequenceFromDrag = ({
 	const {setPropStatuses, setDragOverrides, clearDragOverrides} = useContext(
 		Internals.VisualModeSettersContext,
 	);
-	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
-	const {sequences} = useContext(Internals.SequenceManager);
+	const propStatusesRef = useContext(
+		Internals.VisualModePropStatusesRefContext,
+	);
+	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
 	const {overrideIdToNodePathMappings} = useContext(
 		Internals.OverrideIdsToNodePathsGettersContext,
 	);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const {selectedItems} = useTimelineSelection();
+	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 
 	const [dragging, setDragging] = useState(false);
 	const dragStateRef = useRef<{
@@ -398,10 +400,7 @@ export const useTimelineSequenceFromDrag = ({
 		setDragOverrides,
 		clearDragOverrides,
 		previewServerState,
-		propStatuses,
-		sequences,
 		overrideIdToNodePathMappings,
-		selectedItems,
 	});
 	latestRef.current = {
 		nodePathInfo,
@@ -409,10 +408,7 @@ export const useTimelineSequenceFromDrag = ({
 		setDragOverrides,
 		clearDragOverrides,
 		previewServerState,
-		propStatuses,
-		sequences,
 		overrideIdToNodePathMappings,
-		selectedItems,
 	};
 
 	const finishDrag = useCallback((commit: boolean) => {
@@ -493,11 +489,9 @@ export const useTimelineSequenceFromDrag = ({
 
 			const {
 				nodePathInfo: latestNodePathInfo,
-				selectedItems: latestSelectedItems,
-				sequences: latestSequences,
 				overrideIdToNodePathMappings: latestOverrideIdsToNodePaths,
-				propStatuses: latestPropStatuses,
 			} = latestRef.current;
+			const {selectedItems: latestSelectedItems} = currentSelection.current;
 			if (latestNodePathInfo === null) {
 				return;
 			}
@@ -505,9 +499,9 @@ export const useTimelineSequenceFromDrag = ({
 			const targets = getTimelineSequenceFromDragTargets({
 				draggedNodePathInfo: latestNodePathInfo,
 				selectedItems: latestSelectedItems,
-				sequences: latestSequences,
+				sequences: sequencesRef.current,
 				overrideIdsToNodePaths: latestOverrideIdsToNodePaths,
-				propStatuses: latestPropStatuses,
+				propStatuses: propStatusesRef.current,
 			});
 			if (targets === null || targets.length === 0) {
 				return;
@@ -525,7 +519,13 @@ export const useTimelineSequenceFromDrag = ({
 			document.body.style.webkitUserSelect = 'none';
 			setDragging(true);
 		},
-		[timelineDurationInFrames, windowWidth],
+		[
+			currentSelection,
+			propStatusesRef,
+			sequencesRef,
+			timelineDurationInFrames,
+			windowWidth,
+		],
 	);
 
 	useEffect(() => {
@@ -605,13 +605,15 @@ export const TimelineSequenceRightEdgeDragHandle: React.FC<{
 	const {setPropStatuses, setDragOverrides, clearDragOverrides} = useContext(
 		Internals.VisualModeSettersContext,
 	);
-	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
-	const {sequences} = useContext(Internals.SequenceManager);
+	const propStatusesRef = useContext(
+		Internals.VisualModePropStatusesRefContext,
+	);
+	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
 	const {overrideIdToNodePathMappings} = useContext(
 		Internals.OverrideIdsToNodePathsGettersContext,
 	);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const {selectedItems} = useTimelineSelection();
+	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 
 	const [dragging, setDragging] = useState(false);
 	const dragStateRef = useRef<{
@@ -629,10 +631,7 @@ export const TimelineSequenceRightEdgeDragHandle: React.FC<{
 		setDragOverrides,
 		clearDragOverrides,
 		previewServerState,
-		propStatuses,
-		sequences,
 		overrideIdToNodePathMappings,
-		selectedItems,
 	});
 	latestRef.current = {
 		nodePathInfo,
@@ -640,10 +639,7 @@ export const TimelineSequenceRightEdgeDragHandle: React.FC<{
 		setDragOverrides,
 		clearDragOverrides,
 		previewServerState,
-		propStatuses,
-		sequences,
 		overrideIdToNodePathMappings,
-		selectedItems,
 	};
 
 	const finishDrag = useCallback((commit: boolean) => {
@@ -725,17 +721,15 @@ export const TimelineSequenceRightEdgeDragHandle: React.FC<{
 
 			const {
 				nodePathInfo: latestNodePathInfo,
-				selectedItems: latestSelectedItems,
-				sequences: latestSequences,
 				overrideIdToNodePathMappings: latestOverrideIdsToNodePaths,
-				propStatuses: latestPropStatuses,
 			} = latestRef.current;
+			const {selectedItems: latestSelectedItems} = currentSelection.current;
 			const targets = getTimelineSequenceDurationDragTargets({
 				draggedNodePathInfo: latestNodePathInfo,
 				selectedItems: latestSelectedItems,
-				sequences: latestSequences,
+				sequences: sequencesRef.current,
 				overrideIdsToNodePaths: latestOverrideIdsToNodePaths,
-				propStatuses: latestPropStatuses,
+				propStatuses: propStatusesRef.current,
 			});
 			if (targets === null || targets.length === 0) {
 				return;
@@ -755,7 +749,13 @@ export const TimelineSequenceRightEdgeDragHandle: React.FC<{
 			forceSpecificCursor('ew-resize');
 			setDragging(true);
 		},
-		[timelineDurationInFrames, windowWidth],
+		[
+			currentSelection,
+			propStatusesRef,
+			sequencesRef,
+			timelineDurationInFrames,
+			windowWidth,
+		],
 	);
 
 	// Install global pointer listeners while dragging. They survive parent re-renders

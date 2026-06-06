@@ -15,11 +15,13 @@ import {
 export const TimelineDeleteKeybindings: React.FC = () => {
 	const keybindings = useKeybinding();
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const {sequences} = useContext(Internals.SequenceManager);
+	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
 	const {overrideIdToNodePathMappings} = useContext(
 		Internals.OverrideIdsToNodePathsGettersContext,
 	);
-	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
+	const propStatusesRef = useContext(
+		Internals.VisualModePropStatusesRefContext,
+	);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {canSelect} = useTimelineSelection();
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
@@ -36,6 +38,8 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 			key: 'Backspace',
 			callback: () => {
 				const {selectedItems, clearSelection} = currentSelection.current;
+				const sequences = sequencesRef.current;
+				const propStatuses = propStatusesRef.current;
 				if (selectedItems.length === 0) {
 					return;
 				}
@@ -112,13 +116,13 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 		};
 	}, [
 		canSelect,
-		propStatuses,
 		confirm,
 		currentSelection,
 		keybindings,
 		overrideIdToNodePathMappings,
+		propStatusesRef,
 		previewServerState,
-		sequences,
+		sequencesRef,
 		setPropStatuses,
 	]);
 

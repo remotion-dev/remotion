@@ -354,11 +354,13 @@ export const useTimelineKeyframeDrag = ({
 	const videoConfig = useVideoConfig();
 	const timelineWidth = useContext(TimelineWidthContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const {sequences} = useContext(Internals.SequenceManager);
+	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
 	const {overrideIdToNodePathMappings} = useContext(
 		Internals.OverrideIdsToNodePathsGettersContext,
 	);
-	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
+	const propStatusesRef = useContext(
+		Internals.VisualModePropStatusesRefContext,
+	);
 	const {
 		clearDragOverrides,
 		clearEffectDragOverrides,
@@ -411,6 +413,8 @@ export const useTimelineKeyframeDrag = ({
 			let dragTargets: TimelineKeyframeDragTarget[] | null = null;
 			let hasDragged = false;
 			let lastDelta = 0;
+			const propStatuses = propStatusesRef.current;
+			const sequences = sequencesRef.current;
 
 			const resolveDragTargets = () => {
 				if (dragTargets !== null) {
@@ -587,16 +591,16 @@ export const useTimelineKeyframeDrag = ({
 			clearDragOverrides,
 			clearEffectDragOverrides,
 			clearDraggedKeyframes,
-			propStatuses,
 			currentSelection,
 			frame,
 			nodePathInfo,
 			onSelect,
 			overrideIdToNodePathMappings,
+			propStatusesRef,
 			previewServerState,
 			selectable,
 			selected,
-			sequences,
+			sequencesRef,
 			setPropStatuses,
 			setDragOverrides,
 			setDraggedKeyframes,
