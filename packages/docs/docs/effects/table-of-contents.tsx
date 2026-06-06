@@ -119,6 +119,13 @@ const categories: {
 				name: 'glow()',
 				description: 'Soft halo effect',
 			},
+			{
+				link: '/docs/effects/outline',
+				preview: '/img/effects-outline-preview.png',
+				alt: 'outline effect preview',
+				name: 'outline()',
+				description: 'Alpha edge outline effect',
+			},
 		],
 	},
 	{

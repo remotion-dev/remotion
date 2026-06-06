@@ -1926,6 +1926,15 @@ export const articles = [
 		slug: 'effects/noise',
 	},
 	{
+		id: 'effects/outline',
+		title: 'outline()',
+		relativePath: 'docs/effects/outline.mdx',
+		compId: 'articles-docs-effects-outline',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/outline',
+	},
+	{
 		id: 'effects/pixel-dissolve',
 		title: 'pixelDissolve()',
 		relativePath: 'docs/effects/pixel-dissolve.mdx',

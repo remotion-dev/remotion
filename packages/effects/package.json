@@ -209,7 +209,12 @@
 			"module": "./dist/esm/zigzag.mjs",
 			"import": "./dist/esm/zigzag.mjs"
 		},
-		"./package.json": "./package.json"
+		"./package.json": "./package.json",
+		"./outline": {
+			"types": "./dist/outline.d.ts",
+			"module": "./dist/esm/outline.mjs",
+			"import": "./dist/esm/outline.mjs"
+		}
 	},
 	"typesVersions": {
 		">=1.0": {
@@ -317,6 +322,9 @@
 			],
 			"white-noise": [
 				"dist/white-noise.d.ts"
+			],
+			"outline": [
+				"dist/outline.d.ts"
 			]
 		}
 	},

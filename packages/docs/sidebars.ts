@@ -290,6 +290,7 @@ const sidebars: SidebarsConfig = {
 				'effects/lines',
 				'effects/mirror',
 				'effects/noise',
+				'effects/outline',
 				'effects/pixel-dissolve',
 				'effects/rings',
 				'effects/saturation',

@@ -20,6 +20,7 @@ import {linearProgressiveBlur} from '../linear-progressive-blur/index.js';
 import {lines} from '../lines.js';
 import {mirror} from '../mirror.js';
 import {noise} from '../noise.js';
+import {outline} from '../outline.js';
 import {pixelDissolve} from '../pixel-dissolve.js';
 import {rings} from '../rings.js';
 import {saturation} from '../saturation.js';
@@ -102,6 +103,9 @@ test('@remotion/effects expose documentation links', () => {
 	expect(noise().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/noise',
 	);
+	expect(outline().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/outline',
+	);
 	expect(rings().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/rings',
 	);
@@ -173,6 +177,7 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(dotGrid().definition.label).toBe('dotGrid()');
 	expect(mirror().definition.label).toBe('mirror()');
 	expect(noise().definition.label).toBe('noise()');
+	expect(outline().definition.label).toBe('outline()');
 	expect(rings().definition.label).toBe('rings()');
 	expect(saturation().definition.label).toBe('saturation()');
 	expect(scanlines().definition.label).toBe('scanlines()');
@@ -1260,6 +1265,74 @@ test('dotGrid() parameters produce distinct effect keys', () => {
 			inverted.effectKey,
 		]).size,
 	).toBe(4);
+});
+
+test('outline() accepts default params', () => {
+	expect(() => outline()).not.toThrow();
+});
+
+test('outline() accepts valid params', () => {
+	expect(() =>
+		outline({
+			width: 16,
+			color: '#00d8ff',
+			opacity: 0.7,
+			sourceOpacity: 0,
+			backgroundColor: '#111111',
+			displacement: 6,
+			displacementFrequency: 18,
+			displacementSeed: 3,
+			simplification: 0.4,
+			mode: 'center',
+		}),
+	).not.toThrow();
+});
+
+test('outline() rejects invalid mode', () => {
+	expect(() => outline({mode: 'outside' as never})).toThrow(
+		'"mode" must be "outer", "inner" or "center"',
+	);
+});
+
+test('outline() rejects width below range', () => {
+	expect(() => outline({width: -1})).toThrow('"width" must be >= 0');
+});
+
+test('outline() rejects opacity above range', () => {
+	expect(() => outline({opacity: 1.1})).toThrow('"opacity" must be <= 1');
+});
+
+test('outline() rejects source opacity below range', () => {
+	expect(() => outline({sourceOpacity: -0.1})).toThrow(
+		'"sourceOpacity" must be >= 0',
+	);
+});
+
+test('outline() rejects negative displacement', () => {
+	expect(() => outline({displacement: -1})).toThrow(
+		'"displacement" must be >= 0',
+	);
+});
+
+test('outline() rejects simplification above range', () => {
+	expect(() => outline({simplification: 1.1})).toThrow(
+		'"simplification" must be <= 1',
+	);
+});
+
+test('outline() rejects empty colors', () => {
+	expect(() => outline({color: ''})).toThrow(
+		'"color" must be a non-empty string',
+	);
+	expect(() => outline({backgroundColor: ''})).toThrow(
+		'"backgroundColor" must be a non-empty string',
+	);
+});
+
+test('outline() parameters produce distinct effect keys', () => {
+	const thin = outline({width: 4});
+	const thick = outline({width: 12, sourceOpacity: 0, simplification: 0.3});
+	expect(thin.effectKey).not.toBe(thick.effectKey);
 });
 
 test('invert() accepts default params', () => {

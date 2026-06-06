@@ -19,6 +19,7 @@ import {linearProgressiveBlur} from '@remotion/effects/linear-progressive-blur';
 import {lines} from '@remotion/effects/lines';
 import {mirror} from '@remotion/effects/mirror';
 import {noise} from '@remotion/effects/noise';
+import {outline} from '@remotion/effects/outline';
 import {pixelDissolve} from '@remotion/effects/pixel-dissolve';
 import {rings} from '@remotion/effects/rings';
 import {saturation} from '@remotion/effects/saturation';
@@ -57,6 +58,7 @@ import {EffectsLinearProgressiveBlurPreview} from '../effects/effects-linear-pro
 import {EffectsLinesPreview} from '../effects/effects-lines-preview';
 import {EffectsMirrorPreview} from '../effects/effects-mirror-preview';
 import {EffectsNoisePreview} from '../effects/effects-noise-preview';
+import {EffectsOutlinePreview} from '../effects/effects-outline-preview';
 import {EffectsPixelDissolvePreview} from '../effects/effects-pixel-dissolve-preview';
 import {EffectsRingsPreview} from '../effects/effects-rings-preview';
 import {EffectsSaturationPreview} from '../effects/effects-saturation-preview';
@@ -148,6 +150,22 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/glow',
 		comp: EffectsGlowPreview,
 		schema: glow().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-outline',
+		effectName: 'outline',
+		effectImportPath: '@remotion/effects/outline',
+		comp: EffectsOutlinePreview,
+		schema: outline().definition.schema,
+		initialValues: {
+			width: 18,
+			color: '#ffffff',
+			backgroundColor: '#111827',
+			sourceOpacity: 0,
+			displacement: 5,
+			simplification: 0.18,
+		},
 	},
 	{
 		...defaults,

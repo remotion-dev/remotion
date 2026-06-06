@@ -29,6 +29,7 @@ const effectEntrypoints = [
 	'src/linear-progressive-blur.ts',
 	'src/mirror.ts',
 	'src/noise.ts',
+	'src/outline.ts',
 	'src/rings.ts',
 	'src/saturation.ts',
 	'src/scanlines.ts',

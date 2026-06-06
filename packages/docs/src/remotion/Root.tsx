@@ -24,6 +24,7 @@ import {EffectsLinearProgressiveBlurPreview} from '../../components/effects/effe
 import {EffectsLinesPreview} from '../../components/effects/effects-lines-preview';
 import {EffectsMirrorPreview} from '../../components/effects/effects-mirror-preview';
 import {EffectsNoisePreview} from '../../components/effects/effects-noise-preview';
+import {EffectsOutlinePreview} from '../../components/effects/effects-outline-preview';
 import {EffectsPixelDissolvePreview} from '../../components/effects/effects-pixel-dissolve-preview';
 import {EffectsRingsPreview} from '../../components/effects/effects-rings-preview';
 import {EffectsSaturationPreview} from '../../components/effects/effects-saturation-preview';
@@ -171,6 +172,24 @@ export const RemotionRoot: React.FC = () => {
 						intensity: 1.8,
 						threshold: 0.25,
 						color: '#00d8ff',
+					}}
+				/>
+				<Still
+					id="effects-outline-preview"
+					component={EffectsOutlinePreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						width: 22,
+						color: '#ffffff',
+						opacity: 1,
+						sourceOpacity: 0,
+						backgroundColor: '#111827',
+						displacement: 7,
+						displacementFrequency: 16,
+						displacementSeed: 4,
+						simplification: 0.2,
+						mode: 'outer',
 					}}
 				/>
 				<Still
