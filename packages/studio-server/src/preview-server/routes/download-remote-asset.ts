@@ -337,6 +337,7 @@ export const downloadRemoteAssetHandler: ApiHandler<
 		type: 'asset',
 		assetType: fileType.type === 'gif' ? 'gif' : 'image',
 		src: assetPath,
+		srcType: 'static',
 		dimensions: fileType.dimensions,
 	};
 
