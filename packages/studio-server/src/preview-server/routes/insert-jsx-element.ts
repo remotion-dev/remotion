@@ -1,8 +1,9 @@
 import {RenderInternals} from '@remotion/renderer';
-import type {
-	InsertJsxElementRequest,
-	InsertJsxElementResponse,
-	InsertableCompositionElement,
+import {
+	isRemotionSfxUrl,
+	type InsertJsxElementRequest,
+	type InsertJsxElementResponse,
+	type InsertableCompositionElement,
 } from '@remotion/studio-shared';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {insertJsxElementIntoComposition} from '../../helpers/resolve-composition-component';
@@ -30,7 +31,13 @@ const validateElement = (element: InsertableCompositionElement) => {
 	}
 
 	if (element.type === 'asset') {
-		if (!element.src || element.src.includes('\\')) {
+		if (element.srcType === 'remote') {
+			if (element.assetType !== 'audio' || !isRemotionSfxUrl(element.src)) {
+				throw new Error(
+					'Only @remotion/sfx audio URLs can be inserted remotely',
+				);
+			}
+		} else if (!element.src || element.src.includes('\\')) {
 			throw new Error('Asset path must be a static file path');
 		}
 

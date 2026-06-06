@@ -197,6 +197,13 @@ export {
 	getEffectFieldsToShow,
 	getFieldsToShow,
 } from './schema-field-info';
+export {
+	REMOTION_MEDIA_SFX_PREFIX,
+	SFX_DRAG_MIME_TYPE,
+	isRemotionSfxUrl,
+	parseSfxDragData,
+	type SfxDragData,
+} from './sfx-drag-data';
 export type {
 	AnySchemaFieldInfo,
 	DragOverrides,

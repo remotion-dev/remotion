@@ -13,7 +13,10 @@ import type {
 	JSXElement,
 	VariableDeclaration,
 } from '@babel/types';
-import type {InsertableCompositionElement} from '@remotion/studio-shared';
+import {
+	isRemotionSfxUrl,
+	type InsertableCompositionElement,
+} from '@remotion/studio-shared';
 import type {namedTypes} from 'ast-types';
 import * as recast from 'recast';
 import {formatFileContent} from '../codemods/format-file-content';
@@ -765,6 +768,13 @@ const createStaticFileSrcAttribute = ({
 	);
 };
 
+const createStringSrcAttribute = (src: string): namedTypes.JSXAttribute => {
+	return recast.types.builders.jsxAttribute(
+		recast.types.builders.jsxIdentifier('src'),
+		recast.types.builders.stringLiteral(src),
+	);
+};
+
 const createSolidElement = ({
 	localName,
 	width,
@@ -796,7 +806,7 @@ const createAssetElement = ({
 	dimensions,
 }: {
 	localName: string;
-	staticFileLocalName: string;
+	staticFileLocalName: string | null;
 	src: string;
 	dimensions: {width: number; height: number} | null;
 }): namedTypes.JSXElement => {
@@ -804,7 +814,9 @@ const createAssetElement = ({
 		recast.types.builders.jsxOpeningElement(
 			recast.types.builders.jsxIdentifier(localName),
 			[
-				createStaticFileSrcAttribute({staticFileLocalName, src}),
+				staticFileLocalName === null
+					? createStringSrcAttribute(src)
+					: createStaticFileSrcAttribute({staticFileLocalName, src}),
 				createPositionAbsoluteStyleAttribute(),
 				...(dimensions
 					? [
@@ -1442,7 +1454,15 @@ const createInsertableJsxElement = ({
 	}
 
 	if (element.type === 'asset') {
-		const staticFileLocalName = ensureStaticFileImport(ast);
+		if (
+			element.srcType === 'remote' &&
+			(element.assetType !== 'audio' || !isRemotionSfxUrl(element.src))
+		) {
+			throw new Error('Only @remotion/sfx audio URLs can be inserted remotely');
+		}
+
+		const staticFileLocalName =
+			element.srcType === 'remote' ? null : ensureStaticFileImport(ast);
 		let localName: string;
 		if (element.assetType === 'image') {
 			localName = ensureImgImport(ast);
