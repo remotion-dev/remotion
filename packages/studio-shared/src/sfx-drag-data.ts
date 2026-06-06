@@ -1,6 +1,6 @@
-export const SFX_DRAG_MIME_TYPE = 'application/vnd.remotion.sfx+json';
+import {isUrl} from './url';
 
-export const REMOTION_MEDIA_SFX_PREFIX = 'https://remotion.media/';
+export const SFX_DRAG_MIME_TYPE = 'application/vnd.remotion.sfx+json';
 
 export type SfxDragData = {
 	type: 'remotion-sfx';
@@ -13,20 +13,6 @@ export type SfxDragData = {
 
 const isRecord = (value: unknown): value is Record<string, unknown> => {
 	return typeof value === 'object' && value !== null && !Array.isArray(value);
-};
-
-export const isRemotionSfxUrl = (value: string): boolean => {
-	try {
-		const url = new URL(value);
-		return (
-			url.protocol === 'https:' &&
-			url.host === 'remotion.media' &&
-			url.href.startsWith(REMOTION_MEDIA_SFX_PREFIX) &&
-			url.pathname.length > 1
-		);
-	} catch {
-		return false;
-	}
 };
 
 export const parseSfxDragData = (value: string): SfxDragData | null => {
@@ -49,7 +35,7 @@ export const parseSfxDragData = (value: string): SfxDragData | null => {
 			typeof name !== 'string' ||
 			name.length === 0 ||
 			typeof url !== 'string' ||
-			!isRemotionSfxUrl(url)
+			!isUrl(url)
 		) {
 			return null;
 		}

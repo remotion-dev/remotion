@@ -603,7 +603,7 @@ export type InsertableCompositionElement =
 			type: 'asset';
 			assetType: 'image' | 'video' | 'gif' | 'audio';
 			src: string;
-			srcType?: 'static' | 'remote';
+			srcType: 'static' | 'remote';
 			dimensions: {
 				width: number;
 				height: number;

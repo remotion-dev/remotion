@@ -692,6 +692,7 @@ test('inserts an Img asset into the resolved composition component', async () =>
 				type: 'asset',
 				assetType: 'image',
 				src: 'image.png',
+				srcType: 'static',
 				dimensions: {
 					width: 800,
 					height: 600,
@@ -750,6 +751,7 @@ test('rejects inserting a Video asset if Video is already defined', async () => 
 					type: 'asset',
 					assetType: 'video',
 					src: 'clip.mp4',
+					srcType: 'static',
 					dimensions: null,
 				},
 				prettierConfigOverride: {singleQuote: true, useTabs: true},
@@ -794,6 +796,7 @@ test('inserts a Gif asset into the resolved composition component', async () => 
 				type: 'asset',
 				assetType: 'gif',
 				src: 'animation.gif',
+				srcType: 'static',
 				dimensions: {
 					width: 320,
 					height: 180,
@@ -849,6 +852,7 @@ test('inserts an Audio asset into the resolved composition component', async () 
 				type: 'asset',
 				assetType: 'audio',
 				src: 'audio.mp3',
+				srcType: 'static',
 				dimensions: null,
 			},
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
@@ -865,7 +869,7 @@ test('inserts an Audio asset into the resolved composition component', async () 
 	}
 });
 
-test('inserts a remote SFX audio asset with a literal URL', async () => {
+test('inserts a remote audio asset with a literal URL', async () => {
 	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
 	try {
 		await fs.writeFile(
@@ -898,7 +902,7 @@ test('inserts a remote SFX audio asset with a literal URL', async () => {
 			element: {
 				type: 'asset',
 				assetType: 'audio',
-				src: 'https://remotion.media/whip.wav',
+				src: 'https://example.com/whip.wav',
 				srcType: 'remote',
 				dimensions: null,
 			},
@@ -908,7 +912,7 @@ test('inserts a remote SFX audio asset with a literal URL', async () => {
 		expect(result.output).toContain("import { Audio } from '@remotion/media';");
 		expect(result.output).toContain("import { AbsoluteFill } from 'remotion';");
 		expect(result.output).toContain('<Audio');
-		expect(result.output).toContain('src="https://remotion.media/whip.wav"');
+		expect(result.output).toContain('src="https://example.com/whip.wav"');
 		expect(result.output).not.toContain('staticFile');
 		expect(result.output).not.toContain('@remotion/sfx');
 	} finally {
@@ -953,6 +957,7 @@ test('rejects inserting an Audio asset if Audio is already defined', async () =>
 					type: 'asset',
 					assetType: 'audio',
 					src: 'audio.mp3',
+					srcType: 'static',
 					dimensions: null,
 				},
 				prettierConfigOverride: {singleQuote: true, useTabs: true},

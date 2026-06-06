@@ -1,9 +1,6 @@
 import {expect, test} from 'bun:test';
-import {
-	isRemotionSfxUrl,
-	parseSfxDragData,
-	type SfxDragData,
-} from '../sfx-drag-data';
+import {parseSfxDragData, type SfxDragData} from '../sfx-drag-data';
+import {isUrl} from '../url';
 
 const validSfxDragData: SfxDragData = {
 	type: 'remotion-sfx',
@@ -20,10 +17,20 @@ test('parses SFX drag data', () => {
 	);
 });
 
-test('validates remotion.media SFX URLs', () => {
-	expect(isRemotionSfxUrl('https://remotion.media/whip.wav')).toBe(true);
-	expect(isRemotionSfxUrl('http://remotion.media/whip.wav')).toBe(false);
-	expect(isRemotionSfxUrl('https://example.com/whip.wav')).toBe(false);
+test('accepts any URL in SFX drag data', () => {
+	const nonRemotionUrlDragData: SfxDragData = {
+		...validSfxDragData,
+		sfx: {
+			...validSfxDragData.sfx,
+			url: 'https://example.com/whip.wav',
+		},
+	};
+	expect(parseSfxDragData(JSON.stringify(nonRemotionUrlDragData))).toEqual(
+		nonRemotionUrlDragData,
+	);
+	expect(isUrl('https://remotion.media/whip.wav')).toBe(true);
+	expect(isUrl('https://example.com/whip.wav')).toBe(true);
+	expect(isUrl('not-a-url')).toBe(false);
 });
 
 test('rejects invalid SFX drag data', () => {
@@ -54,7 +61,7 @@ test('rejects invalid SFX drag data', () => {
 				...validSfxDragData,
 				sfx: {
 					...validSfxDragData.sfx,
-					url: 'https://example.com/whip.wav',
+					url: 'not-a-url',
 				},
 			}),
 		),

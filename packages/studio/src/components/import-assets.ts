@@ -1,7 +1,7 @@
 import {
 	detectFileType,
 	getRequiredPackageForInsertableElement,
-	isRemotionSfxUrl,
+	isUrl,
 	type DownloadRemoteAssetResponse,
 	type FileType,
 	type InsertableCompositionElement,
@@ -29,6 +29,7 @@ export const getAssetElement = ({
 			type: 'asset',
 			assetType: 'image',
 			src,
+			srcType: 'static',
 			dimensions: fileType.dimensions,
 		};
 	}
@@ -38,6 +39,7 @@ export const getAssetElement = ({
 			type: 'asset',
 			assetType: 'gif',
 			src,
+			srcType: 'static',
 			dimensions: fileType.dimensions,
 		};
 	}
@@ -52,6 +54,7 @@ export const getAssetElement = ({
 			type: 'asset',
 			assetType: 'video',
 			src,
+			srcType: 'static',
 			dimensions: null,
 		};
 	}
@@ -66,6 +69,7 @@ export const getAssetElement = ({
 			type: 'asset',
 			assetType: 'audio',
 			src,
+			srcType: 'static',
 			dimensions: null,
 		};
 	}
@@ -90,6 +94,7 @@ export const getAssetElementFromPath = (
 			type: 'asset',
 			assetType: 'image',
 			src: assetPath,
+			srcType: 'static',
 			dimensions: null,
 		};
 	}
@@ -99,6 +104,7 @@ export const getAssetElementFromPath = (
 			type: 'asset',
 			assetType: 'gif',
 			src: assetPath,
+			srcType: 'static',
 			dimensions: null,
 		};
 	}
@@ -108,6 +114,7 @@ export const getAssetElementFromPath = (
 			type: 'asset',
 			assetType: 'video',
 			src: assetPath,
+			srcType: 'static',
 			dimensions: null,
 		};
 	}
@@ -117,6 +124,7 @@ export const getAssetElementFromPath = (
 			type: 'asset',
 			assetType: 'audio',
 			src: assetPath,
+			srcType: 'static',
 			dimensions: null,
 		};
 	}
@@ -379,7 +387,7 @@ export const insertRemoteAudio = async ({
 	compositionId: string;
 	url: string;
 }) => {
-	if (!isRemotionSfxUrl(url)) {
+	if (!isUrl(url)) {
 		showNotification('Cannot add sound effect: Unsupported URL', 3000);
 		return;
 	}

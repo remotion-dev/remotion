@@ -14,7 +14,7 @@ import type {
 	VariableDeclaration,
 } from '@babel/types';
 import {
-	isRemotionSfxUrl,
+	isUrl,
 	type InsertableCompositionElement,
 } from '@remotion/studio-shared';
 import type {namedTypes} from 'ast-types';
@@ -1454,11 +1454,8 @@ const createInsertableJsxElement = ({
 	}
 
 	if (element.type === 'asset') {
-		if (
-			element.srcType === 'remote' &&
-			(element.assetType !== 'audio' || !isRemotionSfxUrl(element.src))
-		) {
-			throw new Error('Only @remotion/sfx audio URLs can be inserted remotely');
+		if (element.srcType === 'remote' && !isUrl(element.src)) {
+			throw new Error('Remote asset source must be a URL');
 		}
 
 		const staticFileLocalName =

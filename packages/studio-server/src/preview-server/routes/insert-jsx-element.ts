@@ -1,6 +1,6 @@
 import {RenderInternals} from '@remotion/renderer';
 import {
-	isRemotionSfxUrl,
+	isUrl,
 	type InsertJsxElementRequest,
 	type InsertJsxElementResponse,
 	type InsertableCompositionElement,
@@ -32,10 +32,8 @@ const validateElement = (element: InsertableCompositionElement) => {
 
 	if (element.type === 'asset') {
 		if (element.srcType === 'remote') {
-			if (element.assetType !== 'audio' || !isRemotionSfxUrl(element.src)) {
-				throw new Error(
-					'Only @remotion/sfx audio URLs can be inserted remotely',
-				);
+			if (!isUrl(element.src)) {
+				throw new Error('Remote asset source must be a URL');
 			}
 		} else if (!element.src || element.src.includes('\\')) {
 			throw new Error('Asset path must be a static file path');
