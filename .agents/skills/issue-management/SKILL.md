@@ -1,6 +1,6 @@
 ---
 name: issue-management
-description: Manage GitHub Issues 2.0 relationships with gh CLI: parent issues, sub-issues, blocked-by, and blocking links.
+description: "Manage GitHub Issues 2.0 relationships with gh CLI: parent issues, sub-issues, blocked-by, and blocking links."
 ---
 
 Use this skill when creating, editing, inspecting, or removing relationships between GitHub issues.
