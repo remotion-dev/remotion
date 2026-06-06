@@ -40,12 +40,19 @@ mock.module('remotion', () => {
 	};
 });
 
-const {Circle} = await import('../components/circle');
-const {Rect} = await import('../components/rect');
+const loadComponents = async () => {
+	const [{Circle}, {Rect}] = await Promise.all([
+		import('../components/circle'),
+		import('../components/rect'),
+	]);
+
+	return {Circle, Rect};
+};
 
 const effect = {} as EffectsProp[number];
 
-test('Should render a shape with effects in HtmlInCanvas', () => {
+test('Should render a shape with effects in HtmlInCanvas', async () => {
+	const {Circle} = await loadComponents();
 	htmlInCanvasCalls.length = 0;
 
 	const {container} = render(
@@ -79,7 +86,8 @@ test('Should render a shape with effects in HtmlInCanvas', () => {
 	]);
 });
 
-test('Should keep rendering SVG directly with no effects', () => {
+test('Should keep rendering SVG directly with no effects', async () => {
+	const {Circle} = await loadComponents();
 	htmlInCanvasCalls.length = 0;
 
 	const {container} = render(
@@ -91,7 +99,8 @@ test('Should keep rendering SVG directly with no effects', () => {
 	expect(htmlInCanvasCalls).toEqual([]);
 });
 
-test('Should pass integer dimensions to HtmlInCanvas', () => {
+test('Should pass integer dimensions to HtmlInCanvas', async () => {
+	const {Rect} = await loadComponents();
 	htmlInCanvasCalls.length = 0;
 
 	render(<Rect width={10.1} height={20.2} effects={[effect]} />);
