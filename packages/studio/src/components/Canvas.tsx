@@ -2,6 +2,9 @@ import type {Size} from '@remotion/player';
 import {
 	ASSET_DRAG_MIME_TYPE,
 	parseAssetDragData,
+	parseShapeDragData,
+	SHAPE_DRAG_MIME_TYPE,
+	type ShapeName,
 } from '@remotion/studio-shared';
 import React, {
 	useCallback,
@@ -43,6 +46,7 @@ import {
 	importAssets,
 	importRemoteAsset,
 	insertExistingAssets,
+	insertShape,
 } from './import-assets';
 import {SPACING_UNIT} from './layout';
 import {VideoPreview} from './Preview';
@@ -84,6 +88,12 @@ const isAssetDragEvent = (event: DragEvent): boolean => {
 	);
 };
 
+const isShapeDragEvent = (event: DragEvent): boolean => {
+	return Array.from(event.dataTransfer?.types ?? []).includes(
+		SHAPE_DRAG_MIME_TYPE,
+	);
+};
+
 const isRemoteAssetDragEvent = (event: DragEvent): boolean => {
 	return (
 		!isFileDragEvent(event) &&
@@ -99,6 +109,22 @@ const getAssetDragPath = (event: DragEvent): string | null => {
 	}
 
 	return parseAssetDragData(value)?.assetPath ?? null;
+};
+
+const getShapeDragName = (event: DragEvent): ShapeName | null => {
+	for (const type of [SHAPE_DRAG_MIME_TYPE, 'application/json', 'text/plain']) {
+		const value = event.dataTransfer?.getData(type);
+		if (!value) {
+			continue;
+		}
+
+		const parsed = parseShapeDragData(value);
+		if (parsed) {
+			return parsed.shape;
+		}
+	}
+
+	return null;
 };
 
 const isDragEventInsideCanvas = (event: DragEvent): boolean => {
@@ -635,6 +661,7 @@ export const Canvas: React.FC<{
 				!canDropAssets ||
 				(!isFileDragEvent(event) &&
 					!isAssetDragEvent(event) &&
+					!isShapeDragEvent(event) &&
 					!isRemoteAssetDragEvent(event)) ||
 				!isDragEventInsideCanvas(event)
 			) {
@@ -657,6 +684,7 @@ export const Canvas: React.FC<{
 				currentCompositionId === null ||
 				(!isFileDragEvent(event) &&
 					!isAssetDragEvent(event) &&
+					!isShapeDragEvent(event) &&
 					!isRemoteAssetDragEvent(event)) ||
 				!isDragEventInsideCanvas(event)
 			) {
@@ -691,6 +719,16 @@ export const Canvas: React.FC<{
 						compositionId: currentCompositionId,
 					});
 				} else {
+					const shape = getShapeDragName(event);
+					if (shape !== null) {
+						await insertShape({
+							shape,
+							compositionFile,
+							compositionId: currentCompositionId,
+						});
+						return;
+					}
+
 					const url = getRemoteAssetUrlFromDataTransfer(event.dataTransfer);
 					if (url === null) {
 						return;

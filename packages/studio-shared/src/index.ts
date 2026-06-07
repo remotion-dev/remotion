@@ -207,6 +207,15 @@ export type {
 	SequenceSchemaFieldInfo,
 } from './schema-field-info';
 export {
+	SHAPE_DRAG_MIME_TYPE,
+	isShapeName,
+	makeShapeDragData,
+	parseShapeDragData,
+	shapeNames,
+	type ShapeDragData,
+	type ShapeName,
+} from './shape-drag-data';
+export {
 	ScriptLine,
 	SomeStackFrame,
 	StackFrame,
@@ -231,8 +240,8 @@ export {
 	optimisticMoveSequenceKeyframes,
 	type OptimisticKeyframeMove,
 } from './optimistic-move-keyframe';
-export {optimisticUpdateForPropStatuses} from './optimistic-update-for-prop-statuses';
 export {optimisticUpdateForEffectPropStatuses} from './optimistic-update-for-effect-prop-statuses';
+export {optimisticUpdateForPropStatuses} from './optimistic-update-for-prop-statuses';
 export {
 	optimisticUpdateEffectKeyframeSettings,
 	optimisticUpdateSequenceKeyframeSettings,

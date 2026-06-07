@@ -9,6 +9,7 @@ import {
 	makeStar,
 	makeTriangle,
 } from '@remotion/shapes';
+import type {ShapeName} from '@remotion/studio-shared';
 import React from 'react';
 // eslint-disable-next-line no-restricted-imports
 import {AvailableFrom} from '../../src/components/AvailableFrom';
@@ -25,7 +26,7 @@ type Param = {
 };
 
 export type ShapeComponent = {
-	shape: string;
+	shape: ShapeName;
 	fn: (options: unknown) => unknown;
 	params: Param[];
 };

@@ -13,7 +13,10 @@ import type {
 	JSXElement,
 	VariableDeclaration,
 } from '@babel/types';
-import type {InsertableCompositionElement} from '@remotion/studio-shared';
+import type {
+	InsertableCompositionElement,
+	ShapeName,
+} from '@remotion/studio-shared';
 import type {namedTypes} from 'ast-types';
 import * as recast from 'recast';
 import {formatFileContent} from '../codemods/format-file-content';
@@ -733,6 +736,28 @@ const createNumberAttribute = (
 	);
 };
 
+const createStringAttribute = (
+	name: string,
+	value: string,
+): namedTypes.JSXAttribute => {
+	return recast.types.builders.jsxAttribute(
+		recast.types.builders.jsxIdentifier(name),
+		recast.types.builders.stringLiteral(value),
+	);
+};
+
+const createBooleanAttribute = (
+	name: string,
+	value: boolean,
+): namedTypes.JSXAttribute => {
+	return recast.types.builders.jsxAttribute(
+		recast.types.builders.jsxIdentifier(name),
+		recast.types.builders.jsxExpressionContainer(
+			recast.types.builders.booleanLiteral(value),
+		),
+	);
+};
+
 const createPositionAbsoluteStyleAttribute = (): namedTypes.JSXAttribute => {
 	return recast.types.builders.jsxAttribute(
 		recast.types.builders.jsxIdentifier('style'),
@@ -765,6 +790,89 @@ const createStaticFileSrcAttribute = ({
 	);
 };
 
+type ShapeDefaultAttribute = {
+	readonly name: string;
+	readonly value: string | number | boolean;
+};
+
+const shapeDefaultAttributes: Record<
+	ShapeName,
+	readonly ShapeDefaultAttribute[]
+> = {
+	Arrow: [
+		{name: 'length', value: 300},
+		{name: 'headWidth', value: 185},
+		{name: 'headLength', value: 120},
+		{name: 'shaftWidth', value: 80},
+		{name: 'direction', value: 'right'},
+		{name: 'fill', value: '#0b84ff'},
+	],
+	Circle: [
+		{name: 'radius', value: 100},
+		{name: 'fill', value: '#0b84ff'},
+	],
+	Ellipse: [
+		{name: 'rx', value: 100},
+		{name: 'ry', value: 50},
+		{name: 'fill', value: '#0b84ff'},
+	],
+	Heart: [
+		{name: 'height', value: 100},
+		{name: 'aspectRatio', value: 1.1},
+		{name: 'bottomRoundnessAdjustment', value: 0},
+		{name: 'depthAdjustment', value: 0},
+		{name: 'fill', value: '#0b84ff'},
+	],
+	Pie: [
+		{name: 'radius', value: 100},
+		{name: 'progress', value: 0.75},
+		{name: 'closePath', value: true},
+		{name: 'counterClockwise', value: false},
+		{name: 'rotation', value: 0},
+		{name: 'fill', value: '#0b84ff'},
+	],
+	Polygon: [
+		{name: 'points', value: 5},
+		{name: 'radius', value: 100},
+		{name: 'cornerRadius', value: 0},
+		{name: 'fill', value: '#0b84ff'},
+	],
+	Rect: [
+		{name: 'width', value: 100},
+		{name: 'height', value: 100},
+		{name: 'cornerRadius', value: 0},
+		{name: 'fill', value: '#0b84ff'},
+	],
+	Star: [
+		{name: 'points', value: 5},
+		{name: 'innerRadius', value: 50},
+		{name: 'outerRadius', value: 100},
+		{name: 'cornerRadius', value: 0},
+		{name: 'fill', value: '#0b84ff'},
+	],
+	Triangle: [
+		{name: 'length', value: 100},
+		{name: 'direction', value: 'right'},
+		{name: 'cornerRadius', value: 0},
+		{name: 'fill', value: '#0b84ff'},
+	],
+};
+
+const createShapeAttribute = ({
+	name,
+	value,
+}: ShapeDefaultAttribute): namedTypes.JSXAttribute => {
+	if (typeof value === 'number') {
+		return createNumberAttribute(name, value);
+	}
+
+	if (typeof value === 'boolean') {
+		return createBooleanAttribute(name, value);
+	}
+
+	return createStringAttribute(name, value);
+};
+
 const createSolidElement = ({
 	localName,
 	width,
@@ -780,6 +888,27 @@ const createSolidElement = ({
 			[
 				createNumberAttribute('width', width),
 				createNumberAttribute('height', height),
+				createPositionAbsoluteStyleAttribute(),
+			],
+			true,
+		),
+		null,
+		[],
+	);
+};
+
+const createShapeElement = ({
+	localName,
+	shape,
+}: {
+	localName: string;
+	shape: ShapeName;
+}): namedTypes.JSXElement => {
+	return recast.types.builders.jsxElement(
+		recast.types.builders.jsxOpeningElement(
+			recast.types.builders.jsxIdentifier(localName),
+			[
+				...shapeDefaultAttributes[shape].map(createShapeAttribute),
 				createPositionAbsoluteStyleAttribute(),
 			],
 			true,
@@ -1117,6 +1246,15 @@ const ensureGifImport = (ast: File) => {
 	});
 };
 
+const ensureShapeImport = ({ast, shape}: {ast: File; shape: ShapeName}) => {
+	return ensureOfficialNamedImport({
+		ast,
+		importedName: shape,
+		sourcePath: '@remotion/shapes',
+		label: `<${shape}>`,
+	});
+};
+
 const addElementToComponentRoot = ({
 	ast,
 	exportName,
@@ -1438,6 +1576,15 @@ const createInsertableJsxElement = ({
 			localName: solidLocalName,
 			width: element.width,
 			height: element.height,
+		});
+	}
+
+	if (element.type === 'shape') {
+		const shapeLocalName = ensureShapeImport({ast, shape: element.shape});
+
+		return createShapeElement({
+			localName: shapeLocalName,
+			shape: element.shape,
 		});
 	}
 

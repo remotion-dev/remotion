@@ -4,6 +4,7 @@ import type {
 	InsertJsxElementResponse,
 	InsertableCompositionElement,
 } from '@remotion/studio-shared';
+import {isShapeName} from '@remotion/studio-shared';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {insertJsxElementIntoComposition} from '../../helpers/resolve-composition-component';
 import type {ApiHandler} from '../api-types';
@@ -42,6 +43,14 @@ const validateElement = (element: InsertableCompositionElement) => {
 		return;
 	}
 
+	if (element.type === 'shape') {
+		if (!isShapeName(element.shape)) {
+			throw new Error('Unsupported shape');
+		}
+
+		return;
+	}
+
 	throw new Error('Unsupported element type');
 };
 
@@ -66,6 +75,10 @@ const getElementLabel = (element: InsertableCompositionElement) => {
 		if (element.assetType === 'audio') {
 			return '<Audio>';
 		}
+	}
+
+	if (element.type === 'shape') {
+		return `<${element.shape}>`;
 	}
 
 	throw new Error('Unsupported element type');

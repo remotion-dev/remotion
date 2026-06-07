@@ -2,6 +2,7 @@ import {expect, test} from 'bun:test';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
+import {shapeNames} from '@remotion/studio-shared';
 import {
 	insertJsxElementIntoComposition,
 	resolveCompositionComponent,
@@ -911,3 +912,55 @@ test('rejects inserting an Audio asset if Audio is already defined', async () =>
 		await fs.rm(tempDir, {recursive: true, force: true});
 	}
 });
+
+for (const shape of shapeNames) {
+	test(`inserts a ${shape} shape into the resolved composition component`, async () => {
+		const tempDir = await fs.mkdtemp(
+			path.join(os.tmpdir(), 'remotion-resolve-'),
+		);
+		try {
+			await fs.writeFile(
+				path.join(tempDir, 'Root.tsx'),
+				[
+					"import {Composition} from 'remotion';",
+					"import {MyComp} from './MyComp';",
+					'export const RemotionRoot = () => {',
+					'\treturn <Composition id="test" component={MyComp} />;',
+					'};',
+					'',
+				].join('\n'),
+			);
+			await fs.writeFile(
+				path.join(tempDir, 'MyComp.tsx'),
+				[
+					"import {AbsoluteFill} from 'remotion';",
+					'',
+					'export const MyComp: React.FC = () => {',
+					'\treturn <AbsoluteFill>hello</AbsoluteFill>;',
+					'};',
+					'',
+				].join('\n'),
+			);
+
+			const result = await insertJsxElementIntoComposition({
+				remotionRoot: tempDir,
+				compositionFile: 'Root.tsx',
+				compositionId: 'test',
+				element: {
+					type: 'shape',
+					shape,
+				},
+				prettierConfigOverride: {singleQuote: true, useTabs: true},
+			});
+
+			expect(result.output).toContain(
+				`import { ${shape} } from '@remotion/shapes';`,
+			);
+			expect(result.output).toContain(`<${shape}`);
+			expect(result.output).toContain('fill="#0b84ff"');
+			expect(result.output).toContain("position: 'absolute'");
+		} finally {
+			await fs.rm(tempDir, {recursive: true, force: true});
+		}
+	});
+}

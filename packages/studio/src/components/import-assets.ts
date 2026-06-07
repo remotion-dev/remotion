@@ -4,6 +4,7 @@ import {
 	type DownloadRemoteAssetResponse,
 	type FileType,
 	type InsertableCompositionElement,
+	type ShapeName,
 } from '@remotion/studio-shared';
 import {getStaticFiles} from '../api/get-static-files';
 import {writeStaticFile} from '../api/write-static-file';
@@ -145,6 +146,10 @@ const getAssetLabel = (element: InsertableCompositionElement) => {
 	}
 
 	throw new Error('Unsupported asset type');
+};
+
+const getShapeLabel = (shape: ShapeName) => {
+	return `<${shape}>`;
 };
 
 export const pickFilesToImport = (): Promise<File[]> => {
@@ -411,6 +416,40 @@ export const insertExistingAssets = async ({
 	} catch (error) {
 		showNotification(
 			`Could not add asset: ${
+				error instanceof Error ? error.message : String(error)
+			}`,
+			4000,
+		);
+	}
+};
+
+export const insertShape = async ({
+	compositionFile,
+	compositionId,
+	shape,
+}: {
+	compositionFile: string;
+	compositionId: string;
+	shape: ShapeName;
+}) => {
+	try {
+		const inserted = await insertAssetElement({
+			compositionFile,
+			compositionId,
+			element: {
+				type: 'shape',
+				shape,
+			},
+		});
+
+		if (!inserted) {
+			return;
+		}
+
+		showNotification(`Added ${getShapeLabel(shape)} to source file`, 2000);
+	} catch (error) {
+		showNotification(
+			`Could not add shape: ${
 				error instanceof Error ? error.message : String(error)
 			}`,
 			4000,

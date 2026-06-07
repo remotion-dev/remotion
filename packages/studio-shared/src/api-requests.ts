@@ -34,6 +34,7 @@ import type {
 	CompletedClientRender,
 	RequiredChromiumOptions,
 } from './render-job';
+import type {ShapeName} from './shape-drag-data';
 import type {SymbolicatedStackFrame} from './stack-types';
 import type {EnumPath} from './stringify-default-props';
 
@@ -598,6 +599,10 @@ export type InsertableCompositionElement =
 			type: 'solid';
 			width: number;
 			height: number;
+	  }
+	| {
+			type: 'shape';
+			shape: ShapeName;
 	  }
 	| {
 			type: 'asset';

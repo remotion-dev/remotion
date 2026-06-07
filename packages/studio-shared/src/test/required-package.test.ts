@@ -44,6 +44,12 @@ test('gets required package for insertable elements', () => {
 			dimensions: null,
 		}),
 	).toBe('@remotion/gif');
+	expect(
+		getRequiredPackageForInsertableElement({
+			type: 'shape',
+			shape: 'Circle',
+		}),
+	).toBe('@remotion/shapes');
 });
 
 test('gets required package for effect import paths', () => {

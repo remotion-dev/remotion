@@ -7,6 +7,10 @@ export const getRequiredPackageForInsertableElement = (
 		return null;
 	}
 
+	if (element.type === 'shape') {
+		return '@remotion/shapes';
+	}
+
 	if (element.assetType === 'video' || element.assetType === 'audio') {
 		return '@remotion/media';
 	}
