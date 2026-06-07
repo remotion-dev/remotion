@@ -342,12 +342,16 @@ float effectMask(vec2 pixel) {
 }
 
 vec4 sampleSource(vec2 pixel) {
-	vec2 uv = clamp(pixel / uResolution, vec2(0.0), vec2(1.0));
+	vec2 uv = clamp(
+		vec2(pixel.x / uResolution.x, 1.0 - pixel.y / uResolution.y),
+		vec2(0.0),
+		vec2(1.0)
+	);
 	return texture(uSource, uv);
 }
 
 void main() {
-	vec2 pixel = vUv * uResolution;
+	vec2 pixel = vec2(vUv.x, 1.0 - vUv.y) * uResolution;
 	float mask = effectMask(pixel);
 
 	if (mask <= 0.0 || uStrength <= 0.0) {
