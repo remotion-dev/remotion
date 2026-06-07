@@ -10,7 +10,6 @@ type HtmlInCanvasCall = {
 	readonly pixelDensity: HtmlInCanvasPixelDensity | undefined;
 	readonly showInTimeline: boolean | undefined;
 	readonly style: React.CSSProperties | undefined;
-	readonly stack: string | undefined;
 	readonly _experimentalControls: unknown;
 };
 
@@ -48,7 +47,6 @@ mock.module('remotion', () => {
 			pixelDensity,
 			showInTimeline,
 			style,
-			stack,
 			_experimentalControls,
 			ref,
 		}: HtmlInCanvasCall & {
@@ -62,7 +60,6 @@ mock.module('remotion', () => {
 				pixelDensity,
 				showInTimeline,
 				style,
-				stack,
 				_experimentalControls,
 			});
 
@@ -157,7 +154,6 @@ test('Should render a shape with effects in HtmlInCanvas', async () => {
 				overflow: 'visible',
 				opacity: 0.5,
 			},
-			stack: undefined,
 			_experimentalControls: null,
 		},
 	]);
@@ -217,14 +213,14 @@ test('Should pass integer dimensions to HtmlInCanvas', async () => {
 	expect(htmlInCanvasCalls[0].height).toBe(21);
 });
 
-test('Should forward stack to HtmlInCanvas', async () => {
+test('Should forward stack to the shape Sequence', async () => {
 	const {Circle} = await loadComponents();
 	htmlInCanvasCalls.length = 0;
 	sequenceCalls.length = 0;
 
 	render(<Circle radius={100} effects={[effect]} stack="shape-stack" />);
 
-	expect(htmlInCanvasCalls[0].stack).toBe('shape-stack');
+	expect(htmlInCanvasCalls[0]).not.toBe(undefined);
 	expect(sequenceCalls[0].stack).toBe('shape-stack');
 });
 

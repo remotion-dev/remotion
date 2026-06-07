@@ -190,7 +190,6 @@ export const RenderSvg = ({
 				effects={effects}
 				pixelDensity={pixelDensity}
 				showInTimeline={false}
-				stack={stack}
 				style={actualStyle}
 				_experimentalControls={controls}
 			>

@@ -326,10 +326,6 @@ export type HtmlInCanvasProps = Omit<
 		readonly onPaint?: HtmlInCanvasOnPaint;
 		readonly onInit?: HtmlInCanvasOnInit;
 		readonly pixelDensity?: HtmlInCanvasPixelDensity;
-		/**
-		 * @deprecated For internal use only
-		 */
-		readonly stack?: string;
 	};
 /* eslint-enable react/require-default-props */
 
