@@ -71,7 +71,6 @@ const TimelineKeyframeEasingLineUnmemoized: React.FC<{
 
 		return {
 			...easingLineButton,
-			cursor: selectable ? 'pointer' : 'default',
 			left,
 			pointerEvents: selectable ? 'auto' : 'none',
 			top: rowHeight / 2,
@@ -89,7 +88,7 @@ const TimelineKeyframeEasingLineUnmemoized: React.FC<{
 	const lineStyle = useMemo(
 		(): React.CSSProperties => ({
 			...easingLine,
-			outline: selected ? `1.5px solid ${BLUE}` : undefined,
+			outline: selected ? `1px solid ${BLUE}` : undefined,
 		}),
 		[selected],
 	);
