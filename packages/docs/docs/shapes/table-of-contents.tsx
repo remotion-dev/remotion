@@ -1,8 +1,8 @@
 import React from 'react';
 import {
-	makeDefaultShapeDragData,
-	setShapeDragData,
-} from '../../components/shapes/shape-drag-data';
+	makeDefaultShapeComponentDragData,
+	setComponentDragData,
+} from '../../components/shapes/shape-component-drag-data';
 import {shapeComponents} from '../../components/shapes/shapes-info';
 import {Grid} from '../../components/TableOfContents/Grid';
 import {TOCItem} from '../../components/TableOfContents/TOCItem';
@@ -22,9 +22,9 @@ export const TableOfContents: React.FC = () => {
 								link={'/docs/shapes/' + c.shape.toLowerCase()}
 								draggable
 								onDragStart={(e) => {
-									setShapeDragData({
+									setComponentDragData({
 										dataTransfer: e.dataTransfer,
-										dragData: makeDefaultShapeDragData(c.shape),
+										dragData: makeDefaultShapeComponentDragData(c.shape),
 									});
 								}}
 								title="Drag this shape into Remotion Studio"

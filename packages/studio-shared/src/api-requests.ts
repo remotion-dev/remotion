@@ -23,6 +23,7 @@ import type {
 	SequenceSchema,
 } from 'remotion';
 import type {RecastCodemod, VisualControlChange} from './codemods';
+import type {ComponentProp} from './component-drag-data';
 import type {
 	EffectClipboardParam,
 	EffectClipboardPasteType,
@@ -34,7 +35,6 @@ import type {
 	CompletedClientRender,
 	RequiredChromiumOptions,
 } from './render-job';
-import type {ShapeAttribute, ShapeName} from './shape-drag-data';
 import type {SymbolicatedStackFrame} from './stack-types';
 import type {EnumPath} from './stringify-default-props';
 
@@ -601,9 +601,11 @@ export type InsertableCompositionElement =
 			height: number;
 	  }
 	| {
-			type: 'shape';
-			shape: ShapeName;
-			attributes: ShapeAttribute[];
+			type: 'component';
+			componentName: string;
+			importName: string;
+			importPath: string;
+			props: ComponentProp[];
 	  }
 	| {
 			type: 'asset';

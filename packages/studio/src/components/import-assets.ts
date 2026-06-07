@@ -2,11 +2,10 @@ import {
 	detectFileType,
 	getRequiredPackageForInsertableElement,
 	isUrl,
+	type ComponentDragData,
 	type DownloadRemoteAssetResponse,
 	type FileType,
 	type InsertableCompositionElement,
-	type ShapeAttribute,
-	type ShapeName,
 } from '@remotion/studio-shared';
 import {getStaticFiles} from '../api/get-static-files';
 import {writeStaticFile} from '../api/write-static-file';
@@ -158,8 +157,8 @@ const getAssetLabel = (element: InsertableCompositionElement) => {
 	throw new Error('Unsupported asset type');
 };
 
-const getShapeLabel = (shape: ShapeName) => {
-	return `<${shape}>`;
+const getComponentLabel = (component: ComponentDragData['component']) => {
+	return `<${component.componentName}>`;
 };
 
 export const pickFilesToImport = (): Promise<File[]> => {
@@ -477,25 +476,25 @@ export const insertExistingAssets = async ({
 	}
 };
 
-export const insertShape = async ({
-	attributes,
+export const insertComponent = async ({
+	component,
 	compositionFile,
 	compositionId,
-	shape,
 }: {
-	attributes: ShapeAttribute[];
+	component: ComponentDragData['component'];
 	compositionFile: string;
 	compositionId: string;
-	shape: ShapeName;
 }) => {
 	try {
 		const inserted = await insertAssetElement({
 			compositionFile,
 			compositionId,
 			element: {
-				type: 'shape',
-				attributes,
-				shape,
+				type: 'component',
+				componentName: component.componentName,
+				importName: component.importName,
+				importPath: component.importPath,
+				props: component.props,
 			},
 		});
 
@@ -503,10 +502,13 @@ export const insertShape = async ({
 			return;
 		}
 
-		showNotification(`Added ${getShapeLabel(shape)} to source file`, 2000);
+		showNotification(
+			`Added ${getComponentLabel(component)} to source file`,
+			2000,
+		);
 	} catch (error) {
 		showNotification(
-			`Could not add shape: ${
+			`Could not add component: ${
 				error instanceof Error ? error.message : String(error)
 			}`,
 			4000,

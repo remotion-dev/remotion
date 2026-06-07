@@ -1,12 +1,12 @@
 import {
-	makeShapeDragData,
-	SHAPE_DRAG_MIME_TYPE,
-	type ShapeAttribute,
-	type ShapeDragData,
-	type ShapeName,
+	COMPONENT_DRAG_MIME_TYPE,
+	makeComponentDragData,
+	type ComponentDragData,
+	type ComponentProp,
 } from '@remotion/studio-shared';
+import type {ShapeName} from './shapes-info';
 
-const shapeDefaultAttributes: Record<ShapeName, readonly ShapeAttribute[]> = {
+const shapeDefaultProps: Record<ShapeName, readonly ComponentProp[]> = {
 	Arrow: [
 		{name: 'length', value: 300},
 		{name: 'headWidth', value: 185},
@@ -66,25 +66,27 @@ const shapeDefaultAttributes: Record<ShapeName, readonly ShapeAttribute[]> = {
 	],
 };
 
-export {type ShapeName};
-
-export const makeDefaultShapeDragData = (shape: ShapeName): ShapeDragData => {
-	return makeShapeDragData({
-		attributes: [...shapeDefaultAttributes[shape]],
-		shape,
+export const makeDefaultShapeComponentDragData = (
+	shape: ShapeName,
+): ComponentDragData => {
+	return makeComponentDragData({
+		componentName: shape,
+		importName: shape,
+		importPath: '@remotion/shapes',
+		props: [...shapeDefaultProps[shape]],
 	});
 };
 
-export const setShapeDragData = ({
+export const setComponentDragData = ({
 	dataTransfer,
 	dragData,
 }: {
 	readonly dataTransfer: DataTransfer;
-	readonly dragData: ShapeDragData;
+	readonly dragData: ComponentDragData;
 }) => {
 	const serialized = JSON.stringify(dragData);
 	dataTransfer.effectAllowed = 'copy';
-	dataTransfer.setData(SHAPE_DRAG_MIME_TYPE, serialized);
+	dataTransfer.setData(COMPONENT_DRAG_MIME_TYPE, serialized);
 	dataTransfer.setData('application/json', serialized);
 	dataTransfer.setData('text/plain', serialized);
 };

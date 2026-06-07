@@ -9,7 +9,6 @@ import {
 	makeStar,
 	makeTriangle,
 } from '@remotion/shapes';
-import type {ShapeName} from '@remotion/studio-shared';
 import React from 'react';
 // eslint-disable-next-line no-restricted-imports
 import {AvailableFrom} from '../../src/components/AvailableFrom';
@@ -24,6 +23,17 @@ type Param = {
 	type: string;
 	description: React.ReactNode;
 };
+
+export type ShapeName =
+	| 'Arrow'
+	| 'Circle'
+	| 'Ellipse'
+	| 'Heart'
+	| 'Pie'
+	| 'Polygon'
+	| 'Rect'
+	| 'Star'
+	| 'Triangle';
 
 export type ShapeComponent = {
 	shape: ShapeName;

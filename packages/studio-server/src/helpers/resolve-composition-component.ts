@@ -15,9 +15,8 @@ import type {
 } from '@babel/types';
 import {
 	isUrl,
+	type ComponentProp,
 	type InsertableCompositionElement,
-	type ShapeAttribute,
-	type ShapeName,
 } from '@remotion/studio-shared';
 import type {namedTypes} from 'ast-types';
 import * as recast from 'recast';
@@ -792,10 +791,10 @@ const createStaticFileSrcAttribute = ({
 	);
 };
 
-const createShapeAttribute = ({
+const createComponentProp = ({
 	name,
 	value,
-}: ShapeAttribute): namedTypes.JSXAttribute => {
+}: ComponentProp): namedTypes.JSXAttribute => {
 	if (typeof value === 'number') {
 		return createNumberAttribute(name, value);
 	}
@@ -838,18 +837,18 @@ const createSolidElement = ({
 	);
 };
 
-const createShapeElement = ({
-	attributes,
+const createComponentElement = ({
 	localName,
+	props,
 }: {
-	attributes: ShapeAttribute[];
 	localName: string;
+	props: ComponentProp[];
 }): namedTypes.JSXElement => {
 	return recast.types.builders.jsxElement(
 		recast.types.builders.jsxOpeningElement(
 			recast.types.builders.jsxIdentifier(localName),
 			[
-				...attributes.map(createShapeAttribute),
+				...props.map(createComponentProp),
 				createPositionAbsoluteStyleAttribute(),
 			],
 			true,
@@ -1189,12 +1188,64 @@ const ensureGifImport = (ast: File) => {
 	});
 };
 
-const ensureShapeImport = ({ast, shape}: {ast: File; shape: ShapeName}) => {
-	return ensureOfficialNamedImport({
+const hasComponentLocalImport = ({
+	ast,
+	importName,
+	importPath,
+}: {
+	ast: File;
+	importName: string;
+	importPath: string;
+}) => {
+	for (const importDeclaration of getImportDeclarations({
 		ast,
-		importedName: shape,
-		sourcePath: '@remotion/shapes',
-		label: `<${shape}>`,
+		sourcePath: importPath,
+	})) {
+		for (const specifier of importDeclaration.specifiers ?? []) {
+			if (
+				specifier.type === 'ImportSpecifier' &&
+				getImportedName(specifier) === importName
+			) {
+				return specifier.local?.name ?? importName;
+			}
+		}
+	}
+
+	return null;
+};
+
+const ensureComponentImport = ({
+	ast,
+	componentName,
+	importName,
+	importPath,
+}: {
+	ast: File;
+	componentName: string;
+	importName: string;
+	importPath: string;
+}) => {
+	const existingLocalName = hasComponentLocalImport({
+		ast,
+		importName,
+		importPath,
+	});
+
+	if (existingLocalName) {
+		return existingLocalName;
+	}
+
+	if (hasTopLevelBinding({ast, name: componentName})) {
+		throw new Error(
+			`Cannot add <${componentName}> because ${componentName} is already defined`,
+		);
+	}
+
+	return ensureNamedImport({
+		ast,
+		importedName: importName,
+		sourcePath: importPath,
+		localName: componentName,
 	});
 };
 
@@ -1522,12 +1573,17 @@ const createInsertableJsxElement = ({
 		});
 	}
 
-	if (element.type === 'shape') {
-		const shapeLocalName = ensureShapeImport({ast, shape: element.shape});
+	if (element.type === 'component') {
+		const componentLocalName = ensureComponentImport({
+			ast,
+			componentName: element.componentName,
+			importName: element.importName,
+			importPath: element.importPath,
+		});
 
-		return createShapeElement({
-			attributes: element.attributes,
-			localName: shapeLocalName,
+		return createComponentElement({
+			localName: componentLocalName,
+			props: element.props,
 		});
 	}
 

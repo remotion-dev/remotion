@@ -100,6 +100,16 @@ export {
 	type AssetDragData,
 } from './asset-drag-data';
 export type {ApplyVisualControlCodemod, RecastCodemod} from './codemods';
+export {
+	COMPONENT_DRAG_MIME_TYPE,
+	areComponentProps,
+	isComponentIdentifier,
+	isComponentImportPath,
+	makeComponentDragData,
+	parseComponentDragData,
+	type ComponentDragData,
+	type ComponentProp,
+} from './component-drag-data';
 export {DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS} from './default-buffer-state-delay-in-milliseconds';
 export {
 	detectFileType,
@@ -211,17 +221,6 @@ export {
 	parseSfxDragData,
 	type SfxDragData,
 } from './sfx-drag-data';
-export {
-	SHAPE_DRAG_MIME_TYPE,
-	areShapeAttributes,
-	isShapeName,
-	makeShapeDragData,
-	parseShapeDragData,
-	shapeNames,
-	type ShapeAttribute,
-	type ShapeDragData,
-	type ShapeName,
-} from './shape-drag-data';
 export {
 	ScriptLine,
 	SomeStackFrame,
