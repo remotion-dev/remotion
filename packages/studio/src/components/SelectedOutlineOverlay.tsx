@@ -32,7 +32,6 @@ import {
 	saveSequenceProps,
 	type SaveSequencePropChange,
 } from './Timeline/save-sequence-prop';
-import {getDecimalPlaces} from './Timeline/timeline-field-utils';
 import {
 	parseTranslate,
 	serializeTranslate,
@@ -62,9 +61,9 @@ type SelectedOutline = {
 	];
 };
 
-type UvCoordinate = readonly [number, number];
+export type UvCoordinate = readonly [number, number];
 
-type UvCoordinateFieldSchema = Extract<
+export type UvCoordinateFieldSchema = Extract<
 	SequenceFieldSchema,
 	{type: 'uv-coordinate'}
 >;
@@ -429,26 +428,14 @@ const clamp = (value: number, min: number, max: number): number => {
 	return Math.min(max, Math.max(min, value));
 };
 
-const roundToStep = (value: number, step: number | undefined): number => {
-	if (step === undefined || !Number.isFinite(step) || step <= 0) {
-		return value;
-	}
-
-	const decimals = getDecimalPlaces(step);
-	return Number((Math.round(value / step) * step).toFixed(decimals));
-};
-
-const constrainUv = (
+export function constrainUv(
 	value: UvCoordinate,
 	schema: UvCoordinateFieldSchema,
-): UvCoordinate => {
+): UvCoordinate {
 	const min = schema.min ?? -Infinity;
 	const max = schema.max ?? Infinity;
-	return [
-		clamp(roundToStep(value[0], schema.step), min, max),
-		clamp(roundToStep(value[1], schema.step), min, max),
-	];
-};
+	return [clamp(value[0], min, max), clamp(value[1], min, max)];
+}
 
 const rectToPoints = (
 	elementRect: DOMRect,
@@ -1655,7 +1642,7 @@ const SelectedUvHandleCircle: React.FC<{
 			strokeWidth={2}
 			vectorEffect="non-scaling-stroke"
 			pointerEvents="all"
-			cursor="move"
+			cursor="default"
 			onPointerDown={onPointerDown}
 		/>
 	);

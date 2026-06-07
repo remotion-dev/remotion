@@ -24,6 +24,7 @@ type Props = InputHTMLAttributes<HTMLInputElement> & {
 	readonly formatter?: (str: number | string) => string;
 	readonly rightAlign: boolean;
 	readonly small?: boolean;
+	readonly snapToStep?: boolean;
 };
 
 const isInt = (num: number) => {
@@ -46,6 +47,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 		status,
 		rightAlign,
 		small,
+		snapToStep = true,
 		...props
 	},
 	ref,
@@ -178,9 +180,9 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 					[-step, 0, 0, 0, step],
 				);
 				const newValue = Math.min(max, Math.max(min, Number(value) + diff));
-				const roundedToStep = roundToStep(newValue, step);
-				lastDragValue = roundedToStep;
-				onValueChange(roundedToStep);
+				const nextValue = snapToStep ? roundToStep(newValue, step) : newValue;
+				lastDragValue = nextValue;
+				onValueChange(nextValue);
 			};
 
 			window.addEventListener('mousemove', moveListener);
@@ -204,7 +206,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 				},
 			);
 		},
-		[_step, _min, _max, value, onValueChange, onValueChangeEnd],
+		[_step, _min, _max, value, onValueChange, onValueChangeEnd, snapToStep],
 	);
 
 	useEffect(() => {
@@ -214,6 +216,10 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 	}, [inputFallback]);
 
 	const deriveStep = useMemo(() => {
+		if (!snapToStep) {
+			return 'any';
+		}
+
 		if (_step !== undefined) {
 			return _step;
 		}
@@ -223,7 +229,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 		}
 
 		return 0.0001;
-	}, [_min, _step]);
+	}, [_min, _step, snapToStep]);
 
 	if (inputFallback) {
 		return (
