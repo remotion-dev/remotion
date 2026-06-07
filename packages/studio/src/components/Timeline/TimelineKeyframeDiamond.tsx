@@ -46,7 +46,6 @@ const TimelineKeyframeDiamondUnmemoized: React.FC<{
 
 		return {
 			...diamondBase,
-			cursor: 'pointer',
 			left:
 				getXPositionOfItemInTimelineImperatively(
 					frame,

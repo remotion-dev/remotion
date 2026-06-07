@@ -2021,6 +2021,36 @@ test('Shift+click with no matching anchor falls back to single selection', () =>
 	});
 });
 
+test('Selecting an easing segment replaces keyframe selection with the new type', () => {
+	const keyframe = {
+		type: 'keyframe' as const,
+		nodePathInfo: makeNodePathInfo(['body', 0], []),
+		frame: 10,
+	};
+	const easing = {
+		type: 'easing' as const,
+		nodePathInfo: makeNodePathInfo(['body', 0], []),
+		fromFrame: 10,
+		toFrame: 20,
+		segmentIndex: 0,
+	};
+
+	expect(
+		getTimelineSelectionAfterInteraction({
+			currentState: {
+				selectedItems: [keyframe],
+				anchor: keyframe,
+			},
+			clickedItem: easing,
+			interaction: {shiftKey: false, toggleKey: false},
+			allSelectableItems: [keyframe, easing],
+		}),
+	).toEqual({
+		selectedItems: [easing],
+		anchor: easing,
+	});
+});
+
 test('Timeline double-click actions ignore selection modifier clicks', () => {
 	expect(
 		isTimelineSelectionModifierEvent({

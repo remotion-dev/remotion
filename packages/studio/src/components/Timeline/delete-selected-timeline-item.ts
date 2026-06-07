@@ -178,6 +178,7 @@ export const deleteSelectedTimelineItem = ({
 			]);
 		case 'sequence-prop':
 		case 'sequence-effect-prop':
+		case 'easing':
 			return null;
 		case 'sequence-all-effects':
 			return deleteEffects([
@@ -285,6 +286,7 @@ export const deleteSelectedTimelineItems = ({
 
 		case 'sequence-prop':
 		case 'sequence-effect-prop':
+		case 'easing':
 			return null;
 		case 'sequence-all-effects':
 			return deleteEffects(

@@ -91,6 +91,12 @@ export type TimelineSelection =
 	| (TimelineSelectionBase & {
 			readonly type: 'keyframe';
 			readonly frame: number;
+	  })
+	| (TimelineSelectionBase & {
+			readonly type: 'easing';
+			readonly fromFrame: number;
+			readonly toFrame: number;
+			readonly segmentIndex: number;
 	  });
 
 export type TimelineSelectionInteraction = {
@@ -341,6 +347,10 @@ const getTimelineSelectionKey = (item: TimelineSelection): string => {
 			return `${timelineNodePathInfoToKey(item.nodePathInfo)}.keyframe.${
 				item.frame
 			}`;
+		case 'easing':
+			return `${timelineNodePathInfoToKey(item.nodePathInfo)}.easing.${
+				item.segmentIndex
+			}.${item.fromFrame}.${item.toFrame}`;
 		default:
 			throw new Error(
 				`Unexpected timeline selection type: ${item satisfies never}`,
@@ -654,6 +664,50 @@ export const useTimelineKeyframeSelection = (
 			frame,
 		}),
 		[nodePathInfo, frame],
+	);
+
+	useEffect(() => {
+		return registerSelectableItem(selectionItem);
+	}, [registerSelectableItem, selectionItem]);
+
+	const selected = isSelected(selectionItem);
+
+	const onSelect = useCallback(
+		(interaction?: TimelineSelectionInteraction) => {
+			selectItem(selectionItem, interaction);
+		},
+		[selectItem, selectionItem],
+	);
+
+	return {
+		onSelect,
+		selectable: canSelect,
+		selected,
+	};
+};
+
+export const useTimelineEasingSelection = ({
+	nodePathInfo,
+	fromFrame,
+	toFrame,
+	segmentIndex,
+}: {
+	readonly nodePathInfo: SequenceNodePathInfo;
+	readonly fromFrame: number;
+	readonly toFrame: number;
+	readonly segmentIndex: number;
+}) => {
+	const {canSelect, isSelected, selectItem, registerSelectableItem} =
+		useTimelineSelection();
+	const selectionItem = useMemo(
+		(): TimelineSelection => ({
+			type: 'easing',
+			nodePathInfo,
+			fromFrame,
+			toFrame,
+			segmentIndex,
+		}),
+		[nodePathInfo, fromFrame, segmentIndex, toFrame],
 	);
 
 	useEffect(() => {
