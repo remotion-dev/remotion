@@ -1,5 +1,8 @@
 import {RenderInternals} from '@remotion/renderer';
 import {
+	areComponentProps,
+	isComponentIdentifier,
+	isComponentImportPath,
 	isUrl,
 	type InsertJsxElementRequest,
 	type InsertJsxElementResponse,
@@ -47,6 +50,26 @@ const validateElement = (element: InsertableCompositionElement) => {
 		return;
 	}
 
+	if (element.type === 'component') {
+		if (!isComponentIdentifier(element.componentName)) {
+			throw new Error('Unsupported component name');
+		}
+
+		if (!isComponentIdentifier(element.importName)) {
+			throw new Error('Unsupported component import name');
+		}
+
+		if (!isComponentImportPath(element.importPath)) {
+			throw new Error('Unsupported component import path');
+		}
+
+		if (!areComponentProps(element.props)) {
+			throw new Error('Unsupported component props');
+		}
+
+		return;
+	}
+
 	throw new Error('Unsupported element type');
 };
 
@@ -71,6 +94,10 @@ const getElementLabel = (element: InsertableCompositionElement) => {
 		if (element.assetType === 'audio') {
 			return '<Audio>';
 		}
+	}
+
+	if (element.type === 'component') {
+		return `<${element.componentName}>`;
 	}
 
 	throw new Error('Unsupported element type');

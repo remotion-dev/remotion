@@ -15,6 +15,7 @@ import type {
 } from '@babel/types';
 import {
 	isUrl,
+	type ComponentProp,
 	type InsertableCompositionElement,
 } from '@remotion/studio-shared';
 import type {namedTypes} from 'ast-types';
@@ -736,6 +737,28 @@ const createNumberAttribute = (
 	);
 };
 
+const createStringAttribute = (
+	name: string,
+	value: string,
+): namedTypes.JSXAttribute => {
+	return recast.types.builders.jsxAttribute(
+		recast.types.builders.jsxIdentifier(name),
+		recast.types.builders.stringLiteral(value),
+	);
+};
+
+const createBooleanAttribute = (
+	name: string,
+	value: boolean,
+): namedTypes.JSXAttribute => {
+	return recast.types.builders.jsxAttribute(
+		recast.types.builders.jsxIdentifier(name),
+		recast.types.builders.jsxExpressionContainer(
+			recast.types.builders.booleanLiteral(value),
+		),
+	);
+};
+
 const createPositionAbsoluteStyleAttribute = (): namedTypes.JSXAttribute => {
 	return recast.types.builders.jsxAttribute(
 		recast.types.builders.jsxIdentifier('style'),
@@ -768,6 +791,21 @@ const createStaticFileSrcAttribute = ({
 	);
 };
 
+const createComponentProp = ({
+	name,
+	value,
+}: ComponentProp): namedTypes.JSXAttribute => {
+	if (typeof value === 'number') {
+		return createNumberAttribute(name, value);
+	}
+
+	if (typeof value === 'boolean') {
+		return createBooleanAttribute(name, value);
+	}
+
+	return createStringAttribute(name, value);
+};
+
 const createStringSrcAttribute = (src: string): namedTypes.JSXAttribute => {
 	return recast.types.builders.jsxAttribute(
 		recast.types.builders.jsxIdentifier('src'),
@@ -790,6 +828,27 @@ const createSolidElement = ({
 			[
 				createNumberAttribute('width', width),
 				createNumberAttribute('height', height),
+				createPositionAbsoluteStyleAttribute(),
+			],
+			true,
+		),
+		null,
+		[],
+	);
+};
+
+const createComponentElement = ({
+	localName,
+	props,
+}: {
+	localName: string;
+	props: ComponentProp[];
+}): namedTypes.JSXElement => {
+	return recast.types.builders.jsxElement(
+		recast.types.builders.jsxOpeningElement(
+			recast.types.builders.jsxIdentifier(localName),
+			[
+				...props.map(createComponentProp),
 				createPositionAbsoluteStyleAttribute(),
 			],
 			true,
@@ -1129,6 +1188,67 @@ const ensureGifImport = (ast: File) => {
 	});
 };
 
+const hasComponentLocalImport = ({
+	ast,
+	importName,
+	importPath,
+}: {
+	ast: File;
+	importName: string;
+	importPath: string;
+}) => {
+	for (const importDeclaration of getImportDeclarations({
+		ast,
+		sourcePath: importPath,
+	})) {
+		for (const specifier of importDeclaration.specifiers ?? []) {
+			if (
+				specifier.type === 'ImportSpecifier' &&
+				getImportedName(specifier) === importName
+			) {
+				return specifier.local?.name ?? importName;
+			}
+		}
+	}
+
+	return null;
+};
+
+const ensureComponentImport = ({
+	ast,
+	componentName,
+	importName,
+	importPath,
+}: {
+	ast: File;
+	componentName: string;
+	importName: string;
+	importPath: string;
+}) => {
+	const existingLocalName = hasComponentLocalImport({
+		ast,
+		importName,
+		importPath,
+	});
+
+	if (existingLocalName) {
+		return existingLocalName;
+	}
+
+	if (hasTopLevelBinding({ast, name: componentName})) {
+		throw new Error(
+			`Cannot add <${componentName}> because ${componentName} is already defined`,
+		);
+	}
+
+	return ensureNamedImport({
+		ast,
+		importedName: importName,
+		sourcePath: importPath,
+		localName: componentName,
+	});
+};
+
 const addElementToComponentRoot = ({
 	ast,
 	exportName,
@@ -1450,6 +1570,20 @@ const createInsertableJsxElement = ({
 			localName: solidLocalName,
 			width: element.width,
 			height: element.height,
+		});
+	}
+
+	if (element.type === 'component') {
+		const componentLocalName = ensureComponentImport({
+			ast,
+			componentName: element.componentName,
+			importName: element.importName,
+			importPath: element.importPath,
+		});
+
+		return createComponentElement({
+			localName: componentLocalName,
+			props: element.props,
 		});
 	}
 

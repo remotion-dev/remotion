@@ -157,7 +157,7 @@ export const useMediaInTimeline = ({
 	postmountDisplay: number | null;
 	loopDisplay: LoopDisplay | undefined;
 	documentationLink: string | null;
-	refForOutline: React.RefObject<HTMLElement | null> | null;
+	refForOutline: React.RefObject<Element | null> | null;
 }) => {
 	const parentSequence = useContext(SequenceContext);
 	const startsAt = useMediaStartsAt();

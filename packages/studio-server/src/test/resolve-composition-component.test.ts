@@ -967,3 +967,60 @@ test('rejects inserting an Audio asset if Audio is already defined', async () =>
 		await fs.rm(tempDir, {recursive: true, force: true});
 	}
 });
+
+test('inserts a component into the resolved composition component', async () => {
+	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
+	try {
+		await fs.writeFile(
+			path.join(tempDir, 'Root.tsx'),
+			[
+				"import {Composition} from 'remotion';",
+				"import {MyComp} from './MyComp';",
+				'export const RemotionRoot = () => {',
+				'\treturn <Composition id="test" component={MyComp} />;',
+				'};',
+				'',
+			].join('\n'),
+		);
+		await fs.writeFile(
+			path.join(tempDir, 'MyComp.tsx'),
+			[
+				"import {AbsoluteFill} from 'remotion';",
+				'',
+				'export const MyComp: React.FC = () => {',
+				'\treturn <AbsoluteFill>hello</AbsoluteFill>;',
+				'};',
+				'',
+			].join('\n'),
+		);
+
+		const result = await insertJsxElementIntoComposition({
+			remotionRoot: tempDir,
+			compositionFile: 'Root.tsx',
+			compositionId: 'test',
+			element: {
+				type: 'component',
+				componentName: 'Circle',
+				importName: 'Circle',
+				importPath: '@remotion/shapes',
+				props: [
+					{name: 'fill', value: '#0b84ff'},
+					{name: 'dataShapeIndex', value: 1},
+					{name: 'debug', value: false},
+				],
+			},
+			prettierConfigOverride: {singleQuote: true, useTabs: true},
+		});
+
+		expect(result.output).toContain(
+			"import { Circle } from '@remotion/shapes';",
+		);
+		expect(result.output).toContain('<Circle');
+		expect(result.output).toContain('fill="#0b84ff"');
+		expect(result.output).toContain('dataShapeIndex={1}');
+		expect(result.output).toContain('debug={false}');
+		expect(result.output).toContain("position: 'absolute'");
+	} finally {
+		await fs.rm(tempDir, {recursive: true, force: true});
+	}
+});

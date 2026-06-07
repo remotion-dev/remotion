@@ -100,6 +100,16 @@ export {
 	type AssetDragData,
 } from './asset-drag-data';
 export type {ApplyVisualControlCodemod, RecastCodemod} from './codemods';
+export {
+	COMPONENT_DRAG_MIME_TYPE,
+	areComponentProps,
+	isComponentIdentifier,
+	isComponentImportPath,
+	makeComponentDragData,
+	parseComponentDragData,
+	type ComponentDragData,
+	type ComponentProp,
+} from './component-drag-data';
 export {DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS} from './default-buffer-state-delay-in-milliseconds';
 export {
 	detectFileType,
@@ -197,11 +207,6 @@ export {
 	getEffectFieldsToShow,
 	getFieldsToShow,
 } from './schema-field-info';
-export {
-	SFX_DRAG_MIME_TYPE,
-	parseSfxDragData,
-	type SfxDragData,
-} from './sfx-drag-data';
 export type {
 	AnySchemaFieldInfo,
 	DragOverrides,
@@ -211,6 +216,11 @@ export type {
 	SequenceControls,
 	SequenceSchemaFieldInfo,
 } from './schema-field-info';
+export {
+	SFX_DRAG_MIME_TYPE,
+	parseSfxDragData,
+	type SfxDragData,
+} from './sfx-drag-data';
 export {
 	ScriptLine,
 	SomeStackFrame,
@@ -236,8 +246,8 @@ export {
 	optimisticMoveSequenceKeyframes,
 	type OptimisticKeyframeMove,
 } from './optimistic-move-keyframe';
-export {optimisticUpdateForPropStatuses} from './optimistic-update-for-prop-statuses';
 export {optimisticUpdateForEffectPropStatuses} from './optimistic-update-for-effect-prop-statuses';
+export {optimisticUpdateForPropStatuses} from './optimistic-update-for-prop-statuses';
 export {
 	optimisticUpdateEffectKeyframeSettings,
 	optimisticUpdateSequenceKeyframeSettings,

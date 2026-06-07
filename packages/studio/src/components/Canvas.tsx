@@ -1,9 +1,12 @@
 import type {Size} from '@remotion/player';
 import {
 	ASSET_DRAG_MIME_TYPE,
-	SFX_DRAG_MIME_TYPE,
+	COMPONENT_DRAG_MIME_TYPE,
 	parseAssetDragData,
+	parseComponentDragData,
 	parseSfxDragData,
+	SFX_DRAG_MIME_TYPE,
+	type ComponentDragData,
 } from '@remotion/studio-shared';
 import React, {
 	useCallback,
@@ -44,8 +47,9 @@ import {useIsRulerVisible} from './EditorRuler/use-is-ruler-visible';
 import {
 	importAssets,
 	importRemoteAsset,
-	insertRemoteAudio,
+	insertComponent,
 	insertExistingAssets,
+	insertRemoteAudio,
 } from './import-assets';
 import {SPACING_UNIT} from './layout';
 import {VideoPreview} from './Preview';
@@ -87,6 +91,12 @@ const isAssetDragEvent = (event: DragEvent): boolean => {
 	);
 };
 
+const isComponentDragEvent = (event: DragEvent): boolean => {
+	return Array.from(event.dataTransfer?.types ?? []).includes(
+		COMPONENT_DRAG_MIME_TYPE,
+	);
+};
+
 const isSfxDragEvent = (event: DragEvent): boolean => {
 	return Array.from(event.dataTransfer?.types ?? []).includes(
 		SFX_DRAG_MIME_TYPE,
@@ -97,6 +107,7 @@ const isRemoteAssetDragEvent = (event: DragEvent): boolean => {
 	return (
 		!isFileDragEvent(event) &&
 		!isAssetDragEvent(event) &&
+		!isComponentDragEvent(event) &&
 		!isSfxDragEvent(event) &&
 		hasRemoteAssetDragData(event.dataTransfer)
 	);
@@ -109,6 +120,26 @@ const getAssetDragPath = (event: DragEvent): string | null => {
 	}
 
 	return parseAssetDragData(value)?.assetPath ?? null;
+};
+
+const getComponentDragData = (event: DragEvent): ComponentDragData | null => {
+	for (const type of [
+		COMPONENT_DRAG_MIME_TYPE,
+		'application/json',
+		'text/plain',
+	]) {
+		const value = event.dataTransfer?.getData(type);
+		if (!value) {
+			continue;
+		}
+
+		const parsed = parseComponentDragData(value);
+		if (parsed) {
+			return parsed;
+		}
+	}
+
+	return null;
 };
 
 const getSfxDragUrl = (event: DragEvent): string | null => {
@@ -666,6 +697,7 @@ export const Canvas: React.FC<{
 				!canDropAssets ||
 				(!isFileDragEvent(event) &&
 					!isAssetDragEvent(event) &&
+					!isComponentDragEvent(event) &&
 					!isSfxDragEvent(event) &&
 					!isRemoteAssetDragEvent(event)) ||
 				!isDragEventInsideCanvas(event)
@@ -689,6 +721,7 @@ export const Canvas: React.FC<{
 				currentCompositionId === null ||
 				(!isFileDragEvent(event) &&
 					!isAssetDragEvent(event) &&
+					!isComponentDragEvent(event) &&
 					!isSfxDragEvent(event) &&
 					!isRemoteAssetDragEvent(event)) ||
 				!isDragEventInsideCanvas(event)
@@ -735,6 +768,16 @@ export const Canvas: React.FC<{
 						compositionId: currentCompositionId,
 					});
 				} else {
+					const componentDragData = getComponentDragData(event);
+					if (componentDragData !== null) {
+						await insertComponent({
+							component: componentDragData.component,
+							compositionFile,
+							compositionId: currentCompositionId,
+						});
+						return;
+					}
+
 					const url = getRemoteAssetUrlFromDataTransfer(event.dataTransfer);
 					if (url === null) {
 						return;

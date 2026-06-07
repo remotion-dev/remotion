@@ -23,6 +23,7 @@ import type {
 	SequenceSchema,
 } from 'remotion';
 import type {RecastCodemod, VisualControlChange} from './codemods';
+import type {ComponentProp} from './component-drag-data';
 import type {
 	EffectClipboardParam,
 	EffectClipboardPasteType,
@@ -598,6 +599,13 @@ export type InsertableCompositionElement =
 			type: 'solid';
 			width: number;
 			height: number;
+	  }
+	| {
+			type: 'component';
+			componentName: string;
+			importName: string;
+			importPath: string;
+			props: ComponentProp[];
 	  }
 	| {
 			type: 'asset';
