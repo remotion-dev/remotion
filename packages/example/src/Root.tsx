@@ -185,6 +185,7 @@ import {BrowserTest} from './BrowserTest';
 import {EdgeBlur} from './EdgeBlur/EdgeBlur';
 import {EffectsTestbed} from './EffectsTestbed/EffectsTestbed';
 import {HalftoneGradient} from './EffectsTestbed/HalftoneGradient';
+import {NoiseDisplacementText} from './EffectsTestbed/NoiseDisplacementText';
 import {VideoEffectsFastRefresh} from './EffectsTestbed/VideoEffectsFastRefresh';
 import {Empty} from './Empty';
 import {JumpCuts, SAMPLE_SECTIONS, calculateMetadataJumpCuts} from './JumpCuts';
@@ -393,6 +394,14 @@ export const Index: React.FC = () => {
 					id="effect-copy-target"
 					component={EffectCopyTarget}
 					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={120}
+				/>
+				<Composition
+					id="noise-displacement-text"
+					component={NoiseDisplacementText}
+					width={1920}
 					height={1080}
 					fps={30}
 					durationInFrames={120}
