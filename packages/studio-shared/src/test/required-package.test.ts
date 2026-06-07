@@ -51,6 +51,7 @@ test('gets required package for insertable elements', () => {
 	expect(
 		getRequiredPackageForInsertableElement({
 			type: 'shape',
+			attributes: [],
 			shape: 'Circle',
 		}),
 	).toBe('@remotion/shapes');

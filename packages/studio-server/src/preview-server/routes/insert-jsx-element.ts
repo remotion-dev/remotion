@@ -1,11 +1,12 @@
 import {RenderInternals} from '@remotion/renderer';
 import {
+	areShapeAttributes,
+	isShapeName,
 	isUrl,
 	type InsertJsxElementRequest,
 	type InsertJsxElementResponse,
 	type InsertableCompositionElement,
 } from '@remotion/studio-shared';
-import {isShapeName} from '@remotion/studio-shared';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {insertJsxElementIntoComposition} from '../../helpers/resolve-composition-component';
 import type {ApiHandler} from '../api-types';
@@ -51,6 +52,10 @@ const validateElement = (element: InsertableCompositionElement) => {
 	if (element.type === 'shape') {
 		if (!isShapeName(element.shape)) {
 			throw new Error('Unsupported shape');
+		}
+
+		if (!areShapeAttributes(element.attributes)) {
+			throw new Error('Unsupported shape attributes');
 		}
 
 		return;

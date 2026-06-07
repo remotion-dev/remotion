@@ -5,6 +5,7 @@ import {
 	type DownloadRemoteAssetResponse,
 	type FileType,
 	type InsertableCompositionElement,
+	type ShapeAttribute,
 	type ShapeName,
 } from '@remotion/studio-shared';
 import {getStaticFiles} from '../api/get-static-files';
@@ -477,10 +478,12 @@ export const insertExistingAssets = async ({
 };
 
 export const insertShape = async ({
+	attributes,
 	compositionFile,
 	compositionId,
 	shape,
 }: {
+	attributes: ShapeAttribute[];
 	compositionFile: string;
 	compositionId: string;
 	shape: ShapeName;
@@ -491,6 +494,7 @@ export const insertShape = async ({
 			compositionId,
 			element: {
 				type: 'shape',
+				attributes,
 				shape,
 			},
 		});

@@ -1004,6 +1004,11 @@ for (const shape of shapeNames) {
 				compositionId: 'test',
 				element: {
 					type: 'shape',
+					attributes: [
+						{name: 'fill', value: '#0b84ff'},
+						{name: 'dataShapeIndex', value: 1},
+						{name: 'debug', value: false},
+					],
 					shape,
 				},
 				prettierConfigOverride: {singleQuote: true, useTabs: true},
@@ -1014,6 +1019,8 @@ for (const shape of shapeNames) {
 			);
 			expect(result.output).toContain(`<${shape}`);
 			expect(result.output).toContain('fill="#0b84ff"');
+			expect(result.output).toContain('dataShapeIndex={1}');
+			expect(result.output).toContain('debug={false}');
 			expect(result.output).toContain("position: 'absolute'");
 		} finally {
 			await fs.rm(tempDir, {recursive: true, force: true});

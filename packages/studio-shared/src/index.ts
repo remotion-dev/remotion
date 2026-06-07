@@ -197,11 +197,6 @@ export {
 	getEffectFieldsToShow,
 	getFieldsToShow,
 } from './schema-field-info';
-export {
-	SFX_DRAG_MIME_TYPE,
-	parseSfxDragData,
-	type SfxDragData,
-} from './sfx-drag-data';
 export type {
 	AnySchemaFieldInfo,
 	DragOverrides,
@@ -212,11 +207,18 @@ export type {
 	SequenceSchemaFieldInfo,
 } from './schema-field-info';
 export {
+	SFX_DRAG_MIME_TYPE,
+	parseSfxDragData,
+	type SfxDragData,
+} from './sfx-drag-data';
+export {
 	SHAPE_DRAG_MIME_TYPE,
+	areShapeAttributes,
 	isShapeName,
 	makeShapeDragData,
 	parseShapeDragData,
 	shapeNames,
+	type ShapeAttribute,
 	type ShapeDragData,
 	type ShapeName,
 } from './shape-drag-data';

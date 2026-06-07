@@ -6,7 +6,7 @@ import {
 	parseShapeDragData,
 	SFX_DRAG_MIME_TYPE,
 	SHAPE_DRAG_MIME_TYPE,
-	type ShapeName,
+	type ShapeDragData,
 } from '@remotion/studio-shared';
 import React, {
 	useCallback,
@@ -122,7 +122,7 @@ const getAssetDragPath = (event: DragEvent): string | null => {
 	return parseAssetDragData(value)?.assetPath ?? null;
 };
 
-const getShapeDragName = (event: DragEvent): ShapeName | null => {
+const getShapeDragData = (event: DragEvent): ShapeDragData | null => {
 	for (const type of [SHAPE_DRAG_MIME_TYPE, 'application/json', 'text/plain']) {
 		const value = event.dataTransfer?.getData(type);
 		if (!value) {
@@ -131,7 +131,7 @@ const getShapeDragName = (event: DragEvent): ShapeName | null => {
 
 		const parsed = parseShapeDragData(value);
 		if (parsed) {
-			return parsed.shape;
+			return parsed;
 		}
 	}
 
@@ -764,10 +764,11 @@ export const Canvas: React.FC<{
 						compositionId: currentCompositionId,
 					});
 				} else {
-					const shape = getShapeDragName(event);
-					if (shape !== null) {
+					const shapeDragData = getShapeDragData(event);
+					if (shapeDragData !== null) {
 						await insertShape({
-							shape,
+							attributes: shapeDragData.attributes,
+							shape: shapeDragData.shape,
 							compositionFile,
 							compositionId: currentCompositionId,
 						});

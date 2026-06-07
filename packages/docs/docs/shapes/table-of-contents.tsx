@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-	makeShapeDragData,
+	makeDefaultShapeDragData,
 	setShapeDragData,
 } from '../../components/shapes/shape-drag-data';
 import {shapeComponents} from '../../components/shapes/shapes-info';
@@ -24,7 +24,7 @@ export const TableOfContents: React.FC = () => {
 								onDragStart={(e) => {
 									setShapeDragData({
 										dataTransfer: e.dataTransfer,
-										dragData: makeShapeDragData(c.shape),
+										dragData: makeDefaultShapeDragData(c.shape),
 									});
 								}}
 								title="Drag this shape into Remotion Studio"
