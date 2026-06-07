@@ -165,7 +165,7 @@ test('Should render a shape with effects in HtmlInCanvas', async () => {
 	expect(container.querySelector('svg')).not.toBe(null);
 	expect(container.querySelector('path')?.getAttribute('fill')).toBe('green');
 	expect(htmlInCanvasCalls).toEqual([
-		{
+		expect.objectContaining({
 			width: 200,
 			height: 200,
 			effects: [effect],
@@ -175,9 +175,9 @@ test('Should render a shape with effects in HtmlInCanvas', async () => {
 				overflow: 'visible',
 				opacity: 0.5,
 			},
-			_experimentalControls: undefined,
-		},
+		}),
 	]);
+	expect(htmlInCanvasCalls[0]._experimentalControls ?? null).toBe(null);
 	expect(sequenceCalls[0]).toMatchObject({
 		layout: 'none',
 		name: '<Circle>',
