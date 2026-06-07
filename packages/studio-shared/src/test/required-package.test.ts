@@ -17,6 +17,7 @@ test('gets required package for insertable elements', () => {
 			type: 'asset',
 			assetType: 'image',
 			src: 'image.png',
+			srcType: 'static',
 			dimensions: null,
 		}),
 	).toBe(null);
@@ -25,6 +26,7 @@ test('gets required package for insertable elements', () => {
 			type: 'asset',
 			assetType: 'video',
 			src: 'video.mp4',
+			srcType: 'static',
 			dimensions: null,
 		}),
 	).toBe('@remotion/media');
@@ -33,6 +35,7 @@ test('gets required package for insertable elements', () => {
 			type: 'asset',
 			assetType: 'audio',
 			src: 'audio.mp3',
+			srcType: 'static',
 			dimensions: null,
 		}),
 	).toBe('@remotion/media');
@@ -41,6 +44,7 @@ test('gets required package for insertable elements', () => {
 			type: 'asset',
 			assetType: 'gif',
 			src: 'animation.gif',
+			srcType: 'static',
 			dimensions: null,
 		}),
 	).toBe('@remotion/gif');

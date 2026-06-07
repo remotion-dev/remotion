@@ -15,6 +15,7 @@ test('maps audio file types to Audio assets', () => {
 			type: 'asset',
 			assetType: 'audio',
 			src: `sound.${type}`,
+			srcType: 'static',
 			dimensions: null,
 		});
 	}
@@ -34,24 +35,28 @@ test('maps existing static file paths to insertable assets', () => {
 		type: 'asset',
 		assetType: 'image',
 		src: 'nested/photo.JPG',
+		srcType: 'static',
 		dimensions: null,
 	});
 	expect(getAssetElementFromPath('movie.webm')).toEqual({
 		type: 'asset',
 		assetType: 'video',
 		src: 'movie.webm',
+		srcType: 'static',
 		dimensions: null,
 	});
 	expect(getAssetElementFromPath('audio.flac')).toEqual({
 		type: 'asset',
 		assetType: 'audio',
 		src: 'audio.flac',
+		srcType: 'static',
 		dimensions: null,
 	});
 	expect(getAssetElementFromPath('animation.gif')).toEqual({
 		type: 'asset',
 		assetType: 'gif',
 		src: 'animation.gif',
+		srcType: 'static',
 		dimensions: null,
 	});
 });

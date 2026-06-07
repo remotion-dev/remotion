@@ -1,5 +1,10 @@
 import {Button} from '@remotion/design';
 import React, {useCallback, useRef, useState} from 'react';
+import {
+	getSfxNameFromUrl,
+	makeSfxDragData,
+	setSfxDragData,
+} from '../../components/sfx-demos/sfx-drag-data';
 
 export const PlayButton: React.FC<{
 	readonly src: string;
@@ -8,6 +13,7 @@ export const PlayButton: React.FC<{
 }> = ({src, size = 48, depth}) => {
 	const [playing, setPlaying] = useState(false);
 	const audioRef = useRef<HTMLAudioElement | null>(null);
+	const sfxName = getSfxNameFromUrl(src);
 
 	const iconSize = Math.round(size * 0.5);
 
@@ -34,8 +40,26 @@ export const PlayButton: React.FC<{
 		[playing, src],
 	);
 
+	const onDragStart = useCallback(
+		(e: React.DragEvent<HTMLDivElement>) => {
+			setSfxDragData({
+				dataTransfer: e.dataTransfer,
+				dragData: makeSfxDragData({
+					name: sfxName,
+					url: src,
+				}),
+			});
+		},
+		[sfxName, src],
+	);
+
 	return (
-		<div style={{width: size, height: size}}>
+		<div
+			style={{width: size, height: size}}
+			draggable
+			onDragStart={onDragStart}
+			title="Drag this sound effect into Remotion Studio"
+		>
 			<Button
 				className={`rounded-full p-0`}
 				style={{width: size, height: size}}

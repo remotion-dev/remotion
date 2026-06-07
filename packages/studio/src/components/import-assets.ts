@@ -1,6 +1,7 @@
 import {
 	detectFileType,
 	getRequiredPackageForInsertableElement,
+	isUrl,
 	type DownloadRemoteAssetResponse,
 	type FileType,
 	type InsertableCompositionElement,
@@ -29,6 +30,7 @@ export const getAssetElement = ({
 			type: 'asset',
 			assetType: 'image',
 			src,
+			srcType: 'static',
 			dimensions: fileType.dimensions,
 		};
 	}
@@ -38,6 +40,7 @@ export const getAssetElement = ({
 			type: 'asset',
 			assetType: 'gif',
 			src,
+			srcType: 'static',
 			dimensions: fileType.dimensions,
 		};
 	}
@@ -52,6 +55,7 @@ export const getAssetElement = ({
 			type: 'asset',
 			assetType: 'video',
 			src,
+			srcType: 'static',
 			dimensions: null,
 		};
 	}
@@ -66,6 +70,7 @@ export const getAssetElement = ({
 			type: 'asset',
 			assetType: 'audio',
 			src,
+			srcType: 'static',
 			dimensions: null,
 		};
 	}
@@ -90,6 +95,7 @@ export const getAssetElementFromPath = (
 			type: 'asset',
 			assetType: 'image',
 			src: assetPath,
+			srcType: 'static',
 			dimensions: null,
 		};
 	}
@@ -99,6 +105,7 @@ export const getAssetElementFromPath = (
 			type: 'asset',
 			assetType: 'gif',
 			src: assetPath,
+			srcType: 'static',
 			dimensions: null,
 		};
 	}
@@ -108,6 +115,7 @@ export const getAssetElementFromPath = (
 			type: 'asset',
 			assetType: 'video',
 			src: assetPath,
+			srcType: 'static',
 			dimensions: null,
 		};
 	}
@@ -117,6 +125,7 @@ export const getAssetElementFromPath = (
 			type: 'asset',
 			assetType: 'audio',
 			src: assetPath,
+			srcType: 'static',
 			dimensions: null,
 		};
 	}
@@ -367,6 +376,50 @@ export const importRemoteAsset = async ({
 	} catch (error) {
 		showNotification(
 			`Could not add remote asset: ${
+				error instanceof Error ? error.message : String(error)
+			}`,
+			4000,
+		);
+	}
+};
+
+export const insertRemoteAudio = async ({
+	compositionFile,
+	compositionId,
+	url,
+}: {
+	compositionFile: string;
+	compositionId: string;
+	url: string;
+}) => {
+	if (!isUrl(url)) {
+		showNotification('Cannot add sound effect: Unsupported URL', 3000);
+		return;
+	}
+
+	const element: InsertableCompositionElement = {
+		type: 'asset',
+		assetType: 'audio',
+		src: url,
+		srcType: 'remote',
+		dimensions: null,
+	};
+
+	try {
+		const inserted = await insertAssetElement({
+			compositionFile,
+			compositionId,
+			element,
+		});
+
+		if (!inserted) {
+			return;
+		}
+
+		notifyInsertedAssets([getAssetLabel(element)]);
+	} catch (error) {
+		showNotification(
+			`Could not add sound effect: ${
 				error instanceof Error ? error.message : String(error)
 			}`,
 			4000,

@@ -693,6 +693,7 @@ test('inserts an Img asset into the resolved composition component', async () =>
 				type: 'asset',
 				assetType: 'image',
 				src: 'image.png',
+				srcType: 'static',
 				dimensions: {
 					width: 800,
 					height: 600,
@@ -751,6 +752,7 @@ test('rejects inserting a Video asset if Video is already defined', async () => 
 					type: 'asset',
 					assetType: 'video',
 					src: 'clip.mp4',
+					srcType: 'static',
 					dimensions: null,
 				},
 				prettierConfigOverride: {singleQuote: true, useTabs: true},
@@ -795,6 +797,7 @@ test('inserts a Gif asset into the resolved composition component', async () => 
 				type: 'asset',
 				assetType: 'gif',
 				src: 'animation.gif',
+				srcType: 'static',
 				dimensions: {
 					width: 320,
 					height: 180,
@@ -850,6 +853,7 @@ test('inserts an Audio asset into the resolved composition component', async () 
 				type: 'asset',
 				assetType: 'audio',
 				src: 'audio.mp3',
+				srcType: 'static',
 				dimensions: null,
 			},
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
@@ -861,6 +865,57 @@ test('inserts an Audio asset into the resolved composition component', async () 
 		);
 		expect(result.output).toContain('<Audio');
 		expect(result.output).toContain("src={staticFile('audio.mp3')}");
+	} finally {
+		await fs.rm(tempDir, {recursive: true, force: true});
+	}
+});
+
+test('inserts a remote audio asset with a literal URL', async () => {
+	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
+	try {
+		await fs.writeFile(
+			path.join(tempDir, 'Root.tsx'),
+			[
+				"import {Composition} from 'remotion';",
+				"import {MyComp} from './MyComp';",
+				'export const RemotionRoot = () => {',
+				'\treturn <Composition id="test" component={MyComp} />;',
+				'};',
+				'',
+			].join('\n'),
+		);
+		await fs.writeFile(
+			path.join(tempDir, 'MyComp.tsx'),
+			[
+				"import {AbsoluteFill} from 'remotion';",
+				'',
+				'export const MyComp: React.FC = () => {',
+				'\treturn <AbsoluteFill>hello</AbsoluteFill>;',
+				'};',
+				'',
+			].join('\n'),
+		);
+
+		const result = await insertJsxElementIntoComposition({
+			remotionRoot: tempDir,
+			compositionFile: 'Root.tsx',
+			compositionId: 'test',
+			element: {
+				type: 'asset',
+				assetType: 'audio',
+				src: 'https://example.com/whip.wav',
+				srcType: 'remote',
+				dimensions: null,
+			},
+			prettierConfigOverride: {singleQuote: true, useTabs: true},
+		});
+
+		expect(result.output).toContain("import { Audio } from '@remotion/media';");
+		expect(result.output).toContain("import { AbsoluteFill } from 'remotion';");
+		expect(result.output).toContain('<Audio');
+		expect(result.output).toContain('src="https://example.com/whip.wav"');
+		expect(result.output).not.toContain('staticFile');
+		expect(result.output).not.toContain('@remotion/sfx');
 	} finally {
 		await fs.rm(tempDir, {recursive: true, force: true});
 	}
@@ -903,6 +958,7 @@ test('rejects inserting an Audio asset if Audio is already defined', async () =>
 					type: 'asset',
 					assetType: 'audio',
 					src: 'audio.mp3',
+					srcType: 'static',
 					dimensions: null,
 				},
 				prettierConfigOverride: {singleQuote: true, useTabs: true},

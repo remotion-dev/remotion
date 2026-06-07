@@ -197,6 +197,11 @@ export {
 	getEffectFieldsToShow,
 	getFieldsToShow,
 } from './schema-field-info';
+export {
+	SFX_DRAG_MIME_TYPE,
+	parseSfxDragData,
+	type SfxDragData,
+} from './sfx-drag-data';
 export type {
 	AnySchemaFieldInfo,
 	DragOverrides,
@@ -250,3 +255,4 @@ export {
 	stringifySequenceExpandedRowKey,
 	stringifySequenceSubscriptionKey,
 } from './stringify-sequence-subscription-key';
+export {isUrl} from './url';
