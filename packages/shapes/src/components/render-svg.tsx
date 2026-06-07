@@ -1,28 +1,42 @@
 import type {Instruction} from '@remotion/paths';
-import React, {useMemo} from 'react';
+import React, {useCallback, useMemo, useRef} from 'react';
 import {version} from 'react-dom';
 import {
 	HtmlInCanvas,
+	Internals,
+	Sequence,
 	type EffectsProp,
 	type HtmlInCanvasPixelDensity,
+	type SequenceControls,
+	type SequenceProps,
 } from 'remotion';
 import {doesReactSupportTransformOriginProperty} from '../utils/does-react-support-canary';
 
-export type AllShapesProps = Omit<
-	React.SVGProps<SVGPathElement>,
-	'width' | 'height' | 'd'
+type ShapeSequenceProps = Pick<
+	SequenceProps,
+	'durationInFrames' | 'from' | 'hidden' | 'name' | 'showInTimeline'
 > & {
-	readonly debug?: boolean;
-	readonly effects?: EffectsProp;
-	readonly pathStyle?: React.CSSProperties;
-	readonly pixelDensity?: HtmlInCanvasPixelDensity;
-	/**
-	 * @deprecated For internal use only
-	 */
-	readonly stack?: string;
+	readonly _experimentalControls?: SequenceControls;
 };
 
+export type AllShapesProps = Omit<
+	React.SVGProps<SVGPathElement>,
+	'width' | 'height' | 'd' | 'hidden' | 'name'
+> &
+	ShapeSequenceProps & {
+		readonly debug?: boolean;
+		readonly effects?: EffectsProp;
+		readonly pathStyle?: React.CSSProperties;
+		readonly pixelDensity?: HtmlInCanvasPixelDensity;
+		/**
+		 * @deprecated For internal use only
+		 */
+		readonly stack?: string;
+	};
+
 export const RenderSvg = ({
+	defaultName,
+	documentationLink,
 	width,
 	height,
 	path,
@@ -33,9 +47,17 @@ export const RenderSvg = ({
 	effects = [],
 	instructions,
 	pixelDensity,
+	durationInFrames,
+	from,
+	hidden,
+	name,
+	showInTimeline,
+	_experimentalControls: controls,
 	stack,
 	...props
 }: {
+	readonly defaultName: string;
+	readonly documentationLink: string;
 	readonly width: number;
 	readonly height: number;
 	readonly path: string;
@@ -56,11 +78,24 @@ export const RenderSvg = ({
 		};
 	}, [pathStyle]);
 
+	const outlineRef = useRef<Element | null>(null);
+	const setSvgRef = useCallback((node: SVGSVGElement | null) => {
+		outlineRef.current = node;
+	}, []);
+
+	const setCanvasRef = useCallback((canvas: HTMLCanvasElement | null) => {
+		outlineRef.current = canvas;
+	}, []);
+
+	const memoizedEffectDefinitions =
+		Internals.useMemoizedEffectDefinitions(effects);
+
 	const reactSupportsTransformOrigin =
 		doesReactSupportTransformOriginProperty(version);
 
 	const svg = (
 		<svg
+			ref={effects.length === 0 ? setSvgRef : undefined}
 			width={width}
 			height={height}
 			viewBox={`0 0 ${width} ${height}`}
@@ -144,20 +179,44 @@ export const RenderSvg = ({
 		</svg>
 	);
 
-	if (effects.length === 0) {
-		return svg;
-	}
+	const content =
+		effects.length === 0 ? (
+			svg
+		) : (
+			<HtmlInCanvas
+				ref={setCanvasRef}
+				width={Math.ceil(width)}
+				height={Math.ceil(height)}
+				effects={effects}
+				pixelDensity={pixelDensity}
+				showInTimeline={false}
+				stack={stack}
+				style={actualStyle}
+				_experimentalControls={controls}
+			>
+				{svg}
+			</HtmlInCanvas>
+		);
+
+	const stackProps = stack === undefined ? null : ({stack} as const);
 
 	return (
-		<HtmlInCanvas
-			width={Math.ceil(width)}
-			height={Math.ceil(height)}
-			effects={effects}
-			pixelDensity={pixelDensity}
-			stack={stack}
-			style={actualStyle}
+		<Sequence
+			layout="none"
+			from={from}
+			hidden={hidden}
+			showInTimeline={showInTimeline}
+			_experimentalControls={controls}
+			_remotionInternalEffects={memoizedEffectDefinitions}
+			durationInFrames={durationInFrames}
+			name={name ?? defaultName}
+			_remotionInternalRefForOutline={outlineRef}
+			_remotionInternalDocumentationLink={
+				name === undefined ? documentationLink : undefined
+			}
+			{...stackProps}
 		>
-			{svg}
-		</HtmlInCanvas>
+			{content}
+		</Sequence>
 	);
 };

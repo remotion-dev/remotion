@@ -4,8 +4,33 @@ import type {MakeStarProps} from '../utils/make-star';
 import {makeStar} from '../utils/make-star';
 import type {AllShapesProps} from './render-svg';
 import {RenderSvg} from './render-svg';
+import {makeShapeSchema, numberField} from './schema';
 
 export type StarProps = MakeStarProps & Omit<AllShapesProps, 'points'>;
+
+const starSchema = makeShapeSchema({
+	points: numberField({
+		defaultValue: 5,
+		description: 'Points',
+		min: 3,
+		step: 1,
+	}),
+	innerRadius: numberField({
+		defaultValue: 50,
+		description: 'Inner Radius',
+		min: 0,
+	}),
+	outerRadius: numberField({
+		defaultValue: 100,
+		description: 'Outer Radius',
+		min: 0,
+	}),
+	cornerRadius: numberField({
+		defaultValue: 0,
+		description: 'Corner Radius',
+		min: 0,
+	}),
+});
 
 /**
  * @description Renders an SVG element containing a star.
@@ -17,7 +42,7 @@ export type StarProps = MakeStarProps & Omit<AllShapesProps, 'points'>;
  * @see [Documentation](https://www.remotion.dev/docs/shapes/star)
  */
 
-export const Star: React.FC<StarProps> = ({
+const StarInner: React.FC<StarProps> = ({
 	innerRadius,
 	outerRadius,
 	points,
@@ -27,6 +52,8 @@ export const Star: React.FC<StarProps> = ({
 }) => {
 	return (
 		<RenderSvg
+			defaultName="<Star>"
+			documentationLink="https://www.remotion.dev/docs/shapes/star"
 			{...makeStar({
 				innerRadius,
 				outerRadius,
@@ -38,5 +65,11 @@ export const Star: React.FC<StarProps> = ({
 		/>
 	);
 };
+
+export const Star = Internals.wrapInSchema({
+	Component: StarInner,
+	schema: starSchema,
+	supportsEffects: true,
+}) as React.FC<StarProps>;
 
 Internals.addSequenceStackTraces(Star);

@@ -104,7 +104,7 @@ type SelectedOutlineContextMenuOpenHandler = () =>
 type SelectedOutlineTarget = {
 	readonly key: string;
 	readonly nodePathInfo: SequenceNodePathInfo;
-	readonly ref: React.RefObject<HTMLElement | null>;
+	readonly ref: React.RefObject<Element | null>;
 	readonly selected: boolean;
 	readonly selection: TimelineSelection;
 	readonly sequence: TSequence;
@@ -487,7 +487,7 @@ const quadToPoints = (
 };
 
 const getElementOutlinePoints = (
-	element: HTMLElement,
+	element: Element,
 	containerRect: DOMRect,
 ): SelectedOutline['points'] | null => {
 	const elementRect = element.getBoundingClientRect();

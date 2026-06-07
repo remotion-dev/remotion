@@ -8,12 +8,32 @@ type HtmlInCanvasCall = {
 	readonly height: number;
 	readonly effects: EffectsProp;
 	readonly pixelDensity: HtmlInCanvasPixelDensity | undefined;
+	readonly showInTimeline: boolean | undefined;
 	readonly style: React.CSSProperties | undefined;
+	readonly stack: string | undefined;
+	readonly _experimentalControls: unknown;
+};
+
+type SequenceCall = {
+	readonly layout: string | undefined;
+	readonly from: number | undefined;
+	readonly durationInFrames: number | undefined;
+	readonly hidden: boolean | undefined;
+	readonly name: string | undefined;
+	readonly showInTimeline: boolean | undefined;
+	readonly _experimentalControls: unknown;
+	readonly _remotionInternalDocumentationLink: string | undefined;
+	readonly _remotionInternalEffects: unknown;
+	readonly _remotionInternalRefForOutline:
+		| React.RefObject<Element | null>
+		| undefined;
 	readonly stack: string | undefined;
 };
 
 const htmlInCanvasCalls: HtmlInCanvasCall[] = [];
+const sequenceCalls: SequenceCall[] = [];
 const stackTraceComponents: unknown[] = [];
+const effectDefinitions = [{type: 'effect-definition'}];
 const addSequenceStackTraces = mock((component: unknown) => {
 	stackTraceComponents.push(component);
 });
@@ -26,32 +46,69 @@ mock.module('remotion', () => {
 			height,
 			effects,
 			pixelDensity,
+			showInTimeline,
 			style,
 			stack,
+			_experimentalControls,
+			ref,
 		}: HtmlInCanvasCall & {
 			readonly children: React.ReactNode;
+			readonly ref?: React.Ref<HTMLCanvasElement>;
 		}) => {
 			htmlInCanvasCalls.push({
 				width,
 				height,
 				effects,
 				pixelDensity,
+				showInTimeline,
 				style,
 				stack,
+				_experimentalControls,
 			});
 
 			return (
-				<div
+				<canvas
+					ref={ref}
 					data-height={height}
 					data-testid="html-in-canvas"
 					data-width={width}
 				>
 					{children}
-				</div>
+				</canvas>
 			);
 		},
 		Internals: {
 			addSequenceStackTraces,
+			CanUseRemotionHooks: React.createContext(true),
+			CompositionManagerProvider: ({
+				children,
+			}: {
+				readonly children: React.ReactNode;
+			}) => children,
+			RemotionRootContexts: ({
+				children,
+			}: {
+				readonly children: React.ReactNode;
+			}) => children,
+			ResolveCompositionContext: React.createContext({}),
+			sequenceSchema: {
+				durationInFrames: {},
+				from: {},
+				hidden: {},
+			},
+			sequenceVisualStyleSchema: {},
+			useMemoizedEffectDefinitions: mock(() => effectDefinitions),
+			wrapInSchema: mock(({Component}) => Component),
+		},
+		Sequence: ({
+			children,
+			...props
+		}: SequenceCall & {
+			readonly children: React.ReactNode;
+		}) => {
+			sequenceCalls.push(props);
+
+			return <div data-testid="sequence">{children}</div>;
 		},
 	};
 });
@@ -70,6 +127,7 @@ const effect = {} as EffectsProp[number];
 test('Should render a shape with effects in HtmlInCanvas', async () => {
 	const {Circle} = await loadComponents();
 	htmlInCanvasCalls.length = 0;
+	sequenceCalls.length = 0;
 
 	const {container} = render(
 		<Circle
@@ -94,26 +152,59 @@ test('Should render a shape with effects in HtmlInCanvas', async () => {
 			height: 200,
 			effects: [effect],
 			pixelDensity: 2,
+			showInTimeline: false,
 			style: {
 				overflow: 'visible',
 				opacity: 0.5,
 			},
 			stack: undefined,
+			_experimentalControls: null,
 		},
 	]);
+	expect(sequenceCalls[0]).toMatchObject({
+		layout: 'none',
+		name: '<Circle>',
+		_remotionInternalDocumentationLink:
+			'https://www.remotion.dev/docs/shapes/circle',
+		_remotionInternalEffects: effectDefinitions,
+	});
+	expect(
+		sequenceCalls[0]._remotionInternalRefForOutline?.current?.tagName,
+	).toBe('CANVAS');
 });
 
 test('Should keep rendering SVG directly with no effects', async () => {
 	const {Circle} = await loadComponents();
 	htmlInCanvasCalls.length = 0;
+	sequenceCalls.length = 0;
 
 	const {container} = render(
-		<Circle radius={100} fill="green" stroke="red" effects={[]} />,
+		<Circle
+			radius={100}
+			fill="green"
+			stroke="red"
+			effects={[]}
+			from={12}
+			durationInFrames={23}
+			showInTimeline={false}
+		/>,
 	);
 
 	expect(container.querySelector('[data-testid="html-in-canvas"]')).toBe(null);
 	expect(container.querySelector('svg')).not.toBe(null);
 	expect(htmlInCanvasCalls).toEqual([]);
+	expect(sequenceCalls[0]).toMatchObject({
+		durationInFrames: 23,
+		from: 12,
+		layout: 'none',
+		name: '<Circle>',
+		showInTimeline: false,
+		_remotionInternalDocumentationLink:
+			'https://www.remotion.dev/docs/shapes/circle',
+	});
+	expect(
+		sequenceCalls[0]._remotionInternalRefForOutline?.current?.tagName,
+	).toBe('svg');
 });
 
 test('Should pass integer dimensions to HtmlInCanvas', async () => {
@@ -129,42 +220,20 @@ test('Should pass integer dimensions to HtmlInCanvas', async () => {
 test('Should forward stack to HtmlInCanvas', async () => {
 	const {Circle} = await loadComponents();
 	htmlInCanvasCalls.length = 0;
+	sequenceCalls.length = 0;
 
 	render(<Circle radius={100} effects={[effect]} stack="shape-stack" />);
 
 	expect(htmlInCanvasCalls[0].stack).toBe('shape-stack');
+	expect(sequenceCalls[0].stack).toBe('shape-stack');
 });
 
-test('Should register shape components for stack traces', async () => {
-	const [
-		{Arrow},
-		{Circle},
-		{Ellipse},
-		{Heart},
-		{Pie},
-		{Polygon},
-		{Rect},
-		{Star},
-		{Triangle},
-	] = await Promise.all([
-		import('../components/arrow'),
-		import('../components/circle'),
-		import('../components/ellipse'),
-		import('../components/heart'),
-		import('../components/pie'),
-		import('../components/polygon'),
-		import('../components/rect'),
-		import('../components/star'),
-		import('../components/triangle'),
-	]);
+test('Should not add a documentation link if a custom name is passed', async () => {
+	const {Circle} = await loadComponents();
+	sequenceCalls.length = 0;
 
-	expect(stackTraceComponents).toContain(Arrow);
-	expect(stackTraceComponents).toContain(Circle);
-	expect(stackTraceComponents).toContain(Ellipse);
-	expect(stackTraceComponents).toContain(Heart);
-	expect(stackTraceComponents).toContain(Pie);
-	expect(stackTraceComponents).toContain(Polygon);
-	expect(stackTraceComponents).toContain(Rect);
-	expect(stackTraceComponents).toContain(Star);
-	expect(stackTraceComponents).toContain(Triangle);
+	render(<Circle radius={100} name="Custom circle" />);
+
+	expect(sequenceCalls[0].name).toBe('Custom circle');
+	expect(sequenceCalls[0]._remotionInternalDocumentationLink).toBe(undefined);
 });
