@@ -57,7 +57,10 @@ import {EffectsLightLeakPreview} from '../effects/effects-light-leak-preview';
 import {EffectsLinearProgressiveBlurPreview} from '../effects/effects-linear-progressive-blur-preview';
 import {EffectsLinesPreview} from '../effects/effects-lines-preview';
 import {EffectsMirrorPreview} from '../effects/effects-mirror-preview';
-import {EffectsNoiseDisplacementPreview} from '../effects/effects-noise-displacement-preview';
+import {
+	EffectsNoiseDisplacementPreview,
+	NOISE_DISPLACEMENT_PREVIEW_PARAMS,
+} from '../effects/effects-noise-displacement-preview';
 import {EffectsNoisePreview} from '../effects/effects-noise-preview';
 import {EffectsPixelDissolvePreview} from '../effects/effects-pixel-dissolve-preview';
 import {EffectsRingsPreview} from '../effects/effects-rings-preview';
@@ -232,12 +235,9 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectName: 'noiseDisplacement',
 		effectImportPath: '@remotion/effects/noise-displacement',
 		comp: EffectsNoiseDisplacementPreview,
-		schema: noiseDisplacement({center: [0.55, 0.42], radius: 0.18}).definition
+		schema: noiseDisplacement(NOISE_DISPLACEMENT_PREVIEW_PARAMS).definition
 			.schema,
-		initialValues: {
-			center: [0.55, 0.42],
-			radius: 0.18,
-		},
+		initialValues: NOISE_DISPLACEMENT_PREVIEW_PARAMS,
 	},
 	{
 		...defaults,
