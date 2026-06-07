@@ -37,7 +37,7 @@ const toggleStyle: React.CSSProperties = {
 	...timelineLayerIconContainer,
 	border: 'none',
 	color: LIGHT_COLOR,
-	cursor: 'pointer',
+	cursor: 'default',
 	marginRight: 0,
 	padding: 0,
 };
