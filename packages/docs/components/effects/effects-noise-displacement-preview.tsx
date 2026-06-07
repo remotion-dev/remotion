@@ -34,9 +34,9 @@ const textContainer: React.CSSProperties = {
 const textStyle: React.CSSProperties = {
 	color: 'white',
 	fontFamily: 'Inter, Arial, Helvetica, system-ui, -apple-system, sans-serif',
-	fontSize: 180,
+	fontSize: 270,
 	fontWeight: 900,
-	letterSpacing: -10,
+	letterSpacing: -15,
 	lineHeight: 0.9,
 	textAlign: 'center',
 };
