@@ -19,6 +19,7 @@ import {linearProgressiveBlur} from '@remotion/effects/linear-progressive-blur';
 import {lines} from '@remotion/effects/lines';
 import {mirror} from '@remotion/effects/mirror';
 import {noise} from '@remotion/effects/noise';
+import {noiseDisplacement} from '@remotion/effects/noise-displacement';
 import {pixelDissolve} from '@remotion/effects/pixel-dissolve';
 import {rings} from '@remotion/effects/rings';
 import {saturation} from '@remotion/effects/saturation';
@@ -56,6 +57,10 @@ import {EffectsLightLeakPreview} from '../effects/effects-light-leak-preview';
 import {EffectsLinearProgressiveBlurPreview} from '../effects/effects-linear-progressive-blur-preview';
 import {EffectsLinesPreview} from '../effects/effects-lines-preview';
 import {EffectsMirrorPreview} from '../effects/effects-mirror-preview';
+import {
+	EffectsNoiseDisplacementPreview,
+	NOISE_DISPLACEMENT_PREVIEW_PARAMS,
+} from '../effects/effects-noise-displacement-preview';
 import {EffectsNoisePreview} from '../effects/effects-noise-preview';
 import {EffectsPixelDissolvePreview} from '../effects/effects-pixel-dissolve-preview';
 import {EffectsRingsPreview} from '../effects/effects-rings-preview';
@@ -223,6 +228,16 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/noise',
 		comp: EffectsNoisePreview,
 		schema: noise().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-noise-displacement',
+		effectName: 'noiseDisplacement',
+		effectImportPath: '@remotion/effects/noise-displacement',
+		comp: EffectsNoiseDisplacementPreview,
+		schema: noiseDisplacement(NOISE_DISPLACEMENT_PREVIEW_PARAMS).definition
+			.schema,
+		initialValues: NOISE_DISPLACEMENT_PREVIEW_PARAMS,
 	},
 	{
 		...defaults,

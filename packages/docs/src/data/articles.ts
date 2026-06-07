@@ -1917,6 +1917,15 @@ export const articles = [
 		slug: 'effects/mirror',
 	},
 	{
+		id: 'effects/noise-displacement',
+		title: 'noiseDisplacement()',
+		relativePath: 'docs/effects/noise-displacement.mdx',
+		compId: 'articles-docs-effects-noise-displacement',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/noise-displacement',
+	},
+	{
 		id: 'effects/noise',
 		title: 'noise()',
 		relativePath: 'docs/effects/noise.mdx',

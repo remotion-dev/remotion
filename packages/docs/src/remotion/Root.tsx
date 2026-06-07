@@ -23,6 +23,11 @@ import {EffectsLightLeakPreview} from '../../components/effects/effects-light-le
 import {EffectsLinearProgressiveBlurPreview} from '../../components/effects/effects-linear-progressive-blur-preview';
 import {EffectsLinesPreview} from '../../components/effects/effects-lines-preview';
 import {EffectsMirrorPreview} from '../../components/effects/effects-mirror-preview';
+import {
+	EffectsNoiseDisplacementPreview,
+	NOISE_DISPLACEMENT_PREVIEW_PARAMS,
+	NoiseDisplacementTextSource,
+} from '../../components/effects/effects-noise-displacement-preview';
 import {EffectsNoisePreview} from '../../components/effects/effects-noise-preview';
 import {EffectsPixelDissolvePreview} from '../../components/effects/effects-pixel-dissolve-preview';
 import {EffectsRingsPreview} from '../../components/effects/effects-rings-preview';
@@ -372,6 +377,19 @@ export const RemotionRoot: React.FC = () => {
 						seed: 0,
 						premultiply: false,
 					}}
+				/>
+				<Still
+					id="effects-noise-displacement-text-source"
+					component={NoiseDisplacementTextSource}
+					width={1920}
+					height={1080}
+				/>
+				<Still
+					id="effects-noise-displacement-preview"
+					component={EffectsNoiseDisplacementPreview}
+					width={1280}
+					height={720}
+					defaultProps={NOISE_DISPLACEMENT_PREVIEW_PARAMS}
 				/>
 				<Still
 					id="effects-white-noise-preview"

@@ -10,6 +10,7 @@ import {
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {
+	constrainUv,
 	getOutlineSelectionInteraction,
 	getSelectedEffectFieldsBySequenceKey,
 	getSelectedOutlineDragChanges,
@@ -1065,6 +1066,28 @@ test('UV handle pointer position maps back to UV coordinates', () => {
 
 	expect(result[0]).toBeCloseTo(uv[0], 5);
 	expect(result[1]).toBeCloseTo(uv[1], 5);
+});
+
+test('UV coordinate constraints preserve precision despite schema step', () => {
+	expect(
+		constrainUv([0.123456, 0.987654], {
+			type: 'uv-coordinate',
+			default: [0.5, 0.5],
+			step: 0.01,
+		}),
+	).toEqual([0.123456, 0.987654]);
+});
+
+test('UV coordinate constraints still clamp to schema min and max', () => {
+	expect(
+		constrainUv([-0.123456, 1.987654], {
+			type: 'uv-coordinate',
+			default: [0.5, 0.5],
+			min: 0,
+			max: 1,
+			step: 0.01,
+		}),
+	).toEqual([0, 1]);
 });
 
 test('UV handle connection lines connect fields from schema metadata', () => {
