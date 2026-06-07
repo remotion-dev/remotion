@@ -23,6 +23,7 @@ import {EffectsLightLeakPreview} from '../../components/effects/effects-light-le
 import {EffectsLinearProgressiveBlurPreview} from '../../components/effects/effects-linear-progressive-blur-preview';
 import {EffectsLinesPreview} from '../../components/effects/effects-lines-preview';
 import {EffectsMirrorPreview} from '../../components/effects/effects-mirror-preview';
+import {EffectsNoiseDisplacementPreview} from '../../components/effects/effects-noise-displacement-preview';
 import {EffectsNoisePreview} from '../../components/effects/effects-noise-preview';
 import {EffectsPixelDissolvePreview} from '../../components/effects/effects-pixel-dissolve-preview';
 import {EffectsRingsPreview} from '../../components/effects/effects-rings-preview';
@@ -371,6 +372,24 @@ export const RemotionRoot: React.FC = () => {
 						amount: 0.25,
 						seed: 0,
 						premultiply: false,
+					}}
+				/>
+				<Still
+					id="effects-noise-displacement-preview"
+					component={EffectsNoiseDisplacementPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						center: [0.55, 0.42],
+						radius: 0.18,
+						strength: 42,
+						seed: 4,
+						grainSize: 10,
+						passes: 7,
+						blur: 1.5,
+						feather: 0.25,
+						biasDirection: 225,
+						biasAmount: 0.25,
 					}}
 				/>
 				<Still

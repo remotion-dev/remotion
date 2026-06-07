@@ -224,6 +224,13 @@ const categories: {
 				description: 'Procedural grain effect',
 			},
 			{
+				link: '/docs/effects/noise-displacement',
+				preview: '/img/effects-noise-displacement-preview.png',
+				alt: 'noise displacement effect preview',
+				name: 'noiseDisplacement()',
+				description: 'Localized noisy displacement',
+			},
+			{
 				link: '/docs/effects/pixel-dissolve',
 				preview: '/img/effects-pixel-dissolve-preview.png',
 				alt: 'pixel dissolve effect preview',

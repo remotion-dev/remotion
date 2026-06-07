@@ -19,6 +19,10 @@ import {invert} from '../invert.js';
 import {linearProgressiveBlur} from '../linear-progressive-blur/index.js';
 import {lines} from '../lines.js';
 import {mirror} from '../mirror.js';
+import {
+	noiseDisplacement,
+	type NoiseDisplacementParams,
+} from '../noise-displacement.js';
 import {noise} from '../noise.js';
 import {pixelDissolve} from '../pixel-dissolve.js';
 import {rings} from '../rings.js';
@@ -102,6 +106,10 @@ test('@remotion/effects expose documentation links', () => {
 	expect(noise().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/noise',
 	);
+	expect(
+		noiseDisplacement({center: [0.5, 0.5], radius: 0.25}).definition
+			.documentationLink,
+	).toBe('https://www.remotion.dev/docs/effects/noise-displacement');
 	expect(rings().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/rings',
 	);
@@ -173,6 +181,9 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(dotGrid().definition.label).toBe('dotGrid()');
 	expect(mirror().definition.label).toBe('mirror()');
 	expect(noise().definition.label).toBe('noise()');
+	expect(
+		noiseDisplacement({center: [0.5, 0.5], radius: 0.25}).definition.label,
+	).toBe('noiseDisplacement()');
 	expect(rings().definition.label).toBe('rings()');
 	expect(saturation().definition.label).toBe('saturation()');
 	expect(scanlines().definition.label).toBe('scanlines()');
@@ -1402,6 +1413,140 @@ test('noise() parameters produce distinct effect keys', () => {
 			premultiplied.effectKey,
 		]).size,
 	).toBe(4);
+});
+
+test('noiseDisplacement() accepts required params', () => {
+	expect(() =>
+		noiseDisplacement({
+			center: [0.5, 0.5],
+			radius: 0.2,
+		}),
+	).not.toThrow();
+});
+
+test('noiseDisplacement() accepts all params', () => {
+	expect(() =>
+		noiseDisplacement({
+			center: [0.4, 0.6],
+			radius: 0.25,
+			strength: 40,
+			seed: 3,
+			grainSize: 12,
+			passes: 8,
+			blur: 2,
+			feather: 0.4,
+			biasDirection: 225,
+			biasAmount: 0.2,
+		}),
+	).not.toThrow();
+});
+
+test('noiseDisplacement() rejects missing center', () => {
+	expect(() =>
+		noiseDisplacement({radius: 0.2} as NoiseDisplacementParams),
+	).toThrow('"center" must be a [number, number] tuple');
+});
+
+test('noiseDisplacement() rejects invalid center', () => {
+	expect(() =>
+		noiseDisplacement({
+			center: [0.5] as unknown as [number, number],
+			radius: 0.2,
+		}),
+	).toThrow('"center" must be a [number, number] tuple');
+});
+
+test('noiseDisplacement() rejects center outside unit range', () => {
+	expect(() => noiseDisplacement({center: [-0.1, 0.5], radius: 0.2})).toThrow(
+		'"center[0]" must be >= 0',
+	);
+	expect(() => noiseDisplacement({center: [0.5, 1.1], radius: 0.2})).toThrow(
+		'"center[1]" must be <= 1',
+	);
+});
+
+test('noiseDisplacement() rejects missing radius', () => {
+	expect(() =>
+		noiseDisplacement({
+			center: [0.5, 0.5],
+		} as unknown as NoiseDisplacementParams),
+	).toThrow('"radius" must be a finite number');
+});
+
+test('noiseDisplacement() rejects invalid radius', () => {
+	expect(() => noiseDisplacement({center: [0.5, 0.5], radius: 0})).toThrow(
+		'"radius" must be greater than 0',
+	);
+	expect(() => noiseDisplacement({center: [0.5, 0.5], radius: 1.1})).toThrow(
+		'"radius" must be <= 1',
+	);
+});
+
+test('noiseDisplacement() rejects invalid randomization params', () => {
+	expect(() =>
+		noiseDisplacement({center: [0.5, 0.5], radius: 0.2, grainSize: 0}),
+	).toThrow('"grainSize" must be greater than 0');
+	expect(() =>
+		noiseDisplacement({center: [0.5, 0.5], radius: 0.2, passes: 2.5}),
+	).toThrow('"passes" must be an integer');
+	expect(() =>
+		noiseDisplacement({center: [0.5, 0.5], radius: 0.2, passes: 13}),
+	).toThrow('"passes" must be <= 12');
+	expect(() =>
+		noiseDisplacement({center: [0.5, 0.5], radius: 0.2, feather: 1.1}),
+	).toThrow('"feather" must be <= 1');
+	expect(() =>
+		noiseDisplacement({center: [0.5, 0.5], radius: 0.2, biasAmount: -0.1}),
+	).toThrow('"biasAmount" must be >= 0');
+});
+
+test('noiseDisplacement() parameters produce distinct effect keys', () => {
+	const base = noiseDisplacement({center: [0.5, 0.5], radius: 0.2});
+	const moved = noiseDisplacement({center: [0.4, 0.5], radius: 0.2});
+	const wider = noiseDisplacement({center: [0.5, 0.5], radius: 0.3});
+	const stronger = noiseDisplacement({
+		center: [0.5, 0.5],
+		radius: 0.2,
+		strength: 48,
+	});
+	const seeded = noiseDisplacement({center: [0.5, 0.5], radius: 0.2, seed: 1});
+	const chunkier = noiseDisplacement({
+		center: [0.5, 0.5],
+		radius: 0.2,
+		grainSize: 16,
+	});
+	const smeared = noiseDisplacement({
+		center: [0.5, 0.5],
+		radius: 0.2,
+		passes: 8,
+	});
+	const blurred = noiseDisplacement({center: [0.5, 0.5], radius: 0.2, blur: 2});
+	const feathered = noiseDisplacement({
+		center: [0.5, 0.5],
+		radius: 0.2,
+		feather: 0.5,
+	});
+	const biased = noiseDisplacement({
+		center: [0.5, 0.5],
+		radius: 0.2,
+		biasDirection: 90,
+		biasAmount: 0.2,
+	});
+
+	expect(
+		new Set([
+			base.effectKey,
+			moved.effectKey,
+			wider.effectKey,
+			stronger.effectKey,
+			seeded.effectKey,
+			chunkier.effectKey,
+			smeared.effectKey,
+			blurred.effectKey,
+			feathered.effectKey,
+			biased.effectKey,
+		]).size,
+	).toBe(10);
 });
 
 test('saturation() accepts default params', () => {
