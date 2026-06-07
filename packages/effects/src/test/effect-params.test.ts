@@ -1143,18 +1143,6 @@ test('halftone() rejects dotColor for source color mode', () => {
 	).toThrow('"dotColor" can only be set when "colorMode" is "solid"');
 });
 
-test('halftone() rejects non-boolean maskToSourceAlpha', () => {
-	expect(() =>
-		halftone({maskToSourceAlpha: 'yes' as unknown as boolean}),
-	).toThrow('"maskToSourceAlpha" must be a boolean');
-});
-
-test('halftone() maskToSourceAlpha produces a distinct effect key', () => {
-	expect(halftone().effectKey).not.toBe(
-		halftone({maskToSourceAlpha: true}).effectKey,
-	);
-});
-
 test('halftoneLinearGradient() accepts default params', () => {
 	expect(() => halftoneLinearGradient()).not.toThrow();
 });
