@@ -10,6 +10,8 @@ import {
 	makeTriangle,
 } from '@remotion/shapes';
 import React from 'react';
+// eslint-disable-next-line no-restricted-imports
+import {AvailableFrom} from '../../src/components/AvailableFrom';
 import {
 	DebugOption,
 	RectEdgeRoundness,
@@ -433,6 +435,33 @@ export const ShapeOptions: React.FC<{
 			) : null}
 			{all ? (
 				<>
+					<h3>
+						Inherited props
+						<AvailableFrom v="4.0.474" />
+					</h3>
+					<p>
+						<code>{`<${shapeComponent.shape}>`}</code> inherits{' '}
+						<a href="/docs/sequence#from">
+							<code>from</code>
+						</a>
+						,{' '}
+						<a href="/docs/sequence#durationinframes">
+							<code>durationInFrames</code>
+						</a>
+						,{' '}
+						<a href="/docs/sequence#name">
+							<code>name</code>
+						</a>
+						,{' '}
+						<a href="/docs/sequence#showintimeline">
+							<code>showInTimeline</code>
+						</a>{' '}
+						and{' '}
+						<a href="/docs/sequence#hidden">
+							<code>hidden</code>
+						</a>{' '}
+						from <a href="/docs/sequence">{'<Sequence>'}</a>.
+					</p>
 					<h3>Other props</h3>{' '}
 					<p>
 						All other props that can be passed to a <code>{'<path>'}</code> are
