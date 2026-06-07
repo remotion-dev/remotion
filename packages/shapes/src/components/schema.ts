@@ -44,6 +44,20 @@ export const booleanField = ({
 	};
 };
 
+export const colorField = ({
+	defaultValue,
+	description,
+}: {
+	readonly defaultValue: string | undefined;
+	readonly description: string;
+}): SequenceFieldSchema => {
+	return {
+		type: 'color',
+		default: defaultValue,
+		description,
+	};
+};
+
 export const enumField = <T extends string>({
 	defaultValue,
 	description,
@@ -70,6 +84,10 @@ export const makeShapeSchema = (
 		from: Internals.sequenceSchema.from,
 		durationInFrames: Internals.sequenceSchema.durationInFrames,
 		...shapeFields,
+		fill: colorField({
+			defaultValue: '#0b84ff',
+			description: 'Fill',
+		}),
 		...Internals.sequenceVisualStyleSchema,
 		hidden: Internals.sequenceSchema.hidden,
 	};
