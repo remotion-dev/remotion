@@ -35,3 +35,15 @@ export const assertOptionalColor = (value: unknown, name: string): void => {
 
 	assertRequiredColor(value, name);
 };
+
+export const assertOptionalBoolean = (value: unknown, name: string): void => {
+	if (value === undefined) {
+		return;
+	}
+
+	if (typeof value !== 'boolean') {
+		throw new TypeError(
+			`"${name}" must be a boolean, but got ${JSON.stringify(value)}`,
+		);
+	}
+};

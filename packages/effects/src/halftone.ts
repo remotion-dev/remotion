@@ -6,6 +6,7 @@ import {
 	type ParsedColorRgba,
 } from './color-utils.js';
 import {
+	assertOptionalBoolean,
 	assertEffectParamsObject,
 	assertOptionalColor,
 } from './validate-effect-param.js';
@@ -157,18 +158,6 @@ const assertOptionalEnum = <T extends string>(
 
 	if (typeof value !== 'string' || !variants.includes(value as T)) {
 		throw new TypeError(`"${name}" must be ${formatEnum(variants)}`);
-	}
-};
-
-const assertOptionalBoolean = (value: unknown, name: string): void => {
-	if (value === undefined) {
-		return;
-	}
-
-	if (typeof value !== 'boolean') {
-		throw new TypeError(
-			`"${name}" must be a boolean, but got ${JSON.stringify(value)}`,
-		);
 	}
 };
 

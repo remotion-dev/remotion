@@ -7,6 +7,7 @@ import {
 } from './color-utils.js';
 import {
 	assertEffectParamsObject,
+	assertOptionalBoolean,
 	assertRequiredColor,
 } from './validate-effect-param.js';
 
@@ -22,6 +23,7 @@ const DEFAULT_ANGLE = 0 as const;
 const DEFAULT_OFFSET = 0 as const;
 const DEFAULT_AMPLITUDE = 40 as const;
 const DEFAULT_WAVELENGTH = 160 as const;
+const DEFAULT_MASK_TO_SOURCE_ALPHA = false as const;
 
 export const zigzagSchema = {
 	direction: {
@@ -82,6 +84,11 @@ export const zigzagSchema = {
 		description: 'Wavelength',
 		hiddenFromList: false,
 	},
+	maskToSourceAlpha: {
+		type: 'boolean',
+		default: DEFAULT_MASK_TO_SOURCE_ALPHA,
+		description: 'Mask to source alpha',
+	},
 } as const satisfies SequenceSchema;
 
 export type ZigzagDirection = (typeof ZIGZAG_DIRECTIONS)[number];
@@ -103,6 +110,8 @@ export type ZigzagParams = {
 	readonly amplitude?: number;
 	/** Distance in pixels before the zig-zag repeats. */
 	readonly wavelength?: number;
+	/** Masks the generated zig-zag pattern to the source alpha channel. Defaults to `false`. */
+	readonly maskToSourceAlpha?: boolean;
 };
 
 type ZigzagResolved = {
@@ -114,6 +123,7 @@ type ZigzagResolved = {
 	offset: number;
 	amplitude: number;
 	wavelength: number;
+	maskToSourceAlpha: boolean;
 };
 
 type ZigzagState = {
@@ -136,6 +146,7 @@ type ZigzagState = {
 		readonly uOffset: WebGLUniformLocation | null;
 		readonly uAmplitude: WebGLUniformLocation | null;
 		readonly uWavelength: WebGLUniformLocation | null;
+		readonly uMaskToSourceAlpha: WebGLUniformLocation | null;
 	};
 	cachedPaletteKey: string;
 	palettePixelData: Uint8Array;
@@ -154,6 +165,7 @@ const resolve = (p: ZigzagParams): ZigzagResolved => {
 		offset: p.offset ?? DEFAULT_OFFSET,
 		amplitude: p.amplitude ?? DEFAULT_AMPLITUDE,
 		wavelength: p.wavelength ?? DEFAULT_WAVELENGTH,
+		maskToSourceAlpha: p.maskToSourceAlpha ?? DEFAULT_MASK_TO_SOURCE_ALPHA,
 	};
 };
 
@@ -225,6 +237,7 @@ const validateZigzagParams = (params: ZigzagParams): void => {
 	assertOptionalFiniteNumber(params.offset, 'offset');
 	assertOptionalFiniteNumber(params.amplitude, 'amplitude');
 	assertOptionalFiniteNumber(params.wavelength, 'wavelength');
+	assertOptionalBoolean(params.maskToSourceAlpha, 'maskToSourceAlpha');
 
 	const thickness = params.thickness ?? DEFAULT_THICKNESS;
 	const gap = params.gap ?? DEFAULT_GAP;
@@ -265,6 +278,7 @@ uniform float uAngle;
 uniform float uOffset;
 uniform float uAmplitude;
 uniform float uWavelength;
+uniform bool uMaskToSourceAlpha;
 
 void main() {
 	vec4 texColor = texture(uSource, vUv);
@@ -298,6 +312,14 @@ void main() {
 	vec4 lineColor = texture(uPalette, vec2(texCoord, 0.5));
 	float lineAlpha = lineColor.a;
 	vec3 premultipliedLine = lineColor.rgb * lineAlpha;
+
+	if (uMaskToSourceAlpha) {
+		fragColor = vec4(
+			premultipliedLine * texColor.a + texColor.rgb * (1.0 - lineAlpha),
+			texColor.a
+		);
+		return;
+	}
 
 	fragColor = vec4(
 		premultipliedLine + texColor.rgb * (1.0 - lineAlpha),
@@ -450,6 +472,7 @@ const setupZigzag = (target: HTMLCanvasElement): ZigzagState => {
 			uOffset: gl.getUniformLocation(program, 'uOffset'),
 			uAmplitude: gl.getUniformLocation(program, 'uAmplitude'),
 			uWavelength: gl.getUniformLocation(program, 'uWavelength'),
+			uMaskToSourceAlpha: gl.getUniformLocation(program, 'uMaskToSourceAlpha'),
 		},
 		cachedPaletteKey: '',
 		palettePixelData: new Uint8Array(0),
@@ -491,7 +514,8 @@ export const zigzag = createEffect<ZigzagParams, ZigzagState>({
 	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
-		return `zigzag-${r.colors.join('|')}-${r.direction}-${r.thickness}-${r.spacing}-${r.angle}-${r.offset}-${r.amplitude}-${r.wavelength}`;
+		const maskSuffix = r.maskToSourceAlpha ? '-mask-to-source-alpha' : '';
+		return `zigzag-${r.colors.join('|')}-${r.direction}-${r.thickness}-${r.spacing}-${r.angle}-${r.offset}-${r.amplitude}-${r.wavelength}${maskSuffix}`;
 	},
 	setup: (target) => setupZigzag(target),
 	apply: ({source, width, height, params, state, flipSourceY}) => {
@@ -550,6 +574,8 @@ export const zigzag = createEffect<ZigzagParams, ZigzagState>({
 		if (uniforms.uOffset) gl.uniform1f(uniforms.uOffset, r.offset);
 		if (uniforms.uAmplitude) gl.uniform1f(uniforms.uAmplitude, r.amplitude);
 		if (uniforms.uWavelength) gl.uniform1f(uniforms.uWavelength, r.wavelength);
+		if (uniforms.uMaskToSourceAlpha)
+			gl.uniform1i(uniforms.uMaskToSourceAlpha, r.maskToSourceAlpha ? 1 : 0);
 
 		gl.bindVertexArray(vao);
 		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
