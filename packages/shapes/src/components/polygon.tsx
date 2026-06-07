@@ -1,4 +1,5 @@
 import React from 'react';
+import {Internals} from 'remotion';
 import type {MakePolygonProps} from '../utils/make-polygon';
 import {makePolygon} from '../utils/make-polygon';
 import type {AllShapesProps} from './render-svg';
@@ -25,3 +26,5 @@ export const Polygon: React.FC<PolygonProps> = ({
 		/>
 	);
 };
+
+Internals.addSequenceStackTraces(Polygon);

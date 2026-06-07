@@ -1,4 +1,5 @@
 import React from 'react';
+import {Internals} from 'remotion';
 import type {MakeEllipseOptions} from '../utils/make-ellipse';
 import {makeEllipse} from '../utils/make-ellipse';
 import type {AllShapesProps} from './render-svg';
@@ -16,3 +17,5 @@ export type EllipseProps = MakeEllipseOptions & AllShapesProps;
 export const Ellipse: React.FC<EllipseProps> = ({rx, ry, ...props}) => {
 	return <RenderSvg {...makeEllipse({rx, ry})} {...props} />;
 };
+
+Internals.addSequenceStackTraces(Ellipse);

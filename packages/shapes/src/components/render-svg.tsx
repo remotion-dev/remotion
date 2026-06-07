@@ -16,6 +16,10 @@ export type AllShapesProps = Omit<
 	readonly effects?: EffectsProp;
 	readonly pathStyle?: React.CSSProperties;
 	readonly pixelDensity?: HtmlInCanvasPixelDensity;
+	/**
+	 * @deprecated For internal use only
+	 */
+	readonly stack?: string;
 };
 
 export const RenderSvg = ({
@@ -29,6 +33,7 @@ export const RenderSvg = ({
 	effects = [],
 	instructions,
 	pixelDensity,
+	stack,
 	...props
 }: {
 	readonly width: number;
@@ -149,6 +154,7 @@ export const RenderSvg = ({
 			height={Math.ceil(height)}
 			effects={effects}
 			pixelDensity={pixelDensity}
+			stack={stack}
 			style={actualStyle}
 		>
 			{svg}

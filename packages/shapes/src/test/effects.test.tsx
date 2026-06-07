@@ -9,9 +9,14 @@ type HtmlInCanvasCall = {
 	readonly effects: EffectsProp;
 	readonly pixelDensity: HtmlInCanvasPixelDensity | undefined;
 	readonly style: React.CSSProperties | undefined;
+	readonly stack: string | undefined;
 };
 
 const htmlInCanvasCalls: HtmlInCanvasCall[] = [];
+const stackTraceComponents: unknown[] = [];
+const addSequenceStackTraces = mock((component: unknown) => {
+	stackTraceComponents.push(component);
+});
 
 mock.module('remotion', () => {
 	return {
@@ -22,10 +27,18 @@ mock.module('remotion', () => {
 			effects,
 			pixelDensity,
 			style,
+			stack,
 		}: HtmlInCanvasCall & {
 			readonly children: React.ReactNode;
 		}) => {
-			htmlInCanvasCalls.push({width, height, effects, pixelDensity, style});
+			htmlInCanvasCalls.push({
+				width,
+				height,
+				effects,
+				pixelDensity,
+				style,
+				stack,
+			});
 
 			return (
 				<div
@@ -36,6 +49,9 @@ mock.module('remotion', () => {
 					{children}
 				</div>
 			);
+		},
+		Internals: {
+			addSequenceStackTraces,
 		},
 	};
 });
@@ -82,6 +98,7 @@ test('Should render a shape with effects in HtmlInCanvas', async () => {
 				overflow: 'visible',
 				opacity: 0.5,
 			},
+			stack: undefined,
 		},
 	]);
 });
@@ -107,4 +124,47 @@ test('Should pass integer dimensions to HtmlInCanvas', async () => {
 
 	expect(htmlInCanvasCalls[0].width).toBe(11);
 	expect(htmlInCanvasCalls[0].height).toBe(21);
+});
+
+test('Should forward stack to HtmlInCanvas', async () => {
+	const {Circle} = await loadComponents();
+	htmlInCanvasCalls.length = 0;
+
+	render(<Circle radius={100} effects={[effect]} stack="shape-stack" />);
+
+	expect(htmlInCanvasCalls[0].stack).toBe('shape-stack');
+});
+
+test('Should register shape components for stack traces', async () => {
+	const [
+		{Arrow},
+		{Circle},
+		{Ellipse},
+		{Heart},
+		{Pie},
+		{Polygon},
+		{Rect},
+		{Star},
+		{Triangle},
+	] = await Promise.all([
+		import('../components/arrow'),
+		import('../components/circle'),
+		import('../components/ellipse'),
+		import('../components/heart'),
+		import('../components/pie'),
+		import('../components/polygon'),
+		import('../components/rect'),
+		import('../components/star'),
+		import('../components/triangle'),
+	]);
+
+	expect(stackTraceComponents).toContain(Arrow);
+	expect(stackTraceComponents).toContain(Circle);
+	expect(stackTraceComponents).toContain(Ellipse);
+	expect(stackTraceComponents).toContain(Heart);
+	expect(stackTraceComponents).toContain(Pie);
+	expect(stackTraceComponents).toContain(Polygon);
+	expect(stackTraceComponents).toContain(Rect);
+	expect(stackTraceComponents).toContain(Star);
+	expect(stackTraceComponents).toContain(Triangle);
 });

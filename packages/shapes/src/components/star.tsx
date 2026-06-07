@@ -1,4 +1,5 @@
 import React from 'react';
+import {Internals} from 'remotion';
 import type {MakeStarProps} from '../utils/make-star';
 import {makeStar} from '../utils/make-star';
 import type {AllShapesProps} from './render-svg';
@@ -37,3 +38,5 @@ export const Star: React.FC<StarProps> = ({
 		/>
 	);
 };
+
+Internals.addSequenceStackTraces(Star);

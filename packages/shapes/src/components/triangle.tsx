@@ -1,4 +1,5 @@
 import React from 'react';
+import {Internals} from 'remotion';
 import type {MakeTriangleProps} from '../utils/make-triangle';
 import {makeTriangle} from '../utils/make-triangle';
 import type {AllShapesProps} from './render-svg';
@@ -28,3 +29,5 @@ export const Triangle: React.FC<TriangleProps> = ({
 		/>
 	);
 };
+
+Internals.addSequenceStackTraces(Triangle);

@@ -1,4 +1,5 @@
 import React from 'react';
+import {Internals} from 'remotion';
 import type {MakeHeartProps} from '../utils/make-heart';
 import {makeHeart} from '../utils/make-heart';
 import type {AllShapesProps} from './render-svg';
@@ -30,3 +31,5 @@ export const Heart: React.FC<HeartProps> = ({
 		/>
 	);
 };
+
+Internals.addSequenceStackTraces(Heart);

@@ -1,4 +1,5 @@
 import React from 'react';
+import {Internals} from 'remotion';
 import type {MakePieProps} from '../utils/make-pie';
 import {makePie} from '../utils/make-pie';
 import type {AllShapesProps} from './render-svg';
@@ -31,3 +32,5 @@ export const Pie: React.FC<PieProps> = ({
 		/>
 	);
 };
+
+Internals.addSequenceStackTraces(Pie);

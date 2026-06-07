@@ -1,4 +1,5 @@
 import React from 'react';
+import {Internals} from 'remotion';
 import type {MakeArrowProps} from '../utils/make-arrow';
 import {makeArrow} from '../utils/make-arrow';
 import type {AllShapesProps} from './render-svg';
@@ -39,3 +40,5 @@ export const Arrow: React.FC<ArrowProps> = ({
 		/>
 	);
 };
+
+Internals.addSequenceStackTraces(Arrow);

@@ -1,4 +1,5 @@
 import React from 'react';
+import {Internals} from 'remotion';
 import type {MakeRectOptions} from '../utils/make-rect';
 import {makeRect} from '../utils/make-rect';
 import type {AllShapesProps} from './render-svg';
@@ -28,3 +29,5 @@ export const Rect: React.FC<RectProps> = ({
 		/>
 	);
 };
+
+Internals.addSequenceStackTraces(Rect);
