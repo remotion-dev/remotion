@@ -1810,27 +1810,45 @@ const SelectedOutlineElement: React.FC<{
 						/>
 					))
 				: null}
-			{target?.selected
-				? (() => {
-						const {uvHandles} = target;
-						return (
-							<>
-								<SelectedUvHandleConnectionLines
-									handles={uvHandles}
-									outline={outline}
-								/>
-								{uvHandles.map((handle) => (
-									<SelectedUvHandleCircle
-										key={`${handle.effectIndex}-${handle.fieldKey}`}
-										handle={handle}
-										onDraggingChange={onDraggingChange}
-										outline={outline}
-									/>
-								))}
-							</>
-						);
-					})()
-				: null}
+		</>
+	);
+};
+
+const SelectedOutlineUvHandleConnectionLayer: React.FC<{
+	readonly outline: SelectedOutline;
+	readonly target: SelectedOutlineTarget | undefined;
+}> = ({outline, target}) => {
+	if (!target?.selected || target.uvHandles.length === 0) {
+		return null;
+	}
+
+	return (
+		<SelectedUvHandleConnectionLines
+			handles={target.uvHandles}
+			outline={outline}
+		/>
+	);
+};
+
+const SelectedOutlineUvHandleCircleLayer: React.FC<{
+	readonly onDraggingChange: (dragging: boolean) => void;
+	readonly outline: SelectedOutline;
+	readonly target: SelectedOutlineTarget | undefined;
+}> = ({onDraggingChange, outline, target}) => {
+	if (!target?.selected || target.uvHandles.length === 0) {
+		return null;
+	}
+
+	return (
+		<>
+			{target.uvHandles.map((handle) => (
+				<SelectedUvHandleCircle
+					key={`${handle.effectIndex}-${handle.fieldKey}`}
+					handle={handle}
+					onDraggingChange={onDraggingChange}
+					outline={outline}
+				/>
+			))}
 		</>
 	);
 };
@@ -2063,6 +2081,22 @@ export const SelectedOutlineOverlay: React.FC<{
 					onHoverChange={setHoveredOutlineKey}
 					onSelect={selectItem}
 					scale={scale}
+					target={targetsByKey.get(outline.key)}
+				/>
+			))}
+			{/* Keep UV controls above every transparent outline polygon so SVG hit-testing reaches the handles first. */}
+			{outlines.map((outline) => (
+				<SelectedOutlineUvHandleConnectionLayer
+					key={`${outline.key}-uv-connection-lines`}
+					outline={outline}
+					target={targetsByKey.get(outline.key)}
+				/>
+			))}
+			{outlines.map((outline) => (
+				<SelectedOutlineUvHandleCircleLayer
+					key={`${outline.key}-uv-handles`}
+					onDraggingChange={onDraggingChange}
+					outline={outline}
 					target={targetsByKey.get(outline.key)}
 				/>
 			))}
