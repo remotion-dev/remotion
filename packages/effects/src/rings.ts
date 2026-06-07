@@ -8,6 +8,7 @@ import {
 } from './color-utils.js';
 import {
 	assertEffectParamsObject,
+	assertOptionalBoolean,
 	assertRequiredColor,
 } from './validate-effect-param.js';
 
@@ -18,6 +19,7 @@ const DEFAULT_CENTER = [0.5, 0.5] as const;
 const DEFAULT_THICKNESS = 40 as const;
 const DEFAULT_GAP = 0 as const;
 const DEFAULT_OFFSET = 0 as const;
+const DEFAULT_MASK_TO_SOURCE_ALPHA = false as const;
 
 export const ringsSchema = {
 	center: {
@@ -53,6 +55,11 @@ export const ringsSchema = {
 		description: 'Offset',
 		hiddenFromList: false,
 	},
+	maskToSourceAlpha: {
+		type: 'boolean',
+		default: DEFAULT_MASK_TO_SOURCE_ALPHA,
+		description: 'Mask to source alpha',
+	},
 } as const satisfies SequenceSchema;
 
 export type RingsCenter = readonly [number, number];
@@ -68,6 +75,8 @@ export type RingsParams = {
 	readonly gap?: number;
 	/** Radial offset in pixels. Animate to expand or contract the rings. */
 	readonly offset?: number;
+	/** Masks the generated ring pattern to the source alpha channel. Defaults to `false`. */
+	readonly maskToSourceAlpha?: boolean;
 };
 
 type RingsResolved = {
@@ -76,6 +85,7 @@ type RingsResolved = {
 	thickness: number;
 	spacing: number;
 	offset: number;
+	maskToSourceAlpha: boolean;
 };
 
 type RingsState = {
@@ -95,6 +105,7 @@ type RingsState = {
 		readonly uThickness: WebGLUniformLocation | null;
 		readonly uSpacing: WebGLUniformLocation | null;
 		readonly uOffset: WebGLUniformLocation | null;
+		readonly uMaskToSourceAlpha: WebGLUniformLocation | null;
 	};
 	cachedPaletteKey: string;
 	palettePixelData: Uint8Array;
@@ -110,6 +121,7 @@ const resolve = (p: RingsParams): RingsResolved => {
 		thickness,
 		spacing: thickness + gap,
 		offset: p.offset ?? DEFAULT_OFFSET,
+		maskToSourceAlpha: p.maskToSourceAlpha ?? DEFAULT_MASK_TO_SOURCE_ALPHA,
 	};
 };
 
@@ -169,6 +181,7 @@ const validateRingsParams = (params: RingsParams): void => {
 	assertOptionalFiniteNumber(params.thickness, 'thickness');
 	assertOptionalFiniteNumber(params.gap, 'gap');
 	assertOptionalFiniteNumber(params.offset, 'offset');
+	assertOptionalBoolean(params.maskToSourceAlpha, 'maskToSourceAlpha');
 
 	const thickness = params.thickness ?? DEFAULT_THICKNESS;
 	const gap = params.gap ?? DEFAULT_GAP;
@@ -201,6 +214,7 @@ uniform vec2 uCenter;
 uniform float uThickness;
 uniform float uSpacing;
 uniform float uOffset;
+uniform bool uMaskToSourceAlpha;
 
 void main() {
 	vec4 texColor = texture(uSource, vUv);
@@ -226,6 +240,14 @@ void main() {
 	vec4 ringColor = texture(uPalette, vec2(texCoord, 0.5));
 	float ringAlpha = ringColor.a;
 	vec3 premultipliedRing = ringColor.rgb * ringAlpha;
+
+	if (uMaskToSourceAlpha) {
+		fragColor = vec4(
+			premultipliedRing * texColor.a + texColor.rgb * (1.0 - ringAlpha),
+			texColor.a
+		);
+		return;
+	}
 
 	fragColor = vec4(
 		premultipliedRing + texColor.rgb * (1.0 - ringAlpha),
@@ -375,6 +397,7 @@ const setupRings = (target: HTMLCanvasElement): RingsState => {
 			uThickness: gl.getUniformLocation(program, 'uThickness'),
 			uSpacing: gl.getUniformLocation(program, 'uSpacing'),
 			uOffset: gl.getUniformLocation(program, 'uOffset'),
+			uMaskToSourceAlpha: gl.getUniformLocation(program, 'uMaskToSourceAlpha'),
 		},
 		cachedPaletteKey: '',
 		palettePixelData: new Uint8Array(0),
@@ -416,7 +439,8 @@ export const rings = createEffect<RingsParams, RingsState>({
 	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
-		return `rings-${r.colors.join('|')}-${r.center.join(':')}-${r.thickness}-${r.spacing}-${r.offset}`;
+		const maskSuffix = r.maskToSourceAlpha ? '-mask-to-source-alpha' : '';
+		return `rings-${r.colors.join('|')}-${r.center.join(':')}-${r.thickness}-${r.spacing}-${r.offset}${maskSuffix}`;
 	},
 	setup: (target) => setupRings(target),
 	apply: ({source, width, height, params, state, flipSourceY}) => {
@@ -471,6 +495,8 @@ export const rings = createEffect<RingsParams, RingsState>({
 		if (uniforms.uThickness) gl.uniform1f(uniforms.uThickness, r.thickness);
 		if (uniforms.uSpacing) gl.uniform1f(uniforms.uSpacing, r.spacing);
 		if (uniforms.uOffset) gl.uniform1f(uniforms.uOffset, r.offset);
+		if (uniforms.uMaskToSourceAlpha)
+			gl.uniform1i(uniforms.uMaskToSourceAlpha, r.maskToSourceAlpha ? 1 : 0);
 
 		gl.bindVertexArray(vao);
 		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);

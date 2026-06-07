@@ -128,6 +128,12 @@ Color of the dots when `colorMode` is `'solid'`. Defaults to `'red'`.
 
 When `false`, darker areas produce larger dots. When `true`, brighter and transparent areas produce larger dots. Defaults to `false`.
 
+### `maskToSourceAlpha?`<AvailableFrom v="4.0.474" />
+
+Masks solid-color dots to the source alpha channel. Defaults to `false`.
+
+Set this to `true` to prevent solid-color dots from appearing in fully transparent source pixels. In `colorMode: 'source'`, dots already use the source alpha channel.
+
 ### `disabled?`
 
 When `true`, the effect is skipped. Defaults to `false`.

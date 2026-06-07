@@ -7,6 +7,7 @@ import {
 } from './color-utils.js';
 import {
 	assertEffectParamsObject,
+	assertOptionalBoolean,
 	assertRequiredColor,
 } from './validate-effect-param.js';
 
@@ -23,6 +24,7 @@ const DEFAULT_OFFSET = 0 as const;
 const DEFAULT_AMPLITUDE = 24 as const;
 const DEFAULT_WAVELENGTH = 160 as const;
 const DEFAULT_PHASE = 0 as const;
+const DEFAULT_MASK_TO_SOURCE_ALPHA = false as const;
 
 export const wavesSchema = {
 	direction: {
@@ -92,6 +94,11 @@ export const wavesSchema = {
 		description: 'Phase',
 		hiddenFromList: false,
 	},
+	maskToSourceAlpha: {
+		type: 'boolean',
+		default: DEFAULT_MASK_TO_SOURCE_ALPHA,
+		description: 'Mask to source alpha',
+	},
 } as const satisfies SequenceSchema;
 
 export type WavesDirection = (typeof WAVE_DIRECTIONS)[number];
@@ -115,6 +122,8 @@ export type WavesParams = {
 	readonly wavelength?: number;
 	/** Wave phase in degrees. Defaults to `0`. */
 	readonly phase?: number;
+	/** Masks the generated wave pattern to the source alpha channel. Defaults to `false`. */
+	readonly maskToSourceAlpha?: boolean;
 };
 
 type WavesResolved = {
@@ -127,6 +136,7 @@ type WavesResolved = {
 	amplitude: number;
 	wavelength: number;
 	phase: number;
+	maskToSourceAlpha: boolean;
 };
 
 type WavesState = {
@@ -150,6 +160,7 @@ type WavesState = {
 		readonly uAmplitude: WebGLUniformLocation | null;
 		readonly uWavelength: WebGLUniformLocation | null;
 		readonly uPhase: WebGLUniformLocation | null;
+		readonly uMaskToSourceAlpha: WebGLUniformLocation | null;
 	};
 	cachedPaletteKey: string;
 	palettePixelData: Uint8Array;
@@ -169,6 +180,7 @@ const resolve = (p: WavesParams): WavesResolved => {
 		amplitude: p.amplitude ?? DEFAULT_AMPLITUDE,
 		wavelength: p.wavelength ?? DEFAULT_WAVELENGTH,
 		phase: p.phase ?? DEFAULT_PHASE,
+		maskToSourceAlpha: p.maskToSourceAlpha ?? DEFAULT_MASK_TO_SOURCE_ALPHA,
 	};
 };
 
@@ -241,6 +253,7 @@ const validateWavesParams = (params: WavesParams): void => {
 	assertOptionalFiniteNumber(params.amplitude, 'amplitude');
 	assertOptionalFiniteNumber(params.wavelength, 'wavelength');
 	assertOptionalFiniteNumber(params.phase, 'phase');
+	assertOptionalBoolean(params.maskToSourceAlpha, 'maskToSourceAlpha');
 
 	const thickness = params.thickness ?? DEFAULT_THICKNESS;
 	const gap = params.gap ?? DEFAULT_GAP;
@@ -282,6 +295,7 @@ uniform float uOffset;
 uniform float uAmplitude;
 uniform float uWavelength;
 uniform float uPhase;
+uniform bool uMaskToSourceAlpha;
 
 void main() {
 	vec4 texColor = texture(uSource, vUv);
@@ -316,6 +330,14 @@ void main() {
 	vec4 lineColor = texture(uPalette, vec2(texCoord, 0.5));
 	float lineAlpha = lineColor.a;
 	vec3 premultipliedLine = lineColor.rgb * lineAlpha;
+
+	if (uMaskToSourceAlpha) {
+		fragColor = vec4(
+			premultipliedLine * texColor.a + texColor.rgb * (1.0 - lineAlpha),
+			texColor.a
+		);
+		return;
+	}
 
 	fragColor = vec4(
 		premultipliedLine + texColor.rgb * (1.0 - lineAlpha),
@@ -469,6 +491,7 @@ const setupWaves = (target: HTMLCanvasElement): WavesState => {
 			uAmplitude: gl.getUniformLocation(program, 'uAmplitude'),
 			uWavelength: gl.getUniformLocation(program, 'uWavelength'),
 			uPhase: gl.getUniformLocation(program, 'uPhase'),
+			uMaskToSourceAlpha: gl.getUniformLocation(program, 'uMaskToSourceAlpha'),
 		},
 		cachedPaletteKey: '',
 		palettePixelData: new Uint8Array(0),
@@ -510,7 +533,8 @@ export const waves = createEffect<WavesParams, WavesState>({
 	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
-		return `waves-${r.colors.join('|')}-${r.direction}-${r.thickness}-${r.spacing}-${r.angle}-${r.offset}-${r.amplitude}-${r.wavelength}-${r.phase}`;
+		const maskSuffix = r.maskToSourceAlpha ? '-mask-to-source-alpha' : '';
+		return `waves-${r.colors.join('|')}-${r.direction}-${r.thickness}-${r.spacing}-${r.angle}-${r.offset}-${r.amplitude}-${r.wavelength}-${r.phase}${maskSuffix}`;
 	},
 	setup: (target) => setupWaves(target),
 	apply: ({source, width, height, params, state, flipSourceY}) => {
@@ -571,6 +595,8 @@ export const waves = createEffect<WavesParams, WavesState>({
 		if (uniforms.uWavelength) gl.uniform1f(uniforms.uWavelength, r.wavelength);
 		if (uniforms.uPhase)
 			gl.uniform1f(uniforms.uPhase, (r.phase * Math.PI) / 180);
+		if (uniforms.uMaskToSourceAlpha)
+			gl.uniform1i(uniforms.uMaskToSourceAlpha, r.maskToSourceAlpha ? 1 : 0);
 
 		gl.bindVertexArray(vao);
 		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);

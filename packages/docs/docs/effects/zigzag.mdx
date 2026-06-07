@@ -93,6 +93,12 @@ Zig-zag displacement in pixels. Defaults to `40`.
 
 Distance in pixels before the zig-zag repeats. Defaults to `160`. Must be greater than `0`.
 
+### `maskToSourceAlpha?`<AvailableFrom v="4.0.474" />
+
+Masks the generated zig-zag pattern to the source alpha channel. Defaults to `false`.
+
+Set this to `true` to prevent the zig-zag pattern from appearing in fully transparent source pixels.
+
 ### `disabled?`
 
 When `true`, the effect is skipped. Defaults to `false`.

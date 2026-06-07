@@ -506,6 +506,12 @@ test('waves() rejects non-positive thickness', () => {
 	);
 });
 
+test('waves() rejects non-boolean maskToSourceAlpha', () => {
+	expect(() => waves({maskToSourceAlpha: 'yes' as unknown as boolean})).toThrow(
+		'"maskToSourceAlpha" must be a boolean',
+	);
+});
+
 test('waves() parameters produce distinct effect keys', () => {
 	const defaults = waves();
 	const colored = waves({colors: ['#ffffff', 'transparent']});
@@ -517,6 +523,7 @@ test('waves() parameters produce distinct effect keys', () => {
 	const stronger = waves({amplitude: 30});
 	const longer = waves({wavelength: 220});
 	const phased = waves({phase: 90});
+	const masked = waves({maskToSourceAlpha: true});
 
 	expect(
 		new Set([
@@ -530,8 +537,9 @@ test('waves() parameters produce distinct effect keys', () => {
 			stronger.effectKey,
 			longer.effectKey,
 			phased.effectKey,
+			masked.effectKey,
 		]).size,
-	).toBe(10);
+	).toBe(11);
 });
 
 test('zigzag() accepts default params', () => {
@@ -571,6 +579,12 @@ test('zigzag() rejects non-positive thickness', () => {
 	);
 });
 
+test('zigzag() rejects non-boolean maskToSourceAlpha', () => {
+	expect(() =>
+		zigzag({maskToSourceAlpha: 'yes' as unknown as boolean}),
+	).toThrow('"maskToSourceAlpha" must be a boolean');
+});
+
 test('zigzag() parameters produce distinct effect keys', () => {
 	const defaults = zigzag();
 	const colored = zigzag({colors: ['#ffffff', 'transparent']});
@@ -581,6 +595,7 @@ test('zigzag() parameters produce distinct effect keys', () => {
 	const shifted = zigzag({offset: 10});
 	const stronger = zigzag({amplitude: 30});
 	const longer = zigzag({wavelength: 220});
+	const masked = zigzag({maskToSourceAlpha: true});
 
 	expect(
 		new Set([
@@ -593,8 +608,9 @@ test('zigzag() parameters produce distinct effect keys', () => {
 			shifted.effectKey,
 			stronger.effectKey,
 			longer.effectKey,
+			masked.effectKey,
 		]).size,
-	).toBe(9);
+	).toBe(10);
 });
 
 test('whiteNoise() accepts default params', () => {
@@ -1127,6 +1143,18 @@ test('halftone() rejects dotColor for source color mode', () => {
 	).toThrow('"dotColor" can only be set when "colorMode" is "solid"');
 });
 
+test('halftone() rejects non-boolean maskToSourceAlpha', () => {
+	expect(() =>
+		halftone({maskToSourceAlpha: 'yes' as unknown as boolean}),
+	).toThrow('"maskToSourceAlpha" must be a boolean');
+});
+
+test('halftone() maskToSourceAlpha produces a distinct effect key', () => {
+	expect(halftone().effectKey).not.toBe(
+		halftone({maskToSourceAlpha: true}).effectKey,
+	);
+});
+
 test('halftoneLinearGradient() accepts default params', () => {
 	expect(() => halftoneLinearGradient()).not.toThrow();
 });
@@ -1200,6 +1228,14 @@ test('halftoneLinearGradient() rejects dotColor for source color mode', () => {
 	).toThrow('"dotColor" can only be set when "colorMode" is "solid"');
 });
 
+test('halftoneLinearGradient() rejects non-boolean maskToSourceAlpha', () => {
+	expect(() =>
+		halftoneLinearGradient({
+			maskToSourceAlpha: 'yes' as unknown as boolean,
+		}),
+	).toThrow('"maskToSourceAlpha" must be a boolean');
+});
+
 test('halftoneLinearGradient() parameters produce distinct effect keys', () => {
 	const defaultGradient = halftoneLinearGradient();
 	const shiftedFirstStop = halftoneLinearGradient({firstStopDotSize: 8});
@@ -1208,6 +1244,7 @@ test('halftoneLinearGradient() parameters produce distinct effect keys', () => {
 		firstStopPosition: [0.2, 0.5],
 	});
 	const sourceColor = halftoneLinearGradient({colorMode: 'source'});
+	const masked = halftoneLinearGradient({maskToSourceAlpha: true});
 
 	expect(
 		new Set([
@@ -1216,8 +1253,9 @@ test('halftoneLinearGradient() parameters produce distinct effect keys', () => {
 			shiftedSecondStop.effectKey,
 			shiftedFirstPosition.effectKey,
 			sourceColor.effectKey,
+			masked.effectKey,
 		]).size,
-	).toBe(5);
+	).toBe(6);
 });
 
 test('dotGrid() accepts default params', () => {
@@ -1531,6 +1569,12 @@ test('lines() rejects non-finite offset', () => {
 	);
 });
 
+test('lines() rejects non-boolean maskToSourceAlpha', () => {
+	expect(() => lines({maskToSourceAlpha: 'yes' as unknown as boolean})).toThrow(
+		'"maskToSourceAlpha" must be a boolean',
+	);
+});
+
 test('lines() parameters produce distinct effect keys', () => {
 	const defaultLines = lines();
 	const colored = lines({colors: ['#ffffff', 'transparent']});
@@ -1539,6 +1583,7 @@ test('lines() parameters produce distinct effect keys', () => {
 	const gapped = lines({gap: 24});
 	const angled = lines({angle: 45});
 	const shifted = lines({offset: 10});
+	const masked = lines({maskToSourceAlpha: true});
 
 	expect(
 		new Set([
@@ -1549,8 +1594,9 @@ test('lines() parameters produce distinct effect keys', () => {
 			gapped.effectKey,
 			angled.effectKey,
 			shifted.effectKey,
+			masked.effectKey,
 		]).size,
-	).toBe(7);
+	).toBe(8);
 });
 
 test('linearProgressiveBlur() accepts default params', () => {
@@ -1674,6 +1720,12 @@ test('rings() rejects non-finite offset', () => {
 	);
 });
 
+test('rings() rejects non-boolean maskToSourceAlpha', () => {
+	expect(() => rings({maskToSourceAlpha: 'yes' as unknown as boolean})).toThrow(
+		'"maskToSourceAlpha" must be a boolean',
+	);
+});
+
 test('rings() parameters produce distinct effect keys', () => {
 	const defaultRings = rings();
 	const colored = rings({colors: ['#ffffff', 'transparent']});
@@ -1681,6 +1733,7 @@ test('rings() parameters produce distinct effect keys', () => {
 	const thin = rings({thickness: 20});
 	const gapped = rings({gap: 24});
 	const shifted = rings({offset: 10});
+	const masked = rings({maskToSourceAlpha: true});
 
 	expect(
 		new Set([
@@ -1690,8 +1743,9 @@ test('rings() parameters produce distinct effect keys', () => {
 			thin.effectKey,
 			gapped.effectKey,
 			shifted.effectKey,
+			masked.effectKey,
 		]).size,
-	).toBe(6);
+	).toBe(7);
 });
 
 test('hue() accepts default params', () => {

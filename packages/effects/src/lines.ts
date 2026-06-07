@@ -7,6 +7,7 @@ import {
 } from './color-utils.js';
 import {
 	assertEffectParamsObject,
+	assertOptionalBoolean,
 	assertRequiredColor,
 } from './validate-effect-param.js';
 
@@ -20,6 +21,7 @@ const DEFAULT_THICKNESS = 40 as const;
 const DEFAULT_GAP = 0 as const;
 const DEFAULT_ANGLE = 0 as const;
 const DEFAULT_OFFSET = 0 as const;
+const DEFAULT_MASK_TO_SOURCE_ALPHA = false as const;
 
 export const linesSchema = {
 	direction: {
@@ -62,6 +64,11 @@ export const linesSchema = {
 		description: 'Offset',
 		hiddenFromList: false,
 	},
+	maskToSourceAlpha: {
+		type: 'boolean',
+		default: DEFAULT_MASK_TO_SOURCE_ALPHA,
+		description: 'Mask to source alpha',
+	},
 } as const satisfies SequenceSchema;
 
 export type LinesDirection = (typeof LINE_DIRECTIONS)[number];
@@ -79,6 +86,8 @@ export type LinesParams = {
 	readonly angle?: number;
 	/** Offset in pixels. Animate this value to scroll the lines. Defaults to `0`. */
 	readonly offset?: number;
+	/** Masks the generated line pattern to the source alpha channel. Defaults to `false`. */
+	readonly maskToSourceAlpha?: boolean;
 };
 
 type LinesResolved = {
@@ -88,6 +97,7 @@ type LinesResolved = {
 	spacing: number;
 	angle: number;
 	offset: number;
+	maskToSourceAlpha: boolean;
 };
 
 type LinesState = {
@@ -108,6 +118,7 @@ type LinesState = {
 		readonly uSpacing: WebGLUniformLocation | null;
 		readonly uAngle: WebGLUniformLocation | null;
 		readonly uOffset: WebGLUniformLocation | null;
+		readonly uMaskToSourceAlpha: WebGLUniformLocation | null;
 	};
 	cachedPaletteKey: string;
 	palettePixelData: Uint8Array;
@@ -124,6 +135,7 @@ const resolve = (p: LinesParams): LinesResolved => {
 		spacing: thickness + gap,
 		angle: p.angle ?? DEFAULT_ANGLE,
 		offset: p.offset ?? DEFAULT_OFFSET,
+		maskToSourceAlpha: p.maskToSourceAlpha ?? DEFAULT_MASK_TO_SOURCE_ALPHA,
 	};
 };
 
@@ -193,6 +205,7 @@ const validateLinesParams = (params: LinesParams): void => {
 	assertOptionalFiniteNumber(params.gap, 'gap');
 	assertOptionalFiniteNumber(params.angle, 'angle');
 	assertOptionalFiniteNumber(params.offset, 'offset');
+	assertOptionalBoolean(params.maskToSourceAlpha, 'maskToSourceAlpha');
 
 	const thickness = params.thickness ?? DEFAULT_THICKNESS;
 	const gap = params.gap ?? DEFAULT_GAP;
@@ -226,6 +239,7 @@ uniform float uThickness;
 uniform float uSpacing;
 uniform float uAngle;
 uniform float uOffset;
+uniform bool uMaskToSourceAlpha;
 
 void main() {
 	vec4 texColor = texture(uSource, vUv);
@@ -256,6 +270,14 @@ float c = cos(uAngle);
 	vec4 lineColor = texture(uPalette, vec2(texCoord, 0.5));
 	float lineAlpha = lineColor.a;
 	vec3 premultipliedLine = lineColor.rgb * lineAlpha;
+
+	if (uMaskToSourceAlpha) {
+		fragColor = vec4(
+			premultipliedLine * texColor.a + texColor.rgb * (1.0 - lineAlpha),
+			texColor.a
+		);
+		return;
+	}
 
 	fragColor = vec4(
 		premultipliedLine + texColor.rgb * (1.0 - lineAlpha),
@@ -406,6 +428,7 @@ const setupLines = (target: HTMLCanvasElement): LinesState => {
 			uSpacing: gl.getUniformLocation(program, 'uSpacing'),
 			uAngle: gl.getUniformLocation(program, 'uAngle'),
 			uOffset: gl.getUniformLocation(program, 'uOffset'),
+			uMaskToSourceAlpha: gl.getUniformLocation(program, 'uMaskToSourceAlpha'),
 		},
 		cachedPaletteKey: '',
 		palettePixelData: new Uint8Array(0),
@@ -447,7 +470,8 @@ export const lines = createEffect<LinesParams, LinesState>({
 	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
-		return `lines-${r.colors.join('|')}-${r.direction}-${r.thickness}-${r.spacing}-${r.angle}-${r.offset}`;
+		const maskSuffix = r.maskToSourceAlpha ? '-mask-to-source-alpha' : '';
+		return `lines-${r.colors.join('|')}-${r.direction}-${r.thickness}-${r.spacing}-${r.angle}-${r.offset}${maskSuffix}`;
 	},
 	setup: (target) => setupLines(target),
 	apply: ({source, width, height, params, state, flipSourceY}) => {
@@ -504,6 +528,8 @@ export const lines = createEffect<LinesParams, LinesState>({
 		if (uniforms.uAngle)
 			gl.uniform1f(uniforms.uAngle, (r.angle * Math.PI) / 180);
 		if (uniforms.uOffset) gl.uniform1f(uniforms.uOffset, r.offset);
+		if (uniforms.uMaskToSourceAlpha)
+			gl.uniform1i(uniforms.uMaskToSourceAlpha, r.maskToSourceAlpha ? 1 : 0);
 
 		gl.bindVertexArray(vao);
 		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);

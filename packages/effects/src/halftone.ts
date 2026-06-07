@@ -14,6 +14,7 @@ const {createEffect, createWebGL2ContextError} = Internals;
 const HALFTONE_SHAPES = ['circle', 'square', 'line'] as const;
 const HALFTONE_SAMPLING = ['bilinear', 'nearest'] as const;
 const HALFTONE_COLOR_MODES = ['solid', 'source'] as const;
+const DEFAULT_MASK_TO_SOURCE_ALPHA = false as const;
 
 export const halftoneSchema = {
 	dotSize: {
@@ -84,6 +85,11 @@ export const halftoneSchema = {
 			source: {},
 		},
 	},
+	maskToSourceAlpha: {
+		type: 'boolean',
+		default: DEFAULT_MASK_TO_SOURCE_ALPHA,
+		description: 'Mask to source alpha',
+	},
 } as const satisfies SequenceSchema;
 
 export type HalftoneShape = (typeof HALFTONE_SHAPES)[number];
@@ -108,6 +114,10 @@ type HalftoneCommonParams = {
 	 * bright and transparent areas produce larger dots instead.
 	 */
 	readonly invert?: boolean;
+	/**
+	 * Masks solid-color dots to the source alpha channel. Defaults to `false`.
+	 */
+	readonly maskToSourceAlpha?: boolean;
 };
 
 export type HalftoneParams = HalftoneCommonParams &
@@ -133,6 +143,7 @@ type HalftoneResolved = {
 	colorMode: HalftoneColorMode;
 	dotColor: string;
 	invert: boolean;
+	maskToSourceAlpha: boolean;
 };
 
 const formatEnum = (variants: readonly string[]): string => {
@@ -183,6 +194,7 @@ const resolve = (p: HalftoneParams): HalftoneResolved => ({
 	colorMode: p.colorMode ?? 'solid',
 	dotColor: 'dotColor' in p ? (p.dotColor ?? 'red') : 'red',
 	invert: p.invert ?? false,
+	maskToSourceAlpha: p.maskToSourceAlpha ?? DEFAULT_MASK_TO_SOURCE_ALPHA,
 });
 
 const validateHalftoneParams = (params: HalftoneParams): void => {
@@ -195,6 +207,7 @@ const validateHalftoneParams = (params: HalftoneParams): void => {
 	assertOptionalEnum(params.shape, 'shape', HALFTONE_SHAPES);
 	assertOptionalEnum(params.sampling, 'sampling', HALFTONE_SAMPLING);
 	assertOptionalEnum(params.colorMode, 'colorMode', HALFTONE_COLOR_MODES);
+	assertOptionalBoolean(params.maskToSourceAlpha, 'maskToSourceAlpha');
 	if ('color' in params && params.color !== undefined) {
 		throw new TypeError('"color" has been renamed to "dotColor"');
 	}
@@ -250,6 +263,7 @@ uniform vec4 uColor;
 uniform int uShape;
 uniform bool uShadeOutside;
 uniform bool uUseSourceColor;
+uniform bool uMaskToSourceAlpha;
 
 void main() {
 	vec2 fragPos = vUv * uResolution;
@@ -308,7 +322,12 @@ void main() {
 				 * (1.0 - smoothstep(lineHalf - 0.5, lineHalf + 0.5, abs(diff.y)));
 	}
 
-	fragColor = (uUseSourceColor ? texColor : uColor) * coverage;
+	vec4 outputColor = uUseSourceColor ? texColor : uColor;
+	if (!uUseSourceColor && uMaskToSourceAlpha) {
+		outputColor *= alpha;
+	}
+
+	fragColor = outputColor * coverage;
 }
 `;
 
@@ -328,6 +347,7 @@ type HalftoneState = {
 	uShape: WebGLUniformLocation | null;
 	uShadeOutside: WebGLUniformLocation | null;
 	uUseSourceColor: WebGLUniformLocation | null;
+	uMaskToSourceAlpha: WebGLUniformLocation | null;
 	colorCtx: CanvasRenderingContext2D;
 	cachedColorStr: string;
 	cachedColorRgba: ParsedColorRgba;
@@ -397,7 +417,8 @@ export const halftone = createEffect<HalftoneParams, HalftoneState>({
 	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
-		return `halftone-${r.shape}-${r.dotSize}-${r.dotSpacing}-${r.rotation}-${r.offsetX}-${r.offsetY}-${r.sampling}-${r.colorMode}-${r.dotColor}-${r.invert ? 1 : 0}`;
+		const maskSuffix = r.maskToSourceAlpha ? '-mask-to-source-alpha' : '';
+		return `halftone-${r.shape}-${r.dotSize}-${r.dotSpacing}-${r.rotation}-${r.offsetX}-${r.offsetY}-${r.sampling}-${r.colorMode}-${r.dotColor}-${r.invert ? 1 : 0}${maskSuffix}`;
 	},
 	setup: (target) => {
 		const gl = target.getContext('webgl2', {
@@ -479,6 +500,7 @@ export const halftone = createEffect<HalftoneParams, HalftoneState>({
 			uShape: gl.getUniformLocation(program, 'uShape'),
 			uShadeOutside: gl.getUniformLocation(program, 'uShadeOutside'),
 			uUseSourceColor: gl.getUniformLocation(program, 'uUseSourceColor'),
+			uMaskToSourceAlpha: gl.getUniformLocation(program, 'uMaskToSourceAlpha'),
 			colorCtx,
 			cachedColorStr: '',
 			cachedColorRgba: [0, 0, 0, 255],
@@ -539,6 +561,8 @@ export const halftone = createEffect<HalftoneParams, HalftoneState>({
 			gl.uniform1i(state.uShadeOutside, r.invert ? 1 : 0);
 		if (state.uUseSourceColor)
 			gl.uniform1i(state.uUseSourceColor, r.colorMode === 'source' ? 1 : 0);
+		if (state.uMaskToSourceAlpha)
+			gl.uniform1i(state.uMaskToSourceAlpha, r.maskToSourceAlpha ? 1 : 0);
 
 		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
