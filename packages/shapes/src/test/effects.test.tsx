@@ -33,6 +33,7 @@ const htmlInCanvasCalls: HtmlInCanvasCall[] = [];
 const sequenceCalls: SequenceCall[] = [];
 const stackTraceComponents: unknown[] = [];
 const effectDefinitions = [{type: 'effect-definition'}];
+let hasVideoConfig = true;
 const addSequenceStackTraces = mock((component: unknown) => {
 	stackTraceComponents.push(component);
 });
@@ -94,6 +95,25 @@ mock.module('remotion', () => {
 				hidden: {},
 			},
 			sequenceVisualStyleSchema: {},
+			useUnsafeVideoConfig: mock(() =>
+				hasVideoConfig
+					? {
+							id: 'shape-test',
+							width: 1920,
+							height: 1080,
+							fps: 30,
+							durationInFrames: 100,
+							defaultProps: {},
+							props: {},
+							defaultCodec: null,
+							defaultOutName: null,
+							defaultVideoImageFormat: null,
+							defaultPixelFormat: null,
+							defaultProResProfile: null,
+							defaultSampleRate: null,
+						}
+					: null,
+			),
 			useMemoizedEffectDefinitions: mock(() => effectDefinitions),
 			wrapInSchema: mock(({Component}) => Component),
 		},
@@ -123,6 +143,7 @@ const effect = {} as EffectsProp[number];
 
 test('Should render a shape with effects in HtmlInCanvas', async () => {
 	const {Circle} = await loadComponents();
+	hasVideoConfig = true;
 	htmlInCanvasCalls.length = 0;
 	sequenceCalls.length = 0;
 
@@ -154,7 +175,7 @@ test('Should render a shape with effects in HtmlInCanvas', async () => {
 				overflow: 'visible',
 				opacity: 0.5,
 			},
-			_experimentalControls: null,
+			_experimentalControls: undefined,
 		},
 	]);
 	expect(sequenceCalls[0]).toMatchObject({
@@ -171,6 +192,7 @@ test('Should render a shape with effects in HtmlInCanvas', async () => {
 
 test('Should keep rendering SVG directly with no effects', async () => {
 	const {Circle} = await loadComponents();
+	hasVideoConfig = true;
 	htmlInCanvasCalls.length = 0;
 	sequenceCalls.length = 0;
 
@@ -205,6 +227,7 @@ test('Should keep rendering SVG directly with no effects', async () => {
 
 test('Should pass integer dimensions to HtmlInCanvas', async () => {
 	const {Rect} = await loadComponents();
+	hasVideoConfig = true;
 	htmlInCanvasCalls.length = 0;
 
 	render(<Rect width={10.1} height={20.2} effects={[effect]} />);
@@ -215,6 +238,7 @@ test('Should pass integer dimensions to HtmlInCanvas', async () => {
 
 test('Should forward stack to the shape Sequence', async () => {
 	const {Circle} = await loadComponents();
+	hasVideoConfig = true;
 	htmlInCanvasCalls.length = 0;
 	sequenceCalls.length = 0;
 
@@ -226,10 +250,28 @@ test('Should forward stack to the shape Sequence', async () => {
 
 test('Should not add a documentation link if a custom name is passed', async () => {
 	const {Circle} = await loadComponents();
+	hasVideoConfig = true;
 	sequenceCalls.length = 0;
 
 	render(<Circle radius={100} name="Custom circle" />);
 
 	expect(sequenceCalls[0].name).toBe('Custom circle');
 	expect(sequenceCalls[0]._remotionInternalDocumentationLink).toBe(undefined);
+});
+
+test('Should render SVG without Sequence outside a Remotion video config', async () => {
+	const {Rect} = await loadComponents();
+	hasVideoConfig = false;
+	htmlInCanvasCalls.length = 0;
+	sequenceCalls.length = 0;
+
+	const {container} = render(
+		<Rect width={100} height={50} fill="red" style={{opacity: 0.5}} />,
+	);
+
+	expect(container.querySelector('svg')).not.toBe(null);
+	expect(container.querySelector('svg')?.style.opacity).toBe('0.5');
+	expect(container.querySelector('path')?.getAttribute('fill')).toBe('red');
+	expect(htmlInCanvasCalls).toEqual([]);
+	expect(sequenceCalls).toEqual([]);
 });

@@ -89,18 +89,23 @@ export const RenderSvg = ({
 
 	const memoizedEffectDefinitions =
 		Internals.useMemoizedEffectDefinitions(effects);
+	const videoConfig = Internals.useUnsafeVideoConfig();
 
 	const reactSupportsTransformOrigin =
 		doesReactSupportTransformOriginProperty(version);
 
 	const svg = (
 		<svg
-			ref={effects.length === 0 ? setSvgRef : undefined}
+			ref={effects.length === 0 || !videoConfig ? setSvgRef : undefined}
 			width={width}
 			height={height}
 			viewBox={`0 0 ${width} ${height}`}
 			xmlns="http://www.w3.org/2000/svg"
-			style={effects.length === 0 ? actualStyle : {overflow: 'visible'}}
+			style={
+				effects.length === 0 || !videoConfig
+					? actualStyle
+					: {overflow: 'visible'}
+			}
 		>
 			<path
 				{...(reactSupportsTransformOrigin
@@ -198,6 +203,10 @@ export const RenderSvg = ({
 		);
 
 	const stackProps = stack === undefined ? null : ({stack} as const);
+
+	if (!videoConfig) {
+		return svg;
+	}
 
 	return (
 		<Sequence
