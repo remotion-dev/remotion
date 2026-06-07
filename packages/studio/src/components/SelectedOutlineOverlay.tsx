@@ -103,6 +103,7 @@ type SelectedOutlineContextMenuOpenHandler = () =>
 
 type SelectedOutlineTarget = {
 	readonly key: string;
+	readonly containsSelection: boolean;
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly ref: React.RefObject<Element | null>;
 	readonly selected: boolean;
@@ -507,7 +508,17 @@ const getElementOutlinePoints = (
 	return quadToPoints(quad, containerRect);
 };
 
-const getSelectedSequenceKeys = (
+export const getSelectedSequenceKeys = (
+	selectedItems: readonly TimelineSelection[],
+): Set<string> => {
+	return new Set(
+		selectedItems
+			.filter((item) => item.type === 'sequence')
+			.map((item) => getTimelineSequenceSelectionKey(item.nodePathInfo)),
+	);
+};
+
+const getSequenceKeysContainingSelection = (
 	selectedItems: readonly TimelineSelection[],
 ): Set<string> => {
 	return new Set(
@@ -557,7 +568,11 @@ export const getSelectedEffectFieldsBySequenceKey = (
 			fieldKeys: new Set<string>(),
 		};
 
-		selectedFields.allFields = true;
+		if (item.type === 'sequence-effect') {
+			selectedFields.allFields = true;
+		} else {
+			selectedFields.fieldKeys.add(item.key);
+		}
 
 		effectsForSequence.set(item.i, selectedFields);
 		selectedEffects.set(sequenceKey, effectsForSequence);
@@ -1103,7 +1118,8 @@ const SelectedOutlinePolygon: React.FC<{
 	);
 	const drag = target?.drag ?? null;
 	const selected = target?.selected ?? false;
-	const visible = selected || hovered;
+	const containsSelection = target?.containsSelection ?? false;
+	const visible = containsSelection || hovered;
 
 	const onPointerDown = React.useCallback(
 		(event: React.PointerEvent<SVGPolygonElement>) => {
@@ -1793,7 +1809,7 @@ const SelectedOutlineElement: React.FC<{
 				scale={scale}
 				target={target}
 			/>
-			{target?.selected || hovered
+			{target?.containsSelection || hovered
 				? (['top', 'right', 'bottom', 'left'] as const).map((edge) => (
 						<SelectedOutlineScaleEdgeLine
 							key={edge}
@@ -1818,7 +1834,7 @@ const SelectedOutlineUvHandleConnectionLayer: React.FC<{
 	readonly outline: SelectedOutline;
 	readonly target: SelectedOutlineTarget | undefined;
 }> = ({outline, target}) => {
-	if (!target?.selected || target.uvHandles.length === 0) {
+	if (!target?.containsSelection || target.uvHandles.length === 0) {
 		return null;
 	}
 
@@ -1835,7 +1851,7 @@ const SelectedOutlineUvHandleCircleLayer: React.FC<{
 	readonly outline: SelectedOutline;
 	readonly target: SelectedOutlineTarget | undefined;
 }> = ({onDraggingChange, outline, target}) => {
-	if (!target?.selected || target.uvHandles.length === 0) {
+	if (!target?.containsSelection || target.uvHandles.length === 0) {
 		return null;
 	}
 
@@ -1888,6 +1904,8 @@ export const SelectedOutlineOverlay: React.FC<{
 		}
 
 		const selectedSequenceKeys = getSelectedSequenceKeys(selectedItems);
+		const sequenceKeysContainingSelection =
+			getSequenceKeysContainingSelection(selectedItems);
 		const selectedEffectsBySequenceKey =
 			getSelectedEffectFieldsBySequenceKey(selectedItems);
 		const clientId =
@@ -1904,6 +1922,7 @@ export const SelectedOutlineOverlay: React.FC<{
 			}
 
 			const selected = selectedSequenceKeys.has(key);
+			const containsSelection = sequenceKeysContainingSelection.has(key);
 			const nodePath = nodePathInfo.sequenceSubscriptionKey;
 			const {controls} = sequence;
 			const fieldSchema = controls?.schema[translateFieldKey];
@@ -1932,6 +1951,7 @@ export const SelectedOutlineOverlay: React.FC<{
 
 			return {
 				key,
+				containsSelection,
 				nodePathInfo,
 				ref: sequence.refForOutline,
 				selected,
@@ -1975,7 +1995,7 @@ export const SelectedOutlineOverlay: React.FC<{
 							schema: controls.schema,
 						}
 					: null,
-				uvHandles: selected
+				uvHandles: containsSelection
 					? getSelectedUvHandles({
 							propStatuses,
 							clientId,

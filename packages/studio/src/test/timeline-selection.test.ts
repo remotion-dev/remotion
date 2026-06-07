@@ -17,6 +17,7 @@ import {
 	getSelectedOutlineScaleDragChanges,
 	getSelectedOutlineScaleDragValues,
 	getSelectedOutlineScaleEdgeInfo,
+	getSelectedSequenceKeys,
 	getSequencesWithSelectableOutlines,
 	getUvCoordinateForPoint,
 	getUvHandleConnectionLines,
@@ -1185,8 +1186,8 @@ test('UV handles are requested for selected effect children', () => {
 			.get(getTimelineSequenceSelectionKey(sequenceNodePathInfo))
 			?.get(1),
 	).toEqual({
-		allFields: true,
-		fieldKeys: new Set(),
+		allFields: false,
+		fieldKeys: new Set(['rays']),
 	});
 
 	const selectedWholeEffects = getSelectedEffectFieldsBySequenceKey([
@@ -1201,6 +1202,32 @@ test('UV handles are requested for selected effect children', () => {
 		allFields: true,
 		fieldKeys: new Set(),
 	});
+});
+
+test('selected sequence keys only include exact sequence selections', () => {
+	const sequenceNodePathInfo = makeNodePathInfo(['body', 0], []);
+	const effectPropNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['effects', '1', 'rays'],
+	);
+	const sequenceKey = getTimelineSequenceSelectionKey(sequenceNodePathInfo);
+
+	expect(
+		getSelectedSequenceKeys([
+			{
+				type: 'sequence-effect-prop',
+				nodePathInfo: effectPropNodePathInfo,
+				i: 1,
+				key: 'rays',
+			},
+		]).has(sequenceKey),
+	).toBe(false);
+
+	expect(
+		getSelectedSequenceKeys([
+			{type: 'sequence', nodePathInfo: sequenceNodePathInfo},
+		]).has(sequenceKey),
+	).toBe(true);
 });
 
 test('Cmd+A selection only targets selectable timeline sequences', () => {
