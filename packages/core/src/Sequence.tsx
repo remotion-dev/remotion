@@ -103,7 +103,7 @@ export type SequencePropsWithoutDuration = {
 	/**
 	 * @deprecated For internal use only.
 	 */
-	readonly _remotionInternalRefForOutline?: React.RefObject<HTMLElement | null> | null;
+	readonly _remotionInternalRefForOutline?: React.RefObject<Element | null> | null;
 } & LayoutAndStyle;
 
 export type SequenceProps = {

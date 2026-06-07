@@ -48,6 +48,24 @@ test('gets required package for insertable elements', () => {
 			dimensions: null,
 		}),
 	).toBe('@remotion/gif');
+	expect(
+		getRequiredPackageForInsertableElement({
+			type: 'component',
+			componentName: 'Circle',
+			importName: 'Circle',
+			importPath: '@remotion/shapes',
+			props: [],
+		}),
+	).toBe('@remotion/shapes');
+	expect(
+		getRequiredPackageForInsertableElement({
+			type: 'component',
+			componentName: 'Sequence',
+			importName: 'Sequence',
+			importPath: 'remotion',
+			props: [],
+		}),
+	).toBe(null);
 });
 
 test('gets required package for effect import paths', () => {

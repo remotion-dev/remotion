@@ -1,10 +1,30 @@
 import type {InsertableCompositionElement} from './api-requests';
 
+export const getRequiredPackageForImportPath = (
+	importPath: string,
+): string | null => {
+	if (importPath === 'remotion' || importPath.startsWith('.')) {
+		return null;
+	}
+
+	if (importPath.startsWith('@')) {
+		const [scope, scopedPackageName] = importPath.split('/');
+		return scope && scopedPackageName ? `${scope}/${scopedPackageName}` : null;
+	}
+
+	const [packageName] = importPath.split('/');
+	return packageName || null;
+};
+
 export const getRequiredPackageForInsertableElement = (
 	element: InsertableCompositionElement,
 ): string | null => {
 	if (element.type === 'solid') {
 		return null;
+	}
+
+	if (element.type === 'component') {
+		return getRequiredPackageForImportPath(element.importPath);
 	}
 
 	if (element.assetType === 'video' || element.assetType === 'audio') {

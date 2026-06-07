@@ -2,6 +2,7 @@ import {
 	detectFileType,
 	getRequiredPackageForInsertableElement,
 	isUrl,
+	type ComponentDragData,
 	type DownloadRemoteAssetResponse,
 	type FileType,
 	type InsertableCompositionElement,
@@ -154,6 +155,10 @@ const getAssetLabel = (element: InsertableCompositionElement) => {
 	}
 
 	throw new Error('Unsupported asset type');
+};
+
+const getComponentLabel = (component: ComponentDragData['component']) => {
+	return `<${component.componentName}>`;
 };
 
 export const pickFilesToImport = (): Promise<File[]> => {
@@ -464,6 +469,46 @@ export const insertExistingAssets = async ({
 	} catch (error) {
 		showNotification(
 			`Could not add asset: ${
+				error instanceof Error ? error.message : String(error)
+			}`,
+			4000,
+		);
+	}
+};
+
+export const insertComponent = async ({
+	component,
+	compositionFile,
+	compositionId,
+}: {
+	component: ComponentDragData['component'];
+	compositionFile: string;
+	compositionId: string;
+}) => {
+	try {
+		const inserted = await insertAssetElement({
+			compositionFile,
+			compositionId,
+			element: {
+				type: 'component',
+				componentName: component.componentName,
+				importName: component.importName,
+				importPath: component.importPath,
+				props: component.props,
+			},
+		});
+
+		if (!inserted) {
+			return;
+		}
+
+		showNotification(
+			`Added ${getComponentLabel(component)} to source file`,
+			2000,
+		);
+	} catch (error) {
+		showNotification(
+			`Could not add component: ${
 				error instanceof Error ? error.message : String(error)
 			}`,
 			4000,
