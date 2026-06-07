@@ -2,6 +2,7 @@ import React from 'react';
 import {Composition, Folder} from 'remotion';
 import {ErrorOverlayRepro} from './ErrorOverlayE2e/ErrorOverlayRepro';
 import {HookOrderChangeE2e} from './HookOrderChangeE2e/HookOrderChangeRepro';
+import {Issue8216} from './Issue8216/Issue8216';
 import {LostNodePathRepro} from './LostNodePathE2e/LostNodePathRepro';
 import {NewVideoComp} from './NewVideo';
 import {SchemaTest, schemaTestSchema} from './SchemaTest';
@@ -70,6 +71,14 @@ export const E2eTestRoot: React.FC = () => {
 			<Folder name="hook-order-change">
 				<HookOrderChangeE2e />
 			</Folder>
+			<Composition
+				id="issue-8216"
+				component={Issue8216}
+				width={1280}
+				height={720}
+				fps={30}
+				durationInFrames={90}
+			/>
 			<NewVideoComp />
 		</>
 	);

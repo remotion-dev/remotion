@@ -112,6 +112,12 @@ const hasSequenceReorderDragType = (dataTransfer: DataTransfer) => {
 	return Array.from(dataTransfer.types).includes(SEQUENCE_REORDER_MIME_TYPE);
 };
 
+const isSequenceReorderDrag = (dataTransfer: DataTransfer) => {
+	return (
+		currentSequenceDrag !== null || hasSequenceReorderDragType(dataTransfer)
+	);
+};
+
 const getSequenceReorderDragData = (
 	dataTransfer: DataTransfer,
 ): SequenceReorderDragData | null => {
@@ -835,7 +841,11 @@ export const TimelineSequenceItem: React.FC<{
 
 	const onEffectDragOver = useCallback(
 		(e: React.DragEvent<HTMLDivElement>) => {
-			if (!canDropEffect || !hasEffectDragType(e.dataTransfer)) {
+			if (
+				!canDropEffect ||
+				isSequenceReorderDrag(e.dataTransfer) ||
+				!hasEffectDragType(e.dataTransfer)
+			) {
 				return;
 			}
 
@@ -863,7 +873,9 @@ export const TimelineSequenceItem: React.FC<{
 				!canDropEffect ||
 				previewServerState.type !== 'connected' ||
 				nodePath === null ||
-				validatedLocation === null
+				validatedLocation === null ||
+				isSequenceReorderDrag(e.dataTransfer) ||
+				!hasEffectDragType(e.dataTransfer)
 			) {
 				return;
 			}
