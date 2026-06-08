@@ -44,7 +44,7 @@ const animatedImageSchema = {
 		max: 10,
 		step: 0.1,
 		default: 1,
-		description: 'Playback Rate',
+		description: 'Playback rate',
 		hiddenFromList: false,
 		keyframable: false,
 	},
