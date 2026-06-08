@@ -2,6 +2,8 @@ export {splitAnsi, stripAnsi} from './ansi';
 export {
 	AddEffectKeyframeRequest,
 	AddEffectKeyframeResponse,
+	AddKeyframesRequest,
+	AddKeyframesResponse,
 	AddEffectRequest,
 	AddEffectResponse,
 	AddRenderRequest,
@@ -92,6 +94,8 @@ export {
 	UpdateSequenceKeyframeSettingsRequest,
 	UpdateSequenceKeyframeSettingsResponse,
 	type KeyframeSettings,
+	type AddEffectKeyframe,
+	type AddSequenceKeyframe,
 } from './api-requests';
 export {
 	ASSET_DRAG_MIME_TYPE,

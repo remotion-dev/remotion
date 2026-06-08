@@ -396,6 +396,7 @@ export const TimelineEffectPropItem: React.FC<{
 				dragOverrideValue={dragOverrideValue}
 				schema={field.effectSchema}
 				effectIndex={field.effectIndex}
+				nodePathInfo={nodePathInfo}
 			/>
 		) : null;
 

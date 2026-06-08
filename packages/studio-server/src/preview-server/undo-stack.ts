@@ -21,6 +21,9 @@ type UndoEntryType =
 	| 'default-props'
 	| 'sequence-props'
 	| 'effect-props'
+	// Dead code for now: the Studio selection model cannot mix sequence props and
+	// effect props yet, but this will be used once mixed prop selection is enabled.
+	| 'keyframe-add'
 	| 'keyframe-delete'
 	| 'add-effect'
 	| 'delete-effect'
@@ -57,6 +60,7 @@ type UndoEntry = {
 	| {entryType: 'default-props'}
 	| {entryType: 'sequence-props'}
 	| {entryType: 'effect-props'}
+	| {entryType: 'keyframe-add'}
 	| {entryType: 'keyframe-delete'}
 	| {entryType: 'add-effect'}
 	| {entryType: 'delete-effect'}
