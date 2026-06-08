@@ -285,9 +285,8 @@ export const EasingEditorModal: React.FC<{
 			return;
 		}
 
-		promise.then(close).finally(() => {
-			setSaving(false);
-		});
+		promise.catch(() => undefined);
+		close();
 	}, [
 		bezier,
 		close,
