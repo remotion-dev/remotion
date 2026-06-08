@@ -11,6 +11,12 @@ import {
 import {NoReactInternals} from 'remotion/no-react';
 import {
 	constrainUv,
+	getSelectedUvHandles,
+	getUvCoordinateForPoint,
+	getUvHandleConnectionLines,
+	getUvHandlePosition,
+} from '../components/selected-outline-uv';
+import {
 	getOutlineSelectionInteraction,
 	getSelectedEffectFieldsBySequenceKey,
 	getSelectedOutlineDragChanges,
@@ -18,12 +24,8 @@ import {
 	getSelectedOutlineScaleDragChanges,
 	getSelectedOutlineScaleDragValues,
 	getSelectedOutlineScaleEdgeInfo,
-	getSelectedUvHandles,
 	getSelectedSequenceKeys,
 	getSequencesWithSelectableOutlines,
-	getUvCoordinateForPoint,
-	getUvHandleConnectionLines,
-	getUvHandlePosition,
 	type SelectedOutlineDragState,
 	type SelectedOutlineScaleDragState,
 } from '../components/SelectedOutlineOverlay';
