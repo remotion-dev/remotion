@@ -59,6 +59,7 @@ const coordinateRow: React.CSSProperties = {
 const coordinateLabel: React.CSSProperties = {
 	fontSize: 13,
 	color: 'rgba(255, 255, 255, 0.72)',
+	paddingLeft: 6,
 };
 
 const numberInputStyle: React.CSSProperties = {
