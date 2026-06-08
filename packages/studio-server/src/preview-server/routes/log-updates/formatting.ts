@@ -67,10 +67,13 @@ const formatValueDelta = ({
 	oldValueString: string;
 	newValueString: string;
 }) => {
-	const shortened = shortenUnchangedInterpolateOptions({
+	const withoutUnchangedOptions = shortenUnchangedInterpolateOptions({
 		oldValueString,
 		newValueString,
 	});
+	const shortened = removeUnchangedInterpolateOptionProperties(
+		withoutUnchangedOptions,
+	);
 
 	return `${colorValue(shortened.oldValueString)} ${punctuation('→')} ${colorValue(shortened.newValueString)}`;
 };
@@ -153,6 +156,11 @@ const normalizeArg = (arg: string) => {
 		.trim();
 };
 
+const shortenUnchangedOptionProperties = new Set([
+	'extrapolateLeft',
+	'extrapolateRight',
+]);
+
 const splitTopLevelArgs = (argsSource: string) => {
 	const args: string[] = [];
 	let depth = 0;
@@ -194,6 +202,60 @@ const splitTopLevelArgs = (argsSource: string) => {
 
 	args.push(argsSource.slice(start).trim());
 	return args;
+};
+
+const getObjectPropertyKey = (propertySource: string): string | null => {
+	const colonIndex = propertySource.indexOf(':');
+	if (colonIndex === -1) {
+		return null;
+	}
+
+	const key = propertySource.slice(0, colonIndex).trim();
+	if (/^[A-Za-z_$][\w$]*$/.test(key)) {
+		return key;
+	}
+
+	if (
+		(key.startsWith("'") && key.endsWith("'")) ||
+		(key.startsWith('"') && key.endsWith('"'))
+	) {
+		return key.slice(1, -1);
+	}
+
+	return null;
+};
+
+const parseTopLevelObjectProperties = (objectSource: string) => {
+	const trimmed = objectSource.trim();
+	if (!trimmed.startsWith('{') || !trimmed.endsWith('}')) {
+		return null;
+	}
+
+	const properties = splitTopLevelArgs(trimmed.slice(1, -1))
+		.filter(Boolean)
+		.map((propertySource) => {
+			const key = getObjectPropertyKey(propertySource);
+			if (key === null) {
+				return null;
+			}
+
+			const colonIndex = propertySource.indexOf(':');
+			return {
+				key,
+				value: normalizeArg(propertySource.slice(colonIndex + 1)),
+				source: propertySource.trim(),
+			};
+		});
+
+	if (properties.some((property) => property === null)) {
+		return null;
+	}
+
+	return properties as {
+		key: string;
+		value: string;
+		source: string;
+	}[];
 };
 
 const parseInterpolateCall = (valueString: string): InterpolateCall | null => {
@@ -275,5 +337,76 @@ const shortenUnchangedInterpolateOptions = ({
 	return {
 		oldValueString: `interpolate(${oldCall.args.slice(0, 3).join(', ')})`,
 		newValueString: `interpolate(${newCall.args.slice(0, 3).join(', ')})`,
+	};
+};
+
+const removeUnchangedInterpolateOptionProperties = ({
+	oldValueString,
+	newValueString,
+}: {
+	oldValueString: string;
+	newValueString: string;
+}) => {
+	const oldCall = parseInterpolateCall(oldValueString);
+	const newCall = parseInterpolateCall(newValueString);
+
+	if (
+		!oldCall ||
+		!newCall ||
+		oldCall.args.length <= 3 ||
+		newCall.args.length <= 3
+	) {
+		return {oldValueString, newValueString};
+	}
+
+	const oldProperties = parseTopLevelObjectProperties(oldCall.args[3]);
+	const newProperties = parseTopLevelObjectProperties(newCall.args[3]);
+	if (!oldProperties || !newProperties) {
+		return {oldValueString, newValueString};
+	}
+
+	const propertiesToRemove = [...shortenUnchangedOptionProperties].filter(
+		(propertyName) => {
+			const oldProperty = oldProperties.find(
+				(property) => property.key === propertyName,
+			);
+			const newProperty = newProperties.find(
+				(property) => property.key === propertyName,
+			);
+
+			return (
+				oldProperty !== undefined &&
+				newProperty !== undefined &&
+				oldProperty.value === newProperty.value
+			);
+		},
+	);
+
+	if (propertiesToRemove.length === 0) {
+		return {oldValueString, newValueString};
+	}
+
+	const removeProperties = (
+		call: InterpolateCall,
+		properties: typeof oldProperties,
+	) => {
+		const nextOptions = properties.filter(
+			(property) => !propertiesToRemove.includes(property.key),
+		);
+		const nextArgs =
+			nextOptions.length === 0
+				? [...call.args.slice(0, 3), ...call.args.slice(4)]
+				: [
+						...call.args.slice(0, 3),
+						`{${nextOptions.map((property) => property.source).join(', ')}}`,
+						...call.args.slice(4),
+					];
+
+		return `interpolate(${nextArgs.join(', ')})`;
+	};
+
+	return {
+		oldValueString: removeProperties(oldCall, oldProperties),
+		newValueString: removeProperties(newCall, newProperties),
 	};
 };

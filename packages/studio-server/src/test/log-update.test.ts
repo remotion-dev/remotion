@@ -118,6 +118,36 @@ test('formatPropChange condenses unchanged interpolate options', () => {
 	expect(formatted).not.toContain('extrapolateRight');
 });
 
+test('formatPropChange omits unchanged interpolate clamping when easing changes', () => {
+	const formatted = formatPropChange({
+		key: 'scale',
+		oldValueString: `interpolate(frame, [68, 78, 88], [0, 1, 1], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+    easing: [
+        Easing.bezier(0.5526, 3.9109, 0.6487, 4.8024),
+        Easing.bezier(0.5526, 3.9109, 0.995, 5),
+    ],
+})`,
+		newValueString: `interpolate(frame, [68, 78, 88], [0, 1, 1], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+    easing: [
+        Easing.bezier(0.5526, 3.9109, 0.6487, 4.8024),
+        Easing.bezier(0.5526, 3.9109, 0.6487, 4.8024),
+    ],
+})`,
+		defaultValueString: null,
+		removedProps: [],
+		addedProps: [],
+	});
+
+	expect(formatted).not.toContain('extrapolateLeft');
+	expect(formatted).not.toContain('extrapolateRight');
+	expect(formatted).toContain('Easing.bezier(0.5526, 3.9109, 0.995, 5)');
+	expect(formatted).toContain('Easing.bezier(0.5526, 3.9109, 0.6487, 4.8024)');
+});
+
 test('logUpdate emits change-from-default output for discriminated union enum change', async () => {
 	const fixture = readFileSync(
 		path.join(__dirname, 'snapshots', 'discriminated-union-with-style.tsx'),
