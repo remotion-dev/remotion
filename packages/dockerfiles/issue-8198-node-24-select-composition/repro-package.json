@@ -1,0 +1,7 @@
+{
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"repro": "node render.mjs"
+	}
+}

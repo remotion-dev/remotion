@@ -35,3 +35,31 @@ Located in `packages/example/src/BrowserTest/index.tsx`, it tests:
 Located in `packages/example/src/HtmlInCanvas/index.tsx`, it tests the experimental [WICG html-in-canvas](https://github.com/WICG/html-in-canvas) `CanvasRenderingContext2D.drawElementImage()` API. If the API is unavailable in the bundled Chrome (for example without `chrome://flags/#canvas-draw-element` enabled), the composition fails the render with an error.
 
 The bundle is built from `packages/example` and copied into each Docker container during build.
+
+## Issue #8198 selectComposition repro
+
+`issue-8198-node-24-select-composition` is a standalone Docker repro for a
+reported `selectComposition()` stall on Ubuntu 22.04 with Node 24.16.0 and
+Remotion 4.0.447. It intentionally lets `selectComposition()` download Chrome
+Headless Shell during the run, matching the reported failure path.
+
+```bash
+cd packages/dockerfiles/issue-8198-node-24-select-composition
+./run.sh
+```
+
+To compare against Node 24.15.0:
+
+```bash
+NODE_VERSION=24.15.0 ./run.sh
+```
+
+To test another Remotion version with the same Node version:
+
+```bash
+REMOTION_VERSION=4.0.474 ./run.sh
+```
+
+Remotion 4.0.447 reproduces the stall on Node 24.16.0 after the Chrome
+Headless Shell download completes. Remotion 4.0.474 resolves successfully,
+which verifies the vendored `yauzl` / `fd-slicer` lifecycle patch.
