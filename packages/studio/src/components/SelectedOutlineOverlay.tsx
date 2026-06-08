@@ -441,6 +441,26 @@ export const getSelectedOutlineDragValues = ({
 	);
 };
 
+export const applySelectedOutlineDragAxisLock = ({
+	deltaX,
+	deltaY,
+	axisLocked,
+}: {
+	readonly deltaX: number;
+	readonly deltaY: number;
+	readonly axisLocked: boolean;
+}) => {
+	if (!axisLocked) {
+		return {deltaX, deltaY};
+	}
+
+	if (Math.abs(deltaX) >= Math.abs(deltaY)) {
+		return {deltaX, deltaY: 0};
+	}
+
+	return {deltaX: 0, deltaY};
+};
+
 export type SelectedOutlineStaticDragChange = SaveSequencePropChange & {
 	readonly type: 'static';
 };
@@ -777,14 +797,21 @@ const SelectedOutlinePolygon: React.FC<{
 				timelinePosition: timelinePositionRef.current,
 			});
 			let lastValues = new Map<string, string>();
+			let currentPointerX = startPointerX;
+			let currentPointerY = startPointerY;
+			let axisLocked = false;
 
-			const onPointerMove = (moveEvent: PointerEvent) => {
-				moveEvent.preventDefault();
+			const updateDragOverrides = () => {
+				const dragDelta = applySelectedOutlineDragAxisLock({
+					deltaX: (currentPointerX - startPointerX) / scale,
+					deltaY: (currentPointerY - startPointerY) / scale,
+					axisLocked,
+				});
 
 				lastValues = getSelectedOutlineDragValues({
 					dragStates,
-					deltaX: (moveEvent.clientX - startPointerX) / scale,
-					deltaY: (moveEvent.clientY - startPointerY) / scale,
+					deltaX: dragDelta.deltaX,
+					deltaY: dragDelta.deltaY,
 				});
 				for (const dragState of dragStates) {
 					const value = lastValues.get(dragState.key);
@@ -812,10 +839,34 @@ const SelectedOutlinePolygon: React.FC<{
 				}
 			};
 
+			const onPointerMove = (moveEvent: PointerEvent) => {
+				moveEvent.preventDefault();
+				currentPointerX = moveEvent.clientX;
+				currentPointerY = moveEvent.clientY;
+				axisLocked = moveEvent.shiftKey;
+				updateDragOverrides();
+			};
+
+			const onKeyChange = (keyEvent: KeyboardEvent) => {
+				if (keyEvent.key !== 'Shift') {
+					return;
+				}
+
+				const nextAxisLocked = keyEvent.type === 'keydown';
+				if (nextAxisLocked === axisLocked) {
+					return;
+				}
+
+				axisLocked = nextAxisLocked;
+				updateDragOverrides();
+			};
+
 			const onPointerUp = () => {
 				window.removeEventListener('pointermove', onPointerMove);
 				window.removeEventListener('pointerup', onPointerUp);
 				window.removeEventListener('pointercancel', onPointerUp);
+				window.removeEventListener('keydown', onKeyChange);
+				window.removeEventListener('keyup', onKeyChange);
 				onDraggingChange(false);
 
 				const changes = getSelectedOutlineDragChanges({
@@ -882,6 +933,8 @@ const SelectedOutlinePolygon: React.FC<{
 			window.addEventListener('pointermove', onPointerMove);
 			window.addEventListener('pointerup', onPointerUp);
 			window.addEventListener('pointercancel', onPointerUp);
+			window.addEventListener('keydown', onKeyChange);
+			window.addEventListener('keyup', onKeyChange);
 		},
 		[
 			allDragTargets,
