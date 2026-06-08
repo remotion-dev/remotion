@@ -62,9 +62,16 @@ const coordinateLabel: React.CSSProperties = {
 	paddingLeft: 6,
 };
 
+const coordinateInputWrapper: React.CSSProperties = {
+	height: 34,
+	display: 'flex',
+	alignItems: 'center',
+};
+
 const numberInputStyle: React.CSSProperties = {
 	backgroundColor: INPUT_BACKGROUND,
 	borderRadius: 4,
+	width: '100%',
 };
 
 const svgStyle: React.CSSProperties = {
@@ -399,75 +406,83 @@ export const EasingEditorModal: React.FC<{
 					<div style={coordinatesGrid}>
 						<div style={coordinateRow}>
 							<div style={coordinateLabel}>X1</div>
-							<InputDragger
-								type="number"
-								value={bezier[0]}
-								status="ok"
-								onValueChange={(value) => setCoordinate(0, 'x', value)}
-								onValueChangeEnd={(value) => setCoordinate(0, 'x', value)}
-								onTextChange={() => undefined}
-								min={0}
-								max={1}
-								step={0.01}
-								formatter={formatNumber}
-								rightAlign={false}
-								style={numberInputStyle}
-								snapToStep={false}
-							/>
+							<div style={coordinateInputWrapper}>
+								<InputDragger
+									type="number"
+									value={bezier[0]}
+									status="ok"
+									onValueChange={(value) => setCoordinate(0, 'x', value)}
+									onValueChangeEnd={(value) => setCoordinate(0, 'x', value)}
+									onTextChange={() => undefined}
+									min={0}
+									max={1}
+									step={0.01}
+									formatter={formatNumber}
+									rightAlign={false}
+									style={numberInputStyle}
+									snapToStep={false}
+								/>
+							</div>
 						</div>
 						<div style={coordinateRow}>
 							<div style={coordinateLabel}>Y1</div>
-							<InputDragger
-								type="number"
-								value={bezier[1]}
-								status="ok"
-								onValueChange={(value) => setCoordinate(0, 'y', value)}
-								onValueChangeEnd={(value) => setCoordinate(0, 'y', value)}
-								onTextChange={() => undefined}
-								min={Y_MIN}
-								max={Y_MAX}
-								step={0.01}
-								formatter={formatNumber}
-								rightAlign={false}
-								style={numberInputStyle}
-								snapToStep={false}
-							/>
+							<div style={coordinateInputWrapper}>
+								<InputDragger
+									type="number"
+									value={bezier[1]}
+									status="ok"
+									onValueChange={(value) => setCoordinate(0, 'y', value)}
+									onValueChangeEnd={(value) => setCoordinate(0, 'y', value)}
+									onTextChange={() => undefined}
+									min={Y_MIN}
+									max={Y_MAX}
+									step={0.01}
+									formatter={formatNumber}
+									rightAlign={false}
+									style={numberInputStyle}
+									snapToStep={false}
+								/>
+							</div>
 						</div>
 						<div style={coordinateRow}>
 							<div style={coordinateLabel}>X2</div>
-							<InputDragger
-								type="number"
-								value={bezier[2]}
-								status="ok"
-								onValueChange={(value) => setCoordinate(1, 'x', value)}
-								onValueChangeEnd={(value) => setCoordinate(1, 'x', value)}
-								onTextChange={() => undefined}
-								min={0}
-								max={1}
-								step={0.01}
-								formatter={formatNumber}
-								rightAlign={false}
-								style={numberInputStyle}
-								snapToStep={false}
-							/>
+							<div style={coordinateInputWrapper}>
+								<InputDragger
+									type="number"
+									value={bezier[2]}
+									status="ok"
+									onValueChange={(value) => setCoordinate(1, 'x', value)}
+									onValueChangeEnd={(value) => setCoordinate(1, 'x', value)}
+									onTextChange={() => undefined}
+									min={0}
+									max={1}
+									step={0.01}
+									formatter={formatNumber}
+									rightAlign={false}
+									style={numberInputStyle}
+									snapToStep={false}
+								/>
+							</div>
 						</div>
 						<div style={coordinateRow}>
 							<div style={coordinateLabel}>Y2</div>
-							<InputDragger
-								type="number"
-								value={bezier[3]}
-								status="ok"
-								onValueChange={(value) => setCoordinate(1, 'y', value)}
-								onValueChangeEnd={(value) => setCoordinate(1, 'y', value)}
-								onTextChange={() => undefined}
-								min={Y_MIN}
-								max={Y_MAX}
-								step={0.01}
-								formatter={formatNumber}
-								rightAlign={false}
-								style={numberInputStyle}
-								snapToStep={false}
-							/>
+							<div style={coordinateInputWrapper}>
+								<InputDragger
+									type="number"
+									value={bezier[3]}
+									status="ok"
+									onValueChange={(value) => setCoordinate(1, 'y', value)}
+									onValueChangeEnd={(value) => setCoordinate(1, 'y', value)}
+									onTextChange={() => undefined}
+									min={Y_MIN}
+									max={Y_MAX}
+									step={0.01}
+									formatter={formatNumber}
+									rightAlign={false}
+									style={numberInputStyle}
+									snapToStep={false}
+								/>
+							</div>
 						</div>
 					</div>
 				</div>
