@@ -2,7 +2,7 @@ import {KEYFRAME_EASING_PRESETS} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useMemo, useRef} from 'react';
 import {Internals, useVideoConfig} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
-import {BLUE, LINE_COLOR} from '../../helpers/colors';
+import {BLUE} from '../../helpers/colors';
 import {getXPositionOfItemInTimelineImperatively} from '../../helpers/get-left-of-timeline-slider';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
@@ -34,7 +34,7 @@ const easingLineButton: React.CSSProperties = {
 };
 
 const easingLine: React.CSSProperties = {
-	backgroundColor: LINE_COLOR,
+	backgroundColor: 'rgba(255, 255, 255, 0.1)',
 	borderRadius: lineHeight / 2,
 	height: lineHeight,
 	left: 0,
