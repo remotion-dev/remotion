@@ -33,6 +33,12 @@ type ParsedStringInterpolationValue = {
 	dimensions: number;
 };
 
+type TransformOriginAxis = 'x' | 'y';
+type TransformOriginAxisValue = {
+	value: number;
+	unit: string;
+};
+
 type NumericTuple = readonly [number, ...number[]];
 type InterpolateOutputValue = number | string | readonly number[];
 type WidenNumericTuple<T extends readonly number[]> = {
@@ -78,6 +84,40 @@ const lengthUnits = new Set([
 ]);
 
 const cssNumberRegex = /^([+-]?(?:\d+\.?\d*|\.\d+))([a-zA-Z%]+)?$/;
+const transformOriginKeywords = new Set([
+	'left',
+	'center',
+	'right',
+	'top',
+	'bottom',
+]);
+
+const transformOriginKeywordOptions = (
+	keyword: string,
+): {axis: TransformOriginAxis; value: TransformOriginAxisValue}[] => {
+	if (keyword === 'left') {
+		return [{axis: 'x', value: {value: 0, unit: '%'}}];
+	}
+
+	if (keyword === 'right') {
+		return [{axis: 'x', value: {value: 100, unit: '%'}}];
+	}
+
+	if (keyword === 'top') {
+		return [{axis: 'y', value: {value: 0, unit: '%'}}];
+	}
+
+	if (keyword === 'bottom') {
+		return [{axis: 'y', value: {value: 100, unit: '%'}}];
+	}
+
+	return [
+		{axis: 'x', value: {value: 50, unit: '%'}},
+		{axis: 'y', value: {value: 50, unit: '%'}},
+	];
+};
+
+const transformOriginCenter: TransformOriginAxisValue = {value: 50, unit: '%'};
 
 const stringifyNumber = (value: number): string => {
 	return String(normalizeNumber(value));
@@ -123,6 +163,199 @@ const parseStringInterpolationComponent = (
 	);
 };
 
+const parseTransformOriginLengthPercentage = ({
+	component,
+	value,
+	allowPercentage,
+}: {
+	component: string;
+	value: string;
+	allowPercentage: boolean;
+}): TransformOriginAxisValue => {
+	const match = cssNumberRegex.exec(component);
+	if (match === null) {
+		throw new TypeError(
+			`Cannot interpolate "${value}" because "${component}" is not a supported transform-origin ${allowPercentage ? 'length-percentage' : 'z length'}`,
+		);
+	}
+
+	const unit = match[2] ?? null;
+	const numberValue = Number(match[1]);
+	if (!Number.isFinite(numberValue)) {
+		throw new TypeError(
+			`Cannot interpolate "${value}" because "${component}" is not finite`,
+		);
+	}
+
+	if (
+		unit === null ||
+		!lengthUnits.has(unit) ||
+		(!allowPercentage && unit === '%')
+	) {
+		throw new TypeError(
+			`Cannot interpolate "${value}" because "${component}" is not a supported transform-origin ${allowPercentage ? 'length-percentage' : 'z length'}`,
+		);
+	}
+
+	return {value: numberValue, unit};
+};
+
+const parseTransformOriginToken = (
+	component: string,
+	value: string,
+):
+	| {
+			type: 'keyword';
+			keyword: string;
+	  }
+	| {
+			type: 'length-percentage';
+			parsed: TransformOriginAxisValue;
+	  } => {
+	const lower = component.toLowerCase();
+	if (transformOriginKeywords.has(lower)) {
+		return {type: 'keyword', keyword: lower};
+	}
+
+	return {
+		type: 'length-percentage',
+		parsed: parseTransformOriginLengthPercentage({
+			component,
+			value,
+			allowPercentage: true,
+		}),
+	};
+};
+
+const parseTwoTransformOriginKeywords = (
+	first: string,
+	second: string,
+	value: string,
+): [TransformOriginAxisValue, TransformOriginAxisValue] => {
+	const candidates: [TransformOriginAxisValue, TransformOriginAxisValue][] = [];
+	for (const firstOption of transformOriginKeywordOptions(first)) {
+		for (const secondOption of transformOriginKeywordOptions(second)) {
+			if (firstOption.axis === secondOption.axis) {
+				continue;
+			}
+
+			candidates.push(
+				firstOption.axis === 'x'
+					? [firstOption.value, secondOption.value]
+					: [secondOption.value, firstOption.value],
+			);
+		}
+	}
+
+	if (candidates.length === 0) {
+		throw new TypeError(
+			`Cannot interpolate "${value}" because "${first} ${second}" is not a valid transform-origin keyword pair`,
+		);
+	}
+
+	return candidates[0];
+};
+
+const parseTransformOriginXY = (
+	parts: string[],
+	value: string,
+): [TransformOriginAxisValue, TransformOriginAxisValue] => {
+	if (parts.length === 1) {
+		const token = parseTransformOriginToken(parts[0], value);
+		if (token.type === 'length-percentage') {
+			return [token.parsed, transformOriginCenter];
+		}
+
+		if (token.keyword === 'top' || token.keyword === 'bottom') {
+			return [
+				transformOriginCenter,
+				transformOriginKeywordOptions(token.keyword)[0].value,
+			];
+		}
+
+		return [
+			transformOriginKeywordOptions(token.keyword)[0].value,
+			transformOriginCenter,
+		];
+	}
+
+	const first = parseTransformOriginToken(parts[0], value);
+	const second = parseTransformOriginToken(parts[1], value);
+
+	if (
+		first.type === 'length-percentage' &&
+		second.type === 'length-percentage'
+	) {
+		return [first.parsed, second.parsed];
+	}
+
+	if (first.type === 'keyword' && second.type === 'keyword') {
+		return parseTwoTransformOriginKeywords(
+			first.keyword,
+			second.keyword,
+			value,
+		);
+	}
+
+	const keyword =
+		first.type === 'keyword'
+			? first
+			: second.type === 'keyword'
+				? second
+				: null;
+	const length =
+		first.type === 'length-percentage'
+			? first.parsed
+			: second.type === 'length-percentage'
+				? second.parsed
+				: null;
+	if (keyword === null || length === null) {
+		throw new Error('Expected a keyword and a length-percentage value');
+	}
+
+	const keywordIsFirst = first.type === 'keyword';
+
+	if (keyword.keyword === 'left' || keyword.keyword === 'right') {
+		if (!keywordIsFirst) {
+			throw new TypeError(
+				`Cannot interpolate "${value}" because horizontal transform-origin keywords must come before a length-percentage value`,
+			);
+		}
+
+		return [transformOriginKeywordOptions(keyword.keyword)[0].value, length];
+	}
+
+	if (keyword.keyword === 'top' || keyword.keyword === 'bottom') {
+		return [length, transformOriginKeywordOptions(keyword.keyword)[0].value];
+	}
+
+	return keywordIsFirst
+		? [transformOriginCenter, length]
+		: [length, transformOriginCenter];
+};
+
+const parseTransformOriginValue = (
+	output: string,
+	parts: string[],
+): ParsedStringInterpolationValue => {
+	const [x, y] = parseTransformOriginXY(parts.slice(0, 2), output);
+	const z =
+		parts[2] === undefined
+			? {value: 0, unit: null}
+			: parseTransformOriginLengthPercentage({
+					component: parts[2],
+					value: output,
+					allowPercentage: false,
+				});
+
+	return {
+		kind: 'translate',
+		values: [x.value, y.value, z.value],
+		units: [x.unit, y.unit, z.unit],
+		dimensions: parts[2] === undefined ? 2 : 3,
+	};
+};
+
 const parseStringInterpolationValue = (
 	output: string | number,
 ): ParsedStringInterpolationValue => {
@@ -146,6 +379,10 @@ const parseStringInterpolationValue = (
 		throw new TypeError(
 			`String outputRange values must contain 1 to 3 components, but got "${output}"`,
 		);
+	}
+
+	if (parts.some((part) => transformOriginKeywords.has(part.toLowerCase()))) {
+		return parseTransformOriginValue(output, parts);
 	}
 
 	const parsed = parts.map((part) =>
