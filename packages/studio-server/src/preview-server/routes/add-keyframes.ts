@@ -265,7 +265,9 @@ export const addKeyframes = async ({
 		description: getBatchDescription({totalKeyframes, firstKeyframe}),
 		entryType:
 			sequenceKeyframes.length > 0 && effectKeyframes.length > 0
-				? 'keyframe-add'
+				? // Dead code for now: sequence props and effect props cannot be selected
+					// together yet. Keep the mixed transaction type for the planned UI.
+					'keyframe-add'
 				: sequenceKeyframes.length > 0
 					? 'sequence-props'
 					: 'effect-props',
