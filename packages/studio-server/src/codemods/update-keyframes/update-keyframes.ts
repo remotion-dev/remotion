@@ -696,12 +696,6 @@ const updateKeyframeEasing = ({
 		throw new Error('Cannot update easing on non-keyframed value');
 	}
 
-	const calleeName =
-		existing.callee.type === 'Identifier' ? existing.callee.name : null;
-	if (calleeName === 'interpolateColors') {
-		throw new Error('Cannot update easing on color keyframes');
-	}
-
 	const segmentCount = Math.max(0, existing.keyframes.length - 1);
 	if (
 		!Number.isInteger(segmentIndex) ||

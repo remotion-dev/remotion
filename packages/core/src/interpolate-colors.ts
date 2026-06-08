@@ -3,11 +3,12 @@
  * https://github.com/software-mansion/react-native-reanimated/blob/master/src/reanimated2/Colors.ts
  */
 
-import {interpolate} from './interpolate.js';
+import {interpolate, type InterpolateOptions} from './interpolate.js';
 
-export type InterpolateColorsOptions = {
-	posterize: number | undefined;
-};
+export type InterpolateColorsOptions = Pick<
+	InterpolateOptions,
+	'easing' | 'posterize'
+>;
 
 type MatcherType = RegExp | undefined;
 
@@ -671,6 +672,7 @@ const interpolateColorsRGB = (
 			inputRange,
 			colors.map((c) => f(c)),
 			{
+				easing: options?.easing,
 				extrapolateLeft: 'clamp',
 				extrapolateRight: 'clamp',
 				posterize: options?.posterize,

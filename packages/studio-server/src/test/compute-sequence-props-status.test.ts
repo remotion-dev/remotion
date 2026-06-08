@@ -93,6 +93,41 @@ export const Example: React.FC = () => {
 	});
 });
 
+test('computeSequencePropsStatus should return easing for interpolated color props', () => {
+	const input = `import React from 'react';
+import {Easing, Solid, interpolateColors, useCurrentFrame} from 'remotion';
+
+export const Example: React.FC = () => {
+\tconst frame = useCurrentFrame();
+\treturn (
+\t\t<Solid color={interpolateColors(frame, [0, 100, 200], ['red', 'green', 'blue'], {easing: [Easing.bezier(0.42, 0, 1, 1), Easing.linear], posterize: 2})} width={100} height={100} />
+\t);
+};
+`;
+	const result = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 7),
+		keys: ['color'],
+		effects: [],
+	});
+
+	expect(result.canUpdate).toBe(true);
+	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
+
+	expect(result.props.color).toEqual({
+		status: 'keyframed',
+		interpolationFunction: 'interpolateColors',
+		keyframes: [
+			{frame: 0, value: 'red'},
+			{frame: 100, value: 'green'},
+			{frame: 200, value: 'blue'},
+		],
+		easing: [[0.42, 0, 1, 1], 'linear'],
+		clamping: {left: 'clamp', right: 'clamp'},
+		posterize: 2,
+	});
+});
+
 test('computeSequencePropsStatus should return keyframes for interpolated translate props', () => {
 	const input = `import React from 'react';
 import {Sequence, interpolate, useCurrentFrame} from 'remotion';

@@ -12,6 +12,12 @@ import {ExpandedTracksGetterContext} from '../ExpandedTracksProvider';
 import {getNodeKeyframes} from './get-node-keyframes';
 import type {getTimelineKeyframes} from './get-timeline-keyframes';
 
+const canEditEasingForInterpolationFunction = (
+	interpolationFunction: string,
+): boolean =>
+	interpolationFunction === 'interpolate' ||
+	interpolationFunction === 'interpolateColors';
+
 export type ExpandedTrackKeyframeRow = {
 	readonly height: number;
 	readonly keyframes: ReturnType<typeof getTimelineKeyframes>;
@@ -40,7 +46,9 @@ const getNodeCanEditEasing = ({
 		)?.[node.field.key];
 		return (
 			sequencePropStatus?.status === 'keyframed' &&
-			sequencePropStatus.interpolationFunction === 'interpolate'
+			canEditEasingForInterpolationFunction(
+				sequencePropStatus.interpolationFunction,
+			)
 		);
 	}
 
@@ -55,7 +63,9 @@ const getNodeCanEditEasing = ({
 			: null;
 	return (
 		effectPropStatus?.status === 'keyframed' &&
-		effectPropStatus.interpolationFunction === 'interpolate'
+		canEditEasingForInterpolationFunction(
+			effectPropStatus.interpolationFunction,
+		)
 	);
 };
 

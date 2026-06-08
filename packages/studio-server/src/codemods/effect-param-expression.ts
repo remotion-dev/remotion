@@ -25,12 +25,7 @@ const isNonLinearEasing = (
 
 const keyframedParamNeedsEasingImport = (
 	param: EffectClipboardKeyframedParam,
-) => {
-	return (
-		param.interpolationFunction !== 'interpolateColors' &&
-		param.easing.some(isNonLinearEasing)
-	);
-};
+) => param.easing.some(isNonLinearEasing);
 
 export const getRequiredRemotionImportsForEffectParams = (
 	params: Iterable<EffectClipboardParam>,
@@ -127,20 +122,20 @@ const makeKeyframedOptions = ({
 				) as ObjectProperty,
 			);
 		}
+	}
 
-		if (keyframedParamNeedsEasingImport(param)) {
-			const easingLocalName = remotionLocalNames.Easing ?? 'Easing';
-			properties.push(
-				b.objectProperty(
-					b.identifier('easing'),
-					b.arrayExpression(
-						param.easing.map((easing) =>
-							makeEasingExpression({easing, easingLocalName}),
-						) as never,
-					),
-				) as ObjectProperty,
-			);
-		}
+	if (keyframedParamNeedsEasingImport(param)) {
+		const easingLocalName = remotionLocalNames.Easing ?? 'Easing';
+		properties.push(
+			b.objectProperty(
+				b.identifier('easing'),
+				b.arrayExpression(
+					param.easing.map((easing) =>
+						makeEasingExpression({easing, easingLocalName}),
+					) as never,
+				),
+			) as ObjectProperty,
+		);
 	}
 
 	if (param.posterize !== undefined) {

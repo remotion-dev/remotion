@@ -280,7 +280,7 @@ test('pasteEffects replaces existing effects with mixed static and keyframed par
 							{frame: 0, value: 'red'},
 							{frame: 100, value: 'green'},
 						],
-						easing: ['linear'],
+						easing: [[0.1, 0.2, 0.3, 0.4]],
 						clamping: {left: 'clamp', right: 'clamp'},
 						posterize: 5,
 					},
@@ -294,6 +294,8 @@ test('pasteEffects replaces existing effects with mixed static and keyframed par
 	expect(output).toContain(
 		"color: interpolateColors(frame, [0, 100], ['red', 'green'], {",
 	);
+	expect(output).toContain('Easing');
+	expect(output).toContain('easing: [Easing.bezier(0.1, 0.2, 0.3, 0.4)]');
 	expect(output).toContain('posterize: 5');
 	expect(output).toContain('amount: 0.7');
 	expect(output).not.toMatch(/color: ['"]blue['"]/);

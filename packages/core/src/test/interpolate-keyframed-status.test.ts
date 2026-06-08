@@ -126,6 +126,24 @@ test('interpolates colors', () => {
 	expect(result).toMatch(/^rgba?\(/);
 });
 
+test('interpolates color keyframes with easing', () => {
+	const result = interpolateKeyframedStatus({
+		frame: 30,
+		status: {
+			status: 'keyframed',
+			interpolationFunction: 'interpolateColors',
+			keyframes: [
+				{frame: 0, value: 'black'},
+				{frame: 60, value: 'white'},
+			],
+			easing: [[0.42, 0, 1, 1]],
+			clamping: {left: 'clamp', right: 'clamp'},
+			posterize: undefined,
+		},
+	});
+	expect(result).toBe('rgba(80, 80, 80, 1)');
+});
+
 test('posterizes the frame before interpolating color keyframes', () => {
 	const result = interpolateKeyframedStatus({
 		frame: 17,

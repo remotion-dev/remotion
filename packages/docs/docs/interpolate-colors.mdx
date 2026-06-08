@@ -22,6 +22,37 @@ Takes three to four arguments:
 With one color, `interpolateColors()` always returns the only output color as an `rgba` string.
 Single-color ranges are supported from <AvailableFrom v="4.0.469" inline />.
 
+### easing<AvailableFrom v="4.0.475" />
+
+_Default_: `Easing.linear`
+
+Allows you to adjust the rate of the color interpolation.
+
+```ts twoslash title="MyComposition.tsx"
+import {Easing, interpolateColors, useCurrentFrame} from 'remotion';
+
+const frame = useCurrentFrame();
+const color = interpolateColors(frame, [0, 60], ['black', 'white'], {
+  easing: Easing.in(Easing.quad),
+});
+```
+
+When `inputRange` contains more than two values, you may pass one easing function per segment:
+
+```ts twoslash title="MyComposition.tsx"
+import {Easing, interpolateColors, useCurrentFrame} from 'remotion';
+
+const frame = useCurrentFrame();
+const color = interpolateColors(
+  frame,
+  [0, 30, 60],
+  ['black', 'red', 'white'],
+  {
+    easing: [Easing.in(Easing.quad), Easing.out(Easing.quad)],
+  },
+);
+```
+
 ## Returns
 
 A `rgba` color string. eg: `rgba(255, 100, 12, 1)`
