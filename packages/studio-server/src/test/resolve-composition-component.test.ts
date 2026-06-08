@@ -864,6 +864,7 @@ test('inserts an Audio asset into the resolved composition component', async () 
 		);
 		expect(result.output).toContain('<Audio');
 		expect(result.output).toContain("src={staticFile('audio.mp3')}");
+		expect(result.output).not.toContain("position: 'absolute'");
 	} finally {
 		await fs.rm(tempDir, {recursive: true, force: true});
 	}
@@ -915,6 +916,7 @@ test('inserts a remote audio asset with a literal URL', async () => {
 		expect(result.output).toContain('src="https://example.com/whip.wav"');
 		expect(result.output).not.toContain('staticFile');
 		expect(result.output).not.toContain('@remotion/sfx');
+		expect(result.output).not.toContain("position: 'absolute'");
 	} finally {
 		await fs.rm(tempDir, {recursive: true, force: true});
 	}

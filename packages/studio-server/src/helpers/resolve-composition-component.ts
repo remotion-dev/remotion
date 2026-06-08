@@ -859,11 +859,13 @@ const createComponentElement = ({
 };
 
 const createAssetElement = ({
+	addPositionStyle,
 	localName,
 	staticFileLocalName,
 	src,
 	dimensions,
 }: {
+	addPositionStyle: boolean;
 	localName: string;
 	staticFileLocalName: string | null;
 	src: string;
@@ -876,7 +878,7 @@ const createAssetElement = ({
 				staticFileLocalName === null
 					? createStringSrcAttribute(src)
 					: createStaticFileSrcAttribute({staticFileLocalName, src}),
-				createPositionAbsoluteStyleAttribute(),
+				...(addPositionStyle ? [createPositionAbsoluteStyleAttribute()] : []),
 				...(dimensions
 					? [
 							createNumberAttribute('width', dimensions.width),
@@ -1608,6 +1610,7 @@ const createInsertableJsxElement = ({
 		}
 
 		return createAssetElement({
+			addPositionStyle: element.assetType !== 'audio',
 			localName,
 			staticFileLocalName,
 			src: element.src,
