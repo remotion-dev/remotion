@@ -404,6 +404,67 @@ test('updateSequenceKeyframes converts a static value to an interpolation', asyn
 	expect(output).toContain("extrapolateRight: 'clamp'");
 });
 
+test('updateSequenceKeyframes does not preserve blank lines around keyframed object properties', async () => {
+	const input = `import React from 'react';
+import {AbsoluteFill} from 'remotion';
+
+export const Example: React.FC = () => {
+\treturn (
+\t\t<AbsoluteFill>
+\t\t\t<div
+\t\t\t\tstyle={{
+\t\t\t\t\twidth: 360,
+\t\t\t\t\theight: 200,
+\t\t\t\t\tborderRadius: 24,
+\t\t\t\t\toverflow: 'hidden',
+
+\t\t\t\t\ttranslate: '0px 0px',
+
+\t\t\t\t\tscale: 1,
+\t\t\t\t}}
+\t\t\t/>
+\t\t</AbsoluteFill>
+\t);
+};
+`;
+	const schema = {
+		'style.translate': {
+			type: 'translate',
+			default: '0px 0px',
+		},
+		'style.scale': {
+			type: 'number',
+			default: 1,
+			hiddenFromList: false,
+		},
+	} satisfies SequenceSchema;
+	const {output} = await updateSequenceKeyframes({
+		input,
+		nodePath: lineColumnToNodePath(input, getLine(input, '<div')),
+		schema,
+		updates: [
+			{
+				key: 'style.translate',
+				operation: {type: 'add', frame: 14, value: '0px 0px'},
+			},
+			{
+				key: 'style.scale',
+				operation: {type: 'add', frame: 14, value: 1},
+			},
+		],
+	});
+
+	const styleStart = output.indexOf('style={{');
+	const styleEnd = output.indexOf('\t\t\t\t}}', styleStart);
+	expect(output.slice(styleStart, styleEnd)).not.toContain('\n\n');
+	expect(output).toContain(
+		"overflow: 'hidden',\n\t\t\t\t\ttranslate: interpolate(frame, [14], ['0px 0px'], {",
+	);
+	expect(output).toContain(
+		'\t\t\t\t\t}),\n\t\t\t\t\tscale: interpolate(frame, [14], [1], {',
+	);
+});
+
 test('updateSequenceKeyframes rejects non-keyframable fields', async () => {
 	const schema = {
 		'style.opacity': {
