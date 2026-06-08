@@ -5,6 +5,9 @@ const TimelineKeyframeTracksContext = createContext<readonly TrackWithHash[]>(
 	[],
 );
 
+// Keyframe diamonds need track metadata to resolve other selected rows. The
+// selection state only stores identities, and a mounted-row registry would miss
+// collapsed or otherwise unmounted rows.
 export const TimelineKeyframeTracksProvider: React.FC<{
 	readonly tracks: readonly TrackWithHash[];
 	readonly children: React.ReactNode;

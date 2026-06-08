@@ -11,6 +11,7 @@ import {
 	useCurrentTimelineSelectionStateAsRef,
 	useTimelineSelection,
 } from './TimelineSelection';
+import {updateSelectedTimelineEasings} from './update-selected-easing';
 
 export const TimelineDeleteKeybindings: React.FC = () => {
 	const keybindings = useKeybinding();
@@ -23,12 +24,15 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 		Internals.VisualModePropStatusesRefContext,
 	);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
-	const {canSelect} = useTimelineSelection();
+	const {canSelect, canSelectEasing} = useTimelineSelection();
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	const confirm = useConfirmationDialog();
 
 	useEffect(() => {
-		if (!canSelect || previewServerState.type !== 'connected') {
+		if (
+			(!canSelect && !canSelectEasing) ||
+			previewServerState.type !== 'connected'
+		) {
 			return;
 		}
 
@@ -41,6 +45,21 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 				const sequences = sequencesRef.current;
 				const propStatuses = propStatusesRef.current;
 				if (selectedItems.length === 0) {
+					return;
+				}
+
+				const resetEasingPromise = updateSelectedTimelineEasings({
+					selections: selectedItems,
+					sequences,
+					overrideIdsToNodePaths: overrideIdToNodePathMappings,
+					propStatuses,
+					setPropStatuses,
+					clientId,
+					easing: 'linear',
+				});
+
+				if (resetEasingPromise !== null) {
+					resetEasingPromise.catch(() => undefined);
 					return;
 				}
 
@@ -116,6 +135,7 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 		};
 	}, [
 		canSelect,
+		canSelectEasing,
 		confirm,
 		currentSelection,
 		keybindings,

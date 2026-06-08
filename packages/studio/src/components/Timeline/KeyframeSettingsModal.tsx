@@ -129,6 +129,7 @@ export const KeyframeSettingsModal: React.FC<{
 		}
 
 		const settings: KeyframeSettings = {
+			type: 'settings',
 			clamping: canEditClamping ? {left, right} : undefined,
 			posterize: posterize <= 0 ? undefined : posterize,
 		};

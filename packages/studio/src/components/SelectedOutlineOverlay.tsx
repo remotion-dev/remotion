@@ -24,6 +24,11 @@ import {openOriginalPositionInEditor} from '../helpers/open-in-editor';
 import {EditorShowOutlinesContext} from '../state/editor-outlines';
 import {ScaleLockContext} from '../state/scale-lock';
 import {ContextMenuForTarget} from './ContextMenu';
+import {
+	addEffectFromDragData,
+	getEffectDragData,
+	hasEffectDragType,
+} from './effect-drag-and-drop';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {showNotification} from './Notifications/NotificationCenter';
 import {callAddSequenceKeyframe} from './Timeline/call-add-keyframe';
@@ -103,6 +108,7 @@ type SelectedOutlineContextMenuOpenHandler = () =>
 type SelectedOutlineTarget = {
 	readonly key: string;
 	readonly containsSelection: boolean;
+	readonly effectDrop: SelectedOutlineEffectDropTarget | null;
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly ref: React.RefObject<Element | null>;
 	readonly selected: boolean;
@@ -111,6 +117,12 @@ type SelectedOutlineTarget = {
 	readonly drag: SelectedOutlineDragTarget | null;
 	readonly scaleDrag: SelectedOutlineScaleDragTarget | null;
 	readonly uvHandles: readonly SelectedOutlineUvHandle[];
+};
+
+type SelectedOutlineEffectDropTarget = {
+	readonly clientId: string;
+	readonly fileName: string;
+	readonly nodePath: SequencePropsSubscriptionKey;
 };
 
 type SelectedOutlineDragTarget = {
@@ -1106,6 +1118,8 @@ const SelectedOutlinePolygon: React.FC<{
 	const drag = target?.drag ?? null;
 	const selected = target?.selected ?? false;
 	const containsSelection = target?.containsSelection ?? false;
+	const effectDrop = target?.effectDrop ?? null;
+	const [effectDropHovered, setEffectDropHovered] = useState(false);
 	const visible = containsSelection || hovered;
 
 	const onPointerDown = React.useCallback(
@@ -1258,14 +1272,66 @@ const SelectedOutlinePolygon: React.FC<{
 			target,
 		],
 	);
+
+	const onEffectDragOver = React.useCallback(
+		(event: React.DragEvent<SVGPolygonElement>) => {
+			if (effectDrop === null || !hasEffectDragType(event.dataTransfer)) {
+				return;
+			}
+
+			event.preventDefault();
+			event.stopPropagation();
+			event.dataTransfer.dropEffect = 'copy';
+			setEffectDropHovered(true);
+		},
+		[effectDrop],
+	);
+
+	const onEffectDragLeave = React.useCallback(
+		(event: React.DragEvent<SVGPolygonElement>) => {
+			if (event.currentTarget.contains(event.relatedTarget as Node | null)) {
+				return;
+			}
+
+			setEffectDropHovered(false);
+		},
+		[],
+	);
+
+	const onEffectDrop = React.useCallback(
+		async (event: React.DragEvent<SVGPolygonElement>) => {
+			if (effectDrop === null || !hasEffectDragType(event.dataTransfer)) {
+				return;
+			}
+
+			event.preventDefault();
+			event.stopPropagation();
+			setEffectDropHovered(false);
+
+			const dragData = getEffectDragData(event.dataTransfer);
+			if (!dragData) {
+				showNotification('Could not read effect drag data', 3000);
+				return;
+			}
+
+			await addEffectFromDragData({
+				dragData,
+				fileName: effectDrop.fileName,
+				nodePath: effectDrop.nodePath,
+				clientId: effectDrop.clientId,
+			});
+		},
+		[effectDrop],
+	);
+
 	return (
 		<>
 			<polygon
 				ref={polygonRef}
 				points={points}
-				fill="transparent"
+				fill={effectDropHovered ? 'rgba(0, 155, 255, 0.12)' : 'transparent'}
 				stroke={BLUE}
-				strokeOpacity={visible ? 1 : 0}
+				strokeOpacity={visible || effectDropHovered ? 1 : 0}
 				strokeWidth={2}
 				vectorEffect="non-scaling-stroke"
 				pointerEvents={target === undefined ? undefined : 'all'}
@@ -1280,6 +1346,9 @@ const SelectedOutlinePolygon: React.FC<{
 					}
 				}}
 				onPointerDown={onPointerDown}
+				onDragOver={effectDrop === null ? undefined : onEffectDragOver}
+				onDragLeave={effectDrop === null ? undefined : onEffectDragLeave}
+				onDrop={effectDrop === null ? undefined : onEffectDrop}
 			/>
 			<ContextMenuForTarget
 				triggerRef={polygonRef}
@@ -1935,10 +2004,20 @@ export const SelectedOutlineOverlay: React.FC<{
 				controls !== null &&
 				scaleFieldSchema?.type === 'scale' &&
 				scalePropStatus?.status === 'static';
+			const canDropEffect =
+				previewServerState.type === 'connected' &&
+				controls?.supportsEffects === true;
 
 			return {
 				key,
 				containsSelection,
+				effectDrop: canDropEffect
+					? {
+							clientId: previewServerState.clientId,
+							fileName: nodePath.absolutePath,
+							nodePath,
+						}
+					: null,
 				nodePathInfo,
 				ref: sequence.refForOutline,
 				selected,

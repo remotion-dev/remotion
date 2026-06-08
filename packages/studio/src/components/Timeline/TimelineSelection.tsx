@@ -63,6 +63,7 @@ export const getTimelineSelectedTrackHighlightStyle = (
 export const SELECTION_ENABLED = false;
 export const TIMELINE_TOP_DRAG = false;
 export const ENABLE_OUTLINES = false;
+export const EASING_SELECTION_ENABLED = false;
 
 type TimelineSelectionBase = {
 	readonly nodePathInfo: SequenceNodePathInfo;
@@ -248,6 +249,7 @@ export const getTimelineSelectionAfterInteraction = ({
 
 type TimelineSelectionContextValue = {
 	readonly canSelect: boolean;
+	readonly canSelectEasing: boolean;
 	readonly selectedItems: readonly TimelineSelection[];
 	readonly isSelected: (item: TimelineSelection) => boolean;
 	readonly selectItem: (
@@ -262,6 +264,7 @@ type TimelineSelectionContextValue = {
 
 const defaultTimelineSelectionContextValue: TimelineSelectionContextValue = {
 	canSelect: false,
+	canSelectEasing: false,
 	selectedItems: [],
 	isSelected: () => false,
 	selectItem: () => undefined,
@@ -457,6 +460,10 @@ export const TimelineSelectionProvider: React.FC<{
 		(SELECTION_ENABLED || ENABLE_OUTLINES) &&
 		previewServerState.type === 'connected' &&
 		!window.remotion_isReadOnlyStudio;
+	const canSelectEasing =
+		EASING_SELECTION_ENABLED &&
+		previewServerState.type === 'connected' &&
+		!window.remotion_isReadOnlyStudio;
 	const [selectedItems, setSelectedItems] = useState<
 		readonly TimelineSelection[]
 	>([]);
@@ -466,10 +473,16 @@ export const TimelineSelectionProvider: React.FC<{
 	const registrationCounter = useRef(0);
 
 	useEffect(() => {
-		if (!canSelect) {
+		if (!canSelect && !canSelectEasing) {
 			setSelectedItems([]);
 		}
-	}, [canSelect]);
+	}, [canSelect, canSelectEasing]);
+
+	const canSelectItem = useCallback(
+		(item: TimelineSelection) =>
+			canSelect || (canSelectEasing && item.type === 'easing'),
+		[canSelect, canSelectEasing],
+	);
 
 	const selectedKeys = useMemo(
 		() => new Set(selectedItems.map(getTimelineSelectionKey)),
@@ -491,7 +504,7 @@ export const TimelineSelectionProvider: React.FC<{
 				toggleKey: false,
 			},
 		) => {
-			if (!canSelect) {
+			if (!canSelectItem(item)) {
 				return;
 			}
 
@@ -519,12 +532,12 @@ export const TimelineSelectionProvider: React.FC<{
 				return nextState.selectedItems;
 			});
 		},
-		[canSelect],
+		[canSelectItem],
 	);
 
 	const selectItems = useCallback(
 		(items: readonly TimelineSelection[]) => {
-			if (!canSelect) {
+			if (!items.every(canSelectItem)) {
 				return;
 			}
 
@@ -532,7 +545,7 @@ export const TimelineSelectionProvider: React.FC<{
 				items.length === 0 ? null : items[items.length - 1];
 			setSelectedItems(items);
 		},
-		[canSelect],
+		[canSelectItem],
 	);
 
 	const registerSelectableItem = useCallback((item: TimelineSelection) => {
@@ -564,6 +577,7 @@ export const TimelineSelectionProvider: React.FC<{
 	const value = useMemo(
 		(): TimelineSelectionContextValue => ({
 			canSelect,
+			canSelectEasing,
 			selectedItems,
 			isSelected,
 			selectItem,
@@ -574,6 +588,7 @@ export const TimelineSelectionProvider: React.FC<{
 		}),
 		[
 			canSelect,
+			canSelectEasing,
 			selectedItems,
 			isSelected,
 			selectItem,
@@ -697,7 +712,7 @@ export const useTimelineEasingSelection = ({
 	readonly toFrame: number;
 	readonly segmentIndex: number;
 }) => {
-	const {canSelect, isSelected, selectItem, registerSelectableItem} =
+	const {canSelectEasing, isSelected, selectItem, registerSelectableItem} =
 		useTimelineSelection();
 	const selectionItem = useMemo(
 		(): TimelineSelection => ({
@@ -725,8 +740,9 @@ export const useTimelineEasingSelection = ({
 
 	return {
 		onSelect,
-		selectable: canSelect,
+		selectable: canSelectEasing,
 		selected,
+		selectionItem,
 	};
 };
 

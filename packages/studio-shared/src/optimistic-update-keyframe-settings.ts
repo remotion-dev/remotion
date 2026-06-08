@@ -4,6 +4,37 @@ import type {
 } from 'remotion';
 import type {KeyframeSettings} from './api-requests';
 
+type KeyframeEasing = Extract<
+	CanUpdateSequencePropStatus,
+	{status: 'keyframed'}
+>['easing'][number];
+
+const updateEasing = ({
+	easing,
+	segmentCount,
+	segmentIndex,
+	value,
+}: {
+	easing: KeyframeEasing[];
+	segmentCount: number;
+	segmentIndex: number;
+	value: KeyframeEasing;
+}): KeyframeEasing[] => {
+	if (
+		!Number.isInteger(segmentIndex) ||
+		segmentIndex < 0 ||
+		segmentIndex >= segmentCount
+	) {
+		throw new Error('Cannot update easing: segment index out of range');
+	}
+
+	const nextEasing = Array.from({length: segmentCount}, (_, index) => {
+		return easing[index] ?? 'linear';
+	});
+	nextEasing[segmentIndex] = value;
+	return nextEasing;
+};
+
 const applySettingsToStatus = (
 	status: CanUpdateSequencePropStatus | undefined,
 	settings: KeyframeSettings,
@@ -14,8 +45,20 @@ const applySettingsToStatus = (
 
 	return {
 		...status,
-		...(settings.clamping ? {clamping: settings.clamping} : {}),
-		posterize: settings.posterize,
+		...(settings.type === 'settings' && settings.clamping
+			? {clamping: settings.clamping}
+			: {}),
+		...(settings.type === 'settings' ? {posterize: settings.posterize} : {}),
+		...(settings.type === 'easing'
+			? {
+					easing: updateEasing({
+						easing: status.easing,
+						segmentCount: Math.max(0, status.keyframes.length - 1),
+						segmentIndex: settings.segmentIndex,
+						value: settings.easing,
+					}),
+				}
+			: {}),
 	};
 };
 

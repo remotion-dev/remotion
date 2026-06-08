@@ -15,8 +15,48 @@ import type {getTimelineKeyframes} from './get-timeline-keyframes';
 export type ExpandedTrackKeyframeRow = {
 	readonly height: number;
 	readonly keyframes: ReturnType<typeof getTimelineKeyframes>;
+	readonly canEditEasing: boolean;
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly rowKey: string;
+};
+
+const getNodeCanEditEasing = ({
+	node,
+	nodePath,
+	propStatuses,
+}: {
+	node: ReturnType<typeof flattenVisibleTreeNodes>[number]['node'];
+	nodePath: Parameters<typeof getNodeKeyframes>[0]['nodePath'];
+	propStatuses: Parameters<typeof getNodeKeyframes>[0]['propStatuses'];
+}) => {
+	if (node.kind !== 'field' || node.field === null) {
+		return false;
+	}
+
+	if (node.field.kind === 'sequence-field') {
+		const sequencePropStatus = Internals.getPropStatusesCtx(
+			propStatuses,
+			nodePath,
+		)?.[node.field.key];
+		return (
+			sequencePropStatus?.status === 'keyframed' &&
+			sequencePropStatus.interpolationFunction === 'interpolate'
+		);
+	}
+
+	const effectStatus = Internals.getEffectPropStatusesCtx({
+		propStatuses,
+		nodePath,
+		effectIndex: node.field.effectIndex,
+	});
+	const effectPropStatus =
+		effectStatus.type === 'can-update-effect'
+			? effectStatus.props[node.field.key]
+			: null;
+	return (
+		effectPropStatus?.status === 'keyframed' &&
+		effectPropStatus.interpolationFunction === 'interpolate'
+	);
 };
 
 export const useExpandedTrackKeyframeRows = ({
@@ -84,6 +124,11 @@ export const useExpandedTrackKeyframeRows = ({
 					getDragOverrides,
 					getEffectDragOverrides,
 					timelinePosition,
+				}),
+				canEditEasing: getNodeCanEditEasing({
+					node,
+					nodePath: nodePathInfo.sequenceSubscriptionKey,
+					propStatuses,
 				}),
 				rowKey: timelineNodePathInfoToKey(node.nodePathInfo),
 				nodePathInfo: node.nodePathInfo,

@@ -20,6 +20,7 @@ import {
 import type {ExpressionKind, SpreadElementKind} from 'ast-types/lib/gen/kinds';
 import * as recast from 'recast';
 import type {
+	CanUpdateSequencePropStatus,
 	ExtrapolateType,
 	SequenceFieldSchema,
 	SequenceNodePath,
@@ -47,6 +48,11 @@ import {
 
 const b = recast.types.builders;
 
+type KeyframeEasing = Extract<
+	CanUpdateSequencePropStatus,
+	{status: 'keyframed'}
+>['easing'][number];
+
 export type KeyframeOperation =
 	| {
 			type: 'add';
@@ -66,6 +72,11 @@ export type KeyframeOperation =
 				  }
 				| undefined;
 			posterize: number | undefined;
+	  }
+	| {
+			type: 'easing';
+			segmentIndex: number;
+			easing: KeyframeEasing;
 	  }
 	| {
 			type: 'move';
@@ -304,6 +315,289 @@ const setOptionsProperty = ({
 	);
 };
 
+const isLinearEasing = (easing: KeyframeEasing) => easing === 'linear';
+
+const getKeyframeEasing = (node: Expression): KeyframeEasing | null => {
+	if (node.type === 'TSAsExpression') {
+		return getKeyframeEasing(node.expression as Expression);
+	}
+
+	if (
+		node.type === 'MemberExpression' &&
+		node.object.type === 'Identifier' &&
+		node.object.name === 'Easing' &&
+		node.property.type === 'Identifier' &&
+		node.property.name === 'linear' &&
+		node.computed === false
+	) {
+		return 'linear';
+	}
+
+	if (
+		node.type !== 'CallExpression' ||
+		node.callee.type !== 'MemberExpression' ||
+		node.callee.object.type !== 'Identifier' ||
+		node.callee.object.name !== 'Easing' ||
+		node.callee.property.type !== 'Identifier' ||
+		node.callee.property.name !== 'bezier' ||
+		node.callee.computed ||
+		node.arguments.length !== 4
+	) {
+		return null;
+	}
+
+	const values = node.arguments.map((arg) => {
+		if (
+			arg.type === 'ArgumentPlaceholder' ||
+			arg.type === 'JSXNamespacedName' ||
+			arg.type === 'SpreadElement'
+		) {
+			return null;
+		}
+
+		return getNumericValue(arg as Expression);
+	});
+
+	if (values.some((value) => value === null)) {
+		return null;
+	}
+
+	return values as [number, number, number, number];
+};
+
+const getKeyframeEasingArray = ({
+	easingNode,
+	segmentCount,
+}: {
+	easingNode: Expression;
+	segmentCount: number;
+}): KeyframeEasing[] | null => {
+	if (segmentCount === 0) {
+		return [];
+	}
+
+	if (easingNode.type === 'TSAsExpression') {
+		return getKeyframeEasingArray({
+			easingNode: easingNode.expression as Expression,
+			segmentCount,
+		});
+	}
+
+	if (easingNode.type === 'ArrayExpression') {
+		if (easingNode.elements.length > segmentCount) {
+			return null;
+		}
+
+		const parsed = easingNode.elements.map((element) => {
+			if (!element || element.type === 'SpreadElement') {
+				return null;
+			}
+
+			return getKeyframeEasing(element as Expression);
+		});
+
+		if (parsed.some((value) => value === null)) {
+			return null;
+		}
+
+		const easingArray = parsed as KeyframeEasing[];
+		while (easingArray.length < segmentCount) {
+			easingArray.push('linear');
+		}
+
+		return easingArray;
+	}
+
+	const easing = getKeyframeEasing(easingNode);
+	if (!easing) {
+		return null;
+	}
+
+	return new Array(segmentCount).fill(easing);
+};
+
+const getExistingEasingArray = ({
+	options,
+	segmentCount,
+}: {
+	options: ObjectExpression;
+	segmentCount: number;
+}): KeyframeEasing[] => {
+	const {prop} = findObjectOptionProperty(options, 'easing');
+	if (!prop) {
+		return new Array(segmentCount).fill('linear');
+	}
+
+	const easing = getKeyframeEasingArray({
+		easingNode: prop.value as Expression,
+		segmentCount,
+	});
+	if (!easing) {
+		throw new Error('Cannot update easing: easing must be inline');
+	}
+
+	return easing;
+};
+
+const getExistingEasingArrayOrNull = ({
+	options,
+	segmentCount,
+}: {
+	options: ObjectExpression;
+	segmentCount: number;
+}): KeyframeEasing[] | null => {
+	const {prop} = findObjectOptionProperty(options, 'easing');
+	if (!prop) {
+		return null;
+	}
+
+	return getExistingEasingArray({options, segmentCount});
+};
+
+const createEasingExpression = (easing: KeyframeEasing): ExpressionKind => {
+	if (easing === 'linear') {
+		return b.memberExpression(
+			b.identifier('Easing'),
+			b.identifier('linear'),
+		) as ExpressionKind;
+	}
+
+	return b.callExpression(
+		b.memberExpression(b.identifier('Easing'), b.identifier('bezier')),
+		easing.map((value) => parseValueExpression(value)) as never,
+	) as ExpressionKind;
+};
+
+const createEasingArrayExpression = (
+	easing: KeyframeEasing[],
+): ExpressionKind =>
+	b.arrayExpression(
+		easing.map((easingValue) => createEasingExpression(easingValue)) as never,
+	) as ExpressionKind;
+
+const setEasingOption = ({
+	options,
+	easing,
+}: {
+	options: ObjectExpression;
+	easing: KeyframeEasing[];
+}): boolean => {
+	const hasNonLinearEasing = easing.some(
+		(easingValue) => !isLinearEasing(easingValue),
+	);
+	setOptionsProperty({
+		options,
+		propertyName: 'easing',
+		value: hasNonLinearEasing ? createEasingArrayExpression(easing) : null,
+	});
+	return hasNonLinearEasing;
+};
+
+const getExtraArgsWithOptions = ({
+	extraArgs,
+	options,
+}: {
+	extraArgs: (ExpressionKind | SpreadElementKind)[];
+	options: ObjectExpression;
+}): (ExpressionKind | SpreadElementKind)[] => {
+	return options.properties.length === 0
+		? extraArgs.slice(1)
+		: [options as ExpressionKind, ...extraArgs.slice(1)];
+};
+
+const getInlineOptionsFromExtraArgs = (
+	extraArgs: (ExpressionKind | SpreadElementKind)[],
+): ObjectExpression | null => {
+	const existingOptions = extraArgs[0];
+	if (!existingOptions || existingOptions.type !== 'ObjectExpression') {
+		return null;
+	}
+
+	return existingOptions as ObjectExpression;
+};
+
+const normalizeEasingAfterAddingKeyframe = ({
+	extraArgs,
+	previousSegmentCount,
+	nextSegmentCount,
+}: {
+	extraArgs: (ExpressionKind | SpreadElementKind)[];
+	previousSegmentCount: number;
+	nextSegmentCount: number;
+}): {
+	extraArgs: (ExpressionKind | SpreadElementKind)[];
+	needsEasingImport: boolean;
+} => {
+	const options = getInlineOptionsFromExtraArgs(extraArgs);
+	if (!options) {
+		return {extraArgs, needsEasingImport: false};
+	}
+
+	const easing = getExistingEasingArrayOrNull({
+		options,
+		segmentCount: previousSegmentCount,
+	});
+	if (easing === null) {
+		return {extraArgs, needsEasingImport: false};
+	}
+
+	while (easing.length < nextSegmentCount) {
+		easing.push('linear');
+	}
+
+	return {
+		extraArgs: getExtraArgsWithOptions({extraArgs, options}),
+		needsEasingImport: setEasingOption({options, easing}),
+	};
+};
+
+const normalizeEasingAfterRemovingKeyframe = ({
+	extraArgs,
+	previousSegmentCount,
+	nextSegmentCount,
+	removedKeyframeIndex,
+}: {
+	extraArgs: (ExpressionKind | SpreadElementKind)[];
+	previousSegmentCount: number;
+	nextSegmentCount: number;
+	removedKeyframeIndex: number;
+}): {
+	extraArgs: (ExpressionKind | SpreadElementKind)[];
+	needsEasingImport: boolean;
+} => {
+	const options = getInlineOptionsFromExtraArgs(extraArgs);
+	if (!options) {
+		return {extraArgs, needsEasingImport: false};
+	}
+
+	const easing = getExistingEasingArrayOrNull({
+		options,
+		segmentCount: previousSegmentCount,
+	});
+	if (easing === null) {
+		return {extraArgs, needsEasingImport: false};
+	}
+
+	if (easing.length > 0) {
+		const easingIndexToRemove =
+			removedKeyframeIndex === 0 ? 0 : removedKeyframeIndex - 1;
+		easing.splice(easingIndexToRemove, 1);
+	}
+
+	while (easing.length > nextSegmentCount) {
+		easing.pop();
+	}
+
+	while (easing.length < nextSegmentCount) {
+		easing.push('linear');
+	}
+
+	return {
+		extraArgs: getExtraArgsWithOptions({extraArgs, options}),
+		needsEasingImport: setEasingOption({options, easing}),
+	};
+};
+
 const validatePosterize = (posterize: number | undefined) => {
 	if (posterize === undefined) {
 		return;
@@ -388,6 +682,73 @@ const updateKeyframeSettings = ({
 	});
 };
 
+const updateKeyframeEasing = ({
+	expression,
+	segmentIndex,
+	easing,
+}: {
+	expression: Expression;
+	segmentIndex: number;
+	easing: KeyframeEasing;
+}): {expression: ExpressionKind; needsEasingImport: boolean} => {
+	const existing = getInterpolationExpression(expression);
+	if (!existing) {
+		throw new Error('Cannot update easing on non-keyframed value');
+	}
+
+	const calleeName =
+		existing.callee.type === 'Identifier' ? existing.callee.name : null;
+	if (calleeName === 'interpolateColors') {
+		throw new Error('Cannot update easing on color keyframes');
+	}
+
+	const segmentCount = Math.max(0, existing.keyframes.length - 1);
+	if (
+		!Number.isInteger(segmentIndex) ||
+		segmentIndex < 0 ||
+		segmentIndex >= segmentCount
+	) {
+		throw new Error('Cannot update easing: segment index out of range');
+	}
+
+	const extraArgs = [...existing.extraArgs];
+	const existingOptions = extraArgs[0];
+	if (existingOptions && existingOptions.type !== 'ObjectExpression') {
+		throw new Error('Cannot update easing: options must be inline');
+	}
+
+	const options =
+		existingOptions?.type === 'ObjectExpression'
+			? (existingOptions as ObjectExpression)
+			: createEmptyOptionsExpression();
+	const nextEasing = getExistingEasingArray({options, segmentCount});
+	nextEasing[segmentIndex] = easing;
+	const hasNonLinearEasing = nextEasing.some(
+		(easingValue) => !isLinearEasing(easingValue),
+	);
+
+	setOptionsProperty({
+		options,
+		propertyName: 'easing',
+		value: hasNonLinearEasing ? createEasingArrayExpression(nextEasing) : null,
+	});
+
+	const nextExtraArgs =
+		options.properties.length === 0
+			? extraArgs.slice(1)
+			: [options as ExpressionKind, ...extraArgs.slice(1)];
+
+	return {
+		expression: createInterpolateExpression({
+			callee: existing.callee,
+			input: existing.input,
+			extraArgs: nextExtraArgs,
+			keyframes: existing.keyframes,
+		}),
+		needsEasingImport: hasNonLinearEasing,
+	};
+};
+
 const createInterpolateExpression = ({
 	callee,
 	input,
@@ -415,11 +776,13 @@ const createInterpolateExpression = ({
 export type IntroducedKeyframeIdentifiers = {
 	calleeName: KeyframeInterpolationFunction | null;
 	needsFrameHook: boolean;
+	needsEasingImport: boolean;
 };
 
 const noIntroducedIdentifiers: IntroducedKeyframeIdentifiers = {
 	calleeName: null,
 	needsFrameHook: false,
+	needsEasingImport: false,
 };
 
 const addKeyframe = ({
@@ -463,12 +826,20 @@ const addKeyframe = ({
 							? {frame, output: newOutput, value}
 							: keyframe,
 					);
+		const normalizedEasing =
+			existingIndex === -1
+				? normalizeEasingAfterAddingKeyframe({
+						extraArgs: existing.extraArgs,
+						previousSegmentCount: Math.max(existing.keyframes.length - 1, 0),
+						nextSegmentCount: Math.max(nextKeyframes.length - 1, 0),
+					})
+				: {extraArgs: existing.extraArgs, needsEasingImport: false};
 
 		return {
 			expression: createInterpolateExpression({
 				callee: b.identifier(nextCalleeName),
 				input: existing.input,
-				extraArgs: existing.extraArgs,
+				extraArgs: normalizedEasing.extraArgs,
 				keyframes: nextKeyframes,
 			}),
 			introduced: {
@@ -477,6 +848,7 @@ const addKeyframe = ({
 						? schemaCalleeName
 						: null,
 				needsFrameHook: false,
+				needsEasingImport: normalizedEasing.needsEasingImport,
 			},
 		};
 	}
@@ -512,6 +884,7 @@ const addKeyframe = ({
 					? (callee.name as KeyframeInterpolationFunction)
 					: null,
 			needsFrameHook: true,
+			needsEasingImport: false,
 		},
 	};
 };
@@ -522,7 +895,7 @@ const removeKeyframe = ({
 }: {
 	expression: Expression;
 	frame: number;
-}): ExpressionKind => {
+}): {expression: ExpressionKind; introduced: IntroducedKeyframeIdentifiers} => {
 	const existing = getInterpolationExpression(expression);
 	if (!existing) {
 		throw new Error('Cannot remove keyframe from non-interpolated expression');
@@ -540,15 +913,31 @@ const removeKeyframe = ({
 	);
 
 	if (nextKeyframes.length === 0) {
-		return existing.keyframes[keyframeIndex].output;
+		return {
+			expression: existing.keyframes[keyframeIndex].output,
+			introduced: noIntroducedIdentifiers,
+		};
 	}
 
-	return createInterpolateExpression({
-		callee: existing.callee,
-		input: existing.input,
+	const normalizedEasing = normalizeEasingAfterRemovingKeyframe({
 		extraArgs: existing.extraArgs,
-		keyframes: nextKeyframes,
+		previousSegmentCount: Math.max(existing.keyframes.length - 1, 0),
+		nextSegmentCount: Math.max(nextKeyframes.length - 1, 0),
+		removedKeyframeIndex: keyframeIndex,
 	});
+
+	return {
+		expression: createInterpolateExpression({
+			callee: existing.callee,
+			input: existing.input,
+			extraArgs: normalizedEasing.extraArgs,
+			keyframes: nextKeyframes,
+		}),
+		introduced: {
+			...noIntroducedIdentifiers,
+			needsEasingImport: normalizedEasing.needsEasingImport,
+		},
+	};
 };
 
 const moveKeyframes = ({
@@ -652,6 +1041,21 @@ const applyKeyframeOperation = ({
 		};
 	}
 
+	if (operation.type === 'easing') {
+		const updated = updateKeyframeEasing({
+			expression,
+			segmentIndex: operation.segmentIndex,
+			easing: operation.easing,
+		});
+		return {
+			expression: updated.expression,
+			introduced: {
+				...noIntroducedIdentifiers,
+				needsEasingImport: updated.needsEasingImport,
+			},
+		};
+	}
+
 	if (operation.type === 'move') {
 		return {
 			expression: moveKeyframes({expression, moves: operation.moves}),
@@ -659,10 +1063,7 @@ const applyKeyframeOperation = ({
 		};
 	}
 
-	return {
-		expression: removeKeyframe({expression, frame: operation.frame}),
-		introduced: noIntroducedIdentifiers,
-	};
+	return removeKeyframe({expression, frame: operation.frame});
 };
 
 const getExpressionFromJsxAttribute = (
@@ -986,6 +1387,10 @@ export const updateSequenceKeyframesAst = ({
 			requiredImports.add('useCurrentFrame');
 			needsFrameHook = true;
 		}
+
+		if (introduced.needsEasingImport) {
+			requiredImports.add('Easing');
+		}
 	}
 
 	if (needsFrameHook) {
@@ -1135,6 +1540,10 @@ export const updateEffectKeyframesAst = ({
 		if (introduced.needsFrameHook) {
 			requiredImports.add('useCurrentFrame');
 			needsFrameHook = true;
+		}
+
+		if (introduced.needsEasingImport) {
+			requiredImports.add('Easing');
 		}
 	}
 
