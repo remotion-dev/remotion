@@ -48,6 +48,89 @@ import {
 
 const b = recast.types.builders;
 
+const getObjectPropertyNameFromUpdateKey = (key: string): string => {
+	const dotIndex = key.indexOf('.');
+	return dotIndex === -1 ? key : key.slice(dotIndex + 1);
+};
+
+const lineStartsWithPropertyName = ({
+	line,
+	propertyName,
+}: {
+	line: string;
+	propertyName: string;
+}) => {
+	const trimmed = line.trimStart();
+	return (
+		trimmed.startsWith(`${propertyName}:`) ||
+		trimmed.startsWith(`'${propertyName}':`) ||
+		trimmed.startsWith(`"${propertyName}":`)
+	);
+};
+
+const getIndent = (line: string) => line.match(/^[ \t]*/)?.[0] ?? '';
+
+const removeBlankLinesFromObjectsWithProperties = ({
+	input,
+	propertyNames,
+}: {
+	input: string;
+	propertyNames: string[];
+}) => {
+	if (propertyNames.length === 0) {
+		return input;
+	}
+
+	const lines = input.split('\n');
+	const linesToRemove = new Set<number>();
+
+	for (let i = 0; i < lines.length; i++) {
+		const propertyName = propertyNames.find((name) =>
+			lineStartsWithPropertyName({line: lines[i], propertyName: name}),
+		);
+		if (!propertyName) {
+			continue;
+		}
+
+		const propertyIndentLength = getIndent(lines[i]).length;
+		let objectStart = i;
+		for (let j = i - 1; j >= 0; j--) {
+			const trimmed = lines[j].trim();
+			if (
+				trimmed.endsWith('{') &&
+				getIndent(lines[j]).length < propertyIndentLength
+			) {
+				objectStart = j;
+				break;
+			}
+		}
+
+		let objectEnd = i;
+		for (let j = i + 1; j < lines.length; j++) {
+			const trimmed = lines[j].trim();
+			if (
+				trimmed.startsWith('}') &&
+				getIndent(lines[j]).length < propertyIndentLength
+			) {
+				objectEnd = j;
+				break;
+			}
+		}
+
+		for (let j = objectStart + 1; j < objectEnd; j++) {
+			if (lines[j].trim() === '') {
+				linesToRemove.add(j);
+			}
+		}
+	}
+
+	if (linesToRemove.size === 0) {
+		return input;
+	}
+
+	return lines.filter((_, index) => !linesToRemove.has(index)).join('\n');
+};
+
 type KeyframeEasing = Extract<
 	CanUpdateSequencePropStatus,
 	{status: 'keyframed'}
@@ -1448,9 +1531,16 @@ export const updateSequenceKeyframes = async ({
 		input: serialized,
 		prettierConfigOverride,
 	});
+	const outputWithoutInsertedBlankLines =
+		removeBlankLinesFromObjectsWithProperties({
+			input: output,
+			propertyNames: updates.map((update) =>
+				getObjectPropertyNameFromUpdateKey(update.key),
+			),
+		});
 
 	return {
-		output,
+		output: outputWithoutInsertedBlankLines,
 		formatted,
 		oldValueStrings,
 		newValueStrings,
@@ -1608,9 +1698,14 @@ export const updateEffectKeyframes = async ({
 		input: serialized,
 		prettierConfigOverride,
 	});
+	const outputWithoutInsertedBlankLines =
+		removeBlankLinesFromObjectsWithProperties({
+			input: output,
+			propertyNames: updates.map((update) => update.key),
+		});
 
 	return {
-		output,
+		output: outputWithoutInsertedBlankLines,
 		formatted,
 		oldValueStrings,
 		newValueStrings,
