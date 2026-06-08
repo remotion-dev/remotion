@@ -36,8 +36,8 @@ const PLOT_LEFT = 42;
 const PLOT_TOP = 28;
 const PLOT_WIDTH = 500;
 const PLOT_HEIGHT = 260;
-const Y_MIN = -4;
-const Y_MAX = 5;
+const Y_MIN = -2;
+const Y_MAX = 3;
 const LINEAR_BEZIER: CubicBezier = [0.25, 0.25, 0.75, 0.75];
 
 const container: React.CSSProperties = {
@@ -53,8 +53,6 @@ const coordinatesGrid: React.CSSProperties = {
 };
 
 const coordinateRow: React.CSSProperties = {
-	display: 'flex',
-	flexDirection: 'column',
 	gap: 4,
 };
 
@@ -66,15 +64,6 @@ const coordinateLabel: React.CSSProperties = {
 const numberInputStyle: React.CSSProperties = {
 	backgroundColor: INPUT_BACKGROUND,
 	borderRadius: 4,
-	minWidth: 76,
-	textAlign: 'right',
-};
-
-const helperText: React.CSSProperties = {
-	color: 'rgba(255, 255, 255, 0.6)',
-	fontSize: 12,
-	lineHeight: 1.45,
-	marginTop: 12,
 };
 
 const svgStyle: React.CSSProperties = {
@@ -348,15 +337,7 @@ export const EasingEditorModal: React.FC<{
 							stroke={INPUT_BORDER_COLOR_HOVERED}
 							strokeWidth={1}
 						/>
-						<rect
-							x={PLOT_LEFT}
-							y={PLOT_TOP}
-							width={PLOT_WIDTH}
-							height={PLOT_HEIGHT}
-							fill="none"
-							stroke={INPUT_BORDER_COLOR_UNHOVERED}
-							strokeWidth={1}
-						/>
+
 						<line
 							x1={startPoint.x}
 							y1={startPoint.y}
@@ -413,7 +394,7 @@ export const EasingEditorModal: React.FC<{
 								max={1}
 								step={0.01}
 								formatter={formatNumber}
-								rightAlign
+								rightAlign={false}
 								style={numberInputStyle}
 								snapToStep={false}
 							/>
@@ -431,7 +412,7 @@ export const EasingEditorModal: React.FC<{
 								max={Y_MAX}
 								step={0.01}
 								formatter={formatNumber}
-								rightAlign
+								rightAlign={false}
 								style={numberInputStyle}
 								snapToStep={false}
 							/>
@@ -449,7 +430,7 @@ export const EasingEditorModal: React.FC<{
 								max={1}
 								step={0.01}
 								formatter={formatNumber}
-								rightAlign
+								rightAlign={false}
 								style={numberInputStyle}
 								snapToStep={false}
 							/>
@@ -467,15 +448,11 @@ export const EasingEditorModal: React.FC<{
 								max={Y_MAX}
 								step={0.01}
 								formatter={formatNumber}
-								rightAlign
+								rightAlign={false}
 								style={numberInputStyle}
 								snapToStep={false}
 							/>
 						</div>
-					</div>
-					<div style={helperText}>
-						Drag the handles or edit the numbers. X values are kept between 0
-						and 1 so the generated bezier easing is valid.
 					</div>
 				</div>
 				<ModalFooterContainer>
