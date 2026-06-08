@@ -60,6 +60,46 @@ const formatNestedProp = (
 	return `${attrName(parentKey)}${equals('=')}${punctuation('{{')}${punctuation(childKey)}${punctuation(':')} ${colorValue(value)}${punctuation('}}')}`;
 };
 
+const formatValueDelta = ({
+	oldValueString,
+	newValueString,
+}: {
+	oldValueString: string;
+	newValueString: string;
+}) => {
+	const shortened = shortenUnchangedInterpolateOptions({
+		oldValueString,
+		newValueString,
+	});
+
+	return `${colorValue(shortened.oldValueString)} ${punctuation('→')} ${colorValue(shortened.newValueString)}`;
+};
+
+const formatSimplePropChange = ({
+	key,
+	oldValueString,
+	newValueString,
+}: {
+	key: string;
+	oldValueString: string;
+	newValueString: string;
+}) => {
+	return `${attrName(key)}${equals('=')}${punctuation('{')}${formatValueDelta({oldValueString, newValueString})}${punctuation('}')}`;
+};
+
+const formatNestedPropChange = ({
+	key,
+	oldValueString,
+	newValueString,
+}: {
+	key: string;
+	oldValueString: string;
+	newValueString: string;
+}) => {
+	const dotIdx = key.indexOf('.');
+	return `${attrName(key.slice(0, dotIdx))}${equals('=')}${punctuation('{{')}${punctuation(key.slice(dotIdx + 1))}${punctuation(':')} ${formatValueDelta({oldValueString, newValueString})}${punctuation('}}')}`;
+};
+
 export const formatPropDelta = ({key, valueString}: PropDelta) => {
 	const dotIdx = key.indexOf('.');
 	if (dotIdx === -1) {
@@ -73,6 +113,23 @@ export const formatPropDelta = ({key, valueString}: PropDelta) => {
 	);
 };
 
+export const formatPropChangeDelta = ({
+	key,
+	oldValueString,
+	newValueString,
+}: {
+	key: string;
+	oldValueString: string;
+	newValueString: string;
+}) => {
+	const dotIdx = key.indexOf('.');
+	if (dotIdx === -1) {
+		return formatSimplePropChange({key, oldValueString, newValueString});
+	}
+
+	return formatNestedPropChange({key, oldValueString, newValueString});
+};
+
 export const formatDeletion = (prop: PropDelta) => {
 	const formatted = formatPropDelta(prop);
 	return strikeThroughOrRemovedPrefix(formatted);
@@ -81,4 +138,142 @@ export const formatDeletion = (prop: PropDelta) => {
 export const formatAddition = (prop: PropDelta) => {
 	const formatted = formatPropDelta(prop);
 	return addedPrefixIfNoColor(formatted);
+};
+
+const callStart = 'interpolate(';
+
+type InterpolateCall = {
+	args: string[];
+};
+
+const normalizeArg = (arg: string) => {
+	return arg
+		.replace(/\s+/g, ' ')
+		.replace(/,(\s*[}\]])/g, '$1')
+		.trim();
+};
+
+const splitTopLevelArgs = (argsSource: string) => {
+	const args: string[] = [];
+	let depth = 0;
+	let quote: "'" | '"' | '`' | null = null;
+	let start = 0;
+
+	for (let i = 0; i < argsSource.length; i++) {
+		const char = argsSource[i];
+		const previous = argsSource[i - 1];
+
+		if (quote) {
+			if (char === quote && previous !== '\\') {
+				quote = null;
+			}
+
+			continue;
+		}
+
+		if (char === "'" || char === '"' || char === '`') {
+			quote = char;
+			continue;
+		}
+
+		if (char === '(' || char === '[' || char === '{') {
+			depth++;
+			continue;
+		}
+
+		if (char === ')' || char === ']' || char === '}') {
+			depth--;
+			continue;
+		}
+
+		if (char === ',' && depth === 0) {
+			args.push(argsSource.slice(start, i).trim());
+			start = i + 1;
+		}
+	}
+
+	args.push(argsSource.slice(start).trim());
+	return args;
+};
+
+const parseInterpolateCall = (valueString: string): InterpolateCall | null => {
+	const trimmed = valueString.trim();
+	if (!trimmed.startsWith(callStart) || !trimmed.endsWith(')')) {
+		return null;
+	}
+
+	let depth = 0;
+	let quote: "'" | '"' | '`' | null = null;
+
+	for (let i = 'interpolate'.length; i < trimmed.length; i++) {
+		const char = trimmed[i];
+		const previous = trimmed[i - 1];
+
+		if (quote) {
+			if (char === quote && previous !== '\\') {
+				quote = null;
+			}
+
+			continue;
+		}
+
+		if (char === "'" || char === '"' || char === '`') {
+			quote = char;
+			continue;
+		}
+
+		if (char === '(' || char === '[' || char === '{') {
+			depth++;
+			continue;
+		}
+
+		if (char === ')' || char === ']' || char === '}') {
+			depth--;
+			if (depth === 0 && i !== trimmed.length - 1) {
+				return null;
+			}
+		}
+	}
+
+	if (depth !== 0) {
+		return null;
+	}
+
+	return {
+		args: splitTopLevelArgs(trimmed.slice(callStart.length, -1)),
+	};
+};
+
+const shortenUnchangedInterpolateOptions = ({
+	oldValueString,
+	newValueString,
+}: {
+	oldValueString: string;
+	newValueString: string;
+}) => {
+	const oldCall = parseInterpolateCall(oldValueString);
+	const newCall = parseInterpolateCall(newValueString);
+
+	if (
+		!oldCall ||
+		!newCall ||
+		oldCall.args.length <= 3 ||
+		newCall.args.length <= 3
+	) {
+		return {oldValueString, newValueString};
+	}
+
+	const oldOptions = oldCall.args.slice(3).map(normalizeArg);
+	const newOptions = newCall.args.slice(3).map(normalizeArg);
+	if (
+		oldOptions.length !== newOptions.length ||
+		oldOptions.some((option, index) => option !== newOptions[index])
+	) {
+		return {oldValueString, newValueString};
+	}
+
+	return {
+		oldValueString: `interpolate(${oldCall.args.slice(0, 3).join(', ')})`,
+		newValueString: `interpolate(${newCall.args.slice(0, 3).join(', ')})`,
+	};
 };

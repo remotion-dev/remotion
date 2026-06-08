@@ -81,15 +81,41 @@ test('logUpdate emits Monokai-colored output after an AST update', async () => {
 		const logged = consoleSpy.mock.calls[0].join(' ');
 
 		const simpleProp = (key: string, value: string) =>
-			`${attrName(key)}${equals('=')}${punctuation('{')}${numberValue(value)}${punctuation('}')}`;
+			`${attrName(key)}${equals('=')}${punctuation('{')}${value}${punctuation('}')}`;
 
-		const expectedPropChange = `${simpleProp('hueShift', '30')} → ${simpleProp('hueShift', '90')}`;
+		const expectedPropChange = simpleProp(
+			'hueShift',
+			`${numberValue('30')} → ${numberValue('90')}`,
+		);
 		const expectedLine = `${chalk.blueBright('src/Example.tsx:8')} ${expectedPropChange}`;
 
 		expect(logged).toBe(expectedLine);
 	} finally {
 		consoleSpy.mockRestore();
 	}
+});
+
+test('formatPropChange condenses unchanged interpolate options', () => {
+	const formatted = formatPropChange({
+		key: 'width',
+		oldValueString: `interpolate(frame, [78], [244], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+})`,
+		newValueString: `interpolate(frame, [29, 78], [88, 244], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+})`,
+		defaultValueString: null,
+		removedProps: [],
+		addedProps: [],
+	});
+
+	expect(formatted).toBe(
+		`${attrName('width')}${equals('=')}${punctuation('{')}interpolate(frame, [78], [244]) → interpolate(frame, [29, 78], [88, 244])${punctuation('}')}`,
+	);
+	expect(formatted).not.toContain('extrapolateLeft');
+	expect(formatted).not.toContain('extrapolateRight');
 });
 
 test('logUpdate emits change-from-default output for discriminated union enum change', async () => {
