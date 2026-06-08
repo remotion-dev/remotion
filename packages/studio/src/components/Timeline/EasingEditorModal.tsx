@@ -12,7 +12,7 @@ import {
 	BLUE,
 	INPUT_BACKGROUND,
 	INPUT_BORDER_COLOR_HOVERED,
-	INPUT_BORDER_COLOR_UNHOVERED,
+	LIGHT_TEXT,
 } from '../../helpers/colors';
 import {ModalsContext} from '../../state/modals';
 import {Button} from '../Button';
@@ -41,7 +41,6 @@ const Y_MAX = 3;
 const LINEAR_BEZIER: CubicBezier = [0.25, 0.25, 0.75, 0.75];
 
 const container: React.CSSProperties = {
-	padding: 16,
 	width: 600,
 };
 
@@ -50,6 +49,7 @@ const coordinatesGrid: React.CSSProperties = {
 	gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
 	gap: 10,
 	marginTop: 12,
+	padding: '0 16px 16px',
 };
 
 const coordinateRow: React.CSSProperties = {
@@ -67,9 +67,6 @@ const numberInputStyle: React.CSSProperties = {
 };
 
 const svgStyle: React.CSSProperties = {
-	backgroundColor: INPUT_BACKGROUND,
-	border: `1px solid ${INPUT_BORDER_COLOR_UNHOVERED}`,
-	borderRadius: 6,
 	display: 'block',
 	width: '100%',
 };
@@ -381,10 +378,20 @@ export const EasingEditorModal: React.FC<{
 							cursor={activeHandle === 1 ? 'grabbing' : 'default'}
 							onPointerDown={(event) => onHandlePointerDown(1, event)}
 						/>
-						<text x={PLOT_LEFT - 22} y={yZero + 4} fill="white" fontSize={11}>
+						<text
+							x={PLOT_LEFT - 22}
+							y={yZero + 3}
+							fill={LIGHT_TEXT}
+							fontSize={9}
+						>
 							0
 						</text>
-						<text x={PLOT_LEFT - 22} y={yOne + 4} fill="white" fontSize={11}>
+						<text
+							x={PLOT_LEFT - 22}
+							y={yOne + 3}
+							fill={LIGHT_TEXT}
+							fontSize={9}
+						>
 							1
 						</text>
 					</svg>
