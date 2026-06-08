@@ -431,6 +431,8 @@ export type AddSequenceKeyframeRequest = {
 
 export type AddSequenceKeyframeResponse = SaveSequencePropsResponse;
 
+export type AddSequenceKeyframe = Omit<AddSequenceKeyframeRequest, 'clientId'>;
+
 export type DeleteEffectKeyframe = {
 	fileName: string;
 	sequenceNodePath: SequencePropsSubscriptionKey;
@@ -482,6 +484,18 @@ export type AddEffectKeyframeRequest = {
 };
 
 export type AddEffectKeyframeResponse = SaveEffectPropsResponse;
+
+export type AddEffectKeyframe = Omit<AddEffectKeyframeRequest, 'clientId'>;
+
+export type AddKeyframesRequest = {
+	sequenceKeyframes: AddSequenceKeyframe[];
+	effectKeyframes: AddEffectKeyframe[];
+	clientId: string;
+};
+
+export type AddKeyframesResponse = {
+	success: true;
+};
 
 export type KeyframeSettings = {
 	clamping:
@@ -766,6 +780,7 @@ export type ApiRoutes = {
 		AddEffectKeyframeRequest,
 		AddEffectKeyframeResponse
 	>;
+	'/api/add-keyframes': ReqAndRes<AddKeyframesRequest, AddKeyframesResponse>;
 	'/api/update-sequence-keyframe-settings': ReqAndRes<
 		UpdateSequenceKeyframeSettingsRequest,
 		UpdateSequenceKeyframeSettingsResponse

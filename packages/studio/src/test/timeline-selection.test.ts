@@ -37,6 +37,7 @@ import {
 	type PasteEffectPropTarget,
 	type PasteEffectsTarget,
 } from '../components/Timeline/TimelineClipboardKeybindings';
+import {getSelectedKeyframeControlNodePathInfos} from '../components/Timeline/TimelineKeyframeControls';
 import {
 	ENABLE_OUTLINES,
 	getSelectableTimelineSequenceSelections,
@@ -200,6 +201,35 @@ const makeFromPropStatuses = (
 
 test('Timeline selection should stay disabled until released publicly', () => {
 	expect(SELECTION_ENABLED).toBe(false);
+});
+
+test('keyframe diamond target resolution uses all selected prop rows when clicked row is selected', () => {
+	const opacity = makeNodePathInfo(['body', 0], ['controls', 'style.opacity']);
+	const rotate = makeNodePathInfo(['body', 0], ['controls', 'style.rotate']);
+
+	expect(
+		getSelectedKeyframeControlNodePathInfos({
+			clickedNodePathInfo: opacity,
+			selectedItems: [
+				{type: 'sequence-prop', nodePathInfo: opacity, key: 'style.opacity'},
+				{type: 'sequence-prop', nodePathInfo: rotate, key: 'style.rotate'},
+			],
+		}),
+	).toEqual([opacity, rotate]);
+});
+
+test('keyframe diamond target resolution falls back to clicked row when it is not selected', () => {
+	const opacity = makeNodePathInfo(['body', 0], ['controls', 'style.opacity']);
+	const rotate = makeNodePathInfo(['body', 0], ['controls', 'style.rotate']);
+
+	expect(
+		getSelectedKeyframeControlNodePathInfos({
+			clickedNodePathInfo: opacity,
+			selectedItems: [
+				{type: 'sequence-prop', nodePathInfo: rotate, key: 'style.rotate'},
+			],
+		}),
+	).toEqual([opacity]);
 });
 
 test('pasting effects is blocked for sequences that do not support effects', () => {

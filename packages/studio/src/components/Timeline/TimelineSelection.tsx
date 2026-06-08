@@ -330,7 +330,7 @@ export const getTimelineSelectionFromNodePathInfo = (
 	return null;
 };
 
-const getTimelineSelectionKey = (item: TimelineSelection): string => {
+export const getTimelineSelectionKey = (item: TimelineSelection): string => {
 	const sequenceKey = getTimelineSequenceSelectionKey(item.nodePathInfo);
 	switch (item.type) {
 		case 'sequence':

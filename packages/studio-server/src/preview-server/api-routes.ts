@@ -2,6 +2,7 @@ import type {ApiRoutes} from '@remotion/studio-shared';
 import type {ApiHandler} from './api-types';
 import {addEffectHandler} from './routes/add-effect';
 import {addEffectKeyframeHandler} from './routes/add-effect-keyframe';
+import {addKeyframesHandler} from './routes/add-keyframes';
 import {handleAddRender} from './routes/add-render';
 import {addSequenceKeyframeHandler} from './routes/add-sequence-keyframe';
 import {applyCodemodHandler} from './routes/apply-codemod';
@@ -76,6 +77,7 @@ export const allApiRoutes: {
 	'/api/move-keyframes': moveKeyframesHandler,
 	'/api/add-sequence-keyframe': addSequenceKeyframeHandler,
 	'/api/add-effect-keyframe': addEffectKeyframeHandler,
+	'/api/add-keyframes': addKeyframesHandler,
 	'/api/update-sequence-keyframe-settings':
 		updateSequenceKeyframeSettingsHandler,
 	'/api/update-effect-keyframe-settings': updateEffectKeyframeSettingsHandler,

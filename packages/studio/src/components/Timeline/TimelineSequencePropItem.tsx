@@ -258,6 +258,7 @@ export const TimelineSequencePropItem: React.FC<{
 				dragOverrideValue={dragOverrideValue}
 				schema={schema}
 				effectIndex={null}
+				nodePathInfo={nodePathInfo}
 			/>
 		) : null;
 
