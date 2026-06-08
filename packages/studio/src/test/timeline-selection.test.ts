@@ -17,6 +17,7 @@ import {
 	getUvHandlePosition,
 } from '../components/selected-outline-uv';
 import {
+	applySelectedOutlineDragAxisLock,
 	getOutlineSelectionInteraction,
 	getSelectedEffectFieldsBySequenceKey,
 	getSelectedOutlineDragChanges,
@@ -1618,6 +1619,30 @@ test('Selected outline dragging applies the same delta to all selected sequences
 			schema,
 		},
 	]);
+});
+
+test('Selected outline dragging can lock movement to the dominant axis', () => {
+	expect(
+		applySelectedOutlineDragAxisLock({
+			deltaX: 12,
+			deltaY: 7,
+			axisLocked: true,
+		}),
+	).toEqual({deltaX: 12, deltaY: 0});
+	expect(
+		applySelectedOutlineDragAxisLock({
+			deltaX: 12,
+			deltaY: 13,
+			axisLocked: true,
+		}),
+	).toEqual({deltaX: 0, deltaY: 13});
+	expect(
+		applySelectedOutlineDragAxisLock({
+			deltaX: 12,
+			deltaY: 13,
+			axisLocked: false,
+		}),
+	).toEqual({deltaX: 12, deltaY: 13});
 });
 
 test('Selected outline dragging keyframed translate adds a keyframe at the source frame', () => {
