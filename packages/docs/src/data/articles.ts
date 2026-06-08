@@ -2556,6 +2556,15 @@ export const articles = [
 		slug: 'interpolate-colors',
 	},
 	{
+		id: 'interpolate-transform-origin',
+		title: 'interpolateTransformOrigin()',
+		relativePath: 'docs/interpolate-transform-origin.mdx',
+		compId: 'articles-docs-interpolate-transform-origin',
+		crumb: 'API',
+		noAi: false,
+		slug: 'interpolate-transform-origin',
+	},
+	{
 		id: 'interpolate',
 		title: 'interpolate()',
 		relativePath: 'docs/interpolate.mdx',

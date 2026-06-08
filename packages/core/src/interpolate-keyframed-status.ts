@@ -1,6 +1,7 @@
 import {bezier} from './bezier.js';
 import {Easing} from './easing.js';
 import {interpolateColors} from './interpolate-colors.js';
+import {interpolateTransformOrigin} from './interpolate-transform-origin.js';
 import type {EasingFunction} from './interpolate.js';
 import {interpolate} from './interpolate.js';
 import type {
@@ -51,6 +52,32 @@ export const interpolateKeyframedStatus = ({
 			return interpolateColors(frame, inputRange, outputs as string[], {
 				posterize: status.posterize,
 			});
+		} catch {
+			return null;
+		}
+	}
+
+	if (interpolationFunction === 'interpolateTransformOrigin') {
+		if (!outputs.every((v) => typeof v === 'string')) {
+			return null;
+		}
+
+		if (keyframes.length === 1) {
+			return outputs[0] as string;
+		}
+
+		try {
+			return interpolateTransformOrigin(
+				frame,
+				inputRange,
+				outputs as string[],
+				{
+					easing: easing.map(easingToFn),
+					extrapolateLeft: clamping.left,
+					extrapolateRight: clamping.right,
+					posterize: status.posterize,
+				},
+			);
 		} catch {
 			return null;
 		}

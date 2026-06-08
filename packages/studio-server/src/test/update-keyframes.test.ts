@@ -47,6 +47,13 @@ const rotateSchema = {
 	},
 } satisfies SequenceSchema;
 
+const transformOriginSchema = {
+	'style.transformOrigin': {
+		type: 'transform-origin',
+		default: '50% 50%',
+	},
+} satisfies SequenceSchema;
+
 const translateInput = `import React from 'react';
 import {AbsoluteFill} from 'remotion';
 
@@ -66,6 +73,18 @@ export const Example: React.FC = () => {
 \treturn (
 \t\t<AbsoluteFill>
 \t\t\t<div style={{rotate: '19deg'}} />
+\t\t</AbsoluteFill>
+\t);
+};
+`;
+
+const transformOriginInput = `import React from 'react';
+import {AbsoluteFill} from 'remotion';
+
+export const Example: React.FC = () => {
+\treturn (
+\t\t<AbsoluteFill>
+\t\t\t<div style={{transformOrigin: '50% 50%'}} />
 \t\t</AbsoluteFill>
 \t);
 };
@@ -512,6 +531,62 @@ test('updateSequenceKeyframes migrates rotate away from interpolateColors', asyn
 	expect(output).toContain('rotate: interpolate(');
 	expect(output).toContain('[55, 68]');
 	expect(output).toContain("['19deg', '23deg']");
+});
+
+test('updateSequenceKeyframes converts static transformOrigin to interpolateTransformOrigin', async () => {
+	const {output, oldValueStrings} = await updateSequenceKeyframes({
+		input: transformOriginInput,
+		nodePath: lineColumnToNodePath(
+			transformOriginInput,
+			getLine(transformOriginInput, 'transformOrigin'),
+		),
+		schema: transformOriginSchema,
+		updates: [
+			{
+				key: 'style.transformOrigin',
+				operation: {type: 'add', frame: 55, value: 'left top'},
+			},
+		],
+	});
+
+	expect(oldValueStrings).toEqual(["'50% 50%'"]);
+	expect(output).toContain('transformOrigin: interpolateTransformOrigin(');
+	expect(output).toContain('[55]');
+	expect(output).toContain("['left top']");
+	expect(output).toContain("extrapolateLeft: 'clamp'");
+	expect(output).toContain("extrapolateRight: 'clamp'");
+	expect(output).toContain('interpolateTransformOrigin');
+});
+
+test('updateSequenceKeyframes migrates transformOrigin away from interpolateColors', async () => {
+	const input = transformOriginInput
+		.replace(
+			"import {AbsoluteFill} from 'remotion';",
+			"import {AbsoluteFill, interpolateColors, useCurrentFrame} from 'remotion';",
+		)
+		.replace('return (', 'const frame = useCurrentFrame();\n\treturn (')
+		.replace(
+			"transformOrigin: '50% 50%'",
+			"transformOrigin: interpolateColors(frame, [55], ['50% 50%'])",
+		);
+	const {output, oldValueStrings} = await updateSequenceKeyframes({
+		input,
+		nodePath: lineColumnToNodePath(input, getLine(input, 'transformOrigin')),
+		schema: transformOriginSchema,
+		updates: [
+			{
+				key: 'style.transformOrigin',
+				operation: {type: 'add', frame: 68, value: 'left top'},
+			},
+		],
+	});
+
+	expect(oldValueStrings).toEqual([
+		"interpolateColors(frame, [55], ['50% 50%'])",
+	]);
+	expect(output).toContain('transformOrigin: interpolateTransformOrigin(');
+	expect(output).toContain('[55, 68]');
+	expect(output).toContain("['50% 50%', 'left top']");
 });
 
 test('updateSequenceKeyframes returns a node path that still resolves after inserting a frame hook', async () => {

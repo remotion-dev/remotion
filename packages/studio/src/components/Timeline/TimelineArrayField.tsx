@@ -81,6 +81,10 @@ const getFallbackItemValue = (field: ArrayFieldSchema): unknown => {
 		return '0px 0px';
 	}
 
+	if (field.item.type === 'transform-origin') {
+		return '50% 50%';
+	}
+
 	if (field.item.type === 'uv-coordinate') {
 		return [0.5, 0.5] as const;
 	}
@@ -146,6 +150,13 @@ const makeItemFieldSchema = ({
 	}
 
 	if (field.item.type === 'translate') {
+		return {
+			...field.item,
+			default: typeof defaultValue === 'string' ? defaultValue : undefined,
+		};
+	}
+
+	if (field.item.type === 'transform-origin') {
 		return {
 			...field.item,
 			default: typeof defaultValue === 'string' ? defaultValue : undefined,

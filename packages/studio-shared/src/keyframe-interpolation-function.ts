@@ -3,6 +3,7 @@ import type {SequenceFieldSchema, SequenceSchema} from 'remotion';
 export const keyframeInterpolationFunctions = [
 	'interpolate',
 	'interpolateColors',
+	'interpolateTransformOrigin',
 ] as const;
 
 export type KeyframeInterpolationFunction =
@@ -84,6 +85,10 @@ export const getKeyframeInterpolationFunctionForSchemaField = ({
 		field?.type === 'rotation-css'
 	) {
 		return 'interpolate';
+	}
+
+	if (field?.type === 'transform-origin') {
+		return 'interpolateTransformOrigin';
 	}
 
 	return null;

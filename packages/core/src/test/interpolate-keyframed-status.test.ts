@@ -180,6 +180,42 @@ test('interpolates rotate keyframes', () => {
 	expect(result).toBe('60deg');
 });
 
+test('interpolates transform-origin keyframes', () => {
+	const result = interpolateKeyframedStatus({
+		frame: 30,
+		status: {
+			status: 'keyframed',
+			interpolationFunction: 'interpolateTransformOrigin',
+			keyframes: [
+				{frame: 0, value: 'left top'},
+				{frame: 60, value: 'right bottom'},
+			],
+			easing: ['linear'],
+			clamping: {left: 'extend', right: 'extend'},
+			posterize: undefined,
+		},
+	});
+	expect(result).toBe('50% 50%');
+});
+
+test('returns null for invalid transform-origin keyframes', () => {
+	const result = interpolateKeyframedStatus({
+		frame: 30,
+		status: {
+			status: 'keyframed',
+			interpolationFunction: 'interpolateTransformOrigin',
+			keyframes: [
+				{frame: 0, value: 'left top'},
+				{frame: 60, value: '100px 40px'},
+			],
+			easing: ['linear'],
+			clamping: {left: 'extend', right: 'extend'},
+			posterize: undefined,
+		},
+	});
+	expect(result).toBe(null);
+});
+
 test('uses bezier easing', () => {
 	const result = interpolateKeyframedStatus({
 		frame: 30,

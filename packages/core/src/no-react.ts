@@ -15,6 +15,7 @@ export type {
 	ExtrapolateType,
 	InterpolateOptions,
 } from './interpolate';
+export {interpolateTransformOrigin} from './interpolate-transform-origin';
 export {random} from './random.js';
 export type {RandomSeed} from './random.js';
 export type {VideoConfig} from './video-config';
@@ -32,6 +33,7 @@ import {
 } from './input-props-serialization';
 import {DATE_TOKEN, FILE_TOKEN} from './input-props-serialization.js';
 import {colorNames, processColor} from './interpolate-colors';
+import {normalizeTransformOrigin} from './interpolate-transform-origin';
 import {proResProfileOptions} from './prores-profile';
 import {parseScaleValue, serializeScaleValue} from './scale-value';
 import {sequenceSchema} from './sequence-field-schema';
@@ -76,4 +78,5 @@ export const NoReactInternals = {
 	sequenceSchema,
 	parseScaleValue,
 	serializeScaleValue,
+	normalizeTransformOrigin,
 };

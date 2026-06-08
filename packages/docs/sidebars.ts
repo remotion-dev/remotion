@@ -161,6 +161,7 @@ const sidebars: SidebarsConfig = {
 				'img',
 				'interpolate-colors',
 				'interpolate',
+				'interpolate-transform-origin',
 				'loop',
 				'measure-spring',
 				'offthreadvideo',

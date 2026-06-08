@@ -47,6 +47,14 @@ export type TranslateFieldSchema = {
 	keyframable?: boolean;
 };
 
+export type TransformOriginFieldSchema = {
+	type: 'transform-origin';
+	step?: number;
+	default: string | undefined;
+	description?: string;
+	keyframable?: boolean;
+};
+
 export type ScaleFieldSchema = {
 	type: 'scale';
 	min?: number;
@@ -108,6 +116,11 @@ export type TranslateArrayItemSchema = Omit<
 	'default' | 'description' | 'keyframable'
 >;
 
+export type TransformOriginArrayItemSchema = Omit<
+	TransformOriginFieldSchema,
+	'default' | 'description' | 'keyframable'
+>;
+
 export type UvCoordinateArrayItemSchema = Omit<
 	UvCoordinateFieldSchema,
 	'default' | 'description' | 'keyframable'
@@ -129,6 +142,7 @@ export type ArrayItemFieldSchema =
 	| RotationCssArrayItemSchema
 	| RotationDegreesArrayItemSchema
 	| TranslateArrayItemSchema
+	| TransformOriginArrayItemSchema
 	| UvCoordinateArrayItemSchema
 	| ColorArrayItemSchema
 	| EnumArrayItemSchema;
@@ -150,6 +164,7 @@ export type VisibleFieldSchema =
 	| RotationCssFieldSchema
 	| RotationDegreesFieldSchema
 	| TranslateFieldSchema
+	| TransformOriginFieldSchema
 	| ScaleFieldSchema
 	| UvCoordinateFieldSchema
 	| ColorFieldSchema
@@ -184,6 +199,12 @@ export const sequenceVisualStyleSchema = {
 		step: 1,
 		default: '0deg',
 		description: 'Rotation',
+	},
+	'style.transformOrigin': {
+		type: 'transform-origin',
+		step: 1,
+		default: '50% 50%',
+		description: 'Transform Origin',
 	},
 	'style.opacity': {
 		type: 'number',

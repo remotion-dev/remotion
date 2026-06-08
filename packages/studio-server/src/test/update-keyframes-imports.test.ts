@@ -31,6 +31,13 @@ const rotateSchema = {
 	},
 } satisfies SequenceSchema;
 
+const transformOriginSchema = {
+	'style.transformOrigin': {
+		type: 'transform-origin',
+		default: '50% 50%',
+	},
+} satisfies SequenceSchema;
+
 // ---------------------------------------------------------------------------
 // Sequence: imports
 // ---------------------------------------------------------------------------
@@ -133,6 +140,34 @@ export const Example: React.FC = () => {
 	});
 
 	expect(serialized).toContain('interpolate');
+	expect(serialized).not.toContain('interpolateColors');
+	expect(serialized).toContain('extrapolateLeft: "clamp"');
+	expect(serialized).toContain('extrapolateRight: "clamp"');
+	expect(serialized).toContain('useCurrentFrame');
+	expect(serialized).toContain('const frame = useCurrentFrame();');
+});
+
+test('adds interpolateTransformOrigin import for transform-origin conversion', () => {
+	const input = `import React from 'react';
+import {AbsoluteFill} from 'remotion';
+
+export const Example: React.FC = () => {
+\treturn <AbsoluteFill style={{transformOrigin: '50% 50%'}} />;
+};
+`;
+	const {serialized} = updateSequenceKeyframesAst({
+		input,
+		nodePath: lineColumnToNodePath(input, getLine(input, '<AbsoluteFill')),
+		schema: transformOriginSchema,
+		updates: [
+			{
+				key: 'style.transformOrigin',
+				operation: {type: 'add', frame: 44, value: 'left top'},
+			},
+		],
+	});
+
+	expect(serialized).toContain('interpolateTransformOrigin');
 	expect(serialized).not.toContain('interpolateColors');
 	expect(serialized).toContain('extrapolateLeft: "clamp"');
 	expect(serialized).toContain('extrapolateRight: "clamp"');

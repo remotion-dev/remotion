@@ -127,6 +127,40 @@ export const Example: React.FC = () => {
 	});
 });
 
+test('computeSequencePropsStatus should return keyframes for interpolated transformOrigin props', () => {
+	const input = `import React from 'react';
+import {Sequence, interpolateTransformOrigin, useCurrentFrame} from 'remotion';
+
+export const Example: React.FC = () => {
+\tconst frame = useCurrentFrame();
+\treturn (
+\t\t<Sequence style={{transformOrigin: interpolateTransformOrigin(frame, [0, 100], ['left top', 'right bottom'])}} />
+\t);
+};
+`;
+	const result = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 7),
+		keys: ['style.transformOrigin'],
+		effects: [],
+	});
+
+	expect(result.canUpdate).toBe(true);
+	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
+
+	expect(result.props['style.transformOrigin']).toEqual({
+		status: 'keyframed',
+		interpolationFunction: 'interpolateTransformOrigin',
+		keyframes: [
+			{frame: 0, value: 'left top'},
+			{frame: 100, value: 'right bottom'},
+		],
+		easing: ['linear'],
+		clamping: {left: 'extend', right: 'extend'},
+		posterize: undefined,
+	});
+});
+
 test('computeSequencePropsStatus should flag interpolations over computed values as computed', () => {
 	const input = `import React from 'react';
 import {Sequence, interpolate, useCurrentFrame} from 'remotion';

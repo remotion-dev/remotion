@@ -118,6 +118,46 @@ test('optimisticAddSequenceKeyframe uses interpolate for rotation-css fields', (
 	expect(status.clamping).toEqual({left: 'clamp', right: 'clamp'});
 });
 
+test('optimisticAddSequenceKeyframe uses interpolateTransformOrigin for transform-origin fields', () => {
+	const previous: CanUpdateSequencePropsResponse = {
+		canUpdate: true,
+		props: {
+			'style.transformOrigin': {
+				status: 'static',
+				codeValue: '50% 50%',
+			},
+		},
+		effects: [],
+	};
+	const schema = {
+		'style.transformOrigin': {
+			type: 'transform-origin',
+			default: '50% 50%',
+		},
+	} satisfies SequenceSchema;
+
+	const updated = optimisticAddSequenceKeyframe({
+		previous,
+		fieldKey: 'style.transformOrigin',
+		frame: 44,
+		value: 'left top',
+		schema,
+	});
+
+	if (!updated.canUpdate) {
+		throw new Error('expected updateable sequence');
+	}
+
+	const status = updated.props['style.transformOrigin'];
+	if (!status || status.status !== 'keyframed') {
+		throw new Error('expected keyframed status');
+	}
+
+	expect(status.interpolationFunction).toBe('interpolateTransformOrigin');
+	expect(status.keyframes).toEqual([{frame: 44, value: 'left top'}]);
+	expect(status.clamping).toEqual({left: 'clamp', right: 'clamp'});
+});
+
 test('optimisticAddSequenceKeyframe ignores non-keyframable fields', () => {
 	const previous: CanUpdateSequencePropsResponse = {
 		canUpdate: true,

@@ -1,0 +1,140 @@
+---
+image: /generated/articles-docs-interpolate-transform-origin.png
+title: interpolateTransformOrigin()
+id: interpolate-transform-origin
+crumb: 'API'
+---
+
+# interpolateTransformOrigin()<AvailableFrom v="4.0.475" />
+
+Interpolates CSS `transform-origin` values.
+
+It supports percentages, lengths, and the `left`, `center`, `right`, `top`, and `bottom` keywords.
+
+## Example
+
+```tsx twoslash title="MyComposition.tsx"
+import {interpolateTransformOrigin, useCurrentFrame} from 'remotion';
+
+export const MyComposition: React.FC = () => {
+  const frame = useCurrentFrame();
+
+  return (
+    <div
+      style={{
+        transformOrigin: interpolateTransformOrigin(
+          frame,
+          [0, 30],
+          ['left top', 'right bottom'],
+        ),
+        rotate: '45deg',
+      }}
+    />
+  );
+};
+```
+
+At frame `15`, the returned value is `50% 50%`.
+
+## API
+
+Takes four arguments:
+
+1. The input value.
+2. The range of values that you expect the input to assume.
+3. The range of `transform-origin` values that you want the input to map to.
+4. Options object.
+
+`inputRange` and `outputRange` must have the same length and at least one value.
+
+## Supported values
+
+### Keywords
+
+The following keywords are supported:
+
+`left`, `center`, `right`, `top`, `bottom`.
+
+Keywords are normalized to percentages before interpolation. `left top` is equivalent to `0% 0%`, and `right bottom` is equivalent to `100% 100%`.
+
+Single keywords default the other axis to `center`: `left` becomes `0% 50%`, and `top` becomes `50% 0%`.
+
+### Percentages
+
+Percentages are supported for the x and y components.
+
+```ts twoslash title="MyComposition.tsx"
+import {interpolateTransformOrigin} from 'remotion';
+
+const origin = interpolateTransformOrigin(0.5, [0, 1], [
+  '0% 0%',
+  '100% 100%',
+]); // "50% 50%"
+```
+
+### Lengths
+
+CSS length units such as `px`, `em`, `rem`, `vh`, and `vw` are supported.
+
+```ts twoslash title="MyComposition.tsx"
+import {interpolateTransformOrigin} from 'remotion';
+
+const origin = interpolateTransformOrigin(0.5, [0, 1], [
+  '0px 20px',
+  '100px 40px',
+]); // "50px 30px"
+```
+
+Units must match per axis. For example, `left top` cannot be interpolated with `100px 40px`.
+
+### Z component
+
+A third component is treated as the z offset and must be a length.
+
+If one value omits the z component, it defaults to `0`.
+
+```ts twoslash title="MyComposition.tsx"
+import {interpolateTransformOrigin} from 'remotion';
+
+const origin = interpolateTransformOrigin(0.5, [0, 1], [
+  '50% 50%',
+  '50% 50% 10px',
+]); // "50% 50% 5px"
+```
+
+## Options
+
+Uses the same options object as [`interpolate()`](/docs/interpolate):
+
+### extrapolateLeft?
+
+Default: `extend`.
+
+Controls what happens if the input is smaller than the first value in `inputRange`.
+
+### extrapolateRight?
+
+Default: `extend`.
+
+Controls what happens if the input is larger than the last value in `inputRange`.
+
+### easing?
+
+Default: linear interpolation.
+
+Pass an easing function or an array of easing functions. See [`interpolate()`](/docs/interpolate#easing) for details.
+
+### posterize?
+
+Default: no posterization.
+
+Quantizes the input value before interpolation.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/interpolate-transform-origin.ts)
+- [interpolate()](/docs/interpolate)
