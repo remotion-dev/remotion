@@ -6,6 +6,7 @@ import {BLUE, LINE_COLOR} from '../../helpers/colors';
 import {getXPositionOfItemInTimelineImperatively} from '../../helpers/get-left-of-timeline-slider';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
+import {ModalsContext} from '../../state/modals';
 import {ContextMenuForTarget} from '../ContextMenu';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {
@@ -15,6 +16,7 @@ import {
 import {TimelineWidthContext} from './TimelineWidthProvider';
 import {
 	getEasingSelections,
+	getTimelineEasingValueForSelection,
 	updateSelectedTimelineEasings,
 } from './update-selected-easing';
 
@@ -68,6 +70,14 @@ const TimelineKeyframeEasingLineUnmemoized: React.FC<{
 		Internals.OverrideIdsToNodePathsGettersContext,
 	);
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
+	const {setSelectedModal} = useContext(ModalsContext);
+
+	const getTargetSelections = useCallback(() => {
+		const selectedEasings = getEasingSelections(
+			currentSelection.current.selectedItems,
+		);
+		return selected ? selectedEasings : [selectionItem];
+	}, [currentSelection, selected, selectionItem]);
 
 	const updateEasing = useCallback(
 		(easing: (typeof KEYFRAME_EASING_PRESETS)[number]['easing']) => {
@@ -75,12 +85,8 @@ const TimelineKeyframeEasingLineUnmemoized: React.FC<{
 				return;
 			}
 
-			const selectedEasings = getEasingSelections(
-				currentSelection.current.selectedItems,
-			);
-			const selections = selected ? selectedEasings : [selectionItem];
 			const promise = updateSelectedTimelineEasings({
-				selections,
+				selections: getTargetSelections(),
 				sequences: sequencesRef.current,
 				overrideIdsToNodePaths: overrideIdToNodePathMappings,
 				propStatuses: propStatusesRef.current,
@@ -91,31 +97,78 @@ const TimelineKeyframeEasingLineUnmemoized: React.FC<{
 			promise?.catch(() => undefined);
 		},
 		[
-			currentSelection,
+			getTargetSelections,
 			overrideIdToNodePathMappings,
 			previewServerState,
 			propStatusesRef,
-			selected,
-			selectionItem,
 			sequencesRef,
 			setPropStatuses,
 		],
 	);
 
+	const onOpenEasingEditor = useCallback(() => {
+		if (previewServerState.type !== 'connected') {
+			return;
+		}
+
+		const initialEasing = getTimelineEasingValueForSelection({
+			selection: selectionItem,
+			sequences: sequencesRef.current,
+			overrideIdsToNodePaths: overrideIdToNodePathMappings,
+			propStatuses: propStatusesRef.current,
+		});
+
+		if (initialEasing === null) {
+			return;
+		}
+
+		setSelectedModal({
+			type: 'easing-editor',
+			initialEasing,
+			selections: getTargetSelections(),
+		});
+	}, [
+		getTargetSelections,
+		overrideIdToNodePathMappings,
+		previewServerState,
+		propStatusesRef,
+		selectionItem,
+		sequencesRef,
+		setSelectedModal,
+	]);
+
 	const contextMenuValues = useMemo((): ComboboxValue[] => {
-		return KEYFRAME_EASING_PRESETS.map((preset) => ({
-			type: 'item',
-			id: preset.id,
-			keyHint: null,
-			label: preset.label,
-			leftItem: null,
-			disabled: previewServerState.type !== 'connected',
-			onClick: () => updateEasing(preset.easing),
-			quickSwitcherLabel: null,
-			subMenu: null,
-			value: preset.id,
-		}));
-	}, [previewServerState.type, updateEasing]);
+		return [
+			...KEYFRAME_EASING_PRESETS.map((preset) => ({
+				type: 'item' as const,
+				id: preset.id,
+				keyHint: null,
+				label: preset.label,
+				leftItem: null,
+				disabled: previewServerState.type !== 'connected',
+				onClick: () => updateEasing(preset.easing),
+				quickSwitcherLabel: null,
+				subMenu: null,
+				value: preset.id,
+			})),
+			{
+				type: 'divider' as const,
+				id: 'edit-easing-divider',
+			},
+			{
+				type: 'item',
+				id: 'edit-easing',
+				keyHint: null,
+				label: 'Edit...',
+				leftItem: null,
+				disabled: previewServerState.type !== 'connected',
+				onClick: onOpenEasingEditor,
+				quickSwitcherLabel: null,
+				subMenu: null,
+				value: 'edit-easing',
+			},
+		];
+	}, [onOpenEasingEditor, previewServerState.type, updateEasing]);
 
 	const onOpenContextMenu = useCallback(
 		(event: MouseEvent) => {
