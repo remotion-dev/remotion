@@ -336,23 +336,27 @@ export const Example: React.FC = () => {
 	expect(output).toContain('posterize: 2');
 });
 
-test('updateSequenceKeyframes rejects easing updates for color keyframes', async () => {
-	await expect(
-		updateSequenceKeyframes({
-			input: colorInput,
-			nodePath: lineColumnToNodePath(colorInput, getLine(colorInput, '<Solid')),
-			updates: [
-				{
-					key: 'color',
-					operation: {
-						type: 'easing',
-						segmentIndex: 0,
-						easing: [0.42, 0, 1, 1],
-					},
+test('updateSequenceKeyframes sets easing for color keyframes', async () => {
+	const {output} = await updateSequenceKeyframes({
+		input: colorInput,
+		nodePath: lineColumnToNodePath(colorInput, getLine(colorInput, '<Solid')),
+		updates: [
+			{
+				key: 'color',
+				operation: {
+					type: 'easing',
+					segmentIndex: 0,
+					easing: [0.42, 0, 1, 1],
 				},
-			],
-		}),
-	).rejects.toThrow(/color keyframes/);
+			},
+		],
+	});
+
+	expect(output).toContain('Easing');
+	expect(output).toContain(
+		"interpolateColors(frame, [0, 100], ['red', 'blue'], {",
+	);
+	expect(output).toContain('easing: [Easing.bezier(0.42, 0, 1, 1)]');
 });
 
 test('updateSequenceKeyframes only updates posterize for color keyframes', async () => {

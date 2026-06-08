@@ -49,6 +49,7 @@ export const interpolateKeyframedStatus = ({
 
 		try {
 			return interpolateColors(frame, inputRange, outputs as string[], {
+				easing: easing.map(easingToFn),
 				posterize: status.posterize,
 			});
 		} catch {

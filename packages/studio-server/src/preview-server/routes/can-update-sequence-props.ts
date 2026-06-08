@@ -332,10 +332,6 @@ const getInterpolationMetadata = (
 		const value = property.value as Expression;
 
 		if (key === 'easing') {
-			if (interpolationFunction === 'interpolateColors') {
-				return null;
-			}
-
 			const parsedEasing = getKeyframeEasingArray({
 				easingNode: value,
 				segments,

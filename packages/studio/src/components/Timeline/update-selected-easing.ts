@@ -12,6 +12,12 @@ import type {TimelineSelection} from './TimelineSelection';
 type EasingSelection = TimelineSelection & {type: 'easing'};
 export type TimelineEasingValue = 'linear' | [number, number, number, number];
 
+const canEditEasingForInterpolationFunction = (
+	interpolationFunction: string,
+): boolean =>
+	interpolationFunction === 'interpolate' ||
+	interpolationFunction === 'interpolateColors';
+
 const isEasingSelection = (
 	selection: TimelineSelection,
 ): selection is EasingSelection => selection.type === 'easing';
@@ -58,7 +64,9 @@ const getSelectedEasingUpdate = ({
 		)?.[field.fieldKey];
 		if (
 			sequencePropStatus?.status !== 'keyframed' ||
-			sequencePropStatus.interpolationFunction !== 'interpolate'
+			!canEditEasingForInterpolationFunction(
+				sequencePropStatus.interpolationFunction,
+			)
 		) {
 			return null;
 		}
@@ -89,7 +97,9 @@ const getSelectedEasingUpdate = ({
 			: null;
 	if (
 		effectPropStatus?.status !== 'keyframed' ||
-		effectPropStatus.interpolationFunction !== 'interpolate'
+		!canEditEasingForInterpolationFunction(
+			effectPropStatus.interpolationFunction,
+		)
 	) {
 		return null;
 	}
