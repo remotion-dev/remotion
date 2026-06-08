@@ -26,7 +26,8 @@ Generate a single React component that uses Remotion.
 Rules:
 - Export the component as a named export called "MyComposition"
 - Use useCurrentFrame() and useVideoConfig() from "remotion"
-- Animate values with interpolate() or spring() as appropriate
+- Prefer interpolate() with Easing over spring() unless physics-based motion is explicitly requested
+- Use inline interpolate() calls in style props and prefer scale, translate, rotate over transform strings
 - Only output the code, no markdown or explanations
 `.trim();
 
@@ -76,7 +77,8 @@ Generate a React component that uses Remotion. For the code property, ALWAYS dir
 Rules:
 - The component should be a named export called "MyComposition"
 - Use useCurrentFrame() and useVideoConfig() from "remotion"
-- Animate with interpolate() (and Easing from "remotion" when needed) or spring() as appropriate
+- Prefer interpolate() with Easing from "remotion" over spring() unless physics-based motion is explicitly requested
+- Use inline interpolate() calls in style props and prefer scale, translate, rotate over transform strings
 - Keep it self-contained with no external dependencies
 `.trim();
 
