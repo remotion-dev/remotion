@@ -2,10 +2,11 @@ import {KEYFRAME_EASING_PRESETS} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useMemo, useRef} from 'react';
 import {Internals, useVideoConfig} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
-import {BLUE, LINE_COLOR} from '../../helpers/colors';
+import {BLUE} from '../../helpers/colors';
 import {getXPositionOfItemInTimelineImperatively} from '../../helpers/get-left-of-timeline-slider';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
+import {ModalsContext} from '../../state/modals';
 import {ContextMenuForTarget} from '../ContextMenu';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {
@@ -15,6 +16,8 @@ import {
 import {TimelineWidthContext} from './TimelineWidthProvider';
 import {
 	getEasingSelections,
+	getTimelineEasingValueForSelection,
+	type TimelineEasingValue,
 	updateSelectedTimelineEasings,
 } from './update-selected-easing';
 
@@ -31,7 +34,7 @@ const easingLineButton: React.CSSProperties = {
 };
 
 const easingLine: React.CSSProperties = {
-	backgroundColor: LINE_COLOR,
+	backgroundColor: 'rgba(255, 255, 255, 0.1)',
 	borderRadius: lineHeight / 2,
 	height: lineHeight,
 	left: 0,
@@ -68,19 +71,23 @@ const TimelineKeyframeEasingLineUnmemoized: React.FC<{
 		Internals.OverrideIdsToNodePathsGettersContext,
 	);
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
+	const {setSelectedModal} = useContext(ModalsContext);
+
+	const getTargetSelections = useCallback(() => {
+		const selectedEasings = getEasingSelections(
+			currentSelection.current.selectedItems,
+		);
+		return selected ? selectedEasings : [selectionItem];
+	}, [currentSelection, selected, selectionItem]);
 
 	const updateEasing = useCallback(
-		(easing: (typeof KEYFRAME_EASING_PRESETS)[number]['easing']) => {
+		(easing: TimelineEasingValue) => {
 			if (previewServerState.type !== 'connected') {
 				return;
 			}
 
-			const selectedEasings = getEasingSelections(
-				currentSelection.current.selectedItems,
-			);
-			const selections = selected ? selectedEasings : [selectionItem];
 			const promise = updateSelectedTimelineEasings({
-				selections,
+				selections: getTargetSelections(),
 				sequences: sequencesRef.current,
 				overrideIdsToNodePaths: overrideIdToNodePathMappings,
 				propStatuses: propStatusesRef.current,
@@ -91,31 +98,90 @@ const TimelineKeyframeEasingLineUnmemoized: React.FC<{
 			promise?.catch(() => undefined);
 		},
 		[
-			currentSelection,
+			getTargetSelections,
 			overrideIdToNodePathMappings,
 			previewServerState,
 			propStatusesRef,
-			selected,
-			selectionItem,
 			sequencesRef,
 			setPropStatuses,
 		],
 	);
 
+	const onOpenEasingEditor = useCallback(() => {
+		if (previewServerState.type !== 'connected') {
+			return;
+		}
+
+		const initialEasing = getTimelineEasingValueForSelection({
+			selection: selectionItem,
+			sequences: sequencesRef.current,
+			overrideIdsToNodePaths: overrideIdToNodePathMappings,
+			propStatuses: propStatusesRef.current,
+		});
+
+		if (initialEasing === null) {
+			return;
+		}
+
+		setSelectedModal({
+			type: 'easing-editor',
+			initialEasing,
+			selections: getTargetSelections(),
+		});
+	}, [
+		getTargetSelections,
+		overrideIdToNodePathMappings,
+		previewServerState,
+		propStatusesRef,
+		selectionItem,
+		sequencesRef,
+		setSelectedModal,
+	]);
+
 	const contextMenuValues = useMemo((): ComboboxValue[] => {
-		return KEYFRAME_EASING_PRESETS.map((preset) => ({
-			type: 'item',
-			id: preset.id,
-			keyHint: null,
-			label: preset.label,
-			leftItem: null,
-			disabled: previewServerState.type !== 'connected',
-			onClick: () => updateEasing(preset.easing),
-			quickSwitcherLabel: null,
-			subMenu: null,
-			value: preset.id,
-		}));
-	}, [previewServerState.type, updateEasing]);
+		return [
+			{
+				type: 'item',
+				id: 'linear',
+				keyHint: null,
+				label: 'Linear',
+				leftItem: null,
+				disabled: previewServerState.type !== 'connected',
+				onClick: () => updateEasing('linear'),
+				quickSwitcherLabel: null,
+				subMenu: null,
+				value: 'linear',
+			},
+			...KEYFRAME_EASING_PRESETS.map((preset) => ({
+				type: 'item' as const,
+				id: preset.id,
+				keyHint: null,
+				label: preset.label,
+				leftItem: null,
+				disabled: previewServerState.type !== 'connected',
+				onClick: () => updateEasing(preset.easing),
+				quickSwitcherLabel: null,
+				subMenu: null,
+				value: preset.id,
+			})),
+			{
+				type: 'divider' as const,
+				id: 'edit-easing-divider',
+			},
+			{
+				type: 'item',
+				id: 'edit-easing',
+				keyHint: null,
+				label: 'Edit...',
+				leftItem: null,
+				disabled: previewServerState.type !== 'connected',
+				onClick: onOpenEasingEditor,
+				quickSwitcherLabel: null,
+				subMenu: null,
+				value: 'edit-easing',
+			},
+		];
+	}, [onOpenEasingEditor, previewServerState.type, updateEasing]);
 
 	const onOpenContextMenu = useCallback(
 		(event: MouseEvent) => {

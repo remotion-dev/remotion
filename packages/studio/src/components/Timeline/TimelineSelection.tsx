@@ -100,6 +100,11 @@ export type TimelineSelection =
 			readonly segmentIndex: number;
 	  });
 
+export type TimelineEasingSelection = Extract<
+	TimelineSelection,
+	{type: 'easing'}
+>;
+
 export type TimelineSelectionInteraction = {
 	readonly shiftKey: boolean;
 	readonly toggleKey: boolean;
@@ -740,7 +745,7 @@ export const useTimelineEasingSelection = ({
 	const {canSelectEasing, isSelected, selectItem, registerSelectableItem} =
 		useTimelineSelection();
 	const selectionItem = useMemo(
-		(): TimelineSelection => ({
+		(): TimelineEasingSelection => ({
 			type: 'easing',
 			nodePathInfo,
 			fromFrame,

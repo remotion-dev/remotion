@@ -7,9 +7,12 @@ import {
 import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
 import {parseKeyframeFieldFromNodePath} from './parse-keyframe-field-from-node-path';
 import type {SetPropStatuses} from './save-sequence-prop';
-import type {TimelineSelection} from './TimelineSelection';
+import type {
+	TimelineEasingSelection,
+	TimelineSelection,
+} from './TimelineSelection';
 
-type EasingSelection = TimelineSelection & {type: 'easing'};
+export type EasingSelection = TimelineEasingSelection;
 export type TimelineEasingValue = 'linear' | [number, number, number, number];
 
 const canEditEasingForInterpolationFunction = (
@@ -78,6 +81,8 @@ const getSelectedEasingUpdate = ({
 			fieldKey: field.fieldKey,
 			schema: sequence.controls.schema,
 			segmentIndex: selection.segmentIndex,
+			currentEasing:
+				sequencePropStatus.easing[selection.segmentIndex] ?? 'linear',
 		};
 	}
 
@@ -112,12 +117,34 @@ const getSelectedEasingUpdate = ({
 		fieldKey: field.fieldKey,
 		schema: effect.schema,
 		segmentIndex: selection.segmentIndex,
+		currentEasing: effectPropStatus.easing[selection.segmentIndex] ?? 'linear',
 	};
 };
 
 export const getEasingSelections = (
 	selections: readonly TimelineSelection[],
 ): EasingSelection[] => selections.filter(isEasingSelection);
+
+export const getTimelineEasingValueForSelection = ({
+	selection,
+	sequences,
+	overrideIdsToNodePaths,
+	propStatuses,
+}: {
+	selection: EasingSelection;
+	sequences: TSequence[];
+	overrideIdsToNodePaths: OverrideIdToNodePaths;
+	propStatuses: PropStatuses;
+}): TimelineEasingValue | null => {
+	return (
+		getSelectedEasingUpdate({
+			selection,
+			sequences,
+			overrideIdsToNodePaths,
+			propStatuses,
+		})?.currentEasing ?? null
+	);
+};
 
 export const updateSelectedTimelineEasings = ({
 	selections,

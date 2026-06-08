@@ -26,6 +26,7 @@ import type {_InternalTypes} from 'remotion';
 import type {CompType} from '../components/NewComposition/DuplicateComposition';
 import type {QuickSwitcherMode} from '../components/QuickSwitcher/NoResults';
 import type {RenderType} from '../components/RenderModal/RenderModalAdvanced';
+import type {EasingEditorModalState} from '../components/Timeline/EasingEditorModal';
 import type {KeyframeSettingsModalState} from '../components/Timeline/KeyframeSettingsModal';
 import type {Bug, UpdateInfo} from '../components/UpdateCheck';
 
@@ -153,6 +154,7 @@ export type ModalState =
 	| {
 			type: 'input-props-override';
 	  }
+	| EasingEditorModalState
 	| KeyframeSettingsModalState
 	| RenderModalState
 	| WebRenderModalState
