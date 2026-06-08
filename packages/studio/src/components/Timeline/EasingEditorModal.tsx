@@ -30,39 +30,32 @@ type CubicBezier = [number, number, number, number];
 type HandleIndex = 0 | 1;
 type Coordinate = 'x' | 'y';
 
-const SVG_WIDTH = 320;
-const SVG_HEIGHT = 220;
+const SVG_WIDTH = 560;
+const SVG_HEIGHT = 320;
 const PLOT_LEFT = 42;
-const PLOT_TOP = 20;
-const PLOT_WIDTH = 240;
-const PLOT_HEIGHT = 160;
-const Y_MIN = -1;
-const Y_MAX = 2;
-const LINEAR_BEZIER: CubicBezier = [0, 0, 1, 1];
+const PLOT_TOP = 28;
+const PLOT_WIDTH = 500;
+const PLOT_HEIGHT = 260;
+const Y_MIN = -4;
+const Y_MAX = 5;
+const LINEAR_BEZIER: CubicBezier = [0.25, 0.25, 0.75, 0.75];
 
 const container: React.CSSProperties = {
 	padding: 16,
-	width: 520,
+	width: 600,
 };
 
-const editorRow: React.CSSProperties = {
-	display: 'flex',
-	gap: 18,
-	alignItems: 'flex-start',
-};
-
-const editorColumn: React.CSSProperties = {
-	display: 'flex',
-	flexDirection: 'column',
+const coordinatesGrid: React.CSSProperties = {
+	display: 'grid',
+	gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
 	gap: 10,
-	flex: 1,
+	marginTop: 12,
 };
 
 const coordinateRow: React.CSSProperties = {
-	alignItems: 'center',
-	display: 'grid',
-	gridTemplateColumns: '56px 1fr',
-	gap: 8,
+	display: 'flex',
+	flexDirection: 'column',
+	gap: 4,
 };
 
 const coordinateLabel: React.CSSProperties = {
@@ -89,6 +82,7 @@ const svgStyle: React.CSSProperties = {
 	border: `1px solid ${INPUT_BORDER_COLOR_UNHOVERED}`,
 	borderRadius: 6,
 	display: 'block',
+	width: '100%',
 };
 
 const hiddenSubmit: React.CSSProperties = {
@@ -114,7 +108,7 @@ const roundCoordinate = (value: number) => Math.round(value * 10000) / 10000;
 
 const serializeBezier = (bezier: CubicBezier): TimelineEasingValue => {
 	const rounded = sanitizeBezier(bezier).map(roundCoordinate) as CubicBezier;
-	if (rounded.every((value, index) => value === LINEAR_BEZIER[index])) {
+	if (rounded[0] === rounded[1] && rounded[2] === rounded[3]) {
 		return 'linear';
 	}
 
@@ -331,155 +325,153 @@ export const EasingEditorModal: React.FC<{
 			<ModalHeader title="Edit easing" />
 			<form onSubmit={onSubmit}>
 				<div style={container}>
-					<div style={editorRow}>
-						<svg
-							ref={svgRef}
-							width={SVG_WIDTH}
-							height={SVG_HEIGHT}
-							viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`}
-							style={svgStyle}
-							aria-label="Bezier curve editor"
-						>
-							<line
-								x1={PLOT_LEFT}
-								y1={yZero}
-								x2={PLOT_LEFT + PLOT_WIDTH}
-								y2={yZero}
-								stroke={INPUT_BORDER_COLOR_HOVERED}
-								strokeWidth={1}
+					<svg
+						ref={svgRef}
+						width={SVG_WIDTH}
+						height={SVG_HEIGHT}
+						viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`}
+						style={svgStyle}
+						aria-label="Bezier curve editor"
+					>
+						<line
+							x1={PLOT_LEFT}
+							y1={yZero}
+							x2={PLOT_LEFT + PLOT_WIDTH}
+							y2={yZero}
+							stroke={INPUT_BORDER_COLOR_HOVERED}
+							strokeWidth={1}
+						/>
+						<line
+							x1={PLOT_LEFT}
+							y1={yOne}
+							x2={PLOT_LEFT + PLOT_WIDTH}
+							y2={yOne}
+							stroke={INPUT_BORDER_COLOR_HOVERED}
+							strokeWidth={1}
+						/>
+						<rect
+							x={PLOT_LEFT}
+							y={PLOT_TOP}
+							width={PLOT_WIDTH}
+							height={PLOT_HEIGHT}
+							fill="none"
+							stroke={INPUT_BORDER_COLOR_UNHOVERED}
+							strokeWidth={1}
+						/>
+						<line
+							x1={startPoint.x}
+							y1={startPoint.y}
+							x2={firstHandle.x}
+							y2={firstHandle.y}
+							stroke="rgba(255, 255, 255, 0.35)"
+							strokeWidth={1}
+						/>
+						<line
+							x1={endPoint.x}
+							y1={endPoint.y}
+							x2={secondHandle.x}
+							y2={secondHandle.y}
+							stroke="rgba(255, 255, 255, 0.35)"
+							strokeWidth={1}
+						/>
+						<path d={path} fill="none" stroke={BLUE} strokeWidth={3} />
+						<circle cx={startPoint.x} cy={startPoint.y} r={4} fill="white" />
+						<circle cx={endPoint.x} cy={endPoint.y} r={4} fill="white" />
+						<circle
+							cx={firstHandle.x}
+							cy={firstHandle.y}
+							r={8}
+							fill={BLUE}
+							style={{cursor: activeHandle === 0 ? 'grabbing' : 'grab'}}
+							onPointerDown={(event) => onHandlePointerDown(0, event)}
+						/>
+						<circle
+							cx={secondHandle.x}
+							cy={secondHandle.y}
+							r={8}
+							fill={BLUE}
+							style={{cursor: activeHandle === 1 ? 'grabbing' : 'grab'}}
+							onPointerDown={(event) => onHandlePointerDown(1, event)}
+						/>
+						<text x={PLOT_LEFT - 22} y={yZero + 4} fill="white" fontSize={11}>
+							0
+						</text>
+						<text x={PLOT_LEFT - 22} y={yOne + 4} fill="white" fontSize={11}>
+							1
+						</text>
+					</svg>
+					<div style={coordinatesGrid}>
+						<div style={coordinateRow}>
+							<div style={coordinateLabel}>X1</div>
+							<InputDragger
+								type="number"
+								value={bezier[0]}
+								status="ok"
+								onValueChange={(value) => setCoordinate(0, 'x', value)}
+								onValueChangeEnd={(value) => setCoordinate(0, 'x', value)}
+								onTextChange={() => undefined}
+								min={0}
+								max={1}
+								step={0.01}
+								formatter={formatNumber}
+								rightAlign
+								style={numberInputStyle}
+								snapToStep={false}
 							/>
-							<line
-								x1={PLOT_LEFT}
-								y1={yOne}
-								x2={PLOT_LEFT + PLOT_WIDTH}
-								y2={yOne}
-								stroke={INPUT_BORDER_COLOR_HOVERED}
-								strokeWidth={1}
+						</div>
+						<div style={coordinateRow}>
+							<div style={coordinateLabel}>Y1</div>
+							<InputDragger
+								type="number"
+								value={bezier[1]}
+								status="ok"
+								onValueChange={(value) => setCoordinate(0, 'y', value)}
+								onValueChangeEnd={(value) => setCoordinate(0, 'y', value)}
+								onTextChange={() => undefined}
+								min={Y_MIN}
+								max={Y_MAX}
+								step={0.01}
+								formatter={formatNumber}
+								rightAlign
+								style={numberInputStyle}
+								snapToStep={false}
 							/>
-							<rect
-								x={PLOT_LEFT}
-								y={PLOT_TOP}
-								width={PLOT_WIDTH}
-								height={PLOT_HEIGHT}
-								fill="none"
-								stroke={INPUT_BORDER_COLOR_UNHOVERED}
-								strokeWidth={1}
+						</div>
+						<div style={coordinateRow}>
+							<div style={coordinateLabel}>X2</div>
+							<InputDragger
+								type="number"
+								value={bezier[2]}
+								status="ok"
+								onValueChange={(value) => setCoordinate(1, 'x', value)}
+								onValueChangeEnd={(value) => setCoordinate(1, 'x', value)}
+								onTextChange={() => undefined}
+								min={0}
+								max={1}
+								step={0.01}
+								formatter={formatNumber}
+								rightAlign
+								style={numberInputStyle}
+								snapToStep={false}
 							/>
-							<line
-								x1={startPoint.x}
-								y1={startPoint.y}
-								x2={firstHandle.x}
-								y2={firstHandle.y}
-								stroke="rgba(255, 255, 255, 0.35)"
-								strokeWidth={1}
+						</div>
+						<div style={coordinateRow}>
+							<div style={coordinateLabel}>Y2</div>
+							<InputDragger
+								type="number"
+								value={bezier[3]}
+								status="ok"
+								onValueChange={(value) => setCoordinate(1, 'y', value)}
+								onValueChangeEnd={(value) => setCoordinate(1, 'y', value)}
+								onTextChange={() => undefined}
+								min={Y_MIN}
+								max={Y_MAX}
+								step={0.01}
+								formatter={formatNumber}
+								rightAlign
+								style={numberInputStyle}
+								snapToStep={false}
 							/>
-							<line
-								x1={endPoint.x}
-								y1={endPoint.y}
-								x2={secondHandle.x}
-								y2={secondHandle.y}
-								stroke="rgba(255, 255, 255, 0.35)"
-								strokeWidth={1}
-							/>
-							<path d={path} fill="none" stroke={BLUE} strokeWidth={3} />
-							<circle cx={startPoint.x} cy={startPoint.y} r={4} fill="white" />
-							<circle cx={endPoint.x} cy={endPoint.y} r={4} fill="white" />
-							<circle
-								cx={firstHandle.x}
-								cy={firstHandle.y}
-								r={8}
-								fill={BLUE}
-								style={{cursor: activeHandle === 0 ? 'grabbing' : 'grab'}}
-								onPointerDown={(event) => onHandlePointerDown(0, event)}
-							/>
-							<circle
-								cx={secondHandle.x}
-								cy={secondHandle.y}
-								r={8}
-								fill={BLUE}
-								style={{cursor: activeHandle === 1 ? 'grabbing' : 'grab'}}
-								onPointerDown={(event) => onHandlePointerDown(1, event)}
-							/>
-							<text x={PLOT_LEFT - 22} y={yZero + 4} fill="white" fontSize={11}>
-								0
-							</text>
-							<text x={PLOT_LEFT - 22} y={yOne + 4} fill="white" fontSize={11}>
-								1
-							</text>
-						</svg>
-						<div style={editorColumn}>
-							<div style={coordinateRow}>
-								<div style={coordinateLabel}>X1</div>
-								<InputDragger
-									type="number"
-									value={bezier[0]}
-									status="ok"
-									onValueChange={(value) => setCoordinate(0, 'x', value)}
-									onValueChangeEnd={(value) => setCoordinate(0, 'x', value)}
-									onTextChange={() => undefined}
-									min={0}
-									max={1}
-									step={0.01}
-									formatter={formatNumber}
-									rightAlign
-									style={numberInputStyle}
-									snapToStep={false}
-								/>
-							</div>
-							<div style={coordinateRow}>
-								<div style={coordinateLabel}>Y1</div>
-								<InputDragger
-									type="number"
-									value={bezier[1]}
-									status="ok"
-									onValueChange={(value) => setCoordinate(0, 'y', value)}
-									onValueChangeEnd={(value) => setCoordinate(0, 'y', value)}
-									onTextChange={() => undefined}
-									min={Y_MIN}
-									max={Y_MAX}
-									step={0.01}
-									formatter={formatNumber}
-									rightAlign
-									style={numberInputStyle}
-									snapToStep={false}
-								/>
-							</div>
-							<div style={coordinateRow}>
-								<div style={coordinateLabel}>X2</div>
-								<InputDragger
-									type="number"
-									value={bezier[2]}
-									status="ok"
-									onValueChange={(value) => setCoordinate(1, 'x', value)}
-									onValueChangeEnd={(value) => setCoordinate(1, 'x', value)}
-									onTextChange={() => undefined}
-									min={0}
-									max={1}
-									step={0.01}
-									formatter={formatNumber}
-									rightAlign
-									style={numberInputStyle}
-									snapToStep={false}
-								/>
-							</div>
-							<div style={coordinateRow}>
-								<div style={coordinateLabel}>Y2</div>
-								<InputDragger
-									type="number"
-									value={bezier[3]}
-									status="ok"
-									onValueChange={(value) => setCoordinate(1, 'y', value)}
-									onValueChangeEnd={(value) => setCoordinate(1, 'y', value)}
-									onTextChange={() => undefined}
-									min={Y_MIN}
-									max={Y_MAX}
-									step={0.01}
-									formatter={formatNumber}
-									rightAlign
-									style={numberInputStyle}
-									snapToStep={false}
-								/>
-							</div>
 						</div>
 					</div>
 					<div style={helperText}>
