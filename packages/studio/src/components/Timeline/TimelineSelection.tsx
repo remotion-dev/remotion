@@ -124,6 +124,27 @@ export type TimelineSelectionState = {
 
 const getTimelineSelectionType = (item: TimelineSelection) => item.type;
 
+const areTimelineSelectionTypesCompatible = (
+	firstType: TimelineSelection['type'],
+	secondType: TimelineSelection['type'],
+): boolean => {
+	if (firstType === secondType) {
+		return true;
+	}
+
+	return (
+		(firstType === 'sequence-prop' && secondType === 'sequence-effect-prop') ||
+		(firstType === 'sequence-effect-prop' && secondType === 'sequence-prop') ||
+		(firstType === 'keyframe' && secondType === 'easing') ||
+		(firstType === 'easing' && secondType === 'keyframe')
+	);
+};
+
+const isTimelineSelectionCompatibleWithType = (
+	item: TimelineSelection,
+	type: TimelineSelection['type'],
+) => areTimelineSelectionTypesCompatible(getTimelineSelectionType(item), type);
+
 const getTimelineSelectionAnchor = (
 	selectedItems: readonly TimelineSelection[],
 	previousAnchor: TimelineSelection | null,
@@ -210,12 +231,14 @@ export const getTimelineSelectionAfterInteraction = ({
 	}
 
 	if (interaction.toggleKey) {
-		const sameTypeItems = selectedItems.filter(
-			(item) => getTimelineSelectionType(item) === clickedType,
+		const compatibleItems = selectedItems.filter((item) =>
+			isTimelineSelectionCompatibleWithType(item, clickedType),
 		);
-		const existingKeySet = new Set(sameTypeItems.map(getTimelineSelectionKey));
+		const existingKeySet = new Set(
+			compatibleItems.map(getTimelineSelectionKey),
+		);
 		if (existingKeySet.has(clickedKey)) {
-			const toggledSelection = sameTypeItems.filter(
+			const toggledSelection = compatibleItems.filter(
 				(item) => getTimelineSelectionKey(item) !== clickedKey,
 			);
 			return {
@@ -226,10 +249,12 @@ export const getTimelineSelectionAfterInteraction = ({
 
 		const selectableOrderMap = new Map(
 			allSelectableItems
-				.filter((item) => getTimelineSelectionType(item) === clickedType)
+				.filter((item) =>
+					isTimelineSelectionCompatibleWithType(item, clickedType),
+				)
 				.map((item, index) => [getTimelineSelectionKey(item), index] as const),
 		);
-		const extendedSelection = [...sameTypeItems, clickedItem].sort((a, b) => {
+		const extendedSelection = [...compatibleItems, clickedItem].sort((a, b) => {
 			return (
 				(selectableOrderMap.get(getTimelineSelectionKey(a)) ?? 0) -
 				(selectableOrderMap.get(getTimelineSelectionKey(b)) ?? 0)

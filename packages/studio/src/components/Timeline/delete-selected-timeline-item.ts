@@ -215,22 +215,17 @@ const isKeyframeSelection = (
 	type: 'keyframe';
 } => selection.type === 'keyframe';
 
-const assertTimelineSelectionsHaveSameType = (
+const areSelectionsOnlyOfType = (
 	selections: readonly TimelineSelection[],
-): void => {
-	const firstSelection = selections[0];
-	if (!firstSelection) {
-		return;
-	}
+	type: TimelineSelection['type'],
+): boolean => selections.every((selection) => selection.type === type);
 
-	for (const selection of selections) {
-		if (selection.type !== firstSelection.type) {
-			throw new Error(
-				`Assertion failed: Cannot delete timeline selections of different types (${firstSelection.type}, ${selection.type})`,
-			);
-		}
-	}
-};
+const containsOnlyKeyframesAndEasings = (
+	selections: readonly TimelineSelection[],
+): boolean =>
+	selections.every(
+		(selection) => selection.type === 'keyframe' || selection.type === 'easing',
+	);
 
 export const deleteSelectedTimelineItems = ({
 	selections,
@@ -252,10 +247,31 @@ export const deleteSelectedTimelineItems = ({
 		return null;
 	}
 
-	assertTimelineSelectionsHaveSameType(selections);
+	if (containsOnlyKeyframesAndEasings(selections)) {
+		const keyframes = selections.filter(isKeyframeSelection);
+		if (keyframes.length === 0) {
+			return null;
+		}
+
+		const promise = deleteSelectedKeyframes({
+			keyframes: keyframes.map((selection) => ({
+				nodePathInfo: selection.nodePathInfo,
+				frame: selection.frame,
+			})),
+			sequences,
+			overrideIdsToNodePaths,
+			setPropStatuses,
+			clientId,
+		});
+		return promise?.then(() => true) ?? null;
+	}
 
 	switch (firstSelection.type) {
 		case 'sequence':
+			if (!areSelectionsOnlyOfType(selections, 'sequence')) {
+				return null;
+			}
+
 			return deleteSequences(
 				selections
 					.filter(isSequenceRowSelection)
@@ -263,6 +279,10 @@ export const deleteSelectedTimelineItems = ({
 				confirm,
 			);
 		case 'sequence-effect':
+			if (!areSelectionsOnlyOfType(selections, 'sequence-effect')) {
+				return null;
+			}
+
 			return deleteEffects(
 				selections.filter(isSequenceEffectSelection).map((selection) => ({
 					type: 'single-effect',
@@ -270,25 +290,16 @@ export const deleteSelectedTimelineItems = ({
 					effectIndex: selection.i,
 				})),
 			);
-		case 'keyframe': {
-			const promise = deleteSelectedKeyframes({
-				keyframes: selections.filter(isKeyframeSelection).map((selection) => ({
-					nodePathInfo: selection.nodePathInfo,
-					frame: selection.frame,
-				})),
-				sequences,
-				overrideIdsToNodePaths,
-				setPropStatuses,
-				clientId,
-			});
-			return promise?.then(() => true) ?? null;
-		}
-
+		case 'keyframe':
 		case 'sequence-prop':
 		case 'sequence-effect-prop':
 		case 'easing':
 			return null;
 		case 'sequence-all-effects':
+			if (!areSelectionsOnlyOfType(selections, 'sequence-all-effects')) {
+				return null;
+			}
+
 			return deleteEffects(
 				selections.filter(isSequenceAllEffectsSelection).map((selection) => ({
 					type: 'all-effects',

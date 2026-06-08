@@ -102,19 +102,17 @@ export const getTimelinePropResetTargets = ({
 	readonly overrideIdsToNodePaths: OverrideIdToNodePaths;
 	readonly propStatuses: PropStatuses;
 }): TimelinePropResetTarget[] | null => {
-	const firstSelection = selections[0];
-	if (!firstSelection || !isPropResetSelection(firstSelection)) {
+	const propSelections = selections.filter(isPropResetSelection);
+	if (propSelections.length === 0) {
+		return null;
+	}
+
+	if (propSelections.length !== selections.length) {
 		return null;
 	}
 
 	const resetTargets: TimelinePropResetTarget[] = [];
-	for (const selection of selections) {
-		if (!isPropResetSelection(selection)) {
-			throw new Error(
-				`Assertion failed: Cannot reset timeline selections of different types (${firstSelection.type}, ${selection.type})`,
-			);
-		}
-
+	for (const selection of propSelections) {
 		const track = findTrackForNodePathInfo({
 			sequences,
 			overrideIdsToNodePaths,
