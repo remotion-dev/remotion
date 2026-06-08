@@ -215,6 +215,11 @@ const isKeyframeSelection = (
 	type: 'keyframe';
 } => selection.type === 'keyframe';
 
+const areSelectionsOnlyOfType = (
+	selections: readonly TimelineSelection[],
+	type: TimelineSelection['type'],
+): boolean => selections.every((selection) => selection.type === type);
+
 const assertTimelineSelectionsHaveSameType = (
 	selections: readonly TimelineSelection[],
 ): void => {
@@ -231,6 +236,13 @@ const assertTimelineSelectionsHaveSameType = (
 		}
 	}
 };
+
+const containsOnlyKeyframesAndEasings = (
+	selections: readonly TimelineSelection[],
+): boolean =>
+	selections.every(
+		(selection) => selection.type === 'keyframe' || selection.type === 'easing',
+	);
 
 export const deleteSelectedTimelineItems = ({
 	selections,
@@ -252,6 +264,29 @@ export const deleteSelectedTimelineItems = ({
 		return null;
 	}
 
+	if (containsOnlyKeyframesAndEasings(selections)) {
+		const keyframes = selections.filter(isKeyframeSelection);
+		if (keyframes.length === 0) {
+			return null;
+		}
+
+		const promise = deleteSelectedKeyframes({
+			keyframes: keyframes.map((selection) => ({
+				nodePathInfo: selection.nodePathInfo,
+				frame: selection.frame,
+			})),
+			sequences,
+			overrideIdsToNodePaths,
+			setPropStatuses,
+			clientId,
+		});
+		return promise?.then(() => true) ?? null;
+	}
+
+	if (!areSelectionsOnlyOfType(selections, firstSelection.type)) {
+		return null;
+	}
+
 	assertTimelineSelectionsHaveSameType(selections);
 
 	switch (firstSelection.type) {
@@ -270,20 +305,7 @@ export const deleteSelectedTimelineItems = ({
 					effectIndex: selection.i,
 				})),
 			);
-		case 'keyframe': {
-			const promise = deleteSelectedKeyframes({
-				keyframes: selections.filter(isKeyframeSelection).map((selection) => ({
-					nodePathInfo: selection.nodePathInfo,
-					frame: selection.frame,
-				})),
-				sequences,
-				overrideIdsToNodePaths,
-				setPropStatuses,
-				clientId,
-			});
-			return promise?.then(() => true) ?? null;
-		}
-
+		case 'keyframe':
 		case 'sequence-prop':
 		case 'sequence-effect-prop':
 		case 'easing':

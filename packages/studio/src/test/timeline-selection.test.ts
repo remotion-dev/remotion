@@ -1984,12 +1984,117 @@ test('Backspace reset skips keyframed effect props without defaults', () => {
 	expect(resetTargets).toEqual([]);
 });
 
-test('Deleting mixed timeline selection types throws an assertion error', () => {
+test('Backspace reset targets mixed selected sequence and effect props', () => {
+	const schema = {
+		opacity: {type: 'number', default: 1, hiddenFromList: false},
+	} satisfies SequenceSchema;
+	const effectSchema = {
+		intensity: {type: 'number', default: 0, hiddenFromList: false},
+	} satisfies SequenceSchema;
+	const opacityNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['controls', 'opacity'],
+	);
+	const intensityNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['effects', '0', 'intensity'],
+	);
+	const nodePath = opacityNodePathInfo.sequenceSubscriptionKey;
+	const propStatuses = {
+		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			canUpdate: true,
+			props: {
+				opacity: {status: 'static', codeValue: 0.5},
+			},
+			effects: [
+				{
+					canUpdate: true,
+					callee: 'effect',
+					importPath: null,
+					effectIndex: 0,
+					props: {
+						intensity: {status: 'static', codeValue: 10},
+					},
+				},
+			],
+		},
+	} satisfies PropStatuses;
+
+	const resetTargets = getTimelinePropResetTargets({
+		selections: [
+			{
+				type: 'sequence-prop',
+				nodePathInfo: opacityNodePathInfo,
+				key: 'opacity',
+			},
+			{
+				type: 'sequence-effect-prop',
+				nodePathInfo: intensityNodePathInfo,
+				i: 0,
+				key: 'intensity',
+			},
+		],
+		sequences: [
+			makeTimelineSequence({
+				schema,
+				effects: [{schema: effectSchema}],
+			}),
+		],
+		overrideIdsToNodePaths: {override: nodePath},
+		propStatuses,
+	});
+
+	expect(resetTargets?.map((target) => target.type)).toEqual([
+		'sequence-prop',
+		'effect-prop',
+	]);
+	expect(resetTargets?.map((target) => target.fieldKey)).toEqual([
+		'opacity',
+		'intensity',
+	]);
+	expect(resetTargets?.map((target) => target.value)).toEqual([1, 0]);
+});
+
+test('Backspace reset ignores incompatible mixed prop selections', () => {
+	const schema = {
+		opacity: {type: 'number', default: 1, hiddenFromList: false},
+	} satisfies SequenceSchema;
+	const opacityNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['controls', 'opacity'],
+	);
+
+	expect(
+		getTimelinePropResetTargets({
+			selections: [
+				{
+					type: 'sequence-prop',
+					nodePathInfo: opacityNodePathInfo,
+					key: 'opacity',
+				},
+				{
+					type: 'keyframe',
+					nodePathInfo: opacityNodePathInfo,
+					frame: 12,
+				},
+			],
+			sequences: [makeTimelineSequence({schema})],
+			overrideIdsToNodePaths: {
+				override: opacityNodePathInfo.sequenceSubscriptionKey,
+			},
+			propStatuses: makeDurationPropStatuses([
+				opacityNodePathInfo.sequenceSubscriptionKey,
+			]),
+		}),
+	).toBe(null);
+});
+
+test('Deleting unsupported mixed timeline selection types returns null', () => {
 	const sequenceNodePathInfo = makeNodePathInfo(['body', 0], []);
 	const effectNodePathInfo = makeNodePathInfo(['body', 1], ['effects', '0']);
 	const confirm = () => Promise.resolve(true);
 
-	expect(() =>
+	expect(
 		deleteSelectedTimelineItems({
 			selections: [
 				{type: 'sequence', nodePathInfo: sequenceNodePathInfo},
@@ -2005,7 +2110,79 @@ test('Deleting mixed timeline selection types throws an assertion error', () => 
 			clientId: 'client',
 			confirm,
 		}),
-	).toThrow(/Assertion failed/);
+	).toBe(null);
+});
+
+test('Deleting selected keyframes ignores selected easings', async () => {
+	const schema = {
+		opacity: {type: 'number', default: 1, hiddenFromList: false},
+	} satisfies SequenceSchema;
+	const opacityNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['controls', 'opacity'],
+	);
+	const nodePath = opacityNodePathInfo.sequenceSubscriptionKey;
+	const fetchCalls: unknown[] = [];
+	const previousFetch = globalThis.fetch;
+	globalThis.fetch = ((input, init) => {
+		fetchCalls.push({
+			input,
+			body:
+				typeof init?.body === 'string'
+					? JSON.parse(init.body)
+					: (init?.body ?? null),
+		});
+
+		return Promise.resolve({
+			json: () => Promise.resolve({success: true, data: {}}),
+		} as Response);
+	}) as typeof fetch;
+
+	try {
+		const result = await deleteSelectedTimelineItems({
+			selections: [
+				{
+					type: 'keyframe',
+					nodePathInfo: opacityNodePathInfo,
+					frame: 12,
+				},
+				{
+					type: 'easing',
+					nodePathInfo: opacityNodePathInfo,
+					fromFrame: 12,
+					toFrame: 24,
+					segmentIndex: 0,
+				},
+			],
+			sequences: [makeTimelineSequence({schema})],
+			overrideIdsToNodePaths: {override: nodePath},
+			setPropStatuses: () => undefined,
+			clientId: 'client',
+			confirm: () => Promise.resolve(true),
+		});
+
+		expect(result).toBe(true);
+		expect(fetchCalls).toEqual([
+			{
+				input: '/api/delete-keyframes',
+				body: {
+					sequenceKeyframes: [
+						{
+							fileName: '/project/src/Comp.tsx',
+							nodePath,
+							key: 'opacity',
+							frame: 12,
+							schema,
+						},
+					],
+					effectKeyframes: [],
+					clientId: 'client',
+				},
+			},
+		]);
+	} finally {
+		globalThis.fetch = previousFetch;
+	}
 });
 
 test('Child timeline selections resolve to the parent sequence selection key', () => {
@@ -2109,6 +2286,109 @@ test('Cmd/Ctrl+click toggles row selections', () => {
 	).toEqual({
 		selectedItems: [rowB],
 		anchor: rowA,
+	});
+});
+
+test('Cmd/Ctrl+click mixes compatible prop row selections', () => {
+	const sequenceProp = {
+		type: 'sequence-prop' as const,
+		nodePathInfo: makeNodePathInfo(['body', 0], ['controls', 'opacity']),
+		key: 'opacity',
+	};
+	const effectProp = {
+		type: 'sequence-effect-prop' as const,
+		nodePathInfo: makeNodePathInfo(['body', 0], ['effects', '0', 'intensity']),
+		i: 0,
+		key: 'intensity',
+	};
+	const allSelectableItems = [sequenceProp, effectProp];
+
+	expect(
+		getTimelineSelectionAfterInteraction({
+			currentState: {
+				selectedItems: [sequenceProp],
+				anchor: sequenceProp,
+			},
+			clickedItem: effectProp,
+			interaction: {shiftKey: false, toggleKey: true},
+			allSelectableItems,
+		}),
+	).toEqual({
+		selectedItems: [sequenceProp, effectProp],
+		anchor: effectProp,
+	});
+
+	expect(
+		getTimelineSelectionAfterInteraction({
+			currentState: {
+				selectedItems: [sequenceProp, effectProp],
+				anchor: effectProp,
+			},
+			clickedItem: effectProp,
+			interaction: {shiftKey: false, toggleKey: true},
+			allSelectableItems,
+		}),
+	).toEqual({
+		selectedItems: [sequenceProp],
+		anchor: effectProp,
+	});
+});
+
+test('Cmd/Ctrl+click mixes compatible keyframe and easing selections', () => {
+	const keyframe = {
+		type: 'keyframe' as const,
+		nodePathInfo: makeNodePathInfo(['body', 0], ['controls', 'opacity']),
+		frame: 10,
+	};
+	const easing = {
+		type: 'easing' as const,
+		nodePathInfo: makeNodePathInfo(['body', 0], ['controls', 'opacity']),
+		fromFrame: 10,
+		toFrame: 20,
+		segmentIndex: 0,
+	};
+
+	expect(
+		getTimelineSelectionAfterInteraction({
+			currentState: {
+				selectedItems: [keyframe],
+				anchor: keyframe,
+			},
+			clickedItem: easing,
+			interaction: {shiftKey: false, toggleKey: true},
+			allSelectableItems: [keyframe, easing],
+		}),
+	).toEqual({
+		selectedItems: [keyframe, easing],
+		anchor: easing,
+	});
+});
+
+test('Cmd/Ctrl+click replaces incompatible mixed selections', () => {
+	const sequenceProp = {
+		type: 'sequence-prop' as const,
+		nodePathInfo: makeNodePathInfo(['body', 0], ['controls', 'opacity']),
+		key: 'opacity',
+	};
+	const keyframe = {
+		type: 'keyframe' as const,
+		nodePathInfo: makeNodePathInfo(['body', 0], ['controls', 'opacity']),
+		frame: 10,
+	};
+
+	expect(
+		getTimelineSelectionAfterInteraction({
+			currentState: {
+				selectedItems: [sequenceProp],
+				anchor: sequenceProp,
+			},
+			clickedItem: keyframe,
+			interaction: {shiftKey: false, toggleKey: true},
+			allSelectableItems: [sequenceProp, keyframe],
+		}),
+	).toEqual({
+		selectedItems: [keyframe],
+		anchor: keyframe,
 	});
 });
 

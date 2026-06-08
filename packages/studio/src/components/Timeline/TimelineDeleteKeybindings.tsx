@@ -11,7 +11,10 @@ import {
 	useCurrentTimelineSelectionStateAsRef,
 	useTimelineSelection,
 } from './TimelineSelection';
-import {updateSelectedTimelineEasings} from './update-selected-easing';
+import {
+	getEasingSelections,
+	updateSelectedTimelineEasings,
+} from './update-selected-easing';
 
 export const TimelineDeleteKeybindings: React.FC = () => {
 	const keybindings = useKeybinding();
@@ -37,19 +40,38 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 		}
 
 		const {clientId} = previewServerState;
-		const backspace = keybindings.registerKeybinding({
-			event: 'keydown',
-			key: 'Backspace',
-			callback: () => {
-				const {selectedItems, clearSelection} = currentSelection.current;
-				const sequences = sequencesRef.current;
-				const propStatuses = propStatusesRef.current;
-				if (selectedItems.length === 0) {
-					return;
-				}
+		const handleDelete = () => {
+			const {selectedItems, clearSelection} = currentSelection.current;
+			const sequences = sequencesRef.current;
+			const propStatuses = propStatusesRef.current;
+			if (selectedItems.length === 0) {
+				return;
+			}
 
+			const deletePromise = deleteSelectedTimelineItems({
+				selections: selectedItems,
+				sequences,
+				overrideIdsToNodePaths: overrideIdToNodePathMappings,
+				setPropStatuses,
+				clientId,
+				confirm,
+			});
+
+			if (deletePromise !== null) {
+				deletePromise
+					.then((deleted) => {
+						if (deleted) {
+							clearSelection();
+						}
+					})
+					.catch(() => undefined);
+				return;
+			}
+
+			const easingSelections = getEasingSelections(selectedItems);
+			if (easingSelections.length === selectedItems.length) {
 				const resetEasingPromise = updateSelectedTimelineEasings({
-					selections: selectedItems,
+					selections: easingSelections,
 					sequences,
 					overrideIdsToNodePaths: overrideIdToNodePathMappings,
 					propStatuses,
@@ -62,42 +84,35 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 					resetEasingPromise.catch(() => undefined);
 					return;
 				}
+			}
 
-				const resetPromise = resetSelectedTimelineProps({
-					selections: selectedItems,
-					sequences,
-					overrideIdsToNodePaths: overrideIdToNodePathMappings,
-					propStatuses,
-					setPropStatuses,
-					clientId,
-				});
+			const resetPromise = resetSelectedTimelineProps({
+				selections: selectedItems,
+				sequences,
+				overrideIdsToNodePaths: overrideIdToNodePathMappings,
+				propStatuses,
+				setPropStatuses,
+				clientId,
+			});
 
-				if (resetPromise !== null) {
-					resetPromise.catch(() => undefined);
-					return;
-				}
+			if (resetPromise !== null) {
+				resetPromise.catch(() => undefined);
+			}
+		};
 
-				const deletePromise = deleteSelectedTimelineItems({
-					selections: selectedItems,
-					sequences,
-					overrideIdsToNodePaths: overrideIdToNodePathMappings,
-					setPropStatuses,
-					clientId,
-					confirm,
-				});
-
-				if (deletePromise === null) {
-					return;
-				}
-
-				deletePromise
-					.then((deleted) => {
-						if (deleted) {
-							clearSelection();
-						}
-					})
-					.catch(() => undefined);
-			},
+		const backspace = keybindings.registerKeybinding({
+			event: 'keydown',
+			key: 'Backspace',
+			callback: handleDelete,
+			commandCtrlKey: false,
+			preventDefault: true,
+			triggerIfInputFieldFocused: false,
+			keepRegisteredWhenNotHighestContext: false,
+		});
+		const deleteKey = keybindings.registerKeybinding({
+			event: 'keydown',
+			key: 'Delete',
+			callback: handleDelete,
 			commandCtrlKey: false,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
@@ -131,6 +146,7 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 
 		return () => {
 			backspace.unregister();
+			deleteKey.unregister();
 			duplicate.unregister();
 		};
 	}, [
