@@ -1,11 +1,22 @@
-import React, {useCallback, useContext, useMemo} from 'react';
-import {useVideoConfig} from 'remotion';
+import {KEYFRAME_EASING_PRESETS} from '@remotion/studio-shared';
+import React, {useCallback, useContext, useMemo, useRef} from 'react';
+import {Internals, useVideoConfig} from 'remotion';
+import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {BLUE, LINE_COLOR} from '../../helpers/colors';
 import {getXPositionOfItemInTimelineImperatively} from '../../helpers/get-left-of-timeline-slider';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
-import {useTimelineEasingSelection} from './TimelineSelection';
+import {ContextMenuForTarget} from '../ContextMenu';
+import type {ComboboxValue} from '../NewComposition/ComboBox';
+import {
+	useCurrentTimelineSelectionStateAsRef,
+	useTimelineEasingSelection,
+} from './TimelineSelection';
 import {TimelineWidthContext} from './TimelineWidthProvider';
+import {
+	getEasingSelections,
+	updateSelectedTimelineEasings,
+} from './update-selected-easing';
 
 const hitTargetHeight = 12;
 const lineHeight = 2;
@@ -37,14 +48,92 @@ const TimelineKeyframeEasingLineUnmemoized: React.FC<{
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly segmentIndex: number;
 }> = ({fromFrame, toFrame, rowHeight, nodePathInfo, segmentIndex}) => {
+	const buttonRef = useRef<HTMLButtonElement>(null);
 	const videoConfig = useVideoConfig();
 	const timelineWidth = useContext(TimelineWidthContext);
-	const {selected, onSelect, selectable} = useTimelineEasingSelection({
-		nodePathInfo,
-		fromFrame,
-		toFrame,
-		segmentIndex,
-	});
+	const {selected, onSelect, selectable, selectionItem} =
+		useTimelineEasingSelection({
+			nodePathInfo,
+			fromFrame,
+			toFrame,
+			segmentIndex,
+		});
+	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
+	const propStatusesRef = useContext(
+		Internals.VisualModePropStatusesRefContext,
+	);
+	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
+	const {overrideIdToNodePathMappings} = useContext(
+		Internals.OverrideIdsToNodePathsGettersContext,
+	);
+	const currentSelection = useCurrentTimelineSelectionStateAsRef();
+
+	const updateEasing = useCallback(
+		(easing: (typeof KEYFRAME_EASING_PRESETS)[number]['easing']) => {
+			if (previewServerState.type !== 'connected') {
+				return;
+			}
+
+			const selectedEasings = getEasingSelections(
+				currentSelection.current.selectedItems,
+			);
+			const selections = selected ? selectedEasings : [selectionItem];
+			const promise = updateSelectedTimelineEasings({
+				selections,
+				sequences: sequencesRef.current,
+				overrideIdsToNodePaths: overrideIdToNodePathMappings,
+				propStatuses: propStatusesRef.current,
+				setPropStatuses,
+				clientId: previewServerState.clientId,
+				easing,
+			});
+			promise?.catch(() => undefined);
+		},
+		[
+			currentSelection,
+			overrideIdToNodePathMappings,
+			previewServerState,
+			propStatusesRef,
+			selected,
+			selectionItem,
+			sequencesRef,
+			setPropStatuses,
+		],
+	);
+
+	const contextMenuValues = useMemo((): ComboboxValue[] => {
+		return KEYFRAME_EASING_PRESETS.map((preset) => ({
+			type: 'item',
+			id: preset.id,
+			keyHint: null,
+			label: preset.label,
+			leftItem: null,
+			disabled: previewServerState.type !== 'connected',
+			onClick: () => updateEasing(preset.easing),
+			quickSwitcherLabel: null,
+			subMenu: null,
+			value: preset.id,
+		}));
+	}, [previewServerState.type, updateEasing]);
+
+	const onOpenContextMenu = useCallback(
+		(event: MouseEvent) => {
+			if (!selectable) {
+				return false;
+			}
+
+			if (!selected) {
+				onSelect({
+					shiftKey: event.shiftKey,
+					toggleKey: event.metaKey || event.ctrlKey,
+				});
+			}
+
+			return contextMenuValues;
+		},
+		[contextMenuValues, onSelect, selectable, selected],
+	);
 
 	const style = useMemo((): React.CSSProperties | null => {
 		if (timelineWidth === null) {
@@ -114,15 +203,23 @@ const TimelineKeyframeEasingLineUnmemoized: React.FC<{
 	}
 
 	return (
-		<button
-			type="button"
-			style={style}
-			title={`Easing from frame ${fromFrame} to ${toFrame}`}
-			aria-label={`Select easing from frame ${fromFrame} to ${toFrame}`}
-			onPointerDown={selectable ? onPointerDown : undefined}
-		>
-			<div style={lineStyle} />
-		</button>
+		<>
+			<button
+				ref={buttonRef}
+				type="button"
+				style={style}
+				title={`Easing from frame ${fromFrame} to ${toFrame}`}
+				aria-label={`Select easing from frame ${fromFrame} to ${toFrame}`}
+				onPointerDown={selectable ? onPointerDown : undefined}
+			>
+				<div style={lineStyle} />
+			</button>
+			<ContextMenuForTarget
+				triggerRef={buttonRef}
+				values={contextMenuValues}
+				onOpen={onOpenContextMenu}
+			/>
+		</>
 	);
 };
 

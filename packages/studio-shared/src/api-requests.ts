@@ -38,6 +38,11 @@ import type {
 import type {SymbolicatedStackFrame} from './stack-types';
 import type {EnumPath} from './stringify-default-props';
 
+type KeyframeEasing = Extract<
+	CanUpdateSequencePropStatus,
+	{status: 'keyframed'}
+>['easing'][number];
+
 export type OpenInFileExplorerRequest = {
 	directory: string;
 };
@@ -483,15 +488,22 @@ export type AddEffectKeyframeRequest = {
 
 export type AddEffectKeyframeResponse = SaveEffectPropsResponse;
 
-export type KeyframeSettings = {
-	clamping:
-		| {
-				left: ExtrapolateType;
-				right: ExtrapolateType;
-		  }
-		| undefined;
-	posterize: number | undefined;
-};
+export type KeyframeSettings =
+	| {
+			type: 'settings';
+			clamping:
+				| {
+						left: ExtrapolateType;
+						right: ExtrapolateType;
+				  }
+				| undefined;
+			posterize: number | undefined;
+	  }
+	| {
+			type: 'easing';
+			segmentIndex: number;
+			easing: KeyframeEasing;
+	  };
 
 export type UpdateSequenceKeyframeSettingsRequest = {
 	fileName: string;

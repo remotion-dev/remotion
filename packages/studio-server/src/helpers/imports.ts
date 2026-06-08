@@ -143,7 +143,11 @@ export const ensureNamedImports = ({
 				continue;
 			}
 
-			existingNames.add(getImportedName(importSpecifierCandidate));
+			const importedName = getImportedName(importSpecifierCandidate);
+			const localName = importSpecifierCandidate.local?.name ?? importedName;
+			if (localName === importedName) {
+				existingNames.add(importedName);
+			}
 		}
 	}
 

@@ -53,11 +53,18 @@ export const updateSequenceKeyframeSettingsHandler: ApiHandler<
 			updates: [
 				{
 					key,
-					operation: {
-						type: 'settings',
-						clamping: settings.clamping,
-						posterize: settings.posterize,
-					},
+					operation:
+						settings.type === 'settings'
+							? {
+									type: 'settings',
+									clamping: settings.clamping,
+									posterize: settings.posterize,
+								}
+							: {
+									type: 'easing',
+									segmentIndex: settings.segmentIndex,
+									easing: settings.easing,
+								},
 				},
 			],
 		});

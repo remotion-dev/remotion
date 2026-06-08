@@ -174,6 +174,124 @@ export const Example: React.FC = () => {
 	expect(output).not.toContain('posterize');
 });
 
+test('updateSequenceKeyframes sets one easing segment and fills linear segments', async () => {
+	const input = `import React from 'react';
+import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
+
+export const Example: React.FC = () => {
+\tconst frame = useCurrentFrame();
+\treturn (
+\t\t<AbsoluteFill>
+\t\t\t<div style={{scale: interpolate(frame, [0, 50, 100], [2, 3, 4])}} />
+\t\t</AbsoluteFill>
+\t);
+};
+`;
+	const {output} = await updateSequenceKeyframes({
+		input,
+		nodePath: lineColumnToNodePath(input, getLine(input, 'scale')),
+		updates: [
+			{
+				key: 'style.scale',
+				operation: {
+					type: 'easing',
+					segmentIndex: 1,
+					easing: [0.42, 0, 1, 1],
+				},
+			},
+		],
+	});
+
+	expect(output).toContain('Easing');
+	expect(output).toContain(
+		'easing: [Easing.linear, Easing.bezier(0.42, 0, 1, 1)]',
+	);
+});
+
+test('updateSequenceKeyframes adds an unaliased Easing import for easing edits', async () => {
+	const input = `import React from 'react';
+import {AbsoluteFill, Easing as RemotionEasing, interpolate, useCurrentFrame} from 'remotion';
+
+export const Example: React.FC = () => {
+\tconst frame = useCurrentFrame();
+\treturn (
+\t\t<AbsoluteFill>
+\t\t\t<div style={{scale: interpolate(frame, [0, 50, 100], [2, 3, 4])}} />
+\t\t</AbsoluteFill>
+\t);
+};
+`;
+	const {output} = await updateSequenceKeyframes({
+		input,
+		nodePath: lineColumnToNodePath(input, getLine(input, 'scale')),
+		updates: [
+			{
+				key: 'style.scale',
+				operation: {
+					type: 'easing',
+					segmentIndex: 1,
+					easing: [0.42, 0, 1, 1],
+				},
+			},
+		],
+	});
+
+	expect(output).toContain('Easing as RemotionEasing');
+	expect(output).toContain('Easing,');
+	expect(output).toContain('Easing.bezier(0.42, 0, 1, 1)');
+});
+
+test('updateSequenceKeyframes removes easing once all segments are linear', async () => {
+	const input = `import React from 'react';
+import {AbsoluteFill, Easing, interpolate, useCurrentFrame} from 'remotion';
+
+export const Example: React.FC = () => {
+\tconst frame = useCurrentFrame();
+\treturn (
+\t\t<AbsoluteFill>
+\t\t\t<div style={{scale: interpolate(frame, [0, 50, 100], [2, 3, 4], {easing: [Easing.linear, Easing.bezier(0.42, 0, 1, 1)], posterize: 2})}} />
+\t\t</AbsoluteFill>
+\t);
+};
+`;
+	const {output} = await updateSequenceKeyframes({
+		input,
+		nodePath: lineColumnToNodePath(input, getLine(input, 'scale')),
+		updates: [
+			{
+				key: 'style.scale',
+				operation: {
+					type: 'easing',
+					segmentIndex: 1,
+					easing: 'linear',
+				},
+			},
+		],
+	});
+
+	expect(output).not.toContain('easing:');
+	expect(output).toContain('posterize: 2');
+});
+
+test('updateSequenceKeyframes rejects easing updates for color keyframes', async () => {
+	await expect(
+		updateSequenceKeyframes({
+			input: colorInput,
+			nodePath: lineColumnToNodePath(colorInput, getLine(colorInput, '<Solid')),
+			updates: [
+				{
+					key: 'color',
+					operation: {
+						type: 'easing',
+						segmentIndex: 0,
+						easing: [0.42, 0, 1, 1],
+					},
+				},
+			],
+		}),
+	).rejects.toThrow(/color keyframes/);
+});
+
 test('updateSequenceKeyframes only updates posterize for color keyframes', async () => {
 	const {output} = await updateSequenceKeyframes({
 		input: colorInput,
@@ -763,6 +881,32 @@ test('updateEffectKeyframes converts a static value to a clamped interpolation',
 	expect(serialized).toContain('amount: interpolate(frame, [40], [0.6], {');
 	expect(serialized).toContain('extrapolateLeft: "clamp"');
 	expect(serialized).toContain('extrapolateRight: "clamp"');
+});
+
+test('updateEffectKeyframes sets one easing segment and fills linear segments', () => {
+	const {serialized} = updateEffectKeyframesAst({
+		input: effectInput,
+		sequenceNodePath: lineColumnToNodePath(
+			effectInput,
+			getLine(effectInput, '<HtmlInCanvas'),
+		),
+		effectIndex: 0,
+		updates: [
+			{
+				key: 'amount',
+				operation: {
+					type: 'easing',
+					segmentIndex: 1,
+					easing: [0, 0, 0.58, 1],
+				},
+			},
+		],
+	});
+
+	expect(serialized).toContain('Easing');
+	expect(serialized).toContain(
+		'easing: [Easing.linear, Easing.bezier(0, 0, 0.58, 1)]',
+	);
 });
 
 test('updateSequenceKeyframes converts the last color keyframe to a static value', async () => {

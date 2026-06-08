@@ -112,6 +112,10 @@ export {
 } from './component-drag-data';
 export {DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS} from './default-buffer-state-delay-in-milliseconds';
 export {
+	KEYFRAME_EASING_PRESETS,
+	type KeyframeEasingPreset,
+} from './keyframe-easing-presets';
+export {
 	detectFileType,
 	isImageFileType,
 	type FileDimensions,
