@@ -5,7 +5,7 @@ metadata:
   tags: easing, bezier, interpolation, spring, timing
 ---
 
-Drive motion with `interpolate()` over explicit frame range. To customize timing, use **`Easing.bezier`**. The four parameters are the same as CSS `cubic-bezier(x1, y1, x2, y2)`.
+Drive motion with `interpolate()` over an explicit frame range. Prefer `interpolate()` over `spring()` unless the user explicitly asks for physics-based motion. To customize timing, use **`Easing.bezier`**. The four parameters are the same as CSS `cubic-bezier(x1, y1, x2, y2)`.
 
 A simple linear interpolation is done using the `interpolate` function.
 
@@ -24,6 +24,30 @@ const opacity = interpolate(frame, [0, 100], [0, 1], {
   extrapolateLeft: "clamp",
 });
 ```
+
+## Studio-editable animation patterns
+
+When an animation should be editable in Remotion Studio, keep the `interpolate()` call directly in the `style` prop and prefer individual CSS transform properties:
+
+```tsx
+style={{
+  scale: interpolate(frame, [0, 100], [0, 1]),
+  translate: interpolate(frame, [0, 100], ["0px 0px", "100px 100px"]),
+  rotate: interpolate(frame, [0, 100], ["20deg", "90deg"]),
+}}
+```
+
+Avoid extracting the value and composing a `transform` string:
+
+```tsx
+const scale = interpolate(frame, [0, 100], [0, 1]);
+
+style={{
+  transform: `scale(${scale})`,
+}}
+```
+
+Use `transform` strings only when individual CSS transform properties do not cover the effect, such as `skew()`, `perspective()`, or order-sensitive multi-transform chains.
 
 ## Bézier easing
 
@@ -106,7 +130,7 @@ Use `Easing.out` for enter animations (starts fast, decelerates into place) and 
 
 ## Composing interpolations
 
-When multiple properties share the same timing (e.g. a slide-in panel and a video shift), avoid duplicating the full interpolation for each property. Instead, create a single normalized progress value (0 to 1) and derive each property from it:
+When multiple properties share the same timing and do not need Studio keyframe editing (e.g. a slide-in panel and a video shift), avoid duplicating the full interpolation for each property. Instead, create a single normalized progress value (0 to 1) and derive each property from it:
 
 ```tsx
 const slideIn = interpolate(
@@ -134,3 +158,5 @@ const opacity = interpolate(progress, [0, 1], [0, 1]);
 ```
 
 The key idea: separate **timing** (when and how fast) from **mapping** (what values to animate between).
+
+If the values should be visually keyframed in Studio, prefer inline `interpolate()` calls in the relevant style props, even if it duplicates the timing.

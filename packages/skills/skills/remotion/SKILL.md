@@ -23,10 +23,12 @@ Replace `my-video` with a suitable project name.
 
 Before designing visual scenes, layouts, promos, motion graphics, or text-heavy videos, load [rules/video-layout.md](rules/video-layout.md) for video-first layout and text sizing guidance.
 
-Animate properties using `useCurrentFrame()` and `interpolate()`. Use Easing to customize the timing of the animation.
+Animate properties using `useCurrentFrame()` and `interpolate()`. Prefer `interpolate()` over `spring()` unless physics-based motion is explicitly needed. Use `Easing.bezier()` to customize timing, including jumpy or overshooting motion.
+
+For animations that should be editable in Remotion Studio, keep the `interpolate()` call inline in the `style` prop and use individual CSS transform properties (`scale`, `translate`, `rotate`) instead of composing a `transform` string.
 
 ```tsx
-import { useCurrentFrame, Easing } from "remotion";
+import { useCurrentFrame, Easing, interpolate, useVideoConfig } from "remotion";
 
 export const FadeIn = () => {
   const frame = useCurrentFrame();
@@ -40,6 +42,26 @@ export const FadeIn = () => {
 
   return <div style={{ opacity }}>Hello World!</div>;
 };
+```
+
+Prefer:
+
+```tsx
+style={{
+  scale: interpolate(frame, [0, 100], [0, 1]),
+  translate: interpolate(frame, [0, 100], ["0px 0px", "100px 100px"]),
+  rotate: interpolate(frame, [0, 100], ["20deg", "90deg"]),
+}}
+```
+
+Over:
+
+```tsx
+const scale = interpolate(frame, [0, 100], [0, 1]);
+
+style={{
+  transform: `scale(${scale})`,
+}}
 ```
 
 CSS transitions or animations are FORBIDDEN - they will not render correctly.  
