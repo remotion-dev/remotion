@@ -347,6 +347,29 @@ test('Interpolates translate strings', () => {
 	);
 });
 
+test('Interpolates transform-origin keyword strings', () => {
+	expect(interpolate(15, [0, 30], ['center', 'right bottom'])).toBe('75% 75%');
+	expect(interpolate(15, [0, 30], ['left top', 'right bottom'])).toBe(
+		'50% 50%',
+	);
+	expect(interpolate(15, [0, 30], ['top left', 'bottom right'])).toBe(
+		'50% 50%',
+	);
+	expect(interpolate(15, [0, 30], ['top', 'bottom'])).toBe('50% 50%');
+	expect(interpolate(15, [0, 30], ['left', 'right'])).toBe('50% 50%');
+	expect(interpolate(15, [0, 30], ['left 25%', 'right 75%'])).toBe('50% 50%');
+	expect(interpolate(15, [0, 30], ['top 25%', '75% bottom'])).toBe('50% 50%');
+});
+
+test('Interpolates transform-origin z components', () => {
+	expect(interpolate(15, [0, 30], ['left top 10px', 'right bottom 30px'])).toBe(
+		'50% 50% 20px',
+	);
+	expect(interpolate(15, [0, 30], ['left top', 'right bottom 10px'])).toBe(
+		'50% 50% 5px',
+	);
+});
+
 test('Interpolates rotate strings', () => {
 	expect(interpolate(15, [0, 30], ['0deg', '100deg'])).toBe('50deg');
 	expect(interpolate(15, [0, 30], ['-10.5deg', '20.5deg'])).toBe('5deg');
@@ -394,6 +417,30 @@ test('String interpolation throws on type and unit mismatches', () => {
 	expectToThrow(
 		() => interpolate(15, [0, 30], ['0px', '1px 2px 3px 4px']),
 		/1 to 3 components/,
+	);
+	expectToThrow(
+		() => interpolate(15, [0, 30], ['left', '100px 100px']),
+		/different units on axis 1/,
+	);
+	expectToThrow(
+		() => interpolate(15, [0, 30], ['left right', 'right bottom']),
+		/valid transform-origin keyword pair/,
+	);
+	expectToThrow(
+		() => interpolate(15, [0, 30], ['top bottom', 'right bottom']),
+		/valid transform-origin keyword pair/,
+	);
+	expectToThrow(
+		() => interpolate(15, [0, 30], ['10% left', 'right bottom']),
+		/horizontal transform-origin keywords/,
+	);
+	expectToThrow(
+		() => interpolate(15, [0, 30], ['left top 50%', 'right bottom 10px']),
+		/supported transform-origin z length/,
+	);
+	expectToThrow(
+		() => interpolate(15, [0, 30], ['left top center', 'right bottom 10px']),
+		/supported transform-origin z length/,
 	);
 });
 
