@@ -441,6 +441,26 @@ export const getSelectedOutlineDragValues = ({
 	);
 };
 
+export const applySelectedOutlineDragAxisLock = ({
+	deltaX,
+	deltaY,
+	axisLocked,
+}: {
+	readonly deltaX: number;
+	readonly deltaY: number;
+	readonly axisLocked: boolean;
+}) => {
+	if (!axisLocked) {
+		return {deltaX, deltaY};
+	}
+
+	if (Math.abs(deltaX) >= Math.abs(deltaY)) {
+		return {deltaX, deltaY: 0};
+	}
+
+	return {deltaX: 0, deltaY};
+};
+
 export type SelectedOutlineStaticDragChange = SaveSequencePropChange & {
 	readonly type: 'static';
 };
@@ -780,11 +800,16 @@ const SelectedOutlinePolygon: React.FC<{
 
 			const onPointerMove = (moveEvent: PointerEvent) => {
 				moveEvent.preventDefault();
+				const dragDelta = applySelectedOutlineDragAxisLock({
+					deltaX: (moveEvent.clientX - startPointerX) / scale,
+					deltaY: (moveEvent.clientY - startPointerY) / scale,
+					axisLocked: moveEvent.shiftKey,
+				});
 
 				lastValues = getSelectedOutlineDragValues({
 					dragStates,
-					deltaX: (moveEvent.clientX - startPointerX) / scale,
-					deltaY: (moveEvent.clientY - startPointerY) / scale,
+					deltaX: dragDelta.deltaX,
+					deltaY: dragDelta.deltaY,
 				});
 				for (const dragState of dragStates) {
 					const value = lastValues.get(dragState.key);
