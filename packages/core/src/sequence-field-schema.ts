@@ -47,6 +47,13 @@ export type TranslateFieldSchema = {
 	keyframable?: boolean;
 };
 
+export type TransformOriginFieldSchema = {
+	type: 'transform-origin';
+	default: string | undefined;
+	description?: string;
+	keyframable?: boolean;
+};
+
 export type ScaleFieldSchema = {
 	type: 'scale';
 	min?: number;
@@ -150,6 +157,7 @@ export type VisibleFieldSchema =
 	| RotationCssFieldSchema
 	| RotationDegreesFieldSchema
 	| TranslateFieldSchema
+	| TransformOriginFieldSchema
 	| ScaleFieldSchema
 	| UvCoordinateFieldSchema
 	| ColorFieldSchema
@@ -184,6 +192,11 @@ export const sequenceVisualStyleSchema = {
 		step: 1,
 		default: '0deg',
 		description: 'Rotation',
+	},
+	'style.transformOrigin': {
+		type: 'transform-origin',
+		default: '50% 50%',
+		description: 'Transform origin',
 	},
 	'style.opacity': {
 		type: 'number',

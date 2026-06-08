@@ -180,6 +180,42 @@ test('interpolates translate keyframes', () => {
 	expect(result).toBe('60px 30px');
 });
 
+test('interpolates transform-origin keyword keyframes', () => {
+	const result = interpolateKeyframedStatus({
+		frame: 30,
+		status: {
+			status: 'keyframed',
+			interpolationFunction: 'interpolate',
+			keyframes: [
+				{frame: 0, value: 'left top'},
+				{frame: 60, value: 'right bottom'},
+			],
+			easing: ['linear'],
+			clamping: {left: 'extend', right: 'extend'},
+			posterize: undefined,
+		},
+	});
+	expect(result).toBe('50% 50%');
+});
+
+test('invalid transform-origin keyframes return null', () => {
+	const result = interpolateKeyframedStatus({
+		frame: 30,
+		status: {
+			status: 'keyframed',
+			interpolationFunction: 'interpolate',
+			keyframes: [
+				{frame: 0, value: 'left right'},
+				{frame: 60, value: 'right bottom'},
+			],
+			easing: ['linear'],
+			clamping: {left: 'extend', right: 'extend'},
+			posterize: undefined,
+		},
+	});
+	expect(result).toBe(null);
+});
+
 test('interpolates rotate keyframes', () => {
 	const result = interpolateKeyframedStatus({
 		frame: 30,

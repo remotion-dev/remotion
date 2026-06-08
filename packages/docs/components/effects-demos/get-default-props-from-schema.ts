@@ -39,6 +39,10 @@ export const getDefaultValueFromSchema = (
 		return '0px 0px';
 	}
 
+	if (field.type === 'transform-origin') {
+		return '50% 50%';
+	}
+
 	if (field.type === 'uv-coordinate') {
 		return [0.5, 0.5] as const;
 	}

@@ -81,6 +81,7 @@ export const getKeyframeInterpolationFunctionForSchemaField = ({
 	if (
 		field?.type === 'scale' ||
 		field?.type === 'translate' ||
+		field?.type === 'transform-origin' ||
 		field?.type === 'rotation-css'
 	) {
 		return 'interpolate';
