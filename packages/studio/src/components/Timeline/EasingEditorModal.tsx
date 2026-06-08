@@ -360,17 +360,25 @@ export const EasingEditorModal: React.FC<{
 						<circle
 							cx={firstHandle.x}
 							cy={firstHandle.y}
-							r={8}
-							fill={BLUE}
-							style={{cursor: activeHandle === 0 ? 'grabbing' : 'grab'}}
+							r={6}
+							fill="white"
+							stroke={BLUE}
+							strokeWidth={2}
+							vectorEffect="non-scaling-stroke"
+							pointerEvents="all"
+							cursor={activeHandle === 0 ? 'grabbing' : 'default'}
 							onPointerDown={(event) => onHandlePointerDown(0, event)}
 						/>
 						<circle
 							cx={secondHandle.x}
 							cy={secondHandle.y}
-							r={8}
-							fill={BLUE}
-							style={{cursor: activeHandle === 1 ? 'grabbing' : 'grab'}}
+							r={6}
+							fill="white"
+							stroke={BLUE}
+							strokeWidth={2}
+							vectorEffect="non-scaling-stroke"
+							pointerEvents="all"
+							cursor={activeHandle === 1 ? 'grabbing' : 'default'}
 							onPointerDown={(event) => onHandlePointerDown(1, event)}
 						/>
 						<text x={PLOT_LEFT - 22} y={yZero + 4} fill="white" fontSize={11}>
