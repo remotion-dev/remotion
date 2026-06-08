@@ -220,6 +220,23 @@ const areSelectionsOnlyOfType = (
 	type: TimelineSelection['type'],
 ): boolean => selections.every((selection) => selection.type === type);
 
+const assertTimelineSelectionsHaveSameType = (
+	selections: readonly TimelineSelection[],
+): void => {
+	const firstSelection = selections[0];
+	if (!firstSelection) {
+		return;
+	}
+
+	for (const selection of selections) {
+		if (selection.type !== firstSelection.type) {
+			throw new Error(
+				`Assertion failed: Cannot delete timeline selections of different types (${firstSelection.type}, ${selection.type})`,
+			);
+		}
+	}
+};
+
 const containsOnlyKeyframesAndEasings = (
 	selections: readonly TimelineSelection[],
 ): boolean =>
@@ -266,12 +283,14 @@ export const deleteSelectedTimelineItems = ({
 		return promise?.then(() => true) ?? null;
 	}
 
+	if (!areSelectionsOnlyOfType(selections, firstSelection.type)) {
+		return null;
+	}
+
+	assertTimelineSelectionsHaveSameType(selections);
+
 	switch (firstSelection.type) {
 		case 'sequence':
-			if (!areSelectionsOnlyOfType(selections, 'sequence')) {
-				return null;
-			}
-
 			return deleteSequences(
 				selections
 					.filter(isSequenceRowSelection)
@@ -279,10 +298,6 @@ export const deleteSelectedTimelineItems = ({
 				confirm,
 			);
 		case 'sequence-effect':
-			if (!areSelectionsOnlyOfType(selections, 'sequence-effect')) {
-				return null;
-			}
-
 			return deleteEffects(
 				selections.filter(isSequenceEffectSelection).map((selection) => ({
 					type: 'single-effect',
@@ -296,10 +311,6 @@ export const deleteSelectedTimelineItems = ({
 		case 'easing':
 			return null;
 		case 'sequence-all-effects':
-			if (!areSelectionsOnlyOfType(selections, 'sequence-all-effects')) {
-				return null;
-			}
-
 			return deleteEffects(
 				selections.filter(isSequenceAllEffectsSelection).map((selection) => ({
 					type: 'all-effects',

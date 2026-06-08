@@ -37,13 +37,27 @@ type EffectPropResetTarget = {
 
 type TimelinePropResetTarget = SequencePropResetTarget | EffectPropResetTarget;
 
+type PropResetSelection = TimelineSelection & {
+	type: 'sequence-prop' | 'sequence-effect-prop';
+};
+
 const isPropResetSelection = (
 	selection: TimelineSelection,
-): selection is TimelineSelection & {
-	type: 'sequence-prop' | 'sequence-effect-prop';
-} =>
+): selection is PropResetSelection =>
 	selection.type === 'sequence-prop' ||
 	selection.type === 'sequence-effect-prop';
+
+function assertPropResetSelections(
+	selections: readonly TimelineSelection[],
+): asserts selections is readonly PropResetSelection[] {
+	for (const selection of selections) {
+		if (!isPropResetSelection(selection)) {
+			throw new Error(
+				`Assertion failed: Cannot reset timeline selection of type ${selection.type}`,
+			);
+		}
+	}
+}
 
 const isVisibleFieldSchema = (
 	fieldSchema: SequenceFieldSchema | undefined,
@@ -111,8 +125,10 @@ export const getTimelinePropResetTargets = ({
 		return null;
 	}
 
+	assertPropResetSelections(selections);
+
 	const resetTargets: TimelinePropResetTarget[] = [];
-	for (const selection of propSelections) {
+	for (const selection of selections) {
 		const track = findTrackForNodePathInfo({
 			sequences,
 			overrideIdsToNodePaths,
