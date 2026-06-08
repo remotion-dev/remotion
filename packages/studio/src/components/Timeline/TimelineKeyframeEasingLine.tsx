@@ -17,6 +17,7 @@ import {TimelineWidthContext} from './TimelineWidthProvider';
 import {
 	getEasingSelections,
 	getTimelineEasingValueForSelection,
+	type TimelineEasingValue,
 	updateSelectedTimelineEasings,
 } from './update-selected-easing';
 
@@ -80,7 +81,7 @@ const TimelineKeyframeEasingLineUnmemoized: React.FC<{
 	}, [currentSelection, selected, selectionItem]);
 
 	const updateEasing = useCallback(
-		(easing: (typeof KEYFRAME_EASING_PRESETS)[number]['easing']) => {
+		(easing: TimelineEasingValue) => {
 			if (previewServerState.type !== 'connected') {
 				return;
 			}
@@ -139,6 +140,18 @@ const TimelineKeyframeEasingLineUnmemoized: React.FC<{
 
 	const contextMenuValues = useMemo((): ComboboxValue[] => {
 		return [
+			{
+				type: 'item',
+				id: 'linear',
+				keyHint: null,
+				label: 'Linear',
+				leftItem: null,
+				disabled: previewServerState.type !== 'connected',
+				onClick: () => updateEasing('linear'),
+				quickSwitcherLabel: null,
+				subMenu: null,
+				value: 'linear',
+			},
 			...KEYFRAME_EASING_PRESETS.map((preset) => ({
 				type: 'item' as const,
 				id: preset.id,
