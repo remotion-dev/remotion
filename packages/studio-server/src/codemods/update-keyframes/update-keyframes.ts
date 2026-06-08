@@ -384,7 +384,7 @@ const getKeyframeEasingArray = ({
 	}
 
 	if (easingNode.type === 'ArrayExpression') {
-		if (easingNode.elements.length !== segmentCount) {
+		if (easingNode.elements.length > segmentCount) {
 			return null;
 		}
 
@@ -400,7 +400,12 @@ const getKeyframeEasingArray = ({
 			return null;
 		}
 
-		return parsed as KeyframeEasing[];
+		const easingArray = parsed as KeyframeEasing[];
+		while (easingArray.length < segmentCount) {
+			easingArray.push('linear');
+		}
+
+		return easingArray;
 	}
 
 	const easing = getKeyframeEasing(easingNode);
@@ -434,6 +439,21 @@ const getExistingEasingArray = ({
 	return easing;
 };
 
+const getExistingEasingArrayOrNull = ({
+	options,
+	segmentCount,
+}: {
+	options: ObjectExpression;
+	segmentCount: number;
+}): KeyframeEasing[] | null => {
+	const {prop} = findObjectOptionProperty(options, 'easing');
+	if (!prop) {
+		return null;
+	}
+
+	return getExistingEasingArray({options, segmentCount});
+};
+
 const createEasingExpression = (easing: KeyframeEasing): ExpressionKind => {
 	if (easing === 'linear') {
 		return b.memberExpression(
@@ -454,6 +474,129 @@ const createEasingArrayExpression = (
 	b.arrayExpression(
 		easing.map((easingValue) => createEasingExpression(easingValue)) as never,
 	) as ExpressionKind;
+
+const setEasingOption = ({
+	options,
+	easing,
+}: {
+	options: ObjectExpression;
+	easing: KeyframeEasing[];
+}): boolean => {
+	const hasNonLinearEasing = easing.some(
+		(easingValue) => !isLinearEasing(easingValue),
+	);
+	setOptionsProperty({
+		options,
+		propertyName: 'easing',
+		value: hasNonLinearEasing ? createEasingArrayExpression(easing) : null,
+	});
+	return hasNonLinearEasing;
+};
+
+const getExtraArgsWithOptions = ({
+	extraArgs,
+	options,
+}: {
+	extraArgs: (ExpressionKind | SpreadElementKind)[];
+	options: ObjectExpression;
+}): (ExpressionKind | SpreadElementKind)[] => {
+	return options.properties.length === 0
+		? extraArgs.slice(1)
+		: [options as ExpressionKind, ...extraArgs.slice(1)];
+};
+
+const getInlineOptionsFromExtraArgs = (
+	extraArgs: (ExpressionKind | SpreadElementKind)[],
+): ObjectExpression | null => {
+	const existingOptions = extraArgs[0];
+	if (!existingOptions || existingOptions.type !== 'ObjectExpression') {
+		return null;
+	}
+
+	return existingOptions as ObjectExpression;
+};
+
+const normalizeEasingAfterAddingKeyframe = ({
+	extraArgs,
+	previousSegmentCount,
+	nextSegmentCount,
+}: {
+	extraArgs: (ExpressionKind | SpreadElementKind)[];
+	previousSegmentCount: number;
+	nextSegmentCount: number;
+}): {
+	extraArgs: (ExpressionKind | SpreadElementKind)[];
+	needsEasingImport: boolean;
+} => {
+	const options = getInlineOptionsFromExtraArgs(extraArgs);
+	if (!options) {
+		return {extraArgs, needsEasingImport: false};
+	}
+
+	const easing = getExistingEasingArrayOrNull({
+		options,
+		segmentCount: previousSegmentCount,
+	});
+	if (easing === null) {
+		return {extraArgs, needsEasingImport: false};
+	}
+
+	while (easing.length < nextSegmentCount) {
+		easing.push('linear');
+	}
+
+	return {
+		extraArgs: getExtraArgsWithOptions({extraArgs, options}),
+		needsEasingImport: setEasingOption({options, easing}),
+	};
+};
+
+const normalizeEasingAfterRemovingKeyframe = ({
+	extraArgs,
+	previousSegmentCount,
+	nextSegmentCount,
+	removedKeyframeIndex,
+}: {
+	extraArgs: (ExpressionKind | SpreadElementKind)[];
+	previousSegmentCount: number;
+	nextSegmentCount: number;
+	removedKeyframeIndex: number;
+}): {
+	extraArgs: (ExpressionKind | SpreadElementKind)[];
+	needsEasingImport: boolean;
+} => {
+	const options = getInlineOptionsFromExtraArgs(extraArgs);
+	if (!options) {
+		return {extraArgs, needsEasingImport: false};
+	}
+
+	const easing = getExistingEasingArrayOrNull({
+		options,
+		segmentCount: previousSegmentCount,
+	});
+	if (easing === null) {
+		return {extraArgs, needsEasingImport: false};
+	}
+
+	if (easing.length > 0) {
+		const easingIndexToRemove =
+			removedKeyframeIndex === 0 ? 0 : removedKeyframeIndex - 1;
+		easing.splice(easingIndexToRemove, 1);
+	}
+
+	while (easing.length > nextSegmentCount) {
+		easing.pop();
+	}
+
+	while (easing.length < nextSegmentCount) {
+		easing.push('linear');
+	}
+
+	return {
+		extraArgs: getExtraArgsWithOptions({extraArgs, options}),
+		needsEasingImport: setEasingOption({options, easing}),
+	};
+};
 
 const validatePosterize = (posterize: number | undefined) => {
 	if (posterize === undefined) {
@@ -683,12 +826,20 @@ const addKeyframe = ({
 							? {frame, output: newOutput, value}
 							: keyframe,
 					);
+		const normalizedEasing =
+			existingIndex === -1
+				? normalizeEasingAfterAddingKeyframe({
+						extraArgs: existing.extraArgs,
+						previousSegmentCount: Math.max(existing.keyframes.length - 1, 0),
+						nextSegmentCount: Math.max(nextKeyframes.length - 1, 0),
+					})
+				: {extraArgs: existing.extraArgs, needsEasingImport: false};
 
 		return {
 			expression: createInterpolateExpression({
 				callee: b.identifier(nextCalleeName),
 				input: existing.input,
-				extraArgs: existing.extraArgs,
+				extraArgs: normalizedEasing.extraArgs,
 				keyframes: nextKeyframes,
 			}),
 			introduced: {
@@ -697,7 +848,7 @@ const addKeyframe = ({
 						? schemaCalleeName
 						: null,
 				needsFrameHook: false,
-				needsEasingImport: false,
+				needsEasingImport: normalizedEasing.needsEasingImport,
 			},
 		};
 	}
@@ -744,7 +895,7 @@ const removeKeyframe = ({
 }: {
 	expression: Expression;
 	frame: number;
-}): ExpressionKind => {
+}): {expression: ExpressionKind; introduced: IntroducedKeyframeIdentifiers} => {
 	const existing = getInterpolationExpression(expression);
 	if (!existing) {
 		throw new Error('Cannot remove keyframe from non-interpolated expression');
@@ -762,15 +913,31 @@ const removeKeyframe = ({
 	);
 
 	if (nextKeyframes.length === 0) {
-		return existing.keyframes[keyframeIndex].output;
+		return {
+			expression: existing.keyframes[keyframeIndex].output,
+			introduced: noIntroducedIdentifiers,
+		};
 	}
 
-	return createInterpolateExpression({
-		callee: existing.callee,
-		input: existing.input,
+	const normalizedEasing = normalizeEasingAfterRemovingKeyframe({
 		extraArgs: existing.extraArgs,
-		keyframes: nextKeyframes,
+		previousSegmentCount: Math.max(existing.keyframes.length - 1, 0),
+		nextSegmentCount: Math.max(nextKeyframes.length - 1, 0),
+		removedKeyframeIndex: keyframeIndex,
 	});
+
+	return {
+		expression: createInterpolateExpression({
+			callee: existing.callee,
+			input: existing.input,
+			extraArgs: normalizedEasing.extraArgs,
+			keyframes: nextKeyframes,
+		}),
+		introduced: {
+			...noIntroducedIdentifiers,
+			needsEasingImport: normalizedEasing.needsEasingImport,
+		},
+	};
 };
 
 const moveKeyframes = ({
@@ -896,10 +1063,7 @@ const applyKeyframeOperation = ({
 		};
 	}
 
-	return {
-		expression: removeKeyframe({expression, frame: operation.frame}),
-		introduced: noIntroducedIdentifiers,
-	};
+	return removeKeyframe({expression, frame: operation.frame});
 };
 
 const getExpressionFromJsxAttribute = (

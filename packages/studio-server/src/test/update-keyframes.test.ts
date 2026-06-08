@@ -119,6 +119,36 @@ test('updateSequenceKeyframes adds a keyframe to an existing interpolation', asy
 	);
 });
 
+test('updateSequenceKeyframes pads easing arrays when adding keyframes', async () => {
+	const input = `import React from 'react';
+import {AbsoluteFill, Easing, interpolate, useCurrentFrame} from 'remotion';
+
+export const Example: React.FC = () => {
+\tconst frame = useCurrentFrame();
+\treturn (
+\t\t<AbsoluteFill>
+\t\t\t<div style={{scale: interpolate(frame, [91, 126], [1080, 833], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: [Easing.bezier(0.42, 0, 1, 1)]})}} />
+\t\t</AbsoluteFill>
+\t);
+};
+`;
+	const {output} = await updateSequenceKeyframes({
+		input,
+		nodePath: lineColumnToNodePath(input, getLine(input, 'scale')),
+		updates: [
+			{
+				key: 'style.scale',
+				operation: {type: 'add', frame: 134, value: 700},
+			},
+		],
+	});
+
+	expect(output).toContain('interpolate(frame, [91, 126, 134]');
+	expect(output).toContain(
+		'easing: [Easing.bezier(0.42, 0, 1, 1), Easing.linear]',
+	);
+});
+
 test('updateSequenceKeyframes updates a keyframe at the same frame', async () => {
 	const {output, oldValueStrings, newValueStrings} =
 		await updateSequenceKeyframes({
@@ -239,6 +269,39 @@ export const Example: React.FC = () => {
 	expect(output).toContain('Easing as RemotionEasing');
 	expect(output).toContain('Easing,');
 	expect(output).toContain('Easing.bezier(0.42, 0, 1, 1)');
+});
+
+test('updateSequenceKeyframes pads existing easing arrays before editing them', async () => {
+	const input = `import React from 'react';
+import {AbsoluteFill, Easing, interpolate, useCurrentFrame} from 'remotion';
+
+export const Example: React.FC = () => {
+\tconst frame = useCurrentFrame();
+\treturn (
+\t\t<AbsoluteFill>
+\t\t\t<div style={{scale: interpolate(frame, [91, 126, 134], [1080, 1080, 833], {easing: [Easing.bezier(0.42, 0, 1, 1)]})}} />
+\t\t</AbsoluteFill>
+\t);
+};
+`;
+	const {output} = await updateSequenceKeyframes({
+		input,
+		nodePath: lineColumnToNodePath(input, getLine(input, 'scale')),
+		updates: [
+			{
+				key: 'style.scale',
+				operation: {
+					type: 'easing',
+					segmentIndex: 1,
+					easing: [0, 0, 0.58, 1],
+				},
+			},
+		],
+	});
+
+	expect(output).toContain('easing: [');
+	expect(output).toContain('Easing.bezier(0.42, 0, 1, 1)');
+	expect(output).toContain('Easing.bezier(0, 0, 0.58, 1)');
 });
 
 test('updateSequenceKeyframes removes easing once all segments are linear', async () => {
@@ -710,6 +773,34 @@ test('updateSequenceKeyframes keeps an interpolation when one keyframe remains',
 
 	expect(oldValueStrings).toEqual(['interpolate(frame, [0, 100], [2, 4])']);
 	expect(output).toContain('style={{scale: interpolate(frame, [100], [4])}}');
+});
+
+test('updateSequenceKeyframes removes the adjacent easing segment when deleting keyframes', async () => {
+	const input = `import React from 'react';
+import {AbsoluteFill, Easing, interpolate, useCurrentFrame} from 'remotion';
+
+export const Example: React.FC = () => {
+\tconst frame = useCurrentFrame();
+\treturn (
+\t\t<AbsoluteFill>
+\t\t\t<div style={{scale: interpolate(frame, [91, 126, 134], [1080, 1080, 833], {easing: [Easing.linear, Easing.bezier(0.42, 0, 1, 1)]})}} />
+\t\t</AbsoluteFill>
+\t);
+};
+`;
+	const {output} = await updateSequenceKeyframes({
+		input,
+		nodePath: lineColumnToNodePath(input, getLine(input, 'scale')),
+		updates: [
+			{
+				key: 'style.scale',
+				operation: {type: 'remove', frame: 91},
+			},
+		],
+	});
+
+	expect(output).toContain('interpolate(frame, [126, 134]');
+	expect(output).toContain('easing: [Easing.bezier(0.42, 0, 1, 1)]');
 });
 
 test('updateSequenceKeyframes moves overlapping selected keyframes together', async () => {
