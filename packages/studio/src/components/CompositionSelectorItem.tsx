@@ -154,7 +154,7 @@ export const CompositionSelectorItem: React.FC<{
 	}, [hovered, selected]);
 
 	const onClick = useCallback(
-		(evt: MouseEvent | KeyboardEvent<HTMLAnchorElement>) => {
+		(evt: MouseEvent<HTMLElement> | KeyboardEvent<HTMLElement>) => {
 			evt.preventDefault();
 			if (item.type === 'composition') {
 				markCompositionSidebarScrollFromRowClick(item.composition.id);
@@ -166,9 +166,9 @@ export const CompositionSelectorItem: React.FC<{
 		[item, selectComposition, toggleFolder],
 	);
 
-	const onKeyPress = useCallback(
-		(evt: React.KeyboardEvent<HTMLAnchorElement>) => {
-			if (evt.key === 'Enter') {
+	const onKeyDown = useCallback(
+		(evt: React.KeyboardEvent<HTMLElement>) => {
+			if (evt.key === 'Enter' || evt.key === ' ') {
 				onClick(evt);
 			}
 		},
@@ -209,14 +209,15 @@ export const CompositionSelectorItem: React.FC<{
 			<>
 				<ContextMenu values={contextMenu} onOpen={null}>
 					<Row align="center">
-						<button
+						<div
 							style={style}
 							onPointerEnter={onPointerEnter}
 							onPointerLeave={onPointerLeave}
 							tabIndex={tabIndex}
 							onClick={onClick}
-							type="button"
+							onKeyDown={onKeyDown}
 							title={item.folderName}
+							role="button"
 						>
 							{item.expanded ? (
 								<ExpandedFolderIcon
@@ -236,7 +237,7 @@ export const CompositionSelectorItem: React.FC<{
 								values={contextMenu}
 								visible={hovered}
 							/>
-						</button>
+						</div>
 					</Row>
 				</ContextMenu>
 				{item.expanded
@@ -268,7 +269,7 @@ export const CompositionSelectorItem: React.FC<{
 					onPointerLeave={onPointerLeave}
 					tabIndex={tabIndex}
 					onClick={onClick}
-					onKeyPress={onKeyPress}
+					onKeyDown={onKeyDown}
 					type="button"
 					title={item.composition.id}
 					className="__remotion-composition"
