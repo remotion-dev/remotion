@@ -31,7 +31,10 @@ import {
 } from './effect-drag-and-drop';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {showNotification} from './Notifications/NotificationCenter';
-import {callAddSequenceKeyframe} from './Timeline/call-add-keyframe';
+import {
+	callAddEffectKeyframe,
+	callAddSequenceKeyframe,
+} from './Timeline/call-add-keyframe';
 import {saveEffectProp} from './Timeline/save-effect-prop';
 import {
 	saveSequenceProps,
@@ -75,13 +78,16 @@ export type UvCoordinateFieldSchema = Extract<
 
 type SelectedOutlineUvHandle = {
 	readonly clientId: string;
-	readonly propStatus: CanUpdateSequencePropStatusStatic;
+	readonly propStatus:
+		| CanUpdateSequencePropStatusStatic
+		| CanUpdateSequencePropStatusKeyframed;
 	readonly effectIndex: number;
 	readonly fieldDefault: UvCoordinate | undefined;
 	readonly fieldKey: string;
 	readonly fieldSchema: UvCoordinateFieldSchema;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly schema: SequenceSchema;
+	readonly sourceFrame: number;
 	readonly value: UvCoordinate;
 };
 
@@ -615,13 +621,14 @@ export const getSequencesWithSelectableOutlines = ({
 		});
 };
 
-const getSelectedUvHandles = ({
+export const getSelectedUvHandles = ({
 	propStatuses,
 	clientId,
 	getEffectDragOverrides,
 	nodePath,
 	selectedEffects,
 	sequence,
+	sourceFrame,
 }: {
 	readonly propStatuses: PropStatuses;
 	readonly clientId: string | null;
@@ -629,6 +636,7 @@ const getSelectedUvHandles = ({
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly selectedEffects: Map<number, SelectedEffectFields> | undefined;
 	readonly sequence: TSequence;
+	readonly sourceFrame: number;
 }): SelectedOutlineUvHandle[] => {
 	if (clientId === null || selectedEffects === undefined) {
 		return [];
@@ -653,19 +661,21 @@ const getSelectedUvHandles = ({
 
 		const dragOverrides = getEffectDragOverrides(nodePath, effectIndex);
 		const activeSchema = Internals.flattenActiveSchema(effect.schema, (key) => {
-			const dragOverride = Internals.getStaticDragOverrideValue(
-				dragOverrides[key],
-			);
-			if (dragOverride !== undefined) {
-				return dragOverride;
-			}
-
 			const propStatus = effectStatus.props[key];
-			if (propStatus?.status !== 'static') {
+			if (
+				propStatus?.status !== 'static' &&
+				propStatus?.status !== 'keyframed'
+			) {
 				return undefined;
 			}
 
-			return propStatus.codeValue;
+			return Internals.getEffectiveVisualModeValue({
+				propStatus,
+				dragOverrideValue: dragOverrides[key],
+				defaultValue: undefined,
+				frame: sourceFrame,
+				shouldResortToDefaultValueIfUndefined: false,
+			});
 		});
 
 		for (const [fieldKey, fieldSchema] of Object.entries(activeSchema)) {
@@ -677,7 +687,10 @@ const getSelectedUvHandles = ({
 			}
 
 			const propStatus = effectStatus.props[fieldKey];
-			if (propStatus?.status !== 'static') {
+			if (
+				propStatus?.status !== 'static' &&
+				propStatus?.status !== 'keyframed'
+			) {
 				continue;
 			}
 
@@ -686,6 +699,7 @@ const getSelectedUvHandles = ({
 				propStatus,
 				dragOverrideValue,
 				defaultValue: fieldSchema.default,
+				frame: sourceFrame,
 				shouldResortToDefaultValueIfUndefined: true,
 			});
 			const value = parseUvCoordinate(effectiveValue);
@@ -702,6 +716,7 @@ const getSelectedUvHandles = ({
 				fieldSchema,
 				nodePath,
 				schema: effect.schema,
+				sourceFrame,
 				value,
 			});
 		}
@@ -1655,7 +1670,13 @@ const SelectedUvHandleCircle: React.FC<{
 					handle.nodePath,
 					handle.effectIndex,
 					handle.fieldKey,
-					Internals.makeStaticDragOverride(nextValue),
+					handle.propStatus.status === 'keyframed'
+						? Internals.makeKeyframedDragOverride({
+								status: handle.propStatus,
+								frame: handle.sourceFrame,
+								value: nextValue,
+							})
+						: Internals.makeStaticDragOverride(nextValue),
 				);
 			};
 
@@ -1674,31 +1695,54 @@ const SelectedUvHandleCircle: React.FC<{
 
 				const stringifiedValue =
 					lastValue === null ? null : JSON.stringify(lastValue);
-				const shouldSave =
-					lastValue !== null &&
-					!tuplesEqual(handle.propStatus.codeValue, lastValue) &&
-					!(
-						defaultValue === stringifiedValue &&
-						handle.propStatus.codeValue === undefined
+				const shouldSave = (() => {
+					if (lastValue === null) {
+						return false;
+					}
+
+					if (handle.propStatus.status === 'keyframed') {
+						return !tuplesEqual(handle.value, lastValue);
+					}
+
+					return (
+						!tuplesEqual(handle.propStatus.codeValue, lastValue) &&
+						!(
+							defaultValue === stringifiedValue &&
+							handle.propStatus.codeValue === undefined
+						)
 					);
+				})();
 
 				if (!shouldSave) {
 					clearEffectDragOverrides(handle.nodePath, handle.effectIndex);
 					return;
 				}
 
-				saveEffectProp({
-					type: 'value',
-					fileName: handle.nodePath.absolutePath,
-					nodePath: handle.nodePath,
-					effectIndex: handle.effectIndex,
-					fieldKey: handle.fieldKey,
-					value: lastValue,
-					defaultValue,
-					schema: handle.schema,
-					setPropStatuses,
-					clientId: handle.clientId,
-				}).finally(() => {
+				(handle.propStatus.status === 'keyframed'
+					? callAddEffectKeyframe({
+							fileName: handle.nodePath.absolutePath,
+							nodePath: handle.nodePath,
+							effectIndex: handle.effectIndex,
+							fieldKey: handle.fieldKey,
+							sourceFrame: handle.sourceFrame,
+							value: lastValue,
+							schema: handle.schema,
+							setPropStatuses,
+							clientId: handle.clientId,
+						})
+					: saveEffectProp({
+							type: 'value',
+							fileName: handle.nodePath.absolutePath,
+							nodePath: handle.nodePath,
+							effectIndex: handle.effectIndex,
+							fieldKey: handle.fieldKey,
+							value: lastValue,
+							defaultValue,
+							schema: handle.schema,
+							setPropStatuses,
+							clientId: handle.clientId,
+						})
+				).finally(() => {
 					clearEffectDragOverrides(handle.nodePath, handle.effectIndex);
 				});
 			};
@@ -1940,6 +1984,7 @@ export const SelectedOutlineOverlay: React.FC<{
 	);
 	const {getScaleLockState} = useContext(ScaleLockContext);
 	const {editorShowOutlines} = useContext(EditorShowOutlinesContext);
+	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const [outlines, setOutlines] = useState<readonly SelectedOutline[]>([]);
 	const [hoveredOutlineKey, setHoveredOutlineKey] = useState<string | null>(
 		null,
@@ -2069,6 +2114,7 @@ export const SelectedOutlineOverlay: React.FC<{
 							nodePath,
 							selectedEffects: selectedEffectsBySequenceKey.get(key),
 							sequence,
+							sourceFrame: timelinePosition - keyframeDisplayOffset,
 						})
 					: [],
 			};
@@ -2083,6 +2129,7 @@ export const SelectedOutlineOverlay: React.FC<{
 		previewServerState,
 		selectedItems,
 		sequences,
+		timelinePosition,
 	]);
 
 	useEffect(() => {

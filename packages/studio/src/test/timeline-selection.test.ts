@@ -18,6 +18,7 @@ import {
 	getSelectedOutlineScaleDragChanges,
 	getSelectedOutlineScaleDragValues,
 	getSelectedOutlineScaleEdgeInfo,
+	getSelectedUvHandles,
 	getSelectedSequenceKeys,
 	getSequencesWithSelectableOutlines,
 	getUvCoordinateForPoint,
@@ -1255,6 +1256,72 @@ test('UV handles are requested for selected effect children', () => {
 		allFields: true,
 		fieldKeys: new Set(),
 	});
+});
+
+test('UV handles are requested for keyframed selected effect props', () => {
+	const sequenceNodePathInfo = makeNodePathInfo(['body', 0], []);
+	const effectPropNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['effects', '0', 'position'],
+	);
+	const nodePath = sequenceNodePathInfo.sequenceSubscriptionKey;
+	const effectSchema = {
+		position: {
+			type: 'uv-coordinate',
+			default: [0, 0],
+		},
+	} as const satisfies SequenceSchema;
+	const propStatuses: PropStatuses = {
+		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			canUpdate: true,
+			props: {},
+			effects: [
+				{
+					canUpdate: true,
+					effectIndex: 0,
+					callee: 'testEffect',
+					importPath: null,
+					props: {
+						position: {
+							status: 'keyframed',
+							interpolationFunction: 'interpolate',
+							keyframes: [
+								{frame: 0, value: [0, 0]},
+								{frame: 100, value: [1, 1]},
+							],
+							easing: ['linear'],
+							clamping: {left: 'extend', right: 'extend'},
+							posterize: undefined,
+						},
+					},
+				},
+			],
+		},
+	};
+
+	const handles = getSelectedUvHandles({
+		propStatuses,
+		clientId: 'client-id',
+		getEffectDragOverrides: () => ({}),
+		nodePath,
+		selectedEffects: getSelectedEffectFieldsBySequenceKey([
+			{
+				type: 'sequence-effect-prop',
+				nodePathInfo: effectPropNodePathInfo,
+				i: 0,
+				key: 'position',
+			},
+		]).get(getTimelineSequenceSelectionKey(sequenceNodePathInfo)),
+		sequence: {
+			effects: [{schema: effectSchema}],
+		} as unknown as TSequence,
+		sourceFrame: 50,
+	});
+
+	expect(handles).toHaveLength(1);
+	expect(handles[0].propStatus.status).toBe('keyframed');
+	expect(handles[0].sourceFrame).toBe(50);
+	expect(handles[0].value).toEqual([0.5, 0.5]);
 });
 
 test('selected sequence keys only include exact sequence selections', () => {
