@@ -45,12 +45,14 @@ import {getSelectedKeyframeControlNodePathInfos} from '../components/Timeline/Ti
 import {
 	ENABLE_OUTLINES,
 	getSelectableTimelineSequenceSelections,
+	getTimelineMarqueeSelection,
 	getTimelineSelectionAfterInteraction,
 	getTimelineSelectionFromNodePathInfo,
 	getTimelineSequenceSelectionKey,
 	isTimelineSelectionModifierEvent,
 	SELECTION_ENABLED,
 	TIMELINE_TOP_DRAG,
+	timelineMarqueeRectsIntersect,
 } from '../components/Timeline/TimelineSelection';
 import {
 	getTimelineSequenceDurationDragChanges,
@@ -205,6 +207,120 @@ const makeFromPropStatuses = (
 
 test('Timeline selection should stay disabled until released publicly', () => {
 	expect(SELECTION_ENABLED).toBe(false);
+});
+
+test('timeline marquee rectangle intersection detects overlapping targets', () => {
+	expect(
+		timelineMarqueeRectsIntersect(
+			{left: 0, top: 0, right: 10, bottom: 10},
+			{left: 5, top: 5, right: 15, bottom: 15},
+		),
+	).toBe(true);
+	expect(
+		timelineMarqueeRectsIntersect(
+			{left: 0, top: 0, right: 10, bottom: 10},
+			{left: 11, top: 0, right: 20, bottom: 10},
+		),
+	).toBe(false);
+});
+
+test('timeline marquee locks to sequences after capturing a sequence first', () => {
+	const firstSequence = makeNodePathInfo(['body', 0], []);
+	const keyframe = makeNodePathInfo(['body', 1], ['controls', 'opacity']);
+	const secondSequence = makeNodePathInfo(['body', 2], []);
+
+	const result = getTimelineMarqueeSelection({
+		lockedSelectionKind: null,
+		marqueeRect: {left: 0, top: 0, right: 100, bottom: 100},
+		candidates: [
+			{
+				item: {type: 'sequence', nodePathInfo: firstSequence},
+				rect: {left: 0, top: 0, right: 10, bottom: 10},
+			},
+			{
+				item: {type: 'keyframe', nodePathInfo: keyframe, frame: 20},
+				rect: {left: 20, top: 0, right: 30, bottom: 10},
+			},
+			{
+				item: {type: 'sequence', nodePathInfo: secondSequence},
+				rect: {left: 40, top: 0, right: 50, bottom: 10},
+			},
+		],
+	});
+
+	expect(result.lockedSelectionKind).toBe('sequence');
+	expect(result.selectedItems).toEqual([
+		{type: 'sequence', nodePathInfo: firstSequence},
+		{type: 'sequence', nodePathInfo: secondSequence},
+	]);
+});
+
+test('timeline marquee locks to keyframes and easings after capturing a keyframe first', () => {
+	const keyframe = makeNodePathInfo(['body', 0], ['controls', 'opacity']);
+	const sequence = makeNodePathInfo(['body', 1], []);
+	const easing = makeNodePathInfo(['body', 2], ['controls', 'scale']);
+
+	const result = getTimelineMarqueeSelection({
+		lockedSelectionKind: null,
+		marqueeRect: {left: 0, top: 0, right: 100, bottom: 100},
+		candidates: [
+			{
+				item: {type: 'keyframe', nodePathInfo: keyframe, frame: 20},
+				rect: {left: 0, top: 0, right: 10, bottom: 10},
+			},
+			{
+				item: {type: 'sequence', nodePathInfo: sequence},
+				rect: {left: 20, top: 0, right: 30, bottom: 10},
+			},
+			{
+				item: {
+					type: 'easing',
+					nodePathInfo: easing,
+					fromFrame: 20,
+					toFrame: 30,
+					segmentIndex: 0,
+				},
+				rect: {left: 40, top: 0, right: 50, bottom: 10},
+			},
+		],
+	});
+
+	expect(result.lockedSelectionKind).toBe('keyframes-and-easings');
+	expect(result.selectedItems).toEqual([
+		{type: 'keyframe', nodePathInfo: keyframe, frame: 20},
+		{
+			type: 'easing',
+			nodePathInfo: easing,
+			fromFrame: 20,
+			toFrame: 30,
+			segmentIndex: 0,
+		},
+	]);
+});
+
+test('timeline marquee keeps its locked item kind while dragging', () => {
+	const keyframe = makeNodePathInfo(['body', 0], ['controls', 'opacity']);
+	const sequence = makeNodePathInfo(['body', 1], []);
+
+	const result = getTimelineMarqueeSelection({
+		lockedSelectionKind: 'keyframes-and-easings',
+		marqueeRect: {left: 0, top: 0, right: 100, bottom: 100},
+		candidates: [
+			{
+				item: {type: 'sequence', nodePathInfo: sequence},
+				rect: {left: 0, top: 0, right: 10, bottom: 10},
+			},
+			{
+				item: {type: 'keyframe', nodePathInfo: keyframe, frame: 20},
+				rect: {left: 20, top: 0, right: 30, bottom: 10},
+			},
+		],
+	});
+
+	expect(result.lockedSelectionKind).toBe('keyframes-and-easings');
+	expect(result.selectedItems).toEqual([
+		{type: 'keyframe', nodePathInfo: keyframe, frame: 20},
+	]);
 });
 
 test('keyframe diamond target resolution uses all selected prop rows when clicked row is selected', () => {

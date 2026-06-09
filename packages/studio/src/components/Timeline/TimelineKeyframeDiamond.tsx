@@ -1,4 +1,4 @@
-import React, {useContext, useMemo} from 'react';
+import React, {useContext, useMemo, useRef} from 'react';
 import {useVideoConfig} from 'remotion';
 import {LIGHT_TEXT} from '../../helpers/colors';
 import {getXPositionOfItemInTimelineImperatively} from '../../helpers/get-left-of-timeline-slider';
@@ -6,7 +6,11 @@ import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sor
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {TimelineKeyframeDiamondIcon} from './TimelineKeyframeDiamondIcon';
 import {useTimelineKeyframeDragState} from './TimelineKeyframeDragState';
-import {useTimelineKeyframeSelection} from './TimelineSelection';
+import {
+	TIMELINE_MARQUEE_ITEM_ATTR,
+	useTimelineKeyframeSelection,
+	useTimelineMarqueeSelectableItem,
+} from './TimelineSelection';
 import {TimelineWidthContext} from './TimelineWidthProvider';
 import {useTimelineKeyframeDrag} from './use-timeline-keyframe-drag';
 
@@ -31,10 +35,10 @@ const TimelineKeyframeDiamondUnmemoized: React.FC<{
 }> = ({frame, rowHeight, nodePathInfo}) => {
 	const videoConfig = useVideoConfig();
 	const timelineWidth = useContext(TimelineWidthContext);
-	const {selected, onSelect, selectable} = useTimelineKeyframeSelection(
-		nodePathInfo,
-		frame,
-	);
+	const ref = useRef<HTMLButtonElement>(null);
+	const {selected, onSelect, selectable, selectionItem} =
+		useTimelineKeyframeSelection(nodePathInfo, frame);
+	useTimelineMarqueeSelectableItem(selectionItem, ref);
 	const {isKeyframeDragging} = useTimelineKeyframeDragState();
 	const visuallySelected =
 		selected || isKeyframeDragging({nodePathInfo, frame});
@@ -72,6 +76,8 @@ const TimelineKeyframeDiamondUnmemoized: React.FC<{
 
 	return (
 		<button
+			ref={ref}
+			{...{[TIMELINE_MARQUEE_ITEM_ATTR]: true}}
 			type="button"
 			style={style}
 			title={`Keyframe at frame ${frame}`}

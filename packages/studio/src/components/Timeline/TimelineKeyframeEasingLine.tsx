@@ -10,8 +10,10 @@ import {ModalsContext} from '../../state/modals';
 import {ContextMenuForTarget} from '../ContextMenu';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {
+	TIMELINE_MARQUEE_ITEM_ATTR,
 	useCurrentTimelineSelectionStateAsRef,
 	useTimelineEasingSelection,
+	useTimelineMarqueeSelectableItem,
 } from './TimelineSelection';
 import {TimelineWidthContext} from './TimelineWidthProvider';
 import {
@@ -61,6 +63,7 @@ const TimelineKeyframeEasingLineUnmemoized: React.FC<{
 			toFrame,
 			segmentIndex,
 		});
+	useTimelineMarqueeSelectableItem(selectionItem, buttonRef);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
 	const propStatusesRef = useContext(
@@ -272,6 +275,7 @@ const TimelineKeyframeEasingLineUnmemoized: React.FC<{
 		<>
 			<button
 				ref={buttonRef}
+				{...{[TIMELINE_MARQUEE_ITEM_ATTR]: true}}
 				type="button"
 				style={style}
 				title={`Easing from frame ${fromFrame} to ${toFrame}`}

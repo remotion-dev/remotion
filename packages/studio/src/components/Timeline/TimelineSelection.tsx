@@ -127,6 +127,20 @@ export type TimelineSelectionState = {
 	readonly anchor: TimelineSelection | null;
 };
 
+export type TimelineMarqueeRect = {
+	readonly left: number;
+	readonly top: number;
+	readonly right: number;
+	readonly bottom: number;
+};
+
+export type TimelineMarqueeSelectionKind = 'sequence' | 'keyframes-and-easings';
+
+export type TimelineMarqueeSelectionCandidate = {
+	readonly item: TimelineSelection;
+	readonly rect: TimelineMarqueeRect;
+};
+
 const getTimelineSelectionType = (item: TimelineSelection) => item.type;
 
 const areTimelineSelectionTypesCompatible = (
@@ -277,6 +291,98 @@ export const getTimelineSelectionAfterInteraction = ({
 	};
 };
 
+export const getNormalizedTimelineMarqueeRect = ({
+	startX,
+	startY,
+	currentX,
+	currentY,
+}: {
+	readonly startX: number;
+	readonly startY: number;
+	readonly currentX: number;
+	readonly currentY: number;
+}): TimelineMarqueeRect => ({
+	left: Math.min(startX, currentX),
+	top: Math.min(startY, currentY),
+	right: Math.max(startX, currentX),
+	bottom: Math.max(startY, currentY),
+});
+
+export const timelineMarqueeRectsIntersect = (
+	a: TimelineMarqueeRect,
+	b: TimelineMarqueeRect,
+) =>
+	a.left <= b.right &&
+	a.right >= b.left &&
+	a.top <= b.bottom &&
+	a.bottom >= b.top;
+
+const getTimelineMarqueeSelectionKind = (
+	item: TimelineSelection,
+): TimelineMarqueeSelectionKind | null => {
+	if (item.type === 'sequence') {
+		return 'sequence';
+	}
+
+	if (item.type === 'keyframe' || item.type === 'easing') {
+		return 'keyframes-and-easings';
+	}
+
+	return null;
+};
+
+const isTimelineSelectionCompatibleWithMarqueeKind = (
+	item: TimelineSelection,
+	kind: TimelineMarqueeSelectionKind,
+) => {
+	if (kind === 'sequence') {
+		return item.type === 'sequence';
+	}
+
+	return item.type === 'keyframe' || item.type === 'easing';
+};
+
+export const getTimelineMarqueeSelection = ({
+	candidates,
+	lockedSelectionKind,
+	marqueeRect,
+}: {
+	readonly candidates: readonly TimelineMarqueeSelectionCandidate[];
+	readonly lockedSelectionKind: TimelineMarqueeSelectionKind | null;
+	readonly marqueeRect: TimelineMarqueeRect;
+}): {
+	readonly lockedSelectionKind: TimelineMarqueeSelectionKind | null;
+	readonly selectedItems: readonly TimelineSelection[];
+} => {
+	const intersectingCandidates = candidates.filter((candidate) => {
+		return (
+			getTimelineMarqueeSelectionKind(candidate.item) !== null &&
+			timelineMarqueeRectsIntersect(candidate.rect, marqueeRect)
+		);
+	});
+	const nextLockedSelectionKind =
+		lockedSelectionKind ??
+		(intersectingCandidates.length === 0
+			? null
+			: getTimelineMarqueeSelectionKind(intersectingCandidates[0].item));
+
+	if (nextLockedSelectionKind === null) {
+		return {lockedSelectionKind: null, selectedItems: []};
+	}
+
+	return {
+		lockedSelectionKind: nextLockedSelectionKind,
+		selectedItems: intersectingCandidates
+			.filter((candidate) =>
+				isTimelineSelectionCompatibleWithMarqueeKind(
+					candidate.item,
+					nextLockedSelectionKind,
+				),
+			)
+			.map((candidate) => candidate.item),
+	};
+};
+
 type TimelineSelectionContextValue = {
 	readonly canSelect: boolean;
 	readonly canSelectEasing: boolean;
@@ -288,6 +394,17 @@ type TimelineSelectionContextValue = {
 	) => void;
 	readonly selectItems: (items: readonly TimelineSelection[]) => void;
 	readonly registerSelectableItem: (item: TimelineSelection) => () => void;
+	readonly registerMarqueeSelectableItem: (
+		item: TimelineSelection,
+		getRect: () => DOMRect | null,
+	) => () => void;
+	readonly getMarqueeSelection: (
+		marqueeRect: TimelineMarqueeRect,
+		lockedSelectionKind: TimelineMarqueeSelectionKind | null,
+	) => {
+		readonly lockedSelectionKind: TimelineMarqueeSelectionKind | null;
+		readonly selectedItems: readonly TimelineSelection[];
+	};
 	readonly containsSelection: (nodePathInfo: SequenceNodePathInfo) => boolean;
 	readonly clearSelection: () => void;
 };
@@ -300,6 +417,11 @@ const defaultTimelineSelectionContextValue: TimelineSelectionContextValue = {
 	selectItem: () => undefined,
 	selectItems: () => undefined,
 	registerSelectableItem: () => () => undefined,
+	registerMarqueeSelectableItem: () => () => undefined,
+	getMarqueeSelection: () => ({
+		lockedSelectionKind: null,
+		selectedItems: [],
+	}),
 	containsSelection: () => false,
 	clearSelection: () => undefined,
 };
@@ -500,7 +622,18 @@ export const TimelineSelectionProvider: React.FC<{
 	const selectionAnchor = useRef<TimelineSelection | null>(null);
 	const selectableItemsOrder = useRef(new Map<string, number>());
 	const selectableItems = useRef(new Map<string, TimelineSelection>());
+	const marqueeSelectableItems = useRef(
+		new Map<
+			string,
+			{
+				readonly getRect: () => DOMRect | null;
+				readonly item: TimelineSelection;
+				readonly order: number;
+			}
+		>(),
+	);
 	const registrationCounter = useRef(0);
+	const marqueeRegistrationCounter = useRef(0);
 
 	useEffect(() => {
 		if (!canSelect && !canSelectEasing) {
@@ -590,6 +723,62 @@ export const TimelineSelectionProvider: React.FC<{
 		};
 	}, []);
 
+	const registerMarqueeSelectableItem = useCallback(
+		(item: TimelineSelection, getRect: () => DOMRect | null) => {
+			const key = getTimelineSelectionKey(item);
+			const registrationOrder = marqueeRegistrationCounter.current;
+			marqueeRegistrationCounter.current += 1;
+			marqueeSelectableItems.current.set(key, {
+				getRect,
+				item,
+				order: registrationOrder,
+			});
+			return () => {
+				marqueeSelectableItems.current.delete(key);
+			};
+		},
+		[],
+	);
+
+	const getMarqueeSelectionForRect = useCallback(
+		(
+			marqueeRect: TimelineMarqueeRect,
+			lockedSelectionKind: TimelineMarqueeSelectionKind | null,
+		) => {
+			const candidates = [...marqueeSelectableItems.current.values()]
+				.sort((a, b) => a.order - b.order)
+				.flatMap((candidate): TimelineMarqueeSelectionCandidate[] => {
+					if (!canSelectItem(candidate.item)) {
+						return [];
+					}
+
+					const rect = candidate.getRect();
+					if (rect === null) {
+						return [];
+					}
+
+					return [
+						{
+							item: candidate.item,
+							rect: {
+								bottom: rect.bottom,
+								left: rect.left,
+								right: rect.right,
+								top: rect.top,
+							},
+						},
+					];
+				});
+
+			return getTimelineMarqueeSelection({
+				candidates,
+				lockedSelectionKind,
+				marqueeRect,
+			});
+		},
+		[canSelectItem],
+	);
+
 	const clearSelection = useCallback(() => {
 		selectionAnchor.current = null;
 		setSelectedItems([]);
@@ -613,6 +802,8 @@ export const TimelineSelectionProvider: React.FC<{
 			selectItem,
 			selectItems,
 			registerSelectableItem,
+			registerMarqueeSelectableItem,
+			getMarqueeSelection: getMarqueeSelectionForRect,
 			containsSelection,
 			clearSelection,
 		}),
@@ -624,6 +815,8 @@ export const TimelineSelectionProvider: React.FC<{
 			selectItem,
 			selectItems,
 			registerSelectableItem,
+			registerMarqueeSelectableItem,
+			getMarqueeSelectionForRect,
 			containsSelection,
 			clearSelection,
 		],
@@ -646,6 +839,9 @@ export const useTimelineSelection = () => {
 	return useContext(TimelineSelectionContext);
 };
 
+export const TIMELINE_MARQUEE_ITEM_ATTR = 'data-timeline-marquee-item';
+export const TIMELINE_SCRUBBER_ATTR = 'data-timeline-scrubber';
+
 export const useCurrentTimelineSelectionStateAsRef = () => {
 	const currentSelection = useContext(CurrentTimelineSelectionContext);
 	if (currentSelection === null) {
@@ -655,6 +851,127 @@ export const useCurrentTimelineSelectionStateAsRef = () => {
 	}
 
 	return currentSelection;
+};
+
+export const useTimelineMarqueeSelection = () => {
+	const {canSelect, canSelectEasing, getMarqueeSelection, selectItems} =
+		useTimelineSelection();
+	const [marqueeRect, setMarqueeRect] = useState<TimelineMarqueeRect | null>(
+		null,
+	);
+
+	const onPointerDownCapture = useCallback(
+		(event: React.PointerEvent<HTMLDivElement>) => {
+			if (event.button !== 0 || (!canSelect && !canSelectEasing)) {
+				return;
+			}
+
+			if (event.shiftKey || event.metaKey || event.ctrlKey) {
+				return;
+			}
+
+			if (!(event.target instanceof Element)) {
+				return;
+			}
+
+			if (
+				event.target.closest(`[${TIMELINE_MARQUEE_ITEM_ATTR}]`) ||
+				event.target.closest(`[${TIMELINE_SCRUBBER_ATTR}]`)
+			) {
+				return;
+			}
+
+			event.preventDefault();
+			event.stopPropagation();
+
+			const {currentTarget: target, pointerId} = event;
+			if (target.setPointerCapture) {
+				target.setPointerCapture(pointerId);
+			}
+
+			const startX = event.clientX;
+			const startY = event.clientY;
+			const previousUserSelect = document.body.style.userSelect;
+			const previousWebkitUserSelect = document.body.style.webkitUserSelect;
+			document.body.style.userSelect = 'none';
+			document.body.style.webkitUserSelect = 'none';
+
+			let hasDragged = false;
+			let lockedSelectionKind: TimelineMarqueeSelectionKind | null = null;
+
+			const cleanup = () => {
+				window.removeEventListener('pointermove', onPointerMove);
+				window.removeEventListener('pointerup', onPointerUp);
+				window.removeEventListener('pointercancel', onPointerCancel);
+				if (target.hasPointerCapture?.(pointerId)) {
+					target.releasePointerCapture(pointerId);
+				}
+
+				document.body.style.userSelect = previousUserSelect;
+				document.body.style.webkitUserSelect = previousWebkitUserSelect;
+				setMarqueeRect(null);
+			};
+
+			const updateSelection = (clientX: number, clientY: number) => {
+				if (
+					!hasDragged &&
+					Math.max(Math.abs(clientX - startX), Math.abs(clientY - startY)) < 3
+				) {
+					return;
+				}
+
+				hasDragged = true;
+				const rect = getNormalizedTimelineMarqueeRect({
+					currentX: clientX,
+					currentY: clientY,
+					startX,
+					startY,
+				});
+				const nextSelection = getMarqueeSelection(rect, lockedSelectionKind);
+				lockedSelectionKind = nextSelection.lockedSelectionKind;
+				setMarqueeRect(rect);
+				selectItems(nextSelection.selectedItems);
+			};
+
+			const onPointerMove = (moveEvent: PointerEvent) => {
+				updateSelection(moveEvent.clientX, moveEvent.clientY);
+			};
+
+			const onPointerUp = (upEvent: PointerEvent) => {
+				updateSelection(upEvent.clientX, upEvent.clientY);
+				cleanup();
+			};
+
+			const onPointerCancel = () => {
+				cleanup();
+			};
+
+			window.addEventListener('pointermove', onPointerMove);
+			window.addEventListener('pointerup', onPointerUp);
+			window.addEventListener('pointercancel', onPointerCancel);
+		},
+		[canSelect, canSelectEasing, getMarqueeSelection, selectItems],
+	);
+
+	return {marqueeRect, onPointerDownCapture};
+};
+
+export const useTimelineMarqueeSelectableItem = (
+	item: TimelineSelection | null,
+	ref: React.RefObject<Element | null>,
+) => {
+	const {registerMarqueeSelectableItem} = useTimelineSelection();
+
+	useEffect(() => {
+		if (item === null) {
+			return;
+		}
+
+		return registerMarqueeSelectableItem(
+			item,
+			() => ref.current?.getBoundingClientRect() ?? null,
+		);
+	}, [item, ref, registerMarqueeSelectableItem]);
 };
 
 export const useTimelineRowSelection = (
@@ -692,6 +1009,7 @@ export const useTimelineRowSelection = (
 	return {
 		onSelect,
 		selectable: canSelect && selectionItem !== null,
+		selectionItem,
 		selected,
 	};
 };
@@ -727,6 +1045,7 @@ export const useTimelineKeyframeSelection = (
 	return {
 		onSelect,
 		selectable: canSelect,
+		selectionItem,
 		selected,
 	};
 };
