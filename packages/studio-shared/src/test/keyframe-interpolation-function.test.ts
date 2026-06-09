@@ -1,6 +1,9 @@
 import {expect, test} from 'bun:test';
 import type {SequenceSchema} from 'remotion';
-import {isSchemaFieldKeyframable} from '../keyframe-interpolation-function';
+import {
+	getKeyframeInterpolationFunctionForSchemaField,
+	isSchemaFieldKeyframable,
+} from '../keyframe-interpolation-function';
 
 test('isSchemaFieldKeyframable rejects enum fields', () => {
 	const schema = {
@@ -50,4 +53,20 @@ test('isSchemaFieldKeyframable finds keyframable fields in enum variants', () =>
 	} satisfies SequenceSchema;
 
 	expect(isSchemaFieldKeyframable({schema, key: 'style.opacity'})).toBe(true);
+});
+
+test('transform-origin fields use interpolate keyframes', () => {
+	const schema = {
+		'style.transformOrigin': {
+			type: 'transform-origin',
+			default: '50% 50%',
+		},
+	} satisfies SequenceSchema;
+
+	expect(
+		getKeyframeInterpolationFunctionForSchemaField({
+			schema,
+			key: 'style.transformOrigin',
+		}),
+	).toBe('interpolate');
 });

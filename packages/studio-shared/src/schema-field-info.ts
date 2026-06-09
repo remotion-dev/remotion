@@ -45,6 +45,7 @@ const SUPPORTED_SCHEMA_TYPES = [
 	'rotation-css',
 	'rotation-degrees',
 	'translate',
+	'transform-origin',
 	'scale',
 	'uv-coordinate',
 	'color',

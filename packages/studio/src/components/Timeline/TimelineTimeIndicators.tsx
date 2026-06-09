@@ -3,7 +3,6 @@ import {Internals} from 'remotion';
 import {
 	BACKGROUND,
 	LIGHT_TEXT,
-	TIMELINE_BACKGROUND,
 	TIMELINE_TRACK_SEPARATOR,
 } from '../../helpers/colors';
 import {
@@ -14,6 +13,7 @@ import {renderFrame} from '../../state/render-frame';
 import {TimeValue} from '../TimeValue';
 import {timelineVerticalScroll} from './timeline-refs';
 import {getFrameIncrementFromWidth} from './timeline-scroll-logic';
+import {ENABLE_OUTLINES, TIMELINE_TICKS_BACKGROUND} from './TimelineSelection';
 import {TimelineWidthContext} from './TimelineWidthProvider';
 
 export const TIMELINE_TIME_INDICATOR_HEIGHT = 39;
@@ -21,8 +21,11 @@ export const TIMELINE_TIME_INDICATOR_HEIGHT = 39;
 const container: React.CSSProperties = {
 	height: TIMELINE_TIME_INDICATOR_HEIGHT,
 	position: 'absolute',
-	backgroundColor: TIMELINE_BACKGROUND,
+	backgroundColor: TIMELINE_TICKS_BACKGROUND,
 	top: 0,
+	borderBottom: ENABLE_OUTLINES
+		? `${TIMELINE_ITEM_BORDER_BOTTOM}px solid ${TIMELINE_TRACK_SEPARATOR}`
+		: undefined,
 };
 
 const tick: React.CSSProperties = {
@@ -52,7 +55,7 @@ const timeValue: React.CSSProperties = {
 	height: TIMELINE_TIME_INDICATOR_HEIGHT,
 	position: 'absolute',
 	top: 0,
-	width: '100%',
+	width: 'calc(100% + 1.5px)',
 	paddingLeft: 10,
 	display: 'flex',
 	alignItems: 'center',

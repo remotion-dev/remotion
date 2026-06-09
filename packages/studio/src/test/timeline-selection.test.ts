@@ -31,6 +31,7 @@ import {
 	getSelectedOutlineScaleEdgeInfo,
 	getSelectedSequenceKeys,
 	getSequencesWithSelectableOutlines,
+	compensateTranslateForTransformOrigin,
 	type SelectedOutlineDragState,
 	type SelectedOutlineRotationDragState,
 	type SelectedOutlineScaleDragState,
@@ -58,6 +59,8 @@ import {
 	isTimelineSelectionModifierEvent,
 	SELECTION_ENABLED,
 	shouldSelectTimelineRowOnPointerDown,
+	TIMELINE_BACKGROUND,
+	TIMELINE_TICKS_BACKGROUND,
 	TIMELINE_TOP_DRAG,
 	timelineMarqueeRectsIntersect,
 } from '../components/Timeline/TimelineSelection';
@@ -69,6 +72,11 @@ import {
 	getTimelineSequenceFromDragTargets,
 	getTimelineSequenceFromDragValue,
 } from '../components/Timeline/TimelineSequenceRightEdgeDragHandle';
+import {
+	parseTransformOrigin,
+	parsedTransformOriginToUv,
+	serializeTransformOrigin,
+} from '../components/Timeline/transform-origin-utils';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 import {
 	loadEditorShowOutlinesOption,
@@ -1174,6 +1182,11 @@ test('Timeline outlines should not be enabled', () => {
 	expect(ENABLE_OUTLINES).toBe(false);
 });
 
+test('Timeline colors should use the old palette when outlines are disabled', () => {
+	expect(TIMELINE_BACKGROUND).toBe('#111');
+	expect(TIMELINE_TICKS_BACKGROUND).toBe('#111');
+});
+
 test('Timeline outlines visibility is enabled by default and persisted', () => {
 	withMockLocalStorage(() => {
 		expect(loadEditorShowOutlinesOption()).toBe(true);
@@ -1283,6 +1296,47 @@ test('UV handle pointer position maps back to UV coordinates', () => {
 
 	expect(result[0]).toBeCloseTo(uv[0], 5);
 	expect(result[1]).toBeCloseTo(uv[1], 5);
+});
+
+test('Transform origin parser supports keywords, percentages, px and z', () => {
+	const keyword = parseTransformOrigin('left bottom');
+	expect(keyword).not.toBeNull();
+	expect(
+		parsedTransformOriginToUv({
+			parsed: keyword!,
+			width: 200,
+			height: 100,
+		}),
+	).toEqual([0, 1]);
+
+	const px = parseTransformOrigin('100px 25% 10px');
+	expect(px).not.toBeNull();
+	expect(
+		parsedTransformOriginToUv({
+			parsed: px!,
+			width: 200,
+			height: 100,
+		}),
+	).toEqual([0.5, 0.25]);
+	expect(serializeTransformOrigin({uv: [0.5, 0.25], z: px!.z})).toBe(
+		'50% 25% 10px',
+	);
+});
+
+test('Transform origin parser rejects unsupported calc values', () => {
+	expect(parseTransformOrigin('calc(50% + 10px) 50%')).toBeNull();
+});
+
+test('Transform origin compensation keeps rotated and scaled elements in place', () => {
+	const next = compensateTranslateForTransformOrigin({
+		startTranslate: [20, 30],
+		deltaOrigin: [10, 5],
+		rotate: Math.PI / 2,
+		scale: [2, 3],
+	});
+
+	expect(next[0]).toBeCloseTo(-5, 5);
+	expect(next[1]).toBeCloseTo(45, 5);
 });
 
 test('UV coordinate constraints preserve precision despite schema step', () => {

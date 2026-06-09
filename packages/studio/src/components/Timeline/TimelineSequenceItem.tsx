@@ -17,12 +17,14 @@ import {ContextMenu} from '../ContextMenu';
 import {
 	addEffectFromDragData,
 	getEffectDragData,
+	hasExplicitEffectDragType,
 	hasEffectDragType,
 } from '../effect-drag-and-drop';
 import {
 	ExpandedTracksGetterContext,
 	ExpandedTracksSetterContext,
 } from '../ExpandedTracksProvider';
+import {Spacing} from '../layout';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {useSelectAsset} from '../use-select-asset';
@@ -56,7 +58,6 @@ const labelContainerStyle: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'row',
 	minWidth: 0,
-	gap: 4,
 };
 
 const effectDropHighlight: React.CSSProperties = {
@@ -850,15 +851,21 @@ export const TimelineSequenceItem: React.FC<{
 				return;
 			}
 
+			const dragData = getEffectDragData(e.dataTransfer);
+			if (!dragData) {
+				if (hasExplicitEffectDragType(e.dataTransfer)) {
+					e.preventDefault();
+					e.stopPropagation();
+					setEffectDropHovered(false);
+					showNotification('Could not read effect drag data', 3000);
+				}
+
+				return;
+			}
+
 			e.preventDefault();
 			e.stopPropagation();
 			setEffectDropHovered(false);
-
-			const dragData = getEffectDragData(e.dataTransfer);
-			if (!dragData) {
-				showNotification('Could not read effect drag data', 3000);
-				return;
-			}
 
 			await addEffectFromDragData({
 				dragData,
@@ -918,7 +925,12 @@ export const TimelineSequenceItem: React.FC<{
 					selected={selected}
 					containsSelection={containsSelection}
 				/>
-				{mediaSrc ? <TimelineMediaInfo src={mediaSrc} /> : null}
+				{mediaSrc ? (
+					<>
+						<Spacing x={0.5} /> <TimelineMediaInfo src={mediaSrc} />
+					</>
+				) : null}
+				<Spacing x={0.5} />
 				<TimelineItemStack originalLocation={originalLocation} />
 			</div>
 		</TimelineRowChrome>

@@ -1,7 +1,7 @@
 import React, {useMemo} from 'react';
-import {TIMELINE_BACKGROUND} from '../../helpers/colors';
 import {HORIZONTAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {scrollableRef} from './timeline-refs';
+import {TIMELINE_BACKGROUND} from './TimelineSelection';
 
 const outer: React.CSSProperties = {
 	width: '100%',

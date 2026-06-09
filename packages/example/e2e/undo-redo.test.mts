@@ -1,5 +1,5 @@
-import fs from 'fs';
 import {expect, test} from '@playwright/test';
+import fs from 'fs';
 import {
 	EXPANDED_SIDEBAR_STATE,
 	STUDIO_URL,
@@ -42,8 +42,8 @@ test.describe('undo redo', () => {
 		await expect(expandTrackButton).toBeVisible({timeout: 15_000});
 		await expandTrackButton.click();
 
-		// 3. Click the Playback Rate input dragger
-		const playbackRateLabel = page.getByText('Playback Rate', {exact: true});
+		// 3. Click the Playback rate input dragger
+		const playbackRateLabel = page.getByText('Playback rate', {exact: true});
 		await expect(playbackRateLabel).toBeVisible({timeout: 10_000});
 
 		const dragger = playbackRateLabel

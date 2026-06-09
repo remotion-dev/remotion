@@ -44,6 +44,7 @@ const label: React.CSSProperties = {
 	textOverflow: 'ellipsis',
 	fontSize: 14,
 	textAlign: 'left',
+	whiteSpace: 'nowrap',
 };
 
 const smallLabel: React.CSSProperties = {

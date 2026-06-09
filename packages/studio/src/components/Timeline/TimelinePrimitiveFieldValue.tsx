@@ -16,6 +16,7 @@ import {TimelineEnumField} from './TimelineEnumField';
 import {TimelineNumberField} from './TimelineNumberField';
 import {TimelineRotationField} from './TimelineRotationField';
 import {TimelineScaleField} from './TimelineScaleField';
+import {TimelineTransformOriginField} from './TimelineTransformOriginField';
 import {TimelineTranslateField} from './TimelineTranslateField';
 import {TimelineUvCoordinateField} from './TimelineUvCoordinateField';
 
@@ -95,6 +96,21 @@ export const TimelinePrimitiveFieldValue: React.FC<{
 		return (
 			<span>
 				<TimelineTranslateField
+					effectiveValue={effectiveValue}
+					field={field}
+					onDragEnd={onDragEnd}
+					onDragValueChange={onDragValueChange}
+					onSave={onSave}
+					propStatus={propStatus}
+				/>
+			</span>
+		);
+	}
+
+	if (field.typeName === 'transform-origin') {
+		return (
+			<span>
+				<TimelineTransformOriginField
 					effectiveValue={effectiveValue}
 					field={field}
 					onDragEnd={onDragEnd}
