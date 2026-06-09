@@ -3,6 +3,7 @@ import React from 'react';
 import {
 	AbsoluteFill,
 	CalculateMetadataFunction,
+	Img,
 	staticFile,
 	useCurrentFrame,
 	useVideoConfig,
@@ -45,6 +46,7 @@ export type CanvasCapturePreviewProps = {
 	readonly cursorScale: number;
 	readonly cursorOffsetX: number;
 	readonly cursorOffsetY: number;
+	readonly cursorAssetBasePath: string | null;
 	readonly cursorData?: CursorRecording;
 };
 
@@ -54,12 +56,94 @@ export const canvasCapturePreviewDefaultProps: CanvasCapturePreviewProps = {
 	cursorScale: 3,
 	cursorOffsetX: 0,
 	cursorOffsetY: 0,
+	cursorAssetBasePath: null,
+};
+
+const macCursorFilenameByCssValue: Record<string, string | null> = {
+	alias: 'makealias.svg',
+	'all-scroll': 'move.svg',
+	auto: 'default.svg',
+	beachball: 'beachball.svg',
+	busy: 'busy.svg',
+	cell: 'cell.svg',
+	'col-resize': 'resizeleftright.svg',
+	'context-menu': 'contextualmenu.svg',
+	contextualmenu: 'contextualmenu.svg',
+	copy: 'copy.svg',
+	crosshair: 'cross.svg',
+	cross: 'cross.svg',
+	default: 'default.svg',
+	'e-resize': 'resizeeast.svg',
+	'ew-resize': 'resizeleftright.svg',
+	grab: 'handopen.svg',
+	grabbing: 'handgrabbing.svg',
+	handgrabbing: 'handgrabbing.svg',
+	handopen: 'handopen.svg',
+	handpointing: 'handpointing.svg',
+	help: 'help.svg',
+	makealias: 'makealias.svg',
+	move: 'move.svg',
+	'n-resize': 'resizenorth.svg',
+	'ne-resize': 'resizenortheast.svg',
+	'nesw-resize': 'resizenortheastsouthwest.svg',
+	'no-drop': 'notallowed.svg',
+	none: null,
+	'not-allowed': 'notallowed.svg',
+	'ns-resize': 'resizenorthsouth.svg',
+	'nw-resize': 'resizenorthwest.svg',
+	'nwse-resize': 'resizenorthwestsoutheast.svg',
+	pointer: 'handpointing.svg',
+	poof: 'poof.svg',
+	progress: 'busy.svg',
+	'resize northsouth': 'resize northsouth.svg',
+	resizedown: 'resizedown.svg',
+	resizeeast: 'resizeeast.svg',
+	resizeleft: 'resizeleft.svg',
+	resizeleftright: 'resizeleftright.svg',
+	resizenorth: 'resizenorth.svg',
+	resizenortheast: 'resizenortheast.svg',
+	resizenortheastsouthwest: 'resizenortheastsouthwest.svg',
+	resizenorthsouth: 'resizenorthsouth.svg',
+	resizenorthwest: 'resizenorthwest.svg',
+	resizenorthwestsoutheast: 'resizenorthwestsoutheast.svg',
+	resizeright: 'resizeright.svg',
+	resizesouth: 'resizesouth.svg',
+	resizesoutheast: 'resizesoutheast.svg',
+	resizesouthwest: 'resizesouthwest.svg',
+	resizeup: 'resizeup.svg',
+	resizeupdown: 'resizeupdown.svg',
+	resizewest: 'resizewest.svg',
+	resizewesteast: 'resizewesteast.svg',
+	'row-resize': 'resizenorthsouth.svg',
+	's-resize': 'resizesouth.svg',
+	screenshotselection: 'screenshotselection.svg',
+	screenshotwindow: 'screenshotwindow.svg',
+	'se-resize': 'resizesoutheast.svg',
+	'sw-resize': 'resizesouthwest.svg',
+	text: 'textcursor.svg',
+	textcursor: 'textcursor.svg',
+	textcursorvertical: 'textcursorvertical.svg',
+	'vertical-text': 'textcursorvertical.svg',
+	'w-resize': 'resizewest.svg',
+	wait: 'busy.svg',
+	'zoom-in': 'zoomin.svg',
+	'zoom-out': 'zoomout.svg',
 };
 
 const resolveAsset = (src: string) => {
 	return src.startsWith('http://') || src.startsWith('https://')
 		? src
 		: staticFile(src);
+};
+
+const getNormalizedCursor = (cursor: string) => {
+	return cursor.split(',').at(-1)?.trim().toLowerCase() ?? 'auto';
+};
+
+const getMacCursorFilename = (cursor: string) => {
+	return (
+		macCursorFilenameByCssValue[getNormalizedCursor(cursor)] ?? 'default.svg'
+	);
 };
 
 const findCursorAtTime = (
@@ -157,11 +241,30 @@ const ResizeCursor: React.FC<{
 };
 
 const CursorGlyph: React.FC<{
+	readonly cursorAssetBasePath: string | null;
 	readonly cursor: string;
 	readonly scale: number;
-}> = ({cursor, scale}) => {
-	if (cursor === 'none') {
+}> = ({cursor, cursorAssetBasePath, scale}) => {
+	const macCursorFilename = getMacCursorFilename(cursor);
+
+	if (macCursorFilename === null) {
 		return null;
+	}
+
+	if (cursorAssetBasePath) {
+		const size = 32 * scale;
+
+		return (
+			<Img
+				src={staticFile(`${cursorAssetBasePath}/${macCursorFilename}`)}
+				style={{
+					display: 'block',
+					height: size,
+					transform: `translate(${-size / 2}px, ${-size / 2}px)`,
+					width: size,
+				}}
+			/>
+		);
 	}
 
 	if (cursor.includes('text')) {
@@ -180,11 +283,18 @@ const CursorGlyph: React.FC<{
 };
 
 const CursorOverlay: React.FC<{
+	readonly cursorAssetBasePath: string | null;
 	readonly cursorData: CursorRecording;
 	readonly cursorOffsetX: number;
 	readonly cursorOffsetY: number;
 	readonly cursorScale: number;
-}> = ({cursorData, cursorOffsetX, cursorOffsetY, cursorScale}) => {
+}> = ({
+	cursorAssetBasePath,
+	cursorData,
+	cursorOffsetX,
+	cursorOffsetY,
+	cursorScale,
+}) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
 	const cursor = findCursorAtTime(cursorData.mouseMovements, frame / fps);
@@ -218,7 +328,11 @@ const CursorOverlay: React.FC<{
 				pointerEvents: 'none',
 			}}
 		>
-			<CursorGlyph cursor={cursor.cursor} scale={scale} />
+			<CursorGlyph
+				cursor={cursor.cursor}
+				cursorAssetBasePath={cursorAssetBasePath}
+				scale={scale}
+			/>
 		</div>
 	);
 };
@@ -256,6 +370,7 @@ export const calculateCanvasCapturePreviewMetadata: CalculateMetadataFunction<
 };
 
 export const CanvasCapturePreview: React.FC<CanvasCapturePreviewProps> = ({
+	cursorAssetBasePath,
 	cursorData,
 	cursorFile,
 	cursorOffsetX,
@@ -282,11 +397,27 @@ export const CanvasCapturePreview: React.FC<CanvasCapturePreviewProps> = ({
 				}}
 			/>
 			<CursorOverlay
+				cursorAssetBasePath={cursorAssetBasePath}
 				cursorData={cursorData}
 				cursorOffsetX={cursorOffsetX}
 				cursorOffsetY={cursorOffsetY}
 				cursorScale={cursorScale}
 			/>
+			<div
+				style={{
+					backgroundColor: 'rgba(0, 0, 0, 0.55)',
+					borderRadius: 8,
+					bottom: 24,
+					color: 'white',
+					fontFamily: 'sans-serif',
+					fontSize: 28,
+					padding: '8px 12px',
+					position: 'absolute',
+					right: 24,
+				}}
+			>
+				Cursor asset mapping: mac-cursors by David Darnes
+			</div>
 		</AbsoluteFill>
 	);
 };
