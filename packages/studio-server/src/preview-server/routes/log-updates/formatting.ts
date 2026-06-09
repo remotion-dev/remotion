@@ -34,6 +34,7 @@ export const equals = (str: string) => fg(249, 38, 114, str);
 export const punctuation = (str: string) => str;
 export const stringValue = (str: string) => fg(230, 219, 116, str);
 export const numberValue = (str: string) => fg(174, 129, 255, str);
+export const inlineAddition = (str: string) => fg(166, 226, 46, str);
 export const strikeThrough = (str: string) =>
 	`\u001b[9m\u001b[38;2;255;85;85m${stripAnsi(str)}\u001b[39m\u001b[29m`;
 export const strikeThroughOrRemovedPrefix = (str: string) =>
@@ -74,6 +75,10 @@ const formatValueDelta = ({
 	const shortened = removeUnchangedInterpolateOptionProperties(
 		withoutUnchangedOptions,
 	);
+	const inlineDelta = formatInlineAdditionOrRemoval(shortened);
+	if (inlineDelta !== null) {
+		return inlineDelta;
+	}
 
 	return `${colorValue(shortened.oldValueString)} ${punctuation('→')} ${colorValue(shortened.newValueString)}`;
 };
@@ -202,6 +207,84 @@ const splitTopLevelArgs = (argsSource: string) => {
 
 	args.push(argsSource.slice(start).trim());
 	return args;
+};
+
+const getCommonPrefixLength = (
+	oldValueString: string,
+	newValueString: string,
+) => {
+	const maxLength = Math.min(oldValueString.length, newValueString.length);
+	let index = 0;
+
+	while (index < maxLength && oldValueString[index] === newValueString[index]) {
+		index++;
+	}
+
+	return index;
+};
+
+const getCommonSuffixLength = ({
+	oldValueString,
+	newValueString,
+	prefixLength,
+}: {
+	oldValueString: string;
+	newValueString: string;
+	prefixLength: number;
+}) => {
+	const maxLength =
+		Math.min(oldValueString.length, newValueString.length) - prefixLength;
+	let index = 0;
+
+	while (
+		index < maxLength &&
+		oldValueString[oldValueString.length - 1 - index] ===
+			newValueString[newValueString.length - 1 - index]
+	) {
+		index++;
+	}
+
+	return index;
+};
+
+const minSharedInlineDeltaChars = 12;
+
+const formatInlineAdditionOrRemoval = ({
+	oldValueString,
+	newValueString,
+}: {
+	oldValueString: string;
+	newValueString: string;
+}) => {
+	if (!colorEnabled()) {
+		return null;
+	}
+
+	const prefixLength = getCommonPrefixLength(oldValueString, newValueString);
+	const suffixLength = getCommonSuffixLength({
+		oldValueString,
+		newValueString,
+		prefixLength,
+	});
+
+	if (prefixLength + suffixLength < minSharedInlineDeltaChars) {
+		return null;
+	}
+
+	const oldMiddleEnd = oldValueString.length - suffixLength;
+	const newMiddleEnd = newValueString.length - suffixLength;
+	const oldMiddle = oldValueString.slice(prefixLength, oldMiddleEnd);
+	const newMiddle = newValueString.slice(prefixLength, newMiddleEnd);
+
+	if (oldMiddle.length === 0 && newMiddle.length > 0) {
+		return `${newValueString.slice(0, prefixLength)}${inlineAddition(newMiddle)}${newValueString.slice(newMiddleEnd)}`;
+	}
+
+	if (newMiddle.length === 0 && oldMiddle.length > 0) {
+		return `${oldValueString.slice(0, prefixLength)}${strikeThrough(oldMiddle)}${oldValueString.slice(oldMiddleEnd)}`;
+	}
+
+	return null;
 };
 
 const getObjectPropertyKey = (propertySource: string): string | null => {

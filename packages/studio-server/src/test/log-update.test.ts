@@ -12,8 +12,10 @@ import {formatPropChange} from '../preview-server/routes/log-updates/format-prop
 import {
 	attrName,
 	equals,
+	inlineAddition,
 	numberValue,
 	punctuation,
+	strikeThrough,
 } from '../preview-server/routes/log-updates/formatting';
 import {
 	logUpdate,
@@ -146,6 +148,44 @@ test('formatPropChange omits unchanged interpolate clamping when easing changes'
 	expect(formatted).not.toContain('extrapolateRight');
 	expect(formatted).toContain('Easing.bezier(0.5526, 3.9109, 0.995, 5)');
 	expect(formatted).toContain('Easing.bezier(0.5526, 3.9109, 0.6487, 4.8024)');
+});
+
+test('formatPropChange condenses added interpolateColors options', () => {
+	const addedOptions = `, {
+    easing: [Easing.bezier(0.4507, 2.3556, 0.6118, 0.0554)]
+}`;
+	const formatted = formatPropChange({
+		key: 'color',
+		oldValueString: `interpolateColors(frame, [0, 100], ['#0b84f3', '#f43b00'])`,
+		newValueString: `interpolateColors(frame, [0, 100], ['#0b84f3', '#f43b00']${addedOptions})`,
+		defaultValueString: null,
+		removedProps: [],
+		addedProps: [],
+	});
+
+	expect(formatted).toBe(
+		`${attrName('color')}${equals('=')}${punctuation('{')}interpolateColors(frame, [0, 100], ['#0b84f3', '#f43b00']${inlineAddition(addedOptions)})${punctuation('}')}`,
+	);
+	expect(formatted).not.toContain(' → ');
+});
+
+test('formatPropChange condenses removed interpolateColors options', () => {
+	const removedOptions = `, {
+    easing: [Easing.bezier(0.4507, 2.3556, 0.6118, 0.0554)]
+}`;
+	const formatted = formatPropChange({
+		key: 'color',
+		oldValueString: `interpolateColors(frame, [0, 100], ['#0b84f3', '#f43b00']${removedOptions})`,
+		newValueString: `interpolateColors(frame, [0, 100], ['#0b84f3', '#f43b00'])`,
+		defaultValueString: null,
+		removedProps: [],
+		addedProps: [],
+	});
+
+	expect(formatted).toBe(
+		`${attrName('color')}${equals('=')}${punctuation('{')}interpolateColors(frame, [0, 100], ['#0b84f3', '#f43b00']${strikeThrough(removedOptions)})${punctuation('}')}`,
+	);
+	expect(formatted).not.toContain(' → ');
 });
 
 test('logUpdate emits change-from-default output for discriminated union enum change', async () => {
