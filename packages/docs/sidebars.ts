@@ -159,6 +159,7 @@ const sidebars: SidebarsConfig = {
 				'remotion/html-in-canvas',
 				'iframe',
 				'img',
+				'interactive',
 				'interpolate-colors',
 				'interpolate',
 				'loop',

@@ -239,6 +239,10 @@ import {RemotionMediaVideoTexture} from './VideoTexture';
 import {VisualControls} from './VisualControls';
 import {FastUpdates} from './VisualModeTests/FastUpdates';
 import {FastUpdatesNested} from './VisualModeTests/FastUpdatesNested';
+import {
+	InteractiveHtmlElements,
+	InteractiveSvgElements,
+} from './VisualModeTests/InteractiveComponents';
 import {VoiceVisualization} from './voice-visualization';
 import {WhisperWeb} from './WhisperWeb';
 
@@ -2495,6 +2499,22 @@ export const Index: React.FC = () => {
 					height={1080}
 					fps={30}
 					durationInFrames={60}
+				/>
+				<Composition
+					id="interactive-html-elements"
+					component={InteractiveHtmlElements}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={90}
+				/>
+				<Composition
+					id="interactive-svg-elements"
+					component={InteractiveSvgElements}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={90}
 				/>
 			</Folder>
 			<ChangingTrimBeforeValue />

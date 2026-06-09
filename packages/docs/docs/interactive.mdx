@@ -1,0 +1,101 @@
+---
+image: /generated/articles-docs-interactive.png
+id: interactive
+title: Interactive
+crumb: 'API'
+---
+
+# `Interactive`<AvailableFrom v="4.0.475" />
+
+`Interactive` exposes HTML and SVG elements that can be visually edited in the Remotion Studio.
+
+Use it when a regular element should be selectable and draggable in the preview:
+
+```tsx twoslash title="MyComp.tsx"
+import {AbsoluteFill, Interactive} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  return (
+    <AbsoluteFill>
+      <Interactive.Div style={{backgroundColor: 'white', padding: 24}}>
+        Hello World
+      </Interactive.Div>
+    </AbsoluteFill>
+  );
+};
+```
+
+## Components
+
+The component name is the PascalCase version of the underlying element:
+
+```tsx twoslash title="MyComp.tsx"
+import {Interactive} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  return (
+    <Interactive.Svg viewBox="0 0 100 100" width={100} height={100}>
+      <Interactive.Rect width={100} height={100} fill="blue" />
+      <Interactive.Text x={50} y={50} textAnchor="middle" fill="white">
+        Hi
+      </Interactive.Text>
+    </Interactive.Svg>
+  );
+};
+```
+
+Available HTML elements:
+
+`A`, `Article`, `Aside`, `Button`, `Code`, `Div`, `Em`, `Footer`, `H1`, `H2`, `H3`, `H4`, `H5`, `H6`, `Header`, `Label`, `Li`, `Main`, `Nav`, `Ol`, `P`, `Pre`, `Section`, `Small`, `Span`, `Strong`, `Ul`.
+
+Available SVG elements:
+
+`Circle`, `Ellipse`, `G`, `Line`, `Path`, `Rect`, `Svg`, `Text`.
+
+## Props
+
+### Inherited props
+
+Every `Interactive` component inherits [`from`](/docs/sequence#from), [`durationInFrames`](/docs/sequence#durationinframes), [`name`](/docs/sequence#name), [`showInTimeline`](/docs/sequence#showintimeline) and [`hidden`](/docs/sequence#hidden) from [`<Sequence>`](/docs/sequence).
+
+```tsx twoslash title="Timed element"
+import {Interactive} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  return (
+    <Interactive.Div from={30} durationInFrames={90}>
+      Visible from frame 30 to 119
+    </Interactive.Div>
+  );
+};
+```
+
+### `ref?`
+
+You can add a [React ref](https://react.dev/learn/manipulating-the-dom-with-refs) to the rendered element.
+
+```tsx twoslash title="Using a ref"
+import {useRef} from 'react';
+import {Interactive} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  const ref = useRef<HTMLDivElement>(null);
+
+  return <Interactive.Div ref={ref}>Hello World</Interactive.Div>;
+};
+```
+
+### Other props
+
+All props of the corresponding HTML or SVG element are forwarded.
+
+For example, `<Interactive.Div>` accepts `<div>` props, and `<Interactive.Svg>` accepts `<svg>` props.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
+
+## See also
+
+- [Source code for this API](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/Interactive.tsx)
+- [`<Sequence>`](/docs/sequence)
