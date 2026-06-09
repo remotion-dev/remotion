@@ -10,6 +10,7 @@ import React, {
 	type CSSProperties,
 } from 'react';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
+import {BACKGROUND} from '../../helpers/colors';
 import type {
 	SequenceNodePathInfo,
 	TrackWithHash,
@@ -63,6 +64,10 @@ export const getTimelineSelectedTrackHighlightStyle = (
 export const SELECTION_ENABLED = false;
 export const TIMELINE_TOP_DRAG = false;
 export const ENABLE_OUTLINES = false;
+export const TIMELINE_BACKGROUND = ENABLE_OUTLINES ? '#0F1113' : '#111';
+export const TIMELINE_TICKS_BACKGROUND = ENABLE_OUTLINES
+	? BACKGROUND
+	: TIMELINE_BACKGROUND;
 export const EASING_SELECTION_ENABLED = false;
 
 type TimelineSelectionBase = {

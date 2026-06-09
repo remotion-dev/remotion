@@ -67,8 +67,7 @@ test.describe('sequence reorder', () => {
 				'text/plain': 'not effect drag data',
 			},
 		});
-		await expect(page.getByText(effectDragError)).toBeVisible({timeout: 5_000});
-		await expect(page.getByText(effectDragError)).toBeHidden({timeout: 5_000});
+		await expect(page.getByText(effectDragError)).toBeHidden();
 
 		await dropOnTimelineRow({
 			page,

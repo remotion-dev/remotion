@@ -1,7 +1,10 @@
 import {
+	ASSET_DRAG_MIME_TYPE,
+	COMPONENT_DRAG_MIME_TYPE,
 	EFFECT_DRAG_MIME_TYPE,
 	getRequiredPackageForEffectImportPath,
 	parseEffectDragData,
+	SFX_DRAG_MIME_TYPE,
 	type EffectDragData,
 } from '@remotion/studio-shared';
 import type {SequencePropsSubscriptionKey} from 'remotion';
@@ -10,11 +13,34 @@ import {callApi} from './call-api';
 import {showNotification} from './Notifications/NotificationCenter';
 
 export const hasEffectDragType = (dataTransfer: DataTransfer) => {
+	const types = Array.from(dataTransfer.types);
+	const hasExplicitEffectType = types.includes(EFFECT_DRAG_MIME_TYPE);
+	if (!hasExplicitEffectType && hasImportableAssetDragType(dataTransfer)) {
+		return false;
+	}
+
+	return types.some(
+		(type) => type === EFFECT_DRAG_MIME_TYPE || isGenericDragType(type),
+	);
+};
+
+export const hasExplicitEffectDragType = (dataTransfer: DataTransfer) => {
+	return Array.from(dataTransfer.types).includes(EFFECT_DRAG_MIME_TYPE);
+};
+
+const isGenericDragType = (type: string) => {
+	return type === 'application/json' || type === 'text/plain';
+};
+
+const hasImportableAssetDragType = (dataTransfer: DataTransfer) => {
 	return Array.from(dataTransfer.types).some(
 		(type) =>
-			type === EFFECT_DRAG_MIME_TYPE ||
-			type === 'application/json' ||
-			type === 'text/plain',
+			type === 'Files' ||
+			type === ASSET_DRAG_MIME_TYPE ||
+			type === COMPONENT_DRAG_MIME_TYPE ||
+			type === SFX_DRAG_MIME_TYPE ||
+			type === 'text/uri-list' ||
+			type === 'text/html',
 	);
 };
 

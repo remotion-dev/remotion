@@ -44,6 +44,7 @@ import {EditorZoomGesturesContext} from '../state/editor-zoom-gestures';
 import EditorGuides from './EditorGuides';
 import {EditorRulers} from './EditorRuler';
 import {useIsRulerVisible} from './EditorRuler/use-is-ruler-visible';
+import {getEffectDragData} from './effect-drag-and-drop';
 import {
 	importAssets,
 	importRemoteAsset,
@@ -726,6 +727,14 @@ export const Canvas: React.FC<{
 					!isRemoteAssetDragEvent(event)) ||
 				!isDragEventInsideCanvas(event)
 			) {
+				return;
+			}
+
+			if (
+				event.dataTransfer &&
+				getEffectDragData(event.dataTransfer) !== null
+			) {
+				event.preventDefault();
 				return;
 			}
 
