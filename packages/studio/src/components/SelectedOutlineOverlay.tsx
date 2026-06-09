@@ -19,15 +19,14 @@ import {formatFileLocation} from '../helpers/format-file-location';
 import {getBoxQuadsPonyfill} from '../helpers/get-box-quads-ponyfill';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 import {openOriginalPositionInEditor} from '../helpers/open-in-editor';
-import {ENABLE_OUTLINES} from '../helpers/outline-flags';
 import {EditorShowOutlinesContext} from '../state/editor-outlines';
 import {ScaleLockContext} from '../state/scale-lock';
 import {ContextMenuForTarget} from './ContextMenu';
 import {
 	addEffectFromDragData,
 	getEffectDragData,
-	hasExplicitEffectDragType,
 	hasEffectDragType,
+	hasExplicitEffectDragType,
 } from './effect-drag-and-drop';
 import {
 	forceSpecificCursor,
@@ -64,6 +63,7 @@ import {
 } from './Timeline/timeline-translate-utils';
 import {getLinkedScale} from './Timeline/TimelineScaleField';
 import {
+	ENABLE_OUTLINES,
 	getTimelineSequenceSelectionKey,
 	useTimelineSelection,
 	type TimelineSelection,

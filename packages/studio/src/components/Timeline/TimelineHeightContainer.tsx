@@ -1,6 +1,6 @@
 import React, {useMemo} from 'react';
-import {TIMELINE_BACKGROUND} from '../../helpers/colors';
 import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
+import {TIMELINE_BACKGROUND} from './TimelineSelection';
 import {useTimelineHeight} from './use-timeline-height';
 
 const baseStyle: React.CSSProperties = {

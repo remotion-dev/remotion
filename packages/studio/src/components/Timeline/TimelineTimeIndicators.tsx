@@ -3,10 +3,8 @@ import {Internals} from 'remotion';
 import {
 	BACKGROUND,
 	LIGHT_TEXT,
-	TIMELINE_TICKS_BACKGROUND,
 	TIMELINE_TRACK_SEPARATOR,
 } from '../../helpers/colors';
-import {ENABLE_OUTLINES} from '../../helpers/outline-flags';
 import {
 	TIMELINE_ITEM_BORDER_BOTTOM,
 	TIMELINE_PADDING,
@@ -15,6 +13,7 @@ import {renderFrame} from '../../state/render-frame';
 import {TimeValue} from '../TimeValue';
 import {timelineVerticalScroll} from './timeline-refs';
 import {getFrameIncrementFromWidth} from './timeline-scroll-logic';
+import {ENABLE_OUTLINES, TIMELINE_TICKS_BACKGROUND} from './TimelineSelection';
 import {TimelineWidthContext} from './TimelineWidthProvider';
 
 export const TIMELINE_TIME_INDICATOR_HEIGHT = 39;

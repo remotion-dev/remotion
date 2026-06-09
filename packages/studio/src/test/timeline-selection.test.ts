@@ -48,6 +48,7 @@ import {
 } from '../components/Timeline/TimelineClipboardKeybindings';
 import {getSelectedKeyframeControlNodePathInfos} from '../components/Timeline/TimelineKeyframeControls';
 import {
+	ENABLE_OUTLINES,
 	getClampedTimelineMarqueePoint,
 	getSelectableTimelineSequenceSelections,
 	getTimelineMarqueeSelection,
@@ -57,6 +58,8 @@ import {
 	isTimelineSelectionModifierEvent,
 	SELECTION_ENABLED,
 	shouldSelectTimelineRowOnPointerDown,
+	TIMELINE_BACKGROUND,
+	TIMELINE_TICKS_BACKGROUND,
 	TIMELINE_TOP_DRAG,
 	timelineMarqueeRectsIntersect,
 } from '../components/Timeline/TimelineSelection';
@@ -68,12 +71,7 @@ import {
 	getTimelineSequenceFromDragTargets,
 	getTimelineSequenceFromDragValue,
 } from '../components/Timeline/TimelineSequenceRightEdgeDragHandle';
-import {
-	TIMELINE_BACKGROUND,
-	TIMELINE_TICKS_BACKGROUND,
-} from '../helpers/colors';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
-import {ENABLE_OUTLINES} from '../helpers/outline-flags';
 import {
 	loadEditorShowOutlinesOption,
 	persistEditorShowOutlinesOption,
