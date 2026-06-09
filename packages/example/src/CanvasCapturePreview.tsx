@@ -56,7 +56,7 @@ export const canvasCapturePreviewDefaultProps: CanvasCapturePreviewProps = {
 	cursorScale: 3,
 	cursorOffsetX: 0,
 	cursorOffsetY: 0,
-	cursorAssetBasePath: 'mac-cursors',
+	cursorAssetBasePath: 'https://remotion.media/mac-cursors',
 };
 
 const macCursorFilenameByCssValue: Record<string, string | null> = {
@@ -134,6 +134,17 @@ const resolveAsset = (src: string) => {
 	return src.startsWith('http://') || src.startsWith('https://')
 		? src
 		: staticFile(src);
+};
+
+const resolveCursorAsset = (basePath: string, filename: string) => {
+	const normalizedBasePath = basePath.endsWith('/')
+		? basePath.slice(0, -1)
+		: basePath;
+
+	return normalizedBasePath.startsWith('http://') ||
+		normalizedBasePath.startsWith('https://')
+		? `${normalizedBasePath}/${encodeURIComponent(filename)}`
+		: staticFile(`${normalizedBasePath}/${filename}`);
 };
 
 const getNormalizedCursor = (cursor: string) => {
@@ -254,7 +265,7 @@ const CursorGlyph: React.FC<{
 	if (cursorAssetBasePath) {
 		return (
 			<Img
-				src={staticFile(`${cursorAssetBasePath}/${macCursorFilename}`)}
+				src={resolveCursorAsset(cursorAssetBasePath, macCursorFilename)}
 				style={{
 					display: 'block',
 					height: 32 * scale,
