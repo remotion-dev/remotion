@@ -122,6 +122,22 @@ export const isTimelineSelectionModifierEvent = ({
 	return shiftKey || metaKey || ctrlKey;
 };
 
+export const shouldSelectTimelineRowOnPointerDown = ({
+	selected,
+	shiftKey,
+	metaKey,
+	ctrlKey,
+}: {
+	readonly selected: boolean;
+	readonly shiftKey: boolean;
+	readonly metaKey: boolean;
+	readonly ctrlKey: boolean;
+}) => {
+	return (
+		!selected || isTimelineSelectionModifierEvent({shiftKey, metaKey, ctrlKey})
+	);
+};
+
 export type TimelineSelectionState = {
 	readonly selectedItems: readonly TimelineSelection[];
 	readonly anchor: TimelineSelection | null;

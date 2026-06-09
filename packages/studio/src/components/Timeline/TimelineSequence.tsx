@@ -18,6 +18,7 @@ import {TimelineImageInfo} from './TimelineImageInfo';
 import {
 	TIMELINE_MARQUEE_ITEM_ATTR,
 	TIMELINE_TOP_DRAG,
+	shouldSelectTimelineRowOnPointerDown,
 	useTimelineMarqueeSelectableItem,
 	useTimelineRowSelection,
 } from './TimelineSelection';
@@ -81,7 +82,7 @@ const TimelineSequenceCurrentFrame: React.FC<{
 	onMoveDragPointerDown,
 }) => {
 	const ref = useRef<HTMLDivElement>(null);
-	const {onSelect, selectable, selectionItem} =
+	const {onSelect, selectable, selected, selectionItem} =
 		useTimelineRowSelection(nodePathInfo);
 	useTimelineMarqueeSelectableItem(selectionItem, ref);
 
@@ -89,16 +90,26 @@ const TimelineSequenceCurrentFrame: React.FC<{
 		(e: React.PointerEvent<HTMLDivElement>) => {
 			if (e.button === 0) {
 				e.stopPropagation();
-				onSelect({
-					shiftKey: e.shiftKey,
-					toggleKey: e.metaKey || e.ctrlKey,
-				});
+				if (
+					shouldSelectTimelineRowOnPointerDown({
+						selected,
+						shiftKey: e.shiftKey,
+						metaKey: e.metaKey,
+						ctrlKey: e.ctrlKey,
+					})
+				) {
+					onSelect({
+						shiftKey: e.shiftKey,
+						toggleKey: e.metaKey || e.ctrlKey,
+					});
+				}
+
 				if (TIMELINE_TOP_DRAG && fromCanUpdate) {
 					onMoveDragPointerDown(e);
 				}
 			}
 		},
-		[fromCanUpdate, onMoveDragPointerDown, onSelect],
+		[fromCanUpdate, onMoveDragPointerDown, onSelect, selected],
 	);
 	const frame = useCurrentFrame();
 	const relativeFrame = frame - s.from;
