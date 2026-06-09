@@ -146,6 +146,7 @@ const makeTimelineSequence = ({
 	duration = 100,
 	from = 0,
 	type = 'sequence',
+	showInTimeline = true,
 }: {
 	readonly schema: SequenceSchema;
 	readonly effects?: readonly {readonly schema: SequenceSchema}[];
@@ -156,6 +157,7 @@ const makeTimelineSequence = ({
 	readonly duration?: number;
 	readonly from?: number;
 	readonly type?: TSequence['type'];
+	readonly showInTimeline?: boolean;
 }): TSequence =>
 	({
 		type,
@@ -166,7 +168,7 @@ const makeTimelineSequence = ({
 		documentationLink: null,
 		parent: parentId,
 		rootId: 'root',
-		showInTimeline: true,
+		showInTimeline,
 		nonce: [[0, 0]],
 		loopDisplay: undefined,
 		getStack: () => null,
@@ -1239,6 +1241,50 @@ test('Canvas outline hit targets render nested sequences above parents', () => {
 		getTimelineSequenceSelectionKey(parentNodePathInfo),
 		getTimelineSequenceSelectionKey(childNodePathInfo),
 	]);
+});
+
+test('Canvas outline hit targets exclude sequences hidden from the timeline', () => {
+	const schema = {} satisfies SequenceSchema;
+	const refForOutline = {current: null};
+	const hiddenNodePathInfo = makeNodePathInfo(['body', 0], []);
+	const visibleNodePathInfo = makeNodePathInfo(['body', 1], []);
+	const childNodePathInfo = makeNodePathInfo(['body', 0, 'children', 0], []);
+	const outlines = getSequencesWithSelectableOutlines({
+		sequences: [
+			makeTimelineSequence({
+				schema,
+				id: 'hidden',
+				overrideId: 'hidden',
+				refForOutline,
+				showInTimeline: false,
+			}),
+			makeTimelineSequence({
+				schema,
+				id: 'visible',
+				overrideId: 'visible',
+				refForOutline,
+			}),
+			makeTimelineSequence({
+				schema,
+				id: 'child',
+				overrideId: 'child',
+				parentId: 'hidden',
+				refForOutline,
+			}),
+		],
+		overrideIdsToNodePaths: {
+			hidden: hiddenNodePathInfo.sequenceSubscriptionKey,
+			visible: visibleNodePathInfo.sequenceSubscriptionKey,
+			child: childNodePathInfo.sequenceSubscriptionKey,
+		},
+	});
+
+	expect(outlines.map((outline) => outline.key).sort()).toEqual(
+		[
+			getTimelineSequenceSelectionKey(visibleNodePathInfo),
+			getTimelineSequenceSelectionKey(childNodePathInfo),
+		].sort(),
+	);
 });
 
 test('UV handles project semantic outline corners', () => {

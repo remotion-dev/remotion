@@ -512,7 +512,10 @@ export const getSequencesWithSelectableOutlines = ({
 				return false;
 			}
 
-			return track.nodePathInfo.auxiliaryKeys.length === 0;
+			return (
+				track.sequence.showInTimeline &&
+				track.nodePathInfo.auxiliaryKeys.length === 0
+			);
 		})
 		.filter((track) => track.sequence.refForOutline !== null)
 		.sort((a, b) => a.depth - b.depth)
