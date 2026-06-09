@@ -190,6 +190,7 @@ export {getRemotionEnvironment} from './get-remotion-environment.js';
 export {getStaticFiles, StaticFile} from './get-static-files.js';
 export * from './IFrame.js';
 export {Img, ImgProps} from './Img.js';
+export {Interactive, type InteractiveProps} from './Interactive.js';
 export * from './internals.js';
 export {
 	interpolateColors,

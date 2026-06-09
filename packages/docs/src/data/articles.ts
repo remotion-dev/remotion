@@ -2547,6 +2547,15 @@ export const articles = [
 		slug: 'install-whisper-cpp/transcribe',
 	},
 	{
+		id: 'interactive',
+		title: 'Interactive',
+		relativePath: 'docs/interactive.mdx',
+		compId: 'articles-docs-interactive',
+		crumb: 'API',
+		noAi: false,
+		slug: 'interactive',
+	},
+	{
 		id: 'interpolate-colors',
 		title: 'interpolateColors()',
 		relativePath: 'docs/interpolate-colors.mdx',
