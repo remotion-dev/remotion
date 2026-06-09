@@ -56,7 +56,7 @@ export const canvasCapturePreviewDefaultProps: CanvasCapturePreviewProps = {
 	cursorScale: 3,
 	cursorOffsetX: 0,
 	cursorOffsetY: 0,
-	cursorAssetBasePath: null,
+	cursorAssetBasePath: 'mac-cursors',
 };
 
 const macCursorFilenameByCssValue: Record<string, string | null> = {
@@ -252,16 +252,16 @@ const CursorGlyph: React.FC<{
 	}
 
 	if (cursorAssetBasePath) {
-		const size = 32 * scale;
-
 		return (
 			<Img
 				src={staticFile(`${cursorAssetBasePath}/${macCursorFilename}`)}
 				style={{
 					display: 'block',
-					height: size,
-					transform: `translate(${-size / 2}px, ${-size / 2}px)`,
-					width: size,
+					height: 32 * scale,
+					marginLeft: -16 * scale,
+					marginTop: -16 * scale,
+					width: 32 * scale,
+					scale: 3.23,
 				}}
 			/>
 		);
