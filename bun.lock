@@ -151,6 +151,25 @@
         "react-dom": ">=16.8.0",
       },
     },
+    "packages/canvas-capture": {
+      "name": "@remotion/canvas-capture",
+      "version": "4.0.474",
+      "dependencies": {
+        "mediabunny": "catalog:",
+        "remotion": "workspace:*",
+      },
+      "devDependencies": {
+        "@remotion/eslint-config-internal": "workspace:*",
+        "@typescript/native-preview": "catalog:",
+        "eslint": "catalog:",
+        "react": "catalog:",
+        "react-dom": "catalog:",
+      },
+      "peerDependencies": {
+        "react": ">=16.8.0",
+        "react-dom": ">=16.8.0",
+      },
+    },
     "packages/captions": {
       "name": "@remotion/captions",
       "version": "4.0.474",
@@ -427,6 +446,7 @@
         "@remotion/animation-utils": "workspace:*",
         "@remotion/babel-loader": "workspace:*",
         "@remotion/bundler": "workspace:*",
+        "@remotion/canvas-capture": "workspace:*",
         "@remotion/captions": "workspace:*",
         "@remotion/cli": "workspace:*",
         "@remotion/cloudrun": "workspace:*",
@@ -675,6 +695,7 @@
         "@remotion/animation-utils": "workspace:*",
         "@remotion/babel-loader": "workspace:*",
         "@remotion/bundler": "workspace:*",
+        "@remotion/canvas-capture": "workspace:*",
         "@remotion/captions": "workspace:*",
         "@remotion/cli": "workspace:*",
         "@remotion/cloudrun": "workspace:*",
@@ -1551,6 +1572,7 @@
       "version": "4.0.474",
       "dependencies": {
         "@jridgewell/trace-mapping": "0.3.31",
+        "@remotion/canvas-capture": "workspace:*",
         "@remotion/media-utils": "workspace:*",
         "@remotion/player": "workspace:*",
         "@remotion/renderer": "workspace:*",
@@ -3899,6 +3921,8 @@
     "@remotion/brand": ["@remotion/brand@workspace:packages/brand"],
 
     "@remotion/bundler": ["@remotion/bundler@workspace:packages/bundler"],
+
+    "@remotion/canvas-capture": ["@remotion/canvas-capture@workspace:packages/canvas-capture"],
 
     "@remotion/captions": ["@remotion/captions@workspace:packages/captions"],
 

@@ -17,6 +17,7 @@
 		{"path": "../core"},
 		{"path": "../babel-loader"},
 		{"path": "../bundler"},
+		{"path": "../canvas-capture"},
 		{"path": "../captions"},
 		{"path": "../effects"},
 		{"path": "../cli"},
