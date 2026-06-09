@@ -1,12 +1,6 @@
 import {PlayerInternals} from '@remotion/player';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
-import {
-	FAIL_COLOR,
-	INPUT_BORDER_COLOR_HOVERED,
-	INPUT_BORDER_COLOR_UNHOVERED,
-	WARNING_COLOR,
-} from '../../helpers/colors';
 import {HigherZIndex, useZIndex} from '../../state/z-index';
 import {MENU_INITIATOR_CLASSNAME} from '../Menu/is-menu-item';
 import {getPortal} from '../Menu/portals';
@@ -29,34 +23,13 @@ import {ColorPickerPopup, POPUP_WIDTH} from './ColorPickerPopup';
 // `button:focus` inset box-shadow defined in inject-css.ts.
 const SWATCH_CLASSNAME = '__remotion_color_swatch';
 
-const getSwatchBorderColor = ({
-	status,
-	isFocused,
-	isHovered,
-}: {
-	status: RemInputStatus;
-	isFocused: boolean;
-	isHovered: boolean;
-}) => {
-	if (status === 'warning') {
-		return WARNING_COLOR;
-	}
-
-	if (status === 'error') {
-		return FAIL_COLOR;
-	}
-
-	return isFocused || isHovered
-		? INPUT_BORDER_COLOR_HOVERED
-		: INPUT_BORDER_COLOR_UNHOVERED;
-};
-
 const swatchBaseStyle: React.CSSProperties = {
 	position: 'relative',
 	display: 'inline-block',
 	overflow: 'hidden',
 	padding: 0,
 	margin: 0,
+	border: 'none',
 	cursor: 'pointer',
 	backgroundColor: CHECKER_BACKGROUND_COLOR,
 	backgroundImage: CHECKER_BACKGROUND_IMAGE,
@@ -90,7 +63,6 @@ export const ColorPicker: React.FC<Props> = ({
 	value,
 	onChange,
 	onChangeComplete,
-	status,
 	disabled,
 	width = 45,
 	height = 25,
@@ -101,8 +73,6 @@ export const ColorPicker: React.FC<Props> = ({
 	style: customStyle,
 }) => {
 	const [opened, setOpened] = useState(false);
-	const [isHovered, setIsHovered] = useState(false);
-	const [isFocused, setIsFocused] = useState(false);
 	const triggerRef = useRef<HTMLButtonElement>(null);
 	const {tabIndex, currentZIndex} = useZIndex();
 
@@ -129,26 +99,11 @@ export const ColorPicker: React.FC<Props> = ({
 			width,
 			height,
 			borderRadius,
-			borderColor: getSwatchBorderColor({status, isFocused, isHovered}),
 			cursor: disabled ? 'not-allowed' : 'pointer',
 			opacity: disabled ? 0.5 : 1,
 			...(customStyle ?? {}),
 		};
-	}, [
-		borderRadius,
-		customStyle,
-		disabled,
-		height,
-		isFocused,
-		isHovered,
-		status,
-		width,
-	]);
-
-	const onMouseEnter = useCallback(() => setIsHovered(true), []);
-	const onMouseLeave = useCallback(() => setIsHovered(false), []);
-	const onFocus = useCallback(() => setIsFocused(true), []);
-	const onBlur = useCallback(() => setIsFocused(false), []);
+	}, [borderRadius, customStyle, disabled, height, width]);
 
 	// Toggle on pointerdown (matches Combobox) so the state flips before the
 	// HigherZIndex outside-click detection runs on pointerup. If we toggled in
@@ -259,10 +214,6 @@ export const ColorPicker: React.FC<Props> = ({
 				style={swatchStyle}
 				onPointerDown={onTriggerPointerDown}
 				onClick={onTriggerClick}
-				onMouseEnter={onMouseEnter}
-				onMouseLeave={onMouseLeave}
-				onFocus={onFocus}
-				onBlur={onBlur}
 			>
 				<span style={swatchFill} />
 			</button>
