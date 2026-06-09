@@ -44,7 +44,7 @@ const gifSchema = {
 		max: 10,
 		step: 0.1,
 		default: 1,
-		description: 'Playback rate',
+		description: 'Playback Rate',
 		hiddenFromList: false,
 		keyframable: false,
 	},

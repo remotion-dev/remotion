@@ -29,7 +29,7 @@ const audioSchema = {
 		min: 0.1,
 		step: 0.01,
 		default: 1,
-		description: 'Playback rate',
+		description: 'Playback Rate',
 		hiddenFromList: false,
 		keyframable: false,
 	},
