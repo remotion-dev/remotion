@@ -1,9 +1,8 @@
-import React, {useCallback, useMemo, useState} from 'react';
+import React, {useMemo} from 'react';
 import type {TSequence} from 'remotion';
 import {
 	getTimelineColor,
 	getTimelineSelectedLabelStyle,
-	SELECTION_ENABLED,
 	TIMELINE_SELECTED_LABEL_BACKGROUND,
 } from './TimelineSelection';
 
@@ -22,23 +21,7 @@ export const TimelineSequenceName: React.FC<{
 	readonly selected: boolean;
 	readonly containsSelection: boolean;
 }> = ({sequence, selected, containsSelection}) => {
-	const [hovered, setHovered] = useState(false);
-	const {documentationLink} = sequence;
-	const hoverable = !SELECTION_ENABLED && documentationLink !== null;
-
-	const onClick = useCallback(() => {
-		if (documentationLink === null) {
-			return;
-		}
-
-		window.open(documentationLink, '_blank', 'noopener,noreferrer');
-	}, [documentationLink]);
-
-	const onPointerEnter = useCallback(() => setHovered(true), []);
-	const onPointerLeave = useCallback(() => setHovered(false), []);
-
 	const style = useMemo((): React.CSSProperties => {
-		const hoverEffect = hovered && hoverable;
 		return {
 			alignItems: 'center',
 			alignSelf: 'stretch',
@@ -50,27 +33,18 @@ export const TimelineSequenceName: React.FC<{
 			color: getTimelineColor(selected, false),
 			userSelect: 'none',
 			WebkitUserSelect: 'none',
-			textDecoration: hoverEffect ? 'underline' : 'none',
-			cursor: hoverEffect ? 'pointer' : undefined,
+			textDecoration: 'none',
 			boxShadow:
 				containsSelection && !selected
 					? `inset 0 0 0 2px ${TIMELINE_SELECTED_LABEL_BACKGROUND}`
 					: undefined,
 		};
-	}, [hovered, hoverable, selected, containsSelection]);
+	}, [selected, containsSelection]);
 
 	const text = getTruncatedDisplayName(sequence.displayName) || '<Sequence>';
 
 	return (
-		<div
-			onPointerEnter={hoverable ? onPointerEnter : undefined}
-			onPointerLeave={hoverable ? onPointerLeave : undefined}
-			title={
-				documentationLink ? `Open documentation: ${documentationLink}` : text
-			}
-			style={style}
-			onClick={hoverable ? onClick : undefined}
-		>
+		<div title={text} style={style}>
 			{text}
 		</div>
 	);

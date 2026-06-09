@@ -13,7 +13,7 @@ import {renderFrame} from '../../state/render-frame';
 import {TimeValue} from '../TimeValue';
 import {timelineVerticalScroll} from './timeline-refs';
 import {getFrameIncrementFromWidth} from './timeline-scroll-logic';
-import {ENABLE_OUTLINES, TIMELINE_TICKS_BACKGROUND} from './TimelineSelection';
+import {TIMELINE_TICKS_BACKGROUND} from './TimelineSelection';
 import {TimelineWidthContext} from './TimelineWidthProvider';
 
 export const TIMELINE_TIME_INDICATOR_HEIGHT = 39;
@@ -23,9 +23,7 @@ const container: React.CSSProperties = {
 	position: 'absolute',
 	backgroundColor: TIMELINE_TICKS_BACKGROUND,
 	top: 0,
-	borderBottom: ENABLE_OUTLINES
-		? `${TIMELINE_ITEM_BORDER_BOTTOM}px solid ${TIMELINE_TRACK_SEPARATOR}`
-		: undefined,
+	borderBottom: `${TIMELINE_ITEM_BORDER_BOTTOM}px solid ${TIMELINE_TRACK_SEPARATOR}`,
 };
 
 const tick: React.CSSProperties = {

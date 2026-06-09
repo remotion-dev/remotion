@@ -1,12 +1,7 @@
-import React, {useCallback, useMemo, useState} from 'react';
+import React, {useMemo} from 'react';
 import {Internals} from 'remotion';
-import {LIGHT_TEXT, VERY_LIGHT_TEXT} from '../../helpers/colors';
-import {useSelectAsset} from '../use-select-asset';
-import {
-	getTimelineAssetLinkInfo,
-	openTimelineAssetLink,
-} from './timeline-asset-link';
-import {SELECTION_ENABLED} from './TimelineSelection';
+import {VERY_LIGHT_TEXT} from '../../helpers/colors';
+import {getTimelineAssetLinkInfo} from './timeline-asset-link';
 
 const lineStyle: React.CSSProperties = {
 	whiteSpace: 'nowrap',
@@ -19,34 +14,12 @@ const lineStyle: React.CSSProperties = {
 };
 
 const useAssetLink = (src: string) => {
-	const selectAsset = useSelectAsset();
-	const [hovered, setHovered] = useState(false);
-
 	const linkInfo = useMemo(() => getTimelineAssetLinkInfo(src), [src]);
-	const interactive = !SELECTION_ENABLED && linkInfo !== null;
-
-	const onClick = useCallback(
-		(e: React.MouseEvent) => {
-			if (!linkInfo) {
-				return;
-			}
-
-			e.preventDefault();
-			e.stopPropagation();
-
-			openTimelineAssetLink(linkInfo, selectAsset);
-		},
-		[linkInfo, selectAsset],
-	);
-
-	const onPointerEnter = useCallback(() => setHovered(true), []);
-	const onPointerLeave = useCallback(() => setHovered(false), []);
 
 	const fileNameStyle: React.CSSProperties = useMemo(
 		() => ({
 			...lineStyle,
-			color: interactive && hovered ? LIGHT_TEXT : VERY_LIGHT_TEXT,
-			cursor: interactive ? 'pointer' : undefined,
+			color: VERY_LIGHT_TEXT,
 			textDecoration: 'none',
 			display: 'inline-block',
 			overflow: 'hidden',
@@ -55,15 +28,11 @@ const useAssetLink = (src: string) => {
 			userSelect: 'none',
 			WebkitUserSelect: 'none',
 		}),
-		[interactive, hovered],
+		[],
 	);
 
 	return {
 		linkInfo,
-		interactive,
-		onClick,
-		onPointerEnter,
-		onPointerLeave,
 		fileNameStyle,
 	};
 };
@@ -73,23 +42,10 @@ export const TimelineMediaInfo: React.FC<{
 }> = ({src}) => {
 	const fileName = useMemo(() => Internals.getAssetDisplayName(src), [src]);
 
-	const {
-		linkInfo,
-		interactive,
-		onClick,
-		onPointerEnter,
-		onPointerLeave,
-		fileNameStyle,
-	} = useAssetLink(src);
+	const {linkInfo, fileNameStyle} = useAssetLink(src);
 
 	return (
-		<div
-			style={fileNameStyle}
-			title={linkInfo ? linkInfo.title : fileName}
-			onClick={interactive ? onClick : undefined}
-			onPointerEnter={interactive ? onPointerEnter : undefined}
-			onPointerLeave={interactive ? onPointerLeave : undefined}
-		>
+		<div style={fileNameStyle} title={linkInfo ? linkInfo.title : fileName}>
 			{fileName}
 		</div>
 	);

@@ -20,7 +20,6 @@ import {TimelineRowChrome} from './TimelineRowChrome';
 import {
 	getTimelineColor,
 	getTimelineSelectedLabelStyle,
-	SELECTION_ENABLED,
 	useTimelineRowSelection,
 } from './TimelineSelection';
 
@@ -162,7 +161,6 @@ export const TimelineEffectItem: React.FC<{
 		!validatedLocation.source;
 
 	const canReorder =
-		SELECTION_ENABLED &&
 		previewConnected &&
 		effectStatus.type === 'can-update-effect' &&
 		Boolean(validatedLocation.source);

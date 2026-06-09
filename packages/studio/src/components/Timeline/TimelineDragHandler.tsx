@@ -26,11 +26,7 @@ import {
 	getScrollPositionForCursorOnRightEdge,
 	scrollToTimelineXOffset,
 } from './timeline-scroll-logic';
-import {
-	TIMELINE_SCRUBBER_ATTR,
-	TIMELINE_TOP_DRAG,
-	useTimelineSelection,
-} from './TimelineSelection';
+import {TIMELINE_SCRUBBER_ATTR} from './TimelineSelection';
 import {redrawTimelineSliderFast} from './TimelineSlider';
 import {TIMELINE_TIME_INDICATOR_HEIGHT} from './TimelineTimeIndicators';
 
@@ -64,7 +60,6 @@ export const TimelineDragHandler: React.FC = () => {
 
 	const {zoom: zoomMap} = useContext(TimelineZoomCtx);
 	const {canvasContent} = useContext(Internals.CompositionManager);
-	const {canSelect, canSelectEasing} = useTimelineSelection();
 
 	const containerStyle: React.CSSProperties = useMemo(() => {
 		if (!canvasContent || canvasContent.type !== 'composition') {
@@ -75,11 +70,9 @@ export const TimelineDragHandler: React.FC = () => {
 		return {
 			...container,
 			width: 100 * zoom + '%',
-			...(TIMELINE_TOP_DRAG || canSelect || canSelectEasing
-				? {height: TIMELINE_TIME_INDICATOR_HEIGHT}
-				: {}),
+			height: TIMELINE_TIME_INDICATOR_HEIGHT,
 		};
-	}, [canSelect, canSelectEasing, canvasContent, zoomMap]);
+	}, [canvasContent, zoomMap]);
 
 	if (!canvasContent || canvasContent.type !== 'composition') {
 		return null;

@@ -18,6 +18,7 @@ import type {
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {timelineNodePathInfoToKey} from '../../helpers/timeline-node-path-key';
 import {useKeybinding} from '../../helpers/use-keybinding';
+import {useZIndex} from '../../state/z-index';
 import {TimelineClipboardKeybindings} from './TimelineClipboardKeybindings';
 import {TimelineDeleteKeybindings} from './TimelineDeleteKeybindings';
 
@@ -61,14 +62,8 @@ export const getTimelineSelectedTrackHighlightStyle = (
 	width: timelineWidth,
 });
 
-export const SELECTION_ENABLED = false;
-export const TIMELINE_TOP_DRAG = false;
-export const ENABLE_OUTLINES = false;
-export const TIMELINE_BACKGROUND = ENABLE_OUTLINES ? '#0F1113' : '#111';
-export const TIMELINE_TICKS_BACKGROUND = ENABLE_OUTLINES
-	? BACKGROUND
-	: TIMELINE_BACKGROUND;
-export const EASING_SELECTION_ENABLED = false;
+export const TIMELINE_BACKGROUND = '#0F1113';
+export const TIMELINE_TICKS_BACKGROUND = BACKGROUND;
 
 type TimelineSelectionBase = {
 	readonly nodePathInfo: SequenceNodePathInfo;
@@ -655,11 +650,9 @@ export const TimelineSelectionProvider: React.FC<{
 }> = ({children}) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const canSelect =
-		(SELECTION_ENABLED || ENABLE_OUTLINES) &&
 		previewServerState.type === 'connected' &&
 		!window.remotion_isReadOnlyStudio;
 	const canSelectEasing =
-		EASING_SELECTION_ENABLED &&
 		previewServerState.type === 'connected' &&
 		!window.remotion_isReadOnlyStudio;
 	const [selectedItems, setSelectedItems] = useState<
@@ -902,12 +895,17 @@ export const useCurrentTimelineSelectionStateAsRef = () => {
 export const useTimelineMarqueeSelection = () => {
 	const {canSelect, canSelectEasing, getMarqueeSelection, selectItems} =
 		useTimelineSelection();
+	const {isHighestContext} = useZIndex();
 	const [marqueeRect, setMarqueeRect] = useState<TimelineMarqueeRect | null>(
 		null,
 	);
 
 	const onPointerDownCapture = useCallback(
 		(event: React.PointerEvent<HTMLDivElement>) => {
+			if (!isHighestContext) {
+				return;
+			}
+
 			if (event.button !== 0 || (!canSelect && !canSelectEasing)) {
 				return;
 			}
@@ -1011,7 +1009,13 @@ export const useTimelineMarqueeSelection = () => {
 			window.addEventListener('pointerup', onPointerUp);
 			window.addEventListener('pointercancel', onPointerCancel);
 		},
-		[canSelect, canSelectEasing, getMarqueeSelection, selectItems],
+		[
+			canSelect,
+			canSelectEasing,
+			getMarqueeSelection,
+			isHighestContext,
+			selectItems,
+		],
 	);
 
 	return {marqueeRect, onPointerDownCapture};
