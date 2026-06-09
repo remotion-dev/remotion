@@ -37,6 +37,7 @@ test('find right values to delete when upgrading a discriminated union', () => {
 		'style.translate',
 		'style.scale',
 		'style.rotate',
+		'style.transformOrigin',
 		'style.opacity',
 		'premountFor',
 		'postmountFor',
