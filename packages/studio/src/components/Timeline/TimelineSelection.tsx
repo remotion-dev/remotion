@@ -18,6 +18,7 @@ import type {
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {timelineNodePathInfoToKey} from '../../helpers/timeline-node-path-key';
 import {useKeybinding} from '../../helpers/use-keybinding';
+import {useZIndex} from '../../state/z-index';
 import {TimelineClipboardKeybindings} from './TimelineClipboardKeybindings';
 import {TimelineDeleteKeybindings} from './TimelineDeleteKeybindings';
 
@@ -898,12 +899,17 @@ export const useCurrentTimelineSelectionStateAsRef = () => {
 export const useTimelineMarqueeSelection = () => {
 	const {canSelect, canSelectEasing, getMarqueeSelection, selectItems} =
 		useTimelineSelection();
+	const {isHighestContext} = useZIndex();
 	const [marqueeRect, setMarqueeRect] = useState<TimelineMarqueeRect | null>(
 		null,
 	);
 
 	const onPointerDownCapture = useCallback(
 		(event: React.PointerEvent<HTMLDivElement>) => {
+			if (!isHighestContext) {
+				return;
+			}
+
 			if (event.button !== 0 || (!canSelect && !canSelectEasing)) {
 				return;
 			}
@@ -1007,7 +1013,13 @@ export const useTimelineMarqueeSelection = () => {
 			window.addEventListener('pointerup', onPointerUp);
 			window.addEventListener('pointercancel', onPointerCancel);
 		},
-		[canSelect, canSelectEasing, getMarqueeSelection, selectItems],
+		[
+			canSelect,
+			canSelectEasing,
+			getMarqueeSelection,
+			isHighestContext,
+			selectItems,
+		],
 	);
 
 	return {marqueeRect, onPointerDownCapture};
