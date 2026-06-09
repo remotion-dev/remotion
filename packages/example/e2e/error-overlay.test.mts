@@ -1,5 +1,5 @@
-import fs from 'fs';
 import {expect, test} from '@playwright/test';
+import fs from 'fs';
 import {errorOverlayE2eFile, STUDIO_URL} from './constants.mts';
 import {readStudioLogs, stripAnsi} from './helpers.mts';
 import {startStudio, stopStudio} from './studio-server.mts';
@@ -85,5 +85,8 @@ test.describe('error overlay dismissal', () => {
 		//    after the first reset.
 		await writeAndWaitForRebuild(buggyContent, 're-introducing the bug');
 		await expect(errorMessage).toBeVisible({timeout: 15_000});
+
+		await writeAndWaitForRebuild(originalContent, 'restoring after the test');
+		await expect(errorMessage).toHaveCount(0, {timeout: 15_000});
 	});
 });

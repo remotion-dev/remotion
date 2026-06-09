@@ -42,13 +42,20 @@ import {
 } from './selected-outline-geometry';
 import {
 	getSelectedUvHandles,
+	getUvCoordinateForPoint,
+	getUvHandlePosition,
 	type SelectedOutlineUvHandle,
 } from './selected-outline-uv';
 import {
 	SelectedOutlineUvHandleCircleLayer,
 	SelectedOutlineUvHandleConnectionLayer,
 } from './SelectedOutlineUvControls';
-import {callAddSequenceKeyframe} from './Timeline/call-add-keyframe';
+import {
+	callAddKeyframes,
+	callAddSequenceKeyframe,
+	type AddSequenceKeyframeChange,
+} from './Timeline/call-add-keyframe';
+import {parseKeyframeFieldFromNodePath} from './Timeline/parse-keyframe-field-from-node-path';
 import {
 	saveSequenceProps,
 	type SaveSequencePropChange,
@@ -70,6 +77,11 @@ import {
 	type TimelineSelectionInteraction,
 } from './Timeline/TimelineSelection';
 import {getOriginalLocationFromStack} from './Timeline/TimelineStack/get-stack';
+import {
+	parseTransformOrigin,
+	parsedTransformOriginToUv,
+	serializeTransformOrigin,
+} from './Timeline/transform-origin-utils';
 
 type SelectedOutlineContextMenuOpenResult =
 	| false
@@ -92,6 +104,7 @@ type SelectedOutlineTarget = {
 	readonly drag: SelectedOutlineDragTarget | null;
 	readonly scaleDrag: SelectedOutlineScaleDragTarget | null;
 	readonly rotationDrag: SelectedOutlineRotationDragTarget | null;
+	readonly transformOriginDrag: SelectedOutlineTransformOriginDragTarget | null;
 	readonly uvHandles: readonly SelectedOutlineUvHandle[];
 };
 
@@ -110,6 +123,26 @@ type SelectedOutlineDragTarget = {
 	readonly keyframeDisplayOffset: number;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly schema: SequenceSchema;
+};
+
+type SelectedOutlineTransformOriginDragTarget = {
+	readonly clientId: string;
+	readonly keyframeDisplayOffset: number;
+	readonly nodePath: SequencePropsSubscriptionKey;
+	readonly originDefault: string | undefined;
+	readonly originPropStatus:
+		| CanUpdateSequencePropStatusStatic
+		| CanUpdateSequencePropStatusKeyframed;
+	readonly originValue: string;
+	readonly rotateValue: string;
+	readonly scaleValue: number | string;
+	readonly schema: SequenceSchema;
+	readonly sourceFrame: number;
+	readonly translateDefault: string | undefined;
+	readonly translatePropStatus:
+		| CanUpdateSequencePropStatusStatic
+		| CanUpdateSequencePropStatusKeyframed;
+	readonly translateValue: string;
 };
 
 type ScaleFieldSchema = Extract<SequenceFieldSchema, {type: 'scale'}>;
@@ -174,6 +207,7 @@ type SequenceWithSelectedOutline = {
 const translateFieldKey = 'style.translate';
 const scaleFieldKey = 'style.scale';
 const rotateFieldKey = 'style.rotate';
+const transformOriginFieldKey = 'style.transformOrigin';
 
 const outlineContainer: React.CSSProperties = {
 	position: 'absolute',
@@ -420,6 +454,49 @@ export const getSelectedEffectFieldsBySequenceKey = (
 	return selectedEffects;
 };
 
+type SelectedTransformOriginInfo = {
+	readonly sequenceKey: string;
+	readonly displayFrame: number | null;
+};
+
+const getSelectedTransformOriginInfo = (
+	selectedItems: readonly TimelineSelection[],
+): SelectedTransformOriginInfo | null => {
+	if (selectedItems.length !== 1) {
+		return null;
+	}
+
+	const [selectedItem] = selectedItems;
+	if (
+		selectedItem.type === 'sequence-prop' &&
+		selectedItem.key === transformOriginFieldKey
+	) {
+		return {
+			sequenceKey: getTimelineSequenceSelectionKey(selectedItem.nodePathInfo),
+			displayFrame: null,
+		};
+	}
+
+	if (selectedItem.type !== 'keyframe') {
+		return null;
+	}
+
+	const field = parseKeyframeFieldFromNodePath(
+		selectedItem.nodePathInfo.auxiliaryKeys,
+	);
+	if (
+		field?.type !== 'sequence' ||
+		field.fieldKey !== transformOriginFieldKey
+	) {
+		return null;
+	}
+
+	return {
+		sequenceKey: getTimelineSequenceSelectionKey(selectedItem.nodePathInfo),
+		displayFrame: selectedItem.frame,
+	};
+};
+
 export const getSequencesWithSelectableOutlines = ({
 	sequences,
 	overrideIdsToNodePaths,
@@ -473,7 +550,17 @@ const measureOutlines = (
 			continue;
 		}
 
-		outlines.push({key: target.key, points});
+		outlines.push({
+			key: target.key,
+			dimensions:
+				element instanceof HTMLElement
+					? {
+							width: element.offsetWidth,
+							height: element.offsetHeight,
+						}
+					: null,
+			points,
+		});
 	}
 
 	return outlines;
@@ -489,6 +576,13 @@ const outlinesAreEqual = (
 
 	for (let i = 0; i < a.length; i++) {
 		if (a[i].key !== b[i].key) {
+			return false;
+		}
+
+		if (
+			a[i].dimensions?.width !== b[i].dimensions?.width ||
+			a[i].dimensions?.height !== b[i].dimensions?.height
+		) {
 			return false;
 		}
 
@@ -958,6 +1052,389 @@ const clearSelectedOutlineRotationDragOverrides = ({
 	for (const dragState of dragStates) {
 		clearDragOverrides(dragState.target.nodePath);
 	}
+};
+
+const parseCssRotationToRadians = (value: string): number | null => {
+	const match = value
+		.trim()
+		.match(/^([+-]?(?:\d+\.?\d*|\.\d+))(deg|rad|turn|grad)$/);
+	if (!match) {
+		return null;
+	}
+
+	const number = Number(match[1]);
+	if (!Number.isFinite(number)) {
+		return null;
+	}
+
+	if (match[2] === 'rad') {
+		return number;
+	}
+
+	if (match[2] === 'turn') {
+		return number * Math.PI * 2;
+	}
+
+	if (match[2] === 'grad') {
+		return (number / 400) * Math.PI * 2;
+	}
+
+	return (number / 180) * Math.PI;
+};
+
+export const compensateTranslateForTransformOrigin = ({
+	startTranslate,
+	deltaOrigin,
+	rotate,
+	scale,
+}: {
+	readonly startTranslate: readonly [number, number];
+	readonly deltaOrigin: readonly [number, number];
+	readonly rotate: number;
+	readonly scale: readonly [number, number];
+}): readonly [number, number] => {
+	const cos = Math.cos(rotate);
+	const sin = Math.sin(rotate);
+	const matrixA = cos * scale[0];
+	const matrixB = sin * scale[0];
+	const matrixC = -sin * scale[1];
+	const matrixD = cos * scale[1];
+	const transformedDeltaX = matrixA * deltaOrigin[0] + matrixC * deltaOrigin[1];
+	const transformedDeltaY = matrixB * deltaOrigin[0] + matrixD * deltaOrigin[1];
+	const compensationX = deltaOrigin[0] - transformedDeltaX;
+	const compensationY = deltaOrigin[1] - transformedDeltaY;
+
+	return [startTranslate[0] - compensationX, startTranslate[1] - compensationY];
+};
+
+const uvsEqual = (
+	left: readonly [number, number],
+	right: readonly [number, number],
+): boolean =>
+	Math.abs(left[0] - right[0]) < 0.000001 &&
+	Math.abs(left[1] - right[1]) < 0.000001;
+
+const SelectedOutlineTransformOriginHandle: React.FC<{
+	readonly outline: SelectedOutline;
+	readonly onDraggingChange: (dragging: boolean) => void;
+	readonly target: SelectedOutlineTarget | undefined;
+}> = ({outline, onDraggingChange, target}) => {
+	const {setDragOverrides, clearDragOverrides, setPropStatuses} = useContext(
+		Internals.VisualModeSettersContext,
+	);
+	const transformOriginDrag = target?.transformOriginDrag ?? null;
+
+	const parsed = useMemo(
+		() =>
+			transformOriginDrag === null
+				? null
+				: parseTransformOrigin(transformOriginDrag.originValue),
+		[transformOriginDrag],
+	);
+	const uv = useMemo(() => {
+		if (parsed === null || outline.dimensions === null) {
+			return null;
+		}
+
+		return parsedTransformOriginToUv({
+			parsed,
+			width: outline.dimensions.width,
+			height: outline.dimensions.height,
+		});
+	}, [outline.dimensions, parsed]);
+	const position = useMemo(
+		() => (uv === null ? null : getUvHandlePosition(outline.points, uv)),
+		[outline.points, uv],
+	);
+
+	const onPointerDown = React.useCallback(
+		(event: React.PointerEvent<SVGGElement>) => {
+			if (
+				event.button !== 0 ||
+				transformOriginDrag === null ||
+				parsed === null ||
+				uv === null ||
+				outline.dimensions === null
+			) {
+				return;
+			}
+
+			event.preventDefault();
+			event.stopPropagation();
+
+			const svg = event.currentTarget.ownerSVGElement;
+			if (svg === null) {
+				return;
+			}
+
+			const rotation = parseCssRotationToRadians(
+				transformOriginDrag.rotateValue,
+			);
+			if (rotation === null) {
+				return;
+			}
+
+			const {dimensions} = outline;
+			if (dimensions === null) {
+				return;
+			}
+
+			const [scaleX, scaleY] = NoReactInternals.parseScaleValue(
+				transformOriginDrag.scaleValue,
+			);
+			const startTranslate = parseTranslate(transformOriginDrag.translateValue);
+			const svgRect = svg.getBoundingClientRect();
+			const defaultOrigin =
+				transformOriginDrag.originDefault !== undefined
+					? JSON.stringify(transformOriginDrag.originDefault)
+					: null;
+			const defaultTranslate =
+				transformOriginDrag.translateDefault !== undefined
+					? JSON.stringify(transformOriginDrag.translateDefault)
+					: null;
+
+			let last: {
+				readonly uv: readonly [number, number];
+				readonly origin: string;
+				readonly translate: string;
+			} | null = null;
+
+			onDraggingChange(true);
+			forceSpecificCursor('crosshair');
+
+			const updateFromPointerEvent = (
+				pointerEvent: PointerEvent | React.PointerEvent<SVGGElement>,
+			) => {
+				const point = {
+					x: pointerEvent.clientX - svgRect.left,
+					y: pointerEvent.clientY - svgRect.top,
+				};
+				const nextUv = getUvCoordinateForPoint(outline.points, point);
+				const deltaOrigin = [
+					(nextUv[0] - uv[0]) * dimensions.width,
+					(nextUv[1] - uv[1]) * dimensions.height,
+				] as const;
+				const [nextTranslateX, nextTranslateY] =
+					compensateTranslateForTransformOrigin({
+						startTranslate,
+						deltaOrigin,
+						rotate: rotation,
+						scale: [scaleX, scaleY],
+					});
+				const origin = serializeTransformOrigin({
+					uv: nextUv,
+					z: parsed.z,
+				});
+				const translate = serializeTranslate(nextTranslateX, nextTranslateY);
+				last = {uv: nextUv, origin, translate};
+
+				setDragOverrides(
+					transformOriginDrag.nodePath,
+					transformOriginFieldKey,
+					transformOriginDrag.originPropStatus.status === 'keyframed'
+						? Internals.makeKeyframedDragOverride({
+								status: transformOriginDrag.originPropStatus,
+								frame: transformOriginDrag.sourceFrame,
+								value: origin,
+							})
+						: Internals.makeStaticDragOverride(origin),
+				);
+				setDragOverrides(
+					transformOriginDrag.nodePath,
+					translateFieldKey,
+					transformOriginDrag.translatePropStatus.status === 'keyframed'
+						? Internals.makeKeyframedDragOverride({
+								status: transformOriginDrag.translatePropStatus,
+								frame: transformOriginDrag.sourceFrame,
+								value: translate,
+							})
+						: Internals.makeStaticDragOverride(translate),
+				);
+			};
+
+			updateFromPointerEvent(event);
+
+			const onPointerMove = (moveEvent: PointerEvent) => {
+				moveEvent.preventDefault();
+				updateFromPointerEvent(moveEvent);
+			};
+
+			const onPointerUp = () => {
+				window.removeEventListener('pointermove', onPointerMove);
+				window.removeEventListener('pointerup', onPointerUp);
+				window.removeEventListener('pointercancel', onPointerUp);
+				stopForcingSpecificCursor();
+				onDraggingChange(false);
+
+				if (last === null || uvsEqual(last.uv, uv)) {
+					clearDragOverrides(transformOriginDrag.nodePath);
+					return;
+				}
+
+				const originChanged = last.origin !== transformOriginDrag.originValue;
+				const translateChanged =
+					last.translate !== transformOriginDrag.translateValue;
+				if (!originChanged && !translateChanged) {
+					clearDragOverrides(transformOriginDrag.nodePath);
+					return;
+				}
+
+				const shouldSaveAsKeyframes =
+					transformOriginDrag.originPropStatus.status === 'keyframed' ||
+					transformOriginDrag.translatePropStatus.status === 'keyframed';
+
+				const promise = shouldSaveAsKeyframes
+					? callAddKeyframes({
+							sequenceKeyframes: [
+								originChanged
+									? {
+											fileName: transformOriginDrag.nodePath.absolutePath,
+											nodePath: transformOriginDrag.nodePath,
+											fieldKey: transformOriginFieldKey,
+											sourceFrame: transformOriginDrag.sourceFrame,
+											value: last.origin,
+											schema: transformOriginDrag.schema,
+										}
+									: null,
+								translateChanged
+									? {
+											fileName: transformOriginDrag.nodePath.absolutePath,
+											nodePath: transformOriginDrag.nodePath,
+											fieldKey: translateFieldKey,
+											sourceFrame: transformOriginDrag.sourceFrame,
+											value: last.translate,
+											schema: transformOriginDrag.schema,
+										}
+									: null,
+							].filter(
+								NoReactInternals.truthy,
+							) satisfies AddSequenceKeyframeChange[],
+							effectKeyframes: [],
+							setPropStatuses,
+							clientId: transformOriginDrag.clientId,
+						})
+					: saveSequenceProps({
+							changes: [
+								originChanged
+									? {
+											fileName: transformOriginDrag.nodePath.absolutePath,
+											nodePath: transformOriginDrag.nodePath,
+											fieldKey: transformOriginFieldKey,
+											value: last.origin,
+											defaultValue: defaultOrigin,
+											schema: transformOriginDrag.schema,
+										}
+									: null,
+								translateChanged
+									? {
+											fileName: transformOriginDrag.nodePath.absolutePath,
+											nodePath: transformOriginDrag.nodePath,
+											fieldKey: translateFieldKey,
+											value: last.translate,
+											defaultValue: defaultTranslate,
+											schema: transformOriginDrag.schema,
+										}
+									: null,
+							].filter(NoReactInternals.truthy),
+							setPropStatuses,
+							clientId: transformOriginDrag.clientId,
+							undoLabel: 'Move transform origin',
+							redoLabel: 'Move transform origin back',
+						});
+
+				promise
+					.catch((err) => {
+						showNotification(
+							`Could not save transform origin: ${
+								err instanceof Error ? err.message : String(err)
+							}`,
+							4000,
+						);
+					})
+					.finally(() => {
+						clearDragOverrides(transformOriginDrag.nodePath);
+					});
+			};
+
+			window.addEventListener('pointermove', onPointerMove);
+			window.addEventListener('pointerup', onPointerUp);
+			window.addEventListener('pointercancel', onPointerUp);
+		},
+		[
+			clearDragOverrides,
+			onDraggingChange,
+			outline,
+			parsed,
+			setDragOverrides,
+			setPropStatuses,
+			transformOriginDrag,
+			uv,
+		],
+	);
+
+	if (
+		transformOriginDrag === null ||
+		parsed === null ||
+		uv === null ||
+		position === null
+	) {
+		return null;
+	}
+
+	return (
+		<g
+			pointerEvents="all"
+			cursor="crosshair"
+			onPointerDown={onPointerDown}
+			aria-hidden="true"
+		>
+			<line
+				x1={position.x - 8}
+				y1={position.y}
+				x2={position.x + 8}
+				y2={position.y}
+				stroke="white"
+				strokeWidth={4}
+				vectorEffect="non-scaling-stroke"
+			/>
+			<line
+				x1={position.x}
+				y1={position.y - 8}
+				x2={position.x}
+				y2={position.y + 8}
+				stroke="white"
+				strokeWidth={4}
+				vectorEffect="non-scaling-stroke"
+			/>
+			<circle
+				cx={position.x}
+				cy={position.y}
+				r={4}
+				fill="white"
+				stroke={BLUE}
+				strokeWidth={2}
+				vectorEffect="non-scaling-stroke"
+			/>
+			<line
+				x1={position.x - 8}
+				y1={position.y}
+				x2={position.x + 8}
+				y2={position.y}
+				stroke={BLUE}
+				strokeWidth={2}
+				vectorEffect="non-scaling-stroke"
+			/>
+			<line
+				x1={position.x}
+				y1={position.y - 8}
+				x2={position.x}
+				y2={position.y + 8}
+				stroke={BLUE}
+				strokeWidth={2}
+				vectorEffect="non-scaling-stroke"
+			/>
+		</g>
+	);
 };
 
 const SelectedOutlinePolygon: React.FC<{
@@ -1931,6 +2408,11 @@ const SelectedOutlineElement: React.FC<{
 						/>
 					))
 				: null}
+			<SelectedOutlineTransformOriginHandle
+				outline={outline}
+				onDraggingChange={onDraggingChange}
+				target={target}
+			/>
 		</>
 	);
 };
@@ -1975,6 +2457,8 @@ export const SelectedOutlineOverlay: React.FC<{
 			getSequenceKeysContainingSelection(selectedItems);
 		const selectedEffectsBySequenceKey =
 			getSelectedEffectFieldsBySequenceKey(selectedItems);
+		const selectedTransformOriginInfo =
+			getSelectedTransformOriginInfo(selectedItems);
 		const clientId =
 			previewServerState.type === 'connected'
 				? previewServerState.clientId
@@ -1993,19 +2477,22 @@ export const SelectedOutlineOverlay: React.FC<{
 			const nodePath = nodePathInfo.sequenceSubscriptionKey;
 			const {controls} = sequence;
 			const fieldSchema = controls?.schema[translateFieldKey];
-			const propStatus = Internals.getPropStatusesCtx(propStatuses, nodePath)?.[
-				translateFieldKey
-			];
-			const scaleFieldSchema = controls?.schema[scaleFieldKey];
-			const scalePropStatus = Internals.getPropStatusesCtx(
+			const nodePropStatuses = Internals.getPropStatusesCtx(
 				propStatuses,
 				nodePath,
-			)?.[scaleFieldKey];
+			);
+			const propStatus = nodePropStatuses?.[translateFieldKey];
+			const scaleFieldSchema = controls?.schema[scaleFieldKey];
+			const scalePropStatus = nodePropStatuses?.[scaleFieldKey];
 			const rotationFieldSchema = controls?.schema[rotateFieldKey];
 			const rotationPropStatus = Internals.getPropStatusesCtx(
 				propStatuses,
 				nodePath,
 			)?.[rotateFieldKey];
+			const transformOriginFieldSchema =
+				controls?.schema[transformOriginFieldKey];
+			const transformOriginPropStatus =
+				nodePropStatuses?.[transformOriginFieldKey];
 			const canDragStatus =
 				propStatus?.status === 'static' ||
 				(propStatus?.status === 'keyframed' &&
@@ -2029,6 +2516,29 @@ export const SelectedOutlineOverlay: React.FC<{
 				controls !== null &&
 				rotationFieldSchema?.type === 'rotation-css' &&
 				canRotationDragStatus;
+			const selectedForTransformOrigin =
+				selectedTransformOriginInfo?.sequenceKey === key;
+			const transformOriginSourceFrame =
+				selectedTransformOriginInfo?.displayFrame === null ||
+				selectedTransformOriginInfo?.displayFrame === undefined
+					? timelinePosition - keyframeDisplayOffset
+					: selectedTransformOriginInfo.displayFrame - keyframeDisplayOffset;
+			const canTransformOriginStatus =
+				transformOriginPropStatus?.status === 'static' ||
+				(transformOriginPropStatus?.status === 'keyframed' &&
+					transformOriginPropStatus.interpolationFunction === 'interpolate');
+			const canTransformOriginTranslateStatus =
+				propStatus?.status === 'static' ||
+				(propStatus?.status === 'keyframed' &&
+					propStatus.interpolationFunction === 'interpolate');
+			const canTransformOriginDrag =
+				previewServerState.type === 'connected' &&
+				selectedForTransformOrigin &&
+				controls !== null &&
+				transformOriginFieldSchema?.type === 'transform-origin' &&
+				fieldSchema?.type === 'translate' &&
+				canTransformOriginStatus &&
+				canTransformOriginTranslateStatus;
 			const canDropEffect =
 				previewServerState.type === 'connected' &&
 				controls?.supportsEffects === true;
@@ -2095,6 +2605,76 @@ export const SelectedOutlineOverlay: React.FC<{
 							keyframeDisplayOffset,
 							nodePath,
 							schema: controls.schema,
+						}
+					: null,
+				transformOriginDrag: canTransformOriginDrag
+					? {
+							clientId: previewServerState.clientId,
+							keyframeDisplayOffset,
+							nodePath,
+							originDefault: transformOriginFieldSchema.default,
+							originPropStatus: transformOriginPropStatus,
+							originValue: String(
+								Internals.getEffectiveVisualModeValue({
+									propStatus: transformOriginPropStatus,
+									dragOverrideValue: (getDragOverrides(nodePath) ?? {})[
+										transformOriginFieldKey
+									],
+									defaultValue: transformOriginFieldSchema.default,
+									frame: transformOriginSourceFrame,
+									shouldResortToDefaultValueIfUndefined: true,
+								}) ?? transformOriginFieldSchema.default,
+							),
+							rotateValue: String(
+								rotationPropStatus?.status === 'static' ||
+									rotationPropStatus?.status === 'keyframed'
+									? (Internals.getEffectiveVisualModeValue({
+											propStatus: rotationPropStatus,
+											dragOverrideValue: (getDragOverrides(nodePath) ?? {})[
+												rotateFieldKey
+											],
+											defaultValue:
+												rotationFieldSchema?.type === 'rotation-css'
+													? rotationFieldSchema.default
+													: '0deg',
+											frame: transformOriginSourceFrame,
+											shouldResortToDefaultValueIfUndefined: true,
+										}) ?? '0deg')
+									: '0deg',
+							),
+							scaleValue:
+								scalePropStatus?.status === 'static' ||
+								scalePropStatus?.status === 'keyframed'
+									? String(
+											Internals.getEffectiveVisualModeValue({
+												propStatus: scalePropStatus,
+												dragOverrideValue: (getDragOverrides(nodePath) ?? {})[
+													scaleFieldKey
+												],
+												defaultValue:
+													scaleFieldSchema?.type === 'scale'
+														? scaleFieldSchema.default
+														: 1,
+												frame: transformOriginSourceFrame,
+												shouldResortToDefaultValueIfUndefined: true,
+											}) ?? 1,
+										)
+									: '1',
+							schema: controls.schema,
+							sourceFrame: transformOriginSourceFrame,
+							translateDefault: fieldSchema.default,
+							translatePropStatus: propStatus,
+							translateValue: String(
+								Internals.getEffectiveVisualModeValue({
+									propStatus,
+									dragOverrideValue: (getDragOverrides(nodePath) ?? {})[
+										translateFieldKey
+									],
+									defaultValue: fieldSchema.default,
+									frame: transformOriginSourceFrame,
+									shouldResortToDefaultValueIfUndefined: true,
+								}) ?? fieldSchema.default,
+							),
 						}
 					: null,
 				uvHandles: containsSelection
