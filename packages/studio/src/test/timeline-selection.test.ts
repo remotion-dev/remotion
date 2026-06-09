@@ -49,8 +49,6 @@ import {
 } from '../components/Timeline/TimelineClipboardKeybindings';
 import {getSelectedKeyframeControlNodePathInfos} from '../components/Timeline/TimelineKeyframeControls';
 import {
-	EASING_SELECTION_ENABLED,
-	ENABLE_OUTLINES,
 	getClampedTimelineMarqueePoint,
 	getSelectableTimelineSequenceSelections,
 	getTimelineMarqueeSelection,
@@ -58,11 +56,9 @@ import {
 	getTimelineSelectionFromNodePathInfo,
 	getTimelineSequenceSelectionKey,
 	isTimelineSelectionModifierEvent,
-	SELECTION_ENABLED,
 	shouldSelectTimelineRowOnPointerDown,
 	TIMELINE_BACKGROUND,
 	TIMELINE_TICKS_BACKGROUND,
-	TIMELINE_TOP_DRAG,
 	timelineMarqueeRectsIntersect,
 } from '../components/Timeline/TimelineSelection';
 import {
@@ -220,10 +216,6 @@ const makeFromPropStatuses = (
 
 	return propStatuses;
 };
-
-test('Timeline selection is enabled', () => {
-	expect(SELECTION_ENABLED).toBe(true);
-});
 
 test('timeline marquee rectangle intersection detects overlapping targets', () => {
 	expect(
@@ -758,10 +750,6 @@ test('pasting an effect prop requires the same effect type and prop key', () => 
 	).toEqual({type: 'effect-type-mismatch'} satisfies PasteEffectPropTarget);
 });
 
-test('Timeline top drag is enabled', () => {
-	expect(TIMELINE_TOP_DRAG).toBe(true);
-});
-
 test('Timeline duration drag applies the same delta to selected sequences', () => {
 	const schema = {} satisfies SequenceSchema;
 	const firstNodePathInfo = makeNodePathInfo(['body', 0], []);
@@ -1177,14 +1165,6 @@ test('Timeline from drag removes the prop at the default value', () => {
 		defaultValue: '0',
 		schema: NoReactInternals.sequenceSchema,
 	});
-});
-
-test('Timeline outlines are enabled', () => {
-	expect(ENABLE_OUTLINES).toBe(true);
-});
-
-test('Timeline easing selection is enabled', () => {
-	expect(EASING_SELECTION_ENABLED).toBe(true);
 });
 
 test('Timeline colors use the outlines palette', () => {

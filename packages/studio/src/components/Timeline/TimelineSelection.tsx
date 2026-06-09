@@ -62,12 +62,8 @@ export const getTimelineSelectedTrackHighlightStyle = (
 	width: timelineWidth,
 });
 
-export const SELECTION_ENABLED = true;
-export const TIMELINE_TOP_DRAG = true;
-export const ENABLE_OUTLINES = true;
 export const TIMELINE_BACKGROUND = '#0F1113';
 export const TIMELINE_TICKS_BACKGROUND = BACKGROUND;
-export const EASING_SELECTION_ENABLED = true;
 
 type TimelineSelectionBase = {
 	readonly nodePathInfo: SequenceNodePathInfo;
