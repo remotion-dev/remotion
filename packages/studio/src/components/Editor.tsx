@@ -8,6 +8,7 @@ import {drawRef} from '../state/canvas-ref';
 import {ScaleLockProvider} from '../state/scale-lock';
 import {TimelineZoomContext} from '../state/timeline-zoom';
 import {HigherZIndex} from '../state/z-index';
+import {CANVAS_CAPTURE_ENABLED} from './canvas-capture-enabled';
 import {EditorContent} from './EditorContent';
 import {ForceSpecificCursor} from './ForceSpecificCursor';
 import {GlobalKeybindings} from './GlobalKeybindings';
@@ -17,8 +18,6 @@ import {RenderErrorContext} from './RenderErrorContext';
 import {SequencePropsSubscriptionProvider} from './SequencePropsSubscriptionProvider';
 import {StudioCanvasCapture} from './StudioCanvasCapture';
 import {TopPanel} from './TopPanel';
-
-const CANVAS_CAPTURE_ENABLED = true;
 
 const background: React.CSSProperties = {
 	backgroundColor: BACKGROUND,
