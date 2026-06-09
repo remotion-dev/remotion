@@ -60,10 +60,10 @@ export const getTimelineSelectedTrackHighlightStyle = (
 	width: timelineWidth,
 });
 
-export const SELECTION_ENABLED = true;
-export const TIMELINE_TOP_DRAG = true;
-export const ENABLE_OUTLINES = true;
-export const EASING_SELECTION_ENABLED = true;
+export const SELECTION_ENABLED = false;
+export const TIMELINE_TOP_DRAG = false;
+export const ENABLE_OUTLINES = false;
+export const EASING_SELECTION_ENABLED = false;
 
 type TimelineSelectionBase = {
 	readonly nodePathInfo: SequenceNodePathInfo;
@@ -360,26 +360,35 @@ export const getTimelineMarqueeSelection = ({
 			timelineMarqueeRectsIntersect(candidate.rect, marqueeRect)
 		);
 	});
-	const nextLockedSelectionKind =
-		lockedSelectionKind ??
-		(intersectingCandidates.length === 0
+	const getFirstIntersectingSelectionKind = () =>
+		intersectingCandidates.length === 0
 			? null
-			: getTimelineMarqueeSelectionKind(intersectingCandidates[0].item));
+			: getTimelineMarqueeSelectionKind(intersectingCandidates[0].item);
+	let nextLockedSelectionKind =
+		lockedSelectionKind ?? getFirstIntersectingSelectionKind();
+	const getSelectedItemsForKind = (kind: TimelineMarqueeSelectionKind) =>
+		intersectingCandidates
+			.filter((candidate) =>
+				isTimelineSelectionCompatibleWithMarqueeKind(candidate.item, kind),
+			)
+			.map((candidate) => candidate.item);
 
 	if (nextLockedSelectionKind === null) {
 		return {lockedSelectionKind: null, selectedItems: []};
 	}
 
+	let selectedItems = getSelectedItemsForKind(nextLockedSelectionKind);
+	if (lockedSelectionKind !== null && selectedItems.length === 0) {
+		nextLockedSelectionKind = getFirstIntersectingSelectionKind();
+		selectedItems =
+			nextLockedSelectionKind === null
+				? []
+				: getSelectedItemsForKind(nextLockedSelectionKind);
+	}
+
 	return {
 		lockedSelectionKind: nextLockedSelectionKind,
-		selectedItems: intersectingCandidates
-			.filter((candidate) =>
-				isTimelineSelectionCompatibleWithMarqueeKind(
-					candidate.item,
-					nextLockedSelectionKind,
-				),
-			)
-			.map((candidate) => candidate.item),
+		selectedItems,
 	};
 };
 

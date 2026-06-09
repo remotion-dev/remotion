@@ -323,6 +323,49 @@ test('timeline marquee keeps its locked item kind while dragging', () => {
 	]);
 });
 
+test('timeline marquee can choose a new item kind after the locked kind selects nothing', () => {
+	const keyframe = makeNodePathInfo(['body', 0], ['controls', 'opacity']);
+	const sequence = makeNodePathInfo(['body', 1], []);
+
+	const result = getTimelineMarqueeSelection({
+		lockedSelectionKind: 'sequence',
+		marqueeRect: {left: 0, top: 0, right: 100, bottom: 100},
+		candidates: [
+			{
+				item: {type: 'keyframe', nodePathInfo: keyframe, frame: 20},
+				rect: {left: 20, top: 0, right: 30, bottom: 10},
+			},
+			{
+				item: {type: 'sequence', nodePathInfo: sequence},
+				rect: {left: 120, top: 0, right: 130, bottom: 10},
+			},
+		],
+	});
+
+	expect(result.lockedSelectionKind).toBe('keyframes-and-easings');
+	expect(result.selectedItems).toEqual([
+		{type: 'keyframe', nodePathInfo: keyframe, frame: 20},
+	]);
+});
+
+test('timeline marquee clears its item kind when no target is selected', () => {
+	const sequence = makeNodePathInfo(['body', 0], []);
+
+	const result = getTimelineMarqueeSelection({
+		lockedSelectionKind: 'sequence',
+		marqueeRect: {left: 0, top: 0, right: 100, bottom: 100},
+		candidates: [
+			{
+				item: {type: 'sequence', nodePathInfo: sequence},
+				rect: {left: 120, top: 0, right: 130, bottom: 10},
+			},
+		],
+	});
+
+	expect(result.lockedSelectionKind).toBe(null);
+	expect(result.selectedItems).toEqual([]);
+});
+
 test('keyframe diamond target resolution uses all selected prop rows when clicked row is selected', () => {
 	const opacity = makeNodePathInfo(['body', 0], ['controls', 'style.opacity']);
 	const rotate = makeNodePathInfo(['body', 0], ['controls', 'style.rotate']);
