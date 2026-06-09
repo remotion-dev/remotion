@@ -60,10 +60,10 @@ export const getTimelineSelectedTrackHighlightStyle = (
 	width: timelineWidth,
 });
 
-export const SELECTION_ENABLED = false;
-export const TIMELINE_TOP_DRAG = false;
-export const ENABLE_OUTLINES = false;
-export const EASING_SELECTION_ENABLED = false;
+export const SELECTION_ENABLED = true;
+export const TIMELINE_TOP_DRAG = true;
+export const ENABLE_OUTLINES = true;
+export const EASING_SELECTION_ENABLED = true;
 
 type TimelineSelectionBase = {
 	readonly nodePathInfo: SequenceNodePathInfo;
@@ -306,6 +306,22 @@ export const getNormalizedTimelineMarqueeRect = ({
 	top: Math.min(startY, currentY),
 	right: Math.max(startX, currentX),
 	bottom: Math.max(startY, currentY),
+});
+
+export const getClampedTimelineMarqueePoint = ({
+	x,
+	y,
+	bounds,
+}: {
+	readonly x: number;
+	readonly y: number;
+	readonly bounds: TimelineMarqueeRect;
+}): {
+	readonly x: number;
+	readonly y: number;
+} => ({
+	x: Math.min(bounds.right, Math.max(bounds.left, x)),
+	y: Math.min(bounds.bottom, Math.max(bounds.top, y)),
 });
 
 export const timelineMarqueeRectsIntersect = (
@@ -895,8 +911,20 @@ export const useTimelineMarqueeSelection = () => {
 				target.setPointerCapture(pointerId);
 			}
 
-			const startX = event.clientX;
-			const startY = event.clientY;
+			const initialBounds = target.getBoundingClientRect();
+			const marqueeBounds: TimelineMarqueeRect = {
+				bottom: initialBounds.bottom,
+				left: initialBounds.left,
+				right: initialBounds.right,
+				top: initialBounds.top,
+			};
+			const start = getClampedTimelineMarqueePoint({
+				bounds: marqueeBounds,
+				x: event.clientX,
+				y: event.clientY,
+			});
+			const startX = start.x;
+			const startY = start.y;
 			const previousUserSelect = document.body.style.userSelect;
 			const previousWebkitUserSelect = document.body.style.webkitUserSelect;
 			document.body.style.userSelect = 'none';
@@ -919,17 +947,23 @@ export const useTimelineMarqueeSelection = () => {
 			};
 
 			const updateSelection = (clientX: number, clientY: number) => {
+				const current = getClampedTimelineMarqueePoint({
+					bounds: marqueeBounds,
+					x: clientX,
+					y: clientY,
+				});
 				if (
 					!hasDragged &&
-					Math.max(Math.abs(clientX - startX), Math.abs(clientY - startY)) < 3
+					Math.max(Math.abs(current.x - startX), Math.abs(current.y - startY)) <
+						3
 				) {
 					return;
 				}
 
 				hasDragged = true;
 				const rect = getNormalizedTimelineMarqueeRect({
-					currentX: clientX,
-					currentY: clientY,
+					currentX: current.x,
+					currentY: current.y,
 					startX,
 					startY,
 				});

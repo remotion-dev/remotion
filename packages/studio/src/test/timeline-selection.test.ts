@@ -44,6 +44,7 @@ import {
 import {getSelectedKeyframeControlNodePathInfos} from '../components/Timeline/TimelineKeyframeControls';
 import {
 	ENABLE_OUTLINES,
+	getClampedTimelineMarqueePoint,
 	getSelectableTimelineSequenceSelections,
 	getTimelineMarqueeSelection,
 	getTimelineSelectionAfterInteraction,
@@ -222,6 +223,23 @@ test('timeline marquee rectangle intersection detects overlapping targets', () =
 			{left: 11, top: 0, right: 20, bottom: 10},
 		),
 	).toBe(false);
+});
+
+test('timeline marquee points are clamped to the track bounds', () => {
+	expect(
+		getClampedTimelineMarqueePoint({
+			bounds: {left: 10, top: 20, right: 100, bottom: 200},
+			x: 5,
+			y: 250,
+		}),
+	).toEqual({x: 10, y: 200});
+	expect(
+		getClampedTimelineMarqueePoint({
+			bounds: {left: 10, top: 20, right: 100, bottom: 200},
+			x: 80,
+			y: 60,
+		}),
+	).toEqual({x: 80, y: 60});
 });
 
 test('timeline marquee locks to sequences after capturing a sequence first', () => {
