@@ -6,7 +6,7 @@ import {
 	TIMELINE_TICKS_BACKGROUND,
 	TIMELINE_TRACK_SEPARATOR,
 } from '../../helpers/colors';
-import {OUTLINES_ENABLED} from '../../helpers/outline-flags';
+import {ENABLE_OUTLINES} from '../../helpers/outline-flags';
 import {
 	TIMELINE_ITEM_BORDER_BOTTOM,
 	TIMELINE_PADDING,
@@ -24,7 +24,7 @@ const container: React.CSSProperties = {
 	position: 'absolute',
 	backgroundColor: TIMELINE_TICKS_BACKGROUND,
 	top: 0,
-	borderBottom: OUTLINES_ENABLED
+	borderBottom: ENABLE_OUTLINES
 		? `${TIMELINE_ITEM_BORDER_BOTTOM}px solid ${TIMELINE_TRACK_SEPARATOR}`
 		: undefined,
 };

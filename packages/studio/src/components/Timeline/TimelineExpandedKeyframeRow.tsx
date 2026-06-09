@@ -1,12 +1,12 @@
 import React, {useContext} from 'react';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
+import {ENABLE_OUTLINES} from '../../helpers/outline-flags';
 import {TIMELINE_ITEM_BORDER_BOTTOM} from '../../helpers/timeline-layout';
 import {getTimelineEasingSegments} from './get-timeline-easing-segments';
 import type {getTimelineKeyframes} from './get-timeline-keyframes';
 import {TimelineKeyframeDiamond} from './TimelineKeyframeDiamond';
 import {TimelineKeyframeEasingLine} from './TimelineKeyframeEasingLine';
 import {
-	ENABLE_OUTLINES,
 	EASING_SELECTION_ENABLED,
 	getTimelineSelectedTrackHighlightStyle,
 	useTimelineRowSelection,

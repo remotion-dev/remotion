@@ -1,1 +1,1 @@
-export const OUTLINES_ENABLED = false;
+export const ENABLE_OUTLINES = false;

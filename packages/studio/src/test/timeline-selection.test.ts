@@ -48,7 +48,6 @@ import {
 } from '../components/Timeline/TimelineClipboardKeybindings';
 import {getSelectedKeyframeControlNodePathInfos} from '../components/Timeline/TimelineKeyframeControls';
 import {
-	ENABLE_OUTLINES,
 	getClampedTimelineMarqueePoint,
 	getSelectableTimelineSequenceSelections,
 	getTimelineMarqueeSelection,
@@ -74,7 +73,7 @@ import {
 	TIMELINE_TICKS_BACKGROUND,
 } from '../helpers/colors';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
-import {OUTLINES_ENABLED} from '../helpers/outline-flags';
+import {ENABLE_OUTLINES} from '../helpers/outline-flags';
 import {
 	loadEditorShowOutlinesOption,
 	persistEditorShowOutlinesOption,
@@ -1176,7 +1175,6 @@ test('Timeline from drag removes the prop at the default value', () => {
 });
 
 test('Timeline outlines should not be enabled', () => {
-	expect(OUTLINES_ENABLED).toBe(false);
 	expect(ENABLE_OUTLINES).toBe(false);
 });
 

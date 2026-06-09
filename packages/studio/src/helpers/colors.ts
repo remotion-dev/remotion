@@ -1,4 +1,4 @@
-import {OUTLINES_ENABLED} from './outline-flags';
+import {ENABLE_OUTLINES} from './outline-flags';
 
 export const BACKGROUND = 'rgb(31,36,40)';
 export const BACKGROUND__TRANSPARENT = 'rgba(31,36,40, 0)';
@@ -13,8 +13,8 @@ const SELECTED_HOVER_BACKGROUND = 'hsla(0, 0%, 100%, 0.25)';
 export const CLEAR_HOVER = 'rgba(255, 255, 255, 0.06)';
 export const INPUT_BORDER_COLOR_UNHOVERED = 'rgba(0, 0, 0, 0.6)';
 export const INPUT_BORDER_COLOR_HOVERED = 'rgba(255, 255, 255, 0.05)';
-export const TIMELINE_BACKGROUND = OUTLINES_ENABLED ? '#0F1113' : '#111';
-export const TIMELINE_TICKS_BACKGROUND = OUTLINES_ENABLED
+export const TIMELINE_BACKGROUND = ENABLE_OUTLINES ? '#0F1113' : '#111';
+export const TIMELINE_TICKS_BACKGROUND = ENABLE_OUTLINES
 	? BACKGROUND
 	: TIMELINE_BACKGROUND;
 export const FAIL_COLOR = '#ff3232';
