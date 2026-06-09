@@ -18,6 +18,8 @@ import {SequencePropsSubscriptionProvider} from './SequencePropsSubscriptionProv
 import {StudioCanvasCapture} from './StudioCanvasCapture';
 import {TopPanel} from './TopPanel';
 
+const CANVAS_CAPTURE_ENABLED = true;
+
 const background: React.CSSProperties = {
 	backgroundColor: BACKGROUND,
 	display: 'flex',
@@ -127,7 +129,7 @@ export const Editor: React.FC<{
 		</HigherZIndex>
 	);
 
-	return process.env.STUDIO_CANVAS_CAPTURE_ENABLED ? (
+	return CANVAS_CAPTURE_ENABLED ? (
 		<StudioCanvasCapture density={2}>{editor}</StudioCanvasCapture>
 	) : (
 		editor

@@ -222,7 +222,6 @@ export const bundleOnCli = async ({
 		publicPath,
 		askAIEnabled,
 		keyboardShortcutsEnabled,
-		studioCanvasCaptureEnabled: false,
 		rspack,
 		// Ephemeral CLI bundles (render/still/compositions/benchmark) use a temp dir; symlink avoids copying huge public folders. `npx remotion bundle` passes a fixed outDir and keeps deep copy for deployable output.
 		symlinkPublicDir: outDir === null,
@@ -287,7 +286,6 @@ export const bundleOnCli = async ({
 		bufferStateDelayInMilliseconds,
 		audioLatencyHint,
 		experimentalClientSideRenderingEnabled,
-		studioCanvasCaptureEnabled: false,
 		renderDefaults: getRenderDefaults(),
 	});
 

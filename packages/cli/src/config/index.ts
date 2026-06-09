@@ -97,7 +97,6 @@ const {
 	askAIOption,
 	publicLicenseKeyOption,
 	experimentalClientSideRenderingOption,
-	studioCanvasCaptureOption,
 	keyboardShortcutsOption,
 	forceNewStudioOption,
 	numberOfSharedAudioTagsOption,
@@ -190,11 +189,6 @@ declare global {
 		readonly setExperimentalClientSideRenderingEnabled: (
 			enabled: boolean,
 		) => void;
-		/**
-		 * Wrap the Remotion Studio in an experimental HTML-in-canvas surface.
-		 * @default false
-		 */
-		readonly setStudioCanvasCaptureEnabled: (enabled: boolean) => void;
 		/**
 		 * Allow the experimental HTML-in-canvas capture path in Studio client-side renders.
 		 * @default false
@@ -713,7 +707,6 @@ export const Config: FlatConfig = {
 	setKeyboardShortcutsEnabled: keyboardShortcutsOption.setConfig,
 	setExperimentalClientSideRenderingEnabled:
 		experimentalClientSideRenderingOption.setConfig,
-	setStudioCanvasCaptureEnabled: studioCanvasCaptureOption.setConfig,
 	setAllowHtmlInCanvasEnabled: allowHtmlInCanvasOption.setConfig,
 	setExperimentalRspackEnabled: rspackOption.setConfig,
 	setNumberOfSharedAudioTags: numberOfSharedAudioTagsOption.setConfig,

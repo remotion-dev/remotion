@@ -41,7 +41,6 @@ export const webpackConfig = async ({
 	bufferStateDelayInMilliseconds,
 	poll,
 	experimentalClientSideRenderingEnabled,
-	studioCanvasCaptureEnabled,
 	askAIEnabled,
 	extraPlugins,
 }: {
@@ -59,7 +58,6 @@ export const webpackConfig = async ({
 	poll: number | null;
 	askAIEnabled: boolean;
 	experimentalClientSideRenderingEnabled: boolean;
-	studioCanvasCaptureEnabled: boolean;
 	extraPlugins: webpack.WebpackPluginInstance[];
 }): Promise<[string, WebpackConfiguration]> => {
 	const esbuildLoaderOptions: LoaderOptions = {
@@ -78,7 +76,6 @@ export const webpackConfig = async ({
 			keyboardShortcutsEnabled,
 			bufferStateDelayInMilliseconds,
 			experimentalClientSideRenderingEnabled,
-			studioCanvasCaptureEnabled,
 		}),
 	);
 

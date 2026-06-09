@@ -79,7 +79,6 @@ import {scaleOption} from './scale';
 import {separateAudioOption} from './separate-audio';
 import {stillFrameOption} from './still-frame';
 import {stillImageFormatOption} from './still-image-format';
-import {studioCanvasCaptureOption} from './studio-canvas-capture';
 import {throwIfSiteExistsOption} from './throw-if-site-exists';
 import {delayRenderTimeoutInMillisecondsOption} from './timeout';
 import {userAgentOption} from './user-agent';
@@ -158,7 +157,6 @@ export const allOptions = {
 	isProductionOption,
 	askAIOption,
 	experimentalClientSideRenderingOption,
-	studioCanvasCaptureOption,
 	keyboardShortcutsOption,
 	framesOption,
 	forceNewStudioOption,
