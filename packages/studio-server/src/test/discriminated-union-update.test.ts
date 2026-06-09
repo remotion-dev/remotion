@@ -47,6 +47,7 @@ test('Should expose absolute-fill variant fields when active', () => {
 		'style.translate',
 		'style.scale',
 		'style.rotate',
+		'style.transformOrigin',
 		'style.opacity',
 		'premountFor',
 	]);

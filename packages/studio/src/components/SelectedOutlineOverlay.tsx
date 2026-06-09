@@ -40,9 +40,9 @@ import {
 	type SelectedOutline,
 } from './selected-outline-geometry';
 import {
+	getSelectedUvHandles,
 	getUvCoordinateForPoint,
 	getUvHandlePosition,
-	getSelectedUvHandles,
 	type SelectedOutlineUvHandle,
 } from './selected-outline-uv';
 import {
