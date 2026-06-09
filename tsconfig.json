@@ -256,6 +256,9 @@
 			"path": "./packages/rounded-text-box"
 		},
 		{
+			"path": "./packages/canvas-capture"
+		},
+		{
 			"path": "./packages/light-leaks"
 		},
 		{

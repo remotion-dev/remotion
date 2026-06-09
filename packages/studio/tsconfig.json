@@ -13,6 +13,9 @@
 			"path": "../core"
 		},
 		{
+			"path": "../canvas-capture"
+		},
+		{
 			"path": "../media-utils"
 		},
 		{
