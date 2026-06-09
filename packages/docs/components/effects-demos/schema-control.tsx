@@ -377,7 +377,11 @@ const SchemaControlInput = ({
 		);
 	}
 
-	if (field.type === 'rotation-css' || field.type === 'translate') {
+	if (
+		field.type === 'rotation-css' ||
+		field.type === 'translate' ||
+		field.type === 'transform-origin'
+	) {
 		return (
 			<input
 				onChange={(e) => setValue(e.target.value)}

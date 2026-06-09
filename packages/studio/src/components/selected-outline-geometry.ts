@@ -5,6 +5,10 @@ export type OutlinePoint = {
 
 export type SelectedOutline = {
 	readonly key: string;
+	readonly dimensions: {
+		readonly width: number;
+		readonly height: number;
+	} | null;
 	readonly points: readonly [
 		OutlinePoint,
 		OutlinePoint,
