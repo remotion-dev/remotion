@@ -100,7 +100,7 @@ const KeyframedPropsTest: React.FC = () => {
 			<Sequence
 				name="keyframes should be shown at 0 and 100"
 				durationInFrames={120}
-				style={{scale: interpolate(frame, [0, 100], [2, 4])}}
+				style={{scale: interpolate(frame, [10, 100], [2, 4])}}
 			>
 				<div
 					style={{
@@ -114,7 +114,16 @@ const KeyframedPropsTest: React.FC = () => {
 			<Sequence from={30} name="keyframes should be shown at 30 and 90">
 				<Shifted />
 			</Sequence>
-			<Sequence from={30} name="nested keyframes should be shown at 50 and 110">
+			<Sequence
+				from={30}
+				name="nested keyframes should be shown at 50 and 110"
+				style={{
+					scale: interpolate(frame, [35, 61], [1, 1], {
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'clamp',
+					}),
+				}}
+			>
 				<NestedShifted />
 			</Sequence>
 			<Sequence from={30}>
@@ -130,9 +139,11 @@ const KeyframedPropsTest: React.FC = () => {
 				<Solid
 					width={180}
 					height={180}
-					color={interpolateColors(frame, [0, 100], ['#0b84f3', '#f43b00'])}
+					color={interpolateColors(frame, [10, 119], ['#0b84f3', '#f43b00'])}
 					style={{
 						borderRadius: 24,
+						scale: 2.180496,
+						translate: '251px 227.5px',
 					}}
 				/>
 			</Sequence>
@@ -166,6 +177,7 @@ const KeyframedPropsTest: React.FC = () => {
 						height: 200,
 						borderRadius: 24,
 						overflow: 'hidden',
+						translate: '530.4px 529.8px',
 					}}
 					effects={[
 						blur({

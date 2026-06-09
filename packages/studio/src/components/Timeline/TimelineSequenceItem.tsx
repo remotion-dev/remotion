@@ -24,6 +24,7 @@ import {
 	ExpandedTracksGetterContext,
 	ExpandedTracksSetterContext,
 } from '../ExpandedTracksProvider';
+import {Spacing} from '../layout';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {useSelectAsset} from '../use-select-asset';
@@ -57,7 +58,6 @@ const labelContainerStyle: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'row',
 	minWidth: 0,
-	gap: 4,
 };
 
 const effectDropHighlight: React.CSSProperties = {
@@ -925,7 +925,12 @@ export const TimelineSequenceItem: React.FC<{
 					selected={selected}
 					containsSelection={containsSelection}
 				/>
-				{mediaSrc ? <TimelineMediaInfo src={mediaSrc} /> : null}
+				{mediaSrc ? (
+					<>
+						<Spacing x={0.5} /> <TimelineMediaInfo src={mediaSrc} />
+					</>
+				) : null}
+				<Spacing x={0.5} />
 				<TimelineItemStack originalLocation={originalLocation} />
 			</div>
 		</TimelineRowChrome>

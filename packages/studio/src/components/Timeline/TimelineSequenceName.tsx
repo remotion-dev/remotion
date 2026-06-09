@@ -47,7 +47,6 @@ export const TimelineSequenceName: React.FC<{
 			fontSize: 12,
 			whiteSpace: 'nowrap',
 			textOverflow: 'ellipsis',
-			overflow: 'hidden',
 			color: getTimelineColor(selected, false),
 			userSelect: 'none',
 			WebkitUserSelect: 'none',

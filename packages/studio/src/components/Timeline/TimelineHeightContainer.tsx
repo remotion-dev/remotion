@@ -1,4 +1,5 @@
 import React, {useMemo} from 'react';
+import {TIMELINE_BACKGROUND} from '../../helpers/colors';
 import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
 import {useTimelineHeight} from './use-timeline-height';
 
@@ -7,6 +8,7 @@ const baseStyle: React.CSSProperties = {
 	flex: 1,
 	minHeight: '100%',
 	overflowX: 'hidden',
+	backgroundColor: TIMELINE_BACKGROUND,
 };
 
 const TimelineHeightContainerInner: React.FC<{
