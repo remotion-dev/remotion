@@ -40,7 +40,7 @@ test('setTrimBefore and setTrimAfter should update frame when paused', async () 
 	const framesAfterTrimBefore =
 		player.videoIteratorManager!.getFramesRendered();
 	await player.setTrimAfter(90, 0);
-	expect(player.videoIteratorManager!.getFramesRendered()).toBeGreaterThan(
+	expect(player.videoIteratorManager!.getFramesRendered()).toBe(
 		framesAfterTrimBefore,
 	);
 

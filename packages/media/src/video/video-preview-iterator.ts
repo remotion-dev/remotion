@@ -17,7 +17,33 @@ export const createVideoIterator = async (
 			: await firstAwait.wait();
 	let lastReturnedFrame = initialFrame;
 
+	let peekedFrame: WrappedCanvas | null = null;
+
+	const peek = async () => {
+		if (peekedFrame) {
+			return peekedFrame;
+		}
+
+		const next = iterator.next();
+		if (next.type === 'ready') {
+			peekedFrame = next.frame;
+		} else {
+			peekedFrame = await next.wait();
+		}
+
+		return peekedFrame;
+	};
+
 	const getNextOrNullIfNotAvailable = () => {
+		if (peekedFrame) {
+			const retValue = {
+				type: 'got-frame-or-end' as const,
+				frame: peekedFrame,
+			};
+			peekedFrame = null;
+			return retValue;
+		}
+
 		const next = iterator.next();
 
 		if (next.type === 'pending') {
@@ -54,9 +80,9 @@ export const createVideoIterator = async (
 		iterator.closeIterator().catch(() => undefined);
 	};
 
-	const tryToSatisfySeek = (
+	const tryToSatisfySeek = async (
 		time: number,
-	):
+	): Promise<
 		| {
 				type: 'not-satisfied';
 				reason: string;
@@ -64,7 +90,8 @@ export const createVideoIterator = async (
 		| {
 				type: 'satisfied';
 				frame: WrappedCanvas;
-		  } => {
+		  }
+	> => {
 		if (lastReturnedFrame) {
 			const frameTimestamp = roundTo4Digits(lastReturnedFrame.timestamp);
 
@@ -87,9 +114,18 @@ export const createVideoIterator = async (
 				};
 			}
 
+			let lastFrameDuration = lastReturnedFrame.duration;
+			if (lastFrameDuration === 0) {
+				const peeked = await peek();
+				if (peeked) {
+					lastFrameDuration = peeked.timestamp - lastReturnedFrame.timestamp;
+				}
+			}
+
 			const frameEndTimestamp = roundTo4Digits(
-				lastReturnedFrame.timestamp + lastReturnedFrame.duration,
+				lastReturnedFrame.timestamp + lastFrameDuration,
 			);
+
 			const timestamp = roundTo4Digits(time);
 			if (frameTimestamp <= timestamp && frameEndTimestamp > timestamp) {
 				return {
@@ -115,6 +151,7 @@ export const createVideoIterator = async (
 
 		while (true) {
 			const frame = getNextOrNullIfNotAvailable();
+
 			if (frame.type === 'need-to-wait-for-it') {
 				return {
 					type: 'not-satisfied' as const,

@@ -7,6 +7,7 @@ import type {
 } from 'remotion';
 import {Internals} from 'remotion';
 import type {DelayPlaybackIfNotPremounting} from './delay-playback-if-not-premounting';
+import {roundTo4Digits} from './helpers/round-to-4-digits';
 import type {Nonce} from './nonce-manager';
 import {makePrewarmedVideoIteratorCache} from './prewarm-iterator-for-looping';
 import {
@@ -51,6 +52,7 @@ export const videoIteratorManager = async ({
 	let framesRendered = 0;
 	let currentDelayHandle: {unblock: () => void} | null = null;
 	let lastDrawnFrame: WrappedCanvas | null = null;
+	let currentSeek: number | null = null;
 
 	const clearLastDrawnFrame = () => {
 		lastDrawnFrame = null;
@@ -143,6 +145,7 @@ export const videoIteratorManager = async ({
 		videoFrameIterator?.destroy();
 		using delayHandle = delayPlaybackHandleIfNotPremounting();
 		currentDelayHandle = delayHandle;
+		currentSeek = timeToSeek;
 
 		const iterator = await createVideoIterator(
 			timeToSeek,
@@ -176,6 +179,15 @@ export const videoIteratorManager = async ({
 			return;
 		}
 
+		if (
+			currentSeek !== null &&
+			roundTo4Digits(currentSeek) === roundTo4Digits(newTime)
+		) {
+			return;
+		}
+
+		currentSeek = newTime;
+
 		if (getIsLooping()) {
 			// If less than 1 second from the end away, we pre-warm a new iterator
 			if (getLoopSegmentMediaEndTimestamp() - newTime < 1) {
@@ -185,7 +197,8 @@ export const videoIteratorManager = async ({
 			}
 		}
 
-		const videoSatisfyResult = videoFrameIterator.tryToSatisfySeek(newTime);
+		const videoSatisfyResult =
+			await videoFrameIterator.tryToSatisfySeek(newTime);
 
 		// Doing this before the staleness check, because
 		// frame might be better than what we currently have
