@@ -1199,6 +1199,7 @@ const SelectedOutlineTransformOriginHandle: React.FC<{
 			} | null = null;
 
 			onDraggingChange(true);
+			forceSpecificCursor('crosshair');
 
 			const updateFromPointerEvent = (
 				pointerEvent: PointerEvent | React.PointerEvent<SVGGElement>,
@@ -1261,6 +1262,7 @@ const SelectedOutlineTransformOriginHandle: React.FC<{
 				window.removeEventListener('pointermove', onPointerMove);
 				window.removeEventListener('pointerup', onPointerUp);
 				window.removeEventListener('pointercancel', onPointerUp);
+				stopForcingSpecificCursor();
 				onDraggingChange(false);
 
 				if (last === null || uvsEqual(last.uv, uv)) {
