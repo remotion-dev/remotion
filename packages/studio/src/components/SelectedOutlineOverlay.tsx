@@ -25,6 +25,7 @@ import {ContextMenuForTarget} from './ContextMenu';
 import {
 	addEffectFromDragData,
 	getEffectDragData,
+	hasExplicitEffectDragType,
 	hasEffectDragType,
 } from './effect-drag-and-drop';
 import {
@@ -1223,15 +1224,21 @@ const SelectedOutlinePolygon: React.FC<{
 				return;
 			}
 
+			const dragData = getEffectDragData(event.dataTransfer);
+			if (!dragData) {
+				if (hasExplicitEffectDragType(event.dataTransfer)) {
+					event.preventDefault();
+					event.stopPropagation();
+					setEffectDropHovered(false);
+					showNotification('Could not read effect drag data', 3000);
+				}
+
+				return;
+			}
+
 			event.preventDefault();
 			event.stopPropagation();
 			setEffectDropHovered(false);
-
-			const dragData = getEffectDragData(event.dataTransfer);
-			if (!dragData) {
-				showNotification('Could not read effect drag data', 3000);
-				return;
-			}
 
 			await addEffectFromDragData({
 				dragData,

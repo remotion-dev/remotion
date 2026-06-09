@@ -17,6 +17,7 @@ import {ContextMenu} from '../ContextMenu';
 import {
 	addEffectFromDragData,
 	getEffectDragData,
+	hasExplicitEffectDragType,
 	hasEffectDragType,
 } from '../effect-drag-and-drop';
 import {
@@ -850,15 +851,21 @@ export const TimelineSequenceItem: React.FC<{
 				return;
 			}
 
+			const dragData = getEffectDragData(e.dataTransfer);
+			if (!dragData) {
+				if (hasExplicitEffectDragType(e.dataTransfer)) {
+					e.preventDefault();
+					e.stopPropagation();
+					setEffectDropHovered(false);
+					showNotification('Could not read effect drag data', 3000);
+				}
+
+				return;
+			}
+
 			e.preventDefault();
 			e.stopPropagation();
 			setEffectDropHovered(false);
-
-			const dragData = getEffectDragData(e.dataTransfer);
-			if (!dragData) {
-				showNotification('Could not read effect drag data', 3000);
-				return;
-			}
 
 			await addEffectFromDragData({
 				dragData,
