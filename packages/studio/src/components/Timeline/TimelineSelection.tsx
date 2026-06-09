@@ -60,10 +60,10 @@ export const getTimelineSelectedTrackHighlightStyle = (
 	width: timelineWidth,
 });
 
-export const SELECTION_ENABLED = true;
-export const TIMELINE_TOP_DRAG = true;
-export const ENABLE_OUTLINES = true;
-export const EASING_SELECTION_ENABLED = true;
+export const SELECTION_ENABLED = false;
+export const TIMELINE_TOP_DRAG = false;
+export const ENABLE_OUTLINES = false;
+export const EASING_SELECTION_ENABLED = false;
 
 type TimelineSelectionBase = {
 	readonly nodePathInfo: SequenceNodePathInfo;
