@@ -69,7 +69,12 @@ import {
 	getTimelineSequenceFromDragTargets,
 	getTimelineSequenceFromDragValue,
 } from '../components/Timeline/TimelineSequenceRightEdgeDragHandle';
+import {
+	TIMELINE_BACKGROUND,
+	TIMELINE_TICKS_BACKGROUND,
+} from '../helpers/colors';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
+import {OUTLINES_ENABLED} from '../helpers/outline-flags';
 import {
 	loadEditorShowOutlinesOption,
 	persistEditorShowOutlinesOption,
@@ -1171,7 +1176,13 @@ test('Timeline from drag removes the prop at the default value', () => {
 });
 
 test('Timeline outlines should not be enabled', () => {
+	expect(OUTLINES_ENABLED).toBe(false);
 	expect(ENABLE_OUTLINES).toBe(false);
+});
+
+test('Timeline colors should use the old palette when outlines are disabled', () => {
+	expect(TIMELINE_BACKGROUND).toBe('#111');
+	expect(TIMELINE_TICKS_BACKGROUND).toBe('#111');
 });
 
 test('Timeline outlines visibility is enabled by default and persisted', () => {

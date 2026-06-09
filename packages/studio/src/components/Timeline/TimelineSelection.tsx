@@ -14,6 +14,7 @@ import type {
 	SequenceNodePathInfo,
 	TrackWithHash,
 } from '../../helpers/get-timeline-sequence-sort-key';
+import {OUTLINES_ENABLED} from '../../helpers/outline-flags';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {timelineNodePathInfoToKey} from '../../helpers/timeline-node-path-key';
 import {useKeybinding} from '../../helpers/use-keybinding';
@@ -62,7 +63,7 @@ export const getTimelineSelectedTrackHighlightStyle = (
 
 export const SELECTION_ENABLED = false;
 export const TIMELINE_TOP_DRAG = false;
-export const ENABLE_OUTLINES = false;
+export const ENABLE_OUTLINES = OUTLINES_ENABLED;
 export const EASING_SELECTION_ENABLED = false;
 
 type TimelineSelectionBase = {
