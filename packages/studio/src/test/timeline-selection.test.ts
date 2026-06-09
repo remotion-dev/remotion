@@ -1972,7 +1972,7 @@ test('Selected outline rotation corners use the outline corners and center', () 
 	expect(topRight.cursor).toContain('") 12 12, alias');
 });
 
-test('Selected outline rotation cursors are based on the corner angle', () => {
+test('Selected outline rotation cursors use the outline rotation', () => {
 	const points = [
 		{x: 0, y: 0},
 		{x: 100, y: 0},
@@ -1989,6 +1989,22 @@ test('Selected outline rotation cursors are based on the corner angle', () => {
 	expect(
 		getSelectedOutlineRotationCornerInfo(points, 'bottom-right').cursorDegrees,
 	).toBe(90);
+	expect(
+		getSelectedOutlineRotationCornerInfo(points, 'bottom-left').cursorDegrees,
+	).toBe(180);
+});
+
+test('Selected outline rotation cursor angle is independent from aspect ratio', () => {
+	const points = [
+		{x: 0, y: 0},
+		{x: 160, y: 0},
+		{x: 160, y: 90},
+		{x: 0, y: 90},
+	] as const;
+
+	expect(
+		getSelectedOutlineRotationCornerInfo(points, 'top-right').cursorDegrees,
+	).toBe(0);
 	expect(
 		getSelectedOutlineRotationCornerInfo(points, 'bottom-left').cursorDegrees,
 	).toBe(180);

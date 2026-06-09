@@ -245,13 +245,27 @@ const getRotationCursor = (rotation: number): string => {
 	return `url("data:image/svg+xml,${encodeURIComponent(svg)}") 12 12, alias`;
 };
 
-const getRotationCursorDegrees = ({
-	center,
-	point,
-}: {
-	readonly center: OutlinePoint;
-	readonly point: OutlinePoint;
-}) => normalizeRotationCursorDegrees(getAngleDegrees(center, point) + 45);
+const rotationCursorBaseDegrees = {
+	'top-left': 270,
+	'top-right': 0,
+	'bottom-right': 90,
+	'bottom-left': 180,
+} satisfies Record<SelectedOutlineRotationCorner, number>;
+
+const getOutlineRotationDegrees = (
+	points: SelectedOutline['points'],
+): number => {
+	const [tl, tr] = points;
+	return getAngleDegrees(tl, tr);
+};
+
+const getRotationCursorDegrees = (
+	points: SelectedOutline['points'],
+	corner: SelectedOutlineRotationCorner,
+) =>
+	normalizeRotationCursorDegrees(
+		getOutlineRotationDegrees(points) + rotationCursorBaseDegrees[corner],
+	);
 
 export const getSelectedOutlineRotationCornerInfo = (
 	points: SelectedOutline['points'],
@@ -265,7 +279,7 @@ export const getSelectedOutlineRotationCornerInfo = (
 		'bottom-left': bl,
 	}[corner];
 	const center = getOutlineCenter(points);
-	const cursorDegrees = getRotationCursorDegrees({center, point});
+	const cursorDegrees = getRotationCursorDegrees(points, corner);
 
 	return {
 		center,
