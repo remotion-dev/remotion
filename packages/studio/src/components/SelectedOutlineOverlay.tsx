@@ -25,8 +25,8 @@ import {ContextMenuForTarget} from './ContextMenu';
 import {
 	addEffectFromDragData,
 	getEffectDragData,
-	hasExplicitEffectDragType,
 	hasEffectDragType,
+	hasExplicitEffectDragType,
 } from './effect-drag-and-drop';
 import {
 	forceSpecificCursor,

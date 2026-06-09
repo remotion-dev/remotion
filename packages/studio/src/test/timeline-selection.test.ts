@@ -58,6 +58,8 @@ import {
 	isTimelineSelectionModifierEvent,
 	SELECTION_ENABLED,
 	shouldSelectTimelineRowOnPointerDown,
+	TIMELINE_BACKGROUND,
+	TIMELINE_TICKS_BACKGROUND,
 	TIMELINE_TOP_DRAG,
 	timelineMarqueeRectsIntersect,
 } from '../components/Timeline/TimelineSelection';
@@ -1172,6 +1174,11 @@ test('Timeline from drag removes the prop at the default value', () => {
 
 test('Timeline outlines should not be enabled', () => {
 	expect(ENABLE_OUTLINES).toBe(false);
+});
+
+test('Timeline colors should use the old palette when outlines are disabled', () => {
+	expect(TIMELINE_BACKGROUND).toBe('#111');
+	expect(TIMELINE_TICKS_BACKGROUND).toBe('#111');
 });
 
 test('Timeline outlines visibility is enabled by default and persisted', () => {

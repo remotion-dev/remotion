@@ -6,8 +6,8 @@ import type {getTimelineKeyframes} from './get-timeline-keyframes';
 import {TimelineKeyframeDiamond} from './TimelineKeyframeDiamond';
 import {TimelineKeyframeEasingLine} from './TimelineKeyframeEasingLine';
 import {
-	ENABLE_OUTLINES,
 	EASING_SELECTION_ENABLED,
+	ENABLE_OUTLINES,
 	getTimelineSelectedTrackHighlightStyle,
 	useTimelineRowSelection,
 } from './TimelineSelection';
