@@ -1,4 +1,4 @@
-import React, {useCallback, useContext, useMemo} from 'react';
+import React, {useCallback, useContext, useMemo, useRef} from 'react';
 import type {TSequence} from 'remotion';
 import {Internals, useCurrentFrame} from 'remotion';
 import {BLUE} from '../../helpers/colors';
@@ -15,7 +15,12 @@ import {useMaxMediaDuration} from '../../helpers/use-max-media-duration';
 import {AudioWaveform} from '../AudioWaveform';
 import {LoopedTimelineIndicator} from './LoopedTimelineIndicators';
 import {TimelineImageInfo} from './TimelineImageInfo';
-import {TIMELINE_TOP_DRAG, useTimelineRowSelection} from './TimelineSelection';
+import {
+	TIMELINE_MARQUEE_ITEM_ATTR,
+	TIMELINE_TOP_DRAG,
+	useTimelineMarqueeSelectableItem,
+	useTimelineRowSelection,
+} from './TimelineSelection';
 import {TimelineSequenceFrame} from './TimelineSequenceFrame';
 import {
 	TimelineSequenceRightEdgeDragHandle,
@@ -75,7 +80,10 @@ const TimelineSequenceCurrentFrame: React.FC<{
 	fromCanUpdate,
 	onMoveDragPointerDown,
 }) => {
-	const {onSelect, selectable} = useTimelineRowSelection(nodePathInfo);
+	const ref = useRef<HTMLDivElement>(null);
+	const {onSelect, selectable, selectionItem} =
+		useTimelineRowSelection(nodePathInfo);
+	useTimelineMarqueeSelectableItem(selectionItem, ref);
 
 	const onPointerDown = useCallback(
 		(e: React.PointerEvent<HTMLDivElement>) => {
@@ -120,6 +128,8 @@ const TimelineSequenceCurrentFrame: React.FC<{
 
 	return (
 		<div
+			ref={ref}
+			{...{[TIMELINE_MARQUEE_ITEM_ATTR]: true}}
 			style={actualStyle}
 			title={s.displayName}
 			onPointerDown={selectable ? onPointerDown : undefined}
