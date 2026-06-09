@@ -52,6 +52,7 @@ import {
 	getTimelineSequenceSelectionKey,
 	isTimelineSelectionModifierEvent,
 	SELECTION_ENABLED,
+	shouldSelectTimelineRowOnPointerDown,
 	TIMELINE_TOP_DRAG,
 	timelineMarqueeRectsIntersect,
 } from '../components/Timeline/TimelineSelection';
@@ -2711,4 +2712,31 @@ test('Timeline double-click actions ignore selection modifier clicks', () => {
 			ctrlKey: false,
 		}),
 	).toBe(false);
+});
+
+test('Selected timeline rows do not reselect on pointer down without modifiers', () => {
+	expect(
+		shouldSelectTimelineRowOnPointerDown({
+			selected: true,
+			shiftKey: false,
+			metaKey: false,
+			ctrlKey: false,
+		}),
+	).toBe(false);
+	expect(
+		shouldSelectTimelineRowOnPointerDown({
+			selected: false,
+			shiftKey: false,
+			metaKey: false,
+			ctrlKey: false,
+		}),
+	).toBe(true);
+	expect(
+		shouldSelectTimelineRowOnPointerDown({
+			selected: true,
+			shiftKey: false,
+			metaKey: true,
+			ctrlKey: false,
+		}),
+	).toBe(true);
 });
