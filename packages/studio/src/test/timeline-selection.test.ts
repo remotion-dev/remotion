@@ -1966,6 +1966,10 @@ test('Selected outline rotation corners use the outline corners and center', () 
 	expect(topRight.point).toEqual({x: 100, y: 0});
 	expect(topRight.center).toEqual({x: 50, y: 25});
 	expect(topRight.cursor).toContain('data:image/svg+xml');
+	expect(decodeURIComponent(topRight.cursor)).toContain(
+		'<svg width="24" height="24"',
+	);
+	expect(topRight.cursor).toContain('") 12 12, alias');
 });
 
 test('Selected outline scale edges project pointer movement onto the edge normal', () => {
