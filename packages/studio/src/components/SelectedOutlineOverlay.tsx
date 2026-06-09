@@ -1383,7 +1383,7 @@ const SelectedOutlineTransformOriginHandle: React.FC<{
 	return (
 		<g
 			pointerEvents="all"
-			cursor="grab"
+			cursor="crosshair"
 			onPointerDown={onPointerDown}
 			aria-hidden="true"
 		>
