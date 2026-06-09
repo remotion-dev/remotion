@@ -2,6 +2,10 @@ import {useColorMode} from '@docusaurus/theme-common';
 import {Player} from '@remotion/player';
 import React, {useCallback, useMemo, useState} from 'react';
 import {AbsoluteFill} from 'remotion';
+import {
+	makeShapeComponentDragDataFromDemoState,
+	setComponentDragData,
+} from '../shapes/shape-component-drag-data';
 import {Control} from './control';
 import type {DemoType, Option} from './types';
 import {
@@ -64,6 +68,18 @@ const container: React.CSSProperties = {
 	border: '1px solid var(--ifm-color-emphasis-300)',
 	borderRadius: 'var(--ifm-pre-border-radius)',
 	marginBottom: 40,
+};
+
+const dragHandle: React.CSSProperties = {
+	alignItems: 'center',
+	borderBottom: '1px solid var(--ifm-color-emphasis-300)',
+	cursor: 'grab',
+	display: 'flex',
+	fontSize: 13,
+	fontWeight: 600,
+	gap: 6,
+	padding: '8px 10px',
+	userSelect: 'none',
 };
 
 const demos: DemoType[] = [
@@ -159,6 +175,25 @@ export const Demo: React.FC<{
 
 	const [state, setState] = useState(() => initialState);
 
+	const shapeDragData = useMemo(() => {
+		return makeShapeComponentDragDataFromDemoState({
+			demoId: demo.id,
+			state,
+		});
+	}, [demo.id, state]);
+
+	const onDragStart = useCallback(
+		(e: React.DragEvent<HTMLDivElement>) => {
+			if (shapeDragData !== null) {
+				setComponentDragData({
+					dataTransfer: e.dataTransfer,
+					dragData: shapeDragData,
+				});
+			}
+		},
+		[shapeDragData],
+	);
+
 	const restart = useCallback(() => {
 		setState(initialState);
 		setKey((k) => k + 1);
@@ -182,7 +217,7 @@ export const Demo: React.FC<{
 					width: '100%',
 					aspectRatio: demo.compWidth / demo.compHeight,
 					borderBottom:
-						demo.options.length > 0
+						demo.options.length > 0 || shapeDragData !== null
 							? '1px solid var(--ifm-color-emphasis-300)'
 							: 0,
 				}}
@@ -218,6 +253,17 @@ export const Demo: React.FC<{
 				initiallyMuted
 				loop
 			/>
+			{shapeDragData === null ? null : (
+				<div
+					draggable
+					onDragStart={onDragStart}
+					style={dragHandle}
+					title="Drag this shape into Remotion Studio"
+				>
+					<span aria-hidden="true">::</span>
+					<span>Drag current shape into a layer in the Studio</span>
+				</div>
+			)}
 			<div className={styles.containerrow}>
 				{demo.options
 					.filter((option) => shouldShowOption(option, state))

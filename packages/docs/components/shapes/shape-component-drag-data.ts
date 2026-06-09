@@ -66,15 +66,121 @@ const shapeDefaultProps: Record<ShapeName, readonly ComponentProp[]> = {
 	],
 };
 
-export const makeDefaultShapeComponentDragData = (
-	shape: ShapeName,
-): ComponentDragData => {
+const shapeNameByDemoId: Partial<Record<string, ShapeName>> = {
+	arrow: 'Arrow',
+	circle: 'Circle',
+	ellipse: 'Ellipse',
+	heart: 'Heart',
+	pie: 'Pie',
+	polygon: 'Polygon',
+	rect: 'Rect',
+	star: 'Star',
+	triangle: 'Triangle',
+};
+
+const shapeDemoPropNames: Record<ShapeName, readonly string[]> = {
+	Arrow: [
+		'length',
+		'headWidth',
+		'headLength',
+		'shaftWidth',
+		'direction',
+		'cornerRadius',
+	],
+	Circle: ['radius'],
+	Ellipse: ['rx', 'ry'],
+	Heart: [
+		'height',
+		'aspectRatio',
+		'bottomRoundnessAdjustment',
+		'depthAdjustment',
+	],
+	Pie: ['radius', 'progress', 'closePath', 'counterClockwise', 'rotation'],
+	Polygon: ['points', 'radius', 'cornerRadius', 'edgeRoundness'],
+	Rect: ['width', 'height', 'cornerRadius', 'edgeRoundness'],
+	Star: [
+		'points',
+		'innerRadius',
+		'outerRadius',
+		'cornerRadius',
+		'edgeRoundness',
+	],
+	Triangle: ['length', 'direction', 'cornerRadius', 'edgeRoundness'],
+};
+
+const isComponentPropValue = (
+	value: unknown,
+): value is ComponentProp['value'] => {
+	return (
+		typeof value === 'string' ||
+		typeof value === 'boolean' ||
+		(typeof value === 'number' && Number.isFinite(value))
+	);
+};
+
+const makeShapeComponentDragData = ({
+	shape,
+	props,
+}: {
+	readonly shape: ShapeName;
+	readonly props: ComponentProp[];
+}): ComponentDragData => {
 	return makeComponentDragData({
 		componentName: shape,
 		importName: shape,
 		importPath: '@remotion/shapes',
+		props,
+	});
+};
+
+export const makeDefaultShapeComponentDragData = (
+	shape: ShapeName,
+): ComponentDragData => {
+	return makeShapeComponentDragData({
+		shape,
 		props: [...shapeDefaultProps[shape]],
 	});
+};
+
+export const makeShapeComponentDragDataFromDemoState = ({
+	demoId,
+	state,
+}: {
+	readonly demoId: string;
+	readonly state: Record<string, unknown>;
+}): ComponentDragData | null => {
+	const shape = shapeNameByDemoId[demoId];
+	if (!shape) {
+		return null;
+	}
+
+	const defaultProps = shapeDefaultProps[shape];
+	const defaultPropsByName = new Map(
+		defaultProps.map((prop) => [prop.name, prop.value] as const),
+	);
+	const props: ComponentProp[] = [];
+	const usedPropNames = new Set<string>();
+
+	for (const name of shapeDemoPropNames[shape]) {
+		const stateValue = state[name];
+		const value =
+			stateValue === null || typeof stateValue === 'undefined'
+				? defaultPropsByName.get(name)
+				: stateValue;
+
+		if (isComponentPropValue(value)) {
+			props.push({name, value});
+			usedPropNames.add(name);
+		}
+	}
+
+	for (const prop of defaultProps) {
+		if (!usedPropNames.has(prop.name)) {
+			props.push(prop);
+		}
+	}
+
+	return makeShapeComponentDragData({shape, props});
 };
 
 export const setComponentDragData = ({
