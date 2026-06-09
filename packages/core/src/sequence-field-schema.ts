@@ -175,6 +175,12 @@ export type SchemaKeysRecord<S extends SequenceSchema> = Record<
 >;
 
 export const sequenceVisualStyleSchema = {
+	'style.transformOrigin': {
+		type: 'transform-origin',
+		step: 1,
+		default: '50% 50%',
+		description: 'Transform origin',
+	},
 	'style.translate': {
 		type: 'translate',
 		step: 1,
@@ -193,12 +199,6 @@ export const sequenceVisualStyleSchema = {
 		step: 1,
 		default: '0deg',
 		description: 'Rotation',
-	},
-	'style.transformOrigin': {
-		type: 'transform-origin',
-		step: 1,
-		default: '50% 50%',
-		description: 'Transform Origin',
 	},
 	'style.opacity': {
 		type: 'number',
