@@ -27,6 +27,10 @@ import {
 	getEffectDragData,
 	hasEffectDragType,
 } from './effect-drag-and-drop';
+import {
+	forceSpecificCursor,
+	stopForcingSpecificCursor,
+} from './ForceSpecificCursor';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {showNotification} from './Notifications/NotificationCenter';
 import {
@@ -49,6 +53,10 @@ import {
 	type SaveSequencePropChange,
 } from './Timeline/save-sequence-prop';
 import {
+	parseCssRotationToDegrees,
+	serializeCssRotation,
+} from './Timeline/timeline-rotation-utils';
+import {
 	parseTranslate,
 	serializeTranslate,
 } from './Timeline/timeline-translate-utils';
@@ -56,9 +64,9 @@ import {getLinkedScale} from './Timeline/TimelineScaleField';
 import {
 	ENABLE_OUTLINES,
 	getTimelineSequenceSelectionKey,
+	useTimelineSelection,
 	type TimelineSelection,
 	type TimelineSelectionInteraction,
-	useTimelineSelection,
 } from './Timeline/TimelineSelection';
 import {getOriginalLocationFromStack} from './Timeline/TimelineStack/get-stack';
 
@@ -82,6 +90,7 @@ type SelectedOutlineTarget = {
 	readonly sequence: TSequence;
 	readonly drag: SelectedOutlineDragTarget | null;
 	readonly scaleDrag: SelectedOutlineScaleDragTarget | null;
+	readonly rotationDrag: SelectedOutlineRotationDragTarget | null;
 	readonly uvHandles: readonly SelectedOutlineUvHandle[];
 };
 
@@ -103,6 +112,7 @@ type SelectedOutlineDragTarget = {
 };
 
 type ScaleFieldSchema = Extract<SequenceFieldSchema, {type: 'scale'}>;
+type RotationFieldSchema = Extract<SequenceFieldSchema, {type: 'rotation-css'}>;
 
 type SelectedOutlineScaleDragTarget = {
 	readonly propStatus: CanUpdateSequencePropStatusStatic;
@@ -110,6 +120,18 @@ type SelectedOutlineScaleDragTarget = {
 	readonly fieldDefault: number | string | undefined;
 	readonly fieldSchema: ScaleFieldSchema;
 	readonly linked: boolean;
+	readonly nodePath: SequencePropsSubscriptionKey;
+	readonly schema: SequenceSchema;
+};
+
+type SelectedOutlineRotationDragTarget = {
+	readonly propStatus:
+		| CanUpdateSequencePropStatusStatic
+		| CanUpdateSequencePropStatusKeyframed;
+	readonly clientId: string;
+	readonly fieldDefault: string | undefined;
+	readonly fieldSchema: RotationFieldSchema;
+	readonly keyframeDisplayOffset: number;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly schema: SequenceSchema;
 };
@@ -132,6 +154,14 @@ export type SelectedOutlineScaleDragState = {
 	readonly target: SelectedOutlineScaleDragTarget;
 };
 
+export type SelectedOutlineRotationDragState = {
+	readonly defaultValue: string | null;
+	readonly key: string;
+	readonly sourceFrame: number;
+	readonly startDegrees: number;
+	readonly target: SelectedOutlineRotationDragTarget;
+};
+
 type SequenceWithSelectedOutline = {
 	readonly depth: number;
 	readonly keyframeDisplayOffset: number;
@@ -142,6 +172,7 @@ type SequenceWithSelectedOutline = {
 
 const translateFieldKey = 'style.translate';
 const scaleFieldKey = 'style.scale';
+const rotateFieldKey = 'style.rotate';
 
 const outlineContainer: React.CSSProperties = {
 	position: 'absolute',
@@ -158,6 +189,14 @@ const midpoint = (from: OutlinePoint, to: OutlinePoint): OutlinePoint => {
 	return mixPoint(from, to, 0.5);
 };
 
+const getOutlineCenter = (points: SelectedOutline['points']): OutlinePoint => {
+	const [tl, tr, br, bl] = points;
+	return {
+		x: (tl.x + tr.x + br.x + bl.x) / 4,
+		y: (tl.y + tr.y + br.y + bl.y) / 4,
+	};
+};
+
 const dot = (left: OutlinePoint, right: OutlinePoint): number => {
 	return left.x * right.x + left.y * right.y;
 };
@@ -168,6 +207,86 @@ const vectorLength = (vector: OutlinePoint): number => {
 
 const vectorBetween = (from: OutlinePoint, to: OutlinePoint): OutlinePoint => {
 	return {x: to.x - from.x, y: to.y - from.y};
+};
+
+const getAngleDegrees = (from: OutlinePoint, to: OutlinePoint): number => {
+	return Math.atan2(to.y - from.y, to.x - from.x) * (180 / Math.PI);
+};
+
+export const getSelectedOutlineRotationDeltaDegrees = ({
+	from,
+	to,
+}: {
+	readonly from: number;
+	readonly to: number;
+}) => {
+	return ((((to - from) % 360) + 540) % 360) - 180;
+};
+
+export type SelectedOutlineRotationCorner =
+	| 'top-left'
+	| 'top-right'
+	| 'bottom-right'
+	| 'bottom-left';
+
+const normalizeRotationCursorDegrees = (rotation: number): number => {
+	const normalizedRotation = ((rotation % 360) + 360) % 360;
+	return Number(normalizedRotation.toFixed(3));
+};
+
+const getRotationCursor = (rotation: number): string => {
+	const normalizedRotation = normalizeRotationCursorDegrees(rotation);
+	const transform =
+		normalizedRotation === 0
+			? ''
+			: `<g transform="rotate(${normalizedRotation} 32 32)">`;
+	const transformEnd = normalizedRotation === 0 ? '' : '</g>';
+	const svg = `<svg width="24" height="24" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">${transform}<g transform="scale(0.876712329)" filter="url(#filter0_d_1_14)"><path d="M10.9111 17.7687C10.3413 18.3701 10.367 19.3195 10.9684 19.8893L20.7687 29.1738C21.3701 29.7436 22.3195 29.7179 22.8893 29.1165C23.459 28.5151 23.4334 27.5657 22.832 26.996L14.1206 18.7431L22.3735 10.0316C22.9432 9.43022 22.9176 8.48082 22.3162 7.91107C21.7148 7.34133 20.7654 7.36699 20.1956 7.96839L10.9111 17.7687ZM49.3923 58.3118C49.9509 58.9235 50.8996 58.9667 51.5114 58.4081L61.481 49.3055C62.0927 48.7469 62.1359 47.7981 61.5773 47.1863C61.0187 46.5745 60.0699 46.5314 59.4581 47.09L50.5963 55.1812L42.5051 46.3194C41.9465 45.7076 40.9977 45.6645 40.386 46.2231C39.7742 46.7817 39.7311 47.7304 40.2896 48.3422L49.3923 58.3118ZM12.6747 18.7431L13 19.8893C22.1283 19.6426 30.7584 21.4283 37.8564 26.6927C44.8518 31.8809 49.734 39.8538 49 56H50.5963H51.5114C52.2774 39.1461 47.6482 30.2198 39.6436 24.2831C31.7416 18.4224 22.3717 17.2467 13 17.5L12.6747 18.7431Z" fill="black"/><path d="M19.1064 6.93652C20.2459 5.73379 22.1448 5.68278 23.3477 6.82227C24.5505 7.96181 24.6022 9.86076 23.4629 11.0635L18.7373 16.0508C26.3487 16.4239 33.9128 18.1651 40.5371 23.0781C44.7339 26.1907 48.0794 30.1189 50.2568 35.4834C51.9666 39.6958 52.9327 44.7395 53.0742 50.8867L58.4463 45.9824C59.6697 44.8654 61.5673 44.9514 62.6846 46.1748C63.8018 47.3985 63.7155 49.296 62.4922 50.4131L52.5225 59.5156C51.337 60.5979 49.5196 60.5507 48.3916 59.4346L48.2842 59.3232L39.1816 49.3535C38.0648 48.1301 38.1507 46.2324 39.374 45.1152C40.5975 43.9979 42.4961 44.0841 43.6133 45.3076L47.4756 49.5381C47.1908 44.7613 46.2876 40.9448 44.9482 37.8291C43.0666 33.4521 40.2851 30.3614 36.9629 27.8975C31.8259 24.0875 25.8071 22.1663 19.2891 21.5732L23.8633 25.9072C25.0662 27.0468 25.1178 28.9457 23.9785 30.1484C22.8746 31.3135 21.0576 31.3982 19.8516 30.3662L19.7373 30.2627L9.93652 20.9785C8.73384 19.839 8.6828 17.9401 9.82227 16.7373L19.1064 6.93652Z" stroke="white" stroke-width="3"/></g>${transformEnd}<defs><filter id="filter0_d_1_14" x="0" y="0" width="72.4696" height="72.3004" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/><feOffset dy="3"/><feGaussianBlur stdDeviation="3.75"/><feComposite in2="hardAlpha" operator="out"/><feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"/><feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_1_14"/><feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_1_14" result="shape"/></filter></defs></svg>`;
+	return `url("data:image/svg+xml,${encodeURIComponent(svg)}") 12 12, alias`;
+};
+
+const rotationCursorBaseDegrees = {
+	'top-left': 270,
+	'top-right': 0,
+	'bottom-right': 90,
+	'bottom-left': 180,
+} satisfies Record<SelectedOutlineRotationCorner, number>;
+
+const getOutlineRotationDegrees = (
+	points: SelectedOutline['points'],
+): number => {
+	const [tl, tr] = points;
+	return getAngleDegrees(tl, tr);
+};
+
+const getRotationCursorDegrees = (
+	points: SelectedOutline['points'],
+	corner: SelectedOutlineRotationCorner,
+) =>
+	normalizeRotationCursorDegrees(
+		getOutlineRotationDegrees(points) + rotationCursorBaseDegrees[corner],
+	);
+
+export const getSelectedOutlineRotationCornerInfo = (
+	points: SelectedOutline['points'],
+	corner: SelectedOutlineRotationCorner,
+) => {
+	const [tl, tr, br, bl] = points;
+	const point = {
+		'top-left': tl,
+		'top-right': tr,
+		'bottom-right': br,
+		'bottom-left': bl,
+	}[corner];
+	const center = getOutlineCenter(points);
+	const cursorDegrees = getRotationCursorDegrees(points, corner);
+
+	return {
+		center,
+		cursor: getRotationCursor(cursorDegrees),
+		cursorDegrees,
+		point,
+	};
 };
 
 const rectToPoints = (
@@ -694,6 +813,116 @@ export const getSelectedOutlineScaleDragChanges = ({
 	});
 };
 
+export const getSelectedOutlineRotationDragStates = ({
+	dragTargets,
+	getDragOverrides,
+	timelinePosition,
+}: {
+	readonly dragTargets: readonly SelectedOutlineRotationDragTarget[];
+	readonly getDragOverrides: GetDragOverrides;
+	readonly timelinePosition: number;
+}): SelectedOutlineRotationDragState[] => {
+	return dragTargets.map((target) => {
+		const dragOverrideValue = (getDragOverrides(target.nodePath) ?? {})[
+			rotateFieldKey
+		];
+		const sourceFrame = timelinePosition - target.keyframeDisplayOffset;
+		const effectiveValue = Internals.getEffectiveVisualModeValue({
+			propStatus: target.propStatus,
+			dragOverrideValue,
+			defaultValue: target.fieldDefault,
+			frame: sourceFrame,
+			shouldResortToDefaultValueIfUndefined: true,
+		});
+
+		return {
+			defaultValue:
+				target.fieldDefault !== undefined
+					? JSON.stringify(target.fieldDefault)
+					: null,
+			key: Internals.makeSequencePropsSubscriptionKey(target.nodePath),
+			sourceFrame,
+			startDegrees: parseCssRotationToDegrees(String(effectiveValue ?? '0deg')),
+			target,
+		};
+	});
+};
+
+export const getSelectedOutlineRotationDragValues = ({
+	dragStates,
+	rotationDeltaDegrees,
+}: {
+	readonly dragStates: readonly SelectedOutlineRotationDragState[];
+	readonly rotationDeltaDegrees: number;
+}): Map<string, string> => {
+	return new Map(
+		dragStates.map((dragState) => [
+			dragState.key,
+			serializeCssRotation(dragState.startDegrees + rotationDeltaDegrees),
+		]),
+	);
+};
+
+export const getSelectedOutlineRotationDragChanges = ({
+	dragStates,
+	lastValues,
+}: {
+	readonly dragStates: readonly SelectedOutlineRotationDragState[];
+	readonly lastValues: ReadonlyMap<string, string>;
+}): SelectedOutlineDragChange[] => {
+	const changes: SelectedOutlineDragChange[] = [];
+
+	for (const dragState of dragStates) {
+		const value = lastValues.get(dragState.key);
+		if (value === undefined) {
+			continue;
+		}
+
+		if (dragState.target.propStatus.status === 'keyframed') {
+			const startValue = serializeCssRotation(dragState.startDegrees);
+			if (value === startValue) {
+				continue;
+			}
+
+			changes.push({
+				type: 'keyframed',
+				fileName: dragState.target.nodePath.absolutePath,
+				nodePath: dragState.target.nodePath,
+				fieldKey: rotateFieldKey,
+				sourceFrame: dragState.sourceFrame,
+				value,
+				schema: dragState.target.schema,
+				clientId: dragState.target.clientId,
+			});
+			continue;
+		}
+
+		const stringifiedValue = JSON.stringify(value);
+		const shouldSave =
+			value !== dragState.target.propStatus.codeValue &&
+			!(
+				dragState.defaultValue === stringifiedValue &&
+				dragState.target.propStatus.codeValue === undefined
+			);
+
+		if (!shouldSave) {
+			continue;
+		}
+
+		changes.push({
+			type: 'static',
+			fileName: dragState.target.nodePath.absolutePath,
+			nodePath: dragState.target.nodePath,
+			fieldKey: rotateFieldKey,
+			value,
+			defaultValue: dragState.defaultValue,
+			schema: dragState.target.schema,
+		});
+	}
+
+	return changes;
+};
+
 const clearSelectedOutlineDragOverrides = ({
 	clearDragOverrides,
 	dragStates,
@@ -712,6 +941,18 @@ const clearSelectedOutlineScaleDragOverrides = ({
 }: {
 	readonly clearDragOverrides: (nodePath: SequencePropsSubscriptionKey) => void;
 	readonly dragStates: readonly SelectedOutlineScaleDragState[];
+}) => {
+	for (const dragState of dragStates) {
+		clearDragOverrides(dragState.target.nodePath);
+	}
+};
+
+const clearSelectedOutlineRotationDragOverrides = ({
+	clearDragOverrides,
+	dragStates,
+}: {
+	readonly clearDragOverrides: (nodePath: SequencePropsSubscriptionKey) => void;
+	readonly dragStates: readonly SelectedOutlineRotationDragState[];
 }) => {
 	for (const dragState of dragStates) {
 		clearDragOverrides(dragState.target.nodePath);
@@ -1242,8 +1483,280 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 	);
 };
 
+const svgPointToClientPoint = (
+	point: OutlinePoint,
+	rect: DOMRect,
+): OutlinePoint => {
+	return {
+		x: point.x + rect.left,
+		y: point.y + rect.top,
+	};
+};
+
+const SelectedOutlineRotationCornerHandle: React.FC<{
+	readonly allRotationDragTargets: readonly SelectedOutlineRotationDragTarget[];
+	readonly contextMenuValues: readonly ComboboxValue[];
+	readonly corner: SelectedOutlineRotationCorner;
+	readonly dragging: boolean;
+	readonly outline: SelectedOutline;
+	readonly onDraggingChange: (dragging: boolean) => void;
+	readonly onContextMenuOpen: SelectedOutlineContextMenuOpenHandler;
+	readonly onHoverChange: (key: string | null) => void;
+	readonly onSelect: (
+		item: TimelineSelection,
+		interaction: TimelineSelectionInteraction,
+	) => void;
+	readonly target: SelectedOutlineTarget | undefined;
+}> = ({
+	allRotationDragTargets,
+	contextMenuValues,
+	corner,
+	dragging,
+	outline,
+	onDraggingChange,
+	onContextMenuOpen,
+	onHoverChange,
+	onSelect,
+	target,
+}) => {
+	const {getDragOverrides} = useContext(
+		Internals.VisualModeDragOverridesContext,
+	);
+	const {setPropStatuses, setDragOverrides, clearDragOverrides} = useContext(
+		Internals.VisualModeSettersContext,
+	);
+	const timelinePosition = Internals.Timeline.useTimelinePosition();
+	const timelinePositionRef = useRef(timelinePosition);
+	timelinePositionRef.current = timelinePosition;
+	const rotationDrag = target?.rotationDrag ?? null;
+	const selected = target?.selected ?? false;
+	const circleRef = useRef<SVGCircleElement>(null);
+	const cornerInfo = useMemo(
+		() => getSelectedOutlineRotationCornerInfo(outline.points, corner),
+		[corner, outline.points],
+	);
+
+	const onPointerDown = React.useCallback(
+		(event: React.PointerEvent<SVGCircleElement>) => {
+			if (event.button !== 0 || rotationDrag === null) {
+				return;
+			}
+
+			event.preventDefault();
+			event.stopPropagation();
+
+			const svg = event.currentTarget.ownerSVGElement;
+			if (svg === null) {
+				return;
+			}
+
+			const interaction = getOutlineSelectionInteraction(event);
+			const shouldUpdateSelection =
+				!selected || interaction.shiftKey || interaction.toggleKey;
+			if (shouldUpdateSelection && target !== undefined) {
+				onSelect(target.selection, interaction);
+			}
+
+			if (interaction.shiftKey || interaction.toggleKey) {
+				return;
+			}
+
+			onDraggingChange(true);
+			forceSpecificCursor(cornerInfo.cursor);
+
+			const svgRect = svg.getBoundingClientRect();
+			const center = svgPointToClientPoint(cornerInfo.center, svgRect);
+			const dragStates = getSelectedOutlineRotationDragStates({
+				dragTargets: selected ? allRotationDragTargets : [rotationDrag],
+				getDragOverrides,
+				timelinePosition: timelinePositionRef.current,
+			});
+			let previousAngle = getAngleDegrees(center, {
+				x: event.clientX,
+				y: event.clientY,
+			});
+			let accumulatedDelta = 0;
+			let lastValues = new Map<string, string>();
+
+			const onPointerMove = (moveEvent: PointerEvent) => {
+				moveEvent.preventDefault();
+
+				const nextAngle = getAngleDegrees(center, {
+					x: moveEvent.clientX,
+					y: moveEvent.clientY,
+				});
+				accumulatedDelta += getSelectedOutlineRotationDeltaDegrees({
+					from: previousAngle,
+					to: nextAngle,
+				});
+				previousAngle = nextAngle;
+				lastValues = getSelectedOutlineRotationDragValues({
+					dragStates,
+					rotationDeltaDegrees: accumulatedDelta,
+				});
+				forceSpecificCursor(
+					getRotationCursor(cornerInfo.cursorDegrees + accumulatedDelta),
+				);
+
+				for (const dragState of dragStates) {
+					const value = lastValues.get(dragState.key);
+					if (value === undefined) {
+						throw new Error('Expected rotation drag value to be available');
+					}
+
+					if (dragState.target.propStatus.status === 'keyframed') {
+						setDragOverrides(
+							dragState.target.nodePath,
+							rotateFieldKey,
+							Internals.makeKeyframedDragOverride({
+								status: dragState.target.propStatus,
+								frame: dragState.sourceFrame,
+								value,
+							}),
+						);
+					} else {
+						setDragOverrides(
+							dragState.target.nodePath,
+							rotateFieldKey,
+							Internals.makeStaticDragOverride(value),
+						);
+					}
+				}
+			};
+
+			const onPointerUp = () => {
+				window.removeEventListener('pointermove', onPointerMove);
+				window.removeEventListener('pointerup', onPointerUp);
+				window.removeEventListener('pointercancel', onPointerUp);
+				stopForcingSpecificCursor();
+				onDraggingChange(false);
+
+				const changes = getSelectedOutlineRotationDragChanges({
+					dragStates,
+					lastValues,
+				});
+
+				if (changes.length === 0) {
+					clearSelectedOutlineRotationDragOverrides({
+						clearDragOverrides,
+						dragStates,
+					});
+					return;
+				}
+
+				const staticChanges = changes.filter(
+					(change): change is SelectedOutlineStaticDragChange =>
+						change.type === 'static',
+				);
+				const keyframedChanges = changes.filter(
+					(change): change is SelectedOutlineKeyframedDragChange =>
+						change.type === 'keyframed',
+				);
+
+				Promise.all([
+					staticChanges.length > 0
+						? saveSequenceProps({
+								changes: staticChanges,
+								setPropStatuses,
+								clientId: rotationDrag.clientId,
+								undoLabel:
+									changes.length > 1
+										? 'Rotate selected sequences'
+										: 'Rotate sequence',
+								redoLabel:
+									changes.length > 1
+										? 'Rotate selected sequences back'
+										: 'Rotate sequence back',
+							})
+						: Promise.resolve(),
+					...keyframedChanges.map((change) =>
+						callAddSequenceKeyframe({
+							fileName: change.fileName,
+							nodePath: change.nodePath,
+							fieldKey: change.fieldKey,
+							sourceFrame: change.sourceFrame,
+							value: change.value,
+							schema: change.schema,
+							setPropStatuses,
+							clientId: change.clientId,
+						}),
+					),
+				])
+					.catch((err) => {
+						showNotification(
+							`Could not save sequence props: ${
+								err instanceof Error ? err.message : String(err)
+							}`,
+							4000,
+						);
+					})
+					.finally(() => {
+						clearSelectedOutlineRotationDragOverrides({
+							clearDragOverrides,
+							dragStates,
+						});
+					});
+			};
+
+			window.addEventListener('pointermove', onPointerMove);
+			window.addEventListener('pointerup', onPointerUp);
+			window.addEventListener('pointercancel', onPointerUp);
+		},
+		[
+			allRotationDragTargets,
+			clearDragOverrides,
+			cornerInfo,
+			getDragOverrides,
+			onDraggingChange,
+			onSelect,
+			rotationDrag,
+			selected,
+			setPropStatuses,
+			setDragOverrides,
+			target,
+		],
+	);
+
+	if (rotationDrag === null) {
+		return null;
+	}
+
+	return (
+		<>
+			<circle
+				ref={circleRef}
+				cx={cornerInfo.point.x}
+				cy={cornerInfo.point.y}
+				r={12}
+				fill="transparent"
+				stroke="transparent"
+				vectorEffect="non-scaling-stroke"
+				pointerEvents="all"
+				cursor={cornerInfo.cursor}
+				onPointerEnter={() => {
+					if (!dragging) {
+						onHoverChange(outline.key);
+					}
+				}}
+				onPointerLeave={() => {
+					if (!dragging) {
+						onHoverChange(null);
+					}
+				}}
+				onPointerDown={onPointerDown}
+			/>
+			<ContextMenuForTarget
+				triggerRef={circleRef}
+				values={[...contextMenuValues]}
+				onOpen={onContextMenuOpen}
+			/>
+		</>
+	);
+};
+
 const SelectedOutlineElement: React.FC<{
 	readonly allDragTargets: readonly SelectedOutlineDragTarget[];
+	readonly allRotationDragTargets: readonly SelectedOutlineRotationDragTarget[];
 	readonly allScaleDragTargets: readonly SelectedOutlineScaleDragTarget[];
 	readonly dragging: boolean;
 	readonly hovered: boolean;
@@ -1258,6 +1771,7 @@ const SelectedOutlineElement: React.FC<{
 	readonly target: SelectedOutlineTarget | undefined;
 }> = ({
 	allDragTargets,
+	allRotationDragTargets,
 	allScaleDragTargets,
 	dragging,
 	hovered,
@@ -1391,6 +1905,25 @@ const SelectedOutlineElement: React.FC<{
 						/>
 					))
 				: null}
+			{target?.containsSelection || hovered
+				? (
+						['top-left', 'top-right', 'bottom-right', 'bottom-left'] as const
+					).map((corner) => (
+						<SelectedOutlineRotationCornerHandle
+							key={corner}
+							allRotationDragTargets={allRotationDragTargets}
+							contextMenuValues={emptyContextMenuValues}
+							corner={corner}
+							dragging={dragging}
+							outline={outline}
+							onContextMenuOpen={onContextMenuOpen}
+							onDraggingChange={onDraggingChange}
+							onHoverChange={onHoverChange}
+							onSelect={onSelect}
+							target={target}
+						/>
+					))
+				: null}
 		</>
 	);
 };
@@ -1461,10 +1994,19 @@ export const SelectedOutlineOverlay: React.FC<{
 				propStatuses,
 				nodePath,
 			)?.[scaleFieldKey];
+			const rotationFieldSchema = controls?.schema[rotateFieldKey];
+			const rotationPropStatus = Internals.getPropStatusesCtx(
+				propStatuses,
+				nodePath,
+			)?.[rotateFieldKey];
 			const canDragStatus =
 				propStatus?.status === 'static' ||
 				(propStatus?.status === 'keyframed' &&
 					propStatus.interpolationFunction === 'interpolate');
+			const canRotationDragStatus =
+				rotationPropStatus?.status === 'static' ||
+				(rotationPropStatus?.status === 'keyframed' &&
+					rotationPropStatus.interpolationFunction === 'interpolate');
 			const canDrag =
 				previewServerState.type === 'connected' &&
 				controls !== null &&
@@ -1475,6 +2017,11 @@ export const SelectedOutlineOverlay: React.FC<{
 				controls !== null &&
 				scaleFieldSchema?.type === 'scale' &&
 				scalePropStatus?.status === 'static';
+			const canRotationDrag =
+				previewServerState.type === 'connected' &&
+				controls !== null &&
+				rotationFieldSchema?.type === 'rotation-css' &&
+				canRotationDragStatus;
 			const canDropEffect =
 				previewServerState.type === 'connected' &&
 				controls?.supportsEffects === true;
@@ -1532,6 +2079,17 @@ export const SelectedOutlineOverlay: React.FC<{
 							schema: controls.schema,
 						}
 					: null,
+				rotationDrag: canRotationDrag
+					? {
+							propStatus: rotationPropStatus,
+							clientId: previewServerState.clientId,
+							fieldDefault: rotationFieldSchema.default,
+							fieldSchema: rotationFieldSchema,
+							keyframeDisplayOffset,
+							nodePath,
+							schema: controls.schema,
+						}
+					: null,
 				uvHandles: containsSelection
 					? getSelectedUvHandles({
 							propStatuses,
@@ -1578,6 +2136,13 @@ export const SelectedOutlineOverlay: React.FC<{
 	const allScaleDragTargets = useMemo(() => {
 		return outlineTargets.flatMap((target) =>
 			target.selected && target.scaleDrag !== null ? [target.scaleDrag] : [],
+		);
+	}, [outlineTargets]);
+	const allRotationDragTargets = useMemo(() => {
+		return outlineTargets.flatMap((target) =>
+			target.selected && target.rotationDrag !== null
+				? [target.rotationDrag]
+				: [],
 		);
 	}, [outlineTargets]);
 
@@ -1632,6 +2197,7 @@ export const SelectedOutlineOverlay: React.FC<{
 				<SelectedOutlineElement
 					key={outline.key}
 					allDragTargets={allDragTargets}
+					allRotationDragTargets={allRotationDragTargets}
 					allScaleDragTargets={allScaleDragTargets}
 					dragging={draggingOutline}
 					hovered={hoveredOutlineKey === outline.key}
