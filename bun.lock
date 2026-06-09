@@ -446,7 +446,6 @@
         "@remotion/animation-utils": "workspace:*",
         "@remotion/babel-loader": "workspace:*",
         "@remotion/bundler": "workspace:*",
-        "@remotion/canvas-capture": "workspace:*",
         "@remotion/captions": "workspace:*",
         "@remotion/cli": "workspace:*",
         "@remotion/cloudrun": "workspace:*",

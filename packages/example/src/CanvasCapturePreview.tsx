@@ -4,6 +4,7 @@ import {
 	AbsoluteFill,
 	CalculateMetadataFunction,
 	Img,
+	Interactive,
 	staticFile,
 	useCurrentFrame,
 	useVideoConfig,
@@ -48,6 +49,8 @@ export type CanvasCapturePreviewProps = {
 	readonly cursorOffsetY: number;
 	readonly cursorAssetBasePath: string | null;
 	readonly cursorData?: CursorRecording;
+	width: number | null;
+	height: number | null;
 };
 
 export const canvasCapturePreviewDefaultProps: CanvasCapturePreviewProps = {
@@ -272,7 +275,7 @@ const CursorGlyph: React.FC<{
 					marginLeft: -16 * scale,
 					marginTop: -16 * scale,
 					width: 32 * scale,
-					scale: 3.23,
+					scale: 5.97,
 				}}
 			/>
 		);
@@ -371,11 +374,13 @@ export const calculateCanvasCapturePreviewMetadata: CalculateMetadataFunction<
 	return {
 		durationInFrames: Math.ceil(durationInSeconds * fps),
 		fps,
-		width: dimensions.width,
-		height: dimensions.height,
+		width: 1920,
+		height: 1080,
 		props: {
 			...props,
 			cursorData,
+			width: dimensions.width,
+			height: dimensions.height,
 		},
 	};
 };
@@ -388,6 +393,8 @@ export const CanvasCapturePreview: React.FC<CanvasCapturePreviewProps> = ({
 	cursorOffsetY,
 	cursorScale,
 	videoFile,
+	width,
+	height,
 }) => {
 	if (!cursorData) {
 		throw new Error(`Cursor data from ${cursorFile} was not loaded.`);
@@ -399,36 +406,31 @@ export const CanvasCapturePreview: React.FC<CanvasCapturePreviewProps> = ({
 
 	return (
 		<AbsoluteFill style={{backgroundColor: 'black', overflow: 'hidden'}}>
-			<Video
-				src={resolveAsset(videoFile)}
-				objectFit="fill"
+			<Interactive.Div
 				style={{
-					width: '100%',
-					height: '100%',
-				}}
-			/>
-			<CursorOverlay
-				cursorAssetBasePath={cursorAssetBasePath}
-				cursorData={cursorData}
-				cursorOffsetX={cursorOffsetX}
-				cursorOffsetY={cursorOffsetY}
-				cursorScale={cursorScale}
-			/>
-			<div
-				style={{
-					backgroundColor: 'rgba(0, 0, 0, 0.55)',
-					borderRadius: 8,
-					bottom: 24,
-					color: 'white',
-					fontFamily: 'sans-serif',
-					fontSize: 28,
-					padding: '8px 12px',
 					position: 'absolute',
-					right: 24,
+					width: width!,
+					height: height!,
+					scale: 2.895791,
+					translate: '388.1px -2436px',
 				}}
 			>
-				Cursor asset mapping: mac-cursors by David Darnes
-			</div>
+				<Video
+					src={resolveAsset(videoFile)}
+					showInTimeline={false}
+					style={{
+						width: width!,
+						height: height!,
+					}}
+				/>
+				<CursorOverlay
+					cursorAssetBasePath={cursorAssetBasePath}
+					cursorData={cursorData}
+					cursorOffsetX={cursorOffsetX}
+					cursorOffsetY={cursorOffsetY}
+					cursorScale={cursorScale}
+				/>
+			</Interactive.Div>
 		</AbsoluteFill>
 	);
 };
