@@ -15,6 +15,7 @@ import {Modals} from './Modals';
 import {NotificationCenter} from './Notifications/NotificationCenter';
 import {RenderErrorContext} from './RenderErrorContext';
 import {SequencePropsSubscriptionProvider} from './SequencePropsSubscriptionProvider';
+import {StudioCanvasCapture} from './StudioCanvasCapture';
 import {TopPanel} from './TopPanel';
 
 const background: React.CSSProperties = {
@@ -88,7 +89,7 @@ export const Editor: React.FC<{
 		[renderError],
 	);
 
-	return (
+	const editor = (
 		<HigherZIndex onEscape={noop} onOutsideClick={noop}>
 			<TimelineZoomContext>
 				<SequencePropsSubscriptionProvider>
@@ -124,5 +125,11 @@ export const Editor: React.FC<{
 				</SequencePropsSubscriptionProvider>
 			</TimelineZoomContext>
 		</HigherZIndex>
+	);
+
+	return process.env.STUDIO_CANVAS_CAPTURE_ENABLED ? (
+		<StudioCanvasCapture density={2}>{editor}</StudioCanvasCapture>
+	) : (
+		editor
 	);
 };

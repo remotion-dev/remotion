@@ -48,6 +48,7 @@ export const startServer = async (options: {
 	remotionRoot: string;
 	keyboardShortcutsEnabled: boolean;
 	experimentalClientSideRenderingEnabled: boolean;
+	studioCanvasCaptureEnabled: boolean;
 	publicDir: string;
 	poll: number | null;
 	staticHash: string;
@@ -105,6 +106,7 @@ export const startServer = async (options: {
 		keyboardShortcutsEnabled: options.keyboardShortcutsEnabled,
 		experimentalClientSideRenderingEnabled:
 			options.experimentalClientSideRenderingEnabled,
+		studioCanvasCaptureEnabled: options.studioCanvasCaptureEnabled,
 		poll: options.poll,
 		bufferStateDelayInMilliseconds: options.bufferStateDelayInMilliseconds,
 		askAIEnabled: options.askAIEnabled,

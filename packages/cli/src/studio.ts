@@ -24,6 +24,7 @@ const {
 	enableCrossSiteIsolationOption,
 	askAIOption,
 	experimentalClientSideRenderingOption,
+	studioCanvasCaptureOption,
 	keyboardShortcutsOption,
 	forceNewStudioOption,
 	numberOfSharedAudioTagsOption,
@@ -120,6 +121,17 @@ export const studioCommand = async (
 		);
 	}
 
+	const studioCanvasCaptureEnabled = studioCanvasCaptureOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+
+	if (studioCanvasCaptureEnabled) {
+		Log.warn(
+			{indent: false, logLevel},
+			'Enabling experimental Studio canvas capture. Press Cmd/Ctrl + P in the Studio to start or stop a 6x WebM recording.',
+		);
+	}
+
 	const binariesDirectory = binariesDirectoryOption.getValue({
 		commandLine: parsedCli,
 	}).value;
@@ -163,6 +175,7 @@ export const studioCommand = async (
 		desiredPort,
 		keyboardShortcutsEnabled,
 		experimentalClientSideRenderingEnabled,
+		studioCanvasCaptureEnabled,
 		maxTimelineTracks: ConfigInternals.getMaxTimelineTracks(),
 		remotionRoot,
 		relativePublicDir,

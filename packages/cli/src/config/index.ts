@@ -19,8 +19,8 @@ import {
 	getBufferStateDelayInMilliseconds,
 	setBufferStateDelayInMilliseconds,
 } from './buffer-state-delay-in-milliseconds';
-import {getConcurrency} from './concurrency';
 import type {Concurrency} from './concurrency';
+import {getConcurrency} from './concurrency';
 import {getEntryPoint, setEntryPoint} from './entry-point';
 import {getDotEnvLocation} from './env-file';
 import {
@@ -29,20 +29,21 @@ import {
 } from './ffmpeg-override';
 import {getShouldOutputImageSequence} from './image-sequence';
 import {getMetadata, setMetadata} from './metadata';
-import {getOutputLocation} from './output-location';
-import {setOutputLocation} from './output-location';
+import {getOutputLocation, setOutputLocation} from './output-location';
+import type {WebpackOverrideFn} from './override-webpack';
 import {
 	defaultOverrideFunction,
 	getWebpackOverrideFn,
+	overrideWebpackConfig,
 } from './override-webpack';
-import type {WebpackOverrideFn} from './override-webpack';
-import {overrideWebpackConfig} from './override-webpack';
 import {
 	getRendererPortFromConfigFile,
 	getRendererPortFromConfigFileAndCliFlag,
 	getStudioPort,
+	setPort,
+	setRendererPort,
+	setStudioPort,
 } from './preview-server';
-import {setPort, setRendererPort, setStudioPort} from './preview-server';
 import {getStillFrame, setStillFrame} from './still-frame';
 import {getWebpackCaching} from './webpack-caching';
 import {getWebpackPolling} from './webpack-poll';
@@ -96,6 +97,7 @@ const {
 	askAIOption,
 	publicLicenseKeyOption,
 	experimentalClientSideRenderingOption,
+	studioCanvasCaptureOption,
 	keyboardShortcutsOption,
 	forceNewStudioOption,
 	numberOfSharedAudioTagsOption,
@@ -188,6 +190,11 @@ declare global {
 		readonly setExperimentalClientSideRenderingEnabled: (
 			enabled: boolean,
 		) => void;
+		/**
+		 * Wrap the Remotion Studio in an experimental HTML-in-canvas surface.
+		 * @default false
+		 */
+		readonly setStudioCanvasCaptureEnabled: (enabled: boolean) => void;
 		/**
 		 * Allow the experimental HTML-in-canvas capture path in Studio client-side renders.
 		 * @default false
@@ -706,6 +713,7 @@ export const Config: FlatConfig = {
 	setKeyboardShortcutsEnabled: keyboardShortcutsOption.setConfig,
 	setExperimentalClientSideRenderingEnabled:
 		experimentalClientSideRenderingOption.setConfig,
+	setStudioCanvasCaptureEnabled: studioCanvasCaptureOption.setConfig,
 	setAllowHtmlInCanvasEnabled: allowHtmlInCanvasOption.setConfig,
 	setExperimentalRspackEnabled: rspackOption.setConfig,
 	setNumberOfSharedAudioTags: numberOfSharedAudioTagsOption.setConfig,

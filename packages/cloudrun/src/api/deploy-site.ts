@@ -108,6 +108,7 @@ export const internalDeploySiteRaw = async ({
 			audioLatencyHint: null,
 			experimentalClientSideRenderingEnabled:
 				options?.experimentalClientSideRenderingEnabled ?? false,
+			studioCanvasCaptureEnabled: false,
 			renderDefaults: null,
 			askAIEnabled: options?.askAIEnabled ?? true,
 			keyboardShortcutsEnabled: options?.keyboardShortcutsEnabled ?? true,

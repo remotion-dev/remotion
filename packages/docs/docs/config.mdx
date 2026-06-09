@@ -189,6 +189,18 @@ Config.setExperimentalClientSideRenderingEnabled(true);
 
 The [command line flag](/docs/cli/studio#--enable-experimental-client-side-rendering) `--enable-experimental-client-side-rendering` will take precedence over this option.
 
+## `setStudioCanvasCaptureEnabled()`<AvailableFrom v="4.0.475" />
+
+<Options id="studio-canvas-capture" />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setStudioCanvasCaptureEnabled(true);
+```
+
+The [command line flag](/docs/cli/studio#--studio-canvas-capture) `--studio-canvas-capture` will take precedence over this option.
+
 ## `setAllowHtmlInCanvasEnabled()`<AvailableFrom v="4.0.447" />
 
 <Options id="allow-html-in-canvas" />
