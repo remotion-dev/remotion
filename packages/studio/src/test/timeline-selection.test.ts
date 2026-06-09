@@ -1972,6 +1972,28 @@ test('Selected outline rotation corners use the outline corners and center', () 
 	expect(topRight.cursor).toContain('") 12 12, alias');
 });
 
+test('Selected outline rotation cursors are based on the corner angle', () => {
+	const points = [
+		{x: 0, y: 0},
+		{x: 100, y: 0},
+		{x: 100, y: 100},
+		{x: 0, y: 100},
+	] as const;
+
+	expect(
+		getSelectedOutlineRotationCornerInfo(points, 'top-left').cursorDegrees,
+	).toBe(270);
+	expect(
+		getSelectedOutlineRotationCornerInfo(points, 'top-right').cursorDegrees,
+	).toBe(0);
+	expect(
+		getSelectedOutlineRotationCornerInfo(points, 'bottom-right').cursorDegrees,
+	).toBe(90);
+	expect(
+		getSelectedOutlineRotationCornerInfo(points, 'bottom-left').cursorDegrees,
+	).toBe(180);
+});
+
 test('Selected outline scale edges project pointer movement onto the edge normal', () => {
 	const points = [
 		{x: 0, y: 0},
