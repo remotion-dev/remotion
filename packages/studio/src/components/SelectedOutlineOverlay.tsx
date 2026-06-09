@@ -70,7 +70,6 @@ import {
 } from './Timeline/timeline-translate-utils';
 import {getLinkedScale} from './Timeline/TimelineScaleField';
 import {
-	ENABLE_OUTLINES,
 	getTimelineSequenceSelectionKey,
 	useTimelineSelection,
 	type TimelineSelection,
@@ -2448,7 +2447,7 @@ export const SelectedOutlineOverlay: React.FC<{
 	}, []);
 
 	const outlineTargets = useMemo((): SelectedOutlineTarget[] => {
-		if (!ENABLE_OUTLINES || !editorShowOutlines) {
+		if (!editorShowOutlines) {
 			return [];
 		}
 

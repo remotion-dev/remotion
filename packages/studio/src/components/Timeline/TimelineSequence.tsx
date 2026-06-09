@@ -16,9 +16,8 @@ import {AudioWaveform} from '../AudioWaveform';
 import {LoopedTimelineIndicator} from './LoopedTimelineIndicators';
 import {TimelineImageInfo} from './TimelineImageInfo';
 import {
-	TIMELINE_MARQUEE_ITEM_ATTR,
-	TIMELINE_TOP_DRAG,
 	shouldSelectTimelineRowOnPointerDown,
+	TIMELINE_MARQUEE_ITEM_ATTR,
 	useTimelineMarqueeSelectableItem,
 	useTimelineRowSelection,
 } from './TimelineSelection';
@@ -104,7 +103,7 @@ const TimelineSequenceCurrentFrame: React.FC<{
 					});
 				}
 
-				if (TIMELINE_TOP_DRAG && fromCanUpdate) {
+				if (fromCanUpdate) {
 					onMoveDragPointerDown(e);
 				}
 			}
@@ -309,7 +308,6 @@ const TimelineSequenceInner: React.FC<{
 	}, [marginLeft, s.type, width]);
 
 	const showRightEdgeDragHandle =
-		TIMELINE_TOP_DRAG &&
 		(s.type === 'sequence' || s.type === 'image') &&
 		!s.loopDisplay &&
 		!s.isInsideSeries &&

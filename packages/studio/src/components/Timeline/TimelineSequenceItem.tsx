@@ -17,8 +17,8 @@ import {ContextMenu} from '../ContextMenu';
 import {
 	addEffectFromDragData,
 	getEffectDragData,
-	hasExplicitEffectDragType,
 	hasEffectDragType,
+	hasExplicitEffectDragType,
 } from '../effect-drag-and-drop';
 import {
 	ExpandedTracksGetterContext,
@@ -45,7 +45,6 @@ import {TimelineMediaInfo} from './TimelineMediaInfo';
 import {TimelineRowChrome} from './TimelineRowChrome';
 import {
 	isTimelineSelectionModifierEvent,
-	SELECTION_ENABLED,
 	useTimelineRowContainsSelection,
 	useTimelineRowSelection,
 } from './TimelineSelection';
@@ -236,11 +235,10 @@ export const TimelineSequenceItem: React.FC<{
 	);
 	const parentId = sequence.parent ?? null;
 	const canReorderSequence =
-		SELECTION_ENABLED &&
 		previewConnected &&
 		Boolean(nodePath && nodePathKey && validatedLocation?.source) &&
 		nodePathInfo?.numberOfSequencesWithThisNodePath === 1;
-	const canHandleSequenceDrag = SELECTION_ENABLED && previewConnected;
+	const canHandleSequenceDrag = previewConnected;
 	const confirm = useConfirmationDialog();
 
 	const deleteDisabled = useMemo(
@@ -671,7 +669,7 @@ export const TimelineSequenceItem: React.FC<{
 
 	const onShowInEditorDoubleClick = useCallback(
 		(e: React.MouseEvent<HTMLDivElement>) => {
-			if (!SELECTION_ENABLED || !canOpenInEditor) {
+			if (!canOpenInEditor) {
 				return;
 			}
 
@@ -913,11 +911,7 @@ export const TimelineSequenceItem: React.FC<{
 			onDragLeave={canDropEffect ? onEffectDragLeave : undefined}
 			onDragOver={canDropEffect ? onEffectDragOver : undefined}
 			onDrop={canDropEffect ? onEffectDrop : undefined}
-			onDoubleClick={
-				SELECTION_ENABLED && canOpenInEditor
-					? onShowInEditorDoubleClick
-					: undefined
-			}
+			onDoubleClick={canOpenInEditor ? onShowInEditorDoubleClick : undefined}
 		>
 			<div style={labelContainerStyle}>
 				<TimelineSequenceName

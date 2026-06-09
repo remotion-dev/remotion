@@ -43,9 +43,8 @@ import {useTimelineKeyframeTracks} from './TimelineKeyframeTracksContext';
 import {
 	getTimelineSelectionFromNodePathInfo,
 	getTimelineSelectionKey,
-	SELECTION_ENABLED,
-	type TimelineSelection,
 	useTimelineSelection,
+	type TimelineSelection,
 } from './TimelineSelection';
 
 const controlsContainerStyle: React.CSSProperties = {
@@ -425,7 +424,7 @@ export const shouldShowTimelineKeyframeControls = ({
 		return true;
 	}
 
-	return SELECTION_ENABLED && isKeyframedStatus(propStatus);
+	return isKeyframedStatus(propStatus);
 };
 
 export const TimelineKeyframeControls: React.FC<{

@@ -61,14 +61,12 @@ export const getTimelineSelectedTrackHighlightStyle = (
 	width: timelineWidth,
 });
 
-export const SELECTION_ENABLED = false;
-export const TIMELINE_TOP_DRAG = false;
-export const ENABLE_OUTLINES = false;
-export const TIMELINE_BACKGROUND = ENABLE_OUTLINES ? '#0F1113' : '#111';
-export const TIMELINE_TICKS_BACKGROUND = ENABLE_OUTLINES
-	? BACKGROUND
-	: TIMELINE_BACKGROUND;
-export const EASING_SELECTION_ENABLED = false;
+export const SELECTION_ENABLED = true;
+export const TIMELINE_TOP_DRAG = true;
+export const ENABLE_OUTLINES = true;
+export const TIMELINE_BACKGROUND = '#0F1113';
+export const TIMELINE_TICKS_BACKGROUND = BACKGROUND;
+export const EASING_SELECTION_ENABLED = true;
 
 type TimelineSelectionBase = {
 	readonly nodePathInfo: SequenceNodePathInfo;
@@ -655,11 +653,9 @@ export const TimelineSelectionProvider: React.FC<{
 }> = ({children}) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const canSelect =
-		(SELECTION_ENABLED || ENABLE_OUTLINES) &&
 		previewServerState.type === 'connected' &&
 		!window.remotion_isReadOnlyStudio;
 	const canSelectEasing =
-		EASING_SELECTION_ENABLED &&
 		previewServerState.type === 'connected' &&
 		!window.remotion_isReadOnlyStudio;
 	const [selectedItems, setSelectedItems] = useState<

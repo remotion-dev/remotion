@@ -18,6 +18,7 @@ import {
 } from '../components/selected-outline-uv';
 import {
 	applySelectedOutlineDragAxisLock,
+	compensateTranslateForTransformOrigin,
 	getOutlineSelectionInteraction,
 	getSelectedEffectFieldsBySequenceKey,
 	getSelectedOutlineDragChanges,
@@ -31,7 +32,6 @@ import {
 	getSelectedOutlineScaleEdgeInfo,
 	getSelectedSequenceKeys,
 	getSequencesWithSelectableOutlines,
-	compensateTranslateForTransformOrigin,
 	type SelectedOutlineDragState,
 	type SelectedOutlineRotationDragState,
 	type SelectedOutlineScaleDragState,
@@ -49,6 +49,7 @@ import {
 } from '../components/Timeline/TimelineClipboardKeybindings';
 import {getSelectedKeyframeControlNodePathInfos} from '../components/Timeline/TimelineKeyframeControls';
 import {
+	EASING_SELECTION_ENABLED,
 	ENABLE_OUTLINES,
 	getClampedTimelineMarqueePoint,
 	getSelectableTimelineSequenceSelections,
@@ -73,8 +74,8 @@ import {
 	getTimelineSequenceFromDragValue,
 } from '../components/Timeline/TimelineSequenceRightEdgeDragHandle';
 import {
-	parseTransformOrigin,
 	parsedTransformOriginToUv,
+	parseTransformOrigin,
 	serializeTransformOrigin,
 } from '../components/Timeline/transform-origin-utils';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
@@ -220,8 +221,8 @@ const makeFromPropStatuses = (
 	return propStatuses;
 };
 
-test('Timeline selection should stay disabled until released publicly', () => {
-	expect(SELECTION_ENABLED).toBe(false);
+test('Timeline selection is enabled', () => {
+	expect(SELECTION_ENABLED).toBe(true);
 });
 
 test('timeline marquee rectangle intersection detects overlapping targets', () => {
@@ -757,8 +758,8 @@ test('pasting an effect prop requires the same effect type and prop key', () => 
 	).toEqual({type: 'effect-type-mismatch'} satisfies PasteEffectPropTarget);
 });
 
-test('Timeline top drag should not be enabled', () => {
-	expect(TIMELINE_TOP_DRAG).toBe(false);
+test('Timeline top drag is enabled', () => {
+	expect(TIMELINE_TOP_DRAG).toBe(true);
 });
 
 test('Timeline duration drag applies the same delta to selected sequences', () => {
@@ -1178,13 +1179,17 @@ test('Timeline from drag removes the prop at the default value', () => {
 	});
 });
 
-test('Timeline outlines should not be enabled', () => {
-	expect(ENABLE_OUTLINES).toBe(false);
+test('Timeline outlines are enabled', () => {
+	expect(ENABLE_OUTLINES).toBe(true);
 });
 
-test('Timeline colors should use the old palette when outlines are disabled', () => {
-	expect(TIMELINE_BACKGROUND).toBe('#111');
-	expect(TIMELINE_TICKS_BACKGROUND).toBe('#111');
+test('Timeline easing selection is enabled', () => {
+	expect(EASING_SELECTION_ENABLED).toBe(true);
+});
+
+test('Timeline colors use the outlines palette', () => {
+	expect(TIMELINE_BACKGROUND).toBe('#0F1113');
+	expect(TIMELINE_TICKS_BACKGROUND).not.toBe(TIMELINE_BACKGROUND);
 });
 
 test('Timeline outlines visibility is enabled by default and persisted', () => {

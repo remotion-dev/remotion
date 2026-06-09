@@ -28,7 +28,6 @@ import {PlaybackRateSelector} from './PlaybackRateSelector';
 import {PlayPause} from './PlayPause';
 import {RenderButton} from './RenderButton';
 import {SizeSelector} from './SizeSelector';
-import {ENABLE_OUTLINES} from './Timeline/TimelineSelection';
 import {TimelineZoomControls} from './Timeline/TimelineZoomControls';
 import {TimelineInOutPointToggle} from './TimelineInOutToggle';
 
@@ -239,11 +238,9 @@ export const PreviewToolbar: React.FC<{
 					<PreviewToolbarControl>
 						<CheckboardToggle />
 					</PreviewToolbarControl>
-					{ENABLE_OUTLINES ? (
-						<PreviewToolbarControl>
-							<OutlineToggle />
-						</PreviewToolbarControl>
-					) : null}
+					<PreviewToolbarControl>
+						<OutlineToggle />
+					</PreviewToolbarControl>
 				</>
 			) : null}
 			<Spacing x={1} />

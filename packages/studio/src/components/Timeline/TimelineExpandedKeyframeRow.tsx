@@ -6,8 +6,6 @@ import type {getTimelineKeyframes} from './get-timeline-keyframes';
 import {TimelineKeyframeDiamond} from './TimelineKeyframeDiamond';
 import {TimelineKeyframeEasingLine} from './TimelineKeyframeEasingLine';
 import {
-	EASING_SELECTION_ENABLED,
-	ENABLE_OUTLINES,
 	getTimelineSelectedTrackHighlightStyle,
 	useTimelineRowSelection,
 } from './TimelineSelection';
@@ -30,10 +28,9 @@ const TimelineExpandedKeyframeRowUnmemoized: React.FC<{
 }> = ({height, keyframes, canEditEasing, nodePathInfo, showSeparator}) => {
 	const timelineWidth = useContext(TimelineWidthContext);
 	const {selected: rowSelected} = useTimelineRowSelection(nodePathInfo);
-	const easingSegments =
-		(ENABLE_OUTLINES || EASING_SELECTION_ENABLED) && canEditEasing
-			? getTimelineEasingSegments(keyframes)
-			: [];
+	const easingSegments = canEditEasing
+		? getTimelineEasingSegments(keyframes)
+		: [];
 
 	return (
 		<>
