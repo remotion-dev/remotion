@@ -242,6 +242,7 @@ test('Img registers a refForOutline pointing to the rendered image element', () 
 test('Interactive elements register their rendered element for Studio outlines', () => {
 	const registeredSequences: TSequence[] = [];
 	const divRef = React.createRef<HTMLDivElement>();
+	const documentationLink = 'https://www.remotion.dev/docs/interactive';
 
 	render(
 		<SequenceTestWrapper
@@ -282,6 +283,12 @@ test('Interactive elements register their rendered element for Studio outlines',
 	);
 	expect(getByName('<Interactive.Rect>')?.refForOutline?.current?.tagName).toBe(
 		'rect',
+	);
+	expect(getByName('<Interactive.Div>')?.documentationLink).toBe(
+		documentationLink,
+	);
+	expect(getByName('<Interactive.Rect>')?.documentationLink).toBe(
+		documentationLink,
 	);
 	expect(getByName('<Interactive.Div>')?.refForOutline?.current).toBe(
 		divRef.current,
