@@ -97,8 +97,14 @@ const extractDefaultPropsFromSource = (
 				return;
 			}
 
-			if (isStaticValue(expression as unknown as Expression)) {
-				const value = extractStaticValue(expression as unknown as Expression);
+			if (
+				isStaticValue(expression as unknown as Expression, {
+					allowSpecialValues: true,
+				})
+			) {
+				const value = extractStaticValue(expression as unknown as Expression, {
+					allowSpecialValues: true,
+				});
 				if (
 					value !== null &&
 					typeof value === 'object' &&
