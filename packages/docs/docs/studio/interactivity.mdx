@@ -12,52 +12,49 @@ Edits can be undone with <kbd>⌘/Ctrl</kbd> + <kbd>Z</kbd> and redone with <kbd
 
 ## Selecting edit targets
 
-Before editing, select the code-backed items that the edit should target: sequences, sequence props, effects, effect props, keyframes and easing segments.
-
-Use <kbd>Shift</kbd> to select ranges and <kbd>⌘/Ctrl</kbd> to toggle items. Drag on the timeline to marquee-select sequences, keyframes and easing segments. Press <kbd>⌘/Ctrl</kbd> + <kbd>A</kbd> to select all sequence rows.
-
-The outline and selection palette show which items will be affected by the next edit. Rows containing selected items receive row highlights.
+- Select sequences, sequence props, effects, effect props, keyframes and easing segments.
+- Hold <kbd>Shift</kbd> to select ranges.
+- Hold <kbd>⌘/Ctrl</kbd> to toggle items.
+- Drag on the timeline to marquee-select sequences, keyframes and easing segments.
+- Press <kbd>⌘/Ctrl</kbd> + <kbd>A</kbd> to select all sequence rows.
+- Use outlines, the selection palette and row highlights to see which items will be affected by the next edit.
 
 ## Canvas edits
 
-Selectable sequences are outlined directly in the preview when they can be edited from the canvas.
-
-Drag a selected outline to move the sequence by updating `style.translate`. Multiple selected sequences move together. Hold <kbd>Shift</kbd> while dragging to lock movement to one axis.
-
-Drag outline edges to scale selected sequences when `style.scale` is editable. Drag outline corners to rotate selected sequences when `style.rotate` is editable.
-
-Drag the transform-origin handle to move the transform origin. Studio compensates `style.translate` so the visual position stays stable.
-
-If `style.translate`, `style.rotate` or `style.transformOrigin` is keyframed, canvas drags create or update keyframes at the current frame.
+- Selectable sequences show outlines directly in the preview when they can be edited from the canvas.
+- Drag selected outlines to move sequences by updating `style.translate`.
+- Move multiple selected sequences together.
+- Hold <kbd>Shift</kbd> while dragging outlines to lock movement to one axis.
+- Drag outline edges to scale selected sequences when `style.scale` is editable.
+- Drag outline corners to rotate selected sequences when `style.rotate` is editable.
+- Drag the transform-origin handle to move the transform origin. Studio compensates `style.translate` so the visual position stays stable.
+- Edit keyframed `style.translate`, `style.rotate` or `style.transformOrigin` values from the canvas. Drags create or update keyframes at the current frame.
 
 ## Effects in the preview
 
-Drop effects onto outlined sequences in the preview when the sequence supports effects.
-
-For selected effects or effect props, drag UV-coordinate handles on the canvas to edit the effect. Connected handles are shown with lines.
-
-Copy selected effects with <kbd>⌘/Ctrl</kbd> + <kbd>C</kbd> and paste them with <kbd>⌘/Ctrl</kbd> + <kbd>V</kbd>. You can also copy and paste individual effect prop values, including keyframed effect params where supported.
+- Drop effects onto outlined sequences when the sequence supports effects.
+- Drag UV-coordinate handles for selected effects and effect props.
+- Use connected handle lines to see which handles belong together.
+- Copy selected effects with <kbd>⌘/Ctrl</kbd> + <kbd>C</kbd> and paste them with <kbd>⌘/Ctrl</kbd> + <kbd>V</kbd>.
+- Copy and paste individual effect prop values, including keyframed effect params where supported.
 
 ## Keyframes
 
-Select keyframes in the timeline and drag them horizontally to change their frame.
-
-Multiple selected keyframes move together, including keyframes for sequence props and effect props.
-
-Press <kbd>Delete</kbd> or <kbd>Backspace</kbd> to delete selected keyframes where supported.
+- Select keyframes in the timeline.
+- Drag selected keyframes horizontally to change their frame.
+- Move multiple selected keyframes together.
+- Move keyframes for sequence props and effect props.
+- Press <kbd>Delete</kbd> or <kbd>Backspace</kbd> to delete selected keyframes where supported.
 
 ## Easing segments
 
-Select easing segments between keyframes to edit interpolation.
-
-Open the easing context menu to set `Linear`, choose a preset or open the custom easing editor. Easing edits apply to all selected easing segments.
-
-If only easing segments are selected, press <kbd>Delete</kbd> or <kbd>Backspace</kbd> to reset them to linear.
+- Select easing segments between keyframes.
+- Open the easing context menu to set `Linear`, choose a preset or open the custom easing editor.
+- Apply easing edits to all selected easing segments.
+- Press <kbd>Delete</kbd> or <kbd>Backspace</kbd> to reset selected easing segments to linear when only easing segments are selected.
 
 ## Deleting, resetting and duplicating
 
-Press <kbd>Delete</kbd> or <kbd>Backspace</kbd> to delete selected keyframes, sequences, effects or all effects where supported.
-
-When deletion does not apply, the same keys reset selected sequence or effect props to their defaults.
-
-Press <kbd>⌘/Ctrl</kbd> + <kbd>D</kbd> to duplicate selected sequences.
+- Press <kbd>Delete</kbd> or <kbd>Backspace</kbd> to delete selected keyframes, sequences, effects or all effects where supported.
+- Reset selected sequence or effect props to their defaults with <kbd>Delete</kbd> or <kbd>Backspace</kbd> when deletion does not apply.
+- Press <kbd>⌘/Ctrl</kbd> + <kbd>D</kbd> to duplicate selected sequences.
