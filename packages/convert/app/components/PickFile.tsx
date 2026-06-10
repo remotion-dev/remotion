@@ -1,4 +1,4 @@
-import React, {useCallback} from 'react';
+import React, {useCallback, useEffect} from 'react';
 import {SAMPLE_FILE_CONVERT, SAMPLE_FILE_TRANSCRIBE} from '~/lib/config';
 import type {Source} from '~/lib/convert-state';
 import type {RouteAction} from '~/seo';
@@ -22,29 +22,30 @@ export const PickFile: React.FC<{
 		});
 	}, [setSrc, action]);
 
-	const onDrop = useCallback(
-		(event: React.DragEvent<HTMLDivElement>) => {
-			event.preventDefault();
-			event.stopPropagation();
-			const file = event.dataTransfer.files[0];
+	useEffect(() => {
+		const onDragOver = (e: DragEvent) => {
+			e.preventDefault();
+		};
+
+		const onDrop = (e: DragEvent) => {
+			e.preventDefault();
+			const file = e.dataTransfer?.files[0];
 			if (file) {
 				setSrc({type: 'file', file});
 			}
-		},
-		[setSrc],
-	);
+		};
 
-	const onDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
-		event.preventDefault();
-		event.stopPropagation();
-	}, []);
+		document.body.addEventListener('dragover', onDragOver);
+		document.body.addEventListener('drop', onDrop);
+
+		return () => {
+			document.body.removeEventListener('dragover', onDragOver);
+			document.body.removeEventListener('drop', onDrop);
+		};
+	}, [setSrc]);
 
 	return (
-		<div
-			className="text-center items-center justify-center flex flex-col h-full w-full"
-			onDragOver={onDragOver}
-			onDrop={onDrop}
-		>
+		<div className="text-center items-center justify-center flex flex-col h-full w-full">
 			<div className="bg-[#F9FAFC] w-full">
 				<div className="h-10" />
 				<TextMarkLogo text="Remotion Convert" />
