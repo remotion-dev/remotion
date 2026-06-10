@@ -6,27 +6,21 @@ crumb: "Remotion Studio"
 
 # Interactivity<AvailableFrom v="4.0.475" />
 
-The Studio can select timeline and preview elements, then write supported edits back to your codebase.
+Studio interactivity means visual edits that are written back to your codebase.
 
 Edits can be undone with <kbd>⌘/Ctrl</kbd> + <kbd>Z</kbd> and redone with <kbd>⌘/Ctrl</kbd> + <kbd>Y</kbd>.
 
-## Timeline selection
+## Selecting edit targets
 
-You can select sequences, sequence props, effects, effect props, keyframes and easing segments in the timeline.
+Before editing, select the code-backed items that the edit should target: sequences, sequence props, effects, effect props, keyframes and easing segments.
 
 Use <kbd>Shift</kbd> to select ranges and <kbd>⌘/Ctrl</kbd> to toggle items. Drag on the timeline to marquee-select sequences, keyframes and easing segments. Press <kbd>⌘/Ctrl</kbd> + <kbd>A</kbd> to select all sequence rows.
 
-Selected and contained items are highlighted with the outline and selection palette. Rows containing selected items receive row highlights.
+The outline and selection palette show which items will be affected by the next edit. Rows containing selected items receive row highlights.
 
-## Timeline scrubbing
+## Canvas edits
 
-Drag the top ruler of the timeline to scrub the current frame.
-
-When dragging near the timeline edge, the timeline auto-scrolls so you can continue scrubbing beyond the visible range.
-
-## Canvas outlines
-
-Selectable sequences are outlined directly in the preview. Right-click an outline to open source actions such as `Show in editor` and `Copy file location`.
+Selectable sequences are outlined directly in the preview when they can be edited from the canvas.
 
 Drag a selected outline to move the sequence by updating `style.translate`. Multiple selected sequences move together. Hold <kbd>Shift</kbd> while dragging to lock movement to one axis.
 
