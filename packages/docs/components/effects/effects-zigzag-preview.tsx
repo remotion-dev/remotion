@@ -3,6 +3,7 @@ import React from 'react';
 import {Solid, useVideoConfig} from 'remotion';
 
 export const EffectsZigzagPreview: React.FC<{
+	readonly colors: readonly string[];
 	readonly direction: 'horizontal' | 'vertical';
 	readonly thickness: number;
 	readonly gap: number;
@@ -10,7 +11,16 @@ export const EffectsZigzagPreview: React.FC<{
 	readonly offset: number;
 	readonly amplitude: number;
 	readonly wavelength: number;
-}> = ({direction, thickness, gap, angle, offset, amplitude, wavelength}) => {
+}> = ({
+	colors,
+	direction,
+	thickness,
+	gap,
+	angle,
+	offset,
+	amplitude,
+	wavelength,
+}) => {
 	const {width, height} = useVideoConfig();
 
 	return (
@@ -19,6 +29,7 @@ export const EffectsZigzagPreview: React.FC<{
 			height={height}
 			effects={[
 				zigzag({
+					colors,
 					direction,
 					thickness,
 					gap,

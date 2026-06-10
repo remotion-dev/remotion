@@ -4,6 +4,7 @@ import React from 'react';
 import {Solid, useVideoConfig} from 'remotion';
 
 export const EffectsWavesPreview: React.FC<{
+	readonly colors: readonly string[];
 	readonly direction: WavesDirection;
 	readonly thickness: number;
 	readonly gap: number;
@@ -12,7 +13,17 @@ export const EffectsWavesPreview: React.FC<{
 	readonly amplitude: number;
 	readonly wavelength: number;
 	readonly phase: number;
-}> = ({direction, thickness, gap, angle, offset, amplitude, wavelength, phase}) => {
+}> = ({
+	colors,
+	direction,
+	thickness,
+	gap,
+	angle,
+	offset,
+	amplitude,
+	wavelength,
+	phase,
+}) => {
 	const {width, height} = useVideoConfig();
 
 	return (
@@ -21,6 +32,7 @@ export const EffectsWavesPreview: React.FC<{
 			height={height}
 			effects={[
 				waves({
+					colors,
 					direction,
 					thickness,
 					gap,
