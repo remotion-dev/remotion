@@ -454,10 +454,10 @@ export const HtmlInCanvasCapture = forwardRef<
 			});
 		};
 
-		window.addEventListener('mousemove', onMouseMove);
+		window.addEventListener('pointermove', onMouseMove);
 
 		return () => {
-			window.removeEventListener('mousemove', onMouseMove);
+			window.removeEventListener('pointermove', onMouseMove);
 		};
 	}, [density]);
 
