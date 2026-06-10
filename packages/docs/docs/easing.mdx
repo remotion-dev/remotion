@@ -17,6 +17,7 @@ The `Easing` module provides several predefined animations through the following
 - [`bounce`](/docs/easing#bounce) provides a bouncing animation
 - [`ease`](/docs/easing#ease) provides a basic inertial animation
 - [`elastic`](/docs/easing#elastic) provides a basic spring interaction
+- [`spring`](/docs/easing#spring) provides a physics-based spring animation
 
 ### Standard functions
 
@@ -201,6 +202,29 @@ A basic elastic interaction, similar to a spring oscillating back and forth.
 Default bounciness is 1, which overshoots a little bit once. 0 bounciness doesn't overshoot at all, and bounciness of N > 1 will overshoot about N times.
 
 http://easings.net/#easeInElastic
+
+---
+
+### `spring()`<AvailableFrom v="4.0.476" />
+
+```jsx
+static spring(config?): (t) => number
+```
+
+Creates a spring easing function for [`interpolate()`](/docs/interpolate).
+The curve is normalized to the interpolation progress, so it does not take `frame`, `fps` or `durationInFrames`.
+
+```tsx twoslash title="MyComponent.tsx"
+import {Easing, interpolate} from 'remotion';
+// ---cut---
+const scale = interpolate(30, [0, 60], [0, 1], {
+  easing: Easing.spring({
+    damping: 200,
+  }),
+});
+```
+
+The supported config fields are `damping`, `mass`, `stiffness` and `overshootClamping`.
 
 ---
 
