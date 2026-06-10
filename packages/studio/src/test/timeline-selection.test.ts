@@ -2034,6 +2034,7 @@ test('Selected outline edge dragging scales one axis when scale is unlinked', ()
 		{
 			defaultValue: JSON.stringify(1),
 			key: Internals.makeSequencePropsSubscriptionKey(nodePath),
+			sourceFrame: 0,
 			startX: 2,
 			startY: 3,
 			startZ: 1,
@@ -2042,6 +2043,7 @@ test('Selected outline edge dragging scales one axis when scale is unlinked', ()
 				propStatus: {status: 'static', codeValue: '2 3'},
 				fieldDefault: 1,
 				fieldSchema: schema['style.scale'],
+				keyframeDisplayOffset: 0,
 				linked: false,
 				nodePath,
 				schema,
@@ -2063,6 +2065,7 @@ test('Selected outline edge dragging scales one axis when scale is unlinked', ()
 		}),
 	).toEqual([
 		{
+			type: 'static',
 			fileName: '/project/src/Comp.tsx',
 			nodePath,
 			fieldKey: 'style.scale',
@@ -2090,6 +2093,7 @@ test('Selected outline edge dragging preserves aspect ratio when scale is linked
 		{
 			defaultValue: JSON.stringify(1),
 			key: Internals.makeSequencePropsSubscriptionKey(nodePath),
+			sourceFrame: 0,
 			startX: 2,
 			startY: 3,
 			startZ: 1,
@@ -2098,6 +2102,7 @@ test('Selected outline edge dragging preserves aspect ratio when scale is linked
 				propStatus: {status: 'static', codeValue: '2 3'},
 				fieldDefault: 1,
 				fieldSchema: schema['style.scale'],
+				keyframeDisplayOffset: 0,
 				linked: true,
 				nodePath,
 				schema,
