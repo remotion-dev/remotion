@@ -393,16 +393,6 @@ const CursorOverlay: React.FC<{
 				cursorAssetBasePath={cursorAssetBasePath}
 				scale={scale}
 			/>
-			<div
-				style={{
-					width: 5,
-					height: 5,
-					marginLeft: -2.5,
-					marginRight: -2.5,
-					backgroundColor: 'red',
-					position: 'absolute',
-				}}
-			></div>
 		</div>
 	);
 };
@@ -465,8 +455,8 @@ export const CanvasCapturePreview: React.FC<CanvasCapturePreviewProps> = ({
 					position: 'absolute',
 					width: width!,
 					height: height!,
-					scale: 1.219385,
-					translate: '-470.7px -1492.7px',
+					scale: 1.766237,
+					translate: '-6.6px -1825.3px',
 				}}
 			>
 				<Video
