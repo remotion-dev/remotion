@@ -5,6 +5,7 @@ import {
 	parseAnyColor,
 	rgbaToHsva,
 	type Hsva,
+	type Rgba,
 } from '../../helpers/color-conversion';
 import {INPUT_BACKGROUND, LIGHT_TEXT} from '../../helpers/colors';
 import {EyedropperIcon} from '../../icons/eyedropper';
@@ -120,6 +121,22 @@ const eyedropperButtonStyle: React.CSSProperties = {
 
 const hasEyeDropper = (): boolean =>
 	typeof window !== 'undefined' && 'EyeDropper' in window;
+
+export const applyEyeDropperAlpha = ({
+	pickedColor,
+	previousAlpha,
+	preserveAlpha,
+}: {
+	readonly pickedColor: string;
+	readonly previousAlpha: number;
+	readonly preserveAlpha: boolean;
+}): Rgba => {
+	const parsed = parseAnyColor(pickedColor);
+	return {
+		...parsed,
+		a: preserveAlpha ? previousAlpha : 255,
+	};
+};
 
 export type ChannelKey = 'r' | 'g' | 'b' | 'a-percent';
 
@@ -245,7 +262,13 @@ export const ColorPickerPopup: React.FC<{
 	readonly value: string;
 	readonly onChange: (next: string) => void;
 	readonly onChangeComplete: (next: string) => void;
-}> = ({value, onChange, onChangeComplete}) => {
+	readonly preserveAlphaOnEyeDropper?: boolean;
+}> = ({
+	value,
+	onChange,
+	onChangeComplete,
+	preserveAlphaOnEyeDropper = true,
+}) => {
 	// useZIndex is intentionally read inside the popup (which is wrapped by
 	// HigherZIndex) so child inputs receive the popup's tabIndex rather than
 	// the trigger's, which would resolve to -1 once the popup is open.
@@ -376,10 +399,11 @@ export const ColorPickerPopup: React.FC<{
 		dropper
 			.open()
 			.then((result) => {
-				const parsed = parseAnyColor(result.sRGBHex);
-				// `EyeDropper` always returns full opacity; preserve the user's
-				// previously chosen alpha so opening it doesn't drop transparency.
-				parsed.a = rgba.a;
+				const parsed = applyEyeDropperAlpha({
+					pickedColor: result.sRGBHex,
+					previousAlpha: rgba.a,
+					preserveAlpha: preserveAlphaOnEyeDropper,
+				});
 				const newHsva = rgbaToHsva(parsed);
 				if (newHsva.s === 0) {
 					newHsva.h = hsva.h;
@@ -390,7 +414,7 @@ export const ColorPickerPopup: React.FC<{
 			.catch(() => {
 				// Aborted; ignore.
 			});
-	}, [emit, hsva.h, rgba.a]);
+	}, [emit, hsva.h, preserveAlphaOnEyeDropper, rgba.a]);
 
 	const previewFill: React.CSSProperties = useMemo(() => {
 		return {

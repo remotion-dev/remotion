@@ -1,4 +1,5 @@
 import {expect, test} from 'bun:test';
+import {applyEyeDropperAlpha} from '../components/ColorPicker/ColorPickerPopup';
 import {
 	formatRgba,
 	hsvToRgb,
@@ -33,6 +34,26 @@ test('formatRgba returns hex when fully opaque', () => {
 
 test('formatRgba returns rgba when transparent', () => {
 	expect(formatRgba({r: 255, g: 0, b: 0, a: 128})).toBe('rgba(255, 0, 0, 0.5)');
+});
+
+test('applyEyeDropperAlpha preserves alpha by default', () => {
+	expect(
+		applyEyeDropperAlpha({
+			pickedColor: '#ff0000',
+			previousAlpha: 128,
+			preserveAlpha: true,
+		}),
+	).toEqual({r: 255, g: 0, b: 0, a: 128});
+});
+
+test('applyEyeDropperAlpha can reset alpha to fully opaque', () => {
+	expect(
+		applyEyeDropperAlpha({
+			pickedColor: '#ff0000',
+			previousAlpha: 128,
+			preserveAlpha: false,
+		}),
+	).toEqual({r: 255, g: 0, b: 0, a: 255});
 });
 
 test('rgbToHsv / hsvToRgb roundtrip primaries', () => {
