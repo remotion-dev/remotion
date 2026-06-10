@@ -184,8 +184,9 @@ import Amplify from './AudioTesting/Amplify';
 import {Issue7568} from './AudioTesting/Issue7568';
 import {BrowserTest} from './BrowserTest';
 import {
-	CanvasCapturePreview,
-	CanvasCapturePreview2,
+	ClickStar,
+	StarColor,
+	StarRadius,
 	calculateCanvasCapturePreviewMetadata,
 	canvasCapturePreviewSchema,
 } from './CanvasCapturePreview';
@@ -420,15 +421,15 @@ export const Index: React.FC = () => {
 			</Folder>
 			<Folder name="canvas-capture">
 				<Composition
-					id="canvas-capture-preview"
-					component={CanvasCapturePreview}
-					width={1920}
-					height={1080}
+					id="click-star"
+					component={ClickStar}
+					width={1080}
+					height={1350}
 					fps={30}
 					durationInFrames={120}
 					defaultProps={{
-						videoFile: 'remotion-studio-canvas-recording.webm',
-						cursorFile: 'remotion-studio-canvas-recording.json',
+						videoFile: 'click-star.webm',
+						cursorFile: 'click-star.json',
 						cursorScale: 4.85,
 						width: null,
 						height: null,
@@ -437,16 +438,33 @@ export const Index: React.FC = () => {
 					calculateMetadata={calculateCanvasCapturePreviewMetadata}
 				/>
 				<Composition
-					id="canvas-capture-preview-2"
-					component={CanvasCapturePreview2}
-					width={1920}
-					height={1080}
+					id="star-radius"
+					component={StarRadius}
+					width={1080}
+					height={1350}
 					fps={30}
 					durationInFrames={120}
 					defaultProps={{
-						videoFile: 'remotion-studio-canvas-recording.webm',
-						cursorFile: 'remotion-studio-canvas-recording.json',
-						cursorScale: 4.85,
+						videoFile: 'star-radius.webm',
+						cursorFile: 'star-radius.json',
+						cursorScale: 5,
+						width: null,
+						height: null,
+					}}
+					schema={canvasCapturePreviewSchema}
+					calculateMetadata={calculateCanvasCapturePreviewMetadata}
+				/>
+				<Composition
+					id="star-color"
+					component={StarColor}
+					width={1080}
+					height={1350}
+					fps={30}
+					durationInFrames={120}
+					defaultProps={{
+						videoFile: 'star-color.webm',
+						cursorFile: 'star-color.json',
+						cursorScale: 5,
 						width: null,
 						height: null,
 					}}

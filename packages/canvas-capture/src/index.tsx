@@ -319,6 +319,7 @@ export const HtmlInCanvasCapture = forwardRef<
 			bitrate: recordingVideoBitrate,
 			latencyMode: 'realtime',
 			keyFrameInterval: recordingKeyFrameIntervalInSeconds,
+			alpha: 'keep',
 		});
 
 		output.addVideoTrack(source);
