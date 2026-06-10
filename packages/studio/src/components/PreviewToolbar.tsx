@@ -125,7 +125,24 @@ export const PreviewToolbar: React.FC<{
 	const isMobileLayout = useMobileLayout();
 
 	useEffect(() => {
-		if (isMobileLayout && previewToolbarRef.current) {
+		if (!isMobileLayout) {
+			// The indicators are `position: fixed` and are shown/placed
+			// imperatively by the scroll handler below. Without this reset,
+			// leaving the mobile layout (window resized past the breakpoint)
+			// leaves them visible at stale viewport coordinates — an orphaned
+			// grey gradient rectangle floating over the canvas.
+			if (leftScrollIndicatorRef.current) {
+				leftScrollIndicatorRef.current.style.display = 'none';
+			}
+
+			if (rightScrollIndicatorRef.current) {
+				rightScrollIndicatorRef.current.style.display = 'none';
+			}
+
+			return;
+		}
+
+		if (previewToolbarRef.current) {
 			const updateScrollableIndicatorProps = (target: HTMLDivElement) => {
 				const boundingBox = target.getBoundingClientRect();
 				const {scrollLeft, scrollWidth, clientWidth} = target;
