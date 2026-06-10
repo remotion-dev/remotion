@@ -130,6 +130,56 @@ const macCursorFilenameByCssValue: Record<string, string | null> = {
 	'zoom-out': 'zoomout.svg',
 };
 
+type CursorHotspot = {
+	readonly x: number;
+	readonly y: number;
+};
+
+const macCursorHotspotByFilename: Record<string, CursorHotspot> = {
+	'resize northsouth.svg': {x: 10, y: 8},
+	'beachball.svg': {x: 6, y: 6},
+	'busy.svg': {x: 1, y: 14},
+	'cell.svg': {x: 9, y: 9},
+	'contextualmenu.svg': {x: 8, y: 7},
+	'copy.svg': {x: 1, y: 14},
+	'cross.svg': {x: 9, y: 9},
+	'default.svg': {x: 10, y: 7},
+	'handgrabbing.svg': {x: 8, y: 9},
+	'handopen.svg': {x: 7, y: 6},
+	'handpointing.svg': {x: 9, y: 8},
+	'help.svg': {x: 12, y: 10},
+	'makealias.svg': {x: 10, y: 9},
+	'move.svg': {x: 8, y: 8},
+	'notallowed.svg': {x: 7, y: 0},
+	'poof.svg': {x: 7, y: 0},
+	'resizedown.svg': {x: 8, y: 11},
+	'resizeeast.svg': {x: 10, y: 10},
+	'resizeleft.svg': {x: 11, y: 8},
+	'resizeleftright.svg': {x: 7, y: 8},
+	'resizenorth.svg': {x: 10, y: 10},
+	'resizenortheast.svg': {x: 11, y: 11},
+	'resizenortheastsouthwest.svg': {x: 9, y: 9},
+	'resizenorthsouth.svg': {x: 10, y: 8},
+	'resizenorthwest.svg': {x: 11, y: 11},
+	'resizenorthwestsoutheast.svg': {x: 9, y: 9},
+	'resizeright.svg': {x: 11, y: 8},
+	'resizesouth.svg': {x: 10, y: 10},
+	'resizesoutheast.svg': {x: 11, y: 11},
+	'resizesouthwest.svg': {x: 11, y: 11},
+	'resizeup.svg': {x: 8, y: 10},
+	'resizeupdown.svg': {x: 8, y: 7},
+	'resizewest.svg': {x: 10, y: 10},
+	'resizewesteast.svg': {x: 8, y: 10},
+	'screenshotselection.svg': {x: 5, y: 5},
+	'screenshotwindow.svg': {x: 5, y: 7},
+	'textcursor.svg': {x: 13, y: 8},
+	'textcursorvertical.svg': {x: 12, y: 24},
+	'zoomin.svg': {x: 8, y: 8},
+	'zoomout.svg': {x: 8, y: 8},
+};
+
+const macCursorSvgScale = 3.23;
+
 const resolveAsset = (src: string) => {
 	return src.startsWith('http://') || src.startsWith('https://')
 		? src
@@ -155,6 +205,16 @@ const getMacCursorFilename = (cursor: string) => {
 	return (
 		macCursorFilenameByCssValue[getNormalizedCursor(cursor)] ?? 'default.svg'
 	);
+};
+
+const getMacCursorHotspot = (filename: string) => {
+	const hotspot = macCursorHotspotByFilename[filename];
+
+	if (!hotspot) {
+		throw new Error(`Missing hotspot for Mac cursor asset: ${filename}`);
+	}
+
+	return hotspot;
 };
 
 const findCursorAtTime = (
@@ -263,16 +323,19 @@ const CursorGlyph: React.FC<{
 	}
 
 	if (cursorAssetBasePath) {
+		const hotspot = getMacCursorHotspot(macCursorFilename);
+
 		return (
 			<Img
 				src={resolveCursorAsset(cursorAssetBasePath, macCursorFilename)}
 				style={{
 					display: 'block',
 					height: 32 * scale,
-					marginLeft: -16 * scale,
-					marginTop: -16 * scale,
+					marginLeft: -hotspot.x * scale,
+					marginTop: -hotspot.y * scale,
+					scale: macCursorSvgScale,
+					transformOrigin: `${hotspot.x * scale}px ${hotspot.y * scale}px`,
 					width: 32 * scale,
-					scale: 3.23,
 				}}
 			/>
 		);
