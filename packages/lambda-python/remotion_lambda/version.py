@@ -1,2 +1,2 @@
 # pylint: disable=missing-module-docstring, missing-final-newline
-VERSION = "4.0.474"
+VERSION = "4.0.475"

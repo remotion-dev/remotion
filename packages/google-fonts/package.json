@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/google-fonts"
 	},
 	"name": "@remotion/google-fonts",
-	"version": "4.0.474",
+	"version": "4.0.475",
 	"description": "Use Google Fonts in Remotion",
 	"main": "dist/cjs/index.js",
 	"module": "dist/esm/index.mjs",
@@ -149,6 +149,9 @@
 			],
 			"Alice": [
 				"dist/cjs/Alice.d.ts"
+			],
+			"AlienBlock": [
+				"dist/cjs/AlienBlock.d.ts"
 			],
 			"Alike": [
 				"dist/cjs/Alike.d.ts"
@@ -4070,6 +4073,9 @@
 			],
 			"PlaypenSansThai": [
 				"dist/cjs/PlaypenSansThai.d.ts"
+			],
+			"Pliant": [
+				"dist/cjs/Pliant.d.ts"
 			],
 			"PlusJakartaSans": [
 				"dist/cjs/PlusJakartaSans.d.ts"
