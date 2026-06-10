@@ -247,6 +247,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./Alice') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Alien Block',
+		importName: 'AlienBlock',
+		load: () => import('./AlienBlock') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Alike',
 		importName: 'Alike',
 		load: () => import('./Alike') as Promise<GoogleFont>,
@@ -6781,6 +6786,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Playpen Sans Thai',
 		importName: 'PlaypenSansThai',
 		load: () => import('./PlaypenSansThai') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Pliant',
+		importName: 'Pliant',
+		load: () => import('./Pliant') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Plus Jakarta Sans',
