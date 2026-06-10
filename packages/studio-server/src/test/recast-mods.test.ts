@@ -160,3 +160,74 @@ test('Rename concise-arrow composition keeps the arrow expression body', () => {
 	expect(newContents).toContain('id="Renamed"');
 	expect(newContents).not.toContain('id="NewVideo"');
 });
+
+test('Duplicate composition as Still adds Still import', () => {
+	const {newContents, changesMade} = parseAndApplyCodemod({
+		input: compositionInOwnFile,
+		codeMod: {
+			type: 'duplicate-composition',
+			idToDuplicate: 'NewVideo',
+			newId: 'Duplicated',
+			newDurationInFrames: null,
+			newFps: null,
+			newHeight: null,
+			newWidth: null,
+			tag: 'Still',
+		},
+	});
+
+	expect(changesMade.length).toBeGreaterThan(0);
+	expect(newContents).toContain('id="NewVideo"');
+	expect(newContents).toContain('id="Duplicated"');
+	expect(newContents).toContain('<Still');
+	expect(newContents).toContain('Still');
+	expect(newContents).toMatch(
+		/import\s*\{[^}]*Still[^}]*\}\s*from\s*['"]remotion['"]/,
+	);
+});
+
+test('Duplicate composition as Still does not duplicate import if Still already imported', () => {
+	const inputWithStill = `import {Composition, Still} from 'remotion';
+
+const Component = () => null;
+
+export const NewVideoComp = () => {
+	return (
+		<Composition
+			component={Component}
+			id="NewVideo"
+			durationInFrames={120}
+			fps={30}
+			width={1280}
+			height={720}
+		/>
+	);
+};
+`;
+
+	const {newContents} = parseAndApplyCodemod({
+		input: inputWithStill,
+		codeMod: {
+			type: 'duplicate-composition',
+			idToDuplicate: 'NewVideo',
+			newId: 'Duplicated',
+			newDurationInFrames: null,
+			newFps: null,
+			newHeight: null,
+			newWidth: null,
+			tag: 'Still',
+		},
+	});
+
+	// Should only have one import of Still, not two
+	// Still appears in: import + JSX tag opening
+	expect(newContents).toContain('<Still');
+	expect(newContents).toMatch(
+		/import\s*\{[^}]*Still[^}]*\}\s*from\s*['"]remotion['"]/,
+	);
+	// Ensure no duplicate import declarations
+	const importLines = newContents
+		.split('\n')
+		.filter((l: string) => l.includes('import') && l.includes('remotion'));
+	expect(importLines.length).toBe(1);
+});
