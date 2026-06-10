@@ -53,6 +53,8 @@ import {Article} from './Article';
 import {Expert} from './Expert';
 import {TemplateComp} from './Template';
 
+const DEFAULT_EFFECT_COLORS = ['#dff4ff', '#7cc6ff'] as const;
+
 export const RemotionRoot: React.FC = () => {
 	return (
 		<>
@@ -420,6 +422,7 @@ export const RemotionRoot: React.FC = () => {
 					width={1280}
 					height={720}
 					defaultProps={{
+						colors: DEFAULT_EFFECT_COLORS,
 						direction: 'horizontal',
 						thickness: 40,
 						gap: 0,
@@ -433,6 +436,7 @@ export const RemotionRoot: React.FC = () => {
 					width={1280}
 					height={720}
 					defaultProps={{
+						colors: DEFAULT_EFFECT_COLORS,
 						center: [0.5, 0.5],
 						thickness: 40,
 						gap: 0,
@@ -445,6 +449,7 @@ export const RemotionRoot: React.FC = () => {
 					width={1280}
 					height={720}
 					defaultProps={{
+						colors: DEFAULT_EFFECT_COLORS,
 						direction: 'horizontal',
 						thickness: 40,
 						gap: 0,
@@ -461,6 +466,7 @@ export const RemotionRoot: React.FC = () => {
 					width={1280}
 					height={720}
 					defaultProps={{
+						colors: DEFAULT_EFFECT_COLORS,
 						direction: 'horizontal',
 						thickness: 40,
 						gap: 0,
