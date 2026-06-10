@@ -17,8 +17,8 @@ type MouseMovement = {
 	readonly clientY: number;
 	readonly pageX: number;
 	readonly pageY: number;
-	readonly canvasX?: number | null;
-	readonly canvasY?: number | null;
+	readonly canvasX: number;
+	readonly canvasY: number;
 	readonly cursor: string;
 };
 
@@ -45,8 +45,6 @@ export type CanvasCapturePreviewProps = {
 	readonly videoFile: string;
 	readonly cursorFile: string;
 	readonly cursorScale: number;
-	readonly cursorOffsetX: number;
-	readonly cursorOffsetY: number;
 	readonly cursorAssetBasePath: string | null;
 	readonly cursorData?: CursorRecording;
 	width: number | null;
@@ -57,9 +55,9 @@ export const canvasCapturePreviewDefaultProps: CanvasCapturePreviewProps = {
 	videoFile: 'https://remotion.media/remotion-studio-canvas-recording.webm',
 	cursorFile: 'remotion-studio-canvas-recording.json',
 	cursorScale: 3,
-	cursorOffsetX: 0,
-	cursorOffsetY: 0,
 	cursorAssetBasePath: 'https://remotion.media/mac-cursors',
+	width: null,
+	height: null,
 };
 
 const macCursorFilenameByCssValue: Record<string, string | null> = {
@@ -180,8 +178,6 @@ const macCursorHotspotByFilename: Record<string, CursorHotspot> = {
 	'zoomin.svg': {x: 8, y: 8},
 	'zoomout.svg': {x: 8, y: 8},
 };
-
-const macCursorSvgScale = 3.23;
 
 const resolveAsset = (src: string) => {
 	return src.startsWith('http://') || src.startsWith('https://')
@@ -333,12 +329,13 @@ const CursorGlyph: React.FC<{
 				src={resolveCursorAsset(cursorAssetBasePath, macCursorFilename)}
 				style={{
 					display: 'block',
-					height: 32 * scale,
-					marginLeft: -hotspot.x * scale,
-					marginTop: -hotspot.y * scale,
-					scale: macCursorSvgScale,
-					transformOrigin: `${hotspot.x * scale}px ${hotspot.y * scale}px`,
-					width: 32 * scale,
+					height: 32,
+					marginLeft: -hotspot.x,
+					marginTop: -hotspot.y,
+					transformOrigin: `${hotspot.x}px ${hotspot.y}px`,
+					width: 32,
+					position: 'absolute',
+					scale: 4.85,
 				}}
 			/>
 		);
@@ -362,16 +359,8 @@ const CursorGlyph: React.FC<{
 const CursorOverlay: React.FC<{
 	readonly cursorAssetBasePath: string | null;
 	readonly cursorData: CursorRecording;
-	readonly cursorOffsetX: number;
-	readonly cursorOffsetY: number;
 	readonly cursorScale: number;
-}> = ({
-	cursorAssetBasePath,
-	cursorData,
-	cursorOffsetX,
-	cursorOffsetY,
-	cursorScale,
-}) => {
+}> = ({cursorAssetBasePath, cursorData, cursorScale}) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
 	const cursor = findCursorAtTime(cursorData.mouseMovements, frame / fps);
@@ -382,18 +371,8 @@ const CursorOverlay: React.FC<{
 
 	const metadata = cursorData.captureMetadata;
 	const scale = metadata?.density ?? cursorScale;
-	const x =
-		typeof cursor.canvasX === 'number'
-			? cursor.canvasX
-			: metadata
-				? (cursor.clientX - metadata.contentRect.left) * metadata.density
-				: (cursor.pageX - cursorOffsetX) * cursorScale;
-	const y =
-		typeof cursor.canvasY === 'number'
-			? cursor.canvasY
-			: metadata
-				? (cursor.clientY - metadata.contentRect.top) * metadata.density
-				: (cursor.pageY - cursorOffsetY) * cursorScale;
+	const x = cursor.canvasX;
+	const y = cursor.canvasY;
 
 	return (
 		<div
@@ -403,6 +382,8 @@ const CursorOverlay: React.FC<{
 				top: 0,
 				transform: `translate(${x}px, ${y}px)`,
 				pointerEvents: 'none',
+				height: 32,
+				width: 32,
 			}}
 		>
 			<CursorGlyph
@@ -410,6 +391,16 @@ const CursorOverlay: React.FC<{
 				cursorAssetBasePath={cursorAssetBasePath}
 				scale={scale}
 			/>
+			<div
+				style={{
+					width: 5,
+					height: 5,
+					marginLeft: -2.5,
+					marginRight: -2.5,
+					backgroundColor: 'red',
+					position: 'absolute',
+				}}
+			></div>
 		</div>
 	);
 };
@@ -452,8 +443,6 @@ export const CanvasCapturePreview: React.FC<CanvasCapturePreviewProps> = ({
 	cursorAssetBasePath,
 	cursorData,
 	cursorFile,
-	cursorOffsetX,
-	cursorOffsetY,
 	cursorScale,
 	videoFile,
 	width,
@@ -474,8 +463,8 @@ export const CanvasCapturePreview: React.FC<CanvasCapturePreviewProps> = ({
 					position: 'absolute',
 					width: width!,
 					height: height!,
-					scale: 2.895791,
-					translate: '388.1px -2436px',
+					scale: 1.219385,
+					translate: '-470.7px -1492.7px',
 				}}
 			>
 				<Video
@@ -489,8 +478,6 @@ export const CanvasCapturePreview: React.FC<CanvasCapturePreviewProps> = ({
 				<CursorOverlay
 					cursorAssetBasePath={cursorAssetBasePath}
 					cursorData={cursorData}
-					cursorOffsetX={cursorOffsetX}
-					cursorOffsetY={cursorOffsetY}
 					cursorScale={cursorScale}
 				/>
 			</Interactive.Div>
