@@ -166,6 +166,7 @@ const KeyframedPropsTest: React.FC = () => {
 						height: 200,
 						borderRadius: 24,
 						overflow: 'hidden',
+						translate: '184.8px 412.4px',
 					}}
 					effects={[
 						blur({

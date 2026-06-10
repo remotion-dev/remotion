@@ -55,6 +55,7 @@ import {
 	callAddSequenceKeyframe,
 	type AddSequenceKeyframeChange,
 } from './Timeline/call-add-keyframe';
+import {disableSequenceInteractivity} from './Timeline/disable-sequence-interactivity';
 import {parseKeyframeFieldFromNodePath} from './Timeline/parse-keyframe-field-from-node-path';
 import {
 	saveSequenceProps,
@@ -2250,6 +2251,7 @@ const SelectedOutlineElement: React.FC<{
 	target,
 }) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const updateResolvedStackTrace = useContext(
 		Internals.SequenceStackTracesUpdateContext,
 	);
@@ -2285,6 +2287,7 @@ const SelectedOutlineElement: React.FC<{
 			root: window.remotion_cwd,
 		});
 		const editorName = window.remotion_editorName;
+		const disableInteractivityDisabled = !target.sequence.showInTimeline;
 
 		return [
 			editorName
@@ -2337,8 +2340,41 @@ const SelectedOutlineElement: React.FC<{
 				subMenu: null,
 				value: 'copy-outline-file-location',
 			},
+			{
+				type: 'item' as const,
+				id: 'disable-outline-interactivity',
+				keyHint: null,
+				label: 'Disable interactivity',
+				leftItem: null,
+				disabled: disableInteractivityDisabled,
+				onClick: () => {
+					if (
+						disableInteractivityDisabled ||
+						previewServerState.type !== 'connected'
+					) {
+						return;
+					}
+
+					const nodePath = target.nodePathInfo.sequenceSubscriptionKey;
+					disableSequenceInteractivity({
+						fileName: nodePath.absolutePath,
+						nodePath,
+						setPropStatuses,
+						clientId: previewServerState.clientId,
+					});
+				},
+				quickSwitcherLabel: null,
+				subMenu: null,
+				value: 'disable-outline-interactivity',
+			},
 		].filter(NoReactInternals.truthy);
-	}, [onSelect, previewServerState.type, target, updateResolvedStackTrace]);
+	}, [
+		onSelect,
+		previewServerState,
+		setPropStatuses,
+		target,
+		updateResolvedStackTrace,
+	]);
 
 	return (
 		<>

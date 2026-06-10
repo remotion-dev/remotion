@@ -28,6 +28,7 @@ import {Spacing} from '../layout';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {useSelectAsset} from '../use-select-asset';
+import {disableSequenceInteractivity} from './disable-sequence-interactivity';
 import {duplicateSequencesFromSource} from './duplicate-selected-timeline-item';
 import {saveSequenceProps} from './save-sequence-prop';
 import {
@@ -247,6 +248,11 @@ export const TimelineSequenceItem: React.FC<{
 	);
 
 	const duplicateDisabled = deleteDisabled;
+	const disableInteractivityDisabled =
+		!previewConnected ||
+		!sequence.showInTimeline ||
+		!nodePath ||
+		!validatedLocation?.source;
 
 	const onDuplicateSequenceFromSource = useCallback(() => {
 		if (!validatedLocation?.source || !nodePathInfo) {
@@ -295,6 +301,30 @@ export const TimelineSequenceItem: React.FC<{
 			showNotification((err as Error).message, 4000);
 		}
 	}, [confirm, nodePath, validatedLocation?.source, nodePathInfo]);
+
+	const onDisableSequenceInteractivity = useCallback(() => {
+		if (
+			disableInteractivityDisabled ||
+			!nodePath ||
+			!validatedLocation?.source ||
+			previewServerState.type !== 'connected'
+		) {
+			return;
+		}
+
+		disableSequenceInteractivity({
+			fileName: validatedLocation.source,
+			nodePath,
+			setPropStatuses,
+			clientId: previewServerState.clientId,
+		});
+	}, [
+		disableInteractivityDisabled,
+		nodePath,
+		previewServerState,
+		setPropStatuses,
+		validatedLocation?.source,
+	]);
 
 	const getSequenceDropTarget = useCallback(
 		(e: React.DragEvent<HTMLDivElement>): SequenceDropTarget | null => {
@@ -607,6 +637,20 @@ export const TimelineSequenceItem: React.FC<{
 				: null,
 			{
 				type: 'item' as const,
+				id: 'disable-interactivity',
+				keyHint: null,
+				label: 'Disable interactivity',
+				leftItem: null,
+				disabled: disableInteractivityDisabled,
+				onClick: () => {
+					onDisableSequenceInteractivity();
+				},
+				quickSwitcherLabel: null,
+				subMenu: null,
+				value: 'disable-interactivity',
+			},
+			{
+				type: 'item' as const,
 				id: 'duplicate-sequence',
 				keyHint: null,
 				label: 'Duplicate',
@@ -645,9 +689,11 @@ export const TimelineSequenceItem: React.FC<{
 	}, [
 		assetLinkInfo,
 		deleteDisabled,
+		disableInteractivityDisabled,
 		duplicateDisabled,
 		fileLocation,
 		onDeleteSequenceFromSource,
+		onDisableSequenceInteractivity,
 		onDuplicateSequenceFromSource,
 		canOpenInEditor,
 		openInEditor,

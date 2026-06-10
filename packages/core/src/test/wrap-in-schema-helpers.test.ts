@@ -28,6 +28,7 @@ test('getFlatSchema(sequenceSchema) exposes every variant key', () => {
 	expect(Object.keys(flat).sort()).toEqual(
 		[
 			'hidden',
+			'showInTimeline',
 			'layout',
 			'style.translate',
 			'style.scale',

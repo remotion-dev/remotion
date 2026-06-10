@@ -11,6 +11,7 @@ test('getAllSchemaKeys returns every key across all enum variants', () => {
 	expect(keys.sort()).toEqual(
 		[
 			'hidden',
+			'showInTimeline',
 			'layout',
 			'style.translate',
 			'style.scale',

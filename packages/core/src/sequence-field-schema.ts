@@ -246,6 +246,10 @@ export const hiddenField: SequenceFieldSchema = {
 	description: 'Hidden',
 };
 
+const showInTimelineField: SequenceFieldSchema = {
+	type: 'hidden',
+};
+
 export const durationInFramesField = {
 	type: 'number',
 	default: undefined,
@@ -263,6 +267,7 @@ export const fromField = {
 
 export const sequenceSchema = {
 	hidden: hiddenField,
+	showInTimeline: showInTimelineField,
 	from: fromField,
 	durationInFrames: durationInFramesField,
 	layout: {
@@ -278,6 +283,7 @@ export const sequenceSchema = {
 
 export const sequenceSchemaWithoutFrom = {
 	hidden: hiddenField,
+	showInTimeline: showInTimelineField,
 	durationInFrames: durationInFramesField,
 	layout: sequenceSchema.layout,
 } as const satisfies SequenceSchema;
