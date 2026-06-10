@@ -245,7 +245,7 @@ const CompWhenItHasDimensions: React.FC<{
 	);
 
 	return CANVAS_CAPTURE_TARGET === 'canvas' ? (
-		<StudioCanvasCapture density={15}>{content}</StudioCanvasCapture>
+		<StudioCanvasCapture density={5}>{content}</StudioCanvasCapture>
 	) : (
 		content
 	);

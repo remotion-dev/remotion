@@ -58,7 +58,7 @@ const MaybeCapturedTimelineList: React.FC<{
 	const list = <TimelineList timeline={timeline} />;
 
 	return CANVAS_CAPTURE_TARGET === 'timeline-list' ? (
-		<StudioCanvasCapture density={10}>{list}</StudioCanvasCapture>
+		<StudioCanvasCapture density={5}>{list}</StudioCanvasCapture>
 	) : (
 		list
 	);

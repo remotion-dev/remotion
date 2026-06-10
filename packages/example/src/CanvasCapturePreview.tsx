@@ -3,12 +3,13 @@ import React from 'react';
 import {
 	AbsoluteFill,
 	CalculateMetadataFunction,
+	Html5Video,
 	Img,
 	Interactive,
+	Solid,
 	staticFile,
-	Easing,
-	interpolate,
 	useCurrentFrame,
+	useRemotionEnvironment,
 	useVideoConfig,
 } from 'remotion';
 import {z} from 'zod';
@@ -476,8 +477,6 @@ export const calculateCanvasCapturePreviewMetadata: CalculateMetadataFunction<
 	return {
 		durationInFrames: Math.ceil(durationInSeconds * fps),
 		fps,
-		width: 1920,
-		height: 1080,
 		props: {
 			...props,
 			cursorData,
@@ -495,22 +494,35 @@ const CanvasCaptureInner: React.FC<{
 	readonly width: number;
 	readonly height: number;
 }> = ({videoFile, cursorData, cursorScale, width, height}) => {
+	const isStudio = useRemotionEnvironment().isStudio;
 	return (
 		<>
-			<Video
-				src={resolveAsset(videoFile)}
-				showInTimeline={false}
-				style={{
-					width,
-					height,
-				}}
-			/>
+			{!isStudio ? (
+				<Html5Video
+					src={resolveAsset(videoFile)}
+					showInTimeline={false}
+					style={{
+						width,
+						height,
+					}}
+				/>
+			) : (
+				<Video
+					src={resolveAsset(videoFile)}
+					showInTimeline={false}
+					style={{
+						width,
+						height,
+					}}
+				/>
+			)}
+
 			<CursorOverlay cursorData={cursorData} cursorScale={cursorScale} />
 		</>
 	);
 };
 
-export const CanvasCapturePreview: React.FC<CanvasCapturePreviewProps> = ({
+export const ClickStar: React.FC<CanvasCapturePreviewProps> = ({
 	cursorData,
 	cursorFile,
 	cursorScale,
@@ -518,8 +530,6 @@ export const CanvasCapturePreview: React.FC<CanvasCapturePreviewProps> = ({
 	width,
 	height,
 }) => {
-	const frame = useCurrentFrame();
-
 	if (!cursorData) {
 		throw new Error(`Cursor data from ${cursorFile} was not loaded.`);
 	}
@@ -531,17 +541,8 @@ export const CanvasCapturePreview: React.FC<CanvasCapturePreviewProps> = ({
 					position: 'absolute',
 					width: width!,
 					height: height!,
-					translate: interpolate(
-						frame,
-						[176, 193],
-						['-121.3px -1540.3px', '-2579.5px -1540.3px'],
-						{
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-							easing: [Easing.bezier(0.42, 0, 0.58, 1)],
-						},
-					),
-					scale: 0.970845,
+					translate: '-1856.2px -1020.9px',
+					scale: 0.55,
 				}}
 			>
 				<CanvasCaptureInner
@@ -557,7 +558,51 @@ export const CanvasCapturePreview: React.FC<CanvasCapturePreviewProps> = ({
 	);
 };
 
-export const CanvasCapturePreview2: React.FC<CanvasCapturePreviewProps> = ({
+export const StarRadius: React.FC<CanvasCapturePreviewProps> = ({
+	cursorData,
+	cursorFile,
+	cursorScale,
+	videoFile,
+	width,
+	height,
+}) => {
+	if (!cursorData) {
+		throw new Error(`Cursor data from ${cursorFile} was not loaded.`);
+	}
+
+	return (
+		<AbsoluteFill style={{backgroundColor: 'black', overflow: 'hidden'}}>
+			<Solid
+				width={1080}
+				height={1350}
+				style={{
+					position: 'absolute',
+				}}
+				color={'#1e2527'}
+			/>
+			<Interactive.Div
+				style={{
+					position: 'absolute',
+					width: width!,
+					height: height!,
+					translate: '-241.7px -396.2px',
+					scale: 0.729009,
+				}}
+			>
+				<CanvasCaptureInner
+					videoFile={videoFile}
+					cursorFile={cursorFile}
+					cursorData={cursorData}
+					cursorScale={cursorScale}
+					width={width!}
+					height={height!}
+				/>
+			</Interactive.Div>
+		</AbsoluteFill>
+	);
+};
+
+export const StarColor: React.FC<CanvasCapturePreviewProps> = ({
 	cursorData,
 	cursorFile,
 	cursorScale,
@@ -576,8 +621,8 @@ export const CanvasCapturePreview2: React.FC<CanvasCapturePreviewProps> = ({
 					position: 'absolute',
 					width: width!,
 					height: height!,
-					translate: '-121.3px -1540.3px',
-					scale: 0.970845,
+					translate: '-1850.8px -982.4px',
+					scale: 0.455842,
 				}}
 			>
 				<CanvasCaptureInner
