@@ -306,6 +306,60 @@ export const KeyboardShortcutsExplainer: React.FC = () => {
 						</div>
 						<div style={right}>Redo</div>
 					</Row>
+					<br />
+					<div style={title}>Interactivity</div>
+					<Row align="center">
+						<div style={left}>
+							<kbd style={key}>Shift</kbd>
+						</div>
+						<div style={right}>Select range / axis lock drag</div>
+					</Row>
+					<Row align="center">
+						<div style={left}>
+							<kbd style={key}>{cmdOrCtrlCharacter}</kbd>
+						</div>
+						<div style={right}>Toggle selection</div>
+					</Row>
+					<Row align="center">
+						<div style={left}>
+							<kbd style={key}>{cmdOrCtrlCharacter}</kbd>
+							<Spacing x={0.3} />
+							<kbd style={key}>A</kbd>
+						</div>
+						<div style={right}>Select sequence rows</div>
+					</Row>
+					<Row align="center">
+						<div style={left}>
+							<kbd style={key}>{cmdOrCtrlCharacter}</kbd>
+							<Spacing x={0.3} />
+							<kbd style={key}>D</kbd>
+						</div>
+						<div style={right}>Duplicate sequences</div>
+					</Row>
+					<Row align="center">
+						<div style={left}>
+							<kbd style={key}>{cmdOrCtrlCharacter}</kbd>
+							<Spacing x={0.3} />
+							<kbd style={key}>C</kbd>
+						</div>
+						<div style={right}>Copy effects / values</div>
+					</Row>
+					<Row align="center">
+						<div style={left}>
+							<kbd style={key}>{cmdOrCtrlCharacter}</kbd>
+							<Spacing x={0.3} />
+							<kbd style={key}>V</kbd>
+						</div>
+						<div style={right}>Paste effects / values</div>
+					</Row>
+					<Row align="center">
+						<div style={left}>
+							<kbd style={key}>Del</kbd>
+							<Spacing x={0.3} />
+							<kbd style={key}>⌫</kbd>
+						</div>
+						<div style={right}>Delete / reset selection</div>
+					</Row>
 					{process.env.ASK_AI_ENABLED && (
 						<>
 							<br />
