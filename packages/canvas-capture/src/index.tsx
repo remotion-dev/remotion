@@ -119,8 +119,8 @@ const contentStyle: React.CSSProperties = {
 	transformOrigin: 'top left',
 };
 
-const fallbackFrameDurationInSeconds = 1 / 30;
-const recordingVideoBitrate = 60_000_000;
+const fallbackFrameDurationInSeconds = 1 / 60;
+const recordingVideoBitrate = 120_000_000;
 const recordingKeyFrameIntervalInSeconds = 0.5;
 
 export const isHtmlInCanvasAvailable = () => {
