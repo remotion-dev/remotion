@@ -1813,6 +1813,8 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 		Internals.VisualModeSettersContext,
 	);
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
+	const timelinePositionRef = useRef(timelinePosition);
+	timelinePositionRef.current = timelinePosition;
 	const scaleDrag = target?.scaleDrag ?? null;
 	const selected = target?.selected ?? false;
 	const lineRef = useRef<SVGLineElement>(null);
@@ -1847,7 +1849,7 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 			const dragStates = getSelectedOutlineScaleDragStates({
 				dragTargets: selected ? allScaleDragTargets : [scaleDrag],
 				getDragOverrides,
-				timelinePosition,
+				timelinePosition: timelinePositionRef.current,
 			});
 			let lastValues = new Map<string, number | string>();
 
@@ -1985,7 +1987,6 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 			setPropStatuses,
 			setDragOverrides,
 			target,
-			timelinePosition,
 		],
 	);
 
