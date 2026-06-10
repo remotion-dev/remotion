@@ -100,4 +100,7 @@ export type VideoProps = MandatoryVideoProps &
 	Partial<OuterVideoProps> &
 	Partial<OptionalVideoProps> &
 	NativeVideoProps &
-	Pick<SequenceProps, 'durationInFrames' | 'from' | 'name' | 'hidden'>;
+	Pick<
+		SequenceProps,
+		'durationInFrames' | 'from' | 'name' | 'showInTimeline' | 'hidden'
+	>;
