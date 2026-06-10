@@ -185,8 +185,9 @@ import {Issue7568} from './AudioTesting/Issue7568';
 import {BrowserTest} from './BrowserTest';
 import {
 	CanvasCapturePreview,
+	CanvasCapturePreview2,
 	calculateCanvasCapturePreviewMetadata,
-	canvasCapturePreviewDefaultProps,
+	canvasCapturePreviewSchema,
 } from './CanvasCapturePreview';
 import {EdgeBlur} from './EdgeBlur/EdgeBlur';
 import {EffectsTestbed} from './EffectsTestbed/EffectsTestbed';
@@ -416,6 +417,8 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={120}
 				/>
+			</Folder>
+			<Folder name="canvas-capture">
 				<Composition
 					id="canvas-capture-preview"
 					component={CanvasCapturePreview}
@@ -423,7 +426,31 @@ export const Index: React.FC = () => {
 					height={1080}
 					fps={30}
 					durationInFrames={120}
-					defaultProps={canvasCapturePreviewDefaultProps}
+					defaultProps={{
+						videoFile: 'remotion-studio-canvas-recording.webm',
+						cursorFile: 'remotion-studio-canvas-recording.json',
+						cursorScale: 4.85,
+						width: null,
+						height: null,
+					}}
+					schema={canvasCapturePreviewSchema}
+					calculateMetadata={calculateCanvasCapturePreviewMetadata}
+				/>
+				<Composition
+					id="canvas-capture-preview-2"
+					component={CanvasCapturePreview2}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={120}
+					defaultProps={{
+						videoFile: 'remotion-studio-canvas-recording.webm',
+						cursorFile: 'remotion-studio-canvas-recording.json',
+						cursorScale: 4.85,
+						width: null,
+						height: null,
+					}}
+					schema={canvasCapturePreviewSchema}
 					calculateMetadata={calculateCanvasCapturePreviewMetadata}
 				/>
 			</Folder>
