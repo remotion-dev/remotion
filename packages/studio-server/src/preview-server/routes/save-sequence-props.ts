@@ -56,6 +56,12 @@ type SequencePropEditResult = {
 	formatted: boolean;
 };
 
+export const shouldSuppressHmrForSequencePropEdits = (
+	edits: readonly {key: string}[],
+): boolean => {
+	return edits.every((edit) => edit.key !== 'showInTimeline');
+};
+
 export const saveSequencePropsHandler: ApiHandler<
 	SaveSequencePropsRequest,
 	SaveSequencePropsResponse
@@ -158,6 +164,7 @@ export const saveSequencePropsHandler: ApiHandler<
 
 		const undoMessage = `↩️  ${undoLabel}`;
 		const redoMessage = `↪️  ${redoLabel}`;
+		const suppressHmr = shouldSuppressHmrForSequencePropEdits(edits);
 
 		pushTransactionToUndoStack({
 			snapshots,
@@ -165,12 +172,15 @@ export const saveSequencePropsHandler: ApiHandler<
 			remotionRoot,
 			description: {undoMessage, redoMessage},
 			entryType: 'sequence-props',
-			suppressHmrOnFileRestore: true,
+			suppressHmrOnFileRestore: suppressHmr,
 		});
 
 		for (const [absolutePath, output] of outputByPath) {
 			suppressUndoStackInvalidation(absolutePath);
-			suppressBundlerUpdateForFile(absolutePath);
+			if (suppressHmr) {
+				suppressBundlerUpdateForFile(absolutePath);
+			}
+
 			writeFileAndNotifyFileWatchers(absolutePath, output, clientId);
 		}
 
