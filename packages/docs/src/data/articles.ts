@@ -6385,15 +6385,6 @@ export const articles = [
 		slug: 'studio/api',
 	},
 	{
-		id: 'studio/code-edits',
-		title: 'Code Edits',
-		relativePath: 'docs/studio/code-edits.mdx',
-		compId: 'articles-docs-studio-code-edits',
-		crumb: 'Remotion Studio',
-		noAi: false,
-		slug: 'studio/code-edits',
-	},
-	{
 		id: 'studio/delete-static-file',
 		title: 'deleteStaticFile()',
 		relativePath: 'docs/studio/delete-static-file.mdx',
@@ -6446,6 +6437,15 @@ export const articles = [
 		crumb: '@remotion/studio',
 		noAi: false,
 		slug: 'studio/go-to-composition',
+	},
+	{
+		id: 'studio/interactivity',
+		title: 'Interactivity',
+		relativePath: 'docs/studio/interactivity.mdx',
+		compId: 'articles-docs-studio-interactivity',
+		crumb: 'Remotion Studio',
+		noAi: false,
+		slug: 'studio/interactivity',
 	},
 	{
 		id: 'studio/pause',
