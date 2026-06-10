@@ -1390,29 +1390,10 @@ const SelectedOutlineTransformOriginHandle: React.FC<{
 			onPointerDown={onPointerDown}
 			aria-hidden="true"
 		>
-			<line
-				x1={position.x - 8}
-				y1={position.y}
-				x2={position.x + 8}
-				y2={position.y}
-				stroke="white"
-				strokeWidth={4}
-				vectorEffect="non-scaling-stroke"
-			/>
-			<line
-				x1={position.x}
-				y1={position.y - 8}
-				x2={position.x}
-				y2={position.y + 8}
-				stroke="white"
-				strokeWidth={4}
-				vectorEffect="non-scaling-stroke"
-			/>
 			<circle
 				cx={position.x}
 				cy={position.y}
 				r={4}
-				fill="white"
 				stroke={BLUE}
 				strokeWidth={2}
 				vectorEffect="non-scaling-stroke"
