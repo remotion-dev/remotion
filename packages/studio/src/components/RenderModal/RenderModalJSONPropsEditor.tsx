@@ -98,7 +98,10 @@ export const RenderModalJSONPropsEditor: React.FC<{
 
 			const {result} = e;
 			if (result.canUpdate) {
-				const nextState = parseJS(result.currentDefaultProps, schema);
+				const deserialized = NoReactInternals.deserializeJSONWithSpecialTypes<
+					Record<string, unknown>
+				>(JSON.stringify(result.currentDefaultProps));
+				const nextState = parseJS(deserialized, schema);
 				setLocalValue(nextState);
 			}
 		});

@@ -5,6 +5,7 @@ import type {
 	File,
 	JSXAttribute,
 	JSXOpeningElement,
+	NewExpression,
 	ObjectExpression,
 	ObjectProperty,
 	TSAsExpression,
@@ -21,6 +22,7 @@ import type {
 	LogLevel,
 	SequenceNodePath,
 } from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {parseAst} from '../../codemods/parse-ast';
 import {getAstNodePath} from '../../helpers/get-ast-node-path';
 import {toImportAgnosticNodePath} from '../../helpers/import-agnostic-node-path';
@@ -45,7 +47,65 @@ const computedStatus = (): CanUpdatePropStatus => ({
 	status: 'computed',
 });
 
-export const isStaticValue = (node: Expression): boolean => {
+// Mirrors the encoding that staticFile() from "remotion" applies at runtime
+const encodeStaticFilePath = (path: string): string => {
+	return path.split('/').map(encodeURIComponent).join('/');
+};
+
+type SpecialValueCall =
+	| {type: 'static-file'; value: string}
+	| {type: 'date'; value: string};
+
+// Detects calls that the Studio knows how to serialize back to source:
+// staticFile("...") and new Date("...")
+const getSpecialValueCall = (node: Expression): SpecialValueCall | null => {
+	if (node.type === 'CallExpression') {
+		const call = node as CallExpression;
+		if (
+			call.callee.type === 'Identifier' &&
+			call.callee.name === 'staticFile' &&
+			call.arguments.length === 1 &&
+			call.arguments[0].type === 'StringLiteral'
+		) {
+			return {type: 'static-file', value: call.arguments[0].value};
+		}
+
+		return null;
+	}
+
+	if (node.type === 'NewExpression') {
+		const newExpr = node as NewExpression;
+		if (
+			newExpr.callee.type === 'Identifier' &&
+			newExpr.callee.name === 'Date' &&
+			newExpr.arguments.length === 1 &&
+			newExpr.arguments[0].type === 'StringLiteral'
+		) {
+			return {type: 'date', value: newExpr.arguments[0].value};
+		}
+
+		return null;
+	}
+
+	return null;
+};
+
+type StaticValueOptions = {
+	allowSpecialValues: boolean;
+};
+
+const defaultStaticValueOptions: StaticValueOptions = {
+	allowSpecialValues: false,
+};
+
+export const isStaticValue = (
+	node: Expression,
+	options: StaticValueOptions = defaultStaticValueOptions,
+): boolean => {
+	if (options.allowSpecialValues && getSpecialValueCall(node) !== null) {
+		return true;
+	}
+
 	switch (node.type) {
 		case 'NumericLiteral':
 		case 'StringLiteral':
@@ -59,25 +119,45 @@ export const isStaticValue = (node: Expression): boolean => {
 				(node as UnaryExpression).argument.type === 'NumericLiteral'
 			);
 		case 'TSAsExpression':
-			return isStaticValue((node as TSAsExpression).expression as Expression);
+			return isStaticValue(
+				(node as TSAsExpression).expression as Expression,
+				options,
+			);
 		case 'ArrayExpression':
 			return (
 				node as Extract<Expression, {type: 'ArrayExpression'}>
 			).elements.every(
-				(el) => el !== null && el.type !== 'SpreadElement' && isStaticValue(el),
+				(el) =>
+					el !== null &&
+					el.type !== 'SpreadElement' &&
+					isStaticValue(el, options),
 			);
 		case 'ObjectExpression':
 			return (node as ObjectExpression).properties.every(
 				(prop) =>
 					prop.type === 'ObjectProperty' &&
-					isStaticValue((prop as ObjectProperty).value as Expression),
+					isStaticValue((prop as ObjectProperty).value as Expression, options),
 			);
 		default:
 			return false;
 	}
 };
 
-export const extractStaticValue = (node: Expression): unknown => {
+export const extractStaticValue = (
+	node: Expression,
+	options: StaticValueOptions = defaultStaticValueOptions,
+): unknown => {
+	if (options.allowSpecialValues) {
+		const specialValue = getSpecialValueCall(node);
+		if (specialValue !== null) {
+			if (specialValue.type === 'static-file') {
+				return `${NoReactInternals.FILE_TOKEN}${encodeStaticFilePath(specialValue.value)}`;
+			}
+
+			return `${NoReactInternals.DATE_TOKEN}${specialValue.value}`;
+		}
+	}
+
 	switch (node.type) {
 		case 'NumericLiteral':
 		case 'StringLiteral':
@@ -98,6 +178,7 @@ export const extractStaticValue = (node: Expression): unknown => {
 		case 'TSAsExpression':
 			return extractStaticValue(
 				(node as TSAsExpression).expression as Expression,
+				options,
 			);
 		case 'ArrayExpression':
 			return (
@@ -107,7 +188,7 @@ export const extractStaticValue = (node: Expression): unknown => {
 					return undefined;
 				}
 
-				return extractStaticValue(el);
+				return extractStaticValue(el, options);
 			});
 		case 'ObjectExpression': {
 			const obj = node as ObjectExpression;
@@ -123,7 +204,7 @@ export const extractStaticValue = (node: Expression): unknown => {
 								? String((p.key as {value: unknown}).value)
 								: undefined;
 					if (key !== undefined) {
-						result[key] = extractStaticValue(p.value as Expression);
+						result[key] = extractStaticValue(p.value as Expression, options);
 					}
 				}
 			}
