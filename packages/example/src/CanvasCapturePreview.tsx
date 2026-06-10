@@ -176,7 +176,7 @@ const macCursorHotspotByFilename: Record<string, CursorHotspot> = {
 	'screenshotselection.svg': {x: 16.5, y: 16.5},
 	'screenshotwindow.svg': {x: 16, y: 16},
 	'textcursor.svg': {x: 16.5, y: 16},
-	'textcursorvertical.svg': {x: 16, y: 15.5},
+	'textcursorvertical.svg': {x: 16.5, y: 15.5},
 	'zoomin.svg': {x: 14, y: 14},
 	'zoomout.svg': {x: 14, y: 14},
 };
