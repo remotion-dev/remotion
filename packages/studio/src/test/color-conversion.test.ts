@@ -1,4 +1,5 @@
 import {expect, test} from 'bun:test';
+import {parseEyeDropperColor} from '../components/ColorPicker/ColorPickerPopup';
 import {
 	formatRgba,
 	hsvToRgb,
@@ -33,6 +34,15 @@ test('formatRgba returns hex when fully opaque', () => {
 
 test('formatRgba returns rgba when transparent', () => {
 	expect(formatRgba({r: 255, g: 0, b: 0, a: 128})).toBe('rgba(255, 0, 0, 0.5)');
+});
+
+test('parseEyeDropperColor always returns a fully opaque color', () => {
+	expect(parseEyeDropperColor('#ff000080')).toEqual({
+		r: 255,
+		g: 0,
+		b: 0,
+		a: 255,
+	});
 });
 
 test('rgbToHsv / hsvToRgb roundtrip primaries', () => {
