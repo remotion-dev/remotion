@@ -1,6 +1,7 @@
-import {existsSync, mkdirSync, readFileSync, writeFileSync} from 'fs';
-import {dirname} from 'path';
 import {rendererClassic, transformerTwoslash} from '@shikijs/twoslash';
+import {existsSync, mkdirSync, writeFileSync} from 'fs';
+import {dirname} from 'path';
+import {createInterface} from 'readline';
 import {createHighlighter} from 'shiki';
 import {createTwoslasher} from 'twoslash';
 
@@ -10,11 +11,21 @@ interface WorkItem {
 	cachePath: string;
 }
 
-// Read work items from the file passed as argument
-const workFile = process.argv[2];
-const items: WorkItem[] = JSON.parse(readFileSync(workFile, 'utf8'));
+type InboundMessage = {type: 'unit'; items: WorkItem[]} | {type: 'exit'};
 
-// Create Language Service ONCE per worker (5-20x faster for batch)
+// Exit code by which this worker asks to be replaced (memory recycling).
+// Keep in sync with prewarm-twoslash.ts.
+const RECYCLE_EXIT_CODE = 42;
+
+// The TypeScript language service grows as snippets with new imports are
+// type-checked. Recycle the process once it gets too large. The dispatcher
+// derives the limit from the machine's total memory.
+const MEMORY_RECYCLE_LIMIT_BYTES =
+	Number(process.env.TWOSLASH_RECYCLE_LIMIT_BYTES) || 1.5 * 1024 * 1024 * 1024;
+
+const LANGS = ['tsx', 'ts', 'typescript', 'jsx', 'javascript', 'json'];
+
+// Create Language Service ONCE per worker — reused across all units
 const twoslasher = createTwoslasher({
 	compilerOptions: {
 		types: ['node'],
@@ -24,26 +35,22 @@ const twoslasher = createTwoslasher({
 	},
 });
 
-// Collect unique languages from work items
-const uniqueLangs = [...new Set(items.map((item) => item.lang))];
-
-// Create highlighter ONCE with all needed languages
-const highlighter = await createHighlighter({
-	themes: ['github-dark'],
-	langs: uniqueLangs,
-});
-
 const transformer = transformerTwoslash({
 	twoslasher,
 	renderer: rendererClassic(),
 	explicitTrigger: false,
 });
 
-let completed = 0;
-let errors = 0;
-const timings: Array<{cachePath: string; ms: number; error?: string}> = [];
+const send = (message: Record<string, unknown>) => {
+	process.stdout.write(JSON.stringify(message) + '\n');
+};
 
-for (const item of items) {
+const highlighter = await createHighlighter({
+	themes: ['github-dark'],
+	langs: LANGS,
+});
+
+const processItem = (item: WorkItem) => {
 	const start = performance.now();
 	try {
 		const html = highlighter.codeToHtml(item.code, {
@@ -55,38 +62,54 @@ for (const item of items) {
 		const dir = dirname(item.cachePath);
 		if (!existsSync(dir)) mkdirSync(dir, {recursive: true});
 		writeFileSync(item.cachePath, html, 'utf8');
-		completed++;
-		timings.push({
+		send({
+			type: 'item',
 			cachePath: item.cachePath,
 			ms: Math.round(performance.now() - start),
 		});
 	} catch (error) {
-		errors++;
-		timings.push({
+		send({
+			type: 'item',
 			cachePath: item.cachePath,
 			ms: Math.round(performance.now() - start),
-			error: (error as Error).message.slice(0, 200),
+			error: (error as Error).message.slice(0, 300),
 		});
 	}
+};
 
-	// Report progress every 10 items
-	if ((completed + errors) % 10 === 0) {
-		process.stdout.write(
-			JSON.stringify({completed, errors, total: items.length, timings}) + '\n',
-		);
+send({type: 'ready'});
+
+const rl = createInterface({input: process.stdin});
+
+rl.on('line', (line: string) => {
+	let message: InboundMessage;
+	try {
+		message = JSON.parse(line);
+	} catch {
+		return;
 	}
-}
 
-// Final report
-process.stdout.write(
-	JSON.stringify({
-		completed,
-		errors,
-		total: items.length,
-		done: true,
-		timings,
-	}) + '\n',
-);
+	if (message.type === 'exit') {
+		// The TS language service keeps the process alive — exit explicitly
+		process.exit(0);
+	}
 
-// Force exit — createTwoslasher holds a TS language service that keeps the process alive
-process.exit(0);
+	if (message.type === 'unit') {
+		for (const item of message.items) {
+			processItem(item);
+		}
+
+		const rss = process.memoryUsage.rss();
+		const recycling = rss > MEMORY_RECYCLE_LIMIT_BYTES;
+		send({type: 'unit-done', rss, recycling});
+
+		if (recycling) {
+			// Ask the dispatcher to replace this worker with a fresh one
+			process.exit(RECYCLE_EXIT_CODE);
+		}
+	}
+});
+
+rl.on('close', () => {
+	process.exit(0);
+});
