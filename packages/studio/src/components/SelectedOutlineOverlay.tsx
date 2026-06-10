@@ -565,7 +565,12 @@ const measureOutlines = (
 							width: element.offsetWidth,
 							height: element.offsetHeight,
 						}
-					: null,
+					: element instanceof SVGSVGElement
+						? {
+								width: element.width.baseVal.value,
+								height: element.height.baseVal.value,
+							}
+						: null,
 			points,
 		});
 	}
