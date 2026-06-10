@@ -1281,7 +1281,7 @@ const sidebars: SidebarsConfig = {
 				'studio/studio',
 				'studio/shortcuts',
 				'studio/quick-switcher',
-				'studio/code-edits',
+				'studio/interactivity',
 				'studio/deploy-static',
 				'studio/deploy-server',
 			],
