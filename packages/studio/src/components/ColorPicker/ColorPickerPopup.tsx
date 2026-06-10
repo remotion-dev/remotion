@@ -5,7 +5,6 @@ import {
 	parseAnyColor,
 	rgbaToHsva,
 	type Hsva,
-	type Rgba,
 } from '../../helpers/color-conversion';
 import {INPUT_BACKGROUND, LIGHT_TEXT} from '../../helpers/colors';
 import {EyedropperIcon} from '../../icons/eyedropper';
@@ -122,19 +121,11 @@ const eyedropperButtonStyle: React.CSSProperties = {
 const hasEyeDropper = (): boolean =>
 	typeof window !== 'undefined' && 'EyeDropper' in window;
 
-export const applyEyeDropperAlpha = ({
-	pickedColor,
-	previousAlpha,
-	preserveAlpha,
-}: {
-	readonly pickedColor: string;
-	readonly previousAlpha: number;
-	readonly preserveAlpha: boolean;
-}): Rgba => {
+export const parseEyeDropperColor = (pickedColor: string) => {
 	const parsed = parseAnyColor(pickedColor);
 	return {
 		...parsed,
-		a: preserveAlpha ? previousAlpha : 255,
+		a: 255,
 	};
 };
 
@@ -262,13 +253,7 @@ export const ColorPickerPopup: React.FC<{
 	readonly value: string;
 	readonly onChange: (next: string) => void;
 	readonly onChangeComplete: (next: string) => void;
-	readonly preserveAlphaOnEyeDropper?: boolean;
-}> = ({
-	value,
-	onChange,
-	onChangeComplete,
-	preserveAlphaOnEyeDropper = true,
-}) => {
+}> = ({value, onChange, onChangeComplete}) => {
 	// useZIndex is intentionally read inside the popup (which is wrapped by
 	// HigherZIndex) so child inputs receive the popup's tabIndex rather than
 	// the trigger's, which would resolve to -1 once the popup is open.
@@ -399,11 +384,7 @@ export const ColorPickerPopup: React.FC<{
 		dropper
 			.open()
 			.then((result) => {
-				const parsed = applyEyeDropperAlpha({
-					pickedColor: result.sRGBHex,
-					previousAlpha: rgba.a,
-					preserveAlpha: preserveAlphaOnEyeDropper,
-				});
+				const parsed = parseEyeDropperColor(result.sRGBHex);
 				const newHsva = rgbaToHsva(parsed);
 				if (newHsva.s === 0) {
 					newHsva.h = hsva.h;
@@ -414,7 +395,7 @@ export const ColorPickerPopup: React.FC<{
 			.catch(() => {
 				// Aborted; ignore.
 			});
-	}, [emit, hsva.h, preserveAlphaOnEyeDropper, rgba.a]);
+	}, [emit, hsva.h]);
 
 	const previewFill: React.CSSProperties = useMemo(() => {
 		return {

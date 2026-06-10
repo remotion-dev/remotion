@@ -57,7 +57,6 @@ type Props = {
 	readonly name?: string;
 	readonly className?: string;
 	readonly style?: React.CSSProperties;
-	readonly preserveAlphaOnEyeDropper?: boolean;
 };
 
 export const ColorPicker: React.FC<Props> = ({
@@ -72,7 +71,6 @@ export const ColorPicker: React.FC<Props> = ({
 	name,
 	className,
 	style: customStyle,
-	preserveAlphaOnEyeDropper = true,
 }) => {
 	const [opened, setOpened] = useState(false);
 	const triggerRef = useRef<HTMLButtonElement>(null);
@@ -229,7 +227,6 @@ export const ColorPicker: React.FC<Props> = ({
 											value={value}
 											onChange={onChange}
 											onChangeComplete={onChangeComplete}
-											preserveAlphaOnEyeDropper={preserveAlphaOnEyeDropper}
 										/>
 									</div>
 								</HigherZIndex>

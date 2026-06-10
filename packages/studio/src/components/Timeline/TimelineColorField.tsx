@@ -75,7 +75,6 @@ export const TimelineColorField: React.FC<{
 				name={field.key}
 				title={currentValue}
 				style={swatchStyle}
-				preserveAlphaOnEyeDropper={false}
 			/>
 		</span>
 	);
