@@ -67,7 +67,20 @@ const ShiftedEffect = () => {
 				height: 200,
 				borderRadius: 24,
 				overflow: 'hidden',
-				translate: '254.854512px 393.565342px',
+				translate: '484.5px 439px',
+				scale: interpolate(frame, [16], [2.044585], {
+					extrapolateLeft: 'clamp',
+					extrapolateRight: 'clamp',
+				}),
+				rotate: interpolate(
+					frame,
+					[16, 39],
+					['76.455165deg', '144.692528deg'],
+					{
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'clamp',
+					},
+				),
 			}}
 			effects={[
 				blur({
