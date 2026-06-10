@@ -21,11 +21,13 @@ import type {AssetMetadata} from '../helpers/get-asset-metadata';
 import {getPreviewFileType} from '../helpers/get-preview-file-type';
 import type {Dimensions} from '../helpers/is-current-selected-still';
 import {CheckerboardContext} from '../state/checkerboard';
+import {CANVAS_CAPTURE_TARGET} from './canvas-capture-enabled';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from './Menu/is-menu-item';
 import {RenderPreview} from './RenderPreview';
 import {SelectedOutlineOverlay} from './SelectedOutlineOverlay';
 import {Spinner} from './Spinner';
 import {StaticFilePreview} from './StaticFilePreview';
+import {StudioCanvasCapture} from './StudioCanvasCapture';
 import {shouldClearSelectionOnPointerDown} from './Timeline/should-clear-selection-on-pointer-down';
 import {useTimelineSelection} from './Timeline/TimelineSelection';
 
@@ -230,7 +232,7 @@ const CompWhenItHasDimensions: React.FC<{
 		);
 	}
 
-	return (
+	const content = (
 		<div style={outer}>
 			<PortalContainer
 				contentDimensions={contentDimensions as Dimensions}
@@ -240,6 +242,12 @@ const CompWhenItHasDimensions: React.FC<{
 			/>
 			<SelectedOutlineOverlay scale={scale} />
 		</div>
+	);
+
+	return CANVAS_CAPTURE_TARGET === 'canvas' ? (
+		<StudioCanvasCapture density={15}>{content}</StudioCanvasCapture>
+	) : (
+		content
 	);
 };
 

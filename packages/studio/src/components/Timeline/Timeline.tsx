@@ -7,6 +7,7 @@ import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
 import {useIsStill} from '../../helpers/is-current-selected-still';
 import {useCachedCompositionComponentInfo} from '../../helpers/open-in-editor';
 import {callApi} from '../call-api';
+import {CANVAS_CAPTURE_TARGET} from '../canvas-capture-enabled';
 import {ContextMenu} from '../ContextMenu';
 import {importAssets, pickFilesToImport} from '../import-assets';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
@@ -15,6 +16,7 @@ import {showNotification} from '../Notifications/NotificationCenter';
 import {SplitterContainer} from '../Splitter/SplitterContainer';
 import {SplitterElement} from '../Splitter/SplitterElement';
 import {SplitterHandle} from '../Splitter/SplitterHandle';
+import {StudioCanvasCapture} from '../StudioCanvasCapture';
 import {MAX_TIMELINE_TRACKS} from './MaxTimelineTracks';
 import {SequencePropsObserver} from './SequencePropsObserver';
 import {shouldShowTrackInTimeline} from './should-show-track-in-timeline';
@@ -49,6 +51,18 @@ const container: React.CSSProperties = {
 };
 
 const noop = () => undefined;
+
+const MaybeCapturedTimelineList: React.FC<{
+	readonly timeline: TrackWithHash[];
+}> = ({timeline}) => {
+	const list = <TimelineList timeline={timeline} />;
+
+	return CANVAS_CAPTURE_TARGET === 'timeline-list' ? (
+		<StudioCanvasCapture density={10}>{list}</StudioCanvasCapture>
+	) : (
+		list
+	);
+};
 
 const TimelineContextMenuArea: React.FC<{
 	readonly children: React.ReactNode;
@@ -266,7 +280,7 @@ const TimelineInner: React.FC = () => {
 				<TimelineSelectAllKeybindings timeline={shown} />
 				<TimelineHeightContainer shown={shown} hasBeenCut={hasBeenCut}>
 					{isStill ? (
-						<TimelineList timeline={shown} />
+						<MaybeCapturedTimelineList timeline={shown} />
 					) : (
 						<TimelineWidthProvider>
 							<TimelinePinchZoom />
@@ -281,7 +295,7 @@ const TimelineInner: React.FC = () => {
 									type="flexer"
 									sticky={<TimelineTimePlaceholders />}
 								>
-									<TimelineList timeline={shown} />
+									<MaybeCapturedTimelineList timeline={shown} />
 								</SplitterElement>
 								<SplitterHandle onCollapse={noop} allowToCollapse="none" />
 								<SplitterElement type="anti-flexer" sticky={null}>
