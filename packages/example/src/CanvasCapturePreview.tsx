@@ -17,34 +17,41 @@ type MouseMovement = {
 	readonly clientY: number;
 	readonly pageX: number;
 	readonly pageY: number;
-	readonly canvasX: number;
-	readonly canvasY: number;
+	readonly canvasX: number | null;
+	readonly canvasY: number | null;
 	readonly cursor: string;
+};
+
+type CaptureMetadata = {
+	readonly density: number;
+	readonly contentRect: {
+		readonly left: number;
+		readonly top: number;
+		readonly width: number;
+		readonly height: number;
+	};
+	readonly canvasSize: {
+		readonly width: number;
+		readonly height: number;
+	};
+	readonly viewport: {
+		readonly width: number;
+		readonly height: number;
+		readonly scrollX: number;
+		readonly scrollY: number;
+	};
 };
 
 type CursorRecording = {
 	readonly startedAt: number;
 	readonly endedAt: number;
-	readonly captureMetadata?: {
-		readonly density: number;
-		readonly contentRect: {
-			readonly left: number;
-			readonly top: number;
-			readonly width: number;
-			readonly height: number;
-		};
-		readonly canvasSize: {
-			readonly width: number;
-			readonly height: number;
-		};
-	} | null;
+	readonly captureMetadata: CaptureMetadata;
 	readonly mouseMovements: MouseMovement[];
 };
 
 export type CanvasCapturePreviewProps = {
 	readonly videoFile: string;
 	readonly cursorFile: string;
-	readonly cursorScale: number;
 	readonly cursorAssetBasePath: string | null;
 	readonly cursorData?: CursorRecording;
 	width: number | null;
@@ -54,7 +61,6 @@ export type CanvasCapturePreviewProps = {
 export const canvasCapturePreviewDefaultProps: CanvasCapturePreviewProps = {
 	videoFile: 'https://remotion.media/remotion-studio-canvas-recording.webm',
 	cursorFile: 'remotion-studio-canvas-recording.json',
-	cursorScale: 3,
 	cursorAssetBasePath: 'https://remotion.media/mac-cursors',
 	width: null,
 	height: null,
@@ -198,6 +204,26 @@ const resolveCursorAsset = (basePath: string, filename: string) => {
 		: staticFile(`${normalizedBasePath}/${filename}`);
 };
 
+type UrlCursor = {
+	readonly url: string;
+	readonly hotspotX: number;
+	readonly hotspotY: number;
+};
+
+// Parses the first url(...) entry from a CSS cursor value, e.g.:
+//   url("data:image/svg+xml,...") 12 12, alias
+const parseUrlCursor = (cursor: string): UrlCursor | null => {
+	const match = cursor.match(
+		/^url\(["']([^"']+)["']\)\s+(\d+(?:\.\d+)?)\s+(\d+(?:\.\d+)?)/,
+	);
+	if (!match) return null;
+	return {
+		url: match[1],
+		hotspotX: Number(match[2]),
+		hotspotY: Number(match[3]),
+	};
+};
+
 const getNormalizedCursor = (cursor: string) => {
 	return cursor.split(',').at(-1)?.trim().toLowerCase() ?? 'auto';
 };
@@ -317,6 +343,24 @@ const CursorGlyph: React.FC<{
 	readonly cursor: string;
 	readonly scale: number;
 }> = ({cursor, cursorAssetBasePath, scale}) => {
+	const urlCursor = parseUrlCursor(cursor);
+
+	if (urlCursor) {
+		return (
+			<Img
+				src={urlCursor.url}
+				style={{
+					display: 'block',
+					position: 'absolute',
+					width: 24,
+					height: 24,
+					marginLeft: -urlCursor.hotspotX,
+					marginTop: -urlCursor.hotspotY,
+				}}
+			/>
+		);
+	}
+
 	const macCursorFilename = getMacCursorFilename(cursor);
 
 	if (macCursorFilename === null) {
@@ -361,18 +405,16 @@ const CursorGlyph: React.FC<{
 const CursorOverlay: React.FC<{
 	readonly cursorAssetBasePath: string | null;
 	readonly cursorData: CursorRecording;
-	readonly cursorScale: number;
-}> = ({cursorAssetBasePath, cursorData, cursorScale}) => {
+}> = ({cursorAssetBasePath, cursorData}) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
 	const cursor = findCursorAtTime(cursorData.mouseMovements, frame / fps);
 
-	if (!cursor) {
+	if (!cursor || cursor.canvasX === null || cursor.canvasY === null) {
 		return null;
 	}
 
-	const metadata = cursorData.captureMetadata;
-	const scale = metadata?.density ?? cursorScale;
+	const scale = cursorData.captureMetadata.density;
 	const x = cursor.canvasX;
 	const y = cursor.canvasY;
 
@@ -435,17 +477,12 @@ export const CanvasCapturePreview: React.FC<CanvasCapturePreviewProps> = ({
 	cursorAssetBasePath,
 	cursorData,
 	cursorFile,
-	cursorScale,
 	videoFile,
 	width,
 	height,
 }) => {
 	if (!cursorData) {
 		throw new Error(`Cursor data from ${cursorFile} was not loaded.`);
-	}
-
-	if (!Number.isFinite(cursorScale) || cursorScale <= 0) {
-		throw new Error('Cursor scale must be greater than 0.');
 	}
 
 	return (
@@ -470,7 +507,6 @@ export const CanvasCapturePreview: React.FC<CanvasCapturePreviewProps> = ({
 				<CursorOverlay
 					cursorAssetBasePath={cursorAssetBasePath}
 					cursorData={cursorData}
-					cursorScale={cursorScale}
 				/>
 			</Interactive.Div>
 		</AbsoluteFill>
