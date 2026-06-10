@@ -206,20 +206,6 @@ export const KeyboardShortcutsExplainer: React.FC = () => {
 						</div>
 						<div style={right}>Exit fullscreen</div>
 					</Row>
-					<br />
-					<div style={title}>Keyboard navigation</div>
-					<Row align="center">
-						<div style={left}>
-							<kbd style={key}>Tab</kbd>
-						</div>
-						<div style={right}>Navigate between menus</div>
-					</Row>
-					<Row align="center">
-						<div style={left}>
-							<kbd style={key}>Enter</kbd>
-						</div>
-						<div style={right}>Select menu item</div>
-					</Row>
 				</Column>
 				<Spacing x={8} />
 				<Column>
