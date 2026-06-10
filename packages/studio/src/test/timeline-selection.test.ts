@@ -1770,6 +1770,53 @@ test('Backspace reset targets selected keyframed sequence props', () => {
 	]);
 });
 
+test('Backspace reset targets selected computed sequence props with defaults', () => {
+	const schema = {
+		'style.scale': {type: 'scale', default: 1, max: 100},
+	} satisfies SequenceSchema;
+	const scaleNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['controls', 'style.scale'],
+	);
+	const nodePath = scaleNodePathInfo.sequenceSubscriptionKey;
+	const propStatuses = {
+		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			canUpdate: true,
+			props: {
+				'style.scale': {
+					status: 'computed',
+				},
+			},
+			effects: [],
+		},
+	} satisfies PropStatuses;
+
+	const resetTargets = getTimelinePropResetTargets({
+		selections: [
+			{
+				type: 'sequence-prop',
+				nodePathInfo: scaleNodePathInfo,
+				key: 'style.scale',
+			},
+		],
+		sequences: [makeTimelineSequence({schema})],
+		overrideIdsToNodePaths: {override: nodePath},
+		propStatuses,
+	});
+
+	expect(resetTargets).toEqual([
+		{
+			type: 'sequence-prop',
+			fileName: '/project/src/Comp.tsx',
+			nodePath,
+			fieldKey: 'style.scale',
+			value: 1,
+			defaultValue: '1',
+			schema,
+		},
+	]);
+});
+
 test('Backspace reset skips keyframed sequence props without defaults', () => {
 	const schema = {
 		opacity: {type: 'number', default: undefined, hiddenFromList: false},

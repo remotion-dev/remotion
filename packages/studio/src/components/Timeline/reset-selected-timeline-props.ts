@@ -80,7 +80,7 @@ const isResettablePropStatus = ({
 	readonly propStatus: CanUpdateSequencePropStatus | null | undefined;
 	readonly defaultValue: unknown;
 }) => {
-	if (!propStatus || propStatus.status === 'computed') {
+	if (!propStatus) {
 		return false;
 	}
 
@@ -88,7 +88,7 @@ const isResettablePropStatus = ({
 		return false;
 	}
 
-	if (propStatus.status === 'keyframed') {
+	if (propStatus.status === 'keyframed' || propStatus.status === 'computed') {
 		return true;
 	}
 
