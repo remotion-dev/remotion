@@ -7,4 +7,5 @@ export type CanvasCaptureTarget =
 	| 'full-studio'
 	| 'off';
 
-export const CANVAS_CAPTURE_TARGET: CanvasCaptureTarget = 'full-studio';
+export const CANVAS_CAPTURE_TARGET: CanvasCaptureTarget = 'off';
+export const CANVAS_DENSITY = 5;

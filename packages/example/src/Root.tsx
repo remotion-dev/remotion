@@ -425,7 +425,7 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={120}
 					defaultProps={{
-						videoFile: staticFile('star-radius.webm'),
+						videoFile: staticFile('arrow-around.webm'),
 						cursorScale: 5,
 						width: null,
 						height: null,
