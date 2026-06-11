@@ -386,7 +386,7 @@ export const Index: React.FC = () => {
 				/>
 				<Composition
 					id="centered-solid"
-					lazyComponent={() => import('./CenteredSolid')}
+					lazyComponent={() => import('./NewSticker')}
 					width={1080}
 					height={1080}
 					fps={30}
@@ -426,8 +426,8 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={120}
 					defaultProps={{
-						videoFile: staticFile('star-radius-2.webm'),
-						cursorScale: 2.5,
+						videoFile: staticFile('star-radius.webm'),
+						cursorScale: 5,
 						width: null,
 						height: null,
 					}}
