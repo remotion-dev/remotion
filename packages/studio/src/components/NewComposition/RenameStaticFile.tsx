@@ -1,5 +1,5 @@
 import type {ChangeEventHandler} from 'react';
-import React, {useCallback, useContext, useMemo, useState} from 'react';
+import React, {useCallback, useContext, useEffect, useMemo, useRef, useState} from 'react';
 import {Internals} from 'remotion';
 import {renameStaticFile} from '../../api/rename-static-file';
 import {pushUrl} from '../../helpers/url-state';
@@ -42,6 +42,16 @@ export const RenameStaticFileModal: React.FC<{
 	const staticFiles = useStaticFiles();
 	const [newName, setNewName] = useState(() => getBaseName(relativePath));
 	const [submitting, setSubmitting] = useState(false);
+	const inputRef = useRef<HTMLInputElement>(null);
+
+	useEffect(() => {
+		const input = inputRef.current;
+		if (!input) return;
+		const dotIndex = newName.lastIndexOf('.');
+		const stemEnd = dotIndex === -1 ? newName.length : dotIndex;
+		input.setSelectionRange(0, stemEnd);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
 	const parent = useMemo(() => getParent(relativePath), [relativePath]);
 	const newRelativePath = useMemo(() => {
@@ -141,6 +151,7 @@ export const RenameStaticFileModal: React.FC<{
 						<div style={rightRow}>
 							<div>
 								<RemotionInput
+									ref={inputRef}
 									value={newName}
 									onChange={onNameChange}
 									type="text"
