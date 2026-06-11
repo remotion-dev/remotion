@@ -319,7 +319,7 @@ const CursorImg: React.FC<{
 	);
 };
 
-const CLICK_SCALE = 0.93;
+const CLICK_SCALE = 0.9;
 
 const isPointerDown = (
 	pointerClicks: readonly PointerClick[] | undefined,
