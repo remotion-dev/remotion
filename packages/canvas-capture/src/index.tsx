@@ -1,3 +1,13 @@
+import {
+	ALL_FORMATS,
+	BufferSource,
+	BufferTarget,
+	CanvasSource,
+	Conversion,
+	Input,
+	Output,
+	WebMOutputFormat,
+} from 'mediabunny';
 import React, {
 	forwardRef,
 	useCallback,
@@ -100,12 +110,10 @@ export type HtmlInCanvasCaptureHandle = {
 
 type HtmlInCanvasCaptureProps = {
 	readonly children: React.ReactNode;
-	readonly density: number;
 	readonly filename: string;
 };
 
 type WithHtmlInCanvasCaptureProps = {
-	readonly density: number;
 	readonly filename: string;
 };
 
@@ -208,6 +216,9 @@ const downloadBlob = (blob: Blob, filename: string) => {
 };
 
 const CAPTURE_METADATA_TAG_KEY = 'REMOTION_CAPTURE_DATA';
+const CAPTURE_DENSITY = 2;
+
+export {CAPTURE_METADATA_TAG_KEY, CAPTURE_DENSITY};
 
 const logCaptureError = (message: string, err: unknown) => {
 	// eslint-disable-next-line no-console
@@ -266,22 +277,12 @@ const finalizeRecording = async (
 		pointerClicks: recording.pointerClicks,
 	});
 
-	const {
-		ALL_FORMATS,
-		BufferSource,
-		BufferTarget: RemuxBufferTarget,
-		Conversion,
-		Input,
-		Output: RemuxOutput,
-		WebMOutputFormat,
-	} = await import('mediabunny');
-
 	const remuxInput = new Input({
 		formats: ALL_FORMATS,
 		source: new BufferSource(recording.target.buffer),
 	});
-	const remuxTarget = new RemuxBufferTarget();
-	const remuxOutput = new RemuxOutput({
+	const remuxTarget = new BufferTarget();
+	const remuxOutput = new Output({
 		format: new WebMOutputFormat(),
 		target: remuxTarget,
 	});
@@ -305,10 +306,8 @@ const finalizeRecording = async (
 export const HtmlInCanvasCapture = forwardRef<
 	HtmlInCanvasCaptureHandle,
 	HtmlInCanvasCaptureProps
->(({children, density, filename}, ref) => {
-	if (!Number.isFinite(density) || density <= 0) {
-		throw new Error('HTML-in-canvas capture density must be greater than 0.');
-	}
+>(({children, filename}, ref) => {
+	const density = CAPTURE_DENSITY;
 
 	const isSupported = useMemo(() => isHtmlInCanvasAvailable(), []);
 	const canvasRef = useRef<HtmlInCanvasElement | null>(null);
@@ -331,8 +330,6 @@ export const HtmlInCanvasCapture = forwardRef<
 			return;
 		}
 
-		const {BufferTarget, CanvasSource, Output, WebMOutputFormat} =
-			await import('mediabunny');
 		const target = new BufferTarget();
 		const output = new Output({
 			format: new WebMOutputFormat(),
@@ -608,9 +605,9 @@ export const withHtmlInCanvasCapture = <Props extends object>(
 	return forwardRef<
 		HtmlInCanvasCaptureHandle,
 		Props & WithHtmlInCanvasCaptureProps
-	>(({density, filename, ...props}, ref) => {
+	>(({filename, ...props}, ref) => {
 		return (
-			<HtmlInCanvasCapture ref={ref} density={density} filename={filename}>
+			<HtmlInCanvasCapture ref={ref} filename={filename}>
 				<Component {...(props as Props)} />
 			</HtmlInCanvasCapture>
 		);

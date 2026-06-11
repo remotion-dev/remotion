@@ -183,11 +183,7 @@ import Amplify from './AudioTesting/Amplify';
 import {Issue7568} from './AudioTesting/Issue7568';
 import {BrowserTest} from './BrowserTest';
 import {
-	ClickStar,
-	StarColor,
-	StarRadius,
-	TimelineScrub,
-	UndoRedo,
+	CanvasCapturePreview,
 	calculateCanvasCapturePreviewMetadata,
 	canvasCapturePreviewSchema,
 } from './CanvasCapturePreview';
@@ -422,84 +418,15 @@ export const Index: React.FC = () => {
 			</Folder>
 			<Folder name="canvas-capture">
 				<Composition
-					id="click-star"
-					component={ClickStar}
+					id="canvas-capture"
+					component={CanvasCapturePreview}
 					width={1080}
-					height={1350}
+					height={1080}
 					fps={30}
 					durationInFrames={120}
 					defaultProps={{
-						videoFile: 'click-star.webm',
-						cursorFile: 'click-star.json',
-						cursorScale: 4.85,
-						width: null,
-						height: null,
-					}}
-					schema={canvasCapturePreviewSchema}
-					calculateMetadata={calculateCanvasCapturePreviewMetadata}
-				/>
-				<Composition
-					id="star-radius"
-					component={StarRadius}
-					width={1080}
-					height={1350}
-					fps={30}
-					durationInFrames={120}
-					defaultProps={{
-						videoFile: 'star-radius.webm',
-						cursorFile: 'star-radius.json',
-						cursorScale: 5,
-						width: null,
-						height: null,
-					}}
-					schema={canvasCapturePreviewSchema}
-					calculateMetadata={calculateCanvasCapturePreviewMetadata}
-				/>
-				<Composition
-					id="star-color"
-					component={StarColor}
-					width={1080}
-					height={1350}
-					fps={30}
-					durationInFrames={120}
-					defaultProps={{
-						videoFile: 'star-color.webm',
-						cursorFile: 'star-color.json',
-						cursorScale: 5,
-						width: null,
-						height: null,
-					}}
-					schema={canvasCapturePreviewSchema}
-					calculateMetadata={calculateCanvasCapturePreviewMetadata}
-				/>
-				<Composition
-					id="undo-redo"
-					component={UndoRedo}
-					width={1080}
-					height={1350}
-					fps={30}
-					durationInFrames={120}
-					defaultProps={{
-						videoFile: 'undo-redo.webm',
-						cursorFile: 'undo-redo.json',
-						cursorScale: 5,
-						width: null,
-						height: null,
-					}}
-					schema={canvasCapturePreviewSchema}
-					calculateMetadata={calculateCanvasCapturePreviewMetadata}
-				/>
-				<Composition
-					id="timeline-scrub"
-					component={TimelineScrub}
-					width={1080}
-					height={1350}
-					fps={30}
-					durationInFrames={120}
-					defaultProps={{
-						videoFile: 'timeline-scrub.webm',
-						cursorFile: 'timeline-scrub.json',
-						cursorScale: 5,
+						videoFile: staticFile('star-radius-2.webm'),
+						cursorScale: 2.5,
 						width: null,
 						height: null,
 					}}
