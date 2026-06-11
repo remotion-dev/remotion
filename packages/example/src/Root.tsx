@@ -386,7 +386,7 @@ export const Index: React.FC = () => {
 				<Composition
 					id="centered-solid"
 					lazyComponent={() => import('./NewSticker')}
-					width={1080}
+					width={1400}
 					height={1080}
 					fps={30}
 					durationInFrames={60}
@@ -425,7 +425,7 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={120}
 					defaultProps={{
-						videoFile: staticFile('arrow-around.webm'),
+						videoFile: staticFile('canvas-all.webm'),
 						cursorScale: 5,
 						width: null,
 						height: null,
