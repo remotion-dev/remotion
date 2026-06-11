@@ -40,9 +40,9 @@ const NewSticker: React.FC = () => {
 				style={{
 					position: 'absolute',
 					scale: 0.855948,
-					translate: '-360.6px 1.6px',
+					translate: '-360.6px 1.4px',
 					transformOrigin: '182.03% 56.08%',
-					rotate: '257.417256deg',
+					rotate: '2540.702685deg',
 				}}
 			/>
 		</Interactive.Div>
