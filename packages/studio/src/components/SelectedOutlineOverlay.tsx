@@ -855,7 +855,7 @@ export type SelectedOutlineScaleEdge = 'top' | 'right' | 'bottom' | 'left';
 
 type SelectedOutlineScaleEdgeInfo = {
 	readonly axis: 'x' | 'y';
-	readonly cursor: React.CSSProperties['cursor'];
+	readonly cursor: string;
 	readonly end: OutlinePoint;
 	readonly extent: number;
 	readonly normal: OutlinePoint;
@@ -1936,6 +1936,7 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 			}
 
 			onDraggingChange(true);
+			forceSpecificCursor(edgeInfo.cursor);
 
 			const startPointer = {x: event.clientX, y: event.clientY};
 			const dragStates = getSelectedOutlineScaleDragStates({
@@ -1994,6 +1995,7 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 				window.removeEventListener('pointermove', onPointerMove);
 				window.removeEventListener('pointerup', onPointerUp);
 				window.removeEventListener('pointercancel', onPointerUp);
+				stopForcingSpecificCursor();
 				onDraggingChange(false);
 
 				const changes = getSelectedOutlineScaleDragChanges({
