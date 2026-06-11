@@ -1,0 +1,1720 @@
+{
+  "startedAt": 5598.700000286102,
+  "endedAt": 10660.700000286102,
+  "captureMetadata": {
+    "density": 5,
+    "contentRect": {
+      "left": 0,
+      "top": 676.25,
+      "width": 1864,
+      "height": 373.75
+    },
+    "canvasSize": {
+      "width": 9320,
+      "height": 1870
+    },
+    "viewport": {
+      "width": 1864,
+      "height": 1050,
+      "scrollX": 0,
+      "scrollY": 0
+    }
+  },
+  "mouseMovements": [
+    {
+      "timeInSeconds": 0.44069999980926516,
+      "clientX": 1189.22265625,
+      "clientY": 703.2265625,
+      "pageX": 1189.22265625,
+      "pageY": 703.2265625,
+      "canvasX": 5946.11328125,
+      "canvasY": 134.8828125,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 0.45709999990463257,
+      "clientX": 1189.296875,
+      "clientY": 704.34765625,
+      "pageX": 1189.296875,
+      "pageY": 704.34765625,
+      "canvasX": 5946.484375,
+      "canvasY": 140.48828125,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 0.4737999997138977,
+      "clientX": 1189.6484375,
+      "clientY": 706.421875,
+      "pageX": 1189.6484375,
+      "pageY": 706.421875,
+      "canvasX": 5948.2421875,
+      "canvasY": 150.859375,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 0.49069999980926515,
+      "clientX": 1189.8125,
+      "clientY": 707.3828125,
+      "pageX": 1189.8125,
+      "pageY": 707.3828125,
+      "canvasX": 5949.0625,
+      "canvasY": 155.6640625,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 0.5071999998092651,
+      "clientX": 1189.8515625,
+      "clientY": 707.58984375,
+      "pageX": 1189.8515625,
+      "pageY": 707.58984375,
+      "canvasX": 5949.2578125,
+      "canvasY": 156.69921875,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 0.5238999996185303,
+      "clientX": 1189.8671875,
+      "clientY": 707.63671875,
+      "pageX": 1189.8671875,
+      "pageY": 707.63671875,
+      "canvasX": 5949.3359375,
+      "canvasY": 156.93359375,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 0.5581999998092652,
+      "clientX": 1189.87109375,
+      "clientY": 707.6328125,
+      "pageX": 1189.87109375,
+      "pageY": 707.6328125,
+      "canvasX": 5949.35546875,
+      "canvasY": 156.9140625,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 0.5737999997138977,
+      "clientX": 1193.44921875,
+      "clientY": 707.75,
+      "pageX": 1193.44921875,
+      "pageY": 707.75,
+      "canvasX": 5967.24609375,
+      "canvasY": 157.5,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 0.5905,
+      "clientX": 1216.890625,
+      "clientY": 711.62109375,
+      "pageX": 1216.890625,
+      "pageY": 711.62109375,
+      "canvasX": 6084.453125,
+      "canvasY": 176.85546875,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 0.6075,
+      "clientX": 1242.65625,
+      "clientY": 720.74609375,
+      "pageX": 1242.65625,
+      "pageY": 720.74609375,
+      "canvasX": 6213.28125,
+      "canvasY": 222.48046875,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 0.6237999997138977,
+      "clientX": 1264.453125,
+      "clientY": 731.97265625,
+      "pageX": 1264.453125,
+      "pageY": 731.97265625,
+      "canvasX": 6322.265625,
+      "canvasY": 278.61328125,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 0.6405999999046326,
+      "clientX": 1275.44921875,
+      "clientY": 737.6640625,
+      "pageX": 1275.44921875,
+      "pageY": 737.6640625,
+      "canvasX": 6377.24609375,
+      "canvasY": 307.0703125,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 0.6572999997138977,
+      "clientX": 1293.515625,
+      "clientY": 745.79296875,
+      "pageX": 1293.515625,
+      "pageY": 745.79296875,
+      "canvasX": 6467.578125,
+      "canvasY": 347.71484375,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 0.6738999996185303,
+      "clientX": 1300.01171875,
+      "clientY": 748.4140625,
+      "pageX": 1300.01171875,
+      "pageY": 748.4140625,
+      "canvasX": 6500.05859375,
+      "canvasY": 360.8203125,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 0.6903999996185303,
+      "clientX": 1311.171875,
+      "clientY": 751.41015625,
+      "pageX": 1311.171875,
+      "pageY": 751.41015625,
+      "canvasX": 6555.859375,
+      "canvasY": 375.80078125,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 0.7072999997138977,
+      "clientX": 1318.01171875,
+      "clientY": 752.94921875,
+      "pageX": 1318.01171875,
+      "pageY": 752.94921875,
+      "canvasX": 6590.05859375,
+      "canvasY": 383.49609375,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 0.7238999996185302,
+      "clientX": 1322.90234375,
+      "clientY": 754,
+      "pageX": 1322.90234375,
+      "pageY": 754,
+      "canvasX": 6614.51171875,
+      "canvasY": 388.75,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 0.7405999999046325,
+      "clientX": 1326.1875,
+      "clientY": 754.40234375,
+      "pageX": 1326.1875,
+      "pageY": 754.40234375,
+      "canvasX": 6630.9375,
+      "canvasY": 390.76171875,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 0.7570999999046326,
+      "clientX": 1334.62890625,
+      "clientY": 754.96484375,
+      "pageX": 1334.62890625,
+      "pageY": 754.96484375,
+      "canvasX": 6673.14453125,
+      "canvasY": 393.57421875,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 0.7741999998092651,
+      "clientX": 1344.71875,
+      "clientY": 755.7578125,
+      "pageX": 1344.71875,
+      "pageY": 755.7578125,
+      "canvasX": 6723.59375,
+      "canvasY": 397.5390625,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 0.7911999998092651,
+      "clientX": 1347.6015625,
+      "clientY": 756.44921875,
+      "pageX": 1347.6015625,
+      "pageY": 756.44921875,
+      "canvasX": 6738.0078125,
+      "canvasY": 400.99609375,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 0.8078999996185303,
+      "clientX": 1348.01171875,
+      "clientY": 756.65234375,
+      "pageX": 1348.01171875,
+      "pageY": 756.65234375,
+      "canvasX": 6740.05859375,
+      "canvasY": 402.01171875,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 0.8246999998092651,
+      "clientX": 1344.76171875,
+      "clientY": 756.65234375,
+      "pageX": 1344.76171875,
+      "pageY": 756.65234375,
+      "canvasX": 6723.80859375,
+      "canvasY": 402.01171875,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 0.8407999997138977,
+      "clientX": 1332.44140625,
+      "clientY": 756.03125,
+      "pageX": 1332.44140625,
+      "pageY": 756.03125,
+      "canvasX": 6662.20703125,
+      "canvasY": 398.90625,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 0.8575,
+      "clientX": 1319.83203125,
+      "clientY": 753.796875,
+      "pageX": 1319.83203125,
+      "pageY": 753.796875,
+      "canvasX": 6599.16015625,
+      "canvasY": 387.734375,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 0.8741999998092651,
+      "clientX": 1302.05859375,
+      "clientY": 749.65234375,
+      "pageX": 1302.05859375,
+      "pageY": 749.65234375,
+      "canvasX": 6510.29296875,
+      "canvasY": 367.01171875,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 0.8907999997138977,
+      "clientX": 1298.41015625,
+      "clientY": 747.76171875,
+      "pageX": 1298.41015625,
+      "pageY": 747.76171875,
+      "canvasX": 6492.05078125,
+      "canvasY": 357.55859375,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 0.9075,
+      "clientX": 1294.69921875,
+      "clientY": 745.19921875,
+      "pageX": 1294.69921875,
+      "pageY": 745.19921875,
+      "canvasX": 6473.49609375,
+      "canvasY": 344.74609375,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 0.9242999997138978,
+      "clientX": 1291.86328125,
+      "clientY": 742.89453125,
+      "pageX": 1291.86328125,
+      "pageY": 742.89453125,
+      "canvasX": 6459.31640625,
+      "canvasY": 333.22265625,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 0.9418999996185303,
+      "clientX": 1286.76171875,
+      "clientY": 739.23828125,
+      "pageX": 1286.76171875,
+      "pageY": 739.23828125,
+      "canvasX": 6433.80859375,
+      "canvasY": 314.94140625,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 0.9573999996185303,
+      "clientX": 1282.61328125,
+      "clientY": 736.36328125,
+      "pageX": 1282.61328125,
+      "pageY": 736.36328125,
+      "canvasX": 6413.06640625,
+      "canvasY": 300.56640625,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 0.9746999998092651,
+      "clientX": 1279.796875,
+      "clientY": 734.30078125,
+      "pageX": 1279.796875,
+      "pageY": 734.30078125,
+      "canvasX": 6398.984375,
+      "canvasY": 290.25390625,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 0.9898999996185303,
+      "clientX": 1277.4765625,
+      "clientY": 732.6328125,
+      "pageX": 1277.4765625,
+      "pageY": 732.6328125,
+      "canvasX": 6387.3828125,
+      "canvasY": 281.9140625,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 1.0075999999046326,
+      "clientX": 1272.83984375,
+      "clientY": 729.3828125,
+      "pageX": 1272.83984375,
+      "pageY": 729.3828125,
+      "canvasX": 6364.19921875,
+      "canvasY": 265.6640625,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 1.0243999996185302,
+      "clientX": 1267.62890625,
+      "clientY": 725.9765625,
+      "pageX": 1267.62890625,
+      "pageY": 725.9765625,
+      "canvasX": 6338.14453125,
+      "canvasY": 248.6328125,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 1.0410999999046326,
+      "clientX": 1260.625,
+      "clientY": 721.5546875,
+      "pageX": 1260.625,
+      "pageY": 721.5546875,
+      "canvasX": 6303.125,
+      "canvasY": 226.5234375,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 1.0586999998092652,
+      "clientX": 1257.9140625,
+      "clientY": 719.765625,
+      "pageX": 1257.9140625,
+      "pageY": 719.765625,
+      "canvasX": 6289.5703125,
+      "canvasY": 217.578125,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 1.074,
+      "clientX": 1254.8125,
+      "clientY": 717.72265625,
+      "pageX": 1254.8125,
+      "pageY": 717.72265625,
+      "canvasX": 6274.0625,
+      "canvasY": 207.36328125,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 1.0913999996185302,
+      "clientX": 1247.5546875,
+      "clientY": 713.4140625,
+      "pageX": 1247.5546875,
+      "pageY": 713.4140625,
+      "canvasX": 6237.7734375,
+      "canvasY": 185.8203125,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 1.1075999999046326,
+      "clientX": 1237.05859375,
+      "clientY": 708.23828125,
+      "pageX": 1237.05859375,
+      "pageY": 708.23828125,
+      "canvasX": 6185.29296875,
+      "canvasY": 159.94140625,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 1.1242999997138976,
+      "clientX": 1227.9140625,
+      "clientY": 704.55078125,
+      "pageX": 1227.9140625,
+      "pageY": 704.55078125,
+      "canvasX": 6139.5703125,
+      "canvasY": 141.50390625,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 1.1408999996185303,
+      "clientX": 1217.7109375,
+      "clientY": 701.35546875,
+      "pageX": 1217.7109375,
+      "pageY": 701.35546875,
+      "canvasX": 6088.5546875,
+      "canvasY": 125.52734375,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 1.1575999999046325,
+      "clientX": 1209.4140625,
+      "clientY": 699.56640625,
+      "pageX": 1209.4140625,
+      "pageY": 699.56640625,
+      "canvasX": 6047.0703125,
+      "canvasY": 116.58203125,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 1.1742999997138976,
+      "clientX": 1206.39453125,
+      "clientY": 698.83984375,
+      "pageX": 1206.39453125,
+      "pageY": 698.83984375,
+      "canvasX": 6031.97265625,
+      "canvasY": 112.94921875,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 1.191,
+      "clientX": 1203.53515625,
+      "clientY": 698.109375,
+      "pageX": 1203.53515625,
+      "pageY": 698.109375,
+      "canvasX": 6017.67578125,
+      "canvasY": 109.296875,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 1.2077999997138977,
+      "clientX": 1202.69140625,
+      "clientY": 697.83984375,
+      "pageX": 1202.69140625,
+      "pageY": 697.83984375,
+      "canvasX": 6013.45703125,
+      "canvasY": 107.94921875,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 1.2242999997138977,
+      "clientX": 1202.37890625,
+      "clientY": 697.68359375,
+      "pageX": 1202.37890625,
+      "pageY": 697.68359375,
+      "canvasX": 6011.89453125,
+      "canvasY": 107.16796875,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 1.241,
+      "clientX": 1202.21875,
+      "clientY": 697.5234375,
+      "pageX": 1202.21875,
+      "pageY": 697.5234375,
+      "canvasX": 6011.09375,
+      "canvasY": 106.3671875,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 1.2575999999046326,
+      "clientX": 1201.90625,
+      "clientY": 697.125,
+      "pageX": 1201.90625,
+      "pageY": 697.125,
+      "canvasX": 6009.53125,
+      "canvasY": 104.375,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 1.2752999997138976,
+      "clientX": 1201.58203125,
+      "clientY": 696.765625,
+      "pageX": 1201.58203125,
+      "pageY": 696.765625,
+      "canvasX": 6007.91015625,
+      "canvasY": 102.578125,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 1.2908999996185302,
+      "clientX": 1200.87109375,
+      "clientY": 696.27734375,
+      "pageX": 1200.87109375,
+      "pageY": 696.27734375,
+      "canvasX": 6004.35546875,
+      "canvasY": 100.13671875,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 1.307699999809265,
+      "clientX": 1200.21875,
+      "clientY": 695.8359375,
+      "pageX": 1200.21875,
+      "pageY": 695.8359375,
+      "canvasX": 6001.09375,
+      "canvasY": 97.9296875,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 1.325,
+      "clientX": 1199.80859375,
+      "clientY": 695.3203125,
+      "pageX": 1199.80859375,
+      "pageY": 695.3203125,
+      "canvasX": 5999.04296875,
+      "canvasY": 95.3515625,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 1.3410999999046325,
+      "clientX": 1199.453125,
+      "clientY": 694.828125,
+      "pageX": 1199.453125,
+      "pageY": 694.828125,
+      "canvasX": 5997.265625,
+      "canvasY": 92.890625,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 1.3585999999046325,
+      "clientX": 1199.3984375,
+      "clientY": 694.359375,
+      "pageX": 1199.3984375,
+      "pageY": 694.359375,
+      "canvasX": 5996.9921875,
+      "canvasY": 90.546875,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 1.3738999996185304,
+      "clientX": 1199.3984375,
+      "clientY": 693.578125,
+      "pageX": 1199.3984375,
+      "pageY": 693.578125,
+      "canvasX": 5996.9921875,
+      "canvasY": 86.640625,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 1.3910999999046325,
+      "clientX": 1199.3984375,
+      "clientY": 692.671875,
+      "pageX": 1199.3984375,
+      "pageY": 692.671875,
+      "canvasX": 5996.9921875,
+      "canvasY": 82.109375,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 1.4077999997138977,
+      "clientX": 1199.3984375,
+      "clientY": 691.8671875,
+      "pageX": 1199.3984375,
+      "pageY": 691.8671875,
+      "canvasX": 5996.9921875,
+      "canvasY": 78.0859375,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 1.4243999996185304,
+      "clientX": 1199.3984375,
+      "clientY": 691.125,
+      "pageX": 1199.3984375,
+      "pageY": 691.125,
+      "canvasX": 5996.9921875,
+      "canvasY": 74.375,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 1.4410999999046326,
+      "clientX": 1199.3984375,
+      "clientY": 690.7734375,
+      "pageX": 1199.3984375,
+      "pageY": 690.7734375,
+      "canvasX": 5996.9921875,
+      "canvasY": 72.6171875,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 1.4577999997138977,
+      "clientX": 1199.3984375,
+      "clientY": 690.50390625,
+      "pageX": 1199.3984375,
+      "pageY": 690.50390625,
+      "canvasX": 5996.9921875,
+      "canvasY": 71.26953125,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 1.4745,
+      "clientX": 1199.3984375,
+      "clientY": 690.359375,
+      "pageX": 1199.3984375,
+      "pageY": 690.359375,
+      "canvasX": 5996.9921875,
+      "canvasY": 70.546875,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 1.507699999809265,
+      "clientX": 1199.4140625,
+      "clientY": 690.359375,
+      "pageX": 1199.4140625,
+      "pageY": 690.359375,
+      "canvasX": 5997.0703125,
+      "canvasY": 70.546875,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 1.5252999997138976,
+      "clientX": 1201.2109375,
+      "clientY": 691.890625,
+      "pageX": 1201.2109375,
+      "pageY": 691.890625,
+      "canvasX": 6006.0546875,
+      "canvasY": 78.203125,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 1.5411999998092651,
+      "clientX": 1207.546875,
+      "clientY": 696.94140625,
+      "pageX": 1207.546875,
+      "pageY": 696.94140625,
+      "canvasX": 6037.734375,
+      "canvasY": 103.45703125,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 1.557699999809265,
+      "clientX": 1222.49609375,
+      "clientY": 708.80859375,
+      "pageX": 1222.49609375,
+      "pageY": 708.80859375,
+      "canvasX": 6112.48046875,
+      "canvasY": 162.79296875,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 1.5746999998092652,
+      "clientX": 1236.5703125,
+      "clientY": 722.19921875,
+      "pageX": 1236.5703125,
+      "pageY": 722.19921875,
+      "canvasX": 6182.8515625,
+      "canvasY": 229.74609375,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 1.5905999999046325,
+      "clientX": 1252.31640625,
+      "clientY": 741.41015625,
+      "pageX": 1252.31640625,
+      "pageY": 741.41015625,
+      "canvasX": 6261.58203125,
+      "canvasY": 325.80078125,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 1.6083999996185303,
+      "clientX": 1283.8125,
+      "clientY": 778.19921875,
+      "pageX": 1283.8125,
+      "pageY": 778.19921875,
+      "canvasX": 6419.0625,
+      "canvasY": 509.74609375,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 1.6247999997138978,
+      "clientX": 1312.18359375,
+      "clientY": 803.828125,
+      "pageX": 1312.18359375,
+      "pageY": 803.828125,
+      "canvasX": 6560.91796875,
+      "canvasY": 637.890625,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 1.6416999998092652,
+      "clientX": 1329.92578125,
+      "clientY": 820.78125,
+      "pageX": 1329.92578125,
+      "pageY": 820.78125,
+      "canvasX": 6649.62890625,
+      "canvasY": 722.65625,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 1.658699999809265,
+      "clientX": 1341.78515625,
+      "clientY": 830.265625,
+      "pageX": 1341.78515625,
+      "pageY": 830.265625,
+      "canvasX": 6708.92578125,
+      "canvasY": 770.078125,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 1.6745999999046326,
+      "clientX": 1356.625,
+      "clientY": 839.64453125,
+      "pageX": 1356.625,
+      "pageY": 839.64453125,
+      "canvasX": 6783.125,
+      "canvasY": 816.97265625,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 1.6920999999046327,
+      "clientX": 1368.9921875,
+      "clientY": 845.8671875,
+      "pageX": 1368.9921875,
+      "pageY": 845.8671875,
+      "canvasX": 6844.9609375,
+      "canvasY": 848.0859375,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 1.7077999997138977,
+      "clientX": 1373.515625,
+      "clientY": 848.75390625,
+      "pageX": 1373.515625,
+      "pageY": 848.75390625,
+      "canvasX": 6867.578125,
+      "canvasY": 862.51953125,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 1.7246999998092651,
+      "clientX": 1374.33984375,
+      "clientY": 849.4296875,
+      "pageX": 1374.33984375,
+      "pageY": 849.4296875,
+      "canvasX": 6871.69921875,
+      "canvasY": 865.8984375,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 1.8910999999046325,
+      "clientX": 1374.3046875,
+      "clientY": 849.5625,
+      "pageX": 1374.3046875,
+      "pageY": 849.5625,
+      "canvasX": 6871.5234375,
+      "canvasY": 866.5625,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 1.9255,
+      "clientX": 1397.43359375,
+      "clientY": 861.17578125,
+      "pageX": 1397.43359375,
+      "pageY": 861.17578125,
+      "canvasX": 6987.16796875,
+      "canvasY": 924.62890625,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 1.9412999997138978,
+      "clientX": 1408.12109375,
+      "clientY": 867.48046875,
+      "pageX": 1408.12109375,
+      "pageY": 867.48046875,
+      "canvasX": 7040.60546875,
+      "canvasY": 956.15234375,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 1.9583999996185302,
+      "clientX": 1421.86328125,
+      "clientY": 877.4296875,
+      "pageX": 1421.86328125,
+      "pageY": 877.4296875,
+      "canvasX": 7109.31640625,
+      "canvasY": 1005.8984375,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 1.9755999999046325,
+      "clientX": 1429.1875,
+      "clientY": 883.09375,
+      "pageX": 1429.1875,
+      "pageY": 883.09375,
+      "canvasX": 7145.9375,
+      "canvasY": 1034.21875,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 1.9912999997138976,
+      "clientX": 1437.19140625,
+      "clientY": 889.0546875,
+      "pageX": 1437.19140625,
+      "pageY": 889.0546875,
+      "canvasX": 7185.95703125,
+      "canvasY": 1064.0234375,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 2.0080999999046325,
+      "clientX": 1446.3046875,
+      "clientY": 895.62890625,
+      "pageX": 1446.3046875,
+      "pageY": 895.62890625,
+      "canvasX": 7231.5234375,
+      "canvasY": 1096.89453125,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 2.025699999809265,
+      "clientX": 1453.03515625,
+      "clientY": 899.375,
+      "pageX": 1453.03515625,
+      "pageY": 899.375,
+      "canvasX": 7265.17578125,
+      "canvasY": 1115.625,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 2.0405,
+      "clientX": 1455.54296875,
+      "clientY": 900.44921875,
+      "pageX": 1455.54296875,
+      "pageY": 900.44921875,
+      "canvasX": 7277.71484375,
+      "canvasY": 1120.99609375,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 2.058,
+      "clientX": 1456.98046875,
+      "clientY": 901.16796875,
+      "pageX": 1456.98046875,
+      "pageY": 901.16796875,
+      "canvasX": 7284.90234375,
+      "canvasY": 1124.58984375,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 2.074699999809265,
+      "clientX": 1458.33984375,
+      "clientY": 901.9609375,
+      "pageX": 1458.33984375,
+      "pageY": 901.9609375,
+      "canvasX": 7291.69921875,
+      "canvasY": 1128.5546875,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 2.1580999999046324,
+      "clientX": 1458.125,
+      "clientY": 901.53125,
+      "pageX": 1458.125,
+      "pageY": 901.53125,
+      "canvasX": 7290.625,
+      "canvasY": 1126.40625,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 2.174699999809265,
+      "clientX": 1454.19921875,
+      "clientY": 896.328125,
+      "pageX": 1454.19921875,
+      "pageY": 896.328125,
+      "canvasX": 7270.99609375,
+      "canvasY": 1100.390625,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 2.1915,
+      "clientX": 1446.55859375,
+      "clientY": 887.30859375,
+      "pageX": 1446.55859375,
+      "pageY": 887.30859375,
+      "canvasX": 7232.79296875,
+      "canvasY": 1055.29296875,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 2.208199999809265,
+      "clientX": 1430.11328125,
+      "clientY": 869.140625,
+      "pageX": 1430.11328125,
+      "pageY": 869.140625,
+      "canvasX": 7150.56640625,
+      "canvasY": 964.453125,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 2.224799999713898,
+      "clientX": 1414.4296875,
+      "clientY": 853.83203125,
+      "pageX": 1414.4296875,
+      "pageY": 853.83203125,
+      "canvasX": 7072.1484375,
+      "canvasY": 887.91015625,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 2.2418999996185303,
+      "clientX": 1389.8125,
+      "clientY": 830.53125,
+      "pageX": 1389.8125,
+      "pageY": 830.53125,
+      "canvasX": 6949.0625,
+      "canvasY": 771.40625,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 2.2583999996185304,
+      "clientX": 1370.171875,
+      "clientY": 812.046875,
+      "pageX": 1370.171875,
+      "pageY": 812.046875,
+      "canvasX": 6850.859375,
+      "canvasY": 678.984375,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 2.27489999961853,
+      "clientX": 1354.80859375,
+      "clientY": 797.3671875,
+      "pageX": 1354.80859375,
+      "pageY": 797.3671875,
+      "canvasX": 6774.04296875,
+      "canvasY": 605.5859375,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 2.2915999999046326,
+      "clientX": 1335.2421875,
+      "clientY": 780.65625,
+      "pageX": 1335.2421875,
+      "pageY": 780.65625,
+      "canvasX": 6676.2109375,
+      "canvasY": 522.03125,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 2.3081999998092653,
+      "clientX": 1317.50390625,
+      "clientY": 765.41796875,
+      "pageX": 1317.50390625,
+      "pageY": 765.41796875,
+      "canvasX": 6587.51953125,
+      "canvasY": 445.83984375,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 2.325,
+      "clientX": 1306.88671875,
+      "clientY": 755.59375,
+      "pageX": 1306.88671875,
+      "pageY": 755.59375,
+      "canvasX": 6534.43359375,
+      "canvasY": 396.71875,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 2.3425,
+      "clientX": 1293.54296875,
+      "clientY": 743.2890625,
+      "pageX": 1293.54296875,
+      "pageY": 743.2890625,
+      "canvasX": 6467.71484375,
+      "canvasY": 335.1953125,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 2.3578999996185304,
+      "clientX": 1275.75390625,
+      "clientY": 728.3046875,
+      "pageX": 1275.75390625,
+      "pageY": 728.3046875,
+      "canvasX": 6378.76953125,
+      "canvasY": 260.2734375,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 2.3748999996185303,
+      "clientX": 1267.6953125,
+      "clientY": 720.57421875,
+      "pageX": 1267.6953125,
+      "pageY": 720.57421875,
+      "canvasX": 6338.4765625,
+      "canvasY": 221.62109375,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 2.3917999997138977,
+      "clientX": 1261.078125,
+      "clientY": 713.75390625,
+      "pageX": 1261.078125,
+      "pageY": 713.75390625,
+      "canvasX": 6305.390625,
+      "canvasY": 187.51953125,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 2.408,
+      "clientX": 1255.25,
+      "clientY": 709.1328125,
+      "pageX": 1255.25,
+      "pageY": 709.1328125,
+      "canvasX": 6276.25,
+      "canvasY": 164.4140625,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 2.424699999809265,
+      "clientX": 1247.7734375,
+      "clientY": 703.4453125,
+      "pageX": 1247.7734375,
+      "pageY": 703.4453125,
+      "canvasX": 6238.8671875,
+      "canvasY": 135.9765625,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 2.441699999809265,
+      "clientX": 1241.6015625,
+      "clientY": 699.2734375,
+      "pageX": 1241.6015625,
+      "pageY": 699.2734375,
+      "canvasX": 6208.0078125,
+      "canvasY": 115.1171875,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 2.4580999999046327,
+      "clientX": 1236.09375,
+      "clientY": 695.73046875,
+      "pageX": 1236.09375,
+      "pageY": 695.73046875,
+      "canvasX": 6180.46875,
+      "canvasY": 97.40234375,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 2.474699999809265,
+      "clientX": 1231.546875,
+      "clientY": 692.84765625,
+      "pageX": 1231.546875,
+      "pageY": 692.84765625,
+      "canvasX": 6157.734375,
+      "canvasY": 82.98828125,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 2.49139999961853,
+      "clientX": 1228.3984375,
+      "clientY": 690.98828125,
+      "pageX": 1228.3984375,
+      "pageY": 690.98828125,
+      "canvasX": 6141.9921875,
+      "canvasY": 73.69140625,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 2.508199999809265,
+      "clientX": 1226.08203125,
+      "clientY": 689.33203125,
+      "pageX": 1226.08203125,
+      "pageY": 689.33203125,
+      "canvasX": 6130.41015625,
+      "canvasY": 65.41015625,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 2.5247999997138977,
+      "clientX": 1222.3515625,
+      "clientY": 687.15625,
+      "pageX": 1222.3515625,
+      "pageY": 687.15625,
+      "canvasX": 6111.7578125,
+      "canvasY": 54.53125,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 2.5415,
+      "clientX": 1218.31640625,
+      "clientY": 685.61328125,
+      "pageX": 1218.31640625,
+      "pageY": 685.61328125,
+      "canvasX": 6091.58203125,
+      "canvasY": 46.81640625,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 2.558699999809265,
+      "clientX": 1214.390625,
+      "clientY": 684.5625,
+      "pageX": 1214.390625,
+      "pageY": 684.5625,
+      "canvasX": 6071.953125,
+      "canvasY": 41.5625,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 2.5743999996185303,
+      "clientX": 1211.859375,
+      "clientY": 684.14453125,
+      "pageX": 1211.859375,
+      "pageY": 684.14453125,
+      "canvasX": 6059.296875,
+      "canvasY": 39.47265625,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 2.5915999999046324,
+      "clientX": 1209.82421875,
+      "clientY": 683.6484375,
+      "pageX": 1209.82421875,
+      "pageY": 683.6484375,
+      "canvasX": 6049.12109375,
+      "canvasY": 36.9921875,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 2.6087999997138978,
+      "clientX": 1208.53125,
+      "clientY": 683.390625,
+      "pageX": 1208.53125,
+      "pageY": 683.390625,
+      "canvasX": 6042.65625,
+      "canvasY": 35.703125,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 2.6246999998092653,
+      "clientX": 1207.3359375,
+      "clientY": 683.16796875,
+      "pageX": 1207.3359375,
+      "pageY": 683.16796875,
+      "canvasX": 6036.6796875,
+      "canvasY": 34.58984375,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 2.6415999999046327,
+      "clientX": 1206.74609375,
+      "clientY": 683.1328125,
+      "pageX": 1206.74609375,
+      "pageY": 683.1328125,
+      "canvasX": 6033.73046875,
+      "canvasY": 34.4140625,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 2.6581999998092654,
+      "clientX": 1206.45703125,
+      "clientY": 683.1328125,
+      "pageX": 1206.45703125,
+      "pageY": 683.1328125,
+      "canvasX": 6032.28515625,
+      "canvasY": 34.4140625,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 2.675,
+      "clientX": 1205.9609375,
+      "clientY": 683.15234375,
+      "pageX": 1205.9609375,
+      "pageY": 683.15234375,
+      "canvasX": 6029.8046875,
+      "canvasY": 34.51171875,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 2.6915999999046325,
+      "clientX": 1205.046875,
+      "clientY": 683.28125,
+      "pageX": 1205.046875,
+      "pageY": 683.28125,
+      "canvasX": 6025.234375,
+      "canvasY": 35.15625,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 2.7085999999046324,
+      "clientX": 1203.88671875,
+      "clientY": 683.44921875,
+      "pageX": 1203.88671875,
+      "pageY": 683.44921875,
+      "canvasX": 6019.43359375,
+      "canvasY": 35.99609375,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 2.724799999713898,
+      "clientX": 1202.6015625,
+      "clientY": 683.7109375,
+      "pageX": 1202.6015625,
+      "pageY": 683.7109375,
+      "canvasX": 6013.0078125,
+      "canvasY": 37.3046875,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 2.7416999998092653,
+      "clientX": 1200.96484375,
+      "clientY": 683.9296875,
+      "pageX": 1200.96484375,
+      "pageY": 683.9296875,
+      "canvasX": 6004.82421875,
+      "canvasY": 38.3984375,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 2.7583999996185304,
+      "clientX": 1198.13671875,
+      "clientY": 684.109375,
+      "pageX": 1198.13671875,
+      "pageY": 684.109375,
+      "canvasX": 5990.68359375,
+      "canvasY": 39.296875,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 2.77489999961853,
+      "clientX": 1194.8125,
+      "clientY": 684.29296875,
+      "pageX": 1194.8125,
+      "pageY": 684.29296875,
+      "canvasX": 5974.0625,
+      "canvasY": 40.21484375,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 2.7915999999046326,
+      "clientX": 1193.515625,
+      "clientY": 684.38671875,
+      "pageX": 1193.515625,
+      "pageY": 684.38671875,
+      "canvasX": 5967.578125,
+      "canvasY": 40.68359375,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 2.8095999999046324,
+      "clientX": 1191.66015625,
+      "clientY": 684.52734375,
+      "pageX": 1191.66015625,
+      "pageY": 684.52734375,
+      "canvasX": 5958.30078125,
+      "canvasY": 41.38671875,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 2.8248999996185304,
+      "clientX": 1191.5,
+      "clientY": 684.546875,
+      "pageX": 1191.5,
+      "pageY": 684.546875,
+      "canvasX": 5957.5,
+      "canvasY": 41.484375,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 3.2250999999046326,
+      "clientX": 1191.26171875,
+      "clientY": 684.546875,
+      "pageX": 1191.26171875,
+      "pageY": 684.546875,
+      "canvasX": 5956.30859375,
+      "canvasY": 41.484375,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 3.2425999999046327,
+      "clientX": 1181.296875,
+      "clientY": 684.86328125,
+      "pageX": 1181.296875,
+      "pageY": 684.86328125,
+      "canvasX": 5906.484375,
+      "canvasY": 43.06640625,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 3.25889999961853,
+      "clientX": 1176.00390625,
+      "clientY": 685.04296875,
+      "pageX": 1176.00390625,
+      "pageY": 685.04296875,
+      "canvasX": 5880.01953125,
+      "canvasY": 43.96484375,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 3.291699999809265,
+      "clientX": 1171.94140625,
+      "clientY": 685.04296875,
+      "pageX": 1171.94140625,
+      "pageY": 685.04296875,
+      "canvasX": 5859.70703125,
+      "canvasY": 43.96484375,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 3.3085999999046325,
+      "clientX": 1157.8125,
+      "clientY": 685.34765625,
+      "pageX": 1157.8125,
+      "pageY": 685.34765625,
+      "canvasX": 5789.0625,
+      "canvasY": 45.48828125,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 3.331299999713898,
+      "clientX": 1138.44140625,
+      "clientY": 685.484375,
+      "pageX": 1138.44140625,
+      "pageY": 685.484375,
+      "canvasX": 5692.20703125,
+      "canvasY": 46.171875,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 3.3473999996185304,
+      "clientX": 1125.36328125,
+      "clientY": 685.796875,
+      "pageX": 1125.36328125,
+      "pageY": 685.796875,
+      "canvasX": 5626.81640625,
+      "canvasY": 47.734375,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 3.3588999996185303,
+      "clientX": 1102.08984375,
+      "clientY": 685.93359375,
+      "pageX": 1102.08984375,
+      "pageY": 685.93359375,
+      "canvasX": 5510.44921875,
+      "canvasY": 48.41796875,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 3.3775999999046324,
+      "clientX": 1079.16796875,
+      "clientY": 685.93359375,
+      "pageX": 1079.16796875,
+      "pageY": 685.93359375,
+      "canvasX": 5395.83984375,
+      "canvasY": 48.41796875,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 3.39189999961853,
+      "clientX": 1051.84765625,
+      "clientY": 685.93359375,
+      "pageX": 1051.84765625,
+      "pageY": 685.93359375,
+      "canvasX": 5259.23828125,
+      "canvasY": 48.41796875,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 3.4083999996185304,
+      "clientX": 1019.74609375,
+      "clientY": 685.93359375,
+      "pageX": 1019.74609375,
+      "pageY": 685.93359375,
+      "canvasX": 5098.73046875,
+      "canvasY": 48.41796875,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 3.4273999996185305,
+      "clientX": 1004.8125,
+      "clientY": 685.93359375,
+      "pageX": 1004.8125,
+      "pageY": 685.93359375,
+      "canvasX": 5024.0625,
+      "canvasY": 48.41796875,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 3.442199999809265,
+      "clientX": 977.91015625,
+      "clientY": 685.93359375,
+      "pageX": 977.91015625,
+      "pageY": 685.93359375,
+      "canvasX": 4889.55078125,
+      "canvasY": 48.41796875,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 3.4586999998092653,
+      "clientX": 949.39453125,
+      "clientY": 685.76953125,
+      "pageX": 949.39453125,
+      "pageY": 685.76953125,
+      "canvasX": 4746.97265625,
+      "canvasY": 47.59765625,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 3.47539999961853,
+      "clientX": 919.22265625,
+      "clientY": 685.49609375,
+      "pageX": 919.22265625,
+      "pageY": 685.49609375,
+      "canvasX": 4596.11328125,
+      "canvasY": 46.23046875,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 3.4918999996185303,
+      "clientX": 902.8515625,
+      "clientY": 685.49609375,
+      "pageX": 902.8515625,
+      "pageY": 685.49609375,
+      "canvasX": 4514.2578125,
+      "canvasY": 46.23046875,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 3.508199999809265,
+      "clientX": 885.25,
+      "clientY": 685.49609375,
+      "pageX": 885.25,
+      "pageY": 685.49609375,
+      "canvasX": 4426.25,
+      "canvasY": 46.23046875,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 3.5251999998092653,
+      "clientX": 872.9765625,
+      "clientY": 685.6328125,
+      "pageX": 872.9765625,
+      "pageY": 685.6328125,
+      "canvasX": 4364.8828125,
+      "canvasY": 46.9140625,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 3.542,
+      "clientX": 860.75,
+      "clientY": 685.69140625,
+      "pageX": 860.75,
+      "pageY": 685.69140625,
+      "canvasX": 4303.75,
+      "canvasY": 47.20703125,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 3.558,
+      "clientX": 856.51171875,
+      "clientY": 685.6953125,
+      "pageX": 856.51171875,
+      "pageY": 685.6953125,
+      "canvasX": 4282.55859375,
+      "canvasY": 47.2265625,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 3.5745999999046325,
+      "clientX": 850.375,
+      "clientY": 685.90234375,
+      "pageX": 850.375,
+      "pageY": 685.90234375,
+      "canvasX": 4251.875,
+      "canvasY": 48.26171875,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 3.5910999999046327,
+      "clientX": 846.94140625,
+      "clientY": 685.921875,
+      "pageX": 846.94140625,
+      "pageY": 685.921875,
+      "canvasX": 4234.70703125,
+      "canvasY": 48.359375,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 3.607799999713898,
+      "clientX": 843.546875,
+      "clientY": 686.046875,
+      "pageX": 843.546875,
+      "pageY": 686.046875,
+      "canvasX": 4217.734375,
+      "canvasY": 48.984375,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 3.6252999997138975,
+      "clientX": 840.19921875,
+      "clientY": 686.078125,
+      "pageX": 840.19921875,
+      "pageY": 686.078125,
+      "canvasX": 4200.99609375,
+      "canvasY": 49.140625,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 3.6421999998092653,
+      "clientX": 838.12890625,
+      "clientY": 686.1328125,
+      "pageX": 838.12890625,
+      "pageY": 686.1328125,
+      "canvasX": 4190.64453125,
+      "canvasY": 49.4140625,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 3.659799999713898,
+      "clientX": 836.76953125,
+      "clientY": 686.18359375,
+      "pageX": 836.76953125,
+      "pageY": 686.18359375,
+      "canvasX": 4183.84765625,
+      "canvasY": 49.66796875,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 3.6743999996185304,
+      "clientX": 834.78125,
+      "clientY": 686.203125,
+      "pageX": 834.78125,
+      "pageY": 686.203125,
+      "canvasX": 4173.90625,
+      "canvasY": 49.765625,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 3.6920999999046327,
+      "clientX": 832.53515625,
+      "clientY": 686.203125,
+      "pageX": 832.53515625,
+      "pageY": 686.203125,
+      "canvasX": 4162.67578125,
+      "canvasY": 49.765625,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 3.7085,
+      "clientX": 831.19921875,
+      "clientY": 686.29296875,
+      "pageX": 831.19921875,
+      "pageY": 686.29296875,
+      "canvasX": 4155.99609375,
+      "canvasY": 50.21484375,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 3.725199999809265,
+      "clientX": 828.88671875,
+      "clientY": 686.30078125,
+      "pageX": 828.88671875,
+      "pageY": 686.30078125,
+      "canvasX": 4144.43359375,
+      "canvasY": 50.25390625,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 3.7417999997138978,
+      "clientX": 826.76171875,
+      "clientY": 686.30078125,
+      "pageX": 826.76171875,
+      "pageY": 686.30078125,
+      "canvasX": 4133.80859375,
+      "canvasY": 50.25390625,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 3.7585999999046327,
+      "clientX": 824.79296875,
+      "clientY": 686.34375,
+      "pageX": 824.79296875,
+      "pageY": 686.34375,
+      "canvasX": 4123.96484375,
+      "canvasY": 50.46875,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 3.7755,
+      "clientX": 823.37109375,
+      "clientY": 686.41015625,
+      "pageX": 823.37109375,
+      "pageY": 686.41015625,
+      "canvasX": 4116.85546875,
+      "canvasY": 50.80078125,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 3.792,
+      "clientX": 821.96875,
+      "clientY": 686.41015625,
+      "pageX": 821.96875,
+      "pageY": 686.41015625,
+      "canvasX": 4109.84375,
+      "canvasY": 50.80078125,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 3.8085999999046325,
+      "clientX": 821.30078125,
+      "clientY": 686.41015625,
+      "pageX": 821.30078125,
+      "pageY": 686.41015625,
+      "canvasX": 4106.50390625,
+      "canvasY": 50.80078125,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 3.8252999997138977,
+      "clientX": 820.69921875,
+      "clientY": 686.484375,
+      "pageX": 820.69921875,
+      "pageY": 686.484375,
+      "canvasX": 4103.49609375,
+      "canvasY": 51.171875,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 3.842,
+      "clientX": 820.46875,
+      "clientY": 686.49609375,
+      "pageX": 820.46875,
+      "pageY": 686.49609375,
+      "canvasX": 4102.34375,
+      "canvasY": 51.23046875,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 3.8595999999046327,
+      "clientX": 819.71484375,
+      "clientY": 686.49609375,
+      "pageX": 819.71484375,
+      "pageY": 686.49609375,
+      "canvasX": 4098.57421875,
+      "canvasY": 51.23046875,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 3.8752999997138975,
+      "clientX": 819.57421875,
+      "clientY": 686.49609375,
+      "pageX": 819.57421875,
+      "pageY": 686.49609375,
+      "canvasX": 4097.87109375,
+      "canvasY": 51.23046875,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 4.27539999961853,
+      "clientX": 819.45703125,
+      "clientY": 686.49609375,
+      "pageX": 819.45703125,
+      "pageY": 686.49609375,
+      "canvasX": 4097.28515625,
+      "canvasY": 51.23046875,
+      "cursor": "auto"
+    },
+    {
+      "timeInSeconds": 4.293199999809265,
+      "clientX": 819.42578125,
+      "clientY": 686.49609375,
+      "pageX": 819.42578125,
+      "pageY": 686.49609375,
+      "canvasX": 4097.12890625,
+      "canvasY": 51.23046875,
+      "cursor": "auto"
+    }
+  ],
+  "pointerClicks": [
+    {
+      "timeInSeconds": 2.9962999997138975
+    }
+  ]
+}

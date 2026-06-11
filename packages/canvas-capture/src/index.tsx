@@ -53,6 +53,11 @@ type MouseMovement = {
 	readonly cursor: string;
 };
 
+type PointerClick = {
+	readonly timeInSeconds: number;
+	readonly type: 'pointer-down' | 'pointer-up';
+};
+
 type CaptureMetadata = {
 	readonly density: number;
 	readonly contentRect: {
@@ -79,6 +84,7 @@ type RecordingState = {
 	readonly source: CanvasVideoSource;
 	readonly startedAt: number;
 	readonly mouseMovements: MouseMovement[];
+	readonly pointerClicks: PointerClick[];
 	lastTimestampInSeconds: number | null;
 	lastFramePromise: Promise<void>;
 	frameCount: number;
@@ -267,6 +273,7 @@ const finalizeRecording = async (
 						endedAt: performance.now(),
 						captureMetadata: recording.captureMetadata,
 						mouseMovements: recording.mouseMovements,
+						pointerClicks: recording.pointerClicks,
 					},
 					null,
 					2,
@@ -319,7 +326,6 @@ export const HtmlInCanvasCapture = forwardRef<
 			bitrate: recordingVideoBitrate,
 			latencyMode: 'realtime',
 			keyFrameInterval: recordingKeyFrameIntervalInSeconds,
-			alpha: 'keep',
 		});
 
 		output.addVideoTrack(source);
@@ -331,6 +337,7 @@ export const HtmlInCanvasCapture = forwardRef<
 			source,
 			startedAt: performance.now(),
 			mouseMovements: [],
+			pointerClicks: [],
 			lastTimestampInSeconds: null,
 			lastFramePromise: Promise.resolve(),
 			frameCount: 0,
@@ -461,6 +468,40 @@ export const HtmlInCanvasCapture = forwardRef<
 			window.removeEventListener('pointermove', onMouseMove);
 		};
 	}, [density]);
+
+	useEffect(() => {
+		const onPointerDown = () => {
+			const recording = recordingRef.current;
+			if (!recording || recording.isFinalizing) {
+				return;
+			}
+
+			recording.pointerClicks.push({
+				timeInSeconds: (performance.now() - recording.startedAt) / 1000,
+				type: 'pointer-down',
+			});
+		};
+
+		const onPointerUp = () => {
+			const recording = recordingRef.current;
+			if (!recording || recording.isFinalizing) {
+				return;
+			}
+
+			recording.pointerClicks.push({
+				timeInSeconds: (performance.now() - recording.startedAt) / 1000,
+				type: 'pointer-up',
+			});
+		};
+
+		window.addEventListener('pointerdown', onPointerDown, true);
+		window.addEventListener('pointerup', onPointerUp, true);
+
+		return () => {
+			window.removeEventListener('pointerdown', onPointerDown, true);
+			window.removeEventListener('pointerup', onPointerUp, true);
+		};
+	}, []);
 
 	useEffect(() => {
 		if (!isSupported) {

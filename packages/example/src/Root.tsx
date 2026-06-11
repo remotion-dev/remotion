@@ -187,6 +187,8 @@ import {
 	ClickStar,
 	StarColor,
 	StarRadius,
+	TimelineScrub,
+	UndoRedo,
 	calculateCanvasCapturePreviewMetadata,
 	canvasCapturePreviewSchema,
 } from './CanvasCapturePreview';
@@ -464,6 +466,40 @@ export const Index: React.FC = () => {
 					defaultProps={{
 						videoFile: 'star-color.webm',
 						cursorFile: 'star-color.json',
+						cursorScale: 5,
+						width: null,
+						height: null,
+					}}
+					schema={canvasCapturePreviewSchema}
+					calculateMetadata={calculateCanvasCapturePreviewMetadata}
+				/>
+				<Composition
+					id="undo-redo"
+					component={UndoRedo}
+					width={1080}
+					height={1350}
+					fps={30}
+					durationInFrames={120}
+					defaultProps={{
+						videoFile: 'undo-redo.webm',
+						cursorFile: 'undo-redo.json',
+						cursorScale: 5,
+						width: null,
+						height: null,
+					}}
+					schema={canvasCapturePreviewSchema}
+					calculateMetadata={calculateCanvasCapturePreviewMetadata}
+				/>
+				<Composition
+					id="timeline-scrub"
+					component={TimelineScrub}
+					width={1080}
+					height={1350}
+					fps={30}
+					durationInFrames={120}
+					defaultProps={{
+						videoFile: 'timeline-scrub.webm',
+						cursorFile: 'timeline-scrub.json',
 						cursorScale: 5,
 						width: null,
 						height: null,

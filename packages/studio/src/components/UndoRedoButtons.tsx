@@ -150,7 +150,16 @@ export const UndoRedoButtons: React.FC = () => {
 	}
 
 	return (
-		<>
+		<div
+			style={{
+				width: 60,
+				height: 32,
+				position: 'relative',
+				display: 'flex',
+				justifyContent: 'center',
+				alignItems: 'center',
+			}}
+		>
 			<InlineAction
 				onClick={onUndo}
 				renderAction={renderUndo}
@@ -163,6 +172,6 @@ export const UndoRedoButtons: React.FC = () => {
 				title={redoTooltip}
 				disabled={!canRedo}
 			/>
-		</>
+		</div>
 	);
 };
