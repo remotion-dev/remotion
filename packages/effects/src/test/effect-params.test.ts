@@ -39,6 +39,22 @@ import {waves} from '../waves.js';
 import {whiteNoise} from '../white-noise.js';
 import {zigzag} from '../zigzag.js';
 
+const expectDefaultBlueColorArrayControl = (schema: {
+	readonly colors?: unknown;
+}): void => {
+	expect(schema.colors).toEqual({
+		type: 'array',
+		item: {
+			type: 'color',
+		},
+		default: ['#dff4ff', '#7cc6ff'],
+		minLength: 2,
+		newItemDefault: '#ff0000',
+		description: 'Colors',
+		keyframable: false,
+	});
+};
+
 test('@remotion/effects expose documentation links', () => {
 	expect(barrelDistortion().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/barrel-distortion',
@@ -198,6 +214,13 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(waves().definition.label).toBe('waves()');
 	expect(zigzag().definition.label).toBe('zigzag()');
 	expect(whiteNoise().definition.label).toBe('whiteNoise()');
+});
+
+test('@remotion/effects palette effects expose colors as array controls', () => {
+	expectDefaultBlueColorArrayControl(lines().definition.schema);
+	expectDefaultBlueColorArrayControl(rings().definition.schema);
+	expectDefaultBlueColorArrayControl(waves().definition.schema);
+	expectDefaultBlueColorArrayControl(zigzag().definition.schema);
 });
 
 test('barrelDistortion() accepts default params', () => {

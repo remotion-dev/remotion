@@ -31,6 +31,30 @@ const isInt = (num: number) => {
 	return num % 1 === 0;
 };
 
+export const deriveInputDraggerStep = ({
+	min,
+	snapToStep,
+	step,
+}: {
+	readonly min: React.InputHTMLAttributes<HTMLInputElement>['min'];
+	readonly snapToStep: boolean;
+	readonly step: React.InputHTMLAttributes<HTMLInputElement>['step'];
+}) => {
+	if (!snapToStep) {
+		return 'any';
+	}
+
+	if (step !== undefined) {
+		return step;
+	}
+
+	if (typeof min === 'number' && isInt(min)) {
+		return 1;
+	}
+
+	return 0.0001;
+};
+
 const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 	HTMLButtonElement,
 	Props
@@ -216,19 +240,11 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 	}, [inputFallback]);
 
 	const deriveStep = useMemo(() => {
-		if (!snapToStep) {
-			return 'any';
-		}
-
-		if (_step !== undefined) {
-			return _step;
-		}
-
-		if (typeof _min === 'number' && isInt(_min)) {
-			return 1;
-		}
-
-		return 0.0001;
+		return deriveInputDraggerStep({
+			min: _min,
+			snapToStep,
+			step: _step,
+		});
 	}, [_min, _step, snapToStep]);
 
 	if (inputFallback) {

@@ -1,5 +1,6 @@
 import {describe, expect, test} from 'bun:test';
 import {Easing} from '../easing.js';
+import {spring} from '../spring/index.js';
 
 const numbersToTest = [-0.5, 0, 0.4, 0.5, 0.7, 1, 1.5];
 
@@ -235,5 +236,41 @@ describe('Easing Bounce', () => {
 	test('Easing Out', () => {
 		const easingInOut = Easing.inOut(Easing.bounce);
 		numbersToTest.forEach((n) => expect(easingInOut(n)).toBe(inOut(n)));
+	});
+});
+
+describe('Easing spring', () => {
+	test('matches a duration-stretched spring', () => {
+		const config = {
+			damping: 12,
+			mass: 0.8,
+			stiffness: 150,
+		};
+		const easing = Easing.spring(config);
+
+		for (const t of [0.1, 0.25, 0.5, 0.75, 0.9]) {
+			expect(easing(t)).toBe(
+				spring({
+					fps: 30,
+					frame: t * 30,
+					durationInFrames: 30,
+					config,
+				}),
+			);
+		}
+	});
+
+	test('clamps the endpoints', () => {
+		const easing = Easing.spring();
+
+		expect(easing(-1)).toBe(0);
+		expect(easing(0)).toBe(0);
+		expect(easing(1)).toBe(1);
+		expect(easing(2)).toBe(1);
+	});
+
+	test('supports overshoot clamping', () => {
+		expect(Easing.spring()(0.5)).toBeGreaterThan(1);
+		expect(Easing.spring({overshootClamping: true})(0.5)).toBe(1);
 	});
 });

@@ -149,10 +149,13 @@ type ScaleFieldSchema = Extract<SequenceFieldSchema, {type: 'scale'}>;
 type RotationFieldSchema = Extract<SequenceFieldSchema, {type: 'rotation-css'}>;
 
 type SelectedOutlineScaleDragTarget = {
-	readonly propStatus: CanUpdateSequencePropStatusStatic;
+	readonly propStatus:
+		| CanUpdateSequencePropStatusStatic
+		| CanUpdateSequencePropStatusKeyframed;
 	readonly clientId: string;
 	readonly fieldDefault: number | string | undefined;
 	readonly fieldSchema: ScaleFieldSchema;
+	readonly keyframeDisplayOffset: number;
 	readonly linked: boolean;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly schema: SequenceSchema;
@@ -182,6 +185,7 @@ export type SelectedOutlineDragState = {
 export type SelectedOutlineScaleDragState = {
 	readonly defaultValue: string | null;
 	readonly key: string;
+	readonly sourceFrame: number;
 	readonly startX: number;
 	readonly startY: number;
 	readonly startZ: number;
@@ -561,7 +565,12 @@ const measureOutlines = (
 							width: element.offsetWidth,
 							height: element.offsetHeight,
 						}
-					: null,
+					: element instanceof SVGSVGElement
+						? {
+								width: element.width.baseVal.value,
+								height: element.height.baseVal.value,
+							}
+						: null,
 			points,
 		});
 	}
@@ -804,18 +813,22 @@ export const getSelectedOutlineScaleEdgeInfo = (
 export const getSelectedOutlineScaleDragStates = ({
 	dragTargets,
 	getDragOverrides,
+	timelinePosition,
 }: {
 	readonly dragTargets: readonly SelectedOutlineScaleDragTarget[];
 	readonly getDragOverrides: GetDragOverrides;
+	readonly timelinePosition: number;
 }): SelectedOutlineScaleDragState[] => {
 	return dragTargets.map((target) => {
 		const dragOverrideValue = (getDragOverrides(target.nodePath) ?? {})[
 			scaleFieldKey
 		];
+		const sourceFrame = timelinePosition - target.keyframeDisplayOffset;
 		const effectiveValue = Internals.getEffectiveVisualModeValue({
 			propStatus: target.propStatus,
 			dragOverrideValue,
 			defaultValue: target.fieldDefault,
+			frame: sourceFrame,
 			shouldResortToDefaultValueIfUndefined: true,
 		});
 		const [startX, startY, startZ] =
@@ -827,6 +840,7 @@ export const getSelectedOutlineScaleDragStates = ({
 					? JSON.stringify(target.fieldDefault)
 					: null,
 			key: Internals.makeSequencePropsSubscriptionKey(target.nodePath),
+			sourceFrame,
 			startX,
 			startY,
 			startZ,
@@ -878,11 +892,36 @@ export const getSelectedOutlineScaleDragChanges = ({
 }: {
 	readonly dragStates: readonly SelectedOutlineScaleDragState[];
 	readonly lastValues: ReadonlyMap<string, number | string>;
-}) => {
-	return dragStates.flatMap((dragState) => {
+}): SelectedOutlineDragChange[] => {
+	const changes: SelectedOutlineDragChange[] = [];
+
+	for (const dragState of dragStates) {
 		const value = lastValues.get(dragState.key);
 		if (value === undefined) {
-			return [];
+			continue;
+		}
+
+		if (dragState.target.propStatus.status === 'keyframed') {
+			const startValue = NoReactInternals.serializeScaleValue([
+				dragState.startX,
+				dragState.startY,
+				dragState.startZ,
+			]);
+			if (value === startValue) {
+				continue;
+			}
+
+			changes.push({
+				type: 'keyframed',
+				fileName: dragState.target.nodePath.absolutePath,
+				nodePath: dragState.target.nodePath,
+				fieldKey: scaleFieldKey,
+				sourceFrame: dragState.sourceFrame,
+				value,
+				schema: dragState.target.schema,
+				clientId: dragState.target.clientId,
+			});
+			continue;
 		}
 
 		const stringifiedValue = JSON.stringify(value);
@@ -895,20 +934,21 @@ export const getSelectedOutlineScaleDragChanges = ({
 			);
 
 		if (!shouldSave) {
-			return [];
+			continue;
 		}
 
-		return [
-			{
-				fileName: dragState.target.nodePath.absolutePath,
-				nodePath: dragState.target.nodePath,
-				fieldKey: scaleFieldKey,
-				value,
-				defaultValue: dragState.defaultValue,
-				schema: dragState.target.schema,
-			},
-		];
-	});
+		changes.push({
+			type: 'static',
+			fileName: dragState.target.nodePath.absolutePath,
+			nodePath: dragState.target.nodePath,
+			fieldKey: scaleFieldKey,
+			value,
+			defaultValue: dragState.defaultValue,
+			schema: dragState.target.schema,
+		});
+	}
+
+	return changes;
 };
 
 export const getSelectedOutlineRotationDragStates = ({
@@ -1778,6 +1818,9 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 	const {setPropStatuses, setDragOverrides, clearDragOverrides} = useContext(
 		Internals.VisualModeSettersContext,
 	);
+	const timelinePosition = Internals.Timeline.useTimelinePosition();
+	const timelinePositionRef = useRef(timelinePosition);
+	timelinePositionRef.current = timelinePosition;
 	const scaleDrag = target?.scaleDrag ?? null;
 	const selected = target?.selected ?? false;
 	const lineRef = useRef<SVGLineElement>(null);
@@ -1812,6 +1855,7 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 			const dragStates = getSelectedOutlineScaleDragStates({
 				dragTargets: selected ? allScaleDragTargets : [scaleDrag],
 				getDragOverrides,
+				timelinePosition: timelinePositionRef.current,
 			});
 			let lastValues = new Map<string, number | string>();
 
@@ -1840,11 +1884,23 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 						throw new Error('Expected scale drag value to be available');
 					}
 
-					setDragOverrides(
-						dragState.target.nodePath,
-						scaleFieldKey,
-						Internals.makeStaticDragOverride(value),
-					);
+					if (dragState.target.propStatus.status === 'keyframed') {
+						setDragOverrides(
+							dragState.target.nodePath,
+							scaleFieldKey,
+							Internals.makeKeyframedDragOverride({
+								status: dragState.target.propStatus,
+								frame: dragState.sourceFrame,
+								value,
+							}),
+						);
+					} else {
+						setDragOverrides(
+							dragState.target.nodePath,
+							scaleFieldKey,
+							Internals.makeStaticDragOverride(value),
+						);
+					}
 				}
 			};
 
@@ -1867,17 +1923,44 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 					return;
 				}
 
-				saveSequenceProps({
-					changes,
-					setPropStatuses,
-					clientId: scaleDrag.clientId,
-					undoLabel:
-						changes.length > 1 ? 'Scale selected sequences' : 'Scale sequence',
-					redoLabel:
-						changes.length > 1
-							? 'Scale selected sequences back'
-							: 'Scale sequence back',
-				})
+				const staticChanges = changes.filter(
+					(change): change is SelectedOutlineStaticDragChange =>
+						change.type === 'static',
+				);
+				const keyframedChanges = changes.filter(
+					(change): change is SelectedOutlineKeyframedDragChange =>
+						change.type === 'keyframed',
+				);
+
+				Promise.all([
+					staticChanges.length > 0
+						? saveSequenceProps({
+								changes: staticChanges,
+								setPropStatuses,
+								clientId: scaleDrag.clientId,
+								undoLabel:
+									changes.length > 1
+										? 'Scale selected sequences'
+										: 'Scale sequence',
+								redoLabel:
+									changes.length > 1
+										? 'Scale selected sequences back'
+										: 'Scale sequence back',
+							})
+						: Promise.resolve(),
+					...keyframedChanges.map((change) =>
+						callAddSequenceKeyframe({
+							fileName: change.fileName,
+							nodePath: change.nodePath,
+							fieldKey: change.fieldKey,
+							sourceFrame: change.sourceFrame,
+							value: change.value,
+							schema: change.schema,
+							setPropStatuses,
+							clientId: change.clientId,
+						}),
+					),
+				])
 					.catch((err) => {
 						showNotification(
 							`Could not save sequence props: ${
@@ -2525,11 +2608,15 @@ export const SelectedOutlineOverlay: React.FC<{
 				controls !== null &&
 				fieldSchema?.type === 'translate' &&
 				canDragStatus;
+			const canScaleDragStatus =
+				scalePropStatus?.status === 'static' ||
+				(scalePropStatus?.status === 'keyframed' &&
+					scalePropStatus.interpolationFunction === 'interpolate');
 			const canScaleDrag =
 				previewServerState.type === 'connected' &&
 				controls !== null &&
 				scaleFieldSchema?.type === 'scale' &&
-				scalePropStatus?.status === 'static';
+				canScaleDragStatus;
 			const canRotationDrag =
 				previewServerState.type === 'connected' &&
 				controls !== null &&
@@ -2593,6 +2680,7 @@ export const SelectedOutlineOverlay: React.FC<{
 							clientId: previewServerState.clientId,
 							fieldDefault: scaleFieldSchema.default,
 							fieldSchema: scaleFieldSchema,
+							keyframeDisplayOffset,
 							linked: getScaleLockState({
 								nodePath,
 								fieldKey: scaleFieldKey,

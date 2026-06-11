@@ -27,6 +27,17 @@ const DEFAULT_PHASE = 0 as const;
 const DEFAULT_MASK_TO_SOURCE_ALPHA = false as const;
 
 export const wavesSchema = {
+	colors: {
+		type: 'array',
+		item: {
+			type: 'color',
+		},
+		default: DEFAULT_COLORS,
+		minLength: 2,
+		newItemDefault: '#ff0000',
+		description: 'Colors',
+		keyframable: false,
+	},
 	direction: {
 		type: 'enum',
 		variants: {

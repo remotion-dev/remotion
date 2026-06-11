@@ -121,6 +121,14 @@ const eyedropperButtonStyle: React.CSSProperties = {
 const hasEyeDropper = (): boolean =>
 	typeof window !== 'undefined' && 'EyeDropper' in window;
 
+export const parseEyeDropperColor = (pickedColor: string) => {
+	const parsed = parseAnyColor(pickedColor);
+	return {
+		...parsed,
+		a: 255,
+	};
+};
+
 export type ChannelKey = 'r' | 'g' | 'b' | 'a-percent';
 
 type ChannelInputProps = {
@@ -376,10 +384,7 @@ export const ColorPickerPopup: React.FC<{
 		dropper
 			.open()
 			.then((result) => {
-				const parsed = parseAnyColor(result.sRGBHex);
-				// `EyeDropper` always returns full opacity; preserve the user's
-				// previously chosen alpha so opening it doesn't drop transparency.
-				parsed.a = rgba.a;
+				const parsed = parseEyeDropperColor(result.sRGBHex);
 				const newHsva = rgbaToHsva(parsed);
 				if (newHsva.s === 0) {
 					newHsva.h = hsva.h;
@@ -390,7 +395,7 @@ export const ColorPickerPopup: React.FC<{
 			.catch(() => {
 				// Aborted; ignore.
 			});
-	}, [emit, hsva.h, rgba.a]);
+	}, [emit, hsva.h]);
 
 	const previewFill: React.CSSProperties = useMemo(() => {
 		return {
