@@ -32,6 +32,7 @@ import {
 	getSelectedOutlineScaleEdgeInfo,
 	getSelectedSequenceKeys,
 	getSequencesWithSelectableOutlines,
+	getTransformedSvgViewportPoints,
 	type SelectedOutlineDragState,
 	type SelectedOutlineRotationDragState,
 	type SelectedOutlineScaleDragState,
@@ -1390,6 +1391,21 @@ test('UV coordinate constraints still clamp to schema min and max', () => {
 			step: 0.01,
 		}),
 	).toEqual([0, 1]);
+});
+
+test('SVG viewport outline points are projected through the screen CTM', () => {
+	const points = getTransformedSvgViewportPoints({
+		viewport: {x: 0, y: 0, width: 100, height: 50},
+		ctm: {a: 0, b: 1, c: -1, d: 0, e: 75, f: -25},
+		containerRect: {left: 10, top: 20},
+	});
+
+	expect(points).toEqual([
+		{x: 65, y: -45},
+		{x: 65, y: 55},
+		{x: 15, y: 55},
+		{x: 15, y: -45},
+	]);
 });
 
 test('UV handle connection lines connect fields from schema metadata', () => {
