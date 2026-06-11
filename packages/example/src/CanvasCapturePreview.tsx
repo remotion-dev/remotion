@@ -63,7 +63,6 @@ type CursorRecording = {
 
 export const canvasCapturePreviewSchema = z.object({
 	videoFile: z.string(),
-	cursorFile: z.string(),
 	cursorScale: z.number(),
 });
 
@@ -278,82 +277,11 @@ const findCursorAtTime = (
 	return latest;
 };
 
-const ArrowCursor: React.FC<{readonly scale: number}> = ({scale}) => {
-	const size = 24 * scale;
-
-	return (
-		<svg
-			width={size}
-			height={size}
-			viewBox="0 0 24 24"
-			style={{
-				display: 'block',
-				overflow: 'visible',
-				transform: `translate(${-4 * scale}px, ${-2 * scale}px)`,
-			}}
-		>
-			<path
-				d="M4 2L18 15H10L7 22L4 20L7 14H2L4 2Z"
-				fill="white"
-				stroke="black"
-				strokeLinejoin="round"
-				strokeWidth={1.75}
-			/>
-		</svg>
-	);
-};
-
-const TextCursor: React.FC<{readonly scale: number}> = ({scale}) => {
-	const height = 28 * scale;
-
-	return (
-		<div
-			style={{
-				width: 2 * scale,
-				height,
-				backgroundColor: 'white',
-				borderLeft: `${Math.max(1, scale)}px solid black`,
-				borderRight: `${Math.max(1, scale)}px solid black`,
-				transform: `translate(${-scale}px, ${-height / 2}px)`,
-			}}
-		/>
-	);
-};
-
-const ResizeCursor: React.FC<{
-	readonly scale: number;
-	readonly direction: 'horizontal' | 'vertical';
-}> = ({direction, scale}) => {
-	const size = 26 * scale;
-	const rotation = direction === 'horizontal' ? 90 : 0;
-
-	return (
-		<svg
-			width={size}
-			height={size}
-			viewBox="0 0 26 26"
-			style={{
-				display: 'block',
-				overflow: 'visible',
-				transform: `translate(${-size / 2}px, ${-size / 2}px) rotate(${rotation}deg)`,
-			}}
-		>
-			<path
-				d="M13 2L18 8H14V18H18L13 24L8 18H12V8H8L13 2Z"
-				fill="white"
-				stroke="black"
-				strokeLinejoin="round"
-				strokeWidth={1.75}
-			/>
-		</svg>
-	);
-};
-
 const CursorGlyph: React.FC<{
 	readonly cursor: string;
 	readonly scale: number;
 	readonly cursorScale: number;
-}> = ({cursor, scale, cursorScale}) => {
+}> = ({cursor, scale: _scale, cursorScale}) => {
 	const urlCursor = parseUrlCursor(cursor);
 
 	if (urlCursor) {
@@ -368,37 +296,16 @@ const CursorGlyph: React.FC<{
 	}
 
 	const macCursorFilename = getMacCursorFilename(cursor);
+	const hotspot = getMacCursorHotspot(macCursorFilename);
 
-	if (macCursorFilename === null) {
-		return null;
-	}
-
-	if (CURSOR_ASSET_BASE_PATH) {
-		const hotspot = getMacCursorHotspot(macCursorFilename);
-
-		return (
-			<CursorImg
-				src={resolveCursorAsset(CURSOR_ASSET_BASE_PATH, macCursorFilename)}
-				hotspotX={hotspot.x}
-				hotspotY={hotspot.y}
-				cursorScale={cursorScale}
-			/>
-		);
-	}
-
-	if (cursor.includes('text')) {
-		return <TextCursor scale={scale} />;
-	}
-
-	if (cursor === 'row-resize' || cursor === 'ns-resize') {
-		return <ResizeCursor direction="vertical" scale={scale} />;
-	}
-
-	if (cursor === 'col-resize' || cursor === 'ew-resize') {
-		return <ResizeCursor direction="horizontal" scale={scale} />;
-	}
-
-	return <ArrowCursor scale={scale} />;
+	return (
+		<CursorImg
+			src={resolveCursorAsset(CURSOR_ASSET_BASE_PATH, macCursorFilename)}
+			hotspotX={hotspot.x}
+			hotspotY={hotspot.y}
+			cursorScale={cursorScale}
+		/>
+	);
 };
 
 const CursorImg: React.FC<{
