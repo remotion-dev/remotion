@@ -116,6 +116,7 @@ type HtmlInCanvasCaptureProps = {
 
 type WithHtmlInCanvasCaptureProps = {
 	readonly filename: string;
+	readonly density: number;
 };
 
 const canvasStyle: React.CSSProperties = {
@@ -603,9 +604,9 @@ export const withHtmlInCanvasCapture = <Props extends object>(
 	return forwardRef<
 		HtmlInCanvasCaptureHandle,
 		Props & WithHtmlInCanvasCaptureProps
-	>(({filename, ...props}, ref) => {
+	>(({filename, density, ...props}, ref) => {
 		return (
-			<HtmlInCanvasCapture ref={ref} filename={filename}>
+			<HtmlInCanvasCapture ref={ref} filename={filename} density={density}>
 				<Component {...(props as Props)} />
 			</HtmlInCanvasCapture>
 		);
