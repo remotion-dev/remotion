@@ -1436,6 +1436,7 @@ const SelectedOutlineTransformOriginHandle: React.FC<{
 				cy={position.y}
 				r={4}
 				stroke={BLUE}
+				fill="none"
 				strokeWidth={2}
 				vectorEffect="non-scaling-stroke"
 			/>
