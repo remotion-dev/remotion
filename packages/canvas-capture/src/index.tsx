@@ -111,6 +111,7 @@ export type HtmlInCanvasCaptureHandle = {
 type HtmlInCanvasCaptureProps = {
 	readonly children: React.ReactNode;
 	readonly filename: string;
+	readonly density: number;
 };
 
 type WithHtmlInCanvasCaptureProps = {
@@ -216,9 +217,8 @@ const downloadBlob = (blob: Blob, filename: string) => {
 };
 
 const CAPTURE_METADATA_TAG_KEY = 'REMOTION_CAPTURE_DATA';
-const CAPTURE_DENSITY = 2;
 
-export {CAPTURE_METADATA_TAG_KEY, CAPTURE_DENSITY};
+export {CAPTURE_METADATA_TAG_KEY};
 
 const logCaptureError = (message: string, err: unknown) => {
 	// eslint-disable-next-line no-console
@@ -306,9 +306,7 @@ const finalizeRecording = async (
 export const HtmlInCanvasCapture = forwardRef<
 	HtmlInCanvasCaptureHandle,
 	HtmlInCanvasCaptureProps
->(({children, filename}, ref) => {
-	const density = CAPTURE_DENSITY;
-
+>(({children, filename, density}, ref) => {
 	const isSupported = useMemo(() => isHtmlInCanvasAvailable(), []);
 	const canvasRef = useRef<HtmlInCanvasElement | null>(null);
 	const contentRef = useRef<HTMLDivElement | null>(null);
