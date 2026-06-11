@@ -345,6 +345,42 @@ const rectToPoints = (
 	];
 };
 
+type SvgViewport = {
+	readonly x: number;
+	readonly y: number;
+	readonly width: number;
+	readonly height: number;
+};
+
+type SvgScreenCtm = Pick<DOMMatrixReadOnly, 'a' | 'b' | 'c' | 'd' | 'e' | 'f'>;
+
+export const getTransformedSvgViewportPoints = ({
+	viewport,
+	ctm,
+	containerRect,
+}: {
+	readonly viewport: SvgViewport;
+	readonly ctm: SvgScreenCtm;
+	readonly containerRect: Pick<DOMRect, 'left' | 'top'>;
+}): SelectedOutline['points'] => {
+	const transformPoint = (x: number, y: number): OutlinePoint => ({
+		x: ctm.a * x + ctm.c * y + ctm.e - containerRect.left,
+		y: ctm.b * x + ctm.d * y + ctm.f - containerRect.top,
+	});
+
+	const left = viewport.x;
+	const top = viewport.y;
+	const right = viewport.x + viewport.width;
+	const bottom = viewport.y + viewport.height;
+
+	return [
+		transformPoint(left, top),
+		transformPoint(right, top),
+		transformPoint(right, bottom),
+		transformPoint(left, bottom),
+	];
+};
+
 const quadToPoints = (
 	quad: DOMQuad,
 	containerRect: DOMRect,
@@ -364,6 +400,51 @@ const quadToPoints = (
 	];
 };
 
+const isSvgSvgElement = (element: Element): element is SVGSVGElement => {
+	const ownerSvgSvgElement = element.ownerDocument.defaultView?.SVGSVGElement;
+	return (
+		(typeof SVGSVGElement !== 'undefined' &&
+			element instanceof SVGSVGElement) ||
+		(ownerSvgSvgElement !== undefined && element instanceof ownerSvgSvgElement)
+	);
+};
+
+const getSvgSvgElementViewport = (element: SVGSVGElement): SvgViewport => {
+	const viewBox = element.viewBox.baseVal;
+	if (viewBox.width > 0 && viewBox.height > 0) {
+		return {
+			x: viewBox.x,
+			y: viewBox.y,
+			width: viewBox.width,
+			height: viewBox.height,
+		};
+	}
+
+	return {
+		x: 0,
+		y: 0,
+		width: element.width.baseVal.value,
+		height: element.height.baseVal.value,
+	};
+};
+
+const getSvgSvgElementOutlinePoints = (
+	element: SVGSVGElement,
+	containerRect: DOMRect,
+): SelectedOutline['points'] | null => {
+	const ctm = element.getScreenCTM();
+	const viewport = getSvgSvgElementViewport(element);
+	if (ctm === null || (viewport.width === 0 && viewport.height === 0)) {
+		return null;
+	}
+
+	return getTransformedSvgViewportPoints({
+		viewport,
+		ctm,
+		containerRect,
+	});
+};
+
 const getElementOutlinePoints = (
 	element: Element,
 	containerRect: DOMRect,
@@ -372,6 +453,10 @@ const getElementOutlinePoints = (
 
 	if (elementRect.width === 0 && elementRect.height === 0) {
 		return null;
+	}
+
+	if (isSvgSvgElement(element)) {
+		return getSvgSvgElementOutlinePoints(element, containerRect);
 	}
 
 	const quads = getBoxQuadsPonyfill(element, {
@@ -770,7 +855,7 @@ export type SelectedOutlineScaleEdge = 'top' | 'right' | 'bottom' | 'left';
 
 type SelectedOutlineScaleEdgeInfo = {
 	readonly axis: 'x' | 'y';
-	readonly cursor: React.CSSProperties['cursor'];
+	readonly cursor: string;
 	readonly end: OutlinePoint;
 	readonly extent: number;
 	readonly normal: OutlinePoint;
@@ -1851,6 +1936,7 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 			}
 
 			onDraggingChange(true);
+			forceSpecificCursor(edgeInfo.cursor);
 
 			const startPointer = {x: event.clientX, y: event.clientY};
 			const dragStates = getSelectedOutlineScaleDragStates({
@@ -1909,6 +1995,7 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 				window.removeEventListener('pointermove', onPointerMove);
 				window.removeEventListener('pointerup', onPointerUp);
 				window.removeEventListener('pointercancel', onPointerUp);
+				stopForcingSpecificCursor();
 				onDraggingChange(false);
 
 				const changes = getSelectedOutlineScaleDragChanges({
