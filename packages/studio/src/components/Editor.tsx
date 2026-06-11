@@ -8,7 +8,7 @@ import {drawRef} from '../state/canvas-ref';
 import {ScaleLockProvider} from '../state/scale-lock';
 import {TimelineZoomContext} from '../state/timeline-zoom';
 import {HigherZIndex} from '../state/z-index';
-import {CANVAS_CAPTURE_TARGET} from './canvas-capture-enabled';
+import {CANVAS_CAPTURE_TARGET, CANVAS_DENSITY} from './canvas-capture-enabled';
 import {EditorContent} from './EditorContent';
 import {ForceSpecificCursor} from './ForceSpecificCursor';
 import {GlobalKeybindings} from './GlobalKeybindings';
@@ -34,7 +34,9 @@ const MaybeFullStudioCapture: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
 	return CANVAS_CAPTURE_TARGET === 'full-studio' ? (
-		<StudioCanvasCapture density={5}>{children}</StudioCanvasCapture>
+		<StudioCanvasCapture density={CANVAS_DENSITY}>
+			{children}
+		</StudioCanvasCapture>
 	) : (
 		<>{children}</>
 	);

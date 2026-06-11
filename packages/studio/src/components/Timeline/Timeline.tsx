@@ -7,7 +7,7 @@ import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
 import {useIsStill} from '../../helpers/is-current-selected-still';
 import {useCachedCompositionComponentInfo} from '../../helpers/open-in-editor';
 import {callApi} from '../call-api';
-import {CANVAS_CAPTURE_TARGET} from '../canvas-capture-enabled';
+import {CANVAS_CAPTURE_TARGET, CANVAS_DENSITY} from '../canvas-capture-enabled';
 import {ContextMenu} from '../ContextMenu';
 import {importAssets, pickFilesToImport} from '../import-assets';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
@@ -58,7 +58,7 @@ const MaybeCapturedTimelineList: React.FC<{
 	const list = <TimelineList timeline={timeline} />;
 
 	return CANVAS_CAPTURE_TARGET === 'timeline-list' ? (
-		<StudioCanvasCapture density={5}>{list}</StudioCanvasCapture>
+		<StudioCanvasCapture density={CANVAS_DENSITY}>{list}</StudioCanvasCapture>
 	) : (
 		list
 	);
@@ -71,7 +71,7 @@ const MaybeCapturedTimelineTracks: React.FC<{
 	const tracks = <TimelineTracks timeline={timeline} hasBeenCut={hasBeenCut} />;
 
 	return CANVAS_CAPTURE_TARGET === 'timeline-tracks' ? (
-		<StudioCanvasCapture density={5}>{tracks}</StudioCanvasCapture>
+		<StudioCanvasCapture density={CANVAS_DENSITY}>{tracks}</StudioCanvasCapture>
 	) : (
 		tracks
 	);
@@ -343,7 +343,9 @@ const MaybeCapturedTimeline: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
 	return CANVAS_CAPTURE_TARGET === 'timeline' ? (
-		<StudioCanvasCapture density={5}>{children}</StudioCanvasCapture>
+		<StudioCanvasCapture density={CANVAS_DENSITY}>
+			{children}
+		</StudioCanvasCapture>
 	) : (
 		<>{children}</>
 	);

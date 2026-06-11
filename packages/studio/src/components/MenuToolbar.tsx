@@ -3,7 +3,7 @@ import React, {useCallback, useMemo, useState} from 'react';
 import {BACKGROUND} from '../helpers/colors';
 import {useMobileLayout} from '../helpers/mobile-layout';
 import {useMenuStructure} from '../helpers/use-menu-structure';
-import {CANVAS_CAPTURE_TARGET} from './canvas-capture-enabled';
+import {CANVAS_CAPTURE_TARGET, CANVAS_DENSITY} from './canvas-capture-enabled';
 import {Row, Spacing} from './layout';
 import type {MenuId} from './Menu/MenuItem';
 import {MenuItem} from './Menu/MenuItem';
@@ -167,7 +167,7 @@ export const MenuToolbar: React.FC<{
 							alignItems: 'center',
 						}}
 					>
-						<StudioCanvasCapture density={5}>
+						<StudioCanvasCapture density={CANVAS_DENSITY}>
 							<UndoRedoButtons />
 						</StudioCanvasCapture>
 					</div>
