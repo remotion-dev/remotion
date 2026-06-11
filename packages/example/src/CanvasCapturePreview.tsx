@@ -6,11 +6,13 @@ import {
 	Html5Video,
 	Img,
 	Interactive,
+	interpolate,
 	Solid,
 	staticFile,
 	useCurrentFrame,
 	useRemotionEnvironment,
 	useVideoConfig,
+	Easing,
 } from 'remotion';
 import {z} from 'zod';
 import {getMediaMetadata} from './get-media-metadata';
@@ -46,11 +48,17 @@ type CaptureMetadata = {
 	};
 };
 
+type PointerClick = {
+	readonly timeInSeconds: number;
+	readonly type: 'pointer-down' | 'pointer-up';
+};
+
 type CursorRecording = {
 	readonly startedAt: number;
 	readonly endedAt: number;
 	readonly captureMetadata: CaptureMetadata;
 	readonly mouseMovements: MouseMovement[];
+	readonly pointerClicks?: PointerClick[];
 };
 
 export const canvasCapturePreviewSchema = z.object({
@@ -411,10 +419,32 @@ const CursorImg: React.FC<{
 				width: 32,
 				position: 'absolute',
 				scale: cursorScale,
-				translate: '0px -0.5px',
+				translate: '0.3px -0.5px',
 			}}
 		/>
 	);
+};
+
+const CLICK_SCALE = 0.93;
+
+const isPointerDown = (
+	pointerClicks: readonly PointerClick[] | undefined,
+	timeInSeconds: number,
+) => {
+	if (!pointerClicks) {
+		return false;
+	}
+
+	let down = false;
+	for (const click of pointerClicks) {
+		if (click.timeInSeconds > timeInSeconds) {
+			break;
+		}
+
+		down = click.type === 'pointer-down';
+	}
+
+	return down;
 };
 
 const CursorOverlay: React.FC<{
@@ -423,13 +453,17 @@ const CursorOverlay: React.FC<{
 }> = ({cursorData, cursorScale}) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
-	const cursor = findCursorAtTime(cursorData.mouseMovements, frame / fps);
+	const timeInSeconds = frame / fps;
+	const cursor = findCursorAtTime(cursorData.mouseMovements, timeInSeconds);
 
 	if (!cursor || cursor.canvasX === null || cursor.canvasY === null) {
 		return null;
 	}
 
 	const scale = cursorData.captureMetadata.density;
+	const clickScale = isPointerDown(cursorData.pointerClicks, timeInSeconds)
+		? CLICK_SCALE
+		: 1;
 	const x = cursor.canvasX;
 	const y = cursor.canvasY;
 
@@ -439,7 +473,7 @@ const CursorOverlay: React.FC<{
 				position: 'absolute',
 				left: 0,
 				top: 0,
-				transform: `translate(${x}px, ${y}px)`,
+				transform: `translate(${x}px, ${y}px) scale(${clickScale})`,
 				pointerEvents: 'none',
 				height: 32,
 				width: 32,
@@ -497,7 +531,7 @@ const CanvasCaptureInner: React.FC<{
 	const isStudio = useRemotionEnvironment().isStudio;
 	return (
 		<>
-			{!isStudio ? (
+			{isStudio ? (
 				<Html5Video
 					src={resolveAsset(videoFile)}
 					showInTimeline={false}
@@ -615,7 +649,7 @@ export const StarColor: React.FC<CanvasCapturePreviewProps> = ({
 	}
 
 	return (
-		<AbsoluteFill style={{backgroundColor: 'black', overflow: 'hidden'}}>
+		<AbsoluteFill style={{backgroundColor: '#1E2527', overflow: 'hidden'}}>
 			<Interactive.Div
 				style={{
 					position: 'absolute',
@@ -623,6 +657,94 @@ export const StarColor: React.FC<CanvasCapturePreviewProps> = ({
 					height: height!,
 					translate: '-1850.8px -982.4px',
 					scale: 0.455842,
+					borderRadius: 10,
+					boxShadow: '0 0 20px black',
+				}}
+			>
+				<CanvasCaptureInner
+					videoFile={videoFile}
+					cursorFile={cursorFile}
+					cursorData={cursorData}
+					cursorScale={cursorScale}
+					width={width!}
+					height={height!}
+				/>
+			</Interactive.Div>
+		</AbsoluteFill>
+	);
+};
+
+export const UndoRedo: React.FC<CanvasCapturePreviewProps> = ({
+	cursorData,
+	cursorFile,
+	cursorScale,
+	videoFile,
+	width,
+	height,
+}) => {
+	if (!cursorData) {
+		throw new Error(`Cursor data from ${cursorFile} was not loaded.`);
+	}
+
+	return (
+		<AbsoluteFill style={{backgroundColor: '#1E2527', overflow: 'hidden'}}>
+			<Interactive.Div
+				style={{
+					position: 'absolute',
+					width: width!,
+					height: height!,
+					scale: 0.951976,
+					translate: '-4305.6px 326px',
+					borderRadius: 10,
+					boxShadow: '0 0 20px black',
+				}}
+			>
+				<CanvasCaptureInner
+					videoFile={videoFile}
+					cursorFile={cursorFile}
+					cursorData={cursorData}
+					cursorScale={cursorScale}
+					width={width!}
+					height={height!}
+				/>
+			</Interactive.Div>
+		</AbsoluteFill>
+	);
+};
+
+export const TimelineScrub: React.FC<CanvasCapturePreviewProps> = ({
+	cursorData,
+	cursorFile,
+	cursorScale,
+	videoFile,
+	width,
+	height,
+}) => {
+	const frame = useCurrentFrame();
+	if (!cursorData) {
+		throw new Error(`Cursor data from ${cursorFile} was not loaded.`);
+	}
+
+	return (
+		<AbsoluteFill style={{backgroundColor: '#1E2527', overflow: 'hidden'}}>
+			<Interactive.Div
+				style={{
+					position: 'absolute',
+					width: width!,
+					height: height!,
+					translate: interpolate(
+						frame,
+						[58, 87, 129],
+						['-6333px 488.4px', '-5316px 46.5px', '-3574px 46.5px'],
+						{
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+							easing: [Easing.bezier(0.42, 0, 0.58, 1), Easing.linear],
+						},
+					),
+					scale: 0.865443,
+					borderRadius: 10,
+					boxShadow: '0 0 20px black',
 				}}
 			>
 				<CanvasCaptureInner

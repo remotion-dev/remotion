@@ -3,11 +3,13 @@ import React, {useCallback, useMemo, useState} from 'react';
 import {BACKGROUND} from '../helpers/colors';
 import {useMobileLayout} from '../helpers/mobile-layout';
 import {useMenuStructure} from '../helpers/use-menu-structure';
+import {CANVAS_CAPTURE_TARGET} from './canvas-capture-enabled';
 import {Row, Spacing} from './layout';
 import type {MenuId} from './Menu/MenuItem';
 import {MenuItem} from './Menu/MenuItem';
 import {MenuBuildIndicator} from './MenuBuildIndicator';
 import {SidebarCollapserControls} from './SidebarCollapserControls';
+import {StudioCanvasCapture} from './StudioCanvasCapture';
 import {UndoRedoButtons} from './UndoRedoButtons';
 import {UpdateCheck} from './UpdateCheck';
 
@@ -150,7 +152,24 @@ export const MenuToolbar: React.FC<{
 			<MenuBuildIndicator />
 			<div style={flex} />
 			<div style={fixedWidthRight}>
-				{readOnlyStudio ? null : <UndoRedoButtons />}
+				{readOnlyStudio ? null : CANVAS_CAPTURE_TARGET === 'undo-redo' ? (
+					<div
+						style={{
+							width: 60,
+							height: 32,
+							position: 'relative',
+							display: 'flex',
+							justifyContent: 'center',
+							alignItems: 'center',
+						}}
+					>
+						<StudioCanvasCapture density={5}>
+							<UndoRedoButtons />
+						</StudioCanvasCapture>
+					</div>
+				) : (
+					<UndoRedoButtons />
+				)}
 				<SidebarCollapserControls />
 			</div>
 			<Spacing x={1} />

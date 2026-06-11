@@ -64,6 +64,19 @@ const MaybeCapturedTimelineList: React.FC<{
 	);
 };
 
+const MaybeCapturedTimelineTracks: React.FC<{
+	readonly timeline: TrackWithHash[];
+	readonly hasBeenCut: boolean;
+}> = ({timeline, hasBeenCut}) => {
+	const tracks = <TimelineTracks timeline={timeline} hasBeenCut={hasBeenCut} />;
+
+	return CANVAS_CAPTURE_TARGET === 'timeline-tracks' ? (
+		<StudioCanvasCapture density={5}>{tracks}</StudioCanvasCapture>
+	) : (
+		tracks
+	);
+};
+
 const TimelineContextMenuArea: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
@@ -284,37 +297,52 @@ const TimelineInner: React.FC = () => {
 					) : (
 						<TimelineWidthProvider>
 							<TimelinePinchZoom />
-							<SplitterContainer
-								orientation="vertical"
-								defaultFlex={0.2}
-								id="names-to-timeline"
-								maxFlex={0.5}
-								minFlex={0.15}
-							>
-								<SplitterElement
-									type="flexer"
-									sticky={<TimelineTimePlaceholders />}
+							<MaybeCapturedTimeline>
+								<SplitterContainer
+									orientation="vertical"
+									defaultFlex={0.2}
+									id="names-to-timeline"
+									maxFlex={0.5}
+									minFlex={0.15}
 								>
-									<MaybeCapturedTimelineList timeline={shown} />
-								</SplitterElement>
-								<SplitterHandle onCollapse={noop} allowToCollapse="none" />
-								<SplitterElement type="anti-flexer" sticky={null}>
-									<TimelineScrollable>
-										<TimelineTracks timeline={shown} hasBeenCut={hasBeenCut} />
-										<TimelinePlayCursorSyncer />
-										<TimelineInOutPointer />
-										<TimelineTimeIndicators />
-										<TimelineDragHandler />
-										<TimelineInOutDragHandler />
-										<TimelineSlider />
-									</TimelineScrollable>
-								</SplitterElement>
-							</SplitterContainer>
+									<SplitterElement
+										type="flexer"
+										sticky={<TimelineTimePlaceholders />}
+									>
+										<MaybeCapturedTimelineList timeline={shown} />
+									</SplitterElement>
+									<SplitterHandle onCollapse={noop} allowToCollapse="none" />
+									<SplitterElement type="anti-flexer" sticky={null}>
+										<TimelineScrollable>
+											<MaybeCapturedTimelineTracks
+												timeline={shown}
+												hasBeenCut={hasBeenCut}
+											/>
+											<TimelinePlayCursorSyncer />
+											<TimelineInOutPointer />
+											<TimelineTimeIndicators />
+											<TimelineDragHandler />
+											<TimelineInOutDragHandler />
+											<TimelineSlider />
+										</TimelineScrollable>
+									</SplitterElement>
+								</SplitterContainer>
+							</MaybeCapturedTimeline>
 						</TimelineWidthProvider>
 					)}
 				</TimelineHeightContainer>
 			</TimelineKeyframeTracksProvider>
 		</TimelineContextMenuArea>
+	);
+};
+
+const MaybeCapturedTimeline: React.FC<{
+	readonly children: React.ReactNode;
+}> = ({children}) => {
+	return CANVAS_CAPTURE_TARGET === 'timeline' ? (
+		<StudioCanvasCapture density={5}>{children}</StudioCanvasCapture>
+	) : (
+		<>{children}</>
 	);
 };
 
