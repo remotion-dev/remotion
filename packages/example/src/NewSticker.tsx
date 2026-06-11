@@ -17,7 +17,13 @@ const NewSticker: React.FC = () => {
 				height: '100%',
 			}}
 		>
-			<Star points={20} innerRadius={174} outerRadius={207} fill={'#f2be0a'} />
+			<Star
+				points={20}
+				innerRadius={174}
+				outerRadius={207}
+				fill={'#f2be0a'}
+				cornerRadius={33}
+			/>
 		</AbsoluteFill>
 	);
 };
