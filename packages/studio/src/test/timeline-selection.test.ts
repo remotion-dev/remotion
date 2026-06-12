@@ -27,6 +27,7 @@ import {
 	getSelectedOutlineRotationDeltaDegrees,
 	getSelectedOutlineRotationDragChanges,
 	getSelectedOutlineRotationDragValues,
+	getSelectedOutlineRotationPivot,
 	getSelectedOutlineScaleDragChanges,
 	getSelectedOutlineScaleDragValues,
 	getSelectedOutlineScaleEdgeInfo,
@@ -2155,6 +2156,7 @@ test('Selected outline corner dragging rotates selected sequences', () => {
 				keyframeDisplayOffset: 30,
 				nodePath: firstNodePath,
 				schema,
+				transformOriginValue: '50% 50%',
 			},
 		},
 		{
@@ -2170,6 +2172,7 @@ test('Selected outline corner dragging rotates selected sequences', () => {
 				keyframeDisplayOffset: 30,
 				nodePath: secondNodePath,
 				schema,
+				transformOriginValue: '50% 50%',
 			},
 		},
 	] satisfies SelectedOutlineRotationDragState[];
@@ -2237,6 +2240,7 @@ test('Selected outline corner dragging keyframed rotation adds a keyframe at the
 				keyframeDisplayOffset: 30,
 				nodePath,
 				schema,
+				transformOriginValue: '50% 50%',
 			},
 		},
 	] satisfies SelectedOutlineRotationDragState[];
@@ -2301,6 +2305,52 @@ test('Selected outline rotation corners use the outline corners and center', () 
 		'<svg width="24" height="24"',
 	);
 	expect(topRight.cursor).toContain('") 12 12, alias');
+});
+
+test('Selected outline rotation pivot follows transform origin', () => {
+	const points = [
+		{x: 0, y: 0},
+		{x: 100, y: 0},
+		{x: 100, y: 50},
+		{x: 0, y: 50},
+	] as const;
+	const dimensions = {width: 100, height: 50};
+
+	expect(
+		getSelectedOutlineRotationPivot({
+			dimensions,
+			points,
+			transformOriginValue: 'center',
+		}),
+	).toEqual({x: 50, y: 25});
+	expect(
+		getSelectedOutlineRotationPivot({
+			dimensions,
+			points,
+			transformOriginValue: 'left bottom',
+		}),
+	).toEqual({x: 0, y: 50});
+	expect(
+		getSelectedOutlineRotationPivot({
+			dimensions,
+			points,
+			transformOriginValue: '25px top',
+		}),
+	).toEqual({x: 25, y: 0});
+	expect(
+		getSelectedOutlineRotationPivot({
+			dimensions,
+			points,
+			transformOriginValue: 'calc(50% + 1px) center',
+		}),
+	).toEqual({x: 50, y: 25});
+	expect(
+		getSelectedOutlineRotationPivot({
+			dimensions: null,
+			points,
+			transformOriginValue: 'left top',
+		}),
+	).toEqual({x: 50, y: 25});
 });
 
 test('Selected outline rotation cursors use the outline rotation', () => {
