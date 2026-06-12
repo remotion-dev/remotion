@@ -6,8 +6,6 @@ mock.module('remotion/version', () => ({
 }));
 
 // Mock the compositor helpers to avoid real filesystem/command access
-const mockExecFileSync = mock(() => '');
-
 mock.module('../compositor/get-executable-path', () => ({
 	getExecutablePath: () => '/fake/ffmpeg',
 }));
@@ -20,18 +18,7 @@ mock.module('../compositor/get-explicit-env', () => ({
 	getExplicitEnv: () => ({}),
 }));
 
-// Override child_process execFileSync by mocking at module level
-const originalExecFileSync = require('node:child_process').execFileSync;
-
-const {probeEncoderAvailability, resolveHardwareAcceleration} = require('../probe-encoder');
-
-afterEach(() => {
-	mockExecFileSync.mockReset();
-});
-
-// We test probeEncoderAvailability by mocking the execFileSync call.
-// Since we can't easily mock node:child_process in bun, we test
-// resolveHardwareAcceleration which is the main integration point.
+const {resolveHardwareAcceleration} = require('../probe-encoder');
 
 describe('resolveHardwareAcceleration', () => {
 	const originalPlatform = process.platform;
