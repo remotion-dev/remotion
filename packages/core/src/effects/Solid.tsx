@@ -11,6 +11,7 @@ import type {SequenceControls} from '../CompositionManager.js';
 import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
 import {
 	durationInFramesField,
+	freezeField,
 	fromField,
 	hiddenField,
 	sequenceVisualStyleSchema,
@@ -68,6 +69,7 @@ export type SolidProps = MandatoryProps & Partial<OptionalProps>;
 const solidSchema = {
 	durationInFrames: durationInFramesField,
 	from: fromField,
+	freeze: freezeField,
 	color: {
 		type: 'color',
 		default: 'transparent',
@@ -237,7 +239,12 @@ const SolidOuter = forwardRef<
 		readonly _experimentalControls: SequenceControls | undefined;
 	} & Pick<
 			SequenceProps,
-			'durationInFrames' | 'name' | 'from' | 'showInTimeline' | 'hidden'
+			| 'durationInFrames'
+			| 'name'
+			| 'from'
+			| 'freeze'
+			| 'showInTimeline'
+			| 'hidden'
 		>
 >(
 	(
@@ -252,6 +259,7 @@ const SolidOuter = forwardRef<
 			style,
 			name,
 			from,
+			freeze,
 			hidden,
 			showInTimeline,
 			pixelDensity,
@@ -272,6 +280,7 @@ const SolidOuter = forwardRef<
 			<Sequence
 				layout="none"
 				from={from}
+				freeze={freeze}
 				hidden={hidden}
 				showInTimeline={showInTimeline}
 				_experimentalControls={controls}

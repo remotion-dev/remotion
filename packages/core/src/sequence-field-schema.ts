@@ -8,7 +8,7 @@ export type NumberFieldSchema = {
 	min?: number;
 	max?: number;
 	step?: number;
-	default: number | undefined;
+	default: number | null | undefined;
 	description?: string;
 	hiddenFromList: boolean;
 	keyframable?: boolean;
@@ -278,10 +278,18 @@ export const fromField = {
 	hiddenFromList: true,
 } as const satisfies SequenceFieldSchema;
 
+export const freezeField = {
+	type: 'number',
+	default: null,
+	step: 1,
+	hiddenFromList: true,
+} as const satisfies SequenceFieldSchema;
+
 export const sequenceSchema = extendSchemaWithSequenceName({
 	hidden: hiddenField,
 	showInTimeline: showInTimelineField,
 	from: fromField,
+	freeze: freezeField,
 	durationInFrames: durationInFramesField,
 	layout: {
 		type: 'enum',
@@ -297,6 +305,7 @@ export const sequenceSchema = extendSchemaWithSequenceName({
 export const sequenceSchemaWithoutFrom = extendSchemaWithSequenceName({
 	hidden: hiddenField,
 	showInTimeline: showInTimelineField,
+	freeze: freezeField,
 	durationInFrames: durationInFramesField,
 	layout: sequenceSchema.layout,
 } as const satisfies SequenceSchema);

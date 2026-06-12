@@ -15,12 +15,14 @@ import {useMediaInTimeline} from '../use-media-in-timeline.js';
 import * as useVideoConfigModule from '../use-video-config.js';
 import {WrapSequenceContext} from './wrap-sequence-context.js';
 
+const useVideoConfigSpy = spyOn(useVideoConfigModule, 'useVideoConfig');
+
 afterEach(() => {
 	cleanup();
 });
 
 beforeAll(() => {
-	spyOn(useVideoConfigModule, 'useVideoConfig').mockImplementation(() => ({
+	useVideoConfigSpy.mockImplementation(() => ({
 		width: 10,
 		height: 10,
 		fps: 30,

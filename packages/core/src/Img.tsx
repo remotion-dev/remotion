@@ -12,6 +12,7 @@ import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import {getCrossOriginValue} from './get-cross-origin-value.js';
 import {usePreload} from './prefetch.js';
 import {
+	freezeField,
 	fromField,
 	hiddenField,
 	sequenceVisualStyleSchema,
@@ -53,7 +54,7 @@ export type ImgProps = NativeImgProps & {
 	 * @deprecated For internal use only
 	 */
 	readonly stack?: string;
-} & Pick<SequenceProps, 'durationInFrames' | 'from' | 'hidden'>;
+} & Pick<SequenceProps, 'durationInFrames' | 'from' | 'freeze' | 'hidden'>;
 
 type Expected = Omit<
 	NativeImgProps,
@@ -68,6 +69,7 @@ type ImgContentProps = Omit<
 	| 'showInTimeline'
 	| 'from'
 	| 'durationInFrames'
+	| 'freeze'
 	| 'effects'
 > & {
 	readonly refForOutline: React.RefObject<HTMLElement | null>;
@@ -324,6 +326,7 @@ const NativeImgInner: React.FC<NativeImgInnerProps> = ({
 	src,
 	from,
 	durationInFrames,
+	freeze,
 	_experimentalControls: controls,
 	_remotionInternalRefForOutline: refForOutline,
 	...props
@@ -337,6 +340,7 @@ const NativeImgInner: React.FC<NativeImgInnerProps> = ({
 			layout="none"
 			from={from ?? 0}
 			durationInFrames={durationInFrames ?? Infinity}
+			freeze={freeze}
 			_remotionInternalStack={stack}
 			_remotionInternalDocumentationLink="https://www.remotion.dev/docs/img"
 			_remotionInternalIsMedia={{type: 'image', src}}
@@ -361,6 +365,7 @@ const CanvasImageWithPrivateProps = CanvasImage as React.ComponentType<
 export const imgSchema = {
 	durationInFrames: durationInFramesField,
 	from: fromField,
+	freeze: freezeField,
 	...sequenceVisualStyleSchema,
 	hidden: hiddenField,
 } as const satisfies SequenceSchema;
@@ -454,6 +459,7 @@ const ImgInner: React.FC<
 	src,
 	from,
 	durationInFrames,
+	freeze,
 	_experimentalControls: controls,
 	width,
 	height,
@@ -480,6 +486,7 @@ const ImgInner: React.FC<
 				src={src}
 				from={from}
 				durationInFrames={durationInFrames}
+				freeze={freeze}
 				_experimentalControls={controls}
 				width={width}
 				height={height}
@@ -527,6 +534,7 @@ const ImgInner: React.FC<
 			delayRenderTimeoutInMilliseconds={delayRenderTimeoutInMilliseconds}
 			from={from}
 			durationInFrames={durationInFrames}
+			freeze={freeze}
 			hidden={hidden}
 			name={name ?? '<Img>'}
 			showInTimeline={showInTimeline}

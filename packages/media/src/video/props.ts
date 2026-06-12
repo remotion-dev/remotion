@@ -102,5 +102,10 @@ export type VideoProps = MandatoryVideoProps &
 	NativeVideoProps &
 	Pick<
 		SequenceProps,
-		'durationInFrames' | 'from' | 'name' | 'showInTimeline' | 'hidden'
+		| 'durationInFrames'
+		| 'from'
+		| 'freeze'
+		| 'name'
+		| 'showInTimeline'
+		| 'hidden'
 	>;
