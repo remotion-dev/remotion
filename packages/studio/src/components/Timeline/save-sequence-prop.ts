@@ -21,6 +21,7 @@ export type SaveSequencePropChange = {
 	value: unknown;
 	defaultValue: string | null;
 	schema: SequenceSchema;
+	remove?: boolean;
 };
 
 type SaveSequencePropsOptions = {
@@ -65,9 +66,11 @@ export const saveSequenceProps = ({
 							fileName: change.fileName,
 							nodePath: change.nodePath,
 							key: change.fieldKey,
-							value: JSON.stringify(change.value),
 							defaultValue: change.defaultValue,
 							schema: change.schema,
+							...(change.remove
+								? {remove: true}
+								: {value: JSON.stringify(change.value)}),
 						},
 					],
 					clientId,
@@ -95,9 +98,11 @@ export const saveSequenceProps = ({
 				fileName: change.fileName,
 				nodePath: change.nodePath,
 				key: change.fieldKey,
-				value: JSON.stringify(change.value),
 				defaultValue: change.defaultValue,
 				schema: change.schema,
+				...(change.remove
+					? {remove: true}
+					: {value: JSON.stringify(change.value)}),
 			};
 		}),
 		clientId,

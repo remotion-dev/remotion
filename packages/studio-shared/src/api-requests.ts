@@ -299,10 +299,18 @@ export type SaveSequencePropEdit = {
 	fileName: string;
 	nodePath: SequencePropsSubscriptionKey;
 	key: string;
-	value: string;
 	defaultValue: string | null;
 	schema: SequenceSchema;
-};
+} & (
+	| {
+			value: string;
+			remove?: false;
+	  }
+	| {
+			remove: true;
+			value?: undefined;
+	  }
+);
 
 export type SaveSequencePropsRequest = {
 	edits: SaveSequencePropEdit[];
