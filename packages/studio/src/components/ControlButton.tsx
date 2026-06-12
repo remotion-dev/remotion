@@ -15,6 +15,8 @@ export const ControlButton = (
 		return {
 			opacity: props.disabled ? 0.5 : 1,
 			display: 'inline-flex',
+			alignItems: 'center',
+			justifyContent: 'center',
 			background: 'none',
 			border: 'none',
 			padding: CONTROL_BUTTON_PADDING,
