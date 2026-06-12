@@ -224,6 +224,12 @@ export const computeEffectiveSchemaValuesDotNotation = ({
 			}
 		} else if (status.status === 'computed') {
 			value = currentValue[key];
+		} else if (
+			status.codeValue === undefined &&
+			currentValue[key] !== undefined &&
+			overrideValues[key] === undefined
+		) {
+			value = currentValue[key];
 		} else {
 			value = getEffectiveVisualModeValue({
 				propStatus: status,

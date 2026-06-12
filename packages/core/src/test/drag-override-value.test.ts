@@ -96,6 +96,30 @@ test('computeEffectiveSchemaValuesDotNotation resolves keyframed drag overrides 
 	expect(merged.opacity).toBe(3);
 });
 
+test('computeEffectiveSchemaValuesDotNotation preserves runtime props missing from source status', () => {
+	const {merged, propsToDelete} = computeEffectiveSchemaValuesDotNotation({
+		schema: {
+			points: {
+				type: 'number',
+				default: 5,
+				hiddenFromList: false,
+			},
+		},
+		currentValue: {points: 20},
+		overrideValues: {},
+		propStatus: {
+			points: {
+				status: 'static',
+				codeValue: undefined,
+			},
+		},
+		frame: null,
+	});
+
+	expect(merged.points).toBe(20);
+	expect(propsToDelete.has('points')).toBe(false);
+});
+
 test('getEffectiveVisualModeValue resolves keyframed drag overrides at the source frame', () => {
 	const status = makeKeyframedStatus();
 
