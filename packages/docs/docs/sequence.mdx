@@ -192,6 +192,28 @@ From v3.2.36 onwards, this prop will be optional; by default, it will be 0.
 
 For how many frames the sequence should be displayed. Children are unmounted if they are not within the time range of display. By default it will be `Infinity` to avoid limit the duration of the sequence.
 
+### `freeze?`<AvailableFrom v="4.0.476" />
+
+Freezes the children of the sequence at the specified frame.
+
+```tsx twoslash title="MyVideo.tsx"
+import {Sequence, useCurrentFrame} from 'remotion';
+
+const Child = () => <div>{useCurrentFrame()}</div>;
+
+// ---cut---
+
+export const MyVideo = () => {
+  return (
+    <Sequence freeze={20}>
+      <Child />
+    </Sequence>
+  );
+};
+```
+
+This is equivalent to wrapping the children in [`<Freeze frame={20}>`](/docs/freeze), but without remounting the sequence.
+
 ### `height?`<AvailableFrom v="4.0.80"/>
 
 Gives the sequence a specific `style={{height: height}}` style and overrides `height` that is returned by the [`useVideoConfig()`](/docs/use-video-config) hook in child components. Useful for including a component that was designed for a specific height.

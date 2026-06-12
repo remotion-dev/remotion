@@ -53,6 +53,44 @@ describe('Composition-validation render should throw with invalid props', () => 
 			);
 		});
 	});
+	describe('Throw with invalid freeze props', () => {
+		test('It should throw if "freeze" prop is not a number', () => {
+			expectToThrow(
+				() =>
+					render(
+						<WrapSequenceContext>
+							{/* @ts-expect-error */}
+							<Sequence freeze={'0'} durationInFrames={30} />
+						</WrapSequenceContext>,
+					),
+				/The "freeze" prop of <Sequence \/> must be a number, but is of type string./,
+			);
+		});
+
+		test('It should throw if "freeze" prop is NaN', () => {
+			expectToThrow(
+				() =>
+					render(
+						<WrapSequenceContext>
+							<Sequence freeze={NaN} durationInFrames={30} />
+						</WrapSequenceContext>,
+					),
+				/The "freeze" prop of <Sequence \/> must be a real number, but it is NaN./,
+			);
+		});
+
+		test('It should throw if "freeze" prop is Infinity', () => {
+			expectToThrow(
+				() =>
+					render(
+						<WrapSequenceContext>
+							<Sequence freeze={Infinity} durationInFrames={30} />
+						</WrapSequenceContext>,
+					),
+				/The "freeze" prop of <Sequence \/> must be finite, but it is Infinity./,
+			);
+		});
+	});
 	test('It should throw for invalid layout value', () => {
 		expectToThrow(
 			() =>
