@@ -2,6 +2,7 @@ import React, {useMemo} from 'react';
 import {useZIndex} from '../state/z-index';
 
 export const CONTROL_BUTTON_PADDING = 6;
+export const CONTROL_BUTTON_SIZE = 30;
 
 export const ControlButton = (
 	props: React.DetailedHTMLProps<
@@ -17,9 +18,11 @@ export const ControlButton = (
 			display: 'inline-flex',
 			alignItems: 'center',
 			justifyContent: 'center',
+			width: CONTROL_BUTTON_SIZE,
+			height: CONTROL_BUTTON_SIZE,
 			background: 'none',
 			border: 'none',
-			padding: CONTROL_BUTTON_PADDING,
+			padding: 0,
 		};
 	}, [props.disabled]);
 
