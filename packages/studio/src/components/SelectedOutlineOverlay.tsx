@@ -1,4 +1,12 @@
-import React, {useContext, useEffect, useMemo, useRef, useState} from 'react';
+import {PlayerInternals} from '@remotion/player';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import type {
 	CanUpdateSequencePropStatusKeyframed,
 	CanUpdateSequencePropStatusStatic,
@@ -19,6 +27,7 @@ import {formatFileLocation} from '../helpers/format-file-location';
 import {getBoxQuadsPonyfill} from '../helpers/get-box-quads-ponyfill';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 import {openOriginalPositionInEditor} from '../helpers/open-in-editor';
+import {useKeybinding} from '../helpers/use-keybinding';
 import {EditorShowOutlinesContext} from '../state/editor-outlines';
 import {ScaleLockContext} from '../state/scale-lock';
 import {ContextMenuForTarget} from './ContextMenu';
@@ -56,6 +65,7 @@ import {
 	type AddSequenceKeyframeChange,
 } from './Timeline/call-add-keyframe';
 import {disableSequenceInteractivity} from './Timeline/disable-sequence-interactivity';
+import {getCurrentDuration, getCurrentFps} from './Timeline/imperative-state';
 import {parseKeyframeFieldFromNodePath} from './Timeline/parse-keyframe-field-from-node-path';
 import {
 	saveSequenceProps,
@@ -69,6 +79,7 @@ import {
 	parseCssRotationToDegrees,
 	serializeCssRotation,
 } from './Timeline/timeline-rotation-utils';
+import {ensureFrameIsInViewport} from './Timeline/timeline-scroll-logic';
 import {
 	parseTranslate,
 	serializeTranslate,
@@ -837,6 +848,14 @@ export type SelectedOutlineDragChange =
 	| SelectedOutlineStaticDragChange
 	| SelectedOutlineKeyframedDragChange;
 
+type SelectedOutlineKeyboardNudgeSession = {
+	readonly dragStates: readonly SelectedOutlineDragState[];
+	readonly clientId: string;
+	deltaX: number;
+	deltaY: number;
+	lastValues: ReadonlyMap<string, string>;
+};
+
 export const getSelectedOutlineDragChanges = ({
 	dragStates,
 	lastValues,
@@ -895,6 +914,46 @@ export const getSelectedOutlineDragChanges = ({
 	}
 
 	return changes;
+};
+
+export type SelectedOutlineKeyboardNudgeDirection =
+	| 'left'
+	| 'right'
+	| 'up'
+	| 'down';
+
+export const getSelectedOutlineKeyboardNudgeDelta = ({
+	direction,
+	shiftKey,
+}: {
+	readonly direction: SelectedOutlineKeyboardNudgeDirection;
+	readonly shiftKey: boolean;
+}) => {
+	const increment = shiftKey ? 10 : 1;
+	return direction === 'left' || direction === 'up' ? -increment : increment;
+};
+
+export const getSelectedOutlineKeyboardNudgeDeltas = ({
+	deltaX,
+	deltaY,
+	direction,
+	shiftKey,
+}: {
+	readonly deltaX: number;
+	readonly deltaY: number;
+	readonly direction: SelectedOutlineKeyboardNudgeDirection;
+	readonly shiftKey: boolean;
+}) => {
+	const delta = getSelectedOutlineKeyboardNudgeDelta({
+		direction,
+		shiftKey,
+	});
+
+	if (direction === 'left' || direction === 'right') {
+		return {deltaX: deltaX + delta, deltaY};
+	}
+
+	return {deltaX, deltaY: deltaY + delta};
 };
 
 export type SelectedOutlineScaleEdge = 'top' | 'right' | 'bottom' | 'left';
@@ -1225,6 +1284,28 @@ const clearSelectedOutlineDragOverrides = ({
 	for (const dragState of dragStates) {
 		clearDragOverrides(dragState.target.nodePath);
 	}
+};
+
+const getSelectedOutlineKeyboardNudgeDirection = (
+	key: string,
+): SelectedOutlineKeyboardNudgeDirection | null => {
+	if (key === 'ArrowLeft') {
+		return 'left';
+	}
+
+	if (key === 'ArrowRight') {
+		return 'right';
+	}
+
+	if (key === 'ArrowUp') {
+		return 'up';
+	}
+
+	if (key === 'ArrowDown') {
+		return 'down';
+	}
+
+	return null;
 };
 
 const clearSelectedOutlineScaleDragOverrides = ({
@@ -2715,8 +2796,14 @@ export const SelectedOutlineOverlay: React.FC<{
 	const {getDragOverrides, getEffectDragOverrides} = useContext(
 		Internals.VisualModeDragOverridesContext,
 	);
+	const {setPropStatuses, setDragOverrides, clearDragOverrides} = useContext(
+		Internals.VisualModeSettersContext,
+	);
 	const {getScaleLockState} = useContext(ScaleLockContext);
 	const {editorShowOutlines} = useContext(EditorShowOutlinesContext);
+	const {frameBack, frameForward, getCurrentFrame, seek} =
+		PlayerInternals.usePlayer();
+	const keybindings = useKeybinding();
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const [outlines, setOutlines] = useState<readonly SelectedOutline[]>([]);
 	const [hoveredOutlineKey, setHoveredOutlineKey] = useState<string | null>(
@@ -2724,6 +2811,9 @@ export const SelectedOutlineOverlay: React.FC<{
 	);
 	const [draggingOutline, setDraggingOutline] = useState(false);
 	const overlayRef = useRef<SVGSVGElement>(null);
+	const keyboardNudgeSessionRef =
+		useRef<SelectedOutlineKeyboardNudgeSession | null>(null);
+	const saveKeyboardNudgeSessionRef = useRef<() => void>(() => undefined);
 
 	const onDraggingChange = React.useCallback((dragging: boolean) => {
 		setDraggingOutline(dragging);
@@ -3040,6 +3130,297 @@ export const SelectedOutlineOverlay: React.FC<{
 				: [],
 		);
 	}, [outlineTargets]);
+
+	const saveKeyboardNudgeSession = useCallback(() => {
+		const session = keyboardNudgeSessionRef.current;
+		if (session === null) {
+			return;
+		}
+
+		keyboardNudgeSessionRef.current = null;
+		const changes = getSelectedOutlineDragChanges({
+			dragStates: session.dragStates,
+			lastValues: session.lastValues,
+		});
+
+		if (changes.length === 0) {
+			clearSelectedOutlineDragOverrides({
+				clearDragOverrides,
+				dragStates: session.dragStates,
+			});
+			return;
+		}
+
+		const staticChanges = changes.filter(
+			(change): change is SelectedOutlineStaticDragChange =>
+				change.type === 'static',
+		);
+		const keyframedChanges = changes.filter(
+			(change): change is SelectedOutlineKeyframedDragChange =>
+				change.type === 'keyframed',
+		);
+
+		Promise.all([
+			staticChanges.length > 0
+				? saveSequenceProps({
+						changes: staticChanges,
+						setPropStatuses,
+						clientId: session.clientId,
+						undoLabel:
+							changes.length > 1 ? 'Move selected sequences' : 'Move sequence',
+						redoLabel:
+							changes.length > 1
+								? 'Move selected sequences back'
+								: 'Move sequence back',
+					})
+				: Promise.resolve(),
+			...keyframedChanges.map((change) =>
+				callAddSequenceKeyframe({
+					fileName: change.fileName,
+					nodePath: change.nodePath,
+					fieldKey: change.fieldKey,
+					sourceFrame: change.sourceFrame,
+					value: change.value,
+					schema: change.schema,
+					setPropStatuses,
+					clientId: change.clientId,
+				}),
+			),
+		])
+			.catch((err) => {
+				showNotification(
+					`Could not save sequence props: ${
+						err instanceof Error ? err.message : String(err)
+					}`,
+					4000,
+				);
+			})
+			.finally(() => {
+				clearSelectedOutlineDragOverrides({
+					clearDragOverrides,
+					dragStates: session.dragStates,
+				});
+			});
+	}, [clearDragOverrides, setPropStatuses]);
+
+	useEffect(() => {
+		saveKeyboardNudgeSessionRef.current = saveKeyboardNudgeSession;
+	}, [saveKeyboardNudgeSession]);
+
+	useEffect(() => {
+		return () => {
+			saveKeyboardNudgeSessionRef.current();
+		};
+	}, []);
+
+	const seekWithArrowKey = useCallback(
+		(
+			event: KeyboardEvent,
+			direction: SelectedOutlineKeyboardNudgeDirection,
+		) => {
+			if (direction === 'up' || direction === 'down') {
+				return;
+			}
+
+			event.preventDefault();
+
+			if (direction === 'left') {
+				if (event.altKey) {
+					seek(0);
+					ensureFrameIsInViewport({
+						direction: 'fit-left',
+						durationInFrames: getCurrentDuration(),
+						frame: 0,
+					});
+				} else if (event.shiftKey) {
+					frameBack(getCurrentFps());
+					ensureFrameIsInViewport({
+						direction: 'fit-left',
+						durationInFrames: getCurrentDuration(),
+						frame: Math.max(0, getCurrentFrame() - getCurrentFps()),
+					});
+				} else {
+					frameBack(1);
+					ensureFrameIsInViewport({
+						direction: 'fit-left',
+						durationInFrames: getCurrentDuration(),
+						frame: Math.max(0, getCurrentFrame() - 1),
+					});
+				}
+
+				return;
+			}
+
+			if (event.altKey) {
+				seek(getCurrentDuration() - 1);
+				ensureFrameIsInViewport({
+					direction: 'fit-right',
+					durationInFrames: getCurrentDuration() - 1,
+					frame: getCurrentDuration() - 1,
+				});
+			} else if (event.shiftKey) {
+				frameForward(getCurrentFps());
+				ensureFrameIsInViewport({
+					direction: 'fit-right',
+					durationInFrames: getCurrentDuration(),
+					frame: Math.min(
+						getCurrentDuration() - 1,
+						getCurrentFrame() + getCurrentFps(),
+					),
+				});
+			} else {
+				frameForward(1);
+				ensureFrameIsInViewport({
+					direction: 'fit-right',
+					durationInFrames: getCurrentDuration(),
+					frame: Math.min(getCurrentDuration() - 1, getCurrentFrame() + 1),
+				});
+			}
+		},
+		[frameBack, frameForward, getCurrentFrame, seek],
+	);
+
+	const onArrowKeyDown = useCallback(
+		(event: KeyboardEvent) => {
+			const direction = getSelectedOutlineKeyboardNudgeDirection(event.key);
+
+			if (direction === null) {
+				return;
+			}
+
+			if (selectedItems.length === 0 || allDragTargets.length === 0) {
+				seekWithArrowKey(event, direction);
+				return;
+			}
+
+			if (event.altKey) {
+				seekWithArrowKey(event, direction);
+				return;
+			}
+
+			event.preventDefault();
+
+			const activeSession =
+				keyboardNudgeSessionRef.current ??
+				((): SelectedOutlineKeyboardNudgeSession => {
+					const [firstDragTarget] = allDragTargets;
+					if (firstDragTarget === undefined) {
+						throw new Error('Expected a drag target');
+					}
+
+					return {
+						clientId: firstDragTarget.clientId,
+						deltaX: 0,
+						deltaY: 0,
+						dragStates: getSelectedOutlineDragStates({
+							dragTargets: allDragTargets,
+							getDragOverrides,
+							timelinePosition,
+						}),
+						lastValues: new Map(),
+					};
+				})();
+
+			keyboardNudgeSessionRef.current = activeSession;
+			const nextDeltas = getSelectedOutlineKeyboardNudgeDeltas({
+				deltaX: activeSession.deltaX,
+				deltaY: activeSession.deltaY,
+				direction,
+				shiftKey: event.shiftKey,
+			});
+			activeSession.deltaX = nextDeltas.deltaX;
+			activeSession.deltaY = nextDeltas.deltaY;
+
+			const lastValues = getSelectedOutlineDragValues({
+				dragStates: activeSession.dragStates,
+				deltaX: activeSession.deltaX,
+				deltaY: activeSession.deltaY,
+			});
+			activeSession.lastValues = lastValues;
+
+			for (const dragState of activeSession.dragStates) {
+				const value = lastValues.get(dragState.key);
+				if (value === undefined) {
+					throw new Error('Expected drag value to be available');
+				}
+
+				if (dragState.target.propStatus.status === 'keyframed') {
+					setDragOverrides(
+						dragState.target.nodePath,
+						translateFieldKey,
+						Internals.makeKeyframedDragOverride({
+							status: dragState.target.propStatus,
+							frame: dragState.sourceFrame,
+							value,
+						}),
+					);
+				} else {
+					setDragOverrides(
+						dragState.target.nodePath,
+						translateFieldKey,
+						Internals.makeStaticDragOverride(value),
+					);
+				}
+			}
+		},
+		[
+			allDragTargets,
+			getDragOverrides,
+			seekWithArrowKey,
+			selectedItems.length,
+			setDragOverrides,
+			timelinePosition,
+		],
+	);
+
+	const onArrowKeyUp = useCallback(
+		(event: KeyboardEvent) => {
+			const direction = getSelectedOutlineKeyboardNudgeDirection(event.key);
+
+			if (direction === null || keyboardNudgeSessionRef.current === null) {
+				return;
+			}
+
+			event.preventDefault();
+			saveKeyboardNudgeSession();
+		},
+		[saveKeyboardNudgeSession],
+	);
+
+	useEffect(() => {
+		const keyDownBindings = (
+			['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'] as const
+		).map((key) =>
+			keybindings.registerKeybinding({
+				event: 'keydown',
+				key,
+				callback: onArrowKeyDown,
+				commandCtrlKey: false,
+				preventDefault: false,
+				triggerIfInputFieldFocused: false,
+				keepRegisteredWhenNotHighestContext: false,
+			}),
+		);
+		const keyUpBindings = (
+			['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'] as const
+		).map((key) =>
+			keybindings.registerKeybinding({
+				event: 'keyup',
+				key,
+				callback: onArrowKeyUp,
+				commandCtrlKey: false,
+				preventDefault: false,
+				triggerIfInputFieldFocused: false,
+				keepRegisteredWhenNotHighestContext: false,
+			}),
+		);
+
+		return () => {
+			for (const binding of [...keyDownBindings, ...keyUpBindings]) {
+				binding.unregister();
+			}
+		};
+	}, [keybindings, onArrowKeyDown, onArrowKeyUp, saveKeyboardNudgeSession]);
 
 	useEffect(() => {
 		if (outlineTargets.length === 0) {
