@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Ole',
 	importName: 'Ole',
-	version: 'v3',
+	version: 'v6',
 	url: 'https://fonts.googleapis.com/css2?family=Ole:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,10 +17,10 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/ole/v3/dFazZf6Z-rdM_fY7xqI.woff2',
+					'https://fonts.gstatic.com/s/ole/v6/dFazZf6Z-rdM_fY7xqI.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/ole/v3/dFazZf6Z-rdM_PY7xqI.woff2',
-				latin: 'https://fonts.gstatic.com/s/ole/v3/dFazZf6Z-rdM8vY7.woff2',
+					'https://fonts.gstatic.com/s/ole/v6/dFazZf6Z-rdM_PY7xqI.woff2',
+				latin: 'https://fonts.gstatic.com/s/ole/v6/dFazZf6Z-rdM8vY7.woff2',
 			},
 		},
 	},
