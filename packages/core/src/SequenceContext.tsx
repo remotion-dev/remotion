@@ -3,6 +3,7 @@ import {createContext} from 'react';
 export const SequenceContext = createContext<SequenceContextType | null>(null);
 
 export type SequenceContextType = {
+	absoluteFrom: number;
 	cumulatedFrom: number;
 	cumulatedNegativeFrom: number;
 	relativeFrom: number;
