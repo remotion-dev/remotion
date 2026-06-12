@@ -37,7 +37,7 @@ beforeAll(() => {
 	}));
 });
 afterAll(() => {
-	spyOn(useVideoConfigModule, 'useVideoConfig').mockClear();
+	mock.restore();
 });
 
 test('useMediaInTimeline registers and unregisters new sequence', () => {
