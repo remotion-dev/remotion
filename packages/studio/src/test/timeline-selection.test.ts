@@ -24,6 +24,7 @@ import {
 	getSelectedOutlineDragChanges,
 	getSelectedOutlineDragValues,
 	getSelectedOutlineKeyboardNudgeDelta,
+	getSelectedOutlineKeyboardNudgeDeltas,
 	getSelectedOutlineRotationCornerInfo,
 	getSelectedOutlineRotationDeltaDegrees,
 	getSelectedOutlineRotationDragChanges,
@@ -1980,7 +1981,7 @@ test('Selected outline dragging can lock movement to the dominant axis', () => {
 	).toEqual({deltaX: 12, deltaY: 13});
 });
 
-test('Selected outline keyboard nudging moves horizontally by one or ten pixels', () => {
+test('Selected outline keyboard nudging moves by one or ten pixels', () => {
 	const schema = {
 		'style.translate': {type: 'translate', default: '0px 0px'},
 	} satisfies SequenceSchema;
@@ -2015,8 +2016,39 @@ test('Selected outline keyboard nudging moves horizontally by one or ten pixels'
 			shiftKey: true,
 		}),
 	).toBe(10);
+	expect(
+		getSelectedOutlineKeyboardNudgeDelta({
+			direction: 'up',
+			shiftKey: false,
+		}),
+	).toBe(-1);
+	expect(
+		getSelectedOutlineKeyboardNudgeDelta({
+			direction: 'down',
+			shiftKey: true,
+		}),
+	).toBe(10);
+	const accumulatedDeltas = [
+		{direction: 'right', shiftKey: false},
+		{direction: 'right', shiftKey: false},
+		{direction: 'down', shiftKey: true},
+	] satisfies readonly {
+		readonly direction: 'left' | 'right' | 'up' | 'down';
+		readonly shiftKey: boolean;
+	}[];
+	const finalDeltas = accumulatedDeltas.reduce(
+		(deltas, keyPress) =>
+			getSelectedOutlineKeyboardNudgeDeltas({
+				...deltas,
+				direction: keyPress.direction,
+				shiftKey: keyPress.shiftKey,
+			}),
+		{deltaX: 0, deltaY: 0},
+	);
 
-	const lastValues = getSelectedOutlineDragValues({
+	expect(finalDeltas).toEqual({deltaX: 2, deltaY: 10});
+
+	const horizontalLastValues = getSelectedOutlineDragValues({
 		dragStates,
 		deltaX: getSelectedOutlineKeyboardNudgeDelta({
 			direction: 'right',
@@ -2025,11 +2057,11 @@ test('Selected outline keyboard nudging moves horizontally by one or ten pixels'
 		deltaY: 0,
 	});
 
-	expect(lastValues.get(dragStates[0].key)).toBe('20px 20px');
+	expect(horizontalLastValues.get(dragStates[0].key)).toBe('20px 20px');
 	expect(
 		getSelectedOutlineDragChanges({
 			dragStates,
-			lastValues,
+			lastValues: horizontalLastValues,
 		}),
 	).toEqual([
 		{
@@ -2038,6 +2070,33 @@ test('Selected outline keyboard nudging moves horizontally by one or ten pixels'
 			nodePath,
 			fieldKey: 'style.translate',
 			value: '20px 20px',
+			defaultValue: JSON.stringify('0px 0px'),
+			schema,
+		},
+	]);
+
+	const verticalLastValues = getSelectedOutlineDragValues({
+		dragStates,
+		deltaX: 0,
+		deltaY: getSelectedOutlineKeyboardNudgeDelta({
+			direction: 'down',
+			shiftKey: true,
+		}),
+	});
+
+	expect(verticalLastValues.get(dragStates[0].key)).toBe('10px 30px');
+	expect(
+		getSelectedOutlineDragChanges({
+			dragStates,
+			lastValues: verticalLastValues,
+		}),
+	).toEqual([
+		{
+			type: 'static',
+			fileName: '/project/src/Comp.tsx',
+			nodePath,
+			fieldKey: 'style.translate',
+			value: '10px 30px',
 			defaultValue: JSON.stringify('0px 0px'),
 			schema,
 		},

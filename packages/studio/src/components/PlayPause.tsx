@@ -10,7 +10,7 @@ import {StepBack} from '../icons/step-back';
 import {StepForward} from '../icons/step-forward';
 import {useTimelineInOutFramePosition} from '../state/in-out';
 import {ControlButton} from './ControlButton';
-import {getCurrentDuration, getCurrentFps} from './Timeline/imperative-state';
+import {getCurrentDuration} from './Timeline/imperative-state';
 import {ensureFrameIsInViewport} from './Timeline/timeline-scroll-logic';
 
 const backStyle = {
@@ -98,69 +98,6 @@ export const PlayPause: React.FC<{
 		[pauseAndReturnToPlayStart, playing],
 	);
 
-	const onArrowLeft = useCallback(
-		(e: KeyboardEvent) => {
-			e.preventDefault();
-
-			if (e.altKey) {
-				seek(0);
-				ensureFrameIsInViewport({
-					direction: 'fit-left',
-					durationInFrames: getCurrentDuration(),
-					frame: 0,
-				});
-			} else if (e.shiftKey) {
-				frameBack(getCurrentFps());
-				ensureFrameIsInViewport({
-					direction: 'fit-left',
-					durationInFrames: getCurrentDuration(),
-					frame: Math.max(0, getCurrentFrame() - getCurrentFps()),
-				});
-			} else {
-				frameBack(1);
-				ensureFrameIsInViewport({
-					direction: 'fit-left',
-					durationInFrames: getCurrentDuration(),
-					frame: Math.max(0, getCurrentFrame() - 1),
-				});
-			}
-		},
-		[frameBack, seek, getCurrentFrame],
-	);
-
-	const onArrowRight = useCallback(
-		(e: KeyboardEvent) => {
-			if (e.altKey) {
-				seek(getCurrentDuration() - 1);
-				ensureFrameIsInViewport({
-					direction: 'fit-right',
-					durationInFrames: getCurrentDuration() - 1,
-					frame: getCurrentDuration() - 1,
-				});
-			} else if (e.shiftKey) {
-				frameForward(getCurrentFps());
-				ensureFrameIsInViewport({
-					direction: 'fit-right',
-					durationInFrames: getCurrentDuration(),
-					frame: Math.min(
-						getCurrentDuration() - 1,
-						getCurrentFrame() + getCurrentFps(),
-					),
-				});
-			} else {
-				frameForward(1);
-				ensureFrameIsInViewport({
-					direction: 'fit-right',
-					durationInFrames: getCurrentDuration(),
-					frame: Math.min(getCurrentDuration() - 1, getCurrentFrame() + 1),
-				});
-			}
-
-			e.preventDefault();
-		},
-		[frameForward, seek, getCurrentFrame],
-	);
-
 	const oneFrameBack = useCallback(() => {
 		frameBack(1);
 		ensureFrameIsInViewport({
@@ -190,24 +127,6 @@ export const PlayPause: React.FC<{
 	const keybindings = useKeybinding();
 
 	useEffect(() => {
-		const arrowLeft = keybindings.registerKeybinding({
-			event: 'keydown',
-			key: 'ArrowLeft',
-			callback: onArrowLeft,
-			commandCtrlKey: false,
-			preventDefault: true,
-			triggerIfInputFieldFocused: false,
-			keepRegisteredWhenNotHighestContext: false,
-		});
-		const arrowRight = keybindings.registerKeybinding({
-			event: 'keydown',
-			key: 'ArrowRight',
-			callback: onArrowRight,
-			commandCtrlKey: false,
-			preventDefault: true,
-			triggerIfInputFieldFocused: false,
-			keepRegisteredWhenNotHighestContext: false,
-		});
 		const commandArrowLeft = keybindings.registerKeybinding({
 			event: 'keydown',
 			key: 'ArrowLeft',
@@ -264,8 +183,6 @@ export const PlayPause: React.FC<{
 		});
 
 		return () => {
-			arrowLeft.unregister();
-			arrowRight.unregister();
 			commandArrowLeft.unregister();
 			commandArrowRight.unregister();
 			space.unregister();
@@ -277,8 +194,6 @@ export const PlayPause: React.FC<{
 		jumpToEnd,
 		jumpToStart,
 		keybindings,
-		onArrowLeft,
-		onArrowRight,
 		onEnter,
 		onSpace,
 		oneFrameBack,
