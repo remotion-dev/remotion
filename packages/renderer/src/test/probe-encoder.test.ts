@@ -5,21 +5,18 @@ mock.module('remotion/version', () => ({
 	VERSION: '4.0.0-test',
 }));
 
-// Mock the compositor helpers to avoid real filesystem/command access
-mock.module('../compositor/get-executable-path', () => ({
-	getExecutablePath: () => '/fake/ffmpeg',
-}));
-
-mock.module('../compositor/make-file-executable', () => ({
-	makeFileExecutableIfItIsNot: () => {},
-}));
-
-mock.module('../compositor/get-explicit-env', () => ({
-	getExplicitEnv: () => ({}),
-}));
-
 const {resolveHardwareAcceleration} = require('../probe-encoder');
 
+/**
+ * Tests for resolveHardwareAcceleration that DO NOT trigger actual FFmpeg probing.
+ * These test the logic branches that short-circuit before any execFileSync call:
+ * - "disable" passthrough
+ * - Audio codec passthrough (getCodecName returns null)
+ * - Software encoder passthrough (getCodecName returns non-hw-accelerated)
+ *
+ * Probing-dependent paths (if-possible/required with hardware encoders) are
+ * exercised by integration tests that run with the real FFmpeg binary.
+ */
 describe('resolveHardwareAcceleration', () => {
 	const originalPlatform = process.platform;
 	const setPlatform = (platform: string) => {
@@ -28,8 +25,6 @@ describe('resolveHardwareAcceleration', () => {
 	const restorePlatform = () => {
 		Object.defineProperty(process, 'platform', {value: originalPlatform});
 	};
-
-	afterEach(restorePlatform);
 
 	test('returns "disable" when hardwareAcceleration is "disable"', () => {
 		expect(
@@ -61,31 +56,25 @@ describe('resolveHardwareAcceleration', () => {
 		).toBe('if-possible');
 	});
 
-	test('returns original value when getCodecName returns software encoder (CRF set)', () => {
-		setPlatform('linux');
-		// CRF causes getCodecName to return software encoder even with if-possible
-		// so no probing is needed
+	test('returns original value for aac codec', () => {
 		expect(
 			resolveHardwareAcceleration({
-				codec: 'h264',
-				hardwareAcceleration: 'if-possible',
+				codec: 'aac',
+				hardwareAcceleration: 'required',
 				binariesDirectory: null,
 				indent: false,
 				logLevel: 'warn',
-				crf: 20,
+				crf: null,
 				encodingMaxRate: null,
 				encodingBufferSize: null,
 			}),
-		).toBe('if-possible');
+		).toBe('required');
 	});
 
-	test('returns "disable" for software-only codecs with if-possible', () => {
-		setPlatform('linux');
-		// vp8 has no hardware encoder, getCodecName returns software
-		// resolveHardwareAcceleration returns original value (no probe needed)
+	test('returns original value for wav codec', () => {
 		expect(
 			resolveHardwareAcceleration({
-				codec: 'vp8',
+				codec: 'wav',
 				hardwareAcceleration: 'if-possible',
 				binariesDirectory: null,
 				indent: false,
@@ -97,59 +86,30 @@ describe('resolveHardwareAcceleration', () => {
 		).toBe('if-possible');
 	});
 
-	describe('if-possible mode with NVENC', () => {
-		test('falls back to "disable" when NVENC encoder is not available', () => {
-			setPlatform('linux');
-			// The bundled FFmpeg does not have NVENC, so probe returns false
-			// and resolveHardwareAcceleration falls back to "disable"
-			const result = resolveHardwareAcceleration({
-				codec: 'h264',
-				hardwareAcceleration: 'if-possible',
-				binariesDirectory: null,
-				indent: false,
-				logLevel: 'warn',
-				crf: null,
-				encodingMaxRate: null,
-				encodingBufferSize: null,
-			});
-			// Result depends on whether bundled FFmpeg has h264_nvenc
-			// In test env, FFmpeg is likely not available, so expect 'disable'
-			expect(['if-possible', 'disable']).toContain(result);
-		});
-	});
+	describe('software encoder passthrough', () => {
+		afterEach(restorePlatform);
 
-	describe('required mode with NVENC', () => {
-		test('throws or returns "required" depending on encoder availability', () => {
+		test('returns original value when getCodecName returns software (CRF set on linux)', () => {
 			setPlatform('linux');
-			try {
-				const result = resolveHardwareAcceleration({
+			expect(
+				resolveHardwareAcceleration({
 					codec: 'h264',
-					hardwareAcceleration: 'required',
+					hardwareAcceleration: 'if-possible',
 					binariesDirectory: null,
 					indent: false,
 					logLevel: 'warn',
-					crf: null,
+					crf: 20,
 					encodingMaxRate: null,
 					encodingBufferSize: null,
-				});
-				// If encoder IS available
-				expect(result).toBe('required');
-			} catch (err) {
-				// If encoder is NOT available, should throw clear error
-				expect(err).toBeInstanceOf(Error);
-				expect((err as Error).message).toMatch(
-					/not available in your FFmpeg build/,
-				);
-			}
+				}),
+			).toBe('if-possible');
 		});
-	});
 
-	describe('Windows NVENC', () => {
-		test('attempts NVENC probe on win32 platform', () => {
-			setPlatform('win32');
-			try {
-				const result = resolveHardwareAcceleration({
-					codec: 'h264',
+		test('returns original value when codec has no hw encoder (vp8)', () => {
+			setPlatform('linux');
+			expect(
+				resolveHardwareAcceleration({
+					codec: 'vp8',
 					hardwareAcceleration: 'if-possible',
 					binariesDirectory: null,
 					indent: false,
@@ -157,11 +117,40 @@ describe('resolveHardwareAcceleration', () => {
 					crf: null,
 					encodingMaxRate: null,
 					encodingBufferSize: null,
-				});
-				expect(['if-possible', 'disable']).toContain(result);
-			} catch {
-				// May throw if FFmpeg is unavailable in required mode
-			}
+				}),
+			).toBe('if-possible');
+		});
+
+		test('returns original value when codec has no hw encoder (av1)', () => {
+			setPlatform('linux');
+			expect(
+				resolveHardwareAcceleration({
+					codec: 'av1',
+					hardwareAcceleration: 'if-possible',
+					binariesDirectory: null,
+					indent: false,
+					logLevel: 'warn',
+					crf: null,
+					encodingMaxRate: null,
+					encodingBufferSize: null,
+				}),
+			).toBe('if-possible');
+		});
+
+		test('returns "disable" when hardwareAcceleration is "disable" even with NVENC-capable codec', () => {
+			setPlatform('linux');
+			expect(
+				resolveHardwareAcceleration({
+					codec: 'h264',
+					hardwareAcceleration: 'disable',
+					binariesDirectory: null,
+					indent: false,
+					logLevel: 'warn',
+					crf: null,
+					encodingMaxRate: null,
+					encodingBufferSize: null,
+				}),
+			).toBe('disable');
 		});
 	});
 });
