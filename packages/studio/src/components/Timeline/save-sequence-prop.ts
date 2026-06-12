@@ -1,4 +1,7 @@
-import {optimisticUpdateForPropStatuses} from '@remotion/studio-shared';
+import {
+	optimisticUpdateForPropStatuses,
+	type SaveSequencePropEdit,
+} from '@remotion/studio-shared';
 import type {
 	CanUpdateSequencePropsResponse,
 	SequencePropsSubscriptionKey,
@@ -31,6 +34,31 @@ type SaveSequencePropsOptions = {
 	redoLabel: string;
 };
 
+const changeToEdit = (change: SaveSequencePropChange): SaveSequencePropEdit => {
+	const base = {
+		fileName: change.fileName,
+		nodePath: change.nodePath,
+		key: change.fieldKey,
+		schema: change.schema,
+	};
+
+	if (change.value === undefined && change.defaultValue === undefined) {
+		return base;
+	}
+
+	if (change.defaultValue === undefined) {
+		throw new Error(
+			'Expected defaultValue to be defined for sequence prop save',
+		);
+	}
+
+	return {
+		...base,
+		defaultValue: change.defaultValue,
+		value: JSON.stringify(change.value),
+	};
+};
+
 export const saveSequenceProps = ({
 	changes,
 	setPropStatuses,
@@ -60,16 +88,7 @@ export const saveSequenceProps = ({
 				}),
 			apiCall: () =>
 				callApi('/api/save-sequence-props', {
-					edits: [
-						{
-							fileName: change.fileName,
-							nodePath: change.nodePath,
-							key: change.fieldKey,
-							defaultValue: change.defaultValue,
-							schema: change.schema,
-							value: JSON.stringify(change.value),
-						},
-					],
+					edits: [changeToEdit(change)],
 					clientId,
 					undoLabel,
 					redoLabel,
@@ -90,16 +109,7 @@ export const saveSequenceProps = ({
 	}
 
 	return callApi('/api/save-sequence-props', {
-		edits: changes.map((change) => {
-			return {
-				fileName: change.fileName,
-				nodePath: change.nodePath,
-				key: change.fieldKey,
-				defaultValue: change.defaultValue,
-				schema: change.schema,
-				value: JSON.stringify(change.value),
-			};
-		}),
+		edits: changes.map(changeToEdit),
 		clientId,
 		undoLabel,
 		redoLabel,
