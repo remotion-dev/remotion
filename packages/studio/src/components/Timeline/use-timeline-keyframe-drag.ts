@@ -1,4 +1,7 @@
-import {canMoveKeyframesWithoutCollisions} from '@remotion/studio-shared';
+import {
+	canMoveKeyframesWithoutCollisions,
+	moveKeyframesInPropStatus,
+} from '@remotion/studio-shared';
 import type React from 'react';
 import {useCallback, useContext} from 'react';
 import type {
@@ -224,23 +227,17 @@ const makeMovedKeyframedDragOverride = ({
 		throw new Error('Expected a keyframe drag target');
 	}
 
-	const moves = new Map(
-		getMovesForGroup({group, delta}).map(
-			(move) => [move.fromFrame, move.toFrame] as const,
-		),
-	);
+	const movedStatus = moveKeyframesInPropStatus({
+		status: first.propStatus,
+		moves: getMovesForGroup({group, delta}),
+	});
+	if (movedStatus.status !== 'keyframed') {
+		throw new Error('Expected keyframed status');
+	}
 
 	return {
 		type: 'keyframed',
-		status: {
-			...first.propStatus,
-			keyframes: first.propStatus.keyframes
-				.map((keyframe) => ({
-					...keyframe,
-					frame: moves.get(keyframe.frame) ?? keyframe.frame,
-				}))
-				.sort((a, b) => a.frame - b.frame),
-		},
+		status: movedStatus,
 	};
 };
 
