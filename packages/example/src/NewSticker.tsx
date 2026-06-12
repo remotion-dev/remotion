@@ -29,7 +29,6 @@ const NewSticker: React.FC = () => {
 			<Interactive.Div
 				style={{
 					position: 'relative',
-					translate: '0px 511.6px',
 				}}
 			>
 				<Star
