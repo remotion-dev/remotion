@@ -21,6 +21,7 @@ import {parseKeyframeFieldFromNodePath} from './parse-keyframe-field-from-node-p
 import {useTimelineKeyframeDragState} from './TimelineKeyframeDragState';
 import {
 	useCurrentTimelineSelectionStateAsRef,
+	type TimelineEasingSelection,
 	type TimelineSelection,
 	type TimelineSelectionInteraction,
 } from './TimelineSelection';
@@ -53,6 +54,75 @@ const pointerDragThreshold = 3;
 const isKeyframeSelection = (
 	selection: TimelineSelection,
 ): selection is TimelineKeyframeSelection => selection.type === 'keyframe';
+
+const isEasingSelection = (
+	selection: TimelineSelection,
+): selection is TimelineEasingSelection => selection.type === 'easing';
+
+const keyframesForEasing = (
+	easing: TimelineEasingSelection,
+): TimelineKeyframeSelection[] => [
+	{
+		type: 'keyframe',
+		nodePathInfo: easing.nodePathInfo,
+		frame: easing.fromFrame,
+	},
+	{
+		type: 'keyframe',
+		nodePathInfo: easing.nodePathInfo,
+		frame: easing.toFrame,
+	},
+];
+
+const deduplicateKeyframeSelections = (
+	keyframes: readonly TimelineKeyframeSelection[],
+) => {
+	const seen = new Set<string>();
+	return keyframes.filter((keyframe) => {
+		const key = JSON.stringify({
+			nodePathInfo: keyframe.nodePathInfo,
+			frame: keyframe.frame,
+		});
+		if (seen.has(key)) {
+			return false;
+		}
+
+		seen.add(key);
+		return true;
+	});
+};
+
+export const getKeyframesForTimelineEasingDrag = ({
+	currentSelections,
+	interaction,
+	selectionItem,
+	selected,
+}: {
+	readonly currentSelections: readonly TimelineSelection[];
+	readonly interaction: TimelineSelectionInteraction;
+	readonly selectionItem: TimelineEasingSelection;
+	readonly selected: boolean;
+}): TimelineKeyframeSelection[] => {
+	if (interaction.shiftKey || interaction.toggleKey) {
+		return keyframesForEasing(selectionItem);
+	}
+
+	const selectedKeyframes = currentSelections.filter(isKeyframeSelection);
+	if (selectedKeyframes.length > 0) {
+		return selectedKeyframes;
+	}
+
+	if (!selected) {
+		return keyframesForEasing(selectionItem);
+	}
+
+	const selectedEasings = currentSelections.filter(isEasingSelection);
+	return deduplicateKeyframeSelections(
+		(selectedEasings.length > 0 ? selectedEasings : [selectionItem]).flatMap(
+			keyframesForEasing,
+		),
+	);
+};
 
 const getCodeValueForTarget = ({
 	propStatuses,
@@ -600,6 +670,272 @@ export const useTimelineKeyframeDrag = ({
 			previewServerState,
 			selectable,
 			selected,
+			sequencesRef,
+			setPropStatuses,
+			setDragOverrides,
+			setDraggedKeyframes,
+			setEffectDragOverrides,
+			timelineWidth,
+			videoConfig.durationInFrames,
+		],
+	);
+};
+
+export const useTimelineEasingKeyframeDrag = ({
+	onSelect,
+	selectable,
+	selected,
+	selectionItem,
+}: {
+	readonly onSelect: (interaction?: TimelineSelectionInteraction) => void;
+	readonly selectable: boolean;
+	readonly selected: boolean;
+	readonly selectionItem: TimelineEasingSelection;
+}) => {
+	const videoConfig = useVideoConfig();
+	const timelineWidth = useContext(TimelineWidthContext);
+	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
+	const {overrideIdToNodePathMappings} = useContext(
+		Internals.OverrideIdsToNodePathsGettersContext,
+	);
+	const propStatusesRef = useContext(
+		Internals.VisualModePropStatusesRefContext,
+	);
+	const {
+		clearDragOverrides,
+		clearEffectDragOverrides,
+		setPropStatuses,
+		setDragOverrides,
+		setEffectDragOverrides,
+	} = useContext(Internals.VisualModeSettersContext);
+	const currentSelection = useCurrentTimelineSelectionStateAsRef();
+	const {clearDraggedKeyframes, setDraggedKeyframes} =
+		useTimelineKeyframeDragState();
+
+	return useCallback(
+		(e: React.PointerEvent<HTMLButtonElement>) => {
+			if (e.button !== 0 || !selectable) {
+				return;
+			}
+
+			e.preventDefault();
+			e.stopPropagation();
+
+			const interaction = {
+				shiftKey: e.shiftKey,
+				toggleKey: e.metaKey || e.ctrlKey,
+			};
+
+			if (timelineWidth === null || previewServerState.type !== 'connected') {
+				onSelect(interaction);
+				return;
+			}
+
+			const keyframesToDrag = getKeyframesForTimelineEasingDrag({
+				currentSelections: currentSelection.current.selectedItems,
+				interaction,
+				selectionItem,
+				selected,
+			});
+
+			const startClientX = e.clientX;
+			let dragTargets: TimelineKeyframeDragTarget[] | null = null;
+			let hasDragged = false;
+			let lastDelta = 0;
+			const propStatuses = propStatusesRef.current;
+			const sequences = sequencesRef.current;
+
+			const resolveDragTargets = () => {
+				if (dragTargets !== null) {
+					return dragTargets;
+				}
+
+				dragTargets = keyframesToDrag
+					.map((keyframe) =>
+						getTimelineKeyframeDragTarget({
+							propStatuses,
+							displayFrame: keyframe.frame,
+							nodePathInfo: keyframe.nodePathInfo,
+							overrideIdsToNodePaths: overrideIdToNodePathMappings,
+							sequences,
+						}),
+					)
+					.filter(
+						(target): target is TimelineKeyframeDragTarget => target !== null,
+					);
+				return dragTargets;
+			};
+
+			const cleanup = () => {
+				window.removeEventListener('pointermove', onPointerMove);
+				window.removeEventListener('pointerup', onPointerUp);
+				window.removeEventListener('pointercancel', onPointerCancel);
+			};
+
+			const clearActiveOverrides = () => {
+				const targets = dragTargets;
+				if (targets === null) {
+					return;
+				}
+
+				clearDragOverridesForTargets({
+					clearDragOverrides,
+					clearEffectDragOverrides,
+					targets,
+				});
+			};
+
+			const onPointerMove = (event: PointerEvent) => {
+				const clientXDelta = event.clientX - startClientX;
+				if (!hasDragged && Math.abs(clientXDelta) < pointerDragThreshold) {
+					return;
+				}
+
+				const targets = resolveDragTargets();
+				if (targets.length === 0) {
+					cleanup();
+					clearDraggedKeyframes();
+					return;
+				}
+
+				const rawDelta = getFrameDelta({
+					clientXDelta,
+					durationInFrames: videoConfig.durationInFrames,
+					timelineWidth,
+				});
+				const delta = getBoundedKeyframeDragDelta({
+					delta: rawDelta,
+					durationInFrames: videoConfig.durationInFrames,
+					targets,
+				});
+
+				if (hasDragged && delta === lastDelta) {
+					return;
+				}
+
+				hasDragged = true;
+				lastDelta = delta;
+				if (!canMoveTimelineKeyframeDragTargets({targets, delta})) {
+					clearActiveOverrides();
+					clearDraggedKeyframes();
+					return;
+				}
+
+				setDraggedKeyframes(
+					targets.map((target) => ({
+						nodePathInfo: target.nodePathInfo,
+						frame: target.displayFrame + delta,
+					})),
+				);
+				applyDragOverrides({
+					delta,
+					setDragOverrides,
+					setEffectDragOverrides,
+					targets,
+				});
+			};
+
+			const onPointerUp = () => {
+				cleanup();
+
+				const targets = dragTargets;
+				if (!hasDragged) {
+					onSelect(interaction);
+					clearActiveOverrides();
+					clearDraggedKeyframes();
+					return;
+				}
+
+				if (lastDelta === 0 || targets === null) {
+					clearActiveOverrides();
+					clearDraggedKeyframes();
+					return;
+				}
+
+				if (
+					!canMoveTimelineKeyframeDragTargets({
+						targets,
+						delta: lastDelta,
+					})
+				) {
+					clearActiveOverrides();
+					clearDraggedKeyframes();
+					return;
+				}
+
+				currentSelection.current.selectItems(
+					targets.map((target) => ({
+						type: 'keyframe',
+						nodePathInfo: target.nodePathInfo,
+						frame: target.displayFrame + lastDelta,
+					})),
+				);
+
+				clearActiveOverrides();
+				clearDraggedKeyframes();
+
+				callMoveKeyframes({
+					sequenceKeyframes: targets
+						.filter(
+							(
+								target,
+							): target is TimelineKeyframeDragTarget & {
+								type: 'sequence';
+							} => target.type === 'sequence',
+						)
+						.map((target) => ({
+							fileName: target.fileName,
+							nodePath: target.nodePath,
+							fieldKey: target.fieldKey,
+							fromFrame: target.sourceFrame,
+							toFrame: target.sourceFrame + lastDelta,
+							schema: target.schema,
+						})),
+					effectKeyframes: targets
+						.filter(
+							(
+								target,
+							): target is TimelineKeyframeDragTarget & {
+								type: 'effect';
+							} => target.type === 'effect',
+						)
+						.map((target) => ({
+							fileName: target.fileName,
+							nodePath: target.nodePath,
+							effectIndex: target.effectIndex,
+							fieldKey: target.fieldKey,
+							fromFrame: target.sourceFrame,
+							toFrame: target.sourceFrame + lastDelta,
+							schema: target.schema,
+						})),
+					setPropStatuses,
+					clientId: previewServerState.clientId,
+				}).catch(() => undefined);
+			};
+
+			const onPointerCancel = () => {
+				cleanup();
+				clearActiveOverrides();
+				clearDraggedKeyframes();
+			};
+
+			window.addEventListener('pointermove', onPointerMove);
+			window.addEventListener('pointerup', onPointerUp);
+			window.addEventListener('pointercancel', onPointerCancel);
+		},
+		[
+			clearDragOverrides,
+			clearEffectDragOverrides,
+			clearDraggedKeyframes,
+			currentSelection,
+			onSelect,
+			overrideIdToNodePathMappings,
+			propStatusesRef,
+			previewServerState,
+			selectable,
+			selected,
+			selectionItem,
 			sequencesRef,
 			setPropStatuses,
 			setDragOverrides,
