@@ -1,6 +1,13 @@
 import type {RecastCodemod} from '@remotion/studio-shared';
 import type {ChangeEventHandler} from 'react';
-import React, {useCallback, useContext, useMemo, useState} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import {Internals} from 'remotion';
 import {validateCompositionName} from '../../helpers/validate-new-comp-data';
 import {Spacing} from '../layout';
@@ -37,6 +44,13 @@ const RenameCompositionLoaded: React.FC<{}> = () => {
 	const [newId, setName] = useState(() => {
 		return resolved.result.id;
 	});
+	const inputRef = useRef<HTMLInputElement>(null);
+
+	useEffect(() => {
+		const input = inputRef.current;
+		if (!input) return;
+		input.select();
+	}, []);
 
 	const onNameChange: ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
@@ -74,6 +88,7 @@ const RenameCompositionLoaded: React.FC<{}> = () => {
 						<div style={rightRow}>
 							<div>
 								<RemotionInput
+									ref={inputRef}
 									value={newId}
 									onChange={onNameChange}
 									type="text"

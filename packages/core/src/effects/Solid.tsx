@@ -279,9 +279,7 @@ const SolidOuter = forwardRef<
 				durationInFrames={durationInFrames}
 				name={name ?? '<Solid>'}
 				_remotionInternalRefForOutline={actualRef}
-				_remotionInternalDocumentationLink={
-					name === undefined ? 'https://www.remotion.dev/docs/solid' : undefined
-				}
+				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/solid"
 				// 'stack' is in props
 				{...props}
 			>

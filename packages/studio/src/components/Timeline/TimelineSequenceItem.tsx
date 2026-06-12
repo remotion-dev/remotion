@@ -11,6 +11,7 @@ import {
 	TIMELINE_ITEM_BORDER_BOTTOM,
 	TIMELINE_LIST_ITEM_ROW_HEIGHT,
 } from '../../helpers/timeline-layout';
+import {useKeybinding} from '../../helpers/use-keybinding';
 import {callApi} from '../call-api';
 import {useConfirmationDialog} from '../ConfirmationDialog';
 import {ContextMenu} from '../ContextMenu';
@@ -48,6 +49,7 @@ import {
 	isTimelineSelectionModifierEvent,
 	useTimelineRowContainsSelection,
 	useTimelineRowSelection,
+	useTimelineSelection,
 } from './TimelineSelection';
 import {TimelineSequenceName} from './TimelineSequenceName';
 import {useOpenSequenceInEditor} from './use-open-sequence-in-editor';
@@ -190,11 +192,14 @@ export const TimelineSequenceItem: React.FC<{
 	const {toggleTrack} = useContext(ExpandedTracksSetterContext);
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
+	const {isHighestContext} = useKeybinding();
 	const selectAsset = useSelectAsset();
 	const {onSelect, selectable, selected} =
 		useTimelineRowSelection(nodePathInfo);
+	const {selectedItems} = useTimelineSelection();
 	const containsSelection = useTimelineRowContainsSelection(nodePathInfo);
 	const [effectDropHovered, setEffectDropHovered] = useState(false);
+	const [isRenaming, setIsRenaming] = useState(false);
 	const [sequenceDropIndicator, setSequenceDropIndicator] =
 		useState<ReorderSequencePosition | null>(null);
 	const [sequenceDropRejection, setSequenceDropRejection] = useState<
@@ -544,6 +549,268 @@ export const TimelineSequenceItem: React.FC<{
 		[mediaSrc],
 	);
 
+	const isExpanded =
+		previewConnected && nodePathInfo !== null && getIsExpanded(nodePathInfo);
+
+	const onToggleExpand = useCallback(() => {
+		if (nodePathInfo === null) {
+			return;
+		}
+
+		toggleTrack(nodePathInfo);
+	}, [nodePathInfo, toggleTrack]);
+
+	const onShowInEditorDoubleClick = useCallback(
+		(e: React.MouseEvent<HTMLDivElement>) => {
+			if (!canOpenInEditor) {
+				return;
+			}
+
+			if (isTimelineSelectionModifierEvent(e)) {
+				e.stopPropagation();
+				return;
+			}
+
+			e.stopPropagation();
+			openInEditor();
+		},
+		[canOpenInEditor, openInEditor],
+	);
+
+	const propStatusesForOverride = useMemo(() => {
+		return nodePath
+			? Internals.getPropStatusesCtx(propStatuses, nodePath)
+			: undefined;
+	}, [propStatuses, nodePath]);
+
+	const codeHiddenStatus = propStatusesForOverride?.hidden;
+	const codeNameStatus = propStatusesForOverride?.name;
+
+	const isItemHidden = useMemo(() => {
+		const propStatus =
+			codeHiddenStatus && codeHiddenStatus.status === 'static'
+				? codeHiddenStatus.codeValue
+				: undefined;
+		const runtimeValue =
+			sequence.controls?.currentRuntimeValueDotNotation.hidden;
+		const effective = (propStatus ?? runtimeValue) as boolean | undefined;
+		return effective ?? false;
+	}, [codeHiddenStatus, sequence.controls?.currentRuntimeValueDotNotation]);
+
+	const displayName = useMemo(() => {
+		if (
+			codeNameStatus &&
+			codeNameStatus.status === 'static' &&
+			typeof codeNameStatus.codeValue === 'string'
+		) {
+			return codeNameStatus.codeValue;
+		}
+
+		return sequence.displayName;
+	}, [codeNameStatus, sequence.displayName]);
+
+	const onToggleVisibility = useCallback(
+		(type: 'enable' | 'disable') => {
+			if (
+				!sequence.controls ||
+				!nodePath ||
+				!validatedLocation ||
+				!propStatusesForOverride ||
+				!codeHiddenStatus ||
+				codeHiddenStatus.status !== 'static' ||
+				previewServerState.type !== 'connected'
+			) {
+				return;
+			}
+
+			const newValue = type !== 'enable';
+			const {schema} = sequence.controls;
+
+			const fieldSchema = schema.hidden;
+			const defaultValue =
+				fieldSchema && fieldSchema.type === 'boolean'
+					? JSON.stringify(fieldSchema.default)
+					: null;
+
+			saveSequenceProps({
+				changes: [
+					{
+						fileName: validatedLocation.source,
+						nodePath,
+						fieldKey: 'hidden',
+						value: newValue,
+						defaultValue,
+						schema,
+					},
+				],
+				setPropStatuses,
+				clientId: previewServerState.clientId,
+				undoLabel: newValue ? 'Hide sequence' : 'Show sequence',
+				redoLabel: newValue ? 'Hide sequence again' : 'Show sequence again',
+			});
+		},
+		[
+			codeHiddenStatus,
+			propStatusesForOverride,
+			nodePath,
+			previewServerState,
+			sequence.controls,
+			setPropStatuses,
+			validatedLocation,
+		],
+	);
+
+	const outerHeight = useMemo(
+		() => getTimelineLayerHeight(sequence.type) + TIMELINE_ITEM_BORDER_BOTTOM,
+		[sequence.type],
+	);
+
+	const inner: React.CSSProperties = useMemo(() => {
+		return {
+			height: TIMELINE_LIST_ITEM_ROW_HEIGHT,
+			color: 'white',
+			fontFamily: 'Arial, Helvetica, sans-serif',
+			wordBreak: 'break-all',
+			textAlign: 'left',
+			flexShrink: 0,
+		};
+	}, []);
+
+	const rowStyle = useMemo((): React.CSSProperties => {
+		return effectDropHovered
+			? {
+					...inner,
+					...effectDropHighlight,
+				}
+			: inner;
+	}, [effectDropHovered, inner]);
+
+	const hasExpandableContent =
+		Boolean(sequence.controls) || sequence.effects.length > 0;
+
+	const canToggleVisibility =
+		previewConnected &&
+		Boolean(sequence.controls) &&
+		nodePath !== null &&
+		validatedLocation !== null &&
+		codeHiddenStatus !== undefined &&
+		codeHiddenStatus !== null &&
+		codeHiddenStatus.status === 'static';
+
+	const canRenameThisSequence =
+		previewServerState.type === 'connected' &&
+		!window.remotion_isReadOnlyStudio &&
+		Boolean(sequence.controls) &&
+		nodePath !== null &&
+		validatedLocation !== null &&
+		codeNameStatus !== undefined &&
+		codeNameStatus !== null &&
+		codeNameStatus.status === 'static';
+
+	const canRenameSelectedSequence =
+		canRenameThisSequence &&
+		selected &&
+		selectedItems.length === 1 &&
+		selectedItems[0]?.type === 'sequence';
+
+	const onCancelRenaming = useCallback(() => {
+		setIsRenaming(false);
+	}, []);
+
+	const onSaveName = useCallback(
+		async (name: string) => {
+			if (
+				!canRenameThisSequence ||
+				previewServerState.type !== 'connected' ||
+				!sequence.controls ||
+				!nodePath ||
+				!validatedLocation
+			) {
+				setIsRenaming(false);
+				return;
+			}
+
+			if (name === displayName) {
+				setIsRenaming(false);
+				return;
+			}
+
+			const savePromise = saveSequenceProps({
+				changes: [
+					{
+						fileName: validatedLocation.source,
+						nodePath,
+						fieldKey: 'name',
+						value: name,
+						defaultValue: null,
+						schema: sequence.controls.schema,
+					},
+				],
+				setPropStatuses,
+				clientId: previewServerState.clientId,
+				undoLabel: 'Rename sequence',
+				redoLabel: 'Rename sequence again',
+			});
+			setIsRenaming(false);
+			await savePromise;
+		},
+		[
+			canRenameThisSequence,
+			displayName,
+			nodePath,
+			previewServerState,
+			sequence.controls,
+			setPropStatuses,
+			validatedLocation,
+		],
+	);
+
+	React.useEffect(() => {
+		if (!canRenameSelectedSequence || !process.env.KEYBOARD_SHORTCUTS_ENABLED) {
+			setIsRenaming(false);
+			return;
+		}
+
+		const onKeyDown = (e: KeyboardEvent) => {
+			if (!isHighestContext) {
+				return;
+			}
+
+			const commandKey = window.navigator.platform.startsWith('Mac')
+				? e.metaKey
+				: e.ctrlKey;
+
+			if (commandKey || e.key.toLowerCase() !== 'enter') {
+				return;
+			}
+
+			if (
+				document.activeElement instanceof HTMLInputElement ||
+				document.activeElement instanceof HTMLTextAreaElement
+			) {
+				return;
+			}
+
+			e.preventDefault();
+			e.stopImmediatePropagation();
+			setIsRenaming(true);
+		};
+
+		window.addEventListener('keydown', onKeyDown, true);
+
+		return () => {
+			window.removeEventListener('keydown', onKeyDown, true);
+		};
+	}, [canRenameSelectedSequence, isHighestContext]);
+
+	const onRenameSequence = useCallback(() => {
+		if (!canRenameThisSequence) {
+			return;
+		}
+
+		setIsRenaming(true);
+	}, [canRenameThisSequence]);
+
 	const contextMenuValues = useMemo((): ComboboxValue[] => {
 		if (!previewConnected) {
 			return [];
@@ -637,6 +904,20 @@ export const TimelineSequenceItem: React.FC<{
 				: null,
 			{
 				type: 'item' as const,
+				id: 'rename-sequence',
+				keyHint: 'Enter',
+				label: 'Rename...',
+				leftItem: null,
+				disabled: !canRenameThisSequence,
+				onClick: () => {
+					onRenameSequence();
+				},
+				quickSwitcherLabel: null,
+				subMenu: null,
+				value: 'rename-sequence',
+			},
+			{
+				type: 'item' as const,
 				id: 'disable-interactivity',
 				keyHint: null,
 				label: 'Disable interactivity',
@@ -688,6 +969,8 @@ export const TimelineSequenceItem: React.FC<{
 		].filter(NoReactInternals.truthy);
 	}, [
 		assetLinkInfo,
+		canOpenInEditor,
+		canRenameThisSequence,
 		deleteDisabled,
 		disableInteractivityDisabled,
 		duplicateDisabled,
@@ -695,147 +978,12 @@ export const TimelineSequenceItem: React.FC<{
 		onDeleteSequenceFromSource,
 		onDisableSequenceInteractivity,
 		onDuplicateSequenceFromSource,
-		canOpenInEditor,
+		onRenameSequence,
 		openInEditor,
 		previewConnected,
 		selectAsset,
 		sequence,
 	]);
-
-	const isExpanded =
-		previewConnected && nodePathInfo !== null && getIsExpanded(nodePathInfo);
-
-	const onToggleExpand = useCallback(() => {
-		if (nodePathInfo === null) {
-			return;
-		}
-
-		toggleTrack(nodePathInfo);
-	}, [nodePathInfo, toggleTrack]);
-
-	const onShowInEditorDoubleClick = useCallback(
-		(e: React.MouseEvent<HTMLDivElement>) => {
-			if (!canOpenInEditor) {
-				return;
-			}
-
-			if (isTimelineSelectionModifierEvent(e)) {
-				e.stopPropagation();
-				return;
-			}
-
-			e.stopPropagation();
-			openInEditor();
-		},
-		[canOpenInEditor, openInEditor],
-	);
-
-	const propStatusesForOverride = useMemo(() => {
-		return nodePath
-			? Internals.getPropStatusesCtx(propStatuses, nodePath)
-			: undefined;
-	}, [propStatuses, nodePath]);
-
-	const codeHiddenStatus = propStatusesForOverride?.hidden;
-
-	const isItemHidden = useMemo(() => {
-		const propStatus =
-			codeHiddenStatus && codeHiddenStatus.status === 'static'
-				? codeHiddenStatus.codeValue
-				: undefined;
-		const runtimeValue =
-			sequence.controls?.currentRuntimeValueDotNotation.hidden;
-		const effective = (propStatus ?? runtimeValue) as boolean | undefined;
-		return effective ?? false;
-	}, [codeHiddenStatus, sequence.controls?.currentRuntimeValueDotNotation]);
-
-	const onToggleVisibility = useCallback(
-		(type: 'enable' | 'disable') => {
-			if (
-				!sequence.controls ||
-				!nodePath ||
-				!validatedLocation ||
-				!propStatusesForOverride ||
-				!codeHiddenStatus ||
-				codeHiddenStatus.status !== 'static' ||
-				previewServerState.type !== 'connected'
-			) {
-				return;
-			}
-
-			const newValue = type !== 'enable';
-			const {schema} = sequence.controls;
-
-			const fieldSchema = schema.hidden;
-			const defaultValue =
-				fieldSchema && fieldSchema.type === 'boolean'
-					? JSON.stringify(fieldSchema.default)
-					: null;
-
-			saveSequenceProps({
-				changes: [
-					{
-						fileName: validatedLocation.source,
-						nodePath,
-						fieldKey: 'hidden',
-						value: newValue,
-						defaultValue,
-						schema,
-					},
-				],
-				setPropStatuses,
-				clientId: previewServerState.clientId,
-				undoLabel: newValue ? 'Hide sequence' : 'Show sequence',
-				redoLabel: newValue ? 'Hide sequence again' : 'Show sequence again',
-			});
-		},
-		[
-			codeHiddenStatus,
-			propStatusesForOverride,
-			nodePath,
-			previewServerState,
-			sequence.controls,
-			setPropStatuses,
-			validatedLocation,
-		],
-	);
-
-	const outerHeight = useMemo(
-		() => getTimelineLayerHeight(sequence.type) + TIMELINE_ITEM_BORDER_BOTTOM,
-		[sequence.type],
-	);
-
-	const inner: React.CSSProperties = useMemo(() => {
-		return {
-			height: TIMELINE_LIST_ITEM_ROW_HEIGHT,
-			color: 'white',
-			fontFamily: 'Arial, Helvetica, sans-serif',
-			wordBreak: 'break-all',
-			textAlign: 'left',
-			flexShrink: 0,
-		};
-	}, []);
-
-	const rowStyle = useMemo((): React.CSSProperties => {
-		return effectDropHovered
-			? {
-					...inner,
-					...effectDropHighlight,
-				}
-			: inner;
-	}, [effectDropHovered, inner]);
-
-	const hasExpandableContent =
-		Boolean(sequence.controls) || sequence.effects.length > 0;
-
-	const canToggleVisibility =
-		previewConnected &&
-		Boolean(sequence.controls) &&
-		nodePath !== null &&
-		validatedLocation !== null &&
-		codeHiddenStatus !== undefined &&
-		codeHiddenStatus !== null &&
-		codeHiddenStatus.status === 'static';
 
 	const canDropEffect =
 		previewServerState.type === 'connected' &&
@@ -961,9 +1109,12 @@ export const TimelineSequenceItem: React.FC<{
 		>
 			<div style={labelContainerStyle}>
 				<TimelineSequenceName
-					sequence={sequence}
+					displayName={displayName}
 					selected={selected}
 					containsSelection={containsSelection}
+					editing={isRenaming}
+					onCancelEditing={onCancelRenaming}
+					onSaveName={onSaveName}
 				/>
 				{mediaSrc ? (
 					<>

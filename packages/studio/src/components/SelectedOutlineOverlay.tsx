@@ -172,6 +172,7 @@ type SelectedOutlineRotationDragTarget = {
 	readonly keyframeDisplayOffset: number;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly schema: SequenceSchema;
+	readonly transformOriginValue: string;
 };
 
 export type SelectedOutlineDragState = {
@@ -213,6 +214,7 @@ const translateFieldKey = 'style.translate';
 const scaleFieldKey = 'style.scale';
 const rotateFieldKey = 'style.rotate';
 const transformOriginFieldKey = 'style.transformOrigin';
+export const selectedOutlineDragThresholdPx = 4;
 
 const outlineContainer: React.CSSProperties = {
 	position: 'absolute',
@@ -327,6 +329,36 @@ export const getSelectedOutlineRotationCornerInfo = (
 		cursorDegrees,
 		point,
 	};
+};
+
+export const getSelectedOutlineRotationPivot = ({
+	dimensions,
+	points,
+	transformOriginValue,
+}: {
+	readonly dimensions: SelectedOutline['dimensions'];
+	readonly points: SelectedOutline['points'];
+	readonly transformOriginValue: string;
+}): OutlinePoint => {
+	if (dimensions === null) {
+		return getOutlineCenter(points);
+	}
+
+	const parsed = parseTransformOrigin(transformOriginValue);
+	if (parsed === null) {
+		return getOutlineCenter(points);
+	}
+
+	const uv = parsedTransformOriginToUv({
+		parsed,
+		width: dimensions.width,
+		height: dimensions.height,
+	});
+	if (uv === null) {
+		return getOutlineCenter(points);
+	}
+
+	return getUvHandlePosition(points, uv);
 };
 
 const rectToPoints = (
@@ -771,6 +803,16 @@ export const applySelectedOutlineDragAxisLock = ({
 	}
 
 	return {deltaX: 0, deltaY};
+};
+
+export const isSelectedOutlineDragPastThreshold = ({
+	deltaX,
+	deltaY,
+}: {
+	readonly deltaX: number;
+	readonly deltaY: number;
+}) => {
+	return Math.hypot(deltaX, deltaY) >= selectedOutlineDragThresholdPx;
 };
 
 export type SelectedOutlineStaticDragChange = SaveSequencePropChange & {
@@ -1628,8 +1670,6 @@ const SelectedOutlinePolygon: React.FC<{
 				return;
 			}
 
-			onDraggingChange(true);
-
 			const startPointerX = event.clientX;
 			const startPointerY = event.clientY;
 			const dragStates = getSelectedOutlineDragStates({
@@ -1641,11 +1681,28 @@ const SelectedOutlinePolygon: React.FC<{
 			let currentPointerX = startPointerX;
 			let currentPointerY = startPointerY;
 			let axisLocked = false;
+			let dragStarted = false;
 
 			const updateDragOverrides = () => {
+				const screenDeltaX = currentPointerX - startPointerX;
+				const screenDeltaY = currentPointerY - startPointerY;
+				if (!dragStarted) {
+					if (
+						!isSelectedOutlineDragPastThreshold({
+							deltaX: screenDeltaX,
+							deltaY: screenDeltaY,
+						})
+					) {
+						return;
+					}
+
+					dragStarted = true;
+					onDraggingChange(true);
+				}
+
 				const dragDelta = applySelectedOutlineDragAxisLock({
-					deltaX: (currentPointerX - startPointerX) / scale,
-					deltaY: (currentPointerY - startPointerY) / scale,
+					deltaX: screenDeltaX / scale,
+					deltaY: screenDeltaY / scale,
 					axisLocked,
 				});
 
@@ -1708,7 +1765,9 @@ const SelectedOutlinePolygon: React.FC<{
 				window.removeEventListener('pointercancel', onPointerUp);
 				window.removeEventListener('keydown', onKeyChange);
 				window.removeEventListener('keyup', onKeyChange);
-				onDraggingChange(false);
+				if (dragStarted) {
+					onDraggingChange(false);
+				}
 
 				const changes = getSelectedOutlineDragChanges({
 					dragStates,
@@ -2216,7 +2275,14 @@ const SelectedOutlineRotationCornerHandle: React.FC<{
 			forceSpecificCursor(cornerInfo.cursor);
 
 			const svgRect = svg.getBoundingClientRect();
-			const center = svgPointToClientPoint(cornerInfo.center, svgRect);
+			const center = svgPointToClientPoint(
+				getSelectedOutlineRotationPivot({
+					dimensions: outline.dimensions,
+					points: outline.points,
+					transformOriginValue: rotationDrag.transformOriginValue,
+				}),
+				svgRect,
+			);
 			const dragStates = getSelectedOutlineRotationDragStates({
 				dragTargets: selected ? allRotationDragTargets : [rotationDrag],
 				getDragOverrides,
@@ -2359,6 +2425,8 @@ const SelectedOutlineRotationCornerHandle: React.FC<{
 			cornerInfo,
 			getDragOverrides,
 			onDraggingChange,
+			outline.dimensions,
+			outline.points,
 			onSelect,
 			rotationDrag,
 			selected,
@@ -2696,6 +2764,23 @@ export const SelectedOutlineOverlay: React.FC<{
 				controls?.schema[transformOriginFieldKey];
 			const transformOriginPropStatus =
 				nodePropStatuses?.[transformOriginFieldKey];
+			const rotationSourceFrame = timelinePosition - keyframeDisplayOffset;
+			const transformOriginValueForRotation =
+				transformOriginFieldSchema?.type === 'transform-origin' &&
+				(transformOriginPropStatus?.status === 'static' ||
+					transformOriginPropStatus?.status === 'keyframed')
+					? String(
+							Internals.getEffectiveVisualModeValue({
+								propStatus: transformOriginPropStatus,
+								dragOverrideValue: (getDragOverrides(nodePath) ?? {})[
+									transformOriginFieldKey
+								],
+								defaultValue: transformOriginFieldSchema.default,
+								frame: rotationSourceFrame,
+								shouldResortToDefaultValueIfUndefined: true,
+							}) ?? transformOriginFieldSchema.default,
+						)
+					: '50% 50%';
 			const canDragStatus =
 				propStatus?.status === 'static' ||
 				(propStatus?.status === 'keyframed' &&
@@ -2813,6 +2898,7 @@ export const SelectedOutlineOverlay: React.FC<{
 							keyframeDisplayOffset,
 							nodePath,
 							schema: controls.schema,
+							transformOriginValue: transformOriginValueForRotation,
 						}
 					: null,
 				transformOriginDrag: canTransformOriginDrag

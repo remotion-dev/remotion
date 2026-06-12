@@ -665,11 +665,7 @@ const HtmlInCanvasInner = forwardRef<
 			<Sequence
 				durationInFrames={resolvedDuration}
 				name={name ?? '<HtmlInCanvas>'}
-				_remotionInternalDocumentationLink={
-					name === undefined
-						? 'https://www.remotion.dev/docs/remotion/html-in-canvas'
-						: undefined
-				}
+				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/remotion/html-in-canvas"
 				_experimentalControls={controls}
 				_remotionInternalEffects={memoizedEffectDefinitions}
 				_remotionInternalRefForOutline={actualRef}

@@ -300,6 +300,7 @@ const sidebars: SidebarsConfig = {
 				'effects/shine',
 				'effects/speckle',
 				'effects/tint',
+				'effects/tv-signal-off',
 				'effects/uv-translate',
 				'effects/vignette',
 				'effects/wave',
