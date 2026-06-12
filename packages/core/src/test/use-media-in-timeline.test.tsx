@@ -90,3 +90,56 @@ test('useMediaInTimeline registers and unregisters new sequence', () => {
 	unmount();
 	expect(unregisterSequence).toHaveBeenCalled();
 });
+
+test('useMediaInTimeline keeps documentation links for custom display names', () => {
+	const registerSequence = mock();
+	const unregisterSequence = mock();
+	const wrapper: React.FC<{
+		children: React.ReactNode;
+	}> = ({children}) => {
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		const sequenceManagerContext: SequenceManagerContext = useMemo(() => {
+			return {
+				registerSequence,
+				unregisterSequence,
+				sequences: [],
+			};
+		}, []);
+
+		return (
+			<WrapSequenceContext>
+				<SequenceManager.Provider value={sequenceManagerContext}>
+					{children}
+				</SequenceManager.Provider>
+			</WrapSequenceContext>
+		);
+	};
+
+	renderHook(
+		() =>
+			useMediaInTimeline({
+				volume: 1,
+				src: 'test.mp4',
+				mediaVolume: 1,
+				mediaType: 'video',
+				playbackRate: 1,
+				displayName: 'Intro',
+				id: 'test',
+				getStack: () => null,
+				showInTimeline: true,
+				premountDisplay: null,
+				postmountDisplay: null,
+				loopDisplay: undefined,
+				documentationLink: 'https://www.remotion.dev/docs/html5-video',
+				refForOutline: null,
+			}),
+		{
+			wrapper,
+		},
+	);
+
+	expect(registerSequence.mock.calls[0]?.[0]).toMatchObject({
+		displayName: 'Intro',
+		documentationLink: 'https://www.remotion.dev/docs/html5-video',
+	});
+});
