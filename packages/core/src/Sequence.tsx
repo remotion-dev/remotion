@@ -144,6 +144,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	const cumulatedFrom = parentSequence
 		? parentSequence.cumulatedFrom + parentSequence.relativeFrom
 		: 0;
+	const absoluteFrom = (parentSequence?.absoluteFrom ?? 0) + from;
 	const nonce = useNonce();
 
 	if (layout !== 'absolute-fill' && layout !== 'none') {
@@ -238,6 +239,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	const contextValue = useMemo((): SequenceContextType => {
 		return {
+			absoluteFrom,
 			cumulatedFrom,
 			relativeFrom: from,
 			cumulatedNegativeFrom,
@@ -253,6 +255,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		};
 	}, [
 		cumulatedFrom,
+		absoluteFrom,
 		from,
 		actualDurationInFrames,
 		parentSequence,
