@@ -1,6 +1,13 @@
 import type {RecastCodemod} from '@remotion/studio-shared';
 import type {ChangeEventHandler} from 'react';
-import React, {useCallback, useContext, useEffect, useMemo, useRef, useState} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import {Internals} from 'remotion';
 import {getFolderId} from '../../helpers/get-folder-id';
 import {validateFolderRename} from '../../helpers/validate-folder-rename';
@@ -34,7 +41,6 @@ export const RenameFolder: React.FC<{
 		const input = inputRef.current;
 		if (!input) return;
 		input.select();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	const onNameChange: ChangeEventHandler<HTMLInputElement> = useCallback(
