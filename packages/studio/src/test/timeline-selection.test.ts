@@ -34,6 +34,8 @@ import {
 	getSelectedSequenceKeys,
 	getSequencesWithSelectableOutlines,
 	getTransformedSvgViewportPoints,
+	isSelectedOutlineDragPastThreshold,
+	selectedOutlineDragThresholdPx,
 	type SelectedOutlineDragState,
 	type SelectedOutlineRotationDragState,
 	type SelectedOutlineScaleDragState,
@@ -1975,6 +1977,27 @@ test('Selected outline dragging can lock movement to the dominant axis', () => {
 			axisLocked: false,
 		}),
 	).toEqual({deltaX: 12, deltaY: 13});
+});
+
+test('Selected outline dragging starts after a screen pixel threshold', () => {
+	expect(
+		isSelectedOutlineDragPastThreshold({
+			deltaX: selectedOutlineDragThresholdPx - 0.1,
+			deltaY: 0,
+		}),
+	).toBe(false);
+	expect(
+		isSelectedOutlineDragPastThreshold({
+			deltaX: selectedOutlineDragThresholdPx,
+			deltaY: 0,
+		}),
+	).toBe(true);
+	expect(
+		isSelectedOutlineDragPastThreshold({
+			deltaX: 3,
+			deltaY: 3,
+		}),
+	).toBe(true);
 });
 
 test('Selected outline dragging keyframed translate adds a keyframe at the source frame', () => {
