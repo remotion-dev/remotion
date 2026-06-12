@@ -8,7 +8,6 @@ import {
 } from '../shapes/shape-component-drag-data';
 import {ShapeDragPreview} from '../shapes/shape-drag-preview';
 import {Control} from './control';
-import styles from './styles.module.css';
 import type {DemoType, Option} from './types';
 import {
 	animationMathDemo,
@@ -50,6 +49,7 @@ import {
 	slidePresentationDemoLongThreshold,
 	springDampingDemo,
 	springDemo,
+	sparkDemo,
 	starburstDemo,
 	starDemo,
 	swapPresentationDemo,
@@ -62,6 +62,7 @@ import {
 	zoomBlurPresentationDemo,
 	zoomInOutPresentationDemo,
 } from './types';
+import styles from './styles.module.css';
 
 const container: React.CSSProperties = {
 	overflow: 'hidden',
@@ -111,6 +112,7 @@ const demos: DemoType[] = [
 	circleDemo,
 	ellipseDemo,
 	heartDemo,
+	sparkDemo,
 	starDemo,
 	polygonDemo,
 	pieDemo,

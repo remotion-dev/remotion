@@ -6133,6 +6133,15 @@ export const articles = [
 		slug: 'shapes/make-rect',
 	},
 	{
+		id: 'shapes/make-spark',
+		title: 'makeSpark()',
+		relativePath: 'docs/shapes/make-spark.mdx',
+		compId: 'articles-docs-shapes-make-spark',
+		crumb: '@remotion/shapes',
+		noAi: false,
+		slug: 'shapes/make-spark',
+	},
+	{
 		id: 'shapes/make-star',
 		title: 'makeStar()',
 		relativePath: 'docs/shapes/make-star.mdx',
@@ -6176,6 +6185,15 @@ export const articles = [
 		crumb: '@remotion/shapes',
 		noAi: false,
 		slug: 'shapes/rect',
+	},
+	{
+		id: 'shapes/spark',
+		title: '<Spark />',
+		relativePath: 'docs/shapes/spark.mdx',
+		compId: 'articles-docs-shapes-spark',
+		crumb: '@remotion/shapes',
+		noAi: false,
+		slug: 'shapes/spark',
 	},
 	{
 		id: 'shapes/star',

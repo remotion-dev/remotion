@@ -6,6 +6,7 @@ import {
 	makePie,
 	makePolygon,
 	makeRect,
+	makeSpark,
 	makeStar,
 	makeTriangle,
 } from '@remotion/shapes';
@@ -32,6 +33,7 @@ export type ShapeName =
 	| 'Pie'
 	| 'Polygon'
 	| 'Rect'
+	| 'Spark'
 	| 'Star'
 	| 'Triangle';
 
@@ -230,6 +232,24 @@ export const shapeComponents: ShapeComponent[] = [
 				name: 'direction',
 				type: '"left" | "right" | "up" | "down"',
 				description: 'The direction of the triangle.',
+			},
+		],
+	},
+	{
+		shape: 'Spark',
+		fn: makeSpark,
+		params: [
+			{
+				name: 'innerRadius',
+				type: 'number',
+				description: 'The inner radius of the spark.',
+				hiddenFromList: false,
+			},
+			{
+				name: 'outerRadius',
+				type: 'number',
+				description: 'The outer radius of the spark.',
+				hiddenFromList: false,
 			},
 		],
 	},

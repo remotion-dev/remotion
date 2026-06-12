@@ -34,6 +34,7 @@ import {RectDemo} from './Rect';
 import {RippleDocsDemo} from './RippleDemo';
 import {RoundedTextBox} from './RoundedTextBox';
 import {ShaderDemoComp} from './ShaderDemo';
+import {SparkDemo} from './Spark';
 import {SpringDemo} from './Spring';
 import {StarDemo} from './Star';
 import {StarburstDemoComp} from './StarburstDemo';
@@ -679,6 +680,56 @@ export const starDemo: DemoType = {
 			step: 1,
 			type: 'numeric',
 			optional: 'no',
+		},
+		{
+			name: 'cornerRadius',
+			default: 0,
+			max: 200,
+			min: 0,
+			step: 1,
+			type: 'numeric',
+			optional: 'no',
+		},
+	],
+};
+
+export const sparkDemo: DemoType = {
+	comp: SparkDemo,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 150,
+	fps: 30,
+	id: 'spark',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			default: 50,
+			max: 400,
+			step: 5,
+			min: 1,
+			type: 'numeric',
+			name: 'innerRadius',
+			optional: 'no',
+		},
+		{
+			default: 200,
+			max: 400,
+			step: 5,
+			min: 1,
+			type: 'numeric',
+			name: 'outerRadius',
+			optional: 'no',
+		},
+		{
+			name: 'edgeRoundness',
+			default: 1,
+			max: 2,
+			min: -2,
+			step: 0.01,
+			type: 'numeric',
+			optional: 'default-disabled',
 		},
 		{
 			name: 'cornerRadius',
