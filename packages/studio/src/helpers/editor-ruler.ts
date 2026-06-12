@@ -6,6 +6,7 @@ import {
 	BACKGROUND__TRANSPARENT,
 	RULER_COLOR,
 	SELECTED_GUIDE,
+	BLUE,
 } from './colors';
 
 type Orientation = 'horizontal' | 'vertical';
@@ -72,6 +73,7 @@ const drawGuide = ({
 	canvasWidth,
 	orientation,
 	originOffset,
+	selected,
 }: {
 	selectedGuide: Guide;
 	scale: number;
@@ -81,6 +83,7 @@ const drawGuide = ({
 	canvasWidth: number;
 	orientation: Orientation;
 	originOffset: number;
+	selected: boolean;
 }) => {
 	const originDistance =
 		rulerValueToPosition({
@@ -97,7 +100,8 @@ const drawGuide = ({
 		originDistance,
 		canvasWidth,
 	});
-	context.strokeStyle = SELECTED_GUIDE;
+	const guideColor = selected ? BLUE : SELECTED_GUIDE;
+	context.strokeStyle = guideColor;
 	context.lineWidth = 1;
 	context.beginPath();
 	if (
@@ -122,7 +126,7 @@ const drawGuide = ({
 			label: selectedGuide.position.toString(),
 			originDistance,
 			orientation,
-			color: SELECTED_GUIDE,
+			color: guideColor,
 		});
 	} else if (
 		orientation === 'horizontal' &&
@@ -135,7 +139,7 @@ const drawGuide = ({
 			label: selectedGuide.position.toString(),
 			originDistance,
 			orientation,
-			color: SELECTED_GUIDE,
+			color: guideColor,
 		});
 	}
 
@@ -151,6 +155,7 @@ export const drawMarkingOnRulerCanvas = ({
 	orientation,
 	rulerCanvasRef,
 	selectedGuide,
+	selectedGuideIsSelected,
 	canvasHeight,
 	canvasWidth,
 }: {
@@ -162,6 +167,7 @@ export const drawMarkingOnRulerCanvas = ({
 	orientation: 'horizontal' | 'vertical';
 	rulerCanvasRef: React.RefObject<HTMLCanvasElement | null>;
 	selectedGuide: Guide | null;
+	selectedGuideIsSelected: boolean;
 	canvasWidth: number;
 	canvasHeight: number;
 }) => {
@@ -229,6 +235,7 @@ export const drawMarkingOnRulerCanvas = ({
 			originOffset,
 			scale,
 			selectedGuide,
+			selected: selectedGuideIsSelected,
 			startMarking,
 		});
 	}

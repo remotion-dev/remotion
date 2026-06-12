@@ -1,6 +1,6 @@
 import {memo, useCallback, useContext, useMemo} from 'react';
 import {NoReactInternals} from 'remotion/no-react';
-import {SELECTED_GUIDE, UNSELECTED_GUIDE} from '../../helpers/colors';
+import {BLUE, SELECTED_GUIDE, UNSELECTED_GUIDE} from '../../helpers/colors';
 import type {Guide} from '../../state/editor-guides';
 import {
 	EditorShowGuidesContext,
@@ -10,6 +10,7 @@ import {RULER_WIDTH} from '../../state/editor-rulers';
 import {ContextMenu} from '../ContextMenu';
 import {forceSpecificCursor} from '../ForceSpecificCursor';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
+import {useTimelineSelection} from '../Timeline/TimelineSelection';
 
 const PADDING_FOR_EASY_DRAG = 4;
 
@@ -27,10 +28,12 @@ const GuideComp: React.FC<{
 		shouldCreateGuideRef,
 		setGuidesList,
 		setSelectedGuideId,
+		setDraggingGuideId,
 		selectedGuideId,
 		setHoveredGuideId,
 		hoveredGuideId,
 	} = useContext(EditorShowGuidesContext);
+	const {clearSelection} = useTimelineSelection();
 
 	const onPointerEnter = useCallback(() => {
 		setHoveredGuideId(() => guide.id);
@@ -69,9 +72,11 @@ const GuideComp: React.FC<{
 			left: `${isVerticalGuide ? '0px' : `-${RULER_WIDTH}px`}`,
 			display: guide.show ? 'block' : 'none',
 			backgroundColor:
-				selectedGuideId === guide.id || hoveredGuideId === guide.id
-					? SELECTED_GUIDE
-					: UNSELECTED_GUIDE,
+				selectedGuideId === guide.id
+					? BLUE
+					: hoveredGuideId === guide.id
+						? SELECTED_GUIDE
+						: UNSELECTED_GUIDE,
 		};
 	}, [isVerticalGuide, guide.show, guide.id, selectedGuideId, hoveredGuideId]);
 
@@ -84,9 +89,17 @@ const GuideComp: React.FC<{
 
 			shouldCreateGuideRef.current = true;
 			forceSpecificCursor('no-drop');
+			clearSelection();
 			setSelectedGuideId(() => guide.id);
+			setDraggingGuideId(() => guide.id);
 		},
-		[shouldCreateGuideRef, setSelectedGuideId, guide.id],
+		[
+			shouldCreateGuideRef,
+			clearSelection,
+			setDraggingGuideId,
+			setSelectedGuideId,
+			guide.id,
+		],
 	);
 
 	const values = useMemo((): ComboboxValue[] => {

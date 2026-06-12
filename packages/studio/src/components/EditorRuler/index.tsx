@@ -54,8 +54,9 @@ export const EditorRulers: React.FC<{
 		shouldCreateGuideRef,
 		shouldDeleteGuideRef,
 		setGuidesList,
-		selectedGuideId,
 		setSelectedGuideId,
+		draggingGuideId,
+		setDraggingGuideId,
 	} = useContext(EditorShowGuidesContext);
 
 	const rulerMarkingGaps = useMemo(() => {
@@ -141,7 +142,7 @@ export const EditorRulers: React.FC<{
 
 					setGuidesList((prevState) => {
 						const newGuides = prevState.map((guide) => {
-							if (guide.id !== selectedGuideId) {
+							if (guide.id !== draggingGuideId) {
 								return guide;
 							}
 
@@ -161,7 +162,7 @@ export const EditorRulers: React.FC<{
 					setGuidesList((prevState) => {
 						// Intentionally no persist, only persist on mouse up
 						return prevState.map((guide) => {
-							if (guide.id !== selectedGuideId) {
+							if (guide.id !== draggingGuideId) {
 								return guide;
 							}
 
@@ -190,7 +191,7 @@ export const EditorRulers: React.FC<{
 			containerRef,
 			shouldDeleteGuideRef,
 			setGuidesList,
-			selectedGuideId,
+			draggingGuideId,
 			scale,
 			canvasPosition.left,
 			canvasPosition.top,
@@ -204,29 +205,35 @@ export const EditorRulers: React.FC<{
 					return true;
 				}
 
-				return selected.id !== selectedGuideId;
+				return selected.id !== draggingGuideId;
 			});
 			persistGuidesList(newGuides);
 			return newGuides;
 		});
 
+		const shouldDeleteGuide = shouldDeleteGuideRef.current;
 		shouldDeleteGuideRef.current = false;
 		stopForcingSpecificCursor();
 		shouldCreateGuideRef.current = false;
-		setSelectedGuideId(() => null);
+		setDraggingGuideId(() => null);
+		if (shouldDeleteGuide) {
+			setSelectedGuideId(() => null);
+		}
+
 		document.removeEventListener('pointerup', onMouseUp);
 		document.removeEventListener('pointermove', onMouseMove);
 	}, [
-		selectedGuideId,
+		draggingGuideId,
 		shouldCreateGuideRef,
 		shouldDeleteGuideRef,
+		setDraggingGuideId,
 		setSelectedGuideId,
 		setGuidesList,
 		onMouseMove,
 	]);
 
 	useEffect(() => {
-		if (selectedGuideId !== null) {
+		if (draggingGuideId !== null) {
 			document.addEventListener('pointermove', onMouseMove);
 			document.addEventListener('pointerup', onMouseUp);
 		}
@@ -238,7 +245,7 @@ export const EditorRulers: React.FC<{
 				cancelAnimationFrame(requestAnimationFrameRef.current);
 			}
 		};
-	}, [selectedGuideId, onMouseMove, onMouseUp]);
+	}, [draggingGuideId, onMouseMove, onMouseUp]);
 
 	return (
 		<>

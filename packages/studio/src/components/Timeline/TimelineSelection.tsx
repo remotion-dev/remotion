@@ -18,6 +18,7 @@ import type {
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {timelineNodePathInfoToKey} from '../../helpers/timeline-node-path-key';
 import {useKeybinding} from '../../helpers/use-keybinding';
+import {EditorShowGuidesContext} from '../../state/editor-guides';
 import {useZIndex} from '../../state/z-index';
 import {TimelineClipboardKeybindings} from './TimelineClipboardKeybindings';
 import {TimelineDeleteKeybindings} from './TimelineDeleteKeybindings';
@@ -649,6 +650,9 @@ export const TimelineSelectionProvider: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const {setSelectedGuideId, setDraggingGuideId} = useContext(
+		EditorShowGuidesContext,
+	);
 	const canSelect =
 		previewServerState.type === 'connected' &&
 		!window.remotion_isReadOnlyStudio;
@@ -710,6 +714,8 @@ export const TimelineSelectionProvider: React.FC<{
 				return;
 			}
 
+			setSelectedGuideId(() => null);
+			setDraggingGuideId(() => null);
 			setSelectedItems((currentSelectedItems) => {
 				const orderedSelectableItems = [
 					...selectableItems.current.values(),
@@ -734,7 +740,7 @@ export const TimelineSelectionProvider: React.FC<{
 				return nextState.selectedItems;
 			});
 		},
-		[canSelectItem],
+		[canSelectItem, setDraggingGuideId, setSelectedGuideId],
 	);
 
 	const selectItems = useCallback(
@@ -743,11 +749,13 @@ export const TimelineSelectionProvider: React.FC<{
 				return;
 			}
 
+			setSelectedGuideId(() => null);
+			setDraggingGuideId(() => null);
 			selectionAnchor.current =
 				items.length === 0 ? null : items[items.length - 1];
 			setSelectedItems(items);
 		},
-		[canSelectItem],
+		[canSelectItem, setDraggingGuideId, setSelectedGuideId],
 	);
 
 	const registerSelectableItem = useCallback((item: TimelineSelection) => {
@@ -820,8 +828,10 @@ export const TimelineSelectionProvider: React.FC<{
 
 	const clearSelection = useCallback(() => {
 		selectionAnchor.current = null;
+		setSelectedGuideId(() => null);
+		setDraggingGuideId(() => null);
 		setSelectedItems([]);
-	}, []);
+	}, [setDraggingGuideId, setSelectedGuideId]);
 
 	const containsSelection = useCallback(
 		(nodePathInfo: SequenceNodePathInfo) => {
