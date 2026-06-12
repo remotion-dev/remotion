@@ -1,6 +1,13 @@
 import type {RecastCodemod} from '@remotion/studio-shared';
 import type {ChangeEventHandler} from 'react';
-import React, {useCallback, useContext, useMemo, useState} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import {Internals} from 'remotion';
 import {getFolderId} from '../../helpers/get-folder-id';
 import {validateFolderRename} from '../../helpers/validate-folder-rename';
@@ -28,6 +35,13 @@ export const RenameFolder: React.FC<{
 }> = ({folderName, parentName, stack}) => {
 	const {folders} = useContext(Internals.CompositionManager);
 	const [newName, setName] = useState(folderName);
+	const inputRef = useRef<HTMLInputElement>(null);
+
+	useEffect(() => {
+		const input = inputRef.current;
+		if (!input) return;
+		input.select();
+	}, []);
 
 	const onNameChange: ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
@@ -70,6 +84,7 @@ export const RenameFolder: React.FC<{
 						<div style={rightRow}>
 							<div>
 								<RemotionInput
+									ref={inputRef}
 									value={newName}
 									onChange={onNameChange}
 									type="text"
