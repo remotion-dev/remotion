@@ -793,6 +793,8 @@ export const useTimelineEasingKeyframeDrag = ({
 				shiftKey: e.shiftKey,
 				toggleKey: e.metaKey || e.ctrlKey,
 			};
+			const shouldSelectOnPointerDown =
+				!selected && !interaction.shiftKey && !interaction.toggleKey;
 
 			if (timelineWidth === null || previewServerState.type !== 'connected') {
 				onSelect(interaction);
@@ -805,6 +807,10 @@ export const useTimelineEasingKeyframeDrag = ({
 				selectionItem,
 				selected,
 			});
+
+			if (shouldSelectOnPointerDown) {
+				onSelect(interaction);
+			}
 
 			const startClientX = e.clientX;
 			let dragTargets: TimelineKeyframeDragTarget[] | null = null;
@@ -908,7 +914,10 @@ export const useTimelineEasingKeyframeDrag = ({
 
 				const targets = dragTargets;
 				if (!hasDragged) {
-					onSelect(interaction);
+					if (!shouldSelectOnPointerDown) {
+						onSelect(interaction);
+					}
+
 					clearActiveOverrides();
 					clearDraggedKeyframes();
 					return;
