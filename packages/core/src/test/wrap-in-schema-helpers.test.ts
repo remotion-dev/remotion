@@ -1,6 +1,7 @@
 import {expect, test} from 'bun:test';
 import {getFlatSchemaWithAllKeys} from '../flatten-schema.js';
 import {
+	extendSchemaWithSequenceName,
 	sequencePremountSchema,
 	sequenceSchema,
 	sequenceSchemaWithoutFrom,
@@ -28,6 +29,7 @@ test('getFlatSchema(sequenceSchema) exposes every variant key', () => {
 	expect(Object.keys(flat).sort()).toEqual(
 		[
 			'hidden',
+			'name',
 			'showInTimeline',
 			'layout',
 			'style.translate',
@@ -44,6 +46,21 @@ test('getFlatSchema(sequenceSchema) exposes every variant key', () => {
 			'freeze',
 		].sort(),
 	);
+});
+
+test('extendSchemaWithSequenceName adds hidden name to wrapped schemas', () => {
+	const flat = getFlatSchemaWithAllKeys(
+		extendSchemaWithSequenceName({
+			opacity: {
+				type: 'number',
+				default: 1,
+				hiddenFromList: false,
+			},
+		}),
+	);
+
+	expect(flat.name).toEqual({type: 'hidden'});
+	expect(flat.opacity.type).toBe('number');
 });
 
 test('sequenceSchemaWithoutFrom does not expose from', () => {

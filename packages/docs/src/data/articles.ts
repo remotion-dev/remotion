@@ -2007,6 +2007,15 @@ export const articles = [
 		slug: 'effects/tint',
 	},
 	{
+		id: 'effects/tv-signal-off',
+		title: 'tvSignalOff()',
+		relativePath: 'docs/effects/tv-signal-off.mdx',
+		compId: 'articles-docs-effects-tv-signal-off',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/tv-signal-off',
+	},
+	{
 		id: 'effects/uv-translate',
 		title: 'uvTranslate()',
 		relativePath: 'docs/effects/uv-translate.mdx',

@@ -14,7 +14,7 @@ export type LoopProps = {
 	readonly name?: string;
 	readonly children: React.ReactNode;
 } & LayoutAndStyle &
-	Pick<SequenceProps, 'showInTimeline'>;
+	Pick<SequenceProps, 'freeze' | 'showInTimeline'>;
 
 type LoopContextType = {
 	iteration: number;
@@ -37,6 +37,7 @@ export const Loop: React.FC<LoopProps> & {
 	durationInFrames,
 	times = Infinity,
 	children,
+	freeze,
 	name,
 	showInTimeline,
 	...props
@@ -96,11 +97,10 @@ export const Loop: React.FC<LoopProps> & {
 				durationInFrames={durationInFrames}
 				from={from}
 				name={name ?? '<Loop>'}
-				_remotionInternalDocumentationLink={
-					name === undefined ? 'https://www.remotion.dev/docs/loop' : undefined
-				}
+				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/loop"
 				_remotionInternalLoopDisplay={loopDisplay}
 				layout={props.layout}
+				freeze={freeze}
 				style={style}
 				showInTimeline={showInTimeline}
 			>

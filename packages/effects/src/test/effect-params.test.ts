@@ -33,6 +33,7 @@ import {shine} from '../shine.js';
 import {speckle} from '../speckle.js';
 import {tint} from '../tint.js';
 import {uvTranslate, xyTranslate} from '../translate.js';
+import {tvSignalOff} from '../tv-signal-off.js';
 import {vignette} from '../vignette.js';
 import {wave} from '../wave/index.js';
 import {waves} from '../waves.js';
@@ -147,6 +148,9 @@ test('@remotion/effects expose documentation links', () => {
 	expect(tint({color: '#fff'}).definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/tint',
 	);
+	expect(tvSignalOff().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/tv-signal-off',
+	);
 	expect(uvTranslate().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/uv-translate',
 	);
@@ -207,6 +211,7 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(shine().definition.label).toBe('shine()');
 	expect(speckle().definition.label).toBe('speckle()');
 	expect(tint({color: '#fff'}).definition.label).toBe('tint()');
+	expect(tvSignalOff().definition.label).toBe('tvSignalOff()');
 	expect(uvTranslate().definition.label).toBe('uvTranslate()');
 	expect(vignette().definition.label).toBe('vignette()');
 	expect(xyTranslate().definition.label).toBe('xyTranslate()');
@@ -680,6 +685,31 @@ test('whiteNoise() parameters produce distinct effect keys', () => {
 		new Set([defaultStatic.effectKey, subtle.effectKey, reseeded.effectKey])
 			.size,
 	).toBe(3);
+});
+
+test('tvSignalOff() accepts default params', () => {
+	expect(() => tvSignalOff()).not.toThrow();
+});
+
+test('tvSignalOff() rejects non-finite amount', () => {
+	expect(() => tvSignalOff({amount: Number.NaN})).toThrow(
+		'"amount" must be a finite number',
+	);
+});
+
+test('tvSignalOff() rejects amount below range', () => {
+	expect(() => tvSignalOff({amount: -0.1})).toThrow('"amount" must be >= 0');
+});
+
+test('tvSignalOff() rejects amount above range', () => {
+	expect(() => tvSignalOff({amount: 1.1})).toThrow('"amount" must be <= 1');
+});
+
+test('tvSignalOff() parameters produce distinct effect keys', () => {
+	const defaults = tvSignalOff();
+	const subtle = tvSignalOff({amount: 0.2});
+
+	expect(new Set([defaults.effectKey, subtle.effectKey]).size).toBe(2);
 });
 
 test('grayscale() accepts default params', () => {

@@ -250,6 +250,19 @@ const showInTimelineField: SequenceFieldSchema = {
 	type: 'hidden',
 };
 
+export const sequenceNameField: SequenceFieldSchema = {
+	type: 'hidden',
+};
+
+export const extendSchemaWithSequenceName = <S extends SequenceSchema>(
+	schema: S,
+): S & {name: SequenceFieldSchema} => {
+	return {
+		name: sequenceNameField,
+		...schema,
+	};
+};
+
 export const durationInFramesField = {
 	type: 'number',
 	default: undefined,
@@ -272,7 +285,7 @@ export const freezeField = {
 	hiddenFromList: true,
 } as const satisfies SequenceFieldSchema;
 
-export const sequenceSchema = {
+export const sequenceSchema = extendSchemaWithSequenceName({
 	hidden: hiddenField,
 	showInTimeline: showInTimelineField,
 	from: fromField,
@@ -287,15 +300,15 @@ export const sequenceSchema = {
 			none: {},
 		},
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies SequenceSchema);
 
-export const sequenceSchemaWithoutFrom = {
+export const sequenceSchemaWithoutFrom = extendSchemaWithSequenceName({
 	hidden: hiddenField,
 	showInTimeline: showInTimelineField,
 	freeze: freezeField,
 	durationInFrames: durationInFramesField,
 	layout: sequenceSchema.layout,
-} as const satisfies SequenceSchema;
+} as const satisfies SequenceSchema);
 
 export const sequenceSchemaDefaultLayoutNone: SequenceSchema = {
 	...sequenceSchema,

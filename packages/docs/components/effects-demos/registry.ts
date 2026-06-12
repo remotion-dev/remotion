@@ -29,6 +29,7 @@ import {shine} from '@remotion/effects/shine';
 import {speckle} from '@remotion/effects/speckle';
 import {tint} from '@remotion/effects/tint';
 import {uvTranslate, xyTranslate} from '@remotion/effects/translate';
+import {tvSignalOff} from '@remotion/effects/tv-signal-off';
 import {vignette} from '@remotion/effects/vignette';
 import {wave} from '@remotion/effects/wave';
 import {waves} from '@remotion/effects/waves';
@@ -75,6 +76,7 @@ import {
 	EffectsUvTranslatePreview,
 	EffectsXyTranslatePreview,
 } from '../effects/effects-translate-preview';
+import {EffectsTvSignalOffPreview} from '../effects/effects-tv-signal-off-preview';
 import {EffectsVignettePreview} from '../effects/effects-vignette-preview';
 import {EffectsWavePreview} from '../effects/effects-wave-preview';
 import {EffectsWavesPreview} from '../effects/effects-waves-preview';
@@ -246,6 +248,14 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/white-noise',
 		comp: EffectsWhiteNoisePreview,
 		schema: whiteNoise().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-tv-signal-off',
+		effectName: 'tvSignalOff',
+		effectImportPath: '@remotion/effects/tv-signal-off',
+		comp: EffectsTvSignalOffPreview,
+		schema: tvSignalOff().definition.schema,
 	},
 	{
 		...defaults,

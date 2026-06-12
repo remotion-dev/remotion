@@ -6,7 +6,10 @@ import {
 	flattenActiveSchema,
 	getFlatSchemaWithAllKeys,
 } from './flatten-schema.js';
-import type {SequenceSchema} from './sequence-field-schema.js';
+import {
+	extendSchemaWithSequenceName,
+	type SequenceSchema,
+} from './sequence-field-schema.js';
 import {OverrideIdsToNodePathsGettersContext} from './sequence-node-path.js';
 import {
 	VisualModeDragOverridesContext,
@@ -113,7 +116,8 @@ export const wrapInSchema = <S extends SequenceSchema, Props extends object>({
 	supportsEffects: boolean;
 }): React.ComponentType<Props> => {
 	// Schema is static for a component, so we move this outside
-	const flatSchema = getFlatSchemaWithAllKeys(schema);
+	const schemaWithSequenceName = extendSchemaWithSequenceName(schema);
+	const flatSchema = getFlatSchemaWithAllKeys(schemaWithSequenceName);
 	const flatKeys = Object.keys(flatSchema);
 
 	const Wrapped = forwardRef<unknown, Props>((props, ref) => {
@@ -187,7 +191,7 @@ export const wrapInSchema = <S extends SequenceSchema, Props extends object>({
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		const controls = useMemo((): SequenceControls => {
 			return {
-				schema,
+				schema: schemaWithSequenceName,
 				currentRuntimeValueDotNotation,
 				overrideId,
 				supportsEffects,
@@ -198,7 +202,7 @@ export const wrapInSchema = <S extends SequenceSchema, Props extends object>({
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		const {merged: valuesDotNotation, propsToDelete} = useMemo(() => {
 			return computeEffectiveSchemaValuesDotNotation({
-				schema,
+				schema: schemaWithSequenceName,
 				currentValue: currentRuntimeValueDotNotation,
 				overrideValues: nodePath === null ? {} : getDragOverrides(nodePath),
 				propStatus:
@@ -216,7 +220,10 @@ export const wrapInSchema = <S extends SequenceSchema, Props extends object>({
 		]);
 
 		// 4. Eliminate values forbidden by the resolved discriminated union.
-		const activeKeys = selectActiveKeys(schema, valuesDotNotation);
+		const activeKeys = selectActiveKeys(
+			schemaWithSequenceName,
+			valuesDotNotation,
+		);
 
 		// 5. Apply the active values back onto the props.
 		const mergedProps = mergeValues({
