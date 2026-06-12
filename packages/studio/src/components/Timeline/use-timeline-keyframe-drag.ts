@@ -864,14 +864,6 @@ export const useTimelineEasingKeyframeDrag = ({
 					return;
 				}
 
-				currentSelection.current.selectItems(
-					targets.map((target) => ({
-						type: 'keyframe',
-						nodePathInfo: target.nodePathInfo,
-						frame: target.displayFrame + lastDelta,
-					})),
-				);
-
 				clearActiveOverrides();
 				clearDraggedKeyframes();
 
