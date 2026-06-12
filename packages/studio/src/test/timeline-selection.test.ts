@@ -23,6 +23,7 @@ import {
 	getSelectedEffectFieldsBySequenceKey,
 	getSelectedOutlineDragChanges,
 	getSelectedOutlineDragValues,
+	getSelectedOutlineKeyboardNudgeDelta,
 	getSelectedOutlineRotationCornerInfo,
 	getSelectedOutlineRotationDeltaDegrees,
 	getSelectedOutlineRotationDragChanges,
@@ -1974,6 +1975,70 @@ test('Selected outline dragging can lock movement to the dominant axis', () => {
 			axisLocked: false,
 		}),
 	).toEqual({deltaX: 12, deltaY: 13});
+});
+
+test('Selected outline keyboard nudging moves horizontally by one or ten pixels', () => {
+	const schema = {
+		'style.translate': {type: 'translate', default: '0px 0px'},
+	} satisfies SequenceSchema;
+	const nodePath = makeKey(['body', 0]);
+	const dragStates = [
+		{
+			defaultValue: JSON.stringify('0px 0px'),
+			key: Internals.makeSequencePropsSubscriptionKey(nodePath),
+			sourceFrame: 12,
+			startX: 10,
+			startY: 20,
+			target: {
+				clientId: 'client',
+				propStatus: {status: 'static', codeValue: '10px 20px'},
+				fieldDefault: '0px 0px',
+				keyframeDisplayOffset: 30,
+				nodePath,
+				schema,
+			},
+		},
+	] satisfies SelectedOutlineDragState[];
+
+	expect(
+		getSelectedOutlineKeyboardNudgeDelta({
+			direction: 'left',
+			shiftKey: false,
+		}),
+	).toBe(-1);
+	expect(
+		getSelectedOutlineKeyboardNudgeDelta({
+			direction: 'right',
+			shiftKey: true,
+		}),
+	).toBe(10);
+
+	const lastValues = getSelectedOutlineDragValues({
+		dragStates,
+		deltaX: getSelectedOutlineKeyboardNudgeDelta({
+			direction: 'right',
+			shiftKey: true,
+		}),
+		deltaY: 0,
+	});
+
+	expect(lastValues.get(dragStates[0].key)).toBe('20px 20px');
+	expect(
+		getSelectedOutlineDragChanges({
+			dragStates,
+			lastValues,
+		}),
+	).toEqual([
+		{
+			type: 'static',
+			fileName: '/project/src/Comp.tsx',
+			nodePath,
+			fieldKey: 'style.translate',
+			value: '20px 20px',
+			defaultValue: JSON.stringify('0px 0px'),
+			schema,
+		},
+	]);
 });
 
 test('Selected outline dragging keyframed translate adds a keyframe at the source frame', () => {

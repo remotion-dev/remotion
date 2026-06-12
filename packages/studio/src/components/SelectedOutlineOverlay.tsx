@@ -19,6 +19,7 @@ import {formatFileLocation} from '../helpers/format-file-location';
 import {getBoxQuadsPonyfill} from '../helpers/get-box-quads-ponyfill';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 import {openOriginalPositionInEditor} from '../helpers/open-in-editor';
+import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
 import {EditorShowOutlinesContext} from '../state/editor-outlines';
 import {ScaleLockContext} from '../state/scale-lock';
 import {ContextMenuForTarget} from './ContextMenu';
@@ -849,6 +850,17 @@ export const getSelectedOutlineDragChanges = ({
 	}
 
 	return changes;
+};
+
+export const getSelectedOutlineKeyboardNudgeDelta = ({
+	direction,
+	shiftKey,
+}: {
+	readonly direction: 'left' | 'right';
+	readonly shiftKey: boolean;
+}) => {
+	const increment = shiftKey ? 10 : 1;
+	return direction === 'left' ? -increment : increment;
 };
 
 export type SelectedOutlineScaleEdge = 'top' | 'right' | 'bottom' | 'left';
@@ -2620,6 +2632,7 @@ export const SelectedOutlineOverlay: React.FC<{
 	const {getDragOverrides, getEffectDragOverrides} = useContext(
 		Internals.VisualModeDragOverridesContext,
 	);
+	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {getScaleLockState} = useContext(ScaleLockContext);
 	const {editorShowOutlines} = useContext(EditorShowOutlinesContext);
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
@@ -2927,6 +2940,124 @@ export const SelectedOutlineOverlay: React.FC<{
 				: [],
 		);
 	}, [outlineTargets]);
+
+	useEffect(() => {
+		if (areKeyboardShortcutsDisabled()) {
+			return;
+		}
+
+		const onKeyDown = (event: KeyboardEvent) => {
+			if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') {
+				return;
+			}
+
+			if (event.metaKey || event.ctrlKey || event.altKey) {
+				return;
+			}
+
+			const {activeElement} = document;
+			if (
+				activeElement instanceof HTMLInputElement ||
+				activeElement instanceof HTMLTextAreaElement
+			) {
+				return;
+			}
+
+			if (selectedItems.length === 0) {
+				return;
+			}
+
+			event.preventDefault();
+			event.stopImmediatePropagation();
+
+			if (allDragTargets.length === 0) {
+				return;
+			}
+
+			const dragStates = getSelectedOutlineDragStates({
+				dragTargets: allDragTargets,
+				getDragOverrides,
+				timelinePosition,
+			});
+			const lastValues = getSelectedOutlineDragValues({
+				dragStates,
+				deltaX: getSelectedOutlineKeyboardNudgeDelta({
+					direction: event.key === 'ArrowLeft' ? 'left' : 'right',
+					shiftKey: event.shiftKey,
+				}),
+				deltaY: 0,
+			});
+			const changes = getSelectedOutlineDragChanges({
+				dragStates,
+				lastValues,
+			});
+
+			if (changes.length === 0) {
+				return;
+			}
+
+			const staticChanges = changes.filter(
+				(change): change is SelectedOutlineStaticDragChange =>
+					change.type === 'static',
+			);
+			const keyframedChanges = changes.filter(
+				(change): change is SelectedOutlineKeyframedDragChange =>
+					change.type === 'keyframed',
+			);
+			const [firstDragTarget] = allDragTargets;
+			if (firstDragTarget === undefined) {
+				throw new Error('Expected a drag target');
+			}
+
+			Promise.all([
+				staticChanges.length > 0
+					? saveSequenceProps({
+							changes: staticChanges,
+							setPropStatuses,
+							clientId: firstDragTarget.clientId,
+							undoLabel:
+								changes.length > 1
+									? 'Move selected sequences'
+									: 'Move sequence',
+							redoLabel:
+								changes.length > 1
+									? 'Move selected sequences back'
+									: 'Move sequence back',
+						})
+					: Promise.resolve(),
+				...keyframedChanges.map((change) =>
+					callAddSequenceKeyframe({
+						fileName: change.fileName,
+						nodePath: change.nodePath,
+						fieldKey: change.fieldKey,
+						sourceFrame: change.sourceFrame,
+						value: change.value,
+						schema: change.schema,
+						setPropStatuses,
+						clientId: change.clientId,
+					}),
+				),
+			]).catch((err) => {
+				showNotification(
+					`Could not save sequence props: ${
+						err instanceof Error ? err.message : String(err)
+					}`,
+					4000,
+				);
+			});
+		};
+
+		window.addEventListener('keydown', onKeyDown, {capture: true});
+		return () => {
+			window.removeEventListener('keydown', onKeyDown, {capture: true});
+		};
+	}, [
+		allDragTargets,
+		getDragOverrides,
+		selectedItems.length,
+		setPropStatuses,
+		timelinePosition,
+	]);
 
 	useEffect(() => {
 		if (outlineTargets.length === 0) {

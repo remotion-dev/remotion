@@ -163,11 +163,21 @@ export const PlayPause: React.FC<{
 
 	const oneFrameBack = useCallback(() => {
 		frameBack(1);
-	}, [frameBack]);
+		ensureFrameIsInViewport({
+			direction: 'fit-left',
+			durationInFrames: getCurrentDuration(),
+			frame: Math.max(0, getCurrentFrame() - 1),
+		});
+	}, [frameBack, getCurrentFrame]);
 
 	const oneFrameForward = useCallback(() => {
 		frameForward(1);
-	}, [frameForward]);
+		ensureFrameIsInViewport({
+			direction: 'fit-right',
+			durationInFrames: getCurrentDuration(),
+			frame: Math.min(getCurrentDuration() - 1, getCurrentFrame() + 1),
+		});
+	}, [frameForward, getCurrentFrame]);
 
 	const jumpToStart = useCallback(() => {
 		seek(inFrame ?? 0);
@@ -194,6 +204,24 @@ export const PlayPause: React.FC<{
 			key: 'ArrowRight',
 			callback: onArrowRight,
 			commandCtrlKey: false,
+			preventDefault: true,
+			triggerIfInputFieldFocused: false,
+			keepRegisteredWhenNotHighestContext: false,
+		});
+		const commandArrowLeft = keybindings.registerKeybinding({
+			event: 'keydown',
+			key: 'ArrowLeft',
+			callback: oneFrameBack,
+			commandCtrlKey: true,
+			preventDefault: true,
+			triggerIfInputFieldFocused: false,
+			keepRegisteredWhenNotHighestContext: false,
+		});
+		const commandArrowRight = keybindings.registerKeybinding({
+			event: 'keydown',
+			key: 'ArrowRight',
+			callback: oneFrameForward,
+			commandCtrlKey: true,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
 			keepRegisteredWhenNotHighestContext: false,
@@ -238,6 +266,8 @@ export const PlayPause: React.FC<{
 		return () => {
 			arrowLeft.unregister();
 			arrowRight.unregister();
+			commandArrowLeft.unregister();
+			commandArrowRight.unregister();
 			space.unregister();
 			enter.unregister();
 			a.unregister();
@@ -251,6 +281,8 @@ export const PlayPause: React.FC<{
 		onArrowRight,
 		onEnter,
 		onSpace,
+		oneFrameBack,
+		oneFrameForward,
 	]);
 
 	useEffect(() => {
