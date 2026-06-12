@@ -894,12 +894,6 @@ export const useTimelineEasingKeyframeDrag = ({
 					return;
 				}
 
-				setDraggedKeyframes(
-					targets.map((target) => ({
-						nodePathInfo: target.nodePathInfo,
-						frame: target.displayFrame + delta,
-					})),
-				);
 				applyDragOverrides({
 					delta,
 					setDragOverrides,
