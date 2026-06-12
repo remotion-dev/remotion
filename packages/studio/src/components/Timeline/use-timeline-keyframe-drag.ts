@@ -777,8 +777,7 @@ export const useTimelineEasingKeyframeDrag = ({
 		setEffectDragOverrides,
 	} = useContext(Internals.VisualModeSettersContext);
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
-	const {clearDraggedKeyframes, setDraggedKeyframes} =
-		useTimelineKeyframeDragState();
+	const {clearDraggedKeyframes} = useTimelineKeyframeDragState();
 
 	return useCallback(
 		(e: React.PointerEvent<HTMLButtonElement>) => {
@@ -1018,7 +1017,6 @@ export const useTimelineEasingKeyframeDrag = ({
 			sequencesRef,
 			setPropStatuses,
 			setDragOverrides,
-			setDraggedKeyframes,
 			setEffectDragOverrides,
 			timelineWidth,
 			videoConfig.durationInFrames,
