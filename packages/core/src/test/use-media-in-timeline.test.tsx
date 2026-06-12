@@ -39,7 +39,7 @@ beforeAll(() => {
 	}));
 });
 afterAll(() => {
-	useVideoConfigSpy.mockRestore();
+	mock.restore();
 });
 
 test('useMediaInTimeline registers and unregisters new sequence', () => {
