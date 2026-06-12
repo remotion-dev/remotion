@@ -29,6 +29,7 @@ const getTranslateStatus = (translateValue: string) => {
 	const result = computeSequencePropsStatusFromContent({
 		fileContents: input,
 		nodePath: lineColumnToNodePath(input, 7),
+		componentIdentity: null,
 		keys: ['style.translate'],
 		effects: [],
 	});

@@ -223,6 +223,7 @@ export const saveSequencePropsHandler: ApiHandler<
 				fileContents: output,
 				keys: getAllSchemaKeys(edit.schema),
 				nodePath: edit.nodePath.nodePath,
+				componentIdentity: null,
 				effects: [],
 			});
 

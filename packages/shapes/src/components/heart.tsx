@@ -61,6 +61,7 @@ const HeartInner: React.FC<HeartProps> = ({
 
 export const Heart = Internals.wrapInSchema({
 	Component: HeartInner,
+	componentIdentity: 'dev.remotion.shapes.Heart',
 	schema: heartSchema,
 	supportsEffects: true,
 }) as React.FC<HeartProps>;

@@ -665,6 +665,7 @@ export const Example: React.FC = () => {
 	const status = computeSequencePropsStatusFromContent({
 		fileContents: output,
 		nodePath: updatedNodePath,
+		componentIdentity: null,
 		keys: ['style.translate'],
 		effects: [],
 	});
@@ -808,6 +809,7 @@ export default CenteredSolid;
 	const status = computeSequencePropsStatusFromContent({
 		fileContents: output,
 		nodePath: updatedNodePath,
+		componentIdentity: null,
 		keys: ['width'],
 		effects: [],
 	});
@@ -986,6 +988,7 @@ test('updateSequenceKeyframes converts the last keyframe to a static value', asy
 	const status = computeSequencePropsStatusFromContent({
 		fileContents: output,
 		nodePath: updatedNodePath,
+		componentIdentity: null,
 		keys: ['style.scale'],
 		effects: [],
 	});
@@ -1088,6 +1091,7 @@ test('updateSequenceKeyframes converts the last color keyframe to a static value
 	const status = computeSequencePropsStatusFromContent({
 		fileContents: output,
 		nodePath: updatedNodePath,
+		componentIdentity: null,
 		keys: ['color'],
 		effects: [],
 	});

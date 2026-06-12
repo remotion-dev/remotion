@@ -18,6 +18,7 @@ import type {
 	CanUpdateSequencePropsResponseTrue,
 	CanUpdateSequencePropStatus,
 	ExtrapolateType,
+	JsxComponentIdentity,
 	SequenceNodePath,
 	SequencePropsSubscriptionKey,
 	SequenceSchema,
@@ -271,6 +272,7 @@ export type SubscribeToSequencePropsRequest = {
 	line: number;
 	column: number;
 	nodePath: SequenceNodePath | null;
+	componentIdentity: JsxComponentIdentity | null;
 	keys: string[];
 	effects: string[][];
 	clientId: string;

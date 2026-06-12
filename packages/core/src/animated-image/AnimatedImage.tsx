@@ -296,6 +296,7 @@ const AnimatedImageInner = ({
 
 export const AnimatedImage = wrapInSchema({
 	Component: AnimatedImageInner,
+	componentIdentity: 'dev.remotion.remotion.AnimatedImage',
 	schema: animatedImageSchema,
 	supportsEffects: true,
 });

@@ -164,6 +164,7 @@ const AudioInner: React.FC<
 
 export const Audio = Internals.wrapInSchema({
 	Component: AudioInner,
+	componentIdentity: 'dev.remotion.media.Audio',
 	schema: audioSchema,
 	supportsEffects: false,
 });

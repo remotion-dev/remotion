@@ -5,8 +5,9 @@ import {
 	stringifySequenceSubscriptionKey,
 	type SubscribeToSequencePropsResponse,
 } from '@remotion/studio-shared';
-import type {SequenceNodePath} from 'remotion';
+import type {JsxComponentIdentity, SequenceNodePath} from 'remotion';
 import {installFileWatcher} from '../file-watcher';
+import {JsxElementIdentityMismatchError} from './jsx-component-identity';
 import {JsxElementNotFoundAtLocationError} from './jsx-element-not-found-at-location-error';
 import {waitForLiveEventsListener} from './live-events';
 import {getCachedNodePath, setCachedNodePath} from './node-path-cache';
@@ -28,6 +29,7 @@ const getSequencePropsStatus = ({
 	line,
 	column,
 	preferredNodePath,
+	componentIdentity,
 	keys,
 	effects,
 	remotionRoot,
@@ -37,44 +39,71 @@ const getSequencePropsStatus = ({
 	line: number;
 	column: number;
 	preferredNodePath: SequenceNodePath | null;
+	componentIdentity: JsxComponentIdentity | null;
 	keys: string[];
 	effects: string[][];
 	remotionRoot: string;
 	logLevel: LogLevel;
 }): SubscribeToSequencePropsResponse => {
 	if (preferredNodePath) {
-		const fromNodePath = computeSequencePropsStatus({
-			fileName,
-			nodePath: preferredNodePath,
-			keys,
-			effects,
-			remotionRoot,
-		});
-		return {
-			status: fromNodePath,
-			nodePath: {
-				absolutePath: path.resolve(remotionRoot, fileName),
+		try {
+			const fromNodePath = computeSequencePropsStatus({
+				fileName,
 				nodePath: preferredNodePath,
-				sequenceKeys: keys,
-				effectKeys: effects,
-			},
-			success: true,
-		};
+				componentIdentity,
+				keys,
+				effects,
+				remotionRoot,
+			});
+			return {
+				status: fromNodePath,
+				nodePath: {
+					absolutePath: path.resolve(remotionRoot, fileName),
+					nodePath: preferredNodePath,
+					sequenceKeys: keys,
+					effectKeys: effects,
+				},
+				success: true,
+			};
+		} catch (error) {
+			if (
+				!(
+					error instanceof JsxElementIdentityMismatchError ||
+					error instanceof JsxElementNotFoundAtLocationError
+				)
+			) {
+				throw error;
+			}
+		}
 	}
 
 	// Try cached nodePath first (handles stale source maps after suppressed rebuilds)
 	const cachedNodePath = getCachedNodePath(fileName, line, column);
 
 	if (cachedNodePath) {
-		const cachedResult = computeSequencePropsStatus({
-			fileName,
-			nodePath: cachedNodePath,
-			keys,
-			effects,
-			remotionRoot,
-		});
+		const cachedResult = (() => {
+			try {
+				return computeSequencePropsStatus({
+					fileName,
+					nodePath: cachedNodePath,
+					componentIdentity,
+					keys,
+					effects,
+					remotionRoot,
+				});
+			} catch (error) {
+				if (
+					error instanceof JsxElementIdentityMismatchError ||
+					error instanceof JsxElementNotFoundAtLocationError
+				) {
+					return null;
+				}
 
-		if (cachedResult.canUpdate) {
+				throw error;
+			}
+		})();
+
+		if (cachedResult?.canUpdate) {
 			return {
 				status: cachedResult,
 				nodePath: {
@@ -91,6 +120,7 @@ const getSequencePropsStatus = ({
 	const status = computeSequencePropsStatusFromFilenameByLine({
 		fileName,
 		line,
+		componentIdentity,
 		keys,
 		effects,
 		remotionRoot,
@@ -105,6 +135,7 @@ export const subscribeToSequencePropsWatchers = ({
 	line,
 	column,
 	nodePath: preferredNodePath,
+	componentIdentity,
 	keys,
 	effects,
 	remotionRoot,
@@ -115,6 +146,7 @@ export const subscribeToSequencePropsWatchers = ({
 	line: number;
 	column: number;
 	nodePath: SequenceNodePath | null;
+	componentIdentity: JsxComponentIdentity | null;
 	keys: string[];
 	effects: string[][];
 	remotionRoot: string;
@@ -126,6 +158,7 @@ export const subscribeToSequencePropsWatchers = ({
 		line,
 		column,
 		preferredNodePath,
+		componentIdentity,
 		keys,
 		effects,
 		remotionRoot,
@@ -166,6 +199,7 @@ export const subscribeToSequencePropsWatchers = ({
 				const result = computeSequencePropsStatusFromContent({
 					fileContents: event.content,
 					nodePath: nodePath.nodePath,
+					componentIdentity,
 					keys,
 					effects,
 				});
@@ -194,7 +228,10 @@ export const subscribeToSequencePropsWatchers = ({
 					});
 				});
 			} catch (error) {
-				if (error instanceof JsxElementNotFoundAtLocationError) {
+				if (
+					error instanceof JsxElementNotFoundAtLocationError ||
+					error instanceof JsxElementIdentityMismatchError
+				) {
 					waitForLiveEventsListener().then((listener) => {
 						listener.sendEventToClientId(clientId, {
 							type: 'lost-node-path',

@@ -19,6 +19,7 @@ import type {
 	CanUpdateSequencePropsResponseTrue,
 	CanUpdateSequencePropStatus,
 	ExtrapolateType,
+	JsxComponentIdentity,
 	LogLevel,
 	SequenceNodePath,
 } from 'remotion';
@@ -27,6 +28,11 @@ import {parseAst} from '../../codemods/parse-ast';
 import {getAstNodePath} from '../../helpers/get-ast-node-path';
 import {toImportAgnosticNodePath} from '../../helpers/import-agnostic-node-path';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
+import {
+	getJsxComponentIdentity,
+	JsxElementIdentityMismatchError,
+	jsxComponentIdentitiesMatch,
+} from '../jsx-component-identity';
 import {JsxElementNotFoundAtLocationError} from '../jsx-element-not-found-at-location-error';
 import {computeEffectPropStatus} from './can-update-effect-props';
 
@@ -881,11 +887,13 @@ const computeSequenceOnlyPropsRecord = ({
 export const computeSequencePropsStatusFromContent = ({
 	fileContents,
 	nodePath,
+	componentIdentity,
 	keys,
 	effects,
 }: {
 	fileContents: string;
 	nodePath: SequenceNodePath;
+	componentIdentity: JsxComponentIdentity | null;
 	keys: string[];
 	effects: string[][];
 }): CanUpdateSequencePropsResponseTrue => {
@@ -895,6 +903,15 @@ export const computeSequencePropsStatusFromContent = ({
 
 	if (!jsxElement) {
 		throw new JsxElementNotFoundAtLocationError();
+	}
+
+	if (
+		!jsxComponentIdentitiesMatch({
+			expected: componentIdentity,
+			actual: getJsxComponentIdentity({ast, jsxElement}),
+		})
+	) {
+		throw new JsxElementIdentityMismatchError();
 	}
 
 	const filteredProps = computeSequenceOnlyPropsRecord({jsxElement, ast, keys});
@@ -910,12 +927,14 @@ export const computeSequencePropsStatusFromContent = ({
 export const computeSequencePropsStatus = ({
 	fileName,
 	nodePath,
+	componentIdentity,
 	keys,
 	effects,
 	remotionRoot,
 }: {
 	fileName: string;
 	nodePath: SequenceNodePath;
+	componentIdentity: JsxComponentIdentity | null;
 	keys: string[];
 	effects: string[][];
 	remotionRoot: string;
@@ -930,6 +949,7 @@ export const computeSequencePropsStatus = ({
 	return computeSequencePropsStatusFromContent({
 		fileContents,
 		nodePath,
+		componentIdentity,
 		keys,
 		effects,
 	});
@@ -938,6 +958,7 @@ export const computeSequencePropsStatus = ({
 export const computeSequencePropsStatusFromFilenameByLine = ({
 	fileName,
 	line,
+	componentIdentity,
 	keys,
 	effects,
 	remotionRoot,
@@ -945,6 +966,7 @@ export const computeSequencePropsStatusFromFilenameByLine = ({
 }: {
 	fileName: string;
 	line: number;
+	componentIdentity: JsxComponentIdentity | null;
 	keys: string[];
 	effects: string[][];
 	remotionRoot: string;
@@ -975,6 +997,7 @@ export const computeSequencePropsStatusFromFilenameByLine = ({
 			status: computeSequencePropsStatus({
 				fileName,
 				nodePath: resolvedNodePath,
+				componentIdentity,
 				keys,
 				effects,
 				remotionRoot,

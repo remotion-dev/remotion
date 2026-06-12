@@ -29,6 +29,7 @@ const makeControls = (
 	currentRuntimeValueDotNotation: {},
 	overrideId,
 	supportsEffects: false,
+	componentIdentity: null,
 });
 
 const makeSequence = ({

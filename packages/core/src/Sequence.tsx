@@ -554,12 +554,14 @@ export const SequenceWithoutSchema = SequenceInner;
  */
 export const Sequence = wrapInSchema({
 	Component: SequenceInner,
+	componentIdentity: 'dev.remotion.remotion.Sequence',
 	schema: sequenceSchema,
 	supportsEffects: false,
 });
 
 export const SequenceWithoutFrom = wrapInSchema({
 	Component: SequenceInner,
+	componentIdentity: null,
 	schema: sequenceSchemaWithoutFrom,
 	supportsEffects: false,
 });

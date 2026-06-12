@@ -1,5 +1,8 @@
 import React, {forwardRef, useContext, useMemo, useState} from 'react';
-import type {SequenceControls} from './CompositionManager.js';
+import type {
+	JsxComponentIdentity,
+	SequenceControls,
+} from './CompositionManager.js';
 import {deleteNestedKey} from './delete-nested-key.js';
 import {getPropStatusesCtx} from './effects/use-memoized-effects.js';
 import {
@@ -103,12 +106,14 @@ const stackToOverrideMap: Record<string, string> = {};
 
 export const wrapInSchema = <S extends SequenceSchema, Props extends object>({
 	Component,
+	componentIdentity,
 	schema,
 	supportsEffects,
 }: {
 	Component: React.ComponentType<
 		Props & {readonly _experimentalControls: SequenceControls | undefined}
 	>;
+	componentIdentity: JsxComponentIdentity | null;
 	schema: S;
 	supportsEffects: boolean;
 }): React.ComponentType<Props> => {
@@ -191,6 +196,7 @@ export const wrapInSchema = <S extends SequenceSchema, Props extends object>({
 				currentRuntimeValueDotNotation,
 				overrideId,
 				supportsEffects,
+				componentIdentity,
 			};
 		}, [currentRuntimeValueDotNotation, overrideId]);
 

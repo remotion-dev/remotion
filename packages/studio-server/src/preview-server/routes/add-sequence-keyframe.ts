@@ -107,6 +107,7 @@ export const addSequenceKeyframeHandler: ApiHandler<
 			fileContents: output,
 			keys: getAllSchemaKeys(schema),
 			nodePath: updatedNodePath,
+			componentIdentity: null,
 			effects: [],
 		});
 		const updatedSubscriptionKey = {...nodePath, nodePath: updatedNodePath};

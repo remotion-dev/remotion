@@ -332,6 +332,7 @@ export const deleteKeyframes = async ({
 			fileContents: output,
 			keys: getAllSchemaKeys(keyframe.schema),
 			nodePath: keyframe.nodePath.nodePath,
+			componentIdentity: null,
 			effects: [],
 		});
 

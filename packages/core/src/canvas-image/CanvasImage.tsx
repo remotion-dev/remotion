@@ -484,6 +484,7 @@ const CanvasImageInner = forwardRef<
  */
 export const CanvasImage = wrapInSchema({
 	Component: CanvasImageInner,
+	componentIdentity: 'dev.remotion.remotion.CanvasImage',
 	schema: canvasImageSchema,
 	supportsEffects: true,
 });

@@ -181,6 +181,7 @@ const makeTimelineSequence = ({
 			currentRuntimeValueDotNotation: {},
 			overrideId,
 			supportsEffects: true,
+			componentIdentity: null,
 		},
 		refForOutline,
 		isInsideSeries: false,

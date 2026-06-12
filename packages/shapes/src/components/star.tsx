@@ -68,6 +68,7 @@ const StarInner: React.FC<StarProps> = ({
 
 export const Star = Internals.wrapInSchema({
 	Component: StarInner,
+	componentIdentity: 'dev.remotion.shapes.Star',
 	schema: starSchema,
 	supportsEffects: true,
 }) as React.FC<StarProps>;
