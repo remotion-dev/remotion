@@ -29,9 +29,6 @@ const NewSticker: React.FC = () => {
 					outerRadius={207}
 					fill={'#f2be0a'}
 					cornerRadius={33}
-					style={{
-						translate: '-0.3px -0.3px',
-					}}
 					showInTimeline={false}
 				/>
 				<AbsoluteFill
@@ -41,6 +38,7 @@ const NewSticker: React.FC = () => {
 						fontSize: 110,
 						fontWeight: 'bolder',
 						fontFamily: 'GT Planar',
+						letterSpacing: '-0.02em',
 						color: visualControl('orange', '#fcff79', zColor()),
 					}}
 				>
