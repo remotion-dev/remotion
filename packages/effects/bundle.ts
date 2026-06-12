@@ -38,6 +38,7 @@ const effectEntrypoints = [
 	'src/speckle.ts',
 	'src/tint.ts',
 	'src/translate.ts',
+	'src/tv-signal-off.ts',
 	'src/vignette.ts',
 	'src/wave.ts',
 	'src/waves.ts',

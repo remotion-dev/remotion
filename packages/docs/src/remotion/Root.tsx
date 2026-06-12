@@ -42,6 +42,7 @@ import {
 	EffectsUvTranslatePreview,
 	EffectsXyTranslatePreview,
 } from '../../components/effects/effects-translate-preview';
+import {EffectsTvSignalOffPreview} from '../../components/effects/effects-tv-signal-off-preview';
 import {EffectsVignettePreview} from '../../components/effects/effects-vignette-preview';
 import {EffectsWavePreview} from '../../components/effects/effects-wave-preview';
 import {EffectsWavesPreview} from '../../components/effects/effects-waves-preview';
@@ -401,6 +402,15 @@ export const RemotionRoot: React.FC = () => {
 					defaultProps={{
 						amount: 1,
 						seed: 0,
+					}}
+				/>
+				<Still
+					id="effects-tv-signal-off-preview"
+					component={EffectsTvSignalOffPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						amount: 1,
 					}}
 				/>
 				<Still
