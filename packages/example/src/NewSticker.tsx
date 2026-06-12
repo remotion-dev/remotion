@@ -21,6 +21,7 @@ const NewSticker: React.FC = () => {
 			<Interactive.Div
 				style={{
 					position: 'relative',
+					rotate: '-181.046832deg',
 				}}
 			>
 				<Star
@@ -42,7 +43,7 @@ const NewSticker: React.FC = () => {
 						color: visualControl('orange', '#fcff79', zColor()),
 					}}
 				>
-					NEW
+					New!
 				</AbsoluteFill>
 			</Interactive.Div>
 		</AbsoluteFill>
