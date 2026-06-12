@@ -22,6 +22,7 @@ describe('resolveHardwareAcceleration', () => {
 	const setPlatform = (platform: string) => {
 		Object.defineProperty(process, 'platform', {value: platform});
 	};
+
 	const restorePlatform = () => {
 		Object.defineProperty(process, 'platform', {value: originalPlatform});
 	};
