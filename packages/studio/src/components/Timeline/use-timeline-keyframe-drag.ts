@@ -18,7 +18,11 @@ import {callMoveKeyframes} from './call-move-keyframe';
 import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
 import {getBoundedKeyframeDragDelta} from './get-bounded-keyframe-drag-delta';
 import {parseKeyframeFieldFromNodePath} from './parse-keyframe-field-from-node-path';
-import {useTimelineKeyframeDragState} from './TimelineKeyframeDragState';
+import {
+	getTimelineKeyframeDragKey,
+	useTimelineKeyframeDragState,
+	type TimelineDraggedKeyframe,
+} from './TimelineKeyframeDragState';
 import {
 	useCurrentTimelineSelectionStateAsRef,
 	type TimelineEasingSelection,
@@ -122,6 +126,69 @@ export const getKeyframesForTimelineEasingDrag = ({
 			keyframesForEasing,
 		),
 	);
+};
+
+export const getTimelineSelectionsAfterEasingKeyframeDrag = ({
+	delta,
+	selections,
+	targets,
+}: {
+	readonly delta: number;
+	readonly selections: readonly TimelineSelection[];
+	readonly targets: readonly TimelineDraggedKeyframe[];
+}): TimelineSelection[] => {
+	const movedFrames = new Map(
+		targets.map((target) => [
+			getTimelineKeyframeDragKey(target),
+			target.frame + delta,
+		]),
+	);
+
+	return selections.map((selection) => {
+		if (selection.type === 'keyframe') {
+			const movedFrame = movedFrames.get(
+				getTimelineKeyframeDragKey({
+					nodePathInfo: selection.nodePathInfo,
+					frame: selection.frame,
+				}),
+			);
+
+			return movedFrame === undefined
+				? selection
+				: {
+						...selection,
+						frame: movedFrame,
+					};
+		}
+
+		if (selection.type === 'easing') {
+			const movedFromFrame =
+				movedFrames.get(
+					getTimelineKeyframeDragKey({
+						nodePathInfo: selection.nodePathInfo,
+						frame: selection.fromFrame,
+					}),
+				) ?? selection.fromFrame;
+			const movedToFrame =
+				movedFrames.get(
+					getTimelineKeyframeDragKey({
+						nodePathInfo: selection.nodePathInfo,
+						frame: selection.toFrame,
+					}),
+				) ?? selection.toFrame;
+
+			return movedFromFrame === selection.fromFrame &&
+				movedToFrame === selection.toFrame
+				? selection
+				: {
+						...selection,
+						fromFrame: movedFromFrame,
+						toFrame: movedToFrame,
+					};
+		}
+
+		return selection;
+	});
 };
 
 const getCodeValueForTarget = ({
@@ -863,6 +930,17 @@ export const useTimelineEasingKeyframeDrag = ({
 					clearDraggedKeyframes();
 					return;
 				}
+
+				currentSelection.current.selectItems(
+					getTimelineSelectionsAfterEasingKeyframeDrag({
+						delta: lastDelta,
+						selections: currentSelection.current.selectedItems,
+						targets: targets.map((target) => ({
+							nodePathInfo: target.nodePathInfo,
+							frame: target.displayFrame,
+						})),
+					}),
+				);
 
 				clearActiveOverrides();
 				clearDraggedKeyframes();

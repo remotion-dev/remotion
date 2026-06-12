@@ -546,7 +546,7 @@ export const getTimelineSelectionKey = (item: TimelineSelection): string => {
 		case 'easing':
 			return `${timelineNodePathInfoToKey(item.nodePathInfo)}.easing.${
 				item.segmentIndex
-			}.${item.fromFrame}.${item.toFrame}`;
+			}`;
 		default:
 			throw new Error(
 				`Unexpected timeline selection type: ${item satisfies never}`,
