@@ -426,7 +426,7 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={120}
 					defaultProps={{
-						videoFile: staticFile('canvas-all.webm'),
+						videoFile: staticFile('canvas-all-v3.webm'),
 						cursorScale: 5,
 						width: null,
 						height: null,
