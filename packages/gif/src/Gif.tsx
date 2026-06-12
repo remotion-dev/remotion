@@ -19,6 +19,7 @@ const {
 	useMemoizedEffects,
 	wrapInSchema,
 	durationInFramesField,
+	freezeField,
 	fromField,
 } = Internals;
 
@@ -38,6 +39,7 @@ export type GifProps = Omit<
 const gifSchema = {
 	durationInFrames: durationInFramesField,
 	from: fromField,
+	freeze: freezeField,
 	playbackRate: {
 		type: 'number',
 		min: 0,

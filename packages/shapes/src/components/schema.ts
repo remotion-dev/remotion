@@ -82,6 +82,7 @@ export const makeShapeSchema = (
 ): SequenceSchema => {
 	return {
 		from: Internals.sequenceSchema.from,
+		freeze: Internals.sequenceSchema.freeze,
 		durationInFrames: Internals.sequenceSchema.durationInFrames,
 		...shapeFields,
 		fill: colorField({
