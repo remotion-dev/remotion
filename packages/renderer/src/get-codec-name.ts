@@ -168,10 +168,22 @@ export const getCodecName = ({
 	}
 
 	if (codec === 'h264-mkv') {
+		if (hardwareAcceleration === 'required') {
+			throw new Error(
+				`Codec "h264-mkv" does not support hardware acceleration on ${process.platform}, but "hardwareAcceleration" is set to "required"`,
+			);
+		}
+
 		return {encoderName: 'libx264', hardwareAccelerated: false};
 	}
 
 	if (codec === 'h264-ts') {
+		if (hardwareAcceleration === 'required') {
+			throw new Error(
+				`Codec "h264-ts" does not support hardware acceleration on ${process.platform}, but "hardwareAcceleration" is set to "required"`,
+			);
+		}
+
 		return {encoderName: 'libx264', hardwareAccelerated: false};
 	}
 

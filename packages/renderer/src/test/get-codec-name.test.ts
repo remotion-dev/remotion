@@ -140,6 +140,42 @@ describe('getCodecName - NVENC on Windows', () => {
 			callGetCodecName({codec: 'h265', hardwareAcceleration: 'if-possible'}),
 		).toEqual({encoderName: 'hevc_nvenc', hardwareAccelerated: true});
 	});
+
+	test('h264 + win32 + hwaccel:required + no CRF', () => {
+		setPlatform('win32');
+		expect(
+			callGetCodecName({codec: 'h264', hardwareAcceleration: 'required'}),
+		).toEqual({encoderName: 'h264_nvenc', hardwareAccelerated: true});
+	});
+
+	test('h265 + win32 + hwaccel:required + no CRF', () => {
+		setPlatform('win32');
+		expect(
+			callGetCodecName({codec: 'h265', hardwareAcceleration: 'required'}),
+		).toEqual({encoderName: 'hevc_nvenc', hardwareAccelerated: true});
+	});
+
+	test('h264 + win32 + hwaccel:if-possible + crf=20 falls back to software', () => {
+		setPlatform('win32');
+		expect(
+			callGetCodecName({
+				codec: 'h264',
+				hardwareAcceleration: 'if-possible',
+				crf: 20,
+			}),
+		).toEqual({encoderName: 'libx264', hardwareAccelerated: false});
+	});
+
+	test('h265 + win32 + hwaccel:if-possible + crf=20 falls back to software', () => {
+		setPlatform('win32');
+		expect(
+			callGetCodecName({
+				codec: 'h265',
+				hardwareAcceleration: 'if-possible',
+				crf: 20,
+			}),
+		).toEqual({encoderName: 'libx265', hardwareAccelerated: false});
+	});
 });
 
 describe('getCodecName - No hardware acceleration for unsupported codecs', () => {
@@ -173,18 +209,18 @@ describe('getCodecName - No hardware acceleration for unsupported codecs', () =>
 		).toEqual({encoderName: 'prores_ks', hardwareAccelerated: false});
 	});
 
-	test('h264-mkv + linux + hwaccel:required returns software', () => {
+	test('h264-mkv + linux + hwaccel:required throws error', () => {
 		setPlatform('linux');
-		expect(
+		expect(() =>
 			callGetCodecName({codec: 'h264-mkv', hardwareAcceleration: 'required'}),
-		).toEqual({encoderName: 'libx264', hardwareAccelerated: false});
+		).toThrow(/does not support hardware acceleration/);
 	});
 
-	test('h264-ts + linux + hwaccel:required returns software', () => {
+	test('h264-ts + linux + hwaccel:required throws error', () => {
 		setPlatform('linux');
-		expect(
+		expect(() =>
 			callGetCodecName({codec: 'h264-ts', hardwareAcceleration: 'required'}),
-		).toEqual({encoderName: 'libx264', hardwareAccelerated: false});
+		).toThrow(/does not support hardware acceleration/);
 	});
 });
 
