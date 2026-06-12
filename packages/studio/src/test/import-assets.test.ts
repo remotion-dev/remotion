@@ -17,6 +17,7 @@ test('maps audio file types to Audio assets', () => {
 			src: `sound.${type}`,
 			srcType: 'static',
 			dimensions: null,
+			position: null,
 		});
 	}
 });
@@ -37,6 +38,7 @@ test('maps existing static file paths to insertable assets', () => {
 		src: 'nested/photo.JPG',
 		srcType: 'static',
 		dimensions: null,
+		position: null,
 	});
 	expect(getAssetElementFromPath('movie.webm')).toEqual({
 		type: 'asset',
@@ -44,6 +46,7 @@ test('maps existing static file paths to insertable assets', () => {
 		src: 'movie.webm',
 		srcType: 'static',
 		dimensions: null,
+		position: null,
 	});
 	expect(getAssetElementFromPath('audio.flac')).toEqual({
 		type: 'asset',
@@ -51,6 +54,7 @@ test('maps existing static file paths to insertable assets', () => {
 		src: 'audio.flac',
 		srcType: 'static',
 		dimensions: null,
+		position: null,
 	});
 	expect(getAssetElementFromPath('animation.gif')).toEqual({
 		type: 'asset',
@@ -58,6 +62,7 @@ test('maps existing static file paths to insertable assets', () => {
 		src: 'animation.gif',
 		srcType: 'static',
 		dimensions: null,
+		position: null,
 	});
 });
 

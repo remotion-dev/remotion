@@ -119,6 +119,7 @@ const TimelineContextMenuArea: React.FC<{
 					type: 'solid',
 					width: videoConfig.width,
 					height: videoConfig.height,
+					position: null,
 				},
 			});
 
@@ -155,6 +156,7 @@ const TimelineContextMenuArea: React.FC<{
 				files,
 				compositionFile,
 				compositionId: currentCompositionId,
+				dropPosition: null,
 			});
 		} finally {
 			setIsAddingAsset(false);

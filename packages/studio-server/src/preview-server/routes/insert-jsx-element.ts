@@ -6,6 +6,7 @@ import {
 	isUrl,
 	type InsertJsxElementRequest,
 	type InsertJsxElementResponse,
+	type InsertableCompositionElementPosition,
 	type InsertableCompositionElement,
 } from '@remotion/studio-shared';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
@@ -26,7 +27,21 @@ const validateDimension = (name: string, value: number) => {
 	}
 };
 
+const validatePosition = (
+	position: InsertableCompositionElementPosition | null,
+) => {
+	if (position === null) {
+		return;
+	}
+
+	if (!Number.isFinite(position.x) || !Number.isFinite(position.y)) {
+		throw new Error('Position must be finite');
+	}
+};
+
 const validateElement = (element: InsertableCompositionElement) => {
+	validatePosition(element.position);
+
 	if (element.type === 'solid') {
 		validateDimension('width', element.width);
 		validateDimension('height', element.height);

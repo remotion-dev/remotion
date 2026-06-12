@@ -1,17 +1,32 @@
+import {getVideoMetadata} from '@remotion/media-utils';
 import {
 	detectFileType,
 	getRequiredPackageForInsertableElement,
 	isUrl,
 	type ComponentDragData,
+	type ComponentProp,
 	type DownloadRemoteAssetResponse,
 	type FileType,
 	type InsertableCompositionElement,
+	type InsertableCompositionElementPosition,
 } from '@remotion/studio-shared';
+import {staticFile} from 'remotion';
 import {getStaticFiles} from '../api/get-static-files';
 import {writeStaticFile} from '../api/write-static-file';
 import {installRequiredPackages} from '../helpers/install-required-package';
+import type {Dimensions} from '../helpers/is-current-selected-still';
 import {callApi} from './call-api';
 import {showNotification} from './Notifications/NotificationCenter';
+
+export type InsertElementDropPosition = {
+	readonly centerX: number;
+	readonly centerY: number;
+};
+
+type InsertableAssetElement = Extract<
+	InsertableCompositionElement,
+	{type: 'asset'}
+>;
 
 export const getAssetElement = ({
 	fileType,
@@ -19,7 +34,7 @@ export const getAssetElement = ({
 }: {
 	fileType: FileType;
 	src: string;
-}): InsertableCompositionElement | null => {
+}): InsertableAssetElement | null => {
 	if (
 		fileType.type === 'png' ||
 		fileType.type === 'jpeg' ||
@@ -32,6 +47,7 @@ export const getAssetElement = ({
 			src,
 			srcType: 'static',
 			dimensions: fileType.dimensions,
+			position: null,
 		};
 	}
 
@@ -42,6 +58,7 @@ export const getAssetElement = ({
 			src,
 			srcType: 'static',
 			dimensions: fileType.dimensions,
+			position: null,
 		};
 	}
 
@@ -57,6 +74,7 @@ export const getAssetElement = ({
 			src,
 			srcType: 'static',
 			dimensions: null,
+			position: null,
 		};
 	}
 
@@ -72,6 +90,7 @@ export const getAssetElement = ({
 			src,
 			srcType: 'static',
 			dimensions: null,
+			position: null,
 		};
 	}
 
@@ -80,7 +99,7 @@ export const getAssetElement = ({
 
 export const getAssetElementFromPath = (
 	assetPath: string,
-): InsertableCompositionElement | null => {
+): InsertableAssetElement | null => {
 	if (!assetPath || assetPath.includes('\\')) {
 		return null;
 	}
@@ -97,6 +116,7 @@ export const getAssetElementFromPath = (
 			src: assetPath,
 			srcType: 'static',
 			dimensions: null,
+			position: null,
 		};
 	}
 
@@ -107,6 +127,7 @@ export const getAssetElementFromPath = (
 			src: assetPath,
 			srcType: 'static',
 			dimensions: null,
+			position: null,
 		};
 	}
 
@@ -117,6 +138,7 @@ export const getAssetElementFromPath = (
 			src: assetPath,
 			srcType: 'static',
 			dimensions: null,
+			position: null,
 		};
 	}
 
@@ -127,6 +149,7 @@ export const getAssetElementFromPath = (
 			src: assetPath,
 			srcType: 'static',
 			dimensions: null,
+			position: null,
 		};
 	}
 
@@ -159,6 +182,181 @@ const getAssetLabel = (element: InsertableCompositionElement) => {
 
 const getComponentLabel = (component: ComponentDragData['component']) => {
 	return `<${component.componentName}>`;
+};
+
+const getCenteredPosition = ({
+	dimensions,
+	dropPosition,
+}: {
+	dimensions: Dimensions | null;
+	dropPosition: InsertElementDropPosition | null;
+}): InsertableCompositionElementPosition | null => {
+	if (dropPosition === null) {
+		return null;
+	}
+
+	if (dimensions === null) {
+		return {
+			x: dropPosition.centerX,
+			y: dropPosition.centerY,
+		};
+	}
+
+	return {
+		x: dropPosition.centerX - dimensions.width / 2,
+		y: dropPosition.centerY - dimensions.height / 2,
+	};
+};
+
+const getComponentPropNumber = (props: ComponentProp[], name: string) => {
+	const prop = props.find((p) => p.name === name);
+	return typeof prop?.value === 'number' ? prop.value : null;
+};
+
+const getComponentDimensions = (
+	component: ComponentDragData['component'],
+): Dimensions | null => {
+	const width = getComponentPropNumber(component.props, 'width');
+	const height = getComponentPropNumber(component.props, 'height');
+	if (width !== null && height !== null) {
+		return {width, height};
+	}
+
+	const radius = getComponentPropNumber(component.props, 'radius');
+	if (radius !== null) {
+		return {width: radius * 2, height: radius * 2};
+	}
+
+	return null;
+};
+
+const getImageDimensions = ({
+	revokeObjectUrl,
+	src,
+}: {
+	revokeObjectUrl: boolean;
+	src: string;
+}): Promise<Dimensions> => {
+	return new Promise((resolve, reject) => {
+		const image = new Image();
+		image.onload = () => {
+			if (revokeObjectUrl) {
+				URL.revokeObjectURL(src);
+			}
+
+			resolve({width: image.naturalWidth, height: image.naturalHeight});
+		};
+
+		image.onerror = () => {
+			if (revokeObjectUrl) {
+				URL.revokeObjectURL(src);
+			}
+
+			reject(new Error('Failed to load image dimensions'));
+		};
+
+		image.src = src;
+	});
+};
+
+const getVideoDimensions = async (src: string): Promise<Dimensions> => {
+	const metadata = await getVideoMetadata(src);
+	return {width: metadata.width, height: metadata.height};
+};
+
+const getFileDimensions = async ({
+	file,
+	fileType,
+}: {
+	file: File;
+	fileType: FileType;
+}): Promise<Dimensions | null> => {
+	if (
+		fileType.type === 'wav' ||
+		fileType.type === 'mp3' ||
+		fileType.type === 'aac' ||
+		fileType.type === 'flac'
+	) {
+		return null;
+	}
+
+	if (
+		fileType.type === 'png' ||
+		fileType.type === 'jpeg' ||
+		fileType.type === 'webp' ||
+		fileType.type === 'bmp' ||
+		fileType.type === 'gif'
+	) {
+		if (fileType.dimensions) {
+			return fileType.dimensions;
+		}
+
+		const objectUrl = URL.createObjectURL(file);
+		return getImageDimensions({revokeObjectUrl: true, src: objectUrl});
+	}
+
+	if (
+		fileType.type === 'riff' ||
+		fileType.type === 'webm' ||
+		fileType.type === 'iso-base-media' ||
+		fileType.type === 'transport-stream'
+	) {
+		const objectUrl = URL.createObjectURL(file);
+		try {
+			return await getVideoDimensions(objectUrl);
+		} finally {
+			URL.revokeObjectURL(objectUrl);
+		}
+	}
+
+	return null;
+};
+
+const getStaticAssetDimensions = (
+	assetPath: string,
+): Dimensions | Promise<Dimensions> | null => {
+	const extension = assetPath.split('.').pop()?.toLowerCase();
+	const src = staticFile(assetPath);
+
+	if (
+		extension &&
+		['png', 'jpg', 'jpeg', 'webp', 'bmp', 'gif'].includes(extension)
+	) {
+		return getImageDimensions({revokeObjectUrl: false, src});
+	}
+
+	if (
+		extension &&
+		['mp4', 'm4v', 'mov', 'avi', 'webm', 'ts', 'm2ts'].includes(extension)
+	) {
+		return getVideoDimensions(src);
+	}
+
+	return null;
+};
+
+const getFileDimensionsOrNull = async ({
+	file,
+	fileType,
+}: {
+	file: File;
+	fileType: FileType;
+}): Promise<Dimensions | null> => {
+	try {
+		return await getFileDimensions({file, fileType});
+	} catch {
+		return null;
+	}
+};
+
+const getStaticAssetDimensionsOrNull = async (
+	assetPath: string,
+): Promise<Dimensions | null> => {
+	try {
+		return await getStaticAssetDimensions(assetPath);
+	} catch {
+		return null;
+	}
 };
 
 export const pickFilesToImport = (): Promise<File[]> => {
@@ -242,7 +440,7 @@ const insertAssetElement = async ({
 	return true;
 };
 
-const downloadRemoteAsset = async (
+const downloadRemoteAsset = (
 	url: string,
 ): Promise<DownloadRemoteAssetResponse> => {
 	return callApi('/api/download-remote-asset', {url});
@@ -251,10 +449,12 @@ const downloadRemoteAsset = async (
 export const importAssets = async ({
 	compositionFile,
 	compositionId,
+	dropPosition,
 	files,
 }: {
 	compositionFile: string;
 	compositionId: string;
+	dropPosition: InsertElementDropPosition | null;
 	files: File[];
 }) => {
 	if (files.length === 0) {
@@ -264,8 +464,9 @@ export const importAssets = async ({
 	const staticFiles = getStaticFiles();
 	const differentExistingFile = files.find((file) => {
 		return staticFiles.some(
-			(staticFile) =>
-				staticFile.name === file.name && staticFile.sizeInBytes !== file.size,
+			(existingStaticFile) =>
+				existingStaticFile.name === file.name &&
+				existingStaticFile.sizeInBytes !== file.size,
 		);
 	});
 	if (differentExistingFile) {
@@ -307,8 +508,9 @@ export const importAssets = async ({
 			}
 
 			const alreadyExists = staticFiles.some(
-				(staticFile) =>
-					staticFile.name === file.name && staticFile.sizeInBytes === file.size,
+				(existingStaticFile) =>
+					existingStaticFile.name === file.name &&
+					existingStaticFile.sizeInBytes === file.size,
 			);
 
 			if (!alreadyExists) {
@@ -319,10 +521,19 @@ export const importAssets = async ({
 				addedStaticFiles.push(file.name);
 			}
 
+			const dimensions = await getFileDimensionsOrNull({file, fileType});
+
 			const inserted = await insertAssetElement({
 				compositionFile,
 				compositionId,
-				element,
+				element: {
+					...element,
+					dimensions: element.dimensions ?? dimensions,
+					position: getCenteredPosition({
+						dimensions,
+						dropPosition,
+					}),
+				},
 			});
 
 			if (!inserted) {
@@ -349,10 +560,12 @@ export const importAssets = async ({
 export const importRemoteAsset = async ({
 	compositionFile,
 	compositionId,
+	dropPosition,
 	url,
 }: {
 	compositionFile: string;
 	compositionId: string;
+	dropPosition: InsertElementDropPosition | null;
 	url: string;
 }) => {
 	try {
@@ -362,10 +575,21 @@ export const importRemoteAsset = async ({
 			showNotification(`Created ${assetPath} in public folder`, 3000);
 		}
 
+		if (element.type !== 'asset') {
+			showNotification('Cannot add remote asset: Unsupported asset type', 3000);
+			return;
+		}
+
 		const inserted = await insertAssetElement({
 			compositionFile,
 			compositionId,
-			element,
+			element: {
+				...element,
+				position: getCenteredPosition({
+					dimensions: element.dimensions,
+					dropPosition,
+				}),
+			},
 		});
 
 		if (!inserted) {
@@ -403,6 +627,7 @@ export const insertRemoteAudio = async ({
 		src: url,
 		srcType: 'remote',
 		dimensions: null,
+		position: null,
 	};
 
 	try {
@@ -431,10 +656,12 @@ export const insertExistingAssets = async ({
 	assetPaths,
 	compositionFile,
 	compositionId,
+	dropPosition,
 }: {
 	assetPaths: string[];
 	compositionFile: string;
 	compositionId: string;
+	dropPosition: InsertElementDropPosition | null;
 }) => {
 	if (assetPaths.length === 0) {
 		return;
@@ -451,10 +678,19 @@ export const insertExistingAssets = async ({
 				continue;
 			}
 
+			const dimensions = await getStaticAssetDimensionsOrNull(assetPath);
+
 			const inserted = await insertAssetElement({
 				compositionFile,
 				compositionId,
-				element,
+				element: {
+					...element,
+					dimensions: element.dimensions ?? dimensions,
+					position: getCenteredPosition({
+						dimensions,
+						dropPosition,
+					}),
+				},
 			});
 
 			if (!inserted) {
@@ -480,10 +716,12 @@ export const insertComponent = async ({
 	component,
 	compositionFile,
 	compositionId,
+	dropPosition,
 }: {
 	component: ComponentDragData['component'];
 	compositionFile: string;
 	compositionId: string;
+	dropPosition: InsertElementDropPosition | null;
 }) => {
 	try {
 		const inserted = await insertAssetElement({
@@ -495,6 +733,10 @@ export const insertComponent = async ({
 				importName: component.importName,
 				importPath: component.importPath,
 				props: component.props,
+				position: getCenteredPosition({
+					dimensions: getComponentDimensions(component),
+					dropPosition,
+				}),
 			},
 		});
 
