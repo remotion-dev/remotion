@@ -15,6 +15,7 @@
 	},
 	"scripts": {
 		"lint": "eslint src",
+		"test": "bun test src",
 		"make": "tsgo -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"files": [
@@ -22,10 +23,7 @@
 	],
 	"author": "Jonny Burger <jonny@remotion.dev>, Pramod Kumar <pramodkumar.damam73@gmail.com>",
 	"license": "MIT",
-	"dependencies": {
-		"@modelcontextprotocol/sdk": "1.26.0",
-		"zod": "4.1.13"
-	},
+	"dependencies": {},
 	"peerDependencies": {},
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
