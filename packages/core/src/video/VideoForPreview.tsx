@@ -352,6 +352,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	return (
 		<video
+			{...nativeProps}
 			ref={videoRef}
 			muted={muted || mediaMuted || userPreferredVolume <= 0}
 			playsInline
@@ -360,7 +361,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 			style={actualStyle}
 			disableRemotePlayback
 			crossOrigin={crossOriginValue}
-			{...nativeProps}
+			controls={false}
 		/>
 	);
 };
