@@ -32,10 +32,9 @@ type ResolvedSequencePropEdit = {
 	key: SaveSequencePropEdit['key'];
 	value: unknown;
 	valueString: string;
-	defaultValue: unknown | null;
+	defaultValue: unknown | null | undefined;
 	defaultValueString: string | null;
 	schema: SaveSequencePropEdit['schema'];
-	remove: boolean;
 };
 
 type SequencePropEditGroup = {
@@ -61,8 +60,7 @@ export const convertSequencePropEditToCodemodChange = (
 	edit: Pick<
 		ResolvedSequencePropEdit,
 		'nodePath' | 'key' | 'value' | 'defaultValue' | 'schema'
-	> &
-		Pick<Partial<ResolvedSequencePropEdit>, 'remove'>,
+	>,
 ): SequencePropsNodeUpdate => {
 	return {
 		nodePath: edit.nodePath.nodePath,
@@ -70,7 +68,7 @@ export const convertSequencePropEditToCodemodChange = (
 			{
 				key: edit.key,
 				value: edit.value,
-				defaultValue: edit.remove ? undefined : edit.defaultValue,
+				defaultValue: edit.defaultValue,
 			},
 		],
 		schema: edit.schema,
@@ -104,9 +102,14 @@ export const saveSequencePropsHandler: ApiHandler<
 		const editGroups = new Map<string, SequencePropEditGroup>();
 
 		for (const [index, edit] of edits.entries()) {
-			const parsedValue = edit.remove ? undefined : JSON.parse(edit.value);
+			const parsedValue =
+				edit.value === undefined ? undefined : JSON.parse(edit.value);
 			const parsedDefaultValue =
-				edit.defaultValue !== null ? JSON.parse(edit.defaultValue) : null;
+				edit.defaultValue === undefined
+					? undefined
+					: edit.defaultValue !== null
+						? JSON.parse(edit.defaultValue)
+						: null;
 			const {absolutePath, fileRelativeToRoot} = resolveFileInsideProject({
 				remotionRoot,
 				fileName: edit.fileName,
@@ -123,14 +126,14 @@ export const saveSequencePropsHandler: ApiHandler<
 				nodePath: edit.nodePath,
 				key: edit.key,
 				value: parsedValue,
-				valueString: edit.remove ? 'undefined' : JSON.stringify(parsedValue),
+				valueString:
+					parsedValue === undefined ? 'undefined' : JSON.stringify(parsedValue),
 				defaultValue: parsedDefaultValue,
 				defaultValueString:
-					parsedDefaultValue !== null
+					parsedDefaultValue !== undefined && parsedDefaultValue !== null
 						? JSON.stringify(parsedDefaultValue)
 						: null,
 				schema: edit.schema,
-				remove: edit.remove ?? false,
 			});
 			editGroups.set(absolutePath, group);
 		}

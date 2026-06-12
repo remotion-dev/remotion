@@ -19,9 +19,8 @@ export type SaveSequencePropChange = {
 	nodePath: SequencePropsSubscriptionKey;
 	fieldKey: string;
 	value: unknown;
-	defaultValue: string | null;
+	defaultValue: string | null | undefined;
 	schema: SequenceSchema;
-	remove?: boolean;
 };
 
 type SaveSequencePropsOptions = {
@@ -68,9 +67,7 @@ export const saveSequenceProps = ({
 							key: change.fieldKey,
 							defaultValue: change.defaultValue,
 							schema: change.schema,
-							...(change.remove
-								? {remove: true}
-								: {value: JSON.stringify(change.value)}),
+							value: JSON.stringify(change.value),
 						},
 					],
 					clientId,
@@ -100,9 +97,7 @@ export const saveSequenceProps = ({
 				key: change.fieldKey,
 				defaultValue: change.defaultValue,
 				schema: change.schema,
-				...(change.remove
-					? {remove: true}
-					: {value: JSON.stringify(change.value)}),
+				value: JSON.stringify(change.value),
 			};
 		}),
 		clientId,
