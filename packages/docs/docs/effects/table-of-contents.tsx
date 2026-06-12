@@ -1,12 +1,12 @@
 import React from 'react';
-import {Grid} from '../../components/TableOfContents/Grid';
-import {TOCItem} from '../../components/TableOfContents/TOCItem';
 import {
 	makeEffectDragData,
 	setEffectDragData,
 } from '../../components/effects-demos/effect-drag-data';
 import {getInitialValuesFromSchema} from '../../components/effects-demos/get-default-props-from-schema';
 import {effectsDemos} from '../../components/effects-demos/registry';
+import {Grid} from '../../components/TableOfContents/Grid';
+import {TOCItem} from '../../components/TableOfContents/TOCItem';
 
 type Effect = {
 	readonly link: string;
@@ -245,6 +245,13 @@ const categories: {
 				description: 'Additive horizontal scanlines',
 			},
 			{
+				link: '/docs/effects/tv-signal-off',
+				preview: '/img/effects-tv-signal-off-preview.png',
+				alt: 'TV signal off effect preview',
+				name: 'tvSignalOff()',
+				description: 'TV color bars test pattern',
+			},
+			{
 				link: '/docs/effects/speckle',
 				preview: '/img/effects-speckle-preview.png',
 				alt: 'speckle effect preview',
@@ -363,7 +370,9 @@ const getDemoIdFromLink = (link: string) => {
 const EffectCard: React.FC<{
 	readonly effect: Effect;
 }> = ({effect}) => {
-	const demo = effectsDemos.find((item) => item.id === getDemoIdFromLink(effect.link));
+	const demo = effectsDemos.find(
+		(item) => item.id === getDemoIdFromLink(effect.link),
+	);
 	const dragData = demo
 		? makeEffectDragData({
 				effectName: demo.effectName,
@@ -390,9 +399,7 @@ const EffectCard: React.FC<{
 						}
 			}
 			title={
-				dragData === null
-					? undefined
-					: 'Drag this effect into Remotion Studio'
+				dragData === null ? undefined : 'Drag this effect into Remotion Studio'
 			}
 		>
 			<div style={row}>
