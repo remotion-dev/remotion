@@ -816,7 +816,8 @@ export const TimelineSequenceItem: React.FC<{
 
 	const freezeStatus = propStatusesForOverride?.freeze;
 	const isFrozen =
-		freezeStatus?.status === 'static' && freezeStatus.codeValue !== undefined;
+		freezeStatus?.status === 'static' &&
+		typeof freezeStatus.codeValue === 'number';
 
 	const canToggleFreeze =
 		previewConnected &&
@@ -853,8 +854,8 @@ export const TimelineSequenceItem: React.FC<{
 					fileName: validatedLocation.source,
 					nodePath,
 					fieldKey: 'freeze',
-					value: remove ? undefined : freezeFrame,
-					defaultValue: remove ? undefined : null,
+					value: remove ? null : freezeFrame,
+					defaultValue: null,
 					schema: sequence.controls.schema,
 				},
 			],

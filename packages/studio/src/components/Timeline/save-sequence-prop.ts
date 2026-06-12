@@ -1,7 +1,4 @@
-import {
-	optimisticUpdateForPropStatuses,
-	type SaveSequencePropEdit,
-} from '@remotion/studio-shared';
+import {optimisticUpdateForPropStatuses} from '@remotion/studio-shared';
 import type {
 	CanUpdateSequencePropsResponse,
 	SequencePropsSubscriptionKey,
@@ -22,7 +19,7 @@ export type SaveSequencePropChange = {
 	nodePath: SequencePropsSubscriptionKey;
 	fieldKey: string;
 	value: unknown;
-	defaultValue: string | null | undefined;
+	defaultValue: string | null;
 	schema: SequenceSchema;
 };
 
@@ -32,31 +29,6 @@ type SaveSequencePropsOptions = {
 	clientId: string;
 	undoLabel: string;
 	redoLabel: string;
-};
-
-const changeToEdit = (change: SaveSequencePropChange): SaveSequencePropEdit => {
-	const base = {
-		fileName: change.fileName,
-		nodePath: change.nodePath,
-		key: change.fieldKey,
-		schema: change.schema,
-	};
-
-	if (change.value === undefined && change.defaultValue === undefined) {
-		return base;
-	}
-
-	if (change.defaultValue === undefined) {
-		throw new Error(
-			'Expected defaultValue to be defined for sequence prop save',
-		);
-	}
-
-	return {
-		...base,
-		defaultValue: change.defaultValue,
-		value: JSON.stringify(change.value),
-	};
 };
 
 export const saveSequenceProps = ({
@@ -88,7 +60,16 @@ export const saveSequenceProps = ({
 				}),
 			apiCall: () =>
 				callApi('/api/save-sequence-props', {
-					edits: [changeToEdit(change)],
+					edits: [
+						{
+							fileName: change.fileName,
+							nodePath: change.nodePath,
+							key: change.fieldKey,
+							value: JSON.stringify(change.value),
+							defaultValue: change.defaultValue,
+							schema: change.schema,
+						},
+					],
 					clientId,
 					undoLabel,
 					redoLabel,
@@ -109,7 +90,16 @@ export const saveSequenceProps = ({
 	}
 
 	return callApi('/api/save-sequence-props', {
-		edits: changes.map(changeToEdit),
+		edits: changes.map((change) => {
+			return {
+				fileName: change.fileName,
+				nodePath: change.nodePath,
+				key: change.fieldKey,
+				value: JSON.stringify(change.value),
+				defaultValue: change.defaultValue,
+				schema: change.schema,
+			};
+		}),
 		clientId,
 		undoLabel,
 		redoLabel,

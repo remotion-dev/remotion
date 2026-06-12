@@ -91,6 +91,15 @@ describe('Composition-validation render should throw with invalid props', () => 
 			);
 		});
 	});
+	describe('Allow valid freeze props', () => {
+		test('It should allow "freeze" prop to be null', () => {
+			render(
+				<WrapSequenceContext>
+					<Sequence freeze={null} durationInFrames={30} />
+				</WrapSequenceContext>,
+			);
+		});
+	});
 	test('It should throw for invalid layout value', () => {
 		expectToThrow(
 			() =>

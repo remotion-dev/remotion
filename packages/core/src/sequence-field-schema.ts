@@ -8,7 +8,7 @@ export type NumberFieldSchema = {
 	min?: number;
 	max?: number;
 	step?: number;
-	default: number | undefined;
+	default: number | null | undefined;
 	description?: string;
 	hiddenFromList: boolean;
 	keyframable?: boolean;
@@ -280,7 +280,7 @@ export const fromField = {
 
 export const freezeField = {
 	type: 'number',
-	default: undefined,
+	default: null,
 	step: 1,
 	hiddenFromList: true,
 } as const satisfies SequenceFieldSchema;

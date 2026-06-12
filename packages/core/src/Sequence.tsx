@@ -55,7 +55,7 @@ export type SequencePropsWithoutDuration = {
 	readonly width?: number;
 	readonly height?: number;
 	readonly from?: number;
-	readonly freeze?: number;
+	readonly freeze?: number | null;
 	readonly name?: string;
 	readonly showInTimeline?: boolean;
 	readonly hidden?: boolean;
@@ -188,7 +188,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		);
 	}
 
-	if (typeof freeze !== 'undefined') {
+	if (typeof freeze !== 'undefined' && freeze !== null) {
 		if (typeof freeze !== 'number') {
 			throw new TypeError(
 				`The "freeze" prop of <Sequence /> must be a number, but is of type ${typeof freeze}.`,
@@ -427,7 +427,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 				? null
 				: children;
 	const frozenContent =
-		content === null || typeof freeze === 'undefined' ? (
+		content === null || typeof freeze === 'undefined' || freeze === null ? (
 			content
 		) : (
 			<Freeze frame={freeze}>{content}</Freeze>

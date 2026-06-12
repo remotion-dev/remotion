@@ -32,7 +32,7 @@ type ResolvedSequencePropEdit = {
 	key: SaveSequencePropEdit['key'];
 	value: unknown;
 	valueString: string;
-	defaultValue: unknown | null | undefined;
+	defaultValue: unknown | null;
 	defaultValueString: string | null;
 	schema: SaveSequencePropEdit['schema'];
 };
@@ -102,14 +102,9 @@ export const saveSequencePropsHandler: ApiHandler<
 		const editGroups = new Map<string, SequencePropEditGroup>();
 
 		for (const [index, edit] of edits.entries()) {
-			const parsedValue =
-				edit.value === undefined ? undefined : JSON.parse(edit.value);
+			const parsedValue = JSON.parse(edit.value);
 			const parsedDefaultValue =
-				edit.defaultValue === undefined
-					? undefined
-					: edit.defaultValue !== null
-						? JSON.parse(edit.defaultValue)
-						: null;
+				edit.defaultValue !== null ? JSON.parse(edit.defaultValue) : null;
 			const {absolutePath, fileRelativeToRoot} = resolveFileInsideProject({
 				remotionRoot,
 				fileName: edit.fileName,
@@ -126,11 +121,10 @@ export const saveSequencePropsHandler: ApiHandler<
 				nodePath: edit.nodePath,
 				key: edit.key,
 				value: parsedValue,
-				valueString:
-					parsedValue === undefined ? 'undefined' : JSON.stringify(parsedValue),
+				valueString: JSON.stringify(parsedValue),
 				defaultValue: parsedDefaultValue,
 				defaultValueString:
-					parsedDefaultValue !== undefined && parsedDefaultValue !== null
+					parsedDefaultValue !== null
 						? JSON.stringify(parsedDefaultValue)
 						: null,
 				schema: edit.schema,

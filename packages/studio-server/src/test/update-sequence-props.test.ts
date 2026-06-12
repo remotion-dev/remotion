@@ -82,7 +82,7 @@ test('updateSequenceProps should remove attribute when value equals default', as
 	expect(output.split('\n')[7]).toContain('hueShift={30}');
 });
 
-test('updateSequenceProps should remove optional attribute', async () => {
+test('updateSequenceProps should set optional attribute to null', async () => {
 	const input = `import {Sequence} from 'remotion';
 
 export const Example: React.FC = () => {
@@ -97,13 +97,13 @@ export const Example: React.FC = () => {
 	const {output, oldValueStrings} = await updateSequenceProps({
 		input,
 		nodePath: lineColumnToNodePath(input, 5),
-		updates: [{key: 'freeze', value: undefined, defaultValue: undefined}],
+		updates: [{key: 'freeze', value: null, defaultValue: null}],
 		schema: NoReactInternals.sequenceSchema,
 		prettierConfigOverride: null,
 	});
 
 	expect(oldValueStrings[0]).toBe('12');
-	expect(output).not.toContain('freeze=');
+	expect(output).toContain('freeze={null}');
 });
 
 test('updateSequenceProps should set boolean true as shorthand', async () => {

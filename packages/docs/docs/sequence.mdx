@@ -195,6 +195,7 @@ For how many frames the sequence should be displayed. Children are unmounted if 
 ### `freeze?`<AvailableFrom v="4.0.476" />
 
 Freezes the children of the sequence at the specified frame.
+Pass `null` or omit the prop to keep the sequence unfrozen.
 
 ```tsx twoslash title="MyVideo.tsx"
 import {Sequence, useCurrentFrame} from 'remotion';
