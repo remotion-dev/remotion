@@ -212,6 +212,7 @@ const translateFieldKey = 'style.translate';
 const scaleFieldKey = 'style.scale';
 const rotateFieldKey = 'style.rotate';
 const transformOriginFieldKey = 'style.transformOrigin';
+export const selectedOutlineDragThresholdPx = 4;
 
 const outlineContainer: React.CSSProperties = {
 	position: 'absolute',
@@ -770,6 +771,16 @@ export const applySelectedOutlineDragAxisLock = ({
 	}
 
 	return {deltaX: 0, deltaY};
+};
+
+export const isSelectedOutlineDragPastThreshold = ({
+	deltaX,
+	deltaY,
+}: {
+	readonly deltaX: number;
+	readonly deltaY: number;
+}) => {
+	return Math.hypot(deltaX, deltaY) >= selectedOutlineDragThresholdPx;
 };
 
 export type SelectedOutlineStaticDragChange = SaveSequencePropChange & {
@@ -1616,8 +1627,6 @@ const SelectedOutlinePolygon: React.FC<{
 				return;
 			}
 
-			onDraggingChange(true);
-
 			const startPointerX = event.clientX;
 			const startPointerY = event.clientY;
 			const dragStates = getSelectedOutlineDragStates({
@@ -1629,11 +1638,28 @@ const SelectedOutlinePolygon: React.FC<{
 			let currentPointerX = startPointerX;
 			let currentPointerY = startPointerY;
 			let axisLocked = false;
+			let dragStarted = false;
 
 			const updateDragOverrides = () => {
+				const screenDeltaX = currentPointerX - startPointerX;
+				const screenDeltaY = currentPointerY - startPointerY;
+				if (!dragStarted) {
+					if (
+						!isSelectedOutlineDragPastThreshold({
+							deltaX: screenDeltaX,
+							deltaY: screenDeltaY,
+						})
+					) {
+						return;
+					}
+
+					dragStarted = true;
+					onDraggingChange(true);
+				}
+
 				const dragDelta = applySelectedOutlineDragAxisLock({
-					deltaX: (currentPointerX - startPointerX) / scale,
-					deltaY: (currentPointerY - startPointerY) / scale,
+					deltaX: screenDeltaX / scale,
+					deltaY: screenDeltaY / scale,
 					axisLocked,
 				});
 
@@ -1696,7 +1722,9 @@ const SelectedOutlinePolygon: React.FC<{
 				window.removeEventListener('pointercancel', onPointerUp);
 				window.removeEventListener('keydown', onKeyChange);
 				window.removeEventListener('keyup', onKeyChange);
-				onDraggingChange(false);
+				if (dragStarted) {
+					onDraggingChange(false);
+				}
 
 				const changes = getSelectedOutlineDragChanges({
 					dragStates,
