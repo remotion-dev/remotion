@@ -235,7 +235,11 @@ export const computeEffectiveSchemaValuesDotNotation = ({
 		}
 
 		if (value === undefined) {
-			propsToDelete.add(key);
+			if (field?.default !== undefined) {
+				value = field.default;
+			} else {
+				propsToDelete.add(key);
+			}
 		}
 
 		merged[key] = value;

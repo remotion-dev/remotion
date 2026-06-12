@@ -75,6 +75,18 @@ export const makeStar = ({
 	cornerRadius = 0,
 	edgeRoundness = null,
 }: MakeStarProps): ShapeInfo => {
+	if (!Number.isFinite(points) || points < 1) {
+		throw new TypeError(
+			`[@remotion/shapes] <Star> "points" must be a positive finite number, got ${points}.`,
+		);
+	}
+
+	if (!Number.isFinite(outerRadius) || outerRadius <= 0) {
+		throw new TypeError(
+			`[@remotion/shapes] <Star> "outerRadius" must be a positive finite number, got ${outerRadius}.`,
+		);
+	}
+
 	const width = outerRadius * 2;
 	const height = outerRadius * 2;
 

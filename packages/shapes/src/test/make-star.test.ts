@@ -18,3 +18,33 @@ test('Should be able to make a star path', () => {
 		starPath.path.startsWith('M 190.21130325903073 0 L 278.3790911029017 78.'),
 	).toBeTruthy();
 });
+
+test('Should throw a clear error if points is undefined', () => {
+	expect(() =>
+		makeStar({
+			points: undefined as unknown as number,
+			innerRadius: 174,
+			outerRadius: 207,
+		}),
+	).toThrow('must be a positive finite number');
+});
+
+test('Should throw a clear error if points is NaN', () => {
+	expect(() =>
+		makeStar({
+			points: NaN,
+			innerRadius: 174,
+			outerRadius: 207,
+		}),
+	).toThrow('must be a positive finite number');
+});
+
+test('Should throw a clear error if outerRadius is undefined', () => {
+	expect(() =>
+		makeStar({
+			points: 20,
+			innerRadius: 174,
+			outerRadius: undefined as unknown as number,
+		}),
+	).toThrow('must be a positive finite number');
+});
