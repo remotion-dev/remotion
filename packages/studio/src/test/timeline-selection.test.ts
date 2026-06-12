@@ -60,6 +60,7 @@ import {
 	getTimelineMarqueeSelection,
 	getTimelineSelectionAfterInteraction,
 	getTimelineSelectionFromNodePathInfo,
+	getTimelineSelectionKey,
 	getTimelineSequenceSelectionKey,
 	isTimelineSelectionModifierEvent,
 	shouldSelectTimelineRowOnPointerDown,
@@ -80,6 +81,10 @@ import {
 	parseTransformOrigin,
 	serializeTransformOrigin,
 } from '../components/Timeline/transform-origin-utils';
+import {
+	getKeyframesForTimelineEasingDrag,
+	getTimelineSelectionsAfterEasingKeyframeDrag,
+} from '../components/Timeline/use-timeline-keyframe-drag';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 import {
 	loadEditorShowOutlinesOption,
@@ -3309,6 +3314,136 @@ test('Selecting an easing segment replaces keyframe selection with the new type'
 		selectedItems: [easing],
 		anchor: easing,
 	});
+});
+
+test('Dragging an easing segment drags selected keyframes', () => {
+	const selectedKeyframeA = {
+		type: 'keyframe' as const,
+		nodePathInfo: makeNodePathInfo(['body', 0], ['controls', 'opacity']),
+		frame: 10,
+	};
+	const selectedKeyframeB = {
+		type: 'keyframe' as const,
+		nodePathInfo: makeNodePathInfo(['body', 0], ['controls', 'opacity']),
+		frame: 30,
+	};
+	const easing = {
+		type: 'easing' as const,
+		nodePathInfo: makeNodePathInfo(['body', 0], ['controls', 'opacity']),
+		fromFrame: 10,
+		toFrame: 20,
+		segmentIndex: 0,
+	};
+
+	expect(
+		getKeyframesForTimelineEasingDrag({
+			currentSelections: [selectedKeyframeA, selectedKeyframeB],
+			interaction: {shiftKey: false, toggleKey: false},
+			selectionItem: easing,
+			selected: false,
+		}),
+	).toEqual([selectedKeyframeA, selectedKeyframeB]);
+});
+
+test('Dragging only selected easing segments drags connected keyframes', () => {
+	const easingA = {
+		type: 'easing' as const,
+		nodePathInfo: makeNodePathInfo(['body', 0], ['controls', 'opacity']),
+		fromFrame: 10,
+		toFrame: 20,
+		segmentIndex: 0,
+	};
+	const easingB = {
+		type: 'easing' as const,
+		nodePathInfo: makeNodePathInfo(['body', 0], ['controls', 'opacity']),
+		fromFrame: 20,
+		toFrame: 30,
+		segmentIndex: 1,
+	};
+
+	expect(
+		getKeyframesForTimelineEasingDrag({
+			currentSelections: [easingA, easingB],
+			interaction: {shiftKey: false, toggleKey: false},
+			selectionItem: easingA,
+			selected: true,
+		}),
+	).toEqual([
+		{
+			type: 'keyframe',
+			nodePathInfo: easingA.nodePathInfo,
+			frame: 10,
+		},
+		{
+			type: 'keyframe',
+			nodePathInfo: easingA.nodePathInfo,
+			frame: 20,
+		},
+		{
+			type: 'keyframe',
+			nodePathInfo: easingB.nodePathInfo,
+			frame: 30,
+		},
+	]);
+});
+
+test('Easing selection keys follow segment identity while frames move', () => {
+	const nodePathInfo = makeNodePathInfo(['body', 0], ['controls', 'opacity']);
+
+	expect(
+		getTimelineSelectionKey({
+			type: 'easing',
+			nodePathInfo,
+			fromFrame: 10,
+			toFrame: 20,
+			segmentIndex: 0,
+		}),
+	).toBe(
+		getTimelineSelectionKey({
+			type: 'easing',
+			nodePathInfo,
+			fromFrame: 15,
+			toFrame: 25,
+			segmentIndex: 0,
+		}),
+	);
+});
+
+test('Easing keyframe drag preserves selected item types at moved frames', () => {
+	const nodePathInfo = makeNodePathInfo(['body', 0], ['controls', 'opacity']);
+	const selectedKeyframe = {
+		type: 'keyframe' as const,
+		nodePathInfo,
+		frame: 10,
+	};
+	const selectedEasing = {
+		type: 'easing' as const,
+		nodePathInfo,
+		fromFrame: 10,
+		toFrame: 20,
+		segmentIndex: 0,
+	};
+
+	expect(
+		getTimelineSelectionsAfterEasingKeyframeDrag({
+			delta: 5,
+			selections: [selectedKeyframe, selectedEasing],
+			targets: [
+				{nodePathInfo, frame: 10},
+				{nodePathInfo, frame: 20},
+			],
+		}),
+	).toEqual([
+		{
+			...selectedKeyframe,
+			frame: 15,
+		},
+		{
+			...selectedEasing,
+			fromFrame: 15,
+			toFrame: 25,
+		},
+	]);
 });
 
 test('Timeline double-click actions ignore selection modifier clicks', () => {
