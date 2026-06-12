@@ -1,0 +1,41 @@
+---
+image: /generated/articles-docs-shapes-make-spark.png
+title: makeSpark()
+crumb: "@remotion/shapes"
+---
+
+import {MakeShapeSeeAlso, ShapeOptions, MakeShapeReturnType} from "../../components/shapes/shapes-info"
+
+_Part of the [`@remotion/shapes`](/docs/shapes) package._
+
+Generates a spark SVG path.
+
+## Example
+
+```tsx twoslash title="spark.ts"
+import { makeSpark } from "@remotion/shapes";
+
+const { path, width, height, transformOrigin, instructions } = makeSpark({
+  width: 180,
+  height: 240,
+  innerRadius: 50,
+});
+
+console.log(path); // M 90 0 L 125.35533905932738 84.64466094067262 L 180 120 L 125.35533905932738 155.35533905932738 L 90 240 L 54.64466094067263 155.35533905932738 L 0 120.00000000000001 L 54.644660940672615 84.64466094067262 L 90 0 Z
+console.log(width); // 180
+console.log(height); // 240
+console.log(transformOrigin); // '90 120'
+console.log(instructions); // '[{type: "M"}, ...]'
+```
+
+## Arguments
+
+<ShapeOptions shape="spark"/>
+
+## Return type
+
+<MakeShapeReturnType shape="spark"/>
+
+## See also
+
+<MakeShapeSeeAlso shape="spark"/>

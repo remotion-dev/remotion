@@ -6,6 +6,7 @@ import {
 	makePie,
 	makePolygon,
 	makeRect,
+	makeSpark,
 	makeStar,
 	makeTriangle,
 } from '@remotion/shapes';
@@ -32,6 +33,7 @@ export type ShapeName =
 	| 'Pie'
 	| 'Polygon'
 	| 'Rect'
+	| 'Spark'
 	| 'Star'
 	| 'Triangle';
 
@@ -230,6 +232,58 @@ export const shapeComponents: ShapeComponent[] = [
 				name: 'direction',
 				type: '"left" | "right" | "up" | "down"',
 				description: 'The direction of the triangle.',
+			},
+		],
+	},
+	{
+		shape: 'Spark',
+		fn: makeSpark,
+		params: [
+			{
+				name: 'width',
+				type: 'number',
+				description: 'The width of the spark.',
+				hiddenFromList: false,
+			},
+			{
+				name: 'height',
+				type: 'number',
+				description: 'The height of the spark.',
+				hiddenFromList: false,
+			},
+			{
+				name: 'innerRadius',
+				type: 'number',
+				description: 'The radius of the inner spark valleys.',
+				hiddenFromList: false,
+			},
+			{
+				name: 'points',
+				type: 'number',
+				description: 'The amount of points of the spark. Default 4.',
+				hiddenFromList: false,
+			},
+			{
+				name: 'rotation',
+				type: 'number',
+				description:
+					'Rotates the spark around its center in radians. Default 0.',
+			},
+			{
+				name: 'tipRoundness',
+				type: 'number',
+				description: 'Rounds the outer tips of the spark. Default 0.',
+			},
+			{
+				name: 'valleyRoundness',
+				type: 'number',
+				description: 'Rounds the inner valleys of the spark. Default 0.',
+			},
+			{
+				name: 'edgeRoundness',
+				type: 'number | null',
+				description:
+					'Curves the spark edges toward or away from the center. Default null.',
 			},
 		],
 	},

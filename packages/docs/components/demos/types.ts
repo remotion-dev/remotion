@@ -34,6 +34,7 @@ import {RectDemo} from './Rect';
 import {RippleDocsDemo} from './RippleDemo';
 import {RoundedTextBox} from './RoundedTextBox';
 import {ShaderDemoComp} from './ShaderDemo';
+import {SparkDemo} from './Spark';
 import {SpringDemo} from './Spring';
 import {StarDemo} from './Star';
 import {StarburstDemoComp} from './StarburstDemo';
@@ -688,6 +689,92 @@ export const starDemo: DemoType = {
 			step: 1,
 			type: 'numeric',
 			optional: 'no',
+		},
+	],
+};
+
+export const sparkDemo: DemoType = {
+	comp: SparkDemo,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 150,
+	fps: 30,
+	id: 'spark',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			default: 180,
+			max: 600,
+			step: 5,
+			min: 1,
+			type: 'numeric',
+			name: 'width',
+			optional: 'no',
+		},
+		{
+			default: 240,
+			max: 600,
+			step: 5,
+			min: 1,
+			type: 'numeric',
+			name: 'height',
+			optional: 'no',
+		},
+		{
+			default: 50,
+			max: 400,
+			step: 5,
+			min: 1,
+			type: 'numeric',
+			name: 'innerRadius',
+			optional: 'no',
+		},
+		{
+			name: 'points',
+			default: 4,
+			max: 12,
+			min: 2,
+			step: 1,
+			type: 'numeric',
+			optional: 'no',
+		},
+		{
+			name: 'rotation',
+			default: 0,
+			max: Math.PI * 2,
+			min: -Math.PI * 2,
+			step: 0.1,
+			type: 'numeric',
+			optional: 'no',
+		},
+		{
+			name: 'tipRoundness',
+			default: 0,
+			max: 100,
+			min: 0,
+			step: 1,
+			type: 'numeric',
+			optional: 'no',
+		},
+		{
+			name: 'valleyRoundness',
+			default: 0,
+			max: 100,
+			min: 0,
+			step: 1,
+			type: 'numeric',
+			optional: 'no',
+		},
+		{
+			name: 'edgeRoundness',
+			default: 0.3,
+			max: 2,
+			min: -2,
+			step: 0.01,
+			type: 'numeric',
+			optional: 'default-disabled',
 		},
 	],
 };
