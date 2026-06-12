@@ -27,15 +27,12 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 		Internals.VisualModePropStatusesRefContext,
 	);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
-	const {canSelect, canSelectEasing} = useTimelineSelection();
+	const {canSelect} = useTimelineSelection();
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	const confirm = useConfirmationDialog();
 
 	useEffect(() => {
-		if (
-			(!canSelect && !canSelectEasing) ||
-			previewServerState.type !== 'connected'
-		) {
+		if (!canSelect || previewServerState.type !== 'connected') {
 			return;
 		}
 
@@ -151,7 +148,6 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 		};
 	}, [
 		canSelect,
-		canSelectEasing,
 		confirm,
 		currentSelection,
 		keybindings,
