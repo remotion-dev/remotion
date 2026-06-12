@@ -2124,6 +2124,41 @@ test('Selected outline edge dragging scales one axis when scale is unlinked', ()
 	expect(negativeValues.get(dragStates[0].key)).toBe('-1 3');
 });
 
+test('Selected outline edge dragging rounds scale values', () => {
+	const schema = {
+		'style.scale': {type: 'scale', default: 1, max: 100},
+	} satisfies SequenceSchema;
+	const nodePath = makeKey(['body', 0]);
+	const dragStates = [
+		{
+			defaultValue: JSON.stringify(1),
+			key: Internals.makeSequencePropsSubscriptionKey(nodePath),
+			sourceFrame: 0,
+			startX: 2,
+			startY: 3,
+			startZ: 1,
+			target: {
+				clientId: 'client',
+				propStatus: {status: 'static', codeValue: '2 3'},
+				fieldDefault: 1,
+				fieldSchema: schema['style.scale'],
+				keyframeDisplayOffset: 0,
+				linked: false,
+				nodePath,
+				schema,
+			},
+		},
+	] satisfies SelectedOutlineScaleDragState[];
+
+	const lastValues = getSelectedOutlineScaleDragValues({
+		dragStates,
+		axis: 'x',
+		scaleFactor: 1 / 3,
+	});
+
+	expect(lastValues.get(dragStates[0].key)).toBe('0.667 3');
+});
+
 test('Selected outline edge dragging preserves aspect ratio when scale is linked', () => {
 	const schema = {
 		'style.scale': {type: 'scale', default: 1, max: 100},
@@ -2232,6 +2267,38 @@ test('Selected outline corner dragging rotates selected sequences', () => {
 			schema,
 		},
 	]);
+});
+
+test('Selected outline corner dragging rounds rotation values', () => {
+	const schema = {
+		'style.rotate': {type: 'rotation-css', default: '0deg'},
+	} satisfies SequenceSchema;
+	const nodePath = makeKey(['body', 0]);
+	const dragStates = [
+		{
+			defaultValue: JSON.stringify('0deg'),
+			key: Internals.makeSequencePropsSubscriptionKey(nodePath),
+			sourceFrame: 12,
+			startDegrees: 32,
+			target: {
+				clientId: 'client',
+				propStatus: {status: 'static', codeValue: '32deg'},
+				fieldDefault: '0deg',
+				fieldSchema: schema['style.rotate'],
+				keyframeDisplayOffset: 30,
+				nodePath,
+				schema,
+				transformOriginValue: '50% 50%',
+			},
+		},
+	] satisfies SelectedOutlineRotationDragState[];
+
+	const lastValues = getSelectedOutlineRotationDragValues({
+		dragStates,
+		rotationDeltaDegrees: 0.480832,
+	});
+
+	expect(lastValues.get(dragStates[0].key)).toBe('32.5deg');
 });
 
 test('Selected outline corner dragging keyframed rotation adds a keyframe at the source frame', () => {

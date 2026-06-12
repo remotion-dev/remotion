@@ -193,7 +193,7 @@ export const TimelineScaleField: React.FC<{
 	const decimalPlaces = useMemo(
 		() =>
 			getTimelineDisplayDecimalPlaces({
-				defaultDecimalPlaces: 2,
+				defaultDecimalPlaces: 3,
 				step: configuredStep,
 			}),
 		[configuredStep],

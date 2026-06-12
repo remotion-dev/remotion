@@ -62,6 +62,10 @@ import {
 	type SaveSequencePropChange,
 } from './Timeline/save-sequence-prop';
 import {
+	getTimelineDisplayDecimalPlaces,
+	roundToDecimalPlaces,
+} from './Timeline/timeline-field-utils';
+import {
 	parseCssRotationToDegrees,
 	serializeCssRotation,
 } from './Timeline/timeline-rotation-utils';
@@ -989,10 +993,14 @@ export const getSelectedOutlineScaleDragValues = ({
 		dragStates.map((dragState) => {
 			const min = dragState.target.fieldSchema.min ?? -Infinity;
 			const max = dragState.target.fieldSchema.max ?? Infinity;
+			const decimalPlaces = getTimelineDisplayDecimalPlaces({
+				defaultDecimalPlaces: 3,
+				step: dragState.target.fieldSchema.step,
+			});
 			const baseX = dragState.startX;
 			const baseY = dragState.startY;
 			const newValue = (axis === 'x' ? baseX : baseY) * scaleFactor;
-			const [x, y] = dragState.target.linked
+			const [rawX, rawY] = dragState.target.linked
 				? getLinkedScale({
 						axis,
 						newValue,
@@ -1004,6 +1012,8 @@ export const getSelectedOutlineScaleDragValues = ({
 				: axis === 'x'
 					? [clamp(newValue, min, max), baseY]
 					: [baseX, clamp(newValue, min, max)];
+			const x = roundToDecimalPlaces(rawX, decimalPlaces);
+			const y = roundToDecimalPlaces(rawY, decimalPlaces);
 
 			return [
 				dragState.key,
@@ -1121,10 +1131,20 @@ export const getSelectedOutlineRotationDragValues = ({
 	readonly rotationDeltaDegrees: number;
 }): Map<string, string> => {
 	return new Map(
-		dragStates.map((dragState) => [
-			dragState.key,
-			serializeCssRotation(dragState.startDegrees + rotationDeltaDegrees),
-		]),
+		dragStates.map((dragState) => {
+			const decimalPlaces = getTimelineDisplayDecimalPlaces({
+				defaultDecimalPlaces: 1,
+				step: dragState.target.fieldSchema.step,
+			});
+
+			return [
+				dragState.key,
+				serializeCssRotation(
+					dragState.startDegrees + rotationDeltaDegrees,
+					decimalPlaces,
+				),
+			];
+		}),
 	);
 };
 
@@ -1144,7 +1164,14 @@ export const getSelectedOutlineRotationDragChanges = ({
 		}
 
 		if (dragState.target.propStatus.status === 'keyframed') {
-			const startValue = serializeCssRotation(dragState.startDegrees);
+			const decimalPlaces = getTimelineDisplayDecimalPlaces({
+				defaultDecimalPlaces: 1,
+				step: dragState.target.fieldSchema.step,
+			});
+			const startValue = serializeCssRotation(
+				dragState.startDegrees,
+				decimalPlaces,
+			);
 			if (value === startValue) {
 				continue;
 			}
