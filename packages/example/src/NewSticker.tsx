@@ -2,7 +2,11 @@ import {Star} from '@remotion/shapes';
 import {visualControl} from '@remotion/studio';
 import {zColor} from '@remotion/zod-types';
 import React from 'react';
-import {AbsoluteFill, Interactive, useCurrentFrame} from 'remotion';
+import {
+	AbsoluteFill,
+	Interactive,
+	useCurrentFrame,
+} from 'remotion';
 
 const NewSticker: React.FC = () => {
 	const frame = useCurrentFrame();
@@ -12,7 +16,11 @@ const NewSticker: React.FC = () => {
 				display: 'flex',
 				justifyContent: 'center',
 				alignItems: 'center',
-				backgroundColor: visualControl('color', '#fff9bd', zColor()),
+				backgroundColor: visualControl(
+					'color',
+					'#fff9bd',
+					zColor(),
+				),
 				position: 'absolute',
 				width: '100%',
 				height: '100%',
@@ -21,6 +29,7 @@ const NewSticker: React.FC = () => {
 			<Interactive.Div
 				style={{
 					position: 'relative',
+					translate: '0px 511.6px',
 				}}
 			>
 				<Star
@@ -39,7 +48,11 @@ const NewSticker: React.FC = () => {
 						fontWeight: 'bolder',
 						fontFamily: 'GT Planar',
 						letterSpacing: '-0.02em',
-						color: visualControl('orange', '#fcff79', zColor()),
+						color: visualControl(
+							'orange',
+							'#fcff79',
+							zColor(),
+						),
 					}}
 				>
 					New!
