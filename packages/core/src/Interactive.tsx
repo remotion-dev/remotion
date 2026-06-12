@@ -143,11 +143,7 @@ const makeInteractiveElement = <Tag extends InteractiveTag>(
 				showInTimeline={showInTimeline ?? true}
 				_experimentalControls={_experimentalControls}
 				_remotionInternalStack={stack}
-				_remotionInternalDocumentationLink={
-					name === undefined
-						? 'https://www.remotion.dev/docs/interactive'
-						: undefined
-				}
+				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/interactive"
 				_remotionInternalRefForOutline={refForOutline}
 			>
 				{React.createElement(tag, {

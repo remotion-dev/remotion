@@ -338,9 +338,7 @@ const NativeImgInner: React.FC<NativeImgInnerProps> = ({
 			from={from ?? 0}
 			durationInFrames={durationInFrames ?? Infinity}
 			_remotionInternalStack={stack}
-			_remotionInternalDocumentationLink={
-				name === undefined ? 'https://www.remotion.dev/docs/img' : undefined
-			}
+			_remotionInternalDocumentationLink="https://www.remotion.dev/docs/img"
 			_remotionInternalIsMedia={{type: 'image', src}}
 			name={name ?? '<Img>'}
 			_experimentalControls={controls}
@@ -533,9 +531,7 @@ const ImgInner: React.FC<
 			name={name ?? '<Img>'}
 			showInTimeline={showInTimeline}
 			stack={stack}
-			_remotionInternalDocumentationLink={
-				name === undefined ? 'https://www.remotion.dev/docs/img' : undefined
-			}
+			_remotionInternalDocumentationLink="https://www.remotion.dev/docs/img"
 			_experimentalControls={controls}
 			_remotionInternalRefForOutline={refForOutline}
 			{...canvasProps}
