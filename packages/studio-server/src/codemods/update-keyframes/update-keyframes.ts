@@ -681,6 +681,59 @@ const normalizeEasingAfterRemovingKeyframe = ({
 	};
 };
 
+const normalizeEasingAfterRemovingKeyframes = ({
+	extraArgs,
+	previousSegmentCount,
+	nextSegmentCount,
+	removedKeyframeIndexes,
+}: {
+	extraArgs: (ExpressionKind | SpreadElementKind)[];
+	previousSegmentCount: number;
+	nextSegmentCount: number;
+	removedKeyframeIndexes: number[];
+}): {
+	extraArgs: (ExpressionKind | SpreadElementKind)[];
+	needsEasingImport: boolean;
+} => {
+	const options = getInlineOptionsFromExtraArgs(extraArgs);
+	if (!options) {
+		return {extraArgs, needsEasingImport: false};
+	}
+
+	const easing = getExistingEasingArrayOrNull({
+		options,
+		segmentCount: previousSegmentCount,
+	});
+	if (easing === null) {
+		return {extraArgs, needsEasingImport: false};
+	}
+
+	for (const removedKeyframeIndex of [...removedKeyframeIndexes].sort(
+		(first, second) => second - first,
+	)) {
+		if (easing.length === 0) {
+			break;
+		}
+
+		const easingIndexToRemove =
+			removedKeyframeIndex === 0 ? 0 : removedKeyframeIndex - 1;
+		easing.splice(easingIndexToRemove, 1);
+	}
+
+	while (easing.length > nextSegmentCount) {
+		easing.pop();
+	}
+
+	while (easing.length < nextSegmentCount) {
+		easing.push('linear');
+	}
+
+	return {
+		extraArgs: getExtraArgsWithOptions({extraArgs, options}),
+		needsEasingImport: setEasingOption({options, easing}),
+	};
+};
+
 const validatePosterize = (posterize: number | undefined) => {
 	if (posterize === undefined) {
 		return;
@@ -1057,32 +1110,48 @@ const moveKeyframes = ({
 	}
 
 	const movedFromFrames = new Set(moveMap.keys());
+	const movedToFrames = new Set(moveMap.values());
+	const removedKeyframeIndexes: number[] = [];
+	const nextKeyframes = existing.keyframes.flatMap((keyframe, index) => {
+		const movedFrame = moveMap.get(keyframe.frame);
+		if (movedFrame !== undefined) {
+			return [{...keyframe, frame: movedFrame}];
+		}
+
+		if (
+			movedToFrames.has(keyframe.frame) &&
+			!movedFromFrames.has(keyframe.frame)
+		) {
+			removedKeyframeIndexes.push(index);
+			return [];
+		}
+
+		return [keyframe];
+	});
+
 	const nextFrames = new Set<number>();
-	for (const keyframe of existing.keyframes) {
-		const nextFrame = moveMap.get(keyframe.frame) ?? keyframe.frame;
-		if (nextFrames.has(nextFrame)) {
+	for (const keyframe of nextKeyframes) {
+		if (nextFrames.has(keyframe.frame)) {
 			throw new Error(
-				`Cannot move keyframe to frame ${nextFrame}: frame already exists`,
+				`Cannot move keyframe to frame ${keyframe.frame}: frame already exists`,
 			);
 		}
 
-		if (!movedFromFrames.has(keyframe.frame) && moveMap.has(nextFrame)) {
-			throw new Error(
-				`Cannot move keyframe to frame ${nextFrame}: frame already exists`,
-			);
-		}
-
-		nextFrames.add(nextFrame);
+		nextFrames.add(keyframe.frame);
 	}
+
+	const normalizedEasing = normalizeEasingAfterRemovingKeyframes({
+		extraArgs: existing.extraArgs,
+		previousSegmentCount: Math.max(existing.keyframes.length - 1, 0),
+		nextSegmentCount: Math.max(nextKeyframes.length - 1, 0),
+		removedKeyframeIndexes,
+	});
 
 	return createInterpolateExpression({
 		callee: existing.callee,
 		input: existing.input,
-		extraArgs: existing.extraArgs,
-		keyframes: existing.keyframes.map((keyframe) => ({
-			...keyframe,
-			frame: moveMap.get(keyframe.frame) ?? keyframe.frame,
-		})),
+		extraArgs: normalizedEasing.extraArgs,
+		keyframes: nextKeyframes,
 	});
 };
 

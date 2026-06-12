@@ -14,7 +14,7 @@ import {doesReactSupportTransformOriginProperty} from '../utils/does-react-suppo
 
 type ShapeSequenceProps = Pick<
 	SequenceProps,
-	'durationInFrames' | 'from' | 'hidden' | 'name' | 'showInTimeline'
+	'durationInFrames' | 'from' | 'freeze' | 'hidden' | 'name' | 'showInTimeline'
 > & {
 	readonly _experimentalControls?: SequenceControls;
 };
@@ -49,6 +49,7 @@ export const RenderSvg = ({
 	pixelDensity,
 	durationInFrames,
 	from,
+	freeze,
 	hidden,
 	name,
 	showInTimeline,
@@ -212,6 +213,7 @@ export const RenderSvg = ({
 		<Sequence
 			layout="none"
 			from={from}
+			freeze={freeze}
 			hidden={hidden}
 			showInTimeline={showInTimeline}
 			_experimentalControls={controls}

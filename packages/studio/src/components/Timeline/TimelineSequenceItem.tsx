@@ -177,12 +177,14 @@ export const TimelineSequenceItem: React.FC<{
 	readonly nestedDepth: number;
 	readonly nodePathInfo: SequenceNodePathInfo | null;
 	readonly keyframeDisplayOffset: number;
+	readonly sequenceFrameOffset: number;
 	readonly trackIndex: number;
 }> = ({
 	nestedDepth,
 	sequence,
 	nodePathInfo,
 	keyframeDisplayOffset,
+	sequenceFrameOffset,
 	trackIndex,
 }) => {
 	const nodePath = nodePathInfo?.sequenceSubscriptionKey ?? null;
@@ -205,6 +207,7 @@ export const TimelineSequenceItem: React.FC<{
 	const [sequenceDropRejection, setSequenceDropRejection] = useState<
 		string | null
 	>(null);
+	const timelinePosition = Internals.Timeline.useTimelinePosition();
 
 	const {canOpenInEditor, openInEditor, originalLocation} =
 		useOpenSequenceInEditor(sequence);
@@ -811,6 +814,70 @@ export const TimelineSequenceItem: React.FC<{
 		setIsRenaming(true);
 	}, [canRenameThisSequence]);
 
+	const freezeStatus = propStatusesForOverride?.freeze;
+	const isFrozen =
+		freezeStatus?.status === 'static' &&
+		typeof freezeStatus.codeValue === 'number';
+
+	const canToggleFreeze =
+		previewConnected &&
+		Boolean(sequence.controls) &&
+		nodePath !== null &&
+		validatedLocation !== null &&
+		freezeStatus !== undefined &&
+		freezeStatus !== null &&
+		freezeStatus.status === 'static';
+
+	const onToggleFreezeFrame = useCallback(() => {
+		if (
+			!canToggleFreeze ||
+			!sequence.controls ||
+			!nodePath ||
+			!validatedLocation ||
+			previewServerState.type !== 'connected'
+		) {
+			return;
+		}
+
+		const rawFreezeFrame = Math.round(
+			timelinePosition - sequence.from + sequenceFrameOffset,
+		);
+		const maxFrame = Number.isFinite(sequence.duration)
+			? Math.max(0, sequence.duration - 1)
+			: rawFreezeFrame;
+		const freezeFrame = Math.min(Math.max(0, rawFreezeFrame), maxFrame);
+		const remove = isFrozen;
+
+		saveSequenceProps({
+			changes: [
+				{
+					fileName: validatedLocation.source,
+					nodePath,
+					fieldKey: 'freeze',
+					value: remove ? null : freezeFrame,
+					defaultValue: null,
+					schema: sequence.controls.schema,
+				},
+			],
+			setPropStatuses,
+			clientId: previewServerState.clientId,
+			undoLabel: remove ? 'Unfreeze sequence' : 'Freeze sequence',
+			redoLabel: remove ? 'Freeze sequence again' : 'Unfreeze sequence again',
+		});
+	}, [
+		canToggleFreeze,
+		isFrozen,
+		nodePath,
+		previewServerState,
+		sequence.controls,
+		sequence.duration,
+		sequence.from,
+		sequenceFrameOffset,
+		setPropStatuses,
+		timelinePosition,
+		validatedLocation,
+	]);
+
 	const contextMenuValues = useMemo((): ComboboxValue[] => {
 		if (!previewConnected) {
 			return [];
@@ -896,12 +963,10 @@ export const TimelineSequenceItem: React.FC<{
 						value: 'show-asset',
 					}
 				: null,
-			documentationLink
-				? {
-						type: 'divider' as const,
-						id: 'open-component-docs-divider',
-					}
-				: null,
+			{
+				type: 'divider' as const,
+				id: 'sequence-source-actions-divider',
+			},
 			{
 				type: 'item' as const,
 				id: 'rename-sequence',
@@ -918,6 +983,20 @@ export const TimelineSequenceItem: React.FC<{
 			},
 			{
 				type: 'item' as const,
+				id: 'toggle-freeze-frame',
+				keyHint: null,
+				label: isFrozen ? 'Unfreeze frame' : 'Freeze frame',
+				leftItem: null,
+				disabled: !canToggleFreeze,
+				onClick: () => {
+					onToggleFreezeFrame();
+				},
+				quickSwitcherLabel: null,
+				subMenu: null,
+				value: 'toggle-freeze-frame',
+			},
+			{
+				type: 'item' as const,
 				id: 'disable-interactivity',
 				keyHint: null,
 				label: 'Disable interactivity',
@@ -929,6 +1008,10 @@ export const TimelineSequenceItem: React.FC<{
 				quickSwitcherLabel: null,
 				subMenu: null,
 				value: 'disable-interactivity',
+			},
+			{
+				type: 'divider' as const,
+				id: 'sequence-duplicate-delete-divider',
 			},
 			{
 				type: 'item' as const,
@@ -971,20 +1054,22 @@ export const TimelineSequenceItem: React.FC<{
 		assetLinkInfo,
 		canOpenInEditor,
 		canRenameThisSequence,
+		canToggleFreeze,
 		deleteDisabled,
 		disableInteractivityDisabled,
 		duplicateDisabled,
 		fileLocation,
+		isFrozen,
 		onDeleteSequenceFromSource,
 		onDisableSequenceInteractivity,
 		onDuplicateSequenceFromSource,
 		onRenameSequence,
+		onToggleFreezeFrame,
 		openInEditor,
 		previewConnected,
 		selectAsset,
 		sequence,
 	]);
-
 	const canDropEffect =
 		previewServerState.type === 'connected' &&
 		nodePath !== null &&

@@ -42,7 +42,7 @@ type SeriesSequenceProps = PropsWithChildren<
 		readonly offset?: number;
 		readonly className?: string;
 	} & LayoutBasedProps &
-		Pick<SequencePropsWithoutDuration, 'name' | 'showInTimeline'>
+		Pick<SequencePropsWithoutDuration, 'name' | 'showInTimeline' | 'freeze'>
 >;
 
 const SeriesSequence = ({children}: SeriesSequenceProps) => {

@@ -25,6 +25,7 @@ export const TimelineList: React.FC<{
 							sequence={track.sequence}
 							nodePathInfo={track.nodePathInfo}
 							keyframeDisplayOffset={track.keyframeDisplayOffset}
+							sequenceFrameOffset={track.sequenceFrameOffset}
 						/>
 					</div>
 				);

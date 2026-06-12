@@ -47,5 +47,5 @@ export type AudioProps = {
 	requestInit?: MediaRequestInit;
 } & Pick<
 	SequenceProps,
-	'from' | 'durationInFrames' | 'name' | 'showInTimeline' | 'hidden'
+	'from' | 'durationInFrames' | 'freeze' | 'name' | 'showInTimeline' | 'hidden'
 >;
