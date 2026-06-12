@@ -97,9 +97,7 @@ export const Example: React.FC = () => {
 	const {output, oldValueStrings} = await updateSequenceProps({
 		input,
 		nodePath: lineColumnToNodePath(input, 5),
-		updates: [
-			{key: 'freeze', value: undefined, defaultValue: null, remove: true},
-		],
+		updates: [{key: 'freeze', value: undefined, defaultValue: undefined}],
 		schema: NoReactInternals.sequenceSchema,
 		prettierConfigOverride: null,
 	});

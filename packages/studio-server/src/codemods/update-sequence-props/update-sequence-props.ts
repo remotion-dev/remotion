@@ -20,7 +20,6 @@ export type SequencePropUpdate = {
 	key: string;
 	value: unknown;
 	defaultValue: unknown | null;
-	remove?: boolean;
 };
 
 export type RemovedProp = {
@@ -144,13 +143,12 @@ const updateSequencePropsNode = ({
 		}),
 	);
 
-	for (const {key, value, defaultValue, remove} of updates) {
+	for (const {key, value, defaultValue} of updates) {
 		let oldValueString = '';
 
 		const isDefault =
-			remove === true ||
-			(defaultValue !== null &&
-				JSON.stringify(value) === JSON.stringify(defaultValue));
+			defaultValue !== null &&
+			JSON.stringify(value) === JSON.stringify(defaultValue);
 
 		const dotIndex = key.indexOf('.');
 		const isNested = dotIndex !== -1;
@@ -202,7 +200,7 @@ const updateSequencePropsNode = ({
 				if (attr && attr.type !== 'JSXSpreadAttribute' && node.attributes) {
 					node.attributes.splice(attrIndex!, 1);
 				}
-			} else if (!remove) {
+			} else {
 				const parsed = parseValueExpression(value);
 
 				const newValue =

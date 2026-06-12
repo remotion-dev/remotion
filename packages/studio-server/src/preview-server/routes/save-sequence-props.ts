@@ -70,8 +70,7 @@ export const convertSequencePropEditToCodemodChange = (
 			{
 				key: edit.key,
 				value: edit.value,
-				defaultValue: edit.defaultValue,
-				...(edit.remove === true ? {remove: edit.remove} : null),
+				defaultValue: edit.remove ? undefined : edit.defaultValue,
 			},
 		],
 		schema: edit.schema,
