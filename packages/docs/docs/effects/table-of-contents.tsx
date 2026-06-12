@@ -245,13 +245,6 @@ const categories: {
 				description: 'Additive horizontal scanlines',
 			},
 			{
-				link: '/docs/effects/tv-signal-off',
-				preview: '/img/effects-tv-signal-off-preview.png',
-				alt: 'TV signal off effect preview',
-				name: 'tvSignalOff()',
-				description: 'TV color bars test pattern',
-			},
-			{
 				link: '/docs/effects/speckle',
 				preview: '/img/effects-speckle-preview.png',
 				alt: 'speckle effect preview',
@@ -290,6 +283,13 @@ const categories: {
 				alt: 'white noise effect preview',
 				name: 'whiteNoise()',
 				description: 'Random grayscale noise layer',
+			},
+			{
+				link: '/docs/effects/tv-signal-off',
+				preview: '/img/effects-tv-signal-off-preview.png',
+				alt: 'TV signal off effect preview',
+				name: 'tvSignalOff()',
+				description: 'TV color bars test pattern',
 			},
 			{
 				link: '/docs/effects/lines',
