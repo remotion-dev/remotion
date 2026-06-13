@@ -4,6 +4,7 @@ import {brightness} from '@remotion/effects/brightness';
 import {chromaticAberration} from '@remotion/effects/chromatic-aberration';
 import {colorKey} from '@remotion/effects/color-key';
 import {contrast} from '@remotion/effects/contrast';
+import {contourLines} from '@remotion/effects/contour-lines';
 import {dotGrid} from '@remotion/effects/dot-grid';
 import {dropShadow} from '@remotion/effects/drop-shadow';
 import {duotone} from '@remotion/effects/duotone';
@@ -42,6 +43,7 @@ import {EffectsBrightnessPreview} from '../effects/effects-brightness-preview';
 import {EffectsChromaticAberrationPreview} from '../effects/effects-chromatic-aberration-preview';
 import {EffectsColorKeyPreview} from '../effects/effects-color-key-preview';
 import {EffectsContrastPreview} from '../effects/effects-contrast-preview';
+import {EffectsContourLinesPreview} from '../effects/effects-contour-lines-preview';
 import {EffectsDotGridPreview} from '../effects/effects-dot-grid-preview';
 import {EffectsDropShadowPreview} from '../effects/effects-drop-shadow-preview';
 import {EffectsDuotonePreview} from '../effects/effects-duotone-preview';
@@ -262,6 +264,14 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/lines',
 		comp: EffectsLinesPreview,
 		schema: lines().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-contour-lines',
+		effectName: 'contourLines',
+		effectImportPath: '@remotion/effects/contour-lines',
+		comp: EffectsContourLinesPreview,
+		schema: contourLines().definition.schema,
 	},
 	{
 		...defaults,

@@ -64,6 +64,11 @@
 			"module": "./dist/esm/contrast.mjs",
 			"import": "./dist/esm/contrast.mjs"
 		},
+		"./contour-lines": {
+			"types": "./dist/contour-lines.d.ts",
+			"module": "./dist/esm/contour-lines.mjs",
+			"import": "./dist/esm/contour-lines.mjs"
+		},
 		"./drop-shadow": {
 			"types": "./dist/drop-shadow.d.ts",
 			"module": "./dist/esm/drop-shadow.mjs",
@@ -235,6 +240,9 @@
 			],
 			"contrast": [
 				"dist/contrast.d.ts"
+			],
+			"contour-lines": [
+				"dist/contour-lines.d.ts"
 			],
 			"drop-shadow": [
 				"dist/drop-shadow.d.ts"
