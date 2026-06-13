@@ -58,7 +58,7 @@ export const EditorRulers: React.FC<{
 		draggingGuideId,
 		setDraggingGuideId,
 	} = useContext(EditorShowGuidesContext);
-	const {clearSelection} = useTimelineSelection();
+	const {clearSelection, selectedItems} = useTimelineSelection();
 
 	const rulerMarkingGaps = useMemo(() => {
 		const minimumGap = MINIMUM_RULER_MARKING_GAP_PX;
@@ -212,7 +212,10 @@ export const EditorRulers: React.FC<{
 			return newGuides;
 		});
 
-		if (shouldDeleteGuideRef.current) {
+		const deletedGuideWasSelected = selectedItems.some(
+			(item) => item.type === 'guide' && item.guideId === draggingGuideId,
+		);
+		if (shouldDeleteGuideRef.current && deletedGuideWasSelected) {
 			clearSelection();
 		}
 
@@ -230,6 +233,7 @@ export const EditorRulers: React.FC<{
 		setDraggingGuideId,
 		setGuidesList,
 		onMouseMove,
+		selectedItems,
 	]);
 
 	useEffect(() => {
