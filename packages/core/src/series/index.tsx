@@ -160,6 +160,7 @@ const Series: React.ComponentType<SeriesProps> & {
 } = Object.assign(
 	wrapInSchema({
 		Component: SeriesInner,
+		componentIdentity: 'dev.remotion.remotion.Series',
 		schema: sequenceSchemaDefaultLayoutNone,
 		supportsEffects: false,
 	}),

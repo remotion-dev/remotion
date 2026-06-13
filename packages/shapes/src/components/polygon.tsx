@@ -51,6 +51,7 @@ const PolygonInner: React.FC<PolygonProps> = ({
 
 export const Polygon = Internals.wrapInSchema({
 	Component: PolygonInner,
+	componentIdentity: 'dev.remotion.shapes.Polygon',
 	schema: polygonSchema,
 	supportsEffects: true,
 }) as React.FC<PolygonProps>;

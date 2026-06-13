@@ -162,6 +162,7 @@ const makeInteractiveElement = <Tag extends InteractiveTag>(
 
 	const Wrapped = wrapInSchema({
 		Component: Inner,
+		componentIdentity: `dev.remotion.remotion.${displayName.slice(1, -1)}`,
 		schema: interactiveElementSchema,
 		supportsEffects: false,
 	}) as InteractiveElementComponent<Tag>;

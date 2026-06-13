@@ -27,6 +27,7 @@ import {
 import {CompositionRenderErrorContext} from './composition-render-error-context.js';
 import {type CompProps} from './Composition.js';
 import type {
+	JsxComponentIdentity,
 	TCompMetadata,
 	TComposition,
 	TRenderAsset,
@@ -435,6 +436,7 @@ export type {
 	GetEffectDragOverrides,
 	GetEffectPropStatuses,
 	GetPropStatuses,
+	JsxComponentIdentity,
 	LoggingContextValue,
 	MediaVolumeContextValue,
 	NonceHistory,

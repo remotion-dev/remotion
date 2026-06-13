@@ -129,6 +129,7 @@ const GifInner = ({
 
 export const Gif = wrapInSchema({
 	Component: GifInner,
+	componentIdentity: 'dev.remotion.gif.Gif',
 	schema: gifSchema,
 	supportsEffects: true,
 });

@@ -553,6 +553,7 @@ const ImgInner: React.FC<
  */
 export const Img = wrapInSchema({
 	Component: ImgInner,
+	componentIdentity: 'dev.remotion.remotion.Img',
 	schema: imgSchema,
 	supportsEffects: true,
 });

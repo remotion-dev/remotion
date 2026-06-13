@@ -310,6 +310,7 @@ const SolidOuter = forwardRef<
 
 export const Solid = wrapInSchema({
 	Component: SolidOuter,
+	componentIdentity: 'dev.remotion.remotion.Solid',
 	schema: solidSchema,
 	supportsEffects: true,
 });

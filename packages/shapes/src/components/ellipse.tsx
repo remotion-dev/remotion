@@ -41,6 +41,7 @@ const EllipseInner: React.FC<EllipseProps> = ({rx, ry, ...props}) => {
 
 export const Ellipse = Internals.wrapInSchema({
 	Component: EllipseInner,
+	componentIdentity: 'dev.remotion.shapes.Ellipse',
 	schema: ellipseSchema,
 	supportsEffects: true,
 }) as React.FC<EllipseProps>;

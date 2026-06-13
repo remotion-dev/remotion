@@ -2,6 +2,7 @@ import {expect, test} from 'bun:test';
 import {readFileSync} from 'node:fs';
 import path from 'node:path';
 import {parseAst} from '../codemods/parse-ast';
+import {JsxElementIdentityMismatchError} from '../preview-server/jsx-component-identity';
 import {
 	computeSequencePropsStatus,
 	computeSequencePropsStatusFromContent,
@@ -34,6 +35,7 @@ test('canUpdateSequenceProps should flag computed props', () => {
 	const result = computeSequencePropsStatus({
 		fileName: filePath,
 		nodePath: getNodePath(filePath, 8),
+		componentIdentity: null,
 		keys: ['durationInFrames', 'seed', 'hueShift', 'nonExistentProp'],
 		effects: [],
 		remotionRoot: '/',
@@ -73,6 +75,7 @@ export const Example: React.FC = () => {
 	const result = computeSequencePropsStatusFromContent({
 		fileContents: input,
 		nodePath: getNodePathFromContent(input, 7),
+		componentIdentity: null,
 		keys: ['color'],
 		effects: [],
 	});
@@ -93,6 +96,58 @@ export const Example: React.FC = () => {
 	});
 });
 
+test('computeSequencePropsStatus should reject a node path with the wrong component identity', () => {
+	const input = `import React from 'react';
+import {Interactive} from 'remotion';
+import {Star} from '@remotion/shapes';
+
+export const Example: React.FC = () => {
+\treturn (
+\t\t<Interactive.Div>
+\t\t\t<Star points={20} innerRadius={174} outerRadius={207} />
+\t\t</Interactive.Div>
+\t);
+};
+`;
+
+	expect(() =>
+		computeSequencePropsStatusFromContent({
+			fileContents: input,
+			nodePath: getNodePathFromContent(input, 7),
+			componentIdentity: 'dev.remotion.shapes.Star',
+			keys: ['points'],
+			effects: [],
+		}),
+	).toThrow(JsxElementIdentityMismatchError);
+});
+
+test('computeSequencePropsStatus should match namespace imports by component identity', () => {
+	const input = `import React from 'react';
+import * as Remotion from 'remotion';
+
+export const Example: React.FC = () => {
+\treturn (
+\t\t<Remotion.Sequence from={10} durationInFrames={20} />
+\t);
+};
+`;
+	const result = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 6),
+		componentIdentity: 'dev.remotion.remotion.Sequence',
+		keys: ['from'],
+		effects: [],
+	});
+
+	expect(result.canUpdate).toBe(true);
+	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
+
+	expect(result.props.from).toEqual({
+		status: 'static',
+		codeValue: 10,
+	});
+});
+
 test('computeSequencePropsStatus should return easing for interpolated color props', () => {
 	const input = `import React from 'react';
 import {Easing, Solid, interpolateColors, useCurrentFrame} from 'remotion';
@@ -107,6 +162,7 @@ export const Example: React.FC = () => {
 	const result = computeSequencePropsStatusFromContent({
 		fileContents: input,
 		nodePath: getNodePathFromContent(input, 7),
+		componentIdentity: null,
 		keys: ['color'],
 		effects: [],
 	});
@@ -142,6 +198,7 @@ export const Example: React.FC = () => {
 	const result = computeSequencePropsStatusFromContent({
 		fileContents: input,
 		nodePath: getNodePathFromContent(input, 7),
+		componentIdentity: null,
 		keys: ['style.translate'],
 		effects: [],
 	});
@@ -177,6 +234,7 @@ export const Example: React.FC = () => {
 	const result = computeSequencePropsStatusFromContent({
 		fileContents: input,
 		nodePath: getNodePathFromContent(input, 8),
+		componentIdentity: null,
 		keys: ['style.translate'],
 		effects: [],
 	});
@@ -203,6 +261,7 @@ export const Example: React.FC = () => {
 	const result = computeSequencePropsStatusFromContent({
 		fileContents: input,
 		nodePath: getNodePathFromContent(input, 7),
+		componentIdentity: null,
 		keys: ['style.rotate'],
 		effects: [],
 	});
@@ -232,6 +291,7 @@ test('computeSequencePropsStatus should explain why outside-project file reads w
 		computeSequencePropsStatus({
 			fileName,
 			nodePath: [],
+			componentIdentity: null,
 			keys: [],
 			effects: [],
 			remotionRoot,
@@ -246,6 +306,7 @@ test('computeSequencePropsStatus should detect static nested props', () => {
 	const result = computeSequencePropsStatus({
 		fileName: filePath,
 		nodePath: getNodePath(filePath, 7),
+		componentIdentity: null,
 		keys: ['style.opacity', 'style.scale'],
 		effects: [],
 		remotionRoot: '/',
@@ -269,6 +330,7 @@ test('computeSequencePropsStatus should flag computed nested props', () => {
 	const result = computeSequencePropsStatus({
 		fileName: filePath,
 		nodePath: getNodePath(filePath, 8),
+		componentIdentity: null,
 		keys: ['style.opacity', 'style.scale'],
 		effects: [],
 		remotionRoot: '/',
@@ -293,6 +355,7 @@ test('computeSequencePropsStatus should flag computed when parent is not an obje
 	const result = computeSequencePropsStatus({
 		fileName: filePath,
 		nodePath: getNodePath(filePath, 9),
+		componentIdentity: null,
 		keys: ['style.opacity'],
 		effects: [],
 		remotionRoot: '/',
@@ -312,6 +375,7 @@ test('computeSequencePropsStatus should report unset nested props as undefined',
 	const result = computeSequencePropsStatus({
 		fileName: filePath,
 		nodePath: getNodePath(filePath, 7),
+		componentIdentity: null,
 		keys: ['style.rotate'],
 		effects: [],
 		remotionRoot: '/',
@@ -331,6 +395,7 @@ test('computeSequencePropsStatus should report unset when parent attribute missi
 	const result = computeSequencePropsStatus({
 		fileName: filePath,
 		nodePath: getNodePath(filePath, 10),
+		componentIdentity: null,
 		keys: ['style.opacity'],
 		effects: [],
 		remotionRoot: '/',
@@ -350,6 +415,7 @@ test('computeSequencePropsStatus should return keyframes for interpolated style 
 	const result = computeSequencePropsStatus({
 		fileName: filePath,
 		nodePath: getNodePath(filePath, 8),
+		componentIdentity: null,
 		keys: ['style.scale'],
 		effects: [],
 		remotionRoot: '/',
@@ -390,6 +456,7 @@ export const Example: React.FC = () => {
 	const result = computeSequencePropsStatusFromContent({
 		fileContents: input,
 		nodePath: getNodePathFromContent(input, 7),
+		componentIdentity: null,
 		keys: ['style.scale'],
 		effects: [],
 	});
@@ -429,6 +496,7 @@ export const Example: React.FC = () => {
 	const result = computeSequencePropsStatusFromContent({
 		fileContents: input,
 		nodePath: getNodePathFromContent(input, 7),
+		componentIdentity: null,
 		keys: ['style.scale'],
 		effects: [],
 	});
@@ -464,6 +532,7 @@ export const Example: React.FC = () => {
 	const result = computeSequencePropsStatusFromContent({
 		fileContents: input,
 		nodePath: getNodePathFromContent(input, 7),
+		componentIdentity: null,
 		keys: ['color'],
 		effects: [],
 	});
@@ -500,6 +569,7 @@ export const Example: React.FC = () => {
 	const result = computeSequencePropsStatusFromContent({
 		fileContents: input,
 		nodePath: getNodePathFromContent(input, 8),
+		componentIdentity: null,
 		keys: ['style.scale'],
 		effects: [],
 	});
@@ -529,6 +599,7 @@ export const Example: React.FC = () => {
 	const result = computeSequencePropsStatusFromContent({
 		fileContents: input,
 		nodePath: getNodePathFromContent(input, 7),
+		componentIdentity: null,
 		keys: ['style.scale'],
 		effects: [],
 	});

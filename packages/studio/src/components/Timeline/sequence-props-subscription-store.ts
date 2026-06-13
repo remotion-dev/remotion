@@ -1,18 +1,30 @@
 import {getAllSchemaKeys} from '@remotion/studio-shared';
-import type {SequenceNodePath, SequenceSchema} from 'remotion';
+import type {
+	JsxComponentIdentity,
+	SequenceNodePath,
+	SequenceSchema,
+} from 'remotion';
 import {Internals} from 'remotion';
 import {callApi} from '../call-api';
 
 type Key = string;
 
-const makeKey = (
-	fileName: string,
-	line: number,
-	column: number,
-	sequenceKeys: string[],
-	effectKeys: string[][],
-): Key =>
-	`${fileName}\0${line}\0${column}\0${sequenceKeys.join('\0')}\0${effectKeys.map((keys) => keys.join('\0')).join('\0\0')}`;
+const makeKey = ({
+	fileName,
+	line,
+	column,
+	componentIdentity,
+	sequenceKeys,
+	effectKeys,
+}: {
+	fileName: string;
+	line: number;
+	column: number;
+	componentIdentity: JsxComponentIdentity | null;
+	sequenceKeys: string[];
+	effectKeys: string[][];
+}): Key =>
+	`${fileName}\0${line}\0${column}\0${componentIdentity ?? ''}\0${sequenceKeys.join('\0')}\0${effectKeys.map((keys) => keys.join('\0')).join('\0\0')}`;
 
 type SubscribeResult = Awaited<
 	ReturnType<typeof callApi<'/api/subscribe-to-sequence-props'>>
@@ -35,6 +47,7 @@ export const acquireSequencePropsSubscription = ({
 	line,
 	column,
 	schema,
+	componentIdentity,
 	effects,
 	nodePath,
 	clientId,
@@ -45,6 +58,7 @@ export const acquireSequencePropsSubscription = ({
 	line: number;
 	column: number;
 	schema: SequenceSchema;
+	componentIdentity: JsxComponentIdentity | null;
 	effects: SequenceSchema[];
 	nodePath: SequenceNodePath | null;
 	clientId: string;
@@ -53,7 +67,14 @@ export const acquireSequencePropsSubscription = ({
 }): {release: () => void} => {
 	const sequenceKeys = getAllSchemaKeys(schema);
 	const effectKeys = effects.map((effect) => getAllSchemaKeys(effect));
-	const key = makeKey(fileName, line, column, sequenceKeys, effectKeys);
+	const key = makeKey({
+		fileName,
+		line,
+		column,
+		componentIdentity,
+		sequenceKeys,
+		effectKeys,
+	});
 	let entry = entries.get(key);
 
 	if (!entry) {
@@ -62,6 +83,7 @@ export const acquireSequencePropsSubscription = ({
 			line,
 			column,
 			nodePath,
+			componentIdentity,
 			keys: getAllSchemaKeys(schema),
 			effects: effectKeys,
 			clientId,

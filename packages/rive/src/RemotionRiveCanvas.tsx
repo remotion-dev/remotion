@@ -506,6 +506,7 @@ export const RemotionRiveCanvas = wrapInSchema({
 			readonly _experimentalControls: SequenceControls | undefined;
 		}
 	>,
+	componentIdentity: 'dev.remotion.rive.RemotionRiveCanvas',
 	schema: riveCanvasSchema,
 	supportsEffects: true,
 }) as React.ForwardRefExoticComponent<

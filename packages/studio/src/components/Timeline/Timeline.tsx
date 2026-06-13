@@ -255,6 +255,7 @@ const TimelineInner: React.FC = () => {
 					<SubscribeToNodePaths
 						key={sequence.id}
 						overrideId={sequence.controls.overrideId}
+						componentIdentity={sequence.controls.componentIdentity}
 						schema={sequence.controls.schema}
 						getStack={sequence.getStack}
 						effects={sequence.effects}

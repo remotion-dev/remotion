@@ -303,6 +303,7 @@ const LightLeakInner: React.FC<
 
 export const LightLeak = Internals.wrapInSchema({
 	Component: LightLeakInner,
+	componentIdentity: 'dev.remotion.lightLeaks.LightLeak',
 	schema: lightLeakSchema,
 	supportsEffects: false,
 });

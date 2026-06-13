@@ -703,6 +703,7 @@ const htmlInCanvasSchema = {
 
 const HtmlInCanvasWrapped = wrapInSchema({
 	Component: HtmlInCanvasInner,
+	componentIdentity: 'dev.remotion.remotion.HtmlInCanvas',
 	schema: htmlInCanvasSchema,
 	supportsEffects: true,
 });

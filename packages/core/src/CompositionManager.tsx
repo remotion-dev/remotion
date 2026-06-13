@@ -95,11 +95,14 @@ export type LoopDisplay = {
 	durationInFrames: number;
 };
 
+export type JsxComponentIdentity = string;
+
 export type SequenceControls = {
 	schema: SequenceSchema;
 	currentRuntimeValueDotNotation: Record<string, unknown>;
 	overrideId: string;
 	supportsEffects: boolean;
+	componentIdentity: JsxComponentIdentity | null;
 };
 
 export type TSequence = {

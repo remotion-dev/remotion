@@ -365,6 +365,7 @@ const VideoInner: React.FC<
 
 export const Video = Internals.wrapInSchema({
 	Component: VideoInner,
+	componentIdentity: 'dev.remotion.media.Video',
 	schema: videoSchema,
 	supportsEffects: true,
 });
