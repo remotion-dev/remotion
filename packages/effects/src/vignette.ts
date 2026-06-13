@@ -6,6 +6,7 @@ import {
 	type ParsedColorRgba,
 	validateUnitInterval,
 } from './color-utils.js';
+import {publicUvToShaderUv} from './uv-coordinate.js';
 import {
 	assertEffectParamsObject,
 	assertOptionalColor,
@@ -464,8 +465,10 @@ export const vignette = createEffect<VignetteParams, VignetteState>({
 		if (uniforms.uColor) gl.uniform4f(uniforms.uColor, red, green, blue, alpha);
 		if (uniforms.uMode)
 			gl.uniform1i(uniforms.uMode, r.mode === 'alpha' ? 1 : 0);
-		if (uniforms.uCenter)
-			gl.uniform2f(uniforms.uCenter, r.center[0], r.center[1]);
+		if (uniforms.uCenter) {
+			const shaderCenter = publicUvToShaderUv(r.center);
+			gl.uniform2f(uniforms.uCenter, shaderCenter[0], shaderCenter[1]);
+		}
 
 		gl.bindVertexArray(vao);
 		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
