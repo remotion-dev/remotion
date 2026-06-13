@@ -7,6 +7,7 @@ import {
 	getUvCoordinateForPoint,
 	getUvHandleConnectionLines,
 	getUvHandlePosition,
+	roundUvCoordinate,
 	tuplesEqual,
 	type SelectedOutlineUvHandle,
 	type UvCoordinate,
@@ -96,8 +97,11 @@ const SelectedUvHandleCircle: React.FC<{
 					event: pointerEvent,
 					rect: svgRect,
 				});
-				const nextValue = constrainUv(
-					getUvCoordinateForPoint(outline.points, point),
+				const nextValue = roundUvCoordinate(
+					constrainUv(
+						getUvCoordinateForPoint(outline.points, point),
+						handle.fieldSchema,
+					),
 					handle.fieldSchema,
 				);
 				lastValue = nextValue;

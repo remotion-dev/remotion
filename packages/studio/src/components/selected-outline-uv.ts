@@ -16,6 +16,10 @@ import {
 	type OutlinePoint,
 	type SelectedOutline,
 } from './selected-outline-geometry';
+import {
+	getTimelineDisplayDecimalPlaces,
+	roundToDecimalPlaces,
+} from './Timeline/timeline-field-utils';
 
 export type UvCoordinate = readonly [number, number];
 
@@ -284,6 +288,21 @@ export function constrainUv(
 	const min = schema.min ?? -Infinity;
 	const max = schema.max ?? Infinity;
 	return [clamp(value[0], min, max), clamp(value[1], min, max)];
+}
+
+export function roundUvCoordinate(
+	value: UvCoordinate,
+	schema: UvCoordinateFieldSchema,
+): UvCoordinate {
+	const decimalPlaces = getTimelineDisplayDecimalPlaces({
+		defaultDecimalPlaces: 3,
+		step: schema.step,
+	});
+
+	return [
+		roundToDecimalPlaces(value[0], decimalPlaces),
+		roundToDecimalPlaces(value[1], decimalPlaces),
+	];
 }
 
 export const getSelectedUvHandles = ({
