@@ -1,12 +1,7 @@
 import type {Size} from '@remotion/player';
-import type {Guide} from '../state/editor-guides';
 import {MINIMUM_VISIBLE_CANVAS_SIZE} from '../state/editor-rulers';
-import {
-	BACKGROUND,
-	BACKGROUND__TRANSPARENT,
-	RULER_COLOR,
-	SELECTED_GUIDE,
-} from './colors';
+import {BACKGROUND, BACKGROUND__TRANSPARENT, RULER_COLOR} from './colors';
+import type {RulerGuideHighlight} from './editor-guide-selection';
 
 type Orientation = 'horizontal' | 'vertical';
 
@@ -64,7 +59,7 @@ const drawGradient = ({
 };
 
 const drawGuide = ({
-	selectedGuide,
+	guideHighlight,
 	scale,
 	startMarking,
 	context,
@@ -73,7 +68,7 @@ const drawGuide = ({
 	orientation,
 	originOffset,
 }: {
-	selectedGuide: Guide;
+	guideHighlight: RulerGuideHighlight;
 	scale: number;
 	startMarking: number;
 	context: CanvasRenderingContext2D;
@@ -82,9 +77,10 @@ const drawGuide = ({
 	orientation: Orientation;
 	originOffset: number;
 }) => {
+	const {guide, color} = guideHighlight;
 	const originDistance =
 		rulerValueToPosition({
-			value: selectedGuide.position,
+			value: guide.position,
 			startMarking,
 			scale,
 		}) +
@@ -97,45 +93,36 @@ const drawGuide = ({
 		originDistance,
 		canvasWidth,
 	});
-	context.strokeStyle = SELECTED_GUIDE;
+	context.strokeStyle = color;
 	context.lineWidth = 1;
 	context.beginPath();
-	if (
-		orientation === 'horizontal' &&
-		selectedGuide.orientation === 'horizontal'
-	) {
+	if (orientation === 'horizontal' && guide.orientation === 'horizontal') {
 		return;
 	}
 
-	if (orientation === 'vertical' && selectedGuide.orientation === 'vertical') {
+	if (orientation === 'vertical' && guide.orientation === 'vertical') {
 		return;
 	}
 
-	if (
-		orientation === 'vertical' &&
-		selectedGuide.orientation === 'horizontal'
-	) {
+	if (orientation === 'vertical' && guide.orientation === 'horizontal') {
 		context.moveTo(0, originDistance);
 		context.lineTo(canvasWidth, originDistance);
 		drawLabel({
 			context,
-			label: selectedGuide.position.toString(),
+			label: guide.position.toString(),
 			originDistance,
 			orientation,
-			color: SELECTED_GUIDE,
+			color,
 		});
-	} else if (
-		orientation === 'horizontal' &&
-		selectedGuide.orientation === 'vertical'
-	) {
+	} else if (orientation === 'horizontal' && guide.orientation === 'vertical') {
 		context.moveTo(originDistance, 0);
 		context.lineTo(originDistance, canvasHeight);
 		drawLabel({
 			context,
-			label: selectedGuide.position.toString(),
+			label: guide.position.toString(),
 			originDistance,
 			orientation,
-			color: SELECTED_GUIDE,
+			color,
 		});
 	}
 
@@ -150,7 +137,7 @@ export const drawMarkingOnRulerCanvas = ({
 	markingGaps,
 	orientation,
 	rulerCanvasRef,
-	selectedGuide,
+	guideHighlight,
 	canvasHeight,
 	canvasWidth,
 }: {
@@ -161,7 +148,7 @@ export const drawMarkingOnRulerCanvas = ({
 	markingGaps: number;
 	orientation: 'horizontal' | 'vertical';
 	rulerCanvasRef: React.RefObject<HTMLCanvasElement | null>;
-	selectedGuide: Guide | null;
+	guideHighlight: RulerGuideHighlight | null;
 	canvasWidth: number;
 	canvasHeight: number;
 }) => {
@@ -220,15 +207,15 @@ export const drawMarkingOnRulerCanvas = ({
 		});
 	});
 
-	if (selectedGuide && orientation !== selectedGuide.orientation) {
+	if (guideHighlight && orientation !== guideHighlight.guide.orientation) {
 		drawGuide({
 			canvasHeight,
 			canvasWidth,
 			context,
-			orientation,
+			guideHighlight,
 			originOffset,
 			scale,
-			selectedGuide,
+			orientation,
 			startMarking,
 		});
 	}

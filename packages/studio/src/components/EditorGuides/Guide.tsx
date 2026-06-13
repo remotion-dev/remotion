@@ -1,6 +1,10 @@
-import {memo, useCallback, useContext, useMemo} from 'react';
+import {memo, useCallback, useContext, useMemo, useRef} from 'react';
 import {NoReactInternals} from 'remotion/no-react';
-import {SELECTED_GUIDE, UNSELECTED_GUIDE} from '../../helpers/colors';
+import {
+	getEditorGuideColor,
+	isGuidePointerUpAClick,
+	type GuidePointerDownPosition,
+} from '../../helpers/editor-guide-selection';
 import type {Guide} from '../../state/editor-guides';
 import {
 	EditorShowGuidesContext,
@@ -10,6 +14,7 @@ import {RULER_WIDTH} from '../../state/editor-rulers';
 import {ContextMenu} from '../ContextMenu';
 import {forceSpecificCursor} from '../ForceSpecificCursor';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
+import {PREVENT_CLEAR_SELECTION_ON_POINTER_DOWN_ATTR} from '../Timeline/should-clear-selection-on-pointer-down';
 import {useTimelineGuideSelection} from '../Timeline/TimelineSelection';
 
 const PADDING_FOR_EASY_DRAG = 4;
@@ -26,14 +31,17 @@ const GuideComp: React.FC<{
 }> = ({guide, canvasDimensions, scale}) => {
 	const {
 		shouldCreateGuideRef,
+		shouldDeleteGuideRef,
 		setGuidesList,
 		setDraggingGuideId,
 		setHoveredGuideId,
 		hoveredGuideId,
+		draggingGuideId,
 	} = useContext(EditorShowGuidesContext);
 	const {clearSelection, onSelect, selected} = useTimelineGuideSelection(
 		guide.id,
 	);
+	const pointerDownPositionRef = useRef<GuidePointerDownPosition | null>(null);
 
 	const onPointerEnter = useCallback(() => {
 		setHoveredGuideId(() => guide.id);
@@ -71,28 +79,74 @@ const GuideComp: React.FC<{
 			top: `${isVerticalGuide ? `-${RULER_WIDTH}px` : '0px'}`,
 			left: `${isVerticalGuide ? '0px' : `-${RULER_WIDTH}px`}`,
 			display: guide.show ? 'block' : 'none',
-			backgroundColor:
-				selected || hoveredGuideId === guide.id
-					? SELECTED_GUIDE
-					: UNSELECTED_GUIDE,
+			backgroundColor: getEditorGuideColor({
+				selected,
+				active: hoveredGuideId === guide.id || draggingGuideId === guide.id,
+			}),
 		};
-	}, [isVerticalGuide, guide.show, hoveredGuideId, guide.id, selected]);
+	}, [
+		isVerticalGuide,
+		guide.show,
+		hoveredGuideId,
+		guide.id,
+		selected,
+		draggingGuideId,
+	]);
 
-	const onMouseDown = useCallback(
-		(e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-			e.preventDefault();
+	const onPointerDown = useCallback(
+		(e: React.PointerEvent<HTMLDivElement>) => {
 			if (e.button !== 0) {
 				return;
 			}
 
+			e.preventDefault();
 			e.stopPropagation();
+			pointerDownPositionRef.current = {
+				guideId: guide.id,
+				clientX: e.clientX,
+				clientY: e.clientY,
+			};
 			shouldCreateGuideRef.current = true;
 			forceSpecificCursor('no-drop');
 			setDraggingGuideId(() => guide.id);
-			onSelect();
 		},
-		[guide.id, onSelect, setDraggingGuideId, shouldCreateGuideRef],
+		[guide.id, setDraggingGuideId, shouldCreateGuideRef],
 	);
+
+	const onPointerUp = useCallback(
+		(e: React.PointerEvent<HTMLDivElement>) => {
+			const pointerDownPosition = pointerDownPositionRef.current;
+			pointerDownPositionRef.current = null;
+			if (shouldDeleteGuideRef.current) {
+				return;
+			}
+
+			if (
+				isGuidePointerUpAClick({
+					pointerDownPosition,
+					guideId: guide.id,
+					clientX: e.clientX,
+					clientY: e.clientY,
+				})
+			) {
+				onSelect();
+			}
+		},
+		[guide.id, onSelect, shouldDeleteGuideRef],
+	);
+
+	const onPointerCancel = useCallback(() => {
+		pointerDownPositionRef.current = null;
+	}, []);
+
+	const isActive = selected || hoveredGuideId === guide.id;
+	const activeClassName = isActive ? '__remotion_editor_guide_selected' : null;
+
+	const guideClassName = useMemo(() => {
+		return ['__remotion_editor_guide_content', activeClassName]
+			.filter(NoReactInternals.truthy)
+			.join(' ');
+	}, [activeClassName]);
 
 	const values = useMemo((): ComboboxValue[] => {
 		return [
@@ -125,22 +179,15 @@ const GuideComp: React.FC<{
 		<ContextMenu values={values} onOpen={null}>
 			<div
 				style={guideStyle}
-				onMouseDown={onMouseDown}
+				onPointerDown={onPointerDown}
+				onPointerUp={onPointerUp}
+				onPointerCancel={onPointerCancel}
 				className="__remotion_editor_guide"
+				{...{[PREVENT_CLEAR_SELECTION_ON_POINTER_DOWN_ATTR]: 'true'}}
 				onPointerEnter={onPointerEnter}
 				onPointerLeave={onPointerLeave}
 			>
-				<div
-					style={guideContentStyle}
-					className={[
-						'__remotion_editor_guide_content',
-						selected || hoveredGuideId === guide.id
-							? '__remotion_editor_guide_selected'
-							: null,
-					]
-						.filter(NoReactInternals.truthy)
-						.join(' ')}
-				/>
+				<div style={guideContentStyle} className={guideClassName} />
 			</div>
 		</ContextMenu>
 	);
