@@ -227,13 +227,8 @@ const GuideComp: React.FC<{
 
 			e.preventDefault();
 			e.stopPropagation();
-			if (shouldDeleteGuideRef.current || hasMovedGuideRef.current) {
-				return;
-			}
-
-			onSelect();
 		},
-		[onSelect, shouldDeleteGuideRef],
+		[],
 	);
 
 	const onPointerCancel = useCallback(() => {
