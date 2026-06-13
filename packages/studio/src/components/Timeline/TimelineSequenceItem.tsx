@@ -2,7 +2,6 @@ import {type ReorderSequencePosition} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useMemo, useState} from 'react';
 import type {SequencePropsSubscriptionKey, TSequence} from 'remotion';
 import {Internals} from 'remotion';
-import {NoReactInternals} from 'remotion/no-react';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {formatFileLocation} from '../../helpers/format-file-location';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
@@ -25,16 +24,13 @@ import {
 	ExpandedTracksSetterContext,
 } from '../ExpandedTracksProvider';
 import {Spacing} from '../layout';
-import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {useSelectAsset} from '../use-select-asset';
 import {disableSequenceInteractivity} from './disable-sequence-interactivity';
 import {duplicateSequencesFromSource} from './duplicate-selected-timeline-item';
+import {getSequenceContextMenuItems} from './get-sequence-context-menu-items';
 import {saveSequenceProps} from './save-sequence-prop';
-import {
-	getTimelineAssetLinkInfo,
-	openTimelineAssetLink,
-} from './timeline-asset-link';
+import {getTimelineAssetLinkInfo} from './timeline-asset-link';
 import {
 	TimelineExpandArrowButton,
 	TimelineExpandArrowSpacer,
@@ -544,150 +540,30 @@ export const TimelineSequenceItem: React.FC<{
 		[mediaSrc],
 	);
 
-	const contextMenuValues = useMemo((): ComboboxValue[] => {
+	const contextMenuValues = useMemo(() => {
 		if (!previewConnected) {
 			return [];
 		}
 
-		const editorName = window.remotion_editorName;
-		const {documentationLink} = sequence;
-
-		return [
-			editorName
-				? {
-						type: 'item' as const,
-						id: 'show-in-editor',
-						keyHint: null,
-						label: `Show in ${editorName}`,
-						leftItem: null,
-						disabled: !canOpenInEditor,
-						onClick: () => {
-							openInEditor();
-						},
-						quickSwitcherLabel: null,
-						subMenu: null,
-						value: 'show-in-editor',
-					}
-				: null,
-			{
-				type: 'item' as const,
-				id: 'copy-file-location',
-				keyHint: null,
-				label: 'Copy file location',
-				leftItem: null,
-				disabled: !fileLocation,
-				onClick: () => {
-					if (!fileLocation) {
-						return;
-					}
-
-					navigator.clipboard
-						.writeText(fileLocation)
-						.then(() => {
-							showNotification('Copied file location to clipboard', 1000);
-						})
-						.catch((err) => {
-							showNotification(
-								`Could not copy to clipboard: ${(err as Error).message}`,
-								1000,
-							);
-						});
-				},
-				quickSwitcherLabel: null,
-				subMenu: null,
-				value: 'copy-file-location',
-			},
-			documentationLink
-				? {
-						type: 'item' as const,
-						id: 'open-component-docs',
-						keyHint: null,
-						label: 'Open component docs',
-						leftItem: null,
-						disabled: false,
-						onClick: () => {
-							window.open(documentationLink, '_blank', 'noopener,noreferrer');
-						},
-						quickSwitcherLabel: null,
-						subMenu: null,
-						value: 'open-component-docs',
-					}
-				: null,
-			assetLinkInfo
-				? {
-						type: 'item' as const,
-						id: 'show-asset',
-						keyHint: null,
-						label: 'Show asset',
-						leftItem: null,
-						disabled: false,
-						onClick: () => {
-							openTimelineAssetLink(assetLinkInfo, selectAsset);
-						},
-						quickSwitcherLabel: null,
-						subMenu: null,
-						value: 'show-asset',
-					}
-				: null,
-			documentationLink
-				? {
-						type: 'divider' as const,
-						id: 'open-component-docs-divider',
-					}
-				: null,
-			{
-				type: 'item' as const,
-				id: 'disable-interactivity',
-				keyHint: null,
-				label: 'Disable interactivity',
-				leftItem: null,
-				disabled: disableInteractivityDisabled,
-				onClick: () => {
-					onDisableSequenceInteractivity();
-				},
-				quickSwitcherLabel: null,
-				subMenu: null,
-				value: 'disable-interactivity',
-			},
-			{
-				type: 'item' as const,
-				id: 'duplicate-sequence',
-				keyHint: null,
-				label: 'Duplicate',
-				leftItem: null,
-				disabled: duplicateDisabled,
-				onClick: () => {
-					if (duplicateDisabled) {
-						return;
-					}
-
-					onDuplicateSequenceFromSource();
-				},
-				quickSwitcherLabel: null,
-				subMenu: null,
-				value: 'duplicate-sequence',
-			},
-			{
-				type: 'item' as const,
-				id: 'delete-sequence',
-				keyHint: null,
-				label: 'Delete',
-				leftItem: null,
-				disabled: deleteDisabled,
-				onClick: () => {
-					if (deleteDisabled) {
-						return;
-					}
-
-					onDeleteSequenceFromSource();
-				},
-				quickSwitcherLabel: null,
-				subMenu: null,
-				value: 'delete-sequence',
-			},
-		].filter(NoReactInternals.truthy);
+		return getSequenceContextMenuItems({
+			assetLinkInfo,
+			canOpenInEditor,
+			deleteDisabled,
+			disableInteractivityDisabled,
+			duplicateDisabled,
+			fileLocation,
+			includeSourceEditItems: true,
+			onDeleteSequenceFromSource,
+			onDisableSequenceInteractivity,
+			onDuplicateSequenceFromSource,
+			openInEditor,
+			originalLocation,
+			selectAsset,
+			sequence,
+		});
 	}, [
 		assetLinkInfo,
+		canOpenInEditor,
 		deleteDisabled,
 		disableInteractivityDisabled,
 		duplicateDisabled,
@@ -695,8 +571,8 @@ export const TimelineSequenceItem: React.FC<{
 		onDeleteSequenceFromSource,
 		onDisableSequenceInteractivity,
 		onDuplicateSequenceFromSource,
-		canOpenInEditor,
 		openInEditor,
+		originalLocation,
 		previewConnected,
 		selectAsset,
 		sequence,
