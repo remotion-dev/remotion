@@ -3229,6 +3229,45 @@ test('Cmd/Ctrl+click replaces incompatible mixed selections', () => {
 	});
 });
 
+test('Guide selections are single selections and incompatible with timeline items', () => {
+	const guideA = {type: 'guide' as const, guideId: 'guide-a'};
+	const guideB = {type: 'guide' as const, guideId: 'guide-b'};
+	const rowA = {
+		type: 'sequence' as const,
+		nodePathInfo: makeNodePathInfo(['body', 0], []),
+	};
+
+	expect(getTimelineSelectionKey(guideA)).toBe('guide.guide-a');
+	expect(
+		getTimelineSelectionAfterInteraction({
+			currentState: {
+				selectedItems: [rowA],
+				anchor: rowA,
+			},
+			clickedItem: guideA,
+			interaction: {shiftKey: false, toggleKey: true},
+			allSelectableItems: [rowA, guideA, guideB],
+		}),
+	).toEqual({
+		selectedItems: [guideA],
+		anchor: guideA,
+	});
+	expect(
+		getTimelineSelectionAfterInteraction({
+			currentState: {
+				selectedItems: [guideA],
+				anchor: guideA,
+			},
+			clickedItem: guideB,
+			interaction: {shiftKey: true, toggleKey: false},
+			allSelectableItems: [rowA, guideA, guideB],
+		}),
+	).toEqual({
+		selectedItems: [guideB],
+		anchor: guideB,
+	});
+});
+
 test('Shift+click selects a contiguous row range from the anchor', () => {
 	const rowA = {
 		type: 'sequence' as const,

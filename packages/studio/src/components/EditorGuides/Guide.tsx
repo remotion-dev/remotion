@@ -10,6 +10,7 @@ import {RULER_WIDTH} from '../../state/editor-rulers';
 import {ContextMenu} from '../ContextMenu';
 import {forceSpecificCursor} from '../ForceSpecificCursor';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
+import {useTimelineGuideSelection} from '../Timeline/TimelineSelection';
 
 const PADDING_FOR_EASY_DRAG = 4;
 
@@ -26,11 +27,13 @@ const GuideComp: React.FC<{
 	const {
 		shouldCreateGuideRef,
 		setGuidesList,
-		setSelectedGuideId,
-		selectedGuideId,
+		setDraggingGuideId,
 		setHoveredGuideId,
 		hoveredGuideId,
 	} = useContext(EditorShowGuidesContext);
+	const {clearSelection, onSelect, selected} = useTimelineGuideSelection(
+		guide.id,
+	);
 
 	const onPointerEnter = useCallback(() => {
 		setHoveredGuideId(() => guide.id);
@@ -69,11 +72,11 @@ const GuideComp: React.FC<{
 			left: `${isVerticalGuide ? '0px' : `-${RULER_WIDTH}px`}`,
 			display: guide.show ? 'block' : 'none',
 			backgroundColor:
-				selectedGuideId === guide.id || hoveredGuideId === guide.id
+				selected || hoveredGuideId === guide.id
 					? SELECTED_GUIDE
 					: UNSELECTED_GUIDE,
 		};
-	}, [isVerticalGuide, guide.show, guide.id, selectedGuideId, hoveredGuideId]);
+	}, [isVerticalGuide, guide.show, hoveredGuideId, guide.id, selected]);
 
 	const onMouseDown = useCallback(
 		(e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -82,11 +85,13 @@ const GuideComp: React.FC<{
 				return;
 			}
 
+			e.stopPropagation();
 			shouldCreateGuideRef.current = true;
 			forceSpecificCursor('no-drop');
-			setSelectedGuideId(() => guide.id);
+			setDraggingGuideId(() => guide.id);
+			onSelect();
 		},
-		[shouldCreateGuideRef, setSelectedGuideId, guide.id],
+		[guide.id, onSelect, setDraggingGuideId, shouldCreateGuideRef],
 	);
 
 	const values = useMemo((): ComboboxValue[] => {
@@ -98,12 +103,15 @@ const GuideComp: React.FC<{
 				leftItem: null,
 				onClick: () => {
 					setGuidesList((prevState) => {
-						const newGuides = prevState.filter((selected) => {
-							return selected.id !== guide.id;
+						const newGuides = prevState.filter((candidate) => {
+							return candidate.id !== guide.id;
 						});
 						persistGuidesList(newGuides);
 						return newGuides;
 					});
+					if (selected) {
+						clearSelection();
+					}
 				},
 				quickSwitcherLabel: null,
 				subMenu: null,
@@ -111,7 +119,7 @@ const GuideComp: React.FC<{
 				value: 'remove',
 			},
 		];
-	}, [guide.id, setGuidesList]);
+	}, [clearSelection, guide.id, selected, setGuidesList]);
 
 	return (
 		<ContextMenu values={values} onOpen={null}>
@@ -126,7 +134,7 @@ const GuideComp: React.FC<{
 					style={guideContentStyle}
 					className={[
 						'__remotion_editor_guide_content',
-						selectedGuideId === guide.id || hoveredGuideId === guide.id
+						selected || hoveredGuideId === guide.id
 							? '__remotion_editor_guide_selected'
 							: null,
 					]

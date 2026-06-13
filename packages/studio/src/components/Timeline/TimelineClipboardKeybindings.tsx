@@ -362,8 +362,11 @@ export const getPasteEffectPropTarget = ({
 		return {type: 'none'};
 	}
 
-	if (!selection.nodePathInfo.supportsEffects) {
-		return {type: 'unsupported'};
+	if (
+		selection.type !== 'sequence-effect-prop' &&
+		selection.type !== 'sequence-effect'
+	) {
+		return {type: 'none'};
 	}
 
 	const target =
@@ -372,15 +375,13 @@ export const getPasteEffectPropTarget = ({
 					effectIndex: selection.i,
 					fieldKey: selection.key,
 				}
-			: selection.type === 'sequence-effect'
-				? {
-						effectIndex: selection.i,
-						fieldKey: payload.key,
-					}
-				: null;
+			: {
+					effectIndex: selection.i,
+					fieldKey: payload.key,
+				};
 
-	if (target === null) {
-		return {type: 'none'};
+	if (!selection.nodePathInfo.supportsEffects) {
+		return {type: 'unsupported'};
 	}
 
 	if (
