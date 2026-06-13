@@ -121,7 +121,7 @@ export const PagesOfDocs: React.FC = () => {
 					width="40px"
 				/>
 				<StatItemContent
-					content="800"
+					content="900"
 					width="85px"
 					maxWidth="100px"
 					fontSize="2.5rem"

@@ -1,5 +1,6 @@
 import {
 	makeArrow,
+	makeCallout,
 	makeCircle,
 	makeEllipse,
 	makeHeart,
@@ -115,6 +116,18 @@ const makeDefaultShapeInfo = (shape: ShapeName): ShapeInfo => {
 				headLength: getNumber(props, 'headLength'),
 				shaftWidth: getNumber(props, 'shaftWidth'),
 				direction: getDirection(props, 'direction'),
+			});
+		case 'Callout':
+			return makeCallout({
+				width: getNumber(props, 'width'),
+				height: getNumber(props, 'height'),
+				pointerLength: getNumber(props, 'pointerLength'),
+				pointerBaseWidth: getNumber(props, 'pointerBaseWidth'),
+				pointerPosition: getNumber(props, 'pointerPosition'),
+				pointerDirection: getDirection(props, 'pointerDirection'),
+				cornerRadius: getNumber(props, 'cornerRadius'),
+				edgeRoundness:
+					typeof props.edgeRoundness === 'number' ? props.edgeRoundness : null,
 			});
 		case 'Circle':
 			return makeCircle({radius: getNumber(props, 'radius')});
