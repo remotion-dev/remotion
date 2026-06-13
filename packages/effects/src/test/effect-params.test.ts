@@ -34,6 +34,7 @@ import {speckle} from '../speckle.js';
 import {tint} from '../tint.js';
 import {uvTranslate, xyTranslate} from '../translate.js';
 import {tvSignalOff} from '../tv-signal-off.js';
+import {publicUvToShaderUv} from '../uv-coordinate.js';
 import {vignette} from '../vignette.js';
 import {wave} from '../wave/index.js';
 import {waves} from '../waves.js';
@@ -55,6 +56,11 @@ const expectDefaultBlueColorArrayControl = (schema: {
 		keyframable: false,
 	});
 };
+
+test('public UV coordinates convert to shader UV coordinates', () => {
+	expect(publicUvToShaderUv([0, 0])).toEqual([0, 1]);
+	expect(publicUvToShaderUv([0.25, 0.75])).toEqual([0.25, 0.25]);
+});
 
 test('@remotion/effects expose documentation links', () => {
 	expect(barrelDistortion().definition.documentationLink).toBe(
