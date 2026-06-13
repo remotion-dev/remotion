@@ -142,6 +142,12 @@ export const makeDefaultShapeComponentDragData = (
 	});
 };
 
+export const getDefaultShapeComponentProps = (
+	shape: ShapeName,
+): ComponentProp[] => {
+	return [...shapeDefaultProps[shape]];
+};
+
 export const makeShapeComponentDragDataFromDemoState = ({
 	demoId,
 	state,
@@ -186,13 +192,20 @@ export const makeShapeComponentDragDataFromDemoState = ({
 export const setComponentDragData = ({
 	dataTransfer,
 	dragData,
+	dragImage,
 }: {
 	readonly dataTransfer: DataTransfer;
 	readonly dragData: ComponentDragData;
+	readonly dragImage?: Element | null;
 }) => {
 	const serialized = JSON.stringify(dragData);
 	dataTransfer.effectAllowed = 'copy';
 	dataTransfer.setData(COMPONENT_DRAG_MIME_TYPE, serialized);
 	dataTransfer.setData('application/json', serialized);
 	dataTransfer.setData('text/plain', serialized);
+
+	if (dragImage) {
+		const rect = dragImage.getBoundingClientRect();
+		dataTransfer.setDragImage(dragImage, rect.width / 2, rect.height / 2);
+	}
 };

@@ -44,6 +44,17 @@ export const GlobalKeybindings: React.FC = () => {
 			commandCtrlKey: true,
 			preventDefault: true,
 		});
+		const cmdSKey = keybindings.registerKeybinding({
+			event: 'keydown',
+			key: 's',
+			callback: () => {
+				showNotification('Remotion saves automatically', 2000);
+			},
+			triggerIfInputFieldFocused: true,
+			keepRegisteredWhenNotHighestContext: false,
+			commandCtrlKey: true,
+			preventDefault: true,
+		});
 		const cmdIKey = process.env.ASK_AI_ENABLED
 			? keybindings.registerKeybinding({
 					event: 'keydown',
@@ -110,6 +121,7 @@ export const GlobalKeybindings: React.FC = () => {
 			cKey.unregister();
 			questionMark.unregister();
 			cmdKKey.unregister();
+			cmdSKey.unregister();
 			cmdIKey?.unregister();
 			pageDown.unregister();
 			pageUp.unregister();

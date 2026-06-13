@@ -186,7 +186,7 @@ test('Img registers its documentation link for default labels', () => {
 	);
 });
 
-test('Named Img components do not receive the default documentation link', () => {
+test('Named Img components keep the default documentation link', () => {
 	const registeredSequences: TSequence[] = [];
 
 	render(
@@ -199,7 +199,9 @@ test('Named Img components do not receive the default documentation link', () =>
 		</SequenceTestWrapper>,
 	);
 
-	expect(registeredSequences[0]?.documentationLink).toBe(null);
+	expect(registeredSequences[0]?.documentationLink).toBe(
+		'https://www.remotion.dev/docs/img',
+	);
 });
 
 test('AnimatedImage registers its canvas ref for the Studio outline', () => {

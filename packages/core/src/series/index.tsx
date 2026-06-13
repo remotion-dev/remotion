@@ -23,7 +23,10 @@ type SeriesSequenceProps = PropsWithChildren<
 		readonly durationInFrames: number;
 		readonly offset?: number;
 		readonly className?: string;
-	} & Pick<SequenceProps, 'layout' | 'name' | 'hidden' | 'showInTimeline'> &
+	} & Pick<
+		SequenceProps,
+		'layout' | 'name' | 'hidden' | 'showInTimeline' | 'freeze'
+	> &
 		LayoutAndStyle
 >;
 

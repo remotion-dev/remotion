@@ -426,7 +426,6 @@ export const getTimelineMarqueeSelection = ({
 
 type TimelineSelectionContextValue = {
 	readonly canSelect: boolean;
-	readonly canSelectEasing: boolean;
 	readonly selectedItems: readonly TimelineSelection[];
 	readonly isSelected: (item: TimelineSelection) => boolean;
 	readonly selectItem: (
@@ -452,7 +451,6 @@ type TimelineSelectionContextValue = {
 
 const defaultTimelineSelectionContextValue: TimelineSelectionContextValue = {
 	canSelect: false,
-	canSelectEasing: false,
 	selectedItems: [],
 	isSelected: () => false,
 	selectItem: () => undefined,
@@ -546,7 +544,7 @@ export const getTimelineSelectionKey = (item: TimelineSelection): string => {
 		case 'easing':
 			return `${timelineNodePathInfoToKey(item.nodePathInfo)}.easing.${
 				item.segmentIndex
-			}.${item.fromFrame}.${item.toFrame}`;
+			}`;
 		default:
 			throw new Error(
 				`Unexpected timeline selection type: ${item satisfies never}`,
@@ -652,9 +650,6 @@ export const TimelineSelectionProvider: React.FC<{
 	const canSelect =
 		previewServerState.type === 'connected' &&
 		!window.remotion_isReadOnlyStudio;
-	const canSelectEasing =
-		previewServerState.type === 'connected' &&
-		!window.remotion_isReadOnlyStudio;
 	const [selectedItems, setSelectedItems] = useState<
 		readonly TimelineSelection[]
 	>([]);
@@ -675,15 +670,14 @@ export const TimelineSelectionProvider: React.FC<{
 	const marqueeRegistrationCounter = useRef(0);
 
 	useEffect(() => {
-		if (!canSelect && !canSelectEasing) {
+		if (!canSelect) {
 			setSelectedItems([]);
 		}
-	}, [canSelect, canSelectEasing]);
+	}, [canSelect]);
 
 	const canSelectItem = useCallback(
-		(item: TimelineSelection) =>
-			canSelect || (canSelectEasing && item.type === 'easing'),
-		[canSelect, canSelectEasing],
+		(_item: TimelineSelection) => canSelect,
+		[canSelect],
 	);
 
 	const selectedKeys = useMemo(
@@ -835,7 +829,6 @@ export const TimelineSelectionProvider: React.FC<{
 	const value = useMemo(
 		(): TimelineSelectionContextValue => ({
 			canSelect,
-			canSelectEasing,
 			selectedItems,
 			isSelected,
 			selectItem,
@@ -848,7 +841,6 @@ export const TimelineSelectionProvider: React.FC<{
 		}),
 		[
 			canSelect,
-			canSelectEasing,
 			selectedItems,
 			isSelected,
 			selectItem,
@@ -893,8 +885,7 @@ export const useCurrentTimelineSelectionStateAsRef = () => {
 };
 
 export const useTimelineMarqueeSelection = () => {
-	const {canSelect, canSelectEasing, getMarqueeSelection, selectItems} =
-		useTimelineSelection();
+	const {canSelect, getMarqueeSelection, selectItems} = useTimelineSelection();
 	const {isHighestContext} = useZIndex();
 	const [marqueeRect, setMarqueeRect] = useState<TimelineMarqueeRect | null>(
 		null,
@@ -906,7 +897,7 @@ export const useTimelineMarqueeSelection = () => {
 				return;
 			}
 
-			if (event.button !== 0 || (!canSelect && !canSelectEasing)) {
+			if (event.button !== 0 || !canSelect) {
 				return;
 			}
 
@@ -1009,13 +1000,7 @@ export const useTimelineMarqueeSelection = () => {
 			window.addEventListener('pointerup', onPointerUp);
 			window.addEventListener('pointercancel', onPointerCancel);
 		},
-		[
-			canSelect,
-			canSelectEasing,
-			getMarqueeSelection,
-			isHighestContext,
-			selectItems,
-		],
+		[canSelect, getMarqueeSelection, isHighestContext, selectItems],
 	);
 
 	return {marqueeRect, onPointerDownCapture};
@@ -1126,7 +1111,7 @@ export const useTimelineEasingSelection = ({
 	readonly toFrame: number;
 	readonly segmentIndex: number;
 }) => {
-	const {canSelectEasing, isSelected, selectItem, registerSelectableItem} =
+	const {canSelect, isSelected, selectItem, registerSelectableItem} =
 		useTimelineSelection();
 	const selectionItem = useMemo(
 		(): TimelineEasingSelection => ({
@@ -1154,7 +1139,7 @@ export const useTimelineEasingSelection = ({
 
 	return {
 		onSelect,
-		selectable: canSelectEasing,
+		selectable: canSelect,
 		selected,
 		selectionItem,
 	};

@@ -23,6 +23,8 @@ import {
 	getSelectedEffectFieldsBySequenceKey,
 	getSelectedOutlineDragChanges,
 	getSelectedOutlineDragValues,
+	getSelectedOutlineKeyboardNudgeDelta,
+	getSelectedOutlineKeyboardNudgeDeltas,
 	getSelectedOutlineRotationCornerInfo,
 	getSelectedOutlineRotationDeltaDegrees,
 	getSelectedOutlineRotationDragChanges,
@@ -34,6 +36,8 @@ import {
 	getSelectedSequenceKeys,
 	getSequencesWithSelectableOutlines,
 	getTransformedSvgViewportPoints,
+	isSelectedOutlineDragPastThreshold,
+	selectedOutlineDragThresholdPx,
 	type SelectedOutlineDragState,
 	type SelectedOutlineRotationDragState,
 	type SelectedOutlineScaleDragState,
@@ -56,6 +60,7 @@ import {
 	getTimelineMarqueeSelection,
 	getTimelineSelectionAfterInteraction,
 	getTimelineSelectionFromNodePathInfo,
+	getTimelineSelectionKey,
 	getTimelineSequenceSelectionKey,
 	isTimelineSelectionModifierEvent,
 	shouldSelectTimelineRowOnPointerDown,
@@ -76,6 +81,10 @@ import {
 	parseTransformOrigin,
 	serializeTransformOrigin,
 } from '../components/Timeline/transform-origin-utils';
+import {
+	getKeyframesForTimelineEasingDrag,
+	getTimelineSelectionsAfterEasingKeyframeDrag,
+} from '../components/Timeline/use-timeline-keyframe-drag';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 import {
 	loadEditorShowOutlinesOption,
@@ -1978,6 +1987,149 @@ test('Selected outline dragging can lock movement to the dominant axis', () => {
 	).toEqual({deltaX: 12, deltaY: 13});
 });
 
+test('Selected outline keyboard nudging moves by one or ten pixels', () => {
+	const schema = {
+		'style.translate': {type: 'translate', default: '0px 0px'},
+	} satisfies SequenceSchema;
+	const nodePath = makeKey(['body', 0]);
+	const dragStates = [
+		{
+			defaultValue: JSON.stringify('0px 0px'),
+			key: Internals.makeSequencePropsSubscriptionKey(nodePath),
+			sourceFrame: 12,
+			startX: 10,
+			startY: 20,
+			target: {
+				clientId: 'client',
+				propStatus: {status: 'static', codeValue: '10px 20px'},
+				fieldDefault: '0px 0px',
+				keyframeDisplayOffset: 30,
+				nodePath,
+				schema,
+			},
+		},
+	] satisfies SelectedOutlineDragState[];
+
+	expect(
+		getSelectedOutlineKeyboardNudgeDelta({
+			direction: 'left',
+			shiftKey: false,
+		}),
+	).toBe(-1);
+	expect(
+		getSelectedOutlineKeyboardNudgeDelta({
+			direction: 'right',
+			shiftKey: true,
+		}),
+	).toBe(10);
+	expect(
+		getSelectedOutlineKeyboardNudgeDelta({
+			direction: 'up',
+			shiftKey: false,
+		}),
+	).toBe(-1);
+	expect(
+		getSelectedOutlineKeyboardNudgeDelta({
+			direction: 'down',
+			shiftKey: true,
+		}),
+	).toBe(10);
+	const accumulatedDeltas = [
+		{direction: 'right', shiftKey: false},
+		{direction: 'right', shiftKey: false},
+		{direction: 'down', shiftKey: true},
+	] satisfies readonly {
+		readonly direction: 'left' | 'right' | 'up' | 'down';
+		readonly shiftKey: boolean;
+	}[];
+	const finalDeltas = accumulatedDeltas.reduce(
+		(deltas, keyPress) =>
+			getSelectedOutlineKeyboardNudgeDeltas({
+				...deltas,
+				direction: keyPress.direction,
+				shiftKey: keyPress.shiftKey,
+			}),
+		{deltaX: 0, deltaY: 0},
+	);
+
+	expect(finalDeltas).toEqual({deltaX: 2, deltaY: 10});
+
+	const horizontalLastValues = getSelectedOutlineDragValues({
+		dragStates,
+		deltaX: getSelectedOutlineKeyboardNudgeDelta({
+			direction: 'right',
+			shiftKey: true,
+		}),
+		deltaY: 0,
+	});
+
+	expect(horizontalLastValues.get(dragStates[0].key)).toBe('20px 20px');
+	expect(
+		getSelectedOutlineDragChanges({
+			dragStates,
+			lastValues: horizontalLastValues,
+		}),
+	).toEqual([
+		{
+			type: 'static',
+			fileName: '/project/src/Comp.tsx',
+			nodePath,
+			fieldKey: 'style.translate',
+			value: '20px 20px',
+			defaultValue: JSON.stringify('0px 0px'),
+			schema,
+		},
+	]);
+
+	const verticalLastValues = getSelectedOutlineDragValues({
+		dragStates,
+		deltaX: 0,
+		deltaY: getSelectedOutlineKeyboardNudgeDelta({
+			direction: 'down',
+			shiftKey: true,
+		}),
+	});
+
+	expect(verticalLastValues.get(dragStates[0].key)).toBe('10px 30px');
+	expect(
+		getSelectedOutlineDragChanges({
+			dragStates,
+			lastValues: verticalLastValues,
+		}),
+	).toEqual([
+		{
+			type: 'static',
+			fileName: '/project/src/Comp.tsx',
+			nodePath,
+			fieldKey: 'style.translate',
+			value: '10px 30px',
+			defaultValue: JSON.stringify('0px 0px'),
+			schema,
+		},
+	]);
+});
+
+test('Selected outline dragging starts after a screen pixel threshold', () => {
+	expect(
+		isSelectedOutlineDragPastThreshold({
+			deltaX: selectedOutlineDragThresholdPx - 0.1,
+			deltaY: 0,
+		}),
+	).toBe(false);
+	expect(
+		isSelectedOutlineDragPastThreshold({
+			deltaX: selectedOutlineDragThresholdPx,
+			deltaY: 0,
+		}),
+	).toBe(true);
+	expect(
+		isSelectedOutlineDragPastThreshold({
+			deltaX: 3,
+			deltaY: 3,
+		}),
+	).toBe(true);
+});
+
 test('Selected outline dragging keyframed translate adds a keyframe at the source frame', () => {
 	const schema = {
 		'style.translate': {type: 'translate', default: '0px 0px'},
@@ -2102,6 +2254,41 @@ test('Selected outline edge dragging scales one axis when scale is unlinked', ()
 	expect(negativeValues.get(dragStates[0].key)).toBe('-1 3');
 });
 
+test('Selected outline edge dragging rounds scale values', () => {
+	const schema = {
+		'style.scale': {type: 'scale', default: 1, max: 100},
+	} satisfies SequenceSchema;
+	const nodePath = makeKey(['body', 0]);
+	const dragStates = [
+		{
+			defaultValue: JSON.stringify(1),
+			key: Internals.makeSequencePropsSubscriptionKey(nodePath),
+			sourceFrame: 0,
+			startX: 2,
+			startY: 3,
+			startZ: 1,
+			target: {
+				clientId: 'client',
+				propStatus: {status: 'static', codeValue: '2 3'},
+				fieldDefault: 1,
+				fieldSchema: schema['style.scale'],
+				keyframeDisplayOffset: 0,
+				linked: false,
+				nodePath,
+				schema,
+			},
+		},
+	] satisfies SelectedOutlineScaleDragState[];
+
+	const lastValues = getSelectedOutlineScaleDragValues({
+		dragStates,
+		axis: 'x',
+		scaleFactor: 1 / 3,
+	});
+
+	expect(lastValues.get(dragStates[0].key)).toBe('0.667 3');
+});
+
 test('Selected outline edge dragging preserves aspect ratio when scale is linked', () => {
 	const schema = {
 		'style.scale': {type: 'scale', default: 1, max: 100},
@@ -2210,6 +2397,38 @@ test('Selected outline corner dragging rotates selected sequences', () => {
 			schema,
 		},
 	]);
+});
+
+test('Selected outline corner dragging rounds rotation values', () => {
+	const schema = {
+		'style.rotate': {type: 'rotation-css', default: '0deg'},
+	} satisfies SequenceSchema;
+	const nodePath = makeKey(['body', 0]);
+	const dragStates = [
+		{
+			defaultValue: JSON.stringify('0deg'),
+			key: Internals.makeSequencePropsSubscriptionKey(nodePath),
+			sourceFrame: 12,
+			startDegrees: 32,
+			target: {
+				clientId: 'client',
+				propStatus: {status: 'static', codeValue: '32deg'},
+				fieldDefault: '0deg',
+				fieldSchema: schema['style.rotate'],
+				keyframeDisplayOffset: 30,
+				nodePath,
+				schema,
+				transformOriginValue: '50% 50%',
+			},
+		},
+	] satisfies SelectedOutlineRotationDragState[];
+
+	const lastValues = getSelectedOutlineRotationDragValues({
+		dragStates,
+		rotationDeltaDegrees: 0.480832,
+	});
+
+	expect(lastValues.get(dragStates[0].key)).toBe('32.5deg');
 });
 
 test('Selected outline corner dragging keyframed rotation adds a keyframe at the source frame', () => {
@@ -3096,6 +3315,136 @@ test('Selecting an easing segment replaces keyframe selection with the new type'
 		selectedItems: [easing],
 		anchor: easing,
 	});
+});
+
+test('Dragging an easing segment drags selected keyframes', () => {
+	const selectedKeyframeA = {
+		type: 'keyframe' as const,
+		nodePathInfo: makeNodePathInfo(['body', 0], ['controls', 'opacity']),
+		frame: 10,
+	};
+	const selectedKeyframeB = {
+		type: 'keyframe' as const,
+		nodePathInfo: makeNodePathInfo(['body', 0], ['controls', 'opacity']),
+		frame: 30,
+	};
+	const easing = {
+		type: 'easing' as const,
+		nodePathInfo: makeNodePathInfo(['body', 0], ['controls', 'opacity']),
+		fromFrame: 10,
+		toFrame: 20,
+		segmentIndex: 0,
+	};
+
+	expect(
+		getKeyframesForTimelineEasingDrag({
+			currentSelections: [selectedKeyframeA, selectedKeyframeB],
+			interaction: {shiftKey: false, toggleKey: false},
+			selectionItem: easing,
+			selected: false,
+		}),
+	).toEqual([selectedKeyframeA, selectedKeyframeB]);
+});
+
+test('Dragging only selected easing segments drags connected keyframes', () => {
+	const easingA = {
+		type: 'easing' as const,
+		nodePathInfo: makeNodePathInfo(['body', 0], ['controls', 'opacity']),
+		fromFrame: 10,
+		toFrame: 20,
+		segmentIndex: 0,
+	};
+	const easingB = {
+		type: 'easing' as const,
+		nodePathInfo: makeNodePathInfo(['body', 0], ['controls', 'opacity']),
+		fromFrame: 20,
+		toFrame: 30,
+		segmentIndex: 1,
+	};
+
+	expect(
+		getKeyframesForTimelineEasingDrag({
+			currentSelections: [easingA, easingB],
+			interaction: {shiftKey: false, toggleKey: false},
+			selectionItem: easingA,
+			selected: true,
+		}),
+	).toEqual([
+		{
+			type: 'keyframe',
+			nodePathInfo: easingA.nodePathInfo,
+			frame: 10,
+		},
+		{
+			type: 'keyframe',
+			nodePathInfo: easingA.nodePathInfo,
+			frame: 20,
+		},
+		{
+			type: 'keyframe',
+			nodePathInfo: easingB.nodePathInfo,
+			frame: 30,
+		},
+	]);
+});
+
+test('Easing selection keys follow segment identity while frames move', () => {
+	const nodePathInfo = makeNodePathInfo(['body', 0], ['controls', 'opacity']);
+
+	expect(
+		getTimelineSelectionKey({
+			type: 'easing',
+			nodePathInfo,
+			fromFrame: 10,
+			toFrame: 20,
+			segmentIndex: 0,
+		}),
+	).toBe(
+		getTimelineSelectionKey({
+			type: 'easing',
+			nodePathInfo,
+			fromFrame: 15,
+			toFrame: 25,
+			segmentIndex: 0,
+		}),
+	);
+});
+
+test('Easing keyframe drag preserves selected item types at moved frames', () => {
+	const nodePathInfo = makeNodePathInfo(['body', 0], ['controls', 'opacity']);
+	const selectedKeyframe = {
+		type: 'keyframe' as const,
+		nodePathInfo,
+		frame: 10,
+	};
+	const selectedEasing = {
+		type: 'easing' as const,
+		nodePathInfo,
+		fromFrame: 10,
+		toFrame: 20,
+		segmentIndex: 0,
+	};
+
+	expect(
+		getTimelineSelectionsAfterEasingKeyframeDrag({
+			delta: 5,
+			selections: [selectedKeyframe, selectedEasing],
+			targets: [
+				{nodePathInfo, frame: 10},
+				{nodePathInfo, frame: 20},
+			],
+		}),
+	).toEqual([
+		{
+			...selectedKeyframe,
+			frame: 15,
+		},
+		{
+			...selectedEasing,
+			fromFrame: 15,
+			toFrame: 25,
+		},
+	]);
 });
 
 test('Timeline double-click actions ignore selection modifier clicks', () => {

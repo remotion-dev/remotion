@@ -77,6 +77,7 @@ const TimelineSequenceCurrentFrame: React.FC<{
 	readonly nodePathInfo: SequenceNodePathInfo | null;
 	readonly sequenceFrameOffset: number;
 	readonly fromCanUpdate: boolean;
+	readonly frozenFrame: number | null;
 	readonly onMoveDragPointerDown: (
 		e: React.PointerEvent<HTMLDivElement>,
 	) => void;
@@ -90,6 +91,7 @@ const TimelineSequenceCurrentFrame: React.FC<{
 	nodePathInfo,
 	sequenceFrameOffset,
 	fromCanUpdate,
+	frozenFrame,
 	onMoveDragPointerDown,
 }) => {
 	const ref = useRef<HTMLDivElement>(null);
@@ -210,6 +212,7 @@ const TimelineSequenceCurrentFrame: React.FC<{
 						premounted={isPremounting}
 						postmounted={isPostmounting ? s.duration - 1 : null}
 						roundedFrame={roundedFrame}
+						frozenFrame={frozenFrame}
 					/>
 				</div>
 			) : null}
@@ -422,6 +425,17 @@ const TimelineSequenceInner: React.FC<{
 			onSelect({shiftKey: false, toggleKey: false});
 		}
 	}, [onSelect, selectable]);
+	const freezeStatus = propStatusesForOverride?.freeze;
+	const runtimeFreezeFrame =
+		typeof s.controls?.currentRuntimeValueDotNotation.freeze === 'number'
+			? s.controls.currentRuntimeValueDotNotation.freeze
+			: null;
+	const frozenFrame =
+		freezeStatus?.status === 'static'
+			? typeof freezeStatus.codeValue === 'number'
+				? freezeStatus.codeValue
+				: null
+			: runtimeFreezeFrame;
 
 	const {onPointerDown: onMoveDragPointerDown} = useTimelineSequenceFromDrag({
 		nodePathInfo,
@@ -501,6 +515,7 @@ const TimelineSequenceInner: React.FC<{
 			nodePathInfo={nodePathInfo}
 			sequenceFrameOffset={sequenceFrameOffset}
 			fromCanUpdate={fromCanUpdate}
+			frozenFrame={frozenFrame}
 			onMoveDragPointerDown={onMoveDragPointerDown}
 		>
 			{s.type === 'audio' ? (

@@ -55,6 +55,7 @@ export type SequencePropsWithoutDuration = {
 	readonly width?: number;
 	readonly height?: number;
 	readonly from?: number;
+	readonly freeze?: number | null;
 	readonly name?: string;
 	readonly showInTimeline?: boolean;
 	readonly hidden?: boolean;
@@ -116,6 +117,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 > = (
 	{
 		from = 0,
+		freeze,
 		durationInFrames = Infinity,
 		children,
 		name,
@@ -144,6 +146,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	const cumulatedFrom = parentSequence
 		? parentSequence.cumulatedFrom + parentSequence.relativeFrom
 		: 0;
+	const absoluteFrom = (parentSequence?.absoluteFrom ?? 0) + from;
 	const nonce = useNonce();
 
 	if (layout !== 'absolute-fill' && layout !== 'none') {
@@ -183,6 +186,26 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		throw new TypeError(
 			`The "from" prop of a sequence must be finite, but got ${from}.`,
 		);
+	}
+
+	if (typeof freeze !== 'undefined' && freeze !== null) {
+		if (typeof freeze !== 'number') {
+			throw new TypeError(
+				`The "freeze" prop of <Sequence /> must be a number, but is of type ${typeof freeze}.`,
+			);
+		}
+
+		if (Number.isNaN(freeze)) {
+			throw new TypeError(
+				`The "freeze" prop of <Sequence /> must be a real number, but it is NaN.`,
+			);
+		}
+
+		if (!Number.isFinite(freeze)) {
+			throw new TypeError(
+				`The "freeze" prop of <Sequence /> must be finite, but it is ${freeze}.`,
+			);
+		}
 	}
 
 	const absoluteFrame = useTimelinePosition();
@@ -238,6 +261,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	const contextValue = useMemo((): SequenceContextType => {
 		return {
+			absoluteFrom,
 			cumulatedFrom,
 			relativeFrom: from,
 			cumulatedNegativeFrom,
@@ -253,6 +277,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		};
 	}, [
 		cumulatedFrom,
+		absoluteFrom,
 		from,
 		actualDurationInFrames,
 		parentSequence,
@@ -271,8 +296,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	}, [name]);
 
 	const resolvedDocumentationLink =
-		documentationLink ??
-		(name === undefined ? 'https://www.remotion.dev/docs/sequence' : null);
+		documentationLink ?? 'https://www.remotion.dev/docs/sequence';
 
 	const env = useRemotionEnvironment();
 
@@ -402,6 +426,12 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			: absoluteFrame > endThreshold
 				? null
 				: children;
+	const frozenContent =
+		content === null || typeof freeze === 'undefined' || freeze === null ? (
+			content
+		) : (
+			<Freeze frame={freeze}>{content}</Freeze>
+		);
 
 	const styleIfThere = other.layout === 'none' ? undefined : other.style;
 
@@ -426,15 +456,15 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	return (
 		<SequenceContext.Provider value={contextValue}>
-			{content === null ? null : other.layout === 'none' ? (
-				content
+			{frozenContent === null ? null : other.layout === 'none' ? (
+				frozenContent
 			) : (
 				<AbsoluteFill
 					ref={ref}
 					style={defaultStyle}
 					className={other.className}
 				>
-					{content}
+					{frozenContent}
 				</AbsoluteFill>
 			)}
 		</SequenceContext.Provider>

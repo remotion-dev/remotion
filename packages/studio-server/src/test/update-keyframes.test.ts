@@ -935,6 +935,41 @@ test('updateSequenceKeyframes resorts keyframes when moving past an adjacent key
 	);
 });
 
+test('updateSequenceKeyframes replaces an existing keyframe when moving onto it', async () => {
+	const input = sequenceInput
+		.replace(
+			"import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';",
+			"import {AbsoluteFill, Easing, interpolate, useCurrentFrame} from 'remotion';",
+		)
+		.replace(
+			'interpolate(frame, [0, 100], [2, 4])',
+			'interpolate(frame, [0, 50, 100], [2, 3, 4], {easing: [Easing.linear, Easing.bezier(0.42, 0, 1, 1)]})',
+		);
+	const {output, oldValueStrings, newValueStrings} =
+		await updateSequenceKeyframes({
+			input,
+			nodePath: lineColumnToNodePath(input, getLine(input, 'scale')),
+			updates: [
+				{
+					key: 'style.scale',
+					operation: {
+						type: 'move',
+						moves: [{fromFrame: 0, toFrame: 50}],
+					},
+				},
+			],
+		});
+
+	expect(oldValueStrings).toEqual([
+		'interpolate(frame, [0, 50, 100], [2, 3, 4], {easing: [Easing.linear, Easing.bezier(0.42, 0, 1, 1)]})',
+	]);
+	expect(newValueStrings).toEqual([
+		'interpolate(frame, [50, 100], [2, 4], {easing: [Easing.bezier(0.42, 0, 1, 1)]})',
+	]);
+	expect(output).toContain('scale: interpolate(frame, [50, 100], [2, 4], {');
+	expect(output).toContain('easing: [Easing.bezier(0.42, 0, 1, 1)]');
+});
+
 test('updateSequenceKeyframes allows moving keyframes outside the sequence range', async () => {
 	const input = sequenceInput.replace(
 		'interpolate(frame, [0, 100], [2, 4])',
@@ -1153,6 +1188,33 @@ test('updateEffectKeyframes allows moving keyframes outside the sequence range',
 	]);
 	expect(serialized).toContain(
 		'amount: interpolate(frame, [-20, 50, 150], [0.2, 0.5, 0.8])',
+	);
+});
+
+test('updateEffectKeyframes replaces an existing keyframe when moving onto it', () => {
+	const {serialized, newValueStrings} = updateEffectKeyframesAst({
+		input: effectInput,
+		sequenceNodePath: lineColumnToNodePath(
+			effectInput,
+			getLine(effectInput, '<HtmlInCanvas'),
+		),
+		effectIndex: 0,
+		updates: [
+			{
+				key: 'amount',
+				operation: {
+					type: 'move',
+					moves: [{fromFrame: 0, toFrame: 50}],
+				},
+			},
+		],
+	});
+
+	expect(newValueStrings).toEqual([
+		'interpolate(frame, [50, 100], [0.2, 0.8])',
+	]);
+	expect(serialized).toContain(
+		'amount: interpolate(frame, [50, 100], [0.2, 0.8])',
 	);
 });
 

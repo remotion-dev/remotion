@@ -24,7 +24,7 @@ export const OutlineToggle: React.FC = () => {
 			onClick={onClick}
 		>
 			<svg
-				style={{width: 16, height: 16}}
+				style={{width: 18, height: 18}}
 				viewBox="0 0 512 512"
 				fill={color}
 				aria-hidden="true"

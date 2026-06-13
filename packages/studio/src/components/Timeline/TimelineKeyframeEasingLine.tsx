@@ -22,6 +22,7 @@ import {
 	type TimelineEasingValue,
 	updateSelectedTimelineEasings,
 } from './update-selected-easing';
+import {useTimelineEasingKeyframeDrag} from './use-timeline-keyframe-drag';
 
 const hitTargetHeight = 12;
 const lineHeight = 2;
@@ -251,21 +252,12 @@ const TimelineKeyframeEasingLineUnmemoized: React.FC<{
 		[selected],
 	);
 
-	const onPointerDown = useCallback(
-		(event: React.PointerEvent<HTMLButtonElement>) => {
-			if (!selectable || event.button !== 0) {
-				return;
-			}
-
-			event.preventDefault();
-			event.stopPropagation();
-			onSelect({
-				shiftKey: event.shiftKey,
-				toggleKey: event.metaKey || event.ctrlKey,
-			});
-		},
-		[onSelect, selectable],
-	);
+	const onPointerDown = useTimelineEasingKeyframeDrag({
+		onSelect,
+		selectable,
+		selected,
+		selectionItem,
+	});
 
 	if (style === null) {
 		return null;

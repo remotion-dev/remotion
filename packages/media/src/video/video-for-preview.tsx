@@ -175,10 +175,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 	const parentSequence = useContext(SequenceContext);
 	const isPremounting = Boolean(parentSequence?.premounting);
 	const isPostmounting = Boolean(parentSequence?.postmounting);
-	const sequenceOffset =
-		((parentSequence?.cumulatedFrom ?? 0) +
-			(parentSequence?.relativeFrom ?? 0)) /
-		videoConfig.fps;
+	const sequenceOffset = (parentSequence?.absoluteFrom ?? 0) / videoConfig.fps;
 
 	const currentTime = frame / videoConfig.fps;
 

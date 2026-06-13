@@ -1,4 +1,3 @@
-import {Glob} from 'bun';
 import type {ChildProcessWithoutNullStreams} from 'child_process';
 import {spawn} from 'child_process';
 import {createHash} from 'crypto';
@@ -7,6 +6,7 @@ import {createRequire} from 'module';
 import {availableParallelism, cpus, totalmem} from 'os';
 import {join, resolve} from 'path';
 import {createInterface} from 'readline';
+import {Glob} from 'bun';
 
 const DOCS_ROOT = resolve(import.meta.dirname);
 const CACHE_ROOT = join(DOCS_ROOT, 'node_modules', '.cache', 'twoslash');
@@ -24,15 +24,27 @@ const cpuCap = process.env.VERCEL
 // Cap the worker count so the combined RSS leaves room for the OS and
 // other processes on low-memory machines.
 const memCap = Math.max(1, Math.floor((totalmem() - 4 * GIB) / (1.25 * GIB)));
-const NUM_WORKERS = Math.min(cpuCap, memCap);
+const workerCountOverride = process.env.TWOSLASH_WORKER_COUNT
+	? parseInt(process.env.TWOSLASH_WORKER_COUNT, 10)
+	: null;
+const NUM_WORKERS =
+	workerCountOverride && Number.isFinite(workerCountOverride)
+		? Math.max(1, workerCountOverride)
+		: Math.min(cpuCap, memCap);
 
 // Per-worker RSS threshold after which a worker is replaced with a fresh
 // process. Derived from a global budget of half the machine's memory so the
 // combined RSS of all workers stays bounded even on long runs.
 const MEM_BUDGET = Math.max(2 * GIB, totalmem() / 2);
-const RECYCLE_LIMIT_BYTES = Math.round(
-	Math.min(1.5 * GIB, Math.max(0.75 * GIB, MEM_BUDGET / NUM_WORKERS)),
-);
+const recycleLimitOverride = process.env.TWOSLASH_RECYCLE_LIMIT_BYTES
+	? parseInt(process.env.TWOSLASH_RECYCLE_LIMIT_BYTES, 10)
+	: null;
+const RECYCLE_LIMIT_BYTES =
+	recycleLimitOverride && Number.isFinite(recycleLimitOverride)
+		? recycleLimitOverride
+		: Math.round(
+				Math.min(1.5 * GIB, Math.max(0.75 * GIB, MEM_BUDGET / NUM_WORKERS)),
+			);
 
 // Blocks per work unit handed to a worker at a time. Small enough for
 // fine-grained work stealing, large enough to amortize dispatch overhead.

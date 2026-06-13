@@ -20,6 +20,7 @@ export const getSequenceContextMenuItems = ({
 	originalLocation,
 	selectAsset,
 	sequence,
+	sourceActions = [],
 }: {
 	readonly assetLinkInfo: TimelineAssetLinkInfo | null;
 	readonly canOpenInEditor: boolean;
@@ -35,6 +36,7 @@ export const getSequenceContextMenuItems = ({
 	readonly originalLocation: ResolvedStackLocation | null;
 	readonly selectAsset: (src: string) => void;
 	readonly sequence: TSequence;
+	readonly sourceActions?: readonly ComboboxValue[];
 }): ComboboxValue[] => {
 	const editorName = window.remotion_editorName;
 	const {documentationLink} = sequence;
@@ -120,6 +122,13 @@ export const getSequenceContextMenuItems = ({
 					id: 'sequence-link-divider',
 				}
 			: null,
+		sourceActions.length > 0
+			? {
+					type: 'divider' as const,
+					id: 'sequence-source-actions-divider',
+				}
+			: null,
+		...sourceActions,
 		{
 			type: 'item' as const,
 			id: 'disable-interactivity',
@@ -144,6 +153,12 @@ export const getSequenceContextMenuItems = ({
 					quickSwitcherLabel: null,
 					subMenu: null,
 					value: 'duplicate-sequence',
+				}
+			: null,
+		includeSourceEditItems
+			? {
+					type: 'divider' as const,
+					id: 'sequence-duplicate-delete-divider',
 				}
 			: null,
 		includeSourceEditItems
