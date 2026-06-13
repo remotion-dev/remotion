@@ -15,6 +15,16 @@ const shapeDefaultProps: Record<ShapeName, readonly ComponentProp[]> = {
 		{name: 'direction', value: 'right'},
 		{name: 'fill', value: '#0b84ff'},
 	],
+	Callout: [
+		{name: 'width', value: 500},
+		{name: 'height', value: 200},
+		{name: 'pointerLength', value: 40},
+		{name: 'pointerBaseWidth', value: 60},
+		{name: 'pointerPosition', value: 0.5},
+		{name: 'pointerDirection', value: 'down'},
+		{name: 'cornerRadius', value: 20},
+		{name: 'fill', value: '#0b84ff'},
+	],
 	Circle: [
 		{name: 'radius', value: 100},
 		{name: 'fill', value: '#0b84ff'},
@@ -68,6 +78,7 @@ const shapeDefaultProps: Record<ShapeName, readonly ComponentProp[]> = {
 
 const shapeNameByDemoId: Partial<Record<string, ShapeName>> = {
 	arrow: 'Arrow',
+	callout: 'Callout',
 	circle: 'Circle',
 	ellipse: 'Ellipse',
 	heart: 'Heart',
@@ -86,6 +97,16 @@ const shapeDemoPropNames: Record<ShapeName, readonly string[]> = {
 		'shaftWidth',
 		'direction',
 		'cornerRadius',
+	],
+	Callout: [
+		'width',
+		'height',
+		'pointerLength',
+		'pointerBaseWidth',
+		'pointerPosition',
+		'pointerDirection',
+		'cornerRadius',
+		'edgeRoundness',
 	],
 	Circle: ['radius'],
 	Ellipse: ['rx', 'ry'],

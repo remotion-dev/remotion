@@ -1,5 +1,6 @@
 export type {Instruction} from '@remotion/paths';
 export {Arrow, ArrowProps} from './components/arrow';
+export {Callout, CalloutProps} from './components/callout';
 export {Circle, CircleProps} from './components/circle';
 export {Ellipse, EllipseProps} from './components/ellipse';
 export {Heart, HeartProps} from './components/heart';
@@ -9,6 +10,7 @@ export {Rect, RectProps} from './components/rect';
 export {Star, StarProps} from './components/star';
 export {Triangle, TriangleProps} from './components/triangle';
 export {MakeArrowProps, makeArrow} from './utils/make-arrow';
+export {MakeCalloutProps, makeCallout} from './utils/make-callout';
 export {MakeCircleProps, makeCircle} from './utils/make-circle';
 export {MakeEllipseOptions, makeEllipse} from './utils/make-ellipse';
 export {MakeHeartProps, makeHeart} from './utils/make-heart';
