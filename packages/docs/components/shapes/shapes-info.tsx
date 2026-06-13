@@ -1,5 +1,6 @@
 import {
 	makeArrow,
+	makeCallout,
 	makeCircle,
 	makeEllipse,
 	makeHeart,
@@ -26,6 +27,7 @@ type Param = {
 
 export type ShapeName =
 	| 'Arrow'
+	| 'Callout'
 	| 'Circle'
 	| 'Ellipse'
 	| 'Heart'
@@ -101,6 +103,55 @@ export const shapeComponents: ShapeComponent[] = [
 				type: 'number',
 				description: 'The height of the rectangle.',
 				hiddenFromList: false,
+			},
+		],
+	},
+	{
+		shape: 'Callout',
+		fn: makeCallout,
+		params: [
+			{
+				name: 'width',
+				type: 'number',
+				description: 'The width of the callout body. Default 500.',
+				hiddenFromList: false,
+			},
+			{
+				name: 'height',
+				type: 'number',
+				description: 'The height of the callout body. Default 200.',
+				hiddenFromList: false,
+			},
+			{
+				name: 'pointerLength',
+				type: 'number',
+				description: 'The length of the pointer. Default 40.',
+				hiddenFromList: false,
+			},
+			{
+				name: 'pointerBaseWidth',
+				type: 'number',
+				description:
+					'The width of the pointer where it meets the body. Default 60.',
+				hiddenFromList: false,
+			},
+			{
+				name: 'pointerPosition',
+				type: 'number',
+				description:
+					'The position of the pointer along its side, from 0 to 1. Default 0.5.',
+				hiddenFromList: false,
+			},
+			{
+				name: 'pointerDirection',
+				type: '"left" | "right" | "up" | "down"',
+				description: 'The direction the pointer points. Default down.',
+			},
+			{
+				name: 'edgeRoundness',
+				type: 'number | null',
+				description:
+					'Allows to modify the shape by rounding the edges using bezier curves. Default null.',
 			},
 		],
 	},
@@ -420,6 +471,7 @@ export const ShapeOptions: React.FC<{
 			})}
 			{all &&
 			(shapeComponent.shape === 'Rect' ||
+				shapeComponent.shape === 'Callout' ||
 				shapeComponent.shape === 'Triangle' ||
 				shapeComponent.shape === 'Polygon') ? (
 				<>
@@ -441,6 +493,7 @@ export const ShapeOptions: React.FC<{
 			{shapeComponent.shape === 'Triangle' ? <TriangleEdgeRoundness /> : null}
 			{all &&
 			(shapeComponent.shape === 'Rect' ||
+				shapeComponent.shape === 'Callout' ||
 				shapeComponent.shape === 'Triangle') ? (
 				<DebugOption />
 			) : null}
@@ -486,7 +539,8 @@ export const ShapeOptions: React.FC<{
 
 export const MakeShapeReturnType: React.FC<{
 	readonly shape: string;
-}> = ({shape}) => {
+	readonly includeComponentLink?: boolean;
+}> = ({shape, includeComponentLink = true}) => {
 	const shapeComponent = shapeComponents.find(
 		(c) => c.shape.toLowerCase() === shape.toLowerCase(),
 	);
@@ -533,15 +587,23 @@ export const MakeShapeReturnType: React.FC<{
 				A string representing the point of origin if a shape should be rotated
 				around itself.
 			</p>
-			<p>
-				If you want to rotate the shape around its center, use the{' '}
-				<code>transform-origin</code> CSS property and pass this value, and also
-				add <code>transform-box: fill-box</code>. This is the default for{' '}
-				<a href={`/docs/shapes/${shapeComponent.shape.toLowerCase()}`}>
-					<code>{`<${shapeComponent.shape} />`}</code>
-				</a>
-				.
-			</p>
+			{includeComponentLink ? (
+				<p>
+					If you want to rotate the shape around its center, use the{' '}
+					<code>transform-origin</code> CSS property and pass this value, and
+					also add <code>transform-box: fill-box</code>. This is the default for{' '}
+					<a href={`/docs/shapes/${shapeComponent.shape.toLowerCase()}`}>
+						<code>{`<${shapeComponent.shape} />`}</code>
+					</a>
+					.
+				</p>
+			) : (
+				<p>
+					If you want to rotate the shape around its center, use the{' '}
+					<code>transform-origin</code> CSS property and pass this value, and
+					also add <code>transform-box: fill-box</code>.
+				</p>
+			)}
 		</div>
 	);
 };

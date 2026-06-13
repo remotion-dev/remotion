@@ -691,6 +691,7 @@ const sidebars: SidebarsConfig = {
 			items: [
 				'shapes/arrow',
 				'shapes/rect',
+				'shapes/callout',
 				'shapes/triangle',
 				'shapes/circle',
 				'shapes/ellipse',
@@ -700,6 +701,7 @@ const sidebars: SidebarsConfig = {
 				'shapes/polygon',
 				'shapes/make-arrow',
 				'shapes/make-rect',
+				'shapes/make-callout',
 				'shapes/make-triangle',
 				'shapes/make-circle',
 				'shapes/make-ellipse',
