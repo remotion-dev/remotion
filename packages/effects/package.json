@@ -149,6 +149,11 @@
 			"module": "./dist/esm/noise-displacement.mjs",
 			"import": "./dist/esm/noise-displacement.mjs"
 		},
+		"./pattern": {
+			"types": "./dist/pattern.d.ts",
+			"module": "./dist/esm/pattern.mjs",
+			"import": "./dist/esm/pattern.mjs"
+		},
 		"./rings": {
 			"types": "./dist/rings.d.ts",
 			"module": "./dist/esm/rings.mjs",
@@ -291,6 +296,9 @@
 			],
 			"noise-displacement": [
 				"dist/noise-displacement.d.ts"
+			],
+			"pattern": [
+				"dist/pattern.d.ts"
 			],
 			"rings": [
 				"dist/rings.d.ts"

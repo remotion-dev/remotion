@@ -231,6 +231,13 @@ const categories: {
 				description: 'Localized noisy displacement',
 			},
 			{
+				link: '/docs/effects/pattern',
+				preview: '/img/effects-pattern-preview.png',
+				alt: 'pattern effect preview',
+				name: 'pattern()',
+				description: 'Repeated source tile effect',
+			},
+			{
 				link: '/docs/effects/pixel-dissolve',
 				preview: '/img/effects-pixel-dissolve-preview.png',
 				alt: 'pixel dissolve effect preview',

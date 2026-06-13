@@ -20,6 +20,7 @@ import {lines} from '@remotion/effects/lines';
 import {mirror} from '@remotion/effects/mirror';
 import {noise} from '@remotion/effects/noise';
 import {noiseDisplacement} from '@remotion/effects/noise-displacement';
+import {pattern} from '@remotion/effects/pattern';
 import {pixelDissolve} from '@remotion/effects/pixel-dissolve';
 import {rings} from '@remotion/effects/rings';
 import {saturation} from '@remotion/effects/saturation';
@@ -63,6 +64,7 @@ import {
 	NOISE_DISPLACEMENT_PREVIEW_PARAMS,
 } from '../effects/effects-noise-displacement-preview';
 import {EffectsNoisePreview} from '../effects/effects-noise-preview';
+import {EffectsPatternPreview} from '../effects/effects-pattern-preview';
 import {EffectsPixelDissolvePreview} from '../effects/effects-pixel-dissolve-preview';
 import {EffectsRingsPreview} from '../effects/effects-rings-preview';
 import {EffectsSaturationPreview} from '../effects/effects-saturation-preview';
@@ -395,6 +397,14 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/pixel-dissolve',
 		comp: EffectsPixelDissolvePreview,
 		schema: pixelDissolve().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-pattern',
+		effectName: 'pattern',
+		effectImportPath: '@remotion/effects/pattern',
+		comp: EffectsPatternPreview,
+		schema: pattern().definition.schema,
 	},
 	{
 		...defaults,

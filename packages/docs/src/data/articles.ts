@@ -1935,6 +1935,15 @@ export const articles = [
 		slug: 'effects/noise',
 	},
 	{
+		id: 'effects/pattern',
+		title: 'pattern()',
+		relativePath: 'docs/effects/pattern.mdx',
+		compId: 'articles-docs-effects-pattern',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/pattern',
+	},
+	{
 		id: 'effects/pixel-dissolve',
 		title: 'pixelDissolve()',
 		relativePath: 'docs/effects/pixel-dissolve.mdx',
