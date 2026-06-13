@@ -17,13 +17,14 @@ import React, {
 	useState,
 } from 'react';
 import type {CanvasContent} from 'remotion';
-import {Internals, watchStaticFile} from 'remotion';
+import {Internals, watchStaticFile, type PreviewSize} from 'remotion';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {BACKGROUND} from '../helpers/colors';
 import type {AssetMetadata} from '../helpers/get-asset-metadata';
 import {getAssetMetadata} from '../helpers/get-asset-metadata';
 import {
 	applyZoomAroundFocalPoint,
+	getCenterPointWhileScrolling,
 	getEffectiveTranslation,
 } from '../helpers/get-effective-translation';
 import {useCachedCompositionComponentInfo} from '../helpers/open-in-editor';
@@ -51,6 +52,7 @@ import {
 	insertComponent,
 	insertExistingAssets,
 	insertRemoteAudio,
+	type InsertElementDropPosition,
 } from './import-assets';
 import {SPACING_UNIT} from './layout';
 import {VideoPreview} from './Preview';
@@ -162,6 +164,42 @@ const getSfxDragUrl = (event: DragEvent): string | null => {
 	}
 
 	return null;
+};
+
+const getDropPosition = ({
+	clientX,
+	clientY,
+	contentDimensions,
+	previewSize,
+	size,
+}: {
+	clientX: number;
+	clientY: number;
+	contentDimensions: {width: number; height: number} | 'none' | null;
+	previewSize: PreviewSize;
+	size: Size;
+}): InsertElementDropPosition | null => {
+	if (contentDimensions === null || contentDimensions === 'none') {
+		return null;
+	}
+
+	const scale = Internals.calculateScale({
+		canvasSize: size,
+		compositionHeight: contentDimensions.height,
+		compositionWidth: contentDimensions.width,
+		previewSize: previewSize.size,
+	});
+	const {centerX, centerY} = getCenterPointWhileScrolling({
+		size,
+		clientX,
+		clientY,
+		compositionWidth: contentDimensions.width,
+		compositionHeight: contentDimensions.height,
+		scale,
+		translation: previewSize.translation,
+	});
+
+	return {centerX, centerY};
 };
 
 const isDragEventInsideCanvas = (event: DragEvent): boolean => {
@@ -743,6 +781,14 @@ export const Canvas: React.FC<{
 
 			setIsAddingAsset(true);
 			try {
+				const dropPosition = getDropPosition({
+					clientX: event.clientX,
+					clientY: event.clientY,
+					contentDimensions,
+					previewSize,
+					size,
+				});
+
 				if (isFileDragEvent(event)) {
 					const files = Array.from(event.dataTransfer?.files ?? []);
 					if (files.length === 0) {
@@ -753,6 +799,7 @@ export const Canvas: React.FC<{
 						files,
 						compositionFile,
 						compositionId: currentCompositionId,
+						dropPosition,
 					});
 				} else if (isAssetDragEvent(event)) {
 					const assetPath = getAssetDragPath(event);
@@ -764,6 +811,7 @@ export const Canvas: React.FC<{
 						assetPaths: [assetPath],
 						compositionFile,
 						compositionId: currentCompositionId,
+						dropPosition,
 					});
 				} else if (isSfxDragEvent(event)) {
 					const url = getSfxDragUrl(event);
@@ -783,6 +831,7 @@ export const Canvas: React.FC<{
 							component: componentDragData.component,
 							compositionFile,
 							compositionId: currentCompositionId,
+							dropPosition,
 						});
 						return;
 					}
@@ -796,13 +845,21 @@ export const Canvas: React.FC<{
 						url,
 						compositionFile,
 						compositionId: currentCompositionId,
+						dropPosition,
 					});
 				}
 			} finally {
 				setIsAddingAsset(false);
 			}
 		},
-		[canDropAssets, compositionFile, currentCompositionId],
+		[
+			canDropAssets,
+			compositionFile,
+			contentDimensions,
+			currentCompositionId,
+			previewSize,
+			size,
+		],
 	);
 
 	useEffect(() => {

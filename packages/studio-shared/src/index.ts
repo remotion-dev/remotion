@@ -40,6 +40,7 @@ export {
 	InsertJsxElementRequest,
 	InsertJsxElementResponse,
 	InsertableCompositionElement,
+	InsertableCompositionElementPosition,
 	InstallPackageRequest,
 	InstallPackageResponse,
 	LogStudioErrorRequest,

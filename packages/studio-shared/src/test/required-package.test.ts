@@ -10,6 +10,7 @@ test('gets required package for insertable elements', () => {
 			type: 'solid',
 			width: 1920,
 			height: 1080,
+			position: null,
 		}),
 	).toBe(null);
 	expect(
@@ -19,6 +20,7 @@ test('gets required package for insertable elements', () => {
 			src: 'image.png',
 			srcType: 'static',
 			dimensions: null,
+			position: null,
 		}),
 	).toBe(null);
 	expect(
@@ -28,6 +30,7 @@ test('gets required package for insertable elements', () => {
 			src: 'video.mp4',
 			srcType: 'static',
 			dimensions: null,
+			position: null,
 		}),
 	).toBe('@remotion/media');
 	expect(
@@ -37,6 +40,7 @@ test('gets required package for insertable elements', () => {
 			src: 'audio.mp3',
 			srcType: 'static',
 			dimensions: null,
+			position: null,
 		}),
 	).toBe('@remotion/media');
 	expect(
@@ -46,6 +50,7 @@ test('gets required package for insertable elements', () => {
 			src: 'animation.gif',
 			srcType: 'static',
 			dimensions: null,
+			position: null,
 		}),
 	).toBe('@remotion/gif');
 	expect(
@@ -55,6 +60,7 @@ test('gets required package for insertable elements', () => {
 			importName: 'Circle',
 			importPath: '@remotion/shapes',
 			props: [],
+			position: null,
 		}),
 	).toBe('@remotion/shapes');
 	expect(
@@ -64,6 +70,7 @@ test('gets required package for insertable elements', () => {
 			importName: 'Sequence',
 			importPath: 'remotion',
 			props: [],
+			position: null,
 		}),
 	).toBe(null);
 });

@@ -339,6 +339,7 @@ export const downloadRemoteAssetHandler: ApiHandler<
 		src: assetPath,
 		srcType: 'static',
 		dimensions: fileType.dimensions,
+		position: null,
 	};
 
 	return {
