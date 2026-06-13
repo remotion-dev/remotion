@@ -24,6 +24,7 @@ import {
 	type NoiseDisplacementParams,
 } from '../noise-displacement.js';
 import {noise} from '../noise.js';
+import {pageTurn} from '../page-turn.js';
 import {pattern} from '../pattern.js';
 import {pixelDissolve} from '../pixel-dissolve.js';
 import {rings} from '../rings.js';
@@ -137,6 +138,9 @@ test('@remotion/effects expose documentation links', () => {
 	expect(pattern().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/pattern',
 	);
+	expect(pageTurn().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/page-turn',
+	);
 	expect(rings().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/rings',
 	);
@@ -215,6 +219,7 @@ test('@remotion/effects expose API names as Studio labels', () => {
 		noiseDisplacement({center: [0.5, 0.5], radius: 0.25}).definition.label,
 	).toBe('noiseDisplacement()');
 	expect(pattern().definition.label).toBe('pattern()');
+	expect(pageTurn().definition.label).toBe('pageTurn()');
 	expect(rings().definition.label).toBe('rings()');
 	expect(saturation().definition.label).toBe('saturation()');
 	expect(scanlines().definition.label).toBe('scanlines()');
@@ -258,6 +263,54 @@ test('barrelDistortion() rejects amount below range', () => {
 test('barrelDistortion() rejects amount above range', () => {
 	expect(() => barrelDistortion({amount: 1.1})).toThrow(
 		'"amount" must be <= 1',
+	);
+});
+
+test('pageTurn() accepts default params', () => {
+	expect(() => pageTurn()).not.toThrow();
+});
+
+test('pageTurn() rejects non-finite progress', () => {
+	expect(() => pageTurn({progress: Number.NaN})).toThrow(
+		'"progress" must be a finite number',
+	);
+});
+
+test('pageTurn() rejects progress outside range', () => {
+	expect(() => pageTurn({progress: -0.1})).toThrow('"progress" must be >= 0');
+	expect(() => pageTurn({progress: 1.1})).toThrow('"progress" must be <= 1');
+});
+
+test('pageTurn() rejects invalid direction', () => {
+	expect(() => pageTurn({direction: 'diagonal' as never})).toThrow(
+		'"direction" must be "left", "right", "top" or "bottom"',
+	);
+});
+
+test('pageTurn() rejects fold radius outside range', () => {
+	expect(() => pageTurn({foldRadius: 0.01})).toThrow(
+		'"foldRadius" must be >= 0.02',
+	);
+	expect(() => pageTurn({foldRadius: 0.51})).toThrow(
+		'"foldRadius" must be <= 0.5',
+	);
+});
+
+test('pageTurn() effect keys include meaningful params', () => {
+	expect(pageTurn({progress: 0.25}).effectKey).not.toBe(
+		pageTurn({progress: 0.75}).effectKey,
+	);
+	expect(pageTurn({direction: 'left'}).effectKey).not.toBe(
+		pageTurn({direction: 'right'}).effectKey,
+	);
+	expect(pageTurn({foldRadius: 0.12}).effectKey).not.toBe(
+		pageTurn({foldRadius: 0.24}).effectKey,
+	);
+	expect(pageTurn({shadow: 0.2}).effectKey).not.toBe(
+		pageTurn({shadow: 0.8}).effectKey,
+	);
+	expect(pageTurn({backOpacity: 0.2}).effectKey).not.toBe(
+		pageTurn({backOpacity: 0.8}).effectKey,
 	);
 });
 

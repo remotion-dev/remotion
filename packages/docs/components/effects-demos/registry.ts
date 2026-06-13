@@ -20,6 +20,7 @@ import {lines} from '@remotion/effects/lines';
 import {mirror} from '@remotion/effects/mirror';
 import {noise} from '@remotion/effects/noise';
 import {noiseDisplacement} from '@remotion/effects/noise-displacement';
+import {pageTurn} from '@remotion/effects/page-turn';
 import {pattern} from '@remotion/effects/pattern';
 import {pixelDissolve} from '@remotion/effects/pixel-dissolve';
 import {rings} from '@remotion/effects/rings';
@@ -64,6 +65,7 @@ import {
 	NOISE_DISPLACEMENT_PREVIEW_PARAMS,
 } from '../effects/effects-noise-displacement-preview';
 import {EffectsNoisePreview} from '../effects/effects-noise-preview';
+import {EffectsPageTurnPreview} from '../effects/effects-page-turn-preview';
 import {EffectsPatternPreview} from '../effects/effects-pattern-preview';
 import {EffectsPixelDissolvePreview} from '../effects/effects-pixel-dissolve-preview';
 import {EffectsRingsPreview} from '../effects/effects-rings-preview';
@@ -397,6 +399,14 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/pixel-dissolve',
 		comp: EffectsPixelDissolvePreview,
 		schema: pixelDissolve().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-page-turn',
+		effectName: 'pageTurn',
+		effectImportPath: '@remotion/effects/page-turn',
+		comp: EffectsPageTurnPreview,
+		schema: pageTurn().definition.schema,
 	},
 	{
 		...defaults,

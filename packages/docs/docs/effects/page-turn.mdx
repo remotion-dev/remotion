@@ -1,0 +1,92 @@
+---
+image: /generated/articles-docs-effects-page-turn.png
+slug: /effects/page-turn
+title: pageTurn()
+sidebar_label: pageTurn()
+crumb: '@remotion/effects'
+---
+
+# pageTurn()<AvailableFrom v="4.0.478" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+Turns a canvas-based component away like a curled page.
+
+Use it for page flips, card exits, and book-style transitions on [`<Video>`](/docs/media/video), [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) and [`<Solid>`](/docs/solid).
+
+## Preview
+
+<EffectsDemo type="effects-page-turn" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {pageTurn} from '@remotion/effects/page-turn';
+import {Video} from '@remotion/media';
+import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  const frame = useCurrentFrame();
+  const progress = interpolate(frame, [0, 45], [0, 1], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+  });
+
+  return (
+    <AbsoluteFill>
+      <Video
+        src="https://remotion.media/video.mp4"
+        effects={[
+          pageTurn({
+            progress,
+            direction: 'left',
+            foldRadius: 0.18,
+            shadow: 0.45,
+          }),
+        ]}
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+## API
+
+Pass an object with the following properties. You can also call `pageTurn()` without arguments.
+
+### `progress?`
+
+Turn progress from `0` (flat source) to `1` (fully turned away). Defaults to `0.5`.
+
+### `direction?`
+
+Edge that turns across the source. Defaults to `left`.
+
+Possible values: `left`, `right`, `top`, `bottom`.
+
+### `foldRadius?`
+
+Width of the curled band as a fraction of the canvas. Defaults to `0.18`.
+
+### `shadow?`
+
+Strength of the crease and back-face shading from `0` to `1`. Defaults to `0.45`.
+
+### `backOpacity?`
+
+Opacity of the dimmed back face of the page from `0` to `1`. Defaults to `0.35`.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Requirements
+
+`pageTurn()` uses a WebGL2 backend. During renders, enable WebGL via [`Config.setChromiumOpenGlRenderer('angle')`](/docs/config#setchromiumopenglrenderer). See [Using WebGL during renders](/docs/remotion/html-in-canvas#using-webgl-during-renders).
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`evolve()`](/docs/effects/evolve)
+- [`pixelDissolve()`](/docs/effects/pixel-dissolve)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/page-turn.ts)

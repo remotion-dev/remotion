@@ -1935,6 +1935,15 @@ export const articles = [
 		slug: 'effects/noise',
 	},
 	{
+		id: 'effects/page-turn',
+		title: 'pageTurn()',
+		relativePath: 'docs/effects/page-turn.mdx',
+		compId: 'articles-docs-effects-page-turn',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/page-turn',
+	},
+	{
 		id: 'effects/pattern',
 		title: 'pattern()',
 		relativePath: 'docs/effects/pattern.mdx',

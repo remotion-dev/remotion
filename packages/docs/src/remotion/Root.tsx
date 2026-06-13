@@ -29,6 +29,7 @@ import {
 	NoiseDisplacementTextSource,
 } from '../../components/effects/effects-noise-displacement-preview';
 import {EffectsNoisePreview} from '../../components/effects/effects-noise-preview';
+import {EffectsPageTurnPreview} from '../../components/effects/effects-page-turn-preview';
 import {EffectsPatternPreview} from '../../components/effects/effects-pattern-preview';
 import {EffectsPixelDissolvePreview} from '../../components/effects/effects-pixel-dissolve-preview';
 import {EffectsRingsPreview} from '../../components/effects/effects-rings-preview';
@@ -343,6 +344,19 @@ export const RemotionRoot: React.FC = () => {
 						rows: 12,
 						seed: 0,
 						feather: 0.15,
+					}}
+				/>
+				<Still
+					id="effects-page-turn-preview"
+					component={EffectsPageTurnPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						progress: 0.58,
+						direction: 'left',
+						foldRadius: 0.22,
+						shadow: 0.6,
+						backOpacity: 0.42,
 					}}
 				/>
 				<Still

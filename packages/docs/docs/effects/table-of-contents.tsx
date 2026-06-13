@@ -191,6 +191,13 @@ const categories: {
 				description: 'Ultra-wide-angle lens effect',
 			},
 			{
+				link: '/docs/effects/page-turn',
+				preview: '/img/effects-page-turn-preview.png',
+				alt: 'page turn effect preview',
+				name: 'pageTurn()',
+				description: 'Curled page-turn effect',
+			},
+			{
 				link: '/docs/effects/wave',
 				preview: '/img/effects-wave-preview.png',
 				alt: 'wave effect preview',

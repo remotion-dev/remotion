@@ -149,6 +149,11 @@
 			"module": "./dist/esm/noise-displacement.mjs",
 			"import": "./dist/esm/noise-displacement.mjs"
 		},
+		"./page-turn": {
+			"types": "./dist/page-turn.d.ts",
+			"module": "./dist/esm/page-turn.mjs",
+			"import": "./dist/esm/page-turn.mjs"
+		},
 		"./pattern": {
 			"types": "./dist/pattern.d.ts",
 			"module": "./dist/esm/pattern.mjs",
@@ -296,6 +301,9 @@
 			],
 			"noise-displacement": [
 				"dist/noise-displacement.d.ts"
+			],
+			"page-turn": [
+				"dist/page-turn.d.ts"
 			],
 			"pattern": [
 				"dist/pattern.d.ts"

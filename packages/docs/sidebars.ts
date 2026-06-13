@@ -292,6 +292,7 @@ const sidebars: SidebarsConfig = {
 				'effects/mirror',
 				'effects/noise',
 				'effects/noise-displacement',
+				'effects/page-turn',
 				'effects/pattern',
 				'effects/pixel-dissolve',
 				'effects/rings',
