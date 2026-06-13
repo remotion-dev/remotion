@@ -260,6 +260,26 @@ type SelectedOutlineScaleEdgeInfo = {
 	readonly start: OutlinePoint;
 };
 
+const getScaleCursor = (normal: OutlinePoint): string => {
+	const degrees = Math.atan2(normal.y, normal.x) * (180 / Math.PI);
+	const normalizedDegrees = ((degrees % 180) + 180) % 180;
+	const snappedDegrees = Math.round(normalizedDegrees / 45) * 45;
+
+	if (snappedDegrees === 0 || snappedDegrees === 180) {
+		return 'ew-resize';
+	}
+
+	if (snappedDegrees === 45) {
+		return 'nwse-resize';
+	}
+
+	if (snappedDegrees === 90) {
+		return 'ns-resize';
+	}
+
+	return 'nesw-resize';
+};
+
 export const getSelectedOutlineScaleEdgeInfo = (
 	points: SelectedOutline['points'],
 	edge: SelectedOutlineScaleEdge,
@@ -285,7 +305,7 @@ export const getSelectedOutlineScaleEdgeInfo = (
 
 	return {
 		axis: edge === 'left' || edge === 'right' ? 'x' : 'y',
-		cursor: edge === 'left' || edge === 'right' ? 'ew-resize' : 'ns-resize',
+		cursor: getScaleCursor(outward),
 		end: edgePoints.end,
 		extent: length,
 		normal: {x: outward.x / length, y: outward.y / length},
