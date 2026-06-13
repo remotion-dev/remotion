@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import React, {
 	forwardRef,
+	useCallback,
 	useContext,
 	useEffect,
 	useMemo,
@@ -133,7 +134,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		_remotionInternalPremountDisplay: premountDisplay,
 		_remotionInternalPostmountDisplay: postmountDisplay,
 		_remotionInternalIsMedia: isMedia,
-		_remotionInternalRefForOutline: refForOutline,
+		_remotionInternalRefForOutline: passedRefForOutline,
 		...other
 	},
 	ref,
@@ -219,6 +220,11 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		Math.min(videoConfig.durationInFrames - from, parentSequenceDuration),
 	);
 	const {registerSequence, unregisterSequence} = useContext(SequenceManager);
+	const wrapperRefForOutline = useRef<HTMLDivElement | null>(null);
+	const refForOutline =
+		other.layout === 'none'
+			? (passedRefForOutline ?? null)
+			: (passedRefForOutline ?? wrapperRefForOutline);
 
 	const premounting = useMemo(() => {
 		// || is intentional, ?? would not trigger on `false`
@@ -435,6 +441,19 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	const styleIfThere = other.layout === 'none' ? undefined : other.style;
 
+	const sequenceRef = useCallback(
+		(node: HTMLDivElement | null) => {
+			wrapperRefForOutline.current = node;
+
+			if (typeof ref === 'function') {
+				ref(node);
+			} else if (ref) {
+				ref.current = node;
+			}
+		},
+		[ref],
+	);
+
 	const defaultStyle: React.CSSProperties = useMemo(() => {
 		return {
 			flexDirection: undefined,
@@ -460,7 +479,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 				frozenContent
 			) : (
 				<AbsoluteFill
-					ref={ref}
+					ref={sequenceRef}
 					style={defaultStyle}
 					className={other.className}
 				>

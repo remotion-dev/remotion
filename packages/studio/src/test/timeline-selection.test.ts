@@ -2643,11 +2643,41 @@ test('Selected outline scale edges project pointer movement onto the edge normal
 	const top = getSelectedOutlineScaleEdgeInfo(points, 'top');
 
 	expect(right?.axis).toBe('x');
+	expect(right?.cursor).toBe('ew-resize');
 	expect(right?.extent).toBe(100);
 	expect(right?.normal).toEqual({x: 1, y: 0});
 	expect(top?.axis).toBe('y');
+	expect(top?.cursor).toBe('ns-resize');
 	expect(top?.extent).toBe(50);
 	expect(top?.normal).toEqual({x: 0, y: -1});
+});
+
+test('Selected outline scale edge cursors follow rotated outlines', () => {
+	const rotated90Degrees = [
+		{x: 0, y: 0},
+		{x: 0, y: 100},
+		{x: -50, y: 100},
+		{x: -50, y: 0},
+	] as const;
+	const rotated45Degrees = [
+		{x: 0, y: 0},
+		{x: 100, y: 100},
+		{x: 50, y: 150},
+		{x: -50, y: 50},
+	] as const;
+
+	expect(
+		getSelectedOutlineScaleEdgeInfo(rotated90Degrees, 'right')?.cursor,
+	).toBe('ns-resize');
+	expect(getSelectedOutlineScaleEdgeInfo(rotated90Degrees, 'top')?.cursor).toBe(
+		'ew-resize',
+	);
+	expect(
+		getSelectedOutlineScaleEdgeInfo(rotated45Degrees, 'right')?.cursor,
+	).toBe('nwse-resize');
+	expect(getSelectedOutlineScaleEdgeInfo(rotated45Degrees, 'top')?.cursor).toBe(
+		'nesw-resize',
+	);
 });
 
 test('Backspace reset targets selected effect props', () => {

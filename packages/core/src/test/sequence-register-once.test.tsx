@@ -140,6 +140,24 @@ test('Sequence registers its documentation link', () => {
 	);
 });
 
+test('Sequence registers its wrapper element for Studio outlines', () => {
+	const registeredSequences: TSequence[] = [];
+	const ref = React.createRef<HTMLDivElement>();
+
+	render(
+		<SequenceTestWrapper
+			onRegisterSequence={(sequence) => {
+				registeredSequences.push(sequence);
+			}}
+		>
+			<Sequence ref={ref}>hi</Sequence>
+		</SequenceTestWrapper>,
+	);
+
+	expect(registeredSequences[0]?.refForOutline?.current?.tagName).toBe('DIV');
+	expect(registeredSequences[0]?.refForOutline?.current).toBe(ref.current);
+});
+
 test('Series.Sequence registers without visual controls', () => {
 	const registeredSequences: TSequence[] = [];
 
