@@ -898,7 +898,7 @@ export const TimelineSequenceItem: React.FC<{
 				{
 					type: 'item' as const,
 					id: 'rename-sequence',
-					keyHint: 'Enter',
+					keyHint: null,
 					label: 'Rename...',
 					leftItem: null,
 					disabled: !canRenameThisSequence,

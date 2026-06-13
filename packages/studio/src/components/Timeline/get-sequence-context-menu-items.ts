@@ -5,6 +5,27 @@ import {showNotification} from '../Notifications/NotificationCenter';
 import type {TimelineAssetLinkInfo} from './timeline-asset-link';
 import {openTimelineAssetLink} from './timeline-asset-link';
 
+const normalizeMenuDividers = (items: ComboboxValue[]): ComboboxValue[] => {
+	const normalized: ComboboxValue[] = [];
+
+	for (const item of items) {
+		if (item.type === 'divider') {
+			const previousItem = normalized[normalized.length - 1];
+			if (!previousItem || previousItem.type === 'divider') {
+				continue;
+			}
+		}
+
+		normalized.push(item);
+	}
+
+	if (normalized[normalized.length - 1]?.type === 'divider') {
+		normalized.pop();
+	}
+
+	return normalized;
+};
+
 export const getSequenceContextMenuItems = ({
 	assetLinkInfo,
 	canOpenInEditor,
@@ -41,7 +62,7 @@ export const getSequenceContextMenuItems = ({
 	const editorName = window.remotion_editorName;
 	const {documentationLink} = sequence;
 
-	return [
+	const items = [
 		editorName
 			? {
 					type: 'item' as const,
@@ -176,4 +197,6 @@ export const getSequenceContextMenuItems = ({
 				}
 			: null,
 	].filter(NoReactInternals.truthy);
+
+	return normalizeMenuDividers(items);
 };
