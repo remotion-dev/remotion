@@ -203,7 +203,7 @@ export const TrustSection: React.FC = () => {
 						Founder-owned
 					</div>
 					<div className="font-brand">
-						Us founders own the company. And we just want one thing: Make
+						We, the founders, own the company. And we just want one thing: Make
 						programmatic video glorious.
 					</div>
 				</Card>
