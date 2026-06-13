@@ -13,6 +13,7 @@ import {drawMarkingOnRulerCanvas} from '../../helpers/editor-ruler';
 import {EditorShowGuidesContext} from '../../state/editor-guides';
 import {RULER_WIDTH} from '../../state/editor-rulers';
 import {forceSpecificCursor} from '../ForceSpecificCursor';
+import {useTimelineSelection} from '../Timeline/TimelineSelection';
 
 interface Point {
 	value: number;
@@ -47,12 +48,13 @@ const Ruler: React.FC<RulerProps> = ({
 	const {
 		shouldCreateGuideRef,
 		setGuidesList,
-		selectedGuideId,
+		draggingGuideId,
 		hoveredGuideId,
-		setSelectedGuideId,
+		setDraggingGuideId,
 		guidesList,
 		setEditorShowGuides,
 	} = useContext(EditorShowGuidesContext);
+	const {selectedItems, selectItem} = useTimelineSelection();
 	const unsafeVideoConfig = Internals.useUnsafeVideoConfig();
 
 	if (!unsafeVideoConfig) {
@@ -64,12 +66,16 @@ const Ruler: React.FC<RulerProps> = ({
 	);
 
 	const selectedOrHoveredGuide = useMemo(() => {
+		const selectedGuideId =
+			selectedItems.length === 1 && selectedItems[0]?.type === 'guide'
+				? selectedItems[0].guideId
+				: null;
 		return (
 			guidesList.find((guide) => guide.id === selectedGuideId) ??
 			guidesList.find((guide) => guide.id === hoveredGuideId) ??
 			null
 		);
-	}, [guidesList, hoveredGuideId, selectedGuideId]);
+	}, [guidesList, hoveredGuideId, selectedItems]);
 
 	const rulerWidth = isVerticalRuler ? RULER_WIDTH : size.width - RULER_WIDTH;
 	const rulerHeight = isVerticalRuler ? size.height - RULER_WIDTH : RULER_WIDTH;
@@ -128,7 +134,8 @@ const Ruler: React.FC<RulerProps> = ({
 			forceSpecificCursor('no-drop');
 			const guideId = makeGuideId();
 			setEditorShowGuides(() => true);
-			setSelectedGuideId(() => guideId);
+			setDraggingGuideId(() => guideId);
+			selectItem({type: 'guide', guideId});
 			setGuidesList((prevState) => {
 				return [
 					...prevState,
@@ -145,7 +152,8 @@ const Ruler: React.FC<RulerProps> = ({
 		[
 			shouldCreateGuideRef,
 			setEditorShowGuides,
-			setSelectedGuideId,
+			setDraggingGuideId,
+			selectItem,
 			setGuidesList,
 			orientation,
 			originOffset,
@@ -156,18 +164,18 @@ const Ruler: React.FC<RulerProps> = ({
 	const changeCursor = useCallback(
 		(e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
 			e.preventDefault();
-			if (selectedGuideId !== null) {
+			if (draggingGuideId !== null) {
 				setCursor('no-drop');
 			}
 		},
-		[setCursor, selectedGuideId],
+		[setCursor, draggingGuideId],
 	);
 
 	useEffect(() => {
-		if (selectedGuideId === null) {
+		if (draggingGuideId === null) {
 			setCursor(isVerticalRuler ? 'ew-resize' : 'ns-resize');
 		}
-	}, [selectedGuideId, isVerticalRuler]);
+	}, [draggingGuideId, isVerticalRuler]);
 
 	return (
 		<canvas

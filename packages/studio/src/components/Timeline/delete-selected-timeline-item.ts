@@ -166,6 +166,8 @@ export const deleteSelectedTimelineItem = ({
 	}
 
 	switch (selection.type) {
+		case 'guide':
+			return null;
 		case 'sequence':
 			return deleteSequences([selection.nodePathInfo], confirm);
 		case 'sequence-effect':
@@ -290,6 +292,8 @@ export const deleteSelectedTimelineItems = ({
 	assertTimelineSelectionsHaveSameType(selections);
 
 	switch (firstSelection.type) {
+		case 'guide':
+			return null;
 		case 'sequence':
 			return deleteSequences(
 				selections

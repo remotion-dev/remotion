@@ -3,6 +3,10 @@ import {useContext, useEffect} from 'react';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {useKeybinding} from '../../helpers/use-keybinding';
+import {
+	EditorShowGuidesContext,
+	persistGuidesList,
+} from '../../state/editor-guides';
 import {useConfirmationDialog} from '../ConfirmationDialog';
 import {deleteSelectedTimelineItems} from './delete-selected-timeline-item';
 import {duplicateSelectedTimelineItems} from './duplicate-selected-timeline-item';
@@ -27,6 +31,7 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 		Internals.VisualModePropStatusesRefContext,
 	);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
+	const {setGuidesList} = useContext(EditorShowGuidesContext);
 	const {canSelect, canSelectEasing} = useTimelineSelection();
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	const confirm = useConfirmationDialog();
@@ -45,6 +50,19 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 			const sequences = sequencesRef.current;
 			const propStatuses = propStatusesRef.current;
 			if (selectedItems.length === 0) {
+				return;
+			}
+
+			const selectedGuide = selectedItems.find((item) => item.type === 'guide');
+			if (selectedGuide) {
+				setGuidesList((prevGuides) => {
+					const newGuides = prevGuides.filter(
+						(guide) => guide.id !== selectedGuide.guideId,
+					);
+					persistGuidesList(newGuides);
+					return newGuides;
+				});
+				clearSelection();
 				return;
 			}
 
@@ -159,6 +177,7 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 		propStatusesRef,
 		previewServerState,
 		sequencesRef,
+		setGuidesList,
 		setPropStatuses,
 	]);
 

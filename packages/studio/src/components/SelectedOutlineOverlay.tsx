@@ -515,9 +515,9 @@ const getSequenceKeysContainingSelection = (
 	selectedItems: readonly TimelineSelection[],
 ): Set<string> => {
 	return new Set(
-		selectedItems.map((item) =>
-			getTimelineSequenceSelectionKey(item.nodePathInfo),
-		),
+		selectedItems
+			.filter((item) => item.type !== 'guide')
+			.map((item) => getTimelineSequenceSelectionKey(item.nodePathInfo)),
 	);
 };
 
