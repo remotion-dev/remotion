@@ -6,6 +6,8 @@ import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {BLUE} from '../helpers/colors';
 import {formatFileLocation} from '../helpers/format-file-location';
 import {openOriginalPositionInEditor} from '../helpers/open-in-editor';
+import {callApi} from './call-api';
+import {useConfirmationDialog} from './ConfirmationDialog';
 import {ContextMenuForTarget} from './ContextMenu';
 import {
 	addEffectFromDragData,
@@ -75,7 +77,10 @@ import {
 	type AddSequenceKeyframeChange,
 } from './Timeline/call-add-keyframe';
 import {disableSequenceInteractivity} from './Timeline/disable-sequence-interactivity';
+import {duplicateSequencesFromSource} from './Timeline/duplicate-selected-timeline-item';
+import {getSequenceContextMenuItems} from './Timeline/get-sequence-context-menu-items';
 import {saveSequenceProps} from './Timeline/save-sequence-prop';
+import {getTimelineAssetLinkInfo} from './Timeline/timeline-asset-link';
 import {
 	parseTranslate,
 	serializeTranslate,
@@ -90,6 +95,7 @@ import {
 	parsedTransformOriginToUv,
 	serializeTransformOrigin,
 } from './Timeline/transform-origin-utils';
+import {useSelectAsset} from './use-select-asset';
 
 const emptyContextMenuValues: readonly ComboboxValue[] = [];
 
@@ -1303,6 +1309,8 @@ export const SelectedOutlineElement: React.FC<{
 	const updateResolvedStackTrace = useContext(
 		Internals.SequenceStackTracesUpdateContext,
 	);
+	const confirm = useConfirmationDialog();
+	const selectAsset = useSelectAsset();
 
 	const onContextMenuOpen = React.useCallback(async () => {
 		if (target === undefined || previewServerState.type !== 'connected') {
@@ -1334,91 +1342,108 @@ export const SelectedOutlineElement: React.FC<{
 			location: originalLocation,
 			root: window.remotion_cwd,
 		});
-		const editorName = window.remotion_editorName;
+		const nodePath = target.nodePathInfo.sequenceSubscriptionKey;
+		const mediaSrc =
+			target.sequence.type === 'audio' ||
+			target.sequence.type === 'video' ||
+			target.sequence.type === 'image'
+				? target.sequence.src
+				: null;
+		const assetLinkInfo = mediaSrc ? getTimelineAssetLinkInfo(mediaSrc) : null;
+		const canOpenInEditor = Boolean(
+			window.remotion_editorName && originalLocation,
+		);
 		const disableInteractivityDisabled = !target.sequence.showInTimeline;
+		const sourceEditDisabled =
+			!target.sequence.controls || !nodePath.absolutePath;
 
-		return [
-			editorName
-				? {
-						type: 'item' as const,
-						id: 'show-outline-in-editor',
-						keyHint: null,
-						label: `Show in ${editorName}`,
-						leftItem: null,
-						disabled: !originalLocation,
-						onClick: () => {
-							if (!originalLocation) {
-								return;
-							}
+		return getSequenceContextMenuItems({
+			assetLinkInfo,
+			canOpenInEditor,
+			deleteDisabled: sourceEditDisabled,
+			disableInteractivityDisabled,
+			duplicateDisabled: sourceEditDisabled,
+			fileLocation,
+			includeSourceEditItems: true,
+			onDeleteSequenceFromSource: async () => {
+				if (sourceEditDisabled || previewServerState.type !== 'connected') {
+					return;
+				}
 
-							openOriginalPositionInEditor(originalLocation).catch((err) => {
-								showNotification((err as Error).message, 2000);
-							});
-						},
-						quickSwitcherLabel: null,
-						subMenu: null,
-						value: 'show-outline-in-editor',
-					}
-				: null,
-			{
-				type: 'item' as const,
-				id: 'copy-outline-file-location',
-				keyHint: null,
-				label: 'Copy file location',
-				leftItem: null,
-				disabled: !fileLocation,
-				onClick: () => {
-					if (!fileLocation) {
-						return;
-					}
-
-					navigator.clipboard
-						.writeText(fileLocation)
-						.then(() => {
-							showNotification('Copied file location to clipboard', 1000);
-						})
-						.catch((err) => {
-							showNotification(
-								`Could not copy to clipboard: ${(err as Error).message}`,
-								1000,
-							);
-						});
-				},
-				quickSwitcherLabel: null,
-				subMenu: null,
-				value: 'copy-outline-file-location',
-			},
-			{
-				type: 'item' as const,
-				id: 'disable-outline-interactivity',
-				keyHint: null,
-				label: 'Disable interactivity',
-				leftItem: null,
-				disabled: disableInteractivityDisabled,
-				onClick: () => {
-					if (
-						disableInteractivityDisabled ||
-						previewServerState.type !== 'connected'
-					) {
-						return;
-					}
-
-					const nodePath = target.nodePathInfo.sequenceSubscriptionKey;
-					disableSequenceInteractivity({
-						fileName: nodePath.absolutePath,
-						nodePath,
-						setPropStatuses,
-						clientId: previewServerState.clientId,
+				if (target.nodePathInfo.numberOfSequencesWithThisNodePath > 1) {
+					const shouldDelete = await confirm({
+						title: 'Delete sequence?',
+						message:
+							'This sequence is programmatically duplicated ' +
+							target.nodePathInfo.numberOfSequencesWithThisNodePath +
+							' times in the code. Deleting removes all instances. Continue?',
+						confirmLabel: 'Delete',
 					});
-				},
-				quickSwitcherLabel: null,
-				subMenu: null,
-				value: 'disable-outline-interactivity',
+					if (!shouldDelete) {
+						return;
+					}
+				}
+
+				try {
+					const result = await callApi('/api/delete-jsx-node', {
+						nodes: [
+							{
+								fileName: nodePath.absolutePath,
+								nodePath: nodePath.nodePath,
+							},
+						],
+					});
+					if (result.success) {
+						showNotification('Removed sequence from source file', 2000);
+					} else {
+						showNotification(result.reason, 4000);
+					}
+				} catch (err) {
+					showNotification((err as Error).message, 4000);
+				}
 			},
-		].filter(NoReactInternals.truthy);
+			onDisableSequenceInteractivity: () => {
+				if (
+					disableInteractivityDisabled ||
+					previewServerState.type !== 'connected'
+				) {
+					return;
+				}
+
+				disableSequenceInteractivity({
+					fileName: nodePath.absolutePath,
+					nodePath,
+					setPropStatuses,
+					clientId: previewServerState.clientId,
+				});
+			},
+			onDuplicateSequenceFromSource: () => {
+				if (sourceEditDisabled) {
+					return;
+				}
+
+				duplicateSequencesFromSource([target.nodePathInfo], confirm).catch(
+					() => undefined,
+				);
+			},
+			openInEditor: () => {
+				if (!originalLocation) {
+					return;
+				}
+
+				openOriginalPositionInEditor(originalLocation).catch((err) => {
+					showNotification((err as Error).message, 2000);
+				});
+			},
+			originalLocation,
+			selectAsset,
+			sequence: target.sequence,
+		});
 	}, [
+		confirm,
 		onSelect,
 		previewServerState,
+		selectAsset,
 		setPropStatuses,
 		target,
 		updateResolvedStackTrace,
