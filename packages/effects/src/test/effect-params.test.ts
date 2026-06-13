@@ -24,6 +24,7 @@ import {
 	type NoiseDisplacementParams,
 } from '../noise-displacement.js';
 import {noise} from '../noise.js';
+import {pattern} from '../pattern.js';
 import {pixelDissolve} from '../pixel-dissolve.js';
 import {rings} from '../rings.js';
 import {saturation} from '../saturation.js';
@@ -127,6 +128,9 @@ test('@remotion/effects expose documentation links', () => {
 		noiseDisplacement({center: [0.5, 0.5], radius: 0.25}).definition
 			.documentationLink,
 	).toBe('https://www.remotion.dev/docs/effects/noise-displacement');
+	expect(pattern().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/pattern',
+	);
 	expect(rings().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/rings',
 	);
@@ -204,6 +208,7 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(
 		noiseDisplacement({center: [0.5, 0.5], radius: 0.25}).definition.label,
 	).toBe('noiseDisplacement()');
+	expect(pattern().definition.label).toBe('pattern()');
 	expect(rings().definition.label).toBe('rings()');
 	expect(saturation().definition.label).toBe('saturation()');
 	expect(scanlines().definition.label).toBe('scanlines()');
@@ -1598,6 +1603,102 @@ test('noiseDisplacement() parameters produce distinct effect keys', () => {
 			blurred.effectKey,
 			feathered.effectKey,
 			biased.effectKey,
+		]).size,
+	).toBe(10);
+});
+
+test('pattern() accepts default params', () => {
+	expect(() => pattern()).not.toThrow();
+});
+
+test('pattern() accepts all params', () => {
+	expect(() =>
+		pattern({
+			scale: 0.2,
+			cropLeft: 40,
+			cropTop: 20,
+			cropRight: 40,
+			cropBottom: 20,
+			gapX: 12,
+			gapY: 8,
+			offsetU: 0.1,
+			offsetV: -0.2,
+			rowOffset: 80,
+			rowOffsetEvery: 0,
+			columnOffset: -20,
+			columnOffsetEvery: 0,
+			origin: [0.5, 0.25],
+			wrap: false,
+		}),
+	).not.toThrow();
+});
+
+test('pattern() rejects invalid scale', () => {
+	expect(() => pattern({scale: Number.NaN})).toThrow(
+		'"scale" must be a finite number',
+	);
+	expect(() => pattern({scale: 0})).toThrow('"scale" must be > 0');
+});
+
+test('pattern() rejects invalid origin', () => {
+	expect(() => pattern({origin: [0.5] as unknown as [number, number]})).toThrow(
+		'"origin" must be a [number, number] tuple',
+	);
+	expect(() => pattern({origin: [-0.1, 0.5]})).toThrow(
+		'"origin[0]" must be >= 0',
+	);
+	expect(() => pattern({origin: [0.5, 1.1]})).toThrow(
+		'"origin[1]" must be <= 1',
+	);
+});
+
+test('pattern() rejects invalid repeat intervals', () => {
+	expect(() => pattern({rowOffsetEvery: -1})).toThrow(
+		'"rowOffsetEvery" must be >= 0',
+	);
+	expect(() => pattern({columnOffsetEvery: 1.5})).toThrow(
+		'"columnOffsetEvery" must be an integer',
+	);
+});
+
+test('pattern() rejects invalid generic offsets', () => {
+	expect(() => pattern({offsetU: Number.NaN})).toThrow(
+		'"offsetU" must be a finite number',
+	);
+	expect(() => pattern({offsetV: Number.NaN})).toThrow(
+		'"offsetV" must be a finite number',
+	);
+});
+
+test('pattern() rejects overlapping gaps', () => {
+	expect(() => pattern({gapX: -1})).toThrow('"gapX" must be >= 0');
+	expect(() => pattern({gapY: -1})).toThrow('"gapY" must be >= 0');
+});
+
+test('pattern() parameters produce distinct effect keys', () => {
+	const defaults = pattern();
+	const scaled = pattern({scale: 0.2});
+	const cropped = pattern({cropLeft: 10});
+	const spaced = pattern({gapX: 12, gapY: 8});
+	const shifted = pattern({offsetU: 0.1, offsetV: -0.2});
+	const staggered = pattern({rowOffset: 80, rowOffsetEvery: 0});
+	const repeatingStagger = pattern({rowOffset: 80, rowOffsetEvery: 2});
+	const columnStaggered = pattern({columnOffset: 40, columnOffsetEvery: 0});
+	const shiftedOrigin = pattern({origin: [0.5, 0.25]});
+	const clipped = pattern({wrap: false});
+
+	expect(
+		new Set([
+			defaults.effectKey,
+			scaled.effectKey,
+			cropped.effectKey,
+			spaced.effectKey,
+			shifted.effectKey,
+			staggered.effectKey,
+			repeatingStagger.effectKey,
+			columnStaggered.effectKey,
+			shiftedOrigin.effectKey,
+			clipped.effectKey,
 		]).size,
 	).toBe(10);
 });

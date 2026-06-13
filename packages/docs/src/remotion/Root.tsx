@@ -29,6 +29,7 @@ import {
 	NoiseDisplacementTextSource,
 } from '../../components/effects/effects-noise-displacement-preview';
 import {EffectsNoisePreview} from '../../components/effects/effects-noise-preview';
+import {EffectsPatternPreview} from '../../components/effects/effects-pattern-preview';
 import {EffectsPixelDissolvePreview} from '../../components/effects/effects-pixel-dissolve-preview';
 import {EffectsRingsPreview} from '../../components/effects/effects-rings-preview';
 import {EffectsSaturationPreview} from '../../components/effects/effects-saturation-preview';
@@ -342,6 +343,29 @@ export const RemotionRoot: React.FC = () => {
 						rows: 12,
 						seed: 0,
 						feather: 0.15,
+					}}
+				/>
+				<Still
+					id="effects-pattern-preview"
+					component={EffectsPatternPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						scale: 0.16,
+						cropLeft: 0,
+						cropTop: 0,
+						cropRight: 0,
+						cropBottom: 0,
+						gapX: 16,
+						gapY: 16,
+						offsetU: 0,
+						offsetV: 0,
+						rowOffset: 88,
+						rowOffsetEvery: 0,
+						columnOffset: 0,
+						columnOffsetEvery: 0,
+						origin: [0, 0],
+						wrap: true,
 					}}
 				/>
 				<Still
