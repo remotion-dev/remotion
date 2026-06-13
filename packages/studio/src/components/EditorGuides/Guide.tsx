@@ -42,6 +42,7 @@ const GuideComp: React.FC<{
 		guide.id,
 	);
 	const pointerDownPositionRef = useRef<GuidePointerDownPosition | null>(null);
+	const hasMovedGuideRef = useRef(false);
 
 	const onPointerEnter = useCallback(() => {
 		setHoveredGuideId(() => guide.id);
@@ -99,8 +100,9 @@ const GuideComp: React.FC<{
 				return;
 			}
 
-			e.preventDefault();
 			e.stopPropagation();
+			e.currentTarget.setPointerCapture(e.pointerId);
+			hasMovedGuideRef.current = false;
 			pointerDownPositionRef.current = {
 				guideId: guide.id,
 				clientX: e.clientX,
@@ -113,8 +115,68 @@ const GuideComp: React.FC<{
 		[guide.id, setDraggingGuideId, shouldCreateGuideRef],
 	);
 
+	const onMouseDown = useCallback(
+		(e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+			if (e.button !== 0) {
+				return;
+			}
+
+			e.preventDefault();
+			e.stopPropagation();
+			hasMovedGuideRef.current = false;
+			pointerDownPositionRef.current = {
+				guideId: guide.id,
+				clientX: e.clientX,
+				clientY: e.clientY,
+			};
+			shouldCreateGuideRef.current = true;
+			forceSpecificCursor('no-drop');
+			setDraggingGuideId(() => guide.id);
+		},
+		[guide.id, setDraggingGuideId, shouldCreateGuideRef],
+	);
+
+	const updateHasMovedGuide = useCallback(
+		(clientX: number, clientY: number) => {
+			const pointerDownPosition = pointerDownPositionRef.current;
+			if (pointerDownPosition === null) {
+				return;
+			}
+
+			if (
+				!isGuidePointerUpAClick({
+					pointerDownPosition,
+					guideId: guide.id,
+					clientX,
+					clientY,
+				})
+			) {
+				hasMovedGuideRef.current = true;
+			}
+		},
+		[guide.id],
+	);
+
+	const onPointerMove = useCallback(
+		(e: React.PointerEvent<HTMLDivElement>) => {
+			updateHasMovedGuide(e.clientX, e.clientY);
+		},
+		[updateHasMovedGuide],
+	);
+
+	const onMouseMove = useCallback(
+		(e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+			updateHasMovedGuide(e.clientX, e.clientY);
+		},
+		[updateHasMovedGuide],
+	);
+
 	const onPointerUp = useCallback(
 		(e: React.PointerEvent<HTMLDivElement>) => {
+			if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+				e.currentTarget.releasePointerCapture(e.pointerId);
+			}
+
 			const pointerDownPosition = pointerDownPositionRef.current;
 			pointerDownPositionRef.current = null;
 			if (shouldDeleteGuideRef.current) {
@@ -133,6 +195,45 @@ const GuideComp: React.FC<{
 			}
 		},
 		[guide.id, onSelect, shouldDeleteGuideRef],
+	);
+
+	const onMouseUp = useCallback(
+		(e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+			const pointerDownPosition = pointerDownPositionRef.current;
+			pointerDownPositionRef.current = null;
+			if (shouldDeleteGuideRef.current) {
+				return;
+			}
+
+			if (
+				isGuidePointerUpAClick({
+					pointerDownPosition,
+					guideId: guide.id,
+					clientX: e.clientX,
+					clientY: e.clientY,
+				})
+			) {
+				onSelect();
+			}
+		},
+		[guide.id, onSelect, shouldDeleteGuideRef],
+	);
+
+	const onClick = useCallback(
+		(e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+			if (e.button !== 0) {
+				return;
+			}
+
+			e.preventDefault();
+			e.stopPropagation();
+			if (shouldDeleteGuideRef.current || hasMovedGuideRef.current) {
+				return;
+			}
+
+			onSelect();
+		},
+		[onSelect, shouldDeleteGuideRef],
 	);
 
 	const onPointerCancel = useCallback(() => {
@@ -180,8 +281,13 @@ const GuideComp: React.FC<{
 			<div
 				style={guideStyle}
 				onPointerDown={onPointerDown}
+				onPointerMove={onPointerMove}
 				onPointerUp={onPointerUp}
 				onPointerCancel={onPointerCancel}
+				onMouseDown={onMouseDown}
+				onMouseMove={onMouseMove}
+				onMouseUp={onMouseUp}
+				onClick={onClick}
 				className="__remotion_editor_guide"
 				{...{[PREVENT_CLEAR_SELECTION_ON_POINTER_DOWN_ATTR]: 'true'}}
 				onPointerEnter={onPointerEnter}
