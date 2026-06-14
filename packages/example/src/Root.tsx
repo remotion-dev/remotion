@@ -186,7 +186,7 @@ import {BrowserTest} from './BrowserTest';
 import {
 	CanvasCapturePreview,
 	calculateCanvasCapturePreviewMetadata,
-	canvasCapturePreviewDefaultProps,
+	canvasCapturePreviewSchema,
 } from './CanvasCapturePreview';
 import {EdgeBlur} from './EdgeBlur/EdgeBlur';
 import {EffectsTestbed} from './EffectsTestbed/EffectsTestbed';
@@ -386,8 +386,8 @@ export const Index: React.FC = () => {
 				/>
 				<Composition
 					id="centered-solid"
-					lazyComponent={() => import('./CenteredSolid')}
-					width={1080}
+					lazyComponent={() => import('./NewSticker')}
+					width={1400}
 					height={1080}
 					fps={30}
 					durationInFrames={60}
@@ -416,14 +416,22 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={120}
 				/>
+			</Folder>
+			<Folder name="canvas-capture">
 				<Composition
-					id="canvas-capture-preview"
+					id="canvas-capture"
 					component={CanvasCapturePreview}
-					width={1920}
+					width={1080}
 					height={1080}
 					fps={30}
 					durationInFrames={120}
-					defaultProps={canvasCapturePreviewDefaultProps}
+					defaultProps={{
+						videoFile: staticFile('canvas-all-v3.webm'),
+						cursorScale: 5,
+						width: null,
+						height: null,
+					}}
+					schema={canvasCapturePreviewSchema}
 					calculateMetadata={calculateCanvasCapturePreviewMetadata}
 				/>
 			</Folder>

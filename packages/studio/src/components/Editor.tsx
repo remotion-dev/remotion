@@ -8,7 +8,7 @@ import {drawRef} from '../state/canvas-ref';
 import {ScaleLockProvider} from '../state/scale-lock';
 import {TimelineZoomContext} from '../state/timeline-zoom';
 import {HigherZIndex} from '../state/z-index';
-import {CANVAS_CAPTURE_ENABLED} from './canvas-capture-enabled';
+import {CANVAS_CAPTURE_TARGET, CANVAS_DENSITY} from './canvas-capture-enabled';
 import {EditorContent} from './EditorContent';
 import {ForceSpecificCursor} from './ForceSpecificCursor';
 import {GlobalKeybindings} from './GlobalKeybindings';
@@ -29,6 +29,18 @@ const background: React.CSSProperties = {
 };
 
 const DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS = 300;
+
+const MaybeFullStudioCapture: React.FC<{
+	readonly children: React.ReactNode;
+}> = ({children}) => {
+	return CANVAS_CAPTURE_TARGET === 'full-studio' ? (
+		<StudioCanvasCapture density={CANVAS_DENSITY}>
+			{children}
+		</StudioCanvasCapture>
+	) : (
+		<>{children}</>
+	);
+};
 
 export const BUFFER_STATE_DELAY_IN_MILLISECONDS =
 	typeof process.env.BUFFER_STATE_DELAY_IN_MILLISECONDS === 'undefined' ||
@@ -97,28 +109,32 @@ export const Editor: React.FC<{
 					<Internals.CurrentScaleContext.Provider value={value}>
 						<ForceSpecificCursor />
 						<ScaleLockProvider>
-							<div style={background}>
-								<Internals.CompositionRenderErrorContext.Provider
-									value={compositionRenderErrorContextValue}
-								>
-									{canvasMounted ? <MemoRoot /> : null}
-								</Internals.CompositionRenderErrorContext.Provider>
-								<Internals.CanUseRemotionHooksProvider>
-									<RenderErrorContext.Provider value={renderErrorContextValue}>
-										<EditorContent readOnlyStudio={readOnlyStudio}>
-											<TopPanel
-												drawRef={setDrawRef}
-												bufferStateDelayInMilliseconds={
-													BUFFER_STATE_DELAY_IN_MILLISECONDS
-												}
-												onMounted={onMounted}
-												readOnlyStudio={readOnlyStudio}
-											/>
-										</EditorContent>
-									</RenderErrorContext.Provider>
-									<GlobalKeybindings />
-								</Internals.CanUseRemotionHooksProvider>
-							</div>
+							<MaybeFullStudioCapture>
+								<div style={background}>
+									<Internals.CompositionRenderErrorContext.Provider
+										value={compositionRenderErrorContextValue}
+									>
+										{canvasMounted ? <MemoRoot /> : null}
+									</Internals.CompositionRenderErrorContext.Provider>
+									<Internals.CanUseRemotionHooksProvider>
+										<RenderErrorContext.Provider
+											value={renderErrorContextValue}
+										>
+											<EditorContent readOnlyStudio={readOnlyStudio}>
+												<TopPanel
+													drawRef={setDrawRef}
+													bufferStateDelayInMilliseconds={
+														BUFFER_STATE_DELAY_IN_MILLISECONDS
+													}
+													onMounted={onMounted}
+													readOnlyStudio={readOnlyStudio}
+												/>
+											</EditorContent>
+										</RenderErrorContext.Provider>
+										<GlobalKeybindings />
+									</Internals.CanUseRemotionHooksProvider>
+								</div>
+							</MaybeFullStudioCapture>
 						</ScaleLockProvider>
 					</Internals.CurrentScaleContext.Provider>
 					<Modals readOnlyStudio={readOnlyStudio} />
@@ -128,9 +144,5 @@ export const Editor: React.FC<{
 		</HigherZIndex>
 	);
 
-	return CANVAS_CAPTURE_ENABLED ? (
-		<StudioCanvasCapture density={2}>{editor}</StudioCanvasCapture>
-	) : (
-		editor
-	);
+	return editor;
 };
