@@ -408,10 +408,10 @@ export const effectsDemos: EffectsDemoType[] = [
 		comp: EffectsPageTurnPreview,
 		schema: pageTurn().definition.schema,
 		initialValues: {
-			progress: 0.11,
-			foldPosition: [0.61, 0.82],
+			progress: 0.12,
+			foldPosition: [0.57, 0.78],
 			angle: 225,
-			foldRadius: 0.08,
+			foldRadius: 0.12,
 			lightDirection: 60,
 			shadow: 0.46,
 			backOpacity: 0.85,

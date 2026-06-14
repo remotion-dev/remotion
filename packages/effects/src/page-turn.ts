@@ -231,8 +231,6 @@ uniform float uShadow;
 uniform float uBackOpacity;
 uniform vec4 uPaperColor;
 
-const float PI = 3.141592653589793;
-
 vec2 rangeFromPosition(vec2 origin, vec2 v) {
 	float a0 = dot(vec2(0.0, 0.0) - origin, v);
 	float a1 = dot(vec2(1.0, 0.0) - origin, v);
@@ -286,10 +284,8 @@ void main() {
 
 	float t = clamp((axis - start) / max(radius, 0.0001), 0.0, 1.0);
 	float crossNormalized = (cross - crossRange.x) / max(crossRange.y - crossRange.x, 0.0001);
-	float curl = sin(t * PI);
-	float sourceAxis = end + (1.0 - t) * radius * 0.72;
-	float crossWarp = (0.5 - crossNormalized) * curl * radius * axisSpan * 0.035;
-	vec2 sampleUv = fromTurnAxis(sourceAxis, cross + crossWarp, dir, axisSpan);
+	float sourceAxis = end + (1.0 - t) * radius;
+	vec2 sampleUv = fromTurnAxis(sourceAxis, cross, dir, axisSpan);
 
 	if (
 		sampleUv.x < 0.0 || sampleUv.x > 1.0 ||

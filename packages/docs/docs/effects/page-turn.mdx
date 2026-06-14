@@ -39,9 +39,9 @@ export const MyComp: React.FC = () => {
         effects={[
           pageTurn({
             progress,
-            foldPosition: [0.61, 0.82],
+            foldPosition: [0.57, 0.78],
             angle: 225,
-            foldRadius: 0.08,
+            foldRadius: 0.12,
             lightDirection: 60,
             backOpacity: 0.85,
           }),
@@ -64,6 +64,8 @@ Turn progress from `0` (flat source) to `1` (fully turned away). Defaults to `0.
 
 Point where the page starts folding, in UV coordinates. Defaults to `[1, 1]`, the bottom-right corner.
 
+For an edge peel, place this point on the visible edge of the source.
+
 ### `angle?`
 
 Direction of the fold in degrees. Defaults to `225`.
@@ -74,6 +76,8 @@ Opposite angles peel in opposite directions.
 ### `foldRadius?`
 
 Width of the curled band as a fraction of the canvas. Defaults to `0.18`.
+
+To make a peel start exactly at an edge, use a `progress` value close to `foldRadius`.
 
 ### `lightDirection?`
 
