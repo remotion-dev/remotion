@@ -168,6 +168,7 @@ float hash21(vec2 p) {
 }
 
 float dissolveMask(float noise, float threshold, float feather) {
+	if (threshold <= 0.0) return 0.0;
 	float edge = max(feather, 0.0);
 	if (edge <= 0.0001) {
 		return step(noise, threshold);
