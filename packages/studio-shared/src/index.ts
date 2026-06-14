@@ -122,6 +122,7 @@ export {
 } from './keyframe-easing-presets';
 export {
 	detectFileType,
+	isApng,
 	isImageFileType,
 	type FileDimensions,
 	type FileType,

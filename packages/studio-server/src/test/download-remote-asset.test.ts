@@ -3,6 +3,7 @@ import {mkdtempSync, rmSync} from 'node:fs';
 import type {IncomingMessage, ServerResponse} from 'node:http';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
+import {minimalApng} from '../../../studio-shared/src/test/apng-fixture';
 import {
 	downloadRemoteAssetHandler,
 	getRemoteAssetFilename,
@@ -98,6 +99,68 @@ test('follows validated redirects for remote assets', async () => {
 				type: 'asset',
 			},
 			sizeInBytes: gif.byteLength,
+		});
+	} finally {
+		globalThis.fetch = originalFetch;
+		rmSync(publicDir, {force: true, recursive: true});
+	}
+});
+
+test('downloads remote APNG assets as animated-image', async () => {
+	const publicDir = mkdtempSync(path.join(tmpdir(), 'remotion-remote-asset-'));
+	const originalFetch = globalThis.fetch;
+
+	globalThis.fetch = Object.assign(
+		async (_input: Parameters<typeof fetch>[0]) => {
+			return new Response(minimalApng, {
+				headers: {
+					'content-length': String(minimalApng.byteLength),
+				},
+				status: 200,
+			});
+		},
+		{
+			preconnect: originalFetch.preconnect,
+		},
+	);
+
+	try {
+		const response = await downloadRemoteAssetHandler({
+			binariesDirectory: null,
+			entryPoint: '',
+			input: {url: 'https://93.184.216.34/animation.png'},
+			logLevel: 'info',
+			methods: {
+				addJob: () => undefined,
+				cancelJob: () => undefined,
+				removeJob: () => undefined,
+			},
+			publicDir,
+			remotionRoot: '',
+			request: {
+				headers: {
+					host: 'studio.local',
+					origin: 'http://studio.local',
+				},
+			} as IncomingMessage,
+			response: {} as ServerResponse,
+		});
+
+		expect(response).toEqual({
+			assetPath: 'animation.png',
+			created: true,
+			element: {
+				assetType: 'animated-image',
+				dimensions: {
+					height: 50,
+					width: 100,
+				},
+				position: null,
+				src: 'animation.png',
+				srcType: 'static',
+				type: 'asset',
+			},
+			sizeInBytes: minimalApng.byteLength,
 		});
 	} finally {
 		globalThis.fetch = originalFetch;

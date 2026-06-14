@@ -99,9 +99,45 @@ const getPngDimensions = (pngData: Uint8Array): FileDimensions | null => {
 	};
 };
 
-const isPng = (data: Uint8Array): PngType | null => {
-	const pngPattern = new Uint8Array([0x89, 0x50, 0x4e, 0x47]);
+const pngPattern = new Uint8Array([0x89, 0x50, 0x4e, 0x47]);
+const actlChunkPattern = new Uint8Array([0x61, 0x63, 0x54, 0x4c]);
+const idatChunkPattern = new Uint8Array([0x49, 0x44, 0x41, 0x54]);
 
+export const isApng = (data: Uint8Array): boolean => {
+	if (!matchesPattern(pngPattern)(data.subarray(0, 4))) {
+		return false;
+	}
+
+	let offset = 8;
+
+	while (offset + 8 <= data.length) {
+		const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
+		const chunkLength = view.getUint32(offset, false);
+		const chunkType = data.subarray(offset + 4, offset + 8);
+
+		if (matchesPattern(actlChunkPattern)(chunkType)) {
+			return true;
+		}
+
+		if (matchesPattern(idatChunkPattern)(chunkType)) {
+			return false;
+		}
+
+		offset += 12 + chunkLength;
+	}
+
+	return false;
+};
+
+const isApngFile = (data: Uint8Array): ApngType | null => {
+	if (!isApng(data)) {
+		return null;
+	}
+
+	return {dimensions: getPngDimensions(data), type: 'apng'};
+};
+
+const isPng = (data: Uint8Array): PngType | null => {
 	if (matchesPattern(pngPattern)(data.subarray(0, 4))) {
 		const png = getPngDimensions(data);
 		return {dimensions: png, type: 'png'};
@@ -336,6 +372,11 @@ export type PngType = {
 	dimensions: FileDimensions | null;
 };
 
+export type ApngType = {
+	type: 'apng';
+	dimensions: FileDimensions | null;
+};
+
 export type JpegType = {
 	type: 'jpeg';
 	dimensions: FileDimensions | null;
@@ -372,13 +413,20 @@ export type FileType =
 	| Mp3Type
 	| GifType
 	| PngType
+	| ApngType
 	| BmpType
 	| AacType
 	| FlacType
 	| M3uType
 	| UnknownType;
 
-export type ImageFileType = JpegType | WebpType | GifType | PngType | BmpType;
+export type ImageFileType =
+	| JpegType
+	| WebpType
+	| GifType
+	| PngType
+	| ApngType
+	| BmpType;
 
 export const isImageFileType = (
 	fileType: FileType,
@@ -388,6 +436,7 @@ export const isImageFileType = (
 		fileType.type === 'webp' ||
 		fileType.type === 'gif' ||
 		fileType.type === 'png' ||
+		fileType.type === 'apng' ||
 		fileType.type === 'bmp'
 	);
 };
@@ -437,6 +486,11 @@ export const detectFileType = (data: Uint8Array): FileType => {
 	const gif = isGif(data);
 	if (gif) {
 		return gif;
+	}
+
+	const apng = isApngFile(data);
+	if (apng) {
+		return apng;
 	}
 
 	const png = isPng(data);
