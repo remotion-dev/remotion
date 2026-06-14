@@ -243,7 +243,7 @@ export const TrustSection: React.FC = () => {
 					<UsersIcon />
 					<div className="h-4" />
 					<div className="font-brand font-bold text-2xl mb-2">
-						200+ customers
+						300+ customers
 					</div>
 					<div className="font-brand">
 						More than 300 companies trust Remotion, from small businesses to
