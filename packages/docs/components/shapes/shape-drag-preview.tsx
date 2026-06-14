@@ -1,5 +1,6 @@
 import {
 	makeArrow,
+	makeCallout,
 	makeCircle,
 	makeEllipse,
 	makeHeart,
@@ -22,6 +23,7 @@ type ShapeInfo = {
 
 const shapeNames: readonly ShapeName[] = [
 	'Arrow',
+	'Callout',
 	'Circle',
 	'Ellipse',
 	'Heart',
@@ -115,6 +117,23 @@ const makeShapeInfo = (dragData: ComponentDragData): ShapeInfo | null => {
 					direction: getDirection(props, 'direction'),
 					cornerRadius:
 						typeof props.cornerRadius === 'number' ? props.cornerRadius : 0,
+				}),
+				props,
+			);
+		case 'Callout':
+			return withFill(
+				makeCallout({
+					width: getNumber(props, 'width'),
+					height: getNumber(props, 'height'),
+					pointerLength: getNumber(props, 'pointerLength'),
+					pointerBaseWidth: getNumber(props, 'pointerBaseWidth'),
+					pointerPosition: getNumber(props, 'pointerPosition'),
+					pointerDirection: getDirection(props, 'pointerDirection'),
+					cornerRadius: getNumber(props, 'cornerRadius'),
+					edgeRoundness:
+						typeof props.edgeRoundness === 'number'
+							? props.edgeRoundness
+							: null,
 				}),
 				props,
 			);
