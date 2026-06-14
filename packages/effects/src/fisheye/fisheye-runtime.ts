@@ -1,4 +1,5 @@
 import {Internals} from 'remotion';
+import {publicUvToShaderUv} from '../uv-coordinate.js';
 import {FISHEYE_FS, FISHEYE_VS} from './fisheye-shaders.js';
 
 const {createWebGL2ContextError} = Internals;
@@ -206,7 +207,11 @@ export const applyFisheye = ({
 
 	gl.useProgram(program);
 	if (uniforms.uSource) gl.uniform1i(uniforms.uSource, 0);
-	if (uniforms.uCenter) gl.uniform2f(uniforms.uCenter, center[0], center[1]);
+	if (uniforms.uCenter) {
+		const shaderCenter = publicUvToShaderUv(center);
+		gl.uniform2f(uniforms.uCenter, shaderCenter[0], shaderCenter[1]);
+	}
+
 	if (uniforms.uFieldOfView) gl.uniform1f(uniforms.uFieldOfView, fieldOfView);
 	if (uniforms.uRadius) gl.uniform1f(uniforms.uRadius, radius);
 	if (uniforms.uZoom) gl.uniform1f(uniforms.uZoom, zoom);

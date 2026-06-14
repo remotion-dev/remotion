@@ -488,6 +488,32 @@ const getInterpolationKeyframes = (
 		return getInterpolationKeyframes(node.expression as Expression, ast);
 	}
 
+	if (
+		node.type === 'CallExpression' &&
+		node.callee.type === 'Identifier' &&
+		node.callee.name === 'String' &&
+		node.arguments.length === 1 &&
+		node.arguments[0].type !== 'ArgumentPlaceholder' &&
+		node.arguments[0].type !== 'JSXNamespacedName' &&
+		node.arguments[0].type !== 'SpreadElement'
+	) {
+		const interpolation = getInterpolationKeyframes(
+			node.arguments[0] as Expression,
+			ast,
+		);
+		if (!interpolation) {
+			return undefined;
+		}
+
+		return {
+			...interpolation,
+			keyframes: interpolation.keyframes.map((keyframe) => ({
+				...keyframe,
+				value: String(keyframe.value),
+			})),
+		};
+	}
+
 	if (node.type !== 'CallExpression') {
 		return undefined;
 	}

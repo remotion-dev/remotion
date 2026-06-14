@@ -30,6 +30,7 @@ import {
 	NoiseDisplacementTextSource,
 } from '../../components/effects/effects-noise-displacement-preview';
 import {EffectsNoisePreview} from '../../components/effects/effects-noise-preview';
+import {EffectsPatternPreview} from '../../components/effects/effects-pattern-preview';
 import {EffectsPixelDissolvePreview} from '../../components/effects/effects-pixel-dissolve-preview';
 import {EffectsRingsPreview} from '../../components/effects/effects-rings-preview';
 import {EffectsSaturationPreview} from '../../components/effects/effects-saturation-preview';
@@ -43,6 +44,7 @@ import {
 	EffectsUvTranslatePreview,
 	EffectsXyTranslatePreview,
 } from '../../components/effects/effects-translate-preview';
+import {EffectsTvSignalOffPreview} from '../../components/effects/effects-tv-signal-off-preview';
 import {EffectsVignettePreview} from '../../components/effects/effects-vignette-preview';
 import {EffectsWavePreview} from '../../components/effects/effects-wave-preview';
 import {EffectsWavesPreview} from '../../components/effects/effects-waves-preview';
@@ -345,6 +347,29 @@ export const RemotionRoot: React.FC = () => {
 					}}
 				/>
 				<Still
+					id="effects-pattern-preview"
+					component={EffectsPatternPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						scale: 0.16,
+						cropLeft: 0,
+						cropTop: 0,
+						cropRight: 0,
+						cropBottom: 0,
+						gapX: 16,
+						gapY: 16,
+						offsetU: 0,
+						offsetV: 0,
+						rowOffset: 88,
+						rowOffsetEvery: 0,
+						columnOffset: 0,
+						columnOffsetEvery: 0,
+						origin: [0, 0],
+						wrap: true,
+					}}
+				/>
+				<Still
 					id="effects-halftone-linear-gradient-preview"
 					component={EffectsHalftoneLinearGradientPreview}
 					width={1280}
@@ -402,6 +427,15 @@ export const RemotionRoot: React.FC = () => {
 					defaultProps={{
 						amount: 1,
 						seed: 0,
+					}}
+				/>
+				<Still
+					id="effects-tv-signal-off-preview"
+					component={EffectsTvSignalOffPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						amount: 1,
 					}}
 				/>
 				<Still

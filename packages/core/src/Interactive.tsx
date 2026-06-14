@@ -3,6 +3,7 @@ import type {SequenceControls} from './CompositionManager.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import {
 	durationInFramesField,
+	freezeField,
 	fromField,
 	hiddenField,
 	sequenceVisualStyleSchema,
@@ -62,7 +63,7 @@ type ElementForTag<Tag extends InteractiveTag> =
 
 type InteractiveSequenceProps = Pick<
 	SequenceProps,
-	'durationInFrames' | 'from' | 'hidden' | 'name' | 'showInTimeline'
+	'durationInFrames' | 'from' | 'freeze' | 'hidden' | 'name' | 'showInTimeline'
 > & {
 	/**
 	 * @deprecated For internal use only
@@ -84,6 +85,7 @@ type InteractiveElementComponent<Tag extends InteractiveTag> =
 const interactiveElementSchema = {
 	durationInFrames: durationInFramesField,
 	from: fromField,
+	freeze: freezeField,
 	...sequenceVisualStyleSchema,
 	hidden: hiddenField,
 } as const satisfies SequenceSchema;
@@ -115,6 +117,7 @@ const makeInteractiveElement = <Tag extends InteractiveTag>(
 		const {
 			durationInFrames,
 			from,
+			freeze,
 			hidden,
 			name,
 			showInTimeline,
@@ -138,16 +141,13 @@ const makeInteractiveElement = <Tag extends InteractiveTag>(
 				layout="none"
 				from={from ?? 0}
 				durationInFrames={durationInFrames ?? Infinity}
+				freeze={freeze}
 				hidden={hidden}
 				name={name ?? displayName}
 				showInTimeline={showInTimeline ?? true}
 				_experimentalControls={_experimentalControls}
 				_remotionInternalStack={stack}
-				_remotionInternalDocumentationLink={
-					name === undefined
-						? 'https://www.remotion.dev/docs/interactive'
-						: undefined
-				}
+				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/interactive"
 				_remotionInternalRefForOutline={refForOutline}
 			>
 				{React.createElement(tag, {

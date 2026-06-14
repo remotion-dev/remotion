@@ -15,6 +15,16 @@ const shapeDefaultProps: Record<ShapeName, readonly ComponentProp[]> = {
 		{name: 'direction', value: 'right'},
 		{name: 'fill', value: '#0b84ff'},
 	],
+	Callout: [
+		{name: 'width', value: 500},
+		{name: 'height', value: 200},
+		{name: 'pointerLength', value: 40},
+		{name: 'pointerBaseWidth', value: 60},
+		{name: 'pointerPosition', value: 0.5},
+		{name: 'pointerDirection', value: 'down'},
+		{name: 'cornerRadius', value: 20},
+		{name: 'fill', value: '#0b84ff'},
+	],
 	Circle: [
 		{name: 'radius', value: 100},
 		{name: 'fill', value: '#0b84ff'},
@@ -68,6 +78,7 @@ const shapeDefaultProps: Record<ShapeName, readonly ComponentProp[]> = {
 
 const shapeNameByDemoId: Partial<Record<string, ShapeName>> = {
 	arrow: 'Arrow',
+	callout: 'Callout',
 	circle: 'Circle',
 	ellipse: 'Ellipse',
 	heart: 'Heart',
@@ -86,6 +97,16 @@ const shapeDemoPropNames: Record<ShapeName, readonly string[]> = {
 		'shaftWidth',
 		'direction',
 		'cornerRadius',
+	],
+	Callout: [
+		'width',
+		'height',
+		'pointerLength',
+		'pointerBaseWidth',
+		'pointerPosition',
+		'pointerDirection',
+		'cornerRadius',
+		'edgeRoundness',
 	],
 	Circle: ['radius'],
 	Ellipse: ['rx', 'ry'],
@@ -142,6 +163,12 @@ export const makeDefaultShapeComponentDragData = (
 	});
 };
 
+export const getDefaultShapeComponentProps = (
+	shape: ShapeName,
+): ComponentProp[] => {
+	return [...shapeDefaultProps[shape]];
+};
+
 export const makeShapeComponentDragDataFromDemoState = ({
 	demoId,
 	state,
@@ -186,13 +213,20 @@ export const makeShapeComponentDragDataFromDemoState = ({
 export const setComponentDragData = ({
 	dataTransfer,
 	dragData,
+	dragImage,
 }: {
 	readonly dataTransfer: DataTransfer;
 	readonly dragData: ComponentDragData;
+	readonly dragImage?: Element | null;
 }) => {
 	const serialized = JSON.stringify(dragData);
 	dataTransfer.effectAllowed = 'copy';
 	dataTransfer.setData(COMPONENT_DRAG_MIME_TYPE, serialized);
 	dataTransfer.setData('application/json', serialized);
 	dataTransfer.setData('text/plain', serialized);
+
+	if (dragImage) {
+		const rect = dragImage.getBoundingClientRect();
+		dataTransfer.setDragImage(dragImage, rect.width / 2, rect.height / 2);
+	}
 };

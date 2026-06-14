@@ -27,6 +27,11 @@ export const parseCssRotationToDegrees = (value: string): number => {
 	}
 };
 
-export const serializeCssRotation = (value: number): string => {
-	return `${normalizeTimelineNumber(value)}deg`;
+export const serializeCssRotation = (
+	value: number,
+	decimalPlaces = 6,
+): string => {
+	const factor = 10 ** decimalPlaces;
+	const rounded = Math.round(normalizeTimelineNumber(value) * factor) / factor;
+	return `${Object.is(rounded, -0) ? 0 : rounded}deg`;
 };

@@ -16,6 +16,9 @@ const {validateMediaTrimProps, resolveTrimProps, validateMediaProps} =
 	Internals;
 
 const videoSchema = {
+	durationInFrames: Internals.durationInFramesField,
+	from: Internals.fromField,
+	freeze: Internals.freezeField,
 	volume: {
 		type: 'number',
 		min: 0,
@@ -220,6 +223,7 @@ const VideoInner: React.FC<
 	effects,
 	durationInFrames,
 	from,
+	freeze,
 	hidden,
 	...props
 }) => {
@@ -299,6 +303,7 @@ const VideoInner: React.FC<
 			layout="none"
 			from={from ?? 0}
 			durationInFrames={basicInfo.duration}
+			freeze={freeze}
 			_remotionInternalStack={stack}
 			_remotionInternalIsMedia={isMedia}
 			name={name ?? '<Video>'}

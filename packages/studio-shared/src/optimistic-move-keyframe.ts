@@ -28,6 +28,97 @@ const getMoveMap = (
 	return moveMap;
 };
 
+const getMovedKeyframes = ({
+	status,
+	moves,
+}: {
+	status: CanUpdateSequencePropStatus;
+	moves: readonly {fromFrame: number; toFrame: number}[];
+}): {
+	keyframes: Extract<
+		CanUpdateSequencePropStatus,
+		{status: 'keyframed'}
+	>['keyframes'];
+	removedKeyframeIndexes: number[];
+} | null => {
+	if (status.status !== 'keyframed') {
+		return null;
+	}
+
+	const moveMap = getMoveMap(moves);
+	if (moveMap === null) {
+		return null;
+	}
+
+	if (moveMap.size === 0) {
+		return {keyframes: status.keyframes, removedKeyframeIndexes: []};
+	}
+
+	const frames = new Set(status.keyframes.map((keyframe) => keyframe.frame));
+	for (const fromFrame of moveMap.keys()) {
+		if (!frames.has(fromFrame)) {
+			return null;
+		}
+	}
+
+	const movedFromFrames = new Set(moveMap.keys());
+	const movedToFrames = new Set(moveMap.values());
+	const removedKeyframeIndexes: number[] = [];
+	const nextKeyframes = status.keyframes.flatMap((keyframe, index) => {
+		const movedFrame = moveMap.get(keyframe.frame);
+		if (movedFrame !== undefined) {
+			return [{...keyframe, frame: movedFrame}];
+		}
+
+		if (
+			movedToFrames.has(keyframe.frame) &&
+			!movedFromFrames.has(keyframe.frame)
+		) {
+			removedKeyframeIndexes.push(index);
+			return [];
+		}
+
+		return [keyframe];
+	});
+
+	const nextFrames = new Set<number>();
+	for (const keyframe of nextKeyframes) {
+		if (nextFrames.has(keyframe.frame)) {
+			return null;
+		}
+
+		nextFrames.add(keyframe.frame);
+	}
+
+	return {
+		keyframes: nextKeyframes.sort((a, b) => a.frame - b.frame),
+		removedKeyframeIndexes,
+	};
+};
+
+const removeEasingForRemovedKeyframes = ({
+	easing,
+	removedKeyframeIndexes,
+}: {
+	easing: Extract<CanUpdateSequencePropStatus, {status: 'keyframed'}>['easing'];
+	removedKeyframeIndexes: number[];
+}) => {
+	const nextEasing = [...easing];
+	for (const removedKeyframeIndex of [...removedKeyframeIndexes].sort(
+		(a, b) => b - a,
+	)) {
+		if (nextEasing.length === 0) {
+			break;
+		}
+
+		const easingIndexToRemove =
+			removedKeyframeIndex === 0 ? 0 : removedKeyframeIndex - 1;
+		nextEasing.splice(easingIndexToRemove, 1);
+	}
+
+	return nextEasing;
+};
+
 export const canMoveKeyframesWithoutCollisions = ({
 	status,
 	moves,
@@ -35,40 +126,10 @@ export const canMoveKeyframesWithoutCollisions = ({
 	status: CanUpdateSequencePropStatus;
 	moves: readonly {fromFrame: number; toFrame: number}[];
 }): boolean => {
-	if (status.status !== 'keyframed') {
-		return false;
-	}
-
-	const moveMap = getMoveMap(moves);
-	if (moveMap === null) {
-		return false;
-	}
-
-	if (moveMap.size === 0) {
-		return true;
-	}
-
-	const frames = new Set(status.keyframes.map((keyframe) => keyframe.frame));
-	for (const fromFrame of moveMap.keys()) {
-		if (!frames.has(fromFrame)) {
-			return false;
-		}
-	}
-
-	const nextFrames = new Set<number>();
-	for (const keyframe of status.keyframes) {
-		const frame = moveMap.get(keyframe.frame) ?? keyframe.frame;
-		if (nextFrames.has(frame)) {
-			return false;
-		}
-
-		nextFrames.add(frame);
-	}
-
-	return true;
+	return getMovedKeyframes({status, moves}) !== null;
 };
 
-const moveKeyframesInPropStatus = ({
+export const moveKeyframesInPropStatus = ({
 	status,
 	moves,
 }: {
@@ -79,27 +140,24 @@ const moveKeyframesInPropStatus = ({
 		return status;
 	}
 
-	if (!canMoveKeyframesWithoutCollisions({status, moves})) {
+	const moved = getMovedKeyframes({status, moves});
+	if (
+		moved === null ||
+		(moved.removedKeyframeIndexes.length === 0 &&
+			moved.keyframes === status.keyframes)
+	) {
 		return status;
 	}
 
-	const moveMap = getMoveMap(moves);
-	if (moveMap === null) {
-		return status;
-	}
-
-	if (moveMap.size === 0) {
-		return status;
-	}
+	const easing = removeEasingForRemovedKeyframes({
+		easing: status.easing,
+		removedKeyframeIndexes: moved.removedKeyframeIndexes,
+	});
 
 	return {
 		...status,
-		keyframes: status.keyframes
-			.map((keyframe) => ({
-				...keyframe,
-				frame: moveMap.get(keyframe.frame) ?? keyframe.frame,
-			}))
-			.sort((a, b) => a.frame - b.frame),
+		keyframes: moved.keyframes,
+		easing,
 	};
 };
 

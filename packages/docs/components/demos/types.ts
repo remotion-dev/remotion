@@ -14,6 +14,7 @@ import {
 } from '../transitions/previews';
 import {ArrowDemo} from './Arrow';
 import {BookFlipDocsDemo} from './BookFlipDemo';
+import {CalloutDemo} from './Callout';
 import {CircleDemo} from './Circle';
 import {CrosswarpDocsDemo} from './CrosswarpDemo';
 import {CrossZoomDocsDemo} from './CrossZoomDemo';
@@ -206,6 +207,96 @@ export const rectDemo: DemoType = {
 		{
 			name: 'cornerRadius',
 			default: 0,
+			max: 100,
+			min: 0,
+			step: 1,
+			type: 'numeric',
+			optional: 'no',
+		},
+		{
+			name: 'edgeRoundness',
+			default: 1,
+			max: 2,
+			min: -2,
+			step: 0.01,
+			type: 'numeric',
+			optional: 'default-disabled',
+		},
+		{
+			name: 'debug',
+			type: 'boolean',
+			optional: 'no',
+			default: false,
+		},
+	],
+};
+
+export const calloutDemo: DemoType = {
+	comp: CalloutDemo,
+	compWidth: 1280,
+	compHeight: 400,
+	durationInFrames: 150,
+	fps: 30,
+	id: 'callout',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			default: 500,
+			max: 1000,
+			step: 5,
+			min: 1,
+			type: 'numeric',
+			name: 'width',
+			optional: 'no',
+		},
+		{
+			default: 200,
+			max: 1000,
+			step: 5,
+			min: 1,
+			type: 'numeric',
+			name: 'height',
+			optional: 'no',
+		},
+		{
+			default: 40,
+			max: 400,
+			step: 5,
+			min: 1,
+			type: 'numeric',
+			name: 'pointerLength',
+			optional: 'no',
+		},
+		{
+			default: 60,
+			max: 400,
+			step: 5,
+			min: 1,
+			type: 'numeric',
+			name: 'pointerBaseWidth',
+			optional: 'no',
+		},
+		{
+			default: 0.5,
+			max: 1,
+			step: 0.01,
+			min: 0,
+			type: 'numeric',
+			name: 'pointerPosition',
+			optional: 'no',
+		},
+		{
+			name: 'pointerDirection',
+			type: 'enum',
+			default: 'down',
+			values: ['up', 'down', 'left', 'right'],
+			optional: 'no',
+		},
+		{
+			name: 'cornerRadius',
+			default: 20,
 			max: 100,
 			min: 0,
 			step: 1,

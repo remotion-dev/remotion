@@ -5,7 +5,7 @@ import type {SequenceProps} from '../Sequence.js';
 
 type CanvasImageSequenceProps = Pick<
 	SequenceProps,
-	'durationInFrames' | 'from' | 'hidden' | 'name' | 'showInTimeline'
+	'durationInFrames' | 'from' | 'freeze' | 'hidden' | 'name' | 'showInTimeline'
 > & {
 	/**
 	 * @deprecated For internal use only.

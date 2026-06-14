@@ -39,6 +39,7 @@ import {FontDemo} from './Fonts';
 import {FractionalSequenceVideo} from './FractionalSequenceVideo';
 import {Framer} from './Framer';
 import {FreezeExample} from './Freeze/FreezeExample';
+import {SequenceFreezeExample} from './Freeze/SequenceFreezeExample';
 import {FreezePortion} from './FreezePortion/FreezePortion';
 import {GifEffectsTestbed} from './Gif/GifEffects';
 import {GoogleFontsCjk} from './GoogleFontsCjk/GoogleFontsCjk';
@@ -552,6 +553,14 @@ export const Index: React.FC = () => {
 					height={720}
 					fps={30}
 					durationInFrames={300}
+				/>
+				<Composition
+					id="sequence-freeze-example"
+					component={SequenceFreezeExample}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={150}
 				/>
 				<Composition
 					id="freeze-portion"

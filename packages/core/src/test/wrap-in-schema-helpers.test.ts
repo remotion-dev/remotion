@@ -1,6 +1,7 @@
 import {expect, test} from 'bun:test';
 import {getFlatSchemaWithAllKeys} from '../flatten-schema.js';
 import {
+	extendSchemaWithSequenceName,
 	sequencePremountSchema,
 	sequenceSchema,
 	sequenceSchemaWithoutFrom,
@@ -28,6 +29,7 @@ test('getFlatSchema(sequenceSchema) exposes every variant key', () => {
 	expect(Object.keys(flat).sort()).toEqual(
 		[
 			'hidden',
+			'name',
 			'showInTimeline',
 			'layout',
 			'style.translate',
@@ -41,14 +43,31 @@ test('getFlatSchema(sequenceSchema) exposes every variant key', () => {
 			'styleWhilePostmounted',
 			'durationInFrames',
 			'from',
+			'freeze',
 		].sort(),
 	);
+});
+
+test('extendSchemaWithSequenceName adds hidden name to wrapped schemas', () => {
+	const flat = getFlatSchemaWithAllKeys(
+		extendSchemaWithSequenceName({
+			opacity: {
+				type: 'number',
+				default: 1,
+				hiddenFromList: false,
+			},
+		}),
+	);
+
+	expect(flat.name).toEqual({type: 'hidden'});
+	expect(flat.opacity.type).toBe('number');
 });
 
 test('sequenceSchemaWithoutFrom does not expose from', () => {
 	const flat = getFlatSchemaWithAllKeys(sequenceSchemaWithoutFrom);
 	expect(Object.keys(flat)).not.toContain('from');
 	expect(Object.keys(flat)).toContain('durationInFrames');
+	expect(Object.keys(flat)).toContain('freeze');
 });
 
 test('style.scale does not impose a minimum value', () => {
@@ -75,7 +94,7 @@ test('selectActiveKeys returns only the hidden + layout keys when layout=none', 
 		'style.scale': 2,
 	};
 	expect(selectActiveKeys(sequenceSchema, values).sort()).toEqual(
-		['hidden', 'layout', 'durationInFrames', 'from'].sort(),
+		['hidden', 'layout', 'durationInFrames', 'from', 'freeze'].sort(),
 	);
 });
 
@@ -90,6 +109,7 @@ test('selectActiveKeys exposes style.* keys when layout=absolute-fill', () => {
 			'layout',
 			'durationInFrames',
 			'from',
+			'freeze',
 			'style.translate',
 			'style.scale',
 			'style.rotate',
@@ -105,7 +125,7 @@ test('selectActiveKeys exposes style.* keys when layout=absolute-fill', () => {
 		'style.scale': 2,
 	};
 	expect(selectActiveKeys(sequenceSchema, values2).sort()).toEqual(
-		['hidden', 'layout', 'durationInFrames', 'from'].sort(),
+		['hidden', 'layout', 'durationInFrames', 'from', 'freeze'].sort(),
 	);
 });
 
@@ -134,7 +154,7 @@ test('end-to-end: layout=none drops style.scale from active props', () => {
 		propsToDelete: new Set(),
 	});
 	expect(activeKeys.sort()).toEqual(
-		['hidden', 'layout', 'durationInFrames', 'from'].sort(),
+		['hidden', 'layout', 'durationInFrames', 'from', 'freeze'].sort(),
 	);
 	// style.scale was not in activeKeys → original style preserved, not overwritten
 	expect((merged.style as {scale: number}).scale).toBe(2);

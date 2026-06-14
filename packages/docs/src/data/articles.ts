@@ -1944,6 +1944,15 @@ export const articles = [
 		slug: 'effects/noise',
 	},
 	{
+		id: 'effects/pattern',
+		title: 'pattern()',
+		relativePath: 'docs/effects/pattern.mdx',
+		compId: 'articles-docs-effects-pattern',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/pattern',
+	},
+	{
 		id: 'effects/pixel-dissolve',
 		title: 'pixelDissolve()',
 		relativePath: 'docs/effects/pixel-dissolve.mdx',
@@ -2014,6 +2023,15 @@ export const articles = [
 		crumb: '@remotion/effects',
 		noAi: false,
 		slug: 'effects/tint',
+	},
+	{
+		id: 'effects/tv-signal-off',
+		title: 'tvSignalOff()',
+		relativePath: 'docs/effects/tv-signal-off.mdx',
+		compId: 'articles-docs-effects-tv-signal-off',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/tv-signal-off',
 	},
 	{
 		id: 'effects/uv-translate',

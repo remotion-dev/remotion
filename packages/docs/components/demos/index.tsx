@@ -1,17 +1,20 @@
 import {useColorMode} from '@docusaurus/theme-common';
 import {Player} from '@remotion/player';
-import React, {useCallback, useMemo, useState} from 'react';
+import React, {useCallback, useMemo, useRef, useState} from 'react';
 import {AbsoluteFill} from 'remotion';
 import {
 	makeShapeComponentDragDataFromDemoState,
 	setComponentDragData,
 } from '../shapes/shape-component-drag-data';
+import {ShapeDragPreview} from '../shapes/shape-drag-preview';
 import {Control} from './control';
+import styles from './styles.module.css';
 import type {DemoType, Option} from './types';
 import {
 	animationMathDemo,
 	arrowDemo,
 	bookFlipPresentationDemo,
+	calloutDemo,
 	circleDemo,
 	clockWipePresentationDemo,
 	crosswarpPresentationDemo,
@@ -60,7 +63,6 @@ import {
 	zoomBlurPresentationDemo,
 	zoomInOutPresentationDemo,
 } from './types';
-import styles from './styles.module.css';
 
 const container: React.CSSProperties = {
 	overflow: 'hidden',
@@ -82,6 +84,23 @@ const dragHandle: React.CSSProperties = {
 	userSelect: 'none',
 };
 
+const draggablePreview: React.CSSProperties = {
+	cursor: 'grab',
+};
+
+const previewSeparator: React.CSSProperties = {
+	borderBottom: '1px solid var(--ifm-color-emphasis-300)',
+};
+
+const dragPreviewSource: React.CSSProperties = {
+	height: 128,
+	left: -10000,
+	pointerEvents: 'none',
+	position: 'fixed',
+	top: -10000,
+	width: 128,
+};
+
 const demos: DemoType[] = [
 	htmlInCanvasDemo2DBlur,
 	htmlInCanvasDemoWebGL,
@@ -90,6 +109,7 @@ const demos: DemoType[] = [
 	arrowDemo,
 	triangleDemo,
 	rectDemo,
+	calloutDemo,
 	circleDemo,
 	ellipseDemo,
 	heartDemo,
@@ -157,6 +177,7 @@ export const Demo: React.FC<{
 	const {colorMode} = useColorMode();
 
 	const [key, setKey] = useState(() => 0);
+	const previewRef = useRef<SVGSVGElement>(null);
 
 	const initialState = useMemo(() => {
 		return demo.options
@@ -188,6 +209,7 @@ export const Demo: React.FC<{
 				setComponentDragData({
 					dataTransfer: e.dataTransfer,
 					dragData: shapeDragData,
+					dragImage: previewRef.current,
 				});
 			}
 		},
@@ -205,54 +227,77 @@ export const Demo: React.FC<{
 
 	return (
 		<div style={container}>
-			<Player
-				key={key}
-				acknowledgeRemotionLicense
-				component={demo.comp}
-				compositionWidth={demo.compWidth}
-				compositionHeight={demo.compHeight}
-				durationInFrames={demo.durationInFrames}
-				fps={demo.fps}
+			<div
+				draggable={shapeDragData !== null}
+				onDragStart={shapeDragData === null ? undefined : onDragStart}
 				style={{
-					width: '100%',
-					aspectRatio: demo.compWidth / demo.compHeight,
-					borderBottom:
-						demo.options.length > 0 || shapeDragData !== null
-							? '1px solid var(--ifm-color-emphasis-300)'
-							: 0,
+					...(shapeDragData === null ? {} : draggablePreview),
+					...(demo.options.length > 0 || shapeDragData !== null
+						? previewSeparator
+						: {}),
 				}}
-				logLevel={demo.logLevel}
-				errorFallback={({error}) => {
-					return (
-						<AbsoluteFill
-							style={{
-								justifyContent: 'center',
-								alignItems: 'center',
-								fontSize: 30,
-								textAlign: 'center',
-								lineHeight: 1.5,
-							}}
-						>
-							{error.message}
-							<br />
-							<button
-								style={{
-									fontSize: 30,
-								}}
-								onClick={restart}
-								type="button"
-							>
-								Restart
-							</button>
-						</AbsoluteFill>
-					);
-				}}
-				inputProps={{...state, darkMode: colorMode === 'dark'}}
-				autoPlay={demo.autoPlay}
-				controls={demo.controls}
-				initiallyMuted
-				loop
-			/>
+				title={
+					shapeDragData === null
+						? undefined
+						: 'Drag this shape into Remotion Studio'
+				}
+			>
+				<div>
+					<Player
+						key={key}
+						acknowledgeRemotionLicense
+						component={demo.comp}
+						compositionWidth={demo.compWidth}
+						compositionHeight={demo.compHeight}
+						durationInFrames={demo.durationInFrames}
+						fps={demo.fps}
+						style={{
+							width: '100%',
+							aspectRatio: demo.compWidth / demo.compHeight,
+						}}
+						logLevel={demo.logLevel}
+						errorFallback={({error}) => {
+							return (
+								<AbsoluteFill
+									style={{
+										justifyContent: 'center',
+										alignItems: 'center',
+										fontSize: 30,
+										textAlign: 'center',
+										lineHeight: 1.5,
+									}}
+								>
+									{error.message}
+									<br />
+									<button
+										style={{
+											fontSize: 30,
+										}}
+										onClick={restart}
+										type="button"
+									>
+										Restart
+									</button>
+								</AbsoluteFill>
+							);
+						}}
+						inputProps={{...state, darkMode: colorMode === 'dark'}}
+						autoPlay={demo.autoPlay}
+						controls={demo.controls}
+						initiallyMuted
+						loop
+					/>
+				</div>
+			</div>
+			{shapeDragData === null ? null : (
+				<div style={dragPreviewSource}>
+					<ShapeDragPreview
+						ref={previewRef}
+						dragData={shapeDragData}
+						size={128}
+					/>
+				</div>
+			)}
 			{shapeDragData === null ? null : (
 				<div
 					draggable

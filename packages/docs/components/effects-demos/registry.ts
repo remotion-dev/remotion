@@ -21,6 +21,7 @@ import {lines} from '@remotion/effects/lines';
 import {mirror} from '@remotion/effects/mirror';
 import {noise} from '@remotion/effects/noise';
 import {noiseDisplacement} from '@remotion/effects/noise-displacement';
+import {pattern} from '@remotion/effects/pattern';
 import {pixelDissolve} from '@remotion/effects/pixel-dissolve';
 import {rings} from '@remotion/effects/rings';
 import {saturation} from '@remotion/effects/saturation';
@@ -30,6 +31,7 @@ import {shine} from '@remotion/effects/shine';
 import {speckle} from '@remotion/effects/speckle';
 import {tint} from '@remotion/effects/tint';
 import {uvTranslate, xyTranslate} from '@remotion/effects/translate';
+import {tvSignalOff} from '@remotion/effects/tv-signal-off';
 import {vignette} from '@remotion/effects/vignette';
 import {wave} from '@remotion/effects/wave';
 import {waves} from '@remotion/effects/waves';
@@ -64,6 +66,7 @@ import {
 	NOISE_DISPLACEMENT_PREVIEW_PARAMS,
 } from '../effects/effects-noise-displacement-preview';
 import {EffectsNoisePreview} from '../effects/effects-noise-preview';
+import {EffectsPatternPreview} from '../effects/effects-pattern-preview';
 import {EffectsPixelDissolvePreview} from '../effects/effects-pixel-dissolve-preview';
 import {EffectsRingsPreview} from '../effects/effects-rings-preview';
 import {EffectsSaturationPreview} from '../effects/effects-saturation-preview';
@@ -77,6 +80,7 @@ import {
 	EffectsUvTranslatePreview,
 	EffectsXyTranslatePreview,
 } from '../effects/effects-translate-preview';
+import {EffectsTvSignalOffPreview} from '../effects/effects-tv-signal-off-preview';
 import {EffectsVignettePreview} from '../effects/effects-vignette-preview';
 import {EffectsWavePreview} from '../effects/effects-wave-preview';
 import {EffectsWavesPreview} from '../effects/effects-waves-preview';
@@ -251,6 +255,14 @@ export const effectsDemos: EffectsDemoType[] = [
 	},
 	{
 		...defaults,
+		id: 'effects-tv-signal-off',
+		effectName: 'tvSignalOff',
+		effectImportPath: '@remotion/effects/tv-signal-off',
+		comp: EffectsTvSignalOffPreview,
+		schema: tvSignalOff().definition.schema,
+	},
+	{
+		...defaults,
 		id: 'effects-scanlines',
 		effectName: 'scanlines',
 		effectImportPath: '@remotion/effects/scanlines',
@@ -395,6 +407,14 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/pixel-dissolve',
 		comp: EffectsPixelDissolvePreview,
 		schema: pixelDissolve().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-pattern',
+		effectName: 'pattern',
+		effectImportPath: '@remotion/effects/pattern',
+		comp: EffectsPatternPreview,
+		schema: pattern().definition.schema,
 	},
 	{
 		...defaults,

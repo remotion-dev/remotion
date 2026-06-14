@@ -209,6 +209,7 @@ export const TimelineUvCoordinateField: React.FC<{
 				formatter={formatter}
 				rightAlign={false}
 				snapToStep={false}
+				dragDecimalPlaces={decimalPlaces}
 			/>
 			<div style={{marginLeft: -6, marginRight: -6}} />
 			<InputDragger
@@ -226,6 +227,7 @@ export const TimelineUvCoordinateField: React.FC<{
 				formatter={formatter}
 				rightAlign={false}
 				snapToStep={false}
+				dragDecimalPlaces={decimalPlaces}
 			/>
 		</span>
 	);

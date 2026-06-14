@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import React, {
 	forwardRef,
+	useCallback,
 	useContext,
 	useEffect,
 	useMemo,
@@ -55,6 +56,7 @@ export type SequencePropsWithoutDuration = {
 	readonly width?: number;
 	readonly height?: number;
 	readonly from?: number;
+	readonly freeze?: number | null;
 	readonly name?: string;
 	readonly showInTimeline?: boolean;
 	readonly hidden?: boolean;
@@ -116,6 +118,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 > = (
 	{
 		from = 0,
+		freeze,
 		durationInFrames = Infinity,
 		children,
 		name,
@@ -131,7 +134,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		_remotionInternalPremountDisplay: premountDisplay,
 		_remotionInternalPostmountDisplay: postmountDisplay,
 		_remotionInternalIsMedia: isMedia,
-		_remotionInternalRefForOutline: refForOutline,
+		_remotionInternalRefForOutline: passedRefForOutline,
 		...other
 	},
 	ref,
@@ -144,6 +147,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	const cumulatedFrom = parentSequence
 		? parentSequence.cumulatedFrom + parentSequence.relativeFrom
 		: 0;
+	const absoluteFrom = (parentSequence?.absoluteFrom ?? 0) + from;
 	const nonce = useNonce();
 
 	if (layout !== 'absolute-fill' && layout !== 'none') {
@@ -185,6 +189,26 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		);
 	}
 
+	if (typeof freeze !== 'undefined' && freeze !== null) {
+		if (typeof freeze !== 'number') {
+			throw new TypeError(
+				`The "freeze" prop of <Sequence /> must be a number, but is of type ${typeof freeze}.`,
+			);
+		}
+
+		if (Number.isNaN(freeze)) {
+			throw new TypeError(
+				`The "freeze" prop of <Sequence /> must be a real number, but it is NaN.`,
+			);
+		}
+
+		if (!Number.isFinite(freeze)) {
+			throw new TypeError(
+				`The "freeze" prop of <Sequence /> must be finite, but it is ${freeze}.`,
+			);
+		}
+	}
+
 	const absoluteFrame = useTimelinePosition();
 	const videoConfig = useVideoConfig();
 
@@ -196,6 +220,11 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		Math.min(videoConfig.durationInFrames - from, parentSequenceDuration),
 	);
 	const {registerSequence, unregisterSequence} = useContext(SequenceManager);
+	const wrapperRefForOutline = useRef<HTMLDivElement | null>(null);
+	const refForOutline =
+		other.layout === 'none'
+			? (passedRefForOutline ?? null)
+			: (passedRefForOutline ?? wrapperRefForOutline);
 
 	const premounting = useMemo(() => {
 		// || is intentional, ?? would not trigger on `false`
@@ -238,6 +267,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	const contextValue = useMemo((): SequenceContextType => {
 		return {
+			absoluteFrom,
 			cumulatedFrom,
 			relativeFrom: from,
 			cumulatedNegativeFrom,
@@ -253,6 +283,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		};
 	}, [
 		cumulatedFrom,
+		absoluteFrom,
 		from,
 		actualDurationInFrames,
 		parentSequence,
@@ -271,8 +302,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	}, [name]);
 
 	const resolvedDocumentationLink =
-		documentationLink ??
-		(name === undefined ? 'https://www.remotion.dev/docs/sequence' : null);
+		documentationLink ?? 'https://www.remotion.dev/docs/sequence';
 
 	const env = useRemotionEnvironment();
 
@@ -402,8 +432,27 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			: absoluteFrame > endThreshold
 				? null
 				: children;
+	const frozenContent =
+		content === null || typeof freeze === 'undefined' || freeze === null ? (
+			content
+		) : (
+			<Freeze frame={freeze}>{content}</Freeze>
+		);
 
 	const styleIfThere = other.layout === 'none' ? undefined : other.style;
+
+	const sequenceRef = useCallback(
+		(node: HTMLDivElement | null) => {
+			wrapperRefForOutline.current = node;
+
+			if (typeof ref === 'function') {
+				ref(node);
+			} else if (ref) {
+				ref.current = node;
+			}
+		},
+		[ref],
+	);
 
 	const defaultStyle: React.CSSProperties = useMemo(() => {
 		return {
@@ -426,15 +475,15 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	return (
 		<SequenceContext.Provider value={contextValue}>
-			{content === null ? null : other.layout === 'none' ? (
-				content
+			{frozenContent === null ? null : other.layout === 'none' ? (
+				frozenContent
 			) : (
 				<AbsoluteFill
-					ref={ref}
+					ref={sequenceRef}
 					style={defaultStyle}
 					className={other.className}
 				>
-					{content}
+					{frozenContent}
 				</AbsoluteFill>
 			)}
 		</SequenceContext.Provider>

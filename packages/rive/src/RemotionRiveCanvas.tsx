@@ -37,6 +37,7 @@ import {mapToAlignment, mapToFit} from './map-enums.js';
 const {
 	addSequenceStackTraces,
 	durationInFramesField,
+	freezeField,
 	fromField,
 	hiddenField,
 	runEffectChain,
@@ -52,7 +53,7 @@ type onLoadCallback = (file: File) => void;
 
 type RiveSequenceInheritedProps = Pick<
 	SequenceProps,
-	'durationInFrames' | 'name' | 'from' | 'showInTimeline' | 'hidden'
+	'durationInFrames' | 'name' | 'from' | 'freeze' | 'showInTimeline' | 'hidden'
 >;
 
 type RemotionRiveCanvasOwnProps = {
@@ -107,6 +108,7 @@ const riveAlignmentVariants: Record<
 const riveCanvasSchema = {
 	durationInFrames: durationInFramesField,
 	from: fromField,
+	freeze: freezeField,
 	fit: {
 		type: 'enum',
 		default: 'contain',
@@ -445,6 +447,7 @@ const RemotionRiveCanvasInnerForwardRefFunction: React.ForwardRefRenderFunction<
 		durationInFrames,
 		name,
 		from,
+		freeze,
 		showInTimeline,
 		hidden,
 		...props
@@ -459,6 +462,7 @@ const RemotionRiveCanvasInnerForwardRefFunction: React.ForwardRefRenderFunction<
 		<Sequence
 			layout="none"
 			from={from}
+			freeze={freeze}
 			hidden={hidden}
 			showInTimeline={showInTimeline}
 			name={name ?? '<RemotionRiveCanvas>'}

@@ -1,13 +1,14 @@
 import React, {useEffect} from 'react';
+import {TEXT_COLOR} from '../../helpers/colors';
 
 const notification: React.CSSProperties = {
 	backgroundColor: '#111111',
-	color: 'white',
+	color: TEXT_COLOR,
 	fontFamily: 'Arial, Helvetica, sans-serif',
 	display: 'inline-flex',
-	padding: '8px 14px',
-	borderRadius: 4,
-	fontSize: 15,
+	padding: '6px 14px',
+	borderRadius: 6,
+	fontSize: 13,
 	border: '0.25px solid rgba(255, 255, 255, 0.1)',
 	boxShadow: '0 2px 3px rgba(0, 0, 0, 1)',
 	marginTop: 3,

@@ -627,6 +627,7 @@ export type InsertableCompositionElement =
 			type: 'solid';
 			width: number;
 			height: number;
+			position: InsertableCompositionElementPosition | null;
 	  }
 	| {
 			type: 'component';
@@ -634,6 +635,7 @@ export type InsertableCompositionElement =
 			importName: string;
 			importPath: string;
 			props: ComponentProp[];
+			position: InsertableCompositionElementPosition | null;
 	  }
 	| {
 			type: 'asset';
@@ -644,7 +646,13 @@ export type InsertableCompositionElement =
 				width: number;
 				height: number;
 			} | null;
+			position: InsertableCompositionElementPosition | null;
 	  };
+
+export type InsertableCompositionElementPosition = {
+	x: number;
+	y: number;
+};
 
 export type InsertJsxElementRequest = {
 	compositionFile: string;

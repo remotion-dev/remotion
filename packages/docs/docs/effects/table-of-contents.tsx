@@ -1,12 +1,12 @@
 import React from 'react';
-import {Grid} from '../../components/TableOfContents/Grid';
-import {TOCItem} from '../../components/TableOfContents/TOCItem';
 import {
 	makeEffectDragData,
 	setEffectDragData,
 } from '../../components/effects-demos/effect-drag-data';
 import {getInitialValuesFromSchema} from '../../components/effects-demos/get-default-props-from-schema';
 import {effectsDemos} from '../../components/effects-demos/registry';
+import {Grid} from '../../components/TableOfContents/Grid';
+import {TOCItem} from '../../components/TableOfContents/TOCItem';
 
 type Effect = {
 	readonly link: string;
@@ -231,6 +231,13 @@ const categories: {
 				description: 'Localized noisy displacement',
 			},
 			{
+				link: '/docs/effects/pattern',
+				preview: '/img/effects-pattern-preview.png',
+				alt: 'pattern effect preview',
+				name: 'pattern()',
+				description: 'Repeated source tile effect',
+			},
+			{
 				link: '/docs/effects/pixel-dissolve',
 				preview: '/img/effects-pixel-dissolve-preview.png',
 				alt: 'pixel dissolve effect preview',
@@ -290,6 +297,13 @@ const categories: {
 				alt: 'white noise effect preview',
 				name: 'whiteNoise()',
 				description: 'Random grayscale noise layer',
+			},
+			{
+				link: '/docs/effects/tv-signal-off',
+				preview: '/img/effects-tv-signal-off-preview.png',
+				alt: 'TV signal off effect preview',
+				name: 'tvSignalOff()',
+				description: 'TV color bars test pattern',
 			},
 			{
 				link: '/docs/effects/lines',
@@ -370,7 +384,9 @@ const getDemoIdFromLink = (link: string) => {
 const EffectCard: React.FC<{
 	readonly effect: Effect;
 }> = ({effect}) => {
-	const demo = effectsDemos.find((item) => item.id === getDemoIdFromLink(effect.link));
+	const demo = effectsDemos.find(
+		(item) => item.id === getDemoIdFromLink(effect.link),
+	);
 	const dragData = demo
 		? makeEffectDragData({
 				effectName: demo.effectName,
@@ -397,9 +413,7 @@ const EffectCard: React.FC<{
 						}
 			}
 			title={
-				dragData === null
-					? undefined
-					: 'Drag this effect into Remotion Studio'
+				dragData === null ? undefined : 'Drag this effect into Remotion Studio'
 			}
 		>
 			<div style={row}>

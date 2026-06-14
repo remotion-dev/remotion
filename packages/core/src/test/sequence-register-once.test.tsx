@@ -140,6 +140,24 @@ test('Sequence registers its documentation link', () => {
 	);
 });
 
+test('Sequence registers its wrapper element for Studio outlines', () => {
+	const registeredSequences: TSequence[] = [];
+	const ref = React.createRef<HTMLDivElement>();
+
+	render(
+		<SequenceTestWrapper
+			onRegisterSequence={(sequence) => {
+				registeredSequences.push(sequence);
+			}}
+		>
+			<Sequence ref={ref}>hi</Sequence>
+		</SequenceTestWrapper>,
+	);
+
+	expect(registeredSequences[0]?.refForOutline?.current?.tagName).toBe('DIV');
+	expect(registeredSequences[0]?.refForOutline?.current).toBe(ref.current);
+});
+
 test('Series.Sequence registers without visual controls', () => {
 	const registeredSequences: TSequence[] = [];
 
@@ -186,7 +204,7 @@ test('Img registers its documentation link for default labels', () => {
 	);
 });
 
-test('Named Img components do not receive the default documentation link', () => {
+test('Named Img components keep the default documentation link', () => {
 	const registeredSequences: TSequence[] = [];
 
 	render(
@@ -199,7 +217,9 @@ test('Named Img components do not receive the default documentation link', () =>
 		</SequenceTestWrapper>,
 	);
 
-	expect(registeredSequences[0]?.documentationLink).toBe(null);
+	expect(registeredSequences[0]?.documentationLink).toBe(
+		'https://www.remotion.dev/docs/img',
+	);
 });
 
 test('AnimatedImage registers its canvas ref for the Studio outline', () => {

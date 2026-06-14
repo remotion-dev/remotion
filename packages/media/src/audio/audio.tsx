@@ -15,6 +15,9 @@ import type {AudioProps} from './props';
 const {validateMediaProps} = Internals;
 
 const audioSchema = {
+	durationInFrames: Internals.durationInFramesField,
+	from: Internals.fromField,
+	freeze: Internals.freezeField,
 	volume: {
 		type: 'number',
 		min: 0,
@@ -51,6 +54,7 @@ const AudioInner: React.FC<
 		_experimentalControls: controls,
 		from,
 		durationInFrames,
+		freeze,
 		hidden,
 		...otherProps
 	} = props;
@@ -135,6 +139,7 @@ const AudioInner: React.FC<
 			layout="none"
 			from={from ?? 0}
 			durationInFrames={basicInfo.duration}
+			freeze={freeze}
 			_remotionInternalStack={stack}
 			_remotionInternalIsMedia={isMedia}
 			name={name ?? '<Audio>'}
