@@ -62,6 +62,17 @@ export const getAssetElement = ({
 		};
 	}
 
+	if (fileType.type === 'apng') {
+		return {
+			type: 'asset',
+			assetType: 'animated-image',
+			src,
+			srcType: 'static',
+			dimensions: fileType.dimensions,
+			position: null,
+		};
+	}
+
 	if (
 		fileType.type === 'riff' ||
 		fileType.type === 'webm' ||
@@ -171,6 +182,10 @@ const getAssetLabel = (element: InsertableCompositionElement) => {
 
 	if (element.assetType === 'gif') {
 		return '<Gif>';
+	}
+
+	if (element.assetType === 'animated-image') {
+		return '<AnimatedImage>';
 	}
 
 	if (element.assetType === 'audio') {
@@ -285,7 +300,8 @@ const getFileDimensions = async ({
 		fileType.type === 'jpeg' ||
 		fileType.type === 'webp' ||
 		fileType.type === 'bmp' ||
-		fileType.type === 'gif'
+		fileType.type === 'gif' ||
+		fileType.type === 'apng'
 	) {
 		if (fileType.dimensions) {
 			return fileType.dimensions;

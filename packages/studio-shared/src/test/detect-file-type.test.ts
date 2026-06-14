@@ -1,5 +1,6 @@
 import {expect, test} from 'bun:test';
 import {detectFileType} from '../detect-file-type';
+import {minimalApng} from './apng-fixture';
 
 test('detects PNG dimensions', () => {
 	const png = new Uint8Array(24);
@@ -14,6 +15,33 @@ test('detects PNG dimensions', () => {
 		dimensions: {
 			width: 1920,
 			height: 1080,
+		},
+	});
+});
+
+test('does not classify static PNG as APNG', () => {
+	const png = new Uint8Array(24);
+	png.set([0x89, 0x50, 0x4e, 0x47, 13, 10, 26, 10], 0);
+	png.set([0, 0, 0, 13], 8);
+	png.set([0x49, 0x48, 0x44, 0x52], 12);
+	png.set([0, 0, 7, 128], 16);
+	png.set([0, 0, 4, 56], 20);
+
+	expect(detectFileType(png)).toEqual({
+		type: 'png',
+		dimensions: {
+			width: 1920,
+			height: 1080,
+		},
+	});
+});
+
+test('detects APNG dimensions', () => {
+	expect(detectFileType(minimalApng)).toEqual({
+		type: 'apng',
+		dimensions: {
+			width: 100,
+			height: 50,
 		},
 	});
 });

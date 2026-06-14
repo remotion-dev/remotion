@@ -106,6 +106,10 @@ const getElementLabel = (element: InsertableCompositionElement) => {
 			return '<Gif>';
 		}
 
+		if (element.assetType === 'animated-image') {
+			return '<AnimatedImage>';
+		}
+
 		if (element.assetType === 'audio') {
 			return '<Audio>';
 		}

@@ -31,6 +31,31 @@ test('does not map M3U playlists to Audio assets', () => {
 	).toBe(null);
 });
 
+test('maps APNG file type to AnimatedImage assets', () => {
+	expect(
+		getAssetElement({
+			fileType: {
+				type: 'apng',
+				dimensions: {
+					width: 100,
+					height: 50,
+				},
+			},
+			src: 'animation.png',
+		}),
+	).toEqual({
+		type: 'asset',
+		assetType: 'animated-image',
+		src: 'animation.png',
+		srcType: 'static',
+		dimensions: {
+			width: 100,
+			height: 50,
+		},
+		position: null,
+	});
+});
+
 test('maps existing static file paths to insertable assets', () => {
 	expect(getAssetElementFromPath('nested/photo.JPG')).toEqual({
 		type: 'asset',
