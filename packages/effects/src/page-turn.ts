@@ -2,17 +2,26 @@ import type {SequenceSchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertOptionalFiniteNumber,
+	parseColorRgba,
+	type ParsedColorRgba,
 	validateUnitInterval,
 } from './color-utils.js';
-import {assertEffectParamsObject} from './validate-effect-param.js';
+import {publicUvToShaderUv} from './uv-coordinate.js';
+import {
+	assertEffectParamsObject,
+	assertOptionalColor,
+} from './validate-effect-param.js';
 
 const {createEffect, createWebGL2ContextError} = Internals;
 
 const DEFAULT_PROGRESS = 0.5 as const;
-const DEFAULT_ANGLE = 180 as const;
+const DEFAULT_FOLD_POSITION = [1, 1] as const;
+const DEFAULT_ANGLE = 225 as const;
 const DEFAULT_FOLD_RADIUS = 0.18 as const;
+const DEFAULT_LIGHT_DIRECTION = 60 as const;
 const DEFAULT_SHADOW = 0.45 as const;
-const DEFAULT_BACK_OPACITY = 0.35 as const;
+const DEFAULT_BACK_OPACITY = 0.85 as const;
+const DEFAULT_PAPER_COLOR = '#fff8dc' as const;
 
 export const pageTurnSchema = {
 	progress: {
@@ -23,6 +32,12 @@ export const pageTurnSchema = {
 		default: DEFAULT_PROGRESS,
 		description: 'Progress',
 		hiddenFromList: false,
+	},
+	foldPosition: {
+		type: 'uv-coordinate',
+		step: 0.01,
+		default: DEFAULT_FOLD_POSITION,
+		description: 'Fold position',
 	},
 	angle: {
 		type: 'rotation-degrees',
@@ -38,6 +53,12 @@ export const pageTurnSchema = {
 		default: DEFAULT_FOLD_RADIUS,
 		description: 'Fold radius',
 		hiddenFromList: false,
+	},
+	lightDirection: {
+		type: 'rotation-degrees',
+		step: 1,
+		default: DEFAULT_LIGHT_DIRECTION,
+		description: 'Light direction',
 	},
 	shadow: {
 		type: 'number',
@@ -57,7 +78,14 @@ export const pageTurnSchema = {
 		description: 'Back opacity',
 		hiddenFromList: false,
 	},
+	paperColor: {
+		type: 'color',
+		default: DEFAULT_PAPER_COLOR,
+		description: 'Paper color',
+	},
 } as const satisfies SequenceSchema;
+
+export type PageTurnFoldPosition = readonly [number, number];
 
 export type PageTurnParams = {
 	/**
@@ -65,24 +93,36 @@ export type PageTurnParams = {
 	 * Defaults to `0.5`.
 	 */
 	readonly progress?: number;
-	/** Direction of the turn in degrees. Defaults to `180`. */
+	/**
+	 * Point where the page starts folding, in UV coordinates.
+	 * Defaults to `[1, 1]`.
+	 */
+	readonly foldPosition?: PageTurnFoldPosition;
+	/** Direction of the turn in degrees. Defaults to `225`. */
 	readonly angle?: number;
 	/**
 	 * Width of the curled band as a fraction of the canvas. Defaults to `0.18`.
 	 */
 	readonly foldRadius?: number;
+	/** Direction of the light in degrees. Defaults to `60`. */
+	readonly lightDirection?: number;
 	/** Strength of the crease and back-face shading. Defaults to `0.45`. */
 	readonly shadow?: number;
-	/** Opacity of the dimmed back face of the page. Defaults to `0.35`. */
+	/** Opacity of the dimmed back face of the page. Defaults to `0.85`. */
 	readonly backOpacity?: number;
+	/** Color of the paper back side. Defaults to `#fff8dc`. */
+	readonly paperColor?: string;
 };
 
 type PageTurnResolved = {
 	progress: number;
+	foldPosition: PageTurnFoldPosition;
 	angle: number;
 	foldRadius: number;
+	lightDirection: number;
 	shadow: number;
 	backOpacity: number;
+	paperColor: string;
 };
 
 type PageTurnState = {
@@ -93,27 +133,55 @@ type PageTurnState = {
 	readonly texture: WebGLTexture;
 	readonly uSource: WebGLUniformLocation | null;
 	readonly uProgress: WebGLUniformLocation | null;
+	readonly uFoldPosition: WebGLUniformLocation | null;
 	readonly uDirectionVector: WebGLUniformLocation | null;
+	readonly uLightVector: WebGLUniformLocation | null;
 	readonly uFoldRadius: WebGLUniformLocation | null;
 	readonly uShadow: WebGLUniformLocation | null;
 	readonly uBackOpacity: WebGLUniformLocation | null;
+	readonly uPaperColor: WebGLUniformLocation | null;
+	readonly colorCtx: CanvasRenderingContext2D;
+	cachedPaperColor: string;
+	cachedPaperColorRgba: ParsedColorRgba;
 };
 
 const resolve = (p: PageTurnParams): PageTurnResolved => ({
 	progress: p.progress ?? DEFAULT_PROGRESS,
+	foldPosition: [
+		...(p.foldPosition ?? DEFAULT_FOLD_POSITION),
+	] as PageTurnFoldPosition,
 	angle: p.angle ?? DEFAULT_ANGLE,
 	foldRadius: p.foldRadius ?? DEFAULT_FOLD_RADIUS,
+	lightDirection: p.lightDirection ?? DEFAULT_LIGHT_DIRECTION,
 	shadow: p.shadow ?? DEFAULT_SHADOW,
 	backOpacity: p.backOpacity ?? DEFAULT_BACK_OPACITY,
+	paperColor: p.paperColor ?? DEFAULT_PAPER_COLOR,
 });
+
+const assertOptionalUvCoordinate = (value: unknown, name: string): void => {
+	if (value === undefined) {
+		return;
+	}
+
+	if (
+		!Array.isArray(value) ||
+		value.length !== 2 ||
+		value.some((item) => typeof item !== 'number' || !Number.isFinite(item))
+	) {
+		throw new TypeError(`"${name}" must be a [number, number] tuple`);
+	}
+};
 
 const validatePageTurnParams = (params: PageTurnParams): void => {
 	assertEffectParamsObject(params, 'Page turn');
 	assertOptionalFiniteNumber(params.progress, 'progress');
+	assertOptionalUvCoordinate(params.foldPosition, 'foldPosition');
 	assertOptionalFiniteNumber(params.angle, 'angle');
 	assertOptionalFiniteNumber(params.foldRadius, 'foldRadius');
+	assertOptionalFiniteNumber(params.lightDirection, 'lightDirection');
 	assertOptionalFiniteNumber(params.shadow, 'shadow');
 	assertOptionalFiniteNumber(params.backOpacity, 'backOpacity');
+	assertOptionalColor(params.paperColor, 'paperColor');
 
 	validateUnitInterval(params.progress ?? DEFAULT_PROGRESS, 'progress');
 	validateUnitInterval(params.shadow ?? DEFAULT_SHADOW, 'shadow');
@@ -155,48 +223,57 @@ out vec4 fragColor;
 
 uniform sampler2D uSource;
 uniform float uProgress;
+uniform vec2 uFoldPosition;
 uniform vec2 uDirectionVector;
+uniform vec2 uLightVector;
 uniform float uFoldRadius;
 uniform float uShadow;
 uniform float uBackOpacity;
+uniform vec4 uPaperColor;
 
 const float PI = 3.141592653589793;
 
-vec2 rangeForVector(vec2 v) {
-	float a0 = 0.0;
-	float a1 = v.x;
-	float a2 = v.y;
-	float a3 = v.x + v.y;
+vec2 rangeFromPosition(vec2 origin, vec2 v) {
+	float a0 = dot(vec2(0.0, 0.0) - origin, v);
+	float a1 = dot(vec2(1.0, 0.0) - origin, v);
+	float a2 = dot(vec2(0.0, 1.0) - origin, v);
+	float a3 = dot(vec2(1.0, 1.0) - origin, v);
 	return vec2(
 		min(min(a0, a1), min(a2, a3)),
 		max(max(a0, a1), max(a2, a3))
 	);
 }
 
+vec2 effectiveDirection() {
+	vec2 range = rangeFromPosition(uFoldPosition, uDirectionVector);
+	return range.y >= -range.x ? uDirectionVector : -uDirectionVector;
+}
+
 float toTurnAxis(vec2 uv) {
-	vec2 axisRange = rangeForVector(uDirectionVector);
-	float rawAxis = dot(uv, uDirectionVector);
-	return (rawAxis - axisRange.x) / max(axisRange.y - axisRange.x, 0.0001);
+	vec2 dir = effectiveDirection();
+	vec2 range = rangeFromPosition(uFoldPosition, dir);
+	float rawAxis = dot(uv - uFoldPosition, dir);
+	return rawAxis / max(range.y, 0.0001);
 }
 
-vec2 fromTurnAxis(float axis, float cross) {
-	vec2 axisRange = rangeForVector(uDirectionVector);
-	float rawAxis = mix(axisRange.x, axisRange.y, axis);
-	vec2 perpendicular = vec2(-uDirectionVector.y, uDirectionVector.x);
-	return uDirectionVector * rawAxis + perpendicular * cross;
+vec2 fromTurnAxis(float axis, float cross, vec2 dir, float axisSpan) {
+	vec2 perpendicular = vec2(-dir.y, dir.x);
+	return uFoldPosition + dir * (axis * axisSpan) + perpendicular * cross;
 }
 
-float toCrossAxis(vec2 uv) {
-	vec2 perpendicular = vec2(-uDirectionVector.y, uDirectionVector.x);
-	return dot(uv, perpendicular);
+float toCrossAxis(vec2 uv, vec2 dir) {
+	vec2 perpendicular = vec2(-dir.y, dir.x);
+	return dot(uv - uFoldPosition, perpendicular);
 }
 
 void main() {
+	vec2 dir = effectiveDirection();
+	vec2 perpendicular = vec2(-dir.y, dir.x);
+	vec2 axisRange = rangeFromPosition(uFoldPosition, dir);
+	vec2 crossRange = rangeFromPosition(uFoldPosition, perpendicular);
+	float axisSpan = max(axisRange.y, 0.0001);
 	float axis = toTurnAxis(vUv);
-	float cross = toCrossAxis(vUv);
-	vec2 perpendicular = vec2(-uDirectionVector.y, uDirectionVector.x);
-	vec2 axisRange = rangeForVector(uDirectionVector);
-	vec2 crossRange = rangeForVector(perpendicular);
+	float cross = toCrossAxis(vUv, dir);
 	float progress = clamp(uProgress, 0.0, 1.0);
 	float radius = clamp(uFoldRadius, 0.02, 0.5);
 	float start = progress - radius;
@@ -216,9 +293,8 @@ void main() {
 	float bend = sin(t * PI * 0.5);
 	float sourceAxis = end + (1.0 - bend) * radius;
 	float crossNormalized = (cross - crossRange.x) / max(crossRange.y - crossRange.x, 0.0001);
-	float axisSpan = axisRange.y - axisRange.x;
 	float crossWarp = (0.5 - crossNormalized) * sin(t * PI) * radius * axisSpan * 0.14;
-	vec2 sampleUv = fromTurnAxis(sourceAxis, cross + crossWarp);
+	vec2 sampleUv = fromTurnAxis(sourceAxis, cross + crossWarp, dir, axisSpan);
 
 	if (
 		sampleUv.x < 0.0 || sampleUv.x > 1.0 ||
@@ -230,13 +306,20 @@ void main() {
 
 	vec4 color = texture(uSource, sampleUv);
 	float crease = 1.0 - smoothstep(0.0, 0.18, t);
-	float rim = 1.0 - smoothstep(0.82, 1.0, t);
+	float rim = smoothstep(0.74, 1.0, t);
 	float backMix = 1.0 - smoothstep(0.15, 0.92, t);
-	float shade = 1.0 - uShadow * (0.58 * crease + 0.28 * (1.0 - rim));
+	float lightAgainstFold = dot(normalize(uLightVector), normalize(dir + perpendicular * 0.35));
+	float diffuse = 0.82 + 0.18 * lightAgainstFold;
+	float shade = diffuse - uShadow * (0.58 * crease + 0.22 * (1.0 - rim));
+	float sheen = pow(max(0.0, 1.0 - abs(t - 0.38) / 0.12), 2.0);
+	float glossyStreak = pow(max(0.0, 1.0 - abs(crossNormalized - (0.35 + t * 0.22)) / 0.08), 2.0);
 
 	vec3 rgb = color.a > 0.001 ? color.rgb / color.a : vec3(0.0);
-	vec3 backRgb = mix(rgb, vec3(dot(rgb, vec3(0.299, 0.587, 0.114))), 0.35);
+	vec3 paperRgb = uPaperColor.rgb;
+	vec3 backRgb = mix(paperRgb, rgb, 0.55);
 	vec3 shaded = mix(rgb, backRgb, backMix) * shade;
+	shaded += vec3(1.0) * sheen * glossyStreak * (0.25 + 0.35 * backMix);
+	shaded += paperRgb * crease * 0.18;
 	float alpha = color.a * mix(1.0, uBackOpacity, backMix);
 
 	fragColor = vec4(shaded * alpha, alpha);
@@ -293,7 +376,7 @@ export const pageTurn = createEffect<PageTurnParams, PageTurnState>({
 	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
-		return `page-turn-${r.progress}-${r.angle}-${r.foldRadius}-${r.shadow}-${r.backOpacity}`;
+		return `page-turn-${r.progress}-${r.foldPosition.join(':')}-${r.angle}-${r.foldRadius}-${r.lightDirection}-${r.shadow}-${r.backOpacity}-${r.paperColor}`;
 	},
 	setup: (target) => {
 		const gl = target.getContext('webgl2', {
@@ -353,6 +436,14 @@ export const pageTurn = createEffect<PageTurnParams, PageTurnState>({
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 		gl.bindTexture(gl.TEXTURE_2D, null);
 
+		const colorCanvas = document.createElement('canvas');
+		colorCanvas.width = 1;
+		colorCanvas.height = 1;
+		const colorCtx = colorCanvas.getContext('2d', {willReadFrequently: true});
+		if (!colorCtx) {
+			throw new Error('Failed to acquire 2D context for color parsing');
+		}
+
 		return {
 			gl,
 			program,
@@ -361,15 +452,28 @@ export const pageTurn = createEffect<PageTurnParams, PageTurnState>({
 			texture,
 			uSource: gl.getUniformLocation(program, 'uSource'),
 			uProgress: gl.getUniformLocation(program, 'uProgress'),
+			uFoldPosition: gl.getUniformLocation(program, 'uFoldPosition'),
 			uDirectionVector: gl.getUniformLocation(program, 'uDirectionVector'),
+			uLightVector: gl.getUniformLocation(program, 'uLightVector'),
 			uFoldRadius: gl.getUniformLocation(program, 'uFoldRadius'),
 			uShadow: gl.getUniformLocation(program, 'uShadow'),
 			uBackOpacity: gl.getUniformLocation(program, 'uBackOpacity'),
+			uPaperColor: gl.getUniformLocation(program, 'uPaperColor'),
+			colorCtx,
+			cachedPaperColor: '',
+			cachedPaperColorRgba: [255, 248, 220, 255],
 		};
 	},
 	apply: ({source, width, height, params, state, flipSourceY}) => {
 		const r = resolve(params);
 		const {gl, program, texture, vao} = state;
+		if (state.cachedPaperColor !== r.paperColor) {
+			state.cachedPaperColor = r.paperColor;
+			state.cachedPaperColorRgba = parseColorRgba(state.colorCtx, r.paperColor);
+		}
+
+		const [paperR, paperG, paperB, paperA] = state.cachedPaperColorRgba;
+		const [foldX, foldY] = publicUvToShaderUv(r.foldPosition);
 
 		gl.viewport(0, 0, width, height);
 		gl.clearColor(0, 0, 0, 0);
@@ -392,18 +496,32 @@ export const pageTurn = createEffect<PageTurnParams, PageTurnState>({
 
 		if (state.uSource) gl.uniform1i(state.uSource, 0);
 		if (state.uProgress) gl.uniform1f(state.uProgress, r.progress);
+		if (state.uFoldPosition) gl.uniform2f(state.uFoldPosition, foldX, foldY);
 		if (state.uDirectionVector) {
 			const radians = (r.angle * Math.PI) / 180;
 			gl.uniform2f(
 				state.uDirectionVector,
 				Math.cos(radians),
-				Math.sin(radians),
+				-Math.sin(radians),
 			);
+		}
+
+		if (state.uLightVector) {
+			const radians = (r.lightDirection * Math.PI) / 180;
+			gl.uniform2f(state.uLightVector, Math.cos(radians), -Math.sin(radians));
 		}
 
 		if (state.uFoldRadius) gl.uniform1f(state.uFoldRadius, r.foldRadius);
 		if (state.uShadow) gl.uniform1f(state.uShadow, r.shadow);
 		if (state.uBackOpacity) gl.uniform1f(state.uBackOpacity, r.backOpacity);
+		if (state.uPaperColor)
+			gl.uniform4f(
+				state.uPaperColor,
+				paperR / 255,
+				paperG / 255,
+				paperB / 255,
+				paperA / 255,
+			);
 
 		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 

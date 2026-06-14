@@ -39,9 +39,11 @@ export const MyComp: React.FC = () => {
         effects={[
           pageTurn({
             progress,
-            angle: 135,
-            foldRadius: 0.18,
-            shadow: 0.45,
+            foldPosition: [1, 1],
+            angle: 225,
+            foldRadius: 0.19,
+            lightDirection: 60,
+            backOpacity: 0.85,
           }),
         ]}
       />
@@ -58,15 +60,23 @@ Pass an object with the following properties. You can also call `pageTurn()` wit
 
 Turn progress from `0` (flat source) to `1` (fully turned away). Defaults to `0.5`.
 
+### `foldPosition?`
+
+Point where the page starts folding, in UV coordinates. Defaults to `[1, 1]`, the bottom-right corner.
+
 ### `angle?`
 
-Direction of the turn in degrees. Defaults to `180`.
+Direction of the fold in degrees. Defaults to `225`.
 
-Use diagonal values such as `45`, `135`, `225`, or `315` to turn from a corner.
+Use diagonal values such as `45`, `135`, `225`, or `315` to peel from a corner.
 
 ### `foldRadius?`
 
 Width of the curled band as a fraction of the canvas. Defaults to `0.18`.
+
+### `lightDirection?`
+
+Direction of the light in degrees. Defaults to `60`.
 
 ### `shadow?`
 
@@ -74,7 +84,11 @@ Strength of the crease and back-face shading from `0` to `1`. Defaults to `0.45`
 
 ### `backOpacity?`
 
-Opacity of the dimmed back face of the page from `0` to `1`. Defaults to `0.35`.
+Opacity of the dimmed back face of the page from `0` to `1`. Defaults to `0.85`.
+
+### `paperColor?`
+
+Color of the paper back side. Defaults to `#fff8dc`.
 
 ### `disabled?`
 

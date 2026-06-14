@@ -352,11 +352,14 @@ export const RemotionRoot: React.FC = () => {
 					width={1280}
 					height={720}
 					defaultProps={{
-						progress: 0.58,
-						angle: 135,
-						foldRadius: 0.22,
-						shadow: 0.6,
-						backOpacity: 0.42,
+						progress: 0.27,
+						foldPosition: [0.72, 0.76],
+						angle: 225,
+						foldRadius: 0.17,
+						lightDirection: 60,
+						shadow: 0.56,
+						backOpacity: 0.85,
+						paperColor: '#fff8dc',
 					}}
 				/>
 				<Still

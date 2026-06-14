@@ -282,9 +282,24 @@ test('pageTurn() rejects non-finite angle', () => {
 	);
 });
 
+test('pageTurn() rejects invalid fold position', () => {
+	expect(() => pageTurn({foldPosition: [0.5] as never})).toThrow(
+		'"foldPosition" must be a [number, number] tuple',
+	);
+	expect(() => pageTurn({foldPosition: [0.5, Number.NaN]})).toThrow(
+		'"foldPosition" must be a [number, number] tuple',
+	);
+});
+
 test('pageTurn() rejects progress outside range', () => {
 	expect(() => pageTurn({progress: -0.1})).toThrow('"progress" must be >= 0');
 	expect(() => pageTurn({progress: 1.1})).toThrow('"progress" must be <= 1');
+});
+
+test('pageTurn() rejects non-finite light direction', () => {
+	expect(() => pageTurn({lightDirection: Number.NaN})).toThrow(
+		'"lightDirection" must be a finite number',
+	);
 });
 
 test('pageTurn() rejects fold radius outside range', () => {
@@ -296,9 +311,18 @@ test('pageTurn() rejects fold radius outside range', () => {
 	);
 });
 
+test('pageTurn() rejects invalid paper color', () => {
+	expect(() => pageTurn({paperColor: ''})).toThrow(
+		'"paperColor" must be a non-empty string',
+	);
+});
+
 test('pageTurn() effect keys include meaningful params', () => {
 	expect(pageTurn({progress: 0.25}).effectKey).not.toBe(
 		pageTurn({progress: 0.75}).effectKey,
+	);
+	expect(pageTurn({foldPosition: [0.1, 0.9]}).effectKey).not.toBe(
+		pageTurn({foldPosition: [0.9, 0.9]}).effectKey,
 	);
 	expect(pageTurn({angle: 45}).effectKey).not.toBe(
 		pageTurn({angle: 135}).effectKey,
@@ -306,11 +330,17 @@ test('pageTurn() effect keys include meaningful params', () => {
 	expect(pageTurn({foldRadius: 0.12}).effectKey).not.toBe(
 		pageTurn({foldRadius: 0.24}).effectKey,
 	);
+	expect(pageTurn({lightDirection: 20}).effectKey).not.toBe(
+		pageTurn({lightDirection: 120}).effectKey,
+	);
 	expect(pageTurn({shadow: 0.2}).effectKey).not.toBe(
 		pageTurn({shadow: 0.8}).effectKey,
 	);
 	expect(pageTurn({backOpacity: 0.2}).effectKey).not.toBe(
 		pageTurn({backOpacity: 0.8}).effectKey,
+	);
+	expect(pageTurn({paperColor: '#fff'}).effectKey).not.toBe(
+		pageTurn({paperColor: '#88f'}).effectKey,
 	);
 });
 
