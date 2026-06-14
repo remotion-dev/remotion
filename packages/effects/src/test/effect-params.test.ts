@@ -1676,9 +1676,9 @@ test('pattern() rejects invalid generic offsets', () => {
 	);
 });
 
-test('pattern() rejects overlapping gaps', () => {
-	expect(() => pattern({gapX: -1})).toThrow('"gapX" must be >= 0');
-	expect(() => pattern({gapY: -1})).toThrow('"gapY" must be >= 0');
+test('pattern() allows negative gaps', () => {
+	expect(() => pattern({gapX: -1})).not.toThrow();
+	expect(() => pattern({gapY: -1})).not.toThrow();
 });
 
 test('pattern() parameters produce distinct effect keys', () => {
