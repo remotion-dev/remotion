@@ -19,8 +19,8 @@ import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
 
 const iconStyle: React.CSSProperties = {
-	width: 16,
-	height: 16,
+	width: 20,
+	height: 20,
 };
 
 export const UndoRedoButtons: React.FC = () => {
