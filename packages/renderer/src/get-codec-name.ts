@@ -84,6 +84,18 @@ export const getCodecName = ({
 			return {encoderName: 'prores_videotoolbox', hardwareAccelerated: true};
 		}
 
+		if (
+			preferredHwAcceleration &&
+			process.platform !== 'darwin' &&
+			!unsupportedQualityOption
+		) {
+			if (hardwareAcceleration === 'required') {
+				throw new Error(
+					`Codec "prores" does not support hardware acceleration on ${process.platform}, but "hardwareAcceleration" is set to "required"`,
+				);
+			}
+		}
+
 		warnAboutDisabledHardwareAcceleration();
 
 		return {encoderName: 'prores_ks', hardwareAccelerated: false};

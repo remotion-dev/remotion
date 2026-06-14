@@ -202,11 +202,11 @@ describe('getCodecName - No hardware acceleration for unsupported codecs', () =>
 		).toEqual({encoderName: 'libaom-av1', hardwareAccelerated: false});
 	});
 
-	test('prores + linux + hwaccel:required returns software (no NVENC ProRes)', () => {
+	test('prores + linux + hwaccel:required throws error (no NVENC ProRes)', () => {
 		setPlatform('linux');
-		expect(
+		expect(() =>
 			callGetCodecName({codec: 'prores', hardwareAcceleration: 'required'}),
-		).toEqual({encoderName: 'prores_ks', hardwareAccelerated: false});
+		).toThrow(/does not support hardware acceleration/);
 	});
 
 	test('h264-mkv + linux + hwaccel:required throws error', () => {

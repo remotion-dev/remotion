@@ -42,8 +42,9 @@ export const probeEncoderAvailability = ({
 		});
 
 		// FFmpeg -encoders output format: " V..... encoder_name"
-		// Use word-boundary regex to avoid false positives (e.g. "h264_nvenc" matching "h264_nvenc_42")
-		const encoderRegex = new RegExp(String.raw`\b${encoderName}\b`);
+		// Escape regex metacharacters and use word-boundary to avoid false positives
+		const escaped = encoderName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+		const encoderRegex = new RegExp(`\\b${escaped}\\b`);
 		const hasEncoder = encoderRegex.test(result);
 		if (!hasEncoder) {
 			Log.verbose(
