@@ -284,7 +284,7 @@ void main() {
 
 	float t = clamp((axis - start) / max(radius, 0.0001), 0.0, 1.0);
 	float crossNormalized = (cross - crossRange.x) / max(crossRange.y - crossRange.x, 0.0001);
-	float sourceAxis = end + (1.0 - t) * radius;
+	float sourceAxis = mix(max(start, 0.0), end, t);
 	vec2 sampleUv = fromTurnAxis(sourceAxis, cross, dir, axisSpan);
 
 	if (
@@ -308,7 +308,7 @@ void main() {
 
 	vec3 rgb = color.a > 0.001 ? color.rgb / color.a : vec3(0.0);
 	vec3 paperRgb = uPaperColor.rgb;
-	vec3 backRgb = mix(paperRgb, rgb, 0.18 + 0.1 * t);
+	vec3 backRgb = mix(paperRgb, rgb, 0.08 + 0.06 * t);
 	vec3 shaded = mix(rgb, backRgb, backMix) * shade;
 	shaded += vec3(1.0) * sheen * glossyStreak * (0.18 + 0.18 * backMix);
 	shaded += paperRgb * crease * 0.08;

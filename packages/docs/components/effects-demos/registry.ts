@@ -413,9 +413,9 @@ export const effectsDemos: EffectsDemoType[] = [
 			angle: 225,
 			foldRadius: 0.12,
 			lightDirection: 60,
-			shadow: 0.46,
-			backOpacity: 0.85,
-			paperColor: '#fff8dc',
+			shadow: 0.18,
+			backOpacity: 1,
+			paperColor: '#fffdf0',
 		},
 	},
 	{
