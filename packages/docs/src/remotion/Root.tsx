@@ -353,7 +353,7 @@ export const RemotionRoot: React.FC = () => {
 					height={720}
 					defaultProps={{
 						progress: 0.58,
-						direction: 'left',
+						angle: 135,
 						foldRadius: 0.22,
 						shadow: 0.6,
 						backOpacity: 0.42,

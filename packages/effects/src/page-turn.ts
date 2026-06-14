@@ -8,10 +8,8 @@ import {assertEffectParamsObject} from './validate-effect-param.js';
 
 const {createEffect, createWebGL2ContextError} = Internals;
 
-const PAGE_TURN_DIRECTIONS = ['left', 'right', 'top', 'bottom'] as const;
-
 const DEFAULT_PROGRESS = 0.5 as const;
-const DEFAULT_DIRECTION = 'left' as const;
+const DEFAULT_ANGLE = 180 as const;
 const DEFAULT_FOLD_RADIUS = 0.18 as const;
 const DEFAULT_SHADOW = 0.45 as const;
 const DEFAULT_BACK_OPACITY = 0.35 as const;
@@ -26,16 +24,11 @@ export const pageTurnSchema = {
 		description: 'Progress',
 		hiddenFromList: false,
 	},
-	direction: {
-		type: 'enum',
-		variants: {
-			left: {},
-			right: {},
-			top: {},
-			bottom: {},
-		},
-		default: DEFAULT_DIRECTION,
-		description: 'Direction',
+	angle: {
+		type: 'rotation-degrees',
+		step: 1,
+		default: DEFAULT_ANGLE,
+		description: 'Angle',
 	},
 	foldRadius: {
 		type: 'number',
@@ -66,16 +59,14 @@ export const pageTurnSchema = {
 	},
 } as const satisfies SequenceSchema;
 
-export type PageTurnDirection = (typeof PAGE_TURN_DIRECTIONS)[number];
-
 export type PageTurnParams = {
 	/**
 	 * Turn amount from 0 (flat source) to 1 (fully turned away).
 	 * Defaults to `0.5`.
 	 */
 	readonly progress?: number;
-	/** Edge that turns across the source. Defaults to `left`. */
-	readonly direction?: PageTurnDirection;
+	/** Direction of the turn in degrees. Defaults to `180`. */
+	readonly angle?: number;
 	/**
 	 * Width of the curled band as a fraction of the canvas. Defaults to `0.18`.
 	 */
@@ -88,7 +79,7 @@ export type PageTurnParams = {
 
 type PageTurnResolved = {
 	progress: number;
-	direction: PageTurnDirection;
+	angle: number;
 	foldRadius: number;
 	shadow: number;
 	backOpacity: number;
@@ -102,49 +93,27 @@ type PageTurnState = {
 	readonly texture: WebGLTexture;
 	readonly uSource: WebGLUniformLocation | null;
 	readonly uProgress: WebGLUniformLocation | null;
-	readonly uDirection: WebGLUniformLocation | null;
+	readonly uDirectionVector: WebGLUniformLocation | null;
 	readonly uFoldRadius: WebGLUniformLocation | null;
 	readonly uShadow: WebGLUniformLocation | null;
 	readonly uBackOpacity: WebGLUniformLocation | null;
 };
 
-const formatEnum = (variants: readonly string[]): string => {
-	return `${variants
-		.slice(0, -1)
-		.map((variant) => `"${variant}"`)
-		.join(', ')} or "${variants[variants.length - 1]}"`;
-};
-
 const resolve = (p: PageTurnParams): PageTurnResolved => ({
 	progress: p.progress ?? DEFAULT_PROGRESS,
-	direction: p.direction ?? DEFAULT_DIRECTION,
+	angle: p.angle ?? DEFAULT_ANGLE,
 	foldRadius: p.foldRadius ?? DEFAULT_FOLD_RADIUS,
 	shadow: p.shadow ?? DEFAULT_SHADOW,
 	backOpacity: p.backOpacity ?? DEFAULT_BACK_OPACITY,
 });
 
-const validateDirection = (direction: unknown): void => {
-	if (direction === undefined) {
-		return;
-	}
-
-	if (
-		typeof direction !== 'string' ||
-		!PAGE_TURN_DIRECTIONS.includes(direction as PageTurnDirection)
-	) {
-		throw new TypeError(
-			`"direction" must be ${formatEnum(PAGE_TURN_DIRECTIONS)}, but got ${JSON.stringify(direction)}`,
-		);
-	}
-};
-
 const validatePageTurnParams = (params: PageTurnParams): void => {
 	assertEffectParamsObject(params, 'Page turn');
 	assertOptionalFiniteNumber(params.progress, 'progress');
+	assertOptionalFiniteNumber(params.angle, 'angle');
 	assertOptionalFiniteNumber(params.foldRadius, 'foldRadius');
 	assertOptionalFiniteNumber(params.shadow, 'shadow');
 	assertOptionalFiniteNumber(params.backOpacity, 'backOpacity');
-	validateDirection(params.direction);
 
 	validateUnitInterval(params.progress ?? DEFAULT_PROGRESS, 'progress');
 	validateUnitInterval(params.shadow ?? DEFAULT_SHADOW, 'shadow');
@@ -186,35 +155,48 @@ out vec4 fragColor;
 
 uniform sampler2D uSource;
 uniform float uProgress;
-uniform int uDirection;
+uniform vec2 uDirectionVector;
 uniform float uFoldRadius;
 uniform float uShadow;
 uniform float uBackOpacity;
 
 const float PI = 3.141592653589793;
 
-float toTurnAxis(vec2 uv) {
-	if (uDirection == 0) return 1.0 - uv.x;
-	if (uDirection == 1) return uv.x;
-	if (uDirection == 2) return 1.0 - uv.y;
-	return uv.y;
+vec2 rangeForVector(vec2 v) {
+	float a0 = 0.0;
+	float a1 = v.x;
+	float a2 = v.y;
+	float a3 = v.x + v.y;
+	return vec2(
+		min(min(a0, a1), min(a2, a3)),
+		max(max(a0, a1), max(a2, a3))
+	);
 }
 
-vec2 fromTurnAxis(vec2 uv, float axis, float cross) {
-	if (uDirection == 0) return vec2(1.0 - axis, cross);
-	if (uDirection == 1) return vec2(axis, cross);
-	if (uDirection == 2) return vec2(cross, 1.0 - axis);
-	return vec2(cross, axis);
+float toTurnAxis(vec2 uv) {
+	vec2 axisRange = rangeForVector(uDirectionVector);
+	float rawAxis = dot(uv, uDirectionVector);
+	return (rawAxis - axisRange.x) / max(axisRange.y - axisRange.x, 0.0001);
+}
+
+vec2 fromTurnAxis(float axis, float cross) {
+	vec2 axisRange = rangeForVector(uDirectionVector);
+	float rawAxis = mix(axisRange.x, axisRange.y, axis);
+	vec2 perpendicular = vec2(-uDirectionVector.y, uDirectionVector.x);
+	return uDirectionVector * rawAxis + perpendicular * cross;
 }
 
 float toCrossAxis(vec2 uv) {
-	if (uDirection < 2) return uv.y;
-	return uv.x;
+	vec2 perpendicular = vec2(-uDirectionVector.y, uDirectionVector.x);
+	return dot(uv, perpendicular);
 }
 
 void main() {
 	float axis = toTurnAxis(vUv);
 	float cross = toCrossAxis(vUv);
+	vec2 perpendicular = vec2(-uDirectionVector.y, uDirectionVector.x);
+	vec2 axisRange = rangeForVector(uDirectionVector);
+	vec2 crossRange = rangeForVector(perpendicular);
 	float progress = clamp(uProgress, 0.0, 1.0);
 	float radius = clamp(uFoldRadius, 0.02, 0.5);
 	float start = progress - radius;
@@ -233,8 +215,10 @@ void main() {
 	float t = clamp((axis - start) / max(radius, 0.0001), 0.0, 1.0);
 	float bend = sin(t * PI * 0.5);
 	float sourceAxis = end + (1.0 - bend) * radius;
-	float crossWarp = (0.5 - cross) * sin(t * PI) * radius * 0.14;
-	vec2 sampleUv = fromTurnAxis(vUv, sourceAxis, cross + crossWarp);
+	float crossNormalized = (cross - crossRange.x) / max(crossRange.y - crossRange.x, 0.0001);
+	float axisSpan = axisRange.y - axisRange.x;
+	float crossWarp = (0.5 - crossNormalized) * sin(t * PI) * radius * axisSpan * 0.14;
+	vec2 sampleUv = fromTurnAxis(sourceAxis, cross + crossWarp);
 
 	if (
 		sampleUv.x < 0.0 || sampleUv.x > 1.0 ||
@@ -258,13 +242,6 @@ void main() {
 	fragColor = vec4(shaded * alpha, alpha);
 }
 `;
-
-const DIRECTION_INDEX: Record<PageTurnDirection, number> = {
-	left: 0,
-	right: 1,
-	top: 2,
-	bottom: 3,
-};
 
 const compileShader = (
 	gl: WebGL2RenderingContext,
@@ -316,7 +293,7 @@ export const pageTurn = createEffect<PageTurnParams, PageTurnState>({
 	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
-		return `page-turn-${r.progress}-${r.direction}-${r.foldRadius}-${r.shadow}-${r.backOpacity}`;
+		return `page-turn-${r.progress}-${r.angle}-${r.foldRadius}-${r.shadow}-${r.backOpacity}`;
 	},
 	setup: (target) => {
 		const gl = target.getContext('webgl2', {
@@ -384,7 +361,7 @@ export const pageTurn = createEffect<PageTurnParams, PageTurnState>({
 			texture,
 			uSource: gl.getUniformLocation(program, 'uSource'),
 			uProgress: gl.getUniformLocation(program, 'uProgress'),
-			uDirection: gl.getUniformLocation(program, 'uDirection'),
+			uDirectionVector: gl.getUniformLocation(program, 'uDirectionVector'),
 			uFoldRadius: gl.getUniformLocation(program, 'uFoldRadius'),
 			uShadow: gl.getUniformLocation(program, 'uShadow'),
 			uBackOpacity: gl.getUniformLocation(program, 'uBackOpacity'),
@@ -415,8 +392,15 @@ export const pageTurn = createEffect<PageTurnParams, PageTurnState>({
 
 		if (state.uSource) gl.uniform1i(state.uSource, 0);
 		if (state.uProgress) gl.uniform1f(state.uProgress, r.progress);
-		if (state.uDirection)
-			gl.uniform1i(state.uDirection, DIRECTION_INDEX[r.direction]);
+		if (state.uDirectionVector) {
+			const radians = (r.angle * Math.PI) / 180;
+			gl.uniform2f(
+				state.uDirectionVector,
+				Math.cos(radians),
+				Math.sin(radians),
+			);
+		}
+
 		if (state.uFoldRadius) gl.uniform1f(state.uFoldRadius, r.foldRadius);
 		if (state.uShadow) gl.uniform1f(state.uShadow, r.shadow);
 		if (state.uBackOpacity) gl.uniform1f(state.uBackOpacity, r.backOpacity);

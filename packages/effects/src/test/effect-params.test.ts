@@ -276,15 +276,15 @@ test('pageTurn() rejects non-finite progress', () => {
 	);
 });
 
+test('pageTurn() rejects non-finite angle', () => {
+	expect(() => pageTurn({angle: Number.NaN})).toThrow(
+		'"angle" must be a finite number',
+	);
+});
+
 test('pageTurn() rejects progress outside range', () => {
 	expect(() => pageTurn({progress: -0.1})).toThrow('"progress" must be >= 0');
 	expect(() => pageTurn({progress: 1.1})).toThrow('"progress" must be <= 1');
-});
-
-test('pageTurn() rejects invalid direction', () => {
-	expect(() => pageTurn({direction: 'diagonal' as never})).toThrow(
-		'"direction" must be "left", "right", "top" or "bottom"',
-	);
 });
 
 test('pageTurn() rejects fold radius outside range', () => {
@@ -300,8 +300,8 @@ test('pageTurn() effect keys include meaningful params', () => {
 	expect(pageTurn({progress: 0.25}).effectKey).not.toBe(
 		pageTurn({progress: 0.75}).effectKey,
 	);
-	expect(pageTurn({direction: 'left'}).effectKey).not.toBe(
-		pageTurn({direction: 'right'}).effectKey,
+	expect(pageTurn({angle: 45}).effectKey).not.toBe(
+		pageTurn({angle: 135}).effectKey,
 	);
 	expect(pageTurn({foldRadius: 0.12}).effectKey).not.toBe(
 		pageTurn({foldRadius: 0.24}).effectKey,
