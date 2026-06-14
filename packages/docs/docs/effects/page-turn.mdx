@@ -39,9 +39,9 @@ export const MyComp: React.FC = () => {
         effects={[
           pageTurn({
             progress,
-            foldPosition: [1, 1],
+            foldPosition: [0.61, 0.82],
             angle: 225,
-            foldRadius: 0.19,
+            foldRadius: 0.08,
             lightDirection: 60,
             backOpacity: 0.85,
           }),
@@ -69,6 +69,7 @@ Point where the page starts folding, in UV coordinates. Defaults to `[1, 1]`, th
 Direction of the fold in degrees. Defaults to `225`.
 
 Use diagonal values such as `45`, `135`, `225`, or `315` to peel from a corner.
+Opposite angles peel in opposite directions.
 
 ### `foldRadius?`
 

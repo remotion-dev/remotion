@@ -244,13 +244,8 @@ vec2 rangeFromPosition(vec2 origin, vec2 v) {
 	);
 }
 
-vec2 effectiveDirection() {
-	vec2 range = rangeFromPosition(uFoldPosition, uDirectionVector);
-	return range.y >= -range.x ? uDirectionVector : -uDirectionVector;
-}
-
 float toTurnAxis(vec2 uv) {
-	vec2 dir = effectiveDirection();
+	vec2 dir = normalize(uDirectionVector);
 	vec2 range = rangeFromPosition(uFoldPosition, dir);
 	float rawAxis = dot(uv - uFoldPosition, dir);
 	return rawAxis / max(range.y, 0.0001);
@@ -267,7 +262,7 @@ float toCrossAxis(vec2 uv, vec2 dir) {
 }
 
 void main() {
-	vec2 dir = effectiveDirection();
+	vec2 dir = normalize(uDirectionVector);
 	vec2 perpendicular = vec2(-dir.y, dir.x);
 	vec2 axisRange = rangeFromPosition(uFoldPosition, dir);
 	vec2 crossRange = rangeFromPosition(uFoldPosition, perpendicular);
@@ -290,10 +285,10 @@ void main() {
 	}
 
 	float t = clamp((axis - start) / max(radius, 0.0001), 0.0, 1.0);
-	float bend = sin(t * PI * 0.5);
-	float sourceAxis = end + (1.0 - bend) * radius;
 	float crossNormalized = (cross - crossRange.x) / max(crossRange.y - crossRange.x, 0.0001);
-	float crossWarp = (0.5 - crossNormalized) * sin(t * PI) * radius * axisSpan * 0.14;
+	float curl = sin(t * PI);
+	float sourceAxis = end + (1.0 - t) * radius * 0.72;
+	float crossWarp = (0.5 - crossNormalized) * curl * radius * axisSpan * 0.035;
 	vec2 sampleUv = fromTurnAxis(sourceAxis, cross + crossWarp, dir, axisSpan);
 
 	if (
@@ -305,22 +300,23 @@ void main() {
 	}
 
 	vec4 color = texture(uSource, sampleUv);
-	float crease = 1.0 - smoothstep(0.0, 0.18, t);
-	float rim = smoothstep(0.74, 1.0, t);
-	float backMix = 1.0 - smoothstep(0.15, 0.92, t);
-	float lightAgainstFold = dot(normalize(uLightVector), normalize(dir + perpendicular * 0.35));
-	float diffuse = 0.82 + 0.18 * lightAgainstFold;
-	float shade = diffuse - uShadow * (0.58 * crease + 0.22 * (1.0 - rim));
-	float sheen = pow(max(0.0, 1.0 - abs(t - 0.38) / 0.12), 2.0);
-	float glossyStreak = pow(max(0.0, 1.0 - abs(crossNormalized - (0.35 + t * 0.22)) / 0.08), 2.0);
+	float crease = smoothstep(0.72, 1.0, t);
+	float freeEdge = 1.0 - smoothstep(0.0, 0.28, t);
+	float backMix = 1.0 - smoothstep(0.22, 0.95, t);
+	float lightAgainstFold = dot(normalize(uLightVector), normalize(dir + perpendicular * 0.24));
+	float diffuse = 0.88 + 0.12 * lightAgainstFold;
+	float shade = diffuse - uShadow * (0.36 * crease + 0.16 * freeEdge);
+	float sheen = pow(max(0.0, 1.0 - abs(t - 0.44) / 0.13), 2.0);
+	float glossyStreak = pow(max(0.0, 1.0 - abs(crossNormalized - (0.36 + t * 0.16)) / 0.09), 2.0);
+	float edgeFade = smoothstep(0.0, 0.08, t);
 
 	vec3 rgb = color.a > 0.001 ? color.rgb / color.a : vec3(0.0);
 	vec3 paperRgb = uPaperColor.rgb;
-	vec3 backRgb = mix(paperRgb, rgb, 0.55);
+	vec3 backRgb = mix(paperRgb, rgb, 0.18 + 0.1 * t);
 	vec3 shaded = mix(rgb, backRgb, backMix) * shade;
-	shaded += vec3(1.0) * sheen * glossyStreak * (0.25 + 0.35 * backMix);
-	shaded += paperRgb * crease * 0.18;
-	float alpha = color.a * mix(1.0, uBackOpacity, backMix);
+	shaded += vec3(1.0) * sheen * glossyStreak * (0.18 + 0.18 * backMix);
+	shaded += paperRgb * crease * 0.08;
+	float alpha = color.a * mix(1.0, uBackOpacity, backMix) * edgeFade;
 
 	fragColor = vec4(shaded * alpha, alpha);
 }
