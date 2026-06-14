@@ -84,6 +84,18 @@ export const getCodecName = ({
 			return {encoderName: 'prores_videotoolbox', hardwareAccelerated: true};
 		}
 
+		if (
+			preferredHwAcceleration &&
+			process.platform !== 'darwin' &&
+			!unsupportedQualityOption
+		) {
+			if (hardwareAcceleration === 'required') {
+				throw new Error(
+					`Codec "prores" does not support hardware acceleration on ${process.platform}, but "hardwareAcceleration" is set to "required"`,
+				);
+			}
+		}
+
 		warnAboutDisabledHardwareAcceleration();
 
 		return {encoderName: 'prores_ks', hardwareAccelerated: false};
@@ -98,6 +110,15 @@ export const getCodecName = ({
 			return {encoderName: 'h264_videotoolbox', hardwareAccelerated: true};
 		}
 
+		// NVENC for Linux/Windows
+		if (
+			preferredHwAcceleration &&
+			(process.platform === 'linux' || process.platform === 'win32') &&
+			!unsupportedQualityOption
+		) {
+			return {encoderName: 'h264_nvenc', hardwareAccelerated: true};
+		}
+
 		warnAboutDisabledHardwareAcceleration();
 
 		return {encoderName: 'libx264', hardwareAccelerated: false};
@@ -110,6 +131,15 @@ export const getCodecName = ({
 			!unsupportedQualityOption
 		) {
 			return {encoderName: 'hevc_videotoolbox', hardwareAccelerated: true};
+		}
+
+		// NVENC for Linux/Windows
+		if (
+			preferredHwAcceleration &&
+			(process.platform === 'linux' || process.platform === 'win32') &&
+			!unsupportedQualityOption
+		) {
+			return {encoderName: 'hevc_nvenc', hardwareAccelerated: true};
 		}
 
 		warnAboutDisabledHardwareAcceleration();
@@ -150,10 +180,22 @@ export const getCodecName = ({
 	}
 
 	if (codec === 'h264-mkv') {
+		if (hardwareAcceleration === 'required') {
+			throw new Error(
+				`Codec "h264-mkv" does not support hardware acceleration on ${process.platform}, but "hardwareAcceleration" is set to "required"`,
+			);
+		}
+
 		return {encoderName: 'libx264', hardwareAccelerated: false};
 	}
 
 	if (codec === 'h264-ts') {
+		if (hardwareAcceleration === 'required') {
+			throw new Error(
+				`Codec "h264-ts" does not support hardware acceleration on ${process.platform}, but "hardwareAcceleration" is set to "required"`,
+			);
+		}
+
 		return {encoderName: 'libx264', hardwareAccelerated: false};
 	}
 
