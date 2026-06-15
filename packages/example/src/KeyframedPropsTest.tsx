@@ -10,6 +10,7 @@ import {
 	Solid,
 	staticFile,
 	useCurrentFrame,
+	Easing,
 } from 'remotion';
 
 const Shifted = () => {
@@ -146,6 +147,11 @@ const KeyframedPropsTest: React.FC = () => {
 					color={interpolateColors(frame, [0, 100], ['#0b84f3', '#f43b00'])}
 					style={{
 						borderRadius: 24,
+						scale: interpolate(frame, [31, 62], [1, 1], {
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+							easing: [Easing.bezier(0.25, 0.25, 0.7121, 3)],
+						}),
 					}}
 				/>
 			</Sequence>

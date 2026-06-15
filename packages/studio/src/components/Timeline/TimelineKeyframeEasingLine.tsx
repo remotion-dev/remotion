@@ -6,7 +6,6 @@ import {BLUE} from '../../helpers/colors';
 import {getXPositionOfItemInTimelineImperatively} from '../../helpers/get-left-of-timeline-slider';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
-import {ModalsContext} from '../../state/modals';
 import {ContextMenuForTarget} from '../ContextMenu';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {
@@ -18,7 +17,6 @@ import {
 import {TimelineWidthContext} from './TimelineWidthProvider';
 import {
 	getEasingSelections,
-	getTimelineEasingValueForSelection,
 	type TimelineEasingValue,
 	updateSelectedTimelineEasings,
 } from './update-selected-easing';
@@ -75,7 +73,6 @@ const TimelineKeyframeEasingLineUnmemoized: React.FC<{
 		Internals.OverrideIdsToNodePathsGettersContext,
 	);
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
-	const {setSelectedModal} = useContext(ModalsContext);
 
 	const getTargetSelections = useCallback(() => {
 		const selectedEasings = getEasingSelections(
@@ -111,37 +108,6 @@ const TimelineKeyframeEasingLineUnmemoized: React.FC<{
 		],
 	);
 
-	const onOpenEasingEditor = useCallback(() => {
-		if (previewServerState.type !== 'connected') {
-			return;
-		}
-
-		const initialEasing = getTimelineEasingValueForSelection({
-			selection: selectionItem,
-			sequences: sequencesRef.current,
-			overrideIdsToNodePaths: overrideIdToNodePathMappings,
-			propStatuses: propStatusesRef.current,
-		});
-
-		if (initialEasing === null) {
-			return;
-		}
-
-		setSelectedModal({
-			type: 'easing-editor',
-			initialEasing,
-			selections: getTargetSelections(),
-		});
-	}, [
-		getTargetSelections,
-		overrideIdToNodePathMappings,
-		previewServerState,
-		propStatusesRef,
-		selectionItem,
-		sequencesRef,
-		setSelectedModal,
-	]);
-
 	const contextMenuValues = useMemo((): ComboboxValue[] => {
 		return [
 			{
@@ -168,24 +134,8 @@ const TimelineKeyframeEasingLineUnmemoized: React.FC<{
 				subMenu: null,
 				value: preset.id,
 			})),
-			{
-				type: 'divider' as const,
-				id: 'edit-easing-divider',
-			},
-			{
-				type: 'item',
-				id: 'edit-easing',
-				keyHint: null,
-				label: 'Edit...',
-				leftItem: null,
-				disabled: previewServerState.type !== 'connected',
-				onClick: onOpenEasingEditor,
-				quickSwitcherLabel: null,
-				subMenu: null,
-				value: 'edit-easing',
-			},
 		];
-	}, [onOpenEasingEditor, previewServerState.type, updateEasing]);
+	}, [previewServerState.type, updateEasing]);
 
 	const onOpenContextMenu = useCallback(
 		(event: MouseEvent) => {

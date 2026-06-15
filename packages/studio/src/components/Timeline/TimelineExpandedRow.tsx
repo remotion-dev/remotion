@@ -35,6 +35,7 @@ export const TimelineExpandedRow: React.FC<{
 	readonly node: TimelineTreeNode;
 	readonly depth: number;
 	readonly nestedDepth: number;
+	readonly rowDepthBase?: number;
 	readonly getIsExpanded: GetIsExpanded;
 	readonly toggleTrack: (nodePathInfo: SequenceNodePathInfo) => void;
 	readonly validatedLocation: CodePosition;
@@ -45,6 +46,7 @@ export const TimelineExpandedRow: React.FC<{
 	node,
 	depth,
 	nestedDepth,
+	rowDepthBase,
 	getIsExpanded,
 	toggleTrack,
 	validatedLocation,
@@ -52,7 +54,8 @@ export const TimelineExpandedRow: React.FC<{
 	schema,
 	keyframeDisplayOffset,
 }) => {
-	const rowDepth = getExpandedRowDepth({nestedDepth, treeDepth: depth});
+	const rowDepth =
+		(rowDepthBase ?? getExpandedRowDepth({nestedDepth, treeDepth: 0})) + depth;
 	const selection = useTimelineRowSelection(node.nodePathInfo);
 	const labelStyle = React.useMemo(
 		(): React.CSSProperties => ({

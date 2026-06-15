@@ -1,4 +1,5 @@
 // Schema error messages for studio editor
+import {useState} from 'react';
 import {BACKGROUND, BLUE, LIGHT_TEXT} from '../../../helpers/colors';
 import {Button} from '../../Button';
 import {Spacing} from '../../layout';
@@ -15,6 +16,23 @@ const explainer: React.CSSProperties = {
 	alignItems: 'center',
 	textAlign: 'center',
 	background: BACKGROUND,
+};
+
+export type SchemaErrorAlignment = 'center' | 'left';
+export type SchemaErrorMode = 'full' | 'compact';
+
+const getExplainerStyle = (
+	align: SchemaErrorAlignment,
+): React.CSSProperties => {
+	if (align === 'left') {
+		return {
+			...explainer,
+			alignItems: 'flex-start',
+			textAlign: 'left',
+		};
+	}
+
+	return explainer;
 };
 
 const errorExplanation: React.CSSProperties = {
@@ -35,13 +53,87 @@ const errorContainer: React.CSSProperties = {
 	overflowY: 'auto',
 };
 
+const compactExplanation: React.CSSProperties = {
+	fontSize: 12,
+	color: LIGHT_TEXT,
+	fontFamily: 'sans-serif',
+	lineHeight: 1.4,
+	padding: '0 12px 8px',
+};
+
+const compactHelpLink: React.CSSProperties = {
+	alignItems: 'center',
+	border: '1px solid currentColor',
+	borderRadius: '50%',
+	color: 'inherit',
+	cursor: 'default',
+	display: 'inline-flex',
+	fontFamily: 'sans-serif',
+	fontSize: 10,
+	fontWeight: 700,
+	height: 13,
+	justifyContent: 'center',
+	lineHeight: '13px',
+	marginLeft: 3,
+	opacity: 0.45,
+	textDecoration: 'none',
+	verticalAlign: 'text-bottom',
+	width: 13,
+};
+
+const compactHelpLinkHovered: React.CSSProperties = {
+	...compactHelpLink,
+	opacity: 0.85,
+};
+
 const openDocs = () => {
 	window.open('https://www.remotion.dev/docs/schemas');
 };
 
-export const ZodNotInstalled = () => {
+const CompactHelpLink: React.FC<{
+	readonly href: string;
+	readonly ariaLabel: string;
+}> = ({href, ariaLabel}) => {
+	const [hovered, setHovered] = useState(false);
+
 	return (
-		<div style={explainer}>
+		<a
+			href={href}
+			target="_blank"
+			rel="noopener noreferrer"
+			style={hovered ? compactHelpLinkHovered : compactHelpLink}
+			aria-label={ariaLabel}
+			title="Learn more"
+			onMouseEnter={() => setHovered(true)}
+			onMouseLeave={() => setHovered(false)}
+		>
+			?
+		</a>
+	);
+};
+
+const CompactSchemaError = () => {
+	return (
+		<div style={compactExplanation}>
+			Not set up
+			<CompactHelpLink
+				href="https://www.remotion.dev/docs/schemas"
+				ariaLabel="Learn more about schemas"
+			/>
+		</div>
+	);
+};
+
+export const ZodNotInstalled: React.FC<{
+	readonly align?: SchemaErrorAlignment;
+	readonly mode?: SchemaErrorMode;
+}> = ({align = 'center', mode = 'full'}) => {
+	if (mode === 'compact') {
+		return <CompactSchemaError />;
+	}
+
+	return (
+		<div style={getExplainerStyle(align)}>
 			<div style={errorExplanation}>
 				Install <code style={inlineCodeSnippet}>zod</code> as a dependency to
 				interactively control the props of the composition.
@@ -52,9 +144,16 @@ export const ZodNotInstalled = () => {
 	);
 };
 
-export const NoSchemaDefined = () => {
+export const NoSchemaDefined: React.FC<{
+	readonly align?: SchemaErrorAlignment;
+	readonly mode?: SchemaErrorMode;
+}> = ({align = 'center', mode = 'full'}) => {
+	if (mode === 'compact') {
+		return <CompactSchemaError />;
+	}
+
 	return (
-		<div style={explainer}>
+		<div style={getExplainerStyle(align)}>
 			<div style={errorExplanation}>
 				Make the props of this composition interactively editable by adding a{' '}
 				<code style={inlineCodeSnippet}>schema</code> prop to the{' '}
@@ -66,9 +165,16 @@ export const NoSchemaDefined = () => {
 	);
 };
 
-export const NoDefaultProps = () => {
+export const NoDefaultProps: React.FC<{
+	readonly align?: SchemaErrorAlignment;
+	readonly mode?: SchemaErrorMode;
+}> = ({align = 'center', mode = 'full'}) => {
+	if (mode === 'compact') {
+		return <CompactSchemaError />;
+	}
+
 	return (
-		<div style={explainer}>
+		<div style={getExplainerStyle(align)}>
 			<div style={errorExplanation}>
 				The schema can not be edited because the{' '}
 				<code style={inlineCodeSnippet}>defaultProps</code> prop in the{' '}

@@ -57,6 +57,7 @@ import {
 import {getSelectedKeyframeControlNodePathInfos} from '../components/Timeline/TimelineKeyframeControls';
 import {
 	getClampedTimelineMarqueePoint,
+	getAvailableTimelineSelectionState,
 	getSelectableTimelineSequenceSelections,
 	getTimelineMarqueeSelection,
 	getTimelineSelectionAfterInteraction,
@@ -3535,6 +3536,50 @@ test('Easing keyframe drag preserves selected item types at moved frames', () =>
 			toFrame: 25,
 		},
 	]);
+});
+
+test('Unavailable timeline selections are removed from the active selection state', () => {
+	const availableRow = {
+		type: 'sequence' as const,
+		nodePathInfo: makeNodePathInfo(['body', 0], []),
+	};
+	const unavailableRow = {
+		type: 'sequence' as const,
+		nodePathInfo: makeNodePathInfo(['body', 1], []),
+	};
+
+	expect(
+		getAvailableTimelineSelectionState({
+			availableKeys: new Set([getTimelineSelectionKey(availableRow)]),
+			state: {
+				selectedItems: [availableRow, unavailableRow],
+				anchor: unavailableRow,
+			},
+		}),
+	).toEqual({
+		selectedItems: [availableRow],
+		anchor: null,
+	});
+});
+
+test('Unavailable timeline selections become no active selection', () => {
+	const unavailableRow = {
+		type: 'sequence' as const,
+		nodePathInfo: makeNodePathInfo(['body', 1], []),
+	};
+
+	expect(
+		getAvailableTimelineSelectionState({
+			availableKeys: new Set(),
+			state: {
+				selectedItems: [unavailableRow],
+				anchor: unavailableRow,
+			},
+		}),
+	).toEqual({
+		selectedItems: [],
+		anchor: null,
+	});
 });
 
 test('Timeline double-click actions ignore selection modifier clicks', () => {

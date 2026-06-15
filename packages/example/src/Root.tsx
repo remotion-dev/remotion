@@ -2078,8 +2078,11 @@ export const Index: React.FC = () => {
 					defaultProps={{
 						title: 'sdasds',
 						delay: 5.2,
-						color: 'rgba(223, 42, 42, 0.46)',
-						list: [{name: 'first', age: 12}],
+						color: 'rgba(233, 51, 51, 0.46)',
+						list: [
+							{name: 'first', age: 12},
+							{name: '', age: 0},
+						],
 						matrix: [0, 1, 1, 0] as const,
 						description: 'Sample description \nOn multiple lines',
 						country: 'Armenia' as const,

@@ -9,6 +9,7 @@ import {
 import {Spacing} from '../../layout';
 import {createZodValues} from './create-zod-values';
 import {Fieldset} from './Fieldset';
+import {useSchemaEditorDensity} from './SchemaEditorDensity';
 import {SchemaLabel} from './SchemaLabel';
 import {zodSafeParse, type AnyZodSchema} from './zod-schema-type';
 import type {JSONPath} from './zod-types';
@@ -53,6 +54,13 @@ export const ZodOrNullishEditor: React.FC<{
 	}
 
 	const zodTypes = useZodTypesIfPossible();
+	const density = useSchemaEditorDensity();
+	const nullishLabelStyle = useMemo((): React.CSSProperties => {
+		return {
+			...labelStyle,
+			fontSize: density === 'compact' ? 12 : 14,
+		};
+	}, [density]);
 
 	const isChecked = value === nullishValue;
 
@@ -100,7 +108,7 @@ export const ZodOrNullishEditor: React.FC<{
 					name={jsonPath.join('.')}
 				/>
 				<Spacing x={1} />
-				<div style={labelStyle}>{String(nullishValue)}</div>
+				<div style={nullishLabelStyle}>{String(nullishValue)}</div>
 			</div>
 		</Fieldset>
 	);

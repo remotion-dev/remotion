@@ -15,7 +15,6 @@ import QuickSwitcher from './QuickSwitcher/QuickSwitcher';
 import {RenderStatusModal} from './RenderModal/RenderStatusModal';
 import {RenderModalWithLoader} from './RenderModal/ServerRenderModal';
 import {WebRenderModalWithLoader} from './RenderModal/WebRenderModal';
-import {EasingEditorModal} from './Timeline/EasingEditorModal';
 import {KeyframeSettingsModal} from './Timeline/KeyframeSettingsModal';
 import {UpdateModal} from './UpdateModal/UpdateModal';
 
@@ -63,9 +62,6 @@ export const Modals: React.FC<{
 			)}
 			{modalContextType && modalContextType.type === 'keyframe-settings' && (
 				<KeyframeSettingsModal state={modalContextType} />
-			)}
-			{modalContextType && modalContextType.type === 'easing-editor' && (
-				<EasingEditorModal state={modalContextType} />
 			)}
 
 			{modalContextType && modalContextType.type === 'web-render' && (

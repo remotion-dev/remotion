@@ -19,11 +19,24 @@ const style: React.CSSProperties = {
 	flex: 1,
 };
 
+const inspectorStyle: React.CSSProperties = {
+	fontFamily: 'monospace',
+	boxSizing: 'border-box',
+	flex: 'none',
+	minHeight: 220,
+	overflowY: 'hidden',
+};
+
 const scrollable: React.CSSProperties = {
 	padding: '8px 12px',
 	display: 'flex',
 	flexDirection: 'column',
 	flex: 1,
+};
+
+const inspectorScrollable: React.CSSProperties = {
+	...scrollable,
+	flex: 'none',
 };
 
 const parseJS = (
@@ -67,6 +80,7 @@ export const RenderModalJSONPropsEditor: React.FC<{
 	readonly defaultProps: Record<string, unknown>;
 	readonly schema: AnyZodSchema;
 	readonly compositionId: string;
+	readonly layout?: 'default' | 'inspector';
 }> = ({
 	setValue,
 	value,
@@ -75,12 +89,14 @@ export const RenderModalJSONPropsEditor: React.FC<{
 	serializedJSON,
 	schema,
 	compositionId,
+	layout = 'default',
 }) => {
 	if (serializedJSON === null) {
 		throw new Error('expecting serializedJSON to be defined');
 	}
 
 	const {subscribeToEvent} = useContext(StudioServerConnectionCtx);
+	const textareaRef = React.useRef<HTMLTextAreaElement>(null);
 
 	const [localValue, setLocalValue] = React.useState<State>(() => {
 		return parseJSON(serializedJSON.serializedString, schema);
@@ -160,25 +176,42 @@ export const RenderModalJSONPropsEditor: React.FC<{
 		setLocalValue((v) => parseJSON(v.str, schema));
 	}, [schema]);
 
+	useEffect(() => {
+		const textarea = textareaRef.current;
+		if (textarea === null) {
+			return;
+		}
+
+		if (layout !== 'inspector') {
+			textarea.style.height = '';
+			return;
+		}
+
+		textarea.style.height = 'auto';
+		textarea.style.height = `${Math.max(textarea.scrollHeight + 2, 220)}px`;
+	}, [layout, localValue.str]);
+
 	const reset = useCallback(() => {
 		setValue(defaultProps);
 		setLocalValue(parseJSON(JSON.stringify(defaultProps, null, 2), schema));
 	}, [defaultProps, schema, setValue]);
 
 	const textAreaStyle: React.CSSProperties = useMemo(() => {
+		const baseStyle = layout === 'inspector' ? inspectorStyle : style;
 		if (!hasError) {
-			return style;
+			return baseStyle;
 		}
 
 		return {
-			...style,
+			...baseStyle,
 			borderColor: FAIL_COLOR,
 		};
-	}, [hasError]);
+	}, [hasError, layout]);
 
 	return (
-		<div style={scrollable}>
+		<div style={layout === 'inspector' ? inspectorScrollable : scrollable}>
 			<RemTextarea
+				ref={textareaRef}
 				onChange={onChange}
 				onBlur={onQuickSave}
 				value={localValue.str}
@@ -192,11 +225,13 @@ export const RenderModalJSONPropsEditor: React.FC<{
 						align="flex-start"
 						message={localValue.error}
 						type="error"
+						size={layout === 'inspector' ? 'compact' : 'default'}
 					/>
 				) : localValue.zodValidation.success === false ? (
 					<ZodErrorMessages
 						zodValidationResult={localValue.zodValidation}
 						viewTab="json"
+						size={layout === 'inspector' ? 'compact' : 'default'}
 					/>
 				) : null}
 			</div>

@@ -1,6 +1,7 @@
 import {Spacing} from '../../layout';
 import {ValidationMessage} from '../../NewComposition/ValidationMessage';
 import {InfoBubble} from '../InfoBubble';
+import {useSchemaEditorDensity} from './SchemaEditorDensity';
 import type {ZodSafeParseResult} from './zod-schema-type';
 import type {JSONPath} from './zod-types';
 
@@ -22,6 +23,13 @@ export const ZodFieldValidation: React.FC<{
 	zodValidation: ZodSafeParseResult;
 	path: JSONPath;
 }> = ({zodValidation, path}) => {
+	const density = useSchemaEditorDensity();
+	const compact = density === 'compact';
+	const stackTraceLabelStyle: React.CSSProperties = {
+		...stackTraceLabel,
+		fontSize: compact ? 12 : 14,
+	};
+
 	if (zodValidation.success) {
 		return null;
 	}
@@ -32,14 +40,15 @@ export const ZodFieldValidation: React.FC<{
 				align="flex-start"
 				message={zodValidation.error.format()._errors[0]}
 				type="error"
+				size={compact ? 'compact' : 'default'}
 			/>
 			<Spacing x={0.5} />
 			<InfoBubble title="Zod validation failure">
 				<div style={stackTrace}>
-					<div style={stackTraceLabel}>Zod Validation has failed:</div>
+					<div style={stackTraceLabelStyle}>Zod Validation has failed:</div>
 					{zodValidation.error.issues.map((error, index: number) => (
 						// eslint-disable-next-line react/no-array-index-key
-						<div key={index} style={stackTraceLabel}>
+						<div key={index} style={stackTraceLabelStyle}>
 							Type: {error.code} <br />
 							Message: {error.message}
 							<br />

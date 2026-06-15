@@ -1,7 +1,7 @@
 import {formatBytes} from '@remotion/studio-shared';
 import React, {useContext, useMemo} from 'react';
 import {Internals, staticFile} from 'remotion';
-import {BACKGROUND, BORDER_COLOR} from '../helpers/colors';
+import {BACKGROUND} from '../helpers/colors';
 import {formatMediaDuration} from '../helpers/format-media-duration';
 import {getPreviewFileType} from '../helpers/get-preview-file-type';
 import {useMediaMetadata} from '../helpers/use-media-metadata';
@@ -12,7 +12,6 @@ export const CURRENT_ASSET_HEIGHT = 80;
 const container: React.CSSProperties = {
 	height: CURRENT_ASSET_HEIGHT,
 	display: 'block',
-	borderBottom: `1px solid ${BORDER_COLOR}`,
 	padding: 12,
 	color: 'white',
 	backgroundColor: BACKGROUND,
