@@ -25,11 +25,15 @@ const run = (
 			stdio: 'inherit',
 		});
 
-		child.on('close', (code) => {
+		child.on('close', (code, signal) => {
 			if (code === 0) {
 				resolve();
 			} else {
-				reject(new Error(`${command} ${args.join(' ')} exited with ${code}`));
+				reject(
+					new Error(
+						`${command} ${args.join(' ')} exited with code ${code}, signal ${signal}`,
+					),
+				);
 			}
 		});
 
