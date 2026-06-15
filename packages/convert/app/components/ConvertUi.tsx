@@ -335,6 +335,8 @@ const ConvertUI = ({
 						}
 
 						return {
+							codec: operation.audioCodec,
+							forceTranscode: true,
 							sampleRate: operation.sampleRate ?? undefined,
 							process(sample) {
 								if (!progress.hasVideo) {
