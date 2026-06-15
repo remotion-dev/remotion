@@ -61,11 +61,21 @@ Follow the pattern of existing pages (e.g. `whip.mdx`). Include:
 - `packages/docs/sidebars.ts` — add `'sfx/<name>'` to the `@remotion/sfx` category items
 - `packages/docs/docs/sfx/table-of-contents.tsx` — add a `<TOCItem>` with a `<PlayButton size={32}>`
 
-### 5. Update the skills rule file
+### 5. Regenerate SFX waveforms
+
+After the sound is added to `packages/remotion-media` and exported from `packages/sfx/src/index.ts`, regenerate the waveform samples used by the docs:
+
+```bash
+bun packages/docs/generate-sfx-waveforms.ts
+```
+
+This uses `ffmpeg` to sample every exported sound effect into around 2000 waveform samples and updates `packages/docs/components/sfx-demos/sfx-waveforms.ts`.
+
+### 6. Update the skills rule file
 
 Add the new URL to the list in `packages/skills/skills/remotion/rules/sfx.md`.
 
-### 6. Build
+### 7. Build
 
 ```bash
 cd packages/sfx && bun run make
