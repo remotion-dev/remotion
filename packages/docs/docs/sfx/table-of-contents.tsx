@@ -1,11 +1,7 @@
 import React from 'react';
-import {
-	makeSfxDragData,
-	setSfxDragData,
-} from '../../components/sfx-demos/sfx-drag-data';
 import {Grid} from '../../components/TableOfContents/Grid';
 import {TOCItem} from '../../components/TableOfContents/TOCItem';
-import {PlayButton} from './PlayButton';
+import {PlayButton, SfxDragChip} from './PlayButton';
 
 const SfxItem: React.FC<{
 	readonly link: string;
@@ -13,32 +9,21 @@ const SfxItem: React.FC<{
 	readonly name: string;
 	readonly description: string;
 }> = ({link, src, name, description}) => {
-	const dragData = makeSfxDragData({name, url: src});
-
 	return (
-		<TOCItem
-			link={link}
-			draggable
-			onDragStart={(e) => {
-				setSfxDragData({
-					dataTransfer: e.dataTransfer,
-					dragData,
-				});
-			}}
-			title="Drag this sound effect into Remotion Studio"
-		>
+		<TOCItem link={link} draggable={false}>
 			<div
 				style={{
-					display: 'flex',
-					flexDirection: 'row',
+					display: 'grid',
+					gridTemplateColumns: 'auto minmax(0, 1fr)',
 					alignItems: 'center',
 					gap: 12,
 				}}
 			>
-				<PlayButton src={src} size={32} depth={0.5} />
-				<div>
+				<PlayButton src={src} size={32} depth={0.5} showDragChip={false} />
+				<div style={{minWidth: 0}}>
 					<strong>{name}</strong>
 					<div>{description}</div>
+					<SfxDragChip src={src} name={name} compact />
 				</div>
 			</div>
 		</TOCItem>
