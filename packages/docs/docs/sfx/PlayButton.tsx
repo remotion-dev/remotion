@@ -18,10 +18,10 @@ const controls: React.CSSProperties = {
 };
 
 const dragLabel: React.CSSProperties = {
-	color: 'var(--ifm-color-emphasis-700)',
+	color: 'var(--ifm-color-emphasis-600)',
 	fontSize: 12,
-	fontWeight: 600,
-	lineHeight: 1,
+	fontWeight: 400,
+	lineHeight: 1.35,
 };
 
 const waveformGroup: React.CSSProperties = {
@@ -195,7 +195,6 @@ const SfxAudioDragTarget: React.FC<{
 
 	return (
 		<div style={waveformGroup}>
-			<span style={dragLabel}>Drag into Studio</span>
 			<div
 				aria-label={`Drag ${fileName} into Remotion Studio`}
 				draggable
@@ -235,6 +234,9 @@ const SfxAudioDragTarget: React.FC<{
 					<div style={waveformFallback}>Waveform unavailable</div>
 				)}
 			</div>
+			<span style={dragLabel}>
+				Drag waveform into Remotion Studio to import sound effect
+			</span>
 		</div>
 	);
 };
