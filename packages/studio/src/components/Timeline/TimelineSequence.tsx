@@ -425,17 +425,7 @@ const TimelineSequenceInner: React.FC<{
 			onSelect({shiftKey: false, toggleKey: false});
 		}
 	}, [onSelect, selectable]);
-	const freezeStatus = propStatusesForOverride?.freeze;
-	const runtimeFreezeFrame =
-		typeof s.controls?.currentRuntimeValueDotNotation.freeze === 'number'
-			? s.controls.currentRuntimeValueDotNotation.freeze
-			: null;
-	const frozenFrame =
-		freezeStatus?.status === 'static'
-			? typeof freezeStatus.codeValue === 'number'
-				? freezeStatus.codeValue
-				: null
-			: runtimeFreezeFrame;
+	const frozenFrame = s.frozenFrame ?? null;
 
 	const {onPointerDown: onMoveDragPointerDown} = useTimelineSequenceFromDrag({
 		nodePathInfo,
@@ -544,6 +534,7 @@ const TimelineSequenceInner: React.FC<{
 					premountWidth={premountWidth ?? 0}
 					postmountWidth={postmountWidth ?? 0}
 					loopDisplay={s.loopDisplay}
+					frozenMediaFrame={s.frozenMediaFrame ?? null}
 				/>
 			) : null}
 			{s.type === 'image' ? (
