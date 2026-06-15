@@ -74,7 +74,9 @@ const numberInputStyle: React.CSSProperties = {
 };
 
 const svgStyle: React.CSSProperties = {
+	aspectRatio: `${SVG_WIDTH} / ${SVG_HEIGHT}`,
 	display: 'block',
+	height: 'auto',
 	overflow: 'visible',
 	width: '100%',
 };
@@ -141,25 +143,13 @@ const getEasingUpdateTargetKey = (update: SelectedEasingUpdate) => {
 };
 
 const xToSvg = (value: number) => PLOT_LEFT + value * PLOT_WIDTH;
-const getBezierDisplayRange = (bezier: CubicBezier) => {
-	const min = Math.min(0, 1, bezier[1], bezier[3]);
-	const max = Math.max(0, 1, bezier[1], bezier[3]);
+const yToSvg = (value: number) =>
+	PLOT_TOP + ((Y_MAX - value) / (Y_MAX - Y_MIN)) * PLOT_HEIGHT;
 
-	return {min, max};
-};
-
-const yToSvg = (value: number, yMin: number, yMax: number) =>
-	PLOT_TOP + ((yMax - value) / (yMax - yMin)) * PLOT_HEIGHT;
-
-const pointFromBezier = (
-	bezier: CubicBezier,
-	handle: HandleIndex,
-	yMin: number,
-	yMax: number,
-) => {
+const pointFromBezier = (bezier: CubicBezier, handle: HandleIndex) => {
 	const x = handle === 0 ? bezier[0] : bezier[2];
 	const y = handle === 0 ? bezier[1] : bezier[3];
-	return {x: xToSvg(x), y: yToSvg(y, yMin, yMax)};
+	return {x: xToSvg(x), y: yToSvg(y)};
 };
 
 export type EasingEditorState = {
@@ -391,9 +381,8 @@ export const EasingEditor: React.FC<{
 			const svgX = ((event.clientX - rect.left) / rect.width) * SVG_WIDTH;
 			const svgY = ((event.clientY - rect.top) / rect.height) * SVG_HEIGHT;
 			const x = clamp((svgX - PLOT_LEFT) / PLOT_WIDTH, 0, 1);
-			const {min, max} = getBezierDisplayRange(bezierRef.current);
 			const y = clamp(
-				max - ((svgY - PLOT_TOP) / PLOT_HEIGHT) * (max - min),
+				Y_MAX - ((svgY - PLOT_TOP) / PLOT_HEIGHT) * (Y_MAX - Y_MIN),
 				Y_MIN,
 				Y_MAX,
 			);
@@ -470,32 +459,18 @@ export const EasingEditor: React.FC<{
 		};
 	}, [clearEasingDragOverrides]);
 
-	const {min: displayYMin, max: displayYMax} = useMemo(
-		() => getBezierDisplayRange(bezier),
-		[bezier],
-	);
-	const startPoint = useMemo(
-		() => ({x: xToSvg(0), y: yToSvg(0, displayYMin, displayYMax)}),
-		[displayYMax, displayYMin],
-	);
-	const endPoint = useMemo(
-		() => ({x: xToSvg(1), y: yToSvg(1, displayYMin, displayYMax)}),
-		[displayYMax, displayYMin],
-	);
-	const firstHandle = useMemo(
-		() => pointFromBezier(bezier, 0, displayYMin, displayYMax),
-		[bezier, displayYMax, displayYMin],
-	);
-	const secondHandle = useMemo(
-		() => pointFromBezier(bezier, 1, displayYMin, displayYMax),
-		[bezier, displayYMax, displayYMin],
-	);
+	const startPoint = useMemo(() => ({x: xToSvg(0), y: yToSvg(0)}), []);
+	const endPoint = useMemo(() => ({x: xToSvg(1), y: yToSvg(1)}), []);
+	const firstHandle = useMemo(() => pointFromBezier(bezier, 0), [bezier]);
+	const secondHandle = useMemo(() => pointFromBezier(bezier, 1), [bezier]);
 	const path = useMemo(() => {
 		return `M ${startPoint.x} ${startPoint.y} C ${firstHandle.x} ${firstHandle.y}, ${secondHandle.x} ${secondHandle.y}, ${endPoint.x} ${endPoint.y}`;
 	}, [endPoint, firstHandle, secondHandle, startPoint]);
 
-	const yZero = yToSvg(0, displayYMin, displayYMax);
-	const yOne = yToSvg(1, displayYMin, displayYMax);
+	const yZero = yToSvg(0);
+	const yOne = yToSvg(1);
+	const yZeroLabel = clamp(yZero + 3, 10, SVG_HEIGHT - 4);
+	const yOneLabel = clamp(yOne + 3, 10, SVG_HEIGHT - 4);
 	const disabled = previewServerState.type !== 'connected';
 	const coordinatesGrid = useMemo(
 		(): React.CSSProperties => ({
@@ -576,10 +551,10 @@ export const EasingEditor: React.FC<{
 					cursor={activeHandle === 1 ? 'grabbing' : 'default'}
 					onPointerDown={(event) => onHandlePointerDown(1, event)}
 				/>
-				<text x={PLOT_LEFT - 22} y={yZero + 3} fill={LIGHT_TEXT} fontSize={9}>
+				<text x={PLOT_LEFT - 22} y={yZeroLabel} fill={LIGHT_TEXT} fontSize={9}>
 					0
 				</text>
-				<text x={PLOT_LEFT - 22} y={yOne + 3} fill={LIGHT_TEXT} fontSize={9}>
+				<text x={PLOT_LEFT - 22} y={yOneLabel} fill={LIGHT_TEXT} fontSize={9}>
 					1
 				</text>
 			</svg>

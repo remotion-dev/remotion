@@ -5,6 +5,7 @@ import {
 } from '../../get-zod-if-possible';
 import {RemTextarea} from '../../NewComposition/RemTextarea';
 import {Fieldset} from './Fieldset';
+import {useSchemaEditorDensity} from './SchemaEditorDensity';
 import {SchemaLabel} from './SchemaLabel';
 import type {AnyZodSchema} from './zod-schema-type';
 import {zodSafeParse} from './zod-schema-type';
@@ -55,6 +56,8 @@ export const ZodTextareaEditor: React.FC<{
 		() => zodSafeParse(schema, value),
 		[schema, value],
 	);
+	const density = useSchemaEditorDensity();
+	const small = density === 'compact';
 
 	return (
 		<Fieldset shouldPad={mayPad}>
@@ -74,6 +77,7 @@ export const ZodTextareaEditor: React.FC<{
 					placeholder={jsonPath.join('.')}
 					name={jsonPath.join('.')}
 					style={textareaStyle}
+					small={small}
 				/>
 				<ZodFieldValidation path={jsonPath} zodValidation={zodValidation} />
 			</div>

@@ -1,13 +1,14 @@
 // Schema error messages for studio editor
-import {useState} from 'react';
+import type {CSSProperties} from 'react';
 import {BACKGROUND, BLUE, LIGHT_TEXT} from '../../../helpers/colors';
 import {Button} from '../../Button';
+import {CompactNotSetUp} from '../../CompactExplanation';
 import {Spacing} from '../../layout';
 import {inlineCodeSnippet} from '../../Menu/styles';
 import type {ZodSafeParseResult} from './zod-schema-type';
 import {ZodErrorMessages} from './ZodErrorMessages';
 
-const explainer: React.CSSProperties = {
+const explainer: CSSProperties = {
 	display: 'flex',
 	flex: 1,
 	flexDirection: 'column',
@@ -21,9 +22,7 @@ const explainer: React.CSSProperties = {
 export type SchemaErrorAlignment = 'center' | 'left';
 export type SchemaErrorMode = 'full' | 'compact';
 
-const getExplainerStyle = (
-	align: SchemaErrorAlignment,
-): React.CSSProperties => {
+const getExplainerStyle = (align: SchemaErrorAlignment): CSSProperties => {
 	if (align === 'left') {
 		return {
 			...explainer,
@@ -35,92 +34,34 @@ const getExplainerStyle = (
 	return explainer;
 };
 
-const errorExplanation: React.CSSProperties = {
+const errorExplanation: CSSProperties = {
 	fontSize: 14,
 	color: LIGHT_TEXT,
 	fontFamily: 'sans-serif',
 	lineHeight: 1.5,
 };
 
-const codeSnippet: React.CSSProperties = {
+const codeSnippet: CSSProperties = {
 	fontSize: 14,
 	color: BLUE,
 	fontFamily: 'monospace',
 };
 
-const errorContainer: React.CSSProperties = {
+const errorContainer: CSSProperties = {
 	padding: '8px 12px',
 	overflowY: 'auto',
-};
-
-const compactExplanation: React.CSSProperties = {
-	fontSize: 12,
-	color: LIGHT_TEXT,
-	fontFamily: 'sans-serif',
-	lineHeight: 1.4,
-	padding: '0 12px 8px',
-};
-
-const compactHelpLink: React.CSSProperties = {
-	alignItems: 'center',
-	border: '1px solid currentColor',
-	borderRadius: '50%',
-	color: 'inherit',
-	cursor: 'default',
-	display: 'inline-flex',
-	fontFamily: 'sans-serif',
-	fontSize: 10,
-	fontWeight: 700,
-	height: 13,
-	justifyContent: 'center',
-	lineHeight: '13px',
-	marginLeft: 3,
-	opacity: 0.45,
-	textDecoration: 'none',
-	verticalAlign: 'text-bottom',
-	width: 13,
-};
-
-const compactHelpLinkHovered: React.CSSProperties = {
-	...compactHelpLink,
-	opacity: 0.85,
 };
 
 const openDocs = () => {
 	window.open('https://www.remotion.dev/docs/schemas');
 };
 
-const CompactHelpLink: React.FC<{
-	readonly href: string;
-	readonly ariaLabel: string;
-}> = ({href, ariaLabel}) => {
-	const [hovered, setHovered] = useState(false);
-
-	return (
-		<a
-			href={href}
-			target="_blank"
-			rel="noopener noreferrer"
-			style={hovered ? compactHelpLinkHovered : compactHelpLink}
-			aria-label={ariaLabel}
-			title="Learn more"
-			onMouseEnter={() => setHovered(true)}
-			onMouseLeave={() => setHovered(false)}
-		>
-			?
-		</a>
-	);
-};
-
 const CompactSchemaError = () => {
 	return (
-		<div style={compactExplanation}>
-			Not set up
-			<CompactHelpLink
-				href="https://www.remotion.dev/docs/schemas"
-				ariaLabel="Learn more about schemas"
-			/>
-		</div>
+		<CompactNotSetUp
+			learnMoreHref="https://www.remotion.dev/docs/schemas"
+			learnMoreAriaLabel="Learn more about schemas"
+		/>
 	);
 };
 

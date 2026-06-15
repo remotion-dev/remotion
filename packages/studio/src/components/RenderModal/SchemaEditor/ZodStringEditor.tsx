@@ -3,6 +3,7 @@ import React, {useCallback} from 'react';
 import {useZodIfPossible} from '../../get-zod-if-possible';
 import {RemotionInput} from '../../NewComposition/RemInput';
 import {Fieldset} from './Fieldset';
+import {useSchemaEditorDensity} from './SchemaEditorDensity';
 import {SchemaLabel} from './SchemaLabel';
 import {zodSafeParse, type AnyZodSchema} from './zod-schema-type';
 import type {JSONPath} from './zod-types';
@@ -30,6 +31,8 @@ export const ZodStringEditor: React.FC<{
 		() => zodSafeParse(schema, value),
 		[schema, value],
 	);
+	const density = useSchemaEditorDensity();
+	const small = density === 'compact';
 
 	const onChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
@@ -60,6 +63,7 @@ export const ZodStringEditor: React.FC<{
 					onBlur={onBlur}
 					rightAlign={false}
 					name={jsonPath.join('.')}
+					small={small}
 				/>
 				<ZodFieldValidation path={jsonPath} zodValidation={zodValidation} />
 			</div>

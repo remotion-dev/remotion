@@ -27,6 +27,7 @@ import {TimelineFieldLabel} from './TimelineFieldLabel';
 import {
 	shouldShowTimelineKeyframeControls,
 	TimelineKeyframeControls,
+	type TimelineKeyframeControlsMode,
 } from './TimelineKeyframeControls';
 import {TimelineKeyframedValue} from './TimelineKeyframedValue';
 import {TimelineLayerEyeSpacer} from './TimelineLayerEye';
@@ -192,6 +193,97 @@ const Value: React.FC<{
 	);
 };
 
+export const TimelineSequenceKeyframedValue: React.FC<{
+	readonly field: SchemaFieldInfo;
+	readonly fileName: string;
+	readonly nodePath: SequencePropsSubscriptionKey;
+	readonly schema: SequenceSchema;
+	readonly propStatus: CanUpdateSequencePropStatusKeyframed;
+	readonly keyframeDisplayOffset: number;
+	readonly sourceFrame?: number;
+}> = ({
+	field,
+	fileName,
+	nodePath,
+	schema,
+	propStatus,
+	keyframeDisplayOffset,
+	sourceFrame,
+}) => {
+	const {getDragOverrides} = useContext(
+		Internals.VisualModeDragOverridesContext,
+	);
+	const {setPropStatuses, setDragOverrides, clearDragOverrides} = useContext(
+		Internals.VisualModeSettersContext,
+	);
+	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const timelinePosition = Internals.Timeline.useTimelinePosition();
+	const currentSourceFrame =
+		sourceFrame ?? timelinePosition - keyframeDisplayOffset;
+	const clientId =
+		previewServerState.type === 'connected'
+			? previewServerState.clientId
+			: null;
+
+	const dragOverrideValue = useMemo(() => {
+		return (getDragOverrides(nodePath) ?? {})[field.key];
+	}, [getDragOverrides, nodePath, field.key]);
+
+	const onSaveKeyframed = useCallback(
+		(value: unknown, frame: number) => {
+			if (!clientId) {
+				return Promise.reject(new Error('Not connected to studio server'));
+			}
+
+			return callAddSequenceKeyframe({
+				fileName,
+				nodePath,
+				fieldKey: field.key,
+				sourceFrame: frame,
+				value,
+				schema,
+				setPropStatuses,
+				clientId,
+			});
+		},
+		[clientId, field.key, fileName, nodePath, schema, setPropStatuses],
+	);
+
+	const onKeyframedDragValueChange =
+		useCallback<TimelineFieldOnDragValueChange>(
+			(value) => {
+				setDragOverrides(
+					nodePath,
+					field.key,
+					Internals.makeKeyframedDragOverride({
+						status: propStatus,
+						frame: currentSourceFrame,
+						value,
+					}),
+				);
+			},
+			[currentSourceFrame, propStatus, field.key, nodePath, setDragOverrides],
+		);
+
+	const onKeyframedDragEnd = useCallback(() => {
+		clearDragOverrides(nodePath);
+	}, [clearDragOverrides, nodePath]);
+
+	return (
+		<TimelineKeyframedValue
+			field={field}
+			propStatus={propStatus}
+			keyframeDisplayOffset={keyframeDisplayOffset}
+			sourceFrame={currentSourceFrame}
+			dragOverrideValue={dragOverrideValue}
+			onSave={onSaveKeyframed}
+			onDragValueChange={onKeyframedDragValueChange}
+			onDragEnd={onKeyframedDragEnd}
+			scaleLockNodePath={nodePath}
+		/>
+	);
+};
+
 export const TimelineSequencePropItem: React.FC<{
 	readonly field: SchemaFieldInfo;
 	readonly validatedLocation: CodePosition;
@@ -200,6 +292,7 @@ export const TimelineSequencePropItem: React.FC<{
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly schema: SequenceSchema;
 	readonly keyframeDisplayOffset: number;
+	readonly keyframeControlsMode?: TimelineKeyframeControlsMode;
 }> = ({
 	field,
 	validatedLocation,
@@ -208,6 +301,7 @@ export const TimelineSequencePropItem: React.FC<{
 	nodePathInfo,
 	schema,
 	keyframeDisplayOffset,
+	keyframeControlsMode = 'timeline',
 }) => {
 	const {propStatuses: visualModePropStatuses} = useContext(
 		Internals.VisualModePropStatusesContext,
@@ -215,39 +309,34 @@ export const TimelineSequencePropItem: React.FC<{
 	const {getDragOverrides} = useContext(
 		Internals.VisualModeDragOverridesContext,
 	);
-	const {setPropStatuses, setDragOverrides, clearDragOverrides} = useContext(
-		Internals.VisualModeSettersContext,
-	);
+	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {setSelectedModal} = useContext(ModalsContext);
 	const selection = useTimelineRowSelection(nodePathInfo);
-	const clientId =
-		previewServerState.type === 'connected'
-			? previewServerState.clientId
-			: null;
 
 	const propStatusesForOverride = Internals.getPropStatusesCtx(
 		visualModePropStatuses,
 		nodePath,
 	);
 	const propStatus = propStatusesForOverride?.[field.key] ?? null;
-	const timelinePosition = Internals.Timeline.useTimelinePosition();
-	const jsxFrame = timelinePosition - keyframeDisplayOffset;
 
 	const dragOverrideValue = useMemo(() => {
 		return (getDragOverrides(nodePath) ?? {})[field.key];
 	}, [getDragOverrides, nodePath, field.key]);
 
+	const keyframable = isSchemaFieldKeyframable({
+		schema,
+		key: field.key,
+	});
 	const keyframeControls =
 		propStatus !== null &&
-		shouldShowTimelineKeyframeControls({
-			propStatus,
-			selected: selection.selected,
-			keyframable: isSchemaFieldKeyframable({
-				schema,
-				key: field.key,
-			}),
-		}) ? (
+		(keyframeControlsMode === 'inspector'
+			? keyframable
+			: shouldShowTimelineKeyframeControls({
+					propStatus,
+					selected: selection.selected,
+					keyframable,
+				})) ? (
 			<TimelineKeyframeControls
 				fieldKey={field.key}
 				propStatus={propStatus}
@@ -259,6 +348,7 @@ export const TimelineSequencePropItem: React.FC<{
 				schema={schema}
 				effectIndex={null}
 				nodePathInfo={nodePathInfo}
+				mode={keyframeControlsMode}
 			/>
 		) : null;
 
@@ -332,57 +422,6 @@ export const TimelineSequencePropItem: React.FC<{
 		validatedLocation.source,
 		propStatus,
 	]);
-
-	const onSaveKeyframed = useCallback(
-		(value: unknown, sourceFrame: number) => {
-			if (!clientId) {
-				return Promise.reject(new Error('Not connected to studio server'));
-			}
-
-			return callAddSequenceKeyframe({
-				fileName: validatedLocation.source,
-				nodePath,
-				fieldKey: field.key,
-				sourceFrame,
-				value,
-				schema,
-				setPropStatuses,
-				clientId,
-			});
-		},
-		[
-			clientId,
-			field.key,
-			nodePath,
-			schema,
-			setPropStatuses,
-			validatedLocation.source,
-		],
-	);
-
-	const onKeyframedDragValueChange =
-		useCallback<TimelineFieldOnDragValueChange>(
-			(value) => {
-				if (propStatus === null || !isKeyframedStatus(propStatus)) {
-					throw new Error('Expected keyframed status');
-				}
-
-				setDragOverrides(
-					nodePath,
-					field.key,
-					Internals.makeKeyframedDragOverride({
-						status: propStatus,
-						frame: jsxFrame,
-						value,
-					}),
-				);
-			},
-			[propStatus, field.key, jsxFrame, nodePath, setDragOverrides],
-		);
-
-	const onKeyframedDragEnd = useCallback(() => {
-		clearDragOverrides(nodePath);
-	}, [clearDragOverrides, nodePath]);
 
 	const onOpenKeyframeSettings = useCallback(() => {
 		if (propStatus === null || !isKeyframedStatus(propStatus)) {
@@ -474,15 +513,13 @@ export const TimelineSequencePropItem: React.FC<{
 			/>
 			{isKeyframedStatus(propStatus) ? (
 				<div style={timelineFieldValueColumnStyle}>
-					<TimelineKeyframedValue
+					<TimelineSequenceKeyframedValue
 						field={field}
+						fileName={validatedLocation.source}
+						nodePath={nodePath}
+						schema={schema}
 						propStatus={propStatus}
 						keyframeDisplayOffset={keyframeDisplayOffset}
-						dragOverrideValue={dragOverrideValue}
-						onSave={onSaveKeyframed}
-						onDragValueChange={onKeyframedDragValueChange}
-						onDragEnd={onKeyframedDragEnd}
-						scaleLockNodePath={nodePath}
 					/>
 				</div>
 			) : propStatus.status === 'static' ? (

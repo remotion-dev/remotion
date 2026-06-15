@@ -19,6 +19,7 @@ type Props = React.DetailedHTMLProps<
 	HTMLTextAreaElement
 > & {
 	readonly status: 'error' | 'warning' | 'ok';
+	readonly small?: boolean;
 };
 
 const inputBaseStyle: React.CSSProperties = {
@@ -31,10 +32,16 @@ const inputBaseStyle: React.CSSProperties = {
 	overflowX: 'hidden',
 };
 
+const compactInputStyle: React.CSSProperties = {
+	fontSize: 12,
+	lineHeight: '16px',
+	padding: '4px 6px',
+};
+
 const RemTextareaFRFunction: React.ForwardRefRenderFunction<
 	HTMLTextAreaElement,
 	Props
-> = ({status, ...props}, ref) => {
+> = ({status, small = false, ...props}, ref) => {
 	const [isFocused, setIsFocused] = useState(false);
 	const [isHovered, setIsHovered] = useState(false);
 	const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -48,11 +55,12 @@ const RemTextareaFRFunction: React.ForwardRefRenderFunction<
 		return {
 			backgroundColor: INPUT_BACKGROUND,
 			...inputBaseStyle,
+			...(small ? compactInputStyle : null),
 			width: '100%',
 			borderColor: getInputBorderColor({isFocused, isHovered, status}),
 			...(props.style ?? {}),
 		};
-	}, [isFocused, isHovered, props.style, status]);
+	}, [isFocused, isHovered, props.style, small, status]);
 
 	useEffect(() => {
 		if (!inputRef.current) {

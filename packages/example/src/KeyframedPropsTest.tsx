@@ -150,7 +150,7 @@ const KeyframedPropsTest: React.FC = () => {
 						scale: interpolate(frame, [31, 62], [1, 1], {
 							extrapolateLeft: 'clamp',
 							extrapolateRight: 'clamp',
-							easing: [Easing.bezier(0.25, 0.25, 0.7121, 3)],
+							easing: [Easing.bezier(0.3236, -0.7227, 0.6184, 2.8983)],
 						}),
 					}}
 				/>

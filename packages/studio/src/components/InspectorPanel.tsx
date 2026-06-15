@@ -7,20 +7,21 @@ import React, {
 } from 'react';
 import type {
 	_InternalTypes,
-	CanUpdateSequencePropStatus,
-	PropStatuses,
+	CanUpdateSequencePropStatusKeyframed,
+	SequencePropsSubscriptionKey,
+	SequenceSchema,
 } from 'remotion';
 import {Internals} from 'remotion';
+import type {CodePosition} from '../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
-import {
-	BACKGROUND,
-	BLUE,
-	BORDER_COLOR,
-	INPUT_BACKGROUND,
-	LIGHT_TEXT,
-	LINE_COLOR,
-} from '../helpers/colors';
+import {BACKGROUND, BLUE, LIGHT_TEXT, LINE_COLOR} from '../helpers/colors';
 import type {TrackWithHash} from '../helpers/get-timeline-sequence-sort-key';
+import {
+	getEffectFieldsToShow,
+	getFieldsToShow,
+	type EffectSchemaFieldInfo,
+	type SchemaFieldInfo,
+} from '../helpers/timeline-layout';
 import type {Guide} from '../state/editor-guides';
 import {
 	EditorShowGuidesContext,
@@ -32,6 +33,7 @@ import {DefaultPropsEditor} from './DefaultPropsEditor';
 import {useZodIfPossible} from './get-zod-if-possible';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from './InspectorPanelLayout';
 import {InspectorSequenceSection} from './InspectorSequenceSection';
+import {InspectorSourceLocation} from './InspectorSourceLocation';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from './Menu/is-menu-item';
 import {InputDragger} from './NewComposition/InputDragger';
 import {ValidationMessage} from './NewComposition/ValidationMessage';
@@ -50,13 +52,15 @@ import type {SegmentedControlItem} from './SegmentedControl';
 import {SegmentedControl} from './SegmentedControl';
 import {EasingEditor} from './Timeline/EasingEditorModal';
 import {findTrackForNodePathInfo} from './Timeline/find-track-for-node-path-info';
-import {getTimelineKeyframes} from './Timeline/get-timeline-keyframes';
 import {parseKeyframeFieldFromNodePath} from './Timeline/parse-keyframe-field-from-node-path';
+import {TimelineEffectPropValue} from './Timeline/TimelineEffectPropItem';
 import {
 	getTimelineSelectionKey,
+	getTimelineSequenceSelectionKey,
 	type TimelineSelection,
 	useTimelineSelection,
 } from './Timeline/TimelineSelection';
+import {TimelineSequenceKeyframedValue} from './Timeline/TimelineSequencePropItem';
 import {
 	getTimelineEasingValueForSelection,
 	type EasingSelection,
@@ -103,6 +107,33 @@ const sectionHeader: React.CSSProperties = {
 	fontSize: 12,
 	fontWeight: 'bold',
 	padding: `8px ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px`,
+};
+
+const sequenceHeader: React.CSSProperties = {
+	backgroundColor: BACKGROUND,
+	display: 'flex',
+	flexDirection: 'column',
+	minWidth: 0,
+	padding: `6px ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px 4px`,
+};
+
+const sequenceHeaderTitle: React.CSSProperties = {
+	alignSelf: 'flex-start',
+	backgroundColor: BACKGROUND,
+	border: 'none',
+	color: 'white',
+	display: 'inline-flex',
+	fontFamily: 'sans-serif',
+	fontSize: 12,
+	lineHeight: '18px',
+	margin: 0,
+	maxWidth: '100%',
+	minWidth: 0,
+	overflow: 'hidden',
+	padding: 0,
+	textAlign: 'left',
+	textOverflow: 'ellipsis',
+	whiteSpace: 'nowrap',
 };
 
 const sectionHeaderRow: React.CSSProperties = {
@@ -179,7 +210,7 @@ const centeredMessage: React.CSSProperties = {
 };
 
 const detailsContainer: React.CSSProperties = {
-	padding: INSPECTOR_PANEL_HORIZONTAL_PADDING,
+	padding: `0 ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px`,
 };
 
 const guideDetailsContainer: React.CSSProperties = {
@@ -208,18 +239,32 @@ const detailValue: React.CSSProperties = {
 	wordBreak: 'break-word',
 };
 
-const valueBlock: React.CSSProperties = {
-	backgroundColor: INPUT_BACKGROUND,
-	border: `1px solid ${BORDER_COLOR}`,
-	borderRadius: 4,
-	color: 'white',
-	fontFamily: 'monospace',
-	fontSize: 12,
-	lineHeight: 1.5,
-	margin: '12px 0 0',
-	overflowX: 'auto',
-	padding: 12,
-	whiteSpace: 'pre-wrap',
+const keyframeEditorRow: React.CSSProperties = {
+	alignItems: 'flex-start',
+	display: 'flex',
+	gap: 12,
+	justifyContent: 'space-between',
+	minWidth: 0,
+	padding: '10px 0',
+};
+
+const keyframeEditorLabel: React.CSSProperties = {
+	color: LIGHT_TEXT,
+	fontSize: 13,
+	lineHeight: '22px',
+	minWidth: 0,
+	overflow: 'hidden',
+	textOverflow: 'ellipsis',
+	whiteSpace: 'nowrap',
+};
+
+const keyframeEditorValue: React.CSSProperties = {
+	alignItems: 'center',
+	display: 'flex',
+	flexShrink: 0,
+	justifyContent: 'flex-end',
+	minHeight: 22,
+	minWidth: 0,
 };
 
 type SequenceSectionSelection = Extract<
@@ -246,21 +291,45 @@ const isSequenceSectionSelection = (
 	);
 };
 
-const formatInspectableValue = (value: unknown): string => {
-	if (value === undefined) {
-		return 'undefined';
+type SequencePropSelection = Extract<
+	TimelineSelection,
+	{type: 'sequence-prop' | 'sequence-effect-prop'}
+>;
+
+const isSequencePropSelection = (
+	selection: TimelineSelection,
+): selection is SequencePropSelection => {
+	return (
+		selection.type === 'sequence-prop' ||
+		selection.type === 'sequence-effect-prop'
+	);
+};
+
+const getSameSequencePropInspectorSelection = (
+	selections: readonly TimelineSelection[],
+): SequencePropSelection | null => {
+	const firstSelection = selections[0];
+	if (!firstSelection || !isSequencePropSelection(firstSelection)) {
+		return null;
 	}
 
-	if (typeof value === 'string') {
-		return JSON.stringify(value);
+	const rootSequenceKey = getTimelineSequenceSelectionKey(
+		firstSelection.nodePathInfo,
+	);
+	for (const selection of selections) {
+		if (!isSequencePropSelection(selection)) {
+			return null;
+		}
+
+		if (
+			getTimelineSequenceSelectionKey(selection.nodePathInfo) !==
+			rootSequenceKey
+		) {
+			return null;
+		}
 	}
 
-	try {
-		const json = JSON.stringify(value, null, 2);
-		return json ?? String(value);
-	} catch {
-		return String(value);
-	}
+	return firstSelection;
 };
 
 const InspectorSectionHeader: React.FC<{
@@ -356,8 +425,11 @@ const SequenceExpandedInspector: React.FC<{
 	readonly track: TrackWithHash;
 }> = ({track}) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const {originalLocation} = useOpenSequenceInEditor(track.sequence);
+	const {selectedItems, selectItems} = useTimelineSelection();
+	const {canOpenInEditor, openInEditor, originalLocation} =
+		useOpenSequenceInEditor(track.sequence);
 	const sequenceDisplayName = useSequenceDisplayName(track);
+	const {documentationLink} = track.sequence;
 
 	const validatedLocation = useMemo(() => {
 		if (
@@ -374,6 +446,61 @@ const SequenceExpandedInspector: React.FC<{
 			column: originalLocation.column ?? 0,
 		};
 	}, [originalLocation]);
+	const openFileLocation = useCallback(() => {
+		if (!canOpenInEditor) {
+			return;
+		}
+
+		openInEditor();
+	}, [canOpenInEditor, openInEditor]);
+	const openDocumentationLink = useCallback(() => {
+		if (!documentationLink) {
+			return;
+		}
+
+		window.open(documentationLink, '_blank', 'noopener,noreferrer');
+	}, [documentationLink]);
+	const titleStyle = useMemo((): React.CSSProperties => {
+		return {
+			...sequenceHeaderTitle,
+			cursor: documentationLink ? 'pointer' : 'default',
+		};
+	}, [documentationLink]);
+	const sequenceSelection = useMemo((): TimelineSelection | null => {
+		if (!track.nodePathInfo) {
+			return null;
+		}
+
+		return {
+			type: 'sequence',
+			nodePathInfo: track.nodePathInfo,
+		};
+	}, [track.nodePathInfo]);
+	const sequenceSelected = useMemo(() => {
+		if (sequenceSelection === null || selectedItems.length !== 1) {
+			return false;
+		}
+
+		return (
+			getTimelineSelectionKey(selectedItems[0]) ===
+			getTimelineSelectionKey(sequenceSelection)
+		);
+	}, [selectedItems, sequenceSelection]);
+	const selectSequenceOnInspectorPointerDown = useCallback(
+		(event: React.PointerEvent<HTMLDivElement>) => {
+			if (event.button !== 0 || sequenceSelection === null) {
+				return;
+			}
+
+			event.stopPropagation();
+			if (sequenceSelected) {
+				return;
+			}
+
+			selectItems([sequenceSelection]);
+		},
+		[selectItems, sequenceSelected, sequenceSelection],
+	);
 
 	if (previewServerState.type !== 'connected') {
 		return <InspectorMessage>Studio server disconnected</InspectorMessage>;
@@ -384,8 +511,30 @@ const SequenceExpandedInspector: React.FC<{
 	}
 
 	return (
-		<div style={selectedContainer} className={VERTICAL_SCROLLBAR_CLASSNAME}>
-			<InspectorSectionHeader>{sequenceDisplayName}</InspectorSectionHeader>
+		<div
+			style={selectedContainer}
+			className={VERTICAL_SCROLLBAR_CLASSNAME}
+			onPointerDown={selectSequenceOnInspectorPointerDown}
+		>
+			<div style={sequenceHeader}>
+				{documentationLink ? (
+					<button
+						type="button"
+						style={titleStyle}
+						title="Open component docs"
+						onClick={openDocumentationLink}
+					>
+						{sequenceDisplayName}
+					</button>
+				) : (
+					<div style={titleStyle}>{sequenceDisplayName}</div>
+				)}
+				<InspectorSourceLocation
+					location={validatedLocation}
+					canOpen={canOpenInEditor}
+					onOpen={openFileLocation}
+				/>
+			</div>
 			<InspectorSequenceSection
 				sequence={track.sequence}
 				validatedLocation={validatedLocation}
@@ -411,118 +560,138 @@ const SequenceSelectionInspector: React.FC<{
 	return <SequenceExpandedInspector track={track} />;
 };
 
-const getSequenceFieldLabel = ({
-	track,
-	fieldKey,
-	effectIndex,
-}: {
-	readonly track: TrackWithHash;
-	readonly fieldKey: string;
-	readonly effectIndex: number | null;
-}) => {
-	const schemaField =
-		effectIndex === null
-			? track.sequence.controls?.schema[fieldKey]
-			: track.sequence.effects[effectIndex]?.schema[fieldKey];
-
-	if (schemaField && 'description' in schemaField && schemaField.description) {
-		return schemaField.description;
-	}
-
-	return fieldKey;
-};
-
-const getKeyframedStatusForSelection = ({
-	selection,
-	track,
-	propStatuses,
-}: {
-	readonly selection: Extract<TimelineSelection, {type: 'keyframe'}>;
-	readonly track: TrackWithHash;
-	readonly propStatuses: PropStatuses;
-}): {
-	readonly fieldLabel: string;
-	readonly propStatus: CanUpdateSequencePropStatus | null;
-} | null => {
-	const field = parseKeyframeFieldFromNodePath(
-		selection.nodePathInfo.auxiliaryKeys,
-	);
-
-	if (field === null) {
-		return null;
-	}
-
-	if (field.type === 'sequence') {
-		const sequencePropStatus = Internals.getPropStatusesCtx(
-			propStatuses,
-			selection.nodePathInfo.sequenceSubscriptionKey,
-		)?.[field.fieldKey];
-
-		return {
-			fieldLabel: getSequenceFieldLabel({
-				track,
-				fieldKey: field.fieldKey,
-				effectIndex: null,
-			}),
-			propStatus: sequencePropStatus ?? null,
-		};
-	}
-
-	const effectStatus = Internals.getEffectPropStatusesCtx({
-		propStatuses,
-		nodePath: selection.nodePathInfo.sequenceSubscriptionKey,
-		effectIndex: field.effectIndex,
-	});
-	const effectPropStatus =
-		effectStatus.type === 'can-update-effect'
-			? effectStatus.props[field.fieldKey]
-			: null;
-
-	return {
-		fieldLabel: getSequenceFieldLabel({
-			track,
-			fieldKey: field.fieldKey,
-			effectIndex: field.effectIndex,
-		}),
-		propStatus: effectPropStatus ?? null,
-	};
-};
+type KeyframeEditorDetails =
+	| {
+			readonly type: 'sequence';
+			readonly field: SchemaFieldInfo;
+			readonly fieldLabel: string;
+			readonly fileName: string;
+			readonly keyframeDisplayOffset: number;
+			readonly nodePath: SequencePropsSubscriptionKey;
+			readonly propStatus: CanUpdateSequencePropStatusKeyframed;
+			readonly schema: SequenceSchema;
+			readonly sourceFrame: number;
+	  }
+	| {
+			readonly type: 'effect';
+			readonly field: EffectSchemaFieldInfo;
+			readonly fieldLabel: string;
+			readonly keyframeDisplayOffset: number;
+			readonly nodePath: SequencePropsSubscriptionKey;
+			readonly sourceFrame: number;
+			readonly validatedLocation: CodePosition;
+	  };
 
 const KeyframeInspector: React.FC<{
 	readonly selection: Extract<TimelineSelection, {type: 'keyframe'}>;
 }> = ({selection}) => {
 	const track = useTrackForSelection(selection);
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
+	const {getDragOverrides, getEffectDragOverrides} = useContext(
+		Internals.VisualModeDragOverridesContext,
+	);
 
-	const details = useMemo(() => {
-		if (!track) {
+	const details = useMemo<KeyframeEditorDetails | null>(() => {
+		if (!track || !track.sequence.controls) {
 			return null;
 		}
 
-		const status = getKeyframedStatusForSelection({
-			selection,
-			track,
+		const keyframeField = parseKeyframeFieldFromNodePath(
+			selection.nodePathInfo.auxiliaryKeys,
+		);
+		if (keyframeField === null) {
+			return null;
+		}
+
+		const nodePath = selection.nodePathInfo.sequenceSubscriptionKey;
+		const {keyframeDisplayOffset} = track;
+		const sourceFrame = selection.frame - keyframeDisplayOffset;
+
+		if (keyframeField.type === 'sequence') {
+			const sequenceFields = getFieldsToShow({
+				schema: track.sequence.controls.schema,
+				currentRuntimeValueDotNotation:
+					track.sequence.controls.currentRuntimeValueDotNotation,
+				getDragOverrides,
+				propStatuses,
+				nodePath,
+			});
+			const sequenceField =
+				sequenceFields?.find(
+					(candidate) => candidate.key === keyframeField.fieldKey,
+				) ?? null;
+			const sequencePropStatus =
+				Internals.getPropStatusesCtx(propStatuses, nodePath)?.[
+					keyframeField.fieldKey
+				] ?? null;
+
+			if (!sequenceField || sequencePropStatus?.status !== 'keyframed') {
+				return null;
+			}
+
+			return {
+				type: 'sequence',
+				field: sequenceField,
+				fieldLabel: sequenceField.description ?? sequenceField.key,
+				fileName: nodePath.absolutePath,
+				keyframeDisplayOffset,
+				nodePath,
+				propStatus: sequencePropStatus,
+				schema: track.sequence.controls.schema,
+				sourceFrame,
+			};
+		}
+
+		const effect = track.sequence.effects[keyframeField.effectIndex];
+		if (!effect) {
+			return null;
+		}
+
+		const effectFields = getEffectFieldsToShow({
+			effect,
+			effectIndex: keyframeField.effectIndex,
+			nodePath,
 			propStatuses,
+			getEffectDragOverrides,
 		});
+		const effectField =
+			effectFields.find(
+				(candidate) => candidate.key === keyframeField.fieldKey,
+			) ?? null;
+		const effectStatus = Internals.getEffectPropStatusesCtx({
+			propStatuses,
+			nodePath,
+			effectIndex: keyframeField.effectIndex,
+		});
+		const effectPropStatus =
+			effectStatus.type === 'can-update-effect'
+				? (effectStatus.props[keyframeField.fieldKey] ?? null)
+				: null;
 
-		if (status === null || status.propStatus === null) {
-			return null;
-		}
-
-		const keyframe = getTimelineKeyframes(
-			status.propStatus,
-			track.keyframeDisplayOffset,
-		).find((candidate) => candidate.frame === selection.frame);
-
-		if (!keyframe) {
+		if (!effectField || effectPropStatus?.status !== 'keyframed') {
 			return null;
 		}
 
 		return {
-			fieldLabel: status.fieldLabel,
-			value: keyframe.value,
+			type: 'effect',
+			field: effectField,
+			fieldLabel: effectField.description ?? effectField.key,
+			keyframeDisplayOffset,
+			nodePath,
+			sourceFrame,
+			validatedLocation: {
+				source: nodePath.absolutePath,
+				line: 1,
+				column: 0,
+			},
 		};
-	}, [propStatuses, selection, track]);
+	}, [
+		getDragOverrides,
+		getEffectDragOverrides,
+		propStatuses,
+		selection,
+		track,
+	]);
 
 	if (details === null) {
 		return <InspectorMessage>Keyframe unavailable</InspectorMessage>;
@@ -533,11 +702,30 @@ const KeyframeInspector: React.FC<{
 			<InspectorSectionHeader>Keyframe</InspectorSectionHeader>
 			<div style={detailsContainer}>
 				<InspectorDetailRow label="Frame">{selection.frame}</InspectorDetailRow>
-				<InspectorDetailRow label="Property">
-					{details.fieldLabel}
-				</InspectorDetailRow>
-				<div style={detailLabel}>Value</div>
-				<pre style={valueBlock}>{formatInspectableValue(details.value)}</pre>
+				<div style={keyframeEditorRow}>
+					<div style={keyframeEditorLabel}>{details.fieldLabel}</div>
+					<div style={keyframeEditorValue}>
+						{details.type === 'sequence' ? (
+							<TimelineSequenceKeyframedValue
+								field={details.field}
+								fileName={details.fileName}
+								nodePath={details.nodePath}
+								schema={details.schema}
+								propStatus={details.propStatus}
+								keyframeDisplayOffset={details.keyframeDisplayOffset}
+								sourceFrame={details.sourceFrame}
+							/>
+						) : (
+							<TimelineEffectPropValue
+								field={details.field}
+								nodePath={details.nodePath}
+								validatedLocation={details.validatedLocation}
+								keyframeDisplayOffset={details.keyframeDisplayOffset}
+								sourceFrame={details.sourceFrame}
+							/>
+						)}
+					</div>
+				</div>
 			</div>
 		</div>
 	);
@@ -848,6 +1036,10 @@ export const InspectorPanel: React.FC<{
 	readonly setDefaultProps: UpdaterFunction<Record<string, unknown>>;
 }> = ({composition, currentDefaultProps, setDefaultProps}) => {
 	const {selectedItems} = useTimelineSelection();
+	const sameSequencePropInspectorSelection = useMemo(
+		() => getSameSequencePropInspectorSelection(selectedItems),
+		[selectedItems],
+	);
 
 	if (selectedItems.length === 0) {
 		return (
@@ -860,6 +1052,14 @@ export const InspectorPanel: React.FC<{
 	}
 
 	if (selectedItems.length > 1) {
+		if (sameSequencePropInspectorSelection) {
+			return (
+				<div style={container}>
+					<SelectedInspector selection={sameSequencePropInspectorSelection} />
+				</div>
+			);
+		}
+
 		return (
 			<div style={container}>
 				<InspectorMessage>

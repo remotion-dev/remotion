@@ -21,6 +21,7 @@ export const TimelineKeyframedValue: React.FC<{
 	readonly field: SchemaFieldInfo;
 	readonly propStatus: CanUpdateSequencePropStatusKeyframed;
 	readonly keyframeDisplayOffset: number;
+	readonly sourceFrame?: number;
 	readonly dragOverrideValue: DragOverrideValue | undefined;
 	readonly onSave: (value: unknown, sourceFrame: number) => Promise<void>;
 	readonly onDragValueChange: TimelineFieldOnDragValueChange;
@@ -30,6 +31,7 @@ export const TimelineKeyframedValue: React.FC<{
 	field,
 	propStatus,
 	keyframeDisplayOffset,
+	sourceFrame,
 	dragOverrideValue,
 	onSave,
 	onDragValueChange,
@@ -37,7 +39,7 @@ export const TimelineKeyframedValue: React.FC<{
 	scaleLockNodePath,
 }) => {
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
-	const jsxFrame = timelinePosition - keyframeDisplayOffset;
+	const jsxFrame = sourceFrame ?? timelinePosition - keyframeDisplayOffset;
 
 	const computedValue = useMemo(() => {
 		const raw = Internals.interpolateKeyframedStatus({

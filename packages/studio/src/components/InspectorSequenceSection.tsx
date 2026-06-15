@@ -1,7 +1,7 @@
 import React, {useCallback, useMemo, useState} from 'react';
 import type {TSequence} from 'remotion';
 import type {CodePosition} from '../error-overlay/react-overlay/utils/get-source-map';
-import {LIGHT_TEXT} from '../helpers/colors';
+import {LIGHT_TEXT, LINE_COLOR} from '../helpers/colors';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 import {
 	flattenVisibleTreeNodes,
@@ -23,7 +23,20 @@ const emptyState: React.CSSProperties = {
 	color: LIGHT_TEXT,
 	fontFamily: 'sans-serif',
 	fontSize: 12,
+	lineHeight: 1.4,
 	padding: '0 12px 8px',
+};
+
+const divider: React.CSSProperties = {
+	backgroundColor: LINE_COLOR,
+	flexShrink: 0,
+	height: 1,
+	margin: '4px 0',
+};
+
+const controlsEffectsDivider: React.CSSProperties = {
+	...divider,
+	margin: '8px 0 4px',
 };
 
 const isEffectsRoot = (
@@ -111,6 +124,10 @@ export const InspectorSequenceSection: React.FC<{
 	}, [getIsExpanded, tree]);
 
 	const {schema} = sequence.controls!;
+	const showEffectsSection =
+		nodePathInfo.supportsEffects || effectRows.length > 0;
+	const showControlsEffectsDivider =
+		controlRows.length > 0 && showEffectsSection;
 
 	const renderRow = ({node, depth}: FlatTreeRow) => {
 		return (
@@ -126,19 +143,38 @@ export const InspectorSequenceSection: React.FC<{
 				nodePath={nodePathInfo.sequenceSubscriptionKey}
 				schema={schema}
 				keyframeDisplayOffset={keyframeDisplayOffset}
+				keyframeControlsMode="inspector"
 			/>
 		);
 	};
 
-	if (controlRows.length === 0 && effectRows.length === 0) {
-		return <div style={emptyState}>No schema</div>;
+	if (controlRows.length === 0 && !showEffectsSection) {
+		return (
+			<div style={container}>
+				<div style={divider} />
+				<div style={emptyState}>No schema</div>
+			</div>
+		);
 	}
 
 	return (
 		<div style={container}>
+			<div style={divider} />
+			{controlRows.length > 0 ? renderSectionHeader('Controls') : null}
 			{controlRows.map(renderRow)}
-			{effectRows.length > 0 ? renderSectionHeader('Effects') : null}
-			{effectRows.map(renderRow)}
+			{showEffectsSection ? (
+				<>
+					{showControlsEffectsDivider ? (
+						<div style={controlsEffectsDivider} />
+					) : null}
+					{renderSectionHeader('Effects')}
+					{effectRows.length === 0 ? (
+						<div style={emptyState}>None</div>
+					) : (
+						effectRows.map(renderRow)
+					)}
+				</>
+			) : null}
 		</div>
 	);
 };

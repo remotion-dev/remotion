@@ -7,6 +7,7 @@ import {
 	interpolate,
 	Solid,
 	useCurrentFrame,
+	interpolateColors,
 } from 'remotion';
 import {label} from './label';
 
@@ -16,19 +17,27 @@ export const EffectCopySource: React.FC = () => {
 	return (
 		<AbsoluteFill style={{backgroundColor: '#111827'}}>
 			<Solid
-				width={1080}
+				width={1198}
 				height={1080}
-				color="#60a5fa"
+				color={interpolateColors(frame, [42, 75], ['#586678', '#586678'])}
 				effects={[
 					brightness({
-						amount: interpolate(frame, [0, 100], [-0.25, 0.65], {
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-							easing: Easing.linear,
-						}),
+						amount: 0.65,
 					}),
 					blur({radius: 10}),
 				]}
+				style={{
+					transformOrigin: interpolate(
+						frame,
+						[18, 72],
+						['50% 50%', '50% 50%'],
+						{
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+							easing: [Easing.bezier(0.6384, 3, 0.3189, 0.623)],
+						},
+					),
+				}}
 			/>
 			<div style={label}>Copy this keyframed effects group</div>
 		</AbsoluteFill>

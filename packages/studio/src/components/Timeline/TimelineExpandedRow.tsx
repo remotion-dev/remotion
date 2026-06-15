@@ -16,6 +16,7 @@ import {
 	TimelineExpandArrowButton,
 	TimelineExpandArrowSpacer,
 } from './TimelineExpandArrowButton';
+import type {TimelineKeyframeControlsMode} from './TimelineKeyframeControls';
 import {TimelineLayerEyeSpacer} from './TimelineLayerEye';
 import {TimelineRowChrome} from './TimelineRowChrome';
 import {
@@ -42,6 +43,7 @@ export const TimelineExpandedRow: React.FC<{
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly schema: SequenceSchema;
 	readonly keyframeDisplayOffset: number;
+	readonly keyframeControlsMode?: TimelineKeyframeControlsMode;
 }> = ({
 	node,
 	depth,
@@ -53,6 +55,7 @@ export const TimelineExpandedRow: React.FC<{
 	nodePath,
 	schema,
 	keyframeDisplayOffset,
+	keyframeControlsMode,
 }) => {
 	const rowDepth =
 		(rowDepthBase ?? getExpandedRowDepth({nestedDepth, treeDepth: 0})) + depth;
@@ -130,6 +133,7 @@ export const TimelineExpandedRow: React.FC<{
 					nodePath={nodePath}
 					nodePathInfo={node.nodePathInfo}
 					keyframeDisplayOffset={keyframeDisplayOffset}
+					keyframeControlsMode={keyframeControlsMode}
 				/>
 			);
 		}
@@ -144,6 +148,7 @@ export const TimelineExpandedRow: React.FC<{
 					nodePathInfo={node.nodePathInfo}
 					schema={schema}
 					keyframeDisplayOffset={keyframeDisplayOffset}
+					keyframeControlsMode={keyframeControlsMode}
 				/>
 			);
 		}
