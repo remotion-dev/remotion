@@ -51,6 +51,17 @@ export const getAssetElement = ({
 		};
 	}
 
+	if (fileType.type === 'apng') {
+		return {
+			type: 'asset',
+			assetType: 'animated-image',
+			src,
+			srcType: 'static',
+			dimensions: fileType.dimensions,
+			position: null,
+		};
+	}
+
 	if (fileType.type === 'gif') {
 		return {
 			type: 'asset',
@@ -120,6 +131,17 @@ export const getAssetElementFromPath = (
 		};
 	}
 
+	if (extension === 'apng') {
+		return {
+			type: 'asset',
+			assetType: 'animated-image',
+			src: assetPath,
+			srcType: 'static',
+			dimensions: null,
+			position: null,
+		};
+	}
+
 	if (extension === 'gif') {
 		return {
 			type: 'asset',
@@ -171,6 +193,10 @@ const getAssetLabel = (element: InsertableCompositionElement) => {
 
 	if (element.assetType === 'gif') {
 		return '<Gif>';
+	}
+
+	if (element.assetType === 'animated-image') {
+		return '<AnimatedImage>';
 	}
 
 	if (element.assetType === 'audio') {
@@ -285,6 +311,7 @@ const getFileDimensions = async ({
 		fileType.type === 'jpeg' ||
 		fileType.type === 'webp' ||
 		fileType.type === 'bmp' ||
+		fileType.type === 'apng' ||
 		fileType.type === 'gif'
 	) {
 		if (fileType.dimensions) {
@@ -320,7 +347,7 @@ const getStaticAssetDimensions = (
 
 	if (
 		extension &&
-		['png', 'jpg', 'jpeg', 'webp', 'bmp', 'gif'].includes(extension)
+		['png', 'jpg', 'jpeg', 'webp', 'bmp', 'gif', 'apng'].includes(extension)
 	) {
 		return getImageDimensions({revokeObjectUrl: false, src});
 	}
@@ -357,6 +384,40 @@ const getStaticAssetDimensionsOrNull = async (
 	} catch {
 		return null;
 	}
+};
+
+const getStaticAssetFileType = async (
+	assetPath: string,
+): Promise<FileType | null> => {
+	const extension = assetPath.split('.').pop()?.toLowerCase();
+	if (extension !== 'png' && extension !== 'apng') {
+		return null;
+	}
+
+	try {
+		const response = await fetch(staticFile(assetPath));
+		if (!response.ok) {
+			return null;
+		}
+
+		return detectFileType(new Uint8Array(await response.arrayBuffer()));
+	} catch {
+		return null;
+	}
+};
+
+const getAssetElementFromStaticAsset = async (
+	assetPath: string,
+): Promise<InsertableAssetElement | null> => {
+	const fileType = await getStaticAssetFileType(assetPath);
+	if (fileType) {
+		const element = getAssetElement({fileType, src: assetPath});
+		if (element) {
+			return element;
+		}
+	}
+
+	return getAssetElementFromPath(assetPath);
 };
 
 export const pickFilesToImport = (): Promise<File[]> => {
@@ -672,20 +733,21 @@ export const insertExistingAssets = async ({
 
 	try {
 		for (const assetPath of assetPaths) {
-			const element = getAssetElementFromPath(assetPath);
+			const element = await getAssetElementFromStaticAsset(assetPath);
 			if (element === null) {
 				unsupportedFiles.push(assetPath);
 				continue;
 			}
 
-			const dimensions = await getStaticAssetDimensionsOrNull(assetPath);
+			const dimensions =
+				element.dimensions ?? (await getStaticAssetDimensionsOrNull(assetPath));
 
 			const inserted = await insertAssetElement({
 				compositionFile,
 				compositionId,
 				element: {
 					...element,
-					dimensions: element.dimensions ?? dimensions,
+					dimensions,
 					position: getCenteredPosition({
 						dimensions,
 						dropPosition,

@@ -1188,6 +1188,15 @@ const ensureImgImport = (ast: File) => {
 	});
 };
 
+const ensureAnimatedImageImport = (ast: File) => {
+	return ensureOfficialNamedImport({
+		ast,
+		importedName: 'AnimatedImage',
+		sourcePath: 'remotion',
+		label: '<AnimatedImage>',
+	});
+};
+
 const ensureVideoImport = (ast: File) => {
 	return ensureOfficialNamedImport({
 		ast,
@@ -1630,6 +1639,8 @@ const createInsertableJsxElement = ({
 			localName = ensureVideoImport(ast);
 		} else if (element.assetType === 'gif') {
 			localName = ensureGifImport(ast);
+		} else if (element.assetType === 'animated-image') {
+			localName = ensureAnimatedImageImport(ast);
 		} else if (element.assetType === 'audio') {
 			localName = ensureAudioImport(ast);
 		} else {

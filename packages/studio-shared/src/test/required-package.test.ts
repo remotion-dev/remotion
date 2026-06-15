@@ -55,6 +55,16 @@ test('gets required package for insertable elements', () => {
 	).toBe('@remotion/gif');
 	expect(
 		getRequiredPackageForInsertableElement({
+			type: 'asset',
+			assetType: 'animated-image',
+			src: 'animated.png',
+			srcType: 'static',
+			dimensions: null,
+			position: null,
+		}),
+	).toBe(null);
+	expect(
+		getRequiredPackageForInsertableElement({
 			type: 'component',
 			componentName: 'Circle',
 			importName: 'Circle',

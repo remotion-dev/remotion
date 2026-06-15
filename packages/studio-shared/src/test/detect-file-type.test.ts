@@ -18,6 +18,25 @@ test('detects PNG dimensions', () => {
 	});
 });
 
+test('detects animated PNG dimensions', () => {
+	const apng = new Uint8Array(53);
+	apng.set([0x89, 0x50, 0x4e, 0x47, 13, 10, 26, 10], 0);
+	apng.set([0, 0, 0, 13], 8);
+	apng.set([0x49, 0x48, 0x44, 0x52], 12);
+	apng.set([0, 0, 1, 64], 16);
+	apng.set([0, 0, 0, 180], 20);
+	apng.set([0, 0, 0, 8], 33);
+	apng.set([0x61, 0x63, 0x54, 0x4c], 37);
+
+	expect(detectFileType(apng)).toEqual({
+		type: 'apng',
+		dimensions: {
+			width: 320,
+			height: 180,
+		},
+	});
+});
+
 test('detects GIF dimensions', () => {
 	const gif = new Uint8Array([
 		0x47, 0x49, 0x46, 0x38, 0x39, 0x61, 0x20, 0x03, 0x58, 0x02,
