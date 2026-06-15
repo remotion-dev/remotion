@@ -276,6 +276,7 @@ const sidebars: SidebarsConfig = {
 				'effects/chromatic-aberration',
 				'effects/color-key',
 				'effects/contrast',
+				'effects/contour-lines',
 				'effects/dot-grid',
 				'effects/drop-shadow',
 				'effects/duotone',
