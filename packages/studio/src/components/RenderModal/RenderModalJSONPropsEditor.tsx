@@ -25,6 +25,9 @@ const inspectorStyle: React.CSSProperties = {
 	flex: 'none',
 	minHeight: 220,
 	overflowY: 'hidden',
+	...({
+		fieldSizing: 'content',
+	} satisfies React.CSSProperties & {fieldSizing: 'content'}),
 };
 
 const scrollable: React.CSSProperties = {
@@ -96,7 +99,6 @@ export const RenderModalJSONPropsEditor: React.FC<{
 	}
 
 	const {subscribeToEvent} = useContext(StudioServerConnectionCtx);
-	const textareaRef = React.useRef<HTMLTextAreaElement>(null);
 
 	const [localValue, setLocalValue] = React.useState<State>(() => {
 		return parseJSON(serializedJSON.serializedString, schema);
@@ -176,21 +178,6 @@ export const RenderModalJSONPropsEditor: React.FC<{
 		setLocalValue((v) => parseJSON(v.str, schema));
 	}, [schema]);
 
-	useEffect(() => {
-		const textarea = textareaRef.current;
-		if (textarea === null) {
-			return;
-		}
-
-		if (layout !== 'inspector') {
-			textarea.style.height = '';
-			return;
-		}
-
-		textarea.style.height = 'auto';
-		textarea.style.height = `${Math.max(textarea.scrollHeight + 2, 220)}px`;
-	}, [layout, localValue.str]);
-
 	const reset = useCallback(() => {
 		setValue(defaultProps);
 		setLocalValue(parseJSON(JSON.stringify(defaultProps, null, 2), schema));
@@ -212,7 +199,6 @@ export const RenderModalJSONPropsEditor: React.FC<{
 	return (
 		<div style={layout === 'inspector' ? inspectorScrollable : scrollable}>
 			<RemTextarea
-				ref={textareaRef}
 				onChange={onChange}
 				onBlur={onQuickSave}
 				value={localValue.str}
