@@ -63,6 +63,7 @@ const makeSequence = ({
 	postmountDisplay: null,
 	controls: overrideId ? makeControls(overrideId) : null,
 	effects: [],
+	frozenFrame: null,
 });
 
 const numberFieldSchema = {

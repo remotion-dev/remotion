@@ -18,6 +18,7 @@ import {
 	VisualModeSettersContext,
 } from '../SequenceManager.js';
 import {Series} from '../series/index.js';
+import type {BasicMediaInTimelineReturnType} from '../use-media-in-timeline.js';
 import {WrapSequenceContext} from './wrap-sequence-context.js';
 
 afterEach(cleanup);
@@ -102,6 +103,25 @@ const SequenceTestWrapper: React.FC<{
 		</WrapSequenceContext>
 	);
 };
+
+const makeMediaInTimelineData = ({
+	startMediaFrom,
+	playbackRate = 1,
+}: {
+	startMediaFrom: number;
+	playbackRate?: number;
+}): BasicMediaInTimelineReturnType =>
+	({
+		volumes: 1,
+		duration: 100,
+		doesVolumeChange: false,
+		nonce: {get: () => [[0, 0]]},
+		rootId: 'test-root',
+		finalDisplayName: 'video.mp4',
+		startMediaFrom,
+		src: 'video.mp4',
+		playbackRate,
+	}) as unknown as BasicMediaInTimelineReturnType;
 
 test('Sequence calls registerSequence exactly once on mount', () => {
 	let registerCalls = 0;
@@ -241,6 +261,97 @@ test('AnimatedImage registers its canvas ref for the Studio outline', () => {
 
 	expect(refForOutline.current).toBeInstanceOf(HTMLCanvasElement);
 	expect(ref.current).toBe(refForOutline.current);
+});
+
+test('Video media registration accounts for its own negative from', () => {
+	const registeredSequences: TSequence[] = [];
+
+	render(
+		<SequenceTestWrapper
+			onRegisterSequence={(sequence) => {
+				registeredSequences.push(sequence);
+			}}
+		>
+			<Sequence
+				layout="none"
+				from={-10}
+				durationInFrames={50}
+				_remotionInternalIsMedia={{
+					type: 'video',
+					data: makeMediaInTimelineData({startMediaFrom: 5}),
+				}}
+			/>
+		</SequenceTestWrapper>,
+	);
+
+	const videoSequence = registeredSequences.find(
+		(sequence) => sequence.type === 'video',
+	);
+
+	expect(videoSequence?.startMediaFrom).toBe(15);
+});
+
+test('Video media registration stores frozen media frame', () => {
+	const registeredSequences: TSequence[] = [];
+
+	render(
+		<SequenceTestWrapper
+			onRegisterSequence={(sequence) => {
+				registeredSequences.push(sequence);
+			}}
+		>
+			<Sequence
+				layout="none"
+				durationInFrames={50}
+				freeze={12}
+				_remotionInternalIsMedia={{
+					type: 'video',
+					data: makeMediaInTimelineData({
+						startMediaFrom: 5,
+						playbackRate: 2,
+					}),
+				}}
+			/>
+		</SequenceTestWrapper>,
+	);
+
+	const videoSequence = registeredSequences.find(
+		(sequence) => sequence.type === 'video',
+	);
+
+	expect(videoSequence?.frozenFrame).toBe(12);
+	expect(videoSequence?.frozenMediaFrame).toBe(29);
+});
+
+test('Video media registration keeps frozen frame sequence-local for negative from', () => {
+	const registeredSequences: TSequence[] = [];
+
+	render(
+		<SequenceTestWrapper
+			onRegisterSequence={(sequence) => {
+				registeredSequences.push(sequence);
+			}}
+		>
+			<Sequence
+				layout="none"
+				from={-10}
+				durationInFrames={50}
+				freeze={12}
+				_remotionInternalIsMedia={{
+					type: 'video',
+					data: makeMediaInTimelineData({startMediaFrom: 5}),
+				}}
+			/>
+		</SequenceTestWrapper>,
+	);
+
+	const videoSequence = registeredSequences.find(
+		(sequence) => sequence.type === 'video',
+	);
+
+	expect(videoSequence?.startMediaFrom).toBe(15);
+	expect(videoSequence?.frozenFrame).toBe(12);
+	expect(videoSequence?.frozenMediaFrame).toBe(17);
 });
 
 test('Img registers a refForOutline pointing to the rendered image element', () => {
