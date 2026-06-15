@@ -207,6 +207,7 @@ export const RenderModalJSONPropsEditor: React.FC<{
 			borderColor: FAIL_COLOR,
 		};
 	}, [hasError, layout]);
+	const buttonSize = layout === 'inspector' ? 'compact' : 'default';
 
 	return (
 		<div style={layout === 'inspector' ? inspectorScrollable : scrollable}>
@@ -217,6 +218,7 @@ export const RenderModalJSONPropsEditor: React.FC<{
 				value={localValue.str}
 				status={localValue.validJSON ? 'ok' : 'error'}
 				style={textAreaStyle}
+				small={layout === 'inspector'}
 			/>
 			<Spacing y={1} />
 			<div data-testid="json-props-error">
@@ -240,11 +242,16 @@ export const RenderModalJSONPropsEditor: React.FC<{
 				<Button
 					disabled={!(hasChanged || !localValue.validJSON)}
 					onClick={reset}
+					size={buttonSize}
 				>
 					Reset
 				</Button>
 				<Flex />
-				<Button disabled={!localValue.validJSON} onClick={onPretty}>
+				<Button
+					disabled={!localValue.validJSON}
+					onClick={onPretty}
+					size={buttonSize}
+				>
 					Format
 				</Button>
 				<Spacing x={1} />

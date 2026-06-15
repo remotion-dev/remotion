@@ -2035,6 +2035,52 @@ test('Backspace reset targets selected computed sequence props with defaults', (
 	]);
 });
 
+test('Backspace reset targets flattened built-in sequence style props', () => {
+	const opacityNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['controls', 'style.opacity'],
+	);
+	const nodePath = opacityNodePathInfo.sequenceSubscriptionKey;
+	const propStatuses = {
+		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			canUpdate: true,
+			props: {
+				'style.opacity': {
+					status: 'computed',
+				},
+			},
+			effects: [],
+		},
+	} satisfies PropStatuses;
+
+	const resetTargets = getTimelinePropResetTargets({
+		selections: [
+			{
+				type: 'sequence-prop',
+				nodePathInfo: opacityNodePathInfo,
+				key: 'style.opacity',
+			},
+		],
+		sequences: [
+			makeTimelineSequence({schema: NoReactInternals.sequenceSchema}),
+		],
+		overrideIdsToNodePaths: {override: nodePath},
+		propStatuses,
+	});
+
+	expect(resetTargets).toEqual([
+		{
+			type: 'sequence-prop',
+			fileName: '/project/src/Comp.tsx',
+			nodePath,
+			fieldKey: 'style.opacity',
+			value: 1,
+			defaultValue: '1',
+			schema: NoReactInternals.sequenceSchema,
+		},
+	]);
+});
+
 test('Backspace reset skips keyframed sequence props without defaults', () => {
 	const schema = {
 		opacity: {type: 'number', default: undefined, hiddenFromList: false},

@@ -11,12 +11,12 @@ const compactExplanation: CSSProperties = {
 
 const compactHelpLink: CSSProperties = {
 	alignItems: 'center',
-	color: 'inherit',
+	color: LIGHT_TEXT,
 	cursor: 'default',
 	display: 'inline-flex',
 	height: 13,
 	justifyContent: 'center',
-	marginLeft: 7,
+	marginLeft: 8,
 	opacity: 1,
 	textDecoration: 'none',
 	verticalAlign: 'text-bottom',
@@ -25,7 +25,7 @@ const compactHelpLink: CSSProperties = {
 
 const compactHelpLinkHovered: CSSProperties = {
 	...compactHelpLink,
-	opacity: 0.8,
+	color: 'white',
 };
 
 const compactHelpIcon: CSSProperties = {
