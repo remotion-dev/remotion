@@ -1,13 +1,6 @@
-import {Callout} from '@remotion/shapes';
 import {zColor, zMatrix, zTextarea} from '@remotion/zod-types';
 import React from 'react';
-import {
-	AbsoluteFill,
-	Sequence,
-	interpolate,
-	useCurrentFrame,
-	Easing,
-} from 'remotion';
+import {AbsoluteFill, Sequence} from 'remotion';
 import {z} from 'zod';
 
 const COUNTRY_NAMES = [
@@ -154,7 +147,6 @@ export const SchemaTest: React.FC<z.infer<typeof schemaTestSchema>> = ({
 	description,
 	country,
 }) => {
-	const frame = useCurrentFrame();
 	return (
 		<AbsoluteFill
 			style={{
@@ -163,16 +155,7 @@ export const SchemaTest: React.FC<z.infer<typeof schemaTestSchema>> = ({
 				fontSize: 80,
 			}}
 		>
-			<Sequence
-				from={delay}
-				style={{
-					scale: interpolate(frame, [0, 75], [1, 1], {
-						extrapolateLeft: 'clamp',
-						extrapolateRight: 'clamp',
-						easing: [Easing.bezier(0.3555, -2, 0.6873, 3)],
-					}),
-				}}
-			>
+			<Sequence from={delay}>
 				<span style={{marginRight: 20, color}}>{title}</span>
 
 				<ul style={{listStyleType: 'disc'}}>
@@ -187,34 +170,6 @@ export const SchemaTest: React.FC<z.infer<typeof schemaTestSchema>> = ({
 
 				<p style={{fontSize: 36, color: '#888', marginTop: 24}}>{country}</p>
 			</Sequence>
-			<Callout
-				width={513}
-				height={interpolate(frame, [32], [200], {
-					extrapolateLeft: 'clamp',
-					extrapolateRight: 'clamp',
-				})}
-				pointerLength={40}
-				pointerBaseWidth={60}
-				pointerPosition={0.5}
-				pointerDirection="down"
-				cornerRadius={20}
-				fill={'#ffffff'}
-				style={{
-					position: 'absolute',
-					translate: interpolate(
-						frame,
-						[44, 74],
-						['110.4px 21.3px', '110.4px 21.3px'],
-						{
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-							easing: [Easing.bezier(0.2543, -2, 0.7662, 3)],
-						},
-					),
-					transformOrigin: '50% 100%',
-					rotate: '-50deg',
-				}}
-			/>
 		</AbsoluteFill>
 	);
 };
