@@ -19,6 +19,7 @@ import {
 } from '../components/selected-outline-uv';
 import {
 	applySelectedOutlineDragAxisLock,
+	applySelectedOutlineTransformOriginAxisLock,
 	compensateTranslateForTransformOrigin,
 	getOutlineSelectionInteraction,
 	getSelectedEffectFieldsBySequenceKey,
@@ -34,6 +35,7 @@ import {
 	getSelectedOutlineScaleDragChanges,
 	getSelectedOutlineScaleDragValues,
 	getSelectedOutlineScaleEdgeInfo,
+	getSelectedOutlineTransformOriginLockedAxis,
 	getSelectedSequenceKeys,
 	getSequencesWithSelectableOutlines,
 	getTransformedSvgViewportPoints,
@@ -1462,6 +1464,67 @@ test('Transform origin drag does not snap outside the magnetic threshold', () =>
 
 	expect(snapped[0]).toBeCloseTo(uv[0], 5);
 	expect(snapped[1]).toBeCloseTo(uv[1], 5);
+});
+
+test('Transform origin axis locking keeps one UV axis fixed', () => {
+	const dimensions = {width: 200, height: 100};
+	const startUv = [0.25, 0.5] as const;
+	const mostlyHorizontal = [0.5, 0.75] as const;
+	const mostlyVertical = [0.35, 0.9] as const;
+
+	expect(
+		getSelectedOutlineTransformOriginLockedAxis({
+			axisLocked: true,
+			dimensions,
+			startUv,
+			uv: mostlyHorizontal,
+		}),
+	).toBe('x');
+	expect(
+		applySelectedOutlineTransformOriginAxisLock({
+			lockedAxis: 'x',
+			startUv,
+			uv: mostlyHorizontal,
+		}),
+	).toEqual([0.5, 0.5]);
+	expect(
+		getSelectedOutlineTransformOriginLockedAxis({
+			axisLocked: true,
+			dimensions,
+			startUv,
+			uv: mostlyVertical,
+		}),
+	).toBe('y');
+	expect(
+		applySelectedOutlineTransformOriginAxisLock({
+			lockedAxis: 'y',
+			startUv,
+			uv: mostlyVertical,
+		}),
+	).toEqual([0.25, 0.9]);
+	expect(
+		getSelectedOutlineTransformOriginLockedAxis({
+			axisLocked: false,
+			dimensions,
+			startUv,
+			uv: mostlyVertical,
+		}),
+	).toBeNull();
+	expect(
+		applySelectedOutlineTransformOriginAxisLock({
+			lockedAxis: null,
+			startUv,
+			uv: mostlyVertical,
+		}),
+	).toBe(mostlyVertical);
+	expect(
+		getSelectedOutlineTransformOriginLockedAxis({
+			axisLocked: true,
+			dimensions,
+			startUv,
+			uv: mostlyVertical,
+		}),
+	).toBe('y');
 });
 
 test('UV coordinate constraints preserve precision despite schema step', () => {

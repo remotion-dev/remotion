@@ -706,6 +706,48 @@ export const uvsEqual = (
 	Math.abs(left[0] - right[0]) < 0.000001 &&
 	Math.abs(left[1] - right[1]) < 0.000001;
 
+export type SelectedOutlineTransformOriginLockedAxis = 'x' | 'y' | null;
+
+export const getSelectedOutlineTransformOriginLockedAxis = ({
+	axisLocked,
+	dimensions,
+	startUv,
+	uv,
+}: {
+	readonly axisLocked: boolean;
+	readonly dimensions: NonNullable<SelectedOutline['dimensions']>;
+	readonly startUv: UvCoordinate;
+	readonly uv: UvCoordinate;
+}): SelectedOutlineTransformOriginLockedAxis => {
+	if (!axisLocked) {
+		return null;
+	}
+
+	const deltaX = (uv[0] - startUv[0]) * dimensions.width;
+	const deltaY = (uv[1] - startUv[1]) * dimensions.height;
+	return Math.abs(deltaX) >= Math.abs(deltaY) ? 'x' : 'y';
+};
+
+export const applySelectedOutlineTransformOriginAxisLock = ({
+	lockedAxis,
+	startUv,
+	uv,
+}: {
+	readonly lockedAxis: SelectedOutlineTransformOriginLockedAxis;
+	readonly startUv: UvCoordinate;
+	readonly uv: UvCoordinate;
+}): UvCoordinate => {
+	if (lockedAxis === 'x') {
+		return [uv[0], startUv[1]];
+	}
+
+	if (lockedAxis === 'y') {
+		return [startUv[0], uv[1]];
+	}
+
+	return uv;
+};
+
 const transformOriginSnapTargets = [
 	[0, 0],
 	[0.5, 0],

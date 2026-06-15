@@ -57,6 +57,7 @@ import {useTimelineSelection} from './Timeline/TimelineSelection';
 
 export {
 	applySelectedOutlineDragAxisLock,
+	applySelectedOutlineTransformOriginAxisLock,
 	compensateTranslateForTransformOrigin,
 	getSelectedOutlineDragChanges,
 	getSelectedOutlineDragValues,
@@ -69,6 +70,7 @@ export {
 	getSelectedOutlineScaleDragStates,
 	getSelectedOutlineScaleDragValues,
 	getSelectedOutlineScaleEdgeInfo,
+	getSelectedOutlineTransformOriginLockedAxis,
 	isSelectedOutlineDragPastThreshold,
 	selectedOutlineTransformOriginSnapThresholdPx,
 	snapSelectedOutlineTransformOriginUv,
