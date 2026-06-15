@@ -199,17 +199,8 @@ export const TimelineSequenceKeyframedValue: React.FC<{
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly schema: SequenceSchema;
 	readonly propStatus: CanUpdateSequencePropStatusKeyframed;
-	readonly keyframeDisplayOffset: number;
-	readonly sourceFrame?: number;
-}> = ({
-	field,
-	fileName,
-	nodePath,
-	schema,
-	propStatus,
-	keyframeDisplayOffset,
-	sourceFrame,
-}) => {
+	readonly sourceFrame: number;
+}> = ({field, fileName, nodePath, schema, propStatus, sourceFrame}) => {
 	const {getDragOverrides} = useContext(
 		Internals.VisualModeDragOverridesContext,
 	);
@@ -217,9 +208,6 @@ export const TimelineSequenceKeyframedValue: React.FC<{
 		Internals.VisualModeSettersContext,
 	);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const timelinePosition = Internals.Timeline.useTimelinePosition();
-	const currentSourceFrame =
-		sourceFrame ?? timelinePosition - keyframeDisplayOffset;
 	const clientId =
 		previewServerState.type === 'connected'
 			? previewServerState.clientId
@@ -257,12 +245,12 @@ export const TimelineSequenceKeyframedValue: React.FC<{
 					field.key,
 					Internals.makeKeyframedDragOverride({
 						status: propStatus,
-						frame: currentSourceFrame,
+						frame: sourceFrame,
 						value,
 					}),
 				);
 			},
-			[currentSourceFrame, propStatus, field.key, nodePath, setDragOverrides],
+			[propStatus, field.key, nodePath, setDragOverrides, sourceFrame],
 		);
 
 	const onKeyframedDragEnd = useCallback(() => {
@@ -273,8 +261,7 @@ export const TimelineSequenceKeyframedValue: React.FC<{
 		<TimelineKeyframedValue
 			field={field}
 			propStatus={propStatus}
-			keyframeDisplayOffset={keyframeDisplayOffset}
-			sourceFrame={currentSourceFrame}
+			sourceFrame={sourceFrame}
 			dragOverrideValue={dragOverrideValue}
 			onSave={onSaveKeyframed}
 			onDragValueChange={onKeyframedDragValueChange}
@@ -313,6 +300,8 @@ export const TimelineSequencePropItem: React.FC<{
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {setSelectedModal} = useContext(ModalsContext);
 	const selection = useTimelineRowSelection(nodePathInfo);
+	const timelinePosition = Internals.Timeline.useTimelinePosition();
+	const sourceFrame = timelinePosition - keyframeDisplayOffset;
 
 	const propStatusesForOverride = Internals.getPropStatusesCtx(
 		visualModePropStatuses,
@@ -519,7 +508,7 @@ export const TimelineSequencePropItem: React.FC<{
 						nodePath={nodePath}
 						schema={schema}
 						propStatus={propStatus}
-						keyframeDisplayOffset={keyframeDisplayOffset}
+						sourceFrame={sourceFrame}
 					/>
 				</div>
 			) : propStatus.status === 'static' ? (

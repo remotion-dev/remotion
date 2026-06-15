@@ -566,7 +566,6 @@ type KeyframeEditorDetails =
 			readonly field: SchemaFieldInfo;
 			readonly fieldLabel: string;
 			readonly fileName: string;
-			readonly keyframeDisplayOffset: number;
 			readonly nodePath: SequencePropsSubscriptionKey;
 			readonly propStatus: CanUpdateSequencePropStatusKeyframed;
 			readonly schema: SequenceSchema;
@@ -576,7 +575,6 @@ type KeyframeEditorDetails =
 			readonly type: 'effect';
 			readonly field: EffectSchemaFieldInfo;
 			readonly fieldLabel: string;
-			readonly keyframeDisplayOffset: number;
 			readonly nodePath: SequencePropsSubscriptionKey;
 			readonly sourceFrame: number;
 			readonly validatedLocation: CodePosition;
@@ -634,7 +632,6 @@ const KeyframeInspector: React.FC<{
 				field: sequenceField,
 				fieldLabel: sequenceField.description ?? sequenceField.key,
 				fileName: nodePath.absolutePath,
-				keyframeDisplayOffset,
 				nodePath,
 				propStatus: sequencePropStatus,
 				schema: track.sequence.controls.schema,
@@ -676,7 +673,6 @@ const KeyframeInspector: React.FC<{
 			type: 'effect',
 			field: effectField,
 			fieldLabel: effectField.description ?? effectField.key,
-			keyframeDisplayOffset,
 			nodePath,
 			sourceFrame,
 			validatedLocation: {
@@ -712,7 +708,6 @@ const KeyframeInspector: React.FC<{
 								nodePath={details.nodePath}
 								schema={details.schema}
 								propStatus={details.propStatus}
-								keyframeDisplayOffset={details.keyframeDisplayOffset}
 								sourceFrame={details.sourceFrame}
 							/>
 						) : (
@@ -720,7 +715,6 @@ const KeyframeInspector: React.FC<{
 								field={details.field}
 								nodePath={details.nodePath}
 								validatedLocation={details.validatedLocation}
-								keyframeDisplayOffset={details.keyframeDisplayOffset}
 								sourceFrame={details.sourceFrame}
 							/>
 						)}

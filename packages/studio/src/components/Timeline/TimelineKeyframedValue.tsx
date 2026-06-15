@@ -20,8 +20,7 @@ const valuesEqual = (left: unknown, right: unknown): boolean => {
 export const TimelineKeyframedValue: React.FC<{
 	readonly field: SchemaFieldInfo;
 	readonly propStatus: CanUpdateSequencePropStatusKeyframed;
-	readonly keyframeDisplayOffset: number;
-	readonly sourceFrame?: number;
+	readonly sourceFrame: number;
 	readonly dragOverrideValue: DragOverrideValue | undefined;
 	readonly onSave: (value: unknown, sourceFrame: number) => Promise<void>;
 	readonly onDragValueChange: TimelineFieldOnDragValueChange;
@@ -30,7 +29,6 @@ export const TimelineKeyframedValue: React.FC<{
 }> = ({
 	field,
 	propStatus,
-	keyframeDisplayOffset,
 	sourceFrame,
 	dragOverrideValue,
 	onSave,
@@ -38,12 +36,9 @@ export const TimelineKeyframedValue: React.FC<{
 	onDragEnd,
 	scaleLockNodePath,
 }) => {
-	const timelinePosition = Internals.Timeline.useTimelinePosition();
-	const jsxFrame = sourceFrame ?? timelinePosition - keyframeDisplayOffset;
-
 	const computedValue = useMemo(() => {
 		const raw = Internals.interpolateKeyframedStatus({
-			frame: jsxFrame,
+			frame: sourceFrame,
 			status: propStatus,
 		});
 		if (typeof raw === 'number') {
@@ -51,7 +46,7 @@ export const TimelineKeyframedValue: React.FC<{
 		}
 
 		return raw;
-	}, [jsxFrame, propStatus]);
+	}, [propStatus, sourceFrame]);
 
 	const fakeStatus: CanUpdateSequencePropStatusStatic = useMemo(
 		() => ({
@@ -65,16 +60,16 @@ export const TimelineKeyframedValue: React.FC<{
 		return Internals.getEffectiveVisualModeValue({
 			propStatus: fakeStatus,
 			dragOverrideValue,
-			frame: jsxFrame,
+			frame: sourceFrame,
 			defaultValue: field.fieldSchema.default,
 			shouldResortToDefaultValueIfUndefined: true,
 		});
-	}, [dragOverrideValue, fakeStatus, field.fieldSchema.default, jsxFrame]);
+	}, [dragOverrideValue, fakeStatus, field.fieldSchema.default, sourceFrame]);
 
 	const onSaveIfChanged = useCallback<TimelineFieldOnSave>(
 		(value) => {
 			const existingKeyframe = propStatus.keyframes.find(
-				(keyframe) => keyframe.frame === jsxFrame,
+				(keyframe) => keyframe.frame === sourceFrame,
 			);
 			if (
 				valuesEqual(value, computedValue) ||
@@ -83,9 +78,9 @@ export const TimelineKeyframedValue: React.FC<{
 				return Promise.resolve();
 			}
 
-			return onSave(value, jsxFrame);
+			return onSave(value, sourceFrame);
 		},
-		[computedValue, jsxFrame, onSave, propStatus.keyframes],
+		[computedValue, onSave, propStatus.keyframes, sourceFrame],
 	);
 
 	if (computedValue === null) {

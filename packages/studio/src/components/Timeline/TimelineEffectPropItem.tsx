@@ -70,15 +70,8 @@ export const TimelineEffectPropValue: React.FC<{
 	readonly field: EffectSchemaFieldInfo;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly validatedLocation: CodePosition;
-	readonly keyframeDisplayOffset: number;
-	readonly sourceFrame?: number;
-}> = ({
-	field,
-	nodePath,
-	validatedLocation,
-	keyframeDisplayOffset,
-	sourceFrame,
-}) => {
+	readonly sourceFrame: number;
+}> = ({field, nodePath, validatedLocation, sourceFrame}) => {
 	const {setEffectDragOverrides, clearEffectDragOverrides, setPropStatuses} =
 		useContext(Internals.VisualModeSettersContext);
 
@@ -106,8 +99,6 @@ export const TimelineEffectPropValue: React.FC<{
 		effectStatus.type === 'can-update-effect'
 			? (effectStatus.props?.[field.key] ?? null)
 			: null;
-	const timelinePosition = Internals.Timeline.useTimelinePosition();
-	const jsxFrame = sourceFrame ?? timelinePosition - keyframeDisplayOffset;
 
 	const onDragValueChange = useCallback(
 		(value: unknown) => {
@@ -115,7 +106,7 @@ export const TimelineEffectPropValue: React.FC<{
 				propStatus !== null && isKeyframedStatus(propStatus)
 					? Internals.makeKeyframedDragOverride({
 							status: propStatus,
-							frame: jsxFrame,
+							frame: sourceFrame,
 							value,
 						})
 					: Internals.makeStaticDragOverride(value);
@@ -130,10 +121,10 @@ export const TimelineEffectPropValue: React.FC<{
 		[
 			field.effectIndex,
 			field.key,
-			jsxFrame,
 			nodePath,
 			propStatus,
 			setEffectDragOverrides,
+			sourceFrame,
 		],
 	);
 
@@ -299,8 +290,7 @@ export const TimelineEffectPropValue: React.FC<{
 			<TimelineKeyframedValue
 				field={field}
 				propStatus={propStatus}
-				keyframeDisplayOffset={keyframeDisplayOffset}
-				sourceFrame={jsxFrame}
+				sourceFrame={sourceFrame}
 				dragOverrideValue={dragOverrideValue}
 				onSave={onSaveKeyframed}
 				onDragValueChange={onDragValueChange}
@@ -318,7 +308,7 @@ export const TimelineEffectPropValue: React.FC<{
 		propStatus,
 		dragOverrideValue,
 		defaultValue: field.fieldSchema.default,
-		frame: jsxFrame,
+		frame: sourceFrame,
 		shouldResortToDefaultValueIfUndefined: true,
 	});
 
@@ -360,6 +350,8 @@ export const TimelineEffectPropItem: React.FC<{
 		Internals.VisualModeDragOverridesContext,
 	);
 	const selection = useTimelineRowSelection(nodePathInfo);
+	const timelinePosition = Internals.Timeline.useTimelinePosition();
+	const sourceFrame = timelinePosition - keyframeDisplayOffset;
 	const style = useMemo(() => {
 		return {
 			...fieldRowBase,
@@ -562,7 +554,7 @@ export const TimelineEffectPropItem: React.FC<{
 					field={field}
 					nodePath={nodePath}
 					validatedLocation={validatedLocation}
-					keyframeDisplayOffset={keyframeDisplayOffset}
+					sourceFrame={sourceFrame}
 				/>
 			</div>
 		</TimelineRowChrome>
