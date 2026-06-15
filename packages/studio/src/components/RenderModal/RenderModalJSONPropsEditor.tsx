@@ -23,6 +23,8 @@ const inspectorStyle: React.CSSProperties = {
 	fontFamily: 'monospace',
 	boxSizing: 'border-box',
 	flex: 'none',
+	fontSize: 11,
+	lineHeight: '15px',
 	minHeight: 220,
 	overflowY: 'hidden',
 	...({
@@ -194,7 +196,7 @@ export const RenderModalJSONPropsEditor: React.FC<{
 			borderColor: FAIL_COLOR,
 		};
 	}, [hasError, layout]);
-	const buttonSize = layout === 'inspector' ? 'compact' : 'default';
+	const buttonSize = layout === 'inspector' ? 'condensed' : 'default';
 
 	return (
 		<div style={layout === 'inspector' ? inspectorScrollable : scrollable}>
