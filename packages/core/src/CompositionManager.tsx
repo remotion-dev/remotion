@@ -75,7 +75,7 @@ type EnhancedTSequenceData =
 			doesVolumeChange: boolean;
 			startMediaFrom: number;
 			playbackRate: number;
-			frozenMediaFrame?: number | null;
+			frozenMediaFrame: number | null;
 	  }
 	| {
 			type: 'video';
@@ -84,7 +84,7 @@ type EnhancedTSequenceData =
 			doesVolumeChange: boolean;
 			startMediaFrom: number;
 			playbackRate: number;
-			frozenMediaFrame?: number | null;
+			frozenMediaFrame: number | null;
 	  }
 	| {
 			type: 'image';
@@ -125,7 +125,7 @@ export type TSequence = {
 	refForOutline: React.RefObject<Element | null> | null;
 	effects: readonly EffectDefinition<unknown>[];
 	isInsideSeries: boolean;
-	frozenFrame?: number | null;
+	frozenFrame: number | null;
 } & EnhancedTSequenceData;
 
 export type AudioOrVideoAsset = {

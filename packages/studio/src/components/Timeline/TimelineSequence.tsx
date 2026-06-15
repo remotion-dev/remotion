@@ -425,7 +425,7 @@ const TimelineSequenceInner: React.FC<{
 			onSelect({shiftKey: false, toggleKey: false});
 		}
 	}, [onSelect, selectable]);
-	const frozenFrame = s.frozenFrame ?? null;
+	const {frozenFrame} = s;
 
 	const {onPointerDown: onMoveDragPointerDown} = useTimelineSequenceFromDrag({
 		nodePathInfo,
@@ -534,7 +534,7 @@ const TimelineSequenceInner: React.FC<{
 					premountWidth={premountWidth ?? 0}
 					postmountWidth={postmountWidth ?? 0}
 					loopDisplay={s.loopDisplay}
-					frozenMediaFrame={s.frozenMediaFrame ?? null}
+					frozenMediaFrame={s.frozenMediaFrame}
 				/>
 			) : null}
 			{s.type === 'image' ? (

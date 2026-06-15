@@ -200,6 +200,7 @@ const makeTimelineSequence = ({
 		refForOutline,
 		isInsideSeries: false,
 		effects,
+		frozenFrame: null,
 	}) as TSequence;
 
 const makeDurationPropStatuses = (

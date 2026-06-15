@@ -219,6 +219,8 @@ export const useMediaInTimeline = ({
 			effects: [],
 			refForOutline,
 			isInsideSeries: false,
+			frozenFrame: null,
+			frozenMediaFrame: null,
 		});
 
 		return () => {
