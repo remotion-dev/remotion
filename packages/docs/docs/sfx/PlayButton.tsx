@@ -28,6 +28,7 @@ const waveformGroup: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'column',
 	gap: 6,
+	maxWidth: 400,
 	width: '100%',
 };
 
@@ -39,6 +40,8 @@ const waveformDragTarget: React.CSSProperties = {
 	boxSizing: 'border-box',
 	cursor: 'grab',
 	display: 'flex',
+	flexDirection: 'row',
+	gap: 14,
 	padding: 12,
 	userSelect: 'none',
 	width: '100%',
@@ -62,6 +65,11 @@ const waveformFallback: React.CSSProperties = {
 	display: 'flex',
 	fontSize: 13,
 	height: 64,
+};
+
+const waveformButton: React.CSSProperties = {
+	cursor: 'pointer',
+	flex: '0 0 auto',
 };
 
 const getSfxFileNameFromUrl = (src: string): string => {
@@ -161,13 +169,12 @@ const setDragDataForSfx = ({
 const SfxAudioDragTarget: React.FC<{
 	readonly src: string;
 	readonly name?: string;
-	readonly onPreview: () => void;
+	readonly button: React.ReactNode;
 	readonly progress: number;
 	readonly playing: boolean;
-}> = ({src, name, onPreview, progress, playing}) => {
+}> = ({src, name, button, progress, playing}) => {
 	const sfxName = name ?? getSfxNameFromUrl(src);
 	const fileName = getSfxFileNameFromUrl(src);
-	const draggingRef = useRef(false);
 	const samples = useMemo(() => getWaveformSamples(src), [src]);
 	const bars = useMemo(
 		() => (samples ? makeWaveformBars(samples) : null),
@@ -177,7 +184,6 @@ const SfxAudioDragTarget: React.FC<{
 	const onDragStart = useCallback(
 		(e: React.DragEvent<HTMLDivElement>) => {
 			e.stopPropagation();
-			draggingRef.current = true;
 			setDragDataForSfx({
 				dataTransfer: e.dataTransfer,
 				name: sfxName,
@@ -187,54 +193,19 @@ const SfxAudioDragTarget: React.FC<{
 		[sfxName, src],
 	);
 
-	const onDragEnd = useCallback(() => {
-		setTimeout(() => {
-			draggingRef.current = false;
-		}, 0);
-	}, []);
-
-	const onClick = useCallback(
-		(e: React.MouseEvent<HTMLDivElement>) => {
-			e.preventDefault();
-			e.stopPropagation();
-			if (draggingRef.current) {
-				return;
-			}
-
-			onPreview();
-		},
-		[onPreview],
-	);
-
-	const onKeyDown = useCallback(
-		(e: React.KeyboardEvent<HTMLDivElement>) => {
-			if (e.key !== 'Enter' && e.key !== ' ') {
-				return;
-			}
-
-			e.preventDefault();
-			e.stopPropagation();
-			onPreview();
-		},
-		[onPreview],
-	);
-
 	return (
 		<div style={waveformGroup}>
 			<span style={dragLabel}>Drag into Studio</span>
 			<div
-				aria-pressed={playing}
-				aria-label={`Preview and drag ${fileName} into Remotion Studio`}
+				aria-label={`Drag ${fileName} into Remotion Studio`}
 				draggable
-				onClick={onClick}
-				onDragEnd={onDragEnd}
 				onDragStart={onDragStart}
-				onKeyDown={onKeyDown}
-				role="button"
 				style={waveformDragTarget}
-				tabIndex={0}
-				title={`Preview or drag ${fileName} into Remotion Studio`}
+				title={`Drag ${fileName} into Remotion Studio`}
 			>
+				<div draggable={false} style={waveformButton}>
+					{button}
+				</div>
 				{bars ? (
 					<div aria-hidden="true" style={waveformBars}>
 						{bars.map((bar, index) => {
@@ -404,7 +375,7 @@ export const PlayButton: React.FC<{
 
 	return (
 		<SfxAudioDragTarget
-			onPreview={togglePlayback}
+			button={button}
 			playing={playing}
 			progress={progress}
 			src={src}
