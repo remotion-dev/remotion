@@ -167,6 +167,31 @@ export const getAssetElementFromPath = (
 	return null;
 };
 
+export const getAssetElementFromStaticFilePath = async (
+	assetPath: string,
+): Promise<InsertableAssetElement | null> => {
+	const elementFromPath = getAssetElementFromPath(assetPath);
+	const extension = assetPath.split('.').pop()?.toLowerCase();
+
+	if (extension !== 'png') {
+		return elementFromPath;
+	}
+
+	try {
+		const response = await fetch(staticFile(assetPath));
+		if (!response.ok) {
+			return elementFromPath;
+		}
+
+		const fileType = detectFileType(
+			new Uint8Array(await response.arrayBuffer()),
+		);
+		return getAssetElement({fileType, src: assetPath}) ?? elementFromPath;
+	} catch {
+		return elementFromPath;
+	}
+};
+
 const getAssetLabel = (element: InsertableCompositionElement) => {
 	if (element.type !== 'asset') {
 		throw new Error('Expected asset element');
@@ -688,13 +713,14 @@ export const insertExistingAssets = async ({
 
 	try {
 		for (const assetPath of assetPaths) {
-			const element = getAssetElementFromPath(assetPath);
+			const element = await getAssetElementFromStaticFilePath(assetPath);
 			if (element === null) {
 				unsupportedFiles.push(assetPath);
 				continue;
 			}
 
-			const dimensions = await getStaticAssetDimensionsOrNull(assetPath);
+			const dimensions =
+				element.dimensions ?? (await getStaticAssetDimensionsOrNull(assetPath));
 
 			const inserted = await insertAssetElement({
 				compositionFile,
