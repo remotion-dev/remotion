@@ -29,6 +29,7 @@ import {
 	selectedOutlineDragThresholdPx,
 	translateFieldKey,
 } from './selected-outline-types';
+import {getUvHandlePosition, type UvCoordinate} from './selected-outline-uv';
 import type {SaveSequencePropChange} from './Timeline/save-sequence-prop';
 import {
 	getTimelineDisplayDecimalPlaces,
@@ -704,3 +705,90 @@ export const uvsEqual = (
 ): boolean =>
 	Math.abs(left[0] - right[0]) < 0.000001 &&
 	Math.abs(left[1] - right[1]) < 0.000001;
+
+export type SelectedOutlineTransformOriginLockedAxis = 'x' | 'y' | null;
+
+export const getSelectedOutlineTransformOriginLockedAxis = ({
+	axisLocked,
+	dimensions,
+	startUv,
+	uv,
+}: {
+	readonly axisLocked: boolean;
+	readonly dimensions: NonNullable<SelectedOutline['dimensions']>;
+	readonly startUv: UvCoordinate;
+	readonly uv: UvCoordinate;
+}): SelectedOutlineTransformOriginLockedAxis => {
+	if (!axisLocked) {
+		return null;
+	}
+
+	const deltaX = (uv[0] - startUv[0]) * dimensions.width;
+	const deltaY = (uv[1] - startUv[1]) * dimensions.height;
+	return Math.abs(deltaX) >= Math.abs(deltaY) ? 'x' : 'y';
+};
+
+export const applySelectedOutlineTransformOriginAxisLock = ({
+	lockedAxis,
+	startUv,
+	uv,
+}: {
+	readonly lockedAxis: SelectedOutlineTransformOriginLockedAxis;
+	readonly startUv: UvCoordinate;
+	readonly uv: UvCoordinate;
+}): UvCoordinate => {
+	if (lockedAxis === 'x') {
+		return [uv[0], startUv[1]];
+	}
+
+	if (lockedAxis === 'y') {
+		return [startUv[0], uv[1]];
+	}
+
+	return uv;
+};
+
+const transformOriginSnapTargets = [
+	[0, 0],
+	[0.5, 0],
+	[1, 0],
+	[1, 0.5],
+	[1, 1],
+	[0.5, 1],
+	[0, 1],
+	[0, 0.5],
+	[0.5, 0.5],
+] as const satisfies readonly UvCoordinate[];
+
+export const selectedOutlineTransformOriginSnapThresholdPx = 10;
+
+export const snapSelectedOutlineTransformOriginUv = ({
+	point,
+	points,
+	thresholdPx = selectedOutlineTransformOriginSnapThresholdPx,
+	uv,
+}: {
+	readonly point: OutlinePoint;
+	readonly points: SelectedOutline['points'];
+	readonly thresholdPx?: number;
+	readonly uv: UvCoordinate;
+}): UvCoordinate => {
+	let best: {
+		readonly distance: number;
+		readonly uv: UvCoordinate;
+	} | null = null;
+
+	for (const snapUv of transformOriginSnapTargets) {
+		const snapPoint = getUvHandlePosition(points, snapUv);
+		const distance = Math.hypot(point.x - snapPoint.x, point.y - snapPoint.y);
+		if (distance > thresholdPx) {
+			continue;
+		}
+
+		if (best === null || distance < best.distance) {
+			best = {distance, uv: snapUv};
+		}
+	}
+
+	return best?.uv ?? uv;
+};
