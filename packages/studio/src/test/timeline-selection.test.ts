@@ -38,7 +38,9 @@ import {
 	getSequencesWithSelectableOutlines,
 	getTransformedSvgViewportPoints,
 	isSelectedOutlineDragPastThreshold,
+	snapSelectedOutlineTransformOriginUv,
 	selectedOutlineDragThresholdPx,
+	selectedOutlineTransformOriginSnapThresholdPx,
 	type SelectedOutlineDragState,
 	type SelectedOutlineRotationDragState,
 	type SelectedOutlineScaleDragState,
@@ -1381,6 +1383,85 @@ test('Transform origin compensation keeps rotated and scaled elements in place',
 
 	expect(next[0]).toBeCloseTo(-5, 5);
 	expect(next[1]).toBeCloseTo(45, 5);
+});
+
+test('Transform origin drag snaps to center, edge midpoints and corners', () => {
+	const points = [
+		{x: 0, y: 0},
+		{x: 100, y: 0},
+		{x: 100, y: 100},
+		{x: 0, y: 100},
+	] as const;
+
+	expect(
+		snapSelectedOutlineTransformOriginUv({
+			point: {x: 47, y: 53},
+			points,
+			uv: getUvCoordinateForPoint(points, {x: 47, y: 53}),
+		}),
+	).toEqual([0.5, 0.5]);
+	expect(
+		snapSelectedOutlineTransformOriginUv({
+			point: {x: 52, y: 4},
+			points,
+			uv: getUvCoordinateForPoint(points, {x: 52, y: 4}),
+		}),
+	).toEqual([0.5, 0]);
+	expect(
+		snapSelectedOutlineTransformOriginUv({
+			point: {x: 96, y: 49},
+			points,
+			uv: getUvCoordinateForPoint(points, {x: 96, y: 49}),
+		}),
+	).toEqual([1, 0.5]);
+	expect(
+		snapSelectedOutlineTransformOriginUv({
+			point: {x: 3, y: 96},
+			points,
+			uv: getUvCoordinateForPoint(points, {x: 3, y: 96}),
+		}),
+	).toEqual([0, 1]);
+});
+
+test('Transform origin drag snaps to rotated outline anchors', () => {
+	const points = [
+		{x: 10, y: 20},
+		{x: 90, y: 50},
+		{x: 70, y: 110},
+		{x: -10, y: 80},
+	] as const;
+	const topMiddle = getUvHandlePosition(points, [0.5, 0]);
+	const pointer = {x: topMiddle.x + 4, y: topMiddle.y - 3};
+
+	expect(
+		snapSelectedOutlineTransformOriginUv({
+			point: pointer,
+			points,
+			uv: getUvCoordinateForPoint(points, pointer),
+		}),
+	).toEqual([0.5, 0]);
+});
+
+test('Transform origin drag does not snap outside the magnetic threshold', () => {
+	const points = [
+		{x: 0, y: 0},
+		{x: 100, y: 0},
+		{x: 100, y: 100},
+		{x: 0, y: 100},
+	] as const;
+	const pointer = {
+		x: 50,
+		y: selectedOutlineTransformOriginSnapThresholdPx + 1,
+	};
+	const uv = getUvCoordinateForPoint(points, pointer);
+	const snapped = snapSelectedOutlineTransformOriginUv({
+		point: pointer,
+		points,
+		uv,
+	});
+
+	expect(snapped[0]).toBeCloseTo(uv[0], 5);
+	expect(snapped[1]).toBeCloseTo(uv[1], 5);
 });
 
 test('UV coordinate constraints preserve precision despite schema step', () => {

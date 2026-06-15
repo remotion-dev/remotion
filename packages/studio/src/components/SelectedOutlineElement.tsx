@@ -39,6 +39,7 @@ import {
 	getSelectedOutlineScaleEdgeInfo,
 	isSelectedOutlineDragPastThreshold,
 	parseCssRotationToRadians,
+	snapSelectedOutlineTransformOriginUv,
 	uvsEqual,
 	type SelectedOutlineKeyframedDragChange,
 	type SelectedOutlineScaleEdge,
@@ -194,7 +195,11 @@ const SelectedOutlineTransformOriginHandle: React.FC<{
 					x: pointerEvent.clientX - svgRect.left,
 					y: pointerEvent.clientY - svgRect.top,
 				};
-				const nextUv = getUvCoordinateForPoint(outline.points, point);
+				const nextUv = snapSelectedOutlineTransformOriginUv({
+					point,
+					points: outline.points,
+					uv: getUvCoordinateForPoint(outline.points, point),
+				});
 				const deltaOrigin = [
 					(nextUv[0] - uv[0]) * dimensions.width,
 					(nextUv[1] - uv[1]) * dimensions.height,

@@ -70,6 +70,8 @@ export {
 	getSelectedOutlineScaleDragValues,
 	getSelectedOutlineScaleEdgeInfo,
 	isSelectedOutlineDragPastThreshold,
+	selectedOutlineTransformOriginSnapThresholdPx,
+	snapSelectedOutlineTransformOriginUv,
 } from './selected-outline-drag';
 export {
 	getOutlineSelectionInteraction,
