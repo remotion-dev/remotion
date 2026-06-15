@@ -54,6 +54,7 @@ Follow the pattern of existing pages (e.g. `whip.mdx`). Include:
 - Value section with the URL in a fenced code block
 - Duration section (fetch the file and use `afinfo` on macOS to get duration/format)
 - Attribution section with source link and license
+- Convert section with a full-link sentence: `[Open this file on remotion.dev/convert](https://remotion.dev/convert?url=<encoded-sfx-url>)`
 - See also section linking to related sound effects
 
 ### 4. Register in sidebar and table of contents
