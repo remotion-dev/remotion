@@ -4,7 +4,7 @@ import {makePrewarmedVideoIteratorCache} from '../prewarm-iterator-for-looping';
 import {createVideoIterator} from '../video/video-preview-iterator';
 
 const FPS = 60;
-const SRC = '/variable-fps-issue-8303.webm';
+const SRC = '/variable-fps.webm';
 const FIRST_NON_ZERO_TIMESTAMP = 3.364;
 
 const loadVideoTrack = async () => {
