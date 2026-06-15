@@ -24,15 +24,6 @@ const dragLabel: React.CSSProperties = {
 	lineHeight: 1,
 };
 
-const fileNameLabel: React.CSSProperties = {
-	fontFamily: 'var(--ifm-font-family-monospace)',
-	fontSize: 13,
-	lineHeight: 1.2,
-	overflow: 'hidden',
-	textOverflow: 'ellipsis',
-	whiteSpace: 'nowrap',
-};
-
 const waveformGroup: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'column',
@@ -48,24 +39,15 @@ const waveformDragTarget: React.CSSProperties = {
 	boxSizing: 'border-box',
 	cursor: 'grab',
 	display: 'flex',
-	flexDirection: 'row',
-	gap: 14,
 	padding: 12,
 	userSelect: 'none',
 	width: '100%',
 };
 
-const waveformContent: React.CSSProperties = {
-	display: 'flex',
-	flex: '1 1 auto',
-	flexDirection: 'column',
-	gap: 8,
-	minWidth: 0,
-};
-
 const waveformBars: React.CSSProperties = {
 	alignItems: 'center',
 	display: 'flex',
+	flex: '1 1 auto',
 	flexDirection: 'row',
 	gap: 1,
 	height: 64,
@@ -80,11 +62,6 @@ const waveformFallback: React.CSSProperties = {
 	display: 'flex',
 	fontSize: 13,
 	height: 64,
-};
-
-const waveformButton: React.CSSProperties = {
-	cursor: 'pointer',
-	flex: '0 0 auto',
 };
 
 const getSfxFileNameFromUrl = (src: string): string => {
@@ -184,12 +161,13 @@ const setDragDataForSfx = ({
 const SfxAudioDragTarget: React.FC<{
 	readonly src: string;
 	readonly name?: string;
-	readonly button: React.ReactNode;
+	readonly onPreview: () => void;
 	readonly progress: number;
 	readonly playing: boolean;
-}> = ({src, name, button, progress, playing}) => {
+}> = ({src, name, onPreview, progress, playing}) => {
 	const sfxName = name ?? getSfxNameFromUrl(src);
 	const fileName = getSfxFileNameFromUrl(src);
+	const draggingRef = useRef(false);
 	const samples = useMemo(() => getWaveformSamples(src), [src]);
 	const bars = useMemo(
 		() => (samples ? makeWaveformBars(samples) : null),
@@ -199,6 +177,7 @@ const SfxAudioDragTarget: React.FC<{
 	const onDragStart = useCallback(
 		(e: React.DragEvent<HTMLDivElement>) => {
 			e.stopPropagation();
+			draggingRef.current = true;
 			setDragDataForSfx({
 				dataTransfer: e.dataTransfer,
 				name: sfxName,
@@ -208,50 +187,82 @@ const SfxAudioDragTarget: React.FC<{
 		[sfxName, src],
 	);
 
+	const onDragEnd = useCallback(() => {
+		setTimeout(() => {
+			draggingRef.current = false;
+		}, 0);
+	}, []);
+
+	const onClick = useCallback(
+		(e: React.MouseEvent<HTMLDivElement>) => {
+			e.preventDefault();
+			e.stopPropagation();
+			if (draggingRef.current) {
+				return;
+			}
+
+			onPreview();
+		},
+		[onPreview],
+	);
+
+	const onKeyDown = useCallback(
+		(e: React.KeyboardEvent<HTMLDivElement>) => {
+			if (e.key !== 'Enter' && e.key !== ' ') {
+				return;
+			}
+
+			e.preventDefault();
+			e.stopPropagation();
+			onPreview();
+		},
+		[onPreview],
+	);
+
 	return (
 		<div style={waveformGroup}>
 			<span style={dragLabel}>Drag into Studio</span>
 			<div
+				aria-pressed={playing}
 				aria-label={`Preview and drag ${fileName} into Remotion Studio`}
 				draggable
+				onClick={onClick}
+				onDragEnd={onDragEnd}
 				onDragStart={onDragStart}
+				onKeyDown={onKeyDown}
+				role="button"
 				style={waveformDragTarget}
-				title={`Drag ${fileName} into Remotion Studio`}
+				tabIndex={0}
+				title={`Preview or drag ${fileName} into Remotion Studio`}
 			>
-				<div draggable={false} style={waveformButton}>
-					{button}
-				</div>
-				<div style={waveformContent}>
-					<span style={fileNameLabel}>{fileName}</span>
-					{bars ? (
-						<div aria-hidden="true" style={waveformBars}>
-							{bars.map((bar, index) => {
-								const shown = playing && progress > index / amountOfBars;
-								return (
-									<div
-										// eslint-disable-next-line react/no-array-index-key
-										key={index}
-										style={{
-											backgroundColor: 'var(--ifm-color-emphasis-800)',
-											borderRadius: 999,
-											display: 'inline-block',
-											flex: '1 1 3px',
-											height: Math.max(6, Math.round(bar * 56)),
-											maxWidth: 4,
-											minWidth: 2,
-											opacity: shown ? 1 : 0.36,
-											transition:
-												'height 0.2s ease, opacity 0.2s ease, background-color 0.2s ease',
-											width: 4,
-										}}
-									/>
-								);
-							})}
-						</div>
-					) : (
-						<div style={waveformFallback}>Waveform unavailable</div>
-					)}
-				</div>
+				{bars ? (
+					<div aria-hidden="true" style={waveformBars}>
+						{bars.map((bar, index) => {
+							const shown = playing && progress > index / amountOfBars;
+							return (
+								<div
+									// eslint-disable-next-line react/no-array-index-key
+									key={index}
+									style={{
+										backgroundColor: 'var(--ifm-color-emphasis-800)',
+										borderRadius: 999,
+										display: 'inline-block',
+										flex: '1 1 3px',
+										height: Math.max(6, Math.round(bar * 56)),
+										maxWidth: 4,
+										minWidth: 2,
+										opacity: shown ? 1 : 0.36,
+										transition:
+											'height 0.2s ease, opacity 0.2s ease, background-color 0.2s ease',
+										width: 4,
+									}}
+								/>
+							);
+						})}
+					</div>
+				) : (
+					<div style={waveformFallback}>Waveform unavailable</div>
+				)}
 			</div>
 		</div>
 	);
@@ -295,6 +306,49 @@ export const PlayButton: React.FC<{
 		}
 	}, []);
 
+	const togglePlayback = useCallback(() => {
+		if (playing) {
+			cancelProgressFrame();
+			audioRef.current?.pause();
+			if (audioRef.current) {
+				audioRef.current.currentTime = 0;
+			}
+			setPlaying(false);
+			setProgress(0);
+		} else {
+			cancelProgressFrame();
+			audioRef.current?.pause();
+
+			const audio = new Audio(src);
+			audio.preload = 'auto';
+			audioRef.current = audio;
+
+			audio.onended = () => {
+				cancelProgressFrame();
+				setPlaying(false);
+				setProgress(0);
+			};
+
+			audio.onerror = () => {
+				cancelProgressFrame();
+				setPlaying(false);
+				setProgress(0);
+			};
+
+			void audio
+				.play()
+				.then(() => {
+					setPlaying(true);
+					updateProgress();
+				})
+				.catch(() => {
+					cancelProgressFrame();
+					setPlaying(false);
+					setProgress(0);
+				});
+		}
+	}, [cancelProgressFrame, playing, src, updateProgress]);
+
 	useEffect(() => {
 		return () => {
 			cancelProgressFrame();
@@ -307,48 +361,9 @@ export const PlayButton: React.FC<{
 		(e: React.MouseEvent) => {
 			e.preventDefault();
 			e.stopPropagation();
-			if (playing) {
-				cancelProgressFrame();
-				audioRef.current?.pause();
-				if (audioRef.current) {
-					audioRef.current.currentTime = 0;
-				}
-				setPlaying(false);
-				setProgress(0);
-			} else {
-				cancelProgressFrame();
-				audioRef.current?.pause();
-
-				const audio = new Audio(src);
-				audio.preload = 'auto';
-				audioRef.current = audio;
-
-				audio.onended = () => {
-					cancelProgressFrame();
-					setPlaying(false);
-					setProgress(0);
-				};
-
-				audio.onerror = () => {
-					cancelProgressFrame();
-					setPlaying(false);
-					setProgress(0);
-				};
-
-				void audio
-					.play()
-					.then(() => {
-						setPlaying(true);
-						updateProgress();
-					})
-					.catch(() => {
-						cancelProgressFrame();
-						setPlaying(false);
-						setProgress(0);
-					});
-			}
+			togglePlayback();
 		},
-		[cancelProgressFrame, playing, src, updateProgress],
+		[togglePlayback],
 	);
 
 	const button = (
@@ -389,7 +404,7 @@ export const PlayButton: React.FC<{
 
 	return (
 		<SfxAudioDragTarget
-			button={button}
+			onPreview={togglePlayback}
 			playing={playing}
 			progress={progress}
 			src={src}
