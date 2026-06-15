@@ -12,7 +12,7 @@ import {
 } from '../../state/editor-guides';
 import {RULER_WIDTH} from '../../state/editor-rulers';
 import {ContextMenu} from '../ContextMenu';
-import {forceSpecificCursor} from '../ForceSpecificCursor';
+import {stopForcingSpecificCursor} from '../ForceSpecificCursor';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {PREVENT_CLEAR_SELECTION_ON_POINTER_DOWN_ATTR} from '../Timeline/should-clear-selection-on-pointer-down';
 import {useTimelineGuideSelection} from '../Timeline/TimelineSelection';
@@ -108,8 +108,7 @@ const GuideComp: React.FC<{
 				clientX: e.clientX,
 				clientY: e.clientY,
 			};
-			shouldCreateGuideRef.current = true;
-			forceSpecificCursor('no-drop');
+			shouldCreateGuideRef.current = false;
 			setDraggingGuideId(() => guide.id);
 		},
 		[guide.id, setDraggingGuideId, shouldCreateGuideRef],
@@ -129,8 +128,7 @@ const GuideComp: React.FC<{
 				clientX: e.clientX,
 				clientY: e.clientY,
 			};
-			shouldCreateGuideRef.current = true;
-			forceSpecificCursor('no-drop');
+			shouldCreateGuideRef.current = false;
 			setDraggingGuideId(() => guide.id);
 		},
 		[guide.id, setDraggingGuideId, shouldCreateGuideRef],
@@ -171,6 +169,35 @@ const GuideComp: React.FC<{
 		[updateHasMovedGuide],
 	);
 
+	const finishGuideInteraction = useCallback(() => {
+		const shouldDeleteGuide = shouldDeleteGuideRef.current;
+
+		setGuidesList((prevState) => {
+			const newGuides = shouldDeleteGuide
+				? prevState.filter((candidate) => candidate.id !== guide.id)
+				: prevState;
+			persistGuidesList(newGuides);
+			return newGuides;
+		});
+
+		if (shouldDeleteGuide && selected) {
+			clearSelection();
+		}
+
+		shouldDeleteGuideRef.current = false;
+		shouldCreateGuideRef.current = false;
+		stopForcingSpecificCursor();
+		setDraggingGuideId(() => null);
+	}, [
+		clearSelection,
+		guide.id,
+		selected,
+		setDraggingGuideId,
+		setGuidesList,
+		shouldCreateGuideRef,
+		shouldDeleteGuideRef,
+	]);
+
 	const onPointerUp = useCallback(
 		(e: React.PointerEvent<HTMLDivElement>) => {
 			if (e.currentTarget.hasPointerCapture(e.pointerId)) {
@@ -179,7 +206,9 @@ const GuideComp: React.FC<{
 
 			const pointerDownPosition = pointerDownPositionRef.current;
 			pointerDownPositionRef.current = null;
-			if (shouldDeleteGuideRef.current) {
+			const shouldDeleteGuide = shouldDeleteGuideRef.current;
+			finishGuideInteraction();
+			if (shouldDeleteGuide) {
 				return;
 			}
 
@@ -194,14 +223,16 @@ const GuideComp: React.FC<{
 				onSelect();
 			}
 		},
-		[guide.id, onSelect, shouldDeleteGuideRef],
+		[finishGuideInteraction, guide.id, onSelect, shouldDeleteGuideRef],
 	);
 
 	const onMouseUp = useCallback(
 		(e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
 			const pointerDownPosition = pointerDownPositionRef.current;
 			pointerDownPositionRef.current = null;
-			if (shouldDeleteGuideRef.current) {
+			const shouldDeleteGuide = shouldDeleteGuideRef.current;
+			finishGuideInteraction();
+			if (shouldDeleteGuide) {
 				return;
 			}
 
@@ -216,7 +247,7 @@ const GuideComp: React.FC<{
 				onSelect();
 			}
 		},
-		[guide.id, onSelect, shouldDeleteGuideRef],
+		[finishGuideInteraction, guide.id, onSelect, shouldDeleteGuideRef],
 	);
 
 	const onClick = useCallback(
@@ -233,7 +264,8 @@ const GuideComp: React.FC<{
 
 	const onPointerCancel = useCallback(() => {
 		pointerDownPositionRef.current = null;
-	}, []);
+		finishGuideInteraction();
+	}, [finishGuideInteraction]);
 
 	const isActive = selected || hoveredGuideId === guide.id;
 	const activeClassName = isActive ? '__remotion_editor_guide_selected' : null;

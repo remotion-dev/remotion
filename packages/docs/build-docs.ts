@@ -63,7 +63,7 @@ const run = (
 			}
 		};
 
-		child.on('close', (code) => {
+		child.on('close', (code, signal) => {
 			clearHeartbeat();
 			if (code === 0) {
 				console.log(
@@ -75,7 +75,7 @@ const run = (
 			} else {
 				reject(
 					new Error(
-						`${label} (${command} ${args.join(' ')}) exited with ${code}`,
+						`${label} (${command} ${args.join(' ')}) exited with code ${code}, signal ${signal}`,
 					),
 				);
 			}
