@@ -19,6 +19,11 @@ const maxRemoteAssetRedirects = 5;
 const remoteAssetAcceptHeader =
 	'image/png,image/apng,image/jpeg,image/webp,image/bmp,image/gif';
 
+type InsertableAssetElement = Extract<
+	InsertableCompositionElement,
+	{type: 'asset'}
+>;
+
 const extensionsForFileType: Record<ImageFileType['type'], string[]> = {
 	png: ['png'],
 	apng: ['png'],
@@ -30,7 +35,7 @@ const extensionsForFileType: Record<ImageFileType['type'], string[]> = {
 
 const getAssetTypeFromImageFileType = (
 	fileType: ImageFileType,
-): InsertableCompositionElement['assetType'] => {
+): InsertableAssetElement['assetType'] => {
 	if (fileType.type === 'gif') {
 		return 'gif';
 	}
