@@ -1,23 +1,13 @@
 import {Button} from '@remotion/design';
-import React, {useCallback, useMemo, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {
 	getSfxNameFromUrl,
 	makeSfxDragData,
 	setSfxDragData,
 } from '../../components/sfx-demos/sfx-drag-data';
-import {
-	SFX_WAVEFORM_SAMPLE_COUNT,
-	sfxWaveforms,
-} from '../../components/sfx-demos/sfx-waveforms';
-import {Waveform as WaveformIcon} from '../../src/components/icons/waveform';
+import {sfxWaveforms} from '../../components/sfx-demos/sfx-waveforms';
 
-const controlsContainer: React.CSSProperties = {
-	display: 'flex',
-	flexDirection: 'column',
-	alignItems: 'flex-start',
-	gap: 12,
-	width: '100%',
-};
+const amountOfBars = 68;
 
 const controls: React.CSSProperties = {
 	display: 'flex',
@@ -32,23 +22,6 @@ const dragLabel: React.CSSProperties = {
 	fontSize: 12,
 	fontWeight: 600,
 	lineHeight: 1,
-};
-
-const dragIconContainer: React.CSSProperties = {
-	alignItems: 'center',
-	backgroundColor: 'var(--ifm-background-color)',
-	border: '1px solid var(--ifm-color-emphasis-200)',
-	borderRadius: 6,
-	display: 'flex',
-	flex: '0 0 auto',
-	height: 24,
-	justifyContent: 'center',
-	width: 24,
-};
-
-const dragIcon: React.CSSProperties = {
-	height: 12,
-	width: 12,
 };
 
 const fileNameLabel: React.CSSProperties = {
@@ -68,33 +41,37 @@ const waveformGroup: React.CSSProperties = {
 };
 
 const waveformDragTarget: React.CSSProperties = {
+	alignItems: 'center',
 	backgroundColor: 'var(--ifm-color-emphasis-100)',
 	border: '1px solid var(--ifm-color-emphasis-300)',
 	borderRadius: 8,
 	boxSizing: 'border-box',
-	color: 'var(--ifm-color-primary)',
 	cursor: 'grab',
 	display: 'flex',
-	flexDirection: 'column',
-	gap: 10,
+	flexDirection: 'row',
+	gap: 14,
 	padding: 12,
 	userSelect: 'none',
 	width: '100%',
 };
 
-const waveformHeader: React.CSSProperties = {
-	alignItems: 'center',
-	color: 'var(--ifm-font-color-base)',
+const waveformContent: React.CSSProperties = {
 	display: 'flex',
-	flexDirection: 'row',
+	flex: '1 1 auto',
+	flexDirection: 'column',
 	gap: 8,
 	minWidth: 0,
 };
 
-const waveformSvg: React.CSSProperties = {
-	display: 'block',
-	height: 70,
-	width: '100%',
+const waveformBars: React.CSSProperties = {
+	alignItems: 'center',
+	display: 'flex',
+	flexDirection: 'row',
+	gap: 1,
+	height: 64,
+	justifyContent: 'center',
+	minWidth: 0,
+	overflow: 'hidden',
 };
 
 const waveformFallback: React.CSSProperties = {
@@ -102,7 +79,12 @@ const waveformFallback: React.CSSProperties = {
 	color: 'var(--ifm-color-emphasis-700)',
 	display: 'flex',
 	fontSize: 13,
-	height: 70,
+	height: 64,
+};
+
+const waveformButton: React.CSSProperties = {
+	cursor: 'pointer',
+	flex: '0 0 auto',
 };
 
 const getSfxFileNameFromUrl = (src: string): string => {
@@ -157,23 +139,28 @@ const getWaveformSamples = (src: string): Uint8Array | null => {
 	return samples;
 };
 
-const makeWaveformPath = (samples: Uint8Array): string => {
+const makeWaveformBars = (samples: Uint8Array): number[] => {
 	if (samples.length === 0) {
-		return '';
+		return [];
 	}
 
-	const top: string[] = [];
-	const bottom: string[] = [];
-	const maxAmplitude = 44;
-	const center = 50;
-	for (let index = 0; index < samples.length; index++) {
-		const scaled = Math.sqrt(samples[index] / 255) * maxAmplitude;
-		const amplitude = Math.max(0.8, scaled);
-		top.push(`${index} ${center - amplitude}`);
-		bottom.push(`${index} ${center + amplitude}`);
+	const bars: number[] = [];
+	for (let bar = 0; bar < amountOfBars; bar++) {
+		const start = Math.floor((bar / amountOfBars) * samples.length);
+		const end = Math.max(
+			start + 1,
+			Math.floor(((bar + 1) / amountOfBars) * samples.length),
+		);
+
+		let peak = 0;
+		for (let index = start; index < end; index++) {
+			peak = Math.max(peak, samples[index] / 255);
+		}
+
+		bars.push(Math.sqrt(peak));
 	}
 
-	return `M ${top.join(' L ')} L ${bottom.reverse().join(' L ')} Z`;
+	return bars;
 };
 
 const setDragDataForSfx = ({
@@ -194,18 +181,20 @@ const setDragDataForSfx = ({
 	});
 };
 
-const SfxWaveformDragTarget: React.FC<{
+const SfxAudioDragTarget: React.FC<{
 	readonly src: string;
 	readonly name?: string;
-}> = ({src, name}) => {
+	readonly button: React.ReactNode;
+	readonly progress: number;
+	readonly playing: boolean;
+}> = ({src, name, button, progress, playing}) => {
 	const sfxName = name ?? getSfxNameFromUrl(src);
 	const fileName = getSfxFileNameFromUrl(src);
 	const samples = useMemo(() => getWaveformSamples(src), [src]);
-	const path = useMemo(
-		() => (samples ? makeWaveformPath(samples) : null),
+	const bars = useMemo(
+		() => (samples ? makeWaveformBars(samples) : null),
 		[samples],
 	);
-	const viewBox = `0 0 ${SFX_WAVEFORM_SAMPLE_COUNT - 1} 100`;
 
 	const onDragStart = useCallback(
 		(e: React.DragEvent<HTMLDivElement>) => {
@@ -219,49 +208,50 @@ const SfxWaveformDragTarget: React.FC<{
 		[sfxName, src],
 	);
 
-	const onClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-		e.preventDefault();
-		e.stopPropagation();
-	}, []);
-
 	return (
 		<div style={waveformGroup}>
 			<span style={dragLabel}>Drag into Studio</span>
 			<div
-				aria-label={`Drag ${fileName} into Remotion Studio`}
+				aria-label={`Preview and drag ${fileName} into Remotion Studio`}
 				draggable
-				onClick={onClick}
 				onDragStart={onDragStart}
 				style={waveformDragTarget}
 				title={`Drag ${fileName} into Remotion Studio`}
 			>
-				<div style={waveformHeader}>
-					<span style={dragIconContainer}>
-						<WaveformIcon style={dragIcon} />
-					</span>
-					<span style={fileNameLabel}>{fileName}</span>
+				<div draggable={false} style={waveformButton}>
+					{button}
 				</div>
-				{path ? (
-					<svg
-						aria-hidden="true"
-						focusable="false"
-						preserveAspectRatio="none"
-						style={waveformSvg}
-						viewBox={viewBox}
-					>
-						<line
-							x1="0"
-							x2={SFX_WAVEFORM_SAMPLE_COUNT - 1}
-							y1="50"
-							y2="50"
-							stroke="currentColor"
-							strokeOpacity="0.16"
-						/>
-						<path d={path} fill="currentColor" opacity="0.88" />
-					</svg>
-				) : (
-					<div style={waveformFallback}>Waveform unavailable</div>
-				)}
+				<div style={waveformContent}>
+					<span style={fileNameLabel}>{fileName}</span>
+					{bars ? (
+						<div aria-hidden="true" style={waveformBars}>
+							{bars.map((bar, index) => {
+								const shown = playing && progress > index / amountOfBars;
+								return (
+									<div
+										// eslint-disable-next-line react/no-array-index-key
+										key={index}
+										style={{
+											backgroundColor: 'var(--ifm-color-emphasis-800)',
+											borderRadius: 999,
+											display: 'inline-block',
+											flex: '1 1 3px',
+											height: Math.max(6, Math.round(bar * 56)),
+											maxWidth: 4,
+											minWidth: 2,
+											opacity: shown ? 1 : 0.36,
+											transition:
+												'height 0.2s ease, opacity 0.2s ease, background-color 0.2s ease',
+											width: 4,
+										}}
+									/>
+								);
+							})}
+						</div>
+					) : (
+						<div style={waveformFallback}>Waveform unavailable</div>
+					)}
+				</div>
 			</div>
 		</div>
 	);
@@ -274,37 +264,98 @@ export const PlayButton: React.FC<{
 	readonly showDragTarget?: boolean;
 }> = ({src, size = 48, depth, showDragTarget = true}) => {
 	const [playing, setPlaying] = useState(false);
+	const [progress, setProgress] = useState(0);
 	const audioRef = useRef<HTMLAudioElement | null>(null);
+	const progressFrameRef = useRef<number | null>(null);
 
 	const iconSize = Math.round(size * 0.5);
+
+	const cancelProgressFrame = useCallback(() => {
+		if (progressFrameRef.current === null) {
+			return;
+		}
+
+		globalThis.cancelAnimationFrame(progressFrameRef.current);
+		progressFrameRef.current = null;
+	}, []);
+
+	const updateProgress = useCallback(function updateProgressFrame() {
+		const audio = audioRef.current;
+		if (!audio) {
+			return;
+		}
+
+		if (Number.isFinite(audio.duration) && audio.duration > 0) {
+			setProgress(Math.min(1, Math.max(0, audio.currentTime / audio.duration)));
+		}
+
+		if (!audio.paused && !audio.ended) {
+			progressFrameRef.current =
+				globalThis.requestAnimationFrame(updateProgressFrame);
+		}
+	}, []);
+
+	useEffect(() => {
+		return () => {
+			cancelProgressFrame();
+			audioRef.current?.pause();
+			audioRef.current = null;
+		};
+	}, [cancelProgressFrame]);
 
 	const toggle = useCallback(
 		(e: React.MouseEvent) => {
 			e.preventDefault();
 			e.stopPropagation();
 			if (playing) {
+				cancelProgressFrame();
 				audioRef.current?.pause();
 				if (audioRef.current) {
 					audioRef.current.currentTime = 0;
 				}
 				setPlaying(false);
+				setProgress(0);
 			} else {
+				cancelProgressFrame();
+				audioRef.current?.pause();
+
 				const audio = new Audio(src);
+				audio.preload = 'auto';
 				audioRef.current = audio;
-				audio.play();
-				audio.addEventListener('ended', () => {
+
+				audio.onended = () => {
+					cancelProgressFrame();
 					setPlaying(false);
-				});
-				setPlaying(true);
+					setProgress(0);
+				};
+
+				audio.onerror = () => {
+					cancelProgressFrame();
+					setPlaying(false);
+					setProgress(0);
+				};
+
+				void audio
+					.play()
+					.then(() => {
+						setPlaying(true);
+						updateProgress();
+					})
+					.catch(() => {
+						cancelProgressFrame();
+						setPlaying(false);
+						setProgress(0);
+					});
 			}
 		},
-		[playing, src],
+		[cancelProgressFrame, playing, src, updateProgress],
 	);
 
 	const button = (
 		<Button
 			className={`rounded-full p-0`}
-			style={{width: size, height: size, flex: '0 0 auto'}}
+			draggable={false}
+			style={{width: size, height: size, flex: '0 0 auto', cursor: 'pointer'}}
 			onClick={toggle}
 			title={playing ? 'Stop' : 'Play'}
 			depth={depth}
@@ -337,9 +388,11 @@ export const PlayButton: React.FC<{
 	}
 
 	return (
-		<div style={controlsContainer}>
-			<div style={controls}>{button}</div>
-			<SfxWaveformDragTarget src={src} />
-		</div>
+		<SfxAudioDragTarget
+			button={button}
+			playing={playing}
+			progress={progress}
+			src={src}
+		/>
 	);
 };
