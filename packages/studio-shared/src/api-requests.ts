@@ -389,6 +389,24 @@ export type ReorderEffectResponse =
 			stack: string;
 	  };
 
+export type DuplicateEffectRequestItem = {
+	fileName: string;
+	sequenceNodePath: SequencePropsSubscriptionKey;
+	effectIndex: number;
+};
+
+export type DuplicateEffectRequest = DuplicateEffectRequestItem[];
+
+export type DuplicateEffectResponse =
+	| {
+			success: true;
+	  }
+	| {
+			success: false;
+			reason: string;
+			stack: string;
+	  };
+
 export type ReorderSequencePosition = 'before' | 'after';
 
 export type ReorderSequenceRequest = {
@@ -639,7 +657,7 @@ export type InsertableCompositionElement =
 	  }
 	| {
 			type: 'asset';
-			assetType: 'image' | 'video' | 'gif' | 'audio';
+			assetType: 'image' | 'video' | 'gif' | 'animated-image' | 'audio';
 			src: string;
 			srcType: 'static' | 'remote';
 			dimensions: {
@@ -785,6 +803,10 @@ export type ApiRoutes = {
 	>;
 	'/api/add-effect': ReqAndRes<AddEffectRequest, AddEffectResponse>;
 	'/api/reorder-effect': ReqAndRes<ReorderEffectRequest, ReorderEffectResponse>;
+	'/api/duplicate-effect': ReqAndRes<
+		DuplicateEffectRequest,
+		DuplicateEffectResponse
+	>;
 	'/api/reorder-sequence': ReqAndRes<
 		ReorderSequenceRequest,
 		ReorderSequenceResponse

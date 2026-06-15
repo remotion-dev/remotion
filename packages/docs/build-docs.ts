@@ -3,6 +3,24 @@ import {spawn} from 'child_process';
 const isVercel = process.env.VERCEL === '1' || process.env.VERCEL === 'true';
 const lowMemoryBuild =
 	isVercel || process.env.REMOTION_DOCS_LOW_MEMORY_BUILD === '1';
+const heartbeatIntervalMs = process.env.REMOTION_DOCS_BUILD_HEARTBEAT_MS
+	? parseInt(process.env.REMOTION_DOCS_BUILD_HEARTBEAT_MS, 10)
+	: isVercel
+		? 60_000
+		: 0;
+
+const formatDuration = (ms: number) => {
+	const seconds = ms / 1000;
+	if (seconds < 60) {
+		return `${seconds.toFixed(1)}s`;
+	}
+
+	const minutes = Math.floor(seconds / 60);
+	const remainingSeconds = Math.floor(seconds % 60)
+		.toString()
+		.padStart(2, '0');
+	return `${minutes}m ${remainingSeconds}s`;
+};
 
 const appendNodeOption = (value: string) => {
 	const current = process.env.NODE_OPTIONS ?? '';
@@ -14,30 +32,65 @@ const appendNodeOption = (value: string) => {
 };
 
 const run = (
+	label: string,
 	command: string,
 	args: string[],
 	env: Record<string, string | undefined> = {},
 ) =>
 	new Promise<void>((resolve, reject) => {
+		const start = performance.now();
+		console.log(`[docs build] Starting ${label}...`);
 		const child = spawn(command, args, {
 			env: {...process.env, ...env},
 			shell: false,
 			stdio: 'inherit',
 		});
+		const heartbeat =
+			heartbeatIntervalMs > 0 && Number.isFinite(heartbeatIntervalMs)
+				? setInterval(() => {
+						console.log(
+							`[docs build] Still running ${label} after ${formatDuration(
+								performance.now() - start,
+							)}...`,
+						);
+					}, heartbeatIntervalMs)
+				: null;
+		heartbeat?.unref();
 
-		child.on('close', (code) => {
+		const clearHeartbeat = () => {
+			if (heartbeat) {
+				clearInterval(heartbeat);
+			}
+		};
+
+		child.on('close', (code, signal) => {
+			clearHeartbeat();
 			if (code === 0) {
+				console.log(
+					`[docs build] Finished ${label} in ${formatDuration(
+						performance.now() - start,
+					)}.`,
+				);
 				resolve();
 			} else {
-				reject(new Error(`${command} ${args.join(' ')} exited with ${code}`));
+				reject(
+					new Error(
+						`${label} (${command} ${args.join(' ')}) exited with code ${code}, signal ${signal}`,
+					),
+				);
 			}
 		});
 
-		child.on('error', reject);
+		child.on('error', (err) => {
+			clearHeartbeat();
+			reject(err);
+		});
 	});
 
 const docusaurusEnv = {
 	DOCUSAURUS_IGNORE_SSG_WARNINGS: 'true',
+	DOCUSAURUS_PERF_LOGGER:
+		process.env.DOCUSAURUS_PERF_LOGGER ?? (isVercel ? 'true' : undefined),
 	NODE_OPTIONS: appendNodeOption('--max-old-space-size=4096'),
 	...(lowMemoryBuild
 		? {
@@ -59,9 +112,9 @@ const twoslashEnv = lowMemoryBuild
 		}
 	: {};
 
-await run('bun', ['copy-raw-docs.ts']);
-await run('bun', ['fetch-prompt-submissions.ts']);
-await run('bun', ['prewarm-twoslash.ts'], twoslashEnv);
-await run('docusaurus', ['build'], docusaurusEnv);
-await run('bun', ['copy-convert.ts']);
-await run('bun', ['count-pages.ts']);
+await run('copy raw docs', 'bun', ['copy-raw-docs.ts']);
+await run('fetch prompt submissions', 'bun', ['fetch-prompt-submissions.ts']);
+await run('prewarm twoslash', 'bun', ['prewarm-twoslash.ts'], twoslashEnv);
+await run('Docusaurus build', 'bunx', ['docusaurus', 'build'], docusaurusEnv);
+await run('copy convert assets', 'bun', ['copy-convert.ts']);
+await run('count generated pages', 'bun', ['count-pages.ts']);

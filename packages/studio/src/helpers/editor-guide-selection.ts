@@ -60,7 +60,7 @@ const findGuide = (guidesList: readonly Guide[], guideId: string | null) => {
 		return null;
 	}
 
-	return guidesList.find((guide) => guide.id === guideId) ?? null;
+	return guidesList.find((guide) => guide.id === guideId && guide.show) ?? null;
 };
 
 export const getRulerGuideHighlight = ({

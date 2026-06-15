@@ -19,6 +19,7 @@ import {
 } from '../components/selected-outline-uv';
 import {
 	applySelectedOutlineDragAxisLock,
+	applySelectedOutlineTransformOriginAxisLock,
 	compensateTranslateForTransformOrigin,
 	getOutlineSelectionInteraction,
 	getSelectedEffectFieldsBySequenceKey,
@@ -34,17 +35,23 @@ import {
 	getSelectedOutlineScaleDragChanges,
 	getSelectedOutlineScaleDragValues,
 	getSelectedOutlineScaleEdgeInfo,
+	getSelectedOutlineTransformOriginLockedAxis,
 	getSelectedSequenceKeys,
 	getSequencesWithSelectableOutlines,
 	getTransformedSvgViewportPoints,
 	isSelectedOutlineDragPastThreshold,
+	snapSelectedOutlineTransformOriginUv,
 	selectedOutlineDragThresholdPx,
+	selectedOutlineTransformOriginSnapThresholdPx,
 	type SelectedOutlineDragState,
 	type SelectedOutlineRotationDragState,
 	type SelectedOutlineScaleDragState,
 } from '../components/SelectedOutlineOverlay';
 import {deleteSelectedTimelineItems} from '../components/Timeline/delete-selected-timeline-item';
-import {isDuplicatableSequenceRowSelection} from '../components/Timeline/duplicate-selected-timeline-item';
+import {
+	isDuplicatableEffectSelection,
+	isDuplicatableSequenceRowSelection,
+} from '../components/Timeline/duplicate-selected-timeline-item';
 import {getTimelinePropResetTargets} from '../components/Timeline/reset-selected-timeline-props';
 import {
 	getEffectPropClipboardDataFromSelection,
@@ -1384,6 +1391,146 @@ test('Transform origin compensation keeps rotated and scaled elements in place',
 	expect(next[1]).toBeCloseTo(45, 5);
 });
 
+test('Transform origin drag snaps to center, edge midpoints and corners', () => {
+	const points = [
+		{x: 0, y: 0},
+		{x: 100, y: 0},
+		{x: 100, y: 100},
+		{x: 0, y: 100},
+	] as const;
+
+	expect(
+		snapSelectedOutlineTransformOriginUv({
+			point: {x: 47, y: 53},
+			points,
+			uv: getUvCoordinateForPoint(points, {x: 47, y: 53}),
+		}),
+	).toEqual([0.5, 0.5]);
+	expect(
+		snapSelectedOutlineTransformOriginUv({
+			point: {x: 52, y: 4},
+			points,
+			uv: getUvCoordinateForPoint(points, {x: 52, y: 4}),
+		}),
+	).toEqual([0.5, 0]);
+	expect(
+		snapSelectedOutlineTransformOriginUv({
+			point: {x: 96, y: 49},
+			points,
+			uv: getUvCoordinateForPoint(points, {x: 96, y: 49}),
+		}),
+	).toEqual([1, 0.5]);
+	expect(
+		snapSelectedOutlineTransformOriginUv({
+			point: {x: 3, y: 96},
+			points,
+			uv: getUvCoordinateForPoint(points, {x: 3, y: 96}),
+		}),
+	).toEqual([0, 1]);
+});
+
+test('Transform origin drag snaps to rotated outline anchors', () => {
+	const points = [
+		{x: 10, y: 20},
+		{x: 90, y: 50},
+		{x: 70, y: 110},
+		{x: -10, y: 80},
+	] as const;
+	const topMiddle = getUvHandlePosition(points, [0.5, 0]);
+	const pointer = {x: topMiddle.x + 4, y: topMiddle.y - 3};
+
+	expect(
+		snapSelectedOutlineTransformOriginUv({
+			point: pointer,
+			points,
+			uv: getUvCoordinateForPoint(points, pointer),
+		}),
+	).toEqual([0.5, 0]);
+});
+
+test('Transform origin drag does not snap outside the magnetic threshold', () => {
+	const points = [
+		{x: 0, y: 0},
+		{x: 100, y: 0},
+		{x: 100, y: 100},
+		{x: 0, y: 100},
+	] as const;
+	const pointer = {
+		x: 50,
+		y: selectedOutlineTransformOriginSnapThresholdPx + 1,
+	};
+	const uv = getUvCoordinateForPoint(points, pointer);
+	const snapped = snapSelectedOutlineTransformOriginUv({
+		point: pointer,
+		points,
+		uv,
+	});
+
+	expect(snapped[0]).toBeCloseTo(uv[0], 5);
+	expect(snapped[1]).toBeCloseTo(uv[1], 5);
+});
+
+test('Transform origin axis locking keeps one UV axis fixed', () => {
+	const dimensions = {width: 200, height: 100};
+	const startUv = [0.25, 0.5] as const;
+	const mostlyHorizontal = [0.5, 0.75] as const;
+	const mostlyVertical = [0.35, 0.9] as const;
+
+	expect(
+		getSelectedOutlineTransformOriginLockedAxis({
+			axisLocked: true,
+			dimensions,
+			startUv,
+			uv: mostlyHorizontal,
+		}),
+	).toBe('x');
+	expect(
+		applySelectedOutlineTransformOriginAxisLock({
+			lockedAxis: 'x',
+			startUv,
+			uv: mostlyHorizontal,
+		}),
+	).toEqual([0.5, 0.5]);
+	expect(
+		getSelectedOutlineTransformOriginLockedAxis({
+			axisLocked: true,
+			dimensions,
+			startUv,
+			uv: mostlyVertical,
+		}),
+	).toBe('y');
+	expect(
+		applySelectedOutlineTransformOriginAxisLock({
+			lockedAxis: 'y',
+			startUv,
+			uv: mostlyVertical,
+		}),
+	).toEqual([0.25, 0.9]);
+	expect(
+		getSelectedOutlineTransformOriginLockedAxis({
+			axisLocked: false,
+			dimensions,
+			startUv,
+			uv: mostlyVertical,
+		}),
+	).toBeNull();
+	expect(
+		applySelectedOutlineTransformOriginAxisLock({
+			lockedAxis: null,
+			startUv,
+			uv: mostlyVertical,
+		}),
+	).toBe(mostlyVertical);
+	expect(
+		getSelectedOutlineTransformOriginLockedAxis({
+			axisLocked: true,
+			dimensions,
+			startUv,
+			uv: mostlyVertical,
+		}),
+	).toBe('y');
+});
+
 test('UV coordinate constraints preserve precision despite schema step', () => {
 	expect(
 		constrainUv([0.123456, 0.987654], {
@@ -1688,7 +1835,7 @@ test('Cmd+A selection only targets selectable timeline sequences', () => {
 	]);
 });
 
-test('Cmd+D only duplicates selected timeline sequence rows', () => {
+test('Cmd+D duplicates selected timeline sequence and effect rows', () => {
 	const sequenceNodePathInfo = makeNodePathInfo(['body', 0], []);
 	const effectNodePathInfo = makeNodePathInfo(['body', 1], ['effects', '0']);
 
@@ -1710,6 +1857,28 @@ test('Cmd+D only duplicates selected timeline sequence rows', () => {
 		{
 			type: 'sequence',
 			nodePathInfo: sequenceNodePathInfo,
+		},
+	]);
+
+	expect(
+		[
+			{type: 'sequence' as const, nodePathInfo: sequenceNodePathInfo},
+			{
+				type: 'sequence-effect' as const,
+				nodePathInfo: effectNodePathInfo,
+				i: 0,
+			},
+			{
+				type: 'keyframe' as const,
+				nodePathInfo: sequenceNodePathInfo,
+				frame: 12,
+			},
+		].filter(isDuplicatableEffectSelection),
+	).toEqual([
+		{
+			type: 'sequence-effect',
+			nodePathInfo: effectNodePathInfo,
+			i: 0,
 		},
 	]);
 });

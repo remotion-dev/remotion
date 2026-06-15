@@ -278,6 +278,13 @@ const categories: {
 		title: 'Generate',
 		effects: [
 			{
+				link: '/docs/effects/contour-lines',
+				preview: '/img/effects-contour-lines-preview.png',
+				alt: 'contour lines effect preview',
+				name: 'contourLines()',
+				description: 'Topographic line overlay effect',
+			},
+			{
 				link: '/docs/effects/halftone-linear-gradient',
 				preview: '/img/effects-halftone-linear-gradient-preview.png',
 				alt: 'halftone linear gradient effect preview',

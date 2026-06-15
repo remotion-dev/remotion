@@ -1773,6 +1773,15 @@ export const articles = [
 		slug: 'effects/color-key',
 	},
 	{
+		id: 'effects/contour-lines',
+		title: 'contourLines()',
+		relativePath: 'docs/effects/contour-lines.mdx',
+		compId: 'articles-docs-effects-contour-lines',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/contour-lines',
+	},
+	{
 		id: 'effects/contrast',
 		title: 'contrast()',
 		relativePath: 'docs/effects/contrast.mdx',

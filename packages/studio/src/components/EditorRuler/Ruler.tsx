@@ -5,7 +5,6 @@ import React, {
 	useEffect,
 	useMemo,
 	useRef,
-	useState,
 } from 'react';
 import {Internals} from 'remotion';
 import {BACKGROUND, RULER_COLOR} from '../../helpers/colors';
@@ -63,9 +62,7 @@ const Ruler: React.FC<RulerProps> = ({
 		throw new Error('Video config not set');
 	}
 
-	const [cursor, setCursor] = useState<'ew-resize' | 'ns-resize' | 'no-drop'>(
-		isVerticalRuler ? 'ew-resize' : 'ns-resize',
-	);
+	const cursor = isVerticalRuler ? 'ew-resize' : 'ns-resize';
 
 	const guideHighlight = useMemo(
 		() =>
@@ -133,7 +130,7 @@ const Ruler: React.FC<RulerProps> = ({
 				// Prevent deselection of currently selected items
 				e.stopPropagation();
 				shouldCreateGuideRef.current = true;
-				forceSpecificCursor('no-drop');
+				forceSpecificCursor(cursor);
 				const guideId = makeGuideId();
 				setEditorShowGuides(() => true);
 				setDraggingGuideId(() => guideId);
@@ -158,24 +155,9 @@ const Ruler: React.FC<RulerProps> = ({
 				orientation,
 				originOffset,
 				unsafeVideoConfig.id,
+				cursor,
 			],
 		);
-
-	const changeCursor = useCallback(
-		(e: React.PointerEvent<HTMLCanvasElement>) => {
-			e.preventDefault();
-			if (draggingGuideId !== null) {
-				setCursor('no-drop');
-			}
-		},
-		[setCursor, draggingGuideId],
-	);
-
-	useEffect(() => {
-		if (draggingGuideId === null) {
-			setCursor(isVerticalRuler ? 'ew-resize' : 'ns-resize');
-		}
-	}, [draggingGuideId, isVerticalRuler]);
 
 	return (
 		<canvas
@@ -185,8 +167,6 @@ const Ruler: React.FC<RulerProps> = ({
 			style={rulerStyle}
 			{...{[PREVENT_CLEAR_SELECTION_ON_POINTER_DOWN_ATTR]: 'true'}}
 			onPointerDown={onPointerDown}
-			onPointerEnter={changeCursor}
-			onPointerLeave={changeCursor}
 		/>
 	);
 };

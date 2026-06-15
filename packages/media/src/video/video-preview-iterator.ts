@@ -36,9 +36,11 @@ export const createVideoIterator = async (
 
 	const getNextOrNullIfNotAvailable = () => {
 		if (peekedFrame) {
+			const frame = peekedFrame;
+			lastReturnedFrame = frame;
 			const retValue = {
 				type: 'got-frame-or-end' as const,
-				frame: peekedFrame,
+				frame,
 			};
 			peekedFrame = null;
 			return retValue;

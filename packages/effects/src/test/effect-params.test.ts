@@ -4,6 +4,7 @@ import {blur} from '../blur/index.js';
 import {brightness} from '../brightness.js';
 import {chromaticAberration} from '../chromatic-aberration/index.js';
 import {colorKey} from '../color-key.js';
+import {contourLines} from '../contour-lines.js';
 import {contrast} from '../contrast.js';
 import {dotGrid} from '../dot-grid.js';
 import {dropShadow} from '../drop-shadow/index.js';
@@ -81,6 +82,9 @@ test('@remotion/effects expose documentation links', () => {
 	);
 	expect(contrast().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/contrast',
+	);
+	expect(contourLines().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/contour-lines',
 	);
 	expect(duotone().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/duotone',
@@ -191,6 +195,7 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(colorKey().definition.label).toBe('colorKey()');
 	expect(brightness().definition.label).toBe('brightness()');
 	expect(contrast().definition.label).toBe('contrast()');
+	expect(contourLines().definition.label).toBe('contourLines()');
 	expect(duotone().definition.label).toBe('duotone()');
 	expect(evolve().definition.label).toBe('evolve()');
 	expect(dropShadow().definition.label).toBe('dropShadow()');
@@ -1363,6 +1368,110 @@ test('dotGrid() parameters produce distinct effect keys', () => {
 	).toBe(4);
 });
 
+test('contourLines() accepts default params', () => {
+	expect(() => contourLines()).not.toThrow();
+});
+
+test('contourLines() rejects empty lineColor strings', () => {
+	expect(() => contourLines({lineColor: ''})).toThrow(
+		'"lineColor" must be a non-empty string, but got ""',
+	);
+});
+
+test('contourLines() rejects non-finite lineWidth', () => {
+	expect(() => contourLines({lineWidth: Number.NaN})).toThrow(
+		'"lineWidth" must be a finite number',
+	);
+});
+
+test('contourLines() rejects non-positive lineWidth', () => {
+	expect(() => contourLines({lineWidth: 0})).toThrow(
+		'"lineWidth" must be greater than 0',
+	);
+});
+
+test('contourLines() rejects non-positive spacing', () => {
+	expect(() => contourLines({spacing: 0})).toThrow(
+		'"spacing" must be greater than 0',
+	);
+});
+
+test('contourLines() rejects non-positive scale', () => {
+	expect(() => contourLines({scale: 0})).toThrow(
+		'"scale" must be greater than 0',
+	);
+});
+
+test('contourLines() rejects complexity outside unit range', () => {
+	expect(() => contourLines({complexity: -0.1})).toThrow(
+		'"complexity" must be >= 0',
+	);
+	expect(() => contourLines({complexity: 1.1})).toThrow(
+		'"complexity" must be <= 1',
+	);
+});
+
+test('contourLines() rejects smoothness outside unit range', () => {
+	expect(() => contourLines({smoothness: -0.1})).toThrow(
+		'"smoothness" must be >= 0',
+	);
+	expect(() => contourLines({smoothness: 1.1})).toThrow(
+		'"smoothness" must be <= 1',
+	);
+});
+
+test('contourLines() rejects non-finite offsets', () => {
+	expect(() => contourLines({offsetX: Number.NaN})).toThrow(
+		'"offsetX" must be a finite number',
+	);
+	expect(() => contourLines({offsetY: Number.NaN})).toThrow(
+		'"offsetY" must be a finite number',
+	);
+});
+
+test('contourLines() rejects opacity outside unit range', () => {
+	expect(() => contourLines({opacity: -0.1})).toThrow('"opacity" must be >= 0');
+	expect(() => contourLines({opacity: 1.1})).toThrow('"opacity" must be <= 1');
+});
+
+test('contourLines() rejects non-boolean maskToSourceAlpha', () => {
+	expect(() =>
+		contourLines({maskToSourceAlpha: 'yes' as unknown as boolean}),
+	).toThrow('"maskToSourceAlpha" must be a boolean');
+});
+
+test('contourLines() parameters produce distinct effect keys', () => {
+	const defaults = contourLines();
+	const colored = contourLines({lineColor: '#0b84f3'});
+	const thicker = contourLines({lineWidth: 3});
+	const denser = contourLines({spacing: 12});
+	const larger = contourLines({scale: 240});
+	const simpler = contourLines({complexity: 0.2});
+	const smoother = contourLines({smoothness: 0.9});
+	const seeded = contourLines({seed: 3});
+	const shiftedX = contourLines({offsetX: 12});
+	const shiftedY = contourLines({offsetY: 12});
+	const transparent = contourLines({opacity: 0.5});
+	const masked = contourLines({maskToSourceAlpha: true});
+
+	expect(
+		new Set([
+			defaults.effectKey,
+			colored.effectKey,
+			thicker.effectKey,
+			denser.effectKey,
+			larger.effectKey,
+			simpler.effectKey,
+			smoother.effectKey,
+			seeded.effectKey,
+			shiftedX.effectKey,
+			shiftedY.effectKey,
+			transparent.effectKey,
+			masked.effectKey,
+		]).size,
+	).toBe(12);
+});
+
 test('invert() accepts default params', () => {
 	expect(() => invert()).not.toThrow();
 });
@@ -1676,9 +1785,9 @@ test('pattern() rejects invalid generic offsets', () => {
 	);
 });
 
-test('pattern() rejects overlapping gaps', () => {
-	expect(() => pattern({gapX: -1})).toThrow('"gapX" must be >= 0');
-	expect(() => pattern({gapY: -1})).toThrow('"gapY" must be >= 0');
+test('pattern() allows negative gaps', () => {
+	expect(() => pattern({gapX: -1})).not.toThrow();
+	expect(() => pattern({gapY: -1})).not.toThrow();
 });
 
 test('pattern() parameters produce distinct effect keys', () => {

@@ -7,6 +7,7 @@ import {EffectsBlurPreview} from '../../components/effects/effects-blur-preview'
 import {EffectsBrightnessPreview} from '../../components/effects/effects-brightness-preview';
 import {EffectsChromaticAberrationPreview} from '../../components/effects/effects-chromatic-aberration-preview';
 import {EffectsColorKeyPreview} from '../../components/effects/effects-color-key-preview';
+import {EffectsContourLinesPreview} from '../../components/effects/effects-contour-lines-preview';
 import {EffectsContrastPreview} from '../../components/effects/effects-contrast-preview';
 import {EffectsDotGridPreview} from '../../components/effects/effects-dot-grid-preview';
 import {EffectsDropShadowPreview} from '../../components/effects/effects-drop-shadow-preview';
@@ -462,6 +463,25 @@ export const RemotionRoot: React.FC = () => {
 						gap: 0,
 						angle: 20,
 						offset: 0,
+					}}
+				/>
+				<Still
+					id="effects-contour-lines-preview"
+					component={EffectsContourLinesPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						lineColor: '#ffffff',
+						lineWidth: 1.1,
+						spacing: 36,
+						scale: 220,
+						complexity: 0.7,
+						smoothness: 0.75,
+						seed: 2,
+						offsetX: 0,
+						offsetY: 0,
+						opacity: 0.65,
+						maskToSourceAlpha: false,
 					}}
 				/>
 				<Still

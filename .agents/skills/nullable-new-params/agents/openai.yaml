@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Nullable New Params'
+  short_description: 'Fix new internal optional parameters'
+  default_prompt: 'Use $nullable-new-params to convert new internal optional parameters in my diff to required nullable parameters.'
