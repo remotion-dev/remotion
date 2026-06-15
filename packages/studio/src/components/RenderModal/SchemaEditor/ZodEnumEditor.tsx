@@ -4,7 +4,6 @@ import {Checkmark} from '../../../icons/Checkmark';
 import type {ComboboxValue} from '../../NewComposition/ComboBox';
 import {Combobox} from '../../NewComposition/ComboBox';
 import {Fieldset} from './Fieldset';
-import {useSchemaEditorDensity} from './SchemaEditorDensity';
 import {SchemaLabel} from './SchemaLabel';
 import {zodSafeParse, type AnyZodSchema} from './zod-schema-type';
 import {getEnumValues} from './zod-schema-type';
@@ -36,8 +35,6 @@ export const ZodEnumEditor: React.FC<{
 	const enumValues = getEnumValues(schema);
 
 	const isRoot = jsonPath.length === 0;
-	const density = useSchemaEditorDensity();
-	const small = density === 'compact';
 
 	const comboBoxValues = useMemo(() => {
 		return enumValues.map((option: string): ComboboxValue => {
@@ -77,7 +74,7 @@ export const ZodEnumEditor: React.FC<{
 					values={comboBoxValues}
 					selectedId={value}
 					title={value}
-					small={small}
+					small
 				/>
 			</div>
 			<ZodFieldValidation path={jsonPath} zodValidation={zodValidation} />

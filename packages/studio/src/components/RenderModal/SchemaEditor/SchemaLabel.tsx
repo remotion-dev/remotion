@@ -3,12 +3,11 @@ import {FAIL_COLOR, LIGHT_TEXT} from '../../../helpers/colors';
 import {Flex} from '../../layout';
 import {InlineRemoveButton} from '../InlineRemoveButton';
 import {getSchemaLabel} from './get-schema-label';
-import {useSchemaEditorDensity} from './SchemaEditorDensity';
 import {DEFAULT_PROPS_PATH_CLASSNAME} from './scroll-to-default-props-path';
 import type {JSONPath} from './zod-types';
 
 const compactStyles: React.CSSProperties = {
-	fontSize: 15,
+	fontSize: 12,
 	color: LIGHT_TEXT,
 	fontFamily: 'sans-serif',
 	display: 'flex',
@@ -25,28 +24,19 @@ export const SchemaLabel: React.FC<{
 	readonly handleClick: null | (() => void);
 }> = ({jsonPath, onRemove, valid, suffix, handleClick}) => {
 	const [clickableButtonHovered, setClickableButtonHovered] = useState(false);
-	const density = useSchemaEditorDensity();
-	const compact = density === 'compact';
 
 	const labelStyle: React.CSSProperties = useMemo(() => {
 		return {
 			fontFamily: 'monospace',
-			fontSize: compact ? 12 : 14,
+			fontSize: 12,
 			color: valid
 				? clickableButtonHovered
 					? 'white'
 					: LIGHT_TEXT
 				: FAIL_COLOR,
-			lineHeight: compact ? '20px' : '24px',
+			lineHeight: '20px',
 		};
-	}, [clickableButtonHovered, compact, valid]);
-
-	const containerStyle: React.CSSProperties = useMemo(() => {
-		return {
-			...compactStyles,
-			fontSize: compact ? 12 : 15,
-		};
-	}, [compact]);
+	}, [clickableButtonHovered, valid]);
 
 	const onClickablePointerEnter = useCallback(() => {
 		setClickableButtonHovered(true);
@@ -64,7 +54,7 @@ export const SchemaLabel: React.FC<{
 
 	return (
 		<div
-			style={containerStyle}
+			style={compactStyles}
 			className={DEFAULT_PROPS_PATH_CLASSNAME}
 			data-json-path={jsonPath.join('.')}
 		>

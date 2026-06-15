@@ -458,7 +458,6 @@ export const DataEditor: React.FC<{
 					setValue={setDefaultProps}
 					schema={schema}
 					scrollableContainer={!compactLayout}
-					density={compactLayout ? 'compact' : 'default'}
 					contentInset={
 						compactLayout ? INSPECTOR_PANEL_HORIZONTAL_PADDING : undefined
 					}

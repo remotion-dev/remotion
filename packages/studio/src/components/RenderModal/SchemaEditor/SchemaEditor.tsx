@@ -2,10 +2,6 @@ import React from 'react';
 import {useZodIfPossible} from '../../get-zod-if-possible';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../../Menu/is-menu-item';
 import {getSchemaEditorFieldsetPadding} from './Fieldset';
-import {
-	SchemaEditorDensityContext,
-	type SchemaEditorDensity,
-} from './SchemaEditorDensity';
 import {TopLevelZodValue} from './SchemaErrorMessages';
 import {defaultPropsEditorScrollableAreaRef} from './scroll-to-default-props-path';
 import type {AnyZodSchema} from './zod-schema-type';
@@ -27,11 +23,9 @@ const notScrollable: React.CSSProperties = {
 
 const getContainerStyle = ({
 	contentInset,
-	density,
 	scrollableContainer,
 }: {
 	readonly contentInset: number | undefined;
-	readonly density: SchemaEditorDensity;
 	readonly scrollableContainer: boolean;
 }): React.CSSProperties => {
 	const base = scrollableContainer ? scrollable : notScrollable;
@@ -39,7 +33,7 @@ const getContainerStyle = ({
 		return base;
 	}
 
-	const fieldsetPadding = getSchemaEditorFieldsetPadding(density);
+	const fieldsetPadding = getSchemaEditorFieldsetPadding();
 	const rootInset = Math.max(0, contentInset - fieldsetPadding);
 
 	return {
@@ -55,16 +49,8 @@ export const SchemaEditor: React.FC<{
 	readonly value: Record<string, unknown>;
 	readonly setValue: UpdaterFunction<Record<string, unknown>>;
 	readonly scrollableContainer?: boolean;
-	readonly density?: SchemaEditorDensity;
 	readonly contentInset?: number;
-}> = ({
-	schema,
-	value,
-	setValue,
-	scrollableContainer = true,
-	density = 'default',
-	contentInset,
-}) => {
+}> = ({schema, value, setValue, scrollableContainer = true, contentInset}) => {
 	const z = useZodIfPossible();
 	if (!z) {
 		throw new Error('expected zod');
@@ -78,35 +64,11 @@ export const SchemaEditor: React.FC<{
 
 	const containerStyle = getContainerStyle({
 		contentInset,
-		density,
 		scrollableContainer,
 	});
 
 	if (typeName === 'discriminatedUnion') {
 		return (
-			<SchemaEditorDensityContext.Provider value={density}>
-				<div
-					ref={defaultPropsEditorScrollableAreaRef}
-					style={containerStyle}
-					className={
-						scrollableContainer ? VERTICAL_SCROLLBAR_CLASSNAME : undefined
-					}
-				>
-					<ZodDiscriminatedUnionEditor
-						schema={schema}
-						setValue={setValue}
-						value={value}
-						mayPad
-						jsonPath={[]}
-						onRemove={null}
-					/>
-				</div>
-			</SchemaEditorDensityContext.Provider>
-		);
-	}
-
-	return (
-		<SchemaEditorDensityContext.Provider value={density}>
 			<div
 				ref={defaultPropsEditorScrollableAreaRef}
 				style={containerStyle}
@@ -114,16 +76,33 @@ export const SchemaEditor: React.FC<{
 					scrollableContainer ? VERTICAL_SCROLLBAR_CLASSNAME : undefined
 				}
 			>
-				<ZodObjectEditor
-					discriminatedUnionReplacement={null}
-					value={value as Record<string, unknown>}
-					setValue={setValue}
-					jsonPath={[]}
+				<ZodDiscriminatedUnionEditor
 					schema={schema}
-					onRemove={null}
+					setValue={setValue}
+					value={value}
 					mayPad
+					jsonPath={[]}
+					onRemove={null}
 				/>
 			</div>
-		</SchemaEditorDensityContext.Provider>
+		);
+	}
+
+	return (
+		<div
+			ref={defaultPropsEditorScrollableAreaRef}
+			style={containerStyle}
+			className={scrollableContainer ? VERTICAL_SCROLLBAR_CLASSNAME : undefined}
+		>
+			<ZodObjectEditor
+				discriminatedUnionReplacement={null}
+				value={value as Record<string, unknown>}
+				setValue={setValue}
+				jsonPath={[]}
+				schema={schema}
+				onRemove={null}
+				mayPad
+			/>
+		</div>
 	);
 };

@@ -1,18 +1,9 @@
 import React, {createContext, useContext, useMemo} from 'react';
-import {
-	type SchemaEditorDensity,
-	useSchemaEditorDensity,
-} from './SchemaEditorDensity';
 
-export const SCHEMA_EDITOR_FIELDSET_PADDING = 10;
-const COMPACT_SCHEMA_EDITOR_FIELDSET_PADDING = 6;
+export const SCHEMA_EDITOR_FIELDSET_PADDING = 6;
 
-export const getSchemaEditorFieldsetPadding = (
-	density: SchemaEditorDensity,
-) => {
-	return density === 'compact'
-		? COMPACT_SCHEMA_EDITOR_FIELDSET_PADDING
-		: SCHEMA_EDITOR_FIELDSET_PADDING;
+export const getSchemaEditorFieldsetPadding = () => {
+	return SCHEMA_EDITOR_FIELDSET_PADDING;
 };
 
 type AlreadyPaddedContext = boolean;
@@ -24,11 +15,10 @@ export const Fieldset: React.FC<{
 	readonly shouldPad: boolean;
 }> = ({children, shouldPad}) => {
 	const alreadyPadded = useContext(AlreadyPaddedRightContext);
-	const density = useSchemaEditorDensity();
 
 	const style: React.CSSProperties = useMemo(() => {
 		if (shouldPad) {
-			const padding = getSchemaEditorFieldsetPadding(density);
+			const padding = getSchemaEditorFieldsetPadding();
 
 			return {
 				padding,
@@ -38,7 +28,7 @@ export const Fieldset: React.FC<{
 		}
 
 		return {};
-	}, [alreadyPadded, density, shouldPad]);
+	}, [alreadyPadded, shouldPad]);
 
 	const content = <div style={style}>{children}</div>;
 

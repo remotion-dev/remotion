@@ -1,7 +1,6 @@
-import React, {useMemo} from 'react';
+import React from 'react';
 import {VERY_LIGHT_TEXT} from '../../../helpers/colors';
 import {Fieldset} from './Fieldset';
-import {useSchemaEditorDensity} from './SchemaEditorDensity';
 import {SchemaLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
 
@@ -18,7 +17,8 @@ const emptyLabel: React.CSSProperties = {
 
 const wideEmptyLabel: React.CSSProperties = {
 	...emptyLabel,
-	lineHeight: '37px',
+	fontSize: 12,
+	lineHeight: '28px',
 };
 
 export const ZonNonEditableValue: React.FC<{
@@ -26,15 +26,6 @@ export const ZonNonEditableValue: React.FC<{
 	readonly label: string;
 	readonly mayPad: boolean;
 }> = ({jsonPath, label, mayPad}) => {
-	const density = useSchemaEditorDensity();
-	const nonEditableLabel = useMemo((): React.CSSProperties => {
-		return {
-			...wideEmptyLabel,
-			fontSize: density === 'compact' ? 12 : 14,
-			lineHeight: density === 'compact' ? '28px' : '37px',
-		};
-	}, [density]);
-
 	return (
 		<Fieldset shouldPad={mayPad}>
 			<SchemaLabel
@@ -45,7 +36,7 @@ export const ZonNonEditableValue: React.FC<{
 				suffix={null}
 			/>
 			<div style={fullWidth}>
-				<em style={nonEditableLabel}>{label}</em>
+				<em style={wideEmptyLabel}>{label}</em>
 			</div>
 		</Fieldset>
 	);

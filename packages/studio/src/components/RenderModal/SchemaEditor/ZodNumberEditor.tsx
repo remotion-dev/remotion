@@ -2,7 +2,6 @@ import {useMemo} from 'react';
 import React, {useCallback} from 'react';
 import {InputDragger} from '../../NewComposition/InputDragger';
 import {Fieldset} from './Fieldset';
-import {useSchemaEditorDensity} from './SchemaEditorDensity';
 import {SchemaLabel} from './SchemaLabel';
 import {
 	getZodNumberMaximum,
@@ -51,8 +50,6 @@ export const ZodNumberEditor: React.FC<{
 		() => zodSafeParse(schema, value),
 		[schema, value],
 	);
-	const density = useSchemaEditorDensity();
-	const small = density === 'compact';
 
 	return (
 		<Fieldset shouldPad={mayPad}>
@@ -77,7 +74,7 @@ export const ZodNumberEditor: React.FC<{
 					max={getZodNumberMaximum(schema)}
 					step={getZodNumberStep(schema)}
 					rightAlign={false}
-					small={small}
+					small
 				/>
 				<ZodFieldValidation path={jsonPath} zodValidation={zodValidation} />
 			</div>

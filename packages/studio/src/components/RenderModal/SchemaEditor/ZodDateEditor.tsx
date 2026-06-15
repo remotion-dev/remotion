@@ -4,7 +4,6 @@ import {VERY_LIGHT_TEXT} from '../../../helpers/colors';
 import {Spacing} from '../../layout';
 import {RemotionInput} from '../../NewComposition/RemInput';
 import {Fieldset} from './Fieldset';
-import {useSchemaEditorDensity} from './SchemaEditorDensity';
 import {SchemaLabel} from './SchemaLabel';
 import {zodSafeParse, type AnyZodSchema} from './zod-schema-type';
 import type {JSONPath} from './zod-types';
@@ -74,8 +73,6 @@ export const ZodDateEditor: React.FC<{
 		() => zodSafeParse(schema, value),
 		[schema, value],
 	);
-	const density = useSchemaEditorDensity();
-	const small = density === 'compact';
 
 	return (
 		<Fieldset shouldPad={mayPad}>
@@ -96,7 +93,7 @@ export const ZodDateEditor: React.FC<{
 					onBlur={onBlur}
 					style={inputStyle}
 					rightAlign={false}
-					small={small}
+					small
 				/>
 				<Spacing y={1} block />
 				<div style={explainer}>Date is in local format</div>

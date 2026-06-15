@@ -4,7 +4,6 @@ import type {ComboboxValue} from '../../NewComposition/ComboBox';
 import {Combobox} from '../../NewComposition/ComboBox';
 import {useStaticFiles} from '../../use-static-files';
 import {Fieldset} from './Fieldset';
-import {useSchemaEditorDensity} from './SchemaEditorDensity';
 import {SchemaLabel} from './SchemaLabel';
 import {zodSafeParse, type AnyZodSchema} from './zod-schema-type';
 import type {JSONPath} from './zod-types';
@@ -39,8 +38,6 @@ export const ZodStaticFileEditor: React.FC<{
 	);
 
 	const isRoot = jsonPath.length === 0;
-	const density = useSchemaEditorDensity();
-	const small = density === 'compact';
 	const staticFiles = useStaticFiles();
 
 	const comboBoxValues = useMemo(() => {
@@ -76,7 +73,7 @@ export const ZodStaticFileEditor: React.FC<{
 					values={comboBoxValues}
 					selectedId={value}
 					title={value}
-					small={small}
+					small
 				/>
 			</div>
 			<ZodFieldValidation path={jsonPath} zodValidation={zodValidation} />

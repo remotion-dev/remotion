@@ -8,7 +8,6 @@ import type {ComboboxValue} from '../../NewComposition/ComboBox';
 import {Combobox} from '../../NewComposition/ComboBox';
 import {createZodValues} from './create-zod-values';
 import {Fieldset} from './Fieldset';
-import {useSchemaEditorDensity} from './SchemaEditorDensity';
 import {SchemaLabel} from './SchemaLabel';
 import {zodSafeParse, type AnyZodSchema} from './zod-schema-type';
 import {
@@ -35,8 +34,6 @@ export const ZodDiscriminatedUnionEditor: React.FC<{
 	}
 
 	const zodTypes = useZodTypesIfPossible();
-	const density = useSchemaEditorDensity();
-	const small = density === 'compact';
 
 	const discriminator = getDiscriminator(schema);
 	const options = useMemo(
@@ -95,7 +92,7 @@ export const ZodDiscriminatedUnionEditor: React.FC<{
 							title="Select type"
 							values={comboBoxValues}
 							selectedId={value[discriminator] as string}
-							small={small}
+							small
 						/>
 					</Fieldset>
 				),
@@ -106,7 +103,6 @@ export const ZodDiscriminatedUnionEditor: React.FC<{
 			mayPad,
 			onRemove,
 			discriminator,
-			small,
 			value,
 			zodValidation.success,
 		]);
