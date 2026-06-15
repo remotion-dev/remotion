@@ -9,7 +9,6 @@ import {
 	SFX_WAVEFORM_SAMPLE_COUNT,
 	sfxWaveforms,
 } from '../../components/sfx-demos/sfx-waveforms';
-import {MusicIcon} from '../../src/components/icons/music';
 import {Waveform as WaveformIcon} from '../../src/components/icons/waveform';
 
 const controlsContainer: React.CSSProperties = {
@@ -28,44 +27,11 @@ const controls: React.CSSProperties = {
 	flexWrap: 'wrap',
 };
 
-const dragGroup: React.CSSProperties = {
-	display: 'flex',
-	flexDirection: 'column',
-	alignItems: 'flex-start',
-	gap: 6,
-	minWidth: 0,
-};
-
-const compactDragGroup: React.CSSProperties = {
-	marginTop: 10,
-	gap: 4,
-};
-
 const dragLabel: React.CSSProperties = {
 	color: 'var(--ifm-color-emphasis-700)',
 	fontSize: 12,
 	fontWeight: 600,
 	lineHeight: 1,
-};
-
-const dragChip: React.CSSProperties = {
-	alignItems: 'center',
-	backgroundColor: 'var(--ifm-color-emphasis-100)',
-	border: '1px solid var(--ifm-color-emphasis-300)',
-	borderRadius: 8,
-	boxShadow: '0 1px 1px rgba(0, 0, 0, 0.04)',
-	color: 'var(--ifm-font-color-base)',
-	cursor: 'grab',
-	display: 'flex',
-	flexDirection: 'row',
-	gap: 8,
-	maxWidth: '100%',
-	padding: '8px 10px',
-	userSelect: 'none',
-};
-
-const compactDragChip: React.CSSProperties = {
-	padding: '6px 8px',
 };
 
 const dragIconContainer: React.CSSProperties = {
@@ -78,11 +44,6 @@ const dragIconContainer: React.CSSProperties = {
 	height: 24,
 	justifyContent: 'center',
 	width: 24,
-};
-
-const compactDragIconContainer: React.CSSProperties = {
-	height: 20,
-	width: 20,
 };
 
 const dragIcon: React.CSSProperties = {
@@ -233,55 +194,6 @@ const setDragDataForSfx = ({
 	});
 };
 
-export const SfxDragChip: React.FC<{
-	readonly src: string;
-	readonly name?: string;
-	readonly compact?: boolean;
-}> = ({src, name, compact = false}) => {
-	const sfxName = name ?? getSfxNameFromUrl(src);
-	const fileName = getSfxFileNameFromUrl(src);
-
-	const onDragStart = useCallback(
-		(e: React.DragEvent<HTMLDivElement>) => {
-			e.stopPropagation();
-			setDragDataForSfx({
-				dataTransfer: e.dataTransfer,
-				name: sfxName,
-				src,
-			});
-		},
-		[sfxName, src],
-	);
-
-	const onClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-		e.preventDefault();
-		e.stopPropagation();
-	}, []);
-
-	return (
-		<div style={{...dragGroup, ...(compact ? compactDragGroup : {})}}>
-			<span style={dragLabel}>Drag into Studio</span>
-			<div
-				draggable
-				onClick={onClick}
-				onDragStart={onDragStart}
-				style={{...dragChip, ...(compact ? compactDragChip : {})}}
-				title={`Drag ${fileName} into Remotion Studio`}
-			>
-				<span
-					style={{
-						...dragIconContainer,
-						...(compact ? compactDragIconContainer : {}),
-					}}
-				>
-					<MusicIcon style={dragIcon} />
-				</span>
-				<span style={fileNameLabel}>{fileName}</span>
-			</div>
-		</div>
-	);
-};
-
 const SfxWaveformDragTarget: React.FC<{
 	readonly src: string;
 	readonly name?: string;
@@ -359,8 +271,8 @@ export const PlayButton: React.FC<{
 	readonly src: string;
 	readonly size?: number;
 	readonly depth?: number;
-	readonly showDragChip?: boolean;
-}> = ({src, size = 48, depth, showDragChip = true}) => {
+	readonly showDragTarget?: boolean;
+}> = ({src, size = 48, depth, showDragTarget = true}) => {
 	const [playing, setPlaying] = useState(false);
 	const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -420,7 +332,7 @@ export const PlayButton: React.FC<{
 		</Button>
 	);
 
-	if (!showDragChip) {
+	if (!showDragTarget) {
 		return <div style={controls}>{button}</div>;
 	}
 

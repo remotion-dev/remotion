@@ -1,7 +1,7 @@
 import React from 'react';
 import {Grid} from '../../components/TableOfContents/Grid';
 import {TOCItem} from '../../components/TableOfContents/TOCItem';
-import {PlayButton, SfxDragChip} from './PlayButton';
+import {PlayButton} from './PlayButton';
 
 const SfxItem: React.FC<{
 	readonly link: string;
@@ -19,11 +19,10 @@ const SfxItem: React.FC<{
 					gap: 12,
 				}}
 			>
-				<PlayButton src={src} size={32} depth={0.5} showDragChip={false} />
+				<PlayButton src={src} size={32} depth={0.5} showDragTarget={false} />
 				<div style={{minWidth: 0}}>
 					<strong>{name}</strong>
 					<div>{description}</div>
-					<SfxDragChip src={src} name={name} compact />
 				</div>
 			</div>
 		</TOCItem>
