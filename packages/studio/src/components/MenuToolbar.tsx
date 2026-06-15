@@ -11,13 +11,17 @@ import {SidebarCollapserControls} from './SidebarCollapserControls';
 import {UndoRedoButtons} from './UndoRedoButtons';
 import {UpdateCheck} from './UpdateCheck';
 
+export const MENU_TOOLBAR_HEIGHT = 30;
+
 const row: React.CSSProperties = {
 	alignItems: 'center',
 	flexDirection: 'row',
 	display: 'flex',
 	color: 'white',
 	borderBottom: '1px solid black',
+	boxSizing: 'border-box',
 	fontSize: 13,
+	height: MENU_TOOLBAR_HEIGHT,
 	paddingLeft: 6,
 	paddingRight: 10,
 	backgroundColor: BACKGROUND,
