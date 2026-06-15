@@ -44,7 +44,10 @@ import {
 	type SelectedOutlineScaleDragState,
 } from '../components/SelectedOutlineOverlay';
 import {deleteSelectedTimelineItems} from '../components/Timeline/delete-selected-timeline-item';
-import {isDuplicatableSequenceRowSelection} from '../components/Timeline/duplicate-selected-timeline-item';
+import {
+	isDuplicatableEffectSelection,
+	isDuplicatableSequenceRowSelection,
+} from '../components/Timeline/duplicate-selected-timeline-item';
 import {getTimelinePropResetTargets} from '../components/Timeline/reset-selected-timeline-props';
 import {
 	getEffectPropClipboardDataFromSelection,
@@ -1687,7 +1690,7 @@ test('Cmd+A selection only targets selectable timeline sequences', () => {
 	]);
 });
 
-test('Cmd+D only duplicates selected timeline sequence rows', () => {
+test('Cmd+D duplicates selected timeline sequence and effect rows', () => {
 	const sequenceNodePathInfo = makeNodePathInfo(['body', 0], []);
 	const effectNodePathInfo = makeNodePathInfo(['body', 1], ['effects', '0']);
 
@@ -1709,6 +1712,28 @@ test('Cmd+D only duplicates selected timeline sequence rows', () => {
 		{
 			type: 'sequence',
 			nodePathInfo: sequenceNodePathInfo,
+		},
+	]);
+
+	expect(
+		[
+			{type: 'sequence' as const, nodePathInfo: sequenceNodePathInfo},
+			{
+				type: 'sequence-effect' as const,
+				nodePathInfo: effectNodePathInfo,
+				i: 0,
+			},
+			{
+				type: 'keyframe' as const,
+				nodePathInfo: sequenceNodePathInfo,
+				frame: 12,
+			},
+		].filter(isDuplicatableEffectSelection),
+	).toEqual([
+		{
+			type: 'sequence-effect',
+			nodePathInfo: effectNodePathInfo,
+			i: 0,
 		},
 	]);
 });
