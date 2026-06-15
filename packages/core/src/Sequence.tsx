@@ -322,15 +322,15 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 				parentCumulatedNegativeFrom -
 				cumulatedNegativeFrom
 			: null;
-	const rawTrimBefore =
+	const mediaFrameAtSequenceZero =
 		isMedia && isMedia.type !== 'image'
 			? isMedia.data.startMediaFrom + parentCumulatedNegativeFrom
 			: null;
 	const frozenMediaFrame =
-		isMedia && isMedia.type !== 'image' && rawTrimBefore !== null
+		isMedia && isMedia.type !== 'image' && mediaFrameAtSequenceZero !== null
 			? registeredFrozenFrame === null
 				? null
-				: rawTrimBefore +
+				: mediaFrameAtSequenceZero +
 					(loopDisplay
 						? registeredFrozenFrame % loopDisplay.durationInFrames
 						: registeredFrozenFrame) *

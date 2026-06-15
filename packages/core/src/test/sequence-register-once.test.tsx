@@ -323,6 +323,37 @@ test('Video media registration stores frozen media frame', () => {
 	expect(videoSequence?.frozenMediaFrame).toBe(29);
 });
 
+test('Video media registration keeps frozen frame sequence-local for negative from', () => {
+	const registeredSequences: TSequence[] = [];
+
+	render(
+		<SequenceTestWrapper
+			onRegisterSequence={(sequence) => {
+				registeredSequences.push(sequence);
+			}}
+		>
+			<Sequence
+				layout="none"
+				from={-10}
+				durationInFrames={50}
+				freeze={12}
+				_remotionInternalIsMedia={{
+					type: 'video',
+					data: makeMediaInTimelineData({startMediaFrom: 5}),
+				}}
+			/>
+		</SequenceTestWrapper>,
+	);
+
+	const videoSequence = registeredSequences.find(
+		(sequence) => sequence.type === 'video',
+	);
+
+	expect(videoSequence?.startMediaFrom).toBe(15);
+	expect(videoSequence?.frozenFrame).toBe(12);
+	expect(videoSequence?.frozenMediaFrame).toBe(17);
+});
+
 test('Img registers a refForOutline pointing to the rendered image element', () => {
 	const registeredSequences: TSequence[] = [];
 
