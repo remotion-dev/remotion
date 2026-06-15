@@ -859,9 +859,6 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 				return;
 			}
 
-			onDraggingChange(true);
-			forceSpecificCursor(edgeInfo.cursor);
-
 			const startPointer = {x: event.clientX, y: event.clientY};
 			const dragStates = getSelectedOutlineScaleDragStates({
 				dragTargets: selected ? allScaleDragTargets : [scaleDrag],
@@ -869,6 +866,7 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 				timelinePosition: timelinePositionRef.current,
 			});
 			let lastValues = new Map<string, number | string>();
+			let dragStarted = false;
 
 			const onPointerMove = (moveEvent: PointerEvent) => {
 				moveEvent.preventDefault();
@@ -877,6 +875,21 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 					x: moveEvent.clientX - startPointer.x,
 					y: moveEvent.clientY - startPointer.y,
 				};
+				if (!dragStarted) {
+					if (
+						!isSelectedOutlineDragPastThreshold({
+							deltaX: delta.x,
+							deltaY: delta.y,
+						})
+					) {
+						return;
+					}
+
+					dragStarted = true;
+					onDraggingChange(true);
+					forceSpecificCursor(edgeInfo.cursor);
+				}
+
 				const projectedDelta = dot(delta, edgeInfo.normal);
 				const scaleFactor = Math.max(
 					0.001,
@@ -919,8 +932,10 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 				window.removeEventListener('pointermove', onPointerMove);
 				window.removeEventListener('pointerup', onPointerUp);
 				window.removeEventListener('pointercancel', onPointerUp);
-				stopForcingSpecificCursor();
-				onDraggingChange(false);
+				if (dragStarted) {
+					stopForcingSpecificCursor();
+					onDraggingChange(false);
+				}
 
 				const changes = getSelectedOutlineScaleDragChanges({
 					dragStates,
@@ -1124,9 +1139,7 @@ const SelectedOutlineRotationCornerHandle: React.FC<{
 				return;
 			}
 
-			onDraggingChange(true);
-			forceSpecificCursor(cornerInfo.cursor);
-
+			const startPointer = {x: event.clientX, y: event.clientY};
 			const svgRect = svg.getBoundingClientRect();
 			const center = svgPointToClientPoint(
 				getSelectedOutlineRotationPivot({
@@ -1147,9 +1160,25 @@ const SelectedOutlineRotationCornerHandle: React.FC<{
 			});
 			let accumulatedDelta = 0;
 			let lastValues = new Map<string, string>();
+			let dragStarted = false;
 
 			const onPointerMove = (moveEvent: PointerEvent) => {
 				moveEvent.preventDefault();
+				const screenDeltaX = moveEvent.clientX - startPointer.x;
+				const screenDeltaY = moveEvent.clientY - startPointer.y;
+				if (!dragStarted) {
+					if (
+						!isSelectedOutlineDragPastThreshold({
+							deltaX: screenDeltaX,
+							deltaY: screenDeltaY,
+						})
+					) {
+						return;
+					}
+
+					dragStarted = true;
+					onDraggingChange(true);
+				}
 
 				const nextAngle = getAngleDegrees(center, {
 					x: moveEvent.clientX,
@@ -1198,8 +1227,10 @@ const SelectedOutlineRotationCornerHandle: React.FC<{
 				window.removeEventListener('pointermove', onPointerMove);
 				window.removeEventListener('pointerup', onPointerUp);
 				window.removeEventListener('pointercancel', onPointerUp);
-				stopForcingSpecificCursor();
-				onDraggingChange(false);
+				if (dragStarted) {
+					stopForcingSpecificCursor();
+					onDraggingChange(false);
+				}
 
 				const changes = getSelectedOutlineRotationDragChanges({
 					dragStates,
