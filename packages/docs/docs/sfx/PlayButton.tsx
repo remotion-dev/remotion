@@ -209,10 +209,10 @@ const makeWaveformPath = (samples: Uint8Array): string => {
 		const scaled = Math.sqrt(samples[index] / 255) * maxAmplitude;
 		const amplitude = Math.max(0.8, scaled);
 		top.push(`${index} ${center - amplitude}`);
-		bottom.push(`${samples.length - 1 - index} ${center + amplitude}`);
+		bottom.push(`${index} ${center + amplitude}`);
 	}
 
-	return `M ${top.join(' L ')} L ${bottom.join(' L ')} Z`;
+	return `M ${top.join(' L ')} L ${bottom.reverse().join(' L ')} Z`;
 };
 
 const setDragDataForSfx = ({
