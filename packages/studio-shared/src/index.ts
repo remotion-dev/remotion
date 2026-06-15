@@ -112,6 +112,7 @@ export {
 	isComponentImportPath,
 	makeComponentDragData,
 	parseComponentDragData,
+	type ComponentDimensions,
 	type ComponentDragData,
 	type ComponentProp,
 } from './component-drag-data';

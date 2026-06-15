@@ -4,6 +4,7 @@ import {
 	type ComponentDragData,
 	type ComponentProp,
 } from '@remotion/studio-shared';
+import {getShapeDragInfo} from './shape-drag-info';
 import type {ShapeName} from './shapes-info';
 
 const shapeDefaultProps: Record<ShapeName, readonly ComponentProp[]> = {
@@ -146,11 +147,19 @@ const makeShapeComponentDragData = ({
 	readonly shape: ShapeName;
 	readonly props: ComponentProp[];
 }): ComponentDragData => {
-	return makeComponentDragData({
+	const component = {
 		componentName: shape,
 		importName: shape,
 		importPath: '@remotion/shapes',
 		props,
+	} satisfies ComponentDragData['component'];
+	const shapeInfo = getShapeDragInfo(component);
+
+	return makeComponentDragData({
+		...component,
+		dimensions: shapeInfo
+			? {width: shapeInfo.width, height: shapeInfo.height}
+			: null,
 	});
 };
 

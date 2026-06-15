@@ -213,9 +213,13 @@ const getComponentPropNumber = (props: ComponentProp[], name: string) => {
 	return typeof prop?.value === 'number' ? prop.value : null;
 };
 
-const getComponentDimensions = (
+export const getComponentDimensions = (
 	component: ComponentDragData['component'],
 ): Dimensions | null => {
+	if (component.dimensions) {
+		return component.dimensions;
+	}
+
 	const width = getComponentPropNumber(component.props, 'width');
 	const height = getComponentPropNumber(component.props, 'height');
 	if (width !== null && height !== null) {
