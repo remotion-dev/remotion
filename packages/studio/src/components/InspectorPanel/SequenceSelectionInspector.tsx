@@ -2,7 +2,10 @@ import React, {useCallback, useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
-import {InspectorSequenceSection} from '../InspectorSequenceSection';
+import {
+	hasSequenceControls,
+	InspectorSequenceSection,
+} from '../InspectorSequenceSection';
 import {InspectorSourceLocation} from '../InspectorSourceLocation';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {
@@ -121,7 +124,11 @@ const SequenceExpandedInspector: React.FC<{
 		return <InspectorMessage>Studio server disconnected</InspectorMessage>;
 	}
 
-	if (!track.nodePathInfo || !track.sequence.controls || !validatedLocation) {
+	if (
+		!track.nodePathInfo ||
+		!hasSequenceControls(track.sequence) ||
+		!validatedLocation
+	) {
 		return <InspectorMessage>Sequence inspector unavailable</InspectorMessage>;
 	}
 

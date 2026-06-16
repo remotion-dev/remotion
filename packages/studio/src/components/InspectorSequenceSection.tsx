@@ -54,8 +54,18 @@ const getInspectorExpansionKey = (nodePathInfo: SequenceNodePathInfo) => {
 	return JSON.stringify(nodePathInfo);
 };
 
+type SequenceWithControls = TSequence & {
+	readonly controls: NonNullable<TSequence['controls']>;
+};
+
+export const hasSequenceControls = (
+	sequence: TSequence,
+): sequence is SequenceWithControls => {
+	return sequence.controls !== null;
+};
+
 export const InspectorSequenceSection: React.FC<{
-	readonly sequence: TSequence;
+	readonly sequence: SequenceWithControls;
 	readonly validatedLocation: CodePosition;
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly keyframeDisplayOffset: number;
@@ -123,7 +133,7 @@ export const InspectorSequenceSection: React.FC<{
 		};
 	}, [getIsExpanded, tree]);
 
-	const {schema} = sequence.controls!;
+	const {schema} = sequence.controls;
 	const showEffectsSection =
 		nodePathInfo.supportsEffects || effectRows.length > 0;
 	const showControlsEffectsDivider =
