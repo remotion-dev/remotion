@@ -17,7 +17,8 @@ const emptyLabel: React.CSSProperties = {
 
 const wideEmptyLabel: React.CSSProperties = {
 	...emptyLabel,
-	lineHeight: '37px',
+	fontSize: 12,
+	lineHeight: '28px',
 };
 
 export const ZonNonEditableValue: React.FC<{

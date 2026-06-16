@@ -64,6 +64,7 @@ import {
 import {getSelectedKeyframeControlNodePathInfos} from '../components/Timeline/TimelineKeyframeControls';
 import {
 	getClampedTimelineMarqueePoint,
+	getAvailableTimelineSelectionState,
 	getSelectableTimelineSequenceSelections,
 	getTimelineMarqueeSelection,
 	getTimelineSelectionAfterInteraction,
@@ -2035,6 +2036,52 @@ test('Backspace reset targets selected computed sequence props with defaults', (
 	]);
 });
 
+test('Backspace reset targets flattened built-in sequence style props', () => {
+	const opacityNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['controls', 'style.opacity'],
+	);
+	const nodePath = opacityNodePathInfo.sequenceSubscriptionKey;
+	const propStatuses = {
+		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			canUpdate: true,
+			props: {
+				'style.opacity': {
+					status: 'computed',
+				},
+			},
+			effects: [],
+		},
+	} satisfies PropStatuses;
+
+	const resetTargets = getTimelinePropResetTargets({
+		selections: [
+			{
+				type: 'sequence-prop',
+				nodePathInfo: opacityNodePathInfo,
+				key: 'style.opacity',
+			},
+		],
+		sequences: [
+			makeTimelineSequence({schema: NoReactInternals.sequenceSchema}),
+		],
+		overrideIdsToNodePaths: {override: nodePath},
+		propStatuses,
+	});
+
+	expect(resetTargets).toEqual([
+		{
+			type: 'sequence-prop',
+			fileName: '/project/src/Comp.tsx',
+			nodePath,
+			fieldKey: 'style.opacity',
+			value: 1,
+			defaultValue: '1',
+			schema: NoReactInternals.sequenceSchema,
+		},
+	]);
+});
+
 test('Backspace reset skips keyframed sequence props without defaults', () => {
 	const schema = {
 		opacity: {type: 'number', default: undefined, hiddenFromList: false},
@@ -3705,6 +3752,50 @@ test('Easing keyframe drag preserves selected item types at moved frames', () =>
 			toFrame: 25,
 		},
 	]);
+});
+
+test('Unavailable timeline selections are removed from the active selection state', () => {
+	const availableRow = {
+		type: 'sequence' as const,
+		nodePathInfo: makeNodePathInfo(['body', 0], []),
+	};
+	const unavailableRow = {
+		type: 'sequence' as const,
+		nodePathInfo: makeNodePathInfo(['body', 1], []),
+	};
+
+	expect(
+		getAvailableTimelineSelectionState({
+			availableKeys: new Set([getTimelineSelectionKey(availableRow)]),
+			state: {
+				selectedItems: [availableRow, unavailableRow],
+				anchor: unavailableRow,
+			},
+		}),
+	).toEqual({
+		selectedItems: [availableRow],
+		anchor: null,
+	});
+});
+
+test('Unavailable timeline selections become no active selection', () => {
+	const unavailableRow = {
+		type: 'sequence' as const,
+		nodePathInfo: makeNodePathInfo(['body', 1], []),
+	};
+
+	expect(
+		getAvailableTimelineSelectionState({
+			availableKeys: new Set(),
+			state: {
+				selectedItems: [unavailableRow],
+				anchor: unavailableRow,
+			},
+		}),
+	).toEqual({
+		selectedItems: [],
+		anchor: null,
+	});
 });
 
 test('Timeline double-click actions ignore selection modifier clicks', () => {

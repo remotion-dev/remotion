@@ -74,6 +74,7 @@ export const ZodTextareaEditor: React.FC<{
 					placeholder={jsonPath.join('.')}
 					name={jsonPath.join('.')}
 					style={textareaStyle}
+					small
 				/>
 				<ZodFieldValidation path={jsonPath} zodValidation={zodValidation} />
 			</div>

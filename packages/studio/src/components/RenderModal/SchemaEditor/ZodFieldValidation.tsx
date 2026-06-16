@@ -15,7 +15,7 @@ const stackTrace: React.CSSProperties = {
 };
 
 const stackTraceLabel: React.CSSProperties = {
-	fontSize: 14,
+	fontSize: 12,
 };
 
 export const ZodFieldValidation: React.FC<{
@@ -32,6 +32,7 @@ export const ZodFieldValidation: React.FC<{
 				align="flex-start"
 				message={zodValidation.error.format()._errors[0]}
 				type="error"
+				size="compact"
 			/>
 			<Spacing x={0.5} />
 			<InfoBubble title="Zod validation failure">

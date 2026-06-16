@@ -8,7 +8,7 @@ import {Tab} from './Tabs';
 const row: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'row',
-	fontSize: 14,
+	fontSize: 'inherit',
 	color: 'inherit',
 	alignItems: 'center',
 	flex: 1,

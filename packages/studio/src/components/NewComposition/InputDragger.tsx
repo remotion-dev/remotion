@@ -284,8 +284,8 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 					status={status}
 					pattern={'[0-9]*[.]?[0-9]*'}
 					rightAlign={rightAlign}
+					small={small}
 					{...props}
-					{...(small ? {style: {padding: '4px 6px', fontSize: 12}} : {})}
 				/>
 			</HigherZIndex>
 		);
