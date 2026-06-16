@@ -74,6 +74,7 @@ export const ZodNumberEditor: React.FC<{
 					max={getZodNumberMaximum(schema)}
 					step={getZodNumberStep(schema)}
 					rightAlign={false}
+					small
 				/>
 				<ZodFieldValidation path={jsonPath} zodValidation={zodValidation} />
 			</div>

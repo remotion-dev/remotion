@@ -37,6 +37,7 @@ export type SelectedOutlineUvHandle = {
 	readonly fieldDefault: UvCoordinate | undefined;
 	readonly fieldKey: string;
 	readonly fieldSchema: UvCoordinateFieldSchema;
+	readonly isSelected: boolean;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly schema: SequenceSchema;
 	readonly sourceFrame: number;
@@ -343,6 +344,12 @@ export const getSelectedUvHandles = ({
 			continue;
 		}
 
+		const shouldShowUvHandles =
+			selectedFields.allFields || selectedFields.fieldKeys.size > 0;
+		if (!shouldShowUvHandles) {
+			continue;
+		}
+
 		const dragOverrides = getEffectDragOverrides(nodePath, effectIndex);
 		const activeSchema = Internals.flattenActiveSchema(effect.schema, (key) => {
 			const propStatus = effectStatus.props[key];
@@ -363,10 +370,7 @@ export const getSelectedUvHandles = ({
 		});
 
 		for (const [fieldKey, fieldSchema] of Object.entries(activeSchema)) {
-			if (
-				fieldSchema.type !== 'uv-coordinate' ||
-				(!selectedFields.allFields && !selectedFields.fieldKeys.has(fieldKey))
-			) {
+			if (fieldSchema.type !== 'uv-coordinate') {
 				continue;
 			}
 
@@ -398,6 +402,7 @@ export const getSelectedUvHandles = ({
 				fieldDefault: fieldSchema.default,
 				fieldKey,
 				fieldSchema,
+				isSelected: selectedFields.fieldKeys.has(fieldKey),
 				nodePath,
 				schema: effect.schema,
 				sourceFrame,

@@ -1,6 +1,7 @@
 import React from 'react';
 import {useZodIfPossible} from '../../get-zod-if-possible';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../../Menu/is-menu-item';
+import {getSchemaEditorFieldsetPadding} from './Fieldset';
 import {TopLevelZodValue} from './SchemaErrorMessages';
 import {defaultPropsEditorScrollableAreaRef} from './scroll-to-default-props-path';
 import type {AnyZodSchema} from './zod-schema-type';
@@ -15,11 +16,41 @@ const scrollable: React.CSSProperties = {
 	overflowY: 'auto',
 };
 
+const notScrollable: React.CSSProperties = {
+	display: 'flex',
+	flexDirection: 'column',
+};
+
+const getContainerStyle = ({
+	contentInset,
+	scrollableContainer,
+}: {
+	readonly contentInset: number | undefined;
+	readonly scrollableContainer: boolean;
+}): React.CSSProperties => {
+	const base = scrollableContainer ? scrollable : notScrollable;
+	if (contentInset === undefined) {
+		return base;
+	}
+
+	const fieldsetPadding = getSchemaEditorFieldsetPadding();
+	const rootInset = Math.max(0, contentInset - fieldsetPadding);
+
+	return {
+		...base,
+		boxSizing: 'border-box',
+		paddingLeft: rootInset,
+		paddingRight: rootInset,
+	};
+};
+
 export const SchemaEditor: React.FC<{
 	readonly schema: AnyZodSchema;
 	readonly value: Record<string, unknown>;
 	readonly setValue: UpdaterFunction<Record<string, unknown>>;
-}> = ({schema, value, setValue}) => {
+	readonly scrollableContainer?: boolean;
+	readonly contentInset?: number;
+}> = ({schema, value, setValue, scrollableContainer = true, contentInset}) => {
 	const z = useZodIfPossible();
 	if (!z) {
 		throw new Error('expected zod');
@@ -31,12 +62,19 @@ export const SchemaEditor: React.FC<{
 		return <TopLevelZodValue typeReceived={typeName} />;
 	}
 
+	const containerStyle = getContainerStyle({
+		contentInset,
+		scrollableContainer,
+	});
+
 	if (typeName === 'discriminatedUnion') {
 		return (
 			<div
 				ref={defaultPropsEditorScrollableAreaRef}
-				style={scrollable}
-				className={VERTICAL_SCROLLBAR_CLASSNAME}
+				style={containerStyle}
+				className={
+					scrollableContainer ? VERTICAL_SCROLLBAR_CLASSNAME : undefined
+				}
 			>
 				<ZodDiscriminatedUnionEditor
 					schema={schema}
@@ -53,8 +91,8 @@ export const SchemaEditor: React.FC<{
 	return (
 		<div
 			ref={defaultPropsEditorScrollableAreaRef}
-			style={scrollable}
-			className={VERTICAL_SCROLLBAR_CLASSNAME}
+			style={containerStyle}
+			className={scrollableContainer ? VERTICAL_SCROLLBAR_CLASSNAME : undefined}
 		>
 			<ZodObjectEditor
 				discriminatedUnionReplacement={null}

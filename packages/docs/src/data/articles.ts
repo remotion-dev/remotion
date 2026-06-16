@@ -1755,6 +1755,15 @@ export const articles = [
 		slug: 'effects/brightness',
 	},
 	{
+		id: 'effects/burlap',
+		title: 'burlap()',
+		relativePath: 'docs/effects/burlap.mdx',
+		compId: 'articles-docs-effects-burlap',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/burlap',
+	},
+	{
 		id: 'effects/chromatic-aberration',
 		title: 'chromaticAberration()',
 		relativePath: 'docs/effects/chromatic-aberration.mdx',
@@ -1771,6 +1780,15 @@ export const articles = [
 		crumb: '@remotion/effects',
 		noAi: false,
 		slug: 'effects/color-key',
+	},
+	{
+		id: 'effects/contour-lines',
+		title: 'contourLines()',
+		relativePath: 'docs/effects/contour-lines.mdx',
+		compId: 'articles-docs-effects-contour-lines',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/contour-lines',
 	},
 	{
 		id: 'effects/contrast',
@@ -2005,6 +2023,15 @@ export const articles = [
 		crumb: '@remotion/effects',
 		noAi: false,
 		slug: 'effects/shine',
+	},
+	{
+		id: 'effects/shrinkwrap',
+		title: 'shrinkwrap()',
+		relativePath: 'docs/effects/shrinkwrap.mdx',
+		compId: 'articles-docs-effects-shrinkwrap',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/shrinkwrap',
 	},
 	{
 		id: 'effects/speckle',

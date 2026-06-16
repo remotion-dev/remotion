@@ -2,8 +2,10 @@ import {expect, test} from 'bun:test';
 import {barrelDistortion} from '../barrel-distortion/index.js';
 import {blur} from '../blur/index.js';
 import {brightness} from '../brightness.js';
+import {burlap} from '../burlap.js';
 import {chromaticAberration} from '../chromatic-aberration/index.js';
 import {colorKey} from '../color-key.js';
+import {contourLines} from '../contour-lines.js';
 import {contrast} from '../contrast.js';
 import {dotGrid} from '../dot-grid.js';
 import {dropShadow} from '../drop-shadow/index.js';
@@ -32,6 +34,7 @@ import {saturation} from '../saturation.js';
 import {scale} from '../scale.js';
 import {scanlines} from '../scanlines.js';
 import {shine} from '../shine.js';
+import {shrinkwrap} from '../shrinkwrap.js';
 import {speckle} from '../speckle.js';
 import {tint} from '../tint.js';
 import {uvTranslate, xyTranslate} from '../translate.js';
@@ -80,8 +83,14 @@ test('@remotion/effects expose documentation links', () => {
 	expect(brightness().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/brightness',
 	);
+	expect(burlap().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/burlap',
+	);
 	expect(contrast().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/contrast',
+	);
+	expect(contourLines().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/contour-lines',
 	);
 	expect(duotone().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/duotone',
@@ -153,6 +162,9 @@ test('@remotion/effects expose documentation links', () => {
 	expect(shine().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/shine',
 	);
+	expect(shrinkwrap().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/shrinkwrap',
+	);
 	expect(speckle().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/speckle',
 	);
@@ -191,7 +203,9 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(chromaticAberration().definition.label).toBe('chromaticAberration()');
 	expect(colorKey().definition.label).toBe('colorKey()');
 	expect(brightness().definition.label).toBe('brightness()');
+	expect(burlap().definition.label).toBe('burlap()');
 	expect(contrast().definition.label).toBe('contrast()');
+	expect(contourLines().definition.label).toBe('contourLines()');
 	expect(duotone().definition.label).toBe('duotone()');
 	expect(evolve().definition.label).toBe('evolve()');
 	expect(dropShadow().definition.label).toBe('dropShadow()');
@@ -221,6 +235,7 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(scanlines().definition.label).toBe('scanlines()');
 	expect(scale({scale: 1}).definition.label).toBe('scale()');
 	expect(shine().definition.label).toBe('shine()');
+	expect(shrinkwrap().definition.label).toBe('shrinkwrap()');
 	expect(speckle().definition.label).toBe('speckle()');
 	expect(tint({color: '#fff'}).definition.label).toBe('tint()');
 	expect(tvSignalOff().definition.label).toBe('tvSignalOff()');
@@ -1364,6 +1379,110 @@ test('dotGrid() parameters produce distinct effect keys', () => {
 	).toBe(4);
 });
 
+test('contourLines() accepts default params', () => {
+	expect(() => contourLines()).not.toThrow();
+});
+
+test('contourLines() rejects empty lineColor strings', () => {
+	expect(() => contourLines({lineColor: ''})).toThrow(
+		'"lineColor" must be a non-empty string, but got ""',
+	);
+});
+
+test('contourLines() rejects non-finite lineWidth', () => {
+	expect(() => contourLines({lineWidth: Number.NaN})).toThrow(
+		'"lineWidth" must be a finite number',
+	);
+});
+
+test('contourLines() rejects non-positive lineWidth', () => {
+	expect(() => contourLines({lineWidth: 0})).toThrow(
+		'"lineWidth" must be greater than 0',
+	);
+});
+
+test('contourLines() rejects non-positive spacing', () => {
+	expect(() => contourLines({spacing: 0})).toThrow(
+		'"spacing" must be greater than 0',
+	);
+});
+
+test('contourLines() rejects non-positive scale', () => {
+	expect(() => contourLines({scale: 0})).toThrow(
+		'"scale" must be greater than 0',
+	);
+});
+
+test('contourLines() rejects complexity outside unit range', () => {
+	expect(() => contourLines({complexity: -0.1})).toThrow(
+		'"complexity" must be >= 0',
+	);
+	expect(() => contourLines({complexity: 1.1})).toThrow(
+		'"complexity" must be <= 1',
+	);
+});
+
+test('contourLines() rejects smoothness outside unit range', () => {
+	expect(() => contourLines({smoothness: -0.1})).toThrow(
+		'"smoothness" must be >= 0',
+	);
+	expect(() => contourLines({smoothness: 1.1})).toThrow(
+		'"smoothness" must be <= 1',
+	);
+});
+
+test('contourLines() rejects non-finite offsets', () => {
+	expect(() => contourLines({offsetX: Number.NaN})).toThrow(
+		'"offsetX" must be a finite number',
+	);
+	expect(() => contourLines({offsetY: Number.NaN})).toThrow(
+		'"offsetY" must be a finite number',
+	);
+});
+
+test('contourLines() rejects opacity outside unit range', () => {
+	expect(() => contourLines({opacity: -0.1})).toThrow('"opacity" must be >= 0');
+	expect(() => contourLines({opacity: 1.1})).toThrow('"opacity" must be <= 1');
+});
+
+test('contourLines() rejects non-boolean maskToSourceAlpha', () => {
+	expect(() =>
+		contourLines({maskToSourceAlpha: 'yes' as unknown as boolean}),
+	).toThrow('"maskToSourceAlpha" must be a boolean');
+});
+
+test('contourLines() parameters produce distinct effect keys', () => {
+	const defaults = contourLines();
+	const colored = contourLines({lineColor: '#0b84f3'});
+	const thicker = contourLines({lineWidth: 3});
+	const denser = contourLines({spacing: 12});
+	const larger = contourLines({scale: 240});
+	const simpler = contourLines({complexity: 0.2});
+	const smoother = contourLines({smoothness: 0.9});
+	const seeded = contourLines({seed: 3});
+	const shiftedX = contourLines({offsetX: 12});
+	const shiftedY = contourLines({offsetY: 12});
+	const transparent = contourLines({opacity: 0.5});
+	const masked = contourLines({maskToSourceAlpha: true});
+
+	expect(
+		new Set([
+			defaults.effectKey,
+			colored.effectKey,
+			thicker.effectKey,
+			denser.effectKey,
+			larger.effectKey,
+			simpler.effectKey,
+			smoother.effectKey,
+			seeded.effectKey,
+			shiftedX.effectKey,
+			shiftedY.effectKey,
+			transparent.effectKey,
+			masked.effectKey,
+		]).size,
+	).toBe(12);
+});
+
 test('invert() accepts default params', () => {
 	expect(() => invert()).not.toThrow();
 });
@@ -1478,6 +1597,76 @@ test('noise() parameters produce distinct effect keys', () => {
 			premultiplied.effectKey,
 		]).size,
 	).toBe(4);
+});
+
+test('burlap() accepts default params', () => {
+	expect(() => burlap()).not.toThrow();
+});
+
+test('burlap() accepts valid params', () => {
+	expect(() =>
+		burlap({
+			amount: 0.8,
+			size: 6,
+			roughness: 0.4,
+			seed: 3,
+			color: '#3b2818',
+		}),
+	).not.toThrow();
+});
+
+test('burlap() rejects non-finite amount', () => {
+	expect(() => burlap({amount: Number.NaN})).toThrow(
+		'"amount" must be a finite number',
+	);
+});
+
+test('burlap() rejects amount below range', () => {
+	expect(() => burlap({amount: -0.1})).toThrow('"amount" must be >= 0');
+});
+
+test('burlap() rejects amount above range', () => {
+	expect(() => burlap({amount: 1.1})).toThrow('"amount" must be <= 1');
+});
+
+test('burlap() rejects non-positive size', () => {
+	expect(() => burlap({size: 0})).toThrow('"size" must be greater than 0');
+});
+
+test('burlap() rejects roughness above range', () => {
+	expect(() => burlap({roughness: 1.1})).toThrow('"roughness" must be <= 1');
+});
+
+test('burlap() rejects non-finite seed', () => {
+	expect(() => burlap({seed: Number.NaN})).toThrow(
+		'"seed" must be a finite number',
+	);
+});
+
+test('burlap() rejects empty color strings', () => {
+	expect(() => burlap({color: ''})).toThrow(
+		'"color" must be a non-empty string, but got ""',
+	);
+});
+
+test('burlap() parameters produce distinct effect keys', () => {
+	const defaults = burlap();
+	const stronger = burlap({amount: 0.8});
+	const larger = burlap({size: 8});
+	const smoother = burlap({roughness: 0.2});
+	const seeded = burlap({seed: 4});
+	const colored = burlap({color: '#3b2818'});
+
+	expect(
+		new Set([
+			defaults.effectKey,
+			stronger.effectKey,
+			larger.effectKey,
+			smoother.effectKey,
+			seeded.effectKey,
+			colored.effectKey,
+		]).size,
+	).toBe(6);
 });
 
 test('noiseDisplacement() accepts required params', () => {
@@ -1677,9 +1866,9 @@ test('pattern() rejects invalid generic offsets', () => {
 	);
 });
 
-test('pattern() rejects overlapping gaps', () => {
-	expect(() => pattern({gapX: -1})).toThrow('"gapX" must be >= 0');
-	expect(() => pattern({gapY: -1})).toThrow('"gapY" must be >= 0');
+test('pattern() allows negative gaps', () => {
+	expect(() => pattern({gapX: -1})).not.toThrow();
+	expect(() => pattern({gapY: -1})).not.toThrow();
 });
 
 test('pattern() parameters produce distinct effect keys', () => {
@@ -2172,6 +2361,92 @@ test('shine() parameters produce distinct effect keys', () => {
 			brighter.effectKey,
 		]).size,
 	).toBe(6);
+});
+
+test('shrinkwrap() accepts default params', () => {
+	expect(() => shrinkwrap()).not.toThrow();
+});
+
+test('shrinkwrap() accepts valid params', () => {
+	expect(() =>
+		shrinkwrap({
+			amount: 0.75,
+			displacement: 9,
+			highlightIntensity: 1.2,
+			wrinkleDensity: 0.8,
+			edgeTension: 0.3,
+			phase: 1.25,
+			seed: 4,
+		}),
+	).not.toThrow();
+});
+
+test('shrinkwrap() rejects amount below range', () => {
+	expect(() => shrinkwrap({amount: -0.1})).toThrow('"amount" must be >= 0');
+});
+
+test('shrinkwrap() rejects amount above range', () => {
+	expect(() => shrinkwrap({amount: 1.1})).toThrow('"amount" must be <= 1');
+});
+
+test('shrinkwrap() rejects negative displacement', () => {
+	expect(() => shrinkwrap({displacement: -0.1})).toThrow(
+		'"displacement" must be >= 0',
+	);
+});
+
+test('shrinkwrap() rejects negative highlightIntensity', () => {
+	expect(() => shrinkwrap({highlightIntensity: -0.1})).toThrow(
+		'"highlightIntensity" must be >= 0',
+	);
+});
+
+test('shrinkwrap() rejects wrinkleDensity above range', () => {
+	expect(() => shrinkwrap({wrinkleDensity: 1.1})).toThrow(
+		'"wrinkleDensity" must be <= 1',
+	);
+});
+
+test('shrinkwrap() rejects edgeTension below range', () => {
+	expect(() => shrinkwrap({edgeTension: -0.1})).toThrow(
+		'"edgeTension" must be >= 0',
+	);
+});
+
+test('shrinkwrap() rejects non-finite phase', () => {
+	expect(() => shrinkwrap({phase: Number.NaN})).toThrow(
+		'"phase" must be a finite number',
+	);
+});
+
+test('shrinkwrap() rejects non-finite seed', () => {
+	expect(() => shrinkwrap({seed: Number.NaN})).toThrow(
+		'"seed" must be a finite number',
+	);
+});
+
+test('shrinkwrap() parameters produce distinct effect keys', () => {
+	const defaults = shrinkwrap();
+	const subtle = shrinkwrap({amount: 0.5});
+	const displaced = shrinkwrap({displacement: 12});
+	const brighter = shrinkwrap({highlightIntensity: 1.1});
+	const denser = shrinkwrap({wrinkleDensity: 0.8});
+	const edged = shrinkwrap({edgeTension: 0.9});
+	const phased = shrinkwrap({phase: 2});
+	const seeded = shrinkwrap({seed: 4});
+
+	expect(
+		new Set([
+			defaults.effectKey,
+			subtle.effectKey,
+			displaced.effectKey,
+			brighter.effectKey,
+			denser.effectKey,
+			edged.effectKey,
+			phased.effectKey,
+			seeded.effectKey,
+		]).size,
+	).toBe(8);
 });
 
 test('speckle() accepts default params', () => {

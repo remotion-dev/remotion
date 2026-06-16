@@ -1,4 +1,14 @@
-import type {OverrideIdToNodePaths, PropStatuses, TSequence} from 'remotion';
+import {LINEAR_KEYFRAME_EASING} from '@remotion/studio-shared';
+import type {
+	CanUpdateSequencePropStatusKeyframed,
+	CanUpdateSequencePropStatusEasing,
+	DragOverrideValue,
+	OverrideIdToNodePaths,
+	PropStatuses,
+	SequencePropsSubscriptionKey,
+	SequenceSchema,
+	TSequence,
+} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	callUpdateEffectKeyframeSettings,
@@ -13,7 +23,29 @@ import type {
 } from './TimelineSelection';
 
 export type EasingSelection = TimelineEasingSelection;
-export type TimelineEasingValue = 'linear' | [number, number, number, number];
+export type TimelineEasingValue = CanUpdateSequencePropStatusEasing;
+export type SelectedEasingUpdate =
+	| {
+			readonly type: 'sequence';
+			readonly fileName: string;
+			readonly nodePath: SequencePropsSubscriptionKey;
+			readonly fieldKey: string;
+			readonly schema: SequenceSchema;
+			readonly segmentIndex: number;
+			readonly currentEasing: TimelineEasingValue;
+			readonly propStatus: CanUpdateSequencePropStatusKeyframed;
+	  }
+	| {
+			readonly type: 'effect';
+			readonly fileName: string;
+			readonly nodePath: SequencePropsSubscriptionKey;
+			readonly effectIndex: number;
+			readonly fieldKey: string;
+			readonly schema: SequenceSchema;
+			readonly segmentIndex: number;
+			readonly currentEasing: TimelineEasingValue;
+			readonly propStatus: CanUpdateSequencePropStatusKeyframed;
+	  };
 
 const canEditEasingForInterpolationFunction = (
 	interpolationFunction: string,
@@ -25,7 +57,7 @@ const isEasingSelection = (
 	selection: TimelineSelection,
 ): selection is EasingSelection => selection.type === 'easing';
 
-const getSelectedEasingUpdate = ({
+export const getSelectedEasingUpdate = ({
 	selection,
 	sequences,
 	overrideIdsToNodePaths,
@@ -35,7 +67,7 @@ const getSelectedEasingUpdate = ({
 	sequences: TSequence[];
 	overrideIdsToNodePaths: OverrideIdToNodePaths;
 	propStatuses: PropStatuses;
-}) => {
+}): SelectedEasingUpdate | null => {
 	const field = parseKeyframeFieldFromNodePath(
 		selection.nodePathInfo.auxiliaryKeys,
 	);
@@ -82,7 +114,9 @@ const getSelectedEasingUpdate = ({
 			schema: sequence.controls.schema,
 			segmentIndex: selection.segmentIndex,
 			currentEasing:
-				sequencePropStatus.easing[selection.segmentIndex] ?? 'linear',
+				sequencePropStatus.easing[selection.segmentIndex] ??
+				LINEAR_KEYFRAME_EASING,
+			propStatus: sequencePropStatus,
 		};
 	}
 
@@ -117,7 +151,61 @@ const getSelectedEasingUpdate = ({
 		fieldKey: field.fieldKey,
 		schema: effect.schema,
 		segmentIndex: selection.segmentIndex,
-		currentEasing: effectPropStatus.easing[selection.segmentIndex] ?? 'linear',
+		currentEasing:
+			effectPropStatus.easing[selection.segmentIndex] ?? LINEAR_KEYFRAME_EASING,
+		propStatus: effectPropStatus,
+	};
+};
+
+export const getSelectedEasingUpdates = ({
+	selections,
+	sequences,
+	overrideIdsToNodePaths,
+	propStatuses,
+}: {
+	readonly selections: readonly TimelineSelection[];
+	readonly sequences: TSequence[];
+	readonly overrideIdsToNodePaths: OverrideIdToNodePaths;
+	readonly propStatuses: PropStatuses;
+}): SelectedEasingUpdate[] => {
+	return getEasingSelections(selections)
+		.map((selection) =>
+			getSelectedEasingUpdate({
+				selection,
+				sequences,
+				overrideIdsToNodePaths,
+				propStatuses,
+			}),
+		)
+		.filter((update): update is SelectedEasingUpdate => update !== null);
+};
+
+export const makeEasingDragOverride = ({
+	status,
+	segmentIndex,
+	easing,
+}: {
+	readonly status: CanUpdateSequencePropStatusKeyframed;
+	readonly segmentIndex: number;
+	readonly easing: TimelineEasingValue;
+}): DragOverrideValue => {
+	const nextEasing = [...status.easing];
+	while (nextEasing.length < status.keyframes.length - 1) {
+		nextEasing.push(LINEAR_KEYFRAME_EASING);
+	}
+
+	if (nextEasing.length > status.keyframes.length - 1) {
+		nextEasing.length = status.keyframes.length - 1;
+	}
+
+	nextEasing[segmentIndex] = easing;
+
+	return {
+		type: 'keyframed',
+		status: {
+			...status,
+			easing: nextEasing,
+		},
 	};
 };
 
@@ -168,16 +256,12 @@ export const updateSelectedTimelineEasings = ({
 		return null;
 	}
 
-	const updates = easingSelections
-		.map((selection) =>
-			getSelectedEasingUpdate({
-				selection,
-				sequences,
-				overrideIdsToNodePaths,
-				propStatuses,
-			}),
-		)
-		.filter((update): update is NonNullable<typeof update> => update !== null);
+	const updates = getSelectedEasingUpdates({
+		selections: easingSelections,
+		sequences,
+		overrideIdsToNodePaths,
+		propStatuses,
+	});
 
 	if (updates.length === 0) {
 		return null;

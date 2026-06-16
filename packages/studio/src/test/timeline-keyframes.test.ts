@@ -63,6 +63,7 @@ const makeSequence = ({
 	postmountDisplay: null,
 	controls: overrideId ? makeControls(overrideId) : null,
 	effects: [],
+	frozenFrame: null,
 });
 
 const numberFieldSchema = {
@@ -78,7 +79,7 @@ const makeKeyframedStatus = (): CanUpdateSequencePropStatusKeyframed => ({
 		{frame: 0, value: 2},
 		{frame: 60, value: 4},
 	],
-	easing: ['linear'],
+	easing: [{type: 'linear'}],
 	clamping: {left: 'extend', right: 'extend'},
 	posterize: undefined,
 });
@@ -219,7 +220,7 @@ test('keyframe display offsets follow the parent sequence context', () => {
 					{frame: 0, value: 2},
 					{frame: 60, value: 4},
 				],
-				easing: ['linear'],
+				easing: [{type: 'linear'}],
 				clamping: {left: 'extend', right: 'extend'},
 				posterize: undefined,
 			},
@@ -239,7 +240,7 @@ test('timeline easing segments connect adjacent display keyframes', () => {
 			{frame: 30, value: 3},
 			{frame: 60, value: 4},
 		],
-		easing: ['linear', 'linear'],
+		easing: [{type: 'linear'}, {type: 'linear'}],
 	};
 
 	expect(getTimelineEasingSegments(getTimelineKeyframes(status, 30))).toEqual([

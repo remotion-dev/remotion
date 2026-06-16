@@ -822,6 +822,62 @@ test('inserts an Img asset with a translate style', async () => {
 	}
 });
 
+test('inserts an AnimatedImage asset into the resolved composition component', async () => {
+	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
+	try {
+		await fs.writeFile(
+			path.join(tempDir, 'Root.tsx'),
+			[
+				"import {Composition} from 'remotion';",
+				"import {MyComp} from './MyComp';",
+				'export const RemotionRoot = () => {',
+				'\treturn <Composition id="test" component={MyComp} />;',
+				'};',
+				'',
+			].join('\n'),
+		);
+		await fs.writeFile(
+			path.join(tempDir, 'MyComp.tsx'),
+			[
+				"import {AbsoluteFill} from 'remotion';",
+				'',
+				'export const MyComp: React.FC = () => {',
+				'\treturn <AbsoluteFill>hello</AbsoluteFill>;',
+				'};',
+				'',
+			].join('\n'),
+		);
+
+		const result = await insertJsxElementIntoComposition({
+			remotionRoot: tempDir,
+			compositionFile: 'Root.tsx',
+			compositionId: 'test',
+			element: {
+				type: 'asset',
+				assetType: 'animated-image',
+				src: 'animated-png.png',
+				srcType: 'static',
+				dimensions: {
+					width: 320,
+					height: 180,
+				},
+				position: null,
+			},
+			prettierConfigOverride: {singleQuote: true, useTabs: true},
+		});
+
+		expect(result.output).toContain(
+			"import { AbsoluteFill, staticFile, AnimatedImage } from 'remotion';",
+		);
+		expect(result.output).toContain('<AnimatedImage');
+		expect(result.output).toContain("src={staticFile('animated-png.png')}");
+		expect(result.output).toContain('width={320}');
+		expect(result.output).toContain('height={180}');
+	} finally {
+		await fs.rm(tempDir, {recursive: true, force: true});
+	}
+});
+
 test('rejects inserting a Video asset if Video is already defined', async () => {
 	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
 	try {

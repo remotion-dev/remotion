@@ -18,6 +18,7 @@ export type ButtonProps = {
 	readonly onClick: () => void;
 	readonly disabled?: boolean;
 	readonly children: React.ReactNode;
+	readonly size?: 'default' | 'compact' | 'condensed';
 	readonly style?: React.CSSProperties;
 	readonly buttonContainerStyle?: React.CSSProperties;
 	readonly autoFocus?: boolean;
@@ -34,6 +35,7 @@ const ButtonRefForwardFunction: React.ForwardRefRenderFunction<
 		onClick,
 		title,
 		disabled,
+		size = 'default',
 		style,
 		id,
 		autoFocus,
@@ -44,18 +46,23 @@ const ButtonRefForwardFunction: React.ForwardRefRenderFunction<
 	const combined = useMemo(() => {
 		return {
 			...button,
+			...(size === 'compact' ? {fontSize: 12} : null),
+			...(size === 'condensed' ? {fontSize: 11} : null),
 			...(style ?? {}),
 		};
-	}, [style]);
+	}, [size, style]);
 	const buttonContainer: React.CSSProperties = useMemo(() => {
 		return {
-			padding: 10,
+			padding:
+				size === 'condensed' ? '2px 7px' : size === 'compact' ? '5px 8px' : 10,
 			cursor: disabled ? 'inherit' : 'pointer',
-			fontSize: 14,
+			fontSize: size === 'condensed' ? 11 : size === 'compact' ? 12 : 14,
+			lineHeight:
+				size === 'condensed' ? '14px' : size === 'compact' ? '14px' : undefined,
 			opacity: disabled ? 0.7 : 1,
 			...(buttonContainerStyle ?? {}),
 		};
-	}, [buttonContainerStyle, disabled]);
+	}, [buttonContainerStyle, disabled, size]);
 
 	return (
 		<button

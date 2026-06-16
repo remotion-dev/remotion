@@ -45,6 +45,7 @@ test('Should calculate a basic timeline', () => {
 				controls: null,
 				loopDisplay: undefined,
 				effects: [],
+				frozenFrame: null,
 			},
 		],
 	});
@@ -71,6 +72,7 @@ test('Should calculate a basic timeline', () => {
 				type: 'sequence',
 				nonce: [[0, 0]],
 				effects: [],
+				frozenFrame: null,
 			},
 			hash: '-Audio-100-0-sequence----0',
 		},
@@ -100,6 +102,7 @@ test('Should follow order of nesting', () => {
 				controls: null,
 				loopDisplay: undefined,
 				effects: [],
+				frozenFrame: null,
 			},
 			{
 				displayName: 'Audio',
@@ -120,6 +123,7 @@ test('Should follow order of nesting', () => {
 				refForOutline: null,
 				isInsideSeries: false,
 				effects: [],
+				frozenFrame: null,
 			},
 		],
 	});
@@ -145,6 +149,7 @@ test('Should follow order of nesting', () => {
 				refForOutline: null,
 				isInsideSeries: false,
 				effects: [],
+				frozenFrame: null,
 			},
 			depth: 0,
 			hash: '-Audio-100-0-sequence----0',
@@ -170,6 +175,7 @@ test('Should follow order of nesting', () => {
 				controls: null,
 				loopDisplay: undefined,
 				effects: [],
+				frozenFrame: null,
 			},
 			depth: 1,
 			hash: '-Audio-100-0-sequence----0-Audio-100-0-sequence----0',
@@ -183,6 +189,7 @@ test('Should inherit loop display from parent for media tracks', () => {
 		sequences: [
 			{
 				effects: [],
+				frozenFrame: null,
 				displayName: 'Loop',
 				documentationLink: null,
 				duration: 100,
@@ -228,7 +235,9 @@ test('Should inherit loop display from parent for media tracks', () => {
 				doesVolumeChange: false,
 				startMediaFrom: 0,
 				playbackRate: 1,
+				frozenMediaFrame: null,
 				effects: [],
+				frozenFrame: null,
 			},
 		],
 	});
@@ -263,6 +272,7 @@ test('Should calculate sequence frame offset for negative from values', () => {
 				controls: null,
 				loopDisplay: undefined,
 				effects: [],
+				frozenFrame: null,
 			},
 		],
 	});

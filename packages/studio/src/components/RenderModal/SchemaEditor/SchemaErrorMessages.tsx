@@ -1,12 +1,14 @@
 // Schema error messages for studio editor
+import type {CSSProperties} from 'react';
 import {BACKGROUND, BLUE, LIGHT_TEXT} from '../../../helpers/colors';
 import {Button} from '../../Button';
+import {CompactNotSetUp} from '../../CompactExplanation';
 import {Spacing} from '../../layout';
 import {inlineCodeSnippet} from '../../Menu/styles';
 import type {ZodSafeParseResult} from './zod-schema-type';
 import {ZodErrorMessages} from './ZodErrorMessages';
 
-const explainer: React.CSSProperties = {
+const explainer: CSSProperties = {
 	display: 'flex',
 	flex: 1,
 	flexDirection: 'column',
@@ -17,20 +19,35 @@ const explainer: React.CSSProperties = {
 	background: BACKGROUND,
 };
 
-const errorExplanation: React.CSSProperties = {
+export type SchemaErrorAlignment = 'center' | 'left';
+export type SchemaErrorMode = 'full' | 'compact';
+
+const getExplainerStyle = (align: SchemaErrorAlignment): CSSProperties => {
+	if (align === 'left') {
+		return {
+			...explainer,
+			alignItems: 'flex-start',
+			textAlign: 'left',
+		};
+	}
+
+	return explainer;
+};
+
+const errorExplanation: CSSProperties = {
 	fontSize: 14,
 	color: LIGHT_TEXT,
 	fontFamily: 'sans-serif',
 	lineHeight: 1.5,
 };
 
-const codeSnippet: React.CSSProperties = {
+const codeSnippet: CSSProperties = {
 	fontSize: 14,
 	color: BLUE,
 	fontFamily: 'monospace',
 };
 
-const errorContainer: React.CSSProperties = {
+const errorContainer: CSSProperties = {
 	padding: '8px 12px',
 	overflowY: 'auto',
 };
@@ -39,9 +56,25 @@ const openDocs = () => {
 	window.open('https://www.remotion.dev/docs/schemas');
 };
 
-export const ZodNotInstalled = () => {
+const CompactSchemaError = () => {
 	return (
-		<div style={explainer}>
+		<CompactNotSetUp
+			learnMoreHref="https://www.remotion.dev/docs/schemas"
+			learnMoreAriaLabel="Learn more about schemas"
+		/>
+	);
+};
+
+export const ZodNotInstalled: React.FC<{
+	readonly align?: SchemaErrorAlignment;
+	readonly mode?: SchemaErrorMode;
+}> = ({align = 'center', mode = 'full'}) => {
+	if (mode === 'compact') {
+		return <CompactSchemaError />;
+	}
+
+	return (
+		<div style={getExplainerStyle(align)}>
 			<div style={errorExplanation}>
 				Install <code style={inlineCodeSnippet}>zod</code> as a dependency to
 				interactively control the props of the composition.
@@ -52,9 +85,16 @@ export const ZodNotInstalled = () => {
 	);
 };
 
-export const NoSchemaDefined = () => {
+export const NoSchemaDefined: React.FC<{
+	readonly align?: SchemaErrorAlignment;
+	readonly mode?: SchemaErrorMode;
+}> = ({align = 'center', mode = 'full'}) => {
+	if (mode === 'compact') {
+		return <CompactSchemaError />;
+	}
+
 	return (
-		<div style={explainer}>
+		<div style={getExplainerStyle(align)}>
 			<div style={errorExplanation}>
 				Make the props of this composition interactively editable by adding a{' '}
 				<code style={inlineCodeSnippet}>schema</code> prop to the{' '}
@@ -66,9 +106,16 @@ export const NoSchemaDefined = () => {
 	);
 };
 
-export const NoDefaultProps = () => {
+export const NoDefaultProps: React.FC<{
+	readonly align?: SchemaErrorAlignment;
+	readonly mode?: SchemaErrorMode;
+}> = ({align = 'center', mode = 'full'}) => {
+	if (mode === 'compact') {
+		return <CompactSchemaError />;
+	}
+
 	return (
-		<div style={explainer}>
+		<div style={getExplainerStyle(align)}>
 			<div style={errorExplanation}>
 				The schema can not be edited because the{' '}
 				<code style={inlineCodeSnippet}>defaultProps</code> prop in the{' '}

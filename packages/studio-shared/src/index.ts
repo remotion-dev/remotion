@@ -35,6 +35,9 @@ export {
 	DeleteStaticFileResponse,
 	DownloadRemoteAssetRequest,
 	DownloadRemoteAssetResponse,
+	DuplicateEffectRequest,
+	DuplicateEffectRequestItem,
+	DuplicateEffectResponse,
 	DuplicateJsxNodeRequest,
 	DuplicateJsxNodeResponse,
 	InsertJsxElementRequest,
@@ -112,12 +115,14 @@ export {
 	isComponentImportPath,
 	makeComponentDragData,
 	parseComponentDragData,
+	type ComponentDimensions,
 	type ComponentDragData,
 	type ComponentProp,
 } from './component-drag-data';
 export {DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS} from './default-buffer-state-delay-in-milliseconds';
 export {
 	KEYFRAME_EASING_PRESETS,
+	LINEAR_KEYFRAME_EASING,
 	type KeyframeEasingPreset,
 } from './keyframe-easing-presets';
 export {
@@ -177,6 +182,11 @@ export {
 	keyframeInterpolationFunctions,
 	type KeyframeInterpolationFunction,
 } from './keyframe-interpolation-function';
+export {
+	DEFAULT_SPRING_EASING,
+	parseSpringEasingConfig,
+	type SpringKeyframeEasing,
+} from './parse-spring-easing-config';
 export {DEFAULT_TIMELINE_TRACKS} from './max-timeline-tracks';
 export {
 	Pkgs,

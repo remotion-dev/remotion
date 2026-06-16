@@ -1,3 +1,4 @@
+import {LINEAR_KEYFRAME_EASING} from '@remotion/studio-shared';
 import type React from 'react';
 import {useContext, useEffect} from 'react';
 import {Internals} from 'remotion';
@@ -92,7 +93,7 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 					propStatuses,
 					setPropStatuses,
 					clientId,
-					easing: 'linear',
+					easing: LINEAR_KEYFRAME_EASING,
 				});
 
 				if (resetEasingPromise !== null) {

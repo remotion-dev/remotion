@@ -313,6 +313,29 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	// and if it changes, it would lead to-remounting of the sequence.
 	const stackRef = useRef<string | null>(null);
 	stackRef.current = stack ?? inheritedStack;
+	const registeredFrozenFrame = typeof freeze === 'number' ? freeze : null;
+	const parentCumulatedNegativeFrom =
+		parentSequence?.cumulatedNegativeFrom ?? 0;
+	const startMediaFrom =
+		isMedia && isMedia.type !== 'image'
+			? isMedia.data.startMediaFrom +
+				parentCumulatedNegativeFrom -
+				cumulatedNegativeFrom
+			: null;
+	const mediaFrameAtSequenceZero =
+		isMedia && isMedia.type !== 'image'
+			? isMedia.data.startMediaFrom + parentCumulatedNegativeFrom
+			: null;
+	const frozenMediaFrame =
+		isMedia && isMedia.type !== 'image' && mediaFrameAtSequenceZero !== null
+			? registeredFrozenFrame === null
+				? null
+				: mediaFrameAtSequenceZero +
+					(loopDisplay
+						? registeredFrozenFrame % loopDisplay.durationInFrames
+						: registeredFrozenFrame) *
+						isMedia.data.playbackRate
+			: null;
 
 	useEffect(() => {
 		if (!env.isStudio) {
@@ -341,6 +364,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 					getStack: () => stackRef.current,
 					refForOutline: refForOutline ?? null,
 					isInsideSeries,
+					frozenFrame: registeredFrozenFrame,
 				});
 			} else {
 				registerSequence({
@@ -363,10 +387,12 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 					showInTimeline,
 					src: isMedia.data.src,
 					getStack: () => stackRef.current,
-					startMediaFrom: isMedia.data.startMediaFrom,
+					startMediaFrom: startMediaFrom ?? isMedia.data.startMediaFrom,
 					volume: isMedia.data.volumes,
 					refForOutline: refForOutline ?? null,
 					isInsideSeries,
+					frozenFrame: registeredFrozenFrame,
+					frozenMediaFrame,
 				});
 			}
 
@@ -394,6 +420,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			effects: _remotionInternalEffects ?? EMPTY_EFFECTS,
 			refForOutline: refForOutline ?? null,
 			isInsideSeries,
+			frozenFrame: registeredFrozenFrame,
 		});
 		return () => {
 			unregisterSequence(id);
@@ -421,6 +448,9 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		resolvedDocumentationLink,
 		refForOutline,
 		isInsideSeries,
+		registeredFrozenFrame,
+		startMediaFrom,
+		frozenMediaFrame,
 	]);
 
 	// Ceil to support floats

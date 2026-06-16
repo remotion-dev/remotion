@@ -258,14 +258,6 @@ const validateAtLeast = (value: number, min: number, name: string): void => {
 	}
 };
 
-const validateNonNegative = (value: number, name: string): void => {
-	if (value < 0) {
-		throw new TypeError(
-			`"${name}" must be >= 0, but got ${JSON.stringify(value)}`,
-		);
-	}
-};
-
 const validatePatternParams = (params: PatternParams): void => {
 	assertEffectParamsObject(params, 'Pattern');
 	assertOptionalFiniteNumber(params.scale, 'scale');
@@ -288,8 +280,6 @@ const validatePatternParams = (params: PatternParams): void => {
 
 	const r = resolve(params);
 	validatePositive(r.scale, 'scale');
-	validateNonNegative(r.gapX, 'gapX');
-	validateNonNegative(r.gapY, 'gapY');
 	validateAtLeast(r.rowOffsetEvery, 0, 'rowOffsetEvery');
 	validateAtLeast(r.columnOffsetEvery, 0, 'columnOffsetEvery');
 	validateUnitInterval(r.origin[0], 'origin[0]');

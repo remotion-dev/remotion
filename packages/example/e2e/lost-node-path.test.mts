@@ -1,5 +1,5 @@
-import {expect, test} from '@playwright/test';
 import fs from 'fs';
+import {expect, test} from '@playwright/test';
 import {EXPANDED_SIDEBAR_STATE, lostNodePathE2eFile} from './constants.mts';
 import {
 	navigateToLostNodePathE2e,
@@ -84,7 +84,7 @@ test.describe('lost node path recovery', () => {
 			page.getByRole('button', {name: 'Collapse Effects section'}),
 		).toBeVisible();
 		await expect(
-			page.getByRole('button', {name: collapseTintSectionName}),
+			page.getByRole('button', {name: collapseTintSectionName}).first(),
 		).toBeVisible();
 
 		const logCountBefore = readStudioLogs().length;
@@ -128,7 +128,7 @@ test.describe('lost node path recovery', () => {
 			page.getByRole('button', {name: 'Collapse Effects section'}),
 		).toBeVisible();
 		await expect(
-			page.getByRole('button', {name: collapseTintSectionName}),
+			page.getByRole('button', {name: collapseTintSectionName}).first(),
 		).toBeVisible();
 	});
 });

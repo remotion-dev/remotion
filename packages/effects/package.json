@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/effects",
-	"version": "4.0.477",
+	"version": "4.0.478",
 	"description": "Effects that can be applied to Remotion-based canvas components",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -44,6 +44,11 @@
 			"module": "./dist/esm/blur.mjs",
 			"import": "./dist/esm/blur.mjs"
 		},
+		"./burlap": {
+			"types": "./dist/burlap.d.ts",
+			"module": "./dist/esm/burlap.mjs",
+			"import": "./dist/esm/burlap.mjs"
+		},
 		"./chromatic-aberration": {
 			"types": "./dist/chromatic-aberration.d.ts",
 			"module": "./dist/esm/chromatic-aberration.mjs",
@@ -63,6 +68,11 @@
 			"types": "./dist/contrast.d.ts",
 			"module": "./dist/esm/contrast.mjs",
 			"import": "./dist/esm/contrast.mjs"
+		},
+		"./contour-lines": {
+			"types": "./dist/contour-lines.d.ts",
+			"module": "./dist/esm/contour-lines.mjs",
+			"import": "./dist/esm/contour-lines.mjs"
 		},
 		"./drop-shadow": {
 			"types": "./dist/drop-shadow.d.ts",
@@ -184,6 +194,11 @@
 			"module": "./dist/esm/shine.mjs",
 			"import": "./dist/esm/shine.mjs"
 		},
+		"./shrinkwrap": {
+			"types": "./dist/shrinkwrap.d.ts",
+			"module": "./dist/esm/shrinkwrap.mjs",
+			"import": "./dist/esm/shrinkwrap.mjs"
+		},
 		"./speckle": {
 			"types": "./dist/speckle.d.ts",
 			"module": "./dist/esm/speckle.mjs",
@@ -239,6 +254,9 @@
 			"blur": [
 				"dist/blur.d.ts"
 			],
+			"burlap": [
+				"dist/burlap.d.ts"
+			],
 			"chromatic-aberration": [
 				"dist/chromatic-aberration.d.ts"
 			],
@@ -250,6 +268,9 @@
 			],
 			"contrast": [
 				"dist/contrast.d.ts"
+			],
+			"contour-lines": [
+				"dist/contour-lines.d.ts"
 			],
 			"drop-shadow": [
 				"dist/drop-shadow.d.ts"
@@ -322,6 +343,9 @@
 			],
 			"shine": [
 				"dist/shine.d.ts"
+			],
+			"shrinkwrap": [
+				"dist/shrinkwrap.d.ts"
 			],
 			"speckle": [
 				"dist/speckle.d.ts"

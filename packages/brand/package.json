@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/brand"
 	},
 	"name": "@remotion/brand",
-	"version": "4.0.477",
+	"version": "4.0.478",
 	"private": true,
 	"sideEffects": [
 		"*.css"
@@ -15,6 +15,7 @@
 	},
 	"devDependencies": {
 		"@remotion/cli": "workspace:*",
+		"@remotion/effects": "workspace:*",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"@remotion/fonts": "workspace:*",
 		"@remotion/google-fonts": "workspace:*",
@@ -26,6 +27,7 @@
 		"@remotion/svg-3d-engine": "workspace:*",
 		"@remotion/captions": "workspace:*",
 		"@remotion/tailwind-v4": "workspace:*",
+		"@remotion/transitions": "workspace:*",
 		"@types/styled-components": "5.1.34",
 		"@typescript/native-preview": "catalog:",
 		"eslint": "catalog:",

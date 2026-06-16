@@ -1,18 +1,14 @@
-import React, {useContext, useMemo} from 'react';
-import {Internals, type TSequence} from 'remotion';
+import React, {useMemo} from 'react';
+import type {TSequence} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {TIMELINE_TRACK_SEPARATOR} from '../../helpers/colors';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {
-	buildTimelineTree,
 	flattenVisibleTreeNodes,
 	getExpandedTrackHeight,
 } from '../../helpers/timeline-layout';
-import {
-	ExpandedTracksGetterContext,
-	ExpandedTracksSetterContext,
-} from '../ExpandedTracksProvider';
 import {TimelineExpandedRow} from './TimelineExpandedRow';
+import {useTimelineExpandedTree} from './use-timeline-expanded-tree';
 
 const expandedSectionBase: React.CSSProperties = {
 	color: 'white',
@@ -41,32 +37,11 @@ export const TimelineExpandedSection: React.FC<{
 	nestedDepth,
 	keyframeDisplayOffset,
 }) => {
-	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
-	const {toggleTrack} = useContext(ExpandedTracksSetterContext);
-	const {propStatuses: visualModePropStatuses} = useContext(
-		Internals.VisualModePropStatusesContext,
-	);
-	const {getDragOverrides, getEffectDragOverrides} = useContext(
-		Internals.VisualModeDragOverridesContext,
-	);
-
-	const tree = useMemo(
-		() =>
-			buildTimelineTree({
-				sequence,
-				nodePathInfo,
-				getDragOverrides,
-				getEffectDragOverrides,
-				propStatuses: visualModePropStatuses,
-			}),
-		[
+	const {getIsExpanded, propStatuses, toggleTrack, tree} =
+		useTimelineExpandedTree({
 			sequence,
 			nodePathInfo,
-			getDragOverrides,
-			getEffectDragOverrides,
-			visualModePropStatuses,
-		],
-	);
+		});
 
 	const flat = useMemo(
 		() => flattenVisibleTreeNodes({nodes: tree, getIsExpanded}),
@@ -79,9 +54,9 @@ export const TimelineExpandedSection: React.FC<{
 				sequence,
 				nodePathInfo,
 				getIsExpanded,
-				propStatuses: visualModePropStatuses,
+				propStatuses,
 			}),
-		[sequence, nodePathInfo, getIsExpanded, visualModePropStatuses],
+		[sequence, nodePathInfo, getIsExpanded, propStatuses],
 	);
 
 	const style = useMemo(() => {

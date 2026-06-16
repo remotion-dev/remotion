@@ -35,6 +35,10 @@ export const getRequiredPackageForInsertableElement = (
 		return '@remotion/gif';
 	}
 
+	if (element.assetType === 'animated-image') {
+		return null;
+	}
+
 	return null;
 };
 

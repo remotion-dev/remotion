@@ -57,6 +57,7 @@ import {useTimelineSelection} from './Timeline/TimelineSelection';
 
 export {
 	applySelectedOutlineDragAxisLock,
+	applySelectedOutlineTransformOriginAxisLock,
 	compensateTranslateForTransformOrigin,
 	getSelectedOutlineDragChanges,
 	getSelectedOutlineDragValues,
@@ -69,7 +70,12 @@ export {
 	getSelectedOutlineScaleDragStates,
 	getSelectedOutlineScaleDragValues,
 	getSelectedOutlineScaleEdgeInfo,
+	getSelectedOutlineTransformOriginLockedAxis,
 	isSelectedOutlineDragPastThreshold,
+	selectedOutlineUvSnapThresholdPx,
+	selectedOutlineTransformOriginSnapThresholdPx,
+	snapSelectedOutlineUv,
+	snapSelectedOutlineTransformOriginUv,
 } from './selected-outline-drag';
 export {
 	getOutlineSelectionInteraction,
@@ -809,6 +815,7 @@ export const SelectedOutlineOverlay: React.FC<{
 				<SelectedOutlineUvHandleCircleLayer
 					key={`${outline.key}-uv-handles`}
 					onDraggingChange={onDraggingChange}
+					onSelect={selectItem}
 					outline={outline}
 					target={targetsByKey.get(outline.key)}
 				/>

@@ -203,6 +203,13 @@ const categories: {
 		title: 'Stylize',
 		effects: [
 			{
+				link: '/docs/effects/burlap',
+				preview: '/img/effects-burlap-preview.png',
+				alt: 'burlap effect preview',
+				name: 'burlap()',
+				description: 'Procedural woven texture effect',
+			},
+			{
 				link: '/docs/effects/dot-grid',
 				preview: '/img/effects-dot-grid-preview.png',
 				alt: 'dot grid effect preview',
@@ -273,6 +280,13 @@ const categories: {
 				description: 'Glossy light sweep effect',
 			},
 			{
+				link: '/docs/effects/shrinkwrap',
+				preview: '/img/effects-shrinkwrap-preview.png',
+				alt: 'shrinkwrap effect preview',
+				name: 'shrinkwrap()',
+				description: 'Procedural plastic wrap effect',
+			},
+			{
 				link: '/docs/effects/vignette',
 				preview: '/img/effects-vignette-preview.png',
 				alt: 'vignette effect preview',
@@ -284,6 +298,13 @@ const categories: {
 	{
 		title: 'Generate',
 		effects: [
+			{
+				link: '/docs/effects/contour-lines',
+				preview: '/img/effects-contour-lines-preview.png',
+				alt: 'contour lines effect preview',
+				name: 'contourLines()',
+				description: 'Topographic line overlay effect',
+			},
 			{
 				link: '/docs/effects/halftone-linear-gradient',
 				preview: '/img/effects-halftone-linear-gradient-preview.png',

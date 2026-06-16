@@ -19,6 +19,7 @@ import {
 } from '../components/selected-outline-uv';
 import {
 	applySelectedOutlineDragAxisLock,
+	applySelectedOutlineTransformOriginAxisLock,
 	compensateTranslateForTransformOrigin,
 	getOutlineSelectionInteraction,
 	getSelectedEffectFieldsBySequenceKey,
@@ -34,17 +35,26 @@ import {
 	getSelectedOutlineScaleDragChanges,
 	getSelectedOutlineScaleDragValues,
 	getSelectedOutlineScaleEdgeInfo,
+	getSelectedOutlineTransformOriginLockedAxis,
 	getSelectedSequenceKeys,
 	getSequencesWithSelectableOutlines,
 	getTransformedSvgViewportPoints,
 	isSelectedOutlineDragPastThreshold,
+	snapSelectedOutlineUv,
+	snapSelectedOutlineTransformOriginUv,
 	selectedOutlineDragThresholdPx,
+	selectedOutlineUvSnapThresholdPx,
+	selectedOutlineTransformOriginSnapThresholdPx,
 	type SelectedOutlineDragState,
 	type SelectedOutlineRotationDragState,
 	type SelectedOutlineScaleDragState,
 } from '../components/SelectedOutlineOverlay';
+import {getSelectedOutlineUvHandleTimelineSelection} from '../components/SelectedOutlineUvControls';
 import {deleteSelectedTimelineItems} from '../components/Timeline/delete-selected-timeline-item';
-import {isDuplicatableSequenceRowSelection} from '../components/Timeline/duplicate-selected-timeline-item';
+import {
+	isDuplicatableEffectSelection,
+	isDuplicatableSequenceRowSelection,
+} from '../components/Timeline/duplicate-selected-timeline-item';
 import {getTimelinePropResetTargets} from '../components/Timeline/reset-selected-timeline-props';
 import {
 	getEffectPropClipboardDataFromSelection,
@@ -57,6 +67,7 @@ import {
 import {getSelectedKeyframeControlNodePathInfos} from '../components/Timeline/TimelineKeyframeControls';
 import {
 	getClampedTimelineMarqueePoint,
+	getAvailableTimelineSelectionState,
 	getSelectableTimelineSequenceSelections,
 	getTimelineMarqueeSelection,
 	getTimelineSelectionAfterInteraction,
@@ -196,6 +207,7 @@ const makeTimelineSequence = ({
 		refForOutline,
 		isInsideSeries: false,
 		effects,
+		frozenFrame: null,
 	}) as TSequence;
 
 const makeDurationPropStatuses = (
@@ -511,7 +523,7 @@ test('copying a keyframed effect creates a structured snapshot', () => {
 								{frame: 0, value: 10},
 								{frame: 100, value: 20},
 							],
-							easing: ['linear'],
+							easing: [{type: 'linear'}],
 							clamping: {left: 'clamp', right: 'clamp'},
 							posterize: undefined,
 						},
@@ -542,7 +554,7 @@ test('copying a keyframed effect creates a structured snapshot', () => {
 						{frame: 0, value: 10},
 						{frame: 100, value: 20},
 					],
-					easing: ['linear'],
+					easing: [{type: 'linear'}],
 					clamping: {left: 'clamp', right: 'clamp'},
 				},
 			},
@@ -576,7 +588,7 @@ test('copying a selected effect prop creates an effect prop payload', () => {
 								{frame: 0, value: 10},
 								{frame: 100, value: 20},
 							],
-							easing: ['linear'],
+							easing: [{type: 'linear'}],
 							clamping: {left: 'clamp', right: 'clamp'},
 							posterize: undefined,
 						},
@@ -612,7 +624,7 @@ test('copying a selected effect prop creates an effect prop payload', () => {
 				{frame: 0, value: 10},
 				{frame: 100, value: 20},
 			],
-			easing: ['linear'],
+			easing: [{type: 'linear'}],
 			clamping: {left: 'clamp', right: 'clamp'},
 		},
 	});
@@ -925,7 +937,7 @@ test('Timeline duration drag is blocked if one selected sequence duration is key
 				status: 'keyframed',
 				interpolationFunction: 'interpolate',
 				keyframes: [{frame: 0, value: 15}],
-				easing: ['linear'],
+				easing: [{type: 'linear'}],
 				clamping: {left: 'clamp', right: 'clamp'},
 				posterize: undefined,
 			},
@@ -1383,6 +1395,184 @@ test('Transform origin compensation keeps rotated and scaled elements in place',
 	expect(next[1]).toBeCloseTo(45, 5);
 });
 
+test('Transform origin drag snaps to center, edge midpoints and corners', () => {
+	const points = [
+		{x: 0, y: 0},
+		{x: 100, y: 0},
+		{x: 100, y: 100},
+		{x: 0, y: 100},
+	] as const;
+
+	expect(
+		snapSelectedOutlineTransformOriginUv({
+			point: {x: 47, y: 53},
+			points,
+			uv: getUvCoordinateForPoint(points, {x: 47, y: 53}),
+		}),
+	).toEqual([0.5, 0.5]);
+	expect(
+		snapSelectedOutlineTransformOriginUv({
+			point: {x: 52, y: 4},
+			points,
+			uv: getUvCoordinateForPoint(points, {x: 52, y: 4}),
+		}),
+	).toEqual([0.5, 0]);
+	expect(
+		snapSelectedOutlineTransformOriginUv({
+			point: {x: 96, y: 49},
+			points,
+			uv: getUvCoordinateForPoint(points, {x: 96, y: 49}),
+		}),
+	).toEqual([1, 0.5]);
+	expect(
+		snapSelectedOutlineTransformOriginUv({
+			point: {x: 3, y: 96},
+			points,
+			uv: getUvCoordinateForPoint(points, {x: 3, y: 96}),
+		}),
+	).toEqual([0, 1]);
+});
+
+test('Transform origin drag snaps to rotated outline anchors', () => {
+	const points = [
+		{x: 10, y: 20},
+		{x: 90, y: 50},
+		{x: 70, y: 110},
+		{x: -10, y: 80},
+	] as const;
+	const topMiddle = getUvHandlePosition(points, [0.5, 0]);
+	const pointer = {x: topMiddle.x + 4, y: topMiddle.y - 3};
+
+	expect(
+		snapSelectedOutlineTransformOriginUv({
+			point: pointer,
+			points,
+			uv: getUvCoordinateForPoint(points, pointer),
+		}),
+	).toEqual([0.5, 0]);
+});
+
+test('Transform origin drag does not snap outside the magnetic threshold', () => {
+	const points = [
+		{x: 0, y: 0},
+		{x: 100, y: 0},
+		{x: 100, y: 100},
+		{x: 0, y: 100},
+	] as const;
+	const pointer = {
+		x: 50,
+		y: selectedOutlineTransformOriginSnapThresholdPx + 1,
+	};
+	const uv = getUvCoordinateForPoint(points, pointer);
+	const snapped = snapSelectedOutlineTransformOriginUv({
+		point: pointer,
+		points,
+		uv,
+	});
+
+	expect(snapped[0]).toBeCloseTo(uv[0], 5);
+	expect(snapped[1]).toBeCloseTo(uv[1], 5);
+});
+
+test('UV coordinate drag snaps to outline anchors', () => {
+	const points = [
+		{x: 0, y: 0},
+		{x: 100, y: 0},
+		{x: 100, y: 100},
+		{x: 0, y: 100},
+	] as const;
+
+	expect(
+		snapSelectedOutlineUv({
+			point: {x: 47, y: 53},
+			points,
+			uv: getUvCoordinateForPoint(points, {x: 47, y: 53}),
+		}),
+	).toEqual([0.5, 0.5]);
+	expect(
+		snapSelectedOutlineUv({
+			point: {x: 96, y: 49},
+			points,
+			uv: getUvCoordinateForPoint(points, {x: 96, y: 49}),
+		}),
+	).toEqual([1, 0.5]);
+
+	const pointer = {
+		x: 50,
+		y: selectedOutlineUvSnapThresholdPx + 1,
+	};
+	const uv = getUvCoordinateForPoint(points, pointer);
+	const snapped = snapSelectedOutlineUv({
+		point: pointer,
+		points,
+		uv,
+	});
+
+	expect(snapped[0]).toBeCloseTo(uv[0], 5);
+	expect(snapped[1]).toBeCloseTo(uv[1], 5);
+});
+
+test('Transform origin axis locking keeps one UV axis fixed', () => {
+	const dimensions = {width: 200, height: 100};
+	const startUv = [0.25, 0.5] as const;
+	const mostlyHorizontal = [0.5, 0.75] as const;
+	const mostlyVertical = [0.35, 0.9] as const;
+
+	expect(
+		getSelectedOutlineTransformOriginLockedAxis({
+			axisLocked: true,
+			dimensions,
+			startUv,
+			uv: mostlyHorizontal,
+		}),
+	).toBe('x');
+	expect(
+		applySelectedOutlineTransformOriginAxisLock({
+			lockedAxis: 'x',
+			startUv,
+			uv: mostlyHorizontal,
+		}),
+	).toEqual([0.5, 0.5]);
+	expect(
+		getSelectedOutlineTransformOriginLockedAxis({
+			axisLocked: true,
+			dimensions,
+			startUv,
+			uv: mostlyVertical,
+		}),
+	).toBe('y');
+	expect(
+		applySelectedOutlineTransformOriginAxisLock({
+			lockedAxis: 'y',
+			startUv,
+			uv: mostlyVertical,
+		}),
+	).toEqual([0.25, 0.9]);
+	expect(
+		getSelectedOutlineTransformOriginLockedAxis({
+			axisLocked: false,
+			dimensions,
+			startUv,
+			uv: mostlyVertical,
+		}),
+	).toBeNull();
+	expect(
+		applySelectedOutlineTransformOriginAxisLock({
+			lockedAxis: null,
+			startUv,
+			uv: mostlyVertical,
+		}),
+	).toBe(mostlyVertical);
+	expect(
+		getSelectedOutlineTransformOriginLockedAxis({
+			axisLocked: true,
+			dimensions,
+			startUv,
+			uv: mostlyVertical,
+		}),
+	).toBe('y');
+});
+
 test('UV coordinate constraints preserve precision despite schema step', () => {
 	expect(
 		constrainUv([0.123456, 0.987654], {
@@ -1538,6 +1728,138 @@ test('UV handle connection lines stay within the same effect instance', () => {
 	expect(lines.map((line) => line.key)).toEqual(['2-start-end']);
 });
 
+const getUvHandlesForSelectedEffectChild = (selectedFieldKey: string) => {
+	const sequenceNodePathInfo = makeNodePathInfo(['body', 0], []);
+	const effectPropNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['effects', '0', selectedFieldKey],
+	);
+	const nodePath = sequenceNodePathInfo.sequenceSubscriptionKey;
+	const effectSchema = {
+		start: {
+			type: 'uv-coordinate',
+			default: [0, 0],
+			lineTo: 'end',
+		},
+		end: {
+			type: 'uv-coordinate',
+			default: [1, 1],
+		},
+		dotSize: {
+			type: 'number',
+			default: 10,
+			hiddenFromList: false,
+		},
+	} as const satisfies SequenceSchema;
+	const propStatuses: PropStatuses = {
+		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			canUpdate: true,
+			props: {},
+			effects: [
+				{
+					canUpdate: true,
+					effectIndex: 0,
+					callee: 'testEffect',
+					importPath: null,
+					props: {
+						start: {
+							status: 'static',
+							codeValue: [0.2, 0.3],
+						},
+						end: {
+							status: 'static',
+							codeValue: [0.8, 0.7],
+						},
+						dotSize: {
+							status: 'static',
+							codeValue: 10,
+						},
+					},
+				},
+			],
+		},
+	};
+
+	return getSelectedUvHandles({
+		propStatuses,
+		clientId: 'client-id',
+		getEffectDragOverrides: () => ({}),
+		nodePath,
+		selectedEffects: getSelectedEffectFieldsBySequenceKey([
+			{
+				type: 'sequence-effect-prop',
+				nodePathInfo: effectPropNodePathInfo,
+				i: 0,
+				key: selectedFieldKey,
+			},
+		]).get(getTimelineSequenceSelectionKey(sequenceNodePathInfo)),
+		sequence: {
+			effects: [{schema: effectSchema}],
+		} as unknown as TSequence,
+		sourceFrame: 0,
+	});
+};
+
+test('UV handles include connected coordinates when selecting one coordinate', () => {
+	const handles = getUvHandlesForSelectedEffectChild('start');
+
+	expect(
+		handles.map((handle) => ({
+			fieldKey: handle.fieldKey,
+			isSelected: handle.isSelected,
+			value: handle.value,
+		})),
+	).toEqual([
+		{fieldKey: 'start', isSelected: true, value: [0.2, 0.3]},
+		{fieldKey: 'end', isSelected: false, value: [0.8, 0.7]},
+	]);
+	expect(
+		getUvHandleConnectionLines({
+			points: [
+				{x: 0, y: 0},
+				{x: 100, y: 0},
+				{x: 100, y: 100},
+				{x: 0, y: 100},
+			],
+			handles,
+		}).map((line) => line.key),
+	).toEqual(['0-start-end']);
+});
+
+test('UV handles show for selected non-coordinate effect children', () => {
+	const handles = getUvHandlesForSelectedEffectChild('dotSize');
+
+	expect(
+		handles.map((handle) => ({
+			fieldKey: handle.fieldKey,
+			isSelected: handle.isSelected,
+		})),
+	).toEqual([
+		{fieldKey: 'start', isSelected: false},
+		{fieldKey: 'end', isSelected: false},
+	]);
+});
+
+test('UV handle selection targets the matching effect property', () => {
+	const sequenceNodePathInfo = makeNodePathInfo(['body', 0], []);
+
+	expect(
+		getSelectedOutlineUvHandleTimelineSelection({
+			effectIndex: 1,
+			fieldKey: 'end',
+			nodePathInfo: sequenceNodePathInfo,
+		}),
+	).toEqual({
+		type: 'sequence-effect-prop',
+		nodePathInfo: {
+			...sequenceNodePathInfo,
+			auxiliaryKeys: ['effects', '1', 'end'],
+		},
+		i: 1,
+		key: 'end',
+	});
+});
+
 test('UV handles are requested for selected effect children', () => {
 	const sequenceNodePathInfo = makeNodePathInfo(['body', 0], []);
 	const effectNodePathInfo = makeNodePathInfo(['body', 0], ['effects', '1']);
@@ -1608,7 +1930,7 @@ test('UV handles are requested for keyframed selected effect props', () => {
 								{frame: 0, value: [0, 0]},
 								{frame: 100, value: [1, 1]},
 							],
-							easing: ['linear'],
+							easing: [{type: 'linear'}],
 							clamping: {left: 'extend', right: 'extend'},
 							posterize: undefined,
 						},
@@ -1687,7 +2009,7 @@ test('Cmd+A selection only targets selectable timeline sequences', () => {
 	]);
 });
 
-test('Cmd+D only duplicates selected timeline sequence rows', () => {
+test('Cmd+D duplicates selected timeline sequence and effect rows', () => {
 	const sequenceNodePathInfo = makeNodePathInfo(['body', 0], []);
 	const effectNodePathInfo = makeNodePathInfo(['body', 1], ['effects', '0']);
 
@@ -1709,6 +2031,28 @@ test('Cmd+D only duplicates selected timeline sequence rows', () => {
 		{
 			type: 'sequence',
 			nodePathInfo: sequenceNodePathInfo,
+		},
+	]);
+
+	expect(
+		[
+			{type: 'sequence' as const, nodePathInfo: sequenceNodePathInfo},
+			{
+				type: 'sequence-effect' as const,
+				nodePathInfo: effectNodePathInfo,
+				i: 0,
+			},
+			{
+				type: 'keyframe' as const,
+				nodePathInfo: sequenceNodePathInfo,
+				frame: 12,
+			},
+		].filter(isDuplicatableEffectSelection),
+	).toEqual([
+		{
+			type: 'sequence-effect',
+			nodePathInfo: effectNodePathInfo,
+			i: 0,
 		},
 	]);
 });
@@ -1783,7 +2127,7 @@ test('Backspace reset targets selected keyframed sequence props', () => {
 						{frame: 0, value: 0},
 						{frame: 20, value: 0.5},
 					],
-					easing: ['linear'],
+					easing: [{type: 'linear'}],
 					clamping: {left: 'extend', right: 'extend'},
 					posterize: undefined,
 				},
@@ -1865,6 +2209,52 @@ test('Backspace reset targets selected computed sequence props with defaults', (
 	]);
 });
 
+test('Backspace reset targets flattened built-in sequence style props', () => {
+	const opacityNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['controls', 'style.opacity'],
+	);
+	const nodePath = opacityNodePathInfo.sequenceSubscriptionKey;
+	const propStatuses = {
+		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			canUpdate: true,
+			props: {
+				'style.opacity': {
+					status: 'computed',
+				},
+			},
+			effects: [],
+		},
+	} satisfies PropStatuses;
+
+	const resetTargets = getTimelinePropResetTargets({
+		selections: [
+			{
+				type: 'sequence-prop',
+				nodePathInfo: opacityNodePathInfo,
+				key: 'style.opacity',
+			},
+		],
+		sequences: [
+			makeTimelineSequence({schema: NoReactInternals.sequenceSchema}),
+		],
+		overrideIdsToNodePaths: {override: nodePath},
+		propStatuses,
+	});
+
+	expect(resetTargets).toEqual([
+		{
+			type: 'sequence-prop',
+			fileName: '/project/src/Comp.tsx',
+			nodePath,
+			fieldKey: 'style.opacity',
+			value: 1,
+			defaultValue: '1',
+			schema: NoReactInternals.sequenceSchema,
+		},
+	]);
+});
+
 test('Backspace reset skips keyframed sequence props without defaults', () => {
 	const schema = {
 		opacity: {type: 'number', default: undefined, hiddenFromList: false},
@@ -1885,7 +2275,7 @@ test('Backspace reset skips keyframed sequence props without defaults', () => {
 						{frame: 0, value: 0},
 						{frame: 20, value: 0.5},
 					],
-					easing: ['linear'],
+					easing: [{type: 'linear'}],
 					clamping: {left: 'extend', right: 'extend'},
 					posterize: undefined,
 				},
@@ -2172,7 +2562,7 @@ test('Selected outline dragging keyframed translate adds a keyframe at the sourc
 						{frame: 0, value: '0px 0px'},
 						{frame: 40, value: '100px 50px'},
 					],
-					easing: ['linear'],
+					easing: [{type: 'linear'}],
 					clamping: {left: 'extend', right: 'extend'},
 					posterize: undefined,
 				},
@@ -2472,7 +2862,7 @@ test('Selected outline corner dragging keyframed rotation adds a keyframe at the
 						{frame: 0, value: '0deg'},
 						{frame: 40, value: '90deg'},
 					],
-					easing: ['linear'],
+					easing: [{type: 'linear'}],
 					clamping: {left: 'extend', right: 'extend'},
 					posterize: undefined,
 				},
@@ -2769,7 +3159,7 @@ test('Backspace reset targets selected keyframed effect props', () => {
 								{frame: 0, value: 10},
 								{frame: 20, value: 20},
 							],
-							easing: ['linear'],
+							easing: [{type: 'linear'}],
 							clamping: {left: 'extend', right: 'extend'},
 							posterize: undefined,
 						},
@@ -2840,7 +3230,7 @@ test('Backspace reset skips keyframed effect props without defaults', () => {
 								{frame: 0, value: 10},
 								{frame: 20, value: 20},
 							],
-							easing: ['linear'],
+							easing: [{type: 'linear'}],
 							clamping: {left: 'extend', right: 'extend'},
 							posterize: undefined,
 						},
@@ -3535,6 +3925,50 @@ test('Easing keyframe drag preserves selected item types at moved frames', () =>
 			toFrame: 25,
 		},
 	]);
+});
+
+test('Unavailable timeline selections are removed from the active selection state', () => {
+	const availableRow = {
+		type: 'sequence' as const,
+		nodePathInfo: makeNodePathInfo(['body', 0], []),
+	};
+	const unavailableRow = {
+		type: 'sequence' as const,
+		nodePathInfo: makeNodePathInfo(['body', 1], []),
+	};
+
+	expect(
+		getAvailableTimelineSelectionState({
+			availableKeys: new Set([getTimelineSelectionKey(availableRow)]),
+			state: {
+				selectedItems: [availableRow, unavailableRow],
+				anchor: unavailableRow,
+			},
+		}),
+	).toEqual({
+		selectedItems: [availableRow],
+		anchor: null,
+	});
+});
+
+test('Unavailable timeline selections become no active selection', () => {
+	const unavailableRow = {
+		type: 'sequence' as const,
+		nodePathInfo: makeNodePathInfo(['body', 1], []),
+	};
+
+	expect(
+		getAvailableTimelineSelectionState({
+			availableKeys: new Set(),
+			state: {
+				selectedItems: [unavailableRow],
+				anchor: unavailableRow,
+			},
+		}),
+	).toEqual({
+		selectedItems: [],
+		anchor: null,
+	});
 });
 
 test('Timeline double-click actions ignore selection modifier clicks', () => {

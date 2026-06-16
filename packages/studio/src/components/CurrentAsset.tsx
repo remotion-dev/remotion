@@ -1,45 +1,18 @@
 import {formatBytes} from '@remotion/studio-shared';
 import React, {useContext, useMemo} from 'react';
 import {Internals, staticFile} from 'remotion';
-import {BACKGROUND, BORDER_COLOR} from '../helpers/colors';
 import {formatMediaDuration} from '../helpers/format-media-duration';
 import {getPreviewFileType} from '../helpers/get-preview-file-type';
 import {useMediaMetadata} from '../helpers/use-media-metadata';
+import {
+	INSPECTOR_INFO_HEADER_MIN_HEIGHT,
+	InspectorInfoHeader,
+	InspectorInfoSubtitle,
+	InspectorInfoTitle,
+} from './InspectorInfoHeader';
 import {useStaticFiles} from './use-static-files';
 
-export const CURRENT_ASSET_HEIGHT = 80;
-
-const container: React.CSSProperties = {
-	height: CURRENT_ASSET_HEIGHT,
-	display: 'block',
-	borderBottom: `1px solid ${BORDER_COLOR}`,
-	padding: 12,
-	color: 'white',
-	backgroundColor: BACKGROUND,
-};
-
-const title: React.CSSProperties = {
-	fontWeight: 'bold',
-	fontSize: 12,
-	whiteSpace: 'nowrap',
-	lineHeight: '18px',
-	backgroundColor: BACKGROUND,
-};
-
-const subtitle: React.CSSProperties = {
-	fontSize: 12,
-	opacity: 0.8,
-	whiteSpace: 'nowrap',
-	lineHeight: '18px',
-	backgroundColor: BACKGROUND,
-};
-
-const row: React.CSSProperties = {
-	display: 'flex',
-	flexDirection: 'row',
-	lineHeight: '18px',
-	backgroundColor: BACKGROUND,
-};
+export const CURRENT_ASSET_HEIGHT = INSPECTOR_INFO_HEADER_MIN_HEIGHT;
 
 export const getCurrentAssetMetadataSource = (assetName: string | null) => {
 	if (!assetName) {
@@ -73,7 +46,7 @@ export const CurrentAsset: React.FC = () => {
 	const mediaMetadata = useMediaMetadata(src);
 
 	if (!assetName) {
-		return <div style={container} />;
+		return <InspectorInfoHeader />;
 	}
 
 	const fileName = assetName.split('/').pop() ?? assetName;
@@ -94,20 +67,18 @@ export const CurrentAsset: React.FC = () => {
 	}
 
 	return (
-		<div style={container}>
-			<div style={row}>
-				<div>
-					<div style={title}>{fileName}</div>
-					{subtitleParts.length > 0 ? (
-						<div style={subtitle}>{subtitleParts.join(' · ')}</div>
-					) : null}
-					{mediaMetadata ? (
-						<div style={subtitle}>
-							{formatMediaDuration(mediaMetadata.duration)}
-						</div>
-					) : null}
-				</div>
-			</div>
-		</div>
+		<InspectorInfoHeader>
+			<InspectorInfoTitle>{fileName}</InspectorInfoTitle>
+			{subtitleParts.length > 0 ? (
+				<InspectorInfoSubtitle>
+					{subtitleParts.join(' · ')}
+				</InspectorInfoSubtitle>
+			) : null}
+			{mediaMetadata ? (
+				<InspectorInfoSubtitle>
+					{formatMediaDuration(mediaMetadata.duration)}
+				</InspectorInfoSubtitle>
+			) : null}
+		</InspectorInfoHeader>
 	);
 };
