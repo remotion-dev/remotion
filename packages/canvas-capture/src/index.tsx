@@ -1,13 +1,3 @@
-import {
-	ALL_FORMATS,
-	BufferSource,
-	BufferTarget,
-	CanvasSource,
-	Conversion,
-	Input,
-	Output,
-	WebMOutputFormat,
-} from 'mediabunny';
 import React, {
 	forwardRef,
 	useCallback,
@@ -110,13 +100,13 @@ export type HtmlInCanvasCaptureHandle = {
 
 type HtmlInCanvasCaptureProps = {
 	readonly children: React.ReactNode;
-	readonly filename: string;
 	readonly density: number;
+	readonly filename: string;
 };
 
 type WithHtmlInCanvasCaptureProps = {
-	readonly filename: string;
 	readonly density: number;
+	readonly filename: string;
 };
 
 const canvasStyle: React.CSSProperties = {
@@ -278,6 +268,15 @@ const finalizeRecording = async (
 		pointerClicks: recording.pointerClicks,
 	});
 
+	const {
+		ALL_FORMATS,
+		BufferSource,
+		BufferTarget,
+		Conversion,
+		Input,
+		Output,
+		WebMOutputFormat,
+	} = await import('mediabunny');
 	const remuxInput = new Input({
 		formats: ALL_FORMATS,
 		source: new BufferSource(recording.target.buffer),
@@ -307,7 +306,11 @@ const finalizeRecording = async (
 export const HtmlInCanvasCapture = forwardRef<
 	HtmlInCanvasCaptureHandle,
 	HtmlInCanvasCaptureProps
->(({children, filename, density}, ref) => {
+>(({children, density, filename}, ref) => {
+	if (!Number.isFinite(density) || density <= 0) {
+		throw new Error('HTML-in-canvas capture density must be greater than 0.');
+	}
+
 	const isSupported = useMemo(() => isHtmlInCanvasAvailable(), []);
 	const canvasRef = useRef<HtmlInCanvasElement | null>(null);
 	const contentRef = useRef<HTMLDivElement | null>(null);
@@ -329,6 +332,8 @@ export const HtmlInCanvasCapture = forwardRef<
 			return;
 		}
 
+		const {BufferTarget, CanvasSource, Output, WebMOutputFormat} =
+			await import('mediabunny');
 		const target = new BufferTarget();
 		const output = new Output({
 			format: new WebMOutputFormat(),
@@ -604,9 +609,9 @@ export const withHtmlInCanvasCapture = <Props extends object>(
 	return forwardRef<
 		HtmlInCanvasCaptureHandle,
 		Props & WithHtmlInCanvasCaptureProps
-	>(({filename, density, ...props}, ref) => {
+	>(({density, filename, ...props}, ref) => {
 		return (
-			<HtmlInCanvasCapture ref={ref} filename={filename} density={density}>
+			<HtmlInCanvasCapture ref={ref} density={density} filename={filename}>
 				<Component {...(props as Props)} />
 			</HtmlInCanvasCapture>
 		);

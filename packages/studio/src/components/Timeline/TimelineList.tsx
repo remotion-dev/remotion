@@ -7,7 +7,6 @@ import {TimelineTimePadding} from './TimelineTimeIndicators';
 const container: React.CSSProperties = {
 	flex: 1,
 	background: BACKGROUND,
-	height: '100%',
 };
 
 export const TimelineList: React.FC<{

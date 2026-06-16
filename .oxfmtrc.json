@@ -3,7 +3,7 @@
 	"singleQuote": true,
 	"bracketSpacing": false,
 	"useTabs": true,
-	"printWidth": 50,
+	"printWidth": 80,
 	"sortImports": {"newlinesBetween": false},
 	"sortPackageJson": false,
 	"ignorePatterns": [

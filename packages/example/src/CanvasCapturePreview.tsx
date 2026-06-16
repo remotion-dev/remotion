@@ -1,15 +1,15 @@
 import {Video} from '@remotion/media';
-import {ALL_FORMATS, Input, UrlSource} from 'mediabunny';
 import React from 'react';
 import {
 	AbsoluteFill,
 	CalculateMetadataFunction,
 	Img,
+	Interactive,
 	staticFile,
 	useCurrentFrame,
 	useVideoConfig,
 } from 'remotion';
-import {z} from 'zod';
+import {getMediaMetadata} from './get-media-metadata';
 
 type MouseMovement = {
 	readonly timeInSeconds: number;
@@ -42,33 +42,29 @@ type CaptureMetadata = {
 	};
 };
 
-type PointerClick = {
-	readonly timeInSeconds: number;
-	readonly type: 'pointer-down' | 'pointer-up';
-};
-
 type CursorRecording = {
 	readonly startedAt: number;
 	readonly endedAt: number;
 	readonly captureMetadata: CaptureMetadata;
 	readonly mouseMovements: MouseMovement[];
-	readonly pointerClicks?: PointerClick[];
 };
 
-export const canvasCapturePreviewSchema = z.object({
-	videoFile: z.string(),
-	cursorScale: z.number(),
-});
-
-export type CanvasCapturePreviewProps = z.infer<
-	typeof canvasCapturePreviewSchema
-> & {
+export type CanvasCapturePreviewProps = {
+	readonly videoFile: string;
+	readonly cursorFile: string;
+	readonly cursorAssetBasePath: string | null;
 	readonly cursorData?: CursorRecording;
 	width: number | null;
 	height: number | null;
 };
 
-const CURSOR_ASSET_BASE_PATH = 'https://remotion.media/mac-cursors';
+export const canvasCapturePreviewDefaultProps: CanvasCapturePreviewProps = {
+	videoFile: 'https://remotion.media/remotion-studio-canvas-recording.webm',
+	cursorFile: 'remotion-studio-canvas-recording.json',
+	cursorAssetBasePath: 'https://remotion.media/mac-cursors',
+	width: null,
+	height: null,
+};
 
 const macCursorFilenameByCssValue: Record<string, string | null> = {
 	alias: 'makealias.svg',
@@ -191,6 +187,12 @@ const macCursorHotspotByFilename: Record<string, CursorHotspot> = {
 	'zoomout.svg': {x: 14, y: 14},
 };
 
+const resolveAsset = (src: string) => {
+	return src.startsWith('http://') || src.startsWith('https://')
+		? src
+		: staticFile(src);
+};
+
 const resolveCursorAsset = (basePath: string, filename: string) => {
 	const normalizedBasePath = basePath.endsWith('/')
 		? basePath.slice(0, -1)
@@ -265,99 +267,154 @@ const findCursorAtTime = (
 	return latest;
 };
 
-const CursorGlyph: React.FC<{
-	readonly cursor: string;
-	readonly scale: number;
-	readonly cursorScale: number;
-}> = ({cursor, scale: _scale, cursorScale}) => {
-	const urlCursor = parseUrlCursor(cursor);
-
-	if (urlCursor) {
-		return (
-			<CursorImg
-				src={urlCursor.url}
-				hotspotX={urlCursor.hotspotX}
-				hotspotY={urlCursor.hotspotY}
-				cursorScale={cursorScale}
-			/>
-		);
-	}
-
-	const macCursorFilename = getMacCursorFilename(cursor);
-	const hotspot = getMacCursorHotspot(macCursorFilename);
+const ArrowCursor: React.FC<{readonly scale: number}> = ({scale}) => {
+	const size = 24 * scale;
 
 	return (
-		<CursorImg
-			src={resolveCursorAsset(CURSOR_ASSET_BASE_PATH, macCursorFilename)}
-			hotspotX={hotspot.x}
-			hotspotY={hotspot.y}
-			cursorScale={cursorScale}
-		/>
+		<svg
+			width={size}
+			height={size}
+			viewBox="0 0 24 24"
+			style={{
+				display: 'block',
+				overflow: 'visible',
+				transform: `translate(${-4 * scale}px, ${-2 * scale}px)`,
+			}}
+		>
+			<path
+				d="M4 2L18 15H10L7 22L4 20L7 14H2L4 2Z"
+				fill="white"
+				stroke="black"
+				strokeLinejoin="round"
+				strokeWidth={1.75}
+			/>
+		</svg>
 	);
 };
 
-const CursorImg: React.FC<{
-	readonly src: string;
-	readonly hotspotX: number;
-	readonly hotspotY: number;
-	readonly cursorScale: number;
-}> = ({src, hotspotX, hotspotY, cursorScale}) => {
+const TextCursor: React.FC<{readonly scale: number}> = ({scale}) => {
+	const height = 28 * scale;
+
 	return (
-		<Img
-			src={src}
+		<div
 			style={{
-				display: 'block',
-				height: 32,
-				marginLeft: -hotspotX,
-				marginTop: -hotspotY,
-				transformOrigin: `${hotspotX}px ${hotspotY}px`,
-				width: 32,
-				position: 'absolute',
-				scale: cursorScale,
+				width: 2 * scale,
+				height,
+				backgroundColor: 'white',
+				borderLeft: `${Math.max(1, scale)}px solid black`,
+				borderRight: `${Math.max(1, scale)}px solid black`,
+				transform: `translate(${-scale}px, ${-height / 2}px)`,
 			}}
 		/>
 	);
 };
 
-const CLICK_SCALE = 0.9;
+const ResizeCursor: React.FC<{
+	readonly scale: number;
+	readonly direction: 'horizontal' | 'vertical';
+}> = ({direction, scale}) => {
+	const size = 26 * scale;
+	const rotation = direction === 'horizontal' ? 90 : 0;
 
-const isPointerDown = (
-	pointerClicks: readonly PointerClick[] | undefined,
-	timeInSeconds: number,
-) => {
-	if (!pointerClicks) {
-		return false;
+	return (
+		<svg
+			width={size}
+			height={size}
+			viewBox="0 0 26 26"
+			style={{
+				display: 'block',
+				overflow: 'visible',
+				transform: `translate(${-size / 2}px, ${-size / 2}px) rotate(${rotation}deg)`,
+			}}
+		>
+			<path
+				d="M13 2L18 8H14V18H18L13 24L8 18H12V8H8L13 2Z"
+				fill="white"
+				stroke="black"
+				strokeLinejoin="round"
+				strokeWidth={1.75}
+			/>
+		</svg>
+	);
+};
+
+const CursorGlyph: React.FC<{
+	readonly cursorAssetBasePath: string | null;
+	readonly cursor: string;
+	readonly scale: number;
+}> = ({cursor, cursorAssetBasePath, scale}) => {
+	const urlCursor = parseUrlCursor(cursor);
+
+	if (urlCursor) {
+		return (
+			<Img
+				src={urlCursor.url}
+				style={{
+					display: 'block',
+					position: 'absolute',
+					width: 24,
+					height: 24,
+					marginLeft: -urlCursor.hotspotX,
+					marginTop: -urlCursor.hotspotY,
+				}}
+			/>
+		);
 	}
 
-	let down = false;
-	for (const click of pointerClicks) {
-		if (click.timeInSeconds > timeInSeconds) {
-			break;
-		}
+	const macCursorFilename = getMacCursorFilename(cursor);
 
-		down = click.type === 'pointer-down';
+	if (macCursorFilename === null) {
+		return null;
 	}
 
-	return down;
+	if (cursorAssetBasePath) {
+		const hotspot = getMacCursorHotspot(macCursorFilename);
+
+		return (
+			<Img
+				src={resolveCursorAsset(cursorAssetBasePath, macCursorFilename)}
+				style={{
+					display: 'block',
+					height: 32,
+					marginLeft: -hotspot.x,
+					marginTop: -hotspot.y,
+					transformOrigin: `${hotspot.x}px ${hotspot.y}px`,
+					width: 32,
+					position: 'absolute',
+					scale: 4.85,
+				}}
+			/>
+		);
+	}
+
+	if (cursor.includes('text')) {
+		return <TextCursor scale={scale} />;
+	}
+
+	if (cursor === 'row-resize' || cursor === 'ns-resize') {
+		return <ResizeCursor direction="vertical" scale={scale} />;
+	}
+
+	if (cursor === 'col-resize' || cursor === 'ew-resize') {
+		return <ResizeCursor direction="horizontal" scale={scale} />;
+	}
+
+	return <ArrowCursor scale={scale} />;
 };
 
 const CursorOverlay: React.FC<{
+	readonly cursorAssetBasePath: string | null;
 	readonly cursorData: CursorRecording;
-	readonly cursorScale: number;
-}> = ({cursorData, cursorScale}) => {
+}> = ({cursorAssetBasePath, cursorData}) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
-	const timeInSeconds = frame / fps;
-	const cursor = findCursorAtTime(cursorData.mouseMovements, timeInSeconds);
+	const cursor = findCursorAtTime(cursorData.mouseMovements, frame / fps);
 
 	if (!cursor || cursor.canvasX === null || cursor.canvasY === null) {
 		return null;
 	}
 
 	const scale = cursorData.captureMetadata.density;
-	const clickScale = isPointerDown(cursorData.pointerClicks, timeInSeconds)
-		? CLICK_SCALE
-		: 1;
 	const x = cursor.canvasX;
 	const y = cursor.canvasY;
 
@@ -367,7 +424,7 @@ const CursorOverlay: React.FC<{
 				position: 'absolute',
 				left: 0,
 				top: 0,
-				transform: `translate(${x}px, ${y}px) scale(${clickScale})`,
+				transform: `translate(${x}px, ${y}px)`,
 				pointerEvents: 'none',
 				height: 32,
 				width: 32,
@@ -375,59 +432,38 @@ const CursorOverlay: React.FC<{
 		>
 			<CursorGlyph
 				cursor={cursor.cursor}
+				cursorAssetBasePath={cursorAssetBasePath}
 				scale={scale}
-				cursorScale={cursorScale}
 			/>
 		</div>
 	);
 };
 
-const CAPTURE_METADATA_TAG_KEY = 'REMOTION_CAPTURE_DATA';
-
 export const calculateCanvasCapturePreviewMetadata: CalculateMetadataFunction<
 	CanvasCapturePreviewProps
 > = async ({props}) => {
 	const fps = 30;
-	const videoSrc = props.videoFile;
-
-	const input = new Input({
-		formats: ALL_FORMATS,
-		source: new UrlSource(videoSrc, {
-			getRetryDelay: () => null,
-		}),
-	});
-
-	const [durationInSeconds, videoTrack, tags] = await Promise.all([
-		input.computeDuration(),
-		input.getPrimaryVideoTrack(),
-		input.getMetadataTags(),
-	]);
-
-	const dimensions = videoTrack
-		? {
-				width: await videoTrack.getDisplayWidth(),
-				height: await videoTrack.getDisplayHeight(),
+	const videoSrc = resolveAsset(props.videoFile);
+	const [{durationInSeconds, dimensions}, cursorData] = await Promise.all([
+		getMediaMetadata(videoSrc),
+		fetch(staticFile(props.cursorFile)).then((res) => {
+			if (!res.ok) {
+				throw new Error(`Could not load cursor data: ${res.status}`);
 			}
-		: null;
 
-	const rawCaptureData = tags.raw?.[CAPTURE_METADATA_TAG_KEY];
-	if (typeof rawCaptureData !== 'string') {
-		throw new Error(
-			'Could not read capture metadata from video file. Was it recorded with @remotion/canvas-capture?',
-		);
-	}
-
-	const cursorData = JSON.parse(rawCaptureData) as CursorRecording;
+			return res.json() as Promise<CursorRecording>;
+		}),
+	]);
 
 	if (!dimensions) {
 		throw new Error('Could not determine canvas capture video dimensions.');
 	}
 
 	return {
-		width: dimensions.width,
-		height: dimensions.height,
 		durationInFrames: Math.ceil(durationInSeconds * fps),
 		fps,
+		width: 1920,
+		height: 1080,
 		props: {
 			...props,
 			cursorData,
@@ -438,26 +474,41 @@ export const calculateCanvasCapturePreviewMetadata: CalculateMetadataFunction<
 };
 
 export const CanvasCapturePreview: React.FC<CanvasCapturePreviewProps> = ({
+	cursorAssetBasePath,
 	cursorData,
-	cursorScale,
+	cursorFile,
 	videoFile,
 	width,
 	height,
 }) => {
 	if (!cursorData) {
-		throw new Error('Cursor data was not loaded from video metadata.');
+		throw new Error(`Cursor data from ${cursorFile} was not loaded.`);
 	}
 
 	return (
-		<AbsoluteFill>
-			<Video
-				src={videoFile}
+		<AbsoluteFill style={{backgroundColor: 'black', overflow: 'hidden'}}>
+			<Interactive.Div
 				style={{
+					position: 'absolute',
 					width: width!,
 					height: height!,
+					scale: 1.766237,
+					translate: '-6.6px -1825.3px',
 				}}
-			/>
-			<CursorOverlay cursorData={cursorData} cursorScale={cursorScale} />
+			>
+				<Video
+					src={resolveAsset(videoFile)}
+					showInTimeline={false}
+					style={{
+						width: width!,
+						height: height!,
+					}}
+				/>
+				<CursorOverlay
+					cursorAssetBasePath={cursorAssetBasePath}
+					cursorData={cursorData}
+				/>
+			</Interactive.Div>
 		</AbsoluteFill>
 	);
 };

@@ -1,5 +1,5 @@
 import {adjustHue, lighten} from 'polished';
-import {AbsoluteFill, Interactive, interpolateColors} from 'remotion';
+import {AbsoluteFill, interpolateColors} from 'remotion';
 
 export const SpringSeasonLogo: React.FC<{index: number}> = ({index}) => {
 	const size = 200;
@@ -11,7 +11,7 @@ export const SpringSeasonLogo: React.FC<{index: number}> = ({index}) => {
 				rotate: index * 72 + 'deg',
 			}}
 		>
-			<Interactive.Svg
+			<svg
 				style={{
 					width: size,
 					height: size,
@@ -32,7 +32,7 @@ export const SpringSeasonLogo: React.FC<{index: number}> = ({index}) => {
 						),
 					)}
 				/>
-			</Interactive.Svg>
+			</svg>
 		</AbsoluteFill>
 	);
 };
