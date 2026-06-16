@@ -208,13 +208,13 @@ export const pixelate = createEffect<PixelateParams, PixelateState>({
 		state.gl.clearColor(0, 0, 0, 0);
 		state.gl.clear(state.gl.COLOR_BUFFER_BIT);
 
-        state.gl.useProgram(state.program);
-        state.gl.bindVertexArray(state.vao);
+		state.gl.useProgram(state.program);
+		state.gl.bindVertexArray(state.vao);
 		state.gl.bindFramebuffer(state.gl.FRAMEBUFFER, null);
 		state.gl.activeTexture(state.gl.TEXTURE0);
 		state.gl.bindTexture(state.gl.TEXTURE_2D, state.texture);
 		state.gl.pixelStorei(state.gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
-        state.gl.pixelStorei(state.gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+		state.gl.pixelStorei(state.gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
 		state.gl.texImage2D(
 			state.gl.TEXTURE_2D,
 			0,
