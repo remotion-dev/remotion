@@ -17,8 +17,8 @@ import React, {
 } from 'react';
 import type {
 	EffectsProp,
+	InteractiveBaseProps,
 	SequenceControls,
-	SequenceProps,
 	InteractivitySchema,
 } from 'remotion';
 import {
@@ -36,12 +36,7 @@ import {mapToAlignment, mapToFit} from './map-enums.js';
 
 const {
 	addSequenceStackTraces,
-	durationInFramesField,
-	freezeField,
-	fromField,
-	hiddenField,
 	runEffectChain,
-	sequenceVisualStyleSchema,
 	useEffectChainState,
 	useMemoizedEffectDefinitions,
 	useMemoizedEffects,
@@ -50,11 +45,6 @@ const {
 
 type assetLoadCallback = (asset: FileAsset, bytes: Uint8Array) => boolean;
 type onLoadCallback = (file: File) => void;
-
-type RiveSequenceInheritedProps = Pick<
-	SequenceProps,
-	'durationInFrames' | 'name' | 'from' | 'freeze' | 'showInTimeline' | 'hidden'
->;
 
 type RemotionRiveCanvasOwnProps = {
 	readonly src: string;
@@ -71,7 +61,7 @@ type RemotionRiveCanvasOwnProps = {
 };
 
 export type RemotionRiveCanvasProps = RemotionRiveCanvasOwnProps &
-	RiveSequenceInheritedProps;
+	InteractiveBaseProps;
 
 export type RiveCanvasRef = {
 	getAnimationInstance: () => LinearAnimationInstance | null;
@@ -106,9 +96,7 @@ const riveAlignmentVariants: Record<
 };
 
 const riveCanvasSchema = {
-	durationInFrames: durationInFramesField,
-	from: fromField,
-	freeze: freezeField,
+	...Internals.baseSchema,
 	fit: {
 		type: 'enum',
 		default: 'contain',
@@ -121,8 +109,7 @@ const riveCanvasSchema = {
 		description: 'Alignment',
 		variants: riveAlignmentVariants,
 	},
-	...sequenceVisualStyleSchema,
-	hidden: hiddenField,
+	...Internals.transformSchema,
 } as const satisfies InteractivitySchema;
 
 type RemotionRiveCanvasContentProps = Omit<

@@ -20,11 +20,8 @@ import {
 } from '../effects/use-memoized-effects.js';
 import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
 import {
-	freezeField,
-	fromField,
-	hiddenField,
-	sequenceVisualStyleSchema,
-	durationInFramesField,
+	baseSchema,
+	transformSchema,
 	type InteractivitySchema,
 } from '../interactivity-schema.js';
 import {usePreload} from '../prefetch.js';
@@ -37,9 +34,7 @@ import {withInteractivitySchema} from '../with-interactivity-schema.js';
 import type {CanvasImageCanvasProps, CanvasImageProps} from './props.js';
 
 export const canvasImageSchema = {
-	durationInFrames: durationInFramesField,
-	from: fromField,
-	freeze: freezeField,
+	...baseSchema,
 	fit: {
 		type: 'enum',
 		default: 'fill',
@@ -50,8 +45,7 @@ export const canvasImageSchema = {
 			cover: {},
 		},
 	},
-	...sequenceVisualStyleSchema,
-	hidden: hiddenField,
+	...transformSchema,
 } as const satisfies InteractivitySchema;
 
 type LoadedImage = {

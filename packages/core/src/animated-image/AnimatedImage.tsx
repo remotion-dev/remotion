@@ -16,11 +16,8 @@ import {
 } from '../effects/use-memoized-effects.js';
 import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
 import {
-	durationInFramesField,
-	freezeField,
-	fromField,
-	hiddenField,
-	sequenceVisualStyleSchema,
+	baseSchema,
+	transformSchema,
 	type InteractivitySchema,
 } from '../interactivity-schema.js';
 import {Sequence} from '../Sequence.js';
@@ -37,9 +34,7 @@ import {serializeRequestInit} from './request-init';
 import {resolveAnimatedImageSource} from './resolve-image-source';
 
 const animatedImageSchema = {
-	durationInFrames: durationInFramesField,
-	from: fromField,
-	freeze: freezeField,
+	...baseSchema,
 	playbackRate: {
 		type: 'number',
 		min: 0,
@@ -50,8 +45,7 @@ const animatedImageSchema = {
 		hiddenFromList: false,
 		keyframable: false,
 	},
-	...sequenceVisualStyleSchema,
-	hidden: hiddenField,
+	...transformSchema,
 } as const satisfies InteractivitySchema;
 
 type AnimatedImageContentProps = RemotionAnimatedImageProps & {

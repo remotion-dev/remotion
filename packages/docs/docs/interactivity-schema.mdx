@@ -9,31 +9,18 @@ crumb: 'API'
 
 An `InteractivitySchema` describes controls that Remotion Studio can show in the timeline.
 
-It is used by [`withInteractivitySchema()`](/docs/with-interactivity-schema) for component props and by [`createEffect()`](/docs/create-effect) for effect parameters.
+It is used by [`Interactive.withSchema()`](/docs/with-interactivity-schema) for component props and by [`createEffect()`](/docs/create-effect) for effect parameters.
 
 This schema is not a Zod schema. Use [Zod schemas](/docs/schemas) for [`<Composition>`](/docs/composition) props.
 
 ## Example
 
 ```ts twoslash title="schema.ts"
-import type {InteractivitySchema} from 'remotion';
+import {Interactive, type InteractivitySchema} from 'remotion';
 
 export const titleCardSchema = {
-  opacity: {
-    type: 'number',
-    min: 0,
-    max: 1,
-    step: 0.01,
-    default: 1,
-    description: 'Opacity',
-    hiddenFromList: false,
-  },
-  'style.rotate': {
-    type: 'rotation-css',
-    step: 1,
-    default: '0deg',
-    description: 'Rotation',
-  },
+  ...Interactive.baseSchema,
+  ...Interactive.transformSchema,
   tint: {
     type: 'color',
     default: '#ffffff',
@@ -43,6 +30,24 @@ export const titleCardSchema = {
 ```
 
 Keys may use dot notation. For example, a key named `style.opacity` reads from and writes to `props.style.opacity`.
+
+## Reusable component schemas
+
+[`Interactive`](/docs/interactive) exposes schema fragments for custom components:
+
+### `Interactive.baseSchema`
+
+Timeline props inherited from [`<Sequence>`](/docs/sequence): `durationInFrames`, `from`, `freeze`, `hidden`, `name` and `showInTimeline`.
+
+### `Interactive.transformSchema`
+
+Transform-related style props: `style.transformOrigin`, `style.translate`, `style.scale`, `style.rotate` and `style.opacity`.
+
+### `Interactive.premountSchema`
+
+Mounting props: `premountFor`, `postmountFor`, `styleWhilePremounted` and `styleWhilePostmounted`.
+
+These schemas are for component props. Effects created with [`createEffect()`](/docs/create-effect) should define only their own effect parameters.
 
 ## Field Types
 
@@ -192,7 +197,8 @@ The maximum number of items.
 
 ## See also
 
-- [`withInteractivitySchema()`](/docs/with-interactivity-schema)
+- [`Interactive.withSchema()`](/docs/with-interactivity-schema)
+- [`Interactive`](/docs/interactive)
 - [`createEffect()`](/docs/create-effect)
 - [Defining a schema for your props](/docs/schemas)
 - [Source code for these types](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/interactivity-schema.ts)

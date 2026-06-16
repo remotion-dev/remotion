@@ -7,20 +7,19 @@ import {
 	useDelayRender,
 	useVideoConfig,
 	type AbsoluteFillLayout,
-	type LayoutAndStyle,
+	type InteractiveBaseProps,
+	type InteractivePremountProps,
+	type InteractiveTransformProps,
 	type SequenceControls,
-	type SequenceProps,
 	type InteractivitySchema,
 } from 'remotion';
 
 const {createWebGLContextError} = Internals;
 
-export type LightLeakProps = Omit<
-	SequenceProps,
-	'children' | 'durationInFrames' | keyof LayoutAndStyle
-> &
-	Omit<AbsoluteFillLayout, 'layout'> & {
-		readonly durationInFrames?: number;
+export type LightLeakProps = InteractiveBaseProps &
+	InteractiveTransformProps &
+	InteractivePremountProps &
+	Pick<AbsoluteFillLayout, 'className'> & {
 		readonly seed?: number;
 		readonly hueShift?: number;
 	};
@@ -234,9 +233,7 @@ const LightLeakCanvas: React.FC<{
  * @see [Documentation](https://www.remotion.dev/docs/light-leaks/light-leak)
  */
 const lightLeakSchema = {
-	durationInFrames: Internals.durationInFramesField,
-	from: Internals.fromField,
-	freeze: Internals.freezeField,
+	...Internals.baseSchema,
 	seed: {
 		type: 'number',
 		default: 0,
@@ -251,8 +248,8 @@ const lightLeakSchema = {
 		description: 'Hue Shift',
 		hiddenFromList: false,
 	},
-	...Internals.sequenceStyleSchema,
-	hidden: Internals.hiddenField,
+	...Internals.transformSchema,
+	...Internals.premountSchema,
 } as const satisfies InteractivitySchema;
 
 const LightLeakInner: React.FC<

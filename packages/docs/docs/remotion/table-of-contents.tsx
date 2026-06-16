@@ -153,7 +153,7 @@ export const TableOfContents: React.FC = () => {
 					<div>Get the current version of Remotion</div>
 				</TOCItem>
 				<TOCItem link="/docs/with-interactivity-schema">
-					<strong>withInteractivitySchema()</strong>
+					<strong>Interactive.withSchema()</strong>
 					<div>Expose component props as Studio timeline controls</div>
 				</TOCItem>
 			</Grid>

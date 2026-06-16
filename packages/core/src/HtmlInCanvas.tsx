@@ -17,18 +17,9 @@ import {
 	useMemoizedEffects,
 } from './effects/use-memoized-effects.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
-import {
-	durationInFramesField,
-	freezeField,
-	fromField,
-	hiddenField,
-	sequenceVisualStyleSchema,
-} from './interactivity-schema.js';
-import type {
-	AbsoluteFillLayout,
-	LayoutAndStyle,
-	SequenceProps,
-} from './Sequence.js';
+import type {InteractiveBaseProps} from './Interactive.js';
+import {baseSchema, transformSchema} from './interactivity-schema.js';
+import type {AbsoluteFillLayout} from './Sequence.js';
 import {Sequence} from './Sequence.js';
 import {useDelayRender} from './use-delay-render.js';
 import {useVideoConfig} from './use-video-config.js';
@@ -303,14 +294,7 @@ const defaultOnPaint: HtmlInCanvasOnPaint = ({
 };
 
 /* eslint-disable react/require-default-props -- optional fields mirror `<Sequence>` / canvas hooks API */
-export type HtmlInCanvasProps = Omit<
-	SequenceProps,
-	| 'children'
-	| 'durationInFrames'
-	| keyof LayoutAndStyle
-	| '_remotionInternalEffects'
-	| '_remotionInternalRefForOutline'
-> &
+export type HtmlInCanvasProps = Omit<InteractiveBaseProps, 'children'> &
 	Omit<
 		AbsoluteFillLayout,
 		| 'layout'
@@ -694,11 +678,8 @@ const HtmlInCanvasInner = forwardRef<
 HtmlInCanvasInner.displayName = 'HtmlInCanvas';
 
 const htmlInCanvasSchema = {
-	durationInFrames: durationInFramesField,
-	from: fromField,
-	freeze: freezeField,
-	...sequenceVisualStyleSchema,
-	hidden: hiddenField,
+	...baseSchema,
+	...transformSchema,
 };
 
 const HtmlInCanvasWrapped = withInteractivitySchema({

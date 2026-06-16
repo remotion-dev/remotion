@@ -7,17 +7,22 @@ import {
 	Sequence,
 	type EffectsProp,
 	type HtmlInCanvasPixelDensity,
+	type HtmlInCanvasProps,
+	type InteractiveBaseProps,
 	type SequenceControls,
-	type SequenceProps,
 } from 'remotion';
 import {doesReactSupportTransformOriginProperty} from '../utils/does-react-support-canary';
 
-type ShapeSequenceProps = Pick<
-	SequenceProps,
-	'durationInFrames' | 'from' | 'freeze' | 'hidden' | 'name' | 'showInTimeline'
-> & {
+type ShapeSequenceProps = InteractiveBaseProps & {
 	readonly controls?: SequenceControls;
 };
+
+const HtmlInCanvasWithPrivateProps = HtmlInCanvas as React.ComponentType<
+	HtmlInCanvasProps & {
+		readonly controls?: SequenceControls;
+		readonly ref?: React.Ref<HTMLCanvasElement>;
+	}
+>;
 
 export type AllShapesProps = Omit<
 	React.SVGProps<SVGPathElement>,
@@ -189,7 +194,7 @@ export const RenderSvg = ({
 		effects.length === 0 ? (
 			svg
 		) : (
-			<HtmlInCanvas
+			<HtmlInCanvasWithPrivateProps
 				ref={setCanvasRef}
 				width={Math.ceil(width)}
 				height={Math.ceil(height)}
@@ -200,7 +205,7 @@ export const RenderSvg = ({
 				controls={controls}
 			>
 				{svg}
-			</HtmlInCanvas>
+			</HtmlInCanvasWithPrivateProps>
 		);
 
 	const stackProps = stack === undefined ? null : ({stack} as const);

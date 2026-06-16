@@ -89,12 +89,15 @@ mock.module('remotion', () => {
 				readonly children: React.ReactNode;
 			}) => children,
 			ResolveCompositionContext: React.createContext({}),
-			sequenceSchema: {
+			baseSchema: {
 				durationInFrames: {},
 				from: {},
+				freeze: {},
 				hidden: {},
+				name: {},
+				showInTimeline: {},
 			},
-			sequenceVisualStyleSchema: {},
+			transformSchema: {},
 			useUnsafeVideoConfig: mock(() =>
 				hasVideoConfig
 					? {

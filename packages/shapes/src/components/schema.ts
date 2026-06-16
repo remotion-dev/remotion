@@ -81,15 +81,12 @@ export const makeShapeSchema = (
 	shapeFields: InteractivitySchema,
 ): InteractivitySchema => {
 	return {
-		from: Internals.sequenceSchema.from,
-		freeze: Internals.sequenceSchema.freeze,
-		durationInFrames: Internals.sequenceSchema.durationInFrames,
+		...Internals.baseSchema,
 		...shapeFields,
 		fill: colorField({
 			defaultValue: '#0b84ff',
 			description: 'Fill',
 		}),
-		...Internals.sequenceVisualStyleSchema,
-		hidden: Internals.sequenceSchema.hidden,
+		...Internals.transformSchema,
 	};
 };

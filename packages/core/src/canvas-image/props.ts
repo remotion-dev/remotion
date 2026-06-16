@@ -1,12 +1,9 @@
 import type React from 'react';
 import type {ImageFit} from '../calculate-image-fit.js';
 import type {EffectsProp} from '../effects/effect-types.js';
-import type {SequenceProps} from '../Sequence.js';
+import type {InteractiveBaseProps} from '../Interactive.js';
 
-type CanvasImageSequenceProps = Pick<
-	SequenceProps,
-	'durationInFrames' | 'from' | 'freeze' | 'hidden' | 'name' | 'showInTimeline'
-> & {
+type CanvasImageSequenceProps = InteractiveBaseProps & {
 	/**
 	 * @deprecated For internal use only.
 	 */

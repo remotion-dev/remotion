@@ -9,15 +9,12 @@ import React, {
 } from 'react';
 import type {SequenceControls} from '../CompositionManager.js';
 import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
+import type {InteractiveBaseProps} from '../Interactive.js';
 import {
-	durationInFramesField,
-	freezeField,
-	fromField,
-	hiddenField,
-	sequenceVisualStyleSchema,
+	baseSchema,
+	transformSchema,
 	type InteractivitySchema,
 } from '../interactivity-schema.js';
-import type {SequenceProps} from '../Sequence.js';
 import {Sequence} from '../Sequence.js';
 import {useDelayRender} from '../use-delay-render.js';
 import {withInteractivitySchema} from '../with-interactivity-schema.js';
@@ -67,9 +64,7 @@ type InnerSolidProps = MandatoryProps &
 export type SolidProps = MandatoryProps & Partial<OptionalProps>;
 
 const solidSchema = {
-	durationInFrames: durationInFramesField,
-	from: fromField,
-	freeze: freezeField,
+	...baseSchema,
 	color: {
 		type: 'color',
 		default: 'transparent',
@@ -91,8 +86,7 @@ const solidSchema = {
 		description: 'Height',
 		hiddenFromList: false,
 	},
-	...sequenceVisualStyleSchema,
-	hidden: hiddenField,
+	...transformSchema,
 } as const satisfies InteractivitySchema;
 
 const SolidInner: React.FC<
@@ -237,15 +231,7 @@ const SolidOuter = forwardRef<
 	HTMLCanvasElement,
 	SolidProps & {
 		readonly controls: SequenceControls | undefined;
-	} & Pick<
-			SequenceProps,
-			| 'durationInFrames'
-			| 'name'
-			| 'from'
-			| 'freeze'
-			| 'showInTimeline'
-			| 'hidden'
-		>
+	} & InteractiveBaseProps
 >(
 	(
 		{

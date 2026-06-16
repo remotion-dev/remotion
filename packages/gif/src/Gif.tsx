@@ -5,8 +5,9 @@ import {
 	useRemotionEnvironment,
 	useVideoConfig,
 	type EffectsProp,
+	type InteractiveBaseProps,
+	type InteractiveTransformProps,
 	type SequenceControls,
-	type SequenceProps,
 	type InteractivitySchema,
 } from 'remotion';
 import {GifForDevelopment} from './GifForDevelopment';
@@ -18,17 +19,11 @@ const {
 	useMemoizedEffectDefinitions,
 	useMemoizedEffects,
 	withInteractivitySchema,
-	durationInFramesField,
-	freezeField,
-	fromField,
 } = Internals;
 
-export type GifProps = Omit<
-	SequenceProps,
-	'children' | 'durationInFrames' | 'layout' | '_remotionInternalEffects'
-> &
+export type GifProps = InteractiveBaseProps &
+	InteractiveTransformProps &
 	RemotionGifProps & {
-		readonly durationInFrames?: number;
 		readonly effects?: EffectsProp;
 	};
 
@@ -37,9 +32,7 @@ export type GifProps = Omit<
  * @see [Documentation](https://remotion.dev/docs/gif)
  */
 const gifSchema = {
-	durationInFrames: durationInFramesField,
-	from: fromField,
-	freeze: freezeField,
+	...Internals.baseSchema,
 	playbackRate: {
 		type: 'number',
 		min: 0,
@@ -50,8 +43,7 @@ const gifSchema = {
 		hiddenFromList: false,
 		keyframable: false,
 	},
-	...Internals.sequenceVisualStyleSchema,
-	hidden: Internals.hiddenField,
+	...Internals.transformSchema,
 } as const satisfies InteractivitySchema;
 
 const GifInner = ({

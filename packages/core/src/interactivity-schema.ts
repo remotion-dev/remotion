@@ -172,7 +172,7 @@ export type InteractivitySchema = {[key: string]: InteractivitySchemaField};
 export type InteractivitySchemaKeysRecord<S extends InteractivitySchema> =
 	Record<keyof S, unknown>;
 
-export const sequenceVisualStyleSchema = {
+export const transformSchema = {
 	'style.transformOrigin': {
 		type: 'transform-origin',
 		step: 1,
@@ -209,7 +209,9 @@ export const sequenceVisualStyleSchema = {
 	},
 } as const satisfies InteractivitySchema;
 
-export const sequencePremountSchema = {
+export const sequenceVisualStyleSchema = transformSchema;
+
+export const premountSchema = {
 	premountFor: {
 		type: 'number',
 		default: 0,
@@ -233,9 +235,11 @@ export const sequencePremountSchema = {
 	},
 } as const satisfies InteractivitySchema;
 
+export const sequencePremountSchema = premountSchema;
+
 export const sequenceStyleSchema = {
-	...sequenceVisualStyleSchema,
-	...sequencePremountSchema,
+	...transformSchema,
+	...premountSchema,
 } as const satisfies InteractivitySchema;
 
 export const hiddenField: InteractivitySchemaField = {
@@ -283,12 +287,17 @@ export const freezeField = {
 	hiddenFromList: true,
 } as const satisfies InteractivitySchemaField;
 
-export const sequenceSchema = extendSchemaWithSequenceName({
-	hidden: hiddenField,
-	showInTimeline: showInTimelineField,
+export const baseSchema = {
+	durationInFrames: durationInFramesField,
 	from: fromField,
 	freeze: freezeField,
-	durationInFrames: durationInFramesField,
+	hidden: hiddenField,
+	name: sequenceNameField,
+	showInTimeline: showInTimelineField,
+} as const satisfies InteractivitySchema;
+
+export const sequenceSchema = {
+	...baseSchema,
 	layout: {
 		type: 'enum',
 		default: 'absolute-fill',
@@ -298,15 +307,20 @@ export const sequenceSchema = extendSchemaWithSequenceName({
 			none: {},
 		},
 	},
-} as const satisfies InteractivitySchema);
+} as const satisfies InteractivitySchema;
 
-export const sequenceSchemaWithoutFrom = extendSchemaWithSequenceName({
-	hidden: hiddenField,
-	showInTimeline: showInTimelineField,
-	freeze: freezeField,
+export const baseSchemaWithoutFrom = {
 	durationInFrames: durationInFramesField,
+	freeze: freezeField,
+	hidden: hiddenField,
+	name: sequenceNameField,
+	showInTimeline: showInTimelineField,
+} as const satisfies InteractivitySchema;
+
+export const sequenceSchemaWithoutFrom = {
+	...baseSchemaWithoutFrom,
 	layout: sequenceSchema.layout,
-} as const satisfies InteractivitySchema);
+} as const satisfies InteractivitySchema;
 
 export const sequenceSchemaDefaultLayoutNone: InteractivitySchema = {
 	...sequenceSchema,

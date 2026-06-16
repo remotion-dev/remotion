@@ -16,9 +16,7 @@ const {validateMediaTrimProps, resolveTrimProps, validateMediaProps} =
 	Internals;
 
 const videoSchema = {
-	durationInFrames: Internals.durationInFramesField,
-	from: Internals.fromField,
-	freeze: Internals.freezeField,
+	...Internals.baseSchema,
 	volume: {
 		type: 'number',
 		min: 0,
@@ -37,13 +35,8 @@ const videoSchema = {
 		hiddenFromList: false,
 		keyframable: false,
 	},
-	hidden: {
-		type: 'boolean',
-		default: false,
-		description: 'Hidden',
-	},
 	loop: {type: 'boolean', default: false, description: 'Loop'},
-	...Internals.sequenceVisualStyleSchema,
+	...Internals.transformSchema,
 } as const satisfies InteractivitySchema;
 
 const InnerVideo: React.FC<

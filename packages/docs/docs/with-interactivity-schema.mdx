@@ -1,11 +1,11 @@
 ---
 image: /generated/articles-docs-with-interactivity-schema.png
 id: with-interactivity-schema
-title: withInteractivitySchema()
+title: Interactive.withSchema()
 crumb: 'API'
 ---
 
-# withInteractivitySchema()<AvailableFrom v="4.0.479" />
+# Interactive.withSchema()<AvailableFrom v="4.0.479" />
 
 Wraps a React component so Remotion Studio can expose its props as timeline controls.
 
@@ -16,21 +16,22 @@ Use it when you build a component that should behave like [`<Sequence>`](/docs/s
 ```tsx twoslash title="Circle.tsx"
 import {forwardRef} from 'react';
 import {
+  Interactive,
   Sequence,
+  type InteractiveBaseProps,
+  type InteractiveTransformProps,
   type SequenceControls,
   type InteractivitySchema,
-  withInteractivitySchema,
 } from 'remotion';
 
-type CircleProps = {
+type CircleProps = InteractiveBaseProps &
+  InteractiveTransformProps & {
   readonly radius?: number;
   readonly color?: string;
-  readonly durationInFrames?: number;
-  readonly from?: number;
-  readonly name?: string;
 };
 
 const circleSchema = {
+  ...Interactive.baseSchema,
   radius: {
     type: 'number',
     min: 1,
@@ -44,6 +45,7 @@ const circleSchema = {
     default: '#0b84ff',
     description: 'Color',
   },
+  ...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
 const CircleInner = forwardRef<
@@ -56,24 +58,24 @@ const CircleInner = forwardRef<
     {
       radius = 80,
       color = '#0b84ff',
-      durationInFrames,
-      from,
       name,
+      style,
       controls,
+      ...sequenceProps
     },
     ref,
   ) => {
     return (
       <Sequence
         layout="none"
-        durationInFrames={durationInFrames}
-        from={from}
+        {...sequenceProps}
         name={name ?? '<Circle>'}
         controls={controls}
       >
         <div
           ref={ref}
           style={{
+            ...style,
             width: radius * 2,
             height: radius * 2,
             borderRadius: '50%',
@@ -85,7 +87,7 @@ const CircleInner = forwardRef<
   },
 );
 
-export const Circle = withInteractivitySchema({
+export const Circle = Interactive.withSchema({
   Component: CircleInner,
   componentIdentity: 'com.example.Circle',
   schema: circleSchema,
@@ -93,13 +95,15 @@ export const Circle = withInteractivitySchema({
 });
 ```
 
-The exported `Circle` component only accepts `CircleProps`. The `controls` prop is passed by `withInteractivitySchema()` to the inner component and should be forwarded to the [`<Sequence>`](/docs/sequence) that represents the component in the timeline.
+The exported `Circle` component only accepts `CircleProps`. The `controls` prop is passed by `Interactive.withSchema()` to the inner component and should be forwarded to the [`<Sequence>`](/docs/sequence) that represents the component in the timeline.
 
 ## API
 
 ```ts twoslash
-import {withInteractivitySchema} from 'remotion';
+import {Interactive} from 'remotion';
 ```
+
+Call `Interactive.withSchema()` with an options object.
 
 ### `Component`
 
@@ -109,13 +113,15 @@ It must accept its public props plus `controls`.
 
 ### `controls`
 
-The control state created by `withInteractivitySchema()`.
+The control state created by `Interactive.withSchema()`.
 
 Forward it to the `<Sequence>` that registers the component in the timeline.
 
 ### `schema`
 
 An [`InteractivitySchema`](/docs/interactivity-schema) that describes which props are editable in Remotion Studio.
+
+Use [`Interactive.baseSchema`](/docs/interactive#interactivebaseschema) for Sequence-like timeline props. Use [`Interactive.transformSchema`](/docs/interactive#interactivetransformschema) if the component accepts a `style` prop and should expose transform controls.
 
 ### `componentIdentity`
 
@@ -131,15 +137,20 @@ Set to `true` if this component supports an `effects` prop. Otherwise, set it to
 
 Returns a component with the public props of `Component`.
 
+## Alias
+
+`withInteractivitySchema()` is also exported from `remotion` as an alias for `Interactive.withSchema()`.
+
 ## Behavior
 
-During rendering, in the Player and in read-only Studio sessions, `withInteractivitySchema()` renders the component with the original props.
+During rendering, in the Player and in read-only Studio sessions, `Interactive.withSchema()` renders the component with the original props.
 
 In editable Studio sessions, it reads the current prop values, applies timeline overrides and passes the merged props to the inner component.
 
 ## See also
 
 - [`InteractivitySchema`](/docs/interactivity-schema)
+- [`Interactive`](/docs/interactive)
 - [`createEffect()`](/docs/create-effect)
 - [`<Sequence>`](/docs/sequence)
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/with-interactivity-schema.ts)

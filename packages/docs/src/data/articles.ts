@@ -8214,7 +8214,7 @@ export const articles = [
 	},
 	{
 		id: 'with-interactivity-schema',
-		title: 'withInteractivitySchema()',
+		title: 'Interactive.withSchema()',
 		relativePath: 'docs/with-interactivity-schema.mdx',
 		compId: 'articles-docs-with-interactivity-schema',
 		crumb: 'API',

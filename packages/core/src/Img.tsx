@@ -10,16 +10,13 @@ import type {SequenceControls} from './CompositionManager.js';
 import type {EffectsProp} from './effects/effect-types.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import {getCrossOriginValue} from './get-cross-origin-value.js';
+import type {InteractiveBaseProps} from './Interactive.js';
 import {
-	freezeField,
-	fromField,
-	hiddenField,
-	sequenceVisualStyleSchema,
-	durationInFramesField,
+	baseSchema,
+	transformSchema,
 	type InteractivitySchema,
 } from './interactivity-schema.js';
 import {usePreload} from './prefetch.js';
-import type {SequenceProps} from './Sequence.js';
 import {Sequence} from './Sequence.js';
 import {SequenceContext} from './SequenceContext.js';
 import {truncateSrcForLabel} from './truncate-src-for-label.js';
@@ -54,7 +51,7 @@ export type ImgProps = NativeImgProps & {
 	 * @deprecated For internal use only
 	 */
 	readonly stack?: string;
-} & Pick<SequenceProps, 'durationInFrames' | 'from' | 'freeze' | 'hidden'>;
+} & InteractiveBaseProps;
 
 type Expected = Omit<
 	NativeImgProps,
@@ -363,11 +360,8 @@ const CanvasImageWithPrivateProps = CanvasImage as React.ComponentType<
 >;
 
 export const imgSchema = {
-	durationInFrames: durationInFramesField,
-	from: fromField,
-	freeze: freezeField,
-	...sequenceVisualStyleSchema,
-	hidden: hiddenField,
+	...baseSchema,
+	...transformSchema,
 } as const satisfies InteractivitySchema;
 
 const imgCanvasFallbackIncompatibleProps = new Set([

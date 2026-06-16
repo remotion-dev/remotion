@@ -15,9 +15,7 @@ import type {AudioProps} from './props';
 const {validateMediaProps} = Internals;
 
 const audioSchema = {
-	durationInFrames: Internals.durationInFramesField,
-	from: Internals.fromField,
-	freeze: Internals.freezeField,
+	...Internals.baseSchema,
 	volume: {
 		type: 'number',
 		min: 0,
@@ -37,7 +35,6 @@ const audioSchema = {
 		keyframable: false,
 	},
 	loop: {type: 'boolean', default: false, description: 'Loop'},
-	hidden: Internals.hiddenField,
 } as const satisfies InteractivitySchema;
 
 const AudioInner: React.FC<

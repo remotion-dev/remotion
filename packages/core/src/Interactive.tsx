@@ -2,14 +2,13 @@ import React, {forwardRef, useCallback, useRef} from 'react';
 import type {SequenceControls} from './CompositionManager.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import {
-	durationInFramesField,
-	freezeField,
-	fromField,
-	hiddenField,
-	sequenceVisualStyleSchema,
+	baseSchema,
+	premountSchema,
+	sequenceSchema,
+	transformSchema,
 	type InteractivitySchema,
 } from './interactivity-schema.js';
-import type {SequenceProps} from './Sequence.js';
+import type {AbsoluteFillLayout, SequenceProps} from './Sequence.js';
 import {Sequence} from './Sequence.js';
 import {withInteractivitySchema} from './with-interactivity-schema.js';
 
@@ -61,10 +60,22 @@ type ElementForTag<Tag extends InteractiveTag> =
 			? SVGElementTagNameMap[Tag]
 			: Element;
 
-type InteractiveSequenceProps = Pick<
+export type InteractiveBaseProps = Pick<
 	SequenceProps,
 	'durationInFrames' | 'from' | 'freeze' | 'hidden' | 'name' | 'showInTimeline'
-> & {
+>;
+
+export type InteractiveTransformProps = Pick<AbsoluteFillLayout, 'style'>;
+
+export type InteractivePremountProps = Pick<
+	AbsoluteFillLayout,
+	| 'premountFor'
+	| 'postmountFor'
+	| 'styleWhilePremounted'
+	| 'styleWhilePostmounted'
+>;
+
+type InteractiveSequenceProps = InteractiveBaseProps & {
 	/**
 	 * @deprecated For internal use only
 	 */
@@ -83,11 +94,8 @@ type InteractiveElementComponent<Tag extends InteractiveTag> =
 	>;
 
 const interactiveElementSchema = {
-	durationInFrames: durationInFramesField,
-	from: fromField,
-	freeze: freezeField,
-	...sequenceVisualStyleSchema,
-	hidden: hiddenField,
+	...baseSchema,
+	...transformSchema,
 } as const satisfies InteractivitySchema;
 
 const setRef = <ElementType,>(
@@ -177,6 +185,11 @@ const makeInteractiveElement = <Tag extends InteractiveTag>(
  * @description HTML and SVG elements that are registered in the Remotion Studio timeline and can be visually edited.
  */
 export const Interactive = {
+	baseSchema,
+	transformSchema,
+	premountSchema,
+	sequenceSchema,
+	withSchema: withInteractivitySchema,
 	A: makeInteractiveElement('a', '<Interactive.A>'),
 	Article: makeInteractiveElement('article', '<Interactive.Article>'),
 	Aside: makeInteractiveElement('aside', '<Interactive.Aside>'),
