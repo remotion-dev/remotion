@@ -41,6 +41,7 @@ import {
 	getSelectedOutlineTransformOriginLockedAxis,
 	isSelectedOutlineDragPastThreshold,
 	parseCssRotationToRadians,
+	snapSelectedOutlineRotationDeltaDegrees,
 	snapSelectedOutlineTransformOriginUv,
 	uvsEqual,
 	type SelectedOutlineKeyframedDragChange,
@@ -422,6 +423,9 @@ const SelectedOutlineTransformOriginHandle: React.FC<{
 			cursor="crosshair"
 			onPointerDown={onPointerDown}
 			aria-hidden="true"
+			style={{
+				filter: 'drop-shadow(0 0 1px rgba(255, 255, 255, 0.2))',
+			}}
 		>
 			<circle
 				cx={position.x}
@@ -1129,13 +1133,15 @@ const SelectedOutlineRotationCornerHandle: React.FC<{
 			}
 
 			const interaction = getOutlineSelectionInteraction(event);
-			const shouldUpdateSelection =
-				!selected || interaction.shiftKey || interaction.toggleKey;
+			const shouldUpdateSelection = !selected || interaction.toggleKey;
 			if (shouldUpdateSelection && target !== undefined) {
-				onSelect(target.selection, interaction);
+				onSelect(target.selection, {
+					shiftKey: false,
+					toggleKey: interaction.toggleKey,
+				});
 			}
 
-			if (interaction.shiftKey || interaction.toggleKey) {
+			if (interaction.toggleKey) {
 				return;
 			}
 
@@ -1159,42 +1165,23 @@ const SelectedOutlineRotationCornerHandle: React.FC<{
 				y: event.clientY,
 			});
 			let accumulatedDelta = 0;
+			let rotationLocked = event.shiftKey;
 			let lastValues = new Map<string, string>();
 			let dragStarted = false;
 
-			const onPointerMove = (moveEvent: PointerEvent) => {
-				moveEvent.preventDefault();
-				const screenDeltaX = moveEvent.clientX - startPointer.x;
-				const screenDeltaY = moveEvent.clientY - startPointer.y;
-				if (!dragStarted) {
-					if (
-						!isSelectedOutlineDragPastThreshold({
-							deltaX: screenDeltaX,
-							deltaY: screenDeltaY,
+			const updateRotationDragOverrides = () => {
+				const rotationDeltaDegrees = rotationLocked
+					? snapSelectedOutlineRotationDeltaDegrees({
+							dragStates,
+							rotationDeltaDegrees: accumulatedDelta,
 						})
-					) {
-						return;
-					}
-
-					dragStarted = true;
-					onDraggingChange(true);
-				}
-
-				const nextAngle = getAngleDegrees(center, {
-					x: moveEvent.clientX,
-					y: moveEvent.clientY,
-				});
-				accumulatedDelta += getSelectedOutlineRotationDeltaDegrees({
-					from: previousAngle,
-					to: nextAngle,
-				});
-				previousAngle = nextAngle;
+					: accumulatedDelta;
 				lastValues = getSelectedOutlineRotationDragValues({
 					dragStates,
-					rotationDeltaDegrees: accumulatedDelta,
+					rotationDeltaDegrees,
 				});
 				forceSpecificCursor(
-					getRotationCursor(cornerInfo.cursorDegrees + accumulatedDelta),
+					getRotationCursor(cornerInfo.cursorDegrees + rotationDeltaDegrees),
 				);
 
 				for (const dragState of dragStates) {
@@ -1223,10 +1210,59 @@ const SelectedOutlineRotationCornerHandle: React.FC<{
 				}
 			};
 
+			const onPointerMove = (moveEvent: PointerEvent) => {
+				moveEvent.preventDefault();
+				const screenDeltaX = moveEvent.clientX - startPointer.x;
+				const screenDeltaY = moveEvent.clientY - startPointer.y;
+				if (!dragStarted) {
+					if (
+						!isSelectedOutlineDragPastThreshold({
+							deltaX: screenDeltaX,
+							deltaY: screenDeltaY,
+						})
+					) {
+						return;
+					}
+
+					dragStarted = true;
+					onDraggingChange(true);
+				}
+
+				const nextAngle = getAngleDegrees(center, {
+					x: moveEvent.clientX,
+					y: moveEvent.clientY,
+				});
+				accumulatedDelta += getSelectedOutlineRotationDeltaDegrees({
+					from: previousAngle,
+					to: nextAngle,
+				});
+				previousAngle = nextAngle;
+				rotationLocked = moveEvent.shiftKey;
+				updateRotationDragOverrides();
+			};
+
+			const onKeyChange = (keyEvent: KeyboardEvent) => {
+				if (keyEvent.key !== 'Shift') {
+					return;
+				}
+
+				const nextRotationLocked = keyEvent.type === 'keydown';
+				if (nextRotationLocked === rotationLocked) {
+					return;
+				}
+
+				rotationLocked = nextRotationLocked;
+				if (dragStarted) {
+					updateRotationDragOverrides();
+				}
+			};
+
 			const onPointerUp = () => {
 				window.removeEventListener('pointermove', onPointerMove);
 				window.removeEventListener('pointerup', onPointerUp);
 				window.removeEventListener('pointercancel', onPointerUp);
+				window.removeEventListener('keydown', onKeyChange);
+				window.removeEventListener('keyup', onKeyChange);
 				if (dragStarted) {
 					stopForcingSpecificCursor();
 					onDraggingChange(false);
@@ -1302,6 +1338,8 @@ const SelectedOutlineRotationCornerHandle: React.FC<{
 			window.addEventListener('pointermove', onPointerMove);
 			window.addEventListener('pointerup', onPointerUp);
 			window.addEventListener('pointercancel', onPointerUp);
+			window.addEventListener('keydown', onKeyChange);
+			window.addEventListener('keyup', onKeyChange);
 		},
 		[
 			allRotationDragTargets,

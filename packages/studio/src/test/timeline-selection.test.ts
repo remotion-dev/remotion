@@ -40,6 +40,7 @@ import {
 	getSequencesWithSelectableOutlines,
 	getTransformedSvgViewportPoints,
 	isSelectedOutlineDragPastThreshold,
+	snapSelectedOutlineRotationDeltaDegrees,
 	snapSelectedOutlineUv,
 	snapSelectedOutlineTransformOriginUv,
 	selectedOutlineDragThresholdPx,
@@ -60,6 +61,7 @@ import {
 } from '../components/Timeline/duplicate-selected-timeline-item';
 import {getTimelinePropResetTargets} from '../components/Timeline/reset-selected-timeline-props';
 import {
+	getEasingClipboardDataFromSelection,
 	getEffectPropClipboardDataFromSelection,
 	getPasteEffectPropTarget,
 	getPasteEffectsTarget,
@@ -630,6 +632,129 @@ test('copying a selected effect prop creates an effect prop payload', () => {
 			easing: [{type: 'linear'}],
 			clamping: {left: 'clamp', right: 'clamp'},
 		},
+	});
+});
+
+test('copying a selected sequence easing creates an easing payload', () => {
+	const opacityNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['controls', 'opacity'],
+	);
+	const nodePath = opacityNodePathInfo.sequenceSubscriptionKey;
+	const easing = {
+		type: 'bezier',
+		x1: 0.42,
+		y1: 0,
+		x2: 0.58,
+		y2: 1,
+	} as const;
+	const schema = {
+		opacity: {type: 'number', default: 1, hiddenFromList: false},
+	} satisfies SequenceSchema;
+	const propStatuses = {
+		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			canUpdate: true,
+			props: {
+				opacity: {
+					status: 'keyframed',
+					interpolationFunction: 'interpolate',
+					keyframes: [
+						{frame: 0, value: 0},
+						{frame: 100, value: 1},
+					],
+					easing: [easing],
+					clamping: {left: 'clamp', right: 'clamp'},
+					posterize: undefined,
+				},
+			},
+			effects: [],
+		},
+	} satisfies PropStatuses;
+
+	expect(
+		getEasingClipboardDataFromSelection({
+			selection: {
+				type: 'easing',
+				nodePathInfo: opacityNodePathInfo,
+				fromFrame: 0,
+				toFrame: 100,
+				segmentIndex: 0,
+			},
+			sequences: [makeTimelineSequence({schema})],
+			overrideIdsToNodePaths: {override: nodePath},
+			propStatuses,
+		}),
+	).toEqual({
+		type: 'easing',
+		version: 1,
+		remotionClipboard: 'easing',
+		easing,
+	});
+});
+
+test('copying a selected effect easing creates an easing payload', () => {
+	const effectPropNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['effects', '0', 'intensity'],
+		true,
+		[['0', 'intensity']],
+	);
+	const nodePath = effectPropNodePathInfo.sequenceSubscriptionKey;
+	const schema = {} satisfies SequenceSchema;
+	const effectSchema = {
+		intensity: {type: 'number', default: 0, hiddenFromList: false},
+	} satisfies SequenceSchema;
+	const propStatuses = {
+		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			canUpdate: true,
+			props: {},
+			effects: [
+				{
+					canUpdate: true,
+					callee: 'halftone',
+					importPath: '@remotion/effects/halftone',
+					effectIndex: 0,
+					props: {
+						intensity: {
+							status: 'keyframed',
+							interpolationFunction: 'interpolateColors',
+							keyframes: [
+								{frame: 0, value: 10},
+								{frame: 100, value: 20},
+							],
+							easing: [{type: 'linear'}],
+							clamping: {left: 'clamp', right: 'clamp'},
+							posterize: undefined,
+						},
+					},
+				},
+			],
+		},
+	} satisfies PropStatuses;
+
+	expect(
+		getEasingClipboardDataFromSelection({
+			selection: {
+				type: 'easing',
+				nodePathInfo: effectPropNodePathInfo,
+				fromFrame: 0,
+				toFrame: 100,
+				segmentIndex: 0,
+			},
+			sequences: [
+				makeTimelineSequence({
+					schema,
+					effects: [{schema: effectSchema}],
+				}),
+			],
+			overrideIdsToNodePaths: {override: nodePath},
+			propStatuses,
+		}),
+	).toEqual({
+		type: 'easing',
+		version: 1,
+		remotionClipboard: 'easing',
+		easing: {type: 'linear'},
 	});
 });
 
@@ -2843,6 +2968,98 @@ test('Selected outline corner dragging rounds rotation values', () => {
 	});
 
 	expect(lastValues.get(dragStates[0].key)).toBe('32.5deg');
+});
+
+test('Selected outline corner dragging snaps rotation to 15 degree increments', () => {
+	const schema = {
+		'style.rotate': {type: 'rotation-css', default: '0deg'},
+	} satisfies SequenceSchema;
+	const nodePath = makeKey(['body', 0]);
+	const dragStates = [
+		{
+			defaultValue: JSON.stringify('0deg'),
+			key: Internals.makeSequencePropsSubscriptionKey(nodePath),
+			sourceFrame: 12,
+			startDegrees: 32,
+			target: {
+				clientId: 'client',
+				propStatus: {status: 'static', codeValue: '32deg'},
+				fieldDefault: '0deg',
+				fieldSchema: schema['style.rotate'],
+				keyframeDisplayOffset: 30,
+				nodePath,
+				schema,
+				transformOriginValue: '50% 50%',
+			},
+		},
+	] satisfies SelectedOutlineRotationDragState[];
+
+	const rotationDeltaDegrees = snapSelectedOutlineRotationDeltaDegrees({
+		dragStates,
+		rotationDeltaDegrees: 8,
+	});
+	const lastValues = getSelectedOutlineRotationDragValues({
+		dragStates,
+		rotationDeltaDegrees,
+	});
+
+	expect(rotationDeltaDegrees).toBe(13);
+	expect(lastValues.get(dragStates[0].key)).toBe('45deg');
+});
+
+test('Selected outline corner dragging snaps selected rotations from the first drag state', () => {
+	const schema = {
+		'style.rotate': {type: 'rotation-css', default: '0deg'},
+	} satisfies SequenceSchema;
+	const firstNodePath = makeKey(['body', 0]);
+	const secondNodePath = makeKey(['body', 1]);
+	const dragStates = [
+		{
+			defaultValue: JSON.stringify('0deg'),
+			key: Internals.makeSequencePropsSubscriptionKey(firstNodePath),
+			sourceFrame: 12,
+			startDegrees: 32,
+			target: {
+				clientId: 'client',
+				propStatus: {status: 'static', codeValue: '32deg'},
+				fieldDefault: '0deg',
+				fieldSchema: schema['style.rotate'],
+				keyframeDisplayOffset: 30,
+				nodePath: firstNodePath,
+				schema,
+				transformOriginValue: '50% 50%',
+			},
+		},
+		{
+			defaultValue: JSON.stringify('0deg'),
+			key: Internals.makeSequencePropsSubscriptionKey(secondNodePath),
+			sourceFrame: 12,
+			startDegrees: -10,
+			target: {
+				clientId: 'client',
+				propStatus: {status: 'static', codeValue: '-10deg'},
+				fieldDefault: '0deg',
+				fieldSchema: schema['style.rotate'],
+				keyframeDisplayOffset: 30,
+				nodePath: secondNodePath,
+				schema,
+				transformOriginValue: '50% 50%',
+			},
+		},
+	] satisfies SelectedOutlineRotationDragState[];
+
+	const rotationDeltaDegrees = snapSelectedOutlineRotationDeltaDegrees({
+		dragStates,
+		rotationDeltaDegrees: 8,
+	});
+	const lastValues = getSelectedOutlineRotationDragValues({
+		dragStates,
+		rotationDeltaDegrees,
+	});
+
+	expect(rotationDeltaDegrees).toBe(13);
+	expect(lastValues.get(dragStates[0].key)).toBe('45deg');
+	expect(lastValues.get(dragStates[1].key)).toBe('3deg');
 });
 
 test('Selected outline corner dragging keyframed rotation adds a keyframe at the source frame', () => {

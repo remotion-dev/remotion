@@ -252,6 +252,13 @@ const categories: {
 				description: 'Pixelated dissolve effect',
 			},
 			{
+				link:'/docs/effects/pixelate',
+				preview: '/img/effects-pixelate-preview.png',
+				alt: 'pixelate effect preview',
+				name: 'pixelate()',
+				description: 'Pixelation effect',
+			},
+			{
 				link: '/docs/effects/scanlines',
 				preview: '/img/effects-scanlines-preview.png',
 				alt: 'scanlines effect preview',
@@ -271,6 +278,13 @@ const categories: {
 				alt: 'shine effect preview',
 				name: 'shine()',
 				description: 'Glossy light sweep effect',
+			},
+			{
+				link: '/docs/effects/shrinkwrap',
+				preview: '/img/effects-shrinkwrap-preview.png',
+				alt: 'shrinkwrap effect preview',
+				name: 'shrinkwrap()',
+				description: 'Procedural plastic wrap effect',
 			},
 			{
 				link: '/docs/effects/vignette',

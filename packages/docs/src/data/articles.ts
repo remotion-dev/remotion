@@ -1971,6 +1971,15 @@ export const articles = [
 		slug: 'effects/pixel-dissolve',
 	},
 	{
+		id: 'effects/pixelate',
+		title: 'pixelate()',
+		relativePath: 'docs/effects/pixelate.mdx',
+		compId: 'articles-docs-effects-pixelate',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/pixelate',
+	},
+	{
 		id: 'effects/rings',
 		title: 'rings()',
 		relativePath: 'docs/effects/rings.mdx',
@@ -2014,6 +2023,15 @@ export const articles = [
 		crumb: '@remotion/effects',
 		noAi: false,
 		slug: 'effects/shine',
+	},
+	{
+		id: 'effects/shrinkwrap',
+		title: 'shrinkwrap()',
+		relativePath: 'docs/effects/shrinkwrap.mdx',
+		compId: 'articles-docs-effects-shrinkwrap',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/shrinkwrap',
 	},
 	{
 		id: 'effects/speckle',
@@ -6061,6 +6079,15 @@ export const articles = [
 		slug: 'shapes/arrow',
 	},
 	{
+		id: 'shapes/callout',
+		title: '<Callout />',
+		relativePath: 'docs/shapes/callout.mdx',
+		compId: 'articles-docs-shapes-callout',
+		crumb: '@remotion/shapes',
+		noAi: false,
+		slug: 'shapes/callout',
+	},
+	{
 		id: 'shapes/circle',
 		title: '<Circle />',
 		relativePath: 'docs/shapes/circle.mdx',
@@ -6104,6 +6131,15 @@ export const articles = [
 		crumb: '@remotion/shapes',
 		noAi: false,
 		slug: 'shapes/make-arrow',
+	},
+	{
+		id: 'shapes/make-callout',
+		title: 'makeCallout()',
+		relativePath: 'docs/shapes/make-callout.mdx',
+		compId: 'articles-docs-shapes-make-callout',
+		crumb: '@remotion/shapes',
+		noAi: false,
+		slug: 'shapes/make-callout',
 	},
 	{
 		id: 'shapes/make-circle',

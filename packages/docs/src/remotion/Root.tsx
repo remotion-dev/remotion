@@ -33,11 +33,16 @@ import {
 import {EffectsNoisePreview} from '../../components/effects/effects-noise-preview';
 import {EffectsPatternPreview} from '../../components/effects/effects-pattern-preview';
 import {EffectsPixelDissolvePreview} from '../../components/effects/effects-pixel-dissolve-preview';
+import {EffectsPixelatePreview} from '../../components/effects/effects-pixelate-preview';
 import {EffectsRingsPreview} from '../../components/effects/effects-rings-preview';
 import {EffectsSaturationPreview} from '../../components/effects/effects-saturation-preview';
 import {EffectsScalePreview} from '../../components/effects/effects-scale-preview';
 import {EffectsScanlinesPreview} from '../../components/effects/effects-scanlines-preview';
 import {EffectsShinePreview} from '../../components/effects/effects-shine-preview';
+import {
+	EffectsShrinkwrapPreview,
+	SHRINKWRAP_PREVIEW_PARAMS,
+} from '../../components/effects/effects-shrinkwrap-preview';
 import {EffectsSpecklePreview} from '../../components/effects/effects-speckle-preview';
 import {EffectsStarburstPreview} from '../../components/effects/effects-starburst-preview';
 import {EffectsTintPreview} from '../../components/effects/effects-tint-preview';
@@ -348,6 +353,15 @@ export const RemotionRoot: React.FC = () => {
 					}}
 				/>
 				<Still
+					id="effects-pixelate-preview"
+					component={EffectsPixelatePreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						blockSize: 10,
+					}}
+				/>
+				<Still
 					id="effects-pixel-dissolve-preview"
 					component={EffectsPixelDissolvePreview}
 					width={1280}
@@ -557,6 +571,13 @@ export const RemotionRoot: React.FC = () => {
 						haloIntensity: 0.3,
 						coreIntensity: 0.4,
 					}}
+				/>
+				<Still
+					id="effects-shrinkwrap-preview"
+					component={EffectsShrinkwrapPreview}
+					width={1280}
+					height={720}
+					defaultProps={SHRINKWRAP_PREVIEW_PARAMS}
 				/>
 				<Still
 					id="effects-speckle-preview"

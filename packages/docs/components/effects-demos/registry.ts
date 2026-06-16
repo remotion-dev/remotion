@@ -14,6 +14,7 @@ import {fisheye} from '@remotion/effects/fisheye';
 import {glow} from '@remotion/effects/glow';
 import {grayscale} from '@remotion/effects/grayscale';
 import {halftone} from '@remotion/effects/halftone';
+import {pixelate} from '@remotion/effects/pixelate';
 import {halftoneLinearGradient} from '@remotion/effects/halftone-linear-gradient';
 import {hue} from '@remotion/effects/hue';
 import {invert} from '@remotion/effects/invert';
@@ -29,6 +30,7 @@ import {saturation} from '@remotion/effects/saturation';
 import {scale} from '@remotion/effects/scale';
 import {scanlines} from '@remotion/effects/scanlines';
 import {shine} from '@remotion/effects/shine';
+import {shrinkwrap} from '@remotion/effects/shrinkwrap';
 import {speckle} from '@remotion/effects/speckle';
 import {tint} from '@remotion/effects/tint';
 import {uvTranslate, xyTranslate} from '@remotion/effects/translate';
@@ -57,6 +59,7 @@ import {EffectsGlowPreview} from '../effects/effects-glow-preview';
 import {EffectsGrayscalePreview} from '../effects/effects-grayscale-preview';
 import {EffectsHalftoneLinearGradientPreview} from '../effects/effects-halftone-linear-gradient-preview';
 import {EffectsHalftonePreview} from '../effects/effects-halftone-preview';
+import {EffectsPixelatePreview} from '../effects/effects-pixelate-preview';
 import {EffectsHuePreview} from '../effects/effects-hue-preview';
 import {EffectsInvertPreview} from '../effects/effects-invert-preview';
 import {EffectsLightLeakPreview} from '../effects/effects-light-leak-preview';
@@ -75,6 +78,10 @@ import {EffectsSaturationPreview} from '../effects/effects-saturation-preview';
 import {EffectsScalePreview} from '../effects/effects-scale-preview';
 import {EffectsScanlinesPreview} from '../effects/effects-scanlines-preview';
 import {EffectsShinePreview} from '../effects/effects-shine-preview';
+import {
+	EffectsShrinkwrapPreview,
+	SHRINKWRAP_PREVIEW_PARAMS,
+} from '../effects/effects-shrinkwrap-preview';
 import {EffectsSpecklePreview} from '../effects/effects-speckle-preview';
 import {EffectsStarburstPreview} from '../effects/effects-starburst-preview';
 import {EffectsTintPreview} from '../effects/effects-tint-preview';
@@ -98,6 +105,15 @@ const defaults = {
 	autoPlay: false,
 	controls: false,
 	logLevel: 'info',
+} as const;
+
+const shrinkwrapDemoSchema = {
+	...shrinkwrap().definition.schema,
+	phase: {
+		...shrinkwrap().definition.schema.phase,
+		min: -10,
+		max: 10,
+	},
 } as const;
 
 export const effectsDemos: EffectsDemoType[] = [
@@ -220,6 +236,15 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/shine',
 		comp: EffectsShinePreview,
 		schema: shine().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-shrinkwrap',
+		effectName: 'shrinkwrap',
+		effectImportPath: '@remotion/effects/shrinkwrap',
+		comp: EffectsShrinkwrapPreview,
+		schema: shrinkwrapDemoSchema,
+		initialValues: SHRINKWRAP_PREVIEW_PARAMS,
 	},
 	{
 		...defaults,
@@ -409,6 +434,14 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/halftone',
 		comp: EffectsHalftonePreview,
 		schema: halftone().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-pixelate',
+		effectName: 'pixelate',
+		effectImportPath: '@remotion/effects/pixelate',
+		comp: EffectsPixelatePreview,
+		schema: pixelate().definition.schema,
 	},
 	{
 		...defaults,

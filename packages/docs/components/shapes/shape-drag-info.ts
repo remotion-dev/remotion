@@ -91,7 +91,7 @@ const withFill = (
 
 	return {
 		...shapeInfo,
-		fill: typeof fill === 'string' ? fill : '#0b84ff',
+		fill: typeof fill === 'string' ? fill : '#000000',
 	};
 };
 

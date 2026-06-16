@@ -16,8 +16,8 @@ import type {
 import {
 	isUrl,
 	type ComponentProp,
-	type InsertableCompositionElementPosition,
 	type InsertableCompositionElement,
+	type InsertableCompositionElementPosition,
 } from '@remotion/studio-shared';
 import type {namedTypes} from 'ast-types';
 import * as recast from 'recast';
@@ -760,8 +760,16 @@ const createBooleanAttribute = (
 	);
 };
 
+const translateDecimalPlaces = 1;
+
+const roundTranslateCoordinate = (value: number): number => {
+	const factor = 10 ** translateDecimalPlaces;
+	const rounded = Math.round(value * factor) / factor;
+	return Object.is(rounded, -0) ? 0 : rounded;
+};
+
 const formatTranslateValue = ({x, y}: InsertableCompositionElementPosition) =>
-	`${x}px ${y}px`;
+	`${roundTranslateCoordinate(x)}px ${roundTranslateCoordinate(y)}px`;
 
 const createPositionAbsoluteStyleAttribute = (
 	position: InsertableCompositionElementPosition | null,

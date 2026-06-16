@@ -24,7 +24,9 @@ const LINE_HEIGHT = 54;
 const POSTERIZE_FRAMES = 3;
 
 export const PromptSchema = z.object({
-	prompt: z.string().describe('The prompt text to display with typing animation'),
+	prompt: z
+		.string()
+		.describe('The prompt text to display with typing animation'),
 	thinkingIndex: z
 		.number()
 		.describe('Index for the thinking animation variant'),

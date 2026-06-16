@@ -28,11 +28,13 @@ import {
 import {noise} from '../noise.js';
 import {pattern} from '../pattern.js';
 import {pixelDissolve} from '../pixel-dissolve.js';
+import {pixelate} from '../pixelate.js';
 import {rings} from '../rings.js';
 import {saturation} from '../saturation.js';
 import {scale} from '../scale.js';
 import {scanlines} from '../scanlines.js';
 import {shine} from '../shine.js';
+import {shrinkwrap} from '../shrinkwrap.js';
 import {speckle} from '../speckle.js';
 import {tint} from '../tint.js';
 import {uvTranslate, xyTranslate} from '../translate.js';
@@ -160,6 +162,9 @@ test('@remotion/effects expose documentation links', () => {
 	expect(shine().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/shine',
 	);
+	expect(shrinkwrap().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/shrinkwrap',
+	);
 	expect(speckle().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/speckle',
 	);
@@ -230,6 +235,7 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(scanlines().definition.label).toBe('scanlines()');
 	expect(scale({scale: 1}).definition.label).toBe('scale()');
 	expect(shine().definition.label).toBe('shine()');
+	expect(shrinkwrap().definition.label).toBe('shrinkwrap()');
 	expect(speckle().definition.label).toBe('speckle()');
 	expect(tint({color: '#fff'}).definition.label).toBe('tint()');
 	expect(tvSignalOff().definition.label).toBe('tvSignalOff()');
@@ -2357,6 +2363,92 @@ test('shine() parameters produce distinct effect keys', () => {
 	).toBe(6);
 });
 
+test('shrinkwrap() accepts default params', () => {
+	expect(() => shrinkwrap()).not.toThrow();
+});
+
+test('shrinkwrap() accepts valid params', () => {
+	expect(() =>
+		shrinkwrap({
+			amount: 0.75,
+			displacement: 9,
+			highlightIntensity: 1.2,
+			wrinkleDensity: 0.8,
+			edgeTension: 0.3,
+			phase: 1.25,
+			seed: 4,
+		}),
+	).not.toThrow();
+});
+
+test('shrinkwrap() rejects amount below range', () => {
+	expect(() => shrinkwrap({amount: -0.1})).toThrow('"amount" must be >= 0');
+});
+
+test('shrinkwrap() rejects amount above range', () => {
+	expect(() => shrinkwrap({amount: 1.1})).toThrow('"amount" must be <= 1');
+});
+
+test('shrinkwrap() rejects negative displacement', () => {
+	expect(() => shrinkwrap({displacement: -0.1})).toThrow(
+		'"displacement" must be >= 0',
+	);
+});
+
+test('shrinkwrap() rejects negative highlightIntensity', () => {
+	expect(() => shrinkwrap({highlightIntensity: -0.1})).toThrow(
+		'"highlightIntensity" must be >= 0',
+	);
+});
+
+test('shrinkwrap() rejects wrinkleDensity above range', () => {
+	expect(() => shrinkwrap({wrinkleDensity: 1.1})).toThrow(
+		'"wrinkleDensity" must be <= 1',
+	);
+});
+
+test('shrinkwrap() rejects edgeTension below range', () => {
+	expect(() => shrinkwrap({edgeTension: -0.1})).toThrow(
+		'"edgeTension" must be >= 0',
+	);
+});
+
+test('shrinkwrap() rejects non-finite phase', () => {
+	expect(() => shrinkwrap({phase: Number.NaN})).toThrow(
+		'"phase" must be a finite number',
+	);
+});
+
+test('shrinkwrap() rejects non-finite seed', () => {
+	expect(() => shrinkwrap({seed: Number.NaN})).toThrow(
+		'"seed" must be a finite number',
+	);
+});
+
+test('shrinkwrap() parameters produce distinct effect keys', () => {
+	const defaults = shrinkwrap();
+	const subtle = shrinkwrap({amount: 0.5});
+	const displaced = shrinkwrap({displacement: 12});
+	const brighter = shrinkwrap({highlightIntensity: 1.1});
+	const denser = shrinkwrap({wrinkleDensity: 0.8});
+	const edged = shrinkwrap({edgeTension: 0.9});
+	const phased = shrinkwrap({phase: 2});
+	const seeded = shrinkwrap({seed: 4});
+
+	expect(
+		new Set([
+			defaults.effectKey,
+			subtle.effectKey,
+			displaced.effectKey,
+			brighter.effectKey,
+			denser.effectKey,
+			edged.effectKey,
+			phased.effectKey,
+			seeded.effectKey,
+		]).size,
+	).toBe(8);
+});
+
 test('speckle() accepts default params', () => {
 	expect(() => speckle()).not.toThrow();
 });
@@ -2465,6 +2557,26 @@ test('pixelDissolve() parameters produce distinct effect keys', () => {
 			sharper.effectKey,
 		]).size,
 	).toBe(6);
+});
+
+test('pixelate() accepts default params', () => {
+	expect(() => pixelate()).not.toThrow();
+});
+
+test('pixelate() rejects non-finite blockSize', () => {
+	expect(() => pixelate({blockSize: Number.NaN})).toThrow(
+		'"blockSize" must be a finite number',
+	);
+});
+
+test('pixelate() rejects blockSize below range', () => {
+	expect(() => pixelate({blockSize: 0})).toThrow('"blockSize" must be >= 1');
+});
+
+test('pixelate() blockSize produces distinct effect keys', () => {
+	const subtle = pixelate({blockSize: 4});
+	const strong = pixelate({blockSize: 40});
+	expect(subtle.effectKey).not.toBe(strong.effectKey);
 });
 
 test('xyTranslate() accepts default params', () => {

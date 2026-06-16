@@ -1,7 +1,9 @@
 import {
 	isKeyframeInterpolationFunction,
+	parseEasingClipboardDataResult,
 	parseEffectClipboardDataResult,
 	parseEffectPropClipboardDataResult,
+	type EasingClipboardData,
 	type EffectClipboardData,
 	type EffectClipboardInterpolationFunction,
 	type EffectClipboardParam,
@@ -32,9 +34,15 @@ import {
 	useTimelineSelection,
 	type TimelineSelection,
 } from './TimelineSelection';
+import {
+	getEasingSelections,
+	getTimelineEasingValueForSelection,
+	updateSelectedTimelineEasings,
+	type EasingSelection,
+} from './update-selected-easing';
 
 const makeClipboardText = (
-	payload: EffectClipboardData | EffectPropClipboardData,
+	payload: EffectClipboardData | EffectPropClipboardData | EasingClipboardData,
 ) => JSON.stringify(payload);
 
 const makeTargetKey = (nodePath: SequencePropsSubscriptionKey): string => {
@@ -336,6 +344,35 @@ export const getEffectPropClipboardDataFromSelection = ({
 	};
 };
 
+export const getEasingClipboardDataFromSelection = ({
+	selection,
+	sequences,
+	overrideIdsToNodePaths,
+	propStatuses,
+}: {
+	selection: EasingSelection;
+	sequences: TSequence[];
+	overrideIdsToNodePaths: OverrideIdToNodePaths;
+	propStatuses: PropStatuses;
+}): EasingClipboardData | null => {
+	const easing = getTimelineEasingValueForSelection({
+		selection,
+		sequences,
+		overrideIdsToNodePaths,
+		propStatuses,
+	});
+	if (easing === null) {
+		return null;
+	}
+
+	return {
+		type: 'easing',
+		version: 1,
+		remotionClipboard: 'easing',
+		easing,
+	};
+};
+
 export const getPasteEffectPropTarget = ({
 	selectedItems,
 	payload,
@@ -471,7 +508,47 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 			callback: (e) => {
 				const {selectedItems} = currentSelection.current;
 				const propStatuses = propStatusesRef.current;
+				const sequences = sequencesRef.current;
 				if (selectedItems.length === 0) {
+					return;
+				}
+
+				const easingSelections = getEasingSelections(selectedItems);
+				if (easingSelections.length > 0) {
+					e.preventDefault();
+					if (
+						easingSelections.length !== 1 ||
+						easingSelections.length !== selectedItems.length
+					) {
+						showNotification('Select one easing to copy', 3000);
+						return;
+					}
+
+					const payload = getEasingClipboardDataFromSelection({
+						selection: easingSelections[0],
+						sequences,
+						overrideIdsToNodePaths: overrideIdToNodePathMappings,
+						propStatuses,
+					});
+					if (payload === null) {
+						showNotification(
+							'Cannot copy easing because it cannot be read',
+							3000,
+						);
+						return;
+					}
+
+					navigator.clipboard
+						.writeText(makeClipboardText(payload))
+						.then(() => {
+							showNotification('Copied easing to clipboard', 1000);
+						})
+						.catch((err) => {
+							showNotification(
+								`Could not copy easing: ${(err as Error).message}`,
+								2000,
+							);
+						});
 					return;
 				}
 
@@ -594,6 +671,61 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 					.then((text) => {
 						const propStatuses = propStatusesRef.current;
 						const sequences = sequencesRef.current;
+						const easingResult = parseEasingClipboardDataResult(text);
+						if (easingResult.status !== 'invalid') {
+							e.preventDefault();
+							if (easingResult.status === 'unsupported-version') {
+								showNotification(
+									'Cannot paste easing copied from a different Remotion Studio version',
+									4000,
+								);
+								return;
+							}
+
+							const easingSelections = getEasingSelections(selectedItems);
+							if (
+								easingSelections.length === 0 ||
+								easingSelections.length !== selectedItems.length
+							) {
+								showNotification('Select an easing to paste onto', 3000);
+								return;
+							}
+
+							const updatePromise = updateSelectedTimelineEasings({
+								selections: easingSelections,
+								sequences,
+								overrideIdsToNodePaths: overrideIdToNodePathMappings,
+								propStatuses,
+								setPropStatuses,
+								clientId,
+								easing: easingResult.data.easing,
+							});
+
+							if (updatePromise === null) {
+								showNotification(
+									'Cannot paste onto an easing that cannot be updated',
+									3000,
+								);
+								return;
+							}
+
+							return updatePromise
+								.then(() => {
+									showNotification(
+										easingSelections.length === 1
+											? 'Pasted easing'
+											: 'Pasted easing to selected segments',
+										2000,
+									);
+								})
+								.catch((err) => {
+									showNotification(
+										`Could not paste easing: ${(err as Error).message}`,
+										3000,
+									);
+								});
+						}
+
 						const effectPropResult = parseEffectPropClipboardDataResult(text);
 						if (effectPropResult.status !== 'invalid') {
 							e.preventDefault();

@@ -123,6 +123,7 @@ export {DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS} from './default-buffer-state
 export {
 	KEYFRAME_EASING_PRESETS,
 	LINEAR_KEYFRAME_EASING,
+	type KeyframeEasing,
 	type KeyframeEasingPreset,
 } from './keyframe-easing-presets';
 export {
@@ -132,6 +133,12 @@ export {
 	type FileType,
 	type ImageFileType,
 } from './detect-file-type';
+export {
+	parseEasingClipboardData,
+	parseEasingClipboardDataResult,
+	type EasingClipboardData,
+	type EasingClipboardDataParseResult,
+} from './easing-clipboard-data';
 export {
 	parseEffectClipboardData,
 	parseEffectClipboardDataResult,

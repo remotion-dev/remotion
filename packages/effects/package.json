@@ -114,6 +114,11 @@
 			"module": "./dist/esm/pixel-dissolve.mjs",
 			"import": "./dist/esm/pixel-dissolve.mjs"
 		},
+		"./pixelate": {
+			"types": "./dist/pixelate.d.ts",
+			"module": "./dist/esm/pixelate.mjs",
+			"import": "./dist/esm/pixelate.mjs"
+		},
 		"./grayscale": {
 			"types": "./dist/grayscale.d.ts",
 			"module": "./dist/esm/grayscale.mjs",
@@ -188,6 +193,11 @@
 			"types": "./dist/shine.d.ts",
 			"module": "./dist/esm/shine.mjs",
 			"import": "./dist/esm/shine.mjs"
+		},
+		"./shrinkwrap": {
+			"types": "./dist/shrinkwrap.d.ts",
+			"module": "./dist/esm/shrinkwrap.mjs",
+			"import": "./dist/esm/shrinkwrap.mjs"
 		},
 		"./speckle": {
 			"types": "./dist/speckle.d.ts",
@@ -286,6 +296,9 @@
 			"pixel-dissolve": [
 				"dist/pixel-dissolve.d.ts"
 			],
+			"pixelate": [
+				"dist/pixelate.d.ts"
+			],
 			"grayscale": [
 				"dist/grayscale.d.ts"
 			],
@@ -330,6 +343,9 @@
 			],
 			"shine": [
 				"dist/shine.d.ts"
+			],
+			"shrinkwrap": [
+				"dist/shrinkwrap.d.ts"
 			],
 			"speckle": [
 				"dist/speckle.d.ts"
