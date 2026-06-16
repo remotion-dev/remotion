@@ -11,7 +11,9 @@ const msgStyle: React.CSSProperties = {
 	color: 'white',
 	fontFamily: 'sans-serif',
 	display: 'flex',
-	justifyContent: 'center',
+	justifyContent: 'flex-start',
+	textAlign: 'left',
+	padding: '8px 10px',
 };
 
 const errMsgStyle: React.CSSProperties = {
