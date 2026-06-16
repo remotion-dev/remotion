@@ -12,7 +12,7 @@ import {
 import {Plus} from '../icons/plus';
 import {ModalsContext} from '../state/modals';
 import {InlineAction} from './InlineAction';
-import {sectionHeaderRow} from './InspectorPanel/styles';
+import {sectionHeaderRow, sectionHeaderTitle} from './InspectorPanel/styles';
 import {TimelineExpandedRow} from './Timeline/TimelineExpandedRow';
 import {useTimelineExpandedTree} from './Timeline/use-timeline-expanded-tree';
 
@@ -45,10 +45,8 @@ const controlsEffectsDivider: React.CSSProperties = {
 };
 
 const effectsHeaderTitle: React.CSSProperties = {
-	minWidth: 0,
-	overflow: 'hidden',
-	textOverflow: 'ellipsis',
-	whiteSpace: 'nowrap',
+	...sectionHeaderTitle,
+	flexShrink: 1,
 };
 
 const plusIcon: React.CSSProperties = {
