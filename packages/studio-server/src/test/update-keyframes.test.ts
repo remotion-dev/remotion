@@ -707,7 +707,6 @@ export const Example: React.FC = () => {
 	expect(output).toContain('interpolate');
 	const status = computeSequencePropsStatusFromContent({
 		fileContents: output,
-		fileName: null,
 		nodePath: updatedNodePath,
 		componentIdentity: null,
 		keys: ['style.translate'],
@@ -852,7 +851,6 @@ export default CenteredSolid;
 	expect(output).toContain("extrapolateRight: 'clamp'");
 	const status = computeSequencePropsStatusFromContent({
 		fileContents: output,
-		fileName: null,
 		nodePath: updatedNodePath,
 		componentIdentity: null,
 		keys: ['width'],
@@ -1067,7 +1065,6 @@ test('updateSequenceKeyframes converts the last keyframe to a static value', asy
 	expect(output).toContain('style={{scale: 320}}');
 	const status = computeSequencePropsStatusFromContent({
 		fileContents: output,
-		fileName: null,
 		nodePath: updatedNodePath,
 		componentIdentity: null,
 		keys: ['style.scale'],
@@ -1171,7 +1168,6 @@ test('updateSequenceKeyframes converts the last color keyframe to a static value
 	expect(output).toContain("color={'blue'}");
 	const status = computeSequencePropsStatusFromContent({
 		fileContents: output,
-		fileName: null,
 		nodePath: updatedNodePath,
 		componentIdentity: null,
 		keys: ['color'],

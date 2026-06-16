@@ -330,7 +330,6 @@ export const deleteKeyframes = async ({
 
 		const status = computeSequencePropsStatusFromContent({
 			fileContents: output,
-			fileName: keyframe.fileName,
 			keys: getAllSchemaKeys(keyframe.schema),
 			nodePath: keyframe.nodePath.nodePath,
 			componentIdentity: null,

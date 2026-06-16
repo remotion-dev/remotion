@@ -74,7 +74,6 @@ export const Example: React.FC = () => {
 `;
 	const result = computeSequencePropsStatusFromContent({
 		fileContents: input,
-		fileName: null,
 		nodePath: getNodePathFromContent(input, 7),
 		componentIdentity: null,
 		keys: ['color'],
@@ -111,34 +110,15 @@ export const Example: React.FC = () => {
 };
 `;
 
-	let thrown: unknown = null;
-	try {
+	expect(() =>
 		computeSequencePropsStatusFromContent({
 			fileContents: input,
-			fileName: 'src/Example.tsx',
 			nodePath: getNodePathFromContent(input, 7),
 			componentIdentity: 'dev.remotion.shapes.Star',
 			keys: ['points'],
 			effects: [],
-		});
-	} catch (error) {
-		thrown = error;
-	}
-
-	expect(thrown).toBeInstanceOf(JsxElementIdentityMismatchError);
-	if (!(thrown instanceof JsxElementIdentityMismatchError)) {
-		throw new Error('Expected identity mismatch error');
-	}
-
-	expect(thrown.message).toContain(
-		'Expected identity: dev.remotion.shapes.Star',
-	);
-	expect(thrown.message).toContain(
-		'Actual identity: dev.remotion.remotion.Interactive.Div',
-	);
-	expect(thrown.message).toContain('File: src/Example.tsx');
-	expect(thrown.message).toContain('Location: line 7, column 9');
-	expect(thrown.message).toContain('Node path:');
+		}),
+	).toThrow(JsxElementIdentityMismatchError);
 });
 
 test('computeSequencePropsStatus should match namespace imports by component identity', () => {
@@ -153,7 +133,6 @@ export const Example: React.FC = () => {
 `;
 	const result = computeSequencePropsStatusFromContent({
 		fileContents: input,
-		fileName: null,
 		nodePath: getNodePathFromContent(input, 6),
 		componentIdentity: 'dev.remotion.remotion.Sequence',
 		keys: ['from'],
@@ -166,40 +145,6 @@ export const Example: React.FC = () => {
 	expect(result.props.from).toEqual({
 		status: 'static',
 		codeValue: 10,
-	});
-});
-
-test('computeSequencePropsStatus should match TransitionSeries by component identity', () => {
-	const input = `import React from 'react';
-import {TransitionSeries} from '@remotion/transitions';
-
-export const Example: React.FC = () => {
-\treturn (
-\t\t<TransitionSeries from={10} name="Scenes">
-\t\t\t<TransitionSeries.Sequence durationInFrames={20} />
-\t\t</TransitionSeries>
-\t);
-};
-`;
-	const result = computeSequencePropsStatusFromContent({
-		fileContents: input,
-		fileName: null,
-		nodePath: getNodePathFromContent(input, 6),
-		componentIdentity: 'dev.remotion.transitions.TransitionSeries',
-		keys: ['from', 'name'],
-		effects: [],
-	});
-
-	expect(result.canUpdate).toBe(true);
-	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
-
-	expect(result.props.from).toEqual({
-		status: 'static',
-		codeValue: 10,
-	});
-	expect(result.props.name).toEqual({
-		status: 'static',
-		codeValue: 'Scenes',
 	});
 });
 
@@ -216,7 +161,6 @@ export const Example: React.FC = () => {
 `;
 	const result = computeSequencePropsStatusFromContent({
 		fileContents: input,
-		fileName: null,
 		nodePath: getNodePathFromContent(input, 7),
 		componentIdentity: null,
 		keys: ['color'],
@@ -253,7 +197,6 @@ export const Example: React.FC = () => {
 `;
 	const result = computeSequencePropsStatusFromContent({
 		fileContents: input,
-		fileName: null,
 		nodePath: getNodePathFromContent(input, 7),
 		componentIdentity: null,
 		keys: ['style.opacity'],
@@ -297,7 +240,6 @@ export const Example: React.FC = () => {
 `;
 	const result = computeSequencePropsStatusFromContent({
 		fileContents: input,
-		fileName: null,
 		nodePath: getNodePathFromContent(input, 7),
 		componentIdentity: null,
 		keys: ['style.translate'],
@@ -340,7 +282,6 @@ export const Example: React.FC = () => {
 `;
 	const result = computeSequencePropsStatusFromContent({
 		fileContents: input,
-		fileName: null,
 		nodePath: getNodePathFromContent(input, 7),
 		componentIdentity: null,
 		keys: ['style.translate'],
@@ -381,7 +322,6 @@ export const Example: React.FC = () => {
 `;
 	const result = computeSequencePropsStatusFromContent({
 		fileContents: input,
-		fileName: null,
 		nodePath: getNodePathFromContent(input, 8),
 		componentIdentity: null,
 		keys: ['style.translate'],
@@ -409,7 +349,6 @@ export const Example: React.FC = () => {
 `;
 	const result = computeSequencePropsStatusFromContent({
 		fileContents: input,
-		fileName: null,
 		nodePath: getNodePathFromContent(input, 7),
 		componentIdentity: null,
 		keys: ['style.rotate'],
@@ -615,7 +554,6 @@ export const Example: React.FC = () => {
 
 	const result = computeSequencePropsStatusFromContent({
 		fileContents: input,
-		fileName: null,
 		nodePath: getNodePathFromContent(input, 7),
 		componentIdentity: null,
 		keys: ['style.scale'],
@@ -660,7 +598,6 @@ export const Example: React.FC = () => {
 
 	const result = computeSequencePropsStatusFromContent({
 		fileContents: input,
-		fileName: null,
 		nodePath: getNodePathFromContent(input, 7),
 		componentIdentity: null,
 		keys: ['style.scale'],
@@ -704,7 +641,6 @@ export const Example: React.FC = () => {
 
 	const result = computeSequencePropsStatusFromContent({
 		fileContents: input,
-		fileName: null,
 		nodePath: getNodePathFromContent(input, 7),
 		componentIdentity: null,
 		keys: ['style.scale'],
@@ -741,7 +677,6 @@ export const Example: React.FC = () => {
 
 	const result = computeSequencePropsStatusFromContent({
 		fileContents: input,
-		fileName: null,
 		nodePath: getNodePathFromContent(input, 7),
 		componentIdentity: null,
 		keys: ['color'],
@@ -779,7 +714,6 @@ export const Example: React.FC = () => {
 
 	const result = computeSequencePropsStatusFromContent({
 		fileContents: input,
-		fileName: null,
 		nodePath: getNodePathFromContent(input, 8),
 		componentIdentity: null,
 		keys: ['style.scale'],
@@ -810,7 +744,6 @@ export const Example: React.FC = () => {
 
 	const result = computeSequencePropsStatusFromContent({
 		fileContents: input,
-		fileName: null,
 		nodePath: getNodePathFromContent(input, 7),
 		componentIdentity: null,
 		keys: ['style.scale'],

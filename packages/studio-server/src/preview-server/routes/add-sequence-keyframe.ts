@@ -105,7 +105,6 @@ export const addSequenceKeyframeHandler: ApiHandler<
 
 		const status = computeSequencePropsStatusFromContent({
 			fileContents: output,
-			fileName,
 			keys: getAllSchemaKeys(schema),
 			nodePath: updatedNodePath,
 			componentIdentity: null,

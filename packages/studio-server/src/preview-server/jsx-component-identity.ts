@@ -4,59 +4,12 @@ import type {
 	JSXMemberExpression,
 	JSXOpeningElement,
 } from '@babel/types';
-import type {JsxComponentIdentity, SequenceNodePath} from 'remotion';
+import type {JsxComponentIdentity} from 'remotion';
 import {getImportedName} from '../helpers/imports';
 
-type JsxElementIdentityMismatchErrorOptions = {
-	readonly expected: JsxComponentIdentity | null;
-	readonly actual: JsxComponentIdentity | null;
-	readonly fileName: string | null;
-	readonly location: {
-		readonly line: number;
-		readonly column: number;
-	} | null;
-	readonly nodePath: SequenceNodePath | null;
-};
-
-const formatIdentity = (identity: JsxComponentIdentity | null): string => {
-	return identity ?? '(unknown)';
-};
-
-const formatNodePath = (nodePath: SequenceNodePath | null): string => {
-	return nodePath === null ? '(unknown)' : JSON.stringify(nodePath);
-};
-
-const makeIdentityMismatchMessage = ({
-	actual,
-	expected,
-	fileName,
-	location,
-	nodePath,
-}: JsxElementIdentityMismatchErrorOptions): string => {
-	const lines = [
-		'JSX element identity changed.',
-		`Expected identity: ${formatIdentity(expected)}`,
-		`Actual identity: ${formatIdentity(actual)}`,
-		`Node path: ${formatNodePath(nodePath)}`,
-	];
-
-	if (fileName !== null) {
-		lines.push(`File: ${fileName}`);
-	}
-
-	if (location !== null) {
-		lines.push(
-			`Location: line ${location.line}, column ${location.column + 1}`,
-		);
-	}
-
-	return lines.join('\n');
-};
-
 export class JsxElementIdentityMismatchError extends Error {
-	constructor(options: JsxElementIdentityMismatchErrorOptions) {
-		super(makeIdentityMismatchMessage(options));
-		this.name = 'JsxElementIdentityMismatchError';
+	constructor() {
+		super('JSX element identity changed');
 	}
 }
 
