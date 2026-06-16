@@ -41,6 +41,10 @@ type HandleIndex = 0 | 1;
 type Coordinate = 'x' | 'y';
 type EditorMode = 'bezier' | 'spring';
 type SpringNumberKey = 'damping' | 'mass' | 'stiffness';
+type EasingGraphLabels = {
+	readonly start: string;
+	readonly end: string;
+};
 type EasingPreset = {
 	readonly id: string;
 	readonly label: string;
@@ -57,6 +61,10 @@ const Y_MIN = -2;
 const Y_MAX = 3;
 const LINEAR_EASING: TimelineEasingValue = {type: 'linear'};
 const LINEAR_BEZIER: CubicBezierTuple = [0.25, 0.25, 0.75, 0.75];
+const DEFAULT_EASING_GRAPH_LABELS: EasingGraphLabels = {
+	start: '0',
+	end: '1',
+};
 const EASING_GRAPH_GUIDE_COLOR = 'rgba(255, 255, 255, 0.12)';
 const PRESET_PREVIEW_WIDTH = 48;
 const PRESET_PREVIEW_HEIGHT = 30;
@@ -355,6 +363,67 @@ const getEasingUpdateTargetKey = (update: SelectedEasingUpdate) => {
 	return `effect:${nodePathKey}:${update.effectIndex}:${update.fieldKey}:${update.segmentIndex}`;
 };
 
+const formatEasingGraphLabel = (value: unknown): string => {
+	if (
+		value === null ||
+		typeof value === 'number' ||
+		typeof value === 'string' ||
+		typeof value === 'boolean' ||
+		typeof value === 'bigint'
+	) {
+		return String(value);
+	}
+
+	if (value === undefined) {
+		return 'undefined';
+	}
+
+	try {
+		return JSON.stringify(value) ?? String(value);
+	} catch {
+		return String(value);
+	}
+};
+
+const getEasingGraphLabelsFromUpdate = (
+	update: SelectedEasingUpdate,
+): EasingGraphLabels | null => {
+	const startKeyframe = update.propStatus.keyframes[update.segmentIndex];
+	const endKeyframe = update.propStatus.keyframes[update.segmentIndex + 1];
+
+	if (!startKeyframe || !endKeyframe) {
+		return null;
+	}
+
+	return {
+		start: formatEasingGraphLabel(startKeyframe.value),
+		end: formatEasingGraphLabel(endKeyframe.value),
+	};
+};
+
+const areEasingGraphLabelsEqual = (
+	first: EasingGraphLabels,
+	second: EasingGraphLabels,
+) => first.start === second.start && first.end === second.end;
+
+const getEasingGraphLabels = (
+	updates: readonly SelectedEasingUpdate[],
+): EasingGraphLabels => {
+	const firstLabels =
+		updates.length === 0 ? null : getEasingGraphLabelsFromUpdate(updates[0]);
+
+	if (firstLabels === null) {
+		return DEFAULT_EASING_GRAPH_LABELS;
+	}
+
+	return updates.every((update) => {
+		const labels = getEasingGraphLabelsFromUpdate(update);
+		return labels !== null && areEasingGraphLabelsEqual(labels, firstLabels);
+	})
+		? firstLabels
+		: DEFAULT_EASING_GRAPH_LABELS;
+};
+
 const xToSvg = (value: number) => PLOT_LEFT + value * PLOT_WIDTH;
 const yToSvg = (value: number) =>
 	PLOT_TOP + ((Y_MAX - value) / (Y_MAX - Y_MIN)) * PLOT_HEIGHT;
@@ -414,7 +483,9 @@ const pointFromBezier = (bezier: CubicBezierTuple, handle: HandleIndex) => {
 	return {x: xToSvg(x), y: yToSvg(y)};
 };
 
-const EasingGraphScaffold: React.FC = () => {
+const EasingGraphScaffold: React.FC<{
+	readonly labels: EasingGraphLabels;
+}> = ({labels}) => {
 	const yZero = yToSvg(0);
 	const yOne = yToSvg(1);
 	const yZeroLabel = clamp(yZero + 3, 10, SVG_HEIGHT - 4);
@@ -438,11 +509,23 @@ const EasingGraphScaffold: React.FC = () => {
 				stroke={EASING_GRAPH_GUIDE_COLOR}
 				strokeWidth={1}
 			/>
-			<text x={PLOT_LEFT - 22} y={yZeroLabel} fill={LIGHT_TEXT} fontSize={9}>
-				0
+			<text
+				x={PLOT_LEFT - 8}
+				y={yZeroLabel}
+				fill={LIGHT_TEXT}
+				fontSize={9}
+				textAnchor="end"
+			>
+				{labels.start}
 			</text>
-			<text x={PLOT_LEFT - 22} y={yOneLabel} fill={LIGHT_TEXT} fontSize={9}>
-				1
+			<text
+				x={PLOT_LEFT - 8}
+				y={yOneLabel}
+				fill={LIGHT_TEXT}
+				fontSize={9}
+				textAnchor="end"
+			>
+				{labels.end}
 			</text>
 		</>
 	);
@@ -924,6 +1007,7 @@ export const EasingEditor: React.FC<{
 	}, [spring]);
 
 	const disabled = previewServerState.type !== 'connected';
+	const graphLabels = getEasingGraphLabels(getCurrentEasingUpdates());
 	const currentEasing = useMemo(
 		() =>
 			mode === 'spring' ? serializeSpring(spring) : serializeBezier(bezier),
@@ -980,7 +1064,7 @@ export const EasingEditor: React.FC<{
 						style={svgStyle}
 						aria-label="Bezier curve editor"
 					>
-						<EasingGraphScaffold />
+						<EasingGraphScaffold labels={graphLabels} />
 						<line
 							x1={startPoint.x}
 							y1={startPoint.y}
@@ -1129,7 +1213,7 @@ export const EasingEditor: React.FC<{
 						style={svgStyle}
 						aria-label="Spring easing curve"
 					>
-						<EasingGraphScaffold />
+						<EasingGraphScaffold labels={graphLabels} />
 						<path d={springPath} fill="none" stroke={BLUE} strokeWidth={3} />
 						<circle cx={xToSvg(0)} cy={yToSvg(0)} r={4} fill="white" />
 						<circle cx={xToSvg(1)} cy={yToSvg(1)} r={4} fill="white" />
