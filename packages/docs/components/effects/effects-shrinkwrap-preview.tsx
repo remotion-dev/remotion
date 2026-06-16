@@ -1,6 +1,6 @@
 import {shrinkwrap} from '@remotion/effects/shrinkwrap';
 import React from 'react';
-import {CanvasImage, useCurrentFrame} from 'remotion';
+import {CanvasImage} from 'remotion';
 import {EFFECTS_PREVIEW_IMAGE_SRC} from './effects-preview-image';
 
 export const SHRINKWRAP_PREVIEW_PARAMS = {
@@ -30,8 +30,6 @@ export const EffectsShrinkwrapPreview: React.FC<{
 	phase,
 	seed,
 }) => {
-	const frame = useCurrentFrame();
-
 	return (
 		<CanvasImage
 			width={1280}
@@ -44,7 +42,7 @@ export const EffectsShrinkwrapPreview: React.FC<{
 					highlightIntensity,
 					wrinkleDensity,
 					edgeTension,
-					phase: phase + frame * 0.05,
+					phase,
 					seed,
 				}),
 			]}

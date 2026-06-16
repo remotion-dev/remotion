@@ -233,8 +233,6 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/shrinkwrap',
 		comp: EffectsShrinkwrapPreview,
 		schema: shrinkwrap().definition.schema,
-		durationInFrames: 150,
-		autoPlay: true,
 		initialValues: SHRINKWRAP_PREVIEW_PARAMS,
 	},
 	{
