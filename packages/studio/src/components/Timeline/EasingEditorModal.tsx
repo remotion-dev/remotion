@@ -490,7 +490,7 @@ const EasingPresetButton: React.FC<{
 				<path
 					d={path}
 					fill="none"
-					stroke={selected ? 'white' : BLUE}
+					stroke="white"
 					strokeWidth={2}
 					strokeLinecap="round"
 					strokeLinejoin="round"
