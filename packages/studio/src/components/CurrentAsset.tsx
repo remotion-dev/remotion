@@ -3,6 +3,11 @@ import React, {useContext, useMemo} from 'react';
 import {Internals, staticFile} from 'remotion';
 import {formatMediaDuration} from '../helpers/format-media-duration';
 import {getPreviewFileType} from '../helpers/get-preview-file-type';
+import {
+	renderHumanReadableAudioCodec,
+	renderHumanReadableVideoCodec,
+} from '../helpers/render-codec-label';
+import type {MediaMetadata} from '../helpers/use-media-metadata';
 import {useMediaMetadata} from '../helpers/use-media-metadata';
 import {
 	INSPECTOR_INFO_HEADER_MIN_HEIGHT,
@@ -23,6 +28,46 @@ export const getCurrentAssetMetadataSource = (assetName: string | null) => {
 	return fileType === 'audio' || fileType === 'video'
 		? staticFile(assetName)
 		: null;
+};
+
+const formatFps = (fps: number) => `${fps.toFixed(2)} FPS`;
+
+export const getCurrentAssetMediaDetailLines = (
+	mediaMetadata: MediaMetadata,
+) => {
+	const detailLines: string[] = [];
+
+	if (mediaMetadata.hasVideoTrack === true) {
+		const videoParts = [
+			renderHumanReadableVideoCodec(mediaMetadata.videoCodec),
+		];
+
+		if (mediaMetadata.fps !== null) {
+			videoParts.push(formatFps(mediaMetadata.fps));
+		}
+
+		if (mediaMetadata.isHdr !== null) {
+			videoParts.push(`HDR: ${mediaMetadata.isHdr ? 'Yes' : 'No'}`);
+		}
+
+		detailLines.push(`Video: ${videoParts.join(' · ')}`);
+	}
+
+	if (mediaMetadata.hasAudioTrack === true) {
+		const audioParts = [
+			renderHumanReadableAudioCodec(mediaMetadata.audioCodec),
+		];
+
+		if (mediaMetadata.sampleRate !== null) {
+			audioParts.push(`${mediaMetadata.sampleRate} Hz`);
+		}
+
+		detailLines.push(`Audio: ${audioParts.join(' · ')}`);
+	} else if (mediaMetadata.hasAudioTrack === false) {
+		detailLines.push('Audio: No audio');
+	}
+
+	return detailLines;
 };
 
 export const CurrentAsset: React.FC = () => {
@@ -66,6 +111,10 @@ export const CurrentAsset: React.FC = () => {
 		}
 	}
 
+	const mediaDetailLines = mediaMetadata
+		? getCurrentAssetMediaDetailLines(mediaMetadata)
+		: [];
+
 	return (
 		<InspectorInfoHeader>
 			<InspectorInfoTitle>{fileName}</InspectorInfoTitle>
@@ -79,6 +128,9 @@ export const CurrentAsset: React.FC = () => {
 					{formatMediaDuration(mediaMetadata.duration)}
 				</InspectorInfoSubtitle>
 			) : null}
+			{mediaDetailLines.map((line) => {
+				return <InspectorInfoSubtitle key={line}>{line}</InspectorInfoSubtitle>;
+			})}
 		</InspectorInfoHeader>
 	);
 };
