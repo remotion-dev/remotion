@@ -9,12 +9,18 @@ import React, {
 import {LIGHT_TEXT, getBackgroundFromHoverState} from '../helpers/colors';
 import {useKeybinding} from '../helpers/use-keybinding';
 import {ModalsContext, type AddEffectModalState} from '../state/modals';
-import {EFFECT_CATALOG, type EffectCatalogItem} from './effect-catalog';
+import {ContextMenu} from './ContextMenu';
+import {
+	EFFECT_CATALOG,
+	getEffectDocumentationLink,
+	type EffectCatalogItem,
+} from './effect-catalog';
 import {addEffectToSequence} from './effect-drag-and-drop';
 import {filterEffectCatalog} from './effect-picker-search';
 import {Spacing} from './layout';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from './Menu/is-menu-item';
 import {ModalHeader} from './ModalHeader';
+import type {ComboboxValue} from './NewComposition/ComboBox';
 import {DismissableModal} from './NewComposition/DismissableModal';
 import {RemotionInput} from './NewComposition/RemInput';
 
@@ -111,20 +117,43 @@ const EffectPickerResult: React.FC<{
 		onSelected(item);
 	}, [item, onSelected]);
 
+	const contextMenuValues = useMemo((): ComboboxValue[] => {
+		const documentationLink = getEffectDocumentationLink(item);
+
+		return [
+			{
+				type: 'item',
+				id: `open-${item.id}-docs`,
+				keyHint: null,
+				label: 'Open effect docs',
+				leftItem: null,
+				disabled: false,
+				onClick: () => {
+					window.open(documentationLink, '_blank', 'noopener,noreferrer');
+				},
+				quickSwitcherLabel: null,
+				subMenu: null,
+				value: `open-${item.id}-docs`,
+			},
+		];
+	}, [item]);
+
 	return (
-		<div
-			ref={ref}
-			style={style}
-			onClick={onClick}
-			onMouseEnter={() => setHovered(true)}
-			onMouseLeave={() => setHovered(false)}
-		>
-			<div style={labelContainer}>
-				<div style={labelStyle}>{item.label}</div>
+		<ContextMenu values={contextMenuValues} onOpen={null}>
+			<div
+				ref={ref}
+				style={style}
+				onClick={onClick}
+				onMouseEnter={() => setHovered(true)}
+				onMouseLeave={() => setHovered(false)}
+			>
+				<div style={labelContainer}>
+					<div style={labelStyle}>{item.label}</div>
+				</div>
+				<Spacing x={1} />
+				<div style={category}>{item.category}</div>
 			</div>
-			<Spacing x={1} />
-			<div style={category}>{item.category}</div>
-		</div>
+		</ContextMenu>
 	);
 };
 

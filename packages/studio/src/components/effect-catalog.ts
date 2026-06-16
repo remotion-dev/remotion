@@ -8,6 +8,20 @@ export type EffectCatalogItem = {
 	readonly effect: EffectDragData['effect'];
 };
 
+export const getEffectDocumentationLink = (item: EffectCatalogItem) => {
+	if (item.id === 'effects-light-leak') {
+		return 'https://www.remotion.dev/docs/light-leaks/light-leak-effect';
+	}
+
+	if (item.id === 'effects-starburst') {
+		return 'https://www.remotion.dev/docs/starburst/starburst-effect';
+	}
+
+	return `https://www.remotion.dev/docs/effects/${item.id.slice(
+		'effects-'.length,
+	)}`;
+};
+
 export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 	{
 		id: 'effects-brightness',
