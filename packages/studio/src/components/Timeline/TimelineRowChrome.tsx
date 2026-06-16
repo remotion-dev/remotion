@@ -162,7 +162,9 @@ export const TimelineRowChrome: React.FC<{
 				onDragLeave={onDragLeave}
 				onDragOver={onDragOver}
 				onDrop={onDrop}
-				onPointerDown={selectable ? onPointerDown : undefined}
+				// Use capture so row selection still updates when inner controls
+				// stop propagation on pointerdown (for example InputDragger).
+				onPointerDownCapture={selectable ? onPointerDown : undefined}
 				onContextMenu={selectable ? onContextMenu : undefined}
 				onDoubleClick={onDoubleClick}
 			>
@@ -176,7 +178,9 @@ export const TimelineRowChrome: React.FC<{
 			onDragLeave={onDragLeave}
 			onDragOver={onDragOver}
 			onDrop={onDrop}
-			onPointerDown={selectable ? onPointerDown : undefined}
+			// Use capture so row selection still updates when inner controls
+			// stop propagation on pointerdown (for example InputDragger).
+			onPointerDownCapture={selectable ? onPointerDown : undefined}
 			onContextMenu={selectable ? onContextMenu : undefined}
 			onDoubleClick={onDoubleClick}
 			style={innerRowStyle}
