@@ -784,10 +784,9 @@ export const StarburstEffectShowcase: React.FC = () => {
 		frame,
 		HALFTONE_SHAPE_TWEAK_FRAME,
 	);
-	const baseOpacity = 1 - starburstProgress;
-	const starburstOpacity = starburstProgress * (1 - halftoneProgress);
-	const halftoneCircleOpacity =
-		starburstProgress * halftoneProgress * (1 - lineShapeProgress);
+	const baseOpacity = 1;
+	const starburstOpacity = starburstProgress;
+	const halftoneCircleOpacity = starburstProgress * halftoneProgress;
 	const halftoneLineOpacity =
 		starburstProgress * halftoneProgress * lineShapeProgress;
 
