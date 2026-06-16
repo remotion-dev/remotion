@@ -74,6 +74,7 @@ export {
 	isSelectedOutlineDragPastThreshold,
 	selectedOutlineUvSnapThresholdPx,
 	selectedOutlineTransformOriginSnapThresholdPx,
+	snapSelectedOutlineRotationDeltaDegrees,
 	snapSelectedOutlineUv,
 	snapSelectedOutlineTransformOriginUv,
 } from './selected-outline-drag';
