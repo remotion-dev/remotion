@@ -103,7 +103,7 @@ const inlineContainer: React.CSSProperties = {
 
 const segmentedControlWrapper: React.CSSProperties = {
 	display: 'flex',
-	justifyContent: 'center',
+	justifyContent: 'flex-start',
 	padding: '0 12px',
 	marginBottom: 10,
 };
