@@ -181,6 +181,11 @@ export {
 	keyframeInterpolationFunctions,
 	type KeyframeInterpolationFunction,
 } from './keyframe-interpolation-function';
+export {
+	DEFAULT_SPRING_EASING,
+	parseSpringEasingConfig,
+	type SpringKeyframeEasing,
+} from './parse-spring-easing-config';
 export {DEFAULT_TIMELINE_TRACKS} from './max-timeline-tracks';
 export {
 	Pkgs,
