@@ -8,7 +8,8 @@ export const EffectsBurlapPreview: React.FC<{
 	readonly size: number;
 	readonly roughness: number;
 	readonly seed: number;
-}> = ({amount, size, roughness, seed}) => {
+	readonly color: string;
+}> = ({amount, size, roughness, seed, color}) => {
 	return (
 		<CanvasImage
 			src={EFFECTS_PREVIEW_IMAGE_SRC}
@@ -21,6 +22,7 @@ export const EffectsBurlapPreview: React.FC<{
 					size,
 					roughness,
 					seed,
+					color,
 				}),
 			]}
 		/>

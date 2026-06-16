@@ -128,6 +128,7 @@ export const RemotionRoot: React.FC = () => {
 						size: 4,
 						roughness: 0.85,
 						seed: 1,
+						color: '#3b2818',
 					}}
 				/>
 				<Still

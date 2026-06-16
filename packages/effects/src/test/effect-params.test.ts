@@ -1604,6 +1604,7 @@ test('burlap() accepts valid params', () => {
 			size: 6,
 			roughness: 0.4,
 			seed: 3,
+			color: '#3b2818',
 		}),
 	).not.toThrow();
 });
@@ -1636,12 +1637,19 @@ test('burlap() rejects non-finite seed', () => {
 	);
 });
 
+test('burlap() rejects empty color strings', () => {
+	expect(() => burlap({color: ''})).toThrow(
+		'"color" must be a non-empty string, but got ""',
+	);
+});
+
 test('burlap() parameters produce distinct effect keys', () => {
 	const defaults = burlap();
 	const stronger = burlap({amount: 0.8});
 	const larger = burlap({size: 8});
 	const smoother = burlap({roughness: 0.2});
 	const seeded = burlap({seed: 4});
+	const colored = burlap({color: '#3b2818'});
 
 	expect(
 		new Set([
@@ -1650,8 +1658,9 @@ test('burlap() parameters produce distinct effect keys', () => {
 			larger.effectKey,
 			smoother.effectKey,
 			seeded.effectKey,
+			colored.effectKey,
 		]).size,
-	).toBe(5);
+	).toBe(6);
 });
 
 test('noiseDisplacement() accepts required params', () => {

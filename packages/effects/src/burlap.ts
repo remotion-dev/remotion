@@ -2,9 +2,14 @@ import type {SequenceSchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertOptionalFiniteNumber,
+	parseColorRgba,
+	type ParsedColorRgba,
 	validateUnitInterval,
 } from './color-utils.js';
-import {assertEffectParamsObject} from './validate-effect-param.js';
+import {
+	assertEffectParamsObject,
+	assertOptionalColor,
+} from './validate-effect-param.js';
 
 const {createEffect, createWebGL2ContextError} = Internals;
 
@@ -12,6 +17,7 @@ const DEFAULT_AMOUNT = 0.55 as const;
 const DEFAULT_SIZE = 5 as const;
 const DEFAULT_ROUGHNESS = 0.7 as const;
 const DEFAULT_SEED = 0 as const;
+const DEFAULT_COLOR = '#000000' as const;
 
 const burlapSchema = {
 	amount: {
@@ -48,6 +54,11 @@ const burlapSchema = {
 		description: 'Seed',
 		hiddenFromList: false,
 	},
+	color: {
+		type: 'color',
+		default: DEFAULT_COLOR,
+		description: 'Color',
+	},
 } as const satisfies SequenceSchema;
 
 export type BurlapParams = {
@@ -59,6 +70,8 @@ export type BurlapParams = {
 	readonly roughness?: number;
 	/** Seed for the procedural fiber pattern. Defaults to `0`. */
 	readonly seed?: number;
+	/** Color of the darker weave fibers. Defaults to black. */
+	readonly color?: string;
 };
 
 type BurlapResolved = {
@@ -66,6 +79,7 @@ type BurlapResolved = {
 	size: number;
 	roughness: number;
 	seed: number;
+	color: string;
 };
 
 type BurlapState = {
@@ -80,6 +94,10 @@ type BurlapState = {
 	readonly uSize: WebGLUniformLocation | null;
 	readonly uRoughness: WebGLUniformLocation | null;
 	readonly uSeed: WebGLUniformLocation | null;
+	readonly uColor: WebGLUniformLocation | null;
+	readonly colorCtx: CanvasRenderingContext2D;
+	cachedColor: string;
+	cachedColorRgba: ParsedColorRgba;
 };
 
 const resolve = (p: BurlapParams): BurlapResolved => ({
@@ -87,6 +105,7 @@ const resolve = (p: BurlapParams): BurlapResolved => ({
 	size: p.size ?? DEFAULT_SIZE,
 	roughness: p.roughness ?? DEFAULT_ROUGHNESS,
 	seed: p.seed ?? DEFAULT_SEED,
+	color: p.color ?? DEFAULT_COLOR,
 });
 
 const validatePositive = (value: number, name: string): void => {
@@ -103,6 +122,7 @@ const validateBurlapParams = (params: BurlapParams): void => {
 	assertOptionalFiniteNumber(params.size, 'size');
 	assertOptionalFiniteNumber(params.roughness, 'roughness');
 	assertOptionalFiniteNumber(params.seed, 'seed');
+	assertOptionalColor(params.color, 'color');
 
 	const r = resolve(params);
 	validateUnitInterval(r.amount, 'amount');
@@ -133,6 +153,7 @@ uniform float uAmount;
 uniform float uSize;
 uniform float uRoughness;
 uniform float uSeed;
+uniform vec4 uColor;
 
 float hash21(vec2 p) {
 	vec3 p3 = fract(vec3(p.xyx) * vec3(443.8975, 397.2973, 491.1871));
@@ -199,7 +220,9 @@ void main() {
 	texture -= (dashH + dashV) * 0.08 * uRoughness;
 
 	vec3 rgb = texColor.rgb / alpha;
-	vec3 textured = clamp(rgb * (1.0 + texture) + vec3(texture * 0.04), 0.0, 1.0);
+	float darkFiber = clamp(-texture * 3.2 + gaps * 0.12 + (dashH + dashV) * 0.18, 0.0, 1.0);
+	vec3 shaded = mix(rgb, uColor.rgb, darkFiber * uColor.a);
+	vec3 textured = clamp(shaded * (1.0 + max(texture, 0.0) * 0.45), 0.0, 1.0);
 	rgb = mix(rgb, textured, uAmount);
 
 	fragColor = vec4(rgb * alpha, alpha);
@@ -307,6 +330,14 @@ const setupBurlap = (target: HTMLCanvasElement): BurlapState => {
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 	gl.bindTexture(gl.TEXTURE_2D, null);
 
+	const colorCanvas = document.createElement('canvas');
+	colorCanvas.width = 1;
+	colorCanvas.height = 1;
+	const colorCtx = colorCanvas.getContext('2d', {willReadFrequently: true});
+	if (!colorCtx) {
+		throw new Error('Failed to acquire 2D context for color parsing');
+	}
+
 	return {
 		gl,
 		program,
@@ -319,7 +350,17 @@ const setupBurlap = (target: HTMLCanvasElement): BurlapState => {
 		uSize: gl.getUniformLocation(program, 'uSize'),
 		uRoughness: gl.getUniformLocation(program, 'uRoughness'),
 		uSeed: gl.getUniformLocation(program, 'uSeed'),
+		uColor: gl.getUniformLocation(program, 'uColor'),
+		colorCtx,
+		cachedColor: '',
+		cachedColorRgba: [0, 0, 0, 255],
 	};
+};
+
+const normalizedRgba = (
+	color: ParsedColorRgba,
+): readonly [number, number, number, number] => {
+	return [color[0] / 255, color[1] / 255, color[2] / 255, color[3] / 255];
 };
 
 export const burlap = createEffect<BurlapParams, BurlapState>({
@@ -329,12 +370,18 @@ export const burlap = createEffect<BurlapParams, BurlapState>({
 	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
-		return `burlap-${r.amount}-${r.size}-${r.roughness}-${r.seed}`;
+		return `burlap-${r.amount}-${r.size}-${r.roughness}-${r.seed}-${r.color}`;
 	},
 	setup: (target) => setupBurlap(target),
 	apply: ({source, width, height, params, state, flipSourceY}) => {
 		const r = resolve(params);
 		const {gl, program, vao, texture} = state;
+		if (state.cachedColor !== r.color) {
+			state.cachedColor = r.color;
+			state.cachedColorRgba = parseColorRgba(state.colorCtx, r.color);
+		}
+
+		const [red, green, blue, alpha] = normalizedRgba(state.cachedColorRgba);
 
 		gl.viewport(0, 0, width, height);
 		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
@@ -362,6 +409,7 @@ export const burlap = createEffect<BurlapParams, BurlapState>({
 		if (state.uSize) gl.uniform1f(state.uSize, r.size);
 		if (state.uRoughness) gl.uniform1f(state.uRoughness, r.roughness);
 		if (state.uSeed) gl.uniform1f(state.uSeed, r.seed);
+		if (state.uColor) gl.uniform4f(state.uColor, red, green, blue, alpha);
 
 		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 		gl.bindVertexArray(null);

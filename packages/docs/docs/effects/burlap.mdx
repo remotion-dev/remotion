@@ -37,6 +37,7 @@ export const MyComp: React.FC = () => {
             size: 4,
             roughness: 0.85,
             seed: 1,
+            color: '#3b2818',
           }),
         ]}
       />
@@ -72,6 +73,13 @@ Use `0` for a cleaner grid. Higher values add more mottling and broken fibers.
 Seed for the procedural fiber pattern. Defaults to `0`.
 
 Change it to get a different static weave.
+
+### `color?`
+
+Color of the darker weave fibers. Defaults to `#000000`.
+
+Use a brown color for a natural burlap look, or another color to tint the fiber marks.
+Alpha in the color controls how strongly the fiber color is mixed in.
 
 ### `disabled?`
 
