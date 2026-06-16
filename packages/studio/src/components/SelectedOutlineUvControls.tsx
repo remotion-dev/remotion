@@ -1,4 +1,4 @@
-import React, {useContext, useMemo} from 'react';
+import React, {useContext, useMemo, useState} from 'react';
 import {Internals} from 'remotion';
 import {BLUE} from '../helpers/colors';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
@@ -44,6 +44,9 @@ const getSvgPointFromPointerEvent = ({
 
 const uvHandleRadius = 5;
 const selectedUvHandleRadius = 8;
+const uvHandleStyle: React.CSSProperties = {
+	filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.28))',
+};
 
 export const getSelectedOutlineUvHandleTimelineSelection = ({
 	effectIndex,
@@ -105,10 +108,12 @@ const SelectedUvHandleCircle: React.FC<{
 }> = ({handle, nodePathInfo, onDraggingChange, onSelect, outline}) => {
 	const {setEffectDragOverrides, clearEffectDragOverrides, setPropStatuses} =
 		useContext(Internals.VisualModeSettersContext);
+	const [hovered, setHovered] = useState(false);
 	const position = useMemo(
 		() => getUvHandlePosition(outline.points, handle.value),
 		[handle.value, outline.points],
 	);
+	const outlined = handle.isSelected || hovered;
 
 	const onPointerDown = React.useCallback(
 		(event: React.PointerEvent<SVGCircleElement>) => {
@@ -286,11 +291,14 @@ const SelectedUvHandleCircle: React.FC<{
 			cy={position.y}
 			r={handle.isSelected ? selectedUvHandleRadius : uvHandleRadius}
 			fill="white"
-			stroke={BLUE}
+			stroke={outlined ? BLUE : 'transparent'}
 			strokeWidth={2}
+			style={uvHandleStyle}
 			vectorEffect="non-scaling-stroke"
 			pointerEvents="all"
 			cursor="default"
+			onPointerEnter={() => setHovered(true)}
+			onPointerLeave={() => setHovered(false)}
 			onPointerDown={onPointerDown}
 		/>
 	);
