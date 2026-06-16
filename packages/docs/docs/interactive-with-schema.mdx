@@ -1,6 +1,6 @@
 ---
-image: /generated/articles-docs-with-interactivity-schema.png
-id: with-interactivity-schema
+image: /generated/articles-docs-interactive-with-schema.png
+id: interactive-with-schema
 title: Interactive.withSchema()
 crumb: 'API'
 ---
@@ -144,10 +144,6 @@ Set to `true` if this component supports an `effects` prop. Otherwise, set it to
 
 Returns a component with the public props of `Component`.
 
-## Alias
-
-`withInteractivitySchema()` is also exported from `remotion` as an alias for `Interactive.withSchema()`.
-
 ## Behavior
 
 During rendering, in the Player and in read-only Studio sessions, `Interactive.withSchema()` renders the component with the original props.
@@ -160,4 +156,4 @@ In editable Studio sessions, it reads the current prop values, applies timeline 
 - [`Interactive`](/docs/interactive)
 - [`createEffect()`](/docs/create-effect)
 - [`<Sequence>`](/docs/sequence)
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/with-interactivity-schema.ts)
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/Interactive.tsx)

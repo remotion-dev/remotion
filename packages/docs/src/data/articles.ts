@@ -2610,6 +2610,15 @@ export const articles = [
 		slug: 'install-whisper-cpp/transcribe',
 	},
 	{
+		id: 'interactive-with-schema',
+		title: 'Interactive.withSchema()',
+		relativePath: 'docs/interactive-with-schema.mdx',
+		compId: 'articles-docs-interactive-with-schema',
+		crumb: 'API',
+		noAi: false,
+		slug: 'interactive-with-schema',
+	},
+	{
 		id: 'interactive',
 		title: 'Interactive',
 		relativePath: 'docs/interactive.mdx',
@@ -8265,15 +8274,6 @@ export const articles = [
 		crumb: '@remotion/whisper-web',
 		noAi: false,
 		slug: 'whisper-web/transcribe',
-	},
-	{
-		id: 'with-interactivity-schema',
-		title: 'Interactive.withSchema()',
-		relativePath: 'docs/with-interactivity-schema.mdx',
-		compId: 'articles-docs-with-interactivity-schema',
-		crumb: 'API',
-		noAi: false,
-		slug: 'with-interactivity-schema',
 	},
 	{
 		id: 'wrong-composition-mount',
