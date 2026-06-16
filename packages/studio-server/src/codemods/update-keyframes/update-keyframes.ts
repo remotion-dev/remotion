@@ -338,6 +338,48 @@ const createFrameExpression = (frame: number): ExpressionKind => {
 	return parseValueExpression(frame);
 };
 
+const roundFloatingPointArtifact = (value: number): number => {
+	if (!Number.isFinite(value)) {
+		return value;
+	}
+
+	const tolerance = Math.min(
+		1e-12,
+		Math.max(1e-13, Math.abs(value) * Number.EPSILON * 10),
+	);
+
+	for (let decimalPlaces = 0; decimalPlaces <= 12; decimalPlaces++) {
+		const factor = 10 ** decimalPlaces;
+		const rounded = Math.round(value * factor) / factor;
+		if (Math.abs(value - rounded) <= tolerance) {
+			return Object.is(rounded, -0) ? 0 : rounded;
+		}
+	}
+
+	return value;
+};
+
+const normalizeKeyframeValueForCode = (value: unknown): unknown => {
+	if (typeof value === 'number') {
+		return roundFloatingPointArtifact(value);
+	}
+
+	if (Array.isArray(value)) {
+		return value.map((item) => normalizeKeyframeValueForCode(item));
+	}
+
+	if (value && typeof value === 'object') {
+		return Object.fromEntries(
+			Object.entries(value).map(([key, nestedValue]) => [
+				key,
+				normalizeKeyframeValueForCode(nestedValue),
+			]),
+		);
+	}
+
+	return value;
+};
+
 const createClampOptionsExpression = (): ExpressionKind => {
 	return b.objectExpression([
 		b.objectProperty(b.identifier('extrapolateLeft'), b.stringLiteral('clamp')),
@@ -986,7 +1028,8 @@ const addKeyframe = ({
 	}
 
 	const existing = getInterpolationExpression(expression);
-	const newOutput = parseValueExpression(value);
+	const normalizedValue = normalizeKeyframeValueForCode(value);
+	const newOutput = parseValueExpression(normalizedValue);
 
 	if (existing) {
 		const existingCalleeName =
@@ -1003,10 +1046,13 @@ const addKeyframe = ({
 		);
 		const nextKeyframes =
 			existingIndex === -1
-				? [...existing.keyframes, {frame, output: newOutput, value}]
+				? [
+						...existing.keyframes,
+						{frame, output: newOutput, value: normalizedValue},
+					]
 				: existing.keyframes.map((keyframe, index) =>
 						index === existingIndex
-							? {frame, output: newOutput, value}
+							? {frame, output: newOutput, value: normalizedValue}
 							: keyframe,
 					);
 		const normalizedEasing =
@@ -1041,13 +1087,15 @@ const addKeyframe = ({
 	}
 
 	const staticValue = extractStaticValue(expression);
-	const keyframes: InterpolateKeyframe[] = [{frame, output: newOutput, value}];
+	const keyframes: InterpolateKeyframe[] = [
+		{frame, output: newOutput, value: normalizedValue},
+	];
 
 	const callee = getInterpolationCalleeForValues({
 		schema,
 		key,
 		staticValue,
-		newValue: value,
+		newValue: normalizedValue,
 	});
 	const extraArgs =
 		callee.type === 'Identifier' && callee.name === 'interpolateColors'
@@ -1518,55 +1566,6 @@ const getSequenceWritableProp = ({
 	};
 };
 
-const getEffectWritableProp = ({
-	objExpr,
-	key,
-	missingPropInitialValue,
-}: {
-	objExpr: ObjectExpression;
-	key: string;
-	missingPropInitialValue: MissingPropInitialValue | null;
-}): WritableProp => {
-	const {prop} = findObjectProperty(objExpr, key);
-	if (!prop) {
-		if (missingPropInitialValue) {
-			return {
-				expression: createMissingPropExpression(missingPropInitialValue),
-				setExpression: (nextExpression) => {
-					objExpr.properties.push(
-						createObjectProperty(key, nextExpression) as ObjectProperty,
-					);
-				},
-			};
-		}
-
-		throw new Error(`Cannot update keyframes: "${key}" is not set`);
-	}
-
-	return {
-		expression: prop.value as Expression,
-		setExpression: (nextExpression) => {
-			prop.value = nextExpression as ObjectProperty['value'];
-		},
-	};
-};
-
-const getEffectPropsObjectExpression = (
-	call: CallExpression,
-): ObjectExpression => {
-	if (call.arguments.length === 0) {
-		const objExpr = b.objectExpression([]) as ObjectExpression;
-		call.arguments.push(objExpr);
-		return objExpr;
-	}
-
-	if (call.arguments[0].type !== 'ObjectExpression') {
-		throw new Error('Cannot update effect keyframe: computed');
-	}
-
-	return call.arguments[0] as ObjectExpression;
-};
-
 export const updateSequenceKeyframesAst = ({
 	input,
 	nodePath,
@@ -1760,35 +1759,33 @@ export const updateEffectKeyframesAst = ({
 	}
 
 	const {call, callee: effectCallee} = found;
-	const objExpr = getEffectPropsObjectExpression(call);
+	if (
+		call.arguments.length === 0 ||
+		call.arguments[0].type !== 'ObjectExpression'
+	) {
+		throw new Error('Cannot update effect keyframe: computed');
+	}
+
+	const objExpr = call.arguments[0] as ObjectExpression;
 	const oldValueStrings: string[] = [];
 	const newValueStrings: string[] = [];
 	const requiredImports = new Set<string>();
 	let needsFrameHook = false;
 	for (const update of updates) {
-		const prop = getEffectWritableProp({
-			objExpr,
-			key: update.key,
-			missingPropInitialValue:
-				update.operation.type === 'add'
-					? {
-							value: getInitialValueForMissingProp({
-								schema: schema ?? null,
-								key: update.key,
-								newValue: update.operation.value,
-							}),
-						}
-					: null,
-		});
-		oldValueStrings.push(recast.print(prop.expression).code);
+		const {prop} = findObjectProperty(objExpr, update.key);
+		if (!prop) {
+			throw new Error(`Cannot update keyframes: "${update.key}" is not set`);
+		}
+
+		oldValueStrings.push(recast.print(prop.value).code);
 		const {expression: nextExpression, introduced} = applyKeyframeOperation({
-			expression: prop.expression,
+			expression: prop.value as Expression,
 			key: update.key,
 			operation: update.operation,
 			schema: schema ?? null,
 		});
 		newValueStrings.push(recast.print(nextExpression).code);
-		prop.setExpression(nextExpression);
+		prop.value = nextExpression as ObjectProperty['value'];
 
 		if (introduced.calleeName) {
 			requiredImports.add(introduced.calleeName);

@@ -1,6 +1,5 @@
 import React from 'react';
 import {Composition, Folder} from 'remotion';
-import {EffectKeyframeE2e} from './EffectKeyframeE2e';
 import {ErrorOverlayRepro} from './ErrorOverlayE2e/ErrorOverlayRepro';
 import {HookOrderChangeE2e} from './HookOrderChangeE2e/HookOrderChangeRepro';
 import {Issue8216} from './Issue8216/Issue8216';
@@ -47,14 +46,6 @@ export const E2eTestRoot: React.FC = () => {
 					height={2400}
 					fps={30}
 					durationInFrames={900}
-				/>
-				<Composition
-					id="effect-keyframe-e2e"
-					component={EffectKeyframeE2e}
-					width={1920}
-					height={1080}
-					fps={30}
-					durationInFrames={90}
 				/>
 			</Folder>
 			<Folder name="lost-node-path">

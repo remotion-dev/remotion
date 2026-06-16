@@ -87,29 +87,6 @@ export const Comp = () => {
 };
 `;
 
-const waveEffectInput = `import {wave} from '@remotion/effects/wave';
-import {Solid} from 'remotion';
-
-export const Comp = () => {
-\treturn (
-\t\t<Solid
-\t\t\twidth={100}
-\t\t\theight={100}
-\t\t\tcolor="red"
-\t\t\teffects={[wave({})]}
-\t\t/>
-\t);
-};
-`;
-
-const waveSchema = {
-	phase: {
-		type: 'number',
-		default: 0,
-		hiddenFromList: false,
-	},
-} satisfies InteractivitySchema;
-
 const getLine = (input: string, needle: string): number => {
 	const lineIndex = input
 		.split('\n')
@@ -139,6 +116,49 @@ test('updateSequenceKeyframes adds a keyframe to an existing interpolation', asy
 	expect(oldValueStrings).toEqual(['interpolate(frame, [0, 100], [2, 4])']);
 	expect(output).toContain(
 		'scale: interpolate(frame, [0, 50, 100], [2, 3, 4])',
+	);
+});
+
+test('updateSequenceKeyframes rounds floating point artifacts in saved keyframes', async () => {
+	const {output, newValueStrings} = await updateSequenceKeyframes({
+		input: sequenceInput,
+		nodePath: lineColumnToNodePath(
+			sequenceInput,
+			getLine(sequenceInput, 'scale'),
+		),
+		updates: [
+			{
+				key: 'style.scale',
+				operation: {type: 'add', frame: 50, value: 0.8300000000000001},
+			},
+		],
+	});
+
+	expect(newValueStrings).toEqual([
+		'interpolate(frame, [0, 50, 100], [2, 0.83, 4])',
+	]);
+	expect(output).toContain(
+		'scale: interpolate(frame, [0, 50, 100], [2, 0.83, 4])',
+	);
+});
+
+test('updateSequenceKeyframes preserves intentional high precision values', async () => {
+	const {output} = await updateSequenceKeyframes({
+		input: sequenceInput,
+		nodePath: lineColumnToNodePath(
+			sequenceInput,
+			getLine(sequenceInput, 'scale'),
+		),
+		updates: [
+			{
+				key: 'style.scale',
+				operation: {type: 'add', frame: 50, value: 0.123456789012345},
+			},
+		],
+	});
+
+	expect(output).toContain(
+		'scale: interpolate(frame, [0, 50, 100], [2, 0.123456789012345, 4])',
 	);
 });
 
@@ -1143,49 +1163,28 @@ test('updateEffectKeyframes converts a static value to a clamped interpolation',
 	expect(serialized).toContain('extrapolateRight: "clamp"');
 });
 
-test('updateEffectKeyframes adds a missing prop before keyframing it', () => {
-	const {serialized, oldValueStrings} = updateEffectKeyframesAst({
-		input: waveEffectInput,
+test('updateEffectKeyframes rounds floating point artifacts in saved keyframes', () => {
+	const {serialized, newValueStrings} = updateEffectKeyframesAst({
+		input: effectInput,
 		sequenceNodePath: lineColumnToNodePath(
-			waveEffectInput,
-			getLine(waveEffectInput, '<Solid'),
+			effectInput,
+			getLine(effectInput, '<HtmlInCanvas'),
 		),
 		effectIndex: 0,
-		schema: waveSchema,
 		updates: [
 			{
-				key: 'phase',
-				operation: {type: 'add', frame: 30, value: 90},
+				key: 'amount',
+				operation: {type: 'add', frame: 25, value: 0.060000000000000005},
 			},
 		],
 	});
 
-	expect(oldValueStrings).toEqual(['0']);
-	expect(serialized).toContain('useCurrentFrame');
-	expect(serialized).toContain('const frame = useCurrentFrame();');
-	expect(serialized).toContain('phase: interpolate(frame, [30], [90], {');
-	expect(serialized).toContain('extrapolateLeft: "clamp"');
-	expect(serialized).toContain('extrapolateRight: "clamp"');
-});
-
-test('updateEffectKeyframes adds props to a zero-argument effect', () => {
-	const input = waveEffectInput.replace('wave({})', 'wave()');
-	const {serialized, oldValueStrings} = updateEffectKeyframesAst({
-		input,
-		sequenceNodePath: lineColumnToNodePath(input, getLine(input, '<Solid')),
-		effectIndex: 0,
-		schema: waveSchema,
-		updates: [
-			{
-				key: 'phase',
-				operation: {type: 'add', frame: 15, value: 45},
-			},
-		],
-	});
-
-	expect(oldValueStrings).toEqual(['0']);
-	expect(serialized).toContain('wave({');
-	expect(serialized).toContain('phase: interpolate(frame, [15], [45], {');
+	expect(newValueStrings).toEqual([
+		'interpolate(frame, [0, 25, 50, 100], [0.2, 0.06, 0.5, 0.8])',
+	]);
+	expect(serialized).toContain(
+		'amount: interpolate(frame, [0, 25, 50, 100], [0.2, 0.06, 0.5, 0.8])',
+	);
 });
 
 test('updateEffectKeyframes sets one easing segment and fills linear segments', () => {

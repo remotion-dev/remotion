@@ -18,11 +18,6 @@ export const visualControlsFile = path.join(
 	'VisualControls',
 	'index.tsx',
 );
-export const effectKeyframeE2eFile = path.join(
-	exampleDir,
-	'src',
-	'EffectKeyframeE2e.tsx',
-);
 export const lostNodePathE2eFile = path.join(
 	exampleDir,
 	'src',
@@ -60,10 +55,6 @@ export const ORIGINAL_CONTENT_FILE = path.join(
 export const ORIGINAL_VISUAL_CONTROLS_FILE = path.join(
 	os.tmpdir(),
 	'remotion-e2e-original-visual-controls.tsx',
-);
-export const ORIGINAL_EFFECT_KEYFRAME_E2E_FILE = path.join(
-	os.tmpdir(),
-	'remotion-e2e-original-effect-keyframe-e2e.tsx',
 );
 export const ORIGINAL_LOST_NODE_PATH_E2E_FILE = path.join(
 	os.tmpdir(),
