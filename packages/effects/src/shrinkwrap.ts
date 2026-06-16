@@ -307,8 +307,10 @@ void main() {
 	float down = heightMap(vUv - vec2(0.0, texel.y));
 	float up = heightMap(vUv + vec2(0.0, texel.y));
 	vec2 gradient = vec2(right - left, up - down);
+	float reliefScale = mix(42.0, 115.0, uWrinkleDensity);
+	float warpStrength = reliefScale * 0.18;
 
-	vec2 sampleOffset = gradient * uDisplacement * uAmount;
+	vec2 sampleOffset = gradient * warpStrength * uDisplacement * uAmount;
 	vec2 sampleUv = clamp(vUv - sampleOffset * texel, vec2(0.0), vec2(1.0));
 	vec4 source = texture(uSource, sampleUv);
 
@@ -319,7 +321,7 @@ void main() {
 	}
 
 	vec3 rgb = source.rgb / alpha;
-	vec3 normal = normalize(vec3(-gradient * mix(42.0, 115.0, uWrinkleDensity), 1.0));
+	vec3 normal = normalize(vec3(-gradient * reliefScale, 1.0));
 	vec3 light = normalize(vec3(-0.42, 0.58, 0.72));
 	vec3 halfVector = normalize(light + vec3(0.0, 0.0, 1.0));
 	float specular = pow(max(dot(normal, halfVector), 0.0), 24.0);
