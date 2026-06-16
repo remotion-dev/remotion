@@ -18,6 +18,7 @@ import {zoomInOut} from '@remotion/transitions/zoom-in-out';
 import React from 'react';
 import {
 	AbsoluteFill,
+	Easing,
 	HtmlInCanvas,
 	Img,
 	Sequence,
@@ -25,7 +26,6 @@ import {
 	staticFile,
 	useCurrentFrame,
 	type CalculateMetadataFunction,
-	Easing,
 } from 'remotion';
 import {z} from 'zod';
 
@@ -83,7 +83,7 @@ const layoutConfigs: Record<
 
 loadFont({
 	family: BRAND_FONT_FAMILY,
-	url: staticFile('gt-planar-medium.woff2'),
+	url: staticFile('GT Planar/GT-Planar-Medium.woff2'),
 	weight: '500',
 });
 
