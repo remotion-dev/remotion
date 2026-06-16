@@ -47,6 +47,7 @@ import {
 	type SelectedOutlineRotationDragState,
 	type SelectedOutlineScaleDragState,
 } from '../components/SelectedOutlineOverlay';
+import {getSelectedOutlineUvHandleTimelineSelection} from '../components/SelectedOutlineUvControls';
 import {deleteSelectedTimelineItems} from '../components/Timeline/delete-selected-timeline-item';
 import {
 	isDuplicatableEffectSelection,
@@ -1796,6 +1797,26 @@ test('UV handles show for selected non-coordinate effect children', () => {
 		{fieldKey: 'start', isSelected: false},
 		{fieldKey: 'end', isSelected: false},
 	]);
+});
+
+test('UV handle selection targets the matching effect property', () => {
+	const sequenceNodePathInfo = makeNodePathInfo(['body', 0], []);
+
+	expect(
+		getSelectedOutlineUvHandleTimelineSelection({
+			effectIndex: 1,
+			fieldKey: 'end',
+			nodePathInfo: sequenceNodePathInfo,
+		}),
+	).toEqual({
+		type: 'sequence-effect-prop',
+		nodePathInfo: {
+			...sequenceNodePathInfo,
+			auxiliaryKeys: ['effects', '1', 'end'],
+		},
+		i: 1,
+		key: 'end',
+	});
 });
 
 test('UV handles are requested for selected effect children', () => {

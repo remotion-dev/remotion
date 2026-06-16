@@ -1,7 +1,10 @@
 import React, {useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {BLUE} from '../helpers/colors';
+import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
+import {isSelectedOutlineDragPastThreshold} from './selected-outline-drag';
 import type {OutlinePoint, SelectedOutline} from './selected-outline-geometry';
+import {getOutlineSelectionInteraction} from './selected-outline-measurement';
 import {
 	constrainUv,
 	getUvCoordinateForPoint,
@@ -14,6 +17,10 @@ import {
 } from './selected-outline-uv';
 import {callAddEffectKeyframe} from './Timeline/call-add-keyframe';
 import {saveEffectProp} from './Timeline/save-effect-prop';
+import type {
+	TimelineSelection,
+	TimelineSelectionInteraction,
+} from './Timeline/TimelineSelection';
 
 const getSvgPointFromPointerEvent = ({
 	event,
@@ -30,6 +37,26 @@ const getSvgPointFromPointerEvent = ({
 
 const uvHandleRadius = 5;
 const selectedUvHandleRadius = 8;
+
+export const getSelectedOutlineUvHandleTimelineSelection = ({
+	effectIndex,
+	fieldKey,
+	nodePathInfo,
+}: {
+	readonly effectIndex: number;
+	readonly fieldKey: string;
+	readonly nodePathInfo: SequenceNodePathInfo;
+}): TimelineSelection => {
+	return {
+		type: 'sequence-effect-prop',
+		nodePathInfo: {
+			...nodePathInfo,
+			auxiliaryKeys: ['effects', String(effectIndex), fieldKey],
+		},
+		i: effectIndex,
+		key: fieldKey,
+	};
+};
 
 const SelectedUvHandleConnectionLines: React.FC<{
 	readonly handles: readonly SelectedOutlineUvHandle[];
@@ -61,9 +88,14 @@ const SelectedUvHandleConnectionLines: React.FC<{
 
 const SelectedUvHandleCircle: React.FC<{
 	readonly onDraggingChange: (dragging: boolean) => void;
+	readonly onSelect: (
+		item: TimelineSelection,
+		interaction?: TimelineSelectionInteraction,
+	) => void;
 	readonly handle: SelectedOutlineUvHandle;
+	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly outline: SelectedOutline;
-}> = ({handle, onDraggingChange, outline}) => {
+}> = ({handle, nodePathInfo, onDraggingChange, onSelect, outline}) => {
 	const {setEffectDragOverrides, clearEffectDragOverrides, setPropStatuses} =
 		useContext(Internals.VisualModeSettersContext);
 	const position = useMemo(
@@ -80,14 +112,30 @@ const SelectedUvHandleCircle: React.FC<{
 			event.preventDefault();
 			event.stopPropagation();
 
+			const interaction = getOutlineSelectionInteraction(event);
+			onSelect(
+				getSelectedOutlineUvHandleTimelineSelection({
+					effectIndex: handle.effectIndex,
+					fieldKey: handle.fieldKey,
+					nodePathInfo,
+				}),
+				interaction,
+			);
+
+			if (interaction.shiftKey || interaction.toggleKey) {
+				return;
+			}
+
 			const svg = event.currentTarget.ownerSVGElement;
 			if (svg === null) {
 				return;
 			}
 
 			const svgRect = svg.getBoundingClientRect();
+			const startPointerX = event.clientX;
+			const startPointerY = event.clientY;
 			let lastValue: UvCoordinate | null = null;
-			onDraggingChange(true);
+			let dragging = false;
 			const defaultValue =
 				handle.fieldDefault !== undefined
 					? JSON.stringify(handle.fieldDefault)
@@ -122,18 +170,33 @@ const SelectedUvHandleCircle: React.FC<{
 				);
 			};
 
-			updateFromPointerEvent(event);
+			const updateDragFromPointerEvent = (pointerEvent: PointerEvent) => {
+				if (!dragging) {
+					const deltaX = pointerEvent.clientX - startPointerX;
+					const deltaY = pointerEvent.clientY - startPointerY;
+					if (!isSelectedOutlineDragPastThreshold({deltaX, deltaY})) {
+						return;
+					}
+
+					dragging = true;
+					onDraggingChange(true);
+				}
+
+				updateFromPointerEvent(pointerEvent);
+			};
 
 			const onPointerMove = (moveEvent: PointerEvent) => {
 				moveEvent.preventDefault();
-				updateFromPointerEvent(moveEvent);
+				updateDragFromPointerEvent(moveEvent);
 			};
 
 			const onPointerUp = () => {
 				window.removeEventListener('pointermove', onPointerMove);
 				window.removeEventListener('pointerup', onPointerUp);
 				window.removeEventListener('pointercancel', onPointerUp);
-				onDraggingChange(false);
+				if (dragging) {
+					onDraggingChange(false);
+				}
 
 				const stringifiedValue =
 					lastValue === null ? null : JSON.stringify(lastValue);
@@ -196,7 +259,9 @@ const SelectedUvHandleCircle: React.FC<{
 		[
 			clearEffectDragOverrides,
 			handle,
+			nodePathInfo,
 			onDraggingChange,
+			onSelect,
 			outline.points,
 			setPropStatuses,
 			setEffectDragOverrides,
@@ -221,6 +286,7 @@ const SelectedUvHandleCircle: React.FC<{
 
 type UvTarget = {
 	readonly containsSelection: boolean;
+	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly uvHandles: readonly SelectedOutlineUvHandle[];
 };
 
@@ -242,9 +308,13 @@ export const SelectedOutlineUvHandleConnectionLayer: React.FC<{
 
 export const SelectedOutlineUvHandleCircleLayer: React.FC<{
 	readonly onDraggingChange: (dragging: boolean) => void;
+	readonly onSelect: (
+		item: TimelineSelection,
+		interaction?: TimelineSelectionInteraction,
+	) => void;
 	readonly outline: SelectedOutline;
 	readonly target: UvTarget | undefined;
-}> = ({onDraggingChange, outline, target}) => {
+}> = ({onDraggingChange, onSelect, outline, target}) => {
 	if (!target?.containsSelection || target.uvHandles.length === 0) {
 		return null;
 	}
@@ -255,7 +325,9 @@ export const SelectedOutlineUvHandleCircleLayer: React.FC<{
 				<SelectedUvHandleCircle
 					key={`${handle.effectIndex}-${handle.fieldKey}`}
 					handle={handle}
+					nodePathInfo={target.nodePathInfo}
 					onDraggingChange={onDraggingChange}
+					onSelect={onSelect}
 					outline={outline}
 				/>
 			))}

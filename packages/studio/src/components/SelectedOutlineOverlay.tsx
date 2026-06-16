@@ -813,6 +813,7 @@ export const SelectedOutlineOverlay: React.FC<{
 				<SelectedOutlineUvHandleCircleLayer
 					key={`${outline.key}-uv-handles`}
 					onDraggingChange={onDraggingChange}
+					onSelect={selectItem}
 					outline={outline}
 					target={targetsByKey.get(outline.key)}
 				/>
