@@ -13,6 +13,7 @@ import React, {
 import {Easing, Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {
+	BACKGROUND,
 	BLUE,
 	INPUT_BACKGROUND,
 	INPUT_BORDER_COLOR_HOVERED,
@@ -66,6 +67,9 @@ const DEFAULT_EASING_GRAPH_LABELS: EasingGraphLabels = {
 	end: '1',
 };
 const EASING_GRAPH_GUIDE_COLOR = 'rgba(255, 255, 255, 0.12)';
+const EASING_GRAPH_LABEL_HEIGHT = 14;
+const EASING_GRAPH_LABEL_HORIZONTAL_PADDING = 4;
+const EASING_GRAPH_LABEL_MAX_WIDTH = PLOT_WIDTH / 2;
 const PRESET_PREVIEW_WIDTH = 48;
 const PRESET_PREVIEW_HEIGHT = 30;
 const PRESET_PREVIEW_PADDING = 5;
@@ -483,13 +487,39 @@ const pointFromBezier = (bezier: CubicBezierTuple, handle: HandleIndex) => {
 	return {x: xToSvg(x), y: yToSvg(y)};
 };
 
+const getEasingGraphLabelWidth = (label: string) => {
+	return clamp(
+		label.length * 5.5 + EASING_GRAPH_LABEL_HORIZONTAL_PADDING * 2,
+		24,
+		EASING_GRAPH_LABEL_MAX_WIDTH,
+	);
+};
+
+const getEasingGraphLabelStyle = (
+	textAlign: 'left' | 'right',
+): React.CSSProperties => ({
+	alignItems: 'center',
+	backgroundColor: BACKGROUND,
+	color: LIGHT_TEXT,
+	display: 'flex',
+	fontSize: 9,
+	height: '100%',
+	justifyContent: textAlign === 'left' ? 'flex-start' : 'flex-end',
+	lineHeight: `${EASING_GRAPH_LABEL_HEIGHT}px`,
+	overflow: 'hidden',
+	padding: `0 ${EASING_GRAPH_LABEL_HORIZONTAL_PADDING}px`,
+	textAlign,
+	textOverflow: 'ellipsis',
+	whiteSpace: 'nowrap',
+});
+
 const EasingGraphScaffold: React.FC<{
 	readonly labels: EasingGraphLabels;
 }> = ({labels}) => {
 	const yZero = yToSvg(0);
 	const yOne = yToSvg(1);
-	const yZeroLabel = clamp(yZero + 3, 10, SVG_HEIGHT - 4);
-	const yOneLabel = clamp(yOne + 3, 10, SVG_HEIGHT - 4);
+	const bottomLabelWidth = getEasingGraphLabelWidth(labels.start);
+	const topLabelWidth = getEasingGraphLabelWidth(labels.end);
 
 	return (
 		<>
@@ -509,24 +539,26 @@ const EasingGraphScaffold: React.FC<{
 				stroke={EASING_GRAPH_GUIDE_COLOR}
 				strokeWidth={1}
 			/>
-			<text
-				x={PLOT_LEFT - 8}
-				y={yZeroLabel}
-				fill={LIGHT_TEXT}
-				fontSize={9}
-				textAnchor="end"
+			<foreignObject
+				x={PLOT_LEFT}
+				y={yOne - EASING_GRAPH_LABEL_HEIGHT / 2}
+				width={topLabelWidth}
+				height={EASING_GRAPH_LABEL_HEIGHT}
 			>
-				{labels.start}
-			</text>
-			<text
-				x={PLOT_LEFT - 8}
-				y={yOneLabel}
-				fill={LIGHT_TEXT}
-				fontSize={9}
-				textAnchor="end"
+				<div style={getEasingGraphLabelStyle('left')} title={labels.end}>
+					{labels.end}
+				</div>
+			</foreignObject>
+			<foreignObject
+				x={PLOT_LEFT + PLOT_WIDTH - bottomLabelWidth}
+				y={yZero - EASING_GRAPH_LABEL_HEIGHT / 2}
+				width={bottomLabelWidth}
+				height={EASING_GRAPH_LABEL_HEIGHT}
 			>
-				{labels.end}
-			</text>
+				<div style={getEasingGraphLabelStyle('right')} title={labels.start}>
+					{labels.start}
+				</div>
+			</foreignObject>
 		</>
 	);
 };
