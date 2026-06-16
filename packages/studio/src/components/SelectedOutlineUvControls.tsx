@@ -3,6 +3,10 @@ import {Internals} from 'remotion';
 import {BLUE} from '../helpers/colors';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 import {
+	forceSpecificCursor,
+	stopForcingSpecificCursor,
+} from './ForceSpecificCursor';
+import {
 	isSelectedOutlineDragPastThreshold,
 	snapSelectedOutlineUv,
 } from './selected-outline-drag';
@@ -185,6 +189,7 @@ const SelectedUvHandleCircle: React.FC<{
 					}
 
 					dragging = true;
+					forceSpecificCursor('default');
 					onDraggingChange(true);
 				}
 
@@ -201,6 +206,7 @@ const SelectedUvHandleCircle: React.FC<{
 				window.removeEventListener('pointerup', onPointerUp);
 				window.removeEventListener('pointercancel', onPointerUp);
 				if (dragging) {
+					stopForcingSpecificCursor();
 					onDraggingChange(false);
 				}
 
