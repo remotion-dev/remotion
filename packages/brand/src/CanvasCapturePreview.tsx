@@ -63,7 +63,7 @@ export const canvasCapturePreviewSchema = z.object({
 export type CanvasCapturePreviewProps = z.infer<
 	typeof canvasCapturePreviewSchema
 > & {
-	readonly cursorData?: CursorRecording;
+	readonly cursorData?: CursorRecording | null;
 	readonly width: number | null;
 	readonly height: number | null;
 };
@@ -411,13 +411,10 @@ export const calculateCanvasCapturePreviewMetadata: CalculateMetadataFunction<
 		: null;
 
 	const rawCaptureData = tags.raw?.[CAPTURE_METADATA_TAG_KEY];
-	if (typeof rawCaptureData !== 'string') {
-		throw new Error(
-			'Could not read capture metadata from video file. Was it recorded with @remotion/canvas-capture?',
-		);
-	}
-
-	const cursorData = JSON.parse(rawCaptureData) as CursorRecording;
+	const cursorData =
+		typeof rawCaptureData === 'string'
+			? (JSON.parse(rawCaptureData) as CursorRecording)
+			: null;
 
 	if (!dimensions) {
 		throw new Error('Could not determine canvas capture video dimensions.');
@@ -444,10 +441,6 @@ export const CanvasCapturePreview: React.FC<CanvasCapturePreviewProps> = ({
 	width,
 	height,
 }) => {
-	if (!cursorData) {
-		throw new Error('Cursor data was not loaded from video metadata.');
-	}
-
 	return (
 		<AbsoluteFill>
 			<Video
@@ -457,7 +450,9 @@ export const CanvasCapturePreview: React.FC<CanvasCapturePreviewProps> = ({
 					height: height!,
 				}}
 			/>
-			<CursorOverlay cursorData={cursorData} cursorScale={cursorScale} />
+			{cursorData ? (
+				<CursorOverlay cursorData={cursorData} cursorScale={cursorScale} />
+			) : null}
 		</AbsoluteFill>
 	);
 };

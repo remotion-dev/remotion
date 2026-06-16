@@ -128,7 +128,7 @@ export const RemotionRoot: React.FC = () => {
 					fps={30}
 					durationInFrames={120}
 					defaultProps={{
-						videoFile: staticFile('canvas-all-v3.webm'),
+						videoFile: 'https://remotion.media/video.webm',
 						cursorScale: 5,
 						width: null,
 						height: null,
