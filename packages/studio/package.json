@@ -41,12 +41,13 @@
 		"zod": "catalog:"
 	},
 	"devDependencies": {
-		"react": "catalog:",
-		"react-dom": "catalog:",
-		"@types/semver": "7.5.3",
+		"@happy-dom/global-registrator": "14.5.1",
 		"@remotion/eslint-config-internal": "workspace:*",
+		"@typescript/native-preview": "catalog:",
+		"@types/semver": "7.5.3",
 		"eslint": "catalog:",
-		"@typescript/native-preview": "catalog:"
+		"react": "catalog:",
+		"react-dom": "catalog:"
 	},
 	"publishConfig": {
 		"access": "public"

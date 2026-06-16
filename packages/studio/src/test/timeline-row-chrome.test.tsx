@@ -1,10 +1,21 @@
 import {afterEach, expect, test} from 'bun:test';
-import React, {act} from 'react';
+import {GlobalRegistrator} from '@happy-dom/global-registrator';
+import {act} from 'react';
 import {createRoot, type Root} from 'react-dom/client';
-import '../../../core/happydom';
 import {TimelineRowChrome} from '../components/Timeline/TimelineRowChrome';
 
-globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+(
+	globalThis as typeof globalThis & {IS_REACT_ACT_ENVIRONMENT: boolean}
+).IS_REACT_ACT_ENVIRONMENT = true;
+GlobalRegistrator.register();
+Object.defineProperty(window, 'origin', {
+	value: 'http://localhost:3000',
+	configurable: true,
+});
+Object.defineProperty(window, 'remotion_staticBase', {
+	value: '/static-abcdef',
+	configurable: true,
+});
 
 let container: HTMLDivElement | null = null;
 let root: Root | null = null;
