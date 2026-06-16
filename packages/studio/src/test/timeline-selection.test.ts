@@ -647,7 +647,7 @@ test('copying a selected sequence easing creates an easing payload', () => {
 	} as const;
 	const schema = {
 		opacity: {type: 'number', default: 1, hiddenFromList: false},
-	} satisfies SequenceSchema;
+	} satisfies InteractivitySchema;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
 			canUpdate: true,
@@ -697,10 +697,10 @@ test('copying a selected effect easing creates an easing payload', () => {
 		[['0', 'intensity']],
 	);
 	const nodePath = effectPropNodePathInfo.sequenceSubscriptionKey;
-	const schema = {} satisfies SequenceSchema;
+	const schema = {} satisfies InteractivitySchema;
 	const effectSchema = {
 		intensity: {type: 'number', default: 0, hiddenFromList: false},
-	} satisfies SequenceSchema;
+	} satisfies InteractivitySchema;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
 			canUpdate: true,
