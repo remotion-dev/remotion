@@ -41,6 +41,7 @@ import {
 import {TimelineVideoInfo} from './TimelineVideoInfo';
 import {TimelineWidthContext} from './TimelineWidthProvider';
 import {useResolveStackAndReactToChange} from './use-resolved-stack-react-to-change';
+import {useSequenceFreezeFrameMenuItem} from './use-sequence-freeze-frame-menu-item';
 
 const AUDIO_GRADIENT = 'linear-gradient(rgb(16 171 58), rgb(43 165 63) 60%)';
 const VIDEO_GRADIENT = 'linear-gradient(to top, #8e44ad, #9b59b6)';
@@ -268,6 +269,7 @@ const TimelineSequenceInner: React.FC<{
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const previewConnected = previewServerState.type === 'connected';
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
+	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const selectAsset = useSelectAsset();
 	const confirm = useConfirmationDialog();
 	const {onSelect, selectable} = useTimelineRowSelection(nodePathInfo);
@@ -383,6 +385,19 @@ const TimelineSequenceInner: React.FC<{
 		setPropStatuses,
 		validatedLocation?.source,
 	]);
+	const freezeFrameMenuItem = useSequenceFreezeFrameMenuItem({
+		clientId:
+			previewServerState.type === 'connected'
+				? previewServerState.clientId
+				: null,
+		nodePath,
+		propStatusesForOverride,
+		sequence: s,
+		sequenceFrameOffset,
+		setPropStatuses,
+		timelinePosition,
+		validatedSource: validatedLocation?.source ?? null,
+	});
 	const contextMenuValues = useMemo(() => {
 		if (!previewConnected) {
 			return [];
@@ -403,6 +418,7 @@ const TimelineSequenceInner: React.FC<{
 			originalLocation,
 			selectAsset,
 			sequence: s,
+			sourceActions: [freezeFrameMenuItem],
 		});
 	}, [
 		assetLinkInfo,
@@ -411,6 +427,7 @@ const TimelineSequenceInner: React.FC<{
 		disableInteractivityDisabled,
 		duplicateDisabled,
 		fileLocation,
+		freezeFrameMenuItem,
 		onDeleteSequenceFromSource,
 		onDisableSequenceInteractivity,
 		onDuplicateSequenceFromSource,
