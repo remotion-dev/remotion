@@ -1518,6 +1518,55 @@ const getSequenceWritableProp = ({
 	};
 };
 
+const getEffectWritableProp = ({
+	objExpr,
+	key,
+	missingPropInitialValue,
+}: {
+	objExpr: ObjectExpression;
+	key: string;
+	missingPropInitialValue: MissingPropInitialValue | null;
+}): WritableProp => {
+	const {prop} = findObjectProperty(objExpr, key);
+	if (!prop) {
+		if (missingPropInitialValue) {
+			return {
+				expression: createMissingPropExpression(missingPropInitialValue),
+				setExpression: (nextExpression) => {
+					objExpr.properties.push(
+						createObjectProperty(key, nextExpression) as ObjectProperty,
+					);
+				},
+			};
+		}
+
+		throw new Error(`Cannot update keyframes: "${key}" is not set`);
+	}
+
+	return {
+		expression: prop.value as Expression,
+		setExpression: (nextExpression) => {
+			prop.value = nextExpression as ObjectProperty['value'];
+		},
+	};
+};
+
+const getEffectPropsObjectExpression = (
+	call: CallExpression,
+): ObjectExpression => {
+	if (call.arguments.length === 0) {
+		const objExpr = b.objectExpression([]) as ObjectExpression;
+		call.arguments.push(objExpr);
+		return objExpr;
+	}
+
+	if (call.arguments[0].type !== 'ObjectExpression') {
+		throw new Error('Cannot update effect keyframe: computed');
+	}
+
+	return call.arguments[0] as ObjectExpression;
+};
+
 export const updateSequenceKeyframesAst = ({
 	input,
 	nodePath,
@@ -1711,33 +1760,35 @@ export const updateEffectKeyframesAst = ({
 	}
 
 	const {call, callee: effectCallee} = found;
-	if (
-		call.arguments.length === 0 ||
-		call.arguments[0].type !== 'ObjectExpression'
-	) {
-		throw new Error('Cannot update effect keyframe: computed');
-	}
-
-	const objExpr = call.arguments[0] as ObjectExpression;
+	const objExpr = getEffectPropsObjectExpression(call);
 	const oldValueStrings: string[] = [];
 	const newValueStrings: string[] = [];
 	const requiredImports = new Set<string>();
 	let needsFrameHook = false;
 	for (const update of updates) {
-		const {prop} = findObjectProperty(objExpr, update.key);
-		if (!prop) {
-			throw new Error(`Cannot update keyframes: "${update.key}" is not set`);
-		}
-
-		oldValueStrings.push(recast.print(prop.value).code);
+		const prop = getEffectWritableProp({
+			objExpr,
+			key: update.key,
+			missingPropInitialValue:
+				update.operation.type === 'add'
+					? {
+							value: getInitialValueForMissingProp({
+								schema: schema ?? null,
+								key: update.key,
+								newValue: update.operation.value,
+							}),
+						}
+					: null,
+		});
+		oldValueStrings.push(recast.print(prop.expression).code);
 		const {expression: nextExpression, introduced} = applyKeyframeOperation({
-			expression: prop.value as Expression,
+			expression: prop.expression,
 			key: update.key,
 			operation: update.operation,
 			schema: schema ?? null,
 		});
 		newValueStrings.push(recast.print(nextExpression).code);
-		prop.value = nextExpression as ObjectProperty['value'];
+		prop.setExpression(nextExpression);
 
 		if (introduced.calleeName) {
 			requiredImports.add(introduced.calleeName);
