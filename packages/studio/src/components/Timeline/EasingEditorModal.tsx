@@ -57,6 +57,7 @@ const Y_MIN = -2;
 const Y_MAX = 3;
 const LINEAR_EASING: TimelineEasingValue = {type: 'linear'};
 const LINEAR_BEZIER: CubicBezierTuple = [0.25, 0.25, 0.75, 0.75];
+const EASING_GRAPH_GUIDE_COLOR = 'rgba(255, 255, 255, 0.12)';
 const PRESET_PREVIEW_WIDTH = 48;
 const PRESET_PREVIEW_HEIGHT = 30;
 const PRESET_PREVIEW_PADDING = 5;
@@ -426,7 +427,7 @@ const EasingGraphScaffold: React.FC = () => {
 				y1={yZero}
 				x2={PLOT_LEFT + PLOT_WIDTH}
 				y2={yZero}
-				stroke={INPUT_BORDER_COLOR_HOVERED}
+				stroke={EASING_GRAPH_GUIDE_COLOR}
 				strokeWidth={1}
 			/>
 			<line
@@ -434,7 +435,7 @@ const EasingGraphScaffold: React.FC = () => {
 				y1={yOne}
 				x2={PLOT_LEFT + PLOT_WIDTH}
 				y2={yOne}
-				stroke={INPUT_BORDER_COLOR_HOVERED}
+				stroke={EASING_GRAPH_GUIDE_COLOR}
 				strokeWidth={1}
 			/>
 			<text x={PLOT_LEFT - 22} y={yZeroLabel} fill={LIGHT_TEXT} fontSize={9}>
