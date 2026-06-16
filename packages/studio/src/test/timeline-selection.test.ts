@@ -40,13 +40,16 @@ import {
 	getSequencesWithSelectableOutlines,
 	getTransformedSvgViewportPoints,
 	isSelectedOutlineDragPastThreshold,
+	snapSelectedOutlineUv,
 	snapSelectedOutlineTransformOriginUv,
 	selectedOutlineDragThresholdPx,
+	selectedOutlineUvSnapThresholdPx,
 	selectedOutlineTransformOriginSnapThresholdPx,
 	type SelectedOutlineDragState,
 	type SelectedOutlineRotationDragState,
 	type SelectedOutlineScaleDragState,
 } from '../components/SelectedOutlineOverlay';
+import {getSelectedOutlineUvHandleTimelineSelection} from '../components/SelectedOutlineUvControls';
 import {deleteSelectedTimelineItems} from '../components/Timeline/delete-selected-timeline-item';
 import {
 	isDuplicatableEffectSelection,
@@ -1471,6 +1474,44 @@ test('Transform origin drag does not snap outside the magnetic threshold', () =>
 	expect(snapped[1]).toBeCloseTo(uv[1], 5);
 });
 
+test('UV coordinate drag snaps to outline anchors', () => {
+	const points = [
+		{x: 0, y: 0},
+		{x: 100, y: 0},
+		{x: 100, y: 100},
+		{x: 0, y: 100},
+	] as const;
+
+	expect(
+		snapSelectedOutlineUv({
+			point: {x: 47, y: 53},
+			points,
+			uv: getUvCoordinateForPoint(points, {x: 47, y: 53}),
+		}),
+	).toEqual([0.5, 0.5]);
+	expect(
+		snapSelectedOutlineUv({
+			point: {x: 96, y: 49},
+			points,
+			uv: getUvCoordinateForPoint(points, {x: 96, y: 49}),
+		}),
+	).toEqual([1, 0.5]);
+
+	const pointer = {
+		x: 50,
+		y: selectedOutlineUvSnapThresholdPx + 1,
+	};
+	const uv = getUvCoordinateForPoint(points, pointer);
+	const snapped = snapSelectedOutlineUv({
+		point: pointer,
+		points,
+		uv,
+	});
+
+	expect(snapped[0]).toBeCloseTo(uv[0], 5);
+	expect(snapped[1]).toBeCloseTo(uv[1], 5);
+});
+
 test('Transform origin axis locking keeps one UV axis fixed', () => {
 	const dimensions = {width: 200, height: 100};
 	const startUv = [0.25, 0.5] as const;
@@ -1685,6 +1726,138 @@ test('UV handle connection lines stay within the same effect instance', () => {
 	});
 
 	expect(lines.map((line) => line.key)).toEqual(['2-start-end']);
+});
+
+const getUvHandlesForSelectedEffectChild = (selectedFieldKey: string) => {
+	const sequenceNodePathInfo = makeNodePathInfo(['body', 0], []);
+	const effectPropNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['effects', '0', selectedFieldKey],
+	);
+	const nodePath = sequenceNodePathInfo.sequenceSubscriptionKey;
+	const effectSchema = {
+		start: {
+			type: 'uv-coordinate',
+			default: [0, 0],
+			lineTo: 'end',
+		},
+		end: {
+			type: 'uv-coordinate',
+			default: [1, 1],
+		},
+		dotSize: {
+			type: 'number',
+			default: 10,
+			hiddenFromList: false,
+		},
+	} as const satisfies SequenceSchema;
+	const propStatuses: PropStatuses = {
+		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			canUpdate: true,
+			props: {},
+			effects: [
+				{
+					canUpdate: true,
+					effectIndex: 0,
+					callee: 'testEffect',
+					importPath: null,
+					props: {
+						start: {
+							status: 'static',
+							codeValue: [0.2, 0.3],
+						},
+						end: {
+							status: 'static',
+							codeValue: [0.8, 0.7],
+						},
+						dotSize: {
+							status: 'static',
+							codeValue: 10,
+						},
+					},
+				},
+			],
+		},
+	};
+
+	return getSelectedUvHandles({
+		propStatuses,
+		clientId: 'client-id',
+		getEffectDragOverrides: () => ({}),
+		nodePath,
+		selectedEffects: getSelectedEffectFieldsBySequenceKey([
+			{
+				type: 'sequence-effect-prop',
+				nodePathInfo: effectPropNodePathInfo,
+				i: 0,
+				key: selectedFieldKey,
+			},
+		]).get(getTimelineSequenceSelectionKey(sequenceNodePathInfo)),
+		sequence: {
+			effects: [{schema: effectSchema}],
+		} as unknown as TSequence,
+		sourceFrame: 0,
+	});
+};
+
+test('UV handles include connected coordinates when selecting one coordinate', () => {
+	const handles = getUvHandlesForSelectedEffectChild('start');
+
+	expect(
+		handles.map((handle) => ({
+			fieldKey: handle.fieldKey,
+			isSelected: handle.isSelected,
+			value: handle.value,
+		})),
+	).toEqual([
+		{fieldKey: 'start', isSelected: true, value: [0.2, 0.3]},
+		{fieldKey: 'end', isSelected: false, value: [0.8, 0.7]},
+	]);
+	expect(
+		getUvHandleConnectionLines({
+			points: [
+				{x: 0, y: 0},
+				{x: 100, y: 0},
+				{x: 100, y: 100},
+				{x: 0, y: 100},
+			],
+			handles,
+		}).map((line) => line.key),
+	).toEqual(['0-start-end']);
+});
+
+test('UV handles show for selected non-coordinate effect children', () => {
+	const handles = getUvHandlesForSelectedEffectChild('dotSize');
+
+	expect(
+		handles.map((handle) => ({
+			fieldKey: handle.fieldKey,
+			isSelected: handle.isSelected,
+		})),
+	).toEqual([
+		{fieldKey: 'start', isSelected: false},
+		{fieldKey: 'end', isSelected: false},
+	]);
+});
+
+test('UV handle selection targets the matching effect property', () => {
+	const sequenceNodePathInfo = makeNodePathInfo(['body', 0], []);
+
+	expect(
+		getSelectedOutlineUvHandleTimelineSelection({
+			effectIndex: 1,
+			fieldKey: 'end',
+			nodePathInfo: sequenceNodePathInfo,
+		}),
+	).toEqual({
+		type: 'sequence-effect-prop',
+		nodePathInfo: {
+			...sequenceNodePathInfo,
+			auxiliaryKeys: ['effects', '1', 'end'],
+		},
+		i: 1,
+		key: 'end',
+	});
 });
 
 test('UV handles are requested for selected effect children', () => {
