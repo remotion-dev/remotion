@@ -1,6 +1,6 @@
 import {shrinkwrap} from '@remotion/effects/shrinkwrap';
 import React from 'react';
-import {CanvasImage} from 'remotion';
+import {CanvasImage, useCurrentFrame} from 'remotion';
 import {EFFECTS_PREVIEW_IMAGE_SRC} from './effects-preview-image';
 
 export const SHRINKWRAP_PREVIEW_PARAMS = {
@@ -9,6 +9,7 @@ export const SHRINKWRAP_PREVIEW_PARAMS = {
 	highlightIntensity: 1.54,
 	wrinkleDensity: 0.87,
 	edgeTension: 0.58,
+	phase: 0,
 	seed: 12,
 } as const;
 
@@ -18,6 +19,7 @@ export const EffectsShrinkwrapPreview: React.FC<{
 	readonly highlightIntensity: number;
 	readonly wrinkleDensity: number;
 	readonly edgeTension: number;
+	readonly phase: number;
 	readonly seed: number;
 }> = ({
 	amount,
@@ -25,8 +27,11 @@ export const EffectsShrinkwrapPreview: React.FC<{
 	highlightIntensity,
 	wrinkleDensity,
 	edgeTension,
+	phase,
 	seed,
 }) => {
+	const frame = useCurrentFrame();
+
 	return (
 		<CanvasImage
 			src={EFFECTS_PREVIEW_IMAGE_SRC}
@@ -40,6 +45,7 @@ export const EffectsShrinkwrapPreview: React.FC<{
 					highlightIntensity,
 					wrinkleDensity,
 					edgeTension,
+					phase: phase + frame * 0.05,
 					seed,
 				}),
 			]}

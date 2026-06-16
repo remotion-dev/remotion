@@ -14,6 +14,7 @@ const DEFAULT_DISPLACEMENT = 5 as const;
 const DEFAULT_HIGHLIGHT_INTENSITY = 0.75 as const;
 const DEFAULT_WRINKLE_DENSITY = 0.42 as const;
 const DEFAULT_EDGE_TENSION = 0.45 as const;
+const DEFAULT_PHASE = 0 as const;
 const DEFAULT_SEED = 0 as const;
 
 const shrinkwrapSchema = {
@@ -62,6 +63,13 @@ const shrinkwrapSchema = {
 		description: 'Edge tension',
 		hiddenFromList: false,
 	},
+	phase: {
+		type: 'number',
+		step: 0.01,
+		default: DEFAULT_PHASE,
+		description: 'Phase',
+		hiddenFromList: false,
+	},
 	seed: {
 		type: 'number',
 		step: 1,
@@ -82,6 +90,8 @@ export type ShrinkwrapParams = {
 	readonly wrinkleDensity?: number;
 	/** Strength of stretched edge highlights from `0` to `1`. Defaults to `0.45`. */
 	readonly edgeTension?: number;
+	/** Offset into the continuous wrinkle field. Defaults to `0`. */
+	readonly phase?: number;
 	/** Seed for the deterministic wrinkle pattern. Defaults to `0`. */
 	readonly seed?: number;
 };
@@ -92,6 +102,7 @@ type ShrinkwrapResolved = {
 	highlightIntensity: number;
 	wrinkleDensity: number;
 	edgeTension: number;
+	phase: number;
 	seed: number;
 };
 
@@ -101,6 +112,7 @@ const resolve = (p: ShrinkwrapParams): ShrinkwrapResolved => ({
 	highlightIntensity: p.highlightIntensity ?? DEFAULT_HIGHLIGHT_INTENSITY,
 	wrinkleDensity: p.wrinkleDensity ?? DEFAULT_WRINKLE_DENSITY,
 	edgeTension: p.edgeTension ?? DEFAULT_EDGE_TENSION,
+	phase: p.phase ?? DEFAULT_PHASE,
 	seed: p.seed ?? DEFAULT_SEED,
 });
 
@@ -111,6 +123,7 @@ const validateShrinkwrapParams = (params: ShrinkwrapParams): void => {
 	assertOptionalFiniteNumber(params.highlightIntensity, 'highlightIntensity');
 	assertOptionalFiniteNumber(params.wrinkleDensity, 'wrinkleDensity');
 	assertOptionalFiniteNumber(params.edgeTension, 'edgeTension');
+	assertOptionalFiniteNumber(params.phase, 'phase');
 	assertOptionalFiniteNumber(params.seed, 'seed');
 
 	const r = resolve(params);
@@ -134,6 +147,7 @@ type ShrinkwrapState = {
 	readonly uHighlightIntensity: WebGLUniformLocation | null;
 	readonly uWrinkleDensity: WebGLUniformLocation | null;
 	readonly uEdgeTension: WebGLUniformLocation | null;
+	readonly uPhase: WebGLUniformLocation | null;
 	readonly uSeed: WebGLUniformLocation | null;
 };
 
@@ -161,6 +175,7 @@ uniform float uDisplacement;
 uniform float uHighlightIntensity;
 uniform float uWrinkleDensity;
 uniform float uEdgeTension;
+uniform float uPhase;
 uniform float uSeed;
 
 float hash21(vec2 p) {
@@ -201,10 +216,15 @@ mat2 rotate2d(float angle) {
 	return mat2(c, -s, s, c);
 }
 
+vec2 phaseVec(float xFactor, float yFactor) {
+	return vec2(uPhase * xFactor, uPhase * yFactor);
+}
+
 vec2 warpVec(vec2 p, float scale, float amount, float seedOffset) {
 	return vec2(
-		fbm(p / scale + vec2(seedOffset, 1.7)) - 0.5,
-		fbm(p / scale + vec2(seedOffset + 9.1, 6.4)) - 0.5
+		fbm(p / scale + phaseVec(0.21, 0.13) + vec2(seedOffset, 1.7)) - 0.5,
+		fbm(p / scale + phaseVec(-0.17, 0.29) + vec2(seedOffset + 9.1, 6.4))
+			- 0.5
 	) * amount;
 }
 
@@ -221,7 +241,8 @@ float curvedFoldField(
 	float seedOffset
 ) {
 	float angleNoise =
-		(fbm(px / (spacing * 5.8) + vec2(seedOffset, 3.1)) - 0.5) * 1.35;
+		(fbm(px / (spacing * 5.8) + phaseVec(0.08, -0.11) + vec2(seedOffset, 3.1))
+			- 0.5) * 1.35;
 	vec2 warped = px + warpVec(
 		px + vec2(seedOffset * 13.0, seedOffset * 7.0),
 		spacing * 5.4,
@@ -230,14 +251,22 @@ float curvedFoldField(
 	);
 	vec2 q = rotate2d(baseAngle + angleNoise) * warped;
 	float phase =
-		(fbm(q / (spacing * 3.4) + vec2(seedOffset, 8.6)) - 0.5) * spacing * 1.3;
+		(fbm(q / (spacing * 3.4) + phaseVec(-0.14, 0.19) + vec2(seedOffset, 8.6))
+			- 0.5) * spacing * 1.3;
 	float band = bandField(q.y + phase, spacing, width);
 	float breakup = smoothstep(
 		0.24,
 		0.88,
-		fbm(vec2(q.x / (spacing * 2.6), q.y / (spacing * 7.5)) + vec2(seedOffset))
+		fbm(
+			vec2(q.x / (spacing * 2.6), q.y / (spacing * 7.5)) +
+				phaseVec(0.12, 0.07) +
+				vec2(seedOffset),
+		)
 	);
-	float softness = 0.65 + fbm(q / (spacing * 8.2) + vec2(seedOffset, 2.3)) * 0.35;
+	float softness =
+		0.65 +
+		fbm(q / (spacing * 8.2) + phaseVec(-0.05, 0.16) + vec2(seedOffset, 2.3)) *
+			0.35;
 
 	return band * breakup * softness;
 }
@@ -266,7 +295,9 @@ float heightMap(vec2 uv) {
 	vec2 detailWarp = warpVec(px, minSide * 0.17, minSide * 0.018, uSeed + 6.0);
 	vec2 warpedPx = px + broadWarp + detailWarp;
 
-	float h = (fbm(warpedPx / (minSide * 0.26) + vec2(uSeed * 0.17)) - 0.5) * 0.08;
+	float h =
+		(fbm(warpedPx / (minSide * 0.26) + phaseVec(0.11, -0.09) + vec2(uSeed * 0.17))
+			- 0.5) * 0.08;
 	float broadFold = curvedFoldField(warpedPx, -0.74, spacing * 1.0, width, 3.1);
 	float crossFold = curvedFoldField(
 		warpedPx + broadWarp * 0.7,
@@ -285,11 +316,21 @@ float heightMap(vec2 uv) {
 	h += broadFold * 0.22;
 	h += crossFold * 0.11;
 	h += microFold * 0.045;
-	h += (1.0 - abs(fbm(warpedPx / (minSide * 0.11) + vec2(uSeed * 0.3)) * 2.0 - 1.0))
-		* 0.018;
+	h +=
+		(1.0 -
+			abs(
+				fbm(
+					warpedPx / (minSide * 0.11) +
+						phaseVec(-0.23, 0.27) +
+						vec2(uSeed * 0.3),
+				) *
+					2.0 -
+					1.0,
+			)) * 0.018;
 
 	float edge = edgeMask(uv) * clamp(uEdgeTension, 0.0, 1.0);
-	float edgeNoise = fbm(warpedPx / (minSide * 0.18) + vec2(uSeed * 0.41, 8.0));
+	float edgeNoise =
+		fbm(warpedPx / (minSide * 0.18) + phaseVec(0.18, 0.21) + vec2(uSeed * 0.41, 8.0));
 	h += edge * (0.16 + edgeNoise * 0.11);
 
 	return h;
@@ -332,7 +373,7 @@ void main() {
 	float edgeGlint = edge * smoothstep(
 		0.35,
 		0.95,
-		fbm(vUv * uResolution / 90.0 + vec2(uSeed))
+		fbm(vUv * uResolution / 90.0 + phaseVec(0.31, -0.24) + vec2(uSeed))
 	);
 
 	float highlight = clamp(
@@ -402,7 +443,7 @@ export const shrinkwrap = createEffect<ShrinkwrapParams, ShrinkwrapState>({
 	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
-		return `shrinkwrap-${r.amount}-${r.displacement}-${r.highlightIntensity}-${r.wrinkleDensity}-${r.edgeTension}-${r.seed}`;
+		return `shrinkwrap-${r.amount}-${r.displacement}-${r.highlightIntensity}-${r.wrinkleDensity}-${r.edgeTension}-${r.phase}-${r.seed}`;
 	},
 	setup: (target) => {
 		const gl = target.getContext('webgl2', {
@@ -478,6 +519,7 @@ export const shrinkwrap = createEffect<ShrinkwrapParams, ShrinkwrapState>({
 			),
 			uWrinkleDensity: gl.getUniformLocation(program, 'uWrinkleDensity'),
 			uEdgeTension: gl.getUniformLocation(program, 'uEdgeTension'),
+			uPhase: gl.getUniformLocation(program, 'uPhase'),
 			uSeed: gl.getUniformLocation(program, 'uSeed'),
 		};
 	},
@@ -512,6 +554,7 @@ export const shrinkwrap = createEffect<ShrinkwrapParams, ShrinkwrapState>({
 		if (state.uWrinkleDensity)
 			gl.uniform1f(state.uWrinkleDensity, r.wrinkleDensity);
 		if (state.uEdgeTension) gl.uniform1f(state.uEdgeTension, r.edgeTension);
+		if (state.uPhase) gl.uniform1f(state.uPhase, r.phase);
 		if (state.uSeed) gl.uniform1f(state.uSeed, r.seed);
 
 		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);

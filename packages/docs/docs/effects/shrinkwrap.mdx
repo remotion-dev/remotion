@@ -23,7 +23,7 @@ The effect generates wrinkles, glossy highlights and small displacements from th
 ```tsx twoslash title="MyComp.tsx"
 import {shrinkwrap} from '@remotion/effects/shrinkwrap';
 import React from 'react';
-import {AbsoluteFill, HtmlInCanvas} from 'remotion';
+import {AbsoluteFill, HtmlInCanvas, useCurrentFrame} from 'remotion';
 
 const label: React.CSSProperties = {
   alignItems: 'center',
@@ -43,6 +43,8 @@ const label: React.CSSProperties = {
 };
 
 export const MyComp: React.FC = () => {
+  const frame = useCurrentFrame();
+
   return (
     <AbsoluteFill style={{alignItems: 'center', justifyContent: 'center'}}>
       <HtmlInCanvas
@@ -55,6 +57,7 @@ export const MyComp: React.FC = () => {
             highlightIntensity: 0.85,
             wrinkleDensity: 0.48,
             edgeTension: 0.58,
+            phase: frame * 0.05,
             seed: 8,
           }),
         ]}
@@ -102,11 +105,17 @@ Strength of stretched edge highlights from `0` to `1`. Defaults to `0.45`.
 
 This is most visible on full-frame labels, stickers and rounded rectangles.
 
+### `phase?`
+
+Offset into the continuous wrinkle field. Defaults to `0`.
+
+Animate this value with [`useCurrentFrame()`](/docs/use-current-frame) to make the plastic drift smoothly without changing the underlying wrinkle pattern.
+
 ### `seed?`
 
 Seed for the deterministic wrinkle pattern. Defaults to `0`.
 
-Change it to get a different static plastic pattern. To animate the wrinkles, pass a value derived from [`useCurrentFrame()`](/docs/use-current-frame).
+Change it to get a different static plastic pattern.
 
 ### `disabled?`
 

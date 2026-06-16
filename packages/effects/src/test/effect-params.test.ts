@@ -2374,6 +2374,7 @@ test('shrinkwrap() accepts valid params', () => {
 			highlightIntensity: 1.2,
 			wrinkleDensity: 0.8,
 			edgeTension: 0.3,
+			phase: 1.25,
 			seed: 4,
 		}),
 	).not.toThrow();
@@ -2411,6 +2412,12 @@ test('shrinkwrap() rejects edgeTension below range', () => {
 	);
 });
 
+test('shrinkwrap() rejects non-finite phase', () => {
+	expect(() => shrinkwrap({phase: Number.NaN})).toThrow(
+		'"phase" must be a finite number',
+	);
+});
+
 test('shrinkwrap() rejects non-finite seed', () => {
 	expect(() => shrinkwrap({seed: Number.NaN})).toThrow(
 		'"seed" must be a finite number',
@@ -2424,6 +2431,7 @@ test('shrinkwrap() parameters produce distinct effect keys', () => {
 	const brighter = shrinkwrap({highlightIntensity: 1.1});
 	const denser = shrinkwrap({wrinkleDensity: 0.8});
 	const edged = shrinkwrap({edgeTension: 0.9});
+	const phased = shrinkwrap({phase: 2});
 	const seeded = shrinkwrap({seed: 4});
 
 	expect(
@@ -2434,9 +2442,10 @@ test('shrinkwrap() parameters produce distinct effect keys', () => {
 			brighter.effectKey,
 			denser.effectKey,
 			edged.effectKey,
+			phased.effectKey,
 			seeded.effectKey,
 		]).size,
-	).toBe(7);
+	).toBe(8);
 });
 
 test('speckle() accepts default params', () => {
