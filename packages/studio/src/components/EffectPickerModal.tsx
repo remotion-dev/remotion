@@ -11,6 +11,7 @@ import {useKeybinding} from '../helpers/use-keybinding';
 import {ModalsContext, type AddEffectModalState} from '../state/modals';
 import {EFFECT_CATALOG, type EffectCatalogItem} from './effect-catalog';
 import {addEffectToSequence} from './effect-drag-and-drop';
+import {filterEffectCatalog} from './effect-picker-search';
 import {Spacing} from './layout';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from './Menu/is-menu-item';
 import {ModalHeader} from './ModalHeader';
@@ -85,28 +86,6 @@ const loopIndex = (index: number, length: number) => {
 	return index % length;
 };
 
-const fuzzyMatches = (query: string, value: string) => {
-	const q = query.trim().toLowerCase();
-	if (q.length === 0) {
-		return true;
-	}
-
-	const v = value.toLowerCase();
-	let index = -1;
-	for (const character of q) {
-		index = v.indexOf(character, index + 1);
-		if (index === -1) {
-			return false;
-		}
-	}
-
-	return true;
-};
-
-const itemSearchValue = (item: EffectCatalogItem) => {
-	return `${item.label} ${item.effect.name} ${item.category} ${item.description} ${item.effect.importPath}`;
-};
-
 const EffectPickerResult: React.FC<{
 	readonly item: EffectCatalogItem;
 	readonly selected: boolean;
@@ -163,9 +142,7 @@ const EffectPickerContent: React.FC<{
 	const keybindings = useKeybinding();
 
 	const results = useMemo(() => {
-		return EFFECT_CATALOG.filter((item) =>
-			fuzzyMatches(query, itemSearchValue(item)),
-		);
+		return filterEffectCatalog({items: EFFECT_CATALOG, query});
 	}, [query]);
 
 	const selectedIndexRounded =
