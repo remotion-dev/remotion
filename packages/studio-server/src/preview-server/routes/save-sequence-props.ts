@@ -228,6 +228,7 @@ export const saveSequencePropsHandler: ApiHandler<
 
 			const newStatus = computeSequencePropsStatusFromContent({
 				fileContents: output,
+				fileName: edit.fileName,
 				keys: getAllSchemaKeys(edit.schema),
 				nodePath: edit.nodePath.nodePath,
 				componentIdentity: null,

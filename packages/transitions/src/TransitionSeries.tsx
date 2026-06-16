@@ -3,7 +3,9 @@ import React, {Children, useCallback, useMemo, useRef} from 'react';
 import type {
 	AbsoluteFillLayout,
 	LayoutAndStyle,
+	SequenceControls,
 	SequencePropsWithoutDuration,
+	SequenceSchema,
 } from 'remotion';
 import {Internals, Sequence, useCurrentFrame, useVideoConfig} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
@@ -49,6 +51,15 @@ const SeriesSequence = ({children}: SeriesSequenceProps) => {
 	// eslint-disable-next-line react/jsx-no-useless-fragment
 	return <>{children}</>;
 };
+
+const transitionSeriesSchema = {
+	name: Internals.sequenceSchema.name,
+	hidden: Internals.sequenceSchema.hidden,
+	showInTimeline: Internals.sequenceSchema.showInTimeline,
+	from: Internals.fromField,
+	freeze: Internals.freezeField,
+	layout: Internals.sequenceSchema.layout,
+} as const satisfies SequenceSchema;
 
 type TransitionType<PresentationProps extends Record<string, unknown>> = {
 	props: TransitionSeriesTransitionProps<PresentationProps>;
@@ -656,11 +667,19 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
  * @description Manages a series of transitions and sequences for advanced animation controls in Remotion projects, handling cases with varying timings and presentations.
  * @see [Documentation](https://www.remotion.dev/docs/transitions/transitionseries)
  */
-const TransitionSeries: FC<SequencePropsWithoutDuration> & {
-	Sequence: typeof SeriesSequence;
-	Transition: typeof TransitionSeriesTransition;
-	Overlay: typeof SeriesOverlay;
-} = ({children, name, layout: passedLayout, ...otherProps}) => {
+const TransitionSeriesInner: FC<SequencePropsWithoutDuration> = (props) => {
+	const {
+		children,
+		name,
+		layout: passedLayout,
+		_experimentalControls,
+		...otherProps
+	} = props as SequencePropsWithoutDuration & {
+		readonly _experimentalControls: SequenceControls | null;
+	};
+	const {stack, ...propsForSequence} = otherProps as typeof otherProps & {
+		readonly stack: string | null;
+	};
 	const displayName = name ?? '<TransitionSeries>';
 	const layout = passedLayout ?? 'absolute-fill';
 	if (
@@ -681,11 +700,24 @@ const TransitionSeries: FC<SequencePropsWithoutDuration> & {
 					? 'https://www.remotion.dev/docs/transitions/transitionseries'
 					: undefined
 			}
-			{...otherProps}
+			{...propsForSequence}
+			_remotionInternalStack={stack ?? undefined}
+			_experimentalControls={_experimentalControls ?? undefined}
 		>
 			<TransitionSeriesChildren>{children}</TransitionSeriesChildren>
 		</Sequence>
 	);
+};
+
+const TransitionSeries = Internals.wrapInSchema({
+	Component: TransitionSeriesInner,
+	componentIdentity: 'dev.remotion.transitions.TransitionSeries',
+	schema: transitionSeriesSchema,
+	supportsEffects: false,
+}) as FC<SequencePropsWithoutDuration> & {
+	Sequence: typeof SeriesSequence;
+	Transition: typeof TransitionSeriesTransition;
+	Overlay: typeof SeriesOverlay;
 };
 
 TransitionSeries.Sequence = SeriesSequence;
