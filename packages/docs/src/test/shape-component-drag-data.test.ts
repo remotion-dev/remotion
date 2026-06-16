@@ -14,6 +14,7 @@ const shapes: ShapeName[] = [
 	'Pie',
 	'Polygon',
 	'Rect',
+	'Spark',
 	'Star',
 	'Triangle',
 ];

@@ -62,6 +62,13 @@ const shapeDefaultProps: Record<ShapeName, readonly ComponentProp[]> = {
 		{name: 'cornerRadius', value: 0},
 		{name: 'fill', value: '#000000'},
 	],
+	Spark: [
+		{name: 'width', value: 200},
+		{name: 'height', value: 200},
+		{name: 'edgeRoundness', value: 1},
+		{name: 'cornerRadius', value: 12},
+		{name: 'fill', value: '#000000'},
+	],
 	Star: [
 		{name: 'points', value: 5},
 		{name: 'innerRadius', value: 50},
@@ -86,6 +93,7 @@ const shapeNameByDemoId: Partial<Record<string, ShapeName>> = {
 	pie: 'Pie',
 	polygon: 'Polygon',
 	rect: 'Rect',
+	spark: 'Spark',
 	star: 'Star',
 	triangle: 'Triangle',
 };
@@ -120,6 +128,7 @@ const shapeDemoPropNames: Record<ShapeName, readonly string[]> = {
 	Pie: ['radius', 'progress', 'closePath', 'counterClockwise', 'rotation'],
 	Polygon: ['points', 'radius', 'cornerRadius', 'edgeRoundness'],
 	Rect: ['width', 'height', 'cornerRadius', 'edgeRoundness'],
+	Spark: ['width', 'height', 'edgeRoundness', 'cornerRadius'],
 	Star: [
 		'points',
 		'innerRadius',
