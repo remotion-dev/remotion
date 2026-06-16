@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertOptionalFiniteNumber,
@@ -85,7 +85,7 @@ export const halftoneSchema = {
 			source: {},
 		},
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type HalftoneShape = (typeof HALFTONE_SHAPES)[number];
 export type HalftoneSampling = (typeof HALFTONE_SAMPLING)[number];

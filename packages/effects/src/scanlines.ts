@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertOptionalFiniteNumber,
@@ -55,7 +55,7 @@ const scanlinesSchema = {
 		default: DEFAULT_PREMULTIPLY,
 		description: 'Premultiply',
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type ScanlinesParams = {
 	/** Strength of the scanline modulation from `0` to `1`. Defaults to `0.15`. */

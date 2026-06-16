@@ -146,6 +146,7 @@ const sidebars: SidebarsConfig = {
 				'cancel-render',
 				'canvasimage',
 				'composition',
+				'create-effect',
 				'continue-render',
 				'delay-render',
 				'easing',
@@ -170,6 +171,7 @@ const sidebars: SidebarsConfig = {
 				'random',
 				'register-root',
 				'sequence',
+				'interactivity-schema',
 				'series',
 				'spring',
 				'solid',
@@ -184,6 +186,7 @@ const sidebars: SidebarsConfig = {
 				'use-video-config',
 				'version',
 				'watchstaticfile',
+				'wrap-in-schema',
 			],
 		},
 

@@ -15,8 +15,8 @@ import {
 	fromField,
 	hiddenField,
 	sequenceVisualStyleSchema,
-	type SequenceSchema,
-} from '../sequence-field-schema.js';
+	type InteractivitySchema,
+} from '../interactivity-schema.js';
 import type {SequenceProps} from '../Sequence.js';
 import {Sequence} from '../Sequence.js';
 import {useDelayRender} from '../use-delay-render.js';
@@ -93,7 +93,7 @@ const solidSchema = {
 	},
 	...sequenceVisualStyleSchema,
 	hidden: hiddenField,
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 const SolidInner: React.FC<
 	InnerSolidProps & {

@@ -9,7 +9,7 @@ import {
 	type LayoutAndStyle,
 	type SequenceControls,
 	type SequenceProps,
-	type SequenceSchema,
+	type InteractivitySchema,
 } from 'remotion';
 import {colorToRgb} from './color-to-rgb';
 
@@ -345,7 +345,7 @@ export const starburstSchema = {
 	},
 	...Internals.sequenceStyleSchema,
 	hidden: Internals.hiddenField,
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 const StarburstInner: React.FC<
 	StarburstProps & {

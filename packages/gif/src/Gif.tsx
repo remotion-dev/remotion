@@ -7,7 +7,7 @@ import {
 	type EffectsProp,
 	type SequenceControls,
 	type SequenceProps,
-	type SequenceSchema,
+	type InteractivitySchema,
 } from 'remotion';
 import {GifForDevelopment} from './GifForDevelopment';
 import {GifForRendering} from './GifForRendering';
@@ -52,7 +52,7 @@ const gifSchema = {
 	},
 	...Internals.sequenceVisualStyleSchema,
 	hidden: Internals.hiddenField,
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 const GifInner = ({
 	src,

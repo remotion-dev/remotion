@@ -5,7 +5,7 @@ import {
 	useRemotionEnvironment,
 	useVideoConfig,
 	type SequenceControls,
-	type SequenceSchema,
+	type InteractivitySchema,
 } from 'remotion';
 import {getLoopDisplay} from '../show-in-timeline';
 import {AudioForPreview} from './audio-for-preview';
@@ -38,7 +38,7 @@ const audioSchema = {
 	},
 	loop: {type: 'boolean', default: false, description: 'Loop'},
 	hidden: Internals.hiddenField,
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 const AudioInner: React.FC<
 	AudioProps & {

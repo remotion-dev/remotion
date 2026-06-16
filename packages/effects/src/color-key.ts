@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertOptionalFiniteNumber,
@@ -51,7 +51,7 @@ export const colorKeySchema = {
 		description: 'Spill suppression',
 		hiddenFromList: false,
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type ColorKeyParams = {
 	/** Color to key out. Defaults to `'#00ff00'`. */

@@ -8,7 +8,7 @@ import type {
 	GetEffectDragOverrides,
 	PropStatuses,
 	SequencePropsSubscriptionKey,
-	SequenceSchema,
+	InteractivitySchema,
 } from 'remotion';
 import {Internals, useVideoConfig} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
@@ -95,7 +95,7 @@ type KeyframeControlTarget = {
 	readonly sourceFrame: number;
 	readonly defaultValue: unknown;
 	readonly dragOverrideValue: DragOverrideValue | undefined;
-	readonly schema: SequenceSchema;
+	readonly schema: InteractivitySchema;
 	readonly effectIndex: number | null;
 };
 
@@ -435,7 +435,7 @@ export const TimelineKeyframeControls: React.FC<{
 	readonly keyframeDisplayOffset: number;
 	readonly defaultValue: unknown;
 	readonly dragOverrideValue: DragOverrideValue | undefined;
-	readonly schema: SequenceSchema;
+	readonly schema: InteractivitySchema;
 	readonly effectIndex: number | null;
 	readonly nodePathInfo: SequenceNodePathInfo;
 }> = ({

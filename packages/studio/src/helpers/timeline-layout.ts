@@ -7,12 +7,12 @@ import {
 	type PropStatuses,
 	type SchemaFieldInfo,
 	type SequenceControls,
-	type SequenceSchemaFieldInfo,
+	type InteractivitySchemaFieldInfo,
 } from '@remotion/studio-shared';
 import type {
 	GetDragOverrides,
 	GetEffectDragOverrides,
-	SequenceSchema as SequenceSchemaShape,
+	InteractivitySchema as InteractivitySchemaShape,
 	TSequence,
 } from 'remotion';
 import type {GetIsExpanded} from '../components/ExpandedTracksProvider';
@@ -30,7 +30,7 @@ export type {
 	PropStatuses,
 	SchemaFieldInfo,
 	SequenceControls,
-	SequenceSchemaFieldInfo,
+	InteractivitySchemaFieldInfo,
 };
 
 export const TIMELINE_PADDING = 16;
@@ -47,7 +47,7 @@ export type TimelineFieldOnDragValueChange = (value: unknown) => void;
 
 export type TimelineEffectGroupInfo = {
 	readonly effectIndex: number;
-	readonly effectSchema: SequenceSchemaShape;
+	readonly effectSchema: InteractivitySchemaShape;
 	readonly documentationLink: string | null;
 };
 

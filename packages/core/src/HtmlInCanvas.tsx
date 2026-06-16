@@ -23,7 +23,7 @@ import {
 	fromField,
 	hiddenField,
 	sequenceVisualStyleSchema,
-} from './sequence-field-schema.js';
+} from './interactivity-schema.js';
 import type {
 	AbsoluteFillLayout,
 	LayoutAndStyle,

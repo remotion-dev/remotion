@@ -10,15 +10,15 @@ import type {SequenceControls} from './CompositionManager.js';
 import type {EffectsProp} from './effects/effect-types.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import {getCrossOriginValue} from './get-cross-origin-value.js';
-import {usePreload} from './prefetch.js';
 import {
 	freezeField,
 	fromField,
 	hiddenField,
 	sequenceVisualStyleSchema,
 	durationInFramesField,
-	type SequenceSchema,
-} from './sequence-field-schema.js';
+	type InteractivitySchema,
+} from './interactivity-schema.js';
+import {usePreload} from './prefetch.js';
 import type {SequenceProps} from './Sequence.js';
 import {Sequence} from './Sequence.js';
 import {SequenceContext} from './SequenceContext.js';
@@ -368,7 +368,7 @@ export const imgSchema = {
 	freeze: freezeField,
 	...sequenceVisualStyleSchema,
 	hidden: hiddenField,
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 const imgCanvasFallbackIncompatibleProps = new Set([
 	'alt',

@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertOptionalFiniteNumber,
@@ -41,7 +41,7 @@ const speckleSchema = {
 		description: 'Randomness',
 		hiddenFromList: false,
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type SpeckleParams = {
 	/** Chance that a grid cell receives an alpha hole. Defaults to `0.08`. */

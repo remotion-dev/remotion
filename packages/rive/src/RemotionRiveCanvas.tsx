@@ -19,7 +19,7 @@ import type {
 	EffectsProp,
 	SequenceControls,
 	SequenceProps,
-	SequenceSchema,
+	InteractivitySchema,
 } from 'remotion';
 import {
 	Internals,
@@ -80,7 +80,7 @@ export type RiveCanvasRef = {
 	getCanvas: () => RiveCanvas | null;
 };
 
-const riveFitVariants: Record<RemotionRiveCanvasFit, SequenceSchema> = {
+const riveFitVariants: Record<RemotionRiveCanvasFit, InteractivitySchema> = {
 	contain: {},
 	cover: {},
 	fill: {},
@@ -92,7 +92,7 @@ const riveFitVariants: Record<RemotionRiveCanvasFit, SequenceSchema> = {
 
 const riveAlignmentVariants: Record<
 	RemotionRiveCanvasAlignment,
-	SequenceSchema
+	InteractivitySchema
 > = {
 	center: {},
 	'bottom-center': {},
@@ -123,7 +123,7 @@ const riveCanvasSchema = {
 	},
 	...sequenceVisualStyleSchema,
 	hidden: hiddenField,
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 type RemotionRiveCanvasContentProps = Omit<
 	RemotionRiveCanvasOwnProps,

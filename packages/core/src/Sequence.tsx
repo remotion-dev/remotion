@@ -12,12 +12,12 @@ import {AbsoluteFill} from './AbsoluteFill.js';
 import type {LoopDisplay, SequenceControls} from './CompositionManager.js';
 import type {EffectDefinition} from './effects/effect-types.js';
 import {Freeze} from './freeze.js';
-import {useNonce} from './nonce.js';
-import {PremountContext} from './PremountContext.js';
 import {
 	sequenceSchema,
 	sequenceSchemaWithoutFrom,
-} from './sequence-field-schema.js';
+} from './interactivity-schema.js';
+import {useNonce} from './nonce.js';
+import {PremountContext} from './PremountContext.js';
 import type {SequenceContextType} from './SequenceContext.js';
 import {SequenceContext} from './SequenceContext.js';
 import {SequenceManager} from './SequenceManager.js';

@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertEffectParamsObject,
@@ -49,7 +49,7 @@ const waveSchema = {
 		description: 'Wavelength',
 		hiddenFromList: false,
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type WaveParams = {
 	/** Phase offset in radians. */

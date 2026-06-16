@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {
 	updateEffectKeyframesAst,
@@ -38,14 +38,14 @@ const translateSchema = {
 		type: 'translate',
 		default: '0px 0px',
 	},
-} satisfies SequenceSchema;
+} satisfies InteractivitySchema;
 
 const rotateSchema = {
 	'style.rotate': {
 		type: 'rotation-css',
 		default: '0deg',
 	},
-} satisfies SequenceSchema;
+} satisfies InteractivitySchema;
 
 const translateInput = `import React from 'react';
 import {AbsoluteFill} from 'remotion';
@@ -437,7 +437,7 @@ export const Example: React.FC = () => {
 			default: 1,
 			hiddenFromList: false,
 		},
-	} satisfies SequenceSchema;
+	} satisfies InteractivitySchema;
 	const {output} = await updateSequenceKeyframes({
 		input,
 		nodePath: lineColumnToNodePath(input, getLine(input, '<div')),
@@ -473,7 +473,7 @@ test('updateSequenceKeyframes rejects non-keyframable fields', async () => {
 			hiddenFromList: false,
 			keyframable: false,
 		},
-	} satisfies SequenceSchema;
+	} satisfies InteractivitySchema;
 
 	await expect(
 		updateSequenceKeyframes({

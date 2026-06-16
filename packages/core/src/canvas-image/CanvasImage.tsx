@@ -19,15 +19,15 @@ import {
 	useMemoizedEffects,
 } from '../effects/use-memoized-effects.js';
 import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
-import {usePreload} from '../prefetch.js';
 import {
 	freezeField,
 	fromField,
 	hiddenField,
 	sequenceVisualStyleSchema,
 	durationInFramesField,
-	type SequenceSchema,
-} from '../sequence-field-schema.js';
+	type InteractivitySchema,
+} from '../interactivity-schema.js';
+import {usePreload} from '../prefetch.js';
 import {Sequence} from '../Sequence.js';
 import {SequenceContext} from '../SequenceContext.js';
 import {truncateSrcForLabel} from '../truncate-src-for-label.js';
@@ -52,7 +52,7 @@ export const canvasImageSchema = {
 	},
 	...sequenceVisualStyleSchema,
 	hidden: hiddenField,
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 type LoadedImage = {
 	readonly element: HTMLImageElement;

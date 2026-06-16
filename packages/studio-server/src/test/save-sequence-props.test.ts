@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {
 	convertSequencePropEditToCodemodChange,
 	shouldSuppressHmrForSequencePropEdits,
@@ -12,7 +12,7 @@ const starSchema = {
 		description: 'Points',
 		hiddenFromList: false,
 	},
-} satisfies SequenceSchema;
+} satisfies InteractivitySchema;
 
 test('saveSequenceProps suppresses HMR for regular visual prop edits', () => {
 	expect(

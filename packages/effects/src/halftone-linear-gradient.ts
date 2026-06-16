@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertOptionalFiniteNumber,
@@ -88,7 +88,7 @@ export const halftoneLinearGradientSchema = {
 		default: DEFAULT_MASK_TO_SOURCE_ALPHA,
 		description: 'Mask to source alpha',
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type HalftoneLinearGradientColorMode =
 	(typeof HALFTONE_LINEAR_GRADIENT_COLOR_MODES)[number];

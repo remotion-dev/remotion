@@ -1,12 +1,12 @@
 import type React from 'react';
-import type {LogLevel, SequenceSchema} from 'remotion';
+import type {LogLevel, InteractivitySchema} from 'remotion';
 
 export type EffectsDemoType = {
 	id: string;
 	effectName: string;
 	effectImportPath: string;
 	comp: React.FC;
-	schema: SequenceSchema;
+	schema: InteractivitySchema;
 	initialValues?: Record<string, unknown>;
 	compWidth: number;
 	compHeight: number;

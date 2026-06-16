@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {assertOptionalFiniteNumber} from '../color-utils.js';
 import {assertEffectParamsObject} from '../validate-effect-param.js';
@@ -80,7 +80,7 @@ const linearProgressiveBlurSchema = {
 		description: 'End blur',
 		hiddenFromList: false,
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 const clampBlur = (value: number): number => Math.max(0, value);
 

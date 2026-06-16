@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 
 const {createEffect, createWebGL2ContextError} = Internals;
@@ -31,7 +31,7 @@ export const lightLeakEffectSchema = {
 		description: 'Progress',
 		hiddenFromList: false,
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type LightLeakEffectParams = {
 	readonly seed?: number;

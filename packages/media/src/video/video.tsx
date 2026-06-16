@@ -5,7 +5,7 @@ import {
 	useRemotionEnvironment,
 	useVideoConfig,
 	type SequenceControls,
-	type SequenceSchema,
+	type InteractivitySchema,
 } from 'remotion';
 import {getLoopDisplay} from '../show-in-timeline';
 import type {InnerVideoProps, VideoProps} from './props';
@@ -44,7 +44,7 @@ const videoSchema = {
 	},
 	loop: {type: 'boolean', default: false, description: 'Loop'},
 	...Internals.sequenceVisualStyleSchema,
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 const InnerVideo: React.FC<
 	InnerVideoProps & {

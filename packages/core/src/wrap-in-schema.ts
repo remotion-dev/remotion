@@ -11,8 +11,8 @@ import {
 } from './flatten-schema.js';
 import {
 	extendSchemaWithSequenceName,
-	type SequenceSchema,
-} from './sequence-field-schema.js';
+	type InteractivitySchema,
+} from './interactivity-schema.js';
 import {OverrideIdsToNodePathsGettersContext} from './sequence-node-path.js';
 import {
 	VisualModeDragOverridesContext,
@@ -54,7 +54,7 @@ export const readValuesFromProps = (
 };
 
 export const selectActiveKeys = (
-	schema: SequenceSchema,
+	schema: InteractivitySchema,
 	values: Record<string, unknown>,
 ): string[] => {
 	return Object.keys(flattenActiveSchema(schema, (key) => values[key]));
@@ -107,7 +107,10 @@ export const mergeValues = ({
 
 const stackToOverrideMap: Record<string, string> = {};
 
-export const wrapInSchema = <S extends SequenceSchema, Props extends object>({
+export const wrapInSchema = <
+	S extends InteractivitySchema,
+	Props extends object,
+>({
 	Component,
 	componentIdentity,
 	schema,

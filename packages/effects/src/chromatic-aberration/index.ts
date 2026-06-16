@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertOptionalFiniteNumber,
@@ -33,7 +33,7 @@ const chromaticAberrationSchema = {
 		default: DEFAULT_CHROMATIC_ABERRATION_ANGLE,
 		description: 'Angle',
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type ChromaticAberrationParams = {
 	/** RGB channel separation in pixels. Defaults to `8`. */

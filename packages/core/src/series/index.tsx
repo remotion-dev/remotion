@@ -6,7 +6,7 @@ import React, {
 	type PropsWithChildren,
 } from 'react';
 import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
-import {sequenceSchemaDefaultLayoutNone} from '../sequence-field-schema.js';
+import {sequenceSchemaDefaultLayoutNone} from '../interactivity-schema.js';
 import type {LayoutAndStyle, SequenceProps} from '../Sequence.js';
 import {Sequence, SequenceWithoutSchema} from '../Sequence.js';
 import {validateDurationInFrames} from '../validation/validate-duration-in-frames.js';

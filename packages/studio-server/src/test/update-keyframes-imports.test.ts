@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {
 	updateEffectKeyframesAst,
 	updateSequenceKeyframesAst,
@@ -22,14 +22,14 @@ const translateSchema = {
 		type: 'translate',
 		default: '0px 0px',
 	},
-} satisfies SequenceSchema;
+} satisfies InteractivitySchema;
 
 const rotateSchema = {
 	'style.rotate': {
 		type: 'rotation-css',
 		default: '0deg',
 	},
-} satisfies SequenceSchema;
+} satisfies InteractivitySchema;
 
 // ---------------------------------------------------------------------------
 // Sequence: imports

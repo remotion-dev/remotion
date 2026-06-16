@@ -21,8 +21,8 @@ import {
 	fromField,
 	hiddenField,
 	sequenceVisualStyleSchema,
-	type SequenceSchema,
-} from '../sequence-field-schema.js';
+	type InteractivitySchema,
+} from '../interactivity-schema.js';
 import {Sequence} from '../Sequence.js';
 import {useCurrentFrame} from '../use-current-frame.js';
 import {useDelayRender} from '../use-delay-render.js';
@@ -52,7 +52,7 @@ const animatedImageSchema = {
 	},
 	...sequenceVisualStyleSchema,
 	hidden: hiddenField,
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 type AnimatedImageContentProps = RemotionAnimatedImageProps & {
 	readonly effects: EffectsProp;

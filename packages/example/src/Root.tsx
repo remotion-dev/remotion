@@ -192,6 +192,7 @@ import {EdgeBlur} from './EdgeBlur/EdgeBlur';
 import {EffectsTestbed} from './EffectsTestbed/EffectsTestbed';
 import {HalftoneGradient} from './EffectsTestbed/HalftoneGradient';
 import {NoiseDisplacementText} from './EffectsTestbed/NoiseDisplacementText';
+import {PaletteMapEffect} from './EffectsTestbed/PaletteMapEffect';
 import {VideoEffectsFastRefresh} from './EffectsTestbed/VideoEffectsFastRefresh';
 import {Empty} from './Empty';
 import {JumpCuts, SAMPLE_SECTIONS, calculateMetadataJumpCuts} from './JumpCuts';
@@ -1978,6 +1979,14 @@ export const Index: React.FC = () => {
 					height={1920}
 					fps={30}
 					durationInFrames={300}
+				/>
+				<Composition
+					id="palette-map-effect"
+					component={PaletteMapEffect}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={150}
 				/>
 				<Composition
 					id="video-effects-fast-refresh"

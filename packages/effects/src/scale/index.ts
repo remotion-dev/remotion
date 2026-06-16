@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertEffectParamsObject,
@@ -27,7 +27,7 @@ const scaleSchema = {
 		default: true,
 		description: 'Vertical',
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type ScaleParams = {
 	/** Scale factor. Defaults to `1`. Must be greater than 0. */

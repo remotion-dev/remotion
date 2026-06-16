@@ -4,7 +4,7 @@ import {
 	optimisticDeleteSequenceKeyframe,
 	optimisticDeleteSequenceKeyframes,
 } from '@remotion/studio-shared';
-import type {SequencePropsSubscriptionKey, SequenceSchema} from 'remotion';
+import type {SequencePropsSubscriptionKey, InteractivitySchema} from 'remotion';
 import {callApi} from '../call-api';
 import {enqueueSavePropChange} from './save-prop-queue';
 import type {SetPropStatuses} from './save-sequence-prop';
@@ -14,7 +14,7 @@ export type DeleteSequenceKeyframeChange = {
 	nodePath: SequencePropsSubscriptionKey;
 	fieldKey: string;
 	sourceFrame: number;
-	schema: SequenceSchema;
+	schema: InteractivitySchema;
 };
 
 export type DeleteEffectKeyframeChange = DeleteSequenceKeyframeChange & {
@@ -48,7 +48,7 @@ export const callDeleteSequenceKeyframe = ({
 	nodePath: SequencePropsSubscriptionKey;
 	fieldKey: string;
 	sourceFrame: number;
-	schema: SequenceSchema;
+	schema: InteractivitySchema;
 	setPropStatuses: SetPropStatuses;
 	clientId: string;
 }): Promise<void> => {
@@ -94,7 +94,7 @@ export const callDeleteEffectKeyframe = ({
 	effectIndex: number;
 	fieldKey: string;
 	sourceFrame: number;
-	schema: SequenceSchema;
+	schema: InteractivitySchema;
 	setPropStatuses: SetPropStatuses;
 	clientId: string;
 }): Promise<void> => {

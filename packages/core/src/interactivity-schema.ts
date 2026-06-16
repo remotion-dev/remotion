@@ -87,7 +87,7 @@ export type EnumFieldSchema = {
 	type: 'enum';
 	default: string;
 	description?: string;
-	variants: Record<string, SequenceSchema>;
+	variants: Record<string, InteractivitySchema>;
 	keyframable?: boolean;
 };
 
@@ -165,14 +165,12 @@ export type VisibleFieldSchema =
 	| ArrayFieldSchema
 	| EnumFieldSchema;
 
-export type SequenceFieldSchema = VisibleFieldSchema | HiddenFieldSchema;
+export type InteractivitySchemaField = VisibleFieldSchema | HiddenFieldSchema;
 
-export type SequenceSchema = {[key: string]: SequenceFieldSchema};
+export type InteractivitySchema = {[key: string]: InteractivitySchemaField};
 
-export type SchemaKeysRecord<S extends SequenceSchema> = Record<
-	keyof S,
-	unknown
->;
+export type InteractivitySchemaKeysRecord<S extends InteractivitySchema> =
+	Record<keyof S, unknown>;
 
 export const sequenceVisualStyleSchema = {
 	'style.transformOrigin': {
@@ -209,7 +207,7 @@ export const sequenceVisualStyleSchema = {
 		description: 'Opacity',
 		hiddenFromList: false,
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export const sequencePremountSchema = {
 	premountFor: {
@@ -233,30 +231,30 @@ export const sequencePremountSchema = {
 	styleWhilePostmounted: {
 		type: 'hidden',
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export const sequenceStyleSchema = {
 	...sequenceVisualStyleSchema,
 	...sequencePremountSchema,
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
-export const hiddenField: SequenceFieldSchema = {
+export const hiddenField: InteractivitySchemaField = {
 	type: 'boolean',
 	default: false,
 	description: 'Hidden',
 };
 
-const showInTimelineField: SequenceFieldSchema = {
+const showInTimelineField: InteractivitySchemaField = {
 	type: 'hidden',
 };
 
-export const sequenceNameField: SequenceFieldSchema = {
+export const sequenceNameField: InteractivitySchemaField = {
 	type: 'hidden',
 };
 
-export const extendSchemaWithSequenceName = <S extends SequenceSchema>(
+export const extendSchemaWithSequenceName = <S extends InteractivitySchema>(
 	schema: S,
-): S & {name: SequenceFieldSchema} => {
+): S & {name: InteractivitySchemaField} => {
 	return {
 		name: sequenceNameField,
 		...schema,
@@ -269,21 +267,21 @@ export const durationInFramesField = {
 	min: 1,
 	step: 1,
 	hiddenFromList: true,
-} as const satisfies SequenceFieldSchema;
+} as const satisfies InteractivitySchemaField;
 
 export const fromField = {
 	type: 'number',
 	default: 0,
 	step: 1,
 	hiddenFromList: true,
-} as const satisfies SequenceFieldSchema;
+} as const satisfies InteractivitySchemaField;
 
 export const freezeField = {
 	type: 'number',
 	default: null,
 	step: 1,
 	hiddenFromList: true,
-} as const satisfies SequenceFieldSchema;
+} as const satisfies InteractivitySchemaField;
 
 export const sequenceSchema = extendSchemaWithSequenceName({
 	hidden: hiddenField,
@@ -300,7 +298,7 @@ export const sequenceSchema = extendSchemaWithSequenceName({
 			none: {},
 		},
 	},
-} as const satisfies SequenceSchema);
+} as const satisfies InteractivitySchema);
 
 export const sequenceSchemaWithoutFrom = extendSchemaWithSequenceName({
 	hidden: hiddenField,
@@ -308,9 +306,9 @@ export const sequenceSchemaWithoutFrom = extendSchemaWithSequenceName({
 	freeze: freezeField,
 	durationInFrames: durationInFramesField,
 	layout: sequenceSchema.layout,
-} as const satisfies SequenceSchema);
+} as const satisfies InteractivitySchema);
 
-export const sequenceSchemaDefaultLayoutNone: SequenceSchema = {
+export const sequenceSchemaDefaultLayoutNone: InteractivitySchema = {
 	...sequenceSchema,
 	layout: {
 		...sequenceSchema.layout,

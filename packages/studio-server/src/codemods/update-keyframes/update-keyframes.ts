@@ -22,9 +22,9 @@ import * as recast from 'recast';
 import type {
 	CanUpdateSequencePropStatus,
 	ExtrapolateType,
-	SequenceFieldSchema,
+	InteractivitySchemaField,
 	SequenceNodePath,
-	SequenceSchema,
+	InteractivitySchema,
 } from 'remotion';
 import {getAstNodePath} from '../../helpers/get-ast-node-path';
 import {
@@ -317,7 +317,7 @@ const getInterpolationCalleeForValues = ({
 	staticValue,
 	newValue,
 }: {
-	schema: SequenceSchema | null;
+	schema: InteractivitySchema | null;
 	key: string;
 	staticValue: unknown;
 	newValue: unknown;
@@ -926,7 +926,7 @@ const addKeyframe = ({
 	key: string;
 	frame: number;
 	value: unknown;
-	schema: SequenceSchema | null;
+	schema: InteractivitySchema | null;
 }): {expression: ExpressionKind; introduced: IntroducedKeyframeIdentifiers} => {
 	if (!isSchemaFieldKeyframable({schema, key})) {
 		throw new Error(`Cannot add keyframe: "${key}" is not keyframable`);
@@ -1164,7 +1164,7 @@ const applyKeyframeOperation = ({
 	expression: Expression;
 	key: string;
 	operation: KeyframeOperation;
-	schema: SequenceSchema | null;
+	schema: InteractivitySchema | null;
 }): {expression: ExpressionKind; introduced: IntroducedKeyframeIdentifiers} => {
 	if (operation.type === 'add') {
 		return addKeyframe({
@@ -1282,9 +1282,9 @@ const findObjectProperty = (
 };
 
 const findFieldInSchema = (
-	schema: SequenceSchema,
+	schema: InteractivitySchema,
 	key: string,
-): SequenceFieldSchema | undefined => {
+): InteractivitySchemaField | undefined => {
 	if (key in schema) {
 		return schema[key];
 	}
@@ -1310,7 +1310,7 @@ const getInitialValueForMissingProp = ({
 	key,
 	newValue,
 }: {
-	schema: SequenceSchema | null;
+	schema: InteractivitySchema | null;
 	key: string;
 	newValue: unknown;
 }): unknown => {
@@ -1474,7 +1474,7 @@ export const updateSequenceKeyframesAst = ({
 	input: string;
 	nodePath: SequenceNodePath;
 	updates: SequenceKeyframeUpdate[];
-	schema?: SequenceSchema;
+	schema?: InteractivitySchema;
 }): {
 	serialized: string;
 	oldValueStrings: string[];
@@ -1574,7 +1574,7 @@ export const updateSequenceKeyframes = async ({
 	input: string;
 	nodePath: SequenceNodePath;
 	updates: SequenceKeyframeUpdate[];
-	schema?: SequenceSchema;
+	schema?: InteractivitySchema;
 	prettierConfigOverride?: Record<string, unknown> | null;
 }): Promise<{
 	output: string;
@@ -1629,7 +1629,7 @@ export const updateEffectKeyframesAst = ({
 	sequenceNodePath: SequenceNodePath;
 	effectIndex: number;
 	updates: EffectKeyframeUpdate[];
-	schema?: SequenceSchema;
+	schema?: InteractivitySchema;
 }): {
 	serialized: string;
 	oldValueStrings: string[];
@@ -1738,7 +1738,7 @@ export const updateEffectKeyframes = async ({
 	sequenceNodePath: SequenceNodePath;
 	effectIndex: number;
 	updates: EffectKeyframeUpdate[];
-	schema?: SequenceSchema;
+	schema?: InteractivitySchema;
 	prettierConfigOverride?: Record<string, unknown> | null;
 }): Promise<{
 	output: string;

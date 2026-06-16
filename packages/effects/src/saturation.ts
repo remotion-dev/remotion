@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertOptionalFiniteNumber,
@@ -12,7 +12,7 @@ const {createEffect} = Internals;
 
 const saturationSchema = {
 	amount: colorMultiplierSchema,
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type SaturationParams = {
 	/** Saturation multiplier. `1` leaves colors unchanged, `0` makes them grayscale. Defaults to `1`. */

@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertOptionalFiniteNumber,
@@ -67,7 +67,7 @@ const shineSchema = {
 		description: 'Core intensity',
 		hiddenFromList: false,
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type ShineParams = {
 	/** Position of the shine sweep from `0` to `1`. Defaults to `0.5`. */

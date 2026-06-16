@@ -1404,6 +1404,15 @@ export const articles = [
 		slug: 'cors-issues',
 	},
 	{
+		id: 'create-effect',
+		title: 'createEffect()',
+		relativePath: 'docs/create-effect.mdx',
+		compId: 'articles-docs-create-effect',
+		crumb: 'API',
+		noAi: false,
+		slug: 'create-effect',
+	},
+	{
 		id: 'authoring-packages',
 		title: 'Authoring a Remotion library',
 		relativePath: 'docs/creating-a-library.mdx',
@@ -2581,6 +2590,15 @@ export const articles = [
 		crumb: 'API',
 		noAi: false,
 		slug: 'interactive',
+	},
+	{
+		id: 'interactivity-schema',
+		title: 'InteractivitySchema',
+		relativePath: 'docs/interactivity-schema.mdx',
+		compId: 'articles-docs-interactivity-schema',
+		crumb: 'API',
+		noAi: false,
+		slug: 'interactivity-schema',
 	},
 	{
 		id: 'interpolate-colors',
@@ -8193,6 +8211,15 @@ export const articles = [
 		crumb: '@remotion/whisper-web',
 		noAi: false,
 		slug: 'whisper-web/transcribe',
+	},
+	{
+		id: 'wrap-in-schema',
+		title: 'wrapInSchema()',
+		relativePath: 'docs/wrap-in-schema.mdx',
+		compId: 'articles-docs-wrap-in-schema',
+		crumb: 'API',
+		noAi: false,
+		slug: 'wrap-in-schema',
 	},
 	{
 		id: 'wrong-composition-mount',

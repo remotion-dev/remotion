@@ -7,8 +7,8 @@ import {
 	fromField,
 	hiddenField,
 	sequenceVisualStyleSchema,
-	type SequenceSchema,
-} from './sequence-field-schema.js';
+	type InteractivitySchema,
+} from './interactivity-schema.js';
 import type {SequenceProps} from './Sequence.js';
 import {Sequence} from './Sequence.js';
 import {wrapInSchema} from './wrap-in-schema.js';
@@ -88,7 +88,7 @@ const interactiveElementSchema = {
 	freeze: freezeField,
 	...sequenceVisualStyleSchema,
 	hidden: hiddenField,
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 const setRef = <ElementType,>(
 	ref: React.ForwardedRef<ElementType>,

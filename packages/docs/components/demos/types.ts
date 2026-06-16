@@ -29,6 +29,7 @@ import {HtmlInCanvasDocsDemoWebGPU} from './HtmlInCanvasDocsDemoWebGPU';
 import {LightLeakDemoComp} from './LightLeakDemo';
 import {LinearBlurDocsDemo} from './LinearBlurDemo';
 import {NoiseComp} from './NoiseDemo';
+import {PaletteMapDemoComp} from './PaletteMapDemo';
 import {PieDemo} from './Pie';
 import {PolygonDemo} from './Polygon';
 import {RectDemo} from './Rect';
@@ -819,6 +820,36 @@ export const noiseDemo: DemoType = {
 			min: 2,
 			step: 1,
 			type: 'numeric',
+			optional: 'no',
+		},
+	],
+};
+
+export const paletteMapDemo: DemoType = {
+	comp: PaletteMapDemoComp,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 150,
+	fps: 30,
+	id: 'palette-map-effect',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			name: 'palette',
+			type: 'enum',
+			default: 'poster',
+			values: ['solar', 'poster', 'ink'],
+			optional: 'no',
+		},
+		{
+			name: 'amount',
+			type: 'numeric',
+			default: 0.86,
+			min: 0,
+			max: 1,
+			step: 0.01,
 			optional: 'no',
 		},
 	],

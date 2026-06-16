@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {assertOptionalFiniteNumber} from '../color-utils.js';
 import {assertEffectParamsObject} from '../validate-effect-param.js';
@@ -20,7 +20,7 @@ const xyTranslateSchema = {
 		description: 'Y',
 		hiddenFromList: false,
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 const uvTranslateSchema = {
 	u: {
@@ -37,7 +37,7 @@ const uvTranslateSchema = {
 		description: 'V',
 		hiddenFromList: false,
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type XyTranslateParams = {
 	/** Horizontal offset in pixels. Defaults to `0`. */

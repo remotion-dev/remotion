@@ -7,7 +7,7 @@ import {
 	sequenceSchemaWithoutFrom,
 	sequenceStyleSchema,
 	sequenceVisualStyleSchema,
-} from '../sequence-field-schema.js';
+} from '../interactivity-schema.js';
 import {
 	getNestedValue,
 	mergeValues,

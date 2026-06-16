@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertOptionalFiniteNumber,
@@ -110,7 +110,7 @@ export const wavesSchema = {
 		default: DEFAULT_MASK_TO_SOURCE_ALPHA,
 		description: 'Mask to source alpha',
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type WavesDirection = (typeof WAVE_DIRECTIONS)[number];
 

@@ -10,7 +10,7 @@ import {
 	type LayoutAndStyle,
 	type SequenceControls,
 	type SequenceProps,
-	type SequenceSchema,
+	type InteractivitySchema,
 } from 'remotion';
 
 const {createWebGLContextError} = Internals;
@@ -253,7 +253,7 @@ const lightLeakSchema = {
 	},
 	...Internals.sequenceStyleSchema,
 	hidden: Internals.hiddenField,
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 const LightLeakInner: React.FC<
 	LightLeakProps & {

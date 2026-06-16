@@ -177,7 +177,7 @@ export {
 	getKeyframeInterpolationFunctionForSchemaField,
 	isKeyframeInterpolationFunction,
 	isSchemaFieldKeyframable,
-	isSequenceFieldSchemaKeyframable,
+	isInteractivitySchemaFieldKeyframable,
 	keyframeInterpolationFunctions,
 	type KeyframeInterpolationFunction,
 } from './keyframe-interpolation-function';
@@ -227,7 +227,7 @@ export type {
 	PropStatuses,
 	SchemaFieldInfo,
 	SequenceControls,
-	SequenceSchemaFieldInfo,
+	InteractivitySchemaFieldInfo,
 } from './schema-field-info';
 export {
 	SFX_DRAG_MIME_TYPE,

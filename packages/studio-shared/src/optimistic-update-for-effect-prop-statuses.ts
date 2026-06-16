@@ -2,7 +2,7 @@ import {
 	type CanUpdateEffectPropsResponse,
 	type CanUpdateSequencePropsResponse,
 	type CanUpdateSequencePropStatus,
-	type SequenceSchema,
+	type InteractivitySchema,
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 
@@ -17,7 +17,7 @@ export const optimisticUpdateForEffectPropStatuses = ({
 	effectIndex: number;
 	fieldKey: string;
 	value: unknown;
-	schema: SequenceSchema;
+	schema: InteractivitySchema;
 }): CanUpdateSequencePropsResponse => {
 	if (!previous.canUpdate) {
 		return previous;

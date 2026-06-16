@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertOptionalFiniteNumber,
@@ -36,7 +36,7 @@ export const dotGridSchema = {
 		default: DEFAULT_INVERT,
 		description: 'Invert',
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type DotGridParams = {
 	readonly dotSize?: number;

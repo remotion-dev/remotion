@@ -2,7 +2,7 @@ import {
 	optimisticAddEffectKeyframe,
 	optimisticAddSequenceKeyframe,
 } from '@remotion/studio-shared';
-import type {SequencePropsSubscriptionKey, SequenceSchema} from 'remotion';
+import type {SequencePropsSubscriptionKey, InteractivitySchema} from 'remotion';
 import {callApi} from '../call-api';
 import {applyEffectResponseToPropStatuses} from './apply-effect-response-to-prop-statuses';
 import {enqueueSavePropChange} from './save-prop-queue';
@@ -14,7 +14,7 @@ export type AddSequenceKeyframeChange = {
 	fieldKey: string;
 	sourceFrame: number;
 	value: unknown;
-	schema: SequenceSchema;
+	schema: InteractivitySchema;
 };
 
 export type AddEffectKeyframeChange = AddSequenceKeyframeChange & {
@@ -50,7 +50,7 @@ export const callAddSequenceKeyframe = ({
 	fieldKey: string;
 	sourceFrame: number;
 	value: unknown;
-	schema: SequenceSchema;
+	schema: InteractivitySchema;
 	setPropStatuses: SetPropStatuses;
 	clientId: string;
 }): Promise<void> => {
@@ -176,7 +176,7 @@ export const callAddEffectKeyframe = ({
 	fieldKey: string;
 	sourceFrame: number;
 	value: unknown;
-	schema: SequenceSchema;
+	schema: InteractivitySchema;
 	setPropStatuses: SetPropStatuses;
 	clientId: string;
 }): Promise<void> => {

@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertOptionalFiniteNumber,
@@ -80,7 +80,7 @@ export const linesSchema = {
 		default: DEFAULT_MASK_TO_SOURCE_ALPHA,
 		description: 'Mask to source alpha',
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type LinesDirection = (typeof LINE_DIRECTIONS)[number];
 

@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertOptionalFiniteNumber,
@@ -81,7 +81,7 @@ export const vignetteSchema = {
 		default: DEFAULT_CENTER,
 		description: 'Center',
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type VignetteMode = (typeof VIGNETTE_MODES)[number];
 export type VignetteCenter = readonly [number, number];

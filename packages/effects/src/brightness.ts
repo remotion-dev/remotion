@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertOptionalFiniteNumber,
@@ -13,7 +13,7 @@ const {createEffect} = Internals;
 
 const brightnessSchema = {
 	amount: brightnessAmountSchema,
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type BrightnessParams = {
 	/** Brightness adjustment amount between -1 and 1. Defaults to `0`. */
