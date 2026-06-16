@@ -8,6 +8,8 @@ const dir = path.join(__dirname, '../convert/spa-dist/client');
 const brandDir = path.join(__dirname, '../brand/build');
 const testbedDir = path.join(__dirname, '../example/build-testbed');
 const isVercel = process.env.VERCEL === '1' || process.env.VERCEL === 'true';
+const lowMemoryBuild =
+	isVercel || process.env.REMOTION_DOCS_LOW_MEMORY_BUILD === '1';
 const prebuiltAssetsExist = [dir, brandDir, testbedDir].every((assetDir) =>
 	fs.existsSync(assetDir),
 );
@@ -16,6 +18,8 @@ if (isVercel && prebuiltAssetsExist) {
 	console.log(
 		'[docs build] Reusing prebuilt convert, brand, and testbed assets.',
 	);
+} else if (lowMemoryBuild) {
+	await $`bunx turbo "@remotion/convert#build-spa" "@remotion/brand#bundle" "@remotion/example#bundle-testbed" --concurrency=1`;
 } else {
 	await $`bunx turbo "@remotion/convert#build-spa" "@remotion/brand#bundle" "@remotion/example#bundle-testbed"`;
 }

@@ -1,0 +1,44 @@
+FROM oven/bun:1.3.12-debian AS base
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+	bash \
+	ca-certificates \
+	coreutils \
+	curl \
+	g++ \
+	git \
+	make \
+	nodejs \
+	npm \
+	procps \
+	python3 \
+	time \
+	unzip \
+	&& rm -rf /var/lib/apt/lists/*
+
+WORKDIR /vercel/path0
+
+COPY . .
+
+RUN git config --global --add safe.directory /vercel/path0
+
+ENV CI=1 \
+	DO_NOT_TRACK=1 \
+	NO_COLOR=1 \
+	TURBO_TELEMETRY_DISABLED=1 \
+	VERCEL=1 \
+	VERCEL_ENV=preview
+
+FROM base AS fresh
+
+CMD ["bash", "scripts/repro-docs-build-oom.sh"]
+
+FROM base AS deps
+
+RUN git init -q \
+	&& git config --global --add safe.directory /vercel/path0 \
+	&& bun install
+
+ENV DOCS_REPRO_SKIP_INSTALL=1
+
+CMD ["bash", "scripts/repro-docs-build-oom.sh"]

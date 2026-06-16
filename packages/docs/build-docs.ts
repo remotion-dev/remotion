@@ -31,6 +31,12 @@ const appendNodeOption = (value: string) => {
 	return [current, value].filter(Boolean).join(' ');
 };
 
+const nodeOldSpaceSize = process.env.REMOTION_DOCS_NODE_OLD_SPACE_MB
+	? parseInt(process.env.REMOTION_DOCS_NODE_OLD_SPACE_MB, 10)
+	: lowMemoryBuild
+		? 3072
+		: 4096;
+
 const run = (
 	label: string,
 	command: string,
@@ -89,17 +95,21 @@ const run = (
 
 const docusaurusEnv = {
 	DOCUSAURUS_IGNORE_SSG_WARNINGS: 'true',
+	DOCUSAURUS_NO_PERSISTENT_CACHE: lowMemoryBuild ? 'true' : undefined,
 	DOCUSAURUS_PERF_LOGGER:
 		process.env.DOCUSAURUS_PERF_LOGGER ?? (isVercel ? 'true' : undefined),
-	NODE_OPTIONS: appendNodeOption('--max-old-space-size=4096'),
+	NODE_OPTIONS: appendNodeOption(`--max-old-space-size=${nodeOldSpaceSize}`),
 	...(lowMemoryBuild
 		? {
 				DOCUSAURUS_SSG_WORKER_THREAD_COUNT:
-					process.env.DOCUSAURUS_SSG_WORKER_THREAD_COUNT ?? '2',
+					process.env.DOCUSAURUS_SSG_WORKER_THREAD_COUNT ?? '1',
+				DOCUSAURUS_SSG_WORKER_THREAD_RECYCLER_MAX_MEMORY:
+					process.env.DOCUSAURUS_SSG_WORKER_THREAD_RECYCLER_MAX_MEMORY ??
+					String(512 * 1024 * 1024),
 				DOCUSAURUS_SSG_WORKER_THREAD_TASK_SIZE:
-					process.env.DOCUSAURUS_SSG_WORKER_THREAD_TASK_SIZE ?? '5',
+					process.env.DOCUSAURUS_SSG_WORKER_THREAD_TASK_SIZE ?? '1',
 				DOCUSAURUS_SSR_CONCURRENCY:
-					process.env.DOCUSAURUS_SSR_CONCURRENCY ?? '8',
+					process.env.DOCUSAURUS_SSR_CONCURRENCY ?? '2',
 			}
 		: null),
 };
@@ -111,10 +121,24 @@ const twoslashEnv = lowMemoryBuild
 				process.env.TWOSLASH_RECYCLE_LIMIT_BYTES ?? String(1024 * 1024 * 1024),
 		}
 	: {};
+const docusaurusBuild = lowMemoryBuild
+	? {
+			command: 'node',
+			args: ['build-docusaurus-low-memory.cjs'],
+		}
+	: {
+			command: 'bunx',
+			args: ['docusaurus', 'build'],
+		};
 
 await run('copy raw docs', 'bun', ['copy-raw-docs.ts']);
 await run('fetch prompt submissions', 'bun', ['fetch-prompt-submissions.ts']);
 await run('prewarm twoslash', 'bun', ['prewarm-twoslash.ts'], twoslashEnv);
-await run('Docusaurus build', 'bunx', ['docusaurus', 'build'], docusaurusEnv);
+await run(
+	'Docusaurus build',
+	docusaurusBuild.command,
+	docusaurusBuild.args,
+	docusaurusEnv,
+);
 await run('copy convert assets', 'bun', ['copy-convert.ts']);
 await run('count generated pages', 'bun', ['count-pages.ts']);
