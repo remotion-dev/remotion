@@ -60,9 +60,15 @@ const SPRING_LIMITS: Record<
 		readonly step: number;
 	}
 > = {
-	damping: {min: 0.1, max: 200, step: 0.1},
+	damping: {min: 1, max: 200, step: 1},
 	mass: {min: 0.1, max: 20, step: 0.1},
 	stiffness: {min: 1, max: 1000, step: 1},
+};
+
+const SPRING_DECIMAL_PLACES: Record<SpringNumberKey, number> = {
+	damping: 0,
+	mass: 2,
+	stiffness: 0,
 };
 
 const inlineContainer: React.CSSProperties = {
@@ -154,7 +160,13 @@ const easingToMode = (easing: TimelineEasingValue): EditorMode => {
 	return isSpringEasing(easing) ? 'spring' : 'bezier';
 };
 
-const roundCoordinate = (value: number) => Math.round(value * 10000) / 10000;
+const roundToDecimalPlaces = (value: number, decimalPlaces: number) => {
+	const factor = 10 ** decimalPlaces;
+	const rounded = Math.round(value * factor) / factor;
+	return Object.is(rounded, -0) ? 0 : rounded;
+};
+
+const roundCoordinate = (value: number) => roundToDecimalPlaces(value, 4);
 
 const serializeBezier = (bezier: CubicBezier): TimelineEasingValue => {
 	const rounded = sanitizeBezier(bezier).map(roundCoordinate) as CubicBezier;
@@ -175,7 +187,10 @@ const sanitizeSpringValue = (
 		return fallback;
 	}
 
-	return roundCoordinate(clamp(value, limits.min, limits.max));
+	return roundToDecimalPlaces(
+		clamp(value, limits.min, limits.max),
+		SPRING_DECIMAL_PLACES[key],
+	);
 };
 
 const sanitizeSpring = (spring: SpringEasing): SpringEasing => ({
@@ -205,6 +220,25 @@ const formatNumber = (value: number | string) => {
 	}
 
 	return String(roundCoordinate(numericValue));
+};
+
+const formatNumberWithDecimalPlaces =
+	(decimalPlaces: number) => (value: number | string) => {
+		const numericValue = Number(value);
+		if (!Number.isFinite(numericValue)) {
+			return String(value);
+		}
+
+		return String(roundToDecimalPlaces(numericValue, decimalPlaces));
+	};
+
+const springFormatters: Record<
+	SpringNumberKey,
+	(value: number | string) => string
+> = {
+	damping: formatNumberWithDecimalPlaces(SPRING_DECIMAL_PLACES.damping),
+	mass: formatNumberWithDecimalPlaces(SPRING_DECIMAL_PLACES.mass),
+	stiffness: formatNumberWithDecimalPlaces(SPRING_DECIMAL_PLACES.stiffness),
 };
 
 const areEasingsEqual = (
@@ -891,10 +925,11 @@ export const EasingEditor: React.FC<{
 									min={SPRING_LIMITS.damping.min}
 									max={SPRING_LIMITS.damping.max}
 									step={SPRING_LIMITS.damping.step}
-									formatter={formatNumber}
+									formatter={springFormatters.damping}
 									rightAlign={false}
 									style={numberInputStyle}
 									snapToStep={false}
+									dragDecimalPlaces={SPRING_DECIMAL_PLACES.damping}
 									disabled={disabled}
 								/>
 							</div>
@@ -916,10 +951,11 @@ export const EasingEditor: React.FC<{
 									min={SPRING_LIMITS.mass.min}
 									max={SPRING_LIMITS.mass.max}
 									step={SPRING_LIMITS.mass.step}
-									formatter={formatNumber}
+									formatter={springFormatters.mass}
 									rightAlign={false}
 									style={numberInputStyle}
 									snapToStep={false}
+									dragDecimalPlaces={SPRING_DECIMAL_PLACES.mass}
 									disabled={disabled}
 								/>
 							</div>
@@ -941,10 +977,11 @@ export const EasingEditor: React.FC<{
 									min={SPRING_LIMITS.stiffness.min}
 									max={SPRING_LIMITS.stiffness.max}
 									step={SPRING_LIMITS.stiffness.step}
-									formatter={formatNumber}
+									formatter={springFormatters.stiffness}
 									rightAlign={false}
 									style={numberInputStyle}
 									snapToStep={false}
+									dragDecimalPlaces={SPRING_DECIMAL_PLACES.stiffness}
 									disabled={disabled}
 								/>
 							</div>
