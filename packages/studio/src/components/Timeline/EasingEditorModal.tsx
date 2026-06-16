@@ -16,7 +16,8 @@ import {
 } from '../../helpers/colors';
 import {Checkbox} from '../Checkbox';
 import {InputDragger} from '../NewComposition/InputDragger';
-import {Tab, Tabs} from '../Tabs';
+import type {SegmentedControlItem} from '../SegmentedControl';
+import {SegmentedControl} from '../SegmentedControl';
 import type {TimelineSelection} from './TimelineSelection';
 import type {
 	SelectedEasingUpdate,
@@ -76,14 +77,11 @@ const inlineContainer: React.CSSProperties = {
 	minWidth: 0,
 };
 
-const tabsStyle: React.CSSProperties = {
+const segmentedControlWrapper: React.CSSProperties = {
+	display: 'flex',
+	justifyContent: 'center',
 	padding: '0 12px',
 	marginBottom: 8,
-};
-
-const tabStyle: React.CSSProperties = {
-	justifyContent: 'center',
-	paddingLeft: 0,
 };
 
 const coordinatesGridBase: React.CSSProperties = {
@@ -716,6 +714,22 @@ export const EasingEditor: React.FC<{
 	}, [spring]);
 
 	const disabled = previewServerState.type !== 'connected';
+	const modeItems = useMemo((): SegmentedControlItem[] => {
+		return [
+			{
+				key: 'bezier',
+				label: 'Bezier',
+				onClick: () => switchMode('bezier'),
+				selected: mode === 'bezier',
+			},
+			{
+				key: 'spring',
+				label: 'Spring',
+				onClick: () => switchMode('spring'),
+				selected: mode === 'spring',
+			},
+		];
+	}, [mode, switchMode]);
 	const coordinatesGrid = useMemo(
 		(): React.CSSProperties => ({
 			...coordinatesGridBase,
@@ -727,22 +741,9 @@ export const EasingEditor: React.FC<{
 
 	return (
 		<div style={inlineContainer}>
-			<Tabs style={tabsStyle}>
-				<Tab
-					selected={mode === 'bezier'}
-					onClick={() => switchMode('bezier')}
-					style={tabStyle}
-				>
-					Bezier
-				</Tab>
-				<Tab
-					selected={mode === 'spring'}
-					onClick={() => switchMode('spring')}
-					style={tabStyle}
-				>
-					Spring
-				</Tab>
-			</Tabs>
+			<div style={segmentedControlWrapper}>
+				<SegmentedControl items={modeItems} needsWrapping={false} />
+			</div>
 			{mode === 'bezier' ? (
 				<>
 					<svg
