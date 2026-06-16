@@ -1,10 +1,11 @@
 import {barrelDistortion} from '@remotion/effects/barrel-distortion';
 import {blur} from '@remotion/effects/blur';
 import {brightness} from '@remotion/effects/brightness';
+import {burlap} from '@remotion/effects/burlap';
 import {chromaticAberration} from '@remotion/effects/chromatic-aberration';
 import {colorKey} from '@remotion/effects/color-key';
-import {contrast} from '@remotion/effects/contrast';
 import {contourLines} from '@remotion/effects/contour-lines';
+import {contrast} from '@remotion/effects/contrast';
 import {dotGrid} from '@remotion/effects/dot-grid';
 import {dropShadow} from '@remotion/effects/drop-shadow';
 import {duotone} from '@remotion/effects/duotone';
@@ -42,10 +43,11 @@ import {starburstEffectSchema} from '@remotion/starburst';
 import {EffectsBarrelDistortionPreview} from '../effects/effects-barrel-distortion-preview';
 import {EffectsBlurPreview} from '../effects/effects-blur-preview';
 import {EffectsBrightnessPreview} from '../effects/effects-brightness-preview';
+import {EffectsBurlapPreview} from '../effects/effects-burlap-preview';
 import {EffectsChromaticAberrationPreview} from '../effects/effects-chromatic-aberration-preview';
 import {EffectsColorKeyPreview} from '../effects/effects-color-key-preview';
-import {EffectsContrastPreview} from '../effects/effects-contrast-preview';
 import {EffectsContourLinesPreview} from '../effects/effects-contour-lines-preview';
+import {EffectsContrastPreview} from '../effects/effects-contrast-preview';
 import {EffectsDotGridPreview} from '../effects/effects-dot-grid-preview';
 import {EffectsDropShadowPreview} from '../effects/effects-drop-shadow-preview';
 import {EffectsDuotonePreview} from '../effects/effects-duotone-preview';
@@ -106,6 +108,14 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/brightness',
 		comp: EffectsBrightnessPreview,
 		schema: brightness().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-burlap',
+		effectName: 'burlap',
+		effectImportPath: '@remotion/effects/burlap',
+		comp: EffectsBurlapPreview,
+		schema: burlap().definition.schema,
 	},
 	{
 		...defaults,

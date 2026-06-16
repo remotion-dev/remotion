@@ -2,6 +2,7 @@ import {expect, test} from 'bun:test';
 import {barrelDistortion} from '../barrel-distortion/index.js';
 import {blur} from '../blur/index.js';
 import {brightness} from '../brightness.js';
+import {burlap} from '../burlap.js';
 import {chromaticAberration} from '../chromatic-aberration/index.js';
 import {colorKey} from '../color-key.js';
 import {contourLines} from '../contour-lines.js';
@@ -79,6 +80,9 @@ test('@remotion/effects expose documentation links', () => {
 	);
 	expect(brightness().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/brightness',
+	);
+	expect(burlap().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/burlap',
 	);
 	expect(contrast().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/contrast',
@@ -194,6 +198,7 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(chromaticAberration().definition.label).toBe('chromaticAberration()');
 	expect(colorKey().definition.label).toBe('colorKey()');
 	expect(brightness().definition.label).toBe('brightness()');
+	expect(burlap().definition.label).toBe('burlap()');
 	expect(contrast().definition.label).toBe('contrast()');
 	expect(contourLines().definition.label).toBe('contourLines()');
 	expect(duotone().definition.label).toBe('duotone()');
@@ -1586,6 +1591,67 @@ test('noise() parameters produce distinct effect keys', () => {
 			premultiplied.effectKey,
 		]).size,
 	).toBe(4);
+});
+
+test('burlap() accepts default params', () => {
+	expect(() => burlap()).not.toThrow();
+});
+
+test('burlap() accepts valid params', () => {
+	expect(() =>
+		burlap({
+			amount: 0.8,
+			size: 6,
+			roughness: 0.4,
+			seed: 3,
+		}),
+	).not.toThrow();
+});
+
+test('burlap() rejects non-finite amount', () => {
+	expect(() => burlap({amount: Number.NaN})).toThrow(
+		'"amount" must be a finite number',
+	);
+});
+
+test('burlap() rejects amount below range', () => {
+	expect(() => burlap({amount: -0.1})).toThrow('"amount" must be >= 0');
+});
+
+test('burlap() rejects amount above range', () => {
+	expect(() => burlap({amount: 1.1})).toThrow('"amount" must be <= 1');
+});
+
+test('burlap() rejects non-positive size', () => {
+	expect(() => burlap({size: 0})).toThrow('"size" must be greater than 0');
+});
+
+test('burlap() rejects roughness above range', () => {
+	expect(() => burlap({roughness: 1.1})).toThrow('"roughness" must be <= 1');
+});
+
+test('burlap() rejects non-finite seed', () => {
+	expect(() => burlap({seed: Number.NaN})).toThrow(
+		'"seed" must be a finite number',
+	);
+});
+
+test('burlap() parameters produce distinct effect keys', () => {
+	const defaults = burlap();
+	const stronger = burlap({amount: 0.8});
+	const larger = burlap({size: 8});
+	const smoother = burlap({roughness: 0.2});
+	const seeded = burlap({seed: 4});
+
+	expect(
+		new Set([
+			defaults.effectKey,
+			stronger.effectKey,
+			larger.effectKey,
+			smoother.effectKey,
+			seeded.effectKey,
+		]).size,
+	).toBe(5);
 });
 
 test('noiseDisplacement() accepts required params', () => {

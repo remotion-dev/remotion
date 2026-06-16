@@ -260,7 +260,7 @@ When creating a visual effect, prefer: 1. normal Remotion/HTML/CSS/SVG/filter/bl
 
 For light leak overlays, see [rules/light-leaks.md](rules/light-leaks.md). Docs: https://www.remotion.dev/docs/effects
 
-Available effects: `barrelDistortion()`, `blur()`, `brightness()`, `chromaticAberration()`, `colorKey()`, `contourLines()`, `contrast()`, `dotGrid()`, `dropShadow()`, `duotone()`, `evolve()`, `fisheye()`, `glow()`, `grayscale()`, `halftone()`, `halftoneLinearGradient()`, `hue()`, `invert()`, `lightLeak()`, `linearProgressiveBlur()`, `lines()`, `mirror()`, `noise()`, `noiseDisplacement()`, `pattern()`, `pixelDissolve()`, `rings()`, `saturation()`, `scale()`, `scanlines()`, `tvSignalOff()`, `speckle()`, `shine()`, `starburst()`, `tint()`, `uvTranslate()`, `vignette()`, `wave()`, `waves()`, `whiteNoise()`, `xyTranslate()`, `zigzag()`.
+Available effects: `brightness()`, `contrast()`, `colorKey()`, `duotone()`, `grayscale()`, `hue()`, `invert()`, `saturation()`, `tint()`, `blur()`, `linearProgressiveBlur()`, `dropShadow()`, `glow()`, `evolve()`, `mirror()`, `scale()`, `uvTranslate()`, `xyTranslate()`, `barrelDistortion()`, `chromaticAberration()`, `fisheye()`, `wave()`, `burlap()`, `dotGrid()`, `halftone()`, `noise()`, `noiseDisplacement()`, `pattern()`, `pixelDissolve()`, `scanlines()`, `speckle()`, `shine()`, `vignette()`, `contourLines()`, `halftoneLinearGradient()`, `whiteNoise()`, `tvSignalOff()`, `lines()`, `rings()`, `waves()`, `zigzag()`, `lightLeak()`, `starburst()`.
 
 ## 3D content
 
