@@ -1,3 +1,7 @@
+import {
+	KEYFRAME_EASING_PRESETS,
+	LINEAR_KEYFRAME_EASING,
+} from '@remotion/studio-shared';
 import React, {
 	useCallback,
 	useContext,
@@ -36,6 +40,11 @@ type HandleIndex = 0 | 1;
 type Coordinate = 'x' | 'y';
 type EditorMode = 'bezier' | 'spring';
 type SpringNumberKey = 'damping' | 'mass' | 'stiffness';
+type EasingPreset = {
+	readonly id: string;
+	readonly label: string;
+	readonly easing: TimelineEasingValue;
+};
 
 const SVG_WIDTH = 560;
 const SVG_HEIGHT = 320;
@@ -47,6 +56,11 @@ const Y_MIN = -2;
 const Y_MAX = 3;
 const LINEAR_EASING: TimelineEasingValue = {type: 'linear'};
 const LINEAR_BEZIER: CubicBezierTuple = [0.25, 0.25, 0.75, 0.75];
+const PRESET_PREVIEW_WIDTH = 48;
+const PRESET_PREVIEW_HEIGHT = 30;
+const PRESET_PREVIEW_PADDING = 5;
+const PRESET_PREVIEW_Y_MIN = -0.35;
+const PRESET_PREVIEW_Y_MAX = 1.45;
 const DEFAULT_SPRING_EASING: SpringEasing = {
 	type: 'spring',
 	damping: 10,
@@ -54,6 +68,14 @@ const DEFAULT_SPRING_EASING: SpringEasing = {
 	overshootClamping: false,
 	stiffness: 100,
 };
+const EDITOR_EASING_PRESETS: readonly EasingPreset[] = [
+	{
+		id: 'linear',
+		label: 'Linear',
+		easing: LINEAR_KEYFRAME_EASING,
+	},
+	...KEYFRAME_EASING_PRESETS,
+];
 
 const SPRING_LIMITS: Record<
 	SpringNumberKey,
@@ -84,6 +106,33 @@ const segmentedControlWrapper: React.CSSProperties = {
 	justifyContent: 'center',
 	padding: '0 12px',
 	marginBottom: 8,
+};
+
+const presetButtonsWrapper: React.CSSProperties = {
+	display: 'flex',
+	flexWrap: 'wrap',
+	gap: 6,
+	justifyContent: 'center',
+	marginBottom: 10,
+	padding: '0 12px',
+};
+
+const presetButtonBase: React.CSSProperties = {
+	alignItems: 'center',
+	backgroundColor: INPUT_BACKGROUND,
+	border: `1px solid ${INPUT_BORDER_COLOR_HOVERED}`,
+	borderRadius: 4,
+	display: 'inline-flex',
+	height: 34,
+	justifyContent: 'center',
+	padding: 0,
+	width: 52,
+};
+
+const presetPreviewSvgStyle: React.CSSProperties = {
+	display: 'block',
+	height: PRESET_PREVIEW_HEIGHT,
+	width: PRESET_PREVIEW_WIDTH,
 };
 
 const coordinatesGridBase: React.CSSProperties = {
@@ -307,6 +356,55 @@ const getEasingUpdateTargetKey = (update: SelectedEasingUpdate) => {
 const xToSvg = (value: number) => PLOT_LEFT + value * PLOT_WIDTH;
 const yToSvg = (value: number) =>
 	PLOT_TOP + ((Y_MAX - value) / (Y_MAX - Y_MIN)) * PLOT_HEIGHT;
+const presetPreviewXToSvg = (value: number) =>
+	PRESET_PREVIEW_PADDING +
+	value * (PRESET_PREVIEW_WIDTH - PRESET_PREVIEW_PADDING * 2);
+const presetPreviewYToSvg = (value: number) =>
+	PRESET_PREVIEW_PADDING +
+	((PRESET_PREVIEW_Y_MAX - value) /
+		(PRESET_PREVIEW_Y_MAX - PRESET_PREVIEW_Y_MIN)) *
+		(PRESET_PREVIEW_HEIGHT - PRESET_PREVIEW_PADDING * 2);
+
+const getEasingFunction = (easing: TimelineEasingValue) => {
+	switch (easing.type) {
+		case 'linear':
+			return Easing.linear;
+		case 'bezier':
+			return Easing.bezier(easing.x1, easing.y1, easing.x2, easing.y2);
+		case 'spring':
+			return Easing.spring({
+				damping: easing.damping,
+				mass: easing.mass,
+				overshootClamping: easing.overshootClamping,
+				stiffness: easing.stiffness,
+			});
+		default:
+			throw new Error(
+				`Unsupported easing: ${JSON.stringify(easing satisfies never)}`,
+			);
+	}
+};
+
+const getPresetPreviewPath = (easing: TimelineEasingValue) => {
+	const easingFunction = getEasingFunction(easing);
+	const samples = 36;
+	const points: string[] = [];
+
+	for (let i = 0; i <= samples; i++) {
+		const progress = i / samples;
+		const x = presetPreviewXToSvg(progress);
+		const y = presetPreviewYToSvg(
+			clamp(
+				easingFunction(progress),
+				PRESET_PREVIEW_Y_MIN,
+				PRESET_PREVIEW_Y_MAX,
+			),
+		);
+		points.push(`${i === 0 ? 'M' : 'L'} ${x} ${y}`);
+	}
+
+	return points.join(' ');
+};
 
 const pointFromBezier = (bezier: CubicBezierTuple, handle: HandleIndex) => {
 	const x = handle === 0 ? bezier[0] : bezier[2];
@@ -345,6 +443,61 @@ const EasingGraphScaffold: React.FC = () => {
 				1
 			</text>
 		</>
+	);
+};
+
+const EasingPresetButton: React.FC<{
+	readonly currentEasing: TimelineEasingValue;
+	readonly disabled: boolean;
+	readonly onClick: (easing: TimelineEasingValue) => void;
+	readonly preset: EasingPreset;
+}> = ({currentEasing, disabled, onClick, preset}) => {
+	const selected = areEasingsEqual(currentEasing, preset.easing);
+	const path = useMemo(
+		() => getPresetPreviewPath(preset.easing),
+		[preset.easing],
+	);
+	const style = useMemo(
+		(): React.CSSProperties => ({
+			...presetButtonBase,
+			backgroundColor: selected ? 'rgba(11, 132, 243, 0.18)' : INPUT_BACKGROUND,
+			borderColor: selected ? BLUE : INPUT_BORDER_COLOR_HOVERED,
+			cursor: disabled ? 'not-allowed' : 'pointer',
+			opacity: disabled ? 0.45 : 1,
+		}),
+		[disabled, selected],
+	);
+	const handleClick = useCallback(() => {
+		onClick(preset.easing);
+	}, [onClick, preset.easing]);
+
+	return (
+		<button
+			type="button"
+			style={style}
+			title={preset.label}
+			aria-label={`Apply ${preset.label} easing`}
+			disabled={disabled}
+			onClick={handleClick}
+		>
+			<svg
+				width={PRESET_PREVIEW_WIDTH}
+				height={PRESET_PREVIEW_HEIGHT}
+				viewBox={`0 0 ${PRESET_PREVIEW_WIDTH} ${PRESET_PREVIEW_HEIGHT}`}
+				style={presetPreviewSvgStyle}
+				aria-hidden="true"
+				focusable={false}
+			>
+				<path
+					d={path}
+					fill="none"
+					stroke={selected ? 'white' : BLUE}
+					strokeWidth={2}
+					strokeLinecap="round"
+					strokeLinejoin="round"
+				/>
+			</svg>
+		</button>
 	);
 };
 
@@ -626,6 +779,33 @@ export const EasingEditor: React.FC<{
 		[applyLiveEasing, commitEasing, mode, previewServerState.type],
 	);
 
+	const applyPreset = useCallback(
+		(easing: TimelineEasingValue) => {
+			if (previewServerState.type !== 'connected') {
+				return;
+			}
+
+			if (isSpringEasing(easing)) {
+				const nextSpring = sanitizeSpring(easing);
+				setMode('spring');
+				const springVersion = setSpringAndPreview(nextSpring);
+				commitEasing(serializeSpring(nextSpring), springVersion);
+				return;
+			}
+
+			const nextBezier = easingToBezier(easing);
+			setMode('bezier');
+			const bezierVersion = setBezierAndPreview(nextBezier);
+			commitEasing(serializeBezier(nextBezier), bezierVersion);
+		},
+		[
+			commitEasing,
+			previewServerState.type,
+			setBezierAndPreview,
+			setSpringAndPreview,
+		],
+	);
+
 	const getValueFromPointer = useCallback(
 		(event: {clientX: number; clientY: number}) => {
 			const svg = svgRef.current;
@@ -742,6 +922,11 @@ export const EasingEditor: React.FC<{
 	}, [spring]);
 
 	const disabled = previewServerState.type !== 'connected';
+	const currentEasing = useMemo(
+		() =>
+			mode === 'spring' ? serializeSpring(spring) : serializeBezier(bezier),
+		[bezier, mode, spring],
+	);
 	const modeItems = useMemo((): SegmentedControlItem[] => {
 		return [
 			{
@@ -771,6 +956,17 @@ export const EasingEditor: React.FC<{
 		<div style={inlineContainer}>
 			<div style={segmentedControlWrapper}>
 				<SegmentedControl items={modeItems} needsWrapping={false} />
+			</div>
+			<div style={presetButtonsWrapper}>
+				{EDITOR_EASING_PRESETS.map((preset) => (
+					<EasingPresetButton
+						key={preset.id}
+						currentEasing={currentEasing}
+						disabled={disabled}
+						onClick={applyPreset}
+						preset={preset}
+					/>
+				))}
 			</div>
 			{mode === 'bezier' ? (
 				<>
