@@ -94,6 +94,7 @@ export const DefaultInspector: React.FC<{
 		defaultProps: currentDefaultProps,
 		mode: defaultPropsMode,
 		propsEditType: 'default-props',
+		showCannotSaveDefaultPropsWarning: canShowDefaultPropsMode,
 	});
 
 	if (hasSelectedAsset) {

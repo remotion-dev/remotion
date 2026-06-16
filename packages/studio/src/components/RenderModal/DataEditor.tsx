@@ -135,11 +135,13 @@ export const useDataEditorWarnings = ({
 	defaultProps,
 	mode,
 	propsEditType,
+	showCannotSaveDefaultPropsWarning,
 }: {
 	readonly canSaveDefaultProps: TypeCanSaveState | null;
 	readonly defaultProps: Record<string, unknown>;
 	readonly mode: DataEditorMode;
 	readonly propsEditType: PropsEditType;
+	readonly showCannotSaveDefaultPropsWarning: boolean;
 }) => {
 	const inJSONEditor = mode === 'json';
 	const serializedJSON: SerializedJSONWithCustomFields | null = useMemo(() => {
@@ -166,6 +168,7 @@ export const useDataEditorWarnings = ({
 			propsEditType,
 			jsMapUsed: serializedJSON ? serializedJSON.mapUsed : false,
 			jsSetUsed: serializedJSON ? serializedJSON.setUsed : false,
+			showCannotSaveDefaultPropsWarning,
 		});
 	}, [
 		cliProps,
@@ -173,6 +176,7 @@ export const useDataEditorWarnings = ({
 		inJSONEditor,
 		propsEditType,
 		serializedJSON,
+		showCannotSaveDefaultPropsWarning,
 	]);
 
 	return {serializedJSON, warnings};
@@ -259,6 +263,7 @@ export const DataEditor: React.FC<{
 		defaultProps,
 		mode,
 		propsEditType,
+		showCannotSaveDefaultPropsWarning: true,
 	});
 	const warnings = controlledWarnings ?? computedWarnings;
 
