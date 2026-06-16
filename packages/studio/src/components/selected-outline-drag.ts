@@ -1,4 +1,6 @@
 import type {
+	CanUpdateSequencePropStatus,
+	DragOverrideValue,
 	GetDragOverrides,
 	SequencePropsSubscriptionKey,
 	InteractivitySchema,
@@ -44,6 +46,31 @@ import {
 	serializeTranslate,
 } from './Timeline/timeline-translate-utils';
 import {getLinkedScale} from './Timeline/TimelineScaleField';
+
+export const getSelectedOutlineActiveSchema = ({
+	schema,
+	currentRuntimeValueDotNotation,
+	dragOverrides,
+	propStatus,
+	frame,
+}: {
+	readonly schema: InteractivitySchema;
+	readonly currentRuntimeValueDotNotation: Record<string, unknown>;
+	readonly dragOverrides: Record<string, DragOverrideValue>;
+	readonly propStatus: Record<string, CanUpdateSequencePropStatus> | undefined;
+	readonly frame: number | null;
+}): InteractivitySchema => {
+	const {merged: valuesDotNotation} =
+		Internals.computeEffectiveSchemaValuesDotNotation({
+			schema,
+			currentValue: currentRuntimeValueDotNotation,
+			overrideValues: dragOverrides,
+			propStatus,
+			frame,
+		});
+
+	return Internals.flattenActiveSchema(schema, (key) => valuesDotNotation[key]);
+};
 
 export const getSelectedOutlineDragStates = ({
 	dragTargets,

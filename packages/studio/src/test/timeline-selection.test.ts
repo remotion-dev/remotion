@@ -23,6 +23,7 @@ import {
 	compensateTranslateForTransformOrigin,
 	getOutlineSelectionInteraction,
 	getSelectedEffectFieldsBySequenceKey,
+	getSelectedOutlineActiveSchema,
 	getSelectedOutlineDragChanges,
 	getSelectedOutlineDragValues,
 	getSelectedOutlineKeyboardNudgeDelta,
@@ -2500,6 +2501,30 @@ test('Selected outline dragging applies the same delta to all selected sequences
 			schema,
 		},
 	]);
+});
+
+test('Selected outline active schema exposes default Sequence translate controls', () => {
+	const activeSchema = getSelectedOutlineActiveSchema({
+		schema: NoReactInternals.sequenceSchema,
+		currentRuntimeValueDotNotation: {
+			layout: undefined,
+			'style.translate': undefined,
+		},
+		dragOverrides: {},
+		propStatus: {
+			layout: {status: 'static', codeValue: undefined},
+			'style.translate': {status: 'static', codeValue: undefined},
+		},
+		frame: 0,
+	});
+
+	const translateField = activeSchema['style.translate'];
+	expect(translateField?.type).toBe('translate');
+	if (translateField?.type !== 'translate') {
+		throw new Error('Expected style.translate to be active');
+	}
+
+	expect(translateField.default).toBe('0px 0px');
 });
 
 test('Selected outline dragging can lock movement to the dominant axis', () => {

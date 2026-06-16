@@ -16,6 +16,7 @@ import {ScaleLockContext} from '../state/scale-lock';
 import {showNotification} from './Notifications/NotificationCenter';
 import {
 	clearSelectedOutlineDragOverrides,
+	getSelectedOutlineActiveSchema,
 	getSelectedOutlineDragChanges,
 	getSelectedOutlineDragStates,
 	getSelectedOutlineDragValues,
@@ -59,6 +60,7 @@ export {
 	applySelectedOutlineDragAxisLock,
 	applySelectedOutlineTransformOriginAxisLock,
 	compensateTranslateForTransformOrigin,
+	getSelectedOutlineActiveSchema,
 	getSelectedOutlineDragChanges,
 	getSelectedOutlineDragValues,
 	getSelectedOutlineKeyboardNudgeDelta,
@@ -170,24 +172,32 @@ export const SelectedOutlineOverlay: React.FC<{
 			const containsSelection = sequenceKeysContainingSelection.has(key);
 			const nodePath = nodePathInfo.sequenceSubscriptionKey;
 			const {controls} = sequence;
-			const fieldSchema = controls?.schema[translateFieldKey];
 			const nodePropStatuses = Internals.getPropStatusesCtx(
 				propStatuses,
 				nodePath,
 			);
+			const sourceFrame = timelinePosition - keyframeDisplayOffset;
+			const dragOverrides = getDragOverrides(nodePath) ?? {};
+			const activeSchema = controls
+				? getSelectedOutlineActiveSchema({
+						schema: controls.schema,
+						currentRuntimeValueDotNotation:
+							controls.currentRuntimeValueDotNotation,
+						dragOverrides,
+						propStatus: nodePropStatuses,
+						frame: sourceFrame,
+					})
+				: null;
+			const fieldSchema = activeSchema?.[translateFieldKey];
 			const propStatus = nodePropStatuses?.[translateFieldKey];
-			const scaleFieldSchema = controls?.schema[scaleFieldKey];
+			const scaleFieldSchema = activeSchema?.[scaleFieldKey];
 			const scalePropStatus = nodePropStatuses?.[scaleFieldKey];
-			const rotationFieldSchema = controls?.schema[rotateFieldKey];
-			const rotationPropStatus = Internals.getPropStatusesCtx(
-				propStatuses,
-				nodePath,
-			)?.[rotateFieldKey];
+			const rotationFieldSchema = activeSchema?.[rotateFieldKey];
+			const rotationPropStatus = nodePropStatuses?.[rotateFieldKey];
 			const transformOriginFieldSchema =
-				controls?.schema[transformOriginFieldKey];
+				activeSchema?.[transformOriginFieldKey];
 			const transformOriginPropStatus =
 				nodePropStatuses?.[transformOriginFieldKey];
-			const rotationSourceFrame = timelinePosition - keyframeDisplayOffset;
 			const transformOriginValueForRotation =
 				transformOriginFieldSchema?.type === 'transform-origin' &&
 				(transformOriginPropStatus?.status === 'static' ||
@@ -195,11 +205,9 @@ export const SelectedOutlineOverlay: React.FC<{
 					? String(
 							Internals.getEffectiveVisualModeValue({
 								propStatus: transformOriginPropStatus,
-								dragOverrideValue: (getDragOverrides(nodePath) ?? {})[
-									transformOriginFieldKey
-								],
+								dragOverrideValue: dragOverrides[transformOriginFieldKey],
 								defaultValue: transformOriginFieldSchema.default,
-								frame: rotationSourceFrame,
+								frame: sourceFrame,
 								shouldResortToDefaultValueIfUndefined: true,
 							}) ?? transformOriginFieldSchema.default,
 						)
@@ -236,7 +244,7 @@ export const SelectedOutlineOverlay: React.FC<{
 			const transformOriginSourceFrame =
 				selectedTransformOriginInfo?.displayFrame === null ||
 				selectedTransformOriginInfo?.displayFrame === undefined
-					? timelinePosition - keyframeDisplayOffset
+					? sourceFrame
 					: selectedTransformOriginInfo.displayFrame - keyframeDisplayOffset;
 			const canTransformOriginStatus =
 				transformOriginPropStatus?.status === 'static' ||
@@ -294,9 +302,7 @@ export const SelectedOutlineOverlay: React.FC<{
 								nodePath,
 								fieldKey: scaleFieldKey,
 								defaultValue: (() => {
-									const dragOverrideValue = (getDragOverrides(nodePath) ?? {})[
-										scaleFieldKey
-									];
+									const dragOverrideValue = dragOverrides[scaleFieldKey];
 									const effectiveValue = Internals.getEffectiveVisualModeValue({
 										propStatus: scalePropStatus,
 										dragOverrideValue,
@@ -334,9 +340,7 @@ export const SelectedOutlineOverlay: React.FC<{
 							originValue: String(
 								Internals.getEffectiveVisualModeValue({
 									propStatus: transformOriginPropStatus,
-									dragOverrideValue: (getDragOverrides(nodePath) ?? {})[
-										transformOriginFieldKey
-									],
+									dragOverrideValue: dragOverrides[transformOriginFieldKey],
 									defaultValue: transformOriginFieldSchema.default,
 									frame: transformOriginSourceFrame,
 									shouldResortToDefaultValueIfUndefined: true,
@@ -347,9 +351,7 @@ export const SelectedOutlineOverlay: React.FC<{
 									rotationPropStatus?.status === 'keyframed'
 									? (Internals.getEffectiveVisualModeValue({
 											propStatus: rotationPropStatus,
-											dragOverrideValue: (getDragOverrides(nodePath) ?? {})[
-												rotateFieldKey
-											],
+											dragOverrideValue: dragOverrides[rotateFieldKey],
 											defaultValue:
 												rotationFieldSchema?.type === 'rotation-css'
 													? rotationFieldSchema.default
@@ -365,9 +367,7 @@ export const SelectedOutlineOverlay: React.FC<{
 									? String(
 											Internals.getEffectiveVisualModeValue({
 												propStatus: scalePropStatus,
-												dragOverrideValue: (getDragOverrides(nodePath) ?? {})[
-													scaleFieldKey
-												],
+												dragOverrideValue: dragOverrides[scaleFieldKey],
 												defaultValue:
 													scaleFieldSchema?.type === 'scale'
 														? scaleFieldSchema.default
@@ -384,9 +384,7 @@ export const SelectedOutlineOverlay: React.FC<{
 							translateValue: String(
 								Internals.getEffectiveVisualModeValue({
 									propStatus,
-									dragOverrideValue: (getDragOverrides(nodePath) ?? {})[
-										translateFieldKey
-									],
+									dragOverrideValue: dragOverrides[translateFieldKey],
 									defaultValue: fieldSchema.default,
 									frame: transformOriginSourceFrame,
 									shouldResortToDefaultValueIfUndefined: true,
