@@ -201,21 +201,45 @@ mat2 rotate2d(float angle) {
 	return mat2(c, -s, s, c);
 }
 
-float creaseField(vec2 px, float angle, float spacing, float width, float seedOffset) {
-	vec2 q = rotate2d(angle) * px;
-	float row = floor(q.y / spacing);
-	float rowSeed = hash21(vec2(row, seedOffset));
-	float center = (row + 0.5) * spacing + (rowSeed - 0.5) * spacing * 0.8;
-	float warp = (valueNoise(vec2(q.x / (spacing * 1.8), row * 1.13 + seedOffset)) - 0.5)
-		* spacing
-		* 0.42;
-	float dist = abs(q.y - center - warp);
-	float lineAmount = 1.0 - smoothstep(width, width * 4.5, dist);
-	float segment = fbm(vec2(q.x / (spacing * 3.0), row * 0.37 + seedOffset));
-	float broken = mix(0.05, 1.0, smoothstep(0.26, 0.88, segment));
-	float polarity = hash21(vec2(row + seedOffset, 91.7)) < 0.5 ? -1.0 : 1.0;
+vec2 warpVec(vec2 p, float scale, float amount, float seedOffset) {
+	return vec2(
+		fbm(p / scale + vec2(seedOffset, 1.7)) - 0.5,
+		fbm(p / scale + vec2(seedOffset + 9.1, 6.4)) - 0.5
+	) * amount;
+}
 
-	return lineAmount * mix(0.2, 1.0, broken) * polarity;
+float bandField(float coord, float spacing, float width) {
+	float centered = abs(fract(coord / spacing) - 0.5) * spacing;
+	return 1.0 - smoothstep(width, width * 3.8, centered);
+}
+
+float curvedFoldField(
+	vec2 px,
+	float baseAngle,
+	float spacing,
+	float width,
+	float seedOffset
+) {
+	float angleNoise =
+		(fbm(px / (spacing * 5.8) + vec2(seedOffset, 3.1)) - 0.5) * 1.35;
+	vec2 warped = px + warpVec(
+		px + vec2(seedOffset * 13.0, seedOffset * 7.0),
+		spacing * 5.4,
+		spacing * 0.95,
+		seedOffset
+	);
+	vec2 q = rotate2d(baseAngle + angleNoise) * warped;
+	float phase =
+		(fbm(q / (spacing * 3.4) + vec2(seedOffset, 8.6)) - 0.5) * spacing * 1.3;
+	float band = bandField(q.y + phase, spacing, width);
+	float breakup = smoothstep(
+		0.24,
+		0.88,
+		fbm(vec2(q.x / (spacing * 2.6), q.y / (spacing * 7.5)) + vec2(seedOffset))
+	);
+	float softness = 0.65 + fbm(q / (spacing * 8.2) + vec2(seedOffset, 2.3)) * 0.35;
+
+	return band * breakup * softness;
 }
 
 float edgeMask(vec2 uv) {
@@ -235,17 +259,38 @@ float heightMap(vec2 uv) {
 	vec2 px = uv * uResolution;
 	float minSide = min(uResolution.x, uResolution.y);
 	float density = clamp(uWrinkleDensity, 0.0, 1.0);
-	float spacing = mix(minSide * 0.28, minSide * 0.11, density);
-	float width = mix(minSide * 0.026, minSide * 0.011, density);
+	float spacing = mix(minSide * 0.31, minSide * 0.13, density);
+	float width = mix(minSide * 0.03, minSide * 0.013, density);
 
-	float h = (fbm(px / (minSide * 0.24) + vec2(uSeed * 0.17)) - 0.5) * 0.1;
-	h += creaseField(px, -0.62, spacing * 1.0, width, 3.1) * 0.34;
-	h += creaseField(px, 0.42, spacing * 1.65, width * 1.35, 9.7) * 0.2;
-	h += creaseField(px, 1.21, spacing * 2.5, width * 1.9, 15.3) * 0.08;
+	vec2 broadWarp = warpVec(px, minSide * 0.42, minSide * 0.06, uSeed + 1.0);
+	vec2 detailWarp = warpVec(px, minSide * 0.17, minSide * 0.018, uSeed + 6.0);
+	vec2 warpedPx = px + broadWarp + detailWarp;
+
+	float h = (fbm(warpedPx / (minSide * 0.26) + vec2(uSeed * 0.17)) - 0.5) * 0.08;
+	float broadFold = curvedFoldField(warpedPx, -0.74, spacing * 1.0, width, 3.1);
+	float crossFold = curvedFoldField(
+		warpedPx + broadWarp * 0.7,
+		0.31,
+		spacing * 1.9,
+		width * 1.55,
+		9.7
+	);
+	float microFold = curvedFoldField(
+		warpedPx - detailWarp * 0.6,
+		1.04,
+		spacing * 0.66,
+		width * 0.62,
+		15.3
+	);
+	h += broadFold * 0.22;
+	h += crossFold * 0.11;
+	h += microFold * 0.045;
+	h += (1.0 - abs(fbm(warpedPx / (minSide * 0.11) + vec2(uSeed * 0.3)) * 2.0 - 1.0))
+		* 0.018;
 
 	float edge = edgeMask(uv) * clamp(uEdgeTension, 0.0, 1.0);
-	float edgeNoise = fbm(px / (minSide * 0.13) + vec2(uSeed * 0.41, 8.0));
-	h += edge * (0.22 + edgeNoise * 0.16);
+	float edgeNoise = fbm(warpedPx / (minSide * 0.18) + vec2(uSeed * 0.41, 8.0));
+	h += edge * (0.16 + edgeNoise * 0.11);
 
 	return h;
 }
@@ -279,8 +324,8 @@ void main() {
 	vec3 halfVector = normalize(light + vec3(0.0, 0.0, 1.0));
 	float specular = pow(max(dot(normal, halfVector), 0.0), 24.0);
 	float directional = dot(gradient, normalize(vec2(-0.45, 0.72)));
-	float creaseHighlight = smoothstep(0.018, 0.085, directional);
-	float creaseShadow = smoothstep(0.018, 0.085, -directional);
+	float creaseHighlight = smoothstep(0.02, 0.07, directional);
+	float creaseShadow = smoothstep(0.02, 0.07, -directional);
 	float edge = edgeMask(vUv) * uEdgeTension;
 	float edgeGlint = edge * smoothstep(
 		0.35,
