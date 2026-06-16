@@ -49,6 +49,7 @@ import {
 } from './TimelineSelection';
 import {TimelineSequenceName} from './TimelineSequenceName';
 import {useOpenSequenceInEditor} from './use-open-sequence-in-editor';
+import {useSequenceFreezeFrameMenuItem} from './use-sequence-freeze-frame-menu-item';
 
 const labelContainerStyle: React.CSSProperties = {
 	alignItems: 'center',
@@ -810,69 +811,19 @@ export const TimelineSequenceItem: React.FC<{
 		setIsRenaming(true);
 	}, [canRenameThisSequence]);
 
-	const freezeStatus = propStatusesForOverride?.freeze;
-	const isFrozen =
-		freezeStatus?.status === 'static' &&
-		typeof freezeStatus.codeValue === 'number';
-
-	const canToggleFreeze =
-		previewConnected &&
-		Boolean(sequence.controls) &&
-		nodePath !== null &&
-		validatedLocation !== null &&
-		freezeStatus !== undefined &&
-		freezeStatus !== null &&
-		freezeStatus.status === 'static';
-
-	const onToggleFreezeFrame = useCallback(() => {
-		if (
-			!canToggleFreeze ||
-			!sequence.controls ||
-			!nodePath ||
-			!validatedLocation ||
-			previewServerState.type !== 'connected'
-		) {
-			return;
-		}
-
-		const rawFreezeFrame = Math.round(
-			timelinePosition - sequence.from + sequenceFrameOffset,
-		);
-		const maxFrame = Number.isFinite(sequence.duration)
-			? Math.max(0, sequence.duration - 1)
-			: rawFreezeFrame;
-		const freezeFrame = Math.min(Math.max(0, rawFreezeFrame), maxFrame);
-		const remove = isFrozen;
-
-		saveSequenceProps({
-			changes: [
-				{
-					fileName: validatedLocation.source,
-					nodePath,
-					fieldKey: 'freeze',
-					value: remove ? null : freezeFrame,
-					defaultValue: null,
-					schema: sequence.controls.schema,
-				},
-			],
-			setPropStatuses,
-			clientId: previewServerState.clientId,
-			undoLabel: remove ? 'Unfreeze sequence' : 'Freeze sequence',
-			redoLabel: remove ? 'Freeze sequence again' : 'Unfreeze sequence again',
-		});
-	}, [
-		canToggleFreeze,
-		isFrozen,
+	const freezeFrameMenuItem = useSequenceFreezeFrameMenuItem({
+		clientId:
+			previewServerState.type === 'connected'
+				? previewServerState.clientId
+				: null,
 		nodePath,
-		previewServerState,
-		sequence.controls,
-		sequence.duration,
-		sequence.from,
+		propStatusesForOverride,
+		sequence,
 		sequenceFrameOffset,
 		setPropStatuses,
 		timelinePosition,
-		validatedLocation,
-	]);
+		validatedSource: validatedLocation?.source ?? null,
+	});
 
 	const contextMenuValues = useMemo(() => {
 		if (!previewConnected) {
@@ -909,37 +860,22 @@ export const TimelineSequenceItem: React.FC<{
 					subMenu: null,
 					value: 'rename-sequence',
 				},
-				{
-					type: 'item' as const,
-					id: 'toggle-freeze-frame',
-					keyHint: null,
-					label: isFrozen ? 'Unfreeze frame' : 'Freeze frame',
-					leftItem: null,
-					disabled: !canToggleFreeze,
-					onClick: () => {
-						onToggleFreezeFrame();
-					},
-					quickSwitcherLabel: null,
-					subMenu: null,
-					value: 'toggle-freeze-frame',
-				},
+				freezeFrameMenuItem,
 			],
 		});
 	}, [
 		assetLinkInfo,
 		canOpenInEditor,
 		canRenameThisSequence,
-		canToggleFreeze,
 		deleteDisabled,
 		disableInteractivityDisabled,
 		duplicateDisabled,
 		fileLocation,
-		isFrozen,
+		freezeFrameMenuItem,
 		onDeleteSequenceFromSource,
 		onDisableSequenceInteractivity,
 		onDuplicateSequenceFromSource,
 		onRenameSequence,
-		onToggleFreezeFrame,
 		openInEditor,
 		originalLocation,
 		previewConnected,
