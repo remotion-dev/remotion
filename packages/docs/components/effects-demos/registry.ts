@@ -105,6 +105,15 @@ const defaults = {
 	logLevel: 'info',
 } as const;
 
+const shrinkwrapDemoSchema = {
+	...shrinkwrap().definition.schema,
+	phase: {
+		...shrinkwrap().definition.schema.phase,
+		min: -10,
+		max: 10,
+	},
+} as const;
+
 export const effectsDemos: EffectsDemoType[] = [
 	{
 		...defaults,
@@ -232,7 +241,7 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectName: 'shrinkwrap',
 		effectImportPath: '@remotion/effects/shrinkwrap',
 		comp: EffectsShrinkwrapPreview,
-		schema: shrinkwrap().definition.schema,
+		schema: shrinkwrapDemoSchema,
 		initialValues: SHRINKWRAP_PREVIEW_PARAMS,
 	},
 	{
