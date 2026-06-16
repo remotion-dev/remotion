@@ -17,6 +17,7 @@ import {
 import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
 import {parseKeyframeFieldFromNodePath} from './parse-keyframe-field-from-node-path';
 import type {SetPropStatuses} from './save-sequence-prop';
+import {shouldFlipEasingGraph} from './should-flip-easing-graph';
 import type {
 	TimelineEasingSelection,
 	TimelineSelection,
@@ -34,6 +35,7 @@ export type SelectedEasingUpdate =
 			readonly segmentIndex: number;
 			readonly currentEasing: TimelineEasingValue;
 			readonly propStatus: CanUpdateSequencePropStatusKeyframed;
+			readonly shouldFlipGraph: boolean;
 	  }
 	| {
 			readonly type: 'effect';
@@ -45,6 +47,7 @@ export type SelectedEasingUpdate =
 			readonly segmentIndex: number;
 			readonly currentEasing: TimelineEasingValue;
 			readonly propStatus: CanUpdateSequencePropStatusKeyframed;
+			readonly shouldFlipGraph: boolean;
 	  };
 
 const canEditEasingForInterpolationFunction = (
@@ -117,6 +120,12 @@ export const getSelectedEasingUpdate = ({
 				sequencePropStatus.easing[selection.segmentIndex] ??
 				LINEAR_KEYFRAME_EASING,
 			propStatus: sequencePropStatus,
+			shouldFlipGraph: shouldFlipEasingGraph({
+				schema: sequence.controls.schema,
+				fieldKey: field.fieldKey,
+				propStatus: sequencePropStatus,
+				segmentIndex: selection.segmentIndex,
+			}),
 		};
 	}
 
@@ -154,6 +163,12 @@ export const getSelectedEasingUpdate = ({
 		currentEasing:
 			effectPropStatus.easing[selection.segmentIndex] ?? LINEAR_KEYFRAME_EASING,
 		propStatus: effectPropStatus,
+		shouldFlipGraph: shouldFlipEasingGraph({
+			schema: effect.schema,
+			fieldKey: field.fieldKey,
+			propStatus: effectPropStatus,
+			segmentIndex: selection.segmentIndex,
+		}),
 	};
 };
 
@@ -232,6 +247,37 @@ export const getTimelineEasingValueForSelection = ({
 			propStatuses,
 		})?.currentEasing ?? null
 	);
+};
+
+export const getTimelineEasingEditorStateForSelection = ({
+	selection,
+	sequences,
+	overrideIdsToNodePaths,
+	propStatuses,
+}: {
+	selection: EasingSelection;
+	sequences: TSequence[];
+	overrideIdsToNodePaths: OverrideIdToNodePaths;
+	propStatuses: PropStatuses;
+}): {
+	readonly initialEasing: TimelineEasingValue;
+	readonly shouldFlipGraph: boolean;
+} | null => {
+	const update = getSelectedEasingUpdate({
+		selection,
+		sequences,
+		overrideIdsToNodePaths,
+		propStatuses,
+	});
+
+	if (update === null) {
+		return null;
+	}
+
+	return {
+		initialEasing: update.currentEasing,
+		shouldFlipGraph: update.shouldFlipGraph,
+	};
 };
 
 export const updateSelectedTimelineEasings = ({

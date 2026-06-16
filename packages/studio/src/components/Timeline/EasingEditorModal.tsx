@@ -307,11 +307,19 @@ const getEasingUpdateTargetKey = (update: SelectedEasingUpdate) => {
 const xToSvg = (value: number) => PLOT_LEFT + value * PLOT_WIDTH;
 const yToSvg = (value: number) =>
 	PLOT_TOP + ((Y_MAX - value) / (Y_MAX - Y_MIN)) * PLOT_HEIGHT;
+const easingYToGraphY = (value: number, shouldFlipGraph: boolean) =>
+	shouldFlipGraph ? 1 - value : value;
+const graphYToEasingY = (value: number, shouldFlipGraph: boolean) =>
+	shouldFlipGraph ? 1 - value : value;
 
-const pointFromBezier = (bezier: CubicBezierTuple, handle: HandleIndex) => {
+const pointFromBezier = (
+	bezier: CubicBezierTuple,
+	handle: HandleIndex,
+	shouldFlipGraph: boolean,
+) => {
 	const x = handle === 0 ? bezier[0] : bezier[2];
 	const y = handle === 0 ? bezier[1] : bezier[3];
-	return {x: xToSvg(x), y: yToSvg(y)};
+	return {x: xToSvg(x), y: yToSvg(easingYToGraphY(y, shouldFlipGraph))};
 };
 
 const EasingGraphScaffold: React.FC = () => {
@@ -350,6 +358,7 @@ const EasingGraphScaffold: React.FC = () => {
 
 export type EasingEditorState = {
 	initialEasing: TimelineEasingValue;
+	shouldFlipGraph: boolean;
 	selections: TimelineSelection[];
 };
 
@@ -637,15 +646,16 @@ export const EasingEditor: React.FC<{
 			const svgX = ((event.clientX - rect.left) / rect.width) * SVG_WIDTH;
 			const svgY = ((event.clientY - rect.top) / rect.height) * SVG_HEIGHT;
 			const x = clamp((svgX - PLOT_LEFT) / PLOT_WIDTH, 0, 1);
-			const y = clamp(
+			const graphY = clamp(
 				Y_MAX - ((svgY - PLOT_TOP) / PLOT_HEIGHT) * (Y_MAX - Y_MIN),
 				Y_MIN,
 				Y_MAX,
 			);
+			const y = graphYToEasingY(graphY, state.shouldFlipGraph);
 
 			return {x, y};
 		},
-		[],
+		[state.shouldFlipGraph],
 	);
 
 	const updateHandleFromPointer = useCallback(
@@ -715,10 +725,28 @@ export const EasingEditor: React.FC<{
 		};
 	}, [clearEasingDragOverrides]);
 
-	const startPoint = useMemo(() => ({x: xToSvg(0), y: yToSvg(0)}), []);
-	const endPoint = useMemo(() => ({x: xToSvg(1), y: yToSvg(1)}), []);
-	const firstHandle = useMemo(() => pointFromBezier(bezier, 0), [bezier]);
-	const secondHandle = useMemo(() => pointFromBezier(bezier, 1), [bezier]);
+	const startPoint = useMemo(
+		() => ({
+			x: xToSvg(0),
+			y: yToSvg(easingYToGraphY(0, state.shouldFlipGraph)),
+		}),
+		[state.shouldFlipGraph],
+	);
+	const endPoint = useMemo(
+		() => ({
+			x: xToSvg(1),
+			y: yToSvg(easingYToGraphY(1, state.shouldFlipGraph)),
+		}),
+		[state.shouldFlipGraph],
+	);
+	const firstHandle = useMemo(
+		() => pointFromBezier(bezier, 0, state.shouldFlipGraph),
+		[bezier, state.shouldFlipGraph],
+	);
+	const secondHandle = useMemo(
+		() => pointFromBezier(bezier, 1, state.shouldFlipGraph),
+		[bezier, state.shouldFlipGraph],
+	);
 	const bezierPath = useMemo(() => {
 		return `M ${startPoint.x} ${startPoint.y} C ${firstHandle.x} ${firstHandle.y}, ${secondHandle.x} ${secondHandle.y}, ${endPoint.x} ${endPoint.y}`;
 	}, [endPoint, firstHandle, secondHandle, startPoint]);
@@ -734,12 +762,14 @@ export const EasingEditor: React.FC<{
 		for (let i = 0; i <= samples; i++) {
 			const t = i / samples;
 			const x = xToSvg(t);
-			const y = yToSvg(clamp(easing(t), Y_MIN, Y_MAX));
+			const y = yToSvg(
+				clamp(easingYToGraphY(easing(t), state.shouldFlipGraph), Y_MIN, Y_MAX),
+			);
 			points.push(`${i === 0 ? 'M' : 'L'} ${x} ${y}`);
 		}
 
 		return points.join(' ');
-	}, [spring]);
+	}, [spring, state.shouldFlipGraph]);
 
 	const disabled = previewServerState.type !== 'connected';
 	const modeItems = useMemo((): SegmentedControlItem[] => {

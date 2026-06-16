@@ -4,7 +4,7 @@ import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {EasingEditor} from '../Timeline/EasingEditorModal';
 import {getTimelineSelectionKey} from '../Timeline/TimelineSelection';
 import {
-	getTimelineEasingValueForSelection,
+	getTimelineEasingEditorStateForSelection,
 	type EasingSelection,
 } from '../Timeline/update-selected-easing';
 import {InspectorMessage, InspectorSectionHeader} from './common';
@@ -19,9 +19,9 @@ export const EasingInspector: React.FC<{
 	);
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 
-	const initialEasing = useMemo(
+	const easingEditorState = useMemo(
 		() =>
-			getTimelineEasingValueForSelection({
+			getTimelineEasingEditorStateForSelection({
 				selection,
 				sequences,
 				overrideIdsToNodePaths: overrideIdToNodePathMappings,
@@ -31,15 +31,15 @@ export const EasingInspector: React.FC<{
 	);
 
 	const state = useMemo(() => {
-		if (initialEasing === null) {
+		if (easingEditorState === null) {
 			return null;
 		}
 
 		return {
-			initialEasing,
+			...easingEditorState,
 			selections: [selection],
 		};
-	}, [initialEasing, selection]);
+	}, [easingEditorState, selection]);
 
 	if (state === null) {
 		return <InspectorMessage>Easing unavailable</InspectorMessage>;
