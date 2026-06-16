@@ -152,7 +152,6 @@ export const DefaultInspector: React.FC<{
 					defaultProps={currentDefaultProps}
 					setDefaultProps={setDefaultProps}
 					propsEditType="default-props"
-					schemaErrorAlignment="left"
 					schemaErrorMode="compact"
 					layout="inspector"
 					mode={defaultPropsMode}

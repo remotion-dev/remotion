@@ -2,7 +2,7 @@ import React from 'react';
 import {useZodIfPossible} from '../../get-zod-if-possible';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../../Menu/is-menu-item';
 import {getSchemaEditorFieldsetPadding} from './Fieldset';
-import {TopLevelZodValue} from './SchemaErrorMessages';
+import {TopLevelZodValue, type SchemaErrorMode} from './SchemaErrorMessages';
 import {defaultPropsEditorScrollableAreaRef} from './scroll-to-default-props-path';
 import type {AnyZodSchema} from './zod-schema-type';
 import {getZodSchemaType} from './zod-schema-type';
@@ -50,7 +50,15 @@ export const SchemaEditor: React.FC<{
 	readonly setValue: UpdaterFunction<Record<string, unknown>>;
 	readonly scrollableContainer?: boolean;
 	readonly contentInset?: number;
-}> = ({schema, value, setValue, scrollableContainer = true, contentInset}) => {
+	readonly errorMode?: SchemaErrorMode;
+}> = ({
+	schema,
+	value,
+	setValue,
+	scrollableContainer = true,
+	contentInset,
+	errorMode = 'full',
+}) => {
 	const z = useZodIfPossible();
 	if (!z) {
 		throw new Error('expected zod');
@@ -59,7 +67,7 @@ export const SchemaEditor: React.FC<{
 	const typeName = getZodSchemaType(schema);
 
 	if (typeName !== 'object' && typeName !== 'discriminatedUnion') {
-		return <TopLevelZodValue typeReceived={typeName} />;
+		return <TopLevelZodValue typeReceived={typeName} mode={errorMode} />;
 	}
 
 	const containerStyle = getContainerStyle({
