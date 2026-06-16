@@ -28,6 +28,9 @@ const getSvgPointFromPointerEvent = ({
 	};
 };
 
+const uvHandleRadius = 6;
+const selectedUvHandleRadius = 8;
+
 const SelectedUvHandleConnectionLines: React.FC<{
 	readonly handles: readonly SelectedOutlineUvHandle[];
 	readonly outline: SelectedOutline;
@@ -204,7 +207,7 @@ const SelectedUvHandleCircle: React.FC<{
 		<circle
 			cx={position.x}
 			cy={position.y}
-			r={6}
+			r={handle.isSelected ? selectedUvHandleRadius : uvHandleRadius}
 			fill="white"
 			stroke={BLUE}
 			strokeWidth={2}

@@ -1686,6 +1686,118 @@ test('UV handle connection lines stay within the same effect instance', () => {
 	expect(lines.map((line) => line.key)).toEqual(['2-start-end']);
 });
 
+const getUvHandlesForSelectedEffectChild = (selectedFieldKey: string) => {
+	const sequenceNodePathInfo = makeNodePathInfo(['body', 0], []);
+	const effectPropNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['effects', '0', selectedFieldKey],
+	);
+	const nodePath = sequenceNodePathInfo.sequenceSubscriptionKey;
+	const effectSchema = {
+		start: {
+			type: 'uv-coordinate',
+			default: [0, 0],
+			lineTo: 'end',
+		},
+		end: {
+			type: 'uv-coordinate',
+			default: [1, 1],
+		},
+		dotSize: {
+			type: 'number',
+			default: 10,
+			hiddenFromList: false,
+		},
+	} as const satisfies SequenceSchema;
+	const propStatuses: PropStatuses = {
+		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			canUpdate: true,
+			props: {},
+			effects: [
+				{
+					canUpdate: true,
+					effectIndex: 0,
+					callee: 'testEffect',
+					importPath: null,
+					props: {
+						start: {
+							status: 'static',
+							codeValue: [0.2, 0.3],
+						},
+						end: {
+							status: 'static',
+							codeValue: [0.8, 0.7],
+						},
+						dotSize: {
+							status: 'static',
+							codeValue: 10,
+						},
+					},
+				},
+			],
+		},
+	};
+
+	return getSelectedUvHandles({
+		propStatuses,
+		clientId: 'client-id',
+		getEffectDragOverrides: () => ({}),
+		nodePath,
+		selectedEffects: getSelectedEffectFieldsBySequenceKey([
+			{
+				type: 'sequence-effect-prop',
+				nodePathInfo: effectPropNodePathInfo,
+				i: 0,
+				key: selectedFieldKey,
+			},
+		]).get(getTimelineSequenceSelectionKey(sequenceNodePathInfo)),
+		sequence: {
+			effects: [{schema: effectSchema}],
+		} as unknown as TSequence,
+		sourceFrame: 0,
+	});
+};
+
+test('UV handles include connected coordinates when selecting one coordinate', () => {
+	const handles = getUvHandlesForSelectedEffectChild('start');
+
+	expect(
+		handles.map((handle) => ({
+			fieldKey: handle.fieldKey,
+			isSelected: handle.isSelected,
+			value: handle.value,
+		})),
+	).toEqual([
+		{fieldKey: 'start', isSelected: true, value: [0.2, 0.3]},
+		{fieldKey: 'end', isSelected: false, value: [0.8, 0.7]},
+	]);
+	expect(
+		getUvHandleConnectionLines({
+			points: [
+				{x: 0, y: 0},
+				{x: 100, y: 0},
+				{x: 100, y: 100},
+				{x: 0, y: 100},
+			],
+			handles,
+		}).map((line) => line.key),
+	).toEqual(['0-start-end']);
+});
+
+test('UV handles show for selected non-coordinate effect children', () => {
+	const handles = getUvHandlesForSelectedEffectChild('dotSize');
+
+	expect(
+		handles.map((handle) => ({
+			fieldKey: handle.fieldKey,
+			isSelected: handle.isSelected,
+		})),
+	).toEqual([
+		{fieldKey: 'start', isSelected: false},
+		{fieldKey: 'end', isSelected: false},
+	]);
+});
+
 test('UV handles are requested for selected effect children', () => {
 	const sequenceNodePathInfo = makeNodePathInfo(['body', 0], []);
 	const effectNodePathInfo = makeNodePathInfo(['body', 0], ['effects', '1']);
