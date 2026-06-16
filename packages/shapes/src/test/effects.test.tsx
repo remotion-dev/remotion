@@ -1,6 +1,9 @@
 import {expect, mock, test} from 'bun:test';
 import React from 'react';
 import type {EffectsProp, HtmlInCanvasPixelDensity} from 'remotion';
+import type {AllShapesProps} from '../components/render-svg';
+import type {MakeCircleProps} from '../utils/make-circle';
+import type {MakeRectOptions} from '../utils/make-rect';
 import {render} from './test-utils';
 
 type HtmlInCanvasCall = {
@@ -131,11 +134,45 @@ mock.module('remotion', () => {
 	};
 });
 
+const renderSvgModulePath = '../components/render-svg.tsx?effects-test';
+
 const loadComponents = async () => {
-	const [{Circle}, {Rect}] = await Promise.all([
-		import('../components/circle'),
-		import('../components/rect'),
+	const [{RenderSvg}, {makeCircle}, {makeRect}] = await Promise.all([
+		import(renderSvgModulePath),
+		import('../utils/make-circle'),
+		import('../utils/make-rect'),
 	]);
+
+	const Circle: React.FC<MakeCircleProps & AllShapesProps> = ({
+		radius,
+		...props
+	}) => {
+		return (
+			<RenderSvg
+				defaultName="<Circle>"
+				documentationLink="https://www.remotion.dev/docs/shapes/circle"
+				{...makeCircle({radius})}
+				{...props}
+			/>
+		);
+	};
+
+	const Rect: React.FC<MakeRectOptions & AllShapesProps> = ({
+		width,
+		height,
+		edgeRoundness,
+		cornerRadius,
+		...props
+	}) => {
+		return (
+			<RenderSvg
+				defaultName="<Rect>"
+				documentationLink="https://www.remotion.dev/docs/shapes/rect"
+				{...makeRect({height, width, edgeRoundness, cornerRadius})}
+				{...props}
+			/>
+		);
+	};
 
 	return {Circle, Rect};
 };
