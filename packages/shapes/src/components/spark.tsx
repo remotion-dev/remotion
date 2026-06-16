@@ -15,7 +15,7 @@ const sparkSchema = makeShapeSchema({
 		min: 0,
 	}),
 	height: numberField({
-		defaultValue: 100,
+		defaultValue: 140,
 		description: 'Height',
 		min: 0,
 	}),

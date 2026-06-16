@@ -63,10 +63,10 @@ const shapeDefaultProps: Record<ShapeName, readonly ComponentProp[]> = {
 		{name: 'fill', value: '#000000'},
 	],
 	Spark: [
-		{name: 'width', value: 200},
-		{name: 'height', value: 200},
+		{name: 'width', value: 100},
+		{name: 'height', value: 140},
 		{name: 'edgeRoundness', value: 1},
-		{name: 'cornerRadius', value: 12},
+		{name: 'cornerRadius', value: 0},
 		{name: 'fill', value: '#000000'},
 	],
 	Star: [

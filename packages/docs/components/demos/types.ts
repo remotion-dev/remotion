@@ -737,7 +737,7 @@ export const sparkDemo: DemoType = {
 	logLevel: 'info',
 	options: [
 		{
-			default: 240,
+			default: 100,
 			max: 600,
 			step: 5,
 			min: 1,
@@ -746,7 +746,7 @@ export const sparkDemo: DemoType = {
 			optional: 'no',
 		},
 		{
-			default: 240,
+			default: 140,
 			max: 600,
 			step: 5,
 			min: 1,
@@ -765,7 +765,7 @@ export const sparkDemo: DemoType = {
 		},
 		{
 			name: 'cornerRadius',
-			default: 12,
+			default: 0,
 			max: 120,
 			min: 0,
 			step: 1,
