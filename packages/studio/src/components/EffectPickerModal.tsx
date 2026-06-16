@@ -22,6 +22,11 @@ import {VERTICAL_SCROLLBAR_CLASSNAME} from './Menu/is-menu-item';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {DismissableModal} from './NewComposition/DismissableModal';
 import {RemotionInput} from './NewComposition/RemInput';
+import {
+	QUICK_SWITCHER_RESULT_LABEL_FONT_SIZE,
+	loopIndex,
+	useScrollIntoViewOnSelected,
+} from './QuickSwitcher/shared';
 
 const container: React.CSSProperties = {
 	width: 500,
@@ -61,7 +66,7 @@ const labelContainer: React.CSSProperties = {
 };
 
 const label: React.CSSProperties = {
-	fontSize: 15,
+	fontSize: QUICK_SWITCHER_RESULT_LABEL_FONT_SIZE,
 	overflow: 'hidden',
 	textOverflow: 'ellipsis',
 	whiteSpace: 'nowrap',
@@ -73,14 +78,6 @@ const category: React.CSSProperties = {
 	flexShrink: 0,
 };
 
-const loopIndex = (index: number, length: number) => {
-	if (index < 0) {
-		index += length;
-	}
-
-	return index % length;
-};
-
 const EffectPickerResult: React.FC<{
 	readonly item: EffectCatalogItem;
 	readonly selected: boolean;
@@ -89,14 +86,7 @@ const EffectPickerResult: React.FC<{
 	const [hovered, setHovered] = useState(false);
 	const ref = useRef<HTMLDivElement>(null);
 
-	useEffect(() => {
-		if (selected) {
-			ref.current?.scrollIntoView({
-				block: 'nearest',
-				inline: 'center',
-			});
-		}
-	}, [selected]);
+	useScrollIntoViewOnSelected(ref, selected);
 
 	const style = useMemo((): React.CSSProperties => {
 		return {
