@@ -38,8 +38,34 @@ test('Should support rounded points', () => {
 
 	expect(spark.instructions.length).toEqual(10);
 	expect(spark.instructions[0]).toEqual({type: 'M', x: 112, y: 12});
-	expect(spark.path).toContain('C 196 56 196 64 188 72');
+	expect(spark.path).toContain('C 204 48 204 72 188 72');
 	expect(spark.path).not.toContain('NaN');
+});
+
+test('Should transition smoothly from edges into rounded points', () => {
+	const spark = makeSpark({
+		width: 200,
+		height: 120,
+		edgeRoundness: 0.8,
+		cornerRadius: 12,
+	});
+
+	const topRightEdge = spark.instructions[1];
+	const rightCap = spark.instructions[2];
+	const rightBottomEdge = spark.instructions[3];
+
+	if (
+		topRightEdge.type !== 'C' ||
+		rightCap.type !== 'C' ||
+		rightBottomEdge.type !== 'C'
+	) {
+		throw new Error('Expected cubic instructions');
+	}
+
+	expect(topRightEdge.cp2y).toBe(topRightEdge.y);
+	expect(rightCap.cp1y).toBe(topRightEdge.y);
+	expect(rightCap.cp2y).toBe(rightCap.y);
+	expect(rightBottomEdge.cp1y).toBe(rightCap.y);
 });
 
 test('Should cap corner radius at half the shortest side', () => {

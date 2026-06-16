@@ -11,8 +11,10 @@ export type MakeSparkProps = {
 
 type Point = readonly [number, number];
 type CubicInstruction = Extract<Instruction, {type: 'C'}>;
+type CapDirection = 'top' | 'right' | 'bottom' | 'left';
 
 const KAPPA = 0.5522847498307936;
+const CAP_HANDLE = 4 / 3;
 
 const curve = ({
 	to,
@@ -36,23 +38,43 @@ const curve = ({
 
 const cap = ({
 	from,
-	control,
 	to,
+	radius,
+	direction,
 }: {
 	readonly from: Point;
-	readonly control: Point;
 	readonly to: Point;
+	readonly radius: number;
+	readonly direction: CapDirection;
 }): CubicInstruction => {
+	if (direction === 'top') {
+		return curve({
+			to,
+			cp1: [from[0], from[1] - radius * CAP_HANDLE],
+			cp2: [to[0], to[1] - radius * CAP_HANDLE],
+		});
+	}
+
+	if (direction === 'right') {
+		return curve({
+			to,
+			cp1: [from[0] + radius * CAP_HANDLE, from[1]],
+			cp2: [to[0] + radius * CAP_HANDLE, to[1]],
+		});
+	}
+
+	if (direction === 'bottom') {
+		return curve({
+			to,
+			cp1: [from[0], from[1] + radius * CAP_HANDLE],
+			cp2: [to[0], to[1] + radius * CAP_HANDLE],
+		});
+	}
+
 	return curve({
 		to,
-		cp1: [
-			from[0] + (control[0] - from[0]) * (2 / 3),
-			from[1] + (control[1] - from[1]) * (2 / 3),
-		],
-		cp2: [
-			to[0] + (control[0] - to[0]) * (2 / 3),
-			to[1] + (control[1] - to[1]) * (2 / 3),
-		],
+		cp1: [from[0] - radius * CAP_HANDLE, from[1]],
+		cp2: [to[0] - radius * CAP_HANDLE, to[1]],
 	});
 };
 
@@ -166,7 +188,9 @@ export const makeSpark = ({
 	];
 
 	if (radius > 0) {
-		instructions.push(cap({from: rightTop, control: right, to: rightBottom}));
+		instructions.push(
+			cap({from: rightTop, to: rightBottom, radius, direction: 'right'}),
+		);
 	}
 
 	instructions.push(
@@ -180,7 +204,7 @@ export const makeSpark = ({
 
 	if (radius > 0) {
 		instructions.push(
-			cap({from: bottomRight, control: bottom, to: bottomLeft}),
+			cap({from: bottomRight, to: bottomLeft, radius, direction: 'bottom'}),
 		);
 	}
 
@@ -194,7 +218,9 @@ export const makeSpark = ({
 	);
 
 	if (radius > 0) {
-		instructions.push(cap({from: leftBottom, control: left, to: leftTop}));
+		instructions.push(
+			cap({from: leftBottom, to: leftTop, radius, direction: 'left'}),
+		);
 	}
 
 	instructions.push(
@@ -207,7 +233,9 @@ export const makeSpark = ({
 	);
 
 	if (radius > 0) {
-		instructions.push(cap({from: topLeft, control: top, to: topRight}));
+		instructions.push(
+			cap({from: topLeft, to: topRight, radius, direction: 'top'}),
+		);
 	}
 
 	instructions.push({type: 'Z'});
