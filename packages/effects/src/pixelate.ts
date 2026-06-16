@@ -1,4 +1,4 @@
-import {Internals, type SequenceSchema} from 'remotion';
+import {Internals, type InteractivitySchema} from 'remotion';
 import {assertOptionalFiniteNumber} from './color-utils.js';
 import {assertEffectParamsObject} from './validate-effect-param.js';
 
@@ -16,7 +16,7 @@ const pixelateSchema = {
 		description: 'Block size',
 		hiddenFromList: false,
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type PixelateParams = {
 	readonly blockSize?: number;
@@ -180,7 +180,7 @@ const createPixelateState = (gl: WebGL2RenderingContext): PixelateState => {
 };
 
 export const pixelate = createEffect<PixelateParams, PixelateState>({
-	type: 'remotion/pixelate',
+	type: 'dev.remotion.effects.pixelate',
 	label: 'pixelate()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/pixelate',
 	backend: 'webgl2',
