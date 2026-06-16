@@ -11,6 +11,7 @@ import {
 	type InteractivePremountProps,
 	type InteractiveTransformProps,
 	type SequenceControls,
+	type SequenceProps,
 	type InteractivitySchema,
 } from 'remotion';
 
@@ -19,6 +20,7 @@ const {createWebGLContextError} = Internals;
 export type LightLeakProps = InteractiveBaseProps &
 	InteractiveTransformProps &
 	InteractivePremountProps &
+	Pick<SequenceProps, 'width' | 'height'> &
 	Pick<AbsoluteFillLayout, 'className'> & {
 		readonly seed?: number;
 		readonly hueShift?: number;
