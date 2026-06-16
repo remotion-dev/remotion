@@ -13,6 +13,7 @@ export type EasingSpringConfig = Partial<
 // there so we return endpoints instead of NaN or unintended extrapolation.
 const clampUnit = (t: number): number => Math.min(1, Math.max(0, t));
 const springEasingDurationInFrames = 30;
+const springEasingRestThreshold = 0.01;
 
 /**
  * @description The Easing module implements common easing functions. You can use it with the interpolate() API.
@@ -85,6 +86,7 @@ export class Easing {
 				frame: t * springEasingDurationInFrames,
 				config,
 				durationInFrames: springEasingDurationInFrames,
+				durationRestThreshold: springEasingRestThreshold,
 			});
 		};
 	}

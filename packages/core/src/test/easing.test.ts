@@ -254,6 +254,7 @@ describe('Easing spring', () => {
 					fps: 30,
 					frame: t * 30,
 					durationInFrames: 30,
+					durationRestThreshold: 0.01,
 					config,
 				}),
 			);
