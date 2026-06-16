@@ -30,10 +30,18 @@ const isFiniteNumber = (value: unknown): value is number => {
 
 const isEasing = (value: unknown): value is KeyframeEasing => {
 	return (
-		value === 'linear' ||
-		(Array.isArray(value) &&
-			value.length === 4 &&
-			value.every((item) => isFiniteNumber(item)))
+		isRecord(value) &&
+		(value.type === 'linear' ||
+			(value.type === 'bezier' &&
+				isFiniteNumber(value.x1) &&
+				isFiniteNumber(value.y1) &&
+				isFiniteNumber(value.x2) &&
+				isFiniteNumber(value.y2)) ||
+			(value.type === 'spring' &&
+				isFiniteNumber(value.damping) &&
+				isFiniteNumber(value.mass) &&
+				isFiniteNumber(value.stiffness) &&
+				typeof value.overshootClamping === 'boolean'))
 	);
 };
 

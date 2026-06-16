@@ -17,14 +17,14 @@ test('parseEasingClipboardData accepts easing payloads', () => {
 				type: 'easing',
 				version: 1,
 				remotionClipboard: 'easing',
-				easing: [0.42, 0, 0.58, 1],
+				easing: {type: 'bezier', x1: 0.42, y1: 0, x2: 0.58, y2: 1},
 			}),
 		),
 	).toEqual({
 		type: 'easing',
 		version: 1,
 		remotionClipboard: 'easing',
-		easing: [0.42, 0, 0.58, 1],
+		easing: {type: 'bezier', x1: 0.42, y1: 0, x2: 0.58, y2: 1},
 	});
 	expect(
 		parseEasingClipboardData(
@@ -32,10 +32,32 @@ test('parseEasingClipboardData accepts easing payloads', () => {
 				type: 'easing',
 				version: 1,
 				remotionClipboard: 'easing',
-				easing: 'linear',
+				easing: {type: 'linear'},
 			}),
 		)?.easing,
-	).toBe('linear');
+	).toEqual({type: 'linear'});
+	expect(
+		parseEasingClipboardData(
+			JSON.stringify({
+				type: 'easing',
+				version: 1,
+				remotionClipboard: 'easing',
+				easing: {
+					type: 'spring',
+					damping: 12,
+					mass: 1.5,
+					stiffness: 180,
+					overshootClamping: true,
+				},
+			}),
+		)?.easing,
+	).toEqual({
+		type: 'spring',
+		damping: 12,
+		mass: 1.5,
+		stiffness: 180,
+		overshootClamping: true,
+	});
 });
 
 test('parseEasingClipboardData reports old easing payloads as unsupported', () => {
@@ -60,7 +82,7 @@ test('parseEasingClipboardData rejects malformed easing payloads', () => {
 				type: 'easing',
 				version: 1,
 				remotionClipboard: 'easing',
-				easing: [0.42, 0, 0.58],
+				easing: [0.42, 0, 0.58, 1],
 			}),
 		),
 	).toBe(null);

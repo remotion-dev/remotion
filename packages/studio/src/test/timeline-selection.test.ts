@@ -638,7 +638,13 @@ test('copying a selected sequence easing creates an easing payload', () => {
 		['controls', 'opacity'],
 	);
 	const nodePath = opacityNodePathInfo.sequenceSubscriptionKey;
-	const easing: [number, number, number, number] = [0.42, 0, 0.58, 1];
+	const easing = {
+		type: 'bezier',
+		x1: 0.42,
+		y1: 0,
+		x2: 0.58,
+		y2: 1,
+	} as const;
 	const schema = {
 		opacity: {type: 'number', default: 1, hiddenFromList: false},
 	} satisfies SequenceSchema;
@@ -713,7 +719,7 @@ test('copying a selected effect easing creates an easing payload', () => {
 								{frame: 0, value: 10},
 								{frame: 100, value: 20},
 							],
-							easing: ['linear'],
+							easing: [{type: 'linear'}],
 							clamping: {left: 'clamp', right: 'clamp'},
 							posterize: undefined,
 						},
@@ -745,7 +751,7 @@ test('copying a selected effect easing creates an easing payload', () => {
 		type: 'easing',
 		version: 1,
 		remotionClipboard: 'easing',
-		easing: 'linear',
+		easing: {type: 'linear'},
 	});
 });
 
