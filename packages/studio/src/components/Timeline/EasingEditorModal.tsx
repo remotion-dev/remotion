@@ -10,7 +10,9 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
+import type {InteractivitySchemaField} from 'remotion';
 import {Easing, Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {
 	BACKGROUND,
@@ -26,11 +28,14 @@ import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
 import {
 	formatTimelineNumber,
+	getDecimalPlaces,
 	getTimelineDisplayDecimalPlaces,
 	normalizeTimelineNumber,
 } from './timeline-field-utils';
 import {parseCssRotationToDegrees} from './timeline-rotation-utils';
+import {parseTranslate, serializeTranslate} from './timeline-translate-utils';
 import type {TimelineSelection} from './TimelineSelection';
+import {parseTransformOrigin} from './transform-origin-utils';
 import type {
 	SelectedEasingUpdate,
 	TimelineEasingValue,
@@ -374,22 +379,82 @@ const getEasingUpdateTargetKey = (update: SelectedEasingUpdate) => {
 	return `effect:${nodePathKey}:${update.effectIndex}:${update.fieldKey}:${update.segmentIndex}`;
 };
 
-const formatRotationEasingGraphLabel = ({
-	update,
-	value,
-}: {
-	readonly update: SelectedEasingUpdate;
-	readonly value: unknown;
-}) => {
-	const fieldSchema = update.schema[update.fieldKey];
-	if (
-		!fieldSchema ||
-		(fieldSchema.type !== 'rotation-css' &&
-			fieldSchema.type !== 'rotation-degrees')
-	) {
-		return null;
+const EASING_GRAPH_FALLBACK_DECIMAL_PLACES = 3;
+
+const formatGenericNumberEasingGraphLabel = (value: number) => {
+	if (!Number.isFinite(value)) {
+		return String(value);
 	}
 
+	return formatTimelineNumber({
+		decimalPlaces: EASING_GRAPH_FALLBACK_DECIMAL_PLACES,
+		fixed: false,
+		value: normalizeTimelineNumber(value),
+	});
+};
+
+const normalizeUnknownForEasingGraphLabel = (value: unknown): unknown => {
+	if (typeof value === 'number' && Number.isFinite(value)) {
+		return roundToDecimalPlaces(
+			normalizeTimelineNumber(value),
+			EASING_GRAPH_FALLBACK_DECIMAL_PLACES,
+		);
+	}
+
+	if (Array.isArray(value)) {
+		return value.map(normalizeUnknownForEasingGraphLabel);
+	}
+
+	if (value && typeof value === 'object') {
+		return Object.fromEntries(
+			Object.entries(value).map(([key, item]) => [
+				key,
+				normalizeUnknownForEasingGraphLabel(item),
+			]),
+		);
+	}
+
+	return value;
+};
+
+const formatUnknownEasingGraphLabel = (value: unknown): string => {
+	if (typeof value === 'number') {
+		return formatGenericNumberEasingGraphLabel(value);
+	}
+
+	if (
+		value === null ||
+		typeof value === 'string' ||
+		typeof value === 'boolean' ||
+		typeof value === 'bigint'
+	) {
+		return String(value);
+	}
+
+	if (value === undefined) {
+		return 'undefined';
+	}
+
+	try {
+		return (
+			JSON.stringify(normalizeUnknownForEasingGraphLabel(value)) ??
+			String(value)
+		);
+	} catch {
+		return String(value);
+	}
+};
+
+const formatRotationEasingGraphLabel = ({
+	fieldSchema,
+	value,
+}: {
+	readonly fieldSchema: Extract<
+		InteractivitySchemaField,
+		{type: 'rotation-css'} | {type: 'rotation-degrees'}
+	>;
+	readonly value: unknown;
+}) => {
 	const configuredStep =
 		fieldSchema.type === 'rotation-css' ||
 		fieldSchema.type === 'rotation-degrees'
@@ -418,69 +483,241 @@ const formatRotationEasingGraphLabel = ({
 };
 
 const formatNumberEasingGraphLabel = ({
-	update,
+	fieldSchema,
 	value,
 }: {
-	readonly update: SelectedEasingUpdate;
+	readonly fieldSchema: Extract<InteractivitySchemaField, {type: 'number'}>;
 	readonly value: unknown;
 }) => {
-	const fieldSchema = update.schema[update.fieldKey];
-	if (
-		!fieldSchema ||
-		fieldSchema.type !== 'number' ||
-		typeof value !== 'number'
-	) {
+	if (typeof value !== 'number') {
 		return null;
 	}
 
-	if (fieldSchema.step === undefined) {
-		return String(value);
+	const stepDecimals =
+		fieldSchema.step === undefined ? null : getDecimalPlaces(fieldSchema.step);
+
+	if (stepDecimals === null) {
+		const digits = getDecimalPlaces(value);
+		return digits === 0 ? String(value) : value.toFixed(digits);
 	}
 
 	return formatTimelineNumber({
-		decimalPlaces: getTimelineDisplayDecimalPlaces({
-			defaultDecimalPlaces: 0,
-			step: fieldSchema.step,
-		}),
+		decimalPlaces: stepDecimals,
 		fixed: true,
 		value,
 	});
 };
 
+const formatScaleEasingGraphLabel = ({
+	fieldSchema,
+	value,
+}: {
+	readonly fieldSchema: Extract<InteractivitySchemaField, {type: 'scale'}>;
+	readonly value: unknown;
+}) => {
+	const decimalPlaces = getTimelineDisplayDecimalPlaces({
+		defaultDecimalPlaces: 3,
+		step: fieldSchema.step,
+	});
+	const formatScalePart = (part: number) =>
+		formatTimelineNumber({
+			decimalPlaces,
+			fixed: true,
+			value: part,
+		});
+	const [x, y, z] = NoReactInternals.parseScaleValue(value);
+	const parts = x === y && z === 1 ? [x] : z === 1 ? [x, y] : [x, y, z];
+
+	return parts.map(formatScalePart).join(' ');
+};
+
+const formatTranslateEasingGraphLabel = ({
+	fieldSchema,
+	value,
+}: {
+	readonly fieldSchema: Extract<InteractivitySchemaField, {type: 'translate'}>;
+	readonly value: unknown;
+}) => {
+	const decimalPlaces = getTimelineDisplayDecimalPlaces({
+		defaultDecimalPlaces: 1,
+		step: fieldSchema.step,
+	});
+	const [x, y] = parseTranslate(String(value ?? '0px 0px'));
+
+	return serializeTranslate(x, y, decimalPlaces);
+};
+
+const formatTransformOriginAxisValue = ({
+	decimalPlaces,
+	unit,
+	value,
+}: {
+	readonly decimalPlaces: number;
+	readonly unit: '%' | 'px';
+	readonly value: number;
+}) => {
+	return `${formatTimelineNumber({
+		decimalPlaces,
+		fixed: false,
+		value,
+	})}${unit}`;
+};
+
+const formatTransformOriginEasingGraphLabel = ({
+	fieldSchema,
+	value,
+}: {
+	readonly fieldSchema: Extract<
+		InteractivitySchemaField,
+		{type: 'transform-origin'}
+	>;
+	readonly value: unknown;
+}) => {
+	const parsed = parseTransformOrigin(value);
+	if (parsed === null) {
+		return null;
+	}
+
+	const decimalPlaces = getTimelineDisplayDecimalPlaces({
+		defaultDecimalPlaces: 2,
+		step: fieldSchema.step,
+	});
+	const xy = `${formatTransformOriginAxisValue({
+		decimalPlaces,
+		unit: parsed.x.unit,
+		value: parsed.x.value,
+	})} ${formatTransformOriginAxisValue({
+		decimalPlaces,
+		unit: parsed.y.unit,
+		value: parsed.y.value,
+	})}`;
+
+	return parsed.z === null ? xy : `${xy} ${parsed.z}`;
+};
+
+const formatUvCoordinateEasingGraphLabel = ({
+	fieldSchema,
+	value,
+}: {
+	readonly fieldSchema: Extract<
+		InteractivitySchemaField,
+		{type: 'uv-coordinate'}
+	>;
+	readonly value: unknown;
+}) => {
+	if (
+		!Array.isArray(value) ||
+		value.length !== 2 ||
+		!value.every((item) => typeof item === 'number' && Number.isFinite(item))
+	) {
+		return null;
+	}
+
+	const decimalPlaces = getTimelineDisplayDecimalPlaces({
+		defaultDecimalPlaces: 2,
+		step: fieldSchema.step,
+	});
+	const formatPart = (part: number) =>
+		formatTimelineNumber({
+			decimalPlaces,
+			fixed: true,
+			value: part,
+		});
+
+	return `${formatPart(value[0])}, ${formatPart(value[1])}`;
+};
+
+const formatSchemaEasingGraphLabel = ({
+	fieldSchema,
+	value,
+}: {
+	readonly fieldSchema: InteractivitySchemaField | undefined;
+	readonly value: unknown;
+}) => {
+	if (!fieldSchema) {
+		return formatUnknownEasingGraphLabel(value);
+	}
+
+	switch (fieldSchema.type) {
+		case 'number': {
+			return (
+				formatNumberEasingGraphLabel({fieldSchema, value}) ??
+				formatUnknownEasingGraphLabel(value)
+			);
+		}
+
+		case 'rotation-css':
+		case 'rotation-degrees': {
+			return (
+				formatRotationEasingGraphLabel({fieldSchema, value}) ??
+				formatUnknownEasingGraphLabel(value)
+			);
+		}
+
+		case 'scale':
+			return formatScaleEasingGraphLabel({fieldSchema, value});
+
+		case 'translate':
+			return formatTranslateEasingGraphLabel({fieldSchema, value});
+
+		case 'transform-origin':
+			return (
+				formatTransformOriginEasingGraphLabel({fieldSchema, value}) ??
+				formatUnknownEasingGraphLabel(value)
+			);
+
+		case 'uv-coordinate':
+			return (
+				formatUvCoordinateEasingGraphLabel({fieldSchema, value}) ??
+				formatUnknownEasingGraphLabel(value)
+			);
+
+		case 'array':
+		case 'boolean':
+		case 'color':
+		case 'enum':
+		case 'hidden':
+			return formatUnknownEasingGraphLabel(value);
+
+		default:
+			return formatUnknownEasingGraphLabel(value);
+	}
+};
+
+const getBuiltInVisualStyleFieldSchema = (
+	fieldKey: string,
+): InteractivitySchemaField | undefined => {
+	const transformSchema = Internals.transformSchema as Record<
+		string,
+		InteractivitySchemaField
+	>;
+	const directField = transformSchema[fieldKey];
+	if (directField) {
+		return directField;
+	}
+
+	return transformSchema[
+		fieldKey.startsWith('style.') ? fieldKey : `style.${fieldKey}`
+	];
+};
+
+const getEasingGraphFieldSchema = (
+	update: SelectedEasingUpdate,
+): InteractivitySchemaField | undefined => {
+	return (
+		update.schema[update.fieldKey] ??
+		getBuiltInVisualStyleFieldSchema(update.fieldKey)
+	);
+};
+
 const formatEasingGraphLabel = (
 	value: unknown,
 	update: SelectedEasingUpdate,
-): string => {
-	const rotationLabel = formatRotationEasingGraphLabel({update, value});
-	if (rotationLabel !== null) {
-		return rotationLabel;
-	}
-
-	const numberLabel = formatNumberEasingGraphLabel({update, value});
-	if (numberLabel !== null) {
-		return numberLabel;
-	}
-
-	if (
-		value === null ||
-		typeof value === 'number' ||
-		typeof value === 'string' ||
-		typeof value === 'boolean' ||
-		typeof value === 'bigint'
-	) {
-		return String(value);
-	}
-
-	if (value === undefined) {
-		return 'undefined';
-	}
-
-	try {
-		return JSON.stringify(value) ?? String(value);
-	} catch {
-		return String(value);
-	}
-};
+): string =>
+	formatSchemaEasingGraphLabel({
+		fieldSchema: getEasingGraphFieldSchema(update),
+		value,
+	});
 
 const getEasingGraphLabelsFromUpdate = (
 	update: SelectedEasingUpdate,
