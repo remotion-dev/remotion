@@ -28,7 +28,7 @@ const getSvgPointFromPointerEvent = ({
 	};
 };
 
-const uvHandleRadius = 6;
+const uvHandleRadius = 5;
 const selectedUvHandleRadius = 8;
 
 const SelectedUvHandleConnectionLines: React.FC<{
