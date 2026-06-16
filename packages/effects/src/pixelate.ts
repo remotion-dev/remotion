@@ -198,6 +198,7 @@ export const pixelate = createEffect<PixelateParams, PixelateState>({
 		if (!gl) {
 			throw createWebGL2ContextError('pixelate effect');
 		}
+
 		gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
 		return createPixelateState(gl);
 	},
