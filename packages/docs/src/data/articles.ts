@@ -8213,13 +8213,13 @@ export const articles = [
 		slug: 'whisper-web/transcribe',
 	},
 	{
-		id: 'wrap-in-schema',
-		title: 'wrapInSchema()',
-		relativePath: 'docs/wrap-in-schema.mdx',
-		compId: 'articles-docs-wrap-in-schema',
+		id: 'with-interactivity-schema',
+		title: 'withInteractivitySchema()',
+		relativePath: 'docs/with-interactivity-schema.mdx',
+		compId: 'articles-docs-with-interactivity-schema',
 		crumb: 'API',
 		noAi: false,
-		slug: 'wrap-in-schema',
+		slug: 'with-interactivity-schema',
 	},
 	{
 		id: 'wrong-composition-mount',

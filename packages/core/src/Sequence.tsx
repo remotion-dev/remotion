@@ -31,7 +31,7 @@ import type {BasicMediaInTimelineReturnType} from './use-media-in-timeline.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {useVideoConfig} from './use-video-config.js';
 import {ENABLE_V5_BREAKING_CHANGES} from './v5-flag.js';
-import {wrapInSchema} from './wrap-in-schema.js';
+import {withInteractivitySchema} from './with-interactivity-schema.js';
 
 const EMPTY_EFFECTS: readonly EffectDefinition<unknown>[] = [];
 
@@ -631,14 +631,14 @@ export const SequenceWithoutSchema = SequenceInner;
  * @description A component that time-shifts its children and wraps them in an absolutely positioned <div>.
  * @see [Documentation](https://www.remotion.dev/docs/sequence)
  */
-export const Sequence = wrapInSchema({
+export const Sequence = withInteractivitySchema({
 	Component: SequenceInner,
 	componentIdentity: 'dev.remotion.remotion.Sequence',
 	schema: sequenceSchema,
 	supportsEffects: false,
 });
 
-export const SequenceWithoutFrom = wrapInSchema({
+export const SequenceWithoutFrom = withInteractivitySchema({
 	Component: SequenceInner,
 	componentIdentity: null,
 	schema: sequenceSchemaWithoutFrom,

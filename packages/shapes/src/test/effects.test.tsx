@@ -115,7 +115,7 @@ mock.module('remotion', () => {
 					: null,
 			),
 			useMemoizedEffectDefinitions: mock(() => effectDefinitions),
-			wrapInSchema: mock(({Component}) => Component),
+			withInteractivitySchema: mock(({Component}) => Component),
 		},
 		Sequence: ({
 			children,

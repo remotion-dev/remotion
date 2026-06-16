@@ -77,7 +77,7 @@ const ArrowInner: React.FC<ArrowProps> = ({
 	);
 };
 
-export const Arrow = Internals.wrapInSchema({
+export const Arrow = Internals.withInteractivitySchema({
 	Component: ArrowInner,
 	componentIdentity: 'dev.remotion.shapes.Arrow',
 	schema: arrowSchema,

@@ -10,7 +10,7 @@ import {sequenceSchemaDefaultLayoutNone} from '../interactivity-schema.js';
 import type {LayoutAndStyle, SequenceProps} from '../Sequence.js';
 import {Sequence, SequenceWithoutSchema} from '../Sequence.js';
 import {validateDurationInFrames} from '../validation/validate-duration-in-frames.js';
-import {wrapInSchema} from '../wrap-in-schema.js';
+import {withInteractivitySchema} from '../with-interactivity-schema.js';
 import {flattenChildren} from './flatten-children.js';
 import {
 	IsInsideSeriesContainer,
@@ -158,7 +158,7 @@ const SeriesInner: FC<SeriesProps> = (props) => {
 const Series: React.ComponentType<SeriesProps> & {
 	Sequence: typeof SeriesSequence;
 } = Object.assign(
-	wrapInSchema({
+	withInteractivitySchema({
 		Component: SeriesInner,
 		componentIdentity: 'dev.remotion.remotion.Series',
 		schema: sequenceSchemaDefaultLayoutNone,

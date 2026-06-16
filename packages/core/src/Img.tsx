@@ -26,7 +26,7 @@ import {truncateSrcForLabel} from './truncate-src-for-label.js';
 import {useBufferState} from './use-buffer-state.js';
 import {useDelayRender} from './use-delay-render.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
-import {wrapInSchema} from './wrap-in-schema.js';
+import {withInteractivitySchema} from './with-interactivity-schema.js';
 
 function exponentialBackoff(errorCount: number): number {
 	return 1000 * 2 ** (errorCount - 1);
@@ -551,7 +551,7 @@ const ImgInner: React.FC<
  * @description Works just like a regular HTML img tag. When you use the <Img> tag, Remotion will ensure that the image is loaded before rendering the frame.
  * @see [Documentation](https://remotion.dev/docs/img)
  */
-export const Img = wrapInSchema({
+export const Img = withInteractivitySchema({
 	Component: ImgInner,
 	componentIdentity: 'dev.remotion.remotion.Img',
 	schema: imgSchema,

@@ -13,7 +13,7 @@ import {
 	mergeValues,
 	readValuesFromProps,
 	selectActiveKeys,
-} from '../wrap-in-schema.js';
+} from '../with-interactivity-schema.js';
 
 test('sequenceStyleSchema is the union of visual style and premount fields', () => {
 	expect(Object.keys(sequenceStyleSchema).sort()).toEqual(

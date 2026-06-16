@@ -51,7 +51,7 @@ const RectInner: React.FC<RectProps> = ({
 	);
 };
 
-export const Rect = Internals.wrapInSchema({
+export const Rect = Internals.withInteractivitySchema({
 	Component: RectInner,
 	componentIdentity: 'dev.remotion.shapes.Rect',
 	schema: rectSchema,

@@ -39,7 +39,7 @@ const EllipseInner: React.FC<EllipseProps> = ({rx, ry, ...props}) => {
 	);
 };
 
-export const Ellipse = Internals.wrapInSchema({
+export const Ellipse = Internals.withInteractivitySchema({
 	Component: EllipseInner,
 	componentIdentity: 'dev.remotion.shapes.Ellipse',
 	schema: ellipseSchema,

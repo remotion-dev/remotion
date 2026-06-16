@@ -249,7 +249,7 @@ import {evaluateVolume} from './volume-prop.js';
 import {warnAboutTooHighVolume} from './volume-safeguard.js';
 import type {WatchRemotionStaticFilesPayload} from './watch-static-file.js';
 import {WATCH_REMOTION_STATIC_FILES} from './watch-static-file.js';
-import {wrapInSchema} from './wrap-in-schema.js';
+import {withInteractivitySchema} from './with-interactivity-schema.js';
 import {
 	RemotionContextProvider,
 	useRemotionContexts,
@@ -288,7 +288,7 @@ export const Internals = {
 	SequenceManager,
 	SequenceManagerRefContext,
 	SequenceStackTracesUpdateContext,
-	wrapInSchema,
+	withInteractivitySchema,
 	sequenceSchema,
 	SequenceWithoutSchema,
 	sequenceStyleSchema,

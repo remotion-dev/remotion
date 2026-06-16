@@ -11,7 +11,7 @@ import {
 } from './interactivity-schema.js';
 import type {SequenceProps} from './Sequence.js';
 import {Sequence} from './Sequence.js';
-import {wrapInSchema} from './wrap-in-schema.js';
+import {withInteractivitySchema} from './with-interactivity-schema.js';
 
 type InteractiveHtmlTag =
 	| 'a'
@@ -160,7 +160,7 @@ const makeInteractiveElement = <Tag extends InteractiveTag>(
 
 	Inner.displayName = displayName;
 
-	const Wrapped = wrapInSchema({
+	const Wrapped = withInteractivitySchema({
 		Component: Inner,
 		componentIdentity: `dev.remotion.remotion.${displayName.slice(1, -1)}`,
 		schema: interactiveElementSchema,

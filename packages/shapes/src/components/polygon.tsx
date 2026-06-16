@@ -49,7 +49,7 @@ const PolygonInner: React.FC<PolygonProps> = ({
 	);
 };
 
-export const Polygon = Internals.wrapInSchema({
+export const Polygon = Internals.withInteractivitySchema({
 	Component: PolygonInner,
 	componentIdentity: 'dev.remotion.shapes.Polygon',
 	schema: polygonSchema,

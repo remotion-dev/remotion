@@ -33,7 +33,7 @@ import {SequenceContext} from '../SequenceContext.js';
 import {truncateSrcForLabel} from '../truncate-src-for-label.js';
 import {useBufferState} from '../use-buffer-state.js';
 import {useDelayRender} from '../use-delay-render.js';
-import {wrapInSchema} from '../wrap-in-schema.js';
+import {withInteractivitySchema} from '../with-interactivity-schema.js';
 import type {CanvasImageCanvasProps, CanvasImageProps} from './props.js';
 
 export const canvasImageSchema = {
@@ -486,7 +486,7 @@ const CanvasImageInner = forwardRef<
  * @description Renders a static image to a `<canvas>` and applies Remotion effects.
  * @see [Documentation](https://www.remotion.dev/docs/canvasimage)
  */
-export const CanvasImage = wrapInSchema({
+export const CanvasImage = withInteractivitySchema({
 	Component: CanvasImageInner,
 	componentIdentity: 'dev.remotion.remotion.CanvasImage',
 	schema: canvasImageSchema,

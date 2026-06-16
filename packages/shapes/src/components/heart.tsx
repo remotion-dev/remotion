@@ -59,7 +59,7 @@ const HeartInner: React.FC<HeartProps> = ({
 	);
 };
 
-export const Heart = Internals.wrapInSchema({
+export const Heart = Internals.withInteractivitySchema({
 	Component: HeartInner,
 	componentIdentity: 'dev.remotion.shapes.Heart',
 	schema: heartSchema,

@@ -17,7 +17,7 @@ const {
 	addSequenceStackTraces,
 	useMemoizedEffectDefinitions,
 	useMemoizedEffects,
-	wrapInSchema,
+	withInteractivitySchema,
 	durationInFramesField,
 	freezeField,
 	fromField,
@@ -127,7 +127,7 @@ const GifInner = ({
 	);
 };
 
-export const Gif = wrapInSchema({
+export const Gif = withInteractivitySchema({
 	Component: GifInner,
 	componentIdentity: 'dev.remotion.gif.Gif',
 	schema: gifSchema,

@@ -363,7 +363,7 @@ const VideoInner: React.FC<
 	);
 };
 
-export const Video = Internals.wrapInSchema({
+export const Video = Internals.withInteractivitySchema({
 	Component: VideoInner,
 	componentIdentity: 'dev.remotion.media.Video',
 	schema: videoSchema,

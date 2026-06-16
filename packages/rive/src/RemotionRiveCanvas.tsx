@@ -45,7 +45,7 @@ const {
 	useEffectChainState,
 	useMemoizedEffectDefinitions,
 	useMemoizedEffects,
-	wrapInSchema,
+	withInteractivitySchema,
 } = Internals;
 
 type assetLoadCallback = (asset: FileAsset, bytes: Uint8Array) => boolean;
@@ -500,7 +500,7 @@ const RemotionRiveCanvasInner = forwardRef(
 	RemotionRiveCanvasInnerForwardRefFunction,
 );
 
-export const RemotionRiveCanvas = wrapInSchema({
+export const RemotionRiveCanvas = withInteractivitySchema({
 	Component: RemotionRiveCanvasInner as unknown as React.ComponentType<
 		RemotionRiveCanvasProps & {
 			readonly _experimentalControls: SequenceControls | undefined;

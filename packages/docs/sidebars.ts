@@ -186,7 +186,7 @@ const sidebars: SidebarsConfig = {
 				'use-video-config',
 				'version',
 				'watchstaticfile',
-				'wrap-in-schema',
+				'with-interactivity-schema',
 			],
 		},
 

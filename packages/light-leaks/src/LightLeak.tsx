@@ -301,7 +301,7 @@ const LightLeakInner: React.FC<
 	);
 };
 
-export const LightLeak = Internals.wrapInSchema({
+export const LightLeak = Internals.withInteractivitySchema({
 	Component: LightLeakInner,
 	componentIdentity: 'dev.remotion.lightLeaks.LightLeak',
 	schema: lightLeakSchema,

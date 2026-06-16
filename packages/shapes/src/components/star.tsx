@@ -66,7 +66,7 @@ const StarInner: React.FC<StarProps> = ({
 	);
 };
 
-export const Star = Internals.wrapInSchema({
+export const Star = Internals.withInteractivitySchema({
 	Component: StarInner,
 	componentIdentity: 'dev.remotion.shapes.Star',
 	schema: starSchema,

@@ -435,7 +435,7 @@ const StarburstInner: React.FC<
 	);
 };
 
-export const Starburst = Internals.wrapInSchema({
+export const Starburst = Internals.withInteractivitySchema({
 	Component: StarburstInner,
 	componentIdentity: 'dev.remotion.starburst.Starburst',
 	schema: starburstSchema,

@@ -32,7 +32,7 @@ import type {
 import {Sequence} from './Sequence.js';
 import {useDelayRender} from './use-delay-render.js';
 import {useVideoConfig} from './use-video-config.js';
-import {wrapInSchema} from './wrap-in-schema.js';
+import {withInteractivitySchema} from './with-interactivity-schema.js';
 
 // IDL: https://github.com/WICG/html-in-canvas#idl-changes
 // WebGPU's `copyElementImageToTexture` is omitted — `GPUQueue` is not in
@@ -701,7 +701,7 @@ const htmlInCanvasSchema = {
 	hidden: hiddenField,
 };
 
-const HtmlInCanvasWrapped = wrapInSchema({
+const HtmlInCanvasWrapped = withInteractivitySchema({
 	Component: HtmlInCanvasInner,
 	componentIdentity: 'dev.remotion.remotion.HtmlInCanvas',
 	schema: htmlInCanvasSchema,

@@ -107,7 +107,7 @@ export const mergeValues = ({
 
 const stackToOverrideMap: Record<string, string> = {};
 
-export const wrapInSchema = <
+export const withInteractivitySchema = <
 	S extends InteractivitySchema,
 	Props extends object,
 >({
@@ -252,7 +252,7 @@ export const wrapInSchema = <
 		});
 	});
 
-	Wrapped.displayName = `wrapInSchema(${Component.displayName || Component.name || 'Component'})`;
+	Wrapped.displayName = `withInteractivitySchema(${Component.displayName || Component.name || 'Component'})`;
 
 	return Wrapped as unknown as React.ComponentType<Props>;
 };

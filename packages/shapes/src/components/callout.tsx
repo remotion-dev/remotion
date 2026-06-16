@@ -90,7 +90,7 @@ const CalloutInner: React.FC<CalloutProps> = ({
 	);
 };
 
-export const Callout = Internals.wrapInSchema({
+export const Callout = Internals.withInteractivitySchema({
 	Component: CalloutInner,
 	componentIdentity: 'dev.remotion.shapes.Callout',
 	schema: calloutSchema,

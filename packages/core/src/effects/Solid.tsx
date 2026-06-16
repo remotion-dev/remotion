@@ -20,7 +20,7 @@ import {
 import type {SequenceProps} from '../Sequence.js';
 import {Sequence} from '../Sequence.js';
 import {useDelayRender} from '../use-delay-render.js';
-import {wrapInSchema} from '../wrap-in-schema.js';
+import {withInteractivitySchema} from '../with-interactivity-schema.js';
 import type {EffectsProp} from './effect-types.js';
 import {runEffectChain} from './run-effect-chain.js';
 import {useEffectChainState} from './use-effect-chain-state.js';
@@ -308,7 +308,7 @@ const SolidOuter = forwardRef<
 	},
 );
 
-export const Solid = wrapInSchema({
+export const Solid = withInteractivitySchema({
 	Component: SolidOuter,
 	componentIdentity: 'dev.remotion.remotion.Solid',
 	schema: solidSchema,

@@ -167,7 +167,7 @@ const AudioInner: React.FC<
 	);
 };
 
-export const Audio = Internals.wrapInSchema({
+export const Audio = Internals.withInteractivitySchema({
 	Component: AudioInner,
 	componentIdentity: 'dev.remotion.media.Audio',
 	schema: audioSchema,

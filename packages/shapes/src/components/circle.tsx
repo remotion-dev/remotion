@@ -32,7 +32,7 @@ const CircleInner: React.FC<CircleProps> = ({radius, ...props}) => {
 	);
 };
 
-export const Circle = Internals.wrapInSchema({
+export const Circle = Internals.withInteractivitySchema({
 	Component: CircleInner,
 	componentIdentity: 'dev.remotion.shapes.Circle',
 	schema: circleSchema,
