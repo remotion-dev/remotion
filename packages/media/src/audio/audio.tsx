@@ -1,11 +1,12 @@
 import React, {useMemo, useState} from 'react';
 import {
 	Internals,
+	Interactive,
 	Sequence,
 	useRemotionEnvironment,
 	useVideoConfig,
 	type SequenceControls,
-	type SequenceSchema,
+	type InteractivitySchema,
 } from 'remotion';
 import {getLoopDisplay} from '../show-in-timeline';
 import {AudioForPreview} from './audio-for-preview';
@@ -15,9 +16,7 @@ import type {AudioProps} from './props';
 const {validateMediaProps} = Internals;
 
 const audioSchema = {
-	durationInFrames: Internals.durationInFramesField,
-	from: Internals.fromField,
-	freeze: Internals.freezeField,
+	...Internals.baseSchema,
 	volume: {
 		type: 'number',
 		min: 0,
@@ -37,12 +36,11 @@ const audioSchema = {
 		keyframable: false,
 	},
 	loop: {type: 'boolean', default: false, description: 'Loop'},
-	hidden: Internals.hiddenField,
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 const AudioInner: React.FC<
 	AudioProps & {
-		readonly _experimentalControls: SequenceControls | undefined;
+		readonly controls: SequenceControls | undefined;
 	}
 > = (props) => {
 	// Should only destruct `trimBefore` and `trimAfter` from props,
@@ -51,7 +49,7 @@ const AudioInner: React.FC<
 		name,
 		stack,
 		showInTimeline,
-		_experimentalControls: controls,
+		controls,
 		from,
 		durationInFrames,
 		freeze,
@@ -148,7 +146,7 @@ const AudioInner: React.FC<
 					? 'https://www.remotion.dev/docs/media/audio'
 					: undefined
 			}
-			_experimentalControls={controls}
+			controls={controls}
 			_remotionInternalLoopDisplay={loopDisplay}
 			showInTimeline={showInTimeline ?? true}
 			hidden={hidden}
@@ -167,7 +165,7 @@ const AudioInner: React.FC<
 	);
 };
 
-export const Audio = Internals.wrapInSchema({
+export const Audio = Interactive.withSchema({
 	Component: AudioInner,
 	componentIdentity: 'dev.remotion.media.Audio',
 	schema: audioSchema,

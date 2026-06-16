@@ -1,25 +1,36 @@
 import {expect, test} from 'bun:test';
 import {getFlatSchemaWithAllKeys} from '../flatten-schema.js';
 import {
+	baseSchema,
 	extendSchemaWithSequenceName,
-	sequencePremountSchema,
+	premountSchema,
 	sequenceSchema,
 	sequenceSchemaWithoutFrom,
 	sequenceStyleSchema,
-	sequenceVisualStyleSchema,
-} from '../sequence-field-schema.js';
+	transformSchema,
+} from '../interactivity-schema.js';
 import {
 	getNestedValue,
 	mergeValues,
 	readValuesFromProps,
 	selectActiveKeys,
-} from '../wrap-in-schema.js';
+} from '../with-interactivity-schema.js';
 
-test('sequenceStyleSchema is the union of visual style and premount fields', () => {
+test('sequenceStyleSchema is the union of transform and premount fields', () => {
 	expect(Object.keys(sequenceStyleSchema).sort()).toEqual(
+		[...Object.keys(transformSchema), ...Object.keys(premountSchema)].sort(),
+	);
+});
+
+test('baseSchema exposes common timeline fields', () => {
+	expect(Object.keys(baseSchema).sort()).toEqual(
 		[
-			...Object.keys(sequenceVisualStyleSchema),
-			...Object.keys(sequencePremountSchema),
+			'durationInFrames',
+			'freeze',
+			'from',
+			'hidden',
+			'name',
+			'showInTimeline',
 		].sort(),
 	);
 });
@@ -71,7 +82,7 @@ test('sequenceSchemaWithoutFrom does not expose from', () => {
 });
 
 test('style.scale does not impose a minimum value', () => {
-	const scaleSchema = sequenceVisualStyleSchema['style.scale'];
+	const scaleSchema = transformSchema['style.scale'];
 	expect('min' in scaleSchema).toBe(false);
 });
 

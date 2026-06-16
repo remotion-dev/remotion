@@ -1404,6 +1404,15 @@ export const articles = [
 		slug: 'cors-issues',
 	},
 	{
+		id: 'create-effect',
+		title: 'createEffect()',
+		relativePath: 'docs/create-effect.mdx',
+		compId: 'articles-docs-create-effect',
+		crumb: 'API',
+		noAi: false,
+		slug: 'create-effect',
+	},
+	{
 		id: 'authoring-packages',
 		title: 'Authoring a Remotion library',
 		relativePath: 'docs/creating-a-library.mdx',
@@ -2601,6 +2610,15 @@ export const articles = [
 		slug: 'install-whisper-cpp/transcribe',
 	},
 	{
+		id: 'interactive-with-schema',
+		title: 'Interactive.withSchema()',
+		relativePath: 'docs/interactive-with-schema.mdx',
+		compId: 'articles-docs-interactive-with-schema',
+		crumb: 'API',
+		noAi: false,
+		slug: 'interactive-with-schema',
+	},
+	{
 		id: 'interactive',
 		title: 'Interactive',
 		relativePath: 'docs/interactive.mdx',
@@ -2608,6 +2626,15 @@ export const articles = [
 		crumb: 'API',
 		noAi: false,
 		slug: 'interactive',
+	},
+	{
+		id: 'interactivity-schema',
+		title: 'InteractivitySchema',
+		relativePath: 'docs/interactivity-schema.mdx',
+		compId: 'articles-docs-interactivity-schema',
+		crumb: 'API',
+		noAi: false,
+		slug: 'interactivity-schema',
 	},
 	{
 		id: 'interpolate-colors',
@@ -6518,6 +6545,15 @@ export const articles = [
 		crumb: 'Remotion Studio',
 		noAi: false,
 		slug: 'studio/interactivity',
+	},
+	{
+		id: 'studio/make-component-interactive',
+		title: 'Make a component interactive',
+		relativePath: 'docs/studio/make-component-interactive.mdx',
+		compId: 'articles-docs-studio-make-component-interactive',
+		crumb: 'Remotion Studio',
+		noAi: false,
+		slug: 'studio/make-component-interactive',
 	},
 	{
 		id: 'studio/pause',

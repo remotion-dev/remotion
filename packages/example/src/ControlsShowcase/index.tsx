@@ -62,7 +62,7 @@ const Tile: React.FC<{
 	);
 };
 
-export const ExperimentalControlsShowcase: React.FC = () => {
+export const ControlsShowcase: React.FC = () => {
 	return (
 		<AbsoluteFill style={{backgroundColor: 'black', padding: 16, gap: 16}}>
 			<div style={{flex: 1, display: 'flex', flexDirection: 'row', gap: 16}}>

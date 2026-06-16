@@ -1,5 +1,8 @@
 import {expect, test} from 'bun:test';
-import type {CanUpdateSequencePropsResponse, SequenceSchema} from 'remotion';
+import type {
+	CanUpdateSequencePropsResponse,
+	InteractivitySchema,
+} from 'remotion';
 import {
 	optimisticAddEffectKeyframe,
 	optimisticAddSequenceKeyframe,
@@ -54,7 +57,7 @@ test('optimisticAddSequenceKeyframe uses interpolate for translate fields', () =
 			type: 'translate',
 			default: '0px 0px',
 		},
-	} satisfies SequenceSchema;
+	} satisfies InteractivitySchema;
 
 	const updated = optimisticAddSequenceKeyframe({
 		previous,
@@ -94,7 +97,7 @@ test('optimisticAddSequenceKeyframe uses interpolate for rotation-css fields', (
 			type: 'rotation-css',
 			default: '0deg',
 		},
-	} satisfies SequenceSchema;
+	} satisfies InteractivitySchema;
 
 	const updated = optimisticAddSequenceKeyframe({
 		previous,
@@ -136,7 +139,7 @@ test('optimisticAddSequenceKeyframe ignores non-keyframable fields', () => {
 			hiddenFromList: false,
 			keyframable: false,
 		},
-	} satisfies SequenceSchema;
+	} satisfies InteractivitySchema;
 
 	const updated = optimisticAddSequenceKeyframe({
 		previous,
@@ -169,7 +172,7 @@ test('optimisticAddSequenceKeyframe ignores enum fields', () => {
 				none: {},
 			},
 		},
-	} satisfies SequenceSchema;
+	} satisfies InteractivitySchema;
 
 	const updated = optimisticAddSequenceKeyframe({
 		previous,

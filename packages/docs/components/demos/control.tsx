@@ -146,13 +146,14 @@ export const Control = ({
 			) : option.type === 'enum' ? (
 				<div>
 					<select
+						value={typeof value === 'string' ? value : option.default}
 						onChange={(e) => {
 							setValue(e.target.value);
 						}}
 					>
 						{option.values.map((v) => {
 							return (
-								<option key={v} selected={value === v}>
+								<option key={v} value={v}>
 									{v}
 								</option>
 							);

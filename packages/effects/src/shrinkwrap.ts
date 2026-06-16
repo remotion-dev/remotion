@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertOptionalFiniteNumber,
@@ -77,7 +77,7 @@ const shrinkwrapSchema = {
 		description: 'Seed',
 		hiddenFromList: false,
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type ShrinkwrapParams = {
 	/** Strength of the shrinkwrap layer from `0` to `1`. Defaults to `1`. */
@@ -437,7 +437,7 @@ const linkProgram = (
 };
 
 export const shrinkwrap = createEffect<ShrinkwrapParams, ShrinkwrapState>({
-	type: 'remotion/shrinkwrap',
+	type: 'dev.remotion.effects.shrinkwrap',
 	label: 'shrinkwrap()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/shrinkwrap',
 	backend: 'webgl2',

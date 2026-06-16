@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertOptionalFiniteNumber,
@@ -85,7 +85,7 @@ export const halftoneSchema = {
 			source: {},
 		},
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type HalftoneShape = (typeof HALFTONE_SHAPES)[number];
 export type HalftoneSampling = (typeof HALFTONE_SAMPLING)[number];
@@ -399,7 +399,7 @@ const linkProgram = (
 // `colorMode` controls whether dots use a solid `dotColor` or the sampled source
 // color at each grid cell.
 export const halftone = createEffect<HalftoneParams, HalftoneState>({
-	type: 'remotion/halftone',
+	type: 'dev.remotion.effects.halftone',
 	label: 'halftone()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/halftone',
 	backend: 'webgl2',

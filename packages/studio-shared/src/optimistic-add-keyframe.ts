@@ -1,7 +1,7 @@
 import {
 	type CanUpdateSequencePropStatus,
 	type CanUpdateSequencePropsResponse,
-	type SequenceSchema,
+	type InteractivitySchema,
 } from 'remotion';
 import {LINEAR_KEYFRAME_EASING} from './keyframe-easing-presets';
 import {
@@ -20,7 +20,7 @@ const addKeyframeToPropStatus = ({
 	fieldKey: string;
 	frame: number;
 	value: unknown;
-	schema: SequenceSchema | null;
+	schema: InteractivitySchema | null;
 }): CanUpdateSequencePropStatus => {
 	if (status.status === 'keyframed') {
 		const existingIndex = status.keyframes.findIndex(
@@ -84,7 +84,7 @@ export const optimisticAddSequenceKeyframe = ({
 	fieldKey: string;
 	frame: number;
 	value: unknown;
-	schema?: SequenceSchema;
+	schema?: InteractivitySchema;
 }): CanUpdateSequencePropsResponse => {
 	if (!previous.canUpdate) {
 		return previous;
@@ -127,7 +127,7 @@ export const optimisticAddEffectKeyframe = ({
 	fieldKey: string;
 	frame: number;
 	value: unknown;
-	schema?: SequenceSchema;
+	schema?: InteractivitySchema;
 }): CanUpdateSequencePropsResponse => {
 	if (!previous.canUpdate) {
 		return previous;

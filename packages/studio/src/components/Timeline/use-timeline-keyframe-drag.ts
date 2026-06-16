@@ -10,7 +10,7 @@ import type {
 	OverrideIdToNodePaths,
 	PropStatuses,
 	SequencePropsSubscriptionKey,
-	SequenceSchema,
+	InteractivitySchema,
 	TSequence,
 } from 'remotion';
 import {Internals, useVideoConfig} from 'remotion';
@@ -41,7 +41,7 @@ type TimelineKeyframeDragTargetBase = {
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly propStatus: CanUpdateSequencePropStatusKeyframed;
-	readonly schema: SequenceSchema;
+	readonly schema: InteractivitySchema;
 	readonly sourceFrame: number;
 };
 

@@ -17,22 +17,13 @@ import {
 	useMemoizedEffects,
 } from './effects/use-memoized-effects.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
-import {
-	durationInFramesField,
-	freezeField,
-	fromField,
-	hiddenField,
-	sequenceVisualStyleSchema,
-} from './sequence-field-schema.js';
-import type {
-	AbsoluteFillLayout,
-	LayoutAndStyle,
-	SequenceProps,
-} from './Sequence.js';
+import type {InteractiveBaseProps} from './Interactive.js';
+import {baseSchema, transformSchema} from './interactivity-schema.js';
+import type {AbsoluteFillLayout} from './Sequence.js';
 import {Sequence} from './Sequence.js';
 import {useDelayRender} from './use-delay-render.js';
 import {useVideoConfig} from './use-video-config.js';
-import {wrapInSchema} from './wrap-in-schema.js';
+import {withInteractivitySchema} from './with-interactivity-schema.js';
 
 // IDL: https://github.com/WICG/html-in-canvas#idl-changes
 // WebGPU's `copyElementImageToTexture` is omitted — `GPUQueue` is not in
@@ -303,14 +294,7 @@ const defaultOnPaint: HtmlInCanvasOnPaint = ({
 };
 
 /* eslint-disable react/require-default-props -- optional fields mirror `<Sequence>` / canvas hooks API */
-export type HtmlInCanvasProps = Omit<
-	SequenceProps,
-	| 'children'
-	| 'durationInFrames'
-	| keyof LayoutAndStyle
-	| '_remotionInternalEffects'
-	| '_remotionInternalRefForOutline'
-> &
+export type HtmlInCanvasProps = Omit<InteractiveBaseProps, 'children'> &
 	Omit<
 		AbsoluteFillLayout,
 		| 'layout'
@@ -624,7 +608,7 @@ HtmlInCanvasContent.displayName = 'HtmlInCanvasContent';
 const HtmlInCanvasInner = forwardRef<
 	HTMLCanvasElement,
 	HtmlInCanvasProps & {
-		readonly _experimentalControls: SequenceControls | undefined;
+		readonly controls: SequenceControls | undefined;
 	}
 >(
 	(
@@ -636,7 +620,7 @@ const HtmlInCanvasInner = forwardRef<
 			onPaint,
 			onInit,
 			pixelDensity,
-			_experimentalControls: controls,
+			controls,
 			style,
 			durationInFrames,
 			name,
@@ -667,9 +651,9 @@ const HtmlInCanvasInner = forwardRef<
 				durationInFrames={resolvedDuration}
 				name={name ?? '<HtmlInCanvas>'}
 				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/remotion/html-in-canvas"
-				_experimentalControls={controls}
+				controls={controls}
 				_remotionInternalEffects={memoizedEffectDefinitions}
-				_remotionInternalRefForOutline={actualRef}
+				outlineRef={actualRef}
 				layout="none"
 				{...sequenceProps}
 			>
@@ -694,14 +678,11 @@ const HtmlInCanvasInner = forwardRef<
 HtmlInCanvasInner.displayName = 'HtmlInCanvas';
 
 const htmlInCanvasSchema = {
-	durationInFrames: durationInFramesField,
-	from: fromField,
-	freeze: freezeField,
-	...sequenceVisualStyleSchema,
-	hidden: hiddenField,
+	...baseSchema,
+	...transformSchema,
 };
 
-const HtmlInCanvasWrapped = wrapInSchema({
+const HtmlInCanvasWrapped = withInteractivitySchema({
 	Component: HtmlInCanvasInner,
 	componentIdentity: 'dev.remotion.remotion.HtmlInCanvas',
 	schema: htmlInCanvasSchema,

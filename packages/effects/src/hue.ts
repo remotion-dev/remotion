@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertOptionalFiniteNumber,
@@ -11,7 +11,7 @@ const {createEffect} = Internals;
 
 const hueSchema = {
 	degrees: hueDegreesSchema,
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type HueParams = {
 	/** Hue rotation in degrees. Defaults to `0`. */
@@ -32,7 +32,7 @@ const validateHueParams = (params: HueParams): void => {
 };
 
 export const hue = createEffect<HueParams, null>({
-	type: 'remotion/hue',
+	type: 'dev.remotion.effects.hue',
 	label: 'hue()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/hue',
 	backend: '2d',

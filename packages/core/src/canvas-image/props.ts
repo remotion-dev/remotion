@@ -1,12 +1,9 @@
 import type React from 'react';
 import type {ImageFit} from '../calculate-image-fit.js';
 import type {EffectsProp} from '../effects/effect-types.js';
-import type {SequenceProps} from '../Sequence.js';
+import type {InteractiveBaseProps} from '../Interactive.js';
 
-type CanvasImageSequenceProps = Pick<
-	SequenceProps,
-	'durationInFrames' | 'from' | 'freeze' | 'hidden' | 'name' | 'showInTimeline'
-> & {
+type CanvasImageSequenceProps = InteractiveBaseProps & {
 	/**
 	 * @deprecated For internal use only.
 	 */
@@ -38,7 +35,8 @@ export type CanvasImageProps = CanvasImageSequenceProps &
 		 */
 		readonly _remotionInternalDocumentationLink?: string;
 		/**
-		 * @deprecated For internal use only.
+		 * A React ref pointing to the element that Remotion Studio should use for
+		 * drawing the selection outline in the preview.
 		 */
-		readonly _remotionInternalRefForOutline?: React.RefObject<HTMLElement | null> | null;
+		readonly outlineRef?: React.RefObject<HTMLElement | null> | null;
 	};

@@ -2,9 +2,9 @@ import type {
 	CanUpdateSequencePropStatus,
 	OverrideIdToNodePaths,
 	PropStatuses,
-	SequenceFieldSchema,
+	InteractivitySchemaField,
 	SequencePropsSubscriptionKey,
-	SequenceSchema,
+	InteractivitySchema,
 	TSequence,
 } from 'remotion';
 import {Internals} from 'remotion';
@@ -21,7 +21,7 @@ type SequencePropResetTarget = {
 	readonly fieldKey: string;
 	readonly value: unknown;
 	readonly defaultValue: string | null;
-	readonly schema: SequenceSchema;
+	readonly schema: InteractivitySchema;
 };
 
 type EffectPropResetTarget = {
@@ -32,7 +32,7 @@ type EffectPropResetTarget = {
 	readonly fieldKey: string;
 	readonly value: unknown;
 	readonly defaultValue: string | null;
-	readonly schema: SequenceSchema;
+	readonly schema: InteractivitySchema;
 };
 
 type TimelinePropResetTarget = SequencePropResetTarget | EffectPropResetTarget;
@@ -60,8 +60,8 @@ function assertPropResetSelections(
 }
 
 const isVisibleFieldSchema = (
-	fieldSchema: SequenceFieldSchema | undefined,
-): fieldSchema is Exclude<SequenceFieldSchema, {type: 'hidden'}> =>
+	fieldSchema: InteractivitySchemaField | undefined,
+): fieldSchema is Exclude<InteractivitySchemaField, {type: 'hidden'}> =>
 	fieldSchema !== undefined && fieldSchema.type !== 'hidden';
 
 const isNonDefaultCodeValue = ({
@@ -99,7 +99,7 @@ const isResettablePropStatus = ({
 };
 
 const getDefaultValue = (
-	fieldSchema: Exclude<SequenceFieldSchema, {type: 'hidden'}>,
+	fieldSchema: Exclude<InteractivitySchemaField, {type: 'hidden'}>,
 ) =>
 	fieldSchema.default !== undefined
 		? JSON.stringify(fieldSchema.default)
@@ -110,7 +110,7 @@ const getActiveFieldSchema = ({
 	key,
 	resolveValue,
 }: {
-	readonly schema: SequenceSchema;
+	readonly schema: InteractivitySchema;
 	readonly key: string;
 	readonly resolveValue: (key: string) => unknown;
 }) => {

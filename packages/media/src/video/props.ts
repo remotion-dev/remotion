@@ -2,10 +2,10 @@ import type React from 'react';
 import type {
 	EffectDefinitionAndStack,
 	EffectsProp,
+	InteractiveBaseProps,
 	LogLevel,
 	LoopVolumeCurveBehavior,
 	OnVideoFrame,
-	SequenceProps,
 	VolumeProp,
 } from 'remotion';
 import type {MediaOnError} from '../on-error';
@@ -100,12 +100,4 @@ export type VideoProps = MandatoryVideoProps &
 	Partial<OuterVideoProps> &
 	Partial<OptionalVideoProps> &
 	NativeVideoProps &
-	Pick<
-		SequenceProps,
-		| 'durationInFrames'
-		| 'from'
-		| 'freeze'
-		| 'name'
-		| 'showInTimeline'
-		| 'hidden'
-	>;
+	InteractiveBaseProps;

@@ -71,6 +71,10 @@ import {
 	NOISE_DISPLACEMENT_PREVIEW_PARAMS,
 } from '../effects/effects-noise-displacement-preview';
 import {EffectsNoisePreview} from '../effects/effects-noise-preview';
+import {
+	EffectsPaletteMapPreview,
+	paletteMap,
+} from '../effects/effects-palette-map-preview';
 import {EffectsPatternPreview} from '../effects/effects-pattern-preview';
 import {EffectsPixelDissolvePreview} from '../effects/effects-pixel-dissolve-preview';
 import {EffectsRingsPreview} from '../effects/effects-rings-preview';
@@ -458,6 +462,14 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/pattern',
 		comp: EffectsPatternPreview,
 		schema: pattern().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-palette-map',
+		effectName: 'paletteMap',
+		effectImportPath: './palette-map',
+		comp: EffectsPaletteMapPreview,
+		schema: paletteMap().definition.schema,
 	},
 	{
 		...defaults,

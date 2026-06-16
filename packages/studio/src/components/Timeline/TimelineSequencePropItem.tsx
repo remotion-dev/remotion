@@ -5,7 +5,7 @@ import type {
 	CanUpdateSequencePropStatusKeyframed,
 	CanUpdateSequencePropStatusStatic,
 	SequencePropsSubscriptionKey,
-	SequenceSchema,
+	InteractivitySchema,
 } from 'remotion';
 import {Internals} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
@@ -73,7 +73,7 @@ const Value: React.FC<{
 	readonly field: SchemaFieldInfo;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly validatedLocation: CodePosition;
-	readonly schema: SequenceSchema;
+	readonly schema: InteractivitySchema;
 	readonly propStatus: CanUpdateSequencePropStatusStatic;
 }> = ({field, nodePath, validatedLocation, schema, propStatus}) => {
 	const {getDragOverrides} = useContext(
@@ -197,7 +197,7 @@ export const TimelineSequenceKeyframedValue: React.FC<{
 	readonly field: SchemaFieldInfo;
 	readonly fileName: string;
 	readonly nodePath: SequencePropsSubscriptionKey;
-	readonly schema: SequenceSchema;
+	readonly schema: InteractivitySchema;
 	readonly propStatus: CanUpdateSequencePropStatusKeyframed;
 	readonly sourceFrame: number;
 }> = ({field, fileName, nodePath, schema, propStatus, sourceFrame}) => {
@@ -277,7 +277,7 @@ export const TimelineSequencePropItem: React.FC<{
 	readonly rowDepth: number;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly nodePathInfo: SequenceNodePathInfo;
-	readonly schema: SequenceSchema;
+	readonly schema: InteractivitySchema;
 	readonly keyframeDisplayOffset: number;
 	readonly keyframeControlsMode?: TimelineKeyframeControlsMode;
 }> = ({

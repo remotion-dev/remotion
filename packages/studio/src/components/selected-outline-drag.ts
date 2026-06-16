@@ -1,7 +1,7 @@
 import type {
 	GetDragOverrides,
 	SequencePropsSubscriptionKey,
-	SequenceSchema,
+	InteractivitySchema,
 } from 'remotion';
 import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
@@ -142,7 +142,7 @@ export type SelectedOutlineKeyframedDragChange = {
 	readonly fieldKey: string;
 	readonly sourceFrame: number;
 	readonly value: unknown;
-	readonly schema: SequenceSchema;
+	readonly schema: InteractivitySchema;
 	readonly clientId: string;
 };
 

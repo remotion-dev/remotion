@@ -178,6 +178,46 @@ test('Sequence registers its wrapper element for Studio outlines', () => {
 	expect(registeredSequences[0]?.refForOutline?.current).toBe(ref.current);
 });
 
+test('Sequence uses outlineRef for Studio outlines', () => {
+	const registeredSequences: TSequence[] = [];
+	const outlineRef = React.createRef<HTMLDivElement>();
+
+	render(
+		<SequenceTestWrapper
+			onRegisterSequence={(sequence) => {
+				registeredSequences.push(sequence);
+			}}
+		>
+			<Sequence outlineRef={outlineRef}>
+				<div ref={outlineRef}>hi</div>
+			</Sequence>
+		</SequenceTestWrapper>,
+	);
+
+	expect(registeredSequences[0]?.refForOutline).toBe(outlineRef);
+	expect(registeredSequences[0]?.refForOutline?.current?.tagName).toBe('DIV');
+});
+
+test('Sequence layout="none" uses outlineRef for Studio outlines', () => {
+	const registeredSequences: TSequence[] = [];
+	const outlineRef = React.createRef<HTMLDivElement>();
+
+	render(
+		<SequenceTestWrapper
+			onRegisterSequence={(sequence) => {
+				registeredSequences.push(sequence);
+			}}
+		>
+			<Sequence layout="none" outlineRef={outlineRef}>
+				<div ref={outlineRef}>hi</div>
+			</Sequence>
+		</SequenceTestWrapper>,
+	);
+
+	expect(registeredSequences[0]?.refForOutline).toBe(outlineRef);
+	expect(registeredSequences[0]?.refForOutline?.current?.tagName).toBe('DIV');
+});
+
 test('Series.Sequence registers without visual controls', () => {
 	const registeredSequences: TSequence[] = [];
 

@@ -88,6 +88,24 @@ import {
 	setInputPropsOverride,
 } from './input-props-override.js';
 import type {SerializedJSONWithCustomFields} from './input-props-serialization.js';
+import {
+	baseSchema,
+	durationInFramesField,
+	freezeField,
+	fromField,
+	hiddenField,
+	premountSchema,
+	sequencePremountSchema,
+	sequenceSchema,
+	sequenceStyleSchema,
+	sequenceVisualStyleSchema,
+	transformSchema,
+	type ArrayFieldSchema,
+	type ArrayItemFieldSchema,
+	type InteractivitySchemaField,
+	type InteractivitySchema,
+	type VisibleFieldSchema,
+} from './interactivity-schema.js';
 import {interpolateKeyframedStatus} from './interpolate-keyframed-status.js';
 import {IsPlayerContextProvider, useIsPlayer} from './is-player.js';
 import type {LoggingContextValue} from './log-level-context.js';
@@ -118,21 +136,6 @@ import {
 	resolveCompositionsRef,
 	useResolvedVideoConfig,
 } from './ResolveCompositionConfig.js';
-import {
-	durationInFramesField,
-	freezeField,
-	fromField,
-	hiddenField,
-	sequencePremountSchema,
-	sequenceSchema,
-	sequenceStyleSchema,
-	sequenceVisualStyleSchema,
-	type ArrayFieldSchema,
-	type ArrayItemFieldSchema,
-	type SequenceFieldSchema,
-	type SequenceSchema,
-	type VisibleFieldSchema,
-} from './sequence-field-schema.js';
 import type {
 	OverrideIdToNodePaths,
 	OverrideToNodePathGetters,
@@ -250,7 +253,6 @@ import {evaluateVolume} from './volume-prop.js';
 import {warnAboutTooHighVolume} from './volume-safeguard.js';
 import type {WatchRemotionStaticFilesPayload} from './watch-static-file.js';
 import {WATCH_REMOTION_STATIC_FILES} from './watch-static-file.js';
-import {wrapInSchema} from './wrap-in-schema.js';
 import {
 	RemotionContextProvider,
 	useRemotionContexts,
@@ -289,12 +291,14 @@ export const Internals = {
 	SequenceManager,
 	SequenceManagerRefContext,
 	SequenceStackTracesUpdateContext,
-	wrapInSchema,
+	baseSchema,
 	sequenceSchema,
 	SequenceWithoutSchema,
 	sequenceStyleSchema,
 	sequenceVisualStyleSchema,
 	sequencePremountSchema,
+	transformSchema,
+	premountSchema,
 	flattenActiveSchema,
 	getFlatSchemaWithAllKeys,
 	RemotionRootContexts,
@@ -454,10 +458,10 @@ export type {
 	ResolvedStackLocation,
 	ScheduleAudioNodeOptions,
 	ScheduleAudioNodeResult,
-	SequenceFieldSchema,
+	InteractivitySchemaField,
 	SequenceNodePath,
 	SequencePropsSubscriptionKey,
-	SequenceSchema,
+	InteractivitySchema,
 	SerializedJSONWithCustomFields,
 	SetMediaVolumeContextValue,
 	SetTimelineContextValue,

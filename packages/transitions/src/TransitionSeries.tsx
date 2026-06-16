@@ -5,9 +5,15 @@ import type {
 	LayoutAndStyle,
 	SequenceControls,
 	SequencePropsWithoutDuration,
-	SequenceSchema,
+	InteractivitySchema,
 } from 'remotion';
-import {Internals, Sequence, useCurrentFrame, useVideoConfig} from 'remotion';
+import {
+	Internals,
+	Interactive,
+	Sequence,
+	useCurrentFrame,
+	useVideoConfig,
+} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {
 	WrapInEnteringProgressContext,
@@ -59,7 +65,7 @@ const transitionSeriesSchema = {
 	from: Internals.fromField,
 	freeze: Internals.freezeField,
 	layout: Internals.sequenceSchema.layout,
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 type TransitionType<PresentationProps extends Record<string, unknown>> = {
 	props: TransitionSeriesTransitionProps<PresentationProps>;
@@ -672,10 +678,10 @@ const TransitionSeriesInner: FC<SequencePropsWithoutDuration> = (props) => {
 		children,
 		name,
 		layout: passedLayout,
-		_experimentalControls,
+		controls,
 		...otherProps
 	} = props as SequencePropsWithoutDuration & {
-		readonly _experimentalControls: SequenceControls | null;
+		readonly controls: SequenceControls | null;
 	};
 	const {stack, ...propsForSequence} = otherProps as typeof otherProps & {
 		readonly stack: string | null;
@@ -702,14 +708,14 @@ const TransitionSeriesInner: FC<SequencePropsWithoutDuration> = (props) => {
 			}
 			{...propsForSequence}
 			_remotionInternalStack={stack ?? undefined}
-			_experimentalControls={_experimentalControls ?? undefined}
+			controls={controls ?? undefined}
 		>
 			<TransitionSeriesChildren>{children}</TransitionSeriesChildren>
 		</Sequence>
 	);
 };
 
-const TransitionSeries = Internals.wrapInSchema({
+const TransitionSeries = Interactive.withSchema({
 	Component: TransitionSeriesInner,
 	componentIdentity: 'dev.remotion.transitions.TransitionSeries',
 	schema: transitionSeriesSchema,

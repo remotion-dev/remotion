@@ -16,18 +16,15 @@ import {
 } from '../effects/use-memoized-effects.js';
 import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
 import {
-	durationInFramesField,
-	freezeField,
-	fromField,
-	hiddenField,
-	sequenceVisualStyleSchema,
-	type SequenceSchema,
-} from '../sequence-field-schema.js';
+	baseSchema,
+	transformSchema,
+	type InteractivitySchema,
+} from '../interactivity-schema.js';
 import {Sequence} from '../Sequence.js';
 import {useCurrentFrame} from '../use-current-frame.js';
 import {useDelayRender} from '../use-delay-render.js';
 import {useVideoConfig} from '../use-video-config.js';
-import {wrapInSchema} from '../wrap-in-schema.js';
+import {withInteractivitySchema} from '../with-interactivity-schema.js';
 import type {AnimatedImageCanvasRef} from './canvas';
 import {Canvas} from './canvas';
 import type {RemotionImageDecoder} from './decode-image.js';
@@ -37,9 +34,7 @@ import {serializeRequestInit} from './request-init';
 import {resolveAnimatedImageSource} from './resolve-image-source';
 
 const animatedImageSchema = {
-	durationInFrames: durationInFramesField,
-	from: fromField,
-	freeze: freezeField,
+	...baseSchema,
 	playbackRate: {
 		type: 'number',
 		min: 0,
@@ -50,9 +45,8 @@ const animatedImageSchema = {
 		hiddenFromList: false,
 		keyframable: false,
 	},
-	...sequenceVisualStyleSchema,
-	hidden: hiddenField,
-} as const satisfies SequenceSchema;
+	...transformSchema,
+} as const satisfies InteractivitySchema;
 
 type AnimatedImageContentProps = RemotionAnimatedImageProps & {
 	readonly effects: EffectsProp;
@@ -244,11 +238,11 @@ const AnimatedImageInner = ({
 	durationInFrames,
 	requestInit,
 	effects = [],
-	_experimentalControls: controls,
+	controls,
 	ref,
 	...sequenceProps
 }: AnimatedImageProps & {
-	readonly _experimentalControls?: SequenceControls | undefined;
+	readonly controls?: SequenceControls | undefined;
 	readonly ref?: React.Ref<HTMLCanvasElement>;
 }) => {
 	const {durationInFrames: videoDuration} = useVideoConfig();
@@ -281,10 +275,10 @@ const AnimatedImageInner = ({
 			durationInFrames={resolvedDuration}
 			name="<AnimatedImage>"
 			_remotionInternalDocumentationLink="https://www.remotion.dev/docs/animatedimage"
-			_experimentalControls={controls}
+			controls={controls}
 			_remotionInternalEffects={memoizedEffectDefinitions}
 			{...sequenceProps}
-			_remotionInternalRefForOutline={actualRef}
+			outlineRef={actualRef}
 		>
 			<AnimatedImageContent
 				{...animatedImageProps}
@@ -296,7 +290,7 @@ const AnimatedImageInner = ({
 	);
 };
 
-export const AnimatedImage = wrapInSchema({
+export const AnimatedImage = withInteractivitySchema({
 	Component: AnimatedImageInner,
 	componentIdentity: 'dev.remotion.remotion.AnimatedImage',
 	schema: animatedImageSchema,

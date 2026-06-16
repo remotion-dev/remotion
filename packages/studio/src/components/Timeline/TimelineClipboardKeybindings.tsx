@@ -17,9 +17,9 @@ import {
 	Internals,
 	type OverrideIdToNodePaths,
 	type PropStatuses,
-	type SequenceFieldSchema,
+	type InteractivitySchemaField,
 	type SequencePropsSubscriptionKey,
-	type SequenceSchema,
+	type InteractivitySchema,
 	type TSequence,
 } from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
@@ -76,7 +76,7 @@ export type PasteEffectPropTarget =
 			readonly effectIndex: number;
 			readonly fieldKey: string;
 			readonly defaultValue: string | null;
-			readonly schema: SequenceSchema;
+			readonly schema: InteractivitySchema;
 	  }
 	| {
 			readonly type:
@@ -89,12 +89,12 @@ export type PasteEffectPropTarget =
 	  };
 
 const isVisibleFieldSchema = (
-	fieldSchema: SequenceFieldSchema | undefined,
-): fieldSchema is Exclude<SequenceFieldSchema, {type: 'hidden'}> =>
+	fieldSchema: InteractivitySchemaField | undefined,
+): fieldSchema is Exclude<InteractivitySchemaField, {type: 'hidden'}> =>
 	fieldSchema !== undefined && fieldSchema.type !== 'hidden';
 
 const getDefaultValue = (
-	fieldSchema: Exclude<SequenceFieldSchema, {type: 'hidden'}>,
+	fieldSchema: Exclude<InteractivitySchemaField, {type: 'hidden'}>,
 ) =>
 	fieldSchema.default !== undefined
 		? JSON.stringify(fieldSchema.default)

@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertOptionalFiniteNumber,
@@ -12,7 +12,7 @@ const {createEffect} = Internals;
 
 const invertSchema = {
 	amount: colorAmountSchema,
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type InvertParams = {
 	/** Mix between original color and inverted color. Defaults to `1`. */
@@ -36,7 +36,7 @@ const validateInvertParams = (params: InvertParams): void => {
 };
 
 export const invert = createEffect<InvertParams, null>({
-	type: 'remotion/invert',
+	type: 'dev.remotion.effects.invert',
 	label: 'invert()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/invert',
 	backend: '2d',

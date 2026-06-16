@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertEffectParamsObject,
@@ -53,7 +53,7 @@ const blurSchema = {
 		default: true,
 		description: 'Vertical',
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 const validateBlurParams = (params: BlurParams): void => {
 	assertEffectParamsObject(params, 'Blur');
@@ -61,7 +61,7 @@ const validateBlurParams = (params: BlurParams): void => {
 };
 
 export const blur = createEffect<BlurParams, BlurState>({
-	type: 'remotion/blur',
+	type: 'dev.remotion.effects.blur',
 	label: 'blur()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/blur',
 	backend: 'webgl2',

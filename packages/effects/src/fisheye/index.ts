@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertOptionalFiniteNumber,
@@ -58,7 +58,7 @@ const fisheyeSchema = {
 		description: 'Zoom',
 		hiddenFromList: false,
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type FisheyeParams = {
 	/**
@@ -139,7 +139,7 @@ const validateFisheyeParams = (params: FisheyeParams): void => {
 };
 
 export const fisheye = createEffect<FisheyeParams, FisheyeState>({
-	type: 'remotion/fisheye',
+	type: 'dev.remotion.effects.fisheye',
 	label: 'fisheye()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/fisheye',
 	backend: 'webgl2',

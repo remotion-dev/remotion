@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertOptionalFiniteNumber,
@@ -59,7 +59,7 @@ const burlapSchema = {
 		default: DEFAULT_COLOR,
 		description: 'Color',
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type BurlapParams = {
 	/** Strength of the woven texture from `0` to `1`. Defaults to `0.55`. */
@@ -364,7 +364,7 @@ const normalizedRgba = (
 };
 
 export const burlap = createEffect<BurlapParams, BurlapState>({
-	type: 'remotion/burlap',
+	type: 'dev.remotion.effects.burlap',
 	label: 'burlap()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/burlap',
 	backend: 'webgl2',

@@ -3,9 +3,9 @@ import type {
 	CanUpdateSequencePropStatusStatic,
 	GetEffectDragOverrides,
 	PropStatuses,
-	SequenceFieldSchema,
+	InteractivitySchemaField,
 	SequencePropsSubscriptionKey,
-	SequenceSchema,
+	InteractivitySchema,
 	TSequence,
 } from 'remotion';
 import {Internals} from 'remotion';
@@ -24,7 +24,7 @@ import {
 export type UvCoordinate = readonly [number, number];
 
 export type UvCoordinateFieldSchema = Extract<
-	SequenceFieldSchema,
+	InteractivitySchemaField,
 	{type: 'uv-coordinate'}
 >;
 
@@ -39,7 +39,7 @@ export type SelectedOutlineUvHandle = {
 	readonly fieldSchema: UvCoordinateFieldSchema;
 	readonly isSelected: boolean;
 	readonly nodePath: SequencePropsSubscriptionKey;
-	readonly schema: SequenceSchema;
+	readonly schema: InteractivitySchema;
 	readonly sourceFrame: number;
 	readonly value: UvCoordinate;
 };
