@@ -423,6 +423,9 @@ const SelectedOutlineTransformOriginHandle: React.FC<{
 			cursor="crosshair"
 			onPointerDown={onPointerDown}
 			aria-hidden="true"
+			style={{
+				filter: 'drop-shadow(0 0 1px rgba(255, 255, 255, 0.2))',
+			}}
 		>
 			<circle
 				cx={position.x}
