@@ -115,15 +115,18 @@ const BadgeInner = forwardRef<
   ) => {
     return (
       <Sequence
-        layout="none"
         {...sequenceProps}
         name={name ?? '<Badge>'}
         controls={controls}
+        style={{
+          width: 'fit-content',
+          height: 'fit-content',
+          ...style,
+        }}
       >
         <div
           ref={ref}
           style={{
-            ...style,
             display: 'inline-flex',
             borderRadius: 999,
             backgroundColor: color,
@@ -141,6 +144,8 @@ const BadgeInner = forwardRef<
 ```
 
 The exported component should not expose `controls` as a public prop.
+
+This example uses the default `<Sequence>` layout so the Studio can draw an outline around the component in the preview. A `<Sequence layout="none">` can still expose timeline controls, but it does not register an outline automatically.
 
 ## Wrap the component
 
@@ -202,15 +207,18 @@ const BadgeInner = forwardRef<
   ) => {
     return (
       <Sequence
-        layout="none"
         {...sequenceProps}
         name={name ?? '<Badge>'}
         controls={controls}
+        style={{
+          width: 'fit-content',
+          height: 'fit-content',
+          ...style,
+        }}
       >
         <div
           ref={ref}
           style={{
-            ...style,
             display: 'inline-flex',
             borderRadius: 999,
             backgroundColor: color,

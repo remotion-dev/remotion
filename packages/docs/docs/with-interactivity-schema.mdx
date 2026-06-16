@@ -67,17 +67,20 @@ const CircleInner = forwardRef<
   ) => {
     return (
       <Sequence
-        layout="none"
         {...sequenceProps}
         name={name ?? '<Circle>'}
         controls={controls}
+        style={{
+          width: radius * 2,
+          height: radius * 2,
+          ...style,
+        }}
       >
         <div
           ref={ref}
           style={{
-            ...style,
-            width: radius * 2,
-            height: radius * 2,
+            width: '100%',
+            height: '100%',
             borderRadius: '50%',
             backgroundColor: color,
           }}
@@ -96,6 +99,8 @@ export const Circle = Interactive.withSchema({
 ```
 
 The exported `Circle` component only accepts `CircleProps`. The `controls` prop is passed by `Interactive.withSchema()` to the inner component and should be forwarded to the [`<Sequence>`](/docs/sequence) that represents the component in the timeline.
+
+Use the default `<Sequence>` layout if the component should show a canvas outline in the Studio. A `<Sequence layout="none">` can still expose timeline controls, but it does not register an outline automatically.
 
 ## API
 
