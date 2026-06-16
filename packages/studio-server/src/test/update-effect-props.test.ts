@@ -229,7 +229,7 @@ test('updateEffectProps writes keyframed effect params from clipboard data', () 
 					{frame: 0, value: 0},
 					{frame: 30, value: 1},
 				],
-				easing: [[0.1, 0.2, 0.3, 0.4]],
+				easing: [{type: 'bezier', x1: 0.1, y1: 0.2, x2: 0.3, y2: 0.4}],
 				clamping: {left: 'clamp', right: 'extend'},
 				posterize: 2,
 			},

@@ -6,7 +6,7 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import {Internals} from 'remotion';
+import {Easing, Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {
 	BLUE,
@@ -14,7 +14,10 @@ import {
 	INPUT_BORDER_COLOR_HOVERED,
 	LIGHT_TEXT,
 } from '../../helpers/colors';
+import {Checkbox} from '../Checkbox';
 import {InputDragger} from '../NewComposition/InputDragger';
+import type {SegmentedControlItem} from '../SegmentedControl';
+import {SegmentedControl} from '../SegmentedControl';
 import type {TimelineSelection} from './TimelineSelection';
 import type {
 	SelectedEasingUpdate,
@@ -26,9 +29,13 @@ import {
 	updateSelectedTimelineEasings,
 } from './update-selected-easing';
 
-type CubicBezier = [number, number, number, number];
+type CubicBezierTuple = [number, number, number, number];
+type BezierEasing = Extract<TimelineEasingValue, {type: 'bezier'}>;
+type SpringEasing = Extract<TimelineEasingValue, {type: 'spring'}>;
 type HandleIndex = 0 | 1;
 type Coordinate = 'x' | 'y';
+type EditorMode = 'bezier' | 'spring';
+type SpringNumberKey = 'damping' | 'mass' | 'stiffness';
 
 const SVG_WIDTH = 560;
 const SVG_HEIGHT = 320;
@@ -38,11 +45,45 @@ const PLOT_WIDTH = 500;
 const PLOT_HEIGHT = SVG_HEIGHT;
 const Y_MIN = -2;
 const Y_MAX = 3;
-const LINEAR_BEZIER: CubicBezier = [0.25, 0.25, 0.75, 0.75];
+const LINEAR_EASING: TimelineEasingValue = {type: 'linear'};
+const LINEAR_BEZIER: CubicBezierTuple = [0.25, 0.25, 0.75, 0.75];
+const DEFAULT_SPRING_EASING: SpringEasing = {
+	type: 'spring',
+	damping: 10,
+	mass: 1,
+	overshootClamping: false,
+	stiffness: 100,
+};
+
+const SPRING_LIMITS: Record<
+	SpringNumberKey,
+	{
+		readonly min: number;
+		readonly max: number;
+		readonly step: number;
+	}
+> = {
+	damping: {min: 1, max: 200, step: 1},
+	mass: {min: 0.1, max: 20, step: 0.1},
+	stiffness: {min: 1, max: 1000, step: 1},
+};
+
+const SPRING_DECIMAL_PLACES: Record<SpringNumberKey, number> = {
+	damping: 0,
+	mass: 2,
+	stiffness: 0,
+};
 
 const inlineContainer: React.CSSProperties = {
 	width: '100%',
 	minWidth: 0,
+};
+
+const segmentedControlWrapper: React.CSSProperties = {
+	display: 'flex',
+	justifyContent: 'center',
+	padding: '0 12px',
+	marginBottom: 8,
 };
 
 const coordinatesGridBase: React.CSSProperties = {
@@ -67,6 +108,11 @@ const coordinateInputWrapper: React.CSSProperties = {
 	alignItems: 'center',
 };
 
+const checkboxWrapper: React.CSSProperties = {
+	...coordinateInputWrapper,
+	paddingLeft: 6,
+};
+
 const numberInputStyle: React.CSSProperties = {
 	backgroundColor: INPUT_BACKGROUND,
 	borderRadius: 4,
@@ -85,26 +131,100 @@ const clamp = (value: number, min: number, max: number) => {
 	return Math.min(max, Math.max(min, value));
 };
 
-const sanitizeBezier = (bezier: CubicBezier): CubicBezier => [
+const sanitizeBezier = (bezier: CubicBezierTuple): CubicBezierTuple => [
 	clamp(bezier[0], 0, 1),
 	clamp(bezier[1], Y_MIN, Y_MAX),
 	clamp(bezier[2], 0, 1),
 	clamp(bezier[3], Y_MIN, Y_MAX),
 ];
 
-const easingToBezier = (easing: TimelineEasingValue): CubicBezier => {
-	return easing === 'linear' ? LINEAR_BEZIER : sanitizeBezier(easing);
+const isSpringEasing = (
+	easing: TimelineEasingValue,
+): easing is SpringEasing => {
+	return easing.type === 'spring';
 };
 
-const roundCoordinate = (value: number) => Math.round(value * 10000) / 10000;
+const isBezierEasing = (
+	easing: TimelineEasingValue,
+): easing is BezierEasing => {
+	return easing.type === 'bezier';
+};
 
-const serializeBezier = (bezier: CubicBezier): TimelineEasingValue => {
-	const rounded = sanitizeBezier(bezier).map(roundCoordinate) as CubicBezier;
+const easingToBezier = (easing: TimelineEasingValue): CubicBezierTuple => {
+	return isBezierEasing(easing)
+		? sanitizeBezier([easing.x1, easing.y1, easing.x2, easing.y2])
+		: LINEAR_BEZIER;
+};
+
+const easingToSpring = (easing: TimelineEasingValue): SpringEasing => {
+	return isSpringEasing(easing)
+		? sanitizeSpring(easing)
+		: DEFAULT_SPRING_EASING;
+};
+
+const easingToMode = (easing: TimelineEasingValue): EditorMode => {
+	return isSpringEasing(easing) ? 'spring' : 'bezier';
+};
+
+const roundToDecimalPlaces = (value: number, decimalPlaces: number) => {
+	const factor = 10 ** decimalPlaces;
+	const rounded = Math.round(value * factor) / factor;
+	return Object.is(rounded, -0) ? 0 : rounded;
+};
+
+const roundCoordinate = (value: number) => roundToDecimalPlaces(value, 4);
+
+const serializeBezier = (bezier: CubicBezierTuple): TimelineEasingValue => {
+	const rounded = sanitizeBezier(bezier).map(
+		roundCoordinate,
+	) as CubicBezierTuple;
 	if (rounded[0] === rounded[1] && rounded[2] === rounded[3]) {
-		return 'linear';
+		return LINEAR_EASING;
 	}
 
-	return rounded;
+	return {
+		type: 'bezier',
+		x1: rounded[0],
+		y1: rounded[1],
+		x2: rounded[2],
+		y2: rounded[3],
+	};
+};
+
+const sanitizeSpringValue = (
+	value: number,
+	key: SpringNumberKey,
+	fallback: number,
+) => {
+	const limits = SPRING_LIMITS[key];
+	if (!Number.isFinite(value)) {
+		return fallback;
+	}
+
+	return roundToDecimalPlaces(
+		clamp(value, limits.min, limits.max),
+		SPRING_DECIMAL_PLACES[key],
+	);
+};
+
+const sanitizeSpring = (spring: SpringEasing): SpringEasing => ({
+	type: 'spring',
+	damping: sanitizeSpringValue(
+		spring.damping,
+		'damping',
+		DEFAULT_SPRING_EASING.damping,
+	),
+	mass: sanitizeSpringValue(spring.mass, 'mass', DEFAULT_SPRING_EASING.mass),
+	overshootClamping: spring.overshootClamping,
+	stiffness: sanitizeSpringValue(
+		spring.stiffness,
+		'stiffness',
+		DEFAULT_SPRING_EASING.stiffness,
+	),
+});
+
+const serializeSpring = (spring: SpringEasing): TimelineEasingValue => {
+	return sanitizeSpring(spring);
 };
 
 const formatNumber = (value: number | string) => {
@@ -116,6 +236,25 @@ const formatNumber = (value: number | string) => {
 	return String(roundCoordinate(numericValue));
 };
 
+const formatNumberWithDecimalPlaces =
+	(decimalPlaces: number) => (value: number | string) => {
+		const numericValue = Number(value);
+		if (!Number.isFinite(numericValue)) {
+			return String(value);
+		}
+
+		return String(roundToDecimalPlaces(numericValue, decimalPlaces));
+	};
+
+const springFormatters: Record<
+	SpringNumberKey,
+	(value: number | string) => string
+> = {
+	damping: formatNumberWithDecimalPlaces(SPRING_DECIMAL_PLACES.damping),
+	mass: formatNumberWithDecimalPlaces(SPRING_DECIMAL_PLACES.mass),
+	stiffness: formatNumberWithDecimalPlaces(SPRING_DECIMAL_PLACES.stiffness),
+};
+
 const areEasingsEqual = (
 	first: TimelineEasingValue,
 	second: TimelineEasingValue,
@@ -124,11 +263,34 @@ const areEasingsEqual = (
 		return true;
 	}
 
-	if (first === 'linear' || second === 'linear') {
+	if (first.type !== second.type) {
 		return false;
 	}
 
-	return first.every((value, index) => value === second[index]);
+	switch (first.type) {
+		case 'linear':
+			return true;
+		case 'spring':
+			return (
+				second.type === 'spring' &&
+				first.damping === second.damping &&
+				first.mass === second.mass &&
+				first.overshootClamping === second.overshootClamping &&
+				first.stiffness === second.stiffness
+			);
+		case 'bezier':
+			return (
+				second.type === 'bezier' &&
+				first.x1 === second.x1 &&
+				first.y1 === second.y1 &&
+				first.x2 === second.x2 &&
+				first.y2 === second.y2
+			);
+		default:
+			throw new Error(
+				`Unsupported easing: ${JSON.stringify(first satisfies never)}`,
+			);
+	}
 };
 
 const getEasingUpdateTargetKey = (update: SelectedEasingUpdate) => {
@@ -146,10 +308,44 @@ const xToSvg = (value: number) => PLOT_LEFT + value * PLOT_WIDTH;
 const yToSvg = (value: number) =>
 	PLOT_TOP + ((Y_MAX - value) / (Y_MAX - Y_MIN)) * PLOT_HEIGHT;
 
-const pointFromBezier = (bezier: CubicBezier, handle: HandleIndex) => {
+const pointFromBezier = (bezier: CubicBezierTuple, handle: HandleIndex) => {
 	const x = handle === 0 ? bezier[0] : bezier[2];
 	const y = handle === 0 ? bezier[1] : bezier[3];
 	return {x: xToSvg(x), y: yToSvg(y)};
+};
+
+const EasingGraphScaffold: React.FC = () => {
+	const yZero = yToSvg(0);
+	const yOne = yToSvg(1);
+	const yZeroLabel = clamp(yZero + 3, 10, SVG_HEIGHT - 4);
+	const yOneLabel = clamp(yOne + 3, 10, SVG_HEIGHT - 4);
+
+	return (
+		<>
+			<line
+				x1={PLOT_LEFT}
+				y1={yZero}
+				x2={PLOT_LEFT + PLOT_WIDTH}
+				y2={yZero}
+				stroke={INPUT_BORDER_COLOR_HOVERED}
+				strokeWidth={1}
+			/>
+			<line
+				x1={PLOT_LEFT}
+				y1={yOne}
+				x2={PLOT_LEFT + PLOT_WIDTH}
+				y2={yOne}
+				stroke={INPUT_BORDER_COLOR_HOVERED}
+				strokeWidth={1}
+			/>
+			<text x={PLOT_LEFT - 22} y={yZeroLabel} fill={LIGHT_TEXT} fontSize={9}>
+				0
+			</text>
+			<text x={PLOT_LEFT - 22} y={yOneLabel} fill={LIGHT_TEXT} fontSize={9}>
+				1
+			</text>
+		</>
+	);
 };
 
 export type EasingEditorState = {
@@ -176,18 +372,27 @@ export const EasingEditor: React.FC<{
 		Internals.OverrideIdsToNodePathsGettersContext,
 	);
 	const svgRef = useRef<SVGSVGElement>(null);
+	const [mode, setMode] = useState(() => easingToMode(state.initialEasing));
 	const [bezier, setBezier] = useState(() =>
 		easingToBezier(state.initialEasing),
 	);
+	const [spring, setSpring] = useState(() =>
+		easingToSpring(state.initialEasing),
+	);
 	const bezierRef = useRef(bezier);
+	const springRef = useRef(spring);
 	const liveOverrideVersionRef = useRef(0);
 	const pendingOverrideTargetsRef = useRef<SelectedEasingUpdate[]>([]);
 	const [activeHandle, setActiveHandle] = useState<HandleIndex | null>(null);
 
 	useEffect(() => {
 		const nextBezier = easingToBezier(state.initialEasing);
+		const nextSpring = easingToSpring(state.initialEasing);
 		bezierRef.current = nextBezier;
+		springRef.current = nextSpring;
+		setMode(easingToMode(state.initialEasing));
 		setBezier(nextBezier);
+		setSpring(nextSpring);
 	}, [state.initialEasing]);
 
 	const getCurrentEasingUpdates = useCallback(() => {
@@ -334,11 +539,21 @@ export const EasingEditor: React.FC<{
 	);
 
 	const setBezierAndPreview = useCallback(
-		(nextBezier: CubicBezier) => {
+		(nextBezier: CubicBezierTuple) => {
 			const sanitized = sanitizeBezier(nextBezier);
 			bezierRef.current = sanitized;
 			setBezier(sanitized);
 			return applyLiveEasing(serializeBezier(sanitized));
+		},
+		[applyLiveEasing],
+	);
+
+	const setSpringAndPreview = useCallback(
+		(nextSpring: SpringEasing) => {
+			const sanitized = sanitizeSpring(nextSpring);
+			springRef.current = sanitized;
+			setSpring(sanitized);
+			return applyLiveEasing(serializeSpring(sanitized));
 		},
 		[applyLiveEasing],
 	);
@@ -350,7 +565,7 @@ export const EasingEditor: React.FC<{
 			value: number,
 			commit: boolean,
 		) => {
-			const next = [...bezierRef.current] as CubicBezier;
+			const next = [...bezierRef.current] as CubicBezierTuple;
 			const index =
 				handle === 0
 					? coordinate === 'x'
@@ -368,6 +583,47 @@ export const EasingEditor: React.FC<{
 			}
 		},
 		[commitEasing, setBezierAndPreview],
+	);
+
+	const setSpringNumber = useCallback(
+		(key: SpringNumberKey, value: number, commit: boolean) => {
+			const next = {
+				...springRef.current,
+				[key]: sanitizeSpringValue(value, key, DEFAULT_SPRING_EASING[key]),
+			};
+			const version = setSpringAndPreview(next);
+
+			if (commit) {
+				commitEasing(serializeSpring(next), version);
+			}
+		},
+		[commitEasing, setSpringAndPreview],
+	);
+
+	const setOvershootClamping = useCallback(() => {
+		const next = {
+			...springRef.current,
+			overshootClamping: !springRef.current.overshootClamping,
+		};
+		const version = setSpringAndPreview(next);
+		commitEasing(serializeSpring(next), version);
+	}, [commitEasing, setSpringAndPreview]);
+
+	const switchMode = useCallback(
+		(nextMode: EditorMode) => {
+			setMode(nextMode);
+			if (mode === nextMode || previewServerState.type !== 'connected') {
+				return;
+			}
+
+			const easing =
+				nextMode === 'spring'
+					? serializeSpring(springRef.current)
+					: serializeBezier(bezierRef.current);
+			const version = applyLiveEasing(easing);
+			commitEasing(easing, version);
+		},
+		[applyLiveEasing, commitEasing, mode, previewServerState.type],
 	);
 
 	const getValueFromPointer = useCallback(
@@ -399,7 +655,7 @@ export const EasingEditor: React.FC<{
 				return;
 			}
 
-			const next = [...bezierRef.current] as CubicBezier;
+			const next = [...bezierRef.current] as CubicBezierTuple;
 			if (handle === 0) {
 				next[0] = value.x;
 				next[1] = value.y;
@@ -463,15 +719,45 @@ export const EasingEditor: React.FC<{
 	const endPoint = useMemo(() => ({x: xToSvg(1), y: yToSvg(1)}), []);
 	const firstHandle = useMemo(() => pointFromBezier(bezier, 0), [bezier]);
 	const secondHandle = useMemo(() => pointFromBezier(bezier, 1), [bezier]);
-	const path = useMemo(() => {
+	const bezierPath = useMemo(() => {
 		return `M ${startPoint.x} ${startPoint.y} C ${firstHandle.x} ${firstHandle.y}, ${secondHandle.x} ${secondHandle.y}, ${endPoint.x} ${endPoint.y}`;
 	}, [endPoint, firstHandle, secondHandle, startPoint]);
+	const springPath = useMemo(() => {
+		const easing = Easing.spring({
+			damping: spring.damping,
+			mass: spring.mass,
+			overshootClamping: spring.overshootClamping,
+			stiffness: spring.stiffness,
+		});
+		const samples = 80;
+		const points: string[] = [];
+		for (let i = 0; i <= samples; i++) {
+			const t = i / samples;
+			const x = xToSvg(t);
+			const y = yToSvg(clamp(easing(t), Y_MIN, Y_MAX));
+			points.push(`${i === 0 ? 'M' : 'L'} ${x} ${y}`);
+		}
 
-	const yZero = yToSvg(0);
-	const yOne = yToSvg(1);
-	const yZeroLabel = clamp(yZero + 3, 10, SVG_HEIGHT - 4);
-	const yOneLabel = clamp(yOne + 3, 10, SVG_HEIGHT - 4);
+		return points.join(' ');
+	}, [spring]);
+
 	const disabled = previewServerState.type !== 'connected';
+	const modeItems = useMemo((): SegmentedControlItem[] => {
+		return [
+			{
+				key: 'bezier',
+				label: 'Bezier',
+				onClick: () => switchMode('bezier'),
+				selected: mode === 'bezier',
+			},
+			{
+				key: 'spring',
+				label: 'Spring',
+				onClick: () => switchMode('spring'),
+				selected: mode === 'spring',
+			},
+		];
+	}, [mode, switchMode]);
 	const coordinatesGrid = useMemo(
 		(): React.CSSProperties => ({
 			...coordinatesGridBase,
@@ -483,167 +769,267 @@ export const EasingEditor: React.FC<{
 
 	return (
 		<div style={inlineContainer}>
-			<svg
-				ref={svgRef}
-				width={SVG_WIDTH}
-				height={SVG_HEIGHT}
-				viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`}
-				style={svgStyle}
-				aria-label="Bezier curve editor"
-			>
-				<line
-					x1={PLOT_LEFT}
-					y1={yZero}
-					x2={PLOT_LEFT + PLOT_WIDTH}
-					y2={yZero}
-					stroke={INPUT_BORDER_COLOR_HOVERED}
-					strokeWidth={1}
-				/>
-				<line
-					x1={PLOT_LEFT}
-					y1={yOne}
-					x2={PLOT_LEFT + PLOT_WIDTH}
-					y2={yOne}
-					stroke={INPUT_BORDER_COLOR_HOVERED}
-					strokeWidth={1}
-				/>
-
-				<line
-					x1={startPoint.x}
-					y1={startPoint.y}
-					x2={firstHandle.x}
-					y2={firstHandle.y}
-					stroke="rgba(255, 255, 255, 0.35)"
-					strokeWidth={1}
-				/>
-				<line
-					x1={endPoint.x}
-					y1={endPoint.y}
-					x2={secondHandle.x}
-					y2={secondHandle.y}
-					stroke="rgba(255, 255, 255, 0.35)"
-					strokeWidth={1}
-				/>
-				<path d={path} fill="none" stroke={BLUE} strokeWidth={3} />
-				<circle cx={startPoint.x} cy={startPoint.y} r={4} fill="white" />
-				<circle cx={endPoint.x} cy={endPoint.y} r={4} fill="white" />
-				<circle
-					cx={firstHandle.x}
-					cy={firstHandle.y}
-					r={6}
-					fill="white"
-					stroke={BLUE}
-					strokeWidth={2}
-					vectorEffect="non-scaling-stroke"
-					pointerEvents={disabled ? 'none' : 'all'}
-					cursor={activeHandle === 0 ? 'grabbing' : 'default'}
-					onPointerDown={(event) => onHandlePointerDown(0, event)}
-				/>
-				<circle
-					cx={secondHandle.x}
-					cy={secondHandle.y}
-					r={6}
-					fill="white"
-					stroke={BLUE}
-					strokeWidth={2}
-					vectorEffect="non-scaling-stroke"
-					pointerEvents={disabled ? 'none' : 'all'}
-					cursor={activeHandle === 1 ? 'grabbing' : 'default'}
-					onPointerDown={(event) => onHandlePointerDown(1, event)}
-				/>
-				<text x={PLOT_LEFT - 22} y={yZeroLabel} fill={LIGHT_TEXT} fontSize={9}>
-					0
-				</text>
-				<text x={PLOT_LEFT - 22} y={yOneLabel} fill={LIGHT_TEXT} fontSize={9}>
-					1
-				</text>
-			</svg>
-			<div style={coordinatesGrid}>
-				<div style={coordinateRow}>
-					<div style={coordinateLabel}>X1</div>
-					<div style={coordinateInputWrapper}>
-						<InputDragger
-							type="number"
-							value={bezier[0]}
-							status="ok"
-							onValueChange={(value) => setCoordinate(0, 'x', value, false)}
-							onValueChangeEnd={(value) => setCoordinate(0, 'x', value, true)}
-							onTextChange={() => undefined}
-							min={0}
-							max={1}
-							step={0.01}
-							formatter={formatNumber}
-							rightAlign={false}
-							style={numberInputStyle}
-							snapToStep={false}
-							disabled={disabled}
-						/>
-					</div>
-				</div>
-				<div style={coordinateRow}>
-					<div style={coordinateLabel}>Y1</div>
-					<div style={coordinateInputWrapper}>
-						<InputDragger
-							type="number"
-							value={bezier[1]}
-							status="ok"
-							onValueChange={(value) => setCoordinate(0, 'y', value, false)}
-							onValueChangeEnd={(value) => setCoordinate(0, 'y', value, true)}
-							onTextChange={() => undefined}
-							min={Y_MIN}
-							max={Y_MAX}
-							step={0.01}
-							formatter={formatNumber}
-							rightAlign={false}
-							style={numberInputStyle}
-							snapToStep={false}
-							disabled={disabled}
-						/>
-					</div>
-				</div>
-				<div style={coordinateRow}>
-					<div style={coordinateLabel}>X2</div>
-					<div style={coordinateInputWrapper}>
-						<InputDragger
-							type="number"
-							value={bezier[2]}
-							status="ok"
-							onValueChange={(value) => setCoordinate(1, 'x', value, false)}
-							onValueChangeEnd={(value) => setCoordinate(1, 'x', value, true)}
-							onTextChange={() => undefined}
-							min={0}
-							max={1}
-							step={0.01}
-							formatter={formatNumber}
-							rightAlign={false}
-							style={numberInputStyle}
-							snapToStep={false}
-							disabled={disabled}
-						/>
-					</div>
-				</div>
-				<div style={coordinateRow}>
-					<div style={coordinateLabel}>Y2</div>
-					<div style={coordinateInputWrapper}>
-						<InputDragger
-							type="number"
-							value={bezier[3]}
-							status="ok"
-							onValueChange={(value) => setCoordinate(1, 'y', value, false)}
-							onValueChangeEnd={(value) => setCoordinate(1, 'y', value, true)}
-							onTextChange={() => undefined}
-							min={Y_MIN}
-							max={Y_MAX}
-							step={0.01}
-							formatter={formatNumber}
-							rightAlign={false}
-							style={numberInputStyle}
-							snapToStep={false}
-							disabled={disabled}
-						/>
-					</div>
-				</div>
+			<div style={segmentedControlWrapper}>
+				<SegmentedControl items={modeItems} needsWrapping={false} />
 			</div>
+			{mode === 'bezier' ? (
+				<>
+					<svg
+						ref={svgRef}
+						width={SVG_WIDTH}
+						height={SVG_HEIGHT}
+						viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`}
+						style={svgStyle}
+						aria-label="Bezier curve editor"
+					>
+						<EasingGraphScaffold />
+						<line
+							x1={startPoint.x}
+							y1={startPoint.y}
+							x2={firstHandle.x}
+							y2={firstHandle.y}
+							stroke="rgba(255, 255, 255, 0.35)"
+							strokeWidth={1}
+						/>
+						<line
+							x1={endPoint.x}
+							y1={endPoint.y}
+							x2={secondHandle.x}
+							y2={secondHandle.y}
+							stroke="rgba(255, 255, 255, 0.35)"
+							strokeWidth={1}
+						/>
+						<path d={bezierPath} fill="none" stroke={BLUE} strokeWidth={3} />
+						<circle cx={startPoint.x} cy={startPoint.y} r={4} fill="white" />
+						<circle cx={endPoint.x} cy={endPoint.y} r={4} fill="white" />
+						<circle
+							cx={firstHandle.x}
+							cy={firstHandle.y}
+							r={6}
+							fill="white"
+							stroke={BLUE}
+							strokeWidth={2}
+							vectorEffect="non-scaling-stroke"
+							pointerEvents={disabled ? 'none' : 'all'}
+							cursor={activeHandle === 0 ? 'grabbing' : 'default'}
+							onPointerDown={(event) => onHandlePointerDown(0, event)}
+						/>
+						<circle
+							cx={secondHandle.x}
+							cy={secondHandle.y}
+							r={6}
+							fill="white"
+							stroke={BLUE}
+							strokeWidth={2}
+							vectorEffect="non-scaling-stroke"
+							pointerEvents={disabled ? 'none' : 'all'}
+							cursor={activeHandle === 1 ? 'grabbing' : 'default'}
+							onPointerDown={(event) => onHandlePointerDown(1, event)}
+						/>
+					</svg>
+					<div style={coordinatesGrid}>
+						<div style={coordinateRow}>
+							<div style={coordinateLabel}>X1</div>
+							<div style={coordinateInputWrapper}>
+								<InputDragger
+									type="number"
+									value={bezier[0]}
+									status="ok"
+									onValueChange={(value) => setCoordinate(0, 'x', value, false)}
+									onValueChangeEnd={(value) =>
+										setCoordinate(0, 'x', value, true)
+									}
+									onTextChange={() => undefined}
+									min={0}
+									max={1}
+									step={0.01}
+									formatter={formatNumber}
+									rightAlign={false}
+									style={numberInputStyle}
+									snapToStep={false}
+									disabled={disabled}
+								/>
+							</div>
+						</div>
+						<div style={coordinateRow}>
+							<div style={coordinateLabel}>Y1</div>
+							<div style={coordinateInputWrapper}>
+								<InputDragger
+									type="number"
+									value={bezier[1]}
+									status="ok"
+									onValueChange={(value) => setCoordinate(0, 'y', value, false)}
+									onValueChangeEnd={(value) =>
+										setCoordinate(0, 'y', value, true)
+									}
+									onTextChange={() => undefined}
+									min={Y_MIN}
+									max={Y_MAX}
+									step={0.01}
+									formatter={formatNumber}
+									rightAlign={false}
+									style={numberInputStyle}
+									snapToStep={false}
+									disabled={disabled}
+								/>
+							</div>
+						</div>
+						<div style={coordinateRow}>
+							<div style={coordinateLabel}>X2</div>
+							<div style={coordinateInputWrapper}>
+								<InputDragger
+									type="number"
+									value={bezier[2]}
+									status="ok"
+									onValueChange={(value) => setCoordinate(1, 'x', value, false)}
+									onValueChangeEnd={(value) =>
+										setCoordinate(1, 'x', value, true)
+									}
+									onTextChange={() => undefined}
+									min={0}
+									max={1}
+									step={0.01}
+									formatter={formatNumber}
+									rightAlign={false}
+									style={numberInputStyle}
+									snapToStep={false}
+									disabled={disabled}
+								/>
+							</div>
+						</div>
+						<div style={coordinateRow}>
+							<div style={coordinateLabel}>Y2</div>
+							<div style={coordinateInputWrapper}>
+								<InputDragger
+									type="number"
+									value={bezier[3]}
+									status="ok"
+									onValueChange={(value) => setCoordinate(1, 'y', value, false)}
+									onValueChangeEnd={(value) =>
+										setCoordinate(1, 'y', value, true)
+									}
+									onTextChange={() => undefined}
+									min={Y_MIN}
+									max={Y_MAX}
+									step={0.01}
+									formatter={formatNumber}
+									rightAlign={false}
+									style={numberInputStyle}
+									snapToStep={false}
+									disabled={disabled}
+								/>
+							</div>
+						</div>
+					</div>
+				</>
+			) : (
+				<>
+					<svg
+						width={SVG_WIDTH}
+						height={SVG_HEIGHT}
+						viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`}
+						style={svgStyle}
+						aria-label="Spring easing curve"
+					>
+						<EasingGraphScaffold />
+						<path d={springPath} fill="none" stroke={BLUE} strokeWidth={3} />
+						<circle cx={xToSvg(0)} cy={yToSvg(0)} r={4} fill="white" />
+						<circle cx={xToSvg(1)} cy={yToSvg(1)} r={4} fill="white" />
+					</svg>
+					<div style={coordinatesGrid}>
+						<div style={coordinateRow}>
+							<div style={coordinateLabel}>Damping</div>
+							<div style={coordinateInputWrapper}>
+								<InputDragger
+									type="number"
+									value={spring.damping}
+									status="ok"
+									onValueChange={(value) =>
+										setSpringNumber('damping', value, false)
+									}
+									onValueChangeEnd={(value) =>
+										setSpringNumber('damping', value, true)
+									}
+									onTextChange={() => undefined}
+									min={SPRING_LIMITS.damping.min}
+									max={SPRING_LIMITS.damping.max}
+									step={SPRING_LIMITS.damping.step}
+									formatter={springFormatters.damping}
+									rightAlign={false}
+									style={numberInputStyle}
+									snapToStep={false}
+									dragDecimalPlaces={SPRING_DECIMAL_PLACES.damping}
+									disabled={disabled}
+								/>
+							</div>
+						</div>
+						<div style={coordinateRow}>
+							<div style={coordinateLabel}>Mass</div>
+							<div style={coordinateInputWrapper}>
+								<InputDragger
+									type="number"
+									value={spring.mass}
+									status="ok"
+									onValueChange={(value) =>
+										setSpringNumber('mass', value, false)
+									}
+									onValueChangeEnd={(value) =>
+										setSpringNumber('mass', value, true)
+									}
+									onTextChange={() => undefined}
+									min={SPRING_LIMITS.mass.min}
+									max={SPRING_LIMITS.mass.max}
+									step={SPRING_LIMITS.mass.step}
+									formatter={springFormatters.mass}
+									rightAlign={false}
+									style={numberInputStyle}
+									snapToStep={false}
+									dragDecimalPlaces={SPRING_DECIMAL_PLACES.mass}
+									disabled={disabled}
+								/>
+							</div>
+						</div>
+						<div style={coordinateRow}>
+							<div style={coordinateLabel}>Stiffness</div>
+							<div style={coordinateInputWrapper}>
+								<InputDragger
+									type="number"
+									value={spring.stiffness}
+									status="ok"
+									onValueChange={(value) =>
+										setSpringNumber('stiffness', value, false)
+									}
+									onValueChangeEnd={(value) =>
+										setSpringNumber('stiffness', value, true)
+									}
+									onTextChange={() => undefined}
+									min={SPRING_LIMITS.stiffness.min}
+									max={SPRING_LIMITS.stiffness.max}
+									step={SPRING_LIMITS.stiffness.step}
+									formatter={springFormatters.stiffness}
+									rightAlign={false}
+									style={numberInputStyle}
+									snapToStep={false}
+									dragDecimalPlaces={SPRING_DECIMAL_PLACES.stiffness}
+									disabled={disabled}
+								/>
+							</div>
+						</div>
+						<div style={coordinateRow}>
+							<div style={coordinateLabel}>Clamp overshoot</div>
+							<div style={checkboxWrapper}>
+								<Checkbox
+									checked={spring.overshootClamping}
+									onChange={setOvershootClamping}
+									name="spring-overshoot-clamping"
+									disabled={disabled}
+									variant="small"
+								/>
+							</div>
+						</div>
+					</div>
+				</>
+			)}
 		</div>
 	);
 };

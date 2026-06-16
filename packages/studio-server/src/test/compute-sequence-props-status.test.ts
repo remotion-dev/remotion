@@ -90,7 +90,7 @@ export const Example: React.FC = () => {
 			{frame: 0, value: 'red'},
 			{frame: 100, value: 'blue'},
 		],
-		easing: ['linear'],
+		easing: [{type: 'linear'}],
 		clamping: {left: 'clamp', right: 'clamp'},
 		posterize: undefined,
 	});
@@ -178,9 +178,52 @@ export const Example: React.FC = () => {
 			{frame: 100, value: 'green'},
 			{frame: 200, value: 'blue'},
 		],
-		easing: [[0.42, 0, 1, 1], 'linear'],
+		easing: [{type: 'bezier', x1: 0.42, y1: 0, x2: 1, y2: 1}, {type: 'linear'}],
 		clamping: {left: 'clamp', right: 'clamp'},
 		posterize: 2,
+	});
+});
+
+test('computeSequencePropsStatus should return spring easing metadata', () => {
+	const input = `import React from 'react';
+import {Easing, Sequence, interpolate, useCurrentFrame} from 'remotion';
+
+export const Example: React.FC = () => {
+\tconst frame = useCurrentFrame();
+\treturn (
+\t\t<Sequence style={{opacity: interpolate(frame, [0, 100], [0, 1], {easing: Easing.spring({damping: 12, mass: 1.5, stiffness: 180, overshootClamping: true})})}} />
+\t);
+};
+`;
+	const result = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 7),
+		componentIdentity: null,
+		keys: ['style.opacity'],
+		effects: [],
+	});
+
+	expect(result.canUpdate).toBe(true);
+	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
+
+	expect(result.props['style.opacity']).toEqual({
+		status: 'keyframed',
+		interpolationFunction: 'interpolate',
+		keyframes: [
+			{frame: 0, value: 0},
+			{frame: 100, value: 1},
+		],
+		easing: [
+			{
+				type: 'spring',
+				damping: 12,
+				mass: 1.5,
+				stiffness: 180,
+				overshootClamping: true,
+			},
+		],
+		clamping: {left: 'extend', right: 'extend'},
+		posterize: undefined,
 	});
 });
 
@@ -213,7 +256,7 @@ export const Example: React.FC = () => {
 			{frame: 0, value: '0px 59px'},
 			{frame: 100, value: '100px 20px'},
 		],
-		easing: ['linear'],
+		easing: [{type: 'linear'}],
 		clamping: {left: 'extend', right: 'extend'},
 		posterize: undefined,
 	});
@@ -257,8 +300,8 @@ export const Example: React.FC = () => {
 			{frame: 30, value: '124px 40px'},
 		],
 		easing: [
-			[0, 0, 0.58, 1],
-			[0.42, 0, 0.6308, 1.1405],
+			{type: 'bezier', x1: 0, y1: 0, x2: 0.58, y2: 1},
+			{type: 'bezier', x1: 0.42, y1: 0, x2: 0.6308, y2: 1.1405},
 		],
 		clamping: {left: 'clamp', right: 'clamp'},
 		posterize: undefined,
@@ -322,7 +365,7 @@ export const Example: React.FC = () => {
 			{frame: 55, value: '19deg'},
 			{frame: 68, value: '23deg'},
 		],
-		easing: ['linear'],
+		easing: [{type: 'linear'}],
 		clamping: {left: 'extend', right: 'extend'},
 		posterize: undefined,
 	});
@@ -477,7 +520,7 @@ test('computeSequencePropsStatus should return keyframes for interpolated style 
 			{frame: 0, value: 2},
 			{frame: 100, value: 4},
 		],
-		easing: ['linear'],
+		easing: [{type: 'linear'}],
 		clamping: {left: 'extend', right: 'extend'},
 		posterize: undefined,
 	});
@@ -529,8 +572,8 @@ export const Example: React.FC = () => {
 			{frame: 30, value: '1.611 1.611'},
 		],
 		easing: [
-			[0, 0, 0.58, 1],
-			[0.42, 0, 0.6308, 1.1405],
+			{type: 'bezier', x1: 0, y1: 0, x2: 0.58, y2: 1},
+			{type: 'bezier', x1: 0.42, y1: 0, x2: 0.6308, y2: 1.1405},
 		],
 		clamping: {left: 'clamp', right: 'clamp'},
 		posterize: undefined,
@@ -572,7 +615,10 @@ export const Example: React.FC = () => {
 			{frame: 50, value: 2},
 			{frame: 100, value: 3},
 		],
-		easing: [[0.1, 0.2, 0.3, 0.4], 'linear'],
+		easing: [
+			{type: 'bezier', x1: 0.1, y1: 0.2, x2: 0.3, y2: 0.4},
+			{type: 'linear'},
+		],
 		clamping: {
 			left: 'clamp',
 			right: 'identity',
@@ -611,7 +657,7 @@ export const Example: React.FC = () => {
 			{frame: 0, value: 1},
 			{frame: 100, value: 3},
 		],
-		easing: ['linear'],
+		easing: [{type: 'linear'}],
 		clamping: {left: 'extend', right: 'extend'},
 		posterize: 3,
 	});
@@ -647,7 +693,7 @@ export const Example: React.FC = () => {
 			{frame: 0, value: 'red'},
 			{frame: 100, value: 'blue'},
 		],
-		easing: ['linear'],
+		easing: [{type: 'linear'}],
 		clamping: {left: 'clamp', right: 'clamp'},
 		posterize: 3,
 	});
