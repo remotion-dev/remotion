@@ -521,6 +521,30 @@ export const getSelectedOutlineRotationDragValues = ({
 	);
 };
 
+export const selectedOutlineRotationSnapStepDegrees = 15;
+
+export const snapSelectedOutlineRotationDeltaDegrees = ({
+	dragStates,
+	rotationDeltaDegrees,
+}: {
+	readonly dragStates: readonly SelectedOutlineRotationDragState[];
+	readonly rotationDeltaDegrees: number;
+}) => {
+	const anchor = dragStates[0];
+	if (anchor === undefined) {
+		return rotationDeltaDegrees;
+	}
+
+	return (
+		Math.round(
+			(anchor.startDegrees + rotationDeltaDegrees) /
+				selectedOutlineRotationSnapStepDegrees,
+		) *
+			selectedOutlineRotationSnapStepDegrees -
+		anchor.startDegrees
+	);
+};
+
 export const getSelectedOutlineRotationDragChanges = ({
 	dragStates,
 	lastValues,
