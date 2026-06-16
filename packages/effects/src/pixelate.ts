@@ -199,7 +199,6 @@ export const pixelate = createEffect<PixelateParams, PixelateState>({
 			throw createWebGL2ContextError('pixelate effect');
 		}
 
-		gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
 		return createPixelateState(gl);
 	},
 	apply: ({source, width, height, params, state, flipSourceY}) => {
@@ -209,10 +208,13 @@ export const pixelate = createEffect<PixelateParams, PixelateState>({
 		state.gl.clearColor(0, 0, 0, 0);
 		state.gl.clear(state.gl.COLOR_BUFFER_BIT);
 
+        state.gl.useProgram(state.program);
+        state.gl.bindVertexArray(state.vao);
 		state.gl.bindFramebuffer(state.gl.FRAMEBUFFER, null);
 		state.gl.activeTexture(state.gl.TEXTURE0);
 		state.gl.bindTexture(state.gl.TEXTURE_2D, state.texture);
 		state.gl.pixelStorei(state.gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
+        state.gl.pixelStorei(state.gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
 		state.gl.texImage2D(
 			state.gl.TEXTURE_2D,
 			0,
@@ -222,13 +224,10 @@ export const pixelate = createEffect<PixelateParams, PixelateState>({
 			source as TexImageSource,
 		);
 
-		state.gl.useProgram(state.program);
-
 		if (state.uSource) state.gl.uniform1i(state.uSource, 0);
 		if (state.uBlockSize) state.gl.uniform1f(state.uBlockSize, r.blockSize);
 		if (state.uResolution) state.gl.uniform2f(state.uResolution, width, height);
 
-		state.gl.bindVertexArray(state.vao);
 		state.gl.drawArrays(state.gl.TRIANGLE_STRIP, 0, 4);
 		state.gl.bindVertexArray(null);
 		state.gl.bindTexture(state.gl.TEXTURE_2D, null);
