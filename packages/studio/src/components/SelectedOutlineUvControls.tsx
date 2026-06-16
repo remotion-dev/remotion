@@ -42,8 +42,8 @@ const getSvgPointFromPointerEvent = ({
 	};
 };
 
-const uvHandleRadius = 3.5;
-const selectedUvHandleRadius = 5.6;
+const uvHandleRadius = 4.25;
+const selectedUvHandleRadius = 6.8;
 const uvHandleStyle: React.CSSProperties = {
 	filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.28))',
 };
