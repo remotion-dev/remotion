@@ -114,7 +114,6 @@ const presetButtonsWrapper: React.CSSProperties = {
 	gap: 6,
 	justifyContent: 'center',
 	marginBottom: 8,
-	padding: '0 12px',
 };
 
 const presetButtonBase: React.CSSProperties = {
