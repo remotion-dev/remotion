@@ -24,6 +24,12 @@ import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import {InputDragger} from '../NewComposition/InputDragger';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
+import {
+	formatTimelineNumber,
+	getTimelineDisplayDecimalPlaces,
+	normalizeTimelineNumber,
+} from './timeline-field-utils';
+import {parseCssRotationToDegrees} from './timeline-rotation-utils';
 import type {TimelineSelection} from './TimelineSelection';
 import type {
 	SelectedEasingUpdate,
@@ -367,7 +373,84 @@ const getEasingUpdateTargetKey = (update: SelectedEasingUpdate) => {
 	return `effect:${nodePathKey}:${update.effectIndex}:${update.fieldKey}:${update.segmentIndex}`;
 };
 
-const formatEasingGraphLabel = (value: unknown): string => {
+const formatRotationEasingGraphLabel = ({
+	update,
+	value,
+}: {
+	readonly update: SelectedEasingUpdate;
+	readonly value: unknown;
+}) => {
+	const fieldSchema = update.schema[update.fieldKey];
+	const configuredStep =
+		fieldSchema.type === 'rotation-css' ||
+		fieldSchema.type === 'rotation-degrees'
+			? fieldSchema.step
+			: undefined;
+	const decimalPlaces = getTimelineDisplayDecimalPlaces({
+		defaultDecimalPlaces: 1,
+		step: configuredStep,
+	});
+	const degrees =
+		fieldSchema.type === 'rotation-css'
+			? parseCssRotationToDegrees(String(value ?? '0deg'))
+			: typeof value === 'number'
+				? value
+				: Number(value);
+
+	if (!Number.isFinite(degrees)) {
+		return null;
+	}
+
+	return `${formatTimelineNumber({
+		decimalPlaces,
+		fixed: false,
+		value: normalizeTimelineNumber(degrees),
+	})}\u00B0`;
+};
+
+const formatNumberEasingGraphLabel = ({
+	update,
+	value,
+}: {
+	readonly update: SelectedEasingUpdate;
+	readonly value: unknown;
+}) => {
+	const fieldSchema = update.schema[update.fieldKey];
+	if (fieldSchema.type !== 'number' || typeof value !== 'number') {
+		return null;
+	}
+
+	if (fieldSchema.step === undefined) {
+		return String(value);
+	}
+
+	return formatTimelineNumber({
+		decimalPlaces: getTimelineDisplayDecimalPlaces({
+			defaultDecimalPlaces: 0,
+			step: fieldSchema.step,
+		}),
+		fixed: true,
+		value,
+	});
+};
+
+const formatEasingGraphLabel = (
+	value: unknown,
+	update: SelectedEasingUpdate,
+): string => {
+	const fieldSchema = update.schema[update.fieldKey];
+	if (
+		fieldSchema.type === 'rotation-css' ||
+		fieldSchema.type === 'rotation-degrees'
+	) {
+		return formatRotationEasingGraphLabel({update, value}) ?? String(value);
+	}
+
+	const numberLabel = formatNumberEasingGraphLabel({update, value});
+	if (numberLabel !== null) {
+		return numberLabel;
+	}
+
 	if (
 		value === null ||
 		typeof value === 'number' ||
@@ -400,8 +483,8 @@ const getEasingGraphLabelsFromUpdate = (
 	}
 
 	return {
-		start: formatEasingGraphLabel(startKeyframe.value),
-		end: formatEasingGraphLabel(endKeyframe.value),
+		start: formatEasingGraphLabel(startKeyframe.value, update),
+		end: formatEasingGraphLabel(endKeyframe.value, update),
 	};
 };
 
