@@ -19,6 +19,7 @@ import {
 	LIGHT_TEXT,
 } from '../../helpers/colors';
 import {Checkbox} from '../Checkbox';
+import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import {InputDragger} from '../NewComposition/InputDragger';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
@@ -104,7 +105,7 @@ const inlineContainer: React.CSSProperties = {
 const segmentedControlWrapper: React.CSSProperties = {
 	display: 'flex',
 	justifyContent: 'flex-start',
-	padding: '0 12px',
+	padding: `0 ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px`,
 	marginBottom: 10,
 };
 
@@ -112,8 +113,9 @@ const presetButtonsWrapper: React.CSSProperties = {
 	display: 'flex',
 	flexWrap: 'wrap',
 	gap: 6,
-	justifyContent: 'center',
+	justifyContent: 'flex-start',
 	marginBottom: 8,
+	padding: `0 ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px`,
 };
 
 const presetButtonBase: React.CSSProperties = {
