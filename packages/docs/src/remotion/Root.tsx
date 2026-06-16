@@ -45,6 +45,7 @@ import {
 } from '../../components/effects/effects-shrinkwrap-preview';
 import {EffectsSpecklePreview} from '../../components/effects/effects-speckle-preview';
 import {EffectsStarburstPreview} from '../../components/effects/effects-starburst-preview';
+import {EffectsThermalVisionPreview} from '../../components/effects/effects-thermal-vision-preview';
 import {EffectsTintPreview} from '../../components/effects/effects-tint-preview';
 import {
 	EffectsUvTranslatePreview,
@@ -63,6 +64,16 @@ import {Expert} from './Expert';
 import {TemplateComp} from './Template';
 
 const DEFAULT_EFFECT_COLORS = ['#dff4ff', '#7cc6ff'] as const;
+const DEFAULT_THERMAL_PALETTE = [
+	'#020617',
+	'#1238ff',
+	'#00a6ff',
+	'#00c853',
+	'#d6f542',
+	'#ffb000',
+	'#ff2f00',
+	'#ffffff',
+] as const;
 
 export const RemotionRoot: React.FC = () => {
 	return (
@@ -236,6 +247,16 @@ export const RemotionRoot: React.FC = () => {
 					width={1280}
 					height={720}
 					defaultProps={{color: '#1ec8ff', amount: 0.7}}
+				/>
+				<Still
+					id="effects-thermal-vision-preview"
+					component={EffectsThermalVisionPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						amount: 1,
+						palette: DEFAULT_THERMAL_PALETTE,
+					}}
 				/>
 				<Still
 					id="effects-vignette-preview"

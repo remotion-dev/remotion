@@ -36,6 +36,7 @@ import {scanlines} from '../scanlines.js';
 import {shine} from '../shine.js';
 import {shrinkwrap} from '../shrinkwrap.js';
 import {speckle} from '../speckle.js';
+import {thermalVision} from '../thermal-vision.js';
 import {tint} from '../tint.js';
 import {uvTranslate, xyTranslate} from '../translate.js';
 import {tvSignalOff} from '../tv-signal-off.js';
@@ -168,6 +169,9 @@ test('@remotion/effects expose documentation links', () => {
 	expect(speckle().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/speckle',
 	);
+	expect(thermalVision().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/thermal-vision',
+	);
 	expect(tint({color: '#fff'}).definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/tint',
 	);
@@ -237,6 +241,7 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(shine().definition.label).toBe('shine()');
 	expect(shrinkwrap().definition.label).toBe('shrinkwrap()');
 	expect(speckle().definition.label).toBe('speckle()');
+	expect(thermalVision().definition.label).toBe('thermalVision()');
 	expect(tint({color: '#fff'}).definition.label).toBe('tint()');
 	expect(tvSignalOff().definition.label).toBe('tvSignalOff()');
 	expect(uvTranslate().definition.label).toBe('uvTranslate()');
@@ -871,6 +876,67 @@ test('duotone() parameters produce distinct effect keys', () => {
 			shiftedThreshold.effectKey,
 			customColors.effectKey,
 		]).size,
+	).toBe(3);
+});
+
+test('thermalVision() accepts default params', () => {
+	expect(() => thermalVision()).not.toThrow();
+});
+
+test('thermalVision() exposes palette as an array control', () => {
+	expect(thermalVision().definition.schema.palette).toEqual({
+		type: 'array',
+		item: {
+			type: 'color',
+		},
+		default: [
+			'#020617',
+			'#1238ff',
+			'#00a6ff',
+			'#00c853',
+			'#d6f542',
+			'#ffb000',
+			'#ff2f00',
+			'#ffffff',
+		],
+		minLength: 2,
+		newItemDefault: '#00c853',
+		description: 'Palette',
+		keyframable: false,
+	});
+});
+
+test('thermalVision() rejects non-finite amount', () => {
+	expect(() => thermalVision({amount: Number.NaN})).toThrow(
+		'"amount" must be a finite number',
+	);
+});
+
+test('thermalVision() rejects amount below range', () => {
+	expect(() => thermalVision({amount: -0.1})).toThrow('"amount" must be >= 0');
+});
+
+test('thermalVision() rejects amount above range', () => {
+	expect(() => thermalVision({amount: 1.1})).toThrow('"amount" must be <= 1');
+});
+
+test('thermalVision() rejects invalid palettes', () => {
+	expect(() => thermalVision({palette: ['#020617']})).toThrow(
+		'"palette" must be an array with at least 2 colors',
+	);
+	expect(() =>
+		thermalVision({palette: ['#020617', '' as unknown as string]}),
+	).toThrow('"palette[1]" must be a non-empty string');
+});
+
+test('thermalVision() parameters produce distinct effect keys', () => {
+	const defaults = thermalVision();
+	const subtle = thermalVision({amount: 0.25});
+	const customPalette = thermalVision({palette: ['#000000', '#ffffff']});
+
+	expect(
+		new Set([defaults.effectKey, subtle.effectKey, customPalette.effectKey])
+			.size,
 	).toBe(3);
 });
 
