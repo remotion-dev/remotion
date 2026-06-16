@@ -14,7 +14,7 @@ Use it when you build a component that should behave like [`<Sequence>`](/docs/s
 ## Example
 
 ```tsx twoslash title="Circle.tsx"
-import {forwardRef} from 'react';
+import {forwardRef, useImperativeHandle, useRef} from 'react';
 import {
   Interactive,
   Sequence,
@@ -65,22 +65,24 @@ const CircleInner = forwardRef<
     },
     ref,
   ) => {
+    const outlineRef = useRef<HTMLDivElement>(null);
+
+    useImperativeHandle(ref, () => outlineRef.current as HTMLDivElement, []);
+
     return (
       <Sequence
+        layout="none"
         {...sequenceProps}
         name={name ?? '<Circle>'}
         controls={controls}
-        style={{
-          width: radius * 2,
-          height: radius * 2,
-          ...style,
-        }}
+        outlineRef={outlineRef}
       >
         <div
-          ref={ref}
+          ref={outlineRef}
           style={{
-            width: '100%',
-            height: '100%',
+            ...style,
+            width: radius * 2,
+            height: radius * 2,
             borderRadius: '50%',
             backgroundColor: color,
           }}
@@ -100,7 +102,7 @@ export const Circle = Interactive.withSchema({
 
 The exported `Circle` component only accepts `CircleProps`. The `controls` prop is passed by `Interactive.withSchema()` to the inner component and should be forwarded to the [`<Sequence>`](/docs/sequence) that represents the component in the timeline.
 
-Use the default `<Sequence>` layout if the component should show a canvas outline in the Studio. A `<Sequence layout="none">` can still expose timeline controls, but it does not register an outline automatically.
+If you use `<Sequence layout="none">`, pass [`outlineRef`](/docs/sequence#outlineref) so the Studio can draw a canvas outline around the rendered element.
 
 ## API
 

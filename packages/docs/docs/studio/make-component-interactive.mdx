@@ -60,7 +60,7 @@ The inner component receives a `controls` prop from `Interactive.withSchema()`.
 Forward it to the [`<Sequence>`](/docs/sequence) that represents your component in the timeline.
 
 ```tsx twoslash title="Badge.tsx"
-import React, {forwardRef} from 'react';
+import React, {forwardRef, useImperativeHandle, useRef} from 'react';
 import {
   Interactive,
   Sequence,
@@ -113,20 +113,22 @@ const BadgeInner = forwardRef<
     },
     ref,
   ) => {
+    const outlineRef = useRef<HTMLDivElement>(null);
+
+    useImperativeHandle(ref, () => outlineRef.current as HTMLDivElement, []);
+
     return (
       <Sequence
+        layout="none"
         {...sequenceProps}
         name={name ?? '<Badge>'}
         controls={controls}
-        style={{
-          width: 'fit-content',
-          height: 'fit-content',
-          ...style,
-        }}
+        outlineRef={outlineRef}
       >
         <div
-          ref={ref}
+          ref={outlineRef}
           style={{
+            ...style,
             display: 'inline-flex',
             borderRadius: 999,
             backgroundColor: color,
@@ -145,14 +147,14 @@ const BadgeInner = forwardRef<
 
 The exported component should not expose `controls` as a public prop.
 
-This example uses the default `<Sequence>` layout so the Studio can draw an outline around the component in the preview. A `<Sequence layout="none">` can still expose timeline controls, but it does not register an outline automatically.
+Pass [`outlineRef`](/docs/sequence#outlineref) when using `<Sequence layout="none">` so the Studio can draw an outline around the rendered element.
 
 ## Wrap the component
 
 Use a stable `componentIdentity` so saved Studio edits can be associated with the component.
 
 ```tsx twoslash title="Badge.tsx"
-import React, {forwardRef} from 'react';
+import React, {forwardRef, useImperativeHandle, useRef} from 'react';
 import {
   Interactive,
   Sequence,
@@ -205,20 +207,22 @@ const BadgeInner = forwardRef<
     },
     ref,
   ) => {
+    const outlineRef = useRef<HTMLDivElement>(null);
+
+    useImperativeHandle(ref, () => outlineRef.current as HTMLDivElement, []);
+
     return (
       <Sequence
+        layout="none"
         {...sequenceProps}
         name={name ?? '<Badge>'}
         controls={controls}
-        style={{
-          width: 'fit-content',
-          height: 'fit-content',
-          ...style,
-        }}
+        outlineRef={outlineRef}
       >
         <div
-          ref={ref}
+          ref={outlineRef}
           style={{
+            ...style,
             display: 'inline-flex',
             borderRadius: 999,
             backgroundColor: color,

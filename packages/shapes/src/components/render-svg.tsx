@@ -225,7 +225,7 @@ export const RenderSvg = ({
 			_remotionInternalEffects={memoizedEffectDefinitions}
 			durationInFrames={durationInFrames}
 			name={name ?? defaultName}
-			_remotionInternalRefForOutline={outlineRef}
+			outlineRef={outlineRef}
 			_remotionInternalDocumentationLink={
 				name === undefined ? documentationLink : undefined
 			}

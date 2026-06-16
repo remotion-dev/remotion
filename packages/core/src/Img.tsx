@@ -312,7 +312,7 @@ const ImgContent: React.FC<ImgContentProps> = ({
 
 type NativeImgInnerProps = Omit<ImgProps, 'effects'> & {
 	readonly controls: SequenceControls | undefined;
-	readonly _remotionInternalRefForOutline: React.RefObject<HTMLElement | null>;
+	readonly outlineRef: React.RefObject<HTMLElement | null>;
 };
 
 const NativeImgInner: React.FC<NativeImgInnerProps> = ({
@@ -325,7 +325,7 @@ const NativeImgInner: React.FC<NativeImgInnerProps> = ({
 	durationInFrames,
 	freeze,
 	controls,
-	_remotionInternalRefForOutline: refForOutline,
+	outlineRef: refForOutline,
 	...props
 }) => {
 	if (!src) {
@@ -345,7 +345,7 @@ const NativeImgInner: React.FC<NativeImgInnerProps> = ({
 			controls={controls}
 			showInTimeline={showInTimeline ?? true}
 			hidden={hidden}
-			_remotionInternalRefForOutline={refForOutline}
+			outlineRef={refForOutline}
 		>
 			<ImgContent src={src} refForOutline={refForOutline} {...props} />
 		</Sequence>
@@ -355,7 +355,7 @@ const NativeImgInner: React.FC<NativeImgInnerProps> = ({
 const CanvasImageWithPrivateProps = CanvasImage as React.ComponentType<
 	CanvasImageProps & {
 		readonly controls?: SequenceControls | undefined;
-		readonly _remotionInternalRefForOutline?: React.RefObject<HTMLElement | null> | null;
+		readonly outlineRef?: React.RefObject<HTMLElement | null> | null;
 	}
 >;
 
@@ -491,7 +491,7 @@ const ImgInner: React.FC<
 				maxRetries={maxRetries}
 				delayRenderRetries={delayRenderRetries}
 				delayRenderTimeoutInMilliseconds={delayRenderTimeoutInMilliseconds}
-				_remotionInternalRefForOutline={refForOutline}
+				outlineRef={refForOutline}
 			/>
 		);
 	}
@@ -535,7 +535,7 @@ const ImgInner: React.FC<
 			stack={stack}
 			_remotionInternalDocumentationLink="https://www.remotion.dev/docs/img"
 			controls={controls}
-			_remotionInternalRefForOutline={refForOutline}
+			outlineRef={refForOutline}
 			{...canvasProps}
 		/>
 	);

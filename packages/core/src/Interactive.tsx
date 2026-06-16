@@ -156,7 +156,7 @@ const makeInteractiveElement = <Tag extends InteractiveTag>(
 				controls={controls}
 				_remotionInternalStack={stack}
 				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/interactive"
-				_remotionInternalRefForOutline={refForOutline}
+				outlineRef={refForOutline}
 			>
 				{React.createElement(tag, {
 					...props,

@@ -231,6 +231,27 @@ You can give your sequence a name and it will be shown as the label of the seque
 
 Either `"absolute-fill"` _(default)_ or `"none"`. By default, your sequences will be absolutely positioned, so they will overlay each other. If you would like to opt out of it and handle layouting yourself, pass `layout="none"`. Available since v1.4.
 
+### `outlineRef?`<AvailableFrom v="4.0.479" />
+
+A React ref pointing to the element that the Remotion Studio should use for drawing the selection outline in the preview.
+
+By default, the Studio outlines the wrapper created by `<Sequence>`. If you use `layout="none"`, no wrapper exists, so pass `outlineRef` to make the rendered element selectable in the preview.
+
+```tsx twoslash title="MyVideo.tsx"
+import {useRef} from 'react';
+import {Sequence} from 'remotion';
+
+export const MyVideo = () => {
+  const outlineRef = useRef<HTMLDivElement>(null);
+
+  return (
+    <Sequence layout="none" outlineRef={outlineRef}>
+      <div ref={outlineRef}>Selectable in the Studio preview</div>
+    </Sequence>
+  );
+};
+```
+
 ### `style?`<AvailableFrom v="3.0.27"/>
 
 CSS styles to be applied to the container. If `layout` is set to `none`, there is no container and setting this style is not allowed.

@@ -112,7 +112,7 @@ const GifInner = ({
 			controls={controls}
 			_remotionInternalEffects={memoizedEffectDefinitions}
 			{...sequenceProps}
-			_remotionInternalRefForOutline={refForOutline}
+			outlineRef={refForOutline}
 		>
 			{inner}
 		</Sequence>

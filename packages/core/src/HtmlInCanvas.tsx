@@ -653,7 +653,7 @@ const HtmlInCanvasInner = forwardRef<
 				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/remotion/html-in-canvas"
 				controls={controls}
 				_remotionInternalEffects={memoizedEffectDefinitions}
-				_remotionInternalRefForOutline={actualRef}
+				outlineRef={actualRef}
 				layout="none"
 				{...sequenceProps}
 			>

@@ -278,7 +278,7 @@ const AnimatedImageInner = ({
 			controls={controls}
 			_remotionInternalEffects={memoizedEffectDefinitions}
 			{...sequenceProps}
-			_remotionInternalRefForOutline={actualRef}
+			outlineRef={actualRef}
 		>
 			<AnimatedImageContent
 				{...animatedImageProps}

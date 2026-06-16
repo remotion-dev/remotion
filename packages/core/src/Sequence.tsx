@@ -103,9 +103,10 @@ export type SequencePropsWithoutDuration = {
 				src: string;
 		  };
 	/**
-	 * @deprecated For internal use only.
+	 * A React ref pointing to the element that Remotion Studio should use for
+	 * drawing the selection outline in the preview.
 	 */
-	readonly _remotionInternalRefForOutline?: React.RefObject<Element | null> | null;
+	readonly outlineRef?: React.RefObject<Element | null> | null;
 } & LayoutAndStyle;
 
 export type SequenceProps = {
@@ -134,7 +135,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		_remotionInternalPremountDisplay: premountDisplay,
 		_remotionInternalPostmountDisplay: postmountDisplay,
 		_remotionInternalIsMedia: isMedia,
-		_remotionInternalRefForOutline: passedRefForOutline,
+		outlineRef: passedRefForOutline,
 		...other
 	},
 	ref,

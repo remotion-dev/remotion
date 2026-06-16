@@ -416,7 +416,7 @@ const CanvasImageInner = forwardRef<
 			stack,
 			controls,
 			_remotionInternalDocumentationLink,
-			_remotionInternalRefForOutline,
+			outlineRef,
 			...canvasProps
 		},
 		ref,
@@ -448,9 +448,7 @@ const CanvasImageInner = forwardRef<
 				_remotionInternalEffects={memoizedEffectDefinitions}
 				_remotionInternalIsMedia={{type: 'image', src}}
 				_remotionInternalStack={stack}
-				_remotionInternalRefForOutline={
-					_remotionInternalRefForOutline ?? actualRef
-				}
+				outlineRef={outlineRef ?? actualRef}
 			>
 				<CanvasImageContent
 					ref={actualRef}
@@ -468,7 +466,7 @@ const CanvasImageInner = forwardRef<
 					maxRetries={maxRetries}
 					delayRenderRetries={delayRenderRetries}
 					delayRenderTimeoutInMilliseconds={delayRenderTimeoutInMilliseconds}
-					refForOutline={_remotionInternalRefForOutline ?? null}
+					refForOutline={outlineRef ?? null}
 					{...canvasProps}
 				/>
 			</Sequence>

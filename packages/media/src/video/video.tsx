@@ -308,7 +308,7 @@ const VideoInner: React.FC<
 			controls={controls}
 			_remotionInternalLoopDisplay={loopDisplay}
 			_remotionInternalEffects={memoizedEffectDefinitions}
-			_remotionInternalRefForOutline={refForOutline}
+			outlineRef={refForOutline}
 			showInTimeline={showInTimeline ?? true}
 			hidden={hidden}
 		>
