@@ -6,9 +6,9 @@ import type {
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
 import {InputDragger} from '../NewComposition/InputDragger';
+import {formatTimelineFieldValueForDisplay} from './timeline-field-display-utils';
 import {
 	draggerStyle,
-	formatTimelineNumber,
 	getTimelineDisplayDecimalPlaces,
 	normalizeTimelineNumber,
 } from './timeline-field-utils';
@@ -118,14 +118,12 @@ export const TimelineRotationField: React.FC<{
 
 	const formatter = useCallback(
 		(v: number | string) => {
-			const formatted = formatTimelineNumber({
-				decimalPlaces,
-				fixed: false,
-				value: normalizeTimelineNumber(Number(v)),
+			return formatTimelineFieldValueForDisplay({
+				fieldSchema: field.fieldSchema,
+				value: v,
 			});
-			return `${formatted}\u00B0`;
 		},
-		[decimalPlaces],
+		[field.fieldSchema],
 	);
 
 	return (
