@@ -89,6 +89,32 @@ const makeEasingExpression = ({
 		) as ExpressionKind;
 	}
 
+	if (!Array.isArray(easing)) {
+		return b.callExpression(
+			b.memberExpression(b.identifier(easingLocalName), b.identifier('spring')),
+			[
+				b.objectExpression([
+					b.objectProperty(
+						b.identifier('damping'),
+						parseValueExpression(easing.damping),
+					),
+					b.objectProperty(
+						b.identifier('mass'),
+						parseValueExpression(easing.mass),
+					),
+					b.objectProperty(
+						b.identifier('stiffness'),
+						parseValueExpression(easing.stiffness),
+					),
+					b.objectProperty(
+						b.identifier('overshootClamping'),
+						b.booleanLiteral(easing.overshootClamping),
+					),
+				]),
+			] as never,
+		) as ExpressionKind;
+	}
+
 	return b.callExpression(
 		b.memberExpression(b.identifier(easingLocalName), b.identifier('bezier')),
 		easing.map((value) => parseValueExpression(value)) as never,

@@ -1,4 +1,6 @@
-export type KeyframeEasing = 'linear' | [number, number, number, number];
+import type {CanUpdateSequencePropStatusEasing} from 'remotion';
+
+export type KeyframeEasing = CanUpdateSequencePropStatusEasing;
 
 export type KeyframeEasingPreset = {
 	readonly id: 'ease-in' | 'ease-out' | 'ease-in-out';

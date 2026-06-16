@@ -1,5 +1,6 @@
 import type {
 	CanUpdateSequencePropStatusKeyframed,
+	CanUpdateSequencePropStatusEasing,
 	DragOverrideValue,
 	OverrideIdToNodePaths,
 	PropStatuses,
@@ -21,7 +22,7 @@ import type {
 } from './TimelineSelection';
 
 export type EasingSelection = TimelineEasingSelection;
-export type TimelineEasingValue = 'linear' | [number, number, number, number];
+export type TimelineEasingValue = CanUpdateSequencePropStatusEasing;
 export type SelectedEasingUpdate =
 	| {
 			readonly type: 'sequence';

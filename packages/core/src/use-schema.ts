@@ -26,7 +26,14 @@ export type CanUpdateSequencePropStatusKeyframe = {
 
 export type CanUpdateSequencePropStatusEasing =
 	| 'linear'
-	| [number, number, number, number];
+	| [number, number, number, number]
+	| {
+			type: 'spring';
+			damping: number;
+			mass: number;
+			stiffness: number;
+			overshootClamping: boolean;
+	  };
 
 export type CanUpdateSequencePropStatusClamping = {
 	left: ExtrapolateType;

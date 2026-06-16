@@ -1,3 +1,4 @@
+import type {KeyframeEasing} from './keyframe-easing-presets';
 import {
 	isKeyframeInterpolationFunction,
 	type KeyframeInterpolationFunction,
@@ -18,7 +19,7 @@ export type EffectClipboardKeyframe = {
 	readonly value: unknown;
 };
 
-export type EffectClipboardEasing = 'linear' | [number, number, number, number];
+export type EffectClipboardEasing = KeyframeEasing;
 
 export type EffectClipboardExtrapolateType =
 	| 'extend'
@@ -110,7 +111,13 @@ const isEasing = (value: unknown): value is EffectClipboardEasing => {
 		value === 'linear' ||
 		(Array.isArray(value) &&
 			value.length === 4 &&
-			value.every((item) => isFiniteNumber(item)))
+			value.every((item) => isFiniteNumber(item))) ||
+		(isRecord(value) &&
+			value.type === 'spring' &&
+			isFiniteNumber(value.damping) &&
+			isFiniteNumber(value.mass) &&
+			isFiniteNumber(value.stiffness) &&
+			typeof value.overshootClamping === 'boolean')
 	);
 };
 

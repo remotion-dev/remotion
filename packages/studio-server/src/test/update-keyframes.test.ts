@@ -238,6 +238,49 @@ export const Example: React.FC = () => {
 	);
 });
 
+test('updateSequenceKeyframes sets a spring easing segment', async () => {
+	const input = `import React from 'react';
+import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
+
+export const Example: React.FC = () => {
+\tconst frame = useCurrentFrame();
+\treturn (
+\t\t<AbsoluteFill>
+\t\t\t<div style={{scale: interpolate(frame, [0, 100], [2, 4])}} />
+\t\t</AbsoluteFill>
+\t);
+};
+`;
+	const {output} = await updateSequenceKeyframes({
+		input,
+		nodePath: lineColumnToNodePath(input, getLine(input, 'scale')),
+		updates: [
+			{
+				key: 'style.scale',
+				operation: {
+					type: 'easing',
+					segmentIndex: 0,
+					easing: {
+						type: 'spring',
+						damping: 12,
+						mass: 1.5,
+						stiffness: 180,
+						overshootClamping: true,
+					},
+				},
+			},
+		],
+	});
+
+	expect(output).toContain('Easing');
+	expect(output).toContain('easing: [');
+	expect(output).toContain('Easing.spring({');
+	expect(output).toContain('damping: 12');
+	expect(output).toContain('mass: 1.5');
+	expect(output).toContain('stiffness: 180');
+	expect(output).toContain('overshootClamping: true');
+});
+
 test('updateSequenceKeyframes adds an unaliased Easing import for easing edits', async () => {
 	const input = `import React from 'react';
 import {AbsoluteFill, Easing as RemotionEasing, interpolate, useCurrentFrame} from 'remotion';

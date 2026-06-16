@@ -19,6 +19,15 @@ const easingToFn = (e: CanUpdateSequencePropStatusEasing): EasingFunction => {
 		return Easing.linear;
 	}
 
+	if (!Array.isArray(e)) {
+		return Easing.spring({
+			damping: e.damping,
+			mass: e.mass,
+			overshootClamping: e.overshootClamping,
+			stiffness: e.stiffness,
+		});
+	}
+
 	return bezier(e[0], e[1], e[2], e[3]);
 };
 

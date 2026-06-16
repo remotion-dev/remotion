@@ -184,6 +184,49 @@ export const Example: React.FC = () => {
 	});
 });
 
+test('computeSequencePropsStatus should return spring easing metadata', () => {
+	const input = `import React from 'react';
+import {Easing, Sequence, interpolate, useCurrentFrame} from 'remotion';
+
+export const Example: React.FC = () => {
+\tconst frame = useCurrentFrame();
+\treturn (
+\t\t<Sequence style={{opacity: interpolate(frame, [0, 100], [0, 1], {easing: Easing.spring({damping: 12, mass: 1.5, stiffness: 180, overshootClamping: true})})}} />
+\t);
+};
+`;
+	const result = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 7),
+		componentIdentity: null,
+		keys: ['style.opacity'],
+		effects: [],
+	});
+
+	expect(result.canUpdate).toBe(true);
+	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
+
+	expect(result.props['style.opacity']).toEqual({
+		status: 'keyframed',
+		interpolationFunction: 'interpolate',
+		keyframes: [
+			{frame: 0, value: 0},
+			{frame: 100, value: 1},
+		],
+		easing: [
+			{
+				type: 'spring',
+				damping: 12,
+				mass: 1.5,
+				stiffness: 180,
+				overshootClamping: true,
+			},
+		],
+		clamping: {left: 'extend', right: 'extend'},
+		posterize: undefined,
+	});
+});
+
 test('computeSequencePropsStatus should return keyframes for interpolated translate props', () => {
 	const input = `import React from 'react';
 import {Sequence, interpolate, useCurrentFrame} from 'remotion';

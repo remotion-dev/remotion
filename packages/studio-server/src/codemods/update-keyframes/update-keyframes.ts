@@ -135,6 +135,15 @@ type KeyframeEasing = Extract<
 	CanUpdateSequencePropStatus,
 	{status: 'keyframed'}
 >['easing'][number];
+type SpringKeyframeEasing = Extract<KeyframeEasing, {type: 'spring'}>;
+
+const DEFAULT_SPRING_EASING: SpringKeyframeEasing = {
+	type: 'spring',
+	damping: 10,
+	mass: 1,
+	overshootClamping: false,
+	stiffness: 100,
+};
 
 export type KeyframeOperation =
 	| {
@@ -400,6 +409,91 @@ const setOptionsProperty = ({
 
 const isLinearEasing = (easing: KeyframeEasing) => easing === 'linear';
 
+const getBooleanValue = (node: Expression): boolean | null => {
+	if (node.type === 'BooleanLiteral') {
+		return node.value;
+	}
+
+	if (node.type === 'TSAsExpression') {
+		return getBooleanValue(node.expression as Expression);
+	}
+
+	return null;
+};
+
+const getObjectPropertyName = (prop: ObjectProperty): string | null => {
+	if (prop.computed) {
+		return null;
+	}
+
+	if (prop.key.type === 'Identifier') {
+		return prop.key.name;
+	}
+
+	if (prop.key.type === 'StringLiteral') {
+		return prop.key.value;
+	}
+
+	return null;
+};
+
+const getSpringEasing = (
+	node: Expression | undefined,
+): SpringKeyframeEasing | null => {
+	if (!node) {
+		return DEFAULT_SPRING_EASING;
+	}
+
+	if (node.type === 'TSAsExpression') {
+		return getSpringEasing(node.expression as Expression);
+	}
+
+	if (node.type !== 'ObjectExpression') {
+		return null;
+	}
+
+	const spring: SpringKeyframeEasing = {...DEFAULT_SPRING_EASING};
+	for (const prop of node.properties) {
+		if (prop.type !== 'ObjectProperty') {
+			return null;
+		}
+
+		const key = getObjectPropertyName(prop);
+		if (!key) {
+			return null;
+		}
+
+		const value = prop.value as Expression;
+		if (key === 'damping' || key === 'mass' || key === 'stiffness') {
+			const numericValue = getNumericValue(value);
+			if (
+				numericValue === null ||
+				!Number.isFinite(numericValue) ||
+				numericValue <= 0
+			) {
+				return null;
+			}
+
+			spring[key] = numericValue;
+			continue;
+		}
+
+		if (key === 'overshootClamping') {
+			const booleanValue = getBooleanValue(value);
+			if (booleanValue === null) {
+				return null;
+			}
+
+			spring.overshootClamping = booleanValue;
+			continue;
+		}
+
+		return null;
+	}
+
+	return spring;
+};
+
 const getKeyframeEasing = (node: Expression): KeyframeEasing | null => {
 	if (node.type === 'TSAsExpression') {
 		return getKeyframeEasing(node.expression as Expression);
@@ -422,10 +516,29 @@ const getKeyframeEasing = (node: Expression): KeyframeEasing | null => {
 		node.callee.object.type !== 'Identifier' ||
 		node.callee.object.name !== 'Easing' ||
 		node.callee.property.type !== 'Identifier' ||
-		node.callee.property.name !== 'bezier' ||
-		node.callee.computed ||
-		node.arguments.length !== 4
+		node.callee.computed
 	) {
+		return null;
+	}
+
+	if (node.callee.property.name === 'spring') {
+		if (node.arguments.length > 1) {
+			return null;
+		}
+
+		const springConfig = node.arguments[0];
+		if (
+			springConfig?.type === 'ArgumentPlaceholder' ||
+			springConfig?.type === 'JSXNamespacedName' ||
+			springConfig?.type === 'SpreadElement'
+		) {
+			return null;
+		}
+
+		return getSpringEasing(springConfig as Expression | undefined);
+	}
+
+	if (node.callee.property.name !== 'bezier' || node.arguments.length !== 4) {
 		return null;
 	}
 
@@ -542,6 +655,32 @@ const createEasingExpression = (easing: KeyframeEasing): ExpressionKind => {
 		return b.memberExpression(
 			b.identifier('Easing'),
 			b.identifier('linear'),
+		) as ExpressionKind;
+	}
+
+	if (!Array.isArray(easing)) {
+		return b.callExpression(
+			b.memberExpression(b.identifier('Easing'), b.identifier('spring')),
+			[
+				b.objectExpression([
+					b.objectProperty(
+						b.identifier('damping'),
+						parseValueExpression(easing.damping),
+					),
+					b.objectProperty(
+						b.identifier('mass'),
+						parseValueExpression(easing.mass),
+					),
+					b.objectProperty(
+						b.identifier('stiffness'),
+						parseValueExpression(easing.stiffness),
+					),
+					b.objectProperty(
+						b.identifier('overshootClamping'),
+						b.booleanLiteral(easing.overshootClamping),
+					),
+				]),
+			] as never,
 		) as ExpressionKind;
 	}
 

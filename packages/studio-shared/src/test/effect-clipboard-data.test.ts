@@ -58,6 +58,61 @@ test('parseEffectClipboardData accepts keyframed v3 effect payloads', () => {
 	});
 });
 
+test('parseEffectClipboardData accepts spring easing payloads', () => {
+	const parsed = parseEffectClipboardData(
+		JSON.stringify({
+			type: 'effects-additive',
+			version: 3,
+			remotionClipboard: 'effects',
+			effects: [
+				{
+					callee: 'brightness',
+					importPath: '@remotion/effects/brightness',
+					params: {
+						amount: {
+							type: 'keyframed',
+							interpolationFunction: 'interpolate',
+							keyframes: [
+								{frame: 0, value: 0},
+								{frame: 100, value: 1},
+							],
+							easing: [
+								{
+									type: 'spring',
+									damping: 12,
+									mass: 1.5,
+									stiffness: 180,
+									overshootClamping: true,
+								},
+							],
+							clamping: {left: 'clamp', right: 'clamp'},
+						},
+					},
+				},
+			],
+		}),
+	);
+
+	expect(parsed?.effects[0]?.params.amount).toEqual({
+		type: 'keyframed',
+		interpolationFunction: 'interpolate',
+		keyframes: [
+			{frame: 0, value: 0},
+			{frame: 100, value: 1},
+		],
+		easing: [
+			{
+				type: 'spring',
+				damping: 12,
+				mass: 1.5,
+				stiffness: 180,
+				overshootClamping: true,
+			},
+		],
+		clamping: {left: 'clamp', right: 'clamp'},
+	});
+});
+
 test('parseEffectClipboardData accepts rotate interpolation functions', () => {
 	const parsed = parseEffectClipboardData(
 		JSON.stringify({

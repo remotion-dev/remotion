@@ -216,6 +216,57 @@ export const Comp = () => {
 	expect(output).toContain('posterize: 2');
 });
 
+test('pasteEffects serializes spring easing for keyframed effects', async () => {
+	const input = `import {HtmlInCanvas} from '@remotion/html-in-canvas';
+
+export const Comp = () => {
+	return (
+		<HtmlInCanvas />
+	);
+};
+`;
+	const target = makeNodePath(input, getLine(input, '<HtmlInCanvas'));
+
+	const {output} = await pasteEffects({
+		input,
+		targetFileName: 'Comp.tsx',
+		targetSequenceNodePath: target.nodePath,
+		type: 'effects-additive',
+		effects: [
+			{
+				callee: 'brightness',
+				importPath: '@remotion/effects/brightness',
+				params: {
+					amount: {
+						type: 'keyframed',
+						interpolationFunction: 'interpolate',
+						keyframes: [
+							{frame: 0, value: 0},
+							{frame: 100, value: 1},
+						],
+						easing: [
+							{
+								type: 'spring',
+								damping: 12,
+								mass: 1.5,
+								stiffness: 180,
+								overshootClamping: true,
+							},
+						],
+						clamping: {left: 'extend', right: 'extend'},
+					},
+				},
+			},
+		],
+	});
+
+	expect(output).toContain('Easing.spring({');
+	expect(output).toContain('damping: 12');
+	expect(output).toContain('mass: 1.5');
+	expect(output).toContain('stiffness: 180');
+	expect(output).toContain('overshootClamping: true');
+});
+
 test('pasteEffects uses aliased Remotion imports for keyframed effects', async () => {
 	const input = `import {HtmlInCanvas} from '@remotion/html-in-canvas';
 import {interpolate as i, useCurrentFrame as useFrame} from 'remotion';
