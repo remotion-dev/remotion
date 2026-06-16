@@ -1290,6 +1290,7 @@ const sidebars: SidebarsConfig = {
 				'studio/shortcuts',
 				'studio/quick-switcher',
 				'studio/interactivity',
+				'studio/make-component-interactive',
 				'studio/deploy-static',
 				'studio/deploy-server',
 			],

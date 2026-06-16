@@ -6493,6 +6493,15 @@ export const articles = [
 		slug: 'studio/interactivity',
 	},
 	{
+		id: 'studio/make-component-interactive',
+		title: 'Make a component interactive',
+		relativePath: 'docs/studio/make-component-interactive.mdx',
+		compId: 'articles-docs-studio-make-component-interactive',
+		crumb: 'Remotion Studio',
+		noAi: false,
+		slug: 'studio/make-component-interactive',
+	},
+	{
 		id: 'studio/pause',
 		title: 'pause()',
 		relativePath: 'docs/studio/pause.mdx',
