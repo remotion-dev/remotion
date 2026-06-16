@@ -16,6 +16,7 @@ import {
 	TimelineExpandArrowButton,
 	TimelineExpandArrowSpacer,
 } from './TimelineExpandArrowButton';
+import type {TimelineKeyframeControlsMode} from './TimelineKeyframeControls';
 import {TimelineLayerEyeSpacer} from './TimelineLayerEye';
 import {TimelineRowChrome} from './TimelineRowChrome';
 import {
@@ -35,24 +36,29 @@ export const TimelineExpandedRow: React.FC<{
 	readonly node: TimelineTreeNode;
 	readonly depth: number;
 	readonly nestedDepth: number;
+	readonly rowDepthBase?: number;
 	readonly getIsExpanded: GetIsExpanded;
 	readonly toggleTrack: (nodePathInfo: SequenceNodePathInfo) => void;
 	readonly validatedLocation: CodePosition;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly schema: InteractivitySchema;
 	readonly keyframeDisplayOffset: number;
+	readonly keyframeControlsMode?: TimelineKeyframeControlsMode;
 }> = ({
 	node,
 	depth,
 	nestedDepth,
+	rowDepthBase,
 	getIsExpanded,
 	toggleTrack,
 	validatedLocation,
 	nodePath,
 	schema,
 	keyframeDisplayOffset,
+	keyframeControlsMode,
 }) => {
-	const rowDepth = getExpandedRowDepth({nestedDepth, treeDepth: depth});
+	const rowDepth =
+		(rowDepthBase ?? getExpandedRowDepth({nestedDepth, treeDepth: 0})) + depth;
 	const selection = useTimelineRowSelection(node.nodePathInfo);
 	const labelStyle = React.useMemo(
 		(): React.CSSProperties => ({
@@ -127,6 +133,7 @@ export const TimelineExpandedRow: React.FC<{
 					nodePath={nodePath}
 					nodePathInfo={node.nodePathInfo}
 					keyframeDisplayOffset={keyframeDisplayOffset}
+					keyframeControlsMode={keyframeControlsMode}
 				/>
 			);
 		}
@@ -141,6 +148,7 @@ export const TimelineExpandedRow: React.FC<{
 					nodePathInfo={node.nodePathInfo}
 					schema={schema}
 					keyframeDisplayOffset={keyframeDisplayOffset}
+					keyframeControlsMode={keyframeControlsMode}
 				/>
 			);
 		}

@@ -5,6 +5,7 @@ import {Folder, Still} from 'remotion';
 import {EffectsBarrelDistortionPreview} from '../../components/effects/effects-barrel-distortion-preview';
 import {EffectsBlurPreview} from '../../components/effects/effects-blur-preview';
 import {EffectsBrightnessPreview} from '../../components/effects/effects-brightness-preview';
+import {EffectsBurlapPreview} from '../../components/effects/effects-burlap-preview';
 import {EffectsChromaticAberrationPreview} from '../../components/effects/effects-chromatic-aberration-preview';
 import {EffectsColorKeyPreview} from '../../components/effects/effects-color-key-preview';
 import {EffectsContourLinesPreview} from '../../components/effects/effects-contour-lines-preview';
@@ -37,6 +38,10 @@ import {EffectsSaturationPreview} from '../../components/effects/effects-saturat
 import {EffectsScalePreview} from '../../components/effects/effects-scale-preview';
 import {EffectsScanlinesPreview} from '../../components/effects/effects-scanlines-preview';
 import {EffectsShinePreview} from '../../components/effects/effects-shine-preview';
+import {
+	EffectsShrinkwrapPreview,
+	SHRINKWRAP_PREVIEW_PARAMS,
+} from '../../components/effects/effects-shrinkwrap-preview';
 import {EffectsSpecklePreview} from '../../components/effects/effects-speckle-preview';
 import {EffectsStarburstPreview} from '../../components/effects/effects-starburst-preview';
 import {EffectsTintPreview} from '../../components/effects/effects-tint-preview';
@@ -116,6 +121,19 @@ export const RemotionRoot: React.FC = () => {
 					width={1280}
 					height={720}
 					defaultProps={{amount: 0.25}}
+				/>
+				<Still
+					id="effects-burlap-preview"
+					component={EffectsBurlapPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						amount: 0.75,
+						size: 4,
+						roughness: 0.85,
+						seed: 1,
+						color: '#3b2818',
+					}}
 				/>
 				<Still
 					id="effects-contrast-preview"
@@ -543,6 +561,13 @@ export const RemotionRoot: React.FC = () => {
 						haloIntensity: 0.3,
 						coreIntensity: 0.4,
 					}}
+				/>
+				<Still
+					id="effects-shrinkwrap-preview"
+					component={EffectsShrinkwrapPreview}
+					width={1280}
+					height={720}
+					defaultProps={SHRINKWRAP_PREVIEW_PARAMS}
 				/>
 				<Still
 					id="effects-speckle-preview"

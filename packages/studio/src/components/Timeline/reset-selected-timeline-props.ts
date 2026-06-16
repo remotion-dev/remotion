@@ -105,6 +105,18 @@ const getDefaultValue = (
 		? JSON.stringify(fieldSchema.default)
 		: null;
 
+const getActiveFieldSchema = ({
+	schema,
+	key,
+	resolveValue,
+}: {
+	readonly schema: InteractivitySchema;
+	readonly key: string;
+	readonly resolveValue: (key: string) => unknown;
+}) => {
+	return Internals.flattenActiveSchema(schema, resolveValue)[key];
+};
+
 export const getTimelinePropResetTargets = ({
 	selections,
 	sequences,
@@ -145,15 +157,28 @@ export const getTimelinePropResetTargets = ({
 				continue;
 			}
 
-			const sequenceFieldSchema = sequence.controls.schema[selection.key];
 			const sequencePropStatus = Internals.getPropStatusesCtx(
 				propStatuses,
 				nodePath,
-			)?.[selection.key];
+			);
+			const {merged: sequenceValuesDotNotation} =
+				Internals.computeEffectiveSchemaValuesDotNotation({
+					schema: sequence.controls.schema,
+					currentValue: sequence.controls.currentRuntimeValueDotNotation,
+					overrideValues: {},
+					propStatus: sequencePropStatus,
+					frame: null,
+				});
+			const sequenceFieldSchema = getActiveFieldSchema({
+				schema: sequence.controls.schema,
+				key: selection.key,
+				resolveValue: (key) => sequenceValuesDotNotation[key],
+			});
+			const selectedPropStatus = sequencePropStatus?.[selection.key];
 			if (
 				!isVisibleFieldSchema(sequenceFieldSchema) ||
 				!isResettablePropStatus({
-					propStatus: sequencePropStatus,
+					propStatus: selectedPropStatus,
 					defaultValue: sequenceFieldSchema.default,
 				})
 			) {

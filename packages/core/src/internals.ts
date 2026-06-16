@@ -200,6 +200,7 @@ import {
 import {PixelDensityContext} from './use-pixel-density.js';
 import type {
 	CanUpdateSequencePropStatusFalse,
+	CanUpdateSequencePropStatusEasing,
 	CanUpdateSequencePropStatusKeyframed,
 	CanUpdateSequencePropStatusStatic,
 	DragOverrideValue,
@@ -430,6 +431,7 @@ export type {
 	CanUpdateSequencePropsResponseFalse,
 	CanUpdateSequencePropsResponseTrue,
 	CanUpdateSequencePropStatus,
+	CanUpdateSequencePropStatusEasing,
 	CanUpdateSequencePropStatusFalse,
 	CanUpdateSequencePropStatusKeyframed,
 	CanUpdateSequencePropStatusStatic,

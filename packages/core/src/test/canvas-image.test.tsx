@@ -19,6 +19,7 @@ type DrawImageCall = {
 };
 
 const drawImageCalls: DrawImageCall[] = [];
+let imageLoadCount = 0;
 
 const stub2dContext = (canvas: HTMLCanvasElement) => ({
 	canvas,
@@ -66,6 +67,7 @@ class MockImage {
 
 	public set src(src: string) {
 		this.currentSrc = src;
+		imageLoadCount++;
 		queueMicrotask(() => this.onload?.());
 	}
 }
@@ -113,6 +115,7 @@ const SequenceRegistrationWrapper: React.FC<{
 
 beforeEach(() => {
 	drawImageCalls.length = 0;
+	imageLoadCount = 0;
 	globalThis.Image = MockImage as unknown as typeof Image;
 });
 
@@ -244,4 +247,74 @@ test('<CanvasImage> runs static images through an effect chain', async () => {
 	expect(applyCalls[0].width).toBe(100);
 	expect(applyCalls[0].height).toBe(50);
 	expect(applyCalls[0].source).toBeInstanceOf(HTMLCanvasElement);
+});
+
+test('<CanvasImage> does not reload the source image when effect keys change', async () => {
+	const applyCalls: EffectApplyParams<unknown, unknown>[] = [];
+	const definition: EffectDefinition<unknown> = {
+		type: 'test-effect',
+		label: 'Test effect',
+		documentationLink: null,
+		backend: '2d',
+		calculateKey: (params) =>
+			`test-effect-${(params as {readonly amount: number}).amount}`,
+		setup: () => ({}),
+		apply: (params) => {
+			applyCalls.push(params);
+			params.target
+				.getContext('2d')
+				?.drawImage(params.source, 0, 0, params.width, params.height);
+		},
+		cleanup: () => undefined,
+		schema: {},
+		validateParams: () => undefined,
+	};
+
+	const {rerender} = render(
+		<WrapSequenceContext>
+			<CanvasImage
+				src="test.png"
+				width={100}
+				height={50}
+				effects={[
+					{
+						definition,
+						effectKey: 'test-effect-0',
+						params: {amount: 0},
+						memoized: false,
+					},
+				]}
+			/>
+		</WrapSequenceContext>,
+	);
+
+	await waitFor(() => {
+		expect(applyCalls).toHaveLength(1);
+	});
+
+	expect(imageLoadCount).toBe(1);
+
+	rerender(
+		<WrapSequenceContext>
+			<CanvasImage
+				src="test.png"
+				width={100}
+				height={50}
+				effects={[
+					{
+						definition,
+						effectKey: 'test-effect-1',
+						params: {amount: 1},
+						memoized: false,
+					},
+				]}
+			/>
+		</WrapSequenceContext>,
+	);
+
+	await waitFor(() => {
+		expect(applyCalls).toHaveLength(2);
+	});
+
+	expect(imageLoadCount).toBe(1);
 });

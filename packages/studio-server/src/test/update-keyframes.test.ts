@@ -226,7 +226,7 @@ export const Example: React.FC = () => {
 				operation: {
 					type: 'easing',
 					segmentIndex: 1,
-					easing: [0.42, 0, 1, 1],
+					easing: {type: 'bezier', x1: 0.42, y1: 0, x2: 1, y2: 1},
 				},
 			},
 		],
@@ -236,6 +236,49 @@ export const Example: React.FC = () => {
 	expect(output).toContain(
 		'easing: [Easing.linear, Easing.bezier(0.42, 0, 1, 1)]',
 	);
+});
+
+test('updateSequenceKeyframes sets a spring easing segment', async () => {
+	const input = `import React from 'react';
+import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
+
+export const Example: React.FC = () => {
+\tconst frame = useCurrentFrame();
+\treturn (
+\t\t<AbsoluteFill>
+\t\t\t<div style={{scale: interpolate(frame, [0, 100], [2, 4])}} />
+\t\t</AbsoluteFill>
+\t);
+};
+`;
+	const {output} = await updateSequenceKeyframes({
+		input,
+		nodePath: lineColumnToNodePath(input, getLine(input, 'scale')),
+		updates: [
+			{
+				key: 'style.scale',
+				operation: {
+					type: 'easing',
+					segmentIndex: 0,
+					easing: {
+						type: 'spring',
+						damping: 12,
+						mass: 1.5,
+						stiffness: 180,
+						overshootClamping: true,
+					},
+				},
+			},
+		],
+	});
+
+	expect(output).toContain('Easing');
+	expect(output).toContain('easing: [');
+	expect(output).toContain('Easing.spring({');
+	expect(output).toContain('damping: 12');
+	expect(output).toContain('mass: 1.5');
+	expect(output).toContain('stiffness: 180');
+	expect(output).toContain('overshootClamping: true');
 });
 
 test('updateSequenceKeyframes adds an unaliased Easing import for easing edits', async () => {
@@ -260,7 +303,7 @@ export const Example: React.FC = () => {
 				operation: {
 					type: 'easing',
 					segmentIndex: 1,
-					easing: [0.42, 0, 1, 1],
+					easing: {type: 'bezier', x1: 0.42, y1: 0, x2: 1, y2: 1},
 				},
 			},
 		],
@@ -293,7 +336,7 @@ export const Example: React.FC = () => {
 				operation: {
 					type: 'easing',
 					segmentIndex: 1,
-					easing: [0, 0, 0.58, 1],
+					easing: {type: 'bezier', x1: 0, y1: 0, x2: 0.58, y2: 1},
 				},
 			},
 		],
@@ -326,7 +369,7 @@ export const Example: React.FC = () => {
 				operation: {
 					type: 'easing',
 					segmentIndex: 1,
-					easing: 'linear',
+					easing: {type: 'linear'},
 				},
 			},
 		],
@@ -346,7 +389,7 @@ test('updateSequenceKeyframes sets easing for color keyframes', async () => {
 				operation: {
 					type: 'easing',
 					segmentIndex: 0,
-					easing: [0.42, 0, 1, 1],
+					easing: {type: 'bezier', x1: 0.42, y1: 0, x2: 1, y2: 1},
 				},
 			},
 		],
@@ -1091,7 +1134,7 @@ test('updateEffectKeyframes sets one easing segment and fills linear segments', 
 				operation: {
 					type: 'easing',
 					segmentIndex: 1,
-					easing: [0, 0, 0.58, 1],
+					easing: {type: 'bezier', x1: 0, y1: 0, x2: 0.58, y2: 1},
 				},
 			},
 		],

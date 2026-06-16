@@ -29,6 +29,13 @@ const item: React.CSSProperties = {
 	whiteSpace: 'nowrap',
 };
 
+const compactItem: React.CSSProperties = {
+	...item,
+	fontSize: 11,
+	fontWeight: 400,
+	padding: '2px 7px',
+};
+
 export type SegmentedControlItem = {
 	label: React.ReactNode;
 	onClick: () => void;
@@ -36,10 +43,13 @@ export type SegmentedControlItem = {
 	selected: boolean;
 };
 
+type SegmentedControlSize = 'default' | 'compact';
+
 export const SegmentedControl: React.FC<{
 	readonly items: SegmentedControlItem[];
 	readonly needsWrapping: boolean;
-}> = ({items, needsWrapping}) => {
+	readonly size?: SegmentedControlSize;
+}> = ({items, needsWrapping, size = 'default'}) => {
 	const controlStyle: React.CSSProperties = useMemo(() => {
 		if (needsWrapping) {
 			return {
@@ -60,7 +70,12 @@ export const SegmentedControl: React.FC<{
 		<div style={controlStyle}>
 			{items.map((i) => {
 				return (
-					<Item key={i.key} onClick={i.onClick} selected={i.selected}>
+					<Item
+						key={i.key}
+						onClick={i.onClick}
+						selected={i.selected}
+						size={size}
+					>
 						{i.label}
 					</Item>
 				);
@@ -73,8 +88,9 @@ const Item: React.FC<
 	PropsWithChildren<{
 		readonly selected: boolean;
 		readonly onClick: () => void;
+		readonly size: SegmentedControlSize;
 	}>
-> = ({selected, onClick, children}) => {
+> = ({selected, onClick, children, size}) => {
 	const [hovered, setHovered] = useState(false);
 
 	const {tabIndex} = useZIndex();
@@ -89,11 +105,11 @@ const Item: React.FC<
 
 	const itemStyle: React.CSSProperties = useMemo(() => {
 		return {
-			...item,
+			...(size === 'compact' ? compactItem : item),
 			backgroundColor: selected ? INPUT_BACKGROUND : 'transparent',
 			color: selected ? 'white' : hovered ? 'white' : LIGHT_TEXT,
 		};
-	}, [hovered, selected]);
+	}, [hovered, selected, size]);
 
 	return (
 		<button

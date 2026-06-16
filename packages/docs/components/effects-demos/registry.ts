@@ -1,6 +1,7 @@
 import {barrelDistortion} from '@remotion/effects/barrel-distortion';
 import {blur} from '@remotion/effects/blur';
 import {brightness} from '@remotion/effects/brightness';
+import {burlap} from '@remotion/effects/burlap';
 import {chromaticAberration} from '@remotion/effects/chromatic-aberration';
 import {colorKey} from '@remotion/effects/color-key';
 import {contourLines} from '@remotion/effects/contour-lines';
@@ -28,6 +29,7 @@ import {saturation} from '@remotion/effects/saturation';
 import {scale} from '@remotion/effects/scale';
 import {scanlines} from '@remotion/effects/scanlines';
 import {shine} from '@remotion/effects/shine';
+import {shrinkwrap} from '@remotion/effects/shrinkwrap';
 import {speckle} from '@remotion/effects/speckle';
 import {tint} from '@remotion/effects/tint';
 import {uvTranslate, xyTranslate} from '@remotion/effects/translate';
@@ -42,6 +44,7 @@ import {starburstEffectSchema} from '@remotion/starburst';
 import {EffectsBarrelDistortionPreview} from '../effects/effects-barrel-distortion-preview';
 import {EffectsBlurPreview} from '../effects/effects-blur-preview';
 import {EffectsBrightnessPreview} from '../effects/effects-brightness-preview';
+import {EffectsBurlapPreview} from '../effects/effects-burlap-preview';
 import {EffectsChromaticAberrationPreview} from '../effects/effects-chromatic-aberration-preview';
 import {EffectsColorKeyPreview} from '../effects/effects-color-key-preview';
 import {EffectsContourLinesPreview} from '../effects/effects-contour-lines-preview';
@@ -77,6 +80,10 @@ import {EffectsSaturationPreview} from '../effects/effects-saturation-preview';
 import {EffectsScalePreview} from '../effects/effects-scale-preview';
 import {EffectsScanlinesPreview} from '../effects/effects-scanlines-preview';
 import {EffectsShinePreview} from '../effects/effects-shine-preview';
+import {
+	EffectsShrinkwrapPreview,
+	SHRINKWRAP_PREVIEW_PARAMS,
+} from '../effects/effects-shrinkwrap-preview';
 import {EffectsSpecklePreview} from '../effects/effects-speckle-preview';
 import {EffectsStarburstPreview} from '../effects/effects-starburst-preview';
 import {EffectsTintPreview} from '../effects/effects-tint-preview';
@@ -102,6 +109,15 @@ const defaults = {
 	logLevel: 'info',
 } as const;
 
+const shrinkwrapDemoSchema = {
+	...shrinkwrap().definition.schema,
+	phase: {
+		...shrinkwrap().definition.schema.phase,
+		min: -10,
+		max: 10,
+	},
+} as const;
+
 export const effectsDemos: EffectsDemoType[] = [
 	{
 		...defaults,
@@ -110,6 +126,14 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/brightness',
 		comp: EffectsBrightnessPreview,
 		schema: brightness().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-burlap',
+		effectName: 'burlap',
+		effectImportPath: '@remotion/effects/burlap',
+		comp: EffectsBurlapPreview,
+		schema: burlap().definition.schema,
 	},
 	{
 		...defaults,
@@ -214,6 +238,15 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/shine',
 		comp: EffectsShinePreview,
 		schema: shine().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-shrinkwrap',
+		effectName: 'shrinkwrap',
+		effectImportPath: '@remotion/effects/shrinkwrap',
+		comp: EffectsShrinkwrapPreview,
+		schema: shrinkwrapDemoSchema,
+		initialValues: SHRINKWRAP_PREVIEW_PARAMS,
 	},
 	{
 		...defaults,
