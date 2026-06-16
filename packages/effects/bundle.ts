@@ -26,6 +26,7 @@ const effectEntrypoints = [
 	'src/hue.ts',
 	'src/dot-grid.ts',
 	'src/pixel-dissolve.ts',
+	'src/pixelate.ts',
 	'src/invert.ts',
 	'src/lines.ts',
 	'src/linear-progressive-blur.ts',
