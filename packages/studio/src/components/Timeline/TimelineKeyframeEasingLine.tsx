@@ -1,4 +1,7 @@
-import {KEYFRAME_EASING_PRESETS} from '@remotion/studio-shared';
+import {
+	KEYFRAME_EASING_PRESETS,
+	LINEAR_KEYFRAME_EASING,
+} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useMemo, useRef} from 'react';
 import {Internals, useVideoConfig} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
@@ -117,7 +120,7 @@ const TimelineKeyframeEasingLineUnmemoized: React.FC<{
 				label: 'Linear',
 				leftItem: null,
 				disabled: previewServerState.type !== 'connected',
-				onClick: () => updateEasing('linear'),
+				onClick: () => updateEasing(LINEAR_KEYFRAME_EASING),
 				quickSwitcherLabel: null,
 				subMenu: null,
 				value: 'linear',

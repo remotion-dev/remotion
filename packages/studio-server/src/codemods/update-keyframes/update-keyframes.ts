@@ -15,6 +15,7 @@ import {
 	getKeyframeInterpolationFunctionForSchemaField,
 	isKeyframeInterpolationFunction,
 	isSchemaFieldKeyframable,
+	LINEAR_KEYFRAME_EASING,
 	parseSpringEasingConfig,
 	type KeyframeInterpolationFunction,
 } from '@remotion/studio-shared';
@@ -399,7 +400,7 @@ const setOptionsProperty = ({
 	);
 };
 
-const isLinearEasing = (easing: KeyframeEasing) => easing === 'linear';
+const isLinearEasing = (easing: KeyframeEasing) => easing.type === 'linear';
 
 const getKeyframeEasing = (node: Expression): KeyframeEasing | null => {
 	if (node.type === 'TSAsExpression') {
@@ -414,7 +415,7 @@ const getKeyframeEasing = (node: Expression): KeyframeEasing | null => {
 		node.property.name === 'linear' &&
 		node.computed === false
 	) {
-		return 'linear';
+		return {type: 'linear'};
 	}
 
 	if (
@@ -465,7 +466,8 @@ const getKeyframeEasing = (node: Expression): KeyframeEasing | null => {
 		return null;
 	}
 
-	return values as [number, number, number, number];
+	const [x1, y1, x2, y2] = values as [number, number, number, number];
+	return {type: 'bezier', x1, y1, x2, y2};
 };
 
 const getKeyframeEasingArray = ({
@@ -505,7 +507,7 @@ const getKeyframeEasingArray = ({
 
 		const easingArray = parsed as KeyframeEasing[];
 		while (easingArray.length < segmentCount) {
-			easingArray.push('linear');
+			easingArray.push(LINEAR_KEYFRAME_EASING);
 		}
 
 		return easingArray;
@@ -528,7 +530,7 @@ const getExistingEasingArray = ({
 }): KeyframeEasing[] => {
 	const {prop} = findObjectOptionProperty(options, 'easing');
 	if (!prop) {
-		return new Array(segmentCount).fill('linear');
+		return Array.from({length: segmentCount}, () => ({type: 'linear'}));
 	}
 
 	const easing = getKeyframeEasingArray({
@@ -558,43 +560,48 @@ const getExistingEasingArrayOrNull = ({
 };
 
 const createEasingExpression = (easing: KeyframeEasing): ExpressionKind => {
-	if (easing === 'linear') {
-		return b.memberExpression(
-			b.identifier('Easing'),
-			b.identifier('linear'),
-		) as ExpressionKind;
+	switch (easing.type) {
+		case 'linear':
+			return b.memberExpression(
+				b.identifier('Easing'),
+				b.identifier('linear'),
+			) as ExpressionKind;
+		case 'spring':
+			return b.callExpression(
+				b.memberExpression(b.identifier('Easing'), b.identifier('spring')),
+				[
+					b.objectExpression([
+						b.objectProperty(
+							b.identifier('damping'),
+							parseValueExpression(easing.damping),
+						),
+						b.objectProperty(
+							b.identifier('mass'),
+							parseValueExpression(easing.mass),
+						),
+						b.objectProperty(
+							b.identifier('stiffness'),
+							parseValueExpression(easing.stiffness),
+						),
+						b.objectProperty(
+							b.identifier('overshootClamping'),
+							b.booleanLiteral(easing.overshootClamping),
+						),
+					]),
+				] as never,
+			) as ExpressionKind;
+		case 'bezier':
+			return b.callExpression(
+				b.memberExpression(b.identifier('Easing'), b.identifier('bezier')),
+				[easing.x1, easing.y1, easing.x2, easing.y2].map((value) =>
+					parseValueExpression(value),
+				) as never,
+			) as ExpressionKind;
+		default:
+			throw new Error(
+				`Unsupported easing: ${JSON.stringify(easing satisfies never)}`,
+			);
 	}
-
-	if (!Array.isArray(easing)) {
-		return b.callExpression(
-			b.memberExpression(b.identifier('Easing'), b.identifier('spring')),
-			[
-				b.objectExpression([
-					b.objectProperty(
-						b.identifier('damping'),
-						parseValueExpression(easing.damping),
-					),
-					b.objectProperty(
-						b.identifier('mass'),
-						parseValueExpression(easing.mass),
-					),
-					b.objectProperty(
-						b.identifier('stiffness'),
-						parseValueExpression(easing.stiffness),
-					),
-					b.objectProperty(
-						b.identifier('overshootClamping'),
-						b.booleanLiteral(easing.overshootClamping),
-					),
-				]),
-			] as never,
-		) as ExpressionKind;
-	}
-
-	return b.callExpression(
-		b.memberExpression(b.identifier('Easing'), b.identifier('bezier')),
-		easing.map((value) => parseValueExpression(value)) as never,
-	) as ExpressionKind;
 };
 
 const createEasingArrayExpression = (
@@ -671,7 +678,7 @@ const normalizeEasingAfterAddingKeyframe = ({
 	}
 
 	while (easing.length < nextSegmentCount) {
-		easing.push('linear');
+		easing.push(LINEAR_KEYFRAME_EASING);
 	}
 
 	return {
@@ -718,7 +725,7 @@ const normalizeEasingAfterRemovingKeyframe = ({
 	}
 
 	while (easing.length < nextSegmentCount) {
-		easing.push('linear');
+		easing.push(LINEAR_KEYFRAME_EASING);
 	}
 
 	return {
@@ -771,7 +778,7 @@ const normalizeEasingAfterRemovingKeyframes = ({
 	}
 
 	while (easing.length < nextSegmentCount) {
-		easing.push('linear');
+		easing.push(LINEAR_KEYFRAME_EASING);
 	}
 
 	return {

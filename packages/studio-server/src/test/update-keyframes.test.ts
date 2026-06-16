@@ -226,7 +226,7 @@ export const Example: React.FC = () => {
 				operation: {
 					type: 'easing',
 					segmentIndex: 1,
-					easing: [0.42, 0, 1, 1],
+					easing: {type: 'bezier', x1: 0.42, y1: 0, x2: 1, y2: 1},
 				},
 			},
 		],
@@ -303,7 +303,7 @@ export const Example: React.FC = () => {
 				operation: {
 					type: 'easing',
 					segmentIndex: 1,
-					easing: [0.42, 0, 1, 1],
+					easing: {type: 'bezier', x1: 0.42, y1: 0, x2: 1, y2: 1},
 				},
 			},
 		],
@@ -336,7 +336,7 @@ export const Example: React.FC = () => {
 				operation: {
 					type: 'easing',
 					segmentIndex: 1,
-					easing: [0, 0, 0.58, 1],
+					easing: {type: 'bezier', x1: 0, y1: 0, x2: 0.58, y2: 1},
 				},
 			},
 		],
@@ -369,7 +369,7 @@ export const Example: React.FC = () => {
 				operation: {
 					type: 'easing',
 					segmentIndex: 1,
-					easing: 'linear',
+					easing: {type: 'linear'},
 				},
 			},
 		],
@@ -389,7 +389,7 @@ test('updateSequenceKeyframes sets easing for color keyframes', async () => {
 				operation: {
 					type: 'easing',
 					segmentIndex: 0,
-					easing: [0.42, 0, 1, 1],
+					easing: {type: 'bezier', x1: 0.42, y1: 0, x2: 1, y2: 1},
 				},
 			},
 		],
@@ -1134,7 +1134,7 @@ test('updateEffectKeyframes sets one easing segment and fills linear segments', 
 				operation: {
 					type: 'easing',
 					segmentIndex: 1,
-					easing: [0, 0, 0.58, 1],
+					easing: {type: 'bezier', x1: 0, y1: 0, x2: 0.58, y2: 1},
 				},
 			},
 		],

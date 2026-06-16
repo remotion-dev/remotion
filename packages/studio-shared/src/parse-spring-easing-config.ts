@@ -1,6 +1,10 @@
-import type {KeyframeEasing} from './keyframe-easing-presets';
-
-export type SpringKeyframeEasing = Extract<KeyframeEasing, {type: 'spring'}>;
+export type SpringKeyframeEasing = {
+	readonly type: 'spring';
+	damping: number;
+	mass: number;
+	overshootClamping: boolean;
+	stiffness: number;
+};
 
 export const DEFAULT_SPRING_EASING: SpringKeyframeEasing = {
 	type: 'spring',

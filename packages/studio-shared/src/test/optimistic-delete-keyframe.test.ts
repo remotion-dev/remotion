@@ -19,7 +19,7 @@ test('optimisticDeleteSequenceKeyframe removes the matching keyframe and an easi
 					{frame: 30, value: 0.5},
 					{frame: 60, value: 1},
 				],
-				easing: ['linear', 'linear'],
+				easing: [{type: 'linear'}, {type: 'linear'}],
 				clamping: {left: 'extend', right: 'extend'},
 				posterize: undefined,
 			},
@@ -46,7 +46,7 @@ test('optimisticDeleteSequenceKeyframe removes the matching keyframe and an easi
 		{frame: 0, value: 0},
 		{frame: 60, value: 1},
 	]);
-	expect(status.easing).toEqual(['linear']);
+	expect(status.easing).toEqual([{type: 'linear'}]);
 });
 
 test('optimisticDeleteSequenceKeyframe converts the last keyframe to a static value', () => {
@@ -135,7 +135,7 @@ test('optimisticDeleteSequenceKeyframes deletes multiple keyframes in one pass',
 					{frame: 30, value: 200},
 					{frame: 60, value: 300},
 				],
-				easing: ['linear', 'linear'],
+				easing: [{type: 'linear'}, {type: 'linear'}],
 				clamping: {left: 'extend', right: 'extend'},
 				posterize: undefined,
 			},
@@ -182,7 +182,7 @@ test('optimisticDeleteEffectKeyframe removes the matching keyframe on the target
 							{frame: 0, value: 0},
 							{frame: 30, value: 1},
 						],
-						easing: ['linear'],
+						easing: [{type: 'linear'}],
 						clamping: {left: 'extend', right: 'extend'},
 						posterize: undefined,
 					},
@@ -298,7 +298,7 @@ test('optimisticDeleteEffectKeyframes deletes multiple keyframes in one pass', (
 							{frame: 30, value: 0.5},
 							{frame: 60, value: 1},
 						],
-						easing: ['linear', 'linear'],
+						easing: [{type: 'linear'}, {type: 'linear'}],
 						clamping: {left: 'extend', right: 'extend'},
 						posterize: undefined,
 					},

@@ -29,7 +29,8 @@ import {
 	updateSelectedTimelineEasings,
 } from './update-selected-easing';
 
-type CubicBezier = [number, number, number, number];
+type CubicBezierTuple = [number, number, number, number];
+type BezierEasing = Extract<TimelineEasingValue, {type: 'bezier'}>;
 type SpringEasing = Extract<TimelineEasingValue, {type: 'spring'}>;
 type HandleIndex = 0 | 1;
 type Coordinate = 'x' | 'y';
@@ -44,7 +45,8 @@ const PLOT_WIDTH = 500;
 const PLOT_HEIGHT = SVG_HEIGHT;
 const Y_MIN = -2;
 const Y_MAX = 3;
-const LINEAR_BEZIER: CubicBezier = [0.25, 0.25, 0.75, 0.75];
+const LINEAR_EASING: TimelineEasingValue = {type: 'linear'};
+const LINEAR_BEZIER: CubicBezierTuple = [0.25, 0.25, 0.75, 0.75];
 const DEFAULT_SPRING_EASING: SpringEasing = {
 	type: 'spring',
 	damping: 10,
@@ -129,7 +131,7 @@ const clamp = (value: number, min: number, max: number) => {
 	return Math.min(max, Math.max(min, value));
 };
 
-const sanitizeBezier = (bezier: CubicBezier): CubicBezier => [
+const sanitizeBezier = (bezier: CubicBezierTuple): CubicBezierTuple => [
 	clamp(bezier[0], 0, 1),
 	clamp(bezier[1], Y_MIN, Y_MAX),
 	clamp(bezier[2], 0, 1),
@@ -139,13 +141,19 @@ const sanitizeBezier = (bezier: CubicBezier): CubicBezier => [
 const isSpringEasing = (
 	easing: TimelineEasingValue,
 ): easing is SpringEasing => {
-	return easing !== 'linear' && !Array.isArray(easing);
+	return easing.type === 'spring';
 };
 
-const easingToBezier = (easing: TimelineEasingValue): CubicBezier => {
-	return easing === 'linear' || isSpringEasing(easing)
-		? LINEAR_BEZIER
-		: sanitizeBezier(easing);
+const isBezierEasing = (
+	easing: TimelineEasingValue,
+): easing is BezierEasing => {
+	return easing.type === 'bezier';
+};
+
+const easingToBezier = (easing: TimelineEasingValue): CubicBezierTuple => {
+	return isBezierEasing(easing)
+		? sanitizeBezier([easing.x1, easing.y1, easing.x2, easing.y2])
+		: LINEAR_BEZIER;
 };
 
 const easingToSpring = (easing: TimelineEasingValue): SpringEasing => {
@@ -166,13 +174,21 @@ const roundToDecimalPlaces = (value: number, decimalPlaces: number) => {
 
 const roundCoordinate = (value: number) => roundToDecimalPlaces(value, 4);
 
-const serializeBezier = (bezier: CubicBezier): TimelineEasingValue => {
-	const rounded = sanitizeBezier(bezier).map(roundCoordinate) as CubicBezier;
+const serializeBezier = (bezier: CubicBezierTuple): TimelineEasingValue => {
+	const rounded = sanitizeBezier(bezier).map(
+		roundCoordinate,
+	) as CubicBezierTuple;
 	if (rounded[0] === rounded[1] && rounded[2] === rounded[3]) {
-		return 'linear';
+		return LINEAR_EASING;
 	}
 
-	return rounded;
+	return {
+		type: 'bezier',
+		x1: rounded[0],
+		y1: rounded[1],
+		x2: rounded[2],
+		y2: rounded[3],
+	};
 };
 
 const sanitizeSpringValue = (
@@ -247,22 +263,34 @@ const areEasingsEqual = (
 		return true;
 	}
 
-	if (first === 'linear' || second === 'linear') {
+	if (first.type !== second.type) {
 		return false;
 	}
 
-	if (isSpringEasing(first) || isSpringEasing(second)) {
-		return (
-			isSpringEasing(first) &&
-			isSpringEasing(second) &&
-			first.damping === second.damping &&
-			first.mass === second.mass &&
-			first.overshootClamping === second.overshootClamping &&
-			first.stiffness === second.stiffness
-		);
+	switch (first.type) {
+		case 'linear':
+			return true;
+		case 'spring':
+			return (
+				second.type === 'spring' &&
+				first.damping === second.damping &&
+				first.mass === second.mass &&
+				first.overshootClamping === second.overshootClamping &&
+				first.stiffness === second.stiffness
+			);
+		case 'bezier':
+			return (
+				second.type === 'bezier' &&
+				first.x1 === second.x1 &&
+				first.y1 === second.y1 &&
+				first.x2 === second.x2 &&
+				first.y2 === second.y2
+			);
+		default:
+			throw new Error(
+				`Unsupported easing: ${JSON.stringify(first satisfies never)}`,
+			);
 	}
-
-	return first.every((value, index) => value === second[index]);
 };
 
 const getEasingUpdateTargetKey = (update: SelectedEasingUpdate) => {
@@ -280,7 +308,7 @@ const xToSvg = (value: number) => PLOT_LEFT + value * PLOT_WIDTH;
 const yToSvg = (value: number) =>
 	PLOT_TOP + ((Y_MAX - value) / (Y_MAX - Y_MIN)) * PLOT_HEIGHT;
 
-const pointFromBezier = (bezier: CubicBezier, handle: HandleIndex) => {
+const pointFromBezier = (bezier: CubicBezierTuple, handle: HandleIndex) => {
 	const x = handle === 0 ? bezier[0] : bezier[2];
 	const y = handle === 0 ? bezier[1] : bezier[3];
 	return {x: xToSvg(x), y: yToSvg(y)};
@@ -511,7 +539,7 @@ export const EasingEditor: React.FC<{
 	);
 
 	const setBezierAndPreview = useCallback(
-		(nextBezier: CubicBezier) => {
+		(nextBezier: CubicBezierTuple) => {
 			const sanitized = sanitizeBezier(nextBezier);
 			bezierRef.current = sanitized;
 			setBezier(sanitized);
@@ -537,7 +565,7 @@ export const EasingEditor: React.FC<{
 			value: number,
 			commit: boolean,
 		) => {
-			const next = [...bezierRef.current] as CubicBezier;
+			const next = [...bezierRef.current] as CubicBezierTuple;
 			const index =
 				handle === 0
 					? coordinate === 'x'
@@ -627,7 +655,7 @@ export const EasingEditor: React.FC<{
 				return;
 			}
 
-			const next = [...bezierRef.current] as CubicBezier;
+			const next = [...bezierRef.current] as CubicBezierTuple;
 			if (handle === 0) {
 				next[0] = value.x;
 				next[1] = value.y;

@@ -15,20 +15,23 @@ type InterpolateKeyframedStatusResult =
 	| null;
 
 const easingToFn = (e: CanUpdateSequencePropStatusEasing): EasingFunction => {
-	if (e === 'linear') {
-		return Easing.linear;
+	switch (e.type) {
+		case 'linear':
+			return Easing.linear;
+		case 'spring':
+			return Easing.spring({
+				damping: e.damping,
+				mass: e.mass,
+				overshootClamping: e.overshootClamping,
+				stiffness: e.stiffness,
+			});
+		case 'bezier':
+			return bezier(e.x1, e.y1, e.x2, e.y2);
+		default:
+			throw new TypeError(
+				`Unsupported easing: ${JSON.stringify(e satisfies never)}`,
+			);
 	}
-
-	if (!Array.isArray(e)) {
-		return Easing.spring({
-			damping: e.damping,
-			mass: e.mass,
-			overshootClamping: e.overshootClamping,
-			stiffness: e.stiffness,
-		});
-	}
-
-	return bezier(e[0], e[1], e[2], e[3]);
 };
 
 export const interpolateKeyframedStatus = ({

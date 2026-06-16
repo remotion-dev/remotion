@@ -24,16 +24,34 @@ export type CanUpdateSequencePropStatusKeyframe = {
 	value: unknown;
 };
 
+export type CanUpdateSequencePropStatusLinearEasing = {
+	type: 'linear';
+};
+
+export type CanUpdateSequencePropStatusBezierEasing = {
+	type: 'bezier';
+	x1: number;
+	y1: number;
+	x2: number;
+	y2: number;
+};
+
+export type CanUpdateSequencePropStatusSpringEasing = {
+	type: 'spring';
+	damping: number;
+	mass: number;
+	stiffness: number;
+	overshootClamping: boolean;
+};
+
 export type CanUpdateSequencePropStatusEasing =
-	| 'linear'
-	| [number, number, number, number]
-	| {
-			type: 'spring';
-			damping: number;
-			mass: number;
-			stiffness: number;
-			overshootClamping: boolean;
-	  };
+	| CanUpdateSequencePropStatusLinearEasing
+	| CanUpdateSequencePropStatusBezierEasing
+	| CanUpdateSequencePropStatusSpringEasing;
+
+export const DEFAULT_LINEAR_EASING: CanUpdateSequencePropStatusLinearEasing = {
+	type: 'linear',
+};
 
 export type CanUpdateSequencePropStatusClamping = {
 	left: ExtrapolateType;
@@ -126,7 +144,7 @@ export const makeKeyframedDragOverride = ({
 				);
 	const easing = [...status.easing];
 	while (easing.length < keyframes.length - 1) {
-		easing.push('linear');
+		easing.push(DEFAULT_LINEAR_EASING);
 	}
 
 	if (easing.length > keyframes.length - 1) {

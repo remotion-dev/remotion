@@ -8,8 +8,22 @@ export type KeyframeEasingPreset = {
 	readonly easing: KeyframeEasing;
 };
 
+export const LINEAR_KEYFRAME_EASING: KeyframeEasing = {type: 'linear'};
+
 export const KEYFRAME_EASING_PRESETS: KeyframeEasingPreset[] = [
-	{id: 'ease-in', label: 'Ease in', easing: [0.42, 0, 1, 1]},
-	{id: 'ease-out', label: 'Ease out', easing: [0, 0, 0.58, 1]},
-	{id: 'ease-in-out', label: 'Ease in-out', easing: [0.42, 0, 0.58, 1]},
+	{
+		id: 'ease-in',
+		label: 'Ease in',
+		easing: {type: 'bezier', x1: 0.42, y1: 0, x2: 1, y2: 1},
+	},
+	{
+		id: 'ease-out',
+		label: 'Ease out',
+		easing: {type: 'bezier', x1: 0, y1: 0, x2: 0.58, y2: 1},
+	},
+	{
+		id: 'ease-in-out',
+		label: 'Ease in-out',
+		easing: {type: 'bezier', x1: 0.42, y1: 0, x2: 0.58, y2: 1},
+	},
 ];

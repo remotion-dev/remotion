@@ -15,6 +15,7 @@ import {RenderInternals} from '@remotion/renderer';
 import type {SubscribeToSequencePropsResponse} from '@remotion/studio-shared';
 import {
 	isKeyframeInterpolationFunction,
+	LINEAR_KEYFRAME_EASING,
 	parseSpringEasingConfig,
 } from '@remotion/studio-shared';
 import * as recast from 'recast';
@@ -280,7 +281,7 @@ const getKeyframeEasing = (node: Expression): PropEasing[number] | null => {
 		node.property.name === 'linear' &&
 		node.computed === false
 	) {
-		return 'linear';
+		return {type: 'linear'};
 	}
 
 	if (
@@ -331,7 +332,8 @@ const getKeyframeEasing = (node: Expression): PropEasing[number] | null => {
 		return null;
 	}
 
-	return values as [number, number, number, number];
+	const [x1, y1, x2, y2] = values as [number, number, number, number];
+	return {type: 'bezier', x1, y1, x2, y2};
 };
 
 const getKeyframeEasingArray = ({
@@ -401,7 +403,7 @@ const getInterpolationMetadata = (
 					right: 'extend',
 				};
 	const defaults = {
-		easing: new Array(segments).fill('linear') as PropEasing,
+		easing: Array.from({length: segments}, () => LINEAR_KEYFRAME_EASING),
 		clamping: defaultClamping,
 		posterize: undefined,
 	};

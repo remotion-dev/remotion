@@ -122,6 +122,7 @@ export {
 export {DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS} from './default-buffer-state-delay-in-milliseconds';
 export {
 	KEYFRAME_EASING_PRESETS,
+	LINEAR_KEYFRAME_EASING,
 	type KeyframeEasingPreset,
 } from './keyframe-easing-presets';
 export {
