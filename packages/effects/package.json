@@ -44,6 +44,11 @@
 			"module": "./dist/esm/blur.mjs",
 			"import": "./dist/esm/blur.mjs"
 		},
+		"./burlap": {
+			"types": "./dist/burlap.d.ts",
+			"module": "./dist/esm/burlap.mjs",
+			"import": "./dist/esm/burlap.mjs"
+		},
 		"./chromatic-aberration": {
 			"types": "./dist/chromatic-aberration.d.ts",
 			"module": "./dist/esm/chromatic-aberration.mjs",
@@ -238,6 +243,9 @@
 			],
 			"blur": [
 				"dist/blur.d.ts"
+			],
+			"burlap": [
+				"dist/burlap.d.ts"
 			],
 			"chromatic-aberration": [
 				"dist/chromatic-aberration.d.ts"

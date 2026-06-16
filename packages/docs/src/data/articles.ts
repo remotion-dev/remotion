@@ -1755,6 +1755,15 @@ export const articles = [
 		slug: 'effects/brightness',
 	},
 	{
+		id: 'effects/burlap',
+		title: 'burlap()',
+		relativePath: 'docs/effects/burlap.mdx',
+		compId: 'articles-docs-effects-burlap',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/burlap',
+	},
+	{
 		id: 'effects/chromatic-aberration',
 		title: 'chromaticAberration()',
 		relativePath: 'docs/effects/chromatic-aberration.mdx',

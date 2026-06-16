@@ -203,6 +203,13 @@ const categories: {
 		title: 'Stylize',
 		effects: [
 			{
+				link: '/docs/effects/burlap',
+				preview: '/img/effects-burlap-preview.png',
+				alt: 'burlap effect preview',
+				name: 'burlap()',
+				description: 'Procedural woven texture effect',
+			},
+			{
 				link: '/docs/effects/dot-grid',
 				preview: '/img/effects-dot-grid-preview.png',
 				alt: 'dot grid effect preview',
