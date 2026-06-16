@@ -13,6 +13,14 @@ import {
 	whatIsRemotionCalculateMetadata,
 	whatIsRemotionSchema,
 } from './Compose/WhatIsRemotion';
+import {
+	StarburstEffectShowcase,
+	starburstEffectShowcaseDurationInFrames,
+} from './effects/StarburstEffectShowcase';
+import {
+	ZigzagLinearBlurShowcase,
+	zigzagLinearBlurShowcaseDurationInFrames,
+} from './effects/ZigzagLinearBlurShowcase';
 import {EmailSignature} from './EmailSignature';
 import {Logo} from './Logo';
 import {LogoCollab, logoCollabSchema} from './LogoCollab/LogoCollab';
@@ -113,6 +121,24 @@ export const RemotionRoot: React.FC = () => {
 					schema={htmlInCanvasAllEffectsSchema}
 					defaultProps={htmlInCanvasAllEffectsDefaultProps}
 					calculateMetadata={calculateHtmlInCanvasAllEffectsMetadata}
+				/>
+			</Folder>
+			<Folder name="effects">
+				<Composition
+					id="starburst-effect-showcase"
+					component={StarburstEffectShowcase}
+					durationInFrames={starburstEffectShowcaseDurationInFrames}
+					fps={30}
+					width={1080}
+					height={1350}
+				/>
+				<Composition
+					id="zigzag-linear-blur-effect-showcase"
+					component={ZigzagLinearBlurShowcase}
+					durationInFrames={zigzagLinearBlurShowcaseDurationInFrames}
+					fps={30}
+					width={1080}
+					height={1350}
 				/>
 			</Folder>
 			<Folder name="animated-logo">

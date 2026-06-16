@@ -107,6 +107,7 @@
         "@remotion/noise": "workspace:*",
         "@remotion/paths": "workspace:*",
         "@remotion/shapes": "workspace:*",
+        "@remotion/starburst": "workspace:*",
         "@remotion/svg-3d-engine": "workspace:*",
         "@remotion/tailwind-v4": "workspace:*",
         "@remotion/transitions": "workspace:*",
