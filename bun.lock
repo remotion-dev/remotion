@@ -1361,7 +1361,7 @@
         "execa": "5.1.1",
         "remotion": "workspace:*",
         "source-map": "0.8.0-beta.0",
-        "ws": "8.20.1",
+        "ws": "8.21.0",
       },
       "devDependencies": {
         "@happy-dom/global-registrator": "14.5.1",
@@ -1775,7 +1775,7 @@
         "react-dom": "19.2.3",
         "remotion": "workspace:*",
         "scheduler": "0.27.0",
-        "ws": "8.20.1",
+        "ws": "8.21.0",
       },
       "devDependencies": {
         "@electron-forge/cli": "7.11.1",
@@ -8187,7 +8187,7 @@
 
     "write-file-atomic": ["write-file-atomic@3.0.3", "", { "dependencies": { "imurmurhash": "0.1.4", "is-typedarray": "1.0.0", "signal-exit": "3.0.7", "typedarray-to-buffer": "3.1.5" } }, "sha512-AvHcyZ5JnSfq3ioSyjrBkH9yW4m7Ayk8/9My/DD9onKeu/94fwrMocemO2QAJFAlnnDN+ZDS+ZjAR5ua1/PV/Q=="],
 
-    "ws": ["ws@8.20.1", "", { "peerDependencies": { "bufferutil": "^4.0.1", "utf-8-validate": ">=5.0.2" }, "optionalPeers": ["bufferutil", "utf-8-validate"] }, "sha512-It4dO0K5v//JtTXuPkfEOaI3uUN87iYPnqo/ZzqCoG3g8uhA66QUMs/SrM0YK7/NAu+r4LMh/9dq2A7k+rHs+w=="],
+    "ws": ["ws@8.21.0", "", { "peerDependencies": { "bufferutil": "^4.0.1", "utf-8-validate": ">=5.0.2" }, "optionalPeers": ["bufferutil", "utf-8-validate"] }, "sha512-Vsp28b7DRcimFQvrqu2Wek3z1iYxDCWqHYB8Qsnk/S4RfaCQzPGPyBNuVjJV3cd6UiKtUtp6sNM77gWvzcCH+g=="],
 
     "wsl-utils": ["wsl-utils@0.1.0", "", { "dependencies": { "is-wsl": "^3.1.0" } }, "sha512-h3Fbisa2nKGPxCpm89Hk33lBLsnaGBvctQopaBSOW/uIs6FTe1ATyAnKFJrzVs9vpGdsTe73WF3V4lIsk4Gacw=="],
 
