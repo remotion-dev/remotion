@@ -105,7 +105,7 @@ const segmentedControlWrapper: React.CSSProperties = {
 	display: 'flex',
 	justifyContent: 'center',
 	padding: '0 12px',
-	marginBottom: 8,
+	marginBottom: 10,
 };
 
 const presetButtonsWrapper: React.CSSProperties = {
@@ -113,7 +113,7 @@ const presetButtonsWrapper: React.CSSProperties = {
 	flexWrap: 'wrap',
 	gap: 6,
 	justifyContent: 'center',
-	marginBottom: 10,
+	marginBottom: 8,
 	padding: '0 12px',
 };
 
@@ -954,9 +954,6 @@ export const EasingEditor: React.FC<{
 
 	return (
 		<div style={inlineContainer}>
-			<div style={segmentedControlWrapper}>
-				<SegmentedControl items={modeItems} needsWrapping={false} />
-			</div>
 			<div style={presetButtonsWrapper}>
 				{EDITOR_EASING_PRESETS.map((preset) => (
 					<EasingPresetButton
@@ -967,6 +964,9 @@ export const EasingEditor: React.FC<{
 						preset={preset}
 					/>
 				))}
+			</div>
+			<div style={segmentedControlWrapper}>
+				<SegmentedControl items={modeItems} needsWrapping={false} />
 			</div>
 			{mode === 'bezier' ? (
 				<>
