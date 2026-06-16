@@ -30,6 +30,13 @@ import {
 } from './RulesEnumeration/RulesEnumeration';
 import {ProductHuntLogo} from './ScalingLogo';
 import {
+	HTML_IN_CANVAS_ALL_EFFECTS_DURATION,
+	HtmlInCanvasAllEffects,
+	calculateHtmlInCanvasAllEffectsMetadata,
+	htmlInCanvasAllEffectsDefaultProps,
+	htmlInCanvasAllEffectsSchema,
+} from './Showcase/HtmlInCanvasAllEffects';
+import {
 	FlyingCardsLeft,
 	flyingCardsLeftSchema,
 } from './video-elements/flying-cards-left';
@@ -103,6 +110,19 @@ export const RemotionRoot: React.FC = () => {
 				durationInFrames={90}
 				id="scaling-logo"
 			/>
+			<Folder name="showcase">
+				<Composition
+					id="html-in-canvas-all-effects"
+					component={HtmlInCanvasAllEffects}
+					fps={30}
+					height={1080}
+					width={1920}
+					durationInFrames={HTML_IN_CANVAS_ALL_EFFECTS_DURATION}
+					schema={htmlInCanvasAllEffectsSchema}
+					defaultProps={htmlInCanvasAllEffectsDefaultProps}
+					calculateMetadata={calculateHtmlInCanvasAllEffectsMetadata}
+				/>
+			</Folder>
 			<Folder name="effects">
 				<Composition
 					id="starburst-effect-showcase"

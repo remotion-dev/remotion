@@ -40,13 +40,17 @@ import {
 	getSequencesWithSelectableOutlines,
 	getTransformedSvgViewportPoints,
 	isSelectedOutlineDragPastThreshold,
+	snapSelectedOutlineRotationDeltaDegrees,
+	snapSelectedOutlineUv,
 	snapSelectedOutlineTransformOriginUv,
 	selectedOutlineDragThresholdPx,
+	selectedOutlineUvSnapThresholdPx,
 	selectedOutlineTransformOriginSnapThresholdPx,
 	type SelectedOutlineDragState,
 	type SelectedOutlineRotationDragState,
 	type SelectedOutlineScaleDragState,
 } from '../components/SelectedOutlineOverlay';
+import {getSelectedOutlineUvHandleTimelineSelection} from '../components/SelectedOutlineUvControls';
 import {deleteSelectedTimelineItems} from '../components/Timeline/delete-selected-timeline-item';
 import {
 	isDuplicatableEffectSelection,
@@ -520,7 +524,7 @@ test('copying a keyframed effect creates a structured snapshot', () => {
 								{frame: 0, value: 10},
 								{frame: 100, value: 20},
 							],
-							easing: ['linear'],
+							easing: [{type: 'linear'}],
 							clamping: {left: 'clamp', right: 'clamp'},
 							posterize: undefined,
 						},
@@ -551,7 +555,7 @@ test('copying a keyframed effect creates a structured snapshot', () => {
 						{frame: 0, value: 10},
 						{frame: 100, value: 20},
 					],
-					easing: ['linear'],
+					easing: [{type: 'linear'}],
 					clamping: {left: 'clamp', right: 'clamp'},
 				},
 			},
@@ -585,7 +589,7 @@ test('copying a selected effect prop creates an effect prop payload', () => {
 								{frame: 0, value: 10},
 								{frame: 100, value: 20},
 							],
-							easing: ['linear'],
+							easing: [{type: 'linear'}],
 							clamping: {left: 'clamp', right: 'clamp'},
 							posterize: undefined,
 						},
@@ -621,7 +625,7 @@ test('copying a selected effect prop creates an effect prop payload', () => {
 				{frame: 0, value: 10},
 				{frame: 100, value: 20},
 			],
-			easing: ['linear'],
+			easing: [{type: 'linear'}],
 			clamping: {left: 'clamp', right: 'clamp'},
 		},
 	});
@@ -934,7 +938,7 @@ test('Timeline duration drag is blocked if one selected sequence duration is key
 				status: 'keyframed',
 				interpolationFunction: 'interpolate',
 				keyframes: [{frame: 0, value: 15}],
-				easing: ['linear'],
+				easing: [{type: 'linear'}],
 				clamping: {left: 'clamp', right: 'clamp'},
 				posterize: undefined,
 			},
@@ -1471,6 +1475,44 @@ test('Transform origin drag does not snap outside the magnetic threshold', () =>
 	expect(snapped[1]).toBeCloseTo(uv[1], 5);
 });
 
+test('UV coordinate drag snaps to outline anchors', () => {
+	const points = [
+		{x: 0, y: 0},
+		{x: 100, y: 0},
+		{x: 100, y: 100},
+		{x: 0, y: 100},
+	] as const;
+
+	expect(
+		snapSelectedOutlineUv({
+			point: {x: 47, y: 53},
+			points,
+			uv: getUvCoordinateForPoint(points, {x: 47, y: 53}),
+		}),
+	).toEqual([0.5, 0.5]);
+	expect(
+		snapSelectedOutlineUv({
+			point: {x: 96, y: 49},
+			points,
+			uv: getUvCoordinateForPoint(points, {x: 96, y: 49}),
+		}),
+	).toEqual([1, 0.5]);
+
+	const pointer = {
+		x: 50,
+		y: selectedOutlineUvSnapThresholdPx + 1,
+	};
+	const uv = getUvCoordinateForPoint(points, pointer);
+	const snapped = snapSelectedOutlineUv({
+		point: pointer,
+		points,
+		uv,
+	});
+
+	expect(snapped[0]).toBeCloseTo(uv[0], 5);
+	expect(snapped[1]).toBeCloseTo(uv[1], 5);
+});
+
 test('Transform origin axis locking keeps one UV axis fixed', () => {
 	const dimensions = {width: 200, height: 100};
 	const startUv = [0.25, 0.5] as const;
@@ -1687,6 +1729,138 @@ test('UV handle connection lines stay within the same effect instance', () => {
 	expect(lines.map((line) => line.key)).toEqual(['2-start-end']);
 });
 
+const getUvHandlesForSelectedEffectChild = (selectedFieldKey: string) => {
+	const sequenceNodePathInfo = makeNodePathInfo(['body', 0], []);
+	const effectPropNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['effects', '0', selectedFieldKey],
+	);
+	const nodePath = sequenceNodePathInfo.sequenceSubscriptionKey;
+	const effectSchema = {
+		start: {
+			type: 'uv-coordinate',
+			default: [0, 0],
+			lineTo: 'end',
+		},
+		end: {
+			type: 'uv-coordinate',
+			default: [1, 1],
+		},
+		dotSize: {
+			type: 'number',
+			default: 10,
+			hiddenFromList: false,
+		},
+	} as const satisfies SequenceSchema;
+	const propStatuses: PropStatuses = {
+		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			canUpdate: true,
+			props: {},
+			effects: [
+				{
+					canUpdate: true,
+					effectIndex: 0,
+					callee: 'testEffect',
+					importPath: null,
+					props: {
+						start: {
+							status: 'static',
+							codeValue: [0.2, 0.3],
+						},
+						end: {
+							status: 'static',
+							codeValue: [0.8, 0.7],
+						},
+						dotSize: {
+							status: 'static',
+							codeValue: 10,
+						},
+					},
+				},
+			],
+		},
+	};
+
+	return getSelectedUvHandles({
+		propStatuses,
+		clientId: 'client-id',
+		getEffectDragOverrides: () => ({}),
+		nodePath,
+		selectedEffects: getSelectedEffectFieldsBySequenceKey([
+			{
+				type: 'sequence-effect-prop',
+				nodePathInfo: effectPropNodePathInfo,
+				i: 0,
+				key: selectedFieldKey,
+			},
+		]).get(getTimelineSequenceSelectionKey(sequenceNodePathInfo)),
+		sequence: {
+			effects: [{schema: effectSchema}],
+		} as unknown as TSequence,
+		sourceFrame: 0,
+	});
+};
+
+test('UV handles include connected coordinates when selecting one coordinate', () => {
+	const handles = getUvHandlesForSelectedEffectChild('start');
+
+	expect(
+		handles.map((handle) => ({
+			fieldKey: handle.fieldKey,
+			isSelected: handle.isSelected,
+			value: handle.value,
+		})),
+	).toEqual([
+		{fieldKey: 'start', isSelected: true, value: [0.2, 0.3]},
+		{fieldKey: 'end', isSelected: false, value: [0.8, 0.7]},
+	]);
+	expect(
+		getUvHandleConnectionLines({
+			points: [
+				{x: 0, y: 0},
+				{x: 100, y: 0},
+				{x: 100, y: 100},
+				{x: 0, y: 100},
+			],
+			handles,
+		}).map((line) => line.key),
+	).toEqual(['0-start-end']);
+});
+
+test('UV handles show for selected non-coordinate effect children', () => {
+	const handles = getUvHandlesForSelectedEffectChild('dotSize');
+
+	expect(
+		handles.map((handle) => ({
+			fieldKey: handle.fieldKey,
+			isSelected: handle.isSelected,
+		})),
+	).toEqual([
+		{fieldKey: 'start', isSelected: false},
+		{fieldKey: 'end', isSelected: false},
+	]);
+});
+
+test('UV handle selection targets the matching effect property', () => {
+	const sequenceNodePathInfo = makeNodePathInfo(['body', 0], []);
+
+	expect(
+		getSelectedOutlineUvHandleTimelineSelection({
+			effectIndex: 1,
+			fieldKey: 'end',
+			nodePathInfo: sequenceNodePathInfo,
+		}),
+	).toEqual({
+		type: 'sequence-effect-prop',
+		nodePathInfo: {
+			...sequenceNodePathInfo,
+			auxiliaryKeys: ['effects', '1', 'end'],
+		},
+		i: 1,
+		key: 'end',
+	});
+});
+
 test('UV handles are requested for selected effect children', () => {
 	const sequenceNodePathInfo = makeNodePathInfo(['body', 0], []);
 	const effectNodePathInfo = makeNodePathInfo(['body', 0], ['effects', '1']);
@@ -1757,7 +1931,7 @@ test('UV handles are requested for keyframed selected effect props', () => {
 								{frame: 0, value: [0, 0]},
 								{frame: 100, value: [1, 1]},
 							],
-							easing: ['linear'],
+							easing: [{type: 'linear'}],
 							clamping: {left: 'extend', right: 'extend'},
 							posterize: undefined,
 						},
@@ -1954,7 +2128,7 @@ test('Backspace reset targets selected keyframed sequence props', () => {
 						{frame: 0, value: 0},
 						{frame: 20, value: 0.5},
 					],
-					easing: ['linear'],
+					easing: [{type: 'linear'}],
 					clamping: {left: 'extend', right: 'extend'},
 					posterize: undefined,
 				},
@@ -2102,7 +2276,7 @@ test('Backspace reset skips keyframed sequence props without defaults', () => {
 						{frame: 0, value: 0},
 						{frame: 20, value: 0.5},
 					],
-					easing: ['linear'],
+					easing: [{type: 'linear'}],
 					clamping: {left: 'extend', right: 'extend'},
 					posterize: undefined,
 				},
@@ -2389,7 +2563,7 @@ test('Selected outline dragging keyframed translate adds a keyframe at the sourc
 						{frame: 0, value: '0px 0px'},
 						{frame: 40, value: '100px 50px'},
 					],
-					easing: ['linear'],
+					easing: [{type: 'linear'}],
 					clamping: {left: 'extend', right: 'extend'},
 					posterize: undefined,
 				},
@@ -2669,6 +2843,98 @@ test('Selected outline corner dragging rounds rotation values', () => {
 	expect(lastValues.get(dragStates[0].key)).toBe('32.5deg');
 });
 
+test('Selected outline corner dragging snaps rotation to 15 degree increments', () => {
+	const schema = {
+		'style.rotate': {type: 'rotation-css', default: '0deg'},
+	} satisfies SequenceSchema;
+	const nodePath = makeKey(['body', 0]);
+	const dragStates = [
+		{
+			defaultValue: JSON.stringify('0deg'),
+			key: Internals.makeSequencePropsSubscriptionKey(nodePath),
+			sourceFrame: 12,
+			startDegrees: 32,
+			target: {
+				clientId: 'client',
+				propStatus: {status: 'static', codeValue: '32deg'},
+				fieldDefault: '0deg',
+				fieldSchema: schema['style.rotate'],
+				keyframeDisplayOffset: 30,
+				nodePath,
+				schema,
+				transformOriginValue: '50% 50%',
+			},
+		},
+	] satisfies SelectedOutlineRotationDragState[];
+
+	const rotationDeltaDegrees = snapSelectedOutlineRotationDeltaDegrees({
+		dragStates,
+		rotationDeltaDegrees: 8,
+	});
+	const lastValues = getSelectedOutlineRotationDragValues({
+		dragStates,
+		rotationDeltaDegrees,
+	});
+
+	expect(rotationDeltaDegrees).toBe(13);
+	expect(lastValues.get(dragStates[0].key)).toBe('45deg');
+});
+
+test('Selected outline corner dragging snaps selected rotations from the first drag state', () => {
+	const schema = {
+		'style.rotate': {type: 'rotation-css', default: '0deg'},
+	} satisfies SequenceSchema;
+	const firstNodePath = makeKey(['body', 0]);
+	const secondNodePath = makeKey(['body', 1]);
+	const dragStates = [
+		{
+			defaultValue: JSON.stringify('0deg'),
+			key: Internals.makeSequencePropsSubscriptionKey(firstNodePath),
+			sourceFrame: 12,
+			startDegrees: 32,
+			target: {
+				clientId: 'client',
+				propStatus: {status: 'static', codeValue: '32deg'},
+				fieldDefault: '0deg',
+				fieldSchema: schema['style.rotate'],
+				keyframeDisplayOffset: 30,
+				nodePath: firstNodePath,
+				schema,
+				transformOriginValue: '50% 50%',
+			},
+		},
+		{
+			defaultValue: JSON.stringify('0deg'),
+			key: Internals.makeSequencePropsSubscriptionKey(secondNodePath),
+			sourceFrame: 12,
+			startDegrees: -10,
+			target: {
+				clientId: 'client',
+				propStatus: {status: 'static', codeValue: '-10deg'},
+				fieldDefault: '0deg',
+				fieldSchema: schema['style.rotate'],
+				keyframeDisplayOffset: 30,
+				nodePath: secondNodePath,
+				schema,
+				transformOriginValue: '50% 50%',
+			},
+		},
+	] satisfies SelectedOutlineRotationDragState[];
+
+	const rotationDeltaDegrees = snapSelectedOutlineRotationDeltaDegrees({
+		dragStates,
+		rotationDeltaDegrees: 8,
+	});
+	const lastValues = getSelectedOutlineRotationDragValues({
+		dragStates,
+		rotationDeltaDegrees,
+	});
+
+	expect(rotationDeltaDegrees).toBe(13);
+	expect(lastValues.get(dragStates[0].key)).toBe('45deg');
+	expect(lastValues.get(dragStates[1].key)).toBe('3deg');
+});
+
 test('Selected outline corner dragging keyframed rotation adds a keyframe at the source frame', () => {
 	const schema = {
 		'style.rotate': {type: 'rotation-css', default: '0deg'},
@@ -2689,7 +2955,7 @@ test('Selected outline corner dragging keyframed rotation adds a keyframe at the
 						{frame: 0, value: '0deg'},
 						{frame: 40, value: '90deg'},
 					],
-					easing: ['linear'],
+					easing: [{type: 'linear'}],
 					clamping: {left: 'extend', right: 'extend'},
 					posterize: undefined,
 				},
@@ -2986,7 +3252,7 @@ test('Backspace reset targets selected keyframed effect props', () => {
 								{frame: 0, value: 10},
 								{frame: 20, value: 20},
 							],
-							easing: ['linear'],
+							easing: [{type: 'linear'}],
 							clamping: {left: 'extend', right: 'extend'},
 							posterize: undefined,
 						},
@@ -3057,7 +3323,7 @@ test('Backspace reset skips keyframed effect props without defaults', () => {
 								{frame: 0, value: 10},
 								{frame: 20, value: 20},
 							],
-							easing: ['linear'],
+							easing: [{type: 'linear'}],
 							clamping: {left: 'extend', right: 'extend'},
 							posterize: undefined,
 						},

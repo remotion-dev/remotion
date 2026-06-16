@@ -21,7 +21,7 @@ export type RemotionLocalNames = Partial<Record<RemotionImportName, string>>;
 
 const isNonLinearEasing = (
 	easing: EffectClipboardKeyframedParam['easing'][number],
-) => easing !== 'linear';
+) => easing.type !== 'linear';
 
 const keyframedParamNeedsEasingImport = (
 	param: EffectClipboardKeyframedParam,
@@ -82,17 +82,54 @@ const makeEasingExpression = ({
 	easing: EffectClipboardKeyframedParam['easing'][number];
 	easingLocalName: string;
 }): ExpressionKind => {
-	if (easing === 'linear') {
-		return b.memberExpression(
-			b.identifier(easingLocalName),
-			b.identifier('linear'),
-		) as ExpressionKind;
+	switch (easing.type) {
+		case 'linear':
+			return b.memberExpression(
+				b.identifier(easingLocalName),
+				b.identifier('linear'),
+			) as ExpressionKind;
+		case 'spring':
+			return b.callExpression(
+				b.memberExpression(
+					b.identifier(easingLocalName),
+					b.identifier('spring'),
+				),
+				[
+					b.objectExpression([
+						b.objectProperty(
+							b.identifier('damping'),
+							parseValueExpression(easing.damping),
+						),
+						b.objectProperty(
+							b.identifier('mass'),
+							parseValueExpression(easing.mass),
+						),
+						b.objectProperty(
+							b.identifier('stiffness'),
+							parseValueExpression(easing.stiffness),
+						),
+						b.objectProperty(
+							b.identifier('overshootClamping'),
+							b.booleanLiteral(easing.overshootClamping),
+						),
+					]),
+				] as never,
+			) as ExpressionKind;
+		case 'bezier':
+			return b.callExpression(
+				b.memberExpression(
+					b.identifier(easingLocalName),
+					b.identifier('bezier'),
+				),
+				[easing.x1, easing.y1, easing.x2, easing.y2].map((value) =>
+					parseValueExpression(value),
+				) as never,
+			) as ExpressionKind;
+		default:
+			throw new Error(
+				`Unsupported easing: ${JSON.stringify(easing satisfies never)}`,
+			);
 	}
-
-	return b.callExpression(
-		b.memberExpression(b.identifier(easingLocalName), b.identifier('bezier')),
-		easing.map((value) => parseValueExpression(value)) as never,
-	) as ExpressionKind;
 };
 
 const makeKeyframedOptions = ({

@@ -189,6 +189,11 @@
 			"module": "./dist/esm/shine.mjs",
 			"import": "./dist/esm/shine.mjs"
 		},
+		"./shrinkwrap": {
+			"types": "./dist/shrinkwrap.d.ts",
+			"module": "./dist/esm/shrinkwrap.mjs",
+			"import": "./dist/esm/shrinkwrap.mjs"
+		},
 		"./speckle": {
 			"types": "./dist/speckle.d.ts",
 			"module": "./dist/esm/speckle.mjs",
@@ -330,6 +335,9 @@
 			],
 			"shine": [
 				"dist/shine.d.ts"
+			],
+			"shrinkwrap": [
+				"dist/shrinkwrap.d.ts"
 			],
 			"speckle": [
 				"dist/speckle.d.ts"

@@ -193,7 +193,7 @@ export const Comp = () => {
 							{frame: 0, value: 0},
 							{frame: 100, value: 1},
 						],
-						easing: [[0.1, 0.2, 0.3, 0.4]],
+						easing: [{type: 'bezier', x1: 0.1, y1: 0.2, x2: 0.3, y2: 0.4}],
 						clamping: {left: 'clamp', right: 'wrap'},
 						posterize: 2,
 					},
@@ -214,6 +214,57 @@ export const Comp = () => {
 	expect(output).toContain("extrapolateRight: 'wrap'");
 	expect(output).toContain('easing: [Easing.bezier(0.1, 0.2, 0.3, 0.4)]');
 	expect(output).toContain('posterize: 2');
+});
+
+test('pasteEffects serializes spring easing for keyframed effects', async () => {
+	const input = `import {HtmlInCanvas} from '@remotion/html-in-canvas';
+
+export const Comp = () => {
+	return (
+		<HtmlInCanvas />
+	);
+};
+`;
+	const target = makeNodePath(input, getLine(input, '<HtmlInCanvas'));
+
+	const {output} = await pasteEffects({
+		input,
+		targetFileName: 'Comp.tsx',
+		targetSequenceNodePath: target.nodePath,
+		type: 'effects-additive',
+		effects: [
+			{
+				callee: 'brightness',
+				importPath: '@remotion/effects/brightness',
+				params: {
+					amount: {
+						type: 'keyframed',
+						interpolationFunction: 'interpolate',
+						keyframes: [
+							{frame: 0, value: 0},
+							{frame: 100, value: 1},
+						],
+						easing: [
+							{
+								type: 'spring',
+								damping: 12,
+								mass: 1.5,
+								stiffness: 180,
+								overshootClamping: true,
+							},
+						],
+						clamping: {left: 'extend', right: 'extend'},
+					},
+				},
+			},
+		],
+	});
+
+	expect(output).toContain('Easing.spring({');
+	expect(output).toContain('damping: 12');
+	expect(output).toContain('mass: 1.5');
+	expect(output).toContain('stiffness: 180');
+	expect(output).toContain('overshootClamping: true');
 });
 
 test('pasteEffects uses aliased Remotion imports for keyframed effects', async () => {
@@ -245,7 +296,7 @@ export const Comp = () => {
 							{frame: 0, value: 0},
 							{frame: 100, value: 1},
 						],
-						easing: ['linear'],
+						easing: [{type: 'linear'}],
 						clamping: {left: 'extend', right: 'extend'},
 					},
 				},
@@ -280,7 +331,7 @@ test('pasteEffects replaces existing effects with mixed static and keyframed par
 							{frame: 0, value: 'red'},
 							{frame: 100, value: 'green'},
 						],
-						easing: [[0.1, 0.2, 0.3, 0.4]],
+						easing: [{type: 'bezier', x1: 0.1, y1: 0.2, x2: 0.3, y2: 0.4}],
 						clamping: {left: 'clamp', right: 'clamp'},
 						posterize: 5,
 					},
@@ -324,7 +375,7 @@ test('pasteEffects supports interpolated rotate keyframed params', async () => {
 							{frame: 0, value: '0deg'},
 							{frame: 100, value: '90deg'},
 						],
-						easing: ['linear'],
+						easing: [{type: 'linear'}],
 						clamping: {left: 'extend', right: 'extend'},
 					},
 				},

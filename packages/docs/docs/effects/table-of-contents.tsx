@@ -273,6 +273,13 @@ const categories: {
 				description: 'Glossy light sweep effect',
 			},
 			{
+				link: '/docs/effects/shrinkwrap',
+				preview: '/img/effects-shrinkwrap-preview.png',
+				alt: 'shrinkwrap effect preview',
+				name: 'shrinkwrap()',
+				description: 'Procedural plastic wrap effect',
+			},
+			{
 				link: '/docs/effects/vignette',
 				preview: '/img/effects-vignette-preview.png',
 				alt: 'vignette effect preview',

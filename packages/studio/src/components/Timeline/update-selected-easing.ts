@@ -1,5 +1,7 @@
+import {LINEAR_KEYFRAME_EASING} from '@remotion/studio-shared';
 import type {
 	CanUpdateSequencePropStatusKeyframed,
+	CanUpdateSequencePropStatusEasing,
 	DragOverrideValue,
 	OverrideIdToNodePaths,
 	PropStatuses,
@@ -21,7 +23,7 @@ import type {
 } from './TimelineSelection';
 
 export type EasingSelection = TimelineEasingSelection;
-export type TimelineEasingValue = 'linear' | [number, number, number, number];
+export type TimelineEasingValue = CanUpdateSequencePropStatusEasing;
 export type SelectedEasingUpdate =
 	| {
 			readonly type: 'sequence';
@@ -112,7 +114,8 @@ export const getSelectedEasingUpdate = ({
 			schema: sequence.controls.schema,
 			segmentIndex: selection.segmentIndex,
 			currentEasing:
-				sequencePropStatus.easing[selection.segmentIndex] ?? 'linear',
+				sequencePropStatus.easing[selection.segmentIndex] ??
+				LINEAR_KEYFRAME_EASING,
 			propStatus: sequencePropStatus,
 		};
 	}
@@ -148,7 +151,8 @@ export const getSelectedEasingUpdate = ({
 		fieldKey: field.fieldKey,
 		schema: effect.schema,
 		segmentIndex: selection.segmentIndex,
-		currentEasing: effectPropStatus.easing[selection.segmentIndex] ?? 'linear',
+		currentEasing:
+			effectPropStatus.easing[selection.segmentIndex] ?? LINEAR_KEYFRAME_EASING,
 		propStatus: effectPropStatus,
 	};
 };
@@ -187,7 +191,7 @@ export const makeEasingDragOverride = ({
 }): DragOverrideValue => {
 	const nextEasing = [...status.easing];
 	while (nextEasing.length < status.keyframes.length - 1) {
-		nextEasing.push('linear');
+		nextEasing.push(LINEAR_KEYFRAME_EASING);
 	}
 
 	if (nextEasing.length > status.keyframes.length - 1) {

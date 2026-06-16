@@ -3,6 +3,7 @@ import {
 	type CanUpdateSequencePropsResponse,
 	type SequenceSchema,
 } from 'remotion';
+import {LINEAR_KEYFRAME_EASING} from './keyframe-easing-presets';
 import {
 	getKeyframeInterpolationFunction,
 	isSchemaFieldKeyframable,
@@ -41,7 +42,7 @@ const addKeyframeToPropStatus = ({
 		);
 		const easing = [...status.easing];
 		while (easing.length < keyframes.length - 1) {
-			easing.push('linear');
+			easing.push(LINEAR_KEYFRAME_EASING);
 		}
 
 		return {
