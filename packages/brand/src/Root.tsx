@@ -13,6 +13,10 @@ import {
 	whatIsRemotionCalculateMetadata,
 	whatIsRemotionSchema,
 } from './Compose/WhatIsRemotion';
+import {
+	StarburstEffectShowcase,
+	starburstEffectShowcaseDurationInFrames,
+} from './effects/StarburstEffectShowcase';
 import {EmailSignature} from './EmailSignature';
 import {Logo} from './Logo';
 import {LogoCollab, logoCollabSchema} from './LogoCollab/LogoCollab';
@@ -95,6 +99,16 @@ export const RemotionRoot: React.FC = () => {
 				durationInFrames={90}
 				id="scaling-logo"
 			/>
+			<Folder name="effects">
+				<Composition
+					id="starburst-effect-showcase"
+					component={StarburstEffectShowcase}
+					durationInFrames={starburstEffectShowcaseDurationInFrames}
+					fps={30}
+					width={1080}
+					height={1350}
+				/>
+			</Folder>
 			<Folder name="animated-logo">
 				<Composition
 					component={AnimatedLogo}
