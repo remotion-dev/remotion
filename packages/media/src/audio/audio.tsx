@@ -1,6 +1,7 @@
 import React, {useMemo, useState} from 'react';
 import {
 	Internals,
+	Interactive,
 	Sequence,
 	useRemotionEnvironment,
 	useVideoConfig,
@@ -164,7 +165,7 @@ const AudioInner: React.FC<
 	);
 };
 
-export const Audio = Internals.withInteractivitySchema({
+export const Audio = Interactive.withSchema({
 	Component: AudioInner,
 	componentIdentity: 'dev.remotion.media.Audio',
 	schema: audioSchema,

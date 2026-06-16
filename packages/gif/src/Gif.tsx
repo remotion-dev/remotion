@@ -1,6 +1,7 @@
 import React from 'react';
 import {
 	Internals,
+	Interactive,
 	Sequence,
 	useRemotionEnvironment,
 	useVideoConfig,
@@ -18,7 +19,6 @@ const {
 	addSequenceStackTraces,
 	useMemoizedEffectDefinitions,
 	useMemoizedEffects,
-	withInteractivitySchema,
 } = Internals;
 
 export type GifProps = InteractiveBaseProps &
@@ -119,7 +119,7 @@ const GifInner = ({
 	);
 };
 
-export const Gif = withInteractivitySchema({
+export const Gif = Interactive.withSchema({
 	Component: GifInner,
 	componentIdentity: 'dev.remotion.gif.Gif',
 	schema: gifSchema,

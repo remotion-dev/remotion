@@ -23,6 +23,7 @@ import type {
 } from 'remotion';
 import {
 	Internals,
+	Interactive,
 	Sequence,
 	useCurrentFrame,
 	useDelayRender,
@@ -40,7 +41,6 @@ const {
 	useEffectChainState,
 	useMemoizedEffectDefinitions,
 	useMemoizedEffects,
-	withInteractivitySchema,
 } = Internals;
 
 type assetLoadCallback = (asset: FileAsset, bytes: Uint8Array) => boolean;
@@ -487,7 +487,7 @@ const RemotionRiveCanvasInner = forwardRef(
 	RemotionRiveCanvasInnerForwardRefFunction,
 );
 
-export const RemotionRiveCanvas = withInteractivitySchema({
+export const RemotionRiveCanvas = Interactive.withSchema({
 	Component: RemotionRiveCanvasInner as unknown as React.ComponentType<
 		RemotionRiveCanvasProps & {
 			readonly controls: SequenceControls | undefined;

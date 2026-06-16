@@ -1,5 +1,5 @@
 import React from 'react';
-import {Internals} from 'remotion';
+import {Internals, Interactive} from 'remotion';
 import type {MakeCalloutProps} from '../utils/make-callout';
 import {makeCallout} from '../utils/make-callout';
 import type {AllShapesProps} from './render-svg';
@@ -90,7 +90,7 @@ const CalloutInner: React.FC<CalloutProps> = ({
 	);
 };
 
-export const Callout = Internals.withInteractivitySchema({
+export const Callout = Interactive.withSchema({
 	Component: CalloutInner,
 	componentIdentity: 'dev.remotion.shapes.Callout',
 	schema: calloutSchema,

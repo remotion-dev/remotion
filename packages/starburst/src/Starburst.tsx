@@ -2,6 +2,7 @@ import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
 	AbsoluteFill,
 	Internals,
+	Interactive,
 	Sequence,
 	useDelayRender,
 	useVideoConfig,
@@ -434,7 +435,7 @@ const StarburstInner: React.FC<
 	);
 };
 
-export const Starburst = Internals.withInteractivitySchema({
+export const Starburst = Interactive.withSchema({
 	Component: StarburstInner,
 	componentIdentity: 'dev.remotion.starburst.Starburst',
 	schema: starburstSchema,

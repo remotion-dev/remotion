@@ -2,6 +2,7 @@ import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
 	AbsoluteFill,
 	Internals,
+	Interactive,
 	Sequence,
 	useCurrentFrame,
 	useDelayRender,
@@ -300,7 +301,7 @@ const LightLeakInner: React.FC<
 	);
 };
 
-export const LightLeak = Internals.withInteractivitySchema({
+export const LightLeak = Interactive.withSchema({
 	Component: LightLeakInner,
 	componentIdentity: 'dev.remotion.lightLeaks.LightLeak',
 	schema: lightLeakSchema,

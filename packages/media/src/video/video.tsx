@@ -1,6 +1,7 @@
 import React, {useMemo, useState} from 'react';
 import {
 	Internals,
+	Interactive,
 	Sequence,
 	useRemotionEnvironment,
 	useVideoConfig,
@@ -356,7 +357,7 @@ const VideoInner: React.FC<
 	);
 };
 
-export const Video = Internals.withInteractivitySchema({
+export const Video = Interactive.withSchema({
 	Component: VideoInner,
 	componentIdentity: 'dev.remotion.media.Video',
 	schema: videoSchema,

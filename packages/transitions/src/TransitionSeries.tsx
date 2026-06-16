@@ -7,7 +7,13 @@ import type {
 	SequencePropsWithoutDuration,
 	InteractivitySchema,
 } from 'remotion';
-import {Internals, Sequence, useCurrentFrame, useVideoConfig} from 'remotion';
+import {
+	Internals,
+	Interactive,
+	Sequence,
+	useCurrentFrame,
+	useVideoConfig,
+} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {
 	WrapInEnteringProgressContext,
@@ -709,7 +715,7 @@ const TransitionSeriesInner: FC<SequencePropsWithoutDuration> = (props) => {
 	);
 };
 
-const TransitionSeries = Internals.withInteractivitySchema({
+const TransitionSeries = Interactive.withSchema({
 	Component: TransitionSeriesInner,
 	componentIdentity: 'dev.remotion.transitions.TransitionSeries',
 	schema: transitionSeriesSchema,

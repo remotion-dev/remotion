@@ -247,7 +247,6 @@ export {useDelayRender} from './use-delay-render';
 export {usePixelDensity} from './use-pixel-density';
 export {useRemotionEnvironment} from './use-remotion-environment.js';
 export * from './use-video-config.js';
-export {withInteractivitySchema} from './with-interactivity-schema.js';
 export * from './version.js';
 export * from './video-config.js';
 export {
