@@ -162,8 +162,10 @@ const createPixelateState = (gl: WebGL2RenderingContext): PixelateState => {
 
 	gl.bindTexture(gl.TEXTURE_2D, texture);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-	gl.bindTexture(gl.TEXTURE_2D, null);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.bindTexture(gl.TEXTURE_2D, null);
 
 	return {
 		gl,
@@ -196,7 +198,6 @@ export const pixelate = createEffect<PixelateParams, PixelateState>({
 		if (!gl) {
 			throw createWebGL2ContextError('pixelate effect');
 		}
-
 		gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
 		return createPixelateState(gl);
 	},
@@ -211,16 +212,6 @@ export const pixelate = createEffect<PixelateParams, PixelateState>({
 		state.gl.activeTexture(state.gl.TEXTURE0);
 		state.gl.bindTexture(state.gl.TEXTURE_2D, state.texture);
 		state.gl.pixelStorei(state.gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
-		state.gl.texParameteri(
-			state.gl.TEXTURE_2D,
-			state.gl.TEXTURE_MIN_FILTER,
-			state.gl.LINEAR,
-		);
-		state.gl.texParameteri(
-			state.gl.TEXTURE_2D,
-			state.gl.TEXTURE_MAG_FILTER,
-			state.gl.LINEAR,
-		);
 		state.gl.texImage2D(
 			state.gl.TEXTURE_2D,
 			0,
@@ -235,7 +226,6 @@ export const pixelate = createEffect<PixelateParams, PixelateState>({
 		if (state.uSource) state.gl.uniform1i(state.uSource, 0);
 		if (state.uBlockSize) state.gl.uniform1f(state.uBlockSize, r.blockSize);
 		if (state.uResolution) state.gl.uniform2f(state.uResolution, width, height);
-		// width aur height shader ko bhejo
 
 		state.gl.bindVertexArray(state.vao);
 		state.gl.drawArrays(state.gl.TRIANGLE_STRIP, 0, 4);
@@ -248,7 +238,6 @@ export const pixelate = createEffect<PixelateParams, PixelateState>({
 		gl.deleteBuffer(vbo);
 		gl.deleteProgram(program);
 		gl.deleteVertexArray(vao);
-		// GPU memory leak nahi honi chahiye
 	},
 
 	schema: pixelateSchema,
