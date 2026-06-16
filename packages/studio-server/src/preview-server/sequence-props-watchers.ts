@@ -198,7 +198,6 @@ export const subscribeToSequencePropsWatchers = ({
 			try {
 				const result = computeSequencePropsStatusFromContent({
 					fileContents: event.content,
-					fileName,
 					nodePath: nodePath.nodePath,
 					componentIdentity,
 					keys,
