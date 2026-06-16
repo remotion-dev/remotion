@@ -308,7 +308,7 @@ void main() {
 	float up = heightMap(vUv + vec2(0.0, texel.y));
 	vec2 gradient = vec2(right - left, up - down);
 	float reliefScale = mix(42.0, 115.0, uWrinkleDensity);
-	float warpStrength = reliefScale * 0.18;
+	float warpStrength = reliefScale * 0.32;
 
 	vec2 sampleOffset = gradient * warpStrength * uDisplacement * uAmount;
 	vec2 sampleUv = clamp(vUv - sampleOffset * texel, vec2(0.0), vec2(1.0));
