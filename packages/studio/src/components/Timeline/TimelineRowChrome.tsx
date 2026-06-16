@@ -90,7 +90,6 @@ export const TimelineRowChrome: React.FC<{
 	const onPointerDown = useCallback(
 		(e: React.PointerEvent<HTMLDivElement>) => {
 			if (e.button === 0) {
-				e.stopPropagation();
 				onSelect({
 					shiftKey: e.shiftKey,
 					toggleKey: e.metaKey || e.ctrlKey,
