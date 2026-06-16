@@ -1,4 +1,4 @@
-import React, {useContext, useMemo, useState} from 'react';
+import React, {useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {BLUE} from '../helpers/colors';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
@@ -108,12 +108,10 @@ const SelectedUvHandleCircle: React.FC<{
 }> = ({handle, nodePathInfo, onDraggingChange, onSelect, outline}) => {
 	const {setEffectDragOverrides, clearEffectDragOverrides, setPropStatuses} =
 		useContext(Internals.VisualModeSettersContext);
-	const [hovered, setHovered] = useState(false);
 	const position = useMemo(
 		() => getUvHandlePosition(outline.points, handle.value),
 		[handle.value, outline.points],
 	);
-	const highlighted = handle.isSelected || hovered;
 
 	const onPointerDown = React.useCallback(
 		(event: React.PointerEvent<SVGCircleElement>) => {
@@ -292,13 +290,11 @@ const SelectedUvHandleCircle: React.FC<{
 			r={handle.isSelected ? selectedUvHandleRadius : uvHandleRadius}
 			fill="white"
 			stroke={BLUE}
-			strokeWidth={highlighted ? 2 : 1}
+			strokeWidth={2}
 			style={uvHandleStyle}
 			vectorEffect="non-scaling-stroke"
 			pointerEvents="all"
 			cursor="default"
-			onPointerEnter={() => setHovered(true)}
-			onPointerLeave={() => setHovered(false)}
 			onPointerDown={onPointerDown}
 		/>
 	);
