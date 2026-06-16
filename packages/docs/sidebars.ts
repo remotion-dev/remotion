@@ -307,6 +307,7 @@ const sidebars: SidebarsConfig = {
 				'effects/shine',
 				'effects/shrinkwrap',
 				'effects/speckle',
+				'effects/thermal-vision',
 				'effects/tint',
 				'effects/tv-signal-off',
 				'effects/uv-translate',

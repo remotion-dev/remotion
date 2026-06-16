@@ -32,6 +32,7 @@ import {scanlines} from '@remotion/effects/scanlines';
 import {shine} from '@remotion/effects/shine';
 import {shrinkwrap} from '@remotion/effects/shrinkwrap';
 import {speckle} from '@remotion/effects/speckle';
+import {thermalVision} from '@remotion/effects/thermal-vision';
 import {tint} from '@remotion/effects/tint';
 import {uvTranslate, xyTranslate} from '@remotion/effects/translate';
 import {tvSignalOff} from '@remotion/effects/tv-signal-off';
@@ -88,6 +89,7 @@ import {
 } from '../effects/effects-shrinkwrap-preview';
 import {EffectsSpecklePreview} from '../effects/effects-speckle-preview';
 import {EffectsStarburstPreview} from '../effects/effects-starburst-preview';
+import {EffectsThermalVisionPreview} from '../effects/effects-thermal-vision-preview';
 import {EffectsTintPreview} from '../effects/effects-tint-preview';
 import {
 	EffectsUvTranslatePreview,
@@ -232,6 +234,14 @@ export const effectsDemos: EffectsDemoType[] = [
 		initialValues: {
 			color: '#1ec8ff',
 		},
+	},
+	{
+		...defaults,
+		id: 'effects-thermal-vision',
+		effectName: 'thermalVision',
+		effectImportPath: '@remotion/effects/thermal-vision',
+		comp: EffectsThermalVisionPreview,
+		schema: thermalVision().definition.schema,
 	},
 	{
 		...defaults,

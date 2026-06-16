@@ -183,6 +183,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-thermal-vision',
+		category: 'Color',
+		label: 'thermalVision()',
+		description: 'Thermal heat-map color effect',
+		effect: {
+			name: 'thermalVision',
+			importPath: '@remotion/effects/thermal-vision',
+			config: {},
+		},
+	},
+	{
 		id: 'effects-blur',
 		category: 'Blur & Shadow',
 		label: 'blur()',
