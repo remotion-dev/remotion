@@ -1,4 +1,11 @@
 export {
+	HTML_IN_CANVAS_ALL_EFFECTS_DURATION,
+	HtmlInCanvasAllEffects,
+	calculateHtmlInCanvasAllEffectsMetadata,
+	htmlInCanvasAllEffectsDefaultProps,
+	htmlInCanvasAllEffectsSchema,
+} from './all-effects';
+export {
 	BookFlipTransitionDoc,
 	BookFlipTransitionDocThumb,
 } from './book-flip-doc';

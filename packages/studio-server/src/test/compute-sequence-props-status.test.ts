@@ -110,15 +110,34 @@ export const Example: React.FC = () => {
 };
 `;
 
-	expect(() =>
+	let thrown: unknown = null;
+	try {
 		computeSequencePropsStatusFromContent({
 			fileContents: input,
+			fileName: 'src/Example.tsx',
 			nodePath: getNodePathFromContent(input, 7),
 			componentIdentity: 'dev.remotion.shapes.Star',
 			keys: ['points'],
 			effects: [],
-		}),
-	).toThrow(JsxElementIdentityMismatchError);
+		});
+	} catch (error) {
+		thrown = error;
+	}
+
+	expect(thrown).toBeInstanceOf(JsxElementIdentityMismatchError);
+	if (!(thrown instanceof JsxElementIdentityMismatchError)) {
+		throw new Error('Expected identity mismatch error');
+	}
+
+	expect(thrown.message).toContain(
+		'Expected identity: dev.remotion.shapes.Star',
+	);
+	expect(thrown.message).toContain(
+		'Actual identity: dev.remotion.remotion.Interactive.Div',
+	);
+	expect(thrown.message).toContain('File: src/Example.tsx');
+	expect(thrown.message).toContain('Location: line 7, column 9');
+	expect(thrown.message).toContain('Node path:');
 });
 
 test('computeSequencePropsStatus should match namespace imports by component identity', () => {

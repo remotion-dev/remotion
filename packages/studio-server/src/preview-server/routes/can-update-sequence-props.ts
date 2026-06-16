@@ -912,12 +912,14 @@ const computeSequenceOnlyPropsRecord = ({
 
 export const computeSequencePropsStatusFromContent = ({
 	fileContents,
+	fileName,
 	nodePath,
 	componentIdentity,
 	keys,
 	effects,
 }: {
 	fileContents: string;
+	fileName?: string;
 	nodePath: SequenceNodePath;
 	componentIdentity: JsxComponentIdentity | null;
 	keys: string[];
@@ -931,13 +933,20 @@ export const computeSequencePropsStatusFromContent = ({
 		throw new JsxElementNotFoundAtLocationError();
 	}
 
+	const actualIdentity = getJsxComponentIdentity({ast, jsxElement});
 	if (
 		!jsxComponentIdentitiesMatch({
 			expected: componentIdentity,
-			actual: getJsxComponentIdentity({ast, jsxElement}),
+			actual: actualIdentity,
 		})
 	) {
-		throw new JsxElementIdentityMismatchError();
+		throw new JsxElementIdentityMismatchError({
+			expected: componentIdentity,
+			actual: actualIdentity,
+			fileName,
+			location: jsxElement.loc?.start ?? null,
+			nodePath,
+		});
 	}
 
 	const filteredProps = computeSequenceOnlyPropsRecord({jsxElement, ast, keys});
@@ -974,6 +983,7 @@ export const computeSequencePropsStatus = ({
 	const fileContents = readFileSync(absolutePath, 'utf-8');
 	return computeSequencePropsStatusFromContent({
 		fileContents,
+		fileName,
 		nodePath,
 		componentIdentity,
 		keys,

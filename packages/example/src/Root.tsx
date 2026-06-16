@@ -61,6 +61,8 @@ import {
 	DissolveTransitionDocThumb,
 	FilmBurnTransitionDoc,
 	FilmBurnTransitionDocThumb,
+	HTML_IN_CANVAS_ALL_EFFECTS_DURATION,
+	HtmlInCanvasAllEffects,
 	HtmlInCanvasComplexText,
 	HtmlInCanvasComposeAsyncBitmap,
 	HtmlInCanvasComposeWebGL,
@@ -83,6 +85,9 @@ import {
 	ZoomBlurTransitionDocThumb,
 	ZoomInOutTransitionDoc,
 	ZoomInOutTransitionDocThumb,
+	calculateHtmlInCanvasAllEffectsMetadata,
+	htmlInCanvasAllEffectsDefaultProps,
+	htmlInCanvasAllEffectsSchema,
 } from './HtmlInCanvas';
 import {HugeImage} from './HugeImage';
 import {HugePayload, hugePayloadSchema} from './HugePayload';
@@ -1047,6 +1052,17 @@ export const Index: React.FC = () => {
 					durationInFrames={100}
 				/>
 				<Folder name="html-in-canvas">
+					<Composition
+						id="html-in-canvas-all-effects"
+						component={HtmlInCanvasAllEffects}
+						fps={30}
+						height={1080}
+						width={1920}
+						durationInFrames={HTML_IN_CANVAS_ALL_EFFECTS_DURATION}
+						schema={htmlInCanvasAllEffectsSchema}
+						defaultProps={htmlInCanvasAllEffectsDefaultProps}
+						calculateMetadata={calculateHtmlInCanvasAllEffectsMetadata}
+					/>
 					<Composition
 						id="html-in-canvas-changing-size"
 						component={HtmlInCanvasDemo}
