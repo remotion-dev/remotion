@@ -56,17 +56,7 @@ const labelContainer: React.CSSProperties = {
 };
 
 const label: React.CSSProperties = {
-	color: 'white',
-	fontSize: 14,
-	overflow: 'hidden',
-	textOverflow: 'ellipsis',
-	whiteSpace: 'nowrap',
-};
-
-const detail: React.CSSProperties = {
-	color: LIGHT_TEXT,
-	fontSize: 12,
-	lineHeight: '16px',
+	fontSize: 15,
 	overflow: 'hidden',
 	textOverflow: 'ellipsis',
 	whiteSpace: 'nowrap',
@@ -110,6 +100,13 @@ const EffectPickerResult: React.FC<{
 		};
 	}, [hovered, selected]);
 
+	const labelStyle = useMemo((): React.CSSProperties => {
+		return {
+			...label,
+			color: selected || hovered ? 'white' : LIGHT_TEXT,
+		};
+	}, [hovered, selected]);
+
 	const onClick = useCallback(() => {
 		onSelected(item);
 	}, [item, onSelected]);
@@ -123,8 +120,7 @@ const EffectPickerResult: React.FC<{
 			onMouseLeave={() => setHovered(false)}
 		>
 			<div style={labelContainer}>
-				<div style={label}>{item.label}</div>
-				<div style={detail}>{item.description}</div>
+				<div style={labelStyle}>{item.label}</div>
 			</div>
 			<Spacing x={1} />
 			<div style={category}>{item.category}</div>
