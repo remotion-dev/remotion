@@ -200,6 +200,7 @@ const CanvasImageContent = forwardRef<
 		const [outputCanvas, setOutputCanvas] = useState<HTMLCanvasElement | null>(
 			null,
 		);
+		const [loadedImage, setLoadedImage] = useState<LoadedImage | null>(null);
 		const actualSrc = usePreload(src);
 		const chainState = useEffectChainState();
 		const memoizedEffects = useMemoizedEffects({
@@ -233,10 +234,6 @@ const CanvasImageContent = forwardRef<
 		);
 
 		useEffect(() => {
-			if (!outputCanvas || !sourceCanvas) {
-				return;
-			}
-
 			const isPremounting = Boolean(sequenceContext?.premounting);
 			const isPostmounting = Boolean(sequenceContext?.postmounting);
 
@@ -258,6 +255,8 @@ const CanvasImageContent = forwardRef<
 			let errorCount = 0;
 			let timeoutId: ReturnType<typeof setTimeout> | null = null;
 
+			setLoadedImage(null);
+
 			const continueRenderOnce = () => {
 				if (continued) {
 					return;
@@ -275,44 +274,10 @@ const CanvasImageContent = forwardRef<
 							return;
 						}
 
-						const canvasWidth = width ?? image.width;
-						const canvasHeight = height ?? image.height;
-						const sourceContext = sourceCanvas.getContext('2d', {
-							colorSpace: 'srgb',
-						});
-
-						if (!sourceContext) {
-							throw new Error(
-								'Could not get 2D context for <CanvasImage> source canvas',
-							);
-						}
-
-						sourceCanvas.width = canvasWidth;
-						sourceCanvas.height = canvasHeight;
-						outputCanvas.width = canvasWidth;
-						outputCanvas.height = canvasHeight;
-
-						sourceContext.clearRect(0, 0, canvasWidth, canvasHeight);
-						sourceContext.drawImage(
-							image.element,
-							...calculateImageFit(
-								fit,
-								{width: image.width, height: image.height},
-								{width: canvasWidth, height: canvasHeight},
-							),
-						);
-
-						return runEffectChain({
-							state: chainState.get(canvasWidth, canvasHeight)!,
-							source: sourceCanvas,
-							effects: memoizedEffects,
-							output: outputCanvas,
-							width: canvasWidth,
-							height: canvasHeight,
-						});
+						setLoadedImage(image);
 					})
-					.then((completed) => {
-						if (completed && !cancelled) {
+					.then(() => {
+						if (!cancelled) {
 							continueRenderOnce();
 						}
 					})
@@ -357,21 +322,112 @@ const CanvasImageContent = forwardRef<
 		}, [
 			actualSrc,
 			cancelRender,
-			chainState,
 			continueRender,
 			delayPlayback,
 			delayRender,
 			delayRenderRetries,
 			delayRenderTimeoutInMilliseconds,
-			fit,
-			height,
 			maxRetries,
-			memoizedEffects,
 			onError,
-			outputCanvas,
 			pauseWhenLoading,
 			sequenceContext?.postmounting,
 			sequenceContext?.premounting,
+		]);
+
+		useEffect(() => {
+			if (!loadedImage || !outputCanvas || !sourceCanvas) {
+				return;
+			}
+
+			const handle = delayRender(
+				`Applying effects to <CanvasImage> with src="${truncateSrcForLabel(actualSrc)}"`,
+			);
+
+			let cancelled = false;
+			let continued = false;
+
+			const continueRenderOnce = () => {
+				if (continued) {
+					return;
+				}
+
+				continued = true;
+				continueRender(handle);
+			};
+
+			const canvasWidth = width ?? loadedImage.width;
+			const canvasHeight = height ?? loadedImage.height;
+			const sourceContext = sourceCanvas.getContext('2d', {
+				colorSpace: 'srgb',
+			});
+
+			if (!sourceContext) {
+				cancelRender(
+					new Error('Could not get 2D context for <CanvasImage> source canvas'),
+				);
+				continueRenderOnce();
+				return () => {
+					continueRenderOnce();
+				};
+			}
+
+			sourceCanvas.width = canvasWidth;
+			sourceCanvas.height = canvasHeight;
+			outputCanvas.width = canvasWidth;
+			outputCanvas.height = canvasHeight;
+
+			sourceContext.clearRect(0, 0, canvasWidth, canvasHeight);
+			sourceContext.drawImage(
+				loadedImage.element,
+				...calculateImageFit(
+					fit,
+					{width: loadedImage.width, height: loadedImage.height},
+					{width: canvasWidth, height: canvasHeight},
+				),
+			);
+
+			runEffectChain({
+				state: chainState.get(canvasWidth, canvasHeight)!,
+				source: sourceCanvas,
+				effects: memoizedEffects,
+				output: outputCanvas,
+				width: canvasWidth,
+				height: canvasHeight,
+			})
+				.then((completed) => {
+					if (completed && !cancelled) {
+						continueRenderOnce();
+					}
+				})
+				.catch((err) => {
+					if (cancelled) {
+						return;
+					}
+
+					if (onError) {
+						onError(err as Error);
+						continueRenderOnce();
+					} else {
+						cancelRender(err);
+					}
+				});
+
+			return () => {
+				cancelled = true;
+				continueRenderOnce();
+			};
+		}, [
+			actualSrc,
+			cancelRender,
+			chainState,
+			continueRender,
+			delayRender,
+			fit,
+			height,
+			loadedImage,
+			memoizedEffects,
+			onError,
+			outputCanvas,
 			sourceCanvas,
 			width,
 		]);

@@ -1,8 +1,7 @@
 import {shrinkwrap} from '@remotion/effects/shrinkwrap';
 import React from 'react';
-import {AbsoluteFill, HtmlInCanvas, Img, useCurrentFrame} from 'remotion';
-import shrinkwrapPreviewPng from '../../static/img/effects-shrinkwrap-preview.png';
-import transitionBgBlue from '../../static/img/transition-bg-blue.jpg';
+import {CanvasImage, useCurrentFrame} from 'remotion';
+import {EFFECTS_PREVIEW_IMAGE_SRC} from './effects-preview-image';
 
 export const SHRINKWRAP_PREVIEW_PARAMS = {
 	amount: 0.94,
@@ -32,27 +31,12 @@ export const EffectsShrinkwrapPreview: React.FC<{
 	seed,
 }) => {
 	const frame = useCurrentFrame();
-	const htmlInCanvasSupported = HtmlInCanvas.isSupported();
-
-	if (!htmlInCanvasSupported) {
-		return (
-			<Img
-				src={shrinkwrapPreviewPng}
-				width={1280}
-				height={720}
-				style={{
-					width: '100%',
-					height: '100%',
-					objectFit: 'cover',
-				}}
-			/>
-		);
-	}
 
 	return (
-		<HtmlInCanvas
+		<CanvasImage
 			width={1280}
 			height={720}
+			src={EFFECTS_PREVIEW_IMAGE_SRC}
 			effects={[
 				shrinkwrap({
 					amount,
@@ -64,15 +48,6 @@ export const EffectsShrinkwrapPreview: React.FC<{
 					seed,
 				}),
 			]}
-		>
-			<AbsoluteFill
-				style={{
-					backgroundImage: `url(${transitionBgBlue})`,
-					backgroundPosition: 'center',
-					backgroundRepeat: 'no-repeat',
-					backgroundSize: 'cover',
-				}}
-			/>
-		</HtmlInCanvas>
+		/>
 	);
 };

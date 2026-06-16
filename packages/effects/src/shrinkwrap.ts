@@ -260,7 +260,7 @@ float curvedFoldField(
 		fbm(
 			vec2(q.x / (spacing * 2.6), q.y / (spacing * 7.5)) +
 				phaseVec(0.12, 0.07) +
-				vec2(seedOffset),
+				vec2(seedOffset)
 		)
 	);
 	float softness =
@@ -322,10 +322,10 @@ float heightMap(vec2 uv) {
 				fbm(
 					warpedPx / (minSide * 0.11) +
 						phaseVec(-0.23, 0.27) +
-						vec2(uSeed * 0.3),
+						vec2(uSeed * 0.3)
 				) *
 					2.0 -
-					1.0,
+					1.0
 			)) * 0.018;
 
 	float edge = edgeMask(uv) * clamp(uEdgeTension, 0.0, 1.0);
