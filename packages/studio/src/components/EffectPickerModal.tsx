@@ -19,7 +19,6 @@ import {addEffectToSequence} from './effect-drag-and-drop';
 import {filterEffectCatalog} from './effect-picker-search';
 import {Spacing} from './layout';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from './Menu/is-menu-item';
-import {ModalHeader} from './ModalHeader';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {DismissableModal} from './NewComposition/DismissableModal';
 import {RemotionInput} from './NewComposition/RemInput';
@@ -248,7 +247,6 @@ const EffectPickerContent: React.FC<{
 
 	return (
 		<div style={container}>
-			<ModalHeader title="Add effect" />
 			<div style={content}>
 				<RemotionInput
 					ref={inputRef}
