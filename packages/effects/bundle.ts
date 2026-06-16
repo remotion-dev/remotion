@@ -38,6 +38,7 @@ const effectEntrypoints = [
 	'src/scanlines.ts',
 	'src/scale.ts',
 	'src/shine.ts',
+	'src/shrinkwrap.ts',
 	'src/speckle.ts',
 	'src/tint.ts',
 	'src/translate.ts',

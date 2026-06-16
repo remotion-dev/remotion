@@ -2016,6 +2016,15 @@ export const articles = [
 		slug: 'effects/shine',
 	},
 	{
+		id: 'effects/shrinkwrap',
+		title: 'shrinkwrap()',
+		relativePath: 'docs/effects/shrinkwrap.mdx',
+		compId: 'articles-docs-effects-shrinkwrap',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/shrinkwrap',
+	},
+	{
 		id: 'effects/speckle',
 		title: 'speckle()',
 		relativePath: 'docs/effects/speckle.mdx',

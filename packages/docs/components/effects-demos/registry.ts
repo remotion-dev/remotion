@@ -29,6 +29,7 @@ import {saturation} from '@remotion/effects/saturation';
 import {scale} from '@remotion/effects/scale';
 import {scanlines} from '@remotion/effects/scanlines';
 import {shine} from '@remotion/effects/shine';
+import {shrinkwrap} from '@remotion/effects/shrinkwrap';
 import {speckle} from '@remotion/effects/speckle';
 import {tint} from '@remotion/effects/tint';
 import {uvTranslate, xyTranslate} from '@remotion/effects/translate';
@@ -75,6 +76,7 @@ import {EffectsSaturationPreview} from '../effects/effects-saturation-preview';
 import {EffectsScalePreview} from '../effects/effects-scale-preview';
 import {EffectsScanlinesPreview} from '../effects/effects-scanlines-preview';
 import {EffectsShinePreview} from '../effects/effects-shine-preview';
+import {EffectsShrinkwrapPreview} from '../effects/effects-shrinkwrap-preview';
 import {EffectsSpecklePreview} from '../effects/effects-speckle-preview';
 import {EffectsStarburstPreview} from '../effects/effects-starburst-preview';
 import {EffectsTintPreview} from '../effects/effects-tint-preview';
@@ -220,6 +222,14 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/shine',
 		comp: EffectsShinePreview,
 		schema: shine().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-shrinkwrap',
+		effectName: 'shrinkwrap',
+		effectImportPath: '@remotion/effects/shrinkwrap',
+		comp: EffectsShrinkwrapPreview,
+		schema: shrinkwrap().definition.schema,
 	},
 	{
 		...defaults,

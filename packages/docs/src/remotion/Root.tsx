@@ -38,6 +38,10 @@ import {EffectsSaturationPreview} from '../../components/effects/effects-saturat
 import {EffectsScalePreview} from '../../components/effects/effects-scale-preview';
 import {EffectsScanlinesPreview} from '../../components/effects/effects-scanlines-preview';
 import {EffectsShinePreview} from '../../components/effects/effects-shine-preview';
+import {
+	EffectsShrinkwrapPreview,
+	SHRINKWRAP_PREVIEW_PARAMS,
+} from '../../components/effects/effects-shrinkwrap-preview';
 import {EffectsSpecklePreview} from '../../components/effects/effects-speckle-preview';
 import {EffectsStarburstPreview} from '../../components/effects/effects-starburst-preview';
 import {EffectsTintPreview} from '../../components/effects/effects-tint-preview';
@@ -557,6 +561,13 @@ export const RemotionRoot: React.FC = () => {
 						haloIntensity: 0.3,
 						coreIntensity: 0.4,
 					}}
+				/>
+				<Still
+					id="effects-shrinkwrap-preview"
+					component={EffectsShrinkwrapPreview}
+					width={1280}
+					height={720}
+					defaultProps={SHRINKWRAP_PREVIEW_PARAMS}
 				/>
 				<Still
 					id="effects-speckle-preview"
