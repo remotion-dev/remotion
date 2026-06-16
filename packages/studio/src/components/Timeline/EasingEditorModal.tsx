@@ -623,7 +623,7 @@ const EasingGraphScaffold: React.FC<{
 				strokeWidth={1}
 			/>
 			<foreignObject
-				x={PLOT_LEFT}
+				x={PLOT_LEFT - EASING_GRAPH_LABEL_HORIZONTAL_PADDING}
 				y={yOne - EASING_GRAPH_LABEL_HEIGHT / 2}
 				width={topLabelWidth}
 				height={EASING_GRAPH_LABEL_HEIGHT}
@@ -633,7 +633,12 @@ const EasingGraphScaffold: React.FC<{
 				</div>
 			</foreignObject>
 			<foreignObject
-				x={PLOT_LEFT + PLOT_WIDTH - bottomLabelWidth}
+				x={
+					PLOT_LEFT +
+					PLOT_WIDTH -
+					bottomLabelWidth +
+					EASING_GRAPH_LABEL_HORIZONTAL_PADDING
+				}
 				y={yZero - EASING_GRAPH_LABEL_HEIGHT / 2}
 				width={bottomLabelWidth}
 				height={EASING_GRAPH_LABEL_HEIGHT}
