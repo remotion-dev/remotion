@@ -57,6 +57,7 @@ import {
 } from '../components/Timeline/duplicate-selected-timeline-item';
 import {getTimelinePropResetTargets} from '../components/Timeline/reset-selected-timeline-props';
 import {
+	getEasingClipboardDataFromSelection,
 	getEffectPropClipboardDataFromSelection,
 	getPasteEffectPropTarget,
 	getPasteEffectsTarget,
@@ -627,6 +628,123 @@ test('copying a selected effect prop creates an effect prop payload', () => {
 			easing: [{type: 'linear'}],
 			clamping: {left: 'clamp', right: 'clamp'},
 		},
+	});
+});
+
+test('copying a selected sequence easing creates an easing payload', () => {
+	const opacityNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['controls', 'opacity'],
+	);
+	const nodePath = opacityNodePathInfo.sequenceSubscriptionKey;
+	const easing: [number, number, number, number] = [0.42, 0, 0.58, 1];
+	const schema = {
+		opacity: {type: 'number', default: 1, hiddenFromList: false},
+	} satisfies SequenceSchema;
+	const propStatuses = {
+		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			canUpdate: true,
+			props: {
+				opacity: {
+					status: 'keyframed',
+					interpolationFunction: 'interpolate',
+					keyframes: [
+						{frame: 0, value: 0},
+						{frame: 100, value: 1},
+					],
+					easing: [easing],
+					clamping: {left: 'clamp', right: 'clamp'},
+					posterize: undefined,
+				},
+			},
+			effects: [],
+		},
+	} satisfies PropStatuses;
+
+	expect(
+		getEasingClipboardDataFromSelection({
+			selection: {
+				type: 'easing',
+				nodePathInfo: opacityNodePathInfo,
+				fromFrame: 0,
+				toFrame: 100,
+				segmentIndex: 0,
+			},
+			sequences: [makeTimelineSequence({schema})],
+			overrideIdsToNodePaths: {override: nodePath},
+			propStatuses,
+		}),
+	).toEqual({
+		type: 'easing',
+		version: 1,
+		remotionClipboard: 'easing',
+		easing,
+	});
+});
+
+test('copying a selected effect easing creates an easing payload', () => {
+	const effectPropNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['effects', '0', 'intensity'],
+		true,
+		[['0', 'intensity']],
+	);
+	const nodePath = effectPropNodePathInfo.sequenceSubscriptionKey;
+	const schema = {} satisfies SequenceSchema;
+	const effectSchema = {
+		intensity: {type: 'number', default: 0, hiddenFromList: false},
+	} satisfies SequenceSchema;
+	const propStatuses = {
+		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			canUpdate: true,
+			props: {},
+			effects: [
+				{
+					canUpdate: true,
+					callee: 'halftone',
+					importPath: '@remotion/effects/halftone',
+					effectIndex: 0,
+					props: {
+						intensity: {
+							status: 'keyframed',
+							interpolationFunction: 'interpolateColors',
+							keyframes: [
+								{frame: 0, value: 10},
+								{frame: 100, value: 20},
+							],
+							easing: ['linear'],
+							clamping: {left: 'clamp', right: 'clamp'},
+							posterize: undefined,
+						},
+					},
+				},
+			],
+		},
+	} satisfies PropStatuses;
+
+	expect(
+		getEasingClipboardDataFromSelection({
+			selection: {
+				type: 'easing',
+				nodePathInfo: effectPropNodePathInfo,
+				fromFrame: 0,
+				toFrame: 100,
+				segmentIndex: 0,
+			},
+			sequences: [
+				makeTimelineSequence({
+					schema,
+					effects: [{schema: effectSchema}],
+				}),
+			],
+			overrideIdsToNodePaths: {override: nodePath},
+			propStatuses,
+		}),
+	).toEqual({
+		type: 'easing',
+		version: 1,
+		remotionClipboard: 'easing',
+		easing: 'linear',
 	});
 });
 
