@@ -76,7 +76,10 @@ import {EffectsSaturationPreview} from '../effects/effects-saturation-preview';
 import {EffectsScalePreview} from '../effects/effects-scale-preview';
 import {EffectsScanlinesPreview} from '../effects/effects-scanlines-preview';
 import {EffectsShinePreview} from '../effects/effects-shine-preview';
-import {EffectsShrinkwrapPreview} from '../effects/effects-shrinkwrap-preview';
+import {
+	EffectsShrinkwrapPreview,
+	SHRINKWRAP_PREVIEW_PARAMS,
+} from '../effects/effects-shrinkwrap-preview';
 import {EffectsSpecklePreview} from '../effects/effects-speckle-preview';
 import {EffectsStarburstPreview} from '../effects/effects-starburst-preview';
 import {EffectsTintPreview} from '../effects/effects-tint-preview';
@@ -230,6 +233,7 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/shrinkwrap',
 		comp: EffectsShrinkwrapPreview,
 		schema: shrinkwrap().definition.schema,
+		initialValues: SHRINKWRAP_PREVIEW_PARAMS,
 	},
 	{
 		...defaults,

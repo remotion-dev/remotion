@@ -4,10 +4,10 @@ import {AbsoluteFill, HtmlInCanvas} from 'remotion';
 
 export const SHRINKWRAP_PREVIEW_PARAMS = {
 	amount: 1,
-	displacement: 5,
-	highlightIntensity: 0.85,
-	wrinkleDensity: 0.48,
-	edgeTension: 0.58,
+	displacement: 6.5,
+	highlightIntensity: 1.1,
+	wrinkleDensity: 0.62,
+	edgeTension: 0.72,
 	seed: 8,
 } as const;
 
