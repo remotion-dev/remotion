@@ -98,7 +98,7 @@ const validateGlowParams = (params: GlowParams): void => {
 };
 
 export const glow = createEffect<GlowParams, GlowState>({
-	type: 'remotion/glow',
+	type: 'dev.remotion.effects.glow',
 	label: 'glow()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/glow',
 	backend: 'webgl2',

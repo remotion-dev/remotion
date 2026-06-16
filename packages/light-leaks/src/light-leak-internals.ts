@@ -257,7 +257,7 @@ const linkProgram = (
 };
 
 export const lightLeak = createEffect<LightLeakEffectParams, LightLeakGlState>({
-	type: 'remotion/light-leak',
+	type: 'dev.remotion.lightLeaks.lightLeak',
 	label: 'lightLeak()',
 	documentationLink:
 		'https://www.remotion.dev/docs/light-leaks/light-leak-effect',

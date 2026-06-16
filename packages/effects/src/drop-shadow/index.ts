@@ -108,7 +108,7 @@ const validateDropShadowParams = (params: DropShadowParams): void => {
 };
 
 export const dropShadow = createEffect<DropShadowParams, DropShadowState>({
-	type: 'remotion/drop-shadow',
+	type: 'dev.remotion.effects.dropShadow',
 	label: 'dropShadow()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/drop-shadow',
 	backend: 'webgl2',

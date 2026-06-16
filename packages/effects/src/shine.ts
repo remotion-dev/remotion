@@ -228,7 +228,7 @@ const linkProgram = (
 };
 
 export const shine = createEffect<ShineParams, ShineState>({
-	type: 'remotion/shine',
+	type: 'dev.remotion.effects.shine',
 	label: 'shine()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/shine',
 	backend: 'webgl2',

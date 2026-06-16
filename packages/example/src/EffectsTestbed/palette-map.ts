@@ -68,7 +68,7 @@ const findClosestColor = (color: Rgb, palette: Rgb[]): Rgb => {
 };
 
 export const paletteMap = createEffect<PaletteMapParams, null>({
-	type: 'example/palette-map',
+	type: 'com.example.paletteMap',
 	label: 'paletteMap()',
 	documentationLink: 'https://www.remotion.dev/docs/create-effect',
 	backend: '2d',

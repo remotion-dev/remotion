@@ -380,7 +380,7 @@ const linkProgram = (
 // `colorMode` controls whether dots use a solid `dotColor` or the sampled source
 // color at each grid cell.
 export const halftone = createEffect<HalftoneParams, HalftoneState>({
-	type: 'remotion/halftone',
+	type: 'dev.remotion.effects.halftone',
 	label: 'halftone()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/halftone',
 	backend: 'webgl2',

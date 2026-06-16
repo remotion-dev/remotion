@@ -519,7 +519,7 @@ const updatePalette = (
 };
 
 export const zigzag = createEffect<ZigzagParams, ZigzagState>({
-	type: 'remotion/zigzag',
+	type: 'dev.remotion.effects.zigzag',
 	label: 'zigzag()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/zigzag',
 	backend: 'webgl2',

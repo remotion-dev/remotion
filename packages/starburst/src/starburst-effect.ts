@@ -266,7 +266,7 @@ const linkProgram = (
 };
 
 export const starburst = createEffect<StarburstEffectParams, StarburstGlState>({
-	type: 'remotion/starburst',
+	type: 'dev.remotion.starburst.starburst',
 	label: 'starburst()',
 	documentationLink: 'https://www.remotion.dev/docs/starburst/starburst-effect',
 	backend: 'webgl2',

@@ -268,7 +268,7 @@ export const pixelDissolve = createEffect<
 	PixelDissolveParams,
 	PixelDissolveState
 >({
-	type: 'remotion/pixel-dissolve',
+	type: 'dev.remotion.effects.pixelDissolve',
 	label: 'pixelDissolve()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/pixel-dissolve',
 	backend: 'webgl2',

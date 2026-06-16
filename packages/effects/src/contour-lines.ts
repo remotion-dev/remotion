@@ -494,7 +494,7 @@ const setupContourLines = (target: HTMLCanvasElement): ContourLinesState => {
 
 export const contourLines = createEffect<ContourLinesParams, ContourLinesState>(
 	{
-		type: 'remotion/contour-lines',
+		type: 'dev.remotion.effects.contourLines',
 		label: 'contourLines()',
 		documentationLink: 'https://www.remotion.dev/docs/effects/contour-lines',
 		backend: 'webgl2',

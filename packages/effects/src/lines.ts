@@ -475,7 +475,7 @@ const updatePalette = (
 };
 
 export const lines = createEffect<LinesParams, LinesState>({
-	type: 'remotion/lines',
+	type: 'dev.remotion.effects.lines',
 	label: 'lines()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/lines',
 	backend: 'webgl2',

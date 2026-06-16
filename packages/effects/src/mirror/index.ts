@@ -89,7 +89,7 @@ const validateMirrorParams = (params: MirrorParams): void => {
 };
 
 export const mirror = createEffect<MirrorParams, MirrorState>({
-	type: 'remotion/mirror',
+	type: 'dev.remotion.effects.mirror',
 	label: 'mirror()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/mirror',
 	backend: 'webgl2',

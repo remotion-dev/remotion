@@ -254,7 +254,7 @@ const setupNoise = (target: HTMLCanvasElement): NoiseState => {
 };
 
 export const noise = createEffect<NoiseParams, NoiseState>({
-	type: 'remotion/noise',
+	type: 'dev.remotion.effects.noise',
 	label: 'noise()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/noise',
 	backend: 'webgl2',

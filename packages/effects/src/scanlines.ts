@@ -305,7 +305,7 @@ const setupScanlines = (target: HTMLCanvasElement): ScanlinesState => {
 };
 
 export const scanlines = createEffect<ScanlinesParams, ScanlinesState>({
-	type: 'remotion/scanlines',
+	type: 'dev.remotion.effects.scanlines',
 	label: 'scanlines()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/scanlines',
 	backend: 'webgl2',

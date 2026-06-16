@@ -538,7 +538,7 @@ const updatePalette = (
 };
 
 export const waves = createEffect<WavesParams, WavesState>({
-	type: 'remotion/waves',
+	type: 'dev.remotion.effects.waves',
 	label: 'waves()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/waves',
 	backend: 'webgl2',

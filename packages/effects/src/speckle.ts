@@ -200,7 +200,7 @@ const linkProgram = (
 };
 
 export const speckle = createEffect<SpeckleParams, SpeckleState>({
-	type: 'remotion/speckle',
+	type: 'dev.remotion.effects.speckle',
 	label: 'speckle()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/speckle',
 	backend: 'webgl2',

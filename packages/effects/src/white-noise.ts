@@ -196,7 +196,7 @@ const createWhiteNoiseState = (
 };
 
 export const whiteNoise = createEffect<WhiteNoiseParams, WhiteNoiseState>({
-	type: 'remotion/white-noise',
+	type: 'dev.remotion.effects.whiteNoise',
 	label: 'whiteNoise()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/white-noise',
 	backend: 'webgl2',

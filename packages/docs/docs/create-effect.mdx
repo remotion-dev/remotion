@@ -88,7 +88,7 @@ const findClosestColor = (color: Rgb, palette: Rgb[]): Rgb => {
 };
 
 export const paletteMap = createEffect<PaletteMapParams, null>({
-  type: 'example/palette-map',
+  type: 'com.example.paletteMap',
   label: 'paletteMap()',
   documentationLink: null,
   backend: '2d',
@@ -179,7 +179,7 @@ import {createEffect} from 'remotion';
 
 A stable identifier for the effect.
 
-Use a namespaced string such as `"example/palette-map"`.
+Use a reverse-DNS identifier such as `"com.example.paletteMap"`.
 
 ### `label`
 

@@ -116,7 +116,7 @@ const applyTranslate = ({
 };
 
 export const xyTranslate = createEffect<XyTranslateParams, null>({
-	type: 'remotion/xy-translate',
+	type: 'dev.remotion.effects.xyTranslate',
 	label: 'xyTranslate()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/xy-translate',
 	backend: '2d',
@@ -142,7 +142,7 @@ export const xyTranslate = createEffect<XyTranslateParams, null>({
 });
 
 export const uvTranslate = createEffect<UvTranslateParams, null>({
-	type: 'remotion/uv-translate',
+	type: 'dev.remotion.effects.uvTranslate',
 	label: 'uvTranslate()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/uv-translate',
 	backend: '2d',

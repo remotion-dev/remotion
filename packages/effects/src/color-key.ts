@@ -347,7 +347,7 @@ const parseKeyColor = (
 };
 
 export const colorKey = createEffect<ColorKeyParams, ColorKeyState>({
-	type: 'remotion/color-key',
+	type: 'dev.remotion.effects.colorKey',
 	label: 'colorKey()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/color-key',
 	backend: 'webgl2',

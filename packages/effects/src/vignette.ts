@@ -424,7 +424,7 @@ const normalizedRgba = (
 };
 
 export const vignette = createEffect<VignetteParams, VignetteState>({
-	type: 'remotion/vignette',
+	type: 'dev.remotion.effects.vignette',
 	label: 'vignette()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/vignette',
 	backend: 'webgl2',

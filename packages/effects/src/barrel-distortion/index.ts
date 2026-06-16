@@ -55,7 +55,7 @@ export const barrelDistortion = createEffect<
 	BarrelDistortionParams,
 	BarrelDistortionState
 >({
-	type: 'remotion/barrel-distortion',
+	type: 'dev.remotion.effects.barrelDistortion',
 	label: 'barrelDistortion()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/barrel-distortion',
 	backend: 'webgl2',

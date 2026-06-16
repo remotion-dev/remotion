@@ -61,7 +61,7 @@ const validateBlurParams = (params: BlurParams): void => {
 };
 
 export const blur = createEffect<BlurParams, BlurState>({
-	type: 'remotion/blur',
+	type: 'dev.remotion.effects.blur',
 	label: 'blur()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/blur',
 	backend: 'webgl2',

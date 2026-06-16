@@ -192,7 +192,7 @@ const linkProgram = (
 };
 
 export const dotGrid = createEffect<DotGridParams, DotGridState>({
-	type: 'remotion/dot-grid',
+	type: 'dev.remotion.effects.dotGrid',
 	label: 'dotGrid()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/dot-grid',
 	backend: 'webgl2',

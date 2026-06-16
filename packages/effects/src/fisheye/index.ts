@@ -139,7 +139,7 @@ const validateFisheyeParams = (params: FisheyeParams): void => {
 };
 
 export const fisheye = createEffect<FisheyeParams, FisheyeState>({
-	type: 'remotion/fisheye',
+	type: 'dev.remotion.effects.fisheye',
 	label: 'fisheye()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/fisheye',
 	backend: 'webgl2',

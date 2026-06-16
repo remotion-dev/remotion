@@ -414,7 +414,7 @@ export const halftoneLinearGradient = createEffect<
 	HalftoneLinearGradientParams,
 	HalftoneLinearGradientState
 >({
-	type: 'remotion/halftone-linear-gradient',
+	type: 'dev.remotion.effects.halftoneLinearGradient',
 	label: 'halftoneLinearGradient()',
 	documentationLink:
 		'https://www.remotion.dev/docs/effects/halftone-linear-gradient',

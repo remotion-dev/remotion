@@ -37,7 +37,7 @@ const validateContrastParams = (params: ContrastParams): void => {
 };
 
 export const contrast = createEffect<ContrastParams, null>({
-	type: 'remotion/contrast',
+	type: 'dev.remotion.effects.contrast',
 	label: 'contrast()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/contrast',
 	backend: '2d',

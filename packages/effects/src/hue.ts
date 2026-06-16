@@ -32,7 +32,7 @@ const validateHueParams = (params: HueParams): void => {
 };
 
 export const hue = createEffect<HueParams, null>({
-	type: 'remotion/hue',
+	type: 'dev.remotion.effects.hue',
 	label: 'hue()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/hue',
 	backend: '2d',

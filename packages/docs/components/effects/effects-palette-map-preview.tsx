@@ -71,7 +71,7 @@ const findClosestColor = (color: Rgb, palette: Rgb[]): Rgb => {
 };
 
 export const paletteMap = createEffect<PaletteMapParams, null>({
-	type: 'docs/palette-map',
+	type: 'com.example.paletteMap',
 	label: 'paletteMap()',
 	documentationLink: null,
 	backend: '2d',

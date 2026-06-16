@@ -328,7 +328,7 @@ const directionToInt = (direction: EvolveDirection): number => {
 };
 
 export const evolve = createEffect<EvolveParams, EvolveState>({
-	type: 'remotion/evolve',
+	type: 'dev.remotion.effects.evolve',
 	label: 'evolve()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/evolve',
 	backend: 'webgl2',

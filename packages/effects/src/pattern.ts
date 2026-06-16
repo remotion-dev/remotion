@@ -436,7 +436,7 @@ const linkProgram = (
 };
 
 export const pattern = createEffect<PatternParams, PatternState>({
-	type: 'remotion/pattern',
+	type: 'dev.remotion.effects.pattern',
 	label: 'pattern()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/pattern',
 	backend: 'webgl2',

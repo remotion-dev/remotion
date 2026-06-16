@@ -445,7 +445,7 @@ const updatePalette = (
 };
 
 export const rings = createEffect<RingsParams, RingsState>({
-	type: 'remotion/rings',
+	type: 'dev.remotion.effects.rings',
 	label: 'rings()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/rings',
 	backend: 'webgl2',

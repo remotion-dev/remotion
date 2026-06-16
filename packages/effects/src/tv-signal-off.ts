@@ -220,7 +220,7 @@ const createTvSignalOffState = (
 };
 
 export const tvSignalOff = createEffect<TvSignalOffParams, TvSignalOffState>({
-	type: 'remotion/tv-signal-off',
+	type: 'dev.remotion.effects.tvSignalOff',
 	label: 'tvSignalOff()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/tv-signal-off',
 	backend: 'webgl2',

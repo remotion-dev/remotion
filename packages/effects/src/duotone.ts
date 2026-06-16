@@ -307,7 +307,7 @@ const getParsedColors = (
 };
 
 export const duotone = createEffect<DuotoneParams, DuotoneState>({
-	type: 'remotion/duotone',
+	type: 'dev.remotion.effects.duotone',
 	label: 'duotone()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/duotone',
 	backend: 'webgl2',

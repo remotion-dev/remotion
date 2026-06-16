@@ -123,7 +123,7 @@ export const linearProgressiveBlur = createEffect<
 	LinearProgressiveBlurParams,
 	LinearProgressiveBlurState
 >({
-	type: 'remotion/linear-progressive-blur',
+	type: 'dev.remotion.effects.linearProgressiveBlur',
 	label: 'linearProgressiveBlur()',
 	documentationLink:
 		'https://www.remotion.dev/docs/effects/linear-progressive-blur',

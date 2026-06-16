@@ -36,7 +36,7 @@ const validateInvertParams = (params: InvertParams): void => {
 };
 
 export const invert = createEffect<InvertParams, null>({
-	type: 'remotion/invert',
+	type: 'dev.remotion.effects.invert',
 	label: 'invert()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/invert',
 	backend: '2d',

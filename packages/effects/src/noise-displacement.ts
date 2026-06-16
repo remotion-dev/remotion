@@ -529,7 +529,7 @@ export const noiseDisplacement = createEffect<
 	NoiseDisplacementParams,
 	NoiseDisplacementState
 >({
-	type: 'remotion/noise-displacement',
+	type: 'dev.remotion.effects.noiseDisplacement',
 	label: 'noiseDisplacement()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/noise-displacement',
 	backend: 'webgl2',

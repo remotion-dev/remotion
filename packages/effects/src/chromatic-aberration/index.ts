@@ -69,7 +69,7 @@ export const chromaticAberration = createEffect<
 	ChromaticAberrationParams,
 	ChromaticAberrationState
 >({
-	type: 'remotion/chromatic-aberration',
+	type: 'dev.remotion.effects.chromaticAberration',
 	label: 'chromaticAberration()',
 	documentationLink:
 		'https://www.remotion.dev/docs/effects/chromatic-aberration',
