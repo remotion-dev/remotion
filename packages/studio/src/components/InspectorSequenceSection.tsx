@@ -1,6 +1,7 @@
-import React, {useCallback, useMemo, useState} from 'react';
+import React, {useCallback, useContext, useMemo, useState} from 'react';
 import type {TSequence} from 'remotion';
 import type {CodePosition} from '../error-overlay/react-overlay/utils/get-source-map';
+import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {LIGHT_TEXT, LINE_COLOR} from '../helpers/colors';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 import {
@@ -8,6 +9,10 @@ import {
 	type FlatTreeRow,
 	type TimelineTreeNode,
 } from '../helpers/timeline-layout';
+import {Plus} from '../icons/plus';
+import {ModalsContext} from '../state/modals';
+import {InlineAction} from './InlineAction';
+import {sectionHeaderRow} from './InspectorPanel/styles';
 import {TimelineExpandedRow} from './Timeline/TimelineExpandedRow';
 import {useTimelineExpandedTree} from './Timeline/use-timeline-expanded-tree';
 
@@ -37,6 +42,18 @@ const divider: React.CSSProperties = {
 const controlsEffectsDivider: React.CSSProperties = {
 	...divider,
 	margin: '8px 0 4px',
+};
+
+const effectsHeaderTitle: React.CSSProperties = {
+	minWidth: 0,
+	overflow: 'hidden',
+	textOverflow: 'ellipsis',
+	whiteSpace: 'nowrap',
+};
+
+const plusIcon: React.CSSProperties = {
+	width: 10,
+	height: 10,
 };
 
 const isEffectsRoot = (
@@ -84,6 +101,8 @@ export const InspectorSequenceSection: React.FC<{
 	const [collapsedKeys, setCollapsedKeys] = useState<ReadonlySet<string>>(
 		() => new Set(),
 	);
+	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const {setSelectedModal} = useContext(ModalsContext);
 
 	const getIsExpanded = useCallback(
 		(candidate: SequenceNodePathInfo) => {
@@ -138,6 +157,43 @@ export const InspectorSequenceSection: React.FC<{
 		nodePathInfo.supportsEffects || effectRows.length > 0;
 	const showControlsEffectsDivider =
 		controlRows.length > 0 && showEffectsSection;
+	const canAddEffect =
+		nodePathInfo.supportsEffects &&
+		previewServerState.type === 'connected' &&
+		Boolean(validatedLocation.source);
+
+	const onAddEffect = useCallback(() => {
+		if (!canAddEffect || previewServerState.type !== 'connected') {
+			return;
+		}
+
+		setSelectedModal({
+			type: 'add-effect',
+			clientId: previewServerState.clientId,
+			fileName: validatedLocation.source,
+			nodePath: nodePathInfo.sequenceSubscriptionKey,
+		});
+	}, [
+		canAddEffect,
+		nodePathInfo.sequenceSubscriptionKey,
+		previewServerState,
+		setSelectedModal,
+		validatedLocation.source,
+	]);
+
+	const renderEffectsHeader = () => {
+		return renderSectionHeader(
+			<div style={sectionHeaderRow}>
+				<div style={effectsHeaderTitle}>Effects</div>
+				<InlineAction
+					disabled={!canAddEffect}
+					onClick={onAddEffect}
+					title={canAddEffect ? 'Add effect' : undefined}
+					renderAction={(color) => <Plus color={color} style={plusIcon} />}
+				/>
+			</div>,
+		);
+	};
 
 	const renderRow = ({node, depth}: FlatTreeRow) => {
 		return (
@@ -177,7 +233,7 @@ export const InspectorSequenceSection: React.FC<{
 					{showControlsEffectsDivider ? (
 						<div style={controlsEffectsDivider} />
 					) : null}
-					{renderSectionHeader('Effects')}
+					{renderEffectsHeader()}
 					{effectRows.length === 0 ? (
 						<div style={emptyState}>None</div>
 					) : (
