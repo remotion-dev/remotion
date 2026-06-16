@@ -252,6 +252,13 @@ const categories: {
 				description: 'Pixelated dissolve effect',
 			},
 			{
+				link:'/docs/effects/pixelate',
+				preview: '/img/effects-pixelate-preview.png',
+				alt: 'pixelate effect preview',
+				name: 'pixelate()',
+				description: 'Pixelation effect',
+			},
+			{
 				link: '/docs/effects/scanlines',
 				preview: '/img/effects-scanlines-preview.png',
 				alt: 'scanlines effect preview',

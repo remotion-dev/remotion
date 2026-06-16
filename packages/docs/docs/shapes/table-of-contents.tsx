@@ -198,7 +198,7 @@ const ShapeDragPreview = React.forwardRef<SVGSVGElement, {shape: ShapeName}>(
 					}`}
 					style={shapeThumbnail}
 				>
-					<path d={shapeInfo.path} fill="#0b84ff" />
+					<path d={shapeInfo.path} fill="#000000" />
 				</svg>
 			</div>
 		);

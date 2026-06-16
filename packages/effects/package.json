@@ -114,6 +114,11 @@
 			"module": "./dist/esm/pixel-dissolve.mjs",
 			"import": "./dist/esm/pixel-dissolve.mjs"
 		},
+		"./pixelate": {
+			"types": "./dist/pixelate.d.ts",
+			"module": "./dist/esm/pixelate.mjs",
+			"import": "./dist/esm/pixelate.mjs"
+		},
 		"./grayscale": {
 			"types": "./dist/grayscale.d.ts",
 			"module": "./dist/esm/grayscale.mjs",
@@ -290,6 +295,9 @@
 			],
 			"pixel-dissolve": [
 				"dist/pixel-dissolve.d.ts"
+			],
+			"pixelate": [
+				"dist/pixelate.d.ts"
 			],
 			"grayscale": [
 				"dist/grayscale.d.ts"
