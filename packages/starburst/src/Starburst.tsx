@@ -10,6 +10,7 @@ import {
 	type InteractivePremountProps,
 	type InteractiveTransformProps,
 	type SequenceControls,
+	type SequenceProps,
 	type InteractivitySchema,
 } from 'remotion';
 import {colorToRgb} from './color-to-rgb';
@@ -17,6 +18,7 @@ import {colorToRgb} from './color-to-rgb';
 export type StarburstProps = InteractiveBaseProps &
 	InteractiveTransformProps &
 	InteractivePremountProps &
+	Pick<SequenceProps, 'width' | 'height'> &
 	Pick<AbsoluteFillLayout, 'className'> & {
 		readonly rays: number;
 		readonly colors: readonly string[];
