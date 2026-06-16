@@ -98,6 +98,7 @@
       "devDependencies": {
         "@remotion/captions": "workspace:*",
         "@remotion/cli": "workspace:*",
+        "@remotion/effects": "workspace:*",
         "@remotion/eslint-config-internal": "workspace:*",
         "@remotion/fonts": "workspace:*",
         "@remotion/google-fonts": "workspace:*",
@@ -108,6 +109,7 @@
         "@remotion/shapes": "workspace:*",
         "@remotion/svg-3d-engine": "workspace:*",
         "@remotion/tailwind-v4": "workspace:*",
+        "@remotion/transitions": "workspace:*",
         "@types/styled-components": "5.1.34",
         "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
