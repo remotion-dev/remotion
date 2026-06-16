@@ -395,7 +395,7 @@ CanvasImageContent.displayName = 'CanvasImageContent';
 const CanvasImageInner = forwardRef<
 	HTMLCanvasElement,
 	CanvasImageProps & {
-		readonly _experimentalControls: SequenceControls | undefined;
+		readonly controls: SequenceControls | undefined;
 	}
 >(
 	(
@@ -420,7 +420,7 @@ const CanvasImageInner = forwardRef<
 			name,
 			showInTimeline,
 			stack,
-			_experimentalControls: controls,
+			controls,
 			_remotionInternalDocumentationLink,
 			_remotionInternalRefForOutline,
 			...canvasProps
@@ -450,7 +450,7 @@ const CanvasImageInner = forwardRef<
 					_remotionInternalDocumentationLink ??
 					'https://www.remotion.dev/docs/canvasimage'
 				}
-				_experimentalControls={controls}
+				controls={controls}
 				_remotionInternalEffects={memoizedEffectDefinitions}
 				_remotionInternalIsMedia={{type: 'image', src}}
 				_remotionInternalStack={stack}

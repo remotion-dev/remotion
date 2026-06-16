@@ -49,7 +49,7 @@ const circleSchema = {
 const CircleInner = forwardRef<
   HTMLDivElement,
   CircleProps & {
-    readonly _experimentalControls: SequenceControls | undefined;
+    readonly controls: SequenceControls | undefined;
   }
 >(
   (
@@ -59,7 +59,7 @@ const CircleInner = forwardRef<
       durationInFrames,
       from,
       name,
-      _experimentalControls,
+      controls,
     },
     ref,
   ) => {
@@ -69,7 +69,7 @@ const CircleInner = forwardRef<
         durationInFrames={durationInFrames}
         from={from}
         name={name ?? '<Circle>'}
-        _experimentalControls={_experimentalControls}
+        controls={controls}
       >
         <div
           ref={ref}
@@ -93,7 +93,7 @@ export const Circle = withInteractivitySchema({
 });
 ```
 
-The exported `Circle` component only accepts `CircleProps`. The `_experimentalControls` prop is passed by `withInteractivitySchema()` to the inner component and should be forwarded to the [`<Sequence>`](/docs/sequence) that represents the component in the timeline.
+The exported `Circle` component only accepts `CircleProps`. The `controls` prop is passed by `withInteractivitySchema()` to the inner component and should be forwarded to the [`<Sequence>`](/docs/sequence) that represents the component in the timeline.
 
 ## API
 
@@ -105,9 +105,9 @@ import {withInteractivitySchema} from 'remotion';
 
 The component to wrap.
 
-It must accept its public props plus `_experimentalControls`.
+It must accept its public props plus `controls`.
 
-### `_experimentalControls`
+### `controls`
 
 The control state created by `withInteractivitySchema()`.
 

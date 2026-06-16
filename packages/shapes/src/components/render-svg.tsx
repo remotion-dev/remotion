@@ -16,7 +16,7 @@ type ShapeSequenceProps = Pick<
 	SequenceProps,
 	'durationInFrames' | 'from' | 'freeze' | 'hidden' | 'name' | 'showInTimeline'
 > & {
-	readonly _experimentalControls?: SequenceControls;
+	readonly controls?: SequenceControls;
 };
 
 export type AllShapesProps = Omit<
@@ -53,7 +53,7 @@ export const RenderSvg = ({
 	hidden,
 	name,
 	showInTimeline,
-	_experimentalControls: controls,
+	controls,
 	stack,
 	...props
 }: {
@@ -197,7 +197,7 @@ export const RenderSvg = ({
 				pixelDensity={pixelDensity}
 				showInTimeline={false}
 				style={actualStyle}
-				_experimentalControls={controls}
+				controls={controls}
 			>
 				{svg}
 			</HtmlInCanvas>
@@ -216,7 +216,7 @@ export const RenderSvg = ({
 			freeze={freeze}
 			hidden={hidden}
 			showInTimeline={showInTimeline}
-			_experimentalControls={controls}
+			controls={controls}
 			_remotionInternalEffects={memoizedEffectDefinitions}
 			durationInFrames={durationInFrames}
 			name={name ?? defaultName}

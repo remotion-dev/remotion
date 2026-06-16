@@ -117,7 +117,7 @@ export const withInteractivitySchema = <
 	supportsEffects,
 }: {
 	Component: React.ComponentType<
-		Props & {readonly _experimentalControls: SequenceControls | undefined}
+		Props & {readonly controls: SequenceControls | undefined}
 	>;
 	componentIdentity: JsxComponentIdentity | null;
 	schema: S;
@@ -134,10 +134,10 @@ export const withInteractivitySchema = <
 		if (!env.isStudio || env.isReadOnlyStudio || env.isRendering) {
 			return React.createElement(Component, {
 				...props,
-				_experimentalControls: null,
+				controls: null,
 				ref,
 			} as Props & {
-				_experimentalControls: SequenceControls | undefined;
+				controls: SequenceControls | undefined;
 				ref: typeof ref;
 			});
 		}
@@ -151,14 +151,14 @@ export const withInteractivitySchema = <
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		const frame = useCurrentFrame();
 
-		// If the parent has passed `_experimentalControls`, we should not override it.
+		// If the parent has passed `controls`, we should not override it.
 		// @ts-expect-error
-		if (props._experimentalControls) {
+		if (props.controls) {
 			return React.createElement(Component, {
 				...props,
 				ref,
 			} as unknown as Props & {
-				_experimentalControls: SequenceControls | undefined;
+				controls: SequenceControls | undefined;
 				ref: typeof ref;
 			});
 		}
@@ -244,10 +244,10 @@ export const withInteractivitySchema = <
 
 		return React.createElement(Component, {
 			...mergedProps,
-			_experimentalControls: controls,
+			controls,
 			ref,
 		} as Props & {
-			_experimentalControls: SequenceControls | undefined;
+			controls: SequenceControls | undefined;
 			ref: typeof ref;
 		});
 	});

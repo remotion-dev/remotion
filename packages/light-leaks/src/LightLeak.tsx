@@ -257,14 +257,14 @@ const lightLeakSchema = {
 
 const LightLeakInner: React.FC<
 	LightLeakProps & {
-		readonly _experimentalControls: SequenceControls | undefined;
+		readonly controls: SequenceControls | undefined;
 	}
 > = ({
 	seed = 0,
 	hueShift = 0,
 	durationInFrames,
 	style,
-	_experimentalControls: controls,
+	controls,
 	...sequenceProps
 }) => {
 	const {durationInFrames: videoDuration} = useVideoConfig();
@@ -292,7 +292,7 @@ const LightLeakInner: React.FC<
 			durationInFrames={resolvedDuration}
 			name="<LightLeak>"
 			_remotionInternalDocumentationLink="https://www.remotion.dev/docs/light-leaks/light-leak"
-			_experimentalControls={controls}
+			controls={controls}
 			{...sequenceProps}
 			style={style}
 		>

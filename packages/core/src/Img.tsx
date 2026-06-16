@@ -314,7 +314,7 @@ const ImgContent: React.FC<ImgContentProps> = ({
 };
 
 type NativeImgInnerProps = Omit<ImgProps, 'effects'> & {
-	readonly _experimentalControls: SequenceControls | undefined;
+	readonly controls: SequenceControls | undefined;
 	readonly _remotionInternalRefForOutline: React.RefObject<HTMLElement | null>;
 };
 
@@ -327,7 +327,7 @@ const NativeImgInner: React.FC<NativeImgInnerProps> = ({
 	from,
 	durationInFrames,
 	freeze,
-	_experimentalControls: controls,
+	controls,
 	_remotionInternalRefForOutline: refForOutline,
 	...props
 }) => {
@@ -345,7 +345,7 @@ const NativeImgInner: React.FC<NativeImgInnerProps> = ({
 			_remotionInternalDocumentationLink="https://www.remotion.dev/docs/img"
 			_remotionInternalIsMedia={{type: 'image', src}}
 			name={name ?? '<Img>'}
-			_experimentalControls={controls}
+			controls={controls}
 			showInTimeline={showInTimeline ?? true}
 			hidden={hidden}
 			_remotionInternalRefForOutline={refForOutline}
@@ -357,7 +357,7 @@ const NativeImgInner: React.FC<NativeImgInnerProps> = ({
 
 const CanvasImageWithPrivateProps = CanvasImage as React.ComponentType<
 	CanvasImageProps & {
-		readonly _experimentalControls?: SequenceControls | undefined;
+		readonly controls?: SequenceControls | undefined;
 		readonly _remotionInternalRefForOutline?: React.RefObject<HTMLElement | null> | null;
 	}
 >;
@@ -447,7 +447,7 @@ const getFitFromObjectFit = (
 
 const ImgInner: React.FC<
 	ImgProps & {
-		readonly _experimentalControls: SequenceControls | undefined;
+		readonly controls: SequenceControls | undefined;
 	}
 > = ({
 	effects = [],
@@ -460,7 +460,7 @@ const ImgInner: React.FC<
 	from,
 	durationInFrames,
 	freeze,
-	_experimentalControls: controls,
+	controls,
 	width,
 	height,
 	className,
@@ -487,7 +487,7 @@ const ImgInner: React.FC<
 				from={from}
 				durationInFrames={durationInFrames}
 				freeze={freeze}
-				_experimentalControls={controls}
+				controls={controls}
 				width={width}
 				height={height}
 				className={className}
@@ -540,7 +540,7 @@ const ImgInner: React.FC<
 			showInTimeline={showInTimeline}
 			stack={stack}
 			_remotionInternalDocumentationLink="https://www.remotion.dev/docs/img"
-			_experimentalControls={controls}
+			controls={controls}
 			_remotionInternalRefForOutline={refForOutline}
 			{...canvasProps}
 		/>

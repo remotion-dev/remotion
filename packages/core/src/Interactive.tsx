@@ -111,7 +111,7 @@ const makeInteractiveElement = <Tag extends InteractiveTag>(
 	const Inner = forwardRef<
 		ElementType,
 		Props & {
-			readonly _experimentalControls: SequenceControls | undefined;
+			readonly controls: SequenceControls | undefined;
 		}
 	>((propsWithControls, ref) => {
 		const {
@@ -122,10 +122,10 @@ const makeInteractiveElement = <Tag extends InteractiveTag>(
 			name,
 			showInTimeline,
 			stack,
-			_experimentalControls,
+			controls,
 			...props
 		} = propsWithControls as Props & {
-			readonly _experimentalControls: SequenceControls | undefined;
+			readonly controls: SequenceControls | undefined;
 		};
 		const refForOutline = useRef<ElementType | null>(null);
 		const callbackRef = useCallback(
@@ -145,7 +145,7 @@ const makeInteractiveElement = <Tag extends InteractiveTag>(
 				hidden={hidden}
 				name={name ?? displayName}
 				showInTimeline={showInTimeline ?? true}
-				_experimentalControls={_experimentalControls}
+				controls={controls}
 				_remotionInternalStack={stack}
 				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/interactive"
 				_remotionInternalRefForOutline={refForOutline}

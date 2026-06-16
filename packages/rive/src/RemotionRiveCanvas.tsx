@@ -428,7 +428,7 @@ const RemotionRiveCanvasContent = forwardRef(
 const RemotionRiveCanvasInnerForwardRefFunction: React.ForwardRefRenderFunction<
 	RiveCanvasRef,
 	RemotionRiveCanvasProps & {
-		readonly _experimentalControls?: SequenceControls | undefined;
+		readonly controls?: SequenceControls | undefined;
 	}
 > = (
 	{
@@ -443,7 +443,7 @@ const RemotionRiveCanvasInnerForwardRefFunction: React.ForwardRefRenderFunction<
 		className,
 		style,
 		effects = [],
-		_experimentalControls: controls,
+		controls,
 		durationInFrames,
 		name,
 		from,
@@ -472,7 +472,7 @@ const RemotionRiveCanvasInnerForwardRefFunction: React.ForwardRefRenderFunction<
 					: undefined
 			}
 			durationInFrames={durationInFrames}
-			_experimentalControls={controls}
+			controls={controls}
 			_remotionInternalEffects={memoizedEffectDefinitions}
 			// 'stack' is in props
 			{...props}
@@ -503,7 +503,7 @@ const RemotionRiveCanvasInner = forwardRef(
 export const RemotionRiveCanvas = withInteractivitySchema({
 	Component: RemotionRiveCanvasInner as unknown as React.ComponentType<
 		RemotionRiveCanvasProps & {
-			readonly _experimentalControls: SequenceControls | undefined;
+			readonly controls: SequenceControls | undefined;
 		}
 	>,
 	componentIdentity: 'dev.remotion.rive.RemotionRiveCanvas',

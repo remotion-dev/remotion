@@ -3,8 +3,8 @@ import {blur} from '@remotion/effects/blur';
 import {brightness} from '@remotion/effects/brightness';
 import {chromaticAberration} from '@remotion/effects/chromatic-aberration';
 import {colorKey} from '@remotion/effects/color-key';
-import {contrast} from '@remotion/effects/contrast';
 import {contourLines} from '@remotion/effects/contour-lines';
+import {contrast} from '@remotion/effects/contrast';
 import {dotGrid} from '@remotion/effects/dot-grid';
 import {dropShadow} from '@remotion/effects/drop-shadow';
 import {duotone} from '@remotion/effects/duotone';
@@ -44,8 +44,8 @@ import {EffectsBlurPreview} from '../effects/effects-blur-preview';
 import {EffectsBrightnessPreview} from '../effects/effects-brightness-preview';
 import {EffectsChromaticAberrationPreview} from '../effects/effects-chromatic-aberration-preview';
 import {EffectsColorKeyPreview} from '../effects/effects-color-key-preview';
-import {EffectsContrastPreview} from '../effects/effects-contrast-preview';
 import {EffectsContourLinesPreview} from '../effects/effects-contour-lines-preview';
+import {EffectsContrastPreview} from '../effects/effects-contrast-preview';
 import {EffectsDotGridPreview} from '../effects/effects-dot-grid-preview';
 import {EffectsDropShadowPreview} from '../effects/effects-drop-shadow-preview';
 import {EffectsDuotonePreview} from '../effects/effects-duotone-preview';
@@ -66,6 +66,10 @@ import {
 	NOISE_DISPLACEMENT_PREVIEW_PARAMS,
 } from '../effects/effects-noise-displacement-preview';
 import {EffectsNoisePreview} from '../effects/effects-noise-preview';
+import {
+	EffectsPaletteMapPreview,
+	paletteMap,
+} from '../effects/effects-palette-map-preview';
 import {EffectsPatternPreview} from '../effects/effects-pattern-preview';
 import {EffectsPixelDissolvePreview} from '../effects/effects-pixel-dissolve-preview';
 import {EffectsRingsPreview} from '../effects/effects-rings-preview';
@@ -415,6 +419,14 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/pattern',
 		comp: EffectsPatternPreview,
 		schema: pattern().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-palette-map',
+		effectName: 'paletteMap',
+		effectImportPath: './palette-map',
+		comp: EffectsPaletteMapPreview,
+		schema: paletteMap().definition.schema,
 	},
 	{
 		...defaults,

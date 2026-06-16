@@ -349,7 +349,7 @@ export const starburstSchema = {
 
 const StarburstInner: React.FC<
 	StarburstProps & {
-		readonly _experimentalControls: SequenceControls | undefined;
+		readonly controls: SequenceControls | undefined;
 	}
 > = ({
 	rays,
@@ -361,7 +361,7 @@ const StarburstInner: React.FC<
 	originOffsetY = 0,
 	durationInFrames,
 	style,
-	_experimentalControls: controls,
+	controls,
 	...sequenceProps
 }) => {
 	const {durationInFrames: videoDuration} = useVideoConfig();
@@ -418,7 +418,7 @@ const StarburstInner: React.FC<
 			durationInFrames={resolvedDuration}
 			name="<Starburst>"
 			_remotionInternalDocumentationLink="https://www.remotion.dev/docs/starburst/starburst"
-			_experimentalControls={controls}
+			controls={controls}
 			{...sequenceProps}
 			style={style}
 		>

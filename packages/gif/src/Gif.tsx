@@ -68,12 +68,12 @@ const GifInner = ({
 	requestInit,
 	durationInFrames,
 	style,
-	_experimentalControls: controls,
+	controls,
 	effects = [],
 	ref,
 	...sequenceProps
 }: GifProps & {
-	readonly _experimentalControls?: SequenceControls | undefined;
+	readonly controls?: SequenceControls | undefined;
 	readonly ref?: React.Ref<HTMLCanvasElement>;
 }) => {
 	const env = useRemotionEnvironment();
@@ -117,7 +117,7 @@ const GifInner = ({
 			durationInFrames={resolvedDuration}
 			name="<Gif>"
 			_remotionInternalDocumentationLink="https://www.remotion.dev/docs/gif/gif"
-			_experimentalControls={controls}
+			controls={controls}
 			_remotionInternalEffects={memoizedEffectDefinitions}
 			{...sequenceProps}
 			_remotionInternalRefForOutline={refForOutline}

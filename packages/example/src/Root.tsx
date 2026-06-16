@@ -20,6 +20,7 @@ import {ClassSerialization} from './ClassSerialization';
 import {ColorInterpolation} from './ColorInterpolation';
 import {ComplexSounds} from './ComplexSounds';
 import {MyCtx, WrappedInContext} from './Context';
+import {ControlsShowcase} from './ControlsShowcase';
 import CorruptVideo from './CorruptVideo';
 import {CssLoaderTest} from './CssLoaderTest';
 import {DarkModeTest} from './DarkModeTest';
@@ -33,7 +34,6 @@ import {EasingVisualizer} from './EasingVisualizer/EasingVisualizer';
 import {EffectCopySource, EffectCopyTarget} from './EffectCopyTestbed';
 import {EmojiTestbed} from './Emoji';
 import {ErrorOnFrame10} from './ErrorOnFrame10';
-import {ExperimentalControlsShowcase} from './ExperimentalControls';
 import {Expert} from './Expert';
 import {FontDemo} from './Fonts';
 import {FractionalSequenceVideo} from './FractionalSequenceVideo';
@@ -2467,8 +2467,8 @@ export const Index: React.FC = () => {
 				/>
 			</Folder>
 			<Composition
-				id="experimental-controls-showcase"
-				component={ExperimentalControlsShowcase}
+				id="controls-showcase"
+				component={ControlsShowcase}
 				width={2300}
 				height={1080}
 				fps={30}

@@ -244,11 +244,11 @@ const AnimatedImageInner = ({
 	durationInFrames,
 	requestInit,
 	effects = [],
-	_experimentalControls: controls,
+	controls,
 	ref,
 	...sequenceProps
 }: AnimatedImageProps & {
-	readonly _experimentalControls?: SequenceControls | undefined;
+	readonly controls?: SequenceControls | undefined;
 	readonly ref?: React.Ref<HTMLCanvasElement>;
 }) => {
 	const {durationInFrames: videoDuration} = useVideoConfig();
@@ -281,7 +281,7 @@ const AnimatedImageInner = ({
 			durationInFrames={resolvedDuration}
 			name="<AnimatedImage>"
 			_remotionInternalDocumentationLink="https://www.remotion.dev/docs/animatedimage"
-			_experimentalControls={controls}
+			controls={controls}
 			_remotionInternalEffects={memoizedEffectDefinitions}
 			{...sequenceProps}
 			_remotionInternalRefForOutline={actualRef}

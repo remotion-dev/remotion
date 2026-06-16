@@ -42,7 +42,7 @@ const audioSchema = {
 
 const AudioInner: React.FC<
 	AudioProps & {
-		readonly _experimentalControls: SequenceControls | undefined;
+		readonly controls: SequenceControls | undefined;
 	}
 > = (props) => {
 	// Should only destruct `trimBefore` and `trimAfter` from props,
@@ -51,7 +51,7 @@ const AudioInner: React.FC<
 		name,
 		stack,
 		showInTimeline,
-		_experimentalControls: controls,
+		controls,
 		from,
 		durationInFrames,
 		freeze,
@@ -148,7 +148,7 @@ const AudioInner: React.FC<
 					? 'https://www.remotion.dev/docs/media/audio'
 					: undefined
 			}
-			_experimentalControls={controls}
+			controls={controls}
 			_remotionInternalLoopDisplay={loopDisplay}
 			showInTimeline={showInTimeline ?? true}
 			hidden={hidden}

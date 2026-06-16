@@ -624,7 +624,7 @@ HtmlInCanvasContent.displayName = 'HtmlInCanvasContent';
 const HtmlInCanvasInner = forwardRef<
 	HTMLCanvasElement,
 	HtmlInCanvasProps & {
-		readonly _experimentalControls: SequenceControls | undefined;
+		readonly controls: SequenceControls | undefined;
 	}
 >(
 	(
@@ -636,7 +636,7 @@ const HtmlInCanvasInner = forwardRef<
 			onPaint,
 			onInit,
 			pixelDensity,
-			_experimentalControls: controls,
+			controls,
 			style,
 			durationInFrames,
 			name,
@@ -667,7 +667,7 @@ const HtmlInCanvasInner = forwardRef<
 				durationInFrames={resolvedDuration}
 				name={name ?? '<HtmlInCanvas>'}
 				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/remotion/html-in-canvas"
-				_experimentalControls={controls}
+				controls={controls}
 				_remotionInternalEffects={memoizedEffectDefinitions}
 				_remotionInternalRefForOutline={actualRef}
 				layout="none"

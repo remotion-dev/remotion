@@ -236,7 +236,7 @@ const SolidInner: React.FC<
 const SolidOuter = forwardRef<
 	HTMLCanvasElement,
 	SolidProps & {
-		readonly _experimentalControls: SequenceControls | undefined;
+		readonly controls: SequenceControls | undefined;
 	} & Pick<
 			SequenceProps,
 			| 'durationInFrames'
@@ -250,7 +250,7 @@ const SolidOuter = forwardRef<
 	(
 		{
 			effects = [],
-			_experimentalControls: controls,
+			controls,
 			color,
 			height,
 			width,
@@ -283,7 +283,7 @@ const SolidOuter = forwardRef<
 				freeze={freeze}
 				hidden={hidden}
 				showInTimeline={showInTimeline}
-				_experimentalControls={controls}
+				controls={controls}
 				_remotionInternalEffects={memoizedEffectDefinitions}
 				durationInFrames={durationInFrames}
 				name={name ?? '<Solid>'}

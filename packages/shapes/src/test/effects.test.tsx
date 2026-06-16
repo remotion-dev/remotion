@@ -10,7 +10,7 @@ type HtmlInCanvasCall = {
 	readonly pixelDensity: HtmlInCanvasPixelDensity | undefined;
 	readonly showInTimeline: boolean | undefined;
 	readonly style: React.CSSProperties | undefined;
-	readonly _experimentalControls: unknown;
+	readonly controls: unknown;
 };
 
 type SequenceCall = {
@@ -20,7 +20,7 @@ type SequenceCall = {
 	readonly hidden: boolean | undefined;
 	readonly name: string | undefined;
 	readonly showInTimeline: boolean | undefined;
-	readonly _experimentalControls: unknown;
+	readonly controls: unknown;
 	readonly _remotionInternalDocumentationLink: string | undefined;
 	readonly _remotionInternalEffects: unknown;
 	readonly _remotionInternalRefForOutline:
@@ -48,7 +48,7 @@ mock.module('remotion', () => {
 			pixelDensity,
 			showInTimeline,
 			style,
-			_experimentalControls,
+			controls,
 			ref,
 		}: HtmlInCanvasCall & {
 			readonly children: React.ReactNode;
@@ -61,7 +61,7 @@ mock.module('remotion', () => {
 				pixelDensity,
 				showInTimeline,
 				style,
-				_experimentalControls,
+				controls,
 			});
 
 			return (
@@ -177,7 +177,7 @@ test('Should render a shape with effects in HtmlInCanvas', async () => {
 			},
 		}),
 	]);
-	expect(htmlInCanvasCalls[0]._experimentalControls ?? null).toBe(null);
+	expect(htmlInCanvasCalls[0].controls ?? null).toBe(null);
 	expect(sequenceCalls[0]).toMatchObject({
 		layout: 'none',
 		name: '<Circle>',

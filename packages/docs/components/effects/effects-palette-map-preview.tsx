@@ -1,35 +1,23 @@
 import React from 'react';
-import {
-	AbsoluteFill,
-	CanvasImage,
-	createEffect,
-	type InteractivitySchema,
-} from 'remotion';
-import {EFFECTS_PREVIEW_IMAGE_SRC} from '../effects/effects-preview-image';
+import {CanvasImage, createEffect, type InteractivitySchema} from 'remotion';
+import {EFFECTS_PREVIEW_IMAGE_SRC} from './effects-preview-image';
 
 type Rgb = readonly [number, number, number];
-
-type PalettePreset = 'solar' | 'poster' | 'ink';
 
 type PaletteMapParams = {
 	readonly palette?: readonly string[];
 	readonly amount?: number;
 };
 
-type PaletteMapDemoProps = {
-	readonly amount: number;
-	readonly palette: PalettePreset;
-};
+export const SOLAR_PALETTE = ['#111827', '#06b6d4', '#facc15'] as const;
 
-const DEFAULT_PALETTE = ['#111827', '#06b6d4', '#facc15'] as const;
-
-const paletteMapSchema = {
+export const paletteMapSchema = {
 	palette: {
 		type: 'array',
 		item: {
 			type: 'color',
 		},
-		default: DEFAULT_PALETTE,
+		default: SOLAR_PALETTE,
 		newItemDefault: '#ffffff',
 		minLength: 1,
 		description: 'Palette',
@@ -44,12 +32,6 @@ const paletteMapSchema = {
 		hiddenFromList: false,
 	},
 } as const satisfies InteractivitySchema;
-
-const palettes: Record<PalettePreset, readonly string[]> = {
-	solar: ['#111827', '#06b6d4', '#facc15'],
-	poster: ['#1d3557', '#f1faee', '#e63946'],
-	ink: ['#0f172a', '#64748b', '#f8fafc'],
-};
 
 const parseCssColor = (color: string, target: HTMLCanvasElement): Rgb => {
 	const canvas = target.ownerDocument.createElement('canvas');
@@ -88,12 +70,12 @@ const findClosestColor = (color: Rgb, palette: Rgb[]): Rgb => {
 	return closest;
 };
 
-const paletteMap = createEffect<PaletteMapParams, null>({
+export const paletteMap = createEffect<PaletteMapParams, null>({
 	type: 'docs/palette-map',
 	label: 'paletteMap()',
 	documentationLink: null,
 	backend: '2d',
-	calculateKey: ({palette = DEFAULT_PALETTE, amount = 1}) => {
+	calculateKey: ({palette = SOLAR_PALETTE, amount = 1}) => {
 		return `palette-map-${palette.join('-')}-${amount}`;
 	},
 	setup: () => null,
@@ -103,7 +85,7 @@ const paletteMap = createEffect<PaletteMapParams, null>({
 			throw new Error('Could not get a 2D context for paletteMap()');
 		}
 
-		const palette = (params.palette ?? DEFAULT_PALETTE).map((color) =>
+		const palette = (params.palette ?? SOLAR_PALETTE).map((color) =>
 			parseCssColor(color, target),
 		);
 		const amount = params.amount ?? 1;
@@ -129,7 +111,7 @@ const paletteMap = createEffect<PaletteMapParams, null>({
 	},
 	cleanup: () => undefined,
 	schema: paletteMapSchema,
-	validateParams: ({palette = DEFAULT_PALETTE, amount = 1}) => {
+	validateParams: ({palette = SOLAR_PALETTE, amount = 1}) => {
 		if (
 			!Array.isArray(palette) ||
 			palette.length === 0 ||
@@ -149,103 +131,28 @@ const paletteMap = createEffect<PaletteMapParams, null>({
 	},
 });
 
-const tileStyle: React.CSSProperties = {
-	border: '1px solid rgba(248, 250, 252, 0.18)',
-	borderRadius: 8,
-	overflow: 'hidden',
-	position: 'relative',
+const fullSize: React.CSSProperties = {
+	height: '100%',
+	width: '100%',
 };
 
-const labelStyle: React.CSSProperties = {
-	backgroundColor: 'rgba(2, 6, 23, 0.82)',
-	border: '1px solid rgba(248, 250, 252, 0.14)',
-	borderRadius: 8,
-	bottom: 16,
-	color: '#f8fafc',
-	fontFamily: 'sans-serif',
-	fontSize: 16,
-	fontWeight: 700,
-	left: 16,
-	lineHeight: 1,
-	padding: '10px 12px',
-	position: 'absolute',
-};
-
-const swatchStyle: React.CSSProperties = {
-	border: '1px solid rgba(248, 250, 252, 0.55)',
-	borderRadius: 999,
-	height: 18,
-	width: 18,
-};
-
-export const PaletteMapDemoComp: React.FC<PaletteMapDemoProps> = ({
+export const EffectsPaletteMapPreview: React.FC<PaletteMapParams> = ({
 	amount,
 	palette,
 }) => {
-	const colors = palettes[palette];
-
 	return (
-		<AbsoluteFill
-			style={{
-				backgroundColor: '#050816',
-				display: 'grid',
-				gap: 20,
-				gridTemplateColumns: '1fr 1fr',
-				padding: 32,
-			}}
-		>
-			<div style={tileStyle}>
-				<CanvasImage
-					src={EFFECTS_PREVIEW_IMAGE_SRC}
-					width={1280}
-					height={720}
-					fit="cover"
-					style={{
-						height: '100%',
-						width: '100%',
-					}}
-				/>
-				<div style={labelStyle}>source</div>
-			</div>
-			<div style={tileStyle}>
-				<CanvasImage
-					src={EFFECTS_PREVIEW_IMAGE_SRC}
-					width={1280}
-					height={720}
-					fit="cover"
-					style={{
-						height: '100%',
-						width: '100%',
-					}}
-					effects={[
-						paletteMap({
-							amount,
-							palette: colors,
-						}),
-					]}
-				/>
-				<div
-					style={{
-						...labelStyle,
-						alignItems: 'center',
-						display: 'flex',
-						gap: 8,
-					}}
-				>
-					{colors.map((color) => {
-						return (
-							<span
-								key={color}
-								style={{
-									...swatchStyle,
-									backgroundColor: color,
-								}}
-							/>
-						);
-					})}
-					<span>{palette}</span>
-				</div>
-			</div>
-		</AbsoluteFill>
+		<CanvasImage
+			src={EFFECTS_PREVIEW_IMAGE_SRC}
+			width={1280}
+			height={720}
+			fit="cover"
+			style={fullSize}
+			effects={[
+				paletteMap({
+					amount,
+					palette,
+				}),
+			]}
+		/>
 	);
 };
