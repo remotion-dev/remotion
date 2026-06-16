@@ -87,6 +87,29 @@ export const Comp = () => {
 };
 `;
 
+const waveEffectInput = `import {wave} from '@remotion/effects/wave';
+import {Solid} from 'remotion';
+
+export const Comp = () => {
+\treturn (
+\t\t<Solid
+\t\t\twidth={100}
+\t\t\theight={100}
+\t\t\tcolor="red"
+\t\t\teffects={[wave({})]}
+\t\t/>
+\t);
+};
+`;
+
+const waveSchema = {
+	phase: {
+		type: 'number',
+		default: 0,
+		hiddenFromList: false,
+	},
+} satisfies InteractivitySchema;
+
 const getLine = (input: string, needle: string): number => {
 	const lineIndex = input
 		.split('\n')
@@ -1118,6 +1141,51 @@ test('updateEffectKeyframes converts a static value to a clamped interpolation',
 	expect(serialized).toContain('amount: interpolate(frame, [40], [0.6], {');
 	expect(serialized).toContain('extrapolateLeft: "clamp"');
 	expect(serialized).toContain('extrapolateRight: "clamp"');
+});
+
+test('updateEffectKeyframes adds a missing prop before keyframing it', () => {
+	const {serialized, oldValueStrings} = updateEffectKeyframesAst({
+		input: waveEffectInput,
+		sequenceNodePath: lineColumnToNodePath(
+			waveEffectInput,
+			getLine(waveEffectInput, '<Solid'),
+		),
+		effectIndex: 0,
+		schema: waveSchema,
+		updates: [
+			{
+				key: 'phase',
+				operation: {type: 'add', frame: 30, value: 90},
+			},
+		],
+	});
+
+	expect(oldValueStrings).toEqual(['0']);
+	expect(serialized).toContain('useCurrentFrame');
+	expect(serialized).toContain('const frame = useCurrentFrame();');
+	expect(serialized).toContain('phase: interpolate(frame, [30], [90], {');
+	expect(serialized).toContain('extrapolateLeft: "clamp"');
+	expect(serialized).toContain('extrapolateRight: "clamp"');
+});
+
+test('updateEffectKeyframes adds props to a zero-argument effect', () => {
+	const input = waveEffectInput.replace('wave({})', 'wave()');
+	const {serialized, oldValueStrings} = updateEffectKeyframesAst({
+		input,
+		sequenceNodePath: lineColumnToNodePath(input, getLine(input, '<Solid')),
+		effectIndex: 0,
+		schema: waveSchema,
+		updates: [
+			{
+				key: 'phase',
+				operation: {type: 'add', frame: 15, value: 45},
+			},
+		],
+	});
+
+	expect(oldValueStrings).toEqual(['0']);
+	expect(serialized).toContain('wave({');
+	expect(serialized).toContain('phase: interpolate(frame, [15], [45], {');
 });
 
 test('updateEffectKeyframes sets one easing segment and fills linear segments', () => {
