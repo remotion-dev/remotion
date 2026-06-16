@@ -31,6 +31,10 @@ import {disableSequenceInteractivity} from './disable-sequence-interactivity';
 import {duplicateSequencesFromSource} from './duplicate-selected-timeline-item';
 import {getSequenceContextMenuItems} from './get-sequence-context-menu-items';
 import {saveSequenceProps} from './save-sequence-prop';
+import {
+	canRenameSequence,
+	getSequenceDisplayName,
+} from './sequence-name-editing';
 import {getTimelineAssetLinkInfo} from './timeline-asset-link';
 import {
 	TimelineExpandArrowButton,
@@ -597,15 +601,10 @@ export const TimelineSequenceItem: React.FC<{
 	}, [codeHiddenStatus, sequence.controls?.currentRuntimeValueDotNotation]);
 
 	const displayName = useMemo(() => {
-		if (
-			codeNameStatus &&
-			codeNameStatus.status === 'static' &&
-			typeof codeNameStatus.codeValue === 'string'
-		) {
-			return codeNameStatus.codeValue;
-		}
-
-		return sequence.displayName;
+		return getSequenceDisplayName({
+			codeNameStatus,
+			fallbackName: sequence.displayName,
+		});
 	}, [codeNameStatus, sequence.displayName]);
 
 	const onToggleVisibility = useCallback(
@@ -696,15 +695,14 @@ export const TimelineSequenceItem: React.FC<{
 		codeHiddenStatus !== null &&
 		codeHiddenStatus.status === 'static';
 
-	const canRenameThisSequence =
-		previewServerState.type === 'connected' &&
-		!window.remotion_isReadOnlyStudio &&
-		Boolean(sequence.controls) &&
-		nodePath !== null &&
-		validatedLocation !== null &&
-		codeNameStatus !== undefined &&
-		codeNameStatus !== null &&
-		codeNameStatus.status === 'static';
+	const canRenameThisSequence = canRenameSequence({
+		codeNameStatus,
+		nodePath,
+		previewConnected: previewServerState.type === 'connected',
+		readOnlyStudio: window.remotion_isReadOnlyStudio,
+		sequence,
+		validatedLocation,
+	});
 
 	const canRenameSelectedSequence =
 		canRenameThisSequence &&
