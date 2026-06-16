@@ -294,6 +294,7 @@ const sidebars: SidebarsConfig = {
 				'effects/noise-displacement',
 				'effects/pattern',
 				'effects/pixel-dissolve',
+				'effects/pixelate',
 				'effects/rings',
 				'effects/saturation',
 				'effects/scale',

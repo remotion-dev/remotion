@@ -26,6 +26,7 @@ import {
 import {noise} from '../noise.js';
 import {pattern} from '../pattern.js';
 import {pixelDissolve} from '../pixel-dissolve.js';
+import {pixelate} from '../pixelate.js';
 import {rings} from '../rings.js';
 import {saturation} from '../saturation.js';
 import {scale} from '../scale.js';
@@ -2281,6 +2282,26 @@ test('pixelDissolve() parameters produce distinct effect keys', () => {
 			sharper.effectKey,
 		]).size,
 	).toBe(6);
+});
+
+test('pixelate() accepts default params', () => {
+	expect(() => pixelate()).not.toThrow();
+});
+
+test('pixelate() rejects non-finite blockSize', () => {
+	expect(() => pixelate({blockSize: Number.NaN})).toThrow(
+		'"blockSize" must be a finite number',
+	);
+});
+
+test('pixelate() rejects blockSize below range', () => {
+	expect(() => pixelate({blockSize: 0})).toThrow('"blockSize" must be >= 1');
+});
+
+test('pixelate() blockSize produces distinct effect keys', () => {
+	const subtle = pixelate({blockSize: 4});
+	const strong = pixelate({blockSize: 40});
+	expect(subtle.effectKey).not.toBe(strong.effectKey);
 });
 
 test('xyTranslate() accepts default params', () => {

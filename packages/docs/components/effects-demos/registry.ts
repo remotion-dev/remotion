@@ -12,6 +12,7 @@ import {fisheye} from '@remotion/effects/fisheye';
 import {glow} from '@remotion/effects/glow';
 import {grayscale} from '@remotion/effects/grayscale';
 import {halftone} from '@remotion/effects/halftone';
+import {pixelate} from '@remotion/effects/pixelate';
 import {halftoneLinearGradient} from '@remotion/effects/halftone-linear-gradient';
 import {hue} from '@remotion/effects/hue';
 import {invert} from '@remotion/effects/invert';
@@ -53,6 +54,7 @@ import {EffectsGlowPreview} from '../effects/effects-glow-preview';
 import {EffectsGrayscalePreview} from '../effects/effects-grayscale-preview';
 import {EffectsHalftoneLinearGradientPreview} from '../effects/effects-halftone-linear-gradient-preview';
 import {EffectsHalftonePreview} from '../effects/effects-halftone-preview';
+import {EffectsPixelatePreview} from '../effects/effects-pixelate-preview';
 import {EffectsHuePreview} from '../effects/effects-hue-preview';
 import {EffectsInvertPreview} from '../effects/effects-invert-preview';
 import {EffectsLightLeakPreview} from '../effects/effects-light-leak-preview';
@@ -389,6 +391,14 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/halftone',
 		comp: EffectsHalftonePreview,
 		schema: halftone().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-pixelate',
+		effectName: 'pixelate',
+		effectImportPath: '@remotion/effects/pixelate',
+		comp: EffectsPixelatePreview,
+		schema: pixelate().definition.schema,
 	},
 	{
 		...defaults,

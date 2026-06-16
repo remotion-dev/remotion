@@ -31,6 +31,7 @@ import {
 import {EffectsNoisePreview} from '../../components/effects/effects-noise-preview';
 import {EffectsPatternPreview} from '../../components/effects/effects-pattern-preview';
 import {EffectsPixelDissolvePreview} from '../../components/effects/effects-pixel-dissolve-preview';
+import {EffectsPixelatePreview} from '../../components/effects/effects-pixelate-preview';
 import {EffectsRingsPreview} from '../../components/effects/effects-rings-preview';
 import {EffectsSaturationPreview} from '../../components/effects/effects-saturation-preview';
 import {EffectsScalePreview} from '../../components/effects/effects-scale-preview';
@@ -330,6 +331,15 @@ export const RemotionRoot: React.FC = () => {
 						colorMode: 'solid',
 						dotColor: '#0B84F3',
 						invert: false,
+					}}
+				/>
+				<Still
+					id="effects-pixelate-preview"
+					component={EffectsPixelatePreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						blockSize: 10,
 					}}
 				/>
 				<Still
