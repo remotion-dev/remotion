@@ -164,6 +164,17 @@ export {
 	parseEffectDragData,
 	type EffectDragData,
 } from './effect-drag-data';
+export {
+	EFFECT_CATALOG,
+	getEffectCatalogCategories,
+	getEffectDocumentationLink,
+	getEffectDocumentationPath,
+	getEffectPreviewAlt,
+	getEffectPreviewSource,
+	makeEffectDragDataFromCatalogItem,
+	type EffectCatalogCategory,
+	type EffectCatalogItem,
+} from './effect-catalog';
 export {EventSourceEvent} from './event-source-event';
 export {formatBytes} from './format-bytes';
 export {getAllSchemaKeys} from './get-all-keys';

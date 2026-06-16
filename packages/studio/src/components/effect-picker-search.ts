@@ -1,4 +1,4 @@
-import type {EffectCatalogItem} from './effect-catalog';
+import type {EffectCatalogItem} from '@remotion/studio-shared';
 
 const normalize = (value: string) => value.trim().toLowerCase();
 

@@ -1,4 +1,4 @@
-import type {EffectDragData} from '@remotion/studio-shared';
+import type {EffectDragData} from './effect-drag-data';
 
 export type EffectCatalogItem = {
 	readonly id: string;
@@ -8,18 +8,74 @@ export type EffectCatalogItem = {
 	readonly effect: EffectDragData['effect'];
 };
 
-export const getEffectDocumentationLink = (item: EffectCatalogItem) => {
+export type EffectCatalogCategory = {
+	readonly title: string;
+	readonly effects: readonly EffectCatalogItem[];
+};
+
+export const getEffectDocumentationPath = (item: EffectCatalogItem) => {
 	if (item.id === 'effects-light-leak') {
-		return 'https://www.remotion.dev/docs/light-leaks/light-leak-effect';
+		return '/docs/light-leaks/light-leak-effect';
 	}
 
 	if (item.id === 'effects-starburst') {
-		return 'https://www.remotion.dev/docs/starburst/starburst-effect';
+		return '/docs/starburst/starburst-effect';
 	}
 
-	return `https://www.remotion.dev/docs/effects/${item.id.slice(
-		'effects-'.length,
-	)}`;
+	return `/docs/effects/${item.id.slice('effects-'.length)}`;
+};
+
+export const getEffectDocumentationLink = (item: EffectCatalogItem) => {
+	return `https://www.remotion.dev${getEffectDocumentationPath(item)}`;
+};
+
+export const getEffectPreviewSource = (item: EffectCatalogItem) => {
+	return `/img/${item.id}-preview.png`;
+};
+
+export const getEffectPreviewAlt = (item: EffectCatalogItem) => {
+	const effectName = item.id
+		.slice('effects-'.length)
+		.replaceAll('-', ' ')
+		.replace(/^uv /, 'UV ')
+		.replace(/^xy /, 'XY ')
+		.replace(/^tv /, 'TV ');
+
+	return `${effectName} effect preview`;
+};
+
+export const makeEffectDragDataFromCatalogItem = (
+	item: EffectCatalogItem,
+): EffectDragData => {
+	return {
+		type: 'remotion-effect',
+		version: 1,
+		effect: item.effect,
+	};
+};
+
+export const getEffectCatalogCategories = (
+	items: readonly EffectCatalogItem[],
+): readonly EffectCatalogCategory[] => {
+	const categories: EffectCatalogCategory[] = [];
+
+	for (const item of items) {
+		const last = categories[categories.length - 1];
+		if (last?.title === item.category) {
+			categories[categories.length - 1] = {
+				...last,
+				effects: [...last.effects, item],
+			};
+			continue;
+		}
+
+		categories.push({
+			title: item.category,
+			effects: [item],
+		});
+	}
+
+	return categories;
 };
 
 export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
@@ -362,6 +418,19 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-pixelate',
+		category: 'Stylize',
+		label: 'pixelate()',
+		description: 'Pixelation effect',
+		effect: {
+			name: 'pixelate',
+			importPath: '@remotion/effects/pixelate',
+			config: {
+				blockSize: 20,
+			},
+		},
+	},
+	{
 		id: 'effects-scanlines',
 		category: 'Stylize',
 		label: 'scanlines()',
@@ -392,6 +461,25 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 			name: 'shine',
 			importPath: '@remotion/effects/shine',
 			config: {},
+		},
+	},
+	{
+		id: 'effects-shrinkwrap',
+		category: 'Stylize',
+		label: 'shrinkwrap()',
+		description: 'Procedural plastic wrap effect',
+		effect: {
+			name: 'shrinkwrap',
+			importPath: '@remotion/effects/shrinkwrap',
+			config: {
+				amount: 0.94,
+				displacement: 13.5,
+				highlightIntensity: 1.54,
+				wrinkleDensity: 0.87,
+				edgeTension: 0.58,
+				phase: 0,
+				seed: 12,
+			},
 		},
 	},
 	{

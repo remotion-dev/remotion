@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {EFFECT_CATALOG} from '../components/effect-catalog';
+import {EFFECT_CATALOG} from '@remotion/studio-shared';
 import {filterEffectCatalog} from '../components/effect-picker-search';
 
 test('effect picker search ranks exact effect names first', () => {

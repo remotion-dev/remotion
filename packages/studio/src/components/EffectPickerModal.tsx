@@ -1,3 +1,8 @@
+import {
+	EFFECT_CATALOG,
+	getEffectDocumentationLink,
+	type EffectCatalogItem,
+} from '@remotion/studio-shared';
 import React, {
 	useCallback,
 	useContext,
@@ -10,11 +15,6 @@ import {LIGHT_TEXT, getBackgroundFromHoverState} from '../helpers/colors';
 import {useKeybinding} from '../helpers/use-keybinding';
 import {ModalsContext, type AddEffectModalState} from '../state/modals';
 import {ContextMenu} from './ContextMenu';
-import {
-	EFFECT_CATALOG,
-	getEffectDocumentationLink,
-	type EffectCatalogItem,
-} from './effect-catalog';
 import {addEffectToSequence} from './effect-drag-and-drop';
 import {filterEffectCatalog} from './effect-picker-search';
 import {Spacing} from './layout';
