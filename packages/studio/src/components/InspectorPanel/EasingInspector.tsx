@@ -1,6 +1,8 @@
-import React, {useContext, useMemo} from 'react';
+import React, {useCallback, useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
+import type {SegmentedControlItem} from '../SegmentedControl';
+import {SegmentedControl} from '../SegmentedControl';
 import {EasingEditor} from '../Timeline/EasingEditorModal';
 import {getTimelineSelectionKey} from '../Timeline/TimelineSelection';
 import {
@@ -8,7 +10,12 @@ import {
 	type EasingSelection,
 } from '../Timeline/update-selected-easing';
 import {InspectorMessage, InspectorSectionHeader} from './common';
-import {selectedContainer} from './styles';
+import {
+	sectionHeaderRow,
+	sectionHeaderStart,
+	sectionHeaderTitle,
+	selectedContainer,
+} from './styles';
 
 export const EasingInspector: React.FC<{
 	readonly selection: EasingSelection;
@@ -41,14 +48,35 @@ export const EasingInspector: React.FC<{
 		};
 	}, [initialEasing, selection]);
 
+	const renderHeader = useCallback(
+		(modeItems: SegmentedControlItem[]) => (
+			<InspectorSectionHeader>
+				<div style={sectionHeaderRow}>
+					<div style={sectionHeaderStart}>
+						<span style={sectionHeaderTitle}>Easing</span>
+						<SegmentedControl
+							items={modeItems}
+							needsWrapping={false}
+							size="compact"
+						/>
+					</div>
+				</div>
+			</InspectorSectionHeader>
+		),
+		[],
+	);
+
 	if (state === null) {
 		return <InspectorMessage>Easing unavailable</InspectorMessage>;
 	}
 
 	return (
 		<div style={selectedContainer} className={VERTICAL_SCROLLBAR_CLASSNAME}>
-			<InspectorSectionHeader>Easing</InspectorSectionHeader>
-			<EasingEditor key={getTimelineSelectionKey(selection)} state={state} />
+			<EasingEditor
+				key={getTimelineSelectionKey(selection)}
+				state={state}
+				renderHeader={renderHeader}
+			/>
 		</div>
 	);
 };

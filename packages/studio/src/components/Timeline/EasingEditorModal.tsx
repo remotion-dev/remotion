@@ -73,8 +73,8 @@ const DEFAULT_EASING_GRAPH_LABELS: EasingGraphLabels = {
 	end: '1',
 };
 const EASING_GRAPH_GUIDE_COLOR = 'rgba(255, 255, 255, 0.12)';
-const EASING_GRAPH_LABEL_FONT_SIZE = 11;
-const EASING_GRAPH_LABEL_HEIGHT = 16;
+const EASING_GRAPH_LABEL_FONT_SIZE = 13;
+const EASING_GRAPH_LABEL_HEIGHT = 20;
 const EASING_GRAPH_LABEL_HORIZONTAL_PADDING = 4;
 const EASING_GRAPH_LABEL_MAX_WIDTH = PLOT_WIDTH / 2;
 const PRESET_PREVIEW_WIDTH = 48;
@@ -382,6 +382,14 @@ const formatRotationEasingGraphLabel = ({
 	readonly value: unknown;
 }) => {
 	const fieldSchema = update.schema[update.fieldKey];
+	if (
+		!fieldSchema ||
+		(fieldSchema.type !== 'rotation-css' &&
+			fieldSchema.type !== 'rotation-degrees')
+	) {
+		return null;
+	}
+
 	const configuredStep =
 		fieldSchema.type === 'rotation-css' ||
 		fieldSchema.type === 'rotation-degrees'
@@ -417,7 +425,11 @@ const formatNumberEasingGraphLabel = ({
 	readonly value: unknown;
 }) => {
 	const fieldSchema = update.schema[update.fieldKey];
-	if (fieldSchema.type !== 'number' || typeof value !== 'number') {
+	if (
+		!fieldSchema ||
+		fieldSchema.type !== 'number' ||
+		typeof value !== 'number'
+	) {
 		return null;
 	}
 
@@ -439,12 +451,9 @@ const formatEasingGraphLabel = (
 	value: unknown,
 	update: SelectedEasingUpdate,
 ): string => {
-	const fieldSchema = update.schema[update.fieldKey];
-	if (
-		fieldSchema.type === 'rotation-css' ||
-		fieldSchema.type === 'rotation-degrees'
-	) {
-		return formatRotationEasingGraphLabel({update, value}) ?? String(value);
+	const rotationLabel = formatRotationEasingGraphLabel({update, value});
+	if (rotationLabel !== null) {
+		return rotationLabel;
 	}
 
 	const numberLabel = formatNumberEasingGraphLabel({update, value});
@@ -573,7 +582,7 @@ const pointFromBezier = (bezier: CubicBezierTuple, handle: HandleIndex) => {
 
 const getEasingGraphLabelWidth = (label: string) => {
 	return clamp(
-		label.length * 6.5 + EASING_GRAPH_LABEL_HORIZONTAL_PADDING * 2,
+		label.length * 7.8 + EASING_GRAPH_LABEL_HORIZONTAL_PADDING * 2,
 		24,
 		EASING_GRAPH_LABEL_MAX_WIDTH,
 	);
@@ -714,7 +723,10 @@ export type EasingEditorState = {
 
 export const EasingEditor: React.FC<{
 	readonly state: EasingEditorState;
-}> = ({state}) => {
+	readonly renderHeader?: (
+		modeItems: SegmentedControlItem[],
+	) => React.ReactNode;
+}> = ({state, renderHeader}) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
 	const propStatusesRef = useContext(
@@ -1161,6 +1173,17 @@ export const EasingEditor: React.FC<{
 
 	return (
 		<div style={inlineContainer}>
+			{renderHeader ? (
+				renderHeader(modeItems)
+			) : (
+				<div style={segmentedControlWrapper}>
+					<SegmentedControl
+						items={modeItems}
+						needsWrapping={false}
+						size="compact"
+					/>
+				</div>
+			)}
 			<div style={presetButtonsWrapper}>
 				{EDITOR_EASING_PRESETS.map((preset) => (
 					<EasingPresetButton
@@ -1171,9 +1194,6 @@ export const EasingEditor: React.FC<{
 						preset={preset}
 					/>
 				))}
-			</div>
-			<div style={segmentedControlWrapper}>
-				<SegmentedControl items={modeItems} needsWrapping={false} />
 			</div>
 			{mode === 'bezier' ? (
 				<>
