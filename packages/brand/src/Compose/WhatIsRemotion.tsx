@@ -1,6 +1,5 @@
 import React from 'react';
-import type {
-	CalculateMetadataFunction} from 'remotion';
+import type {CalculateMetadataFunction} from 'remotion';
 import {
 	AbsoluteFill,
 	Easing,
@@ -124,7 +123,7 @@ const VideoLayers: React.FC<{
 									muted
 									style={{width: '100%', height: '100%', objectFit: 'cover'}}
 									src={staticFile('video.mp4')}
-								 />
+								/>
 							</Sequence>
 						) : null}
 						{bRoll ? (
@@ -133,14 +132,14 @@ const VideoLayers: React.FC<{
 									muted
 									style={{width: '100%', height: '100%', objectFit: 'cover'}}
 									src={staticFile('spiral_.mp4')}
-								 />
+								/>
 							</Sequence>
 						) : null}
 						{endCard ? (
 							<AbsoluteFill
 								className="bg-white"
 								style={{borderRadius: cornerRadius, border: '3px solid black'}}
-							 />
+							/>
 						) : null}
 					</div>
 				</div>
@@ -164,7 +163,7 @@ const CaptionLayers: React.FC<{
 					<AbsoluteFill
 						className="bg-black"
 						style={{borderRadius: cornerRadius, overflow: 'hidden'}}
-					 />
+					/>
 				}
 			>
 				<div
@@ -351,7 +350,7 @@ export const WhatIsRemotion = ({
 										delay={animationStart}
 										label="<EndCard />"
 										endCard
-									 />
+									/>
 								</LabelOpacityContext.Provider>
 							</RotateY>
 						</TranslateX>
@@ -378,9 +377,7 @@ export const WhatIsRemotion = ({
 											position: 'relative',
 										}}
 									>
-										{endCard ? (
-											<EndCard cornerRadius={cornerRadius} />
-										) : null}
+										{endCard ? <EndCard cornerRadius={cornerRadius} /> : null}
 									</div>
 								</Sequence>
 							</AbsoluteFill>

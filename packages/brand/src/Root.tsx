@@ -9,13 +9,27 @@ import {Banner} from './Brand/Banner';
 import {Comp} from './Brand/Composition';
 import {TriangleDemo} from './Brand/TriangleToSquare';
 import {
+	CanvasCapturePreview,
+	calculateCanvasCapturePreviewMetadata,
+	canvasCapturePreviewSchema,
+} from './CanvasCapturePreview';
+import {
 	WhatIsRemotion,
 	whatIsRemotionCalculateMetadata,
 	whatIsRemotionSchema,
 } from './Compose/WhatIsRemotion';
+import {
+	StarburstEffectShowcase,
+	starburstEffectShowcaseDurationInFrames,
+} from './effects/StarburstEffectShowcase';
+import {
+	ZigzagLinearBlurShowcase,
+	zigzagLinearBlurShowcaseDurationInFrames,
+} from './effects/ZigzagLinearBlurShowcase';
 import {EmailSignature} from './EmailSignature';
 import {Logo} from './Logo';
 import {LogoCollab, logoCollabSchema} from './LogoCollab/LogoCollab';
+import NewSticker from './NewSticker';
 import {
 	RulesEnumeration,
 	rulesEnumerationSchema,
@@ -113,6 +127,48 @@ export const RemotionRoot: React.FC = () => {
 					schema={htmlInCanvasAllEffectsSchema}
 					defaultProps={htmlInCanvasAllEffectsDefaultProps}
 					calculateMetadata={calculateHtmlInCanvasAllEffectsMetadata}
+				/>
+				<Composition
+					id="canvas-capture-promo"
+					component={CanvasCapturePreview}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={120}
+					defaultProps={{
+						videoFile: 'https://remotion.media/video.webm',
+						cursorScale: 5,
+						width: null,
+						height: null,
+					}}
+					schema={canvasCapturePreviewSchema}
+					calculateMetadata={calculateCanvasCapturePreviewMetadata}
+				/>
+				<Composition
+					id="canvas-capture-new-sticker"
+					component={NewSticker}
+					width={1400}
+					height={1080}
+					fps={30}
+					durationInFrames={60}
+				/>
+			</Folder>
+			<Folder name="effects">
+				<Composition
+					id="starburst-effect-showcase"
+					component={StarburstEffectShowcase}
+					durationInFrames={starburstEffectShowcaseDurationInFrames}
+					fps={30}
+					width={1080}
+					height={1350}
+				/>
+				<Composition
+					id="zigzag-linear-blur-effect-showcase"
+					component={ZigzagLinearBlurShowcase}
+					durationInFrames={zigzagLinearBlurShowcaseDurationInFrames}
+					fps={30}
+					width={1080}
+					height={1350}
 				/>
 			</Folder>
 			<Folder name="animated-logo">

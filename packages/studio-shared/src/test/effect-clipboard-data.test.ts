@@ -1,10 +1,92 @@
 import {expect, test} from 'bun:test';
 import {
+	parseEasingClipboardData,
+	parseEasingClipboardDataResult,
+} from '../easing-clipboard-data';
+import {
 	parseEffectClipboardData,
 	parseEffectClipboardDataResult,
 	parseEffectPropClipboardData,
 	parseEffectPropClipboardDataResult,
 } from '../effect-clipboard-data';
+
+test('parseEasingClipboardData accepts easing payloads', () => {
+	expect(
+		parseEasingClipboardData(
+			JSON.stringify({
+				type: 'easing',
+				version: 1,
+				remotionClipboard: 'easing',
+				easing: {type: 'bezier', x1: 0.42, y1: 0, x2: 0.58, y2: 1},
+			}),
+		),
+	).toEqual({
+		type: 'easing',
+		version: 1,
+		remotionClipboard: 'easing',
+		easing: {type: 'bezier', x1: 0.42, y1: 0, x2: 0.58, y2: 1},
+	});
+	expect(
+		parseEasingClipboardData(
+			JSON.stringify({
+				type: 'easing',
+				version: 1,
+				remotionClipboard: 'easing',
+				easing: {type: 'linear'},
+			}),
+		)?.easing,
+	).toEqual({type: 'linear'});
+	expect(
+		parseEasingClipboardData(
+			JSON.stringify({
+				type: 'easing',
+				version: 1,
+				remotionClipboard: 'easing',
+				easing: {
+					type: 'spring',
+					damping: 12,
+					mass: 1.5,
+					stiffness: 180,
+					overshootClamping: true,
+				},
+			}),
+		)?.easing,
+	).toEqual({
+		type: 'spring',
+		damping: 12,
+		mass: 1.5,
+		stiffness: 180,
+		overshootClamping: true,
+	});
+});
+
+test('parseEasingClipboardData reports old easing payloads as unsupported', () => {
+	const payload = JSON.stringify({
+		type: 'easing',
+		version: 0,
+		remotionClipboard: 'easing',
+		easing: 'linear',
+	});
+
+	expect(parseEasingClipboardData(payload)).toBe(null);
+	expect(parseEasingClipboardDataResult(payload)).toEqual({
+		status: 'unsupported-version',
+		version: 0,
+	});
+});
+
+test('parseEasingClipboardData rejects malformed easing payloads', () => {
+	expect(
+		parseEasingClipboardData(
+			JSON.stringify({
+				type: 'easing',
+				version: 1,
+				remotionClipboard: 'easing',
+				easing: [0.42, 0, 0.58, 1],
+			}),
+		),
+	).toBe(null);
+});
 
 test('parseEffectClipboardData accepts keyframed v3 effect payloads', () => {
 	const parsed = parseEffectClipboardData(

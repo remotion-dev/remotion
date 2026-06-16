@@ -292,7 +292,26 @@ void main() {
 		coverage = (1.0 - smoothstep(s - 0.5, s + 0.5, abs(diff.x)))
 				 * (1.0 - smoothstep(s - 0.5, s + 0.5, abs(diff.y)));
 	} else {
+		vec4 localTexColor = texture(uSource, vUv);
+		float localAlpha = localTexColor.a;
+		vec3 localRgb = localAlpha > 0.001 ? localTexColor.rgb / localAlpha : vec3(0.0);
+		float localLum = dot(localRgb, vec3(0.299, 0.587, 0.114));
+		float localLumDefault = localLum * localAlpha + (1.0 - localAlpha);
+		float localDotScale = uShadeOutside
+			? localLumDefault
+			: 1.0 - localLumDefault;
+
+		if (localDotScale <= 0.12) {
+			fragColor = vec4(0.0);
+			return;
+		}
+
 		float lineHalf = uDotSize * dotScale * 0.5;
+		if (lineHalf <= 1.0) {
+			fragColor = vec4(0.0);
+			return;
+		}
+
 		coverage = (1.0 - smoothstep(halfSize - 0.5, halfSize + 0.5, abs(diff.x)))
 				 * (1.0 - smoothstep(lineHalf - 0.5, lineHalf + 0.5, abs(diff.y)));
 	}
