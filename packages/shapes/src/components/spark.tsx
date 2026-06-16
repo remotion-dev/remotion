@@ -1,5 +1,5 @@
 import React from 'react';
-import {Internals} from 'remotion';
+import {Internals, Interactive} from 'remotion';
 import type {MakeSparkProps} from '../utils/make-spark';
 import {makeSpark} from '../utils/make-spark';
 import type {AllShapesProps} from './render-svg';
@@ -57,7 +57,7 @@ const SparkInner: React.FC<SparkProps> = ({
 	);
 };
 
-export const Spark = Internals.wrapInSchema({
+export const Spark = Interactive.withSchema({
 	Component: SparkInner,
 	componentIdentity: 'dev.remotion.shapes.Spark',
 	schema: sparkSchema,
