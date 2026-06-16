@@ -9,7 +9,10 @@ import {
 	persistGuidesList,
 } from '../../state/editor-guides';
 import {useConfirmationDialog} from '../ConfirmationDialog';
-import {deleteSelectedTimelineItems} from './delete-selected-timeline-item';
+import {
+	deleteSelectedTimelineItems,
+	getTimelineSelectionAfterDeletingItems,
+} from './delete-selected-timeline-item';
 import {duplicateSelectedTimelineItems} from './duplicate-selected-timeline-item';
 import {resetSelectedTimelineProps} from './reset-selected-timeline-props';
 import {
@@ -44,7 +47,8 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 
 		const {clientId} = previewServerState;
 		const handleDelete = () => {
-			const {selectedItems, clearSelection} = currentSelection.current;
+			const {selectedItems, clearSelection, selectItems} =
+				currentSelection.current;
 			const sequences = sequencesRef.current;
 			const propStatuses = propStatusesRef.current;
 			if (selectedItems.length === 0) {
@@ -77,7 +81,13 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 				deletePromise
 					.then((deleted) => {
 						if (deleted) {
-							clearSelection();
+							const nextSelection =
+								getTimelineSelectionAfterDeletingItems(selectedItems);
+							if (nextSelection.length === 0) {
+								clearSelection();
+							} else {
+								selectItems(nextSelection);
+							}
 						}
 					})
 					.catch(() => undefined);

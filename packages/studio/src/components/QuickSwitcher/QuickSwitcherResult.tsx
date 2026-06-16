@@ -4,6 +4,10 @@ import {useKeybinding} from '../../helpers/use-keybinding';
 import {StillIcon} from '../../icons/still';
 import {FilmIcon} from '../../icons/video';
 import {Spacing} from '../layout';
+import {
+	QUICK_SWITCHER_RESULT_LABEL_FONT_SIZE,
+	useScrollIntoViewOnSelected,
+} from './shared';
 
 type QuickSwitcherResultDetail =
 	| {
@@ -104,14 +108,7 @@ export const QuickSwitcherResult: React.FC<{
 		};
 	}, [keybindings, result.onSelected, selected]);
 
-	useEffect(() => {
-		if (selected) {
-			ref.current?.scrollIntoView({
-				block: 'nearest',
-				inline: 'center',
-			});
-		}
-	}, [selected]);
+	useScrollIntoViewOnSelected(ref, selected);
 
 	const style = useMemo(() => {
 		return {
@@ -132,7 +129,7 @@ export const QuickSwitcherResult: React.FC<{
 					: selected || hovered
 						? 'white'
 						: LIGHT_TEXT,
-			fontSize: 15,
+			fontSize: QUICK_SWITCHER_RESULT_LABEL_FONT_SIZE,
 		};
 	}, [hovered, result.type, selected]);
 

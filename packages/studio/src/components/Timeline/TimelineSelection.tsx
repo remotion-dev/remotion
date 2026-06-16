@@ -329,22 +329,30 @@ export const getTimelineSelectionAfterInteraction = ({
 
 export const getAvailableTimelineSelectionState = ({
 	availableKeys,
+	availableItemsByKey,
 	state,
 }: {
 	readonly availableKeys: ReadonlySet<string>;
+	readonly availableItemsByKey?: ReadonlyMap<string, TimelineSelection>;
 	readonly state: TimelineSelectionState;
 }): TimelineSelectionState => {
 	if (state.selectedItems.length === 0 && state.anchor === null) {
 		return state;
 	}
 
-	const selectedItems = state.selectedItems.filter((item) =>
-		availableKeys.has(getTimelineSelectionKey(item)),
-	);
-	const anchor =
-		state.anchor && availableKeys.has(getTimelineSelectionKey(state.anchor))
-			? state.anchor
-			: null;
+	const getCurrentSelectionItem = (item: TimelineSelection) => {
+		const key = getTimelineSelectionKey(item);
+		if (!availableKeys.has(key)) {
+			return null;
+		}
+
+		return availableItemsByKey?.get(key) ?? item;
+	};
+
+	const selectedItems = state.selectedItems
+		.map(getCurrentSelectionItem)
+		.filter((item): item is TimelineSelection => item !== null);
+	const anchor = state.anchor ? getCurrentSelectionItem(state.anchor) : null;
 
 	if (
 		selectedItems.length === state.selectedItems.length &&
@@ -761,6 +769,7 @@ export const TimelineSelectionProvider: React.FC<{
 
 			return getAvailableTimelineSelectionState({
 				availableKeys: new Set(selectableItems.current.keys()),
+				availableItemsByKey: selectableItems.current,
 				state: {
 					selectedItems: currentSelectedItems,
 					anchor: selectionAnchor.current,
@@ -780,6 +789,7 @@ export const TimelineSelectionProvider: React.FC<{
 				selectionScope.current === timelineSelectionScope
 					? getAvailableTimelineSelectionState({
 							availableKeys: new Set(selectableItems.current.keys()),
+							availableItemsByKey: selectableItems.current,
 							state: {
 								selectedItems: currentSelectedItems,
 								anchor: selectionAnchor.current,

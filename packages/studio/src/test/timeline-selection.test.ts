@@ -51,7 +51,10 @@ import {
 	type SelectedOutlineScaleDragState,
 } from '../components/SelectedOutlineOverlay';
 import {getSelectedOutlineUvHandleTimelineSelection} from '../components/SelectedOutlineUvControls';
-import {deleteSelectedTimelineItems} from '../components/Timeline/delete-selected-timeline-item';
+import {
+	deleteSelectedTimelineItems,
+	getTimelineSelectionAfterDeletingItems,
+} from '../components/Timeline/delete-selected-timeline-item';
 import {
 	isDuplicatableEffectSelection,
 	isDuplicatableSequenceRowSelection,
@@ -3608,6 +3611,57 @@ test('Deleting unsupported mixed timeline selection types returns null', () => {
 	).toBe(null);
 });
 
+test('Deleting selected effects keeps their parent sequence selected', () => {
+	const effectNodePathInfo = makeNodePathInfo(['body', 0], ['effects', '1']);
+	const result = getTimelineSelectionAfterDeletingItems([
+		{
+			type: 'sequence-effect',
+			nodePathInfo: effectNodePathInfo,
+			i: 1,
+		},
+	]);
+
+	expect(result).toEqual([
+		{
+			type: 'sequence',
+			nodePathInfo: {
+				...effectNodePathInfo,
+				auxiliaryKeys: [],
+			},
+		},
+	]);
+});
+
+test('Deleting selected all-effects rows keeps their parent sequence selected', () => {
+	const effectsNodePathInfo = makeNodePathInfo(['body', 0], ['effects']);
+	const result = getTimelineSelectionAfterDeletingItems([
+		{
+			type: 'sequence-all-effects',
+			nodePathInfo: effectsNodePathInfo,
+		},
+	]);
+
+	expect(result).toEqual([
+		{
+			type: 'sequence',
+			nodePathInfo: {
+				...effectsNodePathInfo,
+				auxiliaryKeys: [],
+			},
+		},
+	]);
+});
+
+test('Deleting selected sequences still clears selection', () => {
+	const sequenceNodePathInfo = makeNodePathInfo(['body', 0], []);
+
+	expect(
+		getTimelineSelectionAfterDeletingItems([
+			{type: 'sequence', nodePathInfo: sequenceNodePathInfo},
+		]),
+	).toEqual([]);
+});
+
 test('Deleting selected keyframes ignores selected easings', async () => {
 	const schema = {
 		opacity: {type: 'number', default: 1, hiddenFromList: false},
@@ -4166,6 +4220,33 @@ test('Unavailable timeline selections are removed from the active selection stat
 		selectedItems: [availableRow],
 		anchor: null,
 	});
+});
+
+test('Available timeline selections are refreshed with the latest selectable item', () => {
+	const staleRow = {
+		type: 'sequence' as const,
+		nodePathInfo: makeNodePathInfo(['body', 0], [], true, [['oldEffect']]),
+	};
+	const currentRow = {
+		type: 'sequence' as const,
+		nodePathInfo: makeNodePathInfo(['body', 0], [], true, [
+			['oldEffect'],
+			['newEffect'],
+		]),
+	};
+	const currentRowKey = getTimelineSelectionKey(currentRow);
+
+	const result = getAvailableTimelineSelectionState({
+		availableKeys: new Set([currentRowKey]),
+		availableItemsByKey: new Map([[currentRowKey, currentRow]]),
+		state: {
+			selectedItems: [staleRow],
+			anchor: staleRow,
+		},
+	});
+
+	expect(result.selectedItems[0]).toBe(currentRow);
+	expect(result.anchor).toBe(currentRow);
 });
 
 test('Unavailable timeline selections become no active selection', () => {
