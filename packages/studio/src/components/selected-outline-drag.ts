@@ -748,7 +748,7 @@ export const applySelectedOutlineTransformOriginAxisLock = ({
 	return uv;
 };
 
-const transformOriginSnapTargets = [
+const selectedOutlineUvSnapTargets = [
 	[0, 0],
 	[0.5, 0],
 	[1, 0],
@@ -760,12 +760,12 @@ const transformOriginSnapTargets = [
 	[0.5, 0.5],
 ] as const satisfies readonly UvCoordinate[];
 
-export const selectedOutlineTransformOriginSnapThresholdPx = 10;
+export const selectedOutlineUvSnapThresholdPx = 10;
 
-export const snapSelectedOutlineTransformOriginUv = ({
+export const snapSelectedOutlineUv = ({
 	point,
 	points,
-	thresholdPx = selectedOutlineTransformOriginSnapThresholdPx,
+	thresholdPx = selectedOutlineUvSnapThresholdPx,
 	uv,
 }: {
 	readonly point: OutlinePoint;
@@ -778,7 +778,7 @@ export const snapSelectedOutlineTransformOriginUv = ({
 		readonly uv: UvCoordinate;
 	} | null = null;
 
-	for (const snapUv of transformOriginSnapTargets) {
+	for (const snapUv of selectedOutlineUvSnapTargets) {
 		const snapPoint = getUvHandlePosition(points, snapUv);
 		const distance = Math.hypot(point.x - snapPoint.x, point.y - snapPoint.y);
 		if (distance > thresholdPx) {
@@ -792,3 +792,8 @@ export const snapSelectedOutlineTransformOriginUv = ({
 
 	return best?.uv ?? uv;
 };
+
+export const selectedOutlineTransformOriginSnapThresholdPx =
+	selectedOutlineUvSnapThresholdPx;
+
+export const snapSelectedOutlineTransformOriginUv = snapSelectedOutlineUv;

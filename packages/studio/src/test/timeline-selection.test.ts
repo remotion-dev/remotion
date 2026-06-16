@@ -40,8 +40,10 @@ import {
 	getSequencesWithSelectableOutlines,
 	getTransformedSvgViewportPoints,
 	isSelectedOutlineDragPastThreshold,
+	snapSelectedOutlineUv,
 	snapSelectedOutlineTransformOriginUv,
 	selectedOutlineDragThresholdPx,
+	selectedOutlineUvSnapThresholdPx,
 	selectedOutlineTransformOriginSnapThresholdPx,
 	type SelectedOutlineDragState,
 	type SelectedOutlineRotationDragState,
@@ -1462,6 +1464,44 @@ test('Transform origin drag does not snap outside the magnetic threshold', () =>
 	};
 	const uv = getUvCoordinateForPoint(points, pointer);
 	const snapped = snapSelectedOutlineTransformOriginUv({
+		point: pointer,
+		points,
+		uv,
+	});
+
+	expect(snapped[0]).toBeCloseTo(uv[0], 5);
+	expect(snapped[1]).toBeCloseTo(uv[1], 5);
+});
+
+test('UV coordinate drag snaps to outline anchors', () => {
+	const points = [
+		{x: 0, y: 0},
+		{x: 100, y: 0},
+		{x: 100, y: 100},
+		{x: 0, y: 100},
+	] as const;
+
+	expect(
+		snapSelectedOutlineUv({
+			point: {x: 47, y: 53},
+			points,
+			uv: getUvCoordinateForPoint(points, {x: 47, y: 53}),
+		}),
+	).toEqual([0.5, 0.5]);
+	expect(
+		snapSelectedOutlineUv({
+			point: {x: 96, y: 49},
+			points,
+			uv: getUvCoordinateForPoint(points, {x: 96, y: 49}),
+		}),
+	).toEqual([1, 0.5]);
+
+	const pointer = {
+		x: 50,
+		y: selectedOutlineUvSnapThresholdPx + 1,
+	};
+	const uv = getUvCoordinateForPoint(points, pointer);
+	const snapped = snapSelectedOutlineUv({
 		point: pointer,
 		points,
 		uv,

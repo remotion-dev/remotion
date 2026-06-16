@@ -2,7 +2,10 @@ import React, {useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {BLUE} from '../helpers/colors';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
-import {isSelectedOutlineDragPastThreshold} from './selected-outline-drag';
+import {
+	isSelectedOutlineDragPastThreshold,
+	snapSelectedOutlineUv,
+} from './selected-outline-drag';
 import type {OutlinePoint, SelectedOutline} from './selected-outline-geometry';
 import {getOutlineSelectionInteraction} from './selected-outline-measurement';
 import {
@@ -148,11 +151,14 @@ const SelectedUvHandleCircle: React.FC<{
 					event: pointerEvent,
 					rect: svgRect,
 				});
+				const rawUv = getUvCoordinateForPoint(outline.points, point);
+				const snappedUv = snapSelectedOutlineUv({
+					point,
+					points: outline.points,
+					uv: rawUv,
+				});
 				const nextValue = roundUvCoordinate(
-					constrainUv(
-						getUvCoordinateForPoint(outline.points, point),
-						handle.fieldSchema,
-					),
+					constrainUv(snappedUv, handle.fieldSchema),
 					handle.fieldSchema,
 				);
 				lastValue = nextValue;

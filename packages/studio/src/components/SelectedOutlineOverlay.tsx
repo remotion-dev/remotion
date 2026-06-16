@@ -72,7 +72,9 @@ export {
 	getSelectedOutlineScaleEdgeInfo,
 	getSelectedOutlineTransformOriginLockedAxis,
 	isSelectedOutlineDragPastThreshold,
+	selectedOutlineUvSnapThresholdPx,
 	selectedOutlineTransformOriginSnapThresholdPx,
+	snapSelectedOutlineUv,
 	snapSelectedOutlineTransformOriginUv,
 } from './selected-outline-drag';
 export {
