@@ -50,8 +50,8 @@ const effectsHeaderTitle: React.CSSProperties = {
 };
 
 const plusIcon: React.CSSProperties = {
-	width: 10,
-	height: 10,
+	width: 14,
+	height: 14,
 };
 
 const isEffectsRoot = (

@@ -153,7 +153,7 @@ const EffectPickerResult: React.FC<{
 	);
 };
 
-export const EffectPickerModal: React.FC<{
+const EffectPickerContent: React.FC<{
 	readonly state: AddEffectModalState;
 }> = ({state}) => {
 	const {setSelectedModal} = useContext(ModalsContext);
@@ -245,39 +245,47 @@ export const EffectPickerModal: React.FC<{
 	);
 
 	return (
-		<DismissableModal>
-			<div style={container}>
-				<ModalHeader title="Add effect" />
-				<div style={content}>
-					<RemotionInput
-						ref={inputRef}
-						type="text"
-						style={inputStyle}
-						autoFocus
-						status="ok"
-						value={query}
-						onChange={onTextChange}
-						placeholder="Search effects..."
-						rightAlign={false}
-					/>
-				</div>
-				<div style={resultList} className={VERTICAL_SCROLLBAR_CLASSNAME}>
-					{results.length === 0 ? (
-						<div style={noResults}>No effects found</div>
-					) : (
-						results.map((item, i) => {
-							return (
-								<EffectPickerResult
-									key={item.id}
-									item={item}
-									selected={selectedIndexRounded === i}
-									onSelected={selectItem}
-								/>
-							);
-						})
-					)}
-				</div>
+		<div style={container}>
+			<ModalHeader title="Add effect" />
+			<div style={content}>
+				<RemotionInput
+					ref={inputRef}
+					type="text"
+					style={inputStyle}
+					autoFocus
+					status="ok"
+					value={query}
+					onChange={onTextChange}
+					placeholder="Search effects..."
+					rightAlign={false}
+				/>
 			</div>
+			<div style={resultList} className={VERTICAL_SCROLLBAR_CLASSNAME}>
+				{results.length === 0 ? (
+					<div style={noResults}>No effects found</div>
+				) : (
+					results.map((item, i) => {
+						return (
+							<EffectPickerResult
+								key={item.id}
+								item={item}
+								selected={selectedIndexRounded === i}
+								onSelected={selectItem}
+							/>
+						);
+					})
+				)}
+			</div>
+		</div>
+	);
+};
+
+export const EffectPickerModal: React.FC<{
+	readonly state: AddEffectModalState;
+}> = ({state}) => {
+	return (
+		<DismissableModal>
+			<EffectPickerContent state={state} />
 		</DismissableModal>
 	);
 };
