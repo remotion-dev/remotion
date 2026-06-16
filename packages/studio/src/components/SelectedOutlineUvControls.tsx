@@ -113,7 +113,7 @@ const SelectedUvHandleCircle: React.FC<{
 		() => getUvHandlePosition(outline.points, handle.value),
 		[handle.value, outline.points],
 	);
-	const outlined = handle.isSelected || hovered;
+	const highlighted = handle.isSelected || hovered;
 
 	const onPointerDown = React.useCallback(
 		(event: React.PointerEvent<SVGCircleElement>) => {
@@ -291,8 +291,8 @@ const SelectedUvHandleCircle: React.FC<{
 			cy={position.y}
 			r={handle.isSelected ? selectedUvHandleRadius : uvHandleRadius}
 			fill="white"
-			stroke={outlined ? BLUE : 'transparent'}
-			strokeWidth={2}
+			stroke={BLUE}
+			strokeWidth={highlighted ? 2 : 1}
 			style={uvHandleStyle}
 			vectorEffect="non-scaling-stroke"
 			pointerEvents="all"
