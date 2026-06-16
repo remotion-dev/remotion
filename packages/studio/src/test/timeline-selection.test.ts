@@ -4005,6 +4005,33 @@ test('Unavailable timeline selections are removed from the active selection stat
 	});
 });
 
+test('Available timeline selections are refreshed with the latest selectable item', () => {
+	const staleRow = {
+		type: 'sequence' as const,
+		nodePathInfo: makeNodePathInfo(['body', 0], [], true, [['oldEffect']]),
+	};
+	const currentRow = {
+		type: 'sequence' as const,
+		nodePathInfo: makeNodePathInfo(['body', 0], [], true, [
+			['oldEffect'],
+			['newEffect'],
+		]),
+	};
+	const currentRowKey = getTimelineSelectionKey(currentRow);
+
+	const result = getAvailableTimelineSelectionState({
+		availableKeys: new Set([currentRowKey]),
+		availableItemsByKey: new Map([[currentRowKey, currentRow]]),
+		state: {
+			selectedItems: [staleRow],
+			anchor: staleRow,
+		},
+	});
+
+	expect(result.selectedItems[0]).toBe(currentRow);
+	expect(result.anchor).toBe(currentRow);
+});
+
 test('Unavailable timeline selections become no active selection', () => {
 	const unavailableRow = {
 		type: 'sequence' as const,
