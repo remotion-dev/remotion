@@ -133,8 +133,8 @@ const ClipExample: React.FC = () => {
 
 ### Trim start
 
-Wrap the square in `<Sequence>` with a negative `from` value to trim the beginning of the content.  
-By shifting the time backwards, the animation has already progressed by 15 frames when the content appears.
+Pass `trimBefore` to trim the beginning of the content.
+The animation has already progressed by 15 frames when the content appears.
 
 <SequenceForwardExample type="trim-start" />
 <br />
@@ -142,7 +142,7 @@ By shifting the time backwards, the animation has already progressed by 15 frame
 ```tsx title="trim-start.tsx"
 const TrimStartExample: React.FC = () => {
   return (
-    <Sequence from={-15}>
+    <Sequence trimBefore={15}>
       <BlueSquare />
     </Sequence>
   );
@@ -191,6 +191,30 @@ From v3.2.36 onwards, this prop will be optional; by default, it will be 0.
 ### `durationInFrames?`
 
 For how many frames the sequence should be displayed. Children are unmounted if they are not within the time range of display. By default it will be `Infinity` to avoid limit the duration of the sequence.
+
+### `trimBefore?`<AvailableFrom v="4.0.480" />
+
+Trims the beginning of the child timeline by the specified number of frames.
+Default: `0`.
+
+The sequence still starts at [`from`](#from), but children using [`useCurrentFrame()`](/docs/use-current-frame) receive a frame that is advanced by `trimBefore`.
+
+```tsx twoslash title="MyVideo.tsx"
+import {Sequence, useCurrentFrame} from 'remotion';
+
+const Child = () => <div>{useCurrentFrame()}</div>;
+
+// ---cut---
+export const MyVideo = () => {
+  return (
+    <Sequence from={30} trimBefore={15}>
+      <Child />
+    </Sequence>
+  );
+};
+```
+
+In the example above, `Child` mounts at composition frame `30` and receives frame `15`.
 
 ### `freeze?`<AvailableFrom v="4.0.476" />
 

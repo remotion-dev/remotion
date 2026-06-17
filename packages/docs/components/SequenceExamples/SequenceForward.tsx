@@ -53,7 +53,7 @@ const DelayExample: React.FC = () => {
 
 const TrimStartExample: React.FC = () => {
 	return (
-		<Sequence from={-15}>
+		<Sequence trimBefore={15}>
 			<BlueSquare />
 		</Sequence>
 	);

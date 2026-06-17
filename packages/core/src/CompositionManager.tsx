@@ -110,6 +110,7 @@ export type SequenceControls = {
 
 export type TSequence = {
 	from: number;
+	trimBefore?: number;
 	duration: number;
 	id: string;
 	displayName: string;

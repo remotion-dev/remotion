@@ -45,18 +45,21 @@ const makeControls = (
 const makeSequence = ({
 	id,
 	from,
+	trimBefore,
 	parent = null,
 	overrideId = null,
 	nonce,
 }: {
 	id: string;
 	from: number;
+	trimBefore?: number;
 	parent?: string | null;
 	overrideId?: string | null;
 	nonce: number;
 }): TSequence => ({
 	type: 'sequence',
 	from,
+	trimBefore,
 	duration: 120,
 	id,
 	displayName: id,
@@ -272,6 +275,51 @@ test('track lookup survives effect key changes', () => {
 	});
 
 	expect(track?.nodePathInfo?.sequenceSubscriptionKey).toBe(currentNodePath);
+});
+
+test('keyframe display offsets account for parent trimBefore', () => {
+	const timeline = calculateTimeline({
+		sequences: [
+			makeSequence({
+				id: 'parent',
+				from: 0,
+				trimBefore: 20,
+				nonce: 0,
+			}),
+			makeSequence({
+				id: 'child',
+				from: 0,
+				parent: 'parent',
+				overrideId: 'child',
+				nonce: 1,
+			}),
+		],
+		overrideIdsToNodePaths: {
+			child: makeNodePath('child'),
+		},
+	});
+
+	const child = timeline.find((t) => t.sequence.id === 'child');
+	expect(child?.keyframeDisplayOffset).toBe(-20);
+	expect(
+		getTimelineKeyframes(
+			{
+				status: 'keyframed',
+				interpolationFunction: 'interpolate',
+				keyframes: [
+					{frame: 20, value: 2},
+					{frame: 120, value: 4},
+				],
+				easing: [{type: 'linear'}],
+				clamping: {left: 'extend', right: 'extend'},
+				posterize: undefined,
+			},
+			child?.keyframeDisplayOffset ?? 0,
+		),
+	).toEqual([
+		{frame: 0, value: 2},
+		{frame: 100, value: 4},
+	]);
 });
 
 test('timeline easing segments connect adjacent display keyframes', () => {

@@ -62,7 +62,13 @@ type ElementForTag<Tag extends InteractiveTag> =
 
 export type InteractiveBaseProps = Pick<
 	SequenceProps,
-	'durationInFrames' | 'from' | 'freeze' | 'hidden' | 'name' | 'showInTimeline'
+	| 'durationInFrames'
+	| 'from'
+	| 'trimBefore'
+	| 'freeze'
+	| 'hidden'
+	| 'name'
+	| 'showInTimeline'
 >;
 
 export type InteractiveTransformProps = Pick<AbsoluteFillLayout, 'style'>;
@@ -125,6 +131,7 @@ const makeInteractiveElement = <Tag extends InteractiveTag>(
 		const {
 			durationInFrames,
 			from,
+			trimBefore,
 			freeze,
 			hidden,
 			name,
@@ -148,6 +155,7 @@ const makeInteractiveElement = <Tag extends InteractiveTag>(
 			<Sequence
 				layout="none"
 				from={from ?? 0}
+				trimBefore={trimBefore}
 				durationInFrames={durationInFrames ?? Infinity}
 				freeze={freeze}
 				hidden={hidden}

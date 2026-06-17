@@ -465,6 +465,7 @@ const CanvasImageInner = forwardRef<
 			delayRenderTimeoutInMilliseconds,
 			durationInFrames,
 			from,
+			trimBefore,
 			freeze,
 			hidden,
 			name,
@@ -491,6 +492,7 @@ const CanvasImageInner = forwardRef<
 			<Sequence
 				layout="none"
 				from={from ?? 0}
+				trimBefore={trimBefore}
 				durationInFrames={durationInFrames ?? Infinity}
 				freeze={freeze}
 				hidden={hidden}

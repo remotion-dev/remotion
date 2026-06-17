@@ -18,6 +18,7 @@ import {
 	VisualModeSettersContext,
 } from '../SequenceManager.js';
 import {Series} from '../series/index.js';
+import {useCurrentFrame} from '../use-current-frame.js';
 import type {BasicMediaInTimelineReturnType} from '../use-media-in-timeline.js';
 import {WrapSequenceContext} from './wrap-sequence-context.js';
 
@@ -331,6 +332,34 @@ test('Video media registration accounts for its own negative from', () => {
 	expect(videoSequence?.startMediaFrom).toBe(15);
 });
 
+test('Video media registration accounts for Sequence trimBefore', () => {
+	const registeredSequences: TSequence[] = [];
+
+	render(
+		<SequenceTestWrapper
+			onRegisterSequence={(sequence) => {
+				registeredSequences.push(sequence);
+			}}
+		>
+			<Sequence
+				layout="none"
+				trimBefore={10}
+				durationInFrames={50}
+				_remotionInternalIsMedia={{
+					type: 'video',
+					data: makeMediaInTimelineData({startMediaFrom: 5}),
+				}}
+			/>
+		</SequenceTestWrapper>,
+	);
+
+	const videoSequence = registeredSequences.find(
+		(sequence) => sequence.type === 'video',
+	);
+
+	expect(videoSequence?.startMediaFrom).toBe(15);
+});
+
 test('Video media registration stores frozen media frame', () => {
 	const registeredSequences: TSequence[] = [];
 
@@ -465,6 +494,29 @@ test('Interactive elements register their rendered element for Studio outlines',
 		divRef.current,
 	);
 	expect(getByName('<Interactive.Div>')?.controls).not.toBe(null);
+});
+
+test('Interactive elements inherit trimBefore from Sequence', () => {
+	const Frame = () => {
+		const frame = useCurrentFrame();
+		return <span>{'frame' + frame}</span>;
+	};
+
+	const registeredSequences: TSequence[] = [];
+	const {queryByText} = render(
+		<SequenceTestWrapper
+			onRegisterSequence={(sequence) => {
+				registeredSequences.push(sequence);
+			}}
+		>
+			<Interactive.Div trimBefore={7}>
+				<Frame />
+			</Interactive.Div>
+		</SequenceTestWrapper>,
+	);
+
+	expect(queryByText('frame7')).not.toBe(null);
+	expect(registeredSequences[0]?.displayName).toBe('<Interactive.Div>');
 });
 
 test('Imperative sequence refs update without rerendering ref-only consumers', async () => {

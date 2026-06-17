@@ -56,6 +56,7 @@ export type SequencePropsWithoutDuration = {
 	readonly width?: number;
 	readonly height?: number;
 	readonly from?: number;
+	readonly trimBefore?: number;
 	readonly freeze?: number | null;
 	readonly name?: string;
 	readonly showInTimeline?: boolean;
@@ -119,6 +120,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 > = (
 	{
 		from = 0,
+		trimBefore = 0,
 		freeze,
 		durationInFrames = Infinity,
 		children,
@@ -148,7 +150,6 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	const cumulatedFrom = parentSequence
 		? parentSequence.cumulatedFrom + parentSequence.relativeFrom
 		: 0;
-	const absoluteFrom = (parentSequence?.absoluteFrom ?? 0) + from;
 	const nonce = useNonce();
 
 	if (layout !== 'absolute-fill' && layout !== 'none') {
@@ -190,6 +191,30 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		);
 	}
 
+	if (typeof trimBefore !== 'number') {
+		throw new TypeError(
+			`You passed to the "trimBefore" prop of your <Sequence> an argument of type ${typeof trimBefore}, but it must be a number.`,
+		);
+	}
+
+	if (trimBefore < 0) {
+		throw new TypeError(
+			`The "trimBefore" prop of <Sequence /> must be greater than or equal to 0, but got ${trimBefore}.`,
+		);
+	}
+
+	if (Number.isNaN(trimBefore)) {
+		throw new TypeError(
+			'The "trimBefore" prop of <Sequence /> must be a real number, but it is NaN.',
+		);
+	}
+
+	if (!Number.isFinite(trimBefore)) {
+		throw new TypeError(
+			`The "trimBefore" prop of <Sequence /> must be finite, but it is ${trimBefore}.`,
+		);
+	}
+
 	if (typeof freeze !== 'undefined' && freeze !== null) {
 		if (typeof freeze !== 'number') {
 			throw new TypeError(
@@ -212,9 +237,15 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	const absoluteFrame = useTimelinePosition();
 	const videoConfig = useVideoConfig();
+	const effectiveRelativeFrom = from - trimBefore;
+	const absoluteFrom =
+		(parentSequence?.absoluteFrom ?? 0) + effectiveRelativeFrom;
 
 	const parentSequenceDuration = parentSequence
-		? Math.min(parentSequence.durationInFrames - from, durationInFrames)
+		? Math.min(
+				parentSequence.durationInFrames - effectiveRelativeFrom,
+				durationInFrames,
+			)
 		: durationInFrames;
 	const actualDurationInFrames = Math.max(
 		0,
@@ -256,7 +287,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	// 10-frame pre-roll, because the positive child offset cancels part of the
 	// negative parent offset. But <Sequence from={10}><Sequence from={-5}>
 	// should still trim 5 frames from the media once the parent starts.
-	const currentSequenceStart = cumulatedFrom + from;
+	const currentSequenceStart = cumulatedFrom + effectiveRelativeFrom;
 	const parentSequenceStart = parentSequence
 		? parentSequence.cumulatedFrom + parentSequence.relativeFrom
 		: 0;
@@ -270,7 +301,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		return {
 			absoluteFrom,
 			cumulatedFrom,
-			relativeFrom: from,
+			relativeFrom: effectiveRelativeFrom,
 			cumulatedNegativeFrom,
 			durationInFrames: actualDurationInFrames,
 			parentFrom: parentSequence?.relativeFrom ?? 0,
@@ -285,7 +316,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	}, [
 		cumulatedFrom,
 		absoluteFrom,
-		from,
+		effectiveRelativeFrom,
 		actualDurationInFrames,
 		parentSequence,
 		id,
@@ -353,6 +384,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 					documentationLink: resolvedDocumentationLink,
 					duration: actualDurationInFrames,
 					from,
+					trimBefore,
 					id,
 					loopDisplay,
 					nonce: nonce.get(),
@@ -377,6 +409,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 					doesVolumeChange: isMedia.data.doesVolumeChange,
 					duration: actualDurationInFrames,
 					from,
+					trimBefore,
 					id,
 					loopDisplay,
 					nonce: nonce.get(),
@@ -404,6 +437,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 
 		registerSequence({
 			from,
+			trimBefore,
 			duration: actualDurationInFrames,
 			id,
 			displayName: timelineClipName,
@@ -437,6 +471,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		actualDurationInFrames,
 		rootId,
 		from,
+		trimBefore,
 		showInTimeline,
 		nonce,
 		loopDisplay,

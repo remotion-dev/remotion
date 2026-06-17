@@ -280,6 +280,14 @@ export const fromField = {
 	hiddenFromList: true,
 } as const satisfies InteractivitySchemaField;
 
+export const trimBeforeField = {
+	type: 'number',
+	default: 0,
+	min: 0,
+	step: 1,
+	hiddenFromList: true,
+} as const satisfies InteractivitySchemaField;
+
 export const freezeField = {
 	type: 'number',
 	default: null,
@@ -290,6 +298,7 @@ export const freezeField = {
 export const baseSchema = {
 	durationInFrames: durationInFramesField,
 	from: fromField,
+	trimBefore: trimBeforeField,
 	freeze: freezeField,
 	hidden: hiddenField,
 	name: sequenceNameField,
@@ -311,6 +320,7 @@ export const sequenceSchema = {
 
 export const baseSchemaWithoutFrom = {
 	durationInFrames: durationInFramesField,
+	trimBefore: trimBeforeField,
 	freeze: freezeField,
 	hidden: hiddenField,
 	name: sequenceNameField,

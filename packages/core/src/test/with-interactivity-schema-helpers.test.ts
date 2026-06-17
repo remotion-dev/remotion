@@ -31,6 +31,7 @@ test('baseSchema exposes common timeline fields', () => {
 			'hidden',
 			'name',
 			'showInTimeline',
+			'trimBefore',
 		].sort(),
 	);
 });
@@ -55,6 +56,7 @@ test('getFlatSchema(sequenceSchema) exposes every variant key', () => {
 			'durationInFrames',
 			'from',
 			'freeze',
+			'trimBefore',
 		].sort(),
 	);
 });
@@ -79,6 +81,7 @@ test('sequenceSchemaWithoutFrom does not expose from', () => {
 	expect(Object.keys(flat)).not.toContain('from');
 	expect(Object.keys(flat)).toContain('durationInFrames');
 	expect(Object.keys(flat)).toContain('freeze');
+	expect(Object.keys(flat)).toContain('trimBefore');
 });
 
 test('style.scale does not impose a minimum value', () => {
@@ -105,7 +108,14 @@ test('selectActiveKeys returns only the hidden + layout keys when layout=none', 
 		'style.scale': 2,
 	};
 	expect(selectActiveKeys(sequenceSchema, values).sort()).toEqual(
-		['hidden', 'layout', 'durationInFrames', 'from', 'freeze'].sort(),
+		[
+			'hidden',
+			'layout',
+			'durationInFrames',
+			'from',
+			'trimBefore',
+			'freeze',
+		].sort(),
 	);
 });
 
@@ -120,6 +130,7 @@ test('selectActiveKeys exposes style.* keys when layout=absolute-fill', () => {
 			'layout',
 			'durationInFrames',
 			'from',
+			'trimBefore',
 			'freeze',
 			'style.translate',
 			'style.scale',
@@ -136,7 +147,14 @@ test('selectActiveKeys exposes style.* keys when layout=absolute-fill', () => {
 		'style.scale': 2,
 	};
 	expect(selectActiveKeys(sequenceSchema, values2).sort()).toEqual(
-		['hidden', 'layout', 'durationInFrames', 'from', 'freeze'].sort(),
+		[
+			'hidden',
+			'layout',
+			'durationInFrames',
+			'from',
+			'trimBefore',
+			'freeze',
+		].sort(),
 	);
 });
 
@@ -165,7 +183,14 @@ test('end-to-end: layout=none drops style.scale from active props', () => {
 		propsToDelete: new Set(),
 	});
 	expect(activeKeys.sort()).toEqual(
-		['hidden', 'layout', 'durationInFrames', 'from', 'freeze'].sort(),
+		[
+			'hidden',
+			'layout',
+			'durationInFrames',
+			'from',
+			'trimBefore',
+			'freeze',
+		].sort(),
 	);
 	// style.scale was not in activeKeys → original style preserved, not overwritten
 	expect((merged.style as {scale: number}).scale).toBe(2);
