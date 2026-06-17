@@ -2,7 +2,7 @@ import React, {useMemo} from 'react';
 import type {_InternalTypes} from 'remotion';
 import {InspectorMessage} from './InspectorPanel/common';
 import {DefaultInspector} from './InspectorPanel/DefaultInspector';
-import {getSameSequencePropInspectorSelection} from './InspectorPanel/inspector-selection';
+import {getSameSequenceInspectorSelection} from './InspectorPanel/inspector-selection';
 import {SelectedInspector} from './InspectorPanel/SelectedInspector';
 import {container} from './InspectorPanel/styles';
 import type {UpdaterFunction} from './RenderModal/SchemaEditor/ZodSwitch';
@@ -14,8 +14,8 @@ export const InspectorPanel: React.FC<{
 	readonly setDefaultProps: UpdaterFunction<Record<string, unknown>>;
 }> = ({composition, currentDefaultProps, setDefaultProps}) => {
 	const {selectedItems} = useTimelineSelection();
-	const sameSequencePropInspectorSelection = useMemo(
-		() => getSameSequencePropInspectorSelection(selectedItems),
+	const sameSequenceInspectorSelection = useMemo(
+		() => getSameSequenceInspectorSelection(selectedItems),
 		[selectedItems],
 	);
 
@@ -30,10 +30,10 @@ export const InspectorPanel: React.FC<{
 	}
 
 	if (selectedItems.length > 1) {
-		if (sameSequencePropInspectorSelection) {
+		if (sameSequenceInspectorSelection) {
 			return (
 				<div style={container}>
-					<SelectedInspector selection={sameSequencePropInspectorSelection} />
+					<SelectedInspector selection={sameSequenceInspectorSelection} />
 				</div>
 			);
 		}
