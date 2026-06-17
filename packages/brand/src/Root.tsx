@@ -1,4 +1,3 @@
-import './index.css';
 import {Composition, Folder, staticFile} from 'remotion';
 import {AnimatedBanner} from './animated-logo/AnimatedBanner';
 import {AnimatedLogo} from './animated-logo/AnimatedLogo';
@@ -18,6 +17,8 @@ import {
 	whatIsRemotionCalculateMetadata,
 	whatIsRemotionSchema,
 } from './Compose/WhatIsRemotion';
+import {EffectsAnnouncement} from './effects/EffectsAnnouncement';
+import {NewsHeadline} from './effects/NewsHeadline';
 import {
 	StarburstEffectShowcase,
 	starburstEffectShowcaseDurationInFrames,
@@ -27,6 +28,7 @@ import {
 	zigzagLinearBlurShowcaseDurationInFrames,
 } from './effects/ZigzagLinearBlurShowcase';
 import {EmailSignature} from './EmailSignature';
+import './index.css';
 import {Logo} from './Logo';
 import {LogoCollab, logoCollabSchema} from './LogoCollab/LogoCollab';
 import NewSticker from './NewSticker';
@@ -136,7 +138,7 @@ export const RemotionRoot: React.FC = () => {
 					fps={30}
 					durationInFrames={120}
 					defaultProps={{
-						videoFile: 'https://remotion.media/video.webm',
+						videoFile: staticFile('remotion-studio-canvas-recording.webm'),
 						cursorScale: 5,
 						width: null,
 						height: null,
@@ -169,6 +171,22 @@ export const RemotionRoot: React.FC = () => {
 					fps={30}
 					width={1080}
 					height={1350}
+				/>
+				<Composition
+					id="effects-announcement"
+					component={EffectsAnnouncement}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={200}
+				/>
+				<Composition
+					id="news-headline"
+					component={NewsHeadline}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={200}
 				/>
 			</Folder>
 			<Folder name="animated-logo">
@@ -248,7 +266,6 @@ export const RemotionRoot: React.FC = () => {
 					width={1920}
 					height={1080}
 				/>
-
 				<Composition
 					id="lower-third-reference"
 					component={LowerReference}
