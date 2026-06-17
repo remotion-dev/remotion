@@ -29,7 +29,7 @@ const getCredentialsHash = ({
 	forcePathStyle,
 	requestHandler,
 }: {
-	region: AwsRegion;
+	region: string;
 	customCredentials: CustomCredentials<AwsProvider> | null;
 	service: keyof ServiceMapping;
 	forcePathStyle: boolean;
@@ -95,7 +95,7 @@ export function getServiceClient<T extends keyof ServiceMapping>({
 	forcePathStyle,
 	requestHandler,
 }: {
-	region: AwsRegion;
+	region: string;
 	service: T;
 	customCredentials: CustomCredentials<AwsProvider> | null;
 	forcePathStyle: boolean;
