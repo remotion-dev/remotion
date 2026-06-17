@@ -10,7 +10,7 @@ import {
 	TIMELINE_ITEM_BORDER_BOTTOM,
 } from '../../helpers/timeline-layout';
 import {ExpandedTracksGetterContext} from '../ExpandedTracksProvider';
-import {getNodeKeyframes} from './get-node-keyframes';
+import {getNodeHasKeyframes} from './get-node-keyframes';
 import {MAX_TIMELINE_TRACKS_NOTICE_HEIGHT} from './MaxTimelineTracks';
 import {
 	filterTimelineExpandedTree,
@@ -34,7 +34,6 @@ export const useTimelineHeight = ({
 		Internals.VisualModeDragOverridesContext,
 	);
 	const {selectedItems} = useTimelineSelection();
-	const timelinePosition = Internals.Timeline.useTimelinePosition();
 
 	const previewServerConnected = previewServerState.type === 'connected';
 	const selectedRowKeys = useMemo(
@@ -71,15 +70,13 @@ export const useTimelineHeight = ({
 							nodePathInfo: node.nodePathInfo,
 							selectedRowKeys,
 						}) ||
-						getNodeKeyframes({
+						getNodeHasKeyframes({
 							node,
 							nodePath: nodePathInfo.sequenceSubscriptionKey,
 							propStatuses,
-							keyframeDisplayOffset: track.keyframeDisplayOffset,
 							getDragOverrides,
 							getEffectDragOverrides,
-							timelinePosition,
-						}).length > 0,
+						}),
 				});
 				const flat = flattenVisibleTreeNodes({
 					nodes: filteredTree,
@@ -115,6 +112,5 @@ export const useTimelineHeight = ({
 		getDragOverrides,
 		getEffectDragOverrides,
 		selectedRowKeys,
-		timelinePosition,
 	]);
 };

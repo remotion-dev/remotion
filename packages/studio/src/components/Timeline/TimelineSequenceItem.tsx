@@ -81,22 +81,13 @@ let currentSequenceDrag: SequenceReorderDragData | null = null;
 const TimelineSequenceExpandArrow: React.FC<{
 	readonly disabled: boolean;
 	readonly isExpanded: boolean;
-	readonly keyframeDisplayOffset: number;
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly onToggleExpand: () => void;
 	readonly sequence: TSequence;
-}> = ({
-	disabled,
-	isExpanded,
-	keyframeDisplayOffset,
-	nodePathInfo,
-	onToggleExpand,
-	sequence,
-}) => {
+}> = ({disabled, isExpanded, nodePathInfo, onToggleExpand, sequence}) => {
 	const {filteredTree} = useTimelineExpandedTree({
 		sequence,
 		nodePathInfo,
-		keyframeDisplayOffset,
 	});
 
 	if (filteredTree.length === 0) {
@@ -1021,7 +1012,6 @@ export const TimelineSequenceItem: React.FC<{
 					<TimelineSequenceExpandArrow
 						disabled={!previewConnected}
 						isExpanded={isExpanded}
-						keyframeDisplayOffset={keyframeDisplayOffset}
 						nodePathInfo={nodePathInfo}
 						onToggleExpand={onToggleExpand}
 						sequence={sequence}

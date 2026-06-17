@@ -40,7 +40,6 @@ export const TimelineExpandedSection: React.FC<{
 	const {filteredTree, getIsExpanded, toggleTrack} = useTimelineExpandedTree({
 		sequence,
 		nodePathInfo,
-		keyframeDisplayOffset,
 	});
 
 	const flat = useMemo(

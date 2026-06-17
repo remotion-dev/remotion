@@ -6,7 +6,7 @@ import {
 	ExpandedTracksGetterContext,
 	ExpandedTracksSetterContext,
 } from '../ExpandedTracksProvider';
-import {getNodeKeyframes} from './get-node-keyframes';
+import {getNodeHasKeyframes} from './get-node-keyframes';
 import {
 	filterTimelineExpandedTree,
 	getSelectedTimelineExpandedRowKeys,
@@ -17,11 +17,9 @@ import {useTimelineSelection} from './TimelineSelection';
 export const useTimelineExpandedTree = ({
 	sequence,
 	nodePathInfo,
-	keyframeDisplayOffset,
 }: {
 	readonly sequence: TSequence;
 	readonly nodePathInfo: SequenceNodePathInfo;
-	readonly keyframeDisplayOffset: number;
 }) => {
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {toggleTrack} = useContext(ExpandedTracksSetterContext);
@@ -32,7 +30,6 @@ export const useTimelineExpandedTree = ({
 		Internals.VisualModeDragOverridesContext,
 	);
 	const {selectedItems} = useTimelineSelection();
-	const timelinePosition = Internals.Timeline.useTimelinePosition();
 
 	const tree = useMemo(
 		() =>
@@ -64,23 +61,19 @@ export const useTimelineExpandedTree = ({
 						nodePathInfo: node.nodePathInfo,
 						selectedRowKeys,
 					}) ||
-					getNodeKeyframes({
+					getNodeHasKeyframes({
 						node,
 						nodePath: nodePathInfo.sequenceSubscriptionKey,
 						propStatuses: visualModePropStatuses,
-						keyframeDisplayOffset,
 						getDragOverrides,
 						getEffectDragOverrides,
-						timelinePosition,
-					}).length > 0,
+					}),
 			}),
 		[
 			getDragOverrides,
 			getEffectDragOverrides,
-			keyframeDisplayOffset,
 			nodePathInfo.sequenceSubscriptionKey,
 			selectedRowKeys,
-			timelinePosition,
 			tree,
 			visualModePropStatuses,
 		],

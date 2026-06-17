@@ -8,7 +8,7 @@ import {
 } from '../../helpers/timeline-layout';
 import {timelineNodePathInfoToKey} from '../../helpers/timeline-node-path-key';
 import {ExpandedTracksGetterContext} from '../ExpandedTracksProvider';
-import {getNodeKeyframes} from './get-node-keyframes';
+import {getNodeHasKeyframes, getNodeKeyframes} from './get-node-keyframes';
 import type {getTimelineKeyframes} from './get-timeline-keyframes';
 import {
 	filterTimelineExpandedTree,
@@ -126,24 +126,20 @@ export const useExpandedTrackKeyframeRows = ({
 						nodePathInfo: node.nodePathInfo,
 						selectedRowKeys,
 					}) ||
-					getNodeKeyframes({
+					getNodeHasKeyframes({
 						node,
 						nodePath: nodePathInfo.sequenceSubscriptionKey,
 						propStatuses,
-						keyframeDisplayOffset,
 						getDragOverrides,
 						getEffectDragOverrides,
-						timelinePosition,
-					}).length > 0,
+					}),
 			}),
 		[
 			getDragOverrides,
 			getEffectDragOverrides,
-			keyframeDisplayOffset,
 			nodePathInfo.sequenceSubscriptionKey,
 			propStatuses,
 			selectedRowKeys,
-			timelinePosition,
 			tree,
 		],
 	);
