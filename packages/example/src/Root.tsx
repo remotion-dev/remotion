@@ -189,6 +189,7 @@ import {
 	canvasCapturePreviewDefaultProps,
 } from './CanvasCapturePreview';
 import {EdgeBlur} from './EdgeBlur/EdgeBlur';
+import {CustomEffectsSample} from './EffectsTestbed/CustomEffectsSample';
 import {EffectsTestbed} from './EffectsTestbed/EffectsTestbed';
 import {HalftoneGradient} from './EffectsTestbed/HalftoneGradient';
 import {NoiseDisplacementText} from './EffectsTestbed/NoiseDisplacementText';
@@ -1983,6 +1984,14 @@ export const Index: React.FC = () => {
 				<Composition
 					id="palette-map-effect"
 					component={PaletteMapEffect}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={150}
+				/>
+				<Composition
+					id="custom-effects-sample"
+					component={CustomEffectsSample}
 					width={1920}
 					height={1080}
 					fps={30}
