@@ -4,13 +4,18 @@ import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sor
 import {
 	buildTimelineTree,
 	flattenVisibleTreeNodes,
-	getExpandedTrackHeight,
 	getTreeRowHeight,
 } from '../../helpers/timeline-layout';
 import {timelineNodePathInfoToKey} from '../../helpers/timeline-node-path-key';
 import {ExpandedTracksGetterContext} from '../ExpandedTracksProvider';
 import {getNodeKeyframes} from './get-node-keyframes';
 import type {getTimelineKeyframes} from './get-timeline-keyframes';
+import {
+	filterTimelineExpandedTree,
+	getSelectedTimelineExpandedRowKeys,
+	isTimelineExpandedNodeSelected,
+} from './timeline-expanded-filter';
+import {useTimelineSelection} from './TimelineSelection';
 
 const canEditEasingForInterpolationFunction = (
 	interpolationFunction: string,
@@ -86,6 +91,7 @@ export const useExpandedTrackKeyframeRows = ({
 	const {getDragOverrides, getEffectDragOverrides} = useContext(
 		Internals.VisualModeDragOverridesContext,
 	);
+	const {selectedItems} = useTimelineSelection();
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
 
 	const tree = useMemo(
@@ -106,52 +112,100 @@ export const useExpandedTrackKeyframeRows = ({
 		],
 	);
 
-	const flat = useMemo(
-		() => flattenVisibleTreeNodes({nodes: tree, getIsExpanded}),
-		[tree, getIsExpanded],
+	const selectedRowKeys = useMemo(
+		() => getSelectedTimelineExpandedRowKeys(selectedItems),
+		[selectedItems],
 	);
 
-	const expandedHeight = useMemo(
+	const filteredTree = useMemo(
 		() =>
-			getExpandedTrackHeight({
-				sequence,
-				nodePathInfo,
-				getIsExpanded,
-				propStatuses,
+			filterTimelineExpandedTree({
+				nodes: tree,
+				shouldShowNode: (node) =>
+					isTimelineExpandedNodeSelected({
+						nodePathInfo: node.nodePathInfo,
+						selectedRowKeys,
+					}) ||
+					getNodeKeyframes({
+						node,
+						nodePath: nodePathInfo.sequenceSubscriptionKey,
+						propStatuses,
+						keyframeDisplayOffset,
+						getDragOverrides,
+						getEffectDragOverrides,
+						timelinePosition,
+					}).length > 0,
 			}),
-		[propStatuses, getIsExpanded, nodePathInfo, sequence],
+		[
+			getDragOverrides,
+			getEffectDragOverrides,
+			keyframeDisplayOffset,
+			nodePathInfo.sequenceSubscriptionKey,
+			propStatuses,
+			selectedRowKeys,
+			timelinePosition,
+			tree,
+		],
 	);
 
-	const rows = useMemo(
-		(): ExpandedTrackKeyframeRow[] =>
-			flat.map(({node}) => ({
-				height: getTreeRowHeight(node),
-				keyframes: getNodeKeyframes({
-					node,
-					nodePath: nodePathInfo.sequenceSubscriptionKey,
-					propStatuses,
-					keyframeDisplayOffset,
-					getDragOverrides,
-					getEffectDragOverrides,
-					timelinePosition,
-				}),
-				canEditEasing: getNodeCanEditEasing({
-					node,
-					nodePath: nodePathInfo.sequenceSubscriptionKey,
-					propStatuses,
-				}),
-				rowKey: timelineNodePathInfoToKey(node.nodePathInfo),
-				nodePathInfo: node.nodePathInfo,
-			})),
+	const flat = useMemo(
+		() => flattenVisibleTreeNodes({nodes: filteredTree, getIsExpanded}),
+		[filteredTree, getIsExpanded],
+	);
+
+	const expandedHeight = useMemo(() => {
+		const totalRowsHeight = flat.reduce(
+			(sum, {node}) => sum + getTreeRowHeight(node),
+			0,
+		);
+		const separators = Math.max(0, flat.length - 1);
+		return totalRowsHeight + separators;
+	}, [flat]);
+
+	const nodeKeyframes = useMemo(
+		() =>
+			new Map(
+				flat.map(({node}) => [
+					timelineNodePathInfoToKey(node.nodePathInfo),
+					getNodeKeyframes({
+						node,
+						nodePath: nodePathInfo.sequenceSubscriptionKey,
+						propStatuses,
+						keyframeDisplayOffset,
+						getDragOverrides,
+						getEffectDragOverrides,
+						timelinePosition,
+					}),
+				]),
+			),
 		[
-			propStatuses,
 			flat,
 			getDragOverrides,
 			getEffectDragOverrides,
 			keyframeDisplayOffset,
 			nodePathInfo.sequenceSubscriptionKey,
+			propStatuses,
 			timelinePosition,
 		],
+	);
+
+	const rows = useMemo(
+		(): ExpandedTrackKeyframeRow[] =>
+			flat.map(({node}) => {
+				const rowKey = timelineNodePathInfoToKey(node.nodePathInfo);
+				return {
+					height: getTreeRowHeight(node),
+					keyframes: nodeKeyframes.get(rowKey) ?? [],
+					canEditEasing: getNodeCanEditEasing({
+						node,
+						nodePath: nodePathInfo.sequenceSubscriptionKey,
+						propStatuses,
+					}),
+					rowKey,
+					nodePathInfo: node.nodePathInfo,
+				};
+			}),
+		[propStatuses, flat, nodePathInfo.sequenceSubscriptionKey, nodeKeyframes],
 	);
 
 	return {rows, expandedHeight};

@@ -5,7 +5,7 @@ import {TIMELINE_TRACK_SEPARATOR} from '../../helpers/colors';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	flattenVisibleTreeNodes,
-	getExpandedTrackHeight,
+	getTreeRowHeight,
 } from '../../helpers/timeline-layout';
 import {TimelineExpandedRow} from './TimelineExpandedRow';
 import {useTimelineExpandedTree} from './use-timeline-expanded-tree';
@@ -37,27 +37,25 @@ export const TimelineExpandedSection: React.FC<{
 	nestedDepth,
 	keyframeDisplayOffset,
 }) => {
-	const {getIsExpanded, propStatuses, toggleTrack, tree} =
-		useTimelineExpandedTree({
-			sequence,
-			nodePathInfo,
-		});
+	const {filteredTree, getIsExpanded, toggleTrack} = useTimelineExpandedTree({
+		sequence,
+		nodePathInfo,
+		keyframeDisplayOffset,
+	});
 
 	const flat = useMemo(
-		() => flattenVisibleTreeNodes({nodes: tree, getIsExpanded}),
-		[tree, getIsExpanded],
+		() => flattenVisibleTreeNodes({nodes: filteredTree, getIsExpanded}),
+		[filteredTree, getIsExpanded],
 	);
 
-	const expandedHeight = useMemo(
-		() =>
-			getExpandedTrackHeight({
-				sequence,
-				nodePathInfo,
-				getIsExpanded,
-				propStatuses,
-			}),
-		[sequence, nodePathInfo, getIsExpanded, propStatuses],
-	);
+	const expandedHeight = useMemo(() => {
+		const totalRowsHeight = flat.reduce(
+			(sum, {node}) => sum + getTreeRowHeight(node),
+			0,
+		);
+		const separators = Math.max(0, flat.length - 1);
+		return totalRowsHeight + separators;
+	}, [flat]);
 
 	const style = useMemo(() => {
 		return {
@@ -69,7 +67,7 @@ export const TimelineExpandedSection: React.FC<{
 	const {schema} = sequence.controls!;
 
 	if (flat.length === 0) {
-		return <div style={style}>No schema</div>;
+		return null;
 	}
 
 	return (

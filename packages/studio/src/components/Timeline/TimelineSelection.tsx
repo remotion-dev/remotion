@@ -742,11 +742,6 @@ export const TimelineSelectionProvider: React.FC<{
 	);
 	const registrationCounter = useRef(0);
 	const marqueeRegistrationCounter = useRef(0);
-	const [selectableItemsVersion, setSelectableItemsVersion] = useState(0);
-
-	const bumpSelectableItemsVersion = useCallback(() => {
-		setSelectableItemsVersion((version) => version + 1);
-	}, []);
 
 	useEffect(() => {
 		if (!canSelect) {
@@ -767,14 +762,10 @@ export const TimelineSelectionProvider: React.FC<{
 				return EMPTY_TIMELINE_SELECTION_STATE;
 			}
 
-			return getAvailableTimelineSelectionState({
-				availableKeys: new Set(selectableItems.current.keys()),
-				availableItemsByKey: selectableItems.current,
-				state: {
-					selectedItems: currentSelectedItems,
-					anchor: selectionAnchor.current,
-				},
-			});
+			return {
+				selectedItems: currentSelectedItems,
+				anchor: selectionAnchor.current,
+			};
 		},
 		[timelineSelectionScope],
 	);
@@ -787,14 +778,10 @@ export const TimelineSelectionProvider: React.FC<{
 		setSelectedItems((currentSelectedItems) => {
 			const nextState =
 				selectionScope.current === timelineSelectionScope
-					? getAvailableTimelineSelectionState({
-							availableKeys: new Set(selectableItems.current.keys()),
-							availableItemsByKey: selectableItems.current,
-							state: {
-								selectedItems: currentSelectedItems,
-								anchor: selectionAnchor.current,
-							},
-						})
+					? {
+							selectedItems: currentSelectedItems,
+							anchor: selectionAnchor.current,
+						}
 					: EMPTY_TIMELINE_SELECTION_STATE;
 
 			selectionScope.current = timelineSelectionScope;
@@ -811,7 +798,7 @@ export const TimelineSelectionProvider: React.FC<{
 
 			return nextState.selectedItems;
 		});
-	}, [selectableItemsVersion, timelineSelectionScope]);
+	}, [timelineSelectionScope]);
 
 	const selectedKeys = useMemo(
 		() => new Set(availableSelectedItems.map(getTimelineSelectionKey)),
@@ -881,43 +868,38 @@ export const TimelineSelectionProvider: React.FC<{
 		[canSelectItem, timelineSelectionScope],
 	);
 
-	const registerSelectableItem = useCallback(
-		(item: TimelineSelection) => {
-			const key = getTimelineSelectionKey(item);
-			const currentRegistrationCount =
-				selectableItemRegistrationCounts.current.get(key) ?? 0;
-			if (currentRegistrationCount === 0) {
-				const registrationOrder = registrationCounter.current;
-				registrationCounter.current += 1;
-				selectableItemsOrder.current.set(key, registrationOrder);
+	const registerSelectableItem = useCallback((item: TimelineSelection) => {
+		const key = getTimelineSelectionKey(item);
+		const currentRegistrationCount =
+			selectableItemRegistrationCounts.current.get(key) ?? 0;
+		if (currentRegistrationCount === 0) {
+			const registrationOrder = registrationCounter.current;
+			registrationCounter.current += 1;
+			selectableItemsOrder.current.set(key, registrationOrder);
+		}
+
+		selectableItemRegistrationCounts.current.set(
+			key,
+			currentRegistrationCount + 1,
+		);
+		selectableItems.current.set(key, item);
+
+		return () => {
+			const nextRegistrationCount =
+				(selectableItemRegistrationCounts.current.get(key) ?? 1) - 1;
+			if (nextRegistrationCount > 0) {
+				selectableItemRegistrationCounts.current.set(
+					key,
+					nextRegistrationCount,
+				);
+				return;
 			}
 
-			selectableItemRegistrationCounts.current.set(
-				key,
-				currentRegistrationCount + 1,
-			);
-			selectableItems.current.set(key, item);
-			bumpSelectableItemsVersion();
-
-			return () => {
-				const nextRegistrationCount =
-					(selectableItemRegistrationCounts.current.get(key) ?? 1) - 1;
-				if (nextRegistrationCount > 0) {
-					selectableItemRegistrationCounts.current.set(
-						key,
-						nextRegistrationCount,
-					);
-					return;
-				}
-
-				selectableItemRegistrationCounts.current.delete(key);
-				selectableItems.current.delete(key);
-				selectableItemsOrder.current.delete(key);
-				bumpSelectableItemsVersion();
-			};
-		},
-		[bumpSelectableItemsVersion],
-	);
+			selectableItemRegistrationCounts.current.delete(key);
+			selectableItems.current.delete(key);
+			selectableItemsOrder.current.delete(key);
+		};
+	}, []);
 
 	const registerMarqueeSelectableItem = useCallback(
 		(item: TimelineSelection, getRect: () => DOMRect | null) => {
