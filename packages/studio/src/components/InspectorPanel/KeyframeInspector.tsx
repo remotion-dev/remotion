@@ -2,7 +2,7 @@ import React, {useContext, useMemo} from 'react';
 import type {
 	CanUpdateSequencePropStatusKeyframed,
 	SequencePropsSubscriptionKey,
-	SequenceSchema,
+	InteractivitySchema,
 } from 'remotion';
 import {Internals} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
@@ -39,7 +39,7 @@ type KeyframeEditorDetails =
 			readonly fileName: string;
 			readonly nodePath: SequencePropsSubscriptionKey;
 			readonly propStatus: CanUpdateSequencePropStatusKeyframed;
-			readonly schema: SequenceSchema;
+			readonly schema: InteractivitySchema;
 			readonly sourceFrame: number;
 	  }
 	| {

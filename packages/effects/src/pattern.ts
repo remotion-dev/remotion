@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertOptionalFiniteNumber,
@@ -128,7 +128,7 @@ const patternSchema = {
 		default: DEFAULT_WRAP,
 		description: 'Wrap',
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type PatternOrigin = readonly [number, number];
 
@@ -436,7 +436,7 @@ const linkProgram = (
 };
 
 export const pattern = createEffect<PatternParams, PatternState>({
-	type: 'remotion/pattern',
+	type: 'dev.remotion.effects.pattern',
 	label: 'pattern()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/pattern',
 	backend: 'webgl2',

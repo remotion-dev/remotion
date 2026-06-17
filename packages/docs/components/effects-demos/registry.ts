@@ -32,6 +32,7 @@ import {scanlines} from '@remotion/effects/scanlines';
 import {shine} from '@remotion/effects/shine';
 import {shrinkwrap} from '@remotion/effects/shrinkwrap';
 import {speckle} from '@remotion/effects/speckle';
+import {thermalVision} from '@remotion/effects/thermal-vision';
 import {tint} from '@remotion/effects/tint';
 import {uvTranslate, xyTranslate} from '@remotion/effects/translate';
 import {tvSignalOff} from '@remotion/effects/tv-signal-off';
@@ -71,6 +72,10 @@ import {
 	NOISE_DISPLACEMENT_PREVIEW_PARAMS,
 } from '../effects/effects-noise-displacement-preview';
 import {EffectsNoisePreview} from '../effects/effects-noise-preview';
+import {
+	EffectsPaletteMapPreview,
+	paletteMap,
+} from '../effects/effects-palette-map-preview';
 import {EffectsPatternPreview} from '../effects/effects-pattern-preview';
 import {EffectsPixelDissolvePreview} from '../effects/effects-pixel-dissolve-preview';
 import {EffectsRingsPreview} from '../effects/effects-rings-preview';
@@ -84,6 +89,7 @@ import {
 } from '../effects/effects-shrinkwrap-preview';
 import {EffectsSpecklePreview} from '../effects/effects-speckle-preview';
 import {EffectsStarburstPreview} from '../effects/effects-starburst-preview';
+import {EffectsThermalVisionPreview} from '../effects/effects-thermal-vision-preview';
 import {EffectsTintPreview} from '../effects/effects-tint-preview';
 import {
 	EffectsUvTranslatePreview,
@@ -228,6 +234,14 @@ export const effectsDemos: EffectsDemoType[] = [
 		initialValues: {
 			color: '#1ec8ff',
 		},
+	},
+	{
+		...defaults,
+		id: 'effects-thermal-vision',
+		effectName: 'thermalVision',
+		effectImportPath: '@remotion/effects/thermal-vision',
+		comp: EffectsThermalVisionPreview,
+		schema: thermalVision().definition.schema,
 	},
 	{
 		...defaults,
@@ -458,6 +472,14 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/pattern',
 		comp: EffectsPatternPreview,
 		schema: pattern().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-palette-map',
+		effectName: 'paletteMap',
+		effectImportPath: './palette-map',
+		comp: EffectsPaletteMapPreview,
+		schema: paletteMap().definition.schema,
 	},
 	{
 		...defaults,

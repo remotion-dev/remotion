@@ -1,5 +1,5 @@
 import React from 'react';
-import {Internals} from 'remotion';
+import {Internals, Interactive} from 'remotion';
 import type {MakePieProps} from '../utils/make-pie';
 import {makePie} from '../utils/make-pie';
 import type {AllShapesProps} from './render-svg';
@@ -64,7 +64,7 @@ const PieInner: React.FC<PieProps> = ({
 	);
 };
 
-export const Pie = Internals.wrapInSchema({
+export const Pie = Interactive.withSchema({
 	Component: PieInner,
 	componentIdentity: 'dev.remotion.shapes.Pie',
 	schema: pieSchema,

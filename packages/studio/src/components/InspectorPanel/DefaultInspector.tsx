@@ -1,6 +1,7 @@
 import React, {useContext, useEffect, useMemo, useState} from 'react';
 import type {_InternalTypes} from 'remotion';
 import {Internals} from 'remotion';
+import {VisualControlsContext} from '../../visual-controls/VisualControls';
 import {CurrentAsset} from '../CurrentAsset';
 import {CurrentComposition} from '../CurrentComposition';
 import {DefaultPropsEditor} from '../DefaultPropsEditor';
@@ -43,9 +44,11 @@ export const DefaultInspector: React.FC<{
 	const hasSelectedAsset = canvasContent?.type === 'asset';
 	const z = useZodIfPossible();
 	const canSaveDefaultProps = useContext(ObserveDefaultPropsContext);
+	const {handles: visualControlHandles} = useContext(VisualControlsContext);
 	const [defaultPropsMode, setDefaultPropsMode] =
 		useState<DataEditorMode>('schema');
 	const compositionId = composition?.id ?? null;
+	const hasVisualControls = Object.keys(visualControlHandles).length > 0;
 
 	useEffect(() => {
 		setDefaultPropsMode('schema');
@@ -72,7 +75,7 @@ export const DefaultInspector: React.FC<{
 		];
 	}, [defaultPropsMode]);
 
-	const canShowDefaultPropsMode = useMemo(() => {
+	const canShowDefaultPropsSection = useMemo(() => {
 		if (!z || !composition?.schema || !composition.defaultProps) {
 			return false;
 		}
@@ -94,6 +97,7 @@ export const DefaultInspector: React.FC<{
 		defaultProps: currentDefaultProps,
 		mode: defaultPropsMode,
 		propsEditType: 'default-props',
+		showCannotSaveDefaultPropsWarning: canShowDefaultPropsSection,
 	});
 
 	if (hasSelectedAsset) {
@@ -115,60 +119,67 @@ export const DefaultInspector: React.FC<{
 			<div style={compositionSection}>
 				<CurrentComposition />
 			</div>
-			<div style={inspectorSectionDivider} />
-			<div style={defaultPropsSection}>
-				<InspectorSectionHeader>
-					<div style={sectionHeaderRow}>
-						<div style={sectionHeaderStart}>
-							<span style={sectionHeaderTitle}>Default Props</span>
-							{canShowDefaultPropsMode ? (
-								<SegmentedControl
-									items={defaultPropsModeItems}
-									needsWrapping={false}
-									size="compact"
+			{canShowDefaultPropsSection ? (
+				<>
+					<div style={inspectorSectionDivider} />
+					<div style={defaultPropsSection}>
+						<InspectorSectionHeader>
+							<div style={sectionHeaderRow}>
+								<div style={sectionHeaderStart}>
+									<span style={sectionHeaderTitle}>Default Props</span>
+									<SegmentedControl
+										items={defaultPropsModeItems}
+										needsWrapping={false}
+										size="compact"
+									/>
+								</div>
+								<div style={sectionHeaderEnd}>
+									{defaultPropsWarnings.length > 0 ? (
+										<WarningIndicatorButton
+											setShowWarning={setShowWarning}
+											showWarning={showWarning}
+											warningCount={defaultPropsWarnings.length}
+											size="compact"
+										/>
+									) : null}
+								</div>
+							</div>
+						</InspectorSectionHeader>
+						{defaultPropsWarnings.length > 0 && showWarning ? (
+							<div style={defaultPropsWarningContainer}>
+								<InspectorDefaultPropsWarnings
+									warnings={defaultPropsWarnings}
 								/>
-							) : null}
-						</div>
-						<div style={sectionHeaderEnd}>
-							{defaultPropsWarnings.length > 0 ? (
-								<WarningIndicatorButton
-									setShowWarning={setShowWarning}
-									showWarning={showWarning}
-									warningCount={defaultPropsWarnings.length}
-									size="compact"
-								/>
-							) : null}
-						</div>
+							</div>
+						) : null}
+						<DefaultPropsEditor
+							key={composition.id}
+							unresolvedComposition={composition}
+							defaultProps={currentDefaultProps}
+							setDefaultProps={setDefaultProps}
+							propsEditType="default-props"
+							schemaErrorMode="compact"
+							layout="inspector"
+							mode={defaultPropsMode}
+							onModeChange={setDefaultPropsMode}
+							hideModeControls={canShowDefaultPropsSection}
+							warnings={defaultPropsWarnings}
+							showWarning={false}
+							setShowWarning={setShowWarning}
+							hideWarningButton
+						/>
 					</div>
-				</InspectorSectionHeader>
-				{defaultPropsWarnings.length > 0 && showWarning ? (
-					<div style={defaultPropsWarningContainer}>
-						<InspectorDefaultPropsWarnings warnings={defaultPropsWarnings} />
+				</>
+			) : null}
+			{hasVisualControls ? (
+				<>
+					<div style={inspectorSectionDivider} />
+					<div style={visualControlsSection}>
+						<InspectorSectionHeader>Visual Controls</InspectorSectionHeader>
+						<VisualControlsContent />
 					</div>
-				) : null}
-				<DefaultPropsEditor
-					key={composition.id}
-					unresolvedComposition={composition}
-					defaultProps={currentDefaultProps}
-					setDefaultProps={setDefaultProps}
-					propsEditType="default-props"
-					schemaErrorAlignment="left"
-					schemaErrorMode="compact"
-					layout="inspector"
-					mode={defaultPropsMode}
-					onModeChange={setDefaultPropsMode}
-					hideModeControls={canShowDefaultPropsMode}
-					warnings={defaultPropsWarnings}
-					showWarning={false}
-					setShowWarning={setShowWarning}
-					hideWarningButton
-				/>
-			</div>
-			<div style={inspectorSectionDivider} />
-			<div style={visualControlsSection}>
-				<InspectorSectionHeader>Visual Controls</InspectorSectionHeader>
-				<VisualControlsContent />
-			</div>
+				</>
+			) : null}
 		</div>
 	);
 };

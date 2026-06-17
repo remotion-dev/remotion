@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertOptionalFiniteNumber,
@@ -58,7 +58,7 @@ const pixelDissolveSchema = {
 		description: 'Feather',
 		hiddenFromList: false,
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type PixelDissolveParams = {
 	readonly progress?: number;
@@ -268,7 +268,7 @@ export const pixelDissolve = createEffect<
 	PixelDissolveParams,
 	PixelDissolveState
 >({
-	type: 'remotion/pixel-dissolve',
+	type: 'dev.remotion.effects.pixelDissolve',
 	label: 'pixelDissolve()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/pixel-dissolve',
 	backend: 'webgl2',

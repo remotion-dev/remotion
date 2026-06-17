@@ -56,7 +56,7 @@ test.describe('lost node path recovery', () => {
 		await navigateToLostNodePathE2e(page);
 
 		await expect(
-			page.getByText(stackAttribution(initialLine), {exact: true}),
+			page.getByText(stackAttribution(initialLine), {exact: true}).first(),
 		).toBeVisible({timeout: 30_000});
 
 		const expandTrack = page.getByRole('button', {
@@ -109,6 +109,7 @@ test.describe('lost node path recovery', () => {
 				async () =>
 					page
 						.getByText(stackAttribution(refactoredLine), {exact: true})
+						.first()
 						.isVisible(),
 				{
 					message: `Expected timeline stack to update to ${stackAttribution(refactoredLine)}`,

@@ -1,7 +1,7 @@
 import {
 	Internals,
-	type SequenceFieldSchema,
-	type SequenceSchema,
+	type InteractivitySchemaField,
+	type InteractivitySchema,
 } from 'remotion';
 
 export const numberField = ({
@@ -18,7 +18,7 @@ export const numberField = ({
 	readonly max?: number;
 	readonly min?: number;
 	readonly step?: number;
-}): SequenceFieldSchema => {
+}): InteractivitySchemaField => {
 	return {
 		type: 'number',
 		default: defaultValue,
@@ -36,7 +36,7 @@ export const booleanField = ({
 }: {
 	readonly defaultValue: boolean;
 	readonly description: string;
-}): SequenceFieldSchema => {
+}): InteractivitySchemaField => {
 	return {
 		type: 'boolean',
 		default: defaultValue,
@@ -50,7 +50,7 @@ export const colorField = ({
 }: {
 	readonly defaultValue: string | undefined;
 	readonly description: string;
-}): SequenceFieldSchema => {
+}): InteractivitySchemaField => {
 	return {
 		type: 'color',
 		default: defaultValue,
@@ -66,30 +66,27 @@ export const enumField = <T extends string>({
 	readonly defaultValue: T;
 	readonly description: string;
 	readonly variants: readonly T[];
-}): SequenceFieldSchema => {
+}): InteractivitySchemaField => {
 	return {
 		type: 'enum',
 		default: defaultValue,
 		description,
 		variants: Object.fromEntries(
 			variants.map((variant) => [variant, {}]),
-		) as Record<T, SequenceSchema>,
+		) as Record<T, InteractivitySchema>,
 	};
 };
 
 export const makeShapeSchema = (
-	shapeFields: SequenceSchema,
-): SequenceSchema => {
+	shapeFields: InteractivitySchema,
+): InteractivitySchema => {
 	return {
-		from: Internals.sequenceSchema.from,
-		freeze: Internals.sequenceSchema.freeze,
-		durationInFrames: Internals.sequenceSchema.durationInFrames,
+		...Internals.baseSchema,
 		...shapeFields,
 		fill: colorField({
 			defaultValue: '#0b84ff',
 			description: 'Fill',
 		}),
-		...Internals.sequenceVisualStyleSchema,
-		hidden: Internals.sequenceSchema.hidden,
+		...Internals.transformSchema,
 	};
 };

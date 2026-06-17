@@ -4,6 +4,7 @@ import {getInputProps} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {BACKGROUND, BLUE, BORDER_COLOR, LIGHT_TEXT} from '../../helpers/colors';
+import {CompactExplanation} from '../CompactExplanation';
 import {useZodIfPossible} from '../get-zod-if-possible';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import {Flex, Spacing} from '../layout';
@@ -20,7 +21,6 @@ import {SchemaEditor} from './SchemaEditor/SchemaEditor';
 import {
 	NoDefaultProps,
 	NoSchemaDefined,
-	type SchemaErrorAlignment,
 	type SchemaErrorMode,
 	ZodNotInstalled,
 } from './SchemaEditor/SchemaErrorMessages';
@@ -63,10 +63,9 @@ const explainer: React.CSSProperties = {
 	display: 'flex',
 	flex: 1,
 	flexDirection: 'column',
-	padding: '0 12px',
-	justifyContent: 'center',
-	alignItems: 'center',
-	textAlign: 'center',
+	padding: 12,
+	alignItems: 'flex-start',
+	textAlign: 'left',
 };
 
 const outer: React.CSSProperties = {
@@ -135,11 +134,13 @@ export const useDataEditorWarnings = ({
 	defaultProps,
 	mode,
 	propsEditType,
+	showCannotSaveDefaultPropsWarning,
 }: {
 	readonly canSaveDefaultProps: TypeCanSaveState | null;
 	readonly defaultProps: Record<string, unknown>;
 	readonly mode: DataEditorMode;
 	readonly propsEditType: PropsEditType;
+	readonly showCannotSaveDefaultPropsWarning: boolean;
 }) => {
 	const inJSONEditor = mode === 'json';
 	const serializedJSON: SerializedJSONWithCustomFields | null = useMemo(() => {
@@ -166,6 +167,7 @@ export const useDataEditorWarnings = ({
 			propsEditType,
 			jsMapUsed: serializedJSON ? serializedJSON.mapUsed : false,
 			jsSetUsed: serializedJSON ? serializedJSON.setUsed : false,
+			showCannotSaveDefaultPropsWarning,
 		});
 	}, [
 		cliProps,
@@ -173,6 +175,7 @@ export const useDataEditorWarnings = ({
 		inJSONEditor,
 		propsEditType,
 		serializedJSON,
+		showCannotSaveDefaultPropsWarning,
 	]);
 
 	return {serializedJSON, warnings};
@@ -206,7 +209,6 @@ export const DataEditor: React.FC<{
 	readonly setDefaultProps: UpdaterFunction<Record<string, unknown>>;
 	readonly propsEditType: PropsEditType;
 	readonly canSaveDefaultProps: TypeCanSaveState | null;
-	readonly schemaErrorAlignment?: SchemaErrorAlignment;
 	readonly schemaErrorMode?: SchemaErrorMode;
 	readonly layout?: DataEditorLayout;
 	readonly mode?: DataEditorMode;
@@ -222,7 +224,6 @@ export const DataEditor: React.FC<{
 	setDefaultProps,
 	propsEditType,
 	canSaveDefaultProps,
-	schemaErrorAlignment = 'center',
 	schemaErrorMode = 'full',
 	layout = 'default',
 	mode: controlledMode,
@@ -259,6 +260,7 @@ export const DataEditor: React.FC<{
 		defaultProps,
 		mode,
 		propsEditType,
+		showCannotSaveDefaultPropsWarning: true,
 	});
 	const warnings = controlledWarnings ?? computedWarnings;
 
@@ -341,27 +343,28 @@ export const DataEditor: React.FC<{
 	const connectionStatus = previewServerState.type;
 
 	if (connectionStatus === 'disconnected') {
+		const message =
+			'The studio server has disconnected. Reconnect to edit the schema.';
+
+		if (schemaErrorMode === 'compact') {
+			return <CompactExplanation>{message}</CompactExplanation>;
+		}
+
 		return (
 			<div style={explainer}>
 				<Spacing y={5} />
-				<div style={errorExplanation}>
-					The studio server has disconnected. Reconnect to edit the schema.
-				</div>
+				<div style={errorExplanation}>{message}</div>
 				<Spacing y={2} block />
 			</div>
 		);
 	}
 
 	if (schema === 'no-zod') {
-		return (
-			<ZodNotInstalled align={schemaErrorAlignment} mode={schemaErrorMode} />
-		);
+		return <ZodNotInstalled mode={schemaErrorMode} />;
 	}
 
 	if (schema === 'no-schema') {
-		return (
-			<NoSchemaDefined align={schemaErrorAlignment} mode={schemaErrorMode} />
-		);
+		return <NoSchemaDefined mode={schemaErrorMode} />;
 	}
 
 	if (!z) {
@@ -379,15 +382,11 @@ export const DataEditor: React.FC<{
 	const typeName = getZodSchemaType(schema);
 
 	if (typeName === 'any') {
-		return (
-			<NoSchemaDefined align={schemaErrorAlignment} mode={schemaErrorMode} />
-		);
+		return <NoSchemaDefined mode={schemaErrorMode} />;
 	}
 
 	if (!unresolvedComposition.defaultProps) {
-		return (
-			<NoDefaultProps align={schemaErrorAlignment} mode={schemaErrorMode} />
-		);
+		return <NoDefaultProps mode={schemaErrorMode} />;
 	}
 
 	const shouldRenderControlRow =
@@ -461,6 +460,7 @@ export const DataEditor: React.FC<{
 					contentInset={
 						compactLayout ? INSPECTOR_PANEL_HORIZONTAL_PADDING : undefined
 					}
+					errorMode={schemaErrorMode}
 				/>
 			) : (
 				<RenderModalJSONPropsEditor

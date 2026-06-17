@@ -24,9 +24,9 @@ import * as recast from 'recast';
 import type {
 	CanUpdateSequencePropStatus,
 	ExtrapolateType,
-	SequenceFieldSchema,
+	InteractivitySchemaField,
 	SequenceNodePath,
-	SequenceSchema,
+	InteractivitySchema,
 } from 'remotion';
 import {getAstNodePath} from '../../helpers/get-ast-node-path';
 import {
@@ -319,7 +319,7 @@ const getInterpolationCalleeForValues = ({
 	staticValue,
 	newValue,
 }: {
-	schema: SequenceSchema | null;
+	schema: InteractivitySchema | null;
 	key: string;
 	staticValue: unknown;
 	newValue: unknown;
@@ -979,7 +979,7 @@ const addKeyframe = ({
 	key: string;
 	frame: number;
 	value: unknown;
-	schema: SequenceSchema | null;
+	schema: InteractivitySchema | null;
 }): {expression: ExpressionKind; introduced: IntroducedKeyframeIdentifiers} => {
 	if (!isSchemaFieldKeyframable({schema, key})) {
 		throw new Error(`Cannot add keyframe: "${key}" is not keyframable`);
@@ -1217,7 +1217,7 @@ const applyKeyframeOperation = ({
 	expression: Expression;
 	key: string;
 	operation: KeyframeOperation;
-	schema: SequenceSchema | null;
+	schema: InteractivitySchema | null;
 }): {expression: ExpressionKind; introduced: IntroducedKeyframeIdentifiers} => {
 	if (operation.type === 'add') {
 		return addKeyframe({
@@ -1335,9 +1335,9 @@ const findObjectProperty = (
 };
 
 const findFieldInSchema = (
-	schema: SequenceSchema,
+	schema: InteractivitySchema,
 	key: string,
-): SequenceFieldSchema | undefined => {
+): InteractivitySchemaField | undefined => {
 	if (key in schema) {
 		return schema[key];
 	}
@@ -1363,7 +1363,7 @@ const getInitialValueForMissingProp = ({
 	key,
 	newValue,
 }: {
-	schema: SequenceSchema | null;
+	schema: InteractivitySchema | null;
 	key: string;
 	newValue: unknown;
 }): unknown => {
@@ -1518,6 +1518,55 @@ const getSequenceWritableProp = ({
 	};
 };
 
+const getEffectWritableProp = ({
+	objExpr,
+	key,
+	missingPropInitialValue,
+}: {
+	objExpr: ObjectExpression;
+	key: string;
+	missingPropInitialValue: MissingPropInitialValue | null;
+}): WritableProp => {
+	const {prop} = findObjectProperty(objExpr, key);
+	if (!prop) {
+		if (missingPropInitialValue) {
+			return {
+				expression: createMissingPropExpression(missingPropInitialValue),
+				setExpression: (nextExpression) => {
+					objExpr.properties.push(
+						createObjectProperty(key, nextExpression) as ObjectProperty,
+					);
+				},
+			};
+		}
+
+		throw new Error(`Cannot update keyframes: "${key}" is not set`);
+	}
+
+	return {
+		expression: prop.value as Expression,
+		setExpression: (nextExpression) => {
+			prop.value = nextExpression as ObjectProperty['value'];
+		},
+	};
+};
+
+const getEffectPropsObjectExpression = (
+	call: CallExpression,
+): ObjectExpression => {
+	if (call.arguments.length === 0) {
+		const objExpr = b.objectExpression([]) as ObjectExpression;
+		call.arguments.push(objExpr);
+		return objExpr;
+	}
+
+	if (call.arguments[0].type !== 'ObjectExpression') {
+		throw new Error('Cannot update effect keyframe: computed');
+	}
+
+	return call.arguments[0] as ObjectExpression;
+};
+
 export const updateSequenceKeyframesAst = ({
 	input,
 	nodePath,
@@ -1527,7 +1576,7 @@ export const updateSequenceKeyframesAst = ({
 	input: string;
 	nodePath: SequenceNodePath;
 	updates: SequenceKeyframeUpdate[];
-	schema?: SequenceSchema;
+	schema?: InteractivitySchema;
 }): {
 	serialized: string;
 	oldValueStrings: string[];
@@ -1627,7 +1676,7 @@ export const updateSequenceKeyframes = async ({
 	input: string;
 	nodePath: SequenceNodePath;
 	updates: SequenceKeyframeUpdate[];
-	schema?: SequenceSchema;
+	schema?: InteractivitySchema;
 	prettierConfigOverride?: Record<string, unknown> | null;
 }): Promise<{
 	output: string;
@@ -1682,7 +1731,7 @@ export const updateEffectKeyframesAst = ({
 	sequenceNodePath: SequenceNodePath;
 	effectIndex: number;
 	updates: EffectKeyframeUpdate[];
-	schema?: SequenceSchema;
+	schema?: InteractivitySchema;
 }): {
 	serialized: string;
 	oldValueStrings: string[];
@@ -1711,33 +1760,35 @@ export const updateEffectKeyframesAst = ({
 	}
 
 	const {call, callee: effectCallee} = found;
-	if (
-		call.arguments.length === 0 ||
-		call.arguments[0].type !== 'ObjectExpression'
-	) {
-		throw new Error('Cannot update effect keyframe: computed');
-	}
-
-	const objExpr = call.arguments[0] as ObjectExpression;
+	const objExpr = getEffectPropsObjectExpression(call);
 	const oldValueStrings: string[] = [];
 	const newValueStrings: string[] = [];
 	const requiredImports = new Set<string>();
 	let needsFrameHook = false;
 	for (const update of updates) {
-		const {prop} = findObjectProperty(objExpr, update.key);
-		if (!prop) {
-			throw new Error(`Cannot update keyframes: "${update.key}" is not set`);
-		}
-
-		oldValueStrings.push(recast.print(prop.value).code);
+		const prop = getEffectWritableProp({
+			objExpr,
+			key: update.key,
+			missingPropInitialValue:
+				update.operation.type === 'add'
+					? {
+							value: getInitialValueForMissingProp({
+								schema: schema ?? null,
+								key: update.key,
+								newValue: update.operation.value,
+							}),
+						}
+					: null,
+		});
+		oldValueStrings.push(recast.print(prop.expression).code);
 		const {expression: nextExpression, introduced} = applyKeyframeOperation({
-			expression: prop.value as Expression,
+			expression: prop.expression,
 			key: update.key,
 			operation: update.operation,
 			schema: schema ?? null,
 		});
 		newValueStrings.push(recast.print(nextExpression).code);
-		prop.value = nextExpression as ObjectProperty['value'];
+		prop.setExpression(nextExpression);
 
 		if (introduced.calleeName) {
 			requiredImports.add(introduced.calleeName);
@@ -1791,7 +1842,7 @@ export const updateEffectKeyframes = async ({
 	sequenceNodePath: SequenceNodePath;
 	effectIndex: number;
 	updates: EffectKeyframeUpdate[];
-	schema?: SequenceSchema;
+	schema?: InteractivitySchema;
 	prettierConfigOverride?: Record<string, unknown> | null;
 }): Promise<{
 	output: string;

@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertOptionalFiniteNumber,
@@ -20,7 +20,7 @@ const tvSignalOffSchema = {
 		description: 'Amount',
 		hiddenFromList: false,
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type TvSignalOffParams = {
 	/** Blend amount from `0` to `1`. Defaults to `1`. */
@@ -220,7 +220,7 @@ const createTvSignalOffState = (
 };
 
 export const tvSignalOff = createEffect<TvSignalOffParams, TvSignalOffState>({
-	type: 'remotion/tv-signal-off',
+	type: 'dev.remotion.effects.tvSignalOff',
 	label: 'tvSignalOff()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/tv-signal-off',
 	backend: 'webgl2',

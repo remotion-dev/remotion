@@ -22,7 +22,7 @@ import type {
 } from '@remotion/web-renderer';
 import type React from 'react';
 import {createContext} from 'react';
-import type {_InternalTypes} from 'remotion';
+import type {SequencePropsSubscriptionKey, _InternalTypes} from 'remotion';
 import type {CompType} from '../components/NewComposition/DuplicateComposition';
 import type {QuickSwitcherMode} from '../components/QuickSwitcher/NoResults';
 import type {RenderType} from '../components/RenderModal/RenderModalAdvanced';
@@ -120,6 +120,13 @@ export type ConfirmationDialogState = {
 	onCancel: () => void;
 };
 
+export type AddEffectModalState = {
+	type: 'add-effect';
+	fileName: string;
+	nodePath: SequencePropsSubscriptionKey;
+	clientId: string;
+};
+
 export type ModalState =
 	| {
 			type: 'duplicate-comp';
@@ -174,6 +181,7 @@ export type ModalState =
 			mode: QuickSwitcherMode;
 			invocationTimestamp: number;
 	  }
+	| AddEffectModalState
 	| ConfirmationDialogState;
 
 export type ModalContextType = {

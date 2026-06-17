@@ -8,10 +8,7 @@ import type {
 	RenderModalWarning,
 } from './RenderModal/DataEditor';
 import {DataEditor} from './RenderModal/DataEditor';
-import type {
-	SchemaErrorAlignment,
-	SchemaErrorMode,
-} from './RenderModal/SchemaEditor/SchemaErrorMessages';
+import type {SchemaErrorMode} from './RenderModal/SchemaEditor/SchemaErrorMessages';
 import type {UpdaterFunction} from './RenderModal/SchemaEditor/ZodSwitch';
 
 export const DefaultPropsEditor = ({
@@ -19,7 +16,6 @@ export const DefaultPropsEditor = ({
 	defaultProps,
 	setDefaultProps,
 	propsEditType,
-	schemaErrorAlignment,
 	schemaErrorMode,
 	layout,
 	mode,
@@ -34,7 +30,6 @@ export const DefaultPropsEditor = ({
 	readonly defaultProps: Record<string, unknown>;
 	readonly setDefaultProps: UpdaterFunction<Record<string, unknown>>;
 	readonly propsEditType: PropsEditType;
-	readonly schemaErrorAlignment?: SchemaErrorAlignment;
 	readonly schemaErrorMode?: SchemaErrorMode;
 	readonly layout?: DataEditorLayout;
 	readonly mode?: DataEditorMode;
@@ -57,7 +52,6 @@ export const DefaultPropsEditor = ({
 			setDefaultProps={setDefaultProps}
 			propsEditType={propsEditType}
 			canSaveDefaultProps={canSaveDefaultProps.canSaveDefaultProps}
-			schemaErrorAlignment={schemaErrorAlignment}
 			schemaErrorMode={schemaErrorMode}
 			layout={layout}
 			mode={mode}

@@ -1,13 +1,13 @@
 import type {
 	CanUpdateSequencePropStatusKeyframed,
-	SequenceFieldSchema,
-	SequenceSchema,
+	InteractivitySchema,
+	InteractivitySchemaField,
 } from 'remotion';
 
 const findFieldInSchema = (
-	schema: SequenceSchema,
+	schema: InteractivitySchema,
 	key: string,
-): SequenceFieldSchema | undefined => {
+): InteractivitySchemaField | undefined => {
 	if (key in schema) {
 		return schema[key];
 	}
@@ -70,7 +70,7 @@ const shouldFlipEasingGraphForField = ({
 	fromValue,
 	toValue,
 }: {
-	readonly field: SequenceFieldSchema | undefined;
+	readonly field: InteractivitySchemaField | undefined;
 	readonly fromValue: unknown;
 	readonly toValue: unknown;
 }) => {
@@ -105,7 +105,7 @@ export const shouldFlipEasingGraph = ({
 	propStatus,
 	segmentIndex,
 }: {
-	readonly schema: SequenceSchema;
+	readonly schema: InteractivitySchema;
 	readonly fieldKey: string;
 	readonly propStatus: CanUpdateSequencePropStatusKeyframed;
 	readonly segmentIndex: number;

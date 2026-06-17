@@ -17,12 +17,13 @@ import React, {
 } from 'react';
 import type {
 	EffectsProp,
+	InteractiveBaseProps,
 	SequenceControls,
-	SequenceProps,
-	SequenceSchema,
+	InteractivitySchema,
 } from 'remotion';
 import {
 	Internals,
+	Interactive,
 	Sequence,
 	useCurrentFrame,
 	useDelayRender,
@@ -36,25 +37,14 @@ import {mapToAlignment, mapToFit} from './map-enums.js';
 
 const {
 	addSequenceStackTraces,
-	durationInFramesField,
-	freezeField,
-	fromField,
-	hiddenField,
 	runEffectChain,
-	sequenceVisualStyleSchema,
 	useEffectChainState,
 	useMemoizedEffectDefinitions,
 	useMemoizedEffects,
-	wrapInSchema,
 } = Internals;
 
 type assetLoadCallback = (asset: FileAsset, bytes: Uint8Array) => boolean;
 type onLoadCallback = (file: File) => void;
-
-type RiveSequenceInheritedProps = Pick<
-	SequenceProps,
-	'durationInFrames' | 'name' | 'from' | 'freeze' | 'showInTimeline' | 'hidden'
->;
 
 type RemotionRiveCanvasOwnProps = {
 	readonly src: string;
@@ -71,7 +61,7 @@ type RemotionRiveCanvasOwnProps = {
 };
 
 export type RemotionRiveCanvasProps = RemotionRiveCanvasOwnProps &
-	RiveSequenceInheritedProps;
+	InteractiveBaseProps;
 
 export type RiveCanvasRef = {
 	getAnimationInstance: () => LinearAnimationInstance | null;
@@ -80,7 +70,7 @@ export type RiveCanvasRef = {
 	getCanvas: () => RiveCanvas | null;
 };
 
-const riveFitVariants: Record<RemotionRiveCanvasFit, SequenceSchema> = {
+const riveFitVariants: Record<RemotionRiveCanvasFit, InteractivitySchema> = {
 	contain: {},
 	cover: {},
 	fill: {},
@@ -92,7 +82,7 @@ const riveFitVariants: Record<RemotionRiveCanvasFit, SequenceSchema> = {
 
 const riveAlignmentVariants: Record<
 	RemotionRiveCanvasAlignment,
-	SequenceSchema
+	InteractivitySchema
 > = {
 	center: {},
 	'bottom-center': {},
@@ -106,9 +96,7 @@ const riveAlignmentVariants: Record<
 };
 
 const riveCanvasSchema = {
-	durationInFrames: durationInFramesField,
-	from: fromField,
-	freeze: freezeField,
+	...Internals.baseSchema,
 	fit: {
 		type: 'enum',
 		default: 'contain',
@@ -121,9 +109,8 @@ const riveCanvasSchema = {
 		description: 'Alignment',
 		variants: riveAlignmentVariants,
 	},
-	...sequenceVisualStyleSchema,
-	hidden: hiddenField,
-} as const satisfies SequenceSchema;
+	...Internals.transformSchema,
+} as const satisfies InteractivitySchema;
 
 type RemotionRiveCanvasContentProps = Omit<
 	RemotionRiveCanvasOwnProps,
@@ -428,7 +415,7 @@ const RemotionRiveCanvasContent = forwardRef(
 const RemotionRiveCanvasInnerForwardRefFunction: React.ForwardRefRenderFunction<
 	RiveCanvasRef,
 	RemotionRiveCanvasProps & {
-		readonly _experimentalControls?: SequenceControls | undefined;
+		readonly controls?: SequenceControls | undefined;
 	}
 > = (
 	{
@@ -443,7 +430,7 @@ const RemotionRiveCanvasInnerForwardRefFunction: React.ForwardRefRenderFunction<
 		className,
 		style,
 		effects = [],
-		_experimentalControls: controls,
+		controls,
 		durationInFrames,
 		name,
 		from,
@@ -472,7 +459,7 @@ const RemotionRiveCanvasInnerForwardRefFunction: React.ForwardRefRenderFunction<
 					: undefined
 			}
 			durationInFrames={durationInFrames}
-			_experimentalControls={controls}
+			controls={controls}
 			_remotionInternalEffects={memoizedEffectDefinitions}
 			// 'stack' is in props
 			{...props}
@@ -500,10 +487,10 @@ const RemotionRiveCanvasInner = forwardRef(
 	RemotionRiveCanvasInnerForwardRefFunction,
 );
 
-export const RemotionRiveCanvas = wrapInSchema({
+export const RemotionRiveCanvas = Interactive.withSchema({
 	Component: RemotionRiveCanvasInner as unknown as React.ComponentType<
 		RemotionRiveCanvasProps & {
-			readonly _experimentalControls: SequenceControls | undefined;
+			readonly controls: SequenceControls | undefined;
 		}
 	>,
 	componentIdentity: 'dev.remotion.rive.RemotionRiveCanvas',

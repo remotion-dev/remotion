@@ -5,7 +5,7 @@ import {
 	type PropStatuses,
 	type SequenceNodePath,
 	type SequencePropsSubscriptionKey,
-	type SequenceSchema,
+	type InteractivitySchema,
 	type TSequence,
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
@@ -23,6 +23,7 @@ import {
 	compensateTranslateForTransformOrigin,
 	getOutlineSelectionInteraction,
 	getSelectedEffectFieldsBySequenceKey,
+	getSelectedOutlineActiveSchema,
 	getSelectedOutlineDragChanges,
 	getSelectedOutlineDragValues,
 	getSelectedOutlineKeyboardNudgeDelta,
@@ -51,7 +52,10 @@ import {
 	type SelectedOutlineScaleDragState,
 } from '../components/SelectedOutlineOverlay';
 import {getSelectedOutlineUvHandleTimelineSelection} from '../components/SelectedOutlineUvControls';
-import {deleteSelectedTimelineItems} from '../components/Timeline/delete-selected-timeline-item';
+import {
+	deleteSelectedTimelineItems,
+	getTimelineSelectionAfterDeletingItems,
+} from '../components/Timeline/delete-selected-timeline-item';
 import {
 	isDuplicatableEffectSelection,
 	isDuplicatableSequenceRowSelection,
@@ -173,8 +177,8 @@ const makeTimelineSequence = ({
 	type = 'sequence',
 	showInTimeline = true,
 }: {
-	readonly schema: SequenceSchema;
-	readonly effects?: readonly {readonly schema: SequenceSchema}[];
+	readonly schema: InteractivitySchema;
+	readonly effects?: readonly {readonly schema: InteractivitySchema}[];
 	readonly id?: string;
 	readonly overrideId?: string;
 	readonly parentId?: string | null;
@@ -647,7 +651,7 @@ test('copying a selected sequence easing creates an easing payload', () => {
 	} as const;
 	const schema = {
 		opacity: {type: 'number', default: 1, hiddenFromList: false},
-	} satisfies SequenceSchema;
+	} satisfies InteractivitySchema;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
 			canUpdate: true,
@@ -697,10 +701,10 @@ test('copying a selected effect easing creates an easing payload', () => {
 		[['0', 'intensity']],
 	);
 	const nodePath = effectPropNodePathInfo.sequenceSubscriptionKey;
-	const schema = {} satisfies SequenceSchema;
+	const schema = {} satisfies InteractivitySchema;
 	const effectSchema = {
 		intensity: {type: 'number', default: 0, hiddenFromList: false},
-	} satisfies SequenceSchema;
+	} satisfies InteractivitySchema;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
 			canUpdate: true,
@@ -765,7 +769,7 @@ test('pasting an effect prop targets a matching selected effect', () => {
 	const nodePath = effectNodePathInfo.sequenceSubscriptionKey;
 	const effectSchema = {
 		intensity: {type: 'number', default: 0, hiddenFromList: false},
-	} satisfies SequenceSchema;
+	} satisfies InteractivitySchema;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
 			canUpdate: true,
@@ -831,7 +835,7 @@ test('pasting an effect prop requires the same effect type and prop key', () => 
 	const effectSchema = {
 		opacity: {type: 'number', default: 1, hiddenFromList: false},
 		intensity: {type: 'number', default: 0, hiddenFromList: false},
-	} satisfies SequenceSchema;
+	} satisfies InteractivitySchema;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
 			canUpdate: true,
@@ -903,7 +907,7 @@ test('pasting an effect prop requires the same effect type and prop key', () => 
 });
 
 test('Timeline duration drag applies the same delta to selected sequences', () => {
-	const schema = {} satisfies SequenceSchema;
+	const schema = {} satisfies InteractivitySchema;
 	const firstNodePathInfo = makeNodePathInfo(['body', 0], []);
 	const secondNodePathInfo = makeNodePathInfo(['body', 1], []);
 	const sequences = [
@@ -949,7 +953,7 @@ test('Timeline duration drag applies the same delta to selected sequences', () =
 });
 
 test('Timeline duration drag uses the declared duration for negative from values', () => {
-	const schema = {} satisfies SequenceSchema;
+	const schema = {} satisfies InteractivitySchema;
 	const nodePathInfo = makeNodePathInfo(['body', 0], []);
 	const targets = getTimelineSequenceDurationDragTargets({
 		draggedNodePathInfo: nodePathInfo,
@@ -994,7 +998,7 @@ test('Timeline duration drag clamps each selected sequence to one frame', () => 
 });
 
 test('Timeline duration drag is blocked if one selected sequence cannot update duration', () => {
-	const schema = {} satisfies SequenceSchema;
+	const schema = {} satisfies InteractivitySchema;
 	const firstNodePathInfo = makeNodePathInfo(['body', 0], []);
 	const secondNodePathInfo = makeNodePathInfo(['body', 1], []);
 	const propStatuses = makeDurationPropStatuses([
@@ -1043,7 +1047,7 @@ test('Timeline duration drag is blocked if one selected sequence cannot update d
 });
 
 test('Timeline duration drag is blocked if one selected sequence duration is keyframed', () => {
-	const schema = {} satisfies SequenceSchema;
+	const schema = {} satisfies InteractivitySchema;
 	const firstNodePathInfo = makeNodePathInfo(['body', 0], []);
 	const secondNodePathInfo = makeNodePathInfo(['body', 1], []);
 	const propStatuses = makeDurationPropStatuses([
@@ -1102,7 +1106,7 @@ test('Timeline duration drag is blocked if one selected sequence duration is key
 });
 
 test('Timeline duration drag ignores selection if dragged sequence is not selected', () => {
-	const schema = {} satisfies SequenceSchema;
+	const schema = {} satisfies InteractivitySchema;
 	const firstNodePathInfo = makeNodePathInfo(['body', 0], []);
 	const secondNodePathInfo = makeNodePathInfo(['body', 1], []);
 	const thirdNodePathInfo = makeNodePathInfo(['body', 2], []);
@@ -1152,7 +1156,7 @@ test('Timeline duration drag ignores selection if dragged sequence is not select
 });
 
 test('Timeline from drag applies the same delta to selected sequences', () => {
-	const schema = {} satisfies SequenceSchema;
+	const schema = {} satisfies InteractivitySchema;
 	const firstNodePathInfo = makeNodePathInfo(['body', 0], []);
 	const secondNodePathInfo = makeNodePathInfo(['body', 1], []);
 	const sequences = [
@@ -1208,7 +1212,7 @@ test('Timeline from drag supports negative offsets', () => {
 });
 
 test('Timeline from drag saves relative from for nested sequences', () => {
-	const schema = {} satisfies SequenceSchema;
+	const schema = {} satisfies InteractivitySchema;
 	const childNodePathInfo = makeNodePathInfo(['body', 1], []);
 	const targets = getTimelineSequenceFromDragTargets({
 		draggedNodePathInfo: childNodePathInfo,
@@ -1248,7 +1252,7 @@ test('Timeline from drag saves relative from for nested sequences', () => {
 });
 
 test('Timeline from drag is blocked if one selected sequence cannot update from', () => {
-	const schema = {} satisfies SequenceSchema;
+	const schema = {} satisfies InteractivitySchema;
 	const firstNodePathInfo = makeNodePathInfo(['body', 0], []);
 	const secondNodePathInfo = makeNodePathInfo(['body', 1], []);
 	const propStatuses = makeFromPropStatuses([
@@ -1361,7 +1365,7 @@ test('Canvas outline selection uses conventional modifier keys', () => {
 });
 
 test('Canvas outline hit targets render nested sequences above parents', () => {
-	const schema = {} satisfies SequenceSchema;
+	const schema = {} satisfies InteractivitySchema;
 	const refForOutline = {current: null};
 	const parentNodePathInfo = makeNodePathInfo(['body', 0], []);
 	const childNodePathInfo = makeNodePathInfo(['body', 0, 'children', 0], []);
@@ -1394,7 +1398,7 @@ test('Canvas outline hit targets render nested sequences above parents', () => {
 });
 
 test('Canvas outline hit targets exclude sequences hidden from the timeline', () => {
-	const schema = {} satisfies SequenceSchema;
+	const schema = {} satisfies InteractivitySchema;
 	const refForOutline = {current: null};
 	const hiddenNodePathInfo = makeNodePathInfo(['body', 0], []);
 	const visibleNodePathInfo = makeNodePathInfo(['body', 1], []);
@@ -1875,7 +1879,7 @@ const getUvHandlesForSelectedEffectChild = (selectedFieldKey: string) => {
 			default: 10,
 			hiddenFromList: false,
 		},
-	} as const satisfies SequenceSchema;
+	} as const satisfies InteractivitySchema;
 	const propStatuses: PropStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
 			canUpdate: true,
@@ -2036,7 +2040,7 @@ test('UV handles are requested for keyframed selected effect props', () => {
 			type: 'uv-coordinate',
 			default: [0, 0],
 		},
-	} as const satisfies SequenceSchema;
+	} as const satisfies InteractivitySchema;
 	const propStatuses: PropStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
 			canUpdate: true,
@@ -2186,7 +2190,7 @@ test('Backspace reset targets multiple selected sequence props', () => {
 	const schema = {
 		opacity: {type: 'number', default: 1, hiddenFromList: false},
 		'style.rotate': {type: 'rotation-css', default: '0deg'},
-	} satisfies SequenceSchema;
+	} satisfies InteractivitySchema;
 	const opacityNodePathInfo = makeNodePathInfo(
 		['body', 0],
 		['controls', 'opacity'],
@@ -2235,7 +2239,7 @@ test('Backspace reset targets multiple selected sequence props', () => {
 test('Backspace reset targets selected keyframed sequence props', () => {
 	const schema = {
 		opacity: {type: 'number', default: 1, hiddenFromList: false},
-	} satisfies SequenceSchema;
+	} satisfies InteractivitySchema;
 	const opacityNodePathInfo = makeNodePathInfo(
 		['body', 0],
 		['controls', 'opacity'],
@@ -2290,7 +2294,7 @@ test('Backspace reset targets selected keyframed sequence props', () => {
 test('Backspace reset targets selected computed sequence props with defaults', () => {
 	const schema = {
 		'style.scale': {type: 'scale', default: 1, max: 100},
-	} satisfies SequenceSchema;
+	} satisfies InteractivitySchema;
 	const scaleNodePathInfo = makeNodePathInfo(
 		['body', 0],
 		['controls', 'style.scale'],
@@ -2383,7 +2387,7 @@ test('Backspace reset targets flattened built-in sequence style props', () => {
 test('Backspace reset skips keyframed sequence props without defaults', () => {
 	const schema = {
 		opacity: {type: 'number', default: undefined, hiddenFromList: false},
-	} satisfies SequenceSchema;
+	} satisfies InteractivitySchema;
 	const opacityNodePathInfo = makeNodePathInfo(
 		['body', 0],
 		['controls', 'opacity'],
@@ -2428,7 +2432,7 @@ test('Backspace reset skips keyframed sequence props without defaults', () => {
 test('Selected outline dragging applies the same delta to all selected sequences', () => {
 	const schema = {
 		'style.translate': {type: 'translate', default: '0px 0px'},
-	} satisfies SequenceSchema;
+	} satisfies InteractivitySchema;
 	const firstNodePath = makeKey(['body', 0]);
 	const secondNodePath = makeKey(['body', 1]);
 	const dragStates = [
@@ -2499,6 +2503,30 @@ test('Selected outline dragging applies the same delta to all selected sequences
 	]);
 });
 
+test('Selected outline active schema exposes default Sequence translate controls', () => {
+	const activeSchema = getSelectedOutlineActiveSchema({
+		schema: NoReactInternals.sequenceSchema,
+		currentRuntimeValueDotNotation: {
+			layout: undefined,
+			'style.translate': undefined,
+		},
+		dragOverrides: {},
+		propStatus: {
+			layout: {status: 'static', codeValue: undefined},
+			'style.translate': {status: 'static', codeValue: undefined},
+		},
+		frame: 0,
+	});
+
+	const translateField = activeSchema['style.translate'];
+	expect(translateField?.type).toBe('translate');
+	if (translateField?.type !== 'translate') {
+		throw new Error('Expected style.translate to be active');
+	}
+
+	expect(translateField.default).toBe('0px 0px');
+});
+
 test('Selected outline dragging can lock movement to the dominant axis', () => {
 	expect(
 		applySelectedOutlineDragAxisLock({
@@ -2526,7 +2554,7 @@ test('Selected outline dragging can lock movement to the dominant axis', () => {
 test('Selected outline keyboard nudging moves by one or ten pixels', () => {
 	const schema = {
 		'style.translate': {type: 'translate', default: '0px 0px'},
-	} satisfies SequenceSchema;
+	} satisfies InteractivitySchema;
 	const nodePath = makeKey(['body', 0]);
 	const dragStates = [
 		{
@@ -2669,7 +2697,7 @@ test('Selected outline dragging starts after a screen pixel threshold', () => {
 test('Selected outline dragging keyframed translate adds a keyframe at the source frame', () => {
 	const schema = {
 		'style.translate': {type: 'translate', default: '0px 0px'},
-	} satisfies SequenceSchema;
+	} satisfies InteractivitySchema;
 	const nodePath = makeKey(['body', 0]);
 	const dragStates = [
 		{
@@ -2734,7 +2762,7 @@ test('Selected outline dragging keyframed translate adds a keyframe at the sourc
 test('Selected outline edge dragging scales one axis when scale is unlinked', () => {
 	const schema = {
 		'style.scale': {type: 'scale', default: 1, max: 100},
-	} satisfies SequenceSchema;
+	} satisfies InteractivitySchema;
 	const nodePath = makeKey(['body', 0]);
 	const dragStates = [
 		{
@@ -2793,7 +2821,7 @@ test('Selected outline edge dragging scales one axis when scale is unlinked', ()
 test('Selected outline edge dragging rounds scale values', () => {
 	const schema = {
 		'style.scale': {type: 'scale', default: 1, max: 100},
-	} satisfies SequenceSchema;
+	} satisfies InteractivitySchema;
 	const nodePath = makeKey(['body', 0]);
 	const dragStates = [
 		{
@@ -2828,7 +2856,7 @@ test('Selected outline edge dragging rounds scale values', () => {
 test('Selected outline edge dragging preserves aspect ratio when scale is linked', () => {
 	const schema = {
 		'style.scale': {type: 'scale', default: 1, max: 100},
-	} satisfies SequenceSchema;
+	} satisfies InteractivitySchema;
 	const nodePath = makeKey(['body', 0]);
 	const dragStates = [
 		{
@@ -2863,7 +2891,7 @@ test('Selected outline edge dragging preserves aspect ratio when scale is linked
 test('Selected outline corner dragging rotates selected sequences', () => {
 	const schema = {
 		'style.rotate': {type: 'rotation-css', default: '0deg'},
-	} satisfies SequenceSchema;
+	} satisfies InteractivitySchema;
 	const firstNodePath = makeKey(['body', 0]);
 	const secondNodePath = makeKey(['body', 1]);
 	const dragStates = [
@@ -2938,7 +2966,7 @@ test('Selected outline corner dragging rotates selected sequences', () => {
 test('Selected outline corner dragging rounds rotation values', () => {
 	const schema = {
 		'style.rotate': {type: 'rotation-css', default: '0deg'},
-	} satisfies SequenceSchema;
+	} satisfies InteractivitySchema;
 	const nodePath = makeKey(['body', 0]);
 	const dragStates = [
 		{
@@ -2970,7 +2998,7 @@ test('Selected outline corner dragging rounds rotation values', () => {
 test('Selected outline corner dragging snaps rotation to 15 degree increments', () => {
 	const schema = {
 		'style.rotate': {type: 'rotation-css', default: '0deg'},
-	} satisfies SequenceSchema;
+	} satisfies InteractivitySchema;
 	const nodePath = makeKey(['body', 0]);
 	const dragStates = [
 		{
@@ -3007,7 +3035,7 @@ test('Selected outline corner dragging snaps rotation to 15 degree increments', 
 test('Selected outline corner dragging snaps selected rotations from the first drag state', () => {
 	const schema = {
 		'style.rotate': {type: 'rotation-css', default: '0deg'},
-	} satisfies SequenceSchema;
+	} satisfies InteractivitySchema;
 	const firstNodePath = makeKey(['body', 0]);
 	const secondNodePath = makeKey(['body', 1]);
 	const dragStates = [
@@ -3062,7 +3090,7 @@ test('Selected outline corner dragging snaps selected rotations from the first d
 test('Selected outline corner dragging keyframed rotation adds a keyframe at the source frame', () => {
 	const schema = {
 		'style.rotate': {type: 'rotation-css', default: '0deg'},
-	} satisfies SequenceSchema;
+	} satisfies InteractivitySchema;
 	const nodePath = makeKey(['body', 0]);
 	const dragStates = [
 		{
@@ -3288,10 +3316,10 @@ test('Selected outline scale edge cursors follow rotated outlines', () => {
 });
 
 test('Backspace reset targets selected effect props', () => {
-	const schema = {} satisfies SequenceSchema;
+	const schema = {} satisfies InteractivitySchema;
 	const effectSchema = {
 		intensity: {type: 'number', default: 0, hiddenFromList: false},
-	} satisfies SequenceSchema;
+	} satisfies InteractivitySchema;
 	const nodePathInfo = makeNodePathInfo(
 		['body', 0],
 		['effects', '0', 'intensity'],
@@ -3349,10 +3377,10 @@ test('Backspace reset targets selected effect props', () => {
 });
 
 test('Backspace reset targets selected keyframed effect props', () => {
-	const schema = {} satisfies SequenceSchema;
+	const schema = {} satisfies InteractivitySchema;
 	const effectSchema = {
 		intensity: {type: 'number', default: 0, hiddenFromList: false},
-	} satisfies SequenceSchema;
+	} satisfies InteractivitySchema;
 	const nodePathInfo = makeNodePathInfo(
 		['body', 0],
 		['effects', '0', 'intensity'],
@@ -3420,10 +3448,10 @@ test('Backspace reset targets selected keyframed effect props', () => {
 });
 
 test('Backspace reset skips keyframed effect props without defaults', () => {
-	const schema = {} satisfies SequenceSchema;
+	const schema = {} satisfies InteractivitySchema;
 	const effectSchema = {
 		intensity: {type: 'number', default: undefined, hiddenFromList: false},
-	} satisfies SequenceSchema;
+	} satisfies InteractivitySchema;
 	const nodePathInfo = makeNodePathInfo(
 		['body', 0],
 		['effects', '0', 'intensity'],
@@ -3482,10 +3510,10 @@ test('Backspace reset skips keyframed effect props without defaults', () => {
 test('Backspace reset targets mixed selected sequence and effect props', () => {
 	const schema = {
 		opacity: {type: 'number', default: 1, hiddenFromList: false},
-	} satisfies SequenceSchema;
+	} satisfies InteractivitySchema;
 	const effectSchema = {
 		intensity: {type: 'number', default: 0, hiddenFromList: false},
-	} satisfies SequenceSchema;
+	} satisfies InteractivitySchema;
 	const opacityNodePathInfo = makeNodePathInfo(
 		['body', 0],
 		['controls', 'opacity'],
@@ -3553,7 +3581,7 @@ test('Backspace reset targets mixed selected sequence and effect props', () => {
 test('Backspace reset ignores incompatible mixed prop selections', () => {
 	const schema = {
 		opacity: {type: 'number', default: 1, hiddenFromList: false},
-	} satisfies SequenceSchema;
+	} satisfies InteractivitySchema;
 	const opacityNodePathInfo = makeNodePathInfo(
 		['body', 0],
 		['controls', 'opacity'],
@@ -3608,10 +3636,61 @@ test('Deleting unsupported mixed timeline selection types returns null', () => {
 	).toBe(null);
 });
 
+test('Deleting selected effects keeps their parent sequence selected', () => {
+	const effectNodePathInfo = makeNodePathInfo(['body', 0], ['effects', '1']);
+	const result = getTimelineSelectionAfterDeletingItems([
+		{
+			type: 'sequence-effect',
+			nodePathInfo: effectNodePathInfo,
+			i: 1,
+		},
+	]);
+
+	expect(result).toEqual([
+		{
+			type: 'sequence',
+			nodePathInfo: {
+				...effectNodePathInfo,
+				auxiliaryKeys: [],
+			},
+		},
+	]);
+});
+
+test('Deleting selected all-effects rows keeps their parent sequence selected', () => {
+	const effectsNodePathInfo = makeNodePathInfo(['body', 0], ['effects']);
+	const result = getTimelineSelectionAfterDeletingItems([
+		{
+			type: 'sequence-all-effects',
+			nodePathInfo: effectsNodePathInfo,
+		},
+	]);
+
+	expect(result).toEqual([
+		{
+			type: 'sequence',
+			nodePathInfo: {
+				...effectsNodePathInfo,
+				auxiliaryKeys: [],
+			},
+		},
+	]);
+});
+
+test('Deleting selected sequences still clears selection', () => {
+	const sequenceNodePathInfo = makeNodePathInfo(['body', 0], []);
+
+	expect(
+		getTimelineSelectionAfterDeletingItems([
+			{type: 'sequence', nodePathInfo: sequenceNodePathInfo},
+		]),
+	).toEqual([]);
+});
+
 test('Deleting selected keyframes ignores selected easings', async () => {
 	const schema = {
 		opacity: {type: 'number', default: 1, hiddenFromList: false},
-	} satisfies SequenceSchema;
+	} satisfies InteractivitySchema;
 	const opacityNodePathInfo = makeNodePathInfo(
 		['body', 0],
 		['controls', 'opacity'],
@@ -4166,6 +4245,33 @@ test('Unavailable timeline selections are removed from the active selection stat
 		selectedItems: [availableRow],
 		anchor: null,
 	});
+});
+
+test('Available timeline selections are refreshed with the latest selectable item', () => {
+	const staleRow = {
+		type: 'sequence' as const,
+		nodePathInfo: makeNodePathInfo(['body', 0], [], true, [['oldEffect']]),
+	};
+	const currentRow = {
+		type: 'sequence' as const,
+		nodePathInfo: makeNodePathInfo(['body', 0], [], true, [
+			['oldEffect'],
+			['newEffect'],
+		]),
+	};
+	const currentRowKey = getTimelineSelectionKey(currentRow);
+
+	const result = getAvailableTimelineSelectionState({
+		availableKeys: new Set([currentRowKey]),
+		availableItemsByKey: new Map([[currentRowKey, currentRow]]),
+		state: {
+			selectedItems: [staleRow],
+			anchor: staleRow,
+		},
+	});
+
+	expect(result.selectedItems[0]).toBe(currentRow);
+	expect(result.anchor).toBe(currentRow);
 });
 
 test('Unavailable timeline selections become no active selection', () => {

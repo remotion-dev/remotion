@@ -1,7 +1,7 @@
 import {expect, test} from 'bun:test';
 import type {
 	CanUpdateSequencePropStatusKeyframed,
-	SequenceSchema,
+	InteractivitySchema,
 } from 'remotion';
 import {shouldFlipEasingGraph} from '../components/Timeline/should-flip-easing-graph';
 
@@ -27,7 +27,7 @@ test('shouldFlipEasingGraph flips descending number keyframes', () => {
 			default: 1,
 			hiddenFromList: false,
 		},
-	} satisfies SequenceSchema;
+	} satisfies InteractivitySchema;
 
 	expect(
 		shouldFlipEasingGraph({
@@ -46,7 +46,7 @@ test('shouldFlipEasingGraph keeps ascending number keyframes upright', () => {
 			default: 0,
 			hiddenFromList: false,
 		},
-	} satisfies SequenceSchema;
+	} satisfies InteractivitySchema;
 
 	expect(
 		shouldFlipEasingGraph({
@@ -64,7 +64,7 @@ test('shouldFlipEasingGraph flips descending scalar scale keyframes', () => {
 			type: 'scale',
 			default: 1,
 		},
-	} satisfies SequenceSchema;
+	} satisfies InteractivitySchema;
 
 	expect(
 		shouldFlipEasingGraph({
@@ -82,7 +82,7 @@ test('shouldFlipEasingGraph keeps compound scale keyframes upright', () => {
 			type: 'scale',
 			default: '1 1',
 		},
-	} satisfies SequenceSchema;
+	} satisfies InteractivitySchema;
 
 	expect(
 		shouldFlipEasingGraph({
@@ -100,7 +100,7 @@ test('shouldFlipEasingGraph keeps translate keyframes upright', () => {
 			type: 'translate',
 			default: '0px 0px',
 		},
-	} satisfies SequenceSchema;
+	} satisfies InteractivitySchema;
 
 	expect(
 		shouldFlipEasingGraph({
@@ -118,7 +118,7 @@ test('shouldFlipEasingGraph keeps tuple keyframes upright', () => {
 			type: 'uv-coordinate',
 			default: [1, 1],
 		},
-	} satisfies SequenceSchema;
+	} satisfies InteractivitySchema;
 
 	expect(
 		shouldFlipEasingGraph({
@@ -136,7 +136,7 @@ test('shouldFlipEasingGraph keeps non-ordered color keyframes upright', () => {
 			type: 'color',
 			default: 'white',
 		},
-	} satisfies SequenceSchema;
+	} satisfies InteractivitySchema;
 
 	expect(
 		shouldFlipEasingGraph({

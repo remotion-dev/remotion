@@ -12,12 +12,12 @@ import {AbsoluteFill} from './AbsoluteFill.js';
 import type {LoopDisplay, SequenceControls} from './CompositionManager.js';
 import type {EffectDefinition} from './effects/effect-types.js';
 import {Freeze} from './freeze.js';
-import {useNonce} from './nonce.js';
-import {PremountContext} from './PremountContext.js';
 import {
 	sequenceSchema,
 	sequenceSchemaWithoutFrom,
-} from './sequence-field-schema.js';
+} from './interactivity-schema.js';
+import {useNonce} from './nonce.js';
+import {PremountContext} from './PremountContext.js';
 import type {SequenceContextType} from './SequenceContext.js';
 import {SequenceContext} from './SequenceContext.js';
 import {SequenceManager} from './SequenceManager.js';
@@ -31,7 +31,7 @@ import type {BasicMediaInTimelineReturnType} from './use-media-in-timeline.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {useVideoConfig} from './use-video-config.js';
 import {ENABLE_V5_BREAKING_CHANGES} from './v5-flag.js';
-import {wrapInSchema} from './wrap-in-schema.js';
+import {withInteractivitySchema} from './with-interactivity-schema.js';
 
 const EMPTY_EFFECTS: readonly EffectDefinition<unknown>[] = [];
 
@@ -60,7 +60,7 @@ export type SequencePropsWithoutDuration = {
 	readonly name?: string;
 	readonly showInTimeline?: boolean;
 	readonly hidden?: boolean;
-	readonly _experimentalControls?: SequenceControls;
+	readonly controls?: SequenceControls;
 	readonly _remotionInternalEffects?: readonly EffectDefinition<unknown>[];
 	/**
 	 * @deprecated For internal use only.
@@ -103,9 +103,10 @@ export type SequencePropsWithoutDuration = {
 				src: string;
 		  };
 	/**
-	 * @deprecated For internal use only.
+	 * A React ref pointing to the element that Remotion Studio should use for
+	 * drawing the selection outline in the preview.
 	 */
-	readonly _remotionInternalRefForOutline?: React.RefObject<Element | null> | null;
+	readonly outlineRef?: React.RefObject<Element | null> | null;
 } & LayoutAndStyle;
 
 export type SequenceProps = {
@@ -126,7 +127,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		width,
 		showInTimeline = true,
 		hidden = false,
-		_experimentalControls: controls,
+		controls,
 		_remotionInternalEffects,
 		_remotionInternalLoopDisplay: loopDisplay,
 		_remotionInternalStack: stack,
@@ -134,7 +135,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		_remotionInternalPremountDisplay: premountDisplay,
 		_remotionInternalPostmountDisplay: postmountDisplay,
 		_remotionInternalIsMedia: isMedia,
-		_remotionInternalRefForOutline: passedRefForOutline,
+		outlineRef: passedRefForOutline,
 		...other
 	},
 	ref,
@@ -631,14 +632,14 @@ export const SequenceWithoutSchema = SequenceInner;
  * @description A component that time-shifts its children and wraps them in an absolutely positioned <div>.
  * @see [Documentation](https://www.remotion.dev/docs/sequence)
  */
-export const Sequence = wrapInSchema({
+export const Sequence = withInteractivitySchema({
 	Component: SequenceInner,
 	componentIdentity: 'dev.remotion.remotion.Sequence',
 	schema: sequenceSchema,
 	supportsEffects: false,
 });
 
-export const SequenceWithoutFrom = wrapInSchema({
+export const SequenceWithoutFrom = withInteractivitySchema({
 	Component: SequenceInner,
 	componentIdentity: null,
 	schema: sequenceSchemaWithoutFrom,

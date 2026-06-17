@@ -164,6 +164,17 @@ export {
 	parseEffectDragData,
 	type EffectDragData,
 } from './effect-drag-data';
+export {
+	EFFECT_CATALOG,
+	getEffectCatalogCategories,
+	getEffectDocumentationLink,
+	getEffectDocumentationPath,
+	getEffectPreviewAlt,
+	getEffectPreviewSource,
+	makeEffectDragDataFromCatalogItem,
+	type EffectCatalogCategory,
+	type EffectCatalogItem,
+} from './effect-catalog';
 export {EventSourceEvent} from './event-source-event';
 export {formatBytes} from './format-bytes';
 export {getAllSchemaKeys} from './get-all-keys';
@@ -185,7 +196,7 @@ export {
 	getKeyframeInterpolationFunctionForSchemaField,
 	isKeyframeInterpolationFunction,
 	isSchemaFieldKeyframable,
-	isSequenceFieldSchemaKeyframable,
+	isInteractivitySchemaFieldKeyframable,
 	keyframeInterpolationFunctions,
 	type KeyframeInterpolationFunction,
 } from './keyframe-interpolation-function';
@@ -240,7 +251,7 @@ export type {
 	PropStatuses,
 	SchemaFieldInfo,
 	SequenceControls,
-	SequenceSchemaFieldInfo,
+	InteractivitySchemaFieldInfo,
 } from './schema-field-info';
 export {
 	SFX_DRAG_MIME_TYPE,

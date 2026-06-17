@@ -7,6 +7,7 @@ import {
 	makePie,
 	makePolygon,
 	makeRect,
+	makeSpark,
 	makeStar,
 	makeTriangle,
 } from '@remotion/shapes';
@@ -164,6 +165,13 @@ const makeDefaultShapeInfo = (shape: ShapeName): ShapeInfo => {
 			return makeRect({
 				width: getNumber(props, 'width'),
 				height: getNumber(props, 'height'),
+				cornerRadius: getNumber(props, 'cornerRadius'),
+			});
+		case 'Spark':
+			return makeSpark({
+				width: getNumber(props, 'width'),
+				height: getNumber(props, 'height'),
+				edgeRoundness: getNumber(props, 'edgeRoundness'),
 				cornerRadius: getNumber(props, 'cornerRadius'),
 			});
 		case 'Star':

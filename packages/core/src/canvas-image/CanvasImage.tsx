@@ -19,27 +19,22 @@ import {
 	useMemoizedEffects,
 } from '../effects/use-memoized-effects.js';
 import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
-import {usePreload} from '../prefetch.js';
 import {
-	freezeField,
-	fromField,
-	hiddenField,
-	sequenceVisualStyleSchema,
-	durationInFramesField,
-	type SequenceSchema,
-} from '../sequence-field-schema.js';
+	baseSchema,
+	transformSchema,
+	type InteractivitySchema,
+} from '../interactivity-schema.js';
+import {usePreload} from '../prefetch.js';
 import {Sequence} from '../Sequence.js';
 import {SequenceContext} from '../SequenceContext.js';
 import {truncateSrcForLabel} from '../truncate-src-for-label.js';
 import {useBufferState} from '../use-buffer-state.js';
 import {useDelayRender} from '../use-delay-render.js';
-import {wrapInSchema} from '../wrap-in-schema.js';
+import {withInteractivitySchema} from '../with-interactivity-schema.js';
 import type {CanvasImageCanvasProps, CanvasImageProps} from './props.js';
 
 export const canvasImageSchema = {
-	durationInFrames: durationInFramesField,
-	from: fromField,
-	freeze: freezeField,
+	...baseSchema,
 	fit: {
 		type: 'enum',
 		default: 'fill',
@@ -50,9 +45,8 @@ export const canvasImageSchema = {
 			cover: {},
 		},
 	},
-	...sequenceVisualStyleSchema,
-	hidden: hiddenField,
-} as const satisfies SequenceSchema;
+	...transformSchema,
+} as const satisfies InteractivitySchema;
 
 type LoadedImage = {
 	readonly element: HTMLImageElement;
@@ -451,7 +445,7 @@ CanvasImageContent.displayName = 'CanvasImageContent';
 const CanvasImageInner = forwardRef<
 	HTMLCanvasElement,
 	CanvasImageProps & {
-		readonly _experimentalControls: SequenceControls | undefined;
+		readonly controls: SequenceControls | undefined;
 	}
 >(
 	(
@@ -476,9 +470,9 @@ const CanvasImageInner = forwardRef<
 			name,
 			showInTimeline,
 			stack,
-			_experimentalControls: controls,
+			controls,
 			_remotionInternalDocumentationLink,
-			_remotionInternalRefForOutline,
+			outlineRef,
 			...canvasProps
 		},
 		ref,
@@ -506,13 +500,11 @@ const CanvasImageInner = forwardRef<
 					_remotionInternalDocumentationLink ??
 					'https://www.remotion.dev/docs/canvasimage'
 				}
-				_experimentalControls={controls}
+				controls={controls}
 				_remotionInternalEffects={memoizedEffectDefinitions}
 				_remotionInternalIsMedia={{type: 'image', src}}
 				_remotionInternalStack={stack}
-				_remotionInternalRefForOutline={
-					_remotionInternalRefForOutline ?? actualRef
-				}
+				outlineRef={outlineRef ?? actualRef}
 			>
 				<CanvasImageContent
 					ref={actualRef}
@@ -530,7 +522,7 @@ const CanvasImageInner = forwardRef<
 					maxRetries={maxRetries}
 					delayRenderRetries={delayRenderRetries}
 					delayRenderTimeoutInMilliseconds={delayRenderTimeoutInMilliseconds}
-					refForOutline={_remotionInternalRefForOutline ?? null}
+					refForOutline={outlineRef ?? null}
 					{...canvasProps}
 				/>
 			</Sequence>
@@ -542,7 +534,7 @@ const CanvasImageInner = forwardRef<
  * @description Renders a static image to a `<canvas>` and applies Remotion effects.
  * @see [Documentation](https://www.remotion.dev/docs/canvasimage)
  */
-export const CanvasImage = wrapInSchema({
+export const CanvasImage = withInteractivitySchema({
 	Component: CanvasImageInner,
 	componentIdentity: 'dev.remotion.remotion.CanvasImage',
 	schema: canvasImageSchema,

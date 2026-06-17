@@ -1,13 +1,15 @@
 import React from 'react';
 import {
 	Internals,
+	Interactive,
 	Sequence,
 	useRemotionEnvironment,
 	useVideoConfig,
 	type EffectsProp,
+	type InteractiveBaseProps,
+	type InteractiveTransformProps,
 	type SequenceControls,
-	type SequenceProps,
-	type SequenceSchema,
+	type InteractivitySchema,
 } from 'remotion';
 import {GifForDevelopment} from './GifForDevelopment';
 import {GifForRendering} from './GifForRendering';
@@ -17,18 +19,11 @@ const {
 	addSequenceStackTraces,
 	useMemoizedEffectDefinitions,
 	useMemoizedEffects,
-	wrapInSchema,
-	durationInFramesField,
-	freezeField,
-	fromField,
 } = Internals;
 
-export type GifProps = Omit<
-	SequenceProps,
-	'children' | 'durationInFrames' | 'layout' | '_remotionInternalEffects'
-> &
+export type GifProps = InteractiveBaseProps &
+	InteractiveTransformProps &
 	RemotionGifProps & {
-		readonly durationInFrames?: number;
 		readonly effects?: EffectsProp;
 	};
 
@@ -37,9 +32,7 @@ export type GifProps = Omit<
  * @see [Documentation](https://remotion.dev/docs/gif)
  */
 const gifSchema = {
-	durationInFrames: durationInFramesField,
-	from: fromField,
-	freeze: freezeField,
+	...Internals.baseSchema,
 	playbackRate: {
 		type: 'number',
 		min: 0,
@@ -50,9 +43,8 @@ const gifSchema = {
 		hiddenFromList: false,
 		keyframable: false,
 	},
-	...Internals.sequenceVisualStyleSchema,
-	hidden: Internals.hiddenField,
-} as const satisfies SequenceSchema;
+	...Internals.transformSchema,
+} as const satisfies InteractivitySchema;
 
 const GifInner = ({
 	src,
@@ -68,12 +60,12 @@ const GifInner = ({
 	requestInit,
 	durationInFrames,
 	style,
-	_experimentalControls: controls,
+	controls,
 	effects = [],
 	ref,
 	...sequenceProps
 }: GifProps & {
-	readonly _experimentalControls?: SequenceControls | undefined;
+	readonly controls?: SequenceControls | undefined;
 	readonly ref?: React.Ref<HTMLCanvasElement>;
 }) => {
 	const env = useRemotionEnvironment();
@@ -117,17 +109,17 @@ const GifInner = ({
 			durationInFrames={resolvedDuration}
 			name="<Gif>"
 			_remotionInternalDocumentationLink="https://www.remotion.dev/docs/gif/gif"
-			_experimentalControls={controls}
+			controls={controls}
 			_remotionInternalEffects={memoizedEffectDefinitions}
 			{...sequenceProps}
-			_remotionInternalRefForOutline={refForOutline}
+			outlineRef={refForOutline}
 		>
 			{inner}
 		</Sequence>
 	);
 };
 
-export const Gif = wrapInSchema({
+export const Gif = Interactive.withSchema({
 	Component: GifInner,
 	componentIdentity: 'dev.remotion.gif.Gif',
 	schema: gifSchema,

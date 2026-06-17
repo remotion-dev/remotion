@@ -7,6 +7,7 @@ import {
 	makePie,
 	makePolygon,
 	makeRect,
+	makeSpark,
 	makeStar,
 	makeTriangle,
 } from '@remotion/shapes';
@@ -29,6 +30,7 @@ const shapeNames: readonly ShapeName[] = [
 	'Pie',
 	'Polygon',
 	'Rect',
+	'Spark',
 	'Star',
 	'Triangle',
 ];
@@ -191,6 +193,16 @@ export const getShapeDragInfo = (
 				makeRect({
 					width: getNumber(props, 'width'),
 					height: getNumber(props, 'height'),
+					cornerRadius: getNumber(props, 'cornerRadius'),
+				}),
+				props,
+			);
+		case 'Spark':
+			return withFill(
+				makeSpark({
+					width: getNumber(props, 'width'),
+					height: getNumber(props, 'height'),
+					edgeRoundness: getNumber(props, 'edgeRoundness'),
 					cornerRadius: getNumber(props, 'cornerRadius'),
 				}),
 				props,

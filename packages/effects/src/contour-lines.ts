@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertOptionalFiniteNumber,
@@ -112,7 +112,7 @@ export const contourLinesSchema = {
 		default: DEFAULT_MASK_TO_SOURCE_ALPHA,
 		description: 'Mask to source alpha',
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type ContourLinesParams = {
 	/** Color of the contour lines. Defaults to `#ffffff`. */
@@ -494,7 +494,7 @@ const setupContourLines = (target: HTMLCanvasElement): ContourLinesState => {
 
 export const contourLines = createEffect<ContourLinesParams, ContourLinesState>(
 	{
-		type: 'remotion/contour-lines',
+		type: 'dev.remotion.effects.contourLines',
 		label: 'contourLines()',
 		documentationLink: 'https://www.remotion.dev/docs/effects/contour-lines',
 		backend: 'webgl2',

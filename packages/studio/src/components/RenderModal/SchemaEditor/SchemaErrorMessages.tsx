@@ -1,8 +1,8 @@
 // Schema error messages for studio editor
-import type {CSSProperties} from 'react';
+import type {CSSProperties, ReactNode} from 'react';
 import {BACKGROUND, BLUE, LIGHT_TEXT} from '../../../helpers/colors';
 import {Button} from '../../Button';
-import {CompactNotSetUp} from '../../CompactExplanation';
+import {CompactExplanation} from '../../CompactExplanation';
 import {Spacing} from '../../layout';
 import {inlineCodeSnippet} from '../../Menu/styles';
 import type {ZodSafeParseResult} from './zod-schema-type';
@@ -12,27 +12,13 @@ const explainer: CSSProperties = {
 	display: 'flex',
 	flex: 1,
 	flexDirection: 'column',
-	padding: '0 12px',
-	justifyContent: 'center',
-	alignItems: 'center',
-	textAlign: 'center',
+	padding: 12,
+	alignItems: 'flex-start',
+	textAlign: 'left',
 	background: BACKGROUND,
 };
 
-export type SchemaErrorAlignment = 'center' | 'left';
 export type SchemaErrorMode = 'full' | 'compact';
-
-const getExplainerStyle = (align: SchemaErrorAlignment): CSSProperties => {
-	if (align === 'left') {
-		return {
-			...explainer,
-			alignItems: 'flex-start',
-			textAlign: 'left',
-		};
-	}
-
-	return explainer;
-};
 
 const errorExplanation: CSSProperties = {
 	fontSize: 14,
@@ -56,25 +42,26 @@ const openDocs = () => {
 	window.open('https://www.remotion.dev/docs/schemas');
 };
 
-const CompactSchemaError = () => {
+const CompactSchemaError = ({children}: {readonly children: ReactNode}) => {
 	return (
-		<CompactNotSetUp
+		<CompactExplanation
 			learnMoreHref="https://www.remotion.dev/docs/schemas"
 			learnMoreAriaLabel="Learn more about schemas"
-		/>
+		>
+			{children}
+		</CompactExplanation>
 	);
 };
 
 export const ZodNotInstalled: React.FC<{
-	readonly align?: SchemaErrorAlignment;
 	readonly mode?: SchemaErrorMode;
-}> = ({align = 'center', mode = 'full'}) => {
+}> = ({mode = 'full'}) => {
 	if (mode === 'compact') {
-		return <CompactSchemaError />;
+		return <CompactSchemaError>Install zod to edit props.</CompactSchemaError>;
 	}
 
 	return (
-		<div style={getExplainerStyle(align)}>
+		<div style={explainer}>
 			<div style={errorExplanation}>
 				Install <code style={inlineCodeSnippet}>zod</code> as a dependency to
 				interactively control the props of the composition.
@@ -86,15 +73,16 @@ export const ZodNotInstalled: React.FC<{
 };
 
 export const NoSchemaDefined: React.FC<{
-	readonly align?: SchemaErrorAlignment;
 	readonly mode?: SchemaErrorMode;
-}> = ({align = 'center', mode = 'full'}) => {
+}> = ({mode = 'full'}) => {
 	if (mode === 'compact') {
-		return <CompactSchemaError />;
+		return (
+			<CompactSchemaError>Add a schema prop to edit props.</CompactSchemaError>
+		);
 	}
 
 	return (
-		<div style={getExplainerStyle(align)}>
+		<div style={explainer}>
 			<div style={errorExplanation}>
 				Make the props of this composition interactively editable by adding a{' '}
 				<code style={inlineCodeSnippet}>schema</code> prop to the{' '}
@@ -107,15 +95,18 @@ export const NoSchemaDefined: React.FC<{
 };
 
 export const NoDefaultProps: React.FC<{
-	readonly align?: SchemaErrorAlignment;
 	readonly mode?: SchemaErrorMode;
-}> = ({align = 'center', mode = 'full'}) => {
+}> = ({mode = 'full'}) => {
 	if (mode === 'compact') {
-		return <CompactSchemaError />;
+		return (
+			<CompactSchemaError>
+				Add defaultProps to edit the schema.
+			</CompactSchemaError>
+		);
 	}
 
 	return (
-		<div style={getExplainerStyle(align)}>
+		<div style={explainer}>
 			<div style={errorExplanation}>
 				The schema can not be edited because the{' '}
 				<code style={inlineCodeSnippet}>defaultProps</code> prop in the{' '}
@@ -176,8 +167,17 @@ export const InvalidSchema: React.FC<{
 };
 
 export const TopLevelZodValue: React.FC<{
-	typeReceived: string;
-}> = ({typeReceived}) => {
+	readonly typeReceived: string;
+	readonly mode?: SchemaErrorMode;
+}> = ({typeReceived, mode = 'full'}) => {
+	if (mode === 'compact') {
+		return (
+			<CompactSchemaError>
+				Use z.object() or z.discriminatedUnion() for the top-level schema.
+			</CompactSchemaError>
+		);
+	}
+
 	return (
 		<div style={explainer}>
 			<div style={errorExplanation}>

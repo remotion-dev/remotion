@@ -11,8 +11,8 @@ import {
 } from './flatten-schema.js';
 import {
 	extendSchemaWithSequenceName,
-	type SequenceSchema,
-} from './sequence-field-schema.js';
+	type InteractivitySchema,
+} from './interactivity-schema.js';
 import {OverrideIdsToNodePathsGettersContext} from './sequence-node-path.js';
 import {
 	VisualModeDragOverridesContext,
@@ -54,7 +54,7 @@ export const readValuesFromProps = (
 };
 
 export const selectActiveKeys = (
-	schema: SequenceSchema,
+	schema: InteractivitySchema,
 	values: Record<string, unknown>,
 ): string[] => {
 	return Object.keys(flattenActiveSchema(schema, (key) => values[key]));
@@ -107,14 +107,17 @@ export const mergeValues = ({
 
 const stackToOverrideMap: Record<string, string> = {};
 
-export const wrapInSchema = <S extends SequenceSchema, Props extends object>({
+export const withInteractivitySchema = <
+	S extends InteractivitySchema,
+	Props extends object,
+>({
 	Component,
 	componentIdentity,
 	schema,
 	supportsEffects,
 }: {
 	Component: React.ComponentType<
-		Props & {readonly _experimentalControls: SequenceControls | undefined}
+		Props & {readonly controls: SequenceControls | undefined}
 	>;
 	componentIdentity: JsxComponentIdentity | null;
 	schema: S;
@@ -131,10 +134,10 @@ export const wrapInSchema = <S extends SequenceSchema, Props extends object>({
 		if (!env.isStudio || env.isReadOnlyStudio || env.isRendering) {
 			return React.createElement(Component, {
 				...props,
-				_experimentalControls: null,
+				controls: null,
 				ref,
 			} as Props & {
-				_experimentalControls: SequenceControls | undefined;
+				controls: SequenceControls | undefined;
 				ref: typeof ref;
 			});
 		}
@@ -148,14 +151,14 @@ export const wrapInSchema = <S extends SequenceSchema, Props extends object>({
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		const frame = useCurrentFrame();
 
-		// If the parent has passed `_experimentalControls`, we should not override it.
+		// If the parent has passed `controls`, we should not override it.
 		// @ts-expect-error
-		if (props._experimentalControls) {
+		if (props.controls) {
 			return React.createElement(Component, {
 				...props,
 				ref,
 			} as unknown as Props & {
-				_experimentalControls: SequenceControls | undefined;
+				controls: SequenceControls | undefined;
 				ref: typeof ref;
 			});
 		}
@@ -241,15 +244,15 @@ export const wrapInSchema = <S extends SequenceSchema, Props extends object>({
 
 		return React.createElement(Component, {
 			...mergedProps,
-			_experimentalControls: controls,
+			controls,
 			ref,
 		} as Props & {
-			_experimentalControls: SequenceControls | undefined;
+			controls: SequenceControls | undefined;
 			ref: typeof ref;
 		});
 	});
 
-	Wrapped.displayName = `wrapInSchema(${Component.displayName || Component.name || 'Component'})`;
+	Wrapped.displayName = `withInteractivitySchema(${Component.displayName || Component.name || 'Component'})`;
 
 	return Wrapped as unknown as React.ComponentType<Props>;
 };

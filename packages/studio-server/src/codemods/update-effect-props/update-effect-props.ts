@@ -11,7 +11,7 @@ import type {
 import type {EffectClipboardParam} from '@remotion/studio-shared';
 import type {ExpressionKind} from 'ast-types/lib/gen/kinds';
 import * as recast from 'recast';
-import type {SequenceNodePath, SequenceSchema} from 'remotion';
+import type {SequenceNodePath, InteractivitySchema} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {getAstNodePath} from '../../helpers/get-ast-node-path';
 import {findJsxElementAtNodePath} from '../../preview-server/routes/can-update-sequence-props';
@@ -294,7 +294,7 @@ export const updateEffectPropsAst = ({
 	sequenceNodePath: SequenceNodePath;
 	effectIndex: number;
 	update: EffectPropUpdate;
-	schema: SequenceSchema;
+	schema: InteractivitySchema;
 }): {
 	serialized: string;
 	oldValueString: string;
@@ -439,7 +439,7 @@ export const updateEffectProps = async ({
 	sequenceNodePath: SequenceNodePath;
 	effectIndex: number;
 	update: EffectPropUpdate;
-	schema: SequenceSchema;
+	schema: InteractivitySchema;
 	prettierConfigOverride?: Record<string, unknown> | null;
 }): Promise<UpdateEffectPropsResult> => {
 	const {

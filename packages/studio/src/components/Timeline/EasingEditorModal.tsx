@@ -1,3 +1,7 @@
+import {
+	KEYFRAME_EASING_PRESETS,
+	LINEAR_KEYFRAME_EASING,
+} from '@remotion/studio-shared';
 import React, {
 	useCallback,
 	useContext,
@@ -6,18 +10,22 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
+import type {InteractivitySchemaField} from 'remotion';
 import {Easing, Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {
+	BACKGROUND,
 	BLUE,
 	INPUT_BACKGROUND,
 	INPUT_BORDER_COLOR_HOVERED,
 	LIGHT_TEXT,
 } from '../../helpers/colors';
 import {Checkbox} from '../Checkbox';
+import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import {InputDragger} from '../NewComposition/InputDragger';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
+import {formatTimelineFieldValueForDisplay} from './timeline-field-display-utils';
 import type {TimelineSelection} from './TimelineSelection';
 import type {
 	SelectedEasingUpdate,
@@ -36,6 +44,15 @@ type HandleIndex = 0 | 1;
 type Coordinate = 'x' | 'y';
 type EditorMode = 'bezier' | 'spring';
 type SpringNumberKey = 'damping' | 'mass' | 'stiffness';
+type EasingGraphLabels = {
+	readonly start: string;
+	readonly end: string;
+};
+type EasingPreset = {
+	readonly id: string;
+	readonly label: string;
+	readonly easing: TimelineEasingValue;
+};
 
 const SVG_WIDTH = 560;
 const SVG_HEIGHT = 320;
@@ -47,6 +64,20 @@ const Y_MIN = -2;
 const Y_MAX = 3;
 const LINEAR_EASING: TimelineEasingValue = {type: 'linear'};
 const LINEAR_BEZIER: CubicBezierTuple = [0.25, 0.25, 0.75, 0.75];
+const DEFAULT_EASING_GRAPH_LABELS: EasingGraphLabels = {
+	start: '0',
+	end: '1',
+};
+const EASING_GRAPH_GUIDE_COLOR = 'rgba(255, 255, 255, 0.12)';
+const EASING_GRAPH_LABEL_FONT_SIZE = 13;
+const EASING_GRAPH_LABEL_HEIGHT = 20;
+const EASING_GRAPH_LABEL_HORIZONTAL_PADDING = 4;
+const EASING_GRAPH_LABEL_MAX_WIDTH = PLOT_WIDTH / 2;
+const PRESET_PREVIEW_WIDTH = 48;
+const PRESET_PREVIEW_HEIGHT = 30;
+const PRESET_PREVIEW_PADDING = 5;
+const PRESET_PREVIEW_Y_MIN = -0.35;
+const PRESET_PREVIEW_Y_MAX = 1.45;
 const DEFAULT_SPRING_EASING: SpringEasing = {
 	type: 'spring',
 	damping: 10,
@@ -54,6 +85,14 @@ const DEFAULT_SPRING_EASING: SpringEasing = {
 	overshootClamping: false,
 	stiffness: 100,
 };
+const EDITOR_EASING_PRESETS: readonly EasingPreset[] = [
+	{
+		id: 'linear',
+		label: 'Linear',
+		easing: LINEAR_KEYFRAME_EASING,
+	},
+	...KEYFRAME_EASING_PRESETS,
+];
 
 const SPRING_LIMITS: Record<
 	SpringNumberKey,
@@ -81,9 +120,36 @@ const inlineContainer: React.CSSProperties = {
 
 const segmentedControlWrapper: React.CSSProperties = {
 	display: 'flex',
-	justifyContent: 'center',
-	padding: '0 12px',
+	justifyContent: 'flex-start',
+	padding: `0 ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px`,
+	marginBottom: 10,
+};
+
+const presetButtonsWrapper: React.CSSProperties = {
+	display: 'flex',
+	flexWrap: 'wrap',
+	gap: 6,
+	justifyContent: 'flex-start',
 	marginBottom: 8,
+	padding: `0 ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px`,
+};
+
+const presetButtonBase: React.CSSProperties = {
+	alignItems: 'center',
+	backgroundColor: INPUT_BACKGROUND,
+	border: `1px solid ${INPUT_BORDER_COLOR_HOVERED}`,
+	borderRadius: 4,
+	display: 'inline-flex',
+	height: 34,
+	justifyContent: 'center',
+	padding: 0,
+	width: 52,
+};
+
+const presetPreviewSvgStyle: React.CSSProperties = {
+	display: 'block',
+	height: PRESET_PREVIEW_HEIGHT,
+	width: PRESET_PREVIEW_WIDTH,
 };
 
 const coordinatesGridBase: React.CSSProperties = {
@@ -304,6 +370,80 @@ const getEasingUpdateTargetKey = (update: SelectedEasingUpdate) => {
 	return `effect:${nodePathKey}:${update.effectIndex}:${update.fieldKey}:${update.segmentIndex}`;
 };
 
+const getBuiltInVisualStyleFieldSchema = (
+	fieldKey: string,
+): InteractivitySchemaField | undefined => {
+	const transformSchema = Internals.transformSchema as Record<
+		string,
+		InteractivitySchemaField
+	>;
+	const directField = transformSchema[fieldKey];
+	if (directField) {
+		return directField;
+	}
+
+	return transformSchema[
+		fieldKey.startsWith('style.') ? fieldKey : `style.${fieldKey}`
+	];
+};
+
+const getEasingGraphFieldSchema = (
+	update: SelectedEasingUpdate,
+): InteractivitySchemaField | undefined => {
+	return (
+		update.schema[update.fieldKey] ??
+		getBuiltInVisualStyleFieldSchema(update.fieldKey)
+	);
+};
+
+const formatEasingGraphLabel = (
+	value: unknown,
+	update: SelectedEasingUpdate,
+): string =>
+	formatTimelineFieldValueForDisplay({
+		fieldSchema: getEasingGraphFieldSchema(update),
+		value,
+	});
+
+const getEasingGraphLabelsFromUpdate = (
+	update: SelectedEasingUpdate,
+): EasingGraphLabels | null => {
+	const startKeyframe = update.propStatus.keyframes[update.segmentIndex];
+	const endKeyframe = update.propStatus.keyframes[update.segmentIndex + 1];
+
+	if (!startKeyframe || !endKeyframe) {
+		return null;
+	}
+
+	return {
+		start: formatEasingGraphLabel(startKeyframe.value, update),
+		end: formatEasingGraphLabel(endKeyframe.value, update),
+	};
+};
+
+const areEasingGraphLabelsEqual = (
+	first: EasingGraphLabels,
+	second: EasingGraphLabels,
+) => first.start === second.start && first.end === second.end;
+
+const getEasingGraphLabels = (
+	updates: readonly SelectedEasingUpdate[],
+): EasingGraphLabels => {
+	const firstLabels =
+		updates.length === 0 ? null : getEasingGraphLabelsFromUpdate(updates[0]);
+
+	if (firstLabels === null) {
+		return DEFAULT_EASING_GRAPH_LABELS;
+	}
+
+	return updates.every((update) => {
+		const labels = getEasingGraphLabelsFromUpdate(update);
+		return labels !== null && areEasingGraphLabelsEqual(labels, firstLabels);
+	})
+		? firstLabels
+		: DEFAULT_EASING_GRAPH_LABELS;
+};
+
 const xToSvg = (value: number) => PLOT_LEFT + value * PLOT_WIDTH;
 const yToSvg = (value: number) =>
 	PLOT_TOP + ((Y_MAX - value) / (Y_MAX - Y_MIN)) * PLOT_HEIGHT;
@@ -311,6 +451,55 @@ const easingYToGraphY = (value: number, shouldFlipGraph: boolean) =>
 	shouldFlipGraph ? 1 - value : value;
 const graphYToEasingY = (value: number, shouldFlipGraph: boolean) =>
 	shouldFlipGraph ? 1 - value : value;
+const presetPreviewXToSvg = (value: number) =>
+	PRESET_PREVIEW_PADDING +
+	value * (PRESET_PREVIEW_WIDTH - PRESET_PREVIEW_PADDING * 2);
+const presetPreviewYToSvg = (value: number) =>
+	PRESET_PREVIEW_PADDING +
+	((PRESET_PREVIEW_Y_MAX - value) /
+		(PRESET_PREVIEW_Y_MAX - PRESET_PREVIEW_Y_MIN)) *
+		(PRESET_PREVIEW_HEIGHT - PRESET_PREVIEW_PADDING * 2);
+
+const getEasingFunction = (easing: TimelineEasingValue) => {
+	switch (easing.type) {
+		case 'linear':
+			return Easing.linear;
+		case 'bezier':
+			return Easing.bezier(easing.x1, easing.y1, easing.x2, easing.y2);
+		case 'spring':
+			return Easing.spring({
+				damping: easing.damping,
+				mass: easing.mass,
+				overshootClamping: easing.overshootClamping,
+				stiffness: easing.stiffness,
+			});
+		default:
+			throw new Error(
+				`Unsupported easing: ${JSON.stringify(easing satisfies never)}`,
+			);
+	}
+};
+
+const getPresetPreviewPath = (easing: TimelineEasingValue) => {
+	const easingFunction = getEasingFunction(easing);
+	const samples = 36;
+	const points: string[] = [];
+
+	for (let i = 0; i <= samples; i++) {
+		const progress = i / samples;
+		const x = presetPreviewXToSvg(progress);
+		const y = presetPreviewYToSvg(
+			clamp(
+				easingFunction(progress),
+				PRESET_PREVIEW_Y_MIN,
+				PRESET_PREVIEW_Y_MAX,
+			),
+		);
+		points.push(`${i === 0 ? 'M' : 'L'} ${x} ${y}`);
+	}
+
+	return points.join(' ');
+};
 
 const pointFromBezier = (
 	bezier: CubicBezierTuple,
@@ -322,11 +511,39 @@ const pointFromBezier = (
 	return {x: xToSvg(x), y: yToSvg(easingYToGraphY(y, shouldFlipGraph))};
 };
 
-const EasingGraphScaffold: React.FC = () => {
+const getEasingGraphLabelWidth = (label: string) => {
+	return clamp(
+		label.length * 7.8 + EASING_GRAPH_LABEL_HORIZONTAL_PADDING * 2,
+		24,
+		EASING_GRAPH_LABEL_MAX_WIDTH,
+	);
+};
+
+const getEasingGraphLabelStyle = (
+	textAlign: 'left' | 'right',
+): React.CSSProperties => ({
+	alignItems: 'center',
+	backgroundColor: BACKGROUND,
+	color: LIGHT_TEXT,
+	display: 'flex',
+	fontSize: EASING_GRAPH_LABEL_FONT_SIZE,
+	height: '100%',
+	justifyContent: textAlign === 'left' ? 'flex-start' : 'flex-end',
+	lineHeight: `${EASING_GRAPH_LABEL_HEIGHT}px`,
+	overflow: 'hidden',
+	padding: `0 ${EASING_GRAPH_LABEL_HORIZONTAL_PADDING}px`,
+	textAlign,
+	textOverflow: 'ellipsis',
+	whiteSpace: 'nowrap',
+});
+
+const EasingGraphScaffold: React.FC<{
+	readonly labels: EasingGraphLabels;
+}> = ({labels}) => {
 	const yZero = yToSvg(0);
 	const yOne = yToSvg(1);
-	const yZeroLabel = clamp(yZero + 3, 10, SVG_HEIGHT - 4);
-	const yOneLabel = clamp(yOne + 3, 10, SVG_HEIGHT - 4);
+	const bottomLabelWidth = getEasingGraphLabelWidth(labels.start);
+	const topLabelWidth = getEasingGraphLabelWidth(labels.end);
 
 	return (
 		<>
@@ -335,7 +552,7 @@ const EasingGraphScaffold: React.FC = () => {
 				y1={yZero}
 				x2={PLOT_LEFT + PLOT_WIDTH}
 				y2={yZero}
-				stroke={INPUT_BORDER_COLOR_HOVERED}
+				stroke={EASING_GRAPH_GUIDE_COLOR}
 				strokeWidth={1}
 			/>
 			<line
@@ -343,16 +560,90 @@ const EasingGraphScaffold: React.FC = () => {
 				y1={yOne}
 				x2={PLOT_LEFT + PLOT_WIDTH}
 				y2={yOne}
-				stroke={INPUT_BORDER_COLOR_HOVERED}
+				stroke={EASING_GRAPH_GUIDE_COLOR}
 				strokeWidth={1}
 			/>
-			<text x={PLOT_LEFT - 22} y={yZeroLabel} fill={LIGHT_TEXT} fontSize={9}>
-				0
-			</text>
-			<text x={PLOT_LEFT - 22} y={yOneLabel} fill={LIGHT_TEXT} fontSize={9}>
-				1
-			</text>
+			<foreignObject
+				x={PLOT_LEFT - EASING_GRAPH_LABEL_HORIZONTAL_PADDING}
+				y={yOne - EASING_GRAPH_LABEL_HEIGHT / 2}
+				width={topLabelWidth}
+				height={EASING_GRAPH_LABEL_HEIGHT}
+			>
+				<div style={getEasingGraphLabelStyle('left')} title={labels.end}>
+					{labels.end}
+				</div>
+			</foreignObject>
+			<foreignObject
+				x={
+					PLOT_LEFT +
+					PLOT_WIDTH -
+					bottomLabelWidth +
+					EASING_GRAPH_LABEL_HORIZONTAL_PADDING
+				}
+				y={yZero - EASING_GRAPH_LABEL_HEIGHT / 2}
+				width={bottomLabelWidth}
+				height={EASING_GRAPH_LABEL_HEIGHT}
+			>
+				<div style={getEasingGraphLabelStyle('right')} title={labels.start}>
+					{labels.start}
+				</div>
+			</foreignObject>
 		</>
+	);
+};
+
+const EasingPresetButton: React.FC<{
+	readonly currentEasing: TimelineEasingValue;
+	readonly disabled: boolean;
+	readonly onClick: (easing: TimelineEasingValue) => void;
+	readonly preset: EasingPreset;
+}> = ({currentEasing, disabled, onClick, preset}) => {
+	const selected = areEasingsEqual(currentEasing, preset.easing);
+	const path = useMemo(
+		() => getPresetPreviewPath(preset.easing),
+		[preset.easing],
+	);
+	const style = useMemo(
+		(): React.CSSProperties => ({
+			...presetButtonBase,
+			backgroundColor: selected ? 'rgba(11, 132, 243, 0.18)' : INPUT_BACKGROUND,
+			borderColor: selected ? BLUE : INPUT_BORDER_COLOR_HOVERED,
+			cursor: disabled ? 'not-allowed' : 'pointer',
+			opacity: disabled ? 0.45 : 1,
+		}),
+		[disabled, selected],
+	);
+	const handleClick = useCallback(() => {
+		onClick(preset.easing);
+	}, [onClick, preset.easing]);
+
+	return (
+		<button
+			type="button"
+			style={style}
+			title={preset.label}
+			aria-label={`Apply ${preset.label} easing`}
+			disabled={disabled}
+			onClick={handleClick}
+		>
+			<svg
+				width={PRESET_PREVIEW_WIDTH}
+				height={PRESET_PREVIEW_HEIGHT}
+				viewBox={`0 0 ${PRESET_PREVIEW_WIDTH} ${PRESET_PREVIEW_HEIGHT}`}
+				style={presetPreviewSvgStyle}
+				aria-hidden="true"
+				focusable={false}
+			>
+				<path
+					d={path}
+					fill="none"
+					stroke="white"
+					strokeWidth={2}
+					strokeLinecap="round"
+					strokeLinejoin="round"
+				/>
+			</svg>
+		</button>
 	);
 };
 
@@ -364,7 +655,10 @@ export type EasingEditorState = {
 
 export const EasingEditor: React.FC<{
 	readonly state: EasingEditorState;
-}> = ({state}) => {
+	readonly renderHeader?: (
+		modeItems: SegmentedControlItem[],
+	) => React.ReactNode;
+}> = ({state, renderHeader}) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
 	const propStatusesRef = useContext(
@@ -635,6 +929,33 @@ export const EasingEditor: React.FC<{
 		[applyLiveEasing, commitEasing, mode, previewServerState.type],
 	);
 
+	const applyPreset = useCallback(
+		(easing: TimelineEasingValue) => {
+			if (previewServerState.type !== 'connected') {
+				return;
+			}
+
+			if (isSpringEasing(easing)) {
+				const nextSpring = sanitizeSpring(easing);
+				setMode('spring');
+				const springVersion = setSpringAndPreview(nextSpring);
+				commitEasing(serializeSpring(nextSpring), springVersion);
+				return;
+			}
+
+			const nextBezier = easingToBezier(easing);
+			setMode('bezier');
+			const bezierVersion = setBezierAndPreview(nextBezier);
+			commitEasing(serializeBezier(nextBezier), bezierVersion);
+		},
+		[
+			commitEasing,
+			previewServerState.type,
+			setBezierAndPreview,
+			setSpringAndPreview,
+		],
+	);
+
 	const getValueFromPointer = useCallback(
 		(event: {clientX: number; clientY: number}) => {
 			const svg = svgRef.current;
@@ -772,6 +1093,12 @@ export const EasingEditor: React.FC<{
 	}, [spring, state.shouldFlipGraph]);
 
 	const disabled = previewServerState.type !== 'connected';
+	const graphLabels = getEasingGraphLabels(getCurrentEasingUpdates());
+	const currentEasing = useMemo(
+		() =>
+			mode === 'spring' ? serializeSpring(spring) : serializeBezier(bezier),
+		[bezier, mode, spring],
+	);
 	const modeItems = useMemo((): SegmentedControlItem[] => {
 		return [
 			{
@@ -799,8 +1126,27 @@ export const EasingEditor: React.FC<{
 
 	return (
 		<div style={inlineContainer}>
-			<div style={segmentedControlWrapper}>
-				<SegmentedControl items={modeItems} needsWrapping={false} />
+			{renderHeader ? (
+				renderHeader(modeItems)
+			) : (
+				<div style={segmentedControlWrapper}>
+					<SegmentedControl
+						items={modeItems}
+						needsWrapping={false}
+						size="compact"
+					/>
+				</div>
+			)}
+			<div style={presetButtonsWrapper}>
+				{EDITOR_EASING_PRESETS.map((preset) => (
+					<EasingPresetButton
+						key={preset.id}
+						currentEasing={currentEasing}
+						disabled={disabled}
+						onClick={applyPreset}
+						preset={preset}
+					/>
+				))}
 			</div>
 			{mode === 'bezier' ? (
 				<>
@@ -812,7 +1158,7 @@ export const EasingEditor: React.FC<{
 						style={svgStyle}
 						aria-label="Bezier curve editor"
 					>
-						<EasingGraphScaffold />
+						<EasingGraphScaffold labels={graphLabels} />
 						<line
 							x1={startPoint.x}
 							y1={startPoint.y}
@@ -961,7 +1307,7 @@ export const EasingEditor: React.FC<{
 						style={svgStyle}
 						aria-label="Spring easing curve"
 					>
-						<EasingGraphScaffold />
+						<EasingGraphScaffold labels={graphLabels} />
 						<path d={springPath} fill="none" stroke={BLUE} strokeWidth={3} />
 						<circle cx={xToSvg(0)} cy={yToSvg(0)} r={4} fill="white" />
 						<circle cx={xToSvg(1)} cy={yToSvg(1)} r={4} fill="white" />

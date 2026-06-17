@@ -21,7 +21,7 @@ import type {
 	JsxComponentIdentity,
 	SequenceNodePath,
 	SequencePropsSubscriptionKey,
-	SequenceSchema,
+	InteractivitySchema,
 } from 'remotion';
 import type {RecastCodemod, VisualControlChange} from './codemods';
 import type {ComponentProp} from './component-drag-data';
@@ -303,7 +303,7 @@ export type SaveSequencePropEdit = {
 	key: string;
 	value: string;
 	defaultValue: string | null;
-	schema: SequenceSchema;
+	schema: InteractivitySchema;
 };
 
 export type SaveSequencePropsRequest = {
@@ -336,7 +336,7 @@ type SaveEffectPropsRequestBase = {
 	effectIndex: number;
 	key: string;
 	defaultValue: string | null;
-	schema: SequenceSchema;
+	schema: InteractivitySchema;
 	clientId: string;
 };
 
@@ -432,7 +432,7 @@ export type DeleteSequenceKeyframe = {
 	nodePath: SequencePropsSubscriptionKey;
 	key: string;
 	frame: number;
-	schema: SequenceSchema;
+	schema: InteractivitySchema;
 };
 
 export type MoveSequenceKeyframe = {
@@ -441,7 +441,7 @@ export type MoveSequenceKeyframe = {
 	key: string;
 	fromFrame: number;
 	toFrame: number;
-	schema: SequenceSchema;
+	schema: InteractivitySchema;
 };
 
 export type AddSequenceKeyframeRequest = {
@@ -450,7 +450,7 @@ export type AddSequenceKeyframeRequest = {
 	key: string;
 	frame: number;
 	value: string;
-	schema: SequenceSchema;
+	schema: InteractivitySchema;
 	clientId: string;
 };
 
@@ -464,7 +464,7 @@ export type DeleteEffectKeyframe = {
 	effectIndex: number;
 	key: string;
 	frame: number;
-	schema: SequenceSchema;
+	schema: InteractivitySchema;
 };
 
 export type MoveEffectKeyframe = {
@@ -474,7 +474,7 @@ export type MoveEffectKeyframe = {
 	key: string;
 	fromFrame: number;
 	toFrame: number;
-	schema: SequenceSchema;
+	schema: InteractivitySchema;
 };
 
 export type DeleteKeyframesRequest = {
@@ -504,7 +504,7 @@ export type AddEffectKeyframeRequest = {
 	key: string;
 	frame: number;
 	value: string;
-	schema: SequenceSchema;
+	schema: InteractivitySchema;
 	clientId: string;
 };
 
@@ -544,7 +544,7 @@ export type UpdateSequenceKeyframeSettingsRequest = {
 	nodePath: SequencePropsSubscriptionKey;
 	key: string;
 	settings: KeyframeSettings;
-	schema: SequenceSchema;
+	schema: InteractivitySchema;
 	clientId: string;
 };
 
@@ -556,7 +556,7 @@ export type UpdateEffectKeyframeSettingsRequest = {
 	effectIndex: number;
 	key: string;
 	settings: KeyframeSettings;
-	schema: SequenceSchema;
+	schema: InteractivitySchema;
 	clientId: string;
 };
 

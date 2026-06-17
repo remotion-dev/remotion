@@ -1,11 +1,12 @@
 import React, {useMemo, useState} from 'react';
 import {
 	Internals,
+	Interactive,
 	Sequence,
 	useRemotionEnvironment,
 	useVideoConfig,
 	type SequenceControls,
-	type SequenceSchema,
+	type InteractivitySchema,
 } from 'remotion';
 import {getLoopDisplay} from '../show-in-timeline';
 import type {InnerVideoProps, VideoProps} from './props';
@@ -16,9 +17,7 @@ const {validateMediaTrimProps, resolveTrimProps, validateMediaProps} =
 	Internals;
 
 const videoSchema = {
-	durationInFrames: Internals.durationInFramesField,
-	from: Internals.fromField,
-	freeze: Internals.freezeField,
+	...Internals.baseSchema,
 	volume: {
 		type: 'number',
 		min: 0,
@@ -37,18 +36,13 @@ const videoSchema = {
 		hiddenFromList: false,
 		keyframable: false,
 	},
-	hidden: {
-		type: 'boolean',
-		default: false,
-		description: 'Hidden',
-	},
 	loop: {type: 'boolean', default: false, description: 'Loop'},
-	...Internals.sequenceVisualStyleSchema,
-} as const satisfies SequenceSchema;
+	...Internals.transformSchema,
+} as const satisfies InteractivitySchema;
 
 const InnerVideo: React.FC<
 	InnerVideoProps & {
-		readonly _experimentalControls: SequenceControls | undefined;
+		readonly controls: SequenceControls | undefined;
 		readonly setMediaDurationInSeconds: (durationInSeconds: number) => void;
 		readonly refForOutline: React.RefObject<HTMLElement | null>;
 	}
@@ -78,7 +72,7 @@ const InnerVideo: React.FC<
 	onError,
 	credentials,
 	requestInit,
-	_experimentalControls: controls,
+	controls,
 	objectFit,
 	_experimentalInitiallyDrawCachedFrame,
 	effects,
@@ -188,7 +182,7 @@ const InnerVideo: React.FC<
 
 const VideoInner: React.FC<
 	VideoProps & {
-		readonly _experimentalControls: SequenceControls | undefined;
+		readonly controls: SequenceControls | undefined;
 	}
 > = ({
 	src,
@@ -217,7 +211,7 @@ const VideoInner: React.FC<
 	onError,
 	credentials,
 	requestInit,
-	_experimentalControls: controls,
+	controls,
 	objectFit,
 	_experimentalInitiallyDrawCachedFrame,
 	effects,
@@ -312,10 +306,10 @@ const VideoInner: React.FC<
 					? 'https://www.remotion.dev/docs/media/video'
 					: undefined
 			}
-			_experimentalControls={controls}
+			controls={controls}
 			_remotionInternalLoopDisplay={loopDisplay}
 			_remotionInternalEffects={memoizedEffectDefinitions}
-			_remotionInternalRefForOutline={refForOutline}
+			outlineRef={refForOutline}
 			showInTimeline={showInTimeline ?? true}
 			hidden={hidden}
 		>
@@ -350,7 +344,7 @@ const VideoInner: React.FC<
 				onError={onError}
 				credentials={credentials}
 				requestInit={requestInit}
-				_experimentalControls={controls}
+				controls={controls}
 				objectFit={objectFit ?? 'contain'}
 				_experimentalInitiallyDrawCachedFrame={
 					_experimentalInitiallyDrawCachedFrame ?? false
@@ -363,7 +357,7 @@ const VideoInner: React.FC<
 	);
 };
 
-export const Video = Internals.wrapInSchema({
+export const Video = Interactive.withSchema({
 	Component: VideoInner,
 	componentIdentity: 'dev.remotion.media.Video',
 	schema: videoSchema,

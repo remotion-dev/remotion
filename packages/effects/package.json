@@ -204,6 +204,11 @@
 			"module": "./dist/esm/speckle.mjs",
 			"import": "./dist/esm/speckle.mjs"
 		},
+		"./thermal-vision": {
+			"types": "./dist/thermal-vision.d.ts",
+			"module": "./dist/esm/thermal-vision.mjs",
+			"import": "./dist/esm/thermal-vision.mjs"
+		},
 		"./tint": {
 			"types": "./dist/tint.d.ts",
 			"module": "./dist/esm/tint.mjs",
@@ -349,6 +354,9 @@
 			],
 			"speckle": [
 				"dist/speckle.d.ts"
+			],
+			"thermal-vision": [
+				"dist/thermal-vision.d.ts"
 			],
 			"tint": [
 				"dist/tint.d.ts"

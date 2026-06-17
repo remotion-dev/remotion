@@ -1,7 +1,9 @@
 import type {
+	CanUpdateSequencePropStatus,
+	DragOverrideValue,
 	GetDragOverrides,
 	SequencePropsSubscriptionKey,
-	SequenceSchema,
+	InteractivitySchema,
 } from 'remotion';
 import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
@@ -44,6 +46,31 @@ import {
 	serializeTranslate,
 } from './Timeline/timeline-translate-utils';
 import {getLinkedScale} from './Timeline/TimelineScaleField';
+
+export const getSelectedOutlineActiveSchema = ({
+	schema,
+	currentRuntimeValueDotNotation,
+	dragOverrides,
+	propStatus,
+	frame,
+}: {
+	readonly schema: InteractivitySchema;
+	readonly currentRuntimeValueDotNotation: Record<string, unknown>;
+	readonly dragOverrides: Record<string, DragOverrideValue>;
+	readonly propStatus: Record<string, CanUpdateSequencePropStatus> | undefined;
+	readonly frame: number | null;
+}): InteractivitySchema => {
+	const {merged: valuesDotNotation} =
+		Internals.computeEffectiveSchemaValuesDotNotation({
+			schema,
+			currentValue: currentRuntimeValueDotNotation,
+			overrideValues: dragOverrides,
+			propStatus,
+			frame,
+		});
+
+	return Internals.flattenActiveSchema(schema, (key) => valuesDotNotation[key]);
+};
 
 export const getSelectedOutlineDragStates = ({
 	dragTargets,
@@ -142,7 +169,7 @@ export type SelectedOutlineKeyframedDragChange = {
 	readonly fieldKey: string;
 	readonly sourceFrame: number;
 	readonly value: unknown;
-	readonly schema: SequenceSchema;
+	readonly schema: InteractivitySchema;
 	readonly clientId: string;
 };
 

@@ -6,7 +6,7 @@ import type {
 	OverrideIdToNodePaths,
 	PropStatuses,
 	SequencePropsSubscriptionKey,
-	SequenceSchema,
+	InteractivitySchema,
 	TSequence,
 } from 'remotion';
 import {Internals} from 'remotion';
@@ -31,7 +31,7 @@ export type SelectedEasingUpdate =
 			readonly fileName: string;
 			readonly nodePath: SequencePropsSubscriptionKey;
 			readonly fieldKey: string;
-			readonly schema: SequenceSchema;
+			readonly schema: InteractivitySchema;
 			readonly segmentIndex: number;
 			readonly currentEasing: TimelineEasingValue;
 			readonly propStatus: CanUpdateSequencePropStatusKeyframed;
@@ -43,7 +43,7 @@ export type SelectedEasingUpdate =
 			readonly nodePath: SequencePropsSubscriptionKey;
 			readonly effectIndex: number;
 			readonly fieldKey: string;
-			readonly schema: SequenceSchema;
+			readonly schema: InteractivitySchema;
 			readonly segmentIndex: number;
 			readonly currentEasing: TimelineEasingValue;
 			readonly propStatus: CanUpdateSequencePropStatusKeyframed;

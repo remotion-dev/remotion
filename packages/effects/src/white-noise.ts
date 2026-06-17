@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertOptionalFiniteNumber,
@@ -28,7 +28,7 @@ const whiteNoiseSchema = {
 		description: 'Seed',
 		hiddenFromList: false,
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type WhiteNoiseParams = {
 	/** Blend amount from `0` to `1`. Defaults to `1`. */
@@ -196,7 +196,7 @@ const createWhiteNoiseState = (
 };
 
 export const whiteNoise = createEffect<WhiteNoiseParams, WhiteNoiseState>({
-	type: 'remotion/white-noise',
+	type: 'dev.remotion.effects.whiteNoise',
 	label: 'whiteNoise()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/white-noise',
 	backend: 'webgl2',

@@ -1,9 +1,9 @@
 import type {
 	CanUpdateSequencePropStatusKeyframed,
 	CanUpdateSequencePropStatusStatic,
-	SequenceFieldSchema,
+	InteractivitySchemaField,
 	SequencePropsSubscriptionKey,
-	SequenceSchema,
+	InteractivitySchema,
 	TSequence,
 } from 'remotion';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
@@ -50,7 +50,7 @@ export type SelectedOutlineDragTarget = {
 	readonly fieldDefault: string | undefined;
 	readonly keyframeDisplayOffset: number;
 	readonly nodePath: SequencePropsSubscriptionKey;
-	readonly schema: SequenceSchema;
+	readonly schema: InteractivitySchema;
 };
 
 export type SelectedOutlineTransformOriginDragTarget = {
@@ -64,7 +64,7 @@ export type SelectedOutlineTransformOriginDragTarget = {
 	readonly originValue: string;
 	readonly rotateValue: string;
 	readonly scaleValue: number | string;
-	readonly schema: SequenceSchema;
+	readonly schema: InteractivitySchema;
 	readonly sourceFrame: number;
 	readonly translateDefault: string | undefined;
 	readonly translatePropStatus:
@@ -73,9 +73,12 @@ export type SelectedOutlineTransformOriginDragTarget = {
 	readonly translateValue: string;
 };
 
-export type ScaleFieldSchema = Extract<SequenceFieldSchema, {type: 'scale'}>;
+export type ScaleFieldSchema = Extract<
+	InteractivitySchemaField,
+	{type: 'scale'}
+>;
 export type RotationFieldSchema = Extract<
-	SequenceFieldSchema,
+	InteractivitySchemaField,
 	{type: 'rotation-css'}
 >;
 
@@ -89,7 +92,7 @@ export type SelectedOutlineScaleDragTarget = {
 	readonly keyframeDisplayOffset: number;
 	readonly linked: boolean;
 	readonly nodePath: SequencePropsSubscriptionKey;
-	readonly schema: SequenceSchema;
+	readonly schema: InteractivitySchema;
 };
 
 export type SelectedOutlineRotationDragTarget = {
@@ -101,7 +104,7 @@ export type SelectedOutlineRotationDragTarget = {
 	readonly fieldSchema: RotationFieldSchema;
 	readonly keyframeDisplayOffset: number;
 	readonly nodePath: SequencePropsSubscriptionKey;
-	readonly schema: SequenceSchema;
+	readonly schema: InteractivitySchema;
 	readonly transformOriginValue: string;
 };
 
