@@ -3,12 +3,13 @@ import type {RefObject} from 'react';
 import {
 	Internals,
 	type PropStatuses,
+	type InteractivitySchema,
 	type SequenceNodePath,
 	type SequencePropsSubscriptionKey,
-	type InteractivitySchema,
 	type TSequence,
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
+import {getSelectedTransformOriginInfo} from '../components/selected-outline-measurement';
 import {
 	constrainUv,
 	getSelectedUvHandles,
@@ -2029,6 +2030,34 @@ test('UV handles are requested for selected effect children', () => {
 	});
 });
 
+test('UV handles are requested for selected effect keyframes and easings', () => {
+	const sequenceNodePathInfo = makeNodePathInfo(['body', 0], []);
+	const effectPropNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['effects', '1', 'rays'],
+	);
+	const sequenceKey = getTimelineSequenceSelectionKey(sequenceNodePathInfo);
+	const selectedEffects = getSelectedEffectFieldsBySequenceKey([
+		{
+			type: 'keyframe',
+			nodePathInfo: effectPropNodePathInfo,
+			frame: 10,
+		},
+		{
+			type: 'easing',
+			nodePathInfo: effectPropNodePathInfo,
+			fromFrame: 10,
+			toFrame: 20,
+			segmentIndex: 0,
+		},
+	]);
+
+	expect(selectedEffects.get(sequenceKey)?.get(1)).toEqual({
+		allFields: false,
+		fieldKeys: new Set(['rays']),
+	});
+});
+
 test('UV handles are requested for keyframed selected effect props', () => {
 	const sequenceNodePathInfo = makeNodePathInfo(['body', 0], []);
 	const effectPropNodePathInfo = makeNodePathInfo(
@@ -2093,6 +2122,28 @@ test('UV handles are requested for keyframed selected effect props', () => {
 	expect(handles[0].propStatus.status).toBe('keyframed');
 	expect(handles[0].sourceFrame).toBe(50);
 	expect(handles[0].value).toEqual([0.5, 0.5]);
+});
+
+test('Transform origin easing selection targets the transform origin handle', () => {
+	const transformOriginNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['controls', 'style', 'transformOrigin'],
+	);
+
+	expect(
+		getSelectedTransformOriginInfo([
+			{
+				type: 'easing',
+				nodePathInfo: transformOriginNodePathInfo,
+				fromFrame: 12,
+				toFrame: 24,
+				segmentIndex: 0,
+			},
+		]),
+	).toEqual({
+		sequenceKey: getTimelineSequenceSelectionKey(transformOriginNodePathInfo),
+		displayFrame: 12,
+	});
 });
 
 test('selected sequence keys only include exact sequence selections', () => {
