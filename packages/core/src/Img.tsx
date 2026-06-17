@@ -547,6 +547,7 @@ const ImgInner: React.FC<
  */
 export const Img = withInteractivitySchema({
 	Component: ImgInner,
+	componentName: '<Img>',
 	componentIdentity: 'dev.remotion.remotion.Img',
 	schema: imgSchema,
 	supportsEffects: true,

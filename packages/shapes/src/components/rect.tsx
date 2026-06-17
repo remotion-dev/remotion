@@ -53,6 +53,7 @@ const RectInner: React.FC<RectProps> = ({
 
 export const Rect = Interactive.withSchema({
 	Component: RectInner,
+	componentName: '<Rect>',
 	componentIdentity: 'dev.remotion.shapes.Rect',
 	schema: rectSchema,
 	supportsEffects: true,

@@ -94,6 +94,7 @@ const CircleInner = forwardRef<
 
 export const Circle = Interactive.withSchema({
   Component: CircleInner,
+  componentName: '<Circle>',
   componentIdentity: 'com.example.Circle',
   schema: circleSchema,
   supportsEffects: false,

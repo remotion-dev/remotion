@@ -536,6 +536,7 @@ const CanvasImageInner = forwardRef<
  */
 export const CanvasImage = withInteractivitySchema({
 	Component: CanvasImageInner,
+	componentName: '<CanvasImage>',
 	componentIdentity: 'dev.remotion.remotion.CanvasImage',
 	schema: canvasImageSchema,
 	supportsEffects: true,

@@ -61,6 +61,7 @@ const HeartInner: React.FC<HeartProps> = ({
 
 export const Heart = Interactive.withSchema({
 	Component: HeartInner,
+	componentName: '<Heart>',
 	componentIdentity: 'dev.remotion.shapes.Heart',
 	schema: heartSchema,
 	supportsEffects: true,

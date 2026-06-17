@@ -34,6 +34,7 @@ const CircleInner: React.FC<CircleProps> = ({radius, ...props}) => {
 
 export const Circle = Interactive.withSchema({
 	Component: CircleInner,
+	componentName: '<Circle>',
 	componentIdentity: 'dev.remotion.shapes.Circle',
 	schema: circleSchema,
 	supportsEffects: true,

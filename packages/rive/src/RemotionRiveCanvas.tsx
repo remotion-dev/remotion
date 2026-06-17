@@ -493,6 +493,7 @@ export const RemotionRiveCanvas = Interactive.withSchema({
 			readonly controls: SequenceControls | undefined;
 		}
 	>,
+	componentName: '<RemotionRiveCanvas>',
 	componentIdentity: 'dev.remotion.rive.RemotionRiveCanvas',
 	schema: riveCanvasSchema,
 	supportsEffects: true,

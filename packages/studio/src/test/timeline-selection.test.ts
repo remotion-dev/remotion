@@ -209,6 +209,7 @@ const makeTimelineSequence = ({
 			overrideId,
 			supportsEffects: true,
 			componentIdentity: null,
+			componentName: '<Sequence>',
 		},
 		refForOutline,
 		isInsideSeries: false,

@@ -30,6 +30,7 @@ const makeControls = (
 	overrideId,
 	supportsEffects: false,
 	componentIdentity: null,
+	componentName: '<Sequence>',
 });
 
 const makeSequence = ({

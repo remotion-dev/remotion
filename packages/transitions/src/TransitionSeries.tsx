@@ -717,6 +717,7 @@ const TransitionSeriesInner: FC<SequencePropsWithoutDuration> = (props) => {
 
 const TransitionSeries = Interactive.withSchema({
 	Component: TransitionSeriesInner,
+	componentName: '<TransitionSeries>',
 	componentIdentity: 'dev.remotion.transitions.TransitionSeries',
 	schema: transitionSeriesSchema,
 	supportsEffects: false,

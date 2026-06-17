@@ -240,6 +240,7 @@ const BadgeInner = forwardRef<
 // ---cut---
 export const Badge = Interactive.withSchema({
   Component: BadgeInner,
+  componentName: '<Badge>',
   componentIdentity: 'com.example.Badge',
   schema: badgeSchema,
   supportsEffects: false,

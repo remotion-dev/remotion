@@ -53,6 +53,7 @@ const TriangleInner: React.FC<TriangleProps> = ({
 
 export const Triangle = Interactive.withSchema({
 	Component: TriangleInner,
+	componentName: '<Triangle>',
 	componentIdentity: 'dev.remotion.shapes.Triangle',
 	schema: triangleSchema,
 	supportsEffects: true,

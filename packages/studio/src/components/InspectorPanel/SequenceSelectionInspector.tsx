@@ -16,7 +16,12 @@ import {
 import {useOpenSequenceInEditor} from '../Timeline/use-open-sequence-in-editor';
 import {InspectorMessage, InspectorSectionHeader} from './common';
 import type {SequenceSectionSelection} from './inspector-selection';
-import {selectedContainer, sequenceHeader, sequenceHeaderTitle} from './styles';
+import {
+	selectedContainer,
+	sequenceHeader,
+	sequenceHeaderSubtitle,
+	sequenceHeaderTitle,
+} from './styles';
 import {useTrackForSelection} from './use-track-for-selection';
 
 const useSequenceDisplayName = (track: TrackWithHash) => {
@@ -78,9 +83,9 @@ const SequenceExpandedInspector: React.FC<{
 
 		window.open(documentationLink, '_blank', 'noopener,noreferrer');
 	}, [documentationLink]);
-	const titleStyle = useMemo((): React.CSSProperties => {
+	const subtitleStyle = useMemo((): React.CSSProperties => {
 		return {
-			...sequenceHeaderTitle,
+			...sequenceHeaderSubtitle,
 			cursor: documentationLink ? 'pointer' : 'default',
 		};
 	}, [documentationLink]);
@@ -139,17 +144,20 @@ const SequenceExpandedInspector: React.FC<{
 			onPointerDown={selectSequenceOnInspectorPointerDown}
 		>
 			<div style={sequenceHeader}>
+				<div style={sequenceHeaderTitle}>{sequenceDisplayName}</div>
 				{documentationLink ? (
 					<button
 						type="button"
-						style={titleStyle}
+						style={subtitleStyle}
 						title="Open component docs"
 						onClick={openDocumentationLink}
 					>
-						{sequenceDisplayName}
+						{track.sequence.controls.componentName}
 					</button>
 				) : (
-					<div style={titleStyle}>{sequenceDisplayName}</div>
+					<div style={subtitleStyle}>
+						{track.sequence.controls.componentName}
+					</div>
 				)}
 				<InspectorSourceLocation
 					location={validatedLocation}

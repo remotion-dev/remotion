@@ -160,6 +160,7 @@ const Series: React.ComponentType<SeriesProps> & {
 } = Object.assign(
 	withInteractivitySchema({
 		Component: SeriesInner,
+		componentName: '<Series>',
 		componentIdentity: 'dev.remotion.remotion.Series',
 		schema: sequenceSchemaDefaultLayoutNone,
 		supportsEffects: false,

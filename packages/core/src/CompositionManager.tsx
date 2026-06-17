@@ -105,6 +105,7 @@ export type SequenceControls = {
 	overrideId: string;
 	supportsEffects: boolean;
 	componentIdentity: JsxComponentIdentity | null;
+	componentName: string;
 };
 
 export type TSequence = {
