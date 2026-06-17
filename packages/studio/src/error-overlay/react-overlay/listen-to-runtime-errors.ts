@@ -108,11 +108,6 @@ export function listenToRuntimeErrors(crash: () => void) {
 			markErrorAsLoggedByServer(error);
 			crashWithFramesRunTime(error);
 		}
-
-		if (d.type === 'build-error') {
-			markErrorAsLoggedByServer(d.error);
-			crashWithFramesRunTime(d.error);
-		}
 	});
 
 	return function () {

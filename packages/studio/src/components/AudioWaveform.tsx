@@ -383,8 +383,6 @@ export const AudioWaveform: React.FC<{
 	}, [height, shouldRenderVolumeOverlay, visualizationWidth, volume]);
 
 	if (error) {
-		// eslint-disable-next-line no-console
-		console.error(error);
 		return (
 			<div style={getContainerStyle(height)}>
 				<div style={errorMessage}>
