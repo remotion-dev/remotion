@@ -20,6 +20,7 @@ import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {timelineNodePathInfoToKey} from '../../helpers/timeline-node-path-key';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {useZIndex} from '../../state/z-index';
+import {ExpandedTracksSetterContext} from '../ExpandedTracksProvider';
 import {TimelineClipboardKeybindings} from './TimelineClipboardKeybindings';
 import {TimelineDeleteKeybindings} from './TimelineDeleteKeybindings';
 
@@ -719,6 +720,7 @@ export const TimelineSelectionProvider: React.FC<{
 	const {canvasContent} = useContext(Internals.CompositionManager);
 	const timelineSelectionScope =
 		canvasContent?.type === 'composition' ? canvasContent.compositionId : null;
+	const {expandParentTracks} = useContext(ExpandedTracksSetterContext);
 	const canSelect =
 		previewServerState.type === 'connected' &&
 		!window.remotion_isReadOnlyStudio;
@@ -773,6 +775,16 @@ export const TimelineSelectionProvider: React.FC<{
 	const availableSelectionState =
 		getCurrentAvailableSelectionState(selectedItems);
 	const availableSelectedItems = availableSelectionState.selectedItems;
+
+	useEffect(() => {
+		for (const item of availableSelectedItems) {
+			if (item.type === 'guide') {
+				continue;
+			}
+
+			expandParentTracks(item.nodePathInfo);
+		}
+	}, [availableSelectedItems, expandParentTracks]);
 
 	useEffect(() => {
 		setSelectedItems((currentSelectedItems) => {

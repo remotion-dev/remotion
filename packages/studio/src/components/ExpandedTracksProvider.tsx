@@ -64,6 +64,7 @@ type ExpandedTracksGetterContextValue = {
 };
 
 type ExpandedTracksSetterContextValue = {
+	readonly expandParentTracks: (nodePathInfo: SequenceNodePathInfo) => void;
 	readonly toggleTrack: (nodePathInfo: SequenceNodePathInfo) => void;
 	readonly migrateExpandedTracksForSubscriptionKey: (
 		oldKey: SequencePropsSubscriptionKey,
@@ -80,6 +81,9 @@ export const ExpandedTracksGetterContext =
 
 export const ExpandedTracksSetterContext =
 	createContext<ExpandedTracksSetterContextValue>({
+		expandParentTracks: () => {
+			throw new Error('ExpandedTracksSetterContext not initialized');
+		},
 		toggleTrack: () => {
 			throw new Error('ExpandedTracksSetterContext not initialized');
 		},
@@ -93,6 +97,45 @@ export const ExpandedTracksProvider: React.FC<{
 }> = ({children}) => {
 	const [expandedTracks, setExpandedTracks] =
 		useState<Record<string, boolean>>(loadExpandedTracks);
+
+	const expandParentTracks = useCallback(
+		(nodePathInfo: SequenceNodePathInfo) => {
+			const keysToExpand: string[] = [];
+
+			for (let i = 0; i < nodePathInfo.auxiliaryKeys.length; i++) {
+				keysToExpand.push(
+					timelineNodePathInfoToKey({
+						...nodePathInfo,
+						auxiliaryKeys: nodePathInfo.auxiliaryKeys.slice(0, i),
+					}),
+				);
+			}
+
+			if (keysToExpand.length === 0) {
+				return;
+			}
+
+			setExpandedTracks((prev) => {
+				let changed = false;
+				const next = {...prev};
+
+				for (const key of keysToExpand) {
+					if (next[key] === false) {
+						delete next[key];
+						changed = true;
+					}
+				}
+
+				if (!changed) {
+					return prev;
+				}
+
+				persistExpandedTracks(next);
+				return next;
+			});
+		},
+		[],
+	);
 
 	const toggleTrack = useCallback((nodePathInfo: SequenceNodePathInfo) => {
 		setExpandedTracks((prev) => {
@@ -142,10 +185,11 @@ export const ExpandedTracksProvider: React.FC<{
 
 	const setterValue = useMemo(
 		(): ExpandedTracksSetterContextValue => ({
+			expandParentTracks,
 			toggleTrack,
 			migrateExpandedTracksForSubscriptionKey: migrateExpandedTracks,
 		}),
-		[toggleTrack, migrateExpandedTracks],
+		[expandParentTracks, toggleTrack, migrateExpandedTracks],
 	);
 
 	return (
