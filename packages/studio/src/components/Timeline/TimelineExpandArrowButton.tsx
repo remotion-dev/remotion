@@ -41,7 +41,11 @@ export const TimelineExpandArrowButton: React.FC<{
 	);
 
 	const stopPropagation = React.useCallback(
-		(e: React.MouseEvent<HTMLButtonElement>) => {
+		(
+			e:
+				| React.MouseEvent<HTMLButtonElement>
+				| React.PointerEvent<HTMLButtonElement>,
+		) => {
 			e.stopPropagation();
 		},
 		[],
@@ -62,6 +66,7 @@ export const TimelineExpandArrowButton: React.FC<{
 			style={style}
 			onClick={handleClick}
 			onDoubleClick={stopPropagation}
+			onPointerDown={stopPropagation}
 			disabled={disabled}
 			aria-expanded={isExpanded}
 			aria-label={`${isExpanded ? 'Collapse' : 'Expand'} ${label}`}
