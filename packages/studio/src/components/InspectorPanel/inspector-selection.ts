@@ -27,25 +27,26 @@ export const isSequenceSectionSelection = (
 	);
 };
 
-type SequencePropSelection = Extract<
+type SameSequenceInspectorSelection = Extract<
 	TimelineSelection,
-	{type: 'sequence-prop' | 'sequence-effect-prop'}
+	{type: 'sequence-prop' | 'sequence-effect' | 'sequence-effect-prop'}
 >;
 
-const isSequencePropSelection = (
+const isSameSequenceInspectorSelection = (
 	selection: TimelineSelection,
-): selection is SequencePropSelection => {
+): selection is SameSequenceInspectorSelection => {
 	return (
 		selection.type === 'sequence-prop' ||
+		selection.type === 'sequence-effect' ||
 		selection.type === 'sequence-effect-prop'
 	);
 };
 
-export const getSameSequencePropInspectorSelection = (
+export const getSameSequenceInspectorSelection = (
 	selections: readonly TimelineSelection[],
-): SequencePropSelection | null => {
+): SameSequenceInspectorSelection | null => {
 	const firstSelection = selections[0];
-	if (!firstSelection || !isSequencePropSelection(firstSelection)) {
+	if (!firstSelection || !isSameSequenceInspectorSelection(firstSelection)) {
 		return null;
 	}
 
@@ -53,7 +54,7 @@ export const getSameSequencePropInspectorSelection = (
 		firstSelection.nodePathInfo,
 	);
 	for (const selection of selections) {
-		if (!isSequencePropSelection(selection)) {
+		if (!isSameSequenceInspectorSelection(selection)) {
 			return null;
 		}
 
