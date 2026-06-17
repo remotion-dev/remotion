@@ -526,8 +526,10 @@ export const useTimelineKeyframeDrag = ({
 			};
 			const shouldDragExistingSelection =
 				selected && !interaction.shiftKey && !interaction.toggleKey;
+			const shouldSelectOnPointerUp =
+				!selected && !interaction.shiftKey && !interaction.toggleKey;
 
-			if (!shouldDragExistingSelection) {
+			if (!shouldDragExistingSelection && !shouldSelectOnPointerUp) {
 				onSelect(interaction);
 			}
 
@@ -645,6 +647,10 @@ export const useTimelineKeyframeDrag = ({
 
 				const targets = dragTargets;
 				if (!hasDragged || lastDelta === 0 || targets === null) {
+					if (shouldSelectOnPointerUp) {
+						onSelect(interaction);
+					}
+
 					clearActiveOverrides();
 					clearDraggedKeyframes();
 					return;
@@ -661,13 +667,15 @@ export const useTimelineKeyframeDrag = ({
 					return;
 				}
 
-				currentSelection.current.selectItems(
-					targets.map((target) => ({
-						type: 'keyframe',
-						nodePathInfo: target.nodePathInfo,
-						frame: target.displayFrame + lastDelta,
-					})),
-				);
+				if (shouldDragExistingSelection) {
+					currentSelection.current.selectItems(
+						targets.map((target) => ({
+							type: 'keyframe',
+							nodePathInfo: target.nodePathInfo,
+							frame: target.displayFrame + lastDelta,
+						})),
+					);
+				}
 
 				clearActiveOverrides();
 				clearDraggedKeyframes();
