@@ -2291,7 +2291,7 @@ test('Backspace reset targets selected keyframed sequence props', () => {
 	]);
 });
 
-test('Backspace reset targets selected computed sequence props with defaults', () => {
+test('Backspace reset skips selected computed sequence props with defaults', () => {
 	const schema = {
 		'style.scale': {type: 'scale', default: 1, max: 100},
 	} satisfies InteractivitySchema;
@@ -2325,20 +2325,10 @@ test('Backspace reset targets selected computed sequence props with defaults', (
 		propStatuses,
 	});
 
-	expect(resetTargets).toEqual([
-		{
-			type: 'sequence-prop',
-			fileName: '/project/src/Comp.tsx',
-			nodePath,
-			fieldKey: 'style.scale',
-			value: 1,
-			defaultValue: '1',
-			schema,
-		},
-	]);
+	expect(resetTargets).toEqual([]);
 });
 
-test('Backspace reset targets flattened built-in sequence style props', () => {
+test('Backspace reset targets flattened built-in keyframed sequence style props', () => {
 	const opacityNodePathInfo = makeNodePathInfo(
 		['body', 0],
 		['controls', 'style.opacity'],
@@ -2349,7 +2339,15 @@ test('Backspace reset targets flattened built-in sequence style props', () => {
 			canUpdate: true,
 			props: {
 				'style.opacity': {
-					status: 'computed',
+					status: 'keyframed',
+					interpolationFunction: 'interpolate',
+					keyframes: [
+						{frame: 0, value: 0},
+						{frame: 20, value: 0.5},
+					],
+					easing: [{type: 'linear'}],
+					clamping: {left: 'extend', right: 'extend'},
+					posterize: undefined,
 				},
 			},
 			effects: [],
@@ -3371,6 +3369,141 @@ test('Backspace reset targets selected effect props', () => {
 			fieldKey: 'intensity',
 			value: 0,
 			defaultValue: '0',
+			schema: effectSchema,
+		},
+	]);
+});
+
+test('Backspace reset targets active enum variant effect props', () => {
+	const schema = {} satisfies InteractivitySchema;
+	const effectSchema = {
+		colorMode: {
+			type: 'enum',
+			default: 'solid' as const,
+			variants: {
+				solid: {
+					dotColor: {
+						type: 'color',
+						default: 'red',
+					},
+				},
+				source: {},
+			},
+		},
+	} satisfies InteractivitySchema;
+	const nodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['effects', '0', 'dotColor'],
+	);
+	const nodePath = nodePathInfo.sequenceSubscriptionKey;
+	const propStatuses = {
+		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			canUpdate: true,
+			props: {},
+			effects: [
+				{
+					canUpdate: true,
+					callee: 'effect',
+					importPath: null,
+					effectIndex: 0,
+					props: {
+						colorMode: {status: 'static', codeValue: 'solid'},
+						dotColor: {status: 'static', codeValue: 'blue'},
+					},
+				},
+			],
+		},
+	} satisfies PropStatuses;
+
+	const resetTargets = getTimelinePropResetTargets({
+		selections: [
+			{
+				type: 'sequence-effect-prop',
+				nodePathInfo,
+				i: 0,
+				key: 'dotColor',
+			},
+		],
+		sequences: [
+			makeTimelineSequence({
+				schema,
+				effects: [{schema: effectSchema}],
+			}),
+		],
+		overrideIdsToNodePaths: {override: nodePath},
+		propStatuses,
+	});
+
+	expect(resetTargets).toEqual([
+		{
+			type: 'effect-prop',
+			fileName: '/project/src/Comp.tsx',
+			nodePath,
+			effectIndex: 0,
+			fieldKey: 'dotColor',
+			value: 'red',
+			defaultValue: '"red"',
+			schema: effectSchema,
+		},
+	]);
+});
+
+test('Backspace reset targets selected static blur radius with default', () => {
+	const schema = {} satisfies InteractivitySchema;
+	const effectSchema = {
+		radius: {type: 'number', default: 40, hiddenFromList: false},
+	} satisfies InteractivitySchema;
+	const nodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['effects', '0', 'radius'],
+	);
+	const nodePath = nodePathInfo.sequenceSubscriptionKey;
+	const propStatuses = {
+		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			canUpdate: true,
+			props: {},
+			effects: [
+				{
+					canUpdate: true,
+					callee: 'blur',
+					importPath: null,
+					effectIndex: 0,
+					props: {
+						radius: {status: 'static', codeValue: 24},
+					},
+				},
+			],
+		},
+	} satisfies PropStatuses;
+
+	const resetTargets = getTimelinePropResetTargets({
+		selections: [
+			{
+				type: 'sequence-effect-prop',
+				nodePathInfo,
+				i: 0,
+				key: 'radius',
+			},
+		],
+		sequences: [
+			makeTimelineSequence({
+				schema,
+				effects: [{schema: effectSchema}],
+			}),
+		],
+		overrideIdsToNodePaths: {override: nodePath},
+		propStatuses,
+	});
+
+	expect(resetTargets).toEqual([
+		{
+			type: 'effect-prop',
+			fileName: '/project/src/Comp.tsx',
+			nodePath,
+			effectIndex: 0,
+			fieldKey: 'radius',
+			value: 40,
+			defaultValue: '40',
 			schema: effectSchema,
 		},
 	]);

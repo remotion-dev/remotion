@@ -488,6 +488,12 @@ test('blur() accepts valid params', () => {
 	expect(() => blur({radius: 4})).not.toThrow();
 });
 
+test('blur() radius has a resettable default', () => {
+	expect(blur({radius: 4}).definition.schema.radius).toMatchObject({
+		default: 40,
+	});
+});
+
 test('blur() accepts horizontal-only blur', () => {
 	expect(() =>
 		blur({radius: 4, horizontal: true, vertical: false}),

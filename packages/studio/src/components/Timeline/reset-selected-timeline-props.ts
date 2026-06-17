@@ -1,3 +1,4 @@
+import {getEffectFieldsToShow} from '@remotion/studio-shared';
 import type {
 	CanUpdateSequencePropStatus,
 	OverrideIdToNodePaths,
@@ -88,8 +89,12 @@ const isResettablePropStatus = ({
 		return false;
 	}
 
-	if (propStatus.status === 'keyframed' || propStatus.status === 'computed') {
+	if (propStatus.status === 'keyframed') {
 		return true;
+	}
+
+	if (propStatus.status === 'computed') {
+		return false;
 	}
 
 	return isNonDefaultCodeValue({
@@ -198,7 +203,16 @@ export const getTimelinePropResetTargets = ({
 		}
 
 		const effect = sequence.effects[selection.i];
-		const fieldSchema = effect?.schema[selection.key];
+		const field = effect
+			? getEffectFieldsToShow({
+					effect,
+					effectIndex: selection.i,
+					nodePath,
+					propStatuses,
+					getEffectDragOverrides: () => ({}),
+				}).find((candidate) => candidate.key === selection.key)
+			: null;
+		const fieldSchema = field?.fieldSchema;
 		const effectStatus = Internals.getEffectPropStatusesCtx({
 			propStatuses,
 			nodePath,
