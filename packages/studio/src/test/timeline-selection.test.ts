@@ -9,6 +9,7 @@ import {
 	type TSequence,
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
+import {getInspectorSelectableItems} from '../components/InspectorSequenceSection';
 import {getSelectedTransformOriginInfo} from '../components/selected-outline-measurement';
 import {
 	constrainUv,
@@ -75,6 +76,7 @@ import {getSelectedKeyframeControlNodePathInfos} from '../components/Timeline/Ti
 import {
 	getClampedTimelineMarqueePoint,
 	getAvailableTimelineSelectionState,
+	getSelectableTimelineItems,
 	getSelectableTimelineSequenceSelections,
 	getTimelineMarqueeSelection,
 	getTimelineSelectionAfterInteraction,
@@ -2190,6 +2192,85 @@ test('Cmd+A selection only targets selectable timeline sequences', () => {
 	]);
 });
 
+test('Derived selectable timeline items follow expanded timeline order', () => {
+	const schema = {
+		opacity: {type: 'number', default: 1, hiddenFromList: false},
+	} satisfies InteractivitySchema;
+	const sequenceNodePathInfo = makeNodePathInfo(['body', 0], []);
+	const opacityNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['controls', 'opacity'],
+	);
+	const nodePath = sequenceNodePathInfo.sequenceSubscriptionKey;
+	const propStatuses = {
+		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			canUpdate: true,
+			props: {
+				opacity: {
+					status: 'keyframed',
+					interpolationFunction: 'interpolate',
+					keyframes: [
+						{frame: 10, value: 0},
+						{frame: 20, value: 1},
+					],
+					easing: [{type: 'linear'}],
+					clamping: {left: 'extend', right: 'extend'},
+					posterize: undefined,
+				},
+			},
+			effects: [],
+		},
+	} satisfies PropStatuses;
+
+	expect(
+		getSelectableTimelineItems({
+			getDragOverrides: () => ({}),
+			getEffectDragOverrides: () => ({}),
+			getIsExpanded: () => true,
+			propStatuses,
+			selectedItems: [],
+			timeline: [
+				{
+					depth: 0,
+					hash: 'hash',
+					keyframeDisplayOffset: 0,
+					nodePathInfo: sequenceNodePathInfo,
+					sequence: makeTimelineSequence({schema}),
+					sequenceFrameOffset: 0,
+				},
+			],
+			timelinePosition: 10,
+		}).map(getTimelineSelectionKey),
+	).toEqual([
+		getTimelineSelectionKey({
+			type: 'sequence',
+			nodePathInfo: sequenceNodePathInfo,
+		}),
+		getTimelineSelectionKey({
+			type: 'sequence-prop',
+			nodePathInfo: opacityNodePathInfo,
+			key: 'opacity',
+		}),
+		getTimelineSelectionKey({
+			type: 'easing',
+			nodePathInfo: opacityNodePathInfo,
+			fromFrame: 10,
+			toFrame: 20,
+			segmentIndex: 0,
+		}),
+		getTimelineSelectionKey({
+			type: 'keyframe',
+			nodePathInfo: opacityNodePathInfo,
+			frame: 10,
+		}),
+		getTimelineSelectionKey({
+			type: 'keyframe',
+			nodePathInfo: opacityNodePathInfo,
+			frame: 20,
+		}),
+	]);
+});
+
 test('Cmd+D duplicates selected timeline sequence and effect rows', () => {
 	const sequenceNodePathInfo = makeNodePathInfo(['body', 0], []);
 	const effectNodePathInfo = makeNodePathInfo(['body', 1], ['effects', '0']);
@@ -4218,6 +4299,47 @@ test('Shift+click selects a contiguous row range from the anchor', () => {
 	).toEqual({
 		selectedItems: [rowA, rowB, rowC],
 		anchor: rowA,
+	});
+});
+
+test('Shift+click can select an inspector effect range', () => {
+	const effectA = makeNodePathInfo(['body', 0], ['effects', '0']);
+	const effectB = makeNodePathInfo(['body', 0], ['effects', '1']);
+	const effectC = makeNodePathInfo(['body', 0], ['effects', '2']);
+	const allSelectableItems = getInspectorSelectableItems(
+		[effectA, effectB, effectC].map((nodePathInfo) => ({
+			depth: 0,
+			node: {
+				kind: 'group' as const,
+				nodePathInfo,
+				label: 'Effect',
+				effectInfo: {
+					documentationLink: null,
+					effectIndex: Number(nodePathInfo.auxiliaryKeys[1]),
+					effectSchema: {},
+				},
+				children: [],
+			},
+		})),
+	);
+
+	expect(
+		getTimelineSelectionAfterInteraction({
+			currentState: {
+				selectedItems: [{type: 'sequence-effect', nodePathInfo: effectA, i: 0}],
+				anchor: {type: 'sequence-effect', nodePathInfo: effectA, i: 0},
+			},
+			clickedItem: {type: 'sequence-effect', nodePathInfo: effectC, i: 2},
+			interaction: {shiftKey: true, toggleKey: false},
+			allSelectableItems,
+		}),
+	).toEqual({
+		selectedItems: [
+			{type: 'sequence-effect', nodePathInfo: effectA, i: 0},
+			{type: 'sequence-effect', nodePathInfo: effectB, i: 1},
+			{type: 'sequence-effect', nodePathInfo: effectC, i: 2},
+		],
+		anchor: {type: 'sequence-effect', nodePathInfo: effectA, i: 0},
 	});
 });
 
