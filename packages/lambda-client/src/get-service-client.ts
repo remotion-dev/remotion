@@ -10,7 +10,6 @@ import type {AwsProvider} from './aws-provider';
 import {checkCredentials} from './check-credentials';
 import {getCredentials} from './get-credentials';
 import {getEnvVariable} from './get-env-variable';
-import type {AwsRegion} from './regions';
 import type {RequestHandler} from './types';
 
 export type ServiceMapping = {
