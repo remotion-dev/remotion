@@ -14,6 +14,11 @@ import {ModalsContext} from '../state/modals';
 import {InlineAction} from './InlineAction';
 import {sectionHeaderRow, sectionHeaderTitle} from './InspectorPanel/styles';
 import {TimelineExpandedRow} from './Timeline/TimelineExpandedRow';
+import {
+	getTimelineSelectionFromNodePathInfo,
+	TimelineSelectionOrderProvider,
+	type TimelineSelection,
+} from './Timeline/TimelineSelection';
 import {useTimelineExpandedTree} from './Timeline/use-timeline-expanded-tree';
 
 const container: React.CSSProperties = {
@@ -71,6 +76,15 @@ const getInspectorExpansionKey = (nodePathInfo: SequenceNodePathInfo) => {
 
 type SequenceWithControls = TSequence & {
 	readonly controls: NonNullable<TSequence['controls']>;
+};
+
+export const getInspectorSelectableItems = (
+	rows: readonly FlatTreeRow[],
+): TimelineSelection[] => {
+	return rows.flatMap(({node}): TimelineSelection[] => {
+		const selection = getTimelineSelectionFromNodePathInfo(node.nodePathInfo);
+		return selection ? [selection] : [];
+	});
 };
 
 export const hasSequenceControls = (
@@ -150,6 +164,15 @@ export const InspectorSequenceSection: React.FC<{
 		};
 	}, [getIsExpanded, tree]);
 
+	const controlSelectableItems = useMemo(
+		() => getInspectorSelectableItems(controlRows),
+		[controlRows],
+	);
+	const effectSelectableItems = useMemo(
+		() => getInspectorSelectableItems(effectRows),
+		[effectRows],
+	);
+
 	const {schema} = sequence.controls;
 	const showEffectsSection =
 		nodePathInfo.supportsEffects || effectRows.length > 0;
@@ -225,7 +248,9 @@ export const InspectorSequenceSection: React.FC<{
 		<div style={container}>
 			<div style={divider} />
 			{controlRows.length > 0 ? renderSectionHeader('Controls') : null}
-			{controlRows.map(renderRow)}
+			<TimelineSelectionOrderProvider items={controlSelectableItems}>
+				{controlRows.map(renderRow)}
+			</TimelineSelectionOrderProvider>
 			{showEffectsSection ? (
 				<>
 					{showControlsEffectsDivider ? (
@@ -235,7 +260,9 @@ export const InspectorSequenceSection: React.FC<{
 					{effectRows.length === 0 ? (
 						<div style={emptyState}>None</div>
 					) : (
-						effectRows.map(renderRow)
+						<TimelineSelectionOrderProvider items={effectSelectableItems}>
+							{effectRows.map(renderRow)}
+						</TimelineSelectionOrderProvider>
 					)}
 				</>
 			) : null}
