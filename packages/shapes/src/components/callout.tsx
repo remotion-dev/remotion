@@ -92,6 +92,7 @@ const CalloutInner: React.FC<CalloutProps> = ({
 
 export const Callout = Interactive.withSchema({
 	Component: CalloutInner,
+	componentName: '<Callout>',
 	componentIdentity: 'dev.remotion.shapes.Callout',
 	schema: calloutSchema,
 	supportsEffects: true,

@@ -292,6 +292,7 @@ const AnimatedImageInner = ({
 
 export const AnimatedImage = withInteractivitySchema({
 	Component: AnimatedImageInner,
+	componentName: '<AnimatedImage>',
 	componentIdentity: 'dev.remotion.remotion.AnimatedImage',
 	schema: animatedImageSchema,
 	supportsEffects: true,

@@ -437,6 +437,7 @@ const StarburstInner: React.FC<
 
 export const Starburst = Interactive.withSchema({
 	Component: StarburstInner,
+	componentName: '<Starburst>',
 	componentIdentity: 'dev.remotion.starburst.Starburst',
 	schema: starburstSchema,
 	supportsEffects: false,

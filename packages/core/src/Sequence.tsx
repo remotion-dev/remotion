@@ -634,6 +634,7 @@ export const SequenceWithoutSchema = SequenceInner;
  */
 export const Sequence = withInteractivitySchema({
 	Component: SequenceInner,
+	componentName: '<Sequence>',
 	componentIdentity: 'dev.remotion.remotion.Sequence',
 	schema: sequenceSchema,
 	supportsEffects: false,
@@ -641,6 +642,7 @@ export const Sequence = withInteractivitySchema({
 
 export const SequenceWithoutFrom = withInteractivitySchema({
 	Component: SequenceInner,
+	componentName: '<Sequence>',
 	componentIdentity: null,
 	schema: sequenceSchemaWithoutFrom,
 	supportsEffects: false,

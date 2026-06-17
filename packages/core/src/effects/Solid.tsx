@@ -296,6 +296,7 @@ const SolidOuter = forwardRef<
 
 export const Solid = withInteractivitySchema({
 	Component: SolidOuter,
+	componentName: '<Solid>',
 	componentIdentity: 'dev.remotion.remotion.Solid',
 	schema: solidSchema,
 	supportsEffects: true,

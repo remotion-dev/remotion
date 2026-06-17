@@ -359,6 +359,7 @@ const VideoInner: React.FC<
 
 export const Video = Interactive.withSchema({
 	Component: VideoInner,
+	componentName: '<Video>',
 	componentIdentity: 'dev.remotion.media.Video',
 	schema: videoSchema,
 	supportsEffects: true,

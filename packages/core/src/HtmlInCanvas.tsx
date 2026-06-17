@@ -684,6 +684,7 @@ const htmlInCanvasSchema = {
 
 const HtmlInCanvasWrapped = withInteractivitySchema({
 	Component: HtmlInCanvasInner,
+	componentName: '<HtmlInCanvas>',
 	componentIdentity: 'dev.remotion.remotion.HtmlInCanvas',
 	schema: htmlInCanvasSchema,
 	supportsEffects: true,

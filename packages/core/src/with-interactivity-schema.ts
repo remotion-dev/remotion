@@ -112,6 +112,7 @@ export const withInteractivitySchema = <
 	Props extends object,
 >({
 	Component,
+	componentName,
 	componentIdentity,
 	schema,
 	supportsEffects,
@@ -119,6 +120,7 @@ export const withInteractivitySchema = <
 	Component: React.ComponentType<
 		Props & {readonly controls: SequenceControls | undefined}
 	>;
+	componentName: string;
 	componentIdentity: JsxComponentIdentity | null;
 	schema: S;
 	supportsEffects: boolean;
@@ -204,6 +206,7 @@ export const withInteractivitySchema = <
 				overrideId,
 				supportsEffects,
 				componentIdentity,
+				componentName,
 			};
 		}, [currentRuntimeValueDotNotation, overrideId]);
 

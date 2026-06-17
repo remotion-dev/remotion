@@ -79,6 +79,7 @@ const ArrowInner: React.FC<ArrowProps> = ({
 
 export const Arrow = Interactive.withSchema({
 	Component: ArrowInner,
+	componentName: '<Arrow>',
 	componentIdentity: 'dev.remotion.shapes.Arrow',
 	schema: arrowSchema,
 	supportsEffects: true,

@@ -59,6 +59,7 @@ const SparkInner: React.FC<SparkProps> = ({
 
 export const Spark = Interactive.withSchema({
 	Component: SparkInner,
+	componentName: '<Spark>',
 	componentIdentity: 'dev.remotion.shapes.Spark',
 	schema: sparkSchema,
 	supportsEffects: true,

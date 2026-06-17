@@ -70,6 +70,25 @@ export const sequenceHeaderTitle: React.CSSProperties = {
 	whiteSpace: 'nowrap',
 };
 
+export const sequenceHeaderSubtitle: React.CSSProperties = {
+	alignSelf: 'flex-start',
+	backgroundColor: BACKGROUND,
+	border: 'none',
+	color: LIGHT_TEXT,
+	display: 'inline-flex',
+	fontFamily: 'sans-serif',
+	fontSize: 12,
+	lineHeight: '18px',
+	margin: 0,
+	maxWidth: '100%',
+	minWidth: 0,
+	overflow: 'hidden',
+	padding: 0,
+	textAlign: 'left',
+	textOverflow: 'ellipsis',
+	whiteSpace: 'nowrap',
+};
+
 export const sectionHeaderRow: React.CSSProperties = {
 	alignItems: 'center',
 	display: 'flex',

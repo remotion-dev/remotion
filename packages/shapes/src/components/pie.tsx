@@ -66,6 +66,7 @@ const PieInner: React.FC<PieProps> = ({
 
 export const Pie = Interactive.withSchema({
 	Component: PieInner,
+	componentName: '<Pie>',
 	componentIdentity: 'dev.remotion.shapes.Pie',
 	schema: pieSchema,
 	supportsEffects: true,

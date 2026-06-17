@@ -121,6 +121,7 @@ const GifInner = ({
 
 export const Gif = Interactive.withSchema({
 	Component: GifInner,
+	componentName: '<Gif>',
 	componentIdentity: 'dev.remotion.gif.Gif',
 	schema: gifSchema,
 	supportsEffects: true,

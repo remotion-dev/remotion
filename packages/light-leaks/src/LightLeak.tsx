@@ -303,6 +303,7 @@ const LightLeakInner: React.FC<
 
 export const LightLeak = Interactive.withSchema({
 	Component: LightLeakInner,
+	componentName: '<LightLeak>',
 	componentIdentity: 'dev.remotion.lightLeaks.LightLeak',
 	schema: lightLeakSchema,
 	supportsEffects: false,
