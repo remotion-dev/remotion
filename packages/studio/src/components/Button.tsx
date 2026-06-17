@@ -24,6 +24,7 @@ export type ButtonProps = {
 	readonly autoFocus?: boolean;
 	readonly title?: string;
 	readonly id?: string;
+	readonly onPointerDown?: React.PointerEventHandler<HTMLButtonElement>;
 };
 
 const ButtonRefForwardFunction: React.ForwardRefRenderFunction<
@@ -40,6 +41,7 @@ const ButtonRefForwardFunction: React.ForwardRefRenderFunction<
 		id,
 		autoFocus,
 		buttonContainerStyle,
+		onPointerDown,
 	},
 	ref,
 ) => {
@@ -72,6 +74,7 @@ const ButtonRefForwardFunction: React.ForwardRefRenderFunction<
 			type="button"
 			disabled={disabled}
 			onClick={onClick}
+			onPointerDown={onPointerDown}
 			autoFocus={autoFocus}
 			title={title}
 		>
