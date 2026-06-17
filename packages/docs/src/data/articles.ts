@@ -1836,6 +1836,15 @@ export const articles = [
 		slug: 'effects/duotone',
 	},
 	{
+		id: 'effects/emboss',
+		title: 'emboss()',
+		relativePath: 'docs/effects/emboss.mdx',
+		compId: 'articles-docs-effects-emboss',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/emboss',
+	},
+	{
 		id: 'effects/evolve',
 		title: 'evolve()',
 		relativePath: 'docs/effects/evolve.mdx',

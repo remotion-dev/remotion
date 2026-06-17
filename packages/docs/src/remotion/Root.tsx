@@ -13,6 +13,7 @@ import {EffectsContrastPreview} from '../../components/effects/effects-contrast-
 import {EffectsDotGridPreview} from '../../components/effects/effects-dot-grid-preview';
 import {EffectsDropShadowPreview} from '../../components/effects/effects-drop-shadow-preview';
 import {EffectsDuotonePreview} from '../../components/effects/effects-duotone-preview';
+import {EffectsEmbossPreview} from '../../components/effects/effects-emboss-preview';
 import {EffectsEvolvePreview} from '../../components/effects/effects-evolve-preview';
 import {EffectsFisheyePreview} from '../../components/effects/effects-fisheye-preview';
 import {EffectsGlowPreview} from '../../components/effects/effects-glow-preview';
@@ -145,6 +146,21 @@ export const RemotionRoot: React.FC = () => {
 						roughness: 0.85,
 						seed: 1,
 						color: '#3b2818',
+					}}
+				/>
+				<Still
+					id="effects-emboss-preview"
+					component={EffectsEmbossPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						amount: 0.85,
+						size: 38,
+						lineWidth: 11,
+						depth: 0.85,
+						angle: 0,
+						lightAngle: 135,
+						offset: 0,
 					}}
 				/>
 				<Still

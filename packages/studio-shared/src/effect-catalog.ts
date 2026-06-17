@@ -352,6 +352,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-emboss',
+		category: 'Stylize',
+		label: 'emboss()',
+		description: 'Procedural raised-line relief',
+		effect: {
+			name: 'emboss',
+			importPath: '@remotion/effects/emboss',
+			config: {},
+		},
+	},
+	{
 		id: 'effects-dot-grid',
 		category: 'Stylize',
 		label: 'dotGrid()',

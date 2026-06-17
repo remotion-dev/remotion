@@ -84,6 +84,11 @@
 			"module": "./dist/esm/duotone.mjs",
 			"import": "./dist/esm/duotone.mjs"
 		},
+		"./emboss": {
+			"types": "./dist/emboss.d.ts",
+			"module": "./dist/esm/emboss.mjs",
+			"import": "./dist/esm/emboss.mjs"
+		},
 		"./evolve": {
 			"types": "./dist/evolve.d.ts",
 			"module": "./dist/esm/evolve.mjs",
@@ -282,6 +287,9 @@
 			],
 			"duotone": [
 				"dist/duotone.d.ts"
+			],
+			"emboss": [
+				"dist/emboss.d.ts"
 			],
 			"evolve": [
 				"dist/evolve.d.ts"

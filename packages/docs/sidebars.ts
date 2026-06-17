@@ -284,6 +284,7 @@ const sidebars: SidebarsConfig = {
 				'effects/dot-grid',
 				'effects/drop-shadow',
 				'effects/duotone',
+				'effects/emboss',
 				'effects/evolve',
 				'effects/fisheye',
 				'effects/glow',
