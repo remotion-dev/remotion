@@ -5,6 +5,7 @@ import type {
 	TSequence,
 } from 'remotion';
 import {Internals, type PropStatuses} from 'remotion';
+import {findTrackForNodePathInfo} from '../components/Timeline/find-track-for-node-path-info';
 import {getBoundedKeyframeDragDelta} from '../components/Timeline/get-bounded-keyframe-drag-delta';
 import {getNodeKeyframes} from '../components/Timeline/get-node-keyframes';
 import {getTimelineEasingSegments} from '../components/Timeline/get-timeline-easing-segments';
@@ -20,6 +21,14 @@ const makeNodePath = (id: string): SequencePropsSubscriptionKey => ({
 	nodePath: [id],
 	sequenceKeys: ['style.scale'],
 	effectKeys: [],
+});
+
+const makeNodePathWithEffectKeys = (
+	id: string,
+	effectKeys: string[][],
+): SequencePropsSubscriptionKey => ({
+	...makeNodePath(id),
+	effectKeys,
 });
 
 const makeControls = (
@@ -230,6 +239,38 @@ test('keyframe display offsets follow the parent sequence context', () => {
 		{frame: 30, value: 2},
 		{frame: 90, value: 4},
 	]);
+});
+
+test('track lookup survives effect key changes', () => {
+	const sequences = [
+		makeSequence({
+			id: 'sequence',
+			from: 0,
+			overrideId: 'sequence',
+			nonce: 0,
+		}),
+	];
+	const currentNodePath = makeNodePathWithEffectKeys('sequence', [
+		['blur'],
+		['noise'],
+	]);
+	const staleNodePath = makeNodePathWithEffectKeys('sequence', [['blur']]);
+
+	const track = findTrackForNodePathInfo({
+		sequences,
+		overrideIdsToNodePaths: {
+			sequence: currentNodePath,
+		},
+		nodePathInfo: {
+			sequenceSubscriptionKey: staleNodePath,
+			auxiliaryKeys: [],
+			index: 0,
+			numberOfSequencesWithThisNodePath: 1,
+			supportsEffects: true,
+		},
+	});
+
+	expect(track?.nodePathInfo?.sequenceSubscriptionKey).toBe(currentNodePath);
 });
 
 test('timeline easing segments connect adjacent display keyframes', () => {

@@ -50,6 +50,7 @@ import {
 import {TimelineSequenceName} from './TimelineSequenceName';
 import {useOpenSequenceInEditor} from './use-open-sequence-in-editor';
 import {useSequenceFreezeFrameMenuItem} from './use-sequence-freeze-frame-menu-item';
+import {useTimelineExpandedTree} from './use-timeline-expanded-tree';
 
 const labelContainerStyle: React.CSSProperties = {
 	alignItems: 'center',
@@ -76,6 +77,32 @@ type SequenceReorderDragData = {
 };
 
 let currentSequenceDrag: SequenceReorderDragData | null = null;
+
+const TimelineSequenceExpandArrow: React.FC<{
+	readonly disabled: boolean;
+	readonly isExpanded: boolean;
+	readonly nodePathInfo: SequenceNodePathInfo;
+	readonly onToggleExpand: () => void;
+	readonly sequence: TSequence;
+}> = ({disabled, isExpanded, nodePathInfo, onToggleExpand, sequence}) => {
+	const {filteredTree} = useTimelineExpandedTree({
+		sequence,
+		nodePathInfo,
+	});
+
+	if (filteredTree.length === 0) {
+		return <TimelineExpandArrowSpacer />;
+	}
+
+	return (
+		<TimelineExpandArrowButton
+			isExpanded={isExpanded}
+			onClick={onToggleExpand}
+			label="track properties"
+			disabled={disabled}
+		/>
+	);
+};
 
 const sequenceReorderWrapper: React.CSSProperties = {
 	position: 'relative',
@@ -981,12 +1008,13 @@ export const TimelineSequenceItem: React.FC<{
 				)
 			}
 			arrow={
-				hasExpandableContent ? (
-					<TimelineExpandArrowButton
+				hasExpandableContent && nodePathInfo !== null ? (
+					<TimelineSequenceExpandArrow
+						disabled={!previewConnected}
 						isExpanded={isExpanded}
-						onClick={onToggleExpand}
-						label="track properties"
-						disabled={!previewConnected || nodePathInfo === null}
+						nodePathInfo={nodePathInfo}
+						onToggleExpand={onToggleExpand}
+						sequence={sequence}
 					/>
 				) : (
 					<TimelineExpandArrowSpacer />

@@ -6,6 +6,13 @@ import {
 	ExpandedTracksGetterContext,
 	ExpandedTracksSetterContext,
 } from '../ExpandedTracksProvider';
+import {getNodeHasKeyframes} from './get-node-keyframes';
+import {
+	filterTimelineExpandedTree,
+	getSelectedTimelineExpandedRowKeys,
+	isTimelineExpandedNodeSelected,
+} from './timeline-expanded-filter';
+import {useTimelineSelection} from './TimelineSelection';
 
 export const useTimelineExpandedTree = ({
 	sequence,
@@ -22,6 +29,7 @@ export const useTimelineExpandedTree = ({
 	const {getDragOverrides, getEffectDragOverrides} = useContext(
 		Internals.VisualModeDragOverridesContext,
 	);
+	const {selectedItems} = useTimelineSelection();
 
 	const tree = useMemo(
 		() =>
@@ -40,8 +48,39 @@ export const useTimelineExpandedTree = ({
 			visualModePropStatuses,
 		],
 	);
+	const selectedRowKeys = useMemo(
+		() => getSelectedTimelineExpandedRowKeys(selectedItems),
+		[selectedItems],
+	);
+	const filteredTree = useMemo(
+		() =>
+			filterTimelineExpandedTree({
+				nodes: tree,
+				shouldShowNode: (node) =>
+					isTimelineExpandedNodeSelected({
+						nodePathInfo: node.nodePathInfo,
+						selectedRowKeys,
+					}) ||
+					getNodeHasKeyframes({
+						node,
+						nodePath: nodePathInfo.sequenceSubscriptionKey,
+						propStatuses: visualModePropStatuses,
+						getDragOverrides,
+						getEffectDragOverrides,
+					}),
+			}),
+		[
+			getDragOverrides,
+			getEffectDragOverrides,
+			nodePathInfo.sequenceSubscriptionKey,
+			selectedRowKeys,
+			tree,
+			visualModePropStatuses,
+		],
+	);
 
 	return {
+		filteredTree,
 		getIsExpanded,
 		propStatuses: visualModePropStatuses,
 		toggleTrack,
