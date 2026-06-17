@@ -10,6 +10,8 @@ import {
 } from 'remotion';
 import {linearProgressiveBlur} from '@remotion/effects/linear-progressive-blur';
 import {noise} from '@remotion/effects/noise';
+import {saturation} from '@remotion/effects/saturation';
+import {duotone} from '@remotion/effects/duotone';
 
 export const NewsHeadline = () => {
 	const frame = useCurrentFrame();
@@ -46,6 +48,7 @@ export const NewsHeadline = () => {
 					amount: 0.46,
 					color: '#030013',
 				}),
+				duotone({}),
 			]}
 			style={{
 				scale: 1,

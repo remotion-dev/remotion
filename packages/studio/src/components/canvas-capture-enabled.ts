@@ -1,1 +1,1 @@
-export const CANVAS_CAPTURE_ENABLED = false;
+export const CANVAS_CAPTURE_ENABLED = true;
