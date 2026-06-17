@@ -879,7 +879,12 @@ export const TimelineSelectionProvider: React.FC<{
 				return nextState.selectedItems;
 			});
 		},
-		[canSelectItem, getCurrentAvailableSelectionState, timelineSelectionScope],
+		[
+			canSelectItem,
+			expandParentsForSelectionItem,
+			getCurrentAvailableSelectionState,
+			timelineSelectionScope,
+		],
 	);
 
 	const selectItems = useCallback(
