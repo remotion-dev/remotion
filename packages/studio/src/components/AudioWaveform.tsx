@@ -7,6 +7,7 @@ import {
 	sliceWaveformPeaks,
 	type AudioWaveformWorkerOutgoingMessage,
 	type AudioWaveformWorkerRenderMessage,
+	type WaveformVolume,
 } from '@remotion/timeline-utils';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import type {LoopDisplay} from 'remotion';
@@ -72,6 +73,14 @@ const volumeCanvasStyle: React.CSSProperties = {
 	position: 'absolute',
 };
 
+const parseVolume = (volume: string | number): WaveformVolume => {
+	if (typeof volume === 'number') {
+		return volume;
+	}
+
+	return volume.split(',').map((v) => Number(v));
+};
+
 const drawLoopedWaveform = ({
 	canvas,
 	peaks,
@@ -81,7 +90,7 @@ const drawLoopedWaveform = ({
 }: {
 	canvas: HTMLCanvasElement;
 	peaks: Float32Array;
-	volume: number;
+	volume: WaveformVolume;
 	visualizationWidth: number;
 	loopWidth: number;
 }) => {
@@ -157,6 +166,7 @@ export const AudioWaveform: React.FC<{
 	const latestRequestId = useRef(0);
 	const shouldRenderVolumeOverlay =
 		doesVolumeChange && typeof volume === 'string';
+	const parsedVolume = useMemo(() => parseVolume(volume), [volume]);
 
 	useEffect(() => {
 		if (canUseWorkerPath) {
@@ -282,7 +292,6 @@ export const AudioWaveform: React.FC<{
 		const h = height;
 		const w = Math.ceil(visualizationWidth);
 
-		const vol = typeof volume === 'number' ? volume : 1;
 		if (canUseWorkerPath) {
 			const worker = waveformWorker.current;
 			if (!worker || !hasTransferredCanvas.current) {
@@ -297,7 +306,7 @@ export const AudioWaveform: React.FC<{
 				src,
 				width: w,
 				height: h,
-				volume: vol,
+				volume: parsedVolume,
 				startFrom,
 				durationInFrames,
 				fps: vidConf.fps,
@@ -315,7 +324,7 @@ export const AudioWaveform: React.FC<{
 			drawLoopedWaveform({
 				canvas: canvasElement,
 				peaks: portionPeaks ?? EMPTY_PEAKS,
-				volume: vol,
+				volume: parsedVolume,
 				visualizationWidth,
 				loopWidth: getLoopDisplayWidth({
 					visualizationWidth,
@@ -327,7 +336,7 @@ export const AudioWaveform: React.FC<{
 				canvas: canvasElement,
 				peaks: portionPeaks ?? EMPTY_PEAKS,
 				color: 'rgba(255, 255, 255, 0.6)',
-				volume: vol,
+				volume: parsedVolume,
 				width: w,
 			});
 		}
@@ -337,12 +346,12 @@ export const AudioWaveform: React.FC<{
 		height,
 		loopDisplay,
 		playbackRate,
+		parsedVolume,
 		portionPeaks,
 		src,
 		startFrom,
 		vidConf.fps,
 		visualizationWidth,
-		volume,
 		waveformCanvasKey,
 	]);
 
@@ -366,11 +375,17 @@ export const AudioWaveform: React.FC<{
 		volumeCanvasElement.height = h;
 
 		context.clearRect(0, 0, visualizationWidth, h);
-		const volumes = volume.split(',').map((v) => Number(v));
+		if (!Array.isArray(parsedVolume)) {
+			return;
+		}
+
 		context.beginPath();
 		context.moveTo(0, h);
-		volumes.forEach((v, index) => {
-			const x = (index / (volumes.length - 1)) * visualizationWidth;
+		parsedVolume.forEach((v, index) => {
+			const x =
+				parsedVolume.length <= 1
+					? 0
+					: (index / (parsedVolume.length - 1)) * visualizationWidth;
 			const y = (1 - v) * (h - TIMELINE_BORDER * 2) + 1;
 			if (index === 0) {
 				context.moveTo(x, y);
@@ -380,7 +395,7 @@ export const AudioWaveform: React.FC<{
 		});
 		context.strokeStyle = LIGHT_TRANSPARENT;
 		context.stroke();
-	}, [height, shouldRenderVolumeOverlay, visualizationWidth, volume]);
+	}, [height, parsedVolume, shouldRenderVolumeOverlay, visualizationWidth]);
 
 	if (error) {
 		return (
