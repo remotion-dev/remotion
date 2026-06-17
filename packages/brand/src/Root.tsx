@@ -23,6 +23,7 @@ import {
 	StarburstEffectShowcase,
 	starburstEffectShowcaseDurationInFrames,
 } from './effects/StarburstEffectShowcase';
+import {Thermometer} from './effects/Thermometer';
 import {
 	ZigzagLinearBlurShowcase,
 	zigzagLinearBlurShowcaseDurationInFrames,
@@ -181,8 +182,24 @@ export const RemotionRoot: React.FC = () => {
 					durationInFrames={200}
 				/>
 				<Composition
+					id="thermometer"
+					component={EffectsAnnouncement}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={200}
+				/>
+				<Composition
 					id="news-headline"
 					component={NewsHeadline}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={200}
+				/>
+				<Composition
+					id="thermo"
+					component={Thermometer}
 					width={1280}
 					height={720}
 					fps={30}
