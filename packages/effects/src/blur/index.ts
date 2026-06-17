@@ -39,7 +39,7 @@ const blurSchema = {
 		min: 0,
 		max: 100,
 		step: 1,
-		default: undefined,
+		default: 40,
 		description: 'Radius',
 		hiddenFromList: false,
 	},
