@@ -776,15 +776,29 @@ export const TimelineSelectionProvider: React.FC<{
 		getCurrentAvailableSelectionState(selectedItems);
 	const availableSelectedItems = availableSelectionState.selectedItems;
 
-	useEffect(() => {
-		for (const item of availableSelectedItems) {
+	const expandParentsForSelectionItems = useCallback(
+		(items: readonly TimelineSelection[]) => {
+			for (const item of items) {
+				if (item.type === 'guide') {
+					continue;
+				}
+
+				expandParentTracks(item.nodePathInfo);
+			}
+		},
+		[expandParentTracks],
+	);
+
+	const expandParentsForSelectionItem = useCallback(
+		(item: TimelineSelection) => {
 			if (item.type === 'guide') {
-				continue;
+				return;
 			}
 
 			expandParentTracks(item.nodePathInfo);
-		}
-	}, [availableSelectedItems, expandParentTracks]);
+		},
+		[expandParentTracks],
+	);
 
 	useEffect(() => {
 		setSelectedItems((currentSelectedItems) => {
@@ -836,6 +850,8 @@ export const TimelineSelectionProvider: React.FC<{
 				return;
 			}
 
+			expandParentsForSelectionItem(item);
+
 			setSelectedItems((currentSelectedItems) => {
 				const currentSelectionState =
 					getCurrentAvailableSelectionState(currentSelectedItems);
@@ -875,9 +891,10 @@ export const TimelineSelectionProvider: React.FC<{
 			selectionScope.current = timelineSelectionScope;
 			selectionAnchor.current =
 				items.length === 0 ? null : items[items.length - 1];
+			expandParentsForSelectionItems(items);
 			setSelectedItems(items);
 		},
-		[canSelectItem, timelineSelectionScope],
+		[canSelectItem, expandParentsForSelectionItems, timelineSelectionScope],
 	);
 
 	const registerSelectableItem = useCallback((item: TimelineSelection) => {
