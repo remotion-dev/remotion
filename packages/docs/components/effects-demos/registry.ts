@@ -9,6 +9,7 @@ import {contrast} from '@remotion/effects/contrast';
 import {dotGrid} from '@remotion/effects/dot-grid';
 import {dropShadow} from '@remotion/effects/drop-shadow';
 import {duotone} from '@remotion/effects/duotone';
+import {emboss} from '@remotion/effects/emboss';
 import {evolve} from '@remotion/effects/evolve';
 import {fisheye} from '@remotion/effects/fisheye';
 import {glow} from '@remotion/effects/glow';
@@ -54,6 +55,7 @@ import {EffectsContrastPreview} from '../effects/effects-contrast-preview';
 import {EffectsDotGridPreview} from '../effects/effects-dot-grid-preview';
 import {EffectsDropShadowPreview} from '../effects/effects-drop-shadow-preview';
 import {EffectsDuotonePreview} from '../effects/effects-duotone-preview';
+import {EffectsEmbossPreview} from '../effects/effects-emboss-preview';
 import {EffectsEvolvePreview} from '../effects/effects-evolve-preview';
 import {EffectsFisheyePreview} from '../effects/effects-fisheye-preview';
 import {EffectsGlowPreview} from '../effects/effects-glow-preview';
@@ -138,6 +140,14 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/burlap',
 		comp: EffectsBurlapPreview,
 		schema: burlap().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-emboss',
+		effectName: 'emboss',
+		effectImportPath: '@remotion/effects/emboss',
+		comp: EffectsEmbossPreview,
+		schema: emboss().definition.schema,
 	},
 	{
 		...defaults,

@@ -10,6 +10,7 @@ import {contrast} from '../contrast.js';
 import {dotGrid} from '../dot-grid.js';
 import {dropShadow} from '../drop-shadow/index.js';
 import {duotone} from '../duotone.js';
+import {emboss} from '../emboss.js';
 import {evolve} from '../evolve.js';
 import {fisheye} from '../fisheye/index.js';
 import {glow} from '../glow/index.js';
@@ -95,6 +96,9 @@ test('@remotion/effects expose documentation links', () => {
 	);
 	expect(duotone().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/duotone',
+	);
+	expect(emboss().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/emboss',
 	);
 	expect(evolve().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/evolve',
@@ -213,6 +217,7 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(duotone().definition.label).toBe('duotone()');
 	expect(evolve().definition.label).toBe('evolve()');
 	expect(dropShadow().definition.label).toBe('dropShadow()');
+	expect(emboss().definition.label).toBe('emboss()');
 	expect(fisheye().definition.label).toBe('fisheye()');
 	expect(glow().definition.label).toBe('glow()');
 	expect(grayscale().definition.label).toBe('grayscale()');
@@ -1733,6 +1738,72 @@ test('burlap() parameters produce distinct effect keys', () => {
 			colored.effectKey,
 		]).size,
 	).toBe(6);
+});
+
+test('emboss() accepts default params', () => {
+	expect(() => emboss()).not.toThrow();
+});
+
+test('emboss() rejects non-finite params', () => {
+	expect(() => emboss({amount: Number.NaN})).toThrow(
+		'"amount" must be a finite number',
+	);
+	expect(() => emboss({size: Number.NaN})).toThrow(
+		'"size" must be a finite number',
+	);
+	expect(() => emboss({lineWidth: Number.NaN})).toThrow(
+		'"lineWidth" must be a finite number',
+	);
+	expect(() => emboss({depth: Number.NaN})).toThrow(
+		'"depth" must be a finite number',
+	);
+	expect(() => emboss({angle: Number.NaN})).toThrow(
+		'"angle" must be a finite number',
+	);
+	expect(() => emboss({lightAngle: Number.NaN})).toThrow(
+		'"lightAngle" must be a finite number',
+	);
+	expect(() => emboss({offset: Number.NaN})).toThrow(
+		'"offset" must be a finite number',
+	);
+});
+
+test('emboss() rejects amount and depth outside range', () => {
+	expect(() => emboss({amount: -0.1})).toThrow('"amount" must be >= 0');
+	expect(() => emboss({amount: 1.1})).toThrow('"amount" must be <= 1');
+	expect(() => emboss({depth: -0.1})).toThrow('"depth" must be >= 0');
+	expect(() => emboss({depth: 1.1})).toThrow('"depth" must be <= 1');
+});
+
+test('emboss() rejects non-positive size and lineWidth', () => {
+	expect(() => emboss({size: 0})).toThrow('"size" must be greater than 0');
+	expect(() => emboss({lineWidth: 0})).toThrow(
+		'"lineWidth" must be greater than 0',
+	);
+});
+
+test('emboss() parameters produce distinct effect keys', () => {
+	const defaults = emboss();
+	const subtle = emboss({amount: 0.3});
+	const larger = emboss({size: 40});
+	const wider = emboss({lineWidth: 12});
+	const deeper = emboss({depth: 1});
+	const angled = emboss({angle: 30});
+	const relit = emboss({lightAngle: 45});
+	const shifted = emboss({offset: 16});
+
+	expect(
+		new Set([
+			defaults.effectKey,
+			subtle.effectKey,
+			larger.effectKey,
+			wider.effectKey,
+			deeper.effectKey,
+			angled.effectKey,
+			relit.effectKey,
+			shifted.effectKey,
+		]).size,
+	).toBe(8);
 });
 
 test('noiseDisplacement() accepts required params', () => {

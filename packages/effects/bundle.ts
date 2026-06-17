@@ -17,6 +17,7 @@ const effectEntrypoints = [
 	'src/contour-lines.ts',
 	'src/drop-shadow.ts',
 	'src/duotone.ts',
+	'src/emboss.ts',
 	'src/evolve.ts',
 	'src/fisheye.ts',
 	'src/glow.ts',
