@@ -41,11 +41,12 @@ const unregisterReactStack = () => {
 	}
 };
 
-type ErrorData = {
-	type: 'webpack-error';
-	message: string;
-	frames: ReactFrame[];
-};
+type ErrorData =
+	| {type: 'webpack-error'; message: string; frames: ReactFrame[]}
+	| {
+			type: 'build-error';
+			error: Error;
+	  };
 
 type ConsoleProxyCallback = (data: ErrorData) => void;
 const permanentRegister = function (
@@ -63,6 +64,13 @@ const permanentRegister = function (
 							type: 'webpack-error',
 							message,
 							frames: reactFrameStack[reactFrameStack.length - 1],
+						});
+					}
+
+					if (message instanceof Error) {
+						callback({
+							type: 'build-error',
+							error: message,
 						});
 					}
 				} catch (err) {
