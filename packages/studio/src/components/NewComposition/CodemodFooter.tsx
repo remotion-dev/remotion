@@ -31,6 +31,7 @@ export const CodemodFooter: React.FC<{
 	readonly genericSubmitLabel: string;
 	readonly submitLabel: (options: {relativeRootPath: string}) => string;
 	readonly onSuccess: (() => void) | null;
+	readonly fallbackToRootFile?: boolean;
 }> = ({
 	codemod,
 	stack,
@@ -41,6 +42,7 @@ export const CodemodFooter: React.FC<{
 	genericSubmitLabel,
 	submitLabel,
 	onSuccess,
+	fallbackToRootFile = false,
 }) => {
 	const [submitting, setSubmitting] = useState(false);
 	const {setSelectedModal} = useContext(ModalsContext);
@@ -110,6 +112,25 @@ export const CodemodFooter: React.FC<{
 
 	useEffect(() => {
 		if (!stack) {
+			if (fallbackToRootFile) {
+				const rootFileAbortController = new AbortController();
+				let rootFileAborted = false;
+				getCanApplyCodemod(rootFileAbortController.signal)
+					.then(() => undefined)
+					.catch((err) => {
+						if (rootFileAborted) {
+							return;
+						}
+
+						showNotification(`${errorNotification}: ${err.message}`, 3000);
+					});
+
+				return () => {
+					rootFileAborted = true;
+					rootFileAbortController.abort();
+				};
+			}
+
 			setCanApplyCodemod({
 				type: 'fail',
 				error: 'Could not determine where this item is defined',
@@ -145,12 +166,18 @@ export const CodemodFooter: React.FC<{
 			aborted = true;
 			abortController.abort();
 		};
-	}, [errorNotification, getCanApplyCodemod, stack, symbolicatedStack]);
+	}, [
+		errorNotification,
+		fallbackToRootFile,
+		getCanApplyCodemod,
+		stack,
+		symbolicatedStack,
+	]);
 
 	const disabled =
 		!valid ||
 		submitting ||
-		symbolicatedStack === null ||
+		(symbolicatedStack === null && !fallbackToRootFile) ||
 		codemodStatus.type !== 'success';
 
 	const {registerKeybinding} = useKeybinding();

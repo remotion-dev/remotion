@@ -8,6 +8,7 @@ import {InstallPackageModal} from './InstallPackage';
 import {DeleteComposition} from './NewComposition/DeleteComposition';
 import {DeleteFolder} from './NewComposition/DeleteFolder';
 import {DuplicateComposition} from './NewComposition/DuplicateComposition';
+import {NewComposition} from './NewComposition/NewComposition';
 import {RenameComposition} from './NewComposition/RenameComposition';
 import {RenameFolder} from './NewComposition/RenameFolder';
 import {RenameStaticFileModal} from './NewComposition/RenameStaticFile';
@@ -29,6 +30,9 @@ export const Modals: React.FC<{
 
 	return (
 		<>
+			{modalContextType && modalContextType.type === 'new-comp' && (
+				<NewComposition />
+			)}
 			{modalContextType && modalContextType.type === 'duplicate-comp' && (
 				<DuplicateComposition
 					compositionType={modalContextType.compositionType}

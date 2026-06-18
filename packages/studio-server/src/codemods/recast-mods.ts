@@ -10,6 +10,7 @@ import type {
 	JSXAttribute,
 	JSXElement,
 	JSXFragment,
+	JSXIdentifier,
 	NullLiteral,
 	ReturnStatement,
 	Statement,
@@ -17,11 +18,14 @@ import type {
 	VariableDeclarator,
 } from '@babel/types';
 import type {RecastCodemod} from '@remotion/studio-shared';
+import * as recast from 'recast';
 import {applyVisualControl} from './apply-visual-control';
 
 export type Change = {
 	description: string;
 };
+
+const b = recast.types.builders;
 
 export type ApplyCodeModReturnType = {newAst: File; changesMade: Change[]};
 
@@ -142,6 +146,21 @@ const mapReturnStatement = (
 		return statement;
 	}
 
+	if (
+		transformation.type === 'new-composition' &&
+		(statement.argument.type === 'JSXElement' ||
+			statement.argument.type === 'JSXFragment')
+	) {
+		return {
+			...statement,
+			argument: addNewCompositionToRootJsx(
+				statement.argument,
+				transformation,
+				changesMade,
+			),
+		};
+	}
+
 	const replacement = transformLoneJsxElement(
 		statement.argument,
 		transformation,
@@ -207,6 +226,87 @@ const isJsxExpression = (
 
 const isMeaningfulJsxChild = (child: JSXFragment['children'][number]) => {
 	return child.type !== 'JSXText' || child.value.trim() !== '';
+};
+
+const jsxId = (name: string): JSXIdentifier => ({type: 'JSXIdentifier', name});
+
+const jsxAttributeWithString = (name: string, value: string): JSXAttribute => ({
+	type: 'JSXAttribute',
+	name: jsxId(name),
+	value: {type: 'StringLiteral', value},
+});
+
+const jsxAttributeWithExpression = (
+	name: string,
+	expression: Expression,
+): JSXAttribute => ({
+	type: 'JSXAttribute',
+	name: jsxId(name),
+	value: {
+		type: 'JSXExpressionContainer',
+		expression,
+	},
+});
+
+const newCompositionElement = (
+	transformation: Extract<RecastCodemod, {type: 'new-composition'}>,
+): JSXElement => {
+	return {
+		type: 'JSXElement',
+		openingElement: {
+			type: 'JSXOpeningElement',
+			name: jsxId('Composition'),
+			attributes: [
+				jsxAttributeWithString('id', transformation.newId),
+				jsxAttributeWithExpression(
+					'component',
+					b.identifier(transformation.componentName) as Expression,
+				),
+				jsxAttributeWithExpression(
+					'durationInFrames',
+					b.numericLiteral(transformation.newDurationInFrames) as Expression,
+				),
+				jsxAttributeWithExpression(
+					'fps',
+					b.numericLiteral(transformation.newFps) as Expression,
+				),
+				jsxAttributeWithExpression(
+					'width',
+					b.numericLiteral(transformation.newWidth) as Expression,
+				),
+				jsxAttributeWithExpression(
+					'height',
+					b.numericLiteral(transformation.newHeight) as Expression,
+				),
+			],
+			selfClosing: true,
+		},
+		closingElement: null,
+		children: [],
+	};
+};
+
+const addNewCompositionToRootJsx = <T extends JSXElement | JSXFragment>(
+	root: T,
+	transformation: Extract<RecastCodemod, {type: 'new-composition'}>,
+	changesMade: Change[],
+): JSXElement | JSXFragment => {
+	if (changesMade.length > 0) {
+		return root;
+	}
+
+	changesMade.push({
+		description: 'Added new composition',
+	});
+
+	if (root.type === 'JSXFragment') {
+		return {
+			...root,
+			children: [...root.children, newCompositionElement(transformation)],
+		};
+	}
+
+	return wrapInJsxFragment([root, newCompositionElement(transformation)]);
 };
 
 // When a <Composition> JSX element appears in a position where it cannot
@@ -419,6 +519,21 @@ const mapRecognizedType = <T extends RecognizedType>(
 		expression.type === 'ArrowFunctionExpression' ||
 		expression.type === 'FunctionExpression'
 	) {
+		if (
+			transformation.type === 'new-composition' &&
+			(expression.body.type === 'JSXElement' ||
+				expression.body.type === 'JSXFragment')
+		) {
+			return {
+				...expression,
+				body: addNewCompositionToRootJsx(
+					expression.body,
+					transformation,
+					changesMade,
+				),
+			};
+		}
+
 		if (
 			expression.type === 'ArrowFunctionExpression' &&
 			expression.body.type === 'JSXElement'

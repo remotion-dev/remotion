@@ -1,5 +1,11 @@
 import {expect, test} from 'bun:test';
-import {mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
+import {
+	existsSync,
+	mkdtempSync,
+	readFileSync,
+	rmSync,
+	writeFileSync,
+} from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
 import type {RecastCodemod} from '@remotion/studio-shared';
@@ -229,6 +235,84 @@ test('applyCodemodHandler pushes composition duplications to undo and redo stack
 		expectedUndoMessage:
 			'↩️  Duplication of composition "DeleteMe" to "Duplicated"',
 	});
+});
+
+test('applyCodemodHandler creates new composition files with undo and redo', async () => {
+	const remotionRoot = mkdtempSync(path.join(tmpdir(), 'remotion-codemod-'));
+	const cleanupFileWatcher = setFileWatcherRegistry(
+		createFileWatcherRegistry(),
+	);
+	const cleanupLiveEvents = setLiveEventsListener({
+		sendEventToClient: () => undefined,
+		sendEventToClientId: () => undefined,
+		router: () => Promise.resolve(),
+		closeConnections: () => Promise.resolve(),
+		addNewClientListener: () => () => undefined,
+	});
+
+	try {
+		clearUndoRedoStacks();
+		const entryPoint = path.join(remotionRoot, 'Root.tsx');
+		const componentFile = path.join(remotionRoot, 'FreshVideo.tsx');
+		writeFileSync(entryPoint, rootContents);
+
+		const applyResponse = await applyCodemodHandler(
+			getHandlerOptions({
+				input: {
+					codemod: {
+						type: 'new-composition',
+						newId: 'FreshVideo',
+						componentName: 'FreshVideo',
+						componentImportPath: './FreshVideo',
+						newDurationInFrames: 150,
+						newFps: 30,
+						newHeight: 1080,
+						newWidth: 1920,
+					} satisfies RecastCodemod,
+					dryRun: false,
+					symbolicatedStack: {
+						originalFunctionName: null,
+						originalFileName: 'Root.tsx',
+						originalLineNumber: 9,
+						originalColumnNumber: 4,
+						originalScriptCode: null,
+					},
+				},
+				entryPoint,
+				remotionRoot,
+			}),
+		);
+
+		expect(applyResponse.success).toBe(true);
+		expect(readFileSync(entryPoint, 'utf-8')).toContain('id="FreshVideo"');
+		expect(readFileSync(entryPoint, 'utf-8')).toContain(
+			"import {FreshVideo} from './FreshVideo'",
+		);
+		expect(readFileSync(componentFile, 'utf-8')).toContain(
+			'export const FreshVideo',
+		);
+
+		const undoResponse = await undoHandler(
+			getHandlerOptions({input: {}, entryPoint, remotionRoot}),
+		);
+		expect(undoResponse.success).toBe(true);
+		expect(readFileSync(entryPoint, 'utf-8')).toBe(rootContents);
+		expect(existsSync(componentFile)).toBe(false);
+
+		const redoResponse = await redoHandler(
+			getHandlerOptions({input: {}, entryPoint, remotionRoot}),
+		);
+		expect(redoResponse.success).toBe(true);
+		expect(readFileSync(entryPoint, 'utf-8')).toContain('id="FreshVideo"');
+		expect(readFileSync(componentFile, 'utf-8')).toContain(
+			'export const FreshVideo',
+		);
+	} finally {
+		clearUndoRedoStacks();
+		cleanupLiveEvents();
+		cleanupFileWatcher();
+		rmSync(remotionRoot, {recursive: true, force: true});
+	}
 });
 
 test('renames a nested folder by parent path', () => {
