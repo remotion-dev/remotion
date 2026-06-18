@@ -17,6 +17,12 @@ const style: React.CSSProperties = {
 	flexShrink: 0,
 };
 
+const compactStyle: React.CSSProperties = {
+	...style,
+	width: 10,
+	height: 10,
+};
+
 const container: React.CSSProperties = {
 	maxWidth: 500,
 };
@@ -27,28 +33,38 @@ const label: React.CSSProperties = {
 	fontFamily: 'sans-serif',
 };
 
+const compactLabel: React.CSSProperties = {
+	...label,
+	fontSize: 12,
+};
+
+type ValidationMessageSize = 'default' | 'compact';
+
 export const ValidationMessage: React.FC<{
 	readonly message: string;
 	readonly align: 'flex-start' | 'flex-end';
 	readonly type: 'warning' | 'error';
 	readonly action?: React.ReactNode;
-}> = ({message, align, type, action}) => {
+	readonly size?: ValidationMessageSize;
+}> = ({message, align, type, action, size = 'default'}) => {
+	const iconStyle = size === 'compact' ? compactStyle : style;
+	const labelStyle = size === 'compact' ? compactLabel : label;
 	const finalStyle = useMemo(() => {
 		return {
-			...style,
+			...iconStyle,
 			fill: type === 'warning' ? WARNING_COLOR : FAIL_COLOR,
 		};
-	}, [type]);
+	}, [iconStyle, type]);
 
 	return (
 		<div style={container}>
 			<Row align="center" justify={align}>
 				<WarningTriangle style={finalStyle} />
-				<Spacing x={1} />
-				<div style={label}>{message}</div>
+				<Spacing x={size === 'compact' ? 0.75 : 1} />
+				<div style={labelStyle}>{message}</div>
 				{action ? (
 					<>
-						<Spacing x={1} />
+						<Spacing x={size === 'compact' ? 0.75 : 1} />
 						{action}
 					</>
 				) : null}

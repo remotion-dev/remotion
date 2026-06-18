@@ -10,7 +10,7 @@ import {
 } from '../schema-field-info';
 
 const effect = {
-	type: 'test/effect',
+	type: 'dev.remotion.test.effect',
 	label: 'Test effect',
 	documentationLink: null,
 	backend: '2d',

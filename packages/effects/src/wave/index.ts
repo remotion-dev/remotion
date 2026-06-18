@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertEffectParamsObject,
@@ -49,7 +49,7 @@ const waveSchema = {
 		description: 'Wavelength',
 		hiddenFromList: false,
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type WaveParams = {
 	/** Phase offset in radians. */
@@ -114,7 +114,7 @@ const validateWaveParams = (params: WaveParams): void => {
 
 // Sine wave warp: displaces source UVs along the propagation axis. WebGL2 only.
 export const wave = createEffect<WaveParams, WaveState>({
-	type: 'remotion/wave',
+	type: 'dev.remotion.effects.wave',
 	label: 'wave()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/wave',
 	backend: 'webgl2',

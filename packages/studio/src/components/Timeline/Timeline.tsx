@@ -29,7 +29,10 @@ import {TimelineList} from './TimelineList';
 import {TimelinePinchZoom} from './TimelinePinchZoom';
 import {TimelinePlayCursorSyncer} from './TimelinePlayCursorSyncer';
 import {TimelineScrollable} from './TimelineScrollable';
-import {TimelineSelectAllKeybindings} from './TimelineSelection';
+import {
+	TimelineSelectableItemsProvider,
+	TimelineSelectAllKeybindings,
+} from './TimelineSelection';
 import {TimelineSlider} from './TimelineSlider';
 import {
 	TimelineTimeIndicators,
@@ -119,6 +122,7 @@ const TimelineContextMenuArea: React.FC<{
 					type: 'solid',
 					width: videoConfig.width,
 					height: videoConfig.height,
+					position: null,
 				},
 			});
 
@@ -155,6 +159,7 @@ const TimelineContextMenuArea: React.FC<{
 				files,
 				compositionFile,
 				compositionId: currentCompositionId,
+				dropPosition: null,
 			});
 		} finally {
 			setIsAddingAsset(false);
@@ -264,42 +269,47 @@ const TimelineInner: React.FC = () => {
 			})}
 			<SequencePropsObserver />
 			<TimelineKeyframeTracksProvider tracks={filtered}>
-				<TimelineSelectAllKeybindings timeline={shown} />
-				<TimelineHeightContainer shown={shown} hasBeenCut={hasBeenCut}>
-					{isStill ? (
-						<TimelineList timeline={shown} />
-					) : (
-						<TimelineWidthProvider>
-							<TimelinePinchZoom />
-							<SplitterContainer
-								orientation="vertical"
-								defaultFlex={0.2}
-								id="names-to-timeline"
-								maxFlex={0.5}
-								minFlex={0.15}
-							>
-								<SplitterElement
-									type="flexer"
-									sticky={<TimelineTimePlaceholders />}
+				<TimelineSelectableItemsProvider timeline={shown}>
+					<TimelineSelectAllKeybindings timeline={shown} />
+					<TimelineHeightContainer shown={shown} hasBeenCut={hasBeenCut}>
+						{isStill ? (
+							<TimelineList timeline={shown} />
+						) : (
+							<TimelineWidthProvider>
+								<TimelinePinchZoom />
+								<SplitterContainer
+									orientation="vertical"
+									defaultFlex={0.2}
+									id="names-to-timeline"
+									maxFlex={0.5}
+									minFlex={0.15}
 								>
-									<TimelineList timeline={shown} />
-								</SplitterElement>
-								<SplitterHandle onCollapse={noop} allowToCollapse="none" />
-								<SplitterElement type="anti-flexer" sticky={null}>
-									<TimelineScrollable>
-										<TimelineTracks timeline={shown} hasBeenCut={hasBeenCut} />
-										<TimelinePlayCursorSyncer />
-										<TimelineInOutPointer />
-										<TimelineTimeIndicators />
-										<TimelineDragHandler />
-										<TimelineInOutDragHandler />
-										<TimelineSlider />
-									</TimelineScrollable>
-								</SplitterElement>
-							</SplitterContainer>
-						</TimelineWidthProvider>
-					)}
-				</TimelineHeightContainer>
+									<SplitterElement
+										type="flexer"
+										sticky={<TimelineTimePlaceholders />}
+									>
+										<TimelineList timeline={shown} />
+									</SplitterElement>
+									<SplitterHandle onCollapse={noop} allowToCollapse="none" />
+									<SplitterElement type="anti-flexer" sticky={null}>
+										<TimelineScrollable>
+											<TimelineTracks
+												timeline={shown}
+												hasBeenCut={hasBeenCut}
+											/>
+											<TimelinePlayCursorSyncer />
+											<TimelineInOutPointer />
+											<TimelineTimeIndicators />
+											<TimelineDragHandler />
+											<TimelineInOutDragHandler />
+											<TimelineSlider />
+										</TimelineScrollable>
+									</SplitterElement>
+								</SplitterContainer>
+							</TimelineWidthProvider>
+						)}
+					</TimelineHeightContainer>
+				</TimelineSelectableItemsProvider>
 			</TimelineKeyframeTracksProvider>
 		</TimelineContextMenuArea>
 	);

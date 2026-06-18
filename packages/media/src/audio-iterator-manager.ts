@@ -1,15 +1,16 @@
-import {type InputAudioTrack} from 'mediabunny';
-import {AudioBufferSink, InputDisposedError} from 'mediabunny';
+import {
+	AudioBufferSink,
+	InputDisposedError,
+	type InputAudioTrack,
+} from 'mediabunny';
 import type {LogLevel} from 'remotion';
 import {Internals, type ScheduleAudioNodeResult} from 'remotion';
 import {
 	ALLOWED_GLOBAL_TIME_ANCHOR_SHIFT,
-	type AudioIterator,
-	type QueuedPeriod,
-} from './audio/audio-preview-iterator';
-import {
 	isAlreadyQueued,
 	makeAudioIterator,
+	type AudioIterator,
+	type QueuedPeriod,
 } from './audio/audio-preview-iterator';
 import {getScheduledTime} from './audio/get-scheduled-time';
 import {
@@ -285,6 +286,7 @@ export const audioIteratorManager = ({
 				if (!result.value) {
 					// media ended
 					next();
+					onDone();
 					return;
 				}
 

@@ -7,7 +7,7 @@ type FooParams = {
 
 const makeFoo = () =>
 	createEffect<FooParams, null>({
-		type: 'test/foo',
+		type: 'dev.remotion.test.foo',
 		label: 'Foo',
 		documentationLink: null,
 		backend: '2d',
@@ -45,7 +45,7 @@ test('definition.calculateKey reflects `disabled` for override merge path', () =
 
 test('createEffect injects `disabled` into the schema for save-effect-props', () => {
 	const foo = createEffect<FooParams, null>({
-		type: 'test/foo',
+		type: 'dev.remotion.test.foo',
 		label: 'Foo',
 		documentationLink: null,
 		backend: '2d',
@@ -89,7 +89,7 @@ test('createEffect injects `disabled` even when the effect schema is empty', () 
 
 test('createEffect preserves documentation links on definitions', () => {
 	const foo = createEffect<FooParams, null>({
-		type: 'test/foo',
+		type: 'dev.remotion.test.foo',
 		label: 'Foo',
 		documentationLink: 'https://www.remotion.dev/docs/effects/foo',
 		backend: '2d',

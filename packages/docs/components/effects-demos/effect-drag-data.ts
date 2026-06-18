@@ -1,4 +1,7 @@
-import {EFFECT_DRAG_MIME_TYPE, type EffectDragData} from '@remotion/studio-shared';
+import {
+	EFFECT_DRAG_MIME_TYPE,
+	type EffectDragData,
+} from '@remotion/studio-shared';
 
 export const makeEffectDragData = ({
 	effectName,

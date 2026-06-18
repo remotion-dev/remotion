@@ -1,7 +1,7 @@
 import React, {useMemo} from 'react';
-import type {ArrayFieldSchema, SequenceFieldSchema} from 'remotion';
-import styles from '../demos/styles.module.css';
+import type {ArrayFieldSchema, InteractivitySchemaField} from 'remotion';
 import {getDefaultValueFromSchema} from './get-default-props-from-schema';
+import styles from '../demos/styles.module.css';
 
 const left: React.CSSProperties = {
 	fontFamily: 'GTPlanar',
@@ -24,7 +24,7 @@ const right: React.CSSProperties = {
 const getNumberValue = (
 	value: unknown,
 	field: Extract<
-		SequenceFieldSchema,
+		InteractivitySchemaField,
 		{type: 'number'} | {type: 'rotation-degrees'}
 	>,
 ): number => {
@@ -38,7 +38,7 @@ const getNumberValue = (
 const getDemoNumberRange = (
 	fieldKey: string,
 	field: Extract<
-		SequenceFieldSchema,
+		InteractivitySchemaField,
 		{type: 'number'} | {type: 'rotation-degrees'}
 	>,
 ): {min: number; max: number} | null => {
@@ -75,7 +75,7 @@ const getStringOrNumberValue = (value: unknown, fallback: unknown): string => {
 
 const getUvValue = (
 	value: unknown,
-	field: Extract<SequenceFieldSchema, {type: 'uv-coordinate'}>,
+	field: Extract<InteractivitySchemaField, {type: 'uv-coordinate'}>,
 ): readonly [number, number] => {
 	if (
 		Array.isArray(value) &&
@@ -133,7 +133,7 @@ const makeArrayItemFieldSchema = ({
 }: {
 	readonly field: ArrayFieldSchema;
 	readonly value: unknown;
-}): SequenceFieldSchema => {
+}): InteractivitySchemaField => {
 	const defaultValue = getArrayItemValue(value, field);
 	const {item} = field;
 
@@ -204,7 +204,7 @@ const SchemaControlInput = ({
 	textInputStyle,
 }: {
 	readonly fieldKey: string;
-	readonly field: SequenceFieldSchema;
+	readonly field: InteractivitySchemaField;
 	readonly value: unknown;
 	readonly setValue: (value: unknown) => void;
 	readonly inputStyle: React.CSSProperties;
@@ -417,7 +417,7 @@ export const SchemaControl = ({
 	setValue,
 }: {
 	readonly fieldKey: string;
-	readonly field: SequenceFieldSchema;
+	readonly field: InteractivitySchemaField;
 	readonly value: unknown;
 	readonly setValue: (value: unknown) => void;
 }) => {

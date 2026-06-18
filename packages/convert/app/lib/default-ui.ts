@@ -136,6 +136,23 @@ export type ConvertSections =
 	| 'crop'
 	| 'resample';
 
+export const isVideoOnlySection = (section: ConvertSections): boolean => {
+	if (
+		section === 'rotate' ||
+		section === 'mirror' ||
+		section === 'resize' ||
+		section === 'crop'
+	) {
+		return true;
+	}
+
+	if (section === 'convert' || section === 'resample') {
+		return false;
+	}
+
+	throw new Error(section satisfies never);
+};
+
 export const getOrderOfSections = (
 	action: RouteAction,
 ): {[key in ConvertSections]: number} => {

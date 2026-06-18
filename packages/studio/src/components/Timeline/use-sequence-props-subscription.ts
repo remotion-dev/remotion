@@ -6,7 +6,7 @@ import {useContext, useEffect, useMemo, useRef} from 'react';
 import type {
 	JsxComponentIdentity,
 	SequencePropsSubscriptionKey,
-	SequenceSchema,
+	InteractivitySchema,
 } from 'remotion';
 import {Internals} from 'remotion';
 import type {OriginalPosition} from '../../error-overlay/react-overlay/utils/get-source-map';
@@ -23,8 +23,8 @@ export const useSequencePropsSubscription = ({
 }: {
 	overrideId: string;
 	componentIdentity: JsxComponentIdentity | null;
-	schema: SequenceSchema;
-	effects: SequenceSchema[];
+	schema: InteractivitySchema;
+	effects: InteractivitySchema[];
 	originalLocation: OriginalPosition | null;
 }) => {
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);

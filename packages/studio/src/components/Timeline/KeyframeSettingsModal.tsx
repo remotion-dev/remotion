@@ -4,7 +4,7 @@ import type {
 	CanUpdateSequencePropStatusKeyframed,
 	ExtrapolateType,
 	SequencePropsSubscriptionKey,
-	SequenceSchema,
+	InteractivitySchema,
 } from 'remotion';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
@@ -91,7 +91,7 @@ export type KeyframeSettingsModalState = {
 	fieldKey: string;
 	fieldLabel: string;
 	status: CanUpdateSequencePropStatusKeyframed;
-	schema: SequenceSchema;
+	schema: InteractivitySchema;
 	effectIndex: number | null;
 };
 

@@ -22,6 +22,13 @@ test('sanitizes remote asset filenames and uses detected extensions', () => {
 			url: new URL('https://example.com/photos/image'),
 		}),
 	).toBe('image.jpg');
+
+	expect(
+		getRemoteAssetFilename({
+			fileType: {type: 'apng', dimensions: null},
+			url: new URL('https://example.com/animation'),
+		}),
+	).toBe('animation.png');
 });
 
 test('follows validated redirects for remote assets', async () => {
@@ -92,6 +99,7 @@ test('follows validated redirects for remote assets', async () => {
 					height: 600,
 					width: 800,
 				},
+				position: null,
 				src: 'raw-link.gif',
 				srcType: 'static',
 				type: 'asset',

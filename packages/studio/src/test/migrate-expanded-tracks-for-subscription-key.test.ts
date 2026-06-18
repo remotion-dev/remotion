@@ -21,24 +21,37 @@ const expandedKey = (
 		index,
 	].join('.');
 
-test('migrates expanded keys when subscription node path changes', () => {
+test('migrates collapsed keys when subscription node path changes', () => {
 	const oldKey = makeKey(['body', 0, 'children', 1]);
 	const newKey = makeKey(['body', 0, 'children', 2]);
 	const unrelatedKey = makeKey(['body', 0, 'children', 3]);
 
 	const prev = {
-		[expandedKey(oldKey, [], 0)]: true,
-		[expandedKey(oldKey, ['controls', 'from'], 0)]: true,
-		[expandedKey(unrelatedKey, [], 0)]: true,
+		[expandedKey(oldKey, [], 0)]: false,
+		[expandedKey(oldKey, ['controls', 'from'], 0)]: false,
+		[expandedKey(unrelatedKey, [], 0)]: false,
 	};
 
 	const next = migrateExpandedTracksForSubscriptionKey(prev, oldKey, newKey);
 
 	expect(next).toEqual({
-		[expandedKey(newKey, [], 0)]: true,
-		[expandedKey(newKey, ['controls', 'from'], 0)]: true,
-		[expandedKey(unrelatedKey, [], 0)]: true,
+		[expandedKey(newKey, [], 0)]: false,
+		[expandedKey(newKey, ['controls', 'from'], 0)]: false,
+		[expandedKey(unrelatedKey, [], 0)]: false,
 	});
+});
+
+test('ignores expanded keys when subscription node path changes', () => {
+	const oldKey = makeKey(['body', 0, 'children', 1]);
+	const newKey = makeKey(['body', 0, 'children', 2]);
+
+	const prev = {
+		[expandedKey(oldKey, [], 0)]: true,
+	};
+
+	expect(migrateExpandedTracksForSubscriptionKey(prev, oldKey, newKey)).toBe(
+		null,
+	);
 });
 
 test('returns null when subscription key is unchanged', () => {

@@ -173,12 +173,9 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		premountDisplay: parentSequence?.premountDisplay ?? null,
 		postmountDisplay: parentSequence?.postmountDisplay ?? null,
 		loopDisplay: undefined,
-		documentationLink:
-			name === undefined
-				? onlyWarnForMediaSeekingError
-					? 'https://www.remotion.dev/docs/offthreadvideo'
-					: 'https://www.remotion.dev/docs/html5-video'
-				: null,
+		documentationLink: onlyWarnForMediaSeekingError
+			? 'https://www.remotion.dev/docs/offthreadvideo'
+			: 'https://www.remotion.dev/docs/html5-video',
 		refForOutline: videoRef,
 	});
 
@@ -355,6 +352,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	return (
 		<video
+			{...nativeProps}
 			ref={videoRef}
 			muted={muted || mediaMuted || userPreferredVolume <= 0}
 			playsInline
@@ -363,7 +361,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 			style={actualStyle}
 			disableRemotePlayback
 			crossOrigin={crossOriginValue}
-			{...nativeProps}
+			controls={false}
 		/>
 	);
 };

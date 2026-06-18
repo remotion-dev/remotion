@@ -25,6 +25,13 @@ const errorWhileErrorStyle: React.CSSProperties = {
 	whiteSpace: 'pre',
 };
 
+const errorWhileSymbolicatingStyle: React.CSSProperties = {
+	color: 'white',
+	lineHeight: 1.5,
+	marginTop: 24,
+	opacity: 0.7,
+};
+
 type State =
 	| {
 			type: 'loading';
@@ -153,10 +160,12 @@ export const ErrorLoader: React.FC<{
 					message={error.message}
 					canHaveDismissButton={canHaveDismissButton}
 				/>
-				<div style={errorWhileErrorStyle}>Error while getting stack trace:</div>
-				<div style={errorWhileErrorStyle}>{state.err.stack}</div>
 				<div style={errorWhileErrorStyle}>
-					Report this in the Remotion repo.
+					{error.stack ??
+						'Check the Terminal and browser console for error messages.'}
+				</div>
+				<div style={errorWhileSymbolicatingStyle}>
+					Could not symbolicate the stack trace: {state.err.message}
 				</div>
 			</div>
 		);

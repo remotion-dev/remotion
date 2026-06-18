@@ -2,12 +2,16 @@ import {expect, test} from 'bun:test';
 import {barrelDistortion} from '../barrel-distortion/index.js';
 import {blur} from '../blur/index.js';
 import {brightness} from '../brightness.js';
+import {burlap} from '../burlap.js';
+import {checkerboard} from '../checkerboard.js';
 import {chromaticAberration} from '../chromatic-aberration/index.js';
 import {colorKey} from '../color-key.js';
+import {contourLines} from '../contour-lines.js';
 import {contrast} from '../contrast.js';
 import {dotGrid} from '../dot-grid.js';
 import {dropShadow} from '../drop-shadow/index.js';
 import {duotone} from '../duotone.js';
+import {emboss} from '../emboss.js';
 import {evolve} from '../evolve.js';
 import {fisheye} from '../fisheye/index.js';
 import {glow} from '../glow/index.js';
@@ -24,20 +28,27 @@ import {
 	type NoiseDisplacementParams,
 } from '../noise-displacement.js';
 import {noise} from '../noise.js';
+import {pattern} from '../pattern.js';
 import {pixelDissolve} from '../pixel-dissolve.js';
+import {pixelate} from '../pixelate.js';
 import {rings} from '../rings.js';
 import {saturation} from '../saturation.js';
 import {scale} from '../scale.js';
 import {scanlines} from '../scanlines.js';
 import {shine} from '../shine.js';
+import {shrinkwrap} from '../shrinkwrap.js';
 import {speckle} from '../speckle.js';
+import {thermalVision} from '../thermal-vision.js';
 import {tint} from '../tint.js';
 import {uvTranslate, xyTranslate} from '../translate.js';
+import {tvSignalOff} from '../tv-signal-off.js';
+import {publicUvToShaderUv} from '../uv-coordinate.js';
 import {vignette} from '../vignette.js';
 import {wave} from '../wave/index.js';
 import {waves} from '../waves.js';
 import {whiteNoise} from '../white-noise.js';
 import {zigzag} from '../zigzag.js';
+import {zoomBlur} from '../zoom-blur/index.js';
 
 const expectDefaultBlueColorArrayControl = (schema: {
 	readonly colors?: unknown;
@@ -55,6 +66,11 @@ const expectDefaultBlueColorArrayControl = (schema: {
 	});
 };
 
+test('public UV coordinates convert to shader UV coordinates', () => {
+	expect(publicUvToShaderUv([0, 0])).toEqual([0, 1]);
+	expect(publicUvToShaderUv([0.25, 0.75])).toEqual([0.25, 0.25]);
+});
+
 test('@remotion/effects expose documentation links', () => {
 	expect(barrelDistortion().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/barrel-distortion',
@@ -71,11 +87,23 @@ test('@remotion/effects expose documentation links', () => {
 	expect(brightness().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/brightness',
 	);
+	expect(burlap().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/burlap',
+	);
+	expect(checkerboard().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/checkerboard',
+	);
 	expect(contrast().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/contrast',
 	);
+	expect(contourLines().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/contour-lines',
+	);
 	expect(duotone().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/duotone',
+	);
+	expect(emboss().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/emboss',
 	);
 	expect(evolve().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/evolve',
@@ -126,6 +154,9 @@ test('@remotion/effects expose documentation links', () => {
 		noiseDisplacement({center: [0.5, 0.5], radius: 0.25}).definition
 			.documentationLink,
 	).toBe('https://www.remotion.dev/docs/effects/noise-displacement');
+	expect(pattern().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/pattern',
+	);
 	expect(rings().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/rings',
 	);
@@ -141,11 +172,20 @@ test('@remotion/effects expose documentation links', () => {
 	expect(shine().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/shine',
 	);
+	expect(shrinkwrap().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/shrinkwrap',
+	);
 	expect(speckle().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/speckle',
 	);
+	expect(thermalVision().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/thermal-vision',
+	);
 	expect(tint({color: '#fff'}).definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/tint',
+	);
+	expect(tvSignalOff().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/tv-signal-off',
 	);
 	expect(uvTranslate().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/uv-translate',
@@ -168,6 +208,9 @@ test('@remotion/effects expose documentation links', () => {
 	expect(whiteNoise().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/white-noise',
 	);
+	expect(zoomBlur().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/zoom-blur',
+	);
 });
 
 test('@remotion/effects expose API names as Studio labels', () => {
@@ -176,10 +219,14 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(chromaticAberration().definition.label).toBe('chromaticAberration()');
 	expect(colorKey().definition.label).toBe('colorKey()');
 	expect(brightness().definition.label).toBe('brightness()');
+	expect(burlap().definition.label).toBe('burlap()');
+	expect(checkerboard().definition.label).toBe('checkerboard()');
 	expect(contrast().definition.label).toBe('contrast()');
+	expect(contourLines().definition.label).toBe('contourLines()');
 	expect(duotone().definition.label).toBe('duotone()');
 	expect(evolve().definition.label).toBe('evolve()');
 	expect(dropShadow().definition.label).toBe('dropShadow()');
+	expect(emboss().definition.label).toBe('emboss()');
 	expect(fisheye().definition.label).toBe('fisheye()');
 	expect(glow().definition.label).toBe('glow()');
 	expect(grayscale().definition.label).toBe('grayscale()');
@@ -200,13 +247,17 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(
 		noiseDisplacement({center: [0.5, 0.5], radius: 0.25}).definition.label,
 	).toBe('noiseDisplacement()');
+	expect(pattern().definition.label).toBe('pattern()');
 	expect(rings().definition.label).toBe('rings()');
 	expect(saturation().definition.label).toBe('saturation()');
 	expect(scanlines().definition.label).toBe('scanlines()');
 	expect(scale({scale: 1}).definition.label).toBe('scale()');
 	expect(shine().definition.label).toBe('shine()');
+	expect(shrinkwrap().definition.label).toBe('shrinkwrap()');
 	expect(speckle().definition.label).toBe('speckle()');
+	expect(thermalVision().definition.label).toBe('thermalVision()');
 	expect(tint({color: '#fff'}).definition.label).toBe('tint()');
+	expect(tvSignalOff().definition.label).toBe('tvSignalOff()');
 	expect(uvTranslate().definition.label).toBe('uvTranslate()');
 	expect(vignette().definition.label).toBe('vignette()');
 	expect(xyTranslate().definition.label).toBe('xyTranslate()');
@@ -214,9 +265,11 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(waves().definition.label).toBe('waves()');
 	expect(zigzag().definition.label).toBe('zigzag()');
 	expect(whiteNoise().definition.label).toBe('whiteNoise()');
+	expect(zoomBlur().definition.label).toBe('zoomBlur()');
 });
 
 test('@remotion/effects palette effects expose colors as array controls', () => {
+	expectDefaultBlueColorArrayControl(checkerboard().definition.schema);
 	expectDefaultBlueColorArrayControl(lines().definition.schema);
 	expectDefaultBlueColorArrayControl(rings().definition.schema);
 	expectDefaultBlueColorArrayControl(waves().definition.schema);
@@ -444,6 +497,12 @@ test('blur() throws when radius is not passed', () => {
 
 test('blur() accepts valid params', () => {
 	expect(() => blur({radius: 4})).not.toThrow();
+});
+
+test('blur() radius has a resettable default', () => {
+	expect(blur({radius: 4}).definition.schema.radius).toMatchObject({
+		default: 40,
+	});
 });
 
 test('blur() accepts horizontal-only blur', () => {
@@ -682,6 +741,31 @@ test('whiteNoise() parameters produce distinct effect keys', () => {
 	).toBe(3);
 });
 
+test('tvSignalOff() accepts default params', () => {
+	expect(() => tvSignalOff()).not.toThrow();
+});
+
+test('tvSignalOff() rejects non-finite amount', () => {
+	expect(() => tvSignalOff({amount: Number.NaN})).toThrow(
+		'"amount" must be a finite number',
+	);
+});
+
+test('tvSignalOff() rejects amount below range', () => {
+	expect(() => tvSignalOff({amount: -0.1})).toThrow('"amount" must be >= 0');
+});
+
+test('tvSignalOff() rejects amount above range', () => {
+	expect(() => tvSignalOff({amount: 1.1})).toThrow('"amount" must be <= 1');
+});
+
+test('tvSignalOff() parameters produce distinct effect keys', () => {
+	const defaults = tvSignalOff();
+	const subtle = tvSignalOff({amount: 0.2});
+
+	expect(new Set([defaults.effectKey, subtle.effectKey]).size).toBe(2);
+});
+
 test('grayscale() accepts default params', () => {
 	expect(() => grayscale()).not.toThrow();
 });
@@ -814,6 +898,67 @@ test('duotone() parameters produce distinct effect keys', () => {
 			shiftedThreshold.effectKey,
 			customColors.effectKey,
 		]).size,
+	).toBe(3);
+});
+
+test('thermalVision() accepts default params', () => {
+	expect(() => thermalVision()).not.toThrow();
+});
+
+test('thermalVision() exposes palette as an array control', () => {
+	expect(thermalVision().definition.schema.palette).toEqual({
+		type: 'array',
+		item: {
+			type: 'color',
+		},
+		default: [
+			'#020617',
+			'#1238ff',
+			'#00a6ff',
+			'#00c853',
+			'#d6f542',
+			'#ffb000',
+			'#ff2f00',
+			'#ffffff',
+		],
+		minLength: 2,
+		newItemDefault: '#00c853',
+		description: 'Palette',
+		keyframable: false,
+	});
+});
+
+test('thermalVision() rejects non-finite amount', () => {
+	expect(() => thermalVision({amount: Number.NaN})).toThrow(
+		'"amount" must be a finite number',
+	);
+});
+
+test('thermalVision() rejects amount below range', () => {
+	expect(() => thermalVision({amount: -0.1})).toThrow('"amount" must be >= 0');
+});
+
+test('thermalVision() rejects amount above range', () => {
+	expect(() => thermalVision({amount: 1.1})).toThrow('"amount" must be <= 1');
+});
+
+test('thermalVision() rejects invalid palettes', () => {
+	expect(() => thermalVision({palette: ['#020617']})).toThrow(
+		'"palette" must be an array with at least 2 colors',
+	);
+	expect(() =>
+		thermalVision({palette: ['#020617', '' as unknown as string]}),
+	).toThrow('"palette[1]" must be a non-empty string');
+});
+
+test('thermalVision() parameters produce distinct effect keys', () => {
+	const defaults = thermalVision();
+	const subtle = thermalVision({amount: 0.25});
+	const customPalette = thermalVision({palette: ['#000000', '#ffffff']});
+
+	expect(
+		new Set([defaults.effectKey, subtle.effectKey, customPalette.effectKey])
+			.size,
 	).toBe(3);
 });
 
@@ -1322,6 +1467,110 @@ test('dotGrid() parameters produce distinct effect keys', () => {
 	).toBe(4);
 });
 
+test('contourLines() accepts default params', () => {
+	expect(() => contourLines()).not.toThrow();
+});
+
+test('contourLines() rejects empty lineColor strings', () => {
+	expect(() => contourLines({lineColor: ''})).toThrow(
+		'"lineColor" must be a non-empty string, but got ""',
+	);
+});
+
+test('contourLines() rejects non-finite lineWidth', () => {
+	expect(() => contourLines({lineWidth: Number.NaN})).toThrow(
+		'"lineWidth" must be a finite number',
+	);
+});
+
+test('contourLines() rejects non-positive lineWidth', () => {
+	expect(() => contourLines({lineWidth: 0})).toThrow(
+		'"lineWidth" must be greater than 0',
+	);
+});
+
+test('contourLines() rejects non-positive spacing', () => {
+	expect(() => contourLines({spacing: 0})).toThrow(
+		'"spacing" must be greater than 0',
+	);
+});
+
+test('contourLines() rejects non-positive scale', () => {
+	expect(() => contourLines({scale: 0})).toThrow(
+		'"scale" must be greater than 0',
+	);
+});
+
+test('contourLines() rejects complexity outside unit range', () => {
+	expect(() => contourLines({complexity: -0.1})).toThrow(
+		'"complexity" must be >= 0',
+	);
+	expect(() => contourLines({complexity: 1.1})).toThrow(
+		'"complexity" must be <= 1',
+	);
+});
+
+test('contourLines() rejects smoothness outside unit range', () => {
+	expect(() => contourLines({smoothness: -0.1})).toThrow(
+		'"smoothness" must be >= 0',
+	);
+	expect(() => contourLines({smoothness: 1.1})).toThrow(
+		'"smoothness" must be <= 1',
+	);
+});
+
+test('contourLines() rejects non-finite offsets', () => {
+	expect(() => contourLines({offsetX: Number.NaN})).toThrow(
+		'"offsetX" must be a finite number',
+	);
+	expect(() => contourLines({offsetY: Number.NaN})).toThrow(
+		'"offsetY" must be a finite number',
+	);
+});
+
+test('contourLines() rejects opacity outside unit range', () => {
+	expect(() => contourLines({opacity: -0.1})).toThrow('"opacity" must be >= 0');
+	expect(() => contourLines({opacity: 1.1})).toThrow('"opacity" must be <= 1');
+});
+
+test('contourLines() rejects non-boolean maskToSourceAlpha', () => {
+	expect(() =>
+		contourLines({maskToSourceAlpha: 'yes' as unknown as boolean}),
+	).toThrow('"maskToSourceAlpha" must be a boolean');
+});
+
+test('contourLines() parameters produce distinct effect keys', () => {
+	const defaults = contourLines();
+	const colored = contourLines({lineColor: '#0b84f3'});
+	const thicker = contourLines({lineWidth: 3});
+	const denser = contourLines({spacing: 12});
+	const larger = contourLines({scale: 240});
+	const simpler = contourLines({complexity: 0.2});
+	const smoother = contourLines({smoothness: 0.9});
+	const seeded = contourLines({seed: 3});
+	const shiftedX = contourLines({offsetX: 12});
+	const shiftedY = contourLines({offsetY: 12});
+	const transparent = contourLines({opacity: 0.5});
+	const masked = contourLines({maskToSourceAlpha: true});
+
+	expect(
+		new Set([
+			defaults.effectKey,
+			colored.effectKey,
+			thicker.effectKey,
+			denser.effectKey,
+			larger.effectKey,
+			simpler.effectKey,
+			smoother.effectKey,
+			seeded.effectKey,
+			shiftedX.effectKey,
+			shiftedY.effectKey,
+			transparent.effectKey,
+			masked.effectKey,
+		]).size,
+	).toBe(12);
+});
+
 test('invert() accepts default params', () => {
 	expect(() => invert()).not.toThrow();
 });
@@ -1436,6 +1685,142 @@ test('noise() parameters produce distinct effect keys', () => {
 			premultiplied.effectKey,
 		]).size,
 	).toBe(4);
+});
+
+test('burlap() accepts default params', () => {
+	expect(() => burlap()).not.toThrow();
+});
+
+test('burlap() accepts valid params', () => {
+	expect(() =>
+		burlap({
+			amount: 0.8,
+			size: 6,
+			roughness: 0.4,
+			seed: 3,
+			color: '#3b2818',
+		}),
+	).not.toThrow();
+});
+
+test('burlap() rejects non-finite amount', () => {
+	expect(() => burlap({amount: Number.NaN})).toThrow(
+		'"amount" must be a finite number',
+	);
+});
+
+test('burlap() rejects amount below range', () => {
+	expect(() => burlap({amount: -0.1})).toThrow('"amount" must be >= 0');
+});
+
+test('burlap() rejects amount above range', () => {
+	expect(() => burlap({amount: 1.1})).toThrow('"amount" must be <= 1');
+});
+
+test('burlap() rejects non-positive size', () => {
+	expect(() => burlap({size: 0})).toThrow('"size" must be greater than 0');
+});
+
+test('burlap() rejects roughness above range', () => {
+	expect(() => burlap({roughness: 1.1})).toThrow('"roughness" must be <= 1');
+});
+
+test('burlap() rejects non-finite seed', () => {
+	expect(() => burlap({seed: Number.NaN})).toThrow(
+		'"seed" must be a finite number',
+	);
+});
+
+test('burlap() rejects empty color strings', () => {
+	expect(() => burlap({color: ''})).toThrow(
+		'"color" must be a non-empty string, but got ""',
+	);
+});
+
+test('burlap() parameters produce distinct effect keys', () => {
+	const defaults = burlap();
+	const stronger = burlap({amount: 0.8});
+	const larger = burlap({size: 8});
+	const smoother = burlap({roughness: 0.2});
+	const seeded = burlap({seed: 4});
+	const colored = burlap({color: '#3b2818'});
+
+	expect(
+		new Set([
+			defaults.effectKey,
+			stronger.effectKey,
+			larger.effectKey,
+			smoother.effectKey,
+			seeded.effectKey,
+			colored.effectKey,
+		]).size,
+	).toBe(6);
+});
+
+test('emboss() accepts default params', () => {
+	expect(() => emboss()).not.toThrow();
+});
+
+test('emboss() rejects non-finite params', () => {
+	expect(() => emboss({amount: Number.NaN})).toThrow(
+		'"amount" must be a finite number',
+	);
+	expect(() => emboss({size: Number.NaN})).toThrow(
+		'"size" must be a finite number',
+	);
+	expect(() => emboss({lineWidth: Number.NaN})).toThrow(
+		'"lineWidth" must be a finite number',
+	);
+	expect(() => emboss({depth: Number.NaN})).toThrow(
+		'"depth" must be a finite number',
+	);
+	expect(() => emboss({angle: Number.NaN})).toThrow(
+		'"angle" must be a finite number',
+	);
+	expect(() => emboss({lightAngle: Number.NaN})).toThrow(
+		'"lightAngle" must be a finite number',
+	);
+	expect(() => emboss({offset: Number.NaN})).toThrow(
+		'"offset" must be a finite number',
+	);
+});
+
+test('emboss() rejects amount and depth outside range', () => {
+	expect(() => emboss({amount: -0.1})).toThrow('"amount" must be >= 0');
+	expect(() => emboss({amount: 1.1})).toThrow('"amount" must be <= 1');
+	expect(() => emboss({depth: -0.1})).toThrow('"depth" must be >= 0');
+	expect(() => emboss({depth: 1.1})).toThrow('"depth" must be <= 1');
+});
+
+test('emboss() rejects non-positive size and lineWidth', () => {
+	expect(() => emboss({size: 0})).toThrow('"size" must be greater than 0');
+	expect(() => emboss({lineWidth: 0})).toThrow(
+		'"lineWidth" must be greater than 0',
+	);
+});
+
+test('emboss() parameters produce distinct effect keys', () => {
+	const defaults = emboss();
+	const subtle = emboss({amount: 0.3});
+	const larger = emboss({size: 40});
+	const wider = emboss({lineWidth: 12});
+	const deeper = emboss({depth: 1});
+	const angled = emboss({angle: 30});
+	const relit = emboss({lightAngle: 45});
+	const shifted = emboss({offset: 16});
+
+	expect(
+		new Set([
+			defaults.effectKey,
+			subtle.effectKey,
+			larger.effectKey,
+			wider.effectKey,
+			deeper.effectKey,
+			angled.effectKey,
+			relit.effectKey,
+			shifted.effectKey,
+		]).size,
+	).toBe(8);
 });
 
 test('noiseDisplacement() accepts required params', () => {
@@ -1568,6 +1953,102 @@ test('noiseDisplacement() parameters produce distinct effect keys', () => {
 			blurred.effectKey,
 			feathered.effectKey,
 			biased.effectKey,
+		]).size,
+	).toBe(10);
+});
+
+test('pattern() accepts default params', () => {
+	expect(() => pattern()).not.toThrow();
+});
+
+test('pattern() accepts all params', () => {
+	expect(() =>
+		pattern({
+			scale: 0.2,
+			cropLeft: 40,
+			cropTop: 20,
+			cropRight: 40,
+			cropBottom: 20,
+			gapX: 12,
+			gapY: 8,
+			offsetU: 0.1,
+			offsetV: -0.2,
+			rowOffset: 80,
+			rowOffsetEvery: 0,
+			columnOffset: -20,
+			columnOffsetEvery: 0,
+			origin: [0.5, 0.25],
+			wrap: false,
+		}),
+	).not.toThrow();
+});
+
+test('pattern() rejects invalid scale', () => {
+	expect(() => pattern({scale: Number.NaN})).toThrow(
+		'"scale" must be a finite number',
+	);
+	expect(() => pattern({scale: 0})).toThrow('"scale" must be > 0');
+});
+
+test('pattern() rejects invalid origin', () => {
+	expect(() => pattern({origin: [0.5] as unknown as [number, number]})).toThrow(
+		'"origin" must be a [number, number] tuple',
+	);
+	expect(() => pattern({origin: [-0.1, 0.5]})).toThrow(
+		'"origin[0]" must be >= 0',
+	);
+	expect(() => pattern({origin: [0.5, 1.1]})).toThrow(
+		'"origin[1]" must be <= 1',
+	);
+});
+
+test('pattern() rejects invalid repeat intervals', () => {
+	expect(() => pattern({rowOffsetEvery: -1})).toThrow(
+		'"rowOffsetEvery" must be >= 0',
+	);
+	expect(() => pattern({columnOffsetEvery: 1.5})).toThrow(
+		'"columnOffsetEvery" must be an integer',
+	);
+});
+
+test('pattern() rejects invalid generic offsets', () => {
+	expect(() => pattern({offsetU: Number.NaN})).toThrow(
+		'"offsetU" must be a finite number',
+	);
+	expect(() => pattern({offsetV: Number.NaN})).toThrow(
+		'"offsetV" must be a finite number',
+	);
+});
+
+test('pattern() allows negative gaps', () => {
+	expect(() => pattern({gapX: -1})).not.toThrow();
+	expect(() => pattern({gapY: -1})).not.toThrow();
+});
+
+test('pattern() parameters produce distinct effect keys', () => {
+	const defaults = pattern();
+	const scaled = pattern({scale: 0.2});
+	const cropped = pattern({cropLeft: 10});
+	const spaced = pattern({gapX: 12, gapY: 8});
+	const shifted = pattern({offsetU: 0.1, offsetV: -0.2});
+	const staggered = pattern({rowOffset: 80, rowOffsetEvery: 0});
+	const repeatingStagger = pattern({rowOffset: 80, rowOffsetEvery: 2});
+	const columnStaggered = pattern({columnOffset: 40, columnOffsetEvery: 0});
+	const shiftedOrigin = pattern({origin: [0.5, 0.25]});
+	const clipped = pattern({wrap: false});
+
+	expect(
+		new Set([
+			defaults.effectKey,
+			scaled.effectKey,
+			cropped.effectKey,
+			spaced.effectKey,
+			shifted.effectKey,
+			staggered.effectKey,
+			repeatingStagger.effectKey,
+			columnStaggered.effectKey,
+			shiftedOrigin.effectKey,
+			clipped.effectKey,
 		]).size,
 	).toBe(10);
 });
@@ -1755,6 +2236,97 @@ test('lines() parameters produce distinct effect keys', () => {
 	).toBe(8);
 });
 
+test('checkerboard() accepts default params', () => {
+	expect(() => checkerboard()).not.toThrow();
+});
+
+test('checkerboard() accepts custom colors', () => {
+	expect(() =>
+		checkerboard({colors: ['#dff4ff', 'transparent']}),
+	).not.toThrow();
+});
+
+test('checkerboard() rejects invalid colors', () => {
+	expect(() => checkerboard({colors: ['#dff4ff']})).toThrow(
+		'"colors" must be an array with at least 2 colors',
+	);
+	expect(() =>
+		checkerboard({colors: ['#dff4ff', '' as unknown as string]}),
+	).toThrow('"colors[1]" must be a non-empty string');
+});
+
+test('checkerboard() rejects non-finite cellSize', () => {
+	expect(() => checkerboard({cellSize: Number.NaN})).toThrow(
+		'"cellSize" must be a finite number',
+	);
+});
+
+test('checkerboard() rejects non-positive cellSize', () => {
+	expect(() => checkerboard({cellSize: 0})).toThrow(
+		'"cellSize" must be greater than 0',
+	);
+});
+
+test('checkerboard() rejects non-finite gap', () => {
+	expect(() => checkerboard({gap: Number.NaN})).toThrow(
+		'"gap" must be a finite number',
+	);
+});
+
+test('checkerboard() rejects negative gap', () => {
+	expect(() => checkerboard({gap: -1})).toThrow(
+		'"gap" must be greater than or equal to 0',
+	);
+});
+
+test('checkerboard() rejects non-finite angle', () => {
+	expect(() => checkerboard({angle: Number.NaN})).toThrow(
+		'"angle" must be a finite number',
+	);
+});
+
+test('checkerboard() rejects non-finite offsetX', () => {
+	expect(() => checkerboard({offsetX: Number.NaN})).toThrow(
+		'"offsetX" must be a finite number',
+	);
+});
+
+test('checkerboard() rejects non-finite offsetY', () => {
+	expect(() => checkerboard({offsetY: Number.NaN})).toThrow(
+		'"offsetY" must be a finite number',
+	);
+});
+
+test('checkerboard() rejects non-boolean maskToSourceAlpha', () => {
+	expect(() =>
+		checkerboard({maskToSourceAlpha: 'yes' as unknown as boolean}),
+	).toThrow('"maskToSourceAlpha" must be a boolean');
+});
+
+test('checkerboard() parameters produce distinct effect keys', () => {
+	const defaultCheckerboard = checkerboard();
+	const colored = checkerboard({colors: ['#ffffff', 'transparent']});
+	const small = checkerboard({cellSize: 40});
+	const gapped = checkerboard({gap: 12});
+	const angled = checkerboard({angle: 45});
+	const shiftedX = checkerboard({offsetX: 10});
+	const shiftedY = checkerboard({offsetY: 10});
+	const masked = checkerboard({maskToSourceAlpha: true});
+
+	expect(
+		new Set([
+			defaultCheckerboard.effectKey,
+			colored.effectKey,
+			small.effectKey,
+			gapped.effectKey,
+			angled.effectKey,
+			shiftedX.effectKey,
+			shiftedY.effectKey,
+			masked.effectKey,
+		]).size,
+	).toBe(8);
+});
+
 test('linearProgressiveBlur() accepts default params', () => {
 	expect(() => linearProgressiveBlur()).not.toThrow();
 });
@@ -1813,6 +2385,53 @@ test('linearProgressiveBlur() parameters produce distinct effect keys', () => {
 			moreEndBlur.effectKey,
 		]).size,
 	).toBe(5);
+});
+
+test('zoomBlur() accepts default params', () => {
+	expect(() => zoomBlur()).not.toThrow();
+});
+
+test('zoomBlur() rejects non-finite amount', () => {
+	expect(() => zoomBlur({amount: Number.NaN})).toThrow(
+		'"amount" must be a finite number',
+	);
+});
+
+test('zoomBlur() rejects negative amount', () => {
+	expect(() => zoomBlur({amount: -1})).toThrow('"amount" must be >= 0');
+});
+
+test('zoomBlur() rejects invalid center', () => {
+	expect(() => zoomBlur({center: [0.5, 1.5]})).toThrow(
+		'"center[1]" must be <= 1',
+	);
+});
+
+test('zoomBlur() rejects non-integer samples', () => {
+	expect(() => zoomBlur({samples: 12.5})).toThrow(
+		'"samples" must be an integer',
+	);
+});
+
+test('zoomBlur() rejects samples outside the range', () => {
+	expect(() => zoomBlur({samples: 0})).toThrow('"samples" must be >= 1');
+	expect(() => zoomBlur({samples: 65})).toThrow('"samples" must be <= 64');
+});
+
+test('zoomBlur() parameters produce distinct effect keys', () => {
+	const defaults = zoomBlur();
+	const stronger = zoomBlur({amount: 80});
+	const shifted = zoomBlur({center: [0.25, 0.5]});
+	const smoother = zoomBlur({samples: 48});
+
+	expect(
+		new Set([
+			defaults.effectKey,
+			stronger.effectKey,
+			shifted.effectKey,
+			smoother.effectKey,
+		]).size,
+	).toBe(4);
 });
 
 test('rings() accepts default params', () => {
@@ -2036,6 +2655,92 @@ test('shine() parameters produce distinct effect keys', () => {
 	).toBe(6);
 });
 
+test('shrinkwrap() accepts default params', () => {
+	expect(() => shrinkwrap()).not.toThrow();
+});
+
+test('shrinkwrap() accepts valid params', () => {
+	expect(() =>
+		shrinkwrap({
+			amount: 0.75,
+			displacement: 9,
+			highlightIntensity: 1.2,
+			wrinkleDensity: 0.8,
+			edgeTension: 0.3,
+			phase: 1.25,
+			seed: 4,
+		}),
+	).not.toThrow();
+});
+
+test('shrinkwrap() rejects amount below range', () => {
+	expect(() => shrinkwrap({amount: -0.1})).toThrow('"amount" must be >= 0');
+});
+
+test('shrinkwrap() rejects amount above range', () => {
+	expect(() => shrinkwrap({amount: 1.1})).toThrow('"amount" must be <= 1');
+});
+
+test('shrinkwrap() rejects negative displacement', () => {
+	expect(() => shrinkwrap({displacement: -0.1})).toThrow(
+		'"displacement" must be >= 0',
+	);
+});
+
+test('shrinkwrap() rejects negative highlightIntensity', () => {
+	expect(() => shrinkwrap({highlightIntensity: -0.1})).toThrow(
+		'"highlightIntensity" must be >= 0',
+	);
+});
+
+test('shrinkwrap() rejects wrinkleDensity above range', () => {
+	expect(() => shrinkwrap({wrinkleDensity: 1.1})).toThrow(
+		'"wrinkleDensity" must be <= 1',
+	);
+});
+
+test('shrinkwrap() rejects edgeTension below range', () => {
+	expect(() => shrinkwrap({edgeTension: -0.1})).toThrow(
+		'"edgeTension" must be >= 0',
+	);
+});
+
+test('shrinkwrap() rejects non-finite phase', () => {
+	expect(() => shrinkwrap({phase: Number.NaN})).toThrow(
+		'"phase" must be a finite number',
+	);
+});
+
+test('shrinkwrap() rejects non-finite seed', () => {
+	expect(() => shrinkwrap({seed: Number.NaN})).toThrow(
+		'"seed" must be a finite number',
+	);
+});
+
+test('shrinkwrap() parameters produce distinct effect keys', () => {
+	const defaults = shrinkwrap();
+	const subtle = shrinkwrap({amount: 0.5});
+	const displaced = shrinkwrap({displacement: 12});
+	const brighter = shrinkwrap({highlightIntensity: 1.1});
+	const denser = shrinkwrap({wrinkleDensity: 0.8});
+	const edged = shrinkwrap({edgeTension: 0.9});
+	const phased = shrinkwrap({phase: 2});
+	const seeded = shrinkwrap({seed: 4});
+
+	expect(
+		new Set([
+			defaults.effectKey,
+			subtle.effectKey,
+			displaced.effectKey,
+			brighter.effectKey,
+			denser.effectKey,
+			edged.effectKey,
+			phased.effectKey,
+			seeded.effectKey,
+		]).size,
+	).toBe(8);
+});
+
 test('speckle() accepts default params', () => {
 	expect(() => speckle()).not.toThrow();
 });
@@ -2144,6 +2849,26 @@ test('pixelDissolve() parameters produce distinct effect keys', () => {
 			sharper.effectKey,
 		]).size,
 	).toBe(6);
+});
+
+test('pixelate() accepts default params', () => {
+	expect(() => pixelate()).not.toThrow();
+});
+
+test('pixelate() rejects non-finite blockSize', () => {
+	expect(() => pixelate({blockSize: Number.NaN})).toThrow(
+		'"blockSize" must be a finite number',
+	);
+});
+
+test('pixelate() rejects blockSize below range', () => {
+	expect(() => pixelate({blockSize: 0})).toThrow('"blockSize" must be >= 1');
+});
+
+test('pixelate() blockSize produces distinct effect keys', () => {
+	const subtle = pixelate({blockSize: 4});
+	const strong = pixelate({blockSize: 40});
+	expect(subtle.effectKey).not.toBe(strong.effectKey);
 });
 
 test('xyTranslate() accepts default params', () => {

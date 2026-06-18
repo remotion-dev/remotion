@@ -26,12 +26,28 @@ const style: React.CSSProperties = {
 	paddingBottom: 4,
 };
 
+const compactStyle: React.CSSProperties = {
+	...style,
+	fontSize: 11,
+	paddingBottom: 2,
+	paddingLeft: 6,
+	paddingRight: 6,
+	paddingTop: 2,
+};
+
 const triangleStyle: React.CSSProperties = {
 	width: 12,
 	height: 12,
 	flexShrink: 0,
 	fill: WARNING_COLOR,
 };
+
+const compactTriangleStyle: React.CSSProperties = {
+	...triangleStyle,
+	height: 10,
+	width: 10,
+};
+
 const WarningTriangle: React.FC<SVGProps<SVGSVGElement>> = (props) => {
 	return (
 		<svg viewBox="0 0 576 512" {...props}>
@@ -44,25 +60,28 @@ export const WarningIndicatorButton: React.FC<{
 	readonly setShowWarning: React.Dispatch<React.SetStateAction<boolean>>;
 	readonly showWarning: boolean;
 	readonly warningCount: number;
-}> = ({setShowWarning, showWarning, warningCount}) => {
+	readonly size?: 'default' | 'compact';
+}> = ({setShowWarning, showWarning, warningCount, size = 'default'}) => {
 	const onClick = useCallback(() => {
 		setShowWarning((s) => !s);
 	}, [setShowWarning]);
 
 	const buttonStyle: React.CSSProperties = useMemo(() => {
 		return {
-			...style,
+			...(size === 'compact' ? compactStyle : style),
 			backgroundColor: showWarning ? INPUT_BACKGROUND : 'transparent',
 			borderColor: showWarning
 				? INPUT_BORDER_COLOR_HOVERED
 				: INPUT_BORDER_COLOR_UNHOVERED,
 			color: showWarning ? 'white' : LIGHT_TEXT,
 		};
-	}, [showWarning]);
+	}, [showWarning, size]);
 
 	return (
 		<button type="button" style={buttonStyle} onClick={onClick}>
-			<WarningTriangle style={triangleStyle} />
+			<WarningTriangle
+				style={size === 'compact' ? compactTriangleStyle : triangleStyle}
+			/>
 			<Spacing x={0.5} />
 			{warningCount}
 			<Spacing x={1} />

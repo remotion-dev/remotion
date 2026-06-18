@@ -78,7 +78,11 @@ export const SchemaArrayItemSeparationLine: React.FC<{
 
 	const inner: React.CSSProperties = useMemo(() => {
 		return {
+			alignItems: 'center',
 			background: BACKGROUND,
+			display: 'flex',
+			height: VERTICAL_GUIDE_HEIGHT,
+			justifyContent: 'center',
 			paddingLeft: 10,
 			paddingRight: 10,
 		};
@@ -131,7 +135,10 @@ export const SchemaArrayItemSeparationLine: React.FC<{
 						>
 							<Plus
 								color={innerHovered ? 'white' : LIGHT_TEXT}
-								style={{height: VERTICAL_GUIDE_HEIGHT / 2}}
+								style={{
+									display: 'block',
+									height: VERTICAL_GUIDE_HEIGHT / 2,
+								}}
 							/>
 						</div>
 					</div>

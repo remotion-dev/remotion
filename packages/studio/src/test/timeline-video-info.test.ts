@@ -4,6 +4,7 @@ import {
 	getTimelineAssetLinkInfo,
 	openTimelineAssetLink,
 } from '../components/Timeline/timeline-asset-link';
+import {getTimelineVideoFilmstripTimes} from '../components/Timeline/timeline-video-filmstrip-times';
 
 type TestWindow = Pick<
 	Window,
@@ -81,6 +82,39 @@ test('video timeline thumbnail widths never go negative', () => {
 	).toEqual({
 		mediaVisualizationWidth: 0,
 		mediaNaturalWidth: 0,
+	});
+});
+
+test('video timeline filmstrip range starts at the registered media frame', () => {
+	expect(
+		getTimelineVideoFilmstripTimes({
+			trimBefore: 908,
+			durationInFrames: 120,
+			playbackRate: 1,
+			fps: 30,
+			loopDisplay: undefined,
+			frozenMediaFrame: null,
+		}),
+	).toEqual({
+		type: 'range',
+		fromSeconds: 908 / 30,
+		toSeconds: (908 + 120) / 30,
+	});
+});
+
+test('video timeline filmstrip uses one timestamp for frozen video', () => {
+	expect(
+		getTimelineVideoFilmstripTimes({
+			trimBefore: 5,
+			durationInFrames: 120,
+			playbackRate: 1,
+			fps: 30,
+			loopDisplay: undefined,
+			frozenMediaFrame: 29,
+		}),
+	).toEqual({
+		type: 'frozen',
+		timestampInSeconds: 29 / 30,
 	});
 });
 

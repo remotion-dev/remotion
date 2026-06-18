@@ -17,7 +17,7 @@ import {ZodSwitch} from './ZodSwitch';
 
 const labelStyle: React.CSSProperties = {
 	fontFamily: 'sans-serif',
-	fontSize: 14,
+	fontSize: 12,
 	color: LIGHT_TEXT,
 };
 

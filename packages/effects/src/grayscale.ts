@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertOptionalFiniteNumber,
@@ -12,7 +12,7 @@ const {createEffect} = Internals;
 
 const grayscaleSchema = {
 	amount: colorAmountSchema,
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type GrayscaleParams = {
 	/** Mix between original color and grayscale. Defaults to `1`. */
@@ -36,7 +36,7 @@ const validateGrayscaleParams = (params: GrayscaleParams): void => {
 };
 
 export const grayscale = createEffect<GrayscaleParams, null>({
-	type: 'remotion/grayscale',
+	type: 'dev.remotion.effects.grayscale',
 	label: 'grayscale()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/grayscale',
 	backend: '2d',

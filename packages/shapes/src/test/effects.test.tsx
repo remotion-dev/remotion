@@ -1,6 +1,9 @@
 import {expect, mock, test} from 'bun:test';
 import React from 'react';
 import type {EffectsProp, HtmlInCanvasPixelDensity} from 'remotion';
+import type {AllShapesProps} from '../components/render-svg';
+import type {MakeCircleProps} from '../utils/make-circle';
+import type {MakeRectOptions} from '../utils/make-rect';
 import {render} from './test-utils';
 
 type HtmlInCanvasCall = {
@@ -10,7 +13,7 @@ type HtmlInCanvasCall = {
 	readonly pixelDensity: HtmlInCanvasPixelDensity | undefined;
 	readonly showInTimeline: boolean | undefined;
 	readonly style: React.CSSProperties | undefined;
-	readonly _experimentalControls: unknown;
+	readonly controls: unknown;
 };
 
 type SequenceCall = {
@@ -20,12 +23,10 @@ type SequenceCall = {
 	readonly hidden: boolean | undefined;
 	readonly name: string | undefined;
 	readonly showInTimeline: boolean | undefined;
-	readonly _experimentalControls: unknown;
+	readonly controls: unknown;
 	readonly _remotionInternalDocumentationLink: string | undefined;
 	readonly _remotionInternalEffects: unknown;
-	readonly _remotionInternalRefForOutline:
-		| React.RefObject<Element | null>
-		| undefined;
+	readonly outlineRef: React.RefObject<Element | null> | undefined;
 	readonly stack: string | undefined;
 };
 
@@ -48,7 +49,7 @@ mock.module('remotion', () => {
 			pixelDensity,
 			showInTimeline,
 			style,
-			_experimentalControls,
+			controls,
 			ref,
 		}: HtmlInCanvasCall & {
 			readonly children: React.ReactNode;
@@ -61,7 +62,7 @@ mock.module('remotion', () => {
 				pixelDensity,
 				showInTimeline,
 				style,
-				_experimentalControls,
+				controls,
 			});
 
 			return (
@@ -89,12 +90,15 @@ mock.module('remotion', () => {
 				readonly children: React.ReactNode;
 			}) => children,
 			ResolveCompositionContext: React.createContext({}),
-			sequenceSchema: {
+			baseSchema: {
 				durationInFrames: {},
 				from: {},
+				freeze: {},
 				hidden: {},
+				name: {},
+				showInTimeline: {},
 			},
-			sequenceVisualStyleSchema: {},
+			transformSchema: {},
 			useUnsafeVideoConfig: mock(() =>
 				hasVideoConfig
 					? {
@@ -115,7 +119,9 @@ mock.module('remotion', () => {
 					: null,
 			),
 			useMemoizedEffectDefinitions: mock(() => effectDefinitions),
-			wrapInSchema: mock(({Component}) => Component),
+		},
+		Interactive: {
+			withSchema: mock(({Component}) => Component),
 		},
 		Sequence: ({
 			children,
@@ -130,11 +136,45 @@ mock.module('remotion', () => {
 	};
 });
 
+const renderSvgModulePath = '../components/render-svg.tsx?effects-test';
+
 const loadComponents = async () => {
-	const [{Circle}, {Rect}] = await Promise.all([
-		import('../components/circle'),
-		import('../components/rect'),
+	const [{RenderSvg}, {makeCircle}, {makeRect}] = await Promise.all([
+		import(renderSvgModulePath),
+		import('../utils/make-circle'),
+		import('../utils/make-rect'),
 	]);
+
+	const Circle: React.FC<MakeCircleProps & AllShapesProps> = ({
+		radius,
+		...props
+	}) => {
+		return (
+			<RenderSvg
+				defaultName="<Circle>"
+				documentationLink="https://www.remotion.dev/docs/shapes/circle"
+				{...makeCircle({radius})}
+				{...props}
+			/>
+		);
+	};
+
+	const Rect: React.FC<MakeRectOptions & AllShapesProps> = ({
+		width,
+		height,
+		edgeRoundness,
+		cornerRadius,
+		...props
+	}) => {
+		return (
+			<RenderSvg
+				defaultName="<Rect>"
+				documentationLink="https://www.remotion.dev/docs/shapes/rect"
+				{...makeRect({height, width, edgeRoundness, cornerRadius})}
+				{...props}
+			/>
+		);
+	};
 
 	return {Circle, Rect};
 };
@@ -177,7 +217,7 @@ test('Should render a shape with effects in HtmlInCanvas', async () => {
 			},
 		}),
 	]);
-	expect(htmlInCanvasCalls[0]._experimentalControls ?? null).toBe(null);
+	expect(htmlInCanvasCalls[0].controls ?? null).toBe(null);
 	expect(sequenceCalls[0]).toMatchObject({
 		layout: 'none',
 		name: '<Circle>',
@@ -185,9 +225,7 @@ test('Should render a shape with effects in HtmlInCanvas', async () => {
 			'https://www.remotion.dev/docs/shapes/circle',
 		_remotionInternalEffects: effectDefinitions,
 	});
-	expect(
-		sequenceCalls[0]._remotionInternalRefForOutline?.current?.tagName,
-	).toBe('CANVAS');
+	expect(sequenceCalls[0].outlineRef?.current?.tagName).toBe('CANVAS');
 });
 
 test('Should keep rendering SVG directly with no effects', async () => {
@@ -220,9 +258,7 @@ test('Should keep rendering SVG directly with no effects', async () => {
 		_remotionInternalDocumentationLink:
 			'https://www.remotion.dev/docs/shapes/circle',
 	});
-	expect(
-		sequenceCalls[0]._remotionInternalRefForOutline?.current?.tagName,
-	).toBe('svg');
+	expect(sequenceCalls[0].outlineRef?.current?.tagName).toBe('svg');
 });
 
 test('Should pass integer dimensions to HtmlInCanvas', async () => {

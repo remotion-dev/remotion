@@ -19,25 +19,22 @@ import {
 	useMemoizedEffects,
 } from '../effects/use-memoized-effects.js';
 import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
-import {usePreload} from '../prefetch.js';
 import {
-	fromField,
-	hiddenField,
-	sequenceVisualStyleSchema,
-	durationInFramesField,
-	type SequenceSchema,
-} from '../sequence-field-schema.js';
+	baseSchema,
+	transformSchema,
+	type InteractivitySchema,
+} from '../interactivity-schema.js';
+import {usePreload} from '../prefetch.js';
 import {Sequence} from '../Sequence.js';
 import {SequenceContext} from '../SequenceContext.js';
 import {truncateSrcForLabel} from '../truncate-src-for-label.js';
 import {useBufferState} from '../use-buffer-state.js';
 import {useDelayRender} from '../use-delay-render.js';
-import {wrapInSchema} from '../wrap-in-schema.js';
+import {withInteractivitySchema} from '../with-interactivity-schema.js';
 import type {CanvasImageCanvasProps, CanvasImageProps} from './props.js';
 
 export const canvasImageSchema = {
-	durationInFrames: durationInFramesField,
-	from: fromField,
+	...baseSchema,
 	fit: {
 		type: 'enum',
 		default: 'fill',
@@ -48,9 +45,8 @@ export const canvasImageSchema = {
 			cover: {},
 		},
 	},
-	...sequenceVisualStyleSchema,
-	hidden: hiddenField,
-} as const satisfies SequenceSchema;
+	...transformSchema,
+} as const satisfies InteractivitySchema;
 
 type LoadedImage = {
 	readonly element: HTMLImageElement;
@@ -198,6 +194,7 @@ const CanvasImageContent = forwardRef<
 		const [outputCanvas, setOutputCanvas] = useState<HTMLCanvasElement | null>(
 			null,
 		);
+		const [loadedImage, setLoadedImage] = useState<LoadedImage | null>(null);
 		const actualSrc = usePreload(src);
 		const chainState = useEffectChainState();
 		const memoizedEffects = useMemoizedEffects({
@@ -231,10 +228,6 @@ const CanvasImageContent = forwardRef<
 		);
 
 		useEffect(() => {
-			if (!outputCanvas || !sourceCanvas) {
-				return;
-			}
-
 			const isPremounting = Boolean(sequenceContext?.premounting);
 			const isPostmounting = Boolean(sequenceContext?.postmounting);
 
@@ -256,6 +249,8 @@ const CanvasImageContent = forwardRef<
 			let errorCount = 0;
 			let timeoutId: ReturnType<typeof setTimeout> | null = null;
 
+			setLoadedImage(null);
+
 			const continueRenderOnce = () => {
 				if (continued) {
 					return;
@@ -273,44 +268,10 @@ const CanvasImageContent = forwardRef<
 							return;
 						}
 
-						const canvasWidth = width ?? image.width;
-						const canvasHeight = height ?? image.height;
-						const sourceContext = sourceCanvas.getContext('2d', {
-							colorSpace: 'srgb',
-						});
-
-						if (!sourceContext) {
-							throw new Error(
-								'Could not get 2D context for <CanvasImage> source canvas',
-							);
-						}
-
-						sourceCanvas.width = canvasWidth;
-						sourceCanvas.height = canvasHeight;
-						outputCanvas.width = canvasWidth;
-						outputCanvas.height = canvasHeight;
-
-						sourceContext.clearRect(0, 0, canvasWidth, canvasHeight);
-						sourceContext.drawImage(
-							image.element,
-							...calculateImageFit(
-								fit,
-								{width: image.width, height: image.height},
-								{width: canvasWidth, height: canvasHeight},
-							),
-						);
-
-						return runEffectChain({
-							state: chainState.get(canvasWidth, canvasHeight)!,
-							source: sourceCanvas,
-							effects: memoizedEffects,
-							output: outputCanvas,
-							width: canvasWidth,
-							height: canvasHeight,
-						});
+						setLoadedImage(image);
 					})
-					.then((completed) => {
-						if (completed && !cancelled) {
+					.then(() => {
+						if (!cancelled) {
 							continueRenderOnce();
 						}
 					})
@@ -355,21 +316,112 @@ const CanvasImageContent = forwardRef<
 		}, [
 			actualSrc,
 			cancelRender,
-			chainState,
 			continueRender,
 			delayPlayback,
 			delayRender,
 			delayRenderRetries,
 			delayRenderTimeoutInMilliseconds,
-			fit,
-			height,
 			maxRetries,
-			memoizedEffects,
 			onError,
-			outputCanvas,
 			pauseWhenLoading,
 			sequenceContext?.postmounting,
 			sequenceContext?.premounting,
+		]);
+
+		useEffect(() => {
+			if (!loadedImage || !outputCanvas || !sourceCanvas) {
+				return;
+			}
+
+			const handle = delayRender(
+				`Applying effects to <CanvasImage> with src="${truncateSrcForLabel(actualSrc)}"`,
+			);
+
+			let cancelled = false;
+			let continued = false;
+
+			const continueRenderOnce = () => {
+				if (continued) {
+					return;
+				}
+
+				continued = true;
+				continueRender(handle);
+			};
+
+			const canvasWidth = width ?? loadedImage.width;
+			const canvasHeight = height ?? loadedImage.height;
+			const sourceContext = sourceCanvas.getContext('2d', {
+				colorSpace: 'srgb',
+			});
+
+			if (!sourceContext) {
+				cancelRender(
+					new Error('Could not get 2D context for <CanvasImage> source canvas'),
+				);
+				continueRenderOnce();
+				return () => {
+					continueRenderOnce();
+				};
+			}
+
+			sourceCanvas.width = canvasWidth;
+			sourceCanvas.height = canvasHeight;
+			outputCanvas.width = canvasWidth;
+			outputCanvas.height = canvasHeight;
+
+			sourceContext.clearRect(0, 0, canvasWidth, canvasHeight);
+			sourceContext.drawImage(
+				loadedImage.element,
+				...calculateImageFit(
+					fit,
+					{width: loadedImage.width, height: loadedImage.height},
+					{width: canvasWidth, height: canvasHeight},
+				),
+			);
+
+			runEffectChain({
+				state: chainState.get(canvasWidth, canvasHeight)!,
+				source: sourceCanvas,
+				effects: memoizedEffects,
+				output: outputCanvas,
+				width: canvasWidth,
+				height: canvasHeight,
+			})
+				.then((completed) => {
+					if (completed && !cancelled) {
+						continueRenderOnce();
+					}
+				})
+				.catch((err) => {
+					if (cancelled) {
+						return;
+					}
+
+					if (onError) {
+						onError(err as Error);
+						continueRenderOnce();
+					} else {
+						cancelRender(err);
+					}
+				});
+
+			return () => {
+				cancelled = true;
+				continueRenderOnce();
+			};
+		}, [
+			actualSrc,
+			cancelRender,
+			chainState,
+			continueRender,
+			delayRender,
+			fit,
+			height,
+			loadedImage,
+			memoizedEffects,
+			onError,
+			outputCanvas,
 			sourceCanvas,
 			width,
 		]);
@@ -393,7 +445,7 @@ CanvasImageContent.displayName = 'CanvasImageContent';
 const CanvasImageInner = forwardRef<
 	HTMLCanvasElement,
 	CanvasImageProps & {
-		readonly _experimentalControls: SequenceControls | undefined;
+		readonly controls: SequenceControls | undefined;
 	}
 >(
 	(
@@ -413,13 +465,14 @@ const CanvasImageInner = forwardRef<
 			delayRenderTimeoutInMilliseconds,
 			durationInFrames,
 			from,
+			freeze,
 			hidden,
 			name,
 			showInTimeline,
 			stack,
-			_experimentalControls: controls,
+			controls,
 			_remotionInternalDocumentationLink,
-			_remotionInternalRefForOutline,
+			outlineRef,
 			...canvasProps
 		},
 		ref,
@@ -439,6 +492,7 @@ const CanvasImageInner = forwardRef<
 				layout="none"
 				from={from ?? 0}
 				durationInFrames={durationInFrames ?? Infinity}
+				freeze={freeze}
 				hidden={hidden}
 				showInTimeline={showInTimeline ?? true}
 				name={name ?? '<CanvasImage>'}
@@ -446,13 +500,11 @@ const CanvasImageInner = forwardRef<
 					_remotionInternalDocumentationLink ??
 					'https://www.remotion.dev/docs/canvasimage'
 				}
-				_experimentalControls={controls}
+				controls={controls}
 				_remotionInternalEffects={memoizedEffectDefinitions}
 				_remotionInternalIsMedia={{type: 'image', src}}
 				_remotionInternalStack={stack}
-				_remotionInternalRefForOutline={
-					_remotionInternalRefForOutline ?? actualRef
-				}
+				outlineRef={outlineRef ?? actualRef}
 			>
 				<CanvasImageContent
 					ref={actualRef}
@@ -470,7 +522,7 @@ const CanvasImageInner = forwardRef<
 					maxRetries={maxRetries}
 					delayRenderRetries={delayRenderRetries}
 					delayRenderTimeoutInMilliseconds={delayRenderTimeoutInMilliseconds}
-					refForOutline={_remotionInternalRefForOutline ?? null}
+					refForOutline={outlineRef ?? null}
 					{...canvasProps}
 				/>
 			</Sequence>
@@ -482,8 +534,9 @@ const CanvasImageInner = forwardRef<
  * @description Renders a static image to a `<canvas>` and applies Remotion effects.
  * @see [Documentation](https://www.remotion.dev/docs/canvasimage)
  */
-export const CanvasImage = wrapInSchema({
+export const CanvasImage = withInteractivitySchema({
 	Component: CanvasImageInner,
+	componentName: '<CanvasImage>',
 	componentIdentity: 'dev.remotion.remotion.CanvasImage',
 	schema: canvasImageSchema,
 	supportsEffects: true,

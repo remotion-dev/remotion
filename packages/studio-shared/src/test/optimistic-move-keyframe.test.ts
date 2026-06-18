@@ -17,7 +17,7 @@ const previous: CanUpdateSequencePropsResponse = {
 				{frame: 20, value: 2},
 				{frame: 40, value: 3},
 			],
-			easing: ['linear', 'linear'],
+			easing: [{type: 'linear'}, {type: 'linear'}],
 			clamping: {left: 'extend', right: 'extend'},
 			posterize: undefined,
 		},
@@ -36,7 +36,7 @@ const previous: CanUpdateSequencePropsResponse = {
 						{frame: 0, value: 0.2},
 						{frame: 20, value: 0.5},
 					],
-					easing: ['linear'],
+					easing: [{type: 'linear'}],
 					clamping: {left: 'extend', right: 'extend'},
 					posterize: undefined,
 				},
@@ -68,7 +68,7 @@ test('optimisticMoveSequenceKeyframes moves multiple keyframes in one field', ()
 		{frame: 30, value: 2},
 		{frame: 40, value: 3},
 	]);
-	expect(status.easing).toEqual(['linear', 'linear']);
+	expect(status.easing).toEqual([{type: 'linear'}, {type: 'linear'}]);
 });
 
 test('optimisticMoveSequenceKeyframes resorts when moving past an adjacent keyframe', () => {
@@ -91,10 +91,10 @@ test('optimisticMoveSequenceKeyframes resorts when moving past an adjacent keyfr
 		{frame: 30, value: 1},
 		{frame: 40, value: 3},
 	]);
-	expect(status.easing).toEqual(['linear', 'linear']);
+	expect(status.easing).toEqual([{type: 'linear'}, {type: 'linear'}]);
 });
 
-test('optimisticMoveSequenceKeyframes no-ops when moving onto an existing keyframe', () => {
+test('optimisticMoveSequenceKeyframes replaces an existing keyframe', () => {
 	const updated = optimisticMoveSequenceKeyframes({
 		previous,
 		keyframes: [{fieldKey: 'scale', fromFrame: 0, toFrame: 20}],
@@ -110,10 +110,10 @@ test('optimisticMoveSequenceKeyframes no-ops when moving onto an existing keyfra
 	}
 
 	expect(status.keyframes).toEqual([
-		{frame: 0, value: 1},
-		{frame: 20, value: 2},
+		{frame: 20, value: 1},
 		{frame: 40, value: 3},
 	]);
+	expect(status.easing).toEqual([{type: 'linear'}]);
 });
 
 test('canMoveKeyframesWithoutCollisions allows moving onto a frame vacated by another selected keyframe', () => {
@@ -183,7 +183,7 @@ test('optimisticMoveEffectKeyframes moves effect keyframes', () => {
 	]);
 });
 
-test('optimisticMoveEffectKeyframes no-ops when moving onto an existing keyframe', () => {
+test('optimisticMoveEffectKeyframes replaces an existing keyframe', () => {
 	const updated = optimisticMoveEffectKeyframes({
 		previous,
 		keyframes: [
@@ -205,10 +205,8 @@ test('optimisticMoveEffectKeyframes no-ops when moving onto an existing keyframe
 		throw new Error('expected keyframed status');
 	}
 
-	expect(status.keyframes).toEqual([
-		{frame: 0, value: 0.2},
-		{frame: 20, value: 0.5},
-	]);
+	expect(status.keyframes).toEqual([{frame: 20, value: 0.2}]);
+	expect(status.easing).toEqual([]);
 });
 
 test('optimisticMoveEffectKeyframes allows moving keyframes beyond the sequence range', () => {

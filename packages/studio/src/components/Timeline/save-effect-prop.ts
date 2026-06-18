@@ -2,7 +2,7 @@ import {
 	optimisticUpdateForEffectPropStatuses,
 	type EffectClipboardParam,
 } from '@remotion/studio-shared';
-import type {SequencePropsSubscriptionKey, SequenceSchema} from 'remotion';
+import type {SequencePropsSubscriptionKey, InteractivitySchema} from 'remotion';
 import {callApi} from '../call-api';
 import {applyEffectResponseToPropStatuses} from './apply-effect-response-to-prop-statuses';
 import {enqueueSavePropChange} from './save-prop-queue';
@@ -14,7 +14,7 @@ type SaveEffectPropBase = {
 	effectIndex: number;
 	fieldKey: string;
 	defaultValue: string | null;
-	schema: SequenceSchema;
+	schema: InteractivitySchema;
 	setPropStatuses: SetPropStatuses;
 	clientId: string;
 };

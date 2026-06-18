@@ -6,6 +6,35 @@ import {
 	normalizeVideoRotation,
 } from './calculate-new-dimensions-from-dimensions';
 import type {MediabunnyResize} from './mediabunny-calculate-resize-option';
+import {ensureAudioEncoderRegistered} from './register-audio-encoder';
+
+const canEncodeAudioCodec = async ({
+	codec,
+	sampleRate,
+	allowFallbackSampleRate,
+}: {
+	codec: InputAudioTrack['codec'];
+	sampleRate: number;
+	allowFallbackSampleRate: boolean;
+}) => {
+	if (codec === null) {
+		return false;
+	}
+
+	await ensureAudioEncoderRegistered(codec);
+
+	const codecs = await getEncodableAudioCodecs([codec], {sampleRate});
+	if (codecs.includes(codec)) {
+		return true;
+	}
+
+	if (!allowFallbackSampleRate) {
+		return false;
+	}
+
+	const codecsWithDefaultParams = await getEncodableAudioCodecs([codec]);
+	return codecsWithDefaultParams.includes(codec);
+};
 
 export const getAudioTranscodingOptions = async ({
 	inputTrack,
@@ -27,13 +56,17 @@ export const getAudioTranscodingOptions = async ({
 	const supportedCodecsByContainer = outputContainer.getSupportedAudioCodecs();
 
 	const configs: AudioOperation[] = [];
+	const inputSampleRate = await inputTrack.getSampleRate();
+	const audioEncoderSampleRate = sampleRate ?? inputSampleRate;
 
 	for (const codec of supportedCodecsByContainer) {
-		const codecs = await getEncodableAudioCodecs([codec], {
-			sampleRate: await inputTrack.getSampleRate(),
+		const canEncode = await canEncodeAudioCodec({
+			codec,
+			sampleRate: audioEncoderSampleRate,
+			allowFallbackSampleRate: sampleRate === null,
 		});
 
-		if (codecs.includes(codec)) {
+		if (canEncode) {
 			configs.push({
 				type: 'reencode',
 				audioCodec: codec,

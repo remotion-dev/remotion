@@ -2,15 +2,15 @@ import React, {forwardRef, useCallback, useRef} from 'react';
 import type {SequenceControls} from './CompositionManager.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import {
-	durationInFramesField,
-	fromField,
-	hiddenField,
-	sequenceVisualStyleSchema,
-	type SequenceSchema,
-} from './sequence-field-schema.js';
-import type {SequenceProps} from './Sequence.js';
+	baseSchema,
+	premountSchema,
+	sequenceSchema,
+	transformSchema,
+	type InteractivitySchema,
+} from './interactivity-schema.js';
+import type {AbsoluteFillLayout, SequenceProps} from './Sequence.js';
 import {Sequence} from './Sequence.js';
-import {wrapInSchema} from './wrap-in-schema.js';
+import {withInteractivitySchema} from './with-interactivity-schema.js';
 
 type InteractiveHtmlTag =
 	| 'a'
@@ -60,10 +60,22 @@ type ElementForTag<Tag extends InteractiveTag> =
 			? SVGElementTagNameMap[Tag]
 			: Element;
 
-type InteractiveSequenceProps = Pick<
+export type InteractiveBaseProps = Pick<
 	SequenceProps,
-	'durationInFrames' | 'from' | 'hidden' | 'name' | 'showInTimeline'
-> & {
+	'durationInFrames' | 'from' | 'freeze' | 'hidden' | 'name' | 'showInTimeline'
+>;
+
+export type InteractiveTransformProps = Pick<AbsoluteFillLayout, 'style'>;
+
+export type InteractivePremountProps = Pick<
+	AbsoluteFillLayout,
+	| 'premountFor'
+	| 'postmountFor'
+	| 'styleWhilePremounted'
+	| 'styleWhilePostmounted'
+>;
+
+type InteractiveSequenceProps = InteractiveBaseProps & {
 	/**
 	 * @deprecated For internal use only
 	 */
@@ -82,11 +94,9 @@ type InteractiveElementComponent<Tag extends InteractiveTag> =
 	>;
 
 const interactiveElementSchema = {
-	durationInFrames: durationInFramesField,
-	from: fromField,
-	...sequenceVisualStyleSchema,
-	hidden: hiddenField,
-} as const satisfies SequenceSchema;
+	...baseSchema,
+	...transformSchema,
+} as const satisfies InteractivitySchema;
 
 const setRef = <ElementType,>(
 	ref: React.ForwardedRef<ElementType>,
@@ -109,20 +119,21 @@ const makeInteractiveElement = <Tag extends InteractiveTag>(
 	const Inner = forwardRef<
 		ElementType,
 		Props & {
-			readonly _experimentalControls: SequenceControls | undefined;
+			readonly controls: SequenceControls | undefined;
 		}
 	>((propsWithControls, ref) => {
 		const {
 			durationInFrames,
 			from,
+			freeze,
 			hidden,
 			name,
 			showInTimeline,
 			stack,
-			_experimentalControls,
+			controls,
 			...props
 		} = propsWithControls as Props & {
-			readonly _experimentalControls: SequenceControls | undefined;
+			readonly controls: SequenceControls | undefined;
 		};
 		const refForOutline = useRef<ElementType | null>(null);
 		const callbackRef = useCallback(
@@ -138,17 +149,14 @@ const makeInteractiveElement = <Tag extends InteractiveTag>(
 				layout="none"
 				from={from ?? 0}
 				durationInFrames={durationInFrames ?? Infinity}
+				freeze={freeze}
 				hidden={hidden}
 				name={name ?? displayName}
 				showInTimeline={showInTimeline ?? true}
-				_experimentalControls={_experimentalControls}
+				controls={controls}
 				_remotionInternalStack={stack}
-				_remotionInternalDocumentationLink={
-					name === undefined
-						? 'https://www.remotion.dev/docs/interactive'
-						: undefined
-				}
-				_remotionInternalRefForOutline={refForOutline}
+				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/interactive"
+				outlineRef={refForOutline}
 			>
 				{React.createElement(tag, {
 					...props,
@@ -160,8 +168,9 @@ const makeInteractiveElement = <Tag extends InteractiveTag>(
 
 	Inner.displayName = displayName;
 
-	const Wrapped = wrapInSchema({
+	const Wrapped = withInteractivitySchema({
 		Component: Inner,
+		componentName: displayName,
 		componentIdentity: `dev.remotion.remotion.${displayName.slice(1, -1)}`,
 		schema: interactiveElementSchema,
 		supportsEffects: false,
@@ -177,6 +186,11 @@ const makeInteractiveElement = <Tag extends InteractiveTag>(
  * @description HTML and SVG elements that are registered in the Remotion Studio timeline and can be visually edited.
  */
 export const Interactive = {
+	baseSchema,
+	transformSchema,
+	premountSchema,
+	sequenceSchema,
+	withSchema: withInteractivitySchema,
 	A: makeInteractiveElement('a', '<Interactive.A>'),
 	Article: makeInteractiveElement('article', '<Interactive.Article>'),
 	Aside: makeInteractiveElement('aside', '<Interactive.Aside>'),
