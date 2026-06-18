@@ -1,5 +1,8 @@
 import {expect, test} from 'bun:test';
+import {solidSchema} from '../effects/Solid.js';
 import {getFlatSchemaWithAllKeys} from '../flatten-schema.js';
+import {htmlInCanvasSchema} from '../HtmlInCanvas.js';
+import {Interactive} from '../Interactive.js';
 import {
 	baseSchema,
 	extendSchemaWithSequenceName,
@@ -34,6 +37,23 @@ test('baseSchema exposes common timeline fields', () => {
 			'showInTimeline',
 		].sort(),
 	);
+});
+
+test('pixelDensity is exposed only by canvas-backed component schemas', () => {
+	const pixelDensitySchema = {
+		type: 'number',
+		min: 1,
+		max: 3,
+		step: 0.1,
+		default: 1,
+		description: 'Pixel density',
+		hiddenFromList: false,
+	} as const;
+
+	expect(htmlInCanvasSchema.pixelDensity).toEqual(pixelDensitySchema);
+	expect(solidSchema.pixelDensity).toEqual(pixelDensitySchema);
+	expect('pixelDensity' in baseSchema).toBe(false);
+	expect('pixelDensity' in Interactive.baseSchema).toBe(false);
 });
 
 test('getFlatSchema(sequenceSchema) exposes every variant key', () => {
