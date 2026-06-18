@@ -211,6 +211,78 @@ export const transformSchema = {
 
 export const sequenceVisualStyleSchema = transformSchema;
 
+export const textSchema = {
+	'style.color': {
+		type: 'color',
+		default: undefined,
+		description: 'Color',
+	},
+	'style.fontSize': {
+		type: 'number',
+		default: undefined,
+		min: 0,
+		step: 1,
+		description: 'Font size',
+		hiddenFromList: false,
+	},
+	'style.lineHeight': {
+		type: 'number',
+		default: undefined,
+		min: 0,
+		step: 0.05,
+		description: 'Line height',
+		hiddenFromList: false,
+	},
+	'style.fontWeight': {
+		type: 'enum',
+		default: '400',
+		description: 'Font weight',
+		variants: {
+			'100': {},
+			'200': {},
+			'300': {},
+			'400': {},
+			'500': {},
+			'600': {},
+			'700': {},
+			'800': {},
+			'900': {},
+			normal: {},
+			bold: {},
+		},
+	},
+	'style.fontStyle': {
+		type: 'enum',
+		default: 'normal',
+		description: 'Font style',
+		variants: {
+			normal: {},
+			italic: {},
+			oblique: {},
+		},
+	},
+	'style.textAlign': {
+		type: 'enum',
+		default: 'left',
+		description: 'Text align',
+		variants: {
+			left: {},
+			center: {},
+			right: {},
+			justify: {},
+			start: {},
+			end: {},
+		},
+	},
+	'style.letterSpacing': {
+		type: 'number',
+		default: undefined,
+		step: 0.1,
+		description: 'Letter spacing',
+		hiddenFromList: false,
+	},
+} as const satisfies InteractivitySchema;
+
 export const premountSchema = {
 	premountFor: {
 		type: 'number',
