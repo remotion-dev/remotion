@@ -92,7 +92,10 @@ test('textSchema exposes common text style fields', () => {
 		[
 			'style.color',
 			'style.fontSize',
+			'style.fontStyle',
+			'style.fontWeight',
 			'style.letterSpacing',
+			'style.lineHeight',
 			'style.textAlign',
 		].sort(),
 	);
@@ -105,6 +108,31 @@ test('textSchema exposes common text style fields', () => {
 		step: 1,
 		hiddenFromList: false,
 	});
+	expect(textSchema['style.lineHeight']).toMatchObject({
+		type: 'number',
+		default: undefined,
+		min: 0,
+		step: 0.05,
+		hiddenFromList: false,
+	});
+	expect(Object.keys(textSchema['style.fontWeight'].variants)).toEqual([
+		'100',
+		'200',
+		'300',
+		'400',
+		'500',
+		'600',
+		'700',
+		'800',
+		'900',
+		'normal',
+		'bold',
+	]);
+	expect(Object.keys(textSchema['style.fontStyle'].variants)).toEqual([
+		'normal',
+		'italic',
+		'oblique',
+	]);
 	expect(Object.keys(textSchema['style.textAlign'].variants)).toEqual([
 		'left',
 		'center',
