@@ -368,7 +368,7 @@ export const RemotionRoot: React.FC = () => {
 					component={EffectsZoomBlurPreview}
 					width={1280}
 					height={720}
-					defaultProps={{amount: 80, center: [0.22, 0.5], samples: 32}}
+					defaultProps={{amount: 160, center: [0.08, 0.5], samples: 48}}
 				/>
 				<Still
 					id="effects-wave-preview"
