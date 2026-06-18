@@ -1890,6 +1890,15 @@ export const articles = [
 		slug: 'effects/grayscale',
 	},
 	{
+		id: 'effects/gridlines',
+		title: 'gridlines()',
+		relativePath: 'docs/effects/gridlines.mdx',
+		compId: 'articles-docs-effects-gridlines',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/gridlines',
+	},
+	{
 		id: 'effects/halftone-linear-gradient',
 		title: 'halftoneLinearGradient()',
 		relativePath: 'docs/effects/halftone-linear-gradient.mdx',

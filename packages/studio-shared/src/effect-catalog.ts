@@ -560,6 +560,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-gridlines',
+		category: 'Generate',
+		label: 'gridlines()',
+		description: 'Procedural grid pattern effect',
+		effect: {
+			name: 'gridlines',
+			importPath: '@remotion/effects/gridlines',
+			config: {},
+		},
+	},
+	{
 		id: 'effects-white-noise',
 		category: 'Generate',
 		label: 'whiteNoise()',

@@ -15,6 +15,7 @@ import {evolve} from '@remotion/effects/evolve';
 import {fisheye} from '@remotion/effects/fisheye';
 import {glow} from '@remotion/effects/glow';
 import {grayscale} from '@remotion/effects/grayscale';
+import {gridlines} from '@remotion/effects/gridlines';
 import {halftone} from '@remotion/effects/halftone';
 import {halftoneLinearGradient} from '@remotion/effects/halftone-linear-gradient';
 import {hue} from '@remotion/effects/hue';
@@ -63,6 +64,7 @@ import {EffectsEvolvePreview} from '../effects/effects-evolve-preview';
 import {EffectsFisheyePreview} from '../effects/effects-fisheye-preview';
 import {EffectsGlowPreview} from '../effects/effects-glow-preview';
 import {EffectsGrayscalePreview} from '../effects/effects-grayscale-preview';
+import {EffectsGridlinesPreview} from '../effects/effects-gridlines-preview';
 import {EffectsHalftoneLinearGradientPreview} from '../effects/effects-halftone-linear-gradient-preview';
 import {EffectsHalftonePreview} from '../effects/effects-halftone-preview';
 import {EffectsHuePreview} from '../effects/effects-hue-preview';
@@ -518,6 +520,14 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/halftone-linear-gradient',
 		comp: EffectsHalftoneLinearGradientPreview,
 		schema: halftoneLinearGradient().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-gridlines',
+		effectName: 'gridlines',
+		effectImportPath: '@remotion/effects/gridlines',
+		comp: EffectsGridlinesPreview,
+		schema: gridlines().definition.schema,
 	},
 	{
 		...defaults,
