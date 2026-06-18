@@ -1,5 +1,5 @@
 import React from 'react';
-import {Internals} from 'remotion';
+import {Internals, Interactive} from 'remotion';
 import type {MakePolygonProps} from '../utils/make-polygon';
 import {makePolygon} from '../utils/make-polygon';
 import type {AllShapesProps} from './render-svg';
@@ -49,8 +49,9 @@ const PolygonInner: React.FC<PolygonProps> = ({
 	);
 };
 
-export const Polygon = Internals.wrapInSchema({
+export const Polygon = Interactive.withSchema({
 	Component: PolygonInner,
+	componentName: '<Polygon>',
 	componentIdentity: 'dev.remotion.shapes.Polygon',
 	schema: polygonSchema,
 	supportsEffects: true,

@@ -1,15 +1,18 @@
 import {
 	Internals,
-	type SequenceFieldSchema,
-	type SequenceSchema,
+	type InteractivitySchemaField,
+	type InteractivitySchema,
 } from 'remotion';
 
-const shouldSkipField = (key: string, field: SequenceFieldSchema): boolean => {
+const shouldSkipField = (
+	key: string,
+	field: InteractivitySchemaField,
+): boolean => {
 	return field.type === 'hidden' || key === 'disabled';
 };
 
 export const getDefaultValueFromSchema = (
-	field: SequenceFieldSchema,
+	field: InteractivitySchemaField,
 ): unknown => {
 	if (field.type === 'hidden') {
 		return undefined;
@@ -48,7 +51,10 @@ export const getDefaultValueFromSchema = (
 			return field.default;
 		}
 
-		return Array.from({length: field.minLength ?? 0}, () => field.newItemDefault);
+		return Array.from(
+			{length: field.minLength ?? 0},
+			() => field.newItemDefault,
+		);
 	}
 
 	return undefined;
@@ -58,7 +64,7 @@ export const fillSchemaDefaults = ({
 	schema,
 	values,
 }: {
-	readonly schema: SequenceSchema;
+	readonly schema: InteractivitySchema;
 	readonly values: Record<string, unknown>;
 }): Record<string, unknown> => {
 	const next = {...values};
@@ -91,7 +97,7 @@ export const getInitialValuesFromSchema = ({
 	schema,
 	initialValues,
 }: {
-	readonly schema: SequenceSchema;
+	readonly schema: InteractivitySchema;
 	readonly initialValues?: Record<string, unknown>;
 }): Record<string, unknown> => {
 	return fillSchemaDefaults({
@@ -104,7 +110,7 @@ export const getActiveSchemaFields = ({
 	schema,
 	values,
 }: {
-	readonly schema: SequenceSchema;
+	readonly schema: InteractivitySchema;
 	readonly values: Record<string, unknown>;
 }) => {
 	return Object.entries(

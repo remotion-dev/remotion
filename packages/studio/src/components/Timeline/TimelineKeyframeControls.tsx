@@ -8,7 +8,7 @@ import type {
 	GetEffectDragOverrides,
 	PropStatuses,
 	SequencePropsSubscriptionKey,
-	SequenceSchema,
+	InteractivitySchema,
 } from 'remotion';
 import {Internals, useVideoConfig} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
@@ -95,7 +95,7 @@ type KeyframeControlTarget = {
 	readonly sourceFrame: number;
 	readonly defaultValue: unknown;
 	readonly dragOverrideValue: DragOverrideValue | undefined;
-	readonly schema: SequenceSchema;
+	readonly schema: InteractivitySchema;
 	readonly effectIndex: number | null;
 };
 
@@ -427,6 +427,22 @@ export const shouldShowTimelineKeyframeControls = ({
 	return isKeyframedStatus(propStatus);
 };
 
+export type TimelineKeyframeControlsMode = 'timeline' | 'inspector';
+
+export const shouldShowTimelineKeyframeNavigation = ({
+	propStatus,
+	selected,
+}: {
+	readonly propStatus: CanUpdateSequencePropStatus;
+	readonly selected: boolean;
+}) => {
+	if (selected) {
+		return true;
+	}
+
+	return isKeyframedStatus(propStatus);
+};
+
 export const TimelineKeyframeControls: React.FC<{
 	readonly fieldKey: string;
 	readonly propStatus: CanUpdateSequencePropStatus;
@@ -435,9 +451,10 @@ export const TimelineKeyframeControls: React.FC<{
 	readonly keyframeDisplayOffset: number;
 	readonly defaultValue: unknown;
 	readonly dragOverrideValue: DragOverrideValue | undefined;
-	readonly schema: SequenceSchema;
+	readonly schema: InteractivitySchema;
 	readonly effectIndex: number | null;
 	readonly nodePathInfo: SequenceNodePathInfo;
+	readonly mode?: TimelineKeyframeControlsMode;
 }> = ({
 	fieldKey,
 	propStatus,
@@ -502,6 +519,23 @@ export const TimelineKeyframeControls: React.FC<{
 			),
 		[keyframes, timelinePosition, videoConfig.durationInFrames],
 	);
+	const propertySelected = useMemo(() => {
+		const propertySelection =
+			getTimelineSelectionFromNodePathInfo(nodePathInfo);
+		if (propertySelection === null) {
+			return false;
+		}
+
+		const propertySelectionKey = getTimelineSelectionKey(propertySelection);
+		return selectedItems.some(
+			(selection) =>
+				getTimelineSelectionKey(selection) === propertySelectionKey,
+		);
+	}, [nodePathInfo, selectedItems]);
+	const showNavigationButtons = shouldShowTimelineKeyframeNavigation({
+		propStatus,
+		selected: propertySelected,
+	});
 
 	const keyframable = isSchemaFieldKeyframable({
 		schema,
@@ -677,8 +711,9 @@ export const TimelineKeyframeControls: React.FC<{
 			...navButtonStyle,
 			cursor: previousDisabled ? 'default' : 'pointer',
 			opacity: previousDisabled ? 0.35 : 1,
+			visibility: showNavigationButtons ? 'visible' : 'hidden',
 		}),
-		[previousDisabled],
+		[previousDisabled, showNavigationButtons],
 	);
 
 	const nextStyle = useMemo(
@@ -686,8 +721,9 @@ export const TimelineKeyframeControls: React.FC<{
 			...navButtonStyle,
 			cursor: nextDisabled ? 'default' : 'pointer',
 			opacity: nextDisabled ? 0.35 : 1,
+			visibility: showNavigationButtons ? 'visible' : 'hidden',
 		}),
-		[nextDisabled],
+		[nextDisabled, showNavigationButtons],
 	);
 
 	const diamondStyle = useMemo(

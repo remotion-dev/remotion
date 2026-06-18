@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertOptionalFiniteNumber,
@@ -13,7 +13,7 @@ const {createEffect} = Internals;
 
 const contrastSchema = {
 	amount: colorMultiplierSchema,
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type ContrastParams = {
 	/** Contrast multiplier. `1` leaves the image unchanged, `0` produces a flat gray, values above `1` increase contrast. Defaults to `1`. */
@@ -37,7 +37,7 @@ const validateContrastParams = (params: ContrastParams): void => {
 };
 
 export const contrast = createEffect<ContrastParams, null>({
-	type: 'remotion/contrast',
+	type: 'dev.remotion.effects.contrast',
 	label: 'contrast()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/contrast',
 	backend: '2d',

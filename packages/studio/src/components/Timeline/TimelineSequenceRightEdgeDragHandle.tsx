@@ -1,4 +1,7 @@
-import {stringifySequenceSubscriptionKey} from '@remotion/studio-shared';
+import {
+	stringifySequenceExpandedRowKey,
+	stringifySequenceSubscriptionKey,
+} from '@remotion/studio-shared';
 import React, {
 	useCallback,
 	useContext,
@@ -182,7 +185,7 @@ const findSequenceTrack = ({
 	readonly tracks: ReturnType<typeof calculateTimeline>;
 	readonly nodePathInfo: SequenceNodePathInfo;
 }) => {
-	const key = stringifySequenceSubscriptionKey(
+	const key = stringifySequenceExpandedRowKey(
 		nodePathInfo.sequenceSubscriptionKey,
 	);
 
@@ -192,7 +195,7 @@ const findSequenceTrack = ({
 		}
 
 		return (
-			stringifySequenceSubscriptionKey(
+			stringifySequenceExpandedRowKey(
 				candidate.nodePathInfo.sequenceSubscriptionKey,
 			) === key && candidate.nodePathInfo.index === nodePathInfo.index
 		);
@@ -245,13 +248,14 @@ export const getTimelineSequenceDurationDragTargets = ({
 			: null;
 		if (
 			!track ||
+			!track.nodePathInfo ||
 			!originalSequence ||
 			!isDurationDraggableSequence(originalSequence)
 		) {
 			return null;
 		}
 
-		const nodePath = nodePathInfo.sequenceSubscriptionKey;
+		const nodePath = track.nodePathInfo.sequenceSubscriptionKey;
 		if (!canUpdateDurationInFrames({propStatuses, nodePath})) {
 			return null;
 		}
@@ -315,13 +319,14 @@ export const getTimelineSequenceFromDragTargets = ({
 			: null;
 		if (
 			!track ||
+			!track.nodePathInfo ||
 			!originalSequence ||
 			!isFromDraggableSequence(originalSequence)
 		) {
 			return null;
 		}
 
-		const nodePath = nodePathInfo.sequenceSubscriptionKey;
+		const nodePath = track.nodePathInfo.sequenceSubscriptionKey;
 		if (!canUpdateFrom({propStatuses, nodePath})) {
 			return null;
 		}

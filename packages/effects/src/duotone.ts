@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertOptionalFiniteNumber,
@@ -37,7 +37,7 @@ export const duotoneSchema = {
 		description: 'Luminance threshold',
 		hiddenFromList: false,
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type DuotoneParams = {
 	/** Color used for pixels below the luminance threshold. Defaults to black. */
@@ -307,7 +307,7 @@ const getParsedColors = (
 };
 
 export const duotone = createEffect<DuotoneParams, DuotoneState>({
-	type: 'remotion/duotone',
+	type: 'dev.remotion.effects.duotone',
 	label: 'duotone()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/duotone',
 	backend: 'webgl2',

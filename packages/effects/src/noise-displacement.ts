@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertOptionalFiniteNumber,
@@ -104,7 +104,7 @@ const noiseDisplacementSchema = {
 		description: 'Bias amount',
 		hiddenFromList: false,
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type NoiseDisplacementCenter = readonly [number, number];
 
@@ -529,7 +529,7 @@ export const noiseDisplacement = createEffect<
 	NoiseDisplacementParams,
 	NoiseDisplacementState
 >({
-	type: 'remotion/noise-displacement',
+	type: 'dev.remotion.effects.noiseDisplacement',
 	label: 'noiseDisplacement()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/noise-displacement',
 	backend: 'webgl2',

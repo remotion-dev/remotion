@@ -147,14 +147,14 @@ export const indexHtml = ({
 		
 		<div id="video-container"></div>
 		<div id="${Internals.REMOTION_STUDIO_CONTAINER_ELEMENT}"></div>
+		<div id="remotion-error-overlay"></div>
+		<div id="server-disconnected-overlay"></div>
 		<div id="menuportal-0"></div>
 		<div id="menuportal-1"></div>
 		<div id="menuportal-2"></div>
 		<div id="menuportal-3"></div>
 		<div id="menuportal-4"></div>
 		<div id="menuportal-5"></div>
-		<div id="remotion-error-overlay"></div>
-		<div id="server-disconnected-overlay"></div>
 		<script src="${publicPath}bundle.js"></script>
 	</body>
 </html>

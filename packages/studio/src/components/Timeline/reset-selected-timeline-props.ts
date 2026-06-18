@@ -1,10 +1,11 @@
+import {getEffectFieldsToShow} from '@remotion/studio-shared';
 import type {
 	CanUpdateSequencePropStatus,
 	OverrideIdToNodePaths,
 	PropStatuses,
-	SequenceFieldSchema,
+	InteractivitySchemaField,
 	SequencePropsSubscriptionKey,
-	SequenceSchema,
+	InteractivitySchema,
 	TSequence,
 } from 'remotion';
 import {Internals} from 'remotion';
@@ -21,7 +22,7 @@ type SequencePropResetTarget = {
 	readonly fieldKey: string;
 	readonly value: unknown;
 	readonly defaultValue: string | null;
-	readonly schema: SequenceSchema;
+	readonly schema: InteractivitySchema;
 };
 
 type EffectPropResetTarget = {
@@ -32,7 +33,7 @@ type EffectPropResetTarget = {
 	readonly fieldKey: string;
 	readonly value: unknown;
 	readonly defaultValue: string | null;
-	readonly schema: SequenceSchema;
+	readonly schema: InteractivitySchema;
 };
 
 type TimelinePropResetTarget = SequencePropResetTarget | EffectPropResetTarget;
@@ -60,8 +61,8 @@ function assertPropResetSelections(
 }
 
 const isVisibleFieldSchema = (
-	fieldSchema: SequenceFieldSchema | undefined,
-): fieldSchema is Exclude<SequenceFieldSchema, {type: 'hidden'}> =>
+	fieldSchema: InteractivitySchemaField | undefined,
+): fieldSchema is Exclude<InteractivitySchemaField, {type: 'hidden'}> =>
 	fieldSchema !== undefined && fieldSchema.type !== 'hidden';
 
 const isNonDefaultCodeValue = ({
@@ -88,8 +89,12 @@ const isResettablePropStatus = ({
 		return false;
 	}
 
-	if (propStatus.status === 'keyframed' || propStatus.status === 'computed') {
+	if (propStatus.status === 'keyframed') {
 		return true;
+	}
+
+	if (propStatus.status === 'computed') {
+		return false;
 	}
 
 	return isNonDefaultCodeValue({
@@ -99,11 +104,23 @@ const isResettablePropStatus = ({
 };
 
 const getDefaultValue = (
-	fieldSchema: Exclude<SequenceFieldSchema, {type: 'hidden'}>,
+	fieldSchema: Exclude<InteractivitySchemaField, {type: 'hidden'}>,
 ) =>
 	fieldSchema.default !== undefined
 		? JSON.stringify(fieldSchema.default)
 		: null;
+
+const getActiveFieldSchema = ({
+	schema,
+	key,
+	resolveValue,
+}: {
+	readonly schema: InteractivitySchema;
+	readonly key: string;
+	readonly resolveValue: (key: string) => unknown;
+}) => {
+	return Internals.flattenActiveSchema(schema, resolveValue)[key];
+};
 
 export const getTimelinePropResetTargets = ({
 	selections,
@@ -145,15 +162,28 @@ export const getTimelinePropResetTargets = ({
 				continue;
 			}
 
-			const sequenceFieldSchema = sequence.controls.schema[selection.key];
 			const sequencePropStatus = Internals.getPropStatusesCtx(
 				propStatuses,
 				nodePath,
-			)?.[selection.key];
+			);
+			const {merged: sequenceValuesDotNotation} =
+				Internals.computeEffectiveSchemaValuesDotNotation({
+					schema: sequence.controls.schema,
+					currentValue: sequence.controls.currentRuntimeValueDotNotation,
+					overrideValues: {},
+					propStatus: sequencePropStatus,
+					frame: null,
+				});
+			const sequenceFieldSchema = getActiveFieldSchema({
+				schema: sequence.controls.schema,
+				key: selection.key,
+				resolveValue: (key) => sequenceValuesDotNotation[key],
+			});
+			const selectedPropStatus = sequencePropStatus?.[selection.key];
 			if (
 				!isVisibleFieldSchema(sequenceFieldSchema) ||
 				!isResettablePropStatus({
-					propStatus: sequencePropStatus,
+					propStatus: selectedPropStatus,
 					defaultValue: sequenceFieldSchema.default,
 				})
 			) {
@@ -173,7 +203,16 @@ export const getTimelinePropResetTargets = ({
 		}
 
 		const effect = sequence.effects[selection.i];
-		const fieldSchema = effect?.schema[selection.key];
+		const field = effect
+			? getEffectFieldsToShow({
+					effect,
+					effectIndex: selection.i,
+					nodePath,
+					propStatuses,
+					getEffectDragOverrides: () => ({}),
+				}).find((candidate) => candidate.key === selection.key)
+			: null;
+		const fieldSchema = field?.fieldSchema;
 		const effectStatus = Internals.getEffectPropStatusesCtx({
 			propStatuses,
 			nodePath,

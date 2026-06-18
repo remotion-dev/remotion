@@ -80,6 +80,10 @@ export const TableOfContents: React.FC = () => {
 					<strong>{'<CanvasImage>'}</strong>
 					<div>Render an image into a canvas and apply effects</div>
 				</TOCItem>
+				<TOCItem link="/docs/create-effect">
+					<strong>createEffect()</strong>
+					<div>Create custom effects for canvas components</div>
+				</TOCItem>
 				<TOCItem link="/docs/interpolate-colors">
 					<strong>interpolateColors()</strong>
 					<div>Map a range of values to colors</div>
@@ -114,6 +118,10 @@ export const TableOfContents: React.FC = () => {
 					<strong>{'<Sequence>'}</strong>
 					<div>Time-shifts it{"'"}s children</div>
 				</TOCItem>
+				<TOCItem link="/docs/interactivity-schema">
+					<strong>InteractivitySchema</strong>
+					<div>Define timeline controls for components and effects</div>
+				</TOCItem>
 				<TOCItem link="/docs/series">
 					<strong>{'<Series>'}</strong>
 					<div>Display contents after another</div>
@@ -143,6 +151,10 @@ export const TableOfContents: React.FC = () => {
 				<TOCItem link="/docs/version">
 					<strong>{'VERSION'}</strong>
 					<div>Get the current version of Remotion</div>
+				</TOCItem>
+				<TOCItem link="/docs/interactive-with-schema">
+					<strong>Interactive.withSchema()</strong>
+					<div>Expose component props as Studio timeline controls</div>
 				</TOCItem>
 			</Grid>
 		</div>

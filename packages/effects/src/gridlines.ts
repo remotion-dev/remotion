@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertOptionalFiniteNumber,
@@ -100,7 +100,7 @@ export const gridlinesSchema = {
 		default: DEFAULT_MASK_TO_SOURCE_ALPHA,
 		description: 'Mask to source alpha',
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type GridlinesParams = {
 	/** Distance between adjacent grid lines in pixels. Defaults to `64`. */

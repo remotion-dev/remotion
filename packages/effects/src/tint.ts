@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertOptionalFiniteNumber,
@@ -28,7 +28,7 @@ export const tintSchema = {
 		description: 'Amount',
 		hiddenFromList: false,
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type TintParams = {
 	readonly color: string;
@@ -59,7 +59,7 @@ const validateTintParams = (params: TintParams): void => {
 // (0 = no tint, 1 = full color over opaque pixels). Operates on the 2D
 // backend; tinting respects the source's alpha mask.
 export const tint = createEffect<TintParams, null>({
-	type: 'remotion/tint',
+	type: 'dev.remotion.effects.tint',
 	label: 'tint()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/tint',
 	backend: '2d',

@@ -15,7 +15,7 @@ export const parseKeyframeFieldFromNodePath = (
 	if (auxiliaryKeys[0] === 'controls' && auxiliaryKeys.length >= 2) {
 		return {
 			type: 'sequence',
-			fieldKey: auxiliaryKeys[1],
+			fieldKey: auxiliaryKeys.slice(1).join('.'),
 		};
 	}
 
@@ -29,7 +29,7 @@ export const parseKeyframeFieldFromNodePath = (
 		return {
 			type: 'effect',
 			effectIndex,
-			fieldKey: auxiliaryKeys[2],
+			fieldKey: auxiliaryKeys.slice(2).join('.'),
 		};
 	}
 

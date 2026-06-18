@@ -2,6 +2,35 @@ import {parseColor} from './parse-color';
 
 const CLIPPING_COLOR = '#FF7F50';
 
+export type WaveformVolume = number | readonly number[];
+
+const getVolumeAtBar = ({
+	barIndex,
+	numBars,
+	volume,
+}: {
+	barIndex: number;
+	numBars: number;
+	volume: WaveformVolume;
+}) => {
+	if (typeof volume === 'number') {
+		return volume;
+	}
+
+	if (volume.length === 0) {
+		return 1;
+	}
+
+	if (volume.length === 1 || numBars <= 1) {
+		return volume[0];
+	}
+
+	const volumeIndex = Math.round(
+		(barIndex / (numBars - 1)) * (volume.length - 1),
+	);
+	return volume[volumeIndex] ?? 1;
+};
+
 export const drawBars = ({
 	canvas,
 	color,
@@ -12,7 +41,7 @@ export const drawBars = ({
 	readonly canvas: HTMLCanvasElement | OffscreenCanvas;
 	readonly peaks: Float32Array;
 	readonly color: string;
-	readonly volume: number;
+	readonly volume: WaveformVolume;
 	readonly width: number;
 }) => {
 	const ctx = canvas.getContext('2d');
@@ -34,8 +63,6 @@ export const drawBars = ({
 
 	ctx.clearRect(0, 0, w, height);
 
-	if (volume === 0) return;
-
 	const [r, g, b, a] = parseColor(color);
 	const [cr, cg, cb, ca] = parseColor(CLIPPING_COLOR);
 
@@ -50,7 +77,8 @@ export const drawBars = ({
 		const peakIndex = Math.floor((barIndex / numBars) * peaks.length);
 		const peak = peaks[peakIndex] || 0;
 
-		const scaledPeak = peak * volume;
+		const barVolume = getVolumeAtBar({barIndex, numBars, volume});
+		const scaledPeak = peak * barVolume;
 		const halfBar = Math.max(
 			0,
 			Math.min(height / 2, (scaledPeak * height) / 2),

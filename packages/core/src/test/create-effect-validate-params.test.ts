@@ -7,7 +7,7 @@ type RequiredParams = {
 
 const makeEffectWithValidation = () =>
 	createEffect<RequiredParams, null>({
-		type: 'test/required',
+		type: 'dev.remotion.test.required',
 		label: 'Required',
 		documentationLink: null,
 		backend: '2d',

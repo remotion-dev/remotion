@@ -2,7 +2,7 @@ import {getAllSchemaKeys} from '@remotion/studio-shared';
 import type {
 	JsxComponentIdentity,
 	SequenceNodePath,
-	SequenceSchema,
+	InteractivitySchema,
 } from 'remotion';
 import {Internals} from 'remotion';
 import {callApi} from '../call-api';
@@ -57,9 +57,9 @@ export const acquireSequencePropsSubscription = ({
 	fileName: string;
 	line: number;
 	column: number;
-	schema: SequenceSchema;
+	schema: InteractivitySchema;
 	componentIdentity: JsxComponentIdentity | null;
-	effects: SequenceSchema[];
+	effects: InteractivitySchema[];
 	nodePath: SequenceNodePath | null;
 	clientId: string;
 	applyOnce: ApplyResult;

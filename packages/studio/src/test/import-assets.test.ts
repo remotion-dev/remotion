@@ -2,6 +2,7 @@ import {expect, test} from 'bun:test';
 import {
 	getAssetElement,
 	getAssetElementFromPath,
+	getComponentDimensions,
 } from '../components/import-assets';
 
 test('maps audio file types to Audio assets', () => {
@@ -17,6 +18,7 @@ test('maps audio file types to Audio assets', () => {
 			src: `sound.${type}`,
 			srcType: 'static',
 			dimensions: null,
+			position: null,
 		});
 	}
 });
@@ -30,6 +32,25 @@ test('does not map M3U playlists to Audio assets', () => {
 	).toBe(null);
 });
 
+test('maps animated PNG file types to AnimatedImage assets', () => {
+	expect(
+		getAssetElement({
+			fileType: {
+				type: 'apng',
+				dimensions: {width: 320, height: 180},
+			},
+			src: 'animated-png.png',
+		}),
+	).toEqual({
+		type: 'asset',
+		assetType: 'animated-image',
+		src: 'animated-png.png',
+		srcType: 'static',
+		dimensions: {width: 320, height: 180},
+		position: null,
+	});
+});
+
 test('maps existing static file paths to insertable assets', () => {
 	expect(getAssetElementFromPath('nested/photo.JPG')).toEqual({
 		type: 'asset',
@@ -37,6 +58,7 @@ test('maps existing static file paths to insertable assets', () => {
 		src: 'nested/photo.JPG',
 		srcType: 'static',
 		dimensions: null,
+		position: null,
 	});
 	expect(getAssetElementFromPath('movie.webm')).toEqual({
 		type: 'asset',
@@ -44,6 +66,7 @@ test('maps existing static file paths to insertable assets', () => {
 		src: 'movie.webm',
 		srcType: 'static',
 		dimensions: null,
+		position: null,
 	});
 	expect(getAssetElementFromPath('audio.flac')).toEqual({
 		type: 'asset',
@@ -51,6 +74,15 @@ test('maps existing static file paths to insertable assets', () => {
 		src: 'audio.flac',
 		srcType: 'static',
 		dimensions: null,
+		position: null,
+	});
+	expect(getAssetElementFromPath('animation.apng')).toEqual({
+		type: 'asset',
+		assetType: 'animated-image',
+		src: 'animation.apng',
+		srcType: 'static',
+		dimensions: null,
+		position: null,
 	});
 	expect(getAssetElementFromPath('animation.gif')).toEqual({
 		type: 'asset',
@@ -58,6 +90,7 @@ test('maps existing static file paths to insertable assets', () => {
 		src: 'animation.gif',
 		srcType: 'static',
 		dimensions: null,
+		position: null,
 	});
 });
 
@@ -65,4 +98,33 @@ test('does not map unsupported existing static file paths', () => {
 	expect(getAssetElementFromPath('data.json')).toBe(null);
 	expect(getAssetElementFromPath('asset-without-extension')).toBe(null);
 	expect(getAssetElementFromPath('nested\\photo.png')).toBe(null);
+});
+
+test('uses explicit component dimensions from drag data', () => {
+	expect(
+		getComponentDimensions({
+			componentName: 'Heart',
+			dimensions: {width: 110, height: 100},
+			importName: 'Heart',
+			importPath: '@remotion/shapes',
+			props: [
+				{name: 'height', value: 100},
+				{name: 'aspectRatio', value: 1.1},
+			],
+		}),
+	).toEqual({width: 110, height: 100});
+});
+
+test('falls back to generic component dimensions', () => {
+	expect(
+		getComponentDimensions({
+			componentName: 'CustomBox',
+			importName: 'CustomBox',
+			importPath: './CustomBox',
+			props: [
+				{name: 'width', value: 320},
+				{name: 'height', value: 180},
+			],
+		}),
+	).toEqual({width: 320, height: 180});
 });

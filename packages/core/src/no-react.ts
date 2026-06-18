@@ -31,10 +31,10 @@ import {
 	serializeJSONWithSpecialTypes,
 } from './input-props-serialization';
 import {DATE_TOKEN, FILE_TOKEN} from './input-props-serialization.js';
+import {sequenceSchema} from './interactivity-schema';
 import {colorNames, processColor} from './interpolate-colors';
 import {proResProfileOptions} from './prores-profile';
 import {parseScaleValue, serializeScaleValue} from './scale-value';
-import {sequenceSchema} from './sequence-field-schema';
 import {truthy} from './truthy';
 import {ENABLE_V5_BREAKING_CHANGES} from './v5-flag';
 import {validateFrame} from './validate-frame';

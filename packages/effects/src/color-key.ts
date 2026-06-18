@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertOptionalFiniteNumber,
@@ -51,7 +51,7 @@ export const colorKeySchema = {
 		description: 'Spill suppression',
 		hiddenFromList: false,
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type ColorKeyParams = {
 	/** Color to key out. Defaults to `'#00ff00'`. */
@@ -347,7 +347,7 @@ const parseKeyColor = (
 };
 
 export const colorKey = createEffect<ColorKeyParams, ColorKeyState>({
-	type: 'remotion/color-key',
+	type: 'dev.remotion.effects.colorKey',
 	label: 'colorKey()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/color-key',
 	backend: 'webgl2',

@@ -9,10 +9,6 @@ import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
 import {ModalsContext} from '../state/modals';
 import {useZIndex} from '../state/z-index';
 import {CompositionSelectorItem} from './CompositionSelectorItem';
-import {
-	CURRENT_COMPOSITION_HEIGHT,
-	CurrentComposition,
-} from './CurrentComposition';
 import {useSelectComposition} from './InitialCompositionLoader';
 
 export const useCompositionNavigation = () => {
@@ -81,8 +77,6 @@ const container: React.CSSProperties = {
 	backgroundColor: BACKGROUND,
 };
 
-const QUICK_SWITCHER_TRIGGER_HEIGHT = 38;
-
 const quickSwitcherArea: React.CSSProperties = {
 	padding: '4px 12px',
 	borderBottom: `1px solid ${BORDER_COLOR}`,
@@ -132,7 +126,7 @@ export const CompositionSelector: React.FC = () => {
 
 	const list: React.CSSProperties = useMemo(() => {
 		return {
-			height: `calc(100% - ${CURRENT_COMPOSITION_HEIGHT}px - ${QUICK_SWITCHER_TRIGGER_HEIGHT}px)`,
+			flex: 1,
 			overflowY: 'auto',
 		};
 	}, []);
@@ -157,7 +151,6 @@ export const CompositionSelector: React.FC = () => {
 
 	return (
 		<div style={container}>
-			<CurrentComposition />
 			<div style={quickSwitcherArea}>
 				<button
 					type="button"

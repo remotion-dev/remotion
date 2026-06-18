@@ -1,0 +1,145 @@
+---
+image: /generated/articles-docs-effects-contour-lines.png
+slug: /effects/contour-lines
+title: contourLines()
+sidebar_label: contourLines()
+crumb: '@remotion/effects'
+---
+
+# contourLines()<AvailableFrom v="4.0.476" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+Adds a deterministic topographic contour-line overlay to canvas-based components such as [`<Video>`](/docs/media/video), [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas), [`<CanvasImage>`](/docs/canvasimage) and [`<Solid>`](/docs/solid).
+
+The effect renders static procedural linework. Animate its parameters, such as `offsetX`, `offsetY` or `scale`, to move or morph the pattern.
+
+## Preview
+
+<EffectsDemo type="effects-contour-lines" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {contourLines} from '@remotion/effects/contour-lines';
+import {
+  AbsoluteFill,
+  CanvasImage,
+  staticFile,
+  useCurrentFrame,
+} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  const frame = useCurrentFrame();
+
+  return (
+    <AbsoluteFill>
+      <CanvasImage
+        src={staticFile('image.png')}
+        width={1280}
+        height={720}
+        fit="cover"
+        effects={[
+          contourLines({
+            lineColor: 'rgba(255, 255, 255, 0.75)',
+            lineWidth: 1.4,
+            spacing: 36,
+            scale: 220,
+            complexity: 0.7,
+            smoothness: 0.75,
+            seed: 2,
+            offsetX: frame * 0.4,
+            offsetY: frame * 0.2,
+          }),
+        ]}
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+## API
+
+Pass an object with the following properties. You can also call `contourLines()` without arguments.
+
+### `lineColor?`
+
+Color of the contour lines. Defaults to `'#ffffff'`.
+
+Use an alpha channel in the color string, or use [`opacity`](#opacity), to make the overlay more subtle.
+
+### `lineWidth?`
+
+Width of each contour line in pixels. Defaults to `1.5`. Must be greater than `0`.
+
+### `spacing?`
+
+Distance between contour height levels in pixels. Defaults to `36`. Must be greater than `0`.
+
+Lower values create denser contour lines.
+
+### `scale?`
+
+Size of the generated terrain features in pixels. Defaults to `220`. Must be greater than `0`.
+
+Higher values create larger hills and wider contour shapes.
+
+### `complexity?`
+
+Amount of terrain detail from `0` to `1`. Defaults to `0.65`.
+
+Lower values create smoother contours. Higher values add more irregular detail.
+
+### `smoothness?`
+
+Smooths the contour curves from `0` to `1`. Defaults to `0.55`.
+
+Higher values reduce small wiggles while preserving the larger terrain shapes.
+
+### `seed?`
+
+Seed for the deterministic contour field. Defaults to `0`.
+
+Change it to get a different static pattern.
+
+### `offsetX?`
+
+Horizontal offset in pixels. Defaults to `0`.
+
+Use this to align the contour field with other layers, or pass a frame-based value to move the linework.
+
+### `offsetY?`
+
+Vertical offset in pixels. Defaults to `0`.
+
+Use this to align the contour field with other layers, or pass a frame-based value to move the linework.
+
+### `opacity?`
+
+Multiplies the alpha channel of [`lineColor`](#linecolor). Defaults to `1`.
+
+Must be between `0` and `1`.
+
+### `maskToSourceAlpha?`
+
+Masks the generated contour lines to the source alpha channel. Defaults to `false`.
+
+Set this to `true` to prevent the line pattern from appearing in fully transparent source pixels.
+
+This has no visible effect on fully opaque sources.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Requirements
+
+`contourLines()` uses a WebGL2 backend. During renders, enable WebGL via [`Config.setChromiumOpenGlRenderer('angle')`](/docs/config#setchromiumopenglrenderer). See [Using WebGL during renders](/docs/remotion/html-in-canvas#using-webgl-during-renders).
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`lines()`](/docs/effects/lines)
+- [`rings()`](/docs/effects/rings)
+- [`noise()`](/docs/effects/noise)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/contour-lines.ts)

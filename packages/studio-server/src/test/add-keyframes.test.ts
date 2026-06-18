@@ -2,7 +2,7 @@ import {expect, test} from 'bun:test';
 import {mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {
 	createFileWatcherRegistry,
@@ -38,7 +38,7 @@ const effectSchema = {
 		default: 0,
 		hiddenFromList: false,
 	},
-} satisfies SequenceSchema;
+} satisfies InteractivitySchema;
 
 test('addKeyframes batches sequence and effect adds into one undo entry', async () => {
 	const cleanupFileWatcher = setFileWatcherRegistry(
