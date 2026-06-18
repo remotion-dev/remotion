@@ -90,16 +90,17 @@ const makeTestSource = (width: number, height: number): HTMLCanvasElement => {
 	return canvas;
 };
 
-export const renderEffectChainToBlob = async ({
+export const renderEffectChainToCanvas = async ({
 	effects,
 	width = 320,
 	height = 180,
+	source = makeTestSource(width, height),
 }: {
 	effects: EffectDefinitionAndStack<unknown>[];
 	width?: number;
 	height?: number;
-}): Promise<Blob> => {
-	const source = makeTestSource(width, height);
+	source?: CanvasImageSource;
+}): Promise<HTMLCanvasElement> => {
 	const output = document.createElement('canvas');
 	output.width = width;
 	output.height = height;
@@ -121,6 +122,27 @@ export const renderEffectChainToBlob = async ({
 	} finally {
 		Internals.cleanupEffectChainState(state);
 	}
+
+	return output;
+};
+
+export const renderEffectChainToBlob = async ({
+	effects,
+	width = 320,
+	height = 180,
+	source = makeTestSource(width, height),
+}: {
+	effects: EffectDefinitionAndStack<unknown>[];
+	width?: number;
+	height?: number;
+	source?: CanvasImageSource;
+}): Promise<Blob> => {
+	const output = await renderEffectChainToCanvas({
+		effects,
+		width,
+		height,
+		source,
+	});
 
 	const blob = await new Promise<Blob>((resolve, reject) => {
 		output.toBlob((result) => {
