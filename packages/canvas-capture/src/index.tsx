@@ -53,6 +53,11 @@ type MouseMovement = {
 	readonly cursor: string;
 };
 
+type PointerClick = {
+	readonly timeInSeconds: number;
+	readonly type: 'pointer-down' | 'pointer-up';
+};
+
 type CaptureMetadata = {
 	readonly density: number;
 	readonly contentRect: {
@@ -79,6 +84,7 @@ type RecordingState = {
 	readonly source: CanvasVideoSource;
 	readonly startedAt: number;
 	readonly mouseMovements: MouseMovement[];
+	readonly pointerClicks: PointerClick[];
 	lastTimestampInSeconds: number | null;
 	lastFramePromise: Promise<void>;
 	frameCount: number;
@@ -201,9 +207,9 @@ const downloadBlob = (blob: Blob, filename: string) => {
 	URL.revokeObjectURL(url);
 };
 
-const getJsonFilename = (filename: string) => {
-	return filename.replace(/\.[^.]+$/, '') + '.json';
-};
+const CAPTURE_METADATA_TAG_KEY = 'REMOTION_CAPTURE_DATA';
+
+export {CAPTURE_METADATA_TAG_KEY};
 
 const logCaptureError = (message: string, err: unknown) => {
 	// eslint-disable-next-line no-console
@@ -254,28 +260,47 @@ const finalizeRecording = async (
 		throw new Error('Mediabunny did not return an output buffer.');
 	}
 
-	downloadBlob(
-		new Blob([recording.target.buffer], {type: 'video/webm'}),
-		filename,
-	);
-	downloadBlob(
-		new Blob(
-			[
-				JSON.stringify(
-					{
-						startedAt: recording.startedAt,
-						endedAt: performance.now(),
-						captureMetadata: recording.captureMetadata,
-						mouseMovements: recording.mouseMovements,
-					},
-					null,
-					2,
-				),
-			],
-			{type: 'application/json'},
-		),
-		getJsonFilename(filename),
-	);
+	const captureData = JSON.stringify({
+		startedAt: recording.startedAt,
+		endedAt: performance.now(),
+		captureMetadata: recording.captureMetadata,
+		mouseMovements: recording.mouseMovements,
+		pointerClicks: recording.pointerClicks,
+	});
+
+	const {
+		ALL_FORMATS,
+		BufferSource,
+		BufferTarget,
+		Conversion,
+		Input,
+		Output,
+		WebMOutputFormat,
+	} = await import('mediabunny');
+	const remuxInput = new Input({
+		formats: ALL_FORMATS,
+		source: new BufferSource(recording.target.buffer),
+	});
+	const remuxTarget = new BufferTarget();
+	const remuxOutput = new Output({
+		format: new WebMOutputFormat(),
+		target: remuxTarget,
+	});
+	const conversion = await Conversion.init({
+		input: remuxInput,
+		output: remuxOutput,
+		tags: {
+			raw: {[CAPTURE_METADATA_TAG_KEY]: captureData},
+		},
+		showWarnings: false,
+	});
+	await conversion.execute();
+
+	if (!remuxTarget.buffer) {
+		throw new Error('Mediabunny remux did not return an output buffer.');
+	}
+
+	downloadBlob(new Blob([remuxTarget.buffer], {type: 'video/webm'}), filename);
 };
 
 export const HtmlInCanvasCapture = forwardRef<
@@ -330,6 +355,7 @@ export const HtmlInCanvasCapture = forwardRef<
 			source,
 			startedAt: performance.now(),
 			mouseMovements: [],
+			pointerClicks: [],
 			lastTimestampInSeconds: null,
 			lastFramePromise: Promise.resolve(),
 			frameCount: 0,
@@ -460,6 +486,40 @@ export const HtmlInCanvasCapture = forwardRef<
 			window.removeEventListener('pointermove', onMouseMove);
 		};
 	}, [density]);
+
+	useEffect(() => {
+		const onPointerDown = () => {
+			const recording = recordingRef.current;
+			if (!recording || recording.isFinalizing) {
+				return;
+			}
+
+			recording.pointerClicks.push({
+				timeInSeconds: (performance.now() - recording.startedAt) / 1000,
+				type: 'pointer-down',
+			});
+		};
+
+		const onPointerUp = () => {
+			const recording = recordingRef.current;
+			if (!recording || recording.isFinalizing) {
+				return;
+			}
+
+			recording.pointerClicks.push({
+				timeInSeconds: (performance.now() - recording.startedAt) / 1000,
+				type: 'pointer-up',
+			});
+		};
+
+		window.addEventListener('pointerdown', onPointerDown, true);
+		window.addEventListener('pointerup', onPointerUp, true);
+
+		return () => {
+			window.removeEventListener('pointerdown', onPointerDown, true);
+			window.removeEventListener('pointerup', onPointerUp, true);
+		};
+	}, []);
 
 	useEffect(() => {
 		if (!isSupported) {

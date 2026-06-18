@@ -1,12 +1,16 @@
 import {barrelDistortion} from '@remotion/effects/barrel-distortion';
 import {blur} from '@remotion/effects/blur';
 import {brightness} from '@remotion/effects/brightness';
+import {burlap} from '@remotion/effects/burlap';
+import {checkerboard} from '@remotion/effects/checkerboard';
 import {chromaticAberration} from '@remotion/effects/chromatic-aberration';
 import {colorKey} from '@remotion/effects/color-key';
+import {contourLines} from '@remotion/effects/contour-lines';
 import {contrast} from '@remotion/effects/contrast';
 import {dotGrid} from '@remotion/effects/dot-grid';
 import {dropShadow} from '@remotion/effects/drop-shadow';
 import {duotone} from '@remotion/effects/duotone';
+import {emboss} from '@remotion/effects/emboss';
 import {evolve} from '@remotion/effects/evolve';
 import {fisheye} from '@remotion/effects/fisheye';
 import {glow} from '@remotion/effects/glow';
@@ -20,31 +24,41 @@ import {lines} from '@remotion/effects/lines';
 import {mirror} from '@remotion/effects/mirror';
 import {noise} from '@remotion/effects/noise';
 import {noiseDisplacement} from '@remotion/effects/noise-displacement';
+import {pattern} from '@remotion/effects/pattern';
 import {pixelDissolve} from '@remotion/effects/pixel-dissolve';
+import {pixelate} from '@remotion/effects/pixelate';
 import {rings} from '@remotion/effects/rings';
 import {saturation} from '@remotion/effects/saturation';
 import {scale} from '@remotion/effects/scale';
 import {scanlines} from '@remotion/effects/scanlines';
 import {shine} from '@remotion/effects/shine';
+import {shrinkwrap} from '@remotion/effects/shrinkwrap';
 import {speckle} from '@remotion/effects/speckle';
+import {thermalVision} from '@remotion/effects/thermal-vision';
 import {tint} from '@remotion/effects/tint';
 import {uvTranslate, xyTranslate} from '@remotion/effects/translate';
+import {tvSignalOff} from '@remotion/effects/tv-signal-off';
 import {vignette} from '@remotion/effects/vignette';
 import {wave} from '@remotion/effects/wave';
 import {waves} from '@remotion/effects/waves';
 import {whiteNoise} from '@remotion/effects/white-noise';
 import {zigzag} from '@remotion/effects/zigzag';
+import {zoomBlur} from '@remotion/effects/zoom-blur';
 import {lightLeakEffectSchema} from '@remotion/light-leaks';
 import {starburstEffectSchema} from '@remotion/starburst';
 import {EffectsBarrelDistortionPreview} from '../effects/effects-barrel-distortion-preview';
 import {EffectsBlurPreview} from '../effects/effects-blur-preview';
 import {EffectsBrightnessPreview} from '../effects/effects-brightness-preview';
+import {EffectsBurlapPreview} from '../effects/effects-burlap-preview';
+import {EffectsCheckerboardPreview} from '../effects/effects-checkerboard-preview';
 import {EffectsChromaticAberrationPreview} from '../effects/effects-chromatic-aberration-preview';
 import {EffectsColorKeyPreview} from '../effects/effects-color-key-preview';
+import {EffectsContourLinesPreview} from '../effects/effects-contour-lines-preview';
 import {EffectsContrastPreview} from '../effects/effects-contrast-preview';
 import {EffectsDotGridPreview} from '../effects/effects-dot-grid-preview';
 import {EffectsDropShadowPreview} from '../effects/effects-drop-shadow-preview';
 import {EffectsDuotonePreview} from '../effects/effects-duotone-preview';
+import {EffectsEmbossPreview} from '../effects/effects-emboss-preview';
 import {EffectsEvolvePreview} from '../effects/effects-evolve-preview';
 import {EffectsFisheyePreview} from '../effects/effects-fisheye-preview';
 import {EffectsGlowPreview} from '../effects/effects-glow-preview';
@@ -62,24 +76,37 @@ import {
 	NOISE_DISPLACEMENT_PREVIEW_PARAMS,
 } from '../effects/effects-noise-displacement-preview';
 import {EffectsNoisePreview} from '../effects/effects-noise-preview';
+import {
+	EffectsPaletteMapPreview,
+	paletteMap,
+} from '../effects/effects-palette-map-preview';
+import {EffectsPatternPreview} from '../effects/effects-pattern-preview';
 import {EffectsPixelDissolvePreview} from '../effects/effects-pixel-dissolve-preview';
+import {EffectsPixelatePreview} from '../effects/effects-pixelate-preview';
 import {EffectsRingsPreview} from '../effects/effects-rings-preview';
 import {EffectsSaturationPreview} from '../effects/effects-saturation-preview';
 import {EffectsScalePreview} from '../effects/effects-scale-preview';
 import {EffectsScanlinesPreview} from '../effects/effects-scanlines-preview';
 import {EffectsShinePreview} from '../effects/effects-shine-preview';
+import {
+	EffectsShrinkwrapPreview,
+	SHRINKWRAP_PREVIEW_PARAMS,
+} from '../effects/effects-shrinkwrap-preview';
 import {EffectsSpecklePreview} from '../effects/effects-speckle-preview';
 import {EffectsStarburstPreview} from '../effects/effects-starburst-preview';
+import {EffectsThermalVisionPreview} from '../effects/effects-thermal-vision-preview';
 import {EffectsTintPreview} from '../effects/effects-tint-preview';
 import {
 	EffectsUvTranslatePreview,
 	EffectsXyTranslatePreview,
 } from '../effects/effects-translate-preview';
+import {EffectsTvSignalOffPreview} from '../effects/effects-tv-signal-off-preview';
 import {EffectsVignettePreview} from '../effects/effects-vignette-preview';
 import {EffectsWavePreview} from '../effects/effects-wave-preview';
 import {EffectsWavesPreview} from '../effects/effects-waves-preview';
 import {EffectsWhiteNoisePreview} from '../effects/effects-white-noise-preview';
 import {EffectsZigzagPreview} from '../effects/effects-zigzag-preview';
+import {EffectsZoomBlurPreview} from '../effects/effects-zoom-blur-preview';
 import type {EffectsDemoType} from './types';
 
 const defaults = {
@@ -92,6 +119,15 @@ const defaults = {
 	logLevel: 'info',
 } as const;
 
+const shrinkwrapDemoSchema = {
+	...shrinkwrap().definition.schema,
+	phase: {
+		...shrinkwrap().definition.schema.phase,
+		min: -10,
+		max: 10,
+	},
+} as const;
+
 export const effectsDemos: EffectsDemoType[] = [
 	{
 		...defaults,
@@ -100,6 +136,22 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/brightness',
 		comp: EffectsBrightnessPreview,
 		schema: brightness().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-burlap',
+		effectName: 'burlap',
+		effectImportPath: '@remotion/effects/burlap',
+		comp: EffectsBurlapPreview,
+		schema: burlap().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-emboss',
+		effectName: 'emboss',
+		effectImportPath: '@remotion/effects/emboss',
+		comp: EffectsEmbossPreview,
+		schema: emboss().definition.schema,
 	},
 	{
 		...defaults,
@@ -199,11 +251,28 @@ export const effectsDemos: EffectsDemoType[] = [
 	},
 	{
 		...defaults,
+		id: 'effects-thermal-vision',
+		effectName: 'thermalVision',
+		effectImportPath: '@remotion/effects/thermal-vision',
+		comp: EffectsThermalVisionPreview,
+		schema: thermalVision().definition.schema,
+	},
+	{
+		...defaults,
 		id: 'effects-shine',
 		effectName: 'shine',
 		effectImportPath: '@remotion/effects/shine',
 		comp: EffectsShinePreview,
 		schema: shine().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-shrinkwrap',
+		effectName: 'shrinkwrap',
+		effectImportPath: '@remotion/effects/shrinkwrap',
+		comp: EffectsShrinkwrapPreview,
+		schema: shrinkwrapDemoSchema,
+		initialValues: SHRINKWRAP_PREVIEW_PARAMS,
 	},
 	{
 		...defaults,
@@ -249,6 +318,14 @@ export const effectsDemos: EffectsDemoType[] = [
 	},
 	{
 		...defaults,
+		id: 'effects-tv-signal-off',
+		effectName: 'tvSignalOff',
+		effectImportPath: '@remotion/effects/tv-signal-off',
+		comp: EffectsTvSignalOffPreview,
+		schema: tvSignalOff().definition.schema,
+	},
+	{
+		...defaults,
 		id: 'effects-scanlines',
 		effectName: 'scanlines',
 		effectImportPath: '@remotion/effects/scanlines',
@@ -262,6 +339,22 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/lines',
 		comp: EffectsLinesPreview,
 		schema: lines().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-checkerboard',
+		effectName: 'checkerboard',
+		effectImportPath: '@remotion/effects/checkerboard',
+		comp: EffectsCheckerboardPreview,
+		schema: checkerboard().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-contour-lines',
+		effectName: 'contourLines',
+		effectImportPath: '@remotion/effects/contour-lines',
+		comp: EffectsContourLinesPreview,
+		schema: contourLines().definition.schema,
 	},
 	{
 		...defaults,
@@ -340,6 +433,14 @@ export const effectsDemos: EffectsDemoType[] = [
 	},
 	{
 		...defaults,
+		id: 'effects-zoom-blur',
+		effectName: 'zoomBlur',
+		effectImportPath: '@remotion/effects/zoom-blur',
+		comp: EffectsZoomBlurPreview,
+		schema: zoomBlur().definition.schema,
+	},
+	{
+		...defaults,
 		id: 'effects-chromatic-aberration',
 		effectName: 'chromaticAberration',
 		effectImportPath: '@remotion/effects/chromatic-aberration',
@@ -380,11 +481,35 @@ export const effectsDemos: EffectsDemoType[] = [
 	},
 	{
 		...defaults,
+		id: 'effects-pixelate',
+		effectName: 'pixelate',
+		effectImportPath: '@remotion/effects/pixelate',
+		comp: EffectsPixelatePreview,
+		schema: pixelate().definition.schema,
+	},
+	{
+		...defaults,
 		id: 'effects-pixel-dissolve',
 		effectName: 'pixelDissolve',
 		effectImportPath: '@remotion/effects/pixel-dissolve',
 		comp: EffectsPixelDissolvePreview,
 		schema: pixelDissolve().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-pattern',
+		effectName: 'pattern',
+		effectImportPath: '@remotion/effects/pattern',
+		comp: EffectsPatternPreview,
+		schema: pattern().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-palette-map',
+		effectName: 'paletteMap',
+		effectImportPath: './palette-map',
+		comp: EffectsPaletteMapPreview,
+		schema: paletteMap().definition.schema,
 	},
 	{
 		...defaults,

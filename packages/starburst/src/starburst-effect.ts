@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {colorToRgb} from './color-to-rgb';
 
@@ -53,7 +53,7 @@ export const starburstEffectSchema = {
 		default: DEFAULT_ORIGIN,
 		description: 'Origin',
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type StarburstOrigin = readonly [number, number];
 
@@ -266,7 +266,7 @@ const linkProgram = (
 };
 
 export const starburst = createEffect<StarburstEffectParams, StarburstGlState>({
-	type: 'remotion/starburst',
+	type: 'dev.remotion.starburst.starburst',
 	label: 'starburst()',
 	documentationLink: 'https://www.remotion.dev/docs/starburst/starburst-effect',
 	backend: 'webgl2',

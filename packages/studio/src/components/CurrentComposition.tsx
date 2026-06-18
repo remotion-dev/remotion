@@ -1,65 +1,84 @@
-import React from 'react';
+import {useCallback, useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
-import {BACKGROUND} from '../helpers/colors';
+import type {OriginalPosition} from '../error-overlay/react-overlay/utils/get-source-map';
 import {isCompositionStill} from '../helpers/is-composition-still';
+import {openOriginalPositionInEditor} from '../helpers/open-in-editor';
 import {renderFrame} from '../state/render-frame';
+import {
+	INSPECTOR_INFO_HEADER_MIN_HEIGHT,
+	InspectorInfoHeader,
+	InspectorInfoSubtitle,
+	InspectorInfoTitle,
+} from './InspectorInfoHeader';
+import {InspectorSourceLocation} from './InspectorSourceLocation';
+import {showNotification} from './Notifications/NotificationCenter';
+import {useResolvedStack} from './Timeline/use-resolved-stack';
 
-export const CURRENT_COMPOSITION_HEIGHT = 64;
-
-const container: React.CSSProperties = {
-	height: CURRENT_COMPOSITION_HEIGHT,
-	display: 'block',
-	padding: '6px 12px',
-	color: 'white',
-	backgroundColor: BACKGROUND,
-};
-
-const title: React.CSSProperties = {
-	fontWeight: 'bold',
-	fontSize: 12,
-	whiteSpace: 'nowrap',
-	lineHeight: '18px',
-	backgroundColor: BACKGROUND,
-};
-
-const subtitle: React.CSSProperties = {
-	fontSize: 12,
-	opacity: 0.8,
-	whiteSpace: 'nowrap',
-	lineHeight: '18px',
-	backgroundColor: BACKGROUND,
-};
-
-const row: React.CSSProperties = {
-	display: 'flex',
-	flexDirection: 'row',
-	lineHeight: '18px',
-	backgroundColor: BACKGROUND,
-};
+export const CURRENT_COMPOSITION_HEIGHT = INSPECTOR_INFO_HEADER_MIN_HEIGHT;
 
 export const CurrentComposition = () => {
 	const video = Internals.useVideo();
+	const {compositions} = useContext(Internals.CompositionManager);
+
+	const currentComposition = useMemo(() => {
+		if (!video) {
+			return null;
+		}
+
+		return (
+			compositions.find((composition) => composition.id === video.id) ?? null
+		);
+	}, [compositions, video]);
+	const resolvedCompositionLocation = useResolvedStack(
+		currentComposition?.stack ?? null,
+	);
+	const validatedLocation: OriginalPosition | null = useMemo(() => {
+		if (
+			!resolvedCompositionLocation?.source ||
+			resolvedCompositionLocation.line === null
+		) {
+			return null;
+		}
+
+		return {
+			column: resolvedCompositionLocation.column,
+			line: resolvedCompositionLocation.line,
+			source: resolvedCompositionLocation.source,
+		};
+	}, [resolvedCompositionLocation]);
+	const openFileLocation = useCallback(() => {
+		if (!validatedLocation) {
+			return;
+		}
+
+		openOriginalPositionInEditor(validatedLocation).catch((err) => {
+			showNotification((err as Error).message, 2000);
+		});
+	}, [validatedLocation]);
 
 	return (
-		<div style={container}>
+		<InspectorInfoHeader>
 			{video ? (
-				<div style={row}>
-					<div>
-						<div style={title}>{video.id}</div>
-						<div style={subtitle}>
-							{video.width}x{video.height}
-							{isCompositionStill(video) ? null : `, ${video.fps} FPS`}
-						</div>
-						{isCompositionStill(video) ? (
-							<div style={subtitle}>Still</div>
-						) : (
-							<div style={subtitle}>
-								Duration {renderFrame(video.durationInFrames, video.fps)}
-							</div>
-						)}
-					</div>
-				</div>
+				<>
+					<InspectorInfoTitle>{video.id}</InspectorInfoTitle>
+					<InspectorSourceLocation
+						location={validatedLocation}
+						canOpen={validatedLocation !== null}
+						onOpen={openFileLocation}
+					/>
+					<InspectorInfoSubtitle>
+						{video.width}x{video.height}
+						{isCompositionStill(video) ? null : `, ${video.fps} FPS`}
+					</InspectorInfoSubtitle>
+					{isCompositionStill(video) ? (
+						<InspectorInfoSubtitle>Still</InspectorInfoSubtitle>
+					) : (
+						<InspectorInfoSubtitle>
+							Duration {renderFrame(video.durationInFrames, video.fps)}
+						</InspectorInfoSubtitle>
+					)}
+				</>
 			) : null}
-		</div>
+		</InspectorInfoHeader>
 	);
 };

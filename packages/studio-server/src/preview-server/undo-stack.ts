@@ -27,6 +27,7 @@ type UndoEntryType =
 	| 'keyframe-delete'
 	| 'add-effect'
 	| 'delete-effect'
+	| 'duplicate-effect'
 	| 'paste-effects'
 	| 'reorder-effect'
 	| 'reorder-sequence'
@@ -64,6 +65,7 @@ type UndoEntry = {
 	| {entryType: 'keyframe-delete'}
 	| {entryType: 'add-effect'}
 	| {entryType: 'delete-effect'}
+	| {entryType: 'duplicate-effect'}
 	| {entryType: 'paste-effects'}
 	| {entryType: 'reorder-effect'}
 	| {entryType: 'reorder-sequence'}

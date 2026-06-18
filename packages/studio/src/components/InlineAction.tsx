@@ -37,6 +37,7 @@ export const InlineAction = ({
 				: getBackgroundFromHoverState({hovered, selected: false}),
 			height: 24,
 			width: 24,
+			padding: 0,
 			display: 'inline-flex',
 			justifyContent: 'center',
 			alignItems: 'center',

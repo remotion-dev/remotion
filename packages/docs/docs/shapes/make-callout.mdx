@@ -1,0 +1,57 @@
+---
+image: /generated/articles-docs-shapes-make-callout.png
+title: makeCallout()
+crumb: "@remotion/shapes"
+---
+
+import {ShapeOptions, MakeShapeReturnType} from "../../components/shapes/shapes-info"
+
+_Part of the [`@remotion/shapes`](/docs/shapes) package._
+
+Generates an SVG path for a callout shape.
+
+## Example
+
+```tsx twoslash title="callout.ts"
+import { makeCallout } from "@remotion/shapes";
+
+const { path, width, height, transformOrigin } = makeCallout({
+  width: 500,
+  height: 200,
+  pointerLength: 40,
+  pointerBaseWidth: 60,
+  pointerDirection: "down",
+  cornerRadius: 20,
+});
+
+console.log(path);
+console.log(width); // 500
+console.log(height); // 240
+console.log(transformOrigin); // '250 100'
+```
+
+## Arguments
+
+<ShapeOptions shape="callout"/>
+
+## Return type
+
+<MakeShapeReturnType shape="callout" includeComponentLink={false}/>
+
+The <code>transformOrigin</code> is the center of the callout body. The pointer
+is not included in the calculation.
+
+## See also
+
+<ul>
+  <li>
+    <a href="/docs/shapes">
+      <code>@remotion/shapes</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://github.com/remotion-dev/remotion/blob/main/packages/shapes/src/utils/make-callout.ts">
+      Source code for this function
+    </a>
+  </li>
+</ul>

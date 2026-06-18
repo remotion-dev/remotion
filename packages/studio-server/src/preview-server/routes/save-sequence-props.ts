@@ -7,9 +7,9 @@ import type {
 	SaveSequencePropsResult,
 } from '@remotion/studio-shared';
 import {getAllSchemaKeys} from '@remotion/studio-shared';
-import {NoReactInternals} from 'remotion/no-react';
 import {
 	type RemovedProp,
+	type SequencePropsNodeUpdate,
 	updateMultipleSequenceProps,
 } from '../../codemods/update-sequence-props/update-sequence-props';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
@@ -54,6 +54,25 @@ type SequencePropEditResult = {
 	logLine: number;
 	removedProps: RemovedProp[];
 	formatted: boolean;
+};
+
+export const convertSequencePropEditToCodemodChange = (
+	edit: Pick<
+		ResolvedSequencePropEdit,
+		'nodePath' | 'key' | 'value' | 'defaultValue' | 'schema'
+	>,
+): SequencePropsNodeUpdate => {
+	return {
+		nodePath: edit.nodePath.nodePath,
+		updates: [
+			{
+				key: edit.key,
+				value: edit.value,
+				defaultValue: edit.defaultValue,
+			},
+		],
+		schema: edit.schema,
+	};
 };
 
 export const shouldSuppressHmrForSequencePropEdits = (
@@ -126,19 +145,7 @@ export const saveSequencePropsHandler: ApiHandler<
 				results: updateResults,
 			} = await updateMultipleSequenceProps({
 				input: fileContents,
-				changes: group.edits.map((edit) => {
-					return {
-						nodePath: edit.nodePath.nodePath,
-						updates: [
-							{
-								key: edit.key,
-								value: edit.value,
-								defaultValue: edit.defaultValue,
-							},
-						],
-						schema: NoReactInternals.sequenceSchema,
-					};
-				}),
+				changes: group.edits.map(convertSequencePropEditToCodemodChange),
 				prettierConfigOverride: null,
 			});
 

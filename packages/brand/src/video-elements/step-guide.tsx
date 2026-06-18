@@ -1,3 +1,5 @@
+import {loadFont} from '@remotion/fonts';
+import {Video} from '@remotion/media';
 import {
 	AbsoluteFill,
 	Img,
@@ -6,9 +8,7 @@ import {
 	useCurrentFrame,
 	useVideoConfig,
 } from 'remotion';
-import {Video} from '@remotion/media';
 import {z} from 'zod';
-import {loadFont} from '@remotion/fonts';
 
 const fontFamily = 'GTPlanar';
 

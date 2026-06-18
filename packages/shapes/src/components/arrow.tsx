@@ -1,5 +1,5 @@
 import React from 'react';
-import {Internals} from 'remotion';
+import {Internals, Interactive} from 'remotion';
 import type {MakeArrowProps} from '../utils/make-arrow';
 import {makeArrow} from '../utils/make-arrow';
 import type {AllShapesProps} from './render-svg';
@@ -77,8 +77,9 @@ const ArrowInner: React.FC<ArrowProps> = ({
 	);
 };
 
-export const Arrow = Internals.wrapInSchema({
+export const Arrow = Interactive.withSchema({
 	Component: ArrowInner,
+	componentName: '<Arrow>',
 	componentIdentity: 'dev.remotion.shapes.Arrow',
 	schema: arrowSchema,
 	supportsEffects: true,

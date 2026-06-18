@@ -1,6 +1,8 @@
 import {routes, type VercelConfig} from '@vercel/config/v1';
 
 export const config: VercelConfig = {
+	buildCommand:
+		'cd .. && timeout 20m bunx turbo run build-docs --no-update-notifier --concurrency=2',
 	headers: [
 		routes.cacheControl('/assets/(.*)', {
 			public: true,

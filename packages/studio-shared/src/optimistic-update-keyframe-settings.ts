@@ -3,6 +3,7 @@ import type {
 	CanUpdateSequencePropStatus,
 } from 'remotion';
 import type {KeyframeSettings} from './api-requests';
+import {LINEAR_KEYFRAME_EASING} from './keyframe-easing-presets';
 
 type KeyframeEasing = Extract<
 	CanUpdateSequencePropStatus,
@@ -29,7 +30,7 @@ const updateEasing = ({
 	}
 
 	const nextEasing = Array.from({length: segmentCount}, (_, index) => {
-		return easing[index] ?? 'linear';
+		return easing[index] ?? LINEAR_KEYFRAME_EASING;
 	});
 	nextEasing[segmentIndex] = value;
 	return nextEasing;

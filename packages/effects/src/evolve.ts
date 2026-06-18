@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertOptionalFiniteNumber,
@@ -46,7 +46,7 @@ export const evolveSchema = {
 		description: 'Feather',
 		hiddenFromList: false,
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type EvolveParams = {
 	/** Reveal progress from `0` (hidden) to `1` (fully revealed). Defaults to `0.5`. */
@@ -328,7 +328,7 @@ const directionToInt = (direction: EvolveDirection): number => {
 };
 
 export const evolve = createEffect<EvolveParams, EvolveState>({
-	type: 'remotion/evolve',
+	type: 'dev.remotion.effects.evolve',
 	label: 'evolve()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/evolve',
 	backend: 'webgl2',

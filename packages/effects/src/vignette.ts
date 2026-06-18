@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertOptionalFiniteNumber,
@@ -6,6 +6,7 @@ import {
 	type ParsedColorRgba,
 	validateUnitInterval,
 } from './color-utils.js';
+import {publicUvToShaderUv} from './uv-coordinate.js';
 import {
 	assertEffectParamsObject,
 	assertOptionalColor,
@@ -80,7 +81,7 @@ export const vignetteSchema = {
 		default: DEFAULT_CENTER,
 		description: 'Center',
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type VignetteMode = (typeof VIGNETTE_MODES)[number];
 export type VignetteCenter = readonly [number, number];
@@ -423,7 +424,7 @@ const normalizedRgba = (
 };
 
 export const vignette = createEffect<VignetteParams, VignetteState>({
-	type: 'remotion/vignette',
+	type: 'dev.remotion.effects.vignette',
 	label: 'vignette()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/vignette',
 	backend: 'webgl2',
@@ -464,8 +465,10 @@ export const vignette = createEffect<VignetteParams, VignetteState>({
 		if (uniforms.uColor) gl.uniform4f(uniforms.uColor, red, green, blue, alpha);
 		if (uniforms.uMode)
 			gl.uniform1i(uniforms.uMode, r.mode === 'alpha' ? 1 : 0);
-		if (uniforms.uCenter)
-			gl.uniform2f(uniforms.uCenter, r.center[0], r.center[1]);
+		if (uniforms.uCenter) {
+			const shaderCenter = publicUvToShaderUv(r.center);
+			gl.uniform2f(uniforms.uCenter, shaderCenter[0], shaderCenter[1]);
+		}
 
 		gl.bindVertexArray(vao);
 		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);

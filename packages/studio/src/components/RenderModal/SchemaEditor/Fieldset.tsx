@@ -1,6 +1,10 @@
 import React, {createContext, useContext, useMemo} from 'react';
 
-export const SCHEMA_EDITOR_FIELDSET_PADDING = 10;
+export const SCHEMA_EDITOR_FIELDSET_PADDING = 6;
+
+export const getSchemaEditorFieldsetPadding = () => {
+	return SCHEMA_EDITOR_FIELDSET_PADDING;
+};
 
 type AlreadyPaddedContext = boolean;
 
@@ -14,10 +18,12 @@ export const Fieldset: React.FC<{
 
 	const style: React.CSSProperties = useMemo(() => {
 		if (shouldPad) {
+			const padding = getSchemaEditorFieldsetPadding();
+
 			return {
-				padding: SCHEMA_EDITOR_FIELDSET_PADDING,
-				paddingTop: SCHEMA_EDITOR_FIELDSET_PADDING / 2,
-				paddingRight: alreadyPadded ? 0 : SCHEMA_EDITOR_FIELDSET_PADDING,
+				padding,
+				paddingTop: padding / 2,
+				paddingRight: alreadyPadded ? 0 : padding,
 			};
 		}
 

@@ -7,7 +7,7 @@ import {DEFAULT_PROPS_PATH_CLASSNAME} from './scroll-to-default-props-path';
 import type {JSONPath} from './zod-types';
 
 const compactStyles: React.CSSProperties = {
-	fontSize: 15,
+	fontSize: 12,
 	color: LIGHT_TEXT,
 	fontFamily: 'sans-serif',
 	display: 'flex',
@@ -28,13 +28,13 @@ export const SchemaLabel: React.FC<{
 	const labelStyle: React.CSSProperties = useMemo(() => {
 		return {
 			fontFamily: 'monospace',
-			fontSize: 14,
+			fontSize: 12,
 			color: valid
 				? clickableButtonHovered
 					? 'white'
 					: LIGHT_TEXT
 				: FAIL_COLOR,
-			lineHeight: '24px',
+			lineHeight: '20px',
 		};
 	}, [clickableButtonHovered, valid]);
 

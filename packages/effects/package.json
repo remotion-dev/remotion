@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/effects",
-	"version": "4.0.475",
+	"version": "4.0.479",
 	"description": "Effects that can be applied to Remotion-based canvas components",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -44,6 +44,16 @@
 			"module": "./dist/esm/blur.mjs",
 			"import": "./dist/esm/blur.mjs"
 		},
+		"./burlap": {
+			"types": "./dist/burlap.d.ts",
+			"module": "./dist/esm/burlap.mjs",
+			"import": "./dist/esm/burlap.mjs"
+		},
+		"./checkerboard": {
+			"types": "./dist/checkerboard.d.ts",
+			"module": "./dist/esm/checkerboard.mjs",
+			"import": "./dist/esm/checkerboard.mjs"
+		},
 		"./chromatic-aberration": {
 			"types": "./dist/chromatic-aberration.d.ts",
 			"module": "./dist/esm/chromatic-aberration.mjs",
@@ -64,6 +74,11 @@
 			"module": "./dist/esm/contrast.mjs",
 			"import": "./dist/esm/contrast.mjs"
 		},
+		"./contour-lines": {
+			"types": "./dist/contour-lines.d.ts",
+			"module": "./dist/esm/contour-lines.mjs",
+			"import": "./dist/esm/contour-lines.mjs"
+		},
 		"./drop-shadow": {
 			"types": "./dist/drop-shadow.d.ts",
 			"module": "./dist/esm/drop-shadow.mjs",
@@ -73,6 +88,11 @@
 			"types": "./dist/duotone.d.ts",
 			"module": "./dist/esm/duotone.mjs",
 			"import": "./dist/esm/duotone.mjs"
+		},
+		"./emboss": {
+			"types": "./dist/emboss.d.ts",
+			"module": "./dist/esm/emboss.mjs",
+			"import": "./dist/esm/emboss.mjs"
 		},
 		"./evolve": {
 			"types": "./dist/evolve.d.ts",
@@ -103,6 +123,11 @@
 			"types": "./dist/pixel-dissolve.d.ts",
 			"module": "./dist/esm/pixel-dissolve.mjs",
 			"import": "./dist/esm/pixel-dissolve.mjs"
+		},
+		"./pixelate": {
+			"types": "./dist/pixelate.d.ts",
+			"module": "./dist/esm/pixelate.mjs",
+			"import": "./dist/esm/pixelate.mjs"
 		},
 		"./grayscale": {
 			"types": "./dist/grayscale.d.ts",
@@ -149,6 +174,11 @@
 			"module": "./dist/esm/noise-displacement.mjs",
 			"import": "./dist/esm/noise-displacement.mjs"
 		},
+		"./pattern": {
+			"types": "./dist/pattern.d.ts",
+			"module": "./dist/esm/pattern.mjs",
+			"import": "./dist/esm/pattern.mjs"
+		},
 		"./rings": {
 			"types": "./dist/rings.d.ts",
 			"module": "./dist/esm/rings.mjs",
@@ -174,10 +204,20 @@
 			"module": "./dist/esm/shine.mjs",
 			"import": "./dist/esm/shine.mjs"
 		},
+		"./shrinkwrap": {
+			"types": "./dist/shrinkwrap.d.ts",
+			"module": "./dist/esm/shrinkwrap.mjs",
+			"import": "./dist/esm/shrinkwrap.mjs"
+		},
 		"./speckle": {
 			"types": "./dist/speckle.d.ts",
 			"module": "./dist/esm/speckle.mjs",
 			"import": "./dist/esm/speckle.mjs"
+		},
+		"./thermal-vision": {
+			"types": "./dist/thermal-vision.d.ts",
+			"module": "./dist/esm/thermal-vision.mjs",
+			"import": "./dist/esm/thermal-vision.mjs"
 		},
 		"./tint": {
 			"types": "./dist/tint.d.ts",
@@ -188,6 +228,11 @@
 			"types": "./dist/translate.d.ts",
 			"module": "./dist/esm/translate.mjs",
 			"import": "./dist/esm/translate.mjs"
+		},
+		"./tv-signal-off": {
+			"types": "./dist/tv-signal-off.d.ts",
+			"module": "./dist/esm/tv-signal-off.mjs",
+			"import": "./dist/esm/tv-signal-off.mjs"
 		},
 		"./vignette": {
 			"types": "./dist/vignette.d.ts",
@@ -209,6 +254,11 @@
 			"module": "./dist/esm/white-noise.mjs",
 			"import": "./dist/esm/white-noise.mjs"
 		},
+		"./zoom-blur": {
+			"types": "./dist/zoom-blur.d.ts",
+			"module": "./dist/esm/zoom-blur.mjs",
+			"import": "./dist/esm/zoom-blur.mjs"
+		},
 		"./zigzag": {
 			"types": "./dist/zigzag.d.ts",
 			"module": "./dist/esm/zigzag.mjs",
@@ -224,6 +274,12 @@
 			"blur": [
 				"dist/blur.d.ts"
 			],
+			"burlap": [
+				"dist/burlap.d.ts"
+			],
+			"checkerboard": [
+				"dist/checkerboard.d.ts"
+			],
 			"chromatic-aberration": [
 				"dist/chromatic-aberration.d.ts"
 			],
@@ -236,11 +292,17 @@
 			"contrast": [
 				"dist/contrast.d.ts"
 			],
+			"contour-lines": [
+				"dist/contour-lines.d.ts"
+			],
 			"drop-shadow": [
 				"dist/drop-shadow.d.ts"
 			],
 			"duotone": [
 				"dist/duotone.d.ts"
+			],
+			"emboss": [
+				"dist/emboss.d.ts"
 			],
 			"evolve": [
 				"dist/evolve.d.ts"
@@ -259,6 +321,9 @@
 			],
 			"pixel-dissolve": [
 				"dist/pixel-dissolve.d.ts"
+			],
+			"pixelate": [
+				"dist/pixelate.d.ts"
 			],
 			"grayscale": [
 				"dist/grayscale.d.ts"
@@ -287,6 +352,9 @@
 			"noise-displacement": [
 				"dist/noise-displacement.d.ts"
 			],
+			"pattern": [
+				"dist/pattern.d.ts"
+			],
 			"rings": [
 				"dist/rings.d.ts"
 			],
@@ -302,14 +370,23 @@
 			"shine": [
 				"dist/shine.d.ts"
 			],
+			"shrinkwrap": [
+				"dist/shrinkwrap.d.ts"
+			],
 			"speckle": [
 				"dist/speckle.d.ts"
+			],
+			"thermal-vision": [
+				"dist/thermal-vision.d.ts"
 			],
 			"tint": [
 				"dist/tint.d.ts"
 			],
 			"translate": [
 				"dist/translate.d.ts"
+			],
+			"tv-signal-off": [
+				"dist/tv-signal-off.d.ts"
 			],
 			"vignette": [
 				"dist/vignette.d.ts"
@@ -325,6 +402,9 @@
 			],
 			"white-noise": [
 				"dist/white-noise.d.ts"
+			],
+			"zoom-blur": [
+				"dist/zoom-blur.d.ts"
 			]
 		}
 	},

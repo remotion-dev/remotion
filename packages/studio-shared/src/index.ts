@@ -35,11 +35,15 @@ export {
 	DeleteStaticFileResponse,
 	DownloadRemoteAssetRequest,
 	DownloadRemoteAssetResponse,
+	DuplicateEffectRequest,
+	DuplicateEffectRequestItem,
+	DuplicateEffectResponse,
 	DuplicateJsxNodeRequest,
 	DuplicateJsxNodeResponse,
 	InsertJsxElementRequest,
 	InsertJsxElementResponse,
 	InsertableCompositionElement,
+	InsertableCompositionElementPosition,
 	InstallPackageRequest,
 	InstallPackageResponse,
 	LogStudioErrorRequest,
@@ -111,12 +115,15 @@ export {
 	isComponentImportPath,
 	makeComponentDragData,
 	parseComponentDragData,
+	type ComponentDimensions,
 	type ComponentDragData,
 	type ComponentProp,
 } from './component-drag-data';
 export {DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS} from './default-buffer-state-delay-in-milliseconds';
 export {
 	KEYFRAME_EASING_PRESETS,
+	LINEAR_KEYFRAME_EASING,
+	type KeyframeEasing,
 	type KeyframeEasingPreset,
 } from './keyframe-easing-presets';
 export {
@@ -126,6 +133,12 @@ export {
 	type FileType,
 	type ImageFileType,
 } from './detect-file-type';
+export {
+	parseEasingClipboardData,
+	parseEasingClipboardDataResult,
+	type EasingClipboardData,
+	type EasingClipboardDataParseResult,
+} from './easing-clipboard-data';
 export {
 	parseEffectClipboardData,
 	parseEffectClipboardDataResult,
@@ -151,6 +164,17 @@ export {
 	parseEffectDragData,
 	type EffectDragData,
 } from './effect-drag-data';
+export {
+	EFFECT_CATALOG,
+	getEffectCatalogCategories,
+	getEffectDocumentationLink,
+	getEffectDocumentationPath,
+	getEffectPreviewAlt,
+	getEffectPreviewSource,
+	makeEffectDragDataFromCatalogItem,
+	type EffectCatalogCategory,
+	type EffectCatalogItem,
+} from './effect-catalog';
 export {EventSourceEvent} from './event-source-event';
 export {formatBytes} from './format-bytes';
 export {getAllSchemaKeys} from './get-all-keys';
@@ -172,10 +196,15 @@ export {
 	getKeyframeInterpolationFunctionForSchemaField,
 	isKeyframeInterpolationFunction,
 	isSchemaFieldKeyframable,
-	isSequenceFieldSchemaKeyframable,
+	isInteractivitySchemaFieldKeyframable,
 	keyframeInterpolationFunctions,
 	type KeyframeInterpolationFunction,
 } from './keyframe-interpolation-function';
+export {
+	DEFAULT_SPRING_EASING,
+	parseSpringEasingConfig,
+	type SpringKeyframeEasing,
+} from './parse-spring-easing-config';
 export {DEFAULT_TIMELINE_TRACKS} from './max-timeline-tracks';
 export {
 	Pkgs,
@@ -222,7 +251,7 @@ export type {
 	PropStatuses,
 	SchemaFieldInfo,
 	SequenceControls,
-	SequenceSchemaFieldInfo,
+	InteractivitySchemaFieldInfo,
 } from './schema-field-info';
 export {
 	SFX_DRAG_MIME_TYPE,
@@ -250,6 +279,7 @@ export {
 } from './optimistic-delete-keyframe';
 export {
 	canMoveKeyframesWithoutCollisions,
+	moveKeyframesInPropStatus,
 	optimisticMoveEffectKeyframes,
 	optimisticMoveSequenceKeyframes,
 	type OptimisticKeyframeMove,

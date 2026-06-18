@@ -1,5 +1,5 @@
 import React from 'react';
-import {Internals} from 'remotion';
+import {Internals, Interactive} from 'remotion';
 import type {MakeTriangleProps} from '../utils/make-triangle';
 import {makeTriangle} from '../utils/make-triangle';
 import type {AllShapesProps} from './render-svg';
@@ -51,8 +51,9 @@ const TriangleInner: React.FC<TriangleProps> = ({
 	);
 };
 
-export const Triangle = Internals.wrapInSchema({
+export const Triangle = Interactive.withSchema({
 	Component: TriangleInner,
+	componentName: '<Triangle>',
 	componentIdentity: 'dev.remotion.shapes.Triangle',
 	schema: triangleSchema,
 	supportsEffects: true,

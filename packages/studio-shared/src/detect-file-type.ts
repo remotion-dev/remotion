@@ -80,13 +80,17 @@ export const isM3u = (data: Uint8Array) => {
 	return new TextDecoder('utf-8').decode(data.slice(0, 7)) === '#EXTM3U';
 };
 
+const pngSignature = [137, 80, 78, 71, 13, 10, 26, 10];
+const acTLChunkType = new Uint8Array([0x61, 0x63, 0x54, 0x4c]);
+const idatChunkType = new Uint8Array([0x49, 0x44, 0x41, 0x54]);
+const iendChunkType = new Uint8Array([0x49, 0x45, 0x4e, 0x44]);
+
 const getPngDimensions = (pngData: Uint8Array): FileDimensions | null => {
 	if (pngData.length < 24) {
 		return null;
 	}
 
 	const view = new DataView(pngData.buffer, pngData.byteOffset);
-	const pngSignature = [137, 80, 78, 71, 13, 10, 26, 10];
 	for (let i = 0; i < 8; i++) {
 		if (pngData[i] !== pngSignature[i]) {
 			return null;
@@ -99,12 +103,52 @@ const getPngDimensions = (pngData: Uint8Array): FileDimensions | null => {
 	};
 };
 
-const isPng = (data: Uint8Array): PngType | null => {
+const hasApngAnimationControlChunk = (pngData: Uint8Array): boolean => {
+	if (pngData.length < 16) {
+		return false;
+	}
+
+	const view = new DataView(
+		pngData.buffer,
+		pngData.byteOffset,
+		pngData.byteLength,
+	);
+	let offset = 8;
+
+	while (offset + 8 <= pngData.length) {
+		const chunkLength = view.getUint32(offset, false);
+		const chunkType = pngData.subarray(offset + 4, offset + 8);
+		if (matchesPattern(acTLChunkType)(chunkType)) {
+			return true;
+		}
+
+		if (
+			matchesPattern(idatChunkType)(chunkType) ||
+			matchesPattern(iendChunkType)(chunkType)
+		) {
+			return false;
+		}
+
+		const nextOffset = offset + 12 + chunkLength;
+		if (nextOffset <= offset) {
+			return false;
+		}
+
+		offset = nextOffset;
+	}
+
+	return false;
+};
+
+const isPng = (data: Uint8Array): PngType | ApngType | null => {
 	const pngPattern = new Uint8Array([0x89, 0x50, 0x4e, 0x47]);
 
 	if (matchesPattern(pngPattern)(data.subarray(0, 4))) {
 		const png = getPngDimensions(data);
-		return {dimensions: png, type: 'png'};
+		return {
+			dimensions: png,
+			type: hasApngAnimationControlChunk(data) ? 'apng' : 'png',
+		};
 	}
 
 	return null;
@@ -336,6 +380,11 @@ export type PngType = {
 	dimensions: FileDimensions | null;
 };
 
+export type ApngType = {
+	type: 'apng';
+	dimensions: FileDimensions | null;
+};
+
 export type JpegType = {
 	type: 'jpeg';
 	dimensions: FileDimensions | null;
@@ -372,13 +421,20 @@ export type FileType =
 	| Mp3Type
 	| GifType
 	| PngType
+	| ApngType
 	| BmpType
 	| AacType
 	| FlacType
 	| M3uType
 	| UnknownType;
 
-export type ImageFileType = JpegType | WebpType | GifType | PngType | BmpType;
+export type ImageFileType =
+	| JpegType
+	| WebpType
+	| GifType
+	| PngType
+	| ApngType
+	| BmpType;
 
 export const isImageFileType = (
 	fileType: FileType,
@@ -388,6 +444,7 @@ export const isImageFileType = (
 		fileType.type === 'webp' ||
 		fileType.type === 'gif' ||
 		fileType.type === 'png' ||
+		fileType.type === 'apng' ||
 		fileType.type === 'bmp'
 	);
 };

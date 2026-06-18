@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo, useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import type {CanUpdateSequencePropStatusStatic} from 'remotion';
 import type {
 	SchemaFieldInfo,
@@ -6,11 +6,8 @@ import type {
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
 import {InputDragger} from '../NewComposition/InputDragger';
-import {
-	draggerStyle,
-	formatTimelineNumber,
-	getDecimalPlaces,
-} from './timeline-field-utils';
+import {formatTimelineFieldValueForDisplay} from './timeline-field-display-utils';
+import {draggerStyle} from './timeline-field-utils';
 
 export const TimelineNumberField: React.FC<{
 	readonly field: SchemaFieldInfo;
@@ -69,27 +66,14 @@ export const TimelineNumberField: React.FC<{
 		field.fieldSchema.type === 'number' ? field.fieldSchema.step : undefined;
 	const step = configuredStep ?? 1;
 
-	const stepDecimals = useMemo(
-		() =>
-			configuredStep === undefined ? null : getDecimalPlaces(configuredStep),
-		[configuredStep],
-	);
-
 	const formatter = useCallback(
 		(v: number | string) => {
-			const num = Number(v);
-			if (stepDecimals === null) {
-				const digits = getDecimalPlaces(num);
-				return digits === 0 ? String(num) : num.toFixed(digits);
-			}
-
-			return formatTimelineNumber({
-				decimalPlaces: stepDecimals,
-				fixed: true,
-				value: num,
+			return formatTimelineFieldValueForDisplay({
+				fieldSchema: field.fieldSchema,
+				value: v,
 			});
 		},
-		[stepDecimals],
+		[field.fieldSchema],
 	);
 
 	return (

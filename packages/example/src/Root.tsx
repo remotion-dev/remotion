@@ -20,6 +20,7 @@ import {ClassSerialization} from './ClassSerialization';
 import {ColorInterpolation} from './ColorInterpolation';
 import {ComplexSounds} from './ComplexSounds';
 import {MyCtx, WrappedInContext} from './Context';
+import {ControlsShowcase} from './ControlsShowcase';
 import CorruptVideo from './CorruptVideo';
 import {CssLoaderTest} from './CssLoaderTest';
 import {DarkModeTest} from './DarkModeTest';
@@ -33,12 +34,12 @@ import {EasingVisualizer} from './EasingVisualizer/EasingVisualizer';
 import {EffectCopySource, EffectCopyTarget} from './EffectCopyTestbed';
 import {EmojiTestbed} from './Emoji';
 import {ErrorOnFrame10} from './ErrorOnFrame10';
-import {ExperimentalControlsShowcase} from './ExperimentalControls';
 import {Expert} from './Expert';
 import {FontDemo} from './Fonts';
 import {FractionalSequenceVideo} from './FractionalSequenceVideo';
 import {Framer} from './Framer';
 import {FreezeExample} from './Freeze/FreezeExample';
+import {SequenceFreezeExample} from './Freeze/SequenceFreezeExample';
 import {FreezePortion} from './FreezePortion/FreezePortion';
 import {GifEffectsTestbed} from './Gif/GifEffects';
 import {GoogleFontsCjk} from './GoogleFontsCjk/GoogleFontsCjk';
@@ -188,9 +189,11 @@ import {
 	canvasCapturePreviewDefaultProps,
 } from './CanvasCapturePreview';
 import {EdgeBlur} from './EdgeBlur/EdgeBlur';
+import {CustomEffectsSample} from './EffectsTestbed/CustomEffectsSample';
 import {EffectsTestbed} from './EffectsTestbed/EffectsTestbed';
 import {HalftoneGradient} from './EffectsTestbed/HalftoneGradient';
 import {NoiseDisplacementText} from './EffectsTestbed/NoiseDisplacementText';
+import {PaletteMapEffect} from './EffectsTestbed/PaletteMapEffect';
 import {VideoEffectsFastRefresh} from './EffectsTestbed/VideoEffectsFastRefresh';
 import {Empty} from './Empty';
 import {JumpCuts, SAMPLE_SECTIONS, calculateMetadataJumpCuts} from './JumpCuts';
@@ -552,6 +555,14 @@ export const Index: React.FC = () => {
 					height={720}
 					fps={30}
 					durationInFrames={300}
+				/>
+				<Composition
+					id="sequence-freeze-example"
+					component={SequenceFreezeExample}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={150}
 				/>
 				<Composition
 					id="freeze-portion"
@@ -1971,6 +1982,22 @@ export const Index: React.FC = () => {
 					durationInFrames={300}
 				/>
 				<Composition
+					id="palette-map-effect"
+					component={PaletteMapEffect}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={150}
+				/>
+				<Composition
+					id="custom-effects-sample"
+					component={CustomEffectsSample}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={150}
+				/>
+				<Composition
 					id="video-effects-fast-refresh"
 					component={VideoEffectsFastRefresh}
 					width={1920}
@@ -2449,8 +2476,8 @@ export const Index: React.FC = () => {
 				/>
 			</Folder>
 			<Composition
-				id="experimental-controls-showcase"
-				component={ExperimentalControlsShowcase}
+				id="controls-showcase"
+				component={ControlsShowcase}
 				width={2300}
 				height={1080}
 				fps={30}

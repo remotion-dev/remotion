@@ -23,7 +23,7 @@
     "react-dom": "19.2.3",
     "remotion": "workspace:*",
     "scheduler": "0.27.0",
-    "ws": "8.20.1"
+    "ws": "8.21.0"
   },
   "optionalDependencies": {
     "@remotion/compositor-darwin-arm64": "workspace:*",
@@ -49,6 +49,6 @@
     "prettier": "3.8.1",
     "tailwindcss": "4.2.1",
     "typescript": "5.9.3",
-    "vite": "6.4.2"
+    "vite": "6.4.3"
   }
 }

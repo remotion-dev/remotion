@@ -1,0 +1,281 @@
+---
+image: /generated/articles-docs-create-effect.png
+id: create-effect
+title: createEffect()
+crumb: 'API'
+---
+
+# createEffect()<AvailableFrom v="4.0.479" />
+
+Creates an effect factory that can be passed to the `effects` prop of Remotion canvas components.
+
+Use it when you want to publish your own effect, or define a project-specific effect that works in the same `effects` array as [`@remotion/effects`](/docs/effects/api).
+
+## Example
+
+```ts twoslash title="palette-map.ts"
+import {createEffect, type InteractivitySchema} from 'remotion';
+
+type Rgb = readonly [number, number, number];
+
+type PaletteMapParams = {
+  readonly palette?: readonly string[];
+  readonly amount?: number;
+};
+
+const DEFAULT_PALETTE = ['#111827', '#06b6d4', '#facc15'] as const;
+
+const paletteMapSchema = {
+  palette: {
+    type: 'array',
+    item: {
+      type: 'color',
+    },
+    default: DEFAULT_PALETTE,
+    newItemDefault: '#ffffff',
+    minLength: 1,
+    description: 'Palette',
+  },
+  amount: {
+    type: 'number',
+    min: 0,
+    max: 1,
+    step: 0.01,
+    default: 1,
+    description: 'Amount',
+    hiddenFromList: false,
+  },
+} as const satisfies InteractivitySchema;
+
+const parseCssColor = (color: string, target: HTMLCanvasElement): Rgb => {
+  const canvas = target.ownerDocument.createElement('canvas');
+  canvas.width = 1;
+  canvas.height = 1;
+
+  const ctx = canvas.getContext('2d');
+  if (!ctx) {
+    throw new Error('Could not get a 2D context');
+  }
+
+  ctx.fillStyle = color;
+  ctx.fillRect(0, 0, 1, 1);
+
+  const data = ctx.getImageData(0, 0, 1, 1).data;
+  return [data[0], data[1], data[2]];
+};
+
+const distanceSquared = (a: Rgb, b: Rgb): number => {
+  return (
+    (a[0] - b[0]) ** 2 +
+    (a[1] - b[1]) ** 2 +
+    (a[2] - b[2]) ** 2
+  );
+};
+
+const findClosestColor = (color: Rgb, palette: Rgb[]): Rgb => {
+  let closest = palette[0] ?? color;
+  let closestDistance = distanceSquared(color, closest);
+
+  for (const candidate of palette) {
+    const distance = distanceSquared(color, candidate);
+    if (distance < closestDistance) {
+      closest = candidate;
+      closestDistance = distance;
+    }
+  }
+
+  return closest;
+};
+
+export const paletteMap = createEffect<PaletteMapParams, null>({
+  type: 'com.example.paletteMap',
+  label: 'paletteMap()',
+  documentationLink: null,
+  backend: '2d',
+  calculateKey: ({palette = DEFAULT_PALETTE, amount = 1}) => {
+    return `palette-map-${palette.join('-')}-${amount}`;
+  },
+  setup: () => null,
+  apply: ({source, target, width, height, params}) => {
+    const ctx = target.getContext('2d');
+    if (!ctx) {
+      throw new Error('Could not get a 2D context');
+    }
+
+    const palette = (params.palette ?? DEFAULT_PALETTE).map((color) =>
+      parseCssColor(color, target),
+    );
+    const amount = params.amount ?? 1;
+
+    ctx.clearRect(0, 0, width, height);
+    ctx.drawImage(source, 0, 0, width, height);
+
+    const imageData = ctx.getImageData(0, 0, width, height);
+    const {data} = imageData;
+
+    for (let i = 0; i < data.length; i += 4) {
+      const closest = findClosestColor([data[i], data[i + 1], data[i + 2]], palette);
+
+      data[i] = data[i] + (closest[0] - data[i]) * amount;
+      data[i + 1] = data[i + 1] + (closest[1] - data[i + 1]) * amount;
+      data[i + 2] = data[i + 2] + (closest[2] - data[i + 2]) * amount;
+    }
+
+    ctx.putImageData(imageData, 0, 0);
+  },
+  cleanup: () => undefined,
+  schema: paletteMapSchema,
+  validateParams: ({palette = DEFAULT_PALETTE, amount = 1}) => {
+    if (
+      !Array.isArray(palette) ||
+      palette.length === 0 ||
+      !palette.every((color) => typeof color === 'string')
+    ) {
+      throw new TypeError('palette must be a non-empty array of CSS colors');
+    }
+
+    if (
+      typeof amount !== 'number' ||
+      !Number.isFinite(amount) ||
+      amount < 0 ||
+      amount > 1
+    ) {
+      throw new TypeError('amount must be a number between 0 and 1');
+    }
+  },
+});
+```
+
+<EffectsDemo type="effects-palette-map" />
+
+Use the returned factory in an `effects` array:
+
+```tsx title="MyComp.tsx"
+import {CanvasImage, staticFile} from 'remotion';
+import {paletteMap} from './palette-map';
+
+export const MyComp: React.FC = () => {
+  return (
+    <CanvasImage
+      src={staticFile('image.png')}
+      effects={[
+        paletteMap({
+          palette: ['#1d3557', '#f1faee', '#e63946'],
+          amount: 0.8,
+        }),
+      ]}
+    />
+  );
+};
+```
+
+## API
+
+```ts twoslash
+import {createEffect} from 'remotion';
+```
+
+### `type`
+
+A stable identifier for the effect.
+
+Use a reverse-DNS identifier such as `"com.example.paletteMap"`.
+
+### `label`
+
+The label shown in Remotion Studio.
+
+### `documentationLink`
+
+A URL to the effect documentation. Pass `null` if no documentation page exists.
+
+### `backend`
+
+The rendering backend. Must be `"2d"`, `"webgl2"` or `"webgpu"`.
+
+Effects are grouped by adjacent backend while rendering.
+
+### `calculateKey`
+
+Returns a stable string for a given parameter object.
+
+The key is used to decide whether an effect instance is equivalent to a previous one.
+
+### `setup`
+
+Runs when the effect needs state for a target canvas.
+
+Return any state needed by `apply()`. Return `null` if the effect does not need state.
+
+### `apply`
+
+Transforms the source image into the target canvas.
+
+### `cleanup`
+
+Receives the state returned by `setup()` when the effect chain is cleaned up.
+
+### `schema`
+
+An [`InteractivitySchema`](/docs/interactivity-schema) for the effect parameters shown in Remotion Studio.
+
+`createEffect()` automatically adds a `disabled` boolean control to the schema.
+
+### `validateParams`
+
+Called when the returned effect factory is invoked.
+
+Throw an error if a required parameter is missing or a value is invalid.
+
+## Apply Params
+
+### `source`
+
+The current image to read from.
+
+### `target`
+
+The canvas to write the transformed image into.
+
+### `state`
+
+The value returned by `setup()`.
+
+### `params`
+
+The parameter object passed to the effect factory.
+
+### `width`
+
+The width of the effect pass in pixels.
+
+### `height`
+
+The height of the effect pass in pixels.
+
+### `gpuDevice`
+
+A WebGPU device when a WebGPU effect is in the chain. Otherwise `null`.
+
+### `flipSourceY`
+
+For WebGL2 effects, tells whether DOM-style canvas sources should be flipped while uploading them as textures.
+
+## Returned Factory
+
+The return value is an `EffectFactory`.
+
+If all parameters are optional, the factory can be called without arguments. If the parameter type has required fields, the factory requires an argument.
+
+### `disabled?`
+
+Every effect factory also accepts `disabled`.
+
+When `true`, the effect is skipped. Default: `false`.
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`InteractivitySchema`](/docs/interactivity-schema)
+- [`Interactive.withSchema()`](/docs/interactive-with-schema)
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/effects/create-effect.ts)
