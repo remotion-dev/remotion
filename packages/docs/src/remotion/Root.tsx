@@ -6,6 +6,7 @@ import {EffectsBarrelDistortionPreview} from '../../components/effects/effects-b
 import {EffectsBlurPreview} from '../../components/effects/effects-blur-preview';
 import {EffectsBrightnessPreview} from '../../components/effects/effects-brightness-preview';
 import {EffectsBurlapPreview} from '../../components/effects/effects-burlap-preview';
+import {EffectsCheckerboardPreview} from '../../components/effects/effects-checkerboard-preview';
 import {EffectsChromaticAberrationPreview} from '../../components/effects/effects-chromatic-aberration-preview';
 import {EffectsColorKeyPreview} from '../../components/effects/effects-color-key-preview';
 import {EffectsContourLinesPreview} from '../../components/effects/effects-contour-lines-preview';
@@ -536,6 +537,20 @@ export const RemotionRoot: React.FC = () => {
 						gap: 0,
 						angle: 20,
 						offset: 0,
+					}}
+				/>
+				<Still
+					id="effects-checkerboard-preview"
+					component={EffectsCheckerboardPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						colors: DEFAULT_EFFECT_COLORS,
+						cellSize: 80,
+						gap: 0,
+						angle: 15,
+						offsetX: 0,
+						offsetY: 0,
 					}}
 				/>
 				<Still

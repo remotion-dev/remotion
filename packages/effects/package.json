@@ -49,6 +49,11 @@
 			"module": "./dist/esm/burlap.mjs",
 			"import": "./dist/esm/burlap.mjs"
 		},
+		"./checkerboard": {
+			"types": "./dist/checkerboard.d.ts",
+			"module": "./dist/esm/checkerboard.mjs",
+			"import": "./dist/esm/checkerboard.mjs"
+		},
 		"./chromatic-aberration": {
 			"types": "./dist/chromatic-aberration.d.ts",
 			"module": "./dist/esm/chromatic-aberration.mjs",
@@ -271,6 +276,9 @@
 			],
 			"burlap": [
 				"dist/burlap.d.ts"
+			],
+			"checkerboard": [
+				"dist/checkerboard.d.ts"
 			],
 			"chromatic-aberration": [
 				"dist/chromatic-aberration.d.ts"
