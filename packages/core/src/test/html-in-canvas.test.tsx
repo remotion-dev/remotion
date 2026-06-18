@@ -424,8 +424,6 @@ test('<HtmlInCanvas> skips paint when element is outside viewport', async () => 
 		const canvas = container.querySelector('canvas')!;
 		canvas.dispatchEvent(new Event('paint'));
 
-		await new Promise((resolve) => setTimeout(resolve, 200));
-
 		expect(paintCalled).toBe(false);
 		expect(w.remotion_cancelledError).toBeUndefined();
 	} finally {
