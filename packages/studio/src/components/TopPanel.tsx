@@ -5,10 +5,7 @@ import {useBreakpoint} from '../helpers/use-breakpoint';
 import {RULER_WIDTH} from '../state/editor-rulers';
 import {SidebarContext} from '../state/sidebar';
 import {CanvasIfSizeIsAvailable} from './CanvasIfSizeIsAvailable';
-import {
-	CurrentCompositionKeybindings,
-	TitleUpdater,
-} from './CurrentCompositionSideEffects';
+import {TitleUpdater} from './CurrentCompositionSideEffects';
 import {useIsRulerVisible} from './EditorRuler/use-is-ruler-visible';
 import {ExplorerPanel} from './ExplorerPanel';
 import MobilePanel from './MobilePanel';
@@ -172,7 +169,6 @@ const TopPanelInner: React.FC<{
 					bufferStateDelayInMilliseconds={bufferStateDelayInMilliseconds}
 					readOnlyStudio={readOnlyStudio}
 				/>
-				<CurrentCompositionKeybindings readOnlyStudio={readOnlyStudio} />
 				<TitleUpdater />
 			</div>
 		</ObserveDefaultProps>

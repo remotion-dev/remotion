@@ -432,7 +432,9 @@ export const SelectedOutlineOverlay: React.FC<{
 	}, [outlineTargets]);
 	const allDragTargets = useMemo(() => {
 		return outlineTargets.flatMap((target) =>
-			target.selected && target.drag !== null ? [target.drag] : [],
+			(target.selected || target.containsSelection) && target.drag !== null
+				? [target.drag]
+				: [],
 		);
 	}, [outlineTargets]);
 	const allScaleDragTargets = useMemo(() => {

@@ -113,6 +113,7 @@ export const TimelineExpandedRow: React.FC<{
 				}}
 				selected={selection.selected}
 				selectable={selection.selectable}
+				selectionItem={selection.selectionItem}
 				onSelect={selection.onSelect}
 				showSelectedBackground
 				containsSelection={false}
@@ -168,6 +169,7 @@ export const TimelineExpandedRow: React.FC<{
 			}}
 			selected={selection.selected}
 			selectable={selection.selectable}
+			selectionItem={selection.selectionItem}
 			onSelect={selection.onSelect}
 			showSelectedBackground
 			containsSelection={false}
