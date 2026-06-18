@@ -918,6 +918,10 @@ export const TimelineSequenceItem: React.FC<{
 								subMenu: null,
 								value: 'add-effect',
 							},
+							{
+								type: 'divider' as const,
+								id: 'add-effect-divider',
+							},
 						]
 					: []),
 				{
