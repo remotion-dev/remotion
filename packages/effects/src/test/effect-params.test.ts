@@ -47,6 +47,7 @@ import {wave} from '../wave/index.js';
 import {waves} from '../waves.js';
 import {whiteNoise} from '../white-noise.js';
 import {zigzag} from '../zigzag.js';
+import {zoomBlur} from '../zoom-blur/index.js';
 
 const expectDefaultBlueColorArrayControl = (schema: {
 	readonly colors?: unknown;
@@ -203,6 +204,9 @@ test('@remotion/effects expose documentation links', () => {
 	expect(whiteNoise().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/white-noise',
 	);
+	expect(zoomBlur().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/zoom-blur',
+	);
 });
 
 test('@remotion/effects expose API names as Studio labels', () => {
@@ -256,6 +260,7 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(waves().definition.label).toBe('waves()');
 	expect(zigzag().definition.label).toBe('zigzag()');
 	expect(whiteNoise().definition.label).toBe('whiteNoise()');
+	expect(zoomBlur().definition.label).toBe('zoomBlur()');
 });
 
 test('@remotion/effects palette effects expose colors as array controls', () => {
@@ -2283,6 +2288,53 @@ test('linearProgressiveBlur() parameters produce distinct effect keys', () => {
 			moreEndBlur.effectKey,
 		]).size,
 	).toBe(5);
+});
+
+test('zoomBlur() accepts default params', () => {
+	expect(() => zoomBlur()).not.toThrow();
+});
+
+test('zoomBlur() rejects non-finite amount', () => {
+	expect(() => zoomBlur({amount: Number.NaN})).toThrow(
+		'"amount" must be a finite number',
+	);
+});
+
+test('zoomBlur() rejects negative amount', () => {
+	expect(() => zoomBlur({amount: -1})).toThrow('"amount" must be >= 0');
+});
+
+test('zoomBlur() rejects invalid center', () => {
+	expect(() => zoomBlur({center: [0.5, 1.5]})).toThrow(
+		'"center[1]" must be <= 1',
+	);
+});
+
+test('zoomBlur() rejects non-integer samples', () => {
+	expect(() => zoomBlur({samples: 12.5})).toThrow(
+		'"samples" must be an integer',
+	);
+});
+
+test('zoomBlur() rejects samples outside the range', () => {
+	expect(() => zoomBlur({samples: 0})).toThrow('"samples" must be >= 1');
+	expect(() => zoomBlur({samples: 65})).toThrow('"samples" must be <= 64');
+});
+
+test('zoomBlur() parameters produce distinct effect keys', () => {
+	const defaults = zoomBlur();
+	const stronger = zoomBlur({amount: 80});
+	const shifted = zoomBlur({center: [0.25, 0.5]});
+	const smoother = zoomBlur({samples: 48});
+
+	expect(
+		new Set([
+			defaults.effectKey,
+			stronger.effectKey,
+			shifted.effectKey,
+			smoother.effectKey,
+		]).size,
+	).toBe(4);
 });
 
 test('rings() accepts default params', () => {
