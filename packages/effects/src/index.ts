@@ -1,3 +1,4 @@
+export {checkerboard, type CheckerboardParams} from './checkerboard.js';
 export {pattern, type PatternOrigin, type PatternParams} from './pattern.js';
 export {rings, type RingsCenter, type RingsParams} from './rings.js';
 export {gridlines, type GridlinesParams} from './gridlines.js';

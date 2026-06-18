@@ -538,6 +538,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-checkerboard',
+		category: 'Generate',
+		label: 'checkerboard()',
+		description: 'Checkerboard pattern effect',
+		effect: {
+			name: 'checkerboard',
+			importPath: '@remotion/effects/checkerboard',
+			config: {},
+		},
+	},
+	{
 		id: 'effects-halftone-linear-gradient',
 		category: 'Generate',
 		label: 'halftoneLinearGradient()',

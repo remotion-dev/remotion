@@ -2,10 +2,7 @@ import {useColorMode} from '@docusaurus/theme-common';
 import {Player} from '@remotion/player';
 import React, {useCallback, useMemo, useState} from 'react';
 import {AbsoluteFill} from 'remotion';
-import {
-	makeEffectDragData,
-	setEffectDragData,
-} from './effect-drag-data';
+import {makeEffectDragData, setEffectDragData} from './effect-drag-data';
 import {
 	fillSchemaDefaults,
 	getActiveSchemaFields,
