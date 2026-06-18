@@ -7,6 +7,7 @@ import {
 	sequenceSchema,
 	sequenceSchemaWithoutFrom,
 	sequenceStyleSchema,
+	textSchema,
 	transformSchema,
 } from '../interactivity-schema.js';
 import {
@@ -84,6 +85,37 @@ test('sequenceSchemaWithoutFrom does not expose from', () => {
 test('style.scale does not impose a minimum value', () => {
 	const scaleSchema = transformSchema['style.scale'];
 	expect('min' in scaleSchema).toBe(false);
+});
+
+test('textSchema exposes common text style fields', () => {
+	expect(Object.keys(textSchema).sort()).toEqual(
+		[
+			'style.color',
+			'style.fontSize',
+			'style.letterSpacing',
+			'style.textAlign',
+		].sort(),
+	);
+	expect(textSchema['style.color'].type).toBe('color');
+	expect(textSchema['style.fontSize']).toMatchObject({
+		type: 'number',
+		min: 0,
+		step: 1,
+		hiddenFromList: false,
+	});
+	expect(Object.keys(textSchema['style.textAlign'].variants)).toEqual([
+		'left',
+		'center',
+		'right',
+		'justify',
+		'start',
+		'end',
+	]);
+	expect(textSchema['style.letterSpacing']).toMatchObject({
+		type: 'number',
+		step: 0.1,
+		hiddenFromList: false,
+	});
 });
 
 test('readValuesFromProps reads dot-notation keys via getNestedValue', () => {
