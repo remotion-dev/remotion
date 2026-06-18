@@ -220,7 +220,7 @@ export const TimelineSequenceItem: React.FC<{
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {isHighestContext} = useKeybinding();
 	const selectAsset = useSelectAsset();
-	const {onSelect, selectable, selected} =
+	const {onSelect, selectable, selected, selectionItem} =
 		useTimelineRowSelection(nodePathInfo);
 	const {selectedItems} = useTimelineSelection();
 	const containsSelection = useTimelineRowContainsSelection(nodePathInfo);
@@ -1023,6 +1023,7 @@ export const TimelineSequenceItem: React.FC<{
 			style={rowStyle}
 			selected={selected}
 			selectable={selectable}
+			selectionItem={selectionItem}
 			onSelect={onSelect}
 			showSelectedBackground
 			containsSelection={containsSelection}

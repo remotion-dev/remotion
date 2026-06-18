@@ -226,13 +226,17 @@ export const KeyboardShortcutsExplainer: React.FC = () => {
 						<div style={left}>
 							<kbd style={key}>R</kbd>
 						</div>
-						<div style={right}>Render composition</div>
+						<div style={right}>
+							Render, unless a sequence or prop is selected
+						</div>
 					</Row>
 					<Row align="center">
 						<div style={left}>
 							<kbd style={key}>T</kbd>
 						</div>
-						<div style={right}>Toggle checkerboard background</div>
+						<div style={right}>
+							Checkerboard, unless a sequence or prop is selected
+						</div>
 					</Row>
 					<Row align="center">
 						<div style={left}>
@@ -327,6 +331,30 @@ export const KeyboardShortcutsExplainer: React.FC = () => {
 							<kbd style={key}>A</kbd>
 						</div>
 						<div style={right}>Select sequence rows</div>
+					</Row>
+					<Row align="center">
+						<div style={left}>
+							<kbd style={key}>P</kbd>
+						</div>
+						<div style={right}>Select translate prop</div>
+					</Row>
+					<Row align="center">
+						<div style={left}>
+							<kbd style={key}>T</kbd>
+						</div>
+						<div style={right}>Select opacity prop</div>
+					</Row>
+					<Row align="center">
+						<div style={left}>
+							<kbd style={key}>R</kbd>
+						</div>
+						<div style={right}>Select rotate prop</div>
+					</Row>
+					<Row align="center">
+						<div style={left}>
+							<kbd style={key}>S</kbd>
+						</div>
+						<div style={right}>Select scale prop</div>
 					</Row>
 					<Row align="center">
 						<div style={left}>
