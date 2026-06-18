@@ -44,6 +44,11 @@
 			"module": "./dist/esm/blur.mjs",
 			"import": "./dist/esm/blur.mjs"
 		},
+		"./checkerboard": {
+			"types": "./dist/checkerboard.d.ts",
+			"module": "./dist/esm/checkerboard.mjs",
+			"import": "./dist/esm/checkerboard.mjs"
+		},
 		"./chromatic-aberration": {
 			"types": "./dist/chromatic-aberration.d.ts",
 			"module": "./dist/esm/chromatic-aberration.mjs",
@@ -223,6 +228,9 @@
 			],
 			"blur": [
 				"dist/blur.d.ts"
+			],
+			"checkerboard": [
+				"dist/checkerboard.d.ts"
 			],
 			"chromatic-aberration": [
 				"dist/chromatic-aberration.d.ts"

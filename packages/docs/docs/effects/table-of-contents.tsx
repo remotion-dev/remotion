@@ -271,6 +271,13 @@ const categories: {
 		title: 'Generate',
 		effects: [
 			{
+				link: '/docs/effects/checkerboard',
+				preview: '/img/effects-checkerboard-preview.png',
+				alt: 'checkerboard effect preview',
+				name: 'checkerboard()',
+				description: 'Checkerboard pattern effect',
+			},
+			{
 				link: '/docs/effects/halftone-linear-gradient',
 				preview: '/img/effects-halftone-linear-gradient-preview.png',
 				alt: 'halftone linear gradient effect preview',

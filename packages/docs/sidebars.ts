@@ -273,6 +273,7 @@ const sidebars: SidebarsConfig = {
 				'effects/barrel-distortion',
 				'effects/blur',
 				'effects/brightness',
+				'effects/checkerboard',
 				'effects/chromatic-aberration',
 				'effects/color-key',
 				'effects/contrast',

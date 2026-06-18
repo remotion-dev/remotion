@@ -1755,6 +1755,15 @@ export const articles = [
 		slug: 'effects/brightness',
 	},
 	{
+		id: 'effects/checkerboard',
+		title: 'checkerboard()',
+		relativePath: 'docs/effects/checkerboard.mdx',
+		compId: 'articles-docs-effects-checkerboard',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/checkerboard',
+	},
+	{
 		id: 'effects/chromatic-aberration',
 		title: 'chromaticAberration()',
 		relativePath: 'docs/effects/chromatic-aberration.mdx',

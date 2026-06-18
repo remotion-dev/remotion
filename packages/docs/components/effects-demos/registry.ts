@@ -1,6 +1,7 @@
 import {barrelDistortion} from '@remotion/effects/barrel-distortion';
 import {blur} from '@remotion/effects/blur';
 import {brightness} from '@remotion/effects/brightness';
+import {checkerboard} from '@remotion/effects/checkerboard';
 import {chromaticAberration} from '@remotion/effects/chromatic-aberration';
 import {colorKey} from '@remotion/effects/color-key';
 import {contrast} from '@remotion/effects/contrast';
@@ -39,6 +40,7 @@ import {starburstEffectSchema} from '@remotion/starburst';
 import {EffectsBarrelDistortionPreview} from '../effects/effects-barrel-distortion-preview';
 import {EffectsBlurPreview} from '../effects/effects-blur-preview';
 import {EffectsBrightnessPreview} from '../effects/effects-brightness-preview';
+import {EffectsCheckerboardPreview} from '../effects/effects-checkerboard-preview';
 import {EffectsChromaticAberrationPreview} from '../effects/effects-chromatic-aberration-preview';
 import {EffectsColorKeyPreview} from '../effects/effects-color-key-preview';
 import {EffectsContrastPreview} from '../effects/effects-contrast-preview';
@@ -262,6 +264,14 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/lines',
 		comp: EffectsLinesPreview,
 		schema: lines().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-checkerboard',
+		effectName: 'checkerboard',
+		effectImportPath: '@remotion/effects/checkerboard',
+		comp: EffectsCheckerboardPreview,
+		schema: checkerboard().definition.schema,
 	},
 	{
 		...defaults,

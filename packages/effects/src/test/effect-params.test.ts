@@ -2,6 +2,7 @@ import {expect, test} from 'bun:test';
 import {barrelDistortion} from '../barrel-distortion/index.js';
 import {blur} from '../blur/index.js';
 import {brightness} from '../brightness.js';
+import {checkerboard} from '../checkerboard.js';
 import {chromaticAberration} from '../chromatic-aberration/index.js';
 import {colorKey} from '../color-key.js';
 import {contrast} from '../contrast.js';
@@ -61,6 +62,9 @@ test('@remotion/effects expose documentation links', () => {
 	);
 	expect(blur({radius: 1}).definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/blur',
+	);
+	expect(checkerboard().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/checkerboard',
 	);
 	expect(chromaticAberration().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/chromatic-aberration',
@@ -173,6 +177,7 @@ test('@remotion/effects expose documentation links', () => {
 test('@remotion/effects expose API names as Studio labels', () => {
 	expect(barrelDistortion().definition.label).toBe('barrelDistortion()');
 	expect(blur({radius: 1}).definition.label).toBe('blur()');
+	expect(checkerboard().definition.label).toBe('checkerboard()');
 	expect(chromaticAberration().definition.label).toBe('chromaticAberration()');
 	expect(colorKey().definition.label).toBe('colorKey()');
 	expect(brightness().definition.label).toBe('brightness()');
@@ -217,6 +222,7 @@ test('@remotion/effects expose API names as Studio labels', () => {
 });
 
 test('@remotion/effects palette effects expose colors as array controls', () => {
+	expectDefaultBlueColorArrayControl(checkerboard().definition.schema);
 	expectDefaultBlueColorArrayControl(lines().definition.schema);
 	expectDefaultBlueColorArrayControl(rings().definition.schema);
 	expectDefaultBlueColorArrayControl(waves().definition.schema);
@@ -1750,6 +1756,97 @@ test('lines() parameters produce distinct effect keys', () => {
 			gapped.effectKey,
 			angled.effectKey,
 			shifted.effectKey,
+			masked.effectKey,
+		]).size,
+	).toBe(8);
+});
+
+test('checkerboard() accepts default params', () => {
+	expect(() => checkerboard()).not.toThrow();
+});
+
+test('checkerboard() accepts custom colors', () => {
+	expect(() =>
+		checkerboard({colors: ['#dff4ff', 'transparent']}),
+	).not.toThrow();
+});
+
+test('checkerboard() rejects invalid colors', () => {
+	expect(() => checkerboard({colors: ['#dff4ff']})).toThrow(
+		'"colors" must be an array with at least 2 colors',
+	);
+	expect(() =>
+		checkerboard({colors: ['#dff4ff', '' as unknown as string]}),
+	).toThrow('"colors[1]" must be a non-empty string');
+});
+
+test('checkerboard() rejects non-finite cellSize', () => {
+	expect(() => checkerboard({cellSize: Number.NaN})).toThrow(
+		'"cellSize" must be a finite number',
+	);
+});
+
+test('checkerboard() rejects non-positive cellSize', () => {
+	expect(() => checkerboard({cellSize: 0})).toThrow(
+		'"cellSize" must be greater than 0',
+	);
+});
+
+test('checkerboard() rejects non-finite gap', () => {
+	expect(() => checkerboard({gap: Number.NaN})).toThrow(
+		'"gap" must be a finite number',
+	);
+});
+
+test('checkerboard() rejects negative gap', () => {
+	expect(() => checkerboard({gap: -1})).toThrow(
+		'"gap" must be greater than or equal to 0',
+	);
+});
+
+test('checkerboard() rejects non-finite angle', () => {
+	expect(() => checkerboard({angle: Number.NaN})).toThrow(
+		'"angle" must be a finite number',
+	);
+});
+
+test('checkerboard() rejects non-finite offsetX', () => {
+	expect(() => checkerboard({offsetX: Number.NaN})).toThrow(
+		'"offsetX" must be a finite number',
+	);
+});
+
+test('checkerboard() rejects non-finite offsetY', () => {
+	expect(() => checkerboard({offsetY: Number.NaN})).toThrow(
+		'"offsetY" must be a finite number',
+	);
+});
+
+test('checkerboard() rejects non-boolean maskToSourceAlpha', () => {
+	expect(() =>
+		checkerboard({maskToSourceAlpha: 'yes' as unknown as boolean}),
+	).toThrow('"maskToSourceAlpha" must be a boolean');
+});
+
+test('checkerboard() parameters produce distinct effect keys', () => {
+	const defaultCheckerboard = checkerboard();
+	const colored = checkerboard({colors: ['#ffffff', 'transparent']});
+	const small = checkerboard({cellSize: 40});
+	const gapped = checkerboard({gap: 12});
+	const angled = checkerboard({angle: 45});
+	const shiftedX = checkerboard({offsetX: 10});
+	const shiftedY = checkerboard({offsetY: 10});
+	const masked = checkerboard({maskToSourceAlpha: true});
+
+	expect(
+		new Set([
+			defaultCheckerboard.effectKey,
+			colored.effectKey,
+			small.effectKey,
+			gapped.effectKey,
+			angled.effectKey,
+			shiftedX.effectKey,
+			shiftedY.effectKey,
 			masked.effectKey,
 		]).size,
 	).toBe(8);

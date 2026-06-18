@@ -9,6 +9,7 @@ const effectEntrypoints = [
 	'src/index.ts',
 	'src/barrel-distortion.ts',
 	'src/blur.ts',
+	'src/checkerboard.ts',
 	'src/chromatic-aberration.ts',
 	'src/color-key.ts',
 	'src/brightness.ts',
