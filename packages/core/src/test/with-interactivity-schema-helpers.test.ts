@@ -97,8 +97,10 @@ test('textSchema exposes common text style fields', () => {
 		].sort(),
 	);
 	expect(textSchema['style.color'].type).toBe('color');
+	expect(textSchema['style.color'].default).toBeUndefined();
 	expect(textSchema['style.fontSize']).toMatchObject({
 		type: 'number',
+		default: undefined,
 		min: 0,
 		step: 1,
 		hiddenFromList: false,
@@ -113,6 +115,7 @@ test('textSchema exposes common text style fields', () => {
 	]);
 	expect(textSchema['style.letterSpacing']).toMatchObject({
 		type: 'number',
+		default: undefined,
 		step: 0.1,
 		hiddenFromList: false,
 	});
