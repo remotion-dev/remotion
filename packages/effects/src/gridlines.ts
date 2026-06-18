@@ -56,18 +56,24 @@ export const gridlinesSchema = {
 	},
 	rotation: {
 		type: 'rotation-degrees',
+		min: -180,
+		max: 180,
 		step: 1,
 		default: DEFAULT_ROTATION,
 		description: 'Rotation',
 	},
 	rotationX: {
 		type: 'rotation-degrees',
+		min: -180,
+		max: 180,
 		step: 1,
 		default: DEFAULT_ROTATION_X,
 		description: 'Rotation X',
 	},
 	rotationY: {
 		type: 'rotation-degrees',
+		min: -180,
+		max: 180,
 		step: 1,
 		default: DEFAULT_ROTATION_Y,
 		description: 'Rotation Y',
@@ -83,6 +89,8 @@ export const gridlinesSchema = {
 	},
 	offsetX: {
 		type: 'number',
+		min: -400,
+		max: 400,
 		step: 0.1,
 		default: DEFAULT_OFFSET_X,
 		description: 'Offset X',
@@ -90,6 +98,8 @@ export const gridlinesSchema = {
 	},
 	offsetY: {
 		type: 'number',
+		min: -400,
+		max: 400,
 		step: 0.1,
 		default: DEFAULT_OFFSET_Y,
 		description: 'Offset Y',
