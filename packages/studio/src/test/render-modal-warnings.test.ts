@@ -18,6 +18,7 @@ test('Adds a Resolve link to the cannot save default props warning', () => {
 		jsSetUsed: false,
 		inJSONEditor: false,
 		propsEditType: 'default-props',
+		showCannotSaveDefaultPropsWarning: true,
 	});
 
 	expect(warnings).toStrictEqual([
@@ -28,6 +29,26 @@ test('Adds a Resolve link to the cannot save default props warning', () => {
 			resolveLink: CANNOT_SAVE_DEFAULT_PROPS_DOCS,
 		},
 	]);
+});
+
+test('Does not add the cannot save default props warning if the editor does not apply', () => {
+	const warnings = getRenderModalWarnings({
+		cliProps: {},
+		canSaveDefaultProps: {
+			canUpdate: false,
+			determined: true,
+			reason: 'Could not find or extract defaultProps for composition "Demo"',
+		},
+		isCustomDateUsed: false,
+		customFileUsed: false,
+		jsMapUsed: false,
+		jsSetUsed: false,
+		inJSONEditor: false,
+		propsEditType: 'default-props',
+		showCannotSaveDefaultPropsWarning: false,
+	});
+
+	expect(warnings).toStrictEqual([]);
 });
 
 test('Does not add warnings before default props saveability is determined', () => {
@@ -44,6 +65,7 @@ test('Does not add warnings before default props saveability is determined', () 
 		jsSetUsed: false,
 		inJSONEditor: false,
 		propsEditType: 'default-props',
+		showCannotSaveDefaultPropsWarning: true,
 	});
 
 	expect(warnings).toStrictEqual([]);
@@ -61,6 +83,7 @@ test('Keeps other warnings as stable entries without Resolve links', () => {
 		jsSetUsed: true,
 		inJSONEditor: true,
 		propsEditType: 'default-props',
+		showCannotSaveDefaultPropsWarning: true,
 	});
 
 	expect(warnings).toStrictEqual([

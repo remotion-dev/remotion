@@ -92,6 +92,44 @@ export const isDuplicatableSequenceRowSelection = (
 	type: 'sequence';
 } => selection.type === 'sequence';
 
+export const isDuplicatableEffectSelection = (
+	selection: TimelineSelection,
+): selection is TimelineSelection & {
+	type: 'sequence-effect';
+} => selection.type === 'sequence-effect';
+
+const duplicateEffectsFromSource = (
+	effects: readonly (TimelineSelection & {type: 'sequence-effect'})[],
+): Promise<void> => {
+	return callApi(
+		'/api/duplicate-effect',
+		effects.map((effect) => {
+			const nodePath = effect.nodePathInfo.sequenceSubscriptionKey;
+
+			return {
+				fileName: nodePath.absolutePath,
+				sequenceNodePath: nodePath,
+				effectIndex: effect.i,
+			};
+		}),
+	)
+		.then((result) => {
+			if (result.success) {
+				showNotification(
+					effects.length === 1
+						? 'Duplicated effect in source file'
+						: 'Duplicated effects in source files',
+					2000,
+				);
+			} else {
+				showNotification(result.reason, 4000);
+			}
+		})
+		.catch((err) => {
+			showNotification((err as Error).message, 4000);
+		});
+};
+
 export const duplicateSelectedTimelineItems = ({
 	selections,
 	confirm,
@@ -102,12 +140,17 @@ export const duplicateSelectedTimelineItems = ({
 	const sequenceSelections = selections.filter(
 		isDuplicatableSequenceRowSelection,
 	);
-	if (sequenceSelections.length === 0) {
+	if (sequenceSelections.length > 0) {
+		return duplicateSequencesFromSource(
+			sequenceSelections.map((selection) => selection.nodePathInfo),
+			confirm,
+		);
+	}
+
+	const effectSelections = selections.filter(isDuplicatableEffectSelection);
+	if (effectSelections.length === 0) {
 		return null;
 	}
 
-	return duplicateSequencesFromSource(
-		sequenceSelections.map((selection) => selection.nodePathInfo),
-		confirm,
-	);
+	return duplicateEffectsFromSource(effectSelections);
 };

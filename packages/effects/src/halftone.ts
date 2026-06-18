@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertOptionalFiniteNumber,
@@ -85,7 +85,7 @@ export const halftoneSchema = {
 			source: {},
 		},
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type HalftoneShape = (typeof HALFTONE_SHAPES)[number];
 export type HalftoneSampling = (typeof HALFTONE_SAMPLING)[number];
@@ -292,7 +292,26 @@ void main() {
 		coverage = (1.0 - smoothstep(s - 0.5, s + 0.5, abs(diff.x)))
 				 * (1.0 - smoothstep(s - 0.5, s + 0.5, abs(diff.y)));
 	} else {
+		vec4 localTexColor = texture(uSource, vUv);
+		float localAlpha = localTexColor.a;
+		vec3 localRgb = localAlpha > 0.001 ? localTexColor.rgb / localAlpha : vec3(0.0);
+		float localLum = dot(localRgb, vec3(0.299, 0.587, 0.114));
+		float localLumDefault = localLum * localAlpha + (1.0 - localAlpha);
+		float localDotScale = uShadeOutside
+			? localLumDefault
+			: 1.0 - localLumDefault;
+
+		if (localDotScale <= 0.12) {
+			fragColor = vec4(0.0);
+			return;
+		}
+
 		float lineHalf = uDotSize * dotScale * 0.5;
+		if (lineHalf <= 1.0) {
+			fragColor = vec4(0.0);
+			return;
+		}
+
 		coverage = (1.0 - smoothstep(halfSize - 0.5, halfSize + 0.5, abs(diff.x)))
 				 * (1.0 - smoothstep(lineHalf - 0.5, lineHalf + 0.5, abs(diff.y)));
 	}
@@ -380,7 +399,7 @@ const linkProgram = (
 // `colorMode` controls whether dots use a solid `dotColor` or the sampled source
 // color at each grid cell.
 export const halftone = createEffect<HalftoneParams, HalftoneState>({
-	type: 'remotion/halftone',
+	type: 'dev.remotion.effects.halftone',
 	label: 'halftone()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/halftone',
 	backend: 'webgl2',

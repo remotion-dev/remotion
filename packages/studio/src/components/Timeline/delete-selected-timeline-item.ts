@@ -8,7 +8,10 @@ import {
 	deleteSelectedKeyframes,
 } from './delete-selected-keyframe';
 import type {SetPropStatuses} from './save-sequence-prop';
-import type {TimelineSelection} from './TimelineSelection';
+import {
+	getTimelineSelectionKey,
+	type TimelineSelection,
+} from './TimelineSelection';
 
 const confirmDeletingDuplicatedSequences = (
 	nodePathInfos: SequenceNodePathInfo[],
@@ -166,6 +169,8 @@ export const deleteSelectedTimelineItem = ({
 	}
 
 	switch (selection.type) {
+		case 'guide':
+			return null;
 		case 'sequence':
 			return deleteSequences([selection.nodePathInfo], confirm);
 		case 'sequence-effect':
@@ -214,6 +219,42 @@ const isKeyframeSelection = (
 ): selection is TimelineSelection & {
 	type: 'keyframe';
 } => selection.type === 'keyframe';
+
+const getSequenceSelectionAfterDeletingEffect = (
+	selection: TimelineSelection,
+): TimelineSelection | null => {
+	if (
+		selection.type !== 'sequence-effect' &&
+		selection.type !== 'sequence-all-effects'
+	) {
+		return null;
+	}
+
+	return {
+		type: 'sequence',
+		nodePathInfo: {
+			...selection.nodePathInfo,
+			auxiliaryKeys: [],
+		},
+	};
+};
+
+export const getTimelineSelectionAfterDeletingItems = (
+	selections: readonly TimelineSelection[],
+): readonly TimelineSelection[] => {
+	const nextSelections = new Map<string, TimelineSelection>();
+
+	for (const selection of selections) {
+		const nextSelection = getSequenceSelectionAfterDeletingEffect(selection);
+		if (!nextSelection) {
+			return [];
+		}
+
+		nextSelections.set(getTimelineSelectionKey(nextSelection), nextSelection);
+	}
+
+	return Array.from(nextSelections.values());
+};
 
 const areSelectionsOnlyOfType = (
 	selections: readonly TimelineSelection[],
@@ -290,6 +331,8 @@ export const deleteSelectedTimelineItems = ({
 	assertTimelineSelectionsHaveSameType(selections);
 
 	switch (firstSelection.type) {
+		case 'guide':
+			return null;
 		case 'sequence':
 			return deleteSequences(
 				selections

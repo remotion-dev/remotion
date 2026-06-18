@@ -27,6 +27,7 @@ import type {QuickSwitcherMode} from './NoResults';
 import {QuickSwitcherNoResults} from './NoResults';
 import type {TQuickSwitcherResult} from './QuickSwitcherResult';
 import {QuickSwitcherResult} from './QuickSwitcherResult';
+import {loopIndex} from './shared';
 
 const input: React.CSSProperties = {
 	width: '100%',
@@ -69,14 +70,6 @@ const content: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'row',
 	alignItems: 'center',
-};
-
-const loopIndex = (index: number, length: number) => {
-	if (index < 0) {
-		index += length;
-	}
-
-	return index % length;
 };
 
 const stripQuery = (query: string) => {

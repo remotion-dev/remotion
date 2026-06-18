@@ -26,7 +26,7 @@ uniform float u_intensity;
 in vec2 v_uv;
 out vec4 outColor;
 
-const int PASSES = 6;
+const int PASSES = 20;
 
 vec4 transition(vec2 uv, float progress) {
 	vec4 c1 = vec4(0.0);

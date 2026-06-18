@@ -1,5 +1,5 @@
 import React from 'react';
-import {Internals} from 'remotion';
+import {Internals, Interactive} from 'remotion';
 import type {MakeStarProps} from '../utils/make-star';
 import {makeStar} from '../utils/make-star';
 import type {AllShapesProps} from './render-svg';
@@ -66,8 +66,9 @@ const StarInner: React.FC<StarProps> = ({
 	);
 };
 
-export const Star = Internals.wrapInSchema({
+export const Star = Interactive.withSchema({
 	Component: StarInner,
+	componentName: '<Star>',
 	componentIdentity: 'dev.remotion.shapes.Star',
 	schema: starSchema,
 	supportsEffects: true,

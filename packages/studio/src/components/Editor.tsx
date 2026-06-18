@@ -129,7 +129,7 @@ export const Editor: React.FC<{
 	);
 
 	return CANVAS_CAPTURE_ENABLED ? (
-		<StudioCanvasCapture density={2}>{editor}</StudioCanvasCapture>
+		<StudioCanvasCapture density={3}>{editor}</StudioCanvasCapture>
 	) : (
 		editor
 	);

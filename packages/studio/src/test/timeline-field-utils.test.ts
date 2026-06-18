@@ -1,4 +1,5 @@
 import {expect, test} from 'bun:test';
+import {formatTimelineFieldValueForDisplay} from '../components/Timeline/timeline-field-display-utils';
 import {
 	formatTimelineNumber,
 	getDecimalPlaces,
@@ -44,6 +45,94 @@ test('formatTimelineNumber can omit unnecessary trailing zeroes', () => {
 		formatTimelineNumber({
 			decimalPlaces: 1,
 			fixed: false,
+			value: 10.000000000000002,
+		}),
+	).toBe('10');
+});
+
+test('formatTimelineFieldValueForDisplay formats number fields based on step', () => {
+	expect(
+		formatTimelineFieldValueForDisplay({
+			fieldSchema: {
+				type: 'number',
+				default: 0,
+				hiddenFromList: false,
+				step: 0.01,
+			},
+			value: 1.2000000000000002,
+		}),
+	).toBe('1.20');
+});
+
+test('formatTimelineFieldValueForDisplay formats scale fields with fixed decimals', () => {
+	expect(
+		formatTimelineFieldValueForDisplay({
+			fieldSchema: {
+				type: 'scale',
+				default: 1,
+				step: 0.01,
+			},
+			value: 2.044585,
+		}),
+	).toBe('2.045');
+});
+
+test('formatTimelineFieldValueForDisplay formats rotation fields as degrees', () => {
+	expect(
+		formatTimelineFieldValueForDisplay({
+			fieldSchema: {
+				type: 'rotation-css',
+				default: '0deg',
+				step: 1,
+			},
+			value: '0.7853981633974483rad',
+		}),
+	).toBe('45°');
+});
+
+test('formatTimelineFieldValueForDisplay formats translate fields as pixels', () => {
+	expect(
+		formatTimelineFieldValueForDisplay({
+			fieldSchema: {
+				type: 'translate',
+				default: '0px 0px',
+				step: 1,
+			},
+			value: '12.345px 0px',
+		}),
+	).toBe('12.3px 0px');
+});
+
+test('formatTimelineFieldValueForDisplay preserves transform-origin units', () => {
+	expect(
+		formatTimelineFieldValueForDisplay({
+			fieldSchema: {
+				type: 'transform-origin',
+				default: '50% 50%',
+				step: 0.01,
+			},
+			value: '10.1234px 20.5678%',
+		}),
+	).toBe('10.12px 20.57%');
+});
+
+test('formatTimelineFieldValueForDisplay formats UV coordinate tuples', () => {
+	expect(
+		formatTimelineFieldValueForDisplay({
+			fieldSchema: {
+				type: 'uv-coordinate',
+				default: [0.5, 0.5],
+				step: 0.01,
+			},
+			value: [0.123456, 0.5],
+		}),
+	).toBe('0.12, 0.50');
+});
+
+test('formatTimelineFieldValueForDisplay rounds unknown numeric fallbacks', () => {
+	expect(
+		formatTimelineFieldValueForDisplay({
+			fieldSchema: undefined,
 			value: 10.000000000000002,
 		}),
 	).toBe('10');

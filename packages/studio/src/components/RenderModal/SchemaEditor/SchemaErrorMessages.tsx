@@ -1,36 +1,39 @@
 // Schema error messages for studio editor
+import type {CSSProperties, ReactNode} from 'react';
 import {BACKGROUND, BLUE, LIGHT_TEXT} from '../../../helpers/colors';
 import {Button} from '../../Button';
+import {CompactExplanation} from '../../CompactExplanation';
 import {Spacing} from '../../layout';
 import {inlineCodeSnippet} from '../../Menu/styles';
 import type {ZodSafeParseResult} from './zod-schema-type';
 import {ZodErrorMessages} from './ZodErrorMessages';
 
-const explainer: React.CSSProperties = {
+const explainer: CSSProperties = {
 	display: 'flex',
 	flex: 1,
 	flexDirection: 'column',
-	padding: '0 12px',
-	justifyContent: 'center',
-	alignItems: 'center',
-	textAlign: 'center',
+	padding: 12,
+	alignItems: 'flex-start',
+	textAlign: 'left',
 	background: BACKGROUND,
 };
 
-const errorExplanation: React.CSSProperties = {
+export type SchemaErrorMode = 'full' | 'compact';
+
+const errorExplanation: CSSProperties = {
 	fontSize: 14,
 	color: LIGHT_TEXT,
 	fontFamily: 'sans-serif',
 	lineHeight: 1.5,
 };
 
-const codeSnippet: React.CSSProperties = {
+const codeSnippet: CSSProperties = {
 	fontSize: 14,
 	color: BLUE,
 	fontFamily: 'monospace',
 };
 
-const errorContainer: React.CSSProperties = {
+const errorContainer: CSSProperties = {
 	padding: '8px 12px',
 	overflowY: 'auto',
 };
@@ -39,7 +42,24 @@ const openDocs = () => {
 	window.open('https://www.remotion.dev/docs/schemas');
 };
 
-export const ZodNotInstalled = () => {
+const CompactSchemaError = ({children}: {readonly children: ReactNode}) => {
+	return (
+		<CompactExplanation
+			learnMoreHref="https://www.remotion.dev/docs/schemas"
+			learnMoreAriaLabel="Learn more about schemas"
+		>
+			{children}
+		</CompactExplanation>
+	);
+};
+
+export const ZodNotInstalled: React.FC<{
+	readonly mode?: SchemaErrorMode;
+}> = ({mode = 'full'}) => {
+	if (mode === 'compact') {
+		return <CompactSchemaError>Install zod to edit props.</CompactSchemaError>;
+	}
+
 	return (
 		<div style={explainer}>
 			<div style={errorExplanation}>
@@ -52,7 +72,15 @@ export const ZodNotInstalled = () => {
 	);
 };
 
-export const NoSchemaDefined = () => {
+export const NoSchemaDefined: React.FC<{
+	readonly mode?: SchemaErrorMode;
+}> = ({mode = 'full'}) => {
+	if (mode === 'compact') {
+		return (
+			<CompactSchemaError>Add a schema prop to edit props.</CompactSchemaError>
+		);
+	}
+
 	return (
 		<div style={explainer}>
 			<div style={errorExplanation}>
@@ -66,7 +94,17 @@ export const NoSchemaDefined = () => {
 	);
 };
 
-export const NoDefaultProps = () => {
+export const NoDefaultProps: React.FC<{
+	readonly mode?: SchemaErrorMode;
+}> = ({mode = 'full'}) => {
+	if (mode === 'compact') {
+		return (
+			<CompactSchemaError>
+				Add defaultProps to edit the schema.
+			</CompactSchemaError>
+		);
+	}
+
 	return (
 		<div style={explainer}>
 			<div style={errorExplanation}>
@@ -129,8 +167,17 @@ export const InvalidSchema: React.FC<{
 };
 
 export const TopLevelZodValue: React.FC<{
-	typeReceived: string;
-}> = ({typeReceived}) => {
+	readonly typeReceived: string;
+	readonly mode?: SchemaErrorMode;
+}> = ({typeReceived, mode = 'full'}) => {
+	if (mode === 'compact') {
+		return (
+			<CompactSchemaError>
+				Use z.object() or z.discriminatedUnion() for the top-level schema.
+			</CompactSchemaError>
+		);
+	}
+
 	return (
 		<div style={explainer}>
 			<div style={errorExplanation}>

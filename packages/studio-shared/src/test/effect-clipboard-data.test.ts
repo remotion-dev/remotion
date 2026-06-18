@@ -1,10 +1,92 @@
 import {expect, test} from 'bun:test';
 import {
+	parseEasingClipboardData,
+	parseEasingClipboardDataResult,
+} from '../easing-clipboard-data';
+import {
 	parseEffectClipboardData,
 	parseEffectClipboardDataResult,
 	parseEffectPropClipboardData,
 	parseEffectPropClipboardDataResult,
 } from '../effect-clipboard-data';
+
+test('parseEasingClipboardData accepts easing payloads', () => {
+	expect(
+		parseEasingClipboardData(
+			JSON.stringify({
+				type: 'easing',
+				version: 1,
+				remotionClipboard: 'easing',
+				easing: {type: 'bezier', x1: 0.42, y1: 0, x2: 0.58, y2: 1},
+			}),
+		),
+	).toEqual({
+		type: 'easing',
+		version: 1,
+		remotionClipboard: 'easing',
+		easing: {type: 'bezier', x1: 0.42, y1: 0, x2: 0.58, y2: 1},
+	});
+	expect(
+		parseEasingClipboardData(
+			JSON.stringify({
+				type: 'easing',
+				version: 1,
+				remotionClipboard: 'easing',
+				easing: {type: 'linear'},
+			}),
+		)?.easing,
+	).toEqual({type: 'linear'});
+	expect(
+		parseEasingClipboardData(
+			JSON.stringify({
+				type: 'easing',
+				version: 1,
+				remotionClipboard: 'easing',
+				easing: {
+					type: 'spring',
+					damping: 12,
+					mass: 1.5,
+					stiffness: 180,
+					overshootClamping: true,
+				},
+			}),
+		)?.easing,
+	).toEqual({
+		type: 'spring',
+		damping: 12,
+		mass: 1.5,
+		stiffness: 180,
+		overshootClamping: true,
+	});
+});
+
+test('parseEasingClipboardData reports old easing payloads as unsupported', () => {
+	const payload = JSON.stringify({
+		type: 'easing',
+		version: 0,
+		remotionClipboard: 'easing',
+		easing: 'linear',
+	});
+
+	expect(parseEasingClipboardData(payload)).toBe(null);
+	expect(parseEasingClipboardDataResult(payload)).toEqual({
+		status: 'unsupported-version',
+		version: 0,
+	});
+});
+
+test('parseEasingClipboardData rejects malformed easing payloads', () => {
+	expect(
+		parseEasingClipboardData(
+			JSON.stringify({
+				type: 'easing',
+				version: 1,
+				remotionClipboard: 'easing',
+				easing: [0.42, 0, 0.58, 1],
+			}),
+		),
+	).toBe(null);
+});
 
 test('parseEffectClipboardData accepts keyframed v3 effect payloads', () => {
 	const parsed = parseEffectClipboardData(
@@ -24,7 +106,7 @@ test('parseEffectClipboardData accepts keyframed v3 effect payloads', () => {
 								{frame: 0, value: 0},
 								{frame: 100, value: 1},
 							],
-							easing: ['linear'],
+							easing: [{type: 'linear'}],
 							clamping: {left: 'clamp', right: 'clamp'},
 						},
 					},
@@ -49,12 +131,67 @@ test('parseEffectClipboardData accepts keyframed v3 effect payloads', () => {
 							{frame: 0, value: 0},
 							{frame: 100, value: 1},
 						],
-						easing: ['linear'],
+						easing: [{type: 'linear'}],
 						clamping: {left: 'clamp', right: 'clamp'},
 					},
 				},
 			},
 		],
+	});
+});
+
+test('parseEffectClipboardData accepts spring easing payloads', () => {
+	const parsed = parseEffectClipboardData(
+		JSON.stringify({
+			type: 'effects-additive',
+			version: 3,
+			remotionClipboard: 'effects',
+			effects: [
+				{
+					callee: 'brightness',
+					importPath: '@remotion/effects/brightness',
+					params: {
+						amount: {
+							type: 'keyframed',
+							interpolationFunction: 'interpolate',
+							keyframes: [
+								{frame: 0, value: 0},
+								{frame: 100, value: 1},
+							],
+							easing: [
+								{
+									type: 'spring',
+									damping: 12,
+									mass: 1.5,
+									stiffness: 180,
+									overshootClamping: true,
+								},
+							],
+							clamping: {left: 'clamp', right: 'clamp'},
+						},
+					},
+				},
+			],
+		}),
+	);
+
+	expect(parsed?.effects[0]?.params.amount).toEqual({
+		type: 'keyframed',
+		interpolationFunction: 'interpolate',
+		keyframes: [
+			{frame: 0, value: 0},
+			{frame: 100, value: 1},
+		],
+		easing: [
+			{
+				type: 'spring',
+				damping: 12,
+				mass: 1.5,
+				stiffness: 180,
+				overshootClamping: true,
+			},
+		],
+		clamping: {left: 'clamp', right: 'clamp'},
 	});
 });
 
@@ -76,7 +213,7 @@ test('parseEffectClipboardData accepts rotate interpolation functions', () => {
 								{frame: 0, value: '0deg'},
 								{frame: 100, value: '90deg'},
 							],
-							easing: ['linear'],
+							easing: [{type: 'linear'}],
 							clamping: {left: 'extend', right: 'extend'},
 						},
 					},
@@ -92,7 +229,7 @@ test('parseEffectClipboardData accepts rotate interpolation functions', () => {
 			{frame: 0, value: '0deg'},
 			{frame: 100, value: '90deg'},
 		],
-		easing: ['linear'],
+		easing: [{type: 'linear'}],
 		clamping: {left: 'extend', right: 'extend'},
 	});
 });
@@ -142,7 +279,7 @@ test('parseEffectClipboardData rejects malformed keyframed payloads', () => {
 								type: 'keyframed',
 								interpolationFunction: 'interpolate',
 								keyframes: [{frame: 0, value: 0}],
-								easing: ['linear'],
+								easing: [{type: 'linear'}],
 								clamping: {left: 'clamp', right: 'clamp'},
 							},
 						},
@@ -171,7 +308,7 @@ test('parseEffectPropClipboardData accepts keyframed effect prop payloads', () =
 					{frame: 0, value: 0},
 					{frame: 100, value: 1},
 				],
-				easing: ['linear'],
+				easing: [{type: 'linear'}],
 				clamping: {left: 'clamp', right: 'clamp'},
 			},
 		}),
@@ -193,7 +330,7 @@ test('parseEffectPropClipboardData accepts keyframed effect prop payloads', () =
 				{frame: 0, value: 0},
 				{frame: 100, value: 1},
 			],
-			easing: ['linear'],
+			easing: [{type: 'linear'}],
 			clamping: {left: 'clamp', right: 'clamp'},
 		},
 	});

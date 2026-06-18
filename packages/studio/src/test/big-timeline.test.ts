@@ -46,8 +46,10 @@ test('Should calculate timeline as expected', () => {
 				startMediaFrom: 0,
 				doesVolumeChange: false,
 				playbackRate: 1,
+				frozenMediaFrame: null,
 				loopDisplay: undefined,
 				effects: [],
+				frozenFrame: null,
 			},
 			depth: 0,
 			hash: '-voiceover.wav-2423-0-audio-http://localhost:5000/voiceover.wav-1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1--0',
@@ -73,6 +75,7 @@ test('Should calculate timeline as expected', () => {
 				nonce: [[0, 61]],
 				loopDisplay: undefined,
 				effects: [],
+				frozenFrame: null,
 			},
 			depth: 0,
 			hash: '-Intro-190-0-sequence----0',
@@ -98,6 +101,7 @@ test('Should calculate timeline as expected', () => {
 				nonce: [[0, 62]],
 				loopDisplay: undefined,
 				effects: [],
+				frozenFrame: null,
 			},
 			depth: 0,
 			hash: '-Showcase-199-190-sequence----0',
@@ -127,8 +131,10 @@ test('Should calculate timeline as expected', () => {
 				startMediaFrom: 0,
 				doesVolumeChange: false,
 				playbackRate: 1,
+				frozenMediaFrame: null,
 				loopDisplay: undefined,
 				effects: [],
+				frozenFrame: null,
 			},
 			depth: 1,
 			hash: '-Showcase-199-190-sequence----0-gatsby.mp4-199-0-video---http://localhost:5000/gatsby.mp4-1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,10',
@@ -158,8 +164,10 @@ test('Should calculate timeline as expected', () => {
 				startMediaFrom: 0,
 				doesVolumeChange: false,
 				playbackRate: 1,
+				frozenMediaFrame: null,
 				loopDisplay: undefined,
 				effects: [],
+				frozenFrame: null,
 			},
 			depth: 1,
 			hash: '-Showcase-199-190-sequence----0-talk.mp4-199-0-video---http://localhost:5000/talk.mp4-1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,10',
@@ -185,6 +193,7 @@ test('Should calculate timeline as expected', () => {
 				nonce: [[0, 259]],
 				loopDisplay: undefined,
 				effects: [],
+				frozenFrame: null,
 			},
 			depth: 1,
 			hash: '-Showcase-199-190-sequence----0-Video-259--60-sequence----0',
@@ -214,8 +223,10 @@ test('Should calculate timeline as expected', () => {
 				startMediaFrom: 60,
 				doesVolumeChange: false,
 				playbackRate: 1,
+				frozenMediaFrame: null,
 				loopDisplay: undefined,
 				effects: [],
+				frozenFrame: null,
 			},
 			depth: 1,
 			hash: '-Showcase-199-190-sequence----0-Video-259--60-sequence----0-data.mp4-259-0-video---http://localhost:5000/data.mp4-1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,10',
@@ -241,6 +252,7 @@ test('Should calculate timeline as expected', () => {
 				nonce: [[0, 261]],
 				loopDisplay: undefined,
 				effects: [],
+				frozenFrame: null,
 			},
 			depth: 1,
 			hash: '-Showcase-199-190-sequence----0-Video-319--120-sequence----0',
@@ -270,8 +282,10 @@ test('Should calculate timeline as expected', () => {
 				startMediaFrom: 120,
 				doesVolumeChange: false,
 				playbackRate: 1,
+				frozenMediaFrame: null,
 				loopDisplay: undefined,
 				effects: [],
+				frozenFrame: null,
 			},
 			depth: 1,
 			hash: '-Showcase-199-190-sequence----0-Video-319--120-sequence----0-twitter.mp4-319-0-video---http://localhost:5000/twitter.mp4-1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,10',
@@ -297,6 +311,7 @@ test('Should calculate timeline as expected', () => {
 				nonce: [[0, 263]],
 				loopDisplay: undefined,
 				effects: [],
+				frozenFrame: null,
 			},
 			depth: 1,
 			hash: '-Showcase-199-190-sequence----0-Video-379--180-sequence----0',
@@ -326,8 +341,10 @@ test('Should calculate timeline as expected', () => {
 				startMediaFrom: 180,
 				doesVolumeChange: false,
 				playbackRate: 1,
+				frozenMediaFrame: null,
 				loopDisplay: undefined,
 				effects: [],
+				frozenFrame: null,
 			},
 			depth: 1,
 			hash: '-Showcase-199-190-sequence----0-Video-379--180-sequence----0-tiktok.MP4-379-0-video---http://localhost:5000/tiktok.MP4-1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,10',
@@ -353,6 +370,7 @@ test('Should calculate timeline as expected', () => {
 				nonce: [[0, 63]],
 				loopDisplay: undefined,
 				effects: [],
+				frozenFrame: null,
 			},
 			depth: 0,
 			hash: '-TwoPointOh-114-389-sequence----0',
@@ -378,6 +396,7 @@ test('Should calculate timeline as expected', () => {
 				nonce: [[0, 64]],
 				loopDisplay: undefined,
 				effects: [],
+				frozenFrame: null,
 			},
 			depth: 0,
 			hash: '-AudioDemo-430-503-sequence----0',
@@ -403,6 +422,7 @@ test('Should calculate timeline as expected', () => {
 				nonce: [[0, 65]],
 				loopDisplay: undefined,
 				effects: [],
+				frozenFrame: null,
 			},
 			depth: 0,
 			hash: '-AudioFeatures-267-933-sequence----0',
@@ -428,6 +448,7 @@ test('Should calculate timeline as expected', () => {
 				nonce: [[0, 66]],
 				loopDisplay: undefined,
 				effects: [],
+				frozenFrame: null,
 			},
 			depth: 0,
 			hash: '-OtherFeatures-300-1200-sequence----0',
@@ -453,6 +474,7 @@ test('Should calculate timeline as expected', () => {
 				nonce: [[0, 67]],
 				loopDisplay: undefined,
 				effects: [],
+				frozenFrame: null,
 			},
 			depth: 0,
 			hash: '-PreviousRelease-170-1500-sequence----0',
@@ -478,6 +500,7 @@ test('Should calculate timeline as expected', () => {
 				nonce: [[0, 68]],
 				loopDisplay: undefined,
 				effects: [],
+				frozenFrame: null,
 			},
 			depth: 0,
 			hash: '-Transition-300-1630-sequence----0',
@@ -503,6 +526,7 @@ test('Should calculate timeline as expected', () => {
 				nonce: [[0, 69]],
 				loopDisplay: undefined,
 				effects: [],
+				frozenFrame: null,
 			},
 			depth: 0,
 			hash: '-Transition-320-1900-sequence----0',
@@ -528,6 +552,7 @@ test('Should calculate timeline as expected', () => {
 				nonce: [[0, 70]],
 				loopDisplay: undefined,
 				effects: [],
+				frozenFrame: null,
 			},
 			depth: 0,
 			hash: '-EndCard-203-2220-sequence----0',
@@ -553,6 +578,7 @@ test('Should calculate timeline as expected', () => {
 				nonce: [[0, 71]],
 				loopDisplay: undefined,
 				effects: [],
+				frozenFrame: null,
 			},
 			depth: 0,
 			hash: '-Audio-400-2023-sequence----0',
@@ -578,6 +604,7 @@ test('Should calculate timeline as expected', () => {
 				nonce: [[0, 358]],
 				loopDisplay: undefined,
 				effects: [],
+				frozenFrame: null,
 			},
 			depth: 1,
 			hash: '-Audio-400-2023-sequence----0-Audio-410--10-sequence----0',
@@ -607,8 +634,10 @@ test('Should calculate timeline as expected', () => {
 				startMediaFrom: 10,
 				doesVolumeChange: true,
 				playbackRate: 1,
+				frozenMediaFrame: null,
 				loopDisplay: undefined,
 				effects: [],
+				frozenFrame: null,
 			},
 			depth: 1,
 			hash: '-Audio-400-2023-sequence----0-Audio-410--10-sequence----0-radiostar.mp3-410-0-audio-http://localhost:3000/src/radiostar.mp3-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.008333333333333333,0.016666666666666666,0.025,0.03333333333333333,0.041666666666666664,0.05,0.058333333333333334,0.06666666666666667,0.075,0.08333333333333333,0.09166666666666666,0.1,0.10833333333333334,0.11666666666666667,0.125,0.13333333333333333,0.14166666666666666,0.15,0.15833333333333333,0.16666666666666666,0.175,0.18333333333333332,0.19166666666666668,0.2,0.20833333333333334,0.21666666666666667,0.225,0.23333333333333334,0.24166666666666667,0.25,0.25833333333333336,0.26666666666666666,0.275,0.2833333333333333,0.2916666666666667,0.3,0.30833333333333335,0.31666666666666665,0.325,0.3333333333333333,0.3416666666666667,0.35,0.35833333333333334,0.36666666666666664,0.375,0.38333333333333336,0.39166666666666666,0.4,0.4083333333333333,0.4166666666666667,0.425,0.43333333333333335,0.44166666666666665,0.45,0.4583333333333333,0.4666666666666667,0.475,0.48333333333333334,0.49166666666666664,0.5,0.5083333333333333,0.5166666666666667,0.525,0.5333333333333333,0.5416666666666666,0.55,0.5583333333333333,0.5666666666666667,0.575,0.5833333333333334,0.5916666666666667,0.6,0.6083333333333333,0.6166666666666667,0.625,0.6333333333333333,0.6416666666666667,0.65,0.6583333333333333,0.6666666666666666,0.675,0.6833333333333333,0.6916666666666667,0.7,0.7083333333333334,0.7166666666666667,0.725,0.7333333333333333,0.7416666666666667,0.75,0.7583333333333333,0.7666666666666667,0.775,0.7833333333333333,0.7916666666666666,0.8,0.8083333333333333,0.8166666666666667,0.825,0.8333333333333334,0.8416666666666667,0.85,0.8583333333333333,0.8666666666666667,0.875,0.8833333333333333,0.8916666666666667,0.9,0.9083333333333333,0.9166666666666666,0.925,0.9333333333333333,0.9416666666666667,0.95,0.9583333333333334,0.9666666666666667,0.975,0.9833333333333333,0.9916666666666667,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1--0',
@@ -638,10 +667,12 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 60]],
 		startMediaFrom: 0,
 		doesVolumeChange: false,
 		playbackRate: 1,
+		frozenMediaFrame: null,
 	},
 	{
 		from: 0,
@@ -661,6 +692,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 61]],
 	},
 	{
@@ -681,6 +713,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 62]],
 	},
 	{
@@ -701,6 +734,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 63]],
 	},
 	{
@@ -721,6 +755,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 64]],
 	},
 	{
@@ -741,6 +776,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 65]],
 	},
 	{
@@ -761,6 +797,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 66]],
 	},
 	{
@@ -781,6 +818,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 67]],
 	},
 	{
@@ -801,6 +839,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 68]],
 	},
 	{
@@ -821,6 +860,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 69]],
 	},
 	{
@@ -841,6 +881,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 70]],
 	},
 	{
@@ -861,6 +902,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 71]],
 	},
 	{
@@ -884,10 +926,12 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 72]],
 		startMediaFrom: 0,
 		doesVolumeChange: false,
 		playbackRate: 1,
+		frozenMediaFrame: null,
 	},
 	{
 		from: 0,
@@ -907,6 +951,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 73]],
 	},
 	{
@@ -927,6 +972,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 74]],
 	},
 	{
@@ -947,6 +993,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 75]],
 	},
 	{
@@ -967,6 +1014,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 76]],
 	},
 	{
@@ -987,6 +1035,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 77]],
 	},
 	{
@@ -1007,6 +1056,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 78]],
 	},
 	{
@@ -1027,6 +1077,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 79]],
 	},
 	{
@@ -1047,6 +1098,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 80]],
 	},
 	{
@@ -1067,6 +1119,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 81]],
 	},
 	{
@@ -1087,6 +1140,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 82]],
 	},
 	{
@@ -1107,6 +1161,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 83]],
 	},
 	{
@@ -1130,10 +1185,12 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 242]],
 		startMediaFrom: 0,
 		doesVolumeChange: false,
 		playbackRate: 1,
+		frozenMediaFrame: null,
 	},
 	{
 		from: 0,
@@ -1153,6 +1210,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 243]],
 	},
 	{
@@ -1173,6 +1231,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 244]],
 	},
 	{
@@ -1193,6 +1252,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 245]],
 	},
 	{
@@ -1213,6 +1273,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 246]],
 	},
 	{
@@ -1233,6 +1294,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 247]],
 	},
 	{
@@ -1253,6 +1315,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 248]],
 	},
 	{
@@ -1273,6 +1336,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 249]],
 	},
 	{
@@ -1293,6 +1357,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 250]],
 	},
 	{
@@ -1313,6 +1378,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 251]],
 	},
 	{
@@ -1333,6 +1399,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 252]],
 	},
 	{
@@ -1353,6 +1420,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 253]],
 	},
 	{
@@ -1376,10 +1444,12 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 254]],
 		startMediaFrom: 0,
 		doesVolumeChange: false,
 		playbackRate: 1,
+		frozenMediaFrame: null,
 	},
 	{
 		from: 0,
@@ -1399,6 +1469,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 255]],
 	},
 	{
@@ -1422,10 +1493,12 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 256]],
 		startMediaFrom: 0,
 		doesVolumeChange: false,
 		playbackRate: 1,
+		frozenMediaFrame: null,
 	},
 	{
 		premountDisplay: null,
@@ -1448,10 +1521,12 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 257]],
 		startMediaFrom: 0,
 		doesVolumeChange: false,
 		playbackRate: 1,
+		frozenMediaFrame: null,
 	},
 	{
 		premountDisplay: null,
@@ -1474,10 +1549,12 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 258]],
 		startMediaFrom: 60,
 		doesVolumeChange: false,
 		playbackRate: 1,
+		frozenMediaFrame: null,
 	},
 	{
 		from: -60,
@@ -1497,6 +1574,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 259]],
 	},
 	{
@@ -1520,10 +1598,12 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 260]],
 		startMediaFrom: 120,
 		doesVolumeChange: false,
 		playbackRate: 1,
+		frozenMediaFrame: null,
 	},
 	{
 		from: -120,
@@ -1543,6 +1623,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 261]],
 	},
 	{
@@ -1566,10 +1647,12 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 262]],
 		startMediaFrom: 180,
 		doesVolumeChange: false,
 		playbackRate: 1,
+		frozenMediaFrame: null,
 	},
 	{
 		from: -180,
@@ -1589,6 +1672,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 263]],
 	},
 	{
@@ -1609,6 +1693,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 264]],
 	},
 	{
@@ -1629,6 +1714,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 265]],
 	},
 	{
@@ -1649,6 +1735,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 266]],
 	},
 	{
@@ -1669,6 +1756,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 267]],
 	},
 	{
@@ -1689,6 +1777,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 268]],
 	},
 	{
@@ -1709,6 +1798,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 269]],
 	},
 	{
@@ -1729,6 +1819,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 270]],
 	},
 	{
@@ -1749,6 +1840,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 271]],
 	},
 	{
@@ -1769,6 +1861,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 272]],
 	},
 	{
@@ -1789,6 +1882,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 273]],
 	},
 	{
@@ -1812,10 +1906,12 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 274]],
 		startMediaFrom: 0,
 		doesVolumeChange: false,
 		playbackRate: 1,
+		frozenMediaFrame: null,
 	},
 	{
 		from: 0,
@@ -1835,6 +1931,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 275]],
 	},
 	{
@@ -1855,6 +1952,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 276]],
 	},
 	{
@@ -1875,6 +1973,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 277]],
 	},
 	{
@@ -1895,6 +1994,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 278]],
 	},
 	{
@@ -1915,6 +2015,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 279]],
 	},
 	{
@@ -1935,6 +2036,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 280]],
 	},
 	{
@@ -1955,6 +2057,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 281]],
 	},
 	{
@@ -1975,6 +2078,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 282]],
 	},
 	{
@@ -1995,6 +2099,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 283]],
 	},
 	{
@@ -2015,6 +2120,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 284]],
 	},
 	{
@@ -2035,6 +2141,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 285]],
 	},
 	{
@@ -2058,10 +2165,12 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 286]],
 		startMediaFrom: 0,
 		doesVolumeChange: false,
 		playbackRate: 1,
+		frozenMediaFrame: null,
 	},
 	{
 		from: 0,
@@ -2081,6 +2190,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 287]],
 	},
 	{
@@ -2101,6 +2211,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 288]],
 	},
 	{
@@ -2121,6 +2232,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 289]],
 	},
 	{
@@ -2141,6 +2253,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 290]],
 	},
 	{
@@ -2161,6 +2274,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 291]],
 	},
 	{
@@ -2181,6 +2295,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 292]],
 	},
 	{
@@ -2201,6 +2316,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 293]],
 	},
 	{
@@ -2221,6 +2337,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 294]],
 	},
 	{
@@ -2241,6 +2358,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 295]],
 	},
 	{
@@ -2261,6 +2379,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 296]],
 	},
 	{
@@ -2281,6 +2400,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 297]],
 	},
 	{
@@ -2304,10 +2424,12 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 298]],
 		startMediaFrom: 0,
 		doesVolumeChange: false,
 		playbackRate: 1,
+		frozenMediaFrame: null,
 	},
 	{
 		from: 0,
@@ -2327,6 +2449,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 299]],
 	},
 	{
@@ -2347,6 +2470,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 300]],
 	},
 	{
@@ -2367,6 +2491,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 301]],
 	},
 	{
@@ -2387,6 +2512,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 302]],
 	},
 	{
@@ -2407,6 +2533,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 303]],
 	},
 	{
@@ -2427,6 +2554,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 304]],
 	},
 	{
@@ -2447,6 +2575,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 305]],
 	},
 	{
@@ -2467,6 +2596,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 306]],
 	},
 	{
@@ -2487,6 +2617,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 307]],
 	},
 	{
@@ -2507,6 +2638,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 308]],
 	},
 	{
@@ -2527,6 +2659,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 309]],
 	},
 	{
@@ -2550,10 +2683,12 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 310]],
 		startMediaFrom: 0,
 		doesVolumeChange: false,
 		playbackRate: 1,
+		frozenMediaFrame: null,
 	},
 	{
 		from: 0,
@@ -2573,6 +2708,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 311]],
 	},
 	{
@@ -2593,6 +2729,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 312]],
 	},
 	{
@@ -2613,6 +2750,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 313]],
 	},
 	{
@@ -2633,6 +2771,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 314]],
 	},
 	{
@@ -2653,6 +2792,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 315]],
 	},
 	{
@@ -2673,6 +2813,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 316]],
 	},
 	{
@@ -2693,6 +2834,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 317]],
 	},
 	{
@@ -2713,6 +2855,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 318]],
 	},
 	{
@@ -2733,6 +2876,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 319]],
 	},
 	{
@@ -2753,6 +2897,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 320]],
 	},
 	{
@@ -2773,6 +2918,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 321]],
 	},
 	{
@@ -2796,10 +2942,12 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 322]],
 		startMediaFrom: 0,
 		doesVolumeChange: false,
 		playbackRate: 1,
+		frozenMediaFrame: null,
 	},
 	{
 		from: 0,
@@ -2819,6 +2967,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 323]],
 	},
 	{
@@ -2839,6 +2988,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 324]],
 	},
 	{
@@ -2859,6 +3009,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 325]],
 	},
 	{
@@ -2879,6 +3030,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 326]],
 	},
 	{
@@ -2899,6 +3051,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 327]],
 	},
 	{
@@ -2919,6 +3072,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 328]],
 	},
 	{
@@ -2939,6 +3093,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 329]],
 	},
 	{
@@ -2959,6 +3114,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 330]],
 	},
 	{
@@ -2979,6 +3135,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 331]],
 	},
 	{
@@ -2999,6 +3156,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 332]],
 	},
 	{
@@ -3019,6 +3177,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 333]],
 	},
 	{
@@ -3042,10 +3201,12 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 334]],
 		startMediaFrom: 0,
 		doesVolumeChange: false,
 		playbackRate: 1,
+		frozenMediaFrame: null,
 	},
 	{
 		from: 0,
@@ -3065,6 +3226,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 335]],
 	},
 	{
@@ -3085,6 +3247,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 336]],
 	},
 	{
@@ -3105,6 +3268,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 337]],
 	},
 	{
@@ -3125,6 +3289,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 338]],
 	},
 	{
@@ -3145,6 +3310,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 339]],
 	},
 	{
@@ -3165,6 +3331,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 340]],
 	},
 	{
@@ -3185,6 +3352,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 341]],
 	},
 	{
@@ -3205,6 +3373,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 342]],
 	},
 	{
@@ -3225,6 +3394,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 343]],
 	},
 	{
@@ -3245,6 +3415,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 344]],
 	},
 	{
@@ -3265,6 +3436,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 345]],
 	},
 	{
@@ -3288,10 +3460,12 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 346]],
 		startMediaFrom: 0,
 		doesVolumeChange: false,
 		playbackRate: 1,
+		frozenMediaFrame: null,
 	},
 	{
 		from: 0,
@@ -3311,6 +3485,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 347]],
 	},
 	{
@@ -3331,6 +3506,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 348]],
 	},
 	{
@@ -3351,6 +3527,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 349]],
 	},
 	{
@@ -3371,6 +3548,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 350]],
 	},
 	{
@@ -3391,6 +3569,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 351]],
 	},
 	{
@@ -3411,6 +3590,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 352]],
 	},
 	{
@@ -3431,6 +3611,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 353]],
 	},
 	{
@@ -3451,6 +3632,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 354]],
 	},
 	{
@@ -3471,6 +3653,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 355]],
 	},
 	{
@@ -3491,6 +3674,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 356]],
 	},
 	{
@@ -3514,10 +3698,12 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 357]],
 		startMediaFrom: 10,
 		doesVolumeChange: true,
 		playbackRate: 1,
+		frozenMediaFrame: null,
 	},
 	{
 		from: -10,
@@ -3537,6 +3723,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 358]],
 	},
 	{
@@ -3557,6 +3744,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 359]],
 	},
 	{
@@ -3580,10 +3768,12 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 360]],
 		startMediaFrom: 0,
 		doesVolumeChange: false,
 		playbackRate: 1,
+		frozenMediaFrame: null,
 	},
 	{
 		from: 0,
@@ -3603,6 +3793,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 361]],
 	},
 	{
@@ -3623,6 +3814,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 362]],
 	},
 	{
@@ -3643,6 +3835,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 363]],
 	},
 	{
@@ -3663,6 +3856,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 364]],
 	},
 	{
@@ -3683,6 +3877,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 365]],
 	},
 	{
@@ -3703,6 +3898,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 366]],
 	},
 	{
@@ -3723,6 +3919,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 367]],
 	},
 	{
@@ -3743,6 +3940,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 368]],
 	},
 	{
@@ -3763,6 +3961,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 369]],
 	},
 	{
@@ -3783,6 +3982,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 370]],
 	},
 	{
@@ -3806,10 +4006,12 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 371]],
 		startMediaFrom: 10,
 		doesVolumeChange: true,
 		playbackRate: 1,
+		frozenMediaFrame: null,
 	},
 	{
 		from: -10,
@@ -3829,6 +4031,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 372]],
 	},
 	{
@@ -3849,6 +4052,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 373]],
 	},
 	{
@@ -3872,10 +4076,12 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 374]],
 		startMediaFrom: 0,
 		doesVolumeChange: false,
 		playbackRate: 1,
+		frozenMediaFrame: null,
 	},
 	{
 		from: 0,
@@ -3895,6 +4101,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 375]],
 	},
 	{
@@ -3915,6 +4122,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 376]],
 	},
 	{
@@ -3935,6 +4143,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 377]],
 	},
 	{
@@ -3955,6 +4164,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 378]],
 	},
 	{
@@ -3975,6 +4185,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 379]],
 	},
 	{
@@ -3995,6 +4206,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 380]],
 	},
 	{
@@ -4015,6 +4227,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 381]],
 	},
 	{
@@ -4035,6 +4248,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 382]],
 	},
 	{
@@ -4055,6 +4269,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 383]],
 	},
 	{
@@ -4075,6 +4290,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 384]],
 	},
 	{
@@ -4098,10 +4314,12 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 385]],
 		startMediaFrom: 10,
 		doesVolumeChange: true,
 		playbackRate: 1,
+		frozenMediaFrame: null,
 	},
 	{
 		from: -10,
@@ -4121,6 +4339,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 386]],
 	},
 	{
@@ -4141,6 +4360,7 @@ const sequences: TSequence[] = [
 		isInsideSeries: false,
 		loopDisplay: undefined,
 		effects: [],
+		frozenFrame: null,
 		nonce: [[0, 387]],
 	},
 ];

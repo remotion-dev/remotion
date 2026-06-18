@@ -15,6 +15,8 @@ import {
 	getKeyframeInterpolationFunctionForSchemaField,
 	isKeyframeInterpolationFunction,
 	isSchemaFieldKeyframable,
+	LINEAR_KEYFRAME_EASING,
+	parseSpringEasingConfig,
 	type KeyframeInterpolationFunction,
 } from '@remotion/studio-shared';
 import type {ExpressionKind, SpreadElementKind} from 'ast-types/lib/gen/kinds';
@@ -22,9 +24,9 @@ import * as recast from 'recast';
 import type {
 	CanUpdateSequencePropStatus,
 	ExtrapolateType,
-	SequenceFieldSchema,
+	InteractivitySchemaField,
 	SequenceNodePath,
-	SequenceSchema,
+	InteractivitySchema,
 } from 'remotion';
 import {getAstNodePath} from '../../helpers/get-ast-node-path';
 import {
@@ -317,7 +319,7 @@ const getInterpolationCalleeForValues = ({
 	staticValue,
 	newValue,
 }: {
-	schema: SequenceSchema | null;
+	schema: InteractivitySchema | null;
 	key: string;
 	staticValue: unknown;
 	newValue: unknown;
@@ -398,7 +400,7 @@ const setOptionsProperty = ({
 	);
 };
 
-const isLinearEasing = (easing: KeyframeEasing) => easing === 'linear';
+const isLinearEasing = (easing: KeyframeEasing) => easing.type === 'linear';
 
 const getKeyframeEasing = (node: Expression): KeyframeEasing | null => {
 	if (node.type === 'TSAsExpression') {
@@ -413,7 +415,7 @@ const getKeyframeEasing = (node: Expression): KeyframeEasing | null => {
 		node.property.name === 'linear' &&
 		node.computed === false
 	) {
-		return 'linear';
+		return {type: 'linear'};
 	}
 
 	if (
@@ -422,10 +424,29 @@ const getKeyframeEasing = (node: Expression): KeyframeEasing | null => {
 		node.callee.object.type !== 'Identifier' ||
 		node.callee.object.name !== 'Easing' ||
 		node.callee.property.type !== 'Identifier' ||
-		node.callee.property.name !== 'bezier' ||
-		node.callee.computed ||
-		node.arguments.length !== 4
+		node.callee.computed
 	) {
+		return null;
+	}
+
+	if (node.callee.property.name === 'spring') {
+		if (node.arguments.length > 1) {
+			return null;
+		}
+
+		const springConfig = node.arguments[0];
+		if (
+			springConfig?.type === 'ArgumentPlaceholder' ||
+			springConfig?.type === 'JSXNamespacedName' ||
+			springConfig?.type === 'SpreadElement'
+		) {
+			return null;
+		}
+
+		return parseSpringEasingConfig(springConfig);
+	}
+
+	if (node.callee.property.name !== 'bezier' || node.arguments.length !== 4) {
 		return null;
 	}
 
@@ -445,7 +466,8 @@ const getKeyframeEasing = (node: Expression): KeyframeEasing | null => {
 		return null;
 	}
 
-	return values as [number, number, number, number];
+	const [x1, y1, x2, y2] = values as [number, number, number, number];
+	return {type: 'bezier', x1, y1, x2, y2};
 };
 
 const getKeyframeEasingArray = ({
@@ -485,7 +507,7 @@ const getKeyframeEasingArray = ({
 
 		const easingArray = parsed as KeyframeEasing[];
 		while (easingArray.length < segmentCount) {
-			easingArray.push('linear');
+			easingArray.push(LINEAR_KEYFRAME_EASING);
 		}
 
 		return easingArray;
@@ -508,7 +530,7 @@ const getExistingEasingArray = ({
 }): KeyframeEasing[] => {
 	const {prop} = findObjectOptionProperty(options, 'easing');
 	if (!prop) {
-		return new Array(segmentCount).fill('linear');
+		return Array.from({length: segmentCount}, () => ({type: 'linear'}));
 	}
 
 	const easing = getKeyframeEasingArray({
@@ -538,17 +560,48 @@ const getExistingEasingArrayOrNull = ({
 };
 
 const createEasingExpression = (easing: KeyframeEasing): ExpressionKind => {
-	if (easing === 'linear') {
-		return b.memberExpression(
-			b.identifier('Easing'),
-			b.identifier('linear'),
-		) as ExpressionKind;
+	switch (easing.type) {
+		case 'linear':
+			return b.memberExpression(
+				b.identifier('Easing'),
+				b.identifier('linear'),
+			) as ExpressionKind;
+		case 'spring':
+			return b.callExpression(
+				b.memberExpression(b.identifier('Easing'), b.identifier('spring')),
+				[
+					b.objectExpression([
+						b.objectProperty(
+							b.identifier('damping'),
+							parseValueExpression(easing.damping),
+						),
+						b.objectProperty(
+							b.identifier('mass'),
+							parseValueExpression(easing.mass),
+						),
+						b.objectProperty(
+							b.identifier('stiffness'),
+							parseValueExpression(easing.stiffness),
+						),
+						b.objectProperty(
+							b.identifier('overshootClamping'),
+							b.booleanLiteral(easing.overshootClamping),
+						),
+					]),
+				] as never,
+			) as ExpressionKind;
+		case 'bezier':
+			return b.callExpression(
+				b.memberExpression(b.identifier('Easing'), b.identifier('bezier')),
+				[easing.x1, easing.y1, easing.x2, easing.y2].map((value) =>
+					parseValueExpression(value),
+				) as never,
+			) as ExpressionKind;
+		default:
+			throw new Error(
+				`Unsupported easing: ${JSON.stringify(easing satisfies never)}`,
+			);
 	}
-
-	return b.callExpression(
-		b.memberExpression(b.identifier('Easing'), b.identifier('bezier')),
-		easing.map((value) => parseValueExpression(value)) as never,
-	) as ExpressionKind;
 };
 
 const createEasingArrayExpression = (
@@ -625,7 +678,7 @@ const normalizeEasingAfterAddingKeyframe = ({
 	}
 
 	while (easing.length < nextSegmentCount) {
-		easing.push('linear');
+		easing.push(LINEAR_KEYFRAME_EASING);
 	}
 
 	return {
@@ -672,7 +725,60 @@ const normalizeEasingAfterRemovingKeyframe = ({
 	}
 
 	while (easing.length < nextSegmentCount) {
-		easing.push('linear');
+		easing.push(LINEAR_KEYFRAME_EASING);
+	}
+
+	return {
+		extraArgs: getExtraArgsWithOptions({extraArgs, options}),
+		needsEasingImport: setEasingOption({options, easing}),
+	};
+};
+
+const normalizeEasingAfterRemovingKeyframes = ({
+	extraArgs,
+	previousSegmentCount,
+	nextSegmentCount,
+	removedKeyframeIndexes,
+}: {
+	extraArgs: (ExpressionKind | SpreadElementKind)[];
+	previousSegmentCount: number;
+	nextSegmentCount: number;
+	removedKeyframeIndexes: number[];
+}): {
+	extraArgs: (ExpressionKind | SpreadElementKind)[];
+	needsEasingImport: boolean;
+} => {
+	const options = getInlineOptionsFromExtraArgs(extraArgs);
+	if (!options) {
+		return {extraArgs, needsEasingImport: false};
+	}
+
+	const easing = getExistingEasingArrayOrNull({
+		options,
+		segmentCount: previousSegmentCount,
+	});
+	if (easing === null) {
+		return {extraArgs, needsEasingImport: false};
+	}
+
+	for (const removedKeyframeIndex of [...removedKeyframeIndexes].sort(
+		(first, second) => second - first,
+	)) {
+		if (easing.length === 0) {
+			break;
+		}
+
+		const easingIndexToRemove =
+			removedKeyframeIndex === 0 ? 0 : removedKeyframeIndex - 1;
+		easing.splice(easingIndexToRemove, 1);
+	}
+
+	while (easing.length > nextSegmentCount) {
+		easing.pop();
+	}
+
+	while (easing.length < nextSegmentCount) {
+		easing.push(LINEAR_KEYFRAME_EASING);
 	}
 
 	return {
@@ -873,7 +979,7 @@ const addKeyframe = ({
 	key: string;
 	frame: number;
 	value: unknown;
-	schema: SequenceSchema | null;
+	schema: InteractivitySchema | null;
 }): {expression: ExpressionKind; introduced: IntroducedKeyframeIdentifiers} => {
 	if (!isSchemaFieldKeyframable({schema, key})) {
 		throw new Error(`Cannot add keyframe: "${key}" is not keyframable`);
@@ -1057,32 +1163,48 @@ const moveKeyframes = ({
 	}
 
 	const movedFromFrames = new Set(moveMap.keys());
+	const movedToFrames = new Set(moveMap.values());
+	const removedKeyframeIndexes: number[] = [];
+	const nextKeyframes = existing.keyframes.flatMap((keyframe, index) => {
+		const movedFrame = moveMap.get(keyframe.frame);
+		if (movedFrame !== undefined) {
+			return [{...keyframe, frame: movedFrame}];
+		}
+
+		if (
+			movedToFrames.has(keyframe.frame) &&
+			!movedFromFrames.has(keyframe.frame)
+		) {
+			removedKeyframeIndexes.push(index);
+			return [];
+		}
+
+		return [keyframe];
+	});
+
 	const nextFrames = new Set<number>();
-	for (const keyframe of existing.keyframes) {
-		const nextFrame = moveMap.get(keyframe.frame) ?? keyframe.frame;
-		if (nextFrames.has(nextFrame)) {
+	for (const keyframe of nextKeyframes) {
+		if (nextFrames.has(keyframe.frame)) {
 			throw new Error(
-				`Cannot move keyframe to frame ${nextFrame}: frame already exists`,
+				`Cannot move keyframe to frame ${keyframe.frame}: frame already exists`,
 			);
 		}
 
-		if (!movedFromFrames.has(keyframe.frame) && moveMap.has(nextFrame)) {
-			throw new Error(
-				`Cannot move keyframe to frame ${nextFrame}: frame already exists`,
-			);
-		}
-
-		nextFrames.add(nextFrame);
+		nextFrames.add(keyframe.frame);
 	}
+
+	const normalizedEasing = normalizeEasingAfterRemovingKeyframes({
+		extraArgs: existing.extraArgs,
+		previousSegmentCount: Math.max(existing.keyframes.length - 1, 0),
+		nextSegmentCount: Math.max(nextKeyframes.length - 1, 0),
+		removedKeyframeIndexes,
+	});
 
 	return createInterpolateExpression({
 		callee: existing.callee,
 		input: existing.input,
-		extraArgs: existing.extraArgs,
-		keyframes: existing.keyframes.map((keyframe) => ({
-			...keyframe,
-			frame: moveMap.get(keyframe.frame) ?? keyframe.frame,
-		})),
+		extraArgs: normalizedEasing.extraArgs,
+		keyframes: nextKeyframes,
 	});
 };
 
@@ -1095,7 +1217,7 @@ const applyKeyframeOperation = ({
 	expression: Expression;
 	key: string;
 	operation: KeyframeOperation;
-	schema: SequenceSchema | null;
+	schema: InteractivitySchema | null;
 }): {expression: ExpressionKind; introduced: IntroducedKeyframeIdentifiers} => {
 	if (operation.type === 'add') {
 		return addKeyframe({
@@ -1213,9 +1335,9 @@ const findObjectProperty = (
 };
 
 const findFieldInSchema = (
-	schema: SequenceSchema,
+	schema: InteractivitySchema,
 	key: string,
-): SequenceFieldSchema | undefined => {
+): InteractivitySchemaField | undefined => {
 	if (key in schema) {
 		return schema[key];
 	}
@@ -1241,7 +1363,7 @@ const getInitialValueForMissingProp = ({
 	key,
 	newValue,
 }: {
-	schema: SequenceSchema | null;
+	schema: InteractivitySchema | null;
 	key: string;
 	newValue: unknown;
 }): unknown => {
@@ -1396,6 +1518,55 @@ const getSequenceWritableProp = ({
 	};
 };
 
+const getEffectWritableProp = ({
+	objExpr,
+	key,
+	missingPropInitialValue,
+}: {
+	objExpr: ObjectExpression;
+	key: string;
+	missingPropInitialValue: MissingPropInitialValue | null;
+}): WritableProp => {
+	const {prop} = findObjectProperty(objExpr, key);
+	if (!prop) {
+		if (missingPropInitialValue) {
+			return {
+				expression: createMissingPropExpression(missingPropInitialValue),
+				setExpression: (nextExpression) => {
+					objExpr.properties.push(
+						createObjectProperty(key, nextExpression) as ObjectProperty,
+					);
+				},
+			};
+		}
+
+		throw new Error(`Cannot update keyframes: "${key}" is not set`);
+	}
+
+	return {
+		expression: prop.value as Expression,
+		setExpression: (nextExpression) => {
+			prop.value = nextExpression as ObjectProperty['value'];
+		},
+	};
+};
+
+const getEffectPropsObjectExpression = (
+	call: CallExpression,
+): ObjectExpression => {
+	if (call.arguments.length === 0) {
+		const objExpr = b.objectExpression([]) as ObjectExpression;
+		call.arguments.push(objExpr);
+		return objExpr;
+	}
+
+	if (call.arguments[0].type !== 'ObjectExpression') {
+		throw new Error('Cannot update effect keyframe: computed');
+	}
+
+	return call.arguments[0] as ObjectExpression;
+};
+
 export const updateSequenceKeyframesAst = ({
 	input,
 	nodePath,
@@ -1405,7 +1576,7 @@ export const updateSequenceKeyframesAst = ({
 	input: string;
 	nodePath: SequenceNodePath;
 	updates: SequenceKeyframeUpdate[];
-	schema?: SequenceSchema;
+	schema?: InteractivitySchema;
 }): {
 	serialized: string;
 	oldValueStrings: string[];
@@ -1505,7 +1676,7 @@ export const updateSequenceKeyframes = async ({
 	input: string;
 	nodePath: SequenceNodePath;
 	updates: SequenceKeyframeUpdate[];
-	schema?: SequenceSchema;
+	schema?: InteractivitySchema;
 	prettierConfigOverride?: Record<string, unknown> | null;
 }): Promise<{
 	output: string;
@@ -1560,7 +1731,7 @@ export const updateEffectKeyframesAst = ({
 	sequenceNodePath: SequenceNodePath;
 	effectIndex: number;
 	updates: EffectKeyframeUpdate[];
-	schema?: SequenceSchema;
+	schema?: InteractivitySchema;
 }): {
 	serialized: string;
 	oldValueStrings: string[];
@@ -1589,33 +1760,35 @@ export const updateEffectKeyframesAst = ({
 	}
 
 	const {call, callee: effectCallee} = found;
-	if (
-		call.arguments.length === 0 ||
-		call.arguments[0].type !== 'ObjectExpression'
-	) {
-		throw new Error('Cannot update effect keyframe: computed');
-	}
-
-	const objExpr = call.arguments[0] as ObjectExpression;
+	const objExpr = getEffectPropsObjectExpression(call);
 	const oldValueStrings: string[] = [];
 	const newValueStrings: string[] = [];
 	const requiredImports = new Set<string>();
 	let needsFrameHook = false;
 	for (const update of updates) {
-		const {prop} = findObjectProperty(objExpr, update.key);
-		if (!prop) {
-			throw new Error(`Cannot update keyframes: "${update.key}" is not set`);
-		}
-
-		oldValueStrings.push(recast.print(prop.value).code);
+		const prop = getEffectWritableProp({
+			objExpr,
+			key: update.key,
+			missingPropInitialValue:
+				update.operation.type === 'add'
+					? {
+							value: getInitialValueForMissingProp({
+								schema: schema ?? null,
+								key: update.key,
+								newValue: update.operation.value,
+							}),
+						}
+					: null,
+		});
+		oldValueStrings.push(recast.print(prop.expression).code);
 		const {expression: nextExpression, introduced} = applyKeyframeOperation({
-			expression: prop.value as Expression,
+			expression: prop.expression,
 			key: update.key,
 			operation: update.operation,
 			schema: schema ?? null,
 		});
 		newValueStrings.push(recast.print(nextExpression).code);
-		prop.value = nextExpression as ObjectProperty['value'];
+		prop.setExpression(nextExpression);
 
 		if (introduced.calleeName) {
 			requiredImports.add(introduced.calleeName);
@@ -1669,7 +1842,7 @@ export const updateEffectKeyframes = async ({
 	sequenceNodePath: SequenceNodePath;
 	effectIndex: number;
 	updates: EffectKeyframeUpdate[];
-	schema?: SequenceSchema;
+	schema?: InteractivitySchema;
 	prettierConfigOverride?: Record<string, unknown> | null;
 }): Promise<{
 	output: string;

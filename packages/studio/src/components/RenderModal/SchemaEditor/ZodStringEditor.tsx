@@ -60,6 +60,7 @@ export const ZodStringEditor: React.FC<{
 					onBlur={onBlur}
 					rightAlign={false}
 					name={jsonPath.join('.')}
+					small
 				/>
 				<ZodFieldValidation path={jsonPath} zodValidation={zodValidation} />
 			</div>

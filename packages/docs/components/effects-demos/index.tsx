@@ -2,10 +2,7 @@ import {useColorMode} from '@docusaurus/theme-common';
 import {Player} from '@remotion/player';
 import React, {useCallback, useMemo, useState} from 'react';
 import {AbsoluteFill} from 'remotion';
-import {
-	makeEffectDragData,
-	setEffectDragData,
-} from './effect-drag-data';
+import {makeEffectDragData, setEffectDragData} from './effect-drag-data';
 import {
 	fillSchemaDefaults,
 	getActiveSchemaFields,
@@ -141,7 +138,7 @@ export const EffectsDemo: React.FC<{
 				title="Drag this effect into Remotion Studio"
 			>
 				<span aria-hidden="true">::</span>
-				<span>Drag current effect into a layer in the Studio</span>
+				<span>Drag current effect onto a layer in the Studio</span>
 			</div>
 			<div className={styles.containerrow}>
 				{activeFields.map(([fieldKey, field]) => {

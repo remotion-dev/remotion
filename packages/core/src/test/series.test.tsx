@@ -4,6 +4,7 @@ import {renderToString} from 'react-dom/server';
 import {AbsoluteFill} from '../AbsoluteFill.js';
 import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks.js';
 import {Internals} from '../internals.js';
+import {Sequence} from '../Sequence.js';
 import {Series} from '../series/index.js';
 import type {TimelineContextValue} from '../TimelineContext.js';
 import {AbsoluteTimeContext, TimelineContext} from '../TimelineContext.js';
@@ -31,6 +32,17 @@ const Third = () => {
 const Fourth = () => {
 	const frame = useCurrentFrame();
 	return <div>{'fourth ' + frame}</div>;
+};
+
+const AbsoluteFromPrinter = () => {
+	const frame = useCurrentFrame();
+	const sequenceContext = React.useContext(Internals.SequenceContext);
+
+	return (
+		<div>
+			frame {frame} absoluteFrom {sequenceContext?.absoluteFrom}
+		</div>
+	);
 };
 
 const renderForFrame = (frame: number, markup: React.ReactNode) => {
@@ -456,4 +468,33 @@ test('should be the same with or without premountFor', () => {
 		</WrapSequenceContext>,
 	);
 	expect(outerHTML).toContain('this must be printed');
+});
+
+test('preserves the real sequence start while premounting', () => {
+	const outerHTML = renderForFrame(
+		76,
+		<WrapSequenceContext>
+			<Internals.RemotionEnvironmentContext
+				value={{
+					isRendering: false,
+					isClientSideRendering: false,
+					isPlayer: true,
+					isStudio: true,
+					isReadOnlyStudio: false,
+				}}
+			>
+				<Sequence from={76}>
+					<Series>
+						<Series.Sequence durationInFrames={30} />
+						<Series.Sequence durationInFrames={146} premountFor={30}>
+							<AbsoluteFromPrinter />
+						</Series.Sequence>
+					</Series>
+				</Sequence>
+			</Internals.RemotionEnvironmentContext>
+		</WrapSequenceContext>,
+	);
+	expect(outerHTML).toContain(
+		'frame <!-- -->0<!-- --> absoluteFrom <!-- -->106',
+	);
 });

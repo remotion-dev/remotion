@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertOptionalFiniteNumber,
@@ -34,7 +34,7 @@ const noiseSchema = {
 		default: DEFAULT_PREMULTIPLY,
 		description: 'Premultiply',
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type NoiseParams = {
 	/** Strength of the noise from `0` to `1`. Defaults to `0.15`. */
@@ -254,7 +254,7 @@ const setupNoise = (target: HTMLCanvasElement): NoiseState => {
 };
 
 export const noise = createEffect<NoiseParams, NoiseState>({
-	type: 'remotion/noise',
+	type: 'dev.remotion.effects.noise',
 	label: 'noise()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/noise',
 	backend: 'webgl2',

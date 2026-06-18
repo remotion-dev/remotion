@@ -66,7 +66,7 @@ export const getEffectDragData = (
 	return null;
 };
 
-export const addEffectFromDragData = async ({
+export const addEffectFromDragData = ({
 	clientId,
 	dragData,
 	fileName,
@@ -77,23 +77,42 @@ export const addEffectFromDragData = async ({
 	readonly fileName: string;
 	readonly nodePath: SequencePropsSubscriptionKey;
 }) => {
+	return addEffectToSequence({
+		clientId,
+		effect: dragData.effect,
+		fileName,
+		nodePath,
+	});
+};
+
+export const addEffectToSequence = async ({
+	clientId,
+	effect,
+	fileName,
+	nodePath,
+}: {
+	readonly clientId: string;
+	readonly effect: EffectDragData['effect'];
+	readonly fileName: string;
+	readonly nodePath: SequencePropsSubscriptionKey;
+}) => {
 	try {
 		const requiredPackage = getRequiredPackageForEffectImportPath(
-			dragData.effect.importPath,
+			effect.importPath,
 		);
 		await installRequiredPackages(requiredPackage ? [requiredPackage] : []);
 
 		const result = await callApi('/api/add-effect', {
 			fileName,
 			sequenceNodePath: nodePath,
-			effectName: dragData.effect.name,
-			effectImportPath: dragData.effect.importPath,
-			effectConfig: dragData.effect.config,
+			effectName: effect.name,
+			effectImportPath: effect.importPath,
+			effectConfig: effect.config,
 			clientId,
 		});
 
 		if (result.success) {
-			showNotification(`Added ${dragData.effect.name}()`, 2000);
+			showNotification(`Added ${effect.name}()`, 2000);
 		} else {
 			showNotification(result.reason, 4000);
 		}

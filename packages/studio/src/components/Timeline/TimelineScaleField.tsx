@@ -12,11 +12,8 @@ import type {
 } from '../../helpers/timeline-layout';
 import {ScaleLockContext} from '../../state/scale-lock';
 import {InputDragger} from '../NewComposition/InputDragger';
-import {
-	formatTimelineNumber,
-	getTimelineDisplayDecimalPlaces,
-	normalizeTimelineNumber,
-} from './timeline-field-utils';
+import {formatTimelineFieldValueForDisplay} from './timeline-field-display-utils';
+import {normalizeTimelineNumber} from './timeline-field-utils';
 import {timelineLayerIconContainer} from './TimelineLayerEye';
 
 const leftDraggerStyle: React.CSSProperties = {
@@ -190,24 +187,14 @@ export const TimelineScaleField: React.FC<{
 			? (field.fieldSchema.max ?? Infinity)
 			: Infinity;
 
-	const decimalPlaces = useMemo(
-		() =>
-			getTimelineDisplayDecimalPlaces({
-				defaultDecimalPlaces: 2,
-				step: configuredStep,
-			}),
-		[configuredStep],
-	);
-
 	const formatter = useCallback(
 		(v: number | string) => {
-			return formatTimelineNumber({
-				decimalPlaces,
-				fixed: true,
+			return formatTimelineFieldValueForDisplay({
+				fieldSchema: field.fieldSchema,
 				value: v,
 			});
 		},
-		[decimalPlaces],
+		[field.fieldSchema],
 	);
 
 	const getDragStart = useCallback((): readonly [number, number] => {

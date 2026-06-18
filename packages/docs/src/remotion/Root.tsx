@@ -5,13 +5,16 @@ import {Folder, Still} from 'remotion';
 import {EffectsBarrelDistortionPreview} from '../../components/effects/effects-barrel-distortion-preview';
 import {EffectsBlurPreview} from '../../components/effects/effects-blur-preview';
 import {EffectsBrightnessPreview} from '../../components/effects/effects-brightness-preview';
+import {EffectsBurlapPreview} from '../../components/effects/effects-burlap-preview';
 import {EffectsCheckerboardPreview} from '../../components/effects/effects-checkerboard-preview';
 import {EffectsChromaticAberrationPreview} from '../../components/effects/effects-chromatic-aberration-preview';
 import {EffectsColorKeyPreview} from '../../components/effects/effects-color-key-preview';
+import {EffectsContourLinesPreview} from '../../components/effects/effects-contour-lines-preview';
 import {EffectsContrastPreview} from '../../components/effects/effects-contrast-preview';
 import {EffectsDotGridPreview} from '../../components/effects/effects-dot-grid-preview';
 import {EffectsDropShadowPreview} from '../../components/effects/effects-drop-shadow-preview';
 import {EffectsDuotonePreview} from '../../components/effects/effects-duotone-preview';
+import {EffectsEmbossPreview} from '../../components/effects/effects-emboss-preview';
 import {EffectsEvolvePreview} from '../../components/effects/effects-evolve-preview';
 import {EffectsFisheyePreview} from '../../components/effects/effects-fisheye-preview';
 import {EffectsGlowPreview} from '../../components/effects/effects-glow-preview';
@@ -30,19 +33,27 @@ import {
 	NoiseDisplacementTextSource,
 } from '../../components/effects/effects-noise-displacement-preview';
 import {EffectsNoisePreview} from '../../components/effects/effects-noise-preview';
+import {EffectsPatternPreview} from '../../components/effects/effects-pattern-preview';
 import {EffectsPixelDissolvePreview} from '../../components/effects/effects-pixel-dissolve-preview';
+import {EffectsPixelatePreview} from '../../components/effects/effects-pixelate-preview';
 import {EffectsRingsPreview} from '../../components/effects/effects-rings-preview';
 import {EffectsSaturationPreview} from '../../components/effects/effects-saturation-preview';
 import {EffectsScalePreview} from '../../components/effects/effects-scale-preview';
 import {EffectsScanlinesPreview} from '../../components/effects/effects-scanlines-preview';
 import {EffectsShinePreview} from '../../components/effects/effects-shine-preview';
+import {
+	EffectsShrinkwrapPreview,
+	SHRINKWRAP_PREVIEW_PARAMS,
+} from '../../components/effects/effects-shrinkwrap-preview';
 import {EffectsSpecklePreview} from '../../components/effects/effects-speckle-preview';
 import {EffectsStarburstPreview} from '../../components/effects/effects-starburst-preview';
+import {EffectsThermalVisionPreview} from '../../components/effects/effects-thermal-vision-preview';
 import {EffectsTintPreview} from '../../components/effects/effects-tint-preview';
 import {
 	EffectsUvTranslatePreview,
 	EffectsXyTranslatePreview,
 } from '../../components/effects/effects-translate-preview';
+import {EffectsTvSignalOffPreview} from '../../components/effects/effects-tv-signal-off-preview';
 import {EffectsVignettePreview} from '../../components/effects/effects-vignette-preview';
 import {EffectsWavePreview} from '../../components/effects/effects-wave-preview';
 import {EffectsWavesPreview} from '../../components/effects/effects-waves-preview';
@@ -55,6 +66,16 @@ import {Expert} from './Expert';
 import {TemplateComp} from './Template';
 
 const DEFAULT_EFFECT_COLORS = ['#dff4ff', '#7cc6ff'] as const;
+const DEFAULT_THERMAL_PALETTE = [
+	'#020617',
+	'#1238ff',
+	'#00a6ff',
+	'#00c853',
+	'#d6f542',
+	'#ffb000',
+	'#ff2f00',
+	'#ffffff',
+] as const;
 
 export const RemotionRoot: React.FC = () => {
 	return (
@@ -114,6 +135,34 @@ export const RemotionRoot: React.FC = () => {
 					width={1280}
 					height={720}
 					defaultProps={{amount: 0.25}}
+				/>
+				<Still
+					id="effects-burlap-preview"
+					component={EffectsBurlapPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						amount: 0.75,
+						size: 4,
+						roughness: 0.85,
+						seed: 1,
+						color: '#3b2818',
+					}}
+				/>
+				<Still
+					id="effects-emboss-preview"
+					component={EffectsEmbossPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						amount: 0.85,
+						size: 38,
+						lineWidth: 11,
+						depth: 0.85,
+						angle: 0,
+						lightAngle: 135,
+						offset: 0,
+					}}
 				/>
 				<Still
 					id="effects-contrast-preview"
@@ -215,6 +264,16 @@ export const RemotionRoot: React.FC = () => {
 					width={1280}
 					height={720}
 					defaultProps={{color: '#1ec8ff', amount: 0.7}}
+				/>
+				<Still
+					id="effects-thermal-vision-preview"
+					component={EffectsThermalVisionPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						amount: 1,
+						palette: DEFAULT_THERMAL_PALETTE,
+					}}
 				/>
 				<Still
 					id="effects-vignette-preview"
@@ -332,6 +391,15 @@ export const RemotionRoot: React.FC = () => {
 					}}
 				/>
 				<Still
+					id="effects-pixelate-preview"
+					component={EffectsPixelatePreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						blockSize: 10,
+					}}
+				/>
+				<Still
 					id="effects-pixel-dissolve-preview"
 					component={EffectsPixelDissolvePreview}
 					width={1280}
@@ -342,6 +410,29 @@ export const RemotionRoot: React.FC = () => {
 						rows: 12,
 						seed: 0,
 						feather: 0.15,
+					}}
+				/>
+				<Still
+					id="effects-pattern-preview"
+					component={EffectsPatternPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						scale: 0.16,
+						cropLeft: 0,
+						cropTop: 0,
+						cropRight: 0,
+						cropBottom: 0,
+						gapX: 16,
+						gapY: 16,
+						offsetU: 0,
+						offsetV: 0,
+						rowOffset: 88,
+						rowOffsetEvery: 0,
+						columnOffset: 0,
+						columnOffsetEvery: 0,
+						origin: [0, 0],
+						wrap: true,
 					}}
 				/>
 				<Still
@@ -405,6 +496,15 @@ export const RemotionRoot: React.FC = () => {
 					}}
 				/>
 				<Still
+					id="effects-tv-signal-off-preview"
+					component={EffectsTvSignalOffPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						amount: 1,
+					}}
+				/>
+				<Still
 					id="effects-scanlines-preview"
 					component={EffectsScanlinesPreview}
 					width={1280}
@@ -443,6 +543,25 @@ export const RemotionRoot: React.FC = () => {
 						angle: 15,
 						offsetX: 0,
 						offsetY: 0,
+					}}
+				/>
+				<Still
+					id="effects-contour-lines-preview"
+					component={EffectsContourLinesPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						lineColor: '#ffffff',
+						lineWidth: 1.1,
+						spacing: 36,
+						scale: 220,
+						complexity: 0.7,
+						smoothness: 0.75,
+						seed: 2,
+						offsetX: 0,
+						offsetY: 0,
+						opacity: 0.65,
+						maskToSourceAlpha: false,
 					}}
 				/>
 				<Still
@@ -504,6 +623,13 @@ export const RemotionRoot: React.FC = () => {
 						haloIntensity: 0.3,
 						coreIntensity: 0.4,
 					}}
+				/>
+				<Still
+					id="effects-shrinkwrap-preview"
+					component={EffectsShrinkwrapPreview}
+					width={1280}
+					height={720}
+					defaultProps={SHRINKWRAP_PREVIEW_PARAMS}
 				/>
 				<Still
 					id="effects-speckle-preview"

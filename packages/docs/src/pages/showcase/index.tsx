@@ -117,17 +117,18 @@ const Showcase = () => {
 				<main>
 					<section className={styles.gallerySection}>
 						<div className={styles.container}>
-							<div className={styles.videosGrid}>
+							<div className={styles.videosMasonry}>
 								{shuffledShowcaseVideos.map((vid) => {
 									return (
-										<VideoPreview
-											key={vid.muxId}
-											onClick={() => {
-												setVideo(vid);
-												setUserHasInteractedWithPage(true);
-											}}
-											{...vid}
-										/>
+										<div key={vid.muxId} className={styles.videosMasonryItem}>
+											<VideoPreview
+												onClick={() => {
+													setVideo(vid);
+													setUserHasInteractedWithPage(true);
+												}}
+												{...vid}
+											/>
+										</div>
 									);
 								})}
 							</div>

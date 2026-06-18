@@ -1,7 +1,19 @@
+import React, {useCallback} from 'react';
 import {Button} from './Button';
 
 export const ResetZoomButton: React.FC<{
-	onClick: () => void;
+	readonly onClick: () => void;
 }> = ({onClick}) => {
-	return <Button onClick={onClick}>Reset zoom</Button>;
+	const onPointerDown = useCallback(
+		(event: React.PointerEvent<HTMLButtonElement>) => {
+			event.stopPropagation();
+		},
+		[],
+	);
+
+	return (
+		<Button onClick={onClick} onPointerDown={onPointerDown}>
+			Reset zoom
+		</Button>
+	);
 };

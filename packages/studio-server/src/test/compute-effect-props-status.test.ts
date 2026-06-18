@@ -114,7 +114,7 @@ test('computeEffectPropStatus reports keyframes for inline interpolated effect p
 			{frame: 0, value: 0.2},
 			{frame: 100, value: 0.8},
 		],
-		easing: ['linear'],
+		easing: [{type: 'linear'}],
 		clamping: {left: 'extend', right: 'extend'},
 		posterize: undefined,
 	});

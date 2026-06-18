@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertOptionalFiniteNumber,
@@ -6,6 +6,7 @@ import {
 	validateUnitInterval,
 	type ParsedColorRgba,
 } from './color-utils.js';
+import {publicUvToShaderUv} from './uv-coordinate.js';
 import {
 	assertEffectParamsObject,
 	assertOptionalBoolean,
@@ -71,7 +72,7 @@ export const ringsSchema = {
 		default: DEFAULT_MASK_TO_SOURCE_ALPHA,
 		description: 'Mask to source alpha',
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type RingsCenter = readonly [number, number];
 
@@ -444,7 +445,7 @@ const updatePalette = (
 };
 
 export const rings = createEffect<RingsParams, RingsState>({
-	type: 'remotion/rings',
+	type: 'dev.remotion.effects.rings',
 	label: 'rings()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/rings',
 	backend: 'webgl2',
@@ -501,8 +502,11 @@ export const rings = createEffect<RingsParams, RingsState>({
 		if (uniforms.uPalette) gl.uniform1i(uniforms.uPalette, 1);
 		if (uniforms.uResolution) gl.uniform2f(uniforms.uResolution, width, height);
 		if (uniforms.uNumColors) gl.uniform1f(uniforms.uNumColors, r.colors.length);
-		if (uniforms.uCenter)
-			gl.uniform2f(uniforms.uCenter, r.center[0], r.center[1]);
+		if (uniforms.uCenter) {
+			const shaderCenter = publicUvToShaderUv(r.center);
+			gl.uniform2f(uniforms.uCenter, shaderCenter[0], shaderCenter[1]);
+		}
+
 		if (uniforms.uThickness) gl.uniform1f(uniforms.uThickness, r.thickness);
 		if (uniforms.uSpacing) gl.uniform1f(uniforms.uSpacing, r.spacing);
 		if (uniforms.uOffset) gl.uniform1f(uniforms.uOffset, r.offset);

@@ -16,9 +16,7 @@ export const EffectsCheckerboardPreview: React.FC<{
 		<Solid
 			width={width}
 			height={height}
-			effects={[
-				checkerboard({colors, cellSize, gap, angle, offsetX, offsetY}),
-			]}
+			effects={[checkerboard({colors, cellSize, gap, angle, offsetX, offsetY})]}
 		/>
 	);
 };

@@ -1,5 +1,6 @@
 import {afterEach, expect, test} from 'bun:test';
 import {cleanup, render} from '@testing-library/react';
+import {useEffect} from 'react';
 import {AbsoluteFill} from '../AbsoluteFill.js';
 import {getTimelineDuration} from '../get-timeline-duration.js';
 import {Sequence} from '../Sequence.js';
@@ -174,4 +175,73 @@ test('Nested media sequence with subframe duration stays mounted for final visib
 	);
 
 	expect(getForFrame(10, content)(/^Video$/i)).not.toBe(null);
+});
+
+test('Sequence freeze pins the child frame without remounting the sequence', () => {
+	let mountCount = 0;
+
+	const FrozenChild = () => {
+		const frame = useCurrentFrame();
+		useEffect(() => {
+			mountCount++;
+		}, []);
+
+		return <div>{'frame' + frame}</div>;
+	};
+
+	const content = (
+		<Sequence from={10} durationInFrames={50} freeze={5}>
+			<FrozenChild />
+		</Sequence>
+	);
+
+	const {queryByText, rerender} = render(
+		<WrapSequenceContext>
+			<TimelineContext.Provider
+				value={{
+					frame: {
+						'my-comp': 15,
+					},
+					playing: false,
+					rootId: 'hi',
+					imperativePlaying: {
+						current: false,
+					},
+					audioAndVideoTags: {
+						current: [],
+					},
+				}}
+			>
+				{content}
+			</TimelineContext.Provider>
+		</WrapSequenceContext>,
+	);
+
+	expect(queryByText(/^frame5$/i)).not.toBe(null);
+	expect(mountCount).toBe(1);
+
+	rerender(
+		<WrapSequenceContext>
+			<TimelineContext.Provider
+				value={{
+					frame: {
+						'my-comp': 25,
+					},
+					playing: false,
+					rootId: 'hi',
+					imperativePlaying: {
+						current: false,
+					},
+					audioAndVideoTags: {
+						current: [],
+					},
+				}}
+			>
+				{content}
+			</TimelineContext.Provider>
+		</WrapSequenceContext>,
+	);
+
+	expect(queryByText(/^frame5$/i)).not.toBe(null);
+	expect(mountCount).toBe(1);
 });
