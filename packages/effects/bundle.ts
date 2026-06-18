@@ -51,6 +51,7 @@ const effectEntrypoints = [
 	'src/waves.ts',
 	'src/zigzag.ts',
 	'src/white-noise.ts',
+	'src/zoom-blur.ts',
 ];
 
 console.time('Generated.');

@@ -42,6 +42,7 @@ import {wave} from '@remotion/effects/wave';
 import {waves} from '@remotion/effects/waves';
 import {whiteNoise} from '@remotion/effects/white-noise';
 import {zigzag} from '@remotion/effects/zigzag';
+import {zoomBlur} from '@remotion/effects/zoom-blur';
 import {lightLeakEffectSchema} from '@remotion/light-leaks';
 import {starburstEffectSchema} from '@remotion/starburst';
 import {EffectsBarrelDistortionPreview} from '../effects/effects-barrel-distortion-preview';
@@ -103,6 +104,7 @@ import {EffectsWavePreview} from '../effects/effects-wave-preview';
 import {EffectsWavesPreview} from '../effects/effects-waves-preview';
 import {EffectsWhiteNoisePreview} from '../effects/effects-white-noise-preview';
 import {EffectsZigzagPreview} from '../effects/effects-zigzag-preview';
+import {EffectsZoomBlurPreview} from '../effects/effects-zoom-blur-preview';
 import type {EffectsDemoType} from './types';
 
 const defaults = {
@@ -418,6 +420,14 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/linear-progressive-blur',
 		comp: EffectsLinearProgressiveBlurPreview,
 		schema: linearProgressiveBlur().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-zoom-blur',
+		effectName: 'zoomBlur',
+		effectImportPath: '@remotion/effects/zoom-blur',
+		comp: EffectsZoomBlurPreview,
+		schema: zoomBlur().definition.schema,
 	},
 	{
 		...defaults,

@@ -58,6 +58,7 @@ import {EffectsWavePreview} from '../../components/effects/effects-wave-preview'
 import {EffectsWavesPreview} from '../../components/effects/effects-waves-preview';
 import {EffectsWhiteNoisePreview} from '../../components/effects/effects-white-noise-preview';
 import {EffectsZigzagPreview} from '../../components/effects/effects-zigzag-preview';
+import {EffectsZoomBlurPreview} from '../../components/effects/effects-zoom-blur-preview';
 import {articles} from '../data/articles';
 import {AllTemplates} from './AllTemplates';
 import {Article} from './Article';
@@ -361,6 +362,13 @@ export const RemotionRoot: React.FC = () => {
 						startBlur: 0,
 						endBlur: 50,
 					}}
+				/>
+				<Still
+					id="effects-zoom-blur-preview"
+					component={EffectsZoomBlurPreview}
+					width={1280}
+					height={720}
+					defaultProps={{amount: 160, center: [0.08, 0.5], samples: 48}}
 				/>
 				<Still
 					id="effects-wave-preview"
