@@ -18,6 +18,8 @@ import {
 	whatIsRemotionSchema,
 } from './Compose/WhatIsRemotion';
 import {EffectsAnnouncement} from './effects/EffectsAnnouncement';
+import {Goal} from './effects/Goal';
+import {MetallicSwirl} from './effects/MetallicSwirl';
 import {NewsHeadline} from './effects/NewsHeadline';
 import {
 	StarburstEffectShowcase,
@@ -200,6 +202,22 @@ export const RemotionRoot: React.FC = () => {
 				<Composition
 					id="thermo"
 					component={Thermometer}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={200}
+				/>
+				<Composition
+					id="goal"
+					component={Goal}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={120}
+				/>
+				<Composition
+					id="metallic-swirl"
+					component={MetallicSwirl}
 					width={1280}
 					height={720}
 					fps={30}

@@ -25,18 +25,7 @@ export const NewsHeadline = () => {
 					premultiply: true,
 				}),
 				linearProgressiveBlur({
-					end: interpolate(
-						frame,
-						[55, 119],
-						[
-							[0.782, 0.058],
-							[0.816, -0.06],
-						],
-						{
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-						},
-					),
+					end: [0.799, -0.014],
 					start: [0.5, 0.5],
 				}),
 				linearProgressiveBlur({
@@ -48,7 +37,6 @@ export const NewsHeadline = () => {
 					amount: 0.46,
 					color: '#030013',
 				}),
-				duotone({}),
 			]}
 			style={{
 				scale: 1,
