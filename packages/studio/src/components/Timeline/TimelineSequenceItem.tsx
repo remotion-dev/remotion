@@ -1,4 +1,7 @@
-import {type ReorderSequencePosition} from '@remotion/studio-shared';
+import {
+	type EffectDragData,
+	type ReorderSequencePosition,
+} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useMemo, useState} from 'react';
 import type {SequencePropsSubscriptionKey, TSequence} from 'remotion';
 import {Internals} from 'remotion';
@@ -28,6 +31,7 @@ import {Spacing} from '../layout';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {useSelectAsset} from '../use-select-asset';
+import {timelineAddEffectMenuEffects} from './add-effect-menu';
 import {disableSequenceInteractivity} from './disable-sequence-interactivity';
 import {duplicateSequencesFromSource} from './duplicate-selected-timeline-item';
 import {saveSequenceProps} from './save-sequence-prop';
@@ -253,6 +257,11 @@ export const TimelineSequenceItem: React.FC<{
 		!sequence.showInTimeline ||
 		!nodePath ||
 		!validatedLocation?.source;
+	const addEffectDisabled =
+		!previewConnected ||
+		!nodePath ||
+		!validatedLocation?.source ||
+		sequence.controls?.supportsEffects !== true;
 
 	const onDuplicateSequenceFromSource = useCallback(() => {
 		if (!validatedLocation?.source || !nodePathInfo) {
@@ -325,6 +334,32 @@ export const TimelineSequenceItem: React.FC<{
 		setPropStatuses,
 		validatedLocation?.source,
 	]);
+
+	const onAddEffectFromMenu = useCallback(
+		async (dragData: EffectDragData) => {
+			if (
+				addEffectDisabled ||
+				!nodePath ||
+				!validatedLocation?.source ||
+				previewServerState.type !== 'connected'
+			) {
+				return;
+			}
+
+			await addEffectFromDragData({
+				dragData,
+				fileName: validatedLocation.source,
+				nodePath,
+				clientId: previewServerState.clientId,
+			});
+		},
+		[
+			addEffectDisabled,
+			nodePath,
+			previewServerState,
+			validatedLocation?.source,
+		],
+	);
 
 	const getSequenceDropTarget = useCallback(
 		(e: React.DragEvent<HTMLDivElement>): SequenceDropTarget | null => {
@@ -635,6 +670,43 @@ export const TimelineSequenceItem: React.FC<{
 						id: 'open-component-docs-divider',
 					}
 				: null,
+			sequence.controls?.supportsEffects
+				? {
+						type: 'item' as const,
+						id: 'add-effect',
+						keyHint: null,
+						label: 'Add effect',
+						leftItem: null,
+						disabled: addEffectDisabled,
+						onClick: () => undefined,
+						quickSwitcherLabel: null,
+						subMenu: {
+							preselectIndex: false as const,
+							leaveLeftSpace: false,
+							items: timelineAddEffectMenuEffects.map((effect) => ({
+								type: 'item' as const,
+								id: `add-effect-${effect.id}`,
+								keyHint: null,
+								label: effect.label,
+								leftItem: null,
+								disabled: addEffectDisabled,
+								onClick: () => {
+									onAddEffectFromMenu(effect.dragData);
+								},
+								quickSwitcherLabel: null,
+								subMenu: null,
+								value: `add-effect-${effect.id}`,
+							})),
+						},
+						value: 'add-effect',
+					}
+				: null,
+			sequence.controls?.supportsEffects
+				? {
+						type: 'divider' as const,
+						id: 'add-effect-divider',
+					}
+				: null,
 			{
 				type: 'item' as const,
 				id: 'disable-interactivity',
@@ -687,12 +759,14 @@ export const TimelineSequenceItem: React.FC<{
 			},
 		].filter(NoReactInternals.truthy);
 	}, [
+		addEffectDisabled,
 		assetLinkInfo,
 		deleteDisabled,
 		disableInteractivityDisabled,
 		duplicateDisabled,
 		fileLocation,
 		onDeleteSequenceFromSource,
+		onAddEffectFromMenu,
 		onDisableSequenceInteractivity,
 		onDuplicateSequenceFromSource,
 		canOpenInEditor,
