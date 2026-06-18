@@ -15,6 +15,7 @@ import {EffectsEvolvePreview} from '../../components/effects/effects-evolve-prev
 import {EffectsFisheyePreview} from '../../components/effects/effects-fisheye-preview';
 import {EffectsGlowPreview} from '../../components/effects/effects-glow-preview';
 import {EffectsGrayscalePreview} from '../../components/effects/effects-grayscale-preview';
+import {EffectsGridlinesPreview} from '../../components/effects/effects-gridlines-preview';
 import {EffectsHalftoneLinearGradientPreview} from '../../components/effects/effects-halftone-linear-gradient-preview';
 import {EffectsHalftonePreview} from '../../components/effects/effects-halftone-preview';
 import {EffectsHuePreview} from '../../components/effects/effects-hue-preview';
@@ -356,6 +357,24 @@ export const RemotionRoot: React.FC = () => {
 						gridSize: 24,
 						colorMode: 'solid',
 						dotColor: '#0b84f3',
+					}}
+				/>
+				<Still
+					id="effects-gridlines-preview"
+					component={EffectsGridlinesPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						gridSize: 72,
+						lineWidth: 3,
+						lineColor: '#ffffff',
+						backgroundColor: 'transparent',
+						rotation: 0,
+						rotationX: 0,
+						rotationY: 0,
+						perspective: 0,
+						offsetX: 0,
+						offsetY: 0,
 					}}
 				/>
 				<Still

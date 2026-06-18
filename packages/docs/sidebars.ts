@@ -283,6 +283,7 @@ const sidebars: SidebarsConfig = {
 				'effects/fisheye',
 				'effects/glow',
 				'effects/grayscale',
+				'effects/gridlines',
 				'effects/halftone',
 				'effects/halftone-linear-gradient',
 				'effects/hue',

@@ -89,6 +89,11 @@
 			"module": "./dist/esm/glow.mjs",
 			"import": "./dist/esm/glow.mjs"
 		},
+		"./gridlines": {
+			"types": "./dist/gridlines.d.ts",
+			"module": "./dist/esm/gridlines.mjs",
+			"import": "./dist/esm/gridlines.mjs"
+		},
 		"./halftone": {
 			"types": "./dist/halftone.d.ts",
 			"module": "./dist/esm/halftone.mjs",
@@ -250,6 +255,9 @@
 			],
 			"glow": [
 				"dist/glow.d.ts"
+			],
+			"gridlines": [
+				"dist/gridlines.d.ts"
 			],
 			"halftone": [
 				"dist/halftone.d.ts"

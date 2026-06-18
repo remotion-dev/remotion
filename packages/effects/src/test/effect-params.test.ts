@@ -12,6 +12,7 @@ import {evolve} from '../evolve.js';
 import {fisheye} from '../fisheye/index.js';
 import {glow} from '../glow/index.js';
 import {grayscale} from '../grayscale.js';
+import {gridlines} from '../gridlines.js';
 import {halftoneLinearGradient} from '../halftone-linear-gradient.js';
 import {halftone} from '../halftone.js';
 import {hue} from '../hue.js';
@@ -91,6 +92,9 @@ test('@remotion/effects expose documentation links', () => {
 	);
 	expect(grayscale().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/grayscale',
+	);
+	expect(gridlines().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/gridlines',
 	);
 	expect(halftone().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/halftone',
@@ -183,6 +187,7 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(fisheye().definition.label).toBe('fisheye()');
 	expect(glow().definition.label).toBe('glow()');
 	expect(grayscale().definition.label).toBe('grayscale()');
+	expect(gridlines().definition.label).toBe('gridlines()');
 	expect(halftone().definition.label).toBe('halftone()');
 	expect(halftoneLinearGradient().definition.label).toBe(
 		'halftoneLinearGradient()',
@@ -1320,6 +1325,99 @@ test('dotGrid() parameters produce distinct effect keys', () => {
 			inverted.effectKey,
 		]).size,
 	).toBe(4);
+});
+
+test('gridlines() accepts default params', () => {
+	expect(() => gridlines()).not.toThrow();
+});
+
+test('gridlines() rejects non-finite grid size', () => {
+	expect(() => gridlines({gridSize: Number.NaN})).toThrow(
+		'"gridSize" must be a finite number',
+	);
+});
+
+test('gridlines() rejects non-positive grid size', () => {
+	expect(() => gridlines({gridSize: 0})).toThrow(
+		'"gridSize" must be greater than 0',
+	);
+});
+
+test('gridlines() rejects negative line width', () => {
+	expect(() => gridlines({lineWidth: -1})).toThrow(
+		'"lineWidth" must be greater than or equal to 0',
+	);
+});
+
+test('gridlines() rejects invalid colors', () => {
+	expect(() => gridlines({lineColor: ''})).toThrow(
+		'"lineColor" must be a non-empty string',
+	);
+	expect(() => gridlines({backgroundColor: ''})).toThrow(
+		'"backgroundColor" must be a non-empty string',
+	);
+});
+
+test('gridlines() rejects non-finite transform params', () => {
+	expect(() => gridlines({rotation: Number.NaN})).toThrow(
+		'"rotation" must be a finite number',
+	);
+	expect(() => gridlines({rotationX: Number.NaN})).toThrow(
+		'"rotationX" must be a finite number',
+	);
+	expect(() => gridlines({rotationY: Number.NaN})).toThrow(
+		'"rotationY" must be a finite number',
+	);
+	expect(() => gridlines({perspective: Number.NaN})).toThrow(
+		'"perspective" must be a finite number',
+	);
+	expect(() => gridlines({perspective: -1})).toThrow(
+		'"perspective" must be greater than or equal to 0',
+	);
+	expect(() => gridlines({offsetX: Number.NaN})).toThrow(
+		'"offsetX" must be a finite number',
+	);
+	expect(() => gridlines({offsetY: Number.NaN})).toThrow(
+		'"offsetY" must be a finite number',
+	);
+});
+
+test('gridlines() rejects non-boolean maskToSourceAlpha', () => {
+	expect(() =>
+		gridlines({maskToSourceAlpha: 'yes' as unknown as boolean}),
+	).toThrow('"maskToSourceAlpha" must be a boolean');
+});
+
+test('gridlines() parameters produce distinct effect keys', () => {
+	const defaultGrid = gridlines();
+	const widerGrid = gridlines({gridSize: 80});
+	const thicker = gridlines({lineWidth: 6});
+	const colored = gridlines({lineColor: '#0b84f3'});
+	const background = gridlines({backgroundColor: '#101828'});
+	const rotated = gridlines({rotation: 30});
+	const rotatedX = gridlines({rotationX: 68});
+	const rotatedY = gridlines({rotationY: 20});
+	const perspective = gridlines({perspective: 900});
+	const shiftedX = gridlines({offsetX: 12});
+	const shiftedY = gridlines({offsetY: 12});
+	const masked = gridlines({maskToSourceAlpha: true});
+
+	expect(
+		new Set([
+			defaultGrid.effectKey,
+			widerGrid.effectKey,
+			thicker.effectKey,
+			colored.effectKey,
+			background.effectKey,
+			rotated.effectKey,
+			rotatedX.effectKey,
+			rotatedY.effectKey,
+			perspective.effectKey,
+			shiftedX.effectKey,
+			shiftedY.effectKey,
+			masked.effectKey,
+		]).size,
+	).toBe(12);
 });
 
 test('invert() accepts default params', () => {
