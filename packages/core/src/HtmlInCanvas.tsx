@@ -18,7 +18,11 @@ import {
 } from './effects/use-memoized-effects.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import type {InteractiveBaseProps} from './Interactive.js';
-import {baseSchema, transformSchema} from './interactivity-schema.js';
+import {
+	baseSchema,
+	transformSchema,
+	type InteractivitySchema,
+} from './interactivity-schema.js';
 import type {AbsoluteFillLayout} from './Sequence.js';
 import {Sequence} from './Sequence.js';
 import {useDelayRender} from './use-delay-render.js';
@@ -677,10 +681,19 @@ const HtmlInCanvasInner = forwardRef<
 
 HtmlInCanvasInner.displayName = 'HtmlInCanvas';
 
-const htmlInCanvasSchema = {
+export const htmlInCanvasSchema = {
 	...baseSchema,
+	pixelDensity: {
+		type: 'number',
+		min: 1,
+		max: 3,
+		step: 0.1,
+		default: 1,
+		description: 'Pixel density',
+		hiddenFromList: false,
+	},
 	...transformSchema,
-};
+} as const satisfies InteractivitySchema;
 
 const HtmlInCanvasWrapped = withInteractivitySchema({
 	Component: HtmlInCanvasInner,

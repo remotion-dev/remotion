@@ -63,7 +63,7 @@ type InnerSolidProps = MandatoryProps &
 	};
 export type SolidProps = MandatoryProps & Partial<OptionalProps>;
 
-const solidSchema = {
+export const solidSchema = {
 	...baseSchema,
 	color: {
 		type: 'color',
@@ -84,6 +84,15 @@ const solidSchema = {
 		step: 1,
 		default: 1080,
 		description: 'Height',
+		hiddenFromList: false,
+	},
+	pixelDensity: {
+		type: 'number',
+		min: 1,
+		max: 3,
+		step: 0.1,
+		default: 1,
+		description: 'Pixel density',
 		hiddenFromList: false,
 	},
 	...transformSchema,
