@@ -4,6 +4,9 @@ description: Release a new Remotion version
 ---
 
 - Kill any `turbo` processes that might be running with SIGKILL
+- Codex-specific: Before running release commands, make sure rbenv wins over the macOS system Ruby. Codex may start non-interactive shells with `/usr/bin` before `~/.rbenv/shims`, causing Ruby 2.6 to be used even though the user's terminal uses Ruby 3.3.x. Run release commands that may invoke Ruby/Bundler with:
+  `PATH="$HOME/.rbenv/shims:$HOME/.rbenv/bin:$PATH" <command>`
+  Verify with `PATH="$HOME/.rbenv/shims:$HOME/.rbenv/bin:$PATH" ruby --version`; it should use the user's rbenv Ruby, not `/usr/bin/ruby`. This matters because the lambda Ruby package currently resolves gems such as `json` that require Ruby >= 2.7.
 - Run `npm login` (I will manually do 2FA in the browser)
 - Use `op item get "Npmjs" --fields password --reveal --account remotiondev.1password.com` to get the password for NPM.
 - Use `op item get "Npmjs" --otp --account remotiondev.1password.com` to get a one-time password for 2FA.

@@ -346,6 +346,10 @@ export const formatTimelineFieldValueForDisplay = ({
 		return formatUnknownTimelineValueForDisplay(value);
 	}
 
+	if (value === undefined) {
+		return 'unset';
+	}
+
 	switch (fieldSchema.type) {
 		case 'number':
 			return (
