@@ -2160,6 +2160,15 @@ export const articles = [
 		slug: 'effects/zigzag',
 	},
 	{
+		id: 'effects/zoom-blur',
+		title: 'zoomBlur()',
+		relativePath: 'docs/effects/zoom-blur.mdx',
+		compId: 'articles-docs-effects-zoom-blur',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/zoom-blur',
+	},
+	{
 		id: 'electron',
 		title: 'Using Remotion in Electron',
 		relativePath: 'docs/electron.mdx',

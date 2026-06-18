@@ -218,6 +218,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-zoom-blur',
+		category: 'Blur & Shadow',
+		label: 'zoomBlur()',
+		description: 'Radial zoom blur effect',
+		effect: {
+			name: 'zoomBlur',
+			importPath: '@remotion/effects/zoom-blur',
+			config: {},
+		},
+	},
+	{
 		id: 'effects-drop-shadow',
 		category: 'Blur & Shadow',
 		label: 'dropShadow()',

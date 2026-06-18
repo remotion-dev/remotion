@@ -319,6 +319,7 @@ const sidebars: SidebarsConfig = {
 				'effects/white-noise',
 				'effects/xy-translate',
 				'effects/zigzag',
+				'effects/zoom-blur',
 			],
 		},
 		{
