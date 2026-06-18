@@ -64,7 +64,7 @@ export const InteractiveHtmlElements: React.FC = () => {
 				style={{
 					position: 'absolute',
 					left: 650,
-					top: 300,
+					top: 240,
 					border: 0,
 					borderRadius: 999,
 					padding: '28px 44px',
@@ -77,6 +77,23 @@ export const InteractiveHtmlElements: React.FC = () => {
 			>
 				Button
 			</Interactive.Button>
+			<Interactive.P
+				style={{
+					position: 'absolute',
+					left: 620,
+					top: 390,
+					width: 350,
+					margin: 0,
+					fontFamily: 'sans-serif',
+					fontSize: 38,
+					color: '#facc15',
+					letterSpacing: 2,
+					lineHeight: 1.15,
+					textAlign: 'center',
+				}}
+			>
+				Editable text schema
+			</Interactive.P>
 			<Interactive.Section
 				style={{
 					position: 'absolute',
