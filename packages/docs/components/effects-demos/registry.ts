@@ -2,6 +2,7 @@ import {barrelDistortion} from '@remotion/effects/barrel-distortion';
 import {blur} from '@remotion/effects/blur';
 import {brightness} from '@remotion/effects/brightness';
 import {burlap} from '@remotion/effects/burlap';
+import {checkerboard} from '@remotion/effects/checkerboard';
 import {chromaticAberration} from '@remotion/effects/chromatic-aberration';
 import {colorKey} from '@remotion/effects/color-key';
 import {contourLines} from '@remotion/effects/contour-lines';
@@ -14,8 +15,8 @@ import {evolve} from '@remotion/effects/evolve';
 import {fisheye} from '@remotion/effects/fisheye';
 import {glow} from '@remotion/effects/glow';
 import {grayscale} from '@remotion/effects/grayscale';
+import {gridlines} from '@remotion/effects/gridlines';
 import {halftone} from '@remotion/effects/halftone';
-import {pixelate} from '@remotion/effects/pixelate';
 import {halftoneLinearGradient} from '@remotion/effects/halftone-linear-gradient';
 import {hue} from '@remotion/effects/hue';
 import {invert} from '@remotion/effects/invert';
@@ -26,6 +27,7 @@ import {noise} from '@remotion/effects/noise';
 import {noiseDisplacement} from '@remotion/effects/noise-displacement';
 import {pattern} from '@remotion/effects/pattern';
 import {pixelDissolve} from '@remotion/effects/pixel-dissolve';
+import {pixelate} from '@remotion/effects/pixelate';
 import {rings} from '@remotion/effects/rings';
 import {saturation} from '@remotion/effects/saturation';
 import {scale} from '@remotion/effects/scale';
@@ -42,12 +44,14 @@ import {wave} from '@remotion/effects/wave';
 import {waves} from '@remotion/effects/waves';
 import {whiteNoise} from '@remotion/effects/white-noise';
 import {zigzag} from '@remotion/effects/zigzag';
+import {zoomBlur} from '@remotion/effects/zoom-blur';
 import {lightLeakEffectSchema} from '@remotion/light-leaks';
 import {starburstEffectSchema} from '@remotion/starburst';
 import {EffectsBarrelDistortionPreview} from '../effects/effects-barrel-distortion-preview';
 import {EffectsBlurPreview} from '../effects/effects-blur-preview';
 import {EffectsBrightnessPreview} from '../effects/effects-brightness-preview';
 import {EffectsBurlapPreview} from '../effects/effects-burlap-preview';
+import {EffectsCheckerboardPreview} from '../effects/effects-checkerboard-preview';
 import {EffectsChromaticAberrationPreview} from '../effects/effects-chromatic-aberration-preview';
 import {EffectsColorKeyPreview} from '../effects/effects-color-key-preview';
 import {EffectsContourLinesPreview} from '../effects/effects-contour-lines-preview';
@@ -60,9 +64,9 @@ import {EffectsEvolvePreview} from '../effects/effects-evolve-preview';
 import {EffectsFisheyePreview} from '../effects/effects-fisheye-preview';
 import {EffectsGlowPreview} from '../effects/effects-glow-preview';
 import {EffectsGrayscalePreview} from '../effects/effects-grayscale-preview';
+import {EffectsGridlinesPreview} from '../effects/effects-gridlines-preview';
 import {EffectsHalftoneLinearGradientPreview} from '../effects/effects-halftone-linear-gradient-preview';
 import {EffectsHalftonePreview} from '../effects/effects-halftone-preview';
-import {EffectsPixelatePreview} from '../effects/effects-pixelate-preview';
 import {EffectsHuePreview} from '../effects/effects-hue-preview';
 import {EffectsInvertPreview} from '../effects/effects-invert-preview';
 import {EffectsLightLeakPreview} from '../effects/effects-light-leak-preview';
@@ -80,6 +84,7 @@ import {
 } from '../effects/effects-palette-map-preview';
 import {EffectsPatternPreview} from '../effects/effects-pattern-preview';
 import {EffectsPixelDissolvePreview} from '../effects/effects-pixel-dissolve-preview';
+import {EffectsPixelatePreview} from '../effects/effects-pixelate-preview';
 import {EffectsRingsPreview} from '../effects/effects-rings-preview';
 import {EffectsSaturationPreview} from '../effects/effects-saturation-preview';
 import {EffectsScalePreview} from '../effects/effects-scale-preview';
@@ -103,6 +108,7 @@ import {EffectsWavePreview} from '../effects/effects-wave-preview';
 import {EffectsWavesPreview} from '../effects/effects-waves-preview';
 import {EffectsWhiteNoisePreview} from '../effects/effects-white-noise-preview';
 import {EffectsZigzagPreview} from '../effects/effects-zigzag-preview';
+import {EffectsZoomBlurPreview} from '../effects/effects-zoom-blur-preview';
 import type {EffectsDemoType} from './types';
 
 const defaults = {
@@ -338,6 +344,14 @@ export const effectsDemos: EffectsDemoType[] = [
 	},
 	{
 		...defaults,
+		id: 'effects-checkerboard',
+		effectName: 'checkerboard',
+		effectImportPath: '@remotion/effects/checkerboard',
+		comp: EffectsCheckerboardPreview,
+		schema: checkerboard().definition.schema,
+	},
+	{
+		...defaults,
 		id: 'effects-contour-lines',
 		effectName: 'contourLines',
 		effectImportPath: '@remotion/effects/contour-lines',
@@ -421,6 +435,14 @@ export const effectsDemos: EffectsDemoType[] = [
 	},
 	{
 		...defaults,
+		id: 'effects-zoom-blur',
+		effectName: 'zoomBlur',
+		effectImportPath: '@remotion/effects/zoom-blur',
+		comp: EffectsZoomBlurPreview,
+		schema: zoomBlur().definition.schema,
+	},
+	{
+		...defaults,
 		id: 'effects-chromatic-aberration',
 		effectName: 'chromaticAberration',
 		effectImportPath: '@remotion/effects/chromatic-aberration',
@@ -498,6 +520,14 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/halftone-linear-gradient',
 		comp: EffectsHalftoneLinearGradientPreview,
 		schema: halftoneLinearGradient().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-gridlines',
+		effectName: 'gridlines',
+		effectImportPath: '@remotion/effects/gridlines',
+		comp: EffectsGridlinesPreview,
+		schema: gridlines().definition.schema,
 	},
 	{
 		...defaults,

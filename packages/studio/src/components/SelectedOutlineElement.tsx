@@ -6,6 +6,7 @@ import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {BLUE} from '../helpers/colors';
 import {formatFileLocation} from '../helpers/format-file-location';
 import {openOriginalPositionInEditor} from '../helpers/open-in-editor';
+import {ModalsContext} from '../state/modals';
 import {callApi} from './call-api';
 import {useConfirmationDialog} from './ConfirmationDialog';
 import {ContextMenuForTarget} from './ContextMenu';
@@ -1430,6 +1431,7 @@ export const SelectedOutlineElement: React.FC<{
 	);
 	const confirm = useConfirmationDialog();
 	const selectAsset = useSelectAsset();
+	const {setSelectedModal} = useContext(ModalsContext);
 
 	const onContextMenuOpen = React.useCallback(async () => {
 		if (target === undefined || previewServerState.type !== 'connected') {
@@ -1475,6 +1477,10 @@ export const SelectedOutlineElement: React.FC<{
 		const disableInteractivityDisabled = !target.sequence.showInTimeline;
 		const sourceEditDisabled =
 			!target.sequence.controls || !nodePath.absolutePath;
+		const canAddEffect =
+			target.nodePathInfo.supportsEffects &&
+			!sourceEditDisabled &&
+			previewServerState.type === 'connected';
 
 		return getSequenceContextMenuItems({
 			assetLinkInfo,
@@ -1557,12 +1563,49 @@ export const SelectedOutlineElement: React.FC<{
 			originalLocation,
 			selectAsset,
 			sequence: target.sequence,
+			sourceActions: [
+				...(target.nodePathInfo.supportsEffects
+					? [
+							{
+								type: 'item' as const,
+								id: 'add-effect',
+								keyHint: null,
+								label: 'Add effect...',
+								leftItem: null,
+								disabled: !canAddEffect,
+								onClick: () => {
+									if (
+										!canAddEffect ||
+										previewServerState.type !== 'connected'
+									) {
+										return;
+									}
+
+									setSelectedModal({
+										type: 'add-effect',
+										clientId: previewServerState.clientId,
+										fileName: nodePath.absolutePath,
+										nodePath,
+									});
+								},
+								quickSwitcherLabel: null,
+								subMenu: null,
+								value: 'add-effect',
+							},
+							{
+								type: 'divider' as const,
+								id: 'add-effect-divider',
+							},
+						]
+					: []),
+			],
 		});
 	}, [
 		confirm,
 		onSelect,
 		previewServerState,
 		selectAsset,
+		setSelectedModal,
 		setPropStatuses,
 		target,
 		updateResolvedStackTrace,

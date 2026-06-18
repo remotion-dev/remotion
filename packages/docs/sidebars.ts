@@ -277,6 +277,7 @@ const sidebars: SidebarsConfig = {
 				'effects/blur',
 				'effects/brightness',
 				'effects/burlap',
+				'effects/checkerboard',
 				'effects/chromatic-aberration',
 				'effects/color-key',
 				'effects/contrast',
@@ -289,6 +290,7 @@ const sidebars: SidebarsConfig = {
 				'effects/fisheye',
 				'effects/glow',
 				'effects/grayscale',
+				'effects/gridlines',
 				'effects/halftone',
 				'effects/halftone-linear-gradient',
 				'effects/hue',
@@ -318,6 +320,7 @@ const sidebars: SidebarsConfig = {
 				'effects/white-noise',
 				'effects/xy-translate',
 				'effects/zigzag',
+				'effects/zoom-blur',
 			],
 		},
 		{

@@ -42,6 +42,7 @@ import {
 	getSelectedTimelineExpandedRowKeys,
 	isTimelineExpandedNodeSelected,
 } from './timeline-expanded-filter';
+import {timelineVerticalScroll} from './timeline-refs';
 import {TimelineClipboardKeybindings} from './TimelineClipboardKeybindings';
 import {TimelineDeleteKeybindings} from './TimelineDeleteKeybindings';
 
@@ -520,6 +521,10 @@ type TimelineSelectionContextValue = {
 		item: TimelineSelection,
 		getRect: () => DOMRect | null,
 	) => () => void;
+	readonly registerFocusableItem: (
+		item: TimelineSelection,
+		getRect: () => DOMRect | null,
+	) => () => void;
 	readonly getMarqueeSelection: (
 		marqueeRect: TimelineMarqueeRect,
 		lockedSelectionKind: TimelineMarqueeSelectionKind | null,
@@ -538,6 +543,7 @@ const defaultTimelineSelectionContextValue: TimelineSelectionContextValue = {
 	selectItem: () => undefined,
 	selectItems: () => undefined,
 	registerMarqueeSelectableItem: () => () => undefined,
+	registerFocusableItem: () => () => undefined,
 	getMarqueeSelection: () => ({
 		lockedSelectionKind: null,
 		selectedItems: [],
@@ -572,6 +578,8 @@ export const TimelineSelectionOrderProvider: React.FC<{
 
 const CurrentTimelineSelectionContext =
 	createContext<React.RefObject<TimelineSelectionContextValue> | null>(null);
+
+const TIMELINE_SELECTION_FOCUS_PADDING = 8;
 
 const parseEffectIndex = (effectIndex: string): number | null => {
 	const parsed = Number(effectIndex);
@@ -912,6 +920,37 @@ export const TimelineSelectAllKeybindings: React.FC<{
 	return null;
 };
 
+const TimelineEscapeKeybindings: React.FC = () => {
+	const keybindings = useKeybinding();
+	const currentSelection = useCurrentTimelineSelectionStateAsRef();
+
+	useEffect(() => {
+		const escape = keybindings.registerKeybinding({
+			event: 'keydown',
+			key: 'Escape',
+			callback: (event) => {
+				const {selectedItems, clearSelection} = currentSelection.current;
+				if (selectedItems.length === 0) {
+					return;
+				}
+
+				clearSelection();
+				event.preventDefault();
+			},
+			commandCtrlKey: false,
+			preventDefault: false,
+			triggerIfInputFieldFocused: false,
+			keepRegisteredWhenNotHighestContext: false,
+		});
+
+		return () => {
+			escape.unregister();
+		};
+	}, [currentSelection, keybindings]);
+
+	return null;
+};
+
 export const TimelineSelectableItemsProvider: React.FC<{
 	readonly children: React.ReactNode;
 	readonly timeline: readonly TrackWithHash[];
@@ -979,6 +1018,15 @@ export const TimelineSelectionProvider: React.FC<{
 		>(),
 	);
 	const marqueeRegistrationCounter = useRef(0);
+	const focusableItems = useRef(
+		new Map<
+			string,
+			{
+				readonly getRect: () => DOMRect | null;
+			}
+		>(),
+	);
+	const previousSingleSelectionKey = useRef<string | null>(null);
 
 	useEffect(() => {
 		if (!canSelect) {
@@ -1010,6 +1058,46 @@ export const TimelineSelectionProvider: React.FC<{
 	const availableSelectionState =
 		getCurrentAvailableSelectionState(selectedItems);
 	const availableSelectedItems = availableSelectionState.selectedItems;
+
+	useEffect(() => {
+		if (availableSelectedItems.length !== 1) {
+			previousSingleSelectionKey.current = null;
+			return;
+		}
+
+		const selectedKey = getTimelineSelectionKey(availableSelectedItems[0]);
+		if (previousSingleSelectionKey.current === selectedKey) {
+			return;
+		}
+
+		previousSingleSelectionKey.current = selectedKey;
+
+		const animationFrame = requestAnimationFrame(() => {
+			const registered =
+				focusableItems.current.get(selectedKey) ??
+				marqueeSelectableItems.current.get(selectedKey);
+			const scrollParent = timelineVerticalScroll.current;
+			const rect = registered?.getRect();
+
+			if (!scrollParent || !rect) {
+				return;
+			}
+
+			const parentRect = scrollParent.getBoundingClientRect();
+			if (rect.top < parentRect.top) {
+				scrollParent.scrollTop -=
+					parentRect.top - rect.top + TIMELINE_SELECTION_FOCUS_PADDING;
+				return;
+			}
+
+			if (rect.bottom > parentRect.bottom) {
+				scrollParent.scrollTop +=
+					rect.bottom - parentRect.bottom + TIMELINE_SELECTION_FOCUS_PADDING;
+			}
+		});
+
+		return () => cancelAnimationFrame(animationFrame);
+	}, [availableSelectedItems]);
 
 	const expandParentsForSelectionItems = useCallback(
 		(items: readonly TimelineSelection[]) => {
@@ -1146,6 +1234,19 @@ export const TimelineSelectionProvider: React.FC<{
 		[],
 	);
 
+	const registerFocusableItem = useCallback(
+		(item: TimelineSelection, getRect: () => DOMRect | null) => {
+			const key = getTimelineSelectionKey(item);
+			focusableItems.current.set(key, {
+				getRect,
+			});
+			return () => {
+				focusableItems.current.delete(key);
+			};
+		},
+		[],
+	);
+
 	const getMarqueeSelectionForRect = useCallback(
 		(
 			marqueeRect: TimelineMarqueeRect,
@@ -1210,6 +1311,7 @@ export const TimelineSelectionProvider: React.FC<{
 			selectItem,
 			selectItems,
 			registerMarqueeSelectableItem,
+			registerFocusableItem,
 			getMarqueeSelection: getMarqueeSelectionForRect,
 			containsSelection,
 			clearSelection,
@@ -1221,6 +1323,7 @@ export const TimelineSelectionProvider: React.FC<{
 			selectItem,
 			selectItems,
 			registerMarqueeSelectableItem,
+			registerFocusableItem,
 			getMarqueeSelectionForRect,
 			containsSelection,
 			clearSelection,
@@ -1233,6 +1336,7 @@ export const TimelineSelectionProvider: React.FC<{
 		<CurrentTimelineSelectionContext.Provider value={currentSelection}>
 			<TimelineSelectionContext.Provider value={value}>
 				{children}
+				<TimelineEscapeKeybindings />
 				<TimelineClipboardKeybindings />
 				<TimelineDeleteKeybindings />
 			</TimelineSelectionContext.Provider>
@@ -1396,6 +1500,24 @@ export const useTimelineMarqueeSelectableItem = (
 			() => ref.current?.getBoundingClientRect() ?? null,
 		);
 	}, [item, ref, registerMarqueeSelectableItem]);
+};
+
+export const useTimelineFocusableItem = (
+	item: TimelineSelection | null,
+	ref: React.RefObject<Element | null>,
+) => {
+	const {registerFocusableItem} = useTimelineSelection();
+
+	useEffect(() => {
+		if (item === null) {
+			return;
+		}
+
+		return registerFocusableItem(
+			item,
+			() => ref.current?.getBoundingClientRect() ?? null,
+		);
+	}, [item, ref, registerFocusableItem]);
 };
 
 export const useTimelineRowSelection = (

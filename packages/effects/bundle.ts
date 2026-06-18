@@ -1,5 +1,5 @@
-import {build} from 'bun';
 import path from 'path';
+import {build} from 'bun';
 
 if (process.env.NODE_ENV !== 'production') {
 	throw new Error('This script must be run using NODE_ENV=production');
@@ -10,6 +10,7 @@ const effectEntrypoints = [
 	'src/barrel-distortion.ts',
 	'src/blur.ts',
 	'src/burlap.ts',
+	'src/checkerboard.ts',
 	'src/chromatic-aberration.ts',
 	'src/color-key.ts',
 	'src/brightness.ts',
@@ -22,6 +23,7 @@ const effectEntrypoints = [
 	'src/fisheye.ts',
 	'src/glow.ts',
 	'src/grayscale.ts',
+	'src/gridlines.ts',
 	'src/halftone-linear-gradient.ts',
 	'src/halftone.ts',
 	'src/hue.ts',
@@ -51,6 +53,7 @@ const effectEntrypoints = [
 	'src/waves.ts',
 	'src/zigzag.ts',
 	'src/white-noise.ts',
+	'src/zoom-blur.ts',
 ];
 
 console.time('Generated.');

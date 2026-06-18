@@ -1773,6 +1773,15 @@ export const articles = [
 		slug: 'effects/burlap',
 	},
 	{
+		id: 'effects/checkerboard',
+		title: 'checkerboard()',
+		relativePath: 'docs/effects/checkerboard.mdx',
+		compId: 'articles-docs-effects-checkerboard',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/checkerboard',
+	},
+	{
 		id: 'effects/chromatic-aberration',
 		title: 'chromaticAberration()',
 		relativePath: 'docs/effects/chromatic-aberration.mdx',
@@ -1879,6 +1888,15 @@ export const articles = [
 		crumb: '@remotion/effects',
 		noAi: false,
 		slug: 'effects/grayscale',
+	},
+	{
+		id: 'effects/gridlines',
+		title: 'gridlines()',
+		relativePath: 'docs/effects/gridlines.mdx',
+		compId: 'articles-docs-effects-gridlines',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/gridlines',
 	},
 	{
 		id: 'effects/halftone-linear-gradient',
@@ -2149,6 +2167,15 @@ export const articles = [
 		crumb: '@remotion/effects',
 		noAi: false,
 		slug: 'effects/zigzag',
+	},
+	{
+		id: 'effects/zoom-blur',
+		title: 'zoomBlur()',
+		relativePath: 'docs/effects/zoom-blur.mdx',
+		compId: 'articles-docs-effects-zoom-blur',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/zoom-blur',
 	},
 	{
 		id: 'electron',

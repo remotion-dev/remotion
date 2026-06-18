@@ -218,6 +218,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-zoom-blur',
+		category: 'Blur & Shadow',
+		label: 'zoomBlur()',
+		description: 'Radial zoom blur effect',
+		effect: {
+			name: 'zoomBlur',
+			importPath: '@remotion/effects/zoom-blur',
+			config: {},
+		},
+	},
+	{
 		id: 'effects-drop-shadow',
 		category: 'Blur & Shadow',
 		label: 'dropShadow()',
@@ -527,6 +538,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-checkerboard',
+		category: 'Generate',
+		label: 'checkerboard()',
+		description: 'Checkerboard pattern effect',
+		effect: {
+			name: 'checkerboard',
+			importPath: '@remotion/effects/checkerboard',
+			config: {},
+		},
+	},
+	{
 		id: 'effects-halftone-linear-gradient',
 		category: 'Generate',
 		label: 'halftoneLinearGradient()',
@@ -534,6 +556,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		effect: {
 			name: 'halftoneLinearGradient',
 			importPath: '@remotion/effects/halftone-linear-gradient',
+			config: {},
+		},
+	},
+	{
+		id: 'effects-gridlines',
+		category: 'Generate',
+		label: 'gridlines()',
+		description: 'Procedural grid pattern effect',
+		effect: {
+			name: 'gridlines',
+			importPath: '@remotion/effects/gridlines',
 			config: {},
 		},
 	},

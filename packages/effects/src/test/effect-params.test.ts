@@ -3,6 +3,7 @@ import {barrelDistortion} from '../barrel-distortion/index.js';
 import {blur} from '../blur/index.js';
 import {brightness} from '../brightness.js';
 import {burlap} from '../burlap.js';
+import {checkerboard} from '../checkerboard.js';
 import {chromaticAberration} from '../chromatic-aberration/index.js';
 import {colorKey} from '../color-key.js';
 import {contourLines} from '../contour-lines.js';
@@ -15,6 +16,7 @@ import {evolve} from '../evolve.js';
 import {fisheye} from '../fisheye/index.js';
 import {glow} from '../glow/index.js';
 import {grayscale} from '../grayscale.js';
+import {gridlines} from '../gridlines.js';
 import {halftoneLinearGradient} from '../halftone-linear-gradient.js';
 import {halftone} from '../halftone.js';
 import {hue} from '../hue.js';
@@ -47,6 +49,7 @@ import {wave} from '../wave/index.js';
 import {waves} from '../waves.js';
 import {whiteNoise} from '../white-noise.js';
 import {zigzag} from '../zigzag.js';
+import {zoomBlur} from '../zoom-blur/index.js';
 
 const expectDefaultBlueColorArrayControl = (schema: {
 	readonly colors?: unknown;
@@ -88,6 +91,9 @@ test('@remotion/effects expose documentation links', () => {
 	expect(burlap().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/burlap',
 	);
+	expect(checkerboard().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/checkerboard',
+	);
 	expect(contrast().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/contrast',
 	);
@@ -114,6 +120,9 @@ test('@remotion/effects expose documentation links', () => {
 	);
 	expect(grayscale().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/grayscale',
+	);
+	expect(gridlines().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/gridlines',
 	);
 	expect(halftone().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/halftone',
@@ -203,6 +212,9 @@ test('@remotion/effects expose documentation links', () => {
 	expect(whiteNoise().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/white-noise',
 	);
+	expect(zoomBlur().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/zoom-blur',
+	);
 });
 
 test('@remotion/effects expose API names as Studio labels', () => {
@@ -212,6 +224,7 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(colorKey().definition.label).toBe('colorKey()');
 	expect(brightness().definition.label).toBe('brightness()');
 	expect(burlap().definition.label).toBe('burlap()');
+	expect(checkerboard().definition.label).toBe('checkerboard()');
 	expect(contrast().definition.label).toBe('contrast()');
 	expect(contourLines().definition.label).toBe('contourLines()');
 	expect(duotone().definition.label).toBe('duotone()');
@@ -221,6 +234,7 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(fisheye().definition.label).toBe('fisheye()');
 	expect(glow().definition.label).toBe('glow()');
 	expect(grayscale().definition.label).toBe('grayscale()');
+	expect(gridlines().definition.label).toBe('gridlines()');
 	expect(halftone().definition.label).toBe('halftone()');
 	expect(halftoneLinearGradient().definition.label).toBe(
 		'halftoneLinearGradient()',
@@ -256,9 +270,11 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(waves().definition.label).toBe('waves()');
 	expect(zigzag().definition.label).toBe('zigzag()');
 	expect(whiteNoise().definition.label).toBe('whiteNoise()');
+	expect(zoomBlur().definition.label).toBe('zoomBlur()');
 });
 
 test('@remotion/effects palette effects expose colors as array controls', () => {
+	expectDefaultBlueColorArrayControl(checkerboard().definition.schema);
 	expectDefaultBlueColorArrayControl(lines().definition.schema);
 	expectDefaultBlueColorArrayControl(rings().definition.schema);
 	expectDefaultBlueColorArrayControl(waves().definition.schema);
@@ -1560,6 +1576,99 @@ test('contourLines() parameters produce distinct effect keys', () => {
 	).toBe(12);
 });
 
+test('gridlines() accepts default params', () => {
+	expect(() => gridlines()).not.toThrow();
+});
+
+test('gridlines() rejects non-finite grid size', () => {
+	expect(() => gridlines({gridSize: Number.NaN})).toThrow(
+		'"gridSize" must be a finite number',
+	);
+});
+
+test('gridlines() rejects non-positive grid size', () => {
+	expect(() => gridlines({gridSize: 0})).toThrow(
+		'"gridSize" must be greater than 0',
+	);
+});
+
+test('gridlines() rejects negative line width', () => {
+	expect(() => gridlines({lineWidth: -1})).toThrow(
+		'"lineWidth" must be greater than or equal to 0',
+	);
+});
+
+test('gridlines() rejects invalid colors', () => {
+	expect(() => gridlines({lineColor: ''})).toThrow(
+		'"lineColor" must be a non-empty string',
+	);
+	expect(() => gridlines({backgroundColor: ''})).toThrow(
+		'"backgroundColor" must be a non-empty string',
+	);
+});
+
+test('gridlines() rejects non-finite transform params', () => {
+	expect(() => gridlines({rotation: Number.NaN})).toThrow(
+		'"rotation" must be a finite number',
+	);
+	expect(() => gridlines({rotationX: Number.NaN})).toThrow(
+		'"rotationX" must be a finite number',
+	);
+	expect(() => gridlines({rotationY: Number.NaN})).toThrow(
+		'"rotationY" must be a finite number',
+	);
+	expect(() => gridlines({perspective: Number.NaN})).toThrow(
+		'"perspective" must be a finite number',
+	);
+	expect(() => gridlines({perspective: -1})).toThrow(
+		'"perspective" must be greater than or equal to 0',
+	);
+	expect(() => gridlines({offsetX: Number.NaN})).toThrow(
+		'"offsetX" must be a finite number',
+	);
+	expect(() => gridlines({offsetY: Number.NaN})).toThrow(
+		'"offsetY" must be a finite number',
+	);
+});
+
+test('gridlines() rejects non-boolean maskToSourceAlpha', () => {
+	expect(() =>
+		gridlines({maskToSourceAlpha: 'yes' as unknown as boolean}),
+	).toThrow('"maskToSourceAlpha" must be a boolean');
+});
+
+test('gridlines() parameters produce distinct effect keys', () => {
+	const defaultGrid = gridlines();
+	const widerGrid = gridlines({gridSize: 80});
+	const thicker = gridlines({lineWidth: 6});
+	const colored = gridlines({lineColor: '#0b84f3'});
+	const background = gridlines({backgroundColor: '#101828'});
+	const rotated = gridlines({rotation: 30});
+	const rotatedX = gridlines({rotationX: 68});
+	const rotatedY = gridlines({rotationY: 20});
+	const perspective = gridlines({perspective: 900});
+	const shiftedX = gridlines({offsetX: 12});
+	const shiftedY = gridlines({offsetY: 12});
+	const masked = gridlines({maskToSourceAlpha: true});
+
+	expect(
+		new Set([
+			defaultGrid.effectKey,
+			widerGrid.effectKey,
+			thicker.effectKey,
+			colored.effectKey,
+			background.effectKey,
+			rotated.effectKey,
+			rotatedX.effectKey,
+			rotatedY.effectKey,
+			perspective.effectKey,
+			shiftedX.effectKey,
+			shiftedY.effectKey,
+			masked.effectKey,
+		]).size,
+	).toBe(12);
+});
+
 test('invert() accepts default params', () => {
 	expect(() => invert()).not.toThrow();
 });
@@ -2225,6 +2334,97 @@ test('lines() parameters produce distinct effect keys', () => {
 	).toBe(8);
 });
 
+test('checkerboard() accepts default params', () => {
+	expect(() => checkerboard()).not.toThrow();
+});
+
+test('checkerboard() accepts custom colors', () => {
+	expect(() =>
+		checkerboard({colors: ['#dff4ff', 'transparent']}),
+	).not.toThrow();
+});
+
+test('checkerboard() rejects invalid colors', () => {
+	expect(() => checkerboard({colors: ['#dff4ff']})).toThrow(
+		'"colors" must be an array with at least 2 colors',
+	);
+	expect(() =>
+		checkerboard({colors: ['#dff4ff', '' as unknown as string]}),
+	).toThrow('"colors[1]" must be a non-empty string');
+});
+
+test('checkerboard() rejects non-finite cellSize', () => {
+	expect(() => checkerboard({cellSize: Number.NaN})).toThrow(
+		'"cellSize" must be a finite number',
+	);
+});
+
+test('checkerboard() rejects non-positive cellSize', () => {
+	expect(() => checkerboard({cellSize: 0})).toThrow(
+		'"cellSize" must be greater than 0',
+	);
+});
+
+test('checkerboard() rejects non-finite gap', () => {
+	expect(() => checkerboard({gap: Number.NaN})).toThrow(
+		'"gap" must be a finite number',
+	);
+});
+
+test('checkerboard() rejects negative gap', () => {
+	expect(() => checkerboard({gap: -1})).toThrow(
+		'"gap" must be greater than or equal to 0',
+	);
+});
+
+test('checkerboard() rejects non-finite angle', () => {
+	expect(() => checkerboard({angle: Number.NaN})).toThrow(
+		'"angle" must be a finite number',
+	);
+});
+
+test('checkerboard() rejects non-finite offsetX', () => {
+	expect(() => checkerboard({offsetX: Number.NaN})).toThrow(
+		'"offsetX" must be a finite number',
+	);
+});
+
+test('checkerboard() rejects non-finite offsetY', () => {
+	expect(() => checkerboard({offsetY: Number.NaN})).toThrow(
+		'"offsetY" must be a finite number',
+	);
+});
+
+test('checkerboard() rejects non-boolean maskToSourceAlpha', () => {
+	expect(() =>
+		checkerboard({maskToSourceAlpha: 'yes' as unknown as boolean}),
+	).toThrow('"maskToSourceAlpha" must be a boolean');
+});
+
+test('checkerboard() parameters produce distinct effect keys', () => {
+	const defaultCheckerboard = checkerboard();
+	const colored = checkerboard({colors: ['#ffffff', 'transparent']});
+	const small = checkerboard({cellSize: 40});
+	const gapped = checkerboard({gap: 12});
+	const angled = checkerboard({angle: 45});
+	const shiftedX = checkerboard({offsetX: 10});
+	const shiftedY = checkerboard({offsetY: 10});
+	const masked = checkerboard({maskToSourceAlpha: true});
+
+	expect(
+		new Set([
+			defaultCheckerboard.effectKey,
+			colored.effectKey,
+			small.effectKey,
+			gapped.effectKey,
+			angled.effectKey,
+			shiftedX.effectKey,
+			shiftedY.effectKey,
+			masked.effectKey,
+		]).size,
+	).toBe(8);
+});
+
 test('linearProgressiveBlur() accepts default params', () => {
 	expect(() => linearProgressiveBlur()).not.toThrow();
 });
@@ -2283,6 +2483,53 @@ test('linearProgressiveBlur() parameters produce distinct effect keys', () => {
 			moreEndBlur.effectKey,
 		]).size,
 	).toBe(5);
+});
+
+test('zoomBlur() accepts default params', () => {
+	expect(() => zoomBlur()).not.toThrow();
+});
+
+test('zoomBlur() rejects non-finite amount', () => {
+	expect(() => zoomBlur({amount: Number.NaN})).toThrow(
+		'"amount" must be a finite number',
+	);
+});
+
+test('zoomBlur() rejects negative amount', () => {
+	expect(() => zoomBlur({amount: -1})).toThrow('"amount" must be >= 0');
+});
+
+test('zoomBlur() rejects invalid center', () => {
+	expect(() => zoomBlur({center: [0.5, 1.5]})).toThrow(
+		'"center[1]" must be <= 1',
+	);
+});
+
+test('zoomBlur() rejects non-integer samples', () => {
+	expect(() => zoomBlur({samples: 12.5})).toThrow(
+		'"samples" must be an integer',
+	);
+});
+
+test('zoomBlur() rejects samples outside the range', () => {
+	expect(() => zoomBlur({samples: 0})).toThrow('"samples" must be >= 1');
+	expect(() => zoomBlur({samples: 65})).toThrow('"samples" must be <= 64');
+});
+
+test('zoomBlur() parameters produce distinct effect keys', () => {
+	const defaults = zoomBlur();
+	const stronger = zoomBlur({amount: 80});
+	const shifted = zoomBlur({center: [0.25, 0.5]});
+	const smoother = zoomBlur({samples: 48});
+
+	expect(
+		new Set([
+			defaults.effectKey,
+			stronger.effectKey,
+			shifted.effectKey,
+			smoother.effectKey,
+		]).size,
+	).toBe(4);
 });
 
 test('rings() accepts default params', () => {

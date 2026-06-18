@@ -49,6 +49,11 @@
 			"module": "./dist/esm/burlap.mjs",
 			"import": "./dist/esm/burlap.mjs"
 		},
+		"./checkerboard": {
+			"types": "./dist/checkerboard.d.ts",
+			"module": "./dist/esm/checkerboard.mjs",
+			"import": "./dist/esm/checkerboard.mjs"
+		},
 		"./chromatic-aberration": {
 			"types": "./dist/chromatic-aberration.d.ts",
 			"module": "./dist/esm/chromatic-aberration.mjs",
@@ -103,6 +108,11 @@
 			"types": "./dist/glow.d.ts",
 			"module": "./dist/esm/glow.mjs",
 			"import": "./dist/esm/glow.mjs"
+		},
+		"./gridlines": {
+			"types": "./dist/gridlines.d.ts",
+			"module": "./dist/esm/gridlines.mjs",
+			"import": "./dist/esm/gridlines.mjs"
 		},
 		"./halftone": {
 			"types": "./dist/halftone.d.ts",
@@ -249,6 +259,11 @@
 			"module": "./dist/esm/white-noise.mjs",
 			"import": "./dist/esm/white-noise.mjs"
 		},
+		"./zoom-blur": {
+			"types": "./dist/zoom-blur.d.ts",
+			"module": "./dist/esm/zoom-blur.mjs",
+			"import": "./dist/esm/zoom-blur.mjs"
+		},
 		"./zigzag": {
 			"types": "./dist/zigzag.d.ts",
 			"module": "./dist/esm/zigzag.mjs",
@@ -266,6 +281,9 @@
 			],
 			"burlap": [
 				"dist/burlap.d.ts"
+			],
+			"checkerboard": [
+				"dist/checkerboard.d.ts"
 			],
 			"chromatic-aberration": [
 				"dist/chromatic-aberration.d.ts"
@@ -299,6 +317,9 @@
 			],
 			"glow": [
 				"dist/glow.d.ts"
+			],
+			"gridlines": [
+				"dist/gridlines.d.ts"
 			],
 			"halftone": [
 				"dist/halftone.d.ts"
@@ -389,6 +410,9 @@
 			],
 			"white-noise": [
 				"dist/white-noise.d.ts"
+			],
+			"zoom-blur": [
+				"dist/zoom-blur.d.ts"
 			]
 		}
 	},

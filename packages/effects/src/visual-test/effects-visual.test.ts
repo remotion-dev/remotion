@@ -3,10 +3,11 @@ import {blur} from '../blur.js';
 import {evolve} from '../evolve.js';
 import {noise} from '../noise.js';
 import {pixelDissolve} from '../pixel-dissolve.js';
+import {vignette} from '../vignette.js';
 import {
 	descriptorsToMemoizedEffects,
-	renderEffectChainToBlob,
 	renderEffectChainToCanvas,
+	renderEffectChainToBlob,
 	testImage,
 } from './visual-utils.js';
 
@@ -36,6 +37,49 @@ test('evolve() reveals with feather', async () => {
 		blob,
 		testId: 'evolve-left-feather',
 	});
+});
+
+test('vignette() color mode works on transparent sources', async () => {
+	const width = 40;
+	const height = 40;
+	const source = document.createElement('canvas');
+	source.width = width;
+	source.height = height;
+
+	const sourceCtx = source.getContext('2d');
+	if (!sourceCtx) {
+		throw new Error('Could not get 2D context');
+	}
+
+	sourceCtx.clearRect(0, 0, width, height);
+
+	const canvas = await renderEffectChainToCanvas({
+		source,
+		effects: descriptorsToMemoizedEffects([
+			vignette({
+				amount: 1,
+				radius: 0.5,
+				feather: 0,
+				color: 'rgba(0, 0, 0, 0.5)',
+			}),
+		]),
+		width,
+		height,
+	});
+	const ctx = canvas.getContext('2d');
+	if (!ctx) {
+		throw new Error('Could not get 2D context');
+	}
+
+	const corner = ctx.getImageData(0, 0, 1, 1).data;
+	if (corner[3] !== 128) {
+		throw new Error(`Expected vignette alpha to be 128, got ${corner[3]}`);
+	}
+
+	const center = ctx.getImageData(width / 2, height / 2, 1, 1).data;
+	if (center[3] !== 0) {
+		throw new Error(`Expected center alpha to stay 0, got ${center[3]}`);
+	}
 });
 
 const maxAlphaForPixelDissolveProgress = async (progress: number) => {

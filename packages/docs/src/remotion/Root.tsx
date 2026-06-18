@@ -6,6 +6,7 @@ import {EffectsBarrelDistortionPreview} from '../../components/effects/effects-b
 import {EffectsBlurPreview} from '../../components/effects/effects-blur-preview';
 import {EffectsBrightnessPreview} from '../../components/effects/effects-brightness-preview';
 import {EffectsBurlapPreview} from '../../components/effects/effects-burlap-preview';
+import {EffectsCheckerboardPreview} from '../../components/effects/effects-checkerboard-preview';
 import {EffectsChromaticAberrationPreview} from '../../components/effects/effects-chromatic-aberration-preview';
 import {EffectsColorKeyPreview} from '../../components/effects/effects-color-key-preview';
 import {EffectsContourLinesPreview} from '../../components/effects/effects-contour-lines-preview';
@@ -18,6 +19,7 @@ import {EffectsEvolvePreview} from '../../components/effects/effects-evolve-prev
 import {EffectsFisheyePreview} from '../../components/effects/effects-fisheye-preview';
 import {EffectsGlowPreview} from '../../components/effects/effects-glow-preview';
 import {EffectsGrayscalePreview} from '../../components/effects/effects-grayscale-preview';
+import {EffectsGridlinesPreview} from '../../components/effects/effects-gridlines-preview';
 import {EffectsHalftoneLinearGradientPreview} from '../../components/effects/effects-halftone-linear-gradient-preview';
 import {EffectsHalftonePreview} from '../../components/effects/effects-halftone-preview';
 import {EffectsHuePreview} from '../../components/effects/effects-hue-preview';
@@ -58,6 +60,7 @@ import {EffectsWavePreview} from '../../components/effects/effects-wave-preview'
 import {EffectsWavesPreview} from '../../components/effects/effects-waves-preview';
 import {EffectsWhiteNoisePreview} from '../../components/effects/effects-white-noise-preview';
 import {EffectsZigzagPreview} from '../../components/effects/effects-zigzag-preview';
+import {EffectsZoomBlurPreview} from '../../components/effects/effects-zoom-blur-preview';
 import {articles} from '../data/articles';
 import {AllTemplates} from './AllTemplates';
 import {Article} from './Article';
@@ -363,6 +366,13 @@ export const RemotionRoot: React.FC = () => {
 					}}
 				/>
 				<Still
+					id="effects-zoom-blur-preview"
+					component={EffectsZoomBlurPreview}
+					width={1280}
+					height={720}
+					defaultProps={{amount: 160, center: [0.08, 0.5], samples: 48}}
+				/>
+				<Still
 					id="effects-wave-preview"
 					component={EffectsWavePreview}
 					width={1280}
@@ -450,6 +460,24 @@ export const RemotionRoot: React.FC = () => {
 					}}
 				/>
 				<Still
+					id="effects-gridlines-preview"
+					component={EffectsGridlinesPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						gridSize: 72,
+						lineWidth: 3,
+						lineColor: '#ffffff',
+						backgroundColor: 'transparent',
+						rotation: 0,
+						rotationX: 0,
+						rotationY: 0,
+						perspective: 0,
+						offsetX: 0,
+						offsetY: 0,
+					}}
+				/>
+				<Still
 					id="effects-dot-grid-preview"
 					component={EffectsDotGridPreview}
 					width={1280}
@@ -528,6 +556,20 @@ export const RemotionRoot: React.FC = () => {
 						gap: 0,
 						angle: 20,
 						offset: 0,
+					}}
+				/>
+				<Still
+					id="effects-checkerboard-preview"
+					component={EffectsCheckerboardPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						colors: DEFAULT_EFFECT_COLORS,
+						cellSize: 80,
+						gap: 0,
+						angle: 15,
+						offsetX: 0,
+						offsetY: 0,
 					}}
 				/>
 				<Still
