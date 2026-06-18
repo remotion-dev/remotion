@@ -380,3 +380,63 @@ test('<HtmlInCanvas> lets onInit choose a WebGL2 context', async () => {
 		expect(paintCalled).toBe(true);
 	});
 });
+
+test('<HtmlInCanvas> skips paint when element is outside viewport', async () => {
+	const originalDescriptor = Object.getOwnPropertyDescriptor(
+		HTMLCanvasElement.prototype,
+		'captureElementImage',
+	);
+
+	const w = window as unknown as {remotion_cancelledError?: string};
+	w.remotion_cancelledError = undefined;
+
+	Object.defineProperty(HTMLCanvasElement.prototype, 'captureElementImage', {
+		configurable: true,
+		value: () => {
+			throw new DOMException(
+				'No cached paint record for element',
+				'InvalidStateError',
+			);
+		},
+	});
+
+	let paintCalled = false;
+
+	try {
+		const {container} = render(
+			<SequenceTestWrapper onRegisterSequence={() => undefined}>
+				<HtmlInCanvas
+					width={50}
+					height={50}
+					onPaint={() => {
+						paintCalled = true;
+					}}
+				>
+					<div>Test</div>
+				</HtmlInCanvas>
+			</SequenceTestWrapper>,
+		);
+
+		await waitFor(() => {
+			expect(container.querySelector('canvas')).not.toBeNull();
+		});
+
+		const canvas = container.querySelector('canvas')!;
+		canvas.dispatchEvent(new Event('paint'));
+
+		await new Promise((resolve) => setTimeout(resolve, 200));
+
+		expect(paintCalled).toBe(false);
+		expect(w.remotion_cancelledError).toBeUndefined();
+	} finally {
+		if (originalDescriptor) {
+			Object.defineProperty(
+				HTMLCanvasElement.prototype,
+				'captureElementImage',
+				originalDescriptor,
+			);
+		}
+
+		w.remotion_cancelledError = undefined;
+	}
+});

@@ -428,43 +428,76 @@ const HtmlInCanvasContent = forwardRef<
 
 				const handle = delayRender('onPaint');
 				if (!initializedRef.current) {
-					initializedRef.current = true;
 					// `onInit` may be async (e.g. WebGPU `requestAdapter`/`requestDevice`).
 					// Capture an `ElementImage` here only for `onInit` consumers — do NOT
 					// reuse it for the paint handler below, because awaiting `onInit`
 					// can invalidate the capture's paint context, leaving subsequent
 					// uploads (e.g. `copyElementImageToTexture`) failing with
 					// "No context found for ElementImage" on the very first paint.
-					const initImage = placeholderCanvas.captureElementImage(element);
-					const currentOnInit = onInitRef.current;
-					if (currentOnInit) {
-						const cleanup = await currentOnInit({
-							canvas: offscreen,
-							element,
-							elementImage: initImage!,
-							pixelDensity: resolvedPixelDensity,
-						});
-						if (typeof cleanup !== 'function') {
-							throw new Error(
-								'HtmlInCanvas: when `onInit` is provided, it must return a cleanup function, or a Promise that resolves to one.',
-							);
-						}
-
-						if (unmountedRef.current) {
-							cleanup();
+					let initImage: ElementImage | null = null;
+					try {
+						initImage = placeholderCanvas.captureElementImage(element);
+					} catch (error) {
+						if (
+							error instanceof DOMException &&
+							error.name === 'InvalidStateError'
+						) {
+							// Element may be outside viewport (no cached paint record).
+							// Skip init — will retry on the next paint cycle.
 						} else {
-							onInitCleanupRef.current = cleanup;
+							throw error;
+						}
+					}
+
+					if (initImage) {
+						initializedRef.current = true;
+						const currentOnInit = onInitRef.current;
+						if (currentOnInit) {
+							const cleanup = await currentOnInit({
+								canvas: offscreen,
+								element,
+								elementImage: initImage,
+								pixelDensity: resolvedPixelDensity,
+							});
+							if (typeof cleanup !== 'function') {
+								throw new Error(
+									'HtmlInCanvas: when `onInit` is provided, it must return a cleanup function, or a Promise that resolves to one.',
+								);
+							}
+
+							if (unmountedRef.current) {
+								cleanup();
+							} else {
+								onInitCleanupRef.current = cleanup;
+							}
 						}
 					}
 				}
 
 				const handler = onPaintRef.current ?? defaultOnPaint;
 
-				const elImage = placeholderCanvas.captureElementImage(element);
+				let elImage: ElementImage;
+				try {
+					elImage = placeholderCanvas.captureElementImage(element);
+				} catch (error) {
+					// `captureElementImage` throws `InvalidStateError` when the
+					// element is outside the viewport (no cached paint record).
+					// Skip this paint cycle — the canvas retains its last state.
+					if (
+						error instanceof DOMException &&
+						error.name === 'InvalidStateError'
+					) {
+						continueRender(handle);
+						return;
+					}
+
+					throw error;
+				}
+
 				await handler({
 					canvas: offscreen,
 					element,
-					elementImage: elImage!,
+					elementImage: elImage,
 					pixelDensity: resolvedPixelDensity,
 				});
 
