@@ -143,7 +143,8 @@ export const RemotionRoot: React.FC = () => {
 					durationInFrames={120}
 					defaultProps={{
 						videoFile: staticFile('remotion-studio-canvas-recording.webm'),
-						cursorScale: 5,
+						cursorScale: 2.5,
+						hidden: null,
 						width: null,
 						height: null,
 					}}

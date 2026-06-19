@@ -1,14 +1,10 @@
 import {brightness} from '@remotion/effects/brightness';
 import {burlap} from '@remotion/effects/burlap';
 import {colorKey} from '@remotion/effects/color-key';
-import {dropShadow} from '@remotion/effects/drop-shadow';
 import {duotone} from '@remotion/effects/duotone';
 import {noise} from '@remotion/effects/noise';
-import {tint} from '@remotion/effects/tint';
 import {Video} from '@remotion/media';
 import {Solid, interpolate, staticFile, useCurrentFrame} from 'remotion';
-import {saturation} from '@remotion/effects/saturation';
-import {thermalVision} from '@remotion/effects/thermal-vision';
 
 export const EffectsAnnouncement = () => {
 	const frame = useCurrentFrame();
@@ -46,16 +42,21 @@ export const EffectsAnnouncement = () => {
 					colorKey({
 						similarity: 0.45,
 					}),
-					duotone({}),
+					duotone({
+						disabled: true,
+					}),
 					brightness({
 						amount: -0.5,
+						disabled: true,
 					}),
 					noise({
 						amount: 0.25,
+						disabled: true,
 					}),
 					burlap({
 						amount: 1,
 						size: 8.4,
+						disabled: true,
 					}),
 				]}
 			/>

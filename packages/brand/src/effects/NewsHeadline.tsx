@@ -40,15 +40,10 @@ export const NewsHeadline = () => {
 			]}
 			style={{
 				scale: 1,
-				transformOrigin: interpolate(
-					frame,
-					[81, 104],
-					['18.64% 50%', '50% 50%'],
-					{
-						extrapolateLeft: 'clamp',
-						extrapolateRight: 'clamp',
-					},
-				),
+				transformOrigin: interpolate(frame, [81, 104], ['50% 50%', '50% 50%'], {
+					extrapolateLeft: 'clamp',
+					extrapolateRight: 'clamp',
+				}),
 			}}
 		>
 			<Solid

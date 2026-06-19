@@ -1,6 +1,7 @@
 import {Video} from '@remotion/media';
 import {ALL_FORMATS, Input, UrlSource} from 'mediabunny';
 import React from 'react';
+import type {CalculateMetadataFunction} from 'remotion';
 import {
 	AbsoluteFill,
 	Img,
@@ -8,7 +9,6 @@ import {
 	useCurrentFrame,
 	useVideoConfig,
 } from 'remotion';
-import type {CalculateMetadataFunction} from 'remotion';
 import {z} from 'zod';
 
 type MouseMovement = {
@@ -58,6 +58,7 @@ type CursorRecording = {
 export const canvasCapturePreviewSchema = z.object({
 	videoFile: z.string(),
 	cursorScale: z.number(),
+	hidden: z.enum(['cursor', 'screen']).nullable(),
 });
 
 export type CanvasCapturePreviewProps = z.infer<
@@ -425,6 +426,10 @@ export const calculateCanvasCapturePreviewMetadata: CalculateMetadataFunction<
 		height: dimensions.height,
 		durationInFrames: Math.ceil(durationInSeconds * fps),
 		fps,
+		defaultCodec: 'prores',
+		defaultProResProfile: '4444',
+		defaultPixelFormat: 'yuva444p10le',
+		defaultVideoImageFormat: 'png',
 		props: {
 			...props,
 			cursorData,
@@ -440,17 +445,23 @@ export const CanvasCapturePreview: React.FC<CanvasCapturePreviewProps> = ({
 	videoFile,
 	width,
 	height,
+	hidden,
 }) => {
+	const showScreen = hidden !== 'screen';
+	const showCursor = hidden !== 'cursor';
+
 	return (
 		<AbsoluteFill>
-			<Video
-				src={videoFile}
-				style={{
-					width: width!,
-					height: height!,
-				}}
-			/>
-			{cursorData ? (
+			{showScreen ? (
+				<Video
+					src={videoFile}
+					style={{
+						width: width!,
+						height: height!,
+					}}
+				/>
+			) : null}
+			{showCursor && cursorData ? (
 				<CursorOverlay cursorData={cursorData} cursorScale={cursorScale} />
 			) : null}
 		</AbsoluteFill>
