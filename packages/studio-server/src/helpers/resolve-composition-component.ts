@@ -771,9 +771,20 @@ const roundTranslateCoordinate = (value: number): number => {
 const formatTranslateValue = ({x, y}: InsertableCompositionElementPosition) =>
 	`${roundTranslateCoordinate(x)}px ${roundTranslateCoordinate(y)}px`;
 
-const createPositionAbsoluteStyleAttribute = (
-	position: InsertableCompositionElementPosition | null,
+const createStyleAttribute = (
+	properties: namedTypes.ObjectProperty[],
 ): namedTypes.JSXAttribute => {
+	return recast.types.builders.jsxAttribute(
+		recast.types.builders.jsxIdentifier('style'),
+		recast.types.builders.jsxExpressionContainer(
+			recast.types.builders.objectExpression(properties),
+		),
+	);
+};
+
+const getPositionStyleProperties = (
+	position: InsertableCompositionElementPosition | null,
+): namedTypes.ObjectProperty[] => {
 	const properties = [
 		recast.types.builders.objectProperty(
 			recast.types.builders.identifier('position'),
@@ -790,12 +801,37 @@ const createPositionAbsoluteStyleAttribute = (
 		);
 	}
 
-	return recast.types.builders.jsxAttribute(
-		recast.types.builders.jsxIdentifier('style'),
-		recast.types.builders.jsxExpressionContainer(
-			recast.types.builders.objectExpression(properties),
-		),
-	);
+	return properties;
+};
+
+const createPositionAbsoluteStyleAttribute = (
+	position: InsertableCompositionElementPosition | null,
+): namedTypes.JSXAttribute => {
+	return createStyleAttribute(getPositionStyleProperties(position));
+};
+
+const createAssetStyleAttribute = ({
+	dimensions,
+	position,
+}: {
+	dimensions: {width: number; height: number} | null;
+	position: InsertableCompositionElementPosition | null;
+}): namedTypes.JSXAttribute => {
+	return createStyleAttribute([
+		...getPositionStyleProperties(position),
+		...(dimensions
+			? [
+					recast.types.builders.objectProperty(
+						recast.types.builders.identifier('width'),
+						recast.types.builders.numericLiteral(dimensions.width),
+					),
+					recast.types.builders.objectProperty(
+						recast.types.builders.identifier('height'),
+						recast.types.builders.numericLiteral(dimensions.height),
+					),
+				]
+			: []),
+	]);
 };
 
 const createStaticFileSrcAttribute = ({
@@ -910,13 +946,7 @@ const createAssetElement = ({
 					? createStringSrcAttribute(src)
 					: createStaticFileSrcAttribute({staticFileLocalName, src}),
 				...(addPositionStyle
-					? [createPositionAbsoluteStyleAttribute(position)]
-					: []),
-				...(dimensions
-					? [
-							createNumberAttribute('width', dimensions.width),
-							createNumberAttribute('height', dimensions.height),
-						]
+					? [createAssetStyleAttribute({dimensions, position})]
 					: []),
 			],
 			true,
