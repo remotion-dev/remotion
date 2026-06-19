@@ -38,7 +38,6 @@ import {
 	TimelineExpandArrowSpacer,
 } from './TimelineExpandArrowButton';
 import {TimelineExpandedSection} from './TimelineExpandedSection';
-import {TimelineItemStack} from './TimelineItemStack';
 import {TimelineLayerEye, TimelineLayerEyeSpacer} from './TimelineLayerEye';
 import {TimelineMediaInfo} from './TimelineMediaInfo';
 import {TimelineRowChrome} from './TimelineRowChrome';
@@ -1101,8 +1100,6 @@ export const TimelineSequenceItem: React.FC<{
 						<Spacing x={0.5} /> <TimelineMediaInfo src={mediaSrc} />
 					</>
 				) : null}
-				<Spacing x={0.5} />
-				<TimelineItemStack originalLocation={originalLocation} />
 			</div>
 		</TimelineRowChrome>
 	);
