@@ -34,6 +34,7 @@ import {EmailSignature} from './EmailSignature';
 import './index.css';
 import {Logo} from './Logo';
 import {LogoCollab, logoCollabSchema} from './LogoCollab/LogoCollab';
+import {LogoHorn, calculateLogoHornMetadata} from './LogoHorn';
 import NewSticker from './NewSticker';
 import {
 	RulesEnumeration,
@@ -202,8 +203,8 @@ export const RemotionRoot: React.FC = () => {
 				<Composition
 					id="thermo"
 					component={Thermometer}
-					width={1280}
-					height={720}
+					width={1080}
+					height={1080}
 					fps={30}
 					durationInFrames={200}
 				/>
@@ -461,6 +462,15 @@ export const RemotionRoot: React.FC = () => {
 				/>
 			</Folder>
 			<Folder name="brand-assets">
+				<Composition
+					id="logo-horn"
+					component={LogoHorn}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={90}
+					calculateMetadata={calculateLogoHornMetadata}
+				/>
 				<Composition
 					id="LogoCollab"
 					component={LogoCollab}

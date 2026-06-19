@@ -4,6 +4,8 @@ import {loadFont} from '@remotion/fonts';
 import React from 'react';
 import {
 	CanvasImage,
+	Easing,
+	HtmlInCanvas,
 	Interactive,
 	interpolate,
 	Solid,
@@ -12,6 +14,8 @@ import {
 } from 'remotion';
 
 import {chromaticAberration} from '@remotion/effects/chromatic-aberration';
+import {noise} from '@remotion/effects/noise';
+import {shine} from '@remotion/effects/shine';
 
 const fontFamily = 'GTPlanar';
 
@@ -26,8 +30,8 @@ export const Thermometer: React.FC = () => {
 	return (
 		<>
 			<Solid
-				width={1280}
-				height={720}
+				width={1080}
+				height={1080}
 				style={{
 					position: 'absolute',
 				}}
@@ -41,7 +45,7 @@ export const Thermometer: React.FC = () => {
 					wave({}),
 				]}
 			/>
-			<Interactive.Div
+			<HtmlInCanvas
 				style={{
 					position: 'absolute',
 					left: 72,
@@ -59,14 +63,30 @@ export const Thermometer: React.FC = () => {
 						extrapolateRight: 'clamp',
 					}),
 				}}
+				width={500}
+				height={220}
+				pixelDensity={2}
+				effects={[
+					noise({
+						amount: 0.23,
+					}),
+					shine({}),
+				]}
 			>
-				{'Rufus\nOyemade'}
-			</Interactive.Div>
+				<Interactive.Div
+					style={{
+						scale: 0.892,
+						translate: '-23.7px -23.5px',
+					}}
+				>
+					{'Rufus\nOyemade'}
+				</Interactive.Div>
+			</HtmlInCanvas>
 			<CanvasImage
 				src={staticFile('image 1.png')}
 				style={{
 					position: 'absolute',
-					translate: '716.4px 152.2px',
+					translate: '527.8px 205.3px',
 					scale: interpolate(frame, [0, 199], [1.15, 1.32], {
 						extrapolateLeft: 'clamp',
 						extrapolateRight: 'clamp',
@@ -83,6 +103,14 @@ export const Thermometer: React.FC = () => {
 				}}
 				width={445}
 				height={819}
+				effects={[
+					chromaticAberration({
+						amount: interpolate(frame, [34, 45, 76], [0, 17, 0], {
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						}),
+					}),
+				]}
 			/>
 		</>
 	);

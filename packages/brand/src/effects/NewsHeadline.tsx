@@ -58,6 +58,7 @@ export const NewsHeadline = () => {
 					position: 'absolute',
 				}}
 				color={'#ffffff'}
+				showInTimeline={false}
 			/>
 			<Img
 				src={staticFile('Screenshot 2026-06-17 at 14.40.23.png')}
@@ -72,6 +73,7 @@ export const NewsHeadline = () => {
 				}}
 				width={966}
 				height={380}
+				showInTimeline={false}
 			/>
 		</HtmlInCanvas>
 	);
