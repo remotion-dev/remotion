@@ -809,9 +809,11 @@ test('inserts an Img asset into the resolved composition component', async () =>
 		);
 		expect(result.output).toContain('<Img');
 		expect(result.output).toContain("src={staticFile('image.png')}");
-		expect(result.output).toContain('width={800}');
-		expect(result.output).toContain('height={600}');
 		expect(result.output).toContain("position: 'absolute'");
+		expect(result.output).toContain('width: 800');
+		expect(result.output).toContain('height: 600');
+		expect(result.output).not.toContain('width={800}');
+		expect(result.output).not.toContain('height={600}');
 	} finally {
 		await fs.rm(tempDir, {recursive: true, force: true});
 	}
@@ -920,8 +922,70 @@ test('inserts an AnimatedImage asset into the resolved composition component', a
 		);
 		expect(result.output).toContain('<AnimatedImage');
 		expect(result.output).toContain("src={staticFile('animated-png.png')}");
-		expect(result.output).toContain('width={320}');
-		expect(result.output).toContain('height={180}');
+		expect(result.output).toContain('width: 320');
+		expect(result.output).toContain('height: 180');
+		expect(result.output).not.toContain('width={320}');
+		expect(result.output).not.toContain('height={180}');
+	} finally {
+		await fs.rm(tempDir, {recursive: true, force: true});
+	}
+});
+
+test('inserts a Video asset with CSS dimensions', async () => {
+	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
+	try {
+		await fs.writeFile(
+			path.join(tempDir, 'Root.tsx'),
+			[
+				"import {Composition} from 'remotion';",
+				"import {MyComp} from './MyComp';",
+				'export const RemotionRoot = () => {',
+				'\treturn <Composition id="test" component={MyComp} />;',
+				'};',
+				'',
+			].join('\n'),
+		);
+		await fs.writeFile(
+			path.join(tempDir, 'MyComp.tsx'),
+			[
+				"import {AbsoluteFill} from 'remotion';",
+				'',
+				'export const MyComp: React.FC = () => {',
+				'\treturn <AbsoluteFill>hello</AbsoluteFill>;',
+				'};',
+				'',
+			].join('\n'),
+		);
+
+		const result = await insertJsxElementIntoComposition({
+			remotionRoot: tempDir,
+			compositionFile: 'Root.tsx',
+			compositionId: 'test',
+			element: {
+				type: 'asset',
+				assetType: 'video',
+				src: 'clip.mp4',
+				srcType: 'static',
+				dimensions: {
+					width: 1920,
+					height: 1080,
+				},
+				position: null,
+			},
+			prettierConfigOverride: {singleQuote: true, useTabs: true},
+		});
+
+		expect(result.output).toContain("import { Video } from '@remotion/media';");
+		expect(result.output).toContain(
+			"import { AbsoluteFill, staticFile } from 'remotion';",
+		);
+		expect(result.output).toContain('<Video');
+		expect(result.output).toContain("src={staticFile('clip.mp4')}");
+		expect(result.output).toContain("position: 'absolute'");
+		expect(result.output).toContain('width: 1920');
+		expect(result.output).toContain('height: 1080');
+		expect(result.output).not.toContain('width={1920}');
+		expect(result.output).not.toContain('height={1080}');
 	} finally {
 		await fs.rm(tempDir, {recursive: true, force: true});
 	}
@@ -1026,8 +1090,10 @@ test('inserts a Gif asset into the resolved composition component', async () => 
 		);
 		expect(result.output).toContain('<Gif');
 		expect(result.output).toContain("src={staticFile('animation.gif')}");
-		expect(result.output).toContain('width={320}');
-		expect(result.output).toContain('height={180}');
+		expect(result.output).toContain('width: 320');
+		expect(result.output).toContain('height: 180');
+		expect(result.output).not.toContain('width={320}');
+		expect(result.output).not.toContain('height={180}');
 	} finally {
 		await fs.rm(tempDir, {recursive: true, force: true});
 	}
