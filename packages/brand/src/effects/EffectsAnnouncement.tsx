@@ -1,5 +1,8 @@
+import {brightness} from '@remotion/effects/brightness';
 import {burlap} from '@remotion/effects/burlap';
 import {colorKey} from '@remotion/effects/color-key';
+import {duotone} from '@remotion/effects/duotone';
+import {noise} from '@remotion/effects/noise';
 import {Video} from '@remotion/media';
 import {Solid, interpolate, staticFile, useCurrentFrame} from 'remotion';
 
@@ -38,6 +41,22 @@ export const EffectsAnnouncement = () => {
 				effects={[
 					colorKey({
 						similarity: 0.45,
+					}),
+					duotone({
+						disabled: true,
+					}),
+					brightness({
+						amount: -0.5,
+						disabled: true,
+					}),
+					noise({
+						amount: 0.25,
+						disabled: true,
+					}),
+					burlap({
+						amount: 1,
+						size: 8.4,
+						disabled: true,
 					}),
 				]}
 			/>
