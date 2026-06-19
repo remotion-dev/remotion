@@ -20,7 +20,7 @@ export const EffectsAnnouncement = () => {
 				style={{
 					position: 'absolute',
 				}}
-				color={'#c6b67f'}
+				color={'#ffffff'}
 				effects={[
 					burlap({
 						amount: 0.77,
@@ -39,7 +39,7 @@ export const EffectsAnnouncement = () => {
 				)}
 				style={{
 					position: 'absolute',
-					translate: '-40.9px -37.2px',
+					translate: '-126.6px -37.2px',
 					scale: 1.1,
 				}}
 				effects={[
@@ -47,17 +47,8 @@ export const EffectsAnnouncement = () => {
 						similarity: 0.45,
 					}),
 					duotone({}),
-					tint({
-						color: '#ffe374',
-						amount: 0.45,
-					}),
 					brightness({
-						amount: -0.38,
-					}),
-					dropShadow({
-						opacity: 1,
-						offsetX: -14,
-						radius: 100,
+						amount: -0.5,
 					}),
 					noise({
 						amount: 0.25,
@@ -66,7 +57,6 @@ export const EffectsAnnouncement = () => {
 						amount: 1,
 						size: 8.4,
 					}),
-					saturation({}),
 				]}
 			/>
 		</>
