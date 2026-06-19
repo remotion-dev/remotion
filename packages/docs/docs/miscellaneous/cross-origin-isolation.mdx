@@ -27,6 +27,15 @@ Cross-origin isolation is disabled by default.
 To enable cross-origin isolation on your page, the server must send the following HTTP headers:
 
 ```
+Cross-Origin-Embedder-Policy: credentialless
+Cross-Origin-Opener-Policy: same-origin
+```
+
+`credentialless` is preferred over `require-corp` because it still enables `SharedArrayBuffer` while allowing cross-origin resources (images, videos, audio) to load without requiring them to send `Cross-Origin-Resource-Policy` headers. The tradeoff is that cross-origin requests are made without credentials (cookies, HTTP authentication).
+
+If you need credentials for cross-origin resources, use `require-corp` instead:
+
+```
 Cross-Origin-Embedder-Policy: require-corp
 Cross-Origin-Opener-Policy: same-origin
 ```
@@ -34,6 +43,7 @@ Cross-Origin-Opener-Policy: same-origin
 See also:
 
 - [Enabling Cross-origin isolation in Next.js](https://vercel.com/guides/fix-shared-array-buffer-not-defined-nextjs-react#enable-cross-origin-isolation)
+- [COEP: credentialless on MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cross-Origin-Embedder-Policy#credentialless)
 
 ### In the Remotion Studio
 

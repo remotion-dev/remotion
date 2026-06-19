@@ -187,5 +187,12 @@ export const SequenceSelectionInspector: React.FC<{
 		return <InspectorMessage>Sequence inspector unavailable</InspectorMessage>;
 	}
 
-	return <SequenceExpandedInspector track={track} />;
+	const stackKey = track.sequence.getStack();
+
+	return (
+		<SequenceExpandedInspector
+			key={stackKey ?? track.sequence.id}
+			track={track}
+		/>
+	);
 };
