@@ -1,10 +1,7 @@
-import {brightness} from '@remotion/effects/brightness';
 import {burlap} from '@remotion/effects/burlap';
-import {colorKey} from '@remotion/effects/color-key';
-import {duotone} from '@remotion/effects/duotone';
-import {noise} from '@remotion/effects/noise';
+import {Solid, useCurrentFrame, staticFile} from 'remotion';
 import {Video} from '@remotion/media';
-import {Solid, interpolate, staticFile, useCurrentFrame} from 'remotion';
+import {colorKey} from '@remotion/effects/color-key';
 
 export const EffectsAnnouncement = () => {
 	const frame = useCurrentFrame();
@@ -17,46 +14,22 @@ export const EffectsAnnouncement = () => {
 					position: 'absolute',
 				}}
 				color={'#ffffff'}
-				effects={[
-					burlap({
-						amount: 0.77,
-						size: 9,
-						seed: interpolate(frame, [2, 199], [12, -17], {
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-							posterize: 10,
-						}),
-					}),
-				]}
+				effects={[burlap({})]}
 			/>
 			<Video
-				src={staticFile(
-					'videohive-QnyctXBY-caucasian-woman-greenscreen-cut-out-businesswoman.mp4',
-				)}
+				src={staticFile('woman-dancin.mp4')}
 				style={{
 					position: 'absolute',
-					translate: '-126.6px -37.2px',
-					scale: 1.1,
+					translate: '-242.5px -144.8px',
+					width: 1920,
+					height: 1080,
 				}}
 				effects={[
 					colorKey({
-						similarity: 0.45,
-					}),
-					duotone({
-						disabled: true,
-					}),
-					brightness({
-						amount: -0.5,
-						disabled: true,
-					}),
-					noise({
-						amount: 0.25,
-						disabled: true,
-					}),
-					burlap({
-						amount: 1,
-						size: 8.4,
-						disabled: true,
+						similarity: 0.19,
+						keyColor: '#6ed860',
+						spillSuppression: 0.91,
+						smoothness: 0.01,
 					}),
 				]}
 			/>
