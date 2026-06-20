@@ -15,7 +15,7 @@ describe('prefetch cancellation', () => {
 				request.signal = init?.signal ?? null;
 				return new Promise<Response>(() => undefined);
 			},
-		) as typeof fetch;
+		) as unknown as typeof fetch;
 
 		const prefetchHandle = prefetch('https://example.com/video.mp4');
 		const waitUntilDone = prefetchHandle.waitUntilDone();
@@ -28,7 +28,7 @@ describe('prefetch cancellation', () => {
 	test('cancels the response body after receiving the response', async () => {
 		const request: {signal: AbortSignal | null} = {signal: null};
 		let bodyWasCanceled = false;
-		let reportProgress = () => undefined;
+		let reportProgress: () => void = () => undefined;
 		const progressReported = new Promise<void>((resolve) => {
 			reportProgress = resolve;
 		});
@@ -57,7 +57,7 @@ describe('prefetch cancellation', () => {
 					}),
 				);
 			},
-		) as typeof fetch;
+		) as unknown as typeof fetch;
 
 		const prefetchHandle = prefetch('https://example.com/video.mp4', {
 			onProgress: () => reportProgress(),
