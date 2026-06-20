@@ -1,13 +1,5 @@
+import {getIsRendering} from './is-rendering.js';
 import type {RemotionEnvironment} from './remotion-environment-context';
-
-// Avoid VITE obfuscation
-function getNodeEnvString() {
-	return ['NOD', 'E_EN', 'V'].join('');
-}
-
-const getEnvString = (): 'env' => {
-	return ['e', 'nv'].join('') as 'env';
-};
 
 /*
  * @description Provides information about the Remotion Environment.
@@ -16,14 +8,7 @@ const getEnvString = (): 'env' => {
  */
 export const getRemotionEnvironment = (): RemotionEnvironment => {
 	const isPlayer = typeof window !== 'undefined' && window.remotion_isPlayer;
-	const isRendering =
-		typeof window !== 'undefined' &&
-		typeof window.process !== 'undefined' &&
-		typeof window.process.env !== 'undefined' &&
-		(window.process[getEnvString()][getNodeEnvString()] === 'test' ||
-			(window.process[getEnvString()][getNodeEnvString()] === 'production' &&
-				typeof window !== 'undefined' &&
-				typeof window.remotion_puppeteerTimeout !== 'undefined'));
+	const isRendering = getIsRendering();
 	const isStudio = typeof window !== 'undefined' && window.remotion_isStudio;
 	const isReadOnlyStudio =
 		typeof window !== 'undefined' && window.remotion_isReadOnlyStudio;

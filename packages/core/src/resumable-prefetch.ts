@@ -1,4 +1,4 @@
-import {getRemotionEnvironment} from './get-remotion-environment.js';
+import {getIsRendering} from './is-rendering.js';
 import type {LogLevel} from './log.js';
 import {playbackLogging} from './playback-logging.js';
 import {setPreloads} from './prefetch-state-shared.js';
@@ -94,7 +94,7 @@ export const resumablePrefetch = (
 ): ResumablePrefetchHandle => {
 	const srcWithoutHash = getSrcWithoutHash(src);
 
-	if (getRemotionEnvironment().isRendering) {
+	if (getIsRendering()) {
 		return {
 			pause: () => undefined,
 			resume: () => undefined,

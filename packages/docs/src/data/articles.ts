@@ -5105,6 +5105,15 @@ export const articles = [
 		slug: 'prefetch',
 	},
 	{
+		id: 'resumable-prefetch',
+		title: 'resumablePrefetch()',
+		relativePath: 'docs/resumable-prefetch.mdx',
+		compId: 'articles-docs-resumable-prefetch',
+		crumb: 'API',
+		noAi: false,
+		slug: 'resumable-prefetch',
+	},
+	{
 		id: 'preload-audio',
 		title: 'preloadAudio()',
 		relativePath: 'docs/preload/preload-audio.mdx',
@@ -5735,15 +5744,6 @@ export const articles = [
 		crumb: 'Ecosystem',
 		noAi: false,
 		slug: 'resources',
-	},
-	{
-		id: 'resumable-prefetch',
-		title: 'resumablePrefetch()',
-		relativePath: 'docs/resumable-prefetch.mdx',
-		compId: 'articles-docs-resumable-prefetch',
-		crumb: 'API',
-		noAi: false,
-		slug: 'resumable-prefetch',
 	},
 	{
 		id: 'rive/index',
