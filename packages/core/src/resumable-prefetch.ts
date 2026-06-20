@@ -1,6 +1,5 @@
 import {getIsRendering} from './is-rendering.js';
 import type {LogLevel} from './log.js';
-import {playbackLogging} from './playback-logging.js';
 import {setPreloads} from './prefetch-state-shared.js';
 import {getSrcWithoutHash} from './prefetch-utils.js';
 import type {PrefetchOnProgress} from './prefetch.js';
@@ -25,6 +24,13 @@ type ParsedContentRange = {
 	start: number;
 	end: number;
 	totalBytes: number | null;
+};
+
+const trace = (logLevel: LogLevel, message: string) => {
+	if (logLevel === 'trace') {
+		// eslint-disable-next-line no-console
+		console.debug('[prefetch]', message);
+	}
 };
 
 const parseContentRange = (value: string | null): ParsedContentRange | null => {
@@ -158,12 +164,7 @@ export const resumablePrefetch = (
 			...preloads,
 			[srcWithoutHash]: url,
 		}));
-		playbackLogging({
-			logLevel,
-			tag: 'prefetch',
-			message: `Finished resumable prefetch ${srcWithoutHash}`,
-			mountTime: null,
-		});
+		trace(logLevel, `Finished resumable prefetch ${srcWithoutHash}`);
 		resolve(url);
 	};
 
@@ -187,15 +188,12 @@ export const resumablePrefetch = (
 			headers.set('If-Range', validator as string);
 		}
 
-		playbackLogging({
+		trace(
 			logLevel,
-			tag: 'prefetch',
-			message:
-				requestedStart === 0
-					? `Starting resumable prefetch ${srcWithoutHash}`
-					: `Resuming prefetch ${srcWithoutHash} from byte ${requestedStart}`,
-			mountTime: null,
-		});
+			requestedStart === 0
+				? `Starting resumable prefetch ${srcWithoutHash}`
+				: `Resuming prefetch ${srcWithoutHash} from byte ${requestedStart}`,
+		);
 
 		try {
 			const response = await fetch(srcWithoutHash, {
