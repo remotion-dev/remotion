@@ -1,0 +1,134 @@
+---
+image: /generated/articles-docs-effects-laser-rays.png
+slug: /effects/laser-rays
+title: laserRays()
+sidebar_label: laserRays()
+crumb: '@remotion/effects'
+---
+
+# laserRays()<AvailableFrom v="4.0.476" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+Fills the non-transparent pixels of a canvas-based component with radial laser rays.
+
+Use it on [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) text to create bright beam-filled titles, or apply it to [`<Video>`](/docs/media/video) and [`<Solid>`](/docs/solid) layers for graphic overlays.
+
+## Preview
+
+<EffectsDemo type="effects-laser-rays" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {laserRays} from '@remotion/effects/laser-rays';
+import {AbsoluteFill, HtmlInCanvas, interpolate, useCurrentFrame} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  const frame = useCurrentFrame();
+  const rotation = interpolate(frame, [0, 120], [0, 30]);
+
+  return (
+    <AbsoluteFill>
+      <HtmlInCanvas
+        width={1280}
+        height={720}
+        effects={[
+          laserRays({
+            color: '#00ff38',
+            backgroundColor: '#021506',
+            center: [0.52, 0.5],
+            rayCount: 104,
+            sharpness: 12,
+            intensity: 1.3,
+            rotation,
+          }),
+        ]}
+      >
+        <AbsoluteFill
+          style={{
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <div
+            style={{
+              color: 'white',
+              fontFamily: 'Impact, sans-serif',
+              fontSize: 180,
+              fontWeight: 900,
+              textTransform: 'uppercase',
+            }}
+          >
+            Laser
+          </div>
+        </AbsoluteFill>
+      </HtmlInCanvas>
+    </AbsoluteFill>
+  );
+};
+```
+
+## API
+
+Pass an object with the following properties. You can also call `laserRays()` without arguments.
+
+### `color?`
+
+Main color of the generated rays. Defaults to `'#00ff38'`.
+
+### `backgroundColor?`
+
+Color between the rays. Defaults to `'#021506'`.
+
+### `center?`
+
+Origin of the rays, normalized from `0` to `1` in x/y. Defaults to `[0.5, 0.5]`.
+
+### `rayCount?`
+
+Number of radial rays. Defaults to `96`. Must be greater than `0`.
+
+### `sharpness?`
+
+Contrast of each ray edge. Defaults to `10`. Must be greater than `0`.
+
+Higher values make thinner, harder rays.
+
+### `intensity?`
+
+Brightness multiplier for the generated rays. Defaults to `1`. Must be at least `0`.
+
+### `amount?`
+
+Blend amount from `0` to `1`. Defaults to `1`.
+
+Set a lower value to mix the rays with the original source colors.
+
+### `rotation?`
+
+Rotation of the ray field in degrees. Defaults to `0`.
+
+Animate this value to move the rays.
+
+### `radiusFalloff?`
+
+How much the rays dim toward the edges from `0` to `1`. Defaults to `0.55`.
+
+Use `0` to keep the rays evenly bright across the component.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Requirements
+
+`laserRays()` uses a WebGL2 backend. During renders, enable WebGL via [`Config.setChromiumOpenGlRenderer('angle')`](/docs/config#setchromiumopenglrenderer). See [Using WebGL during renders](/docs/remotion/html-in-canvas#using-webgl-during-renders).
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`shine()`](/docs/effects/shine)
+- [`glow()`](/docs/effects/glow)
+- [HTML-in-canvas guide](/docs/html-in-canvas)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/laser-rays.ts)

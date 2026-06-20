@@ -1890,6 +1890,15 @@ export const articles = [
 		slug: 'effects/invert',
 	},
 	{
+		id: 'effects/laser-rays',
+		title: 'laserRays()',
+		relativePath: 'docs/effects/laser-rays.mdx',
+		compId: 'articles-docs-effects-laser-rays',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/laser-rays',
+	},
+	{
 		id: 'effects/linear-progressive-blur',
 		title: 'linearProgressiveBlur()',
 		relativePath: 'docs/effects/linear-progressive-blur.mdx',

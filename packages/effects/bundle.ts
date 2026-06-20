@@ -25,6 +25,7 @@ const effectEntrypoints = [
 	'src/dot-grid.ts',
 	'src/pixel-dissolve.ts',
 	'src/invert.ts',
+	'src/laser-rays.ts',
 	'src/lines.ts',
 	'src/linear-progressive-blur.ts',
 	'src/mirror.ts',

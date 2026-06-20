@@ -119,6 +119,11 @@
 			"module": "./dist/esm/invert.mjs",
 			"import": "./dist/esm/invert.mjs"
 		},
+		"./laser-rays": {
+			"types": "./dist/laser-rays.d.ts",
+			"module": "./dist/esm/laser-rays.mjs",
+			"import": "./dist/esm/laser-rays.mjs"
+		},
 		"./lines": {
 			"types": "./dist/lines.d.ts",
 			"module": "./dist/esm/lines.mjs",
@@ -268,6 +273,9 @@
 			],
 			"invert": [
 				"dist/invert.d.ts"
+			],
+			"laser-rays": [
+				"dist/laser-rays.d.ts"
 			],
 			"lines": [
 				"dist/lines.d.ts"

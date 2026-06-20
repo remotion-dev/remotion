@@ -16,6 +16,7 @@ import {halftoneLinearGradient} from '../halftone-linear-gradient.js';
 import {halftone} from '../halftone.js';
 import {hue} from '../hue.js';
 import {invert} from '../invert.js';
+import {laserRays} from '../laser-rays.js';
 import {linearProgressiveBlur} from '../linear-progressive-blur/index.js';
 import {lines} from '../lines.js';
 import {mirror} from '../mirror.js';
@@ -107,6 +108,9 @@ test('@remotion/effects expose documentation links', () => {
 	expect(invert().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/invert',
 	);
+	expect(laserRays().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/laser-rays',
+	);
 	expect(lines().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/lines',
 	);
@@ -190,6 +194,7 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(pixelDissolve().definition.label).toBe('pixelDissolve()');
 	expect(hue().definition.label).toBe('hue()');
 	expect(invert().definition.label).toBe('invert()');
+	expect(laserRays().definition.label).toBe('laserRays()');
 	expect(lines().definition.label).toBe('lines()');
 	expect(linearProgressiveBlur().definition.label).toBe(
 		'linearProgressiveBlur()',
@@ -2034,6 +2039,82 @@ test('shine() parameters produce distinct effect keys', () => {
 			brighter.effectKey,
 		]).size,
 	).toBe(6);
+});
+
+test('laserRays() accepts default params', () => {
+	expect(() => laserRays()).not.toThrow();
+});
+
+test('laserRays() accepts valid params', () => {
+	expect(() =>
+		laserRays({
+			color: '#00ff38',
+			backgroundColor: '#031905',
+			center: [0.42, 0.5],
+			rayCount: 120,
+			sharpness: 12,
+			intensity: 1.2,
+			amount: 0.8,
+			rotation: 18,
+			radiusFalloff: 0.65,
+		}),
+	).not.toThrow();
+});
+
+test('laserRays() rejects invalid center', () => {
+	expect(() => laserRays({center: [0.5, 1.2]})).toThrow(
+		'"center[1]" must be <= 1',
+	);
+});
+
+test('laserRays() rejects non-positive rayCount', () => {
+	expect(() => laserRays({rayCount: 0})).toThrow(
+		'"rayCount" must be greater than 0',
+	);
+});
+
+test('laserRays() rejects non-positive sharpness', () => {
+	expect(() => laserRays({sharpness: 0})).toThrow(
+		'"sharpness" must be greater than 0',
+	);
+});
+
+test('laserRays() rejects negative intensity', () => {
+	expect(() => laserRays({intensity: -0.1})).toThrow(
+		'"intensity" must be >= 0',
+	);
+});
+
+test('laserRays() rejects amount above range', () => {
+	expect(() => laserRays({amount: 1.1})).toThrow('"amount" must be <= 1');
+});
+
+test('laserRays() rejects radiusFalloff below range', () => {
+	expect(() => laserRays({radiusFalloff: -0.1})).toThrow(
+		'"radiusFalloff" must be >= 0',
+	);
+});
+
+test('laserRays() parameters produce distinct effect keys', () => {
+	const defaults = laserRays();
+	const colored = laserRays({color: '#39ff14'});
+	const moved = laserRays({center: [0.35, 0.45]});
+	const denser = laserRays({rayCount: 140});
+	const sharper = laserRays({sharpness: 18});
+	const rotated = laserRays({rotation: 22});
+	const faded = laserRays({amount: 0.5});
+
+	expect(
+		new Set([
+			defaults.effectKey,
+			colored.effectKey,
+			moved.effectKey,
+			denser.effectKey,
+			sharper.effectKey,
+			rotated.effectKey,
+			faded.effectKey,
+		]).size,
+	).toBe(7);
 });
 
 test('speckle() accepts default params', () => {

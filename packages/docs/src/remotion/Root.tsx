@@ -19,6 +19,7 @@ import {EffectsHalftoneLinearGradientPreview} from '../../components/effects/eff
 import {EffectsHalftonePreview} from '../../components/effects/effects-halftone-preview';
 import {EffectsHuePreview} from '../../components/effects/effects-hue-preview';
 import {EffectsInvertPreview} from '../../components/effects/effects-invert-preview';
+import {EffectsLaserRaysPreview} from '../../components/effects/effects-laser-rays-preview';
 import {EffectsLightLeakPreview} from '../../components/effects/effects-light-leak-preview';
 import {EffectsLinearProgressiveBlurPreview} from '../../components/effects/effects-linear-progressive-blur-preview';
 import {EffectsLinesPreview} from '../../components/effects/effects-lines-preview';
@@ -301,6 +302,23 @@ export const RemotionRoot: React.FC = () => {
 						end: [1, 0.5],
 						startBlur: 0,
 						endBlur: 50,
+					}}
+				/>
+				<Still
+					id="effects-laser-rays-preview"
+					component={EffectsLaserRaysPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						color: '#00ff38',
+						backgroundColor: '#021506',
+						center: [0.52, 0.5],
+						rayCount: 104,
+						sharpness: 12,
+						intensity: 1.3,
+						amount: 1,
+						rotation: -8,
+						radiusFalloff: 0.5,
 					}}
 				/>
 				<Still

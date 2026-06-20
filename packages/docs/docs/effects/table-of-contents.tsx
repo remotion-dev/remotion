@@ -217,6 +217,13 @@ const categories: {
 				description: 'Source-image halftone effect',
 			},
 			{
+				link: '/docs/effects/laser-rays',
+				preview: '/img/effects-laser-rays-preview.png',
+				alt: 'laser rays effect preview',
+				name: 'laserRays()',
+				description: 'Radial laser beam fill effect',
+			},
+			{
 				link: '/docs/effects/noise',
 				preview: '/img/effects-noise-preview.png',
 				alt: 'noise effect preview',

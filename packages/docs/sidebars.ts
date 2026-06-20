@@ -287,6 +287,7 @@ const sidebars: SidebarsConfig = {
 				'effects/halftone-linear-gradient',
 				'effects/hue',
 				'effects/invert',
+				'effects/laser-rays',
 				'effects/linear-progressive-blur',
 				'effects/lines',
 				'effects/mirror',
