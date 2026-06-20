@@ -352,6 +352,22 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-corner-pin',
+		category: 'Distort',
+		label: 'cornerPin()',
+		description: 'Pin source corners to a quad',
+		effect: {
+			name: 'cornerPin',
+			importPath: '@remotion/effects/corner-pin',
+			config: {
+				topLeft: [0.08, 0.12],
+				topRight: [0.92, 0.04],
+				bottomRight: [0.86, 0.9],
+				bottomLeft: [0.14, 0.96],
+			},
+		},
+	},
+	{
 		id: 'effects-wave',
 		category: 'Distort',
 		label: 'wave()',

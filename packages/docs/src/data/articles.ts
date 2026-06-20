@@ -1818,6 +1818,15 @@ export const articles = [
 		slug: 'effects/contrast',
 	},
 	{
+		id: 'effects/corner-pin',
+		title: 'cornerPin()',
+		relativePath: 'docs/effects/corner-pin.mdx',
+		compId: 'articles-docs-effects-corner-pin',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/corner-pin',
+	},
+	{
 		id: 'effects/dot-grid',
 		title: 'dotGrid()',
 		relativePath: 'docs/effects/dot-grid.mdx',
