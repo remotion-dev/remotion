@@ -119,6 +119,13 @@ const categories: {
 				name: 'glow()',
 				description: 'Soft halo effect',
 			},
+			{
+				link: '/docs/effects/light-trail',
+				preview: '/img/effects-light-trail-preview.png',
+				alt: 'light trail effect preview',
+				name: 'lightTrail()',
+				description: 'Directional light trail effect',
+			},
 		],
 	},
 	{

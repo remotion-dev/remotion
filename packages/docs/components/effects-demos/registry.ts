@@ -15,6 +15,7 @@ import {halftone} from '@remotion/effects/halftone';
 import {halftoneLinearGradient} from '@remotion/effects/halftone-linear-gradient';
 import {hue} from '@remotion/effects/hue';
 import {invert} from '@remotion/effects/invert';
+import {lightTrail} from '@remotion/effects/light-trail';
 import {linearProgressiveBlur} from '@remotion/effects/linear-progressive-blur';
 import {lines} from '@remotion/effects/lines';
 import {mirror} from '@remotion/effects/mirror';
@@ -54,6 +55,10 @@ import {EffectsHalftonePreview} from '../effects/effects-halftone-preview';
 import {EffectsHuePreview} from '../effects/effects-hue-preview';
 import {EffectsInvertPreview} from '../effects/effects-invert-preview';
 import {EffectsLightLeakPreview} from '../effects/effects-light-leak-preview';
+import {
+	EffectsLightTrailPreview,
+	LIGHT_TRAIL_PREVIEW_PARAMS,
+} from '../effects/effects-light-trail-preview';
 import {EffectsLinearProgressiveBlurPreview} from '../effects/effects-linear-progressive-blur-preview';
 import {EffectsLinesPreview} from '../effects/effects-lines-preview';
 import {EffectsMirrorPreview} from '../effects/effects-mirror-preview';
@@ -337,6 +342,15 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/linear-progressive-blur',
 		comp: EffectsLinearProgressiveBlurPreview,
 		schema: linearProgressiveBlur().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-light-trail',
+		effectName: 'lightTrail',
+		effectImportPath: '@remotion/effects/light-trail',
+		comp: EffectsLightTrailPreview,
+		schema: lightTrail().definition.schema,
+		initialValues: LIGHT_TRAIL_PREVIEW_PARAMS,
 	},
 	{
 		...defaults,

@@ -1890,6 +1890,15 @@ export const articles = [
 		slug: 'effects/invert',
 	},
 	{
+		id: 'effects/light-trail',
+		title: 'lightTrail()',
+		relativePath: 'docs/effects/light-trail.mdx',
+		compId: 'articles-docs-effects-light-trail',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/light-trail',
+	},
+	{
 		id: 'effects/linear-progressive-blur',
 		title: 'linearProgressiveBlur()',
 		relativePath: 'docs/effects/linear-progressive-blur.mdx',

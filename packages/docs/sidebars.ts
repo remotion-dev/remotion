@@ -288,6 +288,7 @@ const sidebars: SidebarsConfig = {
 				'effects/hue',
 				'effects/invert',
 				'effects/linear-progressive-blur',
+				'effects/light-trail',
 				'effects/lines',
 				'effects/mirror',
 				'effects/noise',
