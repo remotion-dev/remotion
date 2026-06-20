@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertOptionalFiniteNumber,
@@ -6,6 +6,7 @@ import {
 	type ParsedColorRgba,
 	validateUnitInterval,
 } from './color-utils.js';
+import {publicUvToShaderUv} from './uv-coordinate.js';
 import {
 	assertEffectParamsObject,
 	assertOptionalColor,
@@ -80,7 +81,7 @@ export const vignetteSchema = {
 		default: DEFAULT_CENTER,
 		description: 'Center',
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type VignetteMode = (typeof VIGNETTE_MODES)[number];
 export type VignetteCenter = readonly [number, number];
@@ -243,23 +244,18 @@ float vignetteMask() {
 void main() {
 	vec4 texColor = texture(uSource, vUv);
 	float alpha = texColor.a;
-
-	if (alpha <= 0.001) {
-		fragColor = vec4(0.0);
-		return;
-	}
-
 	float mask = vignetteMask();
-	vec3 rgb = texColor.rgb / alpha;
 
 	if (uMode == 1) {
 		float outputAlpha = alpha * (1.0 - mask);
-		fragColor = vec4(rgb * outputAlpha, outputAlpha);
+		fragColor = vec4(texColor.rgb * (1.0 - mask), outputAlpha);
 		return;
 	}
 
-	vec3 outputRgb = mix(rgb, uColor.rgb, mask * uColor.a);
-	fragColor = vec4(outputRgb * alpha, alpha);
+	float overlayAlpha = mask * uColor.a;
+	vec3 outputRgb = uColor.rgb * overlayAlpha + texColor.rgb * (1.0 - overlayAlpha);
+	float outputAlpha = overlayAlpha + alpha * (1.0 - overlayAlpha);
+	fragColor = vec4(outputRgb, outputAlpha);
 }
 `;
 
@@ -423,7 +419,7 @@ const normalizedRgba = (
 };
 
 export const vignette = createEffect<VignetteParams, VignetteState>({
-	type: 'remotion/vignette',
+	type: 'dev.remotion.effects.vignette',
 	label: 'vignette()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/vignette',
 	backend: 'webgl2',
@@ -464,8 +460,10 @@ export const vignette = createEffect<VignetteParams, VignetteState>({
 		if (uniforms.uColor) gl.uniform4f(uniforms.uColor, red, green, blue, alpha);
 		if (uniforms.uMode)
 			gl.uniform1i(uniforms.uMode, r.mode === 'alpha' ? 1 : 0);
-		if (uniforms.uCenter)
-			gl.uniform2f(uniforms.uCenter, r.center[0], r.center[1]);
+		if (uniforms.uCenter) {
+			const shaderCenter = publicUvToShaderUv(r.center);
+			gl.uniform2f(uniforms.uCenter, shaderCenter[0], shaderCenter[1]);
+		}
 
 		gl.bindVertexArray(vao);
 		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);

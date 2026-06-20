@@ -1,5 +1,5 @@
 import React from 'react';
-import {Internals} from 'remotion';
+import {Internals, Interactive} from 'remotion';
 import type {MakeEllipseOptions} from '../utils/make-ellipse';
 import {makeEllipse} from '../utils/make-ellipse';
 import type {AllShapesProps} from './render-svg';
@@ -39,8 +39,9 @@ const EllipseInner: React.FC<EllipseProps> = ({rx, ry, ...props}) => {
 	);
 };
 
-export const Ellipse = Internals.wrapInSchema({
+export const Ellipse = Interactive.withSchema({
 	Component: EllipseInner,
+	componentName: '<Ellipse>',
 	componentIdentity: 'dev.remotion.shapes.Ellipse',
 	schema: ellipseSchema,
 	supportsEffects: true,

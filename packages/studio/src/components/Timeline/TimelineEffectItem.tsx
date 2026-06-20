@@ -1,5 +1,5 @@
 import React, {useCallback, useContext, useMemo, useState} from 'react';
-import type {SequencePropsSubscriptionKey, SequenceSchema} from 'remotion';
+import type {SequencePropsSubscriptionKey, InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
@@ -102,7 +102,7 @@ export const TimelineEffectItem: React.FC<{
 	readonly label: string;
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly effectIndex: number;
-	readonly effectSchema: SequenceSchema;
+	readonly effectSchema: InteractivitySchema;
 	readonly documentationLink: string | null;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly validatedLocation: CodePosition;
@@ -466,6 +466,7 @@ export const TimelineEffectItem: React.FC<{
 			style={rowStyle}
 			selected={selection.selected}
 			selectable={selection.selectable}
+			selectionItem={selection.selectionItem}
 			onSelect={selection.onSelect}
 			showSelectedBackground
 			containsSelection={false}

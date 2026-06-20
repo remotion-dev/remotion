@@ -3,12 +3,12 @@ import {
 	getEffectiveVisualModeValue,
 	resolveDragOverrideValue,
 } from './get-effective-visual-mode-value.js';
+import type {
+	InteractivitySchemaField,
+	InteractivitySchema,
+} from './interactivity-schema.js';
 import {interpolateKeyframedStatus} from './interpolate-keyframed-status.js';
 import type {ExtrapolateType} from './interpolate.js';
-import type {
-	SequenceFieldSchema,
-	SequenceSchema,
-} from './sequence-field-schema.js';
 import type {
 	CanUpdateSequencePropsResponse,
 	SequencePropsSubscriptionKey,
@@ -24,9 +24,34 @@ export type CanUpdateSequencePropStatusKeyframe = {
 	value: unknown;
 };
 
+export type CanUpdateSequencePropStatusLinearEasing = {
+	type: 'linear';
+};
+
+export type CanUpdateSequencePropStatusBezierEasing = {
+	type: 'bezier';
+	x1: number;
+	y1: number;
+	x2: number;
+	y2: number;
+};
+
+export type CanUpdateSequencePropStatusSpringEasing = {
+	type: 'spring';
+	damping: number;
+	mass: number;
+	stiffness: number;
+	overshootClamping: boolean;
+};
+
 export type CanUpdateSequencePropStatusEasing =
-	| 'linear'
-	| [number, number, number, number];
+	| CanUpdateSequencePropStatusLinearEasing
+	| CanUpdateSequencePropStatusBezierEasing
+	| CanUpdateSequencePropStatusSpringEasing;
+
+export const DEFAULT_LINEAR_EASING: CanUpdateSequencePropStatusLinearEasing = {
+	type: 'linear',
+};
 
 export type CanUpdateSequencePropStatusClamping = {
 	left: ExtrapolateType;
@@ -119,7 +144,7 @@ export const makeKeyframedDragOverride = ({
 				);
 	const easing = [...status.easing];
 	while (easing.length < keyframes.length - 1) {
-		easing.push('linear');
+		easing.push(DEFAULT_LINEAR_EASING);
 	}
 
 	if (easing.length > keyframes.length - 1) {
@@ -153,9 +178,9 @@ export const isKeyframedStatus = (
 };
 
 const findFieldInSchema = (
-	schema: SequenceSchema,
+	schema: InteractivitySchema,
 	key: string,
-): SequenceFieldSchema | undefined => {
+): InteractivitySchemaField | undefined => {
 	if (key in schema) {
 		return schema[key];
 	}
@@ -183,7 +208,7 @@ export const computeEffectiveSchemaValuesDotNotation = ({
 	propStatus,
 	frame,
 }: {
-	schema: SequenceSchema;
+	schema: InteractivitySchema;
 	currentValue: Record<string, unknown>;
 	overrideValues: Record<string, DragOverrideValue>;
 	propStatus: Record<string, CanUpdateSequencePropStatus> | undefined;

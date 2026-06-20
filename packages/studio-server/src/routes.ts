@@ -129,7 +129,7 @@ const handleFallback = async ({
 	response.setHeader('content-type', 'text/html');
 	if (enableCrossSiteIsolation) {
 		response.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
-		response.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+		response.setHeader('Cross-Origin-Embedder-Policy', 'credentialless');
 	}
 
 	const packageManager = getPackageManager({

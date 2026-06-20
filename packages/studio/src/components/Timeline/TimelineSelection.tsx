@@ -9,16 +9,40 @@ import React, {
 	useState,
 	type CSSProperties,
 } from 'react';
+import {
+	Internals,
+	type GetDragOverrides,
+	type GetEffectDragOverrides,
+	type PropStatuses,
+} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {BACKGROUND} from '../../helpers/colors';
 import type {
 	SequenceNodePathInfo,
 	TrackWithHash,
 } from '../../helpers/get-timeline-sequence-sort-key';
-import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
+import {
+	buildTimelineTree,
+	flattenVisibleTreeNodes,
+	TIMELINE_PADDING,
+	type TimelineTreeNode,
+} from '../../helpers/timeline-layout';
 import {timelineNodePathInfoToKey} from '../../helpers/timeline-node-path-key';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {useZIndex} from '../../state/z-index';
+import {
+	ExpandedTracksGetterContext,
+	ExpandedTracksSetterContext,
+	type GetIsExpanded,
+} from '../ExpandedTracksProvider';
+import {getNodeHasKeyframes, getNodeKeyframes} from './get-node-keyframes';
+import {getTimelineEasingSegments} from './get-timeline-easing-segments';
+import {
+	filterTimelineExpandedTree,
+	getSelectedTimelineExpandedRowKeys,
+	isTimelineExpandedNodeSelected,
+} from './timeline-expanded-filter';
+import {timelineVerticalScroll} from './timeline-refs';
 import {TimelineClipboardKeybindings} from './TimelineClipboardKeybindings';
 import {TimelineDeleteKeybindings} from './TimelineDeleteKeybindings';
 
@@ -65,40 +89,47 @@ export const getTimelineSelectedTrackHighlightStyle = (
 export const TIMELINE_BACKGROUND = '#0F1113';
 export const TIMELINE_TICKS_BACKGROUND = BACKGROUND;
 
-type TimelineSelectionBase = {
-	readonly nodePathInfo: SequenceNodePathInfo;
-};
-
 export type TimelineSelection =
-	| (TimelineSelectionBase & {
+	| {
+			readonly type: 'guide';
+			readonly guideId: string;
+	  }
+	| {
 			readonly type: 'sequence';
-	  })
-	| (TimelineSelectionBase & {
+			readonly nodePathInfo: SequenceNodePathInfo;
+	  }
+	| {
 			readonly type: 'sequence-prop';
+			readonly nodePathInfo: SequenceNodePathInfo;
 			readonly key: string;
-	  })
-	| (TimelineSelectionBase & {
+	  }
+	| {
 			readonly type: 'sequence-all-effects';
-	  })
-	| (TimelineSelectionBase & {
+			readonly nodePathInfo: SequenceNodePathInfo;
+	  }
+	| {
 			readonly type: 'sequence-effect';
+			readonly nodePathInfo: SequenceNodePathInfo;
 			readonly i: number;
-	  })
-	| (TimelineSelectionBase & {
+	  }
+	| {
 			readonly type: 'sequence-effect-prop';
+			readonly nodePathInfo: SequenceNodePathInfo;
 			readonly i: number;
 			readonly key: string;
-	  })
-	| (TimelineSelectionBase & {
+	  }
+	| {
 			readonly type: 'keyframe';
+			readonly nodePathInfo: SequenceNodePathInfo;
 			readonly frame: number;
-	  })
-	| (TimelineSelectionBase & {
+	  }
+	| {
 			readonly type: 'easing';
+			readonly nodePathInfo: SequenceNodePathInfo;
 			readonly fromFrame: number;
 			readonly toFrame: number;
 			readonly segmentIndex: number;
-	  });
+	  };
 
 export type TimelineEasingSelection = Extract<
 	TimelineSelection,
@@ -141,6 +172,11 @@ export const shouldSelectTimelineRowOnPointerDown = ({
 export type TimelineSelectionState = {
 	readonly selectedItems: readonly TimelineSelection[];
 	readonly anchor: TimelineSelection | null;
+};
+
+export const EMPTY_TIMELINE_SELECTION_STATE: TimelineSelectionState = {
+	selectedItems: [],
+	anchor: null,
 };
 
 export type TimelineMarqueeRect = {
@@ -247,6 +283,13 @@ export const getTimelineSelectionAfterInteraction = ({
 }): TimelineSelectionState => {
 	const {selectedItems, anchor: previousAnchor} = currentState;
 	const clickedType = getTimelineSelectionType(clickedItem);
+	if (clickedType === 'guide') {
+		return {
+			selectedItems: [clickedItem],
+			anchor: clickedItem,
+		};
+	}
+
 	const nextAnchor = getTimelineSelectionAnchor(
 		selectedItems,
 		previousAnchor,
@@ -304,6 +347,46 @@ export const getTimelineSelectionAfterInteraction = ({
 	return {
 		selectedItems: [clickedItem],
 		anchor: clickedItem,
+	};
+};
+
+export const getAvailableTimelineSelectionState = ({
+	availableKeys,
+	availableItemsByKey,
+	state,
+}: {
+	readonly availableKeys: ReadonlySet<string>;
+	readonly availableItemsByKey?: ReadonlyMap<string, TimelineSelection>;
+	readonly state: TimelineSelectionState;
+}): TimelineSelectionState => {
+	if (state.selectedItems.length === 0 && state.anchor === null) {
+		return state;
+	}
+
+	const getCurrentSelectionItem = (item: TimelineSelection) => {
+		const key = getTimelineSelectionKey(item);
+		if (!availableKeys.has(key)) {
+			return null;
+		}
+
+		return availableItemsByKey?.get(key) ?? item;
+	};
+
+	const selectedItems = state.selectedItems
+		.map(getCurrentSelectionItem)
+		.filter((item): item is TimelineSelection => item !== null);
+	const anchor = state.anchor ? getCurrentSelectionItem(state.anchor) : null;
+
+	if (
+		selectedItems.length === state.selectedItems.length &&
+		anchor === state.anchor
+	) {
+		return state;
+	}
+
+	return {
+		selectedItems,
+		anchor,
 	};
 };
 
@@ -426,16 +509,19 @@ export const getTimelineMarqueeSelection = ({
 
 type TimelineSelectionContextValue = {
 	readonly canSelect: boolean;
-	readonly canSelectEasing: boolean;
 	readonly selectedItems: readonly TimelineSelection[];
 	readonly isSelected: (item: TimelineSelection) => boolean;
 	readonly selectItem: (
 		item: TimelineSelection,
 		interaction?: TimelineSelectionInteraction,
+		allSelectableItems?: readonly TimelineSelection[],
 	) => void;
 	readonly selectItems: (items: readonly TimelineSelection[]) => void;
-	readonly registerSelectableItem: (item: TimelineSelection) => () => void;
 	readonly registerMarqueeSelectableItem: (
+		item: TimelineSelection,
+		getRect: () => DOMRect | null,
+	) => () => void;
+	readonly registerFocusableItem: (
 		item: TimelineSelection,
 		getRect: () => DOMRect | null,
 	) => () => void;
@@ -452,13 +538,12 @@ type TimelineSelectionContextValue = {
 
 const defaultTimelineSelectionContextValue: TimelineSelectionContextValue = {
 	canSelect: false,
-	canSelectEasing: false,
 	selectedItems: [],
 	isSelected: () => false,
 	selectItem: () => undefined,
 	selectItems: () => undefined,
-	registerSelectableItem: () => () => undefined,
 	registerMarqueeSelectableItem: () => () => undefined,
+	registerFocusableItem: () => () => undefined,
 	getMarqueeSelection: () => ({
 		lockedSelectionKind: null,
 		selectedItems: [],
@@ -471,8 +556,30 @@ const TimelineSelectionContext = createContext<TimelineSelectionContextValue>(
 	defaultTimelineSelectionContextValue,
 );
 
+const EMPTY_SELECTABLE_TIMELINE_ITEMS: readonly TimelineSelection[] = [];
+
+const SelectableTimelineItemsContext = createContext<
+	React.RefObject<readonly TimelineSelection[]>
+>({current: EMPTY_SELECTABLE_TIMELINE_ITEMS});
+
+export const TimelineSelectionOrderProvider: React.FC<{
+	readonly children: React.ReactNode;
+	readonly items: readonly TimelineSelection[];
+}> = ({children, items}) => {
+	const itemsRef = useRef(items);
+	itemsRef.current = items;
+
+	return (
+		<SelectableTimelineItemsContext.Provider value={itemsRef}>
+			{children}
+		</SelectableTimelineItemsContext.Provider>
+	);
+};
+
 const CurrentTimelineSelectionContext =
 	createContext<React.RefObject<TimelineSelectionContextValue> | null>(null);
+
+const TIMELINE_SELECTION_FOCUS_PADDING = 8;
 
 const parseEffectIndex = (effectIndex: string): number | null => {
 	const parsed = Number(effectIndex);
@@ -527,18 +634,27 @@ export const getTimelineSelectionFromNodePathInfo = (
 };
 
 export const getTimelineSelectionKey = (item: TimelineSelection): string => {
-	const sequenceKey = getTimelineSequenceSelectionKey(item.nodePathInfo);
 	switch (item.type) {
+		case 'guide':
+			return `guide.${item.guideId}`;
 		case 'sequence':
-			return `${sequenceKey}.sequence`;
+			return `${getTimelineSequenceSelectionKey(item.nodePathInfo)}.sequence`;
 		case 'sequence-prop':
-			return `${sequenceKey}.sequence-prop.${item.key}`;
+			return `${getTimelineSequenceSelectionKey(
+				item.nodePathInfo,
+			)}.sequence-prop.${item.key}`;
 		case 'sequence-all-effects':
-			return `${sequenceKey}.sequence-all-effects`;
+			return `${getTimelineSequenceSelectionKey(
+				item.nodePathInfo,
+			)}.sequence-all-effects`;
 		case 'sequence-effect':
-			return `${sequenceKey}.sequence-effect.${item.i}`;
+			return `${getTimelineSequenceSelectionKey(
+				item.nodePathInfo,
+			)}.sequence-effect.${item.i}`;
 		case 'sequence-effect-prop':
-			return `${sequenceKey}.sequence-effect-prop.${item.i}.${item.key}`;
+			return `${getTimelineSequenceSelectionKey(
+				item.nodePathInfo,
+			)}.sequence-effect-prop.${item.i}.${item.key}`;
 		case 'keyframe':
 			return `${timelineNodePathInfoToKey(item.nodePathInfo)}.keyframe.${
 				item.frame
@@ -546,7 +662,7 @@ export const getTimelineSelectionKey = (item: TimelineSelection): string => {
 		case 'easing':
 			return `${timelineNodePathInfoToKey(item.nodePathInfo)}.easing.${
 				item.segmentIndex
-			}.${item.fromFrame}.${item.toFrame}`;
+			}`;
 		default:
 			throw new Error(
 				`Unexpected timeline selection type: ${item satisfies never}`,
@@ -591,6 +707,165 @@ export const getSelectableTimelineSequenceSelections = (
 		}
 
 		return [{type: 'sequence', nodePathInfo: track.nodePathInfo}];
+	});
+};
+
+const canEditEasingForInterpolationFunction = (
+	interpolationFunction: string,
+): boolean =>
+	interpolationFunction === 'interpolate' ||
+	interpolationFunction === 'interpolateColors';
+
+const getTimelineTreeNodeCanEditEasing = ({
+	node,
+	nodePathInfo,
+	propStatuses,
+}: {
+	readonly node: TimelineTreeNode;
+	readonly nodePathInfo: SequenceNodePathInfo;
+	readonly propStatuses: PropStatuses;
+}) => {
+	if (node.kind !== 'field' || node.field === null) {
+		return false;
+	}
+
+	if (node.field.kind === 'sequence-field') {
+		const sequencePropStatus = Internals.getPropStatusesCtx(
+			propStatuses,
+			nodePathInfo.sequenceSubscriptionKey,
+		)?.[node.field.key];
+		return (
+			sequencePropStatus?.status === 'keyframed' &&
+			canEditEasingForInterpolationFunction(
+				sequencePropStatus.interpolationFunction,
+			)
+		);
+	}
+
+	const effectStatus = Internals.getEffectPropStatusesCtx({
+		propStatuses,
+		nodePath: nodePathInfo.sequenceSubscriptionKey,
+		effectIndex: node.field.effectIndex,
+	});
+	const effectPropStatus =
+		effectStatus.type === 'can-update-effect'
+			? effectStatus.props[node.field.key]
+			: null;
+	return (
+		effectPropStatus?.status === 'keyframed' &&
+		canEditEasingForInterpolationFunction(
+			effectPropStatus.interpolationFunction,
+		)
+	);
+};
+
+export const getSelectableTimelineItems = ({
+	getDragOverrides,
+	getEffectDragOverrides,
+	getIsExpanded,
+	propStatuses,
+	selectedItems,
+	timeline,
+	timelinePosition,
+}: {
+	readonly getDragOverrides: GetDragOverrides;
+	readonly getEffectDragOverrides: GetEffectDragOverrides;
+	readonly getIsExpanded: GetIsExpanded;
+	readonly propStatuses: PropStatuses;
+	readonly selectedItems: readonly TimelineSelection[];
+	readonly timeline: readonly TrackWithHash[];
+	readonly timelinePosition: number;
+}): TimelineSelection[] => {
+	const selectedRowKeys = getSelectedTimelineExpandedRowKeys(selectedItems);
+
+	return timeline.flatMap((track): TimelineSelection[] => {
+		const {nodePathInfo} = track;
+		if (nodePathInfo === null) {
+			return [];
+		}
+
+		const sequenceSelection =
+			getTimelineSelectionFromNodePathInfo(nodePathInfo);
+		if (sequenceSelection === null) {
+			return [];
+		}
+
+		if (!getIsExpanded(nodePathInfo)) {
+			return [sequenceSelection];
+		}
+
+		const tree = buildTimelineTree({
+			sequence: track.sequence,
+			nodePathInfo,
+			getDragOverrides,
+			getEffectDragOverrides,
+			propStatuses,
+		});
+		const filteredTree = filterTimelineExpandedTree({
+			nodes: tree,
+			shouldShowNode: (node) =>
+				isTimelineExpandedNodeSelected({
+					nodePathInfo: node.nodePathInfo,
+					selectedRowKeys,
+				}) ||
+				getNodeHasKeyframes({
+					node,
+					nodePath: nodePathInfo.sequenceSubscriptionKey,
+					propStatuses,
+					getDragOverrides,
+					getEffectDragOverrides,
+				}),
+		});
+		const visibleTreeRows = flattenVisibleTreeNodes({
+			nodes: filteredTree,
+			getIsExpanded,
+		});
+
+		return [
+			sequenceSelection,
+			...visibleTreeRows.flatMap(({node}): TimelineSelection[] => {
+				const rowSelection = getTimelineSelectionFromNodePathInfo(
+					node.nodePathInfo,
+				);
+				if (rowSelection === null) {
+					return [];
+				}
+
+				const keyframes = getNodeKeyframes({
+					node,
+					nodePath: nodePathInfo.sequenceSubscriptionKey,
+					propStatuses,
+					keyframeDisplayOffset: track.keyframeDisplayOffset,
+					getDragOverrides,
+					getEffectDragOverrides,
+					timelinePosition,
+				});
+				const keyframeSelections = keyframes.map(
+					(keyframe): TimelineSelection => ({
+						type: 'keyframe',
+						nodePathInfo: node.nodePathInfo,
+						frame: keyframe.frame,
+					}),
+				);
+				const easingSelections = getTimelineTreeNodeCanEditEasing({
+					node,
+					nodePathInfo,
+					propStatuses,
+				})
+					? getTimelineEasingSegments(keyframes).map(
+							(segment): TimelineSelection => ({
+								type: 'easing',
+								nodePathInfo: node.nodePathInfo,
+								fromFrame: segment.fromFrame,
+								toFrame: segment.toFrame,
+								segmentIndex: segment.segmentIndex,
+							}),
+						)
+					: [];
+
+				return [rowSelection, ...easingSelections, ...keyframeSelections];
+			}),
+		];
 	});
 };
 
@@ -645,22 +920,93 @@ export const TimelineSelectAllKeybindings: React.FC<{
 	return null;
 };
 
+const TimelineEscapeKeybindings: React.FC = () => {
+	const keybindings = useKeybinding();
+	const currentSelection = useCurrentTimelineSelectionStateAsRef();
+
+	useEffect(() => {
+		const escape = keybindings.registerKeybinding({
+			event: 'keydown',
+			key: 'Escape',
+			callback: (event) => {
+				const {selectedItems, clearSelection} = currentSelection.current;
+				if (selectedItems.length === 0) {
+					return;
+				}
+
+				clearSelection();
+				event.preventDefault();
+			},
+			commandCtrlKey: false,
+			preventDefault: false,
+			triggerIfInputFieldFocused: false,
+			keepRegisteredWhenNotHighestContext: false,
+		});
+
+		return () => {
+			escape.unregister();
+		};
+	}, [currentSelection, keybindings]);
+
+	return null;
+};
+
+export const TimelineSelectableItemsProvider: React.FC<{
+	readonly children: React.ReactNode;
+	readonly timeline: readonly TrackWithHash[];
+}> = ({children, timeline}) => {
+	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
+	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
+	const {getDragOverrides, getEffectDragOverrides} = useContext(
+		Internals.VisualModeDragOverridesContext,
+	);
+	const timelinePosition = Internals.Timeline.useTimelinePosition();
+	const {selectedItems} = useTimelineSelection();
+	const selectableItems = useMemo(
+		() =>
+			getSelectableTimelineItems({
+				getDragOverrides,
+				getEffectDragOverrides,
+				getIsExpanded,
+				propStatuses,
+				selectedItems,
+				timeline,
+				timelinePosition,
+			}),
+		[
+			getDragOverrides,
+			getEffectDragOverrides,
+			getIsExpanded,
+			propStatuses,
+			selectedItems,
+			timeline,
+			timelinePosition,
+		],
+	);
+
+	return (
+		<TimelineSelectionOrderProvider items={selectableItems}>
+			{children}
+		</TimelineSelectionOrderProvider>
+	);
+};
+
 export const TimelineSelectionProvider: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const {canvasContent} = useContext(Internals.CompositionManager);
+	const timelineSelectionScope =
+		canvasContent?.type === 'composition' ? canvasContent.compositionId : null;
+	const {expandParentTracks} = useContext(ExpandedTracksSetterContext);
 	const canSelect =
-		previewServerState.type === 'connected' &&
-		!window.remotion_isReadOnlyStudio;
-	const canSelectEasing =
 		previewServerState.type === 'connected' &&
 		!window.remotion_isReadOnlyStudio;
 	const [selectedItems, setSelectedItems] = useState<
 		readonly TimelineSelection[]
 	>([]);
 	const selectionAnchor = useRef<TimelineSelection | null>(null);
-	const selectableItemsOrder = useRef(new Map<string, number>());
-	const selectableItems = useRef(new Map<string, TimelineSelection>());
+	const selectionScope = useRef<string | null>(null);
 	const marqueeSelectableItems = useRef(
 		new Map<
 			string,
@@ -671,24 +1017,141 @@ export const TimelineSelectionProvider: React.FC<{
 			}
 		>(),
 	);
-	const registrationCounter = useRef(0);
 	const marqueeRegistrationCounter = useRef(0);
+	const focusableItems = useRef(
+		new Map<
+			string,
+			{
+				readonly getRect: () => DOMRect | null;
+			}
+		>(),
+	);
+	const previousSingleSelectionKey = useRef<string | null>(null);
 
 	useEffect(() => {
-		if (!canSelect && !canSelectEasing) {
+		if (!canSelect) {
+			selectionScope.current = null;
+			selectionAnchor.current = null;
 			setSelectedItems([]);
 		}
-	}, [canSelect, canSelectEasing]);
+	}, [canSelect]);
 
 	const canSelectItem = useCallback(
-		(item: TimelineSelection) =>
-			canSelect || (canSelectEasing && item.type === 'easing'),
-		[canSelect, canSelectEasing],
+		(_item: TimelineSelection) => canSelect,
+		[canSelect],
 	);
 
+	const getCurrentAvailableSelectionState = useCallback(
+		(currentSelectedItems: readonly TimelineSelection[]) => {
+			if (selectionScope.current !== timelineSelectionScope) {
+				return EMPTY_TIMELINE_SELECTION_STATE;
+			}
+
+			return {
+				selectedItems: currentSelectedItems,
+				anchor: selectionAnchor.current,
+			};
+		},
+		[timelineSelectionScope],
+	);
+
+	const availableSelectionState =
+		getCurrentAvailableSelectionState(selectedItems);
+	const availableSelectedItems = availableSelectionState.selectedItems;
+
+	useEffect(() => {
+		if (availableSelectedItems.length !== 1) {
+			previousSingleSelectionKey.current = null;
+			return;
+		}
+
+		const selectedKey = getTimelineSelectionKey(availableSelectedItems[0]);
+		if (previousSingleSelectionKey.current === selectedKey) {
+			return;
+		}
+
+		previousSingleSelectionKey.current = selectedKey;
+
+		const animationFrame = requestAnimationFrame(() => {
+			const registered =
+				focusableItems.current.get(selectedKey) ??
+				marqueeSelectableItems.current.get(selectedKey);
+			const scrollParent = timelineVerticalScroll.current;
+			const rect = registered?.getRect();
+
+			if (!scrollParent || !rect) {
+				return;
+			}
+
+			const parentRect = scrollParent.getBoundingClientRect();
+			if (rect.top < parentRect.top) {
+				scrollParent.scrollTop -=
+					parentRect.top - rect.top + TIMELINE_SELECTION_FOCUS_PADDING;
+				return;
+			}
+
+			if (rect.bottom > parentRect.bottom) {
+				scrollParent.scrollTop +=
+					rect.bottom - parentRect.bottom + TIMELINE_SELECTION_FOCUS_PADDING;
+			}
+		});
+
+		return () => cancelAnimationFrame(animationFrame);
+	}, [availableSelectedItems]);
+
+	const expandParentsForSelectionItems = useCallback(
+		(items: readonly TimelineSelection[]) => {
+			for (const item of items) {
+				if (item.type === 'guide') {
+					continue;
+				}
+
+				expandParentTracks(item.nodePathInfo);
+			}
+		},
+		[expandParentTracks],
+	);
+
+	const expandParentsForSelectionItem = useCallback(
+		(item: TimelineSelection) => {
+			if (item.type === 'guide') {
+				return;
+			}
+
+			expandParentTracks(item.nodePathInfo);
+		},
+		[expandParentTracks],
+	);
+
+	useEffect(() => {
+		setSelectedItems((currentSelectedItems) => {
+			const nextState =
+				selectionScope.current === timelineSelectionScope
+					? {
+							selectedItems: currentSelectedItems,
+							anchor: selectionAnchor.current,
+						}
+					: EMPTY_TIMELINE_SELECTION_STATE;
+
+			selectionScope.current = timelineSelectionScope;
+			selectionAnchor.current = nextState.anchor;
+
+			if (
+				nextState.selectedItems.length === currentSelectedItems.length &&
+				nextState.selectedItems.every(
+					(item, index) => item === currentSelectedItems[index],
+				)
+			) {
+				return currentSelectedItems;
+			}
+
+			return nextState.selectedItems;
+		});
+	}, [timelineSelectionScope]);
+
 	const selectedKeys = useMemo(
-		() => new Set(selectedItems.map(getTimelineSelectionKey)),
-		[selectedItems],
+		() => new Set(availableSelectedItems.map(getTimelineSelectionKey)),
+		[availableSelectedItems],
 	);
 
 	const isSelected = useCallback(
@@ -705,36 +1168,38 @@ export const TimelineSelectionProvider: React.FC<{
 				shiftKey: false,
 				toggleKey: false,
 			},
+			allSelectableItems: readonly TimelineSelection[] = [],
 		) => {
 			if (!canSelectItem(item)) {
 				return;
 			}
 
+			expandParentsForSelectionItem(item);
+
 			setSelectedItems((currentSelectedItems) => {
-				const orderedSelectableItems = [
-					...selectableItems.current.values(),
-				].sort((a, b) => {
-					return (
-						(selectableItemsOrder.current.get(getTimelineSelectionKey(a)) ??
-							0) -
-						(selectableItemsOrder.current.get(getTimelineSelectionKey(b)) ?? 0)
-					);
-				});
+				const currentSelectionState =
+					getCurrentAvailableSelectionState(currentSelectedItems);
 
 				const nextState = getTimelineSelectionAfterInteraction({
 					currentState: {
-						selectedItems: currentSelectedItems,
-						anchor: selectionAnchor.current,
+						selectedItems: currentSelectionState.selectedItems,
+						anchor: currentSelectionState.anchor,
 					},
 					clickedItem: item,
 					interaction,
-					allSelectableItems: orderedSelectableItems,
+					allSelectableItems,
 				});
+				selectionScope.current = timelineSelectionScope;
 				selectionAnchor.current = nextState.anchor;
 				return nextState.selectedItems;
 			});
 		},
-		[canSelectItem],
+		[
+			canSelectItem,
+			expandParentsForSelectionItem,
+			getCurrentAvailableSelectionState,
+			timelineSelectionScope,
+		],
 	);
 
 	const selectItems = useCallback(
@@ -743,24 +1208,14 @@ export const TimelineSelectionProvider: React.FC<{
 				return;
 			}
 
+			selectionScope.current = timelineSelectionScope;
 			selectionAnchor.current =
 				items.length === 0 ? null : items[items.length - 1];
+			expandParentsForSelectionItems(items);
 			setSelectedItems(items);
 		},
-		[canSelectItem],
+		[canSelectItem, expandParentsForSelectionItems, timelineSelectionScope],
 	);
-
-	const registerSelectableItem = useCallback((item: TimelineSelection) => {
-		const key = getTimelineSelectionKey(item);
-		const registrationOrder = registrationCounter.current;
-		registrationCounter.current += 1;
-		selectableItems.current.set(key, item);
-		selectableItemsOrder.current.set(key, registrationOrder);
-		return () => {
-			selectableItems.current.delete(key);
-			selectableItemsOrder.current.delete(key);
-		};
-	}, []);
 
 	const registerMarqueeSelectableItem = useCallback(
 		(item: TimelineSelection, getRect: () => DOMRect | null) => {
@@ -774,6 +1229,19 @@ export const TimelineSelectionProvider: React.FC<{
 			});
 			return () => {
 				marqueeSelectableItems.current.delete(key);
+			};
+		},
+		[],
+	);
+
+	const registerFocusableItem = useCallback(
+		(item: TimelineSelection, getRect: () => DOMRect | null) => {
+			const key = getTimelineSelectionKey(item);
+			focusableItems.current.set(key, {
+				getRect,
+			});
+			return () => {
+				focusableItems.current.delete(key);
 			};
 		},
 		[],
@@ -819,42 +1287,43 @@ export const TimelineSelectionProvider: React.FC<{
 	);
 
 	const clearSelection = useCallback(() => {
+		selectionScope.current = null;
 		selectionAnchor.current = null;
 		setSelectedItems([]);
 	}, []);
 
 	const containsSelection = useCallback(
 		(nodePathInfo: SequenceNodePathInfo) => {
-			return selectedItems.some((selected) =>
-				nodePathDescendsFrom(selected.nodePathInfo, nodePathInfo),
+			return availableSelectedItems.some(
+				(selected) =>
+					selected.type !== 'guide' &&
+					nodePathDescendsFrom(selected.nodePathInfo, nodePathInfo),
 			);
 		},
-		[selectedItems],
+		[availableSelectedItems],
 	);
 
 	const value = useMemo(
 		(): TimelineSelectionContextValue => ({
 			canSelect,
-			canSelectEasing,
-			selectedItems,
+			selectedItems: availableSelectedItems,
 			isSelected,
 			selectItem,
 			selectItems,
-			registerSelectableItem,
 			registerMarqueeSelectableItem,
+			registerFocusableItem,
 			getMarqueeSelection: getMarqueeSelectionForRect,
 			containsSelection,
 			clearSelection,
 		}),
 		[
 			canSelect,
-			canSelectEasing,
-			selectedItems,
+			availableSelectedItems,
 			isSelected,
 			selectItem,
 			selectItems,
-			registerSelectableItem,
 			registerMarqueeSelectableItem,
+			registerFocusableItem,
 			getMarqueeSelectionForRect,
 			containsSelection,
 			clearSelection,
@@ -867,6 +1336,7 @@ export const TimelineSelectionProvider: React.FC<{
 		<CurrentTimelineSelectionContext.Provider value={currentSelection}>
 			<TimelineSelectionContext.Provider value={value}>
 				{children}
+				<TimelineEscapeKeybindings />
 				<TimelineClipboardKeybindings />
 				<TimelineDeleteKeybindings />
 			</TimelineSelectionContext.Provider>
@@ -893,8 +1363,7 @@ export const useCurrentTimelineSelectionStateAsRef = () => {
 };
 
 export const useTimelineMarqueeSelection = () => {
-	const {canSelect, canSelectEasing, getMarqueeSelection, selectItems} =
-		useTimelineSelection();
+	const {canSelect, getMarqueeSelection, selectItems} = useTimelineSelection();
 	const {isHighestContext} = useZIndex();
 	const [marqueeRect, setMarqueeRect] = useState<TimelineMarqueeRect | null>(
 		null,
@@ -906,7 +1375,7 @@ export const useTimelineMarqueeSelection = () => {
 				return;
 			}
 
-			if (event.button !== 0 || (!canSelect && !canSelectEasing)) {
+			if (event.button !== 0 || !canSelect) {
 				return;
 			}
 
@@ -1009,13 +1478,7 @@ export const useTimelineMarqueeSelection = () => {
 			window.addEventListener('pointerup', onPointerUp);
 			window.addEventListener('pointercancel', onPointerCancel);
 		},
-		[
-			canSelect,
-			canSelectEasing,
-			getMarqueeSelection,
-			isHighestContext,
-			selectItems,
-		],
+		[canSelect, getMarqueeSelection, isHighestContext, selectItems],
 	);
 
 	return {marqueeRect, onPointerDownCapture};
@@ -1039,24 +1502,34 @@ export const useTimelineMarqueeSelectableItem = (
 	}, [item, ref, registerMarqueeSelectableItem]);
 };
 
+export const useTimelineFocusableItem = (
+	item: TimelineSelection | null,
+	ref: React.RefObject<Element | null>,
+) => {
+	const {registerFocusableItem} = useTimelineSelection();
+
+	useEffect(() => {
+		if (item === null) {
+			return;
+		}
+
+		return registerFocusableItem(
+			item,
+			() => ref.current?.getBoundingClientRect() ?? null,
+		);
+	}, [item, ref, registerFocusableItem]);
+};
+
 export const useTimelineRowSelection = (
 	nodePathInfo: SequenceNodePathInfo | null,
 ) => {
-	const {canSelect, isSelected, selectItem, registerSelectableItem} =
-		useTimelineSelection();
+	const {canSelect, isSelected, selectItem} = useTimelineSelection();
+	const selectableTimelineItemsRef = useContext(SelectableTimelineItemsContext);
 	const selectionItem = useMemo(
 		(): TimelineSelection | null =>
 			getTimelineSelectionFromNodePathInfo(nodePathInfo),
 		[nodePathInfo],
 	);
-
-	useEffect(() => {
-		if (selectionItem === null) {
-			return;
-		}
-
-		return registerSelectableItem(selectionItem);
-	}, [registerSelectableItem, selectionItem]);
 
 	const selected = selectionItem === null ? false : isSelected(selectionItem);
 
@@ -1066,9 +1539,13 @@ export const useTimelineRowSelection = (
 				return;
 			}
 
-			selectItem(selectionItem, interaction);
+			selectItem(
+				selectionItem,
+				interaction,
+				selectableTimelineItemsRef.current,
+			);
 		},
-		[selectItem, selectionItem],
+		[selectItem, selectableTimelineItemsRef, selectionItem],
 	);
 
 	return {
@@ -1083,8 +1560,8 @@ export const useTimelineKeyframeSelection = (
 	nodePathInfo: SequenceNodePathInfo,
 	frame: number,
 ) => {
-	const {canSelect, isSelected, selectItem, registerSelectableItem} =
-		useTimelineSelection();
+	const {canSelect, isSelected, selectItem} = useTimelineSelection();
+	const selectableTimelineItemsRef = useContext(SelectableTimelineItemsContext);
 	const selectionItem = useMemo(
 		(): TimelineSelection => ({
 			type: 'keyframe',
@@ -1094,17 +1571,17 @@ export const useTimelineKeyframeSelection = (
 		[nodePathInfo, frame],
 	);
 
-	useEffect(() => {
-		return registerSelectableItem(selectionItem);
-	}, [registerSelectableItem, selectionItem]);
-
 	const selected = isSelected(selectionItem);
 
 	const onSelect = useCallback(
 		(interaction?: TimelineSelectionInteraction) => {
-			selectItem(selectionItem, interaction);
+			selectItem(
+				selectionItem,
+				interaction,
+				selectableTimelineItemsRef.current,
+			);
 		},
-		[selectItem, selectionItem],
+		[selectItem, selectableTimelineItemsRef, selectionItem],
 	);
 
 	return {
@@ -1126,8 +1603,8 @@ export const useTimelineEasingSelection = ({
 	readonly toFrame: number;
 	readonly segmentIndex: number;
 }) => {
-	const {canSelectEasing, isSelected, selectItem, registerSelectableItem} =
-		useTimelineSelection();
+	const {canSelect, isSelected, selectItem} = useTimelineSelection();
+	const selectableTimelineItemsRef = useContext(SelectableTimelineItemsContext);
 	const selectionItem = useMemo(
 		(): TimelineEasingSelection => ({
 			type: 'easing',
@@ -1139,22 +1616,48 @@ export const useTimelineEasingSelection = ({
 		[nodePathInfo, fromFrame, segmentIndex, toFrame],
 	);
 
-	useEffect(() => {
-		return registerSelectableItem(selectionItem);
-	}, [registerSelectableItem, selectionItem]);
-
 	const selected = isSelected(selectionItem);
 
 	const onSelect = useCallback(
 		(interaction?: TimelineSelectionInteraction) => {
-			selectItem(selectionItem, interaction);
+			selectItem(
+				selectionItem,
+				interaction,
+				selectableTimelineItemsRef.current,
+			);
 		},
-		[selectItem, selectionItem],
+		[selectItem, selectableTimelineItemsRef, selectionItem],
 	);
 
 	return {
 		onSelect,
-		selectable: canSelectEasing,
+		selectable: canSelect,
+		selected,
+		selectionItem,
+	};
+};
+
+export const useTimelineGuideSelection = (guideId: string) => {
+	const {canSelect, clearSelection, isSelected, selectItem} =
+		useTimelineSelection();
+	const selectionItem = useMemo(
+		(): TimelineSelection => ({
+			type: 'guide',
+			guideId,
+		}),
+		[guideId],
+	);
+
+	const selected = isSelected(selectionItem);
+
+	const onSelect = useCallback(() => {
+		selectItem(selectionItem);
+	}, [selectItem, selectionItem]);
+
+	return {
+		clearSelection,
+		onSelect,
+		selectable: canSelect,
 		selected,
 		selectionItem,
 	};

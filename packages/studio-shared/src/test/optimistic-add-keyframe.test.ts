@@ -1,5 +1,8 @@
 import {expect, test} from 'bun:test';
-import type {CanUpdateSequencePropsResponse, SequenceSchema} from 'remotion';
+import type {
+	CanUpdateSequencePropsResponse,
+	InteractivitySchema,
+} from 'remotion';
 import {
 	optimisticAddEffectKeyframe,
 	optimisticAddSequenceKeyframe,
@@ -54,7 +57,7 @@ test('optimisticAddSequenceKeyframe uses interpolate for translate fields', () =
 			type: 'translate',
 			default: '0px 0px',
 		},
-	} satisfies SequenceSchema;
+	} satisfies InteractivitySchema;
 
 	const updated = optimisticAddSequenceKeyframe({
 		previous,
@@ -94,7 +97,7 @@ test('optimisticAddSequenceKeyframe uses interpolate for rotation-css fields', (
 			type: 'rotation-css',
 			default: '0deg',
 		},
-	} satisfies SequenceSchema;
+	} satisfies InteractivitySchema;
 
 	const updated = optimisticAddSequenceKeyframe({
 		previous,
@@ -136,7 +139,7 @@ test('optimisticAddSequenceKeyframe ignores non-keyframable fields', () => {
 			hiddenFromList: false,
 			keyframable: false,
 		},
-	} satisfies SequenceSchema;
+	} satisfies InteractivitySchema;
 
 	const updated = optimisticAddSequenceKeyframe({
 		previous,
@@ -169,7 +172,7 @@ test('optimisticAddSequenceKeyframe ignores enum fields', () => {
 				none: {},
 			},
 		},
-	} satisfies SequenceSchema;
+	} satisfies InteractivitySchema;
 
 	const updated = optimisticAddSequenceKeyframe({
 		previous,
@@ -193,7 +196,7 @@ test('optimisticAddSequenceKeyframe appends a keyframe to an existing interpolat
 					{frame: 0, value: 1},
 					{frame: 60, value: 2},
 				],
-				easing: ['linear'],
+				easing: [{type: 'linear'}],
 				clamping: {left: 'extend', right: 'extend'},
 				posterize: undefined,
 			},
@@ -222,7 +225,7 @@ test('optimisticAddSequenceKeyframe appends a keyframe to an existing interpolat
 		{frame: 30, value: 1.5},
 		{frame: 60, value: 2},
 	]);
-	expect(status.easing).toEqual(['linear', 'linear']);
+	expect(status.easing).toEqual([{type: 'linear'}, {type: 'linear'}]);
 });
 
 test('optimisticAddSequenceKeyframe updates an existing keyframe at the same frame', () => {
@@ -236,7 +239,7 @@ test('optimisticAddSequenceKeyframe updates an existing keyframe at the same fra
 					{frame: 0, value: 1},
 					{frame: 60, value: 2},
 				],
-				easing: ['linear'],
+				easing: [{type: 'linear'}],
 				clamping: {left: 'extend', right: 'extend'},
 				posterize: undefined,
 			},
@@ -264,7 +267,7 @@ test('optimisticAddSequenceKeyframe updates an existing keyframe at the same fra
 		{frame: 0, value: 1},
 		{frame: 60, value: 3},
 	]);
-	expect(status.easing).toEqual(['linear']);
+	expect(status.easing).toEqual([{type: 'linear'}]);
 });
 
 test('optimisticAddEffectKeyframe appends a keyframe on the target effect', () => {

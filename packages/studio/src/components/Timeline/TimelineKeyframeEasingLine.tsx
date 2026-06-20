@@ -1,4 +1,7 @@
-import {KEYFRAME_EASING_PRESETS} from '@remotion/studio-shared';
+import {
+	KEYFRAME_EASING_PRESETS,
+	LINEAR_KEYFRAME_EASING,
+} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useMemo, useRef} from 'react';
 import {Internals, useVideoConfig} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
@@ -6,7 +9,6 @@ import {BLUE} from '../../helpers/colors';
 import {getXPositionOfItemInTimelineImperatively} from '../../helpers/get-left-of-timeline-slider';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
-import {ModalsContext} from '../../state/modals';
 import {ContextMenuForTarget} from '../ContextMenu';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {
@@ -18,10 +20,10 @@ import {
 import {TimelineWidthContext} from './TimelineWidthProvider';
 import {
 	getEasingSelections,
-	getTimelineEasingValueForSelection,
 	type TimelineEasingValue,
 	updateSelectedTimelineEasings,
 } from './update-selected-easing';
+import {useTimelineEasingKeyframeDrag} from './use-timeline-keyframe-drag';
 
 const hitTargetHeight = 12;
 const lineHeight = 2;
@@ -74,7 +76,6 @@ const TimelineKeyframeEasingLineUnmemoized: React.FC<{
 		Internals.OverrideIdsToNodePathsGettersContext,
 	);
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
-	const {setSelectedModal} = useContext(ModalsContext);
 
 	const getTargetSelections = useCallback(() => {
 		const selectedEasings = getEasingSelections(
@@ -110,37 +111,6 @@ const TimelineKeyframeEasingLineUnmemoized: React.FC<{
 		],
 	);
 
-	const onOpenEasingEditor = useCallback(() => {
-		if (previewServerState.type !== 'connected') {
-			return;
-		}
-
-		const initialEasing = getTimelineEasingValueForSelection({
-			selection: selectionItem,
-			sequences: sequencesRef.current,
-			overrideIdsToNodePaths: overrideIdToNodePathMappings,
-			propStatuses: propStatusesRef.current,
-		});
-
-		if (initialEasing === null) {
-			return;
-		}
-
-		setSelectedModal({
-			type: 'easing-editor',
-			initialEasing,
-			selections: getTargetSelections(),
-		});
-	}, [
-		getTargetSelections,
-		overrideIdToNodePathMappings,
-		previewServerState,
-		propStatusesRef,
-		selectionItem,
-		sequencesRef,
-		setSelectedModal,
-	]);
-
 	const contextMenuValues = useMemo((): ComboboxValue[] => {
 		return [
 			{
@@ -150,7 +120,7 @@ const TimelineKeyframeEasingLineUnmemoized: React.FC<{
 				label: 'Linear',
 				leftItem: null,
 				disabled: previewServerState.type !== 'connected',
-				onClick: () => updateEasing('linear'),
+				onClick: () => updateEasing(LINEAR_KEYFRAME_EASING),
 				quickSwitcherLabel: null,
 				subMenu: null,
 				value: 'linear',
@@ -167,24 +137,8 @@ const TimelineKeyframeEasingLineUnmemoized: React.FC<{
 				subMenu: null,
 				value: preset.id,
 			})),
-			{
-				type: 'divider' as const,
-				id: 'edit-easing-divider',
-			},
-			{
-				type: 'item',
-				id: 'edit-easing',
-				keyHint: null,
-				label: 'Edit...',
-				leftItem: null,
-				disabled: previewServerState.type !== 'connected',
-				onClick: onOpenEasingEditor,
-				quickSwitcherLabel: null,
-				subMenu: null,
-				value: 'edit-easing',
-			},
 		];
-	}, [onOpenEasingEditor, previewServerState.type, updateEasing]);
+	}, [previewServerState.type, updateEasing]);
 
 	const onOpenContextMenu = useCallback(
 		(event: MouseEvent) => {
@@ -251,21 +205,12 @@ const TimelineKeyframeEasingLineUnmemoized: React.FC<{
 		[selected],
 	);
 
-	const onPointerDown = useCallback(
-		(event: React.PointerEvent<HTMLButtonElement>) => {
-			if (!selectable || event.button !== 0) {
-				return;
-			}
-
-			event.preventDefault();
-			event.stopPropagation();
-			onSelect({
-				shiftKey: event.shiftKey,
-				toggleKey: event.metaKey || event.ctrlKey,
-			});
-		},
-		[onSelect, selectable],
-	);
+	const onPointerDown = useTimelineEasingKeyframeDrag({
+		onSelect,
+		selectable,
+		selected,
+		selectionItem,
+	});
 
 	if (style === null) {
 		return null;

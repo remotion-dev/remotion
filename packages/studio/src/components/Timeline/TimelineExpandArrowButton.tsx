@@ -32,6 +32,25 @@ export const TimelineExpandArrowButton: React.FC<{
 	readonly label: string;
 	readonly disabled: boolean;
 }> = ({isExpanded, onClick, label, disabled = false}) => {
+	const handleClick = React.useCallback(
+		(e: React.MouseEvent<HTMLButtonElement>) => {
+			e.stopPropagation();
+			onClick();
+		},
+		[onClick],
+	);
+
+	const stopPropagation = React.useCallback(
+		(
+			e:
+				| React.MouseEvent<HTMLButtonElement>
+				| React.PointerEvent<HTMLButtonElement>,
+		) => {
+			e.stopPropagation();
+		},
+		[],
+	);
+
 	const style: React.CSSProperties = useMemo(() => {
 		return {
 			...arrowButton,
@@ -45,7 +64,9 @@ export const TimelineExpandArrowButton: React.FC<{
 		<button
 			type="button"
 			style={style}
-			onClick={onClick}
+			onClick={handleClick}
+			onDoubleClick={stopPropagation}
+			onPointerDown={stopPropagation}
 			disabled={disabled}
 			aria-expanded={isExpanded}
 			aria-label={`${isExpanded ? 'Collapse' : 'Expand'} ${label}`}

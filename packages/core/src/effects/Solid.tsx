@@ -9,17 +9,15 @@ import React, {
 } from 'react';
 import type {SequenceControls} from '../CompositionManager.js';
 import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
+import type {InteractiveBaseProps} from '../Interactive.js';
 import {
-	durationInFramesField,
-	fromField,
-	hiddenField,
-	sequenceVisualStyleSchema,
-	type SequenceSchema,
-} from '../sequence-field-schema.js';
-import type {SequenceProps} from '../Sequence.js';
+	baseSchema,
+	transformSchema,
+	type InteractivitySchema,
+} from '../interactivity-schema.js';
 import {Sequence} from '../Sequence.js';
 import {useDelayRender} from '../use-delay-render.js';
-import {wrapInSchema} from '../wrap-in-schema.js';
+import {withInteractivitySchema} from '../with-interactivity-schema.js';
 import type {EffectsProp} from './effect-types.js';
 import {runEffectChain} from './run-effect-chain.js';
 import {useEffectChainState} from './use-effect-chain-state.js';
@@ -65,9 +63,8 @@ type InnerSolidProps = MandatoryProps &
 	};
 export type SolidProps = MandatoryProps & Partial<OptionalProps>;
 
-const solidSchema = {
-	durationInFrames: durationInFramesField,
-	from: fromField,
+export const solidSchema = {
+	...baseSchema,
 	color: {
 		type: 'color',
 		default: 'transparent',
@@ -89,9 +86,17 @@ const solidSchema = {
 		description: 'Height',
 		hiddenFromList: false,
 	},
-	...sequenceVisualStyleSchema,
-	hidden: hiddenField,
-} as const satisfies SequenceSchema;
+	pixelDensity: {
+		type: 'number',
+		min: 1,
+		max: 3,
+		step: 0.1,
+		default: 1,
+		description: 'Pixel density',
+		hiddenFromList: false,
+	},
+	...transformSchema,
+} as const satisfies InteractivitySchema;
 
 const SolidInner: React.FC<
 	InnerSolidProps & {
@@ -234,16 +239,13 @@ const SolidInner: React.FC<
 const SolidOuter = forwardRef<
 	HTMLCanvasElement,
 	SolidProps & {
-		readonly _experimentalControls: SequenceControls | undefined;
-	} & Pick<
-			SequenceProps,
-			'durationInFrames' | 'name' | 'from' | 'showInTimeline' | 'hidden'
-		>
+		readonly controls: SequenceControls | undefined;
+	} & InteractiveBaseProps
 >(
 	(
 		{
 			effects = [],
-			_experimentalControls: controls,
+			controls,
 			color,
 			height,
 			width,
@@ -252,6 +254,7 @@ const SolidOuter = forwardRef<
 			style,
 			name,
 			from,
+			freeze,
 			hidden,
 			showInTimeline,
 			pixelDensity,
@@ -272,16 +275,15 @@ const SolidOuter = forwardRef<
 			<Sequence
 				layout="none"
 				from={from}
+				freeze={freeze}
 				hidden={hidden}
 				showInTimeline={showInTimeline}
-				_experimentalControls={controls}
+				controls={controls}
 				_remotionInternalEffects={memoizedEffectDefinitions}
 				durationInFrames={durationInFrames}
 				name={name ?? '<Solid>'}
-				_remotionInternalRefForOutline={actualRef}
-				_remotionInternalDocumentationLink={
-					name === undefined ? 'https://www.remotion.dev/docs/solid' : undefined
-				}
+				outlineRef={actualRef}
+				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/solid"
 				// 'stack' is in props
 				{...props}
 			>
@@ -301,8 +303,9 @@ const SolidOuter = forwardRef<
 	},
 );
 
-export const Solid = wrapInSchema({
+export const Solid = withInteractivitySchema({
 	Component: SolidOuter,
+	componentName: '<Solid>',
 	componentIdentity: 'dev.remotion.remotion.Solid',
 	schema: solidSchema,
 	supportsEffects: true,

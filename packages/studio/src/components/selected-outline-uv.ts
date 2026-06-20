@@ -3,9 +3,9 @@ import type {
 	CanUpdateSequencePropStatusStatic,
 	GetEffectDragOverrides,
 	PropStatuses,
-	SequenceFieldSchema,
+	InteractivitySchemaField,
 	SequencePropsSubscriptionKey,
-	SequenceSchema,
+	InteractivitySchema,
 	TSequence,
 } from 'remotion';
 import {Internals} from 'remotion';
@@ -16,11 +16,15 @@ import {
 	type OutlinePoint,
 	type SelectedOutline,
 } from './selected-outline-geometry';
+import {
+	getTimelineDisplayDecimalPlaces,
+	roundToDecimalPlaces,
+} from './Timeline/timeline-field-utils';
 
 export type UvCoordinate = readonly [number, number];
 
 export type UvCoordinateFieldSchema = Extract<
-	SequenceFieldSchema,
+	InteractivitySchemaField,
 	{type: 'uv-coordinate'}
 >;
 
@@ -33,8 +37,9 @@ export type SelectedOutlineUvHandle = {
 	readonly fieldDefault: UvCoordinate | undefined;
 	readonly fieldKey: string;
 	readonly fieldSchema: UvCoordinateFieldSchema;
+	readonly isSelected: boolean;
 	readonly nodePath: SequencePropsSubscriptionKey;
-	readonly schema: SequenceSchema;
+	readonly schema: InteractivitySchema;
 	readonly sourceFrame: number;
 	readonly value: UvCoordinate;
 };
@@ -286,6 +291,21 @@ export function constrainUv(
 	return [clamp(value[0], min, max), clamp(value[1], min, max)];
 }
 
+export function roundUvCoordinate(
+	value: UvCoordinate,
+	schema: UvCoordinateFieldSchema,
+): UvCoordinate {
+	const decimalPlaces = getTimelineDisplayDecimalPlaces({
+		defaultDecimalPlaces: 3,
+		step: schema.step,
+	});
+
+	return [
+		roundToDecimalPlaces(value[0], decimalPlaces),
+		roundToDecimalPlaces(value[1], decimalPlaces),
+	];
+}
+
 export const getSelectedUvHandles = ({
 	propStatuses,
 	clientId,
@@ -324,6 +344,12 @@ export const getSelectedUvHandles = ({
 			continue;
 		}
 
+		const shouldShowUvHandles =
+			selectedFields.allFields || selectedFields.fieldKeys.size > 0;
+		if (!shouldShowUvHandles) {
+			continue;
+		}
+
 		const dragOverrides = getEffectDragOverrides(nodePath, effectIndex);
 		const activeSchema = Internals.flattenActiveSchema(effect.schema, (key) => {
 			const propStatus = effectStatus.props[key];
@@ -344,10 +370,7 @@ export const getSelectedUvHandles = ({
 		});
 
 		for (const [fieldKey, fieldSchema] of Object.entries(activeSchema)) {
-			if (
-				fieldSchema.type !== 'uv-coordinate' ||
-				(!selectedFields.allFields && !selectedFields.fieldKeys.has(fieldKey))
-			) {
+			if (fieldSchema.type !== 'uv-coordinate') {
 				continue;
 			}
 
@@ -379,6 +402,7 @@ export const getSelectedUvHandles = ({
 				fieldDefault: fieldSchema.default,
 				fieldKey,
 				fieldSchema,
+				isSelected: selectedFields.fieldKeys.has(fieldKey),
 				nodePath,
 				schema: effect.schema,
 				sourceFrame,

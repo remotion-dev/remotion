@@ -88,6 +88,25 @@ import {
 	setInputPropsOverride,
 } from './input-props-override.js';
 import type {SerializedJSONWithCustomFields} from './input-props-serialization.js';
+import {
+	baseSchema,
+	durationInFramesField,
+	freezeField,
+	fromField,
+	hiddenField,
+	premountSchema,
+	sequencePremountSchema,
+	sequenceSchema,
+	sequenceStyleSchema,
+	sequenceVisualStyleSchema,
+	textSchema,
+	transformSchema,
+	type ArrayFieldSchema,
+	type ArrayItemFieldSchema,
+	type InteractivitySchemaField,
+	type InteractivitySchema,
+	type VisibleFieldSchema,
+} from './interactivity-schema.js';
 import {interpolateKeyframedStatus} from './interpolate-keyframed-status.js';
 import {IsPlayerContextProvider, useIsPlayer} from './is-player.js';
 import type {LoggingContextValue} from './log-level-context.js';
@@ -118,20 +137,6 @@ import {
 	resolveCompositionsRef,
 	useResolvedVideoConfig,
 } from './ResolveCompositionConfig.js';
-import {
-	durationInFramesField,
-	fromField,
-	hiddenField,
-	sequencePremountSchema,
-	sequenceSchema,
-	sequenceStyleSchema,
-	sequenceVisualStyleSchema,
-	type ArrayFieldSchema,
-	type ArrayItemFieldSchema,
-	type SequenceFieldSchema,
-	type SequenceSchema,
-	type VisibleFieldSchema,
-} from './sequence-field-schema.js';
 import type {
 	OverrideIdToNodePaths,
 	OverrideToNodePathGetters,
@@ -196,6 +201,7 @@ import {
 import {PixelDensityContext} from './use-pixel-density.js';
 import type {
 	CanUpdateSequencePropStatusFalse,
+	CanUpdateSequencePropStatusEasing,
 	CanUpdateSequencePropStatusKeyframed,
 	CanUpdateSequencePropStatusStatic,
 	DragOverrideValue,
@@ -248,7 +254,6 @@ import {evaluateVolume} from './volume-prop.js';
 import {warnAboutTooHighVolume} from './volume-safeguard.js';
 import type {WatchRemotionStaticFilesPayload} from './watch-static-file.js';
 import {WATCH_REMOTION_STATIC_FILES} from './watch-static-file.js';
-import {wrapInSchema} from './wrap-in-schema.js';
 import {
 	RemotionContextProvider,
 	useRemotionContexts,
@@ -287,12 +292,15 @@ export const Internals = {
 	SequenceManager,
 	SequenceManagerRefContext,
 	SequenceStackTracesUpdateContext,
-	wrapInSchema,
+	baseSchema,
 	sequenceSchema,
 	SequenceWithoutSchema,
 	sequenceStyleSchema,
 	sequenceVisualStyleSchema,
 	sequencePremountSchema,
+	textSchema,
+	transformSchema,
+	premountSchema,
 	flattenActiveSchema,
 	getFlatSchemaWithAllKeys,
 	RemotionRootContexts,
@@ -408,6 +416,7 @@ export const Internals = {
 	getEffectPropStatusesCtx,
 	hiddenField,
 	durationInFramesField,
+	freezeField,
 	fromField,
 } as const;
 
@@ -422,6 +431,7 @@ export type {
 	CanUpdateSequencePropsResponseFalse,
 	CanUpdateSequencePropsResponseTrue,
 	CanUpdateSequencePropStatus,
+	CanUpdateSequencePropStatusEasing,
 	CanUpdateSequencePropStatusFalse,
 	CanUpdateSequencePropStatusKeyframed,
 	CanUpdateSequencePropStatusStatic,
@@ -450,10 +460,10 @@ export type {
 	ResolvedStackLocation,
 	ScheduleAudioNodeOptions,
 	ScheduleAudioNodeResult,
-	SequenceFieldSchema,
+	InteractivitySchemaField,
 	SequenceNodePath,
 	SequencePropsSubscriptionKey,
-	SequenceSchema,
+	InteractivitySchema,
 	SerializedJSONWithCustomFields,
 	SetMediaVolumeContextValue,
 	SetTimelineContextValue,

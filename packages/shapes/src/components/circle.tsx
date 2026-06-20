@@ -1,5 +1,5 @@
 import React from 'react';
-import {Internals} from 'remotion';
+import {Internals, Interactive} from 'remotion';
 import type {MakeCircleProps} from '../utils/make-circle';
 import {makeCircle} from '../utils/make-circle';
 import type {AllShapesProps} from './render-svg';
@@ -32,8 +32,9 @@ const CircleInner: React.FC<CircleProps> = ({radius, ...props}) => {
 	);
 };
 
-export const Circle = Internals.wrapInSchema({
+export const Circle = Interactive.withSchema({
 	Component: CircleInner,
+	componentName: '<Circle>',
 	componentIdentity: 'dev.remotion.shapes.Circle',
 	schema: circleSchema,
 	supportsEffects: true,

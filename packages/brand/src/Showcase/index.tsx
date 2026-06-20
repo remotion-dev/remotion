@@ -14,7 +14,7 @@ export const Showcase: React.FC = (props) => {
 					damping: 500,
 				},
 			}),
-		[fps, frame]
+		[fps, frame],
 	);
 	const glorySpr = React.useCallback(
 		(delay: number) =>
@@ -26,7 +26,7 @@ export const Showcase: React.FC = (props) => {
 					damping: 500,
 				},
 			}),
-		[fps, frame]
+		[fps, frame],
 	);
 	const animateIn = React.useCallback(
 		(delay: number): React.CSSProperties => {
@@ -38,7 +38,7 @@ export const Showcase: React.FC = (props) => {
 				opacity: interpolate(spr(delay), [0, 1], [0, 1]),
 			};
 		},
-		[spr]
+		[spr],
 	);
 
 	const glory = React.useCallback(
@@ -51,7 +51,7 @@ export const Showcase: React.FC = (props) => {
 				opacity: interpolate(glorySpr(delay), [0, 1], [0, 1]),
 			};
 		},
-		[glorySpr]
+		[glorySpr],
 	);
 
 	return (

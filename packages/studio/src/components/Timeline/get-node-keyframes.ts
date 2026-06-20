@@ -114,3 +114,52 @@ export const getNodeKeyframes = ({
 		hasDragOverride: hasOverride(effectDragOverrides, node.field.key),
 	});
 };
+
+export const getNodeHasKeyframes = ({
+	node,
+	nodePath,
+	propStatuses,
+	getDragOverrides,
+	getEffectDragOverrides,
+}: {
+	node: TimelineTreeNode;
+	nodePath: SequencePropsSubscriptionKey;
+	propStatuses: PropStatuses;
+	getDragOverrides: GetDragOverrides;
+	getEffectDragOverrides: GetEffectDragOverrides;
+}): boolean => {
+	if (node.kind !== 'field' || node.field === null) {
+		return false;
+	}
+
+	if (node.field.kind === 'sequence-field') {
+		const dragOverrides = getDragOverrides(nodePath);
+		if (dragOverrides[node.field.key]?.type === 'keyframed') {
+			return true;
+		}
+
+		return (
+			Internals.getPropStatusesCtx(propStatuses, nodePath)?.[node.field.key]
+				?.status === 'keyframed'
+		);
+	}
+
+	const effectDragOverrides = getEffectDragOverrides(
+		nodePath,
+		node.field.effectIndex,
+	);
+	if (effectDragOverrides[node.field.key]?.type === 'keyframed') {
+		return true;
+	}
+
+	const effectStatus = Internals.getEffectPropStatusesCtx({
+		propStatuses,
+		nodePath,
+		effectIndex: node.field.effectIndex,
+	});
+
+	return (
+		effectStatus.type === 'can-update-effect' &&
+		effectStatus.props?.[node.field.key]?.status === 'keyframed'
+	);
+};

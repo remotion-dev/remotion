@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {
 	updateEffectKeyframesAst,
@@ -38,14 +38,14 @@ const translateSchema = {
 		type: 'translate',
 		default: '0px 0px',
 	},
-} satisfies SequenceSchema;
+} satisfies InteractivitySchema;
 
 const rotateSchema = {
 	'style.rotate': {
 		type: 'rotation-css',
 		default: '0deg',
 	},
-} satisfies SequenceSchema;
+} satisfies InteractivitySchema;
 
 const translateInput = `import React from 'react';
 import {AbsoluteFill} from 'remotion';
@@ -86,6 +86,29 @@ export const Comp = () => {
 \t);
 };
 `;
+
+const waveEffectInput = `import {wave} from '@remotion/effects/wave';
+import {Solid} from 'remotion';
+
+export const Comp = () => {
+\treturn (
+\t\t<Solid
+\t\t\twidth={100}
+\t\t\theight={100}
+\t\t\tcolor="red"
+\t\t\teffects={[wave({})]}
+\t\t/>
+\t);
+};
+`;
+
+const waveSchema = {
+	phase: {
+		type: 'number',
+		default: 0,
+		hiddenFromList: false,
+	},
+} satisfies InteractivitySchema;
 
 const getLine = (input: string, needle: string): number => {
 	const lineIndex = input
@@ -226,7 +249,7 @@ export const Example: React.FC = () => {
 				operation: {
 					type: 'easing',
 					segmentIndex: 1,
-					easing: [0.42, 0, 1, 1],
+					easing: {type: 'bezier', x1: 0.42, y1: 0, x2: 1, y2: 1},
 				},
 			},
 		],
@@ -236,6 +259,49 @@ export const Example: React.FC = () => {
 	expect(output).toContain(
 		'easing: [Easing.linear, Easing.bezier(0.42, 0, 1, 1)]',
 	);
+});
+
+test('updateSequenceKeyframes sets a spring easing segment', async () => {
+	const input = `import React from 'react';
+import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
+
+export const Example: React.FC = () => {
+\tconst frame = useCurrentFrame();
+\treturn (
+\t\t<AbsoluteFill>
+\t\t\t<div style={{scale: interpolate(frame, [0, 100], [2, 4])}} />
+\t\t</AbsoluteFill>
+\t);
+};
+`;
+	const {output} = await updateSequenceKeyframes({
+		input,
+		nodePath: lineColumnToNodePath(input, getLine(input, 'scale')),
+		updates: [
+			{
+				key: 'style.scale',
+				operation: {
+					type: 'easing',
+					segmentIndex: 0,
+					easing: {
+						type: 'spring',
+						damping: 12,
+						mass: 1.5,
+						stiffness: 180,
+						overshootClamping: true,
+					},
+				},
+			},
+		],
+	});
+
+	expect(output).toContain('Easing');
+	expect(output).toContain('easing: [');
+	expect(output).toContain('Easing.spring({');
+	expect(output).toContain('damping: 12');
+	expect(output).toContain('mass: 1.5');
+	expect(output).toContain('stiffness: 180');
+	expect(output).toContain('overshootClamping: true');
 });
 
 test('updateSequenceKeyframes adds an unaliased Easing import for easing edits', async () => {
@@ -260,7 +326,7 @@ export const Example: React.FC = () => {
 				operation: {
 					type: 'easing',
 					segmentIndex: 1,
-					easing: [0.42, 0, 1, 1],
+					easing: {type: 'bezier', x1: 0.42, y1: 0, x2: 1, y2: 1},
 				},
 			},
 		],
@@ -293,7 +359,7 @@ export const Example: React.FC = () => {
 				operation: {
 					type: 'easing',
 					segmentIndex: 1,
-					easing: [0, 0, 0.58, 1],
+					easing: {type: 'bezier', x1: 0, y1: 0, x2: 0.58, y2: 1},
 				},
 			},
 		],
@@ -326,7 +392,7 @@ export const Example: React.FC = () => {
 				operation: {
 					type: 'easing',
 					segmentIndex: 1,
-					easing: 'linear',
+					easing: {type: 'linear'},
 				},
 			},
 		],
@@ -346,7 +412,7 @@ test('updateSequenceKeyframes sets easing for color keyframes', async () => {
 				operation: {
 					type: 'easing',
 					segmentIndex: 0,
-					easing: [0.42, 0, 1, 1],
+					easing: {type: 'bezier', x1: 0.42, y1: 0, x2: 1, y2: 1},
 				},
 			},
 		],
@@ -437,7 +503,7 @@ export const Example: React.FC = () => {
 			default: 1,
 			hiddenFromList: false,
 		},
-	} satisfies SequenceSchema;
+	} satisfies InteractivitySchema;
 	const {output} = await updateSequenceKeyframes({
 		input,
 		nodePath: lineColumnToNodePath(input, getLine(input, '<div')),
@@ -473,7 +539,7 @@ test('updateSequenceKeyframes rejects non-keyframable fields', async () => {
 			hiddenFromList: false,
 			keyframable: false,
 		},
-	} satisfies SequenceSchema;
+	} satisfies InteractivitySchema;
 
 	await expect(
 		updateSequenceKeyframes({
@@ -935,6 +1001,41 @@ test('updateSequenceKeyframes resorts keyframes when moving past an adjacent key
 	);
 });
 
+test('updateSequenceKeyframes replaces an existing keyframe when moving onto it', async () => {
+	const input = sequenceInput
+		.replace(
+			"import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';",
+			"import {AbsoluteFill, Easing, interpolate, useCurrentFrame} from 'remotion';",
+		)
+		.replace(
+			'interpolate(frame, [0, 100], [2, 4])',
+			'interpolate(frame, [0, 50, 100], [2, 3, 4], {easing: [Easing.linear, Easing.bezier(0.42, 0, 1, 1)]})',
+		);
+	const {output, oldValueStrings, newValueStrings} =
+		await updateSequenceKeyframes({
+			input,
+			nodePath: lineColumnToNodePath(input, getLine(input, 'scale')),
+			updates: [
+				{
+					key: 'style.scale',
+					operation: {
+						type: 'move',
+						moves: [{fromFrame: 0, toFrame: 50}],
+					},
+				},
+			],
+		});
+
+	expect(oldValueStrings).toEqual([
+		'interpolate(frame, [0, 50, 100], [2, 3, 4], {easing: [Easing.linear, Easing.bezier(0.42, 0, 1, 1)]})',
+	]);
+	expect(newValueStrings).toEqual([
+		'interpolate(frame, [50, 100], [2, 4], {easing: [Easing.bezier(0.42, 0, 1, 1)]})',
+	]);
+	expect(output).toContain('scale: interpolate(frame, [50, 100], [2, 4], {');
+	expect(output).toContain('easing: [Easing.bezier(0.42, 0, 1, 1)]');
+});
+
 test('updateSequenceKeyframes allows moving keyframes outside the sequence range', async () => {
 	const input = sequenceInput.replace(
 		'interpolate(frame, [0, 100], [2, 4])',
@@ -1042,6 +1143,51 @@ test('updateEffectKeyframes converts a static value to a clamped interpolation',
 	expect(serialized).toContain('extrapolateRight: "clamp"');
 });
 
+test('updateEffectKeyframes adds a missing prop before keyframing it', () => {
+	const {serialized, oldValueStrings} = updateEffectKeyframesAst({
+		input: waveEffectInput,
+		sequenceNodePath: lineColumnToNodePath(
+			waveEffectInput,
+			getLine(waveEffectInput, '<Solid'),
+		),
+		effectIndex: 0,
+		schema: waveSchema,
+		updates: [
+			{
+				key: 'phase',
+				operation: {type: 'add', frame: 30, value: 90},
+			},
+		],
+	});
+
+	expect(oldValueStrings).toEqual(['0']);
+	expect(serialized).toContain('useCurrentFrame');
+	expect(serialized).toContain('const frame = useCurrentFrame();');
+	expect(serialized).toContain('phase: interpolate(frame, [30], [90], {');
+	expect(serialized).toContain('extrapolateLeft: "clamp"');
+	expect(serialized).toContain('extrapolateRight: "clamp"');
+});
+
+test('updateEffectKeyframes adds props to a zero-argument effect', () => {
+	const input = waveEffectInput.replace('wave({})', 'wave()');
+	const {serialized, oldValueStrings} = updateEffectKeyframesAst({
+		input,
+		sequenceNodePath: lineColumnToNodePath(input, getLine(input, '<Solid')),
+		effectIndex: 0,
+		schema: waveSchema,
+		updates: [
+			{
+				key: 'phase',
+				operation: {type: 'add', frame: 15, value: 45},
+			},
+		],
+	});
+
+	expect(oldValueStrings).toEqual(['0']);
+	expect(serialized).toContain('wave({');
+	expect(serialized).toContain('phase: interpolate(frame, [15], [45], {');
+});
+
 test('updateEffectKeyframes sets one easing segment and fills linear segments', () => {
 	const {serialized} = updateEffectKeyframesAst({
 		input: effectInput,
@@ -1056,7 +1202,7 @@ test('updateEffectKeyframes sets one easing segment and fills linear segments', 
 				operation: {
 					type: 'easing',
 					segmentIndex: 1,
-					easing: [0, 0, 0.58, 1],
+					easing: {type: 'bezier', x1: 0, y1: 0, x2: 0.58, y2: 1},
 				},
 			},
 		],
@@ -1153,6 +1299,33 @@ test('updateEffectKeyframes allows moving keyframes outside the sequence range',
 	]);
 	expect(serialized).toContain(
 		'amount: interpolate(frame, [-20, 50, 150], [0.2, 0.5, 0.8])',
+	);
+});
+
+test('updateEffectKeyframes replaces an existing keyframe when moving onto it', () => {
+	const {serialized, newValueStrings} = updateEffectKeyframesAst({
+		input: effectInput,
+		sequenceNodePath: lineColumnToNodePath(
+			effectInput,
+			getLine(effectInput, '<HtmlInCanvas'),
+		),
+		effectIndex: 0,
+		updates: [
+			{
+				key: 'amount',
+				operation: {
+					type: 'move',
+					moves: [{fromFrame: 0, toFrame: 50}],
+				},
+			},
+		],
+	});
+
+	expect(newValueStrings).toEqual([
+		'interpolate(frame, [50, 100], [0.2, 0.8])',
+	]);
+	expect(serialized).toContain(
+		'amount: interpolate(frame, [50, 100], [0.2, 0.8])',
 	);
 });
 

@@ -2,9 +2,11 @@ import {useColorMode} from '@docusaurus/theme-common';
 import {Player} from '@remotion/player';
 import React, {useCallback, useMemo, useState} from 'react';
 import {AbsoluteFill} from 'remotion';
+import styles from '../demos/styles.module.css';
 import {
 	makeEffectDragData,
 	setEffectDragData,
+	setEffectDragImage,
 } from './effect-drag-data';
 import {
 	fillSchemaDefaults,
@@ -13,7 +15,6 @@ import {
 } from './get-default-props-from-schema';
 import {effectsDemos} from './registry';
 import {SchemaControl} from './schema-control';
-import styles from '../demos/styles.module.css';
 
 const container: React.CSSProperties = {
 	overflow: 'hidden',
@@ -80,6 +81,7 @@ export const EffectsDemo: React.FC<{
 	const onDragStart = useCallback(
 		(e: React.DragEvent<HTMLDivElement>) => {
 			setEffectDragData({dataTransfer: e.dataTransfer, dragData});
+			setEffectDragImage(e.dataTransfer);
 		},
 		[dragData],
 	);
@@ -141,7 +143,7 @@ export const EffectsDemo: React.FC<{
 				title="Drag this effect into Remotion Studio"
 			>
 				<span aria-hidden="true">::</span>
-				<span>Drag current effect into a layer in the Studio</span>
+				<span>Drag current effect onto a layer in the Studio</span>
 			</div>
 			<div className={styles.containerrow}>
 				{activeFields.map(([fieldKey, field]) => {

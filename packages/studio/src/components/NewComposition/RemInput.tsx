@@ -25,6 +25,7 @@ type Props = React.DetailedHTMLProps<
 > & {
 	readonly status: RemInputStatus;
 	readonly rightAlign: boolean;
+	readonly small?: boolean;
 };
 
 export const INPUT_HORIZONTAL_PADDING = 8;
@@ -43,6 +44,12 @@ export const inputBaseStyle: React.CSSProperties = {
 	borderStyle: 'solid',
 	borderWidth: 1,
 	fontSize: 14,
+};
+
+const compactInputStyle: React.CSSProperties = {
+	fontSize: 12,
+	lineHeight: '16px',
+	padding: '4px 6px',
 };
 
 export const getInputBorderColor = ({
@@ -67,7 +74,7 @@ export const getInputBorderColor = ({
 const RemInputForwardRef: React.ForwardRefRenderFunction<
 	HTMLInputElement,
 	Props
-> = ({status, rightAlign, ...props}, ref) => {
+> = ({status, rightAlign, small = false, ...props}, ref) => {
 	const [isFocused, setIsFocused] = useState(false);
 	const [isHovered, setIsHovered] = useState(false);
 	const inputRef = useRef<HTMLInputElement>(null);
@@ -77,12 +84,13 @@ const RemInputForwardRef: React.ForwardRefRenderFunction<
 		return {
 			backgroundColor: INPUT_BACKGROUND,
 			...inputBaseStyle,
+			...(small ? compactInputStyle : null),
 			width: '100%',
 			borderColor: getInputBorderColor({isFocused, isHovered, status}),
 			textAlign: rightAlign ? 'right' : 'left',
 			...(props.style ?? {}),
 		};
-	}, [isFocused, isHovered, rightAlign, props.style, status]);
+	}, [isFocused, isHovered, rightAlign, props.style, small, status]);
 
 	useImperativeHandle(ref, () => {
 		return inputRef.current as HTMLInputElement;

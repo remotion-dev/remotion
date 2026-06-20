@@ -5,6 +5,7 @@ import type {
 	TSequence,
 } from 'remotion';
 import {Internals, type PropStatuses} from 'remotion';
+import {findTrackForNodePathInfo} from '../components/Timeline/find-track-for-node-path-info';
 import {getBoundedKeyframeDragDelta} from '../components/Timeline/get-bounded-keyframe-drag-delta';
 import {getNodeKeyframes} from '../components/Timeline/get-node-keyframes';
 import {getTimelineEasingSegments} from '../components/Timeline/get-timeline-easing-segments';
@@ -22,6 +23,14 @@ const makeNodePath = (id: string): SequencePropsSubscriptionKey => ({
 	effectKeys: [],
 });
 
+const makeNodePathWithEffectKeys = (
+	id: string,
+	effectKeys: string[][],
+): SequencePropsSubscriptionKey => ({
+	...makeNodePath(id),
+	effectKeys,
+});
+
 const makeControls = (
 	overrideId: string,
 ): NonNullable<TSequence['controls']> => ({
@@ -30,6 +39,7 @@ const makeControls = (
 	overrideId,
 	supportsEffects: false,
 	componentIdentity: null,
+	componentName: '<Sequence>',
 });
 
 const makeSequence = ({
@@ -63,6 +73,7 @@ const makeSequence = ({
 	postmountDisplay: null,
 	controls: overrideId ? makeControls(overrideId) : null,
 	effects: [],
+	frozenFrame: null,
 });
 
 const numberFieldSchema = {
@@ -78,7 +89,7 @@ const makeKeyframedStatus = (): CanUpdateSequencePropStatusKeyframed => ({
 		{frame: 0, value: 2},
 		{frame: 60, value: 4},
 	],
-	easing: ['linear'],
+	easing: [{type: 'linear'}],
 	clamping: {left: 'extend', right: 'extend'},
 	posterize: undefined,
 });
@@ -219,7 +230,7 @@ test('keyframe display offsets follow the parent sequence context', () => {
 					{frame: 0, value: 2},
 					{frame: 60, value: 4},
 				],
-				easing: ['linear'],
+				easing: [{type: 'linear'}],
 				clamping: {left: 'extend', right: 'extend'},
 				posterize: undefined,
 			},
@@ -231,6 +242,38 @@ test('keyframe display offsets follow the parent sequence context', () => {
 	]);
 });
 
+test('track lookup survives effect key changes', () => {
+	const sequences = [
+		makeSequence({
+			id: 'sequence',
+			from: 0,
+			overrideId: 'sequence',
+			nonce: 0,
+		}),
+	];
+	const currentNodePath = makeNodePathWithEffectKeys('sequence', [
+		['blur'],
+		['noise'],
+	]);
+	const staleNodePath = makeNodePathWithEffectKeys('sequence', [['blur']]);
+
+	const track = findTrackForNodePathInfo({
+		sequences,
+		overrideIdsToNodePaths: {
+			sequence: currentNodePath,
+		},
+		nodePathInfo: {
+			sequenceSubscriptionKey: staleNodePath,
+			auxiliaryKeys: [],
+			index: 0,
+			numberOfSequencesWithThisNodePath: 1,
+			supportsEffects: true,
+		},
+	});
+
+	expect(track?.nodePathInfo?.sequenceSubscriptionKey).toBe(currentNodePath);
+});
+
 test('timeline easing segments connect adjacent display keyframes', () => {
 	const status: CanUpdateSequencePropStatusKeyframed = {
 		...makeKeyframedStatus(),
@@ -239,7 +282,7 @@ test('timeline easing segments connect adjacent display keyframes', () => {
 			{frame: 30, value: 3},
 			{frame: 60, value: 4},
 		],
-		easing: ['linear', 'linear'],
+		easing: [{type: 'linear'}, {type: 'linear'}],
 	};
 
 	expect(getTimelineEasingSegments(getTimelineKeyframes(status, 30))).toEqual([

@@ -12,7 +12,7 @@ import type {
 	CanUpdateEffectPropsResponse,
 	CanUpdateSequencePropStatus,
 	SequenceNodePath,
-	SequenceSchema,
+	InteractivitySchema,
 } from 'remotion';
 import {parseAst} from '../../codemods/parse-ast';
 import {
@@ -276,8 +276,8 @@ export const computeEffectPropsStatusesFromContent = ({
 }: {
 	fileContents: string;
 	sequenceNodePath: SequenceNodePath;
-	effects: SequenceSchema[];
-	keysFor: (effect: SequenceSchema) => string[];
+	effects: InteractivitySchema[];
+	keysFor: (effect: InteractivitySchema) => string[];
 }): CanUpdateEffectPropsResponse[] => {
 	const ast = parseAst(fileContents);
 	const jsx = findJsxElementAtNodePath(ast, sequenceNodePath);
@@ -308,8 +308,8 @@ export const computeEffectPropsStatusesFromFile = ({
 }: {
 	fileName: string;
 	sequenceNodePath: SequenceNodePath;
-	effects: SequenceSchema[];
-	keysFor: (effect: SequenceSchema) => string[];
+	effects: InteractivitySchema[];
+	keysFor: (effect: InteractivitySchema) => string[];
 	remotionRoot: string;
 }): CanUpdateEffectPropsResponse[] => {
 	const {absolutePath} = resolveFileInsideProject({

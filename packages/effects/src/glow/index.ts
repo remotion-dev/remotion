@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertOptionalFiniteNumber,
@@ -57,7 +57,7 @@ const glowSchema = {
 		default: DEFAULT_COLOR,
 		description: 'Color',
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type GlowParams = {
 	/** Blur radius of the glow in pixels. Defaults to `20`. */
@@ -98,7 +98,7 @@ const validateGlowParams = (params: GlowParams): void => {
 };
 
 export const glow = createEffect<GlowParams, GlowState>({
-	type: 'remotion/glow',
+	type: 'dev.remotion.effects.glow',
 	label: 'glow()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/glow',
 	backend: 'webgl2',

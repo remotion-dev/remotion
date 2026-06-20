@@ -1,4 +1,3 @@
-import './index.css';
 import {Composition, Folder, staticFile} from 'remotion';
 import {AnimatedBanner} from './animated-logo/AnimatedBanner';
 import {AnimatedLogo} from './animated-logo/AnimatedLogo';
@@ -9,18 +8,42 @@ import {Banner} from './Brand/Banner';
 import {Comp} from './Brand/Composition';
 import {TriangleDemo} from './Brand/TriangleToSquare';
 import {
+	CanvasCapturePreview,
+	calculateCanvasCapturePreviewMetadata,
+	canvasCapturePreviewSchema,
+} from './CanvasCapturePreview';
+import {
 	WhatIsRemotion,
 	whatIsRemotionCalculateMetadata,
 	whatIsRemotionSchema,
 } from './Compose/WhatIsRemotion';
+import {EffectsAnnouncement} from './effects/EffectsAnnouncement';
+import {NewsHeadline} from './effects/NewsHeadline';
+import {
+	StarburstEffectShowcase,
+	starburstEffectShowcaseDurationInFrames,
+} from './effects/StarburstEffectShowcase';
+import {
+	ZigzagLinearBlurShowcase,
+	zigzagLinearBlurShowcaseDurationInFrames,
+} from './effects/ZigzagLinearBlurShowcase';
 import {EmailSignature} from './EmailSignature';
+import './index.css';
 import {Logo} from './Logo';
 import {LogoCollab, logoCollabSchema} from './LogoCollab/LogoCollab';
+import NewSticker from './NewSticker';
 import {
 	RulesEnumeration,
 	rulesEnumerationSchema,
 } from './RulesEnumeration/RulesEnumeration';
 import {ProductHuntLogo} from './ScalingLogo';
+import {
+	HTML_IN_CANVAS_ALL_EFFECTS_DURATION,
+	HtmlInCanvasAllEffects,
+	calculateHtmlInCanvasAllEffectsMetadata,
+	htmlInCanvasAllEffectsDefaultProps,
+	htmlInCanvasAllEffectsSchema,
+} from './Showcase/HtmlInCanvasAllEffects';
 import {
 	FlyingCardsLeft,
 	flyingCardsLeftSchema,
@@ -95,6 +118,77 @@ export const RemotionRoot: React.FC = () => {
 				durationInFrames={90}
 				id="scaling-logo"
 			/>
+			<Folder name="showcase">
+				<Composition
+					id="html-in-canvas-all-effects"
+					component={HtmlInCanvasAllEffects}
+					fps={30}
+					height={1080}
+					width={1920}
+					durationInFrames={HTML_IN_CANVAS_ALL_EFFECTS_DURATION}
+					schema={htmlInCanvasAllEffectsSchema}
+					defaultProps={htmlInCanvasAllEffectsDefaultProps}
+					calculateMetadata={calculateHtmlInCanvasAllEffectsMetadata}
+				/>
+				<Composition
+					id="canvas-capture-promo"
+					component={CanvasCapturePreview}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={120}
+					defaultProps={{
+						videoFile: staticFile('remotion-studio-canvas-recording.webm'),
+						cursorScale: 5,
+						width: null,
+						height: null,
+					}}
+					schema={canvasCapturePreviewSchema}
+					calculateMetadata={calculateCanvasCapturePreviewMetadata}
+				/>
+				<Composition
+					id="canvas-capture-new-sticker"
+					component={NewSticker}
+					width={1400}
+					height={1080}
+					fps={30}
+					durationInFrames={60}
+				/>
+			</Folder>
+			<Folder name="effects">
+				<Composition
+					id="starburst-effect-showcase"
+					component={StarburstEffectShowcase}
+					durationInFrames={starburstEffectShowcaseDurationInFrames}
+					fps={30}
+					width={1080}
+					height={1350}
+				/>
+				<Composition
+					id="zigzag-linear-blur-effect-showcase"
+					component={ZigzagLinearBlurShowcase}
+					durationInFrames={zigzagLinearBlurShowcaseDurationInFrames}
+					fps={30}
+					width={1080}
+					height={1350}
+				/>
+				<Composition
+					id="effects-announcement"
+					component={EffectsAnnouncement}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={200}
+				/>
+				<Composition
+					id="news-headline"
+					component={NewsHeadline}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={200}
+				/>
+			</Folder>
 			<Folder name="animated-logo">
 				<Composition
 					component={AnimatedLogo}
@@ -172,7 +266,6 @@ export const RemotionRoot: React.FC = () => {
 					width={1920}
 					height={1080}
 				/>
-
 				<Composition
 					id="lower-third-reference"
 					component={LowerReference}

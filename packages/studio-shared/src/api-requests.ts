@@ -21,7 +21,7 @@ import type {
 	JsxComponentIdentity,
 	SequenceNodePath,
 	SequencePropsSubscriptionKey,
-	SequenceSchema,
+	InteractivitySchema,
 } from 'remotion';
 import type {RecastCodemod, VisualControlChange} from './codemods';
 import type {ComponentProp} from './component-drag-data';
@@ -303,7 +303,7 @@ export type SaveSequencePropEdit = {
 	key: string;
 	value: string;
 	defaultValue: string | null;
-	schema: SequenceSchema;
+	schema: InteractivitySchema;
 };
 
 export type SaveSequencePropsRequest = {
@@ -336,7 +336,7 @@ type SaveEffectPropsRequestBase = {
 	effectIndex: number;
 	key: string;
 	defaultValue: string | null;
-	schema: SequenceSchema;
+	schema: InteractivitySchema;
 	clientId: string;
 };
 
@@ -389,6 +389,24 @@ export type ReorderEffectResponse =
 			stack: string;
 	  };
 
+export type DuplicateEffectRequestItem = {
+	fileName: string;
+	sequenceNodePath: SequencePropsSubscriptionKey;
+	effectIndex: number;
+};
+
+export type DuplicateEffectRequest = DuplicateEffectRequestItem[];
+
+export type DuplicateEffectResponse =
+	| {
+			success: true;
+	  }
+	| {
+			success: false;
+			reason: string;
+			stack: string;
+	  };
+
 export type ReorderSequencePosition = 'before' | 'after';
 
 export type ReorderSequenceRequest = {
@@ -414,7 +432,7 @@ export type DeleteSequenceKeyframe = {
 	nodePath: SequencePropsSubscriptionKey;
 	key: string;
 	frame: number;
-	schema: SequenceSchema;
+	schema: InteractivitySchema;
 };
 
 export type MoveSequenceKeyframe = {
@@ -423,7 +441,7 @@ export type MoveSequenceKeyframe = {
 	key: string;
 	fromFrame: number;
 	toFrame: number;
-	schema: SequenceSchema;
+	schema: InteractivitySchema;
 };
 
 export type AddSequenceKeyframeRequest = {
@@ -432,7 +450,7 @@ export type AddSequenceKeyframeRequest = {
 	key: string;
 	frame: number;
 	value: string;
-	schema: SequenceSchema;
+	schema: InteractivitySchema;
 	clientId: string;
 };
 
@@ -446,7 +464,7 @@ export type DeleteEffectKeyframe = {
 	effectIndex: number;
 	key: string;
 	frame: number;
-	schema: SequenceSchema;
+	schema: InteractivitySchema;
 };
 
 export type MoveEffectKeyframe = {
@@ -456,7 +474,7 @@ export type MoveEffectKeyframe = {
 	key: string;
 	fromFrame: number;
 	toFrame: number;
-	schema: SequenceSchema;
+	schema: InteractivitySchema;
 };
 
 export type DeleteKeyframesRequest = {
@@ -486,7 +504,7 @@ export type AddEffectKeyframeRequest = {
 	key: string;
 	frame: number;
 	value: string;
-	schema: SequenceSchema;
+	schema: InteractivitySchema;
 	clientId: string;
 };
 
@@ -526,7 +544,7 @@ export type UpdateSequenceKeyframeSettingsRequest = {
 	nodePath: SequencePropsSubscriptionKey;
 	key: string;
 	settings: KeyframeSettings;
-	schema: SequenceSchema;
+	schema: InteractivitySchema;
 	clientId: string;
 };
 
@@ -538,7 +556,7 @@ export type UpdateEffectKeyframeSettingsRequest = {
 	effectIndex: number;
 	key: string;
 	settings: KeyframeSettings;
-	schema: SequenceSchema;
+	schema: InteractivitySchema;
 	clientId: string;
 };
 
@@ -627,6 +645,7 @@ export type InsertableCompositionElement =
 			type: 'solid';
 			width: number;
 			height: number;
+			position: InsertableCompositionElementPosition | null;
 	  }
 	| {
 			type: 'component';
@@ -634,17 +653,24 @@ export type InsertableCompositionElement =
 			importName: string;
 			importPath: string;
 			props: ComponentProp[];
+			position: InsertableCompositionElementPosition | null;
 	  }
 	| {
 			type: 'asset';
-			assetType: 'image' | 'video' | 'gif' | 'audio';
+			assetType: 'image' | 'video' | 'gif' | 'animated-image' | 'audio';
 			src: string;
 			srcType: 'static' | 'remote';
 			dimensions: {
 				width: number;
 				height: number;
 			} | null;
+			position: InsertableCompositionElementPosition | null;
 	  };
+
+export type InsertableCompositionElementPosition = {
+	x: number;
+	y: number;
+};
 
 export type InsertJsxElementRequest = {
 	compositionFile: string;
@@ -777,6 +803,10 @@ export type ApiRoutes = {
 	>;
 	'/api/add-effect': ReqAndRes<AddEffectRequest, AddEffectResponse>;
 	'/api/reorder-effect': ReqAndRes<ReorderEffectRequest, ReorderEffectResponse>;
+	'/api/duplicate-effect': ReqAndRes<
+		DuplicateEffectRequest,
+		DuplicateEffectResponse
+	>;
 	'/api/reorder-sequence': ReqAndRes<
 		ReorderSequenceRequest,
 		ReorderSequenceResponse

@@ -7,7 +7,7 @@ import type {
 	PropStatuses,
 	SequenceControls,
 	SequencePropsSubscriptionKey,
-	SequenceSchema,
+	InteractivitySchema,
 	VisibleFieldSchema,
 } from 'remotion';
 import {Internals} from 'remotion';
@@ -23,18 +23,18 @@ export type SchemaFieldInfo = {
 	fieldSchema: VisibleFieldSchema;
 };
 
-export type SequenceSchemaFieldInfo = SchemaFieldInfo & {
+export type InteractivitySchemaFieldInfo = SchemaFieldInfo & {
 	readonly kind: 'sequence-field';
 };
 
 export type EffectSchemaFieldInfo = SchemaFieldInfo & {
 	readonly kind: 'effect-field';
 	readonly effectIndex: number;
-	readonly effectSchema: SequenceSchema;
+	readonly effectSchema: InteractivitySchema;
 };
 
 export type AnySchemaFieldInfo =
-	| SequenceSchemaFieldInfo
+	| InteractivitySchemaFieldInfo
 	| EffectSchemaFieldInfo;
 
 export const SCHEMA_FIELD_ROW_HEIGHT = 22;
@@ -125,12 +125,12 @@ export const getFieldsToShow = ({
 	schema,
 	currentRuntimeValueDotNotation,
 }: {
-	schema: SequenceSchema;
+	schema: InteractivitySchema;
 	currentRuntimeValueDotNotation: Record<string, unknown>;
 	getDragOverrides: GetDragOverrides;
 	propStatuses: PropStatuses;
 	nodePath: SequencePropsSubscriptionKey;
-}): SequenceSchemaFieldInfo[] | null => {
+}): InteractivitySchemaFieldInfo[] | null => {
 	const {merged: valuesDotNotation} =
 		Internals.computeEffectiveSchemaValuesDotNotation({
 			schema,
@@ -146,7 +146,7 @@ export const getFieldsToShow = ({
 	);
 
 	return Object.entries(activeSchema)
-		.map(([key, fieldSchema]): SequenceSchemaFieldInfo | null => {
+		.map(([key, fieldSchema]): InteractivitySchemaFieldInfo | null => {
 			const typeName = fieldSchema.type;
 			if (SUPPORTED_SCHEMA_TYPES.indexOf(typeName) === -1) {
 				throw new Error(`Unsupported field type: ${typeName}`);

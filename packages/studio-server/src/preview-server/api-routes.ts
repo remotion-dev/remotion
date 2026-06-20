@@ -14,6 +14,7 @@ import {deleteJsxNodeHandler} from './routes/delete-jsx-node';
 import {deleteKeyframesHandler} from './routes/delete-keyframes';
 import {deleteStaticFileHandler} from './routes/delete-static-file';
 import {downloadRemoteAssetHandler} from './routes/download-remote-asset';
+import {duplicateEffectHandler} from './routes/duplicate-effect';
 import {duplicateJsxNodeHandler} from './routes/duplicate-jsx-node';
 import {insertJsxElementHandler} from './routes/insert-jsx-element';
 import {handleInstallPackage} from './routes/install-dependency';
@@ -72,6 +73,7 @@ export const allApiRoutes: {
 	'/api/save-effect-props': saveEffectPropsHandler,
 	'/api/add-effect': addEffectHandler,
 	'/api/reorder-effect': reorderEffectHandler,
+	'/api/duplicate-effect': duplicateEffectHandler,
 	'/api/reorder-sequence': reorderSequenceHandler,
 	'/api/delete-keyframes': deleteKeyframesHandler,
 	'/api/move-keyframes': moveKeyframesHandler,

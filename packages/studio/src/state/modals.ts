@@ -22,11 +22,10 @@ import type {
 } from '@remotion/web-renderer';
 import type React from 'react';
 import {createContext} from 'react';
-import type {_InternalTypes} from 'remotion';
+import type {SequencePropsSubscriptionKey, _InternalTypes} from 'remotion';
 import type {CompType} from '../components/NewComposition/DuplicateComposition';
 import type {QuickSwitcherMode} from '../components/QuickSwitcher/NoResults';
 import type {RenderType} from '../components/RenderModal/RenderModalAdvanced';
-import type {EasingEditorModalState} from '../components/Timeline/EasingEditorModal';
 import type {KeyframeSettingsModalState} from '../components/Timeline/KeyframeSettingsModal';
 import type {Bug, UpdateInfo} from '../components/UpdateCheck';
 
@@ -121,6 +120,13 @@ export type ConfirmationDialogState = {
 	onCancel: () => void;
 };
 
+export type AddEffectModalState = {
+	type: 'add-effect';
+	fileName: string;
+	nodePath: SequencePropsSubscriptionKey;
+	clientId: string;
+};
+
 export type ModalState =
 	| {
 			type: 'duplicate-comp';
@@ -154,7 +160,6 @@ export type ModalState =
 	| {
 			type: 'input-props-override';
 	  }
-	| EasingEditorModalState
 	| KeyframeSettingsModalState
 	| RenderModalState
 	| WebRenderModalState
@@ -176,6 +181,7 @@ export type ModalState =
 			mode: QuickSwitcherMode;
 			invocationTimestamp: number;
 	  }
+	| AddEffectModalState
 	| ConfirmationDialogState;
 
 export type ModalContextType = {

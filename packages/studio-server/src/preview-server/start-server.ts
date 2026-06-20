@@ -143,7 +143,7 @@ export const startServer = async (options: {
 	const server = http.createServer((request, response) => {
 		if (options.enableCrossSiteIsolation) {
 			response.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
-			response.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+			response.setHeader('Cross-Origin-Embedder-Policy', 'credentialless');
 		}
 
 		new Promise<void>((resolve) => {

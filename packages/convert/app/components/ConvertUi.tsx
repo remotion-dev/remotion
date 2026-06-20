@@ -19,7 +19,11 @@ import type {
 	ConvertSections,
 	RotateOrMirrorOrCropState,
 } from '~/lib/default-ui';
-import {getOrderOfSections, isConvertEnabledByDefault} from '~/lib/default-ui';
+import {
+	getOrderOfSections,
+	isConvertEnabledByDefault,
+	isVideoOnlySection,
+} from '~/lib/default-ui';
 import {getNewName} from '~/lib/generate-new-name';
 import {
 	getActualAudioOperation,
@@ -335,6 +339,8 @@ const ConvertUI = ({
 						}
 
 						return {
+							codec: operation.audioCodec,
+							forceTranscode: true,
 							sampleRate: operation.sampleRate ?? undefined,
 							process(sample) {
 								if (!progress.hasVideo) {
@@ -592,6 +598,10 @@ const ConvertUI = ({
 		<>
 			<div className="w-full gap-4 flex flex-col">
 				{order.map((section) => {
+					if (inputIsAudioExclusively && isVideoOnlySection(section)) {
+						return null;
+					}
+
 					if (section === 'convert') {
 						return (
 							<div key="convert">
@@ -628,10 +638,6 @@ const ConvertUI = ({
 					}
 
 					if (section === 'mirror') {
-						if (inputIsAudioExclusively) {
-							return null;
-						}
-
 						return (
 							<div key="mirror">
 								<ConvertUiSection
@@ -654,10 +660,6 @@ const ConvertUI = ({
 					}
 
 					if (section === 'rotate') {
-						if (inputIsAudioExclusively) {
-							return null;
-						}
-
 						return (
 							<div key="rotate">
 								<ConvertUiSection
@@ -717,10 +719,6 @@ const ConvertUI = ({
 					}
 
 					if (section === 'resize') {
-						if (inputIsAudioExclusively) {
-							return null;
-						}
-
 						return (
 							<div key="resize">
 								<ConvertUiSection

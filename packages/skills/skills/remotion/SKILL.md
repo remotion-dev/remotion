@@ -256,11 +256,11 @@ When needing to use sound effects, load the [./rules/sfx.md](./rules/sfx.md) fil
 
 ## Visual and pixel effects
 
-When creating a visual effect, prefer: 1. normal Remotion/HTML/CSS/SVG/filter/blend/mask animation, 2. a listed effect via [rules/effects.md](rules/effects.md), including on HTML rendered through `<HtmlInCanvas>`, 3. custom `<HtmlInCanvas onPaint>` via [rules/html-in-canvas.md](rules/html-in-canvas.md) only if no listed effect fits.
+When creating a visual effect, prefer: 1. normal Remotion/HTML/CSS/SVG/filter/blend/mask animation, 2. a listed effect via [rules/effects.md](rules/effects.md), including on HTML rendered through `<HtmlInCanvas>`, 3. a custom `createEffect()` via [rules/effects.md](rules/effects.md) when the user asks for a reusable/project-specific effect, 4. custom `<HtmlInCanvas onPaint>` via [rules/html-in-canvas.md](rules/html-in-canvas.md) only if no effect fits.
 
 For light leak overlays, see [rules/light-leaks.md](rules/light-leaks.md). Docs: https://www.remotion.dev/docs/effects
 
-Available effects: `barrelDistortion()`, `blur()`, `brightness()`, `chromaticAberration()`, `colorKey()`, `contrast()`, `dotGrid()`, `dropShadow()`, `duotone()`, `evolve()`, `fisheye()`, `glow()`, `lightTrail()`, `grayscale()`, `halftone()`, `halftoneLinearGradient()`, `hue()`, `invert()`, `lightLeak()`, `linearProgressiveBlur()`, `lines()`, `mirror()`, `noise()`, `noiseDisplacement()`, `pixelDissolve()`, `rings()`, `saturation()`, `scale()`, `scanlines()`, `shine()`, `speckle()`, `starburst()`, `tint()`, `uvTranslate()`, `vignette()`, `wave()`, `waves()`, `whiteNoise()`, `xyTranslate()`, `zigzag()`.
+Available effects: `brightness()`, `contrast()`, `colorKey()`, `duotone()`, `grayscale()`, `hue()`, `invert()`, `saturation()`, `tint()`, `thermalVision()`, `blur()`, `linearProgressiveBlur()`, `zoomBlur()`, `dropShadow()`, `glow()`, `lightTrail()`, `evolve()`, `mirror()`, `scale()`, `uvTranslate()`, `xyTranslate()`, `barrelDistortion()`, `chromaticAberration()`, `fisheye()`, `wave()`, `burlap()`, `emboss()`, `dotGrid()`, `halftone()`, `noise()`, `noiseDisplacement()`, `pattern()`, `pixelate()`, `pixelDissolve()`, `scanlines()`, `speckle()`, `shine()`, `shrinkwrap()`, `vignette()`, `contourLines()`, `checkerboard()`, `halftoneLinearGradient()`, `gridlines()`, `whiteNoise()`, `tvSignalOff()`, `lines()`, `rings()`, `waves()`, `zigzag()`, `lightLeak()`, `starburst()`.
 
 ## 3D content
 

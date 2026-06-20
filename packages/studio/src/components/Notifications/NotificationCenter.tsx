@@ -13,7 +13,7 @@ const container: React.CSSProperties = {
 	display: 'flex',
 	width: '100%',
 	flexDirection: 'column',
-	paddingTop: 20,
+	paddingTop: 40,
 	pointerEvents: 'none',
 	backgroundColor: 'transparent',
 };

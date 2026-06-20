@@ -6,9 +6,9 @@ import type {
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
 import {InputDragger} from '../NewComposition/InputDragger';
+import {formatTimelineFieldValueForDisplay} from './timeline-field-display-utils';
 import {
 	draggerStyle,
-	formatTimelineNumber,
 	getTimelineDisplayDecimalPlaces,
 	normalizeTimelineNumber,
 } from './timeline-field-utils';
@@ -43,13 +43,37 @@ export const TimelineRotationField: React.FC<{
 		return typeof effectiveValue === 'number' ? effectiveValue : 0;
 	}, [effectiveValue, isCssRotation]);
 
+	const configuredStep =
+		field.fieldSchema.type === 'rotation-css' ||
+		field.fieldSchema.type === 'rotation-degrees'
+			? field.fieldSchema.step
+			: undefined;
+	const step = configuredStep ?? 1;
+	const min =
+		field.fieldSchema.type === 'rotation-degrees'
+			? (field.fieldSchema.min ?? -Infinity)
+			: -Infinity;
+	const max =
+		field.fieldSchema.type === 'rotation-degrees'
+			? (field.fieldSchema.max ?? Infinity)
+			: Infinity;
+
+	const decimalPlaces = useMemo(
+		() =>
+			getTimelineDisplayDecimalPlaces({
+				defaultDecimalPlaces: 1,
+				step: configuredStep,
+			}),
+		[configuredStep],
+	);
+
 	const serializeValue = useCallback(
 		(value: number) => {
 			return isCssRotation
-				? serializeCssRotation(value)
+				? serializeCssRotation(value, decimalPlaces)
 				: normalizeTimelineNumber(value);
 		},
-		[isCssRotation],
+		[decimalPlaces, isCssRotation],
 	);
 
 	const onValueChange = useCallback(
@@ -92,40 +116,14 @@ export const TimelineRotationField: React.FC<{
 		[propStatus, onSave, serializeValue],
 	);
 
-	const configuredStep =
-		field.fieldSchema.type === 'rotation-css' ||
-		field.fieldSchema.type === 'rotation-degrees'
-			? field.fieldSchema.step
-			: undefined;
-	const step = configuredStep ?? 1;
-	const min =
-		field.fieldSchema.type === 'rotation-degrees'
-			? (field.fieldSchema.min ?? -Infinity)
-			: -Infinity;
-	const max =
-		field.fieldSchema.type === 'rotation-degrees'
-			? (field.fieldSchema.max ?? Infinity)
-			: Infinity;
-
-	const decimalPlaces = useMemo(
-		() =>
-			getTimelineDisplayDecimalPlaces({
-				defaultDecimalPlaces: 1,
-				step: configuredStep,
-			}),
-		[configuredStep],
-	);
-
 	const formatter = useCallback(
 		(v: number | string) => {
-			const formatted = formatTimelineNumber({
-				decimalPlaces,
-				fixed: false,
-				value: normalizeTimelineNumber(Number(v)),
+			return formatTimelineFieldValueForDisplay({
+				fieldSchema: field.fieldSchema,
+				value: v,
 			});
-			return `${formatted}\u00B0`;
 		},
-		[decimalPlaces],
+		[field.fieldSchema],
 	);
 
 	return (

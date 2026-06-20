@@ -10,22 +10,20 @@ import type {SequenceControls} from './CompositionManager.js';
 import type {EffectsProp} from './effects/effect-types.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import {getCrossOriginValue} from './get-cross-origin-value.js';
-import {usePreload} from './prefetch.js';
+import type {InteractiveBaseProps} from './Interactive.js';
 import {
-	fromField,
-	hiddenField,
-	sequenceVisualStyleSchema,
-	durationInFramesField,
-	type SequenceSchema,
-} from './sequence-field-schema.js';
-import type {SequenceProps} from './Sequence.js';
+	baseSchema,
+	transformSchema,
+	type InteractivitySchema,
+} from './interactivity-schema.js';
+import {usePreload} from './prefetch.js';
 import {Sequence} from './Sequence.js';
 import {SequenceContext} from './SequenceContext.js';
 import {truncateSrcForLabel} from './truncate-src-for-label.js';
 import {useBufferState} from './use-buffer-state.js';
 import {useDelayRender} from './use-delay-render.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
-import {wrapInSchema} from './wrap-in-schema.js';
+import {withInteractivitySchema} from './with-interactivity-schema.js';
 
 function exponentialBackoff(errorCount: number): number {
 	return 1000 * 2 ** (errorCount - 1);
@@ -53,7 +51,7 @@ export type ImgProps = NativeImgProps & {
 	 * @deprecated For internal use only
 	 */
 	readonly stack?: string;
-} & Pick<SequenceProps, 'durationInFrames' | 'from' | 'hidden'>;
+} & InteractiveBaseProps;
 
 type Expected = Omit<
 	NativeImgProps,
@@ -68,6 +66,7 @@ type ImgContentProps = Omit<
 	| 'showInTimeline'
 	| 'from'
 	| 'durationInFrames'
+	| 'freeze'
 	| 'effects'
 > & {
 	readonly refForOutline: React.RefObject<HTMLElement | null>;
@@ -312,8 +311,8 @@ const ImgContent: React.FC<ImgContentProps> = ({
 };
 
 type NativeImgInnerProps = Omit<ImgProps, 'effects'> & {
-	readonly _experimentalControls: SequenceControls | undefined;
-	readonly _remotionInternalRefForOutline: React.RefObject<HTMLElement | null>;
+	readonly controls: SequenceControls | undefined;
+	readonly outlineRef: React.RefObject<HTMLElement | null>;
 };
 
 const NativeImgInner: React.FC<NativeImgInnerProps> = ({
@@ -324,8 +323,9 @@ const NativeImgInner: React.FC<NativeImgInnerProps> = ({
 	src,
 	from,
 	durationInFrames,
-	_experimentalControls: controls,
-	_remotionInternalRefForOutline: refForOutline,
+	freeze,
+	controls,
+	outlineRef: refForOutline,
 	...props
 }) => {
 	if (!src) {
@@ -337,16 +337,15 @@ const NativeImgInner: React.FC<NativeImgInnerProps> = ({
 			layout="none"
 			from={from ?? 0}
 			durationInFrames={durationInFrames ?? Infinity}
+			freeze={freeze}
 			_remotionInternalStack={stack}
-			_remotionInternalDocumentationLink={
-				name === undefined ? 'https://www.remotion.dev/docs/img' : undefined
-			}
+			_remotionInternalDocumentationLink="https://www.remotion.dev/docs/img"
 			_remotionInternalIsMedia={{type: 'image', src}}
 			name={name ?? '<Img>'}
-			_experimentalControls={controls}
+			controls={controls}
 			showInTimeline={showInTimeline ?? true}
 			hidden={hidden}
-			_remotionInternalRefForOutline={refForOutline}
+			outlineRef={refForOutline}
 		>
 			<ImgContent src={src} refForOutline={refForOutline} {...props} />
 		</Sequence>
@@ -355,17 +354,15 @@ const NativeImgInner: React.FC<NativeImgInnerProps> = ({
 
 const CanvasImageWithPrivateProps = CanvasImage as React.ComponentType<
 	CanvasImageProps & {
-		readonly _experimentalControls?: SequenceControls | undefined;
-		readonly _remotionInternalRefForOutline?: React.RefObject<HTMLElement | null> | null;
+		readonly controls?: SequenceControls | undefined;
+		readonly outlineRef?: React.RefObject<HTMLElement | null> | null;
 	}
 >;
 
 export const imgSchema = {
-	durationInFrames: durationInFramesField,
-	from: fromField,
-	...sequenceVisualStyleSchema,
-	hidden: hiddenField,
-} as const satisfies SequenceSchema;
+	...baseSchema,
+	...transformSchema,
+} as const satisfies InteractivitySchema;
 
 const imgCanvasFallbackIncompatibleProps = new Set([
 	'alt',
@@ -444,7 +441,7 @@ const getFitFromObjectFit = (
 
 const ImgInner: React.FC<
 	ImgProps & {
-		readonly _experimentalControls: SequenceControls | undefined;
+		readonly controls: SequenceControls | undefined;
 	}
 > = ({
 	effects = [],
@@ -456,7 +453,8 @@ const ImgInner: React.FC<
 	src,
 	from,
 	durationInFrames,
-	_experimentalControls: controls,
+	freeze,
+	controls,
 	width,
 	height,
 	className,
@@ -482,7 +480,8 @@ const ImgInner: React.FC<
 				src={src}
 				from={from}
 				durationInFrames={durationInFrames}
-				_experimentalControls={controls}
+				freeze={freeze}
+				controls={controls}
 				width={width}
 				height={height}
 				className={className}
@@ -492,7 +491,7 @@ const ImgInner: React.FC<
 				maxRetries={maxRetries}
 				delayRenderRetries={delayRenderRetries}
 				delayRenderTimeoutInMilliseconds={delayRenderTimeoutInMilliseconds}
-				_remotionInternalRefForOutline={refForOutline}
+				outlineRef={refForOutline}
 			/>
 		);
 	}
@@ -529,15 +528,14 @@ const ImgInner: React.FC<
 			delayRenderTimeoutInMilliseconds={delayRenderTimeoutInMilliseconds}
 			from={from}
 			durationInFrames={durationInFrames}
+			freeze={freeze}
 			hidden={hidden}
 			name={name ?? '<Img>'}
 			showInTimeline={showInTimeline}
 			stack={stack}
-			_remotionInternalDocumentationLink={
-				name === undefined ? 'https://www.remotion.dev/docs/img' : undefined
-			}
-			_experimentalControls={controls}
-			_remotionInternalRefForOutline={refForOutline}
+			_remotionInternalDocumentationLink="https://www.remotion.dev/docs/img"
+			controls={controls}
+			outlineRef={refForOutline}
 			{...canvasProps}
 		/>
 	);
@@ -547,8 +545,9 @@ const ImgInner: React.FC<
  * @description Works just like a regular HTML img tag. When you use the <Img> tag, Remotion will ensure that the image is loaded before rendering the frame.
  * @see [Documentation](https://remotion.dev/docs/img)
  */
-export const Img = wrapInSchema({
+export const Img = withInteractivitySchema({
 	Component: ImgInner,
+	componentName: '<Img>',
 	componentIdentity: 'dev.remotion.remotion.Img',
 	schema: imgSchema,
 	supportsEffects: true,

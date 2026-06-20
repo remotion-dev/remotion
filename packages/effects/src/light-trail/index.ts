@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertOptionalFiniteNumber,
@@ -85,7 +85,7 @@ const lightTrailSchema = {
 		default: DEFAULT_COLOR,
 		description: 'Color',
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type LightTrailParams = {
 	/** Direction in which the trail extends, in degrees. Defaults to `180`. */

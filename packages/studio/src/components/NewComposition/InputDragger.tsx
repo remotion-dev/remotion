@@ -25,10 +25,17 @@ type Props = InputHTMLAttributes<HTMLInputElement> & {
 	readonly rightAlign: boolean;
 	readonly small?: boolean;
 	readonly snapToStep?: boolean;
+	readonly dragDecimalPlaces?: number;
 };
 
 const isInt = (num: number) => {
 	return num % 1 === 0;
+};
+
+const roundToDecimalPlaces = (val: number, decimalPlaces: number) => {
+	const factor = 10 ** decimalPlaces;
+	const rounded = Math.round(val * factor) / factor;
+	return Object.is(rounded, -0) ? 0 : rounded;
 };
 
 export const deriveInputDraggerStep = ({
@@ -55,6 +62,26 @@ export const deriveInputDraggerStep = ({
 	return 0.0001;
 };
 
+export const deriveInputDraggerDragStartValue = ({
+	min,
+	value,
+}: {
+	readonly min: React.InputHTMLAttributes<HTMLInputElement>['min'];
+	readonly value: React.InputHTMLAttributes<HTMLInputElement>['value'];
+}) => {
+	const numericValue = Number(value);
+	if (Number.isFinite(numericValue)) {
+		return numericValue;
+	}
+
+	const numericMin = Number(min);
+	if (Number.isFinite(numericMin)) {
+		return numericMin;
+	}
+
+	return 0;
+};
+
 const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 	HTMLButtonElement,
 	Props
@@ -72,6 +99,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 		rightAlign,
 		small,
 		snapToStep = true,
+		dragDecimalPlaces,
 		...props
 	},
 	ref,
@@ -190,6 +218,10 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 				const step = Number(_step ?? 1);
 				const min = Number(_min ?? 0);
 				const max = Number(_max ?? Infinity);
+				const dragStartValue = deriveInputDraggerDragStartValue({
+					min: _min,
+					value,
+				});
 
 				if (distanceFromStart > 4) {
 					setClickLock(true);
@@ -203,8 +235,12 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 					[-5, -4, 0, 4, 5],
 					[-step, 0, 0, 0, step],
 				);
-				const newValue = Math.min(max, Math.max(min, Number(value) + diff));
-				const nextValue = snapToStep ? roundToStep(newValue, step) : newValue;
+				const newValue = Math.min(max, Math.max(min, dragStartValue + diff));
+				const nextValue = snapToStep
+					? roundToStep(newValue, step)
+					: dragDecimalPlaces === undefined
+						? newValue
+						: roundToDecimalPlaces(newValue, dragDecimalPlaces);
 				lastDragValue = nextValue;
 				onValueChange(nextValue);
 			};
@@ -230,7 +266,16 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 				},
 			);
 		},
-		[_step, _min, _max, value, onValueChange, onValueChangeEnd, snapToStep],
+		[
+			_step,
+			_min,
+			_max,
+			value,
+			onValueChange,
+			onValueChangeEnd,
+			snapToStep,
+			dragDecimalPlaces,
+		],
 	);
 
 	useEffect(() => {
@@ -263,8 +308,8 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 					status={status}
 					pattern={'[0-9]*[.]?[0-9]*'}
 					rightAlign={rightAlign}
+					small={small}
 					{...props}
-					{...(small ? {style: {padding: '4px 6px', fontSize: 12}} : {})}
 				/>
 			</HigherZIndex>
 		);

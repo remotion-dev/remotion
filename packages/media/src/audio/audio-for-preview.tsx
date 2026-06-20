@@ -121,10 +121,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 	const parentSequence = useContext(SequenceContext);
 	const isPremounting = Boolean(parentSequence?.premounting);
 	const isPostmounting = Boolean(parentSequence?.postmounting);
-	const sequenceOffset =
-		((parentSequence?.cumulatedFrom ?? 0) +
-			(parentSequence?.relativeFrom ?? 0)) /
-		videoConfig.fps;
+	const sequenceOffset = (parentSequence?.absoluteFrom ?? 0) / videoConfig.fps;
 
 	const bufferingContext = useContext(Internals.BufferingContextReact);
 

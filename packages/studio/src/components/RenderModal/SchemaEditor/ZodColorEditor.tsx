@@ -83,6 +83,7 @@ export const ZodColorEditor: React.FC<{
 						onChange={onTextChange}
 						onBlur={onTextBlur}
 						rightAlign={false}
+						small
 					/>
 				</Row>
 				<ZodFieldValidation path={jsonPath} zodValidation={localValue} />

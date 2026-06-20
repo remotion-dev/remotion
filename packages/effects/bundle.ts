@@ -1,5 +1,5 @@
-import {build} from 'bun';
 import path from 'path';
+import {build} from 'bun';
 
 if (process.env.NODE_ENV !== 'production') {
 	throw new Error('This script must be run using NODE_ENV=production');
@@ -9,21 +9,27 @@ const effectEntrypoints = [
 	'src/index.ts',
 	'src/barrel-distortion.ts',
 	'src/blur.ts',
+	'src/burlap.ts',
+	'src/checkerboard.ts',
 	'src/chromatic-aberration.ts',
 	'src/color-key.ts',
 	'src/brightness.ts',
 	'src/contrast.ts',
+	'src/contour-lines.ts',
 	'src/drop-shadow.ts',
 	'src/duotone.ts',
+	'src/emboss.ts',
 	'src/evolve.ts',
 	'src/fisheye.ts',
 	'src/glow.ts',
 	'src/grayscale.ts',
+	'src/gridlines.ts',
 	'src/halftone-linear-gradient.ts',
 	'src/halftone.ts',
 	'src/hue.ts',
 	'src/dot-grid.ts',
 	'src/pixel-dissolve.ts',
+	'src/pixelate.ts',
 	'src/invert.ts',
 	'src/lines.ts',
 	'src/linear-progressive-blur.ts',
@@ -31,19 +37,24 @@ const effectEntrypoints = [
 	'src/mirror.ts',
 	'src/noise.ts',
 	'src/noise-displacement.ts',
+	'src/pattern.ts',
 	'src/rings.ts',
 	'src/saturation.ts',
 	'src/scanlines.ts',
 	'src/scale.ts',
 	'src/shine.ts',
+	'src/shrinkwrap.ts',
 	'src/speckle.ts',
+	'src/thermal-vision.ts',
 	'src/tint.ts',
 	'src/translate.ts',
+	'src/tv-signal-off.ts',
 	'src/vignette.ts',
 	'src/wave.ts',
 	'src/waves.ts',
 	'src/zigzag.ts',
 	'src/white-noise.ts',
+	'src/zoom-blur.ts',
 ];
 
 console.time('Generated.');

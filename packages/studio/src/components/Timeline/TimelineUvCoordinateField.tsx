@@ -6,10 +6,8 @@ import type {
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
 import {InputDragger} from '../NewComposition/InputDragger';
-import {
-	formatTimelineNumber,
-	getTimelineDisplayDecimalPlaces,
-} from './timeline-field-utils';
+import {formatTimelineFieldValueForDisplay} from './timeline-field-display-utils';
+import {getTimelineDisplayDecimalPlaces} from './timeline-field-utils';
 
 const leftDraggerStyle: React.CSSProperties = {
 	paddingLeft: 0,
@@ -97,13 +95,12 @@ export const TimelineUvCoordinateField: React.FC<{
 
 	const formatter = useCallback(
 		(v: number | string) => {
-			return formatTimelineNumber({
-				decimalPlaces,
-				fixed: true,
+			return formatTimelineFieldValueForDisplay({
+				fieldSchema: field.fieldSchema,
 				value: v,
 			});
 		},
-		[decimalPlaces],
+		[field.fieldSchema],
 	);
 
 	const onXChange = useCallback(
@@ -209,6 +206,7 @@ export const TimelineUvCoordinateField: React.FC<{
 				formatter={formatter}
 				rightAlign={false}
 				snapToStep={false}
+				dragDecimalPlaces={decimalPlaces}
 			/>
 			<div style={{marginLeft: -6, marginRight: -6}} />
 			<InputDragger
@@ -226,6 +224,7 @@ export const TimelineUvCoordinateField: React.FC<{
 				formatter={formatter}
 				rightAlign={false}
 				snapToStep={false}
+				dragDecimalPlaces={decimalPlaces}
 			/>
 		</span>
 	);

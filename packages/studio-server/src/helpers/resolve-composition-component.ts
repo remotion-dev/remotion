@@ -17,6 +17,7 @@ import {
 	isUrl,
 	type ComponentProp,
 	type InsertableCompositionElement,
+	type InsertableCompositionElementPosition,
 } from '@remotion/studio-shared';
 import type {namedTypes} from 'ast-types';
 import * as recast from 'recast';
@@ -759,18 +760,78 @@ const createBooleanAttribute = (
 	);
 };
 
-const createPositionAbsoluteStyleAttribute = (): namedTypes.JSXAttribute => {
+const translateDecimalPlaces = 1;
+
+const roundTranslateCoordinate = (value: number): number => {
+	const factor = 10 ** translateDecimalPlaces;
+	const rounded = Math.round(value * factor) / factor;
+	return Object.is(rounded, -0) ? 0 : rounded;
+};
+
+const formatTranslateValue = ({x, y}: InsertableCompositionElementPosition) =>
+	`${roundTranslateCoordinate(x)}px ${roundTranslateCoordinate(y)}px`;
+
+const createStyleAttribute = (
+	properties: namedTypes.ObjectProperty[],
+): namedTypes.JSXAttribute => {
 	return recast.types.builders.jsxAttribute(
 		recast.types.builders.jsxIdentifier('style'),
 		recast.types.builders.jsxExpressionContainer(
-			recast.types.builders.objectExpression([
-				recast.types.builders.objectProperty(
-					recast.types.builders.identifier('position'),
-					recast.types.builders.stringLiteral('absolute'),
-				),
-			]),
+			recast.types.builders.objectExpression(properties),
 		),
 	);
+};
+
+const getPositionStyleProperties = (
+	position: InsertableCompositionElementPosition | null,
+): namedTypes.ObjectProperty[] => {
+	const properties = [
+		recast.types.builders.objectProperty(
+			recast.types.builders.identifier('position'),
+			recast.types.builders.stringLiteral('absolute'),
+		),
+	];
+
+	if (position) {
+		properties.push(
+			recast.types.builders.objectProperty(
+				recast.types.builders.identifier('translate'),
+				recast.types.builders.stringLiteral(formatTranslateValue(position)),
+			),
+		);
+	}
+
+	return properties;
+};
+
+const createPositionAbsoluteStyleAttribute = (
+	position: InsertableCompositionElementPosition | null,
+): namedTypes.JSXAttribute => {
+	return createStyleAttribute(getPositionStyleProperties(position));
+};
+
+const createAssetStyleAttribute = ({
+	dimensions,
+	position,
+}: {
+	dimensions: {width: number; height: number} | null;
+	position: InsertableCompositionElementPosition | null;
+}): namedTypes.JSXAttribute => {
+	return createStyleAttribute([
+		...getPositionStyleProperties(position),
+		...(dimensions
+			? [
+					recast.types.builders.objectProperty(
+						recast.types.builders.identifier('width'),
+						recast.types.builders.numericLiteral(dimensions.width),
+					),
+					recast.types.builders.objectProperty(
+						recast.types.builders.identifier('height'),
+						recast.types.builders.numericLiteral(dimensions.height),
+					),
+				]
+			: []),
+	]);
 };
 
 const createStaticFileSrcAttribute = ({
@@ -817,10 +878,12 @@ const createSolidElement = ({
 	localName,
 	width,
 	height,
+	position,
 }: {
 	localName: string;
 	width: number;
 	height: number;
+	position: InsertableCompositionElementPosition | null;
 }): namedTypes.JSXElement => {
 	return recast.types.builders.jsxElement(
 		recast.types.builders.jsxOpeningElement(
@@ -828,7 +891,7 @@ const createSolidElement = ({
 			[
 				createNumberAttribute('width', width),
 				createNumberAttribute('height', height),
-				createPositionAbsoluteStyleAttribute(),
+				createPositionAbsoluteStyleAttribute(position),
 			],
 			true,
 		),
@@ -840,16 +903,18 @@ const createSolidElement = ({
 const createComponentElement = ({
 	localName,
 	props,
+	position,
 }: {
 	localName: string;
 	props: ComponentProp[];
+	position: InsertableCompositionElementPosition | null;
 }): namedTypes.JSXElement => {
 	return recast.types.builders.jsxElement(
 		recast.types.builders.jsxOpeningElement(
 			recast.types.builders.jsxIdentifier(localName),
 			[
 				...props.map(createComponentProp),
-				createPositionAbsoluteStyleAttribute(),
+				createPositionAbsoluteStyleAttribute(position),
 			],
 			true,
 		),
@@ -864,12 +929,14 @@ const createAssetElement = ({
 	staticFileLocalName,
 	src,
 	dimensions,
+	position,
 }: {
 	addPositionStyle: boolean;
 	localName: string;
 	staticFileLocalName: string | null;
 	src: string;
 	dimensions: {width: number; height: number} | null;
+	position: InsertableCompositionElementPosition | null;
 }): namedTypes.JSXElement => {
 	return recast.types.builders.jsxElement(
 		recast.types.builders.jsxOpeningElement(
@@ -878,12 +945,8 @@ const createAssetElement = ({
 				staticFileLocalName === null
 					? createStringSrcAttribute(src)
 					: createStaticFileSrcAttribute({staticFileLocalName, src}),
-				...(addPositionStyle ? [createPositionAbsoluteStyleAttribute()] : []),
-				...(dimensions
-					? [
-							createNumberAttribute('width', dimensions.width),
-							createNumberAttribute('height', dimensions.height),
-						]
+				...(addPositionStyle
+					? [createAssetStyleAttribute({dimensions, position})]
 					: []),
 			],
 			true,
@@ -1160,6 +1223,15 @@ const ensureImgImport = (ast: File) => {
 		importedName: 'Img',
 		sourcePath: 'remotion',
 		label: '<Img>',
+	});
+};
+
+const ensureAnimatedImageImport = (ast: File) => {
+	return ensureOfficialNamedImport({
+		ast,
+		importedName: 'AnimatedImage',
+		sourcePath: 'remotion',
+		label: '<AnimatedImage>',
 	});
 };
 
@@ -1572,6 +1644,7 @@ const createInsertableJsxElement = ({
 			localName: solidLocalName,
 			width: element.width,
 			height: element.height,
+			position: element.position,
 		});
 	}
 
@@ -1586,6 +1659,7 @@ const createInsertableJsxElement = ({
 		return createComponentElement({
 			localName: componentLocalName,
 			props: element.props,
+			position: element.position,
 		});
 	}
 
@@ -1603,6 +1677,8 @@ const createInsertableJsxElement = ({
 			localName = ensureVideoImport(ast);
 		} else if (element.assetType === 'gif') {
 			localName = ensureGifImport(ast);
+		} else if (element.assetType === 'animated-image') {
+			localName = ensureAnimatedImageImport(ast);
 		} else if (element.assetType === 'audio') {
 			localName = ensureAudioImport(ast);
 		} else {
@@ -1615,6 +1691,7 @@ const createInsertableJsxElement = ({
 			staticFileLocalName,
 			src: element.src,
 			dimensions: element.dimensions,
+			position: element.position,
 		});
 	}
 

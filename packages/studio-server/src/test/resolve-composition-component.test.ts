@@ -523,6 +523,7 @@ test('inserts a Solid into the resolved composition component', async () => {
 				type: 'solid',
 				width: 1280,
 				height: 720,
+				position: null,
 			},
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 		});
@@ -535,6 +536,104 @@ test('inserts a Solid into the resolved composition component', async () => {
 		expect(result.output).toContain('width={1280}');
 		expect(result.output).toContain('height={720}');
 		expect(result.output).toContain("position: 'absolute'");
+	} finally {
+		await fs.rm(tempDir, {recursive: true, force: true});
+	}
+});
+
+test('inserts a Solid with a translate style', async () => {
+	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
+	try {
+		await fs.writeFile(
+			path.join(tempDir, 'Root.tsx'),
+			[
+				"import {Composition} from 'remotion';",
+				"import {MyComp} from './MyComp';",
+				'export const RemotionRoot = () => {',
+				'\treturn <Composition id="test" component={MyComp} />;',
+				'};',
+				'',
+			].join('\n'),
+		);
+		await fs.writeFile(
+			path.join(tempDir, 'MyComp.tsx'),
+			[
+				"import {AbsoluteFill} from 'remotion';",
+				'',
+				'export const MyComp: React.FC = () => {',
+				'\treturn <AbsoluteFill>hello</AbsoluteFill>;',
+				'};',
+				'',
+			].join('\n'),
+		);
+
+		const result = await insertJsxElementIntoComposition({
+			remotionRoot: tempDir,
+			compositionFile: 'Root.tsx',
+			compositionId: 'test',
+			element: {
+				type: 'solid',
+				width: 1280,
+				height: 720,
+				position: {
+					x: 120,
+					y: 80.5,
+				},
+			},
+			prettierConfigOverride: {singleQuote: true, useTabs: true},
+		});
+
+		expect(result.output).toContain("position: 'absolute'");
+		expect(result.output).toContain("translate: '120px 80.5px'");
+	} finally {
+		await fs.rm(tempDir, {recursive: true, force: true});
+	}
+});
+
+test('rounds the translate style to one decimal place', async () => {
+	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
+	try {
+		await fs.writeFile(
+			path.join(tempDir, 'Root.tsx'),
+			[
+				"import {Composition} from 'remotion';",
+				"import {MyComp} from './MyComp';",
+				'export const RemotionRoot = () => {',
+				'\treturn <Composition id="test" component={MyComp} />;',
+				'};',
+				'',
+			].join('\n'),
+		);
+		await fs.writeFile(
+			path.join(tempDir, 'MyComp.tsx'),
+			[
+				"import {AbsoluteFill} from 'remotion';",
+				'',
+				'export const MyComp: React.FC = () => {',
+				'\treturn <AbsoluteFill>hello</AbsoluteFill>;',
+				'};',
+				'',
+			].join('\n'),
+		);
+
+		const result = await insertJsxElementIntoComposition({
+			remotionRoot: tempDir,
+			compositionFile: 'Root.tsx',
+			compositionId: 'test',
+			element: {
+				type: 'solid',
+				width: 1280,
+				height: 720,
+				position: {
+					x: -366.7533828676237,
+					y: 50.1836012801557,
+				},
+			},
+			prettierConfigOverride: {singleQuote: true, useTabs: true},
+		});
+
+		expect(result.output).toContain("position: 'absolute'");
+		expect(result.output).toContain("translate: '-366.8px 50.2px'");
 	} finally {
 		await fs.rm(tempDir, {recursive: true, force: true});
 	}
@@ -576,6 +675,7 @@ test('inserts an aliased Solid import if Solid is already defined', async () => 
 				type: 'solid',
 				width: 1920,
 				height: 1080,
+				position: null,
 			},
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 		});
@@ -619,6 +719,7 @@ test('inserts a Solid into an empty component returning null', async () => {
 				type: 'solid',
 				width: 640,
 				height: 360,
+				position: null,
 			},
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 		});
@@ -649,6 +750,7 @@ test('inserts a Solid into an empty component returning null', async () => {
 				type: 'solid',
 				width: 320,
 				height: 180,
+				position: null,
 			},
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 		});
@@ -697,6 +799,7 @@ test('inserts an Img asset into the resolved composition component', async () =>
 					width: 800,
 					height: 600,
 				},
+				position: null,
 			},
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 		});
@@ -706,9 +809,183 @@ test('inserts an Img asset into the resolved composition component', async () =>
 		);
 		expect(result.output).toContain('<Img');
 		expect(result.output).toContain("src={staticFile('image.png')}");
-		expect(result.output).toContain('width={800}');
-		expect(result.output).toContain('height={600}');
 		expect(result.output).toContain("position: 'absolute'");
+		expect(result.output).toContain('width: 800');
+		expect(result.output).toContain('height: 600');
+		expect(result.output).not.toContain('width={800}');
+		expect(result.output).not.toContain('height={600}');
+	} finally {
+		await fs.rm(tempDir, {recursive: true, force: true});
+	}
+});
+
+test('inserts an Img asset with a translate style', async () => {
+	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
+	try {
+		await fs.writeFile(
+			path.join(tempDir, 'Root.tsx'),
+			[
+				"import {Composition} from 'remotion';",
+				"import {MyComp} from './MyComp';",
+				'export const RemotionRoot = () => {',
+				'\treturn <Composition id="test" component={MyComp} />;',
+				'};',
+				'',
+			].join('\n'),
+		);
+		await fs.writeFile(
+			path.join(tempDir, 'MyComp.tsx'),
+			[
+				"import {AbsoluteFill} from 'remotion';",
+				'',
+				'export const MyComp: React.FC = () => {',
+				'\treturn <AbsoluteFill>hello</AbsoluteFill>;',
+				'};',
+				'',
+			].join('\n'),
+		);
+
+		const result = await insertJsxElementIntoComposition({
+			remotionRoot: tempDir,
+			compositionFile: 'Root.tsx',
+			compositionId: 'test',
+			element: {
+				type: 'asset',
+				assetType: 'image',
+				src: 'image.png',
+				srcType: 'static',
+				dimensions: {
+					width: 800,
+					height: 600,
+				},
+				position: {
+					x: 100,
+					y: 150,
+				},
+			},
+			prettierConfigOverride: {singleQuote: true, useTabs: true},
+		});
+
+		expect(result.output).toContain("src={staticFile('image.png')}");
+		expect(result.output).toContain("translate: '100px 150px'");
+	} finally {
+		await fs.rm(tempDir, {recursive: true, force: true});
+	}
+});
+
+test('inserts an AnimatedImage asset into the resolved composition component', async () => {
+	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
+	try {
+		await fs.writeFile(
+			path.join(tempDir, 'Root.tsx'),
+			[
+				"import {Composition} from 'remotion';",
+				"import {MyComp} from './MyComp';",
+				'export const RemotionRoot = () => {',
+				'\treturn <Composition id="test" component={MyComp} />;',
+				'};',
+				'',
+			].join('\n'),
+		);
+		await fs.writeFile(
+			path.join(tempDir, 'MyComp.tsx'),
+			[
+				"import {AbsoluteFill} from 'remotion';",
+				'',
+				'export const MyComp: React.FC = () => {',
+				'\treturn <AbsoluteFill>hello</AbsoluteFill>;',
+				'};',
+				'',
+			].join('\n'),
+		);
+
+		const result = await insertJsxElementIntoComposition({
+			remotionRoot: tempDir,
+			compositionFile: 'Root.tsx',
+			compositionId: 'test',
+			element: {
+				type: 'asset',
+				assetType: 'animated-image',
+				src: 'animated-png.png',
+				srcType: 'static',
+				dimensions: {
+					width: 320,
+					height: 180,
+				},
+				position: null,
+			},
+			prettierConfigOverride: {singleQuote: true, useTabs: true},
+		});
+
+		expect(result.output).toContain(
+			"import { AbsoluteFill, staticFile, AnimatedImage } from 'remotion';",
+		);
+		expect(result.output).toContain('<AnimatedImage');
+		expect(result.output).toContain("src={staticFile('animated-png.png')}");
+		expect(result.output).toContain('width: 320');
+		expect(result.output).toContain('height: 180');
+		expect(result.output).not.toContain('width={320}');
+		expect(result.output).not.toContain('height={180}');
+	} finally {
+		await fs.rm(tempDir, {recursive: true, force: true});
+	}
+});
+
+test('inserts a Video asset with CSS dimensions', async () => {
+	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
+	try {
+		await fs.writeFile(
+			path.join(tempDir, 'Root.tsx'),
+			[
+				"import {Composition} from 'remotion';",
+				"import {MyComp} from './MyComp';",
+				'export const RemotionRoot = () => {',
+				'\treturn <Composition id="test" component={MyComp} />;',
+				'};',
+				'',
+			].join('\n'),
+		);
+		await fs.writeFile(
+			path.join(tempDir, 'MyComp.tsx'),
+			[
+				"import {AbsoluteFill} from 'remotion';",
+				'',
+				'export const MyComp: React.FC = () => {',
+				'\treturn <AbsoluteFill>hello</AbsoluteFill>;',
+				'};',
+				'',
+			].join('\n'),
+		);
+
+		const result = await insertJsxElementIntoComposition({
+			remotionRoot: tempDir,
+			compositionFile: 'Root.tsx',
+			compositionId: 'test',
+			element: {
+				type: 'asset',
+				assetType: 'video',
+				src: 'clip.mp4',
+				srcType: 'static',
+				dimensions: {
+					width: 1920,
+					height: 1080,
+				},
+				position: null,
+			},
+			prettierConfigOverride: {singleQuote: true, useTabs: true},
+		});
+
+		expect(result.output).toContain("import { Video } from '@remotion/media';");
+		expect(result.output).toContain(
+			"import { AbsoluteFill, staticFile } from 'remotion';",
+		);
+		expect(result.output).toContain('<Video');
+		expect(result.output).toContain("src={staticFile('clip.mp4')}");
+		expect(result.output).toContain("position: 'absolute'");
+		expect(result.output).toContain('width: 1920');
+		expect(result.output).toContain('height: 1080');
+		expect(result.output).not.toContain('width={1920}');
+		expect(result.output).not.toContain('height={1080}');
 	} finally {
 		await fs.rm(tempDir, {recursive: true, force: true});
 	}
@@ -753,6 +1030,7 @@ test('rejects inserting a Video asset if Video is already defined', async () => 
 					src: 'clip.mp4',
 					srcType: 'static',
 					dimensions: null,
+					position: null,
 				},
 				prettierConfigOverride: {singleQuote: true, useTabs: true},
 			}),
@@ -801,6 +1079,7 @@ test('inserts a Gif asset into the resolved composition component', async () => 
 					width: 320,
 					height: 180,
 				},
+				position: null,
 			},
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 		});
@@ -811,8 +1090,10 @@ test('inserts a Gif asset into the resolved composition component', async () => 
 		);
 		expect(result.output).toContain('<Gif');
 		expect(result.output).toContain("src={staticFile('animation.gif')}");
-		expect(result.output).toContain('width={320}');
-		expect(result.output).toContain('height={180}');
+		expect(result.output).toContain('width: 320');
+		expect(result.output).toContain('height: 180');
+		expect(result.output).not.toContain('width={320}');
+		expect(result.output).not.toContain('height={180}');
 	} finally {
 		await fs.rm(tempDir, {recursive: true, force: true});
 	}
@@ -854,6 +1135,7 @@ test('inserts an Audio asset into the resolved composition component', async () 
 				src: 'audio.mp3',
 				srcType: 'static',
 				dimensions: null,
+				position: null,
 			},
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 		});
@@ -906,6 +1188,7 @@ test('inserts a remote audio asset with a literal URL', async () => {
 				src: 'https://example.com/whip.wav',
 				srcType: 'remote',
 				dimensions: null,
+				position: null,
 			},
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 		});
@@ -961,6 +1244,7 @@ test('rejects inserting an Audio asset if Audio is already defined', async () =>
 					src: 'audio.mp3',
 					srcType: 'static',
 					dimensions: null,
+					position: null,
 				},
 				prettierConfigOverride: {singleQuote: true, useTabs: true},
 			}),
@@ -1010,6 +1294,7 @@ test('inserts a component into the resolved composition component', async () => 
 					{name: 'dataShapeIndex', value: 1},
 					{name: 'debug', value: false},
 				],
+				position: null,
 			},
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 		});

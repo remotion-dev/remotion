@@ -2,7 +2,7 @@ import {
 	optimisticMoveEffectKeyframes,
 	optimisticMoveSequenceKeyframes,
 } from '@remotion/studio-shared';
-import type {SequencePropsSubscriptionKey, SequenceSchema} from 'remotion';
+import type {SequencePropsSubscriptionKey, InteractivitySchema} from 'remotion';
 import {callApi} from '../call-api';
 import type {SetPropStatuses} from './save-sequence-prop';
 
@@ -12,7 +12,7 @@ export type MoveSequenceKeyframeChange = {
 	fieldKey: string;
 	fromFrame: number;
 	toFrame: number;
-	schema: SequenceSchema;
+	schema: InteractivitySchema;
 };
 
 export type MoveEffectKeyframeChange = MoveSequenceKeyframeChange & {
