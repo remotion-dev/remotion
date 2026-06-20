@@ -22,6 +22,10 @@ const DEFAULT_INTENSITY = 1 as const;
 const DEFAULT_AMOUNT = 1 as const;
 const DEFAULT_ROTATION = 0 as const;
 const DEFAULT_RADIUS_FALLOFF = 0.55 as const;
+const DEFAULT_PHASE = 0 as const;
+const DEFAULT_RANDOMNESS = 0.55 as const;
+const DEFAULT_THICKNESS = 0.35 as const;
+const DEFAULT_LENGTH = 0.85 as const;
 
 const laserRaysSchema = {
 	color: {
@@ -93,6 +97,40 @@ const laserRaysSchema = {
 		description: 'Radius falloff',
 		hiddenFromList: false,
 	},
+	phase: {
+		type: 'number',
+		step: 1,
+		default: DEFAULT_PHASE,
+		description: 'Phase',
+		hiddenFromList: false,
+	},
+	randomness: {
+		type: 'number',
+		min: 0,
+		max: 1,
+		step: 0.01,
+		default: DEFAULT_RANDOMNESS,
+		description: 'Randomness',
+		hiddenFromList: false,
+	},
+	thickness: {
+		type: 'number',
+		min: 0.01,
+		max: 1,
+		step: 0.01,
+		default: DEFAULT_THICKNESS,
+		description: 'Thickness',
+		hiddenFromList: false,
+	},
+	length: {
+		type: 'number',
+		min: 0.01,
+		max: 1,
+		step: 0.01,
+		default: DEFAULT_LENGTH,
+		description: 'Length',
+		hiddenFromList: false,
+	},
 } as const satisfies SequenceSchema;
 
 export type LaserRaysCenter = readonly [number, number];
@@ -116,6 +154,14 @@ export type LaserRaysParams = {
 	readonly rotation?: number;
 	/** How much the rays dim toward the edges from `0` to `1`. Defaults to `0.55`. */
 	readonly radiusFalloff?: number;
+	/** Radial offset in pixels. Animate to move the rays outward. Defaults to `0`. */
+	readonly phase?: number;
+	/** Per-ray variation in width, brightness, and reach from `0` to `1`. Defaults to `0.55`. */
+	readonly randomness?: number;
+	/** Width of each ray from `0.01` to `1`. Defaults to `0.35`. */
+	readonly thickness?: number;
+	/** Ray reach from `0.01` to `1`. Defaults to `0.85`. */
+	readonly length?: number;
 };
 
 type LaserRaysResolved = {
@@ -128,6 +174,10 @@ type LaserRaysResolved = {
 	readonly amount: number;
 	readonly rotation: number;
 	readonly radiusFalloff: number;
+	readonly phase: number;
+	readonly randomness: number;
+	readonly thickness: number;
+	readonly length: number;
 };
 
 type LaserRaysState = {
@@ -149,6 +199,10 @@ type LaserRaysState = {
 		readonly uAmount: WebGLUniformLocation | null;
 		readonly uRotation: WebGLUniformLocation | null;
 		readonly uRadiusFalloff: WebGLUniformLocation | null;
+		readonly uPhase: WebGLUniformLocation | null;
+		readonly uRandomness: WebGLUniformLocation | null;
+		readonly uThickness: WebGLUniformLocation | null;
+		readonly uLength: WebGLUniformLocation | null;
 	};
 	cachedColorStr: string;
 	cachedColorRgba: ParsedColorRgba;
@@ -166,6 +220,10 @@ const resolve = (p: LaserRaysParams): LaserRaysResolved => ({
 	amount: p.amount ?? DEFAULT_AMOUNT,
 	rotation: p.rotation ?? DEFAULT_ROTATION,
 	radiusFalloff: p.radiusFalloff ?? DEFAULT_RADIUS_FALLOFF,
+	phase: p.phase ?? DEFAULT_PHASE,
+	randomness: p.randomness ?? DEFAULT_RANDOMNESS,
+	thickness: p.thickness ?? DEFAULT_THICKNESS,
+	length: p.length ?? DEFAULT_LENGTH,
 });
 
 const validatePositive = (value: number, name: string): void => {
@@ -212,6 +270,10 @@ const validateLaserRaysParams = (params: LaserRaysParams): void => {
 	assertOptionalFiniteNumber(params.amount, 'amount');
 	assertOptionalFiniteNumber(params.rotation, 'rotation');
 	assertOptionalFiniteNumber(params.radiusFalloff, 'radiusFalloff');
+	assertOptionalFiniteNumber(params.phase, 'phase');
+	assertOptionalFiniteNumber(params.randomness, 'randomness');
+	assertOptionalFiniteNumber(params.thickness, 'thickness');
+	assertOptionalFiniteNumber(params.length, 'length');
 
 	const r = resolve(params);
 	validatePositive(r.rayCount, 'rayCount');
@@ -219,6 +281,11 @@ const validateLaserRaysParams = (params: LaserRaysParams): void => {
 	validateNonNegative(r.intensity, 'intensity');
 	validateUnitInterval(r.amount, 'amount');
 	validateUnitInterval(r.radiusFalloff, 'radiusFalloff');
+	validateUnitInterval(r.randomness, 'randomness');
+	validatePositive(r.thickness, 'thickness');
+	validateUnitInterval(r.thickness, 'thickness');
+	validatePositive(r.length, 'length');
+	validateUnitInterval(r.length, 'length');
 };
 
 const LASER_RAYS_VS = /* glsl */ `#version 300 es
@@ -249,6 +316,10 @@ uniform float uIntensity;
 uniform float uAmount;
 uniform float uRotation;
 uniform float uRadiusFalloff;
+uniform float uPhase;
+uniform float uRandomness;
+uniform float uThickness;
+uniform float uLength;
 
 float hash(float n) {
 	return fract(sin(n * 127.1) * 43758.5453123);
@@ -267,12 +338,20 @@ void main() {
 	delta.x /= max(uResolution.y / max(uResolution.x, 0.001), 0.001);
 
 	float angle = atan(delta.y, delta.x) + uRotation;
-	float radius = length(delta) / max(length(uResolution), 0.001);
+	float radiusPx = length(delta);
+	float radius = radiusPx / max(length(uResolution), 0.001);
 	float rayPosition = angle * uRayCount;
-	float ray = pow(max(0.0, 0.5 + 0.5 * cos(rayPosition)), uSharpness);
 	float rayIndex = floor(rayPosition / 6.28318530718);
-	float variation = mix(0.55, 1.25, hash(rayIndex));
-	float streak = ray * variation;
+	float widthVariation = mix(1.0, mix(0.55, 1.45, hash(rayIndex + 11.0)), uRandomness);
+	float brightnessVariation = mix(1.0, mix(0.55, 1.25, hash(rayIndex + 23.0)), uRandomness);
+	float lengthVariation = mix(1.0, mix(0.65, 1.35, hash(rayIndex + 37.0)), uRandomness);
+	float localThickness = clamp(uThickness * widthVariation, 0.01, 1.0);
+	float effectiveSharpness = max(uSharpness / localThickness, 0.001);
+	float ray = pow(max(0.0, 0.5 + 0.5 * cos(rayPosition)), effectiveSharpness);
+	float segment = 0.68 + 0.32 * sin((radiusPx - uPhase) * 0.035 + hash(rayIndex + 51.0) * 6.28318530718);
+	float maxRadius = max(length(uResolution) * uLength * lengthVariation, 1.0);
+	float lengthMask = 1.0 - smoothstep(maxRadius * 0.55, maxRadius, radiusPx);
+	float streak = ray * brightnessVariation * segment * lengthMask;
 	float glow = exp(-radius * 16.0);
 	float falloff = mix(1.0, clamp(1.0 - radius * 1.45, 0.0, 1.0), uRadiusFalloff);
 	float energy = clamp((streak + glow * 0.75) * falloff * uIntensity, 0.0, 1.0);
@@ -415,6 +494,10 @@ const createLaserRaysState = (target: HTMLCanvasElement): LaserRaysState => {
 			uAmount: gl.getUniformLocation(program, 'uAmount'),
 			uRotation: gl.getUniformLocation(program, 'uRotation'),
 			uRadiusFalloff: gl.getUniformLocation(program, 'uRadiusFalloff'),
+			uPhase: gl.getUniformLocation(program, 'uPhase'),
+			uRandomness: gl.getUniformLocation(program, 'uRandomness'),
+			uThickness: gl.getUniformLocation(program, 'uThickness'),
+			uLength: gl.getUniformLocation(program, 'uLength'),
 		},
 		cachedColorStr: '',
 		cachedColorRgba: [0, 255, 56, 255],
@@ -448,7 +531,7 @@ export const laserRays = createEffect<LaserRaysParams, LaserRaysState>({
 	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
-		return `laser-rays-${r.color}-${r.backgroundColor}-${r.center.join('-')}-${r.rayCount}-${r.sharpness}-${r.intensity}-${r.amount}-${r.rotation}-${r.radiusFalloff}`;
+		return `laser-rays-${r.color}-${r.backgroundColor}-${r.center.join('-')}-${r.rayCount}-${r.sharpness}-${r.intensity}-${r.amount}-${r.rotation}-${r.radiusFalloff}-${r.phase}-${r.randomness}-${r.thickness}-${r.length}`;
 	},
 	setup: (target) => createLaserRaysState(target),
 	apply: ({source, width, height, params, state, flipSourceY}) => {
@@ -504,6 +587,10 @@ export const laserRays = createEffect<LaserRaysParams, LaserRaysState>({
 			gl.uniform1f(uniforms.uRotation, (r.rotation * Math.PI) / 180);
 		if (uniforms.uRadiusFalloff)
 			gl.uniform1f(uniforms.uRadiusFalloff, r.radiusFalloff);
+		if (uniforms.uPhase) gl.uniform1f(uniforms.uPhase, r.phase);
+		if (uniforms.uRandomness) gl.uniform1f(uniforms.uRandomness, r.randomness);
+		if (uniforms.uThickness) gl.uniform1f(uniforms.uThickness, r.thickness);
+		if (uniforms.uLength) gl.uniform1f(uniforms.uLength, r.length);
 
 		gl.bindVertexArray(vao);
 		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);

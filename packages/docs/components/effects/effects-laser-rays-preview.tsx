@@ -12,6 +12,10 @@ export const EffectsLaserRaysPreview: React.FC<{
 	readonly amount: number;
 	readonly rotation: number;
 	readonly radiusFalloff: number;
+	readonly phase: number;
+	readonly randomness: number;
+	readonly thickness: number;
+	readonly length: number;
 }> = ({
 	color,
 	backgroundColor,
@@ -22,6 +26,10 @@ export const EffectsLaserRaysPreview: React.FC<{
 	amount,
 	rotation,
 	radiusFalloff,
+	phase,
+	randomness,
+	thickness,
+	length,
 }) => {
 	return (
 		<Solid
@@ -39,6 +47,10 @@ export const EffectsLaserRaysPreview: React.FC<{
 					amount,
 					rotation,
 					radiusFalloff,
+					phase,
+					randomness,
+					thickness,
+					length,
 				}),
 			]}
 		/>

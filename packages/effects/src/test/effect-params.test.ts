@@ -2057,6 +2057,10 @@ test('laserRays() accepts valid params', () => {
 			amount: 0.8,
 			rotation: 18,
 			radiusFalloff: 0.65,
+			phase: 48,
+			randomness: 0.3,
+			thickness: 0.45,
+			length: 0.75,
 		}),
 	).not.toThrow();
 });
@@ -2095,6 +2099,22 @@ test('laserRays() rejects radiusFalloff below range', () => {
 	);
 });
 
+test('laserRays() rejects randomness above range', () => {
+	expect(() => laserRays({randomness: 1.1})).toThrow(
+		'"randomness" must be <= 1',
+	);
+});
+
+test('laserRays() rejects non-positive thickness', () => {
+	expect(() => laserRays({thickness: 0})).toThrow(
+		'"thickness" must be greater than 0',
+	);
+});
+
+test('laserRays() rejects length above range', () => {
+	expect(() => laserRays({length: 1.1})).toThrow('"length" must be <= 1');
+});
+
 test('laserRays() parameters produce distinct effect keys', () => {
 	const defaults = laserRays();
 	const colored = laserRays({color: '#39ff14'});
@@ -2103,6 +2123,10 @@ test('laserRays() parameters produce distinct effect keys', () => {
 	const sharper = laserRays({sharpness: 18});
 	const rotated = laserRays({rotation: 22});
 	const faded = laserRays({amount: 0.5});
+	const phased = laserRays({phase: 36});
+	const random = laserRays({randomness: 0.2});
+	const thicker = laserRays({thickness: 0.6});
+	const shorter = laserRays({length: 0.55});
 
 	expect(
 		new Set([
@@ -2113,8 +2137,12 @@ test('laserRays() parameters produce distinct effect keys', () => {
 			sharper.effectKey,
 			rotated.effectKey,
 			faded.effectKey,
+			phased.effectKey,
+			random.effectKey,
+			thicker.effectKey,
+			shorter.effectKey,
 		]).size,
-	).toBe(7);
+	).toBe(11);
 });
 
 test('speckle() accepts default params', () => {
