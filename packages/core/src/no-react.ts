@@ -17,6 +17,11 @@ export type {
 } from './interpolate';
 export {random} from './random.js';
 export type {RandomSeed} from './random.js';
+export {
+	resumablePrefetch,
+	type ResumablePrefetchHandle,
+	type ResumablePrefetchOptions,
+} from './resumable-prefetch.js';
 export type {VideoConfig} from './video-config';
 
 import {

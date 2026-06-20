@@ -1,7 +1,7 @@
 import {getRemotionEnvironment} from './get-remotion-environment.js';
 import type {LogLevel} from './log.js';
 import {playbackLogging} from './playback-logging.js';
-import {setPreloads} from './prefetch-state.js';
+import {setPreloads} from './prefetch-state-shared.js';
 import type {PrefetchOnProgress} from './prefetch.js';
 import {getSrcWithoutHash} from './prefetch.js';
 

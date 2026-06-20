@@ -3,7 +3,8 @@ import {getRemotionEnvironment} from './get-remotion-environment.js';
 import type {LogLevel} from './log.js';
 import {Log} from './log.js';
 import {playbackLogging} from './playback-logging.js';
-import {PreloadContext, setPreloads} from './prefetch-state.js';
+import {setPreloads} from './prefetch-state-shared.js';
+import {PreloadContext} from './prefetch-state.js';
 
 export const removeAndGetHashFragment = (src: string) => {
 	const hashIndex = src.indexOf('#');
