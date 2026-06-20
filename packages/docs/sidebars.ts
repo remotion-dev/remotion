@@ -168,6 +168,7 @@ const sidebars: SidebarsConfig = {
 				'offthreadvideo',
 				'animatedimage',
 				'prefetch',
+				'resumable-prefetch',
 				'random',
 				'register-root',
 				'sequence',

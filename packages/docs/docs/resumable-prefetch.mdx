@@ -1,0 +1,97 @@
+---
+image: /generated/articles-docs-resumable-prefetch.png
+title: resumablePrefetch()
+crumb: 'API'
+---
+
+# resumablePrefetch()<AvailableFrom v="4.0.482" />
+
+Prefetches an asset into memory and allows the download to be paused and resumed.
+
+```tsx twoslash title="prefetch.ts"
+import {resumablePrefetch} from 'remotion';
+
+const download = resumablePrefetch('https://example.com/video.mp4', {
+  onProgress: ({loadedBytes, totalBytes}) => {
+    console.log({loadedBytes, totalBytes});
+  },
+});
+
+download.pause();
+download.resume();
+
+await download.waitUntilDone();
+
+// Release the downloaded chunks or completed Blob URL.
+download.free();
+```
+
+Downloaded chunks are kept in browser memory after `pause()`.
+
+Partial downloads do not persist across page reloads.
+
+When `resume()` is called, the next request uses the [`Range`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Range) and `If-Range` HTTP headers. If the server does not support range requests or does not provide a strong `ETag` or `Last-Modified` validator, the download safely restarts from the beginning.
+
+## API
+
+### `src`
+
+The URL of the asset to prefetch. URL hash fragments are ignored while downloading and preserved when Remotion uses the prefetched asset.
+
+### `options?`
+
+An object with the following properties:
+
+#### `contentType?`
+
+Overrides the `Content-Type` response header used for the completed Blob. Default: the response header value.
+
+#### `credentials?`
+
+Sets the [`credentials`](https://developer.mozilla.org/en-US/docs/Web/API/RequestInit#credentials) option of each `fetch()` request. Default: the browser's `fetch()` behavior.
+
+#### `logLevel?`
+
+<Options id="log" />
+
+#### `onProgress?`
+
+Called after each downloaded chunk with `loadedBytes` and `totalBytes`. `totalBytes` is `null` if the server does not expose the asset size.
+
+### Return value
+
+An object with the following methods:
+
+#### `pause()`
+
+Stops the active request and retains downloaded chunks in memory. Has no effect if the download is already paused or finished.
+
+#### `resume()`
+
+Continues a paused download. Has no effect while downloading or after completion.
+
+#### `free()`
+
+Stops the active request and releases retained chunks or the completed Blob URL. The handle cannot be resumed after calling `free()`.
+
+#### `waitUntilDone()`
+
+Returns a `Promise<string>` that resolves to the completed Blob URL. It rejects if the download fails or `free()` is called before completion.
+
+## Server requirements
+
+To resume rather than restart, the server must:
+
+- Support single HTTP range requests and return `206 Partial Content`.
+- Include a strong `ETag` or `Last-Modified` response header.
+- Expose `Content-Range`, `ETag`, and `Last-Modified` through CORS for cross-origin assets.
+- Allow the `Range` and `If-Range` request headers through CORS.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs={'No-op'} bun={'No-op'} serverlessFunctions="No-op" clientSideRendering={'No-op'} serverSideRendering={'No-op'} player studio />
+
+## See also
+
+- [`prefetch()`](/docs/prefetch)
+- [Preloading assets](/docs/player/preloading)
