@@ -8,6 +8,7 @@ import {chromaticAberration} from '../chromatic-aberration/index.js';
 import {colorKey} from '../color-key.js';
 import {contourLines} from '../contour-lines.js';
 import {contrast} from '../contrast.js';
+import {cornerPin} from '../corner-pin/index.js';
 import {dotGrid} from '../dot-grid.js';
 import {dropShadow} from '../drop-shadow/index.js';
 import {duotone} from '../duotone.js';
@@ -115,6 +116,9 @@ test('@remotion/effects expose documentation links', () => {
 	);
 	expect(fisheye().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/fisheye',
+	);
+	expect(cornerPin().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/corner-pin',
 	);
 	expect(glow().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/glow',
@@ -236,6 +240,7 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(dropShadow().definition.label).toBe('dropShadow()');
 	expect(emboss().definition.label).toBe('emboss()');
 	expect(fisheye().definition.label).toBe('fisheye()');
+	expect(cornerPin().definition.label).toBe('cornerPin()');
 	expect(glow().definition.label).toBe('glow()');
 	expect(grayscale().definition.label).toBe('grayscale()');
 	expect(gridlines().definition.label).toBe('gridlines()');
@@ -361,6 +366,39 @@ test('fisheye() params produce distinct effect keys', () => {
 	expect(a.effectKey).not.toBe(c.effectKey);
 	expect(a.effectKey).not.toBe(d.effectKey);
 	expect(a.effectKey).not.toBe(e.effectKey);
+});
+
+test('cornerPin() accepts default params', () => {
+	expect(() => cornerPin()).not.toThrow();
+});
+
+test('cornerPin() rejects invalid corners', () => {
+	const invalidTopLeft = [0.5] as unknown as [number, number];
+	expect(() => cornerPin({topLeft: invalidTopLeft})).toThrow(
+		'"topLeft" must be a [number, number] tuple',
+	);
+
+	expect(() => cornerPin({bottomRight: [Number.NaN, 1]})).toThrow(
+		'"bottomRight" must be a [number, number] tuple',
+	);
+});
+
+test('cornerPin() params produce distinct effect keys', () => {
+	const defaults = cornerPin();
+	const topLeft = cornerPin({topLeft: [0.1, 0.2]});
+	const topRight = cornerPin({topRight: [0.9, 0.1]});
+	const bottomRight = cornerPin({bottomRight: [0.8, 0.95]});
+	const bottomLeft = cornerPin({bottomLeft: [0.2, 0.85]});
+
+	expect(
+		new Set([
+			defaults.effectKey,
+			topLeft.effectKey,
+			topRight.effectKey,
+			bottomRight.effectKey,
+			bottomLeft.effectKey,
+		]).size,
+	).toBe(5);
 });
 
 test('chromaticAberration() accepts default params', () => {

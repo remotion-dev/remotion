@@ -11,6 +11,7 @@ import {EffectsChromaticAberrationPreview} from '../../components/effects/effect
 import {EffectsColorKeyPreview} from '../../components/effects/effects-color-key-preview';
 import {EffectsContourLinesPreview} from '../../components/effects/effects-contour-lines-preview';
 import {EffectsContrastPreview} from '../../components/effects/effects-contrast-preview';
+import {EffectsCornerPinPreview} from '../../components/effects/effects-corner-pin-preview';
 import {EffectsDotGridPreview} from '../../components/effects/effects-dot-grid-preview';
 import {EffectsDropShadowPreview} from '../../components/effects/effects-drop-shadow-preview';
 import {EffectsDuotonePreview} from '../../components/effects/effects-duotone-preview';
@@ -342,6 +343,18 @@ export const RemotionRoot: React.FC = () => {
 						radius: 1.2,
 						zoom: 1,
 						center: [0.5, 0.5],
+					}}
+				/>
+				<Still
+					id="effects-corner-pin-preview"
+					component={EffectsCornerPinPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						topLeft: [0.08, 0.12],
+						topRight: [0.92, 0.04],
+						bottomRight: [0.86, 0.9],
+						bottomLeft: [0.14, 0.96],
 					}}
 				/>
 				<Still

@@ -288,6 +288,7 @@ const sidebars: SidebarsConfig = {
 				'effects/emboss',
 				'effects/evolve',
 				'effects/fisheye',
+				'effects/corner-pin',
 				'effects/glow',
 				'effects/grayscale',
 				'effects/gridlines',

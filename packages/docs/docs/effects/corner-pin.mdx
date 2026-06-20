@@ -1,0 +1,80 @@
+---
+image: /generated/articles-docs-effects-corner-pin.png
+slug: /effects/corner-pin
+title: cornerPin()
+sidebar_label: cornerPin()
+crumb: '@remotion/effects'
+---
+
+# cornerPin()<AvailableFrom v="4.0.482" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+Pin a canvas-based component by moving its four source corners.
+
+The effect maps the input rectangle into the quadrilateral described by `topLeft`, `topRight`, `bottomRight` and `bottomLeft`.
+
+## Preview
+
+<EffectsDemo type="effects-corner-pin" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {AbsoluteFill} from 'remotion';
+import {Video} from '@remotion/media';
+import {cornerPin} from '@remotion/effects/corner-pin';
+
+export const MyComp: React.FC = () => {
+  return (
+    <AbsoluteFill>
+      <Video
+        src="https://remotion.media/video.mp4"
+        effects={[
+          cornerPin({
+            topLeft: [0.08, 0.12],
+            topRight: [0.92, 0.04],
+            bottomRight: [0.86, 0.9],
+            bottomLeft: [0.14, 0.96],
+          }),
+        ]}
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+## API
+
+Pass an object with the following properties.
+
+### `topLeft?`
+
+UV coordinate of the output top-left corner as a `[u, v]` tuple. `[0, 0]` is the top-left of the source and `[1, 1]` is the bottom-right. Defaults to `[0, 0]`.
+
+### `topRight?`
+
+UV coordinate of the output top-right corner. Defaults to `[1, 0]`.
+
+### `bottomRight?`
+
+UV coordinate of the output bottom-right corner. Defaults to `[1, 1]`.
+
+### `bottomLeft?`
+
+UV coordinate of the output bottom-left corner. Defaults to `[0, 1]`.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Requirements
+
+`cornerPin()` uses a WebGL2 backend. During renders, enable WebGL via [`Config.setChromiumOpenGlRenderer('angle')`](/docs/config#setchromiumopenglrenderer). See [Using WebGL during renders](/docs/remotion/html-in-canvas#using-webgl-during-renders).
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`fisheye()`](/docs/effects/fisheye)
+- [`barrelDistortion()`](/docs/effects/barrel-distortion)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/corner-pin/index.ts)

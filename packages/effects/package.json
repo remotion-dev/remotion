@@ -104,6 +104,11 @@
 			"module": "./dist/esm/fisheye.mjs",
 			"import": "./dist/esm/fisheye.mjs"
 		},
+		"./corner-pin": {
+			"types": "./dist/corner-pin.d.ts",
+			"module": "./dist/esm/corner-pin.mjs",
+			"import": "./dist/esm/corner-pin.mjs"
+		},
 		"./glow": {
 			"types": "./dist/glow.d.ts",
 			"module": "./dist/esm/glow.mjs",
@@ -319,6 +324,9 @@
 			],
 			"fisheye": [
 				"dist/fisheye.d.ts"
+			],
+			"corner-pin": [
+				"dist/corner-pin.d.ts"
 			],
 			"glow": [
 				"dist/glow.d.ts"

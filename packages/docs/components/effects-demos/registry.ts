@@ -7,6 +7,7 @@ import {chromaticAberration} from '@remotion/effects/chromatic-aberration';
 import {colorKey} from '@remotion/effects/color-key';
 import {contourLines} from '@remotion/effects/contour-lines';
 import {contrast} from '@remotion/effects/contrast';
+import {cornerPin} from '@remotion/effects/corner-pin';
 import {dotGrid} from '@remotion/effects/dot-grid';
 import {dropShadow} from '@remotion/effects/drop-shadow';
 import {duotone} from '@remotion/effects/duotone';
@@ -57,6 +58,7 @@ import {EffectsChromaticAberrationPreview} from '../effects/effects-chromatic-ab
 import {EffectsColorKeyPreview} from '../effects/effects-color-key-preview';
 import {EffectsContourLinesPreview} from '../effects/effects-contour-lines-preview';
 import {EffectsContrastPreview} from '../effects/effects-contrast-preview';
+import {EffectsCornerPinPreview} from '../effects/effects-corner-pin-preview';
 import {EffectsDotGridPreview} from '../effects/effects-dot-grid-preview';
 import {EffectsDropShadowPreview} from '../effects/effects-drop-shadow-preview';
 import {EffectsDuotonePreview} from '../effects/effects-duotone-preview';
@@ -410,6 +412,14 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/fisheye',
 		comp: EffectsFisheyePreview,
 		schema: fisheye().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-corner-pin',
+		effectName: 'cornerPin',
+		effectImportPath: '@remotion/effects/corner-pin',
+		comp: EffectsCornerPinPreview,
+		schema: cornerPin().definition.schema,
 	},
 	{
 		...defaults,
