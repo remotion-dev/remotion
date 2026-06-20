@@ -10,9 +10,9 @@ crumb: '@remotion/effects'
 
 _Part of the [`@remotion/effects`](/docs/effects/api) package._
 
-Fills the non-transparent pixels of a canvas-based component with radial laser rays.
+Fills a canvas-based component with radial laser rays.
 
-Use it on [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) text to create bright beam-filled titles, or apply it to [`<Video>`](/docs/media/video) and [`<Solid>`](/docs/solid) layers for graphic overlays.
+Use it on [`<Solid>`](/docs/solid) to generate a laser-ray layer, or apply it to [`<Video>`](/docs/media/video) and [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) layers for graphic overlays.
 
 ## Preview
 
@@ -22,7 +22,7 @@ Use it on [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) text to create brigh
 
 ```tsx twoslash title="MyComp.tsx"
 import {laserRays} from '@remotion/effects/laser-rays';
-import {AbsoluteFill, HtmlInCanvas, interpolate, useCurrentFrame} from 'remotion';
+import {AbsoluteFill, Solid, interpolate, useCurrentFrame} from 'remotion';
 
 export const MyComp: React.FC = () => {
   const frame = useCurrentFrame();
@@ -30,7 +30,8 @@ export const MyComp: React.FC = () => {
 
   return (
     <AbsoluteFill>
-      <HtmlInCanvas
+      <Solid
+        color="#021506"
         width={1280}
         height={720}
         effects={[
@@ -44,26 +45,7 @@ export const MyComp: React.FC = () => {
             rotation,
           }),
         ]}
-      >
-        <AbsoluteFill
-          style={{
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <div
-            style={{
-              color: 'white',
-              fontFamily: 'Impact, sans-serif',
-              fontSize: 180,
-              fontWeight: 900,
-              textTransform: 'uppercase',
-            }}
-          >
-            Laser
-          </div>
-        </AbsoluteFill>
-      </HtmlInCanvas>
+      />
     </AbsoluteFill>
   );
 };
@@ -130,5 +112,5 @@ When `true`, the effect is skipped. Defaults to `false`.
 - [`@remotion/effects`](/docs/effects/api)
 - [`shine()`](/docs/effects/shine)
 - [`glow()`](/docs/effects/glow)
-- [HTML-in-canvas guide](/docs/html-in-canvas)
+- [`<Solid>`](/docs/solid)
 - [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/laser-rays.ts)
