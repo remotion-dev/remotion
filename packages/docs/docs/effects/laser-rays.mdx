@@ -46,8 +46,6 @@ export const MyComp: React.FC = () => {
             rotation,
             phase,
             randomness: 0.7,
-            thickness: 0.38,
-            length: 0.86,
           }),
         ]}
       />
@@ -115,18 +113,6 @@ Animate this value to move the ray highlights outward from the center.
 Per-ray variation in width, brightness, and reach from `0` to `1`. Defaults to `0.55`.
 
 Set it to `0` for uniform rays.
-
-### `thickness?`
-
-Width of each ray from `0.01` to `1`. Defaults to `0.35`.
-
-Higher values create wider beams.
-
-### `length?`
-
-Ray reach from `0.01` to `1`. Defaults to `0.85`.
-
-Lower values make rays fade closer to the center.
 
 ### `disabled?`
 

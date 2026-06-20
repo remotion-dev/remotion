@@ -321,8 +321,6 @@ export const RemotionRoot: React.FC = () => {
 						radiusFalloff: 0.5,
 						phase: 120,
 						randomness: 0.7,
-						thickness: 0.38,
-						length: 0.86,
 					}}
 				/>
 				<Still
