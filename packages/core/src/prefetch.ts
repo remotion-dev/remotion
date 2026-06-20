@@ -145,7 +145,7 @@ export const prefetch = (
 		resolve = res;
 		reject = rej;
 	});
-	void waitUntilDone.catch(() => undefined);
+	waitUntilDone.catch(() => undefined);
 
 	const controller = new AbortController();
 	let reader: ReadableStreamDefaultReader<Uint8Array> | null = null;
