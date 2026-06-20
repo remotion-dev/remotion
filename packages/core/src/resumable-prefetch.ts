@@ -2,8 +2,8 @@ import {getRemotionEnvironment} from './get-remotion-environment.js';
 import type {LogLevel} from './log.js';
 import {playbackLogging} from './playback-logging.js';
 import {setPreloads} from './prefetch-state-shared.js';
+import {getSrcWithoutHash} from './prefetch-utils.js';
 import type {PrefetchOnProgress} from './prefetch.js';
-import {getSrcWithoutHash} from './prefetch.js';
 
 export type ResumablePrefetchOptions = {
 	contentType?: string;

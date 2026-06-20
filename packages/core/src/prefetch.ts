@@ -5,24 +5,9 @@ import {Log} from './log.js';
 import {playbackLogging} from './playback-logging.js';
 import {setPreloads} from './prefetch-state-shared.js';
 import {PreloadContext} from './prefetch-state.js';
+import {getSrcWithoutHash, removeAndGetHashFragment} from './prefetch-utils.js';
 
-export const removeAndGetHashFragment = (src: string) => {
-	const hashIndex = src.indexOf('#');
-	if (hashIndex === -1) {
-		return null;
-	}
-
-	return hashIndex;
-};
-
-export const getSrcWithoutHash = (src: string) => {
-	const hashIndex = removeAndGetHashFragment(src);
-	if (hashIndex === null) {
-		return src;
-	}
-
-	return src.slice(0, hashIndex);
-};
+export {getSrcWithoutHash, removeAndGetHashFragment} from './prefetch-utils.js';
 
 export const usePreload = (src: string): string => {
 	const preloads = useContext(PreloadContext);
