@@ -27,6 +27,7 @@ const mockObjectUrls = () => {
 		createdBlob = blob;
 		return 'blob:prefetched';
 	};
+
 	URL.revokeObjectURL = () => undefined;
 };
 
@@ -34,9 +35,11 @@ const mockFetch = (
 	implementation: (
 		input: Parameters<typeof fetch>[0],
 		init?: RequestInit,
-	) => Promise<Response>,
+	) => Response | Promise<Response>,
 ) => {
-	const fn = mock(implementation);
+	const fn = mock((input: Parameters<typeof fetch>[0], init?: RequestInit) =>
+		Promise.resolve(implementation(input, init)),
+	);
 	globalThis.fetch = Object.assign(fn, {
 		preconnect: originalFetch.preconnect,
 	}) as typeof fetch;
@@ -75,7 +78,7 @@ describe('resumablePrefetch()', () => {
 			},
 		});
 		let requestCount = 0;
-		mockFetch(async (_input, init) => {
+		mockFetch((_input, init) => {
 			requestCount++;
 			if (requestCount === 1) {
 				return new Response(firstBody, {
@@ -98,19 +101,21 @@ describe('resumablePrefetch()', () => {
 				status: 206,
 			});
 		});
-		let handle: ResumablePrefetchHandle;
 		let markPaused: () => void = () => undefined;
 		const paused = new Promise<void>((resolve) => {
 			markPaused = resolve;
 		});
-		handle = resumablePrefetch('https://example.com/video.mp4', {
-			onProgress: ({loadedBytes}) => {
-				if (loadedBytes === 3) {
-					handle.pause();
-					markPaused();
-				}
+		const handle: ResumablePrefetchHandle = resumablePrefetch(
+			'https://example.com/video.mp4',
+			{
+				onProgress: ({loadedBytes}) => {
+					if (loadedBytes === 3) {
+						handle.pause();
+						markPaused();
+					}
+				},
 			},
-		});
+		);
 
 		await paused;
 		expect(firstRequestWasCanceled).toBe(true);
@@ -127,7 +132,7 @@ describe('resumablePrefetch()', () => {
 			},
 		});
 		let requestCount = 0;
-		mockFetch(async () => {
+		mockFetch(() => {
 			requestCount++;
 			if (requestCount === 1) {
 				return new Response(firstBody, {
@@ -139,19 +144,21 @@ describe('resumablePrefetch()', () => {
 				headers: {'Content-Length': '3', ETag: '"version-2"'},
 			});
 		});
-		let handle: ResumablePrefetchHandle;
 		let markPaused: () => void = () => undefined;
 		const paused = new Promise<void>((resolve) => {
 			markPaused = resolve;
 		});
-		handle = resumablePrefetch('https://example.com/video.mp4', {
-			onProgress: ({loadedBytes}) => {
-				if (loadedBytes === 3 && requestCount === 1) {
-					handle.pause();
-					markPaused();
-				}
+		const handle: ResumablePrefetchHandle = resumablePrefetch(
+			'https://example.com/video.mp4',
+			{
+				onProgress: ({loadedBytes}) => {
+					if (loadedBytes === 3 && requestCount === 1) {
+						handle.pause();
+						markPaused();
+					}
+				},
 			},
-		});
+		);
 
 		await paused;
 		handle.resume();
@@ -167,7 +174,7 @@ describe('resumablePrefetch()', () => {
 			},
 		});
 		let requestCount = 0;
-		mockFetch(async (_input, init) => {
+		mockFetch((_input, init) => {
 			requestCount++;
 			if (requestCount === 1) {
 				return new Response(firstBody, {
@@ -180,19 +187,21 @@ describe('resumablePrefetch()', () => {
 				headers: {'Content-Length': '3'},
 			});
 		});
-		let handle: ResumablePrefetchHandle;
 		let markPaused: () => void = () => undefined;
 		const paused = new Promise<void>((resolve) => {
 			markPaused = resolve;
 		});
-		handle = resumablePrefetch('https://example.com/video.mp4', {
-			onProgress: ({loadedBytes}) => {
-				if (loadedBytes === 3 && requestCount === 1) {
-					handle.pause();
-					markPaused();
-				}
+		const handle: ResumablePrefetchHandle = resumablePrefetch(
+			'https://example.com/video.mp4',
+			{
+				onProgress: ({loadedBytes}) => {
+					if (loadedBytes === 3 && requestCount === 1) {
+						handle.pause();
+						markPaused();
+					}
+				},
 			},
-		});
+		);
 
 		await paused;
 		handle.resume();

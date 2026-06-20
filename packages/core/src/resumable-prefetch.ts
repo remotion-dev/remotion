@@ -121,7 +121,7 @@ export const resumablePrefetch = (
 		resolve = res;
 		reject = rej;
 	});
-	void waitUntilDone.catch(() => undefined);
+	waitUntilDone.catch(() => undefined);
 
 	const invalidateActiveRequest = (reason: Error) => {
 		requestId++;
@@ -307,7 +307,7 @@ export const resumablePrefetch = (
 				loadedBytes < parsedContentRange.totalBytes
 			) {
 				state = 'paused';
-				void startRequest();
+				startRequest();
 				return;
 			}
 
@@ -335,7 +335,7 @@ export const resumablePrefetch = (
 	};
 
 	const resume = () => {
-		void startRequest();
+		startRequest();
 	};
 
 	const free = () => {
