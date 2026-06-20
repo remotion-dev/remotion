@@ -128,19 +128,6 @@ export const makeBrowserRunner = async ({
 						);
 						proc.kill('SIGKILL');
 					}
-
-					// Best-effort: kill any remaining child processes that may have been
-					// missed by the process group kill (e.g. if setpriv is not available
-					// in Docker containers). Without this, children become zombies (PPID 1)
-					// after the parent exits.
-					try {
-						childProcess.execSync(
-							`pkill -9 -P ${proc.pid} 2>/dev/null || true`,
-							{timeout: 2000},
-						);
-					} catch {
-						// Ignore — pkill may not be available or process may already be gone
-					}
 				}
 			} catch (error) {
 				throw new Error(
@@ -169,12 +156,17 @@ export const makeBrowserRunner = async ({
 		);
 		killProcess();
 
-		deleteDirectory(userDataDir);
+		// Wait for the process to actually exit before cleanup.
+		// This prevents zombie/defunct processes on Linux, where
+		// killing the process group with SIGKILL leaves child
+		// processes in a defunct state until the parent reaps them.
+		return processClosing.then(() => {
+			deleteDirectory(userDataDir);
 
-		// Cleanup this listener last, as that makes sure the full callback runs. If we
-		// perform this earlier, then the previous function calls would not happen.
-		removeEventListeners(listeners);
-		return processClosing;
+			// Cleanup this listener last, as that makes sure the full callback runs. If we
+			// perform this earlier, then the previous function calls would not happen.
+			removeEventListeners(listeners);
+		});
 	};
 
 	if (dumpio) {
