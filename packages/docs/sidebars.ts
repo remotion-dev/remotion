@@ -270,6 +270,7 @@ const sidebars: SidebarsConfig = {
 				id: 'effects/effects-api',
 			},
 			items: [
+				'effects/analog-noise',
 				'effects/barrel-distortion',
 				'effects/blur',
 				'effects/brightness',

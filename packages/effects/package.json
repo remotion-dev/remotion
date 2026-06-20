@@ -34,6 +34,11 @@
 			"module": "./dist/esm/index.mjs",
 			"import": "./dist/esm/index.mjs"
 		},
+		"./analog-noise": {
+			"types": "./dist/analog-noise.d.ts",
+			"module": "./dist/esm/analog-noise.mjs",
+			"import": "./dist/esm/analog-noise.mjs"
+		},
 		"./barrel-distortion": {
 			"types": "./dist/barrel-distortion.d.ts",
 			"module": "./dist/esm/barrel-distortion.mjs",
@@ -218,6 +223,9 @@
 	},
 	"typesVersions": {
 		">=1.0": {
+			"analog-noise": [
+				"dist/analog-noise.d.ts"
+			],
 			"barrel-distortion": [
 				"dist/barrel-distortion.d.ts"
 			],

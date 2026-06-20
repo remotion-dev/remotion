@@ -2,6 +2,7 @@ import {experts} from '@remotion/promo-pages/dist/experts/experts-data.js';
 import {CreateVideoInternals} from 'create-video';
 import React from 'react';
 import {Folder, Still} from 'remotion';
+import {EffectsAnalogNoisePreview} from '../../components/effects/effects-analog-noise-preview';
 import {EffectsBarrelDistortionPreview} from '../../components/effects/effects-barrel-distortion-preview';
 import {EffectsBlurPreview} from '../../components/effects/effects-blur-preview';
 import {EffectsBrightnessPreview} from '../../components/effects/effects-brightness-preview';
@@ -378,6 +379,19 @@ export const RemotionRoot: React.FC = () => {
 						amount: 0.25,
 						seed: 0,
 						premultiply: false,
+					}}
+				/>
+				<Still
+					id="effects-analog-noise-preview"
+					component={EffectsAnalogNoisePreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						phase: 0.42,
+						amount: 0.75,
+						density: 0.78,
+						brightness: 0.15,
+						seed: 4,
 					}}
 				/>
 				<Still

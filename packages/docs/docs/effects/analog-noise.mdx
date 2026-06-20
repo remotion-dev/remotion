@@ -1,0 +1,99 @@
+---
+image: /generated/articles-docs-effects-analog-noise.png
+slug: /effects/analog-noise
+title: analogNoise()
+sidebar_label: analogNoise()
+crumb: '@remotion/effects'
+---
+
+# analogNoise()<AvailableFrom v="4.0.476" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+Adds horizontal analog tape interference to canvas-based components such as [`<Video>`](/docs/media/video), [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) and [`<Solid>`](/docs/solid).
+
+The effect preserves the source alpha mask. Transparent regions stay transparent.
+
+## Preview
+
+<EffectsDemo type="effects-analog-noise" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {analogNoise} from '@remotion/effects/analog-noise';
+import {Video} from '@remotion/media';
+import {AbsoluteFill, useCurrentFrame, useVideoConfig} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  const frame = useCurrentFrame();
+  const {fps} = useVideoConfig();
+
+  return (
+    <AbsoluteFill>
+      <Video
+        src="https://remotion.media/video.mp4"
+        effects={[
+          analogNoise({
+            phase: (frame / fps) % 1,
+            amount: 0.45,
+            density: 0.6,
+            brightness: 0.2,
+            seed: 7,
+          }),
+        ]}
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+## API
+
+Pass an object with the following properties. You can also call `analogNoise()` without arguments.
+
+### `phase?`
+
+Animation phase. Defaults to `0`.
+
+Values outside `0` to `1` wrap around. Animate this value with [`useCurrentFrame()`](/docs/use-current-frame) to move the interference pattern.
+
+### `amount?`
+
+Strength from `0` to `1`. Defaults to `0.35`.
+
+Use `0` to leave the layer unchanged.
+
+### `density?`
+
+Density of the interference marks from `0` to `1`. Defaults to `0.5`.
+
+A lower value creates sparse horizontal marks. A higher value creates denser marks.
+
+### `brightness?`
+
+Bias from dark marks at `-1` to bright marks at `1`. Defaults to `0`.
+
+Use `0` for mixed bright and dark interference.
+
+### `seed?`
+
+Seed for the random interference pattern. Defaults to `0`.
+
+Change it to get a different pattern while keeping the animation deterministic.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Requirements
+
+`analogNoise()` uses a WebGL2 backend. During renders, enable WebGL via [`Config.setChromiumOpenGlRenderer('angle')`](/docs/config#setchromiumopenglrenderer). See [Using WebGL during renders](/docs/remotion/html-in-canvas#using-webgl-during-renders).
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`noise()`](/docs/effects/noise)
+- [`scanlines()`](/docs/effects/scanlines)
+- [`whiteNoise()`](/docs/effects/white-noise)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/analog-noise.ts)

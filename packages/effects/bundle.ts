@@ -7,6 +7,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 const effectEntrypoints = [
 	'src/index.ts',
+	'src/analog-noise.ts',
 	'src/barrel-distortion.ts',
 	'src/blur.ts',
 	'src/chromatic-aberration.ts',

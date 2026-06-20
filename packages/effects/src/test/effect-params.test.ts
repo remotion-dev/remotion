@@ -1,4 +1,5 @@
 import {expect, test} from 'bun:test';
+import {analogNoise} from '../analog-noise.js';
 import {barrelDistortion} from '../barrel-distortion/index.js';
 import {blur} from '../blur/index.js';
 import {brightness} from '../brightness.js';
@@ -56,6 +57,9 @@ const expectDefaultBlueColorArrayControl = (schema: {
 };
 
 test('@remotion/effects expose documentation links', () => {
+	expect(analogNoise().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/analog-noise',
+	);
 	expect(barrelDistortion().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/barrel-distortion',
 	);
@@ -171,6 +175,7 @@ test('@remotion/effects expose documentation links', () => {
 });
 
 test('@remotion/effects expose API names as Studio labels', () => {
+	expect(analogNoise().definition.label).toBe('analogNoise()');
 	expect(barrelDistortion().definition.label).toBe('barrelDistortion()');
 	expect(blur({radius: 1}).definition.label).toBe('blur()');
 	expect(chromaticAberration().definition.label).toBe('chromaticAberration()');
@@ -1436,6 +1441,76 @@ test('noise() parameters produce distinct effect keys', () => {
 			premultiplied.effectKey,
 		]).size,
 	).toBe(4);
+});
+
+test('analogNoise() accepts default params', () => {
+	expect(() => analogNoise()).not.toThrow();
+});
+
+test('analogNoise() rejects non-finite phase', () => {
+	expect(() => analogNoise({phase: Number.NaN})).toThrow(
+		'"phase" must be a finite number',
+	);
+});
+
+test('analogNoise() rejects non-finite amount', () => {
+	expect(() => analogNoise({amount: Number.NaN})).toThrow(
+		'"amount" must be a finite number',
+	);
+});
+
+test('analogNoise() rejects amount below range', () => {
+	expect(() => analogNoise({amount: -0.1})).toThrow('"amount" must be >= 0');
+});
+
+test('analogNoise() rejects amount above range', () => {
+	expect(() => analogNoise({amount: 1.1})).toThrow('"amount" must be <= 1');
+});
+
+test('analogNoise() rejects density below range', () => {
+	expect(() => analogNoise({density: -0.1})).toThrow('"density" must be >= 0');
+});
+
+test('analogNoise() rejects density above range', () => {
+	expect(() => analogNoise({density: 1.1})).toThrow('"density" must be <= 1');
+});
+
+test('analogNoise() rejects brightness below range', () => {
+	expect(() => analogNoise({brightness: -1.1})).toThrow(
+		'"brightness" must be >= -1',
+	);
+});
+
+test('analogNoise() rejects brightness above range', () => {
+	expect(() => analogNoise({brightness: 1.1})).toThrow(
+		'"brightness" must be <= 1',
+	);
+});
+
+test('analogNoise() rejects non-finite seed', () => {
+	expect(() => analogNoise({seed: Number.NaN})).toThrow(
+		'"seed" must be a finite number',
+	);
+});
+
+test('analogNoise() parameters produce distinct effect keys', () => {
+	const defaults = analogNoise();
+	const phased = analogNoise({phase: 0.2});
+	const subtle = analogNoise({amount: 0.2});
+	const dense = analogNoise({density: 0.8});
+	const bright = analogNoise({brightness: 0.6});
+	const seeded = analogNoise({seed: 3});
+
+	expect(
+		new Set([
+			defaults.effectKey,
+			phased.effectKey,
+			subtle.effectKey,
+			dense.effectKey,
+			bright.effectKey,
+			seeded.effectKey,
+		]).size,
+	).toBe(6);
 });
 
 test('noiseDisplacement() accepts required params', () => {

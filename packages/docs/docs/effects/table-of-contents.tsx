@@ -203,6 +203,13 @@ const categories: {
 		title: 'Stylize',
 		effects: [
 			{
+				link: '/docs/effects/analog-noise',
+				preview: '/img/effects-analog-noise-preview.png',
+				alt: 'analog noise effect preview',
+				name: 'analogNoise()',
+				description: 'Analog tape interference',
+			},
+			{
 				link: '/docs/effects/dot-grid',
 				preview: '/img/effects-dot-grid-preview.png',
 				alt: 'dot grid effect preview',

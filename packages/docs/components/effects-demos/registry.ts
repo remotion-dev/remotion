@@ -1,3 +1,4 @@
+import {analogNoise} from '@remotion/effects/analog-noise';
 import {barrelDistortion} from '@remotion/effects/barrel-distortion';
 import {blur} from '@remotion/effects/blur';
 import {brightness} from '@remotion/effects/brightness';
@@ -36,6 +37,7 @@ import {whiteNoise} from '@remotion/effects/white-noise';
 import {zigzag} from '@remotion/effects/zigzag';
 import {lightLeakEffectSchema} from '@remotion/light-leaks';
 import {starburstEffectSchema} from '@remotion/starburst';
+import {EffectsAnalogNoisePreview} from '../effects/effects-analog-noise-preview';
 import {EffectsBarrelDistortionPreview} from '../effects/effects-barrel-distortion-preview';
 import {EffectsBlurPreview} from '../effects/effects-blur-preview';
 import {EffectsBrightnessPreview} from '../effects/effects-brightness-preview';
@@ -228,6 +230,14 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/noise',
 		comp: EffectsNoisePreview,
 		schema: noise().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-analog-noise',
+		effectName: 'analogNoise',
+		effectImportPath: '@remotion/effects/analog-noise',
+		comp: EffectsAnalogNoisePreview,
+		schema: analogNoise().definition.schema,
 	},
 	{
 		...defaults,

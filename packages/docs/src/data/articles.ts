@@ -1728,6 +1728,15 @@ export const articles = [
 		slug: 'effects',
 	},
 	{
+		id: 'effects/analog-noise',
+		title: 'analogNoise()',
+		relativePath: 'docs/effects/analog-noise.mdx',
+		compId: 'articles-docs-effects-analog-noise',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/analog-noise',
+	},
+	{
 		id: 'effects/barrel-distortion',
 		title: 'barrelDistortion()',
 		relativePath: 'docs/effects/barrel-distortion.mdx',
