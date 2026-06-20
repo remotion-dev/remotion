@@ -1,21 +1,25 @@
-import {afterEach, describe, expect, mock, test} from 'bun:test';
+import {afterEach, beforeEach, describe, expect, mock, test} from 'bun:test';
 import {prefetch} from '../prefetch.js';
 
 const originalFetch = globalThis.fetch;
+const originalNodeEnv = window.process.env.NODE_ENV;
+
+beforeEach(() => {
+	window.process.env.NODE_ENV = 'development';
+});
 
 afterEach(() => {
 	globalThis.fetch = originalFetch;
+	window.process.env.NODE_ENV = originalNodeEnv;
 });
 
 describe('prefetch cancellation', () => {
 	test('aborts before receiving the response', async () => {
 		const request: {signal: AbortSignal | null} = {signal: null};
-		globalThis.fetch = mock(
-			(_input: RequestInfo | URL, init?: RequestInit) => {
-				request.signal = init?.signal ?? null;
-				return new Promise<Response>(() => undefined);
-			},
-		) as unknown as typeof fetch;
+		globalThis.fetch = mock((_input: RequestInfo | URL, init?: RequestInit) => {
+			request.signal = init?.signal ?? null;
+			return new Promise<Response>(() => undefined);
+		}) as unknown as typeof fetch;
 
 		const prefetchHandle = prefetch('https://example.com/video.mp4');
 		const waitUntilDone = prefetchHandle.waitUntilDone();
@@ -45,19 +49,17 @@ describe('prefetch cancellation', () => {
 			},
 		});
 
-		globalThis.fetch = mock(
-			(_input: RequestInfo | URL, init?: RequestInit) => {
-				request.signal = init?.signal ?? null;
-				return Promise.resolve(
-					new Response(body, {
-						headers: {
-							'Content-Length': '6',
-							'Content-Type': 'video/mp4',
-						},
-					}),
-				);
-			},
-		) as unknown as typeof fetch;
+		globalThis.fetch = mock((_input: RequestInfo | URL, init?: RequestInit) => {
+			request.signal = init?.signal ?? null;
+			return Promise.resolve(
+				new Response(body, {
+					headers: {
+						'Content-Length': '6',
+						'Content-Type': 'video/mp4',
+					},
+				}),
+			);
+		}) as unknown as typeof fetch;
 
 		const prefetchHandle = prefetch('https://example.com/video.mp4', {
 			onProgress: () => reportProgress(),
