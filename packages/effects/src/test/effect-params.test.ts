@@ -21,6 +21,7 @@ import {halftoneLinearGradient} from '../halftone-linear-gradient.js';
 import {halftone} from '../halftone.js';
 import {hue} from '../hue.js';
 import {invert} from '../invert.js';
+import {lightTrail} from '../light-trail/index.js';
 import {linearProgressiveBlur} from '../linear-progressive-blur/index.js';
 import {lines} from '../lines.js';
 import {mirror} from '../mirror.js';
@@ -145,6 +146,9 @@ test('@remotion/effects expose documentation links', () => {
 	expect(linearProgressiveBlur().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/linear-progressive-blur',
 	);
+	expect(lightTrail().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/light-trail',
+	);
 	expect(dotGrid().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/dot-grid',
 	);
@@ -246,6 +250,7 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(linearProgressiveBlur().definition.label).toBe(
 		'linearProgressiveBlur()',
 	);
+	expect(lightTrail().definition.label).toBe('lightTrail()');
 	expect(dotGrid().definition.label).toBe('dotGrid()');
 	expect(mirror().definition.label).toBe('mirror()');
 	expect(noise().definition.label).toBe('noise()');
@@ -1156,6 +1161,88 @@ test('glow() parameters produce distinct effect keys', () => {
 			coloredGlow.effectKey,
 		]).size,
 	).toBe(5);
+});
+
+test('lightTrail() accepts default params', () => {
+	expect(() => lightTrail()).not.toThrow();
+});
+
+test('lightTrail() accepts valid params', () => {
+	expect(() =>
+		lightTrail({
+			direction: 180,
+			distance: 120,
+			intensity: 1.6,
+			decay: 0.86,
+			threshold: 0.25,
+			samples: 48,
+			color: '#ffb000',
+		}),
+	).not.toThrow();
+});
+
+test('lightTrail() rejects non-finite direction', () => {
+	expect(() => lightTrail({direction: Number.NaN})).toThrow(
+		'"direction" must be a finite number',
+	);
+});
+
+test('lightTrail() rejects negative distance', () => {
+	expect(() => lightTrail({distance: -1})).toThrow('"distance" must be >= 0');
+});
+
+test('lightTrail() rejects negative intensity', () => {
+	expect(() => lightTrail({intensity: -0.1})).toThrow(
+		'"intensity" must be >= 0',
+	);
+});
+
+test('lightTrail() rejects decay outside range', () => {
+	expect(() => lightTrail({decay: 1.1})).toThrow('"decay" must be <= 1');
+});
+
+test('lightTrail() rejects threshold outside range', () => {
+	expect(() => lightTrail({threshold: -0.1})).toThrow(
+		'"threshold" must be >= 0',
+	);
+});
+
+test('lightTrail() rejects non-integer samples', () => {
+	expect(() => lightTrail({samples: 1.5})).toThrow(
+		'"samples" must be an integer',
+	);
+});
+
+test('lightTrail() rejects samples above maximum', () => {
+	expect(() => lightTrail({samples: 65})).toThrow('"samples" must be <= 64');
+});
+
+test('lightTrail() rejects empty color strings', () => {
+	expect(() => lightTrail({color: ''})).toThrow(
+		'"color" must be a non-empty string, but got ""',
+	);
+});
+
+test('lightTrail() parameters produce distinct effect keys', () => {
+	const defaultTrail = lightTrail();
+	const longerTrail = lightTrail({distance: 120});
+	const strongerTrail = lightTrail({intensity: 2});
+	const softerTrail = lightTrail({decay: 0.75});
+	const thresholdTrail = lightTrail({threshold: 0.5});
+	const detailedTrail = lightTrail({samples: 48});
+	const coloredTrail = lightTrail({color: '#ffb000'});
+
+	expect(
+		new Set([
+			defaultTrail.effectKey,
+			longerTrail.effectKey,
+			strongerTrail.effectKey,
+			softerTrail.effectKey,
+			thresholdTrail.effectKey,
+			detailedTrail.effectKey,
+			coloredTrail.effectKey,
+		]).size,
+	).toBe(7);
 });
 
 test('vignette() accepts default params', () => {

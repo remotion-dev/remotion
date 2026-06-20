@@ -33,6 +33,7 @@ const effectEntrypoints = [
 	'src/invert.ts',
 	'src/lines.ts',
 	'src/linear-progressive-blur.ts',
+	'src/light-trail.ts',
 	'src/mirror.ts',
 	'src/noise.ts',
 	'src/noise-displacement.ts',

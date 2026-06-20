@@ -251,6 +251,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-light-trail',
+		category: 'Blur & Shadow',
+		label: 'lightTrail()',
+		description: 'Directional light trail effect',
+		effect: {
+			name: 'lightTrail',
+			importPath: '@remotion/effects/light-trail',
+			config: {},
+		},
+	},
+	{
 		id: 'effects-evolve',
 		category: 'Reveal',
 		label: 'evolve()',

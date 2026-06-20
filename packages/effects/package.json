@@ -159,6 +159,11 @@
 			"module": "./dist/esm/linear-progressive-blur.mjs",
 			"import": "./dist/esm/linear-progressive-blur.mjs"
 		},
+		"./light-trail": {
+			"types": "./dist/light-trail.d.ts",
+			"module": "./dist/esm/light-trail.mjs",
+			"import": "./dist/esm/light-trail.mjs"
+		},
 		"./dot-grid": {
 			"types": "./dist/dot-grid.d.ts",
 			"module": "./dist/esm/dot-grid.mjs",
@@ -347,6 +352,9 @@
 			],
 			"linear-progressive-blur": [
 				"dist/linear-progressive-blur.d.ts"
+			],
+			"light-trail": [
+				"dist/light-trail.d.ts"
 			],
 			"dot-grid": [
 				"dist/dot-grid.d.ts"

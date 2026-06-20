@@ -25,6 +25,11 @@ import {EffectsHalftonePreview} from '../../components/effects/effects-halftone-
 import {EffectsHuePreview} from '../../components/effects/effects-hue-preview';
 import {EffectsInvertPreview} from '../../components/effects/effects-invert-preview';
 import {EffectsLightLeakPreview} from '../../components/effects/effects-light-leak-preview';
+import {
+	EffectsLightTrailPreview,
+	LIGHT_TRAIL_PREVIEW_PARAMS,
+	LightTrailTextSource,
+} from '../../components/effects/effects-light-trail-preview';
 import {EffectsLinearProgressiveBlurPreview} from '../../components/effects/effects-linear-progressive-blur-preview';
 import {EffectsLinesPreview} from '../../components/effects/effects-lines-preview';
 import {EffectsMirrorPreview} from '../../components/effects/effects-mirror-preview';
@@ -364,6 +369,19 @@ export const RemotionRoot: React.FC = () => {
 						startBlur: 0,
 						endBlur: 50,
 					}}
+				/>
+				<Still
+					id="effects-light-trail-text-source"
+					component={LightTrailTextSource}
+					width={1920}
+					height={1080}
+				/>
+				<Still
+					id="effects-light-trail-preview"
+					component={EffectsLightTrailPreview}
+					width={1280}
+					height={720}
+					defaultProps={LIGHT_TRAIL_PREVIEW_PARAMS}
 				/>
 				<Still
 					id="effects-zoom-blur-preview"
