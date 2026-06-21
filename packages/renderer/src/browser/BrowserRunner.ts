@@ -156,17 +156,11 @@ export const makeBrowserRunner = async ({
 		);
 		killProcess();
 
-		// Wait for the process to actually exit before cleanup.
-		// This prevents zombie/defunct processes on Linux, where
-		// killing the process group with SIGKILL leaves child
-		// processes in a defunct state until the parent reaps them.
-		return processClosing.then(() => {
-			deleteDirectory(userDataDir);
-
-			// Cleanup this listener last, as that makes sure the full callback runs. If we
-			// perform this earlier, then the previous function calls would not happen.
-			removeEventListeners(listeners);
-		});
+		// killProcess() already handles deleteDirectory and removeEventListeners.
+		// Just wait for the process to actually exit before resolving, which
+		// prevents zombie/defunct processes on Linux where SIGKILL'd child
+		// processes remain in defunct state until the parent reaps them.
+		return processClosing;
 	};
 
 	if (dumpio) {
