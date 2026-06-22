@@ -5,16 +5,6 @@ import path from 'path';
 const elementsRoot = path.join(__dirname, '..', '..', 'elements');
 const templateRoot = path.join(__dirname, '..', '..', 'elements-template');
 
-// Exports every element source file must define so that the colocated MDX page
-// can import them and pass them to <Player>.
-const requiredExports = [
-	'durationInFrames',
-	'fps',
-	'width',
-	'height',
-	'RemotionRoot',
-];
-
 type Element = {
 	name: string;
 	mdxPath: string;
@@ -73,12 +63,13 @@ describe('Elements must follow the colocated single-file format', () => {
 			const tsx = readFileSync(element.tsxPath, 'utf8');
 			const mdx = readFileSync(element.mdxPath, 'utf8');
 
-			test('source file defines the required exports', () => {
-				for (const exp of requiredExports) {
-					expect(tsx).toContain(`export const ${exp}`);
-				}
-
-				expect(tsx).toContain('<Composition');
+			test('source file is an Element, not a composition', () => {
+				expect(tsx).not.toContain('export const durationInFrames');
+				expect(tsx).not.toContain('export const fps');
+				expect(tsx).not.toContain('export const width');
+				expect(tsx).not.toContain('export const height');
+				expect(tsx).not.toContain('export const RemotionRoot');
+				expect(tsx).not.toContain('<Composition');
 			});
 
 			test('MDX uses the ElementPage template', () => {
@@ -92,8 +83,7 @@ describe('Elements must follow the colocated single-file format', () => {
 			test('displayed code block matches the source file', () => {
 				const block = extractTsxBlock(mdx);
 				expect(block).not.toBeNull();
-				// The fenced code block is the single source of truth shown to both
-				// humans and agents; it must be identical to the runnable .tsx file.
+				// The fenced code block must be identical to the runnable .tsx file.
 				expect(block?.trim()).toBe(tsx.trim());
 			});
 		});

@@ -7,90 +7,77 @@ description: Submit a Remotion Element for the Elements gallery.
 
 Have a small, remixable Remotion Element? We'd like to see it.
 
-A strong Element is easy to preview, easy to copy into a Remotion project, and useful as a building block inside a [`<Sequence>`](/docs/sequence).
+A strong Element is easy to preview, easy to copy into a Remotion project, and useful as a video building block.
 
 ## Preferred Element format
 
 An Element should ideally be a single, self-contained TSX file.
 
-Each Element should live in its own folder: `packages/docs/elements/<category>/<slug>/`.
-Put the MDX page at `packages/docs/elements/<category>/<slug>/index.mdx` and the TSX source next to it.
-
 Start from the reusable template in `packages/docs/elements-template/`.
-
-The MDX page imports that TSX file for the live preview, and shows the exact same code in a fenced `tsx` code block. Keeping the displayed code inline means both readers in the browser and AI agents reading the served Markdown see the full source. A test (`src/test/elements.test.ts`) enforces that the code block stays identical to the source file.
 
 The preferred format is:
 
-- Export the Element component
-- Export fixed `width`, `height`, `fps`, and `durationInFrames`
-- Define the Remotion [`<Composition>`](/docs/composition) directly in the file
-- No local imports, except from npm packages
-- No multiple files required to understand or use the Element
-- Copy-pastable into a Remotion project
+- One self-contained TSX file exporting a React component
+- Copy-pastable and useful in more than one Remotion project
 - HTML, CSS, and React-first
-- Zero-dependency where possible
-- Binary assets use remote URLs only
-- Remote assets are publicly accessible and stable
+- Focused on one visual idea, technique, or workflow
+- Easy to remix
+- Works as-is when dragged or copied into a project
+- **Building block, not a composition:** The hosted docs page provides the preview size, frame rate, and duration. A user's active composition may have a different width, height, FPS, or duration than the preview.
+- [Interactivity-friendly](/docs/studio/interactivity): inline editable values so they can show up in the Studio inspector. See also [Make a component interactive](/docs/studio/make-component-interactive).
+- If two variants are worth showing, make two separate Element pages instead of adding a variant prop.
 
 For example:
 
 ```tsx twoslash title="Element.tsx"
-import {Composition} from 'remotion';
-
-export const width = 1920;
-export const height = 1080;
-export const fps = 30;
-export const durationInFrames = 120;
+import {Sequence} from 'remotion';
 
 export const MyElement = () => {
-	return <div>...</div>;
-};
-
-export const RemotionRoot = () => {
-	return (
-		<Composition
-			id="MyElement"
-			component={MyElement}
-			width={width}
-			height={height}
-			fps={fps}
-			durationInFrames={durationInFrames}
-		/>
-	);
+  return (
+    <Sequence width={1080} height={1080}>
+      <div>...</div>
+    </Sequence>
+  );
 };
 ```
 
-The MDX page can then use the shared page template, which renders a preview, a "Use it" section, and the source code:
+For animation, keep the timing inside the component but let the surrounding project decide how long the Element appears:
 
-````mdx title="index.mdx"
-import {ElementPage} from '@site/src/components/Elements/ElementPage';
-import {
-	MyElement,
-	durationInFrames,
-	fps,
-	height,
-	width,
-} from './my-element';
+```tsx twoslash title="AnimatedElement.tsx"
+import {Interactive, Sequence, interpolate, useCurrentFrame} from 'remotion';
 
-<ElementPage
-	component={MyElement}
-	durationInFrames={durationInFrames}
-	fps={fps}
-	height={height}
-	width={width}
->
+export const AnimatedElement = () => {
+  const frame = useCurrentFrame();
 
-```tsx twoslash title="my-element.tsx"
-// Paste the full contents of my-element.tsx here.
-// It must match the file exactly — a test enforces this.
+  return (
+    <Sequence width={1080} height={1080}>
+      <Interactive.Div
+        style={{
+          opacity: interpolate(frame, [0, 20], [0, 1]),
+          translate: interpolate(frame, [0, 20], ['0px 40px', '0px 0px']),
+        }}
+      >
+        Hello
+      </Interactive.Div>
+    </Sequence>
+  );
+};
 ```
 
-</ElementPage>
-````
+## Sizing Elements
 
-The fenced code block must be an exact copy of the colocated TSX file. This is intentional: it keeps the source visible in the served Markdown for agents while the imported module powers the live preview.
+For object-like Elements, use a [`<Sequence>`](/docs/sequence) with `width` and `height`.
+This is useful for overlays, lower thirds, callouts, motion graphics, cards, badges, and data animations.
 
+The Sequence acts as the Element's isolated container.
+It is absolutely positioned by default, gives Remotion Studio a selectable outline and transform target, and makes [`useVideoConfig()`](/docs/use-video-config) return the Element's own `width` and `height` to children.
+
+For full-frame backgrounds, usually do not set `width` or `height`.
+Let the Element inherit the host composition size instead.
+
+## Assets and dependencies
+
+Prefer zero dependencies.
 If an Element needs binary assets, reference them by URL:
 
 ```tsx twoslash title="Remote assets"
@@ -98,17 +85,7 @@ const imageUrl = 'https://remotion.media/element-image.png';
 const videoUrl = 'https://remotion.media/element-video.mp4';
 ```
 
-## What makes a good Element?
-
-A good Element is:
-
-- Small enough to understand quickly
-- Useful in more than one project
-- Easy to remix
-- Focused on one visual idea, technique, or workflow
-- Designed to be placed inside a `<Sequence>`
-- Possible to preview with a short rendered video or still image
-- Actionable for a Remotion user
+Remote assets should be publicly accessible and stable.
 
 ## What to include
 
@@ -116,10 +93,8 @@ When submitting an Element as a pull request, include:
 
 - An Element folder in `packages/docs/elements/<category>/<slug>/`
 - An `index.mdx` page and the single-file TSX source code in that folder
-- What the viewer should see
 - A rendered preview, if available
 - What makes it useful
-- Required npm dependencies or remote asset URLs
 - Links to inspiration, if any
 
 ## Not a great fit

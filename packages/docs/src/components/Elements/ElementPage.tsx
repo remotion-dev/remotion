@@ -3,20 +3,20 @@ import {ElementPreview} from './ElementPreview';
 
 type ElementPageProps = {
 	readonly component: ComponentType<Record<string, never>>;
-	readonly durationInFrames: number;
-	readonly fps: number;
-	readonly height: number;
-	readonly width: number;
+	readonly durationInFrames?: number;
+	readonly fps?: number;
+	readonly height?: number;
+	readonly width?: number;
 	readonly children: ReactNode;
 };
 
 export const ElementPage: React.FC<ElementPageProps> = ({
 	children,
 	component,
-	durationInFrames,
-	fps,
-	height,
-	width,
+	durationInFrames = 120,
+	fps = 30,
+	height = 1080,
+	width = 1920,
 }) => {
 	return (
 		<>
@@ -32,9 +32,8 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 			<h2>Use it</h2>
 			<p>
 				Copy the source code into your Remotion project. The file exports the
-				component, dimensions, frame rate, duration, and a{' '}
-				<code>RemotionRoot</code>
-				composition.
+				Element component. Preview dimensions, frame rate, and duration are
+				supplied by the gallery.
 			</p>
 
 			<h2>Source</h2>
