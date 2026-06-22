@@ -511,8 +511,6 @@ const TimelineSequenceInner: React.FC<{
 		nodePath !== null &&
 		validatedLocation !== null &&
 		durationCanUpdate;
-	const isTrimBeforeDraggableMedia = s.type === 'audio' || s.type === 'video';
-	const rangeCanUpdate = fromCanUpdate && durationCanUpdate;
 	const showLeftEdgeDragHandle =
 		(s.type === 'sequence' ||
 			s.type === 'image' ||
@@ -522,7 +520,7 @@ const TimelineSequenceInner: React.FC<{
 		nodePath !== null &&
 		validatedLocation !== null &&
 		Boolean(s.controls) &&
-		(isTrimBeforeDraggableMedia ? trimBeforeCanUpdate : rangeCanUpdate);
+		trimBeforeCanUpdate;
 
 	if (maxMediaDuration === null && !s.loopDisplay) {
 		return null;

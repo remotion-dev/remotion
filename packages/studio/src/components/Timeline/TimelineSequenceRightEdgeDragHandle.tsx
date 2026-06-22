@@ -14,6 +14,7 @@ import type {
 	PropStatuses,
 	SequencePropsSubscriptionKey,
 	TSequence,
+	InteractivitySchema,
 } from 'remotion';
 import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
@@ -57,9 +58,9 @@ export type TimelineSequenceLeftEdgeDragTarget = {
 	readonly fileName: string;
 	readonly initialDuration: number;
 	readonly initialFrom: number;
-	readonly initialTrimBefore: number | null;
+	readonly initialTrimBefore: number;
 	readonly nodePath: SequencePropsSubscriptionKey;
-	readonly updateTimelineRange: boolean;
+	readonly schema: InteractivitySchema;
 };
 
 export type TimelineSequenceFromDragTarget = {
@@ -149,11 +150,10 @@ export const getTimelineSequenceLeftEdgeDragDelta = ({
 	deltaFrames,
 }: {
 	readonly initialDuration: number;
-	readonly initialTrimBefore: number | null;
+	readonly initialTrimBefore: number;
 	readonly deltaFrames: number;
 }) => {
-	const minDeltaFrames =
-		initialTrimBefore === null ? -Infinity : 0 - initialTrimBefore;
+	const minDeltaFrames = 0 - initialTrimBefore;
 	const maxDeltaFrames = initialDuration - 1;
 
 	return Math.max(minDeltaFrames, Math.min(deltaFrames, maxDeltaFrames));
@@ -167,7 +167,7 @@ export const getTimelineSequenceLeftEdgeDragValues = ({
 }: {
 	readonly initialDuration: number;
 	readonly initialFrom: number;
-	readonly initialTrimBefore: number | null;
+	readonly initialTrimBefore: number;
 	readonly deltaFrames: number;
 }) => {
 	const clampedDeltaFrames = getTimelineSequenceLeftEdgeDragDelta({
@@ -179,10 +179,7 @@ export const getTimelineSequenceLeftEdgeDragValues = ({
 	return {
 		durationInFrames: initialDuration - clampedDeltaFrames,
 		from: initialFrom + clampedDeltaFrames,
-		trimBefore:
-			initialTrimBefore === null
-				? null
-				: initialTrimBefore + clampedDeltaFrames,
+		trimBefore: initialTrimBefore + clampedDeltaFrames,
 	};
 };
 
@@ -202,43 +199,14 @@ export const getTimelineSequenceLeftEdgeDragChanges = ({
 		});
 		const changes: SaveSequencePropChange[] = [];
 
-		if (nextValues.from !== target.initialFrom) {
-			if (target.updateTimelineRange) {
-				changes.push({
-					fileName: target.fileName,
-					nodePath: target.nodePath,
-					fieldKey: 'from',
-					value: nextValues.from,
-					defaultValue: '0',
-					schema: NoReactInternals.sequenceSchema,
-				});
-			}
-		}
-
-		if (nextValues.durationInFrames !== target.initialDuration) {
-			if (target.updateTimelineRange) {
-				changes.push({
-					fileName: target.fileName,
-					nodePath: target.nodePath,
-					fieldKey: 'durationInFrames',
-					value: nextValues.durationInFrames,
-					defaultValue: null,
-					schema: NoReactInternals.sequenceSchema,
-				});
-			}
-		}
-
-		if (
-			target.initialTrimBefore !== null &&
-			nextValues.trimBefore !== target.initialTrimBefore
-		) {
+		if (nextValues.trimBefore !== target.initialTrimBefore) {
 			changes.push({
 				fileName: target.fileName,
 				nodePath: target.nodePath,
 				fieldKey: 'trimBefore',
 				value: nextValues.trimBefore,
 				defaultValue: '0',
-				schema: NoReactInternals.sequenceSchema,
+				schema: target.schema,
 			});
 		}
 
@@ -465,14 +433,12 @@ export const getTimelineSequenceLeftEdgeDragTargets = ({
 		const nodePath = track.nodePathInfo.sequenceSubscriptionKey;
 		const trimsMedia =
 			originalSequence.type === 'audio' || originalSequence.type === 'video';
-		const canUpdateTimelineRange =
-			canUpdateFrom({propStatuses, nodePath}) &&
-			canUpdateDurationInFrames({propStatuses, nodePath});
-		if (!canUpdateTimelineRange && !trimsMedia) {
+		if (!canUpdateTrimBefore({propStatuses, nodePath})) {
 			return null;
 		}
 
-		if (trimsMedia && !canUpdateTrimBefore({propStatuses, nodePath})) {
+		const {controls} = originalSequence;
+		if (!controls) {
 			return null;
 		}
 
@@ -485,9 +451,9 @@ export const getTimelineSequenceLeftEdgeDragTargets = ({
 				initialTrimBefore: trimsMedia
 					? (originalSequence.trimBefore ??
 						Math.max(0, originalSequence.startMediaFrom))
-					: null,
+					: (originalSequence.trimBefore ?? 0),
 				nodePath,
-				updateTimelineRange: !trimsMedia && canUpdateTimelineRange,
+				schema: controls.schema,
 			});
 		}
 	}
@@ -785,26 +751,11 @@ export const TimelineSequenceLeftEdgeDragHandle: React.FC<{
 					initialTrimBefore: target.initialTrimBefore,
 					deltaFrames,
 				});
-				if (target.updateTimelineRange) {
-					latestRef.current.setDragOverrides(
-						target.nodePath,
-						'from',
-						Internals.makeStaticDragOverride(nextValues.from),
-					);
-					latestRef.current.setDragOverrides(
-						target.nodePath,
-						'durationInFrames',
-						Internals.makeStaticDragOverride(nextValues.durationInFrames),
-					);
-				}
-
-				if (nextValues.trimBefore !== null) {
-					latestRef.current.setDragOverrides(
-						target.nodePath,
-						'trimBefore',
-						Internals.makeStaticDragOverride(nextValues.trimBefore),
-					);
-				}
+				latestRef.current.setDragOverrides(
+					target.nodePath,
+					'trimBefore',
+					Internals.makeStaticDragOverride(nextValues.trimBefore),
+				);
 			}
 		};
 

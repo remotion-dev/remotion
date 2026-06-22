@@ -1212,7 +1212,7 @@ test('Timeline duration drag ignores selection if dragged sequence is not select
 	]);
 });
 
-test('Timeline left edge drag adjusts from and duration for selected sequences', () => {
+test('Timeline left edge drag adjusts trimBefore for selected sequences', () => {
 	const schema = {} satisfies InteractivitySchema;
 	const firstNodePathInfo = makeNodePathInfo(['body', 0], []);
 	const secondNodePathInfo = makeNodePathInfo(['body', 1], []);
@@ -1243,10 +1243,13 @@ test('Timeline left edge drag adjusts from and duration for selected sequences',
 			first: firstNodePathInfo.sequenceSubscriptionKey,
 			second: secondNodePathInfo.sequenceSubscriptionKey,
 		},
-		propStatuses: makeLeftEdgePropStatuses([
-			firstNodePathInfo.sequenceSubscriptionKey,
-			secondNodePathInfo.sequenceSubscriptionKey,
-		]),
+		propStatuses: makeLeftEdgePropStatuses(
+			[
+				firstNodePathInfo.sequenceSubscriptionKey,
+				secondNodePathInfo.sequenceSubscriptionKey,
+			],
+			true,
+		),
 	});
 
 	expect(
@@ -1255,25 +1258,35 @@ test('Timeline left edge drag adjusts from and duration for selected sequences',
 			deltaFrames: 6,
 		}).map((change) => [change.fieldKey, change.value]),
 	).toEqual([
-		['from', 11],
-		['durationInFrames', 34],
-		['from', 16],
-		['durationInFrames', 9],
+		['trimBefore', 6],
+		['trimBefore', 6],
 	]);
 });
 
-test('Timeline left edge drag clamps duration to one frame', () => {
+test('Timeline left edge drag clamps trimBefore to the visible range', () => {
 	expect(
 		getTimelineSequenceLeftEdgeDragValues({
 			initialDuration: 4,
 			initialFrom: 20,
-			initialTrimBefore: null,
+			initialTrimBefore: 2,
 			deltaFrames: 10,
 		}),
 	).toEqual({
 		durationInFrames: 1,
 		from: 23,
-		trimBefore: null,
+		trimBefore: 5,
+	});
+	expect(
+		getTimelineSequenceLeftEdgeDragValues({
+			initialDuration: 4,
+			initialFrom: 20,
+			initialTrimBefore: 2,
+			deltaFrames: -10,
+		}),
+	).toEqual({
+		durationInFrames: 6,
+		from: 18,
+		trimBefore: 0,
 	});
 });
 
@@ -1302,7 +1315,6 @@ test('Timeline left edge drag adjusts and clamps media trimBefore', () => {
 	});
 
 	expect(targets?.map((target) => target.initialTrimBefore)).toEqual([8]);
-	expect(targets?.map((target) => target.updateTimelineRange)).toEqual([false]);
 	expect(
 		getTimelineSequenceLeftEdgeDragChanges({
 			targets: targets ?? [],
@@ -1336,7 +1348,6 @@ test('Timeline left edge drag adjusts video trimBefore without timeline range pr
 		),
 	});
 
-	expect(targets?.map((target) => target.updateTimelineRange)).toEqual([false]);
 	expect(targets?.map((target) => target.initialTrimBefore)).toEqual([8]);
 	expect(
 		getTimelineSequenceLeftEdgeDragChanges({
