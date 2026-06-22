@@ -7,7 +7,7 @@ description: Best practices for writing Remotion animations that stay intuitive 
 
 Use these guidelines when creating or reviewing Remotion animations, especially if the animation should be editable in Remotion Studio Visual Mode.
 
-## Prefer `interpolate()` over `spring()`
+## Prefer `interpolate()` over standalone `spring()`
 
 Prefer `interpolate()` for most animation values.
 
@@ -15,7 +15,39 @@ Prefer `interpolate()` for most animation values.
 - Bezier easings are familiar from CSS and can express snappy or jumpy motion.
 - Studio Visual Mode can edit `interpolate()` keyframes.
 
-Use `spring()` only when the animation specifically needs physically simulated spring behavior.
+When an animation should feel like a spring, keep the editable value in `interpolate()` and pass `Easing.spring()` as the easing function.
+
+Prefer:
+
+```tsx
+style={{
+  scale: interpolate(frame, [0, 30], [0, 1], {
+    easing: Easing.spring({
+      damping: 200,
+    }),
+  }),
+}}
+```
+
+Avoid using `spring()` as a separate driver when the same motion can be expressed as `interpolate()` easing:
+
+```tsx
+const scale = spring({
+  frame,
+  fps,
+  config: {
+    damping: 200,
+  },
+});
+
+style={{
+  scale,
+}}
+```
+
+`Easing.spring()` supports `damping`, `mass`, `stiffness`, and `overshootClamping`. It is normalized to the interpolation progress, so it does not take `frame`, `fps`, `from`, `to`, `delay`, `reverse`, `durationInFrames`, or `durationRestThreshold`.
+
+Use standalone `spring()` only when the animation specifically needs a frame-driven physical spring simulation that cannot be represented as an easing on `interpolate()`.
 
 ## Prefer individual CSS transform properties
 
