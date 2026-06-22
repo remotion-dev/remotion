@@ -51,8 +51,8 @@ export const JumpCuts: React.FC<Props> = ({sections}) => {
     <Series>
       {sections.map((section, i) => (
         <Series.Sequence
-          // Premount the next segment so it can preload before it starts playing
-          premountFor={4 * videoFps}
+          // Premount the next segment for 1.5 seconds so it can preload before it starts playing
+          premountFor={Math.round(1.5 * videoFps)}
           key={i}
           durationInFrames={section.trimAfter - section.trimBefore}
         >
@@ -66,7 +66,7 @@ export const JumpCuts: React.FC<Props> = ({sections}) => {
 
 :::note
 These considerations apply only to smooth previews in the browser.  
-During rendering, videos will be frame-perfect regardless of the approach you use.
+During rendering, video frames are selected exactly, so premounting is only needed for smoother browser preview playback.
 :::
 
 ## See also
