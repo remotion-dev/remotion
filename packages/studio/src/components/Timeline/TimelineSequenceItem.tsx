@@ -11,6 +11,7 @@ import {
 	TIMELINE_LIST_ITEM_ROW_HEIGHT,
 } from '../../helpers/timeline-layout';
 import {useKeybinding} from '../../helpers/use-keybinding';
+import {ModalsContext} from '../../state/modals';
 import {callApi} from '../call-api';
 import {useConfirmationDialog} from '../ConfirmationDialog';
 import {ContextMenu} from '../ContextMenu';
@@ -37,7 +38,6 @@ import {
 	TimelineExpandArrowSpacer,
 } from './TimelineExpandArrowButton';
 import {TimelineExpandedSection} from './TimelineExpandedSection';
-import {TimelineItemStack} from './TimelineItemStack';
 import {TimelineLayerEye, TimelineLayerEyeSpacer} from './TimelineLayerEye';
 import {TimelineMediaInfo} from './TimelineMediaInfo';
 import {TimelineRowChrome} from './TimelineRowChrome';
@@ -218,9 +218,10 @@ export const TimelineSequenceItem: React.FC<{
 	const {toggleTrack} = useContext(ExpandedTracksSetterContext);
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
+	const {setSelectedModal} = useContext(ModalsContext);
 	const {isHighestContext} = useKeybinding();
 	const selectAsset = useSelectAsset();
-	const {onSelect, selectable, selected} =
+	const {onSelect, selectable, selected, selectionItem} =
 		useTimelineRowSelection(nodePathInfo);
 	const {selectedItems} = useTimelineSelection();
 	const containsSelection = useTimelineRowContainsSelection(nodePathInfo);
@@ -852,6 +853,35 @@ export const TimelineSequenceItem: React.FC<{
 		validatedSource: validatedLocation?.source ?? null,
 	});
 
+	const canAddEffect =
+		nodePathInfo?.supportsEffects === true &&
+		previewServerState.type === 'connected' &&
+		Boolean(validatedLocation?.source);
+
+	const onAddEffect = useCallback(() => {
+		if (
+			!canAddEffect ||
+			previewServerState.type !== 'connected' ||
+			!nodePath ||
+			!validatedLocation?.source
+		) {
+			return;
+		}
+
+		setSelectedModal({
+			type: 'add-effect',
+			clientId: previewServerState.clientId,
+			fileName: validatedLocation.source,
+			nodePath,
+		});
+	}, [
+		canAddEffect,
+		nodePath,
+		previewServerState,
+		setSelectedModal,
+		validatedLocation?.source,
+	]);
+
 	const contextMenuValues = useMemo(() => {
 		if (!previewConnected) {
 			return [];
@@ -873,6 +903,26 @@ export const TimelineSequenceItem: React.FC<{
 			selectAsset,
 			sequence,
 			sourceActions: [
+				...(nodePathInfo?.supportsEffects
+					? [
+							{
+								type: 'item' as const,
+								id: 'add-effect',
+								keyHint: null,
+								label: 'Add effect...',
+								leftItem: null,
+								disabled: !canAddEffect,
+								onClick: onAddEffect,
+								quickSwitcherLabel: null,
+								subMenu: null,
+								value: 'add-effect',
+							},
+							{
+								type: 'divider' as const,
+								id: 'add-effect-divider',
+							},
+						]
+					: []),
 				{
 					type: 'item' as const,
 					id: 'rename-sequence',
@@ -892,6 +942,7 @@ export const TimelineSequenceItem: React.FC<{
 		});
 	}, [
 		assetLinkInfo,
+		canAddEffect,
 		canOpenInEditor,
 		canRenameThisSequence,
 		deleteDisabled,
@@ -899,6 +950,8 @@ export const TimelineSequenceItem: React.FC<{
 		duplicateDisabled,
 		fileLocation,
 		freezeFrameMenuItem,
+		nodePathInfo?.supportsEffects,
+		onAddEffect,
 		onDeleteSequenceFromSource,
 		onDisableSequenceInteractivity,
 		onDuplicateSequenceFromSource,
@@ -1023,6 +1076,7 @@ export const TimelineSequenceItem: React.FC<{
 			style={rowStyle}
 			selected={selected}
 			selectable={selectable}
+			selectionItem={selectionItem}
 			onSelect={onSelect}
 			showSelectedBackground
 			containsSelection={containsSelection}
@@ -1046,8 +1100,6 @@ export const TimelineSequenceItem: React.FC<{
 						<Spacing x={0.5} /> <TimelineMediaInfo src={mediaSrc} />
 					</>
 				) : null}
-				<Spacing x={0.5} />
-				<TimelineItemStack originalLocation={originalLocation} />
 			</div>
 		</TimelineRowChrome>
 	);

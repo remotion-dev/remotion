@@ -11,7 +11,6 @@ import {HigherZIndex} from '../state/z-index';
 import {CANVAS_CAPTURE_ENABLED} from './canvas-capture-enabled';
 import {EditorContent} from './EditorContent';
 import {ForceSpecificCursor} from './ForceSpecificCursor';
-import {GlobalKeybindings} from './GlobalKeybindings';
 import {Modals} from './Modals';
 import {NotificationCenter} from './Notifications/NotificationCenter';
 import {RenderErrorContext} from './RenderErrorContext';
@@ -116,7 +115,6 @@ export const Editor: React.FC<{
 											/>
 										</EditorContent>
 									</RenderErrorContext.Provider>
-									<GlobalKeybindings />
 								</Internals.CanUseRemotionHooksProvider>
 							</div>
 						</ScaleLockProvider>
@@ -129,7 +127,7 @@ export const Editor: React.FC<{
 	);
 
 	return CANVAS_CAPTURE_ENABLED ? (
-		<StudioCanvasCapture density={3}>{editor}</StudioCanvasCapture>
+		<StudioCanvasCapture density={1.5}>{editor}</StudioCanvasCapture>
 	) : (
 		editor
 	);

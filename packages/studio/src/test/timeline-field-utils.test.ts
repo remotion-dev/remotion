@@ -137,3 +137,23 @@ test('formatTimelineFieldValueForDisplay rounds unknown numeric fallbacks', () =
 		}),
 	).toBe('10');
 });
+
+test('formatTimelineFieldValueForDisplay shows undefined schema values as unset', () => {
+	expect(
+		formatTimelineFieldValueForDisplay({
+			fieldSchema: {
+				type: 'number',
+				default: undefined,
+				hiddenFromList: false,
+			},
+			value: undefined,
+		}),
+	).toBe('unset');
+
+	expect(
+		formatTimelineFieldValueForDisplay({
+			fieldSchema: undefined,
+			value: undefined,
+		}),
+	).toBe('undefined');
+});

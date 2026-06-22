@@ -51,9 +51,9 @@ type PixelateState = {
 
 const VERTEX_SHADER = /* glsl */ `#version 300 es
 
-in vec2 aPos;   
-in vec2 aUv;    
-out vec2 vUv;   
+in vec2 aPos;
+in vec2 aUv;
+out vec2 vUv;
 
 void main() {
     vUv = aUv;

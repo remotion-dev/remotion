@@ -1,5 +1,8 @@
 import {expect, test} from 'bun:test';
+import {solidSchema} from '../effects/Solid.js';
 import {getFlatSchemaWithAllKeys} from '../flatten-schema.js';
+import {htmlInCanvasSchema} from '../HtmlInCanvas.js';
+import {Interactive} from '../Interactive.js';
 import {
 	baseSchema,
 	extendSchemaWithSequenceName,
@@ -7,6 +10,7 @@ import {
 	sequenceSchema,
 	sequenceSchemaWithoutFrom,
 	sequenceStyleSchema,
+	textSchema,
 	transformSchema,
 } from '../interactivity-schema.js';
 import {
@@ -34,6 +38,23 @@ test('baseSchema exposes common timeline fields', () => {
 			'trimBefore',
 		].sort(),
 	);
+});
+
+test('pixelDensity is exposed only by canvas-backed component schemas', () => {
+	const pixelDensitySchema = {
+		type: 'number',
+		min: 1,
+		max: 3,
+		step: 0.1,
+		default: 1,
+		description: 'Pixel density',
+		hiddenFromList: false,
+	} as const;
+
+	expect(htmlInCanvasSchema.pixelDensity).toEqual(pixelDensitySchema);
+	expect(solidSchema.pixelDensity).toEqual(pixelDensitySchema);
+	expect('pixelDensity' in baseSchema).toBe(false);
+	expect('pixelDensity' in Interactive.baseSchema).toBe(false);
 });
 
 test('getFlatSchema(sequenceSchema) exposes every variant key', () => {
@@ -87,6 +108,68 @@ test('sequenceSchemaWithoutFrom does not expose from', () => {
 test('style.scale does not impose a minimum value', () => {
 	const scaleSchema = transformSchema['style.scale'];
 	expect('min' in scaleSchema).toBe(false);
+});
+
+test('textSchema exposes common text style fields', () => {
+	expect(Object.keys(textSchema).sort()).toEqual(
+		[
+			'style.color',
+			'style.fontSize',
+			'style.fontStyle',
+			'style.fontWeight',
+			'style.letterSpacing',
+			'style.lineHeight',
+			'style.textAlign',
+		].sort(),
+	);
+	expect(textSchema['style.color'].type).toBe('color');
+	expect(textSchema['style.color'].default).toBeUndefined();
+	expect(textSchema['style.fontSize']).toMatchObject({
+		type: 'number',
+		default: undefined,
+		min: 0,
+		step: 1,
+		hiddenFromList: false,
+	});
+	expect(textSchema['style.lineHeight']).toMatchObject({
+		type: 'number',
+		default: undefined,
+		min: 0,
+		step: 0.05,
+		hiddenFromList: false,
+	});
+	expect(Object.keys(textSchema['style.fontWeight'].variants)).toEqual([
+		'100',
+		'200',
+		'300',
+		'400',
+		'500',
+		'600',
+		'700',
+		'800',
+		'900',
+		'normal',
+		'bold',
+	]);
+	expect(Object.keys(textSchema['style.fontStyle'].variants)).toEqual([
+		'normal',
+		'italic',
+		'oblique',
+	]);
+	expect(Object.keys(textSchema['style.textAlign'].variants)).toEqual([
+		'left',
+		'center',
+		'right',
+		'justify',
+		'start',
+		'end',
+	]);
+	expect(textSchema['style.letterSpacing']).toMatchObject({
+		type: 'number',
+		default: undefined,
+		step: 0.1,
+		hiddenFromList: false,
+	});
 });
 
 test('readValuesFromProps reads dot-notation keys via getNestedValue', () => {

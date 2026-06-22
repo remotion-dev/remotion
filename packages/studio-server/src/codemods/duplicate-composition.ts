@@ -68,6 +68,21 @@ export const parseAndApplyCodemod = ({
 		});
 	}
 
+	if (codeMod.type === 'new-composition') {
+		ensureNamedImport({
+			ast: newAst,
+			importedName: 'Composition',
+			sourcePath: 'remotion',
+			localName: 'Composition',
+		});
+		ensureNamedImport({
+			ast: newAst,
+			importedName: codeMod.componentName,
+			sourcePath: codeMod.componentImportPath,
+			localName: codeMod.componentName,
+		});
+	}
+
 	const output = serializeAst(newAst);
 
 	return {changesMade, newContents: output};

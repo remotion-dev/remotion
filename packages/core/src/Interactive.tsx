@@ -5,6 +5,7 @@ import {
 	baseSchema,
 	premountSchema,
 	sequenceSchema,
+	textSchema,
 	transformSchema,
 	type InteractivitySchema,
 } from './interactivity-schema.js';
@@ -102,6 +103,7 @@ type InteractiveElementComponent<Tag extends InteractiveTag> =
 const interactiveElementSchema = {
 	...baseSchema,
 	...transformSchema,
+	...textSchema,
 } as const satisfies InteractivitySchema;
 
 const setRef = <ElementType,>(
@@ -196,6 +198,7 @@ const makeInteractiveElement = <Tag extends InteractiveTag>(
 export const Interactive = {
 	baseSchema,
 	transformSchema,
+	textSchema,
 	premountSchema,
 	sequenceSchema,
 	withSchema: withInteractivitySchema,

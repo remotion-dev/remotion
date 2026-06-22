@@ -1,20 +1,149 @@
 import type React from 'react';
-import {useContext, useEffect} from 'react';
+import {useCallback, useContext, useEffect, useMemo} from 'react';
+import {Internals} from 'remotion';
+import {calculateTimeline} from '../helpers/calculate-timeline';
+import {StudioServerConnectionCtx} from '../helpers/client-id';
+import {SHOW_BROWSER_RENDERING} from '../helpers/show-browser-rendering';
+import {timelineNodePathInfoToKey} from '../helpers/timeline-node-path-key';
 import {useKeybinding} from '../helpers/use-keybinding';
 import {CheckerboardContext} from '../state/checkerboard';
 import {ModalsContext} from '../state/modals';
 import {askAiModalRef} from './AskAiModal';
 import {useCompositionNavigation} from './CompositionSelector';
 import {showNotification} from './Notifications/NotificationCenter';
+import {
+	getTimelineSequenceSelectionKey,
+	useCurrentTimelineSelectionStateAsRef,
+} from './Timeline/TimelineSelection';
 
-export const GlobalKeybindings: React.FC = () => {
+const sequencePropShortcuts: Record<string, string> = {
+	p: 'style.translate',
+	r: 'style.rotate',
+	s: 'style.scale',
+	t: 'style.opacity',
+};
+
+const hasOwnProperty = (obj: object, key: string) =>
+	Object.prototype.hasOwnProperty.call(obj, key);
+
+export const GlobalKeybindings: React.FC<{
+	readonly readOnlyStudio: boolean;
+}> = ({readOnlyStudio}) => {
 	const keybindings = useKeybinding();
 	const {setSelectedModal} = useContext(ModalsContext);
 	const {setCheckerboard} = useContext(CheckerboardContext);
+	const currentSelection = useCurrentTimelineSelectionStateAsRef();
+	const {sequences} = useContext(Internals.SequenceManager);
+	const videoConfig = Internals.useUnsafeVideoConfig();
+	const {overrideIdToNodePathMappings} = useContext(
+		Internals.OverrideIdsToNodePathsGettersContext,
+	);
+	const {type} = useContext(StudioServerConnectionCtx).previewServerState;
 	const {navigateToNextComposition, navigateToPreviousComposition} =
 		useCompositionNavigation();
+	const video = Internals.useVideo();
+	const timeline = useMemo(() => {
+		if (videoConfig === null) {
+			return [];
+		}
+
+		return calculateTimeline({
+			sequences,
+			overrideIdsToNodePaths: overrideIdToNodePathMappings,
+		});
+	}, [overrideIdToNodePathMappings, sequences, videoConfig]);
+
+	const selectSequenceProp = useCallback(
+		(fieldKey: string) => {
+			const {selectedItems, selectItems} = currentSelection.current;
+			if (selectedItems.length !== 1) {
+				return false;
+			}
+
+			const [selection] = selectedItems;
+			if (selection.type !== 'sequence' && selection.type !== 'sequence-prop') {
+				return false;
+			}
+
+			const selectedTrackKey = getTimelineSequenceSelectionKey(
+				selection.nodePathInfo,
+			);
+			const track = timeline.find(
+				(candidate) =>
+					candidate.nodePathInfo !== null &&
+					timelineNodePathInfoToKey(candidate.nodePathInfo) ===
+						selectedTrackKey,
+			);
+
+			if (!track?.sequence.controls) {
+				return false;
+			}
+
+			const {schema, currentRuntimeValueDotNotation} = track.sequence.controls;
+			if (
+				!hasOwnProperty(schema, fieldKey) &&
+				!hasOwnProperty(currentRuntimeValueDotNotation, fieldKey)
+			) {
+				return false;
+			}
+
+			selectItems([
+				{
+					type: 'sequence-prop',
+					nodePathInfo: {
+						...selection.nodePathInfo,
+						auxiliaryKeys: ['controls', fieldKey],
+					},
+					key: fieldKey,
+				},
+			]);
+			return true;
+		},
+		[currentSelection, timeline],
+	);
+
+	const openRenderModal = useCallback(() => {
+		if (!video) {
+			return;
+		}
+
+		if (type !== 'connected' && !SHOW_BROWSER_RENDERING && !readOnlyStudio) {
+			showNotification('Studio server is offline', 2000);
+			return;
+		}
+
+		const renderButton = document.getElementById(
+			'render-modal-button',
+		) as HTMLDivElement;
+
+		renderButton.click();
+	}, [readOnlyStudio, type, video]);
 
 	useEffect(() => {
+		const onSequencePropKey = (event: KeyboardEvent) => {
+			const key = event.key.toLowerCase();
+			const fieldKey = sequencePropShortcuts[key];
+			if (!fieldKey) {
+				return;
+			}
+
+			if (selectSequenceProp(fieldKey)) {
+				event.preventDefault();
+				return;
+			}
+
+			if (key === 't') {
+				setCheckerboard((c) => !c);
+				event.preventDefault();
+				return;
+			}
+
+			if (key === 'r') {
+				openRenderModal();
+				event.preventDefault();
+			}
+		};
+
 		const nKey = keybindings.registerKeybinding({
 			event: 'keypress',
 			key: 'n',
@@ -69,17 +198,17 @@ export const GlobalKeybindings: React.FC = () => {
 				})
 			: null;
 
-		const cKey = keybindings.registerKeybinding({
-			event: 'keypress',
-			key: 't',
-			callback: () => {
-				setCheckerboard((c) => !c);
-			},
-			commandCtrlKey: false,
-			preventDefault: true,
-			triggerIfInputFieldFocused: false,
-			keepRegisteredWhenNotHighestContext: false,
-		});
+		const sequencePropKeys = Object.keys(sequencePropShortcuts).map((key) =>
+			keybindings.registerKeybinding({
+				event: 'keydown',
+				key,
+				callback: onSequencePropKey,
+				commandCtrlKey: false,
+				preventDefault: false,
+				triggerIfInputFieldFocused: false,
+				keepRegisteredWhenNotHighestContext: false,
+			}),
+		);
 		const questionMark = keybindings.registerKeybinding({
 			event: 'keypress',
 			key: '?',
@@ -118,7 +247,10 @@ export const GlobalKeybindings: React.FC = () => {
 
 		return () => {
 			nKey.unregister();
-			cKey.unregister();
+			for (const sequencePropKey of sequencePropKeys) {
+				sequencePropKey.unregister();
+			}
+
 			questionMark.unregister();
 			cmdKKey.unregister();
 			cmdSKey.unregister();
@@ -128,6 +260,8 @@ export const GlobalKeybindings: React.FC = () => {
 		};
 	}, [
 		keybindings,
+		openRenderModal,
+		selectSequenceProp,
 		setCheckerboard,
 		setSelectedModal,
 		navigateToNextComposition,

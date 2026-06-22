@@ -8,7 +8,10 @@ import {
 	type EffectCatalogItem,
 } from '@remotion/studio-shared';
 import React from 'react';
-import {setEffectDragData} from '../../components/effects-demos/effect-drag-data';
+import {
+	setEffectDragData,
+	setEffectDragImage,
+} from '../../components/effects-demos/effect-drag-data';
 import {Grid} from '../../components/TableOfContents/Grid';
 import {TOCItem} from '../../components/TableOfContents/TOCItem';
 
@@ -42,6 +45,7 @@ const EffectCard: React.FC<{
 					dataTransfer: e.dataTransfer,
 					dragData,
 				});
+				setEffectDragImage(e.dataTransfer);
 			}}
 			title="Drag this effect into Remotion Studio"
 		>

@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/effects",
-	"version": "4.0.479",
+	"version": "4.0.481",
 	"description": "Effects that can be applied to Remotion-based canvas components",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -48,6 +48,11 @@
 			"types": "./dist/burlap.d.ts",
 			"module": "./dist/esm/burlap.mjs",
 			"import": "./dist/esm/burlap.mjs"
+		},
+		"./checkerboard": {
+			"types": "./dist/checkerboard.d.ts",
+			"module": "./dist/esm/checkerboard.mjs",
+			"import": "./dist/esm/checkerboard.mjs"
 		},
 		"./chromatic-aberration": {
 			"types": "./dist/chromatic-aberration.d.ts",
@@ -99,10 +104,20 @@
 			"module": "./dist/esm/fisheye.mjs",
 			"import": "./dist/esm/fisheye.mjs"
 		},
+		"./corner-pin": {
+			"types": "./dist/corner-pin.d.ts",
+			"module": "./dist/esm/corner-pin.mjs",
+			"import": "./dist/esm/corner-pin.mjs"
+		},
 		"./glow": {
 			"types": "./dist/glow.d.ts",
 			"module": "./dist/esm/glow.mjs",
 			"import": "./dist/esm/glow.mjs"
+		},
+		"./gridlines": {
+			"types": "./dist/gridlines.d.ts",
+			"module": "./dist/esm/gridlines.mjs",
+			"import": "./dist/esm/gridlines.mjs"
 		},
 		"./halftone": {
 			"types": "./dist/halftone.d.ts",
@@ -148,6 +163,11 @@
 			"types": "./dist/linear-progressive-blur.d.ts",
 			"module": "./dist/esm/linear-progressive-blur.mjs",
 			"import": "./dist/esm/linear-progressive-blur.mjs"
+		},
+		"./light-trail": {
+			"types": "./dist/light-trail.d.ts",
+			"module": "./dist/esm/light-trail.mjs",
+			"import": "./dist/esm/light-trail.mjs"
 		},
 		"./dot-grid": {
 			"types": "./dist/dot-grid.d.ts",
@@ -249,6 +269,11 @@
 			"module": "./dist/esm/white-noise.mjs",
 			"import": "./dist/esm/white-noise.mjs"
 		},
+		"./zoom-blur": {
+			"types": "./dist/zoom-blur.d.ts",
+			"module": "./dist/esm/zoom-blur.mjs",
+			"import": "./dist/esm/zoom-blur.mjs"
+		},
 		"./zigzag": {
 			"types": "./dist/zigzag.d.ts",
 			"module": "./dist/esm/zigzag.mjs",
@@ -266,6 +291,9 @@
 			],
 			"burlap": [
 				"dist/burlap.d.ts"
+			],
+			"checkerboard": [
+				"dist/checkerboard.d.ts"
 			],
 			"chromatic-aberration": [
 				"dist/chromatic-aberration.d.ts"
@@ -297,8 +325,14 @@
 			"fisheye": [
 				"dist/fisheye.d.ts"
 			],
+			"corner-pin": [
+				"dist/corner-pin.d.ts"
+			],
 			"glow": [
 				"dist/glow.d.ts"
+			],
+			"gridlines": [
+				"dist/gridlines.d.ts"
 			],
 			"halftone": [
 				"dist/halftone.d.ts"
@@ -326,6 +360,9 @@
 			],
 			"linear-progressive-blur": [
 				"dist/linear-progressive-blur.d.ts"
+			],
+			"light-trail": [
+				"dist/light-trail.d.ts"
 			],
 			"dot-grid": [
 				"dist/dot-grid.d.ts"
@@ -389,6 +426,9 @@
 			],
 			"white-noise": [
 				"dist/white-noise.d.ts"
+			],
+			"zoom-blur": [
+				"dist/zoom-blur.d.ts"
 			]
 		}
 	},

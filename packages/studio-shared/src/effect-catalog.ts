@@ -218,6 +218,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-zoom-blur',
+		category: 'Blur & Shadow',
+		label: 'zoomBlur()',
+		description: 'Radial zoom blur effect',
+		effect: {
+			name: 'zoomBlur',
+			importPath: '@remotion/effects/zoom-blur',
+			config: {},
+		},
+	},
+	{
 		id: 'effects-drop-shadow',
 		category: 'Blur & Shadow',
 		label: 'dropShadow()',
@@ -236,6 +247,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		effect: {
 			name: 'glow',
 			importPath: '@remotion/effects/glow',
+			config: {},
+		},
+	},
+	{
+		id: 'effects-light-trail',
+		category: 'Blur & Shadow',
+		label: 'lightTrail()',
+		description: 'Directional light trail effect',
+		effect: {
+			name: 'lightTrail',
+			importPath: '@remotion/effects/light-trail',
 			config: {},
 		},
 	},
@@ -327,6 +349,22 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 			name: 'fisheye',
 			importPath: '@remotion/effects/fisheye',
 			config: {},
+		},
+	},
+	{
+		id: 'effects-corner-pin',
+		category: 'Distort',
+		label: 'cornerPin()',
+		description: 'Pin source corners to a quad',
+		effect: {
+			name: 'cornerPin',
+			importPath: '@remotion/effects/corner-pin',
+			config: {
+				topLeft: [0.08, 0.12],
+				topRight: [0.92, 0.04],
+				bottomRight: [0.86, 0.9],
+				bottomLeft: [0.14, 0.96],
+			},
 		},
 	},
 	{
@@ -527,6 +565,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-checkerboard',
+		category: 'Generate',
+		label: 'checkerboard()',
+		description: 'Checkerboard pattern effect',
+		effect: {
+			name: 'checkerboard',
+			importPath: '@remotion/effects/checkerboard',
+			config: {},
+		},
+	},
+	{
 		id: 'effects-halftone-linear-gradient',
 		category: 'Generate',
 		label: 'halftoneLinearGradient()',
@@ -534,6 +583,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		effect: {
 			name: 'halftoneLinearGradient',
 			importPath: '@remotion/effects/halftone-linear-gradient',
+			config: {},
+		},
+	},
+	{
+		id: 'effects-gridlines',
+		category: 'Generate',
+		label: 'gridlines()',
+		description: 'Procedural grid pattern effect',
+		effect: {
+			name: 'gridlines',
+			importPath: '@remotion/effects/gridlines',
 			config: {},
 		},
 	},

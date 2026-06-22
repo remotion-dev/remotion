@@ -18,11 +18,15 @@ import {
 	whatIsRemotionSchema,
 } from './Compose/WhatIsRemotion';
 import {EffectsAnnouncement} from './effects/EffectsAnnouncement';
+import {FxIconComposition} from './effects/FxIconComposition';
+import {Goal} from './effects/Goal';
+import {MetallicSwirl} from './effects/MetallicSwirl';
 import {NewsHeadline} from './effects/NewsHeadline';
 import {
 	StarburstEffectShowcase,
 	starburstEffectShowcaseDurationInFrames,
 } from './effects/StarburstEffectShowcase';
+import {Thermometer} from './effects/Thermometer';
 import {
 	ZigzagLinearBlurShowcase,
 	zigzagLinearBlurShowcaseDurationInFrames,
@@ -31,6 +35,7 @@ import {EmailSignature} from './EmailSignature';
 import './index.css';
 import {Logo} from './Logo';
 import {LogoCollab, logoCollabSchema} from './LogoCollab/LogoCollab';
+import {LogoHorn, calculateLogoHornMetadata} from './LogoHorn';
 import NewSticker from './NewSticker';
 import {
 	RulesEnumeration,
@@ -139,7 +144,8 @@ export const RemotionRoot: React.FC = () => {
 					durationInFrames={120}
 					defaultProps={{
 						videoFile: staticFile('remotion-studio-canvas-recording.webm'),
-						cursorScale: 5,
+						cursorScale: 2.5,
+						hidden: null,
 						width: null,
 						height: null,
 					}}
@@ -181,12 +187,52 @@ export const RemotionRoot: React.FC = () => {
 					durationInFrames={200}
 				/>
 				<Composition
+					id="thermometer"
+					component={EffectsAnnouncement}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={200}
+				/>
+				<Composition
 					id="news-headline"
 					component={NewsHeadline}
 					width={1280}
 					height={720}
 					fps={30}
 					durationInFrames={200}
+				/>
+				<Composition
+					id="thermo"
+					component={Thermometer}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={200}
+				/>
+				<Composition
+					id="goal"
+					component={Goal}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={120}
+				/>
+				<Composition
+					id="metallic-swirl"
+					component={MetallicSwirl}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={200}
+				/>
+				<Composition
+					id="fx-icon"
+					component={FxIconComposition}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={90}
 				/>
 			</Folder>
 			<Folder name="animated-logo">
@@ -426,6 +472,15 @@ export const RemotionRoot: React.FC = () => {
 				/>
 			</Folder>
 			<Folder name="brand-assets">
+				<Composition
+					id="logo-horn"
+					component={LogoHorn}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={90}
+					calculateMetadata={calculateLogoHornMetadata}
+				/>
 				<Composition
 					id="LogoCollab"
 					component={LogoCollab}

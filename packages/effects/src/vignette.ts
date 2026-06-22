@@ -244,23 +244,18 @@ float vignetteMask() {
 void main() {
 	vec4 texColor = texture(uSource, vUv);
 	float alpha = texColor.a;
-
-	if (alpha <= 0.001) {
-		fragColor = vec4(0.0);
-		return;
-	}
-
 	float mask = vignetteMask();
-	vec3 rgb = texColor.rgb / alpha;
 
 	if (uMode == 1) {
 		float outputAlpha = alpha * (1.0 - mask);
-		fragColor = vec4(rgb * outputAlpha, outputAlpha);
+		fragColor = vec4(texColor.rgb * (1.0 - mask), outputAlpha);
 		return;
 	}
 
-	vec3 outputRgb = mix(rgb, uColor.rgb, mask * uColor.a);
-	fragColor = vec4(outputRgb * alpha, alpha);
+	float overlayAlpha = mask * uColor.a;
+	vec3 outputRgb = uColor.rgb * overlayAlpha + texColor.rgb * (1.0 - overlayAlpha);
+	float outputAlpha = overlayAlpha + alpha * (1.0 - overlayAlpha);
+	fragColor = vec4(outputRgb, outputAlpha);
 }
 `;
 

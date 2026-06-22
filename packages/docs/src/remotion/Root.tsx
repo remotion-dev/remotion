@@ -6,10 +6,12 @@ import {EffectsBarrelDistortionPreview} from '../../components/effects/effects-b
 import {EffectsBlurPreview} from '../../components/effects/effects-blur-preview';
 import {EffectsBrightnessPreview} from '../../components/effects/effects-brightness-preview';
 import {EffectsBurlapPreview} from '../../components/effects/effects-burlap-preview';
+import {EffectsCheckerboardPreview} from '../../components/effects/effects-checkerboard-preview';
 import {EffectsChromaticAberrationPreview} from '../../components/effects/effects-chromatic-aberration-preview';
 import {EffectsColorKeyPreview} from '../../components/effects/effects-color-key-preview';
 import {EffectsContourLinesPreview} from '../../components/effects/effects-contour-lines-preview';
 import {EffectsContrastPreview} from '../../components/effects/effects-contrast-preview';
+import {EffectsCornerPinPreview} from '../../components/effects/effects-corner-pin-preview';
 import {EffectsDotGridPreview} from '../../components/effects/effects-dot-grid-preview';
 import {EffectsDropShadowPreview} from '../../components/effects/effects-drop-shadow-preview';
 import {EffectsDuotonePreview} from '../../components/effects/effects-duotone-preview';
@@ -18,11 +20,17 @@ import {EffectsEvolvePreview} from '../../components/effects/effects-evolve-prev
 import {EffectsFisheyePreview} from '../../components/effects/effects-fisheye-preview';
 import {EffectsGlowPreview} from '../../components/effects/effects-glow-preview';
 import {EffectsGrayscalePreview} from '../../components/effects/effects-grayscale-preview';
+import {EffectsGridlinesPreview} from '../../components/effects/effects-gridlines-preview';
 import {EffectsHalftoneLinearGradientPreview} from '../../components/effects/effects-halftone-linear-gradient-preview';
 import {EffectsHalftonePreview} from '../../components/effects/effects-halftone-preview';
 import {EffectsHuePreview} from '../../components/effects/effects-hue-preview';
 import {EffectsInvertPreview} from '../../components/effects/effects-invert-preview';
 import {EffectsLightLeakPreview} from '../../components/effects/effects-light-leak-preview';
+import {
+	EffectsLightTrailPreview,
+	LIGHT_TRAIL_PREVIEW_PARAMS,
+	LightTrailTextSource,
+} from '../../components/effects/effects-light-trail-preview';
 import {EffectsLinearProgressiveBlurPreview} from '../../components/effects/effects-linear-progressive-blur-preview';
 import {EffectsLinesPreview} from '../../components/effects/effects-lines-preview';
 import {EffectsMirrorPreview} from '../../components/effects/effects-mirror-preview';
@@ -58,6 +66,7 @@ import {EffectsWavePreview} from '../../components/effects/effects-wave-preview'
 import {EffectsWavesPreview} from '../../components/effects/effects-waves-preview';
 import {EffectsWhiteNoisePreview} from '../../components/effects/effects-white-noise-preview';
 import {EffectsZigzagPreview} from '../../components/effects/effects-zigzag-preview';
+import {EffectsZoomBlurPreview} from '../../components/effects/effects-zoom-blur-preview';
 import {articles} from '../data/articles';
 import {AllTemplates} from './AllTemplates';
 import {Article} from './Article';
@@ -337,6 +346,18 @@ export const RemotionRoot: React.FC = () => {
 					}}
 				/>
 				<Still
+					id="effects-corner-pin-preview"
+					component={EffectsCornerPinPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						topLeft: [0.08, 0.12],
+						topRight: [0.92, 0.04],
+						bottomRight: [0.86, 0.9],
+						bottomLeft: [0.14, 0.96],
+					}}
+				/>
+				<Still
 					id="effects-chromatic-aberration-preview"
 					component={EffectsChromaticAberrationPreview}
 					width={1280}
@@ -361,6 +382,26 @@ export const RemotionRoot: React.FC = () => {
 						startBlur: 0,
 						endBlur: 50,
 					}}
+				/>
+				<Still
+					id="effects-light-trail-text-source"
+					component={LightTrailTextSource}
+					width={1920}
+					height={1080}
+				/>
+				<Still
+					id="effects-light-trail-preview"
+					component={EffectsLightTrailPreview}
+					width={1280}
+					height={720}
+					defaultProps={LIGHT_TRAIL_PREVIEW_PARAMS}
+				/>
+				<Still
+					id="effects-zoom-blur-preview"
+					component={EffectsZoomBlurPreview}
+					width={1280}
+					height={720}
+					defaultProps={{amount: 160, center: [0.08, 0.5], samples: 48}}
 				/>
 				<Still
 					id="effects-wave-preview"
@@ -450,6 +491,24 @@ export const RemotionRoot: React.FC = () => {
 					}}
 				/>
 				<Still
+					id="effects-gridlines-preview"
+					component={EffectsGridlinesPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						gridSize: 72,
+						lineWidth: 3,
+						lineColor: '#ffffff',
+						backgroundColor: 'transparent',
+						rotation: 0,
+						rotationX: 0,
+						rotationY: 0,
+						perspective: 0,
+						offsetX: 0,
+						offsetY: 0,
+					}}
+				/>
+				<Still
 					id="effects-dot-grid-preview"
 					component={EffectsDotGridPreview}
 					width={1280}
@@ -528,6 +587,20 @@ export const RemotionRoot: React.FC = () => {
 						gap: 0,
 						angle: 20,
 						offset: 0,
+					}}
+				/>
+				<Still
+					id="effects-checkerboard-preview"
+					component={EffectsCheckerboardPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						colors: DEFAULT_EFFECT_COLORS,
+						cellSize: 80,
+						gap: 0,
+						angle: 15,
+						offsetX: 0,
+						offsetY: 0,
 					}}
 				/>
 				<Still

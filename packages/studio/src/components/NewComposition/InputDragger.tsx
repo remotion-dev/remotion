@@ -62,6 +62,26 @@ export const deriveInputDraggerStep = ({
 	return 0.0001;
 };
 
+export const deriveInputDraggerDragStartValue = ({
+	min,
+	value,
+}: {
+	readonly min: React.InputHTMLAttributes<HTMLInputElement>['min'];
+	readonly value: React.InputHTMLAttributes<HTMLInputElement>['value'];
+}) => {
+	const numericValue = Number(value);
+	if (Number.isFinite(numericValue)) {
+		return numericValue;
+	}
+
+	const numericMin = Number(min);
+	if (Number.isFinite(numericMin)) {
+		return numericMin;
+	}
+
+	return 0;
+};
+
 const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 	HTMLButtonElement,
 	Props
@@ -198,6 +218,10 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 				const step = Number(_step ?? 1);
 				const min = Number(_min ?? 0);
 				const max = Number(_max ?? Infinity);
+				const dragStartValue = deriveInputDraggerDragStartValue({
+					min: _min,
+					value,
+				});
 
 				if (distanceFromStart > 4) {
 					setClickLock(true);
@@ -211,7 +235,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 					[-5, -4, 0, 4, 5],
 					[-step, 0, 0, 0, step],
 				);
-				const newValue = Math.min(max, Math.max(min, Number(value) + diff));
+				const newValue = Math.min(max, Math.max(min, dragStartValue + diff));
 				const nextValue = snapToStep
 					? roundToStep(newValue, step)
 					: dragDecimalPlaces === undefined
