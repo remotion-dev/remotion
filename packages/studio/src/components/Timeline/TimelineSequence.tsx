@@ -35,6 +35,7 @@ import {
 } from './TimelineSelection';
 import {TimelineSequenceFrame} from './TimelineSequenceFrame';
 import {
+	TimelineSequenceLeftEdgeDragHandle,
 	TimelineSequenceRightEdgeDragHandle,
 	useTimelineSequenceFromDrag,
 } from './TimelineSequenceRightEdgeDragHandle';
@@ -507,6 +508,17 @@ const TimelineSequenceInner: React.FC<{
 		nodePath !== null &&
 		validatedLocation !== null &&
 		durationCanUpdate;
+	const showLeftEdgeDragHandle =
+		(s.type === 'sequence' ||
+			s.type === 'image' ||
+			s.type === 'audio' ||
+			s.type === 'video') &&
+		!s.isInsideSeries &&
+		nodePath !== null &&
+		validatedLocation !== null &&
+		Boolean(s.controls) &&
+		fromCanUpdate &&
+		durationCanUpdate;
 
 	if (maxMediaDuration === null && !s.loopDisplay) {
 		return null;
@@ -560,6 +572,13 @@ const TimelineSequenceInner: React.FC<{
 			{s.loopDisplay === undefined ? null : (
 				<LoopedTimelineIndicator loops={s.loopDisplay.numberOfTimes} />
 			)}
+			{showLeftEdgeDragHandle && nodePathInfo && validatedLocation ? (
+				<TimelineSequenceLeftEdgeDragHandle
+					nodePathInfo={nodePathInfo}
+					windowWidth={windowWidth}
+					timelineDurationInFrames={video.durationInFrames ?? 1}
+				/>
+			) : null}
 			{showRightEdgeDragHandle && nodePathInfo && validatedLocation ? (
 				<TimelineSequenceRightEdgeDragHandle
 					nodePathInfo={nodePathInfo}
