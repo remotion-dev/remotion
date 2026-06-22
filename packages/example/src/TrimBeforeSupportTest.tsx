@@ -268,9 +268,7 @@ const TrimBeforeSupportTest: React.FC = () => {
 					name="<Video>"
 					src={video}
 					trimBefore={TRIM_BEFORE}
-					durationInFrames={120}
 					muted
-					objectFit="cover"
 					style={{
 						...baseTileStyle,
 						transform: getTileTransform(7),
@@ -285,11 +283,10 @@ const TrimBeforeSupportTest: React.FC = () => {
 					name="<Html5Video>"
 					src={video}
 					trimBefore={TRIM_BEFORE}
-					durationInFrames={120}
 					muted
-					objectFit="cover"
 					style={{
 						...baseTileStyle,
+						objectFit: 'cover',
 						transform: getTileTransform(8),
 					}}
 				/>
@@ -302,11 +299,10 @@ const TrimBeforeSupportTest: React.FC = () => {
 					name="<OffthreadVideo>"
 					src={video}
 					trimBefore={TRIM_BEFORE}
-					durationInFrames={120}
 					muted
-					objectFit="cover"
 					style={{
 						...baseTileStyle,
+						objectFit: 'cover',
 						transform: getTileTransform(9),
 					}}
 				/>
@@ -319,7 +315,6 @@ const TrimBeforeSupportTest: React.FC = () => {
 					name="<Audio>"
 					src={audio}
 					trimBefore={TRIM_BEFORE}
-					durationInFrames={120}
 					volume={0.15}
 				/>
 			),
@@ -331,7 +326,6 @@ const TrimBeforeSupportTest: React.FC = () => {
 					name="<Html5Audio>"
 					src={audio}
 					trimBefore={TRIM_BEFORE}
-					durationInFrames={120}
 					volume={0.15}
 				/>
 			),
@@ -521,9 +515,7 @@ const TrimBeforeSupportTest: React.FC = () => {
 					name="<Video> remote"
 					src="https://remotion.media/video.mp4"
 					trimBefore={TRIM_BEFORE}
-					durationInFrames={120}
 					muted
-					objectFit="cover"
 					style={{
 						...baseTileStyle,
 						transform: getTileTransform(24),
