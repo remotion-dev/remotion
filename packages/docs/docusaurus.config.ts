@@ -74,6 +74,14 @@ const config: Config = {
 					sidebarId: 'apiSidebar',
 				},
 				{
+					to: '/elements',
+					label: 'Elements',
+					position: 'left',
+					type: 'docSidebar',
+					docsPluginId: 'elements',
+					sidebarId: 'elementsSidebar',
+				},
+				{
 					type: 'dropdown',
 					label: 'Products',
 					position: 'left',
@@ -326,10 +334,10 @@ const config: Config = {
 		[
 			'@docusaurus/plugin-content-docs',
 			{
-				id: 'examples',
-				path: './examples',
-				routeBasePath: 'examples',
-				sidebarPath: './examples-sidebars.ts',
+				id: 'elements',
+				path: './elements',
+				routeBasePath: 'elements',
+				sidebarPath: './elements-sidebars.ts',
 				editUrl:
 					'https://github.com/remotion-dev/remotion/edit/main/packages/docs/',
 				showLastUpdateTime: showGitLastUpdate,

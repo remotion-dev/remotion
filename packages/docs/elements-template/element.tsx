@@ -1,30 +1,3 @@
----
-title: Example title
-description: One sentence describing what this example shows.
----
-
-import {ExamplePage} from '@site/src/components/Examples/ExamplePage';
-import {
-	ExampleComponent,
-	durationInFrames,
-	fps,
-	height,
-	width,
-} from './example';
-
-# Example title
-
-One short paragraph explaining what this example demonstrates and when to use it.
-
-<ExamplePage
-	component={ExampleComponent}
-	durationInFrames={durationInFrames}
-	fps={fps}
-	height={height}
-	width={width}
->
-
-```tsx twoslash title="example.tsx"
 import React from 'react';
 import {AbsoluteFill, Composition} from 'remotion';
 
@@ -33,7 +6,7 @@ export const height = 1080;
 export const fps = 30;
 export const durationInFrames = 120;
 
-export const ExampleComponent: React.FC = () => {
+export const ElementComponent: React.FC = () => {
 	return (
 		<AbsoluteFill
 			style={{
@@ -47,7 +20,7 @@ export const ExampleComponent: React.FC = () => {
 				justifyContent: 'center',
 			}}
 		>
-			Example
+			Element
 		</AbsoluteFill>
 	);
 };
@@ -55,8 +28,8 @@ export const ExampleComponent: React.FC = () => {
 export const RemotionRoot: React.FC = () => {
 	return (
 		<Composition
-			id="Example"
-			component={ExampleComponent}
+			id="Element"
+			component={ElementComponent}
 			durationInFrames={durationInFrames}
 			fps={fps}
 			height={height}
@@ -64,6 +37,3 @@ export const RemotionRoot: React.FC = () => {
 		/>
 	);
 };
-```
-
-</ExamplePage>
