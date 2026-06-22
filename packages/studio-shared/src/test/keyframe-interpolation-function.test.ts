@@ -34,6 +34,37 @@ test('isSchemaFieldKeyframable rejects explicitly disabled fields', () => {
 	expect(isSchemaFieldKeyframable({schema, key: 'playbackRate'})).toBe(false);
 });
 
+test('isSchemaFieldKeyframable rejects boolean fields', () => {
+	const schema = {
+		loop: {
+			type: 'boolean',
+			default: false,
+		},
+	} satisfies InteractivitySchema;
+
+	expect(isSchemaFieldKeyframable({schema, key: 'loop'})).toBe(false);
+});
+
+test('isSchemaFieldKeyframable rejects boolean fields in enum variants', () => {
+	const schema = {
+		layout: {
+			type: 'enum',
+			default: 'absolute-fill',
+			variants: {
+				'absolute-fill': {
+					horizontal: {
+						type: 'boolean',
+						default: true,
+					},
+				},
+				none: {},
+			},
+		},
+	} satisfies InteractivitySchema;
+
+	expect(isSchemaFieldKeyframable({schema, key: 'horizontal'})).toBe(false);
+});
+
 test('isSchemaFieldKeyframable finds keyframable fields in enum variants', () => {
 	const schema = {
 		layout: {
