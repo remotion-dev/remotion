@@ -1,7 +1,7 @@
 import React, {type ComponentType, type ReactNode} from 'react';
-import {ExamplePreview} from './ExamplePreview';
+import {ElementPreview} from './ElementPreview';
 
-type ExamplePageProps = {
+type ElementPageProps = {
 	readonly component: ComponentType<Record<string, never>>;
 	readonly durationInFrames: number;
 	readonly fps: number;
@@ -10,7 +10,7 @@ type ExamplePageProps = {
 	readonly children: ReactNode;
 };
 
-export const ExamplePage: React.FC<ExamplePageProps> = ({
+export const ElementPage: React.FC<ElementPageProps> = ({
 	children,
 	component,
 	durationInFrames,
@@ -21,7 +21,7 @@ export const ExamplePage: React.FC<ExamplePageProps> = ({
 	return (
 		<>
 			<h2>Preview</h2>
-			<ExamplePreview
+			<ElementPreview
 				component={component}
 				durationInFrames={durationInFrames}
 				fps={fps}

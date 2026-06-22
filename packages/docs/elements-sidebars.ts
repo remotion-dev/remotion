@@ -2,9 +2,9 @@
 import type {SidebarsConfig} from '@docusaurus/plugin-content-docs';
 
 const sidebars: SidebarsConfig = {
-	examplesSidebar: [
+	elementsSidebar: [
 		'index',
-		'submit-an-example',
+		'submit-an-element',
 		{
 			type: 'html',
 			value:
@@ -13,10 +13,10 @@ const sidebars: SidebarsConfig = {
 		},
 		{
 			type: 'category',
-			label: 'Motion design system',
-			link: {type: 'doc', id: 'motion-design-system/index'},
+			label: 'Overlays',
+			link: {type: 'doc', id: 'overlays/index'},
 			collapsed: false,
-			items: ['motion-design-system/lower-third/index'],
+			items: ['overlays/lower-third/index'],
 		},
 	],
 };

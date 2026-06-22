@@ -1,0 +1,141 @@
+---
+title: Submit an Element
+description: Submit a Remotion Element for the Elements gallery.
+---
+
+# Submit an Element
+
+Have a small, remixable Remotion Element? We'd like to see it.
+
+A strong Element is easy to preview, easy to copy into a Remotion project, and useful as a building block inside a [`<Sequence>`](/docs/sequence).
+
+## Preferred Element format
+
+An Element should ideally be a single, self-contained TSX file.
+
+Each Element should live in its own folder: `packages/docs/elements/<category>/<slug>/`.
+Put the MDX page at `packages/docs/elements/<category>/<slug>/index.mdx` and the TSX source next to it.
+
+Start from the reusable template in `packages/docs/elements-template/`.
+
+The MDX page imports that TSX file for the live preview, and shows the exact same code in a fenced `tsx` code block. Keeping the displayed code inline means both readers in the browser and AI agents reading the served Markdown see the full source. A test (`src/test/elements.test.ts`) enforces that the code block stays identical to the source file.
+
+The preferred format is:
+
+- Export the Element component
+- Export fixed `width`, `height`, `fps`, and `durationInFrames`
+- Define the Remotion [`<Composition>`](/docs/composition) directly in the file
+- No local imports, except from npm packages
+- No multiple files required to understand or use the Element
+- Copy-pastable into a Remotion project
+- HTML, CSS, and React-first
+- Zero-dependency where possible
+- Binary assets use remote URLs only
+- Remote assets are publicly accessible and stable
+
+For example:
+
+```tsx twoslash title="Element.tsx"
+import {Composition} from 'remotion';
+
+export const width = 1920;
+export const height = 1080;
+export const fps = 30;
+export const durationInFrames = 120;
+
+export const MyElement = () => {
+	return <div>...</div>;
+};
+
+export const RemotionRoot = () => {
+	return (
+		<Composition
+			id="MyElement"
+			component={MyElement}
+			width={width}
+			height={height}
+			fps={fps}
+			durationInFrames={durationInFrames}
+		/>
+	);
+};
+```
+
+The MDX page can then use the shared page template, which renders a preview, a "Use it" section, and the source code:
+
+````mdx title="index.mdx"
+import {ElementPage} from '@site/src/components/Elements/ElementPage';
+import {
+	MyElement,
+	durationInFrames,
+	fps,
+	height,
+	width,
+} from './my-element';
+
+<ElementPage
+	component={MyElement}
+	durationInFrames={durationInFrames}
+	fps={fps}
+	height={height}
+	width={width}
+>
+
+```tsx twoslash title="my-element.tsx"
+// Paste the full contents of my-element.tsx here.
+// It must match the file exactly — a test enforces this.
+```
+
+</ElementPage>
+````
+
+The fenced code block must be an exact copy of the colocated TSX file. This is intentional: it keeps the source visible in the served Markdown for agents while the imported module powers the live preview.
+
+If an Element needs binary assets, reference them by URL:
+
+```tsx twoslash title="Remote assets"
+const imageUrl = 'https://remotion.media/element-image.png';
+const videoUrl = 'https://remotion.media/element-video.mp4';
+```
+
+## What makes a good Element?
+
+A good Element is:
+
+- Small enough to understand quickly
+- Useful in more than one project
+- Easy to remix
+- Focused on one visual idea, technique, or workflow
+- Designed to be placed inside a `<Sequence>`
+- Possible to preview with a short rendered video or still image
+- Actionable for a Remotion user
+
+## What to include
+
+When submitting an Element as a pull request, include:
+
+- An Element folder in `packages/docs/elements/<category>/<slug>/`
+- An `index.mdx` page and the single-file TSX source code in that folder
+- What the viewer should see
+- A rendered preview, if available
+- What makes it useful
+- Required npm dependencies or remote asset URLs
+- Links to inspiration, if any
+
+## Not a great fit
+
+These are usually less suitable:
+
+- Full video templates with many unrelated parts
+- Highly specific branded videos
+- Elements requiring private APIs or private assets
+- Large apps with many moving parts
+- Maps, Three.js, WebGL, Canvas, or R3F-heavy Elements for the first batch
+- Elements with unexpected global styles or layout side effects
+- Elements that cannot be previewed meaningfully
+
+## Submit your Element
+
+Submit Elements by opening a pull request against the Remotion repository.
+
+[Open a pull request on GitHub](https://github.com/remotion-dev/remotion/compare)

@@ -1,7 +1,7 @@
 import {Player} from '@remotion/player';
 import React, {type ComponentType} from 'react';
 
-type ExamplePreviewProps = {
+type ElementPreviewProps = {
 	readonly component: ComponentType<Record<string, never>>;
 	readonly durationInFrames: number;
 	readonly fps: number;
@@ -9,7 +9,7 @@ type ExamplePreviewProps = {
 	readonly height: number;
 };
 
-export const ExamplePreview: React.FC<ExamplePreviewProps> = ({
+export const ElementPreview: React.FC<ElementPreviewProps> = ({
 	component,
 	durationInFrames,
 	fps,

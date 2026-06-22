@@ -326,10 +326,10 @@ const config: Config = {
 		[
 			'@docusaurus/plugin-content-docs',
 			{
-				id: 'examples',
-				path: './examples',
-				routeBasePath: 'examples',
-				sidebarPath: './examples-sidebars.ts',
+				id: 'elements',
+				path: './elements',
+				routeBasePath: 'elements',
+				sidebarPath: './elements-sidebars.ts',
 				editUrl:
 					'https://github.com/remotion-dev/remotion/edit/main/packages/docs/',
 				showLastUpdateTime: showGitLastUpdate,

@@ -1,30 +1,3 @@
----
-title: Lower third
-description: Create a reusable lower-third title animation.
----
-
-import {ExamplePage} from '@site/src/components/Examples/ExamplePage';
-import {
-	LowerThird,
-	durationInFrames,
-	fps,
-	height,
-	width,
-} from './lower-third';
-
-# Lower third
-
-Create a reusable lower-third title animation.
-
-<ExamplePage
-	component={LowerThird}
-	durationInFrames={durationInFrames}
-	fps={fps}
-	height={height}
-	width={width}
->
-
-```tsx twoslash title="lower-third.tsx"
 import React from 'react';
 import {
 	AbsoluteFill,
@@ -63,8 +36,8 @@ export const LowerThird: React.FC = () => {
 	return (
 		<AbsoluteFill
 			style={{
-				background: 'linear-gradient(135deg, #0b1020, #15234a)',
 				fontFamily: 'Inter, system-ui, sans-serif',
+				pointerEvents: 'none',
 			}}
 		>
 			<div
@@ -132,6 +105,3 @@ export const RemotionRoot: React.FC = () => {
 		/>
 	);
 };
-```
-
-</ExamplePage>

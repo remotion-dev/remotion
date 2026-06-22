@@ -2,10 +2,10 @@ import {describe, expect, test} from 'bun:test';
 import {existsSync, readdirSync, readFileSync, statSync} from 'fs';
 import path from 'path';
 
-const examplesRoot = path.join(__dirname, '..', '..', 'examples');
-const templateRoot = path.join(__dirname, '..', '..', 'examples-template');
+const elementsRoot = path.join(__dirname, '..', '..', 'elements');
+const templateRoot = path.join(__dirname, '..', '..', 'elements-template');
 
-// Exports every example source file must define so that the colocated MDX page
+// Exports every element source file must define so that the colocated MDX page
 // can import them and pass them to <Player>.
 const requiredExports = [
 	'durationInFrames',
@@ -15,14 +15,14 @@ const requiredExports = [
 	'RemotionRoot',
 ];
 
-type Example = {
+type Element = {
 	name: string;
 	mdxPath: string;
 	tsxPath: string;
 };
 
-const findExamples = (root: string): Example[] => {
-	const examples: Example[] = [];
+const findElements = (root: string): Element[] => {
+	const elements: Element[] = [];
 
 	const walk = (dir: string) => {
 		const indexMdx = path.join(dir, 'index.mdx');
@@ -31,7 +31,7 @@ const findExamples = (root: string): Example[] => {
 				(f) => f.endsWith('.tsx') && !f.endsWith('.test.tsx'),
 			);
 			if (tsxFiles.length > 0) {
-				examples.push({
+				elements.push({
 					name: path.relative(root, dir) || path.basename(dir),
 					mdxPath: indexMdx,
 					tsxPath: path.join(dir, tsxFiles[0]),
@@ -49,7 +49,7 @@ const findExamples = (root: string): Example[] => {
 	};
 
 	walk(root);
-	return examples;
+	return elements;
 };
 
 // Extracts the first ```tsx fenced code block from an MDX file.
@@ -58,20 +58,20 @@ const extractTsxBlock = (mdx: string): string | null => {
 	return match ? match[1] : null;
 };
 
-const allExamples = [
-	...findExamples(examplesRoot),
-	...findExamples(templateRoot),
+const allElements = [
+	...findElements(elementsRoot),
+	...findElements(templateRoot),
 ];
 
-describe('Examples must follow the colocated single-file format', () => {
-	test('at least one example exists', () => {
-		expect(allExamples.length).toBeGreaterThan(0);
+describe('Elements must follow the colocated single-file format', () => {
+	test('at least one element exists', () => {
+		expect(allElements.length).toBeGreaterThan(0);
 	});
 
-	for (const example of allExamples) {
-		describe(example.name, () => {
-			const tsx = readFileSync(example.tsxPath, 'utf8');
-			const mdx = readFileSync(example.mdxPath, 'utf8');
+	for (const element of allElements) {
+		describe(element.name, () => {
+			const tsx = readFileSync(element.tsxPath, 'utf8');
+			const mdx = readFileSync(element.mdxPath, 'utf8');
 
 			test('source file defines the required exports', () => {
 				for (const exp of requiredExports) {
@@ -81,8 +81,8 @@ describe('Examples must follow the colocated single-file format', () => {
 				expect(tsx).toContain('<Composition');
 			});
 
-			test('MDX uses the ExamplePage template', () => {
-				expect(mdx).toContain('ExamplePage');
+			test('MDX uses the ElementPage template', () => {
+				expect(mdx).toContain('ElementPage');
 			});
 
 			test('MDX imports the colocated source module', () => {
