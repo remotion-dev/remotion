@@ -514,6 +514,23 @@ const TrimBeforeSupportTest: React.FC = () => {
 				/>
 			),
 		},
+		{
+			name: 'Video remote',
+			element: (
+				<Video
+					name="<Video> remote"
+					src="https://remotion.media/video.mp4"
+					trimBefore={TRIM_BEFORE}
+					durationInFrames={120}
+					muted
+					objectFit="cover"
+					style={{
+						...baseTileStyle,
+						transform: getTileTransform(24),
+					}}
+				/>
+			),
+		},
 	];
 
 	return (
