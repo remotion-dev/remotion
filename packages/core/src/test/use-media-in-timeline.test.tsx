@@ -83,6 +83,8 @@ test('useMediaInTimeline registers and unregisters new sequence', () => {
 				loopDisplay: undefined,
 				documentationLink: null,
 				refForOutline: null,
+				controls: null,
+				trimBefore: undefined,
 			}),
 		{
 			wrapper,
@@ -134,6 +136,8 @@ test('useMediaInTimeline keeps documentation links for custom display names', ()
 				loopDisplay: undefined,
 				documentationLink: 'https://www.remotion.dev/docs/html5-video',
 				refForOutline: null,
+				controls: null,
+				trimBefore: undefined,
 			}),
 		{
 			wrapper,

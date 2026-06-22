@@ -12,6 +12,7 @@ import type {IsExact} from '../audio/props.js';
 import {SharedAudioContext} from '../audio/shared-audio-tags.js';
 import {makeSharedElementSourceNode} from '../audio/shared-element-source-node.js';
 import {useFrameForVolumeProp} from '../audio/use-audio-frame.js';
+import type {SequenceControls} from '../CompositionManager.js';
 import {getCrossOriginValue} from '../get-cross-origin-value.js';
 import {useLogLevel, useMountTime} from '../log-level-context.js';
 import {playbackLogging} from '../playback-logging.js';
@@ -43,6 +44,8 @@ type VideoForPreviewProps = Omit<RemotionVideoProps, 'onVideoFrame'> & {
 	readonly showInTimeline: boolean;
 	readonly onVideoFrame: null | OnVideoFrame;
 	readonly crossOrigin?: '' | 'anonymous' | 'use-credentials';
+	readonly controls: SequenceControls | null;
+	readonly _remotionInternalTimelineTrimBefore: number | undefined;
 };
 
 type Expected = Omit<
@@ -120,6 +123,8 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		allowAmplificationDuringRender,
 		useWebAudioApi,
 		audioStreamIndex,
+		controls,
+		_remotionInternalTimelineTrimBefore,
 		...nativeProps
 	} = props;
 
@@ -177,6 +182,8 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 			? 'https://www.remotion.dev/docs/offthreadvideo'
 			: 'https://www.remotion.dev/docs/html5-video',
 		refForOutline: videoRef,
+		controls,
+		trimBefore: _remotionInternalTimelineTrimBefore,
 	});
 
 	// putting playback before useVolume

@@ -59,6 +59,7 @@ export type TimelineSequenceLeftEdgeDragTarget = {
 	readonly initialFrom: number;
 	readonly initialTrimBefore: number | null;
 	readonly nodePath: SequencePropsSubscriptionKey;
+	readonly updateTimelineRange: boolean;
 };
 
 export type TimelineSequenceFromDragTarget = {
@@ -202,25 +203,29 @@ export const getTimelineSequenceLeftEdgeDragChanges = ({
 		const changes: SaveSequencePropChange[] = [];
 
 		if (nextValues.from !== target.initialFrom) {
-			changes.push({
-				fileName: target.fileName,
-				nodePath: target.nodePath,
-				fieldKey: 'from',
-				value: nextValues.from,
-				defaultValue: '0',
-				schema: NoReactInternals.sequenceSchema,
-			});
+			if (target.updateTimelineRange) {
+				changes.push({
+					fileName: target.fileName,
+					nodePath: target.nodePath,
+					fieldKey: 'from',
+					value: nextValues.from,
+					defaultValue: '0',
+					schema: NoReactInternals.sequenceSchema,
+				});
+			}
 		}
 
 		if (nextValues.durationInFrames !== target.initialDuration) {
-			changes.push({
-				fileName: target.fileName,
-				nodePath: target.nodePath,
-				fieldKey: 'durationInFrames',
-				value: nextValues.durationInFrames,
-				defaultValue: null,
-				schema: NoReactInternals.sequenceSchema,
-			});
+			if (target.updateTimelineRange) {
+				changes.push({
+					fileName: target.fileName,
+					nodePath: target.nodePath,
+					fieldKey: 'durationInFrames',
+					value: nextValues.durationInFrames,
+					defaultValue: null,
+					schema: NoReactInternals.sequenceSchema,
+				});
+			}
 		}
 
 		if (
@@ -460,11 +465,14 @@ export const getTimelineSequenceLeftEdgeDragTargets = ({
 		const nodePath = track.nodePathInfo.sequenceSubscriptionKey;
 		const trimsMedia =
 			originalSequence.type === 'audio' || originalSequence.type === 'video';
-		if (
-			!canUpdateFrom({propStatuses, nodePath}) ||
-			!canUpdateDurationInFrames({propStatuses, nodePath}) ||
-			(trimsMedia && !canUpdateTrimBefore({propStatuses, nodePath}))
-		) {
+		const canUpdateTimelineRange =
+			canUpdateFrom({propStatuses, nodePath}) &&
+			canUpdateDurationInFrames({propStatuses, nodePath});
+		if (!canUpdateTimelineRange && !trimsMedia) {
+			return null;
+		}
+
+		if (trimsMedia && !canUpdateTrimBefore({propStatuses, nodePath})) {
 			return null;
 		}
 
@@ -475,9 +483,11 @@ export const getTimelineSequenceLeftEdgeDragTargets = ({
 				initialDuration: originalSequence.duration,
 				initialFrom: originalSequence.from,
 				initialTrimBefore: trimsMedia
-					? Math.max(0, originalSequence.startMediaFrom)
+					? (originalSequence.trimBefore ??
+						Math.max(0, originalSequence.startMediaFrom))
 					: null,
 				nodePath,
+				updateTimelineRange: canUpdateTimelineRange,
 			});
 		}
 	}
@@ -775,16 +785,19 @@ export const TimelineSequenceLeftEdgeDragHandle: React.FC<{
 					initialTrimBefore: target.initialTrimBefore,
 					deltaFrames,
 				});
-				latestRef.current.setDragOverrides(
-					target.nodePath,
-					'from',
-					Internals.makeStaticDragOverride(nextValues.from),
-				);
-				latestRef.current.setDragOverrides(
-					target.nodePath,
-					'durationInFrames',
-					Internals.makeStaticDragOverride(nextValues.durationInFrames),
-				);
+				if (target.updateTimelineRange) {
+					latestRef.current.setDragOverrides(
+						target.nodePath,
+						'from',
+						Internals.makeStaticDragOverride(nextValues.from),
+					);
+					latestRef.current.setDragOverrides(
+						target.nodePath,
+						'durationInFrames',
+						Internals.makeStaticDragOverride(nextValues.durationInFrames),
+					);
+				}
+
 				if (nextValues.trimBefore !== null) {
 					latestRef.current.setDragOverrides(
 						target.nodePath,

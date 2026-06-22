@@ -267,14 +267,19 @@ const makeFromPropStatuses = (
 const makeLeftEdgePropStatuses = (
 	nodePaths: readonly SequencePropsSubscriptionKey[],
 	includeTrimBefore = false,
+	includeTimelineRange = true,
 ): PropStatuses => {
 	const propStatuses: PropStatuses = {};
 	for (const nodePath of nodePaths) {
 		propStatuses[Internals.makeSequencePropsSubscriptionKey(nodePath)] = {
 			canUpdate: true,
 			props: {
-				durationInFrames: {status: 'static', codeValue: 100},
-				from: {status: 'static', codeValue: 0},
+				...(includeTimelineRange
+					? {
+							durationInFrames: {status: 'static' as const, codeValue: 100},
+							from: {status: 'static' as const, codeValue: 0},
+						}
+					: {}),
 				...(includeTrimBefore
 					? {trimBefore: {status: 'static' as const, codeValue: 0}}
 					: {}),
@@ -1291,6 +1296,41 @@ test('Timeline left edge drag adjusts and clamps media trimBefore', () => {
 		['durationInFrames', 48],
 		['trimBefore', 0],
 	]);
+});
+
+test('Timeline left edge drag adjusts video trimBefore without timeline range props', () => {
+	const schema = {} satisfies InteractivitySchema;
+	const nodePathInfo = makeNodePathInfo(['body', 0], []);
+	const targets = getTimelineSequenceLeftEdgeDragTargets({
+		draggedNodePathInfo: nodePathInfo,
+		selectedItems: [{type: 'sequence', nodePathInfo}],
+		sequences: [
+			makeTimelineSequence({
+				schema,
+				duration: 40,
+				from: 0,
+				startMediaFrom: 8,
+				type: 'video',
+			}),
+		],
+		overrideIdsToNodePaths: {
+			override: nodePathInfo.sequenceSubscriptionKey,
+		},
+		propStatuses: makeLeftEdgePropStatuses(
+			[nodePathInfo.sequenceSubscriptionKey],
+			true,
+			false,
+		),
+	});
+
+	expect(targets?.map((target) => target.updateTimelineRange)).toEqual([false]);
+	expect(targets?.map((target) => target.initialTrimBefore)).toEqual([8]);
+	expect(
+		getTimelineSequenceLeftEdgeDragChanges({
+			targets: targets ?? [],
+			deltaFrames: 3,
+		}).map((change) => [change.fieldKey, change.value]),
+	).toEqual([['trimBefore', 11]]);
 });
 
 test('Timeline left edge drag is blocked if trimBefore cannot update', () => {
