@@ -56,7 +56,7 @@ export const JumpCuts: React.FC<Props> = ({sections}) => {
           key={i}
           durationInFrames={section.trimAfter - section.trimBefore}
         >
-          <Video pauseWhenBuffering trimBefore={section.trimBefore} trimAfter={section.trimAfter} src={staticFile('time.mp4')} />
+          <Video trimBefore={section.trimBefore} trimAfter={section.trimAfter} src={staticFile('time.mp4')} />
         </Series.Sequence>
       ))}
     </Series>
