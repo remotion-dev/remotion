@@ -1,34 +1,15 @@
-import {
-	makeArrow,
-	makeCallout,
-	makeCircle,
-	makeEllipse,
-	makeHeart,
-	makePie,
-	makePolygon,
-	makeRect,
-	makeSpark,
-	makeStar,
-	makeTriangle,
-} from '@remotion/shapes';
 import React from 'react';
 import {
-	getDefaultShapeComponentProps,
 	makeDefaultShapeComponentDragData,
 	setComponentDragData,
 } from '../../components/shapes/shape-component-drag-data';
+import {getShapeDragInfo} from '../../components/shapes/shape-drag-info';
 import {
 	type ShapeName,
 	shapeComponents,
 } from '../../components/shapes/shapes-info';
 import {Grid} from '../../components/TableOfContents/Grid';
 import {TOCItem} from '../../components/TableOfContents/TOCItem';
-
-type ShapeInfo = {
-	readonly path: string;
-	readonly width: number;
-	readonly height: number;
-};
 
 const shapeItem: React.CSSProperties = {
 	alignItems: 'center',
@@ -58,141 +39,14 @@ const shapeThumbnail: React.CSSProperties = {
 	display: 'block',
 };
 
-const getProp = (
-	props: Record<string, string | number | boolean>,
-	name: string,
-) => props[name];
-
-const getNumber = (
-	props: Record<string, string | number | boolean>,
-	name: string,
-) => {
-	const value = getProp(props, name);
-	if (typeof value !== 'number') {
-		throw new Error(`Expected ${name} to be a number`);
-	}
-
-	return value;
-};
-
-const getBoolean = (
-	props: Record<string, string | number | boolean>,
-	name: string,
-) => {
-	const value = getProp(props, name);
-	if (typeof value !== 'boolean') {
-		throw new Error(`Expected ${name} to be a boolean`);
-	}
-
-	return value;
-};
-
-const getDirection = (
-	props: Record<string, string | number | boolean>,
-	name: string,
-) => {
-	const value = getProp(props, name);
-	if (
-		value !== 'left' &&
-		value !== 'right' &&
-		value !== 'up' &&
-		value !== 'down'
-	) {
-		throw new Error(`Expected ${name} to be a direction`);
-	}
-
-	return value;
-};
-
-const makeDefaultShapeInfo = (shape: ShapeName): ShapeInfo => {
-	const props = Object.fromEntries(
-		getDefaultShapeComponentProps(shape).map((prop) => [prop.name, prop.value]),
-	);
-
-	switch (shape) {
-		case 'Arrow':
-			return makeArrow({
-				length: getNumber(props, 'length'),
-				headWidth: getNumber(props, 'headWidth'),
-				headLength: getNumber(props, 'headLength'),
-				shaftWidth: getNumber(props, 'shaftWidth'),
-				direction: getDirection(props, 'direction'),
-			});
-		case 'Callout':
-			return makeCallout({
-				width: getNumber(props, 'width'),
-				height: getNumber(props, 'height'),
-				pointerLength: getNumber(props, 'pointerLength'),
-				pointerBaseWidth: getNumber(props, 'pointerBaseWidth'),
-				pointerPosition: getNumber(props, 'pointerPosition'),
-				pointerDirection: getDirection(props, 'pointerDirection'),
-				cornerRadius: getNumber(props, 'cornerRadius'),
-				edgeRoundness:
-					typeof props.edgeRoundness === 'number' ? props.edgeRoundness : null,
-			});
-		case 'Circle':
-			return makeCircle({radius: getNumber(props, 'radius')});
-		case 'Ellipse':
-			return makeEllipse({
-				rx: getNumber(props, 'rx'),
-				ry: getNumber(props, 'ry'),
-			});
-		case 'Heart':
-			return makeHeart({
-				height: getNumber(props, 'height'),
-				aspectRatio: getNumber(props, 'aspectRatio'),
-				bottomRoundnessAdjustment: getNumber(
-					props,
-					'bottomRoundnessAdjustment',
-				),
-				depthAdjustment: getNumber(props, 'depthAdjustment'),
-			});
-		case 'Pie':
-			return makePie({
-				radius: getNumber(props, 'radius'),
-				progress: getNumber(props, 'progress'),
-				closePath: getBoolean(props, 'closePath'),
-				counterClockwise: getBoolean(props, 'counterClockwise'),
-				rotation: getNumber(props, 'rotation'),
-			});
-		case 'Polygon':
-			return makePolygon({
-				points: getNumber(props, 'points'),
-				radius: getNumber(props, 'radius'),
-				cornerRadius: getNumber(props, 'cornerRadius'),
-			});
-		case 'Rect':
-			return makeRect({
-				width: getNumber(props, 'width'),
-				height: getNumber(props, 'height'),
-				cornerRadius: getNumber(props, 'cornerRadius'),
-			});
-		case 'Spark':
-			return makeSpark({
-				width: getNumber(props, 'width'),
-				height: getNumber(props, 'height'),
-				edgeRoundness: getNumber(props, 'edgeRoundness'),
-				cornerRadius: getNumber(props, 'cornerRadius'),
-			});
-		case 'Star':
-			return makeStar({
-				points: getNumber(props, 'points'),
-				innerRadius: getNumber(props, 'innerRadius'),
-				outerRadius: getNumber(props, 'outerRadius'),
-				cornerRadius: getNumber(props, 'cornerRadius'),
-			});
-		case 'Triangle':
-			return makeTriangle({
-				length: getNumber(props, 'length'),
-				direction: getDirection(props, 'direction'),
-				cornerRadius: getNumber(props, 'cornerRadius'),
-			});
-	}
-};
-
 const ShapeDragPreview = React.forwardRef<SVGSVGElement, {shape: ShapeName}>(
 	({shape}, ref) => {
-		const shapeInfo = makeDefaultShapeInfo(shape);
+		const dragData = makeDefaultShapeComponentDragData(shape);
+		const shapeInfo = getShapeDragInfo(dragData.component);
+		if (shapeInfo === null) {
+			throw new Error(`Could not get shape info for ${shape}`);
+		}
+
 		const padding = Math.max(shapeInfo.width, shapeInfo.height) * 0.08;
 
 		return (
