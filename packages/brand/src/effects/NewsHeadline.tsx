@@ -23,18 +23,7 @@ export const NewsHeadline = () => {
 					premultiply: true,
 				}),
 				linearProgressiveBlur({
-					end: interpolate(
-						frame,
-						[55, 119],
-						[
-							[0.782, 0.058],
-							[0.816, -0.06],
-						],
-						{
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-						},
-					),
+					end: [0.799, -0.014],
 					start: [0.5, 0.5],
 				}),
 				linearProgressiveBlur({
@@ -49,15 +38,10 @@ export const NewsHeadline = () => {
 			]}
 			style={{
 				scale: 1,
-				transformOrigin: interpolate(
-					frame,
-					[81, 104],
-					['18.64% 50%', '50% 50%'],
-					{
-						extrapolateLeft: 'clamp',
-						extrapolateRight: 'clamp',
-					},
-				),
+				transformOrigin: interpolate(frame, [81, 104], ['50% 50%', '50% 50%'], {
+					extrapolateLeft: 'clamp',
+					extrapolateRight: 'clamp',
+				}),
 			}}
 		>
 			<Solid
@@ -67,6 +51,7 @@ export const NewsHeadline = () => {
 					position: 'absolute',
 				}}
 				color={'#ffffff'}
+				showInTimeline={false}
 			/>
 			<Img
 				src={staticFile('Screenshot 2026-06-17 at 14.40.23.png')}
@@ -81,6 +66,7 @@ export const NewsHeadline = () => {
 				}}
 				width={966}
 				height={380}
+				showInTimeline={false}
 			/>
 		</HtmlInCanvas>
 	);
