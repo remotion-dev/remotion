@@ -1,10 +1,9 @@
 import {burlap} from '@remotion/effects/burlap';
-import {Solid, useCurrentFrame, staticFile} from 'remotion';
+import {Solid, staticFile} from 'remotion';
 import {Video} from '@remotion/media';
 import {colorKey} from '@remotion/effects/color-key';
 
 export const EffectsAnnouncement = () => {
-	const frame = useCurrentFrame();
 	return (
 		<>
 			<Solid

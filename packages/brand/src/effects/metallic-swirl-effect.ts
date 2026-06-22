@@ -346,9 +346,11 @@ const validateMetallicSwirlParams = (
 	) {
 		throw new TypeError('"backgroundColor" must be a string');
 	}
+
 	if (params.colorA !== undefined && typeof params.colorA !== 'string') {
 		throw new TypeError('"colorA" must be a string');
 	}
+
 	if (params.colorB !== undefined && typeof params.colorB !== 'string') {
 		throw new TypeError('"colorB" must be a string');
 	}

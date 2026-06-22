@@ -4,7 +4,6 @@ import {loadFont} from '@remotion/fonts';
 import React from 'react';
 import {
 	CanvasImage,
-	Easing,
 	HtmlInCanvas,
 	Interactive,
 	interpolate,

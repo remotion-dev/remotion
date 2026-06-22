@@ -3,20 +3,17 @@ import {Audio} from '@remotion/media';
 import {useWindowedAudioData, visualizeAudio} from '@remotion/media-utils';
 import {ALL_FORMATS, Input, UrlSource} from 'mediabunny';
 import React from 'react';
+import type {CalculateMetadataFunction} from 'remotion';
 import {
 	AbsoluteFill,
-	CalculateMetadataFunction,
 	Img,
 	Solid,
 	staticFile,
 	useCurrentFrame,
 	useVideoConfig,
-	interpolate,
 } from 'remotion';
 
 import {pixelDissolve} from '@remotion/effects/pixel-dissolve';
-import {tint} from '@remotion/effects/tint';
-import {blur} from '@remotion/effects/blur';
 
 const AUDIO_FILE = staticFile('hoorn.wav');
 const LOGO_FILE = staticFile('logo/remotion/logo-on-white.svg');
