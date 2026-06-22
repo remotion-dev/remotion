@@ -126,7 +126,31 @@ Object.defineProperties(HTMLCanvasElement.prototype, {
 	},
 });
 
-afterEach(cleanup);
+const resetDelayRenderState = () => {
+	const w = window as unknown as {
+		remotion_cancelledError?: string;
+		remotion_delayRenderHandles: number[];
+		remotion_delayRenderTimeouts: Record<
+			string,
+			{timeout: ReturnType<typeof setTimeout>}
+		>;
+		remotion_renderReady: boolean;
+	};
+
+	for (const {timeout} of Object.values(w.remotion_delayRenderTimeouts ?? {})) {
+		clearTimeout(timeout);
+	}
+
+	w.remotion_cancelledError = undefined;
+	w.remotion_delayRenderHandles = [];
+	w.remotion_delayRenderTimeouts = {};
+	w.remotion_renderReady = false;
+};
+
+afterEach(() => {
+	cleanup();
+	resetDelayRenderState();
+});
 
 const SequenceTestWrapper: React.FC<{
 	readonly children: React.ReactNode;
