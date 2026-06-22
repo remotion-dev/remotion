@@ -17,7 +17,7 @@ export const MediaVolumeSlider: React.FC<{
 	readonly renderMuteButton: RenderMuteButton | null;
 	readonly renderVolumeSlider: RenderVolumeSlider | null;
 }> = ({displayVerticalVolumeSlider, renderMuteButton, renderVolumeSlider}) => {
-	const [mediaMuted, setMediaMuted] = Internals.useMediaMutedState();
+	const [playerMuted, setPlayerMuted] = Internals.usePlayerMutedState();
 	const [mediaVolume, setMediaVolume] = Internals.useMediaVolumeState();
 	const [focused, setFocused] = useState<boolean>(false);
 	const parentDivRef = useRef<HTMLDivElement>(null);
@@ -38,12 +38,12 @@ export const MediaVolumeSlider: React.FC<{
 	const onClick = useCallback(() => {
 		if (isVolume0) {
 			setMediaVolume(1);
-			setMediaMuted(false);
+			setPlayerMuted(false);
 			return;
 		}
 
-		setMediaMuted((mute) => !mute);
-	}, [isVolume0, setMediaMuted, setMediaVolume]);
+		setPlayerMuted((mute) => !mute);
+	}, [isVolume0, setPlayerMuted, setMediaVolume]);
 
 	const parentDivStyle: React.CSSProperties = useMemo(() => {
 		return {
@@ -92,12 +92,12 @@ export const MediaVolumeSlider: React.FC<{
 
 	const muteButton = useMemo(() => {
 		return renderMuteButton
-			? renderMuteButton({muted: mediaMuted, volume: mediaVolume})
-			: renderDefaultMuteButton({muted: mediaMuted, volume: mediaVolume});
-	}, [mediaMuted, mediaVolume, renderDefaultMuteButton, renderMuteButton]);
+			? renderMuteButton({muted: playerMuted, volume: mediaVolume})
+			: renderDefaultMuteButton({muted: playerMuted, volume: mediaVolume});
+	}, [playerMuted, mediaVolume, renderDefaultMuteButton, renderMuteButton]);
 
 	const volumeSlider = useMemo(() => {
-		return (focused || hover) && !mediaMuted && !Internals.isIosSafari()
+		return (focused || hover) && !playerMuted && !Internals.isIosSafari()
 			? (renderVolumeSlider ?? renderDefaultVolumeSlider)({
 					isVertical: displayVerticalVolumeSlider,
 					volume: mediaVolume,
@@ -110,7 +110,7 @@ export const MediaVolumeSlider: React.FC<{
 		displayVerticalVolumeSlider,
 		focused,
 		hover,
-		mediaMuted,
+		playerMuted,
 		mediaVolume,
 		renderVolumeSlider,
 		setMediaVolume,

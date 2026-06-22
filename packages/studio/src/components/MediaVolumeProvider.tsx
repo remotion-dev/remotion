@@ -9,19 +9,21 @@ import {loadMuteOption} from '../state/mute';
 export const MediaVolumeProvider: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
-	const [mediaMuted, setMediaMuted] = useState<boolean>(() => loadMuteOption());
+	const [playerMuted, setPlayerMuted] = useState<boolean>(() =>
+		loadMuteOption(),
+	);
 	const [mediaVolume, setMediaVolume] = useState<number>(1);
 
 	const mediaVolumeContextValue = useMemo((): MediaVolumeContextValue => {
 		return {
-			mediaMuted,
+			playerMuted,
 			mediaVolume,
 		};
-	}, [mediaMuted, mediaVolume]);
+	}, [playerMuted, mediaVolume]);
 
 	const setMediaVolumeContextValue = useMemo((): SetMediaVolumeContextValue => {
 		return {
-			setMediaMuted,
+			setPlayerMuted,
 			setMediaVolume,
 		};
 	}, []);

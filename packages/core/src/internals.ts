@@ -247,7 +247,7 @@ import type {
 import {
 	MediaVolumeContext,
 	SetMediaVolumeContext,
-	useMediaMutedState,
+	usePlayerMutedState,
 	useMediaVolumeState,
 } from './volume-position-state.js';
 import {evaluateVolume} from './volume-prop.js';
@@ -308,7 +308,7 @@ export const Internals = {
 	useVideo,
 	getRoot,
 	useMediaVolumeState,
-	useMediaMutedState,
+	usePlayerMutedState,
 	useMediaInTimeline,
 	useLazyComponent,
 	truthy,

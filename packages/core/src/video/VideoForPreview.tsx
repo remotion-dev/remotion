@@ -24,7 +24,7 @@ import {useMediaTag} from '../use-media-tag.js';
 import {useVideoConfig} from '../use-video-config.js';
 import {VERSION} from '../version.js';
 import {
-	useMediaMutedState,
+	usePlayerMutedState,
 	useMediaVolumeState,
 } from '../volume-position-state.js';
 import {evaluateVolume} from '../volume-prop.js';
@@ -146,7 +146,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	}
 
 	const [mediaVolume] = useMediaVolumeState();
-	const [mediaMuted] = useMediaMutedState();
+	const [playerMuted] = usePlayerMutedState();
 
 	const userPreferredVolume = evaluateVolume({
 		frame: volumePropFrame,
@@ -354,7 +354,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		<video
 			{...nativeProps}
 			ref={videoRef}
-			muted={muted || mediaMuted || userPreferredVolume <= 0}
+			muted={muted || playerMuted || userPreferredVolume <= 0}
 			playsInline
 			src={actualSrc}
 			loop={_remotionInternalNativeLoopPassed}

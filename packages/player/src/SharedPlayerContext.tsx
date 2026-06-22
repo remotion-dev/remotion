@@ -101,7 +101,7 @@ export const SharedPlayerContexts: React.FC<{
 		inputProps,
 	]);
 
-	const [mediaMuted, setMediaMuted] = useState<boolean>(() => initiallyMuted);
+	const [playerMuted, setPlayerMuted] = useState<boolean>(() => initiallyMuted);
 	const [mediaVolume, setMediaVolume] = useState<number>(() =>
 		persistVolumeToStorage
 			? getPreferredVolume(volumePersistenceKey ?? null)
@@ -110,13 +110,13 @@ export const SharedPlayerContexts: React.FC<{
 
 	const mediaVolumeContextValue = useMemo((): MediaVolumeContextValue => {
 		return {
-			mediaMuted,
+			playerMuted,
 			mediaVolume,
 		};
-	}, [mediaMuted, mediaVolume]);
+	}, [playerMuted, mediaVolume]);
 
 	const shouldCreateAudioContext =
-		audioEnabled && !mediaMuted && mediaVolume > 0;
+		audioEnabled && !playerMuted && mediaVolume > 0;
 
 	const setMediaVolumeAndPersist = useCallback(
 		(vol: number) => {
@@ -130,7 +130,7 @@ export const SharedPlayerContexts: React.FC<{
 
 	const setMediaVolumeContextValue = useMemo((): SetMediaVolumeContextValue => {
 		return {
-			setMediaMuted,
+			setPlayerMuted,
 			setMediaVolume: setMediaVolumeAndPersist,
 		};
 	}, [setMediaVolumeAndPersist]);
