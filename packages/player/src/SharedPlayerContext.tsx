@@ -115,6 +115,9 @@ export const SharedPlayerContexts: React.FC<{
 		};
 	}, [mediaMuted, mediaVolume]);
 
+	const shouldCreateAudioContext =
+		audioEnabled && !mediaMuted && mediaVolume > 0;
+
 	const setMediaVolumeAndPersist = useCallback(
 		(vol: number) => {
 			setMediaVolume(vol);
@@ -170,7 +173,7 @@ export const SharedPlayerContexts: React.FC<{
 													<Internals.BufferingProvider>
 														<Internals.SharedAudioContextProvider
 															audioLatencyHint={audioLatencyHint}
-															audioEnabled={audioEnabled}
+															audioEnabled={shouldCreateAudioContext}
 															previewSampleRate={sampleRate}
 														>
 															<Internals.SharedAudioTagsContextProvider
