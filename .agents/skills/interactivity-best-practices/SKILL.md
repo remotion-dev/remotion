@@ -29,7 +29,7 @@ style={{
 }}
 ```
 
-Avoid using `spring()` as a separate driver when the same motion can be expressed as `interpolate()` easing:
+❌ Avoid using `spring()` as a separate driver when the same motion can be expressed as `interpolate()` easing:
 
 ```tsx
 const scale = spring({
@@ -61,7 +61,7 @@ style={{
 }}
 ```
 
-Avoid:
+❌ Avoid:
 
 ```tsx
 style={{
@@ -83,7 +83,7 @@ style={{
 }}
 ```
 
-Avoid:
+❌ Avoid:
 
 ```tsx
 const scale = interpolate(frame, [0, 100], [0, 2]);
@@ -108,7 +108,7 @@ style={{
 }}
 ```
 
-Avoid manually building strings around separately interpolated numbers when the property can be interpolated directly.
+❌ Avoid manually building strings around separately interpolated numbers when the property can be interpolated directly.
 
 Direct interpolation of these properties is supported and works better with visual editing in Studio.
 
