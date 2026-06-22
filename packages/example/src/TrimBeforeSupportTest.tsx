@@ -1,3 +1,4 @@
+import {Audio, Video} from '@remotion/media';
 import {RemotionRiveCanvas} from '@remotion/rive';
 import {
 	Arrow,
@@ -16,7 +17,6 @@ import React from 'react';
 import {
 	AbsoluteFill,
 	AnimatedImage,
-	Audio,
 	CanvasImage,
 	Html5Audio,
 	Html5Video,
@@ -26,12 +26,10 @@ import {
 	OffthreadVideo,
 	Sequence,
 	Solid,
-	Video,
 	staticFile,
 	useCurrentFrame,
 } from 'remotion';
 
-const TRIM_BEFORE = 20;
 const TILE_WIDTH = 220;
 const TILE_HEIGHT = 140;
 const GAP = 18;
@@ -117,13 +115,14 @@ const TrimmedSequenceBox: React.FC<{
 	return (
 		<Sequence
 			name={name}
-			trimBefore={TRIM_BEFORE}
-			durationInFrames={120}
+			trimBefore={20}
+			durationInFrames={109}
 			style={{
 				...baseTileStyle,
 				backgroundColor,
 				transform: getTileTransform(index),
 			}}
+			from={3}
 		>
 			<Counter />
 		</Sequence>
@@ -153,13 +152,14 @@ const TrimBeforeSupportTest: React.FC = () => {
 			element: (
 				<Interactive.Div
 					name="<Interactive.Div>"
-					trimBefore={TRIM_BEFORE}
-					durationInFrames={120}
+					trimBefore={20}
+					durationInFrames={103}
 					style={{
 						...baseTileStyle,
 						backgroundColor: '#0b7a75',
 						transform: getTileTransform(1),
 					}}
+					from={17}
 				>
 					<Counter />
 				</Interactive.Div>
@@ -173,9 +173,10 @@ const TrimBeforeSupportTest: React.FC = () => {
 					color="#e11d48"
 					width={TILE_WIDTH}
 					height={TILE_HEIGHT}
-					trimBefore={TRIM_BEFORE}
-					durationInFrames={120}
+					trimBefore={20}
+					durationInFrames={103}
 					style={{transform: getTileTransform(2)}}
+					from={17}
 				/>
 			),
 		},
@@ -186,12 +187,13 @@ const TrimBeforeSupportTest: React.FC = () => {
 					name="<HtmlInCanvas>"
 					width={TILE_WIDTH}
 					height={TILE_HEIGHT}
-					trimBefore={TRIM_BEFORE}
-					durationInFrames={120}
+					trimBefore={20}
+					durationInFrames={101}
 					style={{
 						...baseTileStyle,
 						transform: getTileTransform(3),
 					}}
+					from={19}
 				>
 					<div
 						style={{
@@ -217,13 +219,14 @@ const TrimBeforeSupportTest: React.FC = () => {
 				<Img
 					name="<Img>"
 					src={img}
-					trimBefore={TRIM_BEFORE}
-					durationInFrames={120}
+					trimBefore={20}
+					durationInFrames={105}
 					style={{
 						...baseTileStyle,
 						objectFit: 'cover',
 						transform: getTileTransform(4),
 					}}
+					from={15}
 				/>
 			),
 		},
@@ -234,12 +237,13 @@ const TrimBeforeSupportTest: React.FC = () => {
 					name="<AnimatedImage>"
 					src={gif}
 					fit="cover"
-					trimBefore={TRIM_BEFORE}
-					durationInFrames={120}
+					trimBefore={20}
+					durationInFrames={113}
 					style={{
 						...baseTileStyle,
 						transform: getTileTransform(5),
 					}}
+					from={7}
 				/>
 			),
 		},
@@ -252,12 +256,13 @@ const TrimBeforeSupportTest: React.FC = () => {
 					width={TILE_WIDTH}
 					height={TILE_HEIGHT}
 					fit="cover"
-					trimBefore={TRIM_BEFORE}
-					durationInFrames={120}
+					trimBefore={20}
+					durationInFrames={111}
 					style={{
 						...baseTileStyle,
 						transform: getTileTransform(6),
 					}}
+					from={9}
 				/>
 			),
 		},
@@ -267,7 +272,7 @@ const TrimBeforeSupportTest: React.FC = () => {
 				<Video
 					name="<Video>"
 					src={video}
-					trimBefore={TRIM_BEFORE}
+					trimBefore={20}
 					muted
 					style={{
 						...baseTileStyle,
@@ -282,7 +287,7 @@ const TrimBeforeSupportTest: React.FC = () => {
 				<Html5Video
 					name="<Html5Video>"
 					src={video}
-					trimBefore={TRIM_BEFORE}
+					trimBefore={20}
 					muted
 					style={{
 						...baseTileStyle,
@@ -298,7 +303,7 @@ const TrimBeforeSupportTest: React.FC = () => {
 				<OffthreadVideo
 					name="<OffthreadVideo>"
 					src={video}
-					trimBefore={TRIM_BEFORE}
+					trimBefore={20}
 					muted
 					style={{
 						...baseTileStyle,
@@ -311,12 +316,7 @@ const TrimBeforeSupportTest: React.FC = () => {
 		{
 			name: 'Audio',
 			element: (
-				<Audio
-					name="<Audio>"
-					src={audio}
-					trimBefore={TRIM_BEFORE}
-					volume={0.15}
-				/>
+				<Audio name="<Audio>" src={audio} trimBefore={20} volume={0.15} />
 			),
 		},
 		{
@@ -325,7 +325,7 @@ const TrimBeforeSupportTest: React.FC = () => {
 				<Html5Audio
 					name="<Html5Audio>"
 					src={audio}
-					trimBefore={TRIM_BEFORE}
+					trimBefore={20}
 					volume={0.15}
 				/>
 			),
@@ -336,7 +336,7 @@ const TrimBeforeSupportTest: React.FC = () => {
 				<RemotionRiveCanvas
 					name="<RemotionRiveCanvas>"
 					src={rive}
-					trimBefore={TRIM_BEFORE}
+					trimBefore={20}
 					durationInFrames={120}
 					style={{
 						...baseTileStyle,
@@ -355,7 +355,7 @@ const TrimBeforeSupportTest: React.FC = () => {
 					headLength={48}
 					shaftWidth={30}
 					fill="#38bdf8"
-					trimBefore={TRIM_BEFORE}
+					trimBefore={20}
 					durationInFrames={120}
 					style={shapeStyle(13)}
 				/>
@@ -373,7 +373,7 @@ const TrimBeforeSupportTest: React.FC = () => {
 					pointerPosition={0.5}
 					pointerDirection="down"
 					fill="#fde047"
-					trimBefore={TRIM_BEFORE}
+					trimBefore={20}
 					durationInFrames={120}
 					style={shapeStyle(14)}
 				/>
@@ -386,7 +386,7 @@ const TrimBeforeSupportTest: React.FC = () => {
 					name="<Circle>"
 					radius={48}
 					fill="#4ade80"
-					trimBefore={TRIM_BEFORE}
+					trimBefore={20}
 					durationInFrames={120}
 					style={shapeStyle(15)}
 				/>
@@ -400,9 +400,10 @@ const TrimBeforeSupportTest: React.FC = () => {
 					rx={62}
 					ry={36}
 					fill="#f97316"
-					trimBefore={TRIM_BEFORE}
+					trimBefore={20}
 					durationInFrames={120}
 					style={shapeStyle(16)}
+					from={5}
 				/>
 			),
 		},
@@ -414,9 +415,10 @@ const TrimBeforeSupportTest: React.FC = () => {
 					height={96}
 					aspectRatio={1.1}
 					fill="#fb7185"
-					trimBefore={TRIM_BEFORE}
-					durationInFrames={120}
+					trimBefore={20}
+					durationInFrames={121}
 					style={shapeStyle(17)}
+					from={4}
 				/>
 			),
 		},
@@ -431,9 +433,10 @@ const TrimBeforeSupportTest: React.FC = () => {
 					counterClockwise={false}
 					rotation={0}
 					fill="#a78bfa"
-					trimBefore={TRIM_BEFORE}
-					durationInFrames={120}
+					trimBefore={20}
+					durationInFrames={99}
 					style={shapeStyle(18)}
+					from={8}
 				/>
 			),
 		},
@@ -445,9 +448,10 @@ const TrimBeforeSupportTest: React.FC = () => {
 					points={6}
 					radius={58}
 					fill="#22d3ee"
-					trimBefore={TRIM_BEFORE}
-					durationInFrames={120}
+					trimBefore={20}
+					durationInFrames={121}
 					style={shapeStyle(19)}
+					from={-1}
 				/>
 			),
 		},
@@ -459,9 +463,10 @@ const TrimBeforeSupportTest: React.FC = () => {
 					width={104}
 					height={76}
 					fill="#60a5fa"
-					trimBefore={TRIM_BEFORE}
-					durationInFrames={120}
+					trimBefore={20}
+					durationInFrames={105}
 					style={shapeStyle(20)}
+					from={15}
 				/>
 			),
 		},
@@ -473,9 +478,10 @@ const TrimBeforeSupportTest: React.FC = () => {
 					width={84}
 					height={104}
 					fill="#facc15"
-					trimBefore={TRIM_BEFORE}
-					durationInFrames={120}
+					trimBefore={20}
+					durationInFrames={106}
 					style={shapeStyle(21)}
+					from={14}
 				/>
 			),
 		},
@@ -488,9 +494,10 @@ const TrimBeforeSupportTest: React.FC = () => {
 					innerRadius={28}
 					outerRadius={62}
 					fill="#f472b6"
-					trimBefore={TRIM_BEFORE}
-					durationInFrames={120}
+					trimBefore={20}
+					durationInFrames={110}
 					style={shapeStyle(22)}
+					from={15}
 				/>
 			),
 		},
@@ -502,9 +509,10 @@ const TrimBeforeSupportTest: React.FC = () => {
 					length={100}
 					direction="up"
 					fill="#34d399"
-					trimBefore={TRIM_BEFORE}
-					durationInFrames={120}
+					trimBefore={20}
+					durationInFrames={100}
 					style={shapeStyle(23)}
+					from={20}
 				/>
 			),
 		},
@@ -514,12 +522,13 @@ const TrimBeforeSupportTest: React.FC = () => {
 				<Video
 					name="<Video> remote"
 					src="https://remotion.media/video.mp4"
-					trimBefore={TRIM_BEFORE}
+					trimBefore={20}
 					muted
 					style={{
 						...baseTileStyle,
 						transform: getTileTransform(24),
 					}}
+					from={2}
 				/>
 			),
 		},

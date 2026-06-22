@@ -66,6 +66,7 @@ import {
 	isDuplicatableSequenceRowSelection,
 } from '../components/Timeline/duplicate-selected-timeline-item';
 import {getTimelinePropResetTargets} from '../components/Timeline/reset-selected-timeline-props';
+import {shouldSubscribeToSequenceProps} from '../components/Timeline/should-subscribe-to-sequence-props';
 import {
 	getEasingClipboardDataFromSelection,
 	getEffectPropClipboardDataFromSelection,
@@ -99,6 +100,9 @@ import {
 	getTimelineSequenceFromDragChanges,
 	getTimelineSequenceFromDragTargets,
 	getTimelineSequenceFromDragValue,
+	getTimelineSequenceLeftEdgeDragChanges,
+	getTimelineSequenceLeftEdgeDragTargets,
+	getTimelineSequenceLeftEdgeDragValues,
 } from '../components/Timeline/TimelineSequenceRightEdgeDragHandle';
 import {
 	parsedTransformOriginToUv,
@@ -180,6 +184,7 @@ const makeTimelineSequence = ({
 	refForOutline = null,
 	duration = 100,
 	from = 0,
+	startMediaFrom = 0,
 	type = 'sequence',
 	showInTimeline = true,
 }: {
@@ -191,6 +196,7 @@ const makeTimelineSequence = ({
 	readonly refForOutline?: RefObject<HTMLElement | null> | null;
 	readonly duration?: number;
 	readonly from?: number;
+	readonly startMediaFrom?: number;
 	readonly type?: TSequence['type'];
 	readonly showInTimeline?: boolean;
 }): TSequence =>
@@ -222,6 +228,7 @@ const makeTimelineSequence = ({
 		isInsideSeries: false,
 		effects,
 		frozenFrame: null,
+		startMediaFrom,
 	}) as TSequence;
 
 const makeDurationPropStatuses = (
@@ -258,6 +265,33 @@ const makeFromPropStatuses = (
 	return propStatuses;
 };
 
+const makeLeftEdgePropStatuses = (
+	nodePaths: readonly SequencePropsSubscriptionKey[],
+	includeTrimBefore = false,
+	includeTimelineRange = true,
+): PropStatuses => {
+	const propStatuses: PropStatuses = {};
+	for (const nodePath of nodePaths) {
+		propStatuses[Internals.makeSequencePropsSubscriptionKey(nodePath)] = {
+			canUpdate: true,
+			props: {
+				...(includeTimelineRange
+					? {
+							durationInFrames: {status: 'static' as const, codeValue: 100},
+							from: {status: 'static' as const, codeValue: 0},
+						}
+					: {}),
+				...(includeTrimBefore
+					? {trimBefore: {status: 'static' as const, codeValue: 0}}
+					: {}),
+			},
+			effects: [],
+		};
+	}
+
+	return propStatuses;
+};
+
 test('timeline marquee rectangle intersection detects overlapping targets', () => {
 	expect(
 		timelineMarqueeRectsIntersect(
@@ -271,6 +305,21 @@ test('timeline marquee rectangle intersection detects overlapping targets', () =
 			{left: 11, top: 0, right: 20, bottom: 10},
 		),
 	).toBe(false);
+});
+
+test('Timeline skips prop subscriptions for hidden timeline sequences', () => {
+	const schema = {} satisfies InteractivitySchema;
+	const visibleSequence = {
+		...makeTimelineSequence({schema}),
+		getStack: () => 'stack',
+	};
+	const hiddenSequence = {
+		...visibleSequence,
+		showInTimeline: false,
+	};
+
+	expect(shouldSubscribeToSequenceProps(visibleSequence, true)).toBe(true);
+	expect(shouldSubscribeToSequenceProps(hiddenSequence, true)).toBe(false);
 });
 
 test('timeline marquee points are clamped to the track bounds', () => {
@@ -1161,6 +1210,177 @@ test('Timeline duration drag ignores selection if dragged sequence is not select
 	expect(targets?.map((target) => target.nodePath)).toEqual([
 		firstNodePathInfo.sequenceSubscriptionKey,
 	]);
+});
+
+test('Timeline left edge drag adjusts from, duration and trimBefore for selected sequences', () => {
+	const schema = {} satisfies InteractivitySchema;
+	const firstNodePathInfo = makeNodePathInfo(['body', 0], []);
+	const secondNodePathInfo = makeNodePathInfo(['body', 1], []);
+	const targets = getTimelineSequenceLeftEdgeDragTargets({
+		draggedNodePathInfo: firstNodePathInfo,
+		selectedItems: [
+			{type: 'sequence', nodePathInfo: firstNodePathInfo},
+			{type: 'sequence', nodePathInfo: secondNodePathInfo},
+		],
+		sequences: [
+			makeTimelineSequence({
+				schema,
+				id: 'first',
+				overrideId: 'first',
+				duration: 40,
+				from: 5,
+			}),
+			makeTimelineSequence({
+				schema,
+				id: 'second',
+				overrideId: 'second',
+				duration: 15,
+				from: 10,
+				type: 'image',
+			}),
+		],
+		overrideIdsToNodePaths: {
+			first: firstNodePathInfo.sequenceSubscriptionKey,
+			second: secondNodePathInfo.sequenceSubscriptionKey,
+		},
+		propStatuses: makeLeftEdgePropStatuses(
+			[
+				firstNodePathInfo.sequenceSubscriptionKey,
+				secondNodePathInfo.sequenceSubscriptionKey,
+			],
+			true,
+		),
+	});
+
+	expect(
+		getTimelineSequenceLeftEdgeDragChanges({
+			targets: targets ?? [],
+			deltaFrames: 6,
+		}).map((change) => [change.fieldKey, change.value]),
+	).toEqual([
+		['from', 11],
+		['durationInFrames', 34],
+		['trimBefore', 6],
+		['from', 16],
+		['durationInFrames', 9],
+		['trimBefore', 6],
+	]);
+});
+
+test('Timeline left edge drag clamps trimBefore to the visible range', () => {
+	expect(
+		getTimelineSequenceLeftEdgeDragValues({
+			initialDuration: 4,
+			initialFrom: 20,
+			initialTrimBefore: 2,
+			deltaFrames: 10,
+		}),
+	).toEqual({
+		durationInFrames: 1,
+		from: 23,
+		trimBefore: 5,
+	});
+	expect(
+		getTimelineSequenceLeftEdgeDragValues({
+			initialDuration: 4,
+			initialFrom: 20,
+			initialTrimBefore: 2,
+			deltaFrames: -10,
+		}),
+	).toEqual({
+		durationInFrames: 6,
+		from: 18,
+		trimBefore: 0,
+	});
+});
+
+test('Timeline left edge drag adjusts and clamps media trimBefore', () => {
+	const schema = {} satisfies InteractivitySchema;
+	const nodePathInfo = makeNodePathInfo(['body', 0], []);
+	const targets = getTimelineSequenceLeftEdgeDragTargets({
+		draggedNodePathInfo: nodePathInfo,
+		selectedItems: [{type: 'sequence', nodePathInfo}],
+		sequences: [
+			makeTimelineSequence({
+				schema,
+				duration: 40,
+				from: 12,
+				startMediaFrom: 8,
+				type: 'video',
+			}),
+		],
+		overrideIdsToNodePaths: {
+			override: nodePathInfo.sequenceSubscriptionKey,
+		},
+		propStatuses: makeLeftEdgePropStatuses(
+			[nodePathInfo.sequenceSubscriptionKey],
+			true,
+		),
+	});
+
+	expect(targets?.map((target) => target.initialTrimBefore)).toEqual([8]);
+	expect(
+		getTimelineSequenceLeftEdgeDragChanges({
+			targets: targets ?? [],
+			deltaFrames: -20,
+		}).map((change) => [change.fieldKey, change.value]),
+	).toEqual([
+		['from', 4],
+		['durationInFrames', 48],
+		['trimBefore', 0],
+	]);
+});
+
+test('Timeline left edge drag is blocked without timeline range props', () => {
+	const schema = {} satisfies InteractivitySchema;
+	const nodePathInfo = makeNodePathInfo(['body', 0], []);
+	const targets = getTimelineSequenceLeftEdgeDragTargets({
+		draggedNodePathInfo: nodePathInfo,
+		selectedItems: [{type: 'sequence', nodePathInfo}],
+		sequences: [
+			makeTimelineSequence({
+				schema,
+				duration: 40,
+				from: 0,
+				startMediaFrom: 8,
+				type: 'video',
+			}),
+		],
+		overrideIdsToNodePaths: {
+			override: nodePathInfo.sequenceSubscriptionKey,
+		},
+		propStatuses: makeLeftEdgePropStatuses(
+			[nodePathInfo.sequenceSubscriptionKey],
+			true,
+			false,
+		),
+	});
+
+	expect(targets).toBe(null);
+});
+
+test('Timeline left edge drag is blocked if trimBefore cannot update', () => {
+	const schema = {} satisfies InteractivitySchema;
+	const nodePathInfo = makeNodePathInfo(['body', 0], []);
+
+	expect(
+		getTimelineSequenceLeftEdgeDragTargets({
+			draggedNodePathInfo: nodePathInfo,
+			selectedItems: [{type: 'sequence', nodePathInfo}],
+			sequences: [
+				makeTimelineSequence({
+					schema,
+					type: 'audio',
+				}),
+			],
+			overrideIdsToNodePaths: {
+				override: nodePathInfo.sequenceSubscriptionKey,
+			},
+			propStatuses: makeLeftEdgePropStatuses([
+				nodePathInfo.sequenceSubscriptionKey,
+			]),
+		}),
+	).toBe(null);
 });
 
 test('Timeline from drag applies the same delta to selected sequences', () => {
