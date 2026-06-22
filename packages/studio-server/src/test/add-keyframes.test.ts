@@ -40,6 +40,49 @@ const effectSchema = {
 	},
 } satisfies InteractivitySchema;
 
+const linearProgressiveBlurInput = `import {linearProgressiveBlur} from '@remotion/effects/linear-progressive-blur';
+import {HtmlInCanvas} from '@remotion/html-in-canvas';
+import {Solid} from 'remotion';
+
+export const Comp = () => {
+\treturn (
+\t\t<HtmlInCanvas
+\t\t\twidth={1280}
+\t\t\theight={720}
+\t\t\teffects={[
+\t\t\t\tlinearProgressiveBlur({
+\t\t\t\t\tstart: [0.5, 0.5],
+\t\t\t\t\tend: [0.816, -0.06],
+\t\t\t\t}),
+\t\t\t]}
+\t\t>
+\t\t\t<Solid width={1280} height={720} color="white" />
+\t\t</HtmlInCanvas>
+\t);
+};
+`;
+
+const linearProgressiveBlurSchema = {
+	start: {
+		type: 'uv-coordinate',
+		default: [0, 0.5],
+	},
+	end: {
+		type: 'uv-coordinate',
+		default: [1, 0.5],
+	},
+	startBlur: {
+		type: 'number',
+		default: 0,
+		hiddenFromList: false,
+	},
+	endBlur: {
+		type: 'number',
+		default: 50,
+		hiddenFromList: false,
+	},
+} satisfies InteractivitySchema;
+
 test('addKeyframes batches sequence and effect adds into one undo entry', async () => {
 	const cleanupFileWatcher = setFileWatcherRegistry(
 		createFileWatcherRegistry(),
@@ -105,6 +148,60 @@ test('addKeyframes batches sequence and effect adds into one undo entry', async 
 
 		expect(popRedo()).toEqual({success: true});
 		expect(readFileSync(filePath, 'utf-8')).toBe(output);
+	} finally {
+		clearUndoStackForTests();
+		cleanupLiveEvents();
+		cleanupFileWatcher();
+		rmSync(dir, {force: true, recursive: true});
+	}
+});
+
+test('addKeyframes adds a missing effect prop before keyframing it', async () => {
+	const cleanupFileWatcher = setFileWatcherRegistry(
+		createFileWatcherRegistry(),
+	);
+	const cleanupLiveEvents = setLiveEventsListener({
+		addNewClientListener: () => () => undefined,
+		closeConnections: () => Promise.resolve(),
+		router: () => Promise.resolve(),
+		sendEventToClient: () => undefined,
+		sendEventToClientId: () => undefined,
+	});
+	const dir = mkdtempSync(join(tmpdir(), 'remotion-add-missing-effect-'));
+	const fileName = 'Comp.tsx';
+	const filePath = join(dir, fileName);
+	const nodePath = {
+		absolutePath: fileName,
+		nodePath: lineColumnToNodePath(linearProgressiveBlurInput, 7),
+		sequenceKeys: [],
+		effectKeys: [['start', 'end', 'startBlur', 'endBlur']],
+	};
+
+	try {
+		writeFileSync(filePath, linearProgressiveBlurInput);
+
+		await addKeyframes({
+			sequenceKeyframes: [],
+			effectKeyframes: [
+				{
+					fileName,
+					sequenceNodePath: nodePath,
+					effectIndex: 0,
+					key: 'startBlur',
+					frame: 55,
+					value: JSON.stringify(12),
+					schema: linearProgressiveBlurSchema,
+				},
+			],
+			clientId: 'test-client',
+			remotionRoot: dir,
+			logLevel: 'error',
+		});
+
+		const output = readFileSync(filePath, 'utf-8');
+		expect(output).toContain('startBlur: interpolate(frame, [55], [12], {');
+		expect(output).toContain("extrapolateLeft: 'clamp'");
+		expect(output).toContain("extrapolateRight: 'clamp'");
 	} finally {
 		clearUndoStackForTests();
 		cleanupLiveEvents();
