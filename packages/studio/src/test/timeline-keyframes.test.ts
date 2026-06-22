@@ -52,7 +52,7 @@ const makeSequence = ({
 }: {
 	id: string;
 	from: number;
-	trimBefore?: number;
+	trimBefore: number | null;
 	parent?: string | null;
 	overrideId?: string | null;
 	nonce: number;
@@ -172,21 +172,24 @@ test('keyframe display offsets follow the parent sequence context', () => {
 			makeSequence({
 				id: 'root-style',
 				from: 30,
+				trimBefore: null,
 				overrideId: 'root-style',
 				nonce: 0,
 			}),
-			makeSequence({id: 'parent', from: 30, nonce: 1}),
+			makeSequence({id: 'parent', from: 30, trimBefore: null, nonce: 1}),
 			makeSequence({
 				id: 'child',
 				from: 0,
+				trimBefore: null,
 				parent: 'parent',
 				overrideId: 'child',
 				nonce: 2,
 			}),
-			makeSequence({id: 'outer', from: 10, nonce: 3}),
+			makeSequence({id: 'outer', from: 10, trimBefore: null, nonce: 3}),
 			makeSequence({
 				id: 'own-from',
 				from: 20,
+				trimBefore: null,
 				parent: 'outer',
 				overrideId: 'own-from',
 				nonce: 4,
@@ -194,6 +197,7 @@ test('keyframe display offsets follow the parent sequence context', () => {
 			makeSequence({
 				id: 'grandchild',
 				from: 0,
+				trimBefore: null,
 				parent: 'own-from',
 				overrideId: 'grandchild',
 				nonce: 5,
@@ -250,6 +254,7 @@ test('track lookup survives effect key changes', () => {
 		makeSequence({
 			id: 'sequence',
 			from: 0,
+			trimBefore: null,
 			overrideId: 'sequence',
 			nonce: 0,
 		}),
@@ -289,6 +294,7 @@ test('keyframe display offsets account for parent trimBefore', () => {
 			makeSequence({
 				id: 'child',
 				from: 0,
+				trimBefore: null,
 				parent: 'parent',
 				overrideId: 'child',
 				nonce: 1,

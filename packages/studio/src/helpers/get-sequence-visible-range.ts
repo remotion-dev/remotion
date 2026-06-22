@@ -20,7 +20,10 @@ export const getCascadedStartWithTrim = (
 	sequence: TSequence,
 	sequences: TSequence[],
 ): number => {
-	const effectiveFrom = sequence.from - (sequence.trimBefore ?? 0);
+	const effectiveFrom =
+		sequence.trimBefore === null
+			? sequence.from
+			: sequence.from - sequence.trimBefore;
 	if (!sequence.parent) {
 		return effectiveFrom;
 	}

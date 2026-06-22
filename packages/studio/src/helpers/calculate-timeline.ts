@@ -78,6 +78,10 @@ export const calculateTimeline = ({
 			sequence,
 			sortedSequences,
 		);
+		const effectiveFrom =
+			sequence.trimBefore === null
+				? sequence.from
+				: sequence.from - sequence.trimBefore;
 
 		const visibleStart = getTimelineVisibleStart(sequence, sortedSequences);
 		const visibleDuration = getTimelineVisibleDuration(
@@ -105,7 +109,7 @@ export const calculateTimeline = ({
 			cascadedStart,
 			cascadedDuration: sequence.duration,
 			keyframeDisplayOffset: hasKeyframeRows
-				? cascadedStartWithTrim - (sequence.from - (sequence.trimBefore ?? 0))
+				? cascadedStartWithTrim - effectiveFrom
 				: 0,
 			sequenceFrameOffset: visibleStart - cascadedStartWithTrim,
 			nodePathInfo: nodePath

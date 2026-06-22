@@ -346,6 +346,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	const stackRef = useRef<string | null>(null);
 	stackRef.current = stack ?? inheritedStack;
 	const registeredFrozenFrame = typeof freeze === 'number' ? freeze : null;
+	const registeredTrimBefore = trimBefore === 0 ? null : trimBefore;
 	const parentCumulatedNegativeFrom =
 		parentSequence?.cumulatedNegativeFrom ?? 0;
 	const startMediaFrom =
@@ -384,7 +385,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 					documentationLink: resolvedDocumentationLink,
 					duration: actualDurationInFrames,
 					from,
-					trimBefore,
+					trimBefore: registeredTrimBefore,
 					id,
 					loopDisplay,
 					nonce: nonce.get(),
@@ -409,7 +410,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 					doesVolumeChange: isMedia.data.doesVolumeChange,
 					duration: actualDurationInFrames,
 					from,
-					trimBefore,
+					trimBefore: registeredTrimBefore,
 					id,
 					loopDisplay,
 					nonce: nonce.get(),
@@ -437,7 +438,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 
 		registerSequence({
 			from,
-			trimBefore,
+			trimBefore: registeredTrimBefore,
 			duration: actualDurationInFrames,
 			id,
 			displayName: timelineClipName,
@@ -472,6 +473,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		rootId,
 		from,
 		trimBefore,
+		registeredTrimBefore,
 		showInTimeline,
 		nonce,
 		loopDisplay,

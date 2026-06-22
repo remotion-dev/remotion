@@ -201,6 +201,7 @@ export const useMediaInTimeline = ({
 			id,
 			duration,
 			from: 0,
+			trimBefore: null,
 			parent: parentSequence?.id ?? null,
 			displayName: finalDisplayName,
 			documentationLink,
