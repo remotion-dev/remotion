@@ -1,3 +1,4 @@
+import {Audio, Video} from '@remotion/media';
 import {RemotionRiveCanvas} from '@remotion/rive';
 import {
 	Arrow,
@@ -16,7 +17,6 @@ import React from 'react';
 import {
 	AbsoluteFill,
 	AnimatedImage,
-	Audio,
 	CanvasImage,
 	Html5Audio,
 	Html5Video,
@@ -26,7 +26,6 @@ import {
 	OffthreadVideo,
 	Sequence,
 	Solid,
-	Video,
 	staticFile,
 	useCurrentFrame,
 } from 'remotion';
@@ -118,12 +117,13 @@ const TrimmedSequenceBox: React.FC<{
 		<Sequence
 			name={name}
 			trimBefore={TRIM_BEFORE}
-			durationInFrames={120}
+			durationInFrames={109}
 			style={{
 				...baseTileStyle,
 				backgroundColor,
 				transform: getTileTransform(index),
 			}}
+			from={11}
 		>
 			<Counter />
 		</Sequence>
@@ -154,12 +154,13 @@ const TrimBeforeSupportTest: React.FC = () => {
 				<Interactive.Div
 					name="<Interactive.Div>"
 					trimBefore={TRIM_BEFORE}
-					durationInFrames={120}
+					durationInFrames={103}
 					style={{
 						...baseTileStyle,
 						backgroundColor: '#0b7a75',
 						transform: getTileTransform(1),
 					}}
+					from={17}
 				>
 					<Counter />
 				</Interactive.Div>
@@ -174,8 +175,9 @@ const TrimBeforeSupportTest: React.FC = () => {
 					width={TILE_WIDTH}
 					height={TILE_HEIGHT}
 					trimBefore={TRIM_BEFORE}
-					durationInFrames={120}
+					durationInFrames={103}
 					style={{transform: getTileTransform(2)}}
+					from={17}
 				/>
 			),
 		},
@@ -187,11 +189,12 @@ const TrimBeforeSupportTest: React.FC = () => {
 					width={TILE_WIDTH}
 					height={TILE_HEIGHT}
 					trimBefore={TRIM_BEFORE}
-					durationInFrames={120}
+					durationInFrames={101}
 					style={{
 						...baseTileStyle,
 						transform: getTileTransform(3),
 					}}
+					from={19}
 				>
 					<div
 						style={{
@@ -218,12 +221,13 @@ const TrimBeforeSupportTest: React.FC = () => {
 					name="<Img>"
 					src={img}
 					trimBefore={TRIM_BEFORE}
-					durationInFrames={120}
+					durationInFrames={105}
 					style={{
 						...baseTileStyle,
 						objectFit: 'cover',
 						transform: getTileTransform(4),
 					}}
+					from={15}
 				/>
 			),
 		},
@@ -253,11 +257,12 @@ const TrimBeforeSupportTest: React.FC = () => {
 					height={TILE_HEIGHT}
 					fit="cover"
 					trimBefore={TRIM_BEFORE}
-					durationInFrames={120}
+					durationInFrames={111}
 					style={{
 						...baseTileStyle,
 						transform: getTileTransform(6),
 					}}
+					from={9}
 				/>
 			),
 		},
@@ -432,8 +437,9 @@ const TrimBeforeSupportTest: React.FC = () => {
 					rotation={0}
 					fill="#a78bfa"
 					trimBefore={TRIM_BEFORE}
-					durationInFrames={120}
+					durationInFrames={99}
 					style={shapeStyle(18)}
+					from={8}
 				/>
 			),
 		},
@@ -460,8 +466,9 @@ const TrimBeforeSupportTest: React.FC = () => {
 					height={76}
 					fill="#60a5fa"
 					trimBefore={TRIM_BEFORE}
-					durationInFrames={120}
+					durationInFrames={105}
 					style={shapeStyle(20)}
+					from={15}
 				/>
 			),
 		},
@@ -476,6 +483,7 @@ const TrimBeforeSupportTest: React.FC = () => {
 					trimBefore={TRIM_BEFORE}
 					durationInFrames={120}
 					style={shapeStyle(21)}
+					from={3}
 				/>
 			),
 		},
@@ -489,8 +497,9 @@ const TrimBeforeSupportTest: React.FC = () => {
 					outerRadius={62}
 					fill="#f472b6"
 					trimBefore={TRIM_BEFORE}
-					durationInFrames={120}
+					durationInFrames={110}
 					style={shapeStyle(22)}
+					from={15}
 				/>
 			),
 		},
@@ -503,8 +512,9 @@ const TrimBeforeSupportTest: React.FC = () => {
 					direction="up"
 					fill="#34d399"
 					trimBefore={TRIM_BEFORE}
-					durationInFrames={120}
+					durationInFrames={100}
 					style={shapeStyle(23)}
+					from={20}
 				/>
 			),
 		},
