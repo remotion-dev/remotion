@@ -1212,7 +1212,7 @@ test('Timeline duration drag ignores selection if dragged sequence is not select
 	]);
 });
 
-test('Timeline left edge drag adjusts trimBefore for selected sequences', () => {
+test('Timeline left edge drag adjusts from, duration and trimBefore for selected sequences', () => {
 	const schema = {} satisfies InteractivitySchema;
 	const firstNodePathInfo = makeNodePathInfo(['body', 0], []);
 	const secondNodePathInfo = makeNodePathInfo(['body', 1], []);
@@ -1258,7 +1258,11 @@ test('Timeline left edge drag adjusts trimBefore for selected sequences', () => 
 			deltaFrames: 6,
 		}).map((change) => [change.fieldKey, change.value]),
 	).toEqual([
+		['from', 11],
+		['durationInFrames', 34],
 		['trimBefore', 6],
+		['from', 16],
+		['durationInFrames', 9],
 		['trimBefore', 6],
 	]);
 });
@@ -1320,10 +1324,14 @@ test('Timeline left edge drag adjusts and clamps media trimBefore', () => {
 			targets: targets ?? [],
 			deltaFrames: -20,
 		}).map((change) => [change.fieldKey, change.value]),
-	).toEqual([['trimBefore', 0]]);
+	).toEqual([
+		['from', 4],
+		['durationInFrames', 48],
+		['trimBefore', 0],
+	]);
 });
 
-test('Timeline left edge drag adjusts video trimBefore without timeline range props', () => {
+test('Timeline left edge drag is blocked without timeline range props', () => {
 	const schema = {} satisfies InteractivitySchema;
 	const nodePathInfo = makeNodePathInfo(['body', 0], []);
 	const targets = getTimelineSequenceLeftEdgeDragTargets({
@@ -1348,13 +1356,7 @@ test('Timeline left edge drag adjusts video trimBefore without timeline range pr
 		),
 	});
 
-	expect(targets?.map((target) => target.initialTrimBefore)).toEqual([8]);
-	expect(
-		getTimelineSequenceLeftEdgeDragChanges({
-			targets: targets ?? [],
-			deltaFrames: 3,
-		}).map((change) => [change.fieldKey, change.value]),
-	).toEqual([['trimBefore', 11]]);
+	expect(targets).toBe(null);
 });
 
 test('Timeline left edge drag is blocked if trimBefore cannot update', () => {

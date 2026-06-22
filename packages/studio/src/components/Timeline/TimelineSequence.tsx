@@ -520,6 +520,8 @@ const TimelineSequenceInner: React.FC<{
 		nodePath !== null &&
 		validatedLocation !== null &&
 		Boolean(s.controls) &&
+		fromCanUpdate &&
+		durationCanUpdate &&
 		trimBeforeCanUpdate;
 
 	if (maxMediaDuration === null && !s.loopDisplay) {
