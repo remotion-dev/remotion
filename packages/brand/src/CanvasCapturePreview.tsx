@@ -285,11 +285,12 @@ const CursorImg: React.FC<{
 				position: 'absolute',
 				scale: cursorScale,
 			}}
+			from={-64}
 		/>
 	);
 };
 
-const CursorGlyph: React.FC<{
+export const CursorGlyph: React.FC<{
 	readonly cursor: string;
 	readonly scale: number;
 	readonly cursorScale: number;

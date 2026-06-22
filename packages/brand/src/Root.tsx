@@ -18,6 +18,7 @@ import {
 	whatIsRemotionSchema,
 } from './Compose/WhatIsRemotion';
 import {EffectsAnnouncement} from './effects/EffectsAnnouncement';
+import {FxIconComposition} from './effects/FxIconComposition';
 import {Goal} from './effects/Goal';
 import {MetallicSwirl} from './effects/MetallicSwirl';
 import {NewsHeadline} from './effects/NewsHeadline';
@@ -224,6 +225,14 @@ export const RemotionRoot: React.FC = () => {
 					height={720}
 					fps={30}
 					durationInFrames={200}
+				/>
+				<Composition
+					id="fx-icon"
+					component={FxIconComposition}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={90}
 				/>
 			</Folder>
 			<Folder name="animated-logo">
