@@ -65,6 +65,7 @@ type ImgContentProps = Omit<
 	| 'stack'
 	| 'showInTimeline'
 	| 'from'
+	| 'trimBefore'
 	| 'durationInFrames'
 	| 'freeze'
 	| 'effects'
@@ -322,6 +323,7 @@ const NativeImgInner: React.FC<NativeImgInnerProps> = ({
 	showInTimeline,
 	src,
 	from,
+	trimBefore,
 	durationInFrames,
 	freeze,
 	controls,
@@ -336,6 +338,7 @@ const NativeImgInner: React.FC<NativeImgInnerProps> = ({
 		<Sequence
 			layout="none"
 			from={from ?? 0}
+			trimBefore={trimBefore}
 			durationInFrames={durationInFrames ?? Infinity}
 			freeze={freeze}
 			_remotionInternalStack={stack}
@@ -452,6 +455,7 @@ const ImgInner: React.FC<
 	showInTimeline,
 	src,
 	from,
+	trimBefore,
 	durationInFrames,
 	freeze,
 	controls,
@@ -479,6 +483,7 @@ const ImgInner: React.FC<
 				showInTimeline={showInTimeline}
 				src={src}
 				from={from}
+				trimBefore={trimBefore}
 				durationInFrames={durationInFrames}
 				freeze={freeze}
 				controls={controls}
@@ -527,6 +532,7 @@ const ImgInner: React.FC<
 			delayRenderRetries={delayRenderRetries}
 			delayRenderTimeoutInMilliseconds={delayRenderTimeoutInMilliseconds}
 			from={from}
+			trimBefore={trimBefore}
 			durationInFrames={durationInFrames}
 			freeze={freeze}
 			hidden={hidden}

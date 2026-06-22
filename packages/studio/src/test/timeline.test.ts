@@ -31,6 +31,7 @@ test('Should calculate a basic timeline', () => {
 				documentationLink: null,
 				duration: 100,
 				from: 0,
+				trimBefore: null,
 				id: '0.1',
 				parent: null,
 				rootId: '0.1',
@@ -58,6 +59,7 @@ test('Should calculate a basic timeline', () => {
 				documentationLink: null,
 				duration: 100,
 				from: 0,
+				trimBefore: null,
 				id: '0.1',
 				parent: null,
 				rootId: '0.1',
@@ -88,6 +90,7 @@ test('Should follow order of nesting', () => {
 				documentationLink: null,
 				duration: 100,
 				from: 0,
+				trimBefore: null,
 				id: '0.2',
 				parent: '0.1',
 				rootId: '0.1',
@@ -109,6 +112,7 @@ test('Should follow order of nesting', () => {
 				documentationLink: null,
 				duration: 100,
 				from: 0,
+				trimBefore: null,
 				id: '0.1',
 				premountDisplay: null,
 				postmountDisplay: null,
@@ -135,6 +139,7 @@ test('Should follow order of nesting', () => {
 				documentationLink: null,
 				duration: 100,
 				from: 0,
+				trimBefore: null,
 				id: '0.1',
 				premountDisplay: null,
 				postmountDisplay: null,
@@ -161,6 +166,7 @@ test('Should follow order of nesting', () => {
 				documentationLink: null,
 				duration: 100,
 				from: 0,
+				trimBefore: null,
 				id: '0.2',
 				parent: '0.1',
 				rootId: '0.1',
@@ -194,6 +200,7 @@ test('Should inherit loop display from parent for media tracks', () => {
 				documentationLink: null,
 				duration: 100,
 				from: 50,
+				trimBefore: null,
 				id: 'loop',
 				parent: null,
 				rootId: 'root',
@@ -217,6 +224,7 @@ test('Should inherit loop display from parent for media tracks', () => {
 				documentationLink: null,
 				duration: 100,
 				from: 0,
+				trimBefore: null,
 				id: 'video',
 				parent: 'loop',
 				rootId: 'root',
@@ -258,6 +266,7 @@ test('Should calculate sequence frame offset for negative from values', () => {
 				documentationLink: null,
 				duration: 137,
 				from: -37,
+				trimBefore: null,
 				id: 'trimmed',
 				parent: null,
 				rootId: 'trimmed',
@@ -279,4 +288,37 @@ test('Should calculate sequence frame offset for negative from values', () => {
 
 	expect(calculated[0].sequence.from).toBe(0);
 	expect(calculated[0].sequenceFrameOffset).toBe(37);
+});
+
+test('Should calculate sequence frame offset for trimBefore values', () => {
+	const calculated = calculateTimeline({
+		overrideIdsToNodePaths: {},
+		sequences: [
+			{
+				displayName: 'Trimmed',
+				documentationLink: null,
+				duration: 120,
+				from: 0,
+				trimBefore: 20,
+				id: 'trimmed',
+				parent: null,
+				rootId: 'trimmed',
+				showInTimeline: true,
+				type: 'sequence',
+				nonce: [[0, 0]],
+				getStack,
+				refForOutline: null,
+				isInsideSeries: false,
+				premountDisplay: null,
+				postmountDisplay: null,
+				controls: null,
+				loopDisplay: undefined,
+				effects: [],
+				frozenFrame: null,
+			},
+		],
+	});
+
+	expect(calculated[0].sequence.from).toBe(0);
+	expect(calculated[0].sequenceFrameOffset).toBe(20);
 });

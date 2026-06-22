@@ -546,6 +546,10 @@ export const ShapeOptions: React.FC<{
 							<code>durationInFrames</code>
 						</a>
 						,{' '}
+						<a href="/docs/sequence#trimbefore">
+							<code>trimBefore</code>
+						</a>
+						<AvailableFrom v="4.0.482" inline />,{' '}
 						<a href="/docs/sequence#name">
 							<code>name</code>
 						</a>

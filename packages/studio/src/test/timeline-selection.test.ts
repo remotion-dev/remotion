@@ -197,6 +197,7 @@ const makeTimelineSequence = ({
 	({
 		type,
 		from,
+		trimBefore: null,
 		duration,
 		id,
 		displayName: id,

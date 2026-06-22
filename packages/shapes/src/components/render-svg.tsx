@@ -54,6 +54,7 @@ export const RenderSvg = ({
 	pixelDensity,
 	durationInFrames,
 	from,
+	trimBefore,
 	freeze,
 	hidden,
 	name,
@@ -218,6 +219,7 @@ export const RenderSvg = ({
 		<Sequence
 			layout="none"
 			from={from}
+			trimBefore={trimBefore}
 			freeze={freeze}
 			hidden={hidden}
 			showInTimeline={showInTimeline}

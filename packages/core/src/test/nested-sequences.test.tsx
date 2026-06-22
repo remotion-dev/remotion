@@ -110,6 +110,42 @@ test('Nested negative offset test', () => {
 	expect(frame50(/^frame90$/i)).toBe(null);
 });
 
+test('trimBefore shifts the child timeline without shifting visibility', () => {
+	const NestedChild = () => {
+		const frame = useCurrentFrame();
+		return <div>{'frame' + frame}</div>;
+	};
+
+	const content = (
+		<Sequence from={20} trimBefore={8} durationInFrames={20}>
+			<NestedChild />
+		</Sequence>
+	);
+
+	expect(getForFrame(19, content)(/^frame/i)).toBe(null);
+	expect(getForFrame(20, content)(/^frame8$/i)).not.toBe(null);
+	expect(getForFrame(21, content)(/^frame9$/i)).not.toBe(null);
+});
+
+test('trimBefore applies to nested sequence timing', () => {
+	const NestedChild = () => {
+		const frame = useCurrentFrame();
+		return <div>{'frame' + frame}</div>;
+	};
+
+	const content = (
+		<Sequence from={20} trimBefore={8} durationInFrames={20}>
+			<Sequence from={10} durationInFrames={10}>
+				<NestedChild />
+			</Sequence>
+		</Sequence>
+	);
+
+	expect(getForFrame(20, content)(/^frame/i)).toBe(null);
+	expect(getForFrame(22, content)(/^frame0$/i)).not.toBe(null);
+	expect(getForFrame(25, content)(/^frame3$/i)).not.toBe(null);
+});
+
 test('Negative offset edge case', () => {
 	const NestedChild = () => {
 		const frame = useCurrentFrame();

@@ -16,6 +16,26 @@ export const getCascadedStart = (
 	return getCascadedStart(parent, sequences) + sequence.from;
 };
 
+export const getCascadedStartWithTrim = (
+	sequence: TSequence,
+	sequences: TSequence[],
+): number => {
+	const effectiveFrom =
+		sequence.trimBefore === null
+			? sequence.from
+			: sequence.from - sequence.trimBefore;
+	if (!sequence.parent) {
+		return effectiveFrom;
+	}
+
+	const parent = sequences.find((s) => s.id === sequence.parent);
+	if (!parent) {
+		throw new TypeError('Parent not found for sequence ' + sequence.id);
+	}
+
+	return getCascadedStartWithTrim(parent, sequences) + effectiveFrom;
+};
+
 export const getTimelineVisibleStart = (
 	sequence: TSequence,
 	sequences: TSequence[],

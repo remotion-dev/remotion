@@ -254,6 +254,7 @@ const SolidOuter = forwardRef<
 			style,
 			name,
 			from,
+			trimBefore,
 			freeze,
 			hidden,
 			showInTimeline,
@@ -275,6 +276,7 @@ const SolidOuter = forwardRef<
 			<Sequence
 				layout="none"
 				from={from}
+				trimBefore={trimBefore}
 				freeze={freeze}
 				hidden={hidden}
 				showInTimeline={showInTimeline}

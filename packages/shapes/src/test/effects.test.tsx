@@ -93,6 +93,7 @@ mock.module('remotion', () => {
 			baseSchema: {
 				durationInFrames: {},
 				from: {},
+				trimBefore: {},
 				freeze: {},
 				hidden: {},
 				name: {},

@@ -2,6 +2,7 @@ import {stringifySequenceSubscriptionKey} from '@remotion/studio-shared';
 import type {LoopDisplay, OverrideIdToNodePaths, TSequence} from 'remotion';
 import {
 	getCascadedStart,
+	getCascadedStartWithTrim,
 	getTimelineVisibleDuration,
 	getTimelineVisibleStart,
 } from './get-sequence-visible-range';
@@ -73,6 +74,14 @@ export const calculateTimeline = ({
 		sameHashes[actualHash].push(sequence.id);
 
 		const cascadedStart = getCascadedStart(sequence, sortedSequences);
+		const cascadedStartWithTrim = getCascadedStartWithTrim(
+			sequence,
+			sortedSequences,
+		);
+		const effectiveFrom =
+			sequence.trimBefore === null
+				? sequence.from
+				: sequence.from - sequence.trimBefore;
 
 		const visibleStart = getTimelineVisibleStart(sequence, sortedSequences);
 		const visibleDuration = getTimelineVisibleDuration(
@@ -100,9 +109,9 @@ export const calculateTimeline = ({
 			cascadedStart,
 			cascadedDuration: sequence.duration,
 			keyframeDisplayOffset: hasKeyframeRows
-				? cascadedStart - sequence.from
+				? cascadedStartWithTrim - effectiveFrom
 				: 0,
-			sequenceFrameOffset: visibleStart - cascadedStart,
+			sequenceFrameOffset: visibleStart - cascadedStartWithTrim,
 			nodePathInfo: nodePath
 				? {
 						sequenceSubscriptionKey: nodePath,
