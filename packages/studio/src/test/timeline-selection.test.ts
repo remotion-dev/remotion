@@ -1302,16 +1302,13 @@ test('Timeline left edge drag adjusts and clamps media trimBefore', () => {
 	});
 
 	expect(targets?.map((target) => target.initialTrimBefore)).toEqual([8]);
+	expect(targets?.map((target) => target.updateTimelineRange)).toEqual([false]);
 	expect(
 		getTimelineSequenceLeftEdgeDragChanges({
 			targets: targets ?? [],
 			deltaFrames: -20,
 		}).map((change) => [change.fieldKey, change.value]),
-	).toEqual([
-		['from', 4],
-		['durationInFrames', 48],
-		['trimBefore', 0],
-	]);
+	).toEqual([['trimBefore', 0]]);
 });
 
 test('Timeline left edge drag adjusts video trimBefore without timeline range props', () => {

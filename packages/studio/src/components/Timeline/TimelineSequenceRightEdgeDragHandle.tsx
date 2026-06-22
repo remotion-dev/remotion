@@ -487,7 +487,7 @@ export const getTimelineSequenceLeftEdgeDragTargets = ({
 						Math.max(0, originalSequence.startMediaFrom))
 					: null,
 				nodePath,
-				updateTimelineRange: canUpdateTimelineRange,
+				updateTimelineRange: !trimsMedia && canUpdateTimelineRange,
 			});
 		}
 	}

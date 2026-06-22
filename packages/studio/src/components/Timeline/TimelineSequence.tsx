@@ -522,7 +522,7 @@ const TimelineSequenceInner: React.FC<{
 		nodePath !== null &&
 		validatedLocation !== null &&
 		Boolean(s.controls) &&
-		(rangeCanUpdate || (isTrimBeforeDraggableMedia && trimBeforeCanUpdate));
+		(isTrimBeforeDraggableMedia ? trimBeforeCanUpdate : rangeCanUpdate);
 
 	if (maxMediaDuration === null && !s.loopDisplay) {
 		return null;
