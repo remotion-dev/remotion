@@ -18,6 +18,7 @@ import {SplitterHandle} from '../Splitter/SplitterHandle';
 import {MAX_TIMELINE_TRACKS} from './MaxTimelineTracks';
 import {SequencePropsObserver} from './SequencePropsObserver';
 import {shouldShowTrackInTimeline} from './should-show-track-in-timeline';
+import {shouldSubscribeToSequenceProps} from './should-subscribe-to-sequence-props';
 import {SubscribeToNodePaths} from './SubscribeToNodePaths';
 import {timelineVerticalScroll} from './timeline-refs';
 import {TimelineDragHandler} from './TimelineDragHandler';
@@ -252,7 +253,7 @@ const TimelineInner: React.FC = () => {
 	return (
 		<TimelineContextMenuArea>
 			{sequences.map((sequence) => {
-				if (!sequence.controls || !previewConnected || !sequence.getStack()) {
+				if (!shouldSubscribeToSequenceProps(sequence, previewConnected)) {
 					return null;
 				}
 

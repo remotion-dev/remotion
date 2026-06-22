@@ -66,6 +66,7 @@ import {
 	isDuplicatableSequenceRowSelection,
 } from '../components/Timeline/duplicate-selected-timeline-item';
 import {getTimelinePropResetTargets} from '../components/Timeline/reset-selected-timeline-props';
+import {shouldSubscribeToSequenceProps} from '../components/Timeline/should-subscribe-to-sequence-props';
 import {
 	getEasingClipboardDataFromSelection,
 	getEffectPropClipboardDataFromSelection,
@@ -304,6 +305,21 @@ test('timeline marquee rectangle intersection detects overlapping targets', () =
 			{left: 11, top: 0, right: 20, bottom: 10},
 		),
 	).toBe(false);
+});
+
+test('Timeline skips prop subscriptions for hidden timeline sequences', () => {
+	const schema = {} satisfies InteractivitySchema;
+	const visibleSequence = {
+		...makeTimelineSequence({schema}),
+		getStack: () => 'stack',
+	};
+	const hiddenSequence = {
+		...visibleSequence,
+		showInTimeline: false,
+	};
+
+	expect(shouldSubscribeToSequenceProps(visibleSequence, true)).toBe(true);
+	expect(shouldSubscribeToSequenceProps(hiddenSequence, true)).toBe(false);
 });
 
 test('timeline marquee points are clamped to the track bounds', () => {
