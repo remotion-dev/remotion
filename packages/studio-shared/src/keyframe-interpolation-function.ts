@@ -23,7 +23,11 @@ export const isInteractivitySchemaFieldKeyframable = (
 		return true;
 	}
 
-	if (field.type === 'array' || field.type === 'enum') {
+	if (
+		field.type === 'array' ||
+		field.type === 'boolean' ||
+		field.type === 'enum'
+	) {
 		return false;
 	}
 
