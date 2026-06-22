@@ -32,6 +32,7 @@ test('Should calculate timeline as expected', () => {
 				id: '0.8853551277559903',
 				duration: 2423,
 				from: 0,
+				trimBefore: null,
 				parent: null,
 				displayName: 'voiceover.wav',
 				documentationLink: null,
@@ -58,6 +59,7 @@ test('Should calculate timeline as expected', () => {
 			nodePathInfo: null,
 			sequence: {
 				from: 0,
+				trimBefore: null,
 				duration: 190,
 				id: '0.7988684454279511',
 				displayName: 'Intro',
@@ -84,6 +86,7 @@ test('Should calculate timeline as expected', () => {
 			nodePathInfo: null,
 			sequence: {
 				from: 190,
+				trimBefore: null,
 				duration: 199,
 				id: '0.20005573196030002',
 				displayName: 'Showcase',
@@ -117,6 +120,7 @@ test('Should calculate timeline as expected', () => {
 				id: '0.45998279942074016',
 				duration: 199,
 				from: 190,
+				trimBefore: null,
 				parent: '0.7427345511786994',
 				displayName: 'gatsby.mp4',
 				documentationLink: null,
@@ -150,6 +154,7 @@ test('Should calculate timeline as expected', () => {
 				id: '0.1372102390794725',
 				duration: 199,
 				from: 190,
+				trimBefore: null,
 				parent: '0.7427345511786994',
 				displayName: 'talk.mp4',
 				documentationLink: null,
@@ -176,6 +181,7 @@ test('Should calculate timeline as expected', () => {
 			nodePathInfo: null,
 			sequence: {
 				from: 190,
+				trimBefore: null,
 				duration: 199,
 				id: '0.31985099681777496',
 				displayName: 'Video',
@@ -209,6 +215,7 @@ test('Should calculate timeline as expected', () => {
 				id: '0.18618863284471843',
 				duration: 199,
 				from: 190,
+				trimBefore: null,
 				parent: '0.31985099681777496',
 				displayName: 'data.mp4',
 				documentationLink: null,
@@ -235,6 +242,7 @@ test('Should calculate timeline as expected', () => {
 			nodePathInfo: null,
 			sequence: {
 				from: 190,
+				trimBefore: null,
 				duration: 199,
 				id: '0.5284976926640144',
 				displayName: 'Video',
@@ -268,6 +276,7 @@ test('Should calculate timeline as expected', () => {
 				id: '0.2007325419743926',
 				duration: 199,
 				from: 190,
+				trimBefore: null,
 				parent: '0.5284976926640144',
 				displayName: 'twitter.mp4',
 				documentationLink: null,
@@ -294,6 +303,7 @@ test('Should calculate timeline as expected', () => {
 			nodePathInfo: null,
 			sequence: {
 				from: 190,
+				trimBefore: null,
 				duration: 199,
 				id: '0.7201575098821333',
 				displayName: 'Video',
@@ -327,6 +337,7 @@ test('Should calculate timeline as expected', () => {
 				id: '0.6987123758910834',
 				duration: 199,
 				from: 190,
+				trimBefore: null,
 				parent: '0.7201575098821333',
 				displayName: 'tiktok.MP4',
 				documentationLink: null,
@@ -353,6 +364,7 @@ test('Should calculate timeline as expected', () => {
 			nodePathInfo: null,
 			sequence: {
 				from: 389,
+				trimBefore: null,
 				duration: 114,
 				id: '0.8665518920794983',
 				displayName: 'TwoPointOh',
@@ -379,6 +391,7 @@ test('Should calculate timeline as expected', () => {
 			nodePathInfo: null,
 			sequence: {
 				from: 503,
+				trimBefore: null,
 				duration: 430,
 				id: '0.5372602229055583',
 				displayName: 'AudioDemo',
@@ -405,6 +418,7 @@ test('Should calculate timeline as expected', () => {
 			nodePathInfo: null,
 			sequence: {
 				from: 933,
+				trimBefore: null,
 				duration: 267,
 				id: '0.8438341079055618',
 				displayName: 'AudioFeatures',
@@ -431,6 +445,7 @@ test('Should calculate timeline as expected', () => {
 			nodePathInfo: null,
 			sequence: {
 				from: 1200,
+				trimBefore: null,
 				duration: 300,
 				id: '0.05963067655055165',
 				displayName: 'OtherFeatures',
@@ -457,6 +472,7 @@ test('Should calculate timeline as expected', () => {
 			nodePathInfo: null,
 			sequence: {
 				from: 1500,
+				trimBefore: null,
 				duration: 170,
 				id: '0.13567053805549212',
 				displayName: 'PreviousRelease',
@@ -483,6 +499,7 @@ test('Should calculate timeline as expected', () => {
 			nodePathInfo: null,
 			sequence: {
 				from: 1630,
+				trimBefore: null,
 				duration: 300,
 				id: '0.2948571920922902',
 				displayName: 'Transition',
@@ -509,6 +526,7 @@ test('Should calculate timeline as expected', () => {
 			nodePathInfo: null,
 			sequence: {
 				from: 1900,
+				trimBefore: null,
 				duration: 320,
 				id: '0.37514555909946345',
 				displayName: 'Transition',
@@ -535,6 +553,7 @@ test('Should calculate timeline as expected', () => {
 			nodePathInfo: null,
 			sequence: {
 				from: 2220,
+				trimBefore: null,
 				duration: 203,
 				id: '0.5883855511532516',
 				displayName: 'EndCard',
@@ -561,6 +580,7 @@ test('Should calculate timeline as expected', () => {
 			nodePathInfo: null,
 			sequence: {
 				from: 2023,
+				trimBefore: null,
 				duration: 400,
 				id: '0.774930380649099',
 				displayName: 'Audio',
@@ -587,6 +607,7 @@ test('Should calculate timeline as expected', () => {
 			nodePathInfo: null,
 			sequence: {
 				from: 2023,
+				trimBefore: null,
 				duration: 400,
 				id: '0.3071535786729114',
 				displayName: 'Audio',
@@ -620,6 +641,7 @@ test('Should calculate timeline as expected', () => {
 				id: '0.2717230942507207',
 				duration: 400,
 				from: 2023,
+				trimBefore: null,
 				parent: '0.3071535786729114',
 				displayName: 'radiostar.mp3',
 				documentationLink: null,
@@ -655,6 +677,7 @@ const sequences: TSequence[] = [
 		id: '0.8853551277559903',
 		duration: 2423,
 		from: 0,
+		trimBefore: null,
 		parent: null,
 		displayName: 'voiceover.wav',
 		documentationLink: null,
@@ -676,6 +699,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 0,
+		trimBefore: null,
 		duration: 190,
 		id: '0.7988684454279511',
 		displayName: 'Intro',
@@ -697,6 +721,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 190,
+		trimBefore: null,
 		duration: 199,
 		id: '0.20005573196030002',
 		displayName: 'Showcase',
@@ -718,6 +743,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 389,
+		trimBefore: null,
 		duration: 114,
 		id: '0.8665518920794983',
 		displayName: 'TwoPointOh',
@@ -739,6 +765,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 503,
+		trimBefore: null,
 		duration: 430,
 		id: '0.5372602229055583',
 		displayName: 'AudioDemo',
@@ -760,6 +787,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 933,
+		trimBefore: null,
 		duration: 267,
 		id: '0.8438341079055618',
 		displayName: 'AudioFeatures',
@@ -781,6 +809,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 1200,
+		trimBefore: null,
 		duration: 300,
 		id: '0.05963067655055165',
 		displayName: 'OtherFeatures',
@@ -802,6 +831,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 1500,
+		trimBefore: null,
 		duration: 170,
 		id: '0.13567053805549212',
 		displayName: 'PreviousRelease',
@@ -823,6 +853,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 1630,
+		trimBefore: null,
 		duration: 300,
 		id: '0.2948571920922902',
 		displayName: 'Transition',
@@ -844,6 +875,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 1900,
+		trimBefore: null,
 		duration: 320,
 		id: '0.37514555909946345',
 		displayName: 'Transition',
@@ -865,6 +897,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 2220,
+		trimBefore: null,
 		duration: 203,
 		id: '0.5883855511532516',
 		displayName: 'EndCard',
@@ -886,6 +919,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 2023,
+		trimBefore: null,
 		duration: 400,
 		id: '0.774930380649099',
 		displayName: 'Audio',
@@ -914,6 +948,7 @@ const sequences: TSequence[] = [
 		id: '0.7558710059407929',
 		duration: 2423,
 		from: 0,
+		trimBefore: null,
 		parent: null,
 		displayName: 'voiceover.wav',
 		documentationLink: null,
@@ -935,6 +970,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 0,
+		trimBefore: null,
 		duration: 190,
 		id: '0.013896228948642397',
 		displayName: 'Intro',
@@ -956,6 +992,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 190,
+		trimBefore: null,
 		duration: 199,
 		id: '0.5871875017420274',
 		displayName: 'Showcase',
@@ -977,6 +1014,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 389,
+		trimBefore: null,
 		duration: 114,
 		id: '0.9089310380737046',
 		displayName: 'TwoPointOh',
@@ -998,6 +1036,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 503,
+		trimBefore: null,
 		duration: 430,
 		id: '0.37365295055832926',
 		displayName: 'AudioDemo',
@@ -1019,6 +1058,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 933,
+		trimBefore: null,
 		duration: 267,
 		id: '0.9518411479139886',
 		displayName: 'AudioFeatures',
@@ -1040,6 +1080,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 1200,
+		trimBefore: null,
 		duration: 300,
 		id: '0.8339332907645769',
 		displayName: 'OtherFeatures',
@@ -1061,6 +1102,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 1500,
+		trimBefore: null,
 		duration: 170,
 		id: '0.9469477928874037',
 		displayName: 'PreviousRelease',
@@ -1082,6 +1124,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 1630,
+		trimBefore: null,
 		duration: 300,
 		id: '0.20919168861661874',
 		displayName: 'Transition',
@@ -1103,6 +1146,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 1900,
+		trimBefore: null,
 		duration: 320,
 		id: '0.9625622264805149',
 		displayName: 'Transition',
@@ -1124,6 +1168,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 2220,
+		trimBefore: null,
 		duration: 203,
 		id: '0.7641303541486304',
 		displayName: 'EndCard',
@@ -1145,6 +1190,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 2023,
+		trimBefore: null,
 		duration: 400,
 		id: '0.2928602094990418',
 		displayName: 'Audio',
@@ -1173,6 +1219,7 @@ const sequences: TSequence[] = [
 		id: '0.9683712882578017',
 		duration: 2423,
 		from: 0,
+		trimBefore: null,
 		parent: null,
 		displayName: 'voiceover.wav',
 		documentationLink: null,
@@ -1194,6 +1241,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 0,
+		trimBefore: null,
 		duration: 190,
 		id: '0.9679871684010564',
 		displayName: 'Intro',
@@ -1215,6 +1263,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 190,
+		trimBefore: null,
 		duration: 199,
 		id: '0.8226724779059822',
 		displayName: 'Showcase',
@@ -1236,6 +1285,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 389,
+		trimBefore: null,
 		duration: 114,
 		id: '0.38492494481412765',
 		displayName: 'TwoPointOh',
@@ -1257,6 +1307,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 503,
+		trimBefore: null,
 		duration: 430,
 		id: '0.6491338118160219',
 		displayName: 'AudioDemo',
@@ -1278,6 +1329,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 933,
+		trimBefore: null,
 		duration: 267,
 		id: '0.12063000829615378',
 		displayName: 'AudioFeatures',
@@ -1299,6 +1351,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 1200,
+		trimBefore: null,
 		duration: 300,
 		id: '0.8213406105333345',
 		displayName: 'OtherFeatures',
@@ -1320,6 +1373,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 1500,
+		trimBefore: null,
 		duration: 170,
 		id: '0.8340510247048996',
 		displayName: 'PreviousRelease',
@@ -1341,6 +1395,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 1630,
+		trimBefore: null,
 		duration: 300,
 		id: '0.26764276775612705',
 		displayName: 'Transition',
@@ -1362,6 +1417,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 1900,
+		trimBefore: null,
 		duration: 320,
 		id: '0.7068084655062166',
 		displayName: 'Transition',
@@ -1383,6 +1439,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 2220,
+		trimBefore: null,
 		duration: 203,
 		id: '0.2969010753815242',
 		displayName: 'EndCard',
@@ -1404,6 +1461,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 2023,
+		trimBefore: null,
 		duration: 400,
 		id: '0.9326183899260871',
 		displayName: 'Audio',
@@ -1432,6 +1490,7 @@ const sequences: TSequence[] = [
 		id: '0.9322926348699978',
 		duration: 2423,
 		from: 0,
+		trimBefore: null,
 		parent: null,
 		displayName: 'voiceover.wav',
 		documentationLink: null,
@@ -1453,6 +1512,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 0,
+		trimBefore: null,
 		duration: 190,
 		id: '0.6874499571059842',
 		displayName: 'Intro',
@@ -1481,6 +1541,7 @@ const sequences: TSequence[] = [
 		id: '0.45998279942074016',
 		duration: 199,
 		from: 0,
+		trimBefore: null,
 		parent: '0.7427345511786994',
 		displayName: 'gatsby.mp4',
 		documentationLink: null,
@@ -1509,6 +1570,7 @@ const sequences: TSequence[] = [
 		id: '0.1372102390794725',
 		duration: 199,
 		from: 0,
+		trimBefore: null,
 		parent: '0.7427345511786994',
 		displayName: 'talk.mp4',
 		documentationLink: null,
@@ -1537,6 +1599,7 @@ const sequences: TSequence[] = [
 		id: '0.18618863284471843',
 		duration: 259,
 		from: 0,
+		trimBefore: null,
 		parent: '0.31985099681777496',
 		displayName: 'data.mp4',
 		documentationLink: null,
@@ -1558,6 +1621,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: -60,
+		trimBefore: null,
 		duration: 259,
 		id: '0.31985099681777496',
 		displayName: 'Video',
@@ -1586,6 +1650,7 @@ const sequences: TSequence[] = [
 		id: '0.2007325419743926',
 		duration: 319,
 		from: 0,
+		trimBefore: null,
 		parent: '0.5284976926640144',
 		displayName: 'twitter.mp4',
 		documentationLink: null,
@@ -1607,6 +1672,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: -120,
+		trimBefore: null,
 		duration: 319,
 		id: '0.5284976926640144',
 		displayName: 'Video',
@@ -1635,6 +1701,7 @@ const sequences: TSequence[] = [
 		id: '0.6987123758910834',
 		duration: 379,
 		from: 0,
+		trimBefore: null,
 		parent: '0.7201575098821333',
 		displayName: 'tiktok.MP4',
 		documentationLink: null,
@@ -1656,6 +1723,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: -180,
+		trimBefore: null,
 		duration: 379,
 		id: '0.7201575098821333',
 		displayName: 'Video',
@@ -1677,6 +1745,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 190,
+		trimBefore: null,
 		duration: 199,
 		id: '0.7427345511786994',
 		displayName: 'Showcase',
@@ -1698,6 +1767,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 389,
+		trimBefore: null,
 		duration: 114,
 		id: '0.28005794305326215',
 		displayName: 'TwoPointOh',
@@ -1719,6 +1789,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 503,
+		trimBefore: null,
 		duration: 430,
 		id: '0.6180639766793845',
 		displayName: 'AudioDemo',
@@ -1740,6 +1811,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 933,
+		trimBefore: null,
 		duration: 267,
 		id: '0.9016919431118482',
 		displayName: 'AudioFeatures',
@@ -1761,6 +1833,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 1200,
+		trimBefore: null,
 		duration: 300,
 		id: '0.3620697429225761',
 		displayName: 'OtherFeatures',
@@ -1782,6 +1855,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 1500,
+		trimBefore: null,
 		duration: 170,
 		id: '0.8336440841890023',
 		displayName: 'PreviousRelease',
@@ -1803,6 +1877,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 1630,
+		trimBefore: null,
 		duration: 300,
 		id: '0.8566233304205106',
 		displayName: 'Transition',
@@ -1824,6 +1899,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 1900,
+		trimBefore: null,
 		duration: 320,
 		id: '0.022869473310217936',
 		displayName: 'Transition',
@@ -1845,6 +1921,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 2220,
+		trimBefore: null,
 		duration: 203,
 		id: '0.96358074631321',
 		displayName: 'EndCard',
@@ -1866,6 +1943,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 2023,
+		trimBefore: null,
 		duration: 400,
 		id: '0.9791404054839732',
 		displayName: 'Audio',
@@ -1894,6 +1972,7 @@ const sequences: TSequence[] = [
 		id: '0.9912427479288572',
 		duration: 2423,
 		from: 0,
+		trimBefore: null,
 		parent: null,
 		displayName: 'voiceover.wav',
 		documentationLink: null,
@@ -1915,6 +1994,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 0,
+		trimBefore: null,
 		duration: 190,
 		id: '0.9833364307181325',
 		displayName: 'Intro',
@@ -1936,6 +2016,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 190,
+		trimBefore: null,
 		duration: 199,
 		id: '0.4591233078115513',
 		displayName: 'Showcase',
@@ -1957,6 +2038,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 389,
+		trimBefore: null,
 		duration: 114,
 		id: '0.6374900550585922',
 		displayName: 'TwoPointOh',
@@ -1978,6 +2060,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 503,
+		trimBefore: null,
 		duration: 430,
 		id: '0.10731527850110689',
 		displayName: 'AudioDemo',
@@ -1999,6 +2082,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 933,
+		trimBefore: null,
 		duration: 267,
 		id: '0.042385780518262806',
 		displayName: 'AudioFeatures',
@@ -2020,6 +2104,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 1200,
+		trimBefore: null,
 		duration: 300,
 		id: '0.33344009750832004',
 		displayName: 'OtherFeatures',
@@ -2041,6 +2126,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 1500,
+		trimBefore: null,
 		duration: 170,
 		id: '0.44527389783030724',
 		displayName: 'PreviousRelease',
@@ -2062,6 +2148,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 1630,
+		trimBefore: null,
 		duration: 300,
 		id: '0.6937510470026331',
 		displayName: 'Transition',
@@ -2083,6 +2170,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 1900,
+		trimBefore: null,
 		duration: 320,
 		id: '0.23213970430005726',
 		displayName: 'Transition',
@@ -2104,6 +2192,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 2220,
+		trimBefore: null,
 		duration: 203,
 		id: '0.7762385961905038',
 		displayName: 'EndCard',
@@ -2125,6 +2214,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 2023,
+		trimBefore: null,
 		duration: 400,
 		id: '0.6086996076807158',
 		displayName: 'Audio',
@@ -2153,6 +2243,7 @@ const sequences: TSequence[] = [
 		id: '0.7617644678471744',
 		duration: 2423,
 		from: 0,
+		trimBefore: null,
 		parent: null,
 		displayName: 'voiceover.wav',
 		documentationLink: null,
@@ -2174,6 +2265,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 0,
+		trimBefore: null,
 		duration: 190,
 		id: '0.34274832076609396',
 		displayName: 'Intro',
@@ -2195,6 +2287,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 190,
+		trimBefore: null,
 		duration: 199,
 		id: '0.6405655402940462',
 		displayName: 'Showcase',
@@ -2216,6 +2309,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 389,
+		trimBefore: null,
 		duration: 114,
 		id: '0.6320104997308413',
 		displayName: 'TwoPointOh',
@@ -2237,6 +2331,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 503,
+		trimBefore: null,
 		duration: 430,
 		id: '0.8116345172460087',
 		displayName: 'AudioDemo',
@@ -2258,6 +2353,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 933,
+		trimBefore: null,
 		duration: 267,
 		id: '0.6700944628233823',
 		displayName: 'AudioFeatures',
@@ -2279,6 +2375,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 1200,
+		trimBefore: null,
 		duration: 300,
 		id: '0.8790888214858588',
 		displayName: 'OtherFeatures',
@@ -2300,6 +2397,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 1500,
+		trimBefore: null,
 		duration: 170,
 		id: '0.7305889062249811',
 		displayName: 'PreviousRelease',
@@ -2321,6 +2419,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 1630,
+		trimBefore: null,
 		duration: 300,
 		id: '0.9172707427610804',
 		displayName: 'Transition',
@@ -2342,6 +2441,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 1900,
+		trimBefore: null,
 		duration: 320,
 		id: '0.4068706305644847',
 		displayName: 'Transition',
@@ -2363,6 +2463,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 2220,
+		trimBefore: null,
 		duration: 203,
 		id: '0.6130596539220952',
 		displayName: 'EndCard',
@@ -2384,6 +2485,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 2023,
+		trimBefore: null,
 		duration: 400,
 		id: '0.8826722005312757',
 		displayName: 'Audio',
@@ -2412,6 +2514,7 @@ const sequences: TSequence[] = [
 		id: '0.08966263558921872',
 		duration: 2423,
 		from: 0,
+		trimBefore: null,
 		parent: null,
 		displayName: 'voiceover.wav',
 		documentationLink: null,
@@ -2433,6 +2536,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 0,
+		trimBefore: null,
 		duration: 190,
 		id: '0.5706132353055973',
 		displayName: 'Intro',
@@ -2454,6 +2558,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 190,
+		trimBefore: null,
 		duration: 199,
 		id: '0.5622108034055673',
 		displayName: 'Showcase',
@@ -2475,6 +2580,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 389,
+		trimBefore: null,
 		duration: 114,
 		id: '0.6875295257183898',
 		displayName: 'TwoPointOh',
@@ -2496,6 +2602,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 503,
+		trimBefore: null,
 		duration: 430,
 		id: '0.15973509430587796',
 		displayName: 'AudioDemo',
@@ -2517,6 +2624,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 933,
+		trimBefore: null,
 		duration: 267,
 		id: '0.5561032401038597',
 		displayName: 'AudioFeatures',
@@ -2538,6 +2646,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 1200,
+		trimBefore: null,
 		duration: 300,
 		id: '0.7797840093973158',
 		displayName: 'OtherFeatures',
@@ -2559,6 +2668,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 1500,
+		trimBefore: null,
 		duration: 170,
 		id: '0.2439107260214457',
 		displayName: 'PreviousRelease',
@@ -2580,6 +2690,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 1630,
+		trimBefore: null,
 		duration: 300,
 		id: '0.42074448724923696',
 		displayName: 'Transition',
@@ -2601,6 +2712,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 1900,
+		trimBefore: null,
 		duration: 320,
 		id: '0.7332938827967788',
 		displayName: 'Transition',
@@ -2622,6 +2734,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 2220,
+		trimBefore: null,
 		duration: 203,
 		id: '0.4567744307634001',
 		displayName: 'EndCard',
@@ -2643,6 +2756,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 2023,
+		trimBefore: null,
 		duration: 400,
 		id: '0.2164766752346936',
 		displayName: 'Audio',
@@ -2671,6 +2785,7 @@ const sequences: TSequence[] = [
 		id: '0.9296739643582592',
 		duration: 2423,
 		from: 0,
+		trimBefore: null,
 		parent: null,
 		displayName: 'voiceover.wav',
 		documentationLink: null,
@@ -2692,6 +2807,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 0,
+		trimBefore: null,
 		duration: 190,
 		id: '0.9672960884156216',
 		displayName: 'Intro',
@@ -2713,6 +2829,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 190,
+		trimBefore: null,
 		duration: 199,
 		id: '0.692921479809085',
 		displayName: 'Showcase',
@@ -2734,6 +2851,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 389,
+		trimBefore: null,
 		duration: 114,
 		id: '0.41256501496176523',
 		displayName: 'TwoPointOh',
@@ -2755,6 +2873,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 503,
+		trimBefore: null,
 		duration: 430,
 		id: '0.3928138895163191',
 		displayName: 'AudioDemo',
@@ -2776,6 +2895,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 933,
+		trimBefore: null,
 		duration: 267,
 		id: '0.7188778766918122',
 		displayName: 'AudioFeatures',
@@ -2797,6 +2917,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 1200,
+		trimBefore: null,
 		duration: 300,
 		id: '0.48567827084131365',
 		displayName: 'OtherFeatures',
@@ -2818,6 +2939,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 1500,
+		trimBefore: null,
 		duration: 170,
 		id: '0.9142434812796854',
 		displayName: 'PreviousRelease',
@@ -2839,6 +2961,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 1630,
+		trimBefore: null,
 		duration: 300,
 		id: '0.9582808479010139',
 		displayName: 'Transition',
@@ -2860,6 +2983,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 1900,
+		trimBefore: null,
 		duration: 320,
 		id: '0.7236444287148189',
 		displayName: 'Transition',
@@ -2881,6 +3005,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 2220,
+		trimBefore: null,
 		duration: 203,
 		id: '0.8850558440573433',
 		displayName: 'EndCard',
@@ -2902,6 +3027,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 2023,
+		trimBefore: null,
 		duration: 400,
 		id: '0.20627503800934455',
 		displayName: 'Audio',
@@ -2930,6 +3056,7 @@ const sequences: TSequence[] = [
 		id: '0.723875215207223',
 		duration: 2423,
 		from: 0,
+		trimBefore: null,
 		parent: null,
 		displayName: 'voiceover.wav',
 		documentationLink: null,
@@ -2951,6 +3078,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 0,
+		trimBefore: null,
 		duration: 190,
 		id: '0.4657164999200436',
 		displayName: 'Intro',
@@ -2972,6 +3100,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 190,
+		trimBefore: null,
 		duration: 199,
 		id: '0.2191313460612767',
 		displayName: 'Showcase',
@@ -2993,6 +3122,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 389,
+		trimBefore: null,
 		duration: 114,
 		id: '0.286226752402855',
 		displayName: 'TwoPointOh',
@@ -3014,6 +3144,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 503,
+		trimBefore: null,
 		duration: 430,
 		id: '0.7813065915203776',
 		displayName: 'AudioDemo',
@@ -3035,6 +3166,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 933,
+		trimBefore: null,
 		duration: 267,
 		id: '0.9487271847212144',
 		displayName: 'AudioFeatures',
@@ -3056,6 +3188,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 1200,
+		trimBefore: null,
 		duration: 300,
 		id: '0.6449301986836387',
 		displayName: 'OtherFeatures',
@@ -3077,6 +3210,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 1500,
+		trimBefore: null,
 		duration: 170,
 		id: '0.08793392836935654',
 		displayName: 'PreviousRelease',
@@ -3098,6 +3232,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 1630,
+		trimBefore: null,
 		duration: 300,
 		id: '0.7954745852558922',
 		displayName: 'Transition',
@@ -3119,6 +3254,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 1900,
+		trimBefore: null,
 		duration: 320,
 		id: '0.3546896613742223',
 		displayName: 'Transition',
@@ -3140,6 +3276,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 2220,
+		trimBefore: null,
 		duration: 203,
 		id: '0.15994521677687712',
 		displayName: 'EndCard',
@@ -3161,6 +3298,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 2023,
+		trimBefore: null,
 		duration: 400,
 		id: '0.7391686211426882',
 		displayName: 'Audio',
@@ -3189,6 +3327,7 @@ const sequences: TSequence[] = [
 		id: '0.49018056389747744',
 		duration: 2423,
 		from: 0,
+		trimBefore: null,
 		parent: null,
 		displayName: 'voiceover.wav',
 		documentationLink: null,
@@ -3210,6 +3349,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 0,
+		trimBefore: null,
 		duration: 190,
 		id: '0.024033562551030174',
 		displayName: 'Intro',
@@ -3231,6 +3371,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 190,
+		trimBefore: null,
 		duration: 199,
 		id: '0.662785985956386',
 		displayName: 'Showcase',
@@ -3252,6 +3393,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 389,
+		trimBefore: null,
 		duration: 114,
 		id: '0.8649828969002222',
 		displayName: 'TwoPointOh',
@@ -3273,6 +3415,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 503,
+		trimBefore: null,
 		duration: 430,
 		id: '0.6655051552759421',
 		displayName: 'AudioDemo',
@@ -3294,6 +3437,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 933,
+		trimBefore: null,
 		duration: 267,
 		id: '0.7771821849826035',
 		displayName: 'AudioFeatures',
@@ -3315,6 +3459,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 1200,
+		trimBefore: null,
 		duration: 300,
 		id: '0.4147477180363004',
 		displayName: 'OtherFeatures',
@@ -3336,6 +3481,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 1500,
+		trimBefore: null,
 		duration: 170,
 		id: '0.14053995122181107',
 		displayName: 'PreviousRelease',
@@ -3357,6 +3503,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 1630,
+		trimBefore: null,
 		duration: 300,
 		id: '0.14077132096138567',
 		displayName: 'Transition',
@@ -3378,6 +3525,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 1900,
+		trimBefore: null,
 		duration: 320,
 		id: '0.7091752101517594',
 		displayName: 'Transition',
@@ -3399,6 +3547,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 2220,
+		trimBefore: null,
 		duration: 203,
 		id: '0.9298757451390753',
 		displayName: 'EndCard',
@@ -3420,6 +3569,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 2023,
+		trimBefore: null,
 		duration: 400,
 		id: '0.9953443581727663',
 		displayName: 'Audio',
@@ -3448,6 +3598,7 @@ const sequences: TSequence[] = [
 		id: '0.3449258914147597',
 		duration: 2423,
 		from: 0,
+		trimBefore: null,
 		parent: null,
 		displayName: 'voiceover.wav',
 		documentationLink: null,
@@ -3469,6 +3620,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 0,
+		trimBefore: null,
 		duration: 190,
 		id: '0.12738880970572275',
 		displayName: 'Intro',
@@ -3490,6 +3642,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 190,
+		trimBefore: null,
 		duration: 199,
 		id: '0.081985166378864',
 		displayName: 'Showcase',
@@ -3511,6 +3664,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 389,
+		trimBefore: null,
 		duration: 114,
 		id: '0.36434226164037153',
 		displayName: 'TwoPointOh',
@@ -3532,6 +3686,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 503,
+		trimBefore: null,
 		duration: 430,
 		id: '0.8018899583003061',
 		displayName: 'AudioDemo',
@@ -3553,6 +3708,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 933,
+		trimBefore: null,
 		duration: 267,
 		id: '0.0474680197288877',
 		displayName: 'AudioFeatures',
@@ -3574,6 +3730,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 1200,
+		trimBefore: null,
 		duration: 300,
 		id: '0.41339333761824415',
 		displayName: 'OtherFeatures',
@@ -3595,6 +3752,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 1500,
+		trimBefore: null,
 		duration: 170,
 		id: '0.6991220521947747',
 		displayName: 'PreviousRelease',
@@ -3616,6 +3774,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 1630,
+		trimBefore: null,
 		duration: 300,
 		id: '0.244695174292634',
 		displayName: 'Transition',
@@ -3637,6 +3796,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 1900,
+		trimBefore: null,
 		duration: 320,
 		id: '0.5382417466454277',
 		displayName: 'Transition',
@@ -3658,6 +3818,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 2220,
+		trimBefore: null,
 		duration: 203,
 		id: '0.21776682176581597',
 		displayName: 'EndCard',
@@ -3686,6 +3847,7 @@ const sequences: TSequence[] = [
 		id: '0.2717230942507207',
 		duration: 410,
 		from: 0,
+		trimBefore: null,
 		parent: '0.3071535786729114',
 		displayName: 'radiostar.mp3',
 		documentationLink: null,
@@ -3707,6 +3869,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: -10,
+		trimBefore: null,
 		duration: 410,
 		id: '0.3071535786729114',
 		displayName: 'Audio',
@@ -3728,6 +3891,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 2023,
+		trimBefore: null,
 		duration: 400,
 		id: '0.5566654433284295',
 		displayName: 'Audio',
@@ -3756,6 +3920,7 @@ const sequences: TSequence[] = [
 		id: '0.2622986982531048',
 		duration: 2423,
 		from: 0,
+		trimBefore: null,
 		parent: null,
 		displayName: 'voiceover.wav',
 		documentationLink: null,
@@ -3777,6 +3942,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 0,
+		trimBefore: null,
 		duration: 190,
 		id: '0.38559518118948577',
 		displayName: 'Intro',
@@ -3798,6 +3964,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 190,
+		trimBefore: null,
 		duration: 199,
 		id: '0.5005394973324531',
 		displayName: 'Showcase',
@@ -3819,6 +3986,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 389,
+		trimBefore: null,
 		duration: 114,
 		id: '0.24348769930704028',
 		displayName: 'TwoPointOh',
@@ -3840,6 +4008,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 503,
+		trimBefore: null,
 		duration: 430,
 		id: '0.23053652301724092',
 		displayName: 'AudioDemo',
@@ -3861,6 +4030,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 933,
+		trimBefore: null,
 		duration: 267,
 		id: '0.7794389439951144',
 		displayName: 'AudioFeatures',
@@ -3882,6 +4052,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 1200,
+		trimBefore: null,
 		duration: 300,
 		id: '0.8128413169672415',
 		displayName: 'OtherFeatures',
@@ -3903,6 +4074,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 1500,
+		trimBefore: null,
 		duration: 170,
 		id: '0.5960244606432441',
 		displayName: 'PreviousRelease',
@@ -3924,6 +4096,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 1630,
+		trimBefore: null,
 		duration: 300,
 		id: '0.9476523073865502',
 		displayName: 'Transition',
@@ -3945,6 +4118,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 1900,
+		trimBefore: null,
 		duration: 320,
 		id: '0.08515387762015547',
 		displayName: 'Transition',
@@ -3966,6 +4140,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 2220,
+		trimBefore: null,
 		duration: 203,
 		id: '0.7800172720939598',
 		displayName: 'EndCard',
@@ -3994,6 +4169,7 @@ const sequences: TSequence[] = [
 		id: '0.31670751064200897',
 		duration: 410,
 		from: 0,
+		trimBefore: null,
 		parent: '0.22338864158069693',
 		displayName: 'radiostar.mp3',
 		documentationLink: null,
@@ -4015,6 +4191,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: -10,
+		trimBefore: null,
 		duration: 410,
 		id: '0.22338864158069693',
 		displayName: 'Audio',
@@ -4036,6 +4213,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 2023,
+		trimBefore: null,
 		duration: 400,
 		id: '0.2517250264408417',
 		displayName: 'Audio',
@@ -4064,6 +4242,7 @@ const sequences: TSequence[] = [
 		id: '0.8494008563358473',
 		duration: 2423,
 		from: 0,
+		trimBefore: null,
 		parent: null,
 		displayName: 'voiceover.wav',
 		documentationLink: null,
@@ -4085,6 +4264,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 0,
+		trimBefore: null,
 		duration: 190,
 		id: '0.9790967079497737',
 		displayName: 'Intro',
@@ -4106,6 +4286,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 190,
+		trimBefore: null,
 		duration: 199,
 		id: '0.03982331319557497',
 		displayName: 'Showcase',
@@ -4127,6 +4308,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 389,
+		trimBefore: null,
 		duration: 114,
 		id: '0.1947191320803343',
 		displayName: 'TwoPointOh',
@@ -4148,6 +4330,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 503,
+		trimBefore: null,
 		duration: 430,
 		id: '0.27255607280224337',
 		displayName: 'AudioDemo',
@@ -4169,6 +4352,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 933,
+		trimBefore: null,
 		duration: 267,
 		id: '0.4473609955045601',
 		displayName: 'AudioFeatures',
@@ -4190,6 +4374,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 1200,
+		trimBefore: null,
 		duration: 300,
 		id: '0.11346222939707196',
 		displayName: 'OtherFeatures',
@@ -4211,6 +4396,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 1500,
+		trimBefore: null,
 		duration: 170,
 		id: '0.8902296481751115',
 		displayName: 'PreviousRelease',
@@ -4232,6 +4418,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 1630,
+		trimBefore: null,
 		duration: 300,
 		id: '0.48939424922949826',
 		displayName: 'Transition',
@@ -4253,6 +4440,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 1900,
+		trimBefore: null,
 		duration: 320,
 		id: '0.08052605865658968',
 		displayName: 'Transition',
@@ -4274,6 +4462,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 2220,
+		trimBefore: null,
 		duration: 203,
 		id: '0.6140669532594747',
 		displayName: 'EndCard',
@@ -4302,6 +4491,7 @@ const sequences: TSequence[] = [
 		id: '0.49652880772696295',
 		duration: 410,
 		from: 0,
+		trimBefore: null,
 		parent: '0.7191490407370371',
 		displayName: 'radiostar.mp3',
 		documentationLink: null,
@@ -4323,6 +4513,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: -10,
+		trimBefore: null,
 		duration: 410,
 		id: '0.7191490407370371',
 		displayName: 'Audio',
@@ -4344,6 +4535,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 2023,
+		trimBefore: null,
 		duration: 400,
 		id: '0.25140569077209984',
 		displayName: 'Audio',

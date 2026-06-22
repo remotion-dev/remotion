@@ -26,6 +26,7 @@ test('Should calculate sequences correctly', () => {
 			nodePathInfo: null,
 			sequence: {
 				from: 0,
+				trimBefore: null,
 				duration: 486,
 				id: '0.3922623481128855',
 				displayName: 'Sequence',
@@ -52,6 +53,7 @@ test('Should calculate sequences correctly', () => {
 			nodePathInfo: null,
 			sequence: {
 				from: 0,
+				trimBefore: null,
 				duration: 486,
 				id: '0.9202813365252485',
 				displayName: 'SynchronizedCode',
@@ -78,6 +80,7 @@ test('Should calculate sequences correctly', () => {
 			nodePathInfo: null,
 			sequence: {
 				from: 0,
+				trimBefore: null,
 				duration: 486,
 				id: '0.3568245565495358',
 				displayName: 'Video',
@@ -104,6 +107,7 @@ test('Should calculate sequences correctly', () => {
 			nodePathInfo: null,
 			sequence: {
 				from: 0,
+				trimBefore: null,
 				duration: 486,
 				id: '0.08739205010419449',
 				displayName: 'Video',
@@ -134,6 +138,7 @@ test('Should calculate sequences correctly', () => {
 				id: '0.640722264073593',
 				duration: 486,
 				from: 0,
+				trimBefore: null,
 				parent: '0.08739205010419449',
 				displayName: 'codep1-2.mp4',
 				documentationLink: null,
@@ -164,6 +169,7 @@ test('Should calculate sequences correctly', () => {
 			sequence: {
 				loopDisplay: undefined,
 				from: 0,
+				trimBefore: null,
 				duration: 486,
 				id: '0.12517304081486258',
 				displayName: 'Video',
@@ -194,6 +200,7 @@ test('Should calculate sequences correctly', () => {
 				id: '0.5529201074994525',
 				duration: 486,
 				from: 0,
+				trimBefore: null,
 				parent: '0.12517304081486258',
 				displayName: 'screen3.mp4',
 				documentationLink: null,
@@ -224,6 +231,7 @@ test('Should calculate sequences correctly', () => {
 const sequences: TSequence[] = [
 	{
 		from: 0,
+		trimBefore: null,
 		duration: 486,
 		id: '0.3922623481128855',
 		displayName: 'Sequence',
@@ -245,6 +253,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 0,
+		trimBefore: null,
 		duration: 12000,
 		id: '0.3568245565495358',
 		displayName: 'Video',
@@ -270,6 +279,7 @@ const sequences: TSequence[] = [
 		id: '0.640722264073593',
 		duration: 10736,
 		from: 0,
+		trimBefore: null,
 		parent: '0.08739205010419449',
 		displayName: 'codep1-2.mp4',
 		documentationLink: null,
@@ -294,6 +304,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: 12000,
+		trimBefore: null,
 		duration: 10736,
 		id: '0.08739205010419449',
 		displayName: 'Video',
@@ -319,6 +330,7 @@ const sequences: TSequence[] = [
 		id: '0.5529201074994525',
 		duration: 23066,
 		from: 0,
+		trimBefore: null,
 		parent: '0.12517304081486258',
 		displayName: 'screen3.mp4',
 		documentationLink: null,
@@ -343,6 +355,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: -330,
+		trimBefore: null,
 		duration: 23066,
 		id: '0.12517304081486258',
 		displayName: 'Video',
@@ -364,6 +377,7 @@ const sequences: TSequence[] = [
 	},
 	{
 		from: -22250,
+		trimBefore: null,
 		duration: 22736,
 		id: '0.9202813365252485',
 		displayName: 'SynchronizedCode',

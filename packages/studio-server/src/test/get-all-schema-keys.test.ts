@@ -25,6 +25,7 @@ test('getAllSchemaKeys returns every key across all enum variants', () => {
 			'styleWhilePostmounted',
 			'durationInFrames',
 			'from',
+			'trimBefore',
 			'freeze',
 		].sort(),
 	);

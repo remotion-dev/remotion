@@ -434,6 +434,7 @@ const RemotionRiveCanvasInnerForwardRefFunction: React.ForwardRefRenderFunction<
 		durationInFrames,
 		name,
 		from,
+		trimBefore,
 		freeze,
 		showInTimeline,
 		hidden,
@@ -449,6 +450,7 @@ const RemotionRiveCanvasInnerForwardRefFunction: React.ForwardRefRenderFunction<
 		<Sequence
 			layout="none"
 			from={from}
+			trimBefore={trimBefore}
 			freeze={freeze}
 			hidden={hidden}
 			showInTimeline={showInTimeline}
