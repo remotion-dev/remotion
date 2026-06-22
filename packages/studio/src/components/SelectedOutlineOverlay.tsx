@@ -54,7 +54,11 @@ import {callAddSequenceKeyframe} from './Timeline/call-add-keyframe';
 import {getCurrentDuration, getCurrentFps} from './Timeline/imperative-state';
 import {saveSequenceProps} from './Timeline/save-sequence-prop';
 import {ensureFrameIsInViewport} from './Timeline/timeline-scroll-logic';
-import {useTimelineSelection} from './Timeline/TimelineSelection';
+import {
+	type TimelineSelection,
+	type TimelineSelectionInteraction,
+	useTimelineSelection,
+} from './Timeline/TimelineSelection';
 
 export {
 	applySelectedOutlineDragAxisLock,
@@ -157,6 +161,12 @@ export const SelectedOutlineOverlay: React.FC<{
 			setHoveredOutlineKey(null);
 		}
 	}, []);
+	const selectOutlineItem = useCallback(
+		(item: TimelineSelection, interaction?: TimelineSelectionInteraction) => {
+			selectItem(item, interaction, undefined, {reveal: true});
+		},
+		[selectItem],
+	);
 
 	const outlineTargets = useMemo((): SelectedOutlineTarget[] => {
 		if (!editorShowOutlines) {
@@ -817,7 +827,7 @@ export const SelectedOutlineOverlay: React.FC<{
 					outline={outline}
 					onDraggingChange={onDraggingChange}
 					onHoverChange={setHoveredOutlineKey}
-					onSelect={selectItem}
+					onSelect={selectOutlineItem}
 					scale={scale}
 					target={targetsByKey.get(outline.key)}
 				/>
@@ -834,7 +844,7 @@ export const SelectedOutlineOverlay: React.FC<{
 				<SelectedOutlineUvHandleCircleLayer
 					key={`${outline.key}-uv-handles`}
 					onDraggingChange={onDraggingChange}
-					onSelect={selectItem}
+					onSelect={selectOutlineItem}
 					outline={outline}
 					target={targetsByKey.get(outline.key)}
 				/>

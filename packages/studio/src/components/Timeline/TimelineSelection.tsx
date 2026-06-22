@@ -515,15 +515,19 @@ type TimelineSelectionContextValue = {
 		item: TimelineSelection,
 		interaction?: TimelineSelectionInteraction,
 		allSelectableItems?: readonly TimelineSelection[],
+		options?: TimelineSelectionOptions,
 	) => void;
-	readonly selectItems: (items: readonly TimelineSelection[]) => void;
+	readonly selectItems: (
+		items: readonly TimelineSelection[],
+		options?: TimelineSelectionOptions,
+	) => void;
 	readonly registerMarqueeSelectableItem: (
 		item: TimelineSelection,
 		getRect: () => DOMRect | null,
 	) => () => void;
 	readonly registerFocusableItem: (
 		item: TimelineSelection,
-		getRect: () => DOMRect | null,
+		getElement: () => Element | null,
 	) => () => void;
 	readonly getMarqueeSelection: (
 		marqueeRect: TimelineMarqueeRect,
@@ -579,7 +583,21 @@ export const TimelineSelectionOrderProvider: React.FC<{
 const CurrentTimelineSelectionContext =
 	createContext<React.RefObject<TimelineSelectionContextValue> | null>(null);
 
-const TIMELINE_SELECTION_FOCUS_PADDING = 8;
+const TIMELINE_SELECTION_REVEAL_RETRY_COUNT = 2;
+
+type TimelineSelectionOptions = {
+	readonly reveal?: boolean;
+};
+
+type TimelineSelectionRevealRequest = {
+	readonly key: string;
+	readonly token: number;
+};
+
+type TimelineFocusableItem = {
+	readonly getElement: () => Element | null;
+	readonly order: number;
+};
 
 const parseEffectIndex = (effectIndex: string): number | null => {
 	const parsed = Number(effectIndex);
@@ -1019,19 +1037,17 @@ export const TimelineSelectionProvider: React.FC<{
 	);
 	const marqueeRegistrationCounter = useRef(0);
 	const focusableItems = useRef(
-		new Map<
-			string,
-			{
-				readonly getRect: () => DOMRect | null;
-			}
-		>(),
+		new Map<string, Map<number, TimelineFocusableItem>>(),
 	);
-	const previousSingleSelectionKey = useRef<string | null>(null);
+	const focusableRegistrationCounter = useRef(0);
+	const [revealRequest, setRevealRequest] =
+		useState<TimelineSelectionRevealRequest | null>(null);
 
 	useEffect(() => {
 		if (!canSelect) {
 			selectionScope.current = null;
 			selectionAnchor.current = null;
+			setRevealRequest(null);
 			setSelectedItems([]);
 		}
 	}, [canSelect]);
@@ -1059,45 +1075,74 @@ export const TimelineSelectionProvider: React.FC<{
 		getCurrentAvailableSelectionState(selectedItems);
 	const availableSelectedItems = availableSelectionState.selectedItems;
 
-	useEffect(() => {
-		if (availableSelectedItems.length !== 1) {
-			previousSingleSelectionKey.current = null;
-			return;
-		}
+	const revealSelectionKey = useCallback((selectedKey: string) => {
+		let cancelled = false;
+		let animationFrame: number | null = null;
 
-		const selectedKey = getTimelineSelectionKey(availableSelectedItems[0]);
-		if (previousSingleSelectionKey.current === selectedKey) {
-			return;
-		}
+		const reveal = (attempt: number) => {
+			if (cancelled) {
+				return;
+			}
 
-		previousSingleSelectionKey.current = selectedKey;
-
-		const animationFrame = requestAnimationFrame(() => {
-			const registered =
-				focusableItems.current.get(selectedKey) ??
-				marqueeSelectableItems.current.get(selectedKey);
 			const scrollParent = timelineVerticalScroll.current;
-			const rect = registered?.getRect();
+			const focusableRegistrations = focusableItems.current.get(selectedKey);
+			const focusableElement =
+				scrollParent && focusableRegistrations
+					? [...focusableRegistrations.values()]
+							.sort((a, b) => a.order - b.order)
+							.map((registered) => registered.getElement())
+							.find(
+								(element): element is Element =>
+									element !== null && scrollParent.contains(element),
+							)
+					: null;
+			const rect =
+				focusableElement?.getBoundingClientRect() ??
+				marqueeSelectableItems.current.get(selectedKey)?.getRect();
 
 			if (!scrollParent || !rect) {
+				if (attempt < TIMELINE_SELECTION_REVEAL_RETRY_COUNT) {
+					animationFrame = requestAnimationFrame(() => reveal(attempt + 1));
+				}
+
 				return;
 			}
 
 			const parentRect = scrollParent.getBoundingClientRect();
-			if (rect.top < parentRect.top) {
-				scrollParent.scrollTop -=
-					parentRect.top - rect.top + TIMELINE_SELECTION_FOCUS_PADDING;
+			if (rect.top >= parentRect.top && rect.bottom <= parentRect.bottom) {
 				return;
 			}
 
-			if (rect.bottom > parentRect.bottom) {
-				scrollParent.scrollTop +=
-					rect.bottom - parentRect.bottom + TIMELINE_SELECTION_FOCUS_PADDING;
-			}
-		});
+			const elementCenter = rect.top + rect.height / 2;
+			const parentCenter = parentRect.top + parentRect.height / 2;
+			scrollParent.scrollTop += elementCenter - parentCenter;
+		};
 
-		return () => cancelAnimationFrame(animationFrame);
-	}, [availableSelectedItems]);
+		animationFrame = requestAnimationFrame(() => reveal(0));
+
+		return () => {
+			cancelled = true;
+			if (animationFrame !== null) {
+				cancelAnimationFrame(animationFrame);
+			}
+		};
+	}, []);
+
+	useEffect(() => {
+		if (revealRequest === null) {
+			return;
+		}
+
+		return revealSelectionKey(revealRequest.key);
+	}, [revealRequest, revealSelectionKey]);
+
+	const requestRevealSelectionItem = useCallback((item: TimelineSelection) => {
+		const key = getTimelineSelectionKey(item);
+		setRevealRequest((previousRequest) => ({
+			key,
+			token: (previousRequest?.token ?? 0) + 1,
+		}));
+	}, []);
 
 	const expandParentsForSelectionItems = useCallback(
 		(items: readonly TimelineSelection[]) => {
@@ -1169,12 +1214,16 @@ export const TimelineSelectionProvider: React.FC<{
 				toggleKey: false,
 			},
 			allSelectableItems: readonly TimelineSelection[] = [],
+			options: TimelineSelectionOptions = {},
 		) => {
 			if (!canSelectItem(item)) {
 				return;
 			}
 
 			expandParentsForSelectionItem(item);
+			if (options.reveal) {
+				requestRevealSelectionItem(item);
+			}
 
 			setSelectedItems((currentSelectedItems) => {
 				const currentSelectionState =
@@ -1198,12 +1247,16 @@ export const TimelineSelectionProvider: React.FC<{
 			canSelectItem,
 			expandParentsForSelectionItem,
 			getCurrentAvailableSelectionState,
+			requestRevealSelectionItem,
 			timelineSelectionScope,
 		],
 	);
 
 	const selectItems = useCallback(
-		(items: readonly TimelineSelection[]) => {
+		(
+			items: readonly TimelineSelection[],
+			options: TimelineSelectionOptions = {},
+		) => {
 			if (!items.every(canSelectItem)) {
 				return;
 			}
@@ -1212,9 +1265,18 @@ export const TimelineSelectionProvider: React.FC<{
 			selectionAnchor.current =
 				items.length === 0 ? null : items[items.length - 1];
 			expandParentsForSelectionItems(items);
+			if (options.reveal && items.length === 1) {
+				requestRevealSelectionItem(items[0]);
+			}
+
 			setSelectedItems(items);
 		},
-		[canSelectItem, expandParentsForSelectionItems, timelineSelectionScope],
+		[
+			canSelectItem,
+			expandParentsForSelectionItems,
+			requestRevealSelectionItem,
+			timelineSelectionScope,
+		],
 	);
 
 	const registerMarqueeSelectableItem = useCallback(
@@ -1235,13 +1297,24 @@ export const TimelineSelectionProvider: React.FC<{
 	);
 
 	const registerFocusableItem = useCallback(
-		(item: TimelineSelection, getRect: () => DOMRect | null) => {
+		(item: TimelineSelection, getElement: () => Element | null) => {
 			const key = getTimelineSelectionKey(item);
-			focusableItems.current.set(key, {
-				getRect,
+			const registrationOrder = focusableRegistrationCounter.current;
+			focusableRegistrationCounter.current += 1;
+			const registrations =
+				focusableItems.current.get(key) ??
+				new Map<number, TimelineFocusableItem>();
+			registrations.set(registrationOrder, {
+				getElement,
+				order: registrationOrder,
 			});
+			focusableItems.current.set(key, registrations);
 			return () => {
-				focusableItems.current.delete(key);
+				const latestRegistrations = focusableItems.current.get(key);
+				latestRegistrations?.delete(registrationOrder);
+				if (latestRegistrations?.size === 0) {
+					focusableItems.current.delete(key);
+				}
 			};
 		},
 		[],
@@ -1513,10 +1586,7 @@ export const useTimelineFocusableItem = (
 			return;
 		}
 
-		return registerFocusableItem(
-			item,
-			() => ref.current?.getBoundingClientRect() ?? null,
-		);
+		return registerFocusableItem(item, () => ref.current);
 	}, [item, ref, registerFocusableItem]);
 };
 
@@ -1543,6 +1613,7 @@ export const useTimelineRowSelection = (
 				selectionItem,
 				interaction,
 				selectableTimelineItemsRef.current,
+				{reveal: true},
 			);
 		},
 		[selectItem, selectableTimelineItemsRef, selectionItem],
