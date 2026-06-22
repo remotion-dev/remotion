@@ -104,6 +104,21 @@ const outlineContainer: React.CSSProperties = {
 	overflow: 'visible',
 };
 
+export const orderOutlinesForRendering = ({
+	outlines,
+	targetsByKey,
+}: {
+	readonly outlines: readonly SelectedOutline[];
+	readonly targetsByKey: ReadonlyMap<string, SelectedOutlineTarget>;
+}): readonly SelectedOutline[] => {
+	return [...outlines].sort((a, b) => {
+		const aSelected = targetsByKey.get(a.key)?.selected ?? false;
+		const bSelected = targetsByKey.get(b.key)?.selected ?? false;
+
+		return Number(aSelected) - Number(bSelected);
+	});
+};
+
 export const SelectedOutlineOverlay: React.FC<{
 	readonly scale: number;
 }> = ({scale}) => {
@@ -430,6 +445,9 @@ export const SelectedOutlineOverlay: React.FC<{
 	const targetsByKey = useMemo(() => {
 		return new Map(outlineTargets.map((target) => [target.key, target]));
 	}, [outlineTargets]);
+	const outlinesForRendering = useMemo(() => {
+		return orderOutlinesForRendering({outlines, targetsByKey});
+	}, [outlines, targetsByKey]);
 	const allDragTargets = useMemo(() => {
 		return outlineTargets.flatMap((target) =>
 			(target.selected || target.containsSelection) && target.drag !== null
@@ -788,7 +806,7 @@ export const SelectedOutlineOverlay: React.FC<{
 			height="100%"
 			aria-hidden="true"
 		>
-			{outlines.map((outline) => (
+			{outlinesForRendering.map((outline) => (
 				<SelectedOutlineElement
 					key={outline.key}
 					allDragTargets={allDragTargets}
@@ -805,14 +823,14 @@ export const SelectedOutlineOverlay: React.FC<{
 				/>
 			))}
 			{/* Keep UV controls above every transparent outline polygon so SVG hit-testing reaches the handles first. */}
-			{outlines.map((outline) => (
+			{outlinesForRendering.map((outline) => (
 				<SelectedOutlineUvHandleConnectionLayer
 					key={`${outline.key}-uv-connection-lines`}
 					outline={outline}
 					target={targetsByKey.get(outline.key)}
 				/>
 			))}
-			{outlines.map((outline) => (
+			{outlinesForRendering.map((outline) => (
 				<SelectedOutlineUvHandleCircleLayer
 					key={`${outline.key}-uv-handles`}
 					onDraggingChange={onDraggingChange}
