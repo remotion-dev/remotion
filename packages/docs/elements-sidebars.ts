@@ -18,6 +18,13 @@ const sidebars: SidebarsConfig = {
 			collapsed: false,
 			items: ['overlays/lower-third/index'],
 		},
+		{
+			type: 'category',
+			label: 'Text',
+			link: {type: 'doc', id: 'text/index'},
+			collapsed: false,
+			items: ['text/number-wheel/index'],
+		},
 	],
 };
 
