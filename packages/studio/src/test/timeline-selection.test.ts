@@ -10,7 +10,9 @@ import {
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {getInspectorSelectableItems} from '../components/InspectorSequenceSection';
+import type {SelectedOutline} from '../components/selected-outline-geometry';
 import {getSelectedTransformOriginInfo} from '../components/selected-outline-measurement';
+import type {SelectedOutlineTarget} from '../components/selected-outline-types';
 import {
 	constrainUv,
 	getSelectedUvHandles,
@@ -43,6 +45,7 @@ import {
 	getSequencesWithSelectableOutlines,
 	getTransformedSvgViewportPoints,
 	isSelectedOutlineDragPastThreshold,
+	orderOutlinesForRendering,
 	snapSelectedOutlineRotationDeltaDegrees,
 	snapSelectedOutlineUv,
 	snapSelectedOutlineTransformOriginUv,
@@ -1398,6 +1401,40 @@ test('Canvas outline hit targets render nested sequences above parents', () => {
 	expect(outlines.map((outline) => outline.key)).toEqual([
 		getTimelineSequenceSelectionKey(parentNodePathInfo),
 		getTimelineSequenceSelectionKey(childNodePathInfo),
+	]);
+});
+
+test('Canvas outline rendering puts selected outlines last', () => {
+	const makeOutline = (key: string): SelectedOutline => ({
+		key,
+		dimensions: null,
+		points: [
+			{x: 0, y: 0},
+			{x: 10, y: 0},
+			{x: 10, y: 10},
+			{x: 0, y: 10},
+		],
+	});
+	const makeTarget = (selected: boolean): SelectedOutlineTarget =>
+		({selected}) as SelectedOutlineTarget;
+
+	const orderedOutlines = orderOutlinesForRendering({
+		outlines: [
+			makeOutline('parent'),
+			makeOutline('child'),
+			makeOutline('sibling'),
+		],
+		targetsByKey: new Map([
+			['parent', makeTarget(true)],
+			['child', makeTarget(false)],
+			['sibling', makeTarget(false)],
+		]),
+	});
+
+	expect(orderedOutlines.map((outline) => outline.key)).toEqual([
+		'child',
+		'sibling',
+		'parent',
 	]);
 });
 
