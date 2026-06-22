@@ -127,6 +127,23 @@ export const getCompositionMenuItems = ({
 				}
 			: null,
 		{
+			id: 'new',
+			keyHint: null,
+			label: `New...`,
+			leftItem: null,
+			onClick: () => {
+				closeMenu();
+				setSelectedModal({
+					type: 'new-comp',
+				});
+			},
+			quickSwitcherLabel: 'New composition...',
+			subMenu: null,
+			type: 'item' as const,
+			value: 'new',
+			disabled: readOnlyStudio,
+		},
+		{
 			id: 'rename',
 			keyHint: null,
 			label: `Rename...`,

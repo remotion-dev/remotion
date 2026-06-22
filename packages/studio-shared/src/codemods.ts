@@ -14,6 +14,16 @@ export type ApplyVisualControlCodemod = {
 
 export type RecastCodemod =
 	| {
+			type: 'new-composition';
+			newId: string;
+			componentName: string;
+			componentImportPath: string;
+			newHeight: number;
+			newWidth: number;
+			newFps: number;
+			newDurationInFrames: number;
+	  }
+	| {
 			type: 'duplicate-composition';
 			idToDuplicate: string;
 			newId: string;

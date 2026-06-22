@@ -129,6 +129,9 @@ export type AddEffectModalState = {
 
 export type ModalState =
 	| {
+			type: 'new-comp';
+	  }
+	| {
 			type: 'duplicate-comp';
 			compositionId: string;
 			compositionType: CompType;
