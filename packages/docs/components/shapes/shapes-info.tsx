@@ -374,6 +374,10 @@ export const shapeComponents: ShapeComponent[] = [
 	},
 ];
 
+export const shapeNames: readonly ShapeName[] = shapeComponents.map(
+	(component) => component.shape,
+);
+
 const globalParams: Param[] = [
 	{
 		name: 'fill',
