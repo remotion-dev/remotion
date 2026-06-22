@@ -26,6 +26,7 @@ import {
 import type {AbsoluteFillLayout} from './Sequence.js';
 import {Sequence} from './Sequence.js';
 import {useDelayRender} from './use-delay-render.js';
+import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {useVideoConfig} from './use-video-config.js';
 import {withInteractivitySchema} from './with-interactivity-schema.js';
 
@@ -264,6 +265,13 @@ function resolveHtmlInCanvasPixelDensity(
 	return pixelDensity;
 }
 
+const isMissingPaintRecordError = (error: unknown): boolean => {
+	return error instanceof DOMException && error.name === 'InvalidStateError';
+};
+
+const missingPaintRecordMessage =
+	'HtmlInCanvas: Expected the element to be inside the viewport during rendering, but Chrome had no cached paint record for it.';
+
 const resizeOffscreenCanvas = ({
 	offscreen,
 	width,
@@ -359,6 +367,7 @@ const HtmlInCanvasContent = forwardRef<
 		const canvasWidth = Math.ceil(width * resolvedPixelDensity);
 		const canvasHeight = Math.ceil(height * resolvedPixelDensity);
 		const {continueRender, cancelRender} = useDelayRender();
+		const {isRendering} = useRemotionEnvironment();
 
 		if (!isHtmlInCanvasSupported()) {
 			cancelRender(new Error(HTML_IN_CANVAS_UNSUPPORTED_MESSAGE));
@@ -438,12 +447,11 @@ const HtmlInCanvasContent = forwardRef<
 					try {
 						initImage = placeholderCanvas.captureElementImage(element);
 					} catch (error) {
-						if (
-							error instanceof DOMException &&
-							error.name === 'InvalidStateError'
-						) {
+						if (isMissingPaintRecordError(error) && !isRendering) {
 							// Element may be outside viewport (no cached paint record).
 							// Skip init — will retry on the next paint cycle.
+						} else if (isMissingPaintRecordError(error)) {
+							throw new Error(missingPaintRecordMessage);
 						} else {
 							throw error;
 						}
@@ -483,12 +491,13 @@ const HtmlInCanvasContent = forwardRef<
 					// `captureElementImage` throws `InvalidStateError` when the
 					// element is outside the viewport (no cached paint record).
 					// Skip this paint cycle — the canvas retains its last state.
-					if (
-						error instanceof DOMException &&
-						error.name === 'InvalidStateError'
-					) {
+					if (isMissingPaintRecordError(error) && !isRendering) {
 						continueRender(handle);
 						return;
+					}
+
+					if (isMissingPaintRecordError(error)) {
+						throw new Error(missingPaintRecordMessage);
 					}
 
 					throw error;
@@ -521,6 +530,7 @@ const HtmlInCanvasContent = forwardRef<
 			continueRender,
 			cancelRender,
 			resolvedPixelDensity,
+			isRendering,
 		]);
 
 		// Transfer control once per layout canvas instance, then listen for paint on

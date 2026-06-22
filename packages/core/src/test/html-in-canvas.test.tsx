@@ -131,7 +131,8 @@ afterEach(cleanup);
 const SequenceTestWrapper: React.FC<{
 	readonly children: React.ReactNode;
 	readonly onRegisterSequence: (sequence: TSequence) => void;
-}> = ({children, onRegisterSequence}) => {
+	readonly isRendering?: boolean;
+}> = ({children, onRegisterSequence, isRendering = false}) => {
 	const registerSequence = useCallback(
 		(sequence: TSequence) => {
 			onRegisterSequence(sequence);
@@ -186,7 +187,7 @@ const SequenceTestWrapper: React.FC<{
 					isClientSideRendering: false,
 					isPlayer: false,
 					isReadOnlyStudio: false,
-					isRendering: false,
+					isRendering,
 					isStudio: true,
 				}}
 			>
@@ -436,5 +437,72 @@ test('<HtmlInCanvas> skips paint when element is outside viewport', async () => 
 		}
 
 		w.remotion_cancelledError = undefined;
+	}
+});
+
+test('<HtmlInCanvas> asserts during rendering when element is outside viewport', async () => {
+	const originalDescriptor = Object.getOwnPropertyDescriptor(
+		HTMLCanvasElement.prototype,
+		'captureElementImage',
+	);
+
+	const w = window as unknown as {remotion_cancelledError?: string};
+	w.remotion_cancelledError = undefined;
+
+	const onExpectedError = (event: ErrorEvent) => {
+		event.preventDefault();
+	};
+
+	window.addEventListener('error', onExpectedError);
+
+	Object.defineProperty(HTMLCanvasElement.prototype, 'captureElementImage', {
+		configurable: true,
+		value: () => {
+			throw new DOMException(
+				'No cached paint record for element',
+				'InvalidStateError',
+			);
+		},
+	});
+
+	let paintCalled = false;
+
+	try {
+		const {container} = render(
+			<SequenceTestWrapper isRendering onRegisterSequence={() => undefined}>
+				<HtmlInCanvas
+					width={50}
+					height={50}
+					onPaint={() => {
+						paintCalled = true;
+					}}
+				>
+					<div>Test</div>
+				</HtmlInCanvas>
+			</SequenceTestWrapper>,
+		);
+
+		await waitFor(() => {
+			expect(container.querySelector('canvas')).not.toBeNull();
+		});
+
+		const canvas = container.querySelector('canvas')!;
+		canvas.dispatchEvent(new Event('paint'));
+
+		expect(paintCalled).toBe(false);
+		expect(w.remotion_cancelledError ?? '').toContain(
+			'Expected the element to be inside the viewport during rendering',
+		);
+	} finally {
+		if (originalDescriptor) {
+			Object.defineProperty(
+				HTMLCanvasElement.prototype,
+				'captureElementImage',
+				originalDescriptor,
+			);
+		}
+
+		w.remotion_cancelledError = undefined;
+		window.removeEventListener('error', onExpectedError);
 	}
 });
