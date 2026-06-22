@@ -74,14 +74,6 @@ const config: Config = {
 					sidebarId: 'apiSidebar',
 				},
 				{
-					to: '/elements',
-					label: 'Elements',
-					position: 'left',
-					type: 'docSidebar',
-					docsPluginId: 'elements',
-					sidebarId: 'elementsSidebar',
-				},
-				{
 					type: 'dropdown',
 					label: 'Products',
 					position: 'left',
