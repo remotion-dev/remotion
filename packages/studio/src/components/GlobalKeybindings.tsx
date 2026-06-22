@@ -87,16 +87,19 @@ export const GlobalKeybindings: React.FC<{
 				return false;
 			}
 
-			selectItems([
-				{
-					type: 'sequence-prop',
-					nodePathInfo: {
-						...selection.nodePathInfo,
-						auxiliaryKeys: ['controls', fieldKey],
+			selectItems(
+				[
+					{
+						type: 'sequence-prop',
+						nodePathInfo: {
+							...selection.nodePathInfo,
+							auxiliaryKeys: ['controls', fieldKey],
+						},
+						key: fieldKey,
 					},
-					key: fieldKey,
-				},
-			]);
+				],
+				{reveal: true},
+			);
 			return true;
 		},
 		[currentSelection, timeline],

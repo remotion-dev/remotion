@@ -120,7 +120,7 @@ const SequenceExpandedInspector: React.FC<{
 				return;
 			}
 
-			selectItems([sequenceSelection]);
+			selectItems([sequenceSelection], {reveal: true});
 		},
 		[selectItems, sequenceSelected, sequenceSelection],
 	);
