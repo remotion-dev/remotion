@@ -10,7 +10,6 @@ import React, {
 	useState,
 } from 'react';
 import type {
-	InteractivitySchema,
 	OverrideIdToNodePaths,
 	PropStatuses,
 	SequencePropsSubscriptionKey,
@@ -47,17 +46,6 @@ const baseStyle: React.CSSProperties = {
 	zIndex: 1,
 	touchAction: 'none',
 };
-
-const sequenceSchemaWithTrimBefore = {
-	...NoReactInternals.sequenceSchema,
-	trimBefore: {
-		type: 'number',
-		default: 0,
-		min: 0,
-		step: 1,
-		hiddenFromList: true,
-	},
-} as const satisfies InteractivitySchema;
 
 export type TimelineSequenceDurationDragTarget = {
 	readonly fileName: string;
@@ -245,7 +233,7 @@ export const getTimelineSequenceLeftEdgeDragChanges = ({
 				fieldKey: 'trimBefore',
 				value: nextValues.trimBefore,
 				defaultValue: '0',
-				schema: sequenceSchemaWithTrimBefore,
+				schema: NoReactInternals.sequenceSchema,
 			});
 		}
 
