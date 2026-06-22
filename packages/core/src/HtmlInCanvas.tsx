@@ -426,16 +426,6 @@ const HtmlInCanvasContent = forwardRef<
 					throw new Error('Canvas not found');
 				}
 
-				// `GPUQueue.copyElementImageToTexture` / related paths validate the
-				// linked offscreen surface has a rendering context. Acquire `2d` here
-				// before any capture or handler (must not call getContext on placeholder).
-				const offscreen2d = offscreen.getContext('2d');
-				if (!offscreen2d) {
-					throw new Error(
-						'Failed to acquire 2D context for <HtmlInCanvas> offscreen canvas',
-					);
-				}
-
 				const handle = delayRender('onPaint');
 				if (!initializedRef.current) {
 					initializedRef.current = true;

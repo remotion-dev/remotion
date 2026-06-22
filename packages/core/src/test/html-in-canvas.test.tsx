@@ -93,12 +93,28 @@ Object.defineProperties(HTMLCanvasElement.prototype, {
 	transferControlToOffscreen: {
 		configurable: true,
 		value(this: HTMLCanvasElement) {
+			let contextMode: string | null = null;
+			const webgl2Context = {
+				drawingBufferHeight: this.height,
+				drawingBufferWidth: this.width,
+			};
+
 			return {
 				getContext: (kind: string) => {
+					if (contextMode && contextMode !== kind) {
+						return null;
+					}
+
 					if (kind === '2d') {
+						contextMode = kind;
 						const ctx = stub2dContext();
 						ctx.canvas = this;
 						return ctx;
+					}
+
+					if (kind === 'webgl2') {
+						contextMode = kind;
+						return webgl2Context;
 					}
 
 					return null;
@@ -328,5 +344,39 @@ test('<HtmlInCanvas> does not apply pixel density to the live DOM transform', as
 		expect(htmlInCanvasElement?.style.transform).toBe(
 			new DOMMatrix().toString(),
 		);
+	});
+});
+test('<HtmlInCanvas> lets onInit choose a WebGL2 context', async () => {
+	let gotWebGl2Context = false;
+	let paintCalled = false;
+
+	const {container} = render(
+		<SequenceTestWrapper onRegisterSequence={() => undefined}>
+			<HtmlInCanvas
+				width={50}
+				height={50}
+				onInit={({canvas: offscreenCanvas}) => {
+					gotWebGl2Context = Boolean(offscreenCanvas.getContext('webgl2'));
+					return () => undefined;
+				}}
+				onPaint={() => {
+					paintCalled = true;
+				}}
+			>
+				<div>Test</div>
+			</HtmlInCanvas>
+		</SequenceTestWrapper>,
+	);
+
+	await waitFor(() => {
+		expect(container.querySelector('canvas')).not.toBeNull();
+	});
+
+	const canvas = container.querySelector('canvas')!;
+	canvas.dispatchEvent(new Event('paint'));
+
+	await waitFor(() => {
+		expect(gotWebGl2Context).toBe(true);
+		expect(paintCalled).toBe(true);
 	});
 });
