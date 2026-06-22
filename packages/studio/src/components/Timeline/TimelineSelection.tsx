@@ -76,8 +76,9 @@ export const getTimelineColor = (selected: boolean, subcategory: boolean) => {
 
 export const getTimelineSelectedTrackHighlightStyle = (
 	timelineWidth: number,
+	backgroundColor: string = TIMELINE_SELECTED_BACKGROUND,
 ): CSSProperties => ({
-	backgroundColor: TIMELINE_SELECTED_BACKGROUND,
+	backgroundColor,
 	bottom: 0,
 	left: -TIMELINE_PADDING,
 	pointerEvents: 'none',
@@ -85,6 +86,20 @@ export const getTimelineSelectedTrackHighlightStyle = (
 	top: 0,
 	width: timelineWidth,
 });
+
+export const getTimelineRowHighlightBackground = ({
+	showSelectedBackground,
+	selected,
+	containsSelection,
+}: {
+	readonly showSelectedBackground: boolean;
+	readonly selected: boolean;
+	readonly containsSelection: boolean;
+}): string | undefined => {
+	return showSelectedBackground && (selected || containsSelection)
+		? TIMELINE_SELECTED_BACKGROUND
+		: undefined;
+};
 
 export const TIMELINE_BACKGROUND = '#0F1113';
 export const TIMELINE_TICKS_BACKGROUND = BACKGROUND;
@@ -1743,4 +1758,16 @@ export const useTimelineRowContainsSelection = (
 	}
 
 	return containsSelection(nodePathInfo);
+};
+
+export const useTimelineRowHighlightBackground = (
+	nodePathInfo: SequenceNodePathInfo | null,
+): string | undefined => {
+	const {selected} = useTimelineRowSelection(nodePathInfo);
+	const containsSelection = useTimelineRowContainsSelection(nodePathInfo);
+	return getTimelineRowHighlightBackground({
+		showSelectedBackground: true,
+		selected,
+		containsSelection,
+	});
 };
