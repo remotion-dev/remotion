@@ -41,6 +41,41 @@ test('optimisticAddSequenceKeyframe converts a static prop to a single keyframe'
 	expect(status.clamping).toEqual({left: 'clamp', right: 'clamp'});
 });
 
+test('optimisticAddSequenceKeyframe adds a missing prop before keyframing it', () => {
+	const previous: CanUpdateSequencePropsResponse = {
+		canUpdate: true,
+		props: {},
+		effects: [],
+	};
+	const schema = {
+		opacity: {
+			type: 'number',
+			default: 1,
+			hiddenFromList: false,
+		},
+	} satisfies InteractivitySchema;
+
+	const updated = optimisticAddSequenceKeyframe({
+		previous,
+		fieldKey: 'opacity',
+		frame: 25,
+		value: 0.75,
+		schema,
+	});
+
+	if (!updated.canUpdate) {
+		throw new Error('expected updateable sequence');
+	}
+
+	const status = updated.props.opacity;
+	if (!status || status.status !== 'keyframed') {
+		throw new Error('expected keyframed status');
+	}
+
+	expect(status.keyframes).toEqual([{frame: 25, value: 0.75}]);
+	expect(status.interpolationFunction).toBe('interpolate');
+});
+
 test('optimisticAddSequenceKeyframe uses interpolate for translate fields', () => {
 	const previous: CanUpdateSequencePropsResponse = {
 		canUpdate: true,
@@ -367,4 +402,53 @@ test('optimisticAddEffectKeyframe converts a static prop to a single keyframe', 
 	expect(status.keyframes).toEqual([{frame: 30, value: 0.5}]);
 	expect(status.easing).toEqual([]);
 	expect(status.clamping).toEqual({left: 'clamp', right: 'clamp'});
+});
+
+test('optimisticAddEffectKeyframe adds a missing prop before keyframing it', () => {
+	const previous: CanUpdateSequencePropsResponse = {
+		canUpdate: true,
+		props: {},
+		effects: [
+			{
+				canUpdate: true,
+				effectIndex: 0,
+				callee: 'linearProgressiveBlur',
+				importPath: '@remotion/effects/linear-progressive-blur',
+				props: {},
+			},
+		],
+	};
+	const schema = {
+		startBlur: {
+			type: 'number',
+			default: 0,
+			hiddenFromList: false,
+		},
+	} satisfies InteractivitySchema;
+
+	const updated = optimisticAddEffectKeyframe({
+		previous,
+		effectIndex: 0,
+		fieldKey: 'startBlur',
+		frame: 55,
+		value: 12,
+		schema,
+	});
+
+	if (!updated.canUpdate) {
+		throw new Error('expected updateable sequence');
+	}
+
+	const effect = updated.effects[0];
+	if (!effect.canUpdate) {
+		throw new Error('expected updateable effect');
+	}
+
+	const status = effect.props.startBlur;
+	if (!status || status.status !== 'keyframed') {
+		throw new Error('expected keyframed status');
+	}
+
+	expect(status.keyframes).toEqual([{frame: 55, value: 12}]);
+	expect(status.interpolationFunction).toBe('interpolate');
 });

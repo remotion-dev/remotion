@@ -1,6 +1,7 @@
 import {
 	type CanUpdateSequencePropStatus,
 	type CanUpdateSequencePropsResponse,
+	type InteractivitySchemaField,
 	type InteractivitySchema,
 } from 'remotion';
 import {LINEAR_KEYFRAME_EASING} from './keyframe-easing-presets';
@@ -73,6 +74,51 @@ const addKeyframeToPropStatus = ({
 	return status;
 };
 
+const findFieldInSchema = (
+	schema: InteractivitySchema,
+	key: string,
+): InteractivitySchemaField | undefined => {
+	if (key in schema) {
+		return schema[key];
+	}
+
+	for (const field of Object.values(schema)) {
+		if (field.type !== 'enum') {
+			continue;
+		}
+
+		for (const variant of Object.values(field.variants)) {
+			const found = findFieldInSchema(variant, key);
+			if (found) {
+				return found;
+			}
+		}
+	}
+
+	return undefined;
+};
+
+const getMissingPropStatus = ({
+	schema,
+	fieldKey,
+}: {
+	schema: InteractivitySchema | null;
+	fieldKey: string;
+}): CanUpdateSequencePropStatus => {
+	const field = schema ? findFieldInSchema(schema, fieldKey) : undefined;
+	if (field && field.type !== 'hidden' && field.default !== undefined) {
+		return {
+			status: 'static',
+			codeValue: field.default,
+		};
+	}
+
+	return {
+		status: 'static',
+		codeValue: undefined,
+	};
+};
+
 export const optimisticAddSequenceKeyframe = ({
 	previous,
 	fieldKey,
@@ -94,10 +140,9 @@ export const optimisticAddSequenceKeyframe = ({
 		return previous;
 	}
 
-	const status = previous.props[fieldKey];
-	if (!status) {
-		return previous;
-	}
+	const status =
+		previous.props[fieldKey] ??
+		getMissingPropStatus({schema: schema ?? null, fieldKey});
 
 	return {
 		...previous,
@@ -149,10 +194,9 @@ export const optimisticAddEffectKeyframe = ({
 		return previous;
 	}
 
-	const status = target.props[fieldKey];
-	if (!status) {
-		return previous;
-	}
+	const status =
+		target.props[fieldKey] ??
+		getMissingPropStatus({schema: schema ?? null, fieldKey});
 
 	const updatedEffect = {
 		...target,
