@@ -108,8 +108,8 @@ export const PreviewToolbar: React.FC<{
 }> = ({readOnlyStudio, bufferStateDelayInMilliseconds}) => {
 	const {playbackRate, setPlaybackRate} = Internals.usePlaybackRate();
 
-	const {mediaMuted} = useContext(Internals.MediaVolumeContext);
-	const {setMediaMuted} = useContext(Internals.SetMediaVolumeContext);
+	const {playerMuted} = useContext(Internals.MediaVolumeContext);
+	const {setPlayerMuted} = useContext(Internals.SetMediaVolumeContext);
 	const {canvasContent} = useContext(Internals.CompositionManager);
 	const isVideoComposition = useIsVideoComposition();
 	const previewToolbarRef = useRef<HTMLDivElement | null>(null);
@@ -233,7 +233,7 @@ export const PreviewToolbar: React.FC<{
 							bufferStateDelayInMilliseconds={bufferStateDelayInMilliseconds}
 							loop={loop}
 							playbackRate={playbackRate}
-							muted={mediaMuted}
+							muted={playerMuted}
 						/>
 					</PreviewToolbarControl>
 					<Spacing x={2} />
@@ -241,7 +241,7 @@ export const PreviewToolbar: React.FC<{
 						<LoopToggle loop={loop} setLoop={setLoop} />
 					</PreviewToolbarControl>
 					<PreviewToolbarControl>
-						<MuteToggle muted={mediaMuted} setMuted={setMediaMuted} />
+						<MuteToggle muted={playerMuted} setMuted={setPlayerMuted} />
 					</PreviewToolbarControl>
 					<Spacing x={2} />
 					<PreviewToolbarControl>

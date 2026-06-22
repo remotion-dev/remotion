@@ -38,7 +38,7 @@ const {
 	useUnsafeVideoConfig,
 	Timeline,
 	SharedAudioContext,
-	useMediaMutedState,
+	usePlayerMutedState,
 	useMediaVolumeState,
 	useFrameForVolumeProp,
 	evaluateVolume,
@@ -147,7 +147,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 		[refForOutline],
 	);
 
-	const [mediaMuted] = useMediaMutedState();
+	const [playerMuted] = usePlayerMutedState();
 	const [mediaVolume] = useMediaVolumeState();
 
 	const volumePropFrame = useFrameForVolumeProp(loopVolumeCurveBehavior);
@@ -192,7 +192,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 	}
 
 	// TODO: Consider Sequence hidden
-	const effectiveMuted = muted || mediaMuted || userPreferredVolume <= 0;
+	const effectiveMuted = muted || playerMuted || userPreferredVolume <= 0;
 
 	const isPlayerBuffering = Internals.useIsPlayerBuffering(buffering);
 	const initialPlaying = useRef(playing && !isPlayerBuffering);
