@@ -1,7 +1,5 @@
 import React, {useCallback} from 'react';
-import type {SequenceControls} from '../CompositionManager.js';
 import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
-import {trimBeforeField} from '../interactivity-schema.js';
 import {Sequence} from '../Sequence.js';
 import {useRemotionEnvironment} from '../use-remotion-environment.js';
 import {validateMediaProps} from '../validate-media-props.js';
@@ -9,7 +7,6 @@ import {
 	resolveTrimProps,
 	validateMediaTrimProps,
 } from '../validate-start-from-props.js';
-import {withInteractivitySchema} from '../with-interactivity-schema.js';
 import {OffthreadVideoForRendering} from './OffthreadVideoForRendering.js';
 import type {
 	AllOffthreadVideoProps,
@@ -17,16 +14,9 @@ import type {
 } from './props.js';
 import {VideoForPreview} from './VideoForPreview.js';
 
-const videoSchema = {
-	trimBefore: trimBeforeField,
-};
-
-export const InnerOffthreadVideo: React.FC<
-	AllOffthreadVideoProps & {
-		readonly controls?: SequenceControls;
-		readonly _remotionInternalTimelineTrimBefore?: number;
-	}
-> = (props) => {
+export const InnerOffthreadVideo: React.FC<AllOffthreadVideoProps> = (
+	props,
+) => {
 	// Should only destruct `startFrom` and `endAt` from props,
 	// rest gets drilled down
 	const {
@@ -38,8 +28,6 @@ export const InnerOffthreadVideo: React.FC<
 		pauseWhenBuffering,
 		stack,
 		showInTimeline,
-		controls,
-		_remotionInternalTimelineTrimBefore,
 		...otherProps
 	} = props;
 	const environment = useRemotionEnvironment();
@@ -91,8 +79,6 @@ export const InnerOffthreadVideo: React.FC<
 					stack={undefined}
 					startFrom={undefined}
 					endAt={undefined}
-					controls={controls}
-					_remotionInternalTimelineTrimBefore={trimBeforeValue}
 				/>
 			</Sequence>
 		);
@@ -139,8 +125,6 @@ export const InnerOffthreadVideo: React.FC<
 			crossOrigin={crossOrigin}
 			{...propsForPreview}
 			_remotionInternalNativeLoopPassed={false}
-			_remotionInternalTimelineTrimBefore={_remotionInternalTimelineTrimBefore}
-			controls={controls ?? null}
 		/>
 	);
 };
@@ -149,9 +133,8 @@ export const InnerOffthreadVideo: React.FC<
  * @description This method imports and displays a video, similar to <Html5Video />. During rendering, it extracts the exact frame from the video and displays it in an <img> tag
  * @see [Documentation](https://www.remotion.dev/docs/offthreadvideo)
  */
-const OffthreadVideoFunction: React.FC<
-	RemotionOffthreadVideoProps & {readonly controls?: SequenceControls}
-> = ({
+
+export const OffthreadVideo: React.FC<RemotionOffthreadVideoProps> = ({
 	src,
 	acceptableTimeShiftInSeconds,
 	allowAmplificationDuringRender,
@@ -182,7 +165,6 @@ const OffthreadVideoFunction: React.FC<
 	stack,
 	startFrom,
 	imageFormat,
-	controls,
 	...props
 }) => {
 	if (imageFormat) {
@@ -224,17 +206,9 @@ const OffthreadVideoFunction: React.FC<
 			trimBefore={trimBefore}
 			useWebAudioApi={useWebAudioApi ?? false}
 			volume={volume}
-			controls={controls}
 			{...props}
 		/>
 	);
 };
 
-export const OffthreadVideo = withInteractivitySchema({
-	Component: OffthreadVideoFunction,
-	componentName: '<OffthreadVideo>',
-	componentIdentity: 'dev.remotion.remotion.OffthreadVideo',
-	schema: videoSchema,
-	supportsEffects: false,
-});
 addSequenceStackTraces(OffthreadVideo);

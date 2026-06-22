@@ -2,9 +2,7 @@
 import React, {forwardRef, useCallback, useContext} from 'react';
 import {getAbsoluteSrc} from '../absolute-src.js';
 import {calculateMediaDuration} from '../calculate-media-duration.js';
-import type {SequenceControls} from '../CompositionManager.js';
 import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
-import {trimBeforeField} from '../interactivity-schema.js';
 import {Loop} from '../loop/index.js';
 import {usePreload} from '../prefetch.js';
 import {Sequence} from '../Sequence.js';
@@ -15,15 +13,10 @@ import {
 	resolveTrimProps,
 	validateMediaTrimProps,
 } from '../validate-start-from-props.js';
-import {withInteractivitySchema} from '../with-interactivity-schema.js';
 import {DurationsContext} from './duration-state.js';
 import type {RemotionMainVideoProps, RemotionVideoProps} from './props';
 import {VideoForPreview} from './VideoForPreview.js';
 import {VideoForRendering} from './VideoForRendering.js';
-
-const videoSchema = {
-	trimBefore: trimBeforeField,
-};
 
 const VideoForwardingFunction: React.ForwardRefRenderFunction<
 	HTMLVideoElement,
@@ -33,8 +26,6 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 			 * @deprecated For internal use only
 			 */
 			readonly stack?: string;
-			readonly controls?: SequenceControls;
-			readonly _remotionInternalTimelineTrimBefore?: number;
 		}
 > = (props, ref) => {
 	const {
@@ -49,8 +40,6 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 		showInTimeline,
 		onAutoPlayError,
 		onVideoFrame,
-		controls,
-		_remotionInternalTimelineTrimBefore,
 		...otherProps
 	} = props;
 	const {loop, ...propsOtherThanLoop} = props;
@@ -105,10 +94,6 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 					{...propsOtherThanLoop}
 					ref={ref}
 					stack={stack}
-					controls={controls}
-					_remotionInternalTimelineTrimBefore={
-						_remotionInternalTimelineTrimBefore
-					}
 					_remotionInternalNativeLoopPassed
 				/>
 			);
@@ -132,10 +117,6 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 					{...propsOtherThanLoop}
 					ref={ref}
 					stack={stack}
-					controls={controls}
-					_remotionInternalTimelineTrimBefore={
-						_remotionInternalTimelineTrimBefore
-					}
 					_remotionInternalNativeLoopPassed
 				/>
 			</Loop>
@@ -164,8 +145,6 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 					{...otherProps}
 					ref={ref}
 					stack={stack}
-					controls={controls}
-					_remotionInternalTimelineTrimBefore={trimBeforeValue}
 				/>
 			</Sequence>
 		);
@@ -204,8 +183,6 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 			_remotionInternalNativeLoopPassed={
 				_remotionInternalNativeLoopPassed ?? false
 			}
-			_remotionInternalTimelineTrimBefore={_remotionInternalTimelineTrimBefore}
-			controls={controls ?? null}
 			showInTimeline={showInTimeline ?? true}
 			onAutoPlayError={onAutoPlayError ?? undefined}
 		/>
@@ -216,25 +193,11 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
  * @description Wraps the native `<video>` element to include video in your component that is synchronized with Remotion's time.
  * @see [Documentation](https://www.remotion.dev/docs/html5-video)
  */
-const Html5VideoInner = forwardRef(VideoForwardingFunction);
-export const Html5Video = withInteractivitySchema({
-	Component: Html5VideoInner,
-	componentName: '<Html5Video>',
-	componentIdentity: 'dev.remotion.remotion.Html5Video',
-	schema: videoSchema,
-	supportsEffects: false,
-});
+export const Html5Video = forwardRef(VideoForwardingFunction);
 addSequenceStackTraces(Html5Video);
 
 /**
  * @deprecated This component has been renamed to `Html5Video`.
  * @see [Documentation](https://www.remotion.dev/docs/html5-video)
  */
-export const Video = withInteractivitySchema({
-	Component: Html5VideoInner,
-	componentName: '<Video>',
-	componentIdentity: 'dev.remotion.remotion.Video',
-	schema: videoSchema,
-	supportsEffects: false,
-});
-addSequenceStackTraces(Video);
+export const Video = Html5Video;

@@ -1,6 +1,6 @@
 import {useContext, useEffect, useMemo, useState} from 'react';
 import {useMediaStartsAt} from './audio/use-audio-frame.js';
-import type {LoopDisplay, SequenceControls} from './CompositionManager.js';
+import type {LoopDisplay} from './CompositionManager.js';
 import {getAssetDisplayName} from './get-asset-file-name.js';
 import {getTimelineDuration} from './get-timeline-duration.js';
 import {useNonce} from './nonce.js';
@@ -143,8 +143,6 @@ export const useMediaInTimeline = ({
 	loopDisplay,
 	documentationLink,
 	refForOutline,
-	controls,
-	trimBefore,
 }: {
 	volume: VolumeProp | undefined;
 	mediaVolume: number;
@@ -160,35 +158,27 @@ export const useMediaInTimeline = ({
 	loopDisplay: LoopDisplay | undefined;
 	documentationLink: string | null;
 	refForOutline: React.RefObject<Element | null> | null;
-	controls: SequenceControls | null;
-	trimBefore: number | undefined;
 }) => {
 	const parentSequence = useContext(SequenceContext);
+	const startsAt = useMediaStartsAt();
 	const {registerSequence, unregisterSequence} = useContext(SequenceManager);
 	const {durationInFrames} = useVideoConfig();
 	const mediaStartsAt = useMediaStartsAt();
 
-	const {
-		volumes,
-		duration,
-		doesVolumeChange,
-		nonce,
-		rootId,
-		finalDisplayName,
-		startMediaFrom,
-	} = useBasicMediaInTimeline({
-		volume,
-		mediaVolume,
-		mediaType,
-		src,
-		displayName,
-		trimAfter: undefined,
-		trimBefore,
-		playbackRate,
-		sequenceDurationInFrames: durationInFrames,
-		mediaStartsAt,
-		loop: false,
-	});
+	const {volumes, duration, doesVolumeChange, nonce, rootId, finalDisplayName} =
+		useBasicMediaInTimeline({
+			volume,
+			mediaVolume,
+			mediaType,
+			src,
+			displayName,
+			trimAfter: undefined,
+			trimBefore: undefined,
+			playbackRate,
+			sequenceDurationInFrames: durationInFrames,
+			mediaStartsAt,
+			loop: false,
+		});
 
 	const {isStudio} = useRemotionEnvironment();
 
@@ -211,8 +201,7 @@ export const useMediaInTimeline = ({
 			id,
 			duration,
 			from: 0,
-			trimBefore:
-				trimBefore === undefined || trimBefore === 0 ? null : trimBefore,
+			trimBefore: null,
 			parent: parentSequence?.id ?? null,
 			displayName: finalDisplayName,
 			documentationLink,
@@ -220,14 +209,14 @@ export const useMediaInTimeline = ({
 			volume: volumes,
 			showInTimeline: true,
 			nonce: nonce.get(),
-			startMediaFrom,
+			startMediaFrom: 0 - startsAt,
 			doesVolumeChange,
 			loopDisplay,
 			playbackRate,
 			getStack,
 			premountDisplay,
 			postmountDisplay,
-			controls,
+			controls: null,
 			effects: [],
 			refForOutline,
 			isInsideSeries: false,
@@ -249,10 +238,10 @@ export const useMediaInTimeline = ({
 		doesVolumeChange,
 		nonce,
 		mediaType,
+		startsAt,
 		playbackRate,
 		getStack,
 		showInTimeline,
-		trimBefore,
 		premountDisplay,
 		postmountDisplay,
 		loopDisplay,
@@ -261,7 +250,5 @@ export const useMediaInTimeline = ({
 		finalDisplayName,
 		isStudio,
 		refForOutline,
-		controls,
-		startMediaFrom,
 	]);
 };
