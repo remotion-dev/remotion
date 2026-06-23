@@ -6,17 +6,28 @@ description: A clean animated lower third for names and titles.
 import {ElementPage} from '@site/src/components/Elements/ElementPage';
 import {LowerThird} from './lower-third';
 
+{/* TODO: Unify the runnable Element source, visible code block, and drag payload source instead of duplicating it in three places. This is a separate task. */}
+export const lowerThirdSource = "import React from 'react';\nimport {\n\tAbsoluteFill,\n\tinterpolate,\n\tspring,\n\tuseCurrentFrame,\n\tuseVideoConfig,\n} from 'remotion';\n\nexport const LowerThird: React.FC = () => {\n\tconst frame = useCurrentFrame();\n\tconst {durationInFrames, fps: videoFps} = useVideoConfig();\n\n\tconst entrance = spring({\n\t\tframe,\n\t\tfps: videoFps,\n\t\tconfig: {\n\t\t\tdamping: 18,\n\t\t\tstiffness: 120,\n\t\t},\n\t});\n\n\tconst exitStart = Math.max(0, durationInFrames - 25);\n\tconst exitEnd = Math.max(exitStart + 1, durationInFrames - 5);\n\n\tconst exit = interpolate(frame, [exitStart, exitEnd], [1, 0], {\n\t\textrapolateLeft: 'clamp',\n\t\textrapolateRight: 'clamp',\n\t});\n\n\tconst progress = entrance * exit;\n\n\treturn (\n\t\t<AbsoluteFill\n\t\t\tstyle={{\n\t\t\t\tfontFamily: 'Inter, system-ui, sans-serif',\n\t\t\t\tpointerEvents: 'none',\n\t\t\t}}\n\t\t>\n\t\t\t<div\n\t\t\t\tstyle={{\n\t\t\t\t\tposition: 'absolute',\n\t\t\t\t\tleft: 0,\n\t\t\t\t\tbottom: 0,\n\t\t\t\t\ttransform: `translateX(${interpolate(progress, [0, 1], [-90, 0])}px)`,\n\t\t\t\t\topacity: progress,\n\t\t\t\t}}\n\t\t\t>\n\t\t\t\t<div\n\t\t\t\t\tstyle={{\n\t\t\t\t\t\twidth: 660,\n\t\t\t\t\t\tpadding: '34px 42px',\n\t\t\t\t\t\tborderRadius: 28,\n\t\t\t\t\t\tbackground: 'rgba(255, 255, 255, 0.92)',\n\t\t\t\t\t\tboxShadow: '0 24px 80px rgba(0, 0, 0, 0.3)',\n\t\t\t\t\t}}\n\t\t\t\t>\n\t\t\t\t\t<div\n\t\t\t\t\t\tstyle={{\n\t\t\t\t\t\t\tfontSize: 54,\n\t\t\t\t\t\t\tfontWeight: 800,\n\t\t\t\t\t\t\tcolor: '#111827',\n\t\t\t\t\t\t\tletterSpacing: -1.5,\n\t\t\t\t\t\t}}\n\t\t\t\t\t>\n\t\t\t\t\t\tAlex Morgan\n\t\t\t\t\t</div>\n\t\t\t\t\t<div\n\t\t\t\t\t\tstyle={{\n\t\t\t\t\t\t\tfontSize: 30,\n\t\t\t\t\t\t\tfontWeight: 600,\n\t\t\t\t\t\t\tcolor: '#2563eb',\n\t\t\t\t\t\t\tmarginTop: 10,\n\t\t\t\t\t\t}}\n\t\t\t\t\t>\n\t\t\t\t\t\tCreative Developer\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t<div\n\t\t\t\t\tstyle={{\n\t\t\t\t\t\twidth: interpolate(progress, [0, 1], [0, 520]),\n\t\t\t\t\t\theight: 10,\n\t\t\t\t\t\tborderRadius: 999,\n\t\t\t\t\t\tbackground: '#60a5fa',\n\t\t\t\t\t\tmarginTop: 18,\n\t\t\t\t\t}}\n\t\t\t\t/>\n\t\t\t</div>\n\t\t</AbsoluteFill>\n\t);\n};\n";
+
 # Lower Third
 
 A clean animated lower third for introducing a speaker, guest, or section.
 
-<ElementPage component={LowerThird}>
+<ElementPage
+	category="overlays"
+	component={LowerThird}
+	componentName="LowerThird"
+	displayName="Lower Third"
+	elementHeight={1080}
+	elementWidth={1920}
+	slug="overlays/lower-third"
+	sourceCode={lowerThirdSource}
+>
 
 ```tsx twoslash title="lower-third.tsx"
 import React from 'react';
 import {
 	AbsoluteFill,
-	Sequence,
 	interpolate,
 	spring,
 	useCurrentFrame,
@@ -47,64 +58,62 @@ export const LowerThird: React.FC = () => {
 	const progress = entrance * exit;
 
 	return (
-		<Sequence width={900} height={260}>
-			<AbsoluteFill
+		<AbsoluteFill
+			style={{
+				fontFamily: 'Inter, system-ui, sans-serif',
+				pointerEvents: 'none',
+			}}
+		>
+			<div
 				style={{
-					fontFamily: 'Inter, system-ui, sans-serif',
-					pointerEvents: 'none',
+					position: 'absolute',
+					left: 0,
+					bottom: 0,
+					transform: `translateX(${interpolate(progress, [0, 1], [-90, 0])}px)`,
+					opacity: progress,
 				}}
 			>
 				<div
 					style={{
-						position: 'absolute',
-						left: 0,
-						bottom: 0,
-						transform: `translateX(${interpolate(progress, [0, 1], [-90, 0])}px)`,
-						opacity: progress,
+						width: 660,
+						padding: '34px 42px',
+						borderRadius: 28,
+						background: 'rgba(255, 255, 255, 0.92)',
+						boxShadow: '0 24px 80px rgba(0, 0, 0, 0.3)',
 					}}
 				>
 					<div
 						style={{
-							width: 660,
-							padding: '34px 42px',
-							borderRadius: 28,
-							background: 'rgba(255, 255, 255, 0.92)',
-							boxShadow: '0 24px 80px rgba(0, 0, 0, 0.3)',
+							fontSize: 54,
+							fontWeight: 800,
+							color: '#111827',
+							letterSpacing: -1.5,
 						}}
 					>
-						<div
-							style={{
-								fontSize: 54,
-								fontWeight: 800,
-								color: '#111827',
-								letterSpacing: -1.5,
-							}}
-						>
-							Alex Morgan
-						</div>
-						<div
-							style={{
-								fontSize: 30,
-								fontWeight: 600,
-								color: '#2563eb',
-								marginTop: 10,
-							}}
-						>
-							Creative Developer
-						</div>
+						Alex Morgan
 					</div>
 					<div
 						style={{
-							width: interpolate(progress, [0, 1], [0, 520]),
-							height: 10,
-							borderRadius: 999,
-							background: '#60a5fa',
-							marginTop: 18,
+							fontSize: 30,
+							fontWeight: 600,
+							color: '#2563eb',
+							marginTop: 10,
 						}}
-					/>
+					>
+						Creative Developer
+					</div>
 				</div>
-			</AbsoluteFill>
-		</Sequence>
+				<div
+					style={{
+						width: interpolate(progress, [0, 1], [0, 520]),
+						height: 10,
+						borderRadius: 999,
+						background: '#60a5fa',
+						marginTop: 18,
+					}}
+				/>
+			</div>
+		</AbsoluteFill>
 	);
 };
 ```

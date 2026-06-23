@@ -6,6 +6,7 @@ import {
 	type ComponentDragData,
 	type ComponentProp,
 	type DownloadRemoteAssetResponse,
+	type ElementDragData,
 	type FileType,
 	type InsertableCompositionElement,
 	type InsertableCompositionElementPosition,
@@ -817,6 +818,44 @@ export const insertComponent = async ({
 	} catch (error) {
 		showNotification(
 			`Could not add component: ${
+				error instanceof Error ? error.message : String(error)
+			}`,
+			4000,
+		);
+	}
+};
+
+export const insertElement = async ({
+	compositionFile,
+	compositionId,
+	dropPosition,
+	element,
+}: {
+	compositionFile: string;
+	compositionId: string;
+	dropPosition: InsertElementDropPosition | null;
+	element: ElementDragData['element'];
+}) => {
+	try {
+		const response = await callApi('/api/insert-element', {
+			compositionFile,
+			compositionId,
+			element,
+			position: getCenteredPosition({
+				dimensions: element.dimensions,
+				dropPosition,
+			}),
+		});
+
+		if (!response.success) {
+			showNotification(`Could not add Element: ${response.reason}`, 4000);
+			return;
+		}
+
+		showNotification(`Added ${element.displayName} to source file`, 2000);
+	} catch (error) {
+		showNotification(
+			`Could not add Element: ${
 				error instanceof Error ? error.message : String(error)
 			}`,
 			4000,

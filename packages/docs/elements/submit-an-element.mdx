@@ -23,57 +23,65 @@ The preferred format is:
 - Focused on one visual idea, technique, or workflow
 - Easy to remix
 - Works as-is when dragged or copied into a project
-- **Building block, not a composition:** The hosted docs page provides the preview size, frame rate, and duration. A user's active composition may have a different width, height, FPS, or duration than the preview.
+- **Building block, not a composition:** The hosted docs page provides the preview size, frame rate, and duration.
 - [Interactivity-friendly](/docs/studio/interactivity): inline editable values so they can show up in the Studio inspector. See also [Make a component interactive](/docs/studio/make-component-interactive).
 - If two variants are worth showing, make two separate Element pages instead of adding a variant prop.
 
 For example:
 
 ```tsx twoslash title="Element.tsx"
-import {Sequence} from 'remotion';
-
 export const MyElement = () => {
-  return (
-    <Sequence width={1080} height={1080}>
-      <div>...</div>
-    </Sequence>
-  );
+  return <div style={{width: '100%', height: '100%'}}>...</div>;
 };
 ```
 
 For animation, keep the timing inside the component but let the surrounding project decide how long the Element appears:
 
 ```tsx twoslash title="AnimatedElement.tsx"
-import {Interactive, Sequence, interpolate, useCurrentFrame} from 'remotion';
+import {Interactive, interpolate, useCurrentFrame} from 'remotion';
 
 export const AnimatedElement = () => {
   const frame = useCurrentFrame();
 
   return (
-    <Sequence width={1080} height={1080}>
-      <Interactive.Div
-        style={{
-          opacity: interpolate(frame, [0, 20], [0, 1]),
-          translate: interpolate(frame, [0, 20], ['0px 40px', '0px 0px']),
-        }}
-      >
-        Hello
-      </Interactive.Div>
-    </Sequence>
+    <Interactive.Div
+      style={{
+        width: '100%',
+        height: '100%',
+        opacity: interpolate(frame, [0, 20], [0, 1]),
+        translate: interpolate(frame, [0, 20], ['0px 40px', '0px 0px']),
+      }}
+    >
+      Hello
+    </Interactive.Div>
   );
 };
 ```
 
 ## Sizing Elements
 
-For object-like Elements, use a [`<Sequence>`](/docs/sequence) with `width` and `height`.
-This is useful for overlays, lower thirds, callouts, motion graphics, cards, badges, and data animations.
+To give an Element a fixed size, set `elementWidth` and `elementHeight` on the `ElementPage` in `index.mdx`:
 
-The Sequence acts as the Element's isolated container.
-It is absolutely positioned by default, gives Remotion Studio a selectable outline and transform target, and makes [`useVideoConfig()`](/docs/use-video-config) return the Element's own `width` and `height` to children.
+```tsx title="index.mdx"
+<ElementPage
+  component={MyElement}
+  elementWidth={900}
+  elementHeight={260}
+>
+```
 
-For full-frame backgrounds, usually do not set `width` or `height`.
-Let the Element inherit the host composition size instead.
+Then make the Element fill that area in its source file:
+
+```tsx title="my-element.tsx"
+import {AbsoluteFill} from 'remotion';
+
+export const MyElement = () => {
+  return <AbsoluteFill>...</AbsoluteFill>;
+};
+```
+
+Use this for overlays, lower thirds, callouts, motion graphics, cards, badges, and data animations.
+Do not put the wrapper [`<Sequence>`](/docs/sequence) into the Element source file.
 
 ## Assets and dependencies
 

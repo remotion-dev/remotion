@@ -40,6 +40,8 @@ export {
 	DuplicateEffectResponse,
 	DuplicateJsxNodeRequest,
 	DuplicateJsxNodeResponse,
+	InsertElementRequest,
+	InsertElementResponse,
 	InsertJsxElementRequest,
 	InsertJsxElementResponse,
 	InsertableCompositionElement,
@@ -164,6 +166,14 @@ export {
 	parseEffectDragData,
 	type EffectDragData,
 } from './effect-drag-data';
+export {
+	ELEMENT_DRAG_MIME_TYPE,
+	isLowercaseElementFileName,
+	makeElementDragData,
+	makeElementFileNameFromSlug,
+	parseElementDragData,
+	type ElementDragData,
+} from './element-drag-data';
 export {
 	EFFECT_CATALOG,
 	getEffectCatalogCategories,
