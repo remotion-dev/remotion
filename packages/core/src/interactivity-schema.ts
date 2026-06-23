@@ -70,14 +70,18 @@ export type UvCoordinateFieldSchema = {
 	min?: number;
 	max?: number;
 	step?: number;
-	lineTo?: string;
-	ellipseTo?: readonly [string, string];
-	ellipse?: {
-		readonly width: string;
-		readonly height: string;
-		readonly rotation?: string;
-		readonly start?: string;
-	};
+	visual?:
+		| {
+				readonly type: 'line';
+				readonly to: string;
+		  }
+		| {
+				readonly type: 'ellipse';
+				readonly width: string;
+				readonly height: string;
+				readonly rotation?: string;
+				readonly innerScale?: string;
+		  };
 	default: readonly [number, number] | undefined;
 	description?: string;
 	keyframable?: boolean;

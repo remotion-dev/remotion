@@ -1468,7 +1468,10 @@ test('halftoneLinearGradient() connects its stop position controls', () => {
 		halftoneLinearGradient().definition.schema.firstStopPosition,
 	).toMatchObject({
 		type: 'uv-coordinate',
-		lineTo: 'secondStopPosition',
+		visual: {
+			type: 'line',
+			to: 'secondStopPosition',
+		},
 	});
 });
 
@@ -2564,7 +2567,10 @@ test('linearProgressiveBlur() accepts default params', () => {
 test('linearProgressiveBlur() connects its start and end controls', () => {
 	expect(linearProgressiveBlur().definition.schema.start).toMatchObject({
 		type: 'uv-coordinate',
-		lineTo: 'end',
+		visual: {
+			type: 'line',
+			to: 'end',
+		},
 	});
 });
 
@@ -2625,11 +2631,12 @@ test('radialProgressiveBlur() connects its ellipse controls', () => {
 	const {schema} = radialProgressiveBlur().definition;
 	expect(schema.center).toMatchObject({
 		type: 'uv-coordinate',
-		ellipse: {
+		visual: {
+			type: 'ellipse',
 			width: 'width',
 			height: 'height',
 			rotation: 'rotation',
-			start: 'start',
+			innerScale: 'start',
 		},
 	});
 	expect(schema.width).toMatchObject({type: 'number'});

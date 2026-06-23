@@ -75,11 +75,12 @@ const radialProgressiveBlurSchema = {
 		step: 0.01,
 		default: DEFAULT_CENTER,
 		description: 'Center',
-		ellipse: {
+		visual: {
+			type: 'ellipse',
 			width: 'width',
 			height: 'height',
 			rotation: 'rotation',
-			start: 'start',
+			innerScale: 'start',
 		},
 	},
 	width: {

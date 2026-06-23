@@ -2041,7 +2041,10 @@ test('UV handle connection lines connect fields from schema metadata', () => {
 				fieldSchema: {
 					type: 'uv-coordinate',
 					default: [0, 0],
-					lineTo: 'end',
+					visual: {
+						type: 'line',
+						to: 'end',
+					},
 				},
 				value: [0.2, 0.3],
 			},
@@ -2083,7 +2086,10 @@ test('UV handle connection lines stay within the same effect instance', () => {
 				fieldSchema: {
 					type: 'uv-coordinate',
 					default: [0, 0],
-					lineTo: 'end',
+					visual: {
+						type: 'line',
+						to: 'end',
+					},
 				},
 				value: [0.2, 0.3],
 			},
@@ -2102,7 +2108,10 @@ test('UV handle connection lines stay within the same effect instance', () => {
 				fieldSchema: {
 					type: 'uv-coordinate',
 					default: [0, 0],
-					lineTo: 'end',
+					visual: {
+						type: 'line',
+						to: 'end',
+					},
 				},
 				value: [0.2, 0.3],
 			},
@@ -2112,7 +2121,10 @@ test('UV handle connection lines stay within the same effect instance', () => {
 				fieldSchema: {
 					type: 'uv-coordinate',
 					default: [1, 1],
-					lineTo: 'start',
+					visual: {
+						type: 'line',
+						to: 'start',
+					},
 				},
 				value: [0.8, 0.7],
 			},
@@ -2120,60 +2132,6 @@ test('UV handle connection lines stay within the same effect instance', () => {
 	});
 
 	expect(lines.map((line) => line.key)).toEqual(['2-start-end']);
-});
-
-test('UV handle connection ellipses use the center and two radius fields from schema metadata', () => {
-	const points = [
-		{x: 0, y: 0},
-		{x: 100, y: 0},
-		{x: 100, y: 100},
-		{x: 0, y: 100},
-	] as const;
-
-	const ellipses = getUvHandleConnectionEllipses({
-		points,
-		handles: [
-			{
-				effectIndex: 0,
-				fieldKey: 'center',
-				fieldSchema: {
-					type: 'uv-coordinate',
-					default: [0.5, 0.5],
-					ellipseTo: ['point1', 'point2'],
-				},
-				value: [0.5, 0.5],
-			},
-			{
-				effectIndex: 0,
-				fieldKey: 'point1',
-				fieldSchema: {
-					type: 'uv-coordinate',
-					default: [1, 0.5],
-				},
-				value: [0.8, 0.5],
-			},
-			{
-				effectIndex: 0,
-				fieldKey: 'point2',
-				fieldSchema: {
-					type: 'uv-coordinate',
-					default: [0.5, 1],
-				},
-				value: [0.5, 0.7],
-			},
-		],
-	});
-
-	expect(ellipses).toHaveLength(1);
-	expect(ellipses[0].key).toBe('0-center-point1-point2');
-	expect(ellipses[0].points[0]).toEqual({x: 80, y: 50});
-	expect(ellipses[0].points[16]).toEqual({x: 50, y: 70});
-	expect(ellipses[0].points[32].x).toBeCloseTo(20);
-	expect(ellipses[0].points[32].y).toBeCloseTo(50);
-	expect(ellipses[0].points[48].x).toBeCloseTo(50);
-	expect(ellipses[0].points[48].y).toBeCloseTo(30);
-	expect(ellipses[0].points[64].x).toBeCloseTo(ellipses[0].points[0].x);
-	expect(ellipses[0].points[64].y).toBeCloseTo(ellipses[0].points[0].y);
 });
 
 test('UV handle connection ellipses use numeric ellipse fields from schema metadata', () => {
@@ -2193,11 +2151,12 @@ test('UV handle connection ellipses use numeric ellipse fields from schema metad
 				fieldSchema: {
 					type: 'uv-coordinate',
 					default: [0.5, 0.5],
-					ellipse: {
+					visual: {
+						type: 'ellipse',
 						width: 'width',
 						height: 'height',
 						rotation: 'rotation',
-						start: 'start',
+						innerScale: 'start',
 					},
 				},
 				effectValues: {
@@ -2250,11 +2209,12 @@ test('UV handle connection ellipses rotate numeric fields in pixel space', () =>
 				fieldSchema: {
 					type: 'uv-coordinate',
 					default: [0.5, 0.5],
-					ellipse: {
+					visual: {
+						type: 'ellipse',
 						width: 'width',
 						height: 'height',
 						rotation: 'rotation',
-						start: 'start',
+						innerScale: 'start',
 					},
 				},
 				effectValues: {
@@ -2299,11 +2259,12 @@ test('UV ellipse interactive controls expose resize and rotation handles', () =>
 		center: {
 			type: 'uv-coordinate',
 			default: [0.5, 0.5],
-			ellipse: {
+			visual: {
+				type: 'ellipse',
 				width: 'width',
 				height: 'height',
 				rotation: 'rotation',
-				start: 'start',
+				innerScale: 'start',
 			},
 		},
 		width: {
@@ -2408,11 +2369,12 @@ test('UV ellipse interactive controls rotate numeric fields in pixel space', () 
 		center: {
 			type: 'uv-coordinate',
 			default: [0.5, 0.5],
-			ellipse: {
+			visual: {
+				type: 'ellipse',
 				width: 'width',
 				height: 'height',
 				rotation: 'rotation',
-				start: 'start',
+				innerScale: 'start',
 			},
 		},
 		width: {
@@ -2512,7 +2474,10 @@ const getUvHandlesForSelectedEffectChild = (selectedFieldKey: string) => {
 		start: {
 			type: 'uv-coordinate',
 			default: [0, 0],
-			lineTo: 'end',
+			visual: {
+				type: 'line',
+				to: 'end',
+			},
 		},
 		end: {
 			type: 'uv-coordinate',
