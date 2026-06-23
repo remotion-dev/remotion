@@ -2,7 +2,7 @@ import {existsSync, readFileSync} from 'node:fs';
 import path from 'node:path';
 import {RenderInternals} from '@remotion/renderer';
 import {
-	isComponentIdentifier,
+	getElementComponentNameFromSourceCode,
 	makeElementFileNameFromSlug,
 	type InsertElementRequest,
 	type InsertElementResponse,
@@ -71,26 +71,6 @@ const makeRelativeImportPath = ({
 	return relative;
 };
 
-const validateSourceExportsComponent = ({
-	componentName,
-	sourceCode,
-}: {
-	componentName: string;
-	sourceCode: string;
-}) => {
-	const escaped = componentName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-	const patterns = [
-		new RegExp(`export\\s+const\\s+${escaped}\\b`),
-		new RegExp(`export\\s+function\\s+${escaped}\\b`),
-	];
-
-	if (!patterns.some((pattern) => pattern.test(sourceCode))) {
-		throw new Error(
-			`Element source must export a named component called ${componentName}`,
-		);
-	}
-};
-
 const validateDimensions = (
 	dimensions: InsertElementRequest['element']['dimensions'],
 ) => {
@@ -105,10 +85,6 @@ const validateDimensions = (
 };
 
 const validateElement = (element: InsertElementRequest['element']) => {
-	if (!isComponentIdentifier(element.componentName)) {
-		throw new Error('Unsupported Element component name');
-	}
-
 	if (makeElementFileNameFromSlug(element.slug) === null) {
 		throw new Error(
 			'Element slug must produce a safe lowercase .tsx file name',
@@ -123,10 +99,10 @@ const validateElement = (element: InsertElementRequest['element']) => {
 		throw new Error('Unsupported Element source code');
 	}
 
-	validateSourceExportsComponent({
-		componentName: element.componentName,
-		sourceCode: element.sourceCode,
-	});
+	if (getElementComponentNameFromSourceCode(element.sourceCode) === null) {
+		throw new Error('Element source must export exactly one named component');
+	}
+
 	validateDimensions(element.dimensions);
 };
 
@@ -142,6 +118,14 @@ export const insertElementHandler: ApiHandler<
 		try {
 			validateElement(element);
 			validatePosition(position);
+			const componentName = getElementComponentNameFromSourceCode(
+				element.sourceCode,
+			);
+			if (componentName === null) {
+				throw new Error(
+					'Element source must export exactly one named component',
+				);
+			}
 
 			RenderInternals.Log.trace(
 				{indent: false, logLevel},
@@ -198,8 +182,8 @@ export const insertElementHandler: ApiHandler<
 				compositionId,
 				element: {
 					type: 'component',
-					componentName: element.componentName,
-					importName: element.componentName,
+					componentName,
+					importName: componentName,
 					importPath,
 					props: [],
 					position: null,
@@ -275,7 +259,7 @@ export const insertElementHandler: ApiHandler<
 			);
 			RenderInternals.Log.info(
 				{indent: false, logLevel},
-				`${RenderInternals.chalk.blueBright(compositionLocationLabel)} Added <${element.componentName}>`,
+				`${RenderInternals.chalk.blueBright(compositionLocationLabel)} Added <${componentName}>`,
 			);
 			if (!inserted.formatted) {
 				warnAboutPrettierOnce(logLevel);

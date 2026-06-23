@@ -1,4 +1,5 @@
 import type {Config} from '@docusaurus/types';
+import remarkElementSource from './plugins/remark-element-source.js';
 import remarkExportRaw from './plugins/remark-export-raw.js';
 
 const lowMemoryBuild =
@@ -333,6 +334,7 @@ const config: Config = {
 				editUrl:
 					'https://github.com/remotion-dev/remotion/edit/main/packages/docs/',
 				showLastUpdateTime: showGitLastUpdate,
+				beforeDefaultRemarkPlugins: [remarkElementSource],
 				remarkPlugins: [remarkExportRaw],
 			},
 		],

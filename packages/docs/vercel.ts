@@ -13,6 +13,10 @@ export const config: VercelConfig = {
 			{key: 'Content-Type', value: 'text/plain; charset=utf-8'},
 			{key: 'Vary', value: 'Accept'},
 		]),
+		routes.header('/_raw/elements/(.*).md', [
+			{key: 'Content-Type', value: 'text/plain; charset=utf-8'},
+			{key: 'Vary', value: 'Accept'},
+		]),
 		routes.header('/img/gt-planar(.*)', [
 			{key: 'Access-Control-Allow-Credentials', value: 'true'},
 			{key: 'Access-Control-Allow-Origin', value: '*'},
