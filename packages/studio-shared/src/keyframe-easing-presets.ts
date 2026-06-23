@@ -37,6 +37,7 @@ export const KEYFRAME_EASING_PRESETS: KeyframeEasingPreset[] = [
 		easing: {
 			type: 'spring',
 			damping: 10,
+			durationRestThreshold: null,
 			mass: 1,
 			overshootClamping: false,
 			stiffness: 100,
@@ -48,6 +49,7 @@ export const KEYFRAME_EASING_PRESETS: KeyframeEasingPreset[] = [
 		easing: {
 			type: 'spring',
 			damping: 5,
+			durationRestThreshold: null,
 			mass: 1,
 			overshootClamping: false,
 			stiffness: 120,

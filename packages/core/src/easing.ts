@@ -6,7 +6,9 @@ import type {SpringConfig} from './spring/spring-utils.js';
 
 export type EasingSpringConfig = Partial<
 	Pick<SpringConfig, 'damping' | 'mass' | 'stiffness' | 'overshootClamping'>
->;
+> & {
+	readonly durationRestThreshold?: number;
+};
 
 // Some easing curves are only defined on [0, 1] (e.g. quarter circle, bounce segments).
 // `interpolate(..., { extrapolate: 'extend' })` can pass values outside that interval; clamp
@@ -70,7 +72,9 @@ export class Easing {
 		return (t): number => t * t * ((s + 1) * t - s);
 	}
 
-	static spring(config: EasingSpringConfig = {}): (t: number) => number {
+	static spring({durationRestThreshold, ...config}: EasingSpringConfig = {}): (
+		t: number,
+	) => number {
 		return (t): number => {
 			if (t <= 0) {
 				return 0;
@@ -85,6 +89,7 @@ export class Easing {
 				frame: t * springEasingDurationInFrames,
 				config,
 				durationInFrames: springEasingDurationInFrames,
+				durationRestThreshold,
 			});
 		};
 	}

@@ -21,6 +21,7 @@ const easingToFn = (e: CanUpdateSequencePropStatusEasing): EasingFunction => {
 		case 'spring':
 			return Easing.spring({
 				damping: e.damping,
+				durationRestThreshold: e.durationRestThreshold ?? undefined,
 				mass: e.mass,
 				overshootClamping: e.overshootClamping,
 				stiffness: e.stiffness,

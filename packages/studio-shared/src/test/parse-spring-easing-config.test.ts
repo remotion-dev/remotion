@@ -41,11 +41,18 @@ test('parseSpringEasingConfig parses a static spring config object', () => {
 					key: {type: 'Identifier', name: 'overshootClamping'},
 					value: {type: 'BooleanLiteral', value: true},
 				},
+				{
+					type: 'ObjectProperty',
+					computed: false,
+					key: {type: 'Identifier', name: 'durationRestThreshold'},
+					value: {type: 'NumericLiteral', value: 0.1},
+				},
 			],
 		}),
 	).toEqual({
 		type: 'spring',
 		damping: 12,
+		durationRestThreshold: 0.1,
 		mass: 1.5,
 		stiffness: 180,
 		overshootClamping: true,

@@ -42,6 +42,7 @@ export type CanUpdateSequencePropStatusSpringEasing = {
 	mass: number;
 	stiffness: number;
 	overshootClamping: boolean;
+	durationRestThreshold: number | null;
 };
 
 export type CanUpdateSequencePropStatusEasing =

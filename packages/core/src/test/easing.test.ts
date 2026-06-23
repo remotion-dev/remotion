@@ -260,6 +260,28 @@ describe('Easing spring', () => {
 		}
 	});
 
+	test('supports a custom rest threshold', () => {
+		const config = {
+			damping: 200,
+			mass: 1,
+			stiffness: 100,
+		};
+		const durationRestThreshold = 0.1;
+		const easing = Easing.spring({...config, durationRestThreshold});
+
+		for (const t of [0.1, 0.25, 0.5, 0.75, 0.9]) {
+			expect(easing(t)).toBe(
+				spring({
+					fps: 30,
+					frame: t * 30,
+					durationInFrames: 30,
+					durationRestThreshold,
+					config,
+				}),
+			);
+		}
+	});
+
 	test('clamps the endpoints', () => {
 		const easing = Easing.spring();
 

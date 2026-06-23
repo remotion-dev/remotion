@@ -122,7 +122,11 @@ import StarTest from './Shapes/StarTest';
 import TriangleTest from './Shapes/TriangleTest';
 import {SimpleImg} from './SimpleImg';
 import {SkipZeroFrame} from './SkipZeroFrame';
-import {BaseSpring, SpringWithDuration} from './Spring/base-spring';
+import {
+	BaseSpring,
+	RestThresholdSpringSquare,
+	SpringWithDuration,
+} from './Spring/base-spring';
 import {SeriesTesting} from './StaggerTesting';
 import {StaticDemo} from './StaticServer';
 import {StillHelloWorld} from './StillHelloWorld';
@@ -597,6 +601,22 @@ export const Index: React.FC = () => {
 					height={1080}
 					fps={30}
 					durationInFrames={100}
+				/>
+				<Composition
+					id="rest-threshold-spring-square"
+					component={RestThresholdSpringSquare}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={90}
+				/>
+				<Composition
+					id="tail-spring-square"
+					component={RestThresholdSpringSquare}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={90}
 				/>
 			</Folder>
 			<Folder name="documentation">

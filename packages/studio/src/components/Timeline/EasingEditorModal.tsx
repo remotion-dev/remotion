@@ -43,7 +43,11 @@ type SpringEasing = Extract<TimelineEasingValue, {type: 'spring'}>;
 type HandleIndex = 0 | 1;
 type Coordinate = 'x' | 'y';
 type EditorMode = 'bezier' | 'spring';
-type SpringNumberKey = 'damping' | 'mass' | 'stiffness';
+type SpringNumberKey =
+	| 'damping'
+	| 'durationRestThreshold'
+	| 'mass'
+	| 'stiffness';
 type EasingGraphLabels = {
 	readonly start: string;
 	readonly end: string;
@@ -78,9 +82,11 @@ const PRESET_PREVIEW_HEIGHT = 30;
 const PRESET_PREVIEW_PADDING = 5;
 const PRESET_PREVIEW_Y_MIN = -0.35;
 const PRESET_PREVIEW_Y_MAX = 1.45;
+const DEFAULT_DURATION_REST_THRESHOLD = 0.005;
 const DEFAULT_SPRING_EASING: SpringEasing = {
 	type: 'spring',
 	damping: 10,
+	durationRestThreshold: null,
 	mass: 1,
 	overshootClamping: false,
 	stiffness: 100,
@@ -103,14 +109,23 @@ const SPRING_LIMITS: Record<
 	}
 > = {
 	damping: {min: 1, max: 200, step: 1},
+	durationRestThreshold: {min: 0.001, max: 0.5, step: 0.001},
 	mass: {min: 0.1, max: 20, step: 0.1},
 	stiffness: {min: 1, max: 1000, step: 1},
 };
 
 const SPRING_DECIMAL_PLACES: Record<SpringNumberKey, number> = {
 	damping: 0,
+	durationRestThreshold: 3,
 	mass: 2,
 	stiffness: 0,
+};
+
+const SPRING_FALLBACKS: Record<SpringNumberKey, number> = {
+	damping: DEFAULT_SPRING_EASING.damping,
+	durationRestThreshold: DEFAULT_DURATION_REST_THRESHOLD,
+	mass: DEFAULT_SPRING_EASING.mass,
+	stiffness: DEFAULT_SPRING_EASING.stiffness,
 };
 
 const inlineContainer: React.CSSProperties = {
@@ -280,6 +295,14 @@ const sanitizeSpring = (spring: SpringEasing): SpringEasing => ({
 		'damping',
 		DEFAULT_SPRING_EASING.damping,
 	),
+	durationRestThreshold:
+		spring.durationRestThreshold === null
+			? null
+			: sanitizeSpringValue(
+					spring.durationRestThreshold,
+					'durationRestThreshold',
+					DEFAULT_DURATION_REST_THRESHOLD,
+				),
 	mass: sanitizeSpringValue(spring.mass, 'mass', DEFAULT_SPRING_EASING.mass),
 	overshootClamping: spring.overshootClamping,
 	stiffness: sanitizeSpringValue(
@@ -317,6 +340,9 @@ const springFormatters: Record<
 	(value: number | string) => string
 > = {
 	damping: formatNumberWithDecimalPlaces(SPRING_DECIMAL_PLACES.damping),
+	durationRestThreshold: formatNumberWithDecimalPlaces(
+		SPRING_DECIMAL_PLACES.durationRestThreshold,
+	),
 	mass: formatNumberWithDecimalPlaces(SPRING_DECIMAL_PLACES.mass),
 	stiffness: formatNumberWithDecimalPlaces(SPRING_DECIMAL_PLACES.stiffness),
 };
@@ -340,6 +366,7 @@ const areEasingsEqual = (
 			return (
 				second.type === 'spring' &&
 				first.damping === second.damping &&
+				first.durationRestThreshold === second.durationRestThreshold &&
 				first.mass === second.mass &&
 				first.overshootClamping === second.overshootClamping &&
 				first.stiffness === second.stiffness
@@ -465,6 +492,7 @@ const getEasingFunction = (easing: TimelineEasingValue) => {
 		case 'spring':
 			return Easing.spring({
 				damping: easing.damping,
+				durationRestThreshold: easing.durationRestThreshold ?? undefined,
 				mass: easing.mass,
 				overshootClamping: easing.overshootClamping,
 				stiffness: easing.stiffness,
@@ -883,7 +911,7 @@ export const EasingEditor: React.FC<{
 		(key: SpringNumberKey, value: number, commit: boolean) => {
 			const next = {
 				...springRef.current,
-				[key]: sanitizeSpringValue(value, key, DEFAULT_SPRING_EASING[key]),
+				[key]: sanitizeSpringValue(value, key, SPRING_FALLBACKS[key]),
 			};
 			const version = setSpringAndPreview(next);
 
@@ -1046,6 +1074,7 @@ export const EasingEditor: React.FC<{
 	const springPath = useMemo(() => {
 		const easing = Easing.spring({
 			damping: spring.damping,
+			durationRestThreshold: spring.durationRestThreshold ?? undefined,
 			mass: spring.mass,
 			overshootClamping: spring.overshootClamping,
 			stiffness: spring.stiffness,
@@ -1357,6 +1386,37 @@ export const EasingEditor: React.FC<{
 									style={numberInputStyle}
 									snapToStep={false}
 									dragDecimalPlaces={SPRING_DECIMAL_PLACES.stiffness}
+									disabled={disabled}
+								/>
+							</div>
+						</div>
+						<div style={coordinateRow}>
+							<div style={coordinateLabel}>Rest threshold</div>
+							<div style={coordinateInputWrapper}>
+								<InputDragger
+									type="number"
+									value={
+										spring.durationRestThreshold ??
+										DEFAULT_DURATION_REST_THRESHOLD
+									}
+									status="ok"
+									onValueChange={(value) =>
+										setSpringNumber('durationRestThreshold', value, false)
+									}
+									onValueChangeEnd={(value) =>
+										setSpringNumber('durationRestThreshold', value, true)
+									}
+									onTextChange={() => undefined}
+									min={SPRING_LIMITS.durationRestThreshold.min}
+									max={SPRING_LIMITS.durationRestThreshold.max}
+									step={SPRING_LIMITS.durationRestThreshold.step}
+									formatter={springFormatters.durationRestThreshold}
+									rightAlign={false}
+									style={numberInputStyle}
+									snapToStep={false}
+									dragDecimalPlaces={
+										SPRING_DECIMAL_PLACES.durationRestThreshold
+									}
 									disabled={disabled}
 								/>
 							</div>

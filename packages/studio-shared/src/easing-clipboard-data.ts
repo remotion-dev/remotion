@@ -41,8 +41,22 @@ const isEasing = (value: unknown): value is KeyframeEasing => {
 				isFiniteNumber(value.damping) &&
 				isFiniteNumber(value.mass) &&
 				isFiniteNumber(value.stiffness) &&
+				(value.durationRestThreshold === undefined ||
+					value.durationRestThreshold === null ||
+					isFiniteNumber(value.durationRestThreshold)) &&
 				typeof value.overshootClamping === 'boolean'))
 	);
+};
+
+const normalizeEasing = (easing: KeyframeEasing): KeyframeEasing => {
+	if (easing.type !== 'spring') {
+		return easing;
+	}
+
+	return {
+		...easing,
+		durationRestThreshold: easing.durationRestThreshold ?? null,
+	};
 };
 
 export const parseEasingClipboardDataResult = (
@@ -75,7 +89,7 @@ export const parseEasingClipboardDataResult = (
 				type: 'easing',
 				version: 1,
 				remotionClipboard: 'easing',
-				easing: parsed.easing,
+				easing: normalizeEasing(parsed.easing),
 			},
 		};
 	} catch {
