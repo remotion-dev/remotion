@@ -8,10 +8,8 @@ import {setElementDragData, setElementDragImage} from './element-drag-data';
 import {ElementPreview} from './ElementPreview';
 
 type ElementPageProps = {
-	readonly category?: string;
-	readonly children: ReactNode;
+	readonly children?: ReactNode;
 	readonly component: ComponentType<Record<string, never>>;
-	readonly componentName?: string;
 	readonly displayName?: string;
 	readonly durationInFrames?: number;
 	readonly elementHeight?: number;
@@ -38,10 +36,8 @@ const dragButtonStyle: React.CSSProperties = {
 };
 
 export const ElementPage: React.FC<ElementPageProps> = ({
-	category,
 	children,
 	component,
-	componentName,
 	displayName,
 	durationInFrames = 120,
 	elementHeight,
@@ -56,7 +52,6 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 		if (
 			!slug ||
 			!displayName ||
-			!componentName ||
 			!sourceCode ||
 			elementWidth === undefined ||
 			elementHeight === undefined
@@ -70,22 +65,12 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 		};
 
 		return makeElementDragData({
-			category,
-			componentName,
 			dimensions,
 			displayName,
 			slug,
 			sourceCode,
 		});
-	}, [
-		category,
-		componentName,
-		displayName,
-		elementHeight,
-		elementWidth,
-		slug,
-		sourceCode,
-	]);
+	}, [displayName, elementHeight, elementWidth, slug, sourceCode]);
 
 	const PreviewComponent = useMemo(() => {
 		if (elementWidth === undefined || elementHeight === undefined) {

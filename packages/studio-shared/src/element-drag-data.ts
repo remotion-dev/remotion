@@ -11,10 +11,8 @@ export type ElementDragData = {
 	element: {
 		slug: string;
 		displayName: string;
-		componentName: string;
 		sourceCode: string;
 		dimensions: ComponentDimensions;
-		category?: string;
 	};
 };
 
@@ -74,10 +72,6 @@ const isSourceCode = (value: unknown): value is string => {
 	);
 };
 
-const isCategory = (value: unknown): value is string => {
-	return typeof value === 'string' && /^[a-z0-9][a-z0-9/-]*$/.test(value);
-};
-
 const isDimensions = (value: unknown): value is ComponentDimensions => {
 	if (!isRecord(value)) {
 		return false;
@@ -93,9 +87,24 @@ const isDimensions = (value: unknown): value is ComponentDimensions => {
 	);
 };
 
+export const getElementComponentNameFromSourceCode = (sourceCode: string) => {
+	const componentNames = Array.from(
+		sourceCode.matchAll(
+			/export\s+(?:const|function)\s+([A-Z_$][A-Za-z0-9_$]*)\b/g,
+		),
+	).map((match) => match[1]);
+
+	const uniqueComponentNames = Array.from(new Set(componentNames));
+
+	if (uniqueComponentNames.length !== 1) {
+		return null;
+	}
+
+	const [componentName] = uniqueComponentNames;
+	return isComponentIdentifier(componentName) ? componentName : null;
+};
+
 export const makeElementDragData = ({
-	category,
-	componentName,
 	dimensions,
 	displayName,
 	slug,
@@ -107,10 +116,8 @@ export const makeElementDragData = ({
 		element: {
 			slug,
 			displayName,
-			componentName,
 			sourceCode,
 			dimensions,
-			...(category ? {category} : {}),
 		},
 	};
 };
@@ -130,17 +137,15 @@ export const parseElementDragData = (value: string): ElementDragData | null => {
 			return null;
 		}
 
-		const {category, componentName, dimensions, displayName, slug, sourceCode} =
-			parsed.element;
+		const {dimensions, displayName, slug, sourceCode} = parsed.element;
 
 		if (
 			!isSlug(slug) ||
 			!isDisplayName(displayName) ||
-			!isComponentIdentifier(componentName) ||
-			makeElementFileNameFromSlug(slug) === null ||
 			!isSourceCode(sourceCode) ||
-			!isDimensions(dimensions) ||
-			(typeof category !== 'undefined' && !isCategory(category))
+			getElementComponentNameFromSourceCode(sourceCode) === null ||
+			makeElementFileNameFromSlug(slug) === null ||
+			!isDimensions(dimensions)
 		) {
 			return null;
 		}
@@ -148,10 +153,8 @@ export const parseElementDragData = (value: string): ElementDragData | null => {
 		return makeElementDragData({
 			slug,
 			displayName,
-			componentName,
 			sourceCode,
 			dimensions,
-			...(category ? {category} : {}),
 		});
 	} catch {
 		return null;

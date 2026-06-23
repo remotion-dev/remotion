@@ -8,10 +8,8 @@ import {
 const validElement = {
 	slug: 'overlays/lower-third',
 	displayName: 'Lower Third',
-	componentName: 'LowerThird',
 	sourceCode: 'export const LowerThird = () => null;',
 	dimensions: {width: 900, height: 260},
-	category: 'overlays',
 };
 
 test('parses element drag data', () => {
@@ -21,32 +19,6 @@ test('parses element drag data', () => {
 		type: 'remotion-element',
 		version: 1,
 		element: validElement,
-	});
-});
-
-test('parses element drag data without optional category', () => {
-	expect(
-		parseElementDragData(
-			JSON.stringify(
-				makeElementDragData({
-					slug: 'lower-third',
-					displayName: 'Lower Third',
-					componentName: 'LowerThird',
-					sourceCode: 'export const LowerThird = () => null;',
-					dimensions: {width: 900, height: 260},
-				}),
-			),
-		),
-	).toEqual({
-		type: 'remotion-element',
-		version: 1,
-		element: {
-			slug: 'lower-third',
-			displayName: 'Lower Third',
-			componentName: 'LowerThird',
-			sourceCode: 'export const LowerThird = () => null;',
-			dimensions: {width: 900, height: 260},
-		},
 	});
 });
 
@@ -84,7 +56,10 @@ test('rejects invalid element drag data', () => {
 			JSON.stringify({
 				type: 'remotion-element',
 				version: 1,
-				element: {...validElement, componentName: 'lowerThird'},
+				element: {
+					...validElement,
+					sourceCode: 'export const lowerThird = () => null;',
+				},
 			}),
 		),
 	).toBe(null);
