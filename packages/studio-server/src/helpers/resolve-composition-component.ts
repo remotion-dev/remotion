@@ -1142,12 +1142,27 @@ const ensureSolidImport = (ast: File) => {
 	});
 };
 
+const getAvailableSequenceLocalName = (ast: File) => {
+	const candidates = ['Sequence', 'RemotionSequence'];
+	const available = candidates.find((candidate) => {
+		return !hasTopLevelBinding({ast, name: candidate});
+	});
+
+	if (!available) {
+		throw new Error(
+			'Cannot add <Sequence> because Sequence is already defined',
+		);
+	}
+
+	return available;
+};
+
 const ensureSequenceImport = (ast: File) => {
-	return ensureOfficialNamedImport({
+	return ensureNamedImport({
 		ast,
 		importedName: 'Sequence',
 		sourcePath: 'remotion',
-		label: '<Sequence>',
+		localName: getAvailableSequenceLocalName(ast),
 	});
 };
 
