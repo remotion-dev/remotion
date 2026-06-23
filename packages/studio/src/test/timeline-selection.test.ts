@@ -16,10 +16,13 @@ import type {SelectedOutlineTarget} from '../components/selected-outline-types';
 import {
 	constrainUv,
 	getSelectedUvHandles,
+	getUvEllipseInteractiveControls,
 	getUvCoordinateForPoint,
+	getUvHandleConnectionEllipses,
 	getUvHandleConnectionLines,
 	getUvHandlePosition,
 	roundUvCoordinate,
+	type SelectedOutlineUvHandle,
 } from '../components/selected-outline-uv';
 import {
 	applySelectedOutlineDragAxisLock,
@@ -2117,6 +2120,385 @@ test('UV handle connection lines stay within the same effect instance', () => {
 	});
 
 	expect(lines.map((line) => line.key)).toEqual(['2-start-end']);
+});
+
+test('UV handle connection ellipses use the center and two radius fields from schema metadata', () => {
+	const points = [
+		{x: 0, y: 0},
+		{x: 100, y: 0},
+		{x: 100, y: 100},
+		{x: 0, y: 100},
+	] as const;
+
+	const ellipses = getUvHandleConnectionEllipses({
+		points,
+		handles: [
+			{
+				effectIndex: 0,
+				fieldKey: 'center',
+				fieldSchema: {
+					type: 'uv-coordinate',
+					default: [0.5, 0.5],
+					ellipseTo: ['point1', 'point2'],
+				},
+				value: [0.5, 0.5],
+			},
+			{
+				effectIndex: 0,
+				fieldKey: 'point1',
+				fieldSchema: {
+					type: 'uv-coordinate',
+					default: [1, 0.5],
+				},
+				value: [0.8, 0.5],
+			},
+			{
+				effectIndex: 0,
+				fieldKey: 'point2',
+				fieldSchema: {
+					type: 'uv-coordinate',
+					default: [0.5, 1],
+				},
+				value: [0.5, 0.7],
+			},
+		],
+	});
+
+	expect(ellipses).toHaveLength(1);
+	expect(ellipses[0].key).toBe('0-center-point1-point2');
+	expect(ellipses[0].points[0]).toEqual({x: 80, y: 50});
+	expect(ellipses[0].points[16]).toEqual({x: 50, y: 70});
+	expect(ellipses[0].points[32].x).toBeCloseTo(20);
+	expect(ellipses[0].points[32].y).toBeCloseTo(50);
+	expect(ellipses[0].points[48].x).toBeCloseTo(50);
+	expect(ellipses[0].points[48].y).toBeCloseTo(30);
+	expect(ellipses[0].points[64].x).toBeCloseTo(ellipses[0].points[0].x);
+	expect(ellipses[0].points[64].y).toBeCloseTo(ellipses[0].points[0].y);
+});
+
+test('UV handle connection ellipses use numeric ellipse fields from schema metadata', () => {
+	const points = [
+		{x: 0, y: 0},
+		{x: 100, y: 0},
+		{x: 100, y: 100},
+		{x: 0, y: 100},
+	] as const;
+
+	const ellipses = getUvHandleConnectionEllipses({
+		points,
+		handles: [
+			{
+				effectIndex: 0,
+				fieldKey: 'center',
+				fieldSchema: {
+					type: 'uv-coordinate',
+					default: [0.5, 0.5],
+					ellipse: {
+						width: 'width',
+						height: 'height',
+						rotation: 'rotation',
+						start: 'start',
+					},
+				},
+				effectValues: {
+					width: 0.6,
+					height: 0.4,
+					rotation: 90,
+					start: 0.5,
+				},
+				value: [0.5, 0.5],
+			},
+		],
+	});
+
+	expect(ellipses).toHaveLength(2);
+	expect(ellipses[0].key).toBe('0-center-width-height-rotation');
+	expect(ellipses[0].points[0].x).toBeCloseTo(50);
+	expect(ellipses[0].points[0].y).toBeCloseTo(80);
+	expect(ellipses[0].points[16].x).toBeCloseTo(30);
+	expect(ellipses[0].points[16].y).toBeCloseTo(50);
+	expect(ellipses[0].points[32].x).toBeCloseTo(50);
+	expect(ellipses[0].points[32].y).toBeCloseTo(20);
+	expect(ellipses[0].points[48].x).toBeCloseTo(70);
+	expect(ellipses[0].points[48].y).toBeCloseTo(50);
+	expect(ellipses[1].key).toBe('0-center-width-height-rotation-start');
+	expect(ellipses[1].points[0].x).toBeCloseTo(50);
+	expect(ellipses[1].points[0].y).toBeCloseTo(65);
+	expect(ellipses[1].points[16].x).toBeCloseTo(40);
+	expect(ellipses[1].points[16].y).toBeCloseTo(50);
+	expect(ellipses[1].points[32].x).toBeCloseTo(50);
+	expect(ellipses[1].points[32].y).toBeCloseTo(35);
+	expect(ellipses[1].points[48].x).toBeCloseTo(60);
+	expect(ellipses[1].points[48].y).toBeCloseTo(50);
+});
+
+test('UV handle connection ellipses rotate numeric fields in pixel space', () => {
+	const points = [
+		{x: 0, y: 0},
+		{x: 200, y: 0},
+		{x: 200, y: 100},
+		{x: 0, y: 100},
+	] as const;
+
+	const ellipses = getUvHandleConnectionEllipses({
+		dimensions: {width: 200, height: 100},
+		points,
+		handles: [
+			{
+				effectIndex: 0,
+				fieldKey: 'center',
+				fieldSchema: {
+					type: 'uv-coordinate',
+					default: [0.5, 0.5],
+					ellipse: {
+						width: 'width',
+						height: 'height',
+						rotation: 'rotation',
+						start: 'start',
+					},
+				},
+				effectValues: {
+					width: 0.6,
+					height: 0.4,
+					rotation: 90,
+					start: 0.5,
+				},
+				value: [0.5, 0.5],
+			},
+		],
+	});
+
+	expect(ellipses).toHaveLength(2);
+	expect(ellipses[0].points[0].x).toBeCloseTo(100);
+	expect(ellipses[0].points[0].y).toBeCloseTo(110);
+	expect(ellipses[0].points[16].x).toBeCloseTo(80);
+	expect(ellipses[0].points[16].y).toBeCloseTo(50);
+	expect(ellipses[0].points[32].x).toBeCloseTo(100);
+	expect(ellipses[0].points[32].y).toBeCloseTo(-10);
+	expect(ellipses[0].points[48].x).toBeCloseTo(120);
+	expect(ellipses[0].points[48].y).toBeCloseTo(50);
+	expect(ellipses[1].points[0].x).toBeCloseTo(100);
+	expect(ellipses[1].points[0].y).toBeCloseTo(80);
+	expect(ellipses[1].points[16].x).toBeCloseTo(90);
+	expect(ellipses[1].points[16].y).toBeCloseTo(50);
+	expect(ellipses[1].points[32].x).toBeCloseTo(100);
+	expect(ellipses[1].points[32].y).toBeCloseTo(20);
+	expect(ellipses[1].points[48].x).toBeCloseTo(110);
+	expect(ellipses[1].points[48].y).toBeCloseTo(50);
+});
+
+test('UV ellipse interactive controls expose resize and rotation handles', () => {
+	const points = [
+		{x: 0, y: 0},
+		{x: 100, y: 0},
+		{x: 100, y: 100},
+		{x: 0, y: 100},
+	] as const;
+	const nodePath = makeKey(['body', 0]);
+	const schema = {
+		center: {
+			type: 'uv-coordinate',
+			default: [0.5, 0.5],
+			ellipse: {
+				width: 'width',
+				height: 'height',
+				rotation: 'rotation',
+				start: 'start',
+			},
+		},
+		width: {
+			type: 'number',
+			default: 0.6,
+			hiddenFromList: false,
+		},
+		height: {
+			type: 'number',
+			default: 0.4,
+			hiddenFromList: false,
+		},
+		rotation: {
+			type: 'rotation-degrees',
+			default: 90,
+		},
+		start: {
+			type: 'number',
+			default: 0.5,
+			hiddenFromList: false,
+		},
+	} as const satisfies InteractivitySchema;
+	const handle = {
+		clientId: 'client-id',
+		effectIndex: 0,
+		effectValues: {
+			center: [0.5, 0.5],
+			width: 0.6,
+			height: 0.4,
+			rotation: 90,
+			start: 0.5,
+		},
+		ellipseControls: {
+			width: {
+				fieldKey: 'width',
+				fieldSchema: schema.width,
+				fieldDefault: schema.width.default,
+				propStatus: {status: 'static', codeValue: 0.6},
+				value: 0.6,
+			},
+			height: {
+				fieldKey: 'height',
+				fieldSchema: schema.height,
+				fieldDefault: schema.height.default,
+				propStatus: {status: 'static', codeValue: 0.4},
+				value: 0.4,
+			},
+			rotation: {
+				fieldKey: 'rotation',
+				fieldSchema: schema.rotation,
+				fieldDefault: schema.rotation.default,
+				propStatus: {status: 'static', codeValue: 90},
+				value: 90,
+			},
+			start: {
+				fieldKey: 'start',
+				fieldSchema: schema.start,
+				fieldDefault: schema.start.default,
+				propStatus: {status: 'static', codeValue: 0.5},
+				value: 0.5,
+			},
+		},
+		fieldDefault: schema.center.default,
+		fieldKey: 'center',
+		fieldSchema: schema.center,
+		isSelected: true,
+		nodePath,
+		propStatus: {status: 'static', codeValue: [0.5, 0.5]},
+		schema,
+		sourceFrame: 0,
+		value: [0.5, 0.5],
+	} as unknown as SelectedOutlineUvHandle;
+
+	const controls = getUvEllipseInteractiveControls({
+		handles: [handle],
+		points,
+	});
+
+	expect(controls).toHaveLength(1);
+	expect(controls[0].center).toEqual({x: 50, y: 50});
+	expect(controls[0].resize[0].axis).toBe('width');
+	expect(controls[0].resize[0].position.x).toBeCloseTo(50);
+	expect(controls[0].resize[0].position.y).toBeCloseTo(80);
+	expect(controls[0].resize[1].axis).toBe('height');
+	expect(controls[0].resize[1].position.x).toBeCloseTo(30);
+	expect(controls[0].resize[1].position.y).toBeCloseTo(50);
+	expect(controls[0].rotationControl?.position.x).toBeCloseTo(22);
+	expect(controls[0].rotationControl?.position.y).toBeCloseTo(50);
+	expect(controls[0].startControl?.position.x).toBeCloseTo(50);
+	expect(controls[0].startControl?.position.y).toBeCloseTo(65);
+});
+
+test('UV ellipse interactive controls rotate numeric fields in pixel space', () => {
+	const points = [
+		{x: 0, y: 0},
+		{x: 200, y: 0},
+		{x: 200, y: 100},
+		{x: 0, y: 100},
+	] as const;
+	const nodePath = makeKey(['body', 0]);
+	const schema = {
+		center: {
+			type: 'uv-coordinate',
+			default: [0.5, 0.5],
+			ellipse: {
+				width: 'width',
+				height: 'height',
+				rotation: 'rotation',
+				start: 'start',
+			},
+		},
+		width: {
+			type: 'number',
+			default: 0.6,
+			hiddenFromList: false,
+		},
+		height: {
+			type: 'number',
+			default: 0.4,
+			hiddenFromList: false,
+		},
+		rotation: {
+			type: 'rotation-degrees',
+			default: 90,
+		},
+		start: {
+			type: 'number',
+			default: 0.5,
+			hiddenFromList: false,
+		},
+	} as const satisfies InteractivitySchema;
+	const handle = {
+		clientId: 'client-id',
+		effectIndex: 0,
+		effectValues: {
+			center: [0.5, 0.5],
+			width: 0.6,
+			height: 0.4,
+			rotation: 90,
+			start: 0.5,
+		},
+		ellipseControls: {
+			width: {
+				fieldKey: 'width',
+				fieldSchema: schema.width,
+				fieldDefault: schema.width.default,
+				propStatus: {status: 'static', codeValue: 0.6},
+				value: 0.6,
+			},
+			height: {
+				fieldKey: 'height',
+				fieldSchema: schema.height,
+				fieldDefault: schema.height.default,
+				propStatus: {status: 'static', codeValue: 0.4},
+				value: 0.4,
+			},
+			rotation: {
+				fieldKey: 'rotation',
+				fieldSchema: schema.rotation,
+				fieldDefault: schema.rotation.default,
+				propStatus: {status: 'static', codeValue: 90},
+				value: 90,
+			},
+			start: {
+				fieldKey: 'start',
+				fieldSchema: schema.start,
+				fieldDefault: schema.start.default,
+				propStatus: {status: 'static', codeValue: 0.5},
+				value: 0.5,
+			},
+		},
+		fieldDefault: schema.center.default,
+		fieldKey: 'center',
+		fieldSchema: schema.center,
+		isSelected: true,
+		nodePath,
+		propStatus: {status: 'static', codeValue: [0.5, 0.5]},
+		schema,
+		sourceFrame: 0,
+		value: [0.5, 0.5],
+	} as unknown as SelectedOutlineUvHandle;
+
+	const controls = getUvEllipseInteractiveControls({
+		dimensions: {width: 200, height: 100},
+		handles: [handle],
+		points,
+	});
+
+	expect(controls).toHaveLength(1);
+	expect(controls[0].resize[0].position.x).toBeCloseTo(100);
+	expect(controls[0].resize[0].position.y).toBeCloseTo(110);
+	expect(controls[0].resize[1].position.x).toBeCloseTo(80);
+	expect(controls[0].resize[1].position.y).toBeCloseTo(50);
+	expect(controls[0].startControl?.position.x).toBeCloseTo(100);
+	expect(controls[0].startControl?.position.y).toBeCloseTo(80);
 });
 
 const getUvHandlesForSelectedEffectChild = (selectedFieldKey: string) => {

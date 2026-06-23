@@ -71,6 +71,13 @@ export type UvCoordinateFieldSchema = {
 	max?: number;
 	step?: number;
 	lineTo?: string;
+	ellipseTo?: readonly [string, string];
+	ellipse?: {
+		readonly width: string;
+		readonly height: string;
+		readonly rotation?: string;
+		readonly start?: string;
+	};
 	default: readonly [number, number] | undefined;
 	description?: string;
 	keyframable?: boolean;

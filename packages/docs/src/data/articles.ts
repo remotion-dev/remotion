@@ -2034,6 +2034,15 @@ export const articles = [
 		slug: 'effects/pixelate',
 	},
 	{
+		id: 'effects/radial-progressive-blur',
+		title: 'radialProgressiveBlur()',
+		relativePath: 'docs/effects/radial-progressive-blur.mdx',
+		compId: 'articles-docs-effects-radial-progressive-blur',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/radial-progressive-blur',
+	},
+	{
 		id: 'effects/rings',
 		title: 'rings()',
 		relativePath: 'docs/effects/rings.mdx',

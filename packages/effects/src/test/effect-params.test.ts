@@ -34,6 +34,7 @@ import {noise} from '../noise.js';
 import {pattern} from '../pattern.js';
 import {pixelDissolve} from '../pixel-dissolve.js';
 import {pixelate} from '../pixelate.js';
+import {radialProgressiveBlur} from '../radial-progressive-blur/index.js';
 import {rings} from '../rings.js';
 import {saturation} from '../saturation.js';
 import {scale} from '../scale.js';
@@ -169,6 +170,9 @@ test('@remotion/effects expose documentation links', () => {
 	expect(pattern().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/pattern',
 	);
+	expect(radialProgressiveBlur().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/radial-progressive-blur',
+	);
 	expect(rings().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/rings',
 	);
@@ -263,6 +267,9 @@ test('@remotion/effects expose API names as Studio labels', () => {
 		noiseDisplacement({center: [0.5, 0.5], radius: 0.25}).definition.label,
 	).toBe('noiseDisplacement()');
 	expect(pattern().definition.label).toBe('pattern()');
+	expect(radialProgressiveBlur().definition.label).toBe(
+		'radialProgressiveBlur()',
+	);
 	expect(rings().definition.label).toBe('rings()');
 	expect(saturation().definition.label).toBe('saturation()');
 	expect(scanlines().definition.label).toBe('scanlines()');
@@ -2608,6 +2615,102 @@ test('linearProgressiveBlur() parameters produce distinct effect keys', () => {
 			moreEndBlur.effectKey,
 		]).size,
 	).toBe(5);
+});
+
+test('radialProgressiveBlur() accepts default params', () => {
+	expect(() => radialProgressiveBlur()).not.toThrow();
+});
+
+test('radialProgressiveBlur() connects its ellipse controls', () => {
+	const {schema} = radialProgressiveBlur().definition;
+	expect(schema.center).toMatchObject({
+		type: 'uv-coordinate',
+		ellipse: {
+			width: 'width',
+			height: 'height',
+			rotation: 'rotation',
+			start: 'start',
+		},
+	});
+	expect(schema.width).toMatchObject({type: 'number'});
+	expect(schema.height).toMatchObject({type: 'number'});
+	expect(schema.rotation).toMatchObject({type: 'rotation-degrees'});
+	expect(schema.width).not.toHaveProperty('max');
+	expect(schema.height).not.toHaveProperty('max');
+});
+
+test('radialProgressiveBlur() rejects invalid ellipse params', () => {
+	expect(() =>
+		radialProgressiveBlur({
+			center: [0.5] as unknown as [number, number],
+		}),
+	).toThrow('"center" must be a [number, number] tuple');
+	expect(() => radialProgressiveBlur({width: Number.NaN})).toThrow(
+		'"width" must be a finite number',
+	);
+	expect(() => radialProgressiveBlur({height: Number.NaN})).toThrow(
+		'"height" must be a finite number',
+	);
+	expect(() => radialProgressiveBlur({rotation: Number.NaN})).toThrow(
+		'"rotation" must be a finite number',
+	);
+	expect(() => radialProgressiveBlur({width: -0.1})).toThrow(
+		'"width" must be >= 0',
+	);
+	expect(() => radialProgressiveBlur({height: -0.1})).toThrow(
+		'"height" must be >= 0',
+	);
+});
+
+test('radialProgressiveBlur() rejects non-finite blur radii', () => {
+	expect(() => radialProgressiveBlur({start: Number.NaN})).toThrow(
+		'"start" must be a finite number',
+	);
+	expect(() => radialProgressiveBlur({startBlur: Number.NaN})).toThrow(
+		'"startBlur" must be a finite number',
+	);
+	expect(() => radialProgressiveBlur({endBlur: Number.NaN})).toThrow(
+		'"endBlur" must be a finite number',
+	);
+});
+
+test('radialProgressiveBlur() rejects progress outside the unit interval', () => {
+	expect(() => radialProgressiveBlur({start: -0.1})).toThrow(
+		'"start" must be >= 0',
+	);
+	expect(() => radialProgressiveBlur({start: 1.1})).toThrow(
+		'"start" must be <= 1',
+	);
+});
+
+test('radialProgressiveBlur() clamps negative blur radii', () => {
+	const clamped = radialProgressiveBlur({startBlur: -10, endBlur: -1});
+	const zero = radialProgressiveBlur({startBlur: 0, endBlur: 0});
+	expect(clamped.effectKey).toBe(zero.effectKey);
+});
+
+test('radialProgressiveBlur() parameters produce distinct effect keys', () => {
+	const defaults = radialProgressiveBlur();
+	const shiftedCenter = radialProgressiveBlur({center: [0.4, 0.5]});
+	const wider = radialProgressiveBlur({width: 1.2});
+	const taller = radialProgressiveBlur({height: 1.2});
+	const rotated = radialProgressiveBlur({rotation: 15});
+	const shiftedStart = radialProgressiveBlur({start: 0.2});
+	const moreStartBlur = radialProgressiveBlur({startBlur: 12});
+	const moreEndBlur = radialProgressiveBlur({endBlur: 80});
+
+	expect(
+		new Set([
+			defaults.effectKey,
+			shiftedCenter.effectKey,
+			wider.effectKey,
+			taller.effectKey,
+			rotated.effectKey,
+			shiftedStart.effectKey,
+			moreStartBlur.effectKey,
+			moreEndBlur.effectKey,
+		]).size,
+	).toBe(8);
 });
 
 test('zoomBlur() accepts default params', () => {

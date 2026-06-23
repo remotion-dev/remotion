@@ -218,6 +218,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-radial-progressive-blur',
+		category: 'Blur & Shadow',
+		label: 'radialProgressiveBlur()',
+		description: 'Ellipse-controlled blur effect',
+		effect: {
+			name: 'radialProgressiveBlur',
+			importPath: '@remotion/effects/radial-progressive-blur',
+			config: {},
+		},
+	},
+	{
 		id: 'effects-zoom-blur',
 		category: 'Blur & Shadow',
 		label: 'zoomBlur()',

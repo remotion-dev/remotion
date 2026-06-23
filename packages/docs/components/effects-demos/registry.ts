@@ -30,6 +30,7 @@ import {noiseDisplacement} from '@remotion/effects/noise-displacement';
 import {pattern} from '@remotion/effects/pattern';
 import {pixelDissolve} from '@remotion/effects/pixel-dissolve';
 import {pixelate} from '@remotion/effects/pixelate';
+import {radialProgressiveBlur} from '@remotion/effects/radial-progressive-blur';
 import {rings} from '@remotion/effects/rings';
 import {saturation} from '@remotion/effects/saturation';
 import {scale} from '@remotion/effects/scale';
@@ -92,6 +93,7 @@ import {
 import {EffectsPatternPreview} from '../effects/effects-pattern-preview';
 import {EffectsPixelDissolvePreview} from '../effects/effects-pixel-dissolve-preview';
 import {EffectsPixelatePreview} from '../effects/effects-pixelate-preview';
+import {EffectsRadialProgressiveBlurPreview} from '../effects/effects-radial-progressive-blur-preview';
 import {EffectsRingsPreview} from '../effects/effects-rings-preview';
 import {EffectsSaturationPreview} from '../effects/effects-saturation-preview';
 import {EffectsScalePreview} from '../effects/effects-scale-preview';
@@ -447,6 +449,14 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/linear-progressive-blur',
 		comp: EffectsLinearProgressiveBlurPreview,
 		schema: linearProgressiveBlur().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-radial-progressive-blur',
+		effectName: 'radialProgressiveBlur',
+		effectImportPath: '@remotion/effects/radial-progressive-blur',
+		comp: EffectsRadialProgressiveBlurPreview,
+		schema: radialProgressiveBlur().definition.schema,
 	},
 	{
 		...defaults,

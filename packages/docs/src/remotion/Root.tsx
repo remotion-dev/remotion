@@ -43,6 +43,7 @@ import {EffectsNoisePreview} from '../../components/effects/effects-noise-previe
 import {EffectsPatternPreview} from '../../components/effects/effects-pattern-preview';
 import {EffectsPixelDissolvePreview} from '../../components/effects/effects-pixel-dissolve-preview';
 import {EffectsPixelatePreview} from '../../components/effects/effects-pixelate-preview';
+import {EffectsRadialProgressiveBlurPreview} from '../../components/effects/effects-radial-progressive-blur-preview';
 import {EffectsRingsPreview} from '../../components/effects/effects-rings-preview';
 import {EffectsSaturationPreview} from '../../components/effects/effects-saturation-preview';
 import {EffectsScalePreview} from '../../components/effects/effects-scale-preview';
@@ -379,6 +380,21 @@ export const RemotionRoot: React.FC = () => {
 					defaultProps={{
 						start: [0, 0.5],
 						end: [1, 0.5],
+						startBlur: 0,
+						endBlur: 50,
+					}}
+				/>
+				<Still
+					id="effects-radial-progressive-blur-preview"
+					component={EffectsRadialProgressiveBlurPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						center: [0.5, 0.5],
+						width: 0.8,
+						height: 0.8,
+						rotation: 0,
+						start: 0.2,
 						startBlur: 0,
 						endBlur: 50,
 					}}
