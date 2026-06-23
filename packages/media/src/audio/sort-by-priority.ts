@@ -16,10 +16,17 @@ const CONCURRENCY = 1;
 
 const waiters: Waiter[] = [];
 let running = 0;
+let runningEntry: {waiter: Waiter; settle: () => void} | null = null;
 
 export const processNext = (): void => {
 	if (running >= CONCURRENCY) {
-		return;
+		if (runningEntry?.waiter.getPriority() === null) {
+			// Running entry went stale: free its slot so a fresh waiter can run
+			// instead of deadlocking behind work nobody needs anymore.
+			runningEntry.settle();
+		} else {
+			return;
+		}
 	}
 
 	// Collect stale waiters first, remove them from the queue,
@@ -68,13 +75,30 @@ export const processNext = (): void => {
 	const [next] = waiters.splice(bestIndex, 1);
 	running++;
 
+	let settled = false;
+	const entry = {
+		waiter: next,
+		settle: () => {
+			if (settled) {
+				return;
+			}
+
+			settled = true;
+			running--;
+			if (runningEntry === entry) {
+				runningEntry = null;
+			}
+		},
+	};
+	runningEntry = entry;
+
 	next.fn().then(
 		(value) => {
-			running--;
+			entry.settle();
 			next.onDone(value, processNext);
 		},
 		(err) => {
-			running--;
+			entry.settle();
 			next.onError(err);
 		},
 	);
