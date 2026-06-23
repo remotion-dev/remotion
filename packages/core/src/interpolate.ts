@@ -9,7 +9,9 @@ export type ExtrapolateType = 'extend' | 'identity' | 'clamp' | 'wrap';
  * @see [Documentation](https://www.remotion.dev/docs/interpolate)
  */
 
-export type EasingFunction = (input: number) => number;
+export type EasingFunction = ((input: number) => number) & {
+	readonly remotionShouldExtendRight?: boolean;
+};
 
 export type InterpolateOptions = Partial<{
 	easing: EasingFunction | readonly EasingFunction[];
@@ -507,6 +509,56 @@ function findRange(input: number, inputRange: readonly number[]) {
 
 const defaultEasing = (num: number): number => num;
 
+const shouldExtendRightForEasing = (easing: EasingFunction): boolean => {
+	return easing.remotionShouldExtendRight === true;
+};
+
+const resolveEasingForSegment = ({
+	easing,
+	segmentIndex,
+}: {
+	easing: InterpolateOptions['easing'];
+	segmentIndex: number;
+}): EasingFunction => {
+	if (easing === undefined) {
+		return defaultEasing;
+	}
+
+	if (typeof easing === 'function') {
+		return easing;
+	}
+
+	// `segmentIndex` is in [0, inputRange.length - 2]; array length was validated above.
+	return easing[segmentIndex] as EasingFunction;
+};
+
+const interpolateSegment = ({
+	input,
+	inputRange,
+	outputRange,
+	easing,
+	extrapolateLeft,
+	extrapolateRight,
+}: {
+	input: number;
+	inputRange: [number, number];
+	outputRange: [number, number];
+	easing: EasingFunction;
+	extrapolateLeft: ExtrapolateType;
+	extrapolateRight: ExtrapolateType;
+}): number => {
+	return interpolateFunction(input, inputRange, outputRange, {
+		easing,
+		extrapolateLeft,
+		extrapolateRight:
+			input > inputRange[1] &&
+			extrapolateRight === 'clamp' &&
+			shouldExtendRightForEasing(easing)
+				? 'extend'
+				: extrapolateRight,
+	});
+};
+
 const interpolateNumber = ({
 	input,
 	inputRange,
@@ -523,18 +575,6 @@ const interpolateNumber = ({
 	}
 
 	const easingOption = options?.easing;
-	const resolveEasingForSegment = (segmentIndex: number): EasingFunction => {
-		if (easingOption === undefined) {
-			return defaultEasing;
-		}
-
-		if (typeof easingOption === 'function') {
-			return easingOption;
-		}
-
-		// `segmentIndex` is in [0, inputRange.length - 2]; array length was validated above.
-		return easingOption[segmentIndex] as EasingFunction;
-	};
 
 	let extrapolateLeft: ExtrapolateType = 'extend';
 	if (options?.extrapolateLeft !== undefined) {
@@ -551,16 +591,45 @@ const interpolateNumber = ({
 			? input
 			: Math.floor(input / options.posterize) * options.posterize;
 	const range = findRange(posterizedInput, inputRange);
-	return interpolateFunction(
-		posterizedInput,
-		[inputRange[range], inputRange[range + 1]],
-		[outputRange[range], outputRange[range + 1]],
-		{
-			easing: resolveEasingForSegment(range),
+	const easing = resolveEasingForSegment({
+		easing: easingOption,
+		segmentIndex: range,
+	});
+	let result = interpolateSegment({
+		input: posterizedInput,
+		inputRange: [inputRange[range], inputRange[range + 1]],
+		outputRange: [outputRange[range], outputRange[range + 1]],
+		easing,
+		extrapolateLeft,
+		extrapolateRight,
+	});
+
+	for (let segmentIndex = 0; segmentIndex < range; segmentIndex++) {
+		const previousEasing = resolveEasingForSegment({
+			easing: easingOption,
+			segmentIndex,
+		});
+		if (!shouldExtendRightForEasing(previousEasing)) {
+			continue;
+		}
+
+		const previousSegmentEnd = inputRange[segmentIndex + 1];
+		if (posterizedInput <= previousSegmentEnd) {
+			continue;
+		}
+
+		const continuedSegmentValue = interpolateSegment({
+			input: posterizedInput,
+			inputRange: [inputRange[segmentIndex], previousSegmentEnd],
+			outputRange: [outputRange[segmentIndex], outputRange[segmentIndex + 1]],
+			easing: previousEasing,
 			extrapolateLeft,
-			extrapolateRight,
-		},
-	);
+			extrapolateRight: 'extend',
+		});
+		result += continuedSegmentValue - outputRange[segmentIndex + 1];
+	}
+
+	return result;
 };
 
 const interpolateString = ({

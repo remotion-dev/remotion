@@ -119,6 +119,9 @@ const isEasing = (value: unknown): value is EffectClipboardEasing => {
 				isFiniteNumber(value.damping) &&
 				isFiniteNumber(value.mass) &&
 				isFiniteNumber(value.stiffness) &&
+				(value.allowTail === undefined ||
+					value.allowTail === null ||
+					typeof value.allowTail === 'boolean') &&
 				(value.durationRestThreshold === undefined ||
 					value.durationRestThreshold === null ||
 					isFiniteNumber(value.durationRestThreshold)) &&
@@ -135,6 +138,7 @@ const normalizeEasing = (
 
 	return {
 		...easing,
+		allowTail: easing.allowTail ?? null,
 		durationRestThreshold: easing.durationRestThreshold ?? null,
 	};
 };

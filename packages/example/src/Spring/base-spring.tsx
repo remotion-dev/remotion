@@ -90,16 +90,33 @@ export const RestThresholdSpringSquare: React.FC = () => {
 					width: 240,
 					backgroundColor: '#0b84f3',
 					boxShadow: '0 24px 70px rgba(11, 132, 243, 0.35)',
-					scale: interpolate(frame, [0, 16], [0, 1], {
-						extrapolateLeft: 'clamp',
-						extrapolateRight: 'extend',
-						easing: [Easing.bezier(0, 0, 0.276, 1.0297)],
-					}),
-					translate: interpolate(frame, [0, 16], ['0px 1464.4px', '0px 0px'], {
-						extrapolateLeft: 'clamp',
-						extrapolateRight: 'clamp',
-						easing: [Easing.bezier(0, 0, 0.58, 1)],
-					}),
+					translate: interpolate(
+						frame,
+						[0, 30, 60],
+						['0px 1000px', '0px 0px', '1000px 0px'],
+						{
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'extend',
+							easing: [
+								Easing.spring({
+									damping: 200,
+									mass: 1,
+									stiffness: 100,
+									allowTail: true,
+									durationRestThreshold: 0.03,
+									overshootClamping: false,
+								}),
+								Easing.spring({
+									damping: 200,
+									mass: 1,
+									stiffness: 100,
+									allowTail: true,
+									durationRestThreshold: 0.03,
+									overshootClamping: false,
+								}),
+							],
+						},
+					),
 				}}
 			/>
 		</AbsoluteFill>

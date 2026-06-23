@@ -44,6 +44,12 @@ test('parseSpringEasingConfig parses a static spring config object', () => {
 				{
 					type: 'ObjectProperty',
 					computed: false,
+					key: {type: 'Identifier', name: 'allowTail'},
+					value: {type: 'BooleanLiteral', value: true},
+				},
+				{
+					type: 'ObjectProperty',
+					computed: false,
 					key: {type: 'Identifier', name: 'durationRestThreshold'},
 					value: {type: 'NumericLiteral', value: 0.1},
 				},
@@ -51,6 +57,7 @@ test('parseSpringEasingConfig parses a static spring config object', () => {
 		}),
 	).toEqual({
 		type: 'spring',
+		allowTail: true,
 		damping: 12,
 		durationRestThreshold: 0.1,
 		mass: 1.5,

@@ -38,6 +38,7 @@ export type CanUpdateSequencePropStatusBezierEasing = {
 
 export type CanUpdateSequencePropStatusSpringEasing = {
 	type: 'spring';
+	allowTail: boolean | null;
 	damping: number;
 	mass: number;
 	stiffness: number;
@@ -240,6 +241,7 @@ export const computeEffectiveSchemaValuesDotNotation = ({
 					value = dragOverride.value;
 				} else if (frame !== null) {
 					const interpolated = interpolateKeyframedStatus({
+						forceSpringAllowTail: null,
 						frame,
 						status,
 					});

@@ -285,7 +285,9 @@ export const Example: React.FC = () => {
 					segmentIndex: 0,
 					easing: {
 						type: 'spring',
+						allowTail: true,
 						damping: 12,
+						durationRestThreshold: 0.1,
 						mass: 1.5,
 						stiffness: 180,
 						overshootClamping: true,
@@ -301,6 +303,8 @@ export const Example: React.FC = () => {
 	expect(output).toContain('damping: 12');
 	expect(output).toContain('mass: 1.5');
 	expect(output).toContain('stiffness: 180');
+	expect(output).toContain('allowTail: true');
+	expect(output).toContain('durationRestThreshold: 0.1');
 	expect(output).toContain('overshootClamping: true');
 });
 

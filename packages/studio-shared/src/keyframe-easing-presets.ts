@@ -8,7 +8,8 @@ export type KeyframeEasingPreset = {
 		| 'ease-out'
 		| 'ease-in-out'
 		| 'spring'
-		| 'bouncy-spring';
+		| 'bouncy-spring'
+		| 'tail-spring';
 	readonly label: string;
 	readonly easing: KeyframeEasing;
 };
@@ -32,12 +33,26 @@ export const KEYFRAME_EASING_PRESETS: KeyframeEasingPreset[] = [
 		easing: {type: 'bezier', x1: 0.42, y1: 0, x2: 0.58, y2: 1},
 	},
 	{
+		id: 'tail-spring',
+		label: 'Tail spring',
+		easing: {
+			type: 'spring',
+			allowTail: true,
+			damping: 200,
+			durationRestThreshold: 0.02,
+			mass: 1,
+			overshootClamping: false,
+			stiffness: 100,
+		},
+	},
+	{
 		id: 'spring',
 		label: 'Spring',
 		easing: {
 			type: 'spring',
+			allowTail: true,
 			damping: 10,
-			durationRestThreshold: null,
+			durationRestThreshold: 0.02,
 			mass: 1,
 			overshootClamping: false,
 			stiffness: 100,
@@ -48,8 +63,9 @@ export const KEYFRAME_EASING_PRESETS: KeyframeEasingPreset[] = [
 		label: 'Bouncy spring',
 		easing: {
 			type: 'spring',
+			allowTail: true,
 			damping: 5,
-			durationRestThreshold: null,
+			durationRestThreshold: 0.02,
 			mass: 1,
 			overshootClamping: false,
 			stiffness: 120,

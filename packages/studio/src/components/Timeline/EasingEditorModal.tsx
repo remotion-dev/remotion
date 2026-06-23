@@ -82,11 +82,12 @@ const PRESET_PREVIEW_HEIGHT = 30;
 const PRESET_PREVIEW_PADDING = 5;
 const PRESET_PREVIEW_Y_MIN = -0.35;
 const PRESET_PREVIEW_Y_MAX = 1.45;
-const DEFAULT_DURATION_REST_THRESHOLD = 0.005;
+const DEFAULT_DURATION_REST_THRESHOLD = 0.02;
 const DEFAULT_SPRING_EASING: SpringEasing = {
 	type: 'spring',
+	allowTail: true,
 	damping: 10,
-	durationRestThreshold: null,
+	durationRestThreshold: DEFAULT_DURATION_REST_THRESHOLD,
 	mass: 1,
 	overshootClamping: false,
 	stiffness: 100,
@@ -290,6 +291,7 @@ const sanitizeSpringValue = (
 
 const sanitizeSpring = (spring: SpringEasing): SpringEasing => ({
 	type: 'spring',
+	allowTail: spring.allowTail,
 	damping: sanitizeSpringValue(
 		spring.damping,
 		'damping',
@@ -365,6 +367,7 @@ const areEasingsEqual = (
 		case 'spring':
 			return (
 				second.type === 'spring' &&
+				first.allowTail === second.allowTail &&
 				first.damping === second.damping &&
 				first.durationRestThreshold === second.durationRestThreshold &&
 				first.mass === second.mass &&
@@ -491,6 +494,7 @@ const getEasingFunction = (easing: TimelineEasingValue) => {
 			return Easing.bezier(easing.x1, easing.y1, easing.x2, easing.y2);
 		case 'spring':
 			return Easing.spring({
+				allowTail: easing.allowTail ?? undefined,
 				damping: easing.damping,
 				durationRestThreshold: easing.durationRestThreshold ?? undefined,
 				mass: easing.mass,
@@ -931,6 +935,15 @@ export const EasingEditor: React.FC<{
 		commitEasing(serializeSpring(next), version);
 	}, [commitEasing, setSpringAndPreview]);
 
+	const setAllowTail = useCallback(() => {
+		const next = {
+			...springRef.current,
+			allowTail: !(springRef.current.allowTail ?? false),
+		};
+		const version = setSpringAndPreview(next);
+		commitEasing(serializeSpring(next), version);
+	}, [commitEasing, setSpringAndPreview]);
+
 	const switchMode = useCallback(
 		(nextMode: EditorMode) => {
 			setMode(nextMode);
@@ -1073,6 +1086,7 @@ export const EasingEditor: React.FC<{
 	}, [endPoint, firstHandle, secondHandle, startPoint]);
 	const springPath = useMemo(() => {
 		const easing = Easing.spring({
+			allowTail: spring.allowTail ?? undefined,
 			damping: spring.damping,
 			durationRestThreshold: spring.durationRestThreshold ?? undefined,
 			mass: spring.mass,
@@ -1428,6 +1442,18 @@ export const EasingEditor: React.FC<{
 									checked={spring.overshootClamping}
 									onChange={setOvershootClamping}
 									name="spring-overshoot-clamping"
+									disabled={disabled}
+									variant="small"
+								/>
+							</div>
+						</div>
+						<div style={coordinateRow}>
+							<div style={coordinateLabel}>Allow tail</div>
+							<div style={checkboxWrapper}>
+								<Checkbox
+									checked={spring.allowTail ?? false}
+									onChange={setAllowTail}
+									name="spring-allow-tail"
 									disabled={disabled}
 									variant="small"
 								/>
