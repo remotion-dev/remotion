@@ -93,7 +93,66 @@ style={{
 }}
 ```
 
-Inline computations let Studio Visual Mode discover and edit the keyframes.
+Inline computations and literal values let Studio Visual Mode discover and edit the keyframes and props.
+
+This also applies to effect parameters. Keep editable effect values inline in the effect call.
+
+Prefer:
+
+```tsx
+effects={[
+  radialProgressiveBlur({
+    center: [0.5, 0.5],
+    point1: [0.86, 0.36],
+    point2: [0.68, 0.84],
+  }),
+]}
+```
+
+❌ Avoid hiding editable values behind constants:
+
+```tsx
+const center = [0.5, 0.5] as const;
+
+effects={[
+  radialProgressiveBlur({
+    center,
+  }),
+]}
+```
+
+## Keep effects unconditional
+
+When using the `effects` prop, keep the effect array shape unconditional. Studio Visual Mode cannot reliably edit an effect that only exists behind a conditional expression.
+
+Prefer rendering separate elements when one version should have effects and another should not:
+
+```tsx
+<CanvasImage src={src} width={1280} height={720} />
+<CanvasImage
+  src={src}
+  width={1280}
+  height={720}
+  effects={[
+    blur({
+      radius: interpolate(frame, [0, 100], [0, 40]),
+    }),
+  ]}
+/>
+```
+
+❌ Avoid conditionally including an effect:
+
+```tsx
+<CanvasImage
+  src={src}
+  width={1280}
+  height={720}
+  effects={enabled ? [blur({radius: 40})] : []}
+/>
+```
+
+Keep editable effect parameters inline inside the unconditional effect call. Do not pass variables for editable values such as coordinates, colors, numeric controls, or interpolations.
 
 ## Interpolate rotation and translation directly
 
