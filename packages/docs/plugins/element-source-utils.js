@@ -12,7 +12,17 @@ const getFence = (source) => {
 
 export const getRemotionElementSource = ({file, sourceFilePath}) => {
 	const absoluteSourcePath = path.resolve(path.dirname(sourceFilePath), file);
-	return fs.readFileSync(absoluteSourcePath, 'utf8').trimEnd();
+
+	try {
+		return fs.readFileSync(absoluteSourcePath, 'utf8').trimEnd();
+	} catch (err) {
+		const message = err instanceof Error ? err.message : String(err);
+
+		throw new Error(
+			`Could not read Element source file "${absoluteSourcePath}" ` +
+				`referenced from "${sourceFilePath}": ${message}`,
+		);
+	}
 };
 
 export const getElementSourceCodeBlock = ({file, sourceFilePath}) => {
