@@ -103,16 +103,18 @@ describe('Elements must follow the colocated single-file format', () => {
 				expect(mdx).toContain('sourceCode={lowerThirdSource}');
 			});
 
-			test('Element drag file name is lowercase if present', () => {
-				const match = mdx.match(/fileName="([^"]+)"/);
+			test('Element drag file name is derived from the slug', () => {
+				expect(mdx).not.toContain('fileName=');
+
+				const match = mdx.match(/slug="([^"]+)"/);
 				if (!match) {
 					return;
 				}
 
-				expect(match[1]).toBe(match[1].toLowerCase());
-				expect(match[1]).toEndWith('.tsx');
-				expect(match[1]).not.toContain('/');
-				expect(match[1]).not.toContain('..');
+				const lastSlugSegment = match[1].split('/').at(-1);
+				expect(lastSlugSegment).toBeTruthy();
+				expect(lastSlugSegment).toBe(lastSlugSegment?.toLowerCase());
+				expect(lastSlugSegment).not.toContain('..');
 			});
 		});
 	}
