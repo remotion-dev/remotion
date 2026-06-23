@@ -12,7 +12,6 @@ export type ElementDragData = {
 		slug: string;
 		displayName: string;
 		componentName: string;
-		fileName: string;
 		sourceCode: string;
 		dimensions: ComponentDimensions;
 		category?: string;
@@ -47,6 +46,20 @@ const isSlug = (value: unknown): value is string => {
 		!value.includes('..') &&
 		!value.includes('//')
 	);
+};
+
+export const makeElementFileNameFromSlug = (slug: string) => {
+	if (!isSlug(slug)) {
+		return null;
+	}
+
+	const lastSegment = slug.split('/').at(-1);
+	if (!lastSegment) {
+		return null;
+	}
+
+	const fileName = `${lastSegment}.element.tsx`;
+	return isLowercaseElementFileName(fileName) ? fileName : null;
 };
 
 const isDisplayName = (value: unknown): value is string => {
@@ -85,7 +98,6 @@ export const makeElementDragData = ({
 	componentName,
 	dimensions,
 	displayName,
-	fileName,
 	slug,
 	sourceCode,
 }: ElementDragData['element']): ElementDragData => {
@@ -96,7 +108,6 @@ export const makeElementDragData = ({
 			slug,
 			displayName,
 			componentName,
-			fileName,
 			sourceCode,
 			dimensions,
 			...(category ? {category} : {}),
@@ -119,21 +130,14 @@ export const parseElementDragData = (value: string): ElementDragData | null => {
 			return null;
 		}
 
-		const {
-			category,
-			componentName,
-			dimensions,
-			displayName,
-			fileName,
-			slug,
-			sourceCode,
-		} = parsed.element;
+		const {category, componentName, dimensions, displayName, slug, sourceCode} =
+			parsed.element;
 
 		if (
 			!isSlug(slug) ||
 			!isDisplayName(displayName) ||
 			!isComponentIdentifier(componentName) ||
-			!isLowercaseElementFileName(fileName) ||
+			makeElementFileNameFromSlug(slug) === null ||
 			!isSourceCode(sourceCode) ||
 			!isDimensions(dimensions) ||
 			(typeof category !== 'undefined' && !isCategory(category))
@@ -145,7 +149,6 @@ export const parseElementDragData = (value: string): ElementDragData | null => {
 			slug,
 			displayName,
 			componentName,
-			fileName,
 			sourceCode,
 			dimensions,
 			...(category ? {category} : {}),

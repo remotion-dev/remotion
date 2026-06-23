@@ -3,7 +3,7 @@ import path from 'node:path';
 import {RenderInternals} from '@remotion/renderer';
 import {
 	isComponentIdentifier,
-	isLowercaseElementFileName,
+	makeElementFileNameFromSlug,
 	type InsertElementRequest,
 	type InsertElementResponse,
 	type InsertableCompositionElementPosition,
@@ -109,9 +109,9 @@ const validateElement = (element: InsertElementRequest['element']) => {
 		throw new Error('Unsupported Element component name');
 	}
 
-	if (!isLowercaseElementFileName(element.fileName)) {
+	if (makeElementFileNameFromSlug(element.slug) === null) {
 		throw new Error(
-			'Element file name must be a safe lowercase .tsx file name',
+			'Element slug must produce a safe lowercase .tsx file name',
 		);
 	}
 
@@ -159,9 +159,16 @@ export const insertElementHandler: ApiHandler<
 				);
 			}
 
+			const derivedElementFileName = makeElementFileNameFromSlug(element.slug);
+			if (derivedElementFileName === null) {
+				throw new Error(
+					'Element slug must produce a safe lowercase .tsx file name',
+				);
+			}
+
 			const elementFileName = path.resolve(
 				path.dirname(location.fileName),
-				element.fileName,
+				derivedElementFileName,
 			);
 			if (!isInside({child: elementFileName, parent: remotionRoot})) {
 				throw new Error('Element file must stay inside the Remotion project');
@@ -175,7 +182,7 @@ export const insertElementHandler: ApiHandler<
 					normalizeSourceForComparison(element.sourceCode)
 				) {
 					throw new Error(
-						`Element file already exists with different contents: ${element.fileName}`,
+						`Element file already exists with different contents: ${derivedElementFileName}`,
 					);
 				}
 			}

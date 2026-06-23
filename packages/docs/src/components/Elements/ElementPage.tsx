@@ -1,5 +1,4 @@
 import {
-	isLowercaseElementFileName,
 	makeElementDragData,
 	type ComponentDimensions,
 } from '@remotion/studio-shared';
@@ -22,16 +21,6 @@ type ElementPageProps = {
 	readonly slug?: string;
 	readonly sourceCode?: string;
 	readonly width?: number;
-};
-
-const getElementFileNameFromSlug = (slug: string): string | null => {
-	const lastSegment = slug.split('/').at(-1);
-	if (!lastSegment) {
-		return null;
-	}
-
-	const fileName = `${lastSegment}.element.tsx`;
-	return isLowercaseElementFileName(fileName) ? fileName : null;
 };
 
 const dragButtonStyle: React.CSSProperties = {
@@ -75,11 +64,6 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 			return null;
 		}
 
-		const fileName = getElementFileNameFromSlug(slug);
-		if (fileName === null) {
-			return null;
-		}
-
 		const dimensions: ComponentDimensions = {
 			width: elementWidth,
 			height: elementHeight,
@@ -90,7 +74,6 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 			componentName,
 			dimensions,
 			displayName,
-			fileName,
 			slug,
 			sourceCode,
 		});

@@ -170,6 +170,7 @@ export {
 	ELEMENT_DRAG_MIME_TYPE,
 	isLowercaseElementFileName,
 	makeElementDragData,
+	makeElementFileNameFromSlug,
 	parseElementDragData,
 	type ElementDragData,
 } from './element-drag-data';

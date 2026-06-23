@@ -1,11 +1,14 @@
 import {expect, test} from 'bun:test';
-import {makeElementDragData, parseElementDragData} from '../element-drag-data';
+import {
+	makeElementDragData,
+	makeElementFileNameFromSlug,
+	parseElementDragData,
+} from '../element-drag-data';
 
 const validElement = {
 	slug: 'overlays/lower-third',
 	displayName: 'Lower Third',
 	componentName: 'LowerThird',
-	fileName: 'lower-third.element.tsx',
 	sourceCode: 'export const LowerThird = () => null;',
 	dimensions: {width: 900, height: 260},
 	category: 'overlays',
@@ -29,7 +32,6 @@ test('parses element drag data without optional category', () => {
 					slug: 'lower-third',
 					displayName: 'Lower Third',
 					componentName: 'LowerThird',
-					fileName: 'lower-third.element.tsx',
 					sourceCode: 'export const LowerThird = () => null;',
 					dimensions: {width: 900, height: 260},
 				}),
@@ -42,11 +44,18 @@ test('parses element drag data without optional category', () => {
 			slug: 'lower-third',
 			displayName: 'Lower Third',
 			componentName: 'LowerThird',
-			fileName: 'lower-third.element.tsx',
 			sourceCode: 'export const LowerThird = () => null;',
 			dimensions: {width: 900, height: 260},
 		},
 	});
+});
+
+test('derives element file name from slug', () => {
+	expect(makeElementFileNameFromSlug('overlays/lower-third')).toBe(
+		'lower-third.element.tsx',
+	);
+	expect(makeElementFileNameFromSlug('LowerThird')).toBe(null);
+	expect(makeElementFileNameFromSlug('overlays/../lower-third')).toBe(null);
 });
 
 test('rejects invalid element drag data', () => {
@@ -84,7 +93,7 @@ test('rejects invalid element drag data', () => {
 			JSON.stringify({
 				type: 'remotion-element',
 				version: 1,
-				element: {...validElement, fileName: 'LowerThird.element.tsx'},
+				element: {...validElement, slug: 'LowerThird'},
 			}),
 		),
 	).toBe(null);
@@ -93,7 +102,7 @@ test('rejects invalid element drag data', () => {
 			JSON.stringify({
 				type: 'remotion-element',
 				version: 1,
-				element: {...validElement, fileName: '../lower-third.element.tsx'},
+				element: {...validElement, slug: '../lower-third'},
 			}),
 		),
 	).toBe(null);
