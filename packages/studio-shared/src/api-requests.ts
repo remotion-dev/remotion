@@ -30,6 +30,7 @@ import type {
 	EffectClipboardPasteType,
 	EffectClipboardSnapshot,
 } from './effect-clipboard-data';
+import type {ElementDragData} from './element-drag-data';
 import type {PackageManager} from './package-manager';
 import type {ProjectInfo} from './project-info';
 import type {
@@ -688,6 +689,23 @@ export type InsertJsxElementResponse =
 			stack: string;
 	  };
 
+export type InsertElementRequest = {
+	compositionFile: string;
+	compositionId: string;
+	element: ElementDragData['element'];
+	position: InsertableCompositionElementPosition | null;
+};
+
+export type InsertElementResponse =
+	| {
+			success: true;
+	  }
+	| {
+			success: false;
+			reason: string;
+			stack: string;
+	  };
+
 export type DownloadRemoteAssetRequest = {
 	url: string;
 };
@@ -847,6 +865,7 @@ export type ApiRoutes = {
 		InsertJsxElementRequest,
 		InsertJsxElementResponse
 	>;
+	'/api/insert-element': ReqAndRes<InsertElementRequest, InsertElementResponse>;
 	'/api/download-remote-asset': ReqAndRes<
 		DownloadRemoteAssetRequest,
 		DownloadRemoteAssetResponse

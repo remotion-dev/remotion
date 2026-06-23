@@ -48,6 +48,11 @@ const extractTsxBlock = (mdx: string): string | null => {
 	return match ? match[1] : null;
 };
 
+const extractLowerThirdSource = (mdx: string): string | null => {
+	const match = mdx.match(/export const lowerThirdSource = ("[\s\S]*?");\n/);
+	return match ? (JSON.parse(match[1]) as string) : null;
+};
+
 const allElements = [
 	...findElements(elementsRoot),
 	...findElements(templateRoot),
@@ -63,13 +68,14 @@ describe('Elements must follow the colocated single-file format', () => {
 			const tsx = readFileSync(element.tsxPath, 'utf8');
 			const mdx = readFileSync(element.mdxPath, 'utf8');
 
-			test('source file is an Element, not a composition', () => {
+			test('source file is an Element, not a composition or wrapper Sequence', () => {
 				expect(tsx).not.toContain('export const durationInFrames');
 				expect(tsx).not.toContain('export const fps');
 				expect(tsx).not.toContain('export const width');
 				expect(tsx).not.toContain('export const height');
 				expect(tsx).not.toContain('export const RemotionRoot');
 				expect(tsx).not.toContain('<Composition');
+				expect(tsx).not.toContain('<Sequence');
 			});
 
 			test('MDX uses the ElementPage template', () => {
@@ -85,6 +91,28 @@ describe('Elements must follow the colocated single-file format', () => {
 				expect(block).not.toBeNull();
 				// The fenced code block must be identical to the runnable .tsx file.
 				expect(block?.trim()).toBe(tsx.trim());
+			});
+
+			test('drag payload source matches the source file if present', () => {
+				const source = extractLowerThirdSource(mdx);
+				if (source === null) {
+					return;
+				}
+
+				expect(source.trim()).toBe(tsx.trim());
+				expect(mdx).toContain('sourceCode={lowerThirdSource}');
+			});
+
+			test('Element drag file name is lowercase if present', () => {
+				const match = mdx.match(/fileName="([^"]+)"/);
+				if (!match) {
+					return;
+				}
+
+				expect(match[1]).toBe(match[1].toLowerCase());
+				expect(match[1]).toEndWith('.tsx');
+				expect(match[1]).not.toContain('/');
+				expect(match[1]).not.toContain('..');
 			});
 		});
 	}

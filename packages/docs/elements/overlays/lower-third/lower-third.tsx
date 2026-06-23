@@ -1,7 +1,6 @@
 import React from 'react';
 import {
 	AbsoluteFill,
-	Sequence,
 	interpolate,
 	spring,
 	useCurrentFrame,
@@ -32,63 +31,61 @@ export const LowerThird: React.FC = () => {
 	const progress = entrance * exit;
 
 	return (
-		<Sequence width={900} height={260}>
-			<AbsoluteFill
+		<AbsoluteFill
+			style={{
+				fontFamily: 'Inter, system-ui, sans-serif',
+				pointerEvents: 'none',
+			}}
+		>
+			<div
 				style={{
-					fontFamily: 'Inter, system-ui, sans-serif',
-					pointerEvents: 'none',
+					position: 'absolute',
+					left: 0,
+					bottom: 0,
+					transform: `translateX(${interpolate(progress, [0, 1], [-90, 0])}px)`,
+					opacity: progress,
 				}}
 			>
 				<div
 					style={{
-						position: 'absolute',
-						left: 0,
-						bottom: 0,
-						transform: `translateX(${interpolate(progress, [0, 1], [-90, 0])}px)`,
-						opacity: progress,
+						width: 660,
+						padding: '34px 42px',
+						borderRadius: 28,
+						background: 'rgba(255, 255, 255, 0.92)',
+						boxShadow: '0 24px 80px rgba(0, 0, 0, 0.3)',
 					}}
 				>
 					<div
 						style={{
-							width: 660,
-							padding: '34px 42px',
-							borderRadius: 28,
-							background: 'rgba(255, 255, 255, 0.92)',
-							boxShadow: '0 24px 80px rgba(0, 0, 0, 0.3)',
+							fontSize: 54,
+							fontWeight: 800,
+							color: '#111827',
+							letterSpacing: -1.5,
 						}}
 					>
-						<div
-							style={{
-								fontSize: 54,
-								fontWeight: 800,
-								color: '#111827',
-								letterSpacing: -1.5,
-							}}
-						>
-							Alex Morgan
-						</div>
-						<div
-							style={{
-								fontSize: 30,
-								fontWeight: 600,
-								color: '#2563eb',
-								marginTop: 10,
-							}}
-						>
-							Creative Developer
-						</div>
+						Alex Morgan
 					</div>
 					<div
 						style={{
-							width: interpolate(progress, [0, 1], [0, 520]),
-							height: 10,
-							borderRadius: 999,
-							background: '#60a5fa',
-							marginTop: 18,
+							fontSize: 30,
+							fontWeight: 600,
+							color: '#2563eb',
+							marginTop: 10,
 						}}
-					/>
+					>
+						Creative Developer
+					</div>
 				</div>
-			</AbsoluteFill>
-		</Sequence>
+				<div
+					style={{
+						width: interpolate(progress, [0, 1], [0, 520]),
+						height: 10,
+						borderRadius: 999,
+						background: '#60a5fa',
+						marginTop: 18,
+					}}
+				/>
+			</div>
+		</AbsoluteFill>
 	);
 };

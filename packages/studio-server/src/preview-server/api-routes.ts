@@ -16,6 +16,7 @@ import {deleteStaticFileHandler} from './routes/delete-static-file';
 import {downloadRemoteAssetHandler} from './routes/download-remote-asset';
 import {duplicateEffectHandler} from './routes/duplicate-effect';
 import {duplicateJsxNodeHandler} from './routes/duplicate-jsx-node';
+import {insertElementHandler} from './routes/insert-element';
 import {insertJsxElementHandler} from './routes/insert-jsx-element';
 import {handleInstallPackage} from './routes/install-dependency';
 import {logStudioErrorHandler} from './routes/log-studio-error';
@@ -94,6 +95,7 @@ export const allApiRoutes: {
 	'/api/restart-studio': handleRestartStudio,
 	'/api/install-package': handleInstallPackage,
 	'/api/insert-jsx-element': insertJsxElementHandler,
+	'/api/insert-element': insertElementHandler,
 	'/api/download-remote-asset': downloadRemoteAssetHandler,
 	'/api/undo': undoHandler,
 	'/api/redo': redoHandler,
