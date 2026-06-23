@@ -103,6 +103,9 @@ import {
 	getTimelineSequenceLeftEdgeDragChanges,
 	getTimelineSequenceLeftEdgeDragTargets,
 	getTimelineSequenceLeftEdgeDragValues,
+	getTimelineSequenceMediaRightEdgeDragChanges,
+	getTimelineSequenceMediaRightEdgeDragTargets,
+	getTimelineSequenceMediaRightEdgeDragValues,
 } from '../components/Timeline/TimelineSequenceRightEdgeDragHandle';
 import {
 	parsedTransformOriginToUv,
@@ -113,6 +116,7 @@ import {
 	getKeyframesForTimelineEasingDrag,
 	getTimelineSelectionsAfterEasingKeyframeDrag,
 } from '../components/Timeline/use-timeline-keyframe-drag';
+import {calculateTimeline} from '../helpers/calculate-timeline';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 import {
 	loadEditorShowOutlinesOption,
@@ -184,6 +188,7 @@ const makeTimelineSequence = ({
 	refForOutline = null,
 	duration = 100,
 	from = 0,
+	playbackRate = 1,
 	startMediaFrom = 0,
 	type = 'sequence',
 	showInTimeline = true,
@@ -196,6 +201,7 @@ const makeTimelineSequence = ({
 	readonly refForOutline?: RefObject<HTMLElement | null> | null;
 	readonly duration?: number;
 	readonly from?: number;
+	readonly playbackRate?: number;
 	readonly startMediaFrom?: number;
 	readonly type?: TSequence['type'];
 	readonly showInTimeline?: boolean;
@@ -228,6 +234,7 @@ const makeTimelineSequence = ({
 		isInsideSeries: false,
 		effects,
 		frozenFrame: null,
+		playbackRate,
 		startMediaFrom,
 	}) as TSequence;
 
@@ -284,6 +291,23 @@ const makeLeftEdgePropStatuses = (
 				...(includeTrimBefore
 					? {trimBefore: {status: 'static' as const, codeValue: 0}}
 					: {}),
+			},
+			effects: [],
+		};
+	}
+
+	return propStatuses;
+};
+
+const makeRightEdgeMediaPropStatuses = (
+	nodePaths: readonly SequencePropsSubscriptionKey[],
+): PropStatuses => {
+	const propStatuses: PropStatuses = {};
+	for (const nodePath of nodePaths) {
+		propStatuses[Internals.makeSequencePropsSubscriptionKey(nodePath)] = {
+			canUpdate: true,
+			props: {
+				trimAfter: {status: 'static', codeValue: 100},
 			},
 			effects: [],
 		};
@@ -1359,28 +1383,97 @@ test('Timeline left edge drag is blocked without timeline range props', () => {
 	expect(targets).toBe(null);
 });
 
-test('Timeline left edge drag is blocked if trimBefore cannot update', () => {
+test('Timeline left edge drag works even when trimBefore is not set (CapCut-like)', () => {
 	const schema = {} satisfies InteractivitySchema;
 	const nodePathInfo = makeNodePathInfo(['body', 0], []);
+	const targets = getTimelineSequenceLeftEdgeDragTargets({
+		draggedNodePathInfo: nodePathInfo,
+		selectedItems: [{type: 'sequence', nodePathInfo}],
+		sequences: [
+			makeTimelineSequence({
+				schema,
+				type: 'audio',
+			}),
+		],
+		overrideIdsToNodePaths: {
+			override: nodePathInfo.sequenceSubscriptionKey,
+		},
+		propStatuses: makeLeftEdgePropStatuses([
+			nodePathInfo.sequenceSubscriptionKey,
+		]),
+	});
 
+	expect(targets).not.toBe(null);
+});
+
+test('Timeline media right edge drag adjusts trimAfter for video clips', () => {
+	const schema = {} satisfies InteractivitySchema;
+	const nodePathInfo = makeNodePathInfo(['body', 0], []);
+	const targets = getTimelineSequenceMediaRightEdgeDragTargets({
+		draggedNodePathInfo: nodePathInfo,
+		selectedItems: [{type: 'sequence', nodePathInfo}],
+		sequences: [
+			makeTimelineSequence({
+				schema,
+				duration: 40,
+				startMediaFrom: 8,
+				type: 'video',
+			}),
+		],
+		overrideIdsToNodePaths: {
+			override: nodePathInfo.sequenceSubscriptionKey,
+		},
+		propStatuses: makeRightEdgeMediaPropStatuses([
+			nodePathInfo.sequenceSubscriptionKey,
+		]),
+	});
+
+	expect(targets?.map((target) => target.initialTrimAfter)).toEqual([48]);
 	expect(
-		getTimelineSequenceLeftEdgeDragTargets({
-			draggedNodePathInfo: nodePathInfo,
-			selectedItems: [{type: 'sequence', nodePathInfo}],
-			sequences: [
-				makeTimelineSequence({
-					schema,
-					type: 'audio',
-				}),
-			],
-			overrideIdsToNodePaths: {
-				override: nodePathInfo.sequenceSubscriptionKey,
-			},
-			propStatuses: makeLeftEdgePropStatuses([
-				nodePathInfo.sequenceSubscriptionKey,
-			]),
+		getTimelineSequenceMediaRightEdgeDragChanges({
+			targets: targets ?? [],
+			deltaFrames: 12,
+		}).map((change) => [change.fieldKey, change.value]),
+	).toEqual([['trimAfter', 60]]);
+});
+
+test('Timeline media right edge drag clamps to one visible frame', () => {
+	expect(
+		getTimelineSequenceMediaRightEdgeDragValues({
+			initialDuration: 4,
+			initialTrimBefore: 6,
+			deltaFrames: -10,
+			playbackRate: 1,
+			maxMediaDuration: null,
 		}),
-	).toBe(null);
+	).toEqual({
+		durationInFrames: 1,
+		trimAfter: 7,
+	});
+});
+
+test('Timeline media right edge drag works even when trimAfter is not set (CapCut-like)', () => {
+	const schema = {} satisfies InteractivitySchema;
+	const nodePathInfo = makeNodePathInfo(['body', 0], []);
+	const targets = getTimelineSequenceMediaRightEdgeDragTargets({
+		draggedNodePathInfo: nodePathInfo,
+		selectedItems: [{type: 'sequence', nodePathInfo}],
+		sequences: [
+			makeTimelineSequence({
+				schema,
+				type: 'audio',
+			}),
+		],
+		overrideIdsToNodePaths: {
+			override: nodePathInfo.sequenceSubscriptionKey,
+		},
+		propStatuses: makeDurationPropStatuses([
+			nodePathInfo.sequenceSubscriptionKey,
+		]),
+	});
+
+	expect(targets).not.toBe(null);
+	expect(targets?.length).toBe(1);
 });
 
 test('Timeline from drag applies the same delta to selected sequences', () => {
@@ -4915,4 +5008,84 @@ test('Selected timeline rows do not reselect on pointer down without modifiers',
 			ctrlKey: false,
 		}),
 	).toBe(true);
+});
+
+test('Sequence wrapping a single Video merges into one timeline row', () => {
+	const schema = {} satisfies InteractivitySchema;
+	const parentNodePath = makeKey(['body', 0]);
+	const childNodePath = makeKey(['body', 0, 'children', 0]);
+	const sequences: TSequence[] = [
+		makeTimelineSequence({
+			schema,
+			id: 'parent',
+			overrideId: 'parent',
+			duration: 100,
+			from: 7,
+		}),
+		makeTimelineSequence({
+			schema,
+			id: 'child',
+			overrideId: 'child',
+			parentId: 'parent',
+			duration: 50,
+			type: 'video',
+		}),
+	];
+
+	const {tracks, mergedParentIds} = calculateTimeline({
+		sequences,
+		overrideIdsToNodePaths: {
+			parent: parentNodePath,
+			child: childNodePath,
+		},
+	});
+
+	// Parent is marked for merge and the child carries its info
+	expect(mergedParentIds.has('parent')).toBe(true);
+	const childTrack = tracks.find((t) => t.sequence.id === 'child');
+	expect(childTrack).toBeDefined();
+	expect(childTrack?.mergedParentInfo).not.toBeNull();
+	expect(childTrack?.mergedParentInfo?.sequence.id).toBe('parent');
+	expect(
+		childTrack?.mergedParentInfo?.nodePathInfo.sequenceSubscriptionKey,
+	).toBe(parentNodePath);
+});
+
+test('Sequence with two Video children does NOT merge', () => {
+	const schema = {} satisfies InteractivitySchema;
+	const parentNodePath = makeKey(['body', 0]);
+	const childANodePath = makeKey(['body', 0, 'children', 0]);
+	const childBNodePath = makeKey(['body', 0, 'children', 1]);
+	const sequences: TSequence[] = [
+		makeTimelineSequence({
+			schema,
+			id: 'parent',
+			overrideId: 'parent',
+		}),
+		makeTimelineSequence({
+			schema,
+			id: 'childA',
+			overrideId: 'childA',
+			parentId: 'parent',
+			type: 'video',
+		}),
+		makeTimelineSequence({
+			schema,
+			id: 'childB',
+			overrideId: 'childB',
+			parentId: 'parent',
+			type: 'video',
+		}),
+	];
+
+	const {mergedParentIds} = calculateTimeline({
+		sequences,
+		overrideIdsToNodePaths: {
+			parent: parentNodePath,
+			childA: childANodePath,
+			childB: childBNodePath,
+		},
+	});
+
+	expect(mergedParentIds.has('parent')).toBe(false);
 });

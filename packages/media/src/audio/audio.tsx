@@ -15,8 +15,17 @@ import type {AudioProps} from './props';
 
 const {validateMediaProps} = Internals;
 
+const trimAfterField = {
+	type: 'number',
+	default: undefined,
+	min: 1,
+	step: 1,
+	hiddenFromList: true,
+} as const satisfies InteractivitySchema[keyof InteractivitySchema];
+
 const audioSchema = {
 	...Internals.baseSchema,
+	trimAfter: trimAfterField,
 	volume: {
 		type: 'number',
 		min: 0,

@@ -15,7 +15,7 @@ const withoutKeyframeDisplayOffset = <
 	});
 
 test('Should calculate timeline with no sequences', () => {
-	const calculated = calculateTimeline({
+	const {tracks: calculated} = calculateTimeline({
 		overrideIdsToNodePaths: {},
 		sequences: [],
 	});
@@ -23,7 +23,7 @@ test('Should calculate timeline with no sequences', () => {
 });
 
 test('Should calculate a basic timeline', () => {
-	const calculated = calculateTimeline({
+	const {tracks: calculated} = calculateTimeline({
 		overrideIdsToNodePaths: {},
 		sequences: [
 			{
@@ -82,7 +82,7 @@ test('Should calculate a basic timeline', () => {
 });
 
 test('Should follow order of nesting', () => {
-	const calculated = calculateTimeline({
+	const {tracks: calculated} = calculateTimeline({
 		overrideIdsToNodePaths: {},
 		sequences: [
 			{
@@ -190,7 +190,7 @@ test('Should follow order of nesting', () => {
 });
 
 test('Should inherit loop display from parent for media tracks', () => {
-	const calculated = calculateTimeline({
+	const {tracks: calculated} = calculateTimeline({
 		overrideIdsToNodePaths: {},
 		sequences: [
 			{
@@ -258,7 +258,7 @@ test('Should inherit loop display from parent for media tracks', () => {
 });
 
 test('Should calculate sequence frame offset for negative from values', () => {
-	const calculated = calculateTimeline({
+	const {tracks: calculated} = calculateTimeline({
 		overrideIdsToNodePaths: {},
 		sequences: [
 			{
@@ -291,7 +291,7 @@ test('Should calculate sequence frame offset for negative from values', () => {
 });
 
 test('Should calculate sequence frame offset for trimBefore values', () => {
-	const calculated = calculateTimeline({
+	const {tracks: calculated} = calculateTimeline({
 		overrideIdsToNodePaths: {},
 		sequences: [
 			{

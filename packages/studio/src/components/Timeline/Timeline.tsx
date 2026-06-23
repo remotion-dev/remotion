@@ -223,9 +223,12 @@ const TimelineInner: React.FC = () => {
 
 	const videoConfigIsNull = videoConfig === null;
 
-	const timeline = useMemo((): TrackWithHash[] => {
+	const {tracks: timeline, mergedParentIds} = useMemo(() => {
 		if (videoConfigIsNull) {
-			return [];
+			return {
+				tracks: [] as TrackWithHash[],
+				mergedParentIds: new Set<string>(),
+			};
 		}
 
 		return calculateTimeline({
@@ -238,9 +241,9 @@ const TimelineInner: React.FC = () => {
 
 	const filtered = useMemo(() => {
 		return timeline.filter((t) =>
-			shouldShowTrackInTimeline(t, durationInFrames),
+			shouldShowTrackInTimeline(t, durationInFrames, mergedParentIds),
 		);
-	}, [durationInFrames, timeline]);
+	}, [durationInFrames, timeline, mergedParentIds]);
 
 	const shown = useMemo(() => {
 		return filtered.length > MAX_TIMELINE_TRACKS

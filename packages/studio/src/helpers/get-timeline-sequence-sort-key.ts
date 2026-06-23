@@ -14,6 +14,10 @@ type Track = {
 	nodePathInfo: SequenceNodePathInfo | null;
 	keyframeDisplayOffset: number;
 	sequenceFrameOffset: number;
+	mergedParentInfo?: {
+		readonly sequence: TSequence;
+		readonly nodePathInfo: SequenceNodePathInfo;
+	} | null;
 };
 
 export type TrackWithHash = Track & {

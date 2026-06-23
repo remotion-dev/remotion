@@ -20,7 +20,10 @@ import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {calculateTimeline} from '../../helpers/calculate-timeline';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
-import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
+import type {
+	SequenceNodePathInfo,
+	TrackWithHash,
+} from '../../helpers/get-timeline-sequence-sort-key';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {
 	forceSpecificCursor,
@@ -36,7 +39,8 @@ import {
 	type TimelineSelection,
 } from './TimelineSelection';
 
-const HANDLE_WIDTH = 6;
+const HANDLE_WIDTH = 14;
+const HANDLE_GRIP_WIDTH = 3;
 
 const baseStyle: React.CSSProperties = {
 	position: 'absolute',
@@ -48,10 +52,34 @@ const baseStyle: React.CSSProperties = {
 	touchAction: 'none',
 };
 
+const gripBaseStyle: React.CSSProperties = {
+	position: 'absolute',
+	top: 2,
+	bottom: 2,
+	width: HANDLE_GRIP_WIDTH,
+	borderRadius: 999,
+	backgroundColor: 'rgba(255, 255, 255, 0.9)',
+	boxShadow: '0 0 0 1px rgba(0, 0, 0, 0.12)',
+	opacity: 0.85,
+};
+
 export type TimelineSequenceDurationDragTarget = {
 	readonly fileName: string;
 	readonly initialDuration: number;
 	readonly nodePath: SequencePropsSubscriptionKey;
+};
+
+export type TimelineSequenceMediaRightEdgeDragTarget = {
+	readonly fileName: string;
+	readonly initialDuration: number;
+	readonly initialTrimAfter: number;
+	readonly initialTrimBefore: number;
+	readonly maxMediaDuration: number | null;
+	readonly nodePath: SequencePropsSubscriptionKey;
+	readonly playbackRate: number;
+	readonly schema: InteractivitySchema;
+	readonly parentNodePath?: SequencePropsSubscriptionKey;
+	readonly parentInitialDuration?: number;
 };
 
 export type TimelineSequenceLeftEdgeDragTarget = {
@@ -102,10 +130,29 @@ const canUpdateTrimBefore = ({
 	readonly propStatuses: PropStatuses;
 	readonly nodePath: SequencePropsSubscriptionKey;
 }) => {
-	const status = Internals.getPropStatusesCtx(propStatuses, nodePath)
-		?.trimBefore?.status;
+	const ctx = Internals.getPropStatusesCtx(propStatuses, nodePath);
+	if (!ctx) {
+		return false;
+	}
 
-	return status === 'static';
+	const status = ctx.trimBefore?.status;
+	return status === 'static' || status === undefined;
+};
+
+const canUpdateTrimAfter = ({
+	propStatuses,
+	nodePath,
+}: {
+	readonly propStatuses: PropStatuses;
+	readonly nodePath: SequencePropsSubscriptionKey;
+}) => {
+	const ctx = Internals.getPropStatusesCtx(propStatuses, nodePath);
+	if (!ctx) {
+		return false;
+	}
+
+	const status = ctx.trimAfter?.status;
+	return status === 'static' || status === undefined;
 };
 
 const isDurationDraggableSequence = (sequence: TSequence) => {
@@ -143,6 +190,35 @@ export const getTimelineSequenceDurationDragValue = ({
 	readonly initialDuration: number;
 	readonly deltaFrames: number;
 }) => Math.max(1, initialDuration + deltaFrames);
+
+export const getTimelineSequenceMediaRightEdgeDragValues = ({
+	initialDuration,
+	initialTrimBefore,
+	deltaFrames,
+	playbackRate,
+	maxMediaDuration,
+}: {
+	readonly initialDuration: number;
+	readonly initialTrimBefore: number;
+	readonly deltaFrames: number;
+	readonly playbackRate: number;
+	readonly maxMediaDuration: number | null;
+}) => {
+	const unclampedDuration = Math.max(1, initialDuration + deltaFrames);
+	const maxDuration =
+		maxMediaDuration === null
+			? Number.POSITIVE_INFINITY
+			: Math.max(
+					1,
+					Math.floor((maxMediaDuration - initialTrimBefore) / playbackRate),
+				);
+	const durationInFrames = Math.min(unclampedDuration, maxDuration);
+
+	return {
+		durationInFrames,
+		trimAfter: initialTrimBefore + durationInFrames * playbackRate,
+	};
+};
 
 export const getTimelineSequenceLeftEdgeDragDelta = ({
 	initialDuration,
@@ -266,6 +342,57 @@ export const getTimelineSequenceDurationDragChanges = ({
 	});
 };
 
+export const getTimelineSequenceMediaRightEdgeDragChanges = ({
+	targets,
+	deltaFrames,
+}: {
+	readonly targets: readonly TimelineSequenceMediaRightEdgeDragTarget[];
+	readonly deltaFrames: number;
+}): SaveSequencePropChange[] => {
+	return targets.flatMap((target) => {
+		const nextValues = getTimelineSequenceMediaRightEdgeDragValues({
+			initialDuration: target.initialDuration,
+			initialTrimBefore: target.initialTrimBefore,
+			deltaFrames,
+			playbackRate: target.playbackRate,
+			maxMediaDuration: target.maxMediaDuration,
+		});
+
+		const result: SaveSequencePropChange[] = [];
+
+		if (nextValues.trimAfter !== target.initialTrimAfter) {
+			result.push({
+				fileName: target.fileName,
+				nodePath: target.nodePath,
+				fieldKey: 'trimAfter',
+				value: nextValues.trimAfter,
+				defaultValue: null,
+				schema: target.schema,
+			});
+		}
+
+		// For merged rows, also sync the parent's durationInFrames
+		if (target.parentNodePath && target.parentInitialDuration !== undefined) {
+			const parentDuration = Math.max(
+				1,
+				target.parentInitialDuration + deltaFrames,
+			);
+			if (parentDuration !== target.parentInitialDuration) {
+				result.push({
+					fileName: target.fileName,
+					nodePath: target.parentNodePath,
+					fieldKey: 'durationInFrames',
+					value: parentDuration,
+					defaultValue: null,
+					schema: NoReactInternals.sequenceSchema,
+				});
+			}
+		}
+
+		return result;
+	});
+};
+
 export const getTimelineSequenceFromDragValue = ({
 	initialFrom,
 	deltaFrames,
@@ -308,7 +435,7 @@ const findSequenceTrack = ({
 	tracks,
 	nodePathInfo,
 }: {
-	readonly tracks: ReturnType<typeof calculateTimeline>;
+	readonly tracks: readonly TrackWithHash[];
 	readonly nodePathInfo: SequenceNodePathInfo;
 }) => {
 	const key = stringifySequenceExpandedRowKey(
@@ -364,7 +491,7 @@ export const getTimelineSequenceDurationDragTargets = ({
 		draggedItemIsSelected && selectedSequenceItems.length > 1
 			? selectedSequenceItems.map((item) => item.nodePathInfo)
 			: [draggedNodePathInfo];
-	const tracks = calculateTimeline({sequences, overrideIdsToNodePaths});
+	const {tracks} = calculateTimeline({sequences, overrideIdsToNodePaths});
 	const targets = new Map<string, TimelineSequenceDurationDragTarget>();
 
 	for (const nodePathInfo of targetNodePathInfos) {
@@ -392,6 +519,114 @@ export const getTimelineSequenceDurationDragTargets = ({
 				fileName: nodePath.absolutePath,
 				initialDuration: originalSequence.duration,
 				nodePath,
+			});
+		}
+	}
+
+	return [...targets.values()];
+};
+
+export const getTimelineSequenceMediaRightEdgeDragTargets = ({
+	draggedNodePathInfo,
+	selectedItems,
+	sequences,
+	overrideIdsToNodePaths,
+	propStatuses,
+}: {
+	readonly draggedNodePathInfo: SequenceNodePathInfo;
+	readonly selectedItems: readonly TimelineSelection[];
+	readonly sequences: TSequence[];
+	readonly overrideIdsToNodePaths: OverrideIdToNodePaths;
+	readonly propStatuses: PropStatuses;
+}): TimelineSequenceMediaRightEdgeDragTarget[] | null => {
+	const draggedSelectionKey =
+		getTimelineSequenceSelectionKey(draggedNodePathInfo);
+	const selectedSequenceItems = selectedItems.filter(
+		(item): item is TimelineSelection & {type: 'sequence'} =>
+			item.type === 'sequence',
+	);
+	const draggedItemIsSelected = selectedSequenceItems.some(
+		(item) =>
+			getTimelineSequenceSelectionKey(item.nodePathInfo) ===
+			draggedSelectionKey,
+	);
+
+	if (
+		draggedItemIsSelected &&
+		selectedSequenceItems.length !== selectedItems.length
+	) {
+		return null;
+	}
+
+	const targetNodePathInfos =
+		draggedItemIsSelected && selectedSequenceItems.length > 1
+			? selectedSequenceItems.map((item) => item.nodePathInfo)
+			: [draggedNodePathInfo];
+	const {tracks} = calculateTimeline({sequences, overrideIdsToNodePaths});
+	const targets = new Map<string, TimelineSequenceMediaRightEdgeDragTarget>();
+
+	for (const nodePathInfo of targetNodePathInfos) {
+		const track = findSequenceTrack({tracks, nodePathInfo});
+		const originalSequence = track
+			? sequences.find((sequence) => sequence.id === track.sequence.id)
+			: null;
+		if (
+			!track ||
+			!track.nodePathInfo ||
+			!originalSequence ||
+			(originalSequence.type !== 'audio' && originalSequence.type !== 'video')
+		) {
+			return null;
+		}
+
+		const nodePath = track.nodePathInfo.sequenceSubscriptionKey;
+		if (!canUpdateTrimAfter({propStatuses, nodePath})) {
+			return null;
+		}
+
+		const {controls} = originalSequence;
+		if (!controls) {
+			return null;
+		}
+
+		// For merged rows, only sync parent's durationInFrames if it can be updated.
+		// If it's computed or keyframed, we still allow the media trim — just without
+		// the container sync, like trimming a clip in CapCut without resizing the track.
+		const parentInfo = track.mergedParentInfo
+			? (() => {
+					const parentNodePath =
+						track.mergedParentInfo!.nodePathInfo.sequenceSubscriptionKey;
+					if (
+						canUpdateDurationInFrames({propStatuses, nodePath: parentNodePath})
+					) {
+						return {
+							parentNodePath,
+							parentInitialDuration: track.mergedParentInfo!.sequence.duration,
+						};
+					}
+
+					return {};
+				})()
+			: {};
+
+		const initialTrimBefore =
+			originalSequence.trimBefore ??
+			Math.max(0, originalSequence.startMediaFrom);
+		const key = stringifySequenceSubscriptionKey(nodePath);
+
+		if (!targets.has(key)) {
+			targets.set(key, {
+				fileName: nodePath.absolutePath,
+				initialDuration: originalSequence.duration,
+				initialTrimAfter:
+					initialTrimBefore +
+					originalSequence.duration * originalSequence.playbackRate,
+				initialTrimBefore,
+				maxMediaDuration: null,
+				nodePath,
+				playbackRate: originalSequence.playbackRate,
+				schema: controls.schema,
+				...parentInfo,
 			});
 		}
 	}
@@ -435,7 +670,7 @@ export const getTimelineSequenceLeftEdgeDragTargets = ({
 		draggedItemIsSelected && selectedSequenceItems.length > 1
 			? selectedSequenceItems.map((item) => item.nodePathInfo)
 			: [draggedNodePathInfo];
-	const tracks = calculateTimeline({sequences, overrideIdsToNodePaths});
+	const {tracks} = calculateTimeline({sequences, overrideIdsToNodePaths});
 	const targets = new Map<string, TimelineSequenceLeftEdgeDragTarget>();
 
 	for (const nodePathInfo of targetNodePathInfos) {
@@ -523,7 +758,7 @@ export const getTimelineSequenceFromDragTargets = ({
 		draggedItemIsSelected && selectedSequenceItems.length > 1
 			? selectedSequenceItems.map((item) => item.nodePathInfo)
 			: [draggedNodePathInfo];
-	const tracks = calculateTimeline({sequences, overrideIdsToNodePaths});
+	const {tracks} = calculateTimeline({sequences, overrideIdsToNodePaths});
 	const targets = new Map<string, TimelineSequenceFromDragTarget>();
 
 	for (const nodePathInfo of targetNodePathInfos) {
@@ -582,6 +817,21 @@ const clearDurationDragOverrides = ({
 	}
 };
 
+const clearMediaRightEdgeDragOverrides = ({
+	clearDragOverrides,
+	targets,
+}: {
+	readonly clearDragOverrides: (nodePath: SequencePropsSubscriptionKey) => void;
+	readonly targets: readonly TimelineSequenceMediaRightEdgeDragTarget[];
+}) => {
+	for (const target of targets) {
+		clearDragOverrides(target.nodePath);
+		if (target.parentNodePath) {
+			clearDragOverrides(target.parentNodePath);
+		}
+	}
+};
+
 const clearFromDragOverrides = ({
 	clearDragOverrides,
 	targets,
@@ -613,6 +863,7 @@ export const TimelineSequenceLeftEdgeDragHandle: React.FC<{
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 
 	const [dragging, setDragging] = useState(false);
+	const [hovered, setHovered] = useState(false);
 	const dragStateRef = useRef<{
 		initialClientX: number;
 		latestDeltaFrames: number;
@@ -833,7 +1084,8 @@ export const TimelineSequenceLeftEdgeDragHandle: React.FC<{
 	const style: React.CSSProperties = {
 		...baseStyle,
 		left: 0,
-		background: 'transparent',
+		background:
+			hovered || dragging ? 'rgba(255, 255, 255, 0.16)' : 'transparent',
 	};
 
 	return (
@@ -843,7 +1095,16 @@ export const TimelineSequenceLeftEdgeDragHandle: React.FC<{
 			title="Drag to trim start"
 			style={style}
 			onPointerDown={onPointerDown}
-		/>
+			onPointerEnter={() => setHovered(true)}
+			onPointerLeave={() => setHovered(false)}
+		>
+			<div
+				style={{
+					...gripBaseStyle,
+					left: 2,
+				}}
+			/>
+		</div>
 	);
 };
 
@@ -1085,7 +1346,8 @@ export const TimelineSequenceRightEdgeDragHandle: React.FC<{
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly windowWidth: number;
 	readonly timelineDurationInFrames: number;
-}> = ({nodePathInfo, windowWidth, timelineDurationInFrames}) => {
+	readonly type: TSequence['type'];
+}> = ({nodePathInfo, windowWidth, timelineDurationInFrames, type}) => {
 	const {setPropStatuses, setDragOverrides, clearDragOverrides} = useContext(
 		Internals.VisualModeSettersContext,
 	);
@@ -1100,12 +1362,16 @@ export const TimelineSequenceRightEdgeDragHandle: React.FC<{
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 
 	const [dragging, setDragging] = useState(false);
+	const [hovered, setHovered] = useState(false);
 	const dragStateRef = useRef<{
 		initialClientX: number;
 		latestDeltaFrames: number;
 		pxPerFrame: number;
 		pointerId: number;
-		targets: readonly TimelineSequenceDurationDragTarget[];
+		targets:
+			| readonly TimelineSequenceDurationDragTarget[]
+			| readonly TimelineSequenceMediaRightEdgeDragTarget[];
+		mode: 'duration' | 'trimAfter';
 	} | null>(null);
 
 	// Keep latest props/setters available to window listeners installed once at pointerdown.
@@ -1144,20 +1410,38 @@ export const TimelineSequenceRightEdgeDragHandle: React.FC<{
 			previewServerState: latestServerState,
 		} = latestRef.current;
 
-		const changes = getTimelineSequenceDurationDragChanges({
-			targets: dragState.targets,
-			deltaFrames: dragState.latestDeltaFrames,
-		});
+		const changes =
+			dragState.mode === 'trimAfter'
+				? getTimelineSequenceMediaRightEdgeDragChanges({
+						targets:
+							dragState.targets as readonly TimelineSequenceMediaRightEdgeDragTarget[],
+						deltaFrames: dragState.latestDeltaFrames,
+					})
+				: getTimelineSequenceDurationDragChanges({
+						targets:
+							dragState.targets as readonly TimelineSequenceDurationDragTarget[],
+						deltaFrames: dragState.latestDeltaFrames,
+					});
 
 		if (
 			!commit ||
 			latestServerState.type !== 'connected' ||
 			changes.length === 0
 		) {
-			clearDurationDragOverrides({
-				clearDragOverrides: latestClear,
-				targets: dragState.targets,
-			});
+			if (dragState.mode === 'trimAfter') {
+				clearMediaRightEdgeDragOverrides({
+					clearDragOverrides: latestClear,
+					targets:
+						dragState.targets as readonly TimelineSequenceMediaRightEdgeDragTarget[],
+				});
+			} else {
+				clearDurationDragOverrides({
+					clearDragOverrides: latestClear,
+					targets:
+						dragState.targets as readonly TimelineSequenceDurationDragTarget[],
+				});
+			}
+
 			return;
 		}
 
@@ -1166,26 +1450,47 @@ export const TimelineSequenceRightEdgeDragHandle: React.FC<{
 			setPropStatuses: latestSetPropStatuses,
 			clientId: latestServerState.clientId,
 			undoLabel:
-				changes.length > 1 ? 'Resize selected sequences' : 'Resize sequence',
+				dragState.mode === 'trimAfter'
+					? changes.length > 1
+						? 'Trim selected clips'
+						: 'Trim clip'
+					: changes.length > 1
+						? 'Resize selected sequences'
+						: 'Resize sequence',
 			redoLabel:
-				changes.length > 1
-					? 'Resize selected sequences back'
-					: 'Resize sequence back',
+				dragState.mode === 'trimAfter'
+					? changes.length > 1
+						? 'Trim selected clips back'
+						: 'Trim clip back'
+					: changes.length > 1
+						? 'Resize selected sequences back'
+						: 'Resize sequence back',
 		});
 
 		savePromise
 			.catch((err) => {
 				Internals.Log.error(
 					{logLevel: 'error', tag: null},
-					'Could not save durationInFrames',
+					dragState.mode === 'trimAfter'
+						? 'Could not save trimAfter'
+						: 'Could not save durationInFrames',
 					err,
 				);
 			})
 			.finally(() => {
-				clearDurationDragOverrides({
-					clearDragOverrides: latestClear,
-					targets: dragState.targets,
-				});
+				if (dragState.mode === 'trimAfter') {
+					clearMediaRightEdgeDragOverrides({
+						clearDragOverrides: latestClear,
+						targets:
+							dragState.targets as readonly TimelineSequenceMediaRightEdgeDragTarget[],
+					});
+				} else {
+					clearDurationDragOverrides({
+						clearDragOverrides: latestClear,
+						targets:
+							dragState.targets as readonly TimelineSequenceDurationDragTarget[],
+					});
+				}
 			});
 	}, []);
 
@@ -1208,13 +1513,22 @@ export const TimelineSequenceRightEdgeDragHandle: React.FC<{
 				overrideIdToNodePathMappings: latestOverrideIdsToNodePaths,
 			} = latestRef.current;
 			const {selectedItems: latestSelectedItems} = currentSelection.current;
-			const targets = getTimelineSequenceDurationDragTargets({
-				draggedNodePathInfo: latestNodePathInfo,
-				selectedItems: latestSelectedItems,
-				sequences: sequencesRef.current,
-				overrideIdsToNodePaths: latestOverrideIdsToNodePaths,
-				propStatuses: propStatusesRef.current,
-			});
+			const isMediaTrimMode = type === 'audio' || type === 'video';
+			const targets = isMediaTrimMode
+				? getTimelineSequenceMediaRightEdgeDragTargets({
+						draggedNodePathInfo: latestNodePathInfo,
+						selectedItems: latestSelectedItems,
+						sequences: sequencesRef.current,
+						overrideIdsToNodePaths: latestOverrideIdsToNodePaths,
+						propStatuses: propStatusesRef.current,
+					})
+				: getTimelineSequenceDurationDragTargets({
+						draggedNodePathInfo: latestNodePathInfo,
+						selectedItems: latestSelectedItems,
+						sequences: sequencesRef.current,
+						overrideIdsToNodePaths: latestOverrideIdsToNodePaths,
+						propStatuses: propStatusesRef.current,
+					});
 			if (targets === null || targets.length === 0) {
 				return;
 			}
@@ -1227,6 +1541,7 @@ export const TimelineSequenceRightEdgeDragHandle: React.FC<{
 				pxPerFrame,
 				pointerId: e.pointerId,
 				targets,
+				mode: isMediaTrimMode ? 'trimAfter' : 'duration',
 			};
 			document.body.style.userSelect = 'none';
 			document.body.style.webkitUserSelect = 'none';
@@ -1238,6 +1553,7 @@ export const TimelineSequenceRightEdgeDragHandle: React.FC<{
 			propStatusesRef,
 			sequencesRef,
 			timelineDurationInFrames,
+			type,
 			windowWidth,
 		],
 	);
@@ -1259,7 +1575,42 @@ export const TimelineSequenceRightEdgeDragHandle: React.FC<{
 			const dx = e.clientX - dragState.initialClientX;
 			const deltaFrames = Math.round(dx / dragState.pxPerFrame);
 			dragState.latestDeltaFrames = deltaFrames;
-			for (const target of dragState.targets) {
+			if (dragState.mode === 'trimAfter') {
+				for (const target of dragState.targets as readonly TimelineSequenceMediaRightEdgeDragTarget[]) {
+					const nextValues = getTimelineSequenceMediaRightEdgeDragValues({
+						initialDuration: target.initialDuration,
+						initialTrimBefore: target.initialTrimBefore,
+						deltaFrames,
+						playbackRate: target.playbackRate,
+						maxMediaDuration: target.maxMediaDuration,
+					});
+					latestRef.current.setDragOverrides(
+						target.nodePath,
+						'trimAfter',
+						Internals.makeStaticDragOverride(nextValues.trimAfter),
+					);
+
+					// For merged rows, also sync the parent's durationInFrames
+					if (
+						target.parentNodePath &&
+						target.parentInitialDuration !== undefined
+					) {
+						const parentDuration = Math.max(
+							1,
+							target.parentInitialDuration + deltaFrames,
+						);
+						latestRef.current.setDragOverrides(
+							target.parentNodePath,
+							'durationInFrames',
+							Internals.makeStaticDragOverride(parentDuration),
+						);
+					}
+				}
+
+				return;
+			}
+
+			for (const target of dragState.targets as readonly TimelineSequenceDurationDragTarget[]) {
 				latestRef.current.setDragOverrides(
 					target.nodePath,
 					'durationInFrames',
@@ -1312,16 +1663,30 @@ export const TimelineSequenceRightEdgeDragHandle: React.FC<{
 	const style: React.CSSProperties = {
 		...baseStyle,
 		right: 0,
-		background: 'transparent',
+		background:
+			hovered || dragging ? 'rgba(255, 255, 255, 0.16)' : 'transparent',
 	};
 
 	return (
 		<div
 			role="separator"
 			aria-orientation="vertical"
-			title="Drag to change duration"
+			title={
+				type === 'audio' || type === 'video'
+					? 'Drag to trim end'
+					: 'Drag to change duration'
+			}
 			style={style}
 			onPointerDown={onPointerDown}
-		/>
+			onPointerEnter={() => setHovered(true)}
+			onPointerLeave={() => setHovered(false)}
+		>
+			<div
+				style={{
+					...gripBaseStyle,
+					right: 2,
+				}}
+			/>
+		</div>
 	);
 };

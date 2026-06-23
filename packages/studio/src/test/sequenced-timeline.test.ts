@@ -16,7 +16,7 @@ const withoutKeyframeDisplayOffset = <
 	});
 
 test('Should calculate sequences correctly', () => {
-	const timeline = calculateTimeline({
+	const {tracks: timeline} = calculateTimeline({
 		sequences,
 		overrideIdsToNodePaths: {},
 	});

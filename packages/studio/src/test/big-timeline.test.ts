@@ -16,10 +16,11 @@ const withoutKeyframeDisplayOffset = <
 	});
 
 test('Should calculate timeline as expected', () => {
-	const timeline = calculateTimeline({
+	const {tracks: timeline} = calculateTimeline({
 		sequences,
 		overrideIdsToNodePaths: {},
 	});
+
 	expect(withoutKeyframeDisplayOffset(timeline)).toEqual([
 		{
 			nodePathInfo: null,

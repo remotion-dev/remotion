@@ -9,6 +9,7 @@ import {
 import {getTimelineNestedLevel} from './get-timeline-nestedness';
 import {getTimelineSequenceHash} from './get-timeline-sequence-hash';
 import type {
+	SequenceNodePathInfo,
 	TrackWithHash,
 	TrackWithHashAndOriginalTimings,
 } from './get-timeline-sequence-sort-key';
@@ -41,12 +42,75 @@ export const calculateTimeline = ({
 }: {
 	sequences: TSequence[];
 	overrideIdsToNodePaths: OverrideIdToNodePaths;
-}): TrackWithHash[] => {
+}): {tracks: TrackWithHash[]; mergedParentIds: Set<string>} => {
 	const sortedSequences = sortItemsByNonceHistory(sequences);
 	const tracks: TrackWithHashAndOriginalTimings[] = [];
 
 	if (sortedSequences.length === 0) {
-		return [];
+		return {tracks: [], mergedParentIds: new Set()};
+	}
+
+	// Build parent→children map and detect merge candidates.
+	// A merge happens when a user-authored <Sequence> (has controls)
+	// wraps exactly one <Video> or <Audio> child.
+	const childrenOf = new Map<string, TSequence[]>();
+	for (const seq of sortedSequences) {
+		if (seq.parent) {
+			const list = childrenOf.get(seq.parent) ?? [];
+			list.push(seq);
+			childrenOf.set(seq.parent, list);
+		}
+	}
+
+	const mergedParentIds = new Set<string>();
+	const mergedChildParentInfo = new Map<
+		string,
+		{readonly sequence: TSequence; readonly nodePathInfo: SequenceNodePathInfo}
+	>();
+
+	for (const seq of sortedSequences) {
+		if ((seq.type === 'video' || seq.type === 'audio') && seq.parent !== null) {
+			const parent = sortedSequences.find((s) => s.id === seq.parent);
+			if (
+				parent &&
+				parent.type === 'sequence' &&
+				parent.controls !== null &&
+				parent.controls.overrideId
+			) {
+				const siblings = childrenOf.get(parent.id);
+				if (siblings && siblings.length === 1) {
+					// Innermost-only: skip if the parent is itself a merged child
+					const parentParent = parent.parent
+						? sortedSequences.find((s) => s.id === parent.parent)
+						: null;
+					const isParentMerged =
+						parentParent &&
+						parentParent.type === 'sequence' &&
+						parentParent.controls !== null &&
+						parentParent.controls.overrideId &&
+						childrenOf.get(parentParent.id)?.length === 1;
+
+					if (!isParentMerged) {
+						mergedParentIds.add(parent.id);
+						const parentNodePath = parent.controls.overrideId
+							? overrideIdsToNodePaths[parent.controls.overrideId]
+							: undefined;
+						if (parentNodePath) {
+							mergedChildParentInfo.set(seq.id, {
+								sequence: parent,
+								nodePathInfo: {
+									sequenceSubscriptionKey: parentNodePath,
+									auxiliaryKeys: [],
+									index: 0,
+									numberOfSequencesWithThisNodePath: 0,
+									supportsEffects: false,
+								},
+							});
+						}
+					}
+				}
+			}
+		}
 	}
 
 	const sameHashes: {[hash: string]: string[]} = {};
@@ -104,7 +168,12 @@ export const calculateTimeline = ({
 						? getInheritedLoopDisplay(sequence, sortedSequences)
 						: sequence.loopDisplay,
 			},
-			depth: getTimelineNestedLevel(sequence, sortedSequences, 0),
+			depth: getTimelineNestedLevel(
+				sequence,
+				sortedSequences,
+				0,
+				mergedParentIds,
+			),
 			hash: actualHash,
 			cascadedStart,
 			cascadedDuration: sequence.duration,
@@ -121,6 +190,9 @@ export const calculateTimeline = ({
 						supportsEffects: sequence.controls?.supportsEffects === true,
 					}
 				: null,
+			...(mergedChildParentInfo.has(sequence.id)
+				? {mergedParentInfo: mergedChildParentInfo.get(sequence.id)}
+				: {}),
 		});
 	}
 
@@ -155,7 +227,7 @@ export const calculateTimeline = ({
 
 	const nodePathIndexCounters = new Map<string, number>();
 
-	return sortedTracks
+	const result = sortedTracks
 		.map((track): TrackWithHash => {
 			if (track.nodePathInfo === null) {
 				return track;
@@ -198,4 +270,6 @@ export const calculateTimeline = ({
 				},
 			};
 		});
+
+	return {tracks: result, mergedParentIds};
 };

@@ -167,7 +167,7 @@ const makePropStatuses = (
 });
 
 test('keyframe display offsets follow the parent sequence context', () => {
-	const timeline = calculateTimeline({
+	const {tracks: timeline} = calculateTimeline({
 		sequences: [
 			makeSequence({
 				id: 'root-style',
@@ -283,7 +283,7 @@ test('track lookup survives effect key changes', () => {
 });
 
 test('keyframe display offsets account for parent trimBefore', () => {
-	const timeline = calculateTimeline({
+	const {tracks: timeline} = calculateTimeline({
 		sequences: [
 			makeSequence({
 				id: 'parent',

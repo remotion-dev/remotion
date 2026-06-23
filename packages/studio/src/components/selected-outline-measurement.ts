@@ -476,10 +476,11 @@ export const getSequencesWithSelectableOutlines = ({
 	readonly sequences: readonly TSequence[];
 	readonly overrideIdsToNodePaths: OverrideIdToNodePaths;
 }): SequenceWithSelectedOutline[] => {
-	return calculateTimeline({
+	const {tracks} = calculateTimeline({
 		sequences: [...sequences],
 		overrideIdsToNodePaths,
-	})
+	});
+	return tracks
 		.filter((track) => {
 			if (track.nodePathInfo === null) {
 				return false;

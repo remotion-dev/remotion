@@ -3,6 +3,7 @@ import {useCallback, useContext, useEffect, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {calculateTimeline} from '../helpers/calculate-timeline';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
+import type {TrackWithHash} from '../helpers/get-timeline-sequence-sort-key';
 import {SHOW_BROWSER_RENDERING} from '../helpers/show-browser-rendering';
 import {timelineNodePathInfoToKey} from '../helpers/timeline-node-path-key';
 import {useKeybinding} from '../helpers/use-keybinding';
@@ -42,9 +43,12 @@ export const GlobalKeybindings: React.FC<{
 	const {navigateToNextComposition, navigateToPreviousComposition} =
 		useCompositionNavigation();
 	const video = Internals.useVideo();
-	const timeline = useMemo(() => {
+	const {tracks: timeline} = useMemo(() => {
 		if (videoConfig === null) {
-			return [];
+			return {
+				tracks: [] as TrackWithHash[],
+				mergedParentIds: new Set<string>(),
+			};
 		}
 
 		return calculateTimeline({

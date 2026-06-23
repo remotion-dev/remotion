@@ -174,6 +174,28 @@ const SequenceExpandedInspector: React.FC<{
 					<InspectorSectionHeader>{children}</InspectorSectionHeader>
 				)}
 			/>
+			{track.mergedParentInfo ? (
+				<>
+					<InspectorSectionHeader>Container</InspectorSectionHeader>
+					<InspectorSequenceSection
+						sequence={
+							track.mergedParentInfo.sequence as NonNullable<
+								typeof track.mergedParentInfo.sequence
+							> & {
+								controls: NonNullable<
+									typeof track.mergedParentInfo.sequence.controls
+								>;
+							}
+						}
+						validatedLocation={validatedLocation}
+						nodePathInfo={track.mergedParentInfo.nodePathInfo}
+						keyframeDisplayOffset={track.keyframeDisplayOffset}
+						renderSectionHeader={(children) => (
+							<InspectorSectionHeader>{children}</InspectorSectionHeader>
+						)}
+					/>
+				</>
+			) : null}
 		</div>
 	);
 };

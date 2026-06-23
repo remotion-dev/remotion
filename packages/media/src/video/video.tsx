@@ -16,8 +16,17 @@ import {VideoForRendering} from './video-for-rendering';
 const {validateMediaTrimProps, resolveTrimProps, validateMediaProps} =
 	Internals;
 
+const trimAfterField = {
+	type: 'number',
+	default: undefined,
+	min: 1,
+	step: 1,
+	hiddenFromList: true,
+} as const satisfies InteractivitySchema[keyof InteractivitySchema];
+
 const videoSchema = {
 	...Internals.baseSchema,
+	trimAfter: trimAfterField,
 	volume: {
 		type: 'number',
 		min: 0,

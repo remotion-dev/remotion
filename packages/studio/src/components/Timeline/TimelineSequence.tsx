@@ -262,13 +262,28 @@ const TimelineSequenceInner: React.FC<{
 			: undefined;
 	}, [propStatuses, nodePath]);
 	const durationCanUpdate = Boolean(
-		propStatusesForOverride?.durationInFrames?.status === 'static',
+		propStatusesForOverride
+			? propStatusesForOverride.durationInFrames?.status === 'static' ||
+					propStatusesForOverride.durationInFrames?.status === undefined
+			: false,
 	);
 	const fromCanUpdate = Boolean(
-		propStatusesForOverride?.from?.status === 'static',
+		propStatusesForOverride
+			? propStatusesForOverride.from?.status === 'static' ||
+					propStatusesForOverride.from?.status === undefined
+			: false,
 	);
 	const trimBeforeCanUpdate = Boolean(
-		propStatusesForOverride?.trimBefore?.status === 'static',
+		propStatusesForOverride
+			? propStatusesForOverride.trimBefore?.status === 'static' ||
+					propStatusesForOverride.trimBefore?.status === undefined
+			: false,
+	);
+	const trimAfterCanUpdate = Boolean(
+		propStatusesForOverride
+			? propStatusesForOverride.trimAfter?.status === 'static' ||
+					propStatusesForOverride.trimAfter?.status === undefined
+			: false,
 	);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const previewConnected = previewServerState.type === 'connected';
@@ -505,12 +520,19 @@ const TimelineSequenceInner: React.FC<{
 	}, [marginLeft, s.type, width]);
 
 	const showRightEdgeDragHandle =
-		(s.type === 'sequence' || s.type === 'image') &&
-		!s.loopDisplay &&
-		!s.isInsideSeries &&
-		nodePath !== null &&
-		validatedLocation !== null &&
-		durationCanUpdate;
+		((s.type === 'sequence' || s.type === 'image') &&
+			!s.loopDisplay &&
+			!s.isInsideSeries &&
+			nodePath !== null &&
+			validatedLocation !== null &&
+			durationCanUpdate) ||
+		((s.type === 'audio' || s.type === 'video') &&
+			!s.loopDisplay &&
+			!s.isInsideSeries &&
+			nodePath !== null &&
+			validatedLocation !== null &&
+			Boolean(s.controls) &&
+			trimAfterCanUpdate);
 	const showLeftEdgeDragHandle =
 		(s.type === 'sequence' ||
 			s.type === 'image' ||
@@ -588,6 +610,7 @@ const TimelineSequenceInner: React.FC<{
 					nodePathInfo={nodePathInfo}
 					windowWidth={windowWidth}
 					timelineDurationInFrames={video.durationInFrames ?? 1}
+					type={s.type}
 				/>
 			) : null}
 		</TimelineSequenceCurrentFrame>

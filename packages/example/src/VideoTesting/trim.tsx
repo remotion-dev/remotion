@@ -13,19 +13,30 @@ export const VideoTestingTrim: React.FC<{
 	const {durationInFrames} = useVideoConfig();
 	const videoMp4 = staticFile('framermp4withoutfileextension');
 
-	let Comp;
-	if (type === 'codec') {
-		Comp = NewVideo;
-	} else if (type === 'offthread') {
-		Comp = OffthreadVideo;
-	} else {
-		Comp = Video;
-	}
-
 	return (
 		<div>
-			<Sequence durationInFrames={durationInFrames}>
-				<Comp trimBefore={20} trimAfter={80} src={videoMp4} />
+			<Sequence
+				durationInFrames={durationInFrames}
+				style={{
+					scale: 0.601,
+					translate: '6.9px 62.5px',
+					rotate: '-168.7deg',
+				}}
+				from={7}
+			>
+				{type === 'codec' ? (
+					<NewVideo
+						trimBefore={42}
+						trimAfter={95}
+						src={videoMp4}
+						durationInFrames={55}
+						from={-2}
+					/>
+				) : type === 'offthread' ? (
+					<OffthreadVideo trimBefore={20} trimAfter={80} src={videoMp4} />
+				) : (
+					<Video trimBefore={20} trimAfter={80} src={videoMp4} />
+				)}
 			</Sequence>
 		</div>
 	);

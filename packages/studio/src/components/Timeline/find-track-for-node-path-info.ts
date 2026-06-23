@@ -12,7 +12,7 @@ export const findTrackForNodePathInfo = ({
 	overrideIdsToNodePaths: OverrideIdToNodePaths;
 	nodePathInfo: SequenceNodePathInfo;
 }) => {
-	const tracks = calculateTimeline({sequences, overrideIdsToNodePaths});
+	const {tracks} = calculateTimeline({sequences, overrideIdsToNodePaths});
 	return tracks.find(
 		(candidate) =>
 			candidate.nodePathInfo !== null &&

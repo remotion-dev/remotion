@@ -26,7 +26,14 @@ export const VideoTesting: React.FC<{
 
 	return (
 		<div>
-			<Sequence durationInFrames={durationInFrames}>
+			<Sequence
+				durationInFrames={durationInFrames}
+				from={13}
+				style={{
+					rotate: '-37.7deg',
+					scale: 0.662,
+				}}
+			>
 				<Comp src={codec === 'mp4' ? videoMp4 : videoWebm} />
 			</Sequence>
 		</div>
