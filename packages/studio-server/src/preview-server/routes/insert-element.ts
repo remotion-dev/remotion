@@ -207,6 +207,7 @@ export const insertElementHandler: ApiHandler<
 				prettierConfigOverride: null,
 				wrapInSequence: {
 					dimensions: element.dimensions,
+					name: element.displayName,
 					position,
 				},
 			});
