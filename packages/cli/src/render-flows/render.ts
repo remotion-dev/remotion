@@ -546,17 +546,19 @@ export const renderVideoFlow = async ({
 		uiImageFormat,
 		compositionDefaultVideoImageFormat: config.defaultVideoImageFormat,
 	});
-	const pixelFormatOptionValue = pixelFormatOption.getValue({
-		commandLine: parsedCli,
-	});
+	const pixelFormatOptionValue =
+		BrowserSafeApis.options.pixelFormatOption.getValue({
+			commandLine: parsedCli,
+		});
 	const resolvedPixelFormat =
 		pixelFormatOptionValue.source === 'default' &&
 		config.defaultPixelFormat !== null
 			? config.defaultPixelFormat
 			: pixelFormat;
-	const proResProfileOptionValue = proResProfileOption.getValue({
-		commandLine: parsedCli,
-	});
+	const proResProfileOptionValue =
+		BrowserSafeApis.options.proResProfileOption.getValue({
+			commandLine: parsedCli,
+		});
 	const resolvedProResProfile =
 		proResProfileOptionValue.source === 'default' &&
 		config.defaultProResProfile !== null
