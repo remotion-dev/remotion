@@ -14,31 +14,41 @@ type InterpolateKeyframedStatusResult =
 	| readonly number[]
 	| null;
 
-const easingToFn = (e: CanUpdateSequencePropStatusEasing): EasingFunction => {
-	switch (e.type) {
+const easingToFn = ({
+	easing,
+	forceSpringAllowTail,
+}: {
+	easing: CanUpdateSequencePropStatusEasing;
+	forceSpringAllowTail: boolean | null;
+}): EasingFunction => {
+	switch (easing.type) {
 		case 'linear':
 			return Easing.linear;
 		case 'spring':
 			return Easing.spring({
-				damping: e.damping,
-				mass: e.mass,
-				overshootClamping: e.overshootClamping,
-				stiffness: e.stiffness,
+				allowTail: forceSpringAllowTail ?? easing.allowTail ?? undefined,
+				damping: easing.damping,
+				durationRestThreshold: easing.durationRestThreshold ?? undefined,
+				mass: easing.mass,
+				overshootClamping: easing.overshootClamping,
+				stiffness: easing.stiffness,
 			});
 		case 'bezier':
-			return bezier(e.x1, e.y1, e.x2, e.y2);
+			return bezier(easing.x1, easing.y1, easing.x2, easing.y2);
 		default:
 			throw new TypeError(
-				`Unsupported easing: ${JSON.stringify(e satisfies never)}`,
+				`Unsupported easing: ${JSON.stringify(easing satisfies never)}`,
 			);
 	}
 };
 
 export const interpolateKeyframedStatus = ({
 	frame,
+	forceSpringAllowTail,
 	status,
 }: {
 	frame: number;
+	forceSpringAllowTail: boolean | null;
 	status: CanUpdateSequencePropStatusKeyframed;
 }): InterpolateKeyframedStatusResult => {
 	const {keyframes, easing, clamping, interpolationFunction} = status;
@@ -61,7 +71,9 @@ export const interpolateKeyframedStatus = ({
 
 		try {
 			return interpolateColors(frame, inputRange, outputs as string[], {
-				easing: easing.map(easingToFn),
+				easing: easing.map((e) =>
+					easingToFn({easing: e, forceSpringAllowTail}),
+				),
 				posterize: status.posterize,
 			});
 		} catch {
@@ -79,7 +91,9 @@ export const interpolateKeyframedStatus = ({
 			inputRange,
 			outputs as (number | string | number[])[],
 			{
-				easing: easing.map(easingToFn),
+				easing: easing.map((e) =>
+					easingToFn({easing: e, forceSpringAllowTail}),
+				),
 				extrapolateLeft: clamping.left,
 				extrapolateRight: clamping.right,
 				posterize: status.posterize,

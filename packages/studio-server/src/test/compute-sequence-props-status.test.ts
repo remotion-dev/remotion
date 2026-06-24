@@ -191,7 +191,7 @@ import {Easing, Sequence, interpolate, useCurrentFrame} from 'remotion';
 export const Example: React.FC = () => {
 \tconst frame = useCurrentFrame();
 \treturn (
-\t\t<Sequence style={{opacity: interpolate(frame, [0, 100], [0, 1], {easing: Easing.spring({damping: 12, mass: 1.5, stiffness: 180, overshootClamping: true})})}} />
+\t\t<Sequence style={{opacity: interpolate(frame, [0, 100], [0, 1], {easing: Easing.spring({damping: 12, mass: 1.5, stiffness: 180, allowTail: true, durationRestThreshold: 0.1, overshootClamping: true})})}} />
 \t);
 };
 `;
@@ -216,7 +216,9 @@ export const Example: React.FC = () => {
 		easing: [
 			{
 				type: 'spring',
+				allowTail: true,
 				damping: 12,
+				durationRestThreshold: 0.1,
 				mass: 1.5,
 				stiffness: 180,
 				overshootClamping: true,

@@ -53,7 +53,9 @@ test('parseEasingClipboardData accepts easing payloads', () => {
 		)?.easing,
 	).toEqual({
 		type: 'spring',
+		allowTail: null,
 		damping: 12,
+		durationRestThreshold: null,
 		mass: 1.5,
 		stiffness: 180,
 		overshootClamping: true,
@@ -185,7 +187,9 @@ test('parseEffectClipboardData accepts spring easing payloads', () => {
 		easing: [
 			{
 				type: 'spring',
+				allowTail: null,
 				damping: 12,
+				durationRestThreshold: null,
 				mass: 1.5,
 				stiffness: 180,
 				overshootClamping: true,
