@@ -645,6 +645,7 @@ export const TimelineSequenceItem: React.FC<{
 		return effective ?? false;
 	}, [codeHiddenStatus, sequence.controls?.currentRuntimeValueDotNotation]);
 
+	const fallbackDisplayName = sequence.controls?.componentName ?? '<Sequence>';
 	const staticNamePropValue =
 		codeNameStatus?.status === 'static' &&
 		typeof codeNameStatus.codeValue === 'string'
@@ -654,10 +655,21 @@ export const TimelineSequenceItem: React.FC<{
 	const hasStaticNameProp = staticNamePropValue !== null;
 
 	const displayName = useMemo(() => {
-		return staticNamePropValue ?? sequence.displayName;
-	}, [sequence.displayName, staticNamePropValue]);
+		if (staticNamePropValue !== null) {
+			return staticNamePropValue;
+		}
 
-	const fallbackDisplayName = sequence.controls?.componentName ?? '<Sequence>';
+		if (codeNameStatus?.status === 'static') {
+			return fallbackDisplayName;
+		}
+
+		return sequence.displayName;
+	}, [
+		codeNameStatus?.status,
+		fallbackDisplayName,
+		sequence.displayName,
+		staticNamePropValue,
+	]);
 
 	const onToggleVisibility = useCallback(
 		(type: 'enable' | 'disable') => {

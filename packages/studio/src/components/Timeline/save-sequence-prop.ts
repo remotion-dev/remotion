@@ -56,6 +56,7 @@ export const saveSequenceProps = ({
 					previous: prev,
 					fieldKey: change.fieldKey,
 					value: change.value,
+					defaultValue: change.defaultValue,
 					schema: change.schema,
 				}),
 			apiCall: () =>
@@ -84,6 +85,7 @@ export const saveSequenceProps = ({
 				previous: prev,
 				fieldKey: change.fieldKey,
 				value: change.value,
+				defaultValue: change.defaultValue,
 				schema: change.schema,
 			}),
 		);

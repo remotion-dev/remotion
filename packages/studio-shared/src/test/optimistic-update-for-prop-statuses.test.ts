@@ -49,3 +49,35 @@ test('optimisticUpdateForPropStatuses should return the correct response', () =>
 		effects: [],
 	});
 });
+
+test('optimisticUpdateForPropStatuses should use undefined for removed default values', () => {
+	const previous: CanUpdateSequencePropsResponse = {
+		canUpdate: true,
+		props: {
+			name: {
+				status: 'static',
+				codeValue: 'hehe',
+			},
+		},
+		effects: [],
+	};
+
+	const updated = optimisticUpdateForPropStatuses({
+		previous,
+		fieldKey: 'name',
+		value: '',
+		defaultValue: JSON.stringify(''),
+		schema: NoReactInternals.sequenceSchema,
+	});
+
+	expect(updated).toEqual({
+		canUpdate: true,
+		props: {
+			name: {
+				status: 'static',
+				codeValue: undefined,
+			},
+		},
+		effects: [],
+	});
+});
