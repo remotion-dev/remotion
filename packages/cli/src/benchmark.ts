@@ -533,6 +533,8 @@ export const benchmarkCommand = async (
 					imageFormat: getVideoImageFormat({
 						codec: videoCodec,
 						uiImageFormat: null,
+						compositionDefaultVideoImageFormat:
+							composition.defaultVideoImageFormat,
 					}),
 					serializedInputPropsWithCustomSchema,
 					overwrite,

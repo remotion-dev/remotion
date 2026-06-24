@@ -7,20 +7,30 @@ import {parsedCli} from './parsed-cli';
 export const getVideoImageFormat = ({
 	codec,
 	uiImageFormat,
+	compositionDefaultVideoImageFormat,
 }: {
 	codec: ReturnType<typeof ConfigInternals.getOutputCodecOrUndefined>;
 	uiImageFormat: VideoImageFormat | null;
+	compositionDefaultVideoImageFormat: VideoImageFormat | null;
 }): VideoImageFormat => {
 	if (uiImageFormat !== null) {
 		return uiImageFormat;
 	}
 
-	const configured = BrowserSafeApis.options.videoImageFormatOption.getValue({
+	const imageFormatOption = BrowserSafeApis.options.videoImageFormatOption.getValue({
 		commandLine: parsedCli,
-	}).value;
+	});
 
-	if (configured !== null) {
-		return configured;
+	if (imageFormatOption.source === 'cli' && imageFormatOption.value !== null) {
+		return imageFormatOption.value;
+	}
+
+	if (compositionDefaultVideoImageFormat !== null) {
+		return compositionDefaultVideoImageFormat;
+	}
+
+	if (imageFormatOption.value !== null) {
+		return imageFormatOption.value;
 	}
 
 	if (NoReactAPIs.isAudioCodec(codec)) {

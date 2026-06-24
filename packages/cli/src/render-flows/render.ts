@@ -544,7 +544,24 @@ export const renderVideoFlow = async ({
 	const imageFormat = getVideoImageFormat({
 		codec: shouldOutputImageSequence ? undefined : codec,
 		uiImageFormat,
+		compositionDefaultVideoImageFormat: config.defaultVideoImageFormat,
 	});
+	const pixelFormatOptionValue = pixelFormatOption.getValue({
+		commandLine: parsedCli,
+	});
+	const resolvedPixelFormat =
+		pixelFormatOptionValue.source === 'default' &&
+		config.defaultPixelFormat !== null
+			? config.defaultPixelFormat
+			: pixelFormat;
+	const proResProfileOptionValue = proResProfileOption.getValue({
+		commandLine: parsedCli,
+	});
+	const resolvedProResProfile =
+		proResProfileOptionValue.source === 'default' &&
+		config.defaultProResProfile !== null
+			? config.defaultProResProfile
+			: proResProfile;
 
 	const onLog: OnLog = ({logLevel: logLogLevel, previewString, tag}) => {
 		addLogToAggregateProgress({
@@ -679,8 +696,8 @@ export const renderVideoFlow = async ({
 		frameRange,
 		serializedInputPropsWithCustomSchema,
 		overwrite,
-		pixelFormat,
-		proResProfile,
+		pixelFormat: resolvedPixelFormat,
+		proResProfile: resolvedProResProfile ?? undefined,
 		x264Preset: x264Preset ?? null,
 		jpegQuality: jpegQuality ?? RenderInternals.DEFAULT_JPEG_QUALITY,
 		chromiumOptions,

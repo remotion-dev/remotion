@@ -327,6 +327,7 @@ export const renderCommand = async ({
 	const imageFormat = CliInternals.getVideoImageFormat({
 		codec,
 		uiImageFormat: null,
+		compositionDefaultVideoImageFormat: null,
 	});
 
 	const functionName = await findFunctionName({logLevel, providerSpecifics});
