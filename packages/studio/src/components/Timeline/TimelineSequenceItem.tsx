@@ -625,23 +625,6 @@ export const TimelineSequenceItem: React.FC<{
 		toggleTrack(nodePathInfo);
 	}, [nodePathInfo, toggleTrack]);
 
-	const onShowInEditorDoubleClick = useCallback(
-		(e: React.MouseEvent<HTMLDivElement>) => {
-			if (!canOpenInEditor) {
-				return;
-			}
-
-			if (isTimelineSelectionModifierEvent(e)) {
-				e.stopPropagation();
-				return;
-			}
-
-			e.stopPropagation();
-			openInEditor();
-		},
-		[canOpenInEditor, openInEditor],
-	);
-
 	const propStatusesForOverride = useMemo(() => {
 		return nodePath
 			? Internals.getPropStatusesCtx(propStatuses, nodePath)
@@ -773,6 +756,24 @@ export const TimelineSequenceItem: React.FC<{
 		codeNameStatus !== undefined &&
 		codeNameStatus !== null &&
 		codeNameStatus.status === 'static';
+
+	const onSequenceDoubleClick = useCallback(
+		(e: React.MouseEvent<HTMLDivElement>) => {
+			if (isTimelineSelectionModifierEvent(e)) {
+				e.stopPropagation();
+				return;
+			}
+
+			e.stopPropagation();
+			if (canRenameThisSequence) {
+				setIsRenaming(true);
+				return;
+			}
+
+			openInEditor();
+		},
+		[canRenameThisSequence, openInEditor],
+	);
 
 	const canRenameSelectedSequence =
 		canRenameThisSequence &&
@@ -1132,7 +1133,11 @@ export const TimelineSequenceItem: React.FC<{
 			onDragLeave={canDropEffect ? onEffectDragLeave : undefined}
 			onDragOver={canDropEffect ? onEffectDragOver : undefined}
 			onDrop={canDropEffect ? onEffectDrop : undefined}
-			onDoubleClick={canOpenInEditor ? onShowInEditorDoubleClick : undefined}
+			onDoubleClick={
+				canRenameThisSequence || canOpenInEditor
+					? onSequenceDoubleClick
+					: undefined
+			}
 		>
 			<div style={labelContainerStyle}>
 				<TimelineSequenceName
