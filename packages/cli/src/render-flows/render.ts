@@ -687,7 +687,7 @@ export const renderVideoFlow = async ({
 			pixelFormat ??
 			config.defaultPixelFormat ??
 			configPixelFormat ??
-			'yuv420p',
+			RenderInternals.DEFAULT_PIXEL_FORMAT,
 		proResProfile:
 			proResProfile ??
 			config.defaultProResProfile ??

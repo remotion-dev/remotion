@@ -241,18 +241,30 @@ export const benchmarkCommand = async (
 		commandLine: parsedCli,
 	}).value;
 
-	const pixelFormat = pixelFormatOption.getValue({
+	const pixelFormatResult = pixelFormatOption.getValue({
 		commandLine: parsedCli,
-	}).value;
+	});
+	const pixelFormat =
+		pixelFormatResult.source === 'cli' ? pixelFormatResult.value : null;
+	const configPixelFormat =
+		pixelFormatResult.source === 'config' ? pixelFormatResult.value : null;
 	const browserExecutable = browserExecutableOption.getValue({
 		commandLine: parsedCli,
 	}).value;
 	const everyNthFrame = everyNthFrameOption.getValue({
 		commandLine: parsedCli,
 	}).value;
-	const proResProfile = proResProfileOption.getValue({
+	const proResProfileResult = proResProfileOption.getValue({
 		commandLine: parsedCli,
-	}).value;
+	});
+	const proResProfile =
+		proResProfileResult.source === 'cli'
+			? proResProfileResult.value
+			: undefined;
+	const configProResProfile =
+		proResProfileResult.source === 'config'
+			? proResProfileResult.value
+			: undefined;
 	const userAgent = userAgentOption.getValue({commandLine: parsedCli}).value;
 	const disableWebSecurity = disableWebSecurityOption.getValue({
 		commandLine: parsedCli,
@@ -536,8 +548,16 @@ export const benchmarkCommand = async (
 					}),
 					serializedInputPropsWithCustomSchema,
 					overwrite,
-					pixelFormat,
-					proResProfile,
+					pixelFormat:
+						pixelFormat ??
+						composition.defaultPixelFormat ??
+						configPixelFormat ??
+						RenderInternals.DEFAULT_PIXEL_FORMAT,
+					proResProfile:
+						proResProfile ??
+						composition.defaultProResProfile ??
+						configProResProfile ??
+						'hq',
 					x264Preset,
 					jpegQuality,
 					chromiumOptions,
