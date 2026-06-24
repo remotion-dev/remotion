@@ -104,8 +104,10 @@ export const renderVideoFlow = async ({
 	muted,
 	enforceAudioTrack,
 	proResProfile,
+	configProResProfile,
 	x264Preset,
 	pixelFormat,
+	configPixelFormat,
 	videoBitrate,
 	encodingMaxRate,
 	encodingBufferSize,
@@ -177,8 +179,10 @@ export const renderVideoFlow = async ({
 	muted: boolean;
 	enforceAudioTrack: boolean;
 	proResProfile: _InternalTypes['ProResProfile'] | undefined;
+	configProResProfile: _InternalTypes['ProResProfile'] | undefined;
 	x264Preset: X264Preset | null;
 	pixelFormat: PixelFormat | null;
+	configPixelFormat: PixelFormat | null;
 	numberOfGifLoops: NumberOfGifLoops;
 	audioCodec: AudioCodec | null;
 	disallowParallelEncoding: boolean;
@@ -541,12 +545,6 @@ export const renderVideoFlow = async ({
 		timeRemainingInMilliseconds: null,
 	};
 
-	const resolvedPixelFormat =
-		pixelFormat ?? config.defaultPixelFormat ?? 'yuv420p';
-
-	const resolvedProResProfile =
-		proResProfile ?? config.defaultProResProfile ?? 'hq';
-
 	const imageFormat = getVideoImageFormat({
 		codec: shouldOutputImageSequence ? undefined : codec,
 		uiImageFormat: uiImageFormat ?? config.defaultVideoImageFormat ?? null,
@@ -685,8 +683,16 @@ export const renderVideoFlow = async ({
 		frameRange,
 		serializedInputPropsWithCustomSchema,
 		overwrite,
-		pixelFormat: resolvedPixelFormat,
-		proResProfile: resolvedProResProfile,
+		pixelFormat:
+			pixelFormat ??
+			config.defaultPixelFormat ??
+			configPixelFormat ??
+			'yuv420p',
+		proResProfile:
+			proResProfile ??
+			config.defaultProResProfile ??
+			configProResProfile ??
+			'hq',
 		x264Preset: x264Preset ?? null,
 		jpegQuality: jpegQuality ?? RenderInternals.DEFAULT_JPEG_QUALITY,
 		chromiumOptions,
