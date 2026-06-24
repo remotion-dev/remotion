@@ -132,7 +132,9 @@ export const render = async (
 		commandLine: parsedCli,
 	});
 	const pixelFormat =
-		pixelFormatResult.source === 'default' ? null : pixelFormatResult.value;
+		pixelFormatResult.source === 'cli' ? pixelFormatResult.value : null;
+	const configPixelFormat =
+		pixelFormatResult.source === 'config' ? pixelFormatResult.value : null;
 	const browserExecutable = browserExecutableOption.getValue({
 		commandLine: parsedCli,
 	}).value;
@@ -143,9 +145,13 @@ export const render = async (
 		commandLine: parsedCli,
 	});
 	const proResProfile =
-		proResProfileResult.source === 'default'
-			? undefined
-			: proResProfileResult.value;
+		proResProfileResult.source === 'cli'
+			? proResProfileResult.value
+			: undefined;
+	const configProResProfile =
+		proResProfileResult.source === 'config'
+			? proResProfileResult.value
+			: undefined;
 	const userAgent = userAgentOption.getValue({commandLine: parsedCli}).value;
 	const disableWebSecurity = disableWebSecurityOption.getValue({
 		commandLine: parsedCli,
@@ -318,6 +324,8 @@ export const render = async (
 		proResProfile,
 		x264Preset,
 		pixelFormat,
+		configPixelFormat,
+		configProResProfile,
 		videoBitrate,
 		encodingMaxRate,
 		encodingBufferSize,
