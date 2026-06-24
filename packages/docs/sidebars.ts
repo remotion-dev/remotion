@@ -305,6 +305,7 @@ const sidebars: SidebarsConfig = {
 				'effects/pattern',
 				'effects/pixel-dissolve',
 				'effects/pixelate',
+				'effects/radial-progressive-blur',
 				'effects/rings',
 				'effects/saturation',
 				'effects/scale',

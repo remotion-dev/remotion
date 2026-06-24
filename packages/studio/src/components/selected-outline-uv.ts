@@ -23,10 +23,37 @@ import {
 
 export type UvCoordinate = readonly [number, number];
 
+type UvEllipseDimensions = {
+	readonly width: number;
+	readonly height: number;
+};
+
 export type UvCoordinateFieldSchema = Extract<
 	InteractivitySchemaField,
 	{type: 'uv-coordinate'}
 >;
+
+export type NumericUvEllipseFieldSchema = Extract<
+	InteractivitySchemaField,
+	{type: 'number' | 'rotation-degrees'}
+>;
+
+export type UvEllipseControlField = {
+	readonly fieldKey: string;
+	readonly fieldSchema: NumericUvEllipseFieldSchema;
+	readonly fieldDefault: number | null | undefined;
+	readonly propStatus:
+		| CanUpdateSequencePropStatusStatic
+		| CanUpdateSequencePropStatusKeyframed;
+	readonly value: number;
+};
+
+export type UvEllipseControls = {
+	readonly width: UvEllipseControlField;
+	readonly height: UvEllipseControlField;
+	readonly rotation: UvEllipseControlField | null;
+	readonly innerScale: UvEllipseControlField | null;
+};
 
 export type SelectedOutlineUvHandle = {
 	readonly clientId: string;
@@ -34,6 +61,8 @@ export type SelectedOutlineUvHandle = {
 		| CanUpdateSequencePropStatusStatic
 		| CanUpdateSequencePropStatusKeyframed;
 	readonly effectIndex: number;
+	readonly effectValues: Record<string, unknown>;
+	readonly ellipseControls: UvEllipseControls | null;
 	readonly fieldDefault: UvCoordinate | undefined;
 	readonly fieldKey: string;
 	readonly fieldSchema: UvCoordinateFieldSchema;
@@ -47,12 +76,55 @@ export type SelectedOutlineUvHandle = {
 type UvConnectionHandle = Pick<
 	SelectedOutlineUvHandle,
 	'effectIndex' | 'fieldKey' | 'fieldSchema' | 'value'
->;
+> & {
+	readonly effectValues?: Record<string, unknown>;
+	readonly ellipseControls?: UvEllipseControls | null;
+};
 
 type UvHandleConnectionLine = {
 	readonly key: string;
 	readonly from: OutlinePoint;
 	readonly to: OutlinePoint;
+};
+
+type UvHandleConnectionEllipse = {
+	readonly key: string;
+	readonly points: readonly OutlinePoint[];
+};
+
+export type UvEllipseResizeAxis = 'width' | 'height';
+
+export type UvEllipseResizeControl = {
+	readonly key: string;
+	readonly axis: UvEllipseResizeAxis;
+	readonly field: UvEllipseControlField;
+	readonly position: OutlinePoint;
+	readonly cursor: string;
+};
+
+export type UvEllipseRotationControl = {
+	readonly key: string;
+	readonly field: UvEllipseControlField;
+	readonly position: OutlinePoint;
+	readonly cursor: string;
+};
+
+export type UvEllipseStartControl = {
+	readonly key: string;
+	readonly field: UvEllipseControlField;
+	readonly position: OutlinePoint;
+	readonly cursor: string;
+};
+
+export type UvEllipseInteractiveControls = {
+	readonly handle: SelectedOutlineUvHandle;
+	readonly center: OutlinePoint;
+	readonly width: number;
+	readonly height: number;
+	readonly rotation: number;
+	readonly resize: readonly UvEllipseResizeControl[];
+	readonly rotationControl: UvEllipseRotationControl | null;
+	readonly startControl: UvEllipseStartControl | null;
 };
 
 type SelectedEffectFields = {
@@ -70,6 +142,124 @@ const parseUvCoordinate = (value: unknown): UvCoordinate | null => {
 	}
 
 	return null;
+};
+
+const parseFiniteNumber = (value: unknown): number | null => {
+	if (typeof value === 'number' && Number.isFinite(value)) {
+		return value;
+	}
+
+	return null;
+};
+
+const getResizeCursor = (degrees: number): string => {
+	const normalizedDegrees = ((degrees % 180) + 180) % 180;
+	const snappedDegrees = Math.round(normalizedDegrees / 45) * 45;
+
+	if (snappedDegrees === 0 || snappedDegrees === 180) {
+		return 'ew-resize';
+	}
+
+	if (snappedDegrees === 45) {
+		return 'nwse-resize';
+	}
+
+	if (snappedDegrees === 90) {
+		return 'ns-resize';
+	}
+
+	return 'nesw-resize';
+};
+
+const getRotatedEllipseUv = ({
+	center,
+	dimensions,
+	width,
+	height,
+	rotation,
+	angle,
+	radiusOffset = 0,
+}: {
+	readonly center: UvCoordinate;
+	readonly dimensions?: UvEllipseDimensions | null;
+	readonly width: number;
+	readonly height: number;
+	readonly rotation: number;
+	readonly angle: number;
+	readonly radiusOffset?: number;
+}): UvCoordinate => {
+	const rotationRadians = (rotation / 180) * Math.PI;
+	const cosRotation = Math.cos(rotationRadians);
+	const sinRotation = Math.sin(rotationRadians);
+
+	if (
+		dimensions !== null &&
+		dimensions !== undefined &&
+		dimensions.width > 0 &&
+		dimensions.height > 0
+	) {
+		const radiusX =
+			width * dimensions.width * 0.5 + radiusOffset * dimensions.width;
+		const radiusY =
+			height * dimensions.height * 0.5 + radiusOffset * dimensions.height;
+		const pixelLocalX = Math.cos(angle) * radiusX;
+		const pixelLocalY = Math.sin(angle) * radiusY;
+		const rotatedX = pixelLocalX * cosRotation - pixelLocalY * sinRotation;
+		const rotatedY = pixelLocalX * sinRotation + pixelLocalY * cosRotation;
+
+		return [
+			center[0] + rotatedX / dimensions.width,
+			center[1] + rotatedY / dimensions.height,
+		];
+	}
+
+	const radiusU = width / 2 + radiusOffset;
+	const radiusV = height / 2 + radiusOffset;
+	const localX = Math.cos(angle) * radiusU;
+	const localY = Math.sin(angle) * radiusV;
+
+	return [
+		center[0] + localX * cosRotation - localY * sinRotation,
+		center[1] + localX * sinRotation + localY * cosRotation,
+	];
+};
+
+const getUvEllipseValues = (
+	handle: UvConnectionHandle,
+): {
+	width: number;
+	height: number;
+	rotation: number;
+	innerScale: number | null;
+} | null => {
+	const {visual} = handle.fieldSchema;
+	if (visual?.type !== 'ellipse') {
+		return null;
+	}
+
+	const ellipseMetadata = visual;
+
+	const controls = handle.ellipseControls;
+	const width =
+		controls?.width.value ??
+		parseFiniteNumber(handle.effectValues?.[ellipseMetadata.width]);
+	const height =
+		controls?.height.value ??
+		parseFiniteNumber(handle.effectValues?.[ellipseMetadata.height]);
+	const rotation = ellipseMetadata.rotation
+		? (controls?.rotation?.value ??
+			parseFiniteNumber(handle.effectValues?.[ellipseMetadata.rotation]))
+		: 0;
+	const innerScale = ellipseMetadata.innerScale
+		? (controls?.innerScale?.value ??
+			parseFiniteNumber(handle.effectValues?.[ellipseMetadata.innerScale]))
+		: null;
+
+	if (width === null || height === null || rotation === null) {
+		return null;
+	}
+
+	return {width, height, rotation, innerScale};
 };
 
 export const tuplesEqual = (left: unknown, right: UvCoordinate): boolean => {
@@ -176,13 +366,13 @@ export const getUvHandleConnectionLines = ({
 	const lines: UvHandleConnectionLine[] = [];
 
 	for (const handle of handles) {
-		const targetFieldKey = handle.fieldSchema.lineTo;
-		if (targetFieldKey === undefined || targetFieldKey === handle.fieldKey) {
+		const {visual} = handle.fieldSchema;
+		if (visual?.type !== 'line' || visual.to === handle.fieldKey) {
 			continue;
 		}
 
 		const target = handlesByField.get(
-			`${handle.effectIndex}\u0000${targetFieldKey}`,
+			`${handle.effectIndex}\u0000${visual.to}`,
 		);
 		if (target === undefined) {
 			continue;
@@ -190,7 +380,7 @@ export const getUvHandleConnectionLines = ({
 
 		const pairKey = [
 			handle.effectIndex,
-			...[handle.fieldKey, targetFieldKey].sort(),
+			...[handle.fieldKey, visual.to].sort(),
 		].join('\u0000');
 		if (seenPairs.has(pairKey)) {
 			continue;
@@ -198,13 +388,222 @@ export const getUvHandleConnectionLines = ({
 
 		seenPairs.add(pairKey);
 		lines.push({
-			key: `${handle.effectIndex}-${handle.fieldKey}-${targetFieldKey}`,
+			key: `${handle.effectIndex}-${handle.fieldKey}-${visual.to}`,
 			from: getUvHandlePosition(points, handle.value),
 			to: getUvHandlePosition(points, target.value),
 		});
 	}
 
 	return lines;
+};
+
+export const getUvHandleConnectionEllipses = ({
+	handles,
+	dimensions,
+	points,
+}: {
+	readonly handles: readonly UvConnectionHandle[];
+	readonly dimensions?: UvEllipseDimensions | null;
+	readonly points: SelectedOutline['points'];
+}): UvHandleConnectionEllipse[] => {
+	const ellipses: UvHandleConnectionEllipse[] = [];
+
+	for (const handle of handles) {
+		const {visual} = handle.fieldSchema;
+		if (visual?.type === 'ellipse') {
+			const ellipseMetadata = visual;
+			const ellipseValues = getUvEllipseValues(handle);
+			if (ellipseValues === null) {
+				continue;
+			}
+
+			const rotatedEllipsePoints: OutlinePoint[] = [];
+			for (let i = 0; i <= 64; i++) {
+				const angle = (i / 64) * Math.PI * 2;
+				const uv = getRotatedEllipseUv({
+					center: handle.value,
+					dimensions,
+					width: ellipseValues.width,
+					height: ellipseValues.height,
+					rotation: ellipseValues.rotation,
+					angle,
+				});
+				rotatedEllipsePoints.push(getUvHandlePosition(points, uv));
+			}
+
+			ellipses.push({
+				key: [
+					handle.effectIndex,
+					handle.fieldKey,
+					ellipseMetadata.width,
+					ellipseMetadata.height,
+					ellipseMetadata.rotation ?? 'rotation',
+				].join('-'),
+				points: rotatedEllipsePoints,
+			});
+
+			if (
+				ellipseMetadata.innerScale !== undefined &&
+				ellipseValues.innerScale !== null
+			) {
+				const startEllipsePoints: OutlinePoint[] = [];
+				for (let i = 0; i <= 64; i++) {
+					const angle = (i / 64) * Math.PI * 2;
+					const uv = getRotatedEllipseUv({
+						center: handle.value,
+						dimensions,
+						width: ellipseValues.width * ellipseValues.innerScale,
+						height: ellipseValues.height * ellipseValues.innerScale,
+						rotation: ellipseValues.rotation,
+						angle,
+					});
+					startEllipsePoints.push(getUvHandlePosition(points, uv));
+				}
+
+				ellipses.push({
+					key: [
+						handle.effectIndex,
+						handle.fieldKey,
+						ellipseMetadata.width,
+						ellipseMetadata.height,
+						ellipseMetadata.rotation ?? 'rotation',
+						ellipseMetadata.innerScale,
+					].join('-'),
+					points: startEllipsePoints,
+				});
+			}
+
+			continue;
+		}
+	}
+
+	return ellipses;
+};
+
+export const getUvEllipseInteractiveControls = ({
+	handles,
+	dimensions,
+	points,
+}: {
+	readonly handles: readonly SelectedOutlineUvHandle[];
+	readonly dimensions?: UvEllipseDimensions | null;
+	readonly points: SelectedOutline['points'];
+}): UvEllipseInteractiveControls[] => {
+	const controls: UvEllipseInteractiveControls[] = [];
+
+	for (const handle of handles) {
+		if (
+			handle.fieldSchema.visual?.type !== 'ellipse' ||
+			handle.ellipseControls === null ||
+			handle.ellipseControls === undefined
+		) {
+			continue;
+		}
+
+		const ellipseValues = getUvEllipseValues(handle);
+		if (ellipseValues === null) {
+			continue;
+		}
+
+		const center = getUvHandlePosition(points, handle.value);
+		const {rotation} = ellipseValues;
+		const widthPoint = getUvHandlePosition(
+			points,
+			getRotatedEllipseUv({
+				center: handle.value,
+				dimensions,
+				width: ellipseValues.width,
+				height: 0,
+				rotation,
+				angle: 0,
+			}),
+		);
+		const heightPoint = getUvHandlePosition(
+			points,
+			getRotatedEllipseUv({
+				center: handle.value,
+				dimensions,
+				width: 0,
+				height: ellipseValues.height,
+				rotation,
+				angle: Math.PI / 2,
+			}),
+		);
+		const rotationPoint =
+			handle.ellipseControls.rotation === null
+				? null
+				: getUvHandlePosition(
+						points,
+						getRotatedEllipseUv({
+							center: handle.value,
+							dimensions,
+							width: 0,
+							height: Math.max(ellipseValues.height, 0.001),
+							rotation,
+							angle: Math.PI / 2,
+							radiusOffset: 0.08,
+						}),
+					);
+		const startPoint =
+			handle.ellipseControls.innerScale === null ||
+			ellipseValues.innerScale === null
+				? null
+				: getUvHandlePosition(
+						points,
+						getRotatedEllipseUv({
+							center: handle.value,
+							dimensions,
+							width: ellipseValues.width * ellipseValues.innerScale,
+							height: 0,
+							rotation,
+							angle: 0,
+						}),
+					);
+
+		controls.push({
+			handle,
+			center,
+			width: ellipseValues.width,
+			height: ellipseValues.height,
+			rotation,
+			resize: [
+				{
+					key: `${handle.effectIndex}-${handle.fieldKey}-width`,
+					axis: 'width',
+					field: handle.ellipseControls.width,
+					position: widthPoint,
+					cursor: getResizeCursor(rotation),
+				},
+				{
+					key: `${handle.effectIndex}-${handle.fieldKey}-height`,
+					axis: 'height',
+					field: handle.ellipseControls.height,
+					position: heightPoint,
+					cursor: getResizeCursor(rotation + 90),
+				},
+			],
+			rotationControl:
+				handle.ellipseControls.rotation === null || rotationPoint === null
+					? null
+					: {
+							key: `${handle.effectIndex}-${handle.fieldKey}-rotation`,
+							field: handle.ellipseControls.rotation,
+							position: rotationPoint,
+							cursor: getResizeCursor(rotation + 90),
+						},
+			startControl:
+				handle.ellipseControls.innerScale === null || startPoint === null
+					? null
+					: {
+							key: `${handle.effectIndex}-${handle.fieldKey}-start`,
+							field: handle.ellipseControls.innerScale,
+							position: startPoint,
+							cursor: getResizeCursor(rotation),
+						},
+		});
+	}
+
+	return controls;
 };
 
 const vectorBetween = (from: OutlinePoint, to: OutlinePoint): OutlinePoint => {
@@ -306,6 +705,118 @@ export function roundUvCoordinate(
 	];
 }
 
+export const roundNumericUvEllipseValue = (
+	value: number,
+	schema: NumericUvEllipseFieldSchema,
+): number => {
+	const min = schema.min ?? -Infinity;
+	const max = schema.max ?? Infinity;
+	const decimalPlaces = getTimelineDisplayDecimalPlaces({
+		defaultDecimalPlaces: schema.type === 'rotation-degrees' ? 1 : 3,
+		step: schema.step,
+	});
+
+	return roundToDecimalPlaces(clamp(value, min, max), decimalPlaces);
+};
+
+const getNumericUvEllipseControlField = ({
+	activeSchema,
+	effectStatus,
+	effectValues,
+	fieldKey,
+}: {
+	readonly activeSchema: InteractivitySchema;
+	readonly effectStatus: Extract<
+		ReturnType<typeof Internals.getEffectPropStatusesCtx>,
+		{type: 'can-update-effect'}
+	>;
+	readonly effectValues: Record<string, unknown>;
+	readonly fieldKey: string;
+}): UvEllipseControlField | null => {
+	const fieldSchema = activeSchema[fieldKey];
+	if (
+		fieldSchema?.type !== 'number' &&
+		fieldSchema?.type !== 'rotation-degrees'
+	) {
+		return null;
+	}
+
+	const propStatus = effectStatus.props[fieldKey];
+	if (propStatus?.status !== 'static' && propStatus?.status !== 'keyframed') {
+		return null;
+	}
+
+	const value = parseFiniteNumber(effectValues[fieldKey]);
+	if (value === null) {
+		return null;
+	}
+
+	return {
+		fieldKey,
+		fieldSchema,
+		fieldDefault: fieldSchema.default,
+		propStatus,
+		value,
+	};
+};
+
+const getUvEllipseControls = ({
+	activeSchema,
+	effectStatus,
+	effectValues,
+	fieldSchema,
+}: {
+	readonly activeSchema: InteractivitySchema;
+	readonly effectStatus: Extract<
+		ReturnType<typeof Internals.getEffectPropStatusesCtx>,
+		{type: 'can-update-effect'}
+	>;
+	readonly effectValues: Record<string, unknown>;
+	readonly fieldSchema: UvCoordinateFieldSchema;
+}): UvEllipseControls | null => {
+	const {visual} = fieldSchema;
+	if (visual?.type !== 'ellipse') {
+		return null;
+	}
+
+	const width = getNumericUvEllipseControlField({
+		activeSchema,
+		effectStatus,
+		effectValues,
+		fieldKey: visual.width,
+	});
+	const height = getNumericUvEllipseControlField({
+		activeSchema,
+		effectStatus,
+		effectValues,
+		fieldKey: visual.height,
+	});
+	const rotation =
+		visual.rotation === undefined
+			? null
+			: getNumericUvEllipseControlField({
+					activeSchema,
+					effectStatus,
+					effectValues,
+					fieldKey: visual.rotation,
+				});
+	const innerScale =
+		visual.innerScale === undefined
+			? null
+			: getNumericUvEllipseControlField({
+					activeSchema,
+					effectStatus,
+					effectValues,
+					fieldKey: visual.innerScale,
+				});
+
+	if (width === null || height === null) {
+		return null;
+	}
+
+	return {width, height, rotation, innerScale};
+};
+
 export const getSelectedUvHandles = ({
 	propStatuses,
 	clientId,
@@ -368,6 +879,28 @@ export const getSelectedUvHandles = ({
 				shouldResortToDefaultValueIfUndefined: false,
 			});
 		});
+		const effectValues: Record<string, unknown> = {};
+		for (const [fieldKey, fieldSchema] of Object.entries(activeSchema)) {
+			if (fieldSchema.type === 'hidden') {
+				continue;
+			}
+
+			const propStatus = effectStatus.props[fieldKey];
+			if (
+				propStatus?.status !== 'static' &&
+				propStatus?.status !== 'keyframed'
+			) {
+				continue;
+			}
+
+			effectValues[fieldKey] = Internals.getEffectiveVisualModeValue({
+				propStatus,
+				dragOverrideValue: dragOverrides[fieldKey],
+				defaultValue: fieldSchema.default,
+				frame: sourceFrame,
+				shouldResortToDefaultValueIfUndefined: true,
+			});
+		}
 
 		for (const [fieldKey, fieldSchema] of Object.entries(activeSchema)) {
 			if (fieldSchema.type !== 'uv-coordinate') {
@@ -382,14 +915,7 @@ export const getSelectedUvHandles = ({
 				continue;
 			}
 
-			const dragOverrideValue = dragOverrides[fieldKey];
-			const effectiveValue = Internals.getEffectiveVisualModeValue({
-				propStatus,
-				dragOverrideValue,
-				defaultValue: fieldSchema.default,
-				frame: sourceFrame,
-				shouldResortToDefaultValueIfUndefined: true,
-			});
+			const effectiveValue = effectValues[fieldKey];
 			const value = parseUvCoordinate(effectiveValue);
 			if (value === null) {
 				continue;
@@ -399,6 +925,13 @@ export const getSelectedUvHandles = ({
 				clientId,
 				propStatus,
 				effectIndex,
+				effectValues,
+				ellipseControls: getUvEllipseControls({
+					activeSchema,
+					effectStatus,
+					effectValues,
+					fieldSchema,
+				}),
 				fieldDefault: fieldSchema.default,
 				fieldKey,
 				fieldSchema,

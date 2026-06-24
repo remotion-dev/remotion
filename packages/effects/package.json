@@ -194,6 +194,11 @@
 			"module": "./dist/esm/pattern.mjs",
 			"import": "./dist/esm/pattern.mjs"
 		},
+		"./radial-progressive-blur": {
+			"types": "./dist/radial-progressive-blur.d.ts",
+			"module": "./dist/esm/radial-progressive-blur.mjs",
+			"import": "./dist/esm/radial-progressive-blur.mjs"
+		},
 		"./rings": {
 			"types": "./dist/rings.d.ts",
 			"module": "./dist/esm/rings.mjs",
@@ -378,6 +383,9 @@
 			],
 			"pattern": [
 				"dist/pattern.d.ts"
+			],
+			"radial-progressive-blur": [
+				"dist/radial-progressive-blur.d.ts"
 			],
 			"rings": [
 				"dist/rings.d.ts"
