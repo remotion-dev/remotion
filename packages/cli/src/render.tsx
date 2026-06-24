@@ -128,19 +128,24 @@ export const render = async (
 	const durationInFrames = overrideDurationOption.getValue({
 		commandLine: parsedCli,
 	}).value;
-
-	const pixelFormat = pixelFormatOption.getValue({
+	const pixelFormatResult = pixelFormatOption.getValue({
 		commandLine: parsedCli,
-	}).value;
+	});
+	const pixelFormat =
+		pixelFormatResult.source === 'default' ? null : pixelFormatResult.value;
 	const browserExecutable = browserExecutableOption.getValue({
 		commandLine: parsedCli,
 	}).value;
 	const everyNthFrame = everyNthFrameOption.getValue({
 		commandLine: parsedCli,
 	}).value;
-	const proResProfile = proResProfileOption.getValue({
+	const proResProfileResult = proResProfileOption.getValue({
 		commandLine: parsedCli,
-	}).value;
+	});
+	const proResProfile =
+		proResProfileResult.source === 'default'
+			? undefined
+			: proResProfileResult.value;
 	const userAgent = userAgentOption.getValue({commandLine: parsedCli}).value;
 	const disableWebSecurity = disableWebSecurityOption.getValue({
 		commandLine: parsedCli,

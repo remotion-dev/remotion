@@ -36,3 +36,27 @@ describe('pixel-format tests setPixelFormat', () => {
 			)),
 	);
 });
+
+describe('pixel-format source tracking for composition default override', () => {
+	test('returns source: default when no CLI flag and no config set', () => {
+		// Reset to default
+		pixelFormatOption.setConfig('yuv420p');
+		const result = pixelFormatOption.getValue({commandLine: {}});
+		expect(result.source).toBe('default');
+	});
+
+	test('returns source: config when config is explicitly set to non-default', () => {
+		pixelFormatOption.setConfig('yuva420p');
+		const result = pixelFormatOption.getValue({commandLine: {}});
+		expect(result.source).toBe('config');
+		expect(result.value).toBe('yuva420p');
+	});
+
+	test('returns source: cli when CLI flag is passed', () => {
+		const result = pixelFormatOption.getValue({
+			commandLine: {'pixel-format': 'yuv444p'},
+		});
+		expect(result.source).toBe('cli');
+		expect(result.value).toBe('yuv444p');
+	});
+});
