@@ -93,7 +93,10 @@ import {
 import {EffectsPatternPreview} from '../effects/effects-pattern-preview';
 import {EffectsPixelDissolvePreview} from '../effects/effects-pixel-dissolve-preview';
 import {EffectsPixelatePreview} from '../effects/effects-pixelate-preview';
-import {EffectsRadialProgressiveBlurPreview} from '../effects/effects-radial-progressive-blur-preview';
+import {
+	EffectsRadialProgressiveBlurPreview,
+	RADIAL_PROGRESSIVE_BLUR_PREVIEW_PARAMS,
+} from '../effects/effects-radial-progressive-blur-preview';
 import {EffectsRingsPreview} from '../effects/effects-rings-preview';
 import {EffectsSaturationPreview} from '../effects/effects-saturation-preview';
 import {EffectsScalePreview} from '../effects/effects-scale-preview';
@@ -457,6 +460,7 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/radial-progressive-blur',
 		comp: EffectsRadialProgressiveBlurPreview,
 		schema: radialProgressiveBlur().definition.schema,
+		initialValues: RADIAL_PROGRESSIVE_BLUR_PREVIEW_PARAMS,
 	},
 	{
 		...defaults,
