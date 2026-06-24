@@ -306,7 +306,12 @@ export class HeadlessBrowser extends EventEmitter {
 	}
 
 	async close({silent}: {silent: boolean}): Promise<void> {
-		await this.runner.closeProcess();
+		this.connection.send('Browser.close').catch(() => undefined);
+		const exitedGracefully = await this.runner.waitForProcessExit(2000);
+		if (!exitedGracefully) {
+			await this.runner.closeProcess();
+		}
+
 		(await this.pages()).forEach((page) => {
 			page.emit(PageEmittedEvents.Disposed);
 			page.closed = true;

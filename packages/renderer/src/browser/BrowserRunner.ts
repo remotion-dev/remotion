@@ -164,6 +164,30 @@ export const makeBrowserRunner = async ({
 		return processClosing;
 	};
 
+	const waitForProcessExit = (
+		timeoutInMilliseconds: number,
+	): Promise<boolean> => {
+		if (closed) {
+			return Promise.resolve(true);
+		}
+
+		return new Promise((resolve) => {
+			const timeoutId = setTimeout(() => {
+				resolve(false);
+			}, timeoutInMilliseconds);
+
+			processClosing
+				.then(() => {
+					clearTimeout(timeoutId);
+					resolve(true);
+				})
+				.catch(() => {
+					clearTimeout(timeoutId);
+					resolve(false);
+				});
+		});
+	};
+
 	if (dumpio) {
 		proc.stdout?.on('data', (d) => {
 			const message = d.toString('utf8').trim();
@@ -261,6 +285,7 @@ export const makeBrowserRunner = async ({
 		rememberEventLoop,
 		connection,
 		closeProcess,
+		waitForProcessExit,
 	};
 };
 
