@@ -17,9 +17,10 @@ export const getVideoImageFormat = ({
 		return uiImageFormat;
 	}
 
-	const imageFormatOption = BrowserSafeApis.options.videoImageFormatOption.getValue({
-		commandLine: parsedCli,
-	});
+	const imageFormatOption =
+		BrowserSafeApis.options.videoImageFormatOption.getValue({
+			commandLine: parsedCli,
+		});
 
 	if (imageFormatOption.source === 'cli' && imageFormatOption.value !== null) {
 		return imageFormatOption.value;
