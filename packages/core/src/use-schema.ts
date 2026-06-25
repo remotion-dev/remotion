@@ -55,6 +55,20 @@ export const DEFAULT_LINEAR_EASING: CanUpdateSequencePropStatusLinearEasing = {
 	type: 'linear',
 };
 
+const getEasingIndexToDuplicate = ({
+	insertedKeyframeIndex,
+	easingLength,
+}: {
+	insertedKeyframeIndex: number;
+	easingLength: number;
+}) => {
+	if (easingLength === 0 || insertedKeyframeIndex === 0) {
+		return 0;
+	}
+
+	return Math.min(insertedKeyframeIndex - 1, easingLength - 1);
+};
+
 export type CanUpdateSequencePropStatusClamping = {
 	left: ExtrapolateType;
 	right: ExtrapolateType;
@@ -145,6 +159,20 @@ export const makeKeyframedDragOverride = ({
 					index === existingIndex ? {frame, value} : keyframe,
 				);
 	const easing = [...status.easing];
+	if (existingIndex === -1) {
+		const insertedKeyframeIndex = keyframes.findIndex(
+			(keyframe) => keyframe.frame === frame,
+		);
+		const easingToDuplicate =
+			easing[
+				getEasingIndexToDuplicate({
+					insertedKeyframeIndex,
+					easingLength: easing.length,
+				})
+			] ?? DEFAULT_LINEAR_EASING;
+		easing.splice(insertedKeyframeIndex, 0, easingToDuplicate);
+	}
+
 	while (easing.length < keyframes.length - 1) {
 		easing.push(DEFAULT_LINEAR_EASING);
 	}

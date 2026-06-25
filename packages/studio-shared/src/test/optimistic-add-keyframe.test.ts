@@ -263,6 +263,52 @@ test('optimisticAddSequenceKeyframe appends a keyframe to an existing interpolat
 	expect(status.easing).toEqual([{type: 'linear'}, {type: 'linear'}]);
 });
 
+test('optimisticAddSequenceKeyframe duplicates the easing for the split segment', () => {
+	const previous: CanUpdateSequencePropsResponse = {
+		canUpdate: true,
+		props: {
+			scale: {
+				status: 'keyframed',
+				interpolationFunction: 'interpolate',
+				keyframes: [
+					{frame: 0, value: 1},
+					{frame: 31, value: 2},
+					{frame: 60, value: 3},
+				],
+				easing: [
+					{type: 'linear'},
+					{type: 'bezier', x1: 0.42, y1: 0, x2: 1, y2: 1},
+				],
+				clamping: {left: 'extend', right: 'extend'},
+				posterize: undefined,
+			},
+		},
+		effects: [],
+	};
+
+	const updated = optimisticAddSequenceKeyframe({
+		previous,
+		fieldKey: 'scale',
+		frame: 38,
+		value: 2.5,
+	});
+
+	if (!updated.canUpdate) {
+		throw new Error('expected updateable sequence');
+	}
+
+	const status = updated.props.scale;
+	if (!status || status.status !== 'keyframed') {
+		throw new Error('expected keyframed status');
+	}
+
+	expect(status.easing).toEqual([
+		{type: 'linear'},
+		{type: 'bezier', x1: 0.42, y1: 0, x2: 1, y2: 1},
+		{type: 'bezier', x1: 0.42, y1: 0, x2: 1, y2: 1},
+	]);
+});
+
 test('optimisticAddSequenceKeyframe updates an existing keyframe at the same frame', () => {
 	const previous: CanUpdateSequencePropsResponse = {
 		canUpdate: true,
