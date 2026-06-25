@@ -1,6 +1,6 @@
 import {LINEAR_KEYFRAME_EASING} from '@remotion/studio-shared';
 import type React from 'react';
-import {useContext, useEffect} from 'react';
+import {useContext, useEffect, useRef} from 'react';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {useKeybinding} from '../../helpers/use-keybinding';
@@ -39,6 +39,9 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 	const {canSelect} = useTimelineSelection();
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	const confirm = useConfirmationDialog();
+	const timelinePosition = Internals.Timeline.useTimelinePosition();
+	const timelinePositionRef = useRef(timelinePosition);
+	timelinePositionRef.current = timelinePosition;
 
 	useEffect(() => {
 		if (!canSelect || previewServerState.type !== 'connected') {
@@ -81,8 +84,13 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 				deletePromise
 					.then((deleted) => {
 						if (deleted) {
-							const nextSelection =
-								getTimelineSelectionAfterDeletingItems(selectedItems);
+							const nextSelection = getTimelineSelectionAfterDeletingItems({
+								selections: selectedItems,
+								sequences,
+								overrideIdsToNodePaths: overrideIdToNodePathMappings,
+								propStatuses,
+								timelinePosition: timelinePositionRef.current,
+							});
 							if (nextSelection.length === 0) {
 								clearSelection();
 							} else {
@@ -186,6 +194,7 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 		sequencesRef,
 		setGuidesList,
 		setPropStatuses,
+		timelinePositionRef,
 	]);
 
 	return null;
