@@ -309,6 +309,47 @@ test('optimisticAddSequenceKeyframe duplicates the easing for the split segment'
 	]);
 });
 
+test('optimisticAddSequenceKeyframe uses linear easing outside the keyframe range', () => {
+	const previous: CanUpdateSequencePropsResponse = {
+		canUpdate: true,
+		props: {
+			scale: {
+				status: 'keyframed',
+				interpolationFunction: 'interpolate',
+				keyframes: [
+					{frame: 0, value: 1},
+					{frame: 60, value: 3},
+				],
+				easing: [{type: 'bezier', x1: 0.42, y1: 0, x2: 1, y2: 1}],
+				clamping: {left: 'extend', right: 'extend'},
+				posterize: undefined,
+			},
+		},
+		effects: [],
+	};
+
+	const updated = optimisticAddSequenceKeyframe({
+		previous,
+		fieldKey: 'scale',
+		frame: 90,
+		value: 4,
+	});
+
+	if (!updated.canUpdate) {
+		throw new Error('expected updateable sequence');
+	}
+
+	const status = updated.props.scale;
+	if (!status || status.status !== 'keyframed') {
+		throw new Error('expected keyframed status');
+	}
+
+	expect(status.easing).toEqual([
+		{type: 'bezier', x1: 0.42, y1: 0, x2: 1, y2: 1},
+		{type: 'linear'},
+	]);
+});
+
 test('optimisticAddSequenceKeyframe updates an existing keyframe at the same frame', () => {
 	const previous: CanUpdateSequencePropsResponse = {
 		canUpdate: true,

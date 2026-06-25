@@ -13,12 +13,17 @@ import {
 const getEasingIndexToDuplicate = ({
 	insertedKeyframeIndex,
 	easingLength,
+	keyframeCount,
 }: {
 	insertedKeyframeIndex: number;
 	easingLength: number;
-}) => {
-	if (easingLength === 0 || insertedKeyframeIndex === 0) {
-		return 0;
+	keyframeCount: number;
+}): number | null => {
+	const isSplittingExistingSegment =
+		insertedKeyframeIndex > 0 && insertedKeyframeIndex < keyframeCount - 1;
+
+	if (!isSplittingExistingSegment || easingLength === 0) {
+		return null;
 	}
 
 	return Math.min(insertedKeyframeIndex - 1, easingLength - 1);
@@ -59,13 +64,15 @@ const addKeyframeToPropStatus = ({
 		const insertedKeyframeIndex = keyframes.findIndex(
 			(keyframe) => keyframe.frame === frame,
 		);
+		const easingIndexToDuplicate = getEasingIndexToDuplicate({
+			insertedKeyframeIndex,
+			easingLength: easing.length,
+			keyframeCount: keyframes.length,
+		});
 		const easingToDuplicate =
-			easing[
-				getEasingIndexToDuplicate({
-					insertedKeyframeIndex,
-					easingLength: easing.length,
-				})
-			] ?? LINEAR_KEYFRAME_EASING;
+			easingIndexToDuplicate === null
+				? LINEAR_KEYFRAME_EASING
+				: easing[easingIndexToDuplicate];
 		easing.splice(insertedKeyframeIndex, 0, easingToDuplicate);
 		while (easing.length < keyframes.length - 1) {
 			easing.push(LINEAR_KEYFRAME_EASING);

@@ -84,6 +84,34 @@ test('makeKeyframedDragOverride duplicates the split segment easing', () => {
 	});
 });
 
+test('makeKeyframedDragOverride uses linear easing outside the keyframe range', () => {
+	const status: CanUpdateSequencePropStatusKeyframed = {
+		...makeKeyframedStatus(),
+		easing: [{type: 'bezier', x1: 0.42, y1: 0, x2: 1, y2: 1}],
+	};
+	const override = makeKeyframedDragOverride({
+		status,
+		frame: 90,
+		value: 5,
+	});
+
+	expect(override).toEqual({
+		type: 'keyframed',
+		status: {
+			...status,
+			keyframes: [
+				{frame: 0, value: 2},
+				{frame: 60, value: 4},
+				{frame: 90, value: 5},
+			],
+			easing: [
+				{type: 'bezier', x1: 0.42, y1: 0, x2: 1, y2: 1},
+				{type: 'linear'},
+			],
+		},
+	});
+});
+
 test('makeKeyframedDragOverride replaces an existing keyframe without changing easing length', () => {
 	const override = makeKeyframedDragOverride({
 		status: makeKeyframedStatus(),

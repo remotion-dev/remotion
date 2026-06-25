@@ -673,11 +673,13 @@ const normalizeEasingAfterAddingKeyframe = ({
 	previousSegmentCount,
 	nextSegmentCount,
 	insertedKeyframeIndex,
+	nextKeyframeCount,
 }: {
 	extraArgs: (ExpressionKind | SpreadElementKind)[];
 	previousSegmentCount: number;
 	nextSegmentCount: number;
 	insertedKeyframeIndex: number;
+	nextKeyframeCount: number;
 }): {
 	extraArgs: (ExpressionKind | SpreadElementKind)[];
 	needsEasingImport: boolean;
@@ -696,14 +698,19 @@ const normalizeEasingAfterAddingKeyframe = ({
 	}
 
 	if (easing.length < nextSegmentCount) {
+		const isSplittingExistingSegment =
+			insertedKeyframeIndex > 0 &&
+			insertedKeyframeIndex < nextKeyframeCount - 1;
 		const easingIndexToDuplicate =
-			easing.length === 0 || insertedKeyframeIndex === 0
-				? 0
-				: Math.min(insertedKeyframeIndex - 1, easing.length - 1);
+			isSplittingExistingSegment && easing.length > 0
+				? Math.min(insertedKeyframeIndex - 1, easing.length - 1)
+				: null;
 		easing.splice(
 			insertedKeyframeIndex,
 			0,
-			easing[easingIndexToDuplicate] ?? LINEAR_KEYFRAME_EASING,
+			easingIndexToDuplicate === null
+				? LINEAR_KEYFRAME_EASING
+				: easing[easingIndexToDuplicate],
 		);
 	}
 
@@ -1075,6 +1082,7 @@ const addKeyframe = ({
 						insertedKeyframeIndex: [...nextKeyframes]
 							.sort((first, second) => first.frame - second.frame)
 							.findIndex((keyframe) => keyframe.frame === frame),
+						nextKeyframeCount: nextKeyframes.length,
 					})
 				: {extraArgs: existing.extraArgs, needsEasingImport: false};
 

@@ -142,7 +142,7 @@ test('updateSequenceKeyframes adds a keyframe to an existing interpolation', asy
 	);
 });
 
-test('updateSequenceKeyframes duplicates the previous easing when appending keyframes', async () => {
+test('updateSequenceKeyframes uses linear easing when appending keyframes', async () => {
 	const input = `import React from 'react';
 import {AbsoluteFill, Easing, interpolate, useCurrentFrame} from 'remotion';
 
@@ -167,7 +167,8 @@ export const Example: React.FC = () => {
 	});
 
 	expect(output).toContain('interpolate(frame, [91, 126, 134]');
-	expect(output.match(/Easing\.bezier\(0\.42, 0, 1, 1\)/g)?.length).toBe(2);
+	expect(output).toContain('Easing.linear');
+	expect(output.match(/Easing\.bezier\(0\.42, 0, 1, 1\)/g)?.length).toBe(1);
 });
 
 test('updateSequenceKeyframes duplicates the split segment easing when adding keyframes', async () => {
