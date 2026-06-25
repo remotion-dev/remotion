@@ -7,6 +7,10 @@ import type {
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {saveSequenceProps, type SetPropStatuses} from './save-sequence-prop';
 
+export const shouldShowFreezeFrameMenuItem = (sequence: TSequence): boolean => {
+	return sequence.type !== 'audio';
+};
+
 export const useSequenceFreezeFrameMenuItem = ({
 	clientId,
 	nodePath,
@@ -27,7 +31,7 @@ export const useSequenceFreezeFrameMenuItem = ({
 	readonly setPropStatuses: SetPropStatuses;
 	readonly timelinePosition: number;
 	readonly validatedSource: string | null;
-}): ComboboxValue => {
+}): ComboboxValue | null => {
 	const freezeStatus = propStatusesForOverride?.freeze;
 	const isFrozen =
 		freezeStatus?.status === 'static' &&
@@ -93,18 +97,21 @@ export const useSequenceFreezeFrameMenuItem = ({
 	]);
 
 	return useMemo(
-		() => ({
-			type: 'item' as const,
-			id: 'toggle-freeze-frame',
-			keyHint: null,
-			label: isFrozen ? 'Unfreeze frame' : 'Freeze frame',
-			leftItem: null,
-			disabled: !canToggleFreeze,
-			onClick: onToggleFreezeFrame,
-			quickSwitcherLabel: null,
-			subMenu: null,
-			value: 'toggle-freeze-frame',
-		}),
-		[canToggleFreeze, isFrozen, onToggleFreezeFrame],
+		() =>
+			shouldShowFreezeFrameMenuItem(sequence)
+				? {
+						type: 'item' as const,
+						id: 'toggle-freeze-frame',
+						keyHint: null,
+						label: isFrozen ? 'Unfreeze frame' : 'Freeze frame',
+						leftItem: null,
+						disabled: !canToggleFreeze,
+						onClick: onToggleFreezeFrame,
+						quickSwitcherLabel: null,
+						subMenu: null,
+						value: 'toggle-freeze-frame',
+					}
+				: null,
+		[canToggleFreeze, isFrozen, onToggleFreezeFrame, sequence],
 	);
 };

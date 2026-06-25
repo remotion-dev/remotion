@@ -422,7 +422,7 @@ const TimelineSequenceInner: React.FC<{
 			originalLocation,
 			selectAsset,
 			sequence: s,
-			sourceActions: [freezeFrameMenuItem],
+			sourceActions: freezeFrameMenuItem ? [freezeFrameMenuItem] : [],
 		});
 	}, [
 		assetLinkInfo,
