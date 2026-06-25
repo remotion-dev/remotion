@@ -1,94 +1,32 @@
 import React, {useCallback, useContext, useMemo} from 'react';
-import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	hasSequenceControls,
 	InspectorSequenceSection,
 } from '../InspectorSequenceSection';
-import {InspectorSourceLocation} from '../InspectorSourceLocation';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {
 	getTimelineSelectionKey,
 	type TimelineSelection,
 	useTimelineSelection,
 } from '../Timeline/TimelineSelection';
-import {useOpenSequenceInEditor} from '../Timeline/use-open-sequence-in-editor';
 import {InspectorMessage, InspectorSectionHeader} from './common';
 import type {SequenceSectionSelection} from './inspector-selection';
 import {
-	selectedContainer,
-	sequenceHeader,
-	sequenceHeaderSubtitle,
-	sequenceHeaderTitle,
-} from './styles';
+	SequenceInspectorHeader,
+	useSequenceInspectorSourceLocation,
+} from './SequenceInspectorHeader';
+import {selectedContainer} from './styles';
 import {useTrackForSelection} from './use-track-for-selection';
-
-const useSequenceDisplayName = (track: TrackWithHash) => {
-	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
-	const nodePath = track.nodePathInfo?.sequenceSubscriptionKey ?? null;
-
-	return useMemo(() => {
-		const propStatusesForOverride = nodePath
-			? Internals.getPropStatusesCtx(propStatuses, nodePath)
-			: undefined;
-		const codeNameStatus = propStatusesForOverride?.name;
-		const displayName =
-			codeNameStatus &&
-			codeNameStatus.status === 'static' &&
-			typeof codeNameStatus.codeValue === 'string'
-				? codeNameStatus.codeValue
-				: track.sequence.displayName;
-
-		return displayName || '<Sequence>';
-	}, [nodePath, propStatuses, track.sequence.displayName]);
-};
 
 const SequenceExpandedInspector: React.FC<{
 	readonly track: TrackWithHash;
 }> = ({track}) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {selectedItems, selectItems} = useTimelineSelection();
-	const {canOpenInEditor, openInEditor, originalLocation} =
-		useOpenSequenceInEditor(track.sequence);
-	const sequenceDisplayName = useSequenceDisplayName(track);
-	const {documentationLink} = track.sequence;
-
-	const validatedLocation = useMemo(() => {
-		if (
-			!originalLocation ||
-			!originalLocation.source ||
-			!originalLocation.line
-		) {
-			return null;
-		}
-
-		return {
-			source: originalLocation.source,
-			line: originalLocation.line,
-			column: originalLocation.column ?? 0,
-		};
-	}, [originalLocation]);
-	const openFileLocation = useCallback(() => {
-		if (!canOpenInEditor) {
-			return;
-		}
-
-		openInEditor();
-	}, [canOpenInEditor, openInEditor]);
-	const openDocumentationLink = useCallback(() => {
-		if (!documentationLink) {
-			return;
-		}
-
-		window.open(documentationLink, '_blank', 'noopener,noreferrer');
-	}, [documentationLink]);
-	const subtitleStyle = useMemo((): React.CSSProperties => {
-		return {
-			...sequenceHeaderSubtitle,
-			cursor: documentationLink ? 'pointer' : 'default',
-		};
-	}, [documentationLink]);
+	const sourceLocation = useSequenceInspectorSourceLocation(track.sequence);
+	const {validatedLocation} = sourceLocation;
 	const sequenceSelection = useMemo((): TimelineSelection | null => {
 		if (!track.nodePathInfo) {
 			return null;
@@ -143,28 +81,7 @@ const SequenceExpandedInspector: React.FC<{
 			className={VERTICAL_SCROLLBAR_CLASSNAME}
 			onPointerDown={selectSequenceOnInspectorPointerDown}
 		>
-			<div style={sequenceHeader}>
-				<div style={sequenceHeaderTitle}>{sequenceDisplayName}</div>
-				{documentationLink ? (
-					<button
-						type="button"
-						style={subtitleStyle}
-						title="Open component docs"
-						onClick={openDocumentationLink}
-					>
-						{track.sequence.controls.componentName}
-					</button>
-				) : (
-					<div style={subtitleStyle}>
-						{track.sequence.controls.componentName}
-					</div>
-				)}
-				<InspectorSourceLocation
-					location={validatedLocation}
-					canOpen={canOpenInEditor}
-					onOpen={openFileLocation}
-				/>
-			</div>
+			<SequenceInspectorHeader sourceLocation={sourceLocation} track={track} />
 			<InspectorSequenceSection
 				sequence={track.sequence}
 				validatedLocation={validatedLocation}

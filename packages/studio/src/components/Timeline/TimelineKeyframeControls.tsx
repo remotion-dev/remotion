@@ -32,6 +32,7 @@ import {
 	type DeleteEffectKeyframeChange,
 	type DeleteSequenceKeyframeChange,
 } from './call-delete-keyframe';
+import {getEasingSelectionAfterKeyframeDelete} from './get-easing-selection-after-keyframe-delete';
 import {
 	getNextKeyframeDisplayFrame,
 	getPreviousKeyframeDisplayFrame,
@@ -46,6 +47,7 @@ import {
 	useTimelineSelection,
 	type TimelineSelection,
 } from './TimelineSelection';
+import {canEditEasingForInterpolationFunction} from './update-selected-easing';
 
 const controlsContainerStyle: React.CSSProperties = {
 	alignItems: 'center',
@@ -466,6 +468,7 @@ export const TimelineKeyframeControls: React.FC<{
 	schema,
 	effectIndex,
 	nodePathInfo,
+	mode = 'timeline',
 }) => {
 	const videoConfig = useVideoConfig();
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
@@ -476,7 +479,7 @@ export const TimelineKeyframeControls: React.FC<{
 		Internals.VisualModeDragOverridesContext,
 	);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const {selectedItems} = useTimelineSelection();
+	const {selectedItems, selectItems} = useTimelineSelection();
 	const tracks = useTimelineKeyframeTracks();
 
 	const clientId =
@@ -655,10 +658,28 @@ export const TimelineKeyframeControls: React.FC<{
 			}
 
 			if (hasKeyframeAtCurrentFrame) {
-				const deleteChanges = keyframeToggleTargets.flatMap((target) => {
+				const deleteTargets = keyframeToggleTargets.flatMap((target) => {
 					const change = getDeleteChange(target);
-					return change === null ? [] : [change];
+					return change === null ? [] : [{target, change}];
 				});
+				const singleDeleteTarget = deleteTargets[0];
+				const easingSelection =
+					deleteTargets.length === 1 &&
+					singleDeleteTarget &&
+					isKeyframedStatus(singleDeleteTarget.target.propStatus) &&
+					canEditEasingForInterpolationFunction(
+						singleDeleteTarget.target.propStatus.interpolationFunction,
+					)
+						? getEasingSelectionAfterKeyframeDelete({
+								deletedSourceFrames: [singleDeleteTarget.target.sourceFrame],
+								keyframeDisplayOffset:
+									singleDeleteTarget.target.keyframeDisplayOffset,
+								nodePathInfo: singleDeleteTarget.target.nodePathInfo,
+								propStatus: singleDeleteTarget.target.propStatus,
+								timelinePosition,
+							})
+						: null;
+				const deleteChanges = deleteTargets.map(({change}) => change);
 				await callDeleteKeyframes({
 					sequenceKeyframes: deleteChanges.filter(
 						(change): change is DeleteSequenceKeyframeChange =>
@@ -671,35 +692,53 @@ export const TimelineKeyframeControls: React.FC<{
 					setPropStatuses,
 					clientId,
 				});
+				if (mode === 'timeline' && easingSelection !== null) {
+					selectItems([easingSelection], {reveal: true});
+				}
+
 				return;
 			}
 
 			const addChanges = keyframeToggleTargets.flatMap((target) => {
 				const change = getAddChange(target);
-				return change === null ? [] : [change];
+				return change === null ? [] : [{target, change}];
 			});
 			if (addChanges.length === 0) {
 				return;
 			}
 
+			const addChangeValues = addChanges.map(({change}) => change);
 			await callAddKeyframes({
-				sequenceKeyframes: addChanges.filter(
+				sequenceKeyframes: addChangeValues.filter(
 					(change): change is AddSequenceKeyframeChange =>
 						!hasEffectIndex(change),
 				),
-				effectKeyframes: addChanges.filter(
+				effectKeyframes: addChangeValues.filter(
 					(change): change is AddEffectKeyframeChange => hasEffectIndex(change),
 				),
 				setPropStatuses,
 				clientId,
 			});
+			if (mode === 'timeline') {
+				selectItems(
+					addChanges.map(({target}) => ({
+						type: 'keyframe' as const,
+						nodePathInfo: target.nodePathInfo,
+						frame: target.sourceFrame + target.keyframeDisplayOffset,
+					})),
+					{reveal: true},
+				);
+			}
 		},
 		[
 			canToggleKeyframe,
 			clientId,
 			hasKeyframeAtCurrentFrame,
 			keyframeToggleTargets,
+			mode,
+			selectItems,
 			setPropStatuses,
+			timelinePosition,
 		],
 	);
 

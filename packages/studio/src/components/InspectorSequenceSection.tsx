@@ -2,7 +2,7 @@ import React, {useCallback, useContext, useMemo, useState} from 'react';
 import type {TSequence} from 'remotion';
 import type {CodePosition} from '../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
-import {LIGHT_TEXT, LINE_COLOR} from '../helpers/colors';
+import {LIGHT_TEXT} from '../helpers/colors';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 import {
 	SCHEMA_FIELD_GROUPS,
@@ -14,7 +14,11 @@ import {
 import {Plus} from '../icons/plus';
 import {ModalsContext} from '../state/modals';
 import {InlineAction} from './InlineAction';
-import {sectionHeaderRow, sectionHeaderTitle} from './InspectorPanel/styles';
+import {
+	sectionHeaderRow,
+	sectionHeaderTitle,
+	sequenceHeaderDivider,
+} from './InspectorPanel/styles';
 import {TimelineExpandedRow} from './Timeline/TimelineExpandedRow';
 import {
 	getTimelineSelectionFromNodePathInfo,
@@ -39,15 +43,8 @@ const emptyState: React.CSSProperties = {
 	padding: '0 12px 8px',
 };
 
-const divider: React.CSSProperties = {
-	backgroundColor: LINE_COLOR,
-	flexShrink: 0,
-	height: 1,
-	margin: '4px 0',
-};
-
 const controlsEffectsDivider: React.CSSProperties = {
-	...divider,
+	...sequenceHeaderDivider,
 	margin: '8px 0 4px',
 };
 
@@ -259,7 +256,7 @@ export const InspectorSequenceSection: React.FC<{
 	if (controlRows.length === 0 && !showEffectsSection) {
 		return (
 			<div style={container}>
-				<div style={divider} />
+				<div style={sequenceHeaderDivider} />
 				<div style={emptyState}>No schema</div>
 			</div>
 		);
@@ -267,7 +264,7 @@ export const InspectorSequenceSection: React.FC<{
 
 	return (
 		<div style={container}>
-			<div style={divider} />
+			<div style={sequenceHeaderDivider} />
 			{controlRows.length > 0 ? (
 				<TimelineSelectionOrderProvider items={controlSelectableItems}>
 					{controlGroups.map((group, i) => (

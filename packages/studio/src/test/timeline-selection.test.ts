@@ -4509,13 +4509,15 @@ test('Deleting unsupported mixed timeline selection types returns null', () => {
 
 test('Deleting selected effects keeps their parent sequence selected', () => {
 	const effectNodePathInfo = makeNodePathInfo(['body', 0], ['effects', '1']);
-	const result = getTimelineSelectionAfterDeletingItems([
-		{
-			type: 'sequence-effect',
-			nodePathInfo: effectNodePathInfo,
-			i: 1,
-		},
-	]);
+	const result = getTimelineSelectionAfterDeletingItems({
+		selections: [
+			{
+				type: 'sequence-effect',
+				nodePathInfo: effectNodePathInfo,
+				i: 1,
+			},
+		],
+	});
 
 	expect(result).toEqual([
 		{
@@ -4530,12 +4532,14 @@ test('Deleting selected effects keeps their parent sequence selected', () => {
 
 test('Deleting selected all-effects rows keeps their parent sequence selected', () => {
 	const effectsNodePathInfo = makeNodePathInfo(['body', 0], ['effects']);
-	const result = getTimelineSelectionAfterDeletingItems([
-		{
-			type: 'sequence-all-effects',
-			nodePathInfo: effectsNodePathInfo,
-		},
-	]);
+	const result = getTimelineSelectionAfterDeletingItems({
+		selections: [
+			{
+				type: 'sequence-all-effects',
+				nodePathInfo: effectsNodePathInfo,
+			},
+		],
+	});
 
 	expect(result).toEqual([
 		{
@@ -4552,9 +4556,111 @@ test('Deleting selected sequences still clears selection', () => {
 	const sequenceNodePathInfo = makeNodePathInfo(['body', 0], []);
 
 	expect(
-		getTimelineSelectionAfterDeletingItems([
-			{type: 'sequence', nodePathInfo: sequenceNodePathInfo},
-		]),
+		getTimelineSelectionAfterDeletingItems({
+			selections: [{type: 'sequence', nodePathInfo: sequenceNodePathInfo}],
+		}),
+	).toEqual([]);
+});
+
+test('Deleting selected keyframe selects remaining easing under playhead', () => {
+	const schema = {
+		opacity: {type: 'number', default: 1, hiddenFromList: false},
+	} satisfies InteractivitySchema;
+	const opacityNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['controls', 'opacity'],
+	);
+	const nodePath = opacityNodePathInfo.sequenceSubscriptionKey;
+	const propStatuses = {
+		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			canUpdate: true,
+			props: {
+				opacity: {
+					status: 'keyframed',
+					interpolationFunction: 'interpolate',
+					keyframes: [
+						{frame: 0, value: 0},
+						{frame: 10, value: 0.5},
+						{frame: 20, value: 1},
+					],
+					easing: [{type: 'linear'}, {type: 'linear'}],
+					clamping: {left: 'extend', right: 'extend'},
+					posterize: undefined,
+				},
+			},
+			effects: [],
+		},
+	} satisfies PropStatuses;
+
+	expect(
+		getTimelineSelectionAfterDeletingItems({
+			selections: [
+				{
+					type: 'keyframe',
+					nodePathInfo: opacityNodePathInfo,
+					frame: 10,
+				},
+			],
+			sequences: [makeTimelineSequence({schema})],
+			overrideIdsToNodePaths: {override: nodePath},
+			propStatuses,
+			timelinePosition: 10,
+		}),
+	).toEqual([
+		{
+			type: 'easing',
+			nodePathInfo: opacityNodePathInfo,
+			fromFrame: 0,
+			toFrame: 20,
+			segmentIndex: 0,
+		},
+	]);
+});
+
+test('Deleting selected keyframe clears selection when playhead is not between remaining keyframes', () => {
+	const schema = {
+		opacity: {type: 'number', default: 1, hiddenFromList: false},
+	} satisfies InteractivitySchema;
+	const opacityNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['controls', 'opacity'],
+	);
+	const nodePath = opacityNodePathInfo.sequenceSubscriptionKey;
+	const propStatuses = {
+		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			canUpdate: true,
+			props: {
+				opacity: {
+					status: 'keyframed',
+					interpolationFunction: 'interpolate',
+					keyframes: [
+						{frame: 0, value: 0},
+						{frame: 10, value: 0.5},
+						{frame: 20, value: 1},
+					],
+					easing: [{type: 'linear'}, {type: 'linear'}],
+					clamping: {left: 'extend', right: 'extend'},
+					posterize: undefined,
+				},
+			},
+			effects: [],
+		},
+	} satisfies PropStatuses;
+
+	expect(
+		getTimelineSelectionAfterDeletingItems({
+			selections: [
+				{
+					type: 'keyframe',
+					nodePathInfo: opacityNodePathInfo,
+					frame: 0,
+				},
+			],
+			sequences: [makeTimelineSequence({schema})],
+			overrideIdsToNodePaths: {override: nodePath},
+			propStatuses,
+			timelinePosition: 0,
+		}),
 	).toEqual([]);
 });
 

@@ -137,8 +137,8 @@ const inlineContainer: React.CSSProperties = {
 const segmentedControlWrapper: React.CSSProperties = {
 	display: 'flex',
 	justifyContent: 'flex-start',
+	marginTop: 8,
 	padding: `0 ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px`,
-	marginBottom: 10,
 };
 
 const presetButtonsWrapper: React.CSSProperties = {
@@ -148,6 +148,11 @@ const presetButtonsWrapper: React.CSSProperties = {
 	justifyContent: 'flex-start',
 	marginBottom: 8,
 	padding: `0 ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px`,
+};
+
+const inspectorPresetButtonsWrapper: React.CSSProperties = {
+	...presetButtonsWrapper,
+	padding: `8px ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px 0`,
 };
 
 const presetButtonBase: React.CSSProperties = {
@@ -1136,21 +1141,20 @@ export const EasingEditor: React.FC<{
 		}),
 		[],
 	);
+	const modeSwitcher = (
+		<div style={segmentedControlWrapper}>
+			<SegmentedControl items={modeItems} needsWrapping={false} />
+		</div>
+	);
 
 	return (
 		<div style={inlineContainer}>
-			{renderHeader ? (
-				renderHeader(modeItems)
-			) : (
-				<div style={segmentedControlWrapper}>
-					<SegmentedControl
-						items={modeItems}
-						needsWrapping={false}
-						size="compact"
-					/>
-				</div>
-			)}
-			<div style={presetButtonsWrapper}>
+			{renderHeader ? renderHeader(modeItems) : null}
+			<div
+				style={
+					renderHeader ? inspectorPresetButtonsWrapper : presetButtonsWrapper
+				}
+			>
 				{EDITOR_EASING_PRESETS.map((preset) => (
 					<EasingPresetButton
 						key={preset.id}
@@ -1216,6 +1220,7 @@ export const EasingEditor: React.FC<{
 							onPointerDown={(event) => onHandlePointerDown(1, event)}
 						/>
 					</svg>
+					{modeSwitcher}
 					<div style={coordinatesGrid}>
 						<div style={coordinateRow}>
 							<div style={coordinateLabel}>X1</div>
@@ -1325,6 +1330,7 @@ export const EasingEditor: React.FC<{
 						<circle cx={xToSvg(0)} cy={yToSvg(0)} r={4} fill="white" />
 						<circle cx={xToSvg(1)} cy={yToSvg(1)} r={4} fill="white" />
 					</svg>
+					{modeSwitcher}
 					<div style={coordinatesGrid}>
 						<div style={coordinateRow}>
 							<div style={coordinateLabel}>Damping</div>

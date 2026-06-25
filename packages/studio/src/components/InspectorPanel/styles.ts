@@ -36,6 +36,13 @@ export const inspectorSectionDivider: React.CSSProperties = {
 	borderBottom: `1px solid ${LINE_COLOR}`,
 };
 
+export const sequenceHeaderDivider: React.CSSProperties = {
+	backgroundColor: LINE_COLOR,
+	flexShrink: 0,
+	height: 1,
+	margin: '4px 0',
+};
+
 export const sectionHeader: React.CSSProperties = {
 	color: LIGHT_TEXT,
 	fontSize: 12,
