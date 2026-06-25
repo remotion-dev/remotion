@@ -251,9 +251,11 @@ export {
 	getRequiredPackageForInsertableElement,
 } from './required-package';
 export {
+	SCHEMA_FIELD_GROUPS,
 	SCHEMA_FIELD_ROW_HEIGHT,
 	getEffectFieldsToShow,
 	getFieldsToShow,
+	getSchemaFieldGroup,
 } from './schema-field-info';
 export type {
 	AnySchemaFieldInfo,
@@ -261,6 +263,8 @@ export type {
 	EffectSchemaFieldInfo,
 	InteractivitySchemaFieldInfo,
 	PropStatuses,
+	SchemaFieldGroup,
+	SchemaFieldGroupInfo,
 	SchemaFieldInfo,
 	SequenceControls,
 } from './schema-field-info';

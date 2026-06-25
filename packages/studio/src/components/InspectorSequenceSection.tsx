@@ -5,8 +5,10 @@ import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {LIGHT_TEXT, LINE_COLOR} from '../helpers/colors';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 import {
+	SCHEMA_FIELD_GROUPS,
 	flattenVisibleTreeNodes,
 	type FlatTreeRow,
+	type SchemaFieldGroupInfo,
 	type TimelineTreeNode,
 } from '../helpers/timeline-layout';
 import {Plus} from '../icons/plus';
@@ -76,6 +78,21 @@ const getInspectorExpansionKey = (nodePathInfo: SequenceNodePathInfo) => {
 
 type SequenceWithControls = TSequence & {
 	readonly controls: NonNullable<TSequence['controls']>;
+};
+
+type InspectorControlGroup = SchemaFieldGroupInfo & {
+	readonly rows: FlatTreeRow[];
+};
+
+const getInspectorControlGroups = (
+	rows: readonly FlatTreeRow[],
+): InspectorControlGroup[] => {
+	return SCHEMA_FIELD_GROUPS.map((group) => ({
+		...group,
+		rows: rows.filter(({node}) => {
+			return node.kind === 'field' && node.field?.group === group.id;
+		}),
+	})).filter((group) => group.rows.length > 0);
 };
 
 export const getInspectorSelectableItems = (
@@ -172,6 +189,10 @@ export const InspectorSequenceSection: React.FC<{
 		() => getInspectorSelectableItems(effectRows),
 		[effectRows],
 	);
+	const controlGroups = useMemo(
+		() => getInspectorControlGroups(controlRows),
+		[controlRows],
+	);
 
 	const {schema} = sequence.controls;
 	const showEffectsSection =
@@ -247,10 +268,17 @@ export const InspectorSequenceSection: React.FC<{
 	return (
 		<div style={container}>
 			<div style={divider} />
-			{controlRows.length > 0 ? renderSectionHeader('Controls') : null}
-			<TimelineSelectionOrderProvider items={controlSelectableItems}>
-				{controlRows.map(renderRow)}
-			</TimelineSelectionOrderProvider>
+			{controlRows.length > 0 ? (
+				<TimelineSelectionOrderProvider items={controlSelectableItems}>
+					{controlGroups.map((group, i) => (
+						<React.Fragment key={group.id}>
+							{i === 0 ? null : <div style={controlsEffectsDivider} />}
+							{renderSectionHeader(group.label)}
+							{group.rows.map(renderRow)}
+						</React.Fragment>
+					))}
+				</TimelineSelectionOrderProvider>
+			) : null}
 			{showEffectsSection ? (
 				<>
 					{showControlsEffectsDivider ? (
