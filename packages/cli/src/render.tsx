@@ -50,10 +50,8 @@ const {
 	experimentalClientSideRenderingOption,
 	keyboardShortcutsOption,
 	rspackOption,
-	pixelFormatOption,
 	browserExecutableOption,
 	everyNthFrameOption,
-	proResProfileOption,
 	userAgentOption,
 	disableWebSecurityOption,
 	ignoreCertificateErrorsOption,
@@ -129,16 +127,10 @@ export const render = async (
 		commandLine: parsedCli,
 	}).value;
 
-	const pixelFormat = pixelFormatOption.getValue({
-		commandLine: parsedCli,
-	}).value;
 	const browserExecutable = browserExecutableOption.getValue({
 		commandLine: parsedCli,
 	}).value;
 	const everyNthFrame = everyNthFrameOption.getValue({
-		commandLine: parsedCli,
-	}).value;
-	const proResProfile = proResProfileOption.getValue({
 		commandLine: parsedCli,
 	}).value;
 	const userAgent = userAgentOption.getValue({commandLine: parsedCli}).value;
@@ -310,9 +302,9 @@ export const render = async (
 		audioBitrate,
 		muted,
 		enforceAudioTrack,
-		proResProfile,
+		proResProfile: undefined,
 		x264Preset,
-		pixelFormat,
+		pixelFormat: null,
 		videoBitrate,
 		encodingMaxRate,
 		encodingBufferSize,
