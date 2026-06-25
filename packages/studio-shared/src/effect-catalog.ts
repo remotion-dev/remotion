@@ -183,6 +183,28 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-linear-gradient',
+		category: 'Color',
+		label: 'linearGradient()',
+		description: 'Two-stop gradient effect',
+		effect: {
+			name: 'linearGradient',
+			importPath: '@remotion/effects/linear-gradient',
+			config: {},
+		},
+	},
+	{
+		id: 'effects-linear-gradient-tint',
+		category: 'Color',
+		label: 'linearGradientTint()',
+		description: 'Gradient tint effect',
+		effect: {
+			name: 'linearGradientTint',
+			importPath: '@remotion/effects/linear-gradient-tint',
+			config: {},
+		},
+	},
+	{
 		id: 'effects-thermal-vision',
 		category: 'Color',
 		label: 'thermalVision()',

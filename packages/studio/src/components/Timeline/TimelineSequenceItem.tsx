@@ -68,6 +68,43 @@ const effectDropHighlight: React.CSSProperties = {
 
 const SEQUENCE_REORDER_MIME_TYPE = 'application/remotion-sequence-reorder';
 
+type SequenceNameSaveAction =
+	| {
+			type: 'noop';
+	  }
+	| {
+			type: 'save';
+			defaultValue: string | null;
+	  };
+
+const getSequenceNameSaveAction = ({
+	editedName,
+	currentDisplayName,
+	fallbackDisplayName,
+	hasStaticNameProp,
+}: {
+	editedName: string;
+	currentDisplayName: string;
+	fallbackDisplayName: string;
+	hasStaticNameProp: boolean;
+}): SequenceNameSaveAction => {
+	if (
+		!hasStaticNameProp &&
+		(editedName === '' || editedName === fallbackDisplayName)
+	) {
+		return {type: 'noop'};
+	}
+
+	if (hasStaticNameProp && editedName === currentDisplayName) {
+		return {type: 'noop'};
+	}
+
+	return {
+		type: 'save',
+		defaultValue: editedName === '' ? JSON.stringify('') : null,
+	};
+};
+
 type SequenceReorderDragData = {
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly nodePathKey: string;
@@ -608,17 +645,31 @@ export const TimelineSequenceItem: React.FC<{
 		return effective ?? false;
 	}, [codeHiddenStatus, sequence.controls?.currentRuntimeValueDotNotation]);
 
+	const fallbackDisplayName = sequence.controls?.componentName ?? '<Sequence>';
+	const staticNamePropValue =
+		codeNameStatus?.status === 'static' &&
+		typeof codeNameStatus.codeValue === 'string'
+			? codeNameStatus.codeValue
+			: null;
+
+	const hasStaticNameProp = staticNamePropValue !== null;
+
 	const displayName = useMemo(() => {
-		if (
-			codeNameStatus &&
-			codeNameStatus.status === 'static' &&
-			typeof codeNameStatus.codeValue === 'string'
-		) {
-			return codeNameStatus.codeValue;
+		if (staticNamePropValue !== null) {
+			return staticNamePropValue;
+		}
+
+		if (codeNameStatus?.status === 'static') {
+			return fallbackDisplayName;
 		}
 
 		return sequence.displayName;
-	}, [codeNameStatus, sequence.displayName]);
+	}, [
+		codeNameStatus?.status,
+		fallbackDisplayName,
+		sequence.displayName,
+		staticNamePropValue,
+	]);
 
 	const onToggleVisibility = useCallback(
 		(type: 'enable' | 'disable') => {
@@ -759,7 +810,14 @@ export const TimelineSequenceItem: React.FC<{
 				return;
 			}
 
-			if (name === displayName) {
+			const action = getSequenceNameSaveAction({
+				editedName: name,
+				currentDisplayName: displayName,
+				fallbackDisplayName,
+				hasStaticNameProp,
+			});
+
+			if (action.type === 'noop') {
 				setIsRenaming(false);
 				return;
 			}
@@ -771,7 +829,7 @@ export const TimelineSequenceItem: React.FC<{
 						nodePath,
 						fieldKey: 'name',
 						value: name,
-						defaultValue: null,
+						defaultValue: action.defaultValue,
 						schema: sequence.controls.schema,
 					},
 				],
@@ -786,6 +844,8 @@ export const TimelineSequenceItem: React.FC<{
 		[
 			canRenameThisSequence,
 			displayName,
+			fallbackDisplayName,
+			hasStaticNameProp,
 			nodePath,
 			previewServerState,
 			sequence.controls,
@@ -1094,6 +1154,7 @@ export const TimelineSequenceItem: React.FC<{
 			<div style={labelContainerStyle}>
 				<TimelineSequenceName
 					displayName={displayName}
+					fallbackDisplayName={fallbackDisplayName}
 					selected={selected}
 					containsSelection={containsSelection}
 					editing={isRenaming}

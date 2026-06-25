@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/effects",
-	"version": "4.0.482",
+	"version": "4.0.483",
 	"description": "Effects that can be applied to Remotion-based canvas components",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -158,6 +158,16 @@
 			"types": "./dist/lines.d.ts",
 			"module": "./dist/esm/lines.mjs",
 			"import": "./dist/esm/lines.mjs"
+		},
+		"./linear-gradient": {
+			"types": "./dist/linear-gradient.d.ts",
+			"module": "./dist/esm/linear-gradient.mjs",
+			"import": "./dist/esm/linear-gradient.mjs"
+		},
+		"./linear-gradient-tint": {
+			"types": "./dist/linear-gradient-tint.d.ts",
+			"module": "./dist/esm/linear-gradient-tint.mjs",
+			"import": "./dist/esm/linear-gradient-tint.mjs"
 		},
 		"./linear-progressive-blur": {
 			"types": "./dist/linear-progressive-blur.d.ts",
@@ -362,6 +372,12 @@
 			],
 			"lines": [
 				"dist/lines.d.ts"
+			],
+			"linear-gradient": [
+				"dist/linear-gradient.d.ts"
+			],
+			"linear-gradient-tint": [
+				"dist/linear-gradient-tint.d.ts"
 			],
 			"linear-progressive-blur": [
 				"dist/linear-progressive-blur.d.ts"
