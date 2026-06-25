@@ -41,6 +41,7 @@ export const sectionHeader: React.CSSProperties = {
 	fontSize: 12,
 	fontWeight: 'bold',
 	padding: `8px ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px`,
+	userSelect: 'none',
 };
 
 export const sequenceHeader: React.CSSProperties = {
@@ -106,6 +107,7 @@ export const sectionHeaderTitle: React.CSSProperties = {
 	minWidth: 0,
 	overflow: 'hidden',
 	textOverflow: 'ellipsis',
+	userSelect: 'none',
 	whiteSpace: 'nowrap',
 };
 

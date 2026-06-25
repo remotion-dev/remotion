@@ -21,6 +21,7 @@ export type SchemaFieldInfo = {
 	typeName: SupportedSchemaType;
 	rowHeight: number;
 	fieldSchema: VisibleFieldSchema;
+	group: SchemaFieldGroup;
 };
 
 export type InteractivitySchemaFieldInfo = SchemaFieldInfo & {
@@ -38,6 +39,69 @@ export type AnySchemaFieldInfo =
 	| EffectSchemaFieldInfo;
 
 export const SCHEMA_FIELD_ROW_HEIGHT = 22;
+
+export type SchemaFieldGroup = 'controls' | 'transforms' | 'text';
+
+export type SchemaFieldGroupInfo = {
+	readonly id: SchemaFieldGroup;
+	readonly label: string;
+};
+
+export const SCHEMA_FIELD_GROUPS = [
+	{id: 'controls', label: 'Controls'},
+	{id: 'transforms', label: 'Transform'},
+	{id: 'text', label: 'Text'},
+] as const satisfies readonly SchemaFieldGroupInfo[];
+
+const schemaFieldGroupOrder = SCHEMA_FIELD_GROUPS.reduce(
+	(acc, group, index) => {
+		acc[group.id] = index;
+		return acc;
+	},
+	{} as Record<SchemaFieldGroup, number>,
+);
+
+const TRANSFORM_FIELD_KEYS = new Set([
+	'style.transformOrigin',
+	'style.translate',
+	'style.scale',
+	'style.rotate',
+	'style.opacity',
+]);
+
+const TEXT_FIELD_KEYS = new Set([
+	'style.color',
+	'style.fontSize',
+	'style.lineHeight',
+	'style.fontWeight',
+	'style.fontStyle',
+	'style.letterSpacing',
+	'style.textAlign',
+]);
+
+export const getSchemaFieldGroup = (key: string): SchemaFieldGroup => {
+	if (TRANSFORM_FIELD_KEYS.has(key)) {
+		return 'transforms';
+	}
+
+	if (TEXT_FIELD_KEYS.has(key)) {
+		return 'text';
+	}
+
+	return 'controls';
+};
+
+const sortSchemaFields = <T extends SchemaFieldInfo>(fields: T[]): T[] => {
+	return fields
+		.map((field, index) => ({field, index}))
+		.sort((a, b) => {
+			const groupDiff =
+				schemaFieldGroupOrder[a.field.group] -
+				schemaFieldGroupOrder[b.field.group];
+			return groupDiff === 0 ? a.index - b.index : groupDiff;
+		})
+		.map(({field}) => field);
+};
 
 const SUPPORTED_SCHEMA_TYPES = [
 	'number',
@@ -145,7 +209,7 @@ export const getFieldsToShow = ({
 		(key) => valuesDotNotation[key],
 	);
 
-	return Object.entries(activeSchema)
+	const fields = Object.entries(activeSchema)
 		.map(([key, fieldSchema]): InteractivitySchemaFieldInfo | null => {
 			const typeName = fieldSchema.type;
 			if (SUPPORTED_SCHEMA_TYPES.indexOf(typeName) === -1) {
@@ -176,9 +240,12 @@ export const getFieldsToShow = ({
 					value: valuesDotNotation[key],
 				}),
 				fieldSchema,
+				group: getSchemaFieldGroup(key),
 			};
 		})
 		.filter(NoReactInternals.truthy);
+
+	return sortSchemaFields(fields);
 };
 
 export const getEffectFieldsToShow = ({
@@ -208,7 +275,7 @@ export const getEffectFieldsToShow = ({
 		return getEffectFieldValue({key, dragOverrides, effectStatus});
 	});
 
-	return Object.entries(activeSchema)
+	const fields = Object.entries(activeSchema)
 		.map(([key, fieldSchema]): EffectSchemaFieldInfo | null => {
 			const typeName = fieldSchema.type;
 			if (typeName === 'hidden') {
@@ -241,7 +308,10 @@ export const getEffectFieldsToShow = ({
 				fieldSchema,
 				effectSchema: effect.schema,
 				effectIndex,
+				group: getSchemaFieldGroup(key),
 			};
 		})
 		.filter(NoReactInternals.truthy);
+
+	return sortSchemaFields(fields);
 };

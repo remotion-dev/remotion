@@ -4,6 +4,8 @@ import {
 	type AnySchemaFieldInfo,
 	type DragOverrides,
 	type EffectSchemaFieldInfo,
+	type SchemaFieldGroup,
+	type SchemaFieldGroupInfo,
 	type PropStatuses,
 	type SchemaFieldInfo,
 	type SequenceControls,
@@ -19,8 +21,10 @@ import type {GetIsExpanded} from '../components/ExpandedTracksProvider';
 import type {SequenceNodePathInfo} from './get-timeline-sequence-sort-key';
 
 export {
+	SCHEMA_FIELD_GROUPS,
 	getEffectFieldsToShow,
 	getFieldsToShow,
+	getSchemaFieldGroup,
 	SCHEMA_FIELD_ROW_HEIGHT,
 } from '@remotion/studio-shared';
 export type {
@@ -28,6 +32,8 @@ export type {
 	DragOverrides,
 	EffectSchemaFieldInfo,
 	PropStatuses,
+	SchemaFieldGroup,
+	SchemaFieldGroupInfo,
 	SchemaFieldInfo,
 	SequenceControls,
 	InteractivitySchemaFieldInfo,

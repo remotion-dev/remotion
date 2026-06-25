@@ -12,7 +12,10 @@ import {getTimelineEasingSegments} from '../components/Timeline/get-timeline-eas
 import {getTimelineKeyframes} from '../components/Timeline/get-timeline-keyframes';
 import {getTimelineKeyframeDragKey} from '../components/Timeline/TimelineKeyframeDragState';
 import {calculateTimeline} from '../helpers/calculate-timeline';
-import type {TimelineTreeNode} from '../helpers/timeline-layout';
+import {
+	getSchemaFieldGroup,
+	type TimelineTreeNode,
+} from '../helpers/timeline-layout';
 
 const getStack = () => null;
 
@@ -114,6 +117,7 @@ const makeSequenceFieldNode = (key: string): TimelineTreeNode => ({
 		typeName: 'number',
 		rowHeight: 22,
 		fieldSchema: numberFieldSchema,
+		group: getSchemaFieldGroup(key),
 	},
 });
 
@@ -141,6 +145,7 @@ const makeEffectFieldNode = (
 		effectSchema: {
 			[key]: numberFieldSchema,
 		},
+		group: getSchemaFieldGroup(key),
 	},
 });
 
