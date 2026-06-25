@@ -3,6 +3,7 @@ import React, {
 	useCallback,
 	useContext,
 	useEffect,
+	useLayoutEffect,
 	useMemo,
 	useRef,
 	useState,
@@ -125,7 +126,9 @@ export const orderOutlinesForRendering = ({
 
 export const SelectedOutlineOverlay: React.FC<{
 	readonly scale: number;
-}> = ({scale}) => {
+	readonly translationX: number;
+	readonly translationY: number;
+}> = ({scale, translationX, translationY}) => {
 	const {selectedItems, selectItem} = useTimelineSelection();
 	const {sequences} = useContext(Internals.SequenceManager);
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
@@ -769,7 +772,7 @@ export const SelectedOutlineOverlay: React.FC<{
 		};
 	}, [keybindings, onArrowKeyDown, onArrowKeyUp, saveKeyboardNudgeSession]);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		if (outlineTargets.length === 0) {
 			setOutlines((prevOutlines) =>
 				prevOutlines.length === 0 ? prevOutlines : [],
@@ -802,7 +805,7 @@ export const SelectedOutlineOverlay: React.FC<{
 				cancelAnimationFrame(animationFrame);
 			}
 		};
-	}, [outlineTargets]);
+	}, [outlineTargets, scale, translationX, translationY]);
 
 	if (outlineTargets.length === 0) {
 		return null;

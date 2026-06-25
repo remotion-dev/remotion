@@ -238,7 +238,11 @@ const CompWhenItHasDimensions: React.FC<{
 				xCorrection={xCorrection}
 				yCorrection={yCorrection}
 			/>
-			<SelectedOutlineOverlay scale={scale} />
+			<SelectedOutlineOverlay
+				scale={scale}
+				translationX={previewSize.translation.x}
+				translationY={previewSize.translation.y}
+			/>
 		</div>
 	);
 };
