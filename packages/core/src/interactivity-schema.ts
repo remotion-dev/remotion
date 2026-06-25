@@ -94,6 +94,13 @@ export type ColorFieldSchema = {
 	keyframable?: boolean;
 };
 
+export type TextContentFieldSchema = {
+	type: 'text-content';
+	default: string;
+	description?: string;
+	keyframable?: false;
+};
+
 export type EnumFieldSchema = {
 	type: 'enum';
 	default: string;
@@ -173,6 +180,7 @@ export type VisibleFieldSchema =
 	| ScaleFieldSchema
 	| UvCoordinateFieldSchema
 	| ColorFieldSchema
+	| TextContentFieldSchema
 	| ArrayFieldSchema
 	| EnumFieldSchema;
 
@@ -291,6 +299,15 @@ export const textSchema = {
 		step: 0.1,
 		description: 'Letter spacing',
 		hiddenFromList: false,
+	},
+} as const satisfies InteractivitySchema;
+
+export const textContentSchema = {
+	children: {
+		type: 'text-content',
+		default: '',
+		description: 'Text',
+		keyframable: false,
 	},
 } as const satisfies InteractivitySchema;
 

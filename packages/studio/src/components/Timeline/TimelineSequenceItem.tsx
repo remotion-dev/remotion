@@ -125,6 +125,7 @@ const TimelineSequenceExpandArrow: React.FC<{
 	const {filteredTree} = useTimelineExpandedTree({
 		sequence,
 		nodePathInfo,
+		includeTextContent: false,
 	});
 
 	if (filteredTree.length === 0) {

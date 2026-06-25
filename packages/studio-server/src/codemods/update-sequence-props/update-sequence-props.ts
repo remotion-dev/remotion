@@ -7,9 +7,12 @@ import type {
 	StringLiteral,
 } from '@babel/types';
 import * as recast from 'recast';
-import type {SequenceNodePath, InteractivitySchema} from 'remotion';
+import type {InteractivitySchema, SequenceNodePath} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
-import {findJsxElementAtNodePath} from '../../preview-server/routes/can-update-sequence-props';
+import {
+	findJsxElementNodeAtNodePath,
+	getStaticJsxTextContent,
+} from '../../preview-server/routes/can-update-sequence-props';
 import {formatFileContent} from '../format-file-content';
 import {parseAst, serializeAst} from '../parse-ast';
 import {parseValueExpression, updateNestedProp} from '../update-nested-prop';
@@ -115,16 +118,54 @@ const snapshotTopLevelAttrs = (
 	return result;
 };
 
-type JSXOpeningElementLike = NonNullable<
-	ReturnType<typeof findJsxElementAtNodePath>
+type JSXElementLike = NonNullable<
+	ReturnType<typeof findJsxElementNodeAtNodePath>
 >;
+type JSXOpeningElementLike = JSXElementLike['openingElement'];
+
+const escapeJsxText = (value: string): string => {
+	return value
+		.replace(/&/g, '&amp;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;')
+		.replace(/{/g, '&#123;')
+		.replace(/}/g, '&#125;');
+};
+
+const updateJsxTextContent = ({
+	jsxElement,
+	value,
+}: {
+	jsxElement: JSXElementLike;
+	value: unknown;
+}): string => {
+	const staticTextContent = getStaticJsxTextContent(jsxElement);
+	if (!staticTextContent) {
+		throw new Error(
+			'Cannot update text content because JSX children are not static text',
+		);
+	}
+
+	const nextValue = String(value ?? '');
+	if (staticTextContent.kind === 'jsx-text' && !nextValue.includes('\n')) {
+		jsxElement.children = [
+			b.jsxText(escapeJsxText(nextValue)),
+		] as unknown as JSXElementLike['children'];
+	} else {
+		jsxElement.children = [
+			b.jsxExpressionContainer(b.stringLiteral(nextValue)),
+		] as unknown as JSXElementLike['children'];
+	}
+
+	return staticTextContent.value;
+};
 
 const updateSequencePropsNode = ({
-	node,
+	jsxElement,
 	updates,
 	schema,
 }: {
-	node: JSXOpeningElementLike;
+	jsxElement: JSXElementLike;
 	updates: SequencePropUpdate[];
 	schema: InteractivitySchema;
 }): {
@@ -132,6 +173,7 @@ const updateSequencePropsNode = ({
 	logLine: number;
 	removedProps: RemovedProp[];
 } => {
+	const node = jsxElement.openingElement;
 	const logLine = node.loc?.start.line ?? 1;
 
 	const oldValueStrings: string[] = [];
@@ -145,6 +187,12 @@ const updateSequencePropsNode = ({
 
 	for (const {key, value, defaultValue} of updates) {
 		let oldValueString = '';
+
+		if (key === 'children') {
+			oldValueString = updateJsxTextContent({jsxElement, value});
+			oldValueStrings.push(oldValueString);
+			continue;
+		}
 
 		const isDefault =
 			defaultValue !== null &&
@@ -284,15 +332,15 @@ export const updateSequencePropsAst = ({
 } => {
 	const ast = parseAst(input);
 
-	const node = findJsxElementAtNodePath(ast, nodePath);
-	if (!node) {
+	const jsxElement = findJsxElementNodeAtNodePath(ast, nodePath);
+	if (!jsxElement) {
 		throw new Error(
 			'Could not find a JSX element at the specified line to update',
 		);
 	}
 
 	const {oldValueStrings, logLine, removedProps} = updateSequencePropsNode({
-		node,
+		jsxElement,
 		updates,
 		schema,
 	});
@@ -316,14 +364,14 @@ export const updateMultipleSequenceProps = async ({
 }): Promise<UpdateMultipleSequencePropsResult> => {
 	const ast = parseAst(input);
 	const results = changes.map(({nodePath, updates, schema}) => {
-		const node = findJsxElementAtNodePath(ast, nodePath);
-		if (!node) {
+		const jsxElement = findJsxElementNodeAtNodePath(ast, nodePath);
+		if (!jsxElement) {
 			throw new Error(
 				'Could not find a JSX element at the specified line to update',
 			);
 		}
 
-		return updateSequencePropsNode({node, updates, schema});
+		return updateSequencePropsNode({jsxElement, updates, schema});
 	});
 
 	const {output, formatted} = await formatFileContent({

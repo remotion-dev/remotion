@@ -759,3 +759,41 @@ export const Example: React.FC = () => {
 		status: 'computed',
 	});
 });
+
+test('computeSequencePropsStatus should detect static JSX text children', () => {
+	const input = `import React from 'react';
+import {Interactive} from 'remotion';
+
+export const Example: React.FC = () => {
+	return <Interactive.P>Hello</Interactive.P>;
+};
+`;
+	const result = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 5),
+		componentIdentity: null,
+		keys: ['children'],
+		effects: [],
+	});
+
+	expect(result.props.children).toEqual({status: 'static', codeValue: 'Hello'});
+});
+
+test('computeSequencePropsStatus should reject non-static text children', () => {
+	const input = `import React from 'react';
+import {Interactive} from 'remotion';
+
+export const Example: React.FC<{text: string}> = ({text}) => {
+	return <Interactive.P>{text}</Interactive.P>;
+};
+`;
+	const result = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 5),
+		componentIdentity: null,
+		keys: ['children'],
+		effects: [],
+	});
+
+	expect(result.props.children).toEqual({status: 'computed'});
+});
