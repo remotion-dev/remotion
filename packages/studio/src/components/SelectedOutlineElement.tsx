@@ -23,7 +23,7 @@ import {
 } from './ForceSpecificCursor';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {showNotification} from './Notifications/NotificationCenter';
-import {optionsSidebarTabs} from './OptionsPanel';
+import {optionsSidebarTabs} from './options-sidebar-tabs';
 import {
 	applySelectedOutlineDragAxisLock,
 	applySelectedOutlineTransformOriginAxisLock,

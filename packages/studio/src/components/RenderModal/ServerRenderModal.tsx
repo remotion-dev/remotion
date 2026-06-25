@@ -54,10 +54,8 @@ import {ModalHeader} from '../ModalHeader';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {DismissableModal} from '../NewComposition/DismissableModal';
 import {showNotification} from '../Notifications/NotificationCenter';
-import {
-	optionsSidebarTabs,
-	persistSelectedOptionsSidebarPanel,
-} from '../OptionsPanel';
+import {optionsSidebarTabs} from '../options-sidebar-tabs';
+import {persistSelectedOptionsSidebarPanel} from '../OptionsPanel';
 import {
 	addSequenceRenderJob,
 	addStillRenderJob,
