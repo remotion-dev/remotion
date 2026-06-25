@@ -3,6 +3,7 @@ import React, {
 	useCallback,
 	useContext,
 	useEffect,
+	useLayoutEffect,
 	useMemo,
 	useRef,
 	useState,
@@ -125,7 +126,9 @@ export const orderOutlinesForRendering = ({
 
 export const SelectedOutlineOverlay: React.FC<{
 	readonly scale: number;
-}> = ({scale}) => {
+	readonly translationX: number;
+	readonly translationY: number;
+}> = ({scale, translationX, translationY}) => {
 	const {selectedItems, selectItem} = useTimelineSelection();
 	const {sequences} = useContext(Internals.SequenceManager);
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
@@ -769,40 +772,63 @@ export const SelectedOutlineOverlay: React.FC<{
 		};
 	}, [keybindings, onArrowKeyDown, onArrowKeyUp, saveKeyboardNudgeSession]);
 
-	useEffect(() => {
-		if (outlineTargets.length === 0) {
+	const updateOutlines = useCallback(() => {
+		if (overlayRef.current === null || outlineTargets.length === 0) {
 			setOutlines((prevOutlines) =>
 				prevOutlines.length === 0 ? prevOutlines : [],
 			);
 			return;
 		}
 
+		const nextOutlines = measureOutlines(overlayRef.current, outlineTargets);
+		setOutlines((prevOutlines) =>
+			outlinesAreEqual(prevOutlines, nextOutlines)
+				? prevOutlines
+				: nextOutlines,
+		);
+	}, [outlineTargets]);
+
+	useLayoutEffect(() => {
+		updateOutlines();
+	}, [outlineTargets, scale, translationX, translationY, updateOutlines]);
+
+	useLayoutEffect(() => {
+		if (outlineTargets.length === 0 || typeof ResizeObserver === 'undefined') {
+			return;
+		}
+
 		let animationFrame: number | null = null;
 
-		const updateOutlines = () => {
-			if (overlayRef.current) {
-				const nextOutlines = measureOutlines(
-					overlayRef.current,
-					outlineTargets,
-				);
-				setOutlines((prevOutlines) =>
-					outlinesAreEqual(prevOutlines, nextOutlines)
-						? prevOutlines
-						: nextOutlines,
-				);
+		const scheduleUpdate = () => {
+			if (animationFrame !== null) {
+				return;
 			}
 
-			animationFrame = requestAnimationFrame(updateOutlines);
+			animationFrame = requestAnimationFrame(() => {
+				animationFrame = null;
+				updateOutlines();
+			});
 		};
 
-		updateOutlines();
+		const resizeObserver = new ResizeObserver(scheduleUpdate);
+		if (overlayRef.current !== null) {
+			resizeObserver.observe(overlayRef.current);
+		}
+
+		for (const target of outlineTargets) {
+			if (target.ref.current !== null) {
+				resizeObserver.observe(target.ref.current);
+			}
+		}
 
 		return () => {
 			if (animationFrame !== null) {
 				cancelAnimationFrame(animationFrame);
 			}
+
+			resizeObserver.disconnect();
 		};
-	}, [outlineTargets]);
+	}, [outlineTargets, updateOutlines]);
 
 	if (outlineTargets.length === 0) {
 		return null;
