@@ -1,0 +1,11 @@
+[
+	{
+		"label": "setup new worktree",
+		"command": "bash",
+		"args": ["-lc", "bun install && bun run build"],
+		"hooks": ["create_worktree"],
+		"cwd": "$ZED_WORKTREE_ROOT",
+		"reveal": "no_focus",
+		"hide": "on_success"
+	}
+]
