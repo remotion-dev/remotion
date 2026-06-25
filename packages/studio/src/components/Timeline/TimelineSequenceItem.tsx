@@ -938,7 +938,7 @@ export const TimelineSequenceItem: React.FC<{
 					subMenu: null,
 					value: 'rename-sequence',
 				},
-				freezeFrameMenuItem,
+				...(freezeFrameMenuItem ? [freezeFrameMenuItem] : []),
 			],
 		});
 	}, [

@@ -31,6 +31,7 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 		}
 > = (props, ref) => {
 	const audioTagsContext = useContext(SharedAudioTagsContext);
+	const propsWithFreeze = props as typeof props & {readonly freeze?: unknown};
 	const {
 		startFrom,
 		endAt,
@@ -41,15 +42,22 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 		pauseWhenBuffering,
 		showInTimeline,
 		onError: onRemotionError,
+		freeze,
 		...otherProps
-	} = props;
-	const {loop, ...propsOtherThanLoop} = props;
+	} = propsWithFreeze;
+	const {loop, freeze: _freeze, ...propsOtherThanLoop} = propsWithFreeze;
 	const {fps} = useVideoConfig();
 	const environment = useRemotionEnvironment();
 
 	if (environment.isClientSideRendering) {
 		throw new Error(
 			'<Html5Audio> is not supported in @remotion/web-renderer. Use <Audio> from @remotion/media instead. See https://remotion.dev/docs/client-side-rendering/limitations',
+		);
+	}
+
+	if (typeof freeze !== 'undefined') {
+		throw new TypeError(
+			'The "freeze" prop is not supported on <Html5Audio />. Use <Sequence freeze={...}> to freeze media playback.',
 		);
 	}
 
