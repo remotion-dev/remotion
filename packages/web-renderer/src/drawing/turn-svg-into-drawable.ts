@@ -20,7 +20,9 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 	svg.style.marginBottom = '0';
 	svg.style.fill = fill;
 	svg.style.color = color;
-	const svgData = new XMLSerializer().serializeToString(svg);
+	const svgData = new XMLSerializer()
+		.serializeToString(svg)
+		.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '');
 
 	svg.style.marginLeft = originalMarginLeft;
 	svg.style.marginRight = originalMarginRight;
