@@ -23,6 +23,8 @@ import {halftone} from '../halftone.js';
 import {hue} from '../hue.js';
 import {invert} from '../invert.js';
 import {lightTrail} from '../light-trail/index.js';
+import {linearGradientTint} from '../linear-gradient-tint.js';
+import {linearGradient} from '../linear-gradient.js';
 import {linearProgressiveBlur} from '../linear-progressive-blur/index.js';
 import {lines} from '../lines.js';
 import {mirror} from '../mirror.js';
@@ -148,6 +150,12 @@ test('@remotion/effects expose documentation links', () => {
 	expect(lines().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/lines',
 	);
+	expect(linearGradient().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/linear-gradient',
+	);
+	expect(linearGradientTint().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/linear-gradient-tint',
+	);
 	expect(linearProgressiveBlur().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/linear-progressive-blur',
 	);
@@ -256,6 +264,8 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(hue().definition.label).toBe('hue()');
 	expect(invert().definition.label).toBe('invert()');
 	expect(lines().definition.label).toBe('lines()');
+	expect(linearGradient().definition.label).toBe('linearGradient()');
+	expect(linearGradientTint().definition.label).toBe('linearGradientTint()');
 	expect(linearProgressiveBlur().definition.label).toBe(
 		'linearProgressiveBlur()',
 	);
@@ -1561,6 +1571,131 @@ test('halftoneLinearGradient() parameters produce distinct effect keys', () => {
 			shiftedFirstPosition.effectKey,
 			sourceColor.effectKey,
 			masked.effectKey,
+		]).size,
+	).toBe(6);
+});
+
+test('linearGradient() accepts default params', () => {
+	expect(() => linearGradient()).not.toThrow();
+});
+
+test('linearGradient() connects its stop position controls', () => {
+	expect(linearGradient().definition.schema.start).toMatchObject({
+		type: 'uv-coordinate',
+		visual: {
+			type: 'line',
+			to: 'end',
+		},
+	});
+});
+
+test('linearGradient() rejects start outside the tuple shape', () => {
+	expect(() =>
+		linearGradient({
+			start: [0, 0.5, 1] as unknown as [number, number],
+		}),
+	).toThrow('"start" must be a [number, number] tuple');
+});
+
+test('linearGradient() rejects end outside the tuple shape', () => {
+	expect(() =>
+		linearGradient({
+			end: [0, Number.NaN],
+		}),
+	).toThrow('"end" must be a [number, number] tuple');
+});
+
+test('linearGradient() rejects empty colors', () => {
+	expect(() => linearGradient({startColor: ''})).toThrow(
+		'"startColor" must be a non-empty string',
+	);
+	expect(() => linearGradient({endColor: ''})).toThrow(
+		'"endColor" must be a non-empty string',
+	);
+});
+
+test('linearGradient() parameters produce distinct effect keys', () => {
+	const defaultGradient = linearGradient();
+	const shiftedStart = linearGradient({start: [0.2, 0.5]});
+	const shiftedEnd = linearGradient({end: [0.8, 0.5]});
+	const customStartColor = linearGradient({startColor: '#ff0000'});
+	const customEndColor = linearGradient({endColor: '#0000ff'});
+
+	expect(
+		new Set([
+			defaultGradient.effectKey,
+			shiftedStart.effectKey,
+			shiftedEnd.effectKey,
+			customStartColor.effectKey,
+			customEndColor.effectKey,
+		]).size,
+	).toBe(5);
+});
+
+test('linearGradientTint() accepts default params', () => {
+	expect(() => linearGradientTint()).not.toThrow();
+});
+
+test('linearGradientTint() connects its stop position controls', () => {
+	expect(linearGradientTint().definition.schema.start).toMatchObject({
+		type: 'uv-coordinate',
+		visual: {
+			type: 'line',
+			to: 'end',
+		},
+	});
+});
+
+test('linearGradientTint() rejects start outside the tuple shape', () => {
+	expect(() =>
+		linearGradientTint({
+			start: [0, 0.5, 1] as unknown as [number, number],
+		}),
+	).toThrow('"start" must be a [number, number] tuple');
+});
+
+test('linearGradientTint() rejects end outside the tuple shape', () => {
+	expect(() =>
+		linearGradientTint({
+			end: [0, Number.NaN],
+		}),
+	).toThrow('"end" must be a [number, number] tuple');
+});
+
+test('linearGradientTint() rejects empty colors', () => {
+	expect(() => linearGradientTint({startColor: ''})).toThrow(
+		'"startColor" must be a non-empty string',
+	);
+	expect(() => linearGradientTint({endColor: ''})).toThrow(
+		'"endColor" must be a non-empty string',
+	);
+});
+
+test('linearGradientTint() rejects amount outside unit interval', () => {
+	expect(() => linearGradientTint({amount: -0.1})).toThrow(
+		'"amount" must be >= 0',
+	);
+	expect(() => linearGradientTint({amount: 1.1})).toThrow(
+		'"amount" must be <= 1',
+	);
+});
+
+test('linearGradientTint() parameters produce distinct effect keys', () => {
+	const defaultGradient = linearGradientTint();
+	const shiftedStart = linearGradientTint({start: [0.2, 0.5]});
+	const shiftedEnd = linearGradientTint({end: [0.8, 0.5]});
+	const customStartColor = linearGradientTint({startColor: '#ff0000'});
+	const customEndColor = linearGradientTint({endColor: '#0000ff'});
+	const strongerAmount = linearGradientTint({amount: 1});
+
+	expect(
+		new Set([
+			defaultGradient.effectKey,
+			shiftedStart.effectKey,
+			shiftedEnd.effectKey,
+			customStartColor.effectKey,
+			customEndColor.effectKey,
+			strongerAmount.effectKey,
 		]).size,
 	).toBe(6);
 });

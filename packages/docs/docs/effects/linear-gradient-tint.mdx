@@ -1,0 +1,111 @@
+---
+image: /generated/articles-docs-effects-linear-gradient-tint.png
+slug: /effects/linear-gradient-tint
+title: linearGradientTint()
+sidebar_label: linearGradientTint()
+crumb: '@remotion/effects'
+---
+
+# linearGradientTint()<AvailableFrom v="4.0.483" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+A tint effect whose color changes across a two-stop linear gradient.
+
+Use it to colorize canvas-based components such as [`<Video>`](/docs/media/video), [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) and [`<Solid>`](/docs/solid). The tint respects the source's alpha mask, so transparent regions are left untouched.
+
+## Preview
+
+<EffectsDemo type="effects-linear-gradient-tint" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {AbsoluteFill} from 'remotion';
+import {Video} from '@remotion/media';
+import {linearGradientTint} from '@remotion/effects/linear-gradient-tint';
+
+export const MyComp: React.FC = () => {
+  return (
+    <AbsoluteFill>
+      <Video
+        src="https://remotion.media/video.mp4"
+        effects={[
+          linearGradientTint({
+            start: [0, 0.5],
+            end: [1, 0.5],
+            startColor: '#0b84f3',
+            endColor: '#ff5c8a',
+            amount: 0.75,
+          }),
+        ]}
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+## API
+
+Pass an object with the following properties. You can also call `linearGradientTint()` without arguments.
+
+### `start?`
+
+UV coordinate where `startColor` is reached. Defaults to `[0, 0.5]`.
+
+Pass a `[number, number]` tuple where `[0, 0]` is top-left and `[1, 1]` is bottom-right.
+
+The accepted range in the visual editor is `[-1, 2]` for each coordinate. Values outside `[0, 1]` place the stop outside the visible area.
+
+### `end?`
+
+UV coordinate where `endColor` is reached. Defaults to `[1, 0.5]`.
+
+Pass a `[number, number]` tuple.
+
+### `startColor?`
+
+The tint color at `start`. Defaults to `'#000000'`.
+
+Accepts any CSS color string.
+
+### `endColor?`
+
+The tint color at `end`. Defaults to `'#ffffff'`.
+
+Accepts any CSS color string.
+
+### `amount?`
+
+Blend amount from `0` to `1`. Defaults to `0.5`.
+
+`0` leaves the source unchanged. `1` applies the gradient tint fully.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Behavior
+
+The tint color is interpolated between `startColor` and `endColor` along the `start` to `end` line.
+
+Before `start`, the tint is clamped to `startColor`. After `end`, the tint is clamped to `endColor`.
+
+## Difference to `linearGradient()`
+
+`linearGradientTint()` keeps the source pixels and blends their RGB values toward the gradient color. It respects the source alpha mask, so transparent source areas remain transparent.
+
+[`linearGradient()`](/docs/effects/linear-gradient) draws a gradient layer. If the colors have lower opacity, layers behind the gradient become visible.
+
+Use `linearGradientTint()` to colorize existing pixels. Use `linearGradient()` to create a gradient fill.
+
+## Requirements
+
+`linearGradientTint()` uses a WebGL2 backend. During renders, enable WebGL via [`Config.setChromiumOpenGlRenderer('angle')`](/docs/config#setchromiumopenglrenderer). See [Using WebGL during renders](/docs/remotion/html-in-canvas#using-webgl-during-renders).
+
+## See also
+
+- [`linearGradient()`](/docs/effects/linear-gradient)
+- [`tint()`](/docs/effects/tint)
+- [`@remotion/effects`](/docs/effects/api)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/linear-gradient-tint.ts)

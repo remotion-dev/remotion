@@ -31,6 +31,8 @@ import {
 	LIGHT_TRAIL_PREVIEW_PARAMS,
 	LightTrailTextSource,
 } from '../../components/effects/effects-light-trail-preview';
+import {EffectsLinearGradientPreview} from '../../components/effects/effects-linear-gradient-preview';
+import {EffectsLinearGradientTintPreview} from '../../components/effects/effects-linear-gradient-tint-preview';
 import {EffectsLinearProgressiveBlurPreview} from '../../components/effects/effects-linear-progressive-blur-preview';
 import {EffectsLinesPreview} from '../../components/effects/effects-lines-preview';
 import {EffectsMirrorPreview} from '../../components/effects/effects-mirror-preview';
@@ -385,6 +387,31 @@ export const RemotionRoot: React.FC = () => {
 						end: [1, 0.5],
 						startBlur: 0,
 						endBlur: 50,
+					}}
+				/>
+				<Still
+					id="effects-linear-gradient-preview"
+					component={EffectsLinearGradientPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						start: [0, 0.5],
+						end: [1, 0.5],
+						startColor: '#0b84f3',
+						endColor: '#ff5c8a',
+					}}
+				/>
+				<Still
+					id="effects-linear-gradient-tint-preview"
+					component={EffectsLinearGradientTintPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						start: [0, 0.5],
+						end: [1, 0.5],
+						startColor: '#0b84f3',
+						endColor: '#ff5c8a',
+						amount: 0.75,
 					}}
 				/>
 				<Still
