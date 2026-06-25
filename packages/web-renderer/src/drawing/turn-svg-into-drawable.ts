@@ -1,3 +1,21 @@
+const stripInvalidXmlCharacters = (value: string) => {
+	let sanitized = '';
+
+	for (let i = 0; i < value.length; i++) {
+		const charCode = value.charCodeAt(i);
+		const isInvalidControlCharacter =
+			charCode <= 8 || charCode === 11 || charCode === 12 || charCode === 14;
+
+		if (isInvalidControlCharacter || (charCode >= 15 && charCode <= 31)) {
+			continue;
+		}
+
+		sanitized += value[i];
+	}
+
+	return sanitized;
+};
+
 export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 	const {fill, color} = getComputedStyle(svg);
 
@@ -20,7 +38,9 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 	svg.style.marginBottom = '0';
 	svg.style.fill = fill;
 	svg.style.color = color;
-	const svgData = new XMLSerializer().serializeToString(svg);
+	const svgData = stripInvalidXmlCharacters(
+		new XMLSerializer().serializeToString(svg),
+	);
 
 	svg.style.marginLeft = originalMarginLeft;
 	svg.style.marginRight = originalMarginRight;
