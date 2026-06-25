@@ -19,6 +19,7 @@ const getTruncatedDisplayName = (displayName: string): string => {
 
 export const TimelineSequenceName: React.FC<{
 	readonly displayName: string;
+	readonly fallbackDisplayName: string;
 	readonly selected: boolean;
 	readonly containsSelection: boolean;
 	readonly editing: boolean;
@@ -26,6 +27,7 @@ export const TimelineSequenceName: React.FC<{
 	readonly onSaveName: (name: string) => Promise<void>;
 }> = ({
 	displayName,
+	fallbackDisplayName,
 	selected,
 	containsSelection,
 	editing,
@@ -74,11 +76,12 @@ export const TimelineSequenceName: React.FC<{
 		};
 	}, [style]);
 
-	const text = getTruncatedDisplayName(displayName) || '<Sequence>';
+	const editableDisplayName = displayName || fallbackDisplayName;
+	const text = getTruncatedDisplayName(editableDisplayName);
 
 	useEffect(() => {
 		if (!editing) {
-			setDraftName(displayName);
+			setDraftName(editableDisplayName);
 			return;
 		}
 
@@ -88,10 +91,11 @@ export const TimelineSequenceName: React.FC<{
 		}
 
 		input.focus();
-		const basenameIndex = displayName.lastIndexOf('.');
-		const selectionEnd = basenameIndex > 0 ? basenameIndex : displayName.length;
+		const basenameIndex = editableDisplayName.lastIndexOf('.');
+		const selectionEnd =
+			basenameIndex > 0 ? basenameIndex : editableDisplayName.length;
 		input.setSelectionRange(0, selectionEnd);
-	}, [displayName, editing]);
+	}, [editableDisplayName, editing]);
 
 	const save = useCallback(() => {
 		onSaveName(draftName).catch(() => undefined);

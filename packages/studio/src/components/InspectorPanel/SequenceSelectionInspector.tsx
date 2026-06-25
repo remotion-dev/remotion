@@ -32,16 +32,28 @@ const useSequenceDisplayName = (track: TrackWithHash) => {
 		const propStatusesForOverride = nodePath
 			? Internals.getPropStatusesCtx(propStatuses, nodePath)
 			: undefined;
+		const fallbackDisplayName =
+			track.sequence.controls?.componentName || '<Sequence>';
 		const codeNameStatus = propStatusesForOverride?.name;
-		const displayName =
-			codeNameStatus &&
-			codeNameStatus.status === 'static' &&
-			typeof codeNameStatus.codeValue === 'string'
-				? codeNameStatus.codeValue
-				: track.sequence.displayName;
 
-		return displayName || '<Sequence>';
-	}, [nodePath, propStatuses, track.sequence.displayName]);
+		if (
+			codeNameStatus?.status === 'static' &&
+			typeof codeNameStatus.codeValue === 'string'
+		) {
+			return codeNameStatus.codeValue;
+		}
+
+		if (codeNameStatus?.status === 'static') {
+			return fallbackDisplayName;
+		}
+
+		return track.sequence.displayName || fallbackDisplayName;
+	}, [
+		nodePath,
+		propStatuses,
+		track.sequence.controls?.componentName,
+		track.sequence.displayName,
+	]);
 };
 
 const SequenceExpandedInspector: React.FC<{
