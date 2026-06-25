@@ -1,1 +1,1 @@
-Checkout $0 and run `bun i` and `bun run build`.
+../../.agents/commands/checkout.md
