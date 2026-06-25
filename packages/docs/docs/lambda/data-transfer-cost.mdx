@@ -23,6 +23,20 @@ This is easy to achieve - simply put the assets in a Cloudflare R2 bucket and re
 
 Cloudflare does not charge for data transfer, so this is a great way to reduce the cost.
 
+### Enable Cloudflare Cache for R2 assets
+
+If you serve videos or audio files from R2, also make sure that Cloudflare Cache is enabled for the bucket.
+Cold reads from R2 can be slower than cached reads, especially when [`@remotion/media`](/docs/media) fetches a video through byte range requests.
+
+Use a [custom domain for the R2 bucket](https://developers.cloudflare.com/cache/interaction-cloudflare-products/r2/) and configure a Cloudflare Cache Rule for the asset URLs. The `r2.dev` development URL does not support caching.
+
+After enabling the rule, inspect the response headers for your media URL:
+
+- `CF-Cache-Status: HIT` or `MISS` means the request went through Cloudflare Cache.
+- `CF-Cache-Status: DYNAMIC` means the request was not served from cache.
+
+See Cloudflare's [cache response documentation](https://developers.cloudflare.com/cache/concepts/cache-responses/) for the possible values.
+
 Make sure to disable the Bot fight mode for R2:
 
 - Go to Security of your domain -> Settings -> disable "Bot fight mode"
