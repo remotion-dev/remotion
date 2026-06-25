@@ -22,6 +22,8 @@ import {halftoneLinearGradient} from '@remotion/effects/halftone-linear-gradient
 import {hue} from '@remotion/effects/hue';
 import {invert} from '@remotion/effects/invert';
 import {lightTrail} from '@remotion/effects/light-trail';
+import {linearGradientTint} from '@remotion/effects/linear-gradient-tint';
+import {linearGradient} from '@remotion/effects/linear-gradient';
 import {linearProgressiveBlur} from '@remotion/effects/linear-progressive-blur';
 import {lines} from '@remotion/effects/lines';
 import {mirror} from '@remotion/effects/mirror';
@@ -78,6 +80,8 @@ import {
 	EffectsLightTrailPreview,
 	LIGHT_TRAIL_PREVIEW_PARAMS,
 } from '../effects/effects-light-trail-preview';
+import {EffectsLinearGradientTintPreview} from '../effects/effects-linear-gradient-tint-preview';
+import {EffectsLinearGradientPreview} from '../effects/effects-linear-gradient-preview';
 import {EffectsLinearProgressiveBlurPreview} from '../effects/effects-linear-progressive-blur-preview';
 import {EffectsLinesPreview} from '../effects/effects-lines-preview';
 import {EffectsMirrorPreview} from '../effects/effects-mirror-preview';
@@ -262,6 +266,22 @@ export const effectsDemos: EffectsDemoType[] = [
 		initialValues: {
 			color: '#1ec8ff',
 		},
+	},
+	{
+		...defaults,
+		id: 'effects-linear-gradient',
+		effectName: 'linearGradient',
+		effectImportPath: '@remotion/effects/linear-gradient',
+		comp: EffectsLinearGradientPreview,
+		schema: linearGradient().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-linear-gradient-tint',
+		effectName: 'linearGradientTint',
+		effectImportPath: '@remotion/effects/linear-gradient-tint',
+		comp: EffectsLinearGradientTintPreview,
+		schema: linearGradientTint().definition.schema,
 	},
 	{
 		...defaults,
