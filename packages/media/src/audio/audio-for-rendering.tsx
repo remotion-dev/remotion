@@ -13,6 +13,7 @@ import {useMaxMediaCacheSize} from '../caches';
 import {applyVolume} from '../convert-audiodata/apply-volume';
 import {getTargetSampleRate} from '../convert-audiodata/resample-audiodata';
 import {frameForVolumeProp} from '../looped-frame';
+import {makeMediaExtractionTrace} from '../media-extraction-trace';
 import {callOnErrorAndResolve} from '../on-error';
 import {extractFrameViaBroadcastChannel} from '../video-extraction/extract-frame-via-broadcast-channel';
 import type {AudioProps} from './props';
@@ -91,6 +92,10 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 	useLayoutEffect(() => {
 		const timestamp = frame / fps;
 		const durationInSeconds = 1 / fps;
+		const trace = makeMediaExtractionTrace({
+			src,
+			timeInSeconds: timestamp,
+		});
 
 		const shouldRenderAudio = (() => {
 			if (!audioEnabled) {
@@ -134,6 +139,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 			maxCacheSize,
 			credentials,
 			requestInit: initialRequestInit,
+			trace,
 		})
 			.then((result) => {
 				const handleError = (

@@ -1,6 +1,8 @@
 import type {AudioSampleSink} from 'mediabunny';
 import {Internals, type LogLevel} from 'remotion';
 import {getTotalCacheStats} from '../caches';
+import type {MediaExtractionTrace} from '../media-extraction-trace';
+import {traceMediaOperation} from '../media-extraction-trace';
 import type {RememberActualMatroskaTimestamps} from '../video-extraction/remember-actual-matroska-timestamps';
 import type {AudioSampleIterator} from './audio-iterator';
 import {makeAudioIterator} from './audio-iterator';
@@ -86,6 +88,7 @@ export const makeAudioManager = () => {
 		actualMatroskaTimestamps,
 		logLevel,
 		maxCacheSize,
+		trace,
 	}: {
 		src: string;
 		timeInSeconds: number;
@@ -94,6 +97,7 @@ export const makeAudioManager = () => {
 		actualMatroskaTimestamps: RememberActualMatroskaTimestamps;
 		logLevel: LogLevel;
 		maxCacheSize: number;
+		trace?: MediaExtractionTrace;
 	}) => {
 		let attempts = 0;
 		const maxAttempts = 3;
@@ -118,7 +122,11 @@ export const makeAudioManager = () => {
 		for (const iterator of iterators) {
 			if (
 				iterator.src === src &&
-				(await iterator.waitForCompletion()) &&
+				(await traceMediaOperation({
+					trace,
+					label: 'audio:iterator.waitForCompletion',
+					operation: () => iterator.waitForCompletion(),
+				})) &&
 				iterator.canSatisfyRequestedTime(timeInSeconds)
 			) {
 				return iterator;
@@ -166,6 +174,18 @@ export const makeAudioManager = () => {
 
 	let queue = Promise.resolve<unknown>(undefined);
 
+	const resetQueue = () => {
+		queue = Promise.resolve<unknown>(undefined);
+	};
+
+	const clearAll = () => {
+		for (const iterator of iterators) {
+			iterator.prepareForDeletion();
+		}
+
+		iterators.length = 0;
+	};
+
 	return {
 		getIterator: ({
 			src,
@@ -175,6 +195,7 @@ export const makeAudioManager = () => {
 			actualMatroskaTimestamps,
 			logLevel,
 			maxCacheSize,
+			trace,
 		}: {
 			src: string;
 			timeInSeconds: number;
@@ -183,6 +204,7 @@ export const makeAudioManager = () => {
 			actualMatroskaTimestamps: RememberActualMatroskaTimestamps;
 			logLevel: LogLevel;
 			maxCacheSize: number;
+			trace?: MediaExtractionTrace;
 		}) => {
 			queue = queue.then(() =>
 				getIterator({
@@ -193,6 +215,7 @@ export const makeAudioManager = () => {
 					actualMatroskaTimestamps,
 					logLevel,
 					maxCacheSize,
+					trace,
 				}),
 			);
 			return queue as Promise<AudioSampleIterator>;
@@ -201,5 +224,7 @@ export const makeAudioManager = () => {
 		getIteratorMostInThePast,
 		logOpenFrames,
 		deleteDuplicateIterators,
+		clearAll,
+		resetQueue,
 	};
 };

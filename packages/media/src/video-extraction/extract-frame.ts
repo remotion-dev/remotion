@@ -2,6 +2,8 @@ import {Internals, type LogLevel} from 'remotion';
 import {keyframeManager} from '../caches';
 import {getSink} from '../get-sink';
 import {getTimeInSeconds} from '../get-time-in-seconds';
+import type {MediaExtractionTrace} from '../media-extraction-trace';
+import {traceMediaOperation} from '../media-extraction-trace';
 import type {MediaRequestInit} from '../request-init';
 
 type ExtractFrameResult =
@@ -28,6 +30,7 @@ type ExtractFrameParams = {
 	maxCacheSize: number;
 	credentials: RequestCredentials | undefined;
 	requestInit?: MediaRequestInit;
+	trace?: MediaExtractionTrace;
 };
 
 const extractFrameInternal = async ({
@@ -42,12 +45,27 @@ const extractFrameInternal = async ({
 	maxCacheSize,
 	credentials,
 	requestInit,
+	trace,
 }: ExtractFrameParams): Promise<ExtractFrameResult> => {
-	const sink = await getSink(src, logLevel, credentials, requestInit);
+	const sink = await traceMediaOperation({
+		trace,
+		label: 'video:getSink',
+		operation: () => getSink(src, logLevel, credentials, requestInit),
+	});
 
 	const [video, mediaDurationInSecondsRaw] = await Promise.all([
-		sink.getVideo(),
-		loop ? sink.getDuration() : Promise.resolve(null),
+		traceMediaOperation({
+			trace,
+			label: 'video:sink.getVideo',
+			operation: () => sink.getVideo(),
+		}),
+		loop
+			? traceMediaOperation({
+					trace,
+					label: 'video:sink.getDuration',
+					operation: () => sink.getDuration(),
+				})
+			: Promise.resolve(null),
 	]);
 
 	const mediaDurationInSeconds: number | null = loop
@@ -94,7 +112,11 @@ const extractFrameInternal = async ({
 			type: 'success',
 			frame: null,
 			rotation: 0,
-			durationInSeconds: await sink.getDuration(),
+			durationInSeconds: await traceMediaOperation({
+				trace,
+				label: 'video:sink.getDuration',
+				operation: () => sink.getDuration(),
+			}),
 		};
 	}
 
@@ -102,13 +124,19 @@ const extractFrameInternal = async ({
 	// https://discord.com/channels/@me/1127949286789881897/1455728482150518906
 	// Should be able to remove once upgraded to Chrome 145
 	try {
-		const keyframeBank = await keyframeManager.requestKeyframeBank({
-			videoSampleSink: video.sampleSink,
-			timestamp: timeInSeconds,
-			src,
-			logLevel,
-			maxCacheSize,
-			fps,
+		const keyframeBank = await traceMediaOperation({
+			trace,
+			label: 'video:keyframeManager.requestKeyframeBank',
+			operation: () =>
+				keyframeManager.requestKeyframeBank({
+					videoSampleSink: video.sampleSink,
+					timestamp: timeInSeconds,
+					src,
+					logLevel,
+					maxCacheSize,
+					fps,
+					trace,
+				}),
 		});
 
 		if (!keyframeBank) {
@@ -116,18 +144,36 @@ const extractFrameInternal = async ({
 				type: 'success',
 				frame: null,
 				rotation: 0,
-				durationInSeconds: await sink.getDuration(),
+				durationInSeconds: await traceMediaOperation({
+					trace,
+					label: 'video:sink.getDuration',
+					operation: () => sink.getDuration(),
+				}),
 			};
 		}
 
-		const frame = await keyframeBank.getFrameFromTimestamp(timeInSeconds, fps);
+		const frame = await traceMediaOperation({
+			trace,
+			label: 'video:keyframeBank.getFrameFromTimestamp',
+			operation: () =>
+				keyframeBank.getFrameFromTimestamp(timeInSeconds, fps, trace),
+		});
 		const rotation = frame?.rotation ?? 0;
 
 		return {
 			type: 'success',
-			frame: frame?.toVideoFrame() ?? null,
+			frame:
+				(await traceMediaOperation({
+					trace,
+					label: 'video:sample.toVideoFrame',
+					operation: () => frame?.toVideoFrame() ?? null,
+				})) ?? null,
 			rotation,
-			durationInSeconds: await sink.getDuration(),
+			durationInSeconds: await traceMediaOperation({
+				trace,
+				label: 'video:sink.getDuration',
+				operation: () => sink.getDuration(),
+			}),
 		};
 	} catch (err) {
 		Internals.Log.info(
@@ -142,6 +188,10 @@ const extractFrameInternal = async ({
 type ExtractFrameReturnType = Awaited<ReturnType<typeof extractFrameInternal>>;
 
 let queue = Promise.resolve<ExtractFrameReturnType | undefined>(undefined);
+
+export const resetExtractFrameQueue = () => {
+	queue = Promise.resolve<ExtractFrameReturnType | undefined>(undefined);
+};
 
 export const extractFrame = (
 	params: ExtractFrameParams,

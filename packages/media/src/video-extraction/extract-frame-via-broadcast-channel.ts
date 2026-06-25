@@ -1,10 +1,17 @@
 import {type LogLevel} from 'remotion';
 import type {PcmS16AudioData} from '../convert-audiodata/convert-audiodata';
 import {extractFrameAndAudio} from '../extract-frame-and-audio';
+import type {MediaExtractionTrace} from '../media-extraction-trace';
+import {
+	getMediaExtractionTimeoutInMilliseconds,
+	traceMediaOperation,
+	withMediaExtractionTimeout,
+} from '../media-extraction-trace';
 import {
 	normalizeMediaRequestInit,
 	type MediaRequestInit,
 } from '../request-init';
+import {resetMediaExtractionState} from '../reset-media-extraction-state';
 import type {
 	ExtractFrameRequest,
 	MessageFromMainTab,
@@ -45,6 +52,7 @@ export const extractFrameViaBroadcastChannel = async ({
 	maxCacheSize,
 	credentials,
 	requestInit,
+	trace,
 }: {
 	src: string;
 	timeInSeconds: number;
@@ -62,28 +70,45 @@ export const extractFrameViaBroadcastChannel = async ({
 	maxCacheSize: number;
 	credentials: RequestCredentials | undefined;
 	requestInit?: MediaRequestInit;
+	trace?: MediaExtractionTrace;
 }): Promise<ExtractFrameViaBroadcastChannelResult> => {
 	if (isClientSideRendering || window.remotion_isMainTab) {
-		return extractFrameAndAudio({
-			logLevel,
+		return withMediaExtractionTimeout({
 			src,
 			timeInSeconds,
-			durationInSeconds,
-			playbackRate,
-			includeAudio,
-			includeVideo,
-			loop,
-			audioStreamIndex,
-			trimAfter,
-			trimBefore,
-			fps,
-			maxCacheSize,
-			credentials,
-			requestInit,
+			trace,
+			timeoutInMilliseconds: getMediaExtractionTimeoutInMilliseconds(),
+			onTimeout: () =>
+				resetMediaExtractionState({
+					logLevel,
+					reason: `extracting media from ${src} at ${timeInSeconds}s timed out`,
+				}),
+			promise: extractFrameAndAudio({
+				logLevel,
+				src,
+				timeInSeconds,
+				durationInSeconds,
+				playbackRate,
+				includeAudio,
+				includeVideo,
+				loop,
+				audioStreamIndex,
+				trimAfter,
+				trimBefore,
+				fps,
+				maxCacheSize,
+				credentials,
+				requestInit,
+				trace,
+			}),
 		});
 	}
 
-	await waitForMainTabToBeReady(window.remotion_broadcastChannel!);
+	await traceMediaOperation({
+		trace,
+		label: 'broadcast:waitForMainTabToBeReady',
+		operation: () => waitForMainTabToBeReady(window.remotion_broadcastChannel!),
+	});
 
 	const requestId = crypto.randomUUID();
 
@@ -219,16 +244,18 @@ export const extractFrameViaBroadcastChannel = async ({
 			return res;
 		}),
 		new Promise<never>((_, reject) => {
-			timeoutId = setTimeout(
-				() => {
-					reject(
-						new Error(
+			timeoutId = setTimeout(() => {
+				reject(
+					new Error(
+						[
 							`Timeout while extracting frame at time ${timeInSeconds}sec from ${src}`,
-						),
-					);
-				},
-				Math.max(3_000, window.remotion_puppeteerTimeout - 5_000),
-			);
+							trace ? trace.getSummary() : null,
+						]
+							.filter(Boolean)
+							.join('\n\n'),
+					),
+				);
+			}, getMediaExtractionTimeoutInMilliseconds());
 		}),
 	]);
 };

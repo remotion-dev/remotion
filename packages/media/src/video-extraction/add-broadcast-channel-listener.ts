@@ -1,7 +1,13 @@
 import type {LogLevel} from 'remotion';
 import type {PcmS16AudioData} from '../convert-audiodata/convert-audiodata';
 import {extractFrameAndAudio} from '../extract-frame-and-audio';
+import {
+	getMediaExtractionTimeoutInMilliseconds,
+	makeMediaExtractionTrace,
+	withMediaExtractionTimeout,
+} from '../media-extraction-trace';
 import type {MediaRequestInit} from '../request-init';
+import {resetMediaExtractionState} from '../reset-media-extraction-state';
 
 export type MessageFromMainTab =
 	| {
@@ -90,23 +96,40 @@ export const addBroadcastChannelListener = () => {
 		async (event) => {
 			const data = event.data as ExtractFrameRequest;
 			if (data.type === 'request') {
+				const trace = makeMediaExtractionTrace({
+					src: data.src,
+					timeInSeconds: data.timeInSeconds,
+				});
+
 				try {
-					const result = await extractFrameAndAudio({
+					const result = await withMediaExtractionTimeout({
 						src: data.src,
 						timeInSeconds: data.timeInSeconds,
-						logLevel: data.logLevel,
-						durationInSeconds: data.durationInSeconds,
-						playbackRate: data.playbackRate,
-						includeAudio: data.includeAudio,
-						includeVideo: data.includeVideo,
-						loop: data.loop,
-						audioStreamIndex: data.audioStreamIndex,
-						trimAfter: data.trimAfter,
-						trimBefore: data.trimBefore,
-						fps: data.fps,
-						maxCacheSize: data.maxCacheSize,
-						credentials: data.credentials,
-						requestInit: data.requestInit,
+						trace,
+						timeoutInMilliseconds: getMediaExtractionTimeoutInMilliseconds(),
+						onTimeout: () =>
+							resetMediaExtractionState({
+								logLevel: data.logLevel,
+								reason: `extracting media from ${data.src} at ${data.timeInSeconds}s timed out`,
+							}),
+						promise: extractFrameAndAudio({
+							src: data.src,
+							timeInSeconds: data.timeInSeconds,
+							logLevel: data.logLevel,
+							durationInSeconds: data.durationInSeconds,
+							playbackRate: data.playbackRate,
+							includeAudio: data.includeAudio,
+							includeVideo: data.includeVideo,
+							loop: data.loop,
+							audioStreamIndex: data.audioStreamIndex,
+							trimAfter: data.trimAfter,
+							trimBefore: data.trimBefore,
+							fps: data.fps,
+							maxCacheSize: data.maxCacheSize,
+							credentials: data.credentials,
+							requestInit: data.requestInit,
+							trace,
+						}),
 					});
 
 					if (result.type === 'cannot-decode') {
@@ -172,10 +195,12 @@ export const addBroadcastChannelListener = () => {
 
 					window.remotion_broadcastChannel!.postMessage(response);
 				} catch (error) {
+					const err = error as Error;
+					const stack = err.stack ?? 'No stack trace';
 					const response: MessageFromMainTab = {
 						type: 'response-error',
 						id: data.id,
-						errorStack: (error as Error).stack ?? 'No stack trace',
+						errorStack: `${stack}\n\n${trace.getSummary()}`,
 					};
 
 					window.remotion_broadcastChannel!.postMessage(response);

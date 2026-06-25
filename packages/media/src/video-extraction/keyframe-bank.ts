@@ -2,6 +2,8 @@ import type {VideoSample, VideoSampleSink} from 'mediabunny';
 import {Internals, type LogLevel} from 'remotion';
 import {getSafeWindowOfMonotonicity} from '../caches';
 import {roundTo4Digits} from '../helpers/round-to-4-digits';
+import type {MediaExtractionTrace} from '../media-extraction-trace';
+import {traceMediaOperation} from '../media-extraction-trace';
 import {renderTimestampRange} from '../render-timestamp-range';
 import {getAllocationSize} from './get-allocation-size';
 
@@ -14,6 +16,7 @@ export type KeyframeBank = {
 	getFrameFromTimestamp: (
 		timestamp: number,
 		fps: number,
+		trace?: MediaExtractionTrace,
 	) => Promise<VideoSampleWithoutDuration | null>;
 	prepareForDeletion: (
 		logLevel: LogLevel,
@@ -26,7 +29,11 @@ export type KeyframeBank = {
 		timestampInSeconds: number;
 		logLevel: LogLevel;
 	}) => void;
-	hasTimestampInSecond: (timestamp: number, fps: number) => Promise<boolean>;
+	hasTimestampInSecond: (
+		timestamp: number,
+		fps: number,
+		trace?: MediaExtractionTrace,
+	) => Promise<boolean>;
 	addFrame: (frame: VideoSample, logLevel: LogLevel) => void;
 	getOpenFrameCount: () => {
 		size: number;
@@ -47,11 +54,13 @@ export const makeKeyframeBank = async ({
 	src,
 	videoSampleSink,
 	initialTimestampRequest,
+	trace: initialTrace,
 }: {
 	logLevel: LogLevel;
 	src: string;
 	videoSampleSink: VideoSampleSink;
 	initialTimestampRequest: number;
+	trace?: MediaExtractionTrace;
 }) => {
 	const sampleIterator = videoSampleSink.samples(
 		roundTo4Digits(initialTimestampRequest),
@@ -168,9 +177,14 @@ export const makeKeyframeBank = async ({
 		timestampInSeconds: number,
 		logLevel: LogLevel,
 		fps: number,
+		trace?: MediaExtractionTrace,
 	) => {
 		while (!hasDecodedEnoughForTimestamp(timestampInSeconds)) {
-			const sample = await sampleIterator.next();
+			const sample = await traceMediaOperation({
+				trace,
+				label: 'video:keyframeBank.sampleIterator.next',
+				operation: () => sampleIterator.next(),
+			});
 
 			if (sample.value) {
 				addFrame(sample.value, logLevel);
@@ -195,6 +209,7 @@ export const makeKeyframeBank = async ({
 	const getFrameFromTimestamp = async (
 		timestampInSeconds: number,
 		fps: number,
+		trace?: MediaExtractionTrace,
 	): Promise<VideoSampleWithoutDuration | null> => {
 		lastUsed = Date.now();
 
@@ -219,6 +234,7 @@ export const makeKeyframeBank = async ({
 			adjustedTimestamp,
 			parentLogLevel,
 			fps,
+			trace,
 		);
 
 		for (let i = frameTimestamps.length - 1; i >= 0; i--) {
@@ -241,8 +257,12 @@ export const makeKeyframeBank = async ({
 		return frames[frameTimestamps[0]] ?? null;
 	};
 
-	const hasTimestampInSecond = async (timestamp: number, fps: number) => {
-		return (await getFrameFromTimestamp(timestamp, fps)) !== null;
+	const hasTimestampInSecond = async (
+		timestamp: number,
+		fps: number,
+		trace?: MediaExtractionTrace,
+	) => {
+		return (await getFrameFromTimestamp(timestamp, fps, trace)) !== null;
 	};
 
 	const getOpenFrameCount = () => {
@@ -258,7 +278,11 @@ export const makeKeyframeBank = async ({
 
 	let queue = Promise.resolve<unknown>(undefined);
 
-	const firstFrame = await sampleIterator.next();
+	const firstFrame = await traceMediaOperation({
+		trace: initialTrace,
+		label: 'video:keyframeBank.firstFrame',
+		operation: () => sampleIterator.next(),
+	});
 	if (!firstFrame.value) {
 		throw new Error('No first frame found');
 	}
@@ -363,13 +387,21 @@ export const makeKeyframeBank = async ({
 	};
 
 	const keyframeBank: KeyframeBank = {
-		getFrameFromTimestamp: (timestamp: number, fps: number) => {
-			queue = queue.then(() => getFrameFromTimestamp(timestamp, fps));
+		getFrameFromTimestamp: (
+			timestamp: number,
+			fps: number,
+			trace?: MediaExtractionTrace,
+		) => {
+			queue = queue.then(() => getFrameFromTimestamp(timestamp, fps, trace));
 			return queue as Promise<VideoSample | null>;
 		},
 		prepareForDeletion,
-		hasTimestampInSecond: (timestamp: number, fps: number) => {
-			queue = queue.then(() => hasTimestampInSecond(timestamp, fps));
+		hasTimestampInSecond: (
+			timestamp: number,
+			fps: number,
+			trace?: MediaExtractionTrace,
+		) => {
+			queue = queue.then(() => hasTimestampInSecond(timestamp, fps, trace));
 			return queue as Promise<boolean>;
 		},
 		addFrame,

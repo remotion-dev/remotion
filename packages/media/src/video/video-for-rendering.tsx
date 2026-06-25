@@ -25,6 +25,7 @@ import {useMaxMediaCacheSize} from '../caches';
 import {applyVolume} from '../convert-audiodata/apply-volume';
 import {getTargetSampleRate} from '../convert-audiodata/resample-audiodata';
 import {frameForVolumeProp} from '../looped-frame';
+import {makeMediaExtractionTrace} from '../media-extraction-trace';
 import {type MediaOnError, callOnErrorAndResolve} from '../on-error';
 import type {MediaRequestInit} from '../request-init';
 import {extractFrameViaBroadcastChannel} from '../video-extraction/extract-frame-via-broadcast-channel';
@@ -164,6 +165,10 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 
 		const timestamp = frame / fps;
 		const durationInSeconds = 1 / fps;
+		const trace = makeMediaExtractionTrace({
+			src,
+			timeInSeconds: timestamp,
+		});
 
 		const newHandle = delayRender(
 			`Extracting frame at time ${timestamp} from ${src}`,
@@ -202,6 +207,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 			maxCacheSize,
 			credentials,
 			requestInit: initialRequestInit,
+			trace,
 		})
 			.then(async (result) => {
 				const handleError = (

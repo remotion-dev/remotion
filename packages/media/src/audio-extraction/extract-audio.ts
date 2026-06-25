@@ -16,6 +16,8 @@ import {
 	isNetworkError,
 	isUnsupportedConfigurationError,
 } from '../is-type-of-error';
+import type {MediaExtractionTrace} from '../media-extraction-trace';
+import {traceMediaOperation} from '../media-extraction-trace';
 import type {MediaRequestInit} from '../request-init';
 
 type ExtractAudioReturnType = Awaited<ReturnType<typeof extractAudioInternal>>;
@@ -34,6 +36,7 @@ type ExtractAudioParams = {
 	maxCacheSize: number;
 	credentials: RequestCredentials | undefined;
 	requestInit?: MediaRequestInit;
+	trace?: MediaExtractionTrace;
 };
 
 const extractAudioInternal = async ({
@@ -50,6 +53,7 @@ const extractAudioInternal = async ({
 	maxCacheSize,
 	credentials,
 	requestInit,
+	trace,
 }: ExtractAudioParams): Promise<
 	| {
 			data: PcmS16AudioData | null;
@@ -60,14 +64,26 @@ const extractAudioInternal = async ({
 	| 'network-error'
 > => {
 	const {getAudio, actualMatroskaTimestamps, isMatroska, getDuration} =
-		await getSink(src, logLevel, credentials, requestInit);
+		await traceMediaOperation({
+			trace,
+			label: 'audio:getSink',
+			operation: () => getSink(src, logLevel, credentials, requestInit),
+		});
 
 	let mediaDurationInSeconds: number | null = null;
 	if (loop) {
-		mediaDurationInSeconds = await getDuration();
+		mediaDurationInSeconds = await traceMediaOperation({
+			trace,
+			label: 'audio:sink.getDuration',
+			operation: () => getDuration(),
+		});
 	}
 
-	const audio = await getAudio(audioStreamIndex);
+	const audio = await traceMediaOperation({
+		trace,
+		label: 'audio:sink.getAudio',
+		operation: () => getAudio(audioStreamIndex),
+	});
 
 	if (audio === 'network-error') {
 		return 'network-error';
@@ -101,22 +117,30 @@ const extractAudioInternal = async ({
 	}
 
 	try {
-		const sampleIterator = await audioManager.getIterator({
-			src,
-			timeInSeconds,
-			audioSampleSink: audio.sampleSink,
-			isMatroska,
-			actualMatroskaTimestamps,
-			logLevel,
-			maxCacheSize,
+		const sampleIterator = await traceMediaOperation({
+			trace,
+			label: 'audio:audioManager.getIterator',
+			operation: () =>
+				audioManager.getIterator({
+					src,
+					timeInSeconds,
+					audioSampleSink: audio.sampleSink,
+					isMatroska,
+					actualMatroskaTimestamps,
+					logLevel,
+					maxCacheSize,
+					trace,
+				}),
 		});
 
 		const durationInSeconds = durationNotYetApplyingPlaybackRate * playbackRate;
 
-		const samples = await sampleIterator.getSamples(
-			timeInSeconds,
-			durationInSeconds,
-		);
+		const samples = await traceMediaOperation({
+			trace,
+			label: 'audio:sampleIterator.getSamples',
+			operation: () =>
+				sampleIterator.getSamples(timeInSeconds, durationInSeconds, trace),
+		});
 
 		audioManager.logOpenFrames();
 
@@ -141,7 +165,11 @@ const extractAudioInternal = async ({
 			const isFirstSample = i === 0;
 			const isLastSample = i === samples.length - 1;
 
-			const audioDataRaw = sample.toAudioData();
+			const audioDataRaw = await traceMediaOperation({
+				trace,
+				label: 'audio:sample.toAudioData',
+				operation: () => sample.toAudioData(),
+			});
 
 			// amount of samples to shave from start and end
 			let trimStartInSeconds = 0;
@@ -220,6 +248,10 @@ const extractAudioInternal = async ({
 };
 
 let queue = Promise.resolve<ExtractAudioReturnType | undefined>(undefined);
+
+export const resetExtractAudioQueue = () => {
+	queue = Promise.resolve<ExtractAudioReturnType | undefined>(undefined);
+};
 
 export const extractAudio = (
 	params: ExtractAudioParams,

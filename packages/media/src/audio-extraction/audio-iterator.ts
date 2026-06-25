@@ -1,5 +1,7 @@
 import type {AudioSample, AudioSampleSink} from 'mediabunny';
 import {Internals, type LogLevel} from 'remotion';
+import type {MediaExtractionTrace} from '../media-extraction-trace';
+import {traceMediaOperation} from '../media-extraction-trace';
 import type {RememberActualMatroskaTimestamps} from '../video-extraction/remember-actual-matroska-timestamps';
 import {makeAudioCache} from './audio-cache';
 
@@ -60,10 +62,14 @@ export const makeAudioIterator = ({
 
 	let lastUsed = Date.now();
 
-	const getNextSample = async () => {
+	const getNextSample = async (trace?: MediaExtractionTrace) => {
 		lastUsed = Date.now();
 
-		const {value: sample, done} = await sampleIterator.next();
+		const {value: sample, done} = await traceMediaOperation({
+			trace,
+			label: 'audio:sampleIterator.next',
+			operation: () => sampleIterator.next(),
+		});
 		if (done) {
 			fullDuration = cache.getNewestTimestamp();
 			return null;
@@ -87,7 +93,11 @@ export const makeAudioIterator = ({
 		return sample;
 	};
 
-	const getSamples = async (timestamp: number, durationInSeconds: number) => {
+	const getSamples = async (
+		timestamp: number,
+		durationInSeconds: number,
+		trace?: MediaExtractionTrace,
+	) => {
 		lastUsed = Date.now();
 
 		if (fullDuration !== null && timestamp > fullDuration) {
@@ -111,7 +121,7 @@ export const makeAudioIterator = ({
 		}
 
 		while (true) {
-			const sample = await getNextSample();
+			const sample = await getNextSample(trace);
 
 			// Clear all samples before the timestamp
 			// Do this in the while loop because samples might start from 0
@@ -189,8 +199,8 @@ export const makeAudioIterator = ({
 
 	return {
 		src,
-		getSamples: (ts: number, dur: number) => {
-			op = op.then(() => getSamples(ts, dur));
+		getSamples: (ts: number, dur: number, trace?: MediaExtractionTrace) => {
+			op = op.then(() => getSamples(ts, dur, trace));
 			return op;
 		},
 		waitForCompletion: async () => {

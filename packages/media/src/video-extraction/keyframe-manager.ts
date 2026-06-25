@@ -1,6 +1,8 @@
 import type {VideoSampleSink} from 'mediabunny';
 import {Internals, type LogLevel} from 'remotion';
 import {getSafeWindowOfMonotonicity, getTotalCacheStats} from '../caches';
+import type {MediaExtractionTrace} from '../media-extraction-trace';
+import {traceMediaOperation} from '../media-extraction-trace';
 import {renderTimestampRange} from '../render-timestamp-range';
 import {type KeyframeBank, makeKeyframeBank} from './keyframe-bank';
 
@@ -203,11 +205,13 @@ export const makeKeyframeManager = () => {
 		videoSampleSink,
 		src,
 		logLevel,
+		trace,
 	}: {
 		timestamp: number;
 		videoSampleSink: VideoSampleSink;
 		src: string;
 		logLevel: LogLevel;
+		trace?: MediaExtractionTrace;
 	}): Promise<KeyframeBank | null> => {
 		// The start packet timestamp can be higher than the packets following it
 		// https://discord.com/channels/809501355504959528/1001500302375125055/1456710188865159343
@@ -223,11 +227,17 @@ export const makeKeyframeManager = () => {
 				{logLevel, tag: '@remotion/media'},
 				`Creating new keyframe bank for src ${src} at timestamp ${timestamp}`,
 			);
-			const newKeyframeBank = await makeKeyframeBank({
-				videoSampleSink,
-				logLevel,
-				src,
-				initialTimestampRequest: timestamp,
+			const newKeyframeBank = await traceMediaOperation({
+				trace,
+				label: 'video:makeKeyframeBank',
+				operation: () =>
+					makeKeyframeBank({
+						videoSampleSink,
+						logLevel,
+						src,
+						initialTimestampRequest: timestamp,
+						trace,
+					}),
 			});
 
 			addKeyframeBank({src, bank: newKeyframeBank});
@@ -255,11 +265,17 @@ export const makeKeyframeManager = () => {
 		sources[src] = sources[src].filter((bank) => bank !== existingBank);
 
 		// Then refetch
-		const replacementKeybank = await makeKeyframeBank({
-			videoSampleSink,
-			initialTimestampRequest: timestamp,
-			logLevel,
-			src,
+		const replacementKeybank = await traceMediaOperation({
+			trace,
+			label: 'video:makeReplacementKeyframeBank',
+			operation: () =>
+				makeKeyframeBank({
+					videoSampleSink,
+					initialTimestampRequest: timestamp,
+					logLevel,
+					src,
+					trace,
+				}),
 		});
 
 		addKeyframeBank({src, bank: replacementKeybank});
@@ -274,6 +290,7 @@ export const makeKeyframeManager = () => {
 		logLevel,
 		maxCacheSize,
 		fps,
+		trace,
 	}: {
 		timestamp: number;
 		videoSampleSink: VideoSampleSink;
@@ -281,6 +298,7 @@ export const makeKeyframeManager = () => {
 		logLevel: LogLevel;
 		maxCacheSize: number;
 		fps: number;
+		trace?: MediaExtractionTrace;
 	}) => {
 		ensureToStayUnderMaxCacheSize(logLevel, maxCacheSize);
 
@@ -296,6 +314,7 @@ export const makeKeyframeManager = () => {
 			videoSampleSink,
 			src,
 			logLevel,
+			trace,
 		});
 
 		return keyframeBank;
@@ -318,6 +337,10 @@ export const makeKeyframeManager = () => {
 
 	let queue = Promise.resolve<unknown>(undefined);
 
+	const resetQueue = () => {
+		queue = Promise.resolve<unknown>(undefined);
+	};
+
 	return {
 		requestKeyframeBank: ({
 			timestamp,
@@ -326,6 +349,7 @@ export const makeKeyframeManager = () => {
 			logLevel,
 			maxCacheSize,
 			fps,
+			trace,
 		}: {
 			timestamp: number;
 			videoSampleSink: VideoSampleSink;
@@ -333,6 +357,7 @@ export const makeKeyframeManager = () => {
 			logLevel: LogLevel;
 			maxCacheSize: number;
 			fps: number;
+			trace?: MediaExtractionTrace;
 		}) => {
 			queue = queue.then(() =>
 				requestKeyframeBank({
@@ -342,12 +367,14 @@ export const makeKeyframeManager = () => {
 					logLevel,
 					maxCacheSize,
 					fps,
+					trace,
 				}),
 			);
 			return queue as Promise<KeyframeBank>;
 		},
 		getCacheStats,
 		clearAll,
+		resetQueue,
 	};
 };
 

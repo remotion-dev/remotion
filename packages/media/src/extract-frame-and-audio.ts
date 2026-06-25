@@ -1,6 +1,8 @@
 import type {LogLevel} from 'remotion';
 import {extractAudio} from './audio-extraction/extract-audio';
 import {isNetworkError} from './is-type-of-error';
+import type {MediaExtractionTrace} from './media-extraction-trace';
+import {traceMediaOperation} from './media-extraction-trace';
 import type {MediaRequestInit} from './request-init';
 import {extractFrame} from './video-extraction/extract-frame';
 import type {ExtractFrameViaBroadcastChannelResult} from './video-extraction/extract-frame-via-broadcast-channel';
@@ -22,6 +24,7 @@ export const extractFrameAndAudio = async ({
 	maxCacheSize,
 	credentials,
 	requestInit,
+	trace,
 }: {
 	src: string;
 	timeInSeconds: number;
@@ -38,39 +41,52 @@ export const extractFrameAndAudio = async ({
 	maxCacheSize: number;
 	credentials: RequestCredentials | undefined;
 	requestInit?: MediaRequestInit;
+	trace?: MediaExtractionTrace;
 }): Promise<ExtractFrameViaBroadcastChannelResult> => {
 	try {
 		const [video, audio] = await Promise.all([
 			includeVideo
-				? extractFrame({
-						src,
-						timeInSeconds,
-						logLevel,
-						loop,
-						trimAfter,
-						playbackRate,
-						trimBefore,
-						fps,
-						maxCacheSize,
-						credentials,
-						requestInit,
+				? traceMediaOperation({
+						trace,
+						label: 'video:extractFrame',
+						operation: () =>
+							extractFrame({
+								src,
+								timeInSeconds,
+								logLevel,
+								loop,
+								trimAfter,
+								playbackRate,
+								trimBefore,
+								fps,
+								maxCacheSize,
+								credentials,
+								requestInit,
+								trace,
+							}),
 					})
 				: null,
 			includeAudio
-				? extractAudio({
-						src,
-						timeInSeconds,
-						durationInSeconds,
-						logLevel,
-						loop,
-						playbackRate,
-						audioStreamIndex,
-						trimAfter,
-						fps,
-						trimBefore,
-						maxCacheSize,
-						credentials,
-						requestInit,
+				? traceMediaOperation({
+						trace,
+						label: 'audio:extractAudio',
+						operation: () =>
+							extractAudio({
+								src,
+								timeInSeconds,
+								durationInSeconds,
+								logLevel,
+								loop,
+								playbackRate,
+								audioStreamIndex,
+								trimAfter,
+								fps,
+								trimBefore,
+								maxCacheSize,
+								credentials,
+								requestInit,
+								trace,
+							}),
 					})
 				: null,
 		]);
