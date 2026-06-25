@@ -801,6 +801,10 @@ export const getStaticJsxTextContent = (
 		return !(candidate.type === 'JSXText' && candidate.value.trim() === '');
 	});
 
+	if (meaningfulChildren.length === 0) {
+		return {kind: 'jsx-text', value: ''};
+	}
+
 	if (meaningfulChildren.length !== 1) {
 		return null;
 	}
