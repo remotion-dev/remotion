@@ -4,8 +4,8 @@ import type {
 	CanUpdateSequencePropStatus,
 	CanUpdateSequencePropStatusKeyframed,
 	CanUpdateSequencePropStatusStatic,
-	SequencePropsSubscriptionKey,
 	InteractivitySchema,
+	SequencePropsSubscriptionKey,
 } from 'remotion';
 import {Internals} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
@@ -109,9 +109,11 @@ const Value: React.FC<{
 			}
 
 			const defaultValue =
-				field.fieldSchema.default !== undefined
-					? JSON.stringify(field.fieldSchema.default)
-					: null;
+				field.fieldSchema.type === 'text-content'
+					? null
+					: field.fieldSchema.default !== undefined
+						? JSON.stringify(field.fieldSchema.default)
+						: null;
 
 			const stringifiedValue = JSON.stringify(value);
 			const fieldLabel = field.description ?? field.key;
@@ -149,6 +151,7 @@ const Value: React.FC<{
 			clientId,
 			field.description,
 			field.fieldSchema.default,
+			field.fieldSchema.type,
 			field.key,
 			nodePath,
 			schema,

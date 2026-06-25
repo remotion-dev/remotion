@@ -4,10 +4,10 @@ import type {
 	EffectDefinition,
 	GetDragOverrides,
 	GetEffectDragOverrides,
+	InteractivitySchema,
 	PropStatuses,
 	SequenceControls,
 	SequencePropsSubscriptionKey,
-	InteractivitySchema,
 	VisibleFieldSchema,
 } from 'remotion';
 import {Internals} from 'remotion';
@@ -49,6 +49,7 @@ const SUPPORTED_SCHEMA_TYPES = [
 	'scale',
 	'uv-coordinate',
 	'color',
+	'text-content',
 	'array',
 	'enum',
 	'hidden',
@@ -89,6 +90,10 @@ const getSchemaFieldRowHeight = ({
 		);
 	}
 
+	if (fieldSchema.type === 'text-content') {
+		return SCHEMA_FIELD_ROW_HEIGHT * 2;
+	}
+
 	return SCHEMA_FIELD_ROW_HEIGHT;
 };
 
@@ -124,12 +129,14 @@ export const getFieldsToShow = ({
 	nodePath,
 	schema,
 	currentRuntimeValueDotNotation,
+	includeTextContent,
 }: {
 	schema: InteractivitySchema;
 	currentRuntimeValueDotNotation: Record<string, unknown>;
 	getDragOverrides: GetDragOverrides;
 	propStatuses: PropStatuses;
 	nodePath: SequencePropsSubscriptionKey;
+	includeTextContent?: boolean;
 }): InteractivitySchemaFieldInfo[] | null => {
 	const {merged: valuesDotNotation} =
 		Internals.computeEffectiveSchemaValuesDotNotation({
@@ -139,7 +146,6 @@ export const getFieldsToShow = ({
 			propStatus: Internals.getPropStatusesCtx(propStatuses, nodePath),
 			frame: null,
 		});
-
 	const activeSchema = Internals.flattenActiveSchema(
 		schema,
 		(key) => valuesDotNotation[key],
@@ -157,6 +163,10 @@ export const getFieldsToShow = ({
 			}
 
 			if (fieldSchema.type === 'number' && fieldSchema.hiddenFromList) {
+				return null;
+			}
+
+			if (fieldSchema.type === 'text-content' && !includeTextContent) {
 				return null;
 			}
 

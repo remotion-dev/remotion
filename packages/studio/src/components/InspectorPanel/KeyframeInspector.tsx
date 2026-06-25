@@ -1,8 +1,8 @@
 import React, {useContext, useMemo} from 'react';
 import type {
 	CanUpdateSequencePropStatusKeyframed,
-	SequencePropsSubscriptionKey,
 	InteractivitySchema,
+	SequencePropsSubscriptionKey,
 } from 'remotion';
 import {Internals} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
@@ -84,6 +84,7 @@ export const KeyframeInspector: React.FC<{
 				getDragOverrides,
 				propStatuses,
 				nodePath,
+				includeTextContent: false,
 			});
 			const sequenceField =
 				sequenceFields?.find(

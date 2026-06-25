@@ -22,8 +22,8 @@ import {
 	getSelectedOutlineDragValues,
 	getSelectedOutlineKeyboardNudgeDeltas,
 	getSelectedOutlineKeyboardNudgeDirection,
-	type SelectedOutlineKeyframedDragChange,
 	type SelectedOutlineKeyboardNudgeDirection,
+	type SelectedOutlineKeyframedDragChange,
 	type SelectedOutlineStaticDragChange,
 } from './selected-outline-drag';
 import {type SelectedOutline} from './selected-outline-geometry';
@@ -55,9 +55,9 @@ import {getCurrentDuration, getCurrentFps} from './Timeline/imperative-state';
 import {saveSequenceProps} from './Timeline/save-sequence-prop';
 import {ensureFrameIsInViewport} from './Timeline/timeline-scroll-logic';
 import {
+	useTimelineSelection,
 	type TimelineSelection,
 	type TimelineSelectionInteraction,
-	useTimelineSelection,
 } from './Timeline/TimelineSelection';
 
 export {
@@ -78,11 +78,11 @@ export {
 	getSelectedOutlineScaleEdgeInfo,
 	getSelectedOutlineTransformOriginLockedAxis,
 	isSelectedOutlineDragPastThreshold,
-	selectedOutlineUvSnapThresholdPx,
 	selectedOutlineTransformOriginSnapThresholdPx,
+	selectedOutlineUvSnapThresholdPx,
 	snapSelectedOutlineRotationDeltaDegrees,
-	snapSelectedOutlineUv,
 	snapSelectedOutlineTransformOriginUv,
+	snapSelectedOutlineUv,
 } from './selected-outline-drag';
 export {
 	getOutlineSelectionInteraction,
@@ -223,6 +223,8 @@ export const SelectedOutlineOverlay: React.FC<{
 				activeSchema?.[transformOriginFieldKey];
 			const transformOriginPropStatus =
 				nodePropStatuses?.[transformOriginFieldKey];
+			const textContentFieldSchema = activeSchema?.children;
+			const textContentPropStatus = nodePropStatuses?.children;
 			const transformOriginValueForRotation =
 				transformOriginFieldSchema?.type === 'transform-origin' &&
 				(transformOriginPropStatus?.status === 'static' ||
@@ -290,6 +292,11 @@ export const SelectedOutlineOverlay: React.FC<{
 			const canDropEffect =
 				previewServerState.type === 'connected' &&
 				controls?.supportsEffects === true;
+			const canTextEdit =
+				previewServerState.type === 'connected' &&
+				controls !== null &&
+				textContentFieldSchema?.type === 'text-content' &&
+				textContentPropStatus !== undefined;
 
 			return {
 				key,
@@ -415,6 +422,12 @@ export const SelectedOutlineOverlay: React.FC<{
 									shouldResortToDefaultValueIfUndefined: true,
 								}) ?? fieldSchema.default,
 							),
+						}
+					: null,
+				textEdit: canTextEdit
+					? {
+							nodePath,
+							propStatus: textContentPropStatus,
 						}
 					: null,
 				uvHandles: containsSelection

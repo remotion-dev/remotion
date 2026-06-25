@@ -10,6 +10,7 @@ import {
 	sequenceSchema,
 	sequenceSchemaWithoutFrom,
 	sequenceStyleSchema,
+	textContentSchema,
 	textSchema,
 	transformSchema,
 } from '../interactivity-schema.js';
@@ -183,6 +184,22 @@ test('readValuesFromProps reads dot-notation keys via getNestedValue', () => {
 	expect(values['style.scale']).toBe(1.74);
 	expect(values['style.opacity']).toBe(0.5);
 	expect(values['style.rotate']).toBeUndefined();
+});
+
+test('readValuesFromProps ignores non-string text content runtime values', () => {
+	const props = {
+		children: {type: 'span'},
+	};
+	const flatSchema = getFlatSchemaWithAllKeys(textContentSchema);
+	const values = readValuesFromProps(props, ['children'], flatSchema);
+	expect(values.children).toBeUndefined();
+
+	const stringValues = readValuesFromProps(
+		{children: 'Hello'},
+		['children'],
+		flatSchema,
+	);
+	expect(stringValues.children).toBe('Hello');
 });
 
 test('selectActiveKeys returns only the hidden + layout keys when layout=none', () => {

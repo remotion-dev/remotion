@@ -220,3 +220,50 @@ test('updateMultipleSequenceProps should update multiple nodes in one format pas
 	expect(output.split('\n')[7]).toContain('hueShift={90}');
 	expect(output.split('\n')[8]).toContain('durationInFrames={120}');
 });
+
+test('updateSequenceProps should update JSX text children', async () => {
+	const input = `import React from 'react';
+import {Interactive} from 'remotion';
+
+export const Example: React.FC = () => {
+	return <Interactive.P>Hello</Interactive.P>;
+};
+`;
+
+	const {output, oldValueStrings} = await updateSequenceProps({
+		input,
+		nodePath: lineColumnToNodePath(input, 5),
+		updates: [{key: 'children', value: 'Goodbye', defaultValue: ''}],
+		schema: NoReactInternals.sequenceSchema,
+		prettierConfigOverride: null,
+	});
+
+	expect(oldValueStrings[0]).toBe('Hello');
+	expect(output).toContain('<Interactive.P>Goodbye</Interactive.P>');
+});
+
+test('updateSequenceProps should refuse complex children', async () => {
+	const input = `import React from 'react';
+import {Interactive} from 'remotion';
+
+export const Example: React.FC = () => {
+	return (
+		<Interactive.P>
+			Hello <Interactive.Strong>world</Interactive.Strong>
+		</Interactive.P>
+	);
+};
+`;
+
+	await expect(
+		updateSequenceProps({
+			input,
+			nodePath: lineColumnToNodePath(input, 6),
+			updates: [{key: 'children', value: 'Goodbye', defaultValue: ''}],
+			schema: NoReactInternals.sequenceSchema,
+			prettierConfigOverride: null,
+		}),
+	).rejects.toThrow(
+		'Cannot update text content because JSX children are not static text',
+	);
+});

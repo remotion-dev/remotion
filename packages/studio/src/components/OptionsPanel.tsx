@@ -52,6 +52,7 @@ export const persistSelectedOptionsSidebarPanel = (
 };
 
 export const optionsSidebarTabs = createRef<{
+	selectInspectorPanel: () => void;
 	selectRendersPanel: () => void;
 }>();
 
@@ -91,6 +92,10 @@ export const OptionsPanel: React.FC<{
 
 	useImperativeHandle(optionsSidebarTabs, () => {
 		return {
+			selectInspectorPanel: () => {
+				setPanel('inspector');
+				persistSelectedOptionsSidebarPanel('inspector');
+			},
 			selectRendersPanel: () => {
 				setPanel('renders');
 				persistSelectedOptionsSidebarPanel('renders');

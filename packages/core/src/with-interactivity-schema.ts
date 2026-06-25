@@ -41,13 +41,34 @@ export const getNestedValue = (
 	return current;
 };
 
+export const getRuntimeValueForSchemaKey = ({
+	flatSchema,
+	key,
+	props,
+}: {
+	flatSchema: InteractivitySchema;
+	key: string;
+	props: Record<string, unknown>;
+}): unknown => {
+	const value = getNestedValue(props, key);
+
+	if (flatSchema[key]?.type === 'text-content' && typeof value !== 'string') {
+		return undefined;
+	}
+
+	return value;
+};
+
 export const readValuesFromProps = (
 	props: Record<string, unknown>,
 	keys: string[],
+	flatSchema?: InteractivitySchema,
 ): Record<string, unknown> => {
 	const out: Record<string, unknown> = {};
 	for (const key of keys) {
-		out[key] = getNestedValue(props, key);
+		out[key] = flatSchema
+			? getRuntimeValueForSchemaKey({flatSchema, key, props})
+			: getNestedValue(props, key);
 	}
 
 	return out;
@@ -188,12 +209,21 @@ export const withInteractivitySchema = <
 		// memoized on the leaf values so the object reference is stable
 		// when nothing changed — otherwise downstream `useMemo`s churn and
 		// effects (e.g. Sequence registration) re-fire every render.
-		const runtimeValues = flatKeys.map((k) =>
-			getNestedValue(props as Record<string, unknown>, k),
+		const runtimeValues = flatKeys.map((key) =>
+			getRuntimeValueForSchemaKey({
+				flatSchema,
+				key,
+				props: props as Record<string, unknown>,
+			}),
 		);
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		const currentRuntimeValueDotNotation = useMemo(
-			() => readValuesFromProps(props as Record<string, unknown>, flatKeys),
+			() =>
+				readValuesFromProps(
+					props as Record<string, unknown>,
+					flatKeys,
+					flatSchema,
+				),
 			// eslint-disable-next-line react-hooks/exhaustive-deps
 			runtimeValues,
 		);

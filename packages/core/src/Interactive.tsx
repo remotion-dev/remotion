@@ -5,6 +5,7 @@ import {
 	baseSchema,
 	premountSchema,
 	sequenceSchema,
+	textContentSchema,
 	textSchema,
 	transformSchema,
 	type InteractivitySchema,
@@ -104,6 +105,7 @@ const interactiveElementSchema = {
 	...baseSchema,
 	...transformSchema,
 	...textSchema,
+	...textContentSchema,
 } as const satisfies InteractivitySchema;
 
 const setRef = <ElementType,>(

@@ -17,9 +17,11 @@ import {useTimelineSelection} from './TimelineSelection';
 export const useTimelineExpandedTree = ({
 	sequence,
 	nodePathInfo,
+	includeTextContent,
 }: {
 	readonly sequence: TSequence;
 	readonly nodePathInfo: SequenceNodePathInfo;
+	readonly includeTextContent: boolean;
 }) => {
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {toggleTrack} = useContext(ExpandedTracksSetterContext);
@@ -39,6 +41,7 @@ export const useTimelineExpandedTree = ({
 				getDragOverrides,
 				getEffectDragOverrides,
 				propStatuses: visualModePropStatuses,
+				includeTextContent,
 			}),
 		[
 			sequence,
@@ -46,6 +49,7 @@ export const useTimelineExpandedTree = ({
 			getDragOverrides,
 			getEffectDragOverrides,
 			visualModePropStatuses,
+			includeTextContent,
 		],
 	);
 	const selectedRowKeys = useMemo(

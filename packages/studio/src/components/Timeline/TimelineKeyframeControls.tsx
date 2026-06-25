@@ -6,9 +6,9 @@ import type {
 	DragOverrideValue,
 	GetDragOverrides,
 	GetEffectDragOverrides,
+	InteractivitySchema,
 	PropStatuses,
 	SequencePropsSubscriptionKey,
-	InteractivitySchema,
 } from 'remotion';
 import {Internals, useVideoConfig} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
@@ -218,6 +218,7 @@ const resolveKeyframeControlTarget = ({
 		getDragOverrides,
 		getEffectDragOverrides,
 		propStatuses,
+		includeTextContent: false,
 	});
 	const fieldNode = findFieldNode(
 		tree,
