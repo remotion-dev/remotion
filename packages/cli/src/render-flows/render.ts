@@ -47,7 +47,6 @@ import {getAndValidateAbsoluteOutputFile} from '../get-cli-options';
 import {getCompositionWithDimensionOverride} from '../get-composition-with-dimension-override';
 import {getOutputFilename} from '../get-filename';
 import {makeHyperlink} from '../hyperlinks/make-link';
-import {getVideoImageFormat} from '../image-formats';
 import {Log} from '../log';
 import {makeOnDownload} from '../make-on-download';
 import {handleOnArtifact} from '../on-artifact';
@@ -178,7 +177,7 @@ export const renderVideoFlow = async ({
 	enforceAudioTrack: boolean;
 	proResProfile: _InternalTypes['ProResProfile'] | undefined;
 	x264Preset: X264Preset | null;
-	pixelFormat: PixelFormat;
+	pixelFormat: PixelFormat | null;
 	numberOfGifLoops: NumberOfGifLoops;
 	audioCodec: AudioCodec | null;
 	disallowParallelEncoding: boolean;
@@ -541,10 +540,17 @@ export const renderVideoFlow = async ({
 		timeRemainingInMilliseconds: null,
 	};
 
-	const imageFormat = getVideoImageFormat({
-		codec: shouldOutputImageSequence ? undefined : codec,
-		uiImageFormat,
-	});
+	const imageFormat = BrowserSafeApis.options.videoImageFormatOption.getValue(
+		{commandLine: parsedCli},
+		{
+			codec: shouldOutputImageSequence ? undefined : codec,
+			uiVideoImageFormat: uiImageFormat,
+			compositionDefaultVideoImageFormat: config.defaultVideoImageFormat,
+		},
+	).value;
+	if (imageFormat === null) {
+		throw new Error('Expected image format to be resolved');
+	}
 
 	const onLog: OnLog = ({logLevel: logLogLevel, previewString, tag}) => {
 		addLogToAggregateProgress({
@@ -679,8 +685,20 @@ export const renderVideoFlow = async ({
 		frameRange,
 		serializedInputPropsWithCustomSchema,
 		overwrite,
-		pixelFormat,
-		proResProfile,
+		pixelFormat: BrowserSafeApis.options.pixelFormatOption.getValue(
+			{commandLine: parsedCli},
+			{
+				uiPixelFormat: pixelFormat,
+				compositionDefaultPixelFormat: config.defaultPixelFormat,
+			},
+		).value,
+		proResProfile: BrowserSafeApis.options.proResProfileOption.getValue(
+			{commandLine: parsedCli},
+			{
+				uiProResProfile: proResProfile,
+				compositionDefaultProResProfile: config.defaultProResProfile,
+			},
+		).value,
 		x264Preset: x264Preset ?? null,
 		jpegQuality: jpegQuality ?? RenderInternals.DEFAULT_JPEG_QUALITY,
 		chromiumOptions,
