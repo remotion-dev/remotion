@@ -1,5 +1,6 @@
 import React, {createContext, useCallback, useMemo, useState} from 'react';
 import type {SequencePropsSubscriptionKey} from 'remotion';
+import {getExpandedTrackParentKeys} from '../helpers/get-expanded-track-parent-keys';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 import {migrateExpandedTracksForSubscriptionKey} from '../helpers/migrate-expanded-tracks-for-subscription-key';
 import {timelineNodePathInfoToKey} from '../helpers/timeline-node-path-key';
@@ -100,16 +101,7 @@ export const ExpandedTracksProvider: React.FC<{
 
 	const expandParentTracks = useCallback(
 		(nodePathInfo: SequenceNodePathInfo) => {
-			const keysToExpand: string[] = [];
-
-			for (let i = 0; i < nodePathInfo.auxiliaryKeys.length; i++) {
-				keysToExpand.push(
-					timelineNodePathInfoToKey({
-						...nodePathInfo,
-						auxiliaryKeys: nodePathInfo.auxiliaryKeys.slice(0, i),
-					}),
-				);
-			}
+			const keysToExpand = getExpandedTrackParentKeys(nodePathInfo);
 
 			if (keysToExpand.length === 0) {
 				return;
