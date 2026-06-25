@@ -256,33 +256,23 @@ const VideoForPreviewAssertedShowing: React.FC<
 	}, [_experimentalInitiallyDrawCachedFrame, src]);
 
 	useEffect(() => {
-		if (!sharedAudioContext) return;
-		if (!sharedAudioContext.audioContext) return;
-
-		const {
-			audioContext,
-			gainNode,
-			audioSyncAnchor,
-			scheduleAudioNode,
-			unscheduleAudioNode,
-		} = sharedAudioContext;
-
-		if (!gainNode) {
-			return;
-		}
+		const sharedAudioContextForMediaPlayer =
+			sharedAudioContext?.audioContext && sharedAudioContext.gainNode
+				? {
+						audioContext: sharedAudioContext.audioContext,
+						gainNode: sharedAudioContext.gainNode,
+						audioSyncAnchor: sharedAudioContext.audioSyncAnchor,
+						scheduleAudioNode: sharedAudioContext.scheduleAudioNode,
+						unscheduleAudioNode: sharedAudioContext.unscheduleAudioNode,
+					}
+				: null;
 
 		try {
 			const player = new MediaPlayer({
 				canvas: canvasRef.current,
 				src: preloadedSrc,
 				logLevel,
-				sharedAudioContext: {
-					audioContext,
-					gainNode,
-					audioSyncAnchor,
-					scheduleAudioNode,
-					unscheduleAudioNode,
-				},
+				sharedAudioContext: sharedAudioContextForMediaPlayer,
 				loop,
 				trimAfter: initialTrimAfterRef.current,
 				trimBefore: initialTrimBeforeRef.current,

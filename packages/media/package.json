@@ -32,6 +32,7 @@
 	},
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
+		"@remotion/player": "workspace:*",
 		"@vitest/browser-webdriverio": "4.0.9",
 		"eslint": "catalog:",
 		"react": "catalog:",
