@@ -672,10 +672,14 @@ const normalizeEasingAfterAddingKeyframe = ({
 	extraArgs,
 	previousSegmentCount,
 	nextSegmentCount,
+	insertedKeyframeIndex,
+	nextKeyframeCount,
 }: {
 	extraArgs: (ExpressionKind | SpreadElementKind)[];
 	previousSegmentCount: number;
 	nextSegmentCount: number;
+	insertedKeyframeIndex: number;
+	nextKeyframeCount: number;
 }): {
 	extraArgs: (ExpressionKind | SpreadElementKind)[];
 	needsEasingImport: boolean;
@@ -693,6 +697,23 @@ const normalizeEasingAfterAddingKeyframe = ({
 		return {extraArgs, needsEasingImport: false};
 	}
 
+	if (easing.length < nextSegmentCount) {
+		const isSplittingExistingSegment =
+			insertedKeyframeIndex > 0 &&
+			insertedKeyframeIndex < nextKeyframeCount - 1;
+		const easingIndexToDuplicate =
+			isSplittingExistingSegment && easing.length > 0
+				? Math.min(insertedKeyframeIndex - 1, easing.length - 1)
+				: null;
+		easing.splice(
+			insertedKeyframeIndex,
+			0,
+			easingIndexToDuplicate === null
+				? LINEAR_KEYFRAME_EASING
+				: easing[easingIndexToDuplicate],
+		);
+	}
+
 	while (easing.length < nextSegmentCount) {
 		easing.push(LINEAR_KEYFRAME_EASING);
 	}
@@ -701,6 +722,24 @@ const normalizeEasingAfterAddingKeyframe = ({
 		extraArgs: getExtraArgsWithOptions({extraArgs, options}),
 		needsEasingImport: setEasingOption({options, easing}),
 	};
+};
+
+const getEasingIndexToRemove = ({
+	removedKeyframeIndex,
+	keyframeCountBeforeRemoval,
+}: {
+	removedKeyframeIndex: number;
+	keyframeCountBeforeRemoval: number;
+}) => {
+	if (removedKeyframeIndex === 0) {
+		return 0;
+	}
+
+	if (removedKeyframeIndex === keyframeCountBeforeRemoval - 1) {
+		return removedKeyframeIndex - 1;
+	}
+
+	return removedKeyframeIndex;
 };
 
 const normalizeEasingAfterRemovingKeyframe = ({
@@ -731,8 +770,10 @@ const normalizeEasingAfterRemovingKeyframe = ({
 	}
 
 	if (easing.length > 0) {
-		const easingIndexToRemove =
-			removedKeyframeIndex === 0 ? 0 : removedKeyframeIndex - 1;
+		const easingIndexToRemove = getEasingIndexToRemove({
+			removedKeyframeIndex,
+			keyframeCountBeforeRemoval: previousSegmentCount + 1,
+		});
 		easing.splice(easingIndexToRemove, 1);
 	}
 
@@ -777,15 +818,22 @@ const normalizeEasingAfterRemovingKeyframes = ({
 		return {extraArgs, needsEasingImport: false};
 	}
 
-	for (const removedKeyframeIndex of [...removedKeyframeIndexes].sort(
-		(first, second) => second - first,
-	)) {
+	for (const {removedKeyframeIndex, keyframeCountBeforeRemoval} of [
+		...removedKeyframeIndexes,
+	]
+		.sort((first, second) => second - first)
+		.map((keyframeIndex, index) => ({
+			removedKeyframeIndex: keyframeIndex,
+			keyframeCountBeforeRemoval: previousSegmentCount + 1 - index,
+		}))) {
 		if (easing.length === 0) {
 			break;
 		}
 
-		const easingIndexToRemove =
-			removedKeyframeIndex === 0 ? 0 : removedKeyframeIndex - 1;
+		const easingIndexToRemove = getEasingIndexToRemove({
+			removedKeyframeIndex,
+			keyframeCountBeforeRemoval,
+		});
 		easing.splice(easingIndexToRemove, 1);
 	}
 
@@ -1031,6 +1079,10 @@ const addKeyframe = ({
 						extraArgs: existing.extraArgs,
 						previousSegmentCount: Math.max(existing.keyframes.length - 1, 0),
 						nextSegmentCount: Math.max(nextKeyframes.length - 1, 0),
+						insertedKeyframeIndex: [...nextKeyframes]
+							.sort((first, second) => first.frame - second.frame)
+							.findIndex((keyframe) => keyframe.frame === frame),
+						nextKeyframeCount: nextKeyframes.length,
 					})
 				: {extraArgs: existing.extraArgs, needsEasingImport: false};
 
