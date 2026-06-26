@@ -60,17 +60,15 @@ type SequencePropEditResult = {
 export const convertSequencePropEditToCodemodChange = (
 	edit: Pick<
 		ResolvedSequencePropEdit,
-		'nodePath' | 'key' | 'value' | 'defaultValue' | 'schema'
-	> & {valueExpression?: string | null},
+		'nodePath' | 'key' | 'value' | 'valueExpression' | 'defaultValue' | 'schema'
+	>,
 ): SequencePropsNodeUpdate => {
 	const update: SequencePropsNodeUpdate['updates'][number] = {
 		key: edit.key,
 		value: edit.value,
+		valueExpression: edit.valueExpression,
 		defaultValue: edit.defaultValue,
 	};
-	if (edit.valueExpression) {
-		update.valueExpression = edit.valueExpression;
-	}
 
 	return {
 		nodePath: edit.nodePath.nodePath,
@@ -107,7 +105,7 @@ export const saveSequencePropsHandler: ApiHandler<
 
 		for (const [index, edit] of edits.entries()) {
 			const parsedValue = JSON.parse(edit.value);
-			const valueExpression = edit.valueExpression ?? null;
+			const {valueExpression} = edit;
 			const parsedDefaultValue =
 				edit.defaultValue !== null ? JSON.parse(edit.defaultValue) : null;
 			const {absolutePath, fileRelativeToRoot} = resolveFileInsideProject({
@@ -241,6 +239,7 @@ export const saveSequencePropsHandler: ApiHandler<
 				runtimeValues: {
 					[edit.key]: JSON.parse(edit.value),
 				},
+				runtimeIdentifierValues: null,
 			});
 
 			return {

@@ -25,7 +25,7 @@ export const callUpdateSequenceKeyframeSettings = ({
 	fieldKey: string;
 	settings: KeyframeSettings;
 	schema: InteractivitySchema;
-	runtimeIdentifierValues?: RuntimeIdentifierValues;
+	runtimeIdentifierValues: RuntimeIdentifierValues | null;
 	setPropStatuses: SetPropStatuses;
 	clientId: string;
 }): Promise<void> => {

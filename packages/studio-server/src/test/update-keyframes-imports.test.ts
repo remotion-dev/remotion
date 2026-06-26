@@ -53,6 +53,7 @@ export const Example: React.FC = () => {
 		updates: [
 			{key: 'style.opacity', operation: {type: 'add', frame: 30, value: 1}},
 		],
+		runtimeIdentifierValues: null,
 	});
 
 	expect(serialized).toMatch(
@@ -78,6 +79,7 @@ export const Example: React.FC = () => {
 		updates: [
 			{key: 'color', operation: {type: 'add', frame: 50, value: 'blue'}},
 		],
+		runtimeIdentifierValues: null,
 	});
 
 	expect(serialized).toContain('interpolateColors');
@@ -104,6 +106,7 @@ export const Example: React.FC = () => {
 				operation: {type: 'add', frame: 44, value: '0px 59px'},
 			},
 		],
+		runtimeIdentifierValues: null,
 	});
 
 	expect(serialized).toContain('interpolate');
@@ -130,6 +133,7 @@ export const Example: React.FC = () => {
 				operation: {type: 'add', frame: 44, value: '19deg'},
 			},
 		],
+		runtimeIdentifierValues: null,
 	});
 
 	expect(serialized).toContain('interpolate');
@@ -153,6 +157,7 @@ export const Example = () => {
 		updates: [
 			{key: 'style.opacity', operation: {type: 'add', frame: 20, value: 1}},
 		],
+		runtimeIdentifierValues: null,
 	});
 
 	expect(serialized).toMatch(
@@ -180,6 +185,7 @@ export const Example: React.FC = () => {
 		updates: [
 			{key: 'style.opacity', operation: {type: 'add', frame: 25, value: 1}},
 		],
+		runtimeIdentifierValues: null,
 	});
 
 	const matches = serialized.match(/from 'remotion'/g) ?? [];
@@ -209,6 +215,7 @@ export const Example: React.FC = () => {
 		updates: [
 			{key: 'style.opacity', operation: {type: 'add', frame: 50, value: 0.5}},
 		],
+		runtimeIdentifierValues: null,
 	});
 
 	expect(serialized).not.toContain('useCurrentFrame');
@@ -233,6 +240,7 @@ export const Example: React.FC = () => {
 		input,
 		nodePath: lineColumnToNodePath(input, getLine(input, 'opacity')),
 		updates: [{key: 'style.opacity', operation: {type: 'remove', frame: 50}}],
+		runtimeIdentifierValues: null,
 	});
 
 	expect(serialized).not.toContain('useCurrentFrame');
@@ -258,6 +266,7 @@ export const Example: React.FC = () => {
 		updates: [
 			{key: 'style.opacity', operation: {type: 'add', frame: 20, value: 1}},
 		],
+		runtimeIdentifierValues: null,
 	});
 
 	expect(serialized).toMatch(
@@ -288,6 +297,7 @@ export const Example: React.FC = () => {
 		updates: [
 			{key: 'style.opacity', operation: {type: 'add', frame: 30, value: 1}},
 		],
+		runtimeIdentifierValues: null,
 	});
 
 	const frameIdx = serialized.indexOf('const frame = useCurrentFrame()');
@@ -315,6 +325,7 @@ export const Example: React.FC = () => {
 		updates: [
 			{key: 'style.opacity', operation: {type: 'add', frame: 30, value: 1}},
 		],
+		runtimeIdentifierValues: null,
 	});
 
 	const matches = serialized.match(/const frame = useCurrentFrame\(\)/g) ?? [];
@@ -339,6 +350,7 @@ export function Example() {
 		updates: [
 			{key: 'style.opacity', operation: {type: 'add', frame: 25, value: 1}},
 		],
+		runtimeIdentifierValues: null,
 	});
 
 	expect(serialized).toContain('const frame = useCurrentFrame();');
@@ -369,6 +381,7 @@ export const Outer: React.FC = () => {
 		updates: [
 			{key: 'style.opacity', operation: {type: 'add', frame: 30, value: 1}},
 		],
+		runtimeIdentifierValues: null,
 	});
 
 	expect(serialized).toMatch(
@@ -396,6 +409,7 @@ export const Example: React.FC = () => (
 		updates: [
 			{key: 'style.opacity', operation: {type: 'add', frame: 20, value: 1}},
 		],
+		runtimeIdentifierValues: null,
 	});
 
 	expect(serialized).toContain('const frame = useCurrentFrame();');
@@ -425,6 +439,7 @@ export const Example: React.FC = () => {
 		updates: [
 			{key: 'style.opacity', operation: {type: 'add', frame: 20, value: 1}},
 		],
+		runtimeIdentifierValues: null,
 	});
 
 	const matches = serialized.match(/const frame = useCurrentFrame\(\)/g) ?? [];
@@ -455,6 +470,7 @@ export const Comp = () => {
 		),
 		effectIndex: 0,
 		updates: [{key: 'amount', operation: {type: 'add', frame: 100, value: 1}}],
+		runtimeIdentifierValues: null,
 	});
 
 	expect(serialized).toMatch(
@@ -491,6 +507,7 @@ export const Comp = () => {
 		),
 		effectIndex: 0,
 		updates: [{key: 'amount', operation: {type: 'remove', frame: 50}}],
+		runtimeIdentifierValues: null,
 	});
 	const after = (serialized.match(/const frame = useCurrentFrame/g) ?? [])
 		.length;
@@ -523,6 +540,7 @@ export const Comp = () => {
 		),
 		effectIndex: 0,
 		updates: [{key: 'amount', operation: {type: 'add', frame: 50, value: 0.5}}],
+		runtimeIdentifierValues: null,
 	});
 
 	expect(serialized).not.toContain('useCurrentFrame');
@@ -548,6 +566,7 @@ export const Example: React.FC = () => {
 			{key: 'style.opacity', operation: {type: 'add', frame: 20, value: 1}},
 			{key: 'style.scale', operation: {type: 'add', frame: 30, value: 2}},
 		],
+		runtimeIdentifierValues: null,
 	});
 
 	const matches = serialized.match(/const frame = useCurrentFrame\(\)/g) ?? [];

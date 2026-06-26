@@ -205,6 +205,7 @@ export const getTimelineSequenceLeftEdgeDragChanges = ({
 				nodePath: target.nodePath,
 				fieldKey: 'from',
 				value: nextValues.from,
+				valueExpression: null,
 				defaultValue: '0',
 				schema: target.schema,
 			});
@@ -216,6 +217,7 @@ export const getTimelineSequenceLeftEdgeDragChanges = ({
 				nodePath: target.nodePath,
 				fieldKey: 'durationInFrames',
 				value: nextValues.durationInFrames,
+				valueExpression: null,
 				defaultValue: null,
 				schema: target.schema,
 			});
@@ -227,6 +229,7 @@ export const getTimelineSequenceLeftEdgeDragChanges = ({
 				nodePath: target.nodePath,
 				fieldKey: 'trimBefore',
 				value: nextValues.trimBefore,
+				valueExpression: null,
 				defaultValue: '0',
 				schema: target.schema,
 			});
@@ -259,6 +262,7 @@ export const getTimelineSequenceDurationDragChanges = ({
 				nodePath: target.nodePath,
 				fieldKey: 'durationInFrames',
 				value: nextValue,
+				valueExpression: null,
 				defaultValue: null,
 				schema: NoReactInternals.sequenceSchema,
 			},
@@ -297,6 +301,7 @@ export const getTimelineSequenceFromDragChanges = ({
 				nodePath: target.nodePath,
 				fieldKey: 'from',
 				value: nextValue,
+				valueExpression: null,
 				defaultValue: '0',
 				schema: NoReactInternals.sequenceSchema,
 			},

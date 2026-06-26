@@ -53,7 +53,11 @@ test('updateEffectProps updates an existing prop on the right effect', () => {
 		input,
 		sequenceNodePath: lineColumnToNodePath(input, 6),
 		effectIndex: 0,
-		update: {key: 'opacity', value: 0.8, defaultValue: null},
+		update: {
+			key: 'opacity',
+			value: 0.8,
+			defaultValue: null,
+		},
 		schema: tintSchema,
 	});
 
@@ -67,7 +71,11 @@ test('updateEffectProps adds a missing prop', () => {
 		input,
 		sequenceNodePath: lineColumnToNodePath(input, 6),
 		effectIndex: 0,
-		update: {key: 'opacity', value: 0.25, defaultValue: null},
+		update: {
+			key: 'opacity',
+			value: 0.25,
+			defaultValue: null,
+		},
 		schema: tintSchema,
 	});
 
@@ -82,7 +90,11 @@ test('updateEffectProps writes uv-coordinate tuples', () => {
 		input,
 		sequenceNodePath: lineColumnToNodePath(input, 6),
 		effectIndex: 0,
-		update: {key: 'position', value: [0.25, 0.75], defaultValue: null},
+		update: {
+			key: 'position',
+			value: [0.25, 0.75],
+			defaultValue: null,
+		},
 		schema: tintSchema,
 	});
 
@@ -128,7 +140,11 @@ test('updateEffectProps targets the correct effect by index when there are multi
 		input,
 		sequenceNodePath: lineColumnToNodePath(input, 6),
 		effectIndex: 1,
-		update: {key: 'opacity', value: 0.9, defaultValue: null},
+		update: {
+			key: 'opacity',
+			value: 0.9,
+			defaultValue: null,
+		},
 		schema: tintSchema,
 	});
 
@@ -144,7 +160,11 @@ test('updateEffectProps throws when effect index is out of range', () => {
 			input,
 			sequenceNodePath: lineColumnToNodePath(input, 6),
 			effectIndex: 5,
-			update: {key: 'opacity', value: 0.5, defaultValue: null},
+			update: {
+				key: 'opacity',
+				value: 0.5,
+				defaultValue: null,
+			},
 			schema: tintSchema,
 		});
 	}).toThrow(/not-found/);
@@ -156,7 +176,11 @@ test('updateEffectProps inserts object literal when effect has no arguments', ()
 		input,
 		sequenceNodePath: lineColumnToNodePath(input, 6),
 		effectIndex: 0,
-		update: {key: 'amount', value: 0.5, defaultValue: null},
+		update: {
+			key: 'amount',
+			value: 0.5,
+			defaultValue: null,
+		},
 		schema: tintSchema,
 	});
 
@@ -171,7 +195,11 @@ test('updateEffectProps throws when first arg is not an object literal', () => {
 			input,
 			sequenceNodePath: lineColumnToNodePath(input, 6),
 			effectIndex: 0,
-			update: {key: 'opacity', value: 0.5, defaultValue: null},
+			update: {
+				key: 'opacity',
+				value: 0.5,
+				defaultValue: null,
+			},
 			schema: tintSchema,
 		});
 	}).toThrow(/computed/);
@@ -185,7 +213,11 @@ test('updateEffectProps removes props from inactive enum variants', () => {
 		input,
 		sequenceNodePath: lineColumnToNodePath(input, 6),
 		effectIndex: 0,
-		update: {key: 'colorMode', value: 'source', defaultValue: 'solid'},
+		update: {
+			key: 'colorMode',
+			value: 'source',
+			defaultValue: 'solid',
+		},
 		schema: {
 			colorMode: {
 				type: 'enum',

@@ -19,16 +19,13 @@ export const getRuntimeIdentifierValues = ({
 	width,
 });
 
-export const useRuntimeIdentifierValues = ():
-	| RuntimeIdentifierValues
-	| undefined => {
-	const videoConfig = Internals.useUnsafeVideoConfig();
+export const useRuntimeIdentifierValues =
+	(): RuntimeIdentifierValues | null => {
+		const videoConfig = Internals.useUnsafeVideoConfig();
 
-	return useMemo(
-		() =>
-			videoConfig === null
-				? undefined
-				: getRuntimeIdentifierValues(videoConfig),
-		[videoConfig],
-	);
-};
+		return useMemo(
+			() =>
+				videoConfig === null ? null : getRuntimeIdentifierValues(videoConfig),
+			[videoConfig],
+		);
+	};

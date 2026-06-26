@@ -30,7 +30,7 @@ export const addSequenceKeyframeHandler: ApiHandler<
 		frame,
 		value,
 		schema,
-		runtimeIdentifierValues = {},
+		runtimeIdentifierValues,
 		clientId,
 	},
 	remotionRoot,
@@ -61,7 +61,7 @@ export const addSequenceKeyframeHandler: ApiHandler<
 			input: fileContents,
 			nodePath: nodePath.nodePath,
 			schema,
-			runtimeIdentifierValues,
+			runtimeIdentifierValues: runtimeIdentifierValues ?? {},
 			updates: [
 				{
 					key,
@@ -119,7 +119,8 @@ export const addSequenceKeyframeHandler: ApiHandler<
 			nodePath: updatedNodePath,
 			componentIdentity: null,
 			effects: [],
-			runtimeIdentifierValues,
+			runtimeValues: null,
+			runtimeIdentifierValues: runtimeIdentifierValues ?? {},
 		});
 		const updatedSubscriptionKey = {...nodePath, nodePath: updatedNodePath};
 

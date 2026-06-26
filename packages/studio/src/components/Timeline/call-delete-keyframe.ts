@@ -10,16 +10,19 @@ import {callApi} from '../call-api';
 import {enqueueSavePropChange} from './save-prop-queue';
 import type {SetPropStatuses} from './save-sequence-prop';
 
-export type DeleteSequenceKeyframeChange = {
+type DeleteKeyframeChange = {
 	fileName: string;
 	nodePath: SequencePropsSubscriptionKey;
 	fieldKey: string;
 	sourceFrame: number;
 	schema: InteractivitySchema;
-	runtimeIdentifierValues?: RuntimeIdentifierValues;
 };
 
-export type DeleteEffectKeyframeChange = DeleteSequenceKeyframeChange & {
+export type DeleteSequenceKeyframeChange = DeleteKeyframeChange & {
+	runtimeIdentifierValues: RuntimeIdentifierValues | null;
+};
+
+export type DeleteEffectKeyframeChange = DeleteKeyframeChange & {
 	effectIndex: number;
 };
 
@@ -52,7 +55,7 @@ export const callDeleteSequenceKeyframe = ({
 	fieldKey: string;
 	sourceFrame: number;
 	schema: InteractivitySchema;
-	runtimeIdentifierValues?: RuntimeIdentifierValues;
+	runtimeIdentifierValues: RuntimeIdentifierValues | null;
 	setPropStatuses: SetPropStatuses;
 	clientId: string;
 }): Promise<void> => {

@@ -16,7 +16,9 @@ test('Should add style.scale to a Video component and format with prettier', asy
 	const {output, oldValueStrings, formatted} = await updateSequenceProps({
 		input: componentInput,
 		nodePath: lineColumnToNodePath(componentInput, 6),
-		updates: [{key: 'style.scale', value: 2, defaultValue: null}],
+		updates: [
+			{key: 'style.scale', value: 2, defaultValue: null, valueExpression: null},
+		],
 		prettierConfigOverride: {
 			singleQuote: true,
 			bracketSpacing: false,
@@ -49,7 +51,9 @@ test('Should resolve prettier config if override is null', async () => {
 	const {output, formatted} = await updateSequenceProps({
 		input: componentInput,
 		nodePath: lineColumnToNodePath(componentInput, 6),
-		updates: [{key: 'style.scale', value: 2, defaultValue: null}],
+		updates: [
+			{key: 'style.scale', value: 2, defaultValue: null, valueExpression: null},
+		],
 		prettierConfigOverride: null,
 		schema: NoReactInternals.sequenceSchema,
 	});

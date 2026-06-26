@@ -23,7 +23,7 @@ const b = recast.types.builders;
 export type SequencePropUpdate = {
 	key: string;
 	value: unknown;
-	valueExpression?: string | null;
+	valueExpression: string | null;
 	defaultValue: unknown | null;
 };
 
@@ -87,6 +87,7 @@ const removeVariantKey = ({
 		parentKey: variantKey.slice(0, dotIndex),
 		childKey: variantKey.slice(dotIndex + 1),
 		value: undefined,
+		valueExpression: null,
 		defaultValue: null,
 		isDefault: true,
 	});
@@ -148,7 +149,7 @@ const updateSequencePropsNode = ({
 		}),
 	);
 
-	for (const {key, value, valueExpression = null, defaultValue} of updates) {
+	for (const {key, value, valueExpression, defaultValue} of updates) {
 		let oldValueString = '';
 
 		const isDefault =

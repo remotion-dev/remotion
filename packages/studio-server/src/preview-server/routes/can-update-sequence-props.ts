@@ -1155,21 +1155,22 @@ export const computeSequencePropsStatusFromContent = ({
 	componentIdentity,
 	keys,
 	effects,
-	runtimeValues = {},
-	runtimeIdentifierValues = {},
+	runtimeValues,
+	runtimeIdentifierValues,
 }: {
 	fileContents: string;
 	nodePath: SequenceNodePath;
 	componentIdentity: JsxComponentIdentity | null;
 	keys: string[];
 	effects: string[][];
-	runtimeValues?: Record<string, unknown>;
-	runtimeIdentifierValues?: RuntimeIdentifierValues;
+	runtimeValues: Record<string, unknown> | null;
+	runtimeIdentifierValues: RuntimeIdentifierValues | null;
 }): CanUpdateSequencePropsResponseTrue => {
+	const resolvedRuntimeValues = runtimeValues ?? {};
 	const ast = parseAst(fileContents);
 	const resolvedRuntimeIdentifierValues = getRuntimeIdentifierValuesForAst({
 		ast,
-		runtimeIdentifierValues,
+		runtimeIdentifierValues: runtimeIdentifierValues ?? {},
 	});
 
 	const jsxElement = findJsxElementAtNodePath(ast, nodePath);
@@ -1191,7 +1192,7 @@ export const computeSequencePropsStatusFromContent = ({
 		jsxElement,
 		ast,
 		keys,
-		runtimeValues,
+		runtimeValues: resolvedRuntimeValues,
 		runtimeIdentifierValues: resolvedRuntimeIdentifierValues,
 	});
 	const effectsStatuses = computeEffectsForJsx({ast, jsxElement, effects});
@@ -1209,8 +1210,8 @@ export const computeSequencePropsStatus = ({
 	componentIdentity,
 	keys,
 	effects,
-	runtimeValues = {},
-	runtimeIdentifierValues = {},
+	runtimeValues,
+	runtimeIdentifierValues,
 	remotionRoot,
 }: {
 	fileName: string;
@@ -1218,8 +1219,8 @@ export const computeSequencePropsStatus = ({
 	componentIdentity: JsxComponentIdentity | null;
 	keys: string[];
 	effects: string[][];
-	runtimeValues?: Record<string, unknown>;
-	runtimeIdentifierValues?: RuntimeIdentifierValues;
+	runtimeValues: Record<string, unknown> | null;
+	runtimeIdentifierValues: RuntimeIdentifierValues | null;
 	remotionRoot: string;
 }): CanUpdateSequencePropsResponseTrue => {
 	const {absolutePath} = resolveFileInsideProject({

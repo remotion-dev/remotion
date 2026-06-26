@@ -228,6 +228,7 @@ export const deleteKeyframes = async ({
 				input: output,
 				sequenceNodePath: firstEffectKeyframe.sequenceNodePath.nodePath,
 				effectIndex: firstEffectKeyframe.effectIndex,
+				runtimeIdentifierValues: null,
 				updates: keyframeGroup.map((keyframe) => ({
 					key: keyframe.key,
 					operation: {
@@ -336,6 +337,7 @@ export const deleteKeyframes = async ({
 			nodePath: keyframe.nodePath.nodePath,
 			componentIdentity: null,
 			effects: [],
+			runtimeValues: null,
 			runtimeIdentifierValues: keyframe.runtimeIdentifierValues ?? {},
 		});
 

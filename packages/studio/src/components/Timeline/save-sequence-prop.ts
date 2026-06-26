@@ -19,7 +19,7 @@ export type SaveSequencePropChange = {
 	nodePath: SequencePropsSubscriptionKey;
 	fieldKey: string;
 	value: unknown;
-	valueExpression?: string | null;
+	valueExpression: string | null;
 	defaultValue: string | null;
 	schema: InteractivitySchema;
 };
@@ -68,7 +68,7 @@ export const saveSequenceProps = ({
 							nodePath: change.nodePath,
 							key: change.fieldKey,
 							value: JSON.stringify(change.value),
-							valueExpression: change.valueExpression ?? null,
+							valueExpression: change.valueExpression,
 							defaultValue: change.defaultValue,
 							schema: change.schema,
 						},
@@ -100,7 +100,7 @@ export const saveSequenceProps = ({
 				nodePath: change.nodePath,
 				key: change.fieldKey,
 				value: JSON.stringify(change.value),
-				valueExpression: change.valueExpression ?? null,
+				valueExpression: change.valueExpression,
 				defaultValue: change.defaultValue,
 				schema: change.schema,
 			};

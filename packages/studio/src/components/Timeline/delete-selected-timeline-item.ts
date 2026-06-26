@@ -160,7 +160,7 @@ export const deleteSelectedTimelineItem = ({
 	sequences: TSequence[];
 	overrideIdsToNodePaths: OverrideIdToNodePaths;
 	setPropStatuses: SetPropStatuses;
-	runtimeIdentifierValues?: RuntimeIdentifierValues;
+	runtimeIdentifierValues: RuntimeIdentifierValues | null;
 	clientId: string;
 	confirm: ConfirmationDialogFunction;
 }): Promise<boolean> | null => {
@@ -429,7 +429,7 @@ export const deleteSelectedTimelineItems = ({
 	sequences: TSequence[];
 	overrideIdsToNodePaths: OverrideIdToNodePaths;
 	setPropStatuses: SetPropStatuses;
-	runtimeIdentifierValues?: RuntimeIdentifierValues;
+	runtimeIdentifierValues: RuntimeIdentifierValues | null;
 	clientId: string;
 	confirm: ConfirmationDialogFunction;
 }): Promise<boolean> | null => {

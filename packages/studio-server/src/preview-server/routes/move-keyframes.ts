@@ -254,6 +254,7 @@ export const moveKeyframes = async ({
 				sequenceNodePath: firstEffectKeyframe.sequenceNodePath.nodePath,
 				effectIndex: firstEffectKeyframe.effectIndex,
 				schema: firstEffectKeyframe.schema,
+				runtimeIdentifierValues: null,
 				updates,
 			});
 			output = result.output;

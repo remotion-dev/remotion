@@ -148,9 +148,8 @@ export const formatAddition = (prop: PropDelta) => {
 	return addedPrefixIfNoColor(formatted);
 };
 
-const callStart = 'interpolate(';
-
 type InterpolateCall = {
+	callee: 'interpolate' | 'interpolateColors';
 	args: string[];
 };
 
@@ -256,10 +255,6 @@ const formatInlineAdditionOrRemoval = ({
 	oldValueString: string;
 	newValueString: string;
 }) => {
-	if (!colorEnabled()) {
-		return null;
-	}
-
 	const prefixLength = getCommonPrefixLength(oldValueString, newValueString);
 	const suffixLength = getCommonSuffixLength({
 		oldValueString,
@@ -343,6 +338,16 @@ const parseTopLevelObjectProperties = (objectSource: string) => {
 
 const parseInterpolateCall = (valueString: string): InterpolateCall | null => {
 	const trimmed = valueString.trim();
+	const callee = trimmed.startsWith('interpolate(')
+		? 'interpolate'
+		: trimmed.startsWith('interpolateColors(')
+			? 'interpolateColors'
+			: null;
+	if (callee === null) {
+		return null;
+	}
+
+	const callStart = `${callee}(`;
 	if (!trimmed.startsWith(callStart) || !trimmed.endsWith(')')) {
 		return null;
 	}
@@ -350,7 +355,7 @@ const parseInterpolateCall = (valueString: string): InterpolateCall | null => {
 	let depth = 0;
 	let quote: "'" | '"' | '`' | null = null;
 
-	for (let i = 'interpolate'.length; i < trimmed.length; i++) {
+	for (let i = callee.length; i < trimmed.length; i++) {
 		const char = trimmed[i];
 		const previous = trimmed[i - 1];
 
@@ -385,6 +390,7 @@ const parseInterpolateCall = (valueString: string): InterpolateCall | null => {
 	}
 
 	return {
+		callee,
 		args: splitTopLevelArgs(trimmed.slice(callStart.length, -1)),
 	};
 };
@@ -402,6 +408,7 @@ const shortenUnchangedInterpolateOptions = ({
 	if (
 		!oldCall ||
 		!newCall ||
+		oldCall.callee !== newCall.callee ||
 		oldCall.args.length <= 3 ||
 		newCall.args.length <= 3
 	) {
@@ -418,8 +425,8 @@ const shortenUnchangedInterpolateOptions = ({
 	}
 
 	return {
-		oldValueString: `interpolate(${oldCall.args.slice(0, 3).join(', ')})`,
-		newValueString: `interpolate(${newCall.args.slice(0, 3).join(', ')})`,
+		oldValueString: `${oldCall.callee}(${oldCall.args.slice(0, 3).join(', ')})`,
+		newValueString: `${newCall.callee}(${newCall.args.slice(0, 3).join(', ')})`,
 	};
 };
 
@@ -436,6 +443,7 @@ const removeUnchangedInterpolateOptionProperties = ({
 	if (
 		!oldCall ||
 		!newCall ||
+		oldCall.callee !== newCall.callee ||
 		oldCall.args.length <= 3 ||
 		newCall.args.length <= 3
 	) {
@@ -485,7 +493,7 @@ const removeUnchangedInterpolateOptionProperties = ({
 						...call.args.slice(4),
 					];
 
-		return `interpolate(${nextArgs.join(', ')})`;
+		return `${call.callee}(${nextArgs.join(', ')})`;
 	};
 
 	return {

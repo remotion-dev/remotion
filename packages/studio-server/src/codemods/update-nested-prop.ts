@@ -208,7 +208,7 @@ export const updateNestedProp = ({
 	parentKey,
 	childKey,
 	value,
-	valueExpression = null,
+	valueExpression,
 	defaultValue,
 	isDefault,
 }: {
@@ -216,7 +216,7 @@ export const updateNestedProp = ({
 	parentKey: string;
 	childKey: string;
 	value: unknown;
-	valueExpression?: string | null;
+	valueExpression: string | null;
 	defaultValue: unknown | null;
 	isDefault: boolean;
 }): string => {

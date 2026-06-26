@@ -221,6 +221,7 @@ export const addKeyframes = async ({
 				sequenceNodePath: firstEffectKeyframe.sequenceNodePath.nodePath,
 				effectIndex: firstEffectKeyframe.effectIndex,
 				schema: firstEffectKeyframe.schema,
+				runtimeIdentifierValues: null,
 				updates: keyframeGroup.map((keyframe) => ({
 					key: keyframe.key,
 					operation: {

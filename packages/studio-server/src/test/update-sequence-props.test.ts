@@ -24,7 +24,9 @@ test('updateSequenceProps should update a number value', async () => {
 	const {output, oldValueStrings} = await updateSequenceProps({
 		input: lightLeakInput,
 		nodePath: lineColumnToNodePath(lightLeakInput, 8),
-		updates: [{key: 'hueShift', value: 90, defaultValue: null}],
+		updates: [
+			{key: 'hueShift', value: 90, defaultValue: null, valueExpression: null},
+		],
 		schema: NoReactInternals.sequenceSchema,
 		prettierConfigOverride: null,
 	});
@@ -40,7 +42,14 @@ test('updateSequenceProps should update durationInFrames', async () => {
 	const {output, oldValueStrings} = await updateSequenceProps({
 		input: lightLeakInput,
 		nodePath: lineColumnToNodePath(lightLeakInput, 9),
-		updates: [{key: 'durationInFrames', value: 120, defaultValue: null}],
+		updates: [
+			{
+				key: 'durationInFrames',
+				value: 120,
+				defaultValue: null,
+				valueExpression: null,
+			},
+		],
 		schema: NoReactInternals.sequenceSchema,
 		prettierConfigOverride: null,
 	});
@@ -56,7 +65,9 @@ test('updateSequenceProps should add a new attribute', async () => {
 	const {output, oldValueStrings} = await updateSequenceProps({
 		input: lightLeakInput,
 		nodePath: lineColumnToNodePath(lightLeakInput, 9),
-		updates: [{key: 'speed', value: 2, defaultValue: null}],
+		updates: [
+			{key: 'speed', value: 2, defaultValue: null, valueExpression: null},
+		],
 		schema: NoReactInternals.sequenceSchema,
 		prettierConfigOverride: null,
 	});
@@ -70,7 +81,9 @@ test('updateSequenceProps should remove attribute when value equals default', as
 	const {output, oldValueStrings} = await updateSequenceProps({
 		input: lightLeakInput,
 		nodePath: lineColumnToNodePath(lightLeakInput, 9),
-		updates: [{key: 'hueShift', value: 0, defaultValue: 0}],
+		updates: [
+			{key: 'hueShift', value: 0, defaultValue: 0, valueExpression: null},
+		],
 		schema: NoReactInternals.sequenceSchema,
 		prettierConfigOverride: null,
 	});
@@ -97,7 +110,9 @@ export const Example: React.FC = () => {
 	const {output, oldValueStrings} = await updateSequenceProps({
 		input,
 		nodePath: lineColumnToNodePath(input, 5),
-		updates: [{key: 'name', value: '', defaultValue: ''}],
+		updates: [
+			{key: 'name', value: '', defaultValue: '', valueExpression: null},
+		],
 		schema: NoReactInternals.sequenceSchema,
 		prettierConfigOverride: null,
 	});
@@ -121,7 +136,9 @@ export const Example: React.FC = () => {
 	const {output, oldValueStrings} = await updateSequenceProps({
 		input,
 		nodePath: lineColumnToNodePath(input, 5),
-		updates: [{key: 'freeze', value: null, defaultValue: null}],
+		updates: [
+			{key: 'freeze', value: null, defaultValue: null, valueExpression: null},
+		],
 		schema: NoReactInternals.sequenceSchema,
 		prettierConfigOverride: null,
 	});
@@ -134,7 +151,9 @@ test('updateSequenceProps should set boolean true as shorthand', async () => {
 	const {output} = await updateSequenceProps({
 		input: lightLeakInput,
 		nodePath: lineColumnToNodePath(lightLeakInput, 8),
-		updates: [{key: 'loop', value: true, defaultValue: false}],
+		updates: [
+			{key: 'loop', value: true, defaultValue: false, valueExpression: null},
+		],
 		schema: NoReactInternals.sequenceSchema,
 		prettierConfigOverride: null,
 	});
@@ -148,7 +167,14 @@ test('updateSequenceProps should add showInTimeline false', async () => {
 	const {output, oldValueStrings} = await updateSequenceProps({
 		input: lightLeakInput,
 		nodePath: lineColumnToNodePath(lightLeakInput, 8),
-		updates: [{key: 'showInTimeline', value: false, defaultValue: true}],
+		updates: [
+			{
+				key: 'showInTimeline',
+				value: false,
+				defaultValue: true,
+				valueExpression: null,
+			},
+		],
 		schema: NoReactInternals.sequenceSchema,
 		prettierConfigOverride: null,
 	});
@@ -161,7 +187,9 @@ test('updateSequenceProps should report oldValueString for computed expressions'
 	const {oldValueStrings} = await updateSequenceProps({
 		input: lightLeakInput,
 		nodePath: lineColumnToNodePath(lightLeakInput, 8),
-		updates: [{key: 'seed', value: 5, defaultValue: null}],
+		updates: [
+			{key: 'seed', value: 5, defaultValue: null, valueExpression: null},
+		],
 		schema: NoReactInternals.sequenceSchema,
 		prettierConfigOverride: null,
 	});
@@ -174,7 +202,7 @@ test('updateSequenceProps should report default as oldValueString for missing at
 	const {oldValueStrings} = await updateSequenceProps({
 		input: lightLeakInput,
 		nodePath: lineColumnToNodePath(lightLeakInput, 8),
-		updates: [{key: 'speed', value: 2, defaultValue: 1}],
+		updates: [{key: 'speed', value: 2, defaultValue: 1, valueExpression: null}],
 		schema: NoReactInternals.sequenceSchema,
 		prettierConfigOverride: null,
 	});
@@ -188,7 +216,9 @@ test('updateSequenceProps should throw for non-existent nodePath', async () => {
 		updateSequenceProps({
 			input: lightLeakInput,
 			nodePath: ['program', 'body', 999],
-			updates: [{key: 'hueShift', value: 90, defaultValue: null}],
+			updates: [
+				{key: 'hueShift', value: 90, defaultValue: null, valueExpression: null},
+			],
 			schema: NoReactInternals.sequenceSchema,
 			prettierConfigOverride: null,
 		}),
@@ -203,12 +233,26 @@ test('updateMultipleSequenceProps should update multiple nodes in one format pas
 		changes: [
 			{
 				nodePath: lineColumnToNodePath(lightLeakInput, 8),
-				updates: [{key: 'hueShift', value: 90, defaultValue: null}],
+				updates: [
+					{
+						key: 'hueShift',
+						value: 90,
+						defaultValue: null,
+						valueExpression: null,
+					},
+				],
 				schema: NoReactInternals.sequenceSchema,
 			},
 			{
 				nodePath: lineColumnToNodePath(lightLeakInput, 9),
-				updates: [{key: 'durationInFrames', value: 120, defaultValue: null}],
+				updates: [
+					{
+						key: 'durationInFrames',
+						value: 120,
+						defaultValue: null,
+						valueExpression: null,
+					},
+				],
 				schema: NoReactInternals.sequenceSchema,
 			},
 		],

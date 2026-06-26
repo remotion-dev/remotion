@@ -4,21 +4,21 @@ import * as recast from 'recast';
 
 type NodeLike = {
 	type: string;
-	name?: string;
-	value?: unknown;
+	name: string | null;
+	value: unknown | null;
 };
 
 type BindingPatternLike = NodeLike & {
-	argument?: BindingPatternLike;
-	left?: BindingPatternLike;
-	elements?: (BindingPatternLike | null)[];
-	properties?: BindingPropertyLike[];
+	argument: BindingPatternLike | null;
+	left: BindingPatternLike | null;
+	elements: (BindingPatternLike | null)[] | null;
+	properties: BindingPropertyLike[] | null;
 };
 
 type BindingPropertyLike =
 	| {
 			type: 'ObjectProperty';
-			computed?: boolean;
+			computed: boolean | null;
 			key: NodeLike;
 			value: BindingPatternLike;
 	  }
@@ -39,7 +39,7 @@ const isUseVideoConfigCall = (node: Expression | null | undefined): boolean => {
 const getObjectPropertyName = (
 	property: Extract<BindingPropertyLike, {type: 'ObjectProperty'}>,
 ): string | null => {
-	if (property.computed) {
+	if (property.computed === true) {
 		return null;
 	}
 
@@ -62,24 +62,27 @@ const collectDeclaredIdentifiers = (
 	identifiers: Set<string>,
 ) => {
 	if (node.type === 'Identifier') {
-		if (node.name) {
-			identifiers.add(node.name);
+		const name = node.name ?? null;
+		if (name !== null) {
+			identifiers.add(name);
 		}
 
 		return;
 	}
 
 	if (node.type === 'RestElement') {
-		if (node.argument) {
-			collectDeclaredIdentifiers(node.argument, identifiers);
+		const argument = node.argument ?? null;
+		if (argument !== null) {
+			collectDeclaredIdentifiers(argument, identifiers);
 		}
 
 		return;
 	}
 
 	if (node.type === 'AssignmentPattern') {
-		if (node.left) {
-			collectDeclaredIdentifiers(node.left, identifiers);
+		const left = node.left ?? null;
+		if (left !== null) {
+			collectDeclaredIdentifiers(left, identifiers);
 		}
 
 		return;
@@ -87,7 +90,7 @@ const collectDeclaredIdentifiers = (
 
 	if (node.type === 'ArrayPattern') {
 		for (const element of node.elements ?? []) {
-			if (element) {
+			if (element !== null) {
 				collectDeclaredIdentifiers(element, identifiers);
 			}
 		}
@@ -133,10 +136,11 @@ export const getRuntimeIdentifierValuesForAst = ({
 
 					const sourceName = getObjectPropertyName(property);
 					const target = property.value;
+					const targetName = target.name ?? null;
 					if (
 						sourceName === null ||
 						target.type !== 'Identifier' ||
-						!target.name
+						targetName === null
 					) {
 						continue;
 					}
@@ -146,7 +150,7 @@ export const getRuntimeIdentifierValuesForAst = ({
 						typeof runtimeValue === 'number' &&
 						Number.isFinite(runtimeValue)
 					) {
-						values[target.name] = runtimeValue;
+						values[targetName] = runtimeValue;
 					}
 				}
 

@@ -32,6 +32,8 @@ const getTranslateStatus = (translateValue: string) => {
 		componentIdentity: null,
 		keys: ['style.translate'],
 		effects: [],
+		runtimeIdentifierValues: null,
+		runtimeValues: null,
 	});
 
 	assert(result.canUpdate);

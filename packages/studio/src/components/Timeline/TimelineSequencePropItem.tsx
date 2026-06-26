@@ -75,7 +75,7 @@ const getMultiplicationValueExpression = ({
 	}
 
 	const nextMultiplier = value / propStatus.multiplicand;
-	if (!Number.isFinite(nextMultiplier)) {
+	if (!Number.isFinite(nextMultiplier) || nextMultiplier === 0) {
 		return null;
 	}
 
@@ -445,6 +445,7 @@ export const TimelineSequencePropItem: React.FC<{
 					nodePath,
 					fieldKey: field.key,
 					value: field.fieldSchema.default,
+					valueExpression: null,
 					defaultValue,
 					schema,
 				},

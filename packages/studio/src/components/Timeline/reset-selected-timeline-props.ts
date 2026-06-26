@@ -291,6 +291,7 @@ export const resetSelectedTimelineProps = ({
 					nodePath: target.nodePath,
 					fieldKey: target.fieldKey,
 					value: target.value,
+					valueExpression: null,
 					defaultValue: target.defaultValue,
 					schema: target.schema,
 				})),

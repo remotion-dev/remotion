@@ -229,6 +229,7 @@ export const getSelectedOutlineDragChanges = ({
 			nodePath: dragState.target.nodePath,
 			fieldKey: translateFieldKey,
 			value,
+			valueExpression: null,
 			defaultValue: dragState.defaultValue,
 			schema: dragState.target.schema,
 		});
@@ -480,6 +481,7 @@ export const getSelectedOutlineScaleDragChanges = ({
 			nodePath: dragState.target.nodePath,
 			fieldKey: scaleFieldKey,
 			value,
+			valueExpression: null,
 			defaultValue: dragState.defaultValue,
 			schema: dragState.target.schema,
 		});
@@ -631,6 +633,7 @@ export const getSelectedOutlineRotationDragChanges = ({
 			nodePath: dragState.target.nodePath,
 			fieldKey: rotateFieldKey,
 			value,
+			valueExpression: null,
 			defaultValue: dragState.defaultValue,
 			schema: dragState.target.schema,
 		});

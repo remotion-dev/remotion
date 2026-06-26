@@ -55,7 +55,9 @@ test('logUpdate emits Monokai-colored output after an AST update', async () => {
 		await updateSequenceProps({
 			input,
 			nodePath: lineColumnToNodePath(input, 8),
-			updates: [{key: 'hueShift', value: 90, defaultValue: null}],
+			updates: [
+				{key: 'hueShift', value: 90, defaultValue: null, valueExpression: null},
+			],
 			schema: NoReactInternals.sequenceSchema,
 			prettierConfigOverride: null,
 		});
@@ -203,6 +205,7 @@ test('logUpdate emits change-from-default output for discriminated union enum ch
 					key: 'layout',
 					value: 'none',
 					defaultValue: NoReactInternals.sequenceSchema.layout.default,
+					valueExpression: null,
 				},
 			],
 			schema: NoReactInternals.sequenceSchema,
@@ -271,6 +274,7 @@ test('Undo prop change should not nest key={key={value}} for re-added props', as
 				key: 'layout',
 				value: 'none',
 				defaultValue: NoReactInternals.sequenceSchema.layout.default,
+				valueExpression: null,
 			},
 		],
 		schema: NoReactInternals.sequenceSchema,

@@ -1763,13 +1763,13 @@ export const updateSequenceKeyframesAst = ({
 	nodePath,
 	updates,
 	schema,
-	runtimeIdentifierValues = {},
+	runtimeIdentifierValues,
 }: {
 	input: string;
 	nodePath: SequenceNodePath;
 	updates: SequenceKeyframeUpdate[];
 	schema?: InteractivitySchema;
-	runtimeIdentifierValues?: RuntimeIdentifierValues;
+	runtimeIdentifierValues: RuntimeIdentifierValues | null;
 }): {
 	serialized: string;
 	oldValueStrings: string[];
@@ -1780,7 +1780,7 @@ export const updateSequenceKeyframesAst = ({
 	const ast = parseAst(input);
 	const resolvedRuntimeIdentifierValues = getRuntimeIdentifierValuesForAst({
 		ast,
-		runtimeIdentifierValues,
+		runtimeIdentifierValues: runtimeIdentifierValues ?? {},
 	});
 	const jsxPath = getAstNodePath(ast, nodePath);
 	const node = findJsxElementAtNodePath(ast, nodePath);
@@ -1869,14 +1869,14 @@ export const updateSequenceKeyframes = async ({
 	nodePath,
 	updates,
 	schema,
-	runtimeIdentifierValues = {},
+	runtimeIdentifierValues,
 	prettierConfigOverride,
 }: {
 	input: string;
 	nodePath: SequenceNodePath;
 	updates: SequenceKeyframeUpdate[];
 	schema?: InteractivitySchema;
-	runtimeIdentifierValues?: RuntimeIdentifierValues;
+	runtimeIdentifierValues: RuntimeIdentifierValues | null;
 	prettierConfigOverride?: Record<string, unknown> | null;
 }): Promise<{
 	output: string;
@@ -1927,14 +1927,14 @@ export const updateEffectKeyframesAst = ({
 	effectIndex,
 	updates,
 	schema,
-	runtimeIdentifierValues = {},
+	runtimeIdentifierValues,
 }: {
 	input: string;
 	sequenceNodePath: SequenceNodePath;
 	effectIndex: number;
 	updates: EffectKeyframeUpdate[];
 	schema?: InteractivitySchema;
-	runtimeIdentifierValues?: RuntimeIdentifierValues;
+	runtimeIdentifierValues: RuntimeIdentifierValues | null;
 }): {
 	serialized: string;
 	oldValueStrings: string[];
@@ -1946,7 +1946,7 @@ export const updateEffectKeyframesAst = ({
 	const ast = parseAst(input);
 	const resolvedRuntimeIdentifierValues = getRuntimeIdentifierValuesForAst({
 		ast,
-		runtimeIdentifierValues,
+		runtimeIdentifierValues: runtimeIdentifierValues ?? {},
 	});
 	const jsxPath = getAstNodePath(ast, sequenceNodePath);
 	const jsx = findJsxElementAtNodePath(ast, sequenceNodePath);
@@ -2044,7 +2044,7 @@ export const updateEffectKeyframes = async ({
 	effectIndex,
 	updates,
 	schema,
-	runtimeIdentifierValues = {},
+	runtimeIdentifierValues,
 	prettierConfigOverride,
 }: {
 	input: string;
@@ -2052,7 +2052,7 @@ export const updateEffectKeyframes = async ({
 	effectIndex: number;
 	updates: EffectKeyframeUpdate[];
 	schema?: InteractivitySchema;
-	runtimeIdentifierValues?: RuntimeIdentifierValues;
+	runtimeIdentifierValues: RuntimeIdentifierValues | null;
 	prettierConfigOverride?: Record<string, unknown> | null;
 }): Promise<{
 	output: string;

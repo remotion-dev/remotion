@@ -329,6 +329,7 @@ const getAddChange = (
 		sourceFrame: target.sourceFrame,
 		value,
 		schema: target.schema,
+		runtimeIdentifierValues: null,
 	};
 
 	if (target.effectIndex === null) {
@@ -354,6 +355,7 @@ const getDeleteChange = (
 		fieldKey: target.fieldKey,
 		sourceFrame: target.sourceFrame,
 		schema: target.schema,
+		runtimeIdentifierValues: null,
 	};
 
 	if (target.effectIndex === null) {

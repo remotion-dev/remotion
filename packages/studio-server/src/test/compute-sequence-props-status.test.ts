@@ -39,6 +39,8 @@ test('canUpdateSequenceProps should flag computed props', () => {
 		keys: ['durationInFrames', 'seed', 'hueShift', 'nonExistentProp'],
 		effects: [],
 		remotionRoot: '/',
+		runtimeIdentifierValues: null,
+		runtimeValues: null,
 	});
 
 	expect(result.canUpdate).toBe(true);
@@ -78,6 +80,8 @@ export const Example: React.FC = () => {
 		componentIdentity: null,
 		keys: ['color'],
 		effects: [],
+		runtimeIdentifierValues: null,
+		runtimeValues: null,
 	});
 
 	expect(result.canUpdate).toBe(true);
@@ -117,6 +121,8 @@ export const Example: React.FC = () => {
 			componentIdentity: 'dev.remotion.shapes.Star',
 			keys: ['points'],
 			effects: [],
+			runtimeIdentifierValues: null,
+			runtimeValues: null,
 		}),
 	).toThrow(JsxElementIdentityMismatchError);
 });
@@ -137,6 +143,8 @@ export const Example: React.FC = () => {
 		componentIdentity: 'dev.remotion.remotion.Sequence',
 		keys: ['from'],
 		effects: [],
+		runtimeIdentifierValues: null,
+		runtimeValues: null,
 	});
 
 	expect(result.canUpdate).toBe(true);
@@ -165,6 +173,8 @@ export const Example: React.FC = () => {
 		componentIdentity: null,
 		keys: ['color'],
 		effects: [],
+		runtimeIdentifierValues: null,
+		runtimeValues: null,
 	});
 
 	expect(result.canUpdate).toBe(true);
@@ -201,6 +211,8 @@ export const Example: React.FC = () => {
 		componentIdentity: null,
 		keys: ['style.opacity'],
 		effects: [],
+		runtimeIdentifierValues: null,
+		runtimeValues: null,
 	});
 
 	expect(result.canUpdate).toBe(true);
@@ -246,6 +258,8 @@ export const Example: React.FC = () => {
 		componentIdentity: null,
 		keys: ['style.translate'],
 		effects: [],
+		runtimeIdentifierValues: null,
+		runtimeValues: null,
 	});
 
 	expect(result.canUpdate).toBe(true);
@@ -288,6 +302,8 @@ export const Example: React.FC = () => {
 		componentIdentity: null,
 		keys: ['style.translate'],
 		effects: [],
+		runtimeIdentifierValues: null,
+		runtimeValues: null,
 	});
 
 	expect(result.canUpdate).toBe(true);
@@ -328,6 +344,8 @@ export const Example: React.FC = () => {
 		componentIdentity: null,
 		keys: ['style.translate'],
 		effects: [],
+		runtimeIdentifierValues: null,
+		runtimeValues: null,
 	});
 
 	expect(result.canUpdate).toBe(true);
@@ -355,6 +373,8 @@ export const Example: React.FC = () => {
 		componentIdentity: null,
 		keys: ['style.rotate'],
 		effects: [],
+		runtimeIdentifierValues: null,
+		runtimeValues: null,
 	});
 
 	expect(result.canUpdate).toBe(true);
@@ -386,6 +406,8 @@ test('computeSequencePropsStatus should explain why outside-project file reads w
 			keys: [],
 			effects: [],
 			remotionRoot,
+			runtimeIdentifierValues: null,
+			runtimeValues: null,
 		}),
 	).toThrow(
 		`Cannot read a file outside the project: "${fileName}" resolves to "${absolutePath}", but the project root is "${remotionRoot}".`,
@@ -401,6 +423,8 @@ test('computeSequencePropsStatus should detect static nested props', () => {
 		keys: ['style.opacity', 'style.scale'],
 		effects: [],
 		remotionRoot: '/',
+		runtimeIdentifierValues: null,
+		runtimeValues: null,
 	});
 
 	expect(result.canUpdate).toBe(true);
@@ -425,6 +449,8 @@ test('computeSequencePropsStatus should flag computed nested props', () => {
 		keys: ['style.opacity', 'style.scale'],
 		effects: [],
 		remotionRoot: '/',
+		runtimeIdentifierValues: null,
+		runtimeValues: null,
 	});
 
 	expect(result.canUpdate).toBe(true);
@@ -450,6 +476,8 @@ test('computeSequencePropsStatus should flag computed when parent is not an obje
 		keys: ['style.opacity'],
 		effects: [],
 		remotionRoot: '/',
+		runtimeIdentifierValues: null,
+		runtimeValues: null,
 	});
 
 	expect(result.canUpdate).toBe(true);
@@ -470,6 +498,8 @@ test('computeSequencePropsStatus should report unset nested props as undefined',
 		keys: ['style.rotate'],
 		effects: [],
 		remotionRoot: '/',
+		runtimeIdentifierValues: null,
+		runtimeValues: null,
 	});
 
 	expect(result.canUpdate).toBe(true);
@@ -490,6 +520,8 @@ test('computeSequencePropsStatus should report unset when parent attribute missi
 		keys: ['style.opacity'],
 		effects: [],
 		remotionRoot: '/',
+		runtimeIdentifierValues: null,
+		runtimeValues: null,
 	});
 
 	expect(result.canUpdate).toBe(true);
@@ -510,6 +542,8 @@ test('computeSequencePropsStatus should return keyframes for interpolated style 
 		keys: ['style.scale'],
 		effects: [],
 		remotionRoot: '/',
+		runtimeIdentifierValues: null,
+		runtimeValues: null,
 	});
 
 	expect(result.canUpdate).toBe(true);
@@ -550,6 +584,7 @@ export const Example: React.FC = () => {
 		runtimeIdentifierValues: {
 			fps: 30,
 		},
+		runtimeValues: null,
 	});
 
 	expect(result.canUpdate).toBe(true);
@@ -587,6 +622,8 @@ export const Example: React.FC = () => {
 		componentIdentity: null,
 		keys: ['style.scale'],
 		effects: [],
+		runtimeIdentifierValues: null,
+		runtimeValues: null,
 	});
 
 	expect(result.canUpdate).toBe(true);
@@ -619,6 +656,7 @@ export const Example: React.FC = () => {
 		runtimeIdentifierValues: {
 			fps: 30,
 		},
+		runtimeValues: null,
 	});
 
 	expect(result.canUpdate).toBe(true);
@@ -661,6 +699,8 @@ export const Example: React.FC = () => {
 		componentIdentity: null,
 		keys: ['style.scale'],
 		effects: [],
+		runtimeIdentifierValues: null,
+		runtimeValues: null,
 	});
 
 	expect(result.canUpdate).toBe(true);
@@ -705,6 +745,8 @@ export const Example: React.FC = () => {
 		componentIdentity: null,
 		keys: ['style.scale'],
 		effects: [],
+		runtimeIdentifierValues: null,
+		runtimeValues: null,
 	});
 
 	expect(result.canUpdate).toBe(true);
@@ -748,6 +790,8 @@ export const Example: React.FC = () => {
 		componentIdentity: null,
 		keys: ['style.scale'],
 		effects: [],
+		runtimeIdentifierValues: null,
+		runtimeValues: null,
 	});
 
 	expect(result.canUpdate).toBe(true);
@@ -784,6 +828,8 @@ export const Example: React.FC = () => {
 		componentIdentity: null,
 		keys: ['color'],
 		effects: [],
+		runtimeIdentifierValues: null,
+		runtimeValues: null,
 	});
 
 	expect(result.canUpdate).toBe(true);
@@ -821,6 +867,8 @@ export const Example: React.FC = () => {
 		componentIdentity: null,
 		keys: ['style.scale'],
 		effects: [],
+		runtimeIdentifierValues: null,
+		runtimeValues: null,
 	});
 
 	expect(result.canUpdate).toBe(true);
@@ -851,6 +899,8 @@ export const Example: React.FC = () => {
 		componentIdentity: null,
 		keys: ['style.scale'],
 		effects: [],
+		runtimeIdentifierValues: null,
+		runtimeValues: null,
 	});
 
 	expect(result.canUpdate).toBe(true);
@@ -882,6 +932,7 @@ export const Example: React.FC = () => {
 		runtimeValues: {
 			premountFor: 60,
 		},
+		runtimeIdentifierValues: null,
 	});
 
 	expect(result.canUpdate).toBe(true);
@@ -918,6 +969,7 @@ export const Example: React.FC = () => {
 		runtimeValues: {
 			premountFor: 75,
 		},
+		runtimeIdentifierValues: null,
 	});
 
 	expect(result.canUpdate).toBe(true);
@@ -951,6 +1003,8 @@ export const Example: React.FC = () => {
 		componentIdentity: null,
 		keys: ['premountFor'],
 		effects: [],
+		runtimeIdentifierValues: null,
+		runtimeValues: null,
 	});
 
 	expect(result.canUpdate).toBe(true);

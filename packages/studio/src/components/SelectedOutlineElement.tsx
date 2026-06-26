@@ -329,6 +329,7 @@ const SelectedOutlineTransformOriginHandle: React.FC<{
 											sourceFrame: transformOriginDrag.sourceFrame,
 											value: last.origin,
 											schema: transformOriginDrag.schema,
+											runtimeIdentifierValues: null,
 										}
 									: null,
 								translateChanged
@@ -339,6 +340,7 @@ const SelectedOutlineTransformOriginHandle: React.FC<{
 											sourceFrame: transformOriginDrag.sourceFrame,
 											value: last.translate,
 											schema: transformOriginDrag.schema,
+											runtimeIdentifierValues: null,
 										}
 									: null,
 							].filter(
@@ -356,6 +358,7 @@ const SelectedOutlineTransformOriginHandle: React.FC<{
 											nodePath: transformOriginDrag.nodePath,
 											fieldKey: transformOriginFieldKey,
 											value: last.origin,
+											valueExpression: null,
 											defaultValue: defaultOrigin,
 											schema: transformOriginDrag.schema,
 										}
@@ -366,6 +369,7 @@ const SelectedOutlineTransformOriginHandle: React.FC<{
 											nodePath: transformOriginDrag.nodePath,
 											fieldKey: translateFieldKey,
 											value: last.translate,
+											valueExpression: null,
 											defaultValue: defaultTranslate,
 											schema: transformOriginDrag.schema,
 										}
@@ -670,6 +674,7 @@ const SelectedOutlinePolygon: React.FC<{
 							sourceFrame: change.sourceFrame,
 							value: change.value,
 							schema: change.schema,
+							runtimeIdentifierValues: null,
 							setPropStatuses,
 							clientId: change.clientId,
 						}),
@@ -988,6 +993,7 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 							sourceFrame: change.sourceFrame,
 							value: change.value,
 							schema: change.schema,
+							runtimeIdentifierValues: null,
 							setPropStatuses,
 							clientId: change.clientId,
 						}),
@@ -1315,6 +1321,7 @@ const SelectedOutlineRotationCornerHandle: React.FC<{
 							sourceFrame: change.sourceFrame,
 							value: change.value,
 							schema: change.schema,
+							runtimeIdentifierValues: null,
 							setPropStatuses,
 							clientId: change.clientId,
 						}),

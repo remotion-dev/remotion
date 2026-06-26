@@ -9,17 +9,20 @@ import {applyEffectResponseToPropStatuses} from './apply-effect-response-to-prop
 import {enqueueSavePropChange} from './save-prop-queue';
 import type {SetPropStatuses} from './save-sequence-prop';
 
-export type AddSequenceKeyframeChange = {
+type AddKeyframeChange = {
 	fileName: string;
 	nodePath: SequencePropsSubscriptionKey;
 	fieldKey: string;
 	sourceFrame: number;
 	value: unknown;
 	schema: InteractivitySchema;
-	runtimeIdentifierValues?: RuntimeIdentifierValues;
 };
 
-export type AddEffectKeyframeChange = AddSequenceKeyframeChange & {
+export type AddSequenceKeyframeChange = AddKeyframeChange & {
+	runtimeIdentifierValues: RuntimeIdentifierValues | null;
+};
+
+export type AddEffectKeyframeChange = AddKeyframeChange & {
 	effectIndex: number;
 };
 
@@ -54,7 +57,7 @@ export const callAddSequenceKeyframe = ({
 	sourceFrame: number;
 	value: unknown;
 	schema: InteractivitySchema;
-	runtimeIdentifierValues?: RuntimeIdentifierValues;
+	runtimeIdentifierValues: RuntimeIdentifierValues | null;
 	setPropStatuses: SetPropStatuses;
 	clientId: string;
 }): Promise<void> => {

@@ -70,6 +70,7 @@ const getSelectedKeyframeDeletion = ({
 		fieldKey: field.fieldKey,
 		sourceFrame,
 		schema: sequence.controls.schema,
+		runtimeIdentifierValues: null,
 	};
 };
 
@@ -87,7 +88,7 @@ export const deleteSelectedKeyframe = ({
 	sequences: TSequence[];
 	overrideIdsToNodePaths: OverrideIdToNodePaths;
 	setPropStatuses: SetPropStatuses;
-	runtimeIdentifierValues?: RuntimeIdentifierValues;
+	runtimeIdentifierValues: RuntimeIdentifierValues | null;
 	clientId: string;
 }): Promise<void> | null => {
 	const deletion = getSelectedKeyframeDeletion({
@@ -131,7 +132,7 @@ export const deleteSelectedKeyframes = ({
 	sequences: TSequence[];
 	overrideIdsToNodePaths: OverrideIdToNodePaths;
 	setPropStatuses: SetPropStatuses;
-	runtimeIdentifierValues?: RuntimeIdentifierValues;
+	runtimeIdentifierValues: RuntimeIdentifierValues | null;
 	clientId: string;
 }): Promise<void> | null => {
 	const deletions = keyframes

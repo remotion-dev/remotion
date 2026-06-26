@@ -7,17 +7,20 @@ import type {SequencePropsSubscriptionKey, InteractivitySchema} from 'remotion';
 import {callApi} from '../call-api';
 import type {SetPropStatuses} from './save-sequence-prop';
 
-export type MoveSequenceKeyframeChange = {
+type MoveKeyframeChange = {
 	fileName: string;
 	nodePath: SequencePropsSubscriptionKey;
 	fieldKey: string;
 	fromFrame: number;
 	toFrame: number;
 	schema: InteractivitySchema;
-	runtimeIdentifierValues?: RuntimeIdentifierValues;
 };
 
-export type MoveEffectKeyframeChange = MoveSequenceKeyframeChange & {
+export type MoveSequenceKeyframeChange = MoveKeyframeChange & {
+	runtimeIdentifierValues: RuntimeIdentifierValues | null;
+};
+
+export type MoveEffectKeyframeChange = MoveKeyframeChange & {
 	effectIndex: number;
 };
 

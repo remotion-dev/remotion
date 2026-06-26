@@ -73,6 +73,7 @@ export const useSequenceFreezeFrameMenuItem = ({
 					nodePath,
 					fieldKey: 'freeze',
 					value: remove ? null : freezeFrame,
+					valueExpression: null,
 					defaultValue: null,
 					schema: sequence.controls.schema,
 				},

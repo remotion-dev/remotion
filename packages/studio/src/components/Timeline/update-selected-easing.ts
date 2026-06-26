@@ -252,7 +252,7 @@ export const updateSelectedTimelineEasings = ({
 	overrideIdsToNodePaths: OverrideIdToNodePaths;
 	propStatuses: PropStatuses;
 	setPropStatuses: SetPropStatuses;
-	runtimeIdentifierValues?: RuntimeIdentifierValues;
+	runtimeIdentifierValues: RuntimeIdentifierValues | null;
 	clientId: string;
 	easing: TimelineEasingValue;
 }): Promise<void> | null => {

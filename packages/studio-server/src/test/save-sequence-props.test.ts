@@ -44,6 +44,7 @@ test('saveSequenceProps forwards element schemas to the codemod', () => {
 		value: 7,
 		defaultValue: 5,
 		schema: starSchema,
+		valueExpression: null,
 	});
 
 	expect(change).toEqual({
@@ -53,6 +54,7 @@ test('saveSequenceProps forwards element schemas to the codemod', () => {
 				key: 'points',
 				value: 7,
 				defaultValue: 5,
+				valueExpression: null,
 			},
 		],
 		schema: starSchema,

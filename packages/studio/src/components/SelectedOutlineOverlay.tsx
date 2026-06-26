@@ -532,6 +532,7 @@ export const SelectedOutlineOverlay: React.FC<{
 					sourceFrame: change.sourceFrame,
 					value: change.value,
 					schema: change.schema,
+					runtimeIdentifierValues: null,
 					setPropStatuses,
 					clientId: change.clientId,
 				}),

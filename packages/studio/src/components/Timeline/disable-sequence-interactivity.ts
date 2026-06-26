@@ -20,6 +20,7 @@ export const disableSequenceInteractivity = ({
 				nodePath,
 				fieldKey: 'showInTimeline',
 				value: false,
+				valueExpression: null,
 				defaultValue: 'true',
 				schema: NoReactInternals.sequenceSchema,
 			},
