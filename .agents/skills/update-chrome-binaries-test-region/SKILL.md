@@ -9,7 +9,7 @@ description: Publish Remotion Lambda Chrome binaries to the eu-central-1 test re
 
 - Confirm the AWS CLI is logged into account `678892195805` by running `aws sts get-caller-identity`. If not, ask the user to log in.
 - Export AWS credentials into the shell by running `eval "$(aws configure export-credentials --format env)"`. The Lambda client checks for `AWS_ACCESS_KEY_ID` and does not pick up SSO or Identity Center credentials on its own.
-- Before publishing, update the `S3Key` in `packages/lambda/src/admin/make-layer-public.ts` to the uploaded layer artifact version, such as `remotion-layer-${layer}-v19-arm64.zip`.
+- Before publishing, update the `S3Key` in `packages/lambda/src/admin/make-layer-public.ts` to the uploaded layer artifact version, such as `remotion-layer-${layer}-v20-arm64.zip`.
 - From `packages/lambda`, run `bun src/admin/make-layer-public.ts --region=eu-central-1` to publish all 5 layers: fonts, chromium, emoji-apple, emoji-google, cjk.
 - The `eval` and the `bun` command must run in the same shell invocation because the env vars do not persist across shell calls.
 - Verify the output prints a `LayerArn` and `Version` for each of the 5 layers and a final JSON dump with the published regions populated.
@@ -64,7 +64,21 @@ The `html-in-canvas` composition's runtime check in `packages/example/src/HtmlIn
 
 ## Lambda render verification
 
-Run `packages/example/runlambda.sh` after rebuilding the Lambda package/runtime. For the test-region render, explicitly use `--region=eu-central-1` and deploy the function with the largest current hosted-layer combination. For Chrome 151 v20, the default `cjk` combination is larger than `apple-emojis`; also run `apple-emojis` when validating emoji-specific layer coverage.
+Use `packages/example/runlambda.sh` as the reference flow, but run the Lambda commands manually so the region and runtime preference are explicit. Rebuild the Lambda package/runtime, then deploy and render in the test region:
+
+```bash
+cd packages/example
+bunx turbo run make --filter=@remotion/lambda
+cd ../lambda
+bun run makeruntime
+cd ../example
+bunx remotion lambda functions rmall -f --region=eu-central-1
+bunx remotion lambda functions deploy --memory=2048 --disk=10000 --runtime-preference=cjk --region=eu-central-1
+bunx remotion lambda sites create --site-name=testbed-v6 --log=verbose --enable-folder-expiry --region=eu-central-1
+bunx remotion lambda render testbed-v6 NewVideo --log=verbose --delete-after="1-day" --region=eu-central-1
+```
+
+For Chrome 151 v20, the default `cjk` combination is larger than `apple-emojis`; also run a second deploy/render with `--runtime-preference=apple-emojis` when validating emoji-specific layer coverage.
 
 The Lambda render test should run in the consumer/test AWS account, not the `678892195805` layer-hosting account. Load the AWS credentials from the main worktree's `packages/example/.env` before running `runlambda.sh`, and confirm `aws sts get-caller-identity` prints the expected consumer account.
 
