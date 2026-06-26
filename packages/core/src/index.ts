@@ -16,18 +16,18 @@ import type {DelayRenderScope} from './delay-render.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import {Folder, type TFolder} from './Folder.js';
 import type {StaticFile} from './get-static-files.js';
+import type {
+	ArrayFieldSchema,
+	ArrayItemFieldSchema,
+	InteractivitySchemaField,
+	InteractivitySchema,
+} from './interactivity-schema.js';
 import {useIsPlayer} from './is-player.js';
 import type {LogLevel} from './log.js';
 import {checkMultipleRemotionVersions} from './multiple-versions-warning.js';
 import {Null} from './Null.js';
 import type {ProResProfile} from './prores-profile.js';
 import type {PixelFormat, VideoImageFormat} from './render-types.js';
-import type {
-	ArrayFieldSchema,
-	ArrayItemFieldSchema,
-	SequenceFieldSchema,
-	SequenceSchema,
-} from './sequence-field-schema.js';
 import {Sequence} from './Sequence.js';
 import type {UseBufferState} from './use-buffer-state';
 import type {VideoConfig} from './video-config.js';
@@ -135,12 +135,15 @@ export type BundleState =
 checkMultipleRemotionVersions();
 export * from './AbsoluteFill.js';
 export * from './animated-image/index.js';
-export type {
-	EffectDefinition,
-	EffectDefinitionAndStack,
-	EffectDescriptor,
-	EffectFactory,
-	EffectsProp,
+export {
+	createEffect,
+	type Backend,
+	type EffectApplyParams,
+	type EffectDefinition,
+	type EffectDefinitionAndStack,
+	type EffectDescriptor,
+	type EffectFactory,
+	type EffectsProp,
 } from './effects/index.js';
 /**
  * @description Renders a solid-color rectangle on a `<canvas>`.
@@ -191,7 +194,13 @@ export {getRemotionEnvironment} from './get-remotion-environment.js';
 export {getStaticFiles, StaticFile} from './get-static-files.js';
 export * from './IFrame.js';
 export {Img, ImgProps} from './Img.js';
-export {Interactive, type InteractiveProps} from './Interactive.js';
+export {
+	Interactive,
+	type InteractiveBaseProps,
+	type InteractivePremountProps,
+	type InteractiveProps,
+	type InteractiveTransformProps,
+} from './Interactive.js';
 export * from './internals.js';
 export {
 	interpolateColors,
@@ -329,7 +338,7 @@ export type {
 	JsxComponentIdentity,
 	LoopDisplay,
 	SequenceControls,
-	SequenceFieldSchema,
-	SequenceSchema,
+	InteractivitySchemaField,
+	InteractivitySchema,
 	UseBufferState,
 };

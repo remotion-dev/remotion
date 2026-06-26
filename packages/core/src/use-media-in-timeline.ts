@@ -201,6 +201,7 @@ export const useMediaInTimeline = ({
 			id,
 			duration,
 			from: 0,
+			trimBefore: null,
 			parent: parentSequence?.id ?? null,
 			displayName: finalDisplayName,
 			documentationLink,
@@ -219,6 +220,8 @@ export const useMediaInTimeline = ({
 			effects: [],
 			refForOutline,
 			isInsideSeries: false,
+			frozenFrame: null,
+			frozenMediaFrame: null,
 		});
 
 		return () => {

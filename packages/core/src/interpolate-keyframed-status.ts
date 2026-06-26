@@ -14,19 +14,41 @@ type InterpolateKeyframedStatusResult =
 	| readonly number[]
 	| null;
 
-const easingToFn = (e: CanUpdateSequencePropStatusEasing): EasingFunction => {
-	if (e === 'linear') {
-		return Easing.linear;
+const easingToFn = ({
+	easing,
+	forceSpringAllowTail,
+}: {
+	easing: CanUpdateSequencePropStatusEasing;
+	forceSpringAllowTail: boolean | null;
+}): EasingFunction => {
+	switch (easing.type) {
+		case 'linear':
+			return Easing.linear;
+		case 'spring':
+			return Easing.spring({
+				allowTail: forceSpringAllowTail ?? easing.allowTail ?? undefined,
+				damping: easing.damping,
+				durationRestThreshold: easing.durationRestThreshold ?? undefined,
+				mass: easing.mass,
+				overshootClamping: easing.overshootClamping,
+				stiffness: easing.stiffness,
+			});
+		case 'bezier':
+			return bezier(easing.x1, easing.y1, easing.x2, easing.y2);
+		default:
+			throw new TypeError(
+				`Unsupported easing: ${JSON.stringify(easing satisfies never)}`,
+			);
 	}
-
-	return bezier(e[0], e[1], e[2], e[3]);
 };
 
 export const interpolateKeyframedStatus = ({
 	frame,
+	forceSpringAllowTail,
 	status,
 }: {
 	frame: number;
+	forceSpringAllowTail: boolean | null;
 	status: CanUpdateSequencePropStatusKeyframed;
 }): InterpolateKeyframedStatusResult => {
 	const {keyframes, easing, clamping, interpolationFunction} = status;
@@ -49,7 +71,9 @@ export const interpolateKeyframedStatus = ({
 
 		try {
 			return interpolateColors(frame, inputRange, outputs as string[], {
-				easing: easing.map(easingToFn),
+				easing: easing.map((e) =>
+					easingToFn({easing: e, forceSpringAllowTail}),
+				),
 				posterize: status.posterize,
 			});
 		} catch {
@@ -67,7 +91,9 @@ export const interpolateKeyframedStatus = ({
 			inputRange,
 			outputs as (number | string | number[])[],
 			{
-				easing: easing.map(easingToFn),
+				easing: easing.map((e) =>
+					easingToFn({easing: e, forceSpringAllowTail}),
+				),
 				extrapolateLeft: clamping.left,
 				extrapolateRight: clamping.right,
 				posterize: status.posterize,

@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 
 const {createEffect, createWebGL2ContextError} = Internals;
@@ -31,7 +31,7 @@ export const lightLeakEffectSchema = {
 		description: 'Progress',
 		hiddenFromList: false,
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type LightLeakEffectParams = {
 	readonly seed?: number;
@@ -257,7 +257,7 @@ const linkProgram = (
 };
 
 export const lightLeak = createEffect<LightLeakEffectParams, LightLeakGlState>({
-	type: 'remotion/light-leak',
+	type: 'dev.remotion.lightLeaks.lightLeak',
 	label: 'lightLeak()',
 	documentationLink:
 		'https://www.remotion.dev/docs/light-leaks/light-leak-effect',

@@ -6,10 +6,8 @@ import type {
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
 import {InputDragger} from '../NewComposition/InputDragger';
-import {
-	formatTimelineNumber,
-	getTimelineDisplayDecimalPlaces,
-} from './timeline-field-utils';
+import {formatTimelineFieldValueForDisplay} from './timeline-field-display-utils';
+import {getTimelineDisplayDecimalPlaces} from './timeline-field-utils';
 import {UnsupportedStatus} from './TimelineSchemaField';
 import {
 	parseTransformOrigin,
@@ -75,14 +73,12 @@ export const TimelineTransformOriginField: React.FC<{
 
 	const formatter = useCallback(
 		(v: number | string) => {
-			const formatted = formatTimelineNumber({
-				decimalPlaces,
-				fixed: false,
+			return formatTimelineFieldValueForDisplay({
+				fieldSchema: field.fieldSchema,
 				value: v,
 			});
-			return `${formatted}%`;
 		},
-		[decimalPlaces],
+		[field.fieldSchema],
 	);
 
 	const serialize = useCallback(

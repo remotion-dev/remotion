@@ -8,7 +8,7 @@ import type {
 	GetEffectDragOverrides,
 	PropStatuses,
 	SequencePropsSubscriptionKey,
-	SequenceSchema,
+	InteractivitySchema,
 } from 'remotion';
 import {Internals, useVideoConfig} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
@@ -32,6 +32,7 @@ import {
 	type DeleteEffectKeyframeChange,
 	type DeleteSequenceKeyframeChange,
 } from './call-delete-keyframe';
+import {getEasingSelectionAfterKeyframeDelete} from './get-easing-selection-after-keyframe-delete';
 import {
 	getNextKeyframeDisplayFrame,
 	getPreviousKeyframeDisplayFrame,
@@ -46,6 +47,7 @@ import {
 	useTimelineSelection,
 	type TimelineSelection,
 } from './TimelineSelection';
+import {canEditEasingForInterpolationFunction} from './update-selected-easing';
 
 const controlsContainerStyle: React.CSSProperties = {
 	alignItems: 'center',
@@ -95,7 +97,7 @@ type KeyframeControlTarget = {
 	readonly sourceFrame: number;
 	readonly defaultValue: unknown;
 	readonly dragOverrideValue: DragOverrideValue | undefined;
-	readonly schema: SequenceSchema;
+	readonly schema: InteractivitySchema;
 	readonly effectIndex: number | null;
 };
 
@@ -427,6 +429,22 @@ export const shouldShowTimelineKeyframeControls = ({
 	return isKeyframedStatus(propStatus);
 };
 
+export type TimelineKeyframeControlsMode = 'timeline' | 'inspector';
+
+export const shouldShowTimelineKeyframeNavigation = ({
+	propStatus,
+	selected,
+}: {
+	readonly propStatus: CanUpdateSequencePropStatus;
+	readonly selected: boolean;
+}) => {
+	if (selected) {
+		return true;
+	}
+
+	return isKeyframedStatus(propStatus);
+};
+
 export const TimelineKeyframeControls: React.FC<{
 	readonly fieldKey: string;
 	readonly propStatus: CanUpdateSequencePropStatus;
@@ -435,9 +453,10 @@ export const TimelineKeyframeControls: React.FC<{
 	readonly keyframeDisplayOffset: number;
 	readonly defaultValue: unknown;
 	readonly dragOverrideValue: DragOverrideValue | undefined;
-	readonly schema: SequenceSchema;
+	readonly schema: InteractivitySchema;
 	readonly effectIndex: number | null;
 	readonly nodePathInfo: SequenceNodePathInfo;
+	readonly mode?: TimelineKeyframeControlsMode;
 }> = ({
 	fieldKey,
 	propStatus,
@@ -449,6 +468,7 @@ export const TimelineKeyframeControls: React.FC<{
 	schema,
 	effectIndex,
 	nodePathInfo,
+	mode = 'timeline',
 }) => {
 	const videoConfig = useVideoConfig();
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
@@ -459,7 +479,7 @@ export const TimelineKeyframeControls: React.FC<{
 		Internals.VisualModeDragOverridesContext,
 	);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const {selectedItems} = useTimelineSelection();
+	const {selectedItems, selectItems} = useTimelineSelection();
 	const tracks = useTimelineKeyframeTracks();
 
 	const clientId =
@@ -502,6 +522,23 @@ export const TimelineKeyframeControls: React.FC<{
 			),
 		[keyframes, timelinePosition, videoConfig.durationInFrames],
 	);
+	const propertySelected = useMemo(() => {
+		const propertySelection =
+			getTimelineSelectionFromNodePathInfo(nodePathInfo);
+		if (propertySelection === null) {
+			return false;
+		}
+
+		const propertySelectionKey = getTimelineSelectionKey(propertySelection);
+		return selectedItems.some(
+			(selection) =>
+				getTimelineSelectionKey(selection) === propertySelectionKey,
+		);
+	}, [nodePathInfo, selectedItems]);
+	const showNavigationButtons = shouldShowTimelineKeyframeNavigation({
+		propStatus,
+		selected: propertySelected,
+	});
 
 	const keyframable = isSchemaFieldKeyframable({
 		schema,
@@ -621,10 +658,28 @@ export const TimelineKeyframeControls: React.FC<{
 			}
 
 			if (hasKeyframeAtCurrentFrame) {
-				const deleteChanges = keyframeToggleTargets.flatMap((target) => {
+				const deleteTargets = keyframeToggleTargets.flatMap((target) => {
 					const change = getDeleteChange(target);
-					return change === null ? [] : [change];
+					return change === null ? [] : [{target, change}];
 				});
+				const singleDeleteTarget = deleteTargets[0];
+				const easingSelection =
+					deleteTargets.length === 1 &&
+					singleDeleteTarget &&
+					isKeyframedStatus(singleDeleteTarget.target.propStatus) &&
+					canEditEasingForInterpolationFunction(
+						singleDeleteTarget.target.propStatus.interpolationFunction,
+					)
+						? getEasingSelectionAfterKeyframeDelete({
+								deletedSourceFrames: [singleDeleteTarget.target.sourceFrame],
+								keyframeDisplayOffset:
+									singleDeleteTarget.target.keyframeDisplayOffset,
+								nodePathInfo: singleDeleteTarget.target.nodePathInfo,
+								propStatus: singleDeleteTarget.target.propStatus,
+								timelinePosition,
+							})
+						: null;
+				const deleteChanges = deleteTargets.map(({change}) => change);
 				await callDeleteKeyframes({
 					sequenceKeyframes: deleteChanges.filter(
 						(change): change is DeleteSequenceKeyframeChange =>
@@ -637,35 +692,53 @@ export const TimelineKeyframeControls: React.FC<{
 					setPropStatuses,
 					clientId,
 				});
+				if (mode === 'timeline' && easingSelection !== null) {
+					selectItems([easingSelection], {reveal: true});
+				}
+
 				return;
 			}
 
 			const addChanges = keyframeToggleTargets.flatMap((target) => {
 				const change = getAddChange(target);
-				return change === null ? [] : [change];
+				return change === null ? [] : [{target, change}];
 			});
 			if (addChanges.length === 0) {
 				return;
 			}
 
+			const addChangeValues = addChanges.map(({change}) => change);
 			await callAddKeyframes({
-				sequenceKeyframes: addChanges.filter(
+				sequenceKeyframes: addChangeValues.filter(
 					(change): change is AddSequenceKeyframeChange =>
 						!hasEffectIndex(change),
 				),
-				effectKeyframes: addChanges.filter(
+				effectKeyframes: addChangeValues.filter(
 					(change): change is AddEffectKeyframeChange => hasEffectIndex(change),
 				),
 				setPropStatuses,
 				clientId,
 			});
+			if (mode === 'timeline') {
+				selectItems(
+					addChanges.map(({target}) => ({
+						type: 'keyframe' as const,
+						nodePathInfo: target.nodePathInfo,
+						frame: target.sourceFrame + target.keyframeDisplayOffset,
+					})),
+					{reveal: true},
+				);
+			}
 		},
 		[
 			canToggleKeyframe,
 			clientId,
 			hasKeyframeAtCurrentFrame,
 			keyframeToggleTargets,
+			mode,
+			selectItems,
 			setPropStatuses,
+			timelinePosition,
 		],
 	);
 
@@ -677,8 +750,9 @@ export const TimelineKeyframeControls: React.FC<{
 			...navButtonStyle,
 			cursor: previousDisabled ? 'default' : 'pointer',
 			opacity: previousDisabled ? 0.35 : 1,
+			visibility: showNavigationButtons ? 'visible' : 'hidden',
 		}),
-		[previousDisabled],
+		[previousDisabled, showNavigationButtons],
 	);
 
 	const nextStyle = useMemo(
@@ -686,8 +760,9 @@ export const TimelineKeyframeControls: React.FC<{
 			...navButtonStyle,
 			cursor: nextDisabled ? 'default' : 'pointer',
 			opacity: nextDisabled ? 0.35 : 1,
+			visibility: showNavigationButtons ? 'visible' : 'hidden',
 		}),
-		[nextDisabled],
+		[nextDisabled, showNavigationButtons],
 	);
 
 	const diamondStyle = useMemo(

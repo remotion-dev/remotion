@@ -2,7 +2,7 @@ import {type Size} from '@remotion/player';
 import React, {
 	useCallback,
 	useContext,
-	useEffect,
+	useLayoutEffect,
 	useMemo,
 	useRef,
 } from 'react';
@@ -139,13 +139,15 @@ export const EditorRulers: React.FC<{
 						shouldDeleteGuideRef.current = true;
 					}
 
-					forceSpecificCursor('no-drop');
-
 					setGuidesList((prevState) => {
 						const newGuides = prevState.map((guide) => {
 							if (guide.id !== draggingGuideId) {
 								return guide;
 							}
+
+							const desiredCursor =
+								guide.orientation === 'vertical' ? 'ew-resize' : 'ns-resize';
+							forceSpecificCursor(desiredCursor);
 
 							return {
 								...guide,
@@ -200,9 +202,11 @@ export const EditorRulers: React.FC<{
 	);
 
 	const onMouseUp = useCallback(() => {
+		const shouldDeleteGuide = shouldDeleteGuideRef.current;
+
 		setGuidesList((prevState) => {
 			const newGuides = prevState.filter((selected) => {
-				if (!shouldDeleteGuideRef.current) {
+				if (!shouldDeleteGuide) {
 					return true;
 				}
 
@@ -215,7 +219,7 @@ export const EditorRulers: React.FC<{
 		const deletedGuideWasSelected = selectedItems.some(
 			(item) => item.type === 'guide' && item.guideId === draggingGuideId,
 		);
-		if (shouldDeleteGuideRef.current && deletedGuideWasSelected) {
+		if (shouldDeleteGuide && deletedGuideWasSelected) {
 			clearSelection();
 		}
 
@@ -224,6 +228,7 @@ export const EditorRulers: React.FC<{
 		shouldCreateGuideRef.current = false;
 		setDraggingGuideId(() => null);
 		document.removeEventListener('pointerup', onMouseUp);
+		document.removeEventListener('pointercancel', onMouseUp);
 		document.removeEventListener('pointermove', onMouseMove);
 	}, [
 		clearSelection,
@@ -236,15 +241,17 @@ export const EditorRulers: React.FC<{
 		selectedItems,
 	]);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		if (draggingGuideId !== null) {
 			document.addEventListener('pointermove', onMouseMove);
 			document.addEventListener('pointerup', onMouseUp);
+			document.addEventListener('pointercancel', onMouseUp);
 		}
 
 		return () => {
 			document.removeEventListener('pointermove', onMouseMove);
 			document.removeEventListener('pointerup', onMouseUp);
+			document.removeEventListener('pointercancel', onMouseUp);
 			if (requestAnimationFrameRef.current) {
 				cancelAnimationFrame(requestAnimationFrameRef.current);
 			}

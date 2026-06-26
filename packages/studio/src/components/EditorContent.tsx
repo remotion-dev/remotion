@@ -1,5 +1,6 @@
 import React, {useCallback, useContext} from 'react';
 import {Internals} from 'remotion';
+import {GlobalKeybindings} from './GlobalKeybindings';
 import {InitialCompositionLoader} from './InitialCompositionLoader';
 import {MenuToolbar} from './MenuToolbar';
 import {SplitterContainer} from './Splitter/SplitterContainer';
@@ -78,6 +79,7 @@ export const EditorContent: React.FC<{
 			<StudioClearSelectionArea>
 				<InitialCompositionLoader />
 				<MenuToolbar readOnlyStudio={readOnlyStudio} />
+				<GlobalKeybindings readOnlyStudio={readOnlyStudio} />
 				<TimelineKeyframeDragStateProvider>
 					{content}
 				</TimelineKeyframeDragStateProvider>

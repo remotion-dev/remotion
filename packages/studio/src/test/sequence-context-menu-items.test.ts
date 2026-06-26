@@ -2,6 +2,7 @@ import {afterEach, expect, test} from 'bun:test';
 import type {TSequence} from 'remotion';
 import type {ComboboxValue} from '../components/NewComposition/ComboBox';
 import {getSequenceContextMenuItems} from '../components/Timeline/get-sequence-context-menu-items';
+import {shouldShowFreezeFrameMenuItem} from '../components/Timeline/use-sequence-freeze-frame-menu-item';
 
 const originalWindowDescriptor = Object.getOwnPropertyDescriptor(
 	globalThis,
@@ -89,4 +90,16 @@ test('sequence context menu does not put two dividers between docs and rename', 
 	expect(
 		items.slice(docsIndex + 1, renameIndex).map((item) => item.type),
 	).toEqual(['divider']);
+});
+
+test('sequence freeze context menu item is hidden for audio', () => {
+	expect(shouldShowFreezeFrameMenuItem({type: 'audio'} as TSequence)).toBe(
+		false,
+	);
+	expect(shouldShowFreezeFrameMenuItem({type: 'video'} as TSequence)).toBe(
+		true,
+	);
+	expect(shouldShowFreezeFrameMenuItem({type: 'sequence'} as TSequence)).toBe(
+		true,
+	);
 });

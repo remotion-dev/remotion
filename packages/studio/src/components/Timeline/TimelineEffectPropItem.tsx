@@ -8,7 +8,7 @@ import type {
 	CanUpdateSequencePropStatusKeyframed,
 	SequencePropsSubscriptionKey,
 } from 'remotion';
-import {Internals} from 'remotion';
+import {Internals, useVideoConfig} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
@@ -18,6 +18,7 @@ import {callApi} from '../call-api';
 import {ContextMenu} from '../ContextMenu';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {callAddEffectKeyframe} from './call-add-keyframe';
+import {getAnimationItemSelectionForSourceFrame} from './get-animation-item-selection-for-frame';
 import {getComputedStatusLabel} from './get-timeline-keyframes';
 import {saveEffectProp} from './save-effect-prop';
 import {enqueueSavePropChange} from './save-prop-queue';
@@ -27,12 +28,17 @@ import {TimelineFieldLabel} from './TimelineFieldLabel';
 import {
 	shouldShowTimelineKeyframeControls,
 	TimelineKeyframeControls,
+	type TimelineKeyframeControlsMode,
 } from './TimelineKeyframeControls';
 import {TimelineKeyframedValue} from './TimelineKeyframedValue';
 import {TimelineLayerEyeSpacer} from './TimelineLayerEye';
 import {TimelineRowChrome} from './TimelineRowChrome';
 import {TimelineFieldValue, UnsupportedStatus} from './TimelineSchemaField';
-import {useTimelineRowSelection} from './TimelineSelection';
+import {
+	useTimelineRowSelection,
+	useTimelineSelection,
+} from './TimelineSelection';
+import {canEditEasingForInterpolationFunction} from './update-selected-easing';
 
 const fieldRowBase: React.CSSProperties = {};
 
@@ -65,12 +71,12 @@ const isResettableStatus = ({
 	return JSON.stringify(effectiveCodeValue) !== JSON.stringify(defaultValue);
 };
 
-const Value: React.FC<{
+export const TimelineEffectPropValue: React.FC<{
 	readonly field: EffectSchemaFieldInfo;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly validatedLocation: CodePosition;
-	readonly keyframeDisplayOffset: number;
-}> = ({field, nodePath, validatedLocation, keyframeDisplayOffset}) => {
+	readonly sourceFrame: number;
+}> = ({field, nodePath, validatedLocation, sourceFrame}) => {
 	const {setEffectDragOverrides, clearEffectDragOverrides, setPropStatuses} =
 		useContext(Internals.VisualModeSettersContext);
 
@@ -98,8 +104,6 @@ const Value: React.FC<{
 		effectStatus.type === 'can-update-effect'
 			? (effectStatus.props?.[field.key] ?? null)
 			: null;
-	const timelinePosition = Internals.Timeline.useTimelinePosition();
-	const jsxFrame = timelinePosition - keyframeDisplayOffset;
 
 	const onDragValueChange = useCallback(
 		(value: unknown) => {
@@ -107,7 +111,7 @@ const Value: React.FC<{
 				propStatus !== null && isKeyframedStatus(propStatus)
 					? Internals.makeKeyframedDragOverride({
 							status: propStatus,
-							frame: jsxFrame,
+							frame: sourceFrame,
 							value,
 						})
 					: Internals.makeStaticDragOverride(value);
@@ -122,10 +126,10 @@ const Value: React.FC<{
 		[
 			field.effectIndex,
 			field.key,
-			jsxFrame,
 			nodePath,
 			propStatus,
 			setEffectDragOverrides,
+			sourceFrame,
 		],
 	);
 
@@ -214,7 +218,7 @@ const Value: React.FC<{
 	);
 
 	const onSaveKeyframed = useCallback(
-		(value: unknown, sourceFrame: number) => {
+		(value: unknown, frame: number) => {
 			if (!validatedLocation) {
 				return Promise.reject(new Error('Cannot save'));
 			}
@@ -228,7 +232,7 @@ const Value: React.FC<{
 				nodePath,
 				effectIndex: field.effectIndex,
 				fieldKey: field.key,
-				sourceFrame,
+				sourceFrame: frame,
 				value,
 				schema: field.effectSchema,
 				setPropStatuses,
@@ -291,7 +295,7 @@ const Value: React.FC<{
 			<TimelineKeyframedValue
 				field={field}
 				propStatus={propStatus}
-				keyframeDisplayOffset={keyframeDisplayOffset}
+				sourceFrame={sourceFrame}
 				dragOverrideValue={dragOverrideValue}
 				onSave={onSaveKeyframed}
 				onDragValueChange={onDragValueChange}
@@ -309,7 +313,7 @@ const Value: React.FC<{
 		propStatus,
 		dragOverrideValue,
 		defaultValue: field.fieldSchema.default,
-		frame: jsxFrame,
+		frame: sourceFrame,
 		shouldResortToDefaultValueIfUndefined: true,
 	});
 
@@ -333,6 +337,7 @@ export const TimelineEffectPropItem: React.FC<{
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly keyframeDisplayOffset: number;
+	readonly keyframeControlsMode?: TimelineKeyframeControlsMode;
 }> = ({
 	field,
 	validatedLocation,
@@ -340,6 +345,7 @@ export const TimelineEffectPropItem: React.FC<{
 	nodePath,
 	nodePathInfo,
 	keyframeDisplayOffset,
+	keyframeControlsMode = 'timeline',
 }) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {setSelectedModal} = useContext(ModalsContext);
@@ -349,6 +355,11 @@ export const TimelineEffectPropItem: React.FC<{
 		Internals.VisualModeDragOverridesContext,
 	);
 	const selection = useTimelineRowSelection(nodePathInfo);
+	const {selectItems} = useTimelineSelection();
+	const setFrame = Internals.useTimelineSetFrame();
+	const videoConfig = useVideoConfig();
+	const timelinePosition = Internals.Timeline.useTimelinePosition();
+	const sourceFrame = timelinePosition - keyframeDisplayOffset;
 	const style = useMemo(() => {
 		return {
 			...fieldRowBase,
@@ -376,16 +387,19 @@ export const TimelineEffectPropItem: React.FC<{
 		return overrides[field.key];
 	}, [getEffectDragOverrides, nodePath, field.effectIndex, field.key]);
 
+	const keyframable = isSchemaFieldKeyframable({
+		schema: field.effectSchema,
+		key: field.key,
+	});
 	const keyframeControls =
 		propStatus !== null &&
-		shouldShowTimelineKeyframeControls({
-			propStatus,
-			selected: selection.selected,
-			keyframable: isSchemaFieldKeyframable({
-				schema: field.effectSchema,
-				key: field.key,
-			}),
-		}) ? (
+		(keyframeControlsMode === 'inspector'
+			? keyframable
+			: shouldShowTimelineKeyframeControls({
+					propStatus,
+					selected: selection.selected,
+					keyframable,
+				})) ? (
 			<TimelineKeyframeControls
 				fieldKey={field.key}
 				propStatus={propStatus}
@@ -397,6 +411,7 @@ export const TimelineEffectPropItem: React.FC<{
 				schema={field.effectSchema}
 				effectIndex={field.effectIndex}
 				nodePathInfo={nodePathInfo}
+				mode={keyframeControlsMode}
 			/>
 		) : null;
 
@@ -523,6 +538,101 @@ export const TimelineEffectPropItem: React.FC<{
 		propStatus,
 	]);
 
+	const seekToDisplayFrame = useCallback(
+		(frame: number) => {
+			setFrame((current) => {
+				const next = {...current, [videoConfig.id]: frame};
+				Internals.persistCurrentFrame(next);
+				return next;
+			});
+		},
+		[setFrame, videoConfig.id],
+	);
+
+	const onPropertyDoubleClick = useCallback<
+		React.MouseEventHandler<HTMLDivElement>
+	>(
+		(event) => {
+			if (propStatus === null || propStatus.status === 'computed') {
+				return;
+			}
+
+			const keyframeSelection = {
+				type: 'keyframe' as const,
+				nodePathInfo,
+				frame: sourceFrame + keyframeDisplayOffset,
+			};
+
+			if (propStatus.status === 'static') {
+				if (!keyframable || previewServerState.type !== 'connected') {
+					return;
+				}
+
+				const value = Internals.getEffectiveVisualModeValue({
+					propStatus,
+					dragOverrideValue,
+					frame: sourceFrame,
+					defaultValue: field.fieldSchema.default,
+					shouldResortToDefaultValueIfUndefined: true,
+				});
+
+				event.stopPropagation();
+				callAddEffectKeyframe({
+					fileName: validatedLocation.source,
+					nodePath,
+					effectIndex: field.effectIndex,
+					fieldKey: field.key,
+					sourceFrame,
+					value,
+					schema: field.effectSchema,
+					setPropStatuses,
+					clientId: previewServerState.clientId,
+				}).catch(() => undefined);
+				selectItems([keyframeSelection], {reveal: true});
+				seekToDisplayFrame(keyframeSelection.frame);
+				return;
+			}
+
+			const targetSelection = getAnimationItemSelectionForSourceFrame({
+				includeEasings: canEditEasingForInterpolationFunction(
+					propStatus.interpolationFunction,
+				),
+				keyframeDisplayOffset,
+				keyframes: propStatus.keyframes,
+				nodePathInfo,
+				sourceFrame,
+			});
+
+			if (targetSelection === null) {
+				return;
+			}
+
+			event.stopPropagation();
+			selectItems([targetSelection], {reveal: true});
+			if (targetSelection.type === 'keyframe') {
+				seekToDisplayFrame(targetSelection.frame);
+			}
+		},
+		[
+			dragOverrideValue,
+			field.effectIndex,
+			field.effectSchema,
+			field.fieldSchema.default,
+			field.key,
+			keyframeDisplayOffset,
+			keyframable,
+			nodePath,
+			nodePathInfo,
+			previewServerState,
+			propStatus,
+			seekToDisplayFrame,
+			selectItems,
+			setPropStatuses,
+			sourceFrame,
+			validatedLocation.source,
+		],
+	);
+
 	const row = (
 		<TimelineRowChrome
 			depth={rowDepth}
@@ -532,7 +642,9 @@ export const TimelineEffectPropItem: React.FC<{
 			style={style}
 			selected={selection.selected}
 			selectable={selection.selectable}
+			selectionItem={selection.selectionItem}
 			onSelect={selection.onSelect}
+			onDoubleClick={onPropertyDoubleClick}
 			showSelectedBackground
 			containsSelection={false}
 			outerHeight={null}
@@ -543,11 +655,11 @@ export const TimelineEffectPropItem: React.FC<{
 				label={field.description ?? field.key}
 			/>
 			<div style={timelineFieldValueColumnStyle}>
-				<Value
+				<TimelineEffectPropValue
 					field={field}
 					nodePath={nodePath}
 					validatedLocation={validatedLocation}
-					keyframeDisplayOffset={keyframeDisplayOffset}
+					sourceFrame={sourceFrame}
 				/>
 			</div>
 		</TimelineRowChrome>

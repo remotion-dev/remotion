@@ -1,7 +1,9 @@
 import type {
+	CanUpdateSequencePropStatus,
+	DragOverrideValue,
 	GetDragOverrides,
 	SequencePropsSubscriptionKey,
-	SequenceSchema,
+	InteractivitySchema,
 } from 'remotion';
 import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
@@ -29,6 +31,7 @@ import {
 	selectedOutlineDragThresholdPx,
 	translateFieldKey,
 } from './selected-outline-types';
+import {getUvHandlePosition, type UvCoordinate} from './selected-outline-uv';
 import type {SaveSequencePropChange} from './Timeline/save-sequence-prop';
 import {
 	getTimelineDisplayDecimalPlaces,
@@ -43,6 +46,31 @@ import {
 	serializeTranslate,
 } from './Timeline/timeline-translate-utils';
 import {getLinkedScale} from './Timeline/TimelineScaleField';
+
+export const getSelectedOutlineActiveSchema = ({
+	schema,
+	currentRuntimeValueDotNotation,
+	dragOverrides,
+	propStatus,
+	frame,
+}: {
+	readonly schema: InteractivitySchema;
+	readonly currentRuntimeValueDotNotation: Record<string, unknown>;
+	readonly dragOverrides: Record<string, DragOverrideValue>;
+	readonly propStatus: Record<string, CanUpdateSequencePropStatus> | undefined;
+	readonly frame: number | null;
+}): InteractivitySchema => {
+	const {merged: valuesDotNotation} =
+		Internals.computeEffectiveSchemaValuesDotNotation({
+			schema,
+			currentValue: currentRuntimeValueDotNotation,
+			overrideValues: dragOverrides,
+			propStatus,
+			frame,
+		});
+
+	return Internals.flattenActiveSchema(schema, (key) => valuesDotNotation[key]);
+};
 
 export const getSelectedOutlineDragStates = ({
 	dragTargets,
@@ -141,7 +169,7 @@ export type SelectedOutlineKeyframedDragChange = {
 	readonly fieldKey: string;
 	readonly sourceFrame: number;
 	readonly value: unknown;
-	readonly schema: SequenceSchema;
+	readonly schema: InteractivitySchema;
 	readonly clientId: string;
 };
 
@@ -520,6 +548,30 @@ export const getSelectedOutlineRotationDragValues = ({
 	);
 };
 
+export const selectedOutlineRotationSnapStepDegrees = 15;
+
+export const snapSelectedOutlineRotationDeltaDegrees = ({
+	dragStates,
+	rotationDeltaDegrees,
+}: {
+	readonly dragStates: readonly SelectedOutlineRotationDragState[];
+	readonly rotationDeltaDegrees: number;
+}) => {
+	const anchor = dragStates[0];
+	if (anchor === undefined) {
+		return rotationDeltaDegrees;
+	}
+
+	return (
+		Math.round(
+			(anchor.startDegrees + rotationDeltaDegrees) /
+				selectedOutlineRotationSnapStepDegrees,
+		) *
+			selectedOutlineRotationSnapStepDegrees -
+		anchor.startDegrees
+	);
+};
+
 export const getSelectedOutlineRotationDragChanges = ({
 	dragStates,
 	lastValues,
@@ -704,3 +756,95 @@ export const uvsEqual = (
 ): boolean =>
 	Math.abs(left[0] - right[0]) < 0.000001 &&
 	Math.abs(left[1] - right[1]) < 0.000001;
+
+export type SelectedOutlineTransformOriginLockedAxis = 'x' | 'y' | null;
+
+export const getSelectedOutlineTransformOriginLockedAxis = ({
+	axisLocked,
+	dimensions,
+	startUv,
+	uv,
+}: {
+	readonly axisLocked: boolean;
+	readonly dimensions: NonNullable<SelectedOutline['dimensions']>;
+	readonly startUv: UvCoordinate;
+	readonly uv: UvCoordinate;
+}): SelectedOutlineTransformOriginLockedAxis => {
+	if (!axisLocked) {
+		return null;
+	}
+
+	const deltaX = (uv[0] - startUv[0]) * dimensions.width;
+	const deltaY = (uv[1] - startUv[1]) * dimensions.height;
+	return Math.abs(deltaX) >= Math.abs(deltaY) ? 'x' : 'y';
+};
+
+export const applySelectedOutlineTransformOriginAxisLock = ({
+	lockedAxis,
+	startUv,
+	uv,
+}: {
+	readonly lockedAxis: SelectedOutlineTransformOriginLockedAxis;
+	readonly startUv: UvCoordinate;
+	readonly uv: UvCoordinate;
+}): UvCoordinate => {
+	if (lockedAxis === 'x') {
+		return [uv[0], startUv[1]];
+	}
+
+	if (lockedAxis === 'y') {
+		return [startUv[0], uv[1]];
+	}
+
+	return uv;
+};
+
+const selectedOutlineUvSnapTargets = [
+	[0, 0],
+	[0.5, 0],
+	[1, 0],
+	[1, 0.5],
+	[1, 1],
+	[0.5, 1],
+	[0, 1],
+	[0, 0.5],
+	[0.5, 0.5],
+] as const satisfies readonly UvCoordinate[];
+
+export const selectedOutlineUvSnapThresholdPx = 10;
+
+export const snapSelectedOutlineUv = ({
+	point,
+	points,
+	thresholdPx = selectedOutlineUvSnapThresholdPx,
+	uv,
+}: {
+	readonly point: OutlinePoint;
+	readonly points: SelectedOutline['points'];
+	readonly thresholdPx?: number;
+	readonly uv: UvCoordinate;
+}): UvCoordinate => {
+	let best: {
+		readonly distance: number;
+		readonly uv: UvCoordinate;
+	} | null = null;
+
+	for (const snapUv of selectedOutlineUvSnapTargets) {
+		const snapPoint = getUvHandlePosition(points, snapUv);
+		const distance = Math.hypot(point.x - snapPoint.x, point.y - snapPoint.y);
+		if (distance > thresholdPx) {
+			continue;
+		}
+
+		if (best === null || distance < best.distance) {
+			best = {distance, uv: snapUv};
+		}
+	}
+
+	return best?.uv ?? uv;
+};
+
+export const selectedOutlineTransformOriginSnapThresholdPx =
+	selectedOutlineUvSnapThresholdPx;
+
+export const snapSelectedOutlineTransformOriginUv = snapSelectedOutlineUv;

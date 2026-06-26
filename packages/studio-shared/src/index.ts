@@ -2,10 +2,10 @@ export {splitAnsi, stripAnsi} from './ansi';
 export {
 	AddEffectKeyframeRequest,
 	AddEffectKeyframeResponse,
-	AddKeyframesRequest,
-	AddKeyframesResponse,
 	AddEffectRequest,
 	AddEffectResponse,
+	AddKeyframesRequest,
+	AddKeyframesResponse,
 	AddRenderRequest,
 	AddSequenceKeyframeRequest,
 	AddSequenceKeyframeResponse,
@@ -35,8 +35,13 @@ export {
 	DeleteStaticFileResponse,
 	DownloadRemoteAssetRequest,
 	DownloadRemoteAssetResponse,
+	DuplicateEffectRequest,
+	DuplicateEffectRequestItem,
+	DuplicateEffectResponse,
 	DuplicateJsxNodeRequest,
 	DuplicateJsxNodeResponse,
+	InsertElementRequest,
+	InsertElementResponse,
 	InsertJsxElementRequest,
 	InsertJsxElementResponse,
 	InsertableCompositionElement,
@@ -94,9 +99,9 @@ export {
 	UpdateEffectKeyframeSettingsResponse,
 	UpdateSequenceKeyframeSettingsRequest,
 	UpdateSequenceKeyframeSettingsResponse,
-	type KeyframeSettings,
 	type AddEffectKeyframe,
 	type AddSequenceKeyframe,
+	type KeyframeSettings,
 } from './api-requests';
 export {
 	ASSET_DRAG_MIME_TYPE,
@@ -112,14 +117,11 @@ export {
 	isComponentImportPath,
 	makeComponentDragData,
 	parseComponentDragData,
+	type ComponentDimensions,
 	type ComponentDragData,
 	type ComponentProp,
 } from './component-drag-data';
 export {DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS} from './default-buffer-state-delay-in-milliseconds';
-export {
-	KEYFRAME_EASING_PRESETS,
-	type KeyframeEasingPreset,
-} from './keyframe-easing-presets';
 export {
 	detectFileType,
 	isImageFileType,
@@ -127,6 +129,23 @@ export {
 	type FileType,
 	type ImageFileType,
 } from './detect-file-type';
+export {
+	parseEasingClipboardData,
+	parseEasingClipboardDataResult,
+	type EasingClipboardData,
+	type EasingClipboardDataParseResult,
+} from './easing-clipboard-data';
+export {
+	EFFECT_CATALOG,
+	getEffectCatalogCategories,
+	getEffectDocumentationLink,
+	getEffectDocumentationPath,
+	getEffectPreviewAlt,
+	getEffectPreviewSource,
+	makeEffectDragDataFromCatalogItem,
+	type EffectCatalogCategory,
+	type EffectCatalogItem,
+} from './effect-catalog';
 export {
 	parseEffectClipboardData,
 	parseEffectClipboardDataResult,
@@ -152,6 +171,15 @@ export {
 	parseEffectDragData,
 	type EffectDragData,
 } from './effect-drag-data';
+export {
+	ELEMENT_DRAG_MIME_TYPE,
+	getElementComponentNameFromSourceCode,
+	isLowercaseElementFileName,
+	makeElementDragData,
+	makeElementFileNameFromSlug,
+	parseElementDragData,
+	type ElementDragData,
+} from './element-drag-data';
 export {EventSourceEvent} from './event-source-event';
 export {formatBytes} from './format-bytes';
 export {getAllSchemaKeys} from './get-all-keys';
@@ -169,11 +197,17 @@ export {
 	hotMiddlewareOptions,
 } from './hot-middleware';
 export {
+	KEYFRAME_EASING_PRESETS,
+	LINEAR_KEYFRAME_EASING,
+	type KeyframeEasing,
+	type KeyframeEasingPreset,
+} from './keyframe-easing-presets';
+export {
 	getKeyframeInterpolationFunction,
 	getKeyframeInterpolationFunctionForSchemaField,
+	isInteractivitySchemaFieldKeyframable,
 	isKeyframeInterpolationFunction,
 	isSchemaFieldKeyframable,
-	isSequenceFieldSchemaKeyframable,
 	keyframeInterpolationFunctions,
 	type KeyframeInterpolationFunction,
 } from './keyframe-interpolation-function';
@@ -188,6 +222,11 @@ export {
 	type ExtraPackage,
 } from './package-info';
 export {PackageManager} from './package-manager';
+export {
+	DEFAULT_SPRING_EASING,
+	parseSpringEasingConfig,
+	type SpringKeyframeEasing,
+} from './parse-spring-easing-config';
 export {ProjectInfo} from './project-info';
 export type {RenderDefaults} from './render-defaults';
 export {
@@ -212,18 +251,22 @@ export {
 	getRequiredPackageForInsertableElement,
 } from './required-package';
 export {
+	SCHEMA_FIELD_GROUPS,
 	SCHEMA_FIELD_ROW_HEIGHT,
 	getEffectFieldsToShow,
 	getFieldsToShow,
+	getSchemaFieldGroup,
 } from './schema-field-info';
 export type {
 	AnySchemaFieldInfo,
 	DragOverrides,
 	EffectSchemaFieldInfo,
+	InteractivitySchemaFieldInfo,
 	PropStatuses,
+	SchemaFieldGroup,
+	SchemaFieldGroupInfo,
 	SchemaFieldInfo,
 	SequenceControls,
-	SequenceSchemaFieldInfo,
 } from './schema-field-info';
 export {
 	SFX_DRAG_MIME_TYPE,

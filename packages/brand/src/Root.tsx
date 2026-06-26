@@ -1,4 +1,3 @@
-import './index.css';
 import {Composition, Folder, staticFile} from 'remotion';
 import {AnimatedBanner} from './animated-logo/AnimatedBanner';
 import {AnimatedLogo} from './animated-logo/AnimatedLogo';
@@ -9,18 +8,56 @@ import {Banner} from './Brand/Banner';
 import {Comp} from './Brand/Composition';
 import {TriangleDemo} from './Brand/TriangleToSquare';
 import {
+	CanvasCapturePreview,
+	calculateCanvasCapturePreviewMetadata,
+	canvasCapturePreviewSchema,
+} from './CanvasCapturePreview';
+import {
 	WhatIsRemotion,
 	whatIsRemotionCalculateMetadata,
 	whatIsRemotionSchema,
 } from './Compose/WhatIsRemotion';
+import {
+	CornerPinEffectShowcase,
+	cornerPinEffectShowcaseDurationInFrames,
+} from './effects/CornerPinEffectShowcase';
+import {EffectsAnnouncement} from './effects/EffectsAnnouncement';
+import {BillboardForeground} from './effects/experiments/BillboardForeground';
+import {FxIconComposition} from './effects/FxIconComposition';
+import {Goal} from './effects/Goal';
+import {MetallicSwirl} from './effects/MetallicSwirl';
+import {NewsHeadline} from './effects/NewsHeadline';
+import {
+	PatternEffectShowcase,
+	patternEffectShowcaseDurationInFrames,
+} from './effects/PatternEffectShowcase';
+import {
+	StarburstEffectShowcase,
+	starburstEffectShowcaseDurationInFrames,
+} from './effects/StarburstEffectShowcase';
+import {Thermometer} from './effects/Thermometer';
+import {
+	ZigzagLinearBlurShowcase,
+	zigzagLinearBlurShowcaseDurationInFrames,
+} from './effects/ZigzagLinearBlurShowcase';
 import {EmailSignature} from './EmailSignature';
+import './index.css';
 import {Logo} from './Logo';
 import {LogoCollab, logoCollabSchema} from './LogoCollab/LogoCollab';
+import {LogoHorn, calculateLogoHornMetadata} from './LogoHorn';
+import NewSticker from './NewSticker';
 import {
 	RulesEnumeration,
 	rulesEnumerationSchema,
 } from './RulesEnumeration/RulesEnumeration';
 import {ProductHuntLogo} from './ScalingLogo';
+import {
+	HTML_IN_CANVAS_ALL_EFFECTS_DURATION,
+	HtmlInCanvasAllEffects,
+	calculateHtmlInCanvasAllEffectsMetadata,
+	htmlInCanvasAllEffectsDefaultProps,
+	htmlInCanvasAllEffectsSchema,
+} from './Showcase/HtmlInCanvasAllEffects';
 import {
 	FlyingCardsLeft,
 	flyingCardsLeftSchema,
@@ -95,6 +132,144 @@ export const RemotionRoot: React.FC = () => {
 				durationInFrames={90}
 				id="scaling-logo"
 			/>
+			<Folder name="showcase">
+				<Composition
+					id="html-in-canvas-all-effects"
+					component={HtmlInCanvasAllEffects}
+					fps={30}
+					height={1080}
+					width={1920}
+					durationInFrames={HTML_IN_CANVAS_ALL_EFFECTS_DURATION}
+					schema={htmlInCanvasAllEffectsSchema}
+					defaultProps={htmlInCanvasAllEffectsDefaultProps}
+					calculateMetadata={calculateHtmlInCanvasAllEffectsMetadata}
+				/>
+				<Composition
+					id="canvas-capture-promo"
+					component={CanvasCapturePreview}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={120}
+					defaultProps={{
+						videoFile: staticFile('remotion-studio-canvas-recording.webm'),
+						cursorScale: 2.5,
+						hidden: null,
+						width: null,
+						height: null,
+					}}
+					schema={canvasCapturePreviewSchema}
+					calculateMetadata={calculateCanvasCapturePreviewMetadata}
+				/>
+				<Composition
+					id="canvas-capture-new-sticker"
+					component={NewSticker}
+					width={1400}
+					height={1080}
+					fps={30}
+					durationInFrames={60}
+				/>
+			</Folder>
+			<Folder name="effects">
+				<Composition
+					id="corner-pin-effect-showcase"
+					component={CornerPinEffectShowcase}
+					durationInFrames={cornerPinEffectShowcaseDurationInFrames}
+					fps={30}
+					width={1080}
+					height={1350}
+				/>
+				<Composition
+					id="pattern-effect-showcase"
+					component={PatternEffectShowcase}
+					width={1080}
+					height={1350}
+					fps={30}
+					durationInFrames={patternEffectShowcaseDurationInFrames}
+				/>
+				<Folder name="experiments">
+					<Composition
+						id="billboard-foreground"
+						component={BillboardForeground}
+						width={1080}
+						height={675}
+						fps={30}
+						durationInFrames={120}
+					/>
+				</Folder>
+				<Composition
+					id="starburst-effect-showcase"
+					component={StarburstEffectShowcase}
+					durationInFrames={starburstEffectShowcaseDurationInFrames}
+					fps={30}
+					width={1080}
+					height={1350}
+				/>
+				<Composition
+					id="zigzag-linear-blur-effect-showcase"
+					component={ZigzagLinearBlurShowcase}
+					durationInFrames={zigzagLinearBlurShowcaseDurationInFrames}
+					fps={30}
+					width={1080}
+					height={1350}
+				/>
+				<Composition
+					id="effects-announcement"
+					component={EffectsAnnouncement}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={200}
+				/>
+				<Composition
+					id="thermometer"
+					component={EffectsAnnouncement}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={200}
+				/>
+				<Composition
+					id="news-headline"
+					component={NewsHeadline}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={200}
+				/>
+				<Composition
+					id="thermo"
+					component={Thermometer}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={200}
+				/>
+				<Composition
+					id="goal"
+					component={Goal}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={120}
+				/>
+				<Composition
+					id="metallic-swirl"
+					component={MetallicSwirl}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={200}
+				/>
+				<Composition
+					id="fx-icon"
+					component={FxIconComposition}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={90}
+				/>
+			</Folder>
 			<Folder name="animated-logo">
 				<Composition
 					component={AnimatedLogo}
@@ -172,7 +347,6 @@ export const RemotionRoot: React.FC = () => {
 					width={1920}
 					height={1080}
 				/>
-
 				<Composition
 					id="lower-third-reference"
 					component={LowerReference}
@@ -333,6 +507,15 @@ export const RemotionRoot: React.FC = () => {
 				/>
 			</Folder>
 			<Folder name="brand-assets">
+				<Composition
+					id="logo-horn"
+					component={LogoHorn}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={90}
+					calculateMetadata={calculateLogoHornMetadata}
+				/>
 				<Composition
 					id="LogoCollab"
 					component={LogoCollab}

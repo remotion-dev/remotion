@@ -20,6 +20,7 @@ import {ClassSerialization} from './ClassSerialization';
 import {ColorInterpolation} from './ColorInterpolation';
 import {ComplexSounds} from './ComplexSounds';
 import {MyCtx, WrappedInContext} from './Context';
+import {ControlsShowcase} from './ControlsShowcase';
 import CorruptVideo from './CorruptVideo';
 import {CssLoaderTest} from './CssLoaderTest';
 import {DarkModeTest} from './DarkModeTest';
@@ -33,7 +34,6 @@ import {EasingVisualizer} from './EasingVisualizer/EasingVisualizer';
 import {EffectCopySource, EffectCopyTarget} from './EffectCopyTestbed';
 import {EmojiTestbed} from './Emoji';
 import {ErrorOnFrame10} from './ErrorOnFrame10';
-import {ExperimentalControlsShowcase} from './ExperimentalControls';
 import {Expert} from './Expert';
 import {FontDemo} from './Fonts';
 import {FractionalSequenceVideo} from './FractionalSequenceVideo';
@@ -122,7 +122,11 @@ import StarTest from './Shapes/StarTest';
 import TriangleTest from './Shapes/TriangleTest';
 import {SimpleImg} from './SimpleImg';
 import {SkipZeroFrame} from './SkipZeroFrame';
-import {BaseSpring, SpringWithDuration} from './Spring/base-spring';
+import {
+	BaseSpring,
+	RestThresholdSpringSquare,
+	SpringWithDuration,
+} from './Spring/base-spring';
 import {SeriesTesting} from './StaggerTesting';
 import {StaticDemo} from './StaticServer';
 import {StillHelloWorld} from './StillHelloWorld';
@@ -189,9 +193,12 @@ import {
 	canvasCapturePreviewDefaultProps,
 } from './CanvasCapturePreview';
 import {EdgeBlur} from './EdgeBlur/EdgeBlur';
+import {CustomEffectsSample} from './EffectsTestbed/CustomEffectsSample';
 import {EffectsTestbed} from './EffectsTestbed/EffectsTestbed';
 import {HalftoneGradient} from './EffectsTestbed/HalftoneGradient';
 import {NoiseDisplacementText} from './EffectsTestbed/NoiseDisplacementText';
+import {PaletteMapEffect} from './EffectsTestbed/PaletteMapEffect';
+import {RadialProgressiveBlurTest} from './EffectsTestbed/RadialProgressiveBlur';
 import {VideoEffectsFastRefresh} from './EffectsTestbed/VideoEffectsFastRefresh';
 import {Empty} from './Empty';
 import {JumpCuts, SAMPLE_SECTIONS, calculateMetadataJumpCuts} from './JumpCuts';
@@ -380,6 +387,14 @@ export const Index: React.FC = () => {
 					id="keyframed-props-test"
 					lazyComponent={() => import('./KeyframedPropsTest')}
 					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={120}
+				/>
+				<Composition
+					id="trim-before-support-test"
+					lazyComponent={() => import('./TrimBeforeSupportTest')}
+					width={1280}
 					height={1080}
 					fps={30}
 					durationInFrames={120}
@@ -587,6 +602,22 @@ export const Index: React.FC = () => {
 					height={1080}
 					fps={30}
 					durationInFrames={100}
+				/>
+				<Composition
+					id="rest-threshold-spring-square"
+					component={RestThresholdSpringSquare}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={90}
+				/>
+				<Composition
+					id="tail-spring-square"
+					component={RestThresholdSpringSquare}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={90}
 				/>
 			</Folder>
 			<Folder name="documentation">
@@ -1980,6 +2011,30 @@ export const Index: React.FC = () => {
 					durationInFrames={300}
 				/>
 				<Composition
+					id="palette-map-effect"
+					component={PaletteMapEffect}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={150}
+				/>
+				<Composition
+					id="radial-progressive-blur-test"
+					component={RadialProgressiveBlurTest}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={120}
+				/>
+				<Composition
+					id="custom-effects-sample"
+					component={CustomEffectsSample}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={150}
+				/>
+				<Composition
 					id="video-effects-fast-refresh"
 					component={VideoEffectsFastRefresh}
 					width={1920}
@@ -2458,8 +2513,8 @@ export const Index: React.FC = () => {
 				/>
 			</Folder>
 			<Composition
-				id="experimental-controls-showcase"
-				component={ExperimentalControlsShowcase}
+				id="controls-showcase"
+				component={ControlsShowcase}
 				width={2300}
 				height={1080}
 				fps={30}

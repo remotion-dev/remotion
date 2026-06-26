@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {
 	getKeyframeInterpolationFunctionForSchemaField,
 	isSchemaFieldKeyframable,
@@ -16,7 +16,7 @@ test('isSchemaFieldKeyframable rejects enum fields', () => {
 				none: {},
 			},
 		},
-	} satisfies SequenceSchema;
+	} satisfies InteractivitySchema;
 
 	expect(isSchemaFieldKeyframable({schema, key: 'layout'})).toBe(false);
 });
@@ -29,9 +29,40 @@ test('isSchemaFieldKeyframable rejects explicitly disabled fields', () => {
 			hiddenFromList: false,
 			keyframable: false,
 		},
-	} satisfies SequenceSchema;
+	} satisfies InteractivitySchema;
 
 	expect(isSchemaFieldKeyframable({schema, key: 'playbackRate'})).toBe(false);
+});
+
+test('isSchemaFieldKeyframable rejects boolean fields', () => {
+	const schema = {
+		loop: {
+			type: 'boolean',
+			default: false,
+		},
+	} satisfies InteractivitySchema;
+
+	expect(isSchemaFieldKeyframable({schema, key: 'loop'})).toBe(false);
+});
+
+test('isSchemaFieldKeyframable rejects boolean fields in enum variants', () => {
+	const schema = {
+		layout: {
+			type: 'enum',
+			default: 'absolute-fill',
+			variants: {
+				'absolute-fill': {
+					horizontal: {
+						type: 'boolean',
+						default: true,
+					},
+				},
+				none: {},
+			},
+		},
+	} satisfies InteractivitySchema;
+
+	expect(isSchemaFieldKeyframable({schema, key: 'horizontal'})).toBe(false);
 });
 
 test('isSchemaFieldKeyframable finds keyframable fields in enum variants', () => {
@@ -50,7 +81,7 @@ test('isSchemaFieldKeyframable finds keyframable fields in enum variants', () =>
 				none: {},
 			},
 		},
-	} satisfies SequenceSchema;
+	} satisfies InteractivitySchema;
 
 	expect(isSchemaFieldKeyframable({schema, key: 'style.opacity'})).toBe(true);
 });
@@ -61,7 +92,7 @@ test('transform-origin fields use interpolate keyframes', () => {
 			type: 'transform-origin',
 			default: '50% 50%',
 		},
-	} satisfies SequenceSchema;
+	} satisfies InteractivitySchema;
 
 	expect(
 		getKeyframeInterpolationFunctionForSchemaField({

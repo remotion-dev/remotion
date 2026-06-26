@@ -7,7 +7,16 @@ crumb: 'Designing visuals'
 
 # Effects<AvailableFrom v="4.0.464" />
 
-Pixels of canvas-based components can be manipulated using effects.  
+<video
+  src="/img/effects-banner.mp4"
+  autoPlay
+  loop
+  muted
+  playsInline
+  style={{width: '100%', borderRadius: 'var(--ifm-global-radius)', marginBottom: 0, aspectRatio: '3 / 1'}}
+/>
+
+Pixels of canvas-based components can be manipulated using effects.
 
 ## Supported components
 
@@ -25,6 +34,10 @@ The following components support effects:
 
 ## Usage
 
+Effects can be added programmatically, interactively or agentically.
+
+### Programmatically
+
 Pass effects through the `effects` prop as an array of effect functions:
 
 ```tsx twoslash title="MyComp.tsx"
@@ -41,9 +54,23 @@ export const MyComp: React.FC = () => {
 };
 ```
 
+### Interactively
+
+In [Remotion Studio](/docs/studio), first add an element that supports effects. Drag a video into the canvas, or add a [`<Solid>`](/docs/solid) by right-clicking an empty space in the timeline.
+
+Then drag an effect from the table of contents below into the element.
+
+### Agentically
+
+Ask an agent with [Remotion Skills](/docs/ai/skills) installed to add an effect while following Remotion conventions:
+
+```txt title="Prompt"
+Use Remotion best practices. Add a blur effect to the video.
+```
+
 ## Multipass
 
-Multiple effects can be combined. They apply in the order they are specified.  
+Multiple effects can be combined. They apply in the order they are specified.
 
 ## Available effects
 
@@ -59,10 +86,9 @@ When you select a component with effects in [Remotion Studio](/docs/studio), you
 
 ## Custom effects
 
-It will be possible in a future version of Remotion to create your own effects based on 2D Canvas APIs, WebGL or WebGPU and to mix them together.  
-
-We are working on a nice API that shall be future-proof, which is why we have not released it yet.
+To build your own effect, use [`createEffect()`](/docs/create-effect). It supports 2D Canvas APIs, WebGL2 and WebGPU, and creates an effect factory that can be passed to an `effects` array.
 
 ## See also
 
 - [`@remotion/effects`](/docs/effects/api)
+- [`createEffect()`](/docs/create-effect)

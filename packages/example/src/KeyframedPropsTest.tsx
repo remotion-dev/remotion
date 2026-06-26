@@ -15,7 +15,12 @@ import {
 const Shifted = () => {
 	const frame = useCurrentFrame();
 	return (
-		<Sequence style={{scale: interpolate(frame, [0, 60], [2, 4])}}>
+		<Sequence
+			style={{
+				scale: interpolate(frame, [0, 60], [2, 4]),
+				translate: '13.2px 41.1px',
+			}}
+		>
 			<div
 				style={{
 					width: 180,
@@ -67,7 +72,7 @@ const ShiftedEffect = () => {
 				height: 200,
 				borderRadius: 24,
 				overflow: 'hidden',
-				translate: '484.5px 439px',
+				translate: '424.4px 423.5px',
 				scale: interpolate(frame, [16], [2.044585], {
 					extrapolateLeft: 'clamp',
 					extrapolateRight: 'clamp',
@@ -186,7 +191,7 @@ const KeyframedPropsTest: React.FC = () => {
 							radius: interpolate(frame, [0, 60, 119], [0, 24, 4]),
 						}),
 						scale({
-							scale: 2.2,
+							scale: 1 + 1,
 						}),
 					]}
 				/>

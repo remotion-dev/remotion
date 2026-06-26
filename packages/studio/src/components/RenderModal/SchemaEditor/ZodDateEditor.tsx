@@ -93,6 +93,7 @@ export const ZodDateEditor: React.FC<{
 					onBlur={onBlur}
 					style={inputStyle}
 					rightAlign={false}
+					small
 				/>
 				<Spacing y={1} block />
 				<div style={explainer}>Date is in local format</div>

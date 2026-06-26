@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertOptionalFiniteNumber,
@@ -49,7 +49,10 @@ export const halftoneLinearGradientSchema = {
 		step: 0.01,
 		default: DEFAULT_FIRST_STOP_POSITION,
 		description: 'First stop position',
-		lineTo: 'secondStopPosition',
+		visual: {
+			type: 'line',
+			to: 'secondStopPosition',
+		},
 	},
 	secondStopPosition: {
 		type: 'uv-coordinate',
@@ -88,7 +91,7 @@ export const halftoneLinearGradientSchema = {
 		default: DEFAULT_MASK_TO_SOURCE_ALPHA,
 		description: 'Mask to source alpha',
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type HalftoneLinearGradientColorMode =
 	(typeof HALFTONE_LINEAR_GRADIENT_COLOR_MODES)[number];
@@ -414,7 +417,7 @@ export const halftoneLinearGradient = createEffect<
 	HalftoneLinearGradientParams,
 	HalftoneLinearGradientState
 >({
-	type: 'remotion/halftone-linear-gradient',
+	type: 'dev.remotion.effects.halftoneLinearGradient',
 	label: 'halftoneLinearGradient()',
 	documentationLink:
 		'https://www.remotion.dev/docs/effects/halftone-linear-gradient',

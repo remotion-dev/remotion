@@ -16,7 +16,7 @@ const makeKeyframedStatus = (): CanUpdateSequencePropStatusKeyframed => ({
 		{frame: 0, value: 2},
 		{frame: 60, value: 4},
 	],
-	easing: ['linear'],
+	easing: [{type: 'linear'}],
 	clamping: {left: 'extend', right: 'extend'},
 	posterize: undefined,
 });
@@ -37,7 +37,7 @@ test('makeKeyframedDragOverride inserts a new keyframe and preserves easing leng
 				{frame: 30, value: 3},
 				{frame: 60, value: 4},
 			],
-			easing: ['linear', 'linear'],
+			easing: [{type: 'linear'}, {type: 'linear'}],
 		},
 	});
 
@@ -46,6 +46,69 @@ test('makeKeyframedDragOverride inserts a new keyframe and preserves easing leng
 	).toEqual({
 		type: 'resolved',
 		value: 3,
+	});
+});
+
+test('makeKeyframedDragOverride duplicates the split segment easing', () => {
+	const status: CanUpdateSequencePropStatusKeyframed = {
+		...makeKeyframedStatus(),
+		keyframes: [
+			{frame: 0, value: 2},
+			{frame: 31, value: 3},
+			{frame: 60, value: 4},
+		],
+		easing: [{type: 'linear'}, {type: 'bezier', x1: 0.42, y1: 0, x2: 1, y2: 1}],
+	};
+	const override = makeKeyframedDragOverride({
+		status,
+		frame: 38,
+		value: 3.5,
+	});
+
+	expect(override).toEqual({
+		type: 'keyframed',
+		status: {
+			...status,
+			keyframes: [
+				{frame: 0, value: 2},
+				{frame: 31, value: 3},
+				{frame: 38, value: 3.5},
+				{frame: 60, value: 4},
+			],
+			easing: [
+				{type: 'linear'},
+				{type: 'bezier', x1: 0.42, y1: 0, x2: 1, y2: 1},
+				{type: 'bezier', x1: 0.42, y1: 0, x2: 1, y2: 1},
+			],
+		},
+	});
+});
+
+test('makeKeyframedDragOverride uses linear easing outside the keyframe range', () => {
+	const status: CanUpdateSequencePropStatusKeyframed = {
+		...makeKeyframedStatus(),
+		easing: [{type: 'bezier', x1: 0.42, y1: 0, x2: 1, y2: 1}],
+	};
+	const override = makeKeyframedDragOverride({
+		status,
+		frame: 90,
+		value: 5,
+	});
+
+	expect(override).toEqual({
+		type: 'keyframed',
+		status: {
+			...status,
+			keyframes: [
+				{frame: 0, value: 2},
+				{frame: 60, value: 4},
+				{frame: 90, value: 5},
+			],
+			easing: [
+				{type: 'bezier', x1: 0.42, y1: 0, x2: 1, y2: 1},
+				{type: 'linear'},
+			],
+		},
 	});
 });
 
@@ -64,7 +127,7 @@ test('makeKeyframedDragOverride replaces an existing keyframe without changing e
 				{frame: 0, value: 2},
 				{frame: 60, value: 5},
 			],
-			easing: ['linear'],
+			easing: [{type: 'linear'}],
 		},
 	});
 });

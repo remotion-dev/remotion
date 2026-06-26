@@ -231,3 +231,31 @@ export const NewVideoComp = () => {
 		.filter((l: string) => l.includes('import') && l.includes('remotion'));
 	expect(importLines.length).toBe(1);
 });
+
+test('New composition appends to root and adds imports', () => {
+	const {newContents, changesMade} = parseAndApplyCodemod({
+		input: compositionInRoot,
+		codeMod: {
+			type: 'new-composition',
+			newId: 'FreshVideo',
+			componentName: 'FreshVideo',
+			componentImportPath: './FreshVideo',
+			newDurationInFrames: 150,
+			newFps: 30,
+			newHeight: 1080,
+			newWidth: 1920,
+		},
+	});
+
+	expect(changesMade.length).toBeGreaterThan(0);
+	expect(newContents).toMatch(
+		/import\s*\{[^}]*FreshVideo[^}]*\}\s*from\s*['"].\/FreshVideo['"]/,
+	);
+	expect(newContents).toMatch(
+		/import\s*\{[^}]*Composition[^}]*\}\s*from\s*['"]remotion['"]/,
+	);
+	expect(newContents).toContain('id="FreshVideo"');
+	expect(newContents).toContain('component={FreshVideo}');
+	expect(newContents).toContain('durationInFrames={150}');
+	expect(newContents).toContain('width={1920}');
+});

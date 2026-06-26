@@ -4,8 +4,8 @@ import {TableOfContents as AnimationUtilsTableOfContents} from '../../docs/anima
 import {TableOfContents as BundlerTableOfContents} from '../../docs/bundler/table-of-contents';
 import {TableOfContents as CaptionsTableOfContents} from '../../docs/captions/TableOfContents';
 import {TableOfContents as CloudrunTableOfContents} from '../../docs/cloudrun/table-of-contents';
-import {TableOfContents as EnableScssTableOfContents} from '../../docs/enable-scss/TableOfContents';
 import {TableOfContents as ElevenLabsTableOfContents} from '../../docs/elevenlabs/TableOfContents';
+import {TableOfContents as EnableScssTableOfContents} from '../../docs/enable-scss/TableOfContents';
 import {TableOfContents as FontsTableOfContents} from '../../docs/fonts-api/TableOfContents';
 import {TableOfContents as GifTableOfContents} from '../../docs/gif/table-of-contents';
 import {TableOfContents as GoogleFontsTableOfContents} from '../../docs/google-fonts/TableOfContents';
@@ -15,9 +15,9 @@ import {TableOfContents as LayoutUtilsTableOfContents} from '../../docs/layout-u
 import {TableOfContents as LicensingTableOfContents} from '../../docs/licensing/TableOfContents';
 import {TableOfContents as LightLeaksTableOfContents} from '../../docs/light-leaks/table-of-contents';
 import {TableOfContents as LottieTableOfContents} from '../../docs/lottie/table-of-contents';
-import {TableOfContents as NewVideoTableOfContents} from '../../docs/media/table-of-contents';
 import {TableOfContents as MediaParserTableOfContents} from '../../docs/media-parser/TableOfContents';
 import {TableOfContents as MediaUtilsTableOfContents} from '../../docs/media-utils/table-of-contents';
+import {TableOfContents as NewVideoTableOfContents} from '../../docs/media/table-of-contents';
 import {TableOfContents as MotionBlurTableOfContents} from '../../docs/motion-blur/table-of-contents';
 import {TableOfContents as NoiseTableOfContents} from '../../docs/noise/table-of-contents';
 import {TableOfContents as OpenAiWhisperTableOfContents} from '../../docs/openai-whisper/TableOfContents';

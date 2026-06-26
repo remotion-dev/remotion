@@ -1,3 +1,4 @@
+import type {KeyframeEasing} from './keyframe-easing-presets';
 import {
 	isKeyframeInterpolationFunction,
 	type KeyframeInterpolationFunction,
@@ -18,7 +19,7 @@ export type EffectClipboardKeyframe = {
 	readonly value: unknown;
 };
 
-export type EffectClipboardEasing = 'linear' | [number, number, number, number];
+export type EffectClipboardEasing = KeyframeEasing;
 
 export type EffectClipboardExtrapolateType =
 	| 'extend'
@@ -107,11 +108,64 @@ const isFiniteNumber = (value: unknown): value is number => {
 
 const isEasing = (value: unknown): value is EffectClipboardEasing => {
 	return (
-		value === 'linear' ||
-		(Array.isArray(value) &&
-			value.length === 4 &&
-			value.every((item) => isFiniteNumber(item)))
+		isRecord(value) &&
+		(value.type === 'linear' ||
+			(value.type === 'bezier' &&
+				isFiniteNumber(value.x1) &&
+				isFiniteNumber(value.y1) &&
+				isFiniteNumber(value.x2) &&
+				isFiniteNumber(value.y2)) ||
+			(value.type === 'spring' &&
+				isFiniteNumber(value.damping) &&
+				isFiniteNumber(value.mass) &&
+				isFiniteNumber(value.stiffness) &&
+				(value.allowTail === undefined ||
+					value.allowTail === null ||
+					typeof value.allowTail === 'boolean') &&
+				(value.durationRestThreshold === undefined ||
+					value.durationRestThreshold === null ||
+					isFiniteNumber(value.durationRestThreshold)) &&
+				typeof value.overshootClamping === 'boolean'))
 	);
+};
+
+const normalizeEasing = (
+	easing: EffectClipboardEasing,
+): EffectClipboardEasing => {
+	if (easing.type !== 'spring') {
+		return easing;
+	}
+
+	return {
+		...easing,
+		allowTail: easing.allowTail ?? null,
+		durationRestThreshold: easing.durationRestThreshold ?? null,
+	};
+};
+
+const normalizeParam = (param: EffectClipboardParam): EffectClipboardParam => {
+	if (param.type === 'static') {
+		return param;
+	}
+
+	return {
+		...param,
+		easing: param.easing.map(normalizeEasing),
+	};
+};
+
+const normalizeSnapshot = (
+	snapshot: EffectClipboardSnapshot,
+): EffectClipboardSnapshot => {
+	return {
+		...snapshot,
+		params: Object.fromEntries(
+			Object.entries(snapshot.params).map(([key, param]) => [
+				key,
+				normalizeParam(param),
+			]),
+		),
+	};
 };
 
 const isKeyframe = (value: unknown): value is EffectClipboardKeyframe => {
@@ -214,7 +268,7 @@ export const parseEffectClipboardDataResult = (
 				return {status: 'invalid'};
 			}
 
-			effects.push(effect);
+			effects.push(normalizeSnapshot(effect));
 		}
 
 		return {
@@ -296,7 +350,7 @@ export const parseEffectPropClipboardDataResult = (
 					importPath: parsed.effect.importPath,
 				},
 				key: parsed.key,
-				param: parsed.param,
+				param: normalizeParam(parsed.param),
 			},
 		};
 	} catch {

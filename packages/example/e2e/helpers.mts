@@ -34,9 +34,9 @@ export async function navigateToLostNodePathE2e(page: Page): Promise<void> {
 
 export async function openVisualControlsPanel(page: Page): Promise<void> {
 	await navigateToVisualControls(page);
-	const controlsTab = page.getByText('Controls', {exact: true});
-	await expect(controlsTab).toBeVisible({timeout: 15_000});
-	await controlsTab.click();
+	await expect(page.getByText('Visual Controls', {exact: true})).toBeVisible({
+		timeout: 15_000,
+	});
 
 	// Wait for the source map to resolve — the header shows "Loading..."
 	// until it's done, then shows the file name.

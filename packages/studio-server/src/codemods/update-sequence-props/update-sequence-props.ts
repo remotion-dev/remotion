@@ -7,7 +7,7 @@ import type {
 	StringLiteral,
 } from '@babel/types';
 import * as recast from 'recast';
-import type {SequenceNodePath, SequenceSchema} from 'remotion';
+import type {SequenceNodePath, InteractivitySchema} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {findJsxElementAtNodePath} from '../../preview-server/routes/can-update-sequence-props';
 import {formatFileContent} from '../format-file-content';
@@ -30,7 +30,7 @@ export type RemovedProp = {
 export type SequencePropsNodeUpdate = {
 	nodePath: SequenceNodePath;
 	updates: SequencePropUpdate[];
-	schema: SequenceSchema;
+	schema: InteractivitySchema;
 };
 
 export type SequencePropsNodeUpdateResult = {
@@ -126,7 +126,7 @@ const updateSequencePropsNode = ({
 }: {
 	node: JSXOpeningElementLike;
 	updates: SequencePropUpdate[];
-	schema: SequenceSchema;
+	schema: InteractivitySchema;
 }): {
 	oldValueStrings: string[];
 	logLine: number;
@@ -275,7 +275,7 @@ export const updateSequencePropsAst = ({
 	input: string;
 	nodePath: SequenceNodePath;
 	updates: SequencePropUpdate[];
-	schema: SequenceSchema;
+	schema: InteractivitySchema;
 }): {
 	serialized: string;
 	oldValueStrings: string[];
@@ -348,7 +348,7 @@ export const updateSequenceProps = async ({
 	input: string;
 	nodePath: SequenceNodePath;
 	updates: SequencePropUpdate[];
-	schema: SequenceSchema;
+	schema: InteractivitySchema;
 	prettierConfigOverride: PrettierConfigOverride;
 }): Promise<UpdateSequencePropsResult> => {
 	const {serialized, oldValueStrings, logLine, removedProps} =

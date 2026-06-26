@@ -18,6 +18,7 @@ import {SplitterHandle} from '../Splitter/SplitterHandle';
 import {MAX_TIMELINE_TRACKS} from './MaxTimelineTracks';
 import {SequencePropsObserver} from './SequencePropsObserver';
 import {shouldShowTrackInTimeline} from './should-show-track-in-timeline';
+import {shouldSubscribeToSequenceProps} from './should-subscribe-to-sequence-props';
 import {SubscribeToNodePaths} from './SubscribeToNodePaths';
 import {timelineVerticalScroll} from './timeline-refs';
 import {TimelineDragHandler} from './TimelineDragHandler';
@@ -29,7 +30,10 @@ import {TimelineList} from './TimelineList';
 import {TimelinePinchZoom} from './TimelinePinchZoom';
 import {TimelinePlayCursorSyncer} from './TimelinePlayCursorSyncer';
 import {TimelineScrollable} from './TimelineScrollable';
-import {TimelineSelectAllKeybindings} from './TimelineSelection';
+import {
+	TimelineSelectableItemsProvider,
+	TimelineSelectAllKeybindings,
+} from './TimelineSelection';
 import {TimelineSlider} from './TimelineSlider';
 import {
 	TimelineTimeIndicators,
@@ -249,7 +253,7 @@ const TimelineInner: React.FC = () => {
 	return (
 		<TimelineContextMenuArea>
 			{sequences.map((sequence) => {
-				if (!sequence.controls || !previewConnected || !sequence.getStack()) {
+				if (!shouldSubscribeToSequenceProps(sequence, previewConnected)) {
 					return null;
 				}
 
@@ -266,42 +270,47 @@ const TimelineInner: React.FC = () => {
 			})}
 			<SequencePropsObserver />
 			<TimelineKeyframeTracksProvider tracks={filtered}>
-				<TimelineSelectAllKeybindings timeline={shown} />
-				<TimelineHeightContainer shown={shown} hasBeenCut={hasBeenCut}>
-					{isStill ? (
-						<TimelineList timeline={shown} />
-					) : (
-						<TimelineWidthProvider>
-							<TimelinePinchZoom />
-							<SplitterContainer
-								orientation="vertical"
-								defaultFlex={0.2}
-								id="names-to-timeline"
-								maxFlex={0.5}
-								minFlex={0.15}
-							>
-								<SplitterElement
-									type="flexer"
-									sticky={<TimelineTimePlaceholders />}
+				<TimelineSelectableItemsProvider timeline={shown}>
+					<TimelineSelectAllKeybindings timeline={shown} />
+					<TimelineHeightContainer shown={shown} hasBeenCut={hasBeenCut}>
+						{isStill ? (
+							<TimelineList timeline={shown} />
+						) : (
+							<TimelineWidthProvider>
+								<TimelinePinchZoom />
+								<SplitterContainer
+									orientation="vertical"
+									defaultFlex={0.2}
+									id="names-to-timeline"
+									maxFlex={0.5}
+									minFlex={0.15}
 								>
-									<TimelineList timeline={shown} />
-								</SplitterElement>
-								<SplitterHandle onCollapse={noop} allowToCollapse="none" />
-								<SplitterElement type="anti-flexer" sticky={null}>
-									<TimelineScrollable>
-										<TimelineTracks timeline={shown} hasBeenCut={hasBeenCut} />
-										<TimelinePlayCursorSyncer />
-										<TimelineInOutPointer />
-										<TimelineTimeIndicators />
-										<TimelineDragHandler />
-										<TimelineInOutDragHandler />
-										<TimelineSlider />
-									</TimelineScrollable>
-								</SplitterElement>
-							</SplitterContainer>
-						</TimelineWidthProvider>
-					)}
-				</TimelineHeightContainer>
+									<SplitterElement
+										type="flexer"
+										sticky={<TimelineTimePlaceholders />}
+									>
+										<TimelineList timeline={shown} />
+									</SplitterElement>
+									<SplitterHandle onCollapse={noop} allowToCollapse="none" />
+									<SplitterElement type="anti-flexer" sticky={null}>
+										<TimelineScrollable>
+											<TimelineTracks
+												timeline={shown}
+												hasBeenCut={hasBeenCut}
+											/>
+											<TimelinePlayCursorSyncer />
+											<TimelineInOutPointer />
+											<TimelineTimeIndicators />
+											<TimelineDragHandler />
+											<TimelineInOutDragHandler />
+											<TimelineSlider />
+										</TimelineScrollable>
+									</SplitterElement>
+								</SplitterContainer>
+							</TimelineWidthProvider>
+						)}
+					</TimelineHeightContainer>
+				</TimelineSelectableItemsProvider>
 			</TimelineKeyframeTracksProvider>
 		</TimelineContextMenuArea>
 	);

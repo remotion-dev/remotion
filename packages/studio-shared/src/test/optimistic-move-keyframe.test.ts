@@ -17,7 +17,7 @@ const previous: CanUpdateSequencePropsResponse = {
 				{frame: 20, value: 2},
 				{frame: 40, value: 3},
 			],
-			easing: ['linear', 'linear'],
+			easing: [{type: 'linear'}, {type: 'linear'}],
 			clamping: {left: 'extend', right: 'extend'},
 			posterize: undefined,
 		},
@@ -36,7 +36,7 @@ const previous: CanUpdateSequencePropsResponse = {
 						{frame: 0, value: 0.2},
 						{frame: 20, value: 0.5},
 					],
-					easing: ['linear'],
+					easing: [{type: 'linear'}],
 					clamping: {left: 'extend', right: 'extend'},
 					posterize: undefined,
 				},
@@ -68,7 +68,7 @@ test('optimisticMoveSequenceKeyframes moves multiple keyframes in one field', ()
 		{frame: 30, value: 2},
 		{frame: 40, value: 3},
 	]);
-	expect(status.easing).toEqual(['linear', 'linear']);
+	expect(status.easing).toEqual([{type: 'linear'}, {type: 'linear'}]);
 });
 
 test('optimisticMoveSequenceKeyframes resorts when moving past an adjacent keyframe', () => {
@@ -91,7 +91,7 @@ test('optimisticMoveSequenceKeyframes resorts when moving past an adjacent keyfr
 		{frame: 30, value: 1},
 		{frame: 40, value: 3},
 	]);
-	expect(status.easing).toEqual(['linear', 'linear']);
+	expect(status.easing).toEqual([{type: 'linear'}, {type: 'linear'}]);
 });
 
 test('optimisticMoveSequenceKeyframes replaces an existing keyframe', () => {
@@ -113,7 +113,7 @@ test('optimisticMoveSequenceKeyframes replaces an existing keyframe', () => {
 		{frame: 20, value: 1},
 		{frame: 40, value: 3},
 	]);
-	expect(status.easing).toEqual(['linear']);
+	expect(status.easing).toEqual([{type: 'linear'}]);
 });
 
 test('canMoveKeyframesWithoutCollisions allows moving onto a frame vacated by another selected keyframe', () => {

@@ -17,22 +17,18 @@ import {
 	useMemoizedEffects,
 } from './effects/use-memoized-effects.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
+import type {InteractiveBaseProps} from './Interactive.js';
 import {
-	durationInFramesField,
-	freezeField,
-	fromField,
-	hiddenField,
-	sequenceVisualStyleSchema,
-} from './sequence-field-schema.js';
-import type {
-	AbsoluteFillLayout,
-	LayoutAndStyle,
-	SequenceProps,
-} from './Sequence.js';
+	baseSchema,
+	transformSchema,
+	type InteractivitySchema,
+} from './interactivity-schema.js';
+import type {AbsoluteFillLayout} from './Sequence.js';
 import {Sequence} from './Sequence.js';
 import {useDelayRender} from './use-delay-render.js';
+import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {useVideoConfig} from './use-video-config.js';
-import {wrapInSchema} from './wrap-in-schema.js';
+import {withInteractivitySchema} from './with-interactivity-schema.js';
 
 // IDL: https://github.com/WICG/html-in-canvas#idl-changes
 // WebGPU's `copyElementImageToTexture` is omitted — `GPUQueue` is not in
@@ -269,6 +265,13 @@ function resolveHtmlInCanvasPixelDensity(
 	return pixelDensity;
 }
 
+const isMissingPaintRecordError = (error: unknown): boolean => {
+	return error instanceof DOMException && error.name === 'InvalidStateError';
+};
+
+const missingPaintRecordMessage =
+	'HtmlInCanvas: Expected the element to be inside the viewport during rendering, but Chrome had no cached paint record for it.';
+
 const resizeOffscreenCanvas = ({
 	offscreen,
 	width,
@@ -303,14 +306,7 @@ const defaultOnPaint: HtmlInCanvasOnPaint = ({
 };
 
 /* eslint-disable react/require-default-props -- optional fields mirror `<Sequence>` / canvas hooks API */
-export type HtmlInCanvasProps = Omit<
-	SequenceProps,
-	| 'children'
-	| 'durationInFrames'
-	| keyof LayoutAndStyle
-	| '_remotionInternalEffects'
-	| '_remotionInternalRefForOutline'
-> &
+export type HtmlInCanvasProps = Omit<InteractiveBaseProps, 'children'> &
 	Omit<
 		AbsoluteFillLayout,
 		| 'layout'
@@ -371,6 +367,7 @@ const HtmlInCanvasContent = forwardRef<
 		const canvasWidth = Math.ceil(width * resolvedPixelDensity);
 		const canvasHeight = Math.ceil(height * resolvedPixelDensity);
 		const {continueRender, cancelRender} = useDelayRender();
+		const {isRendering} = useRemotionEnvironment();
 
 		if (!isHtmlInCanvasSupported()) {
 			cancelRender(new Error(HTML_IN_CANVAS_UNSUPPORTED_MESSAGE));
@@ -438,55 +435,78 @@ const HtmlInCanvasContent = forwardRef<
 					throw new Error('Canvas not found');
 				}
 
-				// `GPUQueue.copyElementImageToTexture` / related paths validate the
-				// linked offscreen surface has a rendering context. Acquire `2d` here
-				// before any capture or handler (must not call getContext on placeholder).
-				const offscreen2d = offscreen.getContext('2d');
-				if (!offscreen2d) {
-					throw new Error(
-						'Failed to acquire 2D context for <HtmlInCanvas> offscreen canvas',
-					);
-				}
-
 				const handle = delayRender('onPaint');
 				if (!initializedRef.current) {
-					initializedRef.current = true;
 					// `onInit` may be async (e.g. WebGPU `requestAdapter`/`requestDevice`).
 					// Capture an `ElementImage` here only for `onInit` consumers — do NOT
 					// reuse it for the paint handler below, because awaiting `onInit`
 					// can invalidate the capture's paint context, leaving subsequent
 					// uploads (e.g. `copyElementImageToTexture`) failing with
 					// "No context found for ElementImage" on the very first paint.
-					const initImage = placeholderCanvas.captureElementImage(element);
-					const currentOnInit = onInitRef.current;
-					if (currentOnInit) {
-						const cleanup = await currentOnInit({
-							canvas: offscreen,
-							element,
-							elementImage: initImage!,
-							pixelDensity: resolvedPixelDensity,
-						});
-						if (typeof cleanup !== 'function') {
-							throw new Error(
-								'HtmlInCanvas: when `onInit` is provided, it must return a cleanup function, or a Promise that resolves to one.',
-							);
-						}
-
-						if (unmountedRef.current) {
-							cleanup();
+					let initImage: ElementImage | null = null;
+					try {
+						initImage = placeholderCanvas.captureElementImage(element);
+					} catch (error) {
+						if (isMissingPaintRecordError(error) && !isRendering) {
+							// Element may be outside viewport (no cached paint record).
+							// Skip init — will retry on the next paint cycle.
+						} else if (isMissingPaintRecordError(error)) {
+							throw new Error(missingPaintRecordMessage);
 						} else {
-							onInitCleanupRef.current = cleanup;
+							throw error;
+						}
+					}
+
+					if (initImage) {
+						initializedRef.current = true;
+						const currentOnInit = onInitRef.current;
+						if (currentOnInit) {
+							const cleanup = await currentOnInit({
+								canvas: offscreen,
+								element,
+								elementImage: initImage,
+								pixelDensity: resolvedPixelDensity,
+							});
+							if (typeof cleanup !== 'function') {
+								throw new Error(
+									'HtmlInCanvas: when `onInit` is provided, it must return a cleanup function, or a Promise that resolves to one.',
+								);
+							}
+
+							if (unmountedRef.current) {
+								cleanup();
+							} else {
+								onInitCleanupRef.current = cleanup;
+							}
 						}
 					}
 				}
 
 				const handler = onPaintRef.current ?? defaultOnPaint;
 
-				const elImage = placeholderCanvas.captureElementImage(element);
+				let elImage: ElementImage;
+				try {
+					elImage = placeholderCanvas.captureElementImage(element);
+				} catch (error) {
+					// `captureElementImage` throws `InvalidStateError` when the
+					// element is outside the viewport (no cached paint record).
+					// Skip this paint cycle — the canvas retains its last state.
+					if (isMissingPaintRecordError(error) && !isRendering) {
+						continueRender(handle);
+						return;
+					}
+
+					if (isMissingPaintRecordError(error)) {
+						throw new Error(missingPaintRecordMessage);
+					}
+
+					throw error;
+				}
+
 				await handler({
 					canvas: offscreen,
 					element,
-					elementImage: elImage!,
+					elementImage: elImage,
 					pixelDensity: resolvedPixelDensity,
 				});
 
@@ -510,6 +530,7 @@ const HtmlInCanvasContent = forwardRef<
 			continueRender,
 			cancelRender,
 			resolvedPixelDensity,
+			isRendering,
 		]);
 
 		// Transfer control once per layout canvas instance, then listen for paint on
@@ -624,7 +645,7 @@ HtmlInCanvasContent.displayName = 'HtmlInCanvasContent';
 const HtmlInCanvasInner = forwardRef<
 	HTMLCanvasElement,
 	HtmlInCanvasProps & {
-		readonly _experimentalControls: SequenceControls | undefined;
+		readonly controls: SequenceControls | undefined;
 	}
 >(
 	(
@@ -636,7 +657,7 @@ const HtmlInCanvasInner = forwardRef<
 			onPaint,
 			onInit,
 			pixelDensity,
-			_experimentalControls: controls,
+			controls,
 			style,
 			durationInFrames,
 			name,
@@ -667,9 +688,9 @@ const HtmlInCanvasInner = forwardRef<
 				durationInFrames={resolvedDuration}
 				name={name ?? '<HtmlInCanvas>'}
 				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/remotion/html-in-canvas"
-				_experimentalControls={controls}
+				controls={controls}
 				_remotionInternalEffects={memoizedEffectDefinitions}
-				_remotionInternalRefForOutline={actualRef}
+				outlineRef={actualRef}
 				layout="none"
 				{...sequenceProps}
 			>
@@ -693,16 +714,23 @@ const HtmlInCanvasInner = forwardRef<
 
 HtmlInCanvasInner.displayName = 'HtmlInCanvas';
 
-const htmlInCanvasSchema = {
-	durationInFrames: durationInFramesField,
-	from: fromField,
-	freeze: freezeField,
-	...sequenceVisualStyleSchema,
-	hidden: hiddenField,
-};
+export const htmlInCanvasSchema = {
+	...baseSchema,
+	pixelDensity: {
+		type: 'number',
+		min: 1,
+		max: 3,
+		step: 0.1,
+		default: 1,
+		description: 'Pixel density',
+		hiddenFromList: false,
+	},
+	...transformSchema,
+} as const satisfies InteractivitySchema;
 
-const HtmlInCanvasWrapped = wrapInSchema({
+const HtmlInCanvasWrapped = withInteractivitySchema({
 	Component: HtmlInCanvasInner,
+	componentName: '<HtmlInCanvas>',
 	componentIdentity: 'dev.remotion.remotion.HtmlInCanvas',
 	schema: htmlInCanvasSchema,
 	supportsEffects: true,

@@ -53,7 +53,12 @@ const getInputPropsWarning = ({
 
 const getCannotSaveDefaultProps = (
 	canSaveDefaultProps: TypeCanSaveState | null,
+	showCannotSaveDefaultPropsWarning: boolean,
 ): RenderModalWarning | null => {
+	if (!showCannotSaveDefaultPropsWarning) {
+		return null;
+	}
+
 	if (canSaveDefaultProps === null) {
 		return null;
 	}
@@ -114,6 +119,7 @@ export const getRenderModalWarnings = ({
 	jsSetUsed,
 	inJSONEditor,
 	propsEditType,
+	showCannotSaveDefaultPropsWarning,
 }: {
 	cliProps: unknown;
 	canSaveDefaultProps: TypeCanSaveState | null;
@@ -123,13 +129,17 @@ export const getRenderModalWarnings = ({
 	jsSetUsed: boolean;
 	inJSONEditor: boolean;
 	propsEditType: PropsEditType;
+	showCannotSaveDefaultPropsWarning: boolean;
 }): RenderModalWarning[] => {
 	return [
 		warningOrNull(
 			'input-props-override',
 			getInputPropsWarning({cliProps, propsEditType}),
 		),
-		getCannotSaveDefaultProps(canSaveDefaultProps),
+		getCannotSaveDefaultProps(
+			canSaveDefaultProps,
+			showCannotSaveDefaultPropsWarning,
+		),
 		warningOrNull(
 			'custom-date-used',
 			customDateUsed(isCustomDateUsed, inJSONEditor),

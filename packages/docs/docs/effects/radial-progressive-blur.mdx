@@ -1,0 +1,118 @@
+---
+image: /generated/articles-docs-effects-radial-progressive-blur.png
+slug: /effects/radial-progressive-blur
+title: radialProgressiveBlur()
+sidebar_label: radialProgressiveBlur()
+crumb: '@remotion/effects'
+---
+
+# radialProgressiveBlur()<AvailableFrom v="4.0.483" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+A Gaussian blur whose radius changes from a center point to the edge of an ellipse.
+
+Use it for depth-of-field, spotlight focus, and radial softening on canvas-based components such as [`<Video>`](/docs/media/video), [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) and [`<Solid>`](/docs/solid).
+
+## Preview
+
+<EffectsDemo type="effects-radial-progressive-blur" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {AbsoluteFill} from 'remotion';
+import {Video} from '@remotion/media';
+import {radialProgressiveBlur} from '@remotion/effects/radial-progressive-blur';
+
+export const MyComp: React.FC = () => {
+  return (
+    <AbsoluteFill>
+      <Video
+        src="https://remotion.media/video.mp4"
+        effects={[
+          radialProgressiveBlur({
+            center: [0.48, 0.5],
+            width: 1.29,
+            height: 1,
+            rotation: 0,
+            start: 0.75,
+            startBlur: 0,
+            endBlur: 200,
+          }),
+        ]}
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+## API
+
+Pass an object with the following properties. You can also call `radialProgressiveBlur()` without arguments.
+
+### `center?`
+
+UV coordinate where `startBlur` is reached. Defaults to `[0.5, 0.5]`.
+
+Pass a `[number, number]` tuple where `[0, 0]` is top-left and `[1, 1]` is bottom-right.
+
+The accepted range in the visual editor is `[-1, 2]` for each coordinate. Values outside `[0, 1]` place the center outside the visible area.
+
+### `width?`
+
+Full ellipse width in UV coordinates. Defaults to `1`.
+
+For example, `width: 0.5` makes the ellipse half as wide as the canvas.
+
+### `height?`
+
+Full ellipse height in UV coordinates. Defaults to `1`.
+
+For example, `height: 0.5` makes the ellipse half as tall as the canvas.
+
+### `rotation?`
+
+Ellipse rotation in degrees. Defaults to `0`.
+
+### `start?`
+
+Normalized ellipse progress where `startBlur` is reached. Defaults to `0`.
+
+`0` is the center. `1` is the outer ellipse line defined by `width`, `height`, and `rotation`.
+
+Values between `0` and `1` use the same ellipse shape as a multiplier. For example, `start: 0.5` starts the blur halfway between the center and the outer ellipse.
+
+### `startBlur?`
+
+Blur radius in pixels at `start`. Defaults to `0`.
+
+Negative values are clamped to `0`.
+
+### `endBlur?`
+
+Blur radius in pixels at the outer ellipse. Defaults to `50`.
+
+Negative values are clamped to `0`.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Behavior
+
+The blur radius is interpolated between `startBlur` and `endBlur` from `start` to the outer ellipse.
+
+Before `start`, the radius is clamped to `startBlur`. At and beyond the outer ellipse, the radius is clamped to `endBlur`.
+
+## Requirements
+
+`radialProgressiveBlur()` uses a WebGL2 backend. During renders, enable WebGL via [`Config.setChromiumOpenGlRenderer('angle')`](/docs/config#setchromiumopenglrenderer). See [Using WebGL during renders](/docs/remotion/html-in-canvas#using-webgl-during-renders).
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`blur()`](/docs/effects/blur)
+- [`linearProgressiveBlur()`](/docs/effects/linear-progressive-blur)
+- [HTML-in-canvas guide](/docs/html-in-canvas)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/radial-progressive-blur/index.ts)

@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {assertOptionalFiniteNumber} from '../color-utils.js';
 import {assertEffectParamsObject} from '../validate-effect-param.js';
@@ -52,7 +52,10 @@ const linearProgressiveBlurSchema = {
 		step: 0.01,
 		default: DEFAULT_START,
 		description: 'Start',
-		lineTo: 'end',
+		visual: {
+			type: 'line',
+			to: 'end',
+		},
 	},
 	end: {
 		type: 'uv-coordinate',
@@ -80,7 +83,7 @@ const linearProgressiveBlurSchema = {
 		description: 'End blur',
 		hiddenFromList: false,
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 const clampBlur = (value: number): number => Math.max(0, value);
 
@@ -123,7 +126,7 @@ export const linearProgressiveBlur = createEffect<
 	LinearProgressiveBlurParams,
 	LinearProgressiveBlurState
 >({
-	type: 'remotion/linear-progressive-blur',
+	type: 'dev.remotion.effects.linearProgressiveBlur',
 	label: 'linearProgressiveBlur()',
 	documentationLink:
 		'https://www.remotion.dev/docs/effects/linear-progressive-blur',

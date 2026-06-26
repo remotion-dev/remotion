@@ -1,0 +1,293 @@
+---
+image: /generated/articles-docs-studio-make-component-interactive.png
+title: Make a component interactive
+crumb: "Remotion Studio"
+---
+
+# Make a component interactive<AvailableFrom v="4.0.479" />
+
+Interactive components can be selected in the Remotion Studio timeline and can expose editable props.
+
+If you only need an editable HTML or SVG element, use [`Interactive`](/docs/interactive). For a custom component, wrap it with [`Interactive.withSchema()`](/docs/interactive-with-schema).
+
+## Create a schema
+
+An [`InteractivitySchema`](/docs/interactivity-schema) describes which props the Studio may edit.
+
+Use [`Interactive.baseSchema`](/docs/interactive#interactivebaseschema) for props inherited from [`<Sequence>`](/docs/sequence), such as [`from`](/docs/sequence#from), [`trimBefore`](/docs/sequence#trimbefore), [`durationInFrames`](/docs/sequence#durationinframes), [`freeze`](/docs/sequence#freeze), [`hidden`](/docs/sequence#hidden), [`name`](/docs/sequence#name) and [`showInTimeline`](/docs/sequence#showintimeline).
+
+Use [`Interactive.transformSchema`](/docs/interactive#interactivetransformschema) if your component accepts a `style` prop and applies it to the rendered element.
+
+```tsx twoslash title="Badge.tsx"
+import type React from 'react';
+import {
+  Interactive,
+  type InteractiveBaseProps,
+  type InteractiveTransformProps,
+  type InteractivitySchema,
+} from 'remotion';
+
+type BadgeProps = InteractiveBaseProps &
+  InteractiveTransformProps & {
+    readonly children?: React.ReactNode;
+    readonly color?: string;
+    readonly padding?: number;
+  };
+
+const badgeSchema = {
+  ...Interactive.baseSchema,
+  color: {
+    type: 'color',
+    default: '#0b84ff',
+    description: 'Color',
+  },
+  padding: {
+    type: 'number',
+    min: 0,
+    step: 1,
+    default: 16,
+    description: 'Padding',
+    hiddenFromList: false,
+  },
+  ...Interactive.transformSchema,
+} as const satisfies InteractivitySchema;
+```
+
+## Forward `controls`
+
+The inner component receives a `controls` prop from `Interactive.withSchema()`.
+
+Forward it to the [`<Sequence>`](/docs/sequence) that represents your component in the timeline.
+
+```tsx twoslash title="Badge.tsx"
+import React, {forwardRef, useImperativeHandle, useRef} from 'react';
+import {
+  Interactive,
+  Sequence,
+  type InteractiveBaseProps,
+  type InteractiveTransformProps,
+  type InteractivitySchema,
+  type SequenceControls,
+} from 'remotion';
+
+type BadgeProps = InteractiveBaseProps &
+  InteractiveTransformProps & {
+    readonly children?: React.ReactNode;
+    readonly color?: string;
+    readonly padding?: number;
+  };
+
+const badgeSchema = {
+  ...Interactive.baseSchema,
+  color: {
+    type: 'color',
+    default: '#0b84ff',
+    description: 'Color',
+  },
+  padding: {
+    type: 'number',
+    min: 0,
+    step: 1,
+    default: 16,
+    description: 'Padding',
+    hiddenFromList: false,
+  },
+  ...Interactive.transformSchema,
+} as const satisfies InteractivitySchema;
+// ---cut---
+const BadgeInner = forwardRef<
+  HTMLDivElement,
+  BadgeProps & {
+    readonly controls: SequenceControls | undefined;
+  }
+>(
+  (
+    {
+      children,
+      color = '#0b84ff',
+      padding = 16,
+      style,
+      name,
+      controls,
+      ...sequenceProps
+    },
+    ref,
+  ) => {
+    const outlineRef = useRef<HTMLDivElement>(null);
+
+    useImperativeHandle(ref, () => outlineRef.current as HTMLDivElement, []);
+
+    return (
+      <Sequence
+        layout="none"
+        {...sequenceProps}
+        name={name ?? '<Badge>'}
+        controls={controls}
+        outlineRef={outlineRef}
+      >
+        <div
+          ref={outlineRef}
+          style={{
+            ...style,
+            display: 'inline-flex',
+            borderRadius: 999,
+            backgroundColor: color,
+            color: 'white',
+            fontWeight: 700,
+            padding,
+          }}
+        >
+          {children}
+        </div>
+      </Sequence>
+    );
+  },
+);
+```
+
+The exported component should not expose `controls` as a public prop.
+
+Pass [`outlineRef`](/docs/sequence#outlineref) when using `<Sequence layout="none">` so the Studio can draw an outline around the rendered element.
+
+## Wrap the component
+
+Use a stable `componentIdentity` so saved Studio edits can be associated with the component.
+
+```tsx twoslash title="Badge.tsx"
+import React, {forwardRef, useImperativeHandle, useRef} from 'react';
+import {
+  Interactive,
+  Sequence,
+  type InteractiveBaseProps,
+  type InteractiveTransformProps,
+  type InteractivitySchema,
+  type SequenceControls,
+} from 'remotion';
+
+type BadgeProps = InteractiveBaseProps &
+  InteractiveTransformProps & {
+    readonly children?: React.ReactNode;
+    readonly color?: string;
+    readonly padding?: number;
+  };
+
+const badgeSchema = {
+  ...Interactive.baseSchema,
+  color: {
+    type: 'color',
+    default: '#0b84ff',
+    description: 'Color',
+  },
+  padding: {
+    type: 'number',
+    min: 0,
+    step: 1,
+    default: 16,
+    description: 'Padding',
+    hiddenFromList: false,
+  },
+  ...Interactive.transformSchema,
+} as const satisfies InteractivitySchema;
+
+const BadgeInner = forwardRef<
+  HTMLDivElement,
+  BadgeProps & {
+    readonly controls: SequenceControls | undefined;
+  }
+>(
+  (
+    {
+      children,
+      color = '#0b84ff',
+      padding = 16,
+      style,
+      name,
+      controls,
+      ...sequenceProps
+    },
+    ref,
+  ) => {
+    const outlineRef = useRef<HTMLDivElement>(null);
+
+    useImperativeHandle(ref, () => outlineRef.current as HTMLDivElement, []);
+
+    return (
+      <Sequence
+        layout="none"
+        {...sequenceProps}
+        name={name ?? '<Badge>'}
+        controls={controls}
+        outlineRef={outlineRef}
+      >
+        <div
+          ref={outlineRef}
+          style={{
+            ...style,
+            display: 'inline-flex',
+            borderRadius: 999,
+            backgroundColor: color,
+            color: 'white',
+            fontWeight: 700,
+            padding,
+          }}
+        >
+          {children}
+        </div>
+      </Sequence>
+    );
+  },
+);
+// ---cut---
+export const Badge = Interactive.withSchema({
+  Component: BadgeInner,
+  componentName: '<Badge>',
+  componentIdentity: 'com.example.Badge',
+  schema: badgeSchema,
+  supportsEffects: false,
+});
+```
+
+## Use the component
+
+```tsx title="MyComp.tsx"
+import {AbsoluteFill} from 'remotion';
+import {Badge} from './Badge';
+
+export const MyComp = () => {
+  return (
+    <AbsoluteFill>
+      <Badge
+        from={30}
+        durationInFrames={90}
+        color="#ff5c7a"
+        style={{translate: '120px 80px'}}
+      >
+        Sale
+      </Badge>
+    </AbsoluteFill>
+  );
+};
+```
+
+The component now has a timeline row, inherits the common `<Sequence>` props and exposes `color`, `padding` and transform controls in the Studio.
+
+## Choosing schema fragments
+
+### `Interactive.baseSchema`
+
+Use it when the component renders a `<Sequence>` internally.
+
+### `Interactive.transformSchema`
+
+Use it when the component accepts a `style` prop and applies it to the rendered element.
+
+### `Interactive.premountSchema`
+
+Use it when the component forwards `premountFor`, `postmountFor`, `styleWhilePremounted` and `styleWhilePostmounted` to a `<Sequence>` with `layout="absolute-fill"`.
+
+## See also
+
+- [`Interactive.withSchema()`](/docs/interactive-with-schema)
+- [`InteractivitySchema`](/docs/interactivity-schema)
+- [`Interactive`](/docs/interactive)
+- [Studio interactivity](/docs/studio/interactivity)

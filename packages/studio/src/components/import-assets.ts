@@ -6,6 +6,7 @@ import {
 	type ComponentDragData,
 	type ComponentProp,
 	type DownloadRemoteAssetResponse,
+	type ElementDragData,
 	type FileType,
 	type InsertableCompositionElement,
 	type InsertableCompositionElementPosition,
@@ -44,6 +45,17 @@ export const getAssetElement = ({
 		return {
 			type: 'asset',
 			assetType: 'image',
+			src,
+			srcType: 'static',
+			dimensions: fileType.dimensions,
+			position: null,
+		};
+	}
+
+	if (fileType.type === 'apng') {
+		return {
+			type: 'asset',
+			assetType: 'animated-image',
 			src,
 			srcType: 'static',
 			dimensions: fileType.dimensions,
@@ -120,6 +132,17 @@ export const getAssetElementFromPath = (
 		};
 	}
 
+	if (extension === 'apng') {
+		return {
+			type: 'asset',
+			assetType: 'animated-image',
+			src: assetPath,
+			srcType: 'static',
+			dimensions: null,
+			position: null,
+		};
+	}
+
 	if (extension === 'gif') {
 		return {
 			type: 'asset',
@@ -173,6 +196,10 @@ const getAssetLabel = (element: InsertableCompositionElement) => {
 		return '<Gif>';
 	}
 
+	if (element.assetType === 'animated-image') {
+		return '<AnimatedImage>';
+	}
+
 	if (element.assetType === 'audio') {
 		return '<Audio>';
 	}
@@ -213,9 +240,13 @@ const getComponentPropNumber = (props: ComponentProp[], name: string) => {
 	return typeof prop?.value === 'number' ? prop.value : null;
 };
 
-const getComponentDimensions = (
+export const getComponentDimensions = (
 	component: ComponentDragData['component'],
 ): Dimensions | null => {
+	if (component.dimensions) {
+		return component.dimensions;
+	}
+
 	const width = getComponentPropNumber(component.props, 'width');
 	const height = getComponentPropNumber(component.props, 'height');
 	if (width !== null && height !== null) {
@@ -285,6 +316,7 @@ const getFileDimensions = async ({
 		fileType.type === 'jpeg' ||
 		fileType.type === 'webp' ||
 		fileType.type === 'bmp' ||
+		fileType.type === 'apng' ||
 		fileType.type === 'gif'
 	) {
 		if (fileType.dimensions) {
@@ -320,7 +352,7 @@ const getStaticAssetDimensions = (
 
 	if (
 		extension &&
-		['png', 'jpg', 'jpeg', 'webp', 'bmp', 'gif'].includes(extension)
+		['png', 'jpg', 'jpeg', 'webp', 'bmp', 'gif', 'apng'].includes(extension)
 	) {
 		return getImageDimensions({revokeObjectUrl: false, src});
 	}
@@ -357,6 +389,40 @@ const getStaticAssetDimensionsOrNull = async (
 	} catch {
 		return null;
 	}
+};
+
+const getStaticAssetFileType = async (
+	assetPath: string,
+): Promise<FileType | null> => {
+	const extension = assetPath.split('.').pop()?.toLowerCase();
+	if (extension !== 'png' && extension !== 'apng') {
+		return null;
+	}
+
+	try {
+		const response = await fetch(staticFile(assetPath));
+		if (!response.ok) {
+			return null;
+		}
+
+		return detectFileType(new Uint8Array(await response.arrayBuffer()));
+	} catch {
+		return null;
+	}
+};
+
+const getAssetElementFromStaticAsset = async (
+	assetPath: string,
+): Promise<InsertableAssetElement | null> => {
+	const fileType = await getStaticAssetFileType(assetPath);
+	if (fileType) {
+		const element = getAssetElement({fileType, src: assetPath});
+		if (element) {
+			return element;
+		}
+	}
+
+	return getAssetElementFromPath(assetPath);
 };
 
 export const pickFilesToImport = (): Promise<File[]> => {
@@ -672,20 +738,21 @@ export const insertExistingAssets = async ({
 
 	try {
 		for (const assetPath of assetPaths) {
-			const element = getAssetElementFromPath(assetPath);
+			const element = await getAssetElementFromStaticAsset(assetPath);
 			if (element === null) {
 				unsupportedFiles.push(assetPath);
 				continue;
 			}
 
-			const dimensions = await getStaticAssetDimensionsOrNull(assetPath);
+			const dimensions =
+				element.dimensions ?? (await getStaticAssetDimensionsOrNull(assetPath));
 
 			const inserted = await insertAssetElement({
 				compositionFile,
 				compositionId,
 				element: {
 					...element,
-					dimensions: element.dimensions ?? dimensions,
+					dimensions,
 					position: getCenteredPosition({
 						dimensions,
 						dropPosition,
@@ -751,6 +818,44 @@ export const insertComponent = async ({
 	} catch (error) {
 		showNotification(
 			`Could not add component: ${
+				error instanceof Error ? error.message : String(error)
+			}`,
+			4000,
+		);
+	}
+};
+
+export const insertElement = async ({
+	compositionFile,
+	compositionId,
+	dropPosition,
+	element,
+}: {
+	compositionFile: string;
+	compositionId: string;
+	dropPosition: InsertElementDropPosition | null;
+	element: ElementDragData['element'];
+}) => {
+	try {
+		const response = await callApi('/api/insert-element', {
+			compositionFile,
+			compositionId,
+			element,
+			position: getCenteredPosition({
+				dimensions: element.dimensions,
+				dropPosition,
+			}),
+		});
+
+		if (!response.success) {
+			showNotification(`Could not add Element: ${response.reason}`, 4000);
+			return;
+		}
+
+		showNotification(`Added ${element.displayName} to source file`, 2000);
+	} catch (error) {
+		showNotification(
+			`Could not add Element: ${
 				error instanceof Error ? error.message : String(error)
 			}`,
 			4000,

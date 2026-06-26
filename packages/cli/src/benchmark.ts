@@ -14,7 +14,6 @@ import {getRendererPortFromConfigFileAndCliFlag} from './config/preview-server';
 import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
 import {findEntryPoint} from './entry-point';
 import {getCliOptions} from './get-cli-options';
-import {getVideoImageFormat} from './image-formats';
 import {Log} from './log';
 import {makeProgressBar} from './make-progress-bar';
 import {parsedCli, quietFlagProvided} from './parsed-cli';
@@ -64,6 +63,7 @@ const {
 	browserExecutableOption,
 	everyNthFrameOption,
 	proResProfileOption,
+	videoImageFormatOption,
 	userAgentOption,
 	disableWebSecurityOption,
 	ignoreCertificateErrorsOption,
@@ -241,16 +241,10 @@ export const benchmarkCommand = async (
 		commandLine: parsedCli,
 	}).value;
 
-	const pixelFormat = pixelFormatOption.getValue({
-		commandLine: parsedCli,
-	}).value;
 	const browserExecutable = browserExecutableOption.getValue({
 		commandLine: parsedCli,
 	}).value;
 	const everyNthFrame = everyNthFrameOption.getValue({
-		commandLine: parsedCli,
-	}).value;
-	const proResProfile = proResProfileOption.getValue({
 		commandLine: parsedCli,
 	}).value;
 	const userAgent = userAgentOption.getValue({commandLine: parsedCli}).value;
@@ -530,14 +524,31 @@ export const benchmarkCommand = async (
 					gopSize,
 					envVariables,
 					frameRange: defaultFrameRange,
-					imageFormat: getVideoImageFormat({
-						codec: videoCodec,
-						uiImageFormat: null,
-					}),
+					imageFormat: videoImageFormatOption.getValue(
+						{commandLine: parsedCli},
+						{
+							codec: videoCodec,
+							uiVideoImageFormat: null,
+							compositionDefaultVideoImageFormat:
+								composition.defaultVideoImageFormat,
+						},
+					).value,
 					serializedInputPropsWithCustomSchema,
 					overwrite,
-					pixelFormat,
-					proResProfile,
+					pixelFormat: pixelFormatOption.getValue(
+						{commandLine: parsedCli},
+						{
+							uiPixelFormat: null,
+							compositionDefaultPixelFormat: composition.defaultPixelFormat,
+						},
+					).value,
+					proResProfile: proResProfileOption.getValue(
+						{commandLine: parsedCli},
+						{
+							uiProResProfile: undefined,
+							compositionDefaultProResProfile: composition.defaultProResProfile,
+						},
+					).value,
 					x264Preset,
 					jpegQuality,
 					chromiumOptions,

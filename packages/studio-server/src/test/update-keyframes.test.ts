@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {
 	updateEffectKeyframesAst,
@@ -38,14 +38,14 @@ const translateSchema = {
 		type: 'translate',
 		default: '0px 0px',
 	},
-} satisfies SequenceSchema;
+} satisfies InteractivitySchema;
 
 const rotateSchema = {
 	'style.rotate': {
 		type: 'rotation-css',
 		default: '0deg',
 	},
-} satisfies SequenceSchema;
+} satisfies InteractivitySchema;
 
 const translateInput = `import React from 'react';
 import {AbsoluteFill} from 'remotion';
@@ -87,6 +87,29 @@ export const Comp = () => {
 };
 `;
 
+const waveEffectInput = `import {wave} from '@remotion/effects/wave';
+import {Solid} from 'remotion';
+
+export const Comp = () => {
+\treturn (
+\t\t<Solid
+\t\t\twidth={100}
+\t\t\theight={100}
+\t\t\tcolor="red"
+\t\t\teffects={[wave({})]}
+\t\t/>
+\t);
+};
+`;
+
+const waveSchema = {
+	phase: {
+		type: 'number',
+		default: 0,
+		hiddenFromList: false,
+	},
+} satisfies InteractivitySchema;
+
 const getLine = (input: string, needle: string): number => {
 	const lineIndex = input
 		.split('\n')
@@ -119,7 +142,7 @@ test('updateSequenceKeyframes adds a keyframe to an existing interpolation', asy
 	);
 });
 
-test('updateSequenceKeyframes pads easing arrays when adding keyframes', async () => {
+test('updateSequenceKeyframes uses linear easing when appending keyframes', async () => {
 	const input = `import React from 'react';
 import {AbsoluteFill, Easing, interpolate, useCurrentFrame} from 'remotion';
 
@@ -144,9 +167,37 @@ export const Example: React.FC = () => {
 	});
 
 	expect(output).toContain('interpolate(frame, [91, 126, 134]');
-	expect(output).toContain(
-		'easing: [Easing.bezier(0.42, 0, 1, 1), Easing.linear]',
-	);
+	expect(output).toContain('Easing.linear');
+	expect(output.match(/Easing\.bezier\(0\.42, 0, 1, 1\)/g)?.length).toBe(1);
+});
+
+test('updateSequenceKeyframes duplicates the split segment easing when adding keyframes', async () => {
+	const input = `import React from 'react';
+import {AbsoluteFill, Easing, interpolate, useCurrentFrame} from 'remotion';
+
+export const Example: React.FC = () => {
+\tconst frame = useCurrentFrame();
+\treturn (
+\t\t<AbsoluteFill>
+\t\t\t<div style={{scale: interpolate(frame, [0, 31, 60], [0, 1, 2], {easing: [Easing.linear, Easing.bezier(0.42, 0, 1, 1)]})}} />
+\t\t</AbsoluteFill>
+\t);
+};
+`;
+	const {output} = await updateSequenceKeyframes({
+		input,
+		nodePath: lineColumnToNodePath(input, getLine(input, 'scale')),
+		updates: [
+			{
+				key: 'style.scale',
+				operation: {type: 'add', frame: 38, value: 1.5},
+			},
+		],
+	});
+
+	expect(output).toContain('interpolate(frame, [0, 31, 38, 60]');
+	expect(output).toContain('Easing.linear');
+	expect(output.match(/Easing\.bezier\(0\.42, 0, 1, 1\)/g)?.length).toBe(2);
 });
 
 test('updateSequenceKeyframes updates a keyframe at the same frame', async () => {
@@ -226,7 +277,7 @@ export const Example: React.FC = () => {
 				operation: {
 					type: 'easing',
 					segmentIndex: 1,
-					easing: [0.42, 0, 1, 1],
+					easing: {type: 'bezier', x1: 0.42, y1: 0, x2: 1, y2: 1},
 				},
 			},
 		],
@@ -236,6 +287,53 @@ export const Example: React.FC = () => {
 	expect(output).toContain(
 		'easing: [Easing.linear, Easing.bezier(0.42, 0, 1, 1)]',
 	);
+});
+
+test('updateSequenceKeyframes sets a spring easing segment', async () => {
+	const input = `import React from 'react';
+import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
+
+export const Example: React.FC = () => {
+\tconst frame = useCurrentFrame();
+\treturn (
+\t\t<AbsoluteFill>
+\t\t\t<div style={{scale: interpolate(frame, [0, 100], [2, 4])}} />
+\t\t</AbsoluteFill>
+\t);
+};
+`;
+	const {output} = await updateSequenceKeyframes({
+		input,
+		nodePath: lineColumnToNodePath(input, getLine(input, 'scale')),
+		updates: [
+			{
+				key: 'style.scale',
+				operation: {
+					type: 'easing',
+					segmentIndex: 0,
+					easing: {
+						type: 'spring',
+						allowTail: true,
+						damping: 12,
+						durationRestThreshold: 0.1,
+						mass: 1.5,
+						stiffness: 180,
+						overshootClamping: true,
+					},
+				},
+			},
+		],
+	});
+
+	expect(output).toContain('Easing');
+	expect(output).toContain('easing: [');
+	expect(output).toContain('Easing.spring({');
+	expect(output).toContain('damping: 12');
+	expect(output).toContain('mass: 1.5');
+	expect(output).toContain('stiffness: 180');
+	expect(output).toContain('allowTail: true');
+	expect(output).toContain('durationRestThreshold: 0.1');
+	expect(output).toContain('overshootClamping: true');
 });
 
 test('updateSequenceKeyframes adds an unaliased Easing import for easing edits', async () => {
@@ -260,7 +358,7 @@ export const Example: React.FC = () => {
 				operation: {
 					type: 'easing',
 					segmentIndex: 1,
-					easing: [0.42, 0, 1, 1],
+					easing: {type: 'bezier', x1: 0.42, y1: 0, x2: 1, y2: 1},
 				},
 			},
 		],
@@ -293,7 +391,7 @@ export const Example: React.FC = () => {
 				operation: {
 					type: 'easing',
 					segmentIndex: 1,
-					easing: [0, 0, 0.58, 1],
+					easing: {type: 'bezier', x1: 0, y1: 0, x2: 0.58, y2: 1},
 				},
 			},
 		],
@@ -326,7 +424,7 @@ export const Example: React.FC = () => {
 				operation: {
 					type: 'easing',
 					segmentIndex: 1,
-					easing: 'linear',
+					easing: {type: 'linear'},
 				},
 			},
 		],
@@ -346,7 +444,7 @@ test('updateSequenceKeyframes sets easing for color keyframes', async () => {
 				operation: {
 					type: 'easing',
 					segmentIndex: 0,
-					easing: [0.42, 0, 1, 1],
+					easing: {type: 'bezier', x1: 0.42, y1: 0, x2: 1, y2: 1},
 				},
 			},
 		],
@@ -437,7 +535,7 @@ export const Example: React.FC = () => {
 			default: 1,
 			hiddenFromList: false,
 		},
-	} satisfies SequenceSchema;
+	} satisfies InteractivitySchema;
 	const {output} = await updateSequenceKeyframes({
 		input,
 		nodePath: lineColumnToNodePath(input, getLine(input, '<div')),
@@ -473,7 +571,7 @@ test('updateSequenceKeyframes rejects non-keyframable fields', async () => {
 			hiddenFromList: false,
 			keyframable: false,
 		},
-	} satisfies SequenceSchema;
+	} satisfies InteractivitySchema;
 
 	await expect(
 		updateSequenceKeyframes({
@@ -870,6 +968,36 @@ export const Example: React.FC = () => {
 	expect(output).toContain('easing: [Easing.bezier(0.42, 0, 1, 1)]');
 });
 
+test('updateSequenceKeyframes preserves the left segment easing when deleting a middle keyframe', async () => {
+	const input = `import React from 'react';
+import {AbsoluteFill, Easing, interpolate, useCurrentFrame} from 'remotion';
+
+export const Example: React.FC = () => {
+\tconst frame = useCurrentFrame();
+\treturn (
+\t\t<AbsoluteFill>
+\t\t\t<div style={{scale: interpolate(frame, [0, 31, 38, 60], [0, 1, 1.5, 2], {easing: [Easing.linear, Easing.bezier(0.42, 0, 1, 1), Easing.bezier(0.42, 0, 1, 1)]})}} />
+\t\t</AbsoluteFill>
+\t);
+};
+`;
+	const {output} = await updateSequenceKeyframes({
+		input,
+		nodePath: lineColumnToNodePath(input, getLine(input, 'scale')),
+		updates: [
+			{
+				key: 'style.scale',
+				operation: {type: 'remove', frame: 38},
+			},
+		],
+	});
+
+	expect(output).toContain('interpolate(frame, [0, 31, 60]');
+	expect(output).toContain(
+		'easing: [Easing.linear, Easing.bezier(0.42, 0, 1, 1)]',
+	);
+});
+
 test('updateSequenceKeyframes moves overlapping selected keyframes together', async () => {
 	const input = sequenceInput.replace(
 		'interpolate(frame, [0, 100], [2, 4])',
@@ -964,10 +1092,9 @@ test('updateSequenceKeyframes replaces an existing keyframe when moving onto it'
 		'interpolate(frame, [0, 50, 100], [2, 3, 4], {easing: [Easing.linear, Easing.bezier(0.42, 0, 1, 1)]})',
 	]);
 	expect(newValueStrings).toEqual([
-		'interpolate(frame, [50, 100], [2, 4], {easing: [Easing.bezier(0.42, 0, 1, 1)]})',
+		'interpolate(frame, [50, 100], [2, 4], {})',
 	]);
-	expect(output).toContain('scale: interpolate(frame, [50, 100], [2, 4], {');
-	expect(output).toContain('easing: [Easing.bezier(0.42, 0, 1, 1)]');
+	expect(output).toContain('scale: interpolate(frame, [50, 100], [2, 4], {})');
 });
 
 test('updateSequenceKeyframes allows moving keyframes outside the sequence range', async () => {
@@ -1077,6 +1204,51 @@ test('updateEffectKeyframes converts a static value to a clamped interpolation',
 	expect(serialized).toContain('extrapolateRight: "clamp"');
 });
 
+test('updateEffectKeyframes adds a missing prop before keyframing it', () => {
+	const {serialized, oldValueStrings} = updateEffectKeyframesAst({
+		input: waveEffectInput,
+		sequenceNodePath: lineColumnToNodePath(
+			waveEffectInput,
+			getLine(waveEffectInput, '<Solid'),
+		),
+		effectIndex: 0,
+		schema: waveSchema,
+		updates: [
+			{
+				key: 'phase',
+				operation: {type: 'add', frame: 30, value: 90},
+			},
+		],
+	});
+
+	expect(oldValueStrings).toEqual(['0']);
+	expect(serialized).toContain('useCurrentFrame');
+	expect(serialized).toContain('const frame = useCurrentFrame();');
+	expect(serialized).toContain('phase: interpolate(frame, [30], [90], {');
+	expect(serialized).toContain('extrapolateLeft: "clamp"');
+	expect(serialized).toContain('extrapolateRight: "clamp"');
+});
+
+test('updateEffectKeyframes adds props to a zero-argument effect', () => {
+	const input = waveEffectInput.replace('wave({})', 'wave()');
+	const {serialized, oldValueStrings} = updateEffectKeyframesAst({
+		input,
+		sequenceNodePath: lineColumnToNodePath(input, getLine(input, '<Solid')),
+		effectIndex: 0,
+		schema: waveSchema,
+		updates: [
+			{
+				key: 'phase',
+				operation: {type: 'add', frame: 15, value: 45},
+			},
+		],
+	});
+
+	expect(oldValueStrings).toEqual(['0']);
+	expect(serialized).toContain('wave({');
+	expect(serialized).toContain('phase: interpolate(frame, [15], [45], {');
+});
+
 test('updateEffectKeyframes sets one easing segment and fills linear segments', () => {
 	const {serialized} = updateEffectKeyframesAst({
 		input: effectInput,
@@ -1091,7 +1263,7 @@ test('updateEffectKeyframes sets one easing segment and fills linear segments', 
 				operation: {
 					type: 'easing',
 					segmentIndex: 1,
-					easing: [0, 0, 0.58, 1],
+					easing: {type: 'bezier', x1: 0, y1: 0, x2: 0.58, y2: 1},
 				},
 			},
 		],

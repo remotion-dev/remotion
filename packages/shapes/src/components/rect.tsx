@@ -1,5 +1,5 @@
 import React from 'react';
-import {Internals} from 'remotion';
+import {Internals, Interactive} from 'remotion';
 import type {MakeRectOptions} from '../utils/make-rect';
 import {makeRect} from '../utils/make-rect';
 import type {AllShapesProps} from './render-svg';
@@ -51,8 +51,9 @@ const RectInner: React.FC<RectProps> = ({
 	);
 };
 
-export const Rect = Internals.wrapInSchema({
+export const Rect = Interactive.withSchema({
 	Component: RectInner,
+	componentName: '<Rect>',
 	componentIdentity: 'dev.remotion.shapes.Rect',
 	schema: rectSchema,
 	supportsEffects: true,

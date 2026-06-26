@@ -6,11 +6,17 @@ export type ComponentProp = {
 	value: string | number | boolean;
 };
 
+export type ComponentDimensions = {
+	height: number;
+	width: number;
+};
+
 export type ComponentDragData = {
 	type: 'remotion-component';
 	version: 1;
 	component: {
 		componentName: string;
+		dimensions?: ComponentDimensions;
 		importName: string;
 		importPath: string;
 		props: ComponentProp[];
@@ -78,13 +84,32 @@ export const areComponentProps = (value: unknown): value is ComponentProp[] => {
 	return true;
 };
 
+const isComponentDimensions = (
+	value: unknown,
+): value is ComponentDimensions => {
+	if (!isRecord(value)) {
+		return false;
+	}
+
+	return (
+		typeof value.width === 'number' &&
+		Number.isFinite(value.width) &&
+		value.width >= 0 &&
+		typeof value.height === 'number' &&
+		Number.isFinite(value.height) &&
+		value.height >= 0
+	);
+};
+
 export const makeComponentDragData = ({
 	componentName,
+	dimensions,
 	importName,
 	importPath,
 	props,
 }: {
 	componentName: string;
+	dimensions?: ComponentDimensions | null;
 	importName: string;
 	importPath: string;
 	props: ComponentProp[];
@@ -94,6 +119,7 @@ export const makeComponentDragData = ({
 		version: 1,
 		component: {
 			componentName,
+			...(dimensions ? {dimensions} : {}),
 			importName,
 			importPath,
 			props,
@@ -118,12 +144,14 @@ export const parseComponentDragData = (
 			return null;
 		}
 
-		const {componentName, importName, importPath, props} = parsed.component;
+		const {componentName, dimensions, importName, importPath, props} =
+			parsed.component;
 		if (
 			!isComponentIdentifier(componentName) ||
 			!isComponentIdentifier(importName) ||
 			!isComponentImportPath(importPath) ||
-			!areComponentProps(props)
+			!areComponentProps(props) ||
+			(typeof dimensions !== 'undefined' && !isComponentDimensions(dimensions))
 		) {
 			return null;
 		}
@@ -133,6 +161,7 @@ export const parseComponentDragData = (
 			version: 1,
 			component: {
 				componentName,
+				...(dimensions ? {dimensions} : {}),
 				importName,
 				importPath,
 				props,

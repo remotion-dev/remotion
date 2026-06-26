@@ -1,12 +1,33 @@
 import {
 	type CanUpdateSequencePropStatus,
 	type CanUpdateSequencePropsResponse,
-	type SequenceSchema,
+	type InteractivitySchemaField,
+	type InteractivitySchema,
 } from 'remotion';
+import {LINEAR_KEYFRAME_EASING} from './keyframe-easing-presets';
 import {
 	getKeyframeInterpolationFunction,
 	isSchemaFieldKeyframable,
 } from './keyframe-interpolation-function';
+
+const getEasingIndexToDuplicate = ({
+	insertedKeyframeIndex,
+	easingLength,
+	keyframeCount,
+}: {
+	insertedKeyframeIndex: number;
+	easingLength: number;
+	keyframeCount: number;
+}): number | null => {
+	const isSplittingExistingSegment =
+		insertedKeyframeIndex > 0 && insertedKeyframeIndex < keyframeCount - 1;
+
+	if (!isSplittingExistingSegment || easingLength === 0) {
+		return null;
+	}
+
+	return Math.min(insertedKeyframeIndex - 1, easingLength - 1);
+};
 
 const addKeyframeToPropStatus = ({
 	status,
@@ -19,7 +40,7 @@ const addKeyframeToPropStatus = ({
 	fieldKey: string;
 	frame: number;
 	value: unknown;
-	schema: SequenceSchema | null;
+	schema: InteractivitySchema | null;
 }): CanUpdateSequencePropStatus => {
 	if (status.status === 'keyframed') {
 		const existingIndex = status.keyframes.findIndex(
@@ -40,8 +61,21 @@ const addKeyframeToPropStatus = ({
 			(first, second) => first.frame - second.frame,
 		);
 		const easing = [...status.easing];
+		const insertedKeyframeIndex = keyframes.findIndex(
+			(keyframe) => keyframe.frame === frame,
+		);
+		const easingIndexToDuplicate = getEasingIndexToDuplicate({
+			insertedKeyframeIndex,
+			easingLength: easing.length,
+			keyframeCount: keyframes.length,
+		});
+		const easingToDuplicate =
+			easingIndexToDuplicate === null
+				? LINEAR_KEYFRAME_EASING
+				: easing[easingIndexToDuplicate];
+		easing.splice(insertedKeyframeIndex, 0, easingToDuplicate);
 		while (easing.length < keyframes.length - 1) {
-			easing.push('linear');
+			easing.push(LINEAR_KEYFRAME_EASING);
 		}
 
 		return {
@@ -72,6 +106,51 @@ const addKeyframeToPropStatus = ({
 	return status;
 };
 
+const findFieldInSchema = (
+	schema: InteractivitySchema,
+	key: string,
+): InteractivitySchemaField | undefined => {
+	if (key in schema) {
+		return schema[key];
+	}
+
+	for (const field of Object.values(schema)) {
+		if (field.type !== 'enum') {
+			continue;
+		}
+
+		for (const variant of Object.values(field.variants)) {
+			const found = findFieldInSchema(variant, key);
+			if (found) {
+				return found;
+			}
+		}
+	}
+
+	return undefined;
+};
+
+const getMissingPropStatus = ({
+	schema,
+	fieldKey,
+}: {
+	schema: InteractivitySchema | null;
+	fieldKey: string;
+}): CanUpdateSequencePropStatus => {
+	const field = schema ? findFieldInSchema(schema, fieldKey) : undefined;
+	if (field && field.type !== 'hidden' && field.default !== undefined) {
+		return {
+			status: 'static',
+			codeValue: field.default,
+		};
+	}
+
+	return {
+		status: 'static',
+		codeValue: undefined,
+	};
+};
+
 export const optimisticAddSequenceKeyframe = ({
 	previous,
 	fieldKey,
@@ -83,7 +162,7 @@ export const optimisticAddSequenceKeyframe = ({
 	fieldKey: string;
 	frame: number;
 	value: unknown;
-	schema?: SequenceSchema;
+	schema?: InteractivitySchema;
 }): CanUpdateSequencePropsResponse => {
 	if (!previous.canUpdate) {
 		return previous;
@@ -93,10 +172,9 @@ export const optimisticAddSequenceKeyframe = ({
 		return previous;
 	}
 
-	const status = previous.props[fieldKey];
-	if (!status) {
-		return previous;
-	}
+	const status =
+		previous.props[fieldKey] ??
+		getMissingPropStatus({schema: schema ?? null, fieldKey});
 
 	return {
 		...previous,
@@ -126,7 +204,7 @@ export const optimisticAddEffectKeyframe = ({
 	fieldKey: string;
 	frame: number;
 	value: unknown;
-	schema?: SequenceSchema;
+	schema?: InteractivitySchema;
 }): CanUpdateSequencePropsResponse => {
 	if (!previous.canUpdate) {
 		return previous;
@@ -148,10 +226,9 @@ export const optimisticAddEffectKeyframe = ({
 		return previous;
 	}
 
-	const status = target.props[fieldKey];
-	if (!status) {
-		return previous;
-	}
+	const status =
+		target.props[fieldKey] ??
+		getMissingPropStatus({schema: schema ?? null, fieldKey});
 
 	const updatedEffect = {
 		...target,

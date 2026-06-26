@@ -88,6 +88,7 @@ const resolvePropStatusOverrides = (
 
 		if (status.status === 'keyframed') {
 			const value = interpolateKeyframedStatus({
+				forceSpringAllowTail: null,
 				frame,
 				status,
 			});

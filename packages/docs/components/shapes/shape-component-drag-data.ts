@@ -4,6 +4,7 @@ import {
 	type ComponentDragData,
 	type ComponentProp,
 } from '@remotion/studio-shared';
+import {getShapeDragInfo} from './shape-drag-info';
 import type {ShapeName} from './shapes-info';
 
 const shapeDefaultProps: Record<ShapeName, readonly ComponentProp[]> = {
@@ -13,7 +14,7 @@ const shapeDefaultProps: Record<ShapeName, readonly ComponentProp[]> = {
 		{name: 'headLength', value: 120},
 		{name: 'shaftWidth', value: 80},
 		{name: 'direction', value: 'right'},
-		{name: 'fill', value: '#0b84ff'},
+		{name: 'fill', value: '#000000'},
 	],
 	Callout: [
 		{name: 'width', value: 500},
@@ -23,23 +24,23 @@ const shapeDefaultProps: Record<ShapeName, readonly ComponentProp[]> = {
 		{name: 'pointerPosition', value: 0.5},
 		{name: 'pointerDirection', value: 'down'},
 		{name: 'cornerRadius', value: 20},
-		{name: 'fill', value: '#0b84ff'},
+		{name: 'fill', value: '#000000'},
 	],
 	Circle: [
 		{name: 'radius', value: 100},
-		{name: 'fill', value: '#0b84ff'},
+		{name: 'fill', value: '#000000'},
 	],
 	Ellipse: [
 		{name: 'rx', value: 100},
 		{name: 'ry', value: 50},
-		{name: 'fill', value: '#0b84ff'},
+		{name: 'fill', value: '#000000'},
 	],
 	Heart: [
 		{name: 'height', value: 100},
 		{name: 'aspectRatio', value: 1.1},
 		{name: 'bottomRoundnessAdjustment', value: 0},
 		{name: 'depthAdjustment', value: 0},
-		{name: 'fill', value: '#0b84ff'},
+		{name: 'fill', value: '#000000'},
 	],
 	Pie: [
 		{name: 'radius', value: 100},
@@ -47,32 +48,39 @@ const shapeDefaultProps: Record<ShapeName, readonly ComponentProp[]> = {
 		{name: 'closePath', value: true},
 		{name: 'counterClockwise', value: false},
 		{name: 'rotation', value: 0},
-		{name: 'fill', value: '#0b84ff'},
+		{name: 'fill', value: '#000000'},
 	],
 	Polygon: [
 		{name: 'points', value: 5},
 		{name: 'radius', value: 100},
 		{name: 'cornerRadius', value: 0},
-		{name: 'fill', value: '#0b84ff'},
+		{name: 'fill', value: '#000000'},
 	],
 	Rect: [
 		{name: 'width', value: 100},
 		{name: 'height', value: 100},
 		{name: 'cornerRadius', value: 0},
-		{name: 'fill', value: '#0b84ff'},
+		{name: 'fill', value: '#000000'},
+	],
+	Spark: [
+		{name: 'width', value: 100},
+		{name: 'height', value: 140},
+		{name: 'edgeRoundness', value: 1},
+		{name: 'cornerRadius', value: 0},
+		{name: 'fill', value: '#000000'},
 	],
 	Star: [
 		{name: 'points', value: 5},
 		{name: 'innerRadius', value: 50},
 		{name: 'outerRadius', value: 100},
 		{name: 'cornerRadius', value: 0},
-		{name: 'fill', value: '#0b84ff'},
+		{name: 'fill', value: '#000000'},
 	],
 	Triangle: [
 		{name: 'length', value: 100},
 		{name: 'direction', value: 'right'},
 		{name: 'cornerRadius', value: 0},
-		{name: 'fill', value: '#0b84ff'},
+		{name: 'fill', value: '#000000'},
 	],
 };
 
@@ -85,6 +93,7 @@ const shapeNameByDemoId: Partial<Record<string, ShapeName>> = {
 	pie: 'Pie',
 	polygon: 'Polygon',
 	rect: 'Rect',
+	spark: 'Spark',
 	star: 'Star',
 	triangle: 'Triangle',
 };
@@ -119,6 +128,7 @@ const shapeDemoPropNames: Record<ShapeName, readonly string[]> = {
 	Pie: ['radius', 'progress', 'closePath', 'counterClockwise', 'rotation'],
 	Polygon: ['points', 'radius', 'cornerRadius', 'edgeRoundness'],
 	Rect: ['width', 'height', 'cornerRadius', 'edgeRoundness'],
+	Spark: ['width', 'height', 'edgeRoundness', 'cornerRadius'],
 	Star: [
 		'points',
 		'innerRadius',
@@ -146,11 +156,19 @@ const makeShapeComponentDragData = ({
 	readonly shape: ShapeName;
 	readonly props: ComponentProp[];
 }): ComponentDragData => {
-	return makeComponentDragData({
+	const component = {
 		componentName: shape,
 		importName: shape,
 		importPath: '@remotion/shapes',
 		props,
+	} satisfies ComponentDragData['component'];
+	const shapeInfo = getShapeDragInfo(component);
+
+	return makeComponentDragData({
+		...component,
+		dimensions: shapeInfo
+			? {width: shapeInfo.width, height: shapeInfo.height}
+			: null,
 	});
 };
 

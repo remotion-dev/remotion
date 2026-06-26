@@ -1,5 +1,5 @@
 import React from 'react';
-import {Internals} from 'remotion';
+import {Internals, Interactive} from 'remotion';
 import type {MakeHeartProps} from '../utils/make-heart';
 import {makeHeart} from '../utils/make-heart';
 import type {AllShapesProps} from './render-svg';
@@ -59,8 +59,9 @@ const HeartInner: React.FC<HeartProps> = ({
 	);
 };
 
-export const Heart = Internals.wrapInSchema({
+export const Heart = Interactive.withSchema({
 	Component: HeartInner,
+	componentName: '<Heart>',
 	componentIdentity: 'dev.remotion.shapes.Heart',
 	schema: heartSchema,
 	supportsEffects: true,

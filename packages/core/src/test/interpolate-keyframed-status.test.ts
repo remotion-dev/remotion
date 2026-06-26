@@ -1,8 +1,10 @@
 import {expect, test} from 'bun:test';
 import {interpolateKeyframedStatus} from '../interpolate-keyframed-status';
+import type {CanUpdateSequencePropStatusKeyframed} from '../use-schema';
 
 test('interpolates linear numeric keyframes', () => {
 	const result = interpolateKeyframedStatus({
+		forceSpringAllowTail: null,
 		frame: 30,
 		status: {
 			status: 'keyframed',
@@ -11,7 +13,7 @@ test('interpolates linear numeric keyframes', () => {
 				{frame: 0, value: 0},
 				{frame: 60, value: 100},
 			],
-			easing: ['linear'],
+			easing: [{type: 'linear'}],
 			clamping: {left: 'extend', right: 'extend'},
 			posterize: undefined,
 		},
@@ -21,6 +23,7 @@ test('interpolates linear numeric keyframes', () => {
 
 test('interpolates linear tuple keyframes', () => {
 	const result = interpolateKeyframedStatus({
+		forceSpringAllowTail: null,
 		frame: 30,
 		status: {
 			status: 'keyframed',
@@ -29,7 +32,7 @@ test('interpolates linear tuple keyframes', () => {
 				{frame: 0, value: [0, 0.5]},
 				{frame: 60, value: [1, 0.5]},
 			],
-			easing: ['linear'],
+			easing: [{type: 'linear'}],
 			clamping: {left: 'extend', right: 'extend'},
 			posterize: undefined,
 		},
@@ -39,6 +42,7 @@ test('interpolates linear tuple keyframes', () => {
 
 test('sorts keyframes before interpolating numeric values', () => {
 	const result = interpolateKeyframedStatus({
+		forceSpringAllowTail: null,
 		frame: 75,
 		status: {
 			status: 'keyframed',
@@ -48,7 +52,7 @@ test('sorts keyframes before interpolating numeric values', () => {
 				{frame: 50, value: 50},
 				{frame: 0, value: 0},
 			],
-			easing: ['linear', 'linear'],
+			easing: [{type: 'linear'}, {type: 'linear'}],
 			clamping: {left: 'extend', right: 'extend'},
 			posterize: undefined,
 		},
@@ -58,6 +62,7 @@ test('sorts keyframes before interpolating numeric values', () => {
 
 test('clamps when extrapolation is clamp', () => {
 	const result = interpolateKeyframedStatus({
+		forceSpringAllowTail: null,
 		frame: 120,
 		status: {
 			status: 'keyframed',
@@ -66,7 +71,7 @@ test('clamps when extrapolation is clamp', () => {
 				{frame: 0, value: 0},
 				{frame: 60, value: 100},
 			],
-			easing: ['linear'],
+			easing: [{type: 'linear'}],
 			clamping: {left: 'clamp', right: 'clamp'},
 			posterize: undefined,
 		},
@@ -76,6 +81,7 @@ test('clamps when extrapolation is clamp', () => {
 
 test('posterizes the frame before interpolating numeric keyframes', () => {
 	const result = interpolateKeyframedStatus({
+		forceSpringAllowTail: null,
 		frame: 17,
 		status: {
 			status: 'keyframed',
@@ -84,7 +90,7 @@ test('posterizes the frame before interpolating numeric keyframes', () => {
 				{frame: 0, value: 0},
 				{frame: 60, value: 100},
 			],
-			easing: ['linear'],
+			easing: [{type: 'linear'}],
 			clamping: {left: 'extend', right: 'extend'},
 			posterize: 3,
 		},
@@ -94,6 +100,7 @@ test('posterizes the frame before interpolating numeric keyframes', () => {
 
 test('returns single keyframe value', () => {
 	const result = interpolateKeyframedStatus({
+		forceSpringAllowTail: null,
 		frame: 100,
 		status: {
 			status: 'keyframed',
@@ -109,6 +116,7 @@ test('returns single keyframe value', () => {
 
 test('interpolates colors', () => {
 	const result = interpolateKeyframedStatus({
+		forceSpringAllowTail: null,
 		frame: 30,
 		status: {
 			status: 'keyframed',
@@ -117,7 +125,7 @@ test('interpolates colors', () => {
 				{frame: 0, value: '#000000'},
 				{frame: 60, value: '#ffffff'},
 			],
-			easing: ['linear'],
+			easing: [{type: 'linear'}],
 			clamping: {left: 'clamp', right: 'clamp'},
 			posterize: undefined,
 		},
@@ -128,6 +136,7 @@ test('interpolates colors', () => {
 
 test('interpolates color keyframes with easing', () => {
 	const result = interpolateKeyframedStatus({
+		forceSpringAllowTail: null,
 		frame: 30,
 		status: {
 			status: 'keyframed',
@@ -136,7 +145,7 @@ test('interpolates color keyframes with easing', () => {
 				{frame: 0, value: 'black'},
 				{frame: 60, value: 'white'},
 			],
-			easing: [[0.42, 0, 1, 1]],
+			easing: [{type: 'bezier', x1: 0.42, y1: 0, x2: 1, y2: 1}],
 			clamping: {left: 'clamp', right: 'clamp'},
 			posterize: undefined,
 		},
@@ -146,6 +155,7 @@ test('interpolates color keyframes with easing', () => {
 
 test('posterizes the frame before interpolating color keyframes', () => {
 	const result = interpolateKeyframedStatus({
+		forceSpringAllowTail: null,
 		frame: 17,
 		status: {
 			status: 'keyframed',
@@ -154,7 +164,7 @@ test('posterizes the frame before interpolating color keyframes', () => {
 				{frame: 0, value: 'black'},
 				{frame: 60, value: 'white'},
 			],
-			easing: ['linear'],
+			easing: [{type: 'linear'}],
 			clamping: {left: 'clamp', right: 'clamp'},
 			posterize: 3,
 		},
@@ -164,6 +174,7 @@ test('posterizes the frame before interpolating color keyframes', () => {
 
 test('interpolates translate keyframes', () => {
 	const result = interpolateKeyframedStatus({
+		forceSpringAllowTail: null,
 		frame: 30,
 		status: {
 			status: 'keyframed',
@@ -172,7 +183,7 @@ test('interpolates translate keyframes', () => {
 				{frame: 0, value: '0px 0px'},
 				{frame: 60, value: '120px 60px'},
 			],
-			easing: ['linear'],
+			easing: [{type: 'linear'}],
 			clamping: {left: 'extend', right: 'extend'},
 			posterize: undefined,
 		},
@@ -180,8 +191,71 @@ test('interpolates translate keyframes', () => {
 	expect(result).toBe('60px 30px');
 });
 
+test('can force spring allowTail off for timeline value previews', () => {
+	const parseTranslate = (value: string): [number, number] => {
+		const [x, y] = value.split(' ');
+		return [Number(x.replace('px', '')), Number(y.replace('px', ''))];
+	};
+
+	const status: CanUpdateSequencePropStatusKeyframed = {
+		status: 'keyframed',
+		interpolationFunction: 'interpolate',
+		keyframes: [
+			{frame: 0, value: '0px 1000px'},
+			{frame: 30, value: '0px 0px'},
+			{frame: 60, value: '1000px 0px'},
+		],
+		easing: [
+			{
+				type: 'spring',
+				allowTail: true,
+				damping: 200,
+				durationRestThreshold: 0.03,
+				mass: 1,
+				overshootClamping: false,
+				stiffness: 100,
+			},
+			{
+				type: 'spring',
+				allowTail: true,
+				damping: 200,
+				durationRestThreshold: 0.03,
+				mass: 1,
+				overshootClamping: false,
+				stiffness: 100,
+			},
+		],
+		clamping: {left: 'clamp', right: 'extend'},
+		posterize: undefined,
+	};
+
+	const preserved = interpolateKeyframedStatus({
+		forceSpringAllowTail: null,
+		frame: 45,
+		status,
+	});
+	const forcedOff = interpolateKeyframedStatus({
+		forceSpringAllowTail: false,
+		frame: 45,
+		status,
+	});
+
+	if (typeof preserved !== 'string' || typeof forcedOff !== 'string') {
+		throw new Error('Expected string interpolation result');
+	}
+
+	const [preservedX, preservedY] = parseTranslate(preserved);
+	const [forcedOffX, forcedOffY] = parseTranslate(forcedOff);
+
+	expect(preservedX).toBeGreaterThan(0);
+	expect(forcedOffX).toBeGreaterThan(0);
+	expect(preservedY).toBeGreaterThan(0);
+	expect(forcedOffY).toBe(0);
+});
+
 test('interpolates rotate keyframes', () => {
 	const result = interpolateKeyframedStatus({
+		forceSpringAllowTail: null,
 		frame: 30,
 		status: {
 			status: 'keyframed',
@@ -190,7 +264,7 @@ test('interpolates rotate keyframes', () => {
 				{frame: 0, value: '0deg'},
 				{frame: 60, value: '120deg'},
 			],
-			easing: ['linear'],
+			easing: [{type: 'linear'}],
 			clamping: {left: 'extend', right: 'extend'},
 			posterize: undefined,
 		},
@@ -200,6 +274,7 @@ test('interpolates rotate keyframes', () => {
 
 test('uses bezier easing', () => {
 	const result = interpolateKeyframedStatus({
+		forceSpringAllowTail: null,
 		frame: 30,
 		status: {
 			status: 'keyframed',
@@ -208,7 +283,7 @@ test('uses bezier easing', () => {
 				{frame: 0, value: 0},
 				{frame: 60, value: 100},
 			],
-			easing: [[0.42, 0, 0.58, 1]],
+			easing: [{type: 'bezier', x1: 0.42, y1: 0, x2: 0.58, y2: 1}],
 			clamping: {left: 'extend', right: 'extend'},
 			posterize: undefined,
 		},
@@ -219,6 +294,7 @@ test('uses bezier easing', () => {
 
 test('interpolates scale strings component-wise', () => {
 	const result = interpolateKeyframedStatus({
+		forceSpringAllowTail: null,
 		frame: 30,
 		status: {
 			status: 'keyframed',
@@ -227,7 +303,7 @@ test('interpolates scale strings component-wise', () => {
 				{frame: 0, value: 2},
 				{frame: 60, value: '4 8 3'},
 			],
-			easing: ['linear'],
+			easing: [{type: 'linear'}],
 			clamping: {left: 'extend', right: 'extend'},
 			posterize: undefined,
 		},

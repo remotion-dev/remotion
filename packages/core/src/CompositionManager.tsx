@@ -4,9 +4,9 @@ import type {AnyZodObject} from './any-zod-type.js';
 import type {CalculateMetadataFunction} from './Composition.js';
 import type {DownloadBehavior} from './download-behavior.js';
 import type {EffectDefinition} from './effects/effect-types.js';
+import type {InteractivitySchema} from './interactivity-schema.js';
 import type {NonceHistory} from './nonce.js';
 import type {InferProps, PropsIfHasProps} from './props-if-has-props.js';
-import type {SequenceSchema} from './sequence-field-schema.js';
 
 export type TComposition<
 	Schema extends AnyZodObject,
@@ -75,6 +75,7 @@ type EnhancedTSequenceData =
 			doesVolumeChange: boolean;
 			startMediaFrom: number;
 			playbackRate: number;
+			frozenMediaFrame: number | null;
 	  }
 	| {
 			type: 'video';
@@ -83,6 +84,7 @@ type EnhancedTSequenceData =
 			doesVolumeChange: boolean;
 			startMediaFrom: number;
 			playbackRate: number;
+			frozenMediaFrame: number | null;
 	  }
 	| {
 			type: 'image';
@@ -98,15 +100,17 @@ export type LoopDisplay = {
 export type JsxComponentIdentity = string;
 
 export type SequenceControls = {
-	schema: SequenceSchema;
+	schema: InteractivitySchema;
 	currentRuntimeValueDotNotation: Record<string, unknown>;
 	overrideId: string;
 	supportsEffects: boolean;
 	componentIdentity: JsxComponentIdentity | null;
+	componentName: string;
 };
 
 export type TSequence = {
 	from: number;
+	trimBefore: number | null;
 	duration: number;
 	id: string;
 	displayName: string;
@@ -123,6 +127,7 @@ export type TSequence = {
 	refForOutline: React.RefObject<Element | null> | null;
 	effects: readonly EffectDefinition<unknown>[];
 	isInsideSeries: boolean;
+	frozenFrame: number | null;
 } & EnhancedTSequenceData;
 
 export type AudioOrVideoAsset = {

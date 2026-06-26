@@ -1,6 +1,6 @@
 import {expect, test} from 'bun:test';
 import {getAllSchemaKeys} from '@remotion/studio-shared';
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 
@@ -25,13 +25,14 @@ test('getAllSchemaKeys returns every key across all enum variants', () => {
 			'styleWhilePostmounted',
 			'durationInFrames',
 			'from',
+			'trimBefore',
 			'freeze',
 		].sort(),
 	);
 });
 
 test('getFlatSchema throws when discriminated union variants share a key', () => {
-	const conflictingSchema: SequenceSchema = {
+	const conflictingSchema: InteractivitySchema = {
 		mode: {
 			type: 'enum',
 			default: 'a',

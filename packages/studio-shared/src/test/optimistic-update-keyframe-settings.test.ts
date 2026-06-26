@@ -16,7 +16,7 @@ const previous: CanUpdateSequencePropsResponse = {
 				{frame: 20, value: 2},
 				{frame: 40, value: 3},
 			],
-			easing: ['linear'],
+			easing: [{type: 'linear'}],
 			clamping: {left: 'clamp', right: 'wrap'},
 			posterize: 3,
 		},
@@ -51,7 +51,7 @@ test('optimisticUpdateSequenceKeyframeSettings updates easing without changing o
 		settings: {
 			type: 'easing',
 			segmentIndex: 1,
-			easing: [0.42, 0, 1, 1],
+			easing: {type: 'bezier', x1: 0.42, y1: 0, x2: 1, y2: 1},
 		},
 	});
 
@@ -64,7 +64,10 @@ test('optimisticUpdateSequenceKeyframeSettings updates easing without changing o
 		throw new Error('expected keyframed status');
 	}
 
-	expect(status.easing).toEqual(['linear', [0.42, 0, 1, 1]]);
+	expect(status.easing).toEqual([
+		{type: 'linear'},
+		{type: 'bezier', x1: 0.42, y1: 0, x2: 1, y2: 1},
+	]);
 	expect(status.clamping).toEqual({left: 'clamp', right: 'wrap'});
 	expect(status.posterize).toBe(3);
 });
@@ -77,7 +80,7 @@ test('optimisticUpdateEffectKeyframeSettings updates easing', () => {
 		settings: {
 			type: 'easing',
 			segmentIndex: 0,
-			easing: [0, 0, 0.58, 1],
+			easing: {type: 'bezier', x1: 0, y1: 0, x2: 0.58, y2: 1},
 		},
 	});
 
@@ -95,5 +98,7 @@ test('optimisticUpdateEffectKeyframeSettings updates easing', () => {
 		throw new Error('expected keyframed status');
 	}
 
-	expect(status.easing).toEqual([[0, 0, 0.58, 1]]);
+	expect(status.easing).toEqual([
+		{type: 'bezier', x1: 0, y1: 0, x2: 0.58, y2: 1},
+	]);
 });

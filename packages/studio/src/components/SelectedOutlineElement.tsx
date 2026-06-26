@@ -6,6 +6,7 @@ import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {BLUE} from '../helpers/colors';
 import {formatFileLocation} from '../helpers/format-file-location';
 import {openOriginalPositionInEditor} from '../helpers/open-in-editor';
+import {ModalsContext} from '../state/modals';
 import {callApi} from './call-api';
 import {useConfirmationDialog} from './ConfirmationDialog';
 import {ContextMenuForTarget} from './ContextMenu';
@@ -23,6 +24,7 @@ import type {ComboboxValue} from './NewComposition/ComboBox';
 import {showNotification} from './Notifications/NotificationCenter';
 import {
 	applySelectedOutlineDragAxisLock,
+	applySelectedOutlineTransformOriginAxisLock,
 	clearSelectedOutlineDragOverrides,
 	clearSelectedOutlineRotationDragOverrides,
 	clearSelectedOutlineScaleDragOverrides,
@@ -37,8 +39,11 @@ import {
 	getSelectedOutlineScaleDragStates,
 	getSelectedOutlineScaleDragValues,
 	getSelectedOutlineScaleEdgeInfo,
+	getSelectedOutlineTransformOriginLockedAxis,
 	isSelectedOutlineDragPastThreshold,
 	parseCssRotationToRadians,
+	snapSelectedOutlineRotationDeltaDegrees,
+	snapSelectedOutlineTransformOriginUv,
 	uvsEqual,
 	type SelectedOutlineKeyframedDragChange,
 	type SelectedOutlineScaleEdge,
@@ -183,18 +188,44 @@ const SelectedOutlineTransformOriginHandle: React.FC<{
 				readonly origin: string;
 				readonly translate: string;
 			} | null = null;
+			let currentPointerX = event.clientX;
+			let currentPointerY = event.clientY;
+			let axisLocked = event.shiftKey;
 
 			onDraggingChange(true);
 			forceSpecificCursor('crosshair');
 
-			const updateFromPointerEvent = (
-				pointerEvent: PointerEvent | React.PointerEvent<SVGGElement>,
-			) => {
+			const updateFromPointerPosition = () => {
 				const point = {
-					x: pointerEvent.clientX - svgRect.left,
-					y: pointerEvent.clientY - svgRect.top,
+					x: currentPointerX - svgRect.left,
+					y: currentPointerY - svgRect.top,
 				};
-				const nextUv = getUvCoordinateForPoint(outline.points, point);
+				const rawUv = getUvCoordinateForPoint(outline.points, point);
+				const lockedAxis = getSelectedOutlineTransformOriginLockedAxis({
+					axisLocked,
+					dimensions,
+					startUv: uv,
+					uv: rawUv,
+				});
+				const axisLockedUv = applySelectedOutlineTransformOriginAxisLock({
+					lockedAxis,
+					startUv: uv,
+					uv: rawUv,
+				});
+				const snapPoint =
+					lockedAxis === null
+						? point
+						: getUvHandlePosition(outline.points, axisLockedUv);
+				const snappedUv = snapSelectedOutlineTransformOriginUv({
+					point: snapPoint,
+					points: outline.points,
+					uv: axisLockedUv,
+				});
+				const nextUv = applySelectedOutlineTransformOriginAxisLock({
+					lockedAxis,
+					startUv: uv,
+					uv: snappedUv,
+				});
 				const deltaOrigin = [
 					(nextUv[0] - uv[0]) * dimensions.width,
 					(nextUv[1] - uv[1]) * dimensions.height,
@@ -237,17 +268,36 @@ const SelectedOutlineTransformOriginHandle: React.FC<{
 				);
 			};
 
-			updateFromPointerEvent(event);
+			updateFromPointerPosition();
 
 			const onPointerMove = (moveEvent: PointerEvent) => {
 				moveEvent.preventDefault();
-				updateFromPointerEvent(moveEvent);
+				currentPointerX = moveEvent.clientX;
+				currentPointerY = moveEvent.clientY;
+				axisLocked = moveEvent.shiftKey;
+				updateFromPointerPosition();
+			};
+
+			const onKeyChange = (keyEvent: KeyboardEvent) => {
+				if (keyEvent.key !== 'Shift') {
+					return;
+				}
+
+				const nextAxisLocked = keyEvent.type === 'keydown';
+				if (nextAxisLocked === axisLocked) {
+					return;
+				}
+
+				axisLocked = nextAxisLocked;
+				updateFromPointerPosition();
 			};
 
 			const onPointerUp = () => {
 				window.removeEventListener('pointermove', onPointerMove);
 				window.removeEventListener('pointerup', onPointerUp);
 				window.removeEventListener('pointercancel', onPointerUp);
+				window.removeEventListener('keydown', onKeyChange);
+				window.removeEventListener('keyup', onKeyChange);
 				stopForcingSpecificCursor();
 				onDraggingChange(false);
 
@@ -344,6 +394,8 @@ const SelectedOutlineTransformOriginHandle: React.FC<{
 			window.addEventListener('pointermove', onPointerMove);
 			window.addEventListener('pointerup', onPointerUp);
 			window.addEventListener('pointercancel', onPointerUp);
+			window.addEventListener('keydown', onKeyChange);
+			window.addEventListener('keyup', onKeyChange);
 		},
 		[
 			clearDragOverrides,
@@ -372,6 +424,9 @@ const SelectedOutlineTransformOriginHandle: React.FC<{
 			cursor="crosshair"
 			onPointerDown={onPointerDown}
 			aria-hidden="true"
+			style={{
+				filter: 'drop-shadow(0 0 1px rgba(255, 255, 255, 0.2))',
+			}}
 		>
 			<circle
 				cx={position.x}
@@ -809,9 +864,6 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 				return;
 			}
 
-			onDraggingChange(true);
-			forceSpecificCursor(edgeInfo.cursor);
-
 			const startPointer = {x: event.clientX, y: event.clientY};
 			const dragStates = getSelectedOutlineScaleDragStates({
 				dragTargets: selected ? allScaleDragTargets : [scaleDrag],
@@ -819,6 +871,7 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 				timelinePosition: timelinePositionRef.current,
 			});
 			let lastValues = new Map<string, number | string>();
+			let dragStarted = false;
 
 			const onPointerMove = (moveEvent: PointerEvent) => {
 				moveEvent.preventDefault();
@@ -827,6 +880,21 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 					x: moveEvent.clientX - startPointer.x,
 					y: moveEvent.clientY - startPointer.y,
 				};
+				if (!dragStarted) {
+					if (
+						!isSelectedOutlineDragPastThreshold({
+							deltaX: delta.x,
+							deltaY: delta.y,
+						})
+					) {
+						return;
+					}
+
+					dragStarted = true;
+					onDraggingChange(true);
+					forceSpecificCursor(edgeInfo.cursor);
+				}
+
 				const projectedDelta = dot(delta, edgeInfo.normal);
 				const scaleFactor = Math.max(
 					0.001,
@@ -869,8 +937,10 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 				window.removeEventListener('pointermove', onPointerMove);
 				window.removeEventListener('pointerup', onPointerUp);
 				window.removeEventListener('pointercancel', onPointerUp);
-				stopForcingSpecificCursor();
-				onDraggingChange(false);
+				if (dragStarted) {
+					stopForcingSpecificCursor();
+					onDraggingChange(false);
+				}
 
 				const changes = getSelectedOutlineScaleDragChanges({
 					dragStates,
@@ -1064,19 +1134,19 @@ const SelectedOutlineRotationCornerHandle: React.FC<{
 			}
 
 			const interaction = getOutlineSelectionInteraction(event);
-			const shouldUpdateSelection =
-				!selected || interaction.shiftKey || interaction.toggleKey;
+			const shouldUpdateSelection = !selected || interaction.toggleKey;
 			if (shouldUpdateSelection && target !== undefined) {
-				onSelect(target.selection, interaction);
+				onSelect(target.selection, {
+					shiftKey: false,
+					toggleKey: interaction.toggleKey,
+				});
 			}
 
-			if (interaction.shiftKey || interaction.toggleKey) {
+			if (interaction.toggleKey) {
 				return;
 			}
 
-			onDraggingChange(true);
-			forceSpecificCursor(cornerInfo.cursor);
-
+			const startPointer = {x: event.clientX, y: event.clientY};
 			const svgRect = svg.getBoundingClientRect();
 			const center = svgPointToClientPoint(
 				getSelectedOutlineRotationPivot({
@@ -1096,26 +1166,23 @@ const SelectedOutlineRotationCornerHandle: React.FC<{
 				y: event.clientY,
 			});
 			let accumulatedDelta = 0;
+			let rotationLocked = event.shiftKey;
 			let lastValues = new Map<string, string>();
+			let dragStarted = false;
 
-			const onPointerMove = (moveEvent: PointerEvent) => {
-				moveEvent.preventDefault();
-
-				const nextAngle = getAngleDegrees(center, {
-					x: moveEvent.clientX,
-					y: moveEvent.clientY,
-				});
-				accumulatedDelta += getSelectedOutlineRotationDeltaDegrees({
-					from: previousAngle,
-					to: nextAngle,
-				});
-				previousAngle = nextAngle;
+			const updateRotationDragOverrides = () => {
+				const rotationDeltaDegrees = rotationLocked
+					? snapSelectedOutlineRotationDeltaDegrees({
+							dragStates,
+							rotationDeltaDegrees: accumulatedDelta,
+						})
+					: accumulatedDelta;
 				lastValues = getSelectedOutlineRotationDragValues({
 					dragStates,
-					rotationDeltaDegrees: accumulatedDelta,
+					rotationDeltaDegrees,
 				});
 				forceSpecificCursor(
-					getRotationCursor(cornerInfo.cursorDegrees + accumulatedDelta),
+					getRotationCursor(cornerInfo.cursorDegrees + rotationDeltaDegrees),
 				);
 
 				for (const dragState of dragStates) {
@@ -1144,12 +1211,63 @@ const SelectedOutlineRotationCornerHandle: React.FC<{
 				}
 			};
 
+			const onPointerMove = (moveEvent: PointerEvent) => {
+				moveEvent.preventDefault();
+				const screenDeltaX = moveEvent.clientX - startPointer.x;
+				const screenDeltaY = moveEvent.clientY - startPointer.y;
+				if (!dragStarted) {
+					if (
+						!isSelectedOutlineDragPastThreshold({
+							deltaX: screenDeltaX,
+							deltaY: screenDeltaY,
+						})
+					) {
+						return;
+					}
+
+					dragStarted = true;
+					onDraggingChange(true);
+				}
+
+				const nextAngle = getAngleDegrees(center, {
+					x: moveEvent.clientX,
+					y: moveEvent.clientY,
+				});
+				accumulatedDelta += getSelectedOutlineRotationDeltaDegrees({
+					from: previousAngle,
+					to: nextAngle,
+				});
+				previousAngle = nextAngle;
+				rotationLocked = moveEvent.shiftKey;
+				updateRotationDragOverrides();
+			};
+
+			const onKeyChange = (keyEvent: KeyboardEvent) => {
+				if (keyEvent.key !== 'Shift') {
+					return;
+				}
+
+				const nextRotationLocked = keyEvent.type === 'keydown';
+				if (nextRotationLocked === rotationLocked) {
+					return;
+				}
+
+				rotationLocked = nextRotationLocked;
+				if (dragStarted) {
+					updateRotationDragOverrides();
+				}
+			};
+
 			const onPointerUp = () => {
 				window.removeEventListener('pointermove', onPointerMove);
 				window.removeEventListener('pointerup', onPointerUp);
 				window.removeEventListener('pointercancel', onPointerUp);
-				stopForcingSpecificCursor();
-				onDraggingChange(false);
+				window.removeEventListener('keydown', onKeyChange);
+				window.removeEventListener('keyup', onKeyChange);
+				if (dragStarted) {
+					stopForcingSpecificCursor();
+					onDraggingChange(false);
+				}
 
 				const changes = getSelectedOutlineRotationDragChanges({
 					dragStates,
@@ -1221,6 +1339,8 @@ const SelectedOutlineRotationCornerHandle: React.FC<{
 			window.addEventListener('pointermove', onPointerMove);
 			window.addEventListener('pointerup', onPointerUp);
 			window.addEventListener('pointercancel', onPointerUp);
+			window.addEventListener('keydown', onKeyChange);
+			window.addEventListener('keyup', onKeyChange);
 		},
 		[
 			allRotationDragTargets,
@@ -1311,6 +1431,7 @@ export const SelectedOutlineElement: React.FC<{
 	);
 	const confirm = useConfirmationDialog();
 	const selectAsset = useSelectAsset();
+	const {setSelectedModal} = useContext(ModalsContext);
 
 	const onContextMenuOpen = React.useCallback(async () => {
 		if (target === undefined || previewServerState.type !== 'connected') {
@@ -1356,6 +1477,10 @@ export const SelectedOutlineElement: React.FC<{
 		const disableInteractivityDisabled = !target.sequence.showInTimeline;
 		const sourceEditDisabled =
 			!target.sequence.controls || !nodePath.absolutePath;
+		const canAddEffect =
+			target.nodePathInfo.supportsEffects &&
+			!sourceEditDisabled &&
+			previewServerState.type === 'connected';
 
 		return getSequenceContextMenuItems({
 			assetLinkInfo,
@@ -1438,12 +1563,49 @@ export const SelectedOutlineElement: React.FC<{
 			originalLocation,
 			selectAsset,
 			sequence: target.sequence,
+			sourceActions: [
+				...(target.nodePathInfo.supportsEffects
+					? [
+							{
+								type: 'item' as const,
+								id: 'add-effect',
+								keyHint: null,
+								label: 'Add effect...',
+								leftItem: null,
+								disabled: !canAddEffect,
+								onClick: () => {
+									if (
+										!canAddEffect ||
+										previewServerState.type !== 'connected'
+									) {
+										return;
+									}
+
+									setSelectedModal({
+										type: 'add-effect',
+										clientId: previewServerState.clientId,
+										fileName: nodePath.absolutePath,
+										nodePath,
+									});
+								},
+								quickSwitcherLabel: null,
+								subMenu: null,
+								value: 'add-effect',
+							},
+							{
+								type: 'divider' as const,
+								id: 'add-effect-divider',
+							},
+						]
+					: []),
+			],
 		});
 	}, [
 		confirm,
 		onSelect,
 		previewServerState,
 		selectAsset,
+		setSelectedModal,
 		setPropStatuses,
 		target,
 		updateResolvedStackTrace,

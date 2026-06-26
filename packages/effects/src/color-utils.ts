@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {assertRequiredFiniteNumber} from './validate-effect-param.js';
 
 export const DEFAULT_AMOUNT = 1 as const;
@@ -13,7 +13,7 @@ export const colorAmountSchema = {
 	default: DEFAULT_AMOUNT,
 	description: 'Amount',
 	hiddenFromList: false,
-} as const satisfies SequenceSchema['amount'];
+} as const satisfies InteractivitySchema['amount'];
 
 export const colorMultiplierSchema = {
 	type: 'number',
@@ -22,7 +22,7 @@ export const colorMultiplierSchema = {
 	default: DEFAULT_AMOUNT,
 	description: 'Amount',
 	hiddenFromList: false,
-} as const satisfies SequenceSchema['amount'];
+} as const satisfies InteractivitySchema['amount'];
 
 export const brightnessAmountSchema = {
 	type: 'number',
@@ -32,14 +32,14 @@ export const brightnessAmountSchema = {
 	default: DEFAULT_BRIGHTNESS_AMOUNT,
 	description: 'Amount',
 	hiddenFromList: false,
-} as const satisfies SequenceSchema['amount'];
+} as const satisfies InteractivitySchema['amount'];
 
 export const hueDegreesSchema = {
 	type: 'rotation-degrees',
 	step: 1,
 	default: DEFAULT_HUE_DEGREES,
 	description: 'Degrees',
-} as const satisfies SequenceSchema['degrees'];
+} as const satisfies InteractivitySchema['degrees'];
 
 export const assertOptionalFiniteNumber = (
 	value: unknown,

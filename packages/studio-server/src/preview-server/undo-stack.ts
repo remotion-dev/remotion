@@ -1,4 +1,4 @@
-import {readFileSync} from 'node:fs';
+import {existsSync, rmSync, readFileSync} from 'node:fs';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {parseAst} from '../codemods/parse-ast';
@@ -27,6 +27,7 @@ type UndoEntryType =
 	| 'keyframe-delete'
 	| 'add-effect'
 	| 'delete-effect'
+	| 'duplicate-effect'
 	| 'paste-effects'
 	| 'reorder-effect'
 	| 'reorder-sequence'
@@ -35,13 +36,14 @@ type UndoEntryType =
 	| 'insert-jsx-element'
 	| 'delete-composition'
 	| 'rename-composition'
+	| 'new-composition'
 	| 'duplicate-composition'
 	| 'delete-folder'
 	| 'rename-folder';
 
 type UndoEntrySnapshot = {
 	filePath: string;
-	oldContents: string;
+	oldContents: string | null;
 	newContents: string | null;
 	/** 1-based source line for terminal/IDE file links (e.g. path:line). */
 	logLine: number;
@@ -64,6 +66,7 @@ type UndoEntry = {
 	| {entryType: 'keyframe-delete'}
 	| {entryType: 'add-effect'}
 	| {entryType: 'delete-effect'}
+	| {entryType: 'duplicate-effect'}
 	| {entryType: 'paste-effects'}
 	| {entryType: 'reorder-effect'}
 	| {entryType: 'reorder-sequence'}
@@ -72,6 +75,7 @@ type UndoEntry = {
 	| {entryType: 'insert-jsx-element'}
 	| {entryType: 'delete-composition'}
 	| {entryType: 'rename-composition'}
+	| {entryType: 'new-composition'}
 	| {entryType: 'duplicate-composition'}
 	| {entryType: 'delete-folder'}
 	| {entryType: 'rename-folder'}
@@ -182,7 +186,7 @@ export function pushTransactionToUndoStack({
 }: {
 	snapshots: Array<{
 		filePath: string;
-		oldContents: string;
+		oldContents: string | null;
 		newContents: string | null;
 		logLine: number;
 	}>;
@@ -418,7 +422,10 @@ export function popUndo(): {success: true} | {success: false; reason: string} {
 		return {
 			...snapshot,
 			newContents:
-				snapshot.newContents ?? readFileSync(snapshot.filePath, 'utf-8'),
+				snapshot.newContents ??
+				(existsSync(snapshot.filePath)
+					? readFileSync(snapshot.filePath, 'utf-8')
+					: null),
 		};
 	});
 	redoStack.push(
@@ -439,11 +446,15 @@ export function popUndo(): {success: true} | {success: false; reason: string} {
 			suppressBundlerUpdateForFile(snapshot.filePath);
 		}
 
-		writeFileAndNotifyFileWatchers(
-			snapshot.filePath,
-			snapshot.oldContents,
-			undefined,
-		);
+		if (snapshot.oldContents === null) {
+			rmSync(snapshot.filePath, {force: true});
+		} else {
+			writeFileAndNotifyFileWatchers(
+				snapshot.filePath,
+				snapshot.oldContents,
+				undefined,
+			);
+		}
 	}
 
 	RenderInternals.Log.verbose(
@@ -456,7 +467,9 @@ export function popUndo(): {success: true} | {success: false; reason: string} {
 
 	if (entry.entryType === 'visual-control') {
 		for (const snapshot of entry.snapshots) {
-			emitVisualControlChanges(snapshot.oldContents);
+			if (snapshot.oldContents !== null) {
+				emitVisualControlChanges(snapshot.oldContents);
+			}
 		}
 	}
 

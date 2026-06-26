@@ -1,0 +1,124 @@
+---
+title: Submit an Element
+description: Submit a Remotion Element for the Elements gallery.
+---
+
+# Submit an Element
+
+Have a small, remixable Remotion Element? We'd like to see it.
+
+A strong Element is easy to preview, easy to copy into a Remotion project, and useful as a video building block.
+
+## Preferred Element format
+
+An Element should ideally be a single, self-contained TSX file.
+
+Start from the reusable template in `packages/docs/elements-template/`.
+
+The preferred format is:
+
+- One self-contained TSX file exporting a React component
+- Copy-pastable and useful in more than one Remotion project
+- HTML, CSS, and React-first
+- Focused on one visual idea, technique, or workflow
+- Easy to remix
+- Works as-is when dragged or copied into a project
+- **Building block, not a composition:** The hosted docs page provides the preview size, frame rate, and duration.
+- [Interactivity-friendly](/docs/studio/interactivity): inline editable values so they can show up in the Studio inspector. See also [Make a component interactive](/docs/studio/make-component-interactive).
+- If two variants are worth showing, make two separate Element pages instead of adding a variant prop.
+
+For example:
+
+```tsx twoslash title="Element.tsx"
+export const MyElement = () => {
+  return <div style={{width: '100%', height: '100%'}}>...</div>;
+};
+```
+
+For animation, keep the timing inside the component but let the surrounding project decide how long the Element appears:
+
+```tsx twoslash title="AnimatedElement.tsx"
+import {Interactive, interpolate, useCurrentFrame} from 'remotion';
+
+export const AnimatedElement = () => {
+  const frame = useCurrentFrame();
+
+  return (
+    <Interactive.Div
+      style={{
+        width: '100%',
+        height: '100%',
+        opacity: interpolate(frame, [0, 20], [0, 1]),
+        translate: interpolate(frame, [0, 20], ['0px 40px', '0px 0px']),
+      }}
+    >
+      Hello
+    </Interactive.Div>
+  );
+};
+```
+
+## Sizing Elements
+
+To give an Element a fixed size, set `elementWidth` and `elementHeight` on the `ElementPage` in `index.mdx`:
+
+```tsx title="index.mdx"
+<ElementPage
+  component={MyElement}
+  elementWidth={900}
+  elementHeight={260}
+>
+```
+
+Then make the Element fill that area in its source file:
+
+```tsx title="my-element.tsx"
+import {AbsoluteFill} from 'remotion';
+
+export const MyElement = () => {
+  return <AbsoluteFill>...</AbsoluteFill>;
+};
+```
+
+Use this for overlays, lower thirds, callouts, motion graphics, cards, badges, and data animations.
+Do not put the wrapper [`<Sequence>`](/docs/sequence) into the Element source file.
+
+## Assets and dependencies
+
+Prefer zero dependencies.
+If an Element needs binary assets, reference them by URL:
+
+```tsx twoslash title="Remote assets"
+const imageUrl = 'https://remotion.media/element-image.png';
+const videoUrl = 'https://remotion.media/element-video.mp4';
+```
+
+Remote assets should be publicly accessible and stable.
+
+## What to include
+
+When submitting an Element as a pull request, include:
+
+- An Element folder in `packages/docs/elements/<category>/<slug>/`
+- An `index.mdx` page and the single-file TSX source code in that folder
+- A rendered preview, if available
+- What makes it useful
+- Links to inspiration, if any
+
+## Not a great fit
+
+These are usually less suitable:
+
+- Full video templates with many unrelated parts
+- Highly specific branded videos
+- Elements requiring private APIs or private assets
+- Large apps with many moving parts
+- Maps, Three.js, WebGL, Canvas, or R3F-heavy Elements for the first batch
+- Elements with unexpected global styles or layout side effects
+- Elements that cannot be previewed meaningfully
+
+## Submit your Element
+
+Submit Elements by opening a pull request against the Remotion repository.
+
+[Open a pull request on GitHub](https://github.com/remotion-dev/remotion/compare)

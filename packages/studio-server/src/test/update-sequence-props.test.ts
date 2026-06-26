@@ -82,6 +82,30 @@ test('updateSequenceProps should remove attribute when value equals default', as
 	expect(output.split('\n')[7]).toContain('hueShift={30}');
 });
 
+test('updateSequenceProps should remove name when value is empty string default', async () => {
+	const input = `import {Sequence} from 'remotion';
+
+export const Example: React.FC = () => {
+	return (
+		<Sequence name="Intro">
+			<div />
+		</Sequence>
+	);
+};
+`;
+
+	const {output, oldValueStrings} = await updateSequenceProps({
+		input,
+		nodePath: lineColumnToNodePath(input, 5),
+		updates: [{key: 'name', value: '', defaultValue: ''}],
+		schema: NoReactInternals.sequenceSchema,
+		prettierConfigOverride: null,
+	});
+
+	expect(oldValueStrings[0]).toBe('"Intro"');
+	expect(output).not.toContain('name=');
+});
+
 test('updateSequenceProps should set optional attribute to null', async () => {
 	const input = `import {Sequence} from 'remotion';
 

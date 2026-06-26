@@ -3,7 +3,6 @@ import React, {useMemo, useState} from 'react';
 import {fieldsetLabel} from '../layout';
 import {Fieldset} from './Fieldset';
 import {SchemaLabel} from './SchemaLabel';
-import {SchemaSeparationLine} from './SchemaSeparationLine';
 import {SchemaVerticalGuide} from './SchemaVerticalGuide';
 import {zodSafeParse, type AnyZodSchema} from './zod-schema-type';
 import {getObjectShape, getZodSchemaType} from './zod-schema-type';
@@ -77,7 +76,7 @@ export const ZodObjectEditor: React.FC<{
 
 			{expanded ? (
 				<SchemaVerticalGuide isRoot={isRoot}>
-					{keys.map((key, i) => {
+					{keys.map((key) => {
 						if (
 							discriminatedUnionReplacement &&
 							key === discriminatedUnionReplacement.discriminator
@@ -106,7 +105,6 @@ export const ZodObjectEditor: React.FC<{
 									}}
 									onRemove={null}
 								/>
-								{i === keys.length - 1 ? null : <SchemaSeparationLine />}
 							</React.Fragment>
 						);
 					})}

@@ -1,4 +1,7 @@
-import {KEYFRAME_EASING_PRESETS} from '@remotion/studio-shared';
+import {
+	KEYFRAME_EASING_PRESETS,
+	LINEAR_KEYFRAME_EASING,
+} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useMemo, useRef} from 'react';
 import {Internals, useVideoConfig} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
@@ -6,7 +9,6 @@ import {BLUE} from '../../helpers/colors';
 import {getXPositionOfItemInTimelineImperatively} from '../../helpers/get-left-of-timeline-slider';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
-import {ModalsContext} from '../../state/modals';
 import {ContextMenuForTarget} from '../ContextMenu';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {
@@ -18,7 +20,6 @@ import {
 import {TimelineWidthContext} from './TimelineWidthProvider';
 import {
 	getEasingSelections,
-	getTimelineEasingValueForSelection,
 	type TimelineEasingValue,
 	updateSelectedTimelineEasings,
 } from './update-selected-easing';
@@ -45,6 +46,24 @@ const easingLine: React.CSSProperties = {
 	right: 0,
 	top: '50%',
 	transform: 'translateY(-50%)',
+};
+
+export const getTimelineKeyframeEasingLineStyle = (
+	selected: boolean,
+): React.CSSProperties => ({
+	...easingLine,
+	outline: selected ? `1px solid ${BLUE}` : undefined,
+});
+
+export const TimelineKeyframeEasingLineVisual: React.FC<{
+	readonly selected: boolean;
+}> = ({selected}) => {
+	const lineStyle = useMemo(
+		() => getTimelineKeyframeEasingLineStyle(selected),
+		[selected],
+	);
+
+	return <div style={lineStyle} />;
 };
 
 const TimelineKeyframeEasingLineUnmemoized: React.FC<{
@@ -75,7 +94,6 @@ const TimelineKeyframeEasingLineUnmemoized: React.FC<{
 		Internals.OverrideIdsToNodePathsGettersContext,
 	);
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
-	const {setSelectedModal} = useContext(ModalsContext);
 
 	const getTargetSelections = useCallback(() => {
 		const selectedEasings = getEasingSelections(
@@ -111,37 +129,6 @@ const TimelineKeyframeEasingLineUnmemoized: React.FC<{
 		],
 	);
 
-	const onOpenEasingEditor = useCallback(() => {
-		if (previewServerState.type !== 'connected') {
-			return;
-		}
-
-		const initialEasing = getTimelineEasingValueForSelection({
-			selection: selectionItem,
-			sequences: sequencesRef.current,
-			overrideIdsToNodePaths: overrideIdToNodePathMappings,
-			propStatuses: propStatusesRef.current,
-		});
-
-		if (initialEasing === null) {
-			return;
-		}
-
-		setSelectedModal({
-			type: 'easing-editor',
-			initialEasing,
-			selections: getTargetSelections(),
-		});
-	}, [
-		getTargetSelections,
-		overrideIdToNodePathMappings,
-		previewServerState,
-		propStatusesRef,
-		selectionItem,
-		sequencesRef,
-		setSelectedModal,
-	]);
-
 	const contextMenuValues = useMemo((): ComboboxValue[] => {
 		return [
 			{
@@ -151,7 +138,7 @@ const TimelineKeyframeEasingLineUnmemoized: React.FC<{
 				label: 'Linear',
 				leftItem: null,
 				disabled: previewServerState.type !== 'connected',
-				onClick: () => updateEasing('linear'),
+				onClick: () => updateEasing(LINEAR_KEYFRAME_EASING),
 				quickSwitcherLabel: null,
 				subMenu: null,
 				value: 'linear',
@@ -168,24 +155,8 @@ const TimelineKeyframeEasingLineUnmemoized: React.FC<{
 				subMenu: null,
 				value: preset.id,
 			})),
-			{
-				type: 'divider' as const,
-				id: 'edit-easing-divider',
-			},
-			{
-				type: 'item',
-				id: 'edit-easing',
-				keyHint: null,
-				label: 'Edit...',
-				leftItem: null,
-				disabled: previewServerState.type !== 'connected',
-				onClick: onOpenEasingEditor,
-				quickSwitcherLabel: null,
-				subMenu: null,
-				value: 'edit-easing',
-			},
 		];
-	}, [onOpenEasingEditor, previewServerState.type, updateEasing]);
+	}, [previewServerState.type, updateEasing]);
 
 	const onOpenContextMenu = useCallback(
 		(event: MouseEvent) => {
@@ -244,14 +215,6 @@ const TimelineKeyframeEasingLineUnmemoized: React.FC<{
 		videoConfig.durationInFrames,
 	]);
 
-	const lineStyle = useMemo(
-		(): React.CSSProperties => ({
-			...easingLine,
-			outline: selected ? `1px solid ${BLUE}` : undefined,
-		}),
-		[selected],
-	);
-
 	const onPointerDown = useTimelineEasingKeyframeDrag({
 		onSelect,
 		selectable,
@@ -274,7 +237,7 @@ const TimelineKeyframeEasingLineUnmemoized: React.FC<{
 				aria-label={`Select easing from frame ${fromFrame} to ${toFrame}`}
 				onPointerDown={selectable ? onPointerDown : undefined}
 			>
-				<div style={lineStyle} />
+				<TimelineKeyframeEasingLineVisual selected={selected} />
 			</button>
 			<ContextMenuForTarget
 				triggerRef={buttonRef}

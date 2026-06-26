@@ -1,0 +1,39 @@
+---
+title: Remotion Elements
+sidebar_label: Overview
+description: Drop-in, remixable video building blocks for Remotion.
+---
+
+# Remotion Elements
+
+:::warning Work in progress
+
+This section is being shaped. The format and Element list may change.
+
+:::
+
+Remotion Elements are drop-in, HTML-first Remotion components designed to be placed inside a [`<Sequence>`](/docs/sequence) and composed with your video.
+
+They are practical video building blocks: captions, lower thirds, overlays, callouts, transitions, data cards, audio visuals, and title cards.
+
+## Methodology
+
+An Element should be:
+
+- Building block for a video: an overlay, transition, motion graphic, data animation, etc.
+- Designed to live inside one `<Sequence>`
+- Free of specific colors or branding, so users can easily remix it
+- HTML, CSS, and React-first
+- Zero-dependency where possible, with [Remotion Effects](/docs/effects) as an exception
+- Safe to compose in Studio with normal z-layering
+- Free of unexpected global styles, layout side effects, and fullscreen assumptions unless it is explicitly a background
+
+Heavier Maps, Three.js, WebGL, Canvas, and R3F Elements can come later as separate batches of work.
+
+## What belongs here?
+
+Elements should focus on one visual idea, technique, or workflow. They should be actionable Remotion building blocks rather than full, highly specific video templates.
+
+Initial categories include Text, Captions, Overlays, Transitions, Backgrounds, Data, and Audio.
+
+If you want to contribute one, see [Submit an Element](/elements/submit-an-element).

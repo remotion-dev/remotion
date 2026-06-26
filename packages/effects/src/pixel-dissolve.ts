@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertOptionalFiniteNumber,
@@ -58,7 +58,7 @@ const pixelDissolveSchema = {
 		description: 'Feather',
 		hiddenFromList: false,
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type PixelDissolveParams = {
 	readonly progress?: number;
@@ -167,13 +167,15 @@ float hash21(vec2 p) {
 	return fract((p3.x + p3.y) * p3.z);
 }
 
-float dissolveMask(float noise, float threshold, float feather) {
+float dissolveMask(float noise, float progress, float feather) {
 	float edge = max(feather, 0.0);
+	float threshold = 1.0 - clamp(progress, 0.0, 1.0) * (1.0 + edge);
+
 	if (edge <= 0.0001) {
-		return step(noise, threshold);
+		return 1.0 - step(threshold, noise);
 	}
 
-	return 1.0 - smoothstep(threshold, min(threshold + edge, 1.0), noise);
+	return 1.0 - smoothstep(threshold, threshold + edge, noise);
 }
 
 void main() {
@@ -182,9 +184,8 @@ void main() {
 	vec2 cell = floor(gridUv * divisions);
 	vec4 color = texture(uSource, vUv);
 
-	float threshold = 1.0 - clamp(uProgress, 0.0, 1.0);
 	float noise = hash21(cell + vec2(uSeed, uSeed * 1.618));
-	float mask = dissolveMask(noise, threshold, uFeather);
+	float mask = dissolveMask(noise, uProgress, uFeather);
 
 	fragColor = vec4(color.rgb * mask, color.a * mask);
 }
@@ -267,7 +268,7 @@ export const pixelDissolve = createEffect<
 	PixelDissolveParams,
 	PixelDissolveState
 >({
-	type: 'remotion/pixel-dissolve',
+	type: 'dev.remotion.effects.pixelDissolve',
 	label: 'pixelDissolve()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/pixel-dissolve',
 	backend: 'webgl2',

@@ -1,4 +1,4 @@
-import type {SequenceFieldSchema, SequenceSchema} from 'remotion';
+import type {InteractivitySchemaField, InteractivitySchema} from 'remotion';
 
 export const keyframeInterpolationFunctions = [
 	'interpolate',
@@ -16,14 +16,18 @@ export const isKeyframeInterpolationFunction = (
 	);
 };
 
-export const isSequenceFieldSchemaKeyframable = (
-	field: SequenceFieldSchema | undefined,
+export const isInteractivitySchemaFieldKeyframable = (
+	field: InteractivitySchemaField | undefined,
 ): boolean => {
 	if (!field) {
 		return true;
 	}
 
-	if (field.type === 'array' || field.type === 'enum') {
+	if (
+		field.type === 'array' ||
+		field.type === 'boolean' ||
+		field.type === 'enum'
+	) {
 		return false;
 	}
 
@@ -31,9 +35,9 @@ export const isSequenceFieldSchemaKeyframable = (
 };
 
 const findFieldInSchema = (
-	schema: SequenceSchema,
+	schema: InteractivitySchema,
 	key: string,
-): SequenceFieldSchema | undefined => {
+): InteractivitySchemaField | undefined => {
 	if (key in schema) {
 		return schema[key];
 	}
@@ -58,18 +62,18 @@ export const isSchemaFieldKeyframable = ({
 	schema,
 	key,
 }: {
-	schema: SequenceSchema | null;
+	schema: InteractivitySchema | null;
 	key: string;
 }): boolean => {
 	const field = schema ? findFieldInSchema(schema, key) : undefined;
-	return isSequenceFieldSchemaKeyframable(field);
+	return isInteractivitySchemaFieldKeyframable(field);
 };
 
 export const getKeyframeInterpolationFunctionForSchemaField = ({
 	schema,
 	key,
 }: {
-	schema: SequenceSchema | null;
+	schema: InteractivitySchema | null;
 	key: string;
 }): KeyframeInterpolationFunction | null => {
 	const field = schema ? findFieldInSchema(schema, key) : undefined;
@@ -96,7 +100,7 @@ export const getKeyframeInterpolationFunction = ({
 	staticValue,
 	newValue,
 }: {
-	schema: SequenceSchema | null;
+	schema: InteractivitySchema | null;
 	key: string;
 	staticValue: unknown;
 	newValue: unknown;

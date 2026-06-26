@@ -1,0 +1,276 @@
+---
+image: /generated/articles-docs-interactivity-schema.png
+id: interactivity-schema
+title: InteractivitySchema
+crumb: 'API'
+---
+
+# InteractivitySchema<AvailableFrom v="4.0.479" />
+
+An `InteractivitySchema` describes controls that Remotion Studio can show in the timeline.
+
+It is used by [`Interactive.withSchema()`](/docs/interactive-with-schema) for component props and by [`createEffect()`](/docs/create-effect) for effect parameters.
+
+This schema is not a Zod schema. Use [Zod schemas](/docs/schemas) for [`<Composition>`](/docs/composition) props.
+
+## Example
+
+```ts twoslash title="schema.ts"
+import {Interactive, type InteractivitySchema} from 'remotion';
+
+export const titleCardSchema = {
+  ...Interactive.baseSchema,
+  ...Interactive.transformSchema,
+  tint: {
+    type: 'color',
+    default: '#ffffff',
+    description: 'Tint',
+  },
+} as const satisfies InteractivitySchema;
+```
+
+Keys may use dot notation. For example, a key named `style.opacity` reads from and writes to `props.style.opacity`.
+
+## Reusable component schemas
+
+[`Interactive`](/docs/interactive) exposes schema fragments for custom components:
+
+### `Interactive.baseSchema`
+
+Timeline props inherited from [`<Sequence>`](/docs/sequence): [`durationInFrames`](/docs/sequence#durationinframes), [`from`](/docs/sequence#from), [`trimBefore`](/docs/sequence#trimbefore), [`freeze`](/docs/sequence#freeze), [`hidden`](/docs/sequence#hidden), [`name`](/docs/sequence#name) and [`showInTimeline`](/docs/sequence#showintimeline).
+
+### `Interactive.transformSchema`
+
+Transform-related style props: `style.transformOrigin`, `style.translate`, `style.scale`, `style.rotate` and `style.opacity`.
+
+### `Interactive.textSchema`<AvailableFrom v="4.0.481" />
+
+Text-related style props: `style.color`, `style.fontSize`, `style.lineHeight`, `style.fontWeight`, `style.fontStyle`, `style.textAlign` and `style.letterSpacing`.
+
+### `Interactive.premountSchema`
+
+Mounting props: `premountFor`, `postmountFor`, `styleWhilePremounted` and `styleWhilePostmounted`.
+
+These schemas are for component props. Effects created with [`createEffect()`](/docs/create-effect) should define only their own effect parameters.
+
+## Field Types
+
+### `number`
+
+Shows a numeric control.
+
+### `boolean`
+
+Shows an on/off control.
+
+### `color`
+
+Shows a color control. The value is a CSS color string.
+
+### `enum`
+
+Shows a select control. Each variant can define its own nested `InteractivitySchema`.
+
+### `array`
+
+Shows a list of values. Array fields are not keyframable.
+
+### `rotation-css`
+
+Shows a rotation control backed by a CSS rotation string such as `"15deg"`.
+
+### `rotation-degrees`
+
+Shows a rotation control backed by a number in degrees.
+
+### `translate`
+
+Shows a two-axis CSS translate control such as `"10px 20px"`.
+
+### `transform-origin`
+
+Shows a transform origin control such as `"50% 50%"`.
+
+### `scale`
+
+Shows a scale control. The value may be a number or a CSS scale string.
+
+### `uv-coordinate`
+
+Shows a normalized two-dimensional coordinate as `[x, y]`.
+
+`[0, 0]` is the top-left corner and `[1, 1]` is the bottom-right corner.
+
+#### `visual?`
+
+Optional metadata for drawing related Visual Mode controls in the preview.
+
+This metadata does not change the stored value. It only tells Remotion Studio how a `uv-coordinate` relates to other schema fields.
+
+##### Line
+
+Draws a line from this coordinate to another `uv-coordinate` field in the same schema.
+
+```ts
+start: {
+  type: 'uv-coordinate',
+  default: [0, 0],
+  visual: {
+    type: 'line',
+    to: 'end',
+  },
+},
+end: {
+  type: 'uv-coordinate',
+  default: [1, 1],
+},
+```
+
+##### Ellipse
+
+Draws an ellipse centered on this coordinate. The `width`, `height`, `rotation` and `innerScale` properties point to numeric fields in the same schema.
+
+```ts
+center: {
+  type: 'uv-coordinate',
+  default: [0.5, 0.5],
+  visual: {
+    type: 'ellipse',
+    width: 'width',
+    height: 'height',
+    rotation: 'rotation',
+    innerScale: 'start',
+  },
+},
+width: {
+  type: 'number',
+  default: 1,
+  hiddenFromList: false,
+},
+height: {
+  type: 'number',
+  default: 1,
+  hiddenFromList: false,
+},
+rotation: {
+  type: 'rotation-degrees',
+  default: 0,
+},
+start: {
+  type: 'number',
+  min: 0,
+  max: 1,
+  default: 0,
+  hiddenFromList: false,
+},
+```
+
+`innerScale` is optional. When present, Remotion Studio draws a second ellipse using the same center, width, height and rotation multiplied by that numeric field.
+
+### `hidden`
+
+Keeps a field in the schema without rendering a visible control.
+
+## Common Properties
+
+### `type`
+
+The control type. Must be one of the field types listed above.
+
+### `default`
+
+The value used when no prop value is present.
+
+For required effect parameters, use `default: undefined`.
+
+### `description?`
+
+The label shown in Remotion Studio.
+
+### `keyframable?`
+
+Controls whether the field can be animated with keyframes.
+
+Default: `true` for `number`, `boolean`, `rotation-css`, `rotation-degrees`, `translate`, `transform-origin`, `scale`, `uv-coordinate` and `color` fields.
+
+`array` and `enum` fields are not keyframable. Fields inside an `enum` variant schema can still be keyframed according to their own `keyframable` setting.
+
+Set `keyframable: false` on a keyframable field to show a static control.
+
+### `min?`
+
+The minimum value for numeric controls.
+
+### `max?`
+
+The maximum value for numeric controls.
+
+### `step?`
+
+The increment used by numeric and spatial controls.
+
+### `hiddenFromList`
+
+Applies to `number` fields.
+
+When `true`, the field is not listed by default in the timeline controls list. Default: `false`.
+
+## Enum Fields
+
+### `variants`
+
+Maps each selectable value to a nested `InteractivitySchema`.
+
+Only the active variant's nested fields are applied to props.
+
+```ts twoslash title="enum-schema.ts"
+import type {InteractivitySchema} from 'remotion';
+
+export const boxSchema = {
+  layout: {
+    type: 'enum',
+    default: 'absolute-fill',
+    description: 'Layout',
+    variants: {
+      'absolute-fill': {
+        'style.opacity': {
+          type: 'number',
+          min: 0,
+          max: 1,
+          step: 0.01,
+          default: 1,
+          description: 'Opacity',
+          hiddenFromList: false,
+        },
+      },
+      none: {},
+    },
+  },
+} as const satisfies InteractivitySchema;
+```
+
+## Array Fields
+
+### `item`
+
+Defines the field type for every item in the array.
+
+### `newItemDefault`
+
+The value inserted when the user adds an item.
+
+### `minLength?`
+
+The minimum number of items.
+
+### `maxLength?`
+
+The maximum number of items.
+
+## See also
+
+- [`Interactive.withSchema()`](/docs/interactive-with-schema)
+- [`Interactive`](/docs/interactive)
+- [`createEffect()`](/docs/create-effect)
+- [Defining a schema for your props](/docs/schemas)
+- [Source code for these types](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/interactivity-schema.ts)

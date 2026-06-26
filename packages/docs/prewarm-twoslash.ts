@@ -1,3 +1,4 @@
+import {Glob} from 'bun';
 import type {ChildProcessWithoutNullStreams} from 'child_process';
 import {spawn} from 'child_process';
 import {createHash} from 'crypto';
@@ -6,7 +7,7 @@ import {createRequire} from 'module';
 import {availableParallelism, cpus, totalmem} from 'os';
 import {join, resolve} from 'path';
 import {createInterface} from 'readline';
-import {Glob} from 'bun';
+import {expandElementSourceReferences} from './plugins/element-source-utils';
 
 const DOCS_ROOT = resolve(import.meta.dirname);
 const CACHE_ROOT = join(DOCS_ROOT, 'node_modules', '.cache', 'twoslash');
@@ -278,7 +279,7 @@ async function main() {
 	const startTime = performance.now();
 
 	const glob = new Glob('**/*.{mdx,md}');
-	const dirs = ['docs', 'blog', 'learn', 'new-docs', 'examples'];
+	const dirs = ['docs', 'blog', 'learn', 'new-docs', 'elements'];
 
 	const allFiles: string[] = [];
 	for (const dir of dirs) {
@@ -293,7 +294,10 @@ async function main() {
 	const validCachePaths = new Set<string>();
 	const cachePathToFiles = new Map<string, string[]>();
 	for (const file of allFiles) {
-		const content = readFileSync(file, 'utf8');
+		const content = expandElementSourceReferences({
+			raw: readFileSync(file, 'utf8'),
+			sourceFilePath: file,
+		});
 		allBlocks.push(
 			...extractTwoslashBlocks(
 				content,

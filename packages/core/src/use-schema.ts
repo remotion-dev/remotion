@@ -3,12 +3,12 @@ import {
 	getEffectiveVisualModeValue,
 	resolveDragOverrideValue,
 } from './get-effective-visual-mode-value.js';
+import type {
+	InteractivitySchemaField,
+	InteractivitySchema,
+} from './interactivity-schema.js';
 import {interpolateKeyframedStatus} from './interpolate-keyframed-status.js';
 import type {ExtrapolateType} from './interpolate.js';
-import type {
-	SequenceFieldSchema,
-	SequenceSchema,
-} from './sequence-field-schema.js';
 import type {
 	CanUpdateSequencePropsResponse,
 	SequencePropsSubscriptionKey,
@@ -24,9 +24,55 @@ export type CanUpdateSequencePropStatusKeyframe = {
 	value: unknown;
 };
 
+export type CanUpdateSequencePropStatusLinearEasing = {
+	type: 'linear';
+};
+
+export type CanUpdateSequencePropStatusBezierEasing = {
+	type: 'bezier';
+	x1: number;
+	y1: number;
+	x2: number;
+	y2: number;
+};
+
+export type CanUpdateSequencePropStatusSpringEasing = {
+	type: 'spring';
+	allowTail: boolean | null;
+	damping: number;
+	mass: number;
+	stiffness: number;
+	overshootClamping: boolean;
+	durationRestThreshold: number | null;
+};
+
 export type CanUpdateSequencePropStatusEasing =
-	| 'linear'
-	| [number, number, number, number];
+	| CanUpdateSequencePropStatusLinearEasing
+	| CanUpdateSequencePropStatusBezierEasing
+	| CanUpdateSequencePropStatusSpringEasing;
+
+export const DEFAULT_LINEAR_EASING: CanUpdateSequencePropStatusLinearEasing = {
+	type: 'linear',
+};
+
+const getEasingIndexToDuplicate = ({
+	insertedKeyframeIndex,
+	easingLength,
+	keyframeCount,
+}: {
+	insertedKeyframeIndex: number;
+	easingLength: number;
+	keyframeCount: number;
+}): number | null => {
+	const isSplittingExistingSegment =
+		insertedKeyframeIndex > 0 && insertedKeyframeIndex < keyframeCount - 1;
+
+	if (!isSplittingExistingSegment || easingLength === 0) {
+		return null;
+	}
+
+	return Math.min(insertedKeyframeIndex - 1, easingLength - 1);
+};
 
 export type CanUpdateSequencePropStatusClamping = {
 	left: ExtrapolateType;
@@ -118,8 +164,24 @@ export const makeKeyframedDragOverride = ({
 					index === existingIndex ? {frame, value} : keyframe,
 				);
 	const easing = [...status.easing];
+	if (existingIndex === -1) {
+		const insertedKeyframeIndex = keyframes.findIndex(
+			(keyframe) => keyframe.frame === frame,
+		);
+		const easingIndexToDuplicate = getEasingIndexToDuplicate({
+			insertedKeyframeIndex,
+			easingLength: easing.length,
+			keyframeCount: keyframes.length,
+		});
+		const easingToDuplicate =
+			easingIndexToDuplicate === null
+				? DEFAULT_LINEAR_EASING
+				: easing[easingIndexToDuplicate];
+		easing.splice(insertedKeyframeIndex, 0, easingToDuplicate);
+	}
+
 	while (easing.length < keyframes.length - 1) {
-		easing.push('linear');
+		easing.push(DEFAULT_LINEAR_EASING);
 	}
 
 	if (easing.length > keyframes.length - 1) {
@@ -153,9 +215,9 @@ export const isKeyframedStatus = (
 };
 
 const findFieldInSchema = (
-	schema: SequenceSchema,
+	schema: InteractivitySchema,
 	key: string,
-): SequenceFieldSchema | undefined => {
+): InteractivitySchemaField | undefined => {
 	if (key in schema) {
 		return schema[key];
 	}
@@ -183,7 +245,7 @@ export const computeEffectiveSchemaValuesDotNotation = ({
 	propStatus,
 	frame,
 }: {
-	schema: SequenceSchema;
+	schema: InteractivitySchema;
 	currentValue: Record<string, unknown>;
 	overrideValues: Record<string, DragOverrideValue>;
 	propStatus: Record<string, CanUpdateSequencePropStatus> | undefined;
@@ -214,6 +276,7 @@ export const computeEffectiveSchemaValuesDotNotation = ({
 					value = dragOverride.value;
 				} else if (frame !== null) {
 					const interpolated = interpolateKeyframedStatus({
+						forceSpringAllowTail: null,
 						frame,
 						status,
 					});

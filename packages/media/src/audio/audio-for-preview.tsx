@@ -18,7 +18,7 @@ const {
 	useUnsafeVideoConfig,
 	Timeline,
 	SharedAudioContext,
-	useMediaMutedState,
+	usePlayerMutedState,
 	useMediaVolumeState,
 	useFrameForVolumeProp,
 	evaluateVolume,
@@ -88,7 +88,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 	const sharedAudioContext = useContext(SharedAudioContext);
 	const buffer = useBufferState();
 
-	const [mediaMuted] = useMediaMutedState();
+	const [playerMuted] = usePlayerMutedState();
 	const [mediaVolume] = useMediaVolumeState();
 
 	const volumePropFrame = useFrameForVolumeProp(
@@ -131,7 +131,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 		);
 	}
 
-	const effectiveMuted = muted || mediaMuted || userPreferredVolume <= 0;
+	const effectiveMuted = muted || playerMuted || userPreferredVolume <= 0;
 
 	const isPlayerBuffering = Internals.useIsPlayerBuffering(bufferingContext);
 	const initialPlaying = useRef(playing && !isPlayerBuffering);

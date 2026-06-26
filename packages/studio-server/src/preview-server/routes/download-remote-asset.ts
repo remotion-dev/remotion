@@ -17,10 +17,11 @@ const maxRemoteAssetSize = 50 * 1024 * 1024;
 const remoteAssetDownloadTimeout = 15000;
 const maxRemoteAssetRedirects = 5;
 const remoteAssetAcceptHeader =
-	'image/png,image/jpeg,image/webp,image/bmp,image/gif';
+	'image/png,image/apng,image/jpeg,image/webp,image/bmp,image/gif';
 
 const extensionsForFileType: Record<ImageFileType['type'], string[]> = {
 	png: ['png'],
+	apng: ['png', 'apng'],
 	jpeg: ['jpg', 'jpeg'],
 	webp: ['webp'],
 	bmp: ['bmp'],
@@ -335,7 +336,12 @@ export const downloadRemoteAssetHandler: ApiHandler<
 
 	const element: InsertableCompositionElement = {
 		type: 'asset',
-		assetType: fileType.type === 'gif' ? 'gif' : 'image',
+		assetType:
+			fileType.type === 'gif'
+				? 'gif'
+				: fileType.type === 'apng'
+					? 'animated-image'
+					: 'image',
 		src: assetPath,
 		srcType: 'static',
 		dimensions: fileType.dimensions,

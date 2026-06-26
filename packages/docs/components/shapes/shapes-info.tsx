@@ -7,6 +7,7 @@ import {
 	makePie,
 	makePolygon,
 	makeRect,
+	makeSpark,
 	makeStar,
 	makeTriangle,
 } from '@remotion/shapes';
@@ -34,6 +35,7 @@ export type ShapeName =
 	| 'Pie'
 	| 'Polygon'
 	| 'Rect'
+	| 'Spark'
 	| 'Star'
 	| 'Triangle';
 
@@ -309,6 +311,37 @@ export const shapeComponents: ShapeComponent[] = [
 		],
 	},
 	{
+		shape: 'Spark',
+		fn: makeSpark,
+		params: [
+			{
+				name: 'width',
+				type: 'number',
+				description: 'The width of the spark.',
+				hiddenFromList: false,
+			},
+			{
+				name: 'height',
+				type: 'number',
+				description: 'The height of the spark.',
+				hiddenFromList: false,
+			},
+			{
+				name: 'edgeRoundness',
+				type: 'number',
+				description:
+					'Controls the inward curvature of the edges between the four points. Default 1.',
+				hiddenFromList: false,
+			},
+			{
+				name: 'cornerRadius',
+				type: 'number',
+				description: 'Rounds the four points of the spark. Default 0.',
+				hiddenFromList: false,
+			},
+		],
+	},
+	{
 		shape: 'Polygon',
 		fn: makePolygon,
 		params: [
@@ -340,6 +373,10 @@ export const shapeComponents: ShapeComponent[] = [
 		],
 	},
 ];
+
+export const shapeNames: readonly ShapeName[] = shapeComponents.map(
+	(component) => component.shape,
+);
 
 const globalParams: Param[] = [
 	{
@@ -513,6 +550,10 @@ export const ShapeOptions: React.FC<{
 							<code>durationInFrames</code>
 						</a>
 						,{' '}
+						<a href="/docs/sequence#trimbefore">
+							<code>trimBefore</code>
+						</a>
+						<AvailableFrom v="4.0.482" inline />,{' '}
 						<a href="/docs/sequence#name">
 							<code>name</code>
 						</a>

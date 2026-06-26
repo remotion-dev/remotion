@@ -38,7 +38,7 @@ const {
 	useUnsafeVideoConfig,
 	Timeline,
 	SharedAudioContext,
-	useMediaMutedState,
+	usePlayerMutedState,
 	useMediaVolumeState,
 	useFrameForVolumeProp,
 	evaluateVolume,
@@ -147,7 +147,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 		[refForOutline],
 	);
 
-	const [mediaMuted] = useMediaMutedState();
+	const [playerMuted] = usePlayerMutedState();
 	const [mediaVolume] = useMediaVolumeState();
 
 	const volumePropFrame = useFrameForVolumeProp(loopVolumeCurveBehavior);
@@ -192,7 +192,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 	}
 
 	// TODO: Consider Sequence hidden
-	const effectiveMuted = muted || mediaMuted || userPreferredVolume <= 0;
+	const effectiveMuted = muted || playerMuted || userPreferredVolume <= 0;
 
 	const isPlayerBuffering = Internals.useIsPlayerBuffering(buffering);
 	const initialPlaying = useRef(playing && !isPlayerBuffering);
@@ -256,33 +256,23 @@ const VideoForPreviewAssertedShowing: React.FC<
 	}, [_experimentalInitiallyDrawCachedFrame, src]);
 
 	useEffect(() => {
-		if (!sharedAudioContext) return;
-		if (!sharedAudioContext.audioContext) return;
-
-		const {
-			audioContext,
-			gainNode,
-			audioSyncAnchor,
-			scheduleAudioNode,
-			unscheduleAudioNode,
-		} = sharedAudioContext;
-
-		if (!gainNode) {
-			return;
-		}
+		const sharedAudioContextForMediaPlayer =
+			sharedAudioContext?.audioContext && sharedAudioContext.gainNode
+				? {
+						audioContext: sharedAudioContext.audioContext,
+						gainNode: sharedAudioContext.gainNode,
+						audioSyncAnchor: sharedAudioContext.audioSyncAnchor,
+						scheduleAudioNode: sharedAudioContext.scheduleAudioNode,
+						unscheduleAudioNode: sharedAudioContext.unscheduleAudioNode,
+					}
+				: null;
 
 		try {
 			const player = new MediaPlayer({
 				canvas: canvasRef.current,
 				src: preloadedSrc,
 				logLevel,
-				sharedAudioContext: {
-					audioContext,
-					gainNode,
-					audioSyncAnchor,
-					scheduleAudioNode,
-					unscheduleAudioNode,
-				},
+				sharedAudioContext: sharedAudioContextForMediaPlayer,
 				loop,
 				trimAfter: initialTrimAfterRef.current,
 				trimBefore: initialTrimBeforeRef.current,

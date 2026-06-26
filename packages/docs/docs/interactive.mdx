@@ -52,11 +52,89 @@ Available SVG elements:
 
 `Circle`, `Ellipse`, `G`, `Line`, `Path`, `Rect`, `Svg`, `Text`.
 
+## Schema helpers
+
+`Interactive` also exposes schema fragments for custom timeline components.
+
+Use them with [`Interactive.withSchema()`](/docs/interactive-with-schema).
+
+### `Interactive.baseSchema`<AvailableFrom v="4.0.479" />
+
+Controls inherited from [`<Sequence>`](/docs/sequence):
+
+`durationInFrames`, `from`, `trimBefore`, `freeze`, `hidden`, `name` and `showInTimeline`.
+
+Use it for components that render a `<Sequence>` internally.
+
+```tsx twoslash title="schema.ts"
+import {Interactive, type InteractivitySchema} from 'remotion';
+
+export const shapeSchema = {
+  ...Interactive.baseSchema,
+  radius: {
+    type: 'number',
+    default: 80,
+    description: 'Radius',
+    hiddenFromList: false,
+  },
+} as const satisfies InteractivitySchema;
+```
+
+### `Interactive.transformSchema`<AvailableFrom v="4.0.479" />
+
+Controls for transform-related style props:
+
+`style.transformOrigin`, `style.translate`, `style.scale`, `style.rotate` and `style.opacity`.
+
+Use it for components that accept a `style` prop and apply it to the rendered element.
+
+### `Interactive.textSchema`<AvailableFrom v="4.0.481" />
+
+Controls for text-related style props:
+
+`style.color`, `style.fontSize`, `style.lineHeight`, `style.fontWeight`, `style.fontStyle`, `style.textAlign` and `style.letterSpacing`.
+
+Use it for components that accept a `style` prop and render text.
+
+### `Interactive.premountSchema`<AvailableFrom v="4.0.479" />
+
+Controls for mounting behavior:
+
+`premountFor`, `postmountFor`, `styleWhilePremounted` and `styleWhilePostmounted`.
+
+Use it for components that forward these props to a `<Sequence>` with `layout="absolute-fill"`.
+
+### `Interactive.sequenceSchema`<AvailableFrom v="4.0.479" />
+
+The schema used by [`<Sequence>`](/docs/sequence).
+
+It includes `Interactive.baseSchema` and a `layout` field. When `layout` is `"absolute-fill"`, the active fields include `Interactive.transformSchema` and `Interactive.premountSchema`.
+
+### `Interactive.withSchema()`<AvailableFrom v="4.0.479" />
+
+Wraps a custom component so Remotion Studio can expose its props as timeline controls.
+
+See [`Interactive.withSchema()`](/docs/interactive-with-schema).
+
+## Types
+
+### `InteractiveBaseProps`<AvailableFrom v="4.0.479" />
+
+The prop type matching `Interactive.baseSchema`.
+
+### `InteractiveTransformProps`<AvailableFrom v="4.0.479" />
+
+The prop type matching `Interactive.transformSchema`.
+
+### `InteractivePremountProps`<AvailableFrom v="4.0.479" />
+
+The prop type matching `Interactive.premountSchema`.
+
 ## Props
 
 ### Inherited props
 
-Every `Interactive` component inherits [`from`](/docs/sequence#from), [`durationInFrames`](/docs/sequence#durationinframes), [`name`](/docs/sequence#name), [`showInTimeline`](/docs/sequence#showintimeline) and [`hidden`](/docs/sequence#hidden) from [`<Sequence>`](/docs/sequence).
+Every `Interactive` component inherits [`durationInFrames`](/docs/sequence#durationinframes), [`from`](/docs/sequence#from), [`trimBefore`](/docs/sequence#trimbefore), [`freeze`](/docs/sequence#freeze), [`hidden`](/docs/sequence#hidden), [`name`](/docs/sequence#name) and [`showInTimeline`](/docs/sequence#showintimeline) from [`<Sequence>`](/docs/sequence).
 
 ```tsx twoslash title="Timed element"
 import {Interactive} from 'remotion';

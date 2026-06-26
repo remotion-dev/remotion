@@ -16,8 +16,8 @@ import type {
 import {
 	isUrl,
 	type ComponentProp,
-	type InsertableCompositionElementPosition,
 	type InsertableCompositionElement,
+	type InsertableCompositionElementPosition,
 } from '@remotion/studio-shared';
 import type {namedTypes} from 'ast-types';
 import * as recast from 'recast';
@@ -50,10 +50,11 @@ export type ResolvedCompositionComponent = {
 	canAddSequence: boolean;
 };
 
-type ResolvedCompositionComponentWithFile = ResolvedCompositionComponent & {
-	fileName: string;
-	exportName: string | 'default';
-};
+export type ResolvedCompositionComponentWithFile =
+	ResolvedCompositionComponent & {
+		fileName: string;
+		exportName: string | 'default';
+	};
 
 type ImportTarget = {
 	importPath: string;
@@ -760,12 +761,31 @@ const createBooleanAttribute = (
 	);
 };
 
-const formatTranslateValue = ({x, y}: InsertableCompositionElementPosition) =>
-	`${x}px ${y}px`;
+const translateDecimalPlaces = 1;
 
-const createPositionAbsoluteStyleAttribute = (
-	position: InsertableCompositionElementPosition | null,
+const roundTranslateCoordinate = (value: number): number => {
+	const factor = 10 ** translateDecimalPlaces;
+	const rounded = Math.round(value * factor) / factor;
+	return Object.is(rounded, -0) ? 0 : rounded;
+};
+
+const formatTranslateValue = ({x, y}: InsertableCompositionElementPosition) =>
+	`${roundTranslateCoordinate(x)}px ${roundTranslateCoordinate(y)}px`;
+
+const createStyleAttribute = (
+	properties: namedTypes.ObjectProperty[],
 ): namedTypes.JSXAttribute => {
+	return recast.types.builders.jsxAttribute(
+		recast.types.builders.jsxIdentifier('style'),
+		recast.types.builders.jsxExpressionContainer(
+			recast.types.builders.objectExpression(properties),
+		),
+	);
+};
+
+const getPositionStyleProperties = (
+	position: InsertableCompositionElementPosition | null,
+): namedTypes.ObjectProperty[] => {
 	const properties = [
 		recast.types.builders.objectProperty(
 			recast.types.builders.identifier('position'),
@@ -782,12 +802,37 @@ const createPositionAbsoluteStyleAttribute = (
 		);
 	}
 
-	return recast.types.builders.jsxAttribute(
-		recast.types.builders.jsxIdentifier('style'),
-		recast.types.builders.jsxExpressionContainer(
-			recast.types.builders.objectExpression(properties),
-		),
-	);
+	return properties;
+};
+
+const createPositionAbsoluteStyleAttribute = (
+	position: InsertableCompositionElementPosition | null,
+): namedTypes.JSXAttribute => {
+	return createStyleAttribute(getPositionStyleProperties(position));
+};
+
+const createAssetStyleAttribute = ({
+	dimensions,
+	position,
+}: {
+	dimensions: {width: number; height: number} | null;
+	position: InsertableCompositionElementPosition | null;
+}): namedTypes.JSXAttribute => {
+	return createStyleAttribute([
+		...getPositionStyleProperties(position),
+		...(dimensions
+			? [
+					recast.types.builders.objectProperty(
+						recast.types.builders.identifier('width'),
+						recast.types.builders.numericLiteral(dimensions.width),
+					),
+					recast.types.builders.objectProperty(
+						recast.types.builders.identifier('height'),
+						recast.types.builders.numericLiteral(dimensions.height),
+					),
+				]
+			: []),
+	]);
 };
 
 const createStaticFileSrcAttribute = ({
@@ -857,10 +902,12 @@ const createSolidElement = ({
 };
 
 const createComponentElement = ({
+	addPositionStyle,
 	localName,
 	props,
 	position,
 }: {
+	addPositionStyle: boolean;
 	localName: string;
 	props: ComponentProp[];
 	position: InsertableCompositionElementPosition | null;
@@ -870,12 +917,45 @@ const createComponentElement = ({
 			recast.types.builders.jsxIdentifier(localName),
 			[
 				...props.map(createComponentProp),
-				createPositionAbsoluteStyleAttribute(position),
+				...(addPositionStyle
+					? [createPositionAbsoluteStyleAttribute(position)]
+					: []),
 			],
 			true,
 		),
 		null,
 		[],
+	);
+};
+
+const createSequenceWrappedElement = ({
+	child,
+	dimensions,
+	name,
+	position,
+	sequenceLocalName,
+}: {
+	child: namedTypes.JSXElement;
+	dimensions: {width: number; height: number};
+	name: string | null;
+	position: InsertableCompositionElementPosition | null;
+	sequenceLocalName: string;
+}): namedTypes.JSXElement => {
+	return recast.types.builders.jsxElement(
+		recast.types.builders.jsxOpeningElement(
+			recast.types.builders.jsxIdentifier(sequenceLocalName),
+			[
+				...(name === null ? [] : [createStringAttribute('name', name)]),
+				createNumberAttribute('width', dimensions.width),
+				createNumberAttribute('height', dimensions.height),
+				createPositionAbsoluteStyleAttribute(position),
+			],
+			false,
+		),
+		recast.types.builders.jsxClosingElement(
+			recast.types.builders.jsxIdentifier(sequenceLocalName),
+		),
+		[child],
 	);
 };
 
@@ -902,13 +982,7 @@ const createAssetElement = ({
 					? createStringSrcAttribute(src)
 					: createStaticFileSrcAttribute({staticFileLocalName, src}),
 				...(addPositionStyle
-					? [createPositionAbsoluteStyleAttribute(position)]
-					: []),
-				...(dimensions
-					? [
-							createNumberAttribute('width', dimensions.width),
-							createNumberAttribute('height', dimensions.height),
-						]
+					? [createAssetStyleAttribute({dimensions, position})]
 					: []),
 			],
 			true,
@@ -1071,6 +1145,30 @@ const ensureSolidImport = (ast: File) => {
 	});
 };
 
+const getAvailableSequenceLocalName = (ast: File) => {
+	const candidates = ['Sequence', 'RemotionSequence'];
+	const available = candidates.find((candidate) => {
+		return !hasTopLevelBinding({ast, name: candidate});
+	});
+
+	if (!available) {
+		throw new Error(
+			'Cannot add <Sequence> because Sequence is already defined',
+		);
+	}
+
+	return available;
+};
+
+const ensureSequenceImport = (ast: File) => {
+	return ensureNamedImport({
+		ast,
+		importedName: 'Sequence',
+		sourcePath: 'remotion',
+		localName: getAvailableSequenceLocalName(ast),
+	});
+};
+
 const getImportDeclarations = ({
 	ast,
 	sourcePath,
@@ -1185,6 +1283,15 @@ const ensureImgImport = (ast: File) => {
 		importedName: 'Img',
 		sourcePath: 'remotion',
 		label: '<Img>',
+	});
+};
+
+const ensureAnimatedImageImport = (ast: File) => {
+	return ensureOfficialNamedImport({
+		ast,
+		importedName: 'AnimatedImage',
+		sourcePath: 'remotion',
+		label: '<AnimatedImage>',
 	});
 };
 
@@ -1496,7 +1603,7 @@ const getComponentLocationRecursively = async ({
 	}
 };
 
-const resolveCompositionComponentWithFile = async ({
+export const resolveCompositionComponentWithFile = async ({
 	remotionRoot,
 	compositionFile,
 	compositionId,
@@ -1584,9 +1691,11 @@ export const resolveCompositionComponent = async ({
 };
 
 const createInsertableJsxElement = ({
+	addPositionStyleToComponent,
 	ast,
 	element,
 }: {
+	addPositionStyleToComponent: boolean;
 	ast: File;
 	element: InsertableCompositionElement;
 }) => {
@@ -1610,6 +1719,7 @@ const createInsertableJsxElement = ({
 		});
 
 		return createComponentElement({
+			addPositionStyle: addPositionStyleToComponent,
 			localName: componentLocalName,
 			props: element.props,
 			position: element.position,
@@ -1630,6 +1740,8 @@ const createInsertableJsxElement = ({
 			localName = ensureVideoImport(ast);
 		} else if (element.assetType === 'gif') {
 			localName = ensureGifImport(ast);
+		} else if (element.assetType === 'animated-image') {
+			localName = ensureAnimatedImageImport(ast);
 		} else if (element.assetType === 'audio') {
 			localName = ensureAudioImport(ast);
 		} else {
@@ -1655,12 +1767,18 @@ export const insertJsxElementIntoComposition = async ({
 	compositionId,
 	element,
 	prettierConfigOverride,
+	wrapInSequence = null,
 }: {
 	remotionRoot: string;
 	compositionFile: string;
 	compositionId: string;
 	element: InsertableCompositionElement;
 	prettierConfigOverride: Record<string, unknown> | null;
+	wrapInSequence?: {
+		dimensions: {width: number; height: number};
+		name: string | null;
+		position: InsertableCompositionElementPosition | null;
+	} | null;
 }): Promise<{
 	fileName: string;
 	source: string;
@@ -1685,11 +1803,24 @@ export const insertJsxElementIntoComposition = async ({
 		fileName: location.fileName,
 	});
 	const ast = parseAst(input);
-	const elementToInsert = createInsertableJsxElement({ast, element});
+	const elementToInsert = createInsertableJsxElement({
+		addPositionStyleToComponent: wrapInSequence === null,
+		ast,
+		element,
+	});
+	const finalElementToInsert = wrapInSequence
+		? createSequenceWrappedElement({
+				child: elementToInsert,
+				dimensions: wrapInSequence.dimensions,
+				name: wrapInSequence.name,
+				position: wrapInSequence.position,
+				sequenceLocalName: ensureSequenceImport(ast),
+			})
+		: elementToInsert;
 	const logLine = addElementToComponentRoot({
 		ast,
 		exportName: location.exportName,
-		element: elementToInsert,
+		element: finalElementToInsert,
 	});
 
 	const finalFile = serializeAst(ast);

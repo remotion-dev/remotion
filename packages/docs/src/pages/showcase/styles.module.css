@@ -43,15 +43,20 @@
 	padding: 20px 0 80px;
 }
 
-.videosGrid {
-	display: grid;
-	gap: 24px;
-	grid-template-columns: repeat(3, minmax(0, 1fr));
+.videosMasonry {
+	column-count: 3;
+	column-gap: 24px;
+}
+
+.videosMasonryItem {
+	break-inside: avoid;
+	margin-bottom: 24px;
+	width: 100%;
 }
 
 @media screen and (max-width: 996px) {
-	.videosGrid {
-		grid-template-columns: repeat(2, minmax(0, 1fr));
+	.videosMasonry {
+		column-count: 2;
 	}
 }
 
@@ -60,8 +65,8 @@
 		padding: 44px 0 28px;
 	}
 
-	.videosGrid {
-		grid-template-columns: 1fr;
+	.videosMasonry {
+		column-count: 1;
 	}
 
 	.lede {

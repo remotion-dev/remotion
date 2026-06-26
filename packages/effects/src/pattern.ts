@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertOptionalFiniteNumber,
@@ -128,7 +128,7 @@ const patternSchema = {
 		default: DEFAULT_WRAP,
 		description: 'Wrap',
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type PatternOrigin = readonly [number, number];
 
@@ -258,14 +258,6 @@ const validateAtLeast = (value: number, min: number, name: string): void => {
 	}
 };
 
-const validateNonNegative = (value: number, name: string): void => {
-	if (value < 0) {
-		throw new TypeError(
-			`"${name}" must be >= 0, but got ${JSON.stringify(value)}`,
-		);
-	}
-};
-
 const validatePatternParams = (params: PatternParams): void => {
 	assertEffectParamsObject(params, 'Pattern');
 	assertOptionalFiniteNumber(params.scale, 'scale');
@@ -288,8 +280,6 @@ const validatePatternParams = (params: PatternParams): void => {
 
 	const r = resolve(params);
 	validatePositive(r.scale, 'scale');
-	validateNonNegative(r.gapX, 'gapX');
-	validateNonNegative(r.gapY, 'gapY');
 	validateAtLeast(r.rowOffsetEvery, 0, 'rowOffsetEvery');
 	validateAtLeast(r.columnOffsetEvery, 0, 'columnOffsetEvery');
 	validateUnitInterval(r.origin[0], 'origin[0]');
@@ -446,7 +436,7 @@ const linkProgram = (
 };
 
 export const pattern = createEffect<PatternParams, PatternState>({
-	type: 'remotion/pattern',
+	type: 'dev.remotion.effects.pattern',
 	label: 'pattern()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/pattern',
 	backend: 'webgl2',

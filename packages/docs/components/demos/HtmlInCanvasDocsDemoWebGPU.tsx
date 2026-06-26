@@ -320,7 +320,7 @@ const HtmlInCanvasDocsWebGPUInner: React.FC = () => {
 };
 
 export const HtmlInCanvasDocsDemoWebGPU: React.FC = () => {
-	const branch = useHtmlInCanvasDocsDemoBranch();
+	const branch = useHtmlInCanvasDocsDemoBranch('webgpu');
 
 	if (branch === 'pending') {
 		return <AbsoluteFill style={{backgroundColor: '#fff'}} />;

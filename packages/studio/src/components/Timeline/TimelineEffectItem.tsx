@@ -1,5 +1,5 @@
 import React, {useCallback, useContext, useMemo, useState} from 'react';
-import type {SequencePropsSubscriptionKey, SequenceSchema} from 'remotion';
+import type {SequencePropsSubscriptionKey, InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
@@ -20,6 +20,8 @@ import {TimelineRowChrome} from './TimelineRowChrome';
 import {
 	getTimelineColor,
 	getTimelineSelectedLabelStyle,
+	TIMELINE_SELECTED_LABEL_BACKGROUND,
+	useTimelineRowContainsSelection,
 	useTimelineRowSelection,
 } from './TimelineSelection';
 
@@ -102,7 +104,7 @@ export const TimelineEffectItem: React.FC<{
 	readonly label: string;
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly effectIndex: number;
-	readonly effectSchema: SequenceSchema;
+	readonly effectSchema: InteractivitySchema;
 	readonly documentationLink: string | null;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly validatedLocation: CodePosition;
@@ -126,6 +128,7 @@ export const TimelineEffectItem: React.FC<{
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const selection = useTimelineRowSelection(nodePathInfo);
+	const containsSelection = useTimelineRowContainsSelection(nodePathInfo);
 	const [dropIndicator, setDropIndicator] = useState<'before' | 'after' | null>(
 		null,
 	);
@@ -295,12 +298,15 @@ export const TimelineEffectItem: React.FC<{
 			alignSelf: 'stretch',
 			alignItems: 'center',
 			color: getTimelineColor(selection.selected, true),
-			display: 'flex',
-			flex: 1,
+			display: 'inline-flex',
+			marginRight: EXPANDED_SECTION_PADDING_RIGHT,
 			minWidth: 0,
-			paddingRight: EXPANDED_SECTION_PADDING_RIGHT,
+			boxShadow:
+				containsSelection && !selection.selected
+					? `inset 0 0 0 2px ${TIMELINE_SELECTED_LABEL_BACKGROUND}`
+					: undefined,
 		};
-	}, [selection.selected]);
+	}, [containsSelection, selection.selected]);
 
 	const getDropTarget = useCallback(
 		(e: React.DragEvent<HTMLDivElement>) => {
@@ -466,9 +472,10 @@ export const TimelineEffectItem: React.FC<{
 			style={rowStyle}
 			selected={selection.selected}
 			selectable={selection.selectable}
+			selectionItem={selection.selectionItem}
 			onSelect={selection.onSelect}
 			showSelectedBackground
-			containsSelection={false}
+			containsSelection={containsSelection}
 			outerHeight={null}
 		>
 			<span title={label} style={labelStyle}>

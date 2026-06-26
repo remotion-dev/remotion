@@ -5,6 +5,7 @@ import React, {
 	useState,
 } from 'react';
 import {AbsoluteFill} from 'remotion';
+import {MENU_TOOLBAR_HEIGHT} from '../../components/MenuToolbar';
 import {KeybindingContextProvider} from '../../state/keybindings';
 import {ErrorLoader} from './ErrorLoader';
 
@@ -71,6 +72,8 @@ export const Overlay: React.FC = () => {
 					backgroundColor: BACKGROUND_COLOR,
 					overflow: 'auto',
 					color: 'white',
+					top: MENU_TOOLBAR_HEIGHT,
+					height: `calc(100% - ${MENU_TOOLBAR_HEIGHT}px)`,
 				}}
 			>
 				{errors.errors.map((err, i) => {

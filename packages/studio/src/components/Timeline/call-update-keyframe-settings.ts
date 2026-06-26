@@ -3,7 +3,7 @@ import {
 	optimisticUpdateSequenceKeyframeSettings,
 	type KeyframeSettings,
 } from '@remotion/studio-shared';
-import type {SequencePropsSubscriptionKey, SequenceSchema} from 'remotion';
+import type {SequencePropsSubscriptionKey, InteractivitySchema} from 'remotion';
 import {callApi} from '../call-api';
 import {applyEffectResponseToPropStatuses} from './apply-effect-response-to-prop-statuses';
 import {enqueueSavePropChange} from './save-prop-queue';
@@ -22,7 +22,7 @@ export const callUpdateSequenceKeyframeSettings = ({
 	nodePath: SequencePropsSubscriptionKey;
 	fieldKey: string;
 	settings: KeyframeSettings;
-	schema: SequenceSchema;
+	schema: InteractivitySchema;
 	setPropStatuses: SetPropStatuses;
 	clientId: string;
 }): Promise<void> => {
@@ -63,7 +63,7 @@ export const callUpdateEffectKeyframeSettings = ({
 	effectIndex: number;
 	fieldKey: string;
 	settings: KeyframeSettings;
-	schema: SequenceSchema;
+	schema: InteractivitySchema;
 	setPropStatuses: SetPropStatuses;
 	clientId: string;
 }): Promise<void> => {

@@ -35,12 +35,14 @@ import {
 } from './TimelineSelection';
 import {TimelineSequenceFrame} from './TimelineSequenceFrame';
 import {
+	TimelineSequenceLeftEdgeDragHandle,
 	TimelineSequenceRightEdgeDragHandle,
 	useTimelineSequenceFromDrag,
 } from './TimelineSequenceRightEdgeDragHandle';
 import {TimelineVideoInfo} from './TimelineVideoInfo';
 import {TimelineWidthContext} from './TimelineWidthProvider';
 import {useResolveStackAndReactToChange} from './use-resolved-stack-react-to-change';
+import {useSequenceFreezeFrameMenuItem} from './use-sequence-freeze-frame-menu-item';
 
 const AUDIO_GRADIENT = 'linear-gradient(rgb(16 171 58), rgb(43 165 63) 60%)';
 const VIDEO_GRADIENT = 'linear-gradient(to top, #8e44ad, #9b59b6)';
@@ -265,9 +267,13 @@ const TimelineSequenceInner: React.FC<{
 	const fromCanUpdate = Boolean(
 		propStatusesForOverride?.from?.status === 'static',
 	);
+	const trimBeforeCanUpdate = Boolean(
+		propStatusesForOverride?.trimBefore?.status === 'static',
+	);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const previewConnected = previewServerState.type === 'connected';
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
+	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const selectAsset = useSelectAsset();
 	const confirm = useConfirmationDialog();
 	const {onSelect, selectable} = useTimelineRowSelection(nodePathInfo);
@@ -383,6 +389,19 @@ const TimelineSequenceInner: React.FC<{
 		setPropStatuses,
 		validatedLocation?.source,
 	]);
+	const freezeFrameMenuItem = useSequenceFreezeFrameMenuItem({
+		clientId:
+			previewServerState.type === 'connected'
+				? previewServerState.clientId
+				: null,
+		nodePath,
+		propStatusesForOverride,
+		sequence: s,
+		sequenceFrameOffset,
+		setPropStatuses,
+		timelinePosition,
+		validatedSource: validatedLocation?.source ?? null,
+	});
 	const contextMenuValues = useMemo(() => {
 		if (!previewConnected) {
 			return [];
@@ -403,6 +422,7 @@ const TimelineSequenceInner: React.FC<{
 			originalLocation,
 			selectAsset,
 			sequence: s,
+			sourceActions: freezeFrameMenuItem ? [freezeFrameMenuItem] : [],
 		});
 	}, [
 		assetLinkInfo,
@@ -411,6 +431,7 @@ const TimelineSequenceInner: React.FC<{
 		disableInteractivityDisabled,
 		duplicateDisabled,
 		fileLocation,
+		freezeFrameMenuItem,
 		onDeleteSequenceFromSource,
 		onDisableSequenceInteractivity,
 		onDuplicateSequenceFromSource,
@@ -425,17 +446,7 @@ const TimelineSequenceInner: React.FC<{
 			onSelect({shiftKey: false, toggleKey: false});
 		}
 	}, [onSelect, selectable]);
-	const freezeStatus = propStatusesForOverride?.freeze;
-	const runtimeFreezeFrame =
-		typeof s.controls?.currentRuntimeValueDotNotation.freeze === 'number'
-			? s.controls.currentRuntimeValueDotNotation.freeze
-			: null;
-	const frozenFrame =
-		freezeStatus?.status === 'static'
-			? typeof freezeStatus.codeValue === 'number'
-				? freezeStatus.codeValue
-				: null
-			: runtimeFreezeFrame;
+	const {frozenFrame} = s;
 
 	const {onPointerDown: onMoveDragPointerDown} = useTimelineSequenceFromDrag({
 		nodePathInfo,
@@ -500,6 +511,18 @@ const TimelineSequenceInner: React.FC<{
 		nodePath !== null &&
 		validatedLocation !== null &&
 		durationCanUpdate;
+	const showLeftEdgeDragHandle =
+		(s.type === 'sequence' ||
+			s.type === 'image' ||
+			s.type === 'audio' ||
+			s.type === 'video') &&
+		!s.isInsideSeries &&
+		nodePath !== null &&
+		validatedLocation !== null &&
+		Boolean(s.controls) &&
+		fromCanUpdate &&
+		durationCanUpdate &&
+		trimBeforeCanUpdate;
 
 	if (maxMediaDuration === null && !s.loopDisplay) {
 		return null;
@@ -544,6 +567,7 @@ const TimelineSequenceInner: React.FC<{
 					premountWidth={premountWidth ?? 0}
 					postmountWidth={postmountWidth ?? 0}
 					loopDisplay={s.loopDisplay}
+					frozenMediaFrame={s.frozenMediaFrame}
 				/>
 			) : null}
 			{s.type === 'image' ? (
@@ -552,6 +576,13 @@ const TimelineSequenceInner: React.FC<{
 			{s.loopDisplay === undefined ? null : (
 				<LoopedTimelineIndicator loops={s.loopDisplay.numberOfTimes} />
 			)}
+			{showLeftEdgeDragHandle && nodePathInfo && validatedLocation ? (
+				<TimelineSequenceLeftEdgeDragHandle
+					nodePathInfo={nodePathInfo}
+					windowWidth={windowWidth}
+					timelineDurationInFrames={video.durationInFrames ?? 1}
+				/>
+			) : null}
 			{showRightEdgeDragHandle && nodePathInfo && validatedLocation ? (
 				<TimelineSequenceRightEdgeDragHandle
 					nodePathInfo={nodePathInfo}

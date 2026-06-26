@@ -347,16 +347,21 @@ type SelectedEffectFields = {
 	fieldKeys: Set<string>;
 };
 
+const getKeyframeOrEasingField = (item: TimelineSelection) => {
+	if (item.type !== 'keyframe' && item.type !== 'easing') {
+		return null;
+	}
+
+	return parseKeyframeFieldFromNodePath(item.nodePathInfo.auxiliaryKeys);
+};
+
 export const getSelectedEffectFieldsBySequenceKey = (
 	selectedItems: readonly TimelineSelection[],
 ): Map<string, Map<number, SelectedEffectFields>> => {
 	const selectedEffects = new Map<string, Map<number, SelectedEffectFields>>();
 
 	for (const item of selectedItems) {
-		if (
-			item.type !== 'sequence-effect' &&
-			item.type !== 'sequence-effect-prop'
-		) {
+		if (item.type === 'guide') {
 			continue;
 		}
 
@@ -364,19 +369,57 @@ export const getSelectedEffectFieldsBySequenceKey = (
 		const effectsForSequence =
 			selectedEffects.get(sequenceKey) ??
 			new Map<number, SelectedEffectFields>();
-		const selectedFields = effectsForSequence.get(item.i) ?? {
-			allFields: false,
-			fieldKeys: new Set<string>(),
+
+		const addSelectedFields = ({
+			effectIndex,
+			fieldKey,
+			allFields,
+		}: {
+			readonly effectIndex: number;
+			readonly fieldKey: string | null;
+			readonly allFields: boolean;
+		}) => {
+			const selectedFields = effectsForSequence.get(effectIndex) ?? {
+				allFields: false,
+				fieldKeys: new Set<string>(),
+			};
+
+			if (allFields) {
+				selectedFields.allFields = true;
+			} else if (fieldKey !== null) {
+				selectedFields.fieldKeys.add(fieldKey);
+			}
+
+			effectsForSequence.set(effectIndex, selectedFields);
+			selectedEffects.set(sequenceKey, effectsForSequence);
 		};
 
 		if (item.type === 'sequence-effect') {
-			selectedFields.allFields = true;
-		} else {
-			selectedFields.fieldKeys.add(item.key);
+			addSelectedFields({
+				effectIndex: item.i,
+				fieldKey: null,
+				allFields: true,
+			});
+			continue;
 		}
 
-		effectsForSequence.set(item.i, selectedFields);
-		selectedEffects.set(sequenceKey, effectsForSequence);
+		if (item.type === 'sequence-effect-prop') {
+			addSelectedFields({
+				effectIndex: item.i,
+				fieldKey: item.key,
+				allFields: false,
+			});
+			continue;
+		}
+
+		const keyframedField = getKeyframeOrEasingField(item);
+		if (keyframedField?.type === 'effect') {
+			addSelectedFields({
+				effectIndex: keyframedField.effectIndex,
+				fieldKey: keyframedField.fieldKey,
+				allFields: false,
+			});
+		}
 	}
 
 	return selectedEffects;
@@ -405,13 +448,11 @@ export const getSelectedTransformOriginInfo = (
 		};
 	}
 
-	if (selectedItem.type !== 'keyframe') {
+	if (selectedItem.type !== 'keyframe' && selectedItem.type !== 'easing') {
 		return null;
 	}
 
-	const field = parseKeyframeFieldFromNodePath(
-		selectedItem.nodePathInfo.auxiliaryKeys,
-	);
+	const field = getKeyframeOrEasingField(selectedItem);
 	if (
 		field?.type !== 'sequence' ||
 		field.fieldKey !== transformOriginFieldKey
@@ -421,7 +462,10 @@ export const getSelectedTransformOriginInfo = (
 
 	return {
 		sequenceKey: getTimelineSequenceSelectionKey(selectedItem.nodePathInfo),
-		displayFrame: selectedItem.frame,
+		displayFrame:
+			selectedItem.type === 'keyframe'
+				? selectedItem.frame
+				: selectedItem.fromFrame,
 	};
 };
 

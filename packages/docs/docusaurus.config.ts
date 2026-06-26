@@ -1,5 +1,28 @@
 import type {Config} from '@docusaurus/types';
+import remarkElementSource from './plugins/remark-element-source.js';
 import remarkExportRaw from './plugins/remark-export-raw.js';
+
+const lowMemoryBuild =
+	process.env.VERCEL === '1' ||
+	process.env.VERCEL === 'true' ||
+	process.env.REMOTION_DOCS_LOW_MEMORY_BUILD === '1';
+
+const fasterConfig = lowMemoryBuild
+	? {
+			swcJsLoader: true,
+			swcJsMinimizer: true,
+			swcHtmlMinimizer: true,
+			lightningCssMinimizer: true,
+			mdxCrossCompilerCache: false,
+			rspackBundler: false,
+			rspackPersistentCache: false,
+			ssgWorkerThreads: false,
+			gitEagerVcs: false,
+		}
+	: true;
+
+const showGitLastUpdate =
+	process.env.REMOTION_DOCS_DISABLE_GIT_LAST_UPDATE !== '1';
 
 const config: Config = {
 	title: 'Remotion | Make videos programmatically',
@@ -17,7 +40,7 @@ const config: Config = {
 	organizationName: 'remotion-dev', // Usually your GitHub org/user name.
 	projectName: 'remotion', // Usually your repo name.
 	future: {
-		faster: true,
+		faster: fasterConfig,
 		v4: {
 			removeLegacyPostBuildHeadAttribute: true,
 		},
@@ -270,7 +293,7 @@ const config: Config = {
 					sidebarPath: './sidebars.ts',
 					editUrl:
 						'https://github.com/remotion-dev/remotion/edit/main/packages/docs/',
-					showLastUpdateTime: true,
+					showLastUpdateTime: showGitLastUpdate,
 					remarkPlugins: [remarkExportRaw],
 				},
 				blog: {
@@ -284,9 +307,7 @@ const config: Config = {
 				theme: {
 					customCss: [
 						require.resolve('./src/css/custom.css'),
-						require.resolve(
-							'./docusaurus-theme-shiki-twoslash/theme/CodeBlock/styles.css',
-						),
+						require.resolve('./docusaurus-theme-shiki-twoslash/theme/CodeBlock/styles.css'),
 					],
 				},
 			},
@@ -306,13 +327,14 @@ const config: Config = {
 		[
 			'@docusaurus/plugin-content-docs',
 			{
-				id: 'examples',
-				path: './examples',
-				routeBasePath: 'examples',
-				sidebarPath: './examples-sidebars.ts',
+				id: 'elements',
+				path: './elements',
+				routeBasePath: 'elements',
+				sidebarPath: './elements-sidebars.ts',
 				editUrl:
 					'https://github.com/remotion-dev/remotion/edit/main/packages/docs/',
-				showLastUpdateTime: true,
+				showLastUpdateTime: showGitLastUpdate,
+				beforeDefaultRemarkPlugins: [remarkElementSource],
 				remarkPlugins: [remarkExportRaw],
 			},
 		],

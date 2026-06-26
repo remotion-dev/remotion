@@ -1,6 +1,8 @@
 import {routes, type VercelConfig} from '@vercel/config/v1';
 
 export const config: VercelConfig = {
+	buildCommand:
+		'cd .. && timeout 20m bunx turbo run build-docs --no-update-notifier --concurrency=2',
 	headers: [
 		routes.cacheControl('/assets/(.*)', {
 			public: true,
@@ -8,6 +10,10 @@ export const config: VercelConfig = {
 			immutable: true,
 		}),
 		routes.header('/_raw/docs/(.*).md', [
+			{key: 'Content-Type', value: 'text/plain; charset=utf-8'},
+			{key: 'Vary', value: 'Accept'},
+		]),
+		routes.header('/_raw/elements/(.*).md', [
 			{key: 'Content-Type', value: 'text/plain; charset=utf-8'},
 			{key: 'Vary', value: 'Accept'},
 		]),

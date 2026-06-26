@@ -2,7 +2,7 @@ import {optimisticUpdateForPropStatuses} from '@remotion/studio-shared';
 import type {
 	CanUpdateSequencePropsResponse,
 	SequencePropsSubscriptionKey,
-	SequenceSchema,
+	InteractivitySchema,
 } from 'remotion';
 import {callApi} from '../call-api';
 import {enqueueSavePropChange} from './save-prop-queue';
@@ -20,7 +20,7 @@ export type SaveSequencePropChange = {
 	fieldKey: string;
 	value: unknown;
 	defaultValue: string | null;
-	schema: SequenceSchema;
+	schema: InteractivitySchema;
 };
 
 type SaveSequencePropsOptions = {
@@ -56,6 +56,7 @@ export const saveSequenceProps = ({
 					previous: prev,
 					fieldKey: change.fieldKey,
 					value: change.value,
+					defaultValue: change.defaultValue,
 					schema: change.schema,
 				}),
 			apiCall: () =>
@@ -84,6 +85,7 @@ export const saveSequenceProps = ({
 				previous: prev,
 				fieldKey: change.fieldKey,
 				value: change.value,
+				defaultValue: change.defaultValue,
 				schema: change.schema,
 			}),
 		);

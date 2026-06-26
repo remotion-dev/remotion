@@ -24,6 +24,14 @@ const guideB: Guide = {
 	show: true,
 };
 
+const hiddenGuide: Guide = {
+	compositionId: 'comp',
+	id: 'hidden-guide',
+	orientation: 'vertical',
+	position: 300,
+	show: false,
+};
+
 test('guide pointer-up only selects after a click on the same guide', () => {
 	const pointerDownPosition: GuidePointerDownPosition = {
 		guideId: 'guide-a',
@@ -98,4 +106,31 @@ test('ruler shows dragged guide numbers without requiring guide selection', () =
 		guide: guideB,
 		color: BLUE,
 	});
+});
+
+test('ruler does not show hidden guide numbers while a guide is being removed', () => {
+	expect(
+		getRulerGuideHighlight({
+			guidesList: [guideA, hiddenGuide],
+			selectedItems: [{type: 'guide', guideId: 'hidden-guide'}],
+			hoveredGuideId: null,
+			draggingGuideId: null,
+		}),
+	).toBe(null);
+	expect(
+		getRulerGuideHighlight({
+			guidesList: [guideA, hiddenGuide],
+			selectedItems: [{type: 'sequence'}],
+			hoveredGuideId: null,
+			draggingGuideId: 'hidden-guide',
+		}),
+	).toBe(null);
+	expect(
+		getRulerGuideHighlight({
+			guidesList: [guideA, hiddenGuide],
+			selectedItems: [{type: 'sequence'}],
+			hoveredGuideId: 'hidden-guide',
+			draggingGuideId: null,
+		}),
+	).toBe(null);
 });

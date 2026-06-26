@@ -3,10 +3,12 @@ import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {ModalsContext} from '../state/modals';
 import {AskAiModal} from './AskAiModal';
 import {ConfirmationDialog} from './ConfirmationDialog';
+import {EffectPickerModal} from './EffectPickerModal';
 import {InstallPackageModal} from './InstallPackage';
 import {DeleteComposition} from './NewComposition/DeleteComposition';
 import {DeleteFolder} from './NewComposition/DeleteFolder';
 import {DuplicateComposition} from './NewComposition/DuplicateComposition';
+import {NewComposition} from './NewComposition/NewComposition';
 import {RenameComposition} from './NewComposition/RenameComposition';
 import {RenameFolder} from './NewComposition/RenameFolder';
 import {RenameStaticFileModal} from './NewComposition/RenameStaticFile';
@@ -15,7 +17,6 @@ import QuickSwitcher from './QuickSwitcher/QuickSwitcher';
 import {RenderStatusModal} from './RenderModal/RenderStatusModal';
 import {RenderModalWithLoader} from './RenderModal/ServerRenderModal';
 import {WebRenderModalWithLoader} from './RenderModal/WebRenderModal';
-import {EasingEditorModal} from './Timeline/EasingEditorModal';
 import {KeyframeSettingsModal} from './Timeline/KeyframeSettingsModal';
 import {UpdateModal} from './UpdateModal/UpdateModal';
 
@@ -29,6 +30,9 @@ export const Modals: React.FC<{
 
 	return (
 		<>
+			{modalContextType && modalContextType.type === 'new-comp' && (
+				<NewComposition />
+			)}
 			{modalContextType && modalContextType.type === 'duplicate-comp' && (
 				<DuplicateComposition
 					compositionType={modalContextType.compositionType}
@@ -63,9 +67,6 @@ export const Modals: React.FC<{
 			)}
 			{modalContextType && modalContextType.type === 'keyframe-settings' && (
 				<KeyframeSettingsModal state={modalContextType} />
-			)}
-			{modalContextType && modalContextType.type === 'easing-editor' && (
-				<EasingEditorModal state={modalContextType} />
 			)}
 
 			{modalContextType && modalContextType.type === 'web-render' && (
@@ -166,6 +167,9 @@ export const Modals: React.FC<{
 					invocationTimestamp={modalContextType.invocationTimestamp}
 					initialMode={modalContextType.mode}
 				/>
+			)}
+			{modalContextType && modalContextType.type === 'add-effect' && (
+				<EffectPickerModal state={modalContextType} />
 			)}
 			{modalContextType && modalContextType.type === 'confirmation-dialog' && (
 				<ConfirmationDialog state={modalContextType} />

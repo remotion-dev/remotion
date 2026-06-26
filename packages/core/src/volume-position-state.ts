@@ -1,22 +1,22 @@
 import {createContext, useContext, useMemo} from 'react';
 
 export type MediaVolumeContextValue = {
-	mediaMuted: boolean;
+	playerMuted: boolean;
 	mediaVolume: number;
 };
 
 export type SetMediaVolumeContextValue = {
-	setMediaMuted: (u: React.SetStateAction<boolean>) => void;
+	setPlayerMuted: (u: React.SetStateAction<boolean>) => void;
 	setMediaVolume: (u: number) => void;
 };
 
 export const MediaVolumeContext = createContext<MediaVolumeContextValue>({
-	mediaMuted: false,
+	playerMuted: false,
 	mediaVolume: 1,
 });
 
 export const SetMediaVolumeContext = createContext<SetMediaVolumeContextValue>({
-	setMediaMuted: () => {
+	setPlayerMuted: () => {
 		throw new Error('default');
 	},
 	setMediaVolume: () => {
@@ -34,16 +34,16 @@ export const useMediaVolumeState = (): MediaVolumeReturnType => {
 	}, [mediaVolume, setMediaVolume]);
 };
 
-type MediaMutedReturnType = readonly [
+type PlayerMutedReturnType = readonly [
 	boolean,
 	(u: React.SetStateAction<boolean>) => void,
 ];
 
-export const useMediaMutedState = (): MediaMutedReturnType => {
-	const {mediaMuted} = useContext(MediaVolumeContext);
-	const {setMediaMuted} = useContext(SetMediaVolumeContext);
+export const usePlayerMutedState = (): PlayerMutedReturnType => {
+	const {playerMuted} = useContext(MediaVolumeContext);
+	const {setPlayerMuted} = useContext(SetMediaVolumeContext);
 
 	return useMemo(() => {
-		return [mediaMuted, setMediaMuted];
-	}, [mediaMuted, setMediaMuted]);
+		return [playerMuted, setPlayerMuted];
+	}, [playerMuted, setPlayerMuted]);
 };
