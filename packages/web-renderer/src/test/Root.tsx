@@ -210,7 +210,7 @@ export const Root: React.FC = () => {
 				<Composition {...transitionClockWipe} />
 				<Composition {...transitionIris} />
 			</Folder>
-			<Folder name="Issue 8650">
+			<Folder name="Issue8650">
 				<Composition {...issue8650LottieControlChars} />
 			</Folder>
 		</>
