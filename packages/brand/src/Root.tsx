@@ -17,11 +17,20 @@ import {
 	whatIsRemotionCalculateMetadata,
 	whatIsRemotionSchema,
 } from './Compose/WhatIsRemotion';
+import {
+	CornerPinEffectShowcase,
+	cornerPinEffectShowcaseDurationInFrames,
+} from './effects/CornerPinEffectShowcase';
 import {EffectsAnnouncement} from './effects/EffectsAnnouncement';
+import {BillboardForeground} from './effects/experiments/BillboardForeground';
 import {FxIconComposition} from './effects/FxIconComposition';
 import {Goal} from './effects/Goal';
 import {MetallicSwirl} from './effects/MetallicSwirl';
 import {NewsHeadline} from './effects/NewsHeadline';
+import {
+	PatternEffectShowcase,
+	patternEffectShowcaseDurationInFrames,
+} from './effects/PatternEffectShowcase';
 import {
 	StarburstEffectShowcase,
 	starburstEffectShowcaseDurationInFrames,
@@ -162,6 +171,32 @@ export const RemotionRoot: React.FC = () => {
 				/>
 			</Folder>
 			<Folder name="effects">
+				<Composition
+					id="corner-pin-effect-showcase"
+					component={CornerPinEffectShowcase}
+					durationInFrames={cornerPinEffectShowcaseDurationInFrames}
+					fps={30}
+					width={1080}
+					height={1350}
+				/>
+				<Composition
+					id="pattern-effect-showcase"
+					component={PatternEffectShowcase}
+					width={1080}
+					height={1350}
+					fps={30}
+					durationInFrames={patternEffectShowcaseDurationInFrames}
+				/>
+				<Folder name="experiments">
+					<Composition
+						id="billboard-foreground"
+						component={BillboardForeground}
+						width={1080}
+						height={675}
+						fps={30}
+						durationInFrames={120}
+					/>
+				</Folder>
 				<Composition
 					id="starburst-effect-showcase"
 					component={StarburstEffectShowcase}
