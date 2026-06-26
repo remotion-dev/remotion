@@ -4,18 +4,10 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import type {
-	HotMiddlewareMessage,
-	SymbolicatedStackFrame,
-} from '@remotion/studio-shared';
-import {stripAnsi} from '@remotion/studio-shared';
-import {subscribeToPreviewServerEvents} from '../../helpers/preview-server-events';
+import type {SymbolicatedStackFrame} from '@remotion/studio-shared';
 import {reloadUrl} from '../../helpers/url-state';
 import {markErrorAsLoggedByServer} from '../error-origin';
-import {
-	addErrorToOverlay,
-	clearErrorsInOverlay,
-} from '../remotion-overlay/Overlay';
+import {addErrorToOverlay} from '../remotion-overlay/Overlay';
 import {massageWarning} from './effects/format-warning';
 import {
 	permanentRegister as permanentRegisterConsole,
@@ -92,47 +84,8 @@ const crashWithFrames = (crash: () => void) => (error: Error) => {
 	}
 };
 
-const formatHmrError = (error: unknown): string => {
-	if (typeof error === 'string') {
-		return stripAnsi(error);
-	}
-
-	if (error && typeof error === 'object') {
-		const {message, stack} = error as {
-			message?: unknown;
-			stack?: unknown;
-		};
-
-		if (typeof message === 'string') {
-			return stripAnsi(message);
-		}
-
-		if (typeof stack === 'string') {
-			return stripAnsi(stack);
-		}
-	}
-
-	try {
-		return stripAnsi(JSON.stringify(error));
-	} catch {
-		return String(error);
-	}
-};
-
-const getHmrErrorMessage = (
-	hmrEvent: Extract<HotMiddlewareMessage, {action: 'built' | 'sync'}>,
-): string | null => {
-	const message = hmrEvent.errors
-		.map(formatHmrError)
-		.filter(Boolean)
-		.join('\n\n');
-
-	return message.trim() === '' ? null : message;
-};
-
 export function listenToRuntimeErrors(crash: () => void) {
 	const crashWithFramesRunTime = crashWithFrames(crash);
-	let lastHmrErrorMessage: string | null = null;
 
 	registerError(window, (error) => {
 		return crashWithFramesRunTime(error);
@@ -161,37 +114,8 @@ export function listenToRuntimeErrors(crash: () => void) {
 			crashWithFramesRunTime(d.error);
 		}
 	});
-	const unsubscribeFromPreviewServerEvents = subscribeToPreviewServerEvents(
-		(event) => {
-			if (event.type !== 'hmr') {
-				return;
-			}
-
-			if (event.hmrEvent.action === 'building') {
-				return;
-			}
-
-			const message = getHmrErrorMessage(event.hmrEvent);
-			if (message === null) {
-				lastHmrErrorMessage = null;
-				clearErrorsInOverlay();
-				return;
-			}
-
-			if (message === lastHmrErrorMessage) {
-				return;
-			}
-
-			lastHmrErrorMessage = message;
-			const error = new Error(message);
-			error.name = 'Build Error';
-			markErrorAsLoggedByServer(error);
-			crashWithFramesRunTime(error);
-		},
-	);
 
 	return function () {
-		unsubscribeFromPreviewServerEvents();
 		unregisterStackTraceLimit();
 		unregisterPromise(window);
 		unregisterError(window);

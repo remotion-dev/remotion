@@ -73,13 +73,6 @@ export const addErrorToOverlay = (err: Error) => {
 	queueErrorBeforeOverlayMounted(err);
 };
 
-export const clearErrorsInOverlay = () => {
-	queuedErrorsBeforeOverlayMounted = [];
-	setErrorsRef.current?.setErrors({
-		type: 'clear',
-	});
-};
-
 const BACKGROUND_COLOR = '#1f2428';
 export const Overlay: React.FC = () => {
 	const [errors, setErrorsState] = useState<State>(() => {

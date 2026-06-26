@@ -90,33 +90,32 @@ test.describe('error overlay dismissal', () => {
 		await expect(errorMessage).toHaveCount(0, {timeout: 15_000});
 	});
 
-	test('build error overlay reappears after refreshing a broken composition', async ({
+	test('runtime error overlay reappears after refreshing a broken composition', async ({
 		page,
 	}) => {
 		const originalContent = fs.readFileSync(errorOverlayE2eFile, 'utf-8');
-		const missingPackage = '@remotion/studio-error-overlay-missing-types';
-		const brokenContent = originalContent.replace(
-			"import {blur} from '@remotion/effects/blur';",
-			[
-				"import {blur} from '@remotion/effects/blur';",
-				`import {zColor} from '${missingPackage}';`,
-				'void zColor;',
-			].join('\n'),
-		);
-		expect(brokenContent).not.toBe(originalContent);
+		expect(originalContent).toContain('blur({radius: 24})');
+		expect(originalContent.split('blur({radius: 24})')).toHaveLength(2);
 
-		const buildError = page.getByText(missingPackage).first();
+		const buggyContent = originalContent.replace(
+			'blur({radius: 24})',
+			'blur({})',
+		);
+		expect(buggyContent).not.toBe(originalContent);
+
+		const errorMessage = page.getByText('"radius" must be a finite number');
 
 		await page.goto(`${STUDIO_URL}/error-overlay-e2e`);
 		await expect(page).toHaveURL(/error-overlay-e2e/, {timeout: 15_000});
 
-		await writeAndWaitForRebuild(brokenContent, 'introducing build error');
-		await expect(buildError).toBeVisible({timeout: 15_000});
+		await writeAndWaitForRebuild(buggyContent, 'introducing the runtime bug');
+		await expect(errorMessage).toBeVisible({timeout: 15_000});
 
 		await page.reload();
-		await expect(buildError).toBeVisible({timeout: 15_000});
+		await expect(errorMessage).toBeVisible({timeout: 15_000});
 
-		await writeAndWaitForRebuild(originalContent, 'restoring after build error');
-		await expect(buildError).toHaveCount(0, {timeout: 15_000});
+		await writeAndWaitForRebuild(originalContent, 'restoring after the test');
+		await page.reload();
+		await expect(errorMessage).toHaveCount(0, {timeout: 15_000});
 	});
 });
