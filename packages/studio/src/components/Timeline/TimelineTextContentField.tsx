@@ -5,6 +5,7 @@ import type {
 } from 'remotion';
 import type {
 	SchemaFieldInfo,
+	TimelineFieldOnDragValueChange,
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
 import {RemTextarea} from '../NewComposition/RemTextarea';
@@ -15,13 +16,75 @@ export const TimelineTextContentField: React.FC<{
 	readonly effectiveValue: unknown;
 	readonly propStatus: CanUpdateSequencePropStatusStatic;
 	readonly nodePath: SequencePropsSubscriptionKey | null;
+	readonly onDragEnd: () => void;
+	readonly onDragValueChange: TimelineFieldOnDragValueChange;
 	readonly onSave: TimelineFieldOnSave;
-}> = ({effectiveValue, field, nodePath, onSave, propStatus}) => {
+}> = ({
+	effectiveValue,
+	field,
+	nodePath,
+	onDragEnd,
+	onDragValueChange,
+	onSave,
+	propStatus,
+}) => {
 	const inputRef = useRef<HTMLTextAreaElement>(null);
 	const currentValue = String(effectiveValue ?? '');
+	const draftRef = useRef({
+		dirty: false,
+		value: currentValue,
+	});
+	const latestRef = useRef({
+		codeValue: propStatus.codeValue,
+		onDragEnd,
+		onDragValueChange,
+		onSave,
+	});
+
+	latestRef.current = {
+		codeValue: propStatus.codeValue,
+		onDragEnd,
+		onDragValueChange,
+		onSave,
+	};
+
+	if (!draftRef.current.dirty) {
+		draftRef.current.value = currentValue;
+	}
+
+	const commitPending = useCallback(() => {
+		if (!draftRef.current.dirty) {
+			return;
+		}
+
+		const value = inputRef.current?.value ?? draftRef.current.value;
+		const savedValue = String(latestRef.current.codeValue ?? '');
+		draftRef.current = {
+			dirty: false,
+			value,
+		};
+
+		if (value === savedValue) {
+			latestRef.current.onDragEnd();
+			return;
+		}
+
+		latestRef.current
+			.onSave(value)
+			.finally(() => {
+				if (!draftRef.current.dirty && draftRef.current.value === value) {
+					latestRef.current.onDragEnd();
+				}
+			})
+			.catch(() => undefined);
+	}, []);
 
 	const setInputRef = useCallback(
 		(element: HTMLTextAreaElement | null) => {
+			if (element === null && inputRef.current !== null) {
+				commitPending();
+			}
+
 			inputRef.current = element;
 			registerFocusInspectorFieldElement({
 				element,
@@ -29,35 +92,47 @@ export const TimelineTextContentField: React.FC<{
 				nodePath,
 			});
 		},
-		[field.key, nodePath],
+		[commitPending, field.key, nodePath],
 	);
 
-	const commit = useCallback(() => {
-		const value = inputRef.current?.value ?? currentValue;
-		if (value !== propStatus.codeValue) {
-			onSave(value).catch(() => undefined);
-		}
-	}, [currentValue, onSave, propStatus.codeValue]);
+	const onChange = useCallback(
+		(event: React.ChangeEvent<HTMLTextAreaElement>) => {
+			const {value} = event.currentTarget;
+			draftRef.current = {
+				dirty: true,
+				value,
+			};
+			latestRef.current.onDragValueChange(value);
+		},
+		[],
+	);
 
-	const onKeyDown = useCallback(
+	const onKeyDownCapture = useCallback(
 		(event: React.KeyboardEvent<HTMLTextAreaElement>) => {
 			if (event.key === 'Escape') {
-				event.currentTarget.value = String(propStatus.codeValue ?? '');
+				const savedValue = String(latestRef.current.codeValue ?? '');
+				draftRef.current = {
+					dirty: false,
+					value: savedValue,
+				};
+				event.currentTarget.value = savedValue;
+				latestRef.current.onDragEnd();
 				event.currentTarget.blur();
 			}
 		},
-		[propStatus.codeValue],
+		[],
 	);
 
 	return (
 		<RemTextarea
-			key={currentValue}
+			key={String(propStatus.codeValue ?? '')}
 			ref={setInputRef}
 			status="ok"
 			small
 			defaultValue={currentValue}
-			onBlur={commit}
-			onKeyDown={onKeyDown}
+			onBlur={commitPending}
+			onChange={onChange}
+			onKeyDownCapture={onKeyDownCapture}
 			style={{
 				boxSizing: 'border-box',
 				height: 40,

@@ -208,6 +208,8 @@ export const TimelinePrimitiveFieldValue: React.FC<{
 					effectiveValue={effectiveValue}
 					field={field}
 					nodePath={scaleLockNodePath}
+					onDragEnd={onDragEnd}
+					onDragValueChange={onDragValueChange}
 					onSave={onSave}
 					propStatus={propStatus}
 				/>
