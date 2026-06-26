@@ -11,7 +11,7 @@ use Remotion\LambdaPhp\RenderParams;
 // Load environment variables
 // Use "unsafe" because AWS reads environment variables from getenv(), not $_ENV
 $dotenv = Dotenv::createUnsafeImmutable(__DIR__);
-$dotenv->load();
+$dotenv->safeLoad();
 
 // Specify the region you deployed to, for example "us-east-1"
 $region = getenv('REMOTION_APP_REGION');

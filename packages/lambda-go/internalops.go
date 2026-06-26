@@ -134,7 +134,9 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 	} else {
 		internalParams.TimeoutInMilliseconds = options.TimeoutInMilliseconds
 	}
-	internalParams.NumberOfGifLoops = options.NumberOfGifLoops
+	if options.NumberOfGifLoops != 0 {
+		internalParams.NumberOfGifLoops = &options.NumberOfGifLoops
+	}
 
 	if options.DownloadBehavior == nil {
 		internalParams.DownloadBehavior = map[string]interface{}{

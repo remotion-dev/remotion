@@ -33,7 +33,7 @@ def get_render_media_on_lambda_payload(
   max_retries: 1,
   metadata: {},
   muted: false,
-  number_of_gif_loops: 0,
+  number_of_gif_loops: nil,
   offthread_video_cache_size_in_bytes: nil,
   media_cache_size_in_bytes: nil,
   offthread_video_threads: nil,

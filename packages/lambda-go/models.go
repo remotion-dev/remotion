@@ -82,7 +82,7 @@ type renderInternalOptions struct {
 	ChromiumOptions                interface{}            `json:"chromiumOptions"`
 	Scale                          int                    `json:"scale"`
 	EveryNthFrame                  int                    `json:"everyNthFrame"`
-	NumberOfGifLoops               int                    `json:"numberOfGifLoops"`
+	NumberOfGifLoops               *int                   `json:"numberOfGifLoops"`
 	ConcurrencyPerLambda           int                    `json:"concurrencyPerLambda"`
 	Concurrency                    *int                   `json:"concurrency"`
 	DownloadBehavior               map[string]interface{} `json:"downloadBehavior"`
