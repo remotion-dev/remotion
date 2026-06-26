@@ -120,3 +120,38 @@ test('optimisticUpdateForPropStatuses should preserve multiplication status', ()
 		effects: [],
 	});
 });
+
+test('optimisticUpdateForPropStatuses should fall back to static status for zero multiplication values', () => {
+	const previous: CanUpdateSequencePropsResponse = {
+		canUpdate: true,
+		props: {
+			premountFor: {
+				status: 'multiplication',
+				codeValue: 60,
+				multiplier: 2,
+				multiplicand: 30,
+				identifier: 'fps',
+				factorPosition: 'left',
+			},
+		},
+		effects: [],
+	};
+
+	const updated = optimisticUpdateForPropStatuses({
+		previous,
+		fieldKey: 'premountFor',
+		value: 0,
+		schema: NoReactInternals.sequenceSchema,
+	});
+
+	expect(updated).toEqual({
+		canUpdate: true,
+		props: {
+			premountFor: {
+				status: 'static',
+				codeValue: 0,
+			},
+		},
+		effects: [],
+	});
+});

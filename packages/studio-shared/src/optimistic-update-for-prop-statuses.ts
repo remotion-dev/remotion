@@ -1,9 +1,36 @@
 import {
 	type CanUpdateSequencePropsResponse,
 	type CanUpdateSequencePropStatus,
+	type CanUpdateSequencePropStatusWithCodeValue,
 	type InteractivitySchema,
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
+
+const getOptimisticMultiplicationStatus = ({
+	previousStatus,
+	optimisticValue,
+}: {
+	previousStatus: CanUpdateSequencePropStatus | undefined;
+	optimisticValue: unknown;
+}): CanUpdateSequencePropStatusWithCodeValue | null => {
+	if (
+		previousStatus?.status !== 'multiplication' ||
+		typeof optimisticValue !== 'number'
+	) {
+		return null;
+	}
+
+	const multiplier = optimisticValue / previousStatus.multiplicand;
+	if (!Number.isFinite(multiplier) || multiplier === 0) {
+		return null;
+	}
+
+	return {
+		...previousStatus,
+		codeValue: optimisticValue,
+		multiplier,
+	};
+};
 
 export const optimisticUpdateForPropStatuses = ({
 	previous,
@@ -29,14 +56,10 @@ export const optimisticUpdateForPropStatuses = ({
 			: value;
 	const previousStatus = previous.props[fieldKey];
 	const nextStatus: CanUpdateSequencePropStatus =
-		previousStatus?.status === 'multiplication' &&
-		typeof optimisticValue === 'number'
-			? {
-					...previousStatus,
-					codeValue: optimisticValue,
-					multiplier: optimisticValue / previousStatus.multiplicand,
-				}
-			: {status: 'static', codeValue: optimisticValue};
+		getOptimisticMultiplicationStatus({
+			previousStatus,
+			optimisticValue,
+		}) ?? {status: 'static', codeValue: optimisticValue};
 
 	const props: Record<string, CanUpdateSequencePropStatus> = {
 		...previous.props,
