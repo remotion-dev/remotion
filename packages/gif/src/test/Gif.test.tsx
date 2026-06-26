@@ -5,12 +5,19 @@ import {Internals} from 'remotion';
 import {Gif} from '../Gif';
 import {manuallyManagedGifCache} from '../gif-cache';
 import type {GifState} from '../props';
+import {getGifCacheKey} from '../request-init';
+import {resolveGifSource} from '../resolve-gif-source';
 
 type RegisteredSequence = {
 	readonly refForOutline: React.RefObject<HTMLElement | null> | null;
 };
 
 class MockWorker {
+	public static instances = 0;
+	public constructor() {
+		MockWorker.instances++;
+	}
+
 	public addEventListener = () => undefined;
 	public removeEventListener = () => undefined;
 	public postMessage = () => undefined;
@@ -199,4 +206,29 @@ test('<Gif> registers its canvas as the outline ref', async () => {
 	const refForOutline = registeredSequences[0]
 		.refForOutline as React.RefObject<HTMLCanvasElement | null>;
 	expect(ref.current).toBe(refForOutline.current);
+});
+
+test('reuses a cached GIF without spawning a decode worker', async () => {
+	// The GIF is already decoded and cached, so mounting must reuse it instead of
+	// re-spawning the parse worker. Without this, every remount re-decodes the GIF
+	// (a fresh ImageData per frame); repeated remounts while scrubbing accumulate
+	// memory until the tab runs out of memory.
+	const cacheKey = getGifCacheKey({
+		resolvedSrc: resolveGifSource('test.gif'),
+		requestInit: undefined,
+	});
+	manuallyManagedGifCache.set(cacheKey, gifState);
+	MockWorker.instances = 0;
+
+	render(
+		<SequenceRegistrationWrapper onRegisterSequence={() => undefined}>
+			<Gif src="test.gif" />
+		</SequenceRegistrationWrapper>,
+	);
+
+	await waitFor(() => {
+		expect(document.querySelector('canvas')).toBeInstanceOf(HTMLCanvasElement);
+	});
+
+	expect(MockWorker.instances).toBe(0);
 });
