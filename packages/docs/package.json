@@ -38,6 +38,7 @@
 		"@remotion/animated-emoji": "workspace:*",
 		"@remotion/animation-utils": "workspace:*",
 		"@remotion/babel-loader": "workspace:*",
+		"@remotion/browser-studio": "workspace:*",
 		"@remotion/bundler": "workspace:*",
 		"@remotion/captions": "workspace:*",
 		"@remotion/cli": "workspace:*",

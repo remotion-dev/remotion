@@ -25,6 +25,9 @@
 			"path": "./packages/bundler"
 		},
 		{
+			"path": "./packages/browser-studio"
+		},
+		{
 			"path": "./packages/cloudrun"
 		},
 		{
