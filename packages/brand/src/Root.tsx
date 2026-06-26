@@ -22,6 +22,10 @@ import {
 	cornerPinEffectShowcaseDurationInFrames,
 } from './effects/CornerPinEffectShowcase';
 import {EffectsAnnouncement} from './effects/EffectsAnnouncement';
+import {
+	HEIGHT as EFFECT_SHOWCASE_HEIGHT,
+	WIDTH as EFFECT_SHOWCASE_WIDTH,
+} from './effects/EffectShowcaseScaffold';
 import {BillboardForeground} from './effects/experiments/BillboardForeground';
 import {FxIconComposition} from './effects/FxIconComposition';
 import {Goal} from './effects/Goal';
@@ -51,6 +55,7 @@ import {
 	rulesEnumerationSchema,
 } from './RulesEnumeration/RulesEnumeration';
 import {ProductHuntLogo} from './ScalingLogo';
+import {ShipCard, shipCardDurationInFrames} from './ShipCard';
 import {
 	HTML_IN_CANVAS_ALL_EFFECTS_DURATION,
 	HtmlInCanvasAllEffects,
@@ -564,6 +569,14 @@ export const RemotionRoot: React.FC = () => {
 					height={1080}
 				/>
 			</Folder>
+			<Composition
+				id="ShipCard"
+				component={ShipCard}
+				durationInFrames={shipCardDurationInFrames}
+				fps={30}
+				width={EFFECT_SHOWCASE_WIDTH}
+				height={EFFECT_SHOWCASE_HEIGHT}
+			/>
 		</>
 	);
 };
