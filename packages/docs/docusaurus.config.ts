@@ -100,7 +100,6 @@ const config: Config = {
 						{to: 'blog', label: 'Blog'},
 						{to: 'showcase', label: 'Showcase'},
 						{to: 'https://remotion.dev/convert', label: 'Convert a video'},
-						{to: 'https://remotion.dev/timing-editor', label: 'Timing Editor'},
 						{to: '/docs/support', label: 'Support'},
 						{to: '/templates', label: 'Templates'},
 					],
