@@ -1,15 +1,13 @@
-import type {RecastCodemod} from '@remotion/studio-shared';
 import type {ChangeEventHandler} from 'react';
 import React, {
 	useCallback,
 	useContext,
 	useEffect,
-	useMemo,
 	useRef,
 	useState,
 } from 'react';
 import {Internals} from 'remotion';
-import {validateCompositionName} from '../../helpers/validate-new-comp-data';
+import {useRenameComposition} from '../../helpers/use-rename-composition';
 import {Spacing} from '../layout';
 import {ModalFooterContainer} from '../ModalFooter';
 import {ModalHeader} from '../ModalHeader';
@@ -59,20 +57,15 @@ const RenameCompositionLoaded: React.FC<{}> = () => {
 		[],
 	);
 
-	const compNameErrMessage =
-		newId === resolved.result.id
-			? null
-			: validateCompositionName(newId, compositions);
-
-	const valid = compNameErrMessage === null && resolved.result.id !== newId;
-
-	const codemod: RecastCodemod = useMemo(() => {
-		return {
-			type: 'rename-composition',
-			idToRename: resolved.result.id,
-			newId,
-		};
-	}, [newId, resolved.result.id]);
+	const {
+		codemod,
+		valid,
+		validationMessage: compNameErrMessage,
+	} = useRenameComposition({
+		compositions,
+		currentId: resolved.result.id,
+		newId,
+	});
 
 	const onSubmit: React.FormEventHandler<HTMLFormElement> = useCallback((e) => {
 		e.preventDefault();
