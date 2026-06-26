@@ -96,6 +96,7 @@ import {
 	TIMELINE_TICKS_BACKGROUND,
 	timelineMarqueeRectsIntersect,
 } from '../components/Timeline/TimelineSelection';
+import {getMultiplicationValueExpression} from '../components/Timeline/TimelineSequencePropItem';
 import {
 	getTimelineSequenceDurationDragChanges,
 	getTimelineSequenceDurationDragTargets,
@@ -1553,6 +1554,30 @@ test('Timeline from drag removes the prop at the default value', () => {
 		defaultValue: '0',
 		schema: NoReactInternals.sequenceSchema,
 	});
+});
+
+test('multiplication sequence props fall back to static values for zero', () => {
+	const propStatus = {
+		status: 'multiplication',
+		codeValue: 60,
+		multiplier: 2,
+		multiplicand: 30,
+		identifier: 'fps',
+		factorPosition: 'left',
+	} as const;
+
+	expect(
+		getMultiplicationValueExpression({
+			propStatus,
+			value: 75,
+		}),
+	).toBe('2.5 * fps');
+	expect(
+		getMultiplicationValueExpression({
+			propStatus,
+			value: 0,
+		}),
+	).toBe(null);
 });
 
 test('Timeline colors use the outlines palette', () => {

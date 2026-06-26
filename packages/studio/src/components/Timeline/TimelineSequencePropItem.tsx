@@ -63,7 +63,7 @@ const stringifyNumberForExpression = (value: number): string => {
 	return String(normalized);
 };
 
-const getMultiplicationValueExpression = ({
+export const getMultiplicationValueExpression = ({
 	propStatus,
 	value,
 }: {
