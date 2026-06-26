@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Only run after branch checkouts, which is what `git worktree add` triggers.
+if [ "${3:-}" != "1" ]; then
+	exit 0
+fi
+
+git_common_dir=$(git rev-parse --git-common-dir)
+main_repo=$(cd "$git_common_dir/.." && pwd)
+current_dir=$(pwd)
+
+if [ "$current_dir" = "$main_repo" ]; then
+	exit 0
+fi
+
+echo "Worktree detected: $current_dir"
+
+prune_args=(-name ".git" -prune)
+
+while IFS= read -r dir; do
+	[ -z "$dir" ] && continue
+	prune_args+=(-o -path "$main_repo/$dir" -prune)
+done < <(
+	find "$main_repo" -mindepth 1 -maxdepth 3 -type d -not -path "*/.git/*" -not -name ".git" | while IFS= read -r candidate; do
+		relative_dir="${candidate#$main_repo/}"
+		if git -C "$main_repo" check-ignore -q "$relative_dir" 2>/dev/null; then
+			echo "$relative_dir"
+		fi
+	done
+)
+
+copied=0
+skipped=0
+
+while IFS= read -r envfile; do
+	relative_path="${envfile#$main_repo/}"
+	target="$current_dir/$relative_path"
+
+	if [ -f "$target" ]; then
+		echo "  skipped $relative_path (already exists)"
+		skipped=$((skipped + 1))
+		continue
+	fi
+
+	mkdir -p "$(dirname "$target")"
+	cp "$envfile" "$target"
+	echo "  copied $relative_path"
+	copied=$((copied + 1))
+done < <(find "$main_repo" \( "${prune_args[@]}" \) -o -name ".env*" -type f -print)
+
+echo "Environment files synced: $copied copied, $skipped skipped."
