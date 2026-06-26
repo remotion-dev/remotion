@@ -266,6 +266,7 @@ const innerStitchFramesToVideo = async (
 		encodingMaxRate: maxRate,
 		encodingBufferSize: bufferSize,
 		hardwareAcceleration,
+		hardwareAccelerated: false,
 	});
 	validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
 

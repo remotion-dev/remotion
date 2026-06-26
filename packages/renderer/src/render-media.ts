@@ -315,6 +315,7 @@ const internalRenderMediaRaw = ({
 		encodingMaxRate,
 		encodingBufferSize,
 		hardwareAcceleration,
+		hardwareAccelerated: false,
 	});
 	validateGopSize(gopSize);
 	validateBitrate(audioBitrate, 'audioBitrate');
