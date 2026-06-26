@@ -26,6 +26,7 @@
 		{"path": "../player"},
 		{"path": "../core"},
 		{"path": "../media-utils"},
+		{"path": "../browser-studio"},
 		{"path": "../docusaurus-plugin"},
 		{"path": "../effects"},
 		{"path": "../babel-loader"},
