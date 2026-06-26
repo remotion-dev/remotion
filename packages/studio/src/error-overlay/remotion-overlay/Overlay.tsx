@@ -2,6 +2,7 @@ import React, {
 	createRef,
 	useCallback,
 	useImperativeHandle,
+	useLayoutEffect,
 	useState,
 } from 'react';
 import {AbsoluteFill} from 'remotion';
@@ -29,33 +30,85 @@ const errorsAreTheSame = (first: Error, second: Error) => {
 	return first.stack === second.stack && first.message === second.message;
 };
 
+const addErrorToState = (state: State, err: Error): State => {
+	if (state.type === 'errors') {
+		if (state.errors.some((e) => errorsAreTheSame(e, err))) {
+			return state;
+		}
+
+		return {
+			...state,
+			errors: [...state.errors, err],
+		};
+	}
+
+	return {
+		type: 'errors',
+		errors: [err],
+	};
+};
+
+let queuedErrorsBeforeOverlayMounted: Error[] = [];
+
+const queueErrorBeforeOverlayMounted = (err: Error) => {
+	if (queuedErrorsBeforeOverlayMounted.some((e) => errorsAreTheSame(e, err))) {
+		return;
+	}
+
+	queuedErrorsBeforeOverlayMounted.push(err);
+};
+
+const takeQueuedErrorsBeforeOverlayMounted = () => {
+	const queued = queuedErrorsBeforeOverlayMounted;
+	queuedErrorsBeforeOverlayMounted = [];
+	return queued;
+};
+
+export const addErrorToOverlay = (err: Error) => {
+	if (setErrorsRef.current) {
+		setErrorsRef.current.addError(err);
+		return;
+	}
+
+	queueErrorBeforeOverlayMounted(err);
+};
+
+export const clearErrorsInOverlay = () => {
+	queuedErrorsBeforeOverlayMounted = [];
+	setErrorsRef.current?.setErrors({
+		type: 'clear',
+	});
+};
+
 const BACKGROUND_COLOR = '#1f2428';
 export const Overlay: React.FC = () => {
-	const [errors, setErrors] = useState<State>({type: 'clear'});
+	const [errors, setErrorsState] = useState<State>(() => {
+		return takeQueuedErrorsBeforeOverlayMounted().reduce(addErrorToState, {
+			type: 'clear',
+		});
+	});
 
 	const addError = useCallback((err: Error) => {
-		setErrors((state) => {
-			if (state.type === 'errors') {
-				if (state.errors.some((e) => errorsAreTheSame(e, err))) {
-					return state;
-				}
+		setErrorsState((state) => addErrorToState(state, err));
+	}, []);
 
-				return {
-					...state,
-					errors: [...state.errors, err],
-				};
-			}
-
-			return {
-				type: 'errors',
-				errors: [err],
-			};
-		});
+	const setErrors = useCallback((errs: State) => {
+		queuedErrorsBeforeOverlayMounted = [];
+		setErrorsState(errs);
 	}, []);
 
 	useImperativeHandle(setErrorsRef, () => {
 		return {setErrors, addError};
-	}, [addError]);
+	}, [addError, setErrors]);
+
+	useLayoutEffect(() => {
+		const queued = takeQueuedErrorsBeforeOverlayMounted();
+		if (queued.length === 0) {
+			return;
+		}
+
+		setErrorsState((state) => queued.reduce(addErrorToState, state));
+	});
 
 	if (errors.type === 'clear') {
 		return null;

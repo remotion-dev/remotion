@@ -27,6 +27,28 @@ test.describe('error overlay dismissal', () => {
 		await stopStudio();
 	});
 
+	const writeAndWaitForRebuild = async (
+		content: string,
+		label: string,
+	): Promise<void> => {
+		const logCountBefore = readStudioLogs().length;
+		fs.writeFileSync(errorOverlayE2eFile, content);
+		await expect
+			.poll(
+				() => {
+					const newLogs = readStudioLogs()
+						.slice(logCountBefore)
+						.map(stripAnsi);
+					return newLogs.some((log) => log.includes('Built in'));
+				},
+				{
+					message: `Expected webpack to rebuild after ${label}`,
+					timeout: 30_000,
+				},
+			)
+			.toBe(true);
+	};
+
 	test('error UI toggles with the underlying runtime error across HMR cycles', async ({
 		page,
 	}) => {
@@ -42,28 +64,6 @@ test.describe('error overlay dismissal', () => {
 		expect(buggyContent).not.toBe(originalContent);
 
 		const errorMessage = page.getByText('"radius" must be a finite number');
-
-		const writeAndWaitForRebuild = async (
-			content: string,
-			label: string,
-		): Promise<void> => {
-			const logCountBefore = readStudioLogs().length;
-			fs.writeFileSync(errorOverlayE2eFile, content);
-			await expect
-				.poll(
-					() => {
-						const newLogs = readStudioLogs()
-							.slice(logCountBefore)
-							.map(stripAnsi);
-						return newLogs.some((log) => log.includes('Built in'));
-					},
-					{
-						message: `Expected webpack to rebuild after ${label}`,
-						timeout: 30_000,
-					},
-				)
-				.toBe(true);
-		};
 
 		await page.goto(`${STUDIO_URL}/error-overlay-e2e`);
 		await expect(page).toHaveURL(/error-overlay-e2e/, {timeout: 15_000});
@@ -88,5 +88,35 @@ test.describe('error overlay dismissal', () => {
 
 		await writeAndWaitForRebuild(originalContent, 'restoring after the test');
 		await expect(errorMessage).toHaveCount(0, {timeout: 15_000});
+	});
+
+	test('build error overlay reappears after refreshing a broken composition', async ({
+		page,
+	}) => {
+		const originalContent = fs.readFileSync(errorOverlayE2eFile, 'utf-8');
+		const missingPackage = '@remotion/studio-error-overlay-missing-types';
+		const brokenContent = originalContent.replace(
+			"import {blur} from '@remotion/effects/blur';",
+			[
+				"import {blur} from '@remotion/effects/blur';",
+				`import {zColor} from '${missingPackage}';`,
+				'void zColor;',
+			].join('\n'),
+		);
+		expect(brokenContent).not.toBe(originalContent);
+
+		const buildError = page.getByText(missingPackage).first();
+
+		await page.goto(`${STUDIO_URL}/error-overlay-e2e`);
+		await expect(page).toHaveURL(/error-overlay-e2e/, {timeout: 15_000});
+
+		await writeAndWaitForRebuild(brokenContent, 'introducing build error');
+		await expect(buildError).toBeVisible({timeout: 15_000});
+
+		await page.reload();
+		await expect(buildError).toBeVisible({timeout: 15_000});
+
+		await writeAndWaitForRebuild(originalContent, 'restoring after build error');
+		await expect(buildError).toHaveCount(0, {timeout: 15_000});
 	});
 });
