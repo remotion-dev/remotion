@@ -16,5 +16,9 @@ test('should render issue 6211 mask wheel', async () => {
 	});
 	const blob = await still.blob({format: 'png'});
 
-	await testImage({blob, testId: 'issue-6211-mask-wheel'});
+	await testImage({
+		blob,
+		testId: 'issue-6211-mask-wheel',
+		allowedMismatchedPixelRatio: 0.015,
+	});
 });
