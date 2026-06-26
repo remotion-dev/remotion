@@ -15,5 +15,5 @@ export const EXTRA_PACKAGES_DOCS: Record<string, string> = {
 	'@mediabunny/aac-encoder': 'https://www.remotion.dev/docs/mediabunny/version',
 	'@mediabunny/flac-encoder':
 		'https://www.remotion.dev/docs/mediabunny/version',
-	zod: 'https://zod.dev',
+	zod: 'https://www.remotion.dev/docs/zod-types/',
 };
