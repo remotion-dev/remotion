@@ -1,6 +1,6 @@
 ---
 name: remotion-chromium-binary-release
-description: Release Remotion Chromium headless-shell binaries after chrome-compile builds. Use when uploading Chromium/Chrome headless shell zips to remotion.media, validating BrowserFetcher-compatible zip layout, mapping chrome-compile artifact names to get-chrome-download-url.ts URL names, comparing or handing off Chromium binary updates between remotion-dev/chrome-compile and remotion-dev/remotion, or documenting the final release flow.
+description: Release Remotion Chromium headless-shell binaries after chrome-compile builds. Use when uploading Chromium/Chrome headless shell zips to remotion.media, validating BrowserFetcher-compatible zip layout, mapping chrome-compile artifact names to get-chrome-download-url.ts URL names, updating Remotion downloader or Lambda layer rollout code, comparing or handing off Chromium binary updates between remotion-dev/chrome-compile and remotion-dev/remotion, or documenting the final release flow.
 ---
 
 # Remotion Chromium Binary Release
@@ -28,6 +28,7 @@ that same skill from the checkout so credential paths match the machine.
 1. Determine the Remotion downloader contract.
    - Read the target `packages/renderer/src/browser/get-chrome-download-url.ts`.
    - Read the matching `BrowserFetcher.ts` extraction logic.
+   - If continuing an existing Remotion PR, inspect the PR diff before editing.
    - Do not infer URL names from chrome-compile output names alone.
 
 2. Validate local artifacts before upload.
@@ -61,7 +62,9 @@ that same skill from the checkout so credential paths match the machine.
 7. Handoff to `remotion-dev/remotion`.
    State the exact uploaded URLs and note that implementation work may continue
    in `remotion-dev/remotion`, typically by bumping `TESTED_VERSION`,
-   `PLAYWRIGHT_VERSION` if needed, and any Amazon Linux custom URL branches.
+   `PLAYWRIGHT_VERSION` if needed, Amazon Linux custom URL branches,
+   `BrowserFetcher.ts` subdir normalization, Lambda layer S3 keys,
+   `hosted-layers.ts`, docs, and runtime tests.
 
 ## Guardrails
 

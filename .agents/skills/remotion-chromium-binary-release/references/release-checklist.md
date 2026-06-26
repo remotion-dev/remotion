@@ -5,14 +5,59 @@
 - `chrome-compile` emits short local artifact names, but
   `get-chrome-download-url.ts` uses version-suffixed `remotion.media` object
   names.
+- The downloader diff is not only a version bump: it also routes Amazon Linux
+  2023 to custom `remotion.media` builds and falls back for older glibc.
 - `BrowserFetcher.ts` cares about internal zip folders and executable names,
-  not just whether a zip exists.
+  not just whether a zip exists. Custom Amazon Linux zip folders must be listed
+  in `possibleSubdirs` so extraction renames them into the cache path.
 - R2 upload uses the `parser-media` bucket behind `https://remotion.media/`,
   with credentials in the Remotion checkout's `packages/remotion-media/.env`.
 - The implementation may continue in `remotion-dev/remotion` after binaries are
   uploaded; do not assume the `chrome-compile` PR is the only handoff.
 - Chromium 151 can produce zero-byte `libEGL.so` and `libGLESv2.so`; this is
   expected for these artifacts, and strip must skip empty files.
+- Lambda layer rollout is a separate continuation track: update the layer
+  archive key, publish layers from the layer-hosting account, copy the emitted
+  region map into `hosted-layers.ts`, then test rendering from the consumer
+  account.
+
+## Current PR Continuation Handoff
+
+For Remotion PR 8697, continue from these touched areas:
+
+- `packages/renderer/src/browser/get-chrome-download-url.ts`
+  - `TESTED_VERSION` is `151.0.7893.0`.
+  - `PLAYWRIGHT_VERSION` is `1433`, matching Playwright's Chromium 151 entry.
+  - Amazon Linux 2023 `headless-shell` downloads use custom `remotion.media`
+    URLs for both `linux64` and `linux-arm64`.
+  - Non-Amazon Linux uses the custom Remotion binaries only when glibc is at
+    least `2.35`; older glibc falls back to Playwright or Chrome for Testing.
+- `packages/renderer/src/browser/BrowserFetcher.ts`
+  - `possibleSubdirs` must include the custom Amazon Linux zip folders:
+    `chromium-headless-shell-amazon-linux2023-arm64` and
+    `chromium-headless-shell-amazon-linux2023-x64`.
+  - Extraction should normalize those folders into
+    `chrome-headless-shell-<platform>` in the browser cache.
+- `packages/lambda/src/admin/make-layer-public.ts`
+  - The layer artifact key is `remotion-layer-${layer}-v20-arm64.zip`.
+  - Chromium license text should name `151.0.7893.0`.
+  - Publishing targets runtime `nodejs24.x`.
+- `packages/lambda/build.ts`
+  - Keep the esbuild target at `node24`; this was needed to keep the Lambda
+    function plus layers under AWS size limits for the v20 layer set.
+- `packages/lambda/src/shared/hosted-layers.ts`
+  - Do not hand-edit version increments. Replace it with the JSON emitted by
+    `make-layer-public.ts` after publishing.
+- `packages/example/testlambdaintegrations.mjs`
+  - Python still-render test uses `uv run testclient_render_still.py`.
+- Docs in `packages/docs/docs/lambda/*`,
+  `packages/docs/docs/miscellaneous/chrome-headless-shell.mdx`, and
+  `packages/docs/docs/renderer/ensure-browser.mdx` should describe the new
+  version and hosted binary behavior consistently.
+
+Before handing off, say which of these items are already complete, which still
+need validation, and which AWS account/region was used for the latest Lambda
+test.
 
 ## Current v151 Artifact Mapping
 
