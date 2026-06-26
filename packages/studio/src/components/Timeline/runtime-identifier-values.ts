@@ -1,4 +1,6 @@
 import type {RuntimeIdentifierValues} from '@remotion/studio-shared';
+import {useMemo} from 'react';
+import {Internals} from 'remotion';
 
 export const getRuntimeIdentifierValues = ({
 	durationInFrames,
@@ -16,3 +18,17 @@ export const getRuntimeIdentifierValues = ({
 	height,
 	width,
 });
+
+export const useRuntimeIdentifierValues = ():
+	| RuntimeIdentifierValues
+	| undefined => {
+	const videoConfig = Internals.useUnsafeVideoConfig();
+
+	return useMemo(
+		() =>
+			videoConfig === null
+				? undefined
+				: getRuntimeIdentifierValues(videoConfig),
+		[videoConfig],
+	);
+};

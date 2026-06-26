@@ -1,7 +1,7 @@
 import {LINEAR_KEYFRAME_EASING} from '@remotion/studio-shared';
 import type React from 'react';
 import {useContext, useEffect, useRef} from 'react';
-import {Internals, useVideoConfig} from 'remotion';
+import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {
@@ -15,7 +15,7 @@ import {
 } from './delete-selected-timeline-item';
 import {duplicateSelectedTimelineItems} from './duplicate-selected-timeline-item';
 import {resetSelectedTimelineProps} from './reset-selected-timeline-props';
-import {getRuntimeIdentifierValues} from './runtime-identifier-values';
+import {useRuntimeIdentifierValues} from './runtime-identifier-values';
 import {
 	useCurrentTimelineSelectionStateAsRef,
 	useTimelineSelection,
@@ -37,7 +37,7 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 	);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {setGuidesList} = useContext(EditorShowGuidesContext);
-	const videoConfig = useVideoConfig();
+	const runtimeIdentifierValues = useRuntimeIdentifierValues();
 	const {canSelect} = useTimelineSelection();
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	const confirm = useConfirmationDialog();
@@ -78,7 +78,7 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 				sequences,
 				overrideIdsToNodePaths: overrideIdToNodePathMappings,
 				setPropStatuses,
-				runtimeIdentifierValues: getRuntimeIdentifierValues(videoConfig),
+				runtimeIdentifierValues,
 				clientId,
 				confirm,
 			});
@@ -113,7 +113,7 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 					overrideIdsToNodePaths: overrideIdToNodePathMappings,
 					propStatuses,
 					setPropStatuses,
-					runtimeIdentifierValues: getRuntimeIdentifierValues(videoConfig),
+					runtimeIdentifierValues,
 					clientId,
 					easing: LINEAR_KEYFRAME_EASING,
 				});
@@ -195,11 +195,11 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 		overrideIdToNodePathMappings,
 		propStatusesRef,
 		previewServerState,
+		runtimeIdentifierValues,
 		sequencesRef,
 		setGuidesList,
 		setPropStatuses,
 		timelinePositionRef,
-		videoConfig,
 	]);
 
 	return null;
