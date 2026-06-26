@@ -2575,9 +2575,6 @@
         "eslint": "catalog:",
         "zod": "catalog:",
       },
-      "peerDependencies": {
-        "zod": "catalog:",
-      },
     },
     "packages/zod-types-v3": {
       "name": "@remotion/zod-types-v3",

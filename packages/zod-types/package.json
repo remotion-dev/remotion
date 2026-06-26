@@ -23,9 +23,6 @@
 	"dependencies": {
 		"remotion": "workspace:*"
 	},
-	"peerDependencies": {
-		"zod": "catalog:"
-	},
 	"devDependencies": {
 		"zod": "catalog:",
 		"@remotion/eslint-config-internal": "workspace:*",
