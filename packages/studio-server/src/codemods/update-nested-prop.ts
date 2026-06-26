@@ -27,6 +27,15 @@ export const parseValueExpression = (value: unknown): ExpressionKind => {
 	).right as ExpressionKind;
 };
 
+export const parseValueExpressionFromSource = (
+	expression: string,
+): ExpressionKind => {
+	return (
+		(parseAst(`a = ${expression}`).program.body[0] as ExpressionStatement)
+			.expression as AssignmentExpression
+	).right as ExpressionKind;
+};
+
 const findJsxAttribute = (
 	attributes: (JSXAttribute | JSXSpreadAttribute)[],
 	name: string,
@@ -152,14 +161,19 @@ const setNestedProp = ({
 	parentKey,
 	childKey,
 	value,
+	valueExpression,
 }: {
 	attr: JSXAttribute | undefined;
 	attributes: (JSXAttribute | JSXSpreadAttribute)[];
 	parentKey: string;
 	childKey: string;
 	value: unknown;
+	valueExpression: string | null;
 }) => {
-	const parsedValue = parseValueExpression(value);
+	const parsedValue =
+		valueExpression === null
+			? parseValueExpression(value)
+			: parseValueExpressionFromSource(valueExpression);
 
 	if (attr) {
 		const objExpr = getObjectExpression(attr);
@@ -194,6 +208,7 @@ export const updateNestedProp = ({
 	parentKey,
 	childKey,
 	value,
+	valueExpression = null,
 	defaultValue,
 	isDefault,
 }: {
@@ -201,6 +216,7 @@ export const updateNestedProp = ({
 	parentKey: string;
 	childKey: string;
 	value: unknown;
+	valueExpression?: string | null;
 	defaultValue: unknown | null;
 	isDefault: boolean;
 }): string => {
@@ -216,7 +232,14 @@ export const updateNestedProp = ({
 	if (isDefault) {
 		removeNestedProp({attr, attrIndex, attributes, childKey});
 	} else {
-		setNestedProp({attr, attributes, parentKey, childKey, value});
+		setNestedProp({
+			attr,
+			attributes,
+			parentKey,
+			childKey,
+			value,
+			valueExpression,
+		});
 	}
 
 	return oldValueString;

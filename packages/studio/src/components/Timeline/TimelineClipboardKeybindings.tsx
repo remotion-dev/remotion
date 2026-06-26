@@ -187,7 +187,7 @@ const effectPropStatusToClipboardParam = (
 		return null;
 	}
 
-	if (prop.status === 'static') {
+	if (prop.status === 'static' || prop.status === 'multiplication') {
 		if (prop.codeValue === undefined) {
 			return null;
 		}

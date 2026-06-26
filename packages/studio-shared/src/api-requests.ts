@@ -276,6 +276,7 @@ export type SubscribeToSequencePropsRequest = {
 	componentIdentity: JsxComponentIdentity | null;
 	keys: string[];
 	effects: string[][];
+	runtimeValues?: Record<string, unknown>;
 	clientId: string;
 };
 
@@ -303,6 +304,7 @@ export type SaveSequencePropEdit = {
 	nodePath: SequencePropsSubscriptionKey;
 	key: string;
 	value: string;
+	valueExpression?: string | null;
 	defaultValue: string | null;
 	schema: InteractivitySchema;
 };

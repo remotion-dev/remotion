@@ -3,7 +3,7 @@ import React, {useCallback, useContext, useMemo} from 'react';
 import type {
 	CanUpdateSequencePropStatus,
 	CanUpdateSequencePropStatusKeyframed,
-	CanUpdateSequencePropStatusStatic,
+	CanUpdateSequencePropStatusWithCodeValue,
 	InteractivitySchema,
 	SequencePropsSubscriptionKey,
 } from 'remotion';
@@ -51,6 +51,39 @@ const isKeyframedStatus = (
 	return status.status === 'keyframed';
 };
 
+const isCodeValueStatus = (
+	status: CanUpdateSequencePropStatus,
+): status is CanUpdateSequencePropStatusWithCodeValue => {
+	return status.status === 'static' || status.status === 'multiplication';
+};
+
+const stringifyNumberForExpression = (value: number): string => {
+	const normalized = Object.is(value, -0) ? 0 : value;
+	return String(normalized);
+};
+
+const getMultiplicationValueExpression = ({
+	propStatus,
+	value,
+}: {
+	propStatus: CanUpdateSequencePropStatusWithCodeValue;
+	value: unknown;
+}): string | null => {
+	if (propStatus.status !== 'multiplication' || typeof value !== 'number') {
+		return null;
+	}
+
+	const nextMultiplier = value / propStatus.multiplicand;
+	if (!Number.isFinite(nextMultiplier)) {
+		return null;
+	}
+
+	const multiplier = stringifyNumberForExpression(nextMultiplier);
+	return propStatus.factorPosition === 'left'
+		? `${multiplier} * ${propStatus.identifier}`
+		: `${propStatus.identifier} * ${multiplier}`;
+};
+
 const isResettableStatus = ({
 	status,
 	defaultValue,
@@ -79,7 +112,7 @@ const Value: React.FC<{
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly validatedLocation: CodePosition;
 	readonly schema: InteractivitySchema;
-	readonly propStatus: CanUpdateSequencePropStatusStatic;
+	readonly propStatus: CanUpdateSequencePropStatusWithCodeValue;
 }> = ({field, nodePath, validatedLocation, schema, propStatus}) => {
 	const {getDragOverrides} = useContext(
 		Internals.VisualModeDragOverridesContext,
@@ -139,6 +172,10 @@ const Value: React.FC<{
 						nodePath,
 						fieldKey: field.key,
 						value,
+						valueExpression: getMultiplicationValueExpression({
+							propStatus,
+							value,
+						}),
 						defaultValue,
 						schema,
 					},
@@ -510,7 +547,7 @@ export const TimelineSequencePropItem: React.FC<{
 				frame: sourceFrame + keyframeDisplayOffset,
 			};
 
-			if (propStatus.status === 'static') {
+			if (isCodeValueStatus(propStatus)) {
 				if (!keyframable || previewServerState.type !== 'connected') {
 					return;
 				}
@@ -614,7 +651,7 @@ export const TimelineSequencePropItem: React.FC<{
 						sourceFrame={sourceFrame}
 					/>
 				</div>
-			) : propStatus.status === 'static' ? (
+			) : isCodeValueStatus(propStatus) ? (
 				<div style={timelineFieldValueColumnStyle}>
 					<Value
 						field={field}

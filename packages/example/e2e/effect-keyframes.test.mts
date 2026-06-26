@@ -38,6 +38,7 @@ test.describe('effect keyframes', () => {
 			componentIdentity: 'dev.remotion.remotion.Solid',
 			keys: [],
 			effects: [getAllSchemaKeys(schema)],
+			runtimeValues: {},
 			clientId: 'effect-keyframe-subscribe',
 		});
 		expect(subscription.success).toBe(true);

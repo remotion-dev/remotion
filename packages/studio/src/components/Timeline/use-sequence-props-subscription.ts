@@ -19,11 +19,13 @@ export const useSequencePropsSubscription = ({
 	overrideId,
 	componentIdentity,
 	schema,
+	currentRuntimeValueDotNotation,
 	effects,
 }: {
 	overrideId: string;
 	componentIdentity: JsxComponentIdentity | null;
 	schema: InteractivitySchema;
+	currentRuntimeValueDotNotation: Record<string, unknown>;
 	effects: InteractivitySchema[];
 	originalLocation: OriginalPosition | null;
 }) => {
@@ -91,6 +93,7 @@ export const useSequencePropsSubscription = ({
 			schema,
 			componentIdentity,
 			effects,
+			runtimeValues: currentRuntimeValueDotNotation,
 			nodePath: nodePathAtResubscribe?.nodePath ?? null,
 			clientId,
 			applyOnce: (result) => {
@@ -135,6 +138,7 @@ export const useSequencePropsSubscription = ({
 	}, [
 		clientId,
 		componentIdentity,
+		currentRuntimeValueDotNotation,
 		effects,
 		effectsSignature,
 		locationColumn,

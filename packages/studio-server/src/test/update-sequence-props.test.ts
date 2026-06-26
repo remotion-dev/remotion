@@ -220,3 +220,34 @@ test('updateMultipleSequenceProps should update multiple nodes in one format pas
 	expect(output.split('\n')[7]).toContain('hueShift={90}');
 	expect(output.split('\n')[8]).toContain('durationInFrames={120}');
 });
+
+test('updateSequenceProps should save simple multiplication expressions', async () => {
+	const input = `import React from 'react';
+import {Sequence, useVideoConfig} from 'remotion';
+
+export const Example: React.FC = () => {
+\tconst {fps} = useVideoConfig();
+\treturn (
+\t\t<Sequence premountFor={2 * fps} />
+\t);
+};
+`;
+
+	const {output, oldValueStrings} = await updateSequenceProps({
+		input,
+		nodePath: lineColumnToNodePath(input, 7),
+		updates: [
+			{
+				key: 'premountFor',
+				value: 75,
+				valueExpression: '2.5 * fps',
+				defaultValue: null,
+			},
+		],
+		schema: NoReactInternals.sequenceSchema,
+		prettierConfigOverride: null,
+	});
+
+	expect(oldValueStrings[0]).toBe('2 * fps');
+	expect(output).toContain('premountFor={2.5 * fps}');
+});

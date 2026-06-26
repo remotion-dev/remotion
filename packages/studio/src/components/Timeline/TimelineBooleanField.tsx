@@ -1,5 +1,5 @@
 import React, {useCallback} from 'react';
-import type {CanUpdateSequencePropStatusStatic} from 'remotion';
+import type {CanUpdateSequencePropStatusWithCodeValue} from 'remotion';
 import type {
 	SchemaFieldInfo,
 	TimelineFieldOnSave,
@@ -12,7 +12,7 @@ const checkboxContainer: React.CSSProperties = {
 
 export const TimelineBooleanField: React.FC<{
 	readonly field: SchemaFieldInfo;
-	readonly propStatus: CanUpdateSequencePropStatusStatic;
+	readonly propStatus: CanUpdateSequencePropStatusWithCodeValue;
 	readonly effectiveValue: unknown;
 	readonly onSave: TimelineFieldOnSave;
 }> = ({field, propStatus, effectiveValue, onSave}) => {

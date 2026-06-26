@@ -61,6 +61,7 @@ test.describe('node-path cache for stale source maps', () => {
 			componentIdentity: 'dev.remotion.media.Video',
 			effects: [],
 			keys: getAllSchemaKeys(NoReactInternals.sequenceSchema),
+			runtimeValues: {},
 			clientId: 'e2e-cache-test-1',
 		});
 		expect(result1.success).toBe(true);
@@ -96,6 +97,7 @@ test.describe('node-path cache for stale source maps', () => {
 			componentIdentity: 'dev.remotion.media.Video',
 			keys: getAllSchemaKeys(NoReactInternals.sequenceSchema),
 			effects: [],
+			runtimeValues: {},
 			clientId: 'e2e-cache-test-2',
 		});
 		expect(result2.success).toBe(true);
@@ -125,6 +127,7 @@ test.describe('node-path cache for stale source maps', () => {
 			componentIdentity: 'dev.remotion.media.Video',
 			keys: ['debugOverlay'],
 			effects: [],
+			runtimeValues: {},
 			clientId: 'e2e-identity-mismatch-1',
 		});
 		expect(result1.success).toBe(true);
@@ -162,6 +165,7 @@ test.describe('node-path cache for stale source maps', () => {
 			componentIdentity: 'dev.remotion.media.Video',
 			keys: ['debugOverlay'],
 			effects: [],
+			runtimeValues: {},
 			clientId: 'e2e-identity-mismatch-2',
 		});
 		expect(result2.success).toBe(true);

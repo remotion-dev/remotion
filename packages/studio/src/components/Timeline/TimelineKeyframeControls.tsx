@@ -392,7 +392,10 @@ function getCurrentKeyframeValue({
 		});
 	}
 
-	if (propStatus.status === 'static') {
+	if (
+		propStatus.status === 'static' ||
+		propStatus.status === 'multiplication'
+	) {
 		return Internals.getEffectiveVisualModeValue({
 			propStatus,
 			dragOverrideValue,

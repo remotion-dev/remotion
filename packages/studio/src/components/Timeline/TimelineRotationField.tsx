@@ -1,5 +1,5 @@
 import React, {useCallback, useMemo, useState} from 'react';
-import type {CanUpdateSequencePropStatusStatic} from 'remotion';
+import type {CanUpdateSequencePropStatusWithCodeValue} from 'remotion';
 import type {
 	SchemaFieldInfo,
 	TimelineFieldOnDragValueChange,
@@ -20,7 +20,7 @@ import {
 export const TimelineRotationField: React.FC<{
 	readonly field: SchemaFieldInfo;
 	readonly effectiveValue: unknown;
-	readonly propStatus: CanUpdateSequencePropStatusStatic;
+	readonly propStatus: CanUpdateSequencePropStatusWithCodeValue;
 	readonly onSave: TimelineFieldOnSave;
 	readonly onDragValueChange: TimelineFieldOnDragValueChange;
 	readonly onDragEnd: () => void;

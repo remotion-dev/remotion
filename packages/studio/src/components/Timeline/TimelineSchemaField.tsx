@@ -1,7 +1,7 @@
 import React from 'react';
 import type {
 	CanUpdateSequencePropStatusFalse,
-	CanUpdateSequencePropStatusStatic,
+	CanUpdateSequencePropStatusWithCodeValue,
 	SequencePropsSubscriptionKey,
 } from 'remotion';
 import type {
@@ -45,7 +45,7 @@ export const TimelineFieldValue: React.FC<{
 	readonly onSave: TimelineFieldOnSave;
 	readonly onDragValueChange: TimelineFieldOnDragValueChange;
 	readonly onDragEnd: () => void;
-	readonly propStatus: CanUpdateSequencePropStatusStatic;
+	readonly propStatus: CanUpdateSequencePropStatusWithCodeValue;
 	readonly effectiveValue: unknown;
 	readonly scaleLockNodePath: SequencePropsSubscriptionKey | null;
 }> = ({

@@ -759,3 +759,103 @@ export const Example: React.FC = () => {
 		status: 'computed',
 	});
 });
+
+test('computeSequencePropsStatus should return multiplication for simple runtime multiplication props', () => {
+	const input = `import React from 'react';
+import {Sequence, useVideoConfig} from 'remotion';
+
+export const Example: React.FC = () => {
+\tconst {fps} = useVideoConfig();
+\treturn (
+\t\t<Sequence premountFor={2 * fps} />
+\t);
+};
+`;
+
+	const result = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 7),
+		componentIdentity: null,
+		keys: ['premountFor'],
+		effects: [],
+		runtimeValues: {
+			premountFor: 60,
+		},
+	});
+
+	expect(result.canUpdate).toBe(true);
+	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
+
+	expect(result.props.premountFor).toEqual({
+		status: 'multiplication',
+		codeValue: 60,
+		multiplier: 2,
+		multiplicand: 30,
+		identifier: 'fps',
+		factorPosition: 'left',
+	});
+});
+
+test('computeSequencePropsStatus should preserve right-hand multiplication order', () => {
+	const input = `import React from 'react';
+import {Sequence, useVideoConfig} from 'remotion';
+
+export const Example: React.FC = () => {
+\tconst {fps} = useVideoConfig();
+\treturn (
+\t\t<Sequence premountFor={fps * 2.5} />
+\t);
+};
+`;
+
+	const result = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 7),
+		componentIdentity: null,
+		keys: ['premountFor'],
+		effects: [],
+		runtimeValues: {
+			premountFor: 75,
+		},
+	});
+
+	expect(result.canUpdate).toBe(true);
+	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
+
+	expect(result.props.premountFor).toEqual({
+		status: 'multiplication',
+		codeValue: 75,
+		multiplier: 2.5,
+		multiplicand: 30,
+		identifier: 'fps',
+		factorPosition: 'right',
+	});
+});
+
+test('computeSequencePropsStatus should not return multiplication without a numeric runtime value', () => {
+	const input = `import React from 'react';
+import {Sequence, useVideoConfig} from 'remotion';
+
+export const Example: React.FC = () => {
+\tconst {fps} = useVideoConfig();
+\treturn (
+\t\t<Sequence premountFor={2 * fps} />
+\t);
+};
+`;
+
+	const result = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 7),
+		componentIdentity: null,
+		keys: ['premountFor'],
+		effects: [],
+	});
+
+	expect(result.canUpdate).toBe(true);
+	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
+
+	expect(result.props.premountFor).toEqual({
+		status: 'computed',
+	});
+});

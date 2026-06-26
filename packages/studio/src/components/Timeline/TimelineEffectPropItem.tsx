@@ -563,7 +563,10 @@ export const TimelineEffectPropItem: React.FC<{
 				frame: sourceFrame + keyframeDisplayOffset,
 			};
 
-			if (propStatus.status === 'static') {
+			if (
+				propStatus.status === 'static' ||
+				propStatus.status === 'multiplication'
+			) {
 				if (!keyframable || previewServerState.type !== 'connected') {
 					return;
 				}

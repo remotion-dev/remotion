@@ -1,6 +1,6 @@
 import React, {useCallback, useContext, useMemo, useRef, useState} from 'react';
 import type {
-	CanUpdateSequencePropStatusStatic,
+	CanUpdateSequencePropStatusWithCodeValue,
 	SequencePropsSubscriptionKey,
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
@@ -143,7 +143,7 @@ const LinkToggle: React.FC<{
 
 export const TimelineScaleField: React.FC<{
 	readonly field: SchemaFieldInfo;
-	readonly propStatus: CanUpdateSequencePropStatusStatic;
+	readonly propStatus: CanUpdateSequencePropStatusWithCodeValue;
 	readonly effectiveValue: unknown;
 	readonly onSave: TimelineFieldOnSave;
 	readonly onDragValueChange: TimelineFieldOnDragValueChange;

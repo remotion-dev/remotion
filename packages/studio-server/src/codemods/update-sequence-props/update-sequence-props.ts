@@ -12,13 +12,18 @@ import {NoReactInternals} from 'remotion/no-react';
 import {findJsxElementAtNodePath} from '../../preview-server/routes/can-update-sequence-props';
 import {formatFileContent} from '../format-file-content';
 import {parseAst, serializeAst} from '../parse-ast';
-import {parseValueExpression, updateNestedProp} from '../update-nested-prop';
+import {
+	parseValueExpression,
+	parseValueExpressionFromSource,
+	updateNestedProp,
+} from '../update-nested-prop';
 
 const b = recast.types.builders;
 
 export type SequencePropUpdate = {
 	key: string;
 	value: unknown;
+	valueExpression?: string | null;
 	defaultValue: unknown | null;
 };
 
@@ -143,7 +148,7 @@ const updateSequencePropsNode = ({
 		}),
 	);
 
-	for (const {key, value, defaultValue} of updates) {
+	for (const {key, value, valueExpression = null, defaultValue} of updates) {
 		let oldValueString = '';
 
 		const isDefault =
@@ -161,6 +166,7 @@ const updateSequencePropsNode = ({
 				parentKey,
 				childKey,
 				value,
+				valueExpression,
 				defaultValue,
 				isDefault,
 			});
@@ -201,7 +207,10 @@ const updateSequencePropsNode = ({
 					node.attributes.splice(attrIndex!, 1);
 				}
 			} else {
-				const parsed = parseValueExpression(value);
+				const parsed =
+					valueExpression === null
+						? parseValueExpression(value)
+						: parseValueExpressionFromSource(valueExpression);
 
 				const newValue =
 					value === true ? null : b.jsxExpressionContainer(parsed);

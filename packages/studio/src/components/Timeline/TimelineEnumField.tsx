@@ -1,5 +1,5 @@
 import React, {useCallback, useMemo} from 'react';
-import type {CanUpdateSequencePropStatusStatic} from 'remotion';
+import type {CanUpdateSequencePropStatusWithCodeValue} from 'remotion';
 import type {
 	SchemaFieldInfo,
 	TimelineFieldOnDragValueChange,
@@ -14,7 +14,7 @@ const comboboxStyle: React.CSSProperties = {
 
 export const TimelineEnumField: React.FC<{
 	readonly field: SchemaFieldInfo;
-	readonly propStatus: CanUpdateSequencePropStatusStatic;
+	readonly propStatus: CanUpdateSequencePropStatusWithCodeValue;
 	readonly effectiveValue: unknown;
 	readonly onSave: TimelineFieldOnSave;
 	readonly onDragValueChange: TimelineFieldOnDragValueChange;

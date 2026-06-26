@@ -16,6 +16,7 @@ const makeKey = ({
 	componentIdentity,
 	sequenceKeys,
 	effectKeys,
+	runtimeValues,
 }: {
 	fileName: string;
 	line: number;
@@ -23,8 +24,9 @@ const makeKey = ({
 	componentIdentity: JsxComponentIdentity | null;
 	sequenceKeys: string[];
 	effectKeys: string[][];
+	runtimeValues: Record<string, unknown>;
 }): Key =>
-	`${fileName}\0${line}\0${column}\0${componentIdentity ?? ''}\0${sequenceKeys.join('\0')}\0${effectKeys.map((keys) => keys.join('\0')).join('\0\0')}`;
+	`${fileName}\0${line}\0${column}\0${componentIdentity ?? ''}\0${sequenceKeys.join('\0')}\0${effectKeys.map((keys) => keys.join('\0')).join('\0\0')}\0${JSON.stringify(sequenceKeys.map((key) => runtimeValues[key]))}`;
 
 type SubscribeResult = Awaited<
 	ReturnType<typeof callApi<'/api/subscribe-to-sequence-props'>>
@@ -49,6 +51,7 @@ export const acquireSequencePropsSubscription = ({
 	schema,
 	componentIdentity,
 	effects,
+	runtimeValues,
 	nodePath,
 	clientId,
 	applyOnce,
@@ -60,6 +63,7 @@ export const acquireSequencePropsSubscription = ({
 	schema: InteractivitySchema;
 	componentIdentity: JsxComponentIdentity | null;
 	effects: InteractivitySchema[];
+	runtimeValues: Record<string, unknown>;
 	nodePath: SequenceNodePath | null;
 	clientId: string;
 	applyOnce: ApplyResult;
@@ -74,6 +78,7 @@ export const acquireSequencePropsSubscription = ({
 		componentIdentity,
 		sequenceKeys,
 		effectKeys,
+		runtimeValues,
 	});
 	let entry = entries.get(key);
 
@@ -86,6 +91,7 @@ export const acquireSequencePropsSubscription = ({
 			componentIdentity,
 			keys: getAllSchemaKeys(schema),
 			effects: effectKeys,
+			runtimeValues,
 			clientId,
 		});
 		const created: Entry = {

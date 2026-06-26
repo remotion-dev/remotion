@@ -19,6 +19,19 @@ export type CanUpdateSequencePropStatusStatic = {
 	codeValue: unknown;
 };
 
+export type CanUpdateSequencePropStatusMultiplication = {
+	status: 'multiplication';
+	codeValue: number;
+	multiplier: number;
+	multiplicand: number;
+	identifier: string;
+	factorPosition: 'left' | 'right';
+};
+
+export type CanUpdateSequencePropStatusWithCodeValue =
+	| CanUpdateSequencePropStatusStatic
+	| CanUpdateSequencePropStatusMultiplication;
+
 export type CanUpdateSequencePropStatusKeyframe = {
 	frame: number;
 	value: unknown;
@@ -100,7 +113,7 @@ export type CanUpdateSequencePropStatusFalse =
 	CanUpdateSequencePropStatusComputed;
 
 export type CanUpdateSequencePropStatus =
-	| CanUpdateSequencePropStatusStatic
+	| CanUpdateSequencePropStatusWithCodeValue
 	| CanUpdateSequencePropStatusKeyframed
 	| CanUpdateSequencePropStatusFalse;
 

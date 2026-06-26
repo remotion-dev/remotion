@@ -81,3 +81,42 @@ test('optimisticUpdateForPropStatuses should use undefined for removed default v
 		effects: [],
 	});
 });
+
+test('optimisticUpdateForPropStatuses should preserve multiplication status', () => {
+	const previous: CanUpdateSequencePropsResponse = {
+		canUpdate: true,
+		props: {
+			premountFor: {
+				status: 'multiplication',
+				codeValue: 60,
+				multiplier: 2,
+				multiplicand: 30,
+				identifier: 'fps',
+				factorPosition: 'left',
+			},
+		},
+		effects: [],
+	};
+
+	const updated = optimisticUpdateForPropStatuses({
+		previous,
+		fieldKey: 'premountFor',
+		value: 75,
+		schema: NoReactInternals.sequenceSchema,
+	});
+
+	expect(updated).toEqual({
+		canUpdate: true,
+		props: {
+			premountFor: {
+				status: 'multiplication',
+				codeValue: 75,
+				multiplier: 2.5,
+				multiplicand: 30,
+				identifier: 'fps',
+				factorPosition: 'left',
+			},
+		},
+		effects: [],
+	});
+});

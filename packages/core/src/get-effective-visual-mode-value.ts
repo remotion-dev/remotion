@@ -1,7 +1,7 @@
 import {interpolateKeyframedStatus} from './interpolate-keyframed-status';
 import type {
 	CanUpdateSequencePropStatusKeyframed,
-	CanUpdateSequencePropStatusStatic,
+	CanUpdateSequencePropStatusWithCodeValue,
 	DragOverrideValue,
 } from './use-schema';
 
@@ -53,7 +53,7 @@ export const getEffectiveVisualModeValue = ({
 	shouldResortToDefaultValueIfUndefined = false,
 }: {
 	propStatus:
-		| CanUpdateSequencePropStatusStatic
+		| CanUpdateSequencePropStatusWithCodeValue
 		| CanUpdateSequencePropStatusKeyframed;
 	dragOverrideValue: DragOverrideValue | undefined;
 	defaultValue: unknown;

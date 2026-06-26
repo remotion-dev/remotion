@@ -27,10 +27,20 @@ export const optimisticUpdateForPropStatuses = ({
 		defaultValue !== null && defaultValue === serializedValue
 			? undefined
 			: value;
+	const previousStatus = previous.props[fieldKey];
+	const nextStatus: CanUpdateSequencePropStatus =
+		previousStatus?.status === 'multiplication' &&
+		typeof optimisticValue === 'number'
+			? {
+					...previousStatus,
+					codeValue: optimisticValue,
+					multiplier: optimisticValue / previousStatus.multiplicand,
+				}
+			: {status: 'static', codeValue: optimisticValue};
 
 	const props: Record<string, CanUpdateSequencePropStatus> = {
 		...previous.props,
-		[fieldKey]: {status: 'static', codeValue: optimisticValue},
+		[fieldKey]: nextStatus,
 	};
 
 	if (schema[fieldKey]?.type === 'enum') {

@@ -1,5 +1,5 @@
 import React, {useCallback, useMemo} from 'react';
-import type {CanUpdateSequencePropStatusStatic} from 'remotion';
+import type {CanUpdateSequencePropStatusWithCodeValue} from 'remotion';
 import type {
 	SchemaFieldInfo,
 	TimelineFieldOnDragValueChange,
@@ -19,7 +19,7 @@ const SWATCH_HEIGHT = 15;
 export const TimelineColorField: React.FC<{
 	readonly field: SchemaFieldInfo;
 	readonly effectiveValue: unknown;
-	readonly propStatus: CanUpdateSequencePropStatusStatic;
+	readonly propStatus: CanUpdateSequencePropStatusWithCodeValue;
 	readonly onSave: TimelineFieldOnSave;
 	readonly onDragValueChange: TimelineFieldOnDragValueChange;
 	readonly onDragEnd: () => void;

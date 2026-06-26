@@ -32,6 +32,7 @@ const getSequencePropsStatus = ({
 	componentIdentity,
 	keys,
 	effects,
+	runtimeValues,
 	remotionRoot,
 	logLevel,
 }: {
@@ -42,6 +43,7 @@ const getSequencePropsStatus = ({
 	componentIdentity: JsxComponentIdentity | null;
 	keys: string[];
 	effects: string[][];
+	runtimeValues: Record<string, unknown>;
 	remotionRoot: string;
 	logLevel: LogLevel;
 }): SubscribeToSequencePropsResponse => {
@@ -53,6 +55,7 @@ const getSequencePropsStatus = ({
 				componentIdentity,
 				keys,
 				effects,
+				runtimeValues,
 				remotionRoot,
 			});
 			return {
@@ -89,6 +92,7 @@ const getSequencePropsStatus = ({
 					componentIdentity,
 					keys,
 					effects,
+					runtimeValues,
 					remotionRoot,
 				});
 			} catch (error) {
@@ -123,6 +127,7 @@ const getSequencePropsStatus = ({
 		componentIdentity,
 		keys,
 		effects,
+		runtimeValues,
 		remotionRoot,
 		logLevel,
 	});
@@ -138,6 +143,7 @@ export const subscribeToSequencePropsWatchers = ({
 	componentIdentity,
 	keys,
 	effects,
+	runtimeValues,
 	remotionRoot,
 	clientId,
 	logLevel,
@@ -149,6 +155,7 @@ export const subscribeToSequencePropsWatchers = ({
 	componentIdentity: JsxComponentIdentity | null;
 	keys: string[];
 	effects: string[][];
+	runtimeValues: Record<string, unknown>;
 	remotionRoot: string;
 	clientId: string;
 	logLevel: LogLevel;
@@ -161,6 +168,7 @@ export const subscribeToSequencePropsWatchers = ({
 		componentIdentity,
 		keys,
 		effects,
+		runtimeValues,
 		remotionRoot,
 		logLevel,
 	});
@@ -202,6 +210,7 @@ export const subscribeToSequencePropsWatchers = ({
 					componentIdentity,
 					keys,
 					effects,
+					runtimeValues,
 				});
 				const previousEffectChain = result.effects.map(
 					(effect) => effect.canUpdate && effect.callee,

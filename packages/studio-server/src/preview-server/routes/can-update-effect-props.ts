@@ -171,7 +171,7 @@ const getPropsFromObjectExpression = ({
 
 		const valueExpr = prop.value as Expression;
 		if (!isStaticValue(valueExpr)) {
-			out[key] = getComputedStatus(valueExpr, ast);
+			out[key] = getComputedStatus(valueExpr, ast, undefined);
 			continue;
 		}
 

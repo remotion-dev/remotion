@@ -12,9 +12,17 @@ export const SubscribeToNodePaths: FC<{
 	readonly overrideId: string;
 	readonly componentIdentity: JsxComponentIdentity | null;
 	readonly schema: InteractivitySchema;
+	readonly currentRuntimeValueDotNotation: Record<string, unknown>;
 	readonly getStack: () => string | null;
 	readonly effects: readonly EffectDefinition<unknown>[];
-}> = ({overrideId, componentIdentity, schema, getStack, effects}) => {
+}> = ({
+	overrideId,
+	componentIdentity,
+	schema,
+	currentRuntimeValueDotNotation,
+	getStack,
+	effects,
+}) => {
 	const originalLocation = useResolveStackAndReactToChange(getStack);
 
 	const effectSubscriptions = useMemo<InteractivitySchema[]>(() => {
@@ -29,6 +37,7 @@ export const SubscribeToNodePaths: FC<{
 		overrideId,
 		componentIdentity,
 		schema,
+		currentRuntimeValueDotNotation,
 		effects: effectSubscriptions,
 		originalLocation,
 	});

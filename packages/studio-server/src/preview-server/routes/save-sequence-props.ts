@@ -32,6 +32,7 @@ type ResolvedSequencePropEdit = {
 	key: SaveSequencePropEdit['key'];
 	value: unknown;
 	valueString: string;
+	valueExpression: string | null;
 	defaultValue: unknown | null;
 	defaultValueString: string | null;
 	schema: SaveSequencePropEdit['schema'];
@@ -60,17 +61,20 @@ export const convertSequencePropEditToCodemodChange = (
 	edit: Pick<
 		ResolvedSequencePropEdit,
 		'nodePath' | 'key' | 'value' | 'defaultValue' | 'schema'
-	>,
+	> & {valueExpression?: string | null},
 ): SequencePropsNodeUpdate => {
+	const update: SequencePropsNodeUpdate['updates'][number] = {
+		key: edit.key,
+		value: edit.value,
+		defaultValue: edit.defaultValue,
+	};
+	if (edit.valueExpression) {
+		update.valueExpression = edit.valueExpression;
+	}
+
 	return {
 		nodePath: edit.nodePath.nodePath,
-		updates: [
-			{
-				key: edit.key,
-				value: edit.value,
-				defaultValue: edit.defaultValue,
-			},
-		],
+		updates: [update],
 		schema: edit.schema,
 	};
 };
@@ -103,6 +107,7 @@ export const saveSequencePropsHandler: ApiHandler<
 
 		for (const [index, edit] of edits.entries()) {
 			const parsedValue = JSON.parse(edit.value);
+			const valueExpression = edit.valueExpression ?? null;
 			const parsedDefaultValue =
 				edit.defaultValue !== null ? JSON.parse(edit.defaultValue) : null;
 			const {absolutePath, fileRelativeToRoot} = resolveFileInsideProject({
@@ -121,7 +126,8 @@ export const saveSequencePropsHandler: ApiHandler<
 				nodePath: edit.nodePath,
 				key: edit.key,
 				value: parsedValue,
-				valueString: JSON.stringify(parsedValue),
+				valueString: valueExpression ?? JSON.stringify(parsedValue),
+				valueExpression,
 				defaultValue: parsedDefaultValue,
 				defaultValueString:
 					parsedDefaultValue !== null
@@ -232,6 +238,9 @@ export const saveSequencePropsHandler: ApiHandler<
 				nodePath: edit.nodePath.nodePath,
 				componentIdentity: null,
 				effects: [],
+				runtimeValues: {
+					[edit.key]: JSON.parse(edit.value),
+				},
 			});
 
 			return {

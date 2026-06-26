@@ -263,6 +263,9 @@ const TimelineInner: React.FC = () => {
 						overrideId={sequence.controls.overrideId}
 						componentIdentity={sequence.controls.componentIdentity}
 						schema={sequence.controls.schema}
+						currentRuntimeValueDotNotation={
+							sequence.controls.currentRuntimeValueDotNotation
+						}
 						getStack={sequence.getStack}
 						effects={sequence.effects}
 					/>
