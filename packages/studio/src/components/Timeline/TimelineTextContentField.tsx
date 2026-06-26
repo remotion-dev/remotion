@@ -9,7 +9,10 @@ import type {
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
 import {RemTextarea} from '../NewComposition/RemTextarea';
-import {registerFocusInspectorFieldElement} from './focus-inspector-field';
+import {
+	registerCommitPendingInspectorField,
+	registerFocusInspectorFieldElement,
+} from './focus-inspector-field';
 
 export const TimelineTextContentField: React.FC<{
 	readonly field: SchemaFieldInfo;
@@ -54,7 +57,7 @@ export const TimelineTextContentField: React.FC<{
 
 	const commitPending = useCallback(() => {
 		if (!draftRef.current.dirty) {
-			return;
+			return false;
 		}
 
 		const value = inputRef.current?.value ?? draftRef.current.value;
@@ -66,7 +69,7 @@ export const TimelineTextContentField: React.FC<{
 
 		if (value === savedValue) {
 			latestRef.current.onDragEnd();
-			return;
+			return false;
 		}
 
 		latestRef.current
@@ -77,6 +80,8 @@ export const TimelineTextContentField: React.FC<{
 				}
 			})
 			.catch(() => undefined);
+
+		return true;
 	}, []);
 
 	const setInputRef = useCallback(
@@ -88,6 +93,11 @@ export const TimelineTextContentField: React.FC<{
 			inputRef.current = element;
 			registerFocusInspectorFieldElement({
 				element,
+				fieldKey: field.key,
+				nodePath,
+			});
+			registerCommitPendingInspectorField({
+				commitPending: element === null ? null : commitPending,
 				fieldKey: field.key,
 				nodePath,
 			});

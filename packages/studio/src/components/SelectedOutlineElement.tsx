@@ -85,7 +85,10 @@ import {
 } from './Timeline/call-add-keyframe';
 import {disableSequenceInteractivity} from './Timeline/disable-sequence-interactivity';
 import {duplicateSequencesFromSource} from './Timeline/duplicate-selected-timeline-item';
-import {requestFocusInspectorField} from './Timeline/focus-inspector-field';
+import {
+	commitPendingInspectorFields,
+	requestFocusInspectorField,
+} from './Timeline/focus-inspector-field';
 import {getSequenceContextMenuItems} from './Timeline/get-sequence-context-menu-items';
 import {saveSequenceProps} from './Timeline/save-sequence-prop';
 import {getTimelineAssetLinkInfo} from './Timeline/timeline-asset-link';
@@ -533,6 +536,10 @@ const SelectedOutlinePolygon: React.FC<{
 				return;
 			}
 
+			if (commitPendingInspectorFields()) {
+				return;
+			}
+
 			const startPointerX = event.clientX;
 			const startPointerY = event.clientY;
 			const dragStates = getSelectedOutlineDragStates({
@@ -883,6 +890,10 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 				return;
 			}
 
+			if (commitPendingInspectorFields()) {
+				return;
+			}
+
 			const startPointer = {x: event.clientX, y: event.clientY};
 			const dragStates = getSelectedOutlineScaleDragStates({
 				dragTargets: selected ? allScaleDragTargets : [scaleDrag],
@@ -1162,6 +1173,10 @@ const SelectedOutlineRotationCornerHandle: React.FC<{
 			}
 
 			if (interaction.toggleKey) {
+				return;
+			}
+
+			if (commitPendingInspectorFields()) {
 				return;
 			}
 

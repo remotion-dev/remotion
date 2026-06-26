@@ -11,6 +11,7 @@ const serializeRegistryKey = ({
 };
 
 const registeredFields = new Map<string, HTMLTextAreaElement>();
+const registeredCommitPendingCallbacks = new Map<string, () => boolean>();
 
 export const registerFocusInspectorFieldElement = ({
 	element,
@@ -51,4 +52,35 @@ export const requestFocusInspectorField = ({
 		element?.focus();
 		element?.select();
 	});
+};
+
+export const registerCommitPendingInspectorField = ({
+	commitPending,
+	fieldKey,
+	nodePath,
+}: {
+	readonly commitPending: (() => boolean) | null;
+	readonly fieldKey: string;
+	readonly nodePath: SequencePropsSubscriptionKey | null;
+}) => {
+	if (nodePath === null) {
+		return;
+	}
+
+	const key = serializeRegistryKey({fieldKey, nodePath});
+	if (commitPending === null) {
+		registeredCommitPendingCallbacks.delete(key);
+		return;
+	}
+
+	registeredCommitPendingCallbacks.set(key, commitPending);
+};
+
+export const commitPendingInspectorFields = () => {
+	let committed = false;
+	for (const commitPending of registeredCommitPendingCallbacks.values()) {
+		committed = commitPending() || committed;
+	}
+
+	return committed;
 };
