@@ -21,6 +21,7 @@ import {ContextMenu} from '../ContextMenu';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {callAddSequenceKeyframe} from './call-add-keyframe';
 import {getAnimationItemSelectionForSourceFrame} from './get-animation-item-selection-for-frame';
+import {getRuntimeIdentifierValues} from './runtime-identifier-values';
 import {saveSequenceProps} from './save-sequence-prop';
 import {timelineFieldValueColumnStyle} from './timeline-field-row-layout';
 import {TimelineExpandArrowSpacer} from './TimelineExpandArrowButton';
@@ -249,6 +250,7 @@ export const TimelineSequenceKeyframedValue: React.FC<{
 	const {setPropStatuses, setDragOverrides, clearDragOverrides} = useContext(
 		Internals.VisualModeSettersContext,
 	);
+	const videoConfig = useVideoConfig();
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const clientId =
 		previewServerState.type === 'connected'
@@ -272,11 +274,20 @@ export const TimelineSequenceKeyframedValue: React.FC<{
 				sourceFrame: frame,
 				value,
 				schema,
+				runtimeIdentifierValues: getRuntimeIdentifierValues(videoConfig),
 				setPropStatuses,
 				clientId,
 			});
 		},
-		[clientId, field.key, fileName, nodePath, schema, setPropStatuses],
+		[
+			clientId,
+			field.key,
+			fileName,
+			nodePath,
+			schema,
+			setPropStatuses,
+			videoConfig,
+		],
 	);
 
 	const onKeyframedDragValueChange =
@@ -568,6 +579,7 @@ export const TimelineSequencePropItem: React.FC<{
 					sourceFrame,
 					value,
 					schema,
+					runtimeIdentifierValues: getRuntimeIdentifierValues(videoConfig),
 					setPropStatuses,
 					clientId: previewServerState.clientId,
 				}).catch(() => undefined);
@@ -612,6 +624,7 @@ export const TimelineSequencePropItem: React.FC<{
 			setPropStatuses,
 			sourceFrame,
 			validatedLocation.source,
+			videoConfig,
 		],
 	);
 

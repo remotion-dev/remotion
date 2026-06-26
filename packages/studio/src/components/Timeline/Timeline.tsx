@@ -16,6 +16,7 @@ import {SplitterContainer} from '../Splitter/SplitterContainer';
 import {SplitterElement} from '../Splitter/SplitterElement';
 import {SplitterHandle} from '../Splitter/SplitterHandle';
 import {MAX_TIMELINE_TRACKS} from './MaxTimelineTracks';
+import {getRuntimeIdentifierValues} from './runtime-identifier-values';
 import {SequencePropsObserver} from './SequencePropsObserver';
 import {shouldShowTrackInTimeline} from './should-show-track-in-timeline';
 import {shouldSubscribeToSequenceProps} from './should-subscribe-to-sequence-props';
@@ -235,6 +236,10 @@ const TimelineInner: React.FC = () => {
 	}, [sequences, videoConfigIsNull, overrideIdToNodePathMappings]);
 
 	const durationInFrames = videoConfig?.durationInFrames ?? 0;
+	const runtimeIdentifierValues = useMemo(
+		() => (videoConfig === null ? {} : getRuntimeIdentifierValues(videoConfig)),
+		[videoConfig],
+	);
 
 	const filtered = useMemo(() => {
 		return timeline.filter((t) =>
@@ -266,6 +271,7 @@ const TimelineInner: React.FC = () => {
 						currentRuntimeValueDotNotation={
 							sequence.controls.currentRuntimeValueDotNotation
 						}
+						runtimeIdentifierValues={runtimeIdentifierValues}
 						getStack={sequence.getStack}
 						effects={sequence.effects}
 					/>

@@ -528,6 +528,107 @@ test('computeSequencePropsStatus should return keyframes for interpolated style 
 	});
 });
 
+test('computeSequencePropsStatus should return keyframes for runtime multiplication input ranges', () => {
+	const input = `import React from 'react';
+import {Sequence, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
+
+export const Example: React.FC = () => {
+\tconst frame = useCurrentFrame();
+\tconst {fps} = useVideoConfig();
+\treturn (
+\t\t<Sequence style={{scale: interpolate(frame, [0, 3.33 * fps], [2, 4])}} />
+\t);
+};
+`;
+
+	const result = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 8),
+		componentIdentity: null,
+		keys: ['style.scale'],
+		effects: [],
+		runtimeIdentifierValues: {
+			fps: 30,
+		},
+	});
+
+	expect(result.canUpdate).toBe(true);
+	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
+
+	expect(result.props['style.scale']).toEqual({
+		status: 'keyframed',
+		interpolationFunction: 'interpolate',
+		keyframes: [
+			{frame: 0, value: 2},
+			{frame: 3.33 * 30, value: 4},
+		],
+		easing: [{type: 'linear'}],
+		clamping: {left: 'extend', right: 'extend'},
+		posterize: undefined,
+	});
+});
+
+test('computeSequencePropsStatus should not resolve multiplication input ranges without runtime identifiers', () => {
+	const input = `import React from 'react';
+import {Sequence, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
+
+export const Example: React.FC = () => {
+\tconst frame = useCurrentFrame();
+\tconst {fps} = useVideoConfig();
+\treturn (
+\t\t<Sequence style={{scale: interpolate(frame, [0, 3.33 * fps], [2, 4])}} />
+\t);
+};
+`;
+
+	const result = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 8),
+		componentIdentity: null,
+		keys: ['style.scale'],
+		effects: [],
+	});
+
+	expect(result.canUpdate).toBe(true);
+	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
+
+	expect(result.props['style.scale']).toEqual({
+		status: 'computed',
+	});
+});
+
+test('computeSequencePropsStatus should not resolve local variables with runtime identifier names', () => {
+	const input = `import React from 'react';
+import {Sequence, interpolate, useCurrentFrame} from 'remotion';
+
+export const Example: React.FC = () => {
+\tconst frame = useCurrentFrame();
+\tconst fps = 24;
+\treturn (
+\t\t<Sequence style={{scale: interpolate(frame, [0, 3 * fps], [2, 4])}} />
+\t);
+};
+`;
+
+	const result = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 8),
+		componentIdentity: null,
+		keys: ['style.scale'],
+		effects: [],
+		runtimeIdentifierValues: {
+			fps: 30,
+		},
+	});
+
+	expect(result.canUpdate).toBe(true);
+	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
+
+	expect(result.props['style.scale']).toEqual({
+		status: 'computed',
+	});
+});
+
 test('computeSequencePropsStatus should return keyframes for String-wrapped interpolated scale props', () => {
 	const input = `import React from 'react';
 import {Easing, Sequence, interpolate, useCurrentFrame} from 'remotion';

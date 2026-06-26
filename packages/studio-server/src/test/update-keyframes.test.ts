@@ -142,6 +142,77 @@ test('updateSequenceKeyframes adds a keyframe to an existing interpolation', asy
 	);
 });
 
+test('updateSequenceKeyframes preserves runtime multiplication input ranges when adding keyframes', async () => {
+	const input = `import React from 'react';
+import {AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
+
+export const Example: React.FC = () => {
+\tconst frame = useCurrentFrame();
+\tconst {fps} = useVideoConfig();
+\treturn (
+\t\t<AbsoluteFill>
+\t\t\t<div style={{scale: interpolate(frame, [0, 3 * fps], [2, 4])}} />
+\t\t</AbsoluteFill>
+\t);
+};
+`;
+
+	const {output, oldValueStrings} = await updateSequenceKeyframes({
+		input,
+		nodePath: lineColumnToNodePath(input, getLine(input, 'scale')),
+		runtimeIdentifierValues: {
+			fps: 30,
+		},
+		updates: [
+			{
+				key: 'style.scale',
+				operation: {type: 'add', frame: 45, value: 3},
+			},
+		],
+	});
+
+	expect(oldValueStrings).toEqual(['interpolate(frame, [0, 3 * fps], [2, 4])']);
+	expect(output).toContain(
+		'scale: interpolate(frame, [0, 45, 3 * fps], [2, 3, 4])',
+	);
+});
+
+test('updateSequenceKeyframes moves runtime multiplication input range keyframes', async () => {
+	const input = `import React from 'react';
+import {AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
+
+export const Example: React.FC = () => {
+\tconst frame = useCurrentFrame();
+\tconst {fps} = useVideoConfig();
+\treturn (
+\t\t<AbsoluteFill>
+\t\t\t<div style={{scale: interpolate(frame, [0, 3 * fps], [2, 4])}} />
+\t\t</AbsoluteFill>
+\t);
+};
+`;
+
+	const {output, oldValueStrings} = await updateSequenceKeyframes({
+		input,
+		nodePath: lineColumnToNodePath(input, getLine(input, 'scale')),
+		runtimeIdentifierValues: {
+			fps: 30,
+		},
+		updates: [
+			{
+				key: 'style.scale',
+				operation: {
+					type: 'move',
+					moves: [{fromFrame: 90, toFrame: 75}],
+				},
+			},
+		],
+	});
+
+	expect(oldValueStrings).toEqual(['interpolate(frame, [0, 3 * fps], [2, 4])']);
+	expect(output).toContain('scale: interpolate(frame, [0, 75], [2, 4])');
+});
+
 test('updateSequenceKeyframes uses linear easing when appending keyframes', async () => {
 	const input = `import React from 'react';
 import {AbsoluteFill, Easing, interpolate, useCurrentFrame} from 'remotion';

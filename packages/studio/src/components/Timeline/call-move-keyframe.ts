@@ -1,6 +1,7 @@
 import {
 	optimisticMoveEffectKeyframes,
 	optimisticMoveSequenceKeyframes,
+	type RuntimeIdentifierValues,
 } from '@remotion/studio-shared';
 import type {SequencePropsSubscriptionKey, InteractivitySchema} from 'remotion';
 import {callApi} from '../call-api';
@@ -13,6 +14,7 @@ export type MoveSequenceKeyframeChange = {
 	fromFrame: number;
 	toFrame: number;
 	schema: InteractivitySchema;
+	runtimeIdentifierValues?: RuntimeIdentifierValues;
 };
 
 export type MoveEffectKeyframeChange = MoveSequenceKeyframeChange & {
@@ -93,6 +95,7 @@ export const callMoveKeyframes = ({
 			fromFrame: keyframe.fromFrame,
 			toFrame: keyframe.toFrame,
 			schema: keyframe.schema,
+			runtimeIdentifierValues: keyframe.runtimeIdentifierValues,
 		})),
 		effectKeyframes: effectKeyframes.map((keyframe) => ({
 			fileName: keyframe.fileName,

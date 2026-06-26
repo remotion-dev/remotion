@@ -1,3 +1,4 @@
+import type {RuntimeIdentifierValues} from '@remotion/studio-shared';
 import type {OverrideIdToNodePaths, PropStatuses, TSequence} from 'remotion';
 import {Internals} from 'remotion';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
@@ -151,6 +152,7 @@ export const deleteSelectedTimelineItem = ({
 	sequences,
 	overrideIdsToNodePaths,
 	setPropStatuses,
+	runtimeIdentifierValues,
 	clientId,
 	confirm,
 }: {
@@ -158,6 +160,7 @@ export const deleteSelectedTimelineItem = ({
 	sequences: TSequence[];
 	overrideIdsToNodePaths: OverrideIdToNodePaths;
 	setPropStatuses: SetPropStatuses;
+	runtimeIdentifierValues?: RuntimeIdentifierValues;
 	clientId: string;
 	confirm: ConfirmationDialogFunction;
 }): Promise<boolean> | null => {
@@ -168,6 +171,7 @@ export const deleteSelectedTimelineItem = ({
 			sequences,
 			overrideIdsToNodePaths,
 			setPropStatuses,
+			runtimeIdentifierValues,
 			clientId,
 		});
 		return promise?.then(() => true) ?? null;
@@ -417,6 +421,7 @@ export const deleteSelectedTimelineItems = ({
 	sequences,
 	overrideIdsToNodePaths,
 	setPropStatuses,
+	runtimeIdentifierValues,
 	clientId,
 	confirm,
 }: {
@@ -424,6 +429,7 @@ export const deleteSelectedTimelineItems = ({
 	sequences: TSequence[];
 	overrideIdsToNodePaths: OverrideIdToNodePaths;
 	setPropStatuses: SetPropStatuses;
+	runtimeIdentifierValues?: RuntimeIdentifierValues;
 	clientId: string;
 	confirm: ConfirmationDialogFunction;
 }): Promise<boolean> | null => {
@@ -446,6 +452,7 @@ export const deleteSelectedTimelineItems = ({
 			sequences,
 			overrideIdsToNodePaths,
 			setPropStatuses,
+			runtimeIdentifierValues,
 			clientId,
 		});
 		return promise?.then(() => true) ?? null;

@@ -6,7 +6,7 @@ import type {
 	SequencePropsSubscriptionKey,
 	InteractivitySchema,
 } from 'remotion';
-import {Internals} from 'remotion';
+import {Internals, useVideoConfig} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {INPUT_BACKGROUND} from '../../helpers/colors';
 import {ModalsContext} from '../../state/modals';
@@ -22,6 +22,7 @@ import {
 	callUpdateEffectKeyframeSettings,
 	callUpdateSequenceKeyframeSettings,
 } from './call-update-keyframe-settings';
+import {getRuntimeIdentifierValues} from './runtime-identifier-values';
 
 const container: React.CSSProperties = {
 	padding: 16,
@@ -101,6 +102,7 @@ export const KeyframeSettingsModal: React.FC<{
 	const {setSelectedModal} = useContext(ModalsContext);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const videoConfig = useVideoConfig();
 	const [left, setLeft] = useState(state.status.clamping.left);
 	const [right, setRight] = useState(state.status.clamping.right);
 	const [posterize, setPosterize] = useState(state.status.posterize ?? 0);
@@ -143,6 +145,7 @@ export const KeyframeSettingsModal: React.FC<{
 						fieldKey: state.fieldKey,
 						settings,
 						schema: state.schema,
+						runtimeIdentifierValues: getRuntimeIdentifierValues(videoConfig),
 						setPropStatuses,
 						clientId: previewServerState.clientId,
 					})
@@ -169,6 +172,7 @@ export const KeyframeSettingsModal: React.FC<{
 		right,
 		setPropStatuses,
 		state,
+		videoConfig,
 	]);
 
 	const saveDisabled = saving || previewServerState.type !== 'connected';

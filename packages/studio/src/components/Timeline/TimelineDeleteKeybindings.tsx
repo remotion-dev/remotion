@@ -1,7 +1,7 @@
 import {LINEAR_KEYFRAME_EASING} from '@remotion/studio-shared';
 import type React from 'react';
 import {useContext, useEffect, useRef} from 'react';
-import {Internals} from 'remotion';
+import {Internals, useVideoConfig} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {
@@ -15,6 +15,7 @@ import {
 } from './delete-selected-timeline-item';
 import {duplicateSelectedTimelineItems} from './duplicate-selected-timeline-item';
 import {resetSelectedTimelineProps} from './reset-selected-timeline-props';
+import {getRuntimeIdentifierValues} from './runtime-identifier-values';
 import {
 	useCurrentTimelineSelectionStateAsRef,
 	useTimelineSelection,
@@ -36,6 +37,7 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 	);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {setGuidesList} = useContext(EditorShowGuidesContext);
+	const videoConfig = useVideoConfig();
 	const {canSelect} = useTimelineSelection();
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	const confirm = useConfirmationDialog();
@@ -76,6 +78,7 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 				sequences,
 				overrideIdsToNodePaths: overrideIdToNodePathMappings,
 				setPropStatuses,
+				runtimeIdentifierValues: getRuntimeIdentifierValues(videoConfig),
 				clientId,
 				confirm,
 			});
@@ -110,6 +113,7 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 					overrideIdsToNodePaths: overrideIdToNodePathMappings,
 					propStatuses,
 					setPropStatuses,
+					runtimeIdentifierValues: getRuntimeIdentifierValues(videoConfig),
 					clientId,
 					easing: LINEAR_KEYFRAME_EASING,
 				});
@@ -195,6 +199,7 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 		setGuidesList,
 		setPropStatuses,
 		timelinePositionRef,
+		videoConfig,
 	]);
 
 	return null;

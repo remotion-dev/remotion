@@ -21,6 +21,7 @@ import {callMoveKeyframes} from './call-move-keyframe';
 import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
 import {getBoundedKeyframeDragDelta} from './get-bounded-keyframe-drag-delta';
 import {parseKeyframeFieldFromNodePath} from './parse-keyframe-field-from-node-path';
+import {getRuntimeIdentifierValues} from './runtime-identifier-values';
 import {
 	getTimelineKeyframeDragKey,
 	useTimelineKeyframeDragState,
@@ -696,6 +697,7 @@ export const useTimelineKeyframeDrag = ({
 							fromFrame: target.sourceFrame,
 							toFrame: target.sourceFrame + lastDelta,
 							schema: target.schema,
+							runtimeIdentifierValues: getRuntimeIdentifierValues(videoConfig),
 						})),
 					effectKeyframes: targets
 						.filter(
@@ -713,6 +715,7 @@ export const useTimelineKeyframeDrag = ({
 							fromFrame: target.sourceFrame,
 							toFrame: target.sourceFrame + lastDelta,
 							schema: target.schema,
+							runtimeIdentifierValues: getRuntimeIdentifierValues(videoConfig),
 						})),
 					setPropStatuses,
 					clientId: previewServerState.clientId,
@@ -748,7 +751,7 @@ export const useTimelineKeyframeDrag = ({
 			setDraggedKeyframes,
 			setEffectDragOverrides,
 			timelineWidth,
-			videoConfig.durationInFrames,
+			videoConfig,
 		],
 	);
 };
@@ -1018,7 +1021,7 @@ export const useTimelineEasingKeyframeDrag = ({
 			setDragOverrides,
 			setEffectDragOverrides,
 			timelineWidth,
-			videoConfig.durationInFrames,
+			videoConfig,
 		],
 	);
 };

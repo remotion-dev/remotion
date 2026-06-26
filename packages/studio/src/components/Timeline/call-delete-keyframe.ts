@@ -3,6 +3,7 @@ import {
 	optimisticDeleteEffectKeyframes,
 	optimisticDeleteSequenceKeyframe,
 	optimisticDeleteSequenceKeyframes,
+	type RuntimeIdentifierValues,
 } from '@remotion/studio-shared';
 import type {SequencePropsSubscriptionKey, InteractivitySchema} from 'remotion';
 import {callApi} from '../call-api';
@@ -15,6 +16,7 @@ export type DeleteSequenceKeyframeChange = {
 	fieldKey: string;
 	sourceFrame: number;
 	schema: InteractivitySchema;
+	runtimeIdentifierValues?: RuntimeIdentifierValues;
 };
 
 export type DeleteEffectKeyframeChange = DeleteSequenceKeyframeChange & {
@@ -41,6 +43,7 @@ export const callDeleteSequenceKeyframe = ({
 	fieldKey,
 	sourceFrame,
 	schema,
+	runtimeIdentifierValues,
 	setPropStatuses,
 	clientId,
 }: {
@@ -49,6 +52,7 @@ export const callDeleteSequenceKeyframe = ({
 	fieldKey: string;
 	sourceFrame: number;
 	schema: InteractivitySchema;
+	runtimeIdentifierValues?: RuntimeIdentifierValues;
 	setPropStatuses: SetPropStatuses;
 	clientId: string;
 }): Promise<void> => {
@@ -70,6 +74,7 @@ export const callDeleteSequenceKeyframe = ({
 						key: fieldKey,
 						frame: sourceFrame,
 						schema,
+						runtimeIdentifierValues,
 					},
 				],
 				effectKeyframes: [],
@@ -184,6 +189,7 @@ export const callDeleteKeyframes = ({
 			key: keyframe.fieldKey,
 			frame: keyframe.sourceFrame,
 			schema: keyframe.schema,
+			runtimeIdentifierValues: keyframe.runtimeIdentifierValues,
 		})),
 		effectKeyframes: effectKeyframes.map((keyframe) => ({
 			fileName: keyframe.fileName,

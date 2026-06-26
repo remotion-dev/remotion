@@ -18,6 +18,7 @@ import {
 	isKeyframeInterpolationFunction,
 	LINEAR_KEYFRAME_EASING,
 	parseSpringEasingConfig,
+	type RuntimeIdentifierValues,
 } from '@remotion/studio-shared';
 import * as recast from 'recast';
 import type {
@@ -33,6 +34,7 @@ import {parseAst} from '../../codemods/parse-ast';
 import {getAstNodePath} from '../../helpers/get-ast-node-path';
 import {toImportAgnosticNodePath} from '../../helpers/import-agnostic-node-path';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
+import {getRuntimeIdentifierValuesForAst} from '../../helpers/runtime-identifier-values';
 import {
 	getJsxComponentIdentity,
 	JsxElementIdentityMismatchError,
@@ -279,6 +281,73 @@ const getIdentifierName = (node: Expression): string | null => {
 	}
 
 	return null;
+};
+
+const getRuntimeIdentifierValue = (
+	node: Expression,
+	runtimeIdentifierValues: RuntimeIdentifierValues,
+): number | null => {
+	if (node.type === 'Identifier') {
+		const value = runtimeIdentifierValues[node.name];
+		return typeof value === 'number' && Number.isFinite(value) ? value : null;
+	}
+
+	if (node.type === 'TSAsExpression') {
+		return getRuntimeIdentifierValue(
+			node.expression as Expression,
+			runtimeIdentifierValues,
+		);
+	}
+
+	return null;
+};
+
+const getRuntimeMultiplicationValue = (
+	node: Expression,
+	runtimeIdentifierValues: RuntimeIdentifierValues,
+): number | null => {
+	if (node.type === 'TSAsExpression') {
+		return getRuntimeMultiplicationValue(
+			node.expression as Expression,
+			runtimeIdentifierValues,
+		);
+	}
+
+	if (node.type !== 'BinaryExpression' || node.operator !== '*') {
+		return null;
+	}
+
+	const left = node.left as Expression;
+	const right = node.right as Expression;
+	const leftNumber = getNumericValue(left);
+	const rightNumber = getNumericValue(right);
+	const leftIdentifierValue = getRuntimeIdentifierValue(
+		left,
+		runtimeIdentifierValues,
+	);
+	const rightIdentifierValue = getRuntimeIdentifierValue(
+		right,
+		runtimeIdentifierValues,
+	);
+	const value =
+		leftNumber !== null && rightIdentifierValue !== null
+			? leftNumber * rightIdentifierValue
+			: rightNumber !== null && leftIdentifierValue !== null
+				? rightNumber * leftIdentifierValue
+				: null;
+
+	return value !== null && Number.isFinite(value) ? value : null;
+};
+
+const getRuntimeNumericValue = (
+	node: Expression,
+	runtimeIdentifierValues: RuntimeIdentifierValues,
+): number | null => {
+	return (
+		getNumericValue(node) ??
+		getRuntimeIdentifierValue(node, runtimeIdentifierValues) ??
+		getRuntimeMultiplicationValue(node, runtimeIdentifierValues)
+	);
 };
 
 const getMultiplicationStatus = ({
@@ -598,6 +667,7 @@ const getInterpolationMetadata = (
 const getInterpolationKeyframes = (
 	node: Expression,
 	ast: File,
+	runtimeIdentifierValues: RuntimeIdentifierValues,
 ):
 	| {
 			keyframes: PropKeyframes;
@@ -608,7 +678,11 @@ const getInterpolationKeyframes = (
 	  }
 	| undefined => {
 	if (node.type === 'TSAsExpression') {
-		return getInterpolationKeyframes(node.expression as Expression, ast);
+		return getInterpolationKeyframes(
+			node.expression as Expression,
+			ast,
+			runtimeIdentifierValues,
+		);
 	}
 
 	if (
@@ -623,6 +697,7 @@ const getInterpolationKeyframes = (
 		const interpolation = getInterpolationKeyframes(
 			node.arguments[0] as Expression,
 			ast,
+			runtimeIdentifierValues,
 		);
 		if (!interpolation) {
 			return undefined;
@@ -683,7 +758,10 @@ const getInterpolationKeyframes = (
 			return undefined;
 		}
 
-		const frame = getNumericValue(inputElement);
+		const frame = getRuntimeNumericValue(
+			inputElement as Expression,
+			runtimeIdentifierValues,
+		);
 		if (frame === null || !isStaticValue(outputElement)) {
 			return undefined;
 		}
@@ -761,8 +839,13 @@ export const getComputedStatus = (
 	node: Expression,
 	ast: File,
 	runtimeValue: unknown,
+	runtimeIdentifierValues: RuntimeIdentifierValues = {},
 ): CanUpdatePropStatus => {
-	const interpolation = getInterpolationKeyframes(node, ast);
+	const interpolation = getInterpolationKeyframes(
+		node,
+		ast,
+		runtimeIdentifierValues,
+	);
 	if (!interpolation) {
 		return getMultiplicationStatus({node, runtimeValue}) ?? computedStatus();
 	}
@@ -781,6 +864,7 @@ const getPropsStatus = (
 	jsxElement: JSXOpeningElement,
 	ast: File,
 	runtimeValues: Record<string, unknown>,
+	runtimeIdentifierValues: RuntimeIdentifierValues,
 ): Record<string, CanUpdatePropStatus> => {
 	const props: Record<string, CanUpdatePropStatus> = {};
 
@@ -818,7 +902,12 @@ const getPropsStatus = (
 			}
 
 			if (!isStaticValue(expression)) {
-				props[name] = getComputedStatus(expression, ast, runtimeValues[name]);
+				props[name] = getComputedStatus(
+					expression,
+					ast,
+					runtimeValues[name],
+					runtimeIdentifierValues,
+				);
 				continue;
 			}
 
@@ -935,12 +1024,14 @@ const getNestedPropStatus = ({
 	parentKey,
 	childKey,
 	runtimeValue,
+	runtimeIdentifierValues,
 }: {
 	jsxElement: JSXOpeningElement;
 	ast: File;
 	parentKey: string;
 	childKey: string;
 	runtimeValue: unknown;
+	runtimeIdentifierValues: RuntimeIdentifierValues;
 }): CanUpdatePropStatus => {
 	const attr = jsxElement.attributes.find(
 		(a) =>
@@ -982,7 +1073,12 @@ const getNestedPropStatus = ({
 
 	const propValue = prop.value as Expression;
 	if (!isStaticValue(propValue)) {
-		return getComputedStatus(propValue, ast, runtimeValue);
+		return getComputedStatus(
+			propValue,
+			ast,
+			runtimeValue,
+			runtimeIdentifierValues,
+		);
 	}
 
 	const propStatus = extractStaticValue(propValue);
@@ -1017,13 +1113,20 @@ const computeSequenceOnlyPropsRecord = ({
 	ast,
 	keys,
 	runtimeValues,
+	runtimeIdentifierValues,
 }: {
 	jsxElement: JSXOpeningElement;
 	ast: File;
 	keys: string[];
 	runtimeValues: Record<string, unknown>;
+	runtimeIdentifierValues: RuntimeIdentifierValues;
 }): Record<string, CanUpdatePropStatus> => {
-	const allProps = getPropsStatus(jsxElement, ast, runtimeValues);
+	const allProps = getPropsStatus(
+		jsxElement,
+		ast,
+		runtimeValues,
+		runtimeIdentifierValues,
+	);
 	const filteredProps: Record<string, CanUpdatePropStatus> = {};
 	for (const key of keys) {
 		const dotIndex = key.indexOf('.');
@@ -1034,6 +1137,7 @@ const computeSequenceOnlyPropsRecord = ({
 				parentKey: key.slice(0, dotIndex),
 				childKey: key.slice(dotIndex + 1),
 				runtimeValue: runtimeValues[key],
+				runtimeIdentifierValues,
 			});
 		} else if (key in allProps) {
 			filteredProps[key] = allProps[key];
@@ -1052,6 +1156,7 @@ export const computeSequencePropsStatusFromContent = ({
 	keys,
 	effects,
 	runtimeValues = {},
+	runtimeIdentifierValues = {},
 }: {
 	fileContents: string;
 	nodePath: SequenceNodePath;
@@ -1059,8 +1164,13 @@ export const computeSequencePropsStatusFromContent = ({
 	keys: string[];
 	effects: string[][];
 	runtimeValues?: Record<string, unknown>;
+	runtimeIdentifierValues?: RuntimeIdentifierValues;
 }): CanUpdateSequencePropsResponseTrue => {
 	const ast = parseAst(fileContents);
+	const resolvedRuntimeIdentifierValues = getRuntimeIdentifierValuesForAst({
+		ast,
+		runtimeIdentifierValues,
+	});
 
 	const jsxElement = findJsxElementAtNodePath(ast, nodePath);
 
@@ -1082,6 +1192,7 @@ export const computeSequencePropsStatusFromContent = ({
 		ast,
 		keys,
 		runtimeValues,
+		runtimeIdentifierValues: resolvedRuntimeIdentifierValues,
 	});
 	const effectsStatuses = computeEffectsForJsx({ast, jsxElement, effects});
 
@@ -1099,6 +1210,7 @@ export const computeSequencePropsStatus = ({
 	keys,
 	effects,
 	runtimeValues = {},
+	runtimeIdentifierValues = {},
 	remotionRoot,
 }: {
 	fileName: string;
@@ -1107,6 +1219,7 @@ export const computeSequencePropsStatus = ({
 	keys: string[];
 	effects: string[][];
 	runtimeValues?: Record<string, unknown>;
+	runtimeIdentifierValues?: RuntimeIdentifierValues;
 	remotionRoot: string;
 }): CanUpdateSequencePropsResponseTrue => {
 	const {absolutePath} = resolveFileInsideProject({
@@ -1123,6 +1236,7 @@ export const computeSequencePropsStatus = ({
 		keys,
 		effects,
 		runtimeValues,
+		runtimeIdentifierValues,
 	});
 };
 
@@ -1133,6 +1247,7 @@ export const computeSequencePropsStatusFromFilenameByLine = ({
 	keys,
 	effects,
 	runtimeValues,
+	runtimeIdentifierValues,
 	remotionRoot,
 	logLevel,
 }: {
@@ -1142,6 +1257,7 @@ export const computeSequencePropsStatusFromFilenameByLine = ({
 	keys: string[];
 	effects: string[][];
 	runtimeValues: Record<string, unknown>;
+	runtimeIdentifierValues: RuntimeIdentifierValues;
 	remotionRoot: string;
 	logLevel: LogLevel;
 }): SubscribeToSequencePropsResponse => {
@@ -1174,6 +1290,7 @@ export const computeSequencePropsStatusFromFilenameByLine = ({
 				keys,
 				effects,
 				runtimeValues,
+				runtimeIdentifierValues,
 				remotionRoot,
 			}),
 			nodePath: {

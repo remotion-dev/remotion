@@ -178,6 +178,8 @@ export const addKeyframes = async ({
 				input: output,
 				nodePath: firstSequenceKeyframe.nodePath.nodePath,
 				schema: firstSequenceKeyframe.schema,
+				runtimeIdentifierValues:
+					firstSequenceKeyframe.runtimeIdentifierValues ?? {},
 				updates: keyframeGroup.map((keyframe) => ({
 					key: keyframe.key,
 					operation: {

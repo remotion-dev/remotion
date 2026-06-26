@@ -1,3 +1,4 @@
+import type {RuntimeIdentifierValues} from '@remotion/studio-shared';
 import {useMemo, type FC} from 'react';
 import type {
 	EffectDefinition,
@@ -13,6 +14,7 @@ export const SubscribeToNodePaths: FC<{
 	readonly componentIdentity: JsxComponentIdentity | null;
 	readonly schema: InteractivitySchema;
 	readonly currentRuntimeValueDotNotation: Record<string, unknown>;
+	readonly runtimeIdentifierValues: RuntimeIdentifierValues;
 	readonly getStack: () => string | null;
 	readonly effects: readonly EffectDefinition<unknown>[];
 }> = ({
@@ -20,6 +22,7 @@ export const SubscribeToNodePaths: FC<{
 	componentIdentity,
 	schema,
 	currentRuntimeValueDotNotation,
+	runtimeIdentifierValues,
 	getStack,
 	effects,
 }) => {
@@ -38,6 +41,7 @@ export const SubscribeToNodePaths: FC<{
 		componentIdentity,
 		schema,
 		currentRuntimeValueDotNotation,
+		runtimeIdentifierValues,
 		effects: effectSubscriptions,
 		originalLocation,
 	});

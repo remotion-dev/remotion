@@ -23,7 +23,15 @@ export const updateSequenceKeyframeSettingsHandler: ApiHandler<
 	UpdateSequenceKeyframeSettingsRequest,
 	UpdateSequenceKeyframeSettingsResponse
 > = ({
-	input: {fileName, nodePath, key, settings, schema, clientId},
+	input: {
+		fileName,
+		nodePath,
+		key,
+		settings,
+		schema,
+		runtimeIdentifierValues = {},
+		clientId,
+	},
 	remotionRoot,
 	logLevel,
 }) =>
@@ -50,6 +58,7 @@ export const updateSequenceKeyframeSettingsHandler: ApiHandler<
 			input: fileContents,
 			nodePath: nodePath.nodePath,
 			schema,
+			runtimeIdentifierValues,
 			updates: [
 				{
 					key,
@@ -111,6 +120,7 @@ export const updateSequenceKeyframeSettingsHandler: ApiHandler<
 			nodePath: updatedNodePath,
 			componentIdentity: null,
 			effects: [],
+			runtimeIdentifierValues,
 		});
 		const updatedSubscriptionKey = {...nodePath, nodePath: updatedNodePath};
 

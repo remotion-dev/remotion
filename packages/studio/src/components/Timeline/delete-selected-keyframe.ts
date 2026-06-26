@@ -1,3 +1,4 @@
+import type {RuntimeIdentifierValues} from '@remotion/studio-shared';
 import type {OverrideIdToNodePaths, TSequence} from 'remotion';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {
@@ -78,6 +79,7 @@ export const deleteSelectedKeyframe = ({
 	sequences,
 	overrideIdsToNodePaths,
 	setPropStatuses,
+	runtimeIdentifierValues,
 	clientId,
 }: {
 	nodePathInfo: SequenceNodePathInfo;
@@ -85,6 +87,7 @@ export const deleteSelectedKeyframe = ({
 	sequences: TSequence[];
 	overrideIdsToNodePaths: OverrideIdToNodePaths;
 	setPropStatuses: SetPropStatuses;
+	runtimeIdentifierValues?: RuntimeIdentifierValues;
 	clientId: string;
 }): Promise<void> | null => {
 	const deletion = getSelectedKeyframeDeletion({
@@ -107,6 +110,7 @@ export const deleteSelectedKeyframe = ({
 
 	return callDeleteSequenceKeyframe({
 		...deletion,
+		runtimeIdentifierValues,
 		setPropStatuses,
 		clientId,
 	});
@@ -117,6 +121,7 @@ export const deleteSelectedKeyframes = ({
 	sequences,
 	overrideIdsToNodePaths,
 	setPropStatuses,
+	runtimeIdentifierValues,
 	clientId,
 }: {
 	keyframes: {
@@ -126,6 +131,7 @@ export const deleteSelectedKeyframes = ({
 	sequences: TSequence[];
 	overrideIdsToNodePaths: OverrideIdToNodePaths;
 	setPropStatuses: SetPropStatuses;
+	runtimeIdentifierValues?: RuntimeIdentifierValues;
 	clientId: string;
 }): Promise<void> | null => {
 	const deletions = keyframes
@@ -146,13 +152,15 @@ export const deleteSelectedKeyframes = ({
 	}
 
 	return callDeleteKeyframes({
-		sequenceKeyframes: deletions.filter(
-			(
-				deletion,
-			): deletion is SelectedKeyframeDeletion & {
-				type: 'sequence';
-			} => deletion.type === 'sequence',
-		),
+		sequenceKeyframes: deletions
+			.filter(
+				(
+					deletion,
+				): deletion is SelectedKeyframeDeletion & {
+					type: 'sequence';
+				} => deletion.type === 'sequence',
+			)
+			.map((deletion) => ({...deletion, runtimeIdentifierValues})),
 		effectKeyframes: deletions.filter(
 			(
 				deletion,

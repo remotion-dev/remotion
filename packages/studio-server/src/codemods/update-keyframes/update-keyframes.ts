@@ -18,6 +18,7 @@ import {
 	LINEAR_KEYFRAME_EASING,
 	parseSpringEasingConfig,
 	type KeyframeInterpolationFunction,
+	type RuntimeIdentifierValues,
 } from '@remotion/studio-shared';
 import type {ExpressionKind, SpreadElementKind} from 'ast-types/lib/gen/kinds';
 import * as recast from 'recast';
@@ -29,6 +30,7 @@ import type {
 	InteractivitySchema,
 } from 'remotion';
 import {getAstNodePath} from '../../helpers/get-ast-node-path';
+import {getRuntimeIdentifierValuesForAst} from '../../helpers/runtime-identifier-values';
 import {
 	extractStaticValue,
 	findJsxElementAtNodePath,
@@ -192,6 +194,7 @@ type MissingPropInitialValue = {
 
 type InterpolateKeyframe = {
 	frame: number;
+	input: ExpressionKind | null;
 	output: ExpressionKind;
 	value: unknown;
 };
@@ -237,11 +240,82 @@ const getNumericValue = (node: Expression): number | null => {
 	return null;
 };
 
+const getRuntimeIdentifierValue = (
+	node: Expression,
+	runtimeIdentifierValues: RuntimeIdentifierValues,
+): number | null => {
+	if (node.type === 'Identifier') {
+		const value = runtimeIdentifierValues[node.name];
+		return typeof value === 'number' && Number.isFinite(value) ? value : null;
+	}
+
+	if (node.type === 'TSAsExpression') {
+		return getRuntimeIdentifierValue(
+			node.expression as Expression,
+			runtimeIdentifierValues,
+		);
+	}
+
+	return null;
+};
+
+const getRuntimeMultiplicationValue = (
+	node: Expression,
+	runtimeIdentifierValues: RuntimeIdentifierValues,
+): number | null => {
+	if (node.type === 'TSAsExpression') {
+		return getRuntimeMultiplicationValue(
+			node.expression as Expression,
+			runtimeIdentifierValues,
+		);
+	}
+
+	if (node.type !== 'BinaryExpression' || node.operator !== '*') {
+		return null;
+	}
+
+	const left = node.left as Expression;
+	const right = node.right as Expression;
+	const leftNumber = getNumericValue(left);
+	const rightNumber = getNumericValue(right);
+	const leftIdentifierValue = getRuntimeIdentifierValue(
+		left,
+		runtimeIdentifierValues,
+	);
+	const rightIdentifierValue = getRuntimeIdentifierValue(
+		right,
+		runtimeIdentifierValues,
+	);
+	const value =
+		leftNumber !== null && rightIdentifierValue !== null
+			? leftNumber * rightIdentifierValue
+			: rightNumber !== null && leftIdentifierValue !== null
+				? rightNumber * leftIdentifierValue
+				: null;
+
+	return value !== null && Number.isFinite(value) ? value : null;
+};
+
+const getRuntimeNumericValue = (
+	node: Expression,
+	runtimeIdentifierValues: RuntimeIdentifierValues,
+): number | null => {
+	return (
+		getNumericValue(node) ??
+		getRuntimeIdentifierValue(node, runtimeIdentifierValues) ??
+		getRuntimeMultiplicationValue(node, runtimeIdentifierValues)
+	);
+};
+
 const getInterpolationExpression = (
 	node: Expression,
+	runtimeIdentifierValues: RuntimeIdentifierValues,
 ): InterpolateExpression | null => {
 	if (node.type === 'TSAsExpression') {
-		return getInterpolationExpression(node.expression as Expression);
+		return getInterpolationExpression(
+			node.expression as Expression,
+			runtimeIdentifierValues,
+		);
 	}
 
 	if (
@@ -279,13 +353,17 @@ const getInterpolationExpression = (
 			return null;
 		}
 
-		const frame = getNumericValue(inputElement);
+		const frame = getRuntimeNumericValue(
+			inputElement as Expression,
+			runtimeIdentifierValues,
+		);
 		if (frame === null || !isStaticValue(outputElement)) {
 			return null;
 		}
 
 		keyframes.push({
 			frame,
+			input: inputElement as ExpressionKind,
 			output: outputElement as ExpressionKind,
 			value: extractStaticValue(outputElement),
 		});
@@ -865,6 +943,7 @@ const updateKeyframeSettings = ({
 	expression,
 	clamping,
 	posterize,
+	runtimeIdentifierValues,
 }: {
 	expression: Expression;
 	clamping:
@@ -874,10 +953,14 @@ const updateKeyframeSettings = ({
 		  }
 		| undefined;
 	posterize: number | undefined;
+	runtimeIdentifierValues: RuntimeIdentifierValues;
 }): ExpressionKind => {
 	validatePosterize(posterize);
 
-	const existing = getInterpolationExpression(expression);
+	const existing = getInterpolationExpression(
+		expression,
+		runtimeIdentifierValues,
+	);
 	if (!existing) {
 		throw new Error('Cannot update keyframe settings on non-keyframed value');
 	}
@@ -939,12 +1022,17 @@ const updateKeyframeEasing = ({
 	expression,
 	segmentIndex,
 	easing,
+	runtimeIdentifierValues,
 }: {
 	expression: Expression;
 	segmentIndex: number;
 	easing: KeyframeEasing;
+	runtimeIdentifierValues: RuntimeIdentifierValues;
 }): {expression: ExpressionKind; needsEasingImport: boolean} => {
-	const existing = getInterpolationExpression(expression);
+	const existing = getInterpolationExpression(
+		expression,
+		runtimeIdentifierValues,
+	);
 	if (!existing) {
 		throw new Error('Cannot update easing on non-keyframed value');
 	}
@@ -1013,7 +1101,9 @@ const createInterpolateExpression = ({
 	return b.callExpression(callee, [
 		input,
 		b.arrayExpression(
-			sortedKeyframes.map((keyframe) => createFrameExpression(keyframe.frame)),
+			sortedKeyframes.map(
+				(keyframe) => keyframe.input ?? createFrameExpression(keyframe.frame),
+			),
 		),
 		b.arrayExpression(sortedKeyframes.map((keyframe) => keyframe.output)),
 		...extraArgs,
@@ -1038,18 +1128,23 @@ const addKeyframe = ({
 	frame,
 	value,
 	schema,
+	runtimeIdentifierValues,
 }: {
 	expression: Expression;
 	key: string;
 	frame: number;
 	value: unknown;
 	schema: InteractivitySchema | null;
+	runtimeIdentifierValues: RuntimeIdentifierValues;
 }): {expression: ExpressionKind; introduced: IntroducedKeyframeIdentifiers} => {
 	if (!isSchemaFieldKeyframable({schema, key})) {
 		throw new Error(`Cannot add keyframe: "${key}" is not keyframable`);
 	}
 
-	const existing = getInterpolationExpression(expression);
+	const existing = getInterpolationExpression(
+		expression,
+		runtimeIdentifierValues,
+	);
 	const newOutput = parseValueExpression(value);
 
 	if (existing) {
@@ -1067,10 +1162,13 @@ const addKeyframe = ({
 		);
 		const nextKeyframes =
 			existingIndex === -1
-				? [...existing.keyframes, {frame, output: newOutput, value}]
+				? [
+						...existing.keyframes,
+						{frame, input: null, output: newOutput, value},
+					]
 				: existing.keyframes.map((keyframe, index) =>
 						index === existingIndex
-							? {frame, output: newOutput, value}
+							? {...keyframe, output: newOutput, value}
 							: keyframe,
 					);
 		const normalizedEasing =
@@ -1109,7 +1207,9 @@ const addKeyframe = ({
 	}
 
 	const staticValue = extractStaticValue(expression);
-	const keyframes: InterpolateKeyframe[] = [{frame, output: newOutput, value}];
+	const keyframes: InterpolateKeyframe[] = [
+		{frame, input: null, output: newOutput, value},
+	];
 
 	const callee = getInterpolationCalleeForValues({
 		schema,
@@ -1143,11 +1243,16 @@ const addKeyframe = ({
 const removeKeyframe = ({
 	expression,
 	frame,
+	runtimeIdentifierValues,
 }: {
 	expression: Expression;
 	frame: number;
+	runtimeIdentifierValues: RuntimeIdentifierValues;
 }): {expression: ExpressionKind; introduced: IntroducedKeyframeIdentifiers} => {
-	const existing = getInterpolationExpression(expression);
+	const existing = getInterpolationExpression(
+		expression,
+		runtimeIdentifierValues,
+	);
 	if (!existing) {
 		throw new Error('Cannot remove keyframe from non-interpolated expression');
 	}
@@ -1194,14 +1299,19 @@ const removeKeyframe = ({
 const moveKeyframes = ({
 	expression,
 	moves,
+	runtimeIdentifierValues,
 }: {
 	expression: Expression;
 	moves: {
 		fromFrame: number;
 		toFrame: number;
 	}[];
+	runtimeIdentifierValues: RuntimeIdentifierValues;
 }): ExpressionKind => {
-	const existing = getInterpolationExpression(expression);
+	const existing = getInterpolationExpression(
+		expression,
+		runtimeIdentifierValues,
+	);
 	if (!existing) {
 		throw new Error('Cannot move keyframe in non-interpolated expression');
 	}
@@ -1236,7 +1346,7 @@ const moveKeyframes = ({
 	const nextKeyframes = existing.keyframes.flatMap((keyframe, index) => {
 		const movedFrame = moveMap.get(keyframe.frame);
 		if (movedFrame !== undefined) {
-			return [{...keyframe, frame: movedFrame}];
+			return [{...keyframe, frame: movedFrame, input: null}];
 		}
 
 		if (
@@ -1281,11 +1391,13 @@ const applyKeyframeOperation = ({
 	key,
 	operation,
 	schema,
+	runtimeIdentifierValues,
 }: {
 	expression: Expression;
 	key: string;
 	operation: KeyframeOperation;
 	schema: InteractivitySchema | null;
+	runtimeIdentifierValues: RuntimeIdentifierValues;
 }): {expression: ExpressionKind; introduced: IntroducedKeyframeIdentifiers} => {
 	if (operation.type === 'add') {
 		return addKeyframe({
@@ -1294,6 +1406,7 @@ const applyKeyframeOperation = ({
 			frame: operation.frame,
 			value: operation.value,
 			schema,
+			runtimeIdentifierValues,
 		});
 	}
 
@@ -1303,6 +1416,7 @@ const applyKeyframeOperation = ({
 				expression,
 				clamping: operation.clamping,
 				posterize: operation.posterize,
+				runtimeIdentifierValues,
 			}),
 			introduced: noIntroducedIdentifiers,
 		};
@@ -1313,6 +1427,7 @@ const applyKeyframeOperation = ({
 			expression,
 			segmentIndex: operation.segmentIndex,
 			easing: operation.easing,
+			runtimeIdentifierValues,
 		});
 		return {
 			expression: updated.expression,
@@ -1325,12 +1440,20 @@ const applyKeyframeOperation = ({
 
 	if (operation.type === 'move') {
 		return {
-			expression: moveKeyframes({expression, moves: operation.moves}),
+			expression: moveKeyframes({
+				expression,
+				moves: operation.moves,
+				runtimeIdentifierValues,
+			}),
 			introduced: noIntroducedIdentifiers,
 		};
 	}
 
-	return removeKeyframe({expression, frame: operation.frame});
+	return removeKeyframe({
+		expression,
+		frame: operation.frame,
+		runtimeIdentifierValues,
+	});
 };
 
 const getExpressionFromJsxAttribute = (
@@ -1640,11 +1763,13 @@ export const updateSequenceKeyframesAst = ({
 	nodePath,
 	updates,
 	schema,
+	runtimeIdentifierValues = {},
 }: {
 	input: string;
 	nodePath: SequenceNodePath;
 	updates: SequenceKeyframeUpdate[];
 	schema?: InteractivitySchema;
+	runtimeIdentifierValues?: RuntimeIdentifierValues;
 }): {
 	serialized: string;
 	oldValueStrings: string[];
@@ -1653,6 +1778,10 @@ export const updateSequenceKeyframesAst = ({
 	updatedNodePath: SequenceNodePath;
 } => {
 	const ast = parseAst(input);
+	const resolvedRuntimeIdentifierValues = getRuntimeIdentifierValuesForAst({
+		ast,
+		runtimeIdentifierValues,
+	});
 	const jsxPath = getAstNodePath(ast, nodePath);
 	const node = findJsxElementAtNodePath(ast, nodePath);
 	if (!node || !jsxPath) {
@@ -1691,6 +1820,7 @@ export const updateSequenceKeyframesAst = ({
 			key: update.key,
 			operation: update.operation,
 			schema: schema ?? null,
+			runtimeIdentifierValues: resolvedRuntimeIdentifierValues,
 		});
 		newValueStrings.push(recast.print(nextExpression).code);
 		prop.setExpression(nextExpression);
@@ -1739,12 +1869,14 @@ export const updateSequenceKeyframes = async ({
 	nodePath,
 	updates,
 	schema,
+	runtimeIdentifierValues = {},
 	prettierConfigOverride,
 }: {
 	input: string;
 	nodePath: SequenceNodePath;
 	updates: SequenceKeyframeUpdate[];
 	schema?: InteractivitySchema;
+	runtimeIdentifierValues?: RuntimeIdentifierValues;
 	prettierConfigOverride?: Record<string, unknown> | null;
 }): Promise<{
 	output: string;
@@ -1765,6 +1897,7 @@ export const updateSequenceKeyframes = async ({
 		nodePath,
 		updates,
 		schema,
+		runtimeIdentifierValues,
 	});
 	const {output, formatted} = await formatFileContent({
 		input: serialized,
@@ -1794,12 +1927,14 @@ export const updateEffectKeyframesAst = ({
 	effectIndex,
 	updates,
 	schema,
+	runtimeIdentifierValues = {},
 }: {
 	input: string;
 	sequenceNodePath: SequenceNodePath;
 	effectIndex: number;
 	updates: EffectKeyframeUpdate[];
 	schema?: InteractivitySchema;
+	runtimeIdentifierValues?: RuntimeIdentifierValues;
 }): {
 	serialized: string;
 	oldValueStrings: string[];
@@ -1809,6 +1944,10 @@ export const updateEffectKeyframesAst = ({
 	updatedSequenceNodePath: SequenceNodePath;
 } => {
 	const ast = parseAst(input);
+	const resolvedRuntimeIdentifierValues = getRuntimeIdentifierValuesForAst({
+		ast,
+		runtimeIdentifierValues,
+	});
 	const jsxPath = getAstNodePath(ast, sequenceNodePath);
 	const jsx = findJsxElementAtNodePath(ast, sequenceNodePath);
 	if (!jsx || !jsxPath) {
@@ -1854,6 +1993,7 @@ export const updateEffectKeyframesAst = ({
 			key: update.key,
 			operation: update.operation,
 			schema: schema ?? null,
+			runtimeIdentifierValues: resolvedRuntimeIdentifierValues,
 		});
 		newValueStrings.push(recast.print(nextExpression).code);
 		prop.setExpression(nextExpression);
@@ -1904,6 +2044,7 @@ export const updateEffectKeyframes = async ({
 	effectIndex,
 	updates,
 	schema,
+	runtimeIdentifierValues = {},
 	prettierConfigOverride,
 }: {
 	input: string;
@@ -1911,6 +2052,7 @@ export const updateEffectKeyframes = async ({
 	effectIndex: number;
 	updates: EffectKeyframeUpdate[];
 	schema?: InteractivitySchema;
+	runtimeIdentifierValues?: RuntimeIdentifierValues;
 	prettierConfigOverride?: Record<string, unknown> | null;
 }): Promise<{
 	output: string;
@@ -1934,6 +2076,7 @@ export const updateEffectKeyframes = async ({
 		effectIndex,
 		updates,
 		schema,
+		runtimeIdentifierValues,
 	});
 	const {output, formatted} = await formatFileContent({
 		input: serialized,

@@ -39,6 +39,7 @@ import {
 	hasKeyframeAtSourceFrame,
 } from './get-keyframe-navigation';
 import {getTimelineKeyframes} from './get-timeline-keyframes';
+import {getRuntimeIdentifierValues} from './runtime-identifier-values';
 import {TimelineKeyframeDiamondIcon} from './TimelineKeyframeDiamondIcon';
 import {useTimelineKeyframeTracks} from './TimelineKeyframeTracksContext';
 import {
@@ -474,6 +475,10 @@ export const TimelineKeyframeControls: React.FC<{
 	mode = 'timeline',
 }) => {
 	const videoConfig = useVideoConfig();
+	const runtimeIdentifierValues = useMemo(
+		() => getRuntimeIdentifierValues(videoConfig),
+		[videoConfig],
+	);
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const setFrame = Internals.useTimelineSetFrame();
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
@@ -684,10 +689,12 @@ export const TimelineKeyframeControls: React.FC<{
 						: null;
 				const deleteChanges = deleteTargets.map(({change}) => change);
 				await callDeleteKeyframes({
-					sequenceKeyframes: deleteChanges.filter(
-						(change): change is DeleteSequenceKeyframeChange =>
-							!hasEffectIndex(change),
-					),
+					sequenceKeyframes: deleteChanges
+						.filter(
+							(change): change is DeleteSequenceKeyframeChange =>
+								!hasEffectIndex(change),
+						)
+						.map((change) => ({...change, runtimeIdentifierValues})),
 					effectKeyframes: deleteChanges.filter(
 						(change): change is DeleteEffectKeyframeChange =>
 							hasEffectIndex(change),
@@ -712,10 +719,12 @@ export const TimelineKeyframeControls: React.FC<{
 
 			const addChangeValues = addChanges.map(({change}) => change);
 			await callAddKeyframes({
-				sequenceKeyframes: addChangeValues.filter(
-					(change): change is AddSequenceKeyframeChange =>
-						!hasEffectIndex(change),
-				),
+				sequenceKeyframes: addChangeValues
+					.filter(
+						(change): change is AddSequenceKeyframeChange =>
+							!hasEffectIndex(change),
+					)
+					.map((change) => ({...change, runtimeIdentifierValues})),
 				effectKeyframes: addChangeValues.filter(
 					(change): change is AddEffectKeyframeChange => hasEffectIndex(change),
 				),
@@ -739,6 +748,7 @@ export const TimelineKeyframeControls: React.FC<{
 			hasKeyframeAtCurrentFrame,
 			keyframeToggleTargets,
 			mode,
+			runtimeIdentifierValues,
 			selectItems,
 			setPropStatuses,
 			timelinePosition,

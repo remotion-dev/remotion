@@ -1,6 +1,7 @@
 import {
 	getAllSchemaKeys,
 	stringifySequenceSubscriptionKey,
+	type RuntimeIdentifierValues,
 } from '@remotion/studio-shared';
 import {useContext, useEffect, useMemo, useRef} from 'react';
 import type {
@@ -20,12 +21,14 @@ export const useSequencePropsSubscription = ({
 	componentIdentity,
 	schema,
 	currentRuntimeValueDotNotation,
+	runtimeIdentifierValues,
 	effects,
 }: {
 	overrideId: string;
 	componentIdentity: JsxComponentIdentity | null;
 	schema: InteractivitySchema;
 	currentRuntimeValueDotNotation: Record<string, unknown>;
+	runtimeIdentifierValues: RuntimeIdentifierValues;
 	effects: InteractivitySchema[];
 	originalLocation: OriginalPosition | null;
 }) => {
@@ -94,6 +97,7 @@ export const useSequencePropsSubscription = ({
 			componentIdentity,
 			effects,
 			runtimeValues: currentRuntimeValueDotNotation,
+			runtimeIdentifierValues,
 			nodePath: nodePathAtResubscribe?.nodePath ?? null,
 			clientId,
 			applyOnce: (result) => {
@@ -146,6 +150,7 @@ export const useSequencePropsSubscription = ({
 		locationSource,
 		migrateExpandedTracksForSubscriptionKey,
 		overrideId,
+		runtimeIdentifierValues,
 		schema,
 		setPropStatuses,
 		setOverrideIdToNodePath,

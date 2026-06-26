@@ -198,6 +198,8 @@ export const moveKeyframes = async ({
 				input: output,
 				nodePath: firstSequenceKeyframe.nodePath.nodePath,
 				schema: firstSequenceKeyframe.schema,
+				runtimeIdentifierValues:
+					firstSequenceKeyframe.runtimeIdentifierValues ?? {},
 				updates,
 			});
 			output = result.output;

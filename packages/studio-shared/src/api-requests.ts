@@ -45,6 +45,8 @@ type KeyframeEasing = Extract<
 	{status: 'keyframed'}
 >['easing'][number];
 
+export type RuntimeIdentifierValues = Record<string, number>;
+
 export type OpenInFileExplorerRequest = {
 	directory: string;
 };
@@ -277,6 +279,7 @@ export type SubscribeToSequencePropsRequest = {
 	keys: string[];
 	effects: string[][];
 	runtimeValues?: Record<string, unknown>;
+	runtimeIdentifierValues?: RuntimeIdentifierValues;
 	clientId: string;
 };
 
@@ -436,6 +439,7 @@ export type DeleteSequenceKeyframe = {
 	key: string;
 	frame: number;
 	schema: InteractivitySchema;
+	runtimeIdentifierValues?: RuntimeIdentifierValues;
 };
 
 export type MoveSequenceKeyframe = {
@@ -445,6 +449,7 @@ export type MoveSequenceKeyframe = {
 	fromFrame: number;
 	toFrame: number;
 	schema: InteractivitySchema;
+	runtimeIdentifierValues?: RuntimeIdentifierValues;
 };
 
 export type AddSequenceKeyframeRequest = {
@@ -454,6 +459,7 @@ export type AddSequenceKeyframeRequest = {
 	frame: number;
 	value: string;
 	schema: InteractivitySchema;
+	runtimeIdentifierValues?: RuntimeIdentifierValues;
 	clientId: string;
 };
 
@@ -548,6 +554,7 @@ export type UpdateSequenceKeyframeSettingsRequest = {
 	key: string;
 	settings: KeyframeSettings;
 	schema: InteractivitySchema;
+	runtimeIdentifierValues?: RuntimeIdentifierValues;
 	clientId: string;
 };
 

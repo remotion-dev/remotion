@@ -1,6 +1,7 @@
 import {
 	optimisticAddEffectKeyframe,
 	optimisticAddSequenceKeyframe,
+	type RuntimeIdentifierValues,
 } from '@remotion/studio-shared';
 import type {SequencePropsSubscriptionKey, InteractivitySchema} from 'remotion';
 import {callApi} from '../call-api';
@@ -15,6 +16,7 @@ export type AddSequenceKeyframeChange = {
 	sourceFrame: number;
 	value: unknown;
 	schema: InteractivitySchema;
+	runtimeIdentifierValues?: RuntimeIdentifierValues;
 };
 
 export type AddEffectKeyframeChange = AddSequenceKeyframeChange & {
@@ -42,6 +44,7 @@ export const callAddSequenceKeyframe = ({
 	sourceFrame,
 	value,
 	schema,
+	runtimeIdentifierValues,
 	setPropStatuses,
 	clientId,
 }: {
@@ -51,6 +54,7 @@ export const callAddSequenceKeyframe = ({
 	sourceFrame: number;
 	value: unknown;
 	schema: InteractivitySchema;
+	runtimeIdentifierValues?: RuntimeIdentifierValues;
 	setPropStatuses: SetPropStatuses;
 	clientId: string;
 }): Promise<void> => {
@@ -73,6 +77,7 @@ export const callAddSequenceKeyframe = ({
 				frame: sourceFrame,
 				value: JSON.stringify(value),
 				schema,
+				runtimeIdentifierValues,
 				clientId,
 			}),
 		errorLabel: 'Could not add keyframe',
@@ -145,6 +150,7 @@ export const callAddKeyframes = ({
 			frame: keyframe.sourceFrame,
 			value: JSON.stringify(keyframe.value),
 			schema: keyframe.schema,
+			runtimeIdentifierValues: keyframe.runtimeIdentifierValues,
 		})),
 		effectKeyframes: effectKeyframes.map((keyframe) => ({
 			fileName: keyframe.fileName,
