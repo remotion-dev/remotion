@@ -1,6 +1,10 @@
 import type * as React from 'react';
-import type {ChangeEventHandler, KeyboardEventHandler} from 'react';
-import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import type {
+	ChangeEventHandler,
+	FocusEventHandler,
+	KeyboardEventHandler,
+} from 'react';
+import {useCallback, useMemo, useRef, useState} from 'react';
 import type {_InternalTypes} from 'remotion';
 import {CLEAR_HOVER, INPUT_BACKGROUND} from '../helpers/colors';
 import {resolvedStackToSymbolicated} from '../helpers/resolved-stack-to-symbolicated';
@@ -71,9 +75,6 @@ export const InlineCompositionName: React.FC<{
 	const canRename = !window.remotion_isReadOnlyStudio;
 	const [value, setValue] = useState(compositionId);
 	const inputRef = useRef<HTMLInputElement>(null);
-	const valueRef = useRef(value);
-	const isEditingRef = useRef(isEditing);
-	const isCommittingRef = useRef(false);
 	const cancelledRef = useRef(false);
 	const resolvedLocation = useResolvedStack(stack);
 	const symbolicatedStack = useMemo(
@@ -86,98 +87,74 @@ export const InlineCompositionName: React.FC<{
 		newId: value,
 	});
 
-	useEffect(() => {
-		valueRef.current = value;
-	}, [value]);
+	const focusInput = useCallback((input: HTMLInputElement | null) => {
+		inputRef.current = input;
 
-	useEffect(() => {
-		isEditingRef.current = isEditing;
-	}, [isEditing]);
-
-	useEffect(() => {
-		if (isEditing) {
-			return;
-		}
-
-		setValue(compositionId);
-	}, [compositionId, isEditing]);
-
-	useEffect(() => {
-		if (!isEditing) {
-			return;
-		}
-
-		const input = inputRef.current;
 		if (!input) {
 			return;
 		}
 
 		input.focus();
 		input.select();
-	}, [isEditing]);
+	}, []);
 
-	const commit = useCallback(() => {
-		if (
-			!isEditingRef.current ||
-			cancelledRef.current ||
-			isCommittingRef.current
-		) {
-			return;
-		}
+	const commit = useCallback(
+		(newId: string) => {
+			if (cancelledRef.current) {
+				return;
+			}
 
-		const newId = valueRef.current;
-		isEditingRef.current = false;
-		setIsEditing(false);
+			setIsEditing(false);
 
-		if (newId === compositionId) {
-			return;
-		}
+			if (newId === compositionId) {
+				return;
+			}
 
-		const compNameErrMessage = getValidationMessage(newId);
-		if (compNameErrMessage) {
-			showNotification(compNameErrMessage, 2000);
-			setValue(compositionId);
-
-			return;
-		}
-
-		if (!stack || !symbolicatedStack) {
-			showNotification(
-				'Could not determine where this composition is defined',
-				2000,
-			);
-			setValue(compositionId);
-
-			return;
-		}
-
-		isCommittingRef.current = true;
-		const notification = showNotification('Renaming...', null);
-
-		renameComposition({
-			newCompositionId: newId,
-			signal: new AbortController().signal,
-			symbolicatedStack,
-		})
-			.then(() => {
-				notification.replaceContent(`Renamed to ${newId}`, 2000);
-			})
-			.catch((err) => {
-				isCommittingRef.current = false;
+			const compNameErrMessage = getValidationMessage(newId);
+			if (compNameErrMessage) {
+				showNotification(compNameErrMessage, 2000);
 				setValue(compositionId);
 
-				notification.replaceContent(
-					`Could not rename composition: ${(err as Error).message}`,
+				return;
+			}
+
+			if (!stack || !symbolicatedStack) {
+				showNotification(
+					'Could not determine where this composition is defined',
 					2000,
 				);
-			});
-	}, [
-		compositionId,
-		getValidationMessage,
-		renameComposition,
-		stack,
-		symbolicatedStack,
-	]);
+				setValue(compositionId);
+
+				return;
+			}
+
+			const notification = showNotification('Renaming...', null);
+
+			renameComposition({
+				newCompositionId: newId,
+				signal: new AbortController().signal,
+				symbolicatedStack,
+			})
+				.then(() => {
+					notification.replaceContent(`Renamed to ${newId}`, 2000);
+				})
+				.catch((err) => {
+					setValue(compositionId);
+
+					notification.replaceContent(
+						`Could not rename composition: ${(err as Error).message}`,
+						2000,
+					);
+				});
+		},
+		[
+			compositionId,
+			getValidationMessage,
+			renameComposition,
+			stack,
+			symbolicatedStack,
+		],
+	);
 
 	const startEditing = useCallback(() => {
 		if (!canRename) {
@@ -185,15 +162,20 @@ export const InlineCompositionName: React.FC<{
 		}
 
 		cancelledRef.current = false;
-		isCommittingRef.current = false;
 		setValue(compositionId);
 		setIsEditing(true);
 	}, [canRename, compositionId]);
 
 	const onChange: ChangeEventHandler<HTMLInputElement> = useCallback((e) => {
-		valueRef.current = e.target.value;
 		setValue(e.target.value);
 	}, []);
+
+	const onBlur: FocusEventHandler<HTMLInputElement> = useCallback(
+		(e) => {
+			commit(e.currentTarget.value);
+		},
+		[commit],
+	);
 
 	const onKeyDown: KeyboardEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
@@ -205,7 +187,6 @@ export const InlineCompositionName: React.FC<{
 			if (e.key === 'Escape') {
 				e.preventDefault();
 				cancelledRef.current = true;
-				isEditingRef.current = false;
 				setValue(compositionId);
 				setIsEditing(false);
 			}
@@ -244,11 +225,11 @@ export const InlineCompositionName: React.FC<{
 				</span>
 				{isEditing ? (
 					<input
-						ref={inputRef}
+						ref={focusInput}
 						style={{...titleGridItem, ...titleInput}}
 						value={value}
 						onChange={onChange}
-						onBlur={commit}
+						onBlur={onBlur}
 						onKeyDown={onKeyDown}
 					/>
 				) : null}
