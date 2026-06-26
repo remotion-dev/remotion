@@ -1,8 +1,8 @@
-import fs, {cpSync, readdirSync} from 'node:fs';
-import path from 'node:path';
 import {BundlerInternals} from '@remotion/bundler';
 import {dir} from '@remotion/compositor-linux-arm64-gnu';
 import {$} from 'bun';
+import fs, {cpSync, readdirSync} from 'node:fs';
+import path from 'node:path';
 import {FUNCTION_ZIP_ARM64} from './src/shared/function-zip-path';
 
 const outdir = path.join(__dirname, `build-render`);
@@ -19,7 +19,7 @@ const template = require.resolve(
 
 await BundlerInternals.esbuild.build({
 	platform: 'node',
-	target: 'node16',
+	target: 'node24',
 	bundle: true,
 	outfile,
 	minify: true,
