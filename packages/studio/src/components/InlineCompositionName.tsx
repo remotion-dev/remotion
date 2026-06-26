@@ -135,7 +135,16 @@ export const InlineCompositionName: React.FC<{
 				signal: new AbortController().signal,
 				symbolicatedStack,
 			})
-				.then(() => {
+				.then((result) => {
+					if (!result.success) {
+						setValue(compositionId);
+						notification.replaceContent(
+							`Could not rename composition: ${result.reason}`,
+							2000,
+						);
+						return;
+					}
+
 					notification.replaceContent(`Renamed to ${newId}`, 2000);
 				})
 				.catch((err) => {
