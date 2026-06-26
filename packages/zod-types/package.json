@@ -24,7 +24,7 @@
 		"remotion": "workspace:*"
 	},
 	"peerDependencies": {
-		"zod": "catalog:"
+		"zod": ">=4.0.0 <5.0.0"
 	},
 	"devDependencies": {
 		"zod": "catalog:",

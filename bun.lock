@@ -2576,7 +2576,7 @@
         "zod": "catalog:",
       },
       "peerDependencies": {
-        "zod": "catalog:",
+        "zod": ">=4.0.0 <5.0.0",
       },
     },
     "packages/zod-types-v3": {
