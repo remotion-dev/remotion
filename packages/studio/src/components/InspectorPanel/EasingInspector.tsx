@@ -244,7 +244,7 @@ export const EasingInspector: React.FC<{
 					sourceFrame,
 					value,
 					schema: easingUpdate.schema,
-					runtimeIdentifierValues: null,
+					videoConfigValues: null,
 					setPropStatuses,
 					clientId: previewServerState.clientId,
 				}).catch(() => undefined);

@@ -397,7 +397,7 @@ export const KeyframeInspector: React.FC<{
 				fromFrame: details.sourceFrame,
 				toFrame,
 				schema: details.schema,
-				runtimeIdentifierValues: null,
+				videoConfigValues: null,
 			};
 
 			callMoveKeyframes({
@@ -474,7 +474,7 @@ export const KeyframeInspector: React.FC<{
 					fieldKey: details.field.key,
 					sourceFrame: details.sourceFrame,
 					schema: details.schema,
-					runtimeIdentifierValues: null,
+					videoConfigValues: null,
 					setPropStatuses,
 					clientId: previewServerState.clientId,
 				}).catch(() => undefined);

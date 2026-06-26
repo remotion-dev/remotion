@@ -1,5 +1,5 @@
 import {getAllSchemaKeys} from '@remotion/studio-shared';
-import type {RuntimeIdentifierValues} from '@remotion/studio-shared';
+import type {VideoConfigValues} from '@remotion/studio-shared';
 import type {
 	JsxComponentIdentity,
 	SequenceNodePath,
@@ -18,7 +18,7 @@ const makeKey = ({
 	sequenceKeys,
 	effectKeys,
 	runtimeValues,
-	runtimeIdentifierValues,
+	videoConfigValues,
 }: {
 	fileName: string;
 	line: number;
@@ -27,9 +27,9 @@ const makeKey = ({
 	sequenceKeys: string[];
 	effectKeys: string[][];
 	runtimeValues: Record<string, unknown>;
-	runtimeIdentifierValues: RuntimeIdentifierValues;
+	videoConfigValues: VideoConfigValues;
 }): Key =>
-	`${fileName}\0${line}\0${column}\0${componentIdentity ?? ''}\0${sequenceKeys.join('\0')}\0${effectKeys.map((keys) => keys.join('\0')).join('\0\0')}\0${JSON.stringify(sequenceKeys.map((key) => runtimeValues[key]))}\0${JSON.stringify(runtimeIdentifierValues)}`;
+	`${fileName}\0${line}\0${column}\0${componentIdentity ?? ''}\0${sequenceKeys.join('\0')}\0${effectKeys.map((keys) => keys.join('\0')).join('\0\0')}\0${JSON.stringify(sequenceKeys.map((key) => runtimeValues[key]))}\0${JSON.stringify(videoConfigValues)}`;
 
 type SubscribeResult = Awaited<
 	ReturnType<typeof callApi<'/api/subscribe-to-sequence-props'>>
@@ -55,7 +55,7 @@ export const acquireSequencePropsSubscription = ({
 	componentIdentity,
 	effects,
 	runtimeValues,
-	runtimeIdentifierValues,
+	videoConfigValues,
 	nodePath,
 	clientId,
 	applyOnce,
@@ -68,7 +68,7 @@ export const acquireSequencePropsSubscription = ({
 	componentIdentity: JsxComponentIdentity | null;
 	effects: InteractivitySchema[];
 	runtimeValues: Record<string, unknown>;
-	runtimeIdentifierValues: RuntimeIdentifierValues;
+	videoConfigValues: VideoConfigValues;
 	nodePath: SequenceNodePath | null;
 	clientId: string;
 	applyOnce: ApplyResult;
@@ -84,7 +84,7 @@ export const acquireSequencePropsSubscription = ({
 		sequenceKeys,
 		effectKeys,
 		runtimeValues,
-		runtimeIdentifierValues,
+		videoConfigValues,
 	});
 	let entry = entries.get(key);
 
@@ -98,7 +98,7 @@ export const acquireSequencePropsSubscription = ({
 			keys: getAllSchemaKeys(schema),
 			effects: effectKeys,
 			runtimeValues,
-			runtimeIdentifierValues,
+			videoConfigValues,
 			clientId,
 		});
 		const created: Entry = {

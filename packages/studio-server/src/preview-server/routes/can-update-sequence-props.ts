@@ -18,7 +18,7 @@ import {
 	isKeyframeInterpolationFunction,
 	LINEAR_KEYFRAME_EASING,
 	parseSpringEasingConfig,
-	type RuntimeIdentifierValues,
+	type VideoConfigValues,
 } from '@remotion/studio-shared';
 import * as recast from 'recast';
 import type {
@@ -34,7 +34,7 @@ import {parseAst} from '../../codemods/parse-ast';
 import {getAstNodePath} from '../../helpers/get-ast-node-path';
 import {toImportAgnosticNodePath} from '../../helpers/import-agnostic-node-path';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
-import {getRuntimeIdentifierValuesForAst} from '../../helpers/runtime-identifier-values';
+import {getVideoConfigValuesForAst} from '../../helpers/video-config-values';
 import {
 	getJsxComponentIdentity,
 	JsxElementIdentityMismatchError,
@@ -283,33 +283,33 @@ const getIdentifierName = (node: Expression): string | null => {
 	return null;
 };
 
-const getRuntimeIdentifierValue = (
+const getVideoConfigIdentifierValue = (
 	node: Expression,
-	runtimeIdentifierValues: RuntimeIdentifierValues,
+	videoConfigValues: VideoConfigValues,
 ): number | null => {
 	if (node.type === 'Identifier') {
-		const value = runtimeIdentifierValues[node.name];
+		const value = videoConfigValues[node.name];
 		return typeof value === 'number' && Number.isFinite(value) ? value : null;
 	}
 
 	if (node.type === 'TSAsExpression') {
-		return getRuntimeIdentifierValue(
+		return getVideoConfigIdentifierValue(
 			node.expression as Expression,
-			runtimeIdentifierValues,
+			videoConfigValues,
 		);
 	}
 
 	return null;
 };
 
-const getRuntimeMultiplicationValue = (
+const getVideoConfigMultiplicationValue = (
 	node: Expression,
-	runtimeIdentifierValues: RuntimeIdentifierValues,
+	videoConfigValues: VideoConfigValues,
 ): number | null => {
 	if (node.type === 'TSAsExpression') {
-		return getRuntimeMultiplicationValue(
+		return getVideoConfigMultiplicationValue(
 			node.expression as Expression,
-			runtimeIdentifierValues,
+			videoConfigValues,
 		);
 	}
 
@@ -321,13 +321,13 @@ const getRuntimeMultiplicationValue = (
 	const right = node.right as Expression;
 	const leftNumber = getNumericValue(left);
 	const rightNumber = getNumericValue(right);
-	const leftIdentifierValue = getRuntimeIdentifierValue(
+	const leftIdentifierValue = getVideoConfigIdentifierValue(
 		left,
-		runtimeIdentifierValues,
+		videoConfigValues,
 	);
-	const rightIdentifierValue = getRuntimeIdentifierValue(
+	const rightIdentifierValue = getVideoConfigIdentifierValue(
 		right,
-		runtimeIdentifierValues,
+		videoConfigValues,
 	);
 	const value =
 		leftNumber !== null && rightIdentifierValue !== null
@@ -339,14 +339,14 @@ const getRuntimeMultiplicationValue = (
 	return value !== null && Number.isFinite(value) ? value : null;
 };
 
-const getRuntimeNumericValue = (
+const getVideoConfigNumericValue = (
 	node: Expression,
-	runtimeIdentifierValues: RuntimeIdentifierValues,
+	videoConfigValues: VideoConfigValues,
 ): number | null => {
 	return (
 		getNumericValue(node) ??
-		getRuntimeIdentifierValue(node, runtimeIdentifierValues) ??
-		getRuntimeMultiplicationValue(node, runtimeIdentifierValues)
+		getVideoConfigIdentifierValue(node, videoConfigValues) ??
+		getVideoConfigMultiplicationValue(node, videoConfigValues)
 	);
 };
 
@@ -667,7 +667,7 @@ const getInterpolationMetadata = (
 const getInterpolationKeyframes = (
 	node: Expression,
 	ast: File,
-	runtimeIdentifierValues: RuntimeIdentifierValues,
+	videoConfigValues: VideoConfigValues,
 ):
 	| {
 			keyframes: PropKeyframes;
@@ -681,7 +681,7 @@ const getInterpolationKeyframes = (
 		return getInterpolationKeyframes(
 			node.expression as Expression,
 			ast,
-			runtimeIdentifierValues,
+			videoConfigValues,
 		);
 	}
 
@@ -697,7 +697,7 @@ const getInterpolationKeyframes = (
 		const interpolation = getInterpolationKeyframes(
 			node.arguments[0] as Expression,
 			ast,
-			runtimeIdentifierValues,
+			videoConfigValues,
 		);
 		if (!interpolation) {
 			return undefined;
@@ -758,9 +758,9 @@ const getInterpolationKeyframes = (
 			return undefined;
 		}
 
-		const frame = getRuntimeNumericValue(
+		const frame = getVideoConfigNumericValue(
 			inputElement as Expression,
-			runtimeIdentifierValues,
+			videoConfigValues,
 		);
 		if (frame === null || !isStaticValue(outputElement)) {
 			return undefined;
@@ -839,13 +839,9 @@ export const getComputedStatus = (
 	node: Expression,
 	ast: File,
 	runtimeValue: unknown,
-	runtimeIdentifierValues: RuntimeIdentifierValues = {},
+	videoConfigValues: VideoConfigValues = {},
 ): CanUpdatePropStatus => {
-	const interpolation = getInterpolationKeyframes(
-		node,
-		ast,
-		runtimeIdentifierValues,
-	);
+	const interpolation = getInterpolationKeyframes(node, ast, videoConfigValues);
 	if (!interpolation) {
 		return getMultiplicationStatus({node, runtimeValue}) ?? computedStatus();
 	}
@@ -864,7 +860,7 @@ const getPropsStatus = (
 	jsxElement: JSXOpeningElement,
 	ast: File,
 	runtimeValues: Record<string, unknown>,
-	runtimeIdentifierValues: RuntimeIdentifierValues,
+	videoConfigValues: VideoConfigValues,
 ): Record<string, CanUpdatePropStatus> => {
 	const props: Record<string, CanUpdatePropStatus> = {};
 
@@ -906,7 +902,7 @@ const getPropsStatus = (
 					expression,
 					ast,
 					runtimeValues[name],
-					runtimeIdentifierValues,
+					videoConfigValues,
 				);
 				continue;
 			}
@@ -1024,14 +1020,14 @@ const getNestedPropStatus = ({
 	parentKey,
 	childKey,
 	runtimeValue,
-	runtimeIdentifierValues,
+	videoConfigValues,
 }: {
 	jsxElement: JSXOpeningElement;
 	ast: File;
 	parentKey: string;
 	childKey: string;
 	runtimeValue: unknown;
-	runtimeIdentifierValues: RuntimeIdentifierValues;
+	videoConfigValues: VideoConfigValues;
 }): CanUpdatePropStatus => {
 	const attr = jsxElement.attributes.find(
 		(a) =>
@@ -1073,12 +1069,7 @@ const getNestedPropStatus = ({
 
 	const propValue = prop.value as Expression;
 	if (!isStaticValue(propValue)) {
-		return getComputedStatus(
-			propValue,
-			ast,
-			runtimeValue,
-			runtimeIdentifierValues,
-		);
+		return getComputedStatus(propValue, ast, runtimeValue, videoConfigValues);
 	}
 
 	const propStatus = extractStaticValue(propValue);
@@ -1113,19 +1104,19 @@ const computeSequenceOnlyPropsRecord = ({
 	ast,
 	keys,
 	runtimeValues,
-	runtimeIdentifierValues,
+	videoConfigValues,
 }: {
 	jsxElement: JSXOpeningElement;
 	ast: File;
 	keys: string[];
 	runtimeValues: Record<string, unknown>;
-	runtimeIdentifierValues: RuntimeIdentifierValues;
+	videoConfigValues: VideoConfigValues;
 }): Record<string, CanUpdatePropStatus> => {
 	const allProps = getPropsStatus(
 		jsxElement,
 		ast,
 		runtimeValues,
-		runtimeIdentifierValues,
+		videoConfigValues,
 	);
 	const filteredProps: Record<string, CanUpdatePropStatus> = {};
 	for (const key of keys) {
@@ -1137,7 +1128,7 @@ const computeSequenceOnlyPropsRecord = ({
 				parentKey: key.slice(0, dotIndex),
 				childKey: key.slice(dotIndex + 1),
 				runtimeValue: runtimeValues[key],
-				runtimeIdentifierValues,
+				videoConfigValues,
 			});
 		} else if (key in allProps) {
 			filteredProps[key] = allProps[key];
@@ -1156,7 +1147,7 @@ export const computeSequencePropsStatusFromContent = ({
 	keys,
 	effects,
 	runtimeValues,
-	runtimeIdentifierValues,
+	videoConfigValues,
 }: {
 	fileContents: string;
 	nodePath: SequenceNodePath;
@@ -1164,13 +1155,13 @@ export const computeSequencePropsStatusFromContent = ({
 	keys: string[];
 	effects: string[][];
 	runtimeValues: Record<string, unknown> | null;
-	runtimeIdentifierValues: RuntimeIdentifierValues | null;
+	videoConfigValues: VideoConfigValues | null;
 }): CanUpdateSequencePropsResponseTrue => {
 	const resolvedRuntimeValues = runtimeValues ?? {};
 	const ast = parseAst(fileContents);
-	const resolvedRuntimeIdentifierValues = getRuntimeIdentifierValuesForAst({
+	const resolvedVideoConfigValues = getVideoConfigValuesForAst({
 		ast,
-		runtimeIdentifierValues: runtimeIdentifierValues ?? {},
+		videoConfigValues: videoConfigValues ?? {},
 	});
 
 	const jsxElement = findJsxElementAtNodePath(ast, nodePath);
@@ -1193,7 +1184,7 @@ export const computeSequencePropsStatusFromContent = ({
 		ast,
 		keys,
 		runtimeValues: resolvedRuntimeValues,
-		runtimeIdentifierValues: resolvedRuntimeIdentifierValues,
+		videoConfigValues: resolvedVideoConfigValues,
 	});
 	const effectsStatuses = computeEffectsForJsx({ast, jsxElement, effects});
 
@@ -1211,7 +1202,7 @@ export const computeSequencePropsStatus = ({
 	keys,
 	effects,
 	runtimeValues,
-	runtimeIdentifierValues,
+	videoConfigValues,
 	remotionRoot,
 }: {
 	fileName: string;
@@ -1220,7 +1211,7 @@ export const computeSequencePropsStatus = ({
 	keys: string[];
 	effects: string[][];
 	runtimeValues: Record<string, unknown> | null;
-	runtimeIdentifierValues: RuntimeIdentifierValues | null;
+	videoConfigValues: VideoConfigValues | null;
 	remotionRoot: string;
 }): CanUpdateSequencePropsResponseTrue => {
 	const {absolutePath} = resolveFileInsideProject({
@@ -1237,7 +1228,7 @@ export const computeSequencePropsStatus = ({
 		keys,
 		effects,
 		runtimeValues,
-		runtimeIdentifierValues,
+		videoConfigValues,
 	});
 };
 
@@ -1248,7 +1239,7 @@ export const computeSequencePropsStatusFromFilenameByLine = ({
 	keys,
 	effects,
 	runtimeValues,
-	runtimeIdentifierValues,
+	videoConfigValues,
 	remotionRoot,
 	logLevel,
 }: {
@@ -1258,7 +1249,7 @@ export const computeSequencePropsStatusFromFilenameByLine = ({
 	keys: string[];
 	effects: string[][];
 	runtimeValues: Record<string, unknown>;
-	runtimeIdentifierValues: RuntimeIdentifierValues;
+	videoConfigValues: VideoConfigValues;
 	remotionRoot: string;
 	logLevel: LogLevel;
 }): SubscribeToSequencePropsResponse => {
@@ -1291,7 +1282,7 @@ export const computeSequencePropsStatusFromFilenameByLine = ({
 				keys,
 				effects,
 				runtimeValues,
-				runtimeIdentifierValues,
+				videoConfigValues,
 				remotionRoot,
 			}),
 			nodePath: {

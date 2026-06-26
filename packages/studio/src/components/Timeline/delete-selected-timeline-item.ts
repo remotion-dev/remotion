@@ -1,4 +1,4 @@
-import type {RuntimeIdentifierValues} from '@remotion/studio-shared';
+import type {VideoConfigValues} from '@remotion/studio-shared';
 import type {OverrideIdToNodePaths, PropStatuses, TSequence} from 'remotion';
 import {Internals} from 'remotion';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
@@ -152,7 +152,7 @@ export const deleteSelectedTimelineItem = ({
 	sequences,
 	overrideIdsToNodePaths,
 	setPropStatuses,
-	runtimeIdentifierValues,
+	videoConfigValues,
 	clientId,
 	confirm,
 }: {
@@ -160,7 +160,7 @@ export const deleteSelectedTimelineItem = ({
 	sequences: TSequence[];
 	overrideIdsToNodePaths: OverrideIdToNodePaths;
 	setPropStatuses: SetPropStatuses;
-	runtimeIdentifierValues: RuntimeIdentifierValues | null;
+	videoConfigValues: VideoConfigValues | null;
 	clientId: string;
 	confirm: ConfirmationDialogFunction;
 }): Promise<boolean> | null => {
@@ -171,7 +171,7 @@ export const deleteSelectedTimelineItem = ({
 			sequences,
 			overrideIdsToNodePaths,
 			setPropStatuses,
-			runtimeIdentifierValues,
+			videoConfigValues,
 			clientId,
 		});
 		return promise?.then(() => true) ?? null;
@@ -421,7 +421,7 @@ export const deleteSelectedTimelineItems = ({
 	sequences,
 	overrideIdsToNodePaths,
 	setPropStatuses,
-	runtimeIdentifierValues,
+	videoConfigValues,
 	clientId,
 	confirm,
 }: {
@@ -429,7 +429,7 @@ export const deleteSelectedTimelineItems = ({
 	sequences: TSequence[];
 	overrideIdsToNodePaths: OverrideIdToNodePaths;
 	setPropStatuses: SetPropStatuses;
-	runtimeIdentifierValues: RuntimeIdentifierValues | null;
+	videoConfigValues: VideoConfigValues | null;
 	clientId: string;
 	confirm: ConfirmationDialogFunction;
 }): Promise<boolean> | null => {
@@ -452,7 +452,7 @@ export const deleteSelectedTimelineItems = ({
 			sequences,
 			overrideIdsToNodePaths,
 			setPropStatuses,
-			runtimeIdentifierValues,
+			videoConfigValues,
 			clientId,
 		});
 		return promise?.then(() => true) ?? null;

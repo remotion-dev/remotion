@@ -1,7 +1,7 @@
 import {
 	getAllSchemaKeys,
 	stringifySequenceSubscriptionKey,
-	type RuntimeIdentifierValues,
+	type VideoConfigValues,
 } from '@remotion/studio-shared';
 import {useContext, useEffect, useMemo, useRef} from 'react';
 import type {
@@ -21,14 +21,14 @@ export const useSequencePropsSubscription = ({
 	componentIdentity,
 	schema,
 	currentRuntimeValueDotNotation,
-	runtimeIdentifierValues,
+	videoConfigValues,
 	effects,
 }: {
 	overrideId: string;
 	componentIdentity: JsxComponentIdentity | null;
 	schema: InteractivitySchema;
 	currentRuntimeValueDotNotation: Record<string, unknown>;
-	runtimeIdentifierValues: RuntimeIdentifierValues;
+	videoConfigValues: VideoConfigValues;
 	effects: InteractivitySchema[];
 	originalLocation: OriginalPosition | null;
 }) => {
@@ -97,7 +97,7 @@ export const useSequencePropsSubscription = ({
 			componentIdentity,
 			effects,
 			runtimeValues: currentRuntimeValueDotNotation,
-			runtimeIdentifierValues,
+			videoConfigValues,
 			nodePath: nodePathAtResubscribe?.nodePath ?? null,
 			clientId,
 			applyOnce: (result) => {
@@ -150,7 +150,7 @@ export const useSequencePropsSubscription = ({
 		locationSource,
 		migrateExpandedTracksForSubscriptionKey,
 		overrideId,
-		runtimeIdentifierValues,
+		videoConfigValues,
 		schema,
 		setPropStatuses,
 		setOverrideIdToNodePath,

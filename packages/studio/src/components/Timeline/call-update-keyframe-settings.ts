@@ -2,7 +2,7 @@ import {
 	optimisticUpdateEffectKeyframeSettings,
 	optimisticUpdateSequenceKeyframeSettings,
 	type KeyframeSettings,
-	type RuntimeIdentifierValues,
+	type VideoConfigValues,
 } from '@remotion/studio-shared';
 import type {SequencePropsSubscriptionKey, InteractivitySchema} from 'remotion';
 import {callApi} from '../call-api';
@@ -16,7 +16,7 @@ export const callUpdateSequenceKeyframeSettings = ({
 	fieldKey,
 	settings,
 	schema,
-	runtimeIdentifierValues,
+	videoConfigValues,
 	setPropStatuses,
 	clientId,
 }: {
@@ -25,7 +25,7 @@ export const callUpdateSequenceKeyframeSettings = ({
 	fieldKey: string;
 	settings: KeyframeSettings;
 	schema: InteractivitySchema;
-	runtimeIdentifierValues: RuntimeIdentifierValues | null;
+	videoConfigValues: VideoConfigValues | null;
 	setPropStatuses: SetPropStatuses;
 	clientId: string;
 }): Promise<void> => {
@@ -45,7 +45,7 @@ export const callUpdateSequenceKeyframeSettings = ({
 				key: fieldKey,
 				settings,
 				schema,
-				runtimeIdentifierValues,
+				videoConfigValues,
 				clientId,
 			}),
 		errorLabel: 'Could not update keyframe settings',

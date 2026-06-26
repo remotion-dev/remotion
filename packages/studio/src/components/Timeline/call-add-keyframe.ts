@@ -1,7 +1,7 @@
 import {
 	optimisticAddEffectKeyframe,
 	optimisticAddSequenceKeyframe,
-	type RuntimeIdentifierValues,
+	type VideoConfigValues,
 } from '@remotion/studio-shared';
 import type {SequencePropsSubscriptionKey, InteractivitySchema} from 'remotion';
 import {callApi} from '../call-api';
@@ -19,7 +19,7 @@ type AddKeyframeChange = {
 };
 
 export type AddSequenceKeyframeChange = AddKeyframeChange & {
-	runtimeIdentifierValues: RuntimeIdentifierValues | null;
+	videoConfigValues: VideoConfigValues | null;
 };
 
 export type AddEffectKeyframeChange = AddKeyframeChange & {
@@ -47,7 +47,7 @@ export const callAddSequenceKeyframe = ({
 	sourceFrame,
 	value,
 	schema,
-	runtimeIdentifierValues,
+	videoConfigValues,
 	setPropStatuses,
 	clientId,
 }: {
@@ -57,7 +57,7 @@ export const callAddSequenceKeyframe = ({
 	sourceFrame: number;
 	value: unknown;
 	schema: InteractivitySchema;
-	runtimeIdentifierValues: RuntimeIdentifierValues | null;
+	videoConfigValues: VideoConfigValues | null;
 	setPropStatuses: SetPropStatuses;
 	clientId: string;
 }): Promise<void> => {
@@ -80,7 +80,7 @@ export const callAddSequenceKeyframe = ({
 				frame: sourceFrame,
 				value: JSON.stringify(value),
 				schema,
-				runtimeIdentifierValues,
+				videoConfigValues,
 				clientId,
 			}),
 		errorLabel: 'Could not add keyframe',
@@ -153,7 +153,7 @@ export const callAddKeyframes = ({
 			frame: keyframe.sourceFrame,
 			value: JSON.stringify(keyframe.value),
 			schema: keyframe.schema,
-			runtimeIdentifierValues: keyframe.runtimeIdentifierValues,
+			videoConfigValues: keyframe.videoConfigValues,
 		})),
 		effectKeyframes: effectKeyframes.map((keyframe) => ({
 			fileName: keyframe.fileName,

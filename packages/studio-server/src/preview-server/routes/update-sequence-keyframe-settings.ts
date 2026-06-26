@@ -29,7 +29,7 @@ export const updateSequenceKeyframeSettingsHandler: ApiHandler<
 		key,
 		settings,
 		schema,
-		runtimeIdentifierValues,
+		videoConfigValues,
 		clientId,
 	},
 	remotionRoot,
@@ -58,7 +58,7 @@ export const updateSequenceKeyframeSettingsHandler: ApiHandler<
 			input: fileContents,
 			nodePath: nodePath.nodePath,
 			schema,
-			runtimeIdentifierValues: runtimeIdentifierValues ?? {},
+			videoConfigValues: videoConfigValues ?? {},
 			updates: [
 				{
 					key,
@@ -121,7 +121,7 @@ export const updateSequenceKeyframeSettingsHandler: ApiHandler<
 			componentIdentity: null,
 			effects: [],
 			runtimeValues: null,
-			runtimeIdentifierValues: runtimeIdentifierValues ?? {},
+			videoConfigValues: videoConfigValues ?? {},
 		});
 		const updatedSubscriptionKey = {...nodePath, nodePath: updatedNodePath};
 

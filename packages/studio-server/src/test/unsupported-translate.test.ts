@@ -32,7 +32,7 @@ const getTranslateStatus = (translateValue: string) => {
 		componentIdentity: null,
 		keys: ['style.translate'],
 		effects: [],
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 		runtimeValues: null,
 	});
 

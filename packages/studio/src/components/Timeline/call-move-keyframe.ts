@@ -1,7 +1,7 @@
 import {
 	optimisticMoveEffectKeyframes,
 	optimisticMoveSequenceKeyframes,
-	type RuntimeIdentifierValues,
+	type VideoConfigValues,
 } from '@remotion/studio-shared';
 import type {SequencePropsSubscriptionKey, InteractivitySchema} from 'remotion';
 import {callApi} from '../call-api';
@@ -17,7 +17,7 @@ type MoveKeyframeChange = {
 };
 
 export type MoveSequenceKeyframeChange = MoveKeyframeChange & {
-	runtimeIdentifierValues: RuntimeIdentifierValues | null;
+	videoConfigValues: VideoConfigValues | null;
 };
 
 export type MoveEffectKeyframeChange = MoveKeyframeChange & {
@@ -98,7 +98,7 @@ export const callMoveKeyframes = ({
 			fromFrame: keyframe.fromFrame,
 			toFrame: keyframe.toFrame,
 			schema: keyframe.schema,
-			runtimeIdentifierValues: keyframe.runtimeIdentifierValues,
+			videoConfigValues: keyframe.videoConfigValues,
 		})),
 		effectKeyframes: effectKeyframes.map((keyframe) => ({
 			fileName: keyframe.fileName,

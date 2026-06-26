@@ -33,7 +33,7 @@ const getSequencePropsStatus = ({
 	keys,
 	effects,
 	runtimeValues,
-	runtimeIdentifierValues,
+	videoConfigValues,
 	remotionRoot,
 	logLevel,
 }: {
@@ -45,7 +45,7 @@ const getSequencePropsStatus = ({
 	keys: string[];
 	effects: string[][];
 	runtimeValues: Record<string, unknown>;
-	runtimeIdentifierValues: Record<string, number>;
+	videoConfigValues: Record<string, number>;
 	remotionRoot: string;
 	logLevel: LogLevel;
 }): SubscribeToSequencePropsResponse => {
@@ -58,7 +58,7 @@ const getSequencePropsStatus = ({
 				keys,
 				effects,
 				runtimeValues,
-				runtimeIdentifierValues,
+				videoConfigValues,
 				remotionRoot,
 			});
 			return {
@@ -96,7 +96,7 @@ const getSequencePropsStatus = ({
 					keys,
 					effects,
 					runtimeValues,
-					runtimeIdentifierValues,
+					videoConfigValues,
 					remotionRoot,
 				});
 			} catch (error) {
@@ -132,7 +132,7 @@ const getSequencePropsStatus = ({
 		keys,
 		effects,
 		runtimeValues,
-		runtimeIdentifierValues,
+		videoConfigValues,
 		remotionRoot,
 		logLevel,
 	});
@@ -149,7 +149,7 @@ export const subscribeToSequencePropsWatchers = ({
 	keys,
 	effects,
 	runtimeValues,
-	runtimeIdentifierValues,
+	videoConfigValues,
 	remotionRoot,
 	clientId,
 	logLevel,
@@ -162,7 +162,7 @@ export const subscribeToSequencePropsWatchers = ({
 	keys: string[];
 	effects: string[][];
 	runtimeValues: Record<string, unknown>;
-	runtimeIdentifierValues: Record<string, number>;
+	videoConfigValues: Record<string, number>;
 	remotionRoot: string;
 	clientId: string;
 	logLevel: LogLevel;
@@ -176,7 +176,7 @@ export const subscribeToSequencePropsWatchers = ({
 		keys,
 		effects,
 		runtimeValues,
-		runtimeIdentifierValues,
+		videoConfigValues,
 		remotionRoot,
 		logLevel,
 	});
@@ -219,7 +219,7 @@ export const subscribeToSequencePropsWatchers = ({
 					keys,
 					effects,
 					runtimeValues,
-					runtimeIdentifierValues,
+					videoConfigValues,
 				});
 				const previousEffectChain = result.effects.map(
 					(effect) => effect.canUpdate && effect.callee,

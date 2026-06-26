@@ -842,7 +842,7 @@ export const EasingEditor: React.FC<{
 				overrideIdsToNodePaths: overrideIdToNodePathMappings,
 				propStatuses: propStatusesRef.current,
 				setPropStatuses,
-				runtimeIdentifierValues: null,
+				videoConfigValues: null,
 				clientId: previewServerState.clientId,
 				easing,
 			});

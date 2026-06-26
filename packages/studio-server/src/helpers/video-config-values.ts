@@ -1,5 +1,5 @@
 import type {Expression, File} from '@babel/types';
-import type {RuntimeIdentifierValues} from '@remotion/studio-shared';
+import type {VideoConfigValues} from '@remotion/studio-shared';
 import * as recast from 'recast';
 
 type NodeLike = {
@@ -111,14 +111,14 @@ const collectDeclaredIdentifiers = (
 	}
 };
 
-export const getRuntimeIdentifierValuesForAst = ({
+export const getVideoConfigValuesForAst = ({
 	ast,
-	runtimeIdentifierValues,
+	videoConfigValues,
 }: {
 	ast: File;
-	runtimeIdentifierValues: RuntimeIdentifierValues;
-}): RuntimeIdentifierValues => {
-	const values: RuntimeIdentifierValues = {};
+	videoConfigValues: VideoConfigValues;
+}): VideoConfigValues => {
+	const values: VideoConfigValues = {};
 	const conflictingDeclarations = new Set<string>();
 
 	recast.types.visit(ast, {
@@ -145,12 +145,12 @@ export const getRuntimeIdentifierValuesForAst = ({
 						continue;
 					}
 
-					const runtimeValue = runtimeIdentifierValues[sourceName];
+					const videoConfigValue = videoConfigValues[sourceName];
 					if (
-						typeof runtimeValue === 'number' &&
-						Number.isFinite(runtimeValue)
+						typeof videoConfigValue === 'number' &&
+						Number.isFinite(videoConfigValue)
 					) {
-						values[targetName] = runtimeValue;
+						values[targetName] = videoConfigValue;
 					}
 				}
 

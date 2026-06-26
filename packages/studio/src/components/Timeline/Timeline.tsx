@@ -16,7 +16,6 @@ import {SplitterContainer} from '../Splitter/SplitterContainer';
 import {SplitterElement} from '../Splitter/SplitterElement';
 import {SplitterHandle} from '../Splitter/SplitterHandle';
 import {MAX_TIMELINE_TRACKS} from './MaxTimelineTracks';
-import {getRuntimeIdentifierValues} from './runtime-identifier-values';
 import {SequencePropsObserver} from './SequencePropsObserver';
 import {shouldShowTrackInTimeline} from './should-show-track-in-timeline';
 import {shouldSubscribeToSequenceProps} from './should-subscribe-to-sequence-props';
@@ -43,6 +42,7 @@ import {
 import {TimelineTracks} from './TimelineTracks';
 import {TimelineWidthProvider} from './TimelineWidthProvider';
 import {useResolvedStack} from './use-resolved-stack';
+import {getVideoConfigValues} from './video-config-values';
 
 const container: React.CSSProperties = {
 	minHeight: '100%',
@@ -236,8 +236,8 @@ const TimelineInner: React.FC = () => {
 	}, [sequences, videoConfigIsNull, overrideIdToNodePathMappings]);
 
 	const durationInFrames = videoConfig?.durationInFrames ?? 0;
-	const runtimeIdentifierValues = useMemo(
-		() => (videoConfig === null ? {} : getRuntimeIdentifierValues(videoConfig)),
+	const videoConfigValues = useMemo(
+		() => (videoConfig === null ? {} : getVideoConfigValues(videoConfig)),
 		[videoConfig],
 	);
 
@@ -271,7 +271,7 @@ const TimelineInner: React.FC = () => {
 						currentRuntimeValueDotNotation={
 							sequence.controls.currentRuntimeValueDotNotation
 						}
-						runtimeIdentifierValues={runtimeIdentifierValues}
+						videoConfigValues={videoConfigValues}
 						getStack={sequence.getStack}
 						effects={sequence.effects}
 					/>

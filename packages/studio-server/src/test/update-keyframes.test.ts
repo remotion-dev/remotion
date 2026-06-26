@@ -134,7 +134,7 @@ test('updateSequenceKeyframes adds a keyframe to an existing interpolation', asy
 				operation: {type: 'add', frame: 50, value: 3},
 			},
 		],
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 	});
 
 	expect(oldValueStrings).toEqual(['interpolate(frame, [0, 100], [2, 4])']);
@@ -143,7 +143,7 @@ test('updateSequenceKeyframes adds a keyframe to an existing interpolation', asy
 	);
 });
 
-test('updateSequenceKeyframes preserves runtime multiplication input ranges when adding keyframes', async () => {
+test('updateSequenceKeyframes preserves video config multiplication input ranges when adding keyframes', async () => {
 	const input = `import React from 'react';
 import {AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
 
@@ -161,7 +161,7 @@ export const Example: React.FC = () => {
 	const {output, oldValueStrings} = await updateSequenceKeyframes({
 		input,
 		nodePath: lineColumnToNodePath(input, getLine(input, 'scale')),
-		runtimeIdentifierValues: {
+		videoConfigValues: {
 			fps: 30,
 		},
 		updates: [
@@ -178,7 +178,7 @@ export const Example: React.FC = () => {
 	);
 });
 
-test('updateSequenceKeyframes moves runtime multiplication input range keyframes', async () => {
+test('updateSequenceKeyframes moves video config multiplication input range keyframes', async () => {
 	const input = `import React from 'react';
 import {AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
 
@@ -196,7 +196,7 @@ export const Example: React.FC = () => {
 	const {output, oldValueStrings} = await updateSequenceKeyframes({
 		input,
 		nodePath: lineColumnToNodePath(input, getLine(input, 'scale')),
-		runtimeIdentifierValues: {
+		videoConfigValues: {
 			fps: 30,
 		},
 		updates: [
@@ -236,7 +236,7 @@ export const Example: React.FC = () => {
 				operation: {type: 'add', frame: 134, value: 700},
 			},
 		],
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 	});
 
 	expect(output).toContain('interpolate(frame, [91, 126, 134]');
@@ -266,7 +266,7 @@ export const Example: React.FC = () => {
 				operation: {type: 'add', frame: 38, value: 1.5},
 			},
 		],
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 	});
 
 	expect(output).toContain('interpolate(frame, [0, 31, 38, 60]');
@@ -288,7 +288,7 @@ test('updateSequenceKeyframes updates a keyframe at the same frame', async () =>
 					operation: {type: 'add', frame: 100, value: 5},
 				},
 			],
-			runtimeIdentifierValues: null,
+			videoConfigValues: null,
 		});
 
 	expect(oldValueStrings).toEqual(['interpolate(frame, [0, 100], [2, 4])']);
@@ -322,7 +322,7 @@ export const Example: React.FC = () => {
 				},
 			},
 		],
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 	});
 
 	expect(output).toContain('easing: Easing.linear');
@@ -357,7 +357,7 @@ export const Example: React.FC = () => {
 				},
 			},
 		],
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 	});
 
 	expect(output).toContain('Easing');
@@ -400,7 +400,7 @@ export const Example: React.FC = () => {
 				},
 			},
 		],
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 	});
 
 	expect(output).toContain('Easing');
@@ -440,7 +440,7 @@ export const Example: React.FC = () => {
 				},
 			},
 		],
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 	});
 
 	expect(output).toContain('Easing as RemotionEasing');
@@ -474,7 +474,7 @@ export const Example: React.FC = () => {
 				},
 			},
 		],
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 	});
 
 	expect(output).toContain('easing: [');
@@ -508,7 +508,7 @@ export const Example: React.FC = () => {
 				},
 			},
 		],
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 	});
 
 	expect(output).not.toContain('easing:');
@@ -529,7 +529,7 @@ test('updateSequenceKeyframes sets easing for color keyframes', async () => {
 				},
 			},
 		],
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 	});
 
 	expect(output).toContain('Easing');
@@ -553,7 +553,7 @@ test('updateSequenceKeyframes only updates posterize for color keyframes', async
 				},
 			},
 		],
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 	});
 
 	expect(output).toContain(
@@ -577,7 +577,7 @@ test('updateSequenceKeyframes converts a static value to an interpolation', asyn
 				operation: {type: 'add', frame: 25, value: 0.75},
 			},
 		],
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 	});
 
 	expect(oldValueStrings).toEqual(['0.5']);
@@ -634,7 +634,7 @@ export const Example: React.FC = () => {
 				operation: {type: 'add', frame: 14, value: 1},
 			},
 		],
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 	});
 
 	const styleStart = output.indexOf('style={{');
@@ -672,7 +672,7 @@ test('updateSequenceKeyframes rejects non-keyframable fields', async () => {
 					operation: {type: 'add', frame: 25, value: 0.75},
 				},
 			],
-			runtimeIdentifierValues: null,
+			videoConfigValues: null,
 		}),
 	).rejects.toThrow(/not keyframable/);
 });
@@ -692,7 +692,7 @@ test('updateSequenceKeyframes rejects enum fields', async () => {
 					operation: {type: 'add', frame: 25, value: 'none'},
 				},
 			],
-			runtimeIdentifierValues: null,
+			videoConfigValues: null,
 		}),
 	).rejects.toThrow(/not keyframable/);
 });
@@ -710,7 +710,7 @@ test('updateSequenceKeyframes converts a static value to a single-keyframe inter
 				operation: {type: 'add', frame: 0, value: 0.75},
 			},
 		],
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 	});
 
 	expect(oldValueStrings).toEqual(['0.5']);
@@ -741,7 +741,7 @@ export const Example: React.FC = () => {
 				operation: {type: 'add', frame: 30, value: 2},
 			},
 		],
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 	});
 
 	expect(oldValueStrings).toEqual(['1']);
@@ -761,7 +761,7 @@ test('updateSequenceKeyframes adds a keyframe to an existing color interpolation
 				operation: {type: 'add', frame: 50, value: '#00ff00'},
 			},
 		],
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 	});
 
 	expect(oldValueStrings).toEqual([
@@ -786,7 +786,7 @@ test('updateSequenceKeyframes converts a static string value to a color interpol
 				operation: {type: 'add', frame: 50, value: 'blue'},
 			},
 		],
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 	});
 
 	expect(oldValueStrings).toEqual(["'red'"]);
@@ -807,7 +807,7 @@ test('updateSequenceKeyframes converts static translate to interpolate', async (
 				operation: {type: 'add', frame: 44, value: '0px 59px'},
 			},
 		],
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 	});
 
 	expect(oldValueStrings).toEqual(["'0px 59px'"]);
@@ -842,7 +842,7 @@ export const Example: React.FC = () => {
 					operation: {type: 'add', frame: 44, value: '100px 20px'},
 				},
 			],
-			runtimeIdentifierValues: null,
+			videoConfigValues: null,
 		});
 
 	expect(oldValueStrings).toEqual(['"0px 0px"']);
@@ -859,7 +859,7 @@ export const Example: React.FC = () => {
 		componentIdentity: null,
 		keys: ['style.translate'],
 		effects: [],
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 		runtimeValues: null,
 	});
 	expect(status.props['style.translate']).toEqual({
@@ -893,7 +893,7 @@ test('updateSequenceKeyframes migrates translate away from interpolateColors', a
 				operation: {type: 'add', frame: 88, value: '100px 20px'},
 			},
 		],
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 	});
 
 	expect(oldValueStrings).toEqual([
@@ -915,7 +915,7 @@ test('updateSequenceKeyframes converts static rotate to interpolate', async () =
 				operation: {type: 'add', frame: 55, value: '19deg'},
 			},
 		],
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 	});
 
 	expect(oldValueStrings).toEqual(["'19deg'"]);
@@ -946,7 +946,7 @@ test('updateSequenceKeyframes migrates rotate away from interpolateColors', asyn
 				operation: {type: 'add', frame: 68, value: '23deg'},
 			},
 		],
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 	});
 
 	expect(oldValueStrings).toEqual([
@@ -996,7 +996,7 @@ export default CenteredSolid;
 				operation: {type: 'add', frame: 11, value: 240},
 			},
 		],
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 	});
 
 	expect(updatedNodePath).toEqual(nodePath);
@@ -1009,7 +1009,7 @@ export default CenteredSolid;
 		componentIdentity: null,
 		keys: ['width'],
 		effects: [],
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 		runtimeValues: null,
 	});
 	expect(status.props.width).toEqual({
@@ -1035,7 +1035,7 @@ test('updateSequenceKeyframes keeps an interpolation when one keyframe remains',
 				operation: {type: 'remove', frame: 0},
 			},
 		],
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 	});
 
 	expect(oldValueStrings).toEqual(['interpolate(frame, [0, 100], [2, 4])']);
@@ -1064,7 +1064,7 @@ export const Example: React.FC = () => {
 				operation: {type: 'remove', frame: 91},
 			},
 		],
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 	});
 
 	expect(output).toContain('interpolate(frame, [126, 134]');
@@ -1093,7 +1093,7 @@ export const Example: React.FC = () => {
 				operation: {type: 'remove', frame: 38},
 			},
 		],
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 	});
 
 	expect(output).toContain('interpolate(frame, [0, 31, 60]');
@@ -1123,7 +1123,7 @@ test('updateSequenceKeyframes moves overlapping selected keyframes together', as
 					},
 				},
 			],
-			runtimeIdentifierValues: null,
+			videoConfigValues: null,
 		});
 
 	expect(oldValueStrings).toEqual([
@@ -1155,7 +1155,7 @@ test('updateSequenceKeyframes resorts keyframes when moving past an adjacent key
 					},
 				},
 			],
-			runtimeIdentifierValues: null,
+			videoConfigValues: null,
 		});
 
 	expect(oldValueStrings).toEqual([
@@ -1192,7 +1192,7 @@ test('updateSequenceKeyframes replaces an existing keyframe when moving onto it'
 					},
 				},
 			],
-			runtimeIdentifierValues: null,
+			videoConfigValues: null,
 		});
 
 	expect(oldValueStrings).toEqual([
@@ -1224,7 +1224,7 @@ test('updateSequenceKeyframes allows moving keyframes outside the sequence range
 				},
 			},
 		],
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 	});
 
 	expect(newValueStrings).toEqual([
@@ -1250,7 +1250,7 @@ test('updateSequenceKeyframes converts the last keyframe to a static value', asy
 					operation: {type: 'remove', frame: 12},
 				},
 			],
-			runtimeIdentifierValues: null,
+			videoConfigValues: null,
 		});
 
 	expect(oldValueStrings).toEqual(['interpolate(frame, [12], [320])']);
@@ -1262,7 +1262,7 @@ test('updateSequenceKeyframes converts the last keyframe to a static value', asy
 		componentIdentity: null,
 		keys: ['style.scale'],
 		effects: [],
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 		runtimeValues: null,
 	});
 	expect(status.props['style.scale']).toEqual({
@@ -1281,7 +1281,7 @@ test('updateSequenceKeyframes keeps a color interpolation when one keyframe rema
 				operation: {type: 'remove', frame: 0},
 			},
 		],
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 	});
 
 	expect(oldValueStrings).toEqual([
@@ -1308,7 +1308,7 @@ test('updateEffectKeyframes converts a static value to a clamped interpolation',
 				operation: {type: 'add', frame: 40, value: 0.6},
 			},
 		],
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 	});
 
 	expect(oldValueStrings).toEqual(['0.2']);
@@ -1332,7 +1332,7 @@ test('updateEffectKeyframes adds a missing prop before keyframing it', () => {
 				operation: {type: 'add', frame: 30, value: 90},
 			},
 		],
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 	});
 
 	expect(oldValueStrings).toEqual(['0']);
@@ -1356,7 +1356,7 @@ test('updateEffectKeyframes adds props to a zero-argument effect', () => {
 				operation: {type: 'add', frame: 15, value: 45},
 			},
 		],
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 	});
 
 	expect(oldValueStrings).toEqual(['0']);
@@ -1382,7 +1382,7 @@ test('updateEffectKeyframes sets one easing segment and fills linear segments', 
 				},
 			},
 		],
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 	});
 
 	expect(serialized).toContain('Easing');
@@ -1406,7 +1406,7 @@ test('updateSequenceKeyframes converts the last color keyframe to a static value
 					operation: {type: 'remove', frame: 15},
 				},
 			],
-			runtimeIdentifierValues: null,
+			videoConfigValues: null,
 		});
 
 	expect(oldValueStrings).toEqual(["interpolateColors(frame, [15], ['blue'])"]);
@@ -1418,7 +1418,7 @@ test('updateSequenceKeyframes converts the last color keyframe to a static value
 		componentIdentity: null,
 		keys: ['color'],
 		effects: [],
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 		runtimeValues: null,
 	});
 	expect(status.props.color).toEqual({
@@ -1441,7 +1441,7 @@ test('updateEffectKeyframes removes a keyframe from an effect prop interpolation
 				operation: {type: 'remove', frame: 50},
 			},
 		],
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 	});
 
 	expect(effectCallee).toBe('tint');
@@ -1473,7 +1473,7 @@ test('updateEffectKeyframes allows moving keyframes outside the sequence range',
 				},
 			},
 		],
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 	});
 
 	expect(newValueStrings).toEqual([
@@ -1501,7 +1501,7 @@ test('updateEffectKeyframes replaces an existing keyframe when moving onto it', 
 				},
 			},
 		],
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 	});
 
 	expect(newValueStrings).toEqual([
@@ -1530,7 +1530,7 @@ test('updateEffectKeyframes keeps an effect prop interpolation with one keyframe
 				operation: {type: 'remove', frame: 100},
 			},
 		],
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 	});
 
 	expect(serialized).toContain('amount: interpolate(frame, [0], [0.2])');
@@ -1555,7 +1555,7 @@ test('updateEffectKeyframes converts the last effect keyframe to a static value'
 					operation: {type: 'remove', frame: 40},
 				},
 			],
-			runtimeIdentifierValues: null,
+			videoConfigValues: null,
 		});
 
 	expect(effectCallee).toBe('tint');

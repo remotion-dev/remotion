@@ -697,7 +697,7 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 								overrideIdsToNodePaths: overrideIdToNodePathMappings,
 								propStatuses,
 								setPropStatuses,
-								runtimeIdentifierValues: null,
+								videoConfigValues: null,
 								clientId,
 								easing: easingResult.data.easing,
 							});

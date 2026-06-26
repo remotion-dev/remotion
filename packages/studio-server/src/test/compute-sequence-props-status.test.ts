@@ -39,7 +39,7 @@ test('canUpdateSequenceProps should flag computed props', () => {
 		keys: ['durationInFrames', 'seed', 'hueShift', 'nonExistentProp'],
 		effects: [],
 		remotionRoot: '/',
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 		runtimeValues: null,
 	});
 
@@ -80,7 +80,7 @@ export const Example: React.FC = () => {
 		componentIdentity: null,
 		keys: ['color'],
 		effects: [],
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 		runtimeValues: null,
 	});
 
@@ -121,7 +121,7 @@ export const Example: React.FC = () => {
 			componentIdentity: 'dev.remotion.shapes.Star',
 			keys: ['points'],
 			effects: [],
-			runtimeIdentifierValues: null,
+			videoConfigValues: null,
 			runtimeValues: null,
 		}),
 	).toThrow(JsxElementIdentityMismatchError);
@@ -143,7 +143,7 @@ export const Example: React.FC = () => {
 		componentIdentity: 'dev.remotion.remotion.Sequence',
 		keys: ['from'],
 		effects: [],
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 		runtimeValues: null,
 	});
 
@@ -173,7 +173,7 @@ export const Example: React.FC = () => {
 		componentIdentity: null,
 		keys: ['color'],
 		effects: [],
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 		runtimeValues: null,
 	});
 
@@ -211,7 +211,7 @@ export const Example: React.FC = () => {
 		componentIdentity: null,
 		keys: ['style.opacity'],
 		effects: [],
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 		runtimeValues: null,
 	});
 
@@ -258,7 +258,7 @@ export const Example: React.FC = () => {
 		componentIdentity: null,
 		keys: ['style.translate'],
 		effects: [],
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 		runtimeValues: null,
 	});
 
@@ -302,7 +302,7 @@ export const Example: React.FC = () => {
 		componentIdentity: null,
 		keys: ['style.translate'],
 		effects: [],
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 		runtimeValues: null,
 	});
 
@@ -344,7 +344,7 @@ export const Example: React.FC = () => {
 		componentIdentity: null,
 		keys: ['style.translate'],
 		effects: [],
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 		runtimeValues: null,
 	});
 
@@ -373,7 +373,7 @@ export const Example: React.FC = () => {
 		componentIdentity: null,
 		keys: ['style.rotate'],
 		effects: [],
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 		runtimeValues: null,
 	});
 
@@ -406,7 +406,7 @@ test('computeSequencePropsStatus should explain why outside-project file reads w
 			keys: [],
 			effects: [],
 			remotionRoot,
-			runtimeIdentifierValues: null,
+			videoConfigValues: null,
 			runtimeValues: null,
 		}),
 	).toThrow(
@@ -423,7 +423,7 @@ test('computeSequencePropsStatus should detect static nested props', () => {
 		keys: ['style.opacity', 'style.scale'],
 		effects: [],
 		remotionRoot: '/',
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 		runtimeValues: null,
 	});
 
@@ -449,7 +449,7 @@ test('computeSequencePropsStatus should flag computed nested props', () => {
 		keys: ['style.opacity', 'style.scale'],
 		effects: [],
 		remotionRoot: '/',
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 		runtimeValues: null,
 	});
 
@@ -476,7 +476,7 @@ test('computeSequencePropsStatus should flag computed when parent is not an obje
 		keys: ['style.opacity'],
 		effects: [],
 		remotionRoot: '/',
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 		runtimeValues: null,
 	});
 
@@ -498,7 +498,7 @@ test('computeSequencePropsStatus should report unset nested props as undefined',
 		keys: ['style.rotate'],
 		effects: [],
 		remotionRoot: '/',
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 		runtimeValues: null,
 	});
 
@@ -520,7 +520,7 @@ test('computeSequencePropsStatus should report unset when parent attribute missi
 		keys: ['style.opacity'],
 		effects: [],
 		remotionRoot: '/',
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 		runtimeValues: null,
 	});
 
@@ -542,7 +542,7 @@ test('computeSequencePropsStatus should return keyframes for interpolated style 
 		keys: ['style.scale'],
 		effects: [],
 		remotionRoot: '/',
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 		runtimeValues: null,
 	});
 
@@ -562,7 +562,7 @@ test('computeSequencePropsStatus should return keyframes for interpolated style 
 	});
 });
 
-test('computeSequencePropsStatus should return keyframes for runtime multiplication input ranges', () => {
+test('computeSequencePropsStatus should return keyframes for video config multiplication input ranges', () => {
 	const input = `import React from 'react';
 import {Sequence, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
 
@@ -581,7 +581,7 @@ export const Example: React.FC = () => {
 		componentIdentity: null,
 		keys: ['style.scale'],
 		effects: [],
-		runtimeIdentifierValues: {
+		videoConfigValues: {
 			fps: 30,
 		},
 		runtimeValues: null,
@@ -603,7 +603,7 @@ export const Example: React.FC = () => {
 	});
 });
 
-test('computeSequencePropsStatus should not resolve multiplication input ranges without runtime identifiers', () => {
+test('computeSequencePropsStatus should not resolve multiplication input ranges without video config values', () => {
 	const input = `import React from 'react';
 import {Sequence, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
 
@@ -622,7 +622,7 @@ export const Example: React.FC = () => {
 		componentIdentity: null,
 		keys: ['style.scale'],
 		effects: [],
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 		runtimeValues: null,
 	});
 
@@ -634,7 +634,7 @@ export const Example: React.FC = () => {
 	});
 });
 
-test('computeSequencePropsStatus should not resolve local variables with runtime identifier names', () => {
+test('computeSequencePropsStatus should not resolve local variables with video config names', () => {
 	const input = `import React from 'react';
 import {Sequence, interpolate, useCurrentFrame} from 'remotion';
 
@@ -653,7 +653,7 @@ export const Example: React.FC = () => {
 		componentIdentity: null,
 		keys: ['style.scale'],
 		effects: [],
-		runtimeIdentifierValues: {
+		videoConfigValues: {
 			fps: 30,
 		},
 		runtimeValues: null,
@@ -699,7 +699,7 @@ export const Example: React.FC = () => {
 		componentIdentity: null,
 		keys: ['style.scale'],
 		effects: [],
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 		runtimeValues: null,
 	});
 
@@ -745,7 +745,7 @@ export const Example: React.FC = () => {
 		componentIdentity: null,
 		keys: ['style.scale'],
 		effects: [],
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 		runtimeValues: null,
 	});
 
@@ -790,7 +790,7 @@ export const Example: React.FC = () => {
 		componentIdentity: null,
 		keys: ['style.scale'],
 		effects: [],
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 		runtimeValues: null,
 	});
 
@@ -828,7 +828,7 @@ export const Example: React.FC = () => {
 		componentIdentity: null,
 		keys: ['color'],
 		effects: [],
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 		runtimeValues: null,
 	});
 
@@ -867,7 +867,7 @@ export const Example: React.FC = () => {
 		componentIdentity: null,
 		keys: ['style.scale'],
 		effects: [],
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 		runtimeValues: null,
 	});
 
@@ -899,7 +899,7 @@ export const Example: React.FC = () => {
 		componentIdentity: null,
 		keys: ['style.scale'],
 		effects: [],
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 		runtimeValues: null,
 	});
 
@@ -911,7 +911,7 @@ export const Example: React.FC = () => {
 	});
 });
 
-test('computeSequencePropsStatus should return multiplication for simple runtime multiplication props', () => {
+test('computeSequencePropsStatus should return multiplication for simple video config multiplication props', () => {
 	const input = `import React from 'react';
 import {Sequence, useVideoConfig} from 'remotion';
 
@@ -932,7 +932,7 @@ export const Example: React.FC = () => {
 		runtimeValues: {
 			premountFor: 60,
 		},
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 	});
 
 	expect(result.canUpdate).toBe(true);
@@ -969,7 +969,7 @@ export const Example: React.FC = () => {
 		runtimeValues: {
 			premountFor: 75,
 		},
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 	});
 
 	expect(result.canUpdate).toBe(true);
@@ -1003,7 +1003,7 @@ export const Example: React.FC = () => {
 		componentIdentity: null,
 		keys: ['premountFor'],
 		effects: [],
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 		runtimeValues: null,
 	});
 

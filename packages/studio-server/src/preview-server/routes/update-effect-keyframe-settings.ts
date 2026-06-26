@@ -62,7 +62,7 @@ export const updateEffectKeyframeSettingsHandler: ApiHandler<
 			sequenceNodePath: sequenceNodePath.nodePath,
 			effectIndex,
 			schema,
-			runtimeIdentifierValues: null,
+			videoConfigValues: null,
 			updates: [
 				{
 					key,

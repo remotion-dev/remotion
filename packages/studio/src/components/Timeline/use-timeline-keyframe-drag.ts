@@ -21,7 +21,6 @@ import {callMoveKeyframes} from './call-move-keyframe';
 import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
 import {getBoundedKeyframeDragDelta} from './get-bounded-keyframe-drag-delta';
 import {parseKeyframeFieldFromNodePath} from './parse-keyframe-field-from-node-path';
-import {getRuntimeIdentifierValues} from './runtime-identifier-values';
 import {
 	getTimelineKeyframeDragKey,
 	useTimelineKeyframeDragState,
@@ -34,6 +33,7 @@ import {
 	type TimelineSelectionInteraction,
 } from './TimelineSelection';
 import {TimelineWidthContext} from './TimelineWidthProvider';
+import {getVideoConfigValues} from './video-config-values';
 
 type TimelineKeyframeDragTargetBase = {
 	readonly displayFrame: number;
@@ -473,13 +473,13 @@ const getFrameDelta = ({
 	return Math.round((clientXDelta / timelineContentWidth) * durationInFrames);
 };
 
-const useRuntimeIdentifierValuesRef = () => {
+const useVideoConfigValuesRef = () => {
 	const videoConfig = useVideoConfig();
-	const runtimeIdentifierValues = getRuntimeIdentifierValues(videoConfig);
-	const runtimeIdentifierValuesRef = useRef(runtimeIdentifierValues);
-	runtimeIdentifierValuesRef.current = runtimeIdentifierValues;
+	const videoConfigValues = getVideoConfigValues(videoConfig);
+	const videoConfigValuesRef = useRef(videoConfigValues);
+	videoConfigValuesRef.current = videoConfigValues;
 
-	return runtimeIdentifierValuesRef;
+	return videoConfigValuesRef;
 };
 
 export const useTimelineKeyframeDrag = ({
@@ -495,7 +495,7 @@ export const useTimelineKeyframeDrag = ({
 	readonly selectable: boolean;
 	readonly selected: boolean;
 }) => {
-	const runtimeIdentifierValuesRef = useRuntimeIdentifierValuesRef();
+	const videoConfigValuesRef = useVideoConfigValuesRef();
 	const timelineWidth = useContext(TimelineWidthContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
@@ -530,7 +530,7 @@ export const useTimelineKeyframeDrag = ({
 			e.preventDefault();
 			e.stopPropagation();
 
-			const runtimeIdentifierValues = runtimeIdentifierValuesRef.current;
+			const videoConfigValues = videoConfigValuesRef.current;
 			const interaction = {
 				shiftKey: e.shiftKey,
 				toggleKey: e.metaKey || e.ctrlKey,
@@ -618,12 +618,12 @@ export const useTimelineKeyframeDrag = ({
 
 				const rawDelta = getFrameDelta({
 					clientXDelta,
-					durationInFrames: runtimeIdentifierValues.durationInFrames,
+					durationInFrames: videoConfigValues.durationInFrames,
 					timelineWidth,
 				});
 				const delta = getBoundedKeyframeDragDelta({
 					delta: rawDelta,
-					durationInFrames: runtimeIdentifierValues.durationInFrames,
+					durationInFrames: videoConfigValues.durationInFrames,
 					targets,
 				});
 
@@ -707,7 +707,7 @@ export const useTimelineKeyframeDrag = ({
 							fromFrame: target.sourceFrame,
 							toFrame: target.sourceFrame + lastDelta,
 							schema: target.schema,
-							runtimeIdentifierValues,
+							videoConfigValues,
 						})),
 					effectKeyframes: targets
 						.filter(
@@ -725,7 +725,7 @@ export const useTimelineKeyframeDrag = ({
 							fromFrame: target.sourceFrame,
 							toFrame: target.sourceFrame + lastDelta,
 							schema: target.schema,
-							runtimeIdentifierValues,
+							videoConfigValues,
 						})),
 					setPropStatuses,
 					clientId: previewServerState.clientId,
@@ -753,7 +753,7 @@ export const useTimelineKeyframeDrag = ({
 			overrideIdToNodePathMappings,
 			propStatusesRef,
 			previewServerState,
-			runtimeIdentifierValuesRef,
+			videoConfigValuesRef,
 			selectable,
 			selected,
 			sequencesRef,
@@ -777,7 +777,7 @@ export const useTimelineEasingKeyframeDrag = ({
 	readonly selected: boolean;
 	readonly selectionItem: TimelineEasingSelection;
 }) => {
-	const runtimeIdentifierValuesRef = useRuntimeIdentifierValuesRef();
+	const videoConfigValuesRef = useVideoConfigValuesRef();
 	const timelineWidth = useContext(TimelineWidthContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
@@ -806,7 +806,7 @@ export const useTimelineEasingKeyframeDrag = ({
 			e.preventDefault();
 			e.stopPropagation();
 
-			const runtimeIdentifierValues = runtimeIdentifierValuesRef.current;
+			const videoConfigValues = videoConfigValuesRef.current;
 			const interaction = {
 				shiftKey: e.shiftKey,
 				toggleKey: e.metaKey || e.ctrlKey,
@@ -892,12 +892,12 @@ export const useTimelineEasingKeyframeDrag = ({
 
 				const rawDelta = getFrameDelta({
 					clientXDelta,
-					durationInFrames: runtimeIdentifierValues.durationInFrames,
+					durationInFrames: videoConfigValues.durationInFrames,
 					timelineWidth,
 				});
 				const delta = getBoundedKeyframeDragDelta({
 					delta: rawDelta,
-					durationInFrames: runtimeIdentifierValues.durationInFrames,
+					durationInFrames: videoConfigValues.durationInFrames,
 					targets,
 				});
 
@@ -982,7 +982,7 @@ export const useTimelineEasingKeyframeDrag = ({
 							fromFrame: target.sourceFrame,
 							toFrame: target.sourceFrame + lastDelta,
 							schema: target.schema,
-							runtimeIdentifierValues,
+							videoConfigValues,
 						})),
 					effectKeyframes: targets
 						.filter(
@@ -1025,7 +1025,7 @@ export const useTimelineEasingKeyframeDrag = ({
 			overrideIdToNodePathMappings,
 			propStatusesRef,
 			previewServerState,
-			runtimeIdentifierValuesRef,
+			videoConfigValuesRef,
 			selectable,
 			selected,
 			selectionItem,

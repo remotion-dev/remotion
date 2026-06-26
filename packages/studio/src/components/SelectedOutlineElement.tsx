@@ -329,7 +329,7 @@ const SelectedOutlineTransformOriginHandle: React.FC<{
 											sourceFrame: transformOriginDrag.sourceFrame,
 											value: last.origin,
 											schema: transformOriginDrag.schema,
-											runtimeIdentifierValues: null,
+											videoConfigValues: null,
 										}
 									: null,
 								translateChanged
@@ -340,7 +340,7 @@ const SelectedOutlineTransformOriginHandle: React.FC<{
 											sourceFrame: transformOriginDrag.sourceFrame,
 											value: last.translate,
 											schema: transformOriginDrag.schema,
-											runtimeIdentifierValues: null,
+											videoConfigValues: null,
 										}
 									: null,
 							].filter(
@@ -674,7 +674,7 @@ const SelectedOutlinePolygon: React.FC<{
 							sourceFrame: change.sourceFrame,
 							value: change.value,
 							schema: change.schema,
-							runtimeIdentifierValues: null,
+							videoConfigValues: null,
 							setPropStatuses,
 							clientId: change.clientId,
 						}),
@@ -993,7 +993,7 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 							sourceFrame: change.sourceFrame,
 							value: change.value,
 							schema: change.schema,
-							runtimeIdentifierValues: null,
+							videoConfigValues: null,
 							setPropStatuses,
 							clientId: change.clientId,
 						}),
@@ -1321,7 +1321,7 @@ const SelectedOutlineRotationCornerHandle: React.FC<{
 							sourceFrame: change.sourceFrame,
 							value: change.value,
 							schema: change.schema,
-							runtimeIdentifierValues: null,
+							videoConfigValues: null,
 							setPropStatuses,
 							clientId: change.clientId,
 						}),

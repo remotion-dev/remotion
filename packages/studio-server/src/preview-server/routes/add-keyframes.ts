@@ -178,8 +178,7 @@ export const addKeyframes = async ({
 				input: output,
 				nodePath: firstSequenceKeyframe.nodePath.nodePath,
 				schema: firstSequenceKeyframe.schema,
-				runtimeIdentifierValues:
-					firstSequenceKeyframe.runtimeIdentifierValues ?? {},
+				videoConfigValues: firstSequenceKeyframe.videoConfigValues ?? {},
 				updates: keyframeGroup.map((keyframe) => ({
 					key: keyframe.key,
 					operation: {
@@ -221,7 +220,7 @@ export const addKeyframes = async ({
 				sequenceNodePath: firstEffectKeyframe.sequenceNodePath.nodePath,
 				effectIndex: firstEffectKeyframe.effectIndex,
 				schema: firstEffectKeyframe.schema,
-				runtimeIdentifierValues: null,
+				videoConfigValues: null,
 				updates: keyframeGroup.map((keyframe) => ({
 					key: keyframe.key,
 					operation: {

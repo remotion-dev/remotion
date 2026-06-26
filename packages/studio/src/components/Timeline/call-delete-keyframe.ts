@@ -3,7 +3,7 @@ import {
 	optimisticDeleteEffectKeyframes,
 	optimisticDeleteSequenceKeyframe,
 	optimisticDeleteSequenceKeyframes,
-	type RuntimeIdentifierValues,
+	type VideoConfigValues,
 } from '@remotion/studio-shared';
 import type {SequencePropsSubscriptionKey, InteractivitySchema} from 'remotion';
 import {callApi} from '../call-api';
@@ -19,7 +19,7 @@ type DeleteKeyframeChange = {
 };
 
 export type DeleteSequenceKeyframeChange = DeleteKeyframeChange & {
-	runtimeIdentifierValues: RuntimeIdentifierValues | null;
+	videoConfigValues: VideoConfigValues | null;
 };
 
 export type DeleteEffectKeyframeChange = DeleteKeyframeChange & {
@@ -46,7 +46,7 @@ export const callDeleteSequenceKeyframe = ({
 	fieldKey,
 	sourceFrame,
 	schema,
-	runtimeIdentifierValues,
+	videoConfigValues,
 	setPropStatuses,
 	clientId,
 }: {
@@ -55,7 +55,7 @@ export const callDeleteSequenceKeyframe = ({
 	fieldKey: string;
 	sourceFrame: number;
 	schema: InteractivitySchema;
-	runtimeIdentifierValues: RuntimeIdentifierValues | null;
+	videoConfigValues: VideoConfigValues | null;
 	setPropStatuses: SetPropStatuses;
 	clientId: string;
 }): Promise<void> => {
@@ -77,7 +77,7 @@ export const callDeleteSequenceKeyframe = ({
 						key: fieldKey,
 						frame: sourceFrame,
 						schema,
-						runtimeIdentifierValues,
+						videoConfigValues,
 					},
 				],
 				effectKeyframes: [],
@@ -192,7 +192,7 @@ export const callDeleteKeyframes = ({
 			key: keyframe.fieldKey,
 			frame: keyframe.sourceFrame,
 			schema: keyframe.schema,
-			runtimeIdentifierValues: keyframe.runtimeIdentifierValues,
+			videoConfigValues: keyframe.videoConfigValues,
 		})),
 		effectKeyframes: effectKeyframes.map((keyframe) => ({
 			fileName: keyframe.fileName,

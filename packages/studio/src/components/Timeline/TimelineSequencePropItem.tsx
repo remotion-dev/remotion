@@ -21,7 +21,6 @@ import {ContextMenu} from '../ContextMenu';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {callAddSequenceKeyframe} from './call-add-keyframe';
 import {getAnimationItemSelectionForSourceFrame} from './get-animation-item-selection-for-frame';
-import {getRuntimeIdentifierValues} from './runtime-identifier-values';
 import {saveSequenceProps} from './save-sequence-prop';
 import {timelineFieldValueColumnStyle} from './timeline-field-row-layout';
 import {TimelineExpandArrowSpacer} from './TimelineExpandArrowButton';
@@ -43,6 +42,7 @@ import {
 	useTimelineSelection,
 } from './TimelineSelection';
 import {canEditEasingForInterpolationFunction} from './update-selected-easing';
+import {getVideoConfigValues} from './video-config-values';
 
 const fieldRowBase: React.CSSProperties = {};
 
@@ -274,7 +274,7 @@ export const TimelineSequenceKeyframedValue: React.FC<{
 				sourceFrame: frame,
 				value,
 				schema,
-				runtimeIdentifierValues: getRuntimeIdentifierValues(videoConfig),
+				videoConfigValues: getVideoConfigValues(videoConfig),
 				setPropStatuses,
 				clientId,
 			});
@@ -580,7 +580,7 @@ export const TimelineSequencePropItem: React.FC<{
 					sourceFrame,
 					value,
 					schema,
-					runtimeIdentifierValues: getRuntimeIdentifierValues(videoConfig),
+					videoConfigValues: getVideoConfigValues(videoConfig),
 					setPropStatuses,
 					clientId: previewServerState.clientId,
 				}).catch(() => undefined);

@@ -239,7 +239,7 @@ export const saveSequencePropsHandler: ApiHandler<
 				runtimeValues: {
 					[edit.key]: JSON.parse(edit.value),
 				},
-				runtimeIdentifierValues: null,
+				videoConfigValues: null,
 			});
 
 			return {

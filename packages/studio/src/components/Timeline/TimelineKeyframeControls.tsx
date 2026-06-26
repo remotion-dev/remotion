@@ -39,7 +39,6 @@ import {
 	hasKeyframeAtSourceFrame,
 } from './get-keyframe-navigation';
 import {getTimelineKeyframes} from './get-timeline-keyframes';
-import {getRuntimeIdentifierValues} from './runtime-identifier-values';
 import {TimelineKeyframeDiamondIcon} from './TimelineKeyframeDiamondIcon';
 import {useTimelineKeyframeTracks} from './TimelineKeyframeTracksContext';
 import {
@@ -49,6 +48,7 @@ import {
 	type TimelineSelection,
 } from './TimelineSelection';
 import {canEditEasingForInterpolationFunction} from './update-selected-easing';
+import {getVideoConfigValues} from './video-config-values';
 
 const controlsContainerStyle: React.CSSProperties = {
 	alignItems: 'center',
@@ -329,7 +329,7 @@ const getAddChange = (
 		sourceFrame: target.sourceFrame,
 		value,
 		schema: target.schema,
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 	};
 
 	if (target.effectIndex === null) {
@@ -355,7 +355,7 @@ const getDeleteChange = (
 		fieldKey: target.fieldKey,
 		sourceFrame: target.sourceFrame,
 		schema: target.schema,
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 	};
 
 	if (target.effectIndex === null) {
@@ -477,8 +477,8 @@ export const TimelineKeyframeControls: React.FC<{
 	mode = 'timeline',
 }) => {
 	const videoConfig = useVideoConfig();
-	const runtimeIdentifierValues = useMemo(
-		() => getRuntimeIdentifierValues(videoConfig),
+	const videoConfigValues = useMemo(
+		() => getVideoConfigValues(videoConfig),
 		[videoConfig],
 	);
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
@@ -696,7 +696,7 @@ export const TimelineKeyframeControls: React.FC<{
 							(change): change is DeleteSequenceKeyframeChange =>
 								!hasEffectIndex(change),
 						)
-						.map((change) => ({...change, runtimeIdentifierValues})),
+						.map((change) => ({...change, videoConfigValues})),
 					effectKeyframes: deleteChanges.filter(
 						(change): change is DeleteEffectKeyframeChange =>
 							hasEffectIndex(change),
@@ -726,7 +726,7 @@ export const TimelineKeyframeControls: React.FC<{
 						(change): change is AddSequenceKeyframeChange =>
 							!hasEffectIndex(change),
 					)
-					.map((change) => ({...change, runtimeIdentifierValues})),
+					.map((change) => ({...change, videoConfigValues})),
 				effectKeyframes: addChangeValues.filter(
 					(change): change is AddEffectKeyframeChange => hasEffectIndex(change),
 				),
@@ -750,7 +750,7 @@ export const TimelineKeyframeControls: React.FC<{
 			hasKeyframeAtCurrentFrame,
 			keyframeToggleTargets,
 			mode,
-			runtimeIdentifierValues,
+			videoConfigValues,
 			selectItems,
 			setPropStatuses,
 			timelinePosition,

@@ -1,4 +1,4 @@
-import type {RuntimeIdentifierValues} from '@remotion/studio-shared';
+import type {VideoConfigValues} from '@remotion/studio-shared';
 import type {OverrideIdToNodePaths, TSequence} from 'remotion';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {
@@ -70,7 +70,7 @@ const getSelectedKeyframeDeletion = ({
 		fieldKey: field.fieldKey,
 		sourceFrame,
 		schema: sequence.controls.schema,
-		runtimeIdentifierValues: null,
+		videoConfigValues: null,
 	};
 };
 
@@ -80,7 +80,7 @@ export const deleteSelectedKeyframe = ({
 	sequences,
 	overrideIdsToNodePaths,
 	setPropStatuses,
-	runtimeIdentifierValues,
+	videoConfigValues,
 	clientId,
 }: {
 	nodePathInfo: SequenceNodePathInfo;
@@ -88,7 +88,7 @@ export const deleteSelectedKeyframe = ({
 	sequences: TSequence[];
 	overrideIdsToNodePaths: OverrideIdToNodePaths;
 	setPropStatuses: SetPropStatuses;
-	runtimeIdentifierValues: RuntimeIdentifierValues | null;
+	videoConfigValues: VideoConfigValues | null;
 	clientId: string;
 }): Promise<void> | null => {
 	const deletion = getSelectedKeyframeDeletion({
@@ -111,7 +111,7 @@ export const deleteSelectedKeyframe = ({
 
 	return callDeleteSequenceKeyframe({
 		...deletion,
-		runtimeIdentifierValues,
+		videoConfigValues,
 		setPropStatuses,
 		clientId,
 	});
@@ -122,7 +122,7 @@ export const deleteSelectedKeyframes = ({
 	sequences,
 	overrideIdsToNodePaths,
 	setPropStatuses,
-	runtimeIdentifierValues,
+	videoConfigValues,
 	clientId,
 }: {
 	keyframes: {
@@ -132,7 +132,7 @@ export const deleteSelectedKeyframes = ({
 	sequences: TSequence[];
 	overrideIdsToNodePaths: OverrideIdToNodePaths;
 	setPropStatuses: SetPropStatuses;
-	runtimeIdentifierValues: RuntimeIdentifierValues | null;
+	videoConfigValues: VideoConfigValues | null;
 	clientId: string;
 }): Promise<void> | null => {
 	const deletions = keyframes
@@ -161,7 +161,7 @@ export const deleteSelectedKeyframes = ({
 					type: 'sequence';
 				} => deletion.type === 'sequence',
 			)
-			.map((deletion) => ({...deletion, runtimeIdentifierValues})),
+			.map((deletion) => ({...deletion, videoConfigValues})),
 		effectKeyframes: deletions.filter(
 			(
 				deletion,

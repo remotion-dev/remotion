@@ -63,7 +63,7 @@ test('deleteKeyframes batches sequence and effect deletes into one undo entry', 
 					key: 'style.opacity',
 					frame: 0,
 					schema: NoReactInternals.sequenceSchema,
-					runtimeIdentifierValues: null,
+					videoConfigValues: null,
 				},
 			],
 			effectKeyframes: [

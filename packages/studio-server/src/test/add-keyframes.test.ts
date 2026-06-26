@@ -116,7 +116,7 @@ test('addKeyframes batches sequence and effect adds into one undo entry', async 
 					frame: 5,
 					value: JSON.stringify(0.5),
 					schema: NoReactInternals.sequenceSchema,
-					runtimeIdentifierValues: null,
+					videoConfigValues: null,
 				},
 			],
 			effectKeyframes: [

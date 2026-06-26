@@ -1,6 +1,6 @@
 import {
 	LINEAR_KEYFRAME_EASING,
-	type RuntimeIdentifierValues,
+	type VideoConfigValues,
 } from '@remotion/studio-shared';
 import type {
 	CanUpdateSequencePropStatusKeyframed,
@@ -243,7 +243,7 @@ export const updateSelectedTimelineEasings = ({
 	overrideIdsToNodePaths,
 	propStatuses,
 	setPropStatuses,
-	runtimeIdentifierValues,
+	videoConfigValues,
 	clientId,
 	easing,
 }: {
@@ -252,7 +252,7 @@ export const updateSelectedTimelineEasings = ({
 	overrideIdsToNodePaths: OverrideIdToNodePaths;
 	propStatuses: PropStatuses;
 	setPropStatuses: SetPropStatuses;
-	runtimeIdentifierValues: RuntimeIdentifierValues | null;
+	videoConfigValues: VideoConfigValues | null;
 	clientId: string;
 	easing: TimelineEasingValue;
 }): Promise<void> | null => {
@@ -287,7 +287,7 @@ export const updateSelectedTimelineEasings = ({
 					fieldKey: update.fieldKey,
 					settings,
 					schema: update.schema,
-					runtimeIdentifierValues,
+					videoConfigValues,
 					setPropStatuses,
 					clientId,
 				});

@@ -189,8 +189,7 @@ export const deleteKeyframes = async ({
 			const result = await updateSequenceKeyframes({
 				input: output,
 				nodePath: firstSequenceKeyframe.nodePath.nodePath,
-				runtimeIdentifierValues:
-					firstSequenceKeyframe.runtimeIdentifierValues ?? {},
+				videoConfigValues: firstSequenceKeyframe.videoConfigValues ?? {},
 				updates: keyframeGroup.map((keyframe) => ({
 					key: keyframe.key,
 					operation: {
@@ -228,7 +227,7 @@ export const deleteKeyframes = async ({
 				input: output,
 				sequenceNodePath: firstEffectKeyframe.sequenceNodePath.nodePath,
 				effectIndex: firstEffectKeyframe.effectIndex,
-				runtimeIdentifierValues: null,
+				videoConfigValues: null,
 				updates: keyframeGroup.map((keyframe) => ({
 					key: keyframe.key,
 					operation: {
@@ -338,7 +337,7 @@ export const deleteKeyframes = async ({
 			componentIdentity: null,
 			effects: [],
 			runtimeValues: null,
-			runtimeIdentifierValues: keyframe.runtimeIdentifierValues ?? {},
+			videoConfigValues: keyframe.videoConfigValues ?? {},
 		});
 
 		return {

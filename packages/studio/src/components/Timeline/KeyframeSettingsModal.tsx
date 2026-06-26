@@ -22,7 +22,7 @@ import {
 	callUpdateEffectKeyframeSettings,
 	callUpdateSequenceKeyframeSettings,
 } from './call-update-keyframe-settings';
-import {useRuntimeIdentifierValues} from './runtime-identifier-values';
+import {useVideoConfigValues} from './video-config-values';
 
 const container: React.CSSProperties = {
 	padding: 16,
@@ -102,7 +102,7 @@ export const KeyframeSettingsModal: React.FC<{
 	const {setSelectedModal} = useContext(ModalsContext);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const runtimeIdentifierValues = useRuntimeIdentifierValues();
+	const videoConfigValues = useVideoConfigValues();
 	const [left, setLeft] = useState(state.status.clamping.left);
 	const [right, setRight] = useState(state.status.clamping.right);
 	const [posterize, setPosterize] = useState(state.status.posterize ?? 0);
@@ -145,7 +145,7 @@ export const KeyframeSettingsModal: React.FC<{
 						fieldKey: state.fieldKey,
 						settings,
 						schema: state.schema,
-						runtimeIdentifierValues,
+						videoConfigValues,
 						setPropStatuses,
 						clientId: previewServerState.clientId,
 					})
@@ -170,7 +170,7 @@ export const KeyframeSettingsModal: React.FC<{
 		posterize,
 		previewServerState,
 		right,
-		runtimeIdentifierValues,
+		videoConfigValues,
 		setPropStatuses,
 		state,
 	]);

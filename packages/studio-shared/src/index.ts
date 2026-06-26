@@ -73,7 +73,7 @@ export {
 	ReorderSequenceResponse,
 	RestartStudioRequest,
 	RestartStudioResponse,
-	RuntimeIdentifierValues,
+	VideoConfigValues,
 	SaveEffectPropsRequest,
 	SaveEffectPropsResponse,
 	SaveSequencePropEdit,
