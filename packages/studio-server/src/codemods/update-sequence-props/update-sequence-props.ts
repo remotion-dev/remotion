@@ -147,7 +147,11 @@ const updateJsxTextContent = ({
 	}
 
 	const nextValue = String(value ?? '');
-	if (staticTextContent.kind === 'jsx-text' && !nextValue.includes('\n')) {
+	const canRepresentAsJsxText =
+		staticTextContent.kind === 'jsx-text' &&
+		!nextValue.includes('\n') &&
+		nextValue.trim() === nextValue;
+	if (canRepresentAsJsxText) {
 		jsxElement.children = [
 			b.jsxText(escapeJsxText(nextValue)),
 		] as unknown as JSXElementLike['children'];

@@ -242,6 +242,27 @@ export const Example: React.FC = () => {
 	expect(output).toContain('<Interactive.P>Goodbye</Interactive.P>');
 });
 
+test('updateSequenceProps should preserve trailing spaces in JSX text children', async () => {
+	const input = `import React from 'react';
+import {Interactive} from 'remotion';
+
+export const Example: React.FC = () => {
+	return <Interactive.P>Hello</Interactive.P>;
+};
+`;
+
+	const {output, oldValueStrings} = await updateSequenceProps({
+		input,
+		nodePath: lineColumnToNodePath(input, 5),
+		updates: [{key: 'children', value: 'Cool! I ', defaultValue: ''}],
+		schema: NoReactInternals.sequenceSchema,
+		prettierConfigOverride: null,
+	});
+
+	expect(oldValueStrings[0]).toBe('Hello');
+	expect(output).toContain("<Interactive.P>{'Cool! I '}</Interactive.P>");
+});
+
 test('updateSequenceProps should update empty JSX text children', async () => {
 	const input = `import React from 'react';
 import {Interactive} from 'remotion';
