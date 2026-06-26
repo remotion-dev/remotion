@@ -6,7 +6,7 @@ import {issue6211MaskWheel} from './fixtures/issue-6211-mask-wheel';
 import {testImage} from './utils';
 
 test('should render issue 6211 mask wheel', async () => {
-	await page.viewport(760, 320);
+	await page.viewport(issue6211MaskWheel.width, issue6211MaskWheel.height);
 
 	const still = await renderStillOnWeb({
 		licenseKey: 'free-license',
