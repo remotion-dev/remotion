@@ -15,6 +15,7 @@ import {
 	ResolveCompositionBeforeModal,
 	ResolvedCompositionContext,
 } from '../RenderModal/ResolveCompositionBeforeModal';
+import {applyCodemod} from '../RenderQueue/actions';
 import {CodemodFooter} from './CodemodFooter';
 import type {ComboboxValue} from './ComboBox';
 import {Combobox} from './ComboBox';
@@ -371,6 +372,14 @@ const DuplicateCompositionLoaded: React.FC<{
 						stack={compositionStack}
 						valid={valid}
 						onSuccess={onDuplicateSuccess}
+						applyCodemod={({signal, symbolicatedStack}) =>
+							applyCodemod({
+								codemod,
+								dryRun: false,
+								signal,
+								symbolicatedStack,
+							})
+						}
 					/>
 				</ModalFooterContainer>
 			</form>

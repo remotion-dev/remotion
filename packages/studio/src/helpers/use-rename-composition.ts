@@ -5,6 +5,7 @@ import type {
 import {useCallback, useMemo} from 'react';
 import type {_InternalTypes} from 'remotion';
 import {applyCodemod} from '../components/RenderQueue/actions';
+import {pushUrl} from './url-state';
 import {validateCompositionName} from './validate-new-comp-data';
 
 export const useRenameComposition = ({
@@ -49,7 +50,7 @@ export const useRenameComposition = ({
 	const valid = validationMessage === null && currentId !== newId;
 
 	const renameComposition = useCallback(
-		({
+		async ({
 			newCompositionId,
 			signal,
 			symbolicatedStack,
@@ -58,12 +59,18 @@ export const useRenameComposition = ({
 			signal: AbortSignal;
 			symbolicatedStack: SymbolicatedStackFrame | null;
 		}) => {
-			return applyCodemod({
+			const result = await applyCodemod({
 				codemod: getCodemod(newCompositionId),
 				dryRun: false,
 				signal,
 				symbolicatedStack,
 			});
+
+			if (result.success) {
+				pushUrl(`/${newCompositionId}`);
+			}
+
+			return result;
 		},
 		[getCodemod],
 	);

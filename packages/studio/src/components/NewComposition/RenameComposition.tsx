@@ -59,6 +59,7 @@ const RenameCompositionLoaded: React.FC<{}> = () => {
 
 	const {
 		codemod,
+		renameComposition,
 		valid,
 		validationMessage: compNameErrMessage,
 	} = useRenameComposition({
@@ -115,6 +116,13 @@ const RenameCompositionLoaded: React.FC<{}> = () => {
 						stack={compositionStack}
 						valid={valid}
 						onSuccess={null}
+						applyCodemod={({signal, symbolicatedStack}) =>
+							renameComposition({
+								newCompositionId: newId,
+								signal,
+								symbolicatedStack,
+							})
+						}
 					/>
 				</ModalFooterContainer>
 			</form>
