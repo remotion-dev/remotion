@@ -1,4 +1,5 @@
 import React, {useContext, useMemo, useRef, useState} from 'react';
+import {flushSync} from 'react-dom';
 import type {ResolvedStackLocation} from 'remotion';
 import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
@@ -22,6 +23,7 @@ import {
 } from './ForceSpecificCursor';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {showNotification} from './Notifications/NotificationCenter';
+import {optionsSidebarTabs} from './options-sidebar-tabs';
 import {
 	applySelectedOutlineDragAxisLock,
 	applySelectedOutlineTransformOriginAxisLock,
@@ -83,6 +85,10 @@ import {
 } from './Timeline/call-add-keyframe';
 import {disableSequenceInteractivity} from './Timeline/disable-sequence-interactivity';
 import {duplicateSequencesFromSource} from './Timeline/duplicate-selected-timeline-item';
+import {
+	commitPendingInspectorFields,
+	requestFocusInspectorField,
+} from './Timeline/focus-inspector-field';
 import {getSequenceContextMenuItems} from './Timeline/get-sequence-context-menu-items';
 import {saveSequenceProps} from './Timeline/save-sequence-prop';
 import {getTimelineAssetLinkInfo} from './Timeline/timeline-asset-link';
@@ -472,6 +478,7 @@ const SelectedOutlinePolygon: React.FC<{
 		item: TimelineSelection,
 		interaction: TimelineSelectionInteraction,
 	) => void;
+	readonly onTextEditStart: (target: SelectedOutlineTarget) => void;
 	readonly scale: number;
 	readonly target: SelectedOutlineTarget | undefined;
 }> = ({
@@ -484,6 +491,7 @@ const SelectedOutlinePolygon: React.FC<{
 	onDraggingChange,
 	onHoverChange,
 	onSelect,
+	onTextEditStart,
 	scale,
 	target,
 }) => {
@@ -525,6 +533,10 @@ const SelectedOutlinePolygon: React.FC<{
 			}
 
 			if (drag === null || interaction.shiftKey || interaction.toggleKey) {
+				return;
+			}
+
+			if (commitPendingInspectorFields()) {
 				return;
 			}
 
@@ -709,6 +721,19 @@ const SelectedOutlinePolygon: React.FC<{
 		],
 	);
 
+	const onDoubleClick = React.useCallback(
+		(event: React.MouseEvent<SVGPolygonElement>) => {
+			if (target === undefined) {
+				return;
+			}
+
+			event.preventDefault();
+			event.stopPropagation();
+			onTextEditStart(target);
+		},
+		[onTextEditStart, target],
+	);
+
 	const onEffectDragOver = React.useCallback(
 		(event: React.DragEvent<SVGPolygonElement>) => {
 			if (effectDrop === null || !hasEffectDragType(event.dataTransfer)) {
@@ -788,6 +813,7 @@ const SelectedOutlinePolygon: React.FC<{
 					}
 				}}
 				onPointerDown={onPointerDown}
+				onDoubleClick={onDoubleClick}
 				onDragOver={effectDrop === null ? undefined : onEffectDragOver}
 				onDragLeave={effectDrop === null ? undefined : onEffectDragLeave}
 				onDrop={effectDrop === null ? undefined : onEffectDrop}
@@ -861,6 +887,10 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 			}
 
 			if (interaction.shiftKey || interaction.toggleKey) {
+				return;
+			}
+
+			if (commitPendingInspectorFields()) {
 				return;
 			}
 
@@ -1143,6 +1173,10 @@ const SelectedOutlineRotationCornerHandle: React.FC<{
 			}
 
 			if (interaction.toggleKey) {
+				return;
+			}
+
+			if (commitPendingInspectorFields()) {
 				return;
 			}
 
@@ -1433,6 +1467,40 @@ export const SelectedOutlineElement: React.FC<{
 	const selectAsset = useSelectAsset();
 	const {setSelectedModal} = useContext(ModalsContext);
 
+	const onTextEditStart = React.useCallback(
+		(editTarget: SelectedOutlineTarget) => {
+			const {textEdit} = editTarget;
+			if (textEdit === null) {
+				return;
+			}
+
+			if (
+				textEdit.propStatus.status !== 'static' ||
+				typeof textEdit.propStatus.codeValue !== 'string'
+			) {
+				showNotification(
+					'This text is computed and cannot be edited visually',
+					3000,
+				);
+				return;
+			}
+
+			flushSync(() => {
+				if (!editTarget.selected) {
+					onSelect(editTarget.selection, {shiftKey: false, toggleKey: false});
+				}
+
+				optionsSidebarTabs.current?.selectInspectorPanel();
+			});
+
+			requestFocusInspectorField({
+				fieldKey: 'children',
+				nodePath: textEdit.nodePath,
+			});
+		},
+		[onSelect],
+	);
+
 	const onContextMenuOpen = React.useCallback(async () => {
 		if (target === undefined || previewServerState.type !== 'connected') {
 			return false;
@@ -1623,6 +1691,7 @@ export const SelectedOutlineElement: React.FC<{
 				onDraggingChange={onDraggingChange}
 				onHoverChange={onHoverChange}
 				onSelect={onSelect}
+				onTextEditStart={onTextEditStart}
 				scale={scale}
 				target={target}
 			/>

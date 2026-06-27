@@ -4,6 +4,7 @@ import type {
 	Expression,
 	File,
 	JSXAttribute,
+	JSXElement,
 	JSXOpeningElement,
 	NewExpression,
 	ObjectExpression,
@@ -34,8 +35,8 @@ import {toImportAgnosticNodePath} from '../../helpers/import-agnostic-node-path'
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import {
 	getJsxComponentIdentity,
-	JsxElementIdentityMismatchError,
 	jsxComponentIdentitiesMatch,
+	JsxElementIdentityMismatchError,
 } from '../jsx-component-identity';
 import {JsxElementNotFoundAtLocationError} from '../jsx-element-not-found-at-location-error';
 import {computeEffectPropStatus} from './can-update-effect-props';
@@ -749,17 +750,78 @@ const getNodePathForRecastPath = (
 	return toImportAgnosticNodePath({ast, nodePath: segments});
 };
 
-export const findJsxElementAtNodePath = (
+export const findJsxElementPathAtNodePath = (
 	ast: File,
 	nodePath: SequenceNodePath,
-): JSXOpeningElement | null => {
+) => {
 	const current = getAstNodePath(ast, nodePath);
 	if (!current) {
 		return null;
 	}
 
 	if (recast.types.namedTypes.JSXOpeningElement.check(current.value)) {
-		return current.value as unknown as JSXOpeningElement;
+		return current;
+	}
+
+	return null;
+};
+
+export const findJsxElementAtNodePath = (
+	ast: File,
+	nodePath: SequenceNodePath,
+): JSXOpeningElement | null => {
+	const current = findJsxElementPathAtNodePath(ast, nodePath);
+	return current ? (current.value as unknown as JSXOpeningElement) : null;
+};
+
+export const findJsxElementNodeAtNodePath = (
+	ast: File,
+	nodePath: SequenceNodePath,
+): JSXElement | null => {
+	const current = findJsxElementPathAtNodePath(ast, nodePath);
+	if (!current) {
+		return null;
+	}
+
+	if (recast.types.namedTypes.JSXElement.check(current.parentPath?.value)) {
+		return current.parentPath.value as unknown as JSXElement;
+	}
+
+	return null;
+};
+
+export type StaticJsxTextContent =
+	| {kind: 'jsx-text'; value: string}
+	| {kind: 'string-expression'; value: string};
+
+export const getStaticJsxTextContent = (
+	jsxElement: JSXElement,
+): StaticJsxTextContent | null => {
+	const meaningfulChildren = jsxElement.children.filter((candidate) => {
+		return !(candidate.type === 'JSXText' && candidate.value.trim() === '');
+	});
+
+	if (meaningfulChildren.length === 0) {
+		return {kind: 'jsx-text', value: ''};
+	}
+
+	if (meaningfulChildren.length !== 1) {
+		return null;
+	}
+
+	const child = meaningfulChildren[0];
+	if (child.type === 'JSXText') {
+		return {
+			kind: 'jsx-text',
+			value: child.value.includes('\n') ? child.value.trim() : child.value,
+		};
+	}
+
+	if (
+		child.type === 'JSXExpressionContainer' &&
+		child.expression.type === 'StringLiteral'
+	) {
+		return {kind: 'string-expression', value: child.expression.value};
 	}
 
 	return null;
@@ -903,16 +965,26 @@ const computeEffectsForJsx = ({
 
 const computeSequenceOnlyPropsRecord = ({
 	jsxElement,
+	jsxElementNode,
 	ast,
 	keys,
 }: {
 	jsxElement: JSXOpeningElement;
+	jsxElementNode: JSXElement;
 	ast: File;
 	keys: string[];
 }): Record<string, CanUpdatePropStatus> => {
 	const allProps = getPropsStatus(jsxElement, ast);
 	const filteredProps: Record<string, CanUpdatePropStatus> = {};
 	for (const key of keys) {
+		if (key === 'children') {
+			const staticTextContent = getStaticJsxTextContent(jsxElementNode);
+			filteredProps[key] = staticTextContent
+				? staticStatus(staticTextContent.value)
+				: computedStatus();
+			continue;
+		}
+
 		const dotIndex = key.indexOf('.');
 		if (dotIndex !== -1) {
 			filteredProps[key] = getNestedPropStatus(
@@ -946,9 +1018,10 @@ export const computeSequencePropsStatusFromContent = ({
 }): CanUpdateSequencePropsResponseTrue => {
 	const ast = parseAst(fileContents);
 
-	const jsxElement = findJsxElementAtNodePath(ast, nodePath);
+	const jsxElementNode = findJsxElementNodeAtNodePath(ast, nodePath);
+	const jsxElement = jsxElementNode?.openingElement ?? null;
 
-	if (!jsxElement) {
+	if (!jsxElement || !jsxElementNode) {
 		throw new JsxElementNotFoundAtLocationError();
 	}
 
@@ -961,7 +1034,12 @@ export const computeSequencePropsStatusFromContent = ({
 		throw new JsxElementIdentityMismatchError();
 	}
 
-	const filteredProps = computeSequenceOnlyPropsRecord({jsxElement, ast, keys});
+	const filteredProps = computeSequenceOnlyPropsRecord({
+		jsxElement,
+		jsxElementNode,
+		ast,
+		keys,
+	});
 	const effectsStatuses = computeEffectsForJsx({ast, jsxElement, effects});
 
 	return {

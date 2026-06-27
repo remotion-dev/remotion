@@ -102,6 +102,7 @@ export const useExpandedTrackKeyframeRows = ({
 				getDragOverrides,
 				getEffectDragOverrides,
 				propStatuses,
+				includeTextContent: false,
 			}),
 		[
 			propStatuses,
