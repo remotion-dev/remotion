@@ -22,7 +22,7 @@ import {
 import {suppressBundlerUpdateForFile} from '../watch-ignore-next-change';
 import {logEffectUpdate} from './log-updates/log-effect-update';
 import {logUpdate} from './log-updates/log-update';
-import {withSavePropsLock} from './save-props-mutex';
+import {withSourceFileWriteQueue} from './source-file-write-queue';
 
 type ResolvedSequenceKeyframe = AddSequenceKeyframe & {
 	readonly index: number;
@@ -326,7 +326,7 @@ export const addKeyframesHandler: ApiHandler<
 	remotionRoot,
 	logLevel,
 }) =>
-	withSavePropsLock(async () => {
+	withSourceFileWriteQueue(async () => {
 		RenderInternals.Log.trace(
 			{indent: false, logLevel},
 			`[add-keyframes] Received request to add ${

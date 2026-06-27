@@ -16,11 +16,12 @@ import {
 } from '../undo-stack';
 import {attrName} from './log-updates/formatting';
 import {warnAboutPrettierOnce} from './log-updates/log-update';
+import {withSourceFileWriteQueue} from './source-file-write-queue';
 
 export const addEffectHandler: ApiHandler<
 	AddEffectRequest,
 	AddEffectResponse
-> = async ({
+> = ({
 	input: {
 		fileName,
 		sequenceNodePath,
@@ -32,73 +33,75 @@ export const addEffectHandler: ApiHandler<
 	remotionRoot,
 	logLevel,
 }) => {
-	try {
-		RenderInternals.Log.trace(
-			{indent: false, logLevel},
-			`[add-effect] Received request for fileName="${fileName}" effect="${effectName}"`,
-		);
+	return withSourceFileWriteQueue(async () => {
+		try {
+			RenderInternals.Log.trace(
+				{indent: false, logLevel},
+				`[add-effect] Received request for fileName="${fileName}" effect="${effectName}"`,
+			);
 
-		const {absolutePath, fileRelativeToRoot} = resolveFileInsideProject({
-			remotionRoot,
-			fileName,
-			action: 'modify',
-		});
-
-		const fileContents = readFileSync(absolutePath, 'utf-8');
-		const {output, formatted, effectLabel, nodeLabel, logLine} =
-			await addEffect({
-				input: fileContents,
-				sequenceNodePath: sequenceNodePath.nodePath,
-				effectName,
-				effectImportPath,
-				effectConfig,
+			const {absolutePath, fileRelativeToRoot} = resolveFileInsideProject({
+				remotionRoot,
+				fileName,
+				action: 'modify',
 			});
 
-		pushToUndoStack({
-			filePath: absolutePath,
-			oldContents: fileContents,
-			newContents: null,
-			logLevel,
-			remotionRoot,
-			logLine,
-			description: {
-				undoMessage: `↩️  Addition of ${effectLabel} to ${nodeLabel}`,
-				redoMessage: `↪️  Addition of ${effectLabel} to ${nodeLabel}`,
-			},
-			entryType: 'add-effect',
-			suppressHmrOnFileRestore: false,
-		});
-		suppressUndoStackInvalidation(absolutePath);
-		writeFileAndNotifyFileWatchers(absolutePath, output, clientId);
+			const fileContents = readFileSync(absolutePath, 'utf-8');
+			const {output, formatted, effectLabel, nodeLabel, logLine} =
+				await addEffect({
+					input: fileContents,
+					sequenceNodePath: sequenceNodePath.nodePath,
+					effectName,
+					effectImportPath,
+					effectConfig,
+				});
 
-		const locationLabel = formatLogFileLocation({
-			remotionRoot,
-			absolutePath,
-			line: logLine,
-		});
-		RenderInternals.Log.info(
-			{indent: false, logLevel},
-			`${RenderInternals.chalk.blueBright(`${locationLabel}`)} Added ${attrName(effectLabel)} to ${nodeLabel}`,
-		);
-		if (!formatted) {
-			warnAboutPrettierOnce(logLevel);
+			pushToUndoStack({
+				filePath: absolutePath,
+				oldContents: fileContents,
+				newContents: null,
+				logLevel,
+				remotionRoot,
+				logLine,
+				description: {
+					undoMessage: `↩️  Addition of ${effectLabel} to ${nodeLabel}`,
+					redoMessage: `↪️  Addition of ${effectLabel} to ${nodeLabel}`,
+				},
+				entryType: 'add-effect',
+				suppressHmrOnFileRestore: false,
+			});
+			suppressUndoStackInvalidation(absolutePath);
+			writeFileAndNotifyFileWatchers(absolutePath, output, clientId);
+
+			const locationLabel = formatLogFileLocation({
+				remotionRoot,
+				absolutePath,
+				line: logLine,
+			});
+			RenderInternals.Log.info(
+				{indent: false, logLevel},
+				`${RenderInternals.chalk.blueBright(`${locationLabel}`)} Added ${attrName(effectLabel)} to ${nodeLabel}`,
+			);
+			if (!formatted) {
+				warnAboutPrettierOnce(logLevel);
+			}
+
+			RenderInternals.Log.verbose(
+				{indent: false, logLevel},
+				`[add-effect] Wrote ${fileRelativeToRoot}${formatted ? ' (formatted)' : ''}`,
+			);
+
+			printUndoHint(logLevel);
+
+			return {
+				success: true,
+			};
+		} catch (err) {
+			return {
+				success: false,
+				reason: (err as Error).message,
+				stack: (err as Error).stack as string,
+			};
 		}
-
-		RenderInternals.Log.verbose(
-			{indent: false, logLevel},
-			`[add-effect] Wrote ${fileRelativeToRoot}${formatted ? ' (formatted)' : ''}`,
-		);
-
-		printUndoHint(logLevel);
-
-		return {
-			success: true,
-		};
-	} catch (err) {
-		return {
-			success: false,
-			reason: (err as Error).message,
-			stack: (err as Error).stack as string,
-		};
-	}
+	});
 };

@@ -20,6 +20,7 @@ import {
 } from '../undo-stack';
 import {suppressBundlerUpdateForFile} from '../watch-ignore-next-change';
 import {warnAboutPrettierOnce} from './log-updates/log-update';
+import {withSourceFileWriteQueue} from './source-file-write-queue';
 
 const getVisualControlChangeLine = (file: File, changeId: string): number => {
 	let line = 1;
@@ -47,106 +48,108 @@ const getVisualControlChangeLine = (file: File, changeId: string): number => {
 export const applyVisualControlHandler: ApiHandler<
 	ApplyVisualControlRequest,
 	ApplyVisualControlResponse
-> = async ({input: {fileName, changes}, remotionRoot, logLevel}) => {
-	RenderInternals.Log.trace(
-		{indent: false, logLevel},
-		`[apply-visual-control] Received request for ${fileName} with ${changes.length} changes`,
-	);
-	const {absolutePath} = resolveFileInsideProject({
-		remotionRoot,
-		fileName,
-		action: 'apply visual control change to',
-	});
-
-	const fileContents = readFileSync(absolutePath, 'utf-8');
-	const ast = parseAst(fileContents);
-	const logLine =
-		changes.length > 0 ? getVisualControlChangeLine(ast, changes[0].id) : 1;
-
-	const {newAst, changesMade} = applyCodemod({
-		file: ast,
-		codeMod: {
-			type: 'apply-visual-control',
-			changes,
-		},
-	});
-
-	if (changesMade.length === 0) {
-		throw new Error('No changes were made to the file');
-	}
-
-	let output = serializeAst(newAst);
-	let formatted = false;
-
-	// eslint-disable-next-line @typescript-eslint/consistent-type-imports
-	type PrettierType = typeof import('prettier');
-	try {
-		const prettier: PrettierType = await import('prettier');
-		const {format, resolveConfig, resolveConfigFile} = prettier;
-		const configFilePath = await resolveConfigFile();
-		if (configFilePath) {
-			const prettierConfig = await resolveConfig(configFilePath);
-			if (prettierConfig) {
-				output = await format(output, {
-					...prettierConfig,
-					filepath: 'test.tsx',
-					plugins: [],
-					endOfLine: 'auto',
-				});
-				formatted = true;
-			}
-		}
-	} catch {
-		// Prettier not available, use unformatted output
-	}
-
-	pushToUndoStack({
-		filePath: absolutePath,
-		oldContents: fileContents,
-		newContents: null,
-		logLevel,
-		remotionRoot,
-		logLine,
-		description: {
-			undoMessage: '↩️  Visual control change',
-			redoMessage: '↪️  Visual control change',
-		},
-		entryType: 'visual-control',
-		suppressHmrOnFileRestore: true,
-	});
-	suppressUndoStackInvalidation(absolutePath);
-	suppressBundlerUpdateForFile(absolutePath);
-	writeFileAndNotifyFileWatchers(absolutePath, output, undefined);
-
-	waitForLiveEventsListener().then((listener) => {
-		listener.sendEventToClient({
-			type: 'visual-control-values-changed',
-			values: changes.map((change) => ({
-				id: change.id,
-				value: change.newValueIsUndefined
-					? null
-					: JSON.parse(change.newValueSerialized),
-				isUndefined: change.newValueIsUndefined,
-			})),
+> = ({input: {fileName, changes}, remotionRoot, logLevel}) => {
+	return withSourceFileWriteQueue(async () => {
+		RenderInternals.Log.trace(
+			{indent: false, logLevel},
+			`[apply-visual-control] Received request for ${fileName} with ${changes.length} changes`,
+		);
+		const {absolutePath} = resolveFileInsideProject({
+			remotionRoot,
+			fileName,
+			action: 'apply visual control change to',
 		});
+
+		const fileContents = readFileSync(absolutePath, 'utf-8');
+		const ast = parseAst(fileContents);
+		const logLine =
+			changes.length > 0 ? getVisualControlChangeLine(ast, changes[0].id) : 1;
+
+		const {newAst, changesMade} = applyCodemod({
+			file: ast,
+			codeMod: {
+				type: 'apply-visual-control',
+				changes,
+			},
+		});
+
+		if (changesMade.length === 0) {
+			throw new Error('No changes were made to the file');
+		}
+
+		let output = serializeAst(newAst);
+		let formatted = false;
+
+		// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+		type PrettierType = typeof import('prettier');
+		try {
+			const prettier: PrettierType = await import('prettier');
+			const {format, resolveConfig, resolveConfigFile} = prettier;
+			const configFilePath = await resolveConfigFile();
+			if (configFilePath) {
+				const prettierConfig = await resolveConfig(configFilePath);
+				if (prettierConfig) {
+					output = await format(output, {
+						...prettierConfig,
+						filepath: 'test.tsx',
+						plugins: [],
+						endOfLine: 'auto',
+					});
+					formatted = true;
+				}
+			}
+		} catch {
+			// Prettier not available, use unformatted output
+		}
+
+		pushToUndoStack({
+			filePath: absolutePath,
+			oldContents: fileContents,
+			newContents: null,
+			logLevel,
+			remotionRoot,
+			logLine,
+			description: {
+				undoMessage: '↩️  Visual control change',
+				redoMessage: '↪️  Visual control change',
+			},
+			entryType: 'visual-control',
+			suppressHmrOnFileRestore: true,
+		});
+		suppressUndoStackInvalidation(absolutePath);
+		suppressBundlerUpdateForFile(absolutePath);
+		writeFileAndNotifyFileWatchers(absolutePath, output, undefined);
+
+		waitForLiveEventsListener().then((listener) => {
+			listener.sendEventToClient({
+				type: 'visual-control-values-changed',
+				values: changes.map((change) => ({
+					id: change.id,
+					value: change.newValueIsUndefined
+						? null
+						: JSON.parse(change.newValueSerialized),
+					isUndefined: change.newValueIsUndefined,
+				})),
+			});
+		});
+
+		const locationLabel = formatLogFileLocation({
+			remotionRoot,
+			absolutePath,
+			line: logLine,
+		});
+		RenderInternals.Log.info(
+			{indent: false, logLevel},
+			`${RenderInternals.chalk.blueBright(`${locationLabel}`)} Applied visual control changes`,
+		);
+		if (!formatted) {
+			warnAboutPrettierOnce(logLevel);
+		}
+
+		printUndoHint(logLevel);
+
+		return {
+			success: true,
+		};
 	});
-
-	const locationLabel = formatLogFileLocation({
-		remotionRoot,
-		absolutePath,
-		line: logLine,
-	});
-	RenderInternals.Log.info(
-		{indent: false, logLevel},
-		`${RenderInternals.chalk.blueBright(`${locationLabel}`)} Applied visual control changes`,
-	);
-	if (!formatted) {
-		warnAboutPrettierOnce(logLevel);
-	}
-
-	printUndoHint(logLevel);
-
-	return {
-		success: true,
-	};
 };

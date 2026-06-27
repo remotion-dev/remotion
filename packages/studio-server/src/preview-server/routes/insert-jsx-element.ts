@@ -19,7 +19,7 @@ import {
 	suppressUndoStackInvalidation,
 } from '../undo-stack';
 import {warnAboutPrettierOnce} from './log-updates/log-update';
-import {withSavePropsLock} from './save-props-mutex';
+import {withSourceFileWriteQueue} from './source-file-write-queue';
 
 const validateDimension = (name: string, value: number) => {
 	if (!Number.isFinite(value) || value < 1) {
@@ -130,7 +130,7 @@ export const insertJsxElementHandler: ApiHandler<
 	remotionRoot,
 	logLevel,
 }) =>
-	withSavePropsLock(async () => {
+	withSourceFileWriteQueue(async () => {
 		try {
 			validateElement(element);
 			const elementLabel = getElementLabel(element);
