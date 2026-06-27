@@ -18,6 +18,7 @@ import {
 } from '../RenderModal/ResolveCompositionBeforeModal';
 import {CodemodFooter} from './CodemodFooter';
 import {DismissableModal} from './DismissableModal';
+import {InputAndValidationContainer} from './InputAndValidationContainer';
 import {RemotionInput} from './RemInput';
 import {ValidationMessage} from './ValidationMessage';
 
@@ -80,7 +81,7 @@ const RenameCompositionLoaded: React.FC<{}> = () => {
 					<div style={optionRow}>
 						<div style={label}>ID</div>
 						<div style={rightRow}>
-							<div>
+							<InputAndValidationContainer>
 								<RemotionInput
 									ref={inputRef}
 									value={newId}
@@ -101,7 +102,7 @@ const RenameCompositionLoaded: React.FC<{}> = () => {
 										/>
 									</>
 								) : null}
-							</div>
+							</InputAndValidationContainer>
 						</div>
 					</div>
 				</div>
