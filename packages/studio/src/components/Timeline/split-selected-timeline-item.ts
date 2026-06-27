@@ -1,7 +1,14 @@
-import type {CanUpdateSequencePropStatus, TSequence} from 'remotion';
+import type {
+	CanUpdateSequencePropStatus,
+	OverrideIdToNodePaths,
+	PropStatuses,
+	TSequence,
+} from 'remotion';
+import {Internals} from 'remotion';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {callApi} from '../call-api';
 import {showNotification} from '../Notifications/NotificationCenter';
+import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
 import type {TimelineSelection} from './TimelineSelection';
 
 export type SplitTimelineSequenceEligibility =
@@ -131,7 +138,7 @@ export const splitTimelineSequenceFromSource = ({
 }: {
 	nodePathInfo: SequenceNodePathInfo;
 	splitFrame: number;
-}): Promise<void> => {
+}): Promise<boolean> => {
 	const nodePath = nodePathInfo.sequenceSubscriptionKey;
 
 	return callApi('/api/split-jsx-sequence', {
@@ -142,11 +149,82 @@ export const splitTimelineSequenceFromSource = ({
 		.then((result) => {
 			if (result.success) {
 				showNotification('Split sequence in source file', 2000);
-			} else {
-				showNotification(result.reason, 4000);
+				return true;
 			}
+
+			showNotification(result.reason, 4000);
+			return false;
 		})
 		.catch((err) => {
 			showNotification((err as Error).message, 4000);
+			return false;
 		});
+};
+
+export const shouldHandleTimelineDuplicateShortcut = ({
+	shiftKey,
+}: {
+	readonly shiftKey: boolean;
+}) => !shiftKey;
+
+export const shouldHandleTimelineSplitShortcut = ({
+	shiftKey,
+}: {
+	readonly shiftKey: boolean;
+}) => shiftKey;
+
+export const splitSelectedTimelineItems = ({
+	selections,
+	sequences,
+	overrideIdsToNodePaths,
+	propStatuses,
+	splitFrame,
+	splitSequence = splitTimelineSequenceFromSource,
+}: {
+	selections: readonly TimelineSelection[];
+	sequences: TSequence[];
+	overrideIdsToNodePaths: OverrideIdToNodePaths;
+	propStatuses: PropStatuses | undefined;
+	splitFrame: number;
+	splitSequence?: (options: {
+		nodePathInfo: SequenceNodePathInfo;
+		splitFrame: number;
+	}) => Promise<boolean>;
+}): Promise<boolean> | null => {
+	if (selections.length !== 1) {
+		return null;
+	}
+
+	const [selection] = selections;
+	if (selection.type !== 'sequence') {
+		return null;
+	}
+
+	const track = findTrackForNodePathInfo({
+		sequences,
+		overrideIdsToNodePaths,
+		nodePathInfo: selection.nodePathInfo,
+	});
+	const sequencePropStatuses = propStatuses
+		? Internals.getPropStatusesCtx(
+				propStatuses,
+				selection.nodePathInfo.sequenceSubscriptionKey,
+			)
+		: undefined;
+	const eligibility = getTimelineSequenceSplitEligibility({
+		selection,
+		sequence: track?.sequence ?? null,
+		splitFrame,
+		propStatuses: sequencePropStatuses,
+	});
+
+	if (!eligibility.canSplit) {
+		showNotification(eligibility.reason, 4000);
+		return Promise.resolve(false);
+	}
+
+	return splitSequence({
+		nodePathInfo: eligibility.nodePathInfo,
+		splitFrame,
+	});
 };

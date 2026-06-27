@@ -1,11 +1,18 @@
 import {expect, test} from 'bun:test';
 import type {
 	CanUpdateSequencePropStatus,
+	PropStatuses,
 	SequenceNodePath,
 	SequencePropsSubscriptionKey,
 	TSequence,
 } from 'remotion';
-import {getTimelineSequenceSplitEligibility} from '../components/Timeline/split-selected-timeline-item';
+import {Internals} from 'remotion';
+import {
+	getTimelineSequenceSplitEligibility,
+	shouldHandleTimelineDuplicateShortcut,
+	shouldHandleTimelineSplitShortcut,
+	splitSelectedTimelineItems,
+} from '../components/Timeline/split-selected-timeline-item';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 
 const makeKey = (nodePath: SequenceNodePath): SequencePropsSubscriptionKey => ({
@@ -29,10 +36,34 @@ const makeNodePathInfo = (
 const makeSequence = (overrides: Partial<TSequence> = {}): TSequence =>
 	({
 		from: 10,
+		trimBefore: null,
 		duration: 50,
+		id: 'sequence',
+		displayName: 'Sequence',
+		documentationLink: null,
+		parent: null,
+		rootId: 'root',
+		showInTimeline: true,
+		nonce: [[0, 0]],
+		loopDisplay: undefined,
+		getStack: () => null,
+		premountDisplay: null,
+		postmountDisplay: null,
+		controls: {
+			schema: {},
+			currentRuntimeValueDotNotation: {},
+			overrideId: 'override',
+			supportsEffects: true,
+			componentIdentity: null,
+			componentName: 'Sequence',
+		},
+		refForOutline: null,
+		effects: [],
 		isInsideSeries: false,
+		frozenFrame: null,
+		type: 'sequence',
 		...overrides,
-	}) as TSequence;
+	}) as unknown as TSequence;
 
 const staticNumber = (value: number): CanUpdateSequencePropStatus => ({
 	status: 'static',
@@ -129,4 +160,47 @@ test('getTimelineSequenceSplitEligibility rejects dynamic timing props', () => {
 			},
 		}).canSplit,
 	).toBe(false);
+});
+
+test('Cmd+D and Cmd+Shift+D shortcut gates are mutually exclusive', () => {
+	expect(shouldHandleTimelineDuplicateShortcut({shiftKey: false})).toBe(true);
+	expect(shouldHandleTimelineDuplicateShortcut({shiftKey: true})).toBe(false);
+	expect(shouldHandleTimelineSplitShortcut({shiftKey: false})).toBe(false);
+	expect(shouldHandleTimelineSplitShortcut({shiftKey: true})).toBe(true);
+});
+
+test('splitSelectedTimelineItems splits the selected sequence at the playhead', async () => {
+	const nodePathInfo = makeNodePathInfo(['body', 0]);
+	const propStatuses = {
+		[Internals.makeSequencePropsSubscriptionKey(
+			nodePathInfo.sequenceSubscriptionKey,
+		)]: {
+			canUpdate: true,
+			props: {
+				from: staticNumber(10),
+				durationInFrames: staticNumber(50),
+				trimBefore: staticNumber(0),
+			},
+			effects: [],
+		},
+	} satisfies PropStatuses;
+	const splitCalls: {nodePathInfo: SequenceNodePathInfo; splitFrame: number}[] =
+		[];
+
+	const result = await splitSelectedTimelineItems({
+		selections: [{type: 'sequence', nodePathInfo}],
+		sequences: [makeSequence()],
+		overrideIdsToNodePaths: {
+			override: nodePathInfo.sequenceSubscriptionKey,
+		},
+		propStatuses,
+		splitFrame: 30,
+		splitSequence: (options) => {
+			splitCalls.push(options);
+			return Promise.resolve(true);
+		},
+	});
+
+	expect(result).toBe(true);
+	expect(splitCalls).toEqual([{nodePathInfo, splitFrame: 30}]);
 });
