@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "22deb5d185d60acf68618421dd4e6b94",
+    "content-hash": "65c8b94ef94526833518bbee62e1942f",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -897,11 +897,11 @@
         },
         {
             "name": "remotion/lambda",
-            "version": "4.0.481",
+            "version": "4.0.483",
             "dist": {
                 "type": "path",
                 "url": "../lambda-php",
-                "reference": "44d1150a0318485a9370187c928e18988f9fb391"
+                "reference": "1a905ae7dd64153959f1e052e81e8542e87fd335"
             },
             "require": {
                 "aws/aws-sdk-php": "^3.269"
@@ -1340,5 +1340,5 @@
     "prefer-lowest": false,
     "platform": {},
     "platform-dev": {},
-    "plugin-api-version": "2.9.0"
+    "plugin-api-version": "2.6.0"
 }

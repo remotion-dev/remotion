@@ -4,10 +4,10 @@ import type {LogLevel} from '../log-level';
 import {Log} from '../logger';
 import type {ChromeMode} from '../options/chrome-mode';
 
-export const TESTED_VERSION = '149.0.7790.0';
-// https://github.com/microsoft/playwright/blame/e76ca6cba40c26bf22c19cf37398d2b9da9ed465/packages/playwright-core/browsers.json
+export const TESTED_VERSION = '151.0.7893.0';
+// https://github.com/microsoft/playwright/blob/main/packages/playwright-core/browsers.json
 // packages/playwright-core/browsers.json
-const PLAYWRIGHT_VERSION = '1421'; // 149.0.7790.0
+const PLAYWRIGHT_VERSION = '1433'; // 151.0.7893.0
 
 export type Platform =
 	| 'linux64'
@@ -108,7 +108,7 @@ export function getChromeDownloadUrl({
 		// Amazon Linux 2023 on arm64 needs a special build.
 		// This binary is compatible with older glibc (no 2.35 requirement).
 		if (isAmazonLinux2023() && chromeMode === 'headless-shell' && !version) {
-			return 'https://remotion.media/chromium-headless-shell-amazon-linux-arm64-149.0.7790.0.zip?clear';
+			return 'https://remotion.media/chromium-headless-shell-amazon-linux-arm64-151.0.7893.0.zip?clear';
 		}
 
 		if (chromeMode === 'chrome-for-testing') {
@@ -132,7 +132,7 @@ export function getChromeDownloadUrl({
 		// Amazon Linux 2023 needs a special build.
 		// This binary is compatible with older glibc (no 2.35 requirement).
 		if (isAmazonLinux2023() && platform === 'linux64' && !version) {
-			return `https://remotion.media/chromium-headless-shell-amazon-linux-x64-149.0.7790.0.zip?clear`;
+			return `https://remotion.media/chromium-headless-shell-amazon-linux-x64-151.0.7893.0.zip?clear`;
 		}
 
 		if (platform === 'linux64' && version === null) {

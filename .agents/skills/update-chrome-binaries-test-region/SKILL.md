@@ -9,9 +9,20 @@ description: Publish Remotion Lambda Chrome binaries to the eu-central-1 test re
 
 - Confirm the AWS CLI is logged into account `678892195805` by running `aws sts get-caller-identity`. If not, ask the user to log in.
 - Export AWS credentials into the shell by running `eval "$(aws configure export-credentials --format env)"`. The Lambda client checks for `AWS_ACCESS_KEY_ID` and does not pick up SSO or Identity Center credentials on its own.
+- Before publishing, update the `S3Key` in `packages/lambda/src/admin/make-layer-public.ts` to the uploaded layer artifact version, such as `remotion-layer-${layer}-v20-arm64.zip`.
 - From `packages/lambda`, run `bun src/admin/make-layer-public.ts --region=eu-central-1` to publish all 5 layers: fonts, chromium, emoji-apple, emoji-google, cjk.
 - The `eval` and the `bun` command must run in the same shell invocation because the env vars do not persist across shell calls.
 - Verify the output prints a `LayerArn` and `Version` for each of the 5 layers and a final JSON dump with the published regions populated.
+
+## Full regional rollout
+
+After the eu-central-1 Lambda render verification passes and the layer artifacts have been uploaded to every regional bucket, run the publisher from `packages/lambda` without `--region` to publish every supported region:
+
+```bash
+eval "$(aws configure export-credentials --format env)" && bun src/admin/make-layer-public.ts
+```
+
+Use the layer-hosting AWS account `678892195805` for publishing layers. If a single region must be skipped, use `--skip=<region>` and leave that region unchanged in `hosted-layers.ts`.
 
 ## Update hosted layers
 
@@ -50,5 +61,33 @@ The Dockerfiles install the local workspace build of `@remotion/cli` plus transi
 If a new composition is added to the Docker test matrix, register it in `packages/example/src/BrowserTestRoot.tsx` and add a corresponding `RUN remotion render /usr/app/bundle <id> /usr/app/<filename>.mp4` line plus `docker cp` extraction in `run.sh`.
 
 The `html-in-canvas` composition's runtime check in `packages/example/src/HtmlInCanvas/html-in-canvas.tsx` requires both `ctx.drawElementImage` and `canvas.requestPaint`, which Chrome 149+ exposes when `--enable-features=CanvasDrawElement` is passed. If `html-in-canvas` renders fail with `"HTML in Canvas is not supported"` while `browser-test` passes, the most likely cause is a Chrome version mismatch.
+
+## Lambda render verification
+
+Use `packages/example/runlambda.sh` as the reference flow, but run the Lambda commands manually so the region and runtime preference are explicit. Rebuild the Lambda package/runtime, then deploy and render in the test region:
+
+```bash
+cd packages/example
+bunx turbo run make --filter=@remotion/lambda
+cd ../lambda
+bun run makeruntime
+cd ../example
+bunx remotion lambda functions rmall -f --region=eu-central-1
+bunx remotion lambda functions deploy --memory=2048 --disk=10000 --runtime-preference=cjk --region=eu-central-1
+bunx remotion lambda sites create --site-name=testbed-v6 --log=verbose --enable-folder-expiry --region=eu-central-1
+bunx remotion lambda render testbed-v6 NewVideo --log=verbose --delete-after="1-day" --region=eu-central-1
+```
+
+For Chrome 151 v20, the default `cjk` combination is larger than `apple-emojis`; also run a second deploy/render with `--runtime-preference=apple-emojis` when validating emoji-specific layer coverage.
+
+The Lambda render test should run in the consumer/test AWS account, not the `678892195805` layer-hosting account. Load the AWS credentials from the main worktree's `packages/example/.env` before running `runlambda.sh`, and confirm `aws sts get-caller-identity` prints the expected consumer account.
+
+Make the test composition print `navigator.userAgent` into the video so the rendered output visibly confirms which Chrome version Lambda used.
+
+Because the Lambda function runs on `nodejs24.x`, keep the esbuild target in `packages/lambda/build.ts` aligned with Node 24. During the Chrome 151 test, targeting Node 16 made even the CJK layer combination exceed AWS's unzipped size limit by 3,067 bytes; targeting Node 24 saved enough for CJK to deploy. v20 layers also allowed the Apple emoji runtime preference to deploy and render successfully.
+
+If the Apple emoji preference fails at deploy time with AWS's `Function code combined with layers exceeds the maximum allowed size` error, record the exact overage as a release blocker for the largest layer combination. You can still rerun the same render with `RUNTIME_PREFERENCE=cjk` to verify the new Chrome layer itself.
+
+If site upload fails with `BlockPublicAcls`, verify the Lambda render test is using the consumer/test AWS account from the main worktree's `.env`. During the Chrome 151 test, this error happened when the render accidentally ran in the `678892195805` layer-hosting account and tried to upload a test site through that account's bucket ACL path.
 
 Do not proceed to publishing all regions until the test region has been verified end-to-end.

@@ -79,7 +79,7 @@ execSync(`php src/render.php`, {
 });
 
 console.log('=== Python(render still) ===');
-execSync(`python testclient_render_still.py`, {
+execSync(`uv run testclient_render_still.py`, {
 	env: {
 		// eslint-disable-next-line no-undef
 		...process.env,

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Remotion Chromium Release"
+  short_description: "Upload and verify Remotion Chromium headless-shell binaries."
+  default_prompt: "Upload and verify Chromium headless-shell binaries for Remotion."
