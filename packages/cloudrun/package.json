@@ -7,7 +7,7 @@
 	"description": "Render Remotion videos on Google Cloud Run",
 	"main": "dist/index.js",
 	"scripts": {
-		"make": "tsgo -d && cp src/shared/sa-permissions.json dist/shared/sa-permissions.json",
+		"make": "tsc -d && cp src/shared/sa-permissions.json dist/shared/sa-permissions.json",
 		"makeruntime": "bun build.ts",
 		"lint": "eslint src",
 		"test": "bun test src",
@@ -33,7 +33,7 @@
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "catalog:",
 		"@types/node": "catalog:",
-		"@typescript/native-preview": "catalog:"
+		"tsc": "catalog:"
 	},
 	"exports": {
 		"./package.json": "./package.json",

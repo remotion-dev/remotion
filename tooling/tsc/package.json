@@ -1,0 +1,12 @@
+{
+	"name": "tsc",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module",
+	"bin": {
+		"tsc": "./bin/tsc.mjs"
+	},
+	"dependencies": {
+		"typescript": "npm:typescript@7.0.1-rc"
+	}
+}

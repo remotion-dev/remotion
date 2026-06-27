@@ -1,3 +1,4 @@
 import {RenderInternals} from '@remotion/renderer';
 
-export const {Log} = RenderInternals;
+// eslint-disable-next-line prefer-destructuring
+export const Log = RenderInternals.Log;

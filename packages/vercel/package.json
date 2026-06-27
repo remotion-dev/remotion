@@ -13,8 +13,8 @@
 		"formatting": "oxfmt src --check",
 		"format": "oxfmt src",
 		"lint": "eslint src",
-		"watch": "tsgo -w",
-		"make": "bun --env-file=../.env.bundle bundle.ts && tsgo && tsgo -p tsconfig.scripts.json"
+		"watch": "tsc -w",
+		"make": "bun --env-file=../.env.bundle bundle.ts && tsc && tsc -p tsconfig.scripts.json"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"contributors": [],
@@ -42,7 +42,7 @@
 		"@vercel/blob": "2.3.0",
 		"@vercel/sandbox": "1.6.0",
 		"eslint": "catalog:",
-		"@typescript/native-preview": "catalog:"
+		"tsc": "catalog:"
 	},
 	"keywords": [
 		"remotion",

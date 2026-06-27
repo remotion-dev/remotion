@@ -7,7 +7,7 @@
 	"license": "SEE LICENSE IN LICENSE.md",
 	"main": "dist/index.js",
 	"scripts": {
-		"make": "tsgo -d"
+		"make": "tsc -d"
 	},
 	"exports": {
 		".": {
@@ -21,7 +21,7 @@
 	"devDependencies": {
 		"eslint": "catalog:",
 		"@types/eslint__eslintrc": "2.1.2",
-		"@typescript/native-preview": "catalog:"
+		"tsc": "catalog:"
 	},
 	"dependencies": {
 		"@typescript-eslint/eslint-plugin": "8.12.2",

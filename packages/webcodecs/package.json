@@ -16,8 +16,8 @@
 		"lint": "eslint src",
 		"test": "bun test src/test",
 		"testwebcodecs": "playwright test src/it-tests",
-		"watch": "tsgo -w",
-		"make": "tsgo -d && bun --env-file=../.env.bundle bundle.ts"
+		"watch": "tsc -w",
+		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"files": [
 		"dist",
@@ -38,7 +38,7 @@
 		"vite": "6.4.3",
 		"@playwright/test": "1.55.1",
 		"eslint": "catalog:",
-		"@typescript/native-preview": "catalog:"
+		"tsc": "catalog:"
 	},
 	"keywords": [],
 	"publishConfig": {
