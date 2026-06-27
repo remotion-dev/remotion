@@ -1,17 +1,14 @@
-import type {RecastCodemod} from '@remotion/studio-shared';
 import type {ChangeEventHandler} from 'react';
-import React, {useCallback, useContext, useMemo, useState} from 'react';
-import {Internals, type _InternalTypes} from 'remotion';
-import {pushUrl} from '../../helpers/url-state';
+import React, {useCallback, useContext, useState} from 'react';
+import {Internals} from 'remotion';
 import {
-	validateCompositionDimension,
-	validateCompositionName,
-} from '../../helpers/validate-new-comp-data';
+	getUniqueCompositionName,
+	useCreateComposition,
+} from '../../helpers/use-create-composition';
 import {Spacing} from '../layout';
 import {ModalFooterContainer} from '../ModalFooter';
 import {ModalHeader} from '../ModalHeader';
 import {label, optionRow, rightRow} from '../RenderModal/layout';
-import {applyCodemod} from '../RenderQueue/actions';
 import {CodemodFooter} from './CodemodFooter';
 import {DismissableModal} from './DismissableModal';
 import {InputDragger} from './InputDragger';
@@ -25,55 +22,6 @@ const content: React.CSSProperties = {
 	flex: 1,
 	fontSize: 13,
 	minWidth: 500,
-};
-
-const toPascalCase = (value: string) => {
-	const words = value.match(/[a-zA-Z0-9]+/g) ?? [];
-	const candidate = words
-		.map((word) => `${word.charAt(0).toUpperCase()}${word.slice(1)}`)
-		.join('');
-
-	if (!candidate) {
-		return 'NewComposition';
-	}
-
-	if (/^[0-9]/.test(candidate)) {
-		return `Composition${candidate}`;
-	}
-
-	return candidate;
-};
-
-const waitForComposition = (compositionId: string) => {
-	return new Promise<void>((resolve) => {
-		const started = Date.now();
-		const interval = window.setInterval(() => {
-			const compositionNames = window.remotion_getCompositionNames?.() ?? [];
-			if (
-				compositionNames.includes(compositionId) ||
-				Date.now() - started > 10000
-			) {
-				window.clearInterval(interval);
-				resolve();
-			}
-		}, 100);
-	});
-};
-
-const getUniqueCompositionName = (
-	compositions: _InternalTypes['AnyComposition'][],
-) => {
-	let counter = 1;
-
-	while (true) {
-		const name = counter === 1 ? 'NewComposition' : `NewComposition${counter}`;
-		const err = validateCompositionName(name, compositions);
-		if (!err) {
-			return name;
-		}
-
-		counter++;
-	}
 };
 
 const NewCompositionLoaded: React.FC = () => {
@@ -139,44 +87,20 @@ const NewCompositionLoaded: React.FC = () => {
 		setFrameRate(newFps);
 	}, []);
 
-	const compNameErrMessage = validateCompositionName(newId, compositions);
-	const compWidthErrMessage = validateCompositionDimension('Width', size.width);
-	const compHeightErrMessage = validateCompositionDimension(
-		'Height',
-		size.height,
-	);
-	const componentName = toPascalCase(newId);
-
-	const valid =
-		compNameErrMessage === null &&
-		compWidthErrMessage === null &&
-		compHeightErrMessage === null;
-
-	const codemod: RecastCodemod = useMemo(() => {
-		return {
-			type: 'new-composition',
-			newDurationInFrames: Number(durationInFrames),
-			newFps: Number(selectedFrameRate),
-			newHeight: Number(size.height),
-			newWidth: Number(size.width),
-			newId,
-			componentName,
-			componentImportPath: `./${componentName}`,
-		};
-	}, [
-		componentName,
+	const {
+		codemod,
+		createComposition,
+		heightValidationMessage: compHeightErrMessage,
+		nameValidationMessage: compNameErrMessage,
+		valid,
+		widthValidationMessage: compWidthErrMessage,
+	} = useCreateComposition({
+		compositions,
 		durationInFrames,
 		newId,
 		selectedFrameRate,
-		size.height,
-		size.width,
-	]);
-
-	const onSuccess = useCallback(() => {
-		waitForComposition(newId).then(() => {
-			pushUrl(`/${newId}`);
-		});
-	}, [newId]);
+		size,
+	});
 
 	const onSubmit: React.FormEventHandler<HTMLFormElement> = useCallback((e) => {
 		e.preventDefault();
@@ -307,11 +231,9 @@ const NewCompositionLoaded: React.FC = () => {
 						codemod={codemod}
 						stack={null}
 						valid={valid}
-						onSuccess={onSuccess}
+						onSuccess={null}
 						applyCodemod={({signal, symbolicatedStack}) =>
-							applyCodemod({
-								codemod,
-								dryRun: false,
+							createComposition({
 								signal,
 								symbolicatedStack,
 							})
