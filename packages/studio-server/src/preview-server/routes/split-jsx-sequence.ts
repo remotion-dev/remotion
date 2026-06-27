@@ -15,13 +15,13 @@ import {
 	suppressUndoStackInvalidation,
 } from '../undo-stack';
 import {warnAboutPrettierOnce} from './log-updates/log-update';
-import {withSavePropsLock} from './save-props-mutex';
+import {withSourceFileWriteQueue} from './source-file-write-queue';
 
 export const splitJsxSequenceHandler: ApiHandler<
 	SplitJsxSequenceRequest,
 	SplitJsxSequenceResponse
 > = ({input: {fileName, nodePath, splitFrame}, remotionRoot, logLevel}) =>
-	withSavePropsLock(async () => {
+	withSourceFileWriteQueue(async () => {
 		try {
 			RenderInternals.Log.trace(
 				{indent: false, logLevel},
