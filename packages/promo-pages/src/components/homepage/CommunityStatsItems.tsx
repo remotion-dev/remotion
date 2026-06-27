@@ -102,7 +102,7 @@ export const InstallsPerMonth: React.FC = () => {
 export const PagesOfDocs: React.FC = () => {
 	return (
 		<Pill className="flex-col">
-			<div style={{display: 'flex', alignItems: 'center'}}>
+			<div style={{display: 'flex', alignItems: 'center', gap: 8}}>
 				<StatItemContent
 					content={
 						<svg
@@ -118,12 +118,11 @@ export const PagesOfDocs: React.FC = () => {
 							/>
 						</svg>
 					}
-					width="40px"
+					width="32px"
 				/>
 				<StatItemContent
 					content="1000"
-					width="85px"
-					maxWidth="100px"
+					width="112px"
 					fontSize="2.5rem"
 					fontWeight="bold"
 				/>
