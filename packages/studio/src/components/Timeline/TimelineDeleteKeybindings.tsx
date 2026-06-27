@@ -204,6 +204,7 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 					sequences: sequencesRef.current,
 					overrideIdsToNodePaths: overrideIdToNodePathMappings,
 					propStatuses: propStatusesRef.current,
+					clientId,
 					splitFrame: timelinePositionRef.current,
 				});
 

@@ -156,15 +156,18 @@ export const getTimelineSequenceSplitEligibility = ({
 };
 
 export const splitTimelineSequenceFromSource = ({
+	clientId,
 	nodePathInfo,
 	splitFrame,
 }: {
+	clientId: string;
 	nodePathInfo: SequenceNodePathInfo;
 	splitFrame: number;
 }): Promise<boolean> => {
 	const nodePath = nodePathInfo.sequenceSubscriptionKey;
 
 	return callApi('/api/split-jsx-sequence', {
+		clientId,
 		fileName: nodePath.absolutePath,
 		nodePath: nodePath.nodePath,
 		splitFrame,
@@ -201,6 +204,7 @@ export const splitSelectedTimelineItems = ({
 	sequences,
 	overrideIdsToNodePaths,
 	propStatuses,
+	clientId,
 	splitFrame,
 	splitSequence = splitTimelineSequenceFromSource,
 }: {
@@ -208,8 +212,10 @@ export const splitSelectedTimelineItems = ({
 	sequences: TSequence[];
 	overrideIdsToNodePaths: OverrideIdToNodePaths;
 	propStatuses: PropStatuses | undefined;
+	clientId: string;
 	splitFrame: number;
 	splitSequence?: (options: {
+		clientId: string;
 		nodePathInfo: SequenceNodePathInfo;
 		splitFrame: number;
 	}) => Promise<boolean>;
@@ -247,6 +253,7 @@ export const splitSelectedTimelineItems = ({
 	}
 
 	return splitSequence({
+		clientId,
 		nodePathInfo: eligibility.nodePathInfo,
 		splitFrame,
 	});

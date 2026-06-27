@@ -642,6 +642,7 @@ export type DuplicateJsxNodeResponse =
 	  };
 
 export type SplitJsxSequenceRequest = {
+	clientId: string;
 	fileName: string;
 	nodePath: SequenceNodePath;
 	splitFrame: number;

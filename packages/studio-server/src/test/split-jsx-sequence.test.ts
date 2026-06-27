@@ -5,6 +5,7 @@ import path from 'node:path';
 import {splitJsxSequence} from '../codemods/split-jsx-sequence';
 import {
 	createFileWatcherRegistry,
+	installFileWatcher,
 	setFileWatcherRegistry,
 } from '../file-watcher';
 import {setLiveEventsListener} from '../preview-server/live-events';
@@ -191,10 +192,21 @@ test('splitJsxSequenceHandler writes success and failure responses', async () =>
 		const entryPoint = path.join(remotionRoot, 'Root.tsx');
 		const input = wrap('<Sequence from={0} durationInFrames={50} />');
 		writeFileSync(entryPoint, input);
+		const originatorClientIds: (string | undefined)[] = [];
+		const watcher = installFileWatcher({
+			file: entryPoint,
+			existenceOnly: false,
+			onChange: (event) => {
+				if (event.type === 'changed') {
+					originatorClientIds.push(event.originatorClientId);
+				}
+			},
+		});
 
 		const success = await splitJsxSequenceHandler(
 			getHandlerOptions({
 				input: {
+					clientId: 'client-1',
 					fileName: entryPoint,
 					nodePath: lineColumnToNodePath(input, sequenceLine),
 					splitFrame: 30,
@@ -208,11 +220,14 @@ test('splitJsxSequenceHandler writes success and failure responses', async () =>
 		expect(readFileSync(entryPoint, 'utf-8')).toContain(
 			'<Sequence from={30} durationInFrames={20} trimBefore={30} />',
 		);
+		expect(originatorClientIds).toEqual(['client-1']);
+		watcher.unwatch();
 		expect(getUndoStack().length).toBe(1);
 
 		const failure = await splitJsxSequenceHandler(
 			getHandlerOptions({
 				input: {
+					clientId: 'client-1',
 					fileName: entryPoint,
 					nodePath: lineColumnToNodePath(input, sequenceLine),
 					splitFrame: 0,
