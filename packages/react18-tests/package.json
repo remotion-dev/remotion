@@ -9,7 +9,7 @@
 		"formatting": "oxfmt src --check",
 		"format": "oxfmt src",
 		"lint": "eslint src",
-		"make": "tsgo -d",
+		"make": "tsc -d",
 		"testwebrenderer": "vitest src/test --browser --run",
 		"studio": "cd ../example && bunx remotion studio ../react18-tests/src/test/studio.ts"
 	},
@@ -35,7 +35,7 @@
 		"vitest-browser-react": "2.0.2",
 		"@types/react": "18.3.1",
 		"@types/react-dom": "18.3.1",
-		"@typescript/native-preview": "catalog:"
+		"tsc": "catalog:"
 	},
 	"peerDependencies": {
 		"react": ">=18.0.0",

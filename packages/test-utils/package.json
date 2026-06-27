@@ -7,7 +7,7 @@
 	"main": "dist",
 	"scripts": {
 		"lint": "eslint src",
-		"make": "tsgo -d"
+		"make": "tsc -d"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"contributors": [],
@@ -21,7 +21,7 @@
 		"remotion": "workspace:*",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "catalog:",
-		"@typescript/native-preview": "catalog:"
+		"tsc": "catalog:"
 	},
 	"private": true
 }

@@ -64,9 +64,9 @@
 	},
 	"dependencies": {
 		"p-limit": "7.2.0",
+		"tsc": "catalog:",
 		"typescript": "5.9.3",
-		"turbo": "2.9.14",
-		"@typescript/native-preview": "catalog:"
+		"turbo": "2.9.14"
 	},
 	"packageManager": "bun@1.3.3",
 	"overrides": {
@@ -80,6 +80,7 @@
 	},
 	"workspaces": {
 		"packages": [
+			"tooling/*",
 			"packages/**",
 			"!packages/lambda-php-example/vendor/remotion/lambda",
 			"!packages/player-example/.next",
@@ -134,7 +135,7 @@
 			"@vitest/browser-playwright": "4.0.9",
 			"playwright": "1.55.1",
 			"vitest": "4.0.9",
-			"@typescript/native-preview": "7.0.0-dev.20260217.1"
+			"tsc": "workspace:*"
 		}
 	}
 }

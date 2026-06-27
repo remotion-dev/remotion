@@ -12,7 +12,7 @@
 		"formatting": "oxfmt src --check",
 		"format": "oxfmt src",
 		"lint": "eslint src",
-		"make": "tsgo -d && bun --env-file=../.env.bundle bundle.ts",
+		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts",
 		"testlayoututils": "vitest src/test --browser --run",
 		"studio": "cd ../example && bunx remotion studio ../layout-utils/src/test/studio.ts --public-dir=../example-videos/videos",
 		"remotion": "cd ../example && bunx remotion studio ../layout-utils/src/test/studio.ts --public-dir=../example-videos/videos"
@@ -30,7 +30,7 @@
 		"@remotion/eslint-config-internal": "workspace:*",
 		"@vitejs/plugin-react": "catalog:",
 		"@vitest/browser-playwright": "catalog:",
-		"@typescript/native-preview": "catalog:",
+		"tsc": "catalog:",
 		"eslint": "catalog:",
 		"playwright": "catalog:",
 		"react": "catalog:",

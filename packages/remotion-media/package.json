@@ -31,7 +31,7 @@
 		"@types/bun": "catalog:",
 		"@types/react": "catalog:",
 		"@types/react-dom": "catalog:",
-		"@typescript/native-preview": "catalog:",
+		"tsc": "catalog:",
 		"eslint": "catalog:",
 		"prettier": "catalog:"
 	}

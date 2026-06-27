@@ -12,6 +12,7 @@
 		"strict": true,
 		"esModuleInterop": true,
 		"resolveJsonModule": true,
+		"types": ["*"],
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,
 		"composite": true

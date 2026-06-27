@@ -11,7 +11,7 @@
 		"test": "bun test src",
 		"formatting": "oxfmt src --check",
 		"format": "oxfmt src",
-		"make": "tsgo -d"
+		"make": "tsc -d"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"contributors": [],
@@ -26,7 +26,7 @@
 		"@remotion/renderer": "workspace:*",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "catalog:",
-		"@typescript/native-preview": "catalog:"
+		"tsc": "catalog:"
 	},
 	"publishConfig": {
 		"access": "public"

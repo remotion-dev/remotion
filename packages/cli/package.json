@@ -16,7 +16,7 @@
 		"format": "oxfmt src",
 		"lint": "eslint src",
 		"test": "bun test src",
-		"make": "tsgo -d"
+		"make": "tsc -d"
 	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
@@ -66,7 +66,7 @@
 		"zod": "catalog:",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "catalog:",
-		"@typescript/native-preview": "catalog:"
+		"tsc": "catalog:"
 	},
 	"keywords": [
 		"remotion",

@@ -10,7 +10,7 @@
 		"lint": "eslint src",
 		"formatting": "oxfmt src --check",
 		"format": "oxfmt src",
-		"make": "tsgo -d && bun --env-file=../.env.bundle bundle.ts"
+		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"contributors": [],
@@ -24,7 +24,7 @@
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "catalog:",
-		"@typescript/native-preview": "catalog:"
+		"tsc": "catalog:"
 	},
 	"exports": {
 		"./package.json": "./package.json",

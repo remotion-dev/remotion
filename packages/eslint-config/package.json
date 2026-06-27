@@ -13,7 +13,7 @@
 		"lint": "eslint src",
 		"formatting": "oxfmt src --check",
 		"format": "oxfmt src",
-		"make": "tsgo -d"
+		"make": "tsc -d"
 	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
@@ -32,7 +32,7 @@
 		"eslint-plugin-react-hooks": "4.6.0",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "catalog:",
-		"@typescript/native-preview": "catalog:"
+		"tsc": "catalog:"
 	},
 	"keywords": [
 		"remotion",

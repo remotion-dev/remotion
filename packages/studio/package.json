@@ -8,7 +8,7 @@
 	"main": "dist",
 	"scripts": {
 		"lint": "eslint src",
-		"make": "tsgo -d && bun --env-file=../.env.bundle bundle.ts",
+		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts",
 		"test": "bun test src",
 		"formatting": "oxfmt src --check",
 		"format": "oxfmt src"
@@ -46,7 +46,7 @@
 		"@types/semver": "7.5.3",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "catalog:",
-		"@typescript/native-preview": "catalog:"
+		"tsc": "catalog:"
 	},
 	"publishConfig": {
 		"access": "public"

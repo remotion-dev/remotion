@@ -1,3 +1,4 @@
 import {RenderInternals} from '@remotion/renderer';
 
-export const {chalk} = RenderInternals;
+// eslint-disable-next-line prefer-destructuring
+export const chalk = RenderInternals.chalk;

@@ -10,7 +10,7 @@
 		"formatting": "oxfmt src --check",
 		"format": "oxfmt src",
 		"lint": "eslint src",
-		"make": "tsgo -d"
+		"make": "tsc -d"
 	},
 	"files": [
 		"dist"
@@ -35,7 +35,7 @@
 		"remotion": "workspace:*",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "catalog:",
-		"@typescript/native-preview": "catalog:"
+		"tsc": "catalog:"
 	},
 	"peerDependencies": {
 		"@remotion/bundler": "workspace:*"

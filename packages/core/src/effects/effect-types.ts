@@ -75,7 +75,7 @@ export type EffectsProp = ReadonlyArray<EffectDescriptor<unknown>>;
 // parameter type. When truthy, `runEffectChain` bypasses the effect entirely.
 // Defined here (rather than in `create-effect.ts`) so that the inferred type
 // of factory exports in downstream packages is reachable through a path that
-// is also referenced via `EffectDefinition` etc., avoiding TS2742 in `tsgo`.
+// is also referenced via `EffectDefinition` etc., avoiding TS2742 in `tsc`.
 //
 // The `{} extends P` conditional preserves required-param enforcement: when
 // the user's `P` has required fields (e.g. `TintParams.color`), the factory

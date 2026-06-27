@@ -30,7 +30,7 @@
 		"@remotion/tailwind-v4": "workspace:*",
 		"@remotion/transitions": "workspace:*",
 		"@types/styled-components": "5.1.34",
-		"@typescript/native-preview": "catalog:",
+		"tsc": "catalog:",
 		"eslint": "catalog:",
 		"mediabunny": "catalog:",
 		"polished": "4.3.1",

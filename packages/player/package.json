@@ -12,7 +12,7 @@
 		"formatting": "oxfmt src --check",
 		"format": "oxfmt src",
 		"lint": "eslint src",
-		"make": "tsgo -d && bun ensure-correct-version.ts && bun --env-file=../.env.bundle bundle.ts",
+		"make": "tsc -d && bun ensure-correct-version.ts && bun --env-file=../.env.bundle bundle.ts",
 		"test": "bun test src",
 		"prerelease": "cp ../../README.md ."
 	},
@@ -51,7 +51,7 @@
 		"zod": "catalog:",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "catalog:",
-		"@typescript/native-preview": "catalog:"
+		"tsc": "catalog:"
 	},
 	"keywords": [
 		"remotion",

@@ -5,8 +5,8 @@
     "": {
       "name": "remotion-monorepo",
       "dependencies": {
-        "@typescript/native-preview": "catalog:",
         "p-limit": "7.2.0",
+        "tsc": "catalog:",
         "turbo": "2.9.14",
         "typescript": "5.9.3",
       },
@@ -29,8 +29,8 @@
       },
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
-        "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
+        "tsc": "catalog:",
       },
     },
     "packages/animation-utils": {
@@ -41,8 +41,8 @@
       },
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
-        "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
+        "tsc": "catalog:",
       },
       "peerDependencies": {
         "react": ">=16.8.0",
@@ -84,9 +84,9 @@
       "devDependencies": {
         "@remotion/bundler": "workspace:*",
         "@remotion/eslint-config-internal": "workspace:*",
-        "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
         "remotion": "workspace:*",
+        "tsc": "catalog:",
       },
       "peerDependencies": {
         "@remotion/bundler": "workspace:*",
@@ -112,7 +112,6 @@
         "@remotion/tailwind-v4": "workspace:*",
         "@remotion/transitions": "workspace:*",
         "@types/styled-components": "5.1.34",
-        "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
         "mediabunny": "catalog:",
         "polished": "4.3.1",
@@ -123,6 +122,7 @@
         "svg-path-properties": "1.3.0",
         "svg-path-reverse": "1.3.0",
         "tailwindcss": "4.0.0",
+        "tsc": "catalog:",
         "zod": "catalog:",
       },
     },
@@ -137,10 +137,10 @@
         "@remotion/eslint-config-internal": "workspace:*",
         "@types/react": "catalog:",
         "@types/react-dom": "catalog:",
-        "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
         "react": "catalog:",
         "react-dom": "catalog:",
+        "tsc": "catalog:",
       },
     },
     "packages/bundler": {
@@ -162,10 +162,10 @@
       },
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
-        "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
         "react": "catalog:",
         "react-dom": "catalog:",
+        "tsc": "catalog:",
       },
       "peerDependencies": {
         "react": ">=16.8.0",
@@ -181,10 +181,10 @@
       },
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
-        "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
         "react": "catalog:",
         "react-dom": "catalog:",
+        "tsc": "catalog:",
       },
       "peerDependencies": {
         "react": ">=16.8.0",
@@ -196,8 +196,8 @@
       "version": "4.0.484",
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
-        "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
+        "tsc": "catalog:",
       },
     },
     "packages/cli": {
@@ -231,10 +231,10 @@
         "@types/node": "catalog:",
         "@types/prettier": "2.7.2",
         "@types/prompts": "2.4.9",
-        "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
         "react": "catalog:",
         "react-dom": "catalog:",
+        "tsc": "catalog:",
         "zod": "catalog:",
       },
       "peerDependencies": {
@@ -264,8 +264,8 @@
         "@remotion/eslint-config-internal": "workspace:*",
         "@types/minimist": "1.2.2",
         "@types/node": "catalog:",
-        "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
+        "tsc": "catalog:",
       },
     },
     "packages/codex-plugin": {
@@ -273,8 +273,8 @@
       "version": "4.0.484",
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
-        "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
+        "tsc": "catalog:",
       },
     },
     "packages/compositor": {
@@ -375,11 +375,11 @@
         "@testing-library/dom": "10.4.0",
         "@testing-library/react": "16.1.0",
         "@types/dom-webcodecs": "catalog:",
-        "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
         "happy-dom": "20.0.2",
         "react": "catalog:",
         "react-dom": "catalog:",
+        "tsc": "catalog:",
         "webpack": "5.105.0",
         "zod": "catalog:",
       },
@@ -405,9 +405,9 @@
         "@remotion/eslint-config-internal": "workspace:*",
         "@types/minimist": "1.2.2",
         "@types/prompts": "2.4.9",
-        "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
         "react": "catalog:",
+        "tsc": "catalog:",
       },
     },
     "packages/design": {
@@ -427,13 +427,13 @@
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
         "@tailwindcss/cli": "4.2.0",
-        "@typescript/native-preview": "catalog:",
         "bun-plugin-tailwind": "0.1.2",
         "eslint": "catalog:",
         "react": "catalog:",
         "react-dom": "catalog:",
         "tailwind-merge": "2.6.0",
         "tailwindcss": "4.2.0",
+        "tsc": "catalog:",
       },
       "peerDependencies": {
         "react": ">=16.8.0",
@@ -584,8 +584,8 @@
       },
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
-        "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
+        "tsc": "catalog:",
       },
     },
     "packages/effects": {
@@ -596,9 +596,9 @@
       },
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
-        "@typescript/native-preview": "catalog:",
         "@vitest/browser-playwright": "catalog:",
         "eslint": "catalog:",
+        "tsc": "catalog:",
         "vitest": "catalog:",
       },
     },
@@ -610,8 +610,8 @@
       },
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
-        "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
+        "tsc": "catalog:",
       },
     },
     "packages/enable-scss": {
@@ -625,8 +625,8 @@
       "devDependencies": {
         "@remotion/bundler": "workspace:*",
         "@remotion/eslint-config-internal": "workspace:*",
-        "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
+        "tsc": "catalog:",
       },
       "peerDependencies": {
         "@remotion/bundler": "workspace:*",
@@ -640,10 +640,10 @@
         "@remotion/eslint-plugin": "workspace:*",
         "@typescript-eslint/eslint-plugin": "6.21.0",
         "@typescript-eslint/parser": "6.21.0",
-        "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
         "eslint-plugin-react": "7.37.4",
         "eslint-plugin-react-hooks": "4.6.0",
+        "tsc": "catalog:",
       },
       "peerDependencies": {
         "eslint": ">=7.15.0",
@@ -659,10 +659,10 @@
         "@eslint/js": "9.19.0",
         "@remotion/eslint-config-internal": "workspace:*",
         "@remotion/eslint-plugin": "workspace:*",
-        "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
         "eslint-plugin-react": "7.37.4",
         "eslint-plugin-react-hooks": "5.2.0",
+        "tsc": "catalog:",
       },
       "peerDependencies": {
         "eslint": ">=9",
@@ -683,8 +683,8 @@
       },
       "devDependencies": {
         "@types/eslint__eslintrc": "2.1.2",
-        "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
+        "tsc": "catalog:",
       },
     },
     "packages/eslint-plugin": {
@@ -694,8 +694,8 @@
         "@typescript-eslint/utils": "5.19.0",
       },
       "devDependencies": {
-        "@typescript/native-preview": "catalog:",
         "eslint": "8.57.0",
+        "tsc": "catalog:",
         "vitest": "catalog:",
       },
       "peerDependencies": {
@@ -797,10 +797,10 @@
       "version": "4.0.484",
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
-        "@typescript/native-preview": "catalog:",
         "dotenv": "17.3.1",
         "eslint": "catalog:",
         "prettier": "catalog:",
+        "tsc": "catalog:",
       },
     },
     "packages/example-without-zod": {
@@ -821,8 +821,8 @@
       },
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
-        "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
+        "tsc": "catalog:",
       },
     },
     "packages/gif": {
@@ -834,11 +834,11 @@
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
         "@testing-library/react": "16.1.0",
-        "@typescript/native-preview": "catalog:",
         "esbuild": "0.28.1",
         "eslint": "catalog:",
         "react": "catalog:",
         "react-dom": "catalog:",
+        "tsc": "catalog:",
         "webpack": "5.105.0",
       },
       "peerDependencies": {
@@ -855,8 +855,8 @@
       "devDependencies": {
         "@types/css-font-loading-module": "0.0.14",
         "@types/prettier": "2.7.2",
-        "@typescript/native-preview": "catalog:",
         "postcss": "8.5.10",
+        "tsc": "catalog:",
       },
     },
     "packages/install-whisper-cpp": {
@@ -867,8 +867,8 @@
       },
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
-        "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
+        "tsc": "catalog:",
       },
     },
     "packages/it-tests": {
@@ -944,12 +944,12 @@
         "@types/mime-types": "2.1.1",
         "@types/minimist": "1.2.2",
         "@types/node": "catalog:",
-        "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
         "express": "4.21.0",
         "mime-types": "2.1.34",
         "next": "catalog:",
         "pureimage": "0.4.13",
+        "tsc": "catalog:",
       },
       "peerDependencies": {
         "@remotion/bundler": "workspace:*",
@@ -972,11 +972,11 @@
         "@remotion/serverless-client": "workspace:*",
         "@types/express": "5.0.1",
         "@types/mime-types": "2.1.1",
-        "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
         "express": "4.21.0",
         "mime-types": "2.1.34",
         "next": "catalog:",
+        "tsc": "catalog:",
       },
     },
     "packages/lambda-go": {
@@ -1019,7 +1019,6 @@
       "version": "4.0.484",
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
-        "@typescript/native-preview": "catalog:",
         "@vitejs/plugin-react": "catalog:",
         "@vitest/browser-playwright": "catalog:",
         "eslint": "catalog:",
@@ -1027,6 +1026,7 @@
         "react": "catalog:",
         "react-dom": "catalog:",
         "remotion": "workspace:*",
+        "tsc": "catalog:",
         "vitest": "catalog:",
       },
     },
@@ -1035,10 +1035,10 @@
       "version": "4.0.484",
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
-        "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
         "msw": "2.12.7",
         "remotion": "workspace:*",
+        "tsc": "catalog:",
       },
     },
     "packages/light-leaks": {
@@ -1050,10 +1050,10 @@
       },
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
-        "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
         "react": "catalog:",
         "react-dom": "catalog:",
+        "tsc": "catalog:",
       },
       "peerDependencies": {
         "react": ">=16.8.0",
@@ -1068,11 +1068,11 @@
       },
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
-        "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
         "lottie-web": "5.13.0",
         "react": "catalog:",
         "react-dom": "catalog:",
+        "tsc": "catalog:",
       },
       "peerDependencies": {
         "lottie-web": "^5",
@@ -1093,8 +1093,8 @@
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
         "@types/command-line-args": "5.2.3",
-        "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
+        "tsc": "catalog:",
       },
     },
     "packages/media": {
@@ -1108,11 +1108,11 @@
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
         "@remotion/player": "workspace:*",
-        "@typescript/native-preview": "catalog:",
         "@vitest/browser-webdriverio": "4.0.9",
         "eslint": "catalog:",
         "react": "catalog:",
         "react-dom": "catalog:",
+        "tsc": "catalog:",
         "vitest": "catalog:",
         "webdriverio": "9.19.2",
       },
@@ -1129,9 +1129,9 @@
         "@remotion/example-videos": "workspace:*",
         "@types/bun": "catalog:",
         "@types/wicg-file-system-access": "2023.10.5",
-        "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
         "mediabunny": "catalog:",
+        "tsc": "catalog:",
       },
     },
     "packages/media-utils": {
@@ -1143,8 +1143,8 @@
       },
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
-        "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
+        "tsc": "catalog:",
       },
       "peerDependencies": {
         "react": ">=16.8.0",
@@ -1159,11 +1159,11 @@
       },
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
-        "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
         "react": "catalog:",
         "react-dom": "catalog:",
         "remotion": "workspace:*",
+        "tsc": "catalog:",
       },
       "peerDependencies": {
         "react": ">=16.8.0",
@@ -1179,8 +1179,8 @@
       },
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
-        "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
+        "tsc": "catalog:",
       },
     },
     "packages/openai-whisper": {
@@ -1191,9 +1191,9 @@
       },
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
-        "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
         "openai": "catalog:",
+        "tsc": "catalog:",
       },
     },
     "packages/paths": {
@@ -1201,8 +1201,8 @@
       "version": "4.0.484",
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
-        "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
+        "tsc": "catalog:",
       },
     },
     "packages/player": {
@@ -1215,11 +1215,11 @@
         "@happy-dom/global-registrator": "14.5.1",
         "@remotion/eslint-config-internal": "workspace:*",
         "@testing-library/react": "16.1.0",
-        "@typescript/native-preview": "catalog:",
         "csstype": "3.2.3",
         "eslint": "catalog:",
         "react": "catalog:",
         "react-dom": "catalog:",
+        "tsc": "catalog:",
         "webpack": "5.105.0",
         "zod": "catalog:",
       },
@@ -1237,10 +1237,10 @@
       },
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
-        "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
         "react": "catalog:",
         "react-dom": "catalog:",
+        "tsc": "catalog:",
       },
       "peerDependencies": {
         "react": ">=16.8.0",
@@ -1274,8 +1274,8 @@
       "version": "4.0.484",
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
-        "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
+        "tsc": "catalog:",
       },
     },
     "packages/promo-pages": {
@@ -1336,13 +1336,13 @@
         "@remotion/web-renderer": "workspace:*",
         "@types/react": "18.3.1",
         "@types/react-dom": "18.3.1",
-        "@typescript/native-preview": "catalog:",
         "@vitejs/plugin-react": "catalog:",
         "@vitest/browser-playwright": "catalog:",
         "eslint": "catalog:",
         "playwright": "catalog:",
         "react": "18.3.1",
         "react-dom": "18.3.1",
+        "tsc": "catalog:",
         "vitest": "catalog:",
         "vitest-browser-react": "2.0.2",
       },
@@ -1369,9 +1369,9 @@
         "@types/bun": "catalog:",
         "@types/react": "catalog:",
         "@types/react-dom": "catalog:",
-        "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
         "prettier": "catalog:",
+        "tsc": "catalog:",
       },
     },
     "packages/renderer": {
@@ -1393,10 +1393,10 @@
         "@testing-library/react": "16.1.0",
         "@types/node": "catalog:",
         "@types/ws": "8.5.10",
-        "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
         "react": "catalog:",
         "react-dom": "catalog:",
+        "tsc": "catalog:",
       },
       "optionalDependencies": {
         "@remotion/compositor-darwin-arm64": "workspace:*",
@@ -1421,10 +1421,10 @@
       },
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
-        "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
         "react": "catalog:",
         "react-dom": "catalog:",
+        "tsc": "catalog:",
       },
       "peerDependencies": {
         "react": ">=18.2.0",
@@ -1440,8 +1440,8 @@
       },
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
-        "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
+        "tsc": "catalog:",
       },
     },
     "packages/serverless": {
@@ -1455,8 +1455,8 @@
       },
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
-        "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
+        "tsc": "catalog:",
       },
     },
     "packages/serverless-client": {
@@ -1466,9 +1466,9 @@
         "@remotion/eslint-config-internal": "workspace:*",
         "@remotion/renderer": "workspace:*",
         "@remotion/streaming": "workspace:*",
-        "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
         "remotion": "workspace:*",
+        "tsc": "catalog:",
       },
     },
     "packages/sfx": {
@@ -1476,8 +1476,8 @@
       "version": "4.0.484",
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
-        "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
+        "tsc": "catalog:",
       },
     },
     "packages/shapes": {
@@ -1491,10 +1491,10 @@
         "@happy-dom/global-registrator": "14.5.1",
         "@remotion/eslint-config-internal": "workspace:*",
         "@testing-library/react": "16.1.0",
-        "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
         "react": "catalog:",
         "react-dom": "catalog:",
+        "tsc": "catalog:",
       },
       "peerDependencies": {
         "react": ">=16.8.0",
@@ -1512,12 +1512,12 @@
         "@remotion/eslint-config-internal": "workspace:*",
         "@shopify/react-native-skia": "2.0.0",
         "@types/react-native": "0.69.2",
-        "@typescript/native-preview": "catalog:",
         "canvaskit-wasm": "0.40.0",
         "eslint": "catalog:",
         "react": "catalog:",
         "react-dom": "catalog:",
         "remotion": "workspace:*",
+        "tsc": "catalog:",
       },
       "peerDependencies": {
         "@shopify/react-native-skia": ">=0.1.191",
@@ -1536,11 +1536,11 @@
         "@remotion/lottie": "workspace:*",
         "@remotion/shapes": "workspace:*",
         "@remotion/three": "workspace:*",
-        "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
         "react": "catalog:",
         "react-dom": "catalog:",
         "remotion": "workspace:*",
+        "tsc": "catalog:",
       },
     },
     "packages/skills-evals": {
@@ -1556,8 +1556,8 @@
         "@types/bun": "catalog:",
         "@types/react": "catalog:",
         "@types/react-dom": "catalog:",
-        "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
+        "tsc": "catalog:",
       },
     },
     "packages/starburst": {
@@ -1569,10 +1569,10 @@
       },
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
-        "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
         "react": "catalog:",
         "react-dom": "catalog:",
+        "tsc": "catalog:",
       },
       "peerDependencies": {
         "react": ">=16.8.0",
@@ -1584,8 +1584,8 @@
       "version": "4.0.484",
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
-        "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
+        "tsc": "catalog:",
       },
     },
     "packages/studio": {
@@ -1611,10 +1611,10 @@
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
         "@types/semver": "7.5.3",
-        "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
         "react": "catalog:",
         "react-dom": "catalog:",
+        "tsc": "catalog:",
       },
       "peerDependencies": {
         "react": ">=16.8.0",
@@ -1641,10 +1641,10 @@
         "@remotion/eslint-config-internal": "workspace:*",
         "@types/node": "catalog:",
         "@types/semver": "7.5.3",
-        "@typescript/native-preview": "catalog:",
         "ast-types": "0.16.1",
         "eslint": "catalog:",
         "react": "catalog:",
+        "tsc": "catalog:",
       },
     },
     "packages/studio-shared": {
@@ -1656,8 +1656,8 @@
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
         "@remotion/renderer": "workspace:*",
-        "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
+        "tsc": "catalog:",
       },
     },
     "packages/svg-3d-engine": {
@@ -1668,8 +1668,8 @@
       },
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
-        "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
+        "tsc": "catalog:",
       },
     },
     "packages/tailwind": {
@@ -1687,9 +1687,9 @@
       "devDependencies": {
         "@remotion/bundler": "workspace:*",
         "@remotion/eslint-config-internal": "workspace:*",
-        "@typescript/native-preview": "catalog:",
         "autoprefixer": "10.4.20",
         "eslint": "catalog:",
+        "tsc": "catalog:",
       },
       "peerDependencies": {
         "@remotion/bundler": "workspace:*",
@@ -1707,8 +1707,8 @@
       "devDependencies": {
         "@remotion/bundler": "workspace:*",
         "@remotion/eslint-config-internal": "workspace:*",
-        "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
+        "tsc": "catalog:",
       },
       "peerDependencies": {
         "@remotion/bundler": "workspace:*",
@@ -2425,11 +2425,11 @@
       "version": "4.0.484",
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
-        "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
         "react": "catalog:",
         "react-dom": "catalog:",
         "remotion": "workspace:*",
+        "tsc": "catalog:",
       },
     },
     "packages/three": {
@@ -2444,12 +2444,12 @@
         "@types/react-reconciler": "0.32.0",
         "@types/three": "catalog:",
         "@types/web": "catalog:",
-        "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
         "react": "catalog:",
         "react-dom": "catalog:",
         "remotion": "workspace:*",
         "three": "catalog:",
+        "tsc": "catalog:",
       },
       "peerDependencies": {
         "@react-three/fiber": ">=8.0.0",
@@ -2468,8 +2468,8 @@
       "devDependencies": {
         "@mediabunny/server": "catalog:",
         "@remotion/eslint-config-internal": "workspace:*",
-        "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
+        "tsc": "catalog:",
       },
     },
     "packages/transitions": {
@@ -2485,11 +2485,11 @@
         "@remotion/eslint-config-internal": "workspace:*",
         "@remotion/player": "workspace:*",
         "@remotion/test-utils": "workspace:*",
-        "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
         "react": "catalog:",
         "react-dom": "catalog:",
         "remotion": "workspace:*",
+        "tsc": "catalog:",
       },
       "peerDependencies": {
         "react": ">=16.8.0",
@@ -2505,10 +2505,10 @@
       },
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
-        "@typescript/native-preview": "catalog:",
         "@vercel/blob": "2.3.0",
         "@vercel/sandbox": "1.6.0",
         "eslint": "catalog:",
+        "tsc": "catalog:",
       },
       "peerDependencies": {
         "@vercel/sandbox": ">=1.0.0",
@@ -2535,7 +2535,6 @@
         "@remotion/three": "workspace:*",
         "@remotion/transitions": "workspace:*",
         "@types/three": "catalog:",
-        "@typescript/native-preview": "catalog:",
         "@vitejs/plugin-react": "catalog:",
         "@vitest/browser-playwright": "catalog:",
         "eslint": "catalog:",
@@ -2543,6 +2542,7 @@
         "react": "catalog:",
         "react-dom": "catalog:",
         "three": "catalog:",
+        "tsc": "catalog:",
         "vitest": "catalog:",
         "vitest-browser-react": "2.0.2",
         "zod": "catalog:",
@@ -2563,9 +2563,9 @@
         "@remotion/eslint-config-internal": "workspace:*",
         "@remotion/example-videos": "workspace:*",
         "@types/dom-webcodecs": "catalog:",
-        "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
         "playwright": "catalog:",
+        "tsc": "catalog:",
         "vite": "6.4.3",
       },
     },
@@ -2577,8 +2577,8 @@
       },
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
-        "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
+        "tsc": "catalog:",
       },
     },
     "packages/zod-types": {
@@ -2589,8 +2589,8 @@
       },
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
-        "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
+        "tsc": "catalog:",
         "zod": "catalog:",
       },
     },
@@ -2603,12 +2603,22 @@
       },
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
-        "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
+        "tsc": "catalog:",
         "zod": "3.22.3",
       },
       "peerDependencies": {
         "zod": ">=3.0.0 <4.0.0",
+      },
+    },
+    "tooling/tsc": {
+      "name": "tsc",
+      "version": "0.0.0",
+      "bin": {
+        "tsc": "./bin/tsc.mjs",
+      },
+      "dependencies": {
+        "typescript": "npm:typescript@7.0.1-rc",
       },
     },
   },
@@ -2645,7 +2655,6 @@
     "@types/react-dom": "19.2.3",
     "@types/three": "0.170.0",
     "@types/web": "0.0.166",
-    "@typescript/native-preview": "7.0.0-dev.20260217.1",
     "@vitejs/plugin-react": "4.3.4",
     "@vitest/browser-playwright": "4.0.9",
     "eslint": "9.19.0",
@@ -2658,6 +2667,7 @@
     "react-dom": "19.2.3",
     "sharp": "0.34.5",
     "three": "0.178.0",
+    "tsc": "workspace:*",
     "vitest": "4.0.9",
     "zod": "4.3.6",
   },
@@ -4992,23 +5002,47 @@
 
     "@typescript-eslint/visitor-keys": ["@typescript-eslint/visitor-keys@6.21.0", "", { "dependencies": { "@typescript-eslint/types": "6.21.0", "eslint-visitor-keys": "3.4.3" } }, "sha512-JJtkDduxLi9bivAB+cYOVMtbkqdPOhZ+ZI5LC47MIRrDV4Yn2o+ZnW10Nkmr28xRpSpdJ6Sm42Hjf2+REYXm0A=="],
 
-    "@typescript/native-preview": ["@typescript/native-preview@7.0.0-dev.20260217.1", "", { "optionalDependencies": { "@typescript/native-preview-darwin-arm64": "7.0.0-dev.20260217.1", "@typescript/native-preview-darwin-x64": "7.0.0-dev.20260217.1", "@typescript/native-preview-linux-arm": "7.0.0-dev.20260217.1", "@typescript/native-preview-linux-arm64": "7.0.0-dev.20260217.1", "@typescript/native-preview-linux-x64": "7.0.0-dev.20260217.1", "@typescript/native-preview-win32-arm64": "7.0.0-dev.20260217.1", "@typescript/native-preview-win32-x64": "7.0.0-dev.20260217.1" }, "bin": { "tsgo": "bin/tsgo.js" } }, "sha512-czUniBl1MsempdDkeDwfKThhHkeQzyLxn2aVcsCTSk2Ys84M8yy2eRdUZQrufwLL1Etcz+bv3SvZbBMcnPk/Ig=="],
-
-    "@typescript/native-preview-darwin-arm64": ["@typescript/native-preview-darwin-arm64@7.0.0-dev.20260217.1", "", { "os": "darwin", "cpu": "arm64" }, "sha512-Mj8Mh+aTaGWURK65VuMxyOBhy+9OfXCHCL63zJPr/PqTNKub+GgGpGYKfSlbDBkqkB8UgURlI2CDRUoyOfvufQ=="],
-
-    "@typescript/native-preview-darwin-x64": ["@typescript/native-preview-darwin-x64@7.0.0-dev.20260217.1", "", { "os": "darwin", "cpu": "x64" }, "sha512-txn4CJ7/zj+WcSdDL5nshs9he7M0DF5qZBU5glWAJP+uIZmRSyuxDoWZqtjrzmX+vs5IOzyKgYcDsBYFkjybwA=="],
-
-    "@typescript/native-preview-linux-arm": ["@typescript/native-preview-linux-arm@7.0.0-dev.20260217.1", "", { "os": "linux", "cpu": "arm" }, "sha512-gw+O550PhazyzsAi/oq1xztMM1PWSXtxq38tN15e/dRh0BXOt0bDUoEgIzFD0L5OkmiOlEIknROqvAVNa4QH3g=="],
-
-    "@typescript/native-preview-linux-arm64": ["@typescript/native-preview-linux-arm64@7.0.0-dev.20260217.1", "", { "os": "linux", "cpu": "arm64" }, "sha512-aGCr3/g1ktJ+IRjLEWTdNmG3H2iwPWt9tBu7spRnIIvDcdlEHFf8NQ2Mwn3n54bVnXAN5nYxZmM7WEYYfNvD6w=="],
-
-    "@typescript/native-preview-linux-x64": ["@typescript/native-preview-linux-x64@7.0.0-dev.20260217.1", "", { "os": "linux", "cpu": "x64" }, "sha512-KAE4W+5VVRagA+xI6AxCSMVx2zb+8t15lMcB1cH5rIU2ZpnYa8K2ZXpSRMZGKNIFzcg6tKF9RyZvh4zMwZDnkQ=="],
-
-    "@typescript/native-preview-win32-arm64": ["@typescript/native-preview-win32-arm64@7.0.0-dev.20260217.1", "", { "os": "win32", "cpu": "arm64" }, "sha512-KUYWl+0tYShKoFKp0BAxECmLClT7qnhN5UEW9tsSih9tDka//qnQcWFx452Rw3fiQCqXjkntgwFFXrrvltQMpQ=="],
-
-    "@typescript/native-preview-win32-x64": ["@typescript/native-preview-win32-x64@7.0.0-dev.20260217.1", "", { "os": "win32", "cpu": "x64" }, "sha512-bje8xm+b0q3OSCY01/MZdDBnVISURunL9rCAob8pAu8qtRMvKYGWUsYwTH+fXGUViPAmdlafFd2E82K9VJYmHA=="],
-
     "@typescript/twoslash": ["@typescript/twoslash@3.1.0", "", { "dependencies": { "@typescript/vfs": "1.3.5", "debug": "4.4.0", "lz-string": "1.5.0" } }, "sha512-kTwMUQ8xtAZaC4wb2XuLkPqFVBj2dNBueMQ89NWEuw87k2nLBbuafeG5cob/QEr6YduxIdTVUjix0MtC7mPlmg=="],
+
+    "@typescript/typescript-aix-ppc64": ["@typescript/typescript-aix-ppc64@7.0.1-rc", "", { "os": "aix", "cpu": "ppc64" }, "sha512-oqq2ZfEJ7BQuufcC3QBQndZLPNyamYNHLao8lKRBeeSkZKypBqxPSgkzrcFZtbYcIaBvpiyUnQP9MT7DEYHWbw=="],
+
+    "@typescript/typescript-darwin-arm64": ["@typescript/typescript-darwin-arm64@7.0.1-rc", "", { "os": "darwin", "cpu": "arm64" }, "sha512-Slc0yTftT2F/uGDmtPst8ijydneL6uZaLEyr2UjahxZpbhTjHFBJ5agXtVz/TL4A+ldxzjzj+E8QtLZlh/5mXw=="],
+
+    "@typescript/typescript-darwin-x64": ["@typescript/typescript-darwin-x64@7.0.1-rc", "", { "os": "darwin", "cpu": "x64" }, "sha512-h68iFW/LbA1/BsGgSRGFw981/3s1f/rY27YrmeZNuN+ly7dI+fiDduwT9ZT9866x2onoKNRq7PTyxSKyKDzfAQ=="],
+
+    "@typescript/typescript-freebsd-arm64": ["@typescript/typescript-freebsd-arm64@7.0.1-rc", "", { "os": "freebsd", "cpu": "arm64" }, "sha512-DE+ppd8Ix2c6OMuRkKY4PJ4hngMGJ9M95OQUP17p9xL/1IKXof7npIeuusMN/bgL5o5JzMfSGh+N+5scTYRg0Q=="],
+
+    "@typescript/typescript-freebsd-x64": ["@typescript/typescript-freebsd-x64@7.0.1-rc", "", { "os": "freebsd", "cpu": "x64" }, "sha512-ST1ozHMw0u+CLOnWkcTyWDMV4Qn9osZ6fd1V1lnKDM1t0hZIp81mdGpdHxyHJjd7jdGrb6Gb/QXcZ1uqZ0t5zw=="],
+
+    "@typescript/typescript-linux-arm": ["@typescript/typescript-linux-arm@7.0.1-rc", "", { "os": "linux", "cpu": "arm" }, "sha512-gHmHwT5Naq5CKM8g9bbaGeEpnwQEvWCLn3fwP4K2m61VQdDKkPk0Dhab/OoZ4LV2SrMddmclYXTzpyg23YGt5g=="],
+
+    "@typescript/typescript-linux-arm64": ["@typescript/typescript-linux-arm64@7.0.1-rc", "", { "os": "linux", "cpu": "arm64" }, "sha512-N46pRihK3t5zD5MUtTQcdmQUqr1WI4U2nxno1gLwOtRSsB4krFkRjPHcQNG7h2DtRkX64rQiReX6WKwg2wprMA=="],
+
+    "@typescript/typescript-linux-loong64": ["@typescript/typescript-linux-loong64@7.0.1-rc", "", { "os": "linux", "cpu": "none" }, "sha512-G17Sao312rgiPBTh2F4nOpLpa3CcnBSaNhqNghZk2LNhnsp1RaMO5HMq2me21gqu9xLpc6CIgHtOzU6JBgNlfg=="],
+
+    "@typescript/typescript-linux-mips64el": ["@typescript/typescript-linux-mips64el@7.0.1-rc", "", { "os": "linux", "cpu": "none" }, "sha512-0FQspOb5UsQ4tQKvWgUO3pS9OIWkP7/8dPRWq+CRazJUeQZ4LBjtYK52jg5iIOrvItrVl2CwvRtrU3/9OihwJg=="],
+
+    "@typescript/typescript-linux-ppc64": ["@typescript/typescript-linux-ppc64@7.0.1-rc", "", { "os": "linux", "cpu": "ppc64" }, "sha512-SUmwfVBEv6A2Ld0eWfcvW0FqrgemfQL8jFGOmV1qYxsDqumjE5DekHXqbstgmbE4SHr4rrjHjvmuGCY+kTH/vw=="],
+
+    "@typescript/typescript-linux-riscv64": ["@typescript/typescript-linux-riscv64@7.0.1-rc", "", { "os": "linux", "cpu": "none" }, "sha512-rxeqnNnGiYzv/LlPHi/3+4p0ooR1cNJLjRIHXKovtiVmxXGJq6gtw8VSpbHuWPekyFMXgIAoLCZN0SQ51rAALQ=="],
+
+    "@typescript/typescript-linux-s390x": ["@typescript/typescript-linux-s390x@7.0.1-rc", "", { "os": "linux", "cpu": "s390x" }, "sha512-RYWCHCiPypxajdRHM2CNK/eM22e4Ex5TTjV2pXf7PTtBowGr0xX8i8kIMknyZS0LX2QfleYHouaoMVsFDSle3g=="],
+
+    "@typescript/typescript-linux-x64": ["@typescript/typescript-linux-x64@7.0.1-rc", "", { "os": "linux", "cpu": "x64" }, "sha512-PfLJSu0JzroDkqw2m4nqflPEcn8yev0m/vHFQlY9EzHorzjR6QG0wL8AJHvnD1e6h1s76AZngJ5u+z1K/D/HKw=="],
+
+    "@typescript/typescript-netbsd-arm64": ["@typescript/typescript-netbsd-arm64@7.0.1-rc", "", { "os": "none", "cpu": "arm64" }, "sha512-FfbPxH3dTfp8yVIaNM7bdWTixXuyxpzoemluqcqMROSIz+ImpCG3Q9HO9Ptzp9/giv+P9YYEnCMSXh61migj2w=="],
+
+    "@typescript/typescript-netbsd-x64": ["@typescript/typescript-netbsd-x64@7.0.1-rc", "", { "os": "none", "cpu": "x64" }, "sha512-FzdTfSzhRYb6hlav6K3cI5RVgcvCTvNAu/vc+t7B6AmZkThQ+t/1ntnvT5fnHmY1Az2RIBw7/b+qtCEG61HJTQ=="],
+
+    "@typescript/typescript-openbsd-arm64": ["@typescript/typescript-openbsd-arm64@7.0.1-rc", "", { "os": "openbsd", "cpu": "arm64" }, "sha512-PQGhlxfNig+0YQ9Wwzd0USPBkt6w/ZqkBQWsU7G/0JkTzunJel+jSWwhKw4947pak/m7hGSeYiI04xReDLGZww=="],
+
+    "@typescript/typescript-openbsd-x64": ["@typescript/typescript-openbsd-x64@7.0.1-rc", "", { "os": "openbsd", "cpu": "x64" }, "sha512-WJ7NYgO2mHmLUkI/tZ+hl8lFd26QPJqO8ONOHNuYbdsybLvSB6B6sep222JIVrOfPRDGvFinbGGB+l3m1FWRWA=="],
+
+    "@typescript/typescript-sunos-x64": ["@typescript/typescript-sunos-x64@7.0.1-rc", "", { "os": "sunos", "cpu": "x64" }, "sha512-UYjDeUxd765V9qcwlUPk4pEXyL0i3G76CJm9baK4i99u1pGO1psf3nXDw4MMmElVOPvGbZag99ZR/O59E2OX6w=="],
+
+    "@typescript/typescript-win32-arm64": ["@typescript/typescript-win32-arm64@7.0.1-rc", "", { "os": "win32", "cpu": "arm64" }, "sha512-KzXzFSXZOm7zvEt2Aw0MsB2LbTL88znAiVqTDNAOHdlEb7brgmUQh/X2wM/8Be+N0fjEqWKl65cBKNwpWEbJiw=="],
+
+    "@typescript/typescript-win32-x64": ["@typescript/typescript-win32-x64@7.0.1-rc", "", { "os": "win32", "cpu": "x64" }, "sha512-98R3+OqDr/r0/PLWEoXu88AE0lGVLNd335Ew8ONgzK1JWkNs4ou/5BGt3Or1ij4iXjH+c7PRL+jFjCbtWze+EA=="],
 
     "@typescript/vfs": ["@typescript/vfs@1.6.3", "", { "dependencies": { "debug": "^4.1.1" }, "peerDependencies": { "typescript": "*" } }, "sha512-8Qs6/Tj2B8Uyo4lYJkopdCtrsfpF/ZlbTXK13Nq6JKN+Ih8FF9Oxg97gEp+zIS96wmkMdWUIETl35Yt9BITeiw=="],
 
@@ -7941,6 +7975,8 @@
     "ts-toolbelt": ["ts-toolbelt@6.15.5", "", {}, "sha512-FZIXf1ksVyLcfr7M317jbB67XFJhOO1YqdTcuGaq9q5jLUoTikukZ+98TPjKiP2jC5CgmYdWWYs0s2nLSU0/1A=="],
 
     "ts-unused-exports": ["ts-unused-exports@7.0.3", "", { "dependencies": { "chalk": "4.1.2", "tsconfig-paths": "3.15.0" }, "peerDependencies": { "typescript": "5.8.2" }, "bin": { "ts-unused-exports": "bin/ts-unused-exports" } }, "sha512-D0VdTiTfrmZM7tViQEMuzG0+giU5z5crn4vjK+f1dnxTKcNx23Vc2lpMgd1vP3lYrwnvJofZmCnvEuJ7XUeV2Q=="],
+
+    "tsc": ["tsc@workspace:tooling/tsc"],
 
     "tsconfck": ["tsconfck@3.1.4", "", { "peerDependencies": { "typescript": "5.8.2" }, "optionalPeers": ["typescript"], "bin": { "tsconfck": "bin/tsconfck.js" } }, "sha512-kdqWFGVJqe+KGYvlSO9NIaWn9jT1Ny4oKVzAJsKii5eoE9snzTJzL4+MMVOMn+fikWGFmKEylcXL710V/kIPJQ=="],
 
@@ -11557,6 +11593,8 @@
     "trim-repeated/escape-string-regexp": ["escape-string-regexp@1.0.5", "", {}, "sha512-vbRorB5FUQWvla16U8R/qgaFIya2qGzwDrNmCZuYKrbdSUMG6I1ZCGQRefkRVhuOkIGVne7BQ35DSfo1qvJqFg=="],
 
     "ts-unused-exports/tsconfig-paths": ["tsconfig-paths@3.15.0", "", { "dependencies": { "@types/json5": "0.0.29", "json5": "1.0.2", "minimist": "1.2.6", "strip-bom": "3.0.0" } }, "sha512-2Ac2RgzDe/cn48GvOe3M+o82pEFewD3UPbyoUHHdKasHwJKjds4fLXWf/Ux5kATBKN20oaFGu+jbElp1pos0mg=="],
+
+    "tsc/typescript": ["typescript@7.0.1-rc", "", { "optionalDependencies": { "@typescript/typescript-aix-ppc64": "7.0.1-rc", "@typescript/typescript-darwin-arm64": "7.0.1-rc", "@typescript/typescript-darwin-x64": "7.0.1-rc", "@typescript/typescript-freebsd-arm64": "7.0.1-rc", "@typescript/typescript-freebsd-x64": "7.0.1-rc", "@typescript/typescript-linux-arm": "7.0.1-rc", "@typescript/typescript-linux-arm64": "7.0.1-rc", "@typescript/typescript-linux-loong64": "7.0.1-rc", "@typescript/typescript-linux-mips64el": "7.0.1-rc", "@typescript/typescript-linux-ppc64": "7.0.1-rc", "@typescript/typescript-linux-riscv64": "7.0.1-rc", "@typescript/typescript-linux-s390x": "7.0.1-rc", "@typescript/typescript-linux-x64": "7.0.1-rc", "@typescript/typescript-netbsd-arm64": "7.0.1-rc", "@typescript/typescript-netbsd-x64": "7.0.1-rc", "@typescript/typescript-openbsd-arm64": "7.0.1-rc", "@typescript/typescript-openbsd-x64": "7.0.1-rc", "@typescript/typescript-sunos-x64": "7.0.1-rc", "@typescript/typescript-win32-arm64": "7.0.1-rc", "@typescript/typescript-win32-x64": "7.0.1-rc" }, "bin": { "tsc": "bin/tsc" } }, "sha512-drEP77wK7CCDlPfXZH4e008UUQOsw1DFmHmZOZjuNA+yoDLLnSNMZRXi90NbV/1LVo7SbNLq1bs3jjvk49TEqQ=="],
 
     "tsutils/tslib": ["tslib@1.14.1", "", {}, "sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg=="],
 

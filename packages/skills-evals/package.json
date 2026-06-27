@@ -12,7 +12,7 @@
 		"export": "bun src/cli.ts export",
 		"format": "oxfmt src scenarios.ts",
 		"formatting": "oxfmt src scenarios.ts --check",
-		"lint": "eslint src && tsgo"
+		"lint": "eslint src && tsc"
 	},
 	"dependencies": {
 		"@remotion/skills": "workspace:*",
@@ -24,7 +24,7 @@
 		"@types/bun": "catalog:",
 		"@types/react": "catalog:",
 		"@types/react-dom": "catalog:",
-		"@typescript/native-preview": "catalog:",
+		"tsc": "catalog:",
 		"eslint": "catalog:"
 	}
 }

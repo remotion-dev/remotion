@@ -18,7 +18,7 @@
 		"format": "oxfmt src",
 		"lint": "eslint src",
 		"test": "bun test src/test",
-		"make": "tsgo -d && node build.mjs && bun --env-file=../.env.bundle bundle.ts"
+		"make": "tsc -d && node build.mjs && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"exports": {
 		"./package.json": "./package.json",
@@ -40,7 +40,7 @@
 		"webpack": "5.105.0",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "catalog:",
-		"@typescript/native-preview": "catalog:"
+		"tsc": "catalog:"
 	},
 	"peerDependencies": {
 		"react": ">=16.8.0",

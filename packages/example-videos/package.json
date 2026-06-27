@@ -10,7 +10,7 @@
 		"formatting": "prettier src --check",
 		"lint": "eslint src",
 		"download-media": "bun download-cached-example-media.ts",
-		"make": "tsgo -d && bun download-cached-example-media.ts"
+		"make": "tsc -d && bun download-cached-example-media.ts"
 	},
 	"author": "Jonny Burger",
 	"license": "MIT",
@@ -23,7 +23,7 @@
 		"dotenv": "17.3.1",
 		"eslint": "catalog:",
 		"prettier": "catalog:",
-		"@typescript/native-preview": "catalog:"
+		"tsc": "catalog:"
 	},
 	"private": true
 }
