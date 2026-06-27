@@ -441,7 +441,9 @@ export const Index: React.FC = () => {
 					defaultProps={canvasCapturePreviewDefaultProps}
 					calculateMetadata={calculateCanvasCapturePreviewMetadata}
 				/>
-				<Folder name="nested-copilot-tests" />
+				<Folder name="nested-copilot-tests">
+					<></>
+				</Folder>
 			</Folder>
 			<Folder name="dynamic-parameters">
 				<Composition
