@@ -12,7 +12,10 @@ import {splitJsxSequenceHandler} from '../preview-server/routes/split-jsx-sequen
 import {getUndoStack} from '../preview-server/undo-stack';
 import {lineColumnToNodePath} from './test-utils';
 
-const wrap = (sequence: string) => `import {Sequence, Series} from 'remotion';
+const wrap = (
+	sequence: string,
+) => `import {Img, Interactive, Sequence, Series, Solid} from 'remotion';
+import {Gif} from '@remotion/gif';
 
 export const Comp = () => {
 	return (
@@ -23,11 +26,13 @@ export const Comp = () => {
 };
 `;
 
+const sequenceLine = 7;
+
 const split = async (sequence: string, splitFrame: number) => {
 	const input = wrap(sequence);
 	const {output} = await splitJsxSequence({
 		input,
-		nodePath: lineColumnToNodePath(input, 6),
+		nodePath: lineColumnToNodePath(input, sequenceLine),
 		splitFrame,
 	});
 
@@ -82,6 +87,24 @@ test('splitJsxSequence splits from-only sequence', async () => {
 	expect(output).toContain('<Sequence from={30} trimBefore={20} />');
 });
 
+test('splitJsxSequence splits sequence-backed components', async () => {
+	expect(
+		await split('<Img src="image.png" from={0} durationInFrames={50} />', 30),
+	).toContain(
+		'<Img src="image.png" from={30} durationInFrames={20} trimBefore={30} />',
+	);
+	expect(
+		await split('<Gif src="anim.gif" from={0} durationInFrames={50} />', 30),
+	).toContain(
+		'<Gif src="anim.gif" from={30} durationInFrames={20} trimBefore={30} />',
+	);
+	expect(
+		await split('<Interactive.Div from={0} durationInFrames={50} />', 30),
+	).toContain(
+		'<Interactive.Div from={30} durationInFrames={20} trimBefore={30} />',
+	);
+});
+
 test('splitJsxSequence rejects boundary and dynamic splits', async () => {
 	await expect(
 		split('<Sequence from={10} durationInFrames={20} />', 10),
@@ -103,7 +126,16 @@ test('splitJsxSequence rejects boundary and dynamic splits', async () => {
 test('splitJsxSequence rejects Series.Sequence', async () => {
 	await expect(
 		split('<Series.Sequence from={0} durationInFrames={50} />', 30),
-	).rejects.toThrow(/Only <Sequence>/);
+	).rejects.toThrow(/cannot be split from source/);
+});
+
+test('splitJsxSequence rejects Solid and regular DOM elements', async () => {
+	await expect(
+		split('<Solid width={100} height={100} durationInFrames={50} />', 30),
+	).rejects.toThrow(/<Solid> does not support sequence timing props/);
+	await expect(
+		split('<div from={0} durationInFrames={50} />', 30),
+	).rejects.toThrow(/does not support sequence timing props/);
 });
 
 const clearUndoStack = () => {
@@ -157,7 +189,7 @@ test('splitJsxSequenceHandler writes success and failure responses', async () =>
 			getHandlerOptions({
 				input: {
 					fileName: entryPoint,
-					nodePath: lineColumnToNodePath(input, 6),
+					nodePath: lineColumnToNodePath(input, sequenceLine),
 					splitFrame: 30,
 				},
 				entryPoint,
@@ -175,7 +207,7 @@ test('splitJsxSequenceHandler writes success and failure responses', async () =>
 			getHandlerOptions({
 				input: {
 					fileName: entryPoint,
-					nodePath: lineColumnToNodePath(input, 6),
+					nodePath: lineColumnToNodePath(input, sequenceLine),
 					splitFrame: 0,
 				},
 				entryPoint,

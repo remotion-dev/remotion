@@ -28,6 +28,23 @@ type SplitPropStatuses = Partial<
 	>
 >;
 
+export const getTimelineSequenceSplitUnsupportedReason = (
+	componentName: string | null | undefined,
+): string | null => {
+	if (componentName === '<Solid>') {
+		return '<Solid> does not support sequence timing props and cannot be split';
+	}
+
+	if (
+		componentName === '<TransitionSeries.Sequence>' ||
+		componentName === '<TransitionSeries.Overlay>'
+	) {
+		return `${componentName} cannot be split from source`;
+	}
+
+	return null;
+};
+
 const staticNumberish = (
 	status: CanUpdateSequencePropStatus | undefined,
 ): boolean => {
@@ -77,6 +94,16 @@ export const getTimelineSequenceSplitEligibility = ({
 		return {
 			canSplit: false,
 			reason: 'Series.Sequence clips cannot be split from source',
+		};
+	}
+
+	const unsupportedReason = getTimelineSequenceSplitUnsupportedReason(
+		sequence.controls?.componentName,
+	);
+	if (unsupportedReason) {
+		return {
+			canSplit: false,
+			reason: unsupportedReason,
 		};
 	}
 

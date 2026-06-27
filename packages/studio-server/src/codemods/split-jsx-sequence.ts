@@ -5,6 +5,9 @@ import type {
 	JSXElement,
 	JSXExpressionContainer,
 	JSXFragment,
+	JSXIdentifier,
+	JSXMemberExpression,
+	JSXNamespacedName,
 	Node,
 	ReturnStatement,
 } from '@babel/types';
@@ -212,9 +215,92 @@ const orderTimingAttributes = (element: JSXElement) => {
 	);
 };
 
-const isSequenceElement = (element: JSXElement): boolean => {
-	const {name} = element.openingElement;
-	return name.type === 'JSXIdentifier' && name.name === 'Sequence';
+const splittableSequenceTags = new Set([
+	'AnimatedImage',
+	'Arrow',
+	'Audio',
+	'Callout',
+	'CanvasImage',
+	'Circle',
+	'Ellipse',
+	'Gif',
+	'Heart',
+	'Html5Audio',
+	'Html5Video',
+	'HtmlInCanvas',
+	'Img',
+	'OffthreadVideo',
+	'Pie',
+	'Polygon',
+	'Rect',
+	'RemotionRiveCanvas',
+	'Sequence',
+	'Spark',
+	'Star',
+	'Starburst',
+	'Triangle',
+	'Video',
+]);
+
+const unsupportedSequenceTags = new Set([
+	'Solid',
+	'Series.Sequence',
+	'TransitionSeries.Overlay',
+	'TransitionSeries.Sequence',
+]);
+
+const jsxMemberNameToString = (
+	name: JSXIdentifier | JSXMemberExpression,
+): string => {
+	if (name.type === 'JSXIdentifier') {
+		return name.name;
+	}
+
+	return `${jsxMemberNameToString(name.object)}.${name.property.name}`;
+};
+
+const jsxNameToString = (
+	name: JSXIdentifier | JSXMemberExpression | JSXNamespacedName,
+): string => {
+	if (name.type === 'JSXNamespacedName') {
+		return `${name.namespace.name}:${name.name.name}`;
+	}
+
+	return jsxMemberNameToString(name);
+};
+
+export const getSplitUnsupportedSequenceTagReason = (
+	tagName: string,
+): string | null => {
+	if (tagName === 'Solid') {
+		return '<Solid> does not support sequence timing props and cannot be split';
+	}
+
+	if (
+		tagName === 'Series.Sequence' ||
+		tagName === 'TransitionSeries.Sequence' ||
+		tagName === 'TransitionSeries.Overlay'
+	) {
+		return `<${tagName}> cannot be split from source`;
+	}
+
+	return null;
+};
+
+export const getIsSplittableSequenceTag = (tagName: string): boolean => {
+	if (unsupportedSequenceTags.has(tagName)) {
+		return false;
+	}
+
+	if (tagName.startsWith('Interactive.')) {
+		return true;
+	}
+
+	return splittableSequenceTags.has(tagName);
+};
+
+const getSplittableSequenceTagName = (element: JSXElement): string => {
+	return jsxNameToString(element.openingElement.name);
 };
 
 const makeFragment = (first: JSXElement, second: JSXElement): JSXFragment => ({
@@ -291,8 +377,16 @@ export const splitJsxSequence = async ({
 	}
 
 	const jsxElement = jsxPath.node as JSXElement;
-	if (!isSequenceElement(jsxElement)) {
-		throw new Error('Only <Sequence> can be split');
+	const tagName = getSplittableSequenceTagName(jsxElement);
+	const unsupportedReason = getSplitUnsupportedSequenceTagReason(tagName);
+	if (unsupportedReason) {
+		throw new Error(unsupportedReason);
+	}
+
+	if (!getIsSplittableSequenceTag(tagName)) {
+		throw new Error(
+			`<${tagName}> does not support sequence timing props and cannot be split`,
+		);
 	}
 
 	const timing = readSequenceTiming(jsxElement);

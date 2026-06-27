@@ -145,6 +145,29 @@ test('getTimelineSequenceSplitEligibility rejects non-editable sequence shapes',
 			splitFrame: 30,
 		}).canSplit,
 	).toBe(false);
+	expect(
+		getTimelineSequenceSplitEligibility({
+			selection: {
+				type: 'sequence',
+				nodePathInfo: makeNodePathInfo(['body', 2]),
+			},
+			sequence: makeSequence({
+				controls: {
+					schema: {},
+					currentRuntimeValueDotNotation: {},
+					overrideId: 'override',
+					supportsEffects: true,
+					componentIdentity: 'dev.remotion.remotion.Solid',
+					componentName: '<Solid>',
+				},
+			}),
+			splitFrame: 30,
+		}),
+	).toEqual({
+		canSplit: false,
+		reason:
+			'<Solid> does not support sequence timing props and cannot be split',
+	});
 });
 
 test('getTimelineSequenceSplitEligibility rejects dynamic timing props', () => {
