@@ -20,7 +20,7 @@ export const splitJsxSequenceHandler: ApiHandler<
 	SplitJsxSequenceRequest,
 	SplitJsxSequenceResponse
 > = async ({
-	input: {clientId, fileName, nodePath, splitFrame},
+	input: {fileName, nodePath, splitFrame},
 	remotionRoot,
 	logLevel,
 }) => {
@@ -58,7 +58,7 @@ export const splitJsxSequenceHandler: ApiHandler<
 			suppressHmrOnFileRestore: false,
 		});
 		suppressUndoStackInvalidation(absolutePath);
-		writeFileAndNotifyFileWatchers(absolutePath, output, clientId);
+		writeFileAndNotifyFileWatchers(absolutePath, output, undefined);
 
 		const locationLabel = formatLogFileLocation({
 			remotionRoot,

@@ -206,11 +206,8 @@ test('splitSelectedTimelineItems splits the selected sequence at the playhead', 
 			effects: [],
 		},
 	} satisfies PropStatuses;
-	const splitCalls: {
-		clientId: string;
-		nodePathInfo: SequenceNodePathInfo;
-		splitFrame: number;
-	}[] = [];
+	const splitCalls: {nodePathInfo: SequenceNodePathInfo; splitFrame: number}[] =
+		[];
 
 	const result = await splitSelectedTimelineItems({
 		selections: [{type: 'sequence', nodePathInfo}],
@@ -219,7 +216,6 @@ test('splitSelectedTimelineItems splits the selected sequence at the playhead', 
 			override: nodePathInfo.sequenceSubscriptionKey,
 		},
 		propStatuses,
-		clientId: 'client-1',
 		splitFrame: 30,
 		splitSequence: (options) => {
 			splitCalls.push(options);
@@ -228,7 +224,5 @@ test('splitSelectedTimelineItems splits the selected sequence at the playhead', 
 	});
 
 	expect(result).toBe(true);
-	expect(splitCalls).toEqual([
-		{clientId: 'client-1', nodePathInfo, splitFrame: 30},
-	]);
+	expect(splitCalls).toEqual([{nodePathInfo, splitFrame: 30}]);
 });
