@@ -69,8 +69,50 @@ const isEffectsRoot = (
 	return auxiliaryKeys[auxiliaryKeys.length - 1] === 'effects';
 };
 
+const INSPECTOR_COLLAPSED_ROWS_SESSION_STORAGE_KEY =
+	'remotion.editor.inspectorCollapsedRows';
+
 const getInspectorExpansionKey = (nodePathInfo: SequenceNodePathInfo) => {
 	return JSON.stringify(nodePathInfo);
+};
+
+const loadInspectorCollapsedKeys = (): ReadonlySet<string> => {
+	if (typeof window === 'undefined') {
+		return new Set();
+	}
+
+	try {
+		const raw = window.sessionStorage.getItem(
+			INSPECTOR_COLLAPSED_ROWS_SESSION_STORAGE_KEY,
+		);
+		if (raw === null) {
+			return new Set();
+		}
+
+		const parsed: unknown = JSON.parse(raw);
+		if (!Array.isArray(parsed)) {
+			return new Set();
+		}
+
+		return new Set(parsed.filter((key) => typeof key === 'string'));
+	} catch {
+		return new Set();
+	}
+};
+
+const persistInspectorCollapsedKeys = (keys: ReadonlySet<string>): void => {
+	if (typeof window === 'undefined') {
+		return;
+	}
+
+	try {
+		window.sessionStorage.setItem(
+			INSPECTOR_COLLAPSED_ROWS_SESSION_STORAGE_KEY,
+			JSON.stringify([...keys]),
+		);
+	} catch {
+		// Ignore quota errors or disabled storage.
+	}
 };
 
 type SequenceWithControls = TSequence & {
@@ -125,7 +167,7 @@ export const InspectorSequenceSection: React.FC<{
 		nodePathInfo,
 	});
 	const [collapsedKeys, setCollapsedKeys] = useState<ReadonlySet<string>>(
-		() => new Set(),
+		loadInspectorCollapsedKeys,
 	);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {setSelectedModal} = useContext(ModalsContext);
@@ -147,6 +189,7 @@ export const InspectorSequenceSection: React.FC<{
 				next.add(key);
 			}
 
+			persistInspectorCollapsedKeys(next);
 			return next;
 		});
 	}, []);
