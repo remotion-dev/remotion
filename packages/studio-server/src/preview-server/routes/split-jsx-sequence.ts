@@ -15,83 +15,81 @@ import {
 	suppressUndoStackInvalidation,
 } from '../undo-stack';
 import {warnAboutPrettierOnce} from './log-updates/log-update';
+import {withSavePropsLock} from './save-props-mutex';
 
 export const splitJsxSequenceHandler: ApiHandler<
 	SplitJsxSequenceRequest,
 	SplitJsxSequenceResponse
-> = async ({
-	input: {fileName, nodePath, splitFrame},
-	remotionRoot,
-	logLevel,
-}) => {
-	try {
-		RenderInternals.Log.trace(
-			{indent: false, logLevel},
-			`[split-jsx-sequence] Received request for fileName="${fileName}" at frame ${splitFrame}`,
-		);
-		const {absolutePath, fileRelativeToRoot} = resolveFileInsideProject({
-			remotionRoot,
-			fileName,
-			action: 'modify',
-		});
+> = ({input: {fileName, nodePath, splitFrame}, remotionRoot, logLevel}) =>
+	withSavePropsLock(async () => {
+		try {
+			RenderInternals.Log.trace(
+				{indent: false, logLevel},
+				`[split-jsx-sequence] Received request for fileName="${fileName}" at frame ${splitFrame}`,
+			);
+			const {absolutePath, fileRelativeToRoot} = resolveFileInsideProject({
+				remotionRoot,
+				fileName,
+				action: 'modify',
+			});
 
-		const fileContents = readFileSync(absolutePath, 'utf-8');
+			const fileContents = readFileSync(absolutePath, 'utf-8');
 
-		const {output, formatted, nodeLabel, logLine} = await splitJsxSequence({
-			input: fileContents,
-			nodePath,
-			splitFrame,
-		});
+			const {output, formatted, nodeLabel, logLine} = await splitJsxSequence({
+				input: fileContents,
+				nodePath,
+				splitFrame,
+			});
 
-		pushToUndoStack({
-			filePath: absolutePath,
-			oldContents: fileContents,
-			newContents: null,
-			logLevel,
-			remotionRoot,
-			logLine,
-			description: {
-				undoMessage: `↩️  Split of ${nodeLabel}`,
-				redoMessage: `↪️  Split of ${nodeLabel}`,
-			},
-			entryType: 'split-jsx-sequence',
-			suppressHmrOnFileRestore: false,
-		});
-		suppressUndoStackInvalidation(absolutePath);
-		writeFileAndNotifyFileWatchers(absolutePath, output, undefined);
+			pushToUndoStack({
+				filePath: absolutePath,
+				oldContents: fileContents,
+				newContents: null,
+				logLevel,
+				remotionRoot,
+				logLine,
+				description: {
+					undoMessage: `↩️  Split of ${nodeLabel}`,
+					redoMessage: `↪️  Split of ${nodeLabel}`,
+				},
+				entryType: 'split-jsx-sequence',
+				suppressHmrOnFileRestore: false,
+			});
+			suppressUndoStackInvalidation(absolutePath);
+			writeFileAndNotifyFileWatchers(absolutePath, output, undefined);
 
-		const locationLabel = formatLogFileLocation({
-			remotionRoot,
-			absolutePath,
-			line: logLine,
-		});
-		RenderInternals.Log.info(
-			{indent: false, logLevel},
-			`${RenderInternals.chalk.blueBright(
-				`${locationLabel}`,
-			)} Split ${nodeLabel}`,
-		);
-		if (!formatted) {
-			warnAboutPrettierOnce(logLevel);
+			const locationLabel = formatLogFileLocation({
+				remotionRoot,
+				absolutePath,
+				line: logLine,
+			});
+			RenderInternals.Log.info(
+				{indent: false, logLevel},
+				`${RenderInternals.chalk.blueBright(
+					`${locationLabel}`,
+				)} Split ${nodeLabel}`,
+			);
+			if (!formatted) {
+				warnAboutPrettierOnce(logLevel);
+			}
+
+			RenderInternals.Log.verbose(
+				{indent: false, logLevel},
+				`[split-jsx-sequence] Wrote ${fileRelativeToRoot}${
+					formatted ? ' (formatted)' : ''
+				}`,
+			);
+
+			printUndoHint(logLevel);
+
+			return {
+				success: true,
+			};
+		} catch (err) {
+			return {
+				success: false,
+				reason: (err as Error).message,
+				stack: (err as Error).stack as string,
+			};
 		}
-
-		RenderInternals.Log.verbose(
-			{indent: false, logLevel},
-			`[split-jsx-sequence] Wrote ${fileRelativeToRoot}${
-				formatted ? ' (formatted)' : ''
-			}`,
-		);
-
-		printUndoHint(logLevel);
-
-		return {
-			success: true,
-		};
-	} catch (err) {
-		return {
-			success: false,
-			reason: (err as Error).message,
-			stack: (err as Error).stack as string,
-		};
-	}
-};
+	});
