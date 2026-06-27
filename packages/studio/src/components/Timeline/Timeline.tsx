@@ -265,7 +265,6 @@ const TimelineInner: React.FC = () => {
 						schema={sequence.controls.schema}
 						getStack={sequence.getStack}
 						effects={sequence.effects}
-						runtimeTimingKey={`${sequence.from}:${sequence.duration}:${sequence.trimBefore ?? ''}`}
 					/>
 				);
 			})}

@@ -14,15 +14,7 @@ export const SubscribeToNodePaths: FC<{
 	readonly schema: InteractivitySchema;
 	readonly getStack: () => string | null;
 	readonly effects: readonly EffectDefinition<unknown>[];
-	readonly runtimeTimingKey: string;
-}> = ({
-	overrideId,
-	componentIdentity,
-	schema,
-	getStack,
-	effects,
-	runtimeTimingKey,
-}) => {
+}> = ({overrideId, componentIdentity, schema, getStack, effects}) => {
 	const originalLocation = useResolveStackAndReactToChange(getStack);
 
 	const effectSubscriptions = useMemo<InteractivitySchema[]>(() => {
@@ -39,7 +31,6 @@ export const SubscribeToNodePaths: FC<{
 		schema,
 		effects: effectSubscriptions,
 		originalLocation,
-		runtimeTimingKey,
 	});
 
 	return null;

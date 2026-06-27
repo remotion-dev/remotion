@@ -20,14 +20,12 @@ export const useSequencePropsSubscription = ({
 	componentIdentity,
 	schema,
 	effects,
-	runtimeTimingKey,
 }: {
 	overrideId: string;
 	componentIdentity: JsxComponentIdentity | null;
 	schema: InteractivitySchema;
 	effects: InteractivitySchema[];
 	originalLocation: OriginalPosition | null;
-	runtimeTimingKey: string;
 }) => {
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {setOverrideIdToNodePath} = useContext(
@@ -107,8 +105,6 @@ export const useSequencePropsSubscription = ({
 					return;
 				}
 
-				setPropStatuses(result.nodePath, () => result.status);
-
 				const newNodePath = result.nodePath;
 				const newNodePathKey = stringifySequenceSubscriptionKey(newNodePath);
 				const previousNodePath =
@@ -146,7 +142,6 @@ export const useSequencePropsSubscription = ({
 		locationSource,
 		migrateExpandedTracksForSubscriptionKey,
 		overrideId,
-		runtimeTimingKey,
 		schema,
 		setPropStatuses,
 		setOverrideIdToNodePath,
