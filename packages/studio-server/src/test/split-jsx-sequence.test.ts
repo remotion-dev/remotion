@@ -98,6 +98,16 @@ test('splitJsxSequence splits sequence-backed components', async () => {
 	).toContain(
 		'<Gif src="anim.gif" from={30} durationInFrames={20} trimBefore={30} />',
 	);
+	const solidOutput = await split(
+		'<Solid width={100} height={100} from={0} durationInFrames={50} />',
+		30,
+	);
+	expect(solidOutput).toContain(
+		'<Solid width={100} height={100} from={0} durationInFrames={30} />',
+	);
+	expect(solidOutput).toContain('from={30}');
+	expect(solidOutput).toContain('durationInFrames={20}');
+	expect(solidOutput).toContain('trimBefore={30}');
 	expect(
 		await split('<Interactive.Div from={0} durationInFrames={50} />', 30),
 	).toContain(
@@ -129,10 +139,7 @@ test('splitJsxSequence rejects Series.Sequence', async () => {
 	).rejects.toThrow(/cannot be split from source/);
 });
 
-test('splitJsxSequence rejects Solid and regular DOM elements', async () => {
-	await expect(
-		split('<Solid width={100} height={100} durationInFrames={50} />', 30),
-	).rejects.toThrow(/<Solid> does not support sequence timing props/);
+test('splitJsxSequence rejects regular DOM elements', async () => {
 	await expect(
 		split('<div from={0} durationInFrames={50} />', 30),
 	).rejects.toThrow(/does not support sequence timing props/);

@@ -31,10 +31,6 @@ type SplitPropStatuses = Partial<
 export const getTimelineSequenceSplitUnsupportedReason = (
 	componentName: string | null | undefined,
 ): string | null => {
-	if (componentName === '<Solid>') {
-		return '<Solid> does not support sequence timing props and cannot be split';
-	}
-
 	if (
 		componentName === '<TransitionSeries.Sequence>' ||
 		componentName === '<TransitionSeries.Overlay>'

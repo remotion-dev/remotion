@@ -235,6 +235,7 @@ const splittableSequenceTags = new Set([
 	'Rect',
 	'RemotionRiveCanvas',
 	'Sequence',
+	'Solid',
 	'Spark',
 	'Star',
 	'Starburst',
@@ -243,7 +244,6 @@ const splittableSequenceTags = new Set([
 ]);
 
 const unsupportedSequenceTags = new Set([
-	'Solid',
 	'Series.Sequence',
 	'TransitionSeries.Overlay',
 	'TransitionSeries.Sequence',
@@ -272,10 +272,6 @@ const jsxNameToString = (
 export const getSplitUnsupportedSequenceTagReason = (
 	tagName: string,
 ): string | null => {
-	if (tagName === 'Solid') {
-		return '<Solid> does not support sequence timing props and cannot be split';
-	}
-
 	if (
 		tagName === 'Series.Sequence' ||
 		tagName === 'TransitionSeries.Sequence' ||

@@ -164,9 +164,8 @@ test('getTimelineSequenceSplitEligibility rejects non-editable sequence shapes',
 			splitFrame: 30,
 		}),
 	).toEqual({
-		canSplit: false,
-		reason:
-			'<Solid> does not support sequence timing props and cannot be split',
+		canSplit: true,
+		nodePathInfo: makeNodePathInfo(['body', 2]),
 	});
 });
 
