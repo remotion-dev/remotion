@@ -11,6 +11,7 @@ import {Spacing} from '../layout';
 import {ModalFooterContainer} from '../ModalFooter';
 import {ModalHeader} from '../ModalHeader';
 import {label, optionRow, rightRow} from '../RenderModal/layout';
+import {applyCodemod} from '../RenderQueue/actions';
 import {CodemodFooter} from './CodemodFooter';
 import {DismissableModal} from './DismissableModal';
 import {InputDragger} from './InputDragger';
@@ -307,6 +308,14 @@ const NewCompositionLoaded: React.FC = () => {
 						stack={null}
 						valid={valid}
 						onSuccess={onSuccess}
+						applyCodemod={({signal, symbolicatedStack}) =>
+							applyCodemod({
+								codemod,
+								dryRun: false,
+								signal,
+								symbolicatedStack,
+							})
+						}
 						fallbackToRootFile
 					/>
 				</ModalFooterContainer>

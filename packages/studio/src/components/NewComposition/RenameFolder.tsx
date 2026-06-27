@@ -15,6 +15,7 @@ import {Spacing} from '../layout';
 import {ModalFooterContainer} from '../ModalFooter';
 import {ModalHeader} from '../ModalHeader';
 import {label, optionRow, rightRow} from '../RenderModal/layout';
+import {applyCodemod} from '../RenderQueue/actions';
 import {CodemodFooter} from './CodemodFooter';
 import {DismissableModal} from './DismissableModal';
 import {RemotionInput} from './RemInput';
@@ -118,6 +119,14 @@ export const RenameFolder: React.FC<{
 						stack={stack}
 						valid={valid}
 						onSuccess={null}
+						applyCodemod={({signal, symbolicatedStack}) =>
+							applyCodemod({
+								codemod,
+								dryRun: false,
+								signal,
+								symbolicatedStack,
+							})
+						}
 					/>
 				</ModalFooterContainer>
 			</form>
