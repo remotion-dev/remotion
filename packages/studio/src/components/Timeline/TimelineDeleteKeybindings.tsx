@@ -16,6 +16,11 @@ import {
 import {duplicateSelectedTimelineItems} from './duplicate-selected-timeline-item';
 import {resetSelectedTimelineProps} from './reset-selected-timeline-props';
 import {
+	shouldHandleTimelineDuplicateShortcut,
+	shouldHandleTimelineSplitShortcut,
+	splitSelectedTimelineItems,
+} from './split-selected-timeline-item';
+import {
 	useCurrentTimelineSelectionStateAsRef,
 	useTimelineSelection,
 } from './TimelineSelection';
@@ -155,7 +160,11 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 		const duplicate = keybindings.registerKeybinding({
 			event: 'keydown',
 			key: 'd',
-			callback: () => {
+			callback: (event) => {
+				if (!shouldHandleTimelineDuplicateShortcut(event)) {
+					return;
+				}
+
 				const {selectedItems} = currentSelection.current;
 				if (selectedItems.length === 0) {
 					return;
@@ -177,11 +186,44 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 			triggerIfInputFieldFocused: false,
 			keepRegisteredWhenNotHighestContext: false,
 		});
+		const split = keybindings.registerKeybinding({
+			event: 'keydown',
+			key: 'd',
+			callback: (event) => {
+				if (!shouldHandleTimelineSplitShortcut(event)) {
+					return;
+				}
+
+				const {selectedItems} = currentSelection.current;
+				if (selectedItems.length === 0) {
+					return;
+				}
+
+				const splitPromise = splitSelectedTimelineItems({
+					selections: selectedItems,
+					sequences: sequencesRef.current,
+					overrideIdsToNodePaths: overrideIdToNodePathMappings,
+					propStatuses: propStatusesRef.current,
+					splitFrame: timelinePositionRef.current,
+				});
+
+				if (splitPromise === null) {
+					return;
+				}
+
+				splitPromise.catch(() => undefined);
+			},
+			commandCtrlKey: true,
+			preventDefault: true,
+			triggerIfInputFieldFocused: false,
+			keepRegisteredWhenNotHighestContext: false,
+		});
 
 		return () => {
 			backspace.unregister();
 			deleteKey.unregister();
 			duplicate.unregister();
+			split.unregister();
 		};
 	}, [
 		canSelect,

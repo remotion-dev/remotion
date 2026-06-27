@@ -17,7 +17,7 @@ import {
 import {suppressBundlerUpdateForFile} from '../watch-ignore-next-change';
 import {computeSequencePropsStatusFromContent} from './can-update-sequence-props';
 import {logUpdate} from './log-updates/log-update';
-import {withSavePropsLock} from './save-props-mutex';
+import {withSourceFileWriteQueue} from './source-file-write-queue';
 
 export const addSequenceKeyframeHandler: ApiHandler<
 	AddSequenceKeyframeRequest,
@@ -27,7 +27,7 @@ export const addSequenceKeyframeHandler: ApiHandler<
 	remotionRoot,
 	logLevel,
 }) =>
-	withSavePropsLock(async () => {
+	withSourceFileWriteQueue(async () => {
 		RenderInternals.Log.trace(
 			{indent: false, logLevel},
 			`[add-sequence-keyframe] Received request for fileName="${fileName}" key="${key}" frame=${frame}`,
