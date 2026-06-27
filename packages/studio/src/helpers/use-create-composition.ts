@@ -63,13 +63,17 @@ export const getUniqueCompositionName = (
 export const useCreateComposition = ({
 	compositions,
 	durationInFrames,
+	folderName,
 	newId,
+	parentName,
 	selectedFrameRate,
 	size,
 }: {
 	compositions: _InternalTypes['AnyComposition'][];
 	durationInFrames: number;
+	folderName: string | null;
 	newId: string;
+	parentName: string | null;
 	selectedFrameRate: number;
 	size: {
 		width: number;
@@ -101,11 +105,15 @@ export const useCreateComposition = ({
 			newId,
 			componentName,
 			componentImportPath: `./${componentName}`,
+			folderName,
+			parentName,
 		};
 	}, [
 		componentName,
 		durationInFrames,
+		folderName,
 		newId,
+		parentName,
 		selectedFrameRate,
 		size.height,
 		size.width,

@@ -100,6 +100,26 @@ export const getFolderMenuItems = ({
 				}
 			: null,
 		{
+			id: 'new-composition-in-folder',
+			keyHint: null,
+			label: `New composition...`,
+			leftItem: null,
+			onClick: () => {
+				closeMenu();
+				setSelectedModal({
+					type: 'new-comp',
+					folderName: folder.name,
+					parentName: folder.parent,
+					stack: folder.stack,
+				});
+			},
+			quickSwitcherLabel: 'New composition in folder...',
+			subMenu: null,
+			type: 'item' as const,
+			value: 'new-composition-in-folder',
+			disabled: codemodDisabled,
+		},
+		{
 			id: 'rename-folder',
 			keyHint: null,
 			label: `Rename...`,

@@ -24,7 +24,11 @@ const content: React.CSSProperties = {
 	minWidth: 500,
 };
 
-const NewCompositionLoaded: React.FC = () => {
+const NewCompositionLoaded: React.FC<{
+	readonly folderName: string | null;
+	readonly parentName: string | null;
+	readonly stack: string | null;
+}> = ({folderName, parentName, stack}) => {
 	const {compositions} = useContext(Internals.CompositionManager);
 	const [newId, setName] = useState(() =>
 		getUniqueCompositionName(compositions),
@@ -97,7 +101,9 @@ const NewCompositionLoaded: React.FC = () => {
 	} = useCreateComposition({
 		compositions,
 		durationInFrames,
+		folderName,
 		newId,
+		parentName,
 		selectedFrameRate,
 		size,
 	});
@@ -106,11 +112,19 @@ const NewCompositionLoaded: React.FC = () => {
 		e.preventDefault();
 	}, []);
 
+	const folderPath = [parentName, folderName].filter(Boolean).join('/');
+
 	return (
 		<>
 			<ModalHeader title="New composition" />
 			<form onSubmit={onSubmit}>
 				<div style={content}>
+					{folderPath ? (
+						<div style={optionRow}>
+							<div style={label}>Folder</div>
+							<div style={rightRow}>{folderPath}</div>
+						</div>
+					) : null}
 					<div style={optionRow}>
 						<div style={label}>ID</div>
 						<div style={rightRow}>
@@ -229,7 +243,7 @@ const NewCompositionLoaded: React.FC = () => {
 						genericSubmitLabel="Add to root file"
 						submitLabel={({relativeRootPath}) => `Add to ${relativeRootPath}`}
 						codemod={codemod}
-						stack={null}
+						stack={stack}
 						valid={valid}
 						onSuccess={null}
 						applyCodemod={({signal, symbolicatedStack}) =>
@@ -246,10 +260,18 @@ const NewCompositionLoaded: React.FC = () => {
 	);
 };
 
-export const NewComposition: React.FC = () => {
+export const NewComposition: React.FC<{
+	readonly folderName: string | null;
+	readonly parentName: string | null;
+	readonly stack: string | null;
+}> = ({folderName, parentName, stack}) => {
 	return (
 		<DismissableModal>
-			<NewCompositionLoaded />
+			<NewCompositionLoaded
+				folderName={folderName}
+				parentName={parentName}
+				stack={stack}
+			/>
 		</DismissableModal>
 	);
 };

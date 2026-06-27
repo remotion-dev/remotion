@@ -31,7 +31,11 @@ export const Modals: React.FC<{
 	return (
 		<>
 			{modalContextType && modalContextType.type === 'new-comp' && (
-				<NewComposition />
+				<NewComposition
+					folderName={modalContextType.folderName}
+					parentName={modalContextType.parentName}
+					stack={modalContextType.stack}
+				/>
 			)}
 			{modalContextType && modalContextType.type === 'duplicate-comp' && (
 				<DuplicateComposition
