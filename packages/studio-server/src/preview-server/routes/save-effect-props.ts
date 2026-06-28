@@ -21,13 +21,13 @@ import {findJsxElementAtNodePath} from './can-update-sequence-props';
 import {formatEffectPropChange} from './log-updates/format-effect-prop-change';
 import {logEffectUpdate} from './log-updates/log-effect-update';
 import {normalizeQuotes} from './log-updates/log-update';
-import {withSavePropsLock} from './save-props-mutex';
+import {withSourceFileWriteQueue} from './source-file-write-queue';
 
 export const saveEffectPropsHandler: ApiHandler<
 	SaveEffectPropsRequest,
 	SaveEffectPropsResponse
 > = ({input, remotionRoot, logLevel}) =>
-	withSavePropsLock(async () => {
+	withSourceFileWriteQueue(async () => {
 		const {
 			fileName,
 			sequenceNodePath,

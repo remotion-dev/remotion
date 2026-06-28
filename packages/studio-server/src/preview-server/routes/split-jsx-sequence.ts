@@ -1,10 +1,10 @@
 import {readFileSync} from 'node:fs';
 import {RenderInternals} from '@remotion/renderer';
 import type {
-	AddEffectRequest,
-	AddEffectResponse,
+	SplitJsxSequenceRequest,
+	SplitJsxSequenceResponse,
 } from '@remotion/studio-shared';
-import {addEffect} from '../../codemods/add-effect';
+import {splitJsxSequence} from '../../codemods/split-jsx-sequence';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import type {ApiHandler} from '../api-types';
@@ -14,32 +14,19 @@ import {
 	pushToUndoStack,
 	suppressUndoStackInvalidation,
 } from '../undo-stack';
-import {attrName} from './log-updates/formatting';
 import {warnAboutPrettierOnce} from './log-updates/log-update';
 import {withSourceFileWriteQueue} from './source-file-write-queue';
 
-export const addEffectHandler: ApiHandler<
-	AddEffectRequest,
-	AddEffectResponse
-> = ({
-	input: {
-		fileName,
-		sequenceNodePath,
-		effectName,
-		effectImportPath,
-		effectConfig,
-		clientId,
-	},
-	remotionRoot,
-	logLevel,
-}) => {
-	return withSourceFileWriteQueue(async () => {
+export const splitJsxSequenceHandler: ApiHandler<
+	SplitJsxSequenceRequest,
+	SplitJsxSequenceResponse
+> = ({input: {fileName, nodePath, splitFrame}, remotionRoot, logLevel}) =>
+	withSourceFileWriteQueue(async () => {
 		try {
 			RenderInternals.Log.trace(
 				{indent: false, logLevel},
-				`[add-effect] Received request for fileName="${fileName}" effect="${effectName}"`,
+				`[split-jsx-sequence] Received request for fileName="${fileName}" at frame ${splitFrame}`,
 			);
-
 			const {absolutePath, fileRelativeToRoot} = resolveFileInsideProject({
 				remotionRoot,
 				fileName,
@@ -47,14 +34,12 @@ export const addEffectHandler: ApiHandler<
 			});
 
 			const fileContents = readFileSync(absolutePath, 'utf-8');
-			const {output, formatted, effectLabel, nodeLabel, logLine} =
-				await addEffect({
-					input: fileContents,
-					sequenceNodePath: sequenceNodePath.nodePath,
-					effectName,
-					effectImportPath,
-					effectConfig,
-				});
+
+			const {output, formatted, nodeLabel, logLine} = await splitJsxSequence({
+				input: fileContents,
+				nodePath,
+				splitFrame,
+			});
 
 			pushToUndoStack({
 				filePath: absolutePath,
@@ -64,14 +49,14 @@ export const addEffectHandler: ApiHandler<
 				remotionRoot,
 				logLine,
 				description: {
-					undoMessage: `↩️  Addition of ${effectLabel} to ${nodeLabel}`,
-					redoMessage: `↪️  Addition of ${effectLabel} to ${nodeLabel}`,
+					undoMessage: `↩️  Split of ${nodeLabel}`,
+					redoMessage: `↪️  Split of ${nodeLabel}`,
 				},
-				entryType: 'add-effect',
+				entryType: 'split-jsx-sequence',
 				suppressHmrOnFileRestore: false,
 			});
 			suppressUndoStackInvalidation(absolutePath);
-			writeFileAndNotifyFileWatchers(absolutePath, output, clientId);
+			writeFileAndNotifyFileWatchers(absolutePath, output, undefined);
 
 			const locationLabel = formatLogFileLocation({
 				remotionRoot,
@@ -80,7 +65,9 @@ export const addEffectHandler: ApiHandler<
 			});
 			RenderInternals.Log.info(
 				{indent: false, logLevel},
-				`${RenderInternals.chalk.blueBright(`${locationLabel}`)} Added ${attrName(effectLabel)} to ${nodeLabel}`,
+				`${RenderInternals.chalk.blueBright(
+					`${locationLabel}`,
+				)} Split ${nodeLabel}`,
 			);
 			if (!formatted) {
 				warnAboutPrettierOnce(logLevel);
@@ -88,7 +75,9 @@ export const addEffectHandler: ApiHandler<
 
 			RenderInternals.Log.verbose(
 				{indent: false, logLevel},
-				`[add-effect] Wrote ${fileRelativeToRoot}${formatted ? ' (formatted)' : ''}`,
+				`[split-jsx-sequence] Wrote ${fileRelativeToRoot}${
+					formatted ? ' (formatted)' : ''
+				}`,
 			);
 
 			printUndoHint(logLevel);
@@ -104,4 +93,3 @@ export const addEffectHandler: ApiHandler<
 			};
 		}
 	});
-};

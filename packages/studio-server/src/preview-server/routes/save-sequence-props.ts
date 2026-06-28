@@ -23,7 +23,7 @@ import {
 import {suppressBundlerUpdateForFile} from '../watch-ignore-next-change';
 import {computeSequencePropsStatusFromContent} from './can-update-sequence-props';
 import {logUpdate} from './log-updates/log-update';
-import {withSavePropsLock} from './save-props-mutex';
+import {withSourceFileWriteQueue} from './source-file-write-queue';
 
 type ResolvedSequencePropEdit = {
 	index: number;
@@ -89,7 +89,7 @@ export const saveSequencePropsHandler: ApiHandler<
 	remotionRoot,
 	logLevel,
 }) =>
-	withSavePropsLock(async () => {
+	withSourceFileWriteQueue(async () => {
 		if (edits.length === 0) {
 			throw new Error('No sequence prop edits to save');
 		}
