@@ -50,9 +50,12 @@ type ContextMenuProps = {
 	readonly onPointerDown?: React.PointerEventHandler<HTMLDivElement>;
 };
 
+const CONTEXT_MENU_Z_INDEX = 1001;
+
 const contextMenuFullScreenOverlay: React.CSSProperties = {
 	...fullScreenOverlay,
 	pointerEvents: 'none',
+	zIndex: CONTEXT_MENU_Z_INDEX,
 };
 
 const contextMenuOuterPortal: React.CSSProperties = {
