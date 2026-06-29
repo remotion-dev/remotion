@@ -2,38 +2,85 @@ import React from 'react';
 import {AbsoluteFill, useCurrentFrame, useVideoConfig} from 'remotion';
 import {Faces} from './Faces';
 import {useFont} from './get-char';
-import {rotateX, rotateY, rotateZ, translateY} from './matrix';
+import {rotateX, rotateY, translateY} from './matrix';
 import {getButton} from './RenderProgress/make-button';
 
 const viewBox = [-1600, -800, 3200, 1600];
 const color = '#0b84f3';
 const depth = 150;
+const spacing = 900;
+const initialY = 50 * 7.5;
+const phrases = [
+	'video.mp4',
+	'thumb.png',
+	'sound.wav',
+	'doc.pdf',
+	'anim.gif',
+	'intro.mov',
+	'cover.jpg',
+	'voice.aac',
+	'data.json',
+	'clip.webm',
+	'logo.svg',
+	'scene.tsx',
+	'track.mp3',
+	'poster.webp',
+	'lower-third.png',
+	'export.mp4',
+	'captions.srt',
+	'final.mov',
+] as const;
+
+const modulo = (value: number, by: number) => {
+	return ((value % by) + by) % by;
+};
 
 export const RenderProgress: React.FC = () => {
 	const frame = useCurrentFrame();
-	const {fps} = useVideoConfig();
+	const {durationInFrames, fps} = useVideoConfig();
+	const cycleHeight = phrases.length * spacing;
+	const scroll = (frame / durationInFrames) * cycleHeight;
+	const itemSpacingInFrames = durationInFrames / phrases.length;
 
 	const commonTransformations = [
-		translateY((-frame * 1.8 + 50) * 7.5),
 		rotateX(-Math.PI / 5),
-		rotateZ(-Math.PI / 5),
-		rotateZ(frame / 1400),
-		rotateY(-frame / 600),
+		rotateY(-(20 / durationInFrames) * Math.PI * 2),
 	];
+	const getWrappedY = (index: number) => {
+		return (
+			modulo(
+				initialY + index * spacing - scroll + cycleHeight / 2,
+				cycleHeight,
+			) -
+			cycleHeight / 2
+		);
+	};
+
+	const getLocalFrame = (index: number, wrappedY: number) => {
+		const rawY = initialY + index * spacing - scroll;
+		const wrapCount = Math.round((wrappedY - rawY) / cycleHeight);
+		const itemIndex = index + wrapCount * phrases.length;
+
+		return frame - itemIndex * itemSpacingInFrames;
+	};
+
 	const font = useFont();
 	if (!font) {
 		return null;
 	}
 
-	const rendered = new Array(5).fill(true).map((_, i) => {
+	const rendered = phrases.map((phrase, i) => {
+		const wrappedY = getWrappedY(i);
+		const localFrame = getLocalFrame(i, wrappedY);
+
 		return getButton({
 			font,
-			phrase: ['video.mp4', 'thumb.png', 'sound.wav', 'doc.pdf', 'anim.gif'][i],
+			phrase,
 			depth,
 			color,
-			delay: i * 40,
-			transformations: [translateY(i * 900), ...commonTransformations],
-			frame,
+			delay: 0,
+			transformations: [translateY(wrappedY), ...commonTransformations],
+			frame: localFrame,
 			fps,
 		});
 	});

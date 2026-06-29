@@ -13,6 +13,11 @@ import {
 	canvasCapturePreviewSchema,
 } from './CanvasCapturePreview';
 import {
+	WhatIsRemotion,
+	whatIsRemotionCalculateMetadata,
+	whatIsRemotionSchema,
+} from './Compose/WhatIsRemotion';
+import {
 	CornerPinEffectShowcase,
 	cornerPinEffectShowcaseDurationInFrames,
 } from './effects/CornerPinEffectShowcase';
@@ -40,6 +45,8 @@ import {
 	zigzagLinearBlurShowcaseDurationInFrames,
 } from './effects/ZigzagLinearBlurShowcase';
 import {EmailSignature} from './EmailSignature';
+import {CodingPrompt} from './HomepageAssets/CodingPrompt';
+import {Map} from './HomepageAssets/Map';
 import {NpmIniVideo} from './HomepageAssets/NpmInitVideo/NpmInitVideo';
 import {RenderProgress} from './HomepageAssets/RenderProgress';
 import {Studio, studioDurationInFrames} from './HomepageAssets/Studio';
@@ -141,6 +148,33 @@ export const RemotionRoot: React.FC = () => {
 					fps={25}
 					width={1920}
 					height={1080}
+				/>
+				<Composition
+					id="coding-prompt"
+					component={CodingPrompt}
+					durationInFrames={120}
+					fps={30}
+					width={1920}
+					height={1080}
+				/>
+				<Composition
+					id="map"
+					component={Map}
+					durationInFrames={120}
+					fps={30}
+					width={1920}
+					height={1080}
+				/>
+				<Composition
+					id="WhatIsRemotion"
+					component={WhatIsRemotion}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={273}
+					schema={whatIsRemotionSchema}
+					defaultProps={{fade: false, whiteBackground: false, reel: false}}
+					calculateMetadata={whatIsRemotionCalculateMetadata}
 				/>
 			</Folder>
 			<Composition

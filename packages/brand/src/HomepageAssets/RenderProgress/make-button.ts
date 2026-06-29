@@ -21,6 +21,9 @@ const outerCornerRadius = 30 * 7.5;
 const padding = 0;
 const outerWidth = 300 * 7.5;
 const outerHeight = 100 * 7.5;
+const progressDurationInFrames = 40;
+const progressStartOffsetInFrames = 30;
+const flipDelayInFrames = 10;
 
 export const getButton = ({
 	font,
@@ -53,16 +56,16 @@ export const getButton = ({
 		config: {
 			damping: 200,
 		},
-		delay: 40 + delay,
+		delay: flipDelayInFrames + delay,
 	});
 
 	const evolve = spring({
 		fps,
-		frame,
+		frame: frame + progressStartOffsetInFrames,
 		config: {
 			damping: 200,
 		},
-		durationInFrames: 40,
+		durationInFrames: progressDurationInFrames,
 		delay,
 	});
 

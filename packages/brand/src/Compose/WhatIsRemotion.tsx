@@ -195,6 +195,7 @@ export const whatIsRemotionCalculateMetadata: CalculateMetadataFunction<
 	z.infer<typeof whatIsRemotionSchema>
 > = ({props}) => {
 	return {
+		width: props.reel ? 1080 : 1920,
 		height: props.reel ? 1920 : 1080,
 		durationInFrames: props.reel ? 276 : 273,
 		props,
@@ -281,9 +282,10 @@ export const WhatIsRemotion = ({
 	const outActual = getActualLayerWidth(1 - outAnimation);
 
 	return (
-		<AbsoluteFill
+		<Sequence
 			style={{
 				backgroundColor: whiteBackground ? 'white' : undefined,
+				scale: 1.27,
 			}}
 			className="flex justify-center items-center"
 		>
@@ -390,6 +392,6 @@ export const WhatIsRemotion = ({
 					</TranslateZ>
 				</TranslateY>
 			</Scale>
-		</AbsoluteFill>
+		</Sequence>
 	);
 };
