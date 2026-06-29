@@ -10,25 +10,13 @@ const color = '#0b84f3';
 const depth = 150;
 const spacing = 900;
 const initialY = 50 * 7.5;
+export const renderProgressDurationInFrames = 268;
+const rotationReferenceDurationInFrames = 1200;
 const phrases = [
 	'video.mp4',
 	'thumb.png',
 	'sound.wav',
 	'doc.pdf',
-	'anim.gif',
-	'intro.mov',
-	'cover.jpg',
-	'voice.aac',
-	'data.json',
-	'clip.webm',
-	'logo.svg',
-	'scene.tsx',
-	'track.mp3',
-	'poster.webp',
-	'lower-third.png',
-	'export.mp4',
-	'captions.srt',
-	'final.mov',
 ] as const;
 
 const modulo = (value: number, by: number) => {
@@ -36,15 +24,17 @@ const modulo = (value: number, by: number) => {
 };
 
 export const RenderProgress: React.FC = () => {
-	const frame = useCurrentFrame();
+	const currentFrame = useCurrentFrame();
 	const {durationInFrames, fps} = useVideoConfig();
+	const frame = modulo(currentFrame, durationInFrames);
+	const loopProgress = frame / durationInFrames;
 	const cycleHeight = phrases.length * spacing;
-	const scroll = (frame / durationInFrames) * cycleHeight;
+	const scroll = loopProgress * cycleHeight;
 	const itemSpacingInFrames = durationInFrames / phrases.length;
 
 	const commonTransformations = [
 		rotateX(-Math.PI / 5),
-		rotateY(-(20 / durationInFrames) * Math.PI * 2),
+		rotateY(-(20 / rotationReferenceDurationInFrames) * Math.PI * 2),
 	];
 	const getWrappedY = (index: number) => {
 		return (

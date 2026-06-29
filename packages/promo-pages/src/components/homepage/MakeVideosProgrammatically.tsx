@@ -21,11 +21,11 @@ export const MakeVideosProgrammatically: React.FC<{
 }) => {
 	// eslint-disable-next-line no-warning-comments
 	// TODO: Add an opaque fallback for browsers that do not support transparent WebM.
-	const videoSrc = '/img/compose.webm';
+	const videoSrc = '/img/what-is-remotion.webm';
 
 	return (
 		<div className={'flex min-w-0 basis-0 flex-col flex-1'}>
-			<div className="flex h-[225px] w-full items-start">
+			<div className="flex aspect-video w-full items-start">
 				{showVideo ? (
 					<video
 						src={videoSrc}

@@ -48,7 +48,10 @@ import {EmailSignature} from './EmailSignature';
 import {CodingPrompt} from './HomepageAssets/CodingPrompt';
 import {Map} from './HomepageAssets/Map';
 import {NpmIniVideo} from './HomepageAssets/NpmInitVideo/NpmInitVideo';
-import {RenderProgress} from './HomepageAssets/RenderProgress';
+import {
+	RenderProgress,
+	renderProgressDurationInFrames,
+} from './HomepageAssets/RenderProgress';
 import {Studio, studioDurationInFrames} from './HomepageAssets/Studio';
 import './index.css';
 import {Logo} from './Logo';
@@ -136,10 +139,10 @@ export const RemotionRoot: React.FC = () => {
 				<Composition
 					id="RenderProgress"
 					component={RenderProgress}
-					durationInFrames={1200}
+					durationInFrames={renderProgressDurationInFrames}
 					fps={30}
-					width={1280}
-					height={720}
+					width={1920}
+					height={1080}
 				/>
 				<Composition
 					id="Studio"

@@ -59,69 +59,39 @@ export const CanvasSectionTitle: React.FC<{
 			ctx.imageSmoothingEnabled = false;
 			ctx.clearRect(0, 0, pixelWidth, pixelHeight);
 
-			const fontSize = Math.min(66, Math.max(48, height * 0.78));
+			const fontSize = 36;
 			const slant = getSlant();
 			const font = `oblique ${slant}deg 700 ${
 				fontSize * dpr
 			}px GTPlanarVF, GTPlanar, sans-serif`;
 			ctx.font = font;
-			const measured = ctx.measureText(children).width;
+			const textMetrics = ctx.measureText(children);
+			const visualWidth =
+				textMetrics.actualBoundingBoxLeft + textMetrics.actualBoundingBoxRight;
+			const measured = visualWidth || textMetrics.width;
 			const maxWidth = pixelWidth;
 			const scale = measured > maxWidth ? maxWidth / measured : 1;
-			const mask = document.createElement('canvas');
-			mask.width = pixelWidth;
-			mask.height = pixelHeight;
-
-			const maskCtx = mask.getContext('2d');
-			if (!maskCtx) {
-				return;
-			}
-
-			maskCtx.imageSmoothingEnabled = false;
-			maskCtx.clearRect(0, 0, pixelWidth, pixelHeight);
-			maskCtx.save();
-			maskCtx.scale(scale, 1);
-			maskCtx.font = font;
-			maskCtx.textAlign = 'left';
-			maskCtx.textBaseline = 'middle';
-			maskCtx.lineJoin = 'round';
-			maskCtx.lineWidth = 1;
-			maskCtx.strokeStyle = '#000';
-			maskCtx.fillStyle = '#000';
-			maskCtx.strokeText(children, 0, pixelHeight / 2);
-			maskCtx.fillText(children, 0, pixelHeight / 2);
-			maskCtx.restore();
-
-			const image = maskCtx.getImageData(0, 0, mask.width, mask.height);
 			const color = colorMode === 'dark' ? '#fff' : '#000';
+			const dotSize = Math.max(1, Math.round(1.25 * dpr));
+			const dotGap = Math.max(1, Math.round(0.25 * dpr));
+			const step = dotSize + dotGap;
+			const borderY = pixelHeight - dotSize;
+			const textGap = Math.round(8 * dpr);
+			const textBaseline =
+				borderY - textGap - textMetrics.actualBoundingBoxDescent;
+
 			ctx.fillStyle = color;
-			const pixelSize = Math.max(1, Math.round(1.25 * dpr));
-			const pixelGap = Math.max(1, Math.round(0.25 * dpr));
-			const step = pixelSize + pixelGap;
+			ctx.save();
+			ctx.translate(pixelWidth / 2, 0);
+			ctx.scale(scale, 1);
+			ctx.font = font;
+			ctx.textAlign = 'center';
+			ctx.textBaseline = 'alphabetic';
+			ctx.fillText(children, 0, textBaseline);
+			ctx.restore();
 
-			for (let y = 0; y < pixelHeight; y += step) {
-				for (let x = 0; x < pixelWidth; x += step) {
-					const samples = [
-						[x + pixelSize / 2, y + pixelSize / 2],
-						[x + pixelSize * 0.2, y + pixelSize * 0.2],
-						[x + pixelSize * 0.8, y + pixelSize * 0.2],
-						[x + pixelSize * 0.2, y + pixelSize * 0.8],
-						[x + pixelSize * 0.8, y + pixelSize * 0.8],
-					] as const;
-					const alpha =
-						samples.reduce((sum, [sampleX, sampleY]) => {
-							const px = Math.min(mask.width - 1, Math.floor(sampleX));
-							const py = Math.min(mask.height - 1, Math.floor(sampleY));
-
-							return sum + image.data[(py * mask.width + px) * 4 + 3];
-						}, 0) / samples.length;
-
-					if (alpha < 128) {
-						continue;
-					}
-
-					ctx.fillRect(x, y, pixelSize, pixelSize);
-				}
+			for (let x = 0; x < pixelWidth; x += step) {
+				ctx.fillRect(x, borderY, dotSize, dotSize);
 			}
 		};
 

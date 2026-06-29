@@ -4,19 +4,21 @@ import {cancelRender, continueRender, delayRender, staticFile} from 'remotion';
 
 const fontSize = 750;
 
-export const useFont = () => {
+export const useFont = (
+	src: string = 'homepage-assets/gt-planar.otf'
+) => {
 	const [handle] = useState(() => delayRender());
 
 	useEffect(() => {
-		load(staticFile('homepage-assets/gt-planar.otf'))
+		load(staticFile(src))
 			.then((hi) => {
 				setFont(hi);
 				continueRender(handle);
 			})
 			.catch((err) => {
-				cancelRender(err);
-			});
-	}, [handle]);
+			cancelRender(err);
+		});
+	}, [handle, src]);
 
 	const [font, setFont] = useState<Font | null>(() => {
 		return null;

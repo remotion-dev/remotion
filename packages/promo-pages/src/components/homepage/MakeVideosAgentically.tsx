@@ -51,7 +51,7 @@ export const MakeVideosAgentically: React.FC<{
 
 	return (
 		<div ref={ref} className={'flex min-w-0 basis-0 flex-col flex-1'}>
-			<div className="flex h-[225px] w-full items-start">
+			<div className="flex aspect-video w-full items-start">
 				{showVideo ? (
 					<video
 						ref={videoRef}
@@ -67,7 +67,7 @@ export const MakeVideosAgentically: React.FC<{
 							borderRadius: 7,
 							overflow: 'hidden',
 						}}
-						className="cursor-default! relative object-contain lg:translate-x-8"
+						className="cursor-default! relative object-contain"
 					/>
 				) : null}
 			</div>
