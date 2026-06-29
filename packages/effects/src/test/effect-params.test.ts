@@ -49,6 +49,7 @@ import {tint} from '../tint.js';
 import {uvTranslate, xyTranslate} from '../translate.js';
 import {tvSignalOff} from '../tv-signal-off.js';
 import {publicUvToShaderUv} from '../uv-coordinate.js';
+import {venetianBlinds} from '../venetian-blinds.js';
 import {vignette} from '../vignette.js';
 import {wave} from '../wave/index.js';
 import {waves} from '../waves.js';
@@ -211,6 +212,9 @@ test('@remotion/effects expose documentation links', () => {
 	expect(tvSignalOff().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/tv-signal-off',
 	);
+	expect(venetianBlinds().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/venetian-blinds',
+	);
 	expect(uvTranslate().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/uv-translate',
 	);
@@ -290,6 +294,7 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(thermalVision().definition.label).toBe('thermalVision()');
 	expect(tint({color: '#fff'}).definition.label).toBe('tint()');
 	expect(tvSignalOff().definition.label).toBe('tvSignalOff()');
+	expect(venetianBlinds().definition.label).toBe('venetianBlinds()');
 	expect(uvTranslate().definition.label).toBe('uvTranslate()');
 	expect(vignette().definition.label).toBe('vignette()');
 	expect(xyTranslate().definition.label).toBe('xyTranslate()');
@@ -1077,6 +1082,105 @@ test('evolve() parameters produce distinct effect keys', () => {
 			otherFeather.effectKey,
 		]).size,
 	).toBe(4);
+});
+
+test('venetianBlinds() accepts default params', () => {
+	expect(() => venetianBlinds()).not.toThrow();
+});
+
+test('venetianBlinds() rejects non-finite progress', () => {
+	expect(() => venetianBlinds({progress: Number.NaN})).toThrow(
+		'"progress" must be a finite number',
+	);
+});
+
+test('venetianBlinds() rejects progress below range', () => {
+	expect(() => venetianBlinds({progress: -0.1})).toThrow(
+		'"progress" must be >= 0',
+	);
+});
+
+test('venetianBlinds() rejects progress above range', () => {
+	expect(() => venetianBlinds({progress: 1.1})).toThrow(
+		'"progress" must be <= 1',
+	);
+});
+
+test('venetianBlinds() rejects feather below range', () => {
+	expect(() => venetianBlinds({feather: -0.1})).toThrow(
+		'"feather" must be >= 0',
+	);
+});
+
+test('venetianBlinds() rejects feather above range', () => {
+	expect(() => venetianBlinds({feather: 1.1})).toThrow(
+		'"feather" must be <= 1',
+	);
+});
+
+test('venetianBlinds() rejects direction outside the enum', () => {
+	expect(() => venetianBlinds({direction: 'diagonal' as 'vertical'})).toThrow(
+		'"direction" must be "vertical" or "horizontal", but got "diagonal"',
+	);
+});
+
+test('venetianBlinds() rejects non-finite slats', () => {
+	expect(() => venetianBlinds({slats: Number.NaN})).toThrow(
+		'"slats" must be a finite number',
+	);
+});
+
+test('venetianBlinds() rejects fractional slats', () => {
+	expect(() => venetianBlinds({slats: 6.5})).toThrow(
+		'"slats" must be an integer',
+	);
+});
+
+test('venetianBlinds() rejects non-positive slats', () => {
+	expect(() => venetianBlinds({slats: 0})).toThrow('"slats" must be >= 1');
+});
+
+test('venetianBlinds() parameters produce distinct effect keys', () => {
+	const full = venetianBlinds({
+		progress: 1,
+		direction: 'vertical',
+		slats: 12,
+		feather: 0.04,
+	});
+	const half = venetianBlinds({
+		progress: 0.5,
+		direction: 'vertical',
+		slats: 12,
+		feather: 0.04,
+	});
+	const otherDirection = venetianBlinds({
+		progress: 0.5,
+		direction: 'horizontal',
+		slats: 12,
+		feather: 0.04,
+	});
+	const otherSlats = venetianBlinds({
+		progress: 0.5,
+		direction: 'horizontal',
+		slats: 18,
+		feather: 0.04,
+	});
+	const otherFeather = venetianBlinds({
+		progress: 0.5,
+		direction: 'horizontal',
+		slats: 18,
+		feather: 0.08,
+	});
+
+	expect(
+		new Set([
+			full.effectKey,
+			half.effectKey,
+			otherDirection.effectKey,
+			otherSlats.effectKey,
+			otherFeather.effectKey,
+		]).size,
+	).toBe(5);
 });
 
 test('dropShadow() accepts default params', () => {

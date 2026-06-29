@@ -67,6 +67,7 @@ import {
 	EffectsXyTranslatePreview,
 } from '../../components/effects/effects-translate-preview';
 import {EffectsTvSignalOffPreview} from '../../components/effects/effects-tv-signal-off-preview';
+import {EffectsVenetianBlindsPreview} from '../../components/effects/effects-venetian-blinds-preview';
 import {EffectsVignettePreview} from '../../components/effects/effects-vignette-preview';
 import {EffectsWavePreview} from '../../components/effects/effects-wave-preview';
 import {EffectsWavesPreview} from '../../components/effects/effects-waves-preview';
@@ -217,6 +218,18 @@ export const RemotionRoot: React.FC = () => {
 						progress: 0.55,
 						direction: 'left',
 						feather: 0.18,
+					}}
+				/>
+				<Still
+					id="effects-venetian-blinds-preview"
+					component={EffectsVenetianBlindsPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						progress: 0.58,
+						direction: 'vertical',
+						slats: 14,
+						feather: 0.06,
 					}}
 				/>
 				<Still

@@ -306,6 +306,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-venetian-blinds',
+		category: 'Reveal',
+		label: 'venetianBlinds()',
+		description: 'Slatted reveal effect',
+		effect: {
+			name: 'venetianBlinds',
+			importPath: '@remotion/effects/venetian-blinds',
+			config: {},
+		},
+	},
+	{
 		id: 'effects-mirror',
 		category: 'Transform',
 		label: 'mirror()',

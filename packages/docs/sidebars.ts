@@ -319,6 +319,7 @@ const sidebars: SidebarsConfig = {
 				'effects/tint',
 				'effects/tv-signal-off',
 				'effects/uv-translate',
+				'effects/venetian-blinds',
 				'effects/vignette',
 				'effects/wave',
 				'effects/waves',
