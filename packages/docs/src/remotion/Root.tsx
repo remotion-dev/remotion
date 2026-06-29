@@ -229,7 +229,6 @@ export const RemotionRoot: React.FC = () => {
 						progress: 0.58,
 						direction: 'vertical',
 						slats: 14,
-						feather: 0.06,
 					}}
 				/>
 				<Still

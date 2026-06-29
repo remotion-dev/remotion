@@ -1106,18 +1106,6 @@ test('venetianBlinds() rejects progress above range', () => {
 	);
 });
 
-test('venetianBlinds() rejects feather below range', () => {
-	expect(() => venetianBlinds({feather: -0.1})).toThrow(
-		'"feather" must be >= 0',
-	);
-});
-
-test('venetianBlinds() rejects feather above range', () => {
-	expect(() => venetianBlinds({feather: 1.1})).toThrow(
-		'"feather" must be <= 1',
-	);
-});
-
 test('venetianBlinds() rejects direction outside the enum', () => {
 	expect(() => venetianBlinds({direction: 'diagonal' as 'vertical'})).toThrow(
 		'"direction" must be "vertical" or "horizontal", but got "diagonal"',
@@ -1145,31 +1133,21 @@ test('venetianBlinds() parameters produce distinct effect keys', () => {
 		progress: 1,
 		direction: 'vertical',
 		slats: 12,
-		feather: 0.04,
 	});
 	const half = venetianBlinds({
 		progress: 0.5,
 		direction: 'vertical',
 		slats: 12,
-		feather: 0.04,
 	});
 	const otherDirection = venetianBlinds({
 		progress: 0.5,
 		direction: 'horizontal',
 		slats: 12,
-		feather: 0.04,
 	});
 	const otherSlats = venetianBlinds({
 		progress: 0.5,
 		direction: 'horizontal',
 		slats: 18,
-		feather: 0.04,
-	});
-	const otherFeather = venetianBlinds({
-		progress: 0.5,
-		direction: 'horizontal',
-		slats: 18,
-		feather: 0.08,
 	});
 
 	expect(
@@ -1178,9 +1156,8 @@ test('venetianBlinds() parameters produce distinct effect keys', () => {
 			half.effectKey,
 			otherDirection.effectKey,
 			otherSlats.effectKey,
-			otherFeather.effectKey,
 		]).size,
-	).toBe(5);
+	).toBe(4);
 });
 
 test('dropShadow() accepts default params', () => {

@@ -13,7 +13,6 @@ const VENETIAN_BLINDS_DIRECTIONS = ['vertical', 'horizontal'] as const;
 const DEFAULT_PROGRESS = 0.5 as const;
 const DEFAULT_DIRECTION = 'vertical' as const;
 const DEFAULT_SLATS = 12 as const;
-const DEFAULT_FEATHER = 0.04 as const;
 
 export type VenetianBlindsDirection =
 	(typeof VENETIAN_BLINDS_DIRECTIONS)[number];
@@ -46,15 +45,6 @@ export const venetianBlindsSchema = {
 		description: 'Slats',
 		hiddenFromList: false,
 	},
-	feather: {
-		type: 'number',
-		min: 0,
-		max: 1,
-		step: 0.01,
-		default: DEFAULT_FEATHER,
-		description: 'Feather',
-		hiddenFromList: false,
-	},
 } as const satisfies InteractivitySchema;
 
 export type VenetianBlindsParams = {
@@ -64,15 +54,12 @@ export type VenetianBlindsParams = {
 	readonly direction?: VenetianBlindsDirection;
 	/** Number of blinds across the source. Defaults to `12`. */
 	readonly slats?: number;
-	/** Softness of each slat edge from `0` (sharp) to `1` (fully feathered). Defaults to `0.04`. */
-	readonly feather?: number;
 };
 
 type VenetianBlindsResolved = {
 	readonly progress: number;
 	readonly direction: VenetianBlindsDirection;
 	readonly slats: number;
-	readonly feather: number;
 };
 
 const formatEnum = (variants: readonly string[]): string => {
@@ -106,7 +93,6 @@ const resolve = (p: VenetianBlindsParams): VenetianBlindsResolved => ({
 	progress: p.progress ?? DEFAULT_PROGRESS,
 	direction: p.direction ?? DEFAULT_DIRECTION,
 	slats: p.slats ?? DEFAULT_SLATS,
-	feather: p.feather ?? DEFAULT_FEATHER,
 });
 
 const validatePositiveInteger = (value: number, name: string): void => {
@@ -127,12 +113,10 @@ const validateVenetianBlindsParams = (params: VenetianBlindsParams): void => {
 	assertEffectParamsObject(params, 'Venetian blinds');
 	assertOptionalFiniteNumber(params.progress, 'progress');
 	assertOptionalFiniteNumber(params.slats, 'slats');
-	assertOptionalFiniteNumber(params.feather, 'feather');
 	assertOptionalEnum(params.direction, 'direction', VENETIAN_BLINDS_DIRECTIONS);
 
 	const r = resolve(params);
 	validateUnitInterval(r.progress, 'progress');
-	validateUnitInterval(r.feather, 'feather');
 	validatePositiveInteger(r.slats, 'slats');
 };
 
@@ -147,7 +131,6 @@ type VenetianBlindsState = {
 		readonly uProgress: WebGLUniformLocation | null;
 		readonly uDirection: WebGLUniformLocation | null;
 		readonly uSlats: WebGLUniformLocation | null;
-		readonly uFeather: WebGLUniformLocation | null;
 	};
 };
 
@@ -172,11 +155,9 @@ uniform sampler2D uSource;
 uniform float uProgress;
 uniform int uDirection;
 uniform float uSlats;
-uniform float uFeather;
 
-float maskValue(float distanceToCenter, float progress, float feather) {
+float maskValue(float distanceToCenter, float progress) {
 	float p = clamp(progress, 0.0, 1.0);
-	float f = max(feather, 0.0);
 
 	if (p <= 0.000001) {
 		return 0.0;
@@ -186,11 +167,7 @@ float maskValue(float distanceToCenter, float progress, float feather) {
 		return 1.0;
 	}
 
-	if (f <= 0.0001) {
-		return step(distanceToCenter, p);
-	}
-
-	return 1.0 - smoothstep(p, min(p + f, 1.0), distanceToCenter);
+	return step(distanceToCenter, p);
 }
 
 void main() {
@@ -198,7 +175,7 @@ void main() {
 	float axis = uDirection == 0 ? vUv.x : vUv.y;
 	float local = fract(axis * max(uSlats, 1.0));
 	float distanceToCenter = abs(local - 0.5) * 2.0;
-	float mask = maskValue(distanceToCenter, uProgress, uFeather);
+	float mask = maskValue(distanceToCenter, uProgress);
 
 	fragColor = vec4(source.rgb * mask, source.a * mask);
 }
@@ -323,7 +300,6 @@ const setupVenetianBlinds = (
 			uProgress: gl.getUniformLocation(program, 'uProgress'),
 			uDirection: gl.getUniformLocation(program, 'uDirection'),
 			uSlats: gl.getUniformLocation(program, 'uSlats'),
-			uFeather: gl.getUniformLocation(program, 'uFeather'),
 		},
 	};
 };
@@ -351,7 +327,7 @@ export const venetianBlinds = createEffect<
 	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
-		return `venetian-blinds-${r.progress}-${r.direction}-${r.slats}-${r.feather}`;
+		return `venetian-blinds-${r.progress}-${r.direction}-${r.slats}`;
 	},
 	setup: (target) => setupVenetianBlinds(target),
 	apply: ({source, width, height, params, state, flipSourceY}) => {
@@ -381,7 +357,6 @@ export const venetianBlinds = createEffect<
 		if (uniforms.uDirection)
 			gl.uniform1i(uniforms.uDirection, directionToInt(r.direction));
 		if (uniforms.uSlats) gl.uniform1f(uniforms.uSlats, r.slats);
-		if (uniforms.uFeather) gl.uniform1f(uniforms.uFeather, r.feather);
 
 		gl.bindVertexArray(vao);
 		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
