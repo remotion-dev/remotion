@@ -80,6 +80,8 @@ export {
 	SaveSequencePropsResponse,
 	SaveSequencePropsResult,
 	SimpleDiff,
+	SplitJsxSequenceRequest,
+	SplitJsxSequenceResponse,
 	SubscribeToDefaultPropsRequest,
 	SubscribeToDefaultPropsResponse,
 	SubscribeToFileExistenceRequest,

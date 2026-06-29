@@ -2160,6 +2160,15 @@ export const articles = [
 		slug: 'effects/uv-translate',
 	},
 	{
+		id: 'effects/venetian-blinds',
+		title: 'venetianBlinds()',
+		relativePath: 'docs/effects/venetian-blinds.mdx',
+		compId: 'articles-docs-effects-venetian-blinds',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/venetian-blinds',
+	},
+	{
 		id: 'effects/vignette',
 		title: 'vignette()',
 		relativePath: 'docs/effects/vignette.mdx',

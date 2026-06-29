@@ -169,6 +169,9 @@ const VideoForPreviewAssertedShowing: React.FC<
 	const effectsRef = useRef(effects);
 	effectsRef.current = effects;
 
+	const onErrorRef = useRef(onError);
+	onErrorRef.current = onError;
+
 	const effectChainStateRef = useRef(effectChainState);
 	effectChainStateRef.current = effectChainState;
 
@@ -306,7 +309,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 
 					const handleError = (error: Error, fallbackMessage: string) => {
 						const [action, errorToUse] = callOnErrorAndResolve({
-							onError,
+							onError: onErrorRef.current,
 							error,
 							disallowFallback: disallowFallbackToOffthreadVideo,
 							isClientSideRendering: false,
@@ -365,7 +368,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 				})
 				.catch((error) => {
 					const [action, errorToUse] = callOnErrorAndResolve({
-						onError,
+						onError: onErrorRef.current,
 						error,
 						disallowFallback: disallowFallbackToOffthreadVideo,
 						isClientSideRendering: false,
@@ -385,7 +388,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 		} catch (error) {
 			const [action, errorToUse] = callOnErrorAndResolve({
 				error: error as Error,
-				onError,
+				onError: onErrorRef.current,
 				disallowFallback: disallowFallbackToOffthreadVideo,
 				isClientSideRendering: false,
 				clientSideError: error as Error,
@@ -426,7 +429,6 @@ const VideoForPreviewAssertedShowing: React.FC<
 		preloadedSrc,
 		sharedAudioContext,
 		videoConfig.fps,
-		onError,
 		credentials,
 		initialRequestInit,
 		setMediaDurationInSeconds,

@@ -15,10 +15,12 @@ import {
 	ResolveCompositionBeforeModal,
 	ResolvedCompositionContext,
 } from '../RenderModal/ResolveCompositionBeforeModal';
+import {applyCodemod} from '../RenderQueue/actions';
 import {CodemodFooter} from './CodemodFooter';
 import type {ComboboxValue} from './ComboBox';
 import {Combobox} from './ComboBox';
 import {DismissableModal} from './DismissableModal';
+import {InputAndValidationContainer} from './InputAndValidationContainer';
 import {InputDragger} from './InputDragger';
 import {NewCompDuration} from './NewCompDuration';
 import {RemotionInput} from './RemInput';
@@ -244,7 +246,7 @@ const DuplicateCompositionLoaded: React.FC<{
 					<div style={optionRow}>
 						<div style={label}>ID</div>
 						<div style={rightRow}>
-							<div>
+							<InputAndValidationContainer>
 								<RemotionInput
 									value={newId}
 									onChange={onNameChange}
@@ -264,7 +266,7 @@ const DuplicateCompositionLoaded: React.FC<{
 										/>
 									</>
 								) : null}
-							</div>
+							</InputAndValidationContainer>
 						</div>
 					</div>
 
@@ -273,61 +275,65 @@ const DuplicateCompositionLoaded: React.FC<{
 							<div style={optionRow}>
 								<div style={label}>Width</div>
 								<div style={rightRow}>
-									<InputDragger
-										type="number"
-										value={size.width}
-										placeholder="Width"
-										onTextChange={onWidthChanged}
-										name="width"
-										step={2}
-										min={2}
-										required
-										status="ok"
-										formatter={(w) => `${w}px`}
-										max={100000000}
-										onValueChange={onWidthDirectlyChanged}
-										rightAlign={false}
-									/>
-									{compWidthErrMessage ? (
-										<>
-											<Spacing y={1} block />
-											<ValidationMessage
-												align="flex-start"
-												message={compWidthErrMessage}
-												type="error"
-											/>
-										</>
-									) : null}
+									<InputAndValidationContainer>
+										<InputDragger
+											type="number"
+											value={size.width}
+											placeholder="Width"
+											onTextChange={onWidthChanged}
+											name="width"
+											step={2}
+											min={2}
+											required
+											status="ok"
+											formatter={(w) => `${w}px`}
+											max={100000000}
+											onValueChange={onWidthDirectlyChanged}
+											rightAlign={false}
+										/>
+										{compWidthErrMessage ? (
+											<>
+												<Spacing y={1} block />
+												<ValidationMessage
+													align="flex-start"
+													message={compWidthErrMessage}
+													type="error"
+												/>
+											</>
+										) : null}
+									</InputAndValidationContainer>
 								</div>
 							</div>
 							<div style={optionRow}>
 								<div style={label}>Height</div>
 								<div style={rightRow}>
-									<InputDragger
-										type="number"
-										value={size.height}
-										onTextChange={onHeightChanged}
-										placeholder="Height"
-										name="height"
-										step={2}
-										required
-										formatter={(h) => `${h}px`}
-										min={2}
-										status="ok"
-										max={100000000}
-										onValueChange={onHeightDirectlyChanged}
-										rightAlign={false}
-									/>
-									{compHeightErrMessage ? (
-										<>
-											<Spacing y={1} block />
-											<ValidationMessage
-												align="flex-start"
-												message={compHeightErrMessage}
-												type="error"
-											/>
-										</>
-									) : null}
+									<InputAndValidationContainer>
+										<InputDragger
+											type="number"
+											value={size.height}
+											onTextChange={onHeightChanged}
+											placeholder="Height"
+											name="height"
+											step={2}
+											required
+											formatter={(h) => `${h}px`}
+											min={2}
+											status="ok"
+											max={100000000}
+											onValueChange={onHeightDirectlyChanged}
+											rightAlign={false}
+										/>
+										{compHeightErrMessage ? (
+											<>
+												<Spacing y={1} block />
+												<ValidationMessage
+													align="flex-start"
+													message={compHeightErrMessage}
+													type="error"
+												/>
+											</>
+										) : null}
+									</InputAndValidationContainer>
 								</div>
 							</div>
 						</>
@@ -371,6 +377,14 @@ const DuplicateCompositionLoaded: React.FC<{
 						stack={compositionStack}
 						valid={valid}
 						onSuccess={onDuplicateSuccess}
+						applyCodemod={({signal, symbolicatedStack}) =>
+							applyCodemod({
+								codemod,
+								dryRun: false,
+								signal,
+								symbolicatedStack,
+							})
+						}
 					/>
 				</ModalFooterContainer>
 			</form>

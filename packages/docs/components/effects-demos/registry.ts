@@ -44,6 +44,7 @@ import {thermalVision} from '@remotion/effects/thermal-vision';
 import {tint} from '@remotion/effects/tint';
 import {uvTranslate, xyTranslate} from '@remotion/effects/translate';
 import {tvSignalOff} from '@remotion/effects/tv-signal-off';
+import {venetianBlinds} from '@remotion/effects/venetian-blinds';
 import {vignette} from '@remotion/effects/vignette';
 import {wave} from '@remotion/effects/wave';
 import {waves} from '@remotion/effects/waves';
@@ -119,6 +120,7 @@ import {
 	EffectsXyTranslatePreview,
 } from '../effects/effects-translate-preview';
 import {EffectsTvSignalOffPreview} from '../effects/effects-tv-signal-off-preview';
+import {EffectsVenetianBlindsPreview} from '../effects/effects-venetian-blinds-preview';
 import {EffectsVignettePreview} from '../effects/effects-vignette-preview';
 import {EffectsWavePreview} from '../effects/effects-wave-preview';
 import {EffectsWavesPreview} from '../effects/effects-waves-preview';
@@ -207,6 +209,14 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/evolve',
 		comp: EffectsEvolvePreview,
 		schema: evolve().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-venetian-blinds',
+		effectName: 'venetianBlinds',
+		effectImportPath: '@remotion/effects/venetian-blinds',
+		comp: EffectsVenetianBlindsPreview,
+		schema: venetianBlinds().definition.schema,
 	},
 	{
 		...defaults,

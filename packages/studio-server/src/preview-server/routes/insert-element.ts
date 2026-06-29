@@ -21,7 +21,7 @@ import {
 	suppressUndoStackInvalidation,
 } from '../undo-stack';
 import {warnAboutPrettierOnce} from './log-updates/log-update';
-import {withSavePropsLock} from './save-props-mutex';
+import {withSourceFileWriteQueue} from './source-file-write-queue';
 
 const validatePosition = (
 	position: InsertableCompositionElementPosition | null,
@@ -114,7 +114,7 @@ export const insertElementHandler: ApiHandler<
 	remotionRoot,
 	logLevel,
 }) =>
-	withSavePropsLock(async () => {
+	withSourceFileWriteQueue(async () => {
 		try {
 			validateElement(element);
 			validatePosition(position);

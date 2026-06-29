@@ -148,6 +148,7 @@ const mapReturnStatement = (
 
 	if (
 		transformation.type === 'new-composition' &&
+		transformation.folderName === null &&
 		(statement.argument.type === 'JSXElement' ||
 			statement.argument.type === 'JSXFragment')
 	) {
@@ -309,6 +310,36 @@ const addNewCompositionToRootJsx = <T extends JSXElement | JSXFragment>(
 	return wrapInJsxFragment([root, newCompositionElement(transformation)]);
 };
 
+const addNewCompositionToFolder = (
+	folderElement: JSXElement,
+	transformation: Extract<RecastCodemod, {type: 'new-composition'}>,
+	changesMade: Change[],
+): JSXElement => {
+	if (changesMade.length > 0) {
+		return folderElement;
+	}
+
+	changesMade.push({
+		description: 'Added new composition',
+	});
+
+	return {
+		...folderElement,
+		openingElement: {
+			...folderElement.openingElement,
+			selfClosing: false,
+		},
+		closingElement: folderElement.closingElement ?? {
+			type: 'JSXClosingElement',
+			name: folderElement.openingElement.name,
+		},
+		children: [
+			...folderElement.children,
+			newCompositionElement(transformation),
+		],
+	};
+};
+
 // When a <Composition> JSX element appears in a position where it cannot
 // simply be removed from a parent's children list (e.g. as the sole return
 // value of a wrapper component or as the concise body of an arrow function),
@@ -334,6 +365,9 @@ const transformLoneJsxElement = (
 				parentFolderName === transformation.parentName) ||
 				(transformation.type === 'rename-folder' &&
 					folderName === transformation.folderName &&
+					parentFolderName === transformation.parentName) ||
+				(transformation.type === 'new-composition' &&
+					folderName === transformation.folderName &&
 					parentFolderName === transformation.parentName));
 
 		if (!isFolderMatch) {
@@ -352,6 +386,9 @@ const transformLoneJsxElement = (
 			folderName === transformation.folderName &&
 			parentFolderName === transformation.parentName) ||
 		(transformation.type === 'rename-folder' &&
+			folderName === transformation.folderName &&
+			parentFolderName === transformation.parentName) ||
+		(transformation.type === 'new-composition' &&
 			folderName === transformation.folderName &&
 			parentFolderName === transformation.parentName);
 
@@ -493,6 +530,14 @@ const mapJsxChild = (
 		return c.children;
 	}
 
+	if (
+		transformation.type === 'new-composition' &&
+		folderName === transformation.folderName &&
+		parentFolderName === transformation.parentName
+	) {
+		return [addNewCompositionToFolder(c, transformation, changesMade)];
+	}
+
 	const childParentFolderName = folderName
 		? getChildFolderParentName({folderName, parentFolderName})
 		: parentFolderName;
@@ -521,6 +566,7 @@ const mapRecognizedType = <T extends RecognizedType>(
 	) {
 		if (
 			transformation.type === 'new-composition' &&
+			transformation.folderName === null &&
 			(expression.body.type === 'JSXElement' ||
 				expression.body.type === 'JSXFragment')
 		) {

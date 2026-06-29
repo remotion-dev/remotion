@@ -27,7 +27,7 @@
 	},
 	"dependencies": {
 		"@remotion/studio-shared": "workspace:*",
-		"@rspack/browser": "1.7.11"
+		"@rspack/browser": "2.1.1"
 	},
 	"exports": {
 		".": {

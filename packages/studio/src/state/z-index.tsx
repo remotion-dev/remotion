@@ -51,7 +51,14 @@ export const HigherZIndex: React.FC<{
 	readonly onOutsideClick: (target: Node) => void;
 	readonly children: React.ReactNode;
 	readonly disabled?: boolean;
-}> = ({children, onEscape, onOutsideClick, disabled}) => {
+	readonly outsideClickButton?: 'any' | 'primary';
+}> = ({
+	children,
+	onEscape,
+	onOutsideClick,
+	disabled,
+	outsideClickButton = 'any',
+}) => {
 	const context = useContext(ZIndexContext);
 	const highestContext = useContext(HighestZIndexContext);
 	const containerRef = useRef<HTMLDivElement>(null);
@@ -77,6 +84,10 @@ export const HigherZIndex: React.FC<{
 		let onUp: ((upEvent: MouseEvent) => void) | null = null;
 
 		const listener = (downEvent: MouseEvent) => {
+			if (outsideClickButton === 'primary' && downEvent.button !== 0) {
+				return;
+			}
+
 			const outsideClick = !containerRef.current?.contains(
 				downEvent.target as Node,
 			);
@@ -117,7 +128,13 @@ export const HigherZIndex: React.FC<{
 
 			return window.removeEventListener('pointerdown', listener, true);
 		};
-	}, [currentIndex, disabled, highestContext.highestIndex, onOutsideClick]);
+	}, [
+		currentIndex,
+		disabled,
+		highestContext.highestIndex,
+		onOutsideClick,
+		outsideClickButton,
+	]);
 
 	const value = useMemo((): ZIndex => {
 		return {
