@@ -1,0 +1,83 @@
+import React, {useEffect, useRef} from 'react';
+import {MakeVideosLinks, type MakeVideosLink} from './MakeVideosLinks';
+
+export const MakeVideosAgentically: React.FC<{
+	readonly title?: React.ReactNode;
+	readonly description?: React.ReactNode;
+	readonly showLinks?: boolean;
+	readonly links?: readonly MakeVideosLink[];
+	readonly showVideo?: boolean;
+}> = ({
+	title = (
+		<>
+			<span className="text-gray-500">Make videos</span>
+			<br /> agentically
+		</>
+	),
+	description = 'Turn your idea into a video using your coding agent.',
+	showLinks = true,
+	links = [
+		{label: 'Agent Skills', href: '/docs/ai/skills'},
+		{label: 'Prompts', href: '/prompts'},
+	],
+	showVideo = true,
+}) => {
+	const ref = useRef<HTMLDivElement>(null);
+	const videoRef = useRef<HTMLVideoElement>(null);
+	// eslint-disable-next-line no-warning-comments
+	// TODO: Add an opaque fallback for browsers that do not support transparent WebM.
+	const videoSrc = '/img/render-progress.webm';
+
+	useEffect(() => {
+		const {current} = ref;
+		if (!current) {
+			return;
+		}
+
+		const callback = (data: IntersectionObserverEntry[]) => {
+			if (data[0].isIntersecting) {
+				videoRef.current?.play();
+			}
+		};
+
+		const observer = new IntersectionObserver(callback, {
+			root: null,
+			threshold: 0.5,
+		});
+		observer.observe(current);
+
+		return () => observer.unobserve(current);
+	}, []);
+
+	return (
+		<div ref={ref} className={'flex min-w-0 basis-0 flex-col flex-1'}>
+			<div className="flex h-[225px] w-full items-start">
+				{showVideo ? (
+					<video
+						ref={videoRef}
+						src={videoSrc}
+						muted
+						autoPlay
+						playsInline
+						loop
+						style={{
+							width: 400,
+							maxWidth: '100%',
+							maxHeight: '100%',
+							borderRadius: 7,
+							overflow: 'hidden',
+						}}
+						className="cursor-default! relative object-contain lg:translate-x-8"
+					/>
+				) : null}
+			</div>
+			<div className="font-brand">
+				<h2 className="text-2xl fontbrand leading-[1.1] font-medium">
+					{title}
+				</h2>
+				<p className="leading-relaxed">{description}</p>
+				{showLinks ? <MakeVideosLinks links={links} /> : null}
+			</div>
+		</div>
+	);
+};

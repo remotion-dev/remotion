@@ -13,11 +13,6 @@ import {
 	canvasCapturePreviewSchema,
 } from './CanvasCapturePreview';
 import {
-	WhatIsRemotion,
-	whatIsRemotionCalculateMetadata,
-	whatIsRemotionSchema,
-} from './Compose/WhatIsRemotion';
-import {
 	CornerPinEffectShowcase,
 	cornerPinEffectShowcaseDurationInFrames,
 } from './effects/CornerPinEffectShowcase';
@@ -45,6 +40,9 @@ import {
 	zigzagLinearBlurShowcaseDurationInFrames,
 } from './effects/ZigzagLinearBlurShowcase';
 import {EmailSignature} from './EmailSignature';
+import {NpmIniVideo} from './HomepageAssets/NpmInitVideo/NpmInitVideo';
+import {RenderProgress} from './HomepageAssets/RenderProgress';
+import {Studio, studioDurationInFrames} from './HomepageAssets/Studio';
 import './index.css';
 import {Logo} from './Logo';
 import {LogoCollab, logoCollabSchema} from './LogoCollab/LogoCollab';
@@ -119,16 +117,32 @@ export const RemotionRoot: React.FC = () => {
 					}}
 				/>
 			</Folder>
-			<Composition
-				id="WhatIsRemotion"
-				component={WhatIsRemotion}
-				width={1080}
-				fps={30}
-				durationInFrames={273}
-				schema={whatIsRemotionSchema}
-				defaultProps={{fade: false, whiteBackground: false, reel: false}}
-				calculateMetadata={whatIsRemotionCalculateMetadata}
-			/>
+			<Folder name="homepage-assets">
+				<Composition
+					id="NpmInitVideo"
+					component={NpmIniVideo}
+					durationInFrames={600}
+					fps={30}
+					width={1920}
+					height={1080}
+				/>
+				<Composition
+					id="RenderProgress"
+					component={RenderProgress}
+					durationInFrames={1200}
+					fps={30}
+					width={1280}
+					height={720}
+				/>
+				<Composition
+					id="Studio"
+					component={Studio}
+					durationInFrames={studioDurationInFrames}
+					fps={25}
+					width={1920}
+					height={1080}
+				/>
+			</Folder>
 			<Composition
 				component={ProductHuntLogo}
 				width={240}

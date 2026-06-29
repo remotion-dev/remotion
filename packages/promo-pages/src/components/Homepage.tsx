@@ -1,22 +1,24 @@
 'use client';
 
 import React from 'react';
-import AutomationsSection from './homepage/AutomationsSection';
 import {BackgroundAnimation} from './homepage/BackgroundAnimation';
 import CommunityStats from './homepage/CommunityStats';
 import {Demo} from './homepage/Demo';
 import EvaluateRemotionSection from './homepage/EvaluateRemotion';
-import {IfYouKnowReact} from './homepage/IfYouKnowReact';
 import type {ColorMode} from './homepage/layout/use-color-mode';
 import {ColorModeProvider} from './homepage/layout/use-color-mode';
+import {CanvasSectionTitle} from './homepage/CanvasSectionTitle';
+import {MakeVideosAgentically} from './homepage/MakeVideosAgentically';
+import {MakeVideosInteractively} from './homepage/MakeVideosInteractively';
+import {MakeVideosProgrammatically} from './homepage/MakeVideosProgrammatically';
 import {NewsletterButton} from './homepage/NewsletterButton';
-import {ParameterizeAndEdit} from './homepage/ParameterizeAndEdit';
 import {Pricing} from './homepage/Pricing';
-import {RealMP4Videos} from './homepage/RealMp4Videos';
 import TrustedByBanner from './homepage/TrustedByBanner';
 import {BuiltWithRemotionShowcase} from './homepage/VideoAppsShowcase';
 import {SectionTitle} from './homepage/VideoAppsTitle';
 import {WriteInReact} from './homepage/WriteInReact';
+
+const makeVideosRowClassName = 'flex flex-col lg:flex-row gap-10';
 
 export const NewLanding: React.FC<{
 	readonly colorMode: ColorMode;
@@ -36,17 +38,51 @@ export const NewLanding: React.FC<{
 					<div className="max-w-[500px] lg:max-w-[1000px] m-auto pl-5 pr-5 overflow-x-clip md:overflow-x-visible relative">
 						<WriteInReact />
 						<br />
-						<IfYouKnowReact />
-						<ParameterizeAndEdit />
-						<RealMP4Videos />
-						<br />
-						<br />
-						<br />
-						<div className="pt-6 md:pt-8">
-							<AutomationsSection />
+						<CanvasSectionTitle>Create</CanvasSectionTitle>
+						<div className={makeVideosRowClassName}>
+							<MakeVideosAgentically showVideo={false} />
+							<MakeVideosInteractively />
+							<MakeVideosProgrammatically
+								links={[
+									{label: 'API Docs', href: '/docs/api'},
+									{label: 'Resources', href: '/docs/api'},
+								]}
+							/>
 						</div>
 						<br />
 						<br />
+						<CanvasSectionTitle>Automate</CanvasSectionTitle>
+						<div className={makeVideosRowClassName}>
+							<MakeVideosProgrammatically
+								title="Design systems"
+								description="Create a library of animated assets for your organization."
+								showVideo={false}
+							/>
+							<MakeVideosAgentically
+								title="Batch rendering"
+								description="Render millions of videos on your own infrastructure."
+								links={[
+									{
+										label: 'Server-side rendering',
+										href: '/docs/compare-ssr',
+									},
+									{
+										label: 'Client-side rendering',
+										href: '/docs/client-side-rendering',
+									},
+								]}
+							/>
+							<MakeVideosInteractively
+								title="Applications"
+								description="Publish a simple tool or a complex video editor."
+								showVideo={false}
+								links={[
+									{label: 'Player', href: '/docs/player'},
+									{label: 'Editor Starter', href: '/editor-starter'},
+								]}
+							/>
+						</div>
+
 						<Demo />
 						<br />
 						<br />

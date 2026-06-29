@@ -20,7 +20,7 @@ export const DisplayedEmoji: React.FC<{
 	const [browser, setBrowser] = useState<boolean>(
 		typeof document !== 'undefined',
 	);
-	const {delayRender, continueRender, cancelRender} = useDelayRender();
+	const {delayRender, continueRender} = useDelayRender();
 
 	const src = useMemo(() => {
 		if (emoji === 'melting') {
@@ -50,10 +50,8 @@ export const DisplayedEmoji: React.FC<{
 				});
 				continueRender(handle);
 			})
-			.catch((err) => {
-				cancelRender(err);
-			});
-	}, [handle, src, continueRender, cancelRender]);
+			.catch(() => undefined);
+	}, [handle, src, continueRender]);
 
 	useEffect(() => {
 		if (typeof document !== 'undefined') {
