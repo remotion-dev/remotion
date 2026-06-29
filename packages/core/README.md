@@ -67,6 +67,7 @@ Remotion is extensively documented over more than 1000 pages.
 - Community
   - [Discord](https://remotion.dev/discord)
   - [Experts](https://remotion.dev/experts)
+  - [Resources](https://remotion.dev/resources)
   - [Contributing](https://remotion.dev/contributing)
   - Follow us on [X](https://x.com/remotion), [YouTube](https://youtube.com/@remotion_dev), [Instagram](https://instagram.com/remotion), [LinkedIn](https://linkedin.com/company/remotion)
 - Commercial
