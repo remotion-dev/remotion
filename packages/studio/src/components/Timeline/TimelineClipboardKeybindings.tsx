@@ -12,7 +12,7 @@ import {
 	type EffectPropClipboardData,
 } from '@remotion/studio-shared';
 import type React from 'react';
-import {useContext, useEffect} from 'react';
+import {useContext, useEffect, useRef} from 'react';
 import {
 	Internals,
 	type OverrideIdToNodePaths,
@@ -26,7 +26,12 @@ import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {callApi} from '../call-api';
+import {useConfirmationDialog} from '../ConfirmationDialog';
 import {showNotification} from '../Notifications/NotificationCenter';
+import {
+	deleteSelectedTimelineItems,
+	getTimelineSelectionAfterDeletingItems,
+} from './delete-selected-timeline-item';
 import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
 import {saveEffectProp} from './save-effect-prop';
 import {
@@ -293,6 +298,61 @@ export const getSnapshotsFromSelection = ({
 	return snapshots;
 };
 
+export type EffectClipboardDataFromSelections =
+	| {
+			readonly type: 'valid';
+			readonly payload: EffectClipboardData;
+	  }
+	| {
+			readonly type: 'none';
+	  }
+	| {
+			readonly type: 'mixed';
+	  }
+	| {
+			readonly type: 'uncopyable';
+	  };
+
+export const getEffectClipboardDataFromSelections = ({
+	selectedItems,
+	propStatuses,
+}: {
+	selectedItems: readonly TimelineSelection[];
+	propStatuses: PropStatuses;
+}): EffectClipboardDataFromSelections => {
+	const firstSelection = selectedItems[0];
+	const type = firstSelection ? getCopyType(firstSelection) : null;
+
+	if (type === null) {
+		return {type: 'none'};
+	}
+
+	if (selectedItems.some((selection) => getCopyType(selection) !== type)) {
+		return {type: 'mixed'};
+	}
+
+	const snapshots = selectedItems.flatMap((selection) => {
+		const itemSnapshots = getSnapshotsFromSelection({
+			selection,
+			propStatuses,
+		});
+		return itemSnapshots ?? [null];
+	});
+	if (snapshots.some((snapshot) => snapshot === null)) {
+		return {type: 'uncopyable'};
+	}
+
+	return {
+		type: 'valid',
+		payload: {
+			type,
+			version: 3,
+			remotionClipboard: 'effects',
+			effects: snapshots as EffectClipboardSnapshot[],
+		},
+	};
+};
+
 export const getEffectPropClipboardDataFromSelection = ({
 	selection,
 	propStatuses,
@@ -494,6 +554,13 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 	const {overrideIdToNodePathMappings} = useContext(
 		Internals.OverrideIdsToNodePathsGettersContext,
 	);
+	const confirm = useConfirmationDialog();
+	const timelinePosition = Internals.Timeline.useTimelinePosition();
+	const timelinePositionRef = useRef(timelinePosition);
+
+	useEffect(() => {
+		timelinePositionRef.current = timelinePosition;
+	}, [timelinePosition]);
 
 	useEffect(() => {
 		if (!canSelect || previewServerState.type !== 'connected') {
@@ -592,16 +659,16 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 					return;
 				}
 
-				const firstSelection = selectedItems[0];
-				const type = firstSelection ? getCopyType(firstSelection) : null;
+				const effectClipboardData = getEffectClipboardDataFromSelections({
+					selectedItems,
+					propStatuses,
+				});
 
-				if (type === null) {
+				if (effectClipboardData.type === 'none') {
 					return;
 				}
 
-				if (
-					selectedItems.some((selection) => getCopyType(selection) !== type)
-				) {
+				if (effectClipboardData.type === 'mixed') {
 					e.preventDefault();
 					showNotification(
 						'Cannot copy individual effects together with all effects',
@@ -610,14 +677,7 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 					return;
 				}
 
-				const snapshots = selectedItems.flatMap((selection) => {
-					const itemSnapshots = getSnapshotsFromSelection({
-						selection,
-						propStatuses,
-					});
-					return itemSnapshots ?? [null];
-				});
-				if (snapshots.some((snapshot) => snapshot === null)) {
+				if (effectClipboardData.type === 'uncopyable') {
 					e.preventDefault();
 					showNotification(
 						'Cannot copy effects because one of them contains values that cannot be copied',
@@ -628,17 +688,10 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 
 				e.preventDefault();
 				navigator.clipboard
-					.writeText(
-						makeClipboardText({
-							type,
-							version: 3,
-							remotionClipboard: 'effects',
-							effects: snapshots as EffectClipboardSnapshot[],
-						}),
-					)
+					.writeText(makeClipboardText(effectClipboardData.payload))
 					.then(() => {
 						showNotification(
-							snapshots.length === 1
+							effectClipboardData.payload.effects.length === 1
 								? 'Copied effect to clipboard'
 								: 'Copied effects to clipboard',
 							1000,
@@ -647,6 +700,89 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 					.catch((err) => {
 						showNotification(
 							`Could not copy effects: ${(err as Error).message}`,
+							2000,
+						);
+					});
+			},
+			commandCtrlKey: true,
+			preventDefault: false,
+			triggerIfInputFieldFocused: false,
+			keepRegisteredWhenNotHighestContext: false,
+		});
+
+		const cut = keybindings.registerKeybinding({
+			event: 'keydown',
+			key: 'x',
+			callback: (e) => {
+				const {selectedItems, clearSelection, selectItems} =
+					currentSelection.current;
+				const propStatuses = propStatusesRef.current;
+				const sequences = sequencesRef.current;
+				if (selectedItems.length === 0) {
+					return;
+				}
+
+				const effectClipboardData = getEffectClipboardDataFromSelections({
+					selectedItems,
+					propStatuses,
+				});
+
+				if (effectClipboardData.type === 'none') {
+					return;
+				}
+
+				e.preventDefault();
+
+				if (effectClipboardData.type === 'mixed') {
+					showNotification(
+						'Cannot cut individual effects together with all effects',
+						3000,
+					);
+					return;
+				}
+
+				if (effectClipboardData.type === 'uncopyable') {
+					showNotification(
+						'Cannot cut effects because one of them contains values that cannot be copied',
+						3000,
+					);
+					return;
+				}
+
+				navigator.clipboard
+					.writeText(makeClipboardText(effectClipboardData.payload))
+					.then(() => {
+						const deletePromise = deleteSelectedTimelineItems({
+							selections: selectedItems,
+							sequences,
+							overrideIdsToNodePaths: overrideIdToNodePathMappings,
+							setPropStatuses,
+							clientId,
+							confirm,
+						});
+
+						return deletePromise?.then((deleted) => {
+							if (!deleted) {
+								return;
+							}
+
+							const nextSelection = getTimelineSelectionAfterDeletingItems({
+								selections: selectedItems,
+								sequences,
+								overrideIdsToNodePaths: overrideIdToNodePathMappings,
+								propStatuses,
+								timelinePosition: timelinePositionRef.current,
+							});
+							if (nextSelection.length === 0) {
+								clearSelection();
+							} else {
+								selectItems(nextSelection);
+							}
+						});
+					})
+					.catch((err) => {
+						showNotification(
+							`Could not cut effects: ${(err as Error).message}`,
 							2000,
 						);
 					});
@@ -879,10 +1015,12 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 
 		return () => {
 			copy.unregister();
+			cut.unregister();
 			paste.unregister();
 		};
 	}, [
 		canSelect,
+		confirm,
 		currentSelection,
 		keybindings,
 		overrideIdToNodePathMappings,
@@ -890,6 +1028,7 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 		previewServerState,
 		sequencesRef,
 		setPropStatuses,
+		timelinePositionRef,
 	]);
 
 	return null;

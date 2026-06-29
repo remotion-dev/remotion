@@ -72,6 +72,7 @@ import {getTimelinePropResetTargets} from '../components/Timeline/reset-selected
 import {shouldSubscribeToSequenceProps} from '../components/Timeline/should-subscribe-to-sequence-props';
 import {
 	getEasingClipboardDataFromSelection,
+	getEffectClipboardDataFromSelections,
 	getEffectPropClipboardDataFromSelection,
 	getPasteEffectPropTarget,
 	getPasteEffectsTarget,
@@ -626,6 +627,85 @@ test('copying a keyframed effect creates a structured snapshot', () => {
 			},
 		},
 	]);
+});
+
+test('selected effects produce a reusable clipboard payload', () => {
+	const effectNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['effects', '0'],
+		true,
+		[['0']],
+	);
+	const nodePath = effectNodePathInfo.sequenceSubscriptionKey;
+	const propStatuses = {
+		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			canUpdate: true,
+			props: {},
+			effects: [
+				{
+					canUpdate: true,
+					callee: 'effect',
+					importPath: '@remotion/effect',
+					effectIndex: 0,
+					props: {
+						intensity: {
+							status: 'static',
+							codeValue: 10,
+						},
+					},
+				},
+			],
+		},
+	} satisfies PropStatuses;
+
+	expect(
+		getEffectClipboardDataFromSelections({
+			selectedItems: [
+				{
+					type: 'sequence-effect',
+					nodePathInfo: effectNodePathInfo,
+					i: 0,
+				},
+			],
+			propStatuses,
+		}),
+	).toEqual({
+		type: 'valid',
+		payload: {
+			type: 'effects-additive',
+			version: 3,
+			remotionClipboard: 'effects',
+			effects: [
+				{
+					callee: 'effect',
+					importPath: '@remotion/effect',
+					params: {
+						intensity: {
+							type: 'static',
+							value: 10,
+						},
+					},
+				},
+			],
+		},
+	});
+
+	expect(
+		getEffectClipboardDataFromSelections({
+			selectedItems: [
+				{
+					type: 'sequence-effect',
+					nodePathInfo: effectNodePathInfo,
+					i: 0,
+				},
+				{
+					type: 'sequence-all-effects',
+					nodePathInfo: effectNodePathInfo,
+				},
+			],
+			propStatuses,
+		}),
+	).toEqual({type: 'mixed'});
 });
 
 test('copying a selected effect prop creates an effect prop payload', () => {
