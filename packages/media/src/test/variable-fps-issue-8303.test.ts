@@ -27,7 +27,7 @@ test('variable FPS video can be sought forward one frame at a time', async () =>
 		height: 160,
 		fit: 'contain',
 		alpha: true,
-		poolSize: 2,
+		poolSize: 3,
 	});
 	const cache = makePrewarmedVideoIteratorCache(canvasSink);
 	const iterator = await createVideoIterator(0, cache);
