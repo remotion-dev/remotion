@@ -80,6 +80,8 @@ export {
 	SaveSequencePropsResponse,
 	SaveSequencePropsResult,
 	SimpleDiff,
+	SplitJsxSequenceRequest,
+	SplitJsxSequenceResponse,
 	SubscribeToDefaultPropsRequest,
 	SubscribeToDefaultPropsResponse,
 	SubscribeToFileExistenceRequest,
@@ -122,6 +124,7 @@ export {
 	type ComponentProp,
 } from './component-drag-data';
 export {DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS} from './default-buffer-state-delay-in-milliseconds';
+export {getDefinePluginDefinitions} from './define-plugin-definitions';
 export {
 	detectFileType,
 	isImageFileType,
@@ -279,6 +282,11 @@ export {
 	StackFrame,
 	SymbolicatedStackFrame,
 } from './stack-types';
+export {
+	getStudioEntryPoints,
+	type StudioEntryPointPaths,
+} from './studio-entry-points';
+export {studioHtml, type StudioHtmlOptions} from './studio-html';
 export {EnumPath, stringifyDefaultProps} from './stringify-default-props';
 
 export type {VisualControlChange} from './codemods';

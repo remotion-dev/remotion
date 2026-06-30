@@ -641,6 +641,22 @@ export type DuplicateJsxNodeResponse =
 			stack: string;
 	  };
 
+export type SplitJsxSequenceRequest = {
+	fileName: string;
+	nodePath: SequenceNodePath;
+	splitFrame: number;
+};
+
+export type SplitJsxSequenceResponse =
+	| {
+			success: true;
+	  }
+	| {
+			success: false;
+			reason: string;
+			stack: string;
+	  };
+
 export type InsertableCompositionElement =
 	| {
 			type: 'solid';
@@ -860,6 +876,10 @@ export type ApiRoutes = {
 	'/api/duplicate-jsx-node': ReqAndRes<
 		DuplicateJsxNodeRequest,
 		DuplicateJsxNodeResponse
+	>;
+	'/api/split-jsx-sequence': ReqAndRes<
+		SplitJsxSequenceRequest,
+		SplitJsxSequenceResponse
 	>;
 	'/api/insert-jsx-element': ReqAndRes<
 		InsertJsxElementRequest,

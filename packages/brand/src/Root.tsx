@@ -17,11 +17,24 @@ import {
 	whatIsRemotionCalculateMetadata,
 	whatIsRemotionSchema,
 } from './Compose/WhatIsRemotion';
+import {
+	CornerPinEffectShowcase,
+	cornerPinEffectShowcaseDurationInFrames,
+} from './effects/CornerPinEffectShowcase';
 import {EffectsAnnouncement} from './effects/EffectsAnnouncement';
+import {
+	HEIGHT as EFFECT_SHOWCASE_HEIGHT,
+	WIDTH as EFFECT_SHOWCASE_WIDTH,
+} from './effects/EffectShowcaseScaffold';
+import {BillboardForeground} from './effects/experiments/BillboardForeground';
 import {FxIconComposition} from './effects/FxIconComposition';
 import {Goal} from './effects/Goal';
 import {MetallicSwirl} from './effects/MetallicSwirl';
 import {NewsHeadline} from './effects/NewsHeadline';
+import {
+	PatternEffectShowcase,
+	patternEffectShowcaseDurationInFrames,
+} from './effects/PatternEffectShowcase';
 import {
 	StarburstEffectShowcase,
 	starburstEffectShowcaseDurationInFrames,
@@ -42,6 +55,7 @@ import {
 	rulesEnumerationSchema,
 } from './RulesEnumeration/RulesEnumeration';
 import {ProductHuntLogo} from './ScalingLogo';
+import {ShipCard, shipCardDurationInFrames} from './ShipCard';
 import {
 	HTML_IN_CANVAS_ALL_EFFECTS_DURATION,
 	HtmlInCanvasAllEffects,
@@ -162,6 +176,32 @@ export const RemotionRoot: React.FC = () => {
 				/>
 			</Folder>
 			<Folder name="effects">
+				<Composition
+					id="corner-pin-effect-showcase"
+					component={CornerPinEffectShowcase}
+					durationInFrames={cornerPinEffectShowcaseDurationInFrames}
+					fps={30}
+					width={1080}
+					height={1350}
+				/>
+				<Composition
+					id="pattern-effect-showcase"
+					component={PatternEffectShowcase}
+					width={1080}
+					height={1350}
+					fps={30}
+					durationInFrames={patternEffectShowcaseDurationInFrames}
+				/>
+				<Folder name="experiments">
+					<Composition
+						id="billboard-foreground"
+						component={BillboardForeground}
+						width={1080}
+						height={675}
+						fps={30}
+						durationInFrames={120}
+					/>
+				</Folder>
 				<Composition
 					id="starburst-effect-showcase"
 					component={StarburstEffectShowcase}
@@ -529,6 +569,14 @@ export const RemotionRoot: React.FC = () => {
 					height={1080}
 				/>
 			</Folder>
+			<Composition
+				id="ShipCard"
+				component={ShipCard}
+				durationInFrames={shipCardDurationInFrames}
+				fps={30}
+				width={EFFECT_SHOWCASE_WIDTH}
+				height={EFFECT_SHOWCASE_HEIGHT}
+			/>
 		</>
 	);
 };

@@ -4,14 +4,15 @@ import {PauseIcon, PlayIcon} from './icons.js';
 export const DefaultPlayPauseButton: React.FC<{
 	playing: boolean;
 	buffering: boolean;
-}> = ({playing, buffering}) => {
+	focused: boolean;
+}> = ({playing, buffering, focused}) => {
 	if (playing && buffering) {
 		return <BufferingIndicator type="player" />;
 	}
 
 	if (playing) {
-		return <PauseIcon />;
+		return <PauseIcon focused={focused} />;
 	}
 
-	return <PlayIcon />;
+	return <PlayIcon focused={focused} />;
 };

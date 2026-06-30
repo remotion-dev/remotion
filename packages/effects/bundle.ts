@@ -53,6 +53,7 @@ const effectEntrypoints = [
 	'src/tint.ts',
 	'src/translate.ts',
 	'src/tv-signal-off.ts',
+	'src/venetian-blinds.ts',
 	'src/vignette.ts',
 	'src/wave.ts',
 	'src/waves.ts',

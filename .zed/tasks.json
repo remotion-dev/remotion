@@ -1,0 +1,12 @@
+[
+	{
+		"label": "setup new worktree",
+		"command": "bun install && bun run build",
+		"hooks": [
+			"create_worktree"
+		],
+		"cwd": "$ZED_WORKTREE_ROOT",
+		"reveal": "no_focus",
+		"hide": "on_success"
+	}
+]

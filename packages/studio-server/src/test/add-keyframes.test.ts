@@ -84,6 +84,7 @@ const linearProgressiveBlurSchema = {
 } satisfies InteractivitySchema;
 
 test('addKeyframes batches sequence and effect adds into one undo entry', async () => {
+	clearUndoStackForTests();
 	const cleanupFileWatcher = setFileWatcherRegistry(
 		createFileWatcherRegistry(),
 	);
@@ -157,6 +158,7 @@ test('addKeyframes batches sequence and effect adds into one undo entry', async 
 });
 
 test('addKeyframes adds a missing effect prop before keyframing it', async () => {
+	clearUndoStackForTests();
 	const cleanupFileWatcher = setFileWatcherRegistry(
 		createFileWatcherRegistry(),
 	);

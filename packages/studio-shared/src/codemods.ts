@@ -18,6 +18,8 @@ export type RecastCodemod =
 			newId: string;
 			componentName: string;
 			componentImportPath: string;
+			folderName: string | null;
+			parentName: string | null;
 			newHeight: number;
 			newWidth: number;
 			newFps: number;

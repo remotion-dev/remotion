@@ -147,7 +147,7 @@ export const processNode = async ({
 		if (precompositing.needsMaskImage) {
 			handleMask({
 				gradientInfo: precompositing.needsMaskImage,
-				rect,
+				maskRect: dimensions,
 				precomposeRect,
 				tempContext,
 				scale,

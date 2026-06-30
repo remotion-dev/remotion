@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/effects",
-	"version": "4.0.483",
+	"version": "4.0.484",
 	"description": "Effects that can be applied to Remotion-based canvas components",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -264,6 +264,11 @@
 			"module": "./dist/esm/tv-signal-off.mjs",
 			"import": "./dist/esm/tv-signal-off.mjs"
 		},
+		"./venetian-blinds": {
+			"types": "./dist/venetian-blinds.d.ts",
+			"module": "./dist/esm/venetian-blinds.mjs",
+			"import": "./dist/esm/venetian-blinds.mjs"
+		},
 		"./vignette": {
 			"types": "./dist/vignette.d.ts",
 			"module": "./dist/esm/vignette.mjs",
@@ -435,6 +440,9 @@
 			],
 			"tv-signal-off": [
 				"dist/tv-signal-off.d.ts"
+			],
+			"venetian-blinds": [
+				"dist/venetian-blinds.d.ts"
 			],
 			"vignette": [
 				"dist/vignette.d.ts"

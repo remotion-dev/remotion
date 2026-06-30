@@ -3,6 +3,7 @@ Monthly downloads of Remotion packages
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/animated-emoji.svg?style=flat&color=black&label=@remotion/animated-emoji)](https://npmcharts.com/compare/@remotion/animated-emoji?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/animation-utils.svg?style=flat&color=black&label=@remotion/animation-utils)](https://npmcharts.com/compare/@remotion/animation-utils?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/babel-loader.svg?style=flat&color=black&label=@remotion/babel-loader)](https://npmcharts.com/compare/@remotion/babel-loader?minimal=true)  
+[![NPM Downloads](https://img.shields.io/npm/dm/@remotion/browser-studio.svg?style=flat&color=black&label=@remotion/browser-studio)](https://npmcharts.com/compare/@remotion/browser-studio?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/bundler.svg?style=flat&color=black&label=@remotion/bundler)](https://npmcharts.com/compare/@remotion/bundler?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/canvas-capture.svg?style=flat&color=black&label=@remotion/canvas-capture)](https://npmcharts.com/compare/@remotion/canvas-capture?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/captions.svg?style=flat&color=black&label=@remotion/captions)](https://npmcharts.com/compare/@remotion/captions?minimal=true)  

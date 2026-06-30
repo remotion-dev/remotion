@@ -1,4 +1,4 @@
-import {useHistory} from '@docusaurus/router';
+import {useHistory, useLocation} from '@docusaurus/router';
 import type {WrapperProps} from '@docusaurus/types';
 import '@remotion/promo-pages/dist/tailwind.css';
 import Layout from '@theme-original/Layout';
@@ -8,7 +8,10 @@ import React, {type ReactNode} from 'react';
 
 type Props = WrapperProps<typeof LayoutType>;
 
-const LayoutWrapper = (props: Props): ReactNode => {
+const isStandaloneRoute = (pathname: string) =>
+	pathname === '/experimental_new' || pathname.startsWith('/experimental_new/');
+
+const LayoutWithCrawlChat = (props: Props): ReactNode => {
 	useCrawlChatSidePanel({history: useHistory()});
 
 	return (
@@ -24,6 +27,16 @@ const LayoutWrapper = (props: Props): ReactNode => {
 			/>
 		</>
 	);
+};
+
+const LayoutWrapper = (props: Props): ReactNode => {
+	const {pathname} = useLocation();
+
+	if (isStandaloneRoute(pathname)) {
+		return props.children;
+	}
+
+	return <LayoutWithCrawlChat {...props} />;
 };
 
 export default LayoutWrapper;

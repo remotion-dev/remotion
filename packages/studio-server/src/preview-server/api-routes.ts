@@ -34,6 +34,7 @@ import {reorderSequenceHandler} from './routes/reorder-sequence';
 import {handleRestartStudio} from './routes/restart-studio';
 import {saveEffectPropsHandler} from './routes/save-effect-props';
 import {saveSequencePropsHandler} from './routes/save-sequence-props';
+import {splitJsxSequenceHandler} from './routes/split-jsx-sequence';
 import {subscribeToDefaultProps} from './routes/subscribe-to-default-props';
 import {subscribeToFileExistence} from './routes/subscribe-to-file-existence';
 import {subscribeToSequenceProps} from './routes/subscribe-to-sequence-props';
@@ -88,6 +89,7 @@ export const allApiRoutes: {
 	'/api/paste-effects': pasteEffectsHandler,
 	'/api/delete-jsx-node': deleteJsxNodeHandler,
 	'/api/duplicate-jsx-node': duplicateJsxNodeHandler,
+	'/api/split-jsx-sequence': splitJsxSequenceHandler,
 	'/api/update-available': handleUpdate,
 	'/api/project-info': projectInfoHandler,
 	'/api/delete-static-file': deleteStaticFileHandler,

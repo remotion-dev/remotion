@@ -130,6 +130,9 @@ export type AddEffectModalState = {
 export type ModalState =
 	| {
 			type: 'new-comp';
+			folderName: string | null;
+			parentName: string | null;
+			stack: string | null;
 	  }
 	| {
 			type: 'duplicate-comp';

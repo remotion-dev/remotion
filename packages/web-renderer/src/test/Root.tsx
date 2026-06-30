@@ -32,6 +32,7 @@ import {flexPositionedScaled} from './fixtures/flex-positioned-scaled';
 import {gradientTransparentKeyword} from './fixtures/gradient-transparent-keyword';
 import {hugeImageTransform} from './fixtures/huge-image-transform';
 import {inside3dTransform} from './fixtures/inside-3d-transform';
+import {issue6211MaskWheel} from './fixtures/issue-6211-mask-wheel';
 import {issue7050Minimal} from './fixtures/issue-7050-minimal';
 import {issue7050Repro} from './fixtures/issue-7050-repro';
 import {issue7199ScaleAndDropShadow} from './fixtures/issue-7199-scale-and-drop-shadow';
@@ -72,6 +73,10 @@ import {fontVariantCaps} from './fixtures/text/font-variant-caps';
 import {letterSpacing} from './fixtures/text/letter-spacing';
 import {paragraphs} from './fixtures/text/paragraphs';
 import {textFixture} from './fixtures/text/text';
+import {
+	textDecoration,
+	textDecorationStyles,
+} from './fixtures/text/text-decoration';
 import {textShadow} from './fixtures/text/text-shadow';
 import {textShadowScale} from './fixtures/text/text-shadow-scale';
 import {textTransform} from './fixtures/text/text-transform';
@@ -161,6 +166,8 @@ export const Root: React.FC = () => {
 				<Composition {...paragraphs} />
 				<Composition {...letterSpacing} />
 				<Composition {...textTransform} />
+				<Composition {...textDecoration} />
+				<Composition {...textDecorationStyles} />
 				<Composition {...fontStyle} />
 				<Composition {...fontVariantCaps} />
 				<Composition {...lineHeight} />
@@ -190,6 +197,7 @@ export const Root: React.FC = () => {
 				<Composition {...threeDFlattening} />
 				<Composition {...issue7050Repro} />
 				<Composition {...issue7050Minimal} />
+				<Composition {...issue6211MaskWheel} />
 				<Composition {...issue7199ScaleAndDropShadow} />
 				<Composition {...issue7243SvgJapaneseText} />
 				<Composition {...issue7489Minimal} />
@@ -206,7 +214,7 @@ export const Root: React.FC = () => {
 				<Composition {...transitionClockWipe} />
 				<Composition {...transitionIris} />
 			</Folder>
-			<Folder name="Issue 8650">
+			<Folder name="Issue8650">
 				<Composition {...issue8650LottieControlChars} />
 			</Folder>
 		</>

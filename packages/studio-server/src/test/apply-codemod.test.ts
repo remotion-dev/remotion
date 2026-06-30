@@ -264,6 +264,8 @@ test('applyCodemodHandler creates new composition files with undo and redo', asy
 						newId: 'FreshVideo',
 						componentName: 'FreshVideo',
 						componentImportPath: './FreshVideo',
+						folderName: null,
+						parentName: null,
 						newDurationInFrames: 150,
 						newFps: 30,
 						newHeight: 1080,
@@ -313,6 +315,61 @@ test('applyCodemodHandler creates new composition files with undo and redo', asy
 		cleanupFileWatcher();
 		rmSync(remotionRoot, {recursive: true, force: true});
 	}
+});
+
+test('creates a composition in a top-level folder', () => {
+	const {changesMade, newContents} = parseAndApplyCodemod({
+		input: folderRootContents,
+		codeMod: {
+			type: 'new-composition',
+			newId: 'FreshVideo',
+			componentName: 'FreshVideo',
+			componentImportPath: './FreshVideo',
+			folderName: 'Parent',
+			parentName: null,
+			newDurationInFrames: 150,
+			newFps: 30,
+			newHeight: 1080,
+			newWidth: 1920,
+		},
+	});
+
+	expect(changesMade.length).toBe(1);
+	expect(newContents).toContain('id="FreshVideo"');
+	expect(newContents).toContain('component={FreshVideo}');
+	expect(newContents.indexOf('<Folder name="Parent">')).toBeLessThan(
+		newContents.indexOf('id="FreshVideo"'),
+	);
+	expect(newContents.indexOf('id="FreshVideo"')).toBeLessThan(
+		newContents.indexOf('<Folder name="Other">'),
+	);
+});
+
+test('creates a composition in a nested folder by parent path', () => {
+	const {changesMade, newContents} = parseAndApplyCodemod({
+		input: folderRootContents,
+		codeMod: {
+			type: 'new-composition',
+			newId: 'FreshVideo',
+			componentName: 'FreshVideo',
+			componentImportPath: './FreshVideo',
+			folderName: 'Shared',
+			parentName: 'Other',
+			newDurationInFrames: 150,
+			newFps: 30,
+			newHeight: 1080,
+			newWidth: 1920,
+		},
+	});
+
+	expect(changesMade.length).toBe(1);
+	expect(newContents).toContain('id="FreshVideo"');
+	expect(newContents.indexOf('id="NestedB"')).toBeLessThan(
+		newContents.indexOf('id="FreshVideo"'),
+	);
+	expect(newContents.indexOf('id="NestedA"')).toBeLessThan(
+		newContents.indexOf('id="NestedB"'),
+	);
 });
 
 test('renames a nested folder by parent path', () => {

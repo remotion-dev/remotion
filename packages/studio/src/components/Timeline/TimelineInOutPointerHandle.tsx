@@ -2,6 +2,7 @@ import React, {createRef, useContext, useMemo} from 'react';
 import {useVideoConfig} from 'remotion';
 import {LIGHT_TRANSPARENT} from '../../helpers/colors';
 import {getXPositionOfItemInTimelineImperatively} from '../../helpers/get-left-of-timeline-slider';
+import {TIMELINE_SCRUBBER_ATTR} from './TimelineSelection';
 import {TimelineWidthContext} from './TimelineWidthProvider';
 
 const line: React.CSSProperties = {
@@ -51,6 +52,7 @@ const InnerTimelineInOutPointerHandle: React.FC<
 			ref={type === 'in' ? inPointerHandle : outPointerHandle}
 			style={style}
 			onPointerDown={onPointerDown}
+			{...{[TIMELINE_SCRUBBER_ATTR]: true}}
 		/>
 	);
 };

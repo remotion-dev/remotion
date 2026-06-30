@@ -6,6 +6,7 @@ import {applyTextTransform} from './apply-text-transform';
 import {findWords} from './find-line-breaks.text';
 import {parsePaintOrder} from './parse-paint-order';
 import {parseTextShadow} from './parse-text-shadow';
+import {drawTextDecoration, getTextDecorations} from './text-decoration';
 
 export const drawText = ({
 	span,
@@ -77,6 +78,12 @@ export const drawText = ({
 		contextToDraw.letterSpacing = letterSpacing;
 		contextToDraw.wordSpacing = wordSpacing;
 
+		const textDecorations = getTextDecorations({
+			computedStyle,
+			onlyBackgroundClipText,
+			span,
+		});
+
 		const strokeWidth = parseFloat(webkitTextStrokeWidth);
 		const hasStroke = strokeWidth > 0;
 		if (hasStroke) {
@@ -147,6 +154,16 @@ export const drawText = ({
 				drawFill();
 				drawStroke();
 			}
+
+			drawTextDecoration({
+				contextToDraw,
+				fontSizePx,
+				measurements,
+				parentRect,
+				textDecorations,
+				token,
+				y,
+			});
 		}
 
 		span.textContent = originalText;

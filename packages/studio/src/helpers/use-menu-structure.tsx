@@ -745,20 +745,6 @@ export const useMenuStructure = (
 								quickSwitcherLabel: 'Show Color Picker',
 							}
 						: null,
-					{
-						id: 'spring-editor',
-						value: 'spring-editor',
-						label: 'Timing Editor',
-						onClick: () => {
-							closeMenu();
-							window.open('https://www.remotion.dev/timing-editor', '_blank');
-						},
-						leftItem: null,
-						keyHint: null,
-						subMenu: null,
-						type: 'item' as const,
-						quickSwitcherLabel: 'Open spring() Editor',
-					},
 					readOnlyStudio || remotion_packageManager === 'unknown'
 						? null
 						: {

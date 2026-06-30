@@ -19,6 +19,7 @@ import {showNotification} from '../Notifications/NotificationCenter';
 import {label, optionRow, rightRow} from '../RenderModal/layout';
 import {useStaticFiles} from '../use-static-files';
 import {DismissableModal} from './DismissableModal';
+import {InputAndValidationContainer} from './InputAndValidationContainer';
 import {RemotionInput} from './RemInput';
 import {ValidationMessage} from './ValidationMessage';
 
@@ -156,7 +157,7 @@ export const RenameStaticFileModal: React.FC<{
 					<div style={optionRow}>
 						<div style={label}>Name</div>
 						<div style={rightRow}>
-							<div>
+							<InputAndValidationContainer>
 								<RemotionInput
 									ref={inputRef}
 									value={newName}
@@ -179,7 +180,7 @@ export const RenameStaticFileModal: React.FC<{
 										/>
 									</>
 								) : null}
-							</div>
+							</InputAndValidationContainer>
 						</div>
 					</div>
 				</div>

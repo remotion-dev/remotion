@@ -118,7 +118,7 @@ const eyedropperButtonStyle: React.CSSProperties = {
 	flex: '0 0 auto',
 };
 
-const hasEyeDropper = (): boolean =>
+export const hasEyeDropper = (): boolean =>
 	typeof window !== 'undefined' && 'EyeDropper' in window;
 
 export const parseEyeDropperColor = (pickedColor: string) => {
