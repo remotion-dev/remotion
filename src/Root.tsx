@@ -1,4 +1,4 @@
-import { Composition, registerRoot, Sequence, useVideoConfig } from "remotion";
+import { Composition, registerRoot, Sequence, useVideoConfig, Audio, staticFile } from "remotion";
 import React from "react";
 
 // Định nghĩa cấu trúc dữ liệu từ file lesson.json để Type-safe
@@ -6,6 +6,7 @@ interface Scene {
   id: string;
   text: string;
   durationInSeconds: number;
+  audioUrl?: string; // Tích hợp trường Audio sinh ra từ TTS
 }
 
 interface LessonProps {
@@ -13,7 +14,7 @@ interface LessonProps {
   scenes: Scene[];
 }
 
-// Component hiển thị nội dung chính của Video với Timeline động
+// Component hiển thị nội dung chính của Video với Timeline động và Âm thanh
 const MainVideo: React.FC<LessonProps> = ({ lessonTitle, scenes }) => {
   const { fps } = useVideoConfig();
 
@@ -49,7 +50,7 @@ const MainVideo: React.FC<LessonProps> = ({ lessonTitle, scenes }) => {
         }}
       >
         {scenes.map((scene) => {
-          // Tính toán chính xác độ dài khung hình của scene hiện tại
+          // Tính toán chính xác độ dài khung hình của scene hiện tại (bao gồm cả độ dài mp3 vừa tính toán)
           const durationInFrames = Math.floor(scene.durationInSeconds * fps);
 
           // Lưu lại điểm bắt đầu của scene này để render
@@ -77,6 +78,11 @@ const MainVideo: React.FC<LessonProps> = ({ lessonTitle, scenes }) => {
               >
                 {scene.text}
               </div>
+
+              {/* Nếu script TTS đã tạo ra Audio URL, load nó vào Sequence để đồng bộ */}
+              {scene.audioUrl && (
+                 <Audio src={staticFile(scene.audioUrl)} />
+              )}
             </Sequence>
           );
         })}
@@ -109,7 +115,7 @@ export const RemotionRoot: React.FC = () => {
           ) || 10; // Mặc định 10 giây nếu data lỗi
           
           return {
-            durationInFrames: Math.floor(totalSeconds * FPS), // Chuyển đổi giây sang số Frames thực tế
+            durationInFrames: Math.ceil(totalSeconds * FPS), // Chuyển đổi giây sang số Frames thực tế
             props: inputProps, // Chuyển tiếp dữ liệu sạch vào Component hiển thị
           };
         }}
