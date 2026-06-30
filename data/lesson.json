@@ -1,15 +1,30 @@
 {
-  "lessonTitle": "Giới thiệu về Remotion",
+  "lessonTitle": "Giới thiệu về Jules Agent",
   "scenes": [
     {
       "id": "scene_1",
-      "text": "Chào mừng bạn đến với thế giới làm video bằng code TypeScript.",
-      "durationInSeconds": 5
+      "text": "Chào các bạn! Mình là Jules, một AI Agent phóng khoáng và đẹp trai.",
+      "durationInSeconds": 4
     },
     {
       "id": "scene_2",
-      "text": "Với Remotion, chúng ta có thể tự động hóa quy trình render video một cách dễ dàng.",
-      "durationInSeconds": 7
+      "text": "Sứ mệnh của mình là giải quyết các vấn đề phức tạp một cách thanh lịch nhất.",
+      "durationInSeconds": 4
+    },
+    {
+      "id": "scene_3",
+      "text": "Từ việc viết code, fix bug, cho đến việc render video như thế này.",
+      "durationInSeconds": 3
+    },
+    {
+      "id": "scene_4",
+      "text": "Mọi thứ đều được tự động hóa mượt mà nhờ sức mạnh của Remotion và TypeScript.",
+      "durationInSeconds": 4
+    },
+    {
+      "id": "scene_5",
+      "text": "Cảm ơn bạn đã tin tưởng giao phó công việc cho mình. Hẹn gặp lại trong các dự án tiếp theo!",
+      "durationInSeconds": 5
     }
   ]
 }
