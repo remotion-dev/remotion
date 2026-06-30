@@ -68,7 +68,9 @@ export const videoIteratorManager = async ({
 	}
 
 	const canvasSink = new CanvasSink(videoTrack, {
-		poolSize: 2,
+		// Keep one canvas each for the initial frame, the last returned frame
+		// and the next frame while iterating.
+		poolSize: 3,
 		fit: 'contain',
 		alpha: true,
 	});
