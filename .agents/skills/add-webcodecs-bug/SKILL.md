@@ -16,7 +16,8 @@ description: Add a browser WebCodecs bug to the Remotion Mediabunny WebCodecs bu
    - current status and resolution state
 4. Map the browser tracker to the table fields:
    - Product: Chromium issues are `Chrome`, WebKit Bugzilla issues are `Safari`, Mozilla Bugzilla issues are `Firefox`.
-   - Filed by: use the known handle from the task when the tracker only exposes a redacted email.
+   - Filed by: use the known handle from the task when the tracker only exposes a redacted email. Known reporter mappings:
+     - `musica-viva.de` or `dp@...@musica-viva.de` → `@Vanilagy`
    - Fixed?: use `Yes` only for fixed or verified-fixed issues, `No` for open/new/assigned/unresolved issues, and `Won't fix` for explicitly rejected or wontfix resolutions.
 5. Add one Markdown table row to `packages/docs/docs/mediabunny/webcodecs-bugs.mdx`.
 
