@@ -794,6 +794,51 @@ export type StaticJsxTextContent =
 	| {kind: 'jsx-text'; value: string}
 	| {kind: 'string-expression'; value: string};
 
+const findJsxChildrenAttribute = (
+	jsxElement: JSXOpeningElement,
+): JSXAttribute | null => {
+	const childrenAttr = jsxElement.attributes.find((attr) => {
+		return (
+			attr.type === 'JSXAttribute' &&
+			attr.name.type === 'JSXIdentifier' &&
+			attr.name.name === 'children'
+		);
+	});
+
+	return childrenAttr && childrenAttr.type === 'JSXAttribute'
+		? childrenAttr
+		: null;
+};
+
+export const getStaticJsxChildrenAttribute = (
+	jsxElement: JSXOpeningElement,
+): StaticJsxTextContent | null => {
+	const childrenAttr = findJsxChildrenAttribute(jsxElement);
+	if (!childrenAttr?.value) {
+		return null;
+	}
+
+	if (childrenAttr.value.type === 'StringLiteral') {
+		return {kind: 'jsx-text', value: childrenAttr.value.value};
+	}
+
+	if (
+		childrenAttr.value.type === 'JSXExpressionContainer' &&
+		childrenAttr.value.expression.type === 'StringLiteral'
+	) {
+		return {
+			kind: 'string-expression',
+			value: childrenAttr.value.expression.value,
+		};
+	}
+
+	return null;
+};
+
+export const hasJsxChildrenAttribute = (
+	jsxElement: JSXOpeningElement,
+): boolean => findJsxChildrenAttribute(jsxElement) !== null;
+
 export const getStaticJsxTextContent = (
 	jsxElement: JSXElement,
 ): StaticJsxTextContent | null => {
@@ -978,6 +1023,17 @@ const computeSequenceOnlyPropsRecord = ({
 	const filteredProps: Record<string, CanUpdatePropStatus> = {};
 	for (const key of keys) {
 		if (key === 'children') {
+			const staticChildrenAttribute = getStaticJsxChildrenAttribute(jsxElement);
+			if (staticChildrenAttribute) {
+				filteredProps[key] = staticStatus(staticChildrenAttribute.value);
+				continue;
+			}
+
+			if (hasJsxChildrenAttribute(jsxElement)) {
+				filteredProps[key] = computedStatus();
+				continue;
+			}
+
 			const staticTextContent = getStaticJsxTextContent(jsxElementNode);
 			filteredProps[key] = staticTextContent
 				? staticStatus(staticTextContent.value)

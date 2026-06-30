@@ -263,6 +263,51 @@ export const Example: React.FC = () => {
 	expect(output).toContain("<Interactive.P>{'Cool! I '}</Interactive.P>");
 });
 
+test('updateSequenceProps should update children attribute', async () => {
+	const input = `import React from 'react';
+import {Interactive} from 'remotion';
+
+export const Example: React.FC = () => {
+	return <Interactive.P children="Hello" />;
+};
+`;
+
+	const {output, oldValueStrings} = await updateSequenceProps({
+		input,
+		nodePath: lineColumnToNodePath(input, 5),
+		updates: [{key: 'children', value: 'Goodbye', defaultValue: ''}],
+		schema: NoReactInternals.sequenceSchema,
+		prettierConfigOverride: null,
+	});
+
+	expect(oldValueStrings[0]).toBe('Hello');
+	expect(output).toContain('<Interactive.P children="Goodbye" />');
+	expect(output).not.toContain('>Goodbye</Interactive.P>');
+});
+
+test('updateSequenceProps should update children attribute instead of JSX children', async () => {
+	const input = `import React from 'react';
+import {Interactive} from 'remotion';
+
+export const Example: React.FC = () => {
+	return <Interactive.P children="Hello">Stale</Interactive.P>;
+};
+`;
+
+	const {output, oldValueStrings} = await updateSequenceProps({
+		input,
+		nodePath: lineColumnToNodePath(input, 5),
+		updates: [{key: 'children', value: 'Goodbye', defaultValue: ''}],
+		schema: NoReactInternals.sequenceSchema,
+		prettierConfigOverride: null,
+	});
+
+	expect(oldValueStrings[0]).toBe('Hello');
+	expect(output).toContain(
+		'<Interactive.P children="Goodbye">Stale</Interactive.P>',
+	);
+});
+
 test('updateSequenceProps should update empty JSX text children', async () => {
 	const input = `import React from 'react';
 import {Interactive} from 'remotion';

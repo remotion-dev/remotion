@@ -779,6 +779,44 @@ export const Example: React.FC = () => {
 	expect(result.props.children).toEqual({status: 'static', codeValue: 'Hello'});
 });
 
+test('computeSequencePropsStatus should detect static children attribute', () => {
+	const input = `import React from 'react';
+import {Interactive} from 'remotion';
+
+export const Example: React.FC = () => {
+	return <Interactive.P children="Hello" />;
+};
+`;
+	const result = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 5),
+		componentIdentity: null,
+		keys: ['children'],
+		effects: [],
+	});
+
+	expect(result.props.children).toEqual({status: 'static', codeValue: 'Hello'});
+});
+
+test('computeSequencePropsStatus should prefer static children attribute over JSX children', () => {
+	const input = `import React from 'react';
+import {Interactive} from 'remotion';
+
+export const Example: React.FC = () => {
+	return <Interactive.P children="Hello">Stale</Interactive.P>;
+};
+`;
+	const result = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 5),
+		componentIdentity: null,
+		keys: ['children'],
+		effects: [],
+	});
+
+	expect(result.props.children).toEqual({status: 'static', codeValue: 'Hello'});
+});
+
 test('computeSequencePropsStatus should detect empty JSX text children', () => {
 	const input = `import React from 'react';
 import {Interactive} from 'remotion';

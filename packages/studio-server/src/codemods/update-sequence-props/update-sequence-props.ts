@@ -11,7 +11,9 @@ import type {InteractivitySchema, SequenceNodePath} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {
 	findJsxElementNodeAtNodePath,
+	getStaticJsxChildrenAttribute,
 	getStaticJsxTextContent,
+	hasJsxChildrenAttribute,
 } from '../../preview-server/routes/can-update-sequence-props';
 import {formatFileContent} from '../format-file-content';
 import {parseAst, serializeAst} from '../parse-ast';
@@ -132,6 +134,18 @@ const escapeJsxText = (value: string): string => {
 		.replace(/}/g, '&#125;');
 };
 
+const findChildrenAttribute = (
+	node: JSXOpeningElementLike,
+): JSXAttribute | undefined => {
+	return node.attributes?.find((attr) => {
+		return (
+			attr.type === 'JSXAttribute' &&
+			attr.name.type === 'JSXIdentifier' &&
+			attr.name.name === 'children'
+		);
+	}) as JSXAttribute | undefined;
+};
+
 const updateJsxTextContent = ({
 	jsxElement,
 	value,
@@ -139,6 +153,26 @@ const updateJsxTextContent = ({
 	jsxElement: JSXElementLike;
 	value: unknown;
 }): string => {
+	const nextValue = String(value ?? '');
+	const staticChildrenAttribute = getStaticJsxChildrenAttribute(
+		jsxElement.openingElement,
+	);
+	if (staticChildrenAttribute) {
+		const childrenAttribute = findChildrenAttribute(jsxElement.openingElement);
+		if (!childrenAttribute) {
+			throw new Error('Expected static children attribute to exist');
+		}
+
+		childrenAttribute.value = b.stringLiteral(nextValue) as StringLiteral;
+		return staticChildrenAttribute.value;
+	}
+
+	if (hasJsxChildrenAttribute(jsxElement.openingElement)) {
+		throw new Error(
+			'Cannot update text content because the children attribute is not static text',
+		);
+	}
+
 	const staticTextContent = getStaticJsxTextContent(jsxElement);
 	if (!staticTextContent) {
 		throw new Error(
@@ -146,7 +180,6 @@ const updateJsxTextContent = ({
 		);
 	}
 
-	const nextValue = String(value ?? '');
 	const canRepresentAsJsxText =
 		staticTextContent.kind === 'jsx-text' &&
 		!nextValue.includes('\n') &&
