@@ -1,4 +1,4 @@
-import { Composition, registerRoot } from "remotion";
+import { Composition, registerRoot, Sequence, useVideoConfig } from "remotion";
 import React from "react";
 
 // Định nghĩa cấu trúc dữ liệu từ file lesson.json để Type-safe
@@ -13,28 +13,74 @@ interface LessonProps {
   scenes: Scene[];
 }
 
-// Component hiển thị nội dung chính của Video
+// Component hiển thị nội dung chính của Video với Timeline động
 const MainVideo: React.FC<LessonProps> = ({ lessonTitle, scenes }) => {
+  const { fps } = useVideoConfig();
+
+  // Biến đếm frame bắt đầu cho từng scene
+  let currentStartFrame = 0;
+
   return (
     <div
       style={{
         flex: 1,
         backgroundColor: "#000000",
         color: "#ffffff",
-        justifyContent: "center",
-        alignItems: "center",
         display: "flex",
         flexDirection: "column",
-        fontSize: 40,
         fontFamily: "Helvetica, Arial, sans-serif",
-        padding: 40,
-        textAlign: "center",
       }}
     >
-      <h1>{lessonTitle}</h1>
-      <p style={{ fontSize: 24, color: "#aaaaaa" }}>
-        [Hệ thống hiển thị tự động - Đã nạp thành công {scenes?.length || 0} scenes]
-      </p>
+      {/* Tiêu đề cố định ở trên */}
+      <div style={{ textAlign: "center", padding: 40, zIndex: 10 }}>
+        <h1>{lessonTitle}</h1>
+      </div>
+
+      {/* Vùng hiển thị động cho từng scene */}
+      <div
+        style={{
+          flex: 1,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          textAlign: "center",
+          padding: 80,
+          position: "relative",
+        }}
+      >
+        {scenes.map((scene) => {
+          // Tính toán chính xác độ dài khung hình của scene hiện tại
+          const durationInFrames = Math.floor(scene.durationInSeconds * fps);
+
+          // Lưu lại điểm bắt đầu của scene này để render
+          const startFrame = currentStartFrame;
+
+          // Cộng dồn để lấy điểm bắt đầu cho scene tiếp theo
+          currentStartFrame += durationInFrames;
+
+          return (
+            <Sequence
+              key={scene.id}
+              from={startFrame}
+              durationInFrames={durationInFrames}
+            >
+              <div
+                style={{
+                  position: "absolute",
+                  width: "100%",
+                  fontSize: 50,
+                  color: "#aaaaaa",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                {scene.text}
+              </div>
+            </Sequence>
+          );
+        })}
+      </div>
     </div>
   );
 };
