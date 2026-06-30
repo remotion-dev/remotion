@@ -1,1 +1,15 @@
-holder
+{
+  "lessonTitle": "Giới thiệu về Remotion",
+  "scenes": [
+    {
+      "id": "scene_1",
+      "text": "Chào mừng bạn đến với thế giới làm video bằng code TypeScript.",
+      "durationInSeconds": 5
+    },
+    {
+      "id": "scene_2",
+      "text": "Với Remotion, chúng ta có thể tự động hóa quy trình render video một cách dễ dàng.",
+      "durationInSeconds": 7
+    }
+  ]
+}
