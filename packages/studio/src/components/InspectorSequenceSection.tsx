@@ -165,6 +165,7 @@ export const InspectorSequenceSection: React.FC<{
 	const {tree} = useTimelineExpandedTree({
 		sequence,
 		nodePathInfo,
+		includeTextContent: true,
 	});
 	const [collapsedKeys, setCollapsedKeys] = useState<ReadonlySet<string>>(
 		loadInspectorCollapsedKeys,
