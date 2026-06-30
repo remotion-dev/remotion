@@ -17,7 +17,7 @@
 		"remotion": "cd ../example && bunx remotion studio ../web-renderer/src/test/studio.ts --public-dir=../example-videos/videos"
 	},
 	"author": "Remotion <jonny@remotion.dev>",
-	"license": "UNLICENSED",
+	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {
 		"@mediabunny/mp3-encoder": "catalog:",
 		"@mediabunny/aac-encoder": "catalog:",
