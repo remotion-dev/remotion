@@ -1,9 +1,11 @@
 type TextDecorationLine = 'underline' | 'overline' | 'line-through';
+export type TextDecorationStyle = 'solid' | 'double' | 'dotted' | 'dashed';
 
 export type TextDecoration = {
 	lines: TextDecorationLine[];
 	color: string;
 	thickness: number;
+	style: TextDecorationStyle;
 };
 
 const textDecorationLines: TextDecorationLine[] = [
@@ -18,6 +20,18 @@ const getDefaultTextDecorationThickness = (fontSizePx: number) => {
 	return Math.max(1, Number.isFinite(fontSizePx) ? fontSizePx / 16 : 1);
 };
 
+const getTextDecorationStyle = (style: string): TextDecorationStyle | null => {
+	if (style === 'wavy') {
+		return null;
+	}
+
+	if (style === 'double' || style === 'dotted' || style === 'dashed') {
+		return style;
+	}
+
+	return 'solid';
+};
+
 export const parseTextDecoration = ({
 	onlyBackgroundClipText,
 	style,
@@ -25,8 +39,10 @@ export const parseTextDecoration = ({
 	onlyBackgroundClipText: boolean;
 	style: CSSStyleDeclaration;
 }): TextDecoration | null => {
-	const textDecorationStyle = style.getPropertyValue('text-decoration-style');
-	if (textDecorationStyle && textDecorationStyle !== 'solid') {
+	const textDecorationStyle = getTextDecorationStyle(
+		style.getPropertyValue('text-decoration-style').trim(),
+	);
+	if (textDecorationStyle === null) {
 		return null;
 	}
 
@@ -63,6 +79,7 @@ export const parseTextDecoration = ({
 					: style.color
 				: textDecorationColor,
 		thickness,
+		style: textDecorationStyle,
 	};
 };
 
@@ -137,6 +154,38 @@ const getTextDecorationY = ({
 	return y - actualAscent * 0.35;
 };
 
+const getTextDecorationLineDashPattern = (
+	style: TextDecorationStyle,
+	thickness: number,
+): number[] => {
+	if (style === 'dashed') {
+		return [thickness * 2, thickness];
+	}
+
+	if (style === 'dotted') {
+		return [thickness, thickness];
+	}
+
+	return [];
+};
+
+const strokeTextDecorationLine = ({
+	contextToDraw,
+	endX,
+	lineY,
+	startX,
+}: {
+	contextToDraw: OffscreenCanvasRenderingContext2D;
+	endX: number;
+	lineY: number;
+	startX: number;
+}) => {
+	contextToDraw.beginPath();
+	contextToDraw.moveTo(startX, lineY);
+	contextToDraw.lineTo(endX, lineY);
+	contextToDraw.stroke();
+};
+
 export const drawTextDecoration = ({
 	contextToDraw,
 	fontSizePx,
@@ -183,10 +232,37 @@ export const drawTextDecoration = ({
 				fontSizePx,
 			});
 
-			contextToDraw.beginPath();
-			contextToDraw.moveTo(startX, lineY);
-			contextToDraw.lineTo(endX, lineY);
-			contextToDraw.stroke();
+			if (textDecoration.style === 'double') {
+				contextToDraw.setLineDash([]);
+				strokeTextDecorationLine({
+					contextToDraw,
+					endX,
+					lineY: lineY - textDecoration.thickness,
+					startX,
+				});
+				strokeTextDecorationLine({
+					contextToDraw,
+					endX,
+					lineY: lineY + textDecoration.thickness,
+					startX,
+				});
+				contextToDraw.setLineDash([]);
+				continue;
+			}
+
+			contextToDraw.setLineDash(
+				getTextDecorationLineDashPattern(
+					textDecoration.style,
+					textDecoration.thickness,
+				),
+			);
+			strokeTextDecorationLine({
+				contextToDraw,
+				endX,
+				lineY,
+				startX,
+			});
+			contextToDraw.setLineDash([]);
 		}
 	}
 
