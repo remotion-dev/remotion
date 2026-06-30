@@ -1,5 +1,11 @@
 import { Config } from "@remotion/cli";
+import os from "os";
 
-Config.setConcurrency(8);
+// Tối ưu Concurrency động theo số nhân CPU thực tế của node máy ảo
+Config.setConcurrency(os.cpus().length);
+
+// Bảo hiểm tính hoạt động chống crash trên container không có driver GPU Pass-through
 Config.setChromiumOpenGlRenderer("swangle");
+
+// Sử dụng định dạng ảnh JPEG để tăng tốc độ ghi đệm frame (Sửa lại chuẩn API của Remotion)
 Config.setImageFormat("jpeg");
