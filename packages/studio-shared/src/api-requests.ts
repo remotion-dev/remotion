@@ -298,6 +298,19 @@ export type UnsubscribeFromSequencePropsRequest = {
 	effectKeys: string[][];
 };
 
+export type GoogleFontSourceEdit = {
+	fontFamily: string;
+	importName: string;
+	style: string;
+	weights: string[];
+	subsets: string[];
+};
+
+export type SaveSequencePropSourceEdit = {
+	type: 'google-font';
+	font: GoogleFontSourceEdit;
+};
+
 export type SaveSequencePropEdit = {
 	fileName: string;
 	nodePath: SequencePropsSubscriptionKey;
@@ -305,6 +318,7 @@ export type SaveSequencePropEdit = {
 	value: string;
 	defaultValue: string | null;
 	schema: InteractivitySchema;
+	sourceEdit: SaveSequencePropSourceEdit | null;
 };
 
 export type SaveSequencePropsRequest = {

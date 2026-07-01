@@ -1,4 +1,7 @@
-import {optimisticUpdateForPropStatuses} from '@remotion/studio-shared';
+import {
+	optimisticUpdateForPropStatuses,
+	type SaveSequencePropSourceEdit,
+} from '@remotion/studio-shared';
 import type {
 	CanUpdateSequencePropsResponse,
 	SequencePropsSubscriptionKey,
@@ -21,6 +24,7 @@ export type SaveSequencePropChange = {
 	value: unknown;
 	defaultValue: string | null;
 	schema: InteractivitySchema;
+	sourceEdit?: SaveSequencePropSourceEdit;
 };
 
 type SaveSequencePropsOptions = {
@@ -69,6 +73,7 @@ export const saveSequenceProps = ({
 							value: JSON.stringify(change.value),
 							defaultValue: change.defaultValue,
 							schema: change.schema,
+							sourceEdit: change.sourceEdit ?? null,
 						},
 					],
 					clientId,
@@ -100,6 +105,7 @@ export const saveSequenceProps = ({
 				value: JSON.stringify(change.value),
 				defaultValue: change.defaultValue,
 				schema: change.schema,
+				sourceEdit: change.sourceEdit ?? null,
 			};
 		}),
 		clientId,

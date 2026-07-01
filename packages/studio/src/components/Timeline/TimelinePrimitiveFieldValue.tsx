@@ -13,6 +13,7 @@ import type {
 import {TimelineBooleanField} from './TimelineBooleanField';
 import {TimelineColorField} from './TimelineColorField';
 import {TimelineEnumField} from './TimelineEnumField';
+import {TimelineFontFamilyField} from './TimelineFontFamilyField';
 import {TimelineNumberField} from './TimelineNumberField';
 import {TimelineRotationField} from './TimelineRotationField';
 import {TimelineScaleField} from './TimelineScaleField';
@@ -208,6 +209,21 @@ export const TimelinePrimitiveFieldValue: React.FC<{
 					effectiveValue={effectiveValue}
 					field={field}
 					nodePath={scaleLockNodePath}
+					onDragEnd={onDragEnd}
+					onDragValueChange={onDragValueChange}
+					onSave={onSave}
+					propStatus={propStatus}
+				/>
+			</span>
+		);
+	}
+
+	if (field.typeName === 'font-family') {
+		return (
+			<span style={inlineWrapper}>
+				<TimelineFontFamilyField
+					effectiveValue={effectiveValue}
+					field={field}
 					onDragEnd={onDragEnd}
 					onDragValueChange={onDragValueChange}
 					onSave={onSave}

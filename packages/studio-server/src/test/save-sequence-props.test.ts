@@ -32,6 +32,26 @@ test('saveSequenceProps does not suppress HMR for showInTimeline edits', () => {
 	).toBe(false);
 });
 
+test('saveSequenceProps does not suppress HMR for Google Font source edits', () => {
+	expect(
+		shouldSuppressHmrForSequencePropEdits([
+			{
+				key: 'style.fontFamily',
+				sourceEdit: {
+					type: 'google-font',
+					font: {
+						fontFamily: 'Roboto',
+						importName: 'Roboto',
+						style: 'normal',
+						weights: ['400', '700', '800'],
+						subsets: ['latin'],
+					},
+				},
+			},
+		]),
+	).toBe(false);
+});
+
 test('saveSequenceProps forwards element schemas to the codemod', () => {
 	const change = convertSequencePropEditToCodemodChange({
 		nodePath: {
@@ -44,6 +64,7 @@ test('saveSequenceProps forwards element schemas to the codemod', () => {
 		value: 7,
 		defaultValue: 5,
 		schema: starSchema,
+		sourceEdit: null,
 	});
 
 	expect(change).toEqual({
@@ -53,6 +74,7 @@ test('saveSequenceProps forwards element schemas to the codemod', () => {
 				key: 'points',
 				value: 7,
 				defaultValue: 5,
+				googleFont: null,
 			},
 		],
 		schema: starSchema,
