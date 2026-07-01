@@ -1,130 +1,259 @@
-import {parsePath, translatePath} from '@remotion/paths';
-import {makeRect} from '@remotion/shapes';
+import {loadFont} from '@remotion/fonts';
 import React from 'react';
-import {AbsoluteFill, useCurrentFrame} from 'remotion';
-import {centerPath} from './center';
-import {makeElement, transformElement} from './element';
-import {Faces} from './Faces';
-import {getText, useFont} from './get-char';
-import {extrudeElement} from './join-inbetween-tiles';
-import {makeFace, transformElements} from './map-face';
 import {
-	rotateX,
-	rotateY,
-	rotateZ,
-	scaled,
-	translateX,
-	translateY,
-	translateZ,
-} from './matrix';
+	AbsoluteFill,
+	Easing,
+	interpolate,
+	staticFile,
+	useCurrentFrame,
+} from 'remotion';
+import {ExtrudeDiv} from '../3DContext/Div3D';
+import {
+	RotateX,
+	RotateY,
+	RotateZ,
+	Scale,
+	TranslateX,
+	TranslateY,
+} from '../3DContext/transformation-context';
 
 const width = 1080;
 const height = 600;
 const depth = 95;
-const prompt = 'Fly from LA to NY';
+const cornerRadius = 42;
+const promptLines = ['Animate from', 'LA to NY'] as const;
 const thinking = 'Thinking';
+const fontFamily = 'GT Planar';
 const shineLoopInFrames = 60;
+const sendStartFrame = 16;
+const promptTravelDurationInFrames = 28;
+const thinkingStartFrame = 58;
+
+loadFont({
+	family: fontFamily,
+	url: staticFile('GT Planar/GT-Planar-Medium.woff2'),
+	weight: '500',
+});
+
+const FrontFace: React.FC<{
+	readonly shineProgress: number;
+	readonly frame: number;
+}> = ({shineProgress, frame}) => {
+	const shinePosition = 140 - shineProgress * 180;
+	const sendProgress = Easing.out(Easing.cubic)(
+		interpolate(
+			frame,
+			[sendStartFrame, sendStartFrame + promptTravelDurationInFrames],
+			[0, 1],
+			{extrapolateLeft: 'clamp', extrapolateRight: 'clamp'},
+		),
+	);
+	const promptBubbleTop = interpolate(sendProgress, [0, 1], [378, 56]);
+	const promptBubbleScale = interpolate(sendProgress, [0, 1], [0.86, 1]);
+	const promptBubbleOpacity = interpolate(
+		frame,
+		[sendStartFrame - 4, sendStartFrame + 8],
+		[0, 1],
+		{extrapolateLeft: 'clamp', extrapolateRight: 'clamp'},
+	);
+	const inputPromptOpacity = interpolate(
+		frame,
+		[sendStartFrame, sendStartFrame + 12],
+		[1, 0],
+		{extrapolateLeft: 'clamp', extrapolateRight: 'clamp'},
+	);
+	const thinkingOpacity = interpolate(
+		frame,
+		[thinkingStartFrame, thinkingStartFrame + 12],
+		[0, 1],
+		{extrapolateLeft: 'clamp', extrapolateRight: 'clamp'},
+	);
+	const thinkingTranslateY = interpolate(
+		frame,
+		[thinkingStartFrame, thinkingStartFrame + 12],
+		[16, 0],
+		{extrapolateLeft: 'clamp', extrapolateRight: 'clamp'},
+	);
+	const sendButtonPress = interpolate(
+		frame,
+		[sendStartFrame, sendStartFrame + 5, sendStartFrame + 16],
+		[0, 1, 0],
+		{extrapolateLeft: 'clamp', extrapolateRight: 'clamp'},
+	);
+	const sendButtonScale = 1 - 0.12 * sendButtonPress;
+
+	return (
+		<div
+			style={{
+				width: '100%',
+				height: '100%',
+				borderRadius: cornerRadius,
+				border: '9px solid #050505',
+				backgroundColor: '#f6f4ee',
+				boxSizing: 'border-box',
+				fontFamily,
+				overflow: 'hidden',
+				position: 'relative',
+			}}
+		>
+			<div
+				style={{
+					position: 'absolute',
+					right: 56,
+					top: promptBubbleTop,
+					color: '#332f2a',
+					fontSize: 58,
+					backgroundColor: '#ffffff',
+					border: '5px solid #050505',
+					fontWeight: 500,
+					lineHeight: 1.02,
+					maxWidth: 520,
+					padding: '26px 34px 30px',
+					borderRadius: 42,
+					boxShadow: '0 10px 0 rgba(5, 5, 5, 0.08)',
+					boxSizing: 'border-box',
+					textAlign: 'right',
+					opacity: promptBubbleOpacity,
+					transform: `scale(${promptBubbleScale})`,
+					transformOrigin: '100% 100%',
+				}}
+			>
+				{promptLines.map((line) => {
+					return <div key={line}>{line}</div>;
+				})}
+			</div>
+
+			<div
+				style={{
+					position: 'absolute',
+					left: 56,
+					top: 252,
+					color: '#8c8880',
+					fontSize: 64,
+					fontWeight: 500,
+					lineHeight: 1.18,
+					opacity: thinkingOpacity,
+					transform: `translateY(${thinkingTranslateY}px)`,
+				}}
+			>
+				<span>{thinking}</span>
+				<span
+					style={{
+						position: 'absolute',
+						inset: 0,
+						color: 'transparent',
+						backgroundImage:
+							'linear-gradient(90deg, transparent 0%, transparent 34%, rgba(255, 255, 255, 0.8) 50%, transparent 66%, transparent 100%)',
+						backgroundSize: '220% 100%',
+						backgroundPosition: `${shinePosition}% 0`,
+						WebkitBackgroundClip: 'text',
+						backgroundClip: 'text',
+						lineHeight: 1.18,
+					}}
+				>
+					{thinking}
+				</span>
+			</div>
+			<div
+				style={{
+					position: 'absolute',
+					left: 56,
+					right: 56,
+					bottom: 56,
+					height: 96,
+					borderRadius: 48,
+					backgroundColor: '#ffffff',
+					border: '5px solid #050505',
+					boxSizing: 'border-box',
+					display: 'flex',
+					alignItems: 'center',
+					padding: '10px 12px 10px 34px',
+					boxShadow: '0 10px 0 rgba(5, 5, 5, 0.08)',
+				}}
+			>
+				<div
+					style={{
+						flex: 1,
+						color: '#332f2a',
+						fontSize: 42,
+						fontWeight: 500,
+						opacity: inputPromptOpacity,
+						whiteSpace: 'nowrap',
+					}}
+				>
+					{promptLines.join(' ')}
+				</div>
+				<div
+					style={{
+						width: 68,
+						height: 68,
+						borderRadius: 34,
+						backgroundColor: '#0b84f3',
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'center',
+						marginLeft: 22,
+						transform: `scale(${sendButtonScale})`,
+					}}
+				>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						viewBox="0 0 384 512"
+						width={30}
+						height={40}
+						aria-hidden="true"
+						style={{
+							display: 'block',
+							fill: 'white',
+						}}
+					>
+						<path d="M214.6 9.4c-12.5-12.5-32.8-12.5-45.3 0l-160 160c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L160 109.3 160 480c0 17.7 14.3 32 32 32s32-14.3 32-32l0-370.7 105.4 105.4c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3l-160-160z" />
+					</svg>
+				</div>
+			</div>
+		</div>
+	);
+};
 
 export const CodingPrompt: React.FC = () => {
 	const frame = useCurrentFrame();
-	const font = useFont('homepage-assets/gt-planar-medium.otf');
-
-	if (!font) {
-		return null;
-	}
-
-	const rect = makeRect({
-		width,
-		height,
-		cornerRadius: 42,
-	});
-
-	const plane = extrudeElement({
-		backFaceColor: '#141414',
-		sideColor: '#050505',
-		frontFaceColor: '#f6f4ee',
-		depth,
-		points: parsePath(centerPath(rect.path)),
-		strokeWidth: 18,
-		description: 'coding prompt plane',
-		strokeColor: '#050505',
-		crispEdges: false,
-	});
-
-	const promptText = getText({font, text: prompt, size: 74});
-	const promptTextFace = makeFace({
-		fill: '#332f2a',
-		points: translatePath(promptText.path, -475, -195),
-		strokeWidth: 0,
-		description: 'coding prompt text',
-		strokeColor: '#332f2a',
-		crispEdges: false,
-	});
-
-	const thinkingText = getText({font, text: thinking, size: 50});
-	const thinkingPath = translatePath(thinkingText.path, -475, -124);
-	const thinkingFace = makeFace({
-		fill: '#8c8880',
-		points: thinkingPath,
-		strokeWidth: 0,
-		description: 'coding prompt thinking text',
-		strokeColor: '#8c8880',
-		crispEdges: false,
-	});
-	const thinkingShineFace = makeFace({
-		fill: 'url(#coding-prompt-thinking-shine)',
-		points: thinkingPath,
-		strokeWidth: 0,
-		description: 'coding prompt thinking shine',
-		strokeColor: 'transparent',
-		crispEdges: false,
-	});
-	const shineProgress = (frame % shineLoopInFrames) / shineLoopInFrames;
-	const shineCenter = shineProgress * 1.8 - 0.4;
-
-	const transformations = [
-		rotateX(-0.35),
-		rotateY(-0.3),
-		rotateZ(-0.06),
-		scaled(1.15),
-		translateX(20),
-		translateY(5),
-	];
-
-	const promptContent = transformElement(
-		makeElement([promptTextFace, thinkingFace], [0, 0, 0, 1], 'prompt content'),
-		[translateZ(-depth / 2 - 0.001)],
-	);
-	const thinkingShine = transformElement(
-		makeElement(thinkingShineFace, [0, 0, 0, 1], 'thinking shine'),
-		[translateZ(-depth / 2 - 0.002)],
-	);
-	const elements = transformElements(
-		[plane, promptContent, thinkingShine],
-		transformations,
-	);
-	const viewBox = [-960, -540, 1920, 1080];
+	const shineFrame = Math.max(0, frame - thinkingStartFrame);
+	const shineProgress = (shineFrame % shineLoopInFrames) / shineLoopInFrames;
 
 	return (
-		<AbsoluteFill style={{backgroundColor: 'white'}}>
-			<svg viewBox={viewBox.join(' ')} style={{overflow: 'visible'}}>
-				<defs>
-					<linearGradient
-						id="coding-prompt-thinking-shine"
-						x1={shineCenter - 0.5}
-						x2={shineCenter + 0.5}
-						y1="0"
-						y2="0"
-					>
-						<stop offset="0%" stopColor="white" stopOpacity={0} />
-						<stop offset="42%" stopColor="white" stopOpacity={0} />
-						<stop offset="50%" stopColor="white" stopOpacity={0.72} />
-						<stop offset="58%" stopColor="white" stopOpacity={0} />
-						<stop offset="100%" stopColor="white" stopOpacity={0} />
-					</linearGradient>
-				</defs>
-				<Faces elements={elements} />
-			</svg>
+		<AbsoluteFill className="justify-center items-center">
+			<TranslateX px={20}>
+				<TranslateY px={5}>
+					<Scale factor={1.15}>
+						<RotateZ radians={-0.06}>
+							<RotateY radians={-0.3}>
+								<RotateX radians={-0.35}>
+									<ExtrudeDiv
+										width={width}
+										height={height}
+										depth={depth}
+										cornerRadius={cornerRadius}
+										backFace={
+											<AbsoluteFill
+												style={{
+													borderRadius: cornerRadius,
+													backgroundColor: '#141414',
+													border: '9px solid #050505',
+												}}
+											/>
+										}
+									>
+										<FrontFace
+											shineProgress={shineProgress}
+											frame={frame}
+										/>
+									</ExtrudeDiv>
+								</RotateX>
+							</RotateY>
+						</RotateZ>
+					</Scale>
+				</TranslateY>
+			</TranslateX>
 		</AbsoluteFill>
 	);
 };

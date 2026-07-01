@@ -395,16 +395,25 @@ export const Studio: React.FC = () => {
 	].filter(truthy);
 
 	return (
-		<Sequence
-			style={{
-				scale: 1.18,
-				translate: '0px 86.6px',
-				transformOrigin: '50% 90.8%',
-			}}
-		>
+		<Sequence style={{}}>
 			<svg viewBox={viewBox.join(' ')}>
 				<Faces elements={allElements} />
 			</svg>
+		</Sequence>
+	);
+};
+
+export const OuterStudio = () => {
+	return (
+		<Sequence
+			width={1920}
+			height={1080}
+			style={{
+				translate: '-420px 0px',
+				scale: 0.66,
+			}}
+		>
+			<Studio></Studio>
 		</Sequence>
 	);
 };

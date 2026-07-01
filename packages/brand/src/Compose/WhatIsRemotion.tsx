@@ -195,7 +195,7 @@ export const whatIsRemotionCalculateMetadata: CalculateMetadataFunction<
 	z.infer<typeof whatIsRemotionSchema>
 > = ({props}) => {
 	return {
-		width: props.reel ? 1080 : 1920,
+		width: props.reel ? 1080 : 1080,
 		height: props.reel ? 1920 : 1080,
 		durationInFrames: props.reel ? 276 : 273,
 		props,
@@ -285,7 +285,7 @@ export const WhatIsRemotion = ({
 		<Sequence
 			style={{
 				backgroundColor: whiteBackground ? 'white' : undefined,
-				scale: 1.27,
+				scale: 1.13,
 			}}
 			className="flex justify-center items-center"
 		>

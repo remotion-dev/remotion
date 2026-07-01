@@ -7,7 +7,6 @@ transparent_webm_flags=(
 	--image-format=png
 	--pixel-format=yuva420p
 	--codec=vp8
-	--scale=0.5
 	--overwrite
 )
 

@@ -47,12 +47,16 @@ import {
 import {EmailSignature} from './EmailSignature';
 import {CodingPrompt} from './HomepageAssets/CodingPrompt';
 import {Map} from './HomepageAssets/Map';
+import {
+	HomepageAssetMaster,
+	homepageAssetMasterDurationInFrames,
+} from './HomepageAssets/Master';
 import {NpmIniVideo} from './HomepageAssets/NpmInitVideo/NpmInitVideo';
 import {
-	RenderProgress,
+	OuterRenderProgress,
 	renderProgressDurationInFrames,
 } from './HomepageAssets/RenderProgress';
-import {Studio, studioDurationInFrames} from './HomepageAssets/Studio';
+import {OuterStudio, studioDurationInFrames} from './HomepageAssets/Studio';
 import './index.css';
 import {Logo} from './Logo';
 import {LogoCollab, logoCollabSchema} from './LogoCollab/LogoCollab';
@@ -138,18 +142,18 @@ export const RemotionRoot: React.FC = () => {
 				/>
 				<Composition
 					id="RenderProgress"
-					component={RenderProgress}
+					component={OuterRenderProgress}
 					durationInFrames={renderProgressDurationInFrames}
 					fps={30}
-					width={1920}
+					width={1080}
 					height={1080}
 				/>
 				<Composition
 					id="Studio"
-					component={Studio}
+					component={OuterStudio}
 					durationInFrames={studioDurationInFrames}
 					fps={25}
-					width={1920}
+					width={1080}
 					height={1080}
 				/>
 				<Composition
@@ -169,9 +173,17 @@ export const RemotionRoot: React.FC = () => {
 					height={1080}
 				/>
 				<Composition
+					id="homepage-assets-master"
+					component={HomepageAssetMaster}
+					durationInFrames={homepageAssetMasterDurationInFrames}
+					fps={30}
+					width={1080}
+					height={1080}
+				/>
+				<Composition
 					id="WhatIsRemotion"
 					component={WhatIsRemotion}
-					width={1920}
+					width={1080}
 					height={1080}
 					fps={30}
 					durationInFrames={273}

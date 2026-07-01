@@ -44,6 +44,7 @@ export const getButton = ({
 	frame: number;
 	fps: number;
 }): ThreeDElement[] => {
+	const shiftAnimationsEarlierByFrames = fps;
 	const rect = makeRect({
 		height: outerHeight,
 		width: outerWidth,
@@ -52,7 +53,7 @@ export const getButton = ({
 
 	const turn = spring({
 		fps,
-		frame,
+		frame: frame + shiftAnimationsEarlierByFrames,
 		config: {
 			damping: 200,
 		},
@@ -61,7 +62,8 @@ export const getButton = ({
 
 	const evolve = spring({
 		fps,
-		frame: frame + progressStartOffsetInFrames,
+		frame:
+			frame + progressStartOffsetInFrames + shiftAnimationsEarlierByFrames,
 		config: {
 			damping: 200,
 		},

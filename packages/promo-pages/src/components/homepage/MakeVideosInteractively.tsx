@@ -31,7 +31,7 @@ export const MakeVideosInteractively: React.FC<{
 				'flex min-w-0 basis-0 flex-col justify-start items-start lg:mt-0 flex-1'
 			}
 		>
-			<div className="flex aspect-video w-full items-start">
+			<div className="flex aspect-square w-full items-start">
 				{showVideo ? (
 					<video
 						src={videoSrc}

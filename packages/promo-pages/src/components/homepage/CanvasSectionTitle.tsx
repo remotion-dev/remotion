@@ -1,21 +1,23 @@
-import React, {useEffect, useRef} from 'react';
-import {useColorMode} from './layout/use-color-mode';
+import React, {useEffect, useId, useRef, useState} from 'react';
 
 export const CanvasSectionTitle: React.FC<{
 	readonly children: string;
 }> = ({children}) => {
-	const canvasRef = useRef<HTMLCanvasElement>(null);
-	const {colorMode} = useColorMode();
+	const containerRef = useRef<HTMLDivElement>(null);
+	const [slant, setSlant] = useState(0);
+	const svgId = useId().replace(/:/g, '');
+	const glowFilterId = `title-glow-${svgId}`;
+	const glowClipId = `title-glow-clip-${svgId}`;
 
 	useEffect(() => {
-		const canvas = canvasRef.current;
-		if (!canvas) {
-			return;
-		}
-
 		let animationFrame = 0;
 		const getSlant = () => {
-			const rect = canvas.getBoundingClientRect();
+			const container = containerRef.current;
+			if (!container) {
+				return 0;
+			}
+
+			const rect = container.getBoundingClientRect();
 			const viewportHeight =
 				window.innerHeight || document.documentElement.clientHeight;
 			const center = rect.top + rect.height / 2;
@@ -39,69 +41,18 @@ export const CanvasSectionTitle: React.FC<{
 			return progress * -45;
 		};
 
-		const draw = () => {
-			const rect = canvas.getBoundingClientRect();
-			const dpr = window.devicePixelRatio || 1;
-			const width = Math.max(1, rect.width);
-			const height = Math.max(1, rect.height);
-			const pixelWidth = Math.floor(width * dpr);
-			const pixelHeight = Math.floor(height * dpr);
-
-			canvas.width = pixelWidth;
-			canvas.height = pixelHeight;
-
-			const ctx = canvas.getContext('2d');
-			if (!ctx) {
-				return;
-			}
-
-			ctx.setTransform(1, 0, 0, 1, 0, 0);
-			ctx.imageSmoothingEnabled = false;
-			ctx.clearRect(0, 0, pixelWidth, pixelHeight);
-
-			const fontSize = 36;
-			const slant = getSlant();
-			const font = `oblique ${slant}deg 700 ${
-				fontSize * dpr
-			}px GTPlanarVF, GTPlanar, sans-serif`;
-			ctx.font = font;
-			const textMetrics = ctx.measureText(children);
-			const visualWidth =
-				textMetrics.actualBoundingBoxLeft + textMetrics.actualBoundingBoxRight;
-			const measured = visualWidth || textMetrics.width;
-			const maxWidth = pixelWidth;
-			const scale = measured > maxWidth ? maxWidth / measured : 1;
-			const color = colorMode === 'dark' ? '#fff' : '#000';
-			const dotSize = Math.max(1, Math.round(1.25 * dpr));
-			const dotGap = Math.max(1, Math.round(0.25 * dpr));
-			const step = dotSize + dotGap;
-			const borderY = pixelHeight - dotSize;
-			const textGap = Math.round(8 * dpr);
-			const textBaseline =
-				borderY - textGap - textMetrics.actualBoundingBoxDescent;
-
-			ctx.fillStyle = color;
-			ctx.save();
-			ctx.translate(pixelWidth / 2, 0);
-			ctx.scale(scale, 1);
-			ctx.font = font;
-			ctx.textAlign = 'center';
-			ctx.textBaseline = 'alphabetic';
-			ctx.fillText(children, 0, textBaseline);
-			ctx.restore();
-
-			for (let x = 0; x < pixelWidth; x += step) {
-				ctx.fillRect(x, borderY, dotSize, dotSize);
-			}
-		};
-
 		const scheduleDraw = () => {
 			cancelAnimationFrame(animationFrame);
-			animationFrame = requestAnimationFrame(draw);
+			animationFrame = requestAnimationFrame(() => {
+				setSlant(getSlant());
+			});
 		};
 
 		const resizeObserver = new ResizeObserver(scheduleDraw);
-		resizeObserver.observe(canvas);
+		if (containerRef.current) {
+			resizeObserver.observe(containerRef.current);
+		}
+
 		document.fonts
 			?.load('oblique 0deg 700 60px GTPlanarVF')
 			.then(scheduleDraw)
@@ -116,14 +67,60 @@ export const CanvasSectionTitle: React.FC<{
 			window.removeEventListener('resize', scheduleDraw);
 			cancelAnimationFrame(animationFrame);
 		};
-	}, [children, colorMode]);
+	}, [children]);
 
 	return (
-		<canvas
-			ref={canvasRef}
-			aria-label={children}
-			className="block h-20 w-full"
-			role="img"
-		/>
+		<>
+			<svg
+				aria-hidden="true"
+				className="pointer-events-none absolute w-full overflow-visible h-20"
+				focusable="false"
+				preserveAspectRatio="none"
+				viewBox="0 0 1200 320"
+			>
+				<g clipPath={`url(#${glowClipId})`} filter={`url(#${glowFilterId})`}>
+					<ellipse
+						cx="600"
+						cy="320"
+						fill="rgba(0, 0, 0, 0.1)"
+						rx="400"
+						ry={'100'}
+					/>
+				</g>
+				<defs>
+					<filter
+						id={glowFilterId}
+						colorInterpolationFilters="sRGB"
+						filterUnits="userSpaceOnUse"
+						height="1120"
+						width="2000"
+						x="-400"
+						y="-480"
+					>
+						<feGaussianBlur stdDeviation="140" />
+					</filter>
+					<clipPath id={glowClipId} clipPathUnits="userSpaceOnUse">
+						<rect height="320" width="2000" x="-400" y="0" />
+					</clipPath>
+				</defs>
+			</svg>
+
+			<div ref={containerRef} className="relative h-20 w-full overflow-visible">
+				<div className="relative z-10 flex h-full items-end justify-center">
+					<h2
+						className="m-0 text-center text-4xl leading-none text-black"
+						style={{
+							fontFamily: 'GTPlanarVF, GTPlanar, sans-serif',
+							fontVariationSettings: `'slnt' ${slant}, 'wght' 700`,
+							fontStyle: `oblique ${slant}deg`,
+							fontWeight: 700,
+							paddingBottom: 10,
+						}}
+					>
+						{children}
+					</h2>
+				</div>
+			</div>
+		</>
 	);
 };
