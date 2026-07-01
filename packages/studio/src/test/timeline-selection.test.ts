@@ -74,9 +74,11 @@ import {
 	getEasingClipboardDataFromSelection,
 	getEffectClipboardDataFromSelections,
 	getEffectPropClipboardDataFromSelection,
+	getPendingEffectCutPastePayload,
 	getPasteEffectPropTarget,
 	getPasteEffectsTarget,
 	getSnapshotsFromSelection,
+	type PendingEffectCut,
 	type PasteEffectPropTarget,
 	type PasteEffectsTarget,
 } from '../components/Timeline/TimelineClipboardKeybindings';
@@ -706,6 +708,83 @@ test('selected effects produce a reusable clipboard payload', () => {
 			propStatuses,
 		}),
 	).toEqual({type: 'mixed'});
+});
+
+test('pasting a cut effect into the same sequence preserves its original order', () => {
+	const effectNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['effects', '0'],
+		true,
+		[['0']],
+	);
+	const nodePath = effectNodePathInfo.sequenceSubscriptionKey;
+	const brightness = {
+		callee: 'brightness',
+		importPath: '@remotion/effects',
+		params: {
+			amount: {
+				type: 'static' as const,
+				value: 1,
+			},
+		},
+	};
+	const blur = {
+		callee: 'blur',
+		importPath: '@remotion/effects',
+		params: {
+			amount: {
+				type: 'static' as const,
+				value: 2,
+			},
+		},
+	};
+	const pendingCut = {
+		payload: {
+			type: 'effects-additive',
+			version: 3,
+			remotionClipboard: 'effects',
+			effects: [brightness],
+		},
+		sourceTargetKey: JSON.stringify({
+			absolutePath: nodePath.absolutePath,
+			nodePath: nodePath.nodePath,
+			sequenceKeys: nodePath.sequenceKeys,
+		}),
+		selectedEffects: [{effectIndex: 0, effect: brightness}],
+	} satisfies PendingEffectCut;
+	const propStatuses = {
+		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			canUpdate: true,
+			props: {},
+			effects: [
+				{
+					canUpdate: true,
+					callee: 'blur',
+					importPath: '@remotion/effects',
+					effectIndex: 0,
+					props: {
+						amount: {
+							status: 'static',
+							codeValue: 2,
+						},
+					},
+				},
+			],
+		},
+	} satisfies PropStatuses;
+
+	expect(
+		getPendingEffectCutPastePayload({
+			pendingCut,
+			targetNodePathInfo: effectNodePathInfo,
+			propStatuses,
+		}),
+	).toEqual({
+		type: 'effects-replacing',
+		version: 3,
+		remotionClipboard: 'effects',
+		effects: [brightness, blur],
+	});
 });
 
 test('copying a selected effect prop creates an effect prop payload', () => {

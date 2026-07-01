@@ -313,6 +313,128 @@ export type EffectClipboardDataFromSelections =
 			readonly type: 'uncopyable';
 	  };
 
+export type PendingEffectCut = {
+	readonly payload: EffectClipboardData;
+	readonly sourceTargetKey: string | null;
+	readonly selectedEffects:
+		| readonly {
+				readonly effectIndex: number;
+				readonly effect: EffectClipboardSnapshot;
+		  }[]
+		| null;
+};
+
+const getPendingEffectCut = ({
+	selectedItems,
+	payload,
+}: {
+	readonly selectedItems: readonly TimelineSelection[];
+	readonly payload: EffectClipboardData;
+}): PendingEffectCut => {
+	const effectSelections = selectedItems.filter(
+		(
+			selection,
+		): selection is Extract<TimelineSelection, {type: 'sequence-effect'}> =>
+			selection.type === 'sequence-effect',
+	);
+	if (
+		effectSelections.length !== selectedItems.length ||
+		effectSelections.length !== payload.effects.length
+	) {
+		return {
+			payload,
+			sourceTargetKey: null,
+			selectedEffects: null,
+		};
+	}
+
+	const firstEffectSelection = effectSelections[0];
+	if (!firstEffectSelection) {
+		return {
+			payload,
+			sourceTargetKey: null,
+			selectedEffects: null,
+		};
+	}
+
+	const sourceTargetKey = makeTargetKey(
+		firstEffectSelection.nodePathInfo.sequenceSubscriptionKey,
+	);
+	if (
+		effectSelections.some(
+			(selection) =>
+				makeTargetKey(selection.nodePathInfo.sequenceSubscriptionKey) !==
+				sourceTargetKey,
+		)
+	) {
+		return {
+			payload,
+			sourceTargetKey: null,
+			selectedEffects: null,
+		};
+	}
+
+	const selectedEffects = effectSelections.map((selection, index) => {
+		const effect = payload.effects[index];
+		if (!effect) {
+			throw new Error('Expected copied effect for selection');
+		}
+
+		return {
+			effectIndex: selection.i,
+			effect,
+		};
+	});
+
+	return {
+		payload,
+		sourceTargetKey,
+		selectedEffects: selectedEffects.sort(
+			(a, b) => a.effectIndex - b.effectIndex,
+		),
+	};
+};
+
+export const getPendingEffectCutPastePayload = ({
+	pendingCut,
+	targetNodePathInfo,
+	propStatuses,
+}: {
+	readonly pendingCut: PendingEffectCut;
+	readonly targetNodePathInfo: SequenceNodePathInfo;
+	readonly propStatuses: PropStatuses;
+}): EffectClipboardData => {
+	if (
+		pendingCut.selectedEffects === null ||
+		pendingCut.sourceTargetKey !==
+			makeTargetKey(targetNodePathInfo.sequenceSubscriptionKey)
+	) {
+		return pendingCut.payload;
+	}
+
+	const currentSnapshots = getSnapshotsFromSelection({
+		selection: {
+			type: 'sequence-all-effects',
+			nodePathInfo: targetNodePathInfo,
+		},
+		propStatuses,
+	});
+	if (currentSnapshots === null) {
+		return pendingCut.payload;
+	}
+
+	const effects = [...currentSnapshots];
+	for (const {effectIndex, effect} of pendingCut.selectedEffects) {
+		effects.splice(Math.min(effectIndex, effects.length), 0, effect);
+	}
+
+	return {
+		...pendingCut.payload,
+		type: 'effects-replacing',
+		effects,
+	};
+};
+
 export const getEffectClipboardDataFromSelections = ({
 	selectedItems,
 	propStatuses,
@@ -557,6 +679,7 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 	const confirm = useConfirmationDialog();
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const timelinePositionRef = useRef(timelinePosition);
+	const pendingEffectCutRef = useRef<PendingEffectCut | null>(null);
 
 	useEffect(() => {
 		timelinePositionRef.current = timelinePosition;
@@ -608,6 +731,7 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 					navigator.clipboard
 						.writeText(makeClipboardText(payload))
 						.then(() => {
+							pendingEffectCutRef.current = null;
 							showNotification('Copied easing to clipboard', 1000);
 						})
 						.catch((err) => {
@@ -648,6 +772,7 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 					navigator.clipboard
 						.writeText(makeClipboardText(payload))
 						.then(() => {
+							pendingEffectCutRef.current = null;
 							showNotification('Copied effect prop to clipboard', 1000);
 						})
 						.catch((err) => {
@@ -690,6 +815,7 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 				navigator.clipboard
 					.writeText(makeClipboardText(effectClipboardData.payload))
 					.then(() => {
+						pendingEffectCutRef.current = null;
 						showNotification(
 							effectClipboardData.payload.effects.length === 1
 								? 'Copied effect to clipboard'
@@ -749,36 +875,39 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 					return;
 				}
 
-				navigator.clipboard
-					.writeText(makeClipboardText(effectClipboardData.payload))
-					.then(() => {
-						const deletePromise = deleteSelectedTimelineItems({
+				const pendingCut = getPendingEffectCut({
+					selectedItems,
+					payload: effectClipboardData.payload,
+				});
+
+				const deletePromise = deleteSelectedTimelineItems({
+					selections: selectedItems,
+					sequences,
+					overrideIdsToNodePaths: overrideIdToNodePathMappings,
+					setPropStatuses,
+					clientId,
+					confirm,
+				});
+
+				return deletePromise
+					?.then((deleted) => {
+						if (!deleted) {
+							return;
+						}
+
+						pendingEffectCutRef.current = pendingCut;
+						const nextSelection = getTimelineSelectionAfterDeletingItems({
 							selections: selectedItems,
 							sequences,
 							overrideIdsToNodePaths: overrideIdToNodePathMappings,
-							setPropStatuses,
-							clientId,
-							confirm,
+							propStatuses,
+							timelinePosition: timelinePositionRef.current,
 						});
-
-						return deletePromise?.then((deleted) => {
-							if (!deleted) {
-								return;
-							}
-
-							const nextSelection = getTimelineSelectionAfterDeletingItems({
-								selections: selectedItems,
-								sequences,
-								overrideIdsToNodePaths: overrideIdToNodePathMappings,
-								propStatuses,
-								timelinePosition: timelinePositionRef.current,
-							});
-							if (nextSelection.length === 0) {
-								clearSelection();
-							} else {
-								selectItems(nextSelection);
-							}
-						});
+						if (nextSelection.length === 0) {
+							clearSelection();
+						} else {
+							selectItems(nextSelection);
+						}
 					})
 					.catch((err) => {
 						showNotification(
@@ -800,6 +929,62 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 				const {selectedItems} = currentSelection.current;
 				if (selectedItems.length === 0) {
 					return;
+				}
+
+				const pendingCut = pendingEffectCutRef.current;
+				if (pendingCut !== null) {
+					const propStatuses = propStatusesRef.current;
+					const target = getPasteEffectsTarget(selectedItems);
+					if (target.type === 'multiple') {
+						e.preventDefault();
+						showNotification(
+							'Select one target sequence to paste effects',
+							3000,
+						);
+						return;
+					}
+
+					if (target.type === 'none') {
+						e.preventDefault();
+						showNotification('Select a sequence to paste effects onto', 3000);
+						return;
+					}
+
+					if (target.type === 'unsupported') {
+						e.preventDefault();
+						showNotification('This sequence does not support effects', 3000);
+						return;
+					}
+
+					e.preventDefault();
+					const {sequenceSubscriptionKey: targetSequenceNodePath} =
+						target.nodePathInfo;
+					const payload = getPendingEffectCutPastePayload({
+						pendingCut,
+						targetNodePathInfo: target.nodePathInfo,
+						propStatuses,
+					});
+					return callApi('/api/paste-effects', {
+						targetFileName: targetSequenceNodePath.absolutePath,
+						targetSequenceNodePath,
+						type: payload.type,
+						effects: payload.effects,
+						clientId,
+					})
+						.then((pasteResult) => {
+							if (pasteResult.success) {
+								pendingEffectCutRef.current = null;
+								showNotification('Pasted effects', 2000);
+							} else {
+								showNotification(pasteResult.reason, 4000);
+							}
+						})
+						.catch((err) => {
+							showNotification(
+								`Could not paste effects: ${(err as Error).message}`,
+								3000,
+							);
+						});
 				}
 
 				navigator.clipboard
