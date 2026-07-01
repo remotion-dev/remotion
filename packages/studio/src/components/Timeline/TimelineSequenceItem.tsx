@@ -49,6 +49,7 @@ import {
 } from './TimelineSelection';
 import {TimelineSequenceName} from './TimelineSequenceName';
 import {useOpenSequenceInEditor} from './use-open-sequence-in-editor';
+import {useRenameSequence} from './use-rename-sequence';
 import {useSequenceFreezeFrameMenuItem} from './use-sequence-freeze-frame-menu-item';
 import {useTimelineExpandedTree} from './use-timeline-expanded-tree';
 
@@ -67,43 +68,6 @@ const effectDropHighlight: React.CSSProperties = {
 };
 
 const SEQUENCE_REORDER_MIME_TYPE = 'application/remotion-sequence-reorder';
-
-type SequenceNameSaveAction =
-	| {
-			type: 'noop';
-	  }
-	| {
-			type: 'save';
-			defaultValue: string | null;
-	  };
-
-const getSequenceNameSaveAction = ({
-	editedName,
-	currentDisplayName,
-	fallbackDisplayName,
-	hasStaticNameProp,
-}: {
-	editedName: string;
-	currentDisplayName: string;
-	fallbackDisplayName: string;
-	hasStaticNameProp: boolean;
-}): SequenceNameSaveAction => {
-	if (
-		!hasStaticNameProp &&
-		(editedName === '' || editedName === fallbackDisplayName)
-	) {
-		return {type: 'noop'};
-	}
-
-	if (hasStaticNameProp && editedName === currentDisplayName) {
-		return {type: 'noop'};
-	}
-
-	return {
-		type: 'save',
-		defaultValue: editedName === '' ? JSON.stringify('') : null,
-	};
-};
 
 type SequenceReorderDragData = {
 	readonly nodePath: SequencePropsSubscriptionKey;
@@ -254,7 +218,6 @@ export const TimelineSequenceItem: React.FC<{
 	const previewConnected = previewServerState.type === 'connected';
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {toggleTrack} = useContext(ExpandedTracksSetterContext);
-	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {setSelectedModal} = useContext(ModalsContext);
 	const {isHighestContext} = useKeybinding();
@@ -298,6 +261,22 @@ export const TimelineSequenceItem: React.FC<{
 			column: originalLocation.column ?? 0,
 		};
 	}, [originalLocation]);
+
+	const {
+		canRename: canRenameThisSequence,
+		displayName,
+		fallbackDisplayName,
+		propStatusesForOverride,
+		saveName,
+	} = useRenameSequence({
+		clientId:
+			previewServerState.type === 'connected'
+				? previewServerState.clientId
+				: null,
+		nodePathInfo,
+		sequence,
+		validatedLocation,
+	});
 
 	const canDeleteFromSource = Boolean(nodePath && validatedLocation?.source);
 	const nodePathKey = useMemo(
@@ -626,14 +605,7 @@ export const TimelineSequenceItem: React.FC<{
 		toggleTrack(nodePathInfo);
 	}, [nodePathInfo, toggleTrack]);
 
-	const propStatusesForOverride = useMemo(() => {
-		return nodePath
-			? Internals.getPropStatusesCtx(propStatuses, nodePath)
-			: undefined;
-	}, [propStatuses, nodePath]);
-
 	const codeHiddenStatus = propStatusesForOverride?.hidden;
-	const codeNameStatus = propStatusesForOverride?.name;
 
 	const isItemHidden = useMemo(() => {
 		const propStatus =
@@ -645,32 +617,6 @@ export const TimelineSequenceItem: React.FC<{
 		const effective = (propStatus ?? runtimeValue) as boolean | undefined;
 		return effective ?? false;
 	}, [codeHiddenStatus, sequence.controls?.currentRuntimeValueDotNotation]);
-
-	const fallbackDisplayName = sequence.controls?.componentName ?? '<Sequence>';
-	const staticNamePropValue =
-		codeNameStatus?.status === 'static' &&
-		typeof codeNameStatus.codeValue === 'string'
-			? codeNameStatus.codeValue
-			: null;
-
-	const hasStaticNameProp = staticNamePropValue !== null;
-
-	const displayName = useMemo(() => {
-		if (staticNamePropValue !== null) {
-			return staticNamePropValue;
-		}
-
-		if (codeNameStatus?.status === 'static') {
-			return fallbackDisplayName;
-		}
-
-		return sequence.displayName;
-	}, [
-		codeNameStatus?.status,
-		fallbackDisplayName,
-		sequence.displayName,
-		staticNamePropValue,
-	]);
 
 	const onToggleVisibility = useCallback(
 		(type: 'enable' | 'disable') => {
@@ -760,16 +706,6 @@ export const TimelineSequenceItem: React.FC<{
 		codeHiddenStatus !== null &&
 		codeHiddenStatus.status === 'static';
 
-	const canRenameThisSequence =
-		previewServerState.type === 'connected' &&
-		!window.remotion_isReadOnlyStudio &&
-		Boolean(sequence.controls) &&
-		nodePath !== null &&
-		validatedLocation !== null &&
-		codeNameStatus !== undefined &&
-		codeNameStatus !== null &&
-		codeNameStatus.status === 'static';
-
 	const onSequenceDoubleClick = useCallback(
 		(e: React.MouseEvent<HTMLDivElement>) => {
 			if (isTimelineSelectionModifierEvent(e)) {
@@ -800,59 +736,10 @@ export const TimelineSequenceItem: React.FC<{
 
 	const onSaveName = useCallback(
 		async (name: string) => {
-			if (
-				!canRenameThisSequence ||
-				previewServerState.type !== 'connected' ||
-				!sequence.controls ||
-				!nodePath ||
-				!validatedLocation
-			) {
-				setIsRenaming(false);
-				return;
-			}
-
-			const action = getSequenceNameSaveAction({
-				editedName: name,
-				currentDisplayName: displayName,
-				fallbackDisplayName,
-				hasStaticNameProp,
-			});
-
-			if (action.type === 'noop') {
-				setIsRenaming(false);
-				return;
-			}
-
-			const savePromise = saveSequenceProps({
-				changes: [
-					{
-						fileName: validatedLocation.source,
-						nodePath,
-						fieldKey: 'name',
-						value: name,
-						defaultValue: action.defaultValue,
-						schema: sequence.controls.schema,
-					},
-				],
-				setPropStatuses,
-				clientId: previewServerState.clientId,
-				undoLabel: 'Rename sequence',
-				redoLabel: 'Rename sequence again',
-			});
 			setIsRenaming(false);
-			await savePromise;
+			await saveName(name);
 		},
-		[
-			canRenameThisSequence,
-			displayName,
-			fallbackDisplayName,
-			hasStaticNameProp,
-			nodePath,
-			previewServerState,
-			sequence.controls,
-			setPropStatuses,
-			validatedLocation,
-		],
+		[saveName],
 	);
 
 	React.useEffect(() => {
