@@ -28,7 +28,10 @@ to ensure we compile and CI linting/formatting passes.
 
 Commit the changes once. The title of the PR must be according to the [`pr-name`](../pr-name/SKILL.md) skill.
 
-Push the changes to the remote branch once, using `git push -u origin HEAD`.  
+Push the changes to the remote branch once, using `git push -u origin HEAD`.
+
+Never force push. Do not use `git push --force`, `git push -f`, or `git push --force-with-lease`. If a normal push is rejected, stop and report the rejection to the user instead of rewriting remote history.
+
 Use the `gh` CLI to create a pull request and use the same format as above for the title.
 
 When creating the PR, do not pass the PR body inline through a shell command (for example, avoid `--body "..."` or heredocs in `bash`). Instead:
