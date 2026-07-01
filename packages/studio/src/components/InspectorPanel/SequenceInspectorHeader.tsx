@@ -1,9 +1,11 @@
 import React, {useCallback, useContext, useMemo} from 'react';
-import {Internals} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
+import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
+import {InlineEditableTitle} from '../InlineEditableTitle';
 import {InspectorSourceLocation} from '../InspectorSourceLocation';
 import {useOpenSequenceInEditor} from '../Timeline/use-open-sequence-in-editor';
+import {useRenameSequence} from '../Timeline/use-rename-sequence';
 import {
 	sequenceHeader,
 	sequenceHeaderDivider,
@@ -54,43 +56,22 @@ export const useSequenceInspectorSourceLocation = (
 	};
 };
 
-const useSequenceDisplayName = (track: TrackWithHash) => {
-	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
-	const nodePath = track.nodePathInfo?.sequenceSubscriptionKey ?? null;
-
-	return useMemo(() => {
-		const propStatusesForOverride = nodePath
-			? Internals.getPropStatusesCtx(propStatuses, nodePath)
-			: undefined;
-		const codeNameStatus = propStatusesForOverride?.name;
-		const fallbackDisplayName =
-			track.sequence.controls?.componentName || '<Sequence>';
-
-		if (
-			codeNameStatus?.status === 'static' &&
-			typeof codeNameStatus.codeValue === 'string'
-		) {
-			return codeNameStatus.codeValue;
-		}
-
-		if (codeNameStatus?.status === 'static') {
-			return fallbackDisplayName;
-		}
-
-		return track.sequence.displayName || fallbackDisplayName;
-	}, [
-		nodePath,
-		propStatuses,
-		track.sequence.controls?.componentName,
-		track.sequence.displayName,
-	]);
-};
-
 export const SequenceInspectorHeader: React.FC<{
 	readonly sourceLocation: SequenceInspectorSourceLocation;
 	readonly track: TrackWithHash;
 }> = ({sourceLocation, track}) => {
-	const sequenceDisplayName = useSequenceDisplayName(track);
+	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const {canRename, displayName, fallbackDisplayName, saveName} =
+		useRenameSequence({
+			clientId:
+				previewServerState.type === 'connected'
+					? previewServerState.clientId
+					: null,
+			nodePathInfo: track.nodePathInfo,
+			sequence: track.sequence,
+			validatedLocation: sourceLocation.validatedLocation,
+		});
+	const sequenceDisplayName = displayName || fallbackDisplayName;
 	const {documentationLink} = track.sequence;
 
 	const openDocumentationLink = useCallback(() => {
@@ -110,9 +91,22 @@ export const SequenceInspectorHeader: React.FC<{
 
 	const componentName = track.sequence.controls?.componentName;
 
+	const onRename = useCallback(
+		(newName: string) => {
+			saveName(newName).catch(() => undefined);
+		},
+		[saveName],
+	);
+
 	return (
 		<div style={sequenceHeader}>
-			<div style={sequenceHeaderTitle}>{sequenceDisplayName}</div>
+			<div style={sequenceHeaderTitle}>
+				<InlineEditableTitle
+					value={sequenceDisplayName}
+					canRename={canRename}
+					onCommit={onRename}
+				/>
+			</div>
 			{documentationLink ? (
 				<button
 					type="button"

@@ -12,31 +12,21 @@
 [![NPM Downloads](https://img.shields.io/npm/dm/remotion.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/remotion?minimal=true)
 <a href="https://twitter.com/remotion"><img src="https://img.shields.io/twitter/follow/remotion?label=Twitter&color=black" alt="Twitter"></a>
 
-Remotion is a framework for **creating videos programmatically using React.**
+Video tools for the agent era.
 
-## Why create videos in React?
+## Video Creation
 
-- **Leverage web technologies**: Use all of CSS, Canvas, SVG, WebGL, etc.
-- **Leverage programming**: Use variables, functions, APIs, math and algorithms to create new effects
-- **Leverage React**: Reusable components, Powerful composition, Fast Refresh, Package ecosystem
+- **Make videos agentically**: Turn your idea into a video using your coding agent.
+- **Make videos interactively**: Edit and animate using drag and drop.
+- **Make videos programmatically**: Connect to data, and manage complexity with code.
 
-## Created with Remotion
+React Code is the source of truth. Switch your workflow at any point.
 
-<table>
-<tr>
-<td align="center">
-<img style="width: 290px" src="https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/fireship-quick.gif" />
-<p>"This video was made with code" <em>- Fireship</em> <a href="https://youtu.be/deg8bOoziaE">Watch</a> • <a href="https://github.com/wcandillon/remotion-fireship">Source</a></p>
-</td>
-<td align="center">
-<img style="width: 240px" src="https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/unwrapped-2023.gif" />
-<p>GitHub Unwrapped - Personalized Year in Review <a href="https://www.githubunwrapped.com">Try</a> • <a href="https://github.com/remotion-dev/github-unwrapped">Source</a></p>
-</td>
-<td align="center">
-<em>View more in the <a href="https://remotion.dev/showcase">Remotion Showcase</a>!</em>
-</td>
-</tr>
-</table>
+## Video Automation
+
+- **Design systems**: Create a library of animated assets for your organization.
+- **Batch rendering**: Render millions of videos on your own infrastructure.
+- **Applications**: Publish a simple tool or a complex video editor.
 
 ## Get started
 
@@ -47,6 +37,50 @@ npx create-video@latest
 ```
 
 to get started. Otherwise, read the [installation page](https://www.remotion.dev/docs/) in the documentation.
+
+## Discover Remotion
+
+Remotion is extensively documented over more than 1000 pages.
+
+- Get Started
+  - [Installation](https://remotion.dev/docs)
+  - [Agent Skills](https://www.remotion.dev/docs/ai/skills)
+  - [Prompts](https://www.remotion.dev/prompts)
+  - [Templates](https://remotion.dev/templates)
+- Components
+  - [Effects](https://remotion.dev/effects)
+  - [Shapes](https://remotion.dev/docs/shapes)
+  - [Transitions](https://remotion.dev/transitions)
+  - [Sound Effects](https://remotion.dev/docs/sfx)
+  - [Captions](https://remotion.dev/docs/captions)
+  - [Fonts](https://remotion.dev/docs/fonts)
+- Rendering
+  - [Node.js APIs](https://www.remotion.dev/docs/ssr)
+  - [Lambda](https://www.remotion.dev/docs/lambda)
+  - [Vercel](https://www.remotion.dev/docs/vercel-sandbox)
+  - [Client-side rendering](https://www.remotion.dev/docs/client-side-rendering/)
+  - [Comparison of options](https://remotion.dev/docs/compare-ssr)
+- Making apps
+  - [Player](https://remotion.dev/docs/player)
+  - [Editor Starter](https://remotion.dev/editor-starter)
+  - [Mediabunny](https://remotion.dev/docs/mediabunny)
+- Community
+  - [Discord](https://remotion.dev/discord)
+  - [Experts](https://remotion.dev/experts)
+  - [Resources](https://remotion.dev/resources)
+  - [Contributing](https://remotion.dev/contributing)
+  - Follow us on [X](https://x.com/remotion), [YouTube](https://youtube.com/@remotion_dev), [Instagram](https://instagram.com/remotion), [LinkedIn](https://linkedin.com/company/remotion)
+- Commercial
+  - [License](https://remotion.dev/license)
+  - [Store](https://remotion.pro/store)
+  - [About Remotion](https://remotion.dev/about)
+  - [Showcase](https://remotion.dev/showcase)
+- Help
+  - [Support](https://remotion.dev/support)
+  - [Discord](https://remotion.dev/discord)
+  - [Search](https://remotion.dev/search)
+  - [Ask AI](https://remotion.dev/ai)
+  - [GitHub Issues](https://remotion.dev/issues)
 
 ## Documentation
 
