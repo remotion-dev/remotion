@@ -50,7 +50,7 @@ export const NewLanding: React.FC<{
 						</div>
 						<br />
 						<br />
-						<CanvasSectionTitle>Automate</CanvasSectionTitle>
+						<CanvasSectionTitle>Automate video production</CanvasSectionTitle>
 						<div className={makeVideosRowClassName}>
 							<MakeVideosProgrammatically
 								title="Design systems"
