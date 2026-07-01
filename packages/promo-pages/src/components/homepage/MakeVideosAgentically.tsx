@@ -7,6 +7,7 @@ export const MakeVideosAgentically: React.FC<{
 	readonly showLinks?: boolean;
 	readonly links?: readonly MakeVideosLink[];
 	readonly showVideo?: boolean;
+	readonly videoSrc?: string;
 }> = ({
 	title = (
 		<>
@@ -21,12 +22,12 @@ export const MakeVideosAgentically: React.FC<{
 		{label: 'Prompts', href: '/prompts'},
 	],
 	showVideo = true,
+	videoSrc = '/img/render-progress.webm',
 }) => {
 	const ref = useRef<HTMLDivElement>(null);
 	const videoRef = useRef<HTMLVideoElement>(null);
 	// eslint-disable-next-line no-warning-comments
 	// TODO: Add an opaque fallback for browsers that do not support transparent WebM.
-	const videoSrc = '/img/render-progress.webm';
 
 	useEffect(() => {
 		const {current} = ref;

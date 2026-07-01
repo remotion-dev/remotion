@@ -12,7 +12,8 @@ export const HomepageAssetMaster: React.FC = () => {
 			<Sequence
 				durationInFrames={247}
 				style={{
-					translate: '-135.9px -91.7px',
+					translate: '-60.5px -168.7px',
+					scale: 0.742,
 				}}
 			>
 				<Map lineStartFrame={masterFlightCurveStartFrame} />
@@ -20,7 +21,7 @@ export const HomepageAssetMaster: React.FC = () => {
 			<Sequence
 				durationInFrames={247}
 				style={{
-					translate: '308.1px 185.2px',
+					translate: '88.5px 170.7px',
 					scale: 0.665,
 				}}
 			>

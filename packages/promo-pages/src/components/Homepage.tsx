@@ -2,12 +2,12 @@
 
 import React from 'react';
 import {BackgroundAnimation} from './homepage/BackgroundAnimation';
+import {CanvasSectionTitle} from './homepage/CanvasSectionTitle';
 import CommunityStats from './homepage/CommunityStats';
 import {Demo} from './homepage/Demo';
 import EvaluateRemotionSection from './homepage/EvaluateRemotion';
 import type {ColorMode} from './homepage/layout/use-color-mode';
 import {ColorModeProvider} from './homepage/layout/use-color-mode';
-import {CanvasSectionTitle} from './homepage/CanvasSectionTitle';
 import {MakeVideosAgentically} from './homepage/MakeVideosAgentically';
 import {MakeVideosInteractively} from './homepage/MakeVideosInteractively';
 import {MakeVideosProgrammatically} from './homepage/MakeVideosProgrammatically';
@@ -38,9 +38,8 @@ export const NewLanding: React.FC<{
 					<div className="max-w-[500px] lg:max-w-[1000px] m-auto pl-5 pr-5 overflow-x-clip md:overflow-x-visible relative">
 						<WriteInReact />
 						<br />
-						<CanvasSectionTitle>Create</CanvasSectionTitle>
 						<div className={makeVideosRowClassName}>
-							<MakeVideosAgentically showVideo={false} />
+							<MakeVideosAgentically videoSrc="/img/homepage-assets-master.webm" />
 							<MakeVideosInteractively />
 							<MakeVideosProgrammatically
 								links={[
