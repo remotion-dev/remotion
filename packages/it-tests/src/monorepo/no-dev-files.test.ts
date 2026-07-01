@@ -1,4 +1,5 @@
 import {test} from 'bun:test';
+import {copyFileSync, existsSync, unlinkSync} from 'fs';
 import path from 'path';
 import {$} from 'bun';
 import {getAllPackages} from './get-all-packages';
@@ -35,13 +36,29 @@ const assertNoDevFilesPublished = async (pkgPath: string) => {
 	const dir = path.join(pkgPath, '..');
 	const release = await acquirePackCheckSlot();
 
+	const hasLicenseReference = packageJson.license?.includes('LICENSE.md');
+	const licensePath = path.join(dir, 'LICENSE.md');
+	const copiedLicense = hasLicenseReference && !existsSync(licensePath);
+
+	if (copiedLicense) {
+		copyFileSync(
+			path.join(__dirname, '..', '..', '..', '..', 'LICENSE.md'),
+			licensePath,
+		);
+	}
+
 	try {
+		let hasPackedLicense = false;
 		const files = $`bun pm pack --dry-run`.cwd(dir).lines();
 		for await (const file of files) {
 			if (!file.startsWith('packed')) {
 				continue;
 			}
 			const [, , filename] = file.split(' ');
+			if (filename === 'LICENSE.md' || filename.endsWith('/LICENSE.md')) {
+				hasPackedLicense = true;
+			}
+
 			if (
 				filename.includes('eslint.config.mjs') ||
 				filename.includes('tsconfig') ||
@@ -58,7 +75,15 @@ const assertNoDevFilesPublished = async (pkgPath: string) => {
 				throw new Error('Disallowed file found in ' + filename);
 			}
 		}
+
+		if (hasLicenseReference && !hasPackedLicense) {
+			throw new Error('LICENSE.md is not packed for ' + packageJson.name);
+		}
 	} finally {
+		if (copiedLicense) {
+			unlinkSync(licensePath);
+		}
+
 		release();
 	}
 };
