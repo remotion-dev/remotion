@@ -60,11 +60,11 @@ export const sequenceHeader: React.CSSProperties = {
 };
 
 export const sequenceHeaderTitle: React.CSSProperties = {
-	alignSelf: 'flex-start',
+	alignSelf: 'stretch',
 	backgroundColor: BACKGROUND,
 	border: 'none',
 	color: 'white',
-	display: 'inline-flex',
+	display: 'flex',
 	fontFamily: 'sans-serif',
 	fontSize: 12,
 	lineHeight: '18px',
