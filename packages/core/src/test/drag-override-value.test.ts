@@ -6,6 +6,7 @@ import {
 import {
 	computeEffectiveSchemaValuesDotNotation,
 	makeKeyframedDragOverride,
+	makeStaticDragOverride,
 	type CanUpdateSequencePropStatusKeyframed,
 } from '../use-schema';
 
@@ -157,6 +158,34 @@ test('computeEffectiveSchemaValuesDotNotation resolves keyframed drag overrides 
 	});
 
 	expect(merged.opacity).toBe(3);
+});
+
+test('getEffectiveVisualModeValue resolves static string drag overrides', () => {
+	expect(
+		getEffectiveVisualModeValue({
+			propStatus: {
+				status: 'static',
+				codeValue: 'Old',
+			},
+			dragOverrideValue: makeStaticDragOverride('New'),
+			defaultValue: undefined,
+			frame: null,
+			shouldResortToDefaultValueIfUndefined: false,
+		}),
+	).toBe('New');
+
+	expect(
+		getEffectiveVisualModeValue({
+			propStatus: {
+				status: 'static',
+				codeValue: 'Old',
+			},
+			dragOverrideValue: makeStaticDragOverride(''),
+			defaultValue: undefined,
+			frame: null,
+			shouldResortToDefaultValueIfUndefined: false,
+		}),
+	).toBe('');
 });
 
 test('getEffectiveVisualModeValue resolves keyframed drag overrides at the source frame', () => {

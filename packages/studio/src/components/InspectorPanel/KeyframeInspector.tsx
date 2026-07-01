@@ -12,8 +12,8 @@ import React, {
 import type {
 	CanUpdateSequencePropStatusKeyframed,
 	DragOverrideValue,
-	SequencePropsSubscriptionKey,
 	InteractivitySchema,
+	SequencePropsSubscriptionKey,
 } from 'remotion';
 import {Internals, useVideoConfig} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
@@ -191,6 +191,7 @@ export const KeyframeInspector: React.FC<{
 				getDragOverrides,
 				propStatuses,
 				nodePath,
+				includeTextContent: false,
 			});
 			const sequenceField =
 				sequenceFields?.find(
