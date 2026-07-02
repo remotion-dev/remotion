@@ -29,6 +29,8 @@ test(
 				unloopedTimeInSeconds: timeInFrames / fps,
 				ifNoMediaDuration: 'fail',
 			});
+			expect(realTimestamp).not.toBeNull();
+			assert(realTimestamp !== null);
 			realTimestamps.push(realTimestamp);
 
 			const result = await extractFrame({
