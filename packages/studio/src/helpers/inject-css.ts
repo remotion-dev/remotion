@@ -1,7 +1,7 @@
 import {Internals} from 'remotion';
 import {DEFAULT_PROPS_PATH_ACTIVE_CLASSNAME} from '../components/RenderModal/SchemaEditor/scroll-to-default-props-path';
 
-const makeDefaultGlobalCSS = () => {
+export const makeDefaultGlobalCSS = () => {
 	const unhoveredDragAreaFactor = 2;
 	const fromMiddle = 50 / unhoveredDragAreaFactor;
 
@@ -96,6 +96,15 @@ const makeDefaultGlobalCSS = () => {
 
   .__remotion_color_swatch:focus {
     outline: none;
+  }
+
+  .__remotion_input_dragger:focus-visible {
+    outline: none;
+    box-shadow:
+      inset 1px 1px #555,
+      inset -1px -1px #555,
+      inset 1px -1px #555,
+      inset -1px 1px #555;
   }
   
   .__remotion_thumb,
