@@ -225,6 +225,7 @@ impl OpenedStream {
 
         let mut last_frame_received: Option<LastFrameInfo> = None;
         let mut stop_after_n_diverging_pts: Option<u8> = None;
+        let mut retried_from_start_after_empty_seek = false;
 
         let mut items_in_loop = 0;
 
@@ -254,15 +255,15 @@ impl OpenedStream {
                         frame_cache_manager,
                         thread_index
                     )?;
-                    if data.is_some() {
-                        last_frame_received = data;
-                     frame_cache_manager
+                    if let Some(last_frame) = data {
+                        last_frame_received = Some(last_frame);
+                        frame_cache_manager
                             .set_last_frame(
                                 &self.src,
                                 &self.original_src,
                                 self.transparent,
                                 tone_mapped,
-                                last_frame_received.unwrap().index
+                                last_frame.index
                             );
                     } else {
                         frame_cache_manager
@@ -272,6 +273,39 @@ impl OpenedStream {
                                 self.transparent,
                                 tone_mapped,
                             );
+                    }
+
+                    let cache_is_empty = frame_cache_manager.is_empty(
+                        &self.src,
+                        &self.original_src,
+                        self.transparent,
+                        tone_mapped,
+                    )?;
+
+                    if should_seek
+                        && !retried_from_start_after_empty_seek
+                        && last_frame_received.is_none()
+                        && cache_is_empty
+                        && position_to_seek_to > 0
+                    {
+                        _print_verbose(&format!(
+                            "No frame decoded after seeking to {}; retrying from the beginning",
+                            target_position
+                        ))?;
+                        self.video.flush();
+                        self.reached_eof = false;
+                        self.input.seek(
+                            self.stream_index as i32,
+                            0,
+                            0,
+                            0,
+                            AVSEEK_FLAG_ANY,
+                        )?;
+                        freshly_seeked = true;
+                        self.last_position = None;
+                        stop_after_n_diverging_pts = None;
+                        retried_from_start_after_empty_seek = true;
+                        continue;
                     }
 
                     break;
