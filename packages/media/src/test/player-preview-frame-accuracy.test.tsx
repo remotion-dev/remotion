@@ -29,9 +29,9 @@ const VideoComposition: React.FC = () => {
 	return <Video src={src} debugOverlay />;
 };
 
-const TestPlayer: React.FC<{playerRef: React.RefObject<PlayerRef | null>}> = ({
-	playerRef,
-}) => {
+const TestPlayer: React.FC<{
+	readonly playerRef: React.RefObject<PlayerRef | null>;
+}> = ({playerRef}) => {
 	return (
 		<Player
 			ref={playerRef}

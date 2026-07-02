@@ -52,7 +52,7 @@ const LoopBoundaryVideoComposition: React.FC = () => {
 };
 
 const LoopBoundaryTestPlayer: React.FC<{
-	playerRef: React.RefObject<PlayerRef | null>;
+	readonly playerRef: React.RefObject<PlayerRef | null>;
 }> = ({playerRef}) => {
 	return (
 		<Player
@@ -69,9 +69,9 @@ const LoopBoundaryTestPlayer: React.FC<{
 	);
 };
 
-const TrimAfterLoopVideoComposition: React.FC<{onVideoFrame: () => void}> = ({
-	onVideoFrame,
-}) => {
+const TrimAfterLoopVideoComposition: React.FC<{
+	readonly onVideoFrame: () => void;
+}> = ({onVideoFrame}) => {
 	return (
 		<Video
 			src={trimAfterLoopSrc}
@@ -84,8 +84,8 @@ const TrimAfterLoopVideoComposition: React.FC<{onVideoFrame: () => void}> = ({
 };
 
 const TrimAfterLoopTestPlayer: React.FC<{
-	onVideoFrame: () => void;
-	playerRef: React.RefObject<PlayerRef | null>;
+	readonly onVideoFrame: () => void;
+	readonly playerRef: React.RefObject<PlayerRef | null>;
 }> = ({onVideoFrame, playerRef}) => {
 	return (
 		<Player

@@ -196,7 +196,6 @@ export const createVideoIterator = async (
 				const frameEndTimestamp = roundTo4Digits(
 					frame.frame.timestamp + frame.frame.duration,
 				);
-				const timestamp = roundTo4Digits(time);
 				if (frameTimestamp <= timestamp && frameEndTimestamp > timestamp) {
 					return {
 						type: 'satisfied' as const,
