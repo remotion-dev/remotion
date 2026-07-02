@@ -54,7 +54,7 @@ const assertNoDevFilesPublished = async (pkgPath: string) => {
 			if (!file.startsWith('packed')) {
 				continue;
 			}
-			const [, , filename] = file.split(' ');
+			const filename = file.split(/\s+/).at(-1) as string;
 			if (filename === 'LICENSE.md' || filename.endsWith('/LICENSE.md')) {
 				hasPackedLicense = true;
 			}
