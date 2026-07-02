@@ -1,4 +1,5 @@
 import type {WrappedCanvas} from 'mediabunny';
+import {releaseStableFrame} from '../canvas-ahead-of-time';
 import {roundTo4Digits} from '../helpers/round-to-4-digits';
 import type {PrewarmedVideoIteratorCache} from '../prewarm-iterator-for-looping';
 
@@ -19,6 +20,14 @@ export const createVideoIterator = async (
 
 	let peekedFrame: WrappedCanvas | null = null;
 
+	const setLastReturnedFrame = (frame: WrappedCanvas) => {
+		if (lastReturnedFrame !== frame) {
+			releaseStableFrame(lastReturnedFrame);
+		}
+
+		lastReturnedFrame = frame;
+	};
+
 	const peek = async () => {
 		if (peekedFrame) {
 			return peekedFrame;
@@ -37,7 +46,7 @@ export const createVideoIterator = async (
 	const getNextOrNullIfNotAvailable = () => {
 		if (peekedFrame) {
 			const frame = peekedFrame;
-			lastReturnedFrame = frame;
+			setLastReturnedFrame(frame);
 			const retValue = {
 				type: 'got-frame-or-end' as const,
 				frame,
@@ -54,7 +63,7 @@ export const createVideoIterator = async (
 				waitPromise: async () => {
 					const res = await next.wait();
 					if (res) {
-						lastReturnedFrame = res;
+						setLastReturnedFrame(res);
 					} else {
 						iteratorEnded = true;
 					}
@@ -65,7 +74,7 @@ export const createVideoIterator = async (
 		}
 
 		if (next.frame) {
-			lastReturnedFrame = next.frame;
+			setLastReturnedFrame(next.frame);
 		} else {
 			iteratorEnded = true;
 		}
@@ -78,7 +87,13 @@ export const createVideoIterator = async (
 
 	const destroy = () => {
 		destroyed = true;
+		releaseStableFrame(lastReturnedFrame);
+		if (peekedFrame !== lastReturnedFrame) {
+			releaseStableFrame(peekedFrame);
+		}
+
 		lastReturnedFrame = null;
+		peekedFrame = null;
 		iterator.closeIterator().catch(() => undefined);
 	};
 
