@@ -24,6 +24,8 @@ const finalFrame = 48;
 const afterSteppingScreenshot = 'media-player-frame-48-accuracy-after-stepping';
 const afterStepBackAndForwardScreenshot =
 	'media-player-frame-48-accuracy-after-step-back-and-forward';
+// Allow tiny browser/decoder screenshot variance after seeks while still catching visible frame offsets.
+const allowedMismatchedPixelRatio = 0.001;
 
 const VideoComposition: React.FC = () => {
 	return <Video src={src} debugOverlay />;
@@ -73,7 +75,7 @@ test('keeps preview frame stepping visually accurate in Player', async () => {
 		playerRef.current!.pause();
 		const afterSteppingBlob = await canvasToBlob(findLargestCanvas(container));
 		await testImage({
-			allowedMismatchedPixelRatio: 0.001,
+			allowedMismatchedPixelRatio,
 			blob: afterSteppingBlob,
 			testId: afterSteppingScreenshot,
 		});
@@ -87,7 +89,7 @@ test('keeps preview frame stepping visually accurate in Player', async () => {
 			findLargestCanvas(container),
 		);
 		await testImage({
-			allowedMismatchedPixelRatio: 0.001,
+			allowedMismatchedPixelRatio,
 			blob: afterStepBackAndForwardBlob,
 			testId: afterStepBackAndForwardScreenshot,
 		});

@@ -48,9 +48,10 @@ test(
 			outputTimestamps.push(result.frame?.timestamp ?? 0);
 		}
 
-		expect(realTimestamps.map((time) => Math.round(time * fps))).toEqual([
-			194, 196, 198, 100, 102, 104,
-		]);
+		// getTimeInSeconds() maps looped media time in frame units; round back to
+		// frames to avoid asserting insignificant JS floating-point spellings.
+		const mappedFrames = realTimestamps.map((time) => Math.round(time * fps));
+		expect(mappedFrames).toEqual([194, 196, 198, 100, 102, 104]);
 		expect(outputTimestamps).toEqual([
 			6.44 * 1_000_000,
 			6.52 * 1_000_000,

@@ -7,7 +7,6 @@ import {Video} from '../video/video';
 import {
 	canvasToBlob,
 	findLargestCanvas,
-	seekToAndWait,
 	testImage,
 	wait,
 	waitFor,
@@ -39,21 +38,24 @@ const framesToStepBackThroughTrimAfterLoop = [1713, 1712, 1711];
 const trimAfterLoopFinalScreenshot =
 	'media-player-frame-1711-video-frame-91-loop-trim-after-step-back';
 
-const LoopBoundaryVideoComposition: React.FC = () => {
+const LoopBoundaryVideoComposition: React.FC<{
+	readonly onVideoFrame: () => void;
+}> = ({onVideoFrame}) => {
 	return (
 		<Loop
 			durationInFrames={loopBoundaryDurationInFrames}
 			times={3}
 			name="MediaLoop"
 		>
-			<Video src={loopBoundarySrc} debugOverlay />
+			<Video src={loopBoundarySrc} debugOverlay onVideoFrame={onVideoFrame} />
 		</Loop>
 	);
 };
 
 const LoopBoundaryTestPlayer: React.FC<{
+	readonly onVideoFrame: () => void;
 	readonly playerRef: React.RefObject<PlayerRef | null>;
-}> = ({playerRef}) => {
+}> = ({onVideoFrame, playerRef}) => {
 	return (
 		<Player
 			ref={playerRef}
@@ -64,7 +66,7 @@ const LoopBoundaryTestPlayer: React.FC<{
 			durationInFrames={loopBoundaryDurationInFrames * 3}
 			fps={fps}
 			initiallyMuted
-			inputProps={{}}
+			inputProps={{onVideoFrame}}
 		/>
 	);
 };
@@ -108,10 +110,10 @@ const seekToAndWaitForVideoFrame = async ({
 	playerRef,
 	settleTime,
 }: {
-	frame: number;
-	getDrawnFrames: () => number;
-	playerRef: React.RefObject<PlayerRef | null>;
-	settleTime: number;
+	readonly frame: number;
+	readonly getDrawnFrames: () => number;
+	readonly playerRef: React.RefObject<PlayerRef | null>;
+	readonly settleTime: number;
 }) => {
 	const drawnFrames = getDrawnFrames();
 	playerRef.current!.seekTo(frame);
@@ -121,12 +123,20 @@ const seekToAndWaitForVideoFrame = async ({
 };
 
 test('keeps preview frame stepping visually accurate when stepping back over a loop boundary', async () => {
+	let drawnFrames = 0;
 	const container = document.createElement('div');
 	document.body.appendChild(container);
 
 	const root = createRoot(container);
 	const playerRef = React.createRef<PlayerRef>();
-	root.render(<LoopBoundaryTestPlayer playerRef={playerRef} />);
+	root.render(
+		<LoopBoundaryTestPlayer
+			playerRef={playerRef}
+			onVideoFrame={() => {
+				drawnFrames++;
+			}}
+		/>,
+	);
 
 	try {
 		await waitFor(() => playerRef.current !== null);
@@ -141,10 +151,20 @@ test('keeps preview frame stepping visually accurate when stepping back over a l
 		await wait(250);
 
 		for (const frame of framesToStepBackThroughBoundary) {
-			await seekToAndWait({playerRef, frame, settleTime: 500});
+			await seekToAndWaitForVideoFrame({
+				playerRef,
+				frame,
+				getDrawnFrames: () => drawnFrames,
+				settleTime: 500,
+			});
 		}
 
-		await seekToAndWait({playerRef, frame: boundaryFrame, settleTime: 500});
+		await seekToAndWaitForVideoFrame({
+			playerRef,
+			frame: boundaryFrame,
+			getDrawnFrames: () => drawnFrames,
+			settleTime: 500,
+		});
 		const boundaryFrameBlob = await canvasToBlob(findLargestCanvas(container));
 		await testImage({
 			allowedMismatchedPixelRatio: 0.001,
@@ -152,9 +172,10 @@ test('keeps preview frame stepping visually accurate when stepping back over a l
 			testId: boundaryFrameScreenshot,
 		});
 
-		await seekToAndWait({
+		await seekToAndWaitForVideoFrame({
 			playerRef,
 			frame: beforeBoundaryFrame,
+			getDrawnFrames: () => drawnFrames,
 			settleTime: 500,
 		});
 		const beforeBoundaryFrameBlob = await canvasToBlob(
