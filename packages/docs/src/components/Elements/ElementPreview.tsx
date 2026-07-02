@@ -36,6 +36,7 @@ export const ElementPreview: React.FC<ElementPreviewProps> = ({
 				compositionHeight={height}
 				controls
 				initiallyMuted
+				loop
 				style={{
 					width: '100%',
 				}}
