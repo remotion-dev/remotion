@@ -51,10 +51,11 @@ const assertNoDevFilesPublished = async (pkgPath: string) => {
 		let hasPackedLicense = false;
 		const files = $`bun pm pack --dry-run`.cwd(dir).lines();
 		for await (const file of files) {
-			if (!file.startsWith('packed')) {
+			const line = file.replace(/\x1B\[[0-?]*[ -/]*[@-~]/g, '');
+			if (!line.startsWith('packed')) {
 				continue;
 			}
-			const filename = file.split(/\s+/).at(-1) as string;
+			const filename = line.split(/\s+/).at(-1) as string;
 			if (filename === 'LICENSE.md' || filename.endsWith('/LICENSE.md')) {
 				hasPackedLicense = true;
 			}
