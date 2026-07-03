@@ -68,9 +68,9 @@ export const videoIteratorManager = async ({
 	}
 
 	const canvasSink = new CanvasSink(videoTrack, {
-		// Match the preview look-ahead buffer size. Remotion copies frames into
-		// stable canvases before retaining them, so correctness does not depend
-		// on Mediabunny's pooled canvases staying unchanged.
+		// Match the preview look-ahead buffer size. CanvasSink may reuse pooled
+		// canvas objects for later decoded frames, so Remotion copies pixels into
+		// stable canvases before retaining frames across seeks/peeks.
 		poolSize: 3,
 		fit: 'contain',
 		alpha: true,
