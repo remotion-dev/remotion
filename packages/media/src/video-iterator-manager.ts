@@ -68,8 +68,9 @@ export const videoIteratorManager = async ({
 	}
 
 	const canvasSink = new CanvasSink(videoTrack, {
-		// Keep one canvas each for the initial frame, the last returned frame
-		// and the next frame while iterating.
+		// Match the preview look-ahead buffer size. Remotion copies frames into
+		// stable canvases before retaining them, so correctness does not depend
+		// on Mediabunny's pooled canvases staying unchanged.
 		poolSize: 3,
 		fit: 'contain',
 		alpha: true,
