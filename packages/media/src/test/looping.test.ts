@@ -14,8 +14,8 @@ test(
 	{retry: 3},
 	async () => {
 		const letInputTimestamps = [197, 198, 199, 200, 201, 202];
-		const realTimestamps = [];
-		const outputTimestamps = [];
+		const realTimestamps: number[] = [];
+		const outputTimestamps: number[] = [];
 
 		for (const timeInFrames of letInputTimestamps) {
 			const realTimestamp = getTimeInSeconds({
@@ -29,6 +29,8 @@ test(
 				unloopedTimeInSeconds: timeInFrames / fps,
 				ifNoMediaDuration: 'fail',
 			});
+			expect(realTimestamp).not.toBeNull();
+			assert(realTimestamp !== null);
 			realTimestamps.push(realTimestamp);
 
 			const result = await extractFrame({
@@ -48,10 +50,10 @@ test(
 			outputTimestamps.push(result.frame?.timestamp ?? 0);
 		}
 
-		expect(realTimestamps).toEqual([
-			6.466666666666666, 6.533333333333332, 6.6000000000000005,
-			3.3333333333333335, 3.4, 3.4666666666666663,
-		]);
+		// getTimeInSeconds() maps looped media time in frame units; round back to
+		// frames to avoid asserting insignificant JS floating-point spellings.
+		const mappedFrames = realTimestamps.map((time) => Math.round(time * fps));
+		expect(mappedFrames).toEqual([194, 196, 198, 100, 102, 104]);
 		expect(outputTimestamps).toEqual([
 			6.44 * 1_000_000,
 			6.52 * 1_000_000,

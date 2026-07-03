@@ -68,8 +68,9 @@ export const videoIteratorManager = async ({
 	}
 
 	const canvasSink = new CanvasSink(videoTrack, {
-		// Keep one canvas each for the initial frame, the last returned frame
-		// and the next frame while iterating.
+		// Match the preview look-ahead buffer size. CanvasSink may reuse pooled
+		// canvas objects for later decoded frames, so Remotion copies pixels into
+		// stable canvases before retaining frames across seeks/peeks.
 		poolSize: 3,
 		fit: 'contain',
 		alpha: true,
