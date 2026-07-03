@@ -35,6 +35,14 @@ type SaveSequencePropsOptions = {
 	redoLabel: string;
 };
 
+const serializeSequencePropValue = (value: unknown) => {
+	if (value === undefined) {
+		return {type: 'undefined' as const};
+	}
+
+	return {type: 'json' as const, serialized: JSON.stringify(value)};
+};
+
 export const saveSequenceProps = ({
 	changes,
 	setPropStatuses,
@@ -70,7 +78,7 @@ export const saveSequenceProps = ({
 							fileName: change.fileName,
 							nodePath: change.nodePath,
 							key: change.fieldKey,
-							value: JSON.stringify(change.value),
+							value: serializeSequencePropValue(change.value),
 							defaultValue: change.defaultValue,
 							schema: change.schema,
 							sourceEdit: change.sourceEdit ?? null,
@@ -102,7 +110,7 @@ export const saveSequenceProps = ({
 				fileName: change.fileName,
 				nodePath: change.nodePath,
 				key: change.fieldKey,
-				value: JSON.stringify(change.value),
+				value: serializeSequencePropValue(change.value),
 				defaultValue: change.defaultValue,
 				schema: change.schema,
 				sourceEdit: change.sourceEdit ?? null,

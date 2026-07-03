@@ -315,7 +315,14 @@ export type SaveSequencePropEdit = {
 	fileName: string;
 	nodePath: SequencePropsSubscriptionKey;
 	key: string;
-	value: string;
+	value:
+		| {
+				type: 'json';
+				serialized: string;
+		  }
+		| {
+				type: 'undefined';
+		  };
 	defaultValue: string | null;
 	schema: InteractivitySchema;
 	sourceEdit: SaveSequencePropSourceEdit | null;

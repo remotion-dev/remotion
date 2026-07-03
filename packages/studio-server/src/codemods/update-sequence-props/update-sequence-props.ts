@@ -571,6 +571,15 @@ const hasNonImportIdentifierReference = ({
 	return hasReference;
 };
 
+const googleFontLoadingComment =
+	'Remotion Studio generated Google Font loading';
+
+const hasStudioGeneratedGoogleFontLoadingComment = (statement: Statement) => {
+	return (statement.leadingComments ?? []).some((comment) =>
+		comment.value.includes(googleFontLoadingComment),
+	);
+};
+
 const isTopLevelCallToIdentifier = ({
 	statement,
 	localName,
@@ -624,7 +633,10 @@ const removeUnusedGoogleFontSourceEdits = (ast: File) => {
 
 	ast.program.body = ast.program.body.filter((statement) => {
 		for (const localName of loadFontLocalNamesToRemove) {
-			if (isTopLevelCallToIdentifier({statement, localName})) {
+			if (
+				isTopLevelCallToIdentifier({statement, localName}) &&
+				hasStudioGeneratedGoogleFontLoadingComment(statement)
+			) {
 				return false;
 			}
 		}
@@ -686,6 +698,7 @@ const insertLoadFontCall = ({
 			]),
 		]),
 	);
+	call.comments = [b.commentLine(` ${googleFontLoadingComment}`)];
 
 	insertAfterImportsOrDirectives(ast, call as Statement);
 };
@@ -755,8 +768,9 @@ const updateSequencePropsNode = ({
 		}
 
 		const isDefault =
-			defaultValue !== null &&
-			JSON.stringify(value) === JSON.stringify(defaultValue);
+			(defaultValue === null && value === undefined) ||
+			(defaultValue !== null &&
+				JSON.stringify(value) === JSON.stringify(defaultValue));
 
 		const dotIndex = key.indexOf('.');
 		const isNested = dotIndex !== -1;

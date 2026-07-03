@@ -333,6 +333,91 @@ test('updateSequenceProps should keep node paths stable after inserting Google F
 	expect(second.output).not.toContain('loadRoboto(');
 });
 
+test('updateSequenceProps should clear a nested prop with an undefined default', async () => {
+	const input = `import React from 'react';
+import {AbsoluteFill} from 'remotion';
+
+export const Example: React.FC = () => {
+	return (
+		<AbsoluteFill>
+			<div style={{fontFamily: 'Roboto', color: 'red'}} />
+		</AbsoluteFill>
+	);
+};
+`;
+
+	const {output, oldValueStrings} = await updateSequenceProps({
+		input,
+		nodePath: lineColumnToNodePath(input, 7),
+		updates: [
+			{
+				key: 'style.fontFamily',
+				value: undefined,
+				defaultValue: null,
+			},
+		],
+		schema: NoReactInternals.sequenceSchema,
+		prettierConfigOverride: null,
+	});
+
+	expect(oldValueStrings[0]).toBe("'Roboto'");
+	expect(output).not.toContain('fontFamily');
+	expect(output).toContain("color: 'red'");
+});
+
+test('updateSequenceProps should preserve user-authored Google Font loading code when usage is dynamic', async () => {
+	const input = `import React from 'react';
+import {AbsoluteFill} from 'remotion';
+import {loadFont as loadRoboto} from '@remotion/google-fonts/Roboto';
+
+loadRoboto('normal', {
+	weights: ['400', '700', '800'],
+	subsets: ['latin'],
+});
+
+const titleFont = 'Roboto';
+const titleStyle: React.CSSProperties = {
+	fontFamily: titleFont,
+};
+
+export const Example: React.FC = () => {
+	return (
+		<AbsoluteFill>
+			<div style={titleStyle} />
+			<div style={{fontFamily: 'Roboto'}} />
+		</AbsoluteFill>
+	);
+};
+`;
+
+	const {output} = await updateSequenceProps({
+		input,
+		nodePath: lineColumnToNodePath(input, 18),
+		updates: [
+			{
+				key: 'style.fontFamily',
+				value: 'Ubuntu',
+				defaultValue: null,
+				googleFont: {
+					fontFamily: 'Ubuntu',
+					importName: 'Ubuntu',
+					style: 'normal',
+					weights: ['400', '700'],
+					subsets: ['latin'],
+				},
+			},
+		],
+		schema: NoReactInternals.sequenceSchema,
+		prettierConfigOverride: null,
+	});
+
+	expect(output).toContain('@remotion/google-fonts/Roboto');
+	expect(output).toContain('loadRoboto(');
+	expect(output).toContain('style={titleStyle}');
+	expect(output).toContain('@remotion/google-fonts/Ubuntu');
+	expect(output).toContain('loadUbuntu(');
+});
+
 test('updateSequenceProps should keep Google Font loading code if the font is still used', async () => {
 	const input = `import React from 'react';
 import {AbsoluteFill} from 'remotion';

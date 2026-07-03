@@ -43,6 +43,24 @@ type SequencePropEditGroup = {
 	edits: ResolvedSequencePropEdit[];
 };
 
+const parseSequencePropEditValue = (
+	value: SaveSequencePropEdit['value'],
+): unknown => {
+	if (value.type === 'undefined') {
+		return undefined;
+	}
+
+	return JSON.parse(value.serialized);
+};
+
+const stringifySequencePropEditValue = (value: unknown): string => {
+	if (value === undefined) {
+		return 'undefined';
+	}
+
+	return JSON.stringify(value);
+};
+
 type SequencePropUndoSnapshot = {
 	filePath: string;
 	oldContents: string;
@@ -112,7 +130,7 @@ export const saveSequencePropsHandler: ApiHandler<
 		const editGroups = new Map<string, SequencePropEditGroup>();
 
 		for (const [index, edit] of edits.entries()) {
-			const parsedValue = JSON.parse(edit.value);
+			const parsedValue = parseSequencePropEditValue(edit.value);
 			const parsedDefaultValue =
 				edit.defaultValue !== null ? JSON.parse(edit.defaultValue) : null;
 			const {absolutePath, fileRelativeToRoot} = resolveFileInsideProject({
@@ -131,7 +149,7 @@ export const saveSequencePropsHandler: ApiHandler<
 				nodePath: edit.nodePath,
 				key: edit.key,
 				value: parsedValue,
-				valueString: JSON.stringify(parsedValue),
+				valueString: stringifySequencePropEditValue(parsedValue),
 				defaultValue: parsedDefaultValue,
 				defaultValueString:
 					parsedDefaultValue !== null
