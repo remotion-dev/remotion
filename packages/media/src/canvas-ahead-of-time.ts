@@ -104,6 +104,7 @@ export const canvasesAheadOfTime = (
 				}
 
 				if (closed) {
+					slot.resolved = {done: true, value: undefined};
 					return;
 				}
 

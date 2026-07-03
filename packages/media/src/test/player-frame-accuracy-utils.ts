@@ -67,7 +67,7 @@ export const testImage = async ({
 	testId: string;
 }) => {
 	const img = document.createElement('img');
-	img.src = URL.createObjectURL(blob);
+	const objectUrl = URL.createObjectURL(blob);
 	img.dataset.testid = testId;
 	img.style.display = 'block';
 	img.style.width = `${previewWidth}px`;
@@ -76,12 +76,13 @@ export const testImage = async ({
 
 	onTestFinished(() => {
 		document.body.removeChild(img);
-		URL.revokeObjectURL(img.src);
+		URL.revokeObjectURL(objectUrl);
 	});
 
 	await new Promise<void>((resolve, reject) => {
 		img.onload = () => resolve();
 		img.onerror = () => reject(new Error('Image failed to load'));
+		img.src = objectUrl;
 	});
 
 	await expect(page.getByTestId(testId)).toMatchScreenshot(testId, {
