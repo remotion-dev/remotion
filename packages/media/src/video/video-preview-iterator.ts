@@ -109,10 +109,11 @@ export const createVideoIterator = async (
 				frame: WrappedCanvas;
 		  }
 	> => {
+		const timestamp = roundTo4Digits(time);
 		if (lastReturnedFrame) {
 			const frameTimestamp = roundTo4Digits(lastReturnedFrame.timestamp);
 
-			if (roundTo4Digits(time) < frameTimestamp) {
+			if (timestamp < frameTimestamp) {
 				const lastFrameWasInitialFrame = lastReturnedFrame === initialFrame;
 				const firstFrameDoesSatisfy =
 					lastFrameWasInitialFrame &&
@@ -143,7 +144,6 @@ export const createVideoIterator = async (
 				lastReturnedFrame.timestamp + lastFrameDuration,
 			);
 
-			const timestamp = roundTo4Digits(time);
 			if (frameTimestamp <= timestamp && frameEndTimestamp > timestamp) {
 				return {
 					type: 'satisfied' as const,
@@ -196,7 +196,6 @@ export const createVideoIterator = async (
 				const frameEndTimestamp = roundTo4Digits(
 					frame.frame.timestamp + frame.frame.duration,
 				);
-				const timestamp = roundTo4Digits(time);
 				if (frameTimestamp <= timestamp && frameEndTimestamp > timestamp) {
 					return {
 						type: 'satisfied' as const,

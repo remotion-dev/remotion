@@ -37,6 +37,7 @@ const makeReusingCanvasSink = (): CanvasSink => {
 		async *canvases() {
 			for (let i = 0; i < colors.length; i++) {
 				fillCanvas(context, colors[i]);
+				await Promise.resolve();
 
 				yield {
 					canvas,
@@ -48,11 +49,11 @@ const makeReusingCanvasSink = (): CanvasSink => {
 	} as unknown as CanvasSink;
 };
 
-const waitForFrame = async (
+const waitForFrame = (
 	frame: ReturnType<ReturnType<typeof canvasesAheadOfTime>['next']>,
 ) => {
 	if (frame.type === 'ready') {
-		return frame.frame;
+		return Promise.resolve(frame.frame);
 	}
 
 	return frame.wait();
