@@ -3,6 +3,7 @@ import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import type DocBreadcrumbsType from '@theme-original/DocBreadcrumbs';
 import DocBreadcrumbs from '@theme-original/DocBreadcrumbs';
 import React, {type ReactNode, useCallback, useState} from 'react';
+import {decodeRawMarkdownFromCarrier} from '../RawMarkdownCarrier';
 import {
 	AnthropicIcon,
 	CursorIcon,
@@ -122,7 +123,10 @@ export default function DocBreadcrumbsWrapper(props: Props): ReactNode {
 		try {
 			const el = document.getElementById('__doc_raw');
 			let raw = '';
-			if (el?.textContent) {
+			const encodedRaw = el?.getAttribute('data-raw-markdown');
+			if (encodedRaw) {
+				raw = decodeRawMarkdownFromCarrier(encodedRaw);
+			} else if (el?.textContent) {
 				raw = JSON.parse(el.textContent);
 				// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			} else if ((window as any).__DOC_RAW) {
