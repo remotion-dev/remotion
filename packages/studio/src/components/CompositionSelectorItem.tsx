@@ -108,6 +108,7 @@ export const CompositionSelectorItem: React.FC<{
 		folderName: string,
 		parentName: string | null,
 	) => void;
+	readonly clearRootDragHover: () => void;
 	readonly level: number;
 }> = ({
 	item,
@@ -116,6 +117,7 @@ export const CompositionSelectorItem: React.FC<{
 	tabIndex,
 	selectComposition,
 	toggleFolder,
+	clearRootDragHover,
 }) => {
 	const selected = useMemo(() => {
 		if (item.type === 'composition') {
@@ -251,10 +253,12 @@ export const CompositionSelectorItem: React.FC<{
 			}
 
 			event.preventDefault();
+			event.stopPropagation();
 			event.dataTransfer.dropEffect = 'move';
+			clearRootDragHover();
 			setDragHovered(true);
 		},
-		[item],
+		[clearRootDragHover, item],
 	);
 
 	const onFolderDragLeave = useCallback(() => {
@@ -275,6 +279,7 @@ export const CompositionSelectorItem: React.FC<{
 
 			event.preventDefault();
 			event.stopPropagation();
+			clearRootDragHover();
 			setDragHovered(false);
 
 			const isAlreadyDirectChild = item.items.some((child) => {
@@ -326,7 +331,7 @@ export const CompositionSelectorItem: React.FC<{
 				);
 			}
 		},
-		[item, toggleFolder],
+		[clearRootDragHover, item, toggleFolder],
 	);
 
 	if (item.type === 'folder') {
@@ -379,6 +384,7 @@ export const CompositionSelectorItem: React.FC<{
 									tabIndex={tabIndex}
 									level={level + 1}
 									toggleFolder={toggleFolder}
+									clearRootDragHover={clearRootDragHover}
 								/>
 							);
 						})

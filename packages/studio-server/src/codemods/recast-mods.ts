@@ -456,6 +456,48 @@ const appendCompositionToFolder = ({
 	folderElement.children.push(stripParenthesizedExtra(compositionElement));
 };
 
+const appendCompositionToRoot = ({
+	compositionElement,
+	file,
+}: {
+	compositionElement: JSXElement;
+	file: File;
+}) => {
+	let appended = false;
+
+	recast.types.visit(file, {
+		visitReturnStatement(astPath) {
+			if (appended) {
+				return false;
+			}
+
+			const {argument} = astPath.node;
+			if (argument?.type !== 'JSXFragment' && argument?.type !== 'JSXElement') {
+				this.traverse(astPath);
+				return undefined;
+			}
+
+			if (argument.type === 'JSXFragment') {
+				(argument.children as JSXFragment['children']).push(
+					stripParenthesizedExtra(compositionElement),
+				);
+			} else {
+				astPath.node.argument = wrapInJsxFragment([
+					argument as unknown as JSXElement,
+					compositionElement,
+				]) as never;
+			}
+
+			appended = true;
+			return false;
+		},
+	});
+
+	if (!appended) {
+		throw new Error('Could not find a root JSX element');
+	}
+};
+
 const moveCompositionToFolder = ({
 	file,
 	transformation,
@@ -466,6 +508,7 @@ const moveCompositionToFolder = ({
 	changesMade: Change[];
 }): ApplyCodeModReturnType => {
 	let sourcePath: recast.types.NodePath | null = null;
+	let sourceParentFolderName: string | null = null;
 	let targetFolder: JSXElement | null = null;
 	const folderStack: string[] = [];
 
@@ -475,11 +518,13 @@ const moveCompositionToFolder = ({
 			const compositionId = getCompositionIdFromJSXElement(node);
 			if (compositionId === transformation.idToMove) {
 				sourcePath = astPath as unknown as recast.types.NodePath;
+				sourceParentFolderName = folderStack.join('/') || null;
 			}
 
 			const folderName = getFolderNameFromJSXElement(node);
 			const parentName = folderStack.join('/') || null;
 			if (
+				transformation.folderName !== null &&
 				folderName === transformation.folderName &&
 				parentName === transformation.parentName
 			) {
@@ -504,7 +549,11 @@ const moveCompositionToFolder = ({
 		throw new Error(`Could not find composition "${transformation.idToMove}"`);
 	}
 
-	if (!targetFolder) {
+	if (transformation.folderName === null && sourceParentFolderName === null) {
+		return {newAst: file, changesMade};
+	}
+
+	if (transformation.folderName !== null && !targetFolder) {
 		const folderLabel = `${transformation.parentName ? `${transformation.parentName}/` : ''}${transformation.folderName}`;
 		throw new Error(`Could not find folder "${folderLabel}"`);
 	}
@@ -512,11 +561,20 @@ const moveCompositionToFolder = ({
 	const compositionElement = (sourcePath as recast.types.NodePath)
 		.node as JSXElement;
 	deleteJsxElementAtPath(sourcePath);
-	appendCompositionToFolder({
-		compositionElement,
-		folderElement: targetFolder,
-	});
-	changesMade.push({description: 'Moved composition into folder'});
+	if (transformation.folderName === null) {
+		appendCompositionToRoot({compositionElement, file});
+		changesMade.push({description: 'Moved composition to root'});
+	} else {
+		if (targetFolder === null) {
+			throw new Error('Could not find target folder');
+		}
+
+		appendCompositionToFolder({
+			compositionElement,
+			folderElement: targetFolder,
+		});
+		changesMade.push({description: 'Moved composition into folder'});
+	}
 
 	return {newAst: file, changesMade};
 };

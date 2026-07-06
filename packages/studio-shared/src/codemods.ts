@@ -47,7 +47,7 @@ export type RecastCodemod =
 	| {
 			type: 'move-composition-to-folder';
 			idToMove: string;
-			folderName: string;
+			folderName: string | null;
 			parentName: string | null;
 	  }
 	| {

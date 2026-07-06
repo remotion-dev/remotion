@@ -337,6 +337,69 @@ test('applyCodemodHandler pushes composition moves to undo and redo stacks', asy
 	}
 });
 
+test('applyCodemodHandler pushes composition moves to root to undo and redo stacks', async () => {
+	const remotionRoot = mkdtempSync(path.join(tmpdir(), 'remotion-codemod-'));
+	const cleanupFileWatcher = setFileWatcherRegistry(
+		createFileWatcherRegistry(),
+	);
+	const cleanupLiveEvents = setLiveEventsListener({
+		sendEventToClient: () => undefined,
+		sendEventToClientId: () => undefined,
+		router: () => Promise.resolve(),
+		closeConnections: () => Promise.resolve(),
+		addNewClientListener: () => () => undefined,
+	});
+
+	try {
+		clearUndoRedoStacks();
+		const entryPoint = path.join(remotionRoot, 'Root.tsx');
+		writeFileSync(entryPoint, folderRootContents);
+
+		const applyResponse = await applyCodemodHandler(
+			getHandlerOptions({
+				input: {
+					codemod: {
+						type: 'move-composition-to-folder',
+						idToMove: 'NestedA',
+						folderName: null,
+						parentName: null,
+					} satisfies RecastCodemod,
+					dryRun: false,
+					symbolicatedStack: {
+						originalFunctionName: null,
+						originalFileName: 'Root.tsx',
+						originalLineNumber: 9,
+						originalColumnNumber: 4,
+						originalScriptCode: null,
+					},
+				},
+				entryPoint,
+				remotionRoot,
+			}),
+		);
+
+		expect(applyResponse.success).toBe(true);
+		const contents = readFileSync(entryPoint, 'utf-8');
+		expect(contents.indexOf('id="NestedB"')).toBeLessThan(
+			contents.indexOf('id="NestedA"'),
+		);
+		expect(getUndoStack()[0].description.undoMessage).toBe(
+			'↩️  Move of composition "NestedA" to root',
+		);
+
+		const undoResponse = await undoHandler(
+			getHandlerOptions({input: {}, entryPoint, remotionRoot}),
+		);
+		expect(undoResponse.success).toBe(true);
+		expect(readFileSync(entryPoint, 'utf-8')).toBe(folderRootContents);
+	} finally {
+		clearUndoRedoStacks();
+		cleanupLiveEvents();
+		cleanupFileWatcher();
+		rmSync(remotionRoot, {recursive: true, force: true});
+	}
+});
+
 test('applyCodemodHandler creates new composition files with undo and redo', async () => {
 	const remotionRoot = mkdtempSync(path.join(tmpdir(), 'remotion-codemod-'));
 	const cleanupFileWatcher = setFileWatcherRegistry(
@@ -559,6 +622,24 @@ test('moves a composition into a nested folder', () => {
 	expect(newContents.indexOf('<Folder name="Parent">')).toBeLessThan(
 		newContents.indexOf('<Folder name="Other">'),
 	);
+});
+
+test('moves a composition to root', () => {
+	const {changesMade, newContents} = parseAndApplyCodemod({
+		input: folderRootContents,
+		codeMod: {
+			type: 'move-composition-to-folder',
+			idToMove: 'NestedA',
+			folderName: null,
+			parentName: null,
+		},
+	});
+
+	expect(changesMade.length).toBe(1);
+	expect(newContents.indexOf('id="NestedB"')).toBeLessThan(
+		newContents.indexOf('id="NestedA"'),
+	);
+	expect(newContents.match(/id="NestedA"/g)?.length).toBe(1);
 });
 
 test('moves a composition into a self-closing folder', () => {

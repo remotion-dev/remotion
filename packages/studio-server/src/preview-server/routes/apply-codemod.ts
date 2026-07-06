@@ -60,8 +60,11 @@ const getCodemodUndoDescription = (codemod: ApplyCodemodRequest['codemod']) => {
 	}
 
 	if (codemod.type === 'move-composition-to-folder') {
-		const folderLabel = `${codemod.parentName ? `${codemod.parentName}/` : ''}${codemod.folderName}`;
-		const label = `composition "${codemod.idToMove}" into folder "${folderLabel}"`;
+		const destination =
+			codemod.folderName === null
+				? 'to root'
+				: `into folder "${codemod.parentName ? `${codemod.parentName}/` : ''}${codemod.folderName}"`;
+		const label = `composition "${codemod.idToMove}" ${destination}`;
 		return {
 			undoMessage: `↩️  Move of ${label}`,
 			redoMessage: `↪️  Move of ${label}`,
