@@ -2,6 +2,7 @@ import {expect, test} from 'bun:test';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
+import {NoReactInternals} from 'remotion/no-react';
 import {
 	insertJsxElementIntoComposition,
 	resolveCompositionComponent,
@@ -1307,6 +1308,90 @@ test('inserts a component into the resolved composition component', async () => 
 		expect(result.output).toContain('dataShapeIndex={1}');
 		expect(result.output).toContain('debug={false}');
 		expect(result.output).toContain("position: 'absolute'");
+	} finally {
+		await fs.rm(tempDir, {recursive: true, force: true});
+	}
+});
+
+test('inserts a composition as a duration-aware Sequence', async () => {
+	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
+	try {
+		await fs.writeFile(
+			path.join(tempDir, 'Root.tsx'),
+			[
+				"import {Composition} from 'remotion';",
+				"import {Source} from './Source';",
+				"import {Target} from './Target';",
+				'export const RemotionRoot = () => {',
+				'\treturn (',
+				'\t\t<>',
+				'\t\t\t<Composition id="source" component={Source} />',
+				'\t\t\t<Composition id="target" component={Target} />',
+				'\t\t</>',
+				'\t);',
+				'};',
+				'',
+			].join('\n'),
+		);
+		await fs.writeFile(
+			path.join(tempDir, 'Source.tsx'),
+			[
+				'export const Source: React.FC = () => {',
+				'\treturn <div>source</div>;',
+				'};',
+				'',
+			].join('\n'),
+		);
+		await fs.writeFile(
+			path.join(tempDir, 'Target.tsx'),
+			[
+				"import {AbsoluteFill} from 'remotion';",
+				'',
+				'export const Target: React.FC = () => {',
+				'\treturn <AbsoluteFill>target</AbsoluteFill>;',
+				'};',
+				'',
+			].join('\n'),
+		);
+
+		const result = await insertJsxElementIntoComposition({
+			remotionRoot: tempDir,
+			compositionFile: 'Root.tsx',
+			compositionId: 'target',
+			element: {
+				type: 'composition',
+				compositionId: 'source',
+				compositionFile: 'Root.tsx',
+				durationInFrames: 100,
+				width: 1080,
+				height: 540,
+				serializedResolvedPropsWithCustomSchema: JSON.stringify({
+					hi: 'there',
+					nested: {value: 1},
+					'dash-prop': 'ok',
+					img: `${NoReactInternals.FILE_TOKEN}image.png`,
+					date: `${NoReactInternals.DATE_TOKEN}2025-01-01T00:00:00.000Z`,
+				}),
+				position: null,
+			},
+			prettierConfigOverride: {singleQuote: true, useTabs: true},
+		});
+
+		expect(result.output).toContain("import { Source } from './Source';");
+		expect(result.output).toContain('Sequence');
+		expect(result.output).toContain('<Sequence');
+		expect(result.output).toContain('width={1080}');
+		expect(result.output).toContain('height={540}');
+		expect(result.output).toContain('durationInFrames={100}');
+		expect(result.output).toContain('<Source');
+		expect(result.output).toContain('hi="there"');
+		expect(result.output).toContain('nested={{');
+		expect(result.output).toContain('value: 1');
+		expect(result.output).toContain("'dash-prop': 'ok'");
+		expect(result.output).toContain("img={staticFile('image.png')}");
+		expect(result.output).toContain(
+			"date={new Date('2025-01-01T00:00:00.000Z')}",
+		);
 	} finally {
 		await fs.rm(tempDir, {recursive: true, force: true});
 	}

@@ -20,6 +20,7 @@ import type {
 import type {RecastCodemod} from '@remotion/studio-shared';
 import * as recast from 'recast';
 import {applyVisualControl} from './apply-visual-control';
+import {deleteJsxElementAtPath} from './delete-jsx-node';
 
 export type Change = {
 	description: string;
@@ -40,6 +41,14 @@ export const applyCodemod = ({
 
 	if (codeMod.type === 'apply-visual-control') {
 		return applyVisualControl({file, transformation: codeMod, changesMade});
+	}
+
+	if (codeMod.type === 'move-composition-to-folder') {
+		return moveCompositionToFolder({
+			file,
+			transformation: codeMod,
+			changesMade,
+		});
 	}
 
 	const body = file.program.body.map((node) => {
@@ -430,6 +439,86 @@ const getChildFolderParentName = ({
 	parentFolderName: string | null;
 }) => {
 	return [parentFolderName, folderName].filter(Boolean).join('/');
+};
+
+const appendCompositionToFolder = ({
+	compositionElement,
+	folderElement,
+}: {
+	compositionElement: JSXElement;
+	folderElement: JSXElement;
+}) => {
+	folderElement.openingElement.selfClosing = false;
+	folderElement.closingElement = folderElement.closingElement ?? {
+		type: 'JSXClosingElement',
+		name: folderElement.openingElement.name,
+	};
+	folderElement.children.push(stripParenthesizedExtra(compositionElement));
+};
+
+const moveCompositionToFolder = ({
+	file,
+	transformation,
+	changesMade,
+}: {
+	file: File;
+	transformation: Extract<RecastCodemod, {type: 'move-composition-to-folder'}>;
+	changesMade: Change[];
+}): ApplyCodeModReturnType => {
+	let sourcePath: recast.types.NodePath | null = null;
+	let targetFolder: JSXElement | null = null;
+	const folderStack: string[] = [];
+
+	recast.types.visit(file, {
+		visitJSXElement(astPath) {
+			const node = astPath.node as JSXElement;
+			const compositionId = getCompositionIdFromJSXElement(node);
+			if (compositionId === transformation.idToMove) {
+				sourcePath = astPath as unknown as recast.types.NodePath;
+			}
+
+			const folderName = getFolderNameFromJSXElement(node);
+			const parentName = folderStack.join('/') || null;
+			if (
+				folderName === transformation.folderName &&
+				parentName === transformation.parentName
+			) {
+				targetFolder = node;
+			}
+
+			if (folderName) {
+				folderStack.push(folderName);
+			}
+
+			this.traverse(astPath);
+
+			if (folderName) {
+				folderStack.pop();
+			}
+
+			return undefined;
+		},
+	});
+
+	if (!sourcePath) {
+		throw new Error(`Could not find composition "${transformation.idToMove}"`);
+	}
+
+	if (!targetFolder) {
+		const folderLabel = `${transformation.parentName ? `${transformation.parentName}/` : ''}${transformation.folderName}`;
+		throw new Error(`Could not find folder "${folderLabel}"`);
+	}
+
+	const compositionElement = (sourcePath as recast.types.NodePath)
+		.node as JSXElement;
+	deleteJsxElementAtPath(sourcePath);
+	appendCompositionToFolder({
+		compositionElement,
+		folderElement: targetFolder,
+	});
+	changesMade.push({description: 'Moved composition into folder'});
+
+	return {newAst: file, changesMade};
 };
 
 // When a <Composition> JSX element appears in a position where it cannot

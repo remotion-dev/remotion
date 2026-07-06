@@ -59,6 +59,16 @@ const getCodemodUndoDescription = (codemod: ApplyCodemodRequest['codemod']) => {
 		};
 	}
 
+	if (codemod.type === 'move-composition-to-folder') {
+		const folderLabel = `${codemod.parentName ? `${codemod.parentName}/` : ''}${codemod.folderName}`;
+		const label = `composition "${codemod.idToMove}" into folder "${folderLabel}"`;
+		return {
+			undoMessage: `↩️  Move of ${label}`,
+			redoMessage: `↪️  Move of ${label}`,
+			entryType: codemod.type,
+		};
+	}
+
 	if (codemod.type === 'new-composition') {
 		return {
 			undoMessage: `↩️  Creation of composition "${codemod.newId}"`,

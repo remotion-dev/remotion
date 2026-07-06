@@ -85,6 +85,39 @@ const validateElement = (element: InsertableCompositionElement) => {
 		return;
 	}
 
+	if (element.type === 'composition') {
+		if (typeof element.compositionId !== 'string' || !element.compositionId) {
+			throw new Error('Unsupported composition ID');
+		}
+
+		if (
+			typeof element.compositionFile !== 'string' ||
+			!element.compositionFile ||
+			element.compositionFile.includes('\0') ||
+			element.compositionFile.includes('\\') ||
+			element.compositionFile.startsWith('/')
+		) {
+			throw new Error('Unsupported composition file');
+		}
+
+		validateDimension('width', element.width);
+		validateDimension('height', element.height);
+		validateDimension('durationInFrames', element.durationInFrames);
+
+		const parsedProps: unknown = JSON.parse(
+			element.serializedResolvedPropsWithCustomSchema,
+		);
+		if (
+			typeof parsedProps !== 'object' ||
+			parsedProps === null ||
+			Array.isArray(parsedProps)
+		) {
+			throw new Error('Resolved composition props must be an object');
+		}
+
+		return;
+	}
+
 	throw new Error('Unsupported element type');
 };
 
@@ -117,6 +150,10 @@ const getElementLabel = (element: InsertableCompositionElement) => {
 
 	if (element.type === 'component') {
 		return `<${element.componentName}>`;
+	}
+
+	if (element.type === 'composition') {
+		return `composition "${element.compositionId}"`;
 	}
 
 	throw new Error('Unsupported element type');
