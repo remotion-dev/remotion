@@ -1,10 +1,15 @@
 import {expect, test} from 'bun:test';
-import {serializeRawMarkdownForScript} from '../theme/RawMarkdownCarrier';
+import {
+	decodeRawMarkdownFromCarrier,
+	encodeRawMarkdownForCarrier,
+} from '../theme/RawMarkdownCarrier';
 
-test('escapes raw markdown so it can be embedded in a script tag', () => {
+test('encodes raw markdown so it can be embedded in an HTML attribute', () => {
 	const raw = '```svelte\n<script>console.log("hi")</script>\n```';
-	const serialized = serializeRawMarkdownForScript(raw);
+	const encoded = encodeRawMarkdownForCarrier(raw);
 
-	expect(serialized).not.toContain('</script>');
-	expect(JSON.parse(serialized)).toBe(raw);
+	expect(encoded).not.toContain('<');
+	expect(encoded).not.toContain('>');
+	expect(encoded).not.toContain('</script>');
+	expect(decodeRawMarkdownFromCarrier(encoded)).toBe(raw);
 });

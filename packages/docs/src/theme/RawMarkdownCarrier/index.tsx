@@ -1,7 +1,11 @@
 import React, {useEffect} from 'react';
 
-export const serializeRawMarkdownForScript = (raw: string) => {
-	return JSON.stringify(raw).replace(/</g, '\\u003c');
+export const encodeRawMarkdownForCarrier = (raw: string) => {
+	return encodeURIComponent(raw);
+};
+
+export const decodeRawMarkdownFromCarrier = (encoded: string) => {
+	return decodeURIComponent(encoded);
 };
 
 export default function RawMarkdownCarrier({raw}: {readonly raw: string}) {
@@ -11,11 +15,10 @@ export default function RawMarkdownCarrier({raw}: {readonly raw: string}) {
 	}, [raw]);
 
 	return (
-		<script
-			// eslint-disable-next-line react/no-danger
-			dangerouslySetInnerHTML={{__html: serializeRawMarkdownForScript(raw)}}
+		<span
+			data-raw-markdown={encodeRawMarkdownForCarrier(raw)}
+			hidden
 			id="__doc_raw"
-			type="application/json"
 		/>
 	);
 }
