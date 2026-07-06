@@ -35,13 +35,16 @@ export const MyComp: React.FC = () => {
         color="#fff4d0"
         effects={[
           paper({
-            roughness: 0.52,
-            fiber: 0.58,
-            crumples: 0.42,
-            folds: 0.32,
-            foldCount: 9,
-            drops: 0.16,
-            seed: 21,
+            roughness: 0.4,
+            fiber: 0.3,
+            fiberSize: 0.2,
+            crumples: 0.3,
+            crumpleSize: 0.35,
+            folds: 0.65,
+            foldCount: 5,
+            drops: 0.2,
+            scale: 0.6,
+            seed: 6,
           }),
         ]}
       />
@@ -62,81 +65,87 @@ Use `0` to leave the source unchanged.
 
 ### `colorFront?`
 
-Light-facing paper color. Defaults to `#fff8df`.
+Light-facing paper color. Defaults to `#9fadbc`.
 
 Alpha in the color controls how strongly this color tints the paper highlights.
 
 ### `colorBack?`
 
-Shadow-facing paper color. Defaults to `#b9a375`.
+Shadow-facing paper color. Defaults to `#ffffff`.
 
 Alpha in the color controls how strongly this color tints the paper shadows.
 
 ### `contrast?`
 
-Sharpness of light and color transitions from `0` to `1`. Defaults to `0.7`.
+Sharpness of light and color transitions from `0` to `1`. Defaults to `0.3`.
 
 Higher values make folds and crumples more pronounced.
 
 ### `roughness?`
 
-Fine pixel noise from `0` to `1`. Defaults to `0.45`.
+Fine pixel noise from `0` to `1`. Defaults to `0.4`.
 
 Use `0` for a smoother texture.
 
 ### `fiber?`
 
-Curly fiber intensity from `0` to `1`. Defaults to `0.45`.
+Curly fiber intensity from `0` to `1`. Defaults to `0.3`.
 
 Higher values add more visible paper strands.
 
 ### `fiberSize?`
 
-Curly fiber scale from `0.01` to `1`. Defaults to `0.55`.
+Curly fiber scale from `0.01` to `1`. Defaults to `0.2`.
 
 Smaller values create finer fibers. Must be greater than `0`.
 
 ### `crumples?`
 
-Cell-based crumple intensity from `0` to `1`. Defaults to `0.35`.
+Cell-based crumple intensity from `0` to `1`. Defaults to `0.3`.
 
 Higher values add stronger small-scale crumple marks.
 
 ### `crumpleSize?`
 
-Cell-based crumple scale from `0.01` to `1`. Defaults to `0.5`.
+Cell-based crumple scale from `0.01` to `1`. Defaults to `0.35`.
 
 Smaller values create tighter crumple cells. Must be greater than `0`.
 
 ### `folds?`
 
-Fold lighting intensity from `0` to `1`. Defaults to `0.25`.
+Fold lighting intensity from `0` to `1`. Defaults to `0.65`.
 
 Use `0` to remove the broader fold pattern.
 
 ### `foldCount?`
 
-Number of generated folds from `0` to `15`. Defaults to `7`.
+Number of generated folds from `0` to `15`. Defaults to `5`.
 
 Higher values create more fold lines.
 
 ### `drops?`
 
-Speckle visibility from `0` to `1`. Defaults to `0.12`.
+Speckle visibility from `0` to `1`. Defaults to `0.2`.
 
 Use `0` to remove the speckle pattern.
 
 ### `fade?`
 
-Large-scale mask applied to the paper pattern from `0` to `1`. Defaults to `0.2`.
+Large-scale mask applied to the paper pattern from `0` to `1`. Defaults to `0`.
 
 Higher values make the paper details less uniform across the frame.
 
 ### `seed?`
 
-Seed for folds, crumples and speckles from `0` to `1000`. Defaults to `0`.
+Seed for folds, crumples and speckles from `0` to `1000`. Defaults to `6`.
 
 Change it to get a different static paper pattern.
+
+### `scale?`
+
+Scale of the generated paper texture from `0.01` to `4`. Defaults to `0.6`.
+
+Smaller values create denser paper detail. Larger values make the texture broader.
 
 ### `disabled?`
 

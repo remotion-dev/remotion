@@ -2432,6 +2432,7 @@ test('paper() accepts valid params', () => {
 			drops: 0.1,
 			fade: 0.2,
 			seed: 12,
+			scale: 0.8,
 		}),
 	).not.toThrow();
 });
@@ -2464,6 +2465,8 @@ test('paper() rejects invalid paper texture params', () => {
 	);
 	expect(() => paper({foldCount: 16})).toThrow('"foldCount" must be <= 15');
 	expect(() => paper({seed: -1})).toThrow('"seed" must be >= 0');
+	expect(() => paper({scale: 0})).toThrow('"scale" must be greater than 0');
+	expect(() => paper({scale: 4.1})).toThrow('"scale" must be <= 4');
 });
 
 test('paper() parameters produce distinct effect keys', () => {
@@ -2478,6 +2481,7 @@ test('paper() parameters produce distinct effect keys', () => {
 	const dotted = paper({drops: 0.3});
 	const faded = paper({fade: 0.6});
 	const seeded = paper({seed: 12});
+	const scaled = paper({scale: 1.2});
 
 	expect(
 		new Set([
@@ -2492,8 +2496,9 @@ test('paper() parameters produce distinct effect keys', () => {
 			dotted.effectKey,
 			faded.effectKey,
 			seeded.effectKey,
+			scaled.effectKey,
 		]).size,
-	).toBe(11);
+	).toBe(12);
 });
 
 test('pattern() accepts default params', () => {

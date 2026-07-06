@@ -15,19 +15,20 @@ import {
 const {createEffect, createWebGL2ContextError} = Internals;
 
 const DEFAULT_AMOUNT = 1 as const;
-const DEFAULT_COLOR_FRONT = '#fff8df' as const;
-const DEFAULT_COLOR_BACK = '#b9a375' as const;
-const DEFAULT_CONTRAST = 0.7 as const;
-const DEFAULT_ROUGHNESS = 0.45 as const;
-const DEFAULT_FIBER = 0.45 as const;
-const DEFAULT_FIBER_SIZE = 0.55 as const;
-const DEFAULT_CRUMPLES = 0.35 as const;
-const DEFAULT_CRUMPLE_SIZE = 0.5 as const;
-const DEFAULT_FOLDS = 0.25 as const;
-const DEFAULT_FOLD_COUNT = 7 as const;
-const DEFAULT_DROPS = 0.12 as const;
-const DEFAULT_FADE = 0.2 as const;
-const DEFAULT_SEED = 0 as const;
+const DEFAULT_COLOR_FRONT = '#9fadbc' as const;
+const DEFAULT_COLOR_BACK = '#ffffff' as const;
+const DEFAULT_CONTRAST = 0.3 as const;
+const DEFAULT_ROUGHNESS = 0.4 as const;
+const DEFAULT_FIBER = 0.3 as const;
+const DEFAULT_FIBER_SIZE = 0.2 as const;
+const DEFAULT_CRUMPLES = 0.3 as const;
+const DEFAULT_CRUMPLE_SIZE = 0.35 as const;
+const DEFAULT_FOLDS = 0.65 as const;
+const DEFAULT_FOLD_COUNT = 5 as const;
+const DEFAULT_DROPS = 0.2 as const;
+const DEFAULT_FADE = 0 as const;
+const DEFAULT_SEED = 6 as const;
+const DEFAULT_SCALE = 0.6 as const;
 const MAX_FOLD_COUNT = 15 as const;
 const MAX_SEED = 1000 as const;
 const NOISE_TEXTURE_SIZE = 256;
@@ -151,37 +152,48 @@ const paperSchema = {
 		description: 'Seed',
 		hiddenFromList: false,
 	},
+	scale: {
+		type: 'number',
+		min: 0.01,
+		max: 4,
+		step: 0.01,
+		default: DEFAULT_SCALE,
+		description: 'Scale',
+		hiddenFromList: false,
+	},
 } as const satisfies InteractivitySchema;
 
 export type PaperParams = {
 	/** Strength of the paper texture from `0` to `1`. Defaults to `1`. */
 	readonly amount?: number;
-	/** Light-facing paper color. Defaults to `#fff8df`. */
+	/** Light-facing paper color. Defaults to `#9fadbc`. */
 	readonly colorFront?: string;
-	/** Shadow-facing paper color. Defaults to `#b9a375`. */
+	/** Shadow-facing paper color. Defaults to `#ffffff`. */
 	readonly colorBack?: string;
-	/** Sharpness of light and color transitions from `0` to `1`. Defaults to `0.7`. */
+	/** Sharpness of light and color transitions from `0` to `1`. Defaults to `0.3`. */
 	readonly contrast?: number;
-	/** Fine pixel noise from `0` to `1`. Defaults to `0.45`. */
+	/** Fine pixel noise from `0` to `1`. Defaults to `0.4`. */
 	readonly roughness?: number;
-	/** Curly fiber intensity from `0` to `1`. Defaults to `0.45`. */
+	/** Curly fiber intensity from `0` to `1`. Defaults to `0.3`. */
 	readonly fiber?: number;
-	/** Curly fiber scale from `0.01` to `1`. Defaults to `0.55`. */
+	/** Curly fiber scale from `0.01` to `1`. Defaults to `0.2`. */
 	readonly fiberSize?: number;
-	/** Cell-based crumple intensity from `0` to `1`. Defaults to `0.35`. */
+	/** Cell-based crumple intensity from `0` to `1`. Defaults to `0.3`. */
 	readonly crumples?: number;
-	/** Cell-based crumple scale from `0.01` to `1`. Defaults to `0.5`. */
+	/** Cell-based crumple scale from `0.01` to `1`. Defaults to `0.35`. */
 	readonly crumpleSize?: number;
-	/** Fold lighting intensity from `0` to `1`. Defaults to `0.25`. */
+	/** Fold lighting intensity from `0` to `1`. Defaults to `0.65`. */
 	readonly folds?: number;
-	/** Number of generated folds from `0` to `15`. Defaults to `7`. */
+	/** Number of generated folds from `0` to `15`. Defaults to `5`. */
 	readonly foldCount?: number;
-	/** Speckle visibility from `0` to `1`. Defaults to `0.12`. */
+	/** Speckle visibility from `0` to `1`. Defaults to `0.2`. */
 	readonly drops?: number;
-	/** Large-scale mask applied to the paper pattern from `0` to `1`. Defaults to `0.2`. */
+	/** Large-scale mask applied to the paper pattern from `0` to `1`. Defaults to `0`. */
 	readonly fade?: number;
-	/** Seed for folds, crumples and speckles from `0` to `1000`. Defaults to `0`. */
+	/** Seed for folds, crumples and speckles from `0` to `1000`. Defaults to `6`. */
 	readonly seed?: number;
+	/** Scale of the generated paper texture from `0.01` to `4`. Defaults to `0.6`. */
+	readonly scale?: number;
 };
 
 type PaperResolved = {
@@ -199,6 +211,7 @@ type PaperResolved = {
 	drops: number;
 	fade: number;
 	seed: number;
+	scale: number;
 };
 
 type PaperState = {
@@ -225,6 +238,7 @@ type PaperState = {
 	readonly uDrops: WebGLUniformLocation | null;
 	readonly uFade: WebGLUniformLocation | null;
 	readonly uSeed: WebGLUniformLocation | null;
+	readonly uScale: WebGLUniformLocation | null;
 	readonly uNoiseTexture: WebGLUniformLocation | null;
 	readonly colorCtx: CanvasRenderingContext2D;
 	cachedColorFront: string;
@@ -248,6 +262,7 @@ const resolve = (p: PaperParams): PaperResolved => ({
 	drops: p.drops ?? DEFAULT_DROPS,
 	fade: p.fade ?? DEFAULT_FADE,
 	seed: p.seed ?? DEFAULT_SEED,
+	scale: p.scale ?? DEFAULT_SCALE,
 });
 
 const validateAtMost = (value: number, max: number, name: string): void => {
@@ -284,6 +299,7 @@ const validatePaperParams = (params: PaperParams): void => {
 	assertOptionalFiniteNumber(params.drops, 'drops');
 	assertOptionalFiniteNumber(params.fade, 'fade');
 	assertOptionalFiniteNumber(params.seed, 'seed');
+	assertOptionalFiniteNumber(params.scale, 'scale');
 
 	const r = resolve(params);
 	validateUnitInterval(r.amount, 'amount');
@@ -300,6 +316,13 @@ const validatePaperParams = (params: PaperParams): void => {
 	validateUnitInterval(r.fade, 'fade');
 	validateNonNegative(r.seed, 'seed');
 	validateAtMost(r.seed, MAX_SEED, 'seed');
+	if (r.scale <= 0) {
+		throw new TypeError(
+			`"scale" must be greater than 0, but got ${JSON.stringify(r.scale)}`,
+		);
+	}
+
+	validateAtMost(r.scale, 4, 'scale');
 };
 
 const PAPER_VS = /* glsl */ `#version 300 es
@@ -340,6 +363,7 @@ uniform float uFoldCount;
 uniform float uDrops;
 uniform float uFade;
 uniform float uSeed;
+uniform float uScale;
 uniform sampler2D uNoiseTexture;
 
 #define TWO_PI 6.28318530718
@@ -530,6 +554,7 @@ void main() {
 	vec3 sourceRgb = source.rgb / sourceAlpha;
 	vec2 imageUV = vUv;
 	vec2 patternUV = vUv - 0.5;
+	patternUV /= max(uScale, 0.001);
 	patternUV = 5.0 * (patternUV * vec2(uImageAspectRatio, 1.0));
 
 	vec2 roughnessUv = 1.5 * (gl_FragCoord.xy - 0.5 * uResolution);
@@ -790,12 +815,13 @@ const setupPaper = (target: HTMLCanvasElement): PaperState => {
 		uDrops: gl.getUniformLocation(program, 'uDrops'),
 		uFade: gl.getUniformLocation(program, 'uFade'),
 		uSeed: gl.getUniformLocation(program, 'uSeed'),
+		uScale: gl.getUniformLocation(program, 'uScale'),
 		uNoiseTexture: gl.getUniformLocation(program, 'uNoiseTexture'),
 		colorCtx,
 		cachedColorFront: '',
-		cachedColorFrontRgba: [255, 248, 223, 255],
+		cachedColorFrontRgba: [159, 173, 188, 255],
 		cachedColorBack: '',
-		cachedColorBackRgba: [185, 163, 117, 255],
+		cachedColorBackRgba: [255, 255, 255, 255],
 	};
 };
 
@@ -812,7 +838,7 @@ export const paper = createEffect<PaperParams, PaperState>({
 	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
-		return `paper-${r.amount}-${r.colorFront}-${r.colorBack}-${r.contrast}-${r.roughness}-${r.fiber}-${r.fiberSize}-${r.crumples}-${r.crumpleSize}-${r.folds}-${r.foldCount}-${r.drops}-${r.fade}-${r.seed}`;
+		return `paper-${r.amount}-${r.colorFront}-${r.colorBack}-${r.contrast}-${r.roughness}-${r.fiber}-${r.fiberSize}-${r.crumples}-${r.crumpleSize}-${r.folds}-${r.foldCount}-${r.drops}-${r.fade}-${r.seed}-${r.scale}`;
 	},
 	setup: (target) => setupPaper(target),
 	apply: ({source, width, height, params, state, flipSourceY}) => {
@@ -885,6 +911,7 @@ export const paper = createEffect<PaperParams, PaperState>({
 		if (state.uDrops) gl.uniform1f(state.uDrops, r.drops);
 		if (state.uFade) gl.uniform1f(state.uFade, r.fade);
 		if (state.uSeed) gl.uniform1f(state.uSeed, r.seed);
+		if (state.uScale) gl.uniform1f(state.uScale, r.scale);
 		if (state.uNoiseTexture) gl.uniform1i(state.uNoiseTexture, 1);
 
 		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);

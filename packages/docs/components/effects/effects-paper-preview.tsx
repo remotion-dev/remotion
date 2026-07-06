@@ -5,19 +5,20 @@ import {EFFECTS_PREVIEW_IMAGE_SRC} from './effects-preview-image';
 
 export const PAPER_PREVIEW_PARAMS = {
 	amount: 1,
-	colorFront: '#fff8df',
-	colorBack: '#b9a375',
-	contrast: 0.72,
-	roughness: 0.52,
-	fiber: 0.58,
-	fiberSize: 0.48,
-	crumples: 0.42,
-	crumpleSize: 0.36,
-	folds: 0.32,
-	foldCount: 9,
-	drops: 0.16,
-	fade: 0.15,
-	seed: 21,
+	colorFront: '#9fadbc',
+	colorBack: '#ffffff',
+	contrast: 0.3,
+	roughness: 0.4,
+	fiber: 0.3,
+	fiberSize: 0.2,
+	crumples: 0.3,
+	crumpleSize: 0.35,
+	folds: 0.65,
+	foldCount: 5,
+	drops: 0.2,
+	fade: 0,
+	seed: 6,
+	scale: 0.6,
 } as const;
 
 export const EffectsPaperPreview: React.FC<{
@@ -35,6 +36,7 @@ export const EffectsPaperPreview: React.FC<{
 	readonly drops: number;
 	readonly fade: number;
 	readonly seed: number;
+	readonly scale: number;
 }> = ({
 	amount,
 	colorFront,
@@ -50,6 +52,7 @@ export const EffectsPaperPreview: React.FC<{
 	drops,
 	fade,
 	seed,
+	scale,
 }) => {
 	return (
 		<CanvasImage
@@ -73,6 +76,7 @@ export const EffectsPaperPreview: React.FC<{
 					drops,
 					fade,
 					seed,
+					scale,
 				}),
 			]}
 		/>
