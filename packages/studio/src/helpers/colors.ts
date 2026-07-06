@@ -135,7 +135,6 @@ export const SELECTED_OUTLINE_UV_DROP_SHADOW = `drop-shadow(0 1px 2px ${BLACK_AL
 export const LOOPED_INDICATOR_DROP_SHADOW =
 	`drop-shadow(0 0 2px ${BLACK_ALPHA_90}) ` +
 	`drop-shadow(0 1px 2px ${BLACK_ALPHA_80})`;
-export const LOOPED_INDICATOR_BACKGROUND = 'rgb(255,255,255, 0.5)';
 
 export const TIMELINE_AUDIO_GRADIENT =
 	'linear-gradient(rgb(16 171 58), rgb(43 165 63) 60%)';

@@ -2,8 +2,8 @@ import React from 'react';
 import {AbsoluteFill} from 'remotion';
 import {
 	LIGHT_COLOR,
-	LOOPED_INDICATOR_BACKGROUND,
 	LOOPED_INDICATOR_DROP_SHADOW,
+	TRANSPARENT,
 } from '../../helpers/colors';
 
 const width: React.CSSProperties = {
@@ -30,7 +30,7 @@ const Icon: React.FC = () => (
 const verticalLine: React.CSSProperties = {
 	height: '100%',
 	width: 1,
-	background: LOOPED_INDICATOR_BACKGROUND,
+	background: TRANSPARENT,
 };
 
 const centerContainer: React.CSSProperties = {
