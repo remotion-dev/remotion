@@ -97,6 +97,15 @@ const makeDefaultGlobalCSS = () => {
   .__remotion_color_swatch:focus {
     outline: none;
   }
+
+  .__remotion_input_dragger:focus-visible {
+    outline: none;
+    box-shadow:
+      inset 1px 1px #555,
+      inset -1px -1px #555,
+      inset 1px -1px #555,
+      inset -1px 1px #555;
+  }
   
   .__remotion_thumb,
   .__remotion_thumb::-webkit-slider-thumb {
