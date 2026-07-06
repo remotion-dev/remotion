@@ -5,10 +5,7 @@ import ReactDOM from 'react-dom';
 import type {CanUpdateSequencePropStatusStatic} from 'remotion';
 import {
 	BACKGROUND,
-	CLEAR_HOVER,
 	INPUT_BACKGROUND,
-	INPUT_BORDER_COLOR_HOVERED,
-	INPUT_BORDER_COLOR_UNHOVERED,
 	LIGHT_TEXT,
 	SELECTED_BACKGROUND,
 } from '../../helpers/colors';
@@ -36,6 +33,9 @@ const ROW_HEIGHT = 30;
 const LIST_HEIGHT = 280;
 const OVERSCAN = 10;
 const POPOVER_WIDTH = 280;
+const CLEAR_HOVER = 'rgba(255, 255, 255, 0.06)';
+const INPUT_BORDER_COLOR_UNHOVERED = 'rgba(0, 0, 0, 0.6)';
+const INPUT_BORDER_COLOR_HOVERED = 'rgba(255, 255, 255, 0.05)';
 
 const googleFonts = GOOGLE_FONTS_LIST.map((font) => ({
 	id: `google-${font.importName}`,
