@@ -25,6 +25,10 @@ const content: React.CSSProperties = {
 	minWidth: 500,
 };
 
+const folderPathStyle: React.CSSProperties = {
+	fontSize: 14,
+};
+
 const NewCompositionLoaded: React.FC<{
 	readonly folderName: string | null;
 	readonly parentName: string | null;
@@ -123,7 +127,9 @@ const NewCompositionLoaded: React.FC<{
 					{folderPath ? (
 						<div style={optionRow}>
 							<div style={label}>Folder</div>
-							<div style={rightRow}>{folderPath}</div>
+							<div style={rightRow}>
+								<span style={folderPathStyle}>{folderPath}</span>
+							</div>
 						</div>
 					) : null}
 					<div style={optionRow}>

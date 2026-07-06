@@ -83,6 +83,15 @@ export const parseAndApplyCodemod = ({
 		});
 	}
 
+	if (codeMod.type === 'new-folder') {
+		ensureNamedImport({
+			ast: newAst,
+			importedName: 'Folder',
+			sourcePath: 'remotion',
+			localName: 'Folder',
+		});
+	}
+
 	const output = serializeAst(newAst);
 
 	return {changesMade, newContents: output};
