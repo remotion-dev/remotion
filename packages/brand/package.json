@@ -11,9 +11,11 @@
 	"scripts": {
 		"dev": "remotion studio",
 		"bundle": "remotion bundle --rspack --public-path /brand/",
+		"capture-docs": "bun scripts/capture-doc-pages.ts",
 		"lint": "eslint src"
 	},
 	"devDependencies": {
+		"@remotion/captions": "workspace:*",
 		"@remotion/cli": "workspace:*",
 		"@remotion/effects": "workspace:*",
 		"@remotion/eslint-config-internal": "workspace:*",
@@ -26,7 +28,6 @@
 		"@remotion/shapes": "workspace:*",
 		"@remotion/starburst": "workspace:*",
 		"@remotion/svg-3d-engine": "workspace:*",
-		"@remotion/captions": "workspace:*",
 		"@remotion/tailwind-v4": "workspace:*",
 		"@remotion/transitions": "workspace:*",
 		"@types/styled-components": "5.1.34",
@@ -34,6 +35,7 @@
 		"eslint": "catalog:",
 		"mediabunny": "catalog:",
 		"polished": "4.3.1",
+		"puppeteer-core": "^25.3.0",
 		"react": "catalog:",
 		"react-dom": "catalog:",
 		"remotion": "workspace:*",
