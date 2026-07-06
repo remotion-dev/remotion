@@ -2837,6 +2837,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./GeistMono') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Geist Pixel',
+		importName: 'GeistPixel',
+		load: () => import('./GeistPixel') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Gelasio',
 		importName: 'Gelasio',
 		load: () => import('./Gelasio') as Promise<GoogleFont>,
@@ -4945,6 +4950,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'MonteCarlo',
 		importName: 'MonteCarlo',
 		load: () => import('./MonteCarlo') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Montenegrin Gothic One',
+		importName: 'MontenegrinGothicOne',
+		load: () => import('./MontenegrinGothicOne') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Montez',
@@ -9051,6 +9061,16 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Yusei Magic',
 		importName: 'YuseiMagic',
 		load: () => import('./YuseiMagic') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Yuyu',
+		importName: 'Yuyu',
+		load: () => import('./Yuyu') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Yuyu Short',
+		importName: 'YuyuShort',
+		load: () => import('./YuyuShort') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'ZCOOL KuaiLe',

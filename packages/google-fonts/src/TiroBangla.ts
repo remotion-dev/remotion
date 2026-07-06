@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Tiro Bangla',
 	importName: 'TiroBangla',
-	version: 'v6',
+	version: 'v8',
 	url: 'https://fonts.googleapis.com/css2?family=Tiro+Bangla:ital,wght@0,400;1,400',
 	unicodeRanges: {
 		bengali:
@@ -17,21 +17,21 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				bengali:
-					'https://fonts.gstatic.com/s/tirobangla/v6/IFSiHe1Tm95E3O8b5i2V8PG_w1L2vx4i.woff2',
+					'https://fonts.gstatic.com/s/tirobangla/v8/IFSiHe1Tm95E3O8b5i2V8PG_w1L2vx4i.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/tirobangla/v6/IFSiHe1Tm95E3O8b5i2V8PG_w072vx4i.woff2',
+					'https://fonts.gstatic.com/s/tirobangla/v8/IFSiHe1Tm95E3O8b5i2V8PG_w072vx4i.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/tirobangla/v6/IFSiHe1Tm95E3O8b5i2V8PG_w0D2vw.woff2',
+					'https://fonts.gstatic.com/s/tirobangla/v8/IFSiHe1Tm95E3O8b5i2V8PG_w0D2vw.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				bengali:
-					'https://fonts.gstatic.com/s/tirobangla/v6/IFSgHe1Tm95E3O8b5i2V8PGo80Luuw.woff2',
+					'https://fonts.gstatic.com/s/tirobangla/v8/IFSgHe1Tm95E3O8b5i2V8PGo80Luuw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/tirobangla/v6/IFSgHe1Tm95E3O8b5i2V8PG080Luuw.woff2',
+					'https://fonts.gstatic.com/s/tirobangla/v8/IFSgHe1Tm95E3O8b5i2V8PG080Luuw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/tirobangla/v6/IFSgHe1Tm95E3O8b5i2V8PG680I.woff2',
+					'https://fonts.gstatic.com/s/tirobangla/v8/IFSgHe1Tm95E3O8b5i2V8PG680I.woff2',
 			},
 		},
 	},
