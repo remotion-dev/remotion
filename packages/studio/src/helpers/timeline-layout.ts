@@ -51,7 +51,11 @@ export const EXPANDED_SECTION_PADDING_RIGHT = 10;
 
 export type TimelineFieldOnSave = (
 	value: unknown,
-	options?: {sourceEdit?: SaveSequencePropSourceEdit},
+	options?: {
+		// Extra source-code transformation applied atomically with this value save.
+		// Used by Google Font selection to insert @remotion/google-fonts imports/loadFont().
+		sourceEdit?: SaveSequencePropSourceEdit;
+	},
 ) => Promise<void>;
 export type TimelineFieldOnDragValueChange = (value: unknown) => void;
 
