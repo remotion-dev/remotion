@@ -1,5 +1,9 @@
 import React, {useEffect} from 'react';
 
+export const serializeRawMarkdownForScript = (raw: string) => {
+	return JSON.stringify(raw).replace(/</g, '\\u003c');
+};
+
 export default function RawMarkdownCarrier({raw}: {readonly raw: string}) {
 	useEffect(() => {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -9,7 +13,7 @@ export default function RawMarkdownCarrier({raw}: {readonly raw: string}) {
 	return (
 		<script
 			// eslint-disable-next-line react/no-danger
-			dangerouslySetInnerHTML={{__html: JSON.stringify(raw)}}
+			dangerouslySetInnerHTML={{__html: serializeRawMarkdownForScript(raw)}}
 			id="__doc_raw"
 			type="application/json"
 		/>
