@@ -1,6 +1,6 @@
 import {useCallback, useMemo, useState} from 'react';
 import type {OriginalPosition} from '../../error-overlay/react-overlay/utils/get-source-map';
-import {BORDER_WHITE_HEX, LIGHT_COLOR, WHITE_HEX} from '../../helpers/colors';
+import {BORDER_WHITE, LIGHT_COLOR, WHITE_HEX} from '../../helpers/colors';
 import {openOriginalPositionInEditor} from '../../helpers/open-in-editor';
 import {SCHEMA_EDITOR_FIELDSET_PADDING} from '../RenderModal/SchemaEditor/Fieldset';
 import {getOriginalSourceAttribution} from '../Timeline/TimelineStack/source-attribution';
@@ -43,7 +43,7 @@ export const ClickableFileName = ({
 		return {
 			fontSize: 12,
 			cursor: originalFileName.type === 'loaded' ? 'pointer' : undefined,
-			borderBottom: hoverEffect ? BORDER_WHITE_HEX : 'none',
+			borderBottom: hoverEffect ? BORDER_WHITE : 'none',
 			color: hoverEffect ? WHITE_HEX : LIGHT_COLOR,
 		};
 	}, [originalFileName, hoverEffect]);

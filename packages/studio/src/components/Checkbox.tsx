@@ -1,7 +1,7 @@
 import React, {useEffect, useMemo, useRef} from 'react';
 import {
 	INPUT_BACKGROUND,
-	INPUT_BORDER_COLOR_UNHOVERED,
+	BLACK_ALPHA_60,
 	LIGHT_TEXT,
 	TRANSPARENT,
 	WHITE,
@@ -77,7 +77,7 @@ export const Checkbox: React.FC<{
 		return {
 			appearance: 'none',
 			background: disabled ? TRANSPARENT : INPUT_BACKGROUND,
-			border: '1px solid ' + INPUT_BORDER_COLOR_UNHOVERED,
+			border: '1px solid ' + BLACK_ALPHA_60,
 			height: size,
 			width: size,
 			top: 0,

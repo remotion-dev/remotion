@@ -2,7 +2,7 @@ import type {PropsWithChildren} from 'react';
 import React, {useCallback, useMemo, useState} from 'react';
 import {
 	INPUT_BACKGROUND,
-	INPUT_BORDER_COLOR_UNHOVERED,
+	BLACK_ALPHA_60,
 	LIGHT_TEXT,
 	TRANSPARENT,
 	WHITE,
@@ -13,7 +13,7 @@ const container: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'row',
 	overflow: 'hidden',
-	border: '1px solid ' + INPUT_BORDER_COLOR_UNHOVERED,
+	border: '1px solid ' + BLACK_ALPHA_60,
 	flexWrap: 'wrap',
 	maxWidth: 350,
 	justifyContent: 'flex-end',

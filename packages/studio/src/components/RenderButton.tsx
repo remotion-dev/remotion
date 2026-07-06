@@ -18,7 +18,7 @@ import {
 	CURRENT_COLOR,
 	CURRENT_COLOR_LOWERCASE,
 	INPUT_BACKGROUND,
-	INPUT_BORDER_COLOR_UNHOVERED,
+	BLACK_ALPHA_60,
 	TRANSPARENT,
 	WHITE,
 } from '../helpers/colors';
@@ -46,7 +46,7 @@ const splitButtonContainer: React.CSSProperties = {
 	flexDirection: 'row',
 	alignItems: 'stretch',
 	borderRadius: 4,
-	border: `1px solid ${INPUT_BORDER_COLOR_UNHOVERED}`,
+	border: `1px solid ${BLACK_ALPHA_60}`,
 	backgroundColor: INPUT_BACKGROUND,
 	overflow: 'hidden',
 };
@@ -68,7 +68,7 @@ const mainButtonStyle: React.CSSProperties = {
 
 const dividerStyle: React.CSSProperties = {
 	width: 1,
-	backgroundColor: INPUT_BORDER_COLOR_UNHOVERED,
+	backgroundColor: BLACK_ALPHA_60,
 	alignSelf: 'stretch',
 };
 
@@ -492,7 +492,7 @@ export const RenderButton: React.FC<{readonly readOnlyStudio: boolean}> = ({
 	const containerStyle = useMemo((): React.CSSProperties => {
 		return {
 			...splitButtonContainer,
-			borderColor: INPUT_BORDER_COLOR_UNHOVERED,
+			borderColor: BLACK_ALPHA_60,
 			opacity: canRender ? 1 : 0.7,
 			cursor: canRender ? 'pointer' : 'inherit',
 		};

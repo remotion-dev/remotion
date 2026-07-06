@@ -1,9 +1,9 @@
 import React, {useEffect, useState} from 'react';
 import {
-	BORDER_COLOR,
+	BLACK_HEX,
 	ERROR_LINK_COLOR,
 	WHITE,
-	WHITE_ALPHA_10_COMPACT,
+	WHITE_ALPHA_10,
 } from '../../helpers/colors';
 
 type ProbeResult =
@@ -18,14 +18,14 @@ const container: React.CSSProperties = {
 	borderRadius: 3,
 	color: WHITE,
 	padding: 12,
-	backgroundColor: BORDER_COLOR,
+	backgroundColor: BLACK_HEX,
 	fontSize: 14,
 	fontFamily: 'sans-serif',
 	lineHeight: 1.5,
 };
 
 const codeStyle: React.CSSProperties = {
-	backgroundColor: WHITE_ALPHA_10_COMPACT,
+	backgroundColor: WHITE_ALPHA_10,
 	padding: '2px 5px',
 	borderRadius: 3,
 	fontFamily: 'monospace',

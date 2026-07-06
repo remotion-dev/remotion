@@ -1,5 +1,5 @@
 import React from 'react';
-import {LIGHT_TEXT, TEXT_COLOR} from '../helpers/colors';
+import {LIGHT_TEXT, WHITE_HEX} from '../helpers/colors';
 
 const FONT_SIZE = 13;
 
@@ -22,7 +22,7 @@ export const InstallablePackageComp: React.FC<{
 				href={link}
 				style={{
 					fontSize: FONT_SIZE,
-					color: TEXT_COLOR,
+					color: WHITE_HEX,
 					textDecoration: 'none',
 				}}
 				target="_blank"

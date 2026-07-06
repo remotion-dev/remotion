@@ -3,7 +3,7 @@ import {
 	BACKGROUND,
 	BLUE,
 	BORDER_TRANSPARENT_2PX,
-	CLEAR_HOVER,
+	WHITE_ALPHA_06,
 	INPUT_BACKGROUND,
 	LIGHT_TEXT,
 	WHITE,
@@ -68,7 +68,7 @@ export const Tab: React.FC<{
 			backgroundColor: selected
 				? BACKGROUND
 				: hovered
-					? CLEAR_HOVER
+					? WHITE_ALPHA_06
 					: INPUT_BACKGROUND,
 			color: selected ? WHITE : LIGHT_TEXT,
 			borderTop: selected ? '2px solid ' + BLUE : BORDER_TRANSPARENT_2PX,

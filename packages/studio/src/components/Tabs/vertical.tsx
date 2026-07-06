@@ -1,6 +1,6 @@
 import React, {useCallback, useMemo, useState} from 'react';
 import {
-	CLEAR_HOVER,
+	WHITE_ALPHA_06,
 	LIGHT_TEXT,
 	SELECTED_BACKGROUND,
 	TRANSPARENT,
@@ -45,7 +45,7 @@ export const VerticalTab: React.FC<{
 			backgroundColor: selected
 				? SELECTED_BACKGROUND
 				: hovered
-					? CLEAR_HOVER
+					? WHITE_ALPHA_06
 					: TRANSPARENT,
 			color: selected ? WHITE : LIGHT_TEXT,
 			boxShadow: selected ? 'none' : undefined,

@@ -3,7 +3,7 @@ import {Internals} from 'remotion';
 import {cmdOrCtrlCharacter} from '../error-overlay/remotion-overlay/ShortcutHint';
 import {
 	BACKGROUND,
-	BORDER_COLOR,
+	BLACK_HEX,
 	LIGHT_TEXT,
 	WHITE_ALPHA_06,
 } from '../helpers/colors';
@@ -84,7 +84,7 @@ const container: React.CSSProperties = {
 
 const quickSwitcherArea: React.CSSProperties = {
 	padding: '4px 12px',
-	borderBottom: `1px solid ${BORDER_COLOR}`,
+	borderBottom: `1px solid ${BLACK_HEX}`,
 };
 
 const quickSwitcherTrigger: React.CSSProperties = {

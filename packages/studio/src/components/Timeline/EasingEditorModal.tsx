@@ -18,7 +18,7 @@ import {
 	BLUE,
 	EASING_SELECTED_BACKGROUND,
 	INPUT_BACKGROUND,
-	INPUT_BORDER_COLOR_HOVERED,
+	WHITE_ALPHA_05,
 	LIGHT_TEXT,
 	WHITE,
 	WHITE_ALPHA_12,
@@ -163,7 +163,7 @@ const inspectorPresetButtonsWrapper: React.CSSProperties = {
 const presetButtonBase: React.CSSProperties = {
 	alignItems: 'center',
 	backgroundColor: INPUT_BACKGROUND,
-	border: `1px solid ${INPUT_BORDER_COLOR_HOVERED}`,
+	border: `1px solid ${WHITE_ALPHA_05}`,
 	borderRadius: 4,
 	display: 'inline-flex',
 	height: 34,
@@ -641,7 +641,7 @@ const EasingPresetButton: React.FC<{
 		(): React.CSSProperties => ({
 			...presetButtonBase,
 			backgroundColor: selected ? EASING_SELECTED_BACKGROUND : INPUT_BACKGROUND,
-			borderColor: selected ? BLUE : INPUT_BORDER_COLOR_HOVERED,
+			borderColor: selected ? BLUE : WHITE_ALPHA_05,
 			cursor: disabled ? 'not-allowed' : 'pointer',
 			opacity: disabled ? 0.45 : 1,
 		}),

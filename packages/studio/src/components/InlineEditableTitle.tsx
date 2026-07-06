@@ -6,7 +6,7 @@ import type {
 } from 'react';
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {
-	CLEAR_HOVER,
+	WHITE_ALPHA_06,
 	INPUT_BACKGROUND,
 	TRANSPARENT,
 	WHITE,
@@ -147,7 +147,7 @@ export const InlineEditableTitle: React.FC<{
 	const backgroundColor = isEditing
 		? INPUT_BACKGROUND
 		: isHovered && canRename
-			? CLEAR_HOVER
+			? WHITE_ALPHA_06
 			: TRANSPARENT;
 
 	const innerStyle = useMemo((): React.CSSProperties => {

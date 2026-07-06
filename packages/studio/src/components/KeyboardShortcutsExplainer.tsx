@@ -2,7 +2,7 @@ import React from 'react';
 import {cmdOrCtrlCharacter} from '../error-overlay/remotion-overlay/ShortcutHint';
 import {
 	INPUT_BACKGROUND,
-	INPUT_BORDER_COLOR_UNHOVERED,
+	BLACK_ALPHA_60,
 	KEYBOARD_SHORTCUT_KEY_COLOR,
 	WHITE,
 	WHITE_ALPHA_10,
@@ -22,7 +22,7 @@ const key: React.CSSProperties = {
 	padding: '3px 6px',
 	color: WHITE,
 	borderRadius: 3,
-	border: '1px solid ' + INPUT_BORDER_COLOR_UNHOVERED,
+	border: '1px solid ' + BLACK_ALPHA_60,
 	borderBottomWidth: 3,
 	fontSize: 14,
 	fontFamily: 'monospace',

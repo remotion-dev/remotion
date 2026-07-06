@@ -2,8 +2,8 @@ import type {SVGProps} from 'react';
 import React, {useCallback, useMemo} from 'react';
 import {
 	INPUT_BACKGROUND,
-	INPUT_BORDER_COLOR_HOVERED,
-	INPUT_BORDER_COLOR_UNHOVERED,
+	WHITE_ALPHA_05,
+	BLACK_ALPHA_60,
 	LIGHT_TEXT,
 	TRANSPARENT,
 	WARNING_COLOR,
@@ -72,9 +72,7 @@ export const WarningIndicatorButton: React.FC<{
 		return {
 			...(size === 'compact' ? compactStyle : style),
 			backgroundColor: showWarning ? INPUT_BACKGROUND : TRANSPARENT,
-			borderColor: showWarning
-				? INPUT_BORDER_COLOR_HOVERED
-				: INPUT_BORDER_COLOR_UNHOVERED,
+			borderColor: showWarning ? WHITE_ALPHA_05 : BLACK_ALPHA_60,
 			color: showWarning ? WHITE : LIGHT_TEXT,
 		};
 	}, [showWarning, size]);

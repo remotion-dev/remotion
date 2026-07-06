@@ -3,12 +3,12 @@ import {
 	NOTIFICATION_BACKGROUND,
 	NOTIFICATION_BORDER,
 	NOTIFICATION_SHADOW,
-	TEXT_COLOR,
+	WHITE_HEX,
 } from '../../helpers/colors';
 
 const notification: React.CSSProperties = {
 	backgroundColor: NOTIFICATION_BACKGROUND,
-	color: TEXT_COLOR,
+	color: WHITE_HEX,
 	fontFamily: 'Arial, Helvetica, sans-serif',
 	display: 'inline-flex',
 	padding: '6px 14px',

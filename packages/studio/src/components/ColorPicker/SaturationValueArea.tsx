@@ -1,7 +1,7 @@
 import React, {useCallback, useMemo, useRef} from 'react';
 import {clamp, hsvToRgb} from '../../helpers/color-conversion';
 import {
-	BORDER_WHITE_HEX_2PX,
+	BORDER_WHITE_2PX,
 	COLOR_PICKER_HANDLE_SHADOW,
 	COLOR_PICKER_SATURATION_BLACK_GRADIENT,
 	COLOR_PICKER_SATURATION_VALUE_GRADIENT,
@@ -108,7 +108,7 @@ export const SaturationValueArea: React.FC<{
 			marginLeft: -6,
 			marginTop: -6,
 			borderRadius: '50%',
-			border: BORDER_WHITE_HEX_2PX,
+			border: BORDER_WHITE_2PX,
 			boxShadow: COLOR_PICKER_HANDLE_SHADOW,
 			pointerEvents: 'none',
 		};

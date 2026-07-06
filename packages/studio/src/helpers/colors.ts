@@ -13,7 +13,6 @@ export const BACKGROUND = 'rgb(31,36,40)';
 export const BACKGROUND_HEX = '#1f2428';
 export const BACKGROUND__TRANSPARENT = 'rgba(31,36,40, 0)';
 export const INPUT_BACKGROUND = '#2f363d';
-export const BORDER_COLOR = BLACK_HEX;
 export const LIGHT_COLOR = '#ddd';
 export const SELECTED_BACKGROUND = 'hsla(0, 0%, 100%, 0.15)';
 export const LIGHT_TEXT = '#A6A7A9';
@@ -22,7 +21,6 @@ export const WHITE_ALPHA_05 = 'rgba(255, 255, 255, 0.05)';
 export const WHITE_ALPHA_06 = 'rgba(255, 255, 255, 0.06)';
 export const WHITE_ALPHA_08 = 'rgba(255, 255, 255, 0.08)';
 export const WHITE_ALPHA_10 = 'rgba(255, 255, 255, 0.1)';
-export const WHITE_ALPHA_10_COMPACT = 'rgba(255,255,255,0.1)';
 export const WHITE_ALPHA_12 = 'rgba(255, 255, 255, 0.12)';
 export const WHITE_ALPHA_15 = 'rgba(255, 255, 255, 0.15)';
 export const WHITE_ALPHA_20 = 'rgba(255, 255, 255, 0.2)';
@@ -46,18 +44,12 @@ export const BLACK_ALPHA_80 = 'rgba(0, 0, 0, 0.8)';
 export const BLACK_ALPHA_85 = 'rgba(0, 0, 0, 0.85)';
 export const BLACK_ALPHA_90 = 'rgba(0, 0, 0, 0.9)';
 export const BLACK_OPAQUE = 'rgba(0, 0, 0, 1)';
-export const VERY_LIGHT_TEXT = WHITE_ALPHA_30;
 const SELECTED_HOVER_BACKGROUND = 'hsla(0, 0%, 100%, 0.25)';
-export const CLEAR_HOVER = WHITE_ALPHA_06;
-export const INPUT_BORDER_COLOR_UNHOVERED = BLACK_ALPHA_60;
-export const INPUT_BORDER_COLOR_HOVERED = WHITE_ALPHA_05;
 export const FAIL_COLOR = '#ff3232';
-export const TEXT_COLOR = WHITE_HEX;
 export const WARNING_COLOR = '#f1c40f';
 export const BLUE = '#0b84f3';
 export const BLUE_HOVERED = '#4da3f7';
 export const BLUE_DISABLED = '#284f73';
-export const LIGHT_TRANSPARENT = WHITE_ALPHA_70;
 export const UNSELECTED_GUIDE = '#7e1219';
 export const SELECTED_GUIDE = '#d22d3a';
 export const LINE_COLOR = '#363A3E';
@@ -85,19 +77,17 @@ export const TIMELINE_MARQUEE_BLUE_ALPHA_16 = 'rgba(70, 130, 255, 0.16)';
 export const TIMELINE_MARQUEE_BLUE_ALPHA_75 = 'rgba(70, 130, 255, 0.75)';
 export const EASING_SELECTED_BACKGROUND = 'rgba(11, 132, 243, 0.18)';
 export const INFO_BLUE_BACKGROUND = 'rgba(59, 130, 246, 0.15)';
-export const INFO_BLUE_BORDER = 'rgba(59, 130, 246, 0.4)';
 
-export const BORDER_BLACK = `1px solid ${BLACK}`;
-export const BORDER_BLACK_HEX = `1px solid ${BLACK_HEX}`;
-export const BORDER_WHITE_HEX = `1px solid ${WHITE_HEX}`;
-export const BORDER_WHITE_HEX_2PX = `2px solid ${WHITE_HEX}`;
+export const BORDER_BLACK = `1px solid ${BLACK_HEX}`;
+export const BORDER_WHITE = `1px solid ${WHITE_HEX}`;
+export const BORDER_WHITE_2PX = `2px solid ${WHITE_HEX}`;
 export const BORDER_CURRENT_COLOR = `1px solid ${CURRENT_COLOR}`;
 export const BORDER_TRANSPARENT_2PX = `2px solid ${TRANSPARENT}`;
 export const BORDER_BLACK_ALPHA_50 = `1px solid ${BLACK_ALPHA_50}`;
 export const BORDER_BLACK_ALPHA_60 = `1px solid ${BLACK_ALPHA_60}`;
 export const BORDER_WHITE_ALPHA_12 = `1px solid ${WHITE_ALPHA_12}`;
 export const BORDER_WHITE_ALPHA_20 = `1px solid ${WHITE_ALPHA_20}`;
-export const BORDER_INFO_BLUE = `1px solid ${INFO_BLUE_BORDER}`;
+export const BORDER_INFO_BLUE = '1px solid rgba(59, 130, 246, 0.4)';
 export const BORDER_STACK_FRAME_BLUE = `1px solid ${STACK_FRAME_BORDER_BLUE}`;
 export const BORDER_TIMELINE_DROP_BLUE = `1px solid ${TIMELINE_DROP_BLUE_ALPHA_75}`;
 export const BORDER_TIMELINE_MARQUEE_BLUE = `1px solid ${TIMELINE_MARQUEE_BLUE_ALPHA_75}`;
@@ -108,7 +98,6 @@ export const NOTIFICATION_SHADOW = `0 2px 3px ${BLACK_OPAQUE}`;
 export const SERVER_DISCONNECTED_SHADOW = `0 2px 4px ${BLACK_ALPHA_40}`;
 export const COLOR_PICKER_POPUP_SHADOW = `0 4px 16px ${BLACK_ALPHA_50}`;
 export const COLOR_PICKER_HANDLE_SHADOW = `0 0 0 1px ${BLACK_ALPHA_60}`;
-export const MODAL_OVERLAY_BACKGROUND = WHITE_ALPHA_20;
 export const NOTIFICATION_BORDER = `0.25px solid ${WHITE_ALPHA_10}`;
 
 export const HOT_MIDDLEWARE_ERROR_STYLE = 'color: #ff0000;';
@@ -171,7 +160,7 @@ export const getBackgroundFromHoverState = ({
 	}
 
 	if (hovered) {
-		return CLEAR_HOVER;
+		return WHITE_ALPHA_06;
 	}
 
 	return TRANSPARENT;

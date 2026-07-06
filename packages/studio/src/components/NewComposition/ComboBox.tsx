@@ -3,8 +3,8 @@ import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
 import {
 	INPUT_BACKGROUND,
-	INPUT_BORDER_COLOR_HOVERED,
-	INPUT_BORDER_COLOR_UNHOVERED,
+	WHITE_ALPHA_05,
+	BLACK_ALPHA_60,
 	SELECTED_BACKGROUND,
 	WHITE,
 } from '../../helpers/colors';
@@ -251,8 +251,8 @@ export const Combobox: React.FC<{
 			borderColor: opened
 				? SELECTED_BACKGROUND
 				: hovered
-					? INPUT_BORDER_COLOR_HOVERED
-					: INPUT_BORDER_COLOR_UNHOVERED,
+					? WHITE_ALPHA_05
+					: BLACK_ALPHA_60,
 		};
 	}, [customStyle, hovered, opened, small]);
 

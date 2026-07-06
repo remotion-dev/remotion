@@ -13,7 +13,7 @@ import {deleteStaticFile} from '../api/delete-static-file';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {
 	BACKGROUND,
-	CLEAR_HOVER,
+	WHITE_ALPHA_06,
 	CURRENT_COLOR,
 	LIGHT_TEXT,
 	SELECTED_BACKGROUND,
@@ -134,7 +134,7 @@ const AssetFolderItem: React.FC<{
 		return {
 			...itemStyle,
 			paddingLeft: 4 + level * 8,
-			backgroundColor: hovered ? CLEAR_HOVER : TRANSPARENT,
+			backgroundColor: hovered ? WHITE_ALPHA_06 : TRANSPARENT,
 		};
 	}, [hovered, level]);
 
@@ -156,7 +156,7 @@ const AssetFolderItem: React.FC<{
 			onDragEnter={onDragEnter}
 			onDragLeave={onDragLeave}
 			style={{
-				backgroundColor: isDropDiv ? CLEAR_HOVER : BACKGROUND,
+				backgroundColor: isDropDiv ? WHITE_ALPHA_06 : BACKGROUND,
 			}}
 		>
 			<div
@@ -365,7 +365,7 @@ const AssetSelectorItem: React.FC<{
 			backgroundColor: hovered
 				? selected
 					? SELECTED_BACKGROUND
-					: CLEAR_HOVER
+					: WHITE_ALPHA_06
 				: selected
 					? SELECTED_BACKGROUND
 					: TRANSPARENT,

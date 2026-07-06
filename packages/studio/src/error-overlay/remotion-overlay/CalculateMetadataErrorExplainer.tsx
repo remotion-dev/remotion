@@ -1,6 +1,6 @@
 import React from 'react';
 import {inlineCodeSnippet} from '../../components/Menu/styles';
-import {BORDER_COLOR, WHITE} from '../../helpers/colors';
+import {BLACK_HEX, WHITE} from '../../helpers/colors';
 
 export const CalculateMetadataErrorExplainer: React.FC<{}> = () => {
 	return (
@@ -15,7 +15,7 @@ const style: React.CSSProperties = {
 	borderRadius: 3,
 	color: WHITE,
 	padding: 12,
-	backgroundColor: BORDER_COLOR,
+	backgroundColor: BLACK_HEX,
 	fontSize: 14,
 	fontFamily: 'sans-serif',
 };

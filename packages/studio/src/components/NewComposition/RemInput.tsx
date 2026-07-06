@@ -10,8 +10,8 @@ import React, {
 import {
 	FAIL_COLOR,
 	INPUT_BACKGROUND,
-	INPUT_BORDER_COLOR_HOVERED,
-	INPUT_BORDER_COLOR_UNHOVERED,
+	WHITE_ALPHA_05,
+	BLACK_ALPHA_60,
 	SELECTED_BACKGROUND,
 	WARNING_COLOR,
 	WHITE,
@@ -69,8 +69,8 @@ export const getInputBorderColor = ({
 			: isFocused
 				? SELECTED_BACKGROUND
 				: isHovered
-					? INPUT_BORDER_COLOR_HOVERED
-					: INPUT_BORDER_COLOR_UNHOVERED;
+					? WHITE_ALPHA_05
+					: BLACK_ALPHA_60;
 
 const RemInputForwardRef: React.ForwardRefRenderFunction<
 	HTMLInputElement,
