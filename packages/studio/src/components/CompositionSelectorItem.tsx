@@ -265,6 +265,26 @@ export const CompositionSelectorItem: React.FC<{
 		setDragHovered(false);
 	}, []);
 
+	const onFolderChildListDragOver = useCallback(
+		(event: DragEvent<HTMLElement>) => {
+			if (
+				item.type !== 'folder' ||
+				window.remotion_isReadOnlyStudio ||
+				!Array.from(event.dataTransfer.types).includes(
+					COMPOSITION_DRAG_MIME_TYPE,
+				)
+			) {
+				return;
+			}
+
+			event.preventDefault();
+			event.stopPropagation();
+			event.dataTransfer.dropEffect = 'move';
+			clearRootDragHover();
+		},
+		[clearRootDragHover, item],
+	);
+
 	const onFolderDrop = useCallback(
 		async (event: DragEvent<HTMLElement>) => {
 			if (item.type !== 'folder' || window.remotion_isReadOnlyStudio) {
@@ -373,8 +393,9 @@ export const CompositionSelectorItem: React.FC<{
 						</div>
 					</Row>
 				</ContextMenu>
-				{item.expanded
-					? item.items.map((childItem) => {
+				{item.expanded ? (
+					<div onDragOver={onFolderChildListDragOver} onDrop={onFolderDrop}>
+						{item.items.map((childItem) => {
 							return (
 								<CompositionSelectorItem
 									key={childItem.key + childItem.type}
@@ -387,8 +408,9 @@ export const CompositionSelectorItem: React.FC<{
 									clearRootDragHover={clearRootDragHover}
 								/>
 							);
-						})
-					: null}
+						})}
+					</div>
+				) : null}
 			</>
 		);
 	}
