@@ -1,4 +1,5 @@
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {BLACK, TRANSPARENT, WHITE_ALPHA_72} from '../../helpers/colors';
 import {
 	getTimelineColor,
 	getTimelineSelectedLabelStyle,
@@ -60,7 +61,7 @@ export const TimelineSequenceName: React.FC<{
 	const inputStyle = useMemo((): React.CSSProperties => {
 		return {
 			...style,
-			background: 'transparent',
+			background: TRANSPARENT,
 			border: 0,
 			color: getTimelineColor(false, false),
 			fontFamily: 'inherit',
@@ -132,7 +133,7 @@ export const TimelineSequenceName: React.FC<{
 		return (
 			<>
 				<style>
-					{`.${RENAME_INPUT_CLASS_NAME}::selection { background: rgba(255, 255, 255, 0.72); color: black; }`}
+					{`.${RENAME_INPUT_CLASS_NAME}::selection { background: ${WHITE_ALPHA_72}; color: ${BLACK}; }`}
 				</style>
 				<input
 					ref={inputRef}

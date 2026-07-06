@@ -1,5 +1,6 @@
 import {DEFAULT_TIMELINE_TRACKS} from '@remotion/studio-shared';
 import React from 'react';
+import {WHITE_ALPHA_10, WHITE_ALPHA_60} from '../../helpers/colors';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 
 export const MAX_TIMELINE_TRACKS =
@@ -14,10 +15,10 @@ const container: React.CSSProperties = {
 	height: MAX_TIMELINE_TRACKS_NOTICE_HEIGHT,
 	display: 'flex',
 	alignItems: 'center',
-	color: 'rgba(255, 255, 255, 0.6)',
+	color: WHITE_ALPHA_60,
 	fontFamily: 'sans-serif',
 	fontSize: 12,
-	backgroundColor: 'rgba(255, 255, 255, 0.1)',
+	backgroundColor: WHITE_ALPHA_10,
 	paddingLeft: TIMELINE_PADDING + 5,
 };
 

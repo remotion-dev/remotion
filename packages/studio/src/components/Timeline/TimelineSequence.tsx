@@ -2,7 +2,16 @@ import React, {useCallback, useContext, useMemo, useRef} from 'react';
 import type {TSequence} from 'remotion';
 import {Internals, useCurrentFrame} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
-import {BLUE} from '../../helpers/colors';
+import {
+	BLUE,
+	TIMELINE_AUDIO_GRADIENT,
+	TIMELINE_IMAGE_GRADIENT,
+	TIMELINE_VIDEO_GRADIENT,
+	TRANSPARENT,
+	WHITE,
+	WHITE_ALPHA_20,
+	WHITE_ALPHA_50,
+} from '../../helpers/colors';
 import {formatFileLocation} from '../../helpers/format-file-location';
 import {
 	getTimelineSequenceLayout,
@@ -43,10 +52,6 @@ import {TimelineVideoInfo} from './TimelineVideoInfo';
 import {TimelineWidthContext} from './TimelineWidthProvider';
 import {useResolveStackAndReactToChange} from './use-resolved-stack-react-to-change';
 import {useSequenceFreezeFrameMenuItem} from './use-sequence-freeze-frame-menu-item';
-
-const AUDIO_GRADIENT = 'linear-gradient(rgb(16 171 58), rgb(43 165 63) 60%)';
-const VIDEO_GRADIENT = 'linear-gradient(to top, #8e44ad, #9b59b6)';
-const IMAGE_GRADIENT = 'linear-gradient(to top, #2980b9, #3498db)';
 
 const TimelineSequenceFn: React.FC<{
 	readonly s: TSequence;
@@ -166,12 +171,12 @@ const TimelineSequenceCurrentFrame: React.FC<{
 						width: premountWidth,
 						height: '100%',
 						background: `repeating-linear-gradient(
-							-45deg,
-							transparent,
-							transparent 2px,
-							rgba(255, 255, 255, ${isPremounting ? 0.5 : 0.2}) 2px,
-							rgba(255, 255, 255, ${isPremounting ? 0.5 : 0.2}) 4px
-						)`,
+								-45deg,
+								${TRANSPARENT},
+								${TRANSPARENT} 2px,
+								${isPremounting ? WHITE_ALPHA_50 : WHITE_ALPHA_20} 2px,
+								${isPremounting ? WHITE_ALPHA_50 : WHITE_ALPHA_20} 4px
+							)`,
 						position: 'absolute',
 					}}
 				/>
@@ -183,12 +188,12 @@ const TimelineSequenceCurrentFrame: React.FC<{
 						width: postmountWidth,
 						height: '100%',
 						background: `repeating-linear-gradient(
-							-45deg,
-							transparent,
-							transparent 2px,
-							rgba(255, 255, 255, ${isPostmounting ? 0.5 : 0.2}) 2px,
-							rgba(255, 255, 255, ${isPostmounting ? 0.5 : 0.2}) 4px
-						)`,
+								-45deg,
+								${TRANSPARENT},
+								${TRANSPARENT} 2px,
+								${isPostmounting ? WHITE_ALPHA_50 : WHITE_ALPHA_20} 2px,
+								${isPostmounting ? WHITE_ALPHA_50 : WHITE_ALPHA_20} 4px
+							)`,
 						position: 'absolute',
 						right: 0,
 					}}
@@ -487,19 +492,19 @@ const TimelineSequenceInner: React.FC<{
 		return {
 			background:
 				s.type === 'audio'
-					? AUDIO_GRADIENT
+					? TIMELINE_AUDIO_GRADIENT
 					: s.type === 'video'
-						? VIDEO_GRADIENT
+						? TIMELINE_VIDEO_GRADIENT
 						: s.type === 'image'
-							? IMAGE_GRADIENT
+							? TIMELINE_IMAGE_GRADIENT
 							: BLUE,
-			border: SEQUENCE_BORDER_WIDTH + 'px solid rgba(255, 255, 255, 0.2)',
+			border: `${SEQUENCE_BORDER_WIDTH}px solid ${WHITE_ALPHA_20}`,
 			borderRadius: 2,
 			position: 'absolute',
 			height: getTimelineLayerHeight(s.type),
 			marginLeft,
 			width,
-			color: 'white',
+			color: WHITE,
 			overflow: 'hidden',
 		};
 	}, [marginLeft, s.type, width]);

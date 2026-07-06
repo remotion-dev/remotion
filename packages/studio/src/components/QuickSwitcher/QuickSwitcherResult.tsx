@@ -1,5 +1,9 @@
 import React, {useEffect, useMemo, useRef, useState} from 'react';
-import {LIGHT_TEXT, getBackgroundFromHoverState} from '../../helpers/colors';
+import {
+	LIGHT_TEXT,
+	WHITE,
+	getBackgroundFromHoverState,
+} from '../../helpers/colors';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {StillIcon} from '../../icons/still';
 import {FilmIcon} from '../../icons/video';
@@ -127,7 +131,7 @@ export const QuickSwitcherResult: React.FC<{
 				result.type === 'search-result'
 					? LIGHT_TEXT
 					: selected || hovered
-						? 'white'
+						? WHITE
 						: LIGHT_TEXT,
 			fontSize: QUICK_SWITCHER_RESULT_LABEL_FONT_SIZE,
 		};
@@ -137,12 +141,9 @@ export const QuickSwitcherResult: React.FC<{
 		<div ref={ref} key={result.id} style={style} onClick={result.onSelected}>
 			{result.type === 'composition' ? (
 				result.compositionType === 'still' ? (
-					<StillIcon
-						color={selected ? 'white' : LIGHT_TEXT}
-						style={iconStyle}
-					/>
+					<StillIcon color={selected ? WHITE : LIGHT_TEXT} style={iconStyle} />
 				) : (
-					<FilmIcon color={selected ? 'white' : LIGHT_TEXT} style={iconStyle} />
+					<FilmIcon color={selected ? WHITE : LIGHT_TEXT} style={iconStyle} />
 				)
 			) : null}
 			<Spacing x={1} />

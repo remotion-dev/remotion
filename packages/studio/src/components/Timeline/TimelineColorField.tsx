@@ -1,5 +1,6 @@
 import React, {useCallback, useMemo} from 'react';
 import type {CanUpdateSequencePropStatusStatic} from 'remotion';
+import {BLACK_HEX} from '../../helpers/colors';
 import type {
 	SchemaFieldInfo,
 	TimelineFieldOnDragValueChange,
@@ -35,7 +36,7 @@ export const TimelineColorField: React.FC<{
 		typeof effectiveValue === 'string'
 			? effectiveValue
 			: field.fieldSchema.type === 'color'
-				? (field.fieldSchema.default ?? '#000')
+				? (field.fieldSchema.default ?? BLACK_HEX)
 				: '';
 
 	const onChange = useCallback(

@@ -1,6 +1,6 @@
 import {formatBytes} from '@remotion/studio-shared';
 import React from 'react';
-import {LIGHT_TEXT} from '../../helpers/colors';
+import {LIGHT_TEXT, WHITE} from '../../helpers/colors';
 import {Spacing} from '../layout';
 import {CircularProgress} from '../RenderQueue/CircularProgress';
 import {getClientRenderProgressMessage} from '../RenderQueue/client-render-progress';
@@ -17,7 +17,7 @@ const progressItem: React.CSSProperties = {
 const label: React.CSSProperties = {
 	fontSize: 14,
 	width: 400,
-	color: 'white',
+	color: WHITE,
 };
 
 const right: React.CSSProperties = {

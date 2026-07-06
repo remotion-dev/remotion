@@ -4,7 +4,7 @@ import type {
 	CanUpdateSequencePropStatusStatic,
 	SequencePropsSubscriptionKey,
 } from 'remotion';
-import {LIGHT_TEXT} from '../../helpers/colors';
+import {LIGHT_TEXT, WHITE_ALPHA_40} from '../../helpers/colors';
 import type {
 	SchemaFieldInfo,
 	TimelineFieldOnDragValueChange,
@@ -33,7 +33,7 @@ const unsupportedStatusWrapper: React.CSSProperties = {
 };
 
 const unsupportedLabel: React.CSSProperties = {
-	color: 'rgba(255, 255, 255, 0.4)',
+	color: WHITE_ALPHA_40,
 	fontSize: 12,
 	fontStyle: 'italic',
 };

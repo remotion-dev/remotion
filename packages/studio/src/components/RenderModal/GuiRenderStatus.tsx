@@ -5,7 +5,7 @@ import type {
 	StitchingProgressInput,
 } from '@remotion/studio-shared';
 import React, {useCallback, useMemo} from 'react';
-import {LIGHT_TEXT} from '../../helpers/colors';
+import {LIGHT_TEXT, WHITE} from '../../helpers/colors';
 import {Spacing} from '../layout';
 import {openInFileExplorer} from '../RenderQueue/actions';
 import {CircularProgress} from '../RenderQueue/CircularProgress';
@@ -22,7 +22,7 @@ const progressItem: React.CSSProperties = {
 const label: React.CSSProperties = {
 	fontSize: 14,
 	width: 400,
-	color: 'white',
+	color: WHITE,
 };
 
 const right: React.CSSProperties = {

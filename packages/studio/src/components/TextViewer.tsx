@@ -1,10 +1,11 @@
 import {useEffect, useState} from 'react';
+import {WHITE} from '../helpers/colors';
 
 const textStyle: React.CSSProperties = {
 	margin: 14,
 	fontFamily: 'monospace',
 	flex: 1,
-	color: 'white',
+	color: WHITE,
 	whiteSpace: 'pre-wrap',
 };
 

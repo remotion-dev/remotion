@@ -1,6 +1,6 @@
 import {useMemo} from 'react';
 import React, {useCallback} from 'react';
-import {VERY_LIGHT_TEXT} from '../../../helpers/colors';
+import {WHITE_ALPHA_30} from '../../../helpers/colors';
 import {Spacing} from '../../layout';
 import {RemotionInput} from '../../NewComposition/RemInput';
 import {Fieldset} from './Fieldset';
@@ -17,7 +17,7 @@ const fullWidth: React.CSSProperties = {
 const explainer: React.CSSProperties = {
 	fontFamily: 'sans-serif',
 	fontSize: 12,
-	color: VERY_LIGHT_TEXT,
+	color: WHITE_ALPHA_30,
 };
 
 // This will do 2 things:

@@ -2,7 +2,7 @@ import React, {useCallback, useContext, useMemo, useState} from 'react';
 import type {TSequence} from 'remotion';
 import type {CodePosition} from '../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
-import {LIGHT_TEXT} from '../helpers/colors';
+import {LIGHT_TEXT, WHITE} from '../helpers/colors';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 import {
 	SCHEMA_FIELD_GROUPS,
@@ -28,7 +28,7 @@ import {
 import {useTimelineExpandedTree} from './Timeline/use-timeline-expanded-tree';
 
 const container: React.CSSProperties = {
-	color: 'white',
+	color: WHITE,
 	display: 'flex',
 	flexDirection: 'column',
 	fontFamily: 'Arial, Helvetica, sans-serif',

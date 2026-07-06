@@ -3,6 +3,14 @@ import React, {useCallback, useContext, useMemo, useState} from 'react';
 import type {SequencePropsSubscriptionKey, TSequence} from 'remotion';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
+import {
+	BLACK_ALPHA_85,
+	BORDER_TIMELINE_DROP_BLUE,
+	BORDER_WHITE_ALPHA_20,
+	TIMELINE_BLUE,
+	TIMELINE_DROP_BLUE_ALPHA_16,
+	WHITE,
+} from '../../helpers/colors';
 import {formatFileLocation} from '../../helpers/format-file-location';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {
@@ -62,8 +70,8 @@ const labelContainerStyle: React.CSSProperties = {
 };
 
 const effectDropHighlight: React.CSSProperties = {
-	backgroundColor: 'rgba(0, 155, 255, 0.16)',
-	outline: '1px solid rgba(0, 155, 255, 0.75)',
+	backgroundColor: TIMELINE_DROP_BLUE_ALPHA_16,
+	outline: BORDER_TIMELINE_DROP_BLUE,
 	outlineOffset: -1,
 };
 
@@ -111,7 +119,7 @@ const sequenceReorderWrapper: React.CSSProperties = {
 };
 
 const sequenceReorderLineBase: React.CSSProperties = {
-	backgroundColor: '#0b84ff',
+	backgroundColor: TIMELINE_BLUE,
 	height: 2,
 	left: 0,
 	pointerEvents: 'none',
@@ -121,10 +129,10 @@ const sequenceReorderLineBase: React.CSSProperties = {
 };
 
 const sequenceReorderRejectionStyle: React.CSSProperties = {
-	backgroundColor: 'rgba(0, 0, 0, 0.85)',
-	border: '1px solid rgba(255, 255, 255, 0.2)',
+	backgroundColor: BLACK_ALPHA_85,
+	border: BORDER_WHITE_ALPHA_20,
 	borderRadius: 4,
-	color: 'white',
+	color: WHITE,
 	fontSize: 11,
 	lineHeight: 1.2,
 	maxWidth: 260,
@@ -677,7 +685,7 @@ export const TimelineSequenceItem: React.FC<{
 	const inner: React.CSSProperties = useMemo(() => {
 		return {
 			height: TIMELINE_LIST_ITEM_ROW_HEIGHT,
-			color: 'white',
+			color: WHITE,
 			fontFamily: 'Arial, Helvetica, sans-serif',
 			wordBreak: 'break-all',
 			textAlign: 'left',

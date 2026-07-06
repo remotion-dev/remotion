@@ -1,4 +1,5 @@
 import React, {useCallback, useMemo} from 'react';
+import {CURRENT_COLOR} from '../../helpers/colors';
 import {ExpandedFolderIconSolid} from '../../icons/folder';
 import type {RenderInlineAction} from '../InlineAction';
 import {InlineAction} from '../InlineAction';
@@ -22,7 +23,7 @@ export const RenderQueueOpenInFinderItem: React.FC<{
 	const icon: React.CSSProperties = useMemo(() => {
 		return {
 			height: 12,
-			color: 'currentColor',
+			color: CURRENT_COLOR,
 		};
 	}, []);
 

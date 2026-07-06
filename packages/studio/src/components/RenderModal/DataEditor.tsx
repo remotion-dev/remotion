@@ -3,7 +3,7 @@ import type {_InternalTypes, SerializedJSONWithCustomFields} from 'remotion';
 import {getInputProps} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
-import {BACKGROUND, BLUE, BORDER_COLOR, LIGHT_TEXT} from '../../helpers/colors';
+import {BACKGROUND, BLUE, BLACK_HEX, LIGHT_TEXT} from '../../helpers/colors';
 import {CompactExplanation} from '../CompactExplanation';
 import {useZodIfPossible} from '../get-zod-if-possible';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
@@ -86,7 +86,7 @@ const controlContainer: React.CSSProperties = {
 	flexDirection: 'column',
 	display: 'flex',
 	padding: 12,
-	borderBottom: `1px solid ${BORDER_COLOR}`,
+	borderBottom: `1px solid ${BLACK_HEX}`,
 };
 
 const inspectorControlContainer: React.CSSProperties = {

@@ -20,6 +20,7 @@ import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {calculateTimeline} from '../../helpers/calculate-timeline';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
+import {TRANSPARENT} from '../../helpers/colors';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {
@@ -833,7 +834,7 @@ export const TimelineSequenceLeftEdgeDragHandle: React.FC<{
 	const style: React.CSSProperties = {
 		...baseStyle,
 		left: 0,
-		background: 'transparent',
+		background: TRANSPARENT,
 	};
 
 	return (
@@ -1312,7 +1313,7 @@ export const TimelineSequenceRightEdgeDragHandle: React.FC<{
 	const style: React.CSSProperties = {
 		...baseStyle,
 		right: 0,
-		background: 'transparent',
+		background: TRANSPARENT,
 	};
 
 	return (

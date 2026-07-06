@@ -2,8 +2,10 @@ import type {PropsWithChildren} from 'react';
 import React, {useCallback, useMemo, useState} from 'react';
 import {
 	INPUT_BACKGROUND,
-	INPUT_BORDER_COLOR_UNHOVERED,
+	BLACK_ALPHA_60,
 	LIGHT_TEXT,
+	TRANSPARENT,
+	WHITE,
 } from '../helpers/colors';
 import {useZIndex} from '../state/z-index';
 
@@ -11,7 +13,7 @@ const container: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'row',
 	overflow: 'hidden',
-	border: '1px solid ' + INPUT_BORDER_COLOR_UNHOVERED,
+	border: '1px solid ' + BLACK_ALPHA_60,
 	flexWrap: 'wrap',
 	maxWidth: 350,
 	justifyContent: 'flex-end',
@@ -106,8 +108,8 @@ const Item: React.FC<
 	const itemStyle: React.CSSProperties = useMemo(() => {
 		return {
 			...(size === 'compact' ? compactItem : item),
-			backgroundColor: selected ? INPUT_BACKGROUND : 'transparent',
-			color: selected ? 'white' : hovered ? 'white' : LIGHT_TEXT,
+			backgroundColor: selected ? INPUT_BACKGROUND : TRANSPARENT,
+			color: selected ? WHITE : hovered ? WHITE : LIGHT_TEXT,
 		};
 	}, [hovered, selected, size]);
 

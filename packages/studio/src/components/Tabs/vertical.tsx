@@ -1,8 +1,10 @@
 import React, {useCallback, useMemo, useState} from 'react';
 import {
-	CLEAR_HOVER,
+	WHITE_ALPHA_06,
 	LIGHT_TEXT,
 	SELECTED_BACKGROUND,
+	TRANSPARENT,
+	WHITE,
 } from '../../helpers/colors';
 import {useZIndex} from '../../state/z-index';
 
@@ -43,9 +45,9 @@ export const VerticalTab: React.FC<{
 			backgroundColor: selected
 				? SELECTED_BACKGROUND
 				: hovered
-					? CLEAR_HOVER
-					: 'transparent',
-			color: selected ? 'white' : LIGHT_TEXT,
+					? WHITE_ALPHA_06
+					: TRANSPARENT,
+			color: selected ? WHITE : LIGHT_TEXT,
 			boxShadow: selected ? 'none' : undefined,
 			...style,
 		};

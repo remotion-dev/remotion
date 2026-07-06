@@ -1,5 +1,5 @@
 import React, {useMemo} from 'react';
-import {FAIL_COLOR, LIGHT_TEXT} from '../../../helpers/colors';
+import {FAIL_COLOR, LIGHT_TEXT, WHITE} from '../../../helpers/colors';
 import {Spacing} from '../../layout';
 import {WarningTriangle} from '../../NewComposition/ValidationMessage';
 import type {ZodSafeParseResult} from './zod-schema-type';
@@ -15,7 +15,7 @@ const compactSchemaLabel: React.CSSProperties = {
 };
 
 const jsonLabel: React.CSSProperties = {
-	color: 'white',
+	color: WHITE,
 	fontSize: 13,
 	fontFamily: 'sans-serif',
 	display: 'flex',

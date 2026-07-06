@@ -2,7 +2,7 @@ import {PlayerInternals} from '@remotion/player';
 import type {PointerEvent} from 'react';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
-import {CLEAR_HOVER, LIGHT_TEXT} from '../../helpers/colors';
+import {WHITE_ALPHA_06, LIGHT_TEXT, TRANSPARENT} from '../../helpers/colors';
 import {useMobileLayout} from '../../helpers/mobile-layout';
 import {areKeyboardShortcutsDisabled} from '../../helpers/use-keybinding';
 import {CaretRight} from '../../icons/caret';
@@ -97,7 +97,7 @@ export const MenuSubItem: React.FC<{
 	const style = useMemo((): React.CSSProperties => {
 		return {
 			...container,
-			backgroundColor: selected && !disabled ? CLEAR_HOVER : 'transparent',
+			backgroundColor: selected && !disabled ? WHITE_ALPHA_06 : TRANSPARENT,
 			opacity: disabled ? 0.5 : 1,
 			cursor: disabled ? 'not-allowed' : 'default',
 		};

@@ -1,13 +1,13 @@
 import React, {useCallback, useEffect} from 'react';
 import {Button} from '../../components/Button';
-import {BLUE} from '../../helpers/colors';
+import {BLUE, WHITE} from '../../helpers/colors';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import type {THelpLink} from './get-help-link';
 import {ShortcutHint} from './ShortcutHint';
 
 const buttonStyle: React.CSSProperties = {
 	backgroundColor: BLUE,
-	color: 'white',
+	color: WHITE,
 };
 
 export const HelpLink: React.FC<{

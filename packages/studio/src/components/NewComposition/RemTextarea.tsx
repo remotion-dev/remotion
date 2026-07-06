@@ -6,7 +6,7 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import {INPUT_BACKGROUND} from '../../helpers/colors';
+import {INPUT_BACKGROUND, WHITE} from '../../helpers/colors';
 import {useZIndex} from '../../state/z-index';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {
@@ -24,7 +24,7 @@ type Props = React.DetailedHTMLProps<
 
 const inputBaseStyle: React.CSSProperties = {
 	padding: `${INPUT_HORIZONTAL_PADDING}px 10px`,
-	color: 'white',
+	color: WHITE,
 	borderStyle: 'solid',
 	borderWidth: 1,
 	fontSize: 14,

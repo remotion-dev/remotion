@@ -4,7 +4,7 @@ import type {
 	SequencePropsSubscriptionKey,
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
-import {LIGHT_COLOR} from '../../helpers/colors';
+import {CURRENT_COLOR_LOWERCASE, LIGHT_COLOR} from '../../helpers/colors';
 import type {
 	SchemaFieldInfo,
 	TimelineFieldOnDragValueChange,
@@ -132,7 +132,7 @@ const LinkToggle: React.FC<{
 					style={linkIconStyle}
 				>
 					<path
-						fill="currentcolor"
+						fill={CURRENT_COLOR_LOWERCASE}
 						d="M32 320C32 214 118 128 224 128L288 128L288 192L224 192C153.3 192 96 249.3 96 320C96 390.7 153.3 448 224 448L288 448L288 512L224 512C118 512 32 426 32 320zM608 320C608 426 522 512 416 512L352 512L352 448L416 448C486.7 448 544 390.7 544 320C544 249.3 486.7 192 416 192L352 192L352 128L416 128C522 128 608 214 608 320zM224 288L448 288L448 352L192 352L192 288L224 288z"
 					/>
 				</svg>

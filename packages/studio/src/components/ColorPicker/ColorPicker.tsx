@@ -2,7 +2,7 @@ import {PlayerInternals} from '@remotion/player';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
 import {formatRgba} from '../../helpers/color-conversion';
-import {LIGHT_TEXT} from '../../helpers/colors';
+import {CURRENT_COLOR, LIGHT_TEXT, TRANSPARENT} from '../../helpers/colors';
 import {EyedropperIcon} from '../../icons/eyedropper';
 import {HigherZIndex, useZIndex} from '../../state/z-index';
 import {MENU_INITIATOR_CLASSNAME} from '../Menu/is-menu-item';
@@ -60,7 +60,7 @@ const controlStyle: React.CSSProperties = {
 };
 
 const eyedropperButtonBaseStyle: React.CSSProperties = {
-	background: 'transparent',
+	background: TRANSPARENT,
 	border: 'none',
 	padding: 0,
 	margin: 0,
@@ -259,7 +259,7 @@ export const ColorPicker: React.FC<Props> = ({
 				...menuContainerTowardsBottom,
 				top: size.top + size.height + margin,
 				left,
-				background: 'transparent',
+				background: TRANSPARENT,
 				boxShadow: 'none',
 			};
 		}
@@ -268,7 +268,7 @@ export const ColorPicker: React.FC<Props> = ({
 			...menuContainerTowardsTop,
 			bottom: size.windowSize.height - size.top + margin,
 			left,
-			background: 'transparent',
+			background: TRANSPARENT,
 			boxShadow: 'none',
 		};
 	}, [opened, size]);
@@ -315,7 +315,7 @@ export const ColorPicker: React.FC<Props> = ({
 						title="Pick color from screen"
 						aria-label="Pick color from screen"
 					>
-						<EyedropperIcon style={eyedropperIconStyle} color="currentColor" />
+						<EyedropperIcon style={eyedropperIconStyle} color={CURRENT_COLOR} />
 					</button>
 				) : null}
 			</span>

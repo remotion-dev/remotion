@@ -1,6 +1,11 @@
 import React, {useCallback, useMemo, useRef} from 'react';
 import {clamp, hsvToRgb} from '../../helpers/color-conversion';
 import {
+	BORDER_WHITE_2PX,
+	COLOR_PICKER_ALPHA_TRANSPARENT,
+	COLOR_PICKER_HANDLE_SHADOW,
+} from '../../helpers/colors';
+import {
 	CHECKER_BACKGROUND_COLOR,
 	CHECKER_BACKGROUND_IMAGE,
 	CHECKER_BACKGROUND_POSITION,
@@ -47,7 +52,7 @@ export const AlphaSlider: React.FC<{
 	const gradientStyle: React.CSSProperties = useMemo(() => {
 		return {
 			...innerStyle,
-			background: `linear-gradient(to right, rgba(0, 0, 0, 0), ${opaqueColor})`,
+			background: `linear-gradient(to right, ${COLOR_PICKER_ALPHA_TRANSPARENT}, ${opaqueColor})`,
 		};
 	}, [opaqueColor]);
 
@@ -103,8 +108,8 @@ export const AlphaSlider: React.FC<{
 			width: HANDLE_WIDTH,
 			height: SLIDER_HEIGHT + 4,
 			borderRadius: 2,
-			border: '2px solid #fff',
-			boxShadow: '0 0 0 1px rgba(0, 0, 0, 0.6)',
+			border: BORDER_WHITE_2PX,
+			boxShadow: COLOR_PICKER_HANDLE_SHADOW,
 			pointerEvents: 'none',
 		};
 	}, [alpha]);

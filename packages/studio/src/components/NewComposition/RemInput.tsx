@@ -10,10 +10,11 @@ import React, {
 import {
 	FAIL_COLOR,
 	INPUT_BACKGROUND,
-	INPUT_BORDER_COLOR_HOVERED,
-	INPUT_BORDER_COLOR_UNHOVERED,
+	WHITE_ALPHA_05,
+	BLACK_ALPHA_60,
 	SELECTED_BACKGROUND,
 	WARNING_COLOR,
+	WHITE,
 } from '../../helpers/colors';
 import {useZIndex} from '../../state/z-index';
 
@@ -40,7 +41,7 @@ export const RightAlignInput: React.FC<PropsWithChildren> = ({children}) => {
 
 export const inputBaseStyle: React.CSSProperties = {
 	padding: `${INPUT_HORIZONTAL_PADDING}px 10px`,
-	color: 'white',
+	color: WHITE,
 	borderStyle: 'solid',
 	borderWidth: 1,
 	fontSize: 14,
@@ -68,8 +69,8 @@ export const getInputBorderColor = ({
 			: isFocused
 				? SELECTED_BACKGROUND
 				: isHovered
-					? INPUT_BORDER_COLOR_HOVERED
-					: INPUT_BORDER_COLOR_UNHOVERED;
+					? WHITE_ALPHA_05
+					: BLACK_ALPHA_60;
 
 const RemInputForwardRef: React.ForwardRefRenderFunction<
 	HTMLInputElement,

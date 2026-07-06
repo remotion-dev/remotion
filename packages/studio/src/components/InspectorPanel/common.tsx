@@ -1,5 +1,5 @@
 import React from 'react';
-import {LIGHT_TEXT} from '../../helpers/colors';
+import {LIGHT_TEXT, TRANSPARENT, WHITE} from '../../helpers/colors';
 import {InlineAction} from '../InlineAction';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
 import type {RenderModalWarning} from '../RenderModal/DataEditor';
@@ -88,7 +88,7 @@ export const InspectorDetailRow: React.FC<{
 const inlineLabelButton: React.CSSProperties = {
 	alignItems: 'center',
 	appearance: 'none',
-	backgroundColor: 'transparent',
+	backgroundColor: TRANSPARENT,
 	border: 'none',
 	color: LIGHT_TEXT,
 	cursor: 'default',
@@ -129,7 +129,7 @@ export const InspectorInlineAction: React.FC<{
 	readonly renderIcon: (color: string) => React.ReactNode;
 }> = ({children, disabled, onClick, renderIcon}) => {
 	const [hovered, setHovered] = React.useState(false);
-	const color = hovered && !disabled ? 'white' : LIGHT_TEXT;
+	const color = hovered && !disabled ? WHITE : LIGHT_TEXT;
 	const buttonStyle = React.useMemo(
 		(): React.CSSProperties => ({
 			...(disabled ? inlineLabelButtonDisabled : inlineLabelButton),

@@ -12,6 +12,7 @@ import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {
 	BACKGROUND,
 	LIGHT_TEXT,
+	WHITE,
 	getBackgroundFromHoverState,
 } from '../helpers/colors';
 import {isCompositionStill} from '../helpers/is-composition-still';
@@ -149,7 +150,7 @@ export const CompositionSelectorItem: React.FC<{
 	const label = useMemo(() => {
 		return {
 			...labelStyle,
-			color: selected || hovered ? 'white' : LIGHT_TEXT,
+			color: selected || hovered ? WHITE : LIGHT_TEXT,
 		};
 	}, [hovered, selected]);
 
@@ -222,11 +223,11 @@ export const CompositionSelectorItem: React.FC<{
 							{item.expanded ? (
 								<ExpandedFolderIcon
 									style={iconStyle}
-									color={hovered || selected ? 'white' : LIGHT_TEXT}
+									color={hovered || selected ? WHITE : LIGHT_TEXT}
 								/>
 							) : (
 								<CollapsedFolderIcon
-									color={hovered || selected ? 'white' : LIGHT_TEXT}
+									color={hovered || selected ? WHITE : LIGHT_TEXT}
 									style={iconStyle}
 								/>
 							)}
@@ -277,12 +278,12 @@ export const CompositionSelectorItem: React.FC<{
 				>
 					{isCompositionStill(item.composition) ? (
 						<StillIcon
-							color={hovered || selected ? 'white' : LIGHT_TEXT}
+							color={hovered || selected ? WHITE : LIGHT_TEXT}
 							style={iconStyle}
 						/>
 					) : (
 						<FilmIcon
-							color={hovered || selected ? 'white' : LIGHT_TEXT}
+							color={hovered || selected ? WHITE : LIGHT_TEXT}
 							style={iconStyle}
 						/>
 					)}
