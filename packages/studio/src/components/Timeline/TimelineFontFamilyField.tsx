@@ -45,6 +45,7 @@ const googleFonts = GOOGLE_FONTS_LIST.map((font) => ({
 	value: font.fontFamily,
 	googleFontImportName: font.importName,
 	googleFontCssFamily: font.previewUrl,
+	googleFontWeights: font.weights,
 }));
 
 const loadedGoogleFontsForPreview = new Set<string>();
@@ -81,6 +82,7 @@ type FontFamilyOption = {
 	readonly value: string | undefined;
 	readonly googleFontImportName?: string;
 	readonly googleFontCssFamily?: string;
+	readonly googleFontWeights?: string[];
 };
 
 const triggerStyle: React.CSSProperties = {
@@ -228,60 +230,20 @@ const scrollIndexIntoView = ({
 	}
 };
 
-const commonFontWeights = ['400', '700', '800'];
-
-const fontWeightAvailabilityCache = new Map<string, Promise<boolean>>();
-
-const canLoadGoogleFontWeight = ({
-	cssFamily,
-	weight,
-}: {
-	readonly cssFamily: string;
-	readonly weight: string;
-}) => {
-	const key = `${cssFamily}:${weight}`;
-	const cached = fontWeightAvailabilityCache.get(key);
-	if (cached) {
-		return cached;
-	}
-
-	const promise = fetch(
-		`https://fonts.googleapis.com/css?family=${cssFamily}:${weight}`,
-	)
-		.then((response) => response.ok)
-		.catch(() => false);
-	fontWeightAvailabilityCache.set(key, promise);
-	return promise;
-};
-
-const getAvailableCommonFontWeights = async (cssFamily: string) => {
-	const availability = await Promise.all(
-		commonFontWeights.map(async (weight) => ({
-			weight,
-			available: await canLoadGoogleFontWeight({cssFamily, weight}),
-		})),
-	);
-	const weights = availability
-		.filter(({available}) => available)
-		.map(({weight}) => weight);
-
-	return weights.length ? weights : ['400'];
-};
-
-const getGoogleFontSourceEdit = async ({
+const getGoogleFontSourceEdit = ({
 	fontFamily,
 	importName,
-	cssFamily,
+	weights,
 }: {
 	readonly fontFamily: string;
 	readonly importName: string;
-	readonly cssFamily: string;
-}): Promise<GoogleFontSourceEdit> => {
+	readonly weights: string[];
+}): GoogleFontSourceEdit => {
 	return {
 		fontFamily,
 		importName,
 		style: 'normal',
-		weights: await getAvailableCommonFontWeights(cssFamily),
+		weights,
 		subsets: ['latin'],
 	};
 };
@@ -379,13 +341,24 @@ const loadGoogleFontWeight = async ({
 	return true;
 };
 
+const commonPreviewFontWeights = ['400', '700', '800'];
+
+const getGoogleFontPreviewWeights = (weights: string[]) => {
+	const commonWeights = weights.filter((weight) =>
+		commonPreviewFontWeights.includes(weight),
+	);
+	return commonWeights.length ? commonWeights : weights.slice(0, 1);
+};
+
 const loadGoogleFontForPreview = async ({
 	fontFamily,
 	cssFamily,
+	weights,
 	document,
 }: {
 	readonly fontFamily: string;
 	readonly cssFamily: string;
+	readonly weights: string[];
 	readonly document: Document;
 }) => {
 	if (
@@ -401,9 +374,8 @@ const loadGoogleFontForPreview = async ({
 
 	loadingGoogleFontsForPreview.add(fontFamily);
 	try {
-		const weights = await getAvailableCommonFontWeights(cssFamily);
 		const loadedWeights = await Promise.all(
-			weights.map((weight) =>
+			getGoogleFontPreviewWeights(weights).map((weight) =>
 				loadGoogleFontWeight({
 					cssFamily,
 					fontFaceFamily: fontFamily,
@@ -540,10 +512,10 @@ export const TimelineFontFamilyField: React.FC<{
 				}
 
 				await installRequiredPackages(['@remotion/google-fonts']);
-				const googleFont = await getGoogleFontSourceEdit({
+				const googleFont = getGoogleFontSourceEdit({
 					fontFamily: option.value ?? option.label,
 					importName: option.googleFontImportName,
-					cssFamily: option.googleFontCssFamily ?? option.label,
+					weights: option.googleFontWeights ?? ['400'],
 				});
 				await onSave(option.value, {
 					sourceEdit: {type: 'google-font', font: googleFont},
@@ -619,6 +591,7 @@ export const TimelineFontFamilyField: React.FC<{
 		loadGoogleFontForPreview({
 			fontFamily: current,
 			cssFamily: googleFont.previewUrl,
+			weights: googleFont.weights,
 			document,
 		}).catch(() => undefined);
 		loadGoogleFontForPickerPreview({

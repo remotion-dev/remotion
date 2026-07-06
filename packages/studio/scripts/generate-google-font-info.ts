@@ -1,14 +1,15 @@
 // Execute with `bun packages/studio/scripts/generate-google-font-info.ts`
 
-import type {GoogleFont} from '@remotion/google-fonts';
 import {execSync} from 'child_process';
 import {writeFileSync} from 'fs';
 import path from 'path';
+import type {GoogleFont} from '@remotion/google-fonts';
 
 type BasicFontInfo = {
 	importName: string;
 	fontFamily: string;
 	previewUrl: string;
+	weights: string[];
 };
 
 // From https://www.remotion.dev/docs/font-picker#show-only-the-250-most-popular-google-fonts
@@ -280,10 +281,15 @@ for (const importName of TOP_250_GOOGLE_FONT_IMPORT_NAMES) {
 		);
 	}
 
+	const weights = Object.keys(fontInfo.fonts.normal ?? {}).sort(
+		(a, b) => Number(a) - Number(b),
+	);
+
 	basicInfos.push({
 		importName: fontInfo.importName,
 		fontFamily: fontInfo.fontFamily,
 		previewUrl,
+		weights: weights.length ? weights : ['400'],
 	});
 }
 
