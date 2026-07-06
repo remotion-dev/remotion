@@ -10,7 +10,7 @@ Write editable Remotion components so the [Studio interactivity](/docs/studio/in
 
 When a value is shown as computed in the Studio, it often means that the value is hidden behind a variable, helper function, conditional expression or transform string.
 
-## Use `Interactive.*` for tweakable elements
+## Use `Interactive.*` for tweakable elements {#use-interactive-for-tweakable-elements}
 
 Use the [`Interactive`](/docs/interactive) namespace when an HTML or SVG element should be selected, moved or edited in the Studio.
 
@@ -24,7 +24,11 @@ Use the [`Interactive`](/docs/interactive) namespace when an HTML or SVG element
 
 For a custom component, see [Make a component interactive](/docs/studio/make-component-interactive).
 
-## Keep editable values visible
+```txt title="Prompt"
+/remotion-best-practices Make this element editable in Remotion Studio. Use Interactive.* for tweakable HTML/SVG elements and keep editable style values inline.
+```
+
+## Keep editable values visible {#keep-editable-values-visible}
 
 Put values that should be edited in the Studio directly into the JSX.
 This applies to static style values, keyframes, easing and transform props.
@@ -62,7 +66,11 @@ const rotation = interpolate(frame, [0, 30], [0, 20]);
 Use standalone [`spring()`](/docs/spring) only when the animation needs a frame-driven physical spring simulation.
 Use individual CSS transform properties such as `scale`, `rotate` and `translate` instead of composing a `transform` string.
 
-## Keep composition metadata inline
+```txt title="Prompt"
+/remotion-best-practices Fix computed values in Remotion Studio. Move editable values into the JSX style object, keep interpolate() keyframes inline, use Easing.spring() as easing, and replace transform strings with scale/rotate/translate.
+```
+
+## Keep composition metadata inline {#keep-composition-metadata-inline}
 
 When scaffolding a composition, keep the component and its [`<Composition>`](/docs/composition) registration in the same file.
 Keep static `width`, `height`, `fps`, `durationInFrames` and [`defaultProps`](/docs/composition#defaultprops) inline.
@@ -100,7 +108,11 @@ const calculateMetadata = () => {
 
 Use [`calculateMetadata()`](/docs/calculate-metadata) when metadata depends on dynamic input props, fetched data or asset metadata.
 
-## Keep effects editable
+```txt title="Prompt"
+/remotion-best-practices Fix Composition metadata for Remotion Studio. Keep defaultProps, width, height, fps, and durationInFrames inline on the Composition unless calculateMetadata needs dynamic data.
+```
+
+## Keep effects editable {#keep-effects-editable}
 
 Keep editable effect parameters inline in the effect call and keep the effect array shape unconditional.
 
@@ -135,12 +147,8 @@ const center = [0.5, 0.5] as const;
 
 Render separate elements if one version should have effects and another should not.
 
-## AI agent prompt
-
-If a component is not editable enough in the Studio, give your coding agent a targeted prompt:
-
-```txt
-/remotion-best-practices Make this component interactive for Remotion Studio. Use Interactive.* for tweakable elements, keep editable style values and effect params inline, keep defaultProps inline on the Composition, prefer interpolate() keyframes, and use scale/rotate/translate instead of transform strings.
+```txt title="Prompt"
+/remotion-best-practices Fix computed effect controls in Remotion Studio. Keep effect parameters inline in the effect call and keep the effects array shape unconditional.
 ```
 
 ## See also
