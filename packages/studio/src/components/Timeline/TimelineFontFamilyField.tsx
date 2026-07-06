@@ -159,6 +159,7 @@ const optionLabel: React.CSSProperties = {
 	overflow: 'hidden',
 	textOverflow: 'ellipsis',
 	whiteSpace: 'nowrap',
+	fontSize: 12,
 };
 
 const optionSource: React.CSSProperties = {
