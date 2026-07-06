@@ -894,7 +894,10 @@ export const insertComposition = async ({
 			return;
 		}
 
-		showNotification(`Added ${composition.compositionId} to source file`, 2000);
+		showNotification(
+			`Added ${composition.compositionId} to ${compositionId}`,
+			2000,
+		);
 	} catch (error) {
 		showNotification(
 			`Could not add composition: ${
