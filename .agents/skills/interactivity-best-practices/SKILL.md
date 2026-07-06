@@ -71,6 +71,26 @@ style={{
 
 Individual transform properties are editable in Studio Visual Mode. Values hidden inside a `transform` string are not.
 
+Also avoid combining multiple transforms into one string:
+
+```tsx
+const translateY = interpolate(frame, [0, 100], [0, 120]);
+const rotation = interpolate(frame, [0, 100], [0, 20]);
+
+style={{
+  transform: `translateY(${translateY}px) rotate(${rotation}deg)`,
+}}
+```
+
+Prefer CSS transform shorthands:
+
+```tsx
+style={{
+  translate: interpolate(frame, [0, 100], ["0px 0px", "0px 120px"]),
+  rotate: interpolate(frame, [0, 100], ["0deg", "20deg"]),
+}}
+```
+
 ## Keep editable values inline
 
 Put the interpolation directly in the JSX style object when the value should be visually editable.

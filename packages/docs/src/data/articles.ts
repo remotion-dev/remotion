@@ -6655,6 +6655,15 @@ export const articles = [
 		slug: 'studio/go-to-composition',
 	},
 	{
+		id: 'studio/interactivity-best-practices',
+		title: 'Interactivity best practices',
+		relativePath: 'docs/studio/interactivity-best-practices.mdx',
+		compId: 'articles-docs-studio-interactivity-best-practices',
+		crumb: 'Remotion Studio',
+		noAi: false,
+		slug: 'studio/interactivity-best-practices',
+	},
+	{
 		id: 'studio/interactivity',
 		title: 'Interactivity',
 		relativePath: 'docs/studio/interactivity.mdx',

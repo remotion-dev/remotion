@@ -1,0 +1,331 @@
+---
+image: /generated/articles-docs-studio-interactivity-best-practices.png
+title: Interactivity best practices
+crumb: "Remotion Studio"
+---
+
+# Interactivity best practices
+
+Write editable Remotion components so the [Studio interactivity](/docs/studio/interactivity) can understand the values that should be changed visually.
+
+When a value is shown as computed in the Studio, it often means that the value is hidden behind a variable, helper function, conditional expression or transform string.
+
+## Use `Interactive.*` for tweakable elements
+
+Use the [`Interactive`](/docs/interactive) namespace when an HTML or SVG element should be selected, moved or edited in the Studio.
+
+```tsx twoslash title="Prefer Interactive elements"
+import {AbsoluteFill, Interactive} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  return (
+    <AbsoluteFill>
+      <Interactive.Div
+        style={{
+          backgroundColor: 'white',
+          fontSize: 80,
+          padding: 24,
+        }}
+      >
+        Hello
+      </Interactive.Div>
+    </AbsoluteFill>
+  );
+};
+```
+
+Avoid using a regular element when the element is meant to be edited visually:
+
+```tsx twoslash title="Avoid regular elements for editable objects"
+import {AbsoluteFill} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  return (
+    <AbsoluteFill>
+      <div
+        style={{
+          backgroundColor: 'white',
+          fontSize: 80,
+          padding: 24,
+        }}
+      >
+        Hello
+      </div>
+    </AbsoluteFill>
+  );
+};
+```
+
+For a custom component, see [Make a component interactive](/docs/studio/make-component-interactive).
+
+## Keep editable values inline
+
+Put values that should be edited in the Studio directly into the JSX.
+
+```tsx twoslash title="Prefer inline editable values"
+import {AbsoluteFill, Interactive} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  return (
+    <AbsoluteFill>
+      <Interactive.Div
+        style={{
+          color: 'white',
+          fontSize: 80,
+          translate: '120px 80px',
+        }}
+      >
+        Hello
+      </Interactive.Div>
+    </AbsoluteFill>
+  );
+};
+```
+
+Avoid moving editable values into a style object or helper:
+
+```tsx twoslash title="Avoid hiding editable values"
+import type React from 'react';
+import {AbsoluteFill, Interactive} from 'remotion';
+
+const container: React.CSSProperties = {
+  color: 'white',
+  fontSize: 80,
+  translate: '120px 80px',
+};
+
+export const MyComp: React.FC = () => {
+  return (
+    <AbsoluteFill>
+      <Interactive.Div style={container}>Hello</Interactive.Div>
+    </AbsoluteFill>
+  );
+};
+```
+
+## Animate with inline `interpolate()`
+
+Use [`interpolate()`](/docs/interpolate) directly in the editable style object.
+
+```tsx twoslash title="Prefer inline interpolate()"
+import {AbsoluteFill, Interactive, interpolate, useCurrentFrame} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  const frame = useCurrentFrame();
+
+  return (
+    <AbsoluteFill>
+      <Interactive.Div
+        style={{
+          scale: interpolate(frame, [0, 30], [0, 1]),
+        }}
+      >
+        Hello
+      </Interactive.Div>
+    </AbsoluteFill>
+  );
+};
+```
+
+Avoid calculating the interpolation separately when the value should become a keyframe in the Studio:
+
+```tsx twoslash title="Avoid extracted keyframe values"
+import {AbsoluteFill, Interactive, interpolate, useCurrentFrame} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  const frame = useCurrentFrame();
+  const scale = interpolate(frame, [0, 30], [0, 1]);
+
+  return (
+    <AbsoluteFill>
+      <Interactive.Div style={{scale}}>Hello</Interactive.Div>
+    </AbsoluteFill>
+  );
+};
+```
+
+## Prefer `Easing.spring()` over standalone `spring()`
+
+When the motion should feel like a spring, keep the editable keyframes in `interpolate()` and pass [`Easing.spring()`](/docs/easing#spring) as the easing function.
+
+```tsx twoslash title="Prefer spring easing"
+import {
+  AbsoluteFill,
+  Easing,
+  Interactive,
+  interpolate,
+  useCurrentFrame,
+} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  const frame = useCurrentFrame();
+
+  return (
+    <AbsoluteFill>
+      <Interactive.Div
+        style={{
+          scale: interpolate(frame, [0, 30], [0, 1], {
+            easing: Easing.spring({
+              damping: 200,
+            }),
+          }),
+        }}
+      >
+        Hello
+      </Interactive.Div>
+    </AbsoluteFill>
+  );
+};
+```
+
+Use standalone [`spring()`](/docs/spring) when the animation needs a frame-driven physical spring simulation.
+
+## Use individual transform properties
+
+Use individual CSS transform properties such as `scale`, `rotate` and `translate`.
+
+```tsx twoslash title="Prefer individual transform properties"
+import {AbsoluteFill, Interactive, interpolate, useCurrentFrame} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  const frame = useCurrentFrame();
+
+  return (
+    <AbsoluteFill>
+      <Interactive.Div
+        style={{
+          scale: interpolate(frame, [0, 30], [0, 1]),
+          rotate: interpolate(frame, [0, 30], ['0deg', '20deg']),
+          translate: interpolate(frame, [0, 30], ['0px 0px', '120px 80px']),
+        }}
+      >
+        Hello
+      </Interactive.Div>
+    </AbsoluteFill>
+  );
+};
+```
+
+Avoid hiding editable values inside a `transform` string:
+
+```tsx twoslash title="Avoid transform strings"
+import {AbsoluteFill, Interactive, interpolate, useCurrentFrame} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  const frame = useCurrentFrame();
+
+  return (
+    <AbsoluteFill>
+      <Interactive.Div
+        style={{
+          transform: `scale(${interpolate(frame, [0, 30], [0, 1])})`,
+        }}
+      >
+        Hello
+      </Interactive.Div>
+    </AbsoluteFill>
+  );
+};
+```
+
+This also applies when multiple transforms are combined into one string.
+Keep each transform in its own CSS transform shorthand:
+
+```tsx twoslash title="Prefer separate transform shorthands"
+import {AbsoluteFill, Interactive, interpolate, useCurrentFrame} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  const frame = useCurrentFrame();
+
+  return (
+    <AbsoluteFill>
+      <Interactive.Div
+        style={{
+          translate: interpolate(frame, [0, 30], ['0px 0px', '0px 120px']),
+          rotate: interpolate(frame, [0, 30], ['0deg', '20deg']),
+        }}
+      >
+        Hello
+      </Interactive.Div>
+    </AbsoluteFill>
+  );
+};
+```
+
+Avoid composing multiple transforms manually:
+
+```tsx twoslash title="Avoid combined transform strings"
+import {AbsoluteFill, Interactive, interpolate, useCurrentFrame} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  const frame = useCurrentFrame();
+  const translateY = interpolate(frame, [0, 30], [0, 120]);
+  const rotation = interpolate(frame, [0, 30], [0, 20]);
+
+  return (
+    <AbsoluteFill>
+      <Interactive.Div
+        style={{
+          transform: `translateY(${translateY}px) rotate(${rotation}deg)`,
+        }}
+      >
+        Hello
+      </Interactive.Div>
+    </AbsoluteFill>
+  );
+};
+```
+
+## Keep effects editable
+
+Keep editable effect parameters inline in the effect call.
+
+```tsx title="Prefer inline effect parameters"
+<CanvasImage
+  src={src}
+  width={1280}
+  height={720}
+  effects={[
+    radialProgressiveBlur({
+      center: [0.5, 0.5],
+      point1: [0.86, 0.36],
+      point2: [0.68, 0.84],
+    }),
+  ]}
+/>
+```
+
+Avoid hiding editable effect values behind constants:
+
+```tsx title="Avoid extracted effect parameters"
+const center = [0.5, 0.5] as const;
+
+<CanvasImage
+  src={src}
+  width={1280}
+  height={720}
+  effects={[
+    radialProgressiveBlur({
+      center,
+    }),
+  ]}
+/>
+```
+
+Keep the effect array shape unconditional. Render separate elements if one version should have effects and another should not.
+
+## AI agent prompt
+
+If a component is not editable enough in the Studio, give your coding agent a targeted prompt:
+
+```txt
+/remotion-best-practices Make this component interactive for Remotion Studio. Use Interactive.* for tweakable elements, keep editable style values inline, prefer inline interpolate() keyframes, use scale/rotate/translate instead of transform strings, and keep effect parameters inline.
+```
+
+## See also
+
+- [Studio interactivity](/docs/studio/interactivity)
+- [Make a component interactive](/docs/studio/make-component-interactive)
+- [`Interactive`](/docs/interactive)
+- [`interpolate()`](/docs/interpolate)
+- [`Easing.spring()`](/docs/easing#spring)
