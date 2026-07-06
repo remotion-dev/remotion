@@ -682,6 +682,16 @@ export type InsertableCompositionElement =
 				height: number;
 			} | null;
 			position: InsertableCompositionElementPosition | null;
+	  }
+	| {
+			type: 'composition';
+			compositionId: string;
+			compositionFile: string;
+			durationInFrames: number;
+			width: number;
+			height: number;
+			serializedResolvedPropsWithCustomSchema: string;
+			position: InsertableCompositionElementPosition | null;
 	  };
 
 export type InsertableCompositionElementPosition = {

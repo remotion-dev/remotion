@@ -123,6 +123,12 @@ export {
 	type ComponentDragData,
 	type ComponentProp,
 } from './component-drag-data';
+export {
+	COMPOSITION_DRAG_MIME_TYPE,
+	makeCompositionDragData,
+	parseCompositionDragData,
+	type CompositionDragData,
+} from './composition-drag-data';
 export {DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS} from './default-buffer-state-delay-in-milliseconds';
 export {getDefinePluginDefinitions} from './define-plugin-definitions';
 export {

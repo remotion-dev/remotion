@@ -1,5 +1,6 @@
 import {
 	ASSET_DRAG_MIME_TYPE,
+	COMPOSITION_DRAG_MIME_TYPE,
 	COMPONENT_DRAG_MIME_TYPE,
 	EFFECT_DRAG_MIME_TYPE,
 	getRequiredPackageForEffectImportPath,
@@ -37,6 +38,7 @@ const hasImportableAssetDragType = (dataTransfer: DataTransfer) => {
 		(type) =>
 			type === 'Files' ||
 			type === ASSET_DRAG_MIME_TYPE ||
+			type === COMPOSITION_DRAG_MIME_TYPE ||
 			type === COMPONENT_DRAG_MIME_TYPE ||
 			type === SFX_DRAG_MIME_TYPE ||
 			type === 'text/uri-list' ||
