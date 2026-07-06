@@ -11,7 +11,7 @@
 	"scripts": {
 		"formatting": "oxfmt src --check",
 		"format": "oxfmt src",
-		"prepublishOnly": "bun ensure-correct-version.ts && cp ../../README.md .",
+		"prepublishOnly": "bun ensure-correct-version.ts && cp ../../README.md . && cp ../../LICENSE.md .",
 		"lint": "eslint src",
 		"test": "bun test src/test",
 		"make": "tsgo -d && bun --env-file=../.env.bundle bundle.ts"
