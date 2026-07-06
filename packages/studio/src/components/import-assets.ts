@@ -12,7 +12,7 @@ import {
 	type InsertableCompositionElement,
 	type InsertableCompositionElementPosition,
 } from '@remotion/studio-shared';
-import {staticFile} from 'remotion';
+import {Internals, staticFile} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {getStaticFiles} from '../api/get-static-files';
 import {writeStaticFile} from '../api/write-static-file';
@@ -828,12 +828,8 @@ export const insertComponent = async ({
 };
 
 const serializeResolvedPropsForSourceCode = (
-	serializedResolvedPropsWithCustomSchema: string,
+	props: Record<string, unknown>,
 ) => {
-	const props = NoReactInternals.deserializeJSONWithSpecialTypes<
-		Record<string, unknown>
-	>(serializedResolvedPropsWithCustomSchema);
-
 	return NoReactInternals.serializeJSONWithSpecialTypes({
 		data: props,
 		indent: undefined,
@@ -863,7 +859,12 @@ export const insertComposition = async ({
 	}
 
 	try {
-		const calculated = await window.remotion_calculateComposition(
+		const resolver = Internals.resolveCompositionsRef.current;
+		if (!resolver) {
+			throw new Error('No composition resolver available');
+		}
+
+		const calculated = await resolver.resolveComposition(
 			composition.compositionId,
 		);
 		const dimensions = {
@@ -881,9 +882,7 @@ export const insertComposition = async ({
 				width: calculated.width,
 				height: calculated.height,
 				serializedResolvedPropsWithCustomSchema:
-					serializeResolvedPropsForSourceCode(
-						calculated.serializedResolvedPropsWithCustomSchema,
-					),
+					serializeResolvedPropsForSourceCode(calculated.props),
 				position: getCenteredPosition({
 					dimensions,
 					dropPosition,
