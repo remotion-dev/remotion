@@ -509,44 +509,73 @@ const moveCompositionToFolder = ({
 }): ApplyCodeModReturnType => {
 	let sourcePath: recast.types.NodePath | null = null;
 	let sourceParentFolderName: string | null = null;
+	let sourceIsDirectJsxChild = false;
 	let targetFolder: JSXElement | null = null;
 	const folderStack: string[] = [];
 
+	const isDirectJsxChild = (astPath: recast.types.NodePath) => {
+		const parent = astPath.parentPath?.node;
+		return (
+			(parent?.type === 'JSXElement' || parent?.type === 'JSXFragment') &&
+			parent.children.includes(astPath.node as JSXElement)
+		);
+	};
+
+	const visitJsxElementWithFolderContext = (astPath: recast.types.NodePath) => {
+		const node = astPath.node as JSXElement;
+		const compositionId = getCompositionIdFromJSXElement(node);
+		if (compositionId === transformation.idToMove) {
+			sourcePath = astPath;
+			sourceParentFolderName = folderStack.join('/') || null;
+			sourceIsDirectJsxChild = isDirectJsxChild(astPath);
+		}
+
+		const folderName = getFolderNameFromJSXElement(node);
+		const parentName = folderStack.join('/') || null;
+		if (
+			transformation.folderName !== null &&
+			folderName === transformation.folderName &&
+			parentName === transformation.parentName
+		) {
+			targetFolder = node;
+		}
+
+		if (folderName) {
+			folderStack.push(folderName);
+		}
+
+		for (let i = 0; i < node.children.length; i++) {
+			if (node.children[i].type !== 'JSXElement') {
+				continue;
+			}
+
+			visitJsxElementWithFolderContext(
+				astPath.get('children', i) as recast.types.NodePath,
+			);
+		}
+
+		if (folderName) {
+			folderStack.pop();
+		}
+	};
+
 	recast.types.visit(file, {
 		visitJSXElement(astPath) {
-			const node = astPath.node as JSXElement;
-			const compositionId = getCompositionIdFromJSXElement(node);
-			if (compositionId === transformation.idToMove) {
-				sourcePath = astPath as unknown as recast.types.NodePath;
-				sourceParentFolderName = folderStack.join('/') || null;
-			}
-
-			const folderName = getFolderNameFromJSXElement(node);
-			const parentName = folderStack.join('/') || null;
-			if (
-				transformation.folderName !== null &&
-				folderName === transformation.folderName &&
-				parentName === transformation.parentName
-			) {
-				targetFolder = node;
-			}
-
-			if (folderName) {
-				folderStack.push(folderName);
-			}
-
-			this.traverse(astPath);
-
-			if (folderName) {
-				folderStack.pop();
-			}
-
-			return undefined;
+			visitJsxElementWithFolderContext(
+				astPath as unknown as recast.types.NodePath,
+			);
+			return false;
 		},
 	});
 
 	if (!sourcePath) {
 		throw new Error(`Could not find composition "${transformation.idToMove}"`);
+	}
+
+	if (!sourceIsDirectJsxChild) {
+		throw new Error(
+			`Cannot move composition "${transformation.idToMove}" because it is not a direct JSX child`,
+		);
 	}
 
 	if (transformation.folderName === null && sourceParentFolderName === null) {

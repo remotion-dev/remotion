@@ -1,3 +1,4 @@
+import path from 'node:path';
 import {RenderInternals} from '@remotion/renderer';
 import {
 	areComponentProps,
@@ -39,7 +40,48 @@ const validatePosition = (
 	}
 };
 
-const validateElement = (element: InsertableCompositionElement) => {
+const isInsideRemotionRoot = ({
+	fileName,
+	remotionRoot,
+}: {
+	fileName: string;
+	remotionRoot: string;
+}) => {
+	const relativePath = path.relative(remotionRoot, fileName);
+	return !relativePath.startsWith('..') && !path.isAbsolute(relativePath);
+};
+
+const hasParentDirectorySegment = (fileName: string) => {
+	return fileName.split('/').includes('..');
+};
+
+const validateCompositionFile = ({
+	compositionFile,
+	remotionRoot,
+}: {
+	compositionFile: string;
+	remotionRoot: string;
+}) => {
+	if (
+		!compositionFile ||
+		compositionFile.includes('\0') ||
+		compositionFile.includes('\\') ||
+		compositionFile.startsWith('/') ||
+		hasParentDirectorySegment(compositionFile)
+	) {
+		throw new Error('Unsupported composition file');
+	}
+
+	const resolved = path.resolve(remotionRoot, compositionFile);
+	if (!isInsideRemotionRoot({fileName: resolved, remotionRoot})) {
+		throw new Error('Unsupported composition file');
+	}
+};
+
+const validateElement = (
+	element: InsertableCompositionElement,
+	remotionRoot: string,
+) => {
 	validatePosition(element.position);
 
 	if (element.type === 'solid') {
@@ -90,15 +132,14 @@ const validateElement = (element: InsertableCompositionElement) => {
 			throw new Error('Unsupported composition ID');
 		}
 
-		if (
-			typeof element.compositionFile !== 'string' ||
-			!element.compositionFile ||
-			element.compositionFile.includes('\0') ||
-			element.compositionFile.includes('\\') ||
-			element.compositionFile.startsWith('/')
-		) {
+		if (typeof element.compositionFile !== 'string') {
 			throw new Error('Unsupported composition file');
 		}
+
+		validateCompositionFile({
+			compositionFile: element.compositionFile,
+			remotionRoot,
+		});
 
 		validateDimension('width', element.width);
 		validateDimension('height', element.height);
@@ -169,7 +210,7 @@ export const insertJsxElementHandler: ApiHandler<
 }) =>
 	withSourceFileWriteQueue(async () => {
 		try {
-			validateElement(element);
+			validateElement(element, remotionRoot);
 			const elementLabel = getElementLabel(element);
 
 			RenderInternals.Log.trace(

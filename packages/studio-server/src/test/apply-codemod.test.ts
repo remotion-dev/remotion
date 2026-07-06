@@ -108,6 +108,50 @@ export const RemotionRoot: React.FC = () => {
 };
 `;
 
+const attributeFolderRootContents = `import React from 'react';
+import {Composition, Folder} from 'remotion';
+
+const Component = () => null;
+
+export const RemotionRoot: React.FC = () => {
+	return (
+		<>
+			<Folder
+				name="Parent"
+				preview={<Folder name="Shared" />}
+			/>
+			<Composition
+				id="MoveMe"
+				component={Component}
+				durationInFrames={120}
+				fps={30}
+				width={1280}
+				height={720}
+			/>
+		</>
+	);
+};
+`;
+
+const standaloneCompositionRootContents = `import React from 'react';
+import {Composition} from 'remotion';
+
+const Component = () => null;
+
+export const RemotionRoot: React.FC = () => {
+	return (
+		<Composition
+			id="Standalone"
+			component={Component}
+			durationInFrames={120}
+			fps={30}
+			width={1280}
+			height={720}
+		/>
+	);
+};
+`;
+
 const clearUndoRedoStacks = () => {
 	(getUndoStack() as unknown as unknown[]).length = 0;
 	(getRedoStack() as unknown as unknown[]).length = 0;
@@ -640,6 +684,36 @@ test('moves a composition to root', () => {
 		newContents.indexOf('id="NestedA"'),
 	);
 	expect(newContents.match(/id="NestedA"/g)?.length).toBe(1);
+});
+
+test('does not use folders inside JSX attributes as move targets', () => {
+	expect(() =>
+		parseAndApplyCodemod({
+			input: attributeFolderRootContents,
+			codeMod: {
+				type: 'move-composition-to-folder',
+				idToMove: 'MoveMe',
+				folderName: 'Shared',
+				parentName: 'Parent',
+			},
+		}),
+	).toThrow('Could not find folder "Parent/Shared"');
+});
+
+test('rejects moving a composition from a standalone JSX position', () => {
+	expect(() =>
+		parseAndApplyCodemod({
+			input: standaloneCompositionRootContents,
+			codeMod: {
+				type: 'move-composition-to-folder',
+				idToMove: 'Standalone',
+				folderName: null,
+				parentName: null,
+			},
+		}),
+	).toThrow(
+		'Cannot move composition "Standalone" because it is not a direct JSX child',
+	);
 });
 
 test('moves a composition into a self-closing folder', () => {

@@ -190,7 +190,7 @@ const getComponentIdentifier = (element: JSXElement) => {
 };
 
 const isRecord = (value: unknown): value is Record<string, unknown> => {
-	return typeof value === 'object' && value !== null;
+	return typeof value === 'object' && value !== null && !Array.isArray(value);
 };
 
 const findDynamicImportPath = (value: unknown): string | null => {
@@ -1478,7 +1478,13 @@ const ensureDefaultImport = ({
 	const importSpecifier = recast.types.builders.importDefaultSpecifier(
 		recast.types.builders.identifier(localName),
 	) as unknown as ImportDefaultSpecifier;
-	const existingImport = getImportDeclarations({ast, sourcePath})[0];
+	const existingImport = getImportDeclarations({ast, sourcePath}).find(
+		(declaration) => {
+			return !declaration.specifiers?.some(
+				(specifier) => specifier.type === 'ImportNamespaceSpecifier',
+			);
+		},
+	);
 
 	if (existingImport) {
 		existingImport.specifiers = [

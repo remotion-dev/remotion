@@ -13,7 +13,16 @@ const isRecord = (value: unknown): value is Record<string, unknown> => {
 };
 
 const isCompositionId = (value: unknown): value is string => {
-	return typeof value === 'string' && value.length > 0 && value.length < 500;
+	return (
+		typeof value === 'string' &&
+		value.length > 0 &&
+		value.length < 500 &&
+		/^([a-zA-Z0-9-\u4E00-\u9FFF])+$/.test(value)
+	);
+};
+
+const hasParentDirectorySegment = (value: string) => {
+	return value.split('/').includes('..');
 };
 
 const isCompositionFile = (value: unknown): value is string | null => {
@@ -27,7 +36,8 @@ const isCompositionFile = (value: unknown): value is string | null => {
 		value.length < 2000 &&
 		!value.includes('\0') &&
 		!value.includes('\\') &&
-		!value.startsWith('/')
+		!value.startsWith('/') &&
+		!hasParentDirectorySegment(value)
 	);
 };
 

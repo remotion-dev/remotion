@@ -58,8 +58,28 @@ test('rejects invalid composition drag data', () => {
 			JSON.stringify({
 				type: 'remotion-composition',
 				version: 1,
+				compositionFile: '../Root.tsx',
+				compositionId: 'MyVideo',
+			}),
+		),
+	).toBe(null);
+	expect(
+		parseCompositionDragData(
+			JSON.stringify({
+				type: 'remotion-composition',
+				version: 1,
 				compositionFile: 'src/Root.tsx',
 				compositionId: '',
+			}),
+		),
+	).toBe(null);
+	expect(
+		parseCompositionDragData(
+			JSON.stringify({
+				type: 'remotion-composition',
+				version: 1,
+				compositionFile: 'src/Root.tsx',
+				compositionId: 'Invalid id',
 			}),
 		),
 	).toBe(null);
