@@ -1,0 +1,153 @@
+---
+image: /generated/articles-docs-studio-interactivity-best-practices.png
+title: Interactivity best practices
+crumb: "Remotion Studio"
+---
+
+# Interactivity best practices
+
+Write editable Remotion components so the [Studio interactivity](/docs/studio/interactivity) can understand the values that should be changed visually.
+
+When a value is shown as computed in the Studio, it often means that the value is hidden behind a variable, helper function, conditional expression or transform string.
+
+## Use `Interactive.*` for tweakable elements
+
+Use the [`Interactive`](/docs/interactive) namespace when an HTML or SVG element should be selected, moved or edited in the Studio.
+
+```tsx title="Interactive elements"
+// 👍 Selectable and editable in the Studio
+<Interactive.Div style={{fontSize: 80, padding: 24}}>Hello</Interactive.Div>
+
+// 👎 A regular element is not Studio-editable
+<div style={{fontSize: 80, padding: 24}}>Hello</div>
+```
+
+For a custom component, see [Make a component interactive](/docs/studio/make-component-interactive).
+
+## Keep editable values visible
+
+Put values that should be edited in the Studio directly into the JSX.
+This applies to static style values, keyframes, easing and transform props.
+
+```tsx title="Inline values"
+// 👍 Inline values can be standardized and keyframed
+<Interactive.Div
+  style={{
+    color: 'white',
+    fontSize: 80,
+    scale: interpolate(frame, [0, 30], [0, 1], {
+      easing: Easing.spring({damping: 200}),
+    }),
+    rotate: interpolate(frame, [0, 30], ['0deg', '20deg']),
+    translate: interpolate(frame, [0, 30], ['0px 0px', '0px 120px']),
+  }}
+/>
+
+// 👎 Values hidden behind variables, helpers or strings become computed
+const container: React.CSSProperties = {
+  color: 'white',
+  fontSize: 80,
+};
+const translateY = interpolate(frame, [0, 30], [0, 120]);
+const rotation = interpolate(frame, [0, 30], [0, 20]);
+
+<Interactive.Div
+  style={{
+    ...container,
+    transform: `translateY(${translateY}px) rotate(${rotation}deg)`,
+  }}
+/>
+```
+
+Use standalone [`spring()`](/docs/spring) only when the animation needs a frame-driven physical spring simulation.
+Use individual CSS transform properties such as `scale`, `rotate` and `translate` instead of composing a `transform` string.
+
+## Keep composition metadata inline
+
+When scaffolding a composition, keep the component and its [`<Composition>`](/docs/composition) registration in the same file.
+Keep static `width`, `height`, `fps`, `durationInFrames` and [`defaultProps`](/docs/composition#defaultprops) inline.
+
+The Props editor can save visual edits back to your code when `defaultProps` is an inline object literal on `<Composition>` or [`<Still>`](/docs/still).
+If the Studio shows `` `defaultProps` prop must be a hardcoded value in the <Composition/> tag ``, move the values into the JSX.
+
+```tsx title="Composition metadata"
+// 👍 Static metadata and defaults are inline and nearby
+<Composition
+  id="my-video"
+  component={MyComponent}
+  durationInFrames={150}
+  fps={30}
+  width={1920}
+  height={1080}
+  defaultProps={{title: 'Hello', color: '#0b84ff'}}
+/>
+
+// 👎 Static metadata is hidden behind helpers or variables
+const defaultProps = {title: 'Hello', color: '#0b84ff'};
+const calculateMetadata = () => {
+  return {durationInFrames: 150, fps: 30, width: 1920, height: 1080};
+};
+
+<Composition
+  id="my-video"
+  component={MyComponent}
+  calculateMetadata={calculateMetadata}
+  defaultProps={{
+    title: 'Hello',
+  }}
+/>
+```
+
+Use [`calculateMetadata()`](/docs/calculate-metadata) when metadata depends on dynamic input props, fetched data or asset metadata.
+
+## Keep effects editable
+
+Keep editable effect parameters inline in the effect call and keep the effect array shape unconditional.
+
+```tsx title="Effects"
+// 👍 Parameters are inline and the array shape is stable
+<CanvasImage
+  src={src}
+  width={1280}
+  height={720}
+  effects={[
+    radialProgressiveBlur({
+      center: [0.5, 0.5],
+      point1: [0.86, 0.36],
+      point2: [0.68, 0.84],
+    }),
+  ]}
+/>
+
+// 👎 Values are hidden and the effect only exists conditionally
+const center = [0.5, 0.5] as const;
+<CanvasImage
+  src={src}
+  width={1280}
+  height={720}
+  effects={enabled ? [
+    radialProgressiveBlur({
+      center,
+    }),
+  ] : []}
+/>
+```
+
+Render separate elements if one version should have effects and another should not.
+
+## AI agent prompt
+
+If a component is not editable enough in the Studio, give your coding agent a targeted prompt:
+
+```txt
+/remotion-best-practices Make this component interactive for Remotion Studio. Use Interactive.* for tweakable elements, keep editable style values and effect params inline, keep defaultProps inline on the Composition, prefer interpolate() keyframes, and use scale/rotate/translate instead of transform strings.
+```
+
+## See also
+
+- [Studio interactivity](/docs/studio/interactivity)
+- [Make a component interactive](/docs/studio/make-component-interactive)
+- [Visual editing](/docs/visual-editing)
+- [`Interactive`](/docs/interactive)
+- [`interpolate()`](/docs/interpolate)
+- [`Easing.spring()`](/docs/easing#spring)
