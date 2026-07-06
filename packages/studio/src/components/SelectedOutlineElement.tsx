@@ -115,7 +115,7 @@ import {useSelectAsset} from './use-select-asset';
 
 const emptyContextMenuValues: readonly ComboboxValue[] = [];
 
-const SelectedOutlineTransformOriginHandle: React.FC<{
+export const SelectedOutlineTransformOriginHandle: React.FC<{
 	readonly outline: SelectedOutline;
 	readonly onDraggingChange: (dragging: boolean) => void;
 	readonly target: SelectedOutlineTarget | undefined;
@@ -1736,11 +1736,6 @@ export const SelectedOutlineElement: React.FC<{
 						/>
 					))
 				: null}
-			<SelectedOutlineTransformOriginHandle
-				outline={outline}
-				onDraggingChange={onDraggingChange}
-				target={target}
-			/>
 		</>
 	);
 };
