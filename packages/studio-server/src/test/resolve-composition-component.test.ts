@@ -1384,6 +1384,7 @@ test('inserts a composition as a duration-aware Sequence', async () => {
 		expect(result.output).toContain('width={1080}');
 		expect(result.output).toContain('height={540}');
 		expect(result.output).toContain('durationInFrames={100}');
+		expect(result.output).toContain('name="source"');
 		expect(result.output).toContain('<Source');
 		expect(result.output).toContain('hi="there"');
 		expect(result.output).toContain('nested={{');

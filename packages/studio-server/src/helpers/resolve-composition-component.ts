@@ -2136,7 +2136,7 @@ export const insertJsxElementIntoComposition = async ({
 			? {
 					dimensions: {width: element.width, height: element.height},
 					durationInFrames: element.durationInFrames,
-					name: null,
+					name: element.compositionId,
 					position: element.position,
 				}
 			: wrapInSequence;
