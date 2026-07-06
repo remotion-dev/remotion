@@ -199,6 +199,11 @@
 			"module": "./dist/esm/noise-displacement.mjs",
 			"import": "./dist/esm/noise-displacement.mjs"
 		},
+		"./paper": {
+			"types": "./dist/paper.d.ts",
+			"module": "./dist/esm/paper.mjs",
+			"import": "./dist/esm/paper.mjs"
+		},
 		"./pattern": {
 			"types": "./dist/pattern.d.ts",
 			"module": "./dist/esm/pattern.mjs",
@@ -401,6 +406,9 @@
 			],
 			"noise-displacement": [
 				"dist/noise-displacement.d.ts"
+			],
+			"paper": [
+				"dist/paper.d.ts"
 			],
 			"pattern": [
 				"dist/pattern.d.ts"

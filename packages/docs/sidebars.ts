@@ -304,6 +304,7 @@ const sidebars: SidebarsConfig = {
 				'effects/mirror',
 				'effects/noise',
 				'effects/noise-displacement',
+				'effects/paper',
 				'effects/pattern',
 				'effects/pixel-dissolve',
 				'effects/pixelate',
