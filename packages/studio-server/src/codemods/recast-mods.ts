@@ -312,18 +312,10 @@ const newFolderElement = (
 			type: 'JSXOpeningElement',
 			name: jsxId('Folder'),
 			attributes: [jsxAttributeWithString('name', transformation.folderName)],
-			selfClosing: false,
+			selfClosing: true,
 		},
-		closingElement: {
-			type: 'JSXClosingElement',
-			name: jsxId('Folder'),
-		},
-		children: [
-			{
-				type: 'JSXExpressionContainer',
-				expression: nullLiteral(),
-			},
-		],
+		closingElement: null,
+		children: [],
 	};
 };
 

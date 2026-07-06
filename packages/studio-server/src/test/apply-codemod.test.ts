@@ -86,6 +86,28 @@ export const RemotionRoot: React.FC = () => {
 };
 `;
 
+const selfClosingFolderRootContents = `import React from 'react';
+import {Composition, Folder} from 'remotion';
+
+const Component = () => null;
+
+export const RemotionRoot: React.FC = () => {
+	return (
+		<>
+			<Folder name="Empty" />
+			<Composition
+				id="KeepMe"
+				component={Component}
+				durationInFrames={120}
+				fps={30}
+				width={1280}
+				height={720}
+			/>
+		</>
+	);
+};
+`;
+
 const clearUndoRedoStacks = () => {
 	(getUndoStack() as unknown as unknown[]).length = 0;
 	(getRedoStack() as unknown as unknown[]).length = 0;
@@ -245,7 +267,7 @@ test('applyCodemodHandler pushes folder creations to undo and redo stacks', asyn
 			parentName: null,
 		},
 		assertApplied: (contents) => {
-			expect(contents).toContain('<Folder name="FreshFolder">{null}</Folder>');
+			expect(contents).toContain('<Folder name="FreshFolder" />');
 			expect(contents).toContain('id="KeepMe"');
 		},
 		expectedUndoMessage: '↩️  Creation of folder "FreshFolder"',
@@ -401,9 +423,9 @@ test('creates a top-level folder', () => {
 	expect(newContents).toMatch(
 		/import\s*\{[^}]*Folder[^}]*\}\s*from\s*['"]remotion['"]/,
 	);
-	expect(newContents).toContain('<Folder name="FreshFolder">{null}</Folder>');
+	expect(newContents).toContain('<Folder name="FreshFolder" />');
 	expect(newContents.indexOf('id="KeepMe"')).toBeLessThan(
-		newContents.indexOf('<Folder name="FreshFolder">{null}</Folder>'),
+		newContents.indexOf('<Folder name="FreshFolder" />'),
 	);
 });
 
@@ -418,13 +440,62 @@ test('creates a folder in a nested folder by parent path', () => {
 	});
 
 	expect(changesMade.length).toBe(1);
-	expect(newContents).toContain('<Folder name="FreshFolder">{null}</Folder>');
+	expect(newContents).toContain('<Folder name="FreshFolder" />');
 	expect(newContents.indexOf('id="NestedA"')).toBeLessThan(
-		newContents.indexOf('<Folder name="FreshFolder">{null}</Folder>'),
+		newContents.indexOf('<Folder name="FreshFolder" />'),
 	);
-	expect(
-		newContents.indexOf('<Folder name="FreshFolder">{null}</Folder>'),
-	).toBeLessThan(newContents.indexOf('<Folder name="Other">'));
+	expect(newContents.indexOf('<Folder name="FreshFolder" />')).toBeLessThan(
+		newContents.indexOf('<Folder name="Other">'),
+	);
+});
+
+test('creates a composition in a self-closing folder', () => {
+	const {changesMade, newContents} = parseAndApplyCodemod({
+		input: selfClosingFolderRootContents,
+		codeMod: {
+			type: 'new-composition',
+			newId: 'FreshVideo',
+			componentName: 'FreshVideo',
+			componentImportPath: './FreshVideo',
+			folderName: 'Empty',
+			parentName: null,
+			newDurationInFrames: 150,
+			newFps: 30,
+			newHeight: 1080,
+			newWidth: 1920,
+		},
+	});
+
+	expect(changesMade.length).toBe(1);
+	expect(newContents).toContain('<Folder name="Empty">');
+	expect(newContents).toContain('id="FreshVideo"');
+	expect(newContents.indexOf('<Folder name="Empty">')).toBeLessThan(
+		newContents.indexOf('id="FreshVideo"'),
+	);
+	expect(newContents.indexOf('id="FreshVideo"')).toBeLessThan(
+		newContents.indexOf('id="KeepMe"'),
+	);
+});
+
+test('creates a folder in a self-closing folder', () => {
+	const {changesMade, newContents} = parseAndApplyCodemod({
+		input: selfClosingFolderRootContents,
+		codeMod: {
+			type: 'new-folder',
+			folderName: 'Nested',
+			parentName: 'Empty',
+		},
+	});
+
+	expect(changesMade.length).toBe(1);
+	expect(newContents).toContain('<Folder name="Empty">');
+	expect(newContents).toContain('<Folder name="Nested" />');
+	expect(newContents.indexOf('<Folder name="Empty">')).toBeLessThan(
+		newContents.indexOf('<Folder name="Nested" />'),
+	);
+	expect(newContents.indexOf('<Folder name="Nested" />')).toBeLessThan(
+		newContents.indexOf('id="KeepMe"'),
+	);
 });
 
 test('renames a nested folder by parent path', () => {
