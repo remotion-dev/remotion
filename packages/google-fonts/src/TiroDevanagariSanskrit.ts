@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Tiro Devanagari Sanskrit',
 	importName: 'TiroDevanagariSanskrit',
-	version: 'v5',
+	version: 'v7',
 	url: 'https://fonts.googleapis.com/css2?family=Tiro+Devanagari+Sanskrit:ital,wght@0,400;1,400',
 	unicodeRanges: {
 		devanagari:
@@ -17,21 +17,21 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				devanagari:
-					'https://fonts.gstatic.com/s/tirodevanagarisanskrit/v5/MCoGzBbr09vVUgVBM8FWu_yZdZkhkg-I0nUlb59ZELsoqteB0w.woff2',
+					'https://fonts.gstatic.com/s/tirodevanagarisanskrit/v7/MCoGzBbr09vVUgVBM8FWu_yZdZkhkg-I0nUlb59ZELsoqteB0w.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/tirodevanagarisanskrit/v5/MCoGzBbr09vVUgVBM8FWu_yZdZkhkg-I0nUlb59ZELsnqteB0w.woff2',
+					'https://fonts.gstatic.com/s/tirodevanagarisanskrit/v7/MCoGzBbr09vVUgVBM8FWu_yZdZkhkg-I0nUlb59ZELsnqteB0w.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/tirodevanagarisanskrit/v5/MCoGzBbr09vVUgVBM8FWu_yZdZkhkg-I0nUlb59ZELspqtc.woff2',
+					'https://fonts.gstatic.com/s/tirodevanagarisanskrit/v7/MCoGzBbr09vVUgVBM8FWu_yZdZkhkg-I0nUlb59ZELspqtc.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				devanagari:
-					'https://fonts.gstatic.com/s/tirodevanagarisanskrit/v5/MCoAzBbr09vVUgVBM8FWu_yZdZkhkg-I0nUlb59ZFIsrstM.woff2',
+					'https://fonts.gstatic.com/s/tirodevanagarisanskrit/v7/MCoAzBbr09vVUgVBM8FWu_yZdZkhkg-I0nUlb59ZFIsrstM.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/tirodevanagarisanskrit/v5/MCoAzBbr09vVUgVBM8FWu_yZdZkhkg-I0nUlb59ZG4srstM.woff2',
+					'https://fonts.gstatic.com/s/tirodevanagarisanskrit/v7/MCoAzBbr09vVUgVBM8FWu_yZdZkhkg-I0nUlb59ZG4srstM.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/tirodevanagarisanskrit/v5/MCoAzBbr09vVUgVBM8FWu_yZdZkhkg-I0nUlb59ZFYsr.woff2',
+					'https://fonts.gstatic.com/s/tirodevanagarisanskrit/v7/MCoAzBbr09vVUgVBM8FWu_yZdZkhkg-I0nUlb59ZFYsr.woff2',
 			},
 		},
 	},
