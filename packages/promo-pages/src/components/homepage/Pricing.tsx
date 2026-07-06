@@ -1,7 +1,13 @@
-import React from 'react';
+import React, {useMemo} from 'react';
 import {CompanyPricing, EnterpriseLicense, FreePricing} from './FreePricing';
 
-export const Pricing: React.FC = () => {
+export const Pricing: React.FC<{
+	readonly faqHref?: string;
+}> = ({faqHref = '/pricing#faq'}) => {
+	const faqLinkTarget = useMemo(() => {
+		return faqHref.startsWith('http') ? '_blank' : undefined;
+	}, [faqHref]);
+
 	return (
 		<div
 			style={{
@@ -26,11 +32,7 @@ export const Pricing: React.FC = () => {
 					}}
 				>
 					See our{' '}
-					<a
-						target="_blank"
-						className="bluelink"
-						href="https://remotion.pro/faq"
-					>
+					<a target={faqLinkTarget} className="bluelink" href={faqHref}>
 						FAQ
 					</a>{' '}
 					and{' '}
