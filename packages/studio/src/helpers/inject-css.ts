@@ -1,7 +1,7 @@
 import {Internals} from 'remotion';
 import {DEFAULT_PROPS_PATH_ACTIVE_CLASSNAME} from '../components/RenderModal/SchemaEditor/scroll-to-default-props-path';
 
-export const makeDefaultGlobalCSS = () => {
+const makeDefaultGlobalCSS = () => {
 	const unhoveredDragAreaFactor = 2;
 	const fromMiddle = 50 / unhoveredDragAreaFactor;
 
