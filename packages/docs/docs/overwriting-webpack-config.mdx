@@ -204,6 +204,78 @@ Config.overrideWebpackConfig(enableMdx);
 - [TailwindCSS V3](/docs/tailwind)
 - [TailwindCSS V2 (Legacy)](/docs/tailwind-legacy)
 
+### Enable PostCSS support
+
+Use this snippet for generic PostCSS plugins.
+For TailwindCSS, use the [TailwindCSS docs](/docs/tailwind) instead.
+
+1. Install the following dependencies:
+
+<Installation pkg="postcss postcss-loader postcss-size" />
+
+2. Create a file with the Webpack override:
+
+```ts twoslash title="src/enable-postcss.ts"
+import {WebpackOverrideFn} from '@remotion/bundler';
+// ---cut---
+export const enablePostCSS: WebpackOverrideFn = (currentConfiguration) => {
+  return {
+    ...currentConfiguration,
+    module: {
+      ...currentConfiguration.module,
+      rules: (currentConfiguration.module?.rules ?? []).map((rule) => {
+        if (!rule || rule === '...') {
+          return rule;
+        }
+
+        if (!rule.test?.toString().includes('.css')) {
+          return rule;
+        }
+
+        const use = Array.isArray(rule.use)
+          ? rule.use
+          : rule.use
+            ? [rule.use]
+            : [];
+
+        return {
+          ...rule,
+          use: [
+            ...use,
+            {
+              loader: 'postcss-loader',
+              options: {
+                postcssOptions: {
+                  plugins: ['postcss-size'],
+                },
+              },
+            },
+          ],
+        };
+      }),
+    },
+  };
+};
+```
+
+3. Add it to the config file:
+
+```ts twoslash title="remotion.config.ts"
+// @filename: ./src/enable-postcss.ts
+import {WebpackOverrideFn} from '@remotion/bundler';
+export const enablePostCSS: WebpackOverrideFn = (c) => c;
+// @filename: remotion.config.ts
+// ---cut---
+import {Config} from '@remotion/cli/config';
+import {enablePostCSS} from './src/enable-postcss';
+
+Config.overrideWebpackConfig(enablePostCSS);
+```
+
+4. Add it to your [Node.JS API calls as well if necessary](#when-using-bundle-and-deploysite).
+
+5. Restart the Remotion Studio.
+
 ### Enable SASS/SCSS support
 
 The easiest way is to use the `@remotion/enable-scss`.  
