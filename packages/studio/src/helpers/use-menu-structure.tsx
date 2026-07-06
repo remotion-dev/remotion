@@ -751,7 +751,7 @@ export const useMenuStructure = (
 						: {
 								id: 'install-packages',
 								value: 'install-packages',
-								label: 'Install package',
+								label: 'Install package...',
 								onClick: () => {
 									closeMenu();
 									setSelectedModal({
@@ -763,7 +763,7 @@ export const useMenuStructure = (
 								keyHint: null,
 								leftItem: null,
 								subMenu: null,
-								quickSwitcherLabel: `Install package`,
+								quickSwitcherLabel: `Install package...`,
 							},
 				].filter(Internals.truthy),
 				quickSwitcherLabel: null,
