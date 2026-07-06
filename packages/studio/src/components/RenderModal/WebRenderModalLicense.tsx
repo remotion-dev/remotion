@@ -4,6 +4,7 @@ import {
 	INPUT_BACKGROUND,
 	INPUT_BORDER_COLOR_UNHOVERED,
 	LIGHT_TEXT,
+	WHITE,
 } from '../../helpers/colors';
 import {Checkbox} from '../Checkbox';
 import {Spacing} from '../layout';
@@ -56,7 +57,7 @@ const paddedDescriptionStyle: React.CSSProperties = {
 };
 
 const descriptionLink: React.CSSProperties = {
-	color: 'white',
+	color: WHITE,
 	fontSize: 14,
 };
 

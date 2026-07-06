@@ -1,10 +1,11 @@
 import React from 'react';
+import {BORDER_BLACK_HEX} from '../../helpers/colors';
 
 const hrStyle: React.CSSProperties = {
 	margin: '0 0 0 0',
 	padding: '0 0 0 0',
 	border: 'none',
-	borderTop: '1px solid #000',
+	borderTop: BORDER_BLACK_HEX,
 	marginRight: 16,
 	marginLeft: 16,
 	marginTop: 8,

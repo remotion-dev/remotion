@@ -1,7 +1,12 @@
 import React, {useCallback, useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {cmdOrCtrlCharacter} from '../error-overlay/remotion-overlay/ShortcutHint';
-import {BACKGROUND, BORDER_COLOR, LIGHT_TEXT} from '../helpers/colors';
+import {
+	BACKGROUND,
+	BORDER_COLOR,
+	LIGHT_TEXT,
+	WHITE_ALPHA_06,
+} from '../helpers/colors';
 import {createFolderTree} from '../helpers/create-folder-tree';
 import {ExpandedFoldersContext} from '../helpers/persist-open-folders';
 import {sortItemsByNonceHistory} from '../helpers/sort-by-nonce-history';
@@ -83,7 +88,7 @@ const quickSwitcherArea: React.CSSProperties = {
 };
 
 const quickSwitcherTrigger: React.CSSProperties = {
-	backgroundColor: 'rgba(255, 255, 255, 0.06)',
+	backgroundColor: WHITE_ALPHA_06,
 	borderRadius: 5,
 	padding: '4px 10px',
 	color: LIGHT_TEXT,

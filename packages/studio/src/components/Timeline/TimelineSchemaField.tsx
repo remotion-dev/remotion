@@ -4,6 +4,7 @@ import type {
 	CanUpdateSequencePropStatusStatic,
 	SequencePropsSubscriptionKey,
 } from 'remotion';
+import {WHITE_ALPHA_40} from '../../helpers/colors';
 import type {
 	SchemaFieldInfo,
 	TimelineFieldOnDragValueChange,
@@ -17,7 +18,7 @@ import {
 } from './TimelinePrimitiveFieldValue';
 
 const unsupportedLabel: React.CSSProperties = {
-	color: 'rgba(255, 255, 255, 0.4)',
+	color: WHITE_ALPHA_40,
 	fontSize: 12,
 	fontStyle: 'italic',
 	userSelect: 'none',

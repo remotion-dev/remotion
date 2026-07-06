@@ -2,6 +2,7 @@ import React, {forwardRef, useMemo} from 'react';
 import {
 	INPUT_BACKGROUND,
 	INPUT_BORDER_COLOR_UNHOVERED,
+	WHITE,
 } from '../helpers/colors';
 const button: React.CSSProperties = {
 	border: `1px solid ${INPUT_BORDER_COLOR_UNHOVERED}`,
@@ -10,7 +11,7 @@ const button: React.CSSProperties = {
 	appearance: 'none',
 	fontFamily: 'inherit',
 	fontSize: 14,
-	color: 'white',
+	color: WHITE,
 	flexDirection: 'row',
 };
 

@@ -1,4 +1,5 @@
 import React, {useCallback, useContext} from 'react';
+import {BORDER_BLACK, WHITE} from '../helpers/colors';
 import {ModalsContext} from '../state/modals';
 import {Flex} from './layout';
 import {CancelButton} from './NewComposition/CancelButton';
@@ -9,12 +10,12 @@ const container: React.CSSProperties = {
 	alignItems: 'center',
 	padding: '12px 16px',
 	width: '100%',
-	borderBottom: '1px solid black',
+	borderBottom: BORDER_BLACK,
 };
 
 const titleStyle: React.CSSProperties = {
 	fontSize: 14,
-	color: 'white',
+	color: WHITE,
 };
 
 const icon: React.CSSProperties = {

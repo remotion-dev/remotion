@@ -1,5 +1,10 @@
 import React, {useEffect, useState} from 'react';
-import {BORDER_COLOR} from '../../helpers/colors';
+import {
+	BORDER_COLOR,
+	ERROR_LINK_COLOR,
+	WHITE,
+	WHITE_ALPHA_10_COMPACT,
+} from '../../helpers/colors';
 
 type ProbeResult =
 	| {type: 'loading'}
@@ -11,7 +16,7 @@ type ProbeResult =
 
 const container: React.CSSProperties = {
 	borderRadius: 3,
-	color: 'white',
+	color: WHITE,
 	padding: 12,
 	backgroundColor: BORDER_COLOR,
 	fontSize: 14,
@@ -20,7 +25,7 @@ const container: React.CSSProperties = {
 };
 
 const codeStyle: React.CSSProperties = {
-	backgroundColor: 'rgba(255,255,255,0.1)',
+	backgroundColor: WHITE_ALPHA_10_COMPACT,
 	padding: '2px 5px',
 	borderRadius: 3,
 	fontFamily: 'monospace',
@@ -28,7 +33,7 @@ const codeStyle: React.CSSProperties = {
 };
 
 const linkStyle: React.CSSProperties = {
-	color: '#58a6ff',
+	color: ERROR_LINK_COLOR,
 };
 
 export const MediaPlaybackErrorExplainer: React.FC<{

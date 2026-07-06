@@ -4,6 +4,8 @@ import {
 	INPUT_BACKGROUND,
 	INPUT_BORDER_COLOR_UNHOVERED,
 	LIGHT_TEXT,
+	TRANSPARENT,
+	WHITE,
 } from '../helpers/colors';
 import {useZIndex} from '../state/z-index';
 
@@ -106,8 +108,8 @@ const Item: React.FC<
 	const itemStyle: React.CSSProperties = useMemo(() => {
 		return {
 			...(size === 'compact' ? compactItem : item),
-			backgroundColor: selected ? INPUT_BACKGROUND : 'transparent',
-			color: selected ? 'white' : hovered ? 'white' : LIGHT_TEXT,
+			backgroundColor: selected ? INPUT_BACKGROUND : TRANSPARENT,
+			color: selected ? WHITE : hovered ? WHITE : LIGHT_TEXT,
 		};
 	}, [hovered, selected, size]);
 

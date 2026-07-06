@@ -6,6 +6,7 @@ import {
 	INPUT_BORDER_COLOR_HOVERED,
 	INPUT_BORDER_COLOR_UNHOVERED,
 	SELECTED_BACKGROUND,
+	WHITE,
 } from '../../helpers/colors';
 import {useMobileLayout} from '../../helpers/mobile-layout';
 import {noop} from '../../helpers/noop';
@@ -243,7 +244,7 @@ export const Combobox: React.FC<{
 			...(customStyle ?? {}),
 			userSelect: 'none',
 			WebkitUserSelect: 'none',
-			color: 'white',
+			color: WHITE,
 			display: 'inline-flex',
 			flexDirection: 'row',
 			alignItems: 'center',

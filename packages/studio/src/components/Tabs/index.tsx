@@ -2,9 +2,11 @@ import React, {useCallback, useMemo, useState} from 'react';
 import {
 	BACKGROUND,
 	BLUE,
+	BORDER_TRANSPARENT_2PX,
 	CLEAR_HOVER,
 	INPUT_BACKGROUND,
 	LIGHT_TEXT,
+	WHITE,
 } from '../../helpers/colors';
 import {useZIndex} from '../../state/z-index';
 
@@ -68,8 +70,8 @@ export const Tab: React.FC<{
 				: hovered
 					? CLEAR_HOVER
 					: INPUT_BACKGROUND,
-			color: selected ? 'white' : LIGHT_TEXT,
-			borderTop: selected ? '2px solid ' + BLUE : '2px solid transparent',
+			color: selected ? WHITE : LIGHT_TEXT,
+			borderTop: selected ? '2px solid ' + BLUE : BORDER_TRANSPARENT_2PX,
 			boxShadow: selected ? 'none' : undefined,
 			...style,
 		}),

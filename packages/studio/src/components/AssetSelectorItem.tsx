@@ -14,8 +14,11 @@ import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {
 	BACKGROUND,
 	CLEAR_HOVER,
+	CURRENT_COLOR,
 	LIGHT_TEXT,
 	SELECTED_BACKGROUND,
+	TRANSPARENT,
+	WHITE,
 } from '../helpers/colors';
 import {copyText} from '../helpers/copy-text';
 import type {AssetFolder, AssetStructure} from '../helpers/create-folder-tree';
@@ -84,7 +87,7 @@ const labelStyle: React.CSSProperties = {
 
 const revealIconStyle: React.CSSProperties = {
 	height: 12,
-	color: 'currentColor',
+	color: CURRENT_COLOR,
 };
 
 const AssetFolderItem: React.FC<{
@@ -131,14 +134,14 @@ const AssetFolderItem: React.FC<{
 		return {
 			...itemStyle,
 			paddingLeft: 4 + level * 8,
-			backgroundColor: hovered ? CLEAR_HOVER : 'transparent',
+			backgroundColor: hovered ? CLEAR_HOVER : TRANSPARENT,
 		};
 	}, [hovered, level]);
 
 	const label = useMemo(() => {
 		return {
 			...labelStyle,
-			color: hovered ? 'white' : LIGHT_TEXT,
+			color: hovered ? WHITE : LIGHT_TEXT,
 		};
 	}, [hovered]);
 
@@ -185,7 +188,7 @@ const AssetFolderItem: React.FC<{
 				}}
 			>
 				<Row>
-					<Icon style={iconStyle} color={hovered ? 'white' : LIGHT_TEXT} />
+					<Icon style={iconStyle} color={hovered ? WHITE : LIGHT_TEXT} />
 					<Spacing x={1} />
 					<div style={label}>{item.name}</div>
 				</Row>
@@ -358,14 +361,14 @@ const AssetSelectorItem: React.FC<{
 	const style: React.CSSProperties = useMemo(() => {
 		return {
 			...itemStyle,
-			color: hovered || selected ? 'white' : LIGHT_TEXT,
+			color: hovered || selected ? WHITE : LIGHT_TEXT,
 			backgroundColor: hovered
 				? selected
 					? SELECTED_BACKGROUND
 					: CLEAR_HOVER
 				: selected
 					? SELECTED_BACKGROUND
-					: 'transparent',
+					: TRANSPARENT,
 			paddingLeft: 12 + level * 8,
 		};
 	}, [hovered, level, selected]);
@@ -373,7 +376,7 @@ const AssetSelectorItem: React.FC<{
 	const label = useMemo(() => {
 		return {
 			...labelStyle,
-			color: hovered || selected ? 'white' : LIGHT_TEXT,
+			color: hovered || selected ? WHITE : LIGHT_TEXT,
 		};
 	}, [hovered, selected]);
 

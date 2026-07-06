@@ -5,6 +5,11 @@ import type {
 } from '@remotion/web-renderer';
 import {getSupportedAudioCodecsForContainer} from '@remotion/web-renderer';
 import React, {useMemo} from 'react';
+import {
+	BORDER_INFO_BLUE,
+	INFO_BLUE,
+	INFO_BLUE_BACKGROUND,
+} from '../../helpers/colors';
 import {Checkmark} from '../../icons/Checkmark';
 import {Spacing} from '../layout';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
@@ -22,8 +27,8 @@ const container: React.CSSProperties = {
 };
 
 const fallbackNoticeStyle: React.CSSProperties = {
-	backgroundColor: 'rgba(59, 130, 246, 0.15)',
-	border: '1px solid rgba(59, 130, 246, 0.4)',
+	backgroundColor: INFO_BLUE_BACKGROUND,
+	border: BORDER_INFO_BLUE,
 	borderRadius: 4,
 	padding: '8px 12px',
 	marginLeft: 16,
@@ -31,7 +36,7 @@ const fallbackNoticeStyle: React.CSSProperties = {
 	marginTop: 8,
 	fontSize: 13,
 	lineHeight: 1.4,
-	color: '#60a5fa',
+	color: INFO_BLUE,
 };
 
 const humanReadableWebAudioCodec = (

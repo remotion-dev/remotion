@@ -14,6 +14,7 @@ import {
 	INPUT_BORDER_COLOR_UNHOVERED,
 	SELECTED_BACKGROUND,
 	WARNING_COLOR,
+	WHITE,
 } from '../../helpers/colors';
 import {useZIndex} from '../../state/z-index';
 
@@ -40,7 +41,7 @@ export const RightAlignInput: React.FC<PropsWithChildren> = ({children}) => {
 
 export const inputBaseStyle: React.CSSProperties = {
 	padding: `${INPUT_HORIZONTAL_PADDING}px 10px`,
-	color: 'white',
+	color: WHITE,
 	borderStyle: 'solid',
 	borderWidth: 1,
 	fontSize: 14,

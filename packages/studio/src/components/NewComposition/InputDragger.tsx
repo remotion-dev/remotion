@@ -5,7 +5,7 @@ import type {
 } from 'react';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {interpolate} from 'remotion';
-import {BLUE} from '../../helpers/colors';
+import {BLUE, TRANSPARENT} from '../../helpers/colors';
 import {noop} from '../../helpers/noop';
 import {getClickLock, setClickLock} from '../../state/input-dragger-click-lock';
 import {HigherZIndex} from '../../state/z-index';
@@ -111,8 +111,8 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 	const style = useMemo(() => {
 		return {
 			...inputBaseStyle,
-			backgroundColor: 'transparent',
-			borderColor: 'transparent',
+			backgroundColor: TRANSPARENT,
+			borderColor: TRANSPARENT,
 			padding: '4px 6px',
 			...{outline: 'none'},
 		};

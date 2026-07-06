@@ -12,7 +12,7 @@ import type {
 } from 'remotion';
 import {Internals, useVideoConfig} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
-import {BLUE, LIGHT_TEXT} from '../../helpers/colors';
+import {BLUE, LIGHT_GRAY, LIGHT_TEXT, WHITE} from '../../helpers/colors';
 import type {
 	SequenceNodePathInfo,
 	TrackWithHash,
@@ -61,7 +61,7 @@ const navButtonStyle: React.CSSProperties = {
 	alignItems: 'center',
 	background: 'none',
 	border: 'none',
-	color: 'white',
+	color: WHITE,
 	cursor: 'pointer',
 	display: 'flex',
 	flexShrink: 0,
@@ -788,7 +788,7 @@ export const TimelineKeyframeControls: React.FC<{
 				title="Previous keyframe"
 			>
 				<svg width="14" height="14" viewBox="0 0 10 10" style={svgStyle}>
-					<path d="M7 1.5L3 5L7 8.5Z" fill="#ccc" />
+					<path d="M7 1.5L3 5L7 8.5Z" fill={LIGHT_GRAY} />
 				</svg>
 			</button>
 			<button
@@ -814,7 +814,7 @@ export const TimelineKeyframeControls: React.FC<{
 				title="Next keyframe"
 			>
 				<svg width="14" height="14" viewBox="0 0 10 10" style={svgStyle}>
-					<path d="M3 1.5L7 5L3 8.5Z" fill="#ccc" />
+					<path d="M3 1.5L7 5L3 8.5Z" fill={LIGHT_GRAY} />
 				</svg>
 			</button>
 		</div>

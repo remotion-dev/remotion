@@ -1,6 +1,6 @@
 import type {AnyRemotionOption} from '@remotion/renderer';
 import React from 'react';
-import {INPUT_BACKGROUND} from '../../helpers/colors';
+import {BLUE, INPUT_BACKGROUND, WHITE} from '../../helpers/colors';
 import {Spacing} from '../layout';
 import {MenuDivider} from '../Menu/MenuDivider';
 import {CliCopyButton} from './CliCopyButton';
@@ -31,7 +31,7 @@ const description: React.CSSProperties = {
 const link: React.CSSProperties = {
 	fontSize: 14,
 	maxWidth: 200,
-	color: '#0b84f3',
+	color: BLUE,
 	wordWrap: 'break-word',
 	textDecoration: 'none',
 };
@@ -47,7 +47,7 @@ const infoRow: React.CSSProperties = {
 const infoRowLabel: React.CSSProperties = {
 	width: 150,
 	fontSize: 14,
-	color: 'white',
+	color: WHITE,
 };
 
 const flexSpacer: React.CSSProperties = {

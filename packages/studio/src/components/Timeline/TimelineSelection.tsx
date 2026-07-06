@@ -16,7 +16,15 @@ import {
 	type PropStatuses,
 } from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
-import {BACKGROUND} from '../../helpers/colors';
+import {
+	BACKGROUND,
+	BLACK,
+	TIMELINE_BACKGROUND_COLOR,
+	TIMELINE_SELECTED_BACKGROUND_COLOR,
+	TIMELINE_SELECTED_LABEL_BACKGROUND_COLOR,
+	WHITE_ALPHA_10,
+	WHITE_ALPHA_80,
+} from '../../helpers/colors';
 import type {
 	SequenceNodePathInfo,
 	TrackWithHash,
@@ -46,9 +54,10 @@ import {timelineVerticalScroll} from './timeline-refs';
 import {TimelineClipboardKeybindings} from './TimelineClipboardKeybindings';
 import {TimelineDeleteKeybindings} from './TimelineDeleteKeybindings';
 
-export const TIMELINE_SELECTED_BACKGROUND = '#3B3F42';
-export const TIMELINE_SELECTED_LABEL_BACKGROUND = '#B0B0B0';
-export const TIMELINE_SELECTED_LABEL_TEXT = 'black';
+export const TIMELINE_SELECTED_BACKGROUND = TIMELINE_SELECTED_BACKGROUND_COLOR;
+export const TIMELINE_SELECTED_LABEL_BACKGROUND =
+	TIMELINE_SELECTED_LABEL_BACKGROUND_COLOR;
+export const TIMELINE_SELECTED_LABEL_TEXT = BLACK;
 export const TIMELINE_SELECTED_LABEL_HORIZONTAL_PADDING = 2;
 
 export const getTimelineSelectedLabelStyle = (
@@ -61,7 +70,7 @@ export const getTimelineSelectedLabelStyle = (
 		...(selected
 			? {
 					backgroundColor: subcategory
-						? 'rgba(255, 255, 255, 0.1)'
+						? WHITE_ALPHA_10
 						: TIMELINE_SELECTED_LABEL_BACKGROUND,
 				}
 			: {}),
@@ -71,7 +80,7 @@ export const getTimelineSelectedLabelStyle = (
 export const getTimelineColor = (selected: boolean, subcategory: boolean) => {
 	return selected && !subcategory
 		? TIMELINE_SELECTED_LABEL_TEXT
-		: 'rgba(255, 255, 255, 0.8)';
+		: WHITE_ALPHA_80;
 };
 
 export const getTimelineSelectedTrackHighlightStyle = (
@@ -101,7 +110,7 @@ export const getTimelineRowHighlightBackground = ({
 		: undefined;
 };
 
-export const TIMELINE_BACKGROUND = '#0F1113';
+export const TIMELINE_BACKGROUND = TIMELINE_BACKGROUND_COLOR;
 export const TIMELINE_TICKS_BACKGROUND = BACKGROUND;
 
 export type TimelineSelection =

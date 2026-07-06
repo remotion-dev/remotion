@@ -8,7 +8,7 @@ import type {
 } from 'remotion';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
-import {INPUT_BACKGROUND} from '../../helpers/colors';
+import {INPUT_BACKGROUND, WHITE_ALPHA_60} from '../../helpers/colors';
 import {ModalsContext} from '../../state/modals';
 import {Button} from '../Button';
 import {Row, Spacing} from '../layout';
@@ -40,7 +40,7 @@ const label: React.CSSProperties = {
 };
 
 const helperText: React.CSSProperties = {
-	color: 'rgba(255, 255, 255, 0.6)',
+	color: WHITE_ALPHA_60,
 	fontSize: 12,
 	lineHeight: 1.4,
 	marginTop: 4,

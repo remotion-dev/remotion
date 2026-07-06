@@ -1,5 +1,11 @@
 import React, {useContext} from 'react';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
+import {
+	SERVER_DISCONNECTED_BACKGROUND,
+	SERVER_DISCONNECTED_SHADOW,
+	TRANSPARENT,
+	WHITE,
+} from '../../helpers/colors';
 
 const container: React.CSSProperties = {
 	position: 'fixed',
@@ -11,19 +17,19 @@ const container: React.CSSProperties = {
 	flexDirection: 'column',
 	padding: 30,
 	pointerEvents: 'none',
-	backgroundColor: 'transparent',
+	backgroundColor: TRANSPARENT,
 	fontFamily: 'SF Pro, Arial, Helvetica, sans-serif',
 };
 
 const message: React.CSSProperties = {
-	backgroundColor: '#e74c3c',
-	color: 'white',
+	backgroundColor: SERVER_DISCONNECTED_BACKGROUND,
+	color: WHITE,
 	paddingLeft: 20,
 	paddingRight: 20,
 	paddingTop: 12,
 	paddingBottom: 12,
 	borderRadius: 4,
-	boxShadow: '0 2px 4px rgba(0, 0, 0, 0.4)',
+	boxShadow: SERVER_DISCONNECTED_SHADOW,
 	lineHeight: 1.5,
 };
 

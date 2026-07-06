@@ -29,7 +29,11 @@ import React, {
 } from 'react';
 import type {_InternalTypes} from 'remotion';
 import {ShortcutHint} from '../../error-overlay/remotion-overlay/ShortcutHint';
-import {BLUE, BLUE_DISABLED} from '../../helpers/colors';
+import {
+	BLUE,
+	BLUE_DISABLED,
+	CURRENT_COLOR_LOWERCASE,
+} from '../../helpers/colors';
 import {
 	envVariablesArrayToObject,
 	envVariablesObjectToArray,
@@ -1491,7 +1495,7 @@ const RenderModal: React.FC<
 							onClick={() => setTab('encoding')}
 						>
 							<div style={iconContainer}>
-								<FilmIcon style={icon} color="currentcolor" />
+								<FilmIcon style={icon} color={CURRENT_COLOR_LOWERCASE} />
 							</div>
 							Encoding
 						</VerticalTab>

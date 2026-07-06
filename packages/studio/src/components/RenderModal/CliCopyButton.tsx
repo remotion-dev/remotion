@@ -1,5 +1,5 @@
 import {useCallback, useEffect, useMemo, useState} from 'react';
-import {LIGHT_TEXT} from '../../helpers/colors';
+import {LIGHT_TEXT, WHITE} from '../../helpers/colors';
 import {ClipboardIcon} from '../../icons/clipboard';
 const svgStyle: React.CSSProperties = {
 	width: 16,
@@ -33,7 +33,7 @@ export const CliCopyButton: React.FC<{valueToCopy: string}> = ({
 	const [hovered, setHovered] = useState<boolean>(false);
 
 	const fillColor = useMemo(() => {
-		return hovered ? 'white' : LIGHT_TEXT;
+		return hovered ? WHITE : LIGHT_TEXT;
 	}, [hovered]);
 
 	const clipboardIcon = <ClipboardIcon color={fillColor} style={svgStyle} />;

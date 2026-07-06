@@ -4,7 +4,12 @@ import type {ResolvedStackLocation} from 'remotion';
 import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
-import {BLUE} from '../helpers/colors';
+import {
+	BLUE,
+	SELECTED_OUTLINE_DROP_SHADOW,
+	TIMELINE_DROP_BLUE_ALPHA_12,
+	TRANSPARENT,
+} from '../helpers/colors';
 import {formatFileLocation} from '../helpers/format-file-location';
 import {openOriginalPositionInEditor} from '../helpers/open-in-editor';
 import {ModalsContext} from '../state/modals';
@@ -431,7 +436,7 @@ const SelectedOutlineTransformOriginHandle: React.FC<{
 			onPointerDown={onPointerDown}
 			aria-hidden="true"
 			style={{
-				filter: 'drop-shadow(0 0 1px rgba(255, 255, 255, 0.2))',
+				filter: SELECTED_OUTLINE_DROP_SHADOW,
 			}}
 		>
 			<circle
@@ -796,7 +801,7 @@ const SelectedOutlinePolygon: React.FC<{
 			<polygon
 				ref={polygonRef}
 				points={points}
-				fill={effectDropHovered ? 'rgba(0, 155, 255, 0.12)' : 'transparent'}
+				fill={effectDropHovered ? TIMELINE_DROP_BLUE_ALPHA_12 : TRANSPARENT}
 				stroke={BLUE}
 				strokeOpacity={visible || effectDropHovered ? 1 : 0}
 				strokeWidth={2}
@@ -1070,7 +1075,7 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 				y1={edgeInfo.start.y}
 				x2={edgeInfo.end.x}
 				y2={edgeInfo.end.y}
-				stroke="transparent"
+				stroke={TRANSPARENT}
 				strokeWidth={12}
 				vectorEffect="non-scaling-stroke"
 				pointerEvents="stroke"
@@ -1404,8 +1409,8 @@ const SelectedOutlineRotationCornerHandle: React.FC<{
 				cx={cornerInfo.point.x}
 				cy={cornerInfo.point.y}
 				r={12}
-				fill="transparent"
-				stroke="transparent"
+				fill={TRANSPARENT}
+				stroke={TRANSPARENT}
 				vectorEffect="non-scaling-stroke"
 				pointerEvents="all"
 				cursor={cornerInfo.cursor}

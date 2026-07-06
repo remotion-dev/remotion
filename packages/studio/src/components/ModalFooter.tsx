@@ -1,4 +1,5 @@
 import React from 'react';
+import {BORDER_BLACK} from '../helpers/colors';
 
 const content: React.CSSProperties = {
 	padding: 12,
@@ -11,7 +12,5 @@ const content: React.CSSProperties = {
 export const ModalFooterContainer: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
-	return (
-		<div style={{...content, borderTop: '1px solid black'}}>{children}</div>
-	);
+	return <div style={{...content, borderTop: BORDER_BLACK}}>{children}</div>;
 };

@@ -1,10 +1,11 @@
 import React, {useCallback} from 'react';
+import {CURRENT_COLOR} from '../../../helpers/colors';
 import type {RenderInlineAction} from '../../InlineAction';
 import {InlineAction} from '../../InlineAction';
 
 const icon: React.CSSProperties = {
 	height: 14,
-	color: 'currentColor',
+	color: CURRENT_COLOR,
 };
 
 export const SchemaResetButton: React.FC<{

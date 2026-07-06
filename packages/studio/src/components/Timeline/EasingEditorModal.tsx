@@ -16,9 +16,14 @@ import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {
 	BACKGROUND,
 	BLUE,
+	EASING_SELECTED_BACKGROUND,
 	INPUT_BACKGROUND,
 	INPUT_BORDER_COLOR_HOVERED,
 	LIGHT_TEXT,
+	WHITE,
+	WHITE_ALPHA_12,
+	WHITE_ALPHA_35,
+	WHITE_ALPHA_72,
 } from '../../helpers/colors';
 import {Checkbox} from '../Checkbox';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
@@ -72,7 +77,7 @@ const DEFAULT_EASING_GRAPH_LABELS: EasingGraphLabels = {
 	start: '0',
 	end: '1',
 };
-const EASING_GRAPH_GUIDE_COLOR = 'rgba(255, 255, 255, 0.12)';
+const EASING_GRAPH_GUIDE_COLOR = WHITE_ALPHA_12;
 const EASING_GRAPH_LABEL_FONT_SIZE = 13;
 const EASING_GRAPH_LABEL_HEIGHT = 20;
 const EASING_GRAPH_LABEL_HORIZONTAL_PADDING = 4;
@@ -185,7 +190,7 @@ const coordinateRow: React.CSSProperties = {
 
 const coordinateLabel: React.CSSProperties = {
 	fontSize: 13,
-	color: 'rgba(255, 255, 255, 0.72)',
+	color: WHITE_ALPHA_72,
 	paddingLeft: 6,
 };
 
@@ -635,7 +640,7 @@ const EasingPresetButton: React.FC<{
 	const style = useMemo(
 		(): React.CSSProperties => ({
 			...presetButtonBase,
-			backgroundColor: selected ? 'rgba(11, 132, 243, 0.18)' : INPUT_BACKGROUND,
+			backgroundColor: selected ? EASING_SELECTED_BACKGROUND : INPUT_BACKGROUND,
 			borderColor: selected ? BLUE : INPUT_BORDER_COLOR_HOVERED,
 			cursor: disabled ? 'not-allowed' : 'pointer',
 			opacity: disabled ? 0.45 : 1,
@@ -666,7 +671,7 @@ const EasingPresetButton: React.FC<{
 				<path
 					d={path}
 					fill="none"
-					stroke="white"
+					stroke={WHITE}
 					strokeWidth={2}
 					strokeLinecap="round"
 					strokeLinejoin="round"
@@ -1181,7 +1186,7 @@ export const EasingEditor: React.FC<{
 							y1={startPoint.y}
 							x2={firstHandle.x}
 							y2={firstHandle.y}
-							stroke="rgba(255, 255, 255, 0.35)"
+							stroke={WHITE_ALPHA_35}
 							strokeWidth={1}
 						/>
 						<line
@@ -1189,17 +1194,17 @@ export const EasingEditor: React.FC<{
 							y1={endPoint.y}
 							x2={secondHandle.x}
 							y2={secondHandle.y}
-							stroke="rgba(255, 255, 255, 0.35)"
+							stroke={WHITE_ALPHA_35}
 							strokeWidth={1}
 						/>
 						<path d={bezierPath} fill="none" stroke={BLUE} strokeWidth={3} />
-						<circle cx={startPoint.x} cy={startPoint.y} r={4} fill="white" />
-						<circle cx={endPoint.x} cy={endPoint.y} r={4} fill="white" />
+						<circle cx={startPoint.x} cy={startPoint.y} r={4} fill={WHITE} />
+						<circle cx={endPoint.x} cy={endPoint.y} r={4} fill={WHITE} />
 						<circle
 							cx={firstHandle.x}
 							cy={firstHandle.y}
 							r={6}
-							fill="white"
+							fill={WHITE}
 							stroke={BLUE}
 							strokeWidth={2}
 							vectorEffect="non-scaling-stroke"
@@ -1211,7 +1216,7 @@ export const EasingEditor: React.FC<{
 							cx={secondHandle.x}
 							cy={secondHandle.y}
 							r={6}
-							fill="white"
+							fill={WHITE}
 							stroke={BLUE}
 							strokeWidth={2}
 							vectorEffect="non-scaling-stroke"
@@ -1327,8 +1332,8 @@ export const EasingEditor: React.FC<{
 					>
 						<EasingGraphScaffold labels={graphLabels} />
 						<path d={springPath} fill="none" stroke={BLUE} strokeWidth={3} />
-						<circle cx={xToSvg(0)} cy={yToSvg(0)} r={4} fill="white" />
-						<circle cx={xToSvg(1)} cy={yToSvg(1)} r={4} fill="white" />
+						<circle cx={xToSvg(0)} cy={yToSvg(0)} r={4} fill={WHITE} />
+						<circle cx={xToSvg(1)} cy={yToSvg(1)} r={4} fill={WHITE} />
 					</svg>
 					{modeSwitcher}
 					<div style={coordinatesGrid}>

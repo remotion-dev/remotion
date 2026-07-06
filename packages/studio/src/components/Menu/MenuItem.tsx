@@ -2,7 +2,7 @@ import {PlayerInternals} from '@remotion/player';
 import type {SetStateAction} from 'react';
 import React, {useCallback, useMemo, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
-import {getBackgroundFromHoverState} from '../../helpers/colors';
+import {WHITE, getBackgroundFromHoverState} from '../../helpers/colors';
 import {HigherZIndex, useZIndex} from '../../state/z-index';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {MenuContent} from '../NewComposition/MenuContent';
@@ -12,7 +12,7 @@ import {menuContainerTowardsBottom, outerPortal} from './styles';
 
 const container: React.CSSProperties = {
 	fontSize: 13,
-	color: 'white',
+	color: WHITE,
 	paddingLeft: 10,
 	paddingRight: 10,
 	cursor: 'default',

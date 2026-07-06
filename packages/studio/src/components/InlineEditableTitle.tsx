@@ -5,11 +5,16 @@ import type {
 	KeyboardEventHandler,
 } from 'react';
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {CLEAR_HOVER, INPUT_BACKGROUND} from '../helpers/colors';
+import {
+	CLEAR_HOVER,
+	INPUT_BACKGROUND,
+	TRANSPARENT,
+	WHITE,
+} from '../helpers/colors';
 
 const titleWrapper: React.CSSProperties = {
 	boxSizing: 'border-box',
-	color: 'white',
+	color: WHITE,
 	fontSize: 12,
 	height: 18,
 	lineHeight: '18px',
@@ -43,10 +48,10 @@ const titleGridItem: React.CSSProperties = {
 
 const titleInput: React.CSSProperties = {
 	appearance: 'none',
-	backgroundColor: 'transparent',
+	backgroundColor: TRANSPARENT,
 	border: 'none',
 	boxShadow: 'none',
-	color: 'white',
+	color: WHITE,
 	fontFamily: 'inherit',
 	fontSize: 12,
 	height: 18,
@@ -143,7 +148,7 @@ export const InlineEditableTitle: React.FC<{
 		? INPUT_BACKGROUND
 		: isHovered && canRename
 			? CLEAR_HOVER
-			: 'transparent';
+			: TRANSPARENT;
 
 	const innerStyle = useMemo((): React.CSSProperties => {
 		return {
