@@ -4,7 +4,7 @@ import type {
 	CanUpdateSequencePropStatusStatic,
 	SequencePropsSubscriptionKey,
 } from 'remotion';
-import {BLUE} from '../../helpers/colors';
+import {LIGHT_TEXT} from '../../helpers/colors';
 import type {
 	SchemaFieldInfo,
 	TimelineFieldOnDragValueChange,
@@ -39,7 +39,7 @@ const unsupportedLabel: React.CSSProperties = {
 };
 
 const fixLinkBase: React.CSSProperties = {
-	color: BLUE,
+	color: LIGHT_TEXT,
 	display: 'inline-block',
 	fontSize: 10,
 	fontStyle: 'normal',
