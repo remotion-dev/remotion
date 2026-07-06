@@ -88,6 +88,17 @@ test('formatTimelineFieldValueForDisplay formats rotation fields as degrees', ()
 			value: '0.7853981633974483rad',
 		}),
 	).toBe('45°');
+
+	expect(
+		formatTimelineFieldValueForDisplay({
+			fieldSchema: {
+				type: 'rotation-css',
+				default: '0deg',
+				step: 1,
+			},
+			value: 12,
+		}),
+	).toBe('12°');
 });
 
 test('formatTimelineFieldValueForDisplay formats translate fields as pixels', () => {
