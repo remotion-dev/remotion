@@ -34,6 +34,7 @@
 		"@mdx-js/loader": "2.3.0",
 		"@mdx-js/react": "2.3.0",
 		"@mediabunny/ac3": "catalog:",
+		"@mediabunny/prores": "catalog:",
 		"@react-three/drei": "10.0.7",
 		"@react-three/fiber": "catalog:",
 		"@remotion/animated-emoji": "workspace:*",
