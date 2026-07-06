@@ -59,6 +59,26 @@ const getFileMenu = ({
 	setSelectedModal: (value: React.SetStateAction<ModalState | null>) => void;
 }) => {
 	const items: ComboboxValue[] = [
+		readOnlyStudio
+			? null
+			: {
+					id: 'new-folder',
+					value: 'new-folder',
+					label: 'New Folder...',
+					onClick: () => {
+						closeMenu();
+						setSelectedModal({
+							type: 'new-folder',
+							parentName: null,
+							stack: null,
+						});
+					},
+					type: 'item' as const,
+					keyHint: null,
+					leftItem: null,
+					subMenu: null,
+					quickSwitcherLabel: 'New folder...',
+				},
 		window.remotion_isReadOnlyStudio
 			? {
 					id: 'input-props-override',

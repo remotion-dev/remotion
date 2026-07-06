@@ -9,6 +9,7 @@ import {DeleteComposition} from './NewComposition/DeleteComposition';
 import {DeleteFolder} from './NewComposition/DeleteFolder';
 import {DuplicateComposition} from './NewComposition/DuplicateComposition';
 import {NewComposition} from './NewComposition/NewComposition';
+import {NewFolder} from './NewComposition/NewFolder';
 import {RenameComposition} from './NewComposition/RenameComposition';
 import {RenameFolder} from './NewComposition/RenameFolder';
 import {RenameStaticFileModal} from './NewComposition/RenameStaticFile';
@@ -33,6 +34,12 @@ export const Modals: React.FC<{
 			{modalContextType && modalContextType.type === 'new-comp' && (
 				<NewComposition
 					folderName={modalContextType.folderName}
+					parentName={modalContextType.parentName}
+					stack={modalContextType.stack}
+				/>
+			)}
+			{modalContextType && modalContextType.type === 'new-folder' && (
+				<NewFolder
 					parentName={modalContextType.parentName}
 					stack={modalContextType.stack}
 				/>

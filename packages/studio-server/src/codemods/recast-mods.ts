@@ -162,6 +162,22 @@ const mapReturnStatement = (
 		};
 	}
 
+	if (
+		transformation.type === 'new-folder' &&
+		transformation.parentName === null &&
+		(statement.argument.type === 'JSXElement' ||
+			statement.argument.type === 'JSXFragment')
+	) {
+		return {
+			...statement,
+			argument: addNewFolderToRootJsx(
+				statement.argument,
+				transformation,
+				changesMade,
+			),
+		};
+	}
+
 	const replacement = transformLoneJsxElement(
 		statement.argument,
 		transformation,
@@ -287,6 +303,30 @@ const newCompositionElement = (
 	};
 };
 
+const newFolderElement = (
+	transformation: Extract<RecastCodemod, {type: 'new-folder'}>,
+): JSXElement => {
+	return {
+		type: 'JSXElement',
+		openingElement: {
+			type: 'JSXOpeningElement',
+			name: jsxId('Folder'),
+			attributes: [jsxAttributeWithString('name', transformation.folderName)],
+			selfClosing: false,
+		},
+		closingElement: {
+			type: 'JSXClosingElement',
+			name: jsxId('Folder'),
+		},
+		children: [
+			{
+				type: 'JSXExpressionContainer',
+				expression: nullLiteral(),
+			},
+		],
+	};
+};
+
 const addNewCompositionToRootJsx = <T extends JSXElement | JSXFragment>(
 	root: T,
 	transformation: Extract<RecastCodemod, {type: 'new-composition'}>,
@@ -308,6 +348,29 @@ const addNewCompositionToRootJsx = <T extends JSXElement | JSXFragment>(
 	}
 
 	return wrapInJsxFragment([root, newCompositionElement(transformation)]);
+};
+
+const addNewFolderToRootJsx = <T extends JSXElement | JSXFragment>(
+	root: T,
+	transformation: Extract<RecastCodemod, {type: 'new-folder'}>,
+	changesMade: Change[],
+): JSXElement | JSXFragment => {
+	if (changesMade.length > 0) {
+		return root;
+	}
+
+	changesMade.push({
+		description: 'Added new folder',
+	});
+
+	if (root.type === 'JSXFragment') {
+		return {
+			...root,
+			children: [...root.children, newFolderElement(transformation)],
+		};
+	}
+
+	return wrapInJsxFragment([root, newFolderElement(transformation)]);
 };
 
 const addNewCompositionToFolder = (
@@ -340,6 +403,43 @@ const addNewCompositionToFolder = (
 	};
 };
 
+const addNewFolderToFolder = (
+	folderElement: JSXElement,
+	transformation: Extract<RecastCodemod, {type: 'new-folder'}>,
+	changesMade: Change[],
+): JSXElement => {
+	if (changesMade.length > 0) {
+		return folderElement;
+	}
+
+	changesMade.push({
+		description: 'Added new folder',
+	});
+
+	return {
+		...folderElement,
+		openingElement: {
+			...folderElement.openingElement,
+			selfClosing: false,
+		},
+		closingElement: folderElement.closingElement ?? {
+			type: 'JSXClosingElement',
+			name: folderElement.openingElement.name,
+		},
+		children: [...folderElement.children, newFolderElement(transformation)],
+	};
+};
+
+const getChildFolderParentName = ({
+	folderName,
+	parentFolderName,
+}: {
+	folderName: string;
+	parentFolderName: string | null;
+}) => {
+	return [parentFolderName, folderName].filter(Boolean).join('/');
+};
+
 // When a <Composition> JSX element appears in a position where it cannot
 // simply be removed from a parent's children list (e.g. as the sole return
 // value of a wrapper component or as the concise body of an arrow function),
@@ -368,7 +468,10 @@ const transformLoneJsxElement = (
 					parentFolderName === transformation.parentName) ||
 				(transformation.type === 'new-composition' &&
 					folderName === transformation.folderName &&
-					parentFolderName === transformation.parentName));
+					parentFolderName === transformation.parentName) ||
+				(transformation.type === 'new-folder' &&
+					getChildFolderParentName({folderName, parentFolderName}) ===
+						transformation.parentName));
 
 		if (!isFolderMatch) {
 			return null;
@@ -390,7 +493,11 @@ const transformLoneJsxElement = (
 			parentFolderName === transformation.parentName) ||
 		(transformation.type === 'new-composition' &&
 			folderName === transformation.folderName &&
-			parentFolderName === transformation.parentName);
+			parentFolderName === transformation.parentName) ||
+		(transformation.type === 'new-folder' &&
+			folderName !== null &&
+			getChildFolderParentName({folderName, parentFolderName}) ===
+				transformation.parentName);
 
 	if (!isMatch) {
 		return null;
@@ -433,16 +540,6 @@ const mapJsxElementOrFragment = <T extends JSXFragment | JSXElement>(
 			})
 			.flat(1),
 	};
-};
-
-const getChildFolderParentName = ({
-	folderName,
-	parentFolderName,
-}: {
-	folderName: string;
-	parentFolderName: string | null;
-}) => {
-	return [parentFolderName, folderName].filter(Boolean).join('/');
 };
 
 const mapJsxChild = (
@@ -538,6 +635,15 @@ const mapJsxChild = (
 		return [addNewCompositionToFolder(c, transformation, changesMade)];
 	}
 
+	if (
+		transformation.type === 'new-folder' &&
+		folderName !== null &&
+		getChildFolderParentName({folderName, parentFolderName}) ===
+			transformation.parentName
+	) {
+		return [addNewFolderToFolder(c, transformation, changesMade)];
+	}
+
 	const childParentFolderName = folderName
 		? getChildFolderParentName({folderName, parentFolderName})
 		: parentFolderName;
@@ -573,6 +679,22 @@ const mapRecognizedType = <T extends RecognizedType>(
 			return {
 				...expression,
 				body: addNewCompositionToRootJsx(
+					expression.body,
+					transformation,
+					changesMade,
+				),
+			};
+		}
+
+		if (
+			transformation.type === 'new-folder' &&
+			transformation.parentName === null &&
+			(expression.body.type === 'JSXElement' ||
+				expression.body.type === 'JSXFragment')
+		) {
+			return {
+				...expression,
+				body: addNewFolderToRootJsx(
 					expression.body,
 					transformation,
 					changesMade,

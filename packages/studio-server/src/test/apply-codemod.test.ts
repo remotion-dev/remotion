@@ -237,6 +237,21 @@ test('applyCodemodHandler pushes composition duplications to undo and redo stack
 	});
 });
 
+test('applyCodemodHandler pushes folder creations to undo and redo stacks', async () => {
+	await runCompositionCodemodUndoRedoTest({
+		codemod: {
+			type: 'new-folder',
+			folderName: 'FreshFolder',
+			parentName: null,
+		},
+		assertApplied: (contents) => {
+			expect(contents).toContain('<Folder name="FreshFolder">{null}</Folder>');
+			expect(contents).toContain('id="KeepMe"');
+		},
+		expectedUndoMessage: '↩️  Creation of folder "FreshFolder"',
+	});
+});
+
 test('applyCodemodHandler creates new composition files with undo and redo', async () => {
 	const remotionRoot = mkdtempSync(path.join(tmpdir(), 'remotion-codemod-'));
 	const cleanupFileWatcher = setFileWatcherRegistry(
@@ -370,6 +385,46 @@ test('creates a composition in a nested folder by parent path', () => {
 	expect(newContents.indexOf('id="NestedA"')).toBeLessThan(
 		newContents.indexOf('id="NestedB"'),
 	);
+});
+
+test('creates a top-level folder', () => {
+	const {changesMade, newContents} = parseAndApplyCodemod({
+		input: rootContents,
+		codeMod: {
+			type: 'new-folder',
+			folderName: 'FreshFolder',
+			parentName: null,
+		},
+	});
+
+	expect(changesMade.length).toBe(1);
+	expect(newContents).toMatch(
+		/import\s*\{[^}]*Folder[^}]*\}\s*from\s*['"]remotion['"]/,
+	);
+	expect(newContents).toContain('<Folder name="FreshFolder">{null}</Folder>');
+	expect(newContents.indexOf('id="KeepMe"')).toBeLessThan(
+		newContents.indexOf('<Folder name="FreshFolder">{null}</Folder>'),
+	);
+});
+
+test('creates a folder in a nested folder by parent path', () => {
+	const {changesMade, newContents} = parseAndApplyCodemod({
+		input: folderRootContents,
+		codeMod: {
+			type: 'new-folder',
+			folderName: 'FreshFolder',
+			parentName: 'Parent/Shared',
+		},
+	});
+
+	expect(changesMade.length).toBe(1);
+	expect(newContents).toContain('<Folder name="FreshFolder">{null}</Folder>');
+	expect(newContents.indexOf('id="NestedA"')).toBeLessThan(
+		newContents.indexOf('<Folder name="FreshFolder">{null}</Folder>'),
+	);
+	expect(
+		newContents.indexOf('<Folder name="FreshFolder">{null}</Folder>'),
+	).toBeLessThan(newContents.indexOf('<Folder name="Other">'));
 });
 
 test('renames a nested folder by parent path', () => {

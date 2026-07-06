@@ -135,6 +135,11 @@ export type ModalState =
 			stack: string | null;
 	  }
 	| {
+			type: 'new-folder';
+			parentName: string | null;
+			stack: string | null;
+	  }
+	| {
 			type: 'duplicate-comp';
 			compositionId: string;
 			compositionType: CompType;
