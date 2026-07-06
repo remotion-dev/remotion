@@ -79,6 +79,12 @@ const getFileMenu = ({
 					subMenu: null,
 					quickSwitcherLabel: 'New folder...',
 				},
+		readOnlyStudio
+			? null
+			: {
+					type: 'divider' as const,
+					id: 'new-folder-divider',
+				},
 		window.remotion_isReadOnlyStudio
 			? {
 					id: 'input-props-override',
