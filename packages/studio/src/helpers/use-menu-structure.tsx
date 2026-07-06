@@ -78,6 +78,7 @@ const getFileMenu = ({
 					leftItem: null,
 					subMenu: null,
 					quickSwitcherLabel: 'New folder...',
+					disabled: previewServerState !== 'connected',
 				},
 		readOnlyStudio
 			? null
