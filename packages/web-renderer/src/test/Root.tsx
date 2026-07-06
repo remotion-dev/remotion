@@ -76,6 +76,7 @@ import {textFixture} from './fixtures/text/text';
 import {
 	textDecoration,
 	textDecorationStyles,
+	textDecorationWavy,
 } from './fixtures/text/text-decoration';
 import {textShadow} from './fixtures/text/text-shadow';
 import {textShadowScale} from './fixtures/text/text-shadow-scale';
@@ -168,6 +169,7 @@ export const Root: React.FC = () => {
 				<Composition {...textTransform} />
 				<Composition {...textDecoration} />
 				<Composition {...textDecorationStyles} />
+				<Composition {...textDecorationWavy} />
 				<Composition {...fontStyle} />
 				<Composition {...fontVariantCaps} />
 				<Composition {...lineHeight} />
