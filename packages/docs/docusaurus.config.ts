@@ -109,7 +109,7 @@ const config: Config = {
 					label: 'Commercial',
 					position: 'left',
 					items: [
-						{to: '/pricing', label: 'License + Pricing'},
+						{to: '/docs/pricing', label: 'License + Pricing'},
 						{to: 'https://remotion.pro/store', label: 'Store'},
 						{to: 'success-stories', label: 'Success Stories'},
 						{to: 'experts', label: 'Experts'},
@@ -183,7 +183,7 @@ const config: Config = {
 						},
 						{
 							label: 'License + Pricing',
-							to: '/pricing',
+							to: '/docs/pricing',
 						},
 					],
 				},

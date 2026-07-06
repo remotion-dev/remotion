@@ -5222,6 +5222,15 @@ export const articles = [
 		slug: 'preview',
 	},
 	{
+		id: 'pricing',
+		title: 'License & Pricing',
+		relativePath: 'docs/pricing.mdx',
+		compId: 'articles-docs-pricing',
+		crumb: null,
+		noAi: false,
+		slug: 'pricing',
+	},
+	{
 		id: 'quality',
 		title: 'Quality Guide',
 		relativePath: 'docs/quality.mdx',

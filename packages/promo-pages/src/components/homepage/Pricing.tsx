@@ -3,7 +3,7 @@ import {CompanyPricing, EnterpriseLicense, FreePricing} from './FreePricing';
 
 export const Pricing: React.FC<{
 	readonly faqHref?: string;
-}> = ({faqHref = '/pricing#faq'}) => {
+}> = ({faqHref = '/docs/pricing#faq'}) => {
 	const faqLinkTarget = useMemo(() => {
 		return faqHref.startsWith('http') ? '_blank' : undefined;
 	}, [faqHref]);
