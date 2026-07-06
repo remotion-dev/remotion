@@ -33,6 +33,7 @@ import {
 	type NoiseDisplacementParams,
 } from '../noise-displacement.js';
 import {noise} from '../noise.js';
+import {paper} from '../paper.js';
 import {pattern} from '../pattern.js';
 import {pixelDissolve} from '../pixel-dissolve.js';
 import {pixelate} from '../pixelate.js';
@@ -176,6 +177,9 @@ test('@remotion/effects expose documentation links', () => {
 		noiseDisplacement({center: [0.5, 0.5], radius: 0.25}).definition
 			.documentationLink,
 	).toBe('https://www.remotion.dev/docs/effects/noise-displacement');
+	expect(paper().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/paper',
+	);
 	expect(pattern().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/pattern',
 	);
@@ -280,6 +284,7 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(
 		noiseDisplacement({center: [0.5, 0.5], radius: 0.25}).definition.label,
 	).toBe('noiseDisplacement()');
+	expect(paper().definition.label).toBe('paper()');
 	expect(pattern().definition.label).toBe('pattern()');
 	expect(radialProgressiveBlur().definition.label).toBe(
 		'radialProgressiveBlur()',
@@ -2404,6 +2409,96 @@ test('noiseDisplacement() parameters produce distinct effect keys', () => {
 			biased.effectKey,
 		]).size,
 	).toBe(10);
+});
+
+test('paper() accepts default params', () => {
+	expect(() => paper()).not.toThrow();
+});
+
+test('paper() accepts valid params', () => {
+	expect(() =>
+		paper({
+			amount: 0.8,
+			colorFront: '#fff4d0',
+			colorBack: '#94774d',
+			contrast: 0.6,
+			roughness: 0.5,
+			fiber: 0.4,
+			fiberSize: 0.6,
+			crumples: 0.35,
+			crumpleSize: 0.45,
+			folds: 0.25,
+			foldCount: 8,
+			drops: 0.1,
+			fade: 0.2,
+			seed: 12.34,
+			scale: 0.8,
+		}),
+	).not.toThrow();
+});
+
+test('paper() rejects non-finite amount', () => {
+	expect(() => paper({amount: Number.NaN})).toThrow(
+		'"amount" must be a finite number',
+	);
+});
+
+test('paper() rejects amount above range', () => {
+	expect(() => paper({amount: 1.1})).toThrow('"amount" must be <= 1');
+});
+
+test('paper() rejects empty color strings', () => {
+	expect(() => paper({colorFront: ''})).toThrow(
+		'"colorFront" must be a non-empty string, but got ""',
+	);
+	expect(() => paper({colorBack: ''})).toThrow(
+		'"colorBack" must be a non-empty string, but got ""',
+	);
+});
+
+test('paper() rejects invalid paper texture params', () => {
+	expect(() => paper({fiberSize: 0})).toThrow(
+		'"fiberSize" must be greater than 0',
+	);
+	expect(() => paper({crumpleSize: 0})).toThrow(
+		'"crumpleSize" must be greater than 0',
+	);
+	expect(() => paper({foldCount: 16})).toThrow('"foldCount" must be <= 15');
+	expect(() => paper({seed: -1})).toThrow('"seed" must be >= 0');
+	expect(() => paper({scale: 0})).toThrow('"scale" must be greater than 0');
+	expect(() => paper({scale: 4.1})).toThrow('"scale" must be <= 4');
+});
+
+test('paper() parameters produce distinct effect keys', () => {
+	const defaults = paper();
+	const subtle = paper({amount: 0.6});
+	const frontColored = paper({colorFront: '#fff4d0'});
+	const backColored = paper({colorBack: '#94774d'});
+	const rough = paper({roughness: 0.8});
+	const fibrous = paper({fiber: 0.7, fiberSize: 0.35});
+	const crumpled = paper({crumples: 0.75, crumpleSize: 0.3});
+	const folded = paper({folds: 0.55, foldCount: 10});
+	const dotted = paper({drops: 0.3});
+	const faded = paper({fade: 0.6});
+	const seeded = paper({seed: 12});
+	const scaled = paper({scale: 1.2});
+
+	expect(
+		new Set([
+			defaults.effectKey,
+			subtle.effectKey,
+			frontColored.effectKey,
+			backColored.effectKey,
+			rough.effectKey,
+			fibrous.effectKey,
+			crumpled.effectKey,
+			folded.effectKey,
+			dotted.effectKey,
+			faded.effectKey,
+			seeded.effectKey,
+			scaled.effectKey,
+		]).size,
+	).toBe(12);
 });
 
 test('pattern() accepts default params', () => {

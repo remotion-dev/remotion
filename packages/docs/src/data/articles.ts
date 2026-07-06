@@ -2025,6 +2025,15 @@ export const articles = [
 		slug: 'effects/noise',
 	},
 	{
+		id: 'effects/paper',
+		title: 'paper()',
+		relativePath: 'docs/effects/paper.mdx',
+		compId: 'articles-docs-effects-paper',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/paper',
+	},
+	{
 		id: 'effects/pattern',
 		title: 'pattern()',
 		relativePath: 'docs/effects/pattern.mdx',

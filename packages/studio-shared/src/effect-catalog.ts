@@ -500,6 +500,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-paper',
+		category: 'Stylize',
+		label: 'paper()',
+		description: 'Procedural paper texture effect',
+		effect: {
+			name: 'paper',
+			importPath: '@remotion/effects/paper',
+			config: {},
+		},
+	},
+	{
 		id: 'effects-pattern',
 		category: 'Stylize',
 		label: 'pattern()',
