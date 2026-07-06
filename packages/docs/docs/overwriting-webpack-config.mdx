@@ -8,9 +8,9 @@ crumb: 'How To'
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-Remotion ships with [it's own Webpack configuration](https://github.com/remotion-dev/remotion/blob/main/packages/bundler/src/webpack-config.ts).
+Remotion ships with [its own Webpack configuration](https://github.com/remotion-dev/remotion/blob/main/packages/bundler/src/webpack-config.ts).
 
-You can override it reducer-style by creating a function that takes the previous Webpack configuration and returns the the new one.
+You can override it reducer-style by creating a function that takes the previous Webpack configuration and returns the next one.
 
 ## When rendering using the command line
 
@@ -30,6 +30,24 @@ Config.overrideWebpackConfig((currentConfiguration) => {
       ],
     },
   };
+});
+```
+
+You may also mutate the configuration object. Return the same object after mutating it:
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+
+Config.overrideWebpackConfig((config) => {
+  config.module ??= {};
+  config.module.rules ??= [];
+
+  config.module.rules.push({
+    test: /\.txt$/,
+    type: 'asset/source',
+  });
+
+  return config;
 });
 ```
 
