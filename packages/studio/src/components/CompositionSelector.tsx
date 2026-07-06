@@ -236,7 +236,7 @@ export const CompositionSelector: React.FC = () => {
 
 				notification.replaceContent(
 					result.success
-						? `Moved ${parsed.compositionId} to top level`
+						? `Moved ${parsed.compositionId} outside of folder`
 						: result.reason,
 					result.success ? 2000 : 4000,
 				);
