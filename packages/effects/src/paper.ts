@@ -147,7 +147,7 @@ const paperSchema = {
 		type: 'number',
 		min: 0,
 		max: MAX_SEED,
-		step: 1,
+		step: 0.01,
 		default: DEFAULT_SEED,
 		description: 'Seed',
 		hiddenFromList: false,
