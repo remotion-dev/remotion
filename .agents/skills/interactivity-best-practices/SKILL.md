@@ -71,26 +71,6 @@ style={{
 
 Individual transform properties are editable in Studio Visual Mode. Values hidden inside a `transform` string are not.
 
-Also avoid combining multiple transforms into one string:
-
-```tsx
-const translateY = interpolate(frame, [0, 100], [0, 120]);
-const rotation = interpolate(frame, [0, 100], [0, 20]);
-
-style={{
-  transform: `translateY(${translateY}px) rotate(${rotation}deg)`,
-}}
-```
-
-Prefer CSS transform shorthands:
-
-```tsx
-style={{
-  translate: interpolate(frame, [0, 100], ["0px 0px", "0px 120px"]),
-  rotate: interpolate(frame, [0, 100], ["0deg", "20deg"]),
-}}
-```
-
 ## Keep editable values inline
 
 Put the interpolation directly in the JSX style object when the value should be visually editable.
@@ -114,106 +94,6 @@ style={{
 ```
 
 Inline computations and literal values let Studio Visual Mode discover and edit the keyframes and props.
-
-## Keep `defaultProps` inline
-
-When a composition should be editable in Studio, keep `defaultProps` as an inline object literal on the `<Composition>` or `<Still>` tag.
-
-Prefer:
-
-```tsx
-<Composition
-  id="my-video"
-  component={MyComponent}
-  durationInFrames={150}
-  fps={30}
-  width={1920}
-  height={1080}
-  defaultProps={{
-    title: "Hello",
-    color: "#0b84ff",
-  }}
-/>
-```
-
-❌ Avoid storing `defaultProps` in a variable, importing it, spreading it, or creating it with a helper:
-
-```tsx
-const defaultProps = {
-  title: "Hello",
-  color: "#0b84ff",
-};
-
-<Composition
-  id="my-video"
-  component={MyComponent}
-  durationInFrames={150}
-  fps={30}
-  width={1920}
-  height={1080}
-  defaultProps={defaultProps}
-/>
-```
-
-Use `defaultProps` for composition-wide values that should be visible and editable before the video renders.
-Studio's save codemod requires this shape. Otherwise it can show: `` `defaultProps` prop must be a hardcoded value in the <Composition/> tag ``.
-
-## Keep scaffold metadata near the component
-
-When scaffolding a composition for Studio editing, keep the component and its `<Composition>` registration in the same file so dimensions, duration, FPS, and defaults are visible next to the rendered code.
-
-Prefer inline static metadata:
-
-```tsx
-type MyComponentProps = {
-  readonly title: string;
-};
-
-export const MyComponent: React.FC<MyComponentProps> = ({title}) => {
-  return <h1>{title}</h1>;
-};
-
-export const MyComposition: React.FC = () => {
-  return (
-    <Composition
-      id="my-video"
-      component={MyComponent}
-      durationInFrames={150}
-      fps={30}
-      width={1920}
-      height={1080}
-      defaultProps={{
-        title: "Hello",
-      }}
-    />
-  );
-};
-```
-
-Use `calculateMetadata()` only when metadata depends on dynamic input props, fetched data, or asset metadata.
-For static dimensions, duration, FPS, and initial props, inline the values on `<Composition>`.
-
-❌ Avoid using `calculateMetadata()` for static values:
-
-```tsx
-const calculateMetadata = () => {
-  return {
-    durationInFrames: 150,
-    fps: 30,
-    width: 1920,
-    height: 1080,
-  };
-};
-
-<Composition
-  id="my-video"
-  component={MyComponent}
-  calculateMetadata={calculateMetadata}
-  defaultProps={{
-    title: "Hello",
-  }}
-/>
-```
 
 This also applies to effect parameters. Keep editable effect values inline in the effect call.
 

@@ -11,6 +11,8 @@ A `<Composition>` defines the component, width, height, fps and duration of a re
 
 Pass `defaultProps` to provide initial values for your component.  
 Values must be JSON-serializable (`Date`, `Map`, `Set`, and `staticFile()` are supported).
+For Studio editing, `defaultProps` should be an inline object literal on `<Composition>` or `<Still>`.
+Do not store it in a variable, import it, spread it, create it with a helper, or wrap it in `satisfies`.
 
 ```tsx
 import { Composition } from "remotion";
@@ -25,18 +27,52 @@ export const RemotionRoot = () => {
       fps={30}
       width={1080}
       height={1080}
-      defaultProps={
-        {
-          title: "Hello World",
-          color: "#ff0000",
-        } satisfies MyCompositionProps
-      }
+      defaultProps={{
+        title: "Hello World",
+        color: "#ff0000",
+      }}
     />
   );
 };
 ```
 
 Use `type` declarations for props rather than `interface` to ensure `defaultProps` type safety.
+Use `defaultProps` for composition-wide values that should be visible and editable before the video renders.
+
+## Scaffold metadata
+
+When scaffolding a composition for Studio editing, keep the component and its `<Composition>` registration in the same file.
+This keeps `width`, `height`, `fps`, `durationInFrames`, and `defaultProps` next to the code that uses them.
+
+Prefer inline static metadata:
+
+```tsx
+import { Composition } from "remotion";
+
+type MyCompositionProps = {
+  readonly title: string;
+};
+
+export const MyComposition: React.FC<MyCompositionProps> = ({ title }) => {
+  return <h1>{title}</h1>;
+};
+
+export const RemotionRoot = () => {
+  return (
+    <Composition
+      id="MyComposition"
+      component={MyComposition}
+      durationInFrames={100}
+      fps={30}
+      width={1080}
+      height={1080}
+      defaultProps={{
+        title: "Hello World",
+      }}
+    />
+  );
+};
+```
 
 ## Folders
 
@@ -81,7 +117,8 @@ export const RemotionRoot = () => {
 
 ## Calculate Metadata
 
-Use `calculateMetadata` to make dimensions, duration, or props dynamic based on data.
+Use `calculateMetadata` to make dimensions, duration, or props dynamic based on input props, fetched data, or asset metadata.
+For static dimensions, duration, FPS, and initial props, inline the values on `<Composition>`.
 
 ```tsx
 import { Composition, CalculateMetadataFunction } from "remotion";

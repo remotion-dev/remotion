@@ -64,6 +64,26 @@ style={{
 }}
 ```
 
+Also avoid composing multiple transforms into one string:
+
+```tsx
+const translateY = interpolate(frame, [0, 100], [0, 120]);
+const rotation = interpolate(frame, [0, 100], [0, 20]);
+
+style={{
+  transform: `translateY(${translateY}px) rotate(${rotation}deg)`,
+}}
+```
+
+Prefer CSS transform shorthands:
+
+```tsx
+style={{
+  translate: interpolate(frame, [0, 100], ["0px 0px", "0px 120px"]),
+  rotate: interpolate(frame, [0, 100], ["0deg", "20deg"]),
+}}
+```
+
 CSS transitions or animations are FORBIDDEN - they will not render correctly.  
 Tailwind animation class names are FORBIDDEN - they will not render correctly.
 
@@ -176,7 +196,10 @@ export const RemotionRoot = () => {
 };
 ```
 
-Metadata can also be calculated dynamically:
+For scaffolds that should stay editable in Studio, keep the component and `<Composition>` registration in the same file so the dimensions, duration, FPS, and defaults stay visible next to the rendered code.
+Use `defaultProps` for composition-wide values and keep it as an inline object literal on `<Composition>` or `<Still>`.
+
+Metadata can also be calculated dynamically when it depends on input props, fetched data, or asset metadata:
 
 ```tsx
 import { Composition, CalculateMetadataFunction } from "remotion";
