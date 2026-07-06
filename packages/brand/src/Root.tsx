@@ -18,6 +18,14 @@ import {
 	whatIsRemotionSchema,
 } from './Compose/WhatIsRemotion';
 import {
+	DocsPagesShowcase,
+	INSTAGRAM_POST_HEIGHT,
+	INSTAGRAM_POST_WIDTH,
+	calculateDocsPagesShowcaseMetadata,
+	docsPagesShowcaseDefaultProps,
+	docsPagesShowcaseSchema,
+} from './DocsPagesShowcase';
+import {
 	CornerPinEffectShowcase,
 	cornerPinEffectShowcaseDurationInFrames,
 } from './effects/CornerPinEffectShowcase';
@@ -83,6 +91,19 @@ import {UpperThird, upperThirdSchema} from './video-elements/UpperThird';
 export const RemotionRoot: React.FC = () => {
 	return (
 		<>
+			<Folder name="docs">
+				<Composition
+					id="1000-documentation-pages"
+					component={DocsPagesShowcase}
+					width={INSTAGRAM_POST_WIDTH}
+					height={INSTAGRAM_POST_HEIGHT}
+					fps={30}
+					durationInFrames={90}
+					schema={docsPagesShowcaseSchema}
+					defaultProps={docsPagesShowcaseDefaultProps}
+					calculateMetadata={calculateDocsPagesShowcaseMetadata}
+				/>
+			</Folder>
 			<Folder name="static-logo">
 				<Composition
 					component={Logo}
