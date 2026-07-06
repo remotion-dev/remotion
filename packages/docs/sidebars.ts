@@ -1599,7 +1599,7 @@ const sidebars: SidebarsConfig = {
 				'authoring-packages',
 			],
 		},
-		'license',
+		'pricing',
 		'acknowledgements',
 
 		{
