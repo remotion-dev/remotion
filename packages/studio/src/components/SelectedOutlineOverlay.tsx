@@ -46,7 +46,10 @@ import {
 	type SelectedOutlineTarget,
 } from './selected-outline-types';
 import {getSelectedUvHandles} from './selected-outline-uv';
-import {SelectedOutlineElement} from './SelectedOutlineElement';
+import {
+	SelectedOutlineElement,
+	SelectedOutlineTransformOriginHandle,
+} from './SelectedOutlineElement';
 import {
 	SelectedOutlineUvHandleCircleLayer,
 	SelectedOutlineUvHandleConnectionLayer,
@@ -868,6 +871,15 @@ export const SelectedOutlineOverlay: React.FC<{
 					onHoverChange={setHoveredOutlineKey}
 					onSelect={selectOutlineItem}
 					scale={scale}
+					target={targetsByKey.get(outline.key)}
+				/>
+			))}
+			{/* Keep transform-origin handles above every transparent outline polygon so SVG hit-testing reaches the selected knob first. */}
+			{outlinesForRendering.map((outline) => (
+				<SelectedOutlineTransformOriginHandle
+					key={`${outline.key}-transform-origin`}
+					outline={outline}
+					onDraggingChange={onDraggingChange}
 					target={targetsByKey.get(outline.key)}
 				/>
 			))}
