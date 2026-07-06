@@ -165,9 +165,7 @@ const formatRotationTimelineFieldValueForDisplay = ({
 	});
 	const degrees =
 		fieldSchema.type === 'rotation-css'
-			? typeof value === 'number' && Number.isFinite(value)
-				? value
-				: parseCssRotationToDegrees(String(value ?? '0deg'))
+			? parseCssRotationToDegrees(String(value ?? '0deg'))
 			: getFiniteNumericValue(value);
 
 	if (degrees === null || !Number.isFinite(degrees)) {
