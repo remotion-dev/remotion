@@ -2,7 +2,14 @@ import {
 	COMPOSITION_DRAG_MIME_TYPE,
 	parseCompositionDragData,
 } from '@remotion/studio-shared';
-import React, {useCallback, useContext, useMemo, useState} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import {Internals} from 'remotion';
 import {cmdOrCtrlCharacter} from '../error-overlay/remotion-overlay/ShortcutHint';
 import {
@@ -114,6 +121,38 @@ const shortcutLabel: React.CSSProperties = {
 	opacity: 0.6,
 };
 
+const autoScrollThreshold = 70;
+const maxAutoScrollSpeed = 18;
+
+const getAutoScrollSpeed = ({
+	clientY,
+	element,
+}: {
+	clientY: number;
+	element: HTMLElement;
+}) => {
+	const {top, bottom} = element.getBoundingClientRect();
+	const threshold = Math.min(autoScrollThreshold, element.clientHeight / 2);
+	if (threshold <= 0) {
+		return 0;
+	}
+
+	const distanceToTop = clientY - top;
+	const distanceToBottom = bottom - clientY;
+
+	if (distanceToTop < threshold) {
+		const progress = Math.min(1, (threshold - distanceToTop) / threshold);
+		return -Math.ceil(progress * maxAutoScrollSpeed);
+	}
+
+	if (distanceToBottom < threshold) {
+		const progress = Math.min(1, (threshold - distanceToBottom) / threshold);
+		return Math.ceil(progress * maxAutoScrollSpeed);
+	}
+
+	return 0;
+};
+
 export const CompositionSelector: React.FC = () => {
 	const {compositions, canvasContent, folders} = useContext(
 		Internals.CompositionManager,
@@ -121,6 +160,9 @@ export const CompositionSelector: React.FC = () => {
 	const {foldersExpanded} = useContext(ExpandedFoldersContext);
 	const {setSelectedModal} = useContext(ModalsContext);
 	const [rootDragHovered, setRootDragHovered] = useState(false);
+	const listRef = useRef<HTMLDivElement>(null);
+	const autoScrollAnimation = useRef<number | null>(null);
+	const autoScrollSpeed = useRef(0);
 
 	const {tabIndex} = useZIndex();
 	const selectComposition = useSelectComposition();
@@ -167,6 +209,82 @@ export const CompositionSelector: React.FC = () => {
 		setRootDragHovered(false);
 	}, []);
 
+	const stopCompositionListAutoScroll = useCallback(() => {
+		autoScrollSpeed.current = 0;
+		if (autoScrollAnimation.current !== null) {
+			cancelAnimationFrame(autoScrollAnimation.current);
+			autoScrollAnimation.current = null;
+		}
+	}, []);
+
+	const runCompositionListAutoScroll = useCallback(() => {
+		const listElement = listRef.current;
+		const speed = autoScrollSpeed.current;
+
+		if (listElement === null || speed === 0) {
+			autoScrollAnimation.current = null;
+			return;
+		}
+
+		const scrollTopBefore = listElement.scrollTop;
+		listElement.scrollTop += speed;
+
+		if (listElement.scrollTop === scrollTopBefore) {
+			autoScrollAnimation.current = null;
+			return;
+		}
+
+		autoScrollAnimation.current = requestAnimationFrame(
+			runCompositionListAutoScroll,
+		);
+	}, []);
+
+	const setCompositionListAutoScrollSpeed = useCallback(
+		(speed: number) => {
+			if (speed === 0) {
+				stopCompositionListAutoScroll();
+				return;
+			}
+
+			autoScrollSpeed.current = speed;
+			if (autoScrollAnimation.current === null) {
+				autoScrollAnimation.current = requestAnimationFrame(
+					runCompositionListAutoScroll,
+				);
+			}
+		},
+		[runCompositionListAutoScroll, stopCompositionListAutoScroll],
+	);
+
+	const onCompositionListDragOverCapture = useCallback(
+		(event: React.DragEvent<HTMLElement>) => {
+			if (
+				window.remotion_isReadOnlyStudio ||
+				!Array.from(event.dataTransfer.types).includes(
+					COMPOSITION_DRAG_MIME_TYPE,
+				)
+			) {
+				stopCompositionListAutoScroll();
+				return;
+			}
+
+			const listElement = listRef.current;
+			if (listElement === null) {
+				stopCompositionListAutoScroll();
+				return;
+			}
+
+			setCompositionListAutoScrollSpeed(
+				getAutoScrollSpeed({clientY: event.clientY, element: listElement}),
+			);
+		},
+		[setCompositionListAutoScrollSpeed, stopCompositionListAutoScroll],
+	);
+
+	useEffect(() => {
+		return stopCompositionListAutoScroll;
+	}, [stopCompositionListAutoScroll]);
+
 	const onRootDragOver = useCallback((event: React.DragEvent<HTMLElement>) => {
 		if (
 			window.remotion_isReadOnlyStudio ||
@@ -180,17 +298,21 @@ export const CompositionSelector: React.FC = () => {
 		setRootDragHovered(true);
 	}, []);
 
-	const onRootDragLeave = useCallback((event: React.DragEvent<HTMLElement>) => {
-		const {relatedTarget} = event;
-		if (
-			relatedTarget instanceof Node &&
-			event.currentTarget.contains(relatedTarget)
-		) {
-			return;
-		}
+	const onRootDragLeave = useCallback(
+		(event: React.DragEvent<HTMLElement>) => {
+			const {relatedTarget} = event;
+			if (
+				relatedTarget instanceof Node &&
+				event.currentTarget.contains(relatedTarget)
+			) {
+				return;
+			}
 
-		setRootDragHovered(false);
-	}, []);
+			stopCompositionListAutoScroll();
+			setRootDragHovered(false);
+		},
+		[stopCompositionListAutoScroll],
+	);
 
 	const onRootDrop = useCallback(
 		async (event: React.DragEvent<HTMLElement>) => {
@@ -206,6 +328,7 @@ export const CompositionSelector: React.FC = () => {
 
 			event.preventDefault();
 			event.stopPropagation();
+			stopCompositionListAutoScroll();
 			setRootDragHovered(false);
 
 			const composition = compositions.find(
@@ -247,7 +370,7 @@ export const CompositionSelector: React.FC = () => {
 				);
 			}
 		},
-		[compositions],
+		[compositions, stopCompositionListAutoScroll],
 	);
 
 	return (
@@ -266,10 +389,14 @@ export const CompositionSelector: React.FC = () => {
 				</button>
 			</div>
 			<div
+				ref={listRef}
 				className="__remotion-vertical-scrollbar"
 				style={list}
+				onDragOverCapture={onCompositionListDragOverCapture}
+				onDragEndCapture={stopCompositionListAutoScroll}
 				onDragOver={onRootDragOver}
 				onDragLeave={onRootDragLeave}
+				onDropCapture={stopCompositionListAutoScroll}
 				onDrop={onRootDrop}
 			>
 				{items.map((c) => {
