@@ -190,7 +190,7 @@ export type PaperParams = {
 	readonly drops?: number;
 	/** Large-scale mask applied to the paper pattern from `0` to `1`. Defaults to `0`. */
 	readonly fade?: number;
-	/** Seed for folds, crumples and speckles from `0` to `1000`. Defaults to `6`. */
+	/** Seed for the generated paper pattern from `0` to `1000`. Defaults to `6`. */
 	readonly seed?: number;
 	/** Scale of the generated paper texture from `0.01` to `4`. Defaults to `0.6`. */
 	readonly scale?: number;
@@ -245,6 +245,7 @@ type PaperState = {
 	cachedColorFrontRgba: ParsedColorRgba;
 	cachedColorBack: string;
 	cachedColorBackRgba: ParsedColorRgba;
+	cachedNoiseSeed: number;
 };
 
 const resolve = (p: PaperParams): PaperResolved => ({
@@ -383,6 +384,18 @@ float getUvFrame(vec2 uv) {
 
 vec2 rotate(vec2 uv, float th) {
 	return mat2(cos(th), sin(th), -sin(th), cos(th)) * uv;
+}
+
+vec2 seedOffset(float salt) {
+	float seeded = uSeed + salt;
+	return fract(
+		sin(
+			vec2(
+				seeded * 12.9898 + 78.233,
+				seeded * 39.3468 + 11.135
+			)
+		) * 43758.5453
+	);
 }
 
 float randomR(vec2 p) {
@@ -557,7 +570,9 @@ void main() {
 	patternUV /= max(uScale, 0.001);
 	patternUV = 5.0 * (patternUV * vec2(uImageAspectRatio, 1.0));
 
-	vec2 roughnessUv = 1.5 * (gl_FragCoord.xy - 0.5 * uResolution);
+	vec2 roughnessUv =
+		1.5 * (gl_FragCoord.xy - 0.5 * uResolution) +
+		128.0 * seedOffset(1.0);
 	float roughness =
 		roughnessNoise(roughnessUv + vec2(1.0, 0.0)) -
 		roughnessNoise(roughnessUv - vec2(1.0, 0.0));
@@ -570,7 +585,7 @@ void main() {
 			crumplesShape(crumplesUV));
 
 	vec2 fiberUV = 2.0 / max(uFiberSize, 0.001) * patternUV;
-	float fiber = fiberNoise(fiberUV, vec2(0.0));
+	float fiber = fiberNoise(fiberUV, 64.0 * seedOffset(2.0));
 	fiber = 0.5 * uFiber * (fiber - 1.0);
 
 	vec2 normal = vec2(0.0);
@@ -690,30 +705,42 @@ const createSourceTexture = (gl: WebGL2RenderingContext): WebGLTexture => {
 	return texture;
 };
 
-const createNoiseTexture = (gl: WebGL2RenderingContext): WebGLTexture => {
-	const texture = gl.createTexture();
-	if (!texture) {
-		throw new Error('Failed to create WebGL noise texture');
-	}
+const initialNoiseState = (seed: number): number => {
+	const scaledSeed = Math.round(seed * 1000);
+	const mixedState = (0x9e3779b9 ^ Math.imul(scaledSeed, 0x85ebca6b)) >>> 0;
+	return mixedState === 0 ? 0x9e3779b9 : mixedState;
+};
 
+const nextNoiseState = (state: number): number => {
+	let next = state;
+	next ^= next << 13;
+	next ^= next >>> 17;
+	next ^= next << 5;
+	return next >>> 0;
+};
+
+const createNoiseData = (seed: number): Uint8Array => {
 	const data = new Uint8Array(NOISE_TEXTURE_SIZE * NOISE_TEXTURE_SIZE * 4);
-	let state = 0x9e3779b9;
+	let state = initialNoiseState(seed);
 	for (let i = 0; i < data.length; i += 4) {
-		state ^= state << 13;
-		state ^= state >>> 17;
-		state ^= state << 5;
+		state = nextNoiseState(state);
 		data[i] = state & 0xff;
-		state ^= state << 13;
-		state ^= state >>> 17;
-		state ^= state << 5;
+		state = nextNoiseState(state);
 		data[i + 1] = state & 0xff;
-		state ^= state << 13;
-		state ^= state >>> 17;
-		state ^= state << 5;
+		state = nextNoiseState(state);
 		data[i + 2] = state & 0xff;
 		data[i + 3] = 255;
 	}
 
+	return data;
+};
+
+const uploadNoiseTexture = (
+	gl: WebGL2RenderingContext,
+	texture: WebGLTexture,
+	seed: number,
+): void => {
+	const data = createNoiseData(seed);
 	gl.bindTexture(gl.TEXTURE_2D, texture);
 	gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
 	gl.texImage2D(
@@ -727,6 +754,15 @@ const createNoiseTexture = (gl: WebGL2RenderingContext): WebGLTexture => {
 		gl.UNSIGNED_BYTE,
 		data,
 	);
+};
+
+const createNoiseTexture = (gl: WebGL2RenderingContext): WebGLTexture => {
+	const texture = gl.createTexture();
+	if (!texture) {
+		throw new Error('Failed to create WebGL noise texture');
+	}
+
+	uploadNoiseTexture(gl, texture, DEFAULT_SEED);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
@@ -822,6 +858,7 @@ const setupPaper = (target: HTMLCanvasElement): PaperState => {
 		cachedColorFrontRgba: [159, 173, 188, 255],
 		cachedColorBack: '',
 		cachedColorBackRgba: [255, 255, 255, 255],
+		cachedNoiseSeed: DEFAULT_SEED,
 	};
 };
 
@@ -884,6 +921,10 @@ export const paper = createEffect<PaperParams, PaperState>({
 
 		gl.activeTexture(gl.TEXTURE1);
 		gl.bindTexture(gl.TEXTURE_2D, noiseTexture);
+		if (state.cachedNoiseSeed !== r.seed) {
+			uploadNoiseTexture(gl, noiseTexture, r.seed);
+			state.cachedNoiseSeed = r.seed;
+		}
 
 		if (state.uSource) gl.uniform1i(state.uSource, 0);
 		if (state.uResolution) gl.uniform2f(state.uResolution, width, height);

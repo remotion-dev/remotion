@@ -2431,7 +2431,7 @@ test('paper() accepts valid params', () => {
 			foldCount: 8,
 			drops: 0.1,
 			fade: 0.2,
-			seed: 12,
+			seed: 12.34,
 			scale: 0.8,
 		}),
 	).not.toThrow();
