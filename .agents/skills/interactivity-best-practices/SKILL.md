@@ -5,5 +5,5 @@ description: Best practices for writing Remotion animations that stay intuitive 
 
 # Interactivity Best Practices
 
-Use the canonical Remotion skill instead:
-[packages/skills/skills/remotion/SKILL.md](../../../packages/skills/skills/remotion/SKILL.md)
+Use the canonical interactivity best-practices page instead:
+[packages/docs/docs/studio/interactivity-best-practices.mdx](../../../packages/docs/docs/studio/interactivity-best-practices.mdx)
