@@ -2,7 +2,7 @@ import type {Size} from '@remotion/player';
 import React, {useContext, useEffect} from 'react';
 import {Internals} from 'remotion';
 import {ErrorLoader} from '../error-overlay/remotion-overlay/ErrorLoader';
-import {BACKGROUND} from '../helpers/colors';
+import {BACKGROUND, WHITE} from '../helpers/colors';
 import {TimelineZoomCtx} from '../state/timeline-zoom';
 import {Canvas} from './Canvas';
 import {FramePersistor} from './FramePersistor';
@@ -18,7 +18,7 @@ import {ensureFrameIsInViewport} from './Timeline/timeline-scroll-logic';
 import {ZoomPersistor} from './ZoomPersistor';
 
 const container: React.CSSProperties = {
-	color: 'white',
+	color: WHITE,
 	flex: 1,
 	justifyContent: 'center',
 	alignItems: 'center',

@@ -5,7 +5,7 @@ import {
 import React, {useCallback, useContext, useMemo, useRef} from 'react';
 import {Internals, useVideoConfig} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
-import {BLUE} from '../../helpers/colors';
+import {BLUE, WHITE_ALPHA_10} from '../../helpers/colors';
 import {getXPositionOfItemInTimelineImperatively} from '../../helpers/get-left-of-timeline-slider';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
@@ -38,7 +38,7 @@ const easingLineButton: React.CSSProperties = {
 };
 
 const easingLine: React.CSSProperties = {
-	backgroundColor: 'rgba(255, 255, 255, 0.1)',
+	backgroundColor: WHITE_ALPHA_10,
 	borderRadius: lineHeight / 2,
 	height: lineHeight,
 	left: 0,

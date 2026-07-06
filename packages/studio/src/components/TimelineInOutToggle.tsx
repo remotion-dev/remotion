@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
-import {BLUE} from '../helpers/colors';
+import {BLUE, WHITE} from '../helpers/colors';
 import {
 	areKeyboardShortcutsDisabled,
 	useKeybinding,
@@ -305,7 +305,7 @@ export const TimelineInOutPointToggle: React.FC = () => {
 				disabled={!videoConfig || isFirstFrame}
 			>
 				<TimelineInPointer
-					color={inFrame === null ? 'white' : BLUE}
+					color={inFrame === null ? WHITE : BLUE}
 					style={style}
 				/>
 			</ControlButton>
@@ -317,7 +317,7 @@ export const TimelineInOutPointToggle: React.FC = () => {
 				disabled={!videoConfig || isLastFrame}
 			>
 				<TimelineOutPointer
-					color={outFrame === null ? 'white' : BLUE}
+					color={outFrame === null ? WHITE : BLUE}
 					style={style}
 				/>
 			</ControlButton>

@@ -42,6 +42,10 @@ import {
 	NoiseDisplacementTextSource,
 } from '../../components/effects/effects-noise-displacement-preview';
 import {EffectsNoisePreview} from '../../components/effects/effects-noise-preview';
+import {
+	EffectsPaperPreview,
+	PAPER_PREVIEW_PARAMS,
+} from '../../components/effects/effects-paper-preview';
 import {EffectsPatternPreview} from '../../components/effects/effects-pattern-preview';
 import {EffectsPixelDissolvePreview} from '../../components/effects/effects-pixel-dissolve-preview';
 import {EffectsPixelatePreview} from '../../components/effects/effects-pixelate-preview';
@@ -592,6 +596,13 @@ export const RemotionRoot: React.FC = () => {
 					width={1280}
 					height={720}
 					defaultProps={NOISE_DISPLACEMENT_PREVIEW_PARAMS}
+				/>
+				<Still
+					id="effects-paper-preview"
+					component={EffectsPaperPreview}
+					width={1280}
+					height={720}
+					defaultProps={PAPER_PREVIEW_PARAMS}
 				/>
 				<Still
 					id="effects-white-noise-preview"

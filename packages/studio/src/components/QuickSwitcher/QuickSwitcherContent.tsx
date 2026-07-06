@@ -7,7 +7,7 @@ import React, {
 	useState,
 } from 'react';
 import {Internals} from 'remotion';
-import {LIGHT_TEXT} from '../../helpers/colors';
+import {LIGHT_TEXT, WHITE} from '../../helpers/colors';
 import {isCompositionStill} from '../../helpers/is-composition-still';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {
@@ -58,7 +58,7 @@ const modeInactive: React.CSSProperties = {
 
 const modeActive: React.CSSProperties = {
 	...modeItem,
-	color: 'white',
+	color: WHITE,
 	fontWeight: 'bold',
 };
 

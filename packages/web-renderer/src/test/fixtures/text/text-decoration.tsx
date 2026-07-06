@@ -172,7 +172,82 @@ const StylesComponent: React.FC = () => {
 					textDecorationThickness: 4,
 				}}
 			>
-				Wavy skipped
+				Wavy underline
+			</p>
+		</AbsoluteFill>
+	);
+};
+
+const WavyComponent: React.FC = () => {
+	return (
+		<AbsoluteFill
+			style={{
+				backgroundColor: 'white',
+				color: '#1d2330',
+				justifyContent: 'center',
+				padding: 24,
+			}}
+		>
+			<p
+				style={{
+					...styleRow,
+					textDecorationLine: 'underline',
+					textDecorationStyle: 'wavy',
+					textDecorationColor: '#d13131',
+					textDecorationThickness: 4,
+				}}
+			>
+				Wavy across words
+			</p>
+			<p
+				style={{
+					...styleRow,
+					textDecorationLine: 'overline',
+					textDecorationStyle: 'wavy',
+					textDecorationColor: '#1976d2',
+					textDecorationThickness: 4,
+				}}
+			>
+				Wavy overline
+			</p>
+			<p
+				style={{
+					...styleRow,
+					textDecorationLine: 'line-through',
+					textDecorationStyle: 'wavy',
+					textDecorationColor: '#2b9a66',
+					textDecorationThickness: 3,
+				}}
+			>
+				Wavy line-through
+			</p>
+			<p
+				style={{
+					...styleRow,
+					textDecoration: 'underline wavy #623aa2 6px',
+				}}
+			>
+				Wavy shorthand thick
+			</p>
+			<p
+				style={{
+					...styleRow,
+					textDecorationLine: 'underline',
+					textDecorationStyle: 'wavy',
+				}}
+			>
+				Default thickness wave
+			</p>
+			<p
+				style={{
+					...styleRow,
+					color: '#7b2f91',
+					textDecorationLine: 'underline',
+					textDecorationStyle: 'wavy',
+					textDecorationThickness: 4,
+				}}
+			>
+				Current color wave
 			</p>
 		</AbsoluteFill>
 	);
@@ -190,6 +265,15 @@ export const textDecoration = {
 export const textDecorationStyles = {
 	component: StylesComponent,
 	id: 'text-decoration-styles',
+	width: 500,
+	height: 420,
+	fps: 30,
+	durationInFrames: 1,
+} as const;
+
+export const textDecorationWavy = {
+	component: WavyComponent,
+	id: 'text-decoration-wavy',
 	width: 500,
 	height: 420,
 	fps: 30,

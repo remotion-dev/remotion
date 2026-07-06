@@ -1,5 +1,10 @@
 import React, {useCallback, useMemo, useState} from 'react';
-import {BACKGROUND, LIGHT_TEXT, LINE_COLOR} from '../../../helpers/colors';
+import {
+	BACKGROUND,
+	LIGHT_TEXT,
+	LINE_COLOR,
+	WHITE,
+} from '../../../helpers/colors';
 import {Plus} from '../../../icons/plus';
 import {
 	useZodIfPossible,
@@ -134,7 +139,7 @@ export const SchemaArrayItemSeparationLine: React.FC<{
 							onPointerLeave={onInnerMouseLeave}
 						>
 							<Plus
-								color={innerHovered ? 'white' : LIGHT_TEXT}
+								color={innerHovered ? WHITE : LIGHT_TEXT}
 								style={{
 									display: 'block',
 									height: VERTICAL_GUIDE_HEIGHT / 2,

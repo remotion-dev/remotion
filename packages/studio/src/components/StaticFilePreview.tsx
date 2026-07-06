@@ -1,7 +1,7 @@
 import {useContext} from 'react';
 import {staticFile} from 'remotion';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
-import {LIGHT_TEXT} from '../helpers/colors';
+import {LIGHT_TEXT, WHITE} from '../helpers/colors';
 import type {AssetMetadata} from '../helpers/get-asset-metadata';
 import {getPreviewFileType} from '../helpers/get-preview-file-type';
 import {FilePreview} from './FilePreview';
@@ -9,7 +9,7 @@ import {useStaticFiles} from './use-static-files';
 
 const msgStyle: React.CSSProperties = {
 	fontSize: 13,
-	color: 'white',
+	color: WHITE,
 	fontFamily: 'sans-serif',
 	display: 'flex',
 	justifyContent: 'center',

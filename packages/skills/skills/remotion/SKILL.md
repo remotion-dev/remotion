@@ -44,23 +44,21 @@ export const FadeIn = () => {
 };
 ```
 
-Prefer:
-
 ```tsx
+// 👍 Inline editable keyframes and transform shorthands
 style={{
   scale: interpolate(frame, [0, 100], [0, 1]),
   translate: interpolate(frame, [0, 100], ["0px 0px", "100px 100px"]),
   rotate: interpolate(frame, [0, 100], ["20deg", "90deg"]),
 }}
-```
 
-Over:
-
-```tsx
+// 👎 Hidden values and transform strings become harder to edit in Studio
 const scale = interpolate(frame, [0, 100], [0, 1]);
+const translateY = interpolate(frame, [0, 100], [0, 120]);
+const rotation = interpolate(frame, [0, 100], [0, 20]);
 
 style={{
-  transform: `scale(${scale})`,
+  transform: `scale(${scale}) translateY(${translateY}px) rotate(${rotation}deg)`,
 }}
 ```
 
@@ -176,15 +174,16 @@ export const RemotionRoot = () => {
 };
 ```
 
-Metadata can also be calculated dynamically:
+For scaffolds that should stay editable in Studio, keep the component and `<Composition>` registration in the same file so the dimensions, duration, FPS, and defaults stay visible next to the rendered code.
+Use `defaultProps` for composition-wide values and keep it as an inline object literal on `<Composition>` or `<Still>`.
+
+Metadata can also be calculated dynamically when it depends on input props, fetched data, or asset metadata:
 
 ```tsx
-import { Composition, CalculateMetadataFunction } from "remotion";
-import { MyComposition, MyCompositionProps } from "./MyComposition";
-
-const calculateMetadata: CalculateMetadataFunction<
-  MyCompositionProps
-> = async ({ props, abortSignal }) => {
+const calculateMetadata: CalculateMetadataFunction<Props> = async ({
+  props,
+  abortSignal,
+}) => {
   const data = await fetch(`https://api.example.com/video/${props.videoId}`, {
     signal: abortSignal,
   }).then((res) => res.json());
@@ -200,19 +199,15 @@ const calculateMetadata: CalculateMetadataFunction<
   };
 };
 
-export const RemotionRoot = () => {
-  return (
-    <Composition
-      id="MyComposition"
-      component={MyComposition}
-      fps={30}
-      width={1080}
-      height={1080}
-      defaultProps={{ videoId: "abc123" }}
-      calculateMetadata={calculateMetadata}
-    />
-  );
-};
+<Composition
+  id="MyComposition"
+  component={MyComposition}
+  fps={30}
+  width={1080}
+  height={1080}
+  defaultProps={{ videoId: "abc123" }}
+  calculateMetadata={calculateMetadata}
+/>;
 ```
 
 ## Starting preview
@@ -260,7 +255,7 @@ When creating a visual effect, prefer: 1. normal Remotion/HTML/CSS/SVG/filter/bl
 
 For light leak overlays, see [rules/light-leaks.md](rules/light-leaks.md). Docs: https://www.remotion.dev/docs/effects
 
-Available effects: `brightness()`, `contrast()`, `colorKey()`, `duotone()`, `grayscale()`, `hue()`, `invert()`, `saturation()`, `tint()`, `linearGradient()`, `linearGradientTint()`, `thermalVision()`, `blur()`, `linearProgressiveBlur()`, `radialProgressiveBlur()`, `zoomBlur()`, `dropShadow()`, `glow()`, `lightTrail()`, `evolve()`, `venetianBlinds()`, `mirror()`, `scale()`, `uvTranslate()`, `xyTranslate()`, `barrelDistortion()`, `chromaticAberration()`, `fisheye()`, `cornerPin()`, `wave()`, `burlap()`, `emboss()`, `dotGrid()`, `halftone()`, `noise()`, `noiseDisplacement()`, `pattern()`, `pixelate()`, `pixelDissolve()`, `scanlines()`, `speckle()`, `shine()`, `shrinkwrap()`, `vignette()`, `contourLines()`, `checkerboard()`, `halftoneLinearGradient()`, `gridlines()`, `whiteNoise()`, `tvSignalOff()`, `lines()`, `rings()`, `waves()`, `zigzag()`, `lightLeak()`, `starburst()`.
+Available effects: `brightness()`, `contrast()`, `colorKey()`, `duotone()`, `grayscale()`, `hue()`, `invert()`, `saturation()`, `tint()`, `linearGradient()`, `linearGradientTint()`, `thermalVision()`, `blur()`, `linearProgressiveBlur()`, `radialProgressiveBlur()`, `zoomBlur()`, `dropShadow()`, `glow()`, `lightTrail()`, `evolve()`, `venetianBlinds()`, `mirror()`, `scale()`, `uvTranslate()`, `xyTranslate()`, `barrelDistortion()`, `chromaticAberration()`, `fisheye()`, `cornerPin()`, `wave()`, `burlap()`, `emboss()`, `dotGrid()`, `halftone()`, `noise()`, `noiseDisplacement()`, `paper()`, `pattern()`, `pixelate()`, `pixelDissolve()`, `scanlines()`, `speckle()`, `shine()`, `shrinkwrap()`, `vignette()`, `contourLines()`, `checkerboard()`, `halftoneLinearGradient()`, `gridlines()`, `whiteNoise()`, `tvSignalOff()`, `lines()`, `rings()`, `waves()`, `zigzag()`, `lightLeak()`, `starburst()`.
 
 ## 3D content
 

@@ -1,6 +1,7 @@
 import React, {useCallback, useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {unregisterClientRender} from '../../api/save-render-output';
+import {CURRENT_COLOR} from '../../helpers/colors';
 import type {RenderInlineAction} from '../InlineAction';
 import {InlineAction} from '../InlineAction';
 import {showNotification} from '../Notifications/NotificationCenter';
@@ -50,7 +51,7 @@ export const RenderQueueRemoveItem: React.FC<{
 	const icon: React.CSSProperties = useMemo(() => {
 		return {
 			height: 16,
-			color: 'currentColor',
+			color: CURRENT_COLOR,
 		};
 	}, []);
 

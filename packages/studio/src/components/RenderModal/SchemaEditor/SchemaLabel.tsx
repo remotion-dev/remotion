@@ -1,5 +1,5 @@
 import React, {useCallback, useMemo, useState} from 'react';
-import {FAIL_COLOR, LIGHT_TEXT} from '../../../helpers/colors';
+import {FAIL_COLOR, LIGHT_TEXT, WHITE} from '../../../helpers/colors';
 import {Flex} from '../../layout';
 import {InlineRemoveButton} from '../InlineRemoveButton';
 import {getSchemaLabel} from './get-schema-label';
@@ -29,11 +29,7 @@ export const SchemaLabel: React.FC<{
 		return {
 			fontFamily: 'monospace',
 			fontSize: 12,
-			color: valid
-				? clickableButtonHovered
-					? 'white'
-					: LIGHT_TEXT
-				: FAIL_COLOR,
+			color: valid ? (clickableButtonHovered ? WHITE : LIGHT_TEXT) : FAIL_COLOR,
 			lineHeight: '20px',
 		};
 	}, [clickableButtonHovered, valid]);

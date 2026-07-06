@@ -3,6 +3,7 @@ import type {SequencePropsSubscriptionKey, InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
+import {TIMELINE_BLUE, WHITE_ALPHA_80} from '../../helpers/colors';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	EXPANDED_SECTION_PADDING_RIGHT,
@@ -36,7 +37,7 @@ let currentEffectDrag: EffectReorderDragData | null = null;
 
 const rowLabel: React.CSSProperties = {
 	fontSize: 12,
-	color: 'rgba(255, 255, 255, 0.8)',
+	color: WHITE_ALPHA_80,
 	userSelect: 'none',
 };
 
@@ -50,7 +51,7 @@ const reorderWrapper: React.CSSProperties = {
 };
 
 const reorderLineBase: React.CSSProperties = {
-	backgroundColor: '#0b84ff',
+	backgroundColor: TIMELINE_BLUE,
 	height: 2,
 	left: 0,
 	pointerEvents: 'none',

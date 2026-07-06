@@ -1,6 +1,7 @@
 import React from 'react';
 import type {SequencePropsSubscriptionKey, InteractivitySchema} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
+import {WHITE_ALPHA_80} from '../../helpers/colors';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import type {TimelineTreeNode} from '../../helpers/timeline-layout';
 import {
@@ -28,7 +29,7 @@ import {TimelineSequencePropItem} from './TimelineSequencePropItem';
 
 const rowLabel: React.CSSProperties = {
 	fontSize: 12,
-	color: 'rgba(255, 255, 255, 0.8)',
+	color: WHITE_ALPHA_80,
 	userSelect: 'none',
 };
 

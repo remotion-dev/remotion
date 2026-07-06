@@ -1,16 +1,13 @@
 import React, {forwardRef, useMemo} from 'react';
-import {
-	INPUT_BACKGROUND,
-	INPUT_BORDER_COLOR_UNHOVERED,
-} from '../helpers/colors';
+import {INPUT_BACKGROUND, BLACK_ALPHA_60, WHITE} from '../helpers/colors';
 const button: React.CSSProperties = {
-	border: `1px solid ${INPUT_BORDER_COLOR_UNHOVERED}`,
+	border: `1px solid ${BLACK_ALPHA_60}`,
 	borderRadius: 4,
 	backgroundColor: INPUT_BACKGROUND,
 	appearance: 'none',
 	fontFamily: 'inherit',
 	fontSize: 14,
-	color: 'white',
+	color: WHITE,
 	flexDirection: 'row',
 };
 

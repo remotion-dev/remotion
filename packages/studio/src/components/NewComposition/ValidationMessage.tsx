@@ -1,6 +1,6 @@
 import type {SVGProps} from 'react';
 import React, {useMemo} from 'react';
-import {FAIL_COLOR, WARNING_COLOR} from '../../helpers/colors';
+import {FAIL_COLOR, WARNING_COLOR, WHITE} from '../../helpers/colors';
 import {Row, Spacing} from '../layout';
 
 export const WarningTriangle: React.FC<SVGProps<SVGSVGElement>> = (props) => {
@@ -35,7 +35,7 @@ const row: React.CSSProperties = {
 
 const label: React.CSSProperties = {
 	fontSize: 13,
-	color: 'white',
+	color: WHITE,
 	fontFamily: 'sans-serif',
 	minWidth: 0,
 	whiteSpace: 'normal',

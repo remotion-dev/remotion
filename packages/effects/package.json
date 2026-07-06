@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/effects",
-	"version": "4.0.484",
+	"version": "4.0.485",
 	"description": "Effects that can be applied to Remotion-based canvas components",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -198,6 +198,11 @@
 			"types": "./dist/noise-displacement.d.ts",
 			"module": "./dist/esm/noise-displacement.mjs",
 			"import": "./dist/esm/noise-displacement.mjs"
+		},
+		"./paper": {
+			"types": "./dist/paper.d.ts",
+			"module": "./dist/esm/paper.mjs",
+			"import": "./dist/esm/paper.mjs"
 		},
 		"./pattern": {
 			"types": "./dist/pattern.d.ts",
@@ -401,6 +406,9 @@
 			],
 			"noise-displacement": [
 				"dist/noise-displacement.d.ts"
+			],
+			"paper": [
+				"dist/paper.d.ts"
 			],
 			"pattern": [
 				"dist/pattern.d.ts"

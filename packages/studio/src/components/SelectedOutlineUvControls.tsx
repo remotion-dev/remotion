@@ -1,6 +1,6 @@
 import React, {useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
-import {BLUE} from '../helpers/colors';
+import {BLUE, SELECTED_OUTLINE_UV_DROP_SHADOW, WHITE} from '../helpers/colors';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 import {
 	forceSpecificCursor,
@@ -58,7 +58,7 @@ const uvHandleRadius = 4.25;
 const selectedUvHandleRadius = 6.8;
 const ellipseControlRadius = 5.2;
 const uvHandleStyle: React.CSSProperties = {
-	filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.28))',
+	filter: SELECTED_OUTLINE_UV_DROP_SHADOW,
 };
 
 export const getSelectedOutlineUvHandleTimelineSelection = ({
@@ -420,7 +420,7 @@ const SelectedUvEllipseStartHandle: React.FC<{
 			cx={startControl.position.x}
 			cy={startControl.position.y}
 			r={ellipseControlRadius}
-			fill="white"
+			fill={WHITE}
 			stroke={BLUE}
 			strokeWidth={2}
 			style={uvHandleStyle}
@@ -566,7 +566,7 @@ const SelectedUvEllipseResizeHandle: React.FC<{
 			cx={resizeControl.position.x}
 			cy={resizeControl.position.y}
 			r={ellipseControlRadius}
-			fill="white"
+			fill={WHITE}
 			stroke={BLUE}
 			strokeWidth={2}
 			style={uvHandleStyle}
@@ -804,7 +804,7 @@ const SelectedUvEllipseRotationHandle: React.FC<{
 				cx={rotationControl.position.x}
 				cy={rotationControl.position.y}
 				r={ellipseControlRadius}
-				fill="white"
+				fill={WHITE}
 				stroke={BLUE}
 				strokeWidth={2}
 				style={uvHandleStyle}
@@ -1011,7 +1011,7 @@ const SelectedUvHandleCircle: React.FC<{
 			cx={position.x}
 			cy={position.y}
 			r={handle.isSelected ? selectedUvHandleRadius : uvHandleRadius}
-			fill="white"
+			fill={WHITE}
 			stroke={BLUE}
 			strokeWidth={2}
 			style={uvHandleStyle}

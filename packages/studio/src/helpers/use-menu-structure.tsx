@@ -28,6 +28,7 @@ import type {SidebarCollapsedState} from '../state/sidebar';
 import {SidebarContext} from '../state/sidebar';
 import {checkFullscreenSupport} from './check-fullscreen-support';
 import {StudioServerConnectionCtx} from './client-id';
+import {WHITE_HEX} from './colors';
 import {getGitMenuItem} from './get-git-menu-item';
 import {useMobileLayout} from './mobile-layout';
 import {openInEditor, preloadCompositionComponentInfo} from './open-in-editor';
@@ -259,8 +260,8 @@ export const useMenuStructure = (
 							style={rotate}
 						>
 							<path
-								fill="#fff"
-								stroke="#fff"
+								fill={WHITE_HEX}
+								stroke={WHITE_HEX}
 								strokeWidth="100"
 								strokeLinejoin="round"
 								d="M 2 172 a 196 100 0 0 0 195 5 A 196 240 0 0 0 100 2.259 A 196 240 0 0 0 2 172 z"
@@ -750,7 +751,7 @@ export const useMenuStructure = (
 						: {
 								id: 'install-packages',
 								value: 'install-packages',
-								label: 'Install package',
+								label: 'Install package...',
 								onClick: () => {
 									closeMenu();
 									setSelectedModal({
@@ -762,7 +763,7 @@ export const useMenuStructure = (
 								keyHint: null,
 								leftItem: null,
 								subMenu: null,
-								quickSwitcherLabel: `Install package`,
+								quickSwitcherLabel: `Install package...`,
 							},
 				].filter(Internals.truthy),
 				quickSwitcherLabel: null,

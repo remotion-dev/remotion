@@ -2025,6 +2025,15 @@ export const articles = [
 		slug: 'effects/noise',
 	},
 	{
+		id: 'effects/paper',
+		title: 'paper()',
+		relativePath: 'docs/effects/paper.mdx',
+		compId: 'articles-docs-effects-paper',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/paper',
+	},
+	{
 		id: 'effects/pattern',
 		title: 'pattern()',
 		relativePath: 'docs/effects/pattern.mdx',
@@ -5222,6 +5231,15 @@ export const articles = [
 		slug: 'preview',
 	},
 	{
+		id: 'pricing',
+		title: 'License & Pricing',
+		relativePath: 'docs/pricing.mdx',
+		compId: 'articles-docs-pricing',
+		crumb: null,
+		noAi: false,
+		slug: 'pricing',
+	},
+	{
 		id: 'quality',
 		title: 'Quality Guide',
 		relativePath: 'docs/quality.mdx',
@@ -6653,6 +6671,15 @@ export const articles = [
 		crumb: '@remotion/studio',
 		noAi: false,
 		slug: 'studio/go-to-composition',
+	},
+	{
+		id: 'studio/interactivity-best-practices',
+		title: 'Interactivity best practices',
+		relativePath: 'docs/studio/interactivity-best-practices.mdx',
+		compId: 'articles-docs-studio-interactivity-best-practices',
+		crumb: 'Remotion Studio',
+		noAi: false,
+		slug: 'studio/interactivity-best-practices',
 	},
 	{
 		id: 'studio/interactivity',

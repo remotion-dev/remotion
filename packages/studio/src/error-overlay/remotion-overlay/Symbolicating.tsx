@@ -1,4 +1,5 @@
 import React from 'react';
+import {WHITE} from '../../helpers/colors';
 
 export const Symbolicating: React.FC = (props) => {
 	return (
@@ -8,7 +9,7 @@ export const Symbolicating: React.FC = (props) => {
 			viewBox="0 0 32 32"
 			width="16"
 			height="16"
-			fill="white"
+			fill={WHITE}
 			{...props}
 		>
 			<path opacity=".1" d="M14 0 H18 V8 H14 z" transform="rotate(0 16 16)">

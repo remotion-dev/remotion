@@ -1,10 +1,11 @@
 import React, {useMemo} from 'react';
+import {BORDER_WHITE_ALPHA_20, RED} from '../../helpers/colors';
 
 const container: React.CSSProperties = {
 	height: 16,
 	width: 16,
-	backgroundColor: 'red',
-	border: '1px solid rgba(255, 255, 255, 0.2)',
+	backgroundColor: RED,
+	border: BORDER_WHITE_ALPHA_20,
 	borderRadius: 8,
 };
 

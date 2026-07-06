@@ -73,6 +73,31 @@ class MockImage {
 }
 
 const OriginalImage = globalThis.Image;
+const OriginalRequestAnimationFrame = globalThis.requestAnimationFrame;
+const OriginalCancelAnimationFrame = globalThis.cancelAnimationFrame;
+
+const getDelayRenderState = () =>
+	window as unknown as {
+		remotion_cancelledError?: string;
+		remotion_delayRenderHandles: number[];
+		remotion_delayRenderTimeouts: Record<
+			string,
+			{timeout: ReturnType<typeof setTimeout>}
+		>;
+		remotion_renderReady: boolean;
+	};
+
+const resetDelayRenderState = () => {
+	const w = getDelayRenderState();
+	for (const {timeout} of Object.values(w.remotion_delayRenderTimeouts ?? {})) {
+		clearTimeout(timeout);
+	}
+
+	w.remotion_cancelledError = undefined;
+	w.remotion_delayRenderHandles = [];
+	w.remotion_delayRenderTimeouts = {};
+	w.remotion_renderReady = false;
+};
 
 const studioEnv = {
 	isRendering: false,
@@ -117,11 +142,15 @@ beforeEach(() => {
 	drawImageCalls.length = 0;
 	imageLoadCount = 0;
 	globalThis.Image = MockImage as unknown as typeof Image;
+	resetDelayRenderState();
 });
 
 afterEach(() => {
 	cleanup();
 	globalThis.Image = OriginalImage;
+	globalThis.requestAnimationFrame = OriginalRequestAnimationFrame;
+	globalThis.cancelAnimationFrame = OriginalCancelAnimationFrame;
+	resetDelayRenderState();
 });
 
 test('<CanvasImage> renders a canvas element with the decoded image dimensions', async () => {
@@ -247,6 +276,119 @@ test('<CanvasImage> runs static images through an effect chain', async () => {
 	expect(applyCalls[0].width).toBe(100);
 	expect(applyCalls[0].height).toBe(50);
 	expect(applyCalls[0].source).toBeInstanceOf(HTMLCanvasElement);
+});
+
+test('<CanvasImage> keeps rendering delayed until the image is drawn into the canvas', async () => {
+	const decodeResolver: {current: (() => void) | null} = {current: null};
+	class DeferredDecodeImage extends MockImage {
+		public decode = () =>
+			new Promise<void>((resolve) => {
+				decodeResolver.current = resolve;
+			});
+	}
+
+	globalThis.Image = DeferredDecodeImage as unknown as typeof Image;
+
+	const applyCalls: EffectApplyParams<unknown, unknown>[] = [];
+	const definition: EffectDefinition<unknown> = {
+		type: 'test-effect',
+		label: 'Test effect',
+		documentationLink: null,
+		backend: '2d',
+		calculateKey: () => 'test-effect',
+		setup: () => ({}),
+		apply: (params) => {
+			applyCalls.push(params);
+			params.target
+				.getContext('2d')
+				?.drawImage(params.source, 0, 0, params.width, params.height);
+		},
+		cleanup: () => undefined,
+		schema: {},
+		validateParams: () => undefined,
+	};
+	const effect: EffectDescriptor<unknown> = {
+		definition,
+		effectKey: 'test-effect',
+		params: {},
+		memoized: false,
+	};
+
+	render(
+		<WrapSequenceContext>
+			<CanvasImage src="test.png" width={100} height={50} effects={[effect]} />
+		</WrapSequenceContext>,
+	);
+
+	await waitFor(() => {
+		expect(decodeResolver.current).not.toBeNull();
+	});
+	expect(getDelayRenderState().remotion_renderReady).toBe(false);
+
+	decodeResolver.current?.();
+	await Promise.resolve();
+	await Promise.resolve();
+
+	expect(getDelayRenderState().remotion_renderReady).toBe(false);
+
+	await waitFor(() => {
+		expect(applyCalls).toHaveLength(1);
+		expect(getDelayRenderState().remotion_renderReady).toBe(true);
+	});
+});
+
+test('<CanvasImage> keeps rendering delayed until the drawn canvas is presented', async () => {
+	const animationFrameCallbacks: FrameRequestCallback[] = [];
+	globalThis.requestAnimationFrame = ((callback: FrameRequestCallback) => {
+		animationFrameCallbacks.push(callback);
+		return animationFrameCallbacks.length;
+	}) as typeof requestAnimationFrame;
+	globalThis.cancelAnimationFrame = ((handle: number) => {
+		animationFrameCallbacks[handle - 1] = () => undefined;
+	}) as typeof cancelAnimationFrame;
+
+	const applyCalls: EffectApplyParams<unknown, unknown>[] = [];
+	const definition: EffectDefinition<unknown> = {
+		type: 'test-effect',
+		label: 'Test effect',
+		documentationLink: null,
+		backend: '2d',
+		calculateKey: () => 'test-effect',
+		setup: () => ({}),
+		apply: (params) => {
+			applyCalls.push(params);
+			params.target
+				.getContext('2d')
+				?.drawImage(params.source, 0, 0, params.width, params.height);
+		},
+		cleanup: () => undefined,
+		schema: {},
+		validateParams: () => undefined,
+	};
+	const effect: EffectDescriptor<unknown> = {
+		definition,
+		effectKey: 'test-effect',
+		params: {},
+		memoized: false,
+	};
+
+	render(
+		<WrapSequenceContext>
+			<CanvasImage src="test.png" width={100} height={50} effects={[effect]} />
+		</WrapSequenceContext>,
+	);
+
+	await waitFor(() => {
+		expect(applyCalls).toHaveLength(1);
+		expect(animationFrameCallbacks).toHaveLength(1);
+	});
+
+	expect(getDelayRenderState().remotion_renderReady).toBe(false);
+
+	animationFrameCallbacks[0](performance.now());
+	await Promise.resolve();
+
+	expect(getDelayRenderState().remotion_renderReady).toBe(true);
 });
 
 test('<CanvasImage> does not reload the source image when effect keys change', async () => {

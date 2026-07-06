@@ -1,6 +1,10 @@
 import React from 'react';
 import {AbsoluteFill} from 'remotion';
-import {LIGHT_COLOR} from '../../helpers/colors';
+import {
+	LIGHT_COLOR,
+	LOOPED_INDICATOR_DROP_SHADOW,
+	TRANSPARENT,
+} from '../../helpers/colors';
 
 const width: React.CSSProperties = {
 	width: 0,
@@ -11,8 +15,7 @@ const width: React.CSSProperties = {
 
 const icon: React.CSSProperties = {
 	height: 12,
-	filter:
-		'drop-shadow(0 0 2px rgba(0, 0, 0, 0.9)) drop-shadow(0 1px 2px rgba(0, 0, 0, 0.8))',
+	filter: LOOPED_INDICATOR_DROP_SHADOW,
 };
 
 const Icon: React.FC = () => (
@@ -27,7 +30,7 @@ const Icon: React.FC = () => (
 const verticalLine: React.CSSProperties = {
 	height: '100%',
 	width: 1,
-	background: 'rgb(255,255,255, 0.5)',
+	background: TRANSPARENT,
 };
 
 const centerContainer: React.CSSProperties = {

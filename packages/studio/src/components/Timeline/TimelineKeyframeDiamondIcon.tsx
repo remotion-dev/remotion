@@ -1,5 +1,5 @@
 import React from 'react';
-import {BLUE} from '../../helpers/colors';
+import {BLACK_ALPHA_40, BLUE} from '../../helpers/colors';
 
 const svgStyle: React.CSSProperties = {
 	display: 'block',
@@ -32,7 +32,7 @@ export const TimelineKeyframeDiamondIcon: React.FC<{
 			<polygon
 				points="6 1.5 10.5 6 6 10.5 1.5 6"
 				fill={color}
-				stroke="rgba(0, 0, 0, 0.4)"
+				stroke={BLACK_ALPHA_40}
 				strokeWidth="1"
 				strokeLinejoin="round"
 			/>

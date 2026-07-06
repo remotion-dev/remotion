@@ -147,20 +147,6 @@ export const GlobalKeybindings: React.FC<{
 			}
 		};
 
-		const nKey = keybindings.registerKeybinding({
-			event: 'keypress',
-			key: 'n',
-			callback: () => {
-				showNotification(
-					`To make a new composition, right-click an existing one and select "Duplicate"`,
-					5000,
-				);
-			},
-			commandCtrlKey: false,
-			preventDefault: true,
-			triggerIfInputFieldFocused: false,
-			keepRegisteredWhenNotHighestContext: false,
-		});
 		const cmdKKey = keybindings.registerKeybinding({
 			event: 'keydown',
 			key: 'k',
@@ -249,7 +235,6 @@ export const GlobalKeybindings: React.FC<{
 		});
 
 		return () => {
-			nKey.unregister();
 			for (const sequencePropKey of sequencePropKeys) {
 				sequencePropKey.unregister();
 			}

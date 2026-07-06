@@ -1,7 +1,7 @@
 import React, {useContext, useEffect, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
-import {BACKGROUND, BORDER_COLOR, LIGHT_TEXT} from '../../helpers/colors';
+import {BACKGROUND, BLACK_HEX, LIGHT_TEXT} from '../../helpers/colors';
 import {SHOW_BROWSER_RENDERING} from '../../helpers/show-browser-rendering';
 import {Spacing} from '../layout';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
@@ -9,7 +9,7 @@ import {RenderQueueContext} from './context';
 import {RenderQueueItem} from './RenderQueueItem';
 
 const separatorStyle: React.CSSProperties = {
-	borderBottom: `1px solid ${BORDER_COLOR}`,
+	borderBottom: `1px solid ${BLACK_HEX}`,
 };
 
 const errorExplanation: React.CSSProperties = {

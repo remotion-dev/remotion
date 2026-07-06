@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Tiro Gurmukhi',
 	importName: 'TiroGurmukhi',
-	version: 'v6',
+	version: 'v8',
 	url: 'https://fonts.googleapis.com/css2?family=Tiro+Gurmukhi:ital,wght@0,400;1,400',
 	unicodeRanges: {
 		gurmukhi:
@@ -17,21 +17,21 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				gurmukhi:
-					'https://fonts.gstatic.com/s/tirogurmukhi/v6/x3d4ckXSYq-Uqjc048JUF7Jvpyz9ISM2I2Y.woff2',
+					'https://fonts.gstatic.com/s/tirogurmukhi/v8/x3d4ckXSYq-Uqjc048JUF7Jvpyz9ISM2I2Y.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/tirogurmukhi/v6/x3d4ckXSYq-Uqjc048JUF7Jvpyz9DCM2I2Y.woff2',
+					'https://fonts.gstatic.com/s/tirogurmukhi/v8/x3d4ckXSYq-Uqjc048JUF7Jvpyz9DCM2I2Y.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/tirogurmukhi/v6/x3d4ckXSYq-Uqjc048JUF7Jvpyz9AiM2.woff2',
+					'https://fonts.gstatic.com/s/tirogurmukhi/v8/x3d4ckXSYq-Uqjc048JUF7Jvpyz9AiM2.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				gurmukhi:
-					'https://fonts.gstatic.com/s/tirogurmukhi/v6/x3dmckXSYq-Uqjc048JUF7JvpwrNADsy.woff2',
+					'https://fonts.gstatic.com/s/tirogurmukhi/v8/x3dmckXSYq-Uqjc048JUF7JvpwrNADsy.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/tirogurmukhi/v6/x3dmckXSYq-Uqjc048JUF7JvpyfNADsy.woff2',
+					'https://fonts.gstatic.com/s/tirogurmukhi/v8/x3dmckXSYq-Uqjc048JUF7JvpyfNADsy.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/tirogurmukhi/v6/x3dmckXSYq-Uqjc048JUF7JvpynNAA.woff2',
+					'https://fonts.gstatic.com/s/tirogurmukhi/v8/x3dmckXSYq-Uqjc048JUF7JvpynNAA.woff2',
 			},
 		},
 	},

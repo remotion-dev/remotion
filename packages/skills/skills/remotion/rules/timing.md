@@ -30,20 +30,19 @@ const opacity = interpolate(frame, [0, 100], [0, 1], {
 When an animation should be editable in Remotion Studio, keep the `interpolate()` call directly in the `style` prop and prefer individual CSS transform properties:
 
 ```tsx
+// 👍 Inline editable keyframes and transform shorthands
 style={{
   scale: interpolate(frame, [0, 100], [0, 1]),
   translate: interpolate(frame, [0, 100], ["0px 0px", "100px 100px"]),
   rotate: interpolate(frame, [0, 100], ["20deg", "90deg"]),
 }}
-```
 
-Avoid extracting the value and composing a `transform` string:
-
-```tsx
-const scale = interpolate(frame, [0, 100], [0, 1]);
+// 👎 Hidden values and transform strings become computed in Studio
+const translateY = interpolate(frame, [0, 100], [0, 120]);
+const rotation = interpolate(frame, [0, 100], [0, 20]);
 
 style={{
-  transform: `scale(${scale})`,
+  transform: `translateY(${translateY}px) rotate(${rotation}deg)`,
 }}
 ```
 

@@ -1,5 +1,5 @@
 import {useCallback, useMemo, useState} from 'react';
-import {LIGHT_TEXT} from '../../helpers/colors';
+import {LIGHT_TEXT, WHITE} from '../../helpers/colors';
 
 const svgStyle: React.CSSProperties = {
 	width: '11px',
@@ -23,7 +23,7 @@ export const OpenIssueButton: React.FC<{link: string}> = ({link}) => {
 	}, [link]);
 
 	const svgFillColor = useMemo(() => {
-		return hovered ? 'white' : LIGHT_TEXT;
+		return hovered ? WHITE : LIGHT_TEXT;
 	}, [hovered]);
 
 	const openInEditorSvg = (

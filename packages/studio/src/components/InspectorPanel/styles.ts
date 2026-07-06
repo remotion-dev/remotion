@@ -1,10 +1,16 @@
 import type React from 'react';
-import {BACKGROUND, BLUE, LIGHT_TEXT, LINE_COLOR} from '../../helpers/colors';
+import {
+	BACKGROUND,
+	BLUE,
+	LIGHT_TEXT,
+	LINE_COLOR,
+	WHITE,
+} from '../../helpers/colors';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 
 export const container: React.CSSProperties = {
 	backgroundColor: BACKGROUND,
-	color: 'white',
+	color: WHITE,
 	display: 'flex',
 	flex: 1,
 	flexDirection: 'column',
@@ -60,11 +66,11 @@ export const sequenceHeader: React.CSSProperties = {
 };
 
 export const sequenceHeaderTitle: React.CSSProperties = {
-	alignSelf: 'flex-start',
+	alignSelf: 'stretch',
 	backgroundColor: BACKGROUND,
 	border: 'none',
-	color: 'white',
-	display: 'inline-flex',
+	color: WHITE,
+	display: 'flex',
 	fontFamily: 'sans-serif',
 	fontSize: 12,
 	lineHeight: '18px',
@@ -193,7 +199,7 @@ export const detailLabel: React.CSSProperties = {
 };
 
 export const detailValue: React.CSSProperties = {
-	color: 'white',
+	color: WHITE,
 	fontSize: 13,
 	fontVariantNumeric: 'tabular-nums',
 	minWidth: 0,

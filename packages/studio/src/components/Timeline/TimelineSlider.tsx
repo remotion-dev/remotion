@@ -7,6 +7,7 @@ import React, {
 	useRef,
 } from 'react';
 import {Internals, useVideoConfig} from 'remotion';
+import {TIMELINE_PLAYHEAD_COLOR} from '../../helpers/colors';
 import {getXPositionOfItemInTimelineImperatively} from '../../helpers/get-left-of-timeline-slider';
 import {TIMELINE_MIN_ZOOM, TimelineZoomCtx} from '../../state/timeline-zoom';
 import {getCurrentDuration} from './imperative-state';
@@ -27,7 +28,7 @@ const line: React.CSSProperties = {
 	height: '100vh',
 	width: PLAYHEAD_LINE_WIDTH,
 	position: 'fixed',
-	backgroundColor: '#f02c00',
+	backgroundColor: TIMELINE_PLAYHEAD_COLOR,
 };
 
 const PLAYHEAD_CENTER_OFFSET = PLAYHEAD_LINE_WIDTH / 2;

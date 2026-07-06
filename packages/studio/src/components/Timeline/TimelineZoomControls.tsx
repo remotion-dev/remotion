@@ -1,5 +1,6 @@
 import React, {useCallback, useContext} from 'react';
 import {Internals} from 'remotion';
+import {BLACK, CURRENT_COLOR_LOWERCASE, WHITE} from '../../helpers/colors';
 import {useIsStill} from '../../helpers/is-current-selected-still';
 import {Minus} from '../../icons/minus';
 import {Plus} from '../../icons/plus';
@@ -13,7 +14,7 @@ import {ControlButton} from '../ControlButton';
 import {Spacing} from '../layout';
 
 const container: React.CSSProperties = {
-	color: 'black',
+	color: BLACK,
 	flexDirection: 'row',
 	display: 'flex',
 	alignItems: 'center',
@@ -24,7 +25,7 @@ const buttonStyle: React.CSSProperties = {
 };
 
 const iconStyle: React.CSSProperties = {
-	color: 'white',
+	color: WHITE,
 	width: 14,
 };
 
@@ -117,7 +118,7 @@ export const TimelineZoomControls: React.FC = () => {
 				type="button"
 				disabled={TIMELINE_MAX_ZOOM === zoom}
 			>
-				<Plus color="currentcolor" style={iconStyle} />
+				<Plus color={CURRENT_COLOR_LOWERCASE} style={iconStyle} />
 			</ControlButton>
 		</div>
 	);

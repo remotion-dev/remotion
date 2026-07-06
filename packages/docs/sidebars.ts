@@ -304,6 +304,7 @@ const sidebars: SidebarsConfig = {
 				'effects/mirror',
 				'effects/noise',
 				'effects/noise-displacement',
+				'effects/paper',
 				'effects/pattern',
 				'effects/pixel-dissolve',
 				'effects/pixelate',
@@ -1306,6 +1307,7 @@ const sidebars: SidebarsConfig = {
 				'studio/shortcuts',
 				'studio/quick-switcher',
 				'studio/interactivity',
+				'studio/interactivity-best-practices',
 				'studio/make-component-interactive',
 				'studio/deploy-static',
 				'studio/deploy-server',
@@ -1598,7 +1600,7 @@ const sidebars: SidebarsConfig = {
 				'authoring-packages',
 			],
 		},
-		'license',
+		'pricing',
 		'acknowledgements',
 
 		{
