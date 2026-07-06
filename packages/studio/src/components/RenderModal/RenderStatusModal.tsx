@@ -1,5 +1,6 @@
 import type {RenderJob} from '@remotion/studio-shared';
 import React, {useCallback, useContext} from 'react';
+import {RENDER_STATUS_BACKGROUND} from '../../helpers/colors';
 import {
 	makeClientRetryPayload,
 	makeRetryPayload,
@@ -28,7 +29,7 @@ const container: React.CSSProperties = {
 };
 
 const codeBlock: React.CSSProperties = {
-	backgroundColor: '#222',
+	backgroundColor: RENDER_STATUS_BACKGROUND,
 	whiteSpace: 'pre',
 	padding: 12,
 	borderRadius: 4,

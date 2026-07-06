@@ -29,10 +29,8 @@ import {Button} from '../Button';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {ModalHeader} from '../ModalHeader';
 import {DismissableModal} from '../NewComposition/DismissableModal';
-import {
-	optionsSidebarTabs,
-	persistSelectedOptionsSidebarPanel,
-} from '../OptionsPanel';
+import {optionsSidebarTabs} from '../options-sidebar-tabs';
+import {persistSelectedOptionsSidebarPanel} from '../OptionsPanel';
 import {RenderQueueContext} from '../RenderQueue/context';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';

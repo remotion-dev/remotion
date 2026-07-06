@@ -120,6 +120,7 @@ export const exampleVideos = {
 	empty: path.join(__dirname, '..', 'videos', 'empty.mp4'),
 	subsequentMdat: path.join(__dirname, '..', 'videos', 'subsequent-mdats.mp4'),
 	garbageAtEnd: path.join(__dirname, '..', 'videos', 'garbage-at-end.mp4'),
+	redHeartWebm: path.join(__dirname, '..', 'videos', 'red-heart-1x.webm'),
 	webmCodecDerivedFromSps: path.join(
 		__dirname,
 		'..',

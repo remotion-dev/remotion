@@ -1,6 +1,6 @@
 import React, {useCallback, useMemo} from 'react';
 import {Internals, useVideoConfig} from 'remotion';
-import {LIGHT_TEXT} from '../../helpers/colors';
+import {LIGHT_TEXT, WHITE_ALPHA_25} from '../../helpers/colors';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {InlineAction} from '../InlineAction';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
@@ -85,7 +85,7 @@ const chevronIcon: React.CSSProperties = {
 	width: 8,
 };
 
-const disabledChevronColor = 'rgba(255, 255, 255, 0.25)';
+const disabledChevronColor = WHITE_ALPHA_25;
 
 const NavigationChevron: React.FC<{
 	readonly color: string;

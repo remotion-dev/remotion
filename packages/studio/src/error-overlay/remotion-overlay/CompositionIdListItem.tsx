@@ -1,8 +1,8 @@
 import React from 'react';
 import {
-	CLEAR_HOVER,
+	WHITE_ALPHA_06,
 	SELECTED_BACKGROUND,
-	TEXT_COLOR,
+	WHITE_HEX,
 } from '../../helpers/colors';
 
 export const listItemStyle: React.CSSProperties = {
@@ -10,7 +10,7 @@ export const listItemStyle: React.CSSProperties = {
 	cursor: 'pointer',
 	borderRadius: 4,
 	lineHeight: 1.4,
-	color: TEXT_COLOR,
+	color: WHITE_HEX,
 	fontFamily: 'inherit',
 	fontSize: 14,
 };
@@ -20,7 +20,7 @@ export const listItemActiveStyle: React.CSSProperties = {
 };
 
 export const listItemHoverStyle: React.CSSProperties = {
-	backgroundColor: CLEAR_HOVER,
+	backgroundColor: WHITE_ALPHA_06,
 };
 
 export const CompositionIdListItem: React.FC<{

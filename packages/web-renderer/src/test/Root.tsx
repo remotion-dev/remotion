@@ -73,7 +73,11 @@ import {fontVariantCaps} from './fixtures/text/font-variant-caps';
 import {letterSpacing} from './fixtures/text/letter-spacing';
 import {paragraphs} from './fixtures/text/paragraphs';
 import {textFixture} from './fixtures/text/text';
-import {textDecoration} from './fixtures/text/text-decoration';
+import {
+	textDecoration,
+	textDecorationStyles,
+	textDecorationWavy,
+} from './fixtures/text/text-decoration';
 import {textShadow} from './fixtures/text/text-shadow';
 import {textShadowScale} from './fixtures/text/text-shadow-scale';
 import {textTransform} from './fixtures/text/text-transform';
@@ -164,6 +168,8 @@ export const Root: React.FC = () => {
 				<Composition {...letterSpacing} />
 				<Composition {...textTransform} />
 				<Composition {...textDecoration} />
+				<Composition {...textDecorationStyles} />
+				<Composition {...textDecorationWavy} />
 				<Composition {...fontStyle} />
 				<Composition {...fontVariantCaps} />
 				<Composition {...lineHeight} />

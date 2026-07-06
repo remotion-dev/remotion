@@ -1,9 +1,15 @@
 import React, {useContext, useMemo, useRef, useState} from 'react';
+import {flushSync} from 'react-dom';
 import type {ResolvedStackLocation} from 'remotion';
 import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
-import {BLUE} from '../helpers/colors';
+import {
+	BLUE,
+	SELECTED_OUTLINE_DROP_SHADOW,
+	TIMELINE_DROP_BLUE_ALPHA_12,
+	TRANSPARENT,
+} from '../helpers/colors';
 import {formatFileLocation} from '../helpers/format-file-location';
 import {openOriginalPositionInEditor} from '../helpers/open-in-editor';
 import {ModalsContext} from '../state/modals';
@@ -22,6 +28,7 @@ import {
 } from './ForceSpecificCursor';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {showNotification} from './Notifications/NotificationCenter';
+import {optionsSidebarTabs} from './options-sidebar-tabs';
 import {
 	applySelectedOutlineDragAxisLock,
 	applySelectedOutlineTransformOriginAxisLock,
@@ -83,6 +90,10 @@ import {
 } from './Timeline/call-add-keyframe';
 import {disableSequenceInteractivity} from './Timeline/disable-sequence-interactivity';
 import {duplicateSequencesFromSource} from './Timeline/duplicate-selected-timeline-item';
+import {
+	commitPendingInspectorFields,
+	requestFocusInspectorField,
+} from './Timeline/focus-inspector-field';
 import {getSequenceContextMenuItems} from './Timeline/get-sequence-context-menu-items';
 import {saveSequenceProps} from './Timeline/save-sequence-prop';
 import {getTimelineAssetLinkInfo} from './Timeline/timeline-asset-link';
@@ -425,7 +436,7 @@ const SelectedOutlineTransformOriginHandle: React.FC<{
 			onPointerDown={onPointerDown}
 			aria-hidden="true"
 			style={{
-				filter: 'drop-shadow(0 0 1px rgba(255, 255, 255, 0.2))',
+				filter: SELECTED_OUTLINE_DROP_SHADOW,
 			}}
 		>
 			<circle
@@ -472,6 +483,7 @@ const SelectedOutlinePolygon: React.FC<{
 		item: TimelineSelection,
 		interaction: TimelineSelectionInteraction,
 	) => void;
+	readonly onTextEditStart: (target: SelectedOutlineTarget) => void;
 	readonly scale: number;
 	readonly target: SelectedOutlineTarget | undefined;
 }> = ({
@@ -484,6 +496,7 @@ const SelectedOutlinePolygon: React.FC<{
 	onDraggingChange,
 	onHoverChange,
 	onSelect,
+	onTextEditStart,
 	scale,
 	target,
 }) => {
@@ -525,6 +538,10 @@ const SelectedOutlinePolygon: React.FC<{
 			}
 
 			if (drag === null || interaction.shiftKey || interaction.toggleKey) {
+				return;
+			}
+
+			if (commitPendingInspectorFields()) {
 				return;
 			}
 
@@ -709,6 +726,19 @@ const SelectedOutlinePolygon: React.FC<{
 		],
 	);
 
+	const onDoubleClick = React.useCallback(
+		(event: React.MouseEvent<SVGPolygonElement>) => {
+			if (target === undefined) {
+				return;
+			}
+
+			event.preventDefault();
+			event.stopPropagation();
+			onTextEditStart(target);
+		},
+		[onTextEditStart, target],
+	);
+
 	const onEffectDragOver = React.useCallback(
 		(event: React.DragEvent<SVGPolygonElement>) => {
 			if (effectDrop === null || !hasEffectDragType(event.dataTransfer)) {
@@ -771,7 +801,7 @@ const SelectedOutlinePolygon: React.FC<{
 			<polygon
 				ref={polygonRef}
 				points={points}
-				fill={effectDropHovered ? 'rgba(0, 155, 255, 0.12)' : 'transparent'}
+				fill={effectDropHovered ? TIMELINE_DROP_BLUE_ALPHA_12 : TRANSPARENT}
 				stroke={BLUE}
 				strokeOpacity={visible || effectDropHovered ? 1 : 0}
 				strokeWidth={2}
@@ -788,6 +818,7 @@ const SelectedOutlinePolygon: React.FC<{
 					}
 				}}
 				onPointerDown={onPointerDown}
+				onDoubleClick={onDoubleClick}
 				onDragOver={effectDrop === null ? undefined : onEffectDragOver}
 				onDragLeave={effectDrop === null ? undefined : onEffectDragLeave}
 				onDrop={effectDrop === null ? undefined : onEffectDrop}
@@ -861,6 +892,10 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 			}
 
 			if (interaction.shiftKey || interaction.toggleKey) {
+				return;
+			}
+
+			if (commitPendingInspectorFields()) {
 				return;
 			}
 
@@ -1040,7 +1075,7 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 				y1={edgeInfo.start.y}
 				x2={edgeInfo.end.x}
 				y2={edgeInfo.end.y}
-				stroke="transparent"
+				stroke={TRANSPARENT}
 				strokeWidth={12}
 				vectorEffect="non-scaling-stroke"
 				pointerEvents="stroke"
@@ -1143,6 +1178,10 @@ const SelectedOutlineRotationCornerHandle: React.FC<{
 			}
 
 			if (interaction.toggleKey) {
+				return;
+			}
+
+			if (commitPendingInspectorFields()) {
 				return;
 			}
 
@@ -1370,8 +1409,8 @@ const SelectedOutlineRotationCornerHandle: React.FC<{
 				cx={cornerInfo.point.x}
 				cy={cornerInfo.point.y}
 				r={12}
-				fill="transparent"
-				stroke="transparent"
+				fill={TRANSPARENT}
+				stroke={TRANSPARENT}
 				vectorEffect="non-scaling-stroke"
 				pointerEvents="all"
 				cursor={cornerInfo.cursor}
@@ -1432,6 +1471,40 @@ export const SelectedOutlineElement: React.FC<{
 	const confirm = useConfirmationDialog();
 	const selectAsset = useSelectAsset();
 	const {setSelectedModal} = useContext(ModalsContext);
+
+	const onTextEditStart = React.useCallback(
+		(editTarget: SelectedOutlineTarget) => {
+			const {textEdit} = editTarget;
+			if (textEdit === null) {
+				return;
+			}
+
+			if (
+				textEdit.propStatus.status !== 'static' ||
+				typeof textEdit.propStatus.codeValue !== 'string'
+			) {
+				showNotification(
+					'This text is computed and cannot be edited visually',
+					3000,
+				);
+				return;
+			}
+
+			flushSync(() => {
+				if (!editTarget.selected) {
+					onSelect(editTarget.selection, {shiftKey: false, toggleKey: false});
+				}
+
+				optionsSidebarTabs.current?.selectInspectorPanel();
+			});
+
+			requestFocusInspectorField({
+				fieldKey: 'children',
+				nodePath: textEdit.nodePath,
+			});
+		},
+		[onSelect],
+	);
 
 	const onContextMenuOpen = React.useCallback(async () => {
 		if (target === undefined || previewServerState.type !== 'connected') {
@@ -1623,6 +1696,7 @@ export const SelectedOutlineElement: React.FC<{
 				onDraggingChange={onDraggingChange}
 				onHoverChange={onHoverChange}
 				onSelect={onSelect}
+				onTextEditStart={onTextEditStart}
 				scale={scale}
 				target={target}
 			/>

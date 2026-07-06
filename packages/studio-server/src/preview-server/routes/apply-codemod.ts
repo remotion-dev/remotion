@@ -76,6 +76,15 @@ const getCodemodUndoDescription = (codemod: ApplyCodemodRequest['codemod']) => {
 		};
 	}
 
+	if (codemod.type === 'new-folder') {
+		const label = `folder "${codemod.parentName ? `${codemod.parentName}/` : ''}${codemod.folderName}"`;
+		return {
+			undoMessage: `↩️  Creation of ${label}`,
+			redoMessage: `↪️  Creation of ${label}`,
+			entryType: codemod.type,
+		};
+	}
+
 	if (codemod.type === 'rename-folder') {
 		const oldName = `${codemod.parentName ? `${codemod.parentName}/` : ''}${codemod.folderName}`;
 		const newName = `${codemod.parentName ? `${codemod.parentName}/` : ''}${codemod.newName}`;

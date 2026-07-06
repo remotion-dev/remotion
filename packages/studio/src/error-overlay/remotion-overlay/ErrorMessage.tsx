@@ -1,9 +1,11 @@
 import {PlayerInternals} from '@remotion/player';
 import React, {useCallback, useMemo, useRef, useState} from 'react';
 import {
+	ERROR_MESSAGE_MASK_IMAGE,
 	INPUT_BACKGROUND,
-	INPUT_BORDER_COLOR_HOVERED,
-	INPUT_BORDER_COLOR_UNHOVERED,
+	WHITE_ALPHA_05,
+	BLACK_ALPHA_60,
+	WHITE,
 } from '../../helpers/colors';
 import {CaretDown} from './carets';
 
@@ -13,7 +15,7 @@ const maxLines = 2;
 
 const buttonSize = 32;
 
-const maskImage = 'linear-gradient(to bottom, white 60%, transparent)';
+const maskImage = ERROR_MESSAGE_MASK_IMAGE;
 
 const container: React.CSSProperties = {
 	position: 'relative',
@@ -34,7 +36,7 @@ const moreLine: React.CSSProperties = {
 	display: 'flex',
 	justifyContent: 'center',
 	position: 'absolute',
-	border: `1px solid ${INPUT_BORDER_COLOR_HOVERED}`,
+	border: `1px solid ${WHITE_ALPHA_05}`,
 	height: 0,
 	marginTop: 4,
 };
@@ -44,13 +46,13 @@ const moreButton: React.CSSProperties = {
 	width: buttonSize,
 	borderRadius: buttonSize / 2,
 	backgroundColor: INPUT_BACKGROUND,
-	border: `1px solid ${INPUT_BORDER_COLOR_UNHOVERED}`,
+	border: `1px solid ${BLACK_ALPHA_60}`,
 	marginTop: -buttonSize / 2,
 	display: 'flex',
 	justifyContent: 'center',
 	alignItems: 'center',
 	cursor: 'pointer',
-	color: 'white',
+	color: WHITE,
 };
 
 export const ErrorMessage: React.FC<{

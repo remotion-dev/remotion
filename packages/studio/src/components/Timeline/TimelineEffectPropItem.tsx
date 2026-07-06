@@ -33,7 +33,11 @@ import {
 import {TimelineKeyframedValue} from './TimelineKeyframedValue';
 import {TimelineLayerEyeSpacer} from './TimelineLayerEye';
 import {TimelineRowChrome} from './TimelineRowChrome';
-import {TimelineFieldValue, UnsupportedStatus} from './TimelineSchemaField';
+import {
+	TIMELINE_COMPUTED_EFFECT_FIX_LINK,
+	TimelineFieldValue,
+	UnsupportedStatus,
+} from './TimelineSchemaField';
 import {
 	useTimelineRowSelection,
 	useTimelineSelection,
@@ -256,7 +260,12 @@ export const TimelineEffectPropValue: React.FC<{
 
 	if (effectStatus.type === 'cannot-update-effect') {
 		if (effectStatus.reason === 'computed') {
-			return <UnsupportedStatus label="computed" />;
+			return (
+				<UnsupportedStatus
+					label="computed"
+					fixHref={TIMELINE_COMPUTED_EFFECT_FIX_LINK}
+				/>
+			);
 		}
 
 		if (effectStatus.reason === 'not-call-expression') {
@@ -306,7 +315,12 @@ export const TimelineEffectPropValue: React.FC<{
 	}
 
 	if (propStatus.status === 'computed') {
-		return <UnsupportedStatus label={getComputedStatusLabel(propStatus)} />;
+		return (
+			<UnsupportedStatus
+				label={getComputedStatusLabel(propStatus)}
+				fixHref={TIMELINE_COMPUTED_EFFECT_FIX_LINK}
+			/>
+		);
 	}
 
 	const effectiveValue = Internals.getEffectiveVisualModeValue({

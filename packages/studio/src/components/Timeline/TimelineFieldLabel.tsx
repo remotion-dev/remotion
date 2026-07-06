@@ -1,4 +1,5 @@
 import React, {useMemo} from 'react';
+import {WHITE_ALPHA_80} from '../../helpers/colors';
 import {getTimelineFieldLabelRowStyle} from './timeline-field-row-layout';
 import {
 	getTimelineColor,
@@ -7,7 +8,7 @@ import {
 
 const fieldNameBase: React.CSSProperties = {
 	fontSize: 12,
-	color: 'rgba(255, 255, 255, 0.8)',
+	color: WHITE_ALPHA_80,
 	userSelect: 'none',
 	whiteSpace: 'nowrap',
 	overflow: 'hidden',

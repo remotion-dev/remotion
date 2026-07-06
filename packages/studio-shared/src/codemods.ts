@@ -51,6 +51,11 @@ export type RecastCodemod =
 			newName: string;
 	  }
 	| {
+			type: 'new-folder';
+			folderName: string;
+			parentName: string | null;
+	  }
+	| {
 			type: 'delete-folder';
 			folderName: string;
 			parentName: string | null;

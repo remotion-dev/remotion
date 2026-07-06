@@ -1,7 +1,7 @@
 import React, {useMemo} from 'react';
 import type {TSequence} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
-import {TIMELINE_TRACK_SEPARATOR} from '../../helpers/colors';
+import {TIMELINE_TRACK_SEPARATOR, WHITE} from '../../helpers/colors';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	flattenVisibleTreeNodes,
@@ -11,7 +11,7 @@ import {TimelineExpandedRow} from './TimelineExpandedRow';
 import {useTimelineExpandedTree} from './use-timeline-expanded-tree';
 
 const expandedSectionBase: React.CSSProperties = {
-	color: 'white',
+	color: WHITE,
 	fontFamily: 'Arial, Helvetica, sans-serif',
 	fontSize: 12,
 	display: 'flex',
@@ -40,6 +40,7 @@ export const TimelineExpandedSection: React.FC<{
 	const {filteredTree, getIsExpanded, toggleTrack} = useTimelineExpandedTree({
 		sequence,
 		nodePathInfo,
+		includeTextContent: false,
 	});
 
 	const flat = useMemo(

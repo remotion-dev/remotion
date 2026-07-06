@@ -4,12 +4,12 @@ import {
 	type AnySchemaFieldInfo,
 	type DragOverrides,
 	type EffectSchemaFieldInfo,
+	type InteractivitySchemaFieldInfo,
 	type SchemaFieldGroup,
 	type SchemaFieldGroupInfo,
 	type PropStatuses,
 	type SchemaFieldInfo,
 	type SequenceControls,
-	type InteractivitySchemaFieldInfo,
 } from '@remotion/studio-shared';
 import type {
 	GetDragOverrides,
@@ -31,12 +31,12 @@ export type {
 	AnySchemaFieldInfo,
 	DragOverrides,
 	EffectSchemaFieldInfo,
+	InteractivitySchemaFieldInfo,
 	PropStatuses,
 	SchemaFieldGroup,
 	SchemaFieldGroupInfo,
 	SchemaFieldInfo,
 	SequenceControls,
-	InteractivitySchemaFieldInfo,
 };
 
 export const TIMELINE_PADDING = 16;
@@ -81,12 +81,14 @@ export const buildTimelineTree = ({
 	getDragOverrides,
 	getEffectDragOverrides,
 	propStatuses,
+	includeTextContent,
 }: {
 	sequence: TSequence;
 	nodePathInfo: SequenceNodePathInfo;
 	getDragOverrides: GetDragOverrides;
 	getEffectDragOverrides: GetEffectDragOverrides;
 	propStatuses: PropStatuses;
+	includeTextContent: boolean;
 }): TimelineTreeNode[] => {
 	const roots: TimelineTreeNode[] = [];
 	const {sequenceSubscriptionKey, index, auxiliaryKeys, supportsEffects} =
@@ -99,6 +101,7 @@ export const buildTimelineTree = ({
 		getDragOverrides,
 		propStatuses,
 		nodePath: sequenceSubscriptionKey,
+		includeTextContent,
 	});
 
 	if (controlFields && controlFields.length > 0) {
@@ -237,6 +240,7 @@ export const getExpandedTrackHeight = ({
 		getDragOverrides: () => ({}),
 		getEffectDragOverrides: () => ({}),
 		propStatuses,
+		includeTextContent: false,
 	});
 	const flat = flattenVisibleTreeNodes({nodes: tree, getIsExpanded});
 

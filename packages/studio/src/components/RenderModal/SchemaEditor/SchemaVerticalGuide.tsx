@@ -1,4 +1,5 @@
 import React, {useMemo} from 'react';
+import {LINE_COLOR} from '../../../helpers/colors';
 import {VERTICAL_GUIDE_HEIGHT} from './SchemaSeparationLine';
 
 const flex: React.CSSProperties = {
@@ -24,7 +25,7 @@ export const SchemaVerticalGuide: React.FC<{
 			: {
 					height: `calc(100% - ${VERTICAL_GUIDE_HEIGHT / 2}px)`,
 					width: 1,
-					background: '#363A3E',
+					background: LINE_COLOR,
 					position: 'absolute',
 				};
 	}, [isRoot]);

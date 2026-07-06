@@ -1,7 +1,7 @@
 import {rewrite} from '@vercel/functions';
 
 export const config = {
-	matcher: ['/docs/:path*', '/elements/:path*'],
+	matcher: ['/pricing', '/docs/:path*', '/elements/:path*'],
 };
 
 function parseAcceptHeader(acceptHeader: string): string[] {
@@ -58,6 +58,10 @@ function prefersMarkdown(
 export default function middleware(request: Request) {
 	const url = new URL(request.url);
 	const pathname = url.pathname;
+
+	if (pathname === '/pricing') {
+		return Response.redirect(new URL('/docs/pricing', request.url), 308);
+	}
 
 	if (!pathname.startsWith('/docs/') && !pathname.startsWith('/elements/')) {
 		return;

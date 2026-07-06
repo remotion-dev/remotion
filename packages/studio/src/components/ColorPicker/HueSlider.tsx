@@ -1,5 +1,10 @@
 import React, {useCallback, useMemo, useRef} from 'react';
 import {clamp} from '../../helpers/color-conversion';
+import {
+	BORDER_WHITE_2PX,
+	COLOR_PICKER_HANDLE_SHADOW,
+	COLOR_PICKER_HUE_GRADIENT,
+} from '../../helpers/colors';
 
 const SLIDER_HEIGHT = 12;
 const HANDLE_WIDTH = 8;
@@ -10,8 +15,7 @@ const containerStyle: React.CSSProperties = {
 	width: '100%',
 	borderRadius: 3,
 	cursor: 'ew-resize',
-	background:
-		'linear-gradient(to right, #f00 0%, #ff0 17%, #0f0 33%, #0ff 50%, #00f 67%, #f0f 83%, #f00 100%)',
+	background: COLOR_PICKER_HUE_GRADIENT,
 	touchAction: 'none',
 };
 
@@ -75,8 +79,8 @@ export const HueSlider: React.FC<{
 			width: HANDLE_WIDTH,
 			height: SLIDER_HEIGHT + 4,
 			borderRadius: 2,
-			border: '2px solid #fff',
-			boxShadow: '0 0 0 1px rgba(0, 0, 0, 0.6)',
+			border: BORDER_WHITE_2PX,
+			boxShadow: COLOR_PICKER_HANDLE_SHADOW,
 			pointerEvents: 'none',
 		};
 	}, [hue]);

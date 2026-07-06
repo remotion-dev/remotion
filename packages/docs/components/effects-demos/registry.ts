@@ -22,13 +22,14 @@ import {halftoneLinearGradient} from '@remotion/effects/halftone-linear-gradient
 import {hue} from '@remotion/effects/hue';
 import {invert} from '@remotion/effects/invert';
 import {lightTrail} from '@remotion/effects/light-trail';
-import {linearGradientTint} from '@remotion/effects/linear-gradient-tint';
 import {linearGradient} from '@remotion/effects/linear-gradient';
+import {linearGradientTint} from '@remotion/effects/linear-gradient-tint';
 import {linearProgressiveBlur} from '@remotion/effects/linear-progressive-blur';
 import {lines} from '@remotion/effects/lines';
 import {mirror} from '@remotion/effects/mirror';
 import {noise} from '@remotion/effects/noise';
 import {noiseDisplacement} from '@remotion/effects/noise-displacement';
+import {paper} from '@remotion/effects/paper';
 import {pattern} from '@remotion/effects/pattern';
 import {pixelDissolve} from '@remotion/effects/pixel-dissolve';
 import {pixelate} from '@remotion/effects/pixelate';
@@ -81,8 +82,8 @@ import {
 	EffectsLightTrailPreview,
 	LIGHT_TRAIL_PREVIEW_PARAMS,
 } from '../effects/effects-light-trail-preview';
-import {EffectsLinearGradientTintPreview} from '../effects/effects-linear-gradient-tint-preview';
 import {EffectsLinearGradientPreview} from '../effects/effects-linear-gradient-preview';
+import {EffectsLinearGradientTintPreview} from '../effects/effects-linear-gradient-tint-preview';
 import {EffectsLinearProgressiveBlurPreview} from '../effects/effects-linear-progressive-blur-preview';
 import {EffectsLinesPreview} from '../effects/effects-lines-preview';
 import {EffectsMirrorPreview} from '../effects/effects-mirror-preview';
@@ -95,6 +96,10 @@ import {
 	EffectsPaletteMapPreview,
 	paletteMap,
 } from '../effects/effects-palette-map-preview';
+import {
+	EffectsPaperPreview,
+	PAPER_PREVIEW_PARAMS,
+} from '../effects/effects-paper-preview';
 import {EffectsPatternPreview} from '../effects/effects-pattern-preview';
 import {EffectsPixelDissolvePreview} from '../effects/effects-pixel-dissolve-preview';
 import {EffectsPixelatePreview} from '../effects/effects-pixelate-preview';
@@ -351,6 +356,15 @@ export const effectsDemos: EffectsDemoType[] = [
 		schema: noiseDisplacement(NOISE_DISPLACEMENT_PREVIEW_PARAMS).definition
 			.schema,
 		initialValues: NOISE_DISPLACEMENT_PREVIEW_PARAMS,
+	},
+	{
+		...defaults,
+		id: 'effects-paper',
+		effectName: 'paper',
+		effectImportPath: '@remotion/effects/paper',
+		comp: EffectsPaperPreview,
+		schema: paper().definition.schema,
+		initialValues: PAPER_PREVIEW_PARAMS,
 	},
 	{
 		...defaults,

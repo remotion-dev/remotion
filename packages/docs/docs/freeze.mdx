@@ -7,12 +7,33 @@ crumb: 'API'
 
 import {FreezeExample} from '../components/FreezeExample/FreezeExample';
 
+# &lt;Freeze&gt;<AvailableFrom v="2.2.0" />
+
 ```twoslash include example
 const BlueSquare: React.FC = () => <div></div>
 // - BlueSquare
 ```
 
-<AvailableFrom v="2.2.0" />
+## Recommendation: &lt;Sequence freeze&gt;
+
+For new code, prefer [`<Sequence freeze>`](/docs/sequence#freeze) if you want to freeze a timeline item.
+The `freeze` prop is supported by Studio [interactivity](/docs/interactive), so it can be edited visually.
+
+```tsx twoslash title="MyComp.tsx"
+// @include: example-BlueSquare
+// ---cut---
+import {Sequence} from 'remotion';
+
+const MyVideo = () => {
+  return (
+    <Sequence freeze={30}>
+      <BlueSquare />
+    </Sequence>
+  );
+};
+```
+
+---
 
 When using the `<Freeze/>` component, all of its children will freeze to the frame that you specify as a prop.
 

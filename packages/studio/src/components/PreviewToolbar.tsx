@@ -7,7 +7,11 @@ import React, {
 } from 'react';
 import {Internals} from 'remotion';
 import {checkFullscreenSupport} from '../helpers/check-fullscreen-support';
-import {BACKGROUND, BACKGROUND__TRANSPARENT} from '../helpers/colors';
+import {
+	BACKGROUND,
+	BACKGROUND__TRANSPARENT,
+	BORDER_BLACK_ALPHA_50,
+} from '../helpers/colors';
 import {
 	useIsStill,
 	useIsVideoComposition,
@@ -36,7 +40,7 @@ const TOOLBAR_HEIGHT = 50;
 const container: React.CSSProperties = {
 	display: 'flex',
 	justifyContent: 'center',
-	borderTop: '1px solid rgba(0, 0, 0, 0.5)',
+	borderTop: BORDER_BLACK_ALPHA_50,
 	alignItems: 'center',
 	flexDirection: 'row',
 	background: BACKGROUND,

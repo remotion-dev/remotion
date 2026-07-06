@@ -1,5 +1,10 @@
 import type React from 'react';
-import {BLUE} from '../../helpers/colors';
+import {
+	BLUE,
+	BORDER_BLACK,
+	CURRENT_COLOR_LOWERCASE,
+	WHITE,
+} from '../../helpers/colors';
 import {getMaxModalHeight, getMaxModalWidth} from '../ModalContainer';
 
 export const outerModalStyle: React.CSSProperties = {
@@ -15,7 +20,7 @@ export const container: React.CSSProperties = {
 	flexDirection: 'row',
 	alignItems: 'center',
 	padding: '12px 16px',
-	borderBottom: '1px solid black',
+	borderBottom: BORDER_BLACK,
 };
 
 export const optionsPanel: React.CSSProperties = {
@@ -57,13 +62,13 @@ export const iconContainer: React.CSSProperties = {
 };
 
 export const icon: React.CSSProperties = {
-	color: 'currentcolor',
+	color: CURRENT_COLOR_LOWERCASE,
 	height: 20,
 };
 
 export const buttonStyle: React.CSSProperties = {
 	backgroundColor: BLUE,
-	color: 'white',
+	color: WHITE,
 };
 
 export const flexer: React.CSSProperties = {

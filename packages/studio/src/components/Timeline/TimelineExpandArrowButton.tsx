@@ -1,9 +1,10 @@
 import React, {useMemo} from 'react';
+import {LIGHT_GRAY, WHITE} from '../../helpers/colors';
 
 const arrowButton: React.CSSProperties = {
 	background: 'none',
 	border: 'none',
-	color: 'white',
+	color: WHITE,
 	cursor: 'pointer',
 	padding: 0,
 	display: 'flex',
@@ -72,7 +73,7 @@ export const TimelineExpandArrowButton: React.FC<{
 			aria-label={`${isExpanded ? 'Collapse' : 'Expand'} ${label}`}
 		>
 			<svg width="12" height="12" viewBox="0 0 8 8" style={svgStyle}>
-				<path d="M2 1L6 4L2 7Z" fill="#ccc" />
+				<path d="M2 1L6 4L2 7Z" fill={LIGHT_GRAY} />
 			</svg>
 		</button>
 	);

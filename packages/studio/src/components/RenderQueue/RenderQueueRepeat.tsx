@@ -1,5 +1,6 @@
 import type {RenderJob} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useMemo} from 'react';
+import {CURRENT_COLOR} from '../../helpers/colors';
 import {useMobileLayout} from '../../helpers/mobile-layout';
 import {
 	makeClientRetryPayload,
@@ -55,7 +56,7 @@ export const RenderQueueRepeatItem: React.FC<{
 	const icon: React.CSSProperties = useMemo(() => {
 		return {
 			height: 12,
-			color: 'currentColor',
+			color: CURRENT_COLOR,
 		};
 	}, []);
 

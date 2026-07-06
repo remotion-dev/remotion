@@ -1,13 +1,18 @@
 import type {SymbolicatedStackFrame} from '@remotion/studio-shared';
 import React, {useCallback, useState} from 'react';
 import {Button} from '../../components/Button';
+import {
+	BLACK,
+	BORDER_STACK_FRAME_BLUE,
+	WHITE_ALPHA_60,
+} from '../../helpers/colors';
 import {openInEditor} from '../../helpers/open-in-editor';
 import {CaretDown, CaretRight} from './carets';
 import {CodeFrame} from './CodeFrame';
 import {formatLocation} from './format-location';
 
 const location: React.CSSProperties = {
-	color: 'rgba(255, 255, 255, 0.6)',
+	color: WHITE_ALPHA_60,
 	fontFamily: 'monospace',
 	fontSize: 14,
 };
@@ -20,8 +25,8 @@ const header: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'row',
 	alignItems: 'center',
-	borderBottom: '1px solid rgb(66, 144, 245)',
-	backgroundColor: 'black',
+	borderBottom: BORDER_STACK_FRAME_BLUE,
+	backgroundColor: BLACK,
 };
 
 const left: React.CSSProperties = {
