@@ -44,43 +44,21 @@ export const FadeIn = () => {
 };
 ```
 
-Prefer:
-
 ```tsx
+// 👍 Inline editable keyframes and transform shorthands
 style={{
   scale: interpolate(frame, [0, 100], [0, 1]),
   translate: interpolate(frame, [0, 100], ["0px 0px", "100px 100px"]),
   rotate: interpolate(frame, [0, 100], ["20deg", "90deg"]),
 }}
-```
 
-Over:
-
-```tsx
+// 👎 Hidden values and transform strings become harder to edit in Studio
 const scale = interpolate(frame, [0, 100], [0, 1]);
-
-style={{
-  transform: `scale(${scale})`,
-}}
-```
-
-Also avoid composing multiple transforms into one string:
-
-```tsx
 const translateY = interpolate(frame, [0, 100], [0, 120]);
 const rotation = interpolate(frame, [0, 100], [0, 20]);
 
 style={{
-  transform: `translateY(${translateY}px) rotate(${rotation}deg)`,
-}}
-```
-
-Prefer CSS transform shorthands:
-
-```tsx
-style={{
-  translate: interpolate(frame, [0, 100], ["0px 0px", "0px 120px"]),
-  rotate: interpolate(frame, [0, 100], ["0deg", "20deg"]),
+  transform: `scale(${scale}) translateY(${translateY}px) rotate(${rotation}deg)`,
 }}
 ```
 
@@ -202,12 +180,10 @@ Use `defaultProps` for composition-wide values and keep it as an inline object l
 Metadata can also be calculated dynamically when it depends on input props, fetched data, or asset metadata:
 
 ```tsx
-import { Composition, CalculateMetadataFunction } from "remotion";
-import { MyComposition, MyCompositionProps } from "./MyComposition";
-
-const calculateMetadata: CalculateMetadataFunction<
-  MyCompositionProps
-> = async ({ props, abortSignal }) => {
+const calculateMetadata: CalculateMetadataFunction<Props> = async ({
+  props,
+  abortSignal,
+}) => {
   const data = await fetch(`https://api.example.com/video/${props.videoId}`, {
     signal: abortSignal,
   }).then((res) => res.json());
@@ -223,19 +199,15 @@ const calculateMetadata: CalculateMetadataFunction<
   };
 };
 
-export const RemotionRoot = () => {
-  return (
-    <Composition
-      id="MyComposition"
-      component={MyComposition}
-      fps={30}
-      width={1080}
-      height={1080}
-      defaultProps={{ videoId: "abc123" }}
-      calculateMetadata={calculateMetadata}
-    />
-  );
-};
+<Composition
+  id="MyComposition"
+  component={MyComposition}
+  fps={30}
+  width={1080}
+  height={1080}
+  defaultProps={{ videoId: "abc123" }}
+  calculateMetadata={calculateMetadata}
+/>;
 ```
 
 ## Starting preview
