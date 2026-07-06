@@ -146,6 +146,7 @@ test('textSchema exposes common text style fields', () => {
 		'400',
 		'500',
 		'600',
+		'650',
 		'700',
 		'800',
 		'900',
