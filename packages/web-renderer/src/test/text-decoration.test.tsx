@@ -4,6 +4,7 @@ import '../symbol-dispose';
 import {
 	textDecoration,
 	textDecorationStyles,
+	textDecorationWavy,
 } from './fixtures/text/text-decoration';
 import {testImage} from './utils';
 
@@ -38,6 +39,24 @@ test('should render text-decoration-styles', async () => {
 	await testImage({
 		blob,
 		testId: 'text-decoration-styles',
+		threshold: 0,
+		allowedMismatchedPixelRatio: 0.01,
+	});
+});
+
+test('should render text-decoration-wavy', async () => {
+	const blob = await (
+		await renderStillOnWeb({
+			licenseKey: 'free-license',
+			composition: textDecorationWavy,
+			frame: 0,
+			inputProps: {},
+		})
+	).blob({format: 'png'});
+
+	await testImage({
+		blob,
+		testId: 'text-decoration-wavy',
 		threshold: 0,
 		allowedMismatchedPixelRatio: 0.01,
 	});

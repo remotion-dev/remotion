@@ -150,6 +150,19 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 		setInputFallback(true);
 	}, []);
 
+	const onKeyDown: React.KeyboardEventHandler<HTMLButtonElement> = useCallback(
+		(e) => {
+			if (e.key !== 'Enter') {
+				return;
+			}
+
+			e.preventDefault();
+			e.stopPropagation();
+			setInputFallback(true);
+		},
+		[],
+	);
+
 	const onEscape = useCallback(() => {
 		setInputFallback(false);
 	}, []);
@@ -323,6 +336,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 			style={style}
 			onClick={onClick}
 			onFocus={onFocus}
+			onKeyDown={onKeyDown}
 			onPointerDown={onPointerDown}
 		>
 			<span style={span}>{formatter(value as string | number)}</span>

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Tiro Devanagari Marathi',
 	importName: 'TiroDevanagariMarathi',
-	version: 'v5',
+	version: 'v7',
 	url: 'https://fonts.googleapis.com/css2?family=Tiro+Devanagari+Marathi:ital,wght@0,400;1,400',
 	unicodeRanges: {
 		devanagari:
@@ -17,21 +17,21 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				devanagari:
-					'https://fonts.gstatic.com/s/tirodevanagarimarathi/v5/fC1zPZBSZHrRhS3rd4M0MAPNJUHl4znXCxAkouDpNpQk3nAZ.woff2',
+					'https://fonts.gstatic.com/s/tirodevanagarimarathi/v7/fC1zPZBSZHrRhS3rd4M0MAPNJUHl4znXCxAkouDpNpQk3nAZ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/tirodevanagarimarathi/v5/fC1zPZBSZHrRhS3rd4M0MAPNJUHl4znXCxAkouDpNpsk3nAZ.woff2',
+					'https://fonts.gstatic.com/s/tirodevanagarimarathi/v7/fC1zPZBSZHrRhS3rd4M0MAPNJUHl4znXCxAkouDpNpsk3nAZ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/tirodevanagarimarathi/v5/fC1zPZBSZHrRhS3rd4M0MAPNJUHl4znXCxAkouDpNpUk3g.woff2',
+					'https://fonts.gstatic.com/s/tirodevanagarimarathi/v7/fC1zPZBSZHrRhS3rd4M0MAPNJUHl4znXCxAkouDpNpUk3g.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				devanagari:
-					'https://fonts.gstatic.com/s/tirodevanagarimarathi/v5/fC1xPZBSZHrRhS3rd4M0MAPNJUHl4znXCxAkouDtBpc82g.woff2',
+					'https://fonts.gstatic.com/s/tirodevanagarimarathi/v7/fC1xPZBSZHrRhS3rd4M0MAPNJUHl4znXCxAkouDtBpc82g.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/tirodevanagarimarathi/v5/fC1xPZBSZHrRhS3rd4M0MAPNJUHl4znXCxAkouDiBpc82g.woff2',
+					'https://fonts.gstatic.com/s/tirodevanagarimarathi/v7/fC1xPZBSZHrRhS3rd4M0MAPNJUHl4znXCxAkouDiBpc82g.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/tirodevanagarimarathi/v5/fC1xPZBSZHrRhS3rd4M0MAPNJUHl4znXCxAkouDsBpc.woff2',
+					'https://fonts.gstatic.com/s/tirodevanagarimarathi/v7/fC1xPZBSZHrRhS3rd4M0MAPNJUHl4znXCxAkouDsBpc.woff2',
 			},
 		},
 	},

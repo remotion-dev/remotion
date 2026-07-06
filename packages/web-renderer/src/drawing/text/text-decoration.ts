@@ -1,5 +1,10 @@
 type TextDecorationLine = 'underline' | 'overline' | 'line-through';
-export type TextDecorationStyle = 'solid' | 'double' | 'dotted' | 'dashed';
+export type TextDecorationStyle =
+	| 'solid'
+	| 'double'
+	| 'dotted'
+	| 'dashed'
+	| 'wavy';
 
 export type TextDecoration = {
 	lines: TextDecorationLine[];
@@ -20,12 +25,13 @@ const getDefaultTextDecorationThickness = (fontSizePx: number) => {
 	return Math.max(1, Number.isFinite(fontSizePx) ? fontSizePx / 16 : 1);
 };
 
-const getTextDecorationStyle = (style: string): TextDecorationStyle | null => {
-	if (style === 'wavy') {
-		return null;
-	}
-
-	if (style === 'double' || style === 'dotted' || style === 'dashed') {
+const getTextDecorationStyle = (style: string): TextDecorationStyle => {
+	if (
+		style === 'double' ||
+		style === 'dotted' ||
+		style === 'dashed' ||
+		style === 'wavy'
+	) {
 		return style;
 	}
 
@@ -42,9 +48,6 @@ export const parseTextDecoration = ({
 	const textDecorationStyle = getTextDecorationStyle(
 		style.getPropertyValue('text-decoration-style').trim(),
 	);
-	if (textDecorationStyle === null) {
-		return null;
-	}
 
 	const textDecorationLine = style.getPropertyValue('text-decoration-line');
 	const lineParts = textDecorationLine.split(/\s+/);
@@ -169,6 +172,62 @@ const getTextDecorationLineDashPattern = (
 	return [];
 };
 
+const drawWavyTextDecorationLine = ({
+	contextToDraw,
+	endX,
+	lineY,
+	startX,
+	thickness,
+}: {
+	contextToDraw: OffscreenCanvasRenderingContext2D;
+	endX: number;
+	lineY: number;
+	startX: number;
+	thickness: number;
+}) => {
+	// Approximates native wavy rendering with quadratic Bézier curves.
+	// A quadratic curve peaks at half the control point offset, so control
+	// points at 2 * amplitude produce waves that peak at one amplitude.
+	const step = Math.max(2, thickness);
+	const amplitude = step;
+	const halfWavelength = step * 2;
+	const wavelength = halfWavelength * 2;
+
+	// Decorations are drawn per word token. Anchoring the wave phase to an
+	// absolute x grid keeps the wave continuous across adjacent tokens
+	// instead of restarting at every word boundary.
+	const phaseStartX = Math.floor(startX / wavelength) * wavelength;
+
+	contextToDraw.save();
+	contextToDraw.beginPath();
+	contextToDraw.rect(
+		startX,
+		lineY - amplitude - thickness,
+		endX - startX,
+		(amplitude + thickness) * 2,
+	);
+	contextToDraw.clip();
+
+	contextToDraw.beginPath();
+	contextToDraw.moveTo(phaseStartX, lineY);
+
+	let x = phaseStartX;
+	let direction = 1;
+	while (x < endX) {
+		contextToDraw.quadraticCurveTo(
+			x + halfWavelength / 2,
+			lineY + direction * amplitude * 2,
+			x + halfWavelength,
+			lineY,
+		);
+		x += halfWavelength;
+		direction = -direction;
+	}
+
+	contextToDraw.stroke();
+	contextToDraw.restore();
+};
+
 const strokeTextDecorationLine = ({
 	contextToDraw,
 	endX,
@@ -231,6 +290,18 @@ export const drawTextDecoration = ({
 				thickness: textDecoration.thickness,
 				fontSizePx,
 			});
+
+			if (textDecoration.style === 'wavy') {
+				contextToDraw.setLineDash([]);
+				drawWavyTextDecorationLine({
+					contextToDraw,
+					endX,
+					lineY,
+					startX,
+					thickness: textDecoration.thickness,
+				});
+				continue;
+			}
 
 			if (textDecoration.style === 'double') {
 				contextToDraw.setLineDash([]);
