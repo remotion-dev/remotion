@@ -40,19 +40,6 @@ The name is shown in the Studio timeline and helps agents identify the correct e
 <Interactive.Div name="Hero title" style={{fontSize: 80}}>
   Launch day
 </Interactive.Div>
-
-// 👎 Hard to identify in larger compositions
-<Interactive.Div name="" style={{fontSize: 80}}>
-  Launch day
-</Interactive.Div>
-```
-
-For reusable components, keep `name` overrideable and provide a meaningful fallback:
-
-```tsx title="Custom component name"
-<Sequence name={name ?? '<Badge>'} controls={controls}>
-  <div ref={outlineRef}>New</div>
-</Sequence>
 ```
 
 ## Keep editable values visible {#keep-editable-values-visible}
