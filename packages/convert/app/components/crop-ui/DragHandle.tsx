@@ -5,6 +5,7 @@ import {
 	forceSpecificCursor,
 	stopForcingSpecificCursor,
 } from './force-specific-cursor';
+import {moveCropRect} from './move-crop-rect';
 import {preventBodyScroll} from './prevent-body-scroll';
 
 const clamp = (val: number, min: number, max: number) => {
@@ -71,11 +72,14 @@ export const DragHandle: React.FC<{
 				const clampedLeft = clamp(newLeft, 0, dimensions.width - rect.width);
 				const clampedTop = clamp(newTop, 0, dimensions.height - rect.height);
 
-				updateRect((prev) => ({
-					...prev,
-					left: Math.round(clampedLeft),
-					top: Math.round(clampedTop),
-				}));
+				updateRect((previousRect) =>
+					moveCropRect({
+						previousRect,
+						visibleRect: rect,
+						left: clampedLeft,
+						top: clampedTop,
+					}),
+				);
 			};
 
 			const onPointerMove = (evt: PointerEvent) => {
