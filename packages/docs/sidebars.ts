@@ -1601,7 +1601,15 @@ const sidebars: SidebarsConfig = {
 				'authoring-packages',
 			],
 		},
-		'pricing',
+		{
+			type: 'category',
+			label: 'License, Pricing and Compliance',
+			link: {
+				type: 'doc',
+				id: 'license-pricing-compliance/index',
+			},
+			items: ['pricing', 'license-pricing-compliance/faq'],
+		},
 		'acknowledgements',
 
 		{
