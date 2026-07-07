@@ -1,24 +1,26 @@
 ---
-name: maps-maplibre
-description: Make deterministic Remotion map animations with MapLibre GL JS and Turf. Use when the user chooses MapLibre for animated routes, flyovers, map markers, labels, and camera movement.
+name: maps-mapbox
+description: Make deterministic Remotion map animations with Mapbox GL JS and Turf. Use when the user chooses Mapbox for animated routes, flyovers, map markers, labels, camera movement, or Mapbox styles.
 metadata:
-  tags: map, map animation, maplibre, turf, geojson, route animation
+  tags: map, map animation, mapbox, turf, geojson, route animation
 ---
 
-Use MapLibre GL JS for rendering maps in Remotion. Use Turf for geospatial operations such as great-circle routes, distances, slicing lines, and positions along routes.
+Use Mapbox GL JS for rendering maps in Remotion when the user wants Mapbox styles or higher-fidelity map visuals and has a Mapbox access token. Use Turf for geospatial operations such as great-circle routes, distances, slicing lines, and positions along routes.
+
+If the user does not have a Mapbox access token or wants an open-source renderer, use [maplibre.md](maplibre.md) instead.
 
 ## Core rules
 
 - Prefer `@turf/turf` for geospatial work. Do not hand-roll distance, great-circle, route slicing, or coordinate interpolation unless the user explicitly needs a custom non-geodesic effect.
-- Use GeoJSON sources and MapLibre layers for lines, markers, and labels. Avoid DOM `Marker` elements unless the user specifically asks for HTML markers.
+- Use GeoJSON sources and Mapbox layers for lines, markers, and labels. Avoid DOM `Marker` elements unless the user specifically asks for HTML markers.
 - Disable non-deterministic map behavior: `interactive: false`, `fadeDuration: 0`.
 - Use `delayRender()` / `continueRender()` around map loading and per-frame map updates.
-- Before continuing the initial render, add sources/layers, apply the frame-0 camera with `jumpTo()`, then wait for `idle`.
+- Before continuing the initial render, add sources/layers, apply the frame-0 camera with `jumpTo()` or `setFreeCameraOptions()`, then wait for `idle`.
 - Do not add a `mapInstance.remove()` cleanup function; it can interfere with Remotion's render lifecycle.
-- Use standard MapLibre style JSON URLs and layer/source APIs.
-- Do not install `@types/maplibre-gl`; MapLibre ships its own types.
+- Use Mapbox style URLs such as `mapbox://styles/mapbox/standard` or a user-provided custom style.
+- Do not install `@types/mapbox-gl`; Mapbox GL JS ships its own types.
 
-Coordinates in MapLibre, Turf, and GeoJSON are `[longitude, latitude]`.
+Coordinates in Mapbox, Turf, and GeoJSON are `[longitude, latitude]`.
 
 ```ts
 const zurich: [number, number] = [8.5417, 47.3769];
@@ -27,28 +29,38 @@ const newYork: [number, number] = [-74.006, 40.7128];
 
 ## Prerequisites
 
-Install MapLibre and Turf with the project's package manager.
+Install Mapbox GL JS and Turf with the project's package manager.
 
 ```bash
-npm i maplibre-gl @turf/turf
+npm i mapbox-gl @turf/turf
 ```
 
 ```bash
-bun i maplibre-gl @turf/turf
+bun i mapbox-gl @turf/turf
 ```
 
 ```bash
-yarn add maplibre-gl @turf/turf
+yarn add mapbox-gl @turf/turf
 ```
 
 ```bash
-pnpm i maplibre-gl @turf/turf
+pnpm i mapbox-gl @turf/turf
 ```
 
-Import the MapLibre CSS once in the component or an app-level stylesheet:
+Import the Mapbox CSS once in the component or an app-level stylesheet:
 
 ```ts
-import 'maplibre-gl/dist/maplibre-gl.css';
+import 'mapbox-gl/dist/mapbox-gl.css';
+```
+
+Mapbox requires a public access token. Prefer passing it as an input prop or reading it from an environment variable that is available to the bundled Remotion code.
+
+```ts
+const mapboxAccessToken = process.env.REMOTION_MAPBOX_TOKEN;
+
+if (!mapboxAccessToken) {
+	throw new Error('Set REMOTION_MAPBOX_TOKEN to render Mapbox maps.');
+}
 ```
 
 ## Basic map example
@@ -56,25 +68,32 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 ```tsx
 import {useEffect, useRef, useState} from 'react';
 import {AbsoluteFill, useDelayRender, useVideoConfig} from 'remotion';
-import maplibregl from 'maplibre-gl';
-import 'maplibre-gl/dist/maplibre-gl.css';
+import mapboxgl from 'mapbox-gl';
+import 'mapbox-gl/dist/mapbox-gl.css';
 
 const zurich: [number, number] = [8.5417, 47.3769];
+
+const mapboxAccessToken = process.env.REMOTION_MAPBOX_TOKEN;
+
+if (!mapboxAccessToken) {
+	throw new Error('Set REMOTION_MAPBOX_TOKEN to render Mapbox maps.');
+}
 
 export const MyComposition = () => {
 	const containerRef = useRef<HTMLDivElement>(null);
 	const {delayRender, continueRender} = useDelayRender();
 	const {width, height} = useVideoConfig();
-	const [loadingHandle] = useState(() => delayRender('Loading map'));
+	const [loadingHandle] = useState(() => delayRender('Loading Mapbox map'));
 
 	useEffect(() => {
 		if (!containerRef.current) {
 			return;
 		}
 
-		const mapInstance = new maplibregl.Map({
+		const mapInstance = new mapboxgl.Map({
+			accessToken: mapboxAccessToken,
 			container: containerRef.current,
-			style: 'https://demotiles.maplibre.org/style.json',
+			style: 'mapbox://styles/mapbox/standard',
 			center: zurich,
 			zoom: 7,
 			interactive: false,
@@ -109,8 +128,8 @@ This example shows the recommended pattern for route animations:
 
 - Turf creates the route and markers.
 - Turf slices the route for line reveal animation.
-- The camera has a separate route from the target route.
-- MapLibre's `calculateCameraOptionsFromTo()` is used for camera movement.
+- Mapbox renders the route with GeoJSON sources and layers.
+- The camera uses `jumpTo()` with animated center, zoom, bearing, and pitch.
 - Frame 0 is prepared before `continueRender()`.
 
 ```tsx
@@ -124,11 +143,17 @@ import {
 	useDelayRender,
 	useVideoConfig,
 } from 'remotion';
-import maplibregl, {type GeoJSONSource, type Map} from 'maplibre-gl';
-import 'maplibre-gl/dist/maplibre-gl.css';
+import mapboxgl, {type GeoJSONSource, type Map} from 'mapbox-gl';
+import 'mapbox-gl/dist/mapbox-gl.css';
 
 const zurich: [number, number] = [8.5417, 47.3769];
 const newYork: [number, number] = [-74.006, 40.7128];
+
+const mapboxAccessToken = process.env.REMOTION_MAPBOX_TOKEN;
+
+if (!mapboxAccessToken) {
+	throw new Error('Set REMOTION_MAPBOX_TOKEN to render Mapbox maps.');
+}
 
 const greatCircleLine = (from: [number, number], to: [number, number]) => {
 	const route = turf.greatCircle(from, to, {npoints: 100});
@@ -148,9 +173,6 @@ const greatCircleLine = (from: [number, number], to: [number, number]) => {
 
 const targetRoute = greatCircleLine(zurich, newYork);
 const targetRouteDistance = turf.length(targetRoute);
-
-const cameraRoute = greatCircleLine(zurich, newYork);
-const cameraRouteDistance = turf.length(cameraRoute);
 
 const cityMarkers = turf.featureCollection([
 	turf.point(zurich, {name: 'Zurich'}),
@@ -172,26 +194,29 @@ const getPartialTargetRoute = (progress: number) => {
 	);
 };
 
-const getCameraOptions = (
-	map: Map,
-	progress: number,
-	cameraAltitudeMeters: number,
-	cameraLatitudeOffset: number,
-) => {
+const getCameraOptions = (progress: number) => {
 	const target = turf.along(
 		targetRoute,
 		distanceAlong(targetRouteDistance, progress),
-	).geometry.coordinates;
-	const camera = turf.along(
-		cameraRoute,
-		distanceAlong(cameraRouteDistance, progress),
-	).geometry.coordinates;
+	).geometry.coordinates as [number, number];
 
-	return map.calculateCameraOptionsFromTo(
-		new maplibregl.LngLat(camera[0], camera[1] - cameraLatitudeOffset),
-		cameraAltitudeMeters,
-		new maplibregl.LngLat(target[0], target[1]),
-	);
+	return {
+		center: target,
+		zoom: interpolate(progress, [0, 0.5, 1], [7, 2.4, 8], {
+			extrapolateLeft: 'clamp',
+			extrapolateRight: 'clamp',
+			easing: Easing.inOut(Easing.cubic),
+		}),
+		bearing: interpolate(progress, [0, 1], [-20, 35], {
+			extrapolateLeft: 'clamp',
+			extrapolateRight: 'clamp',
+		}),
+		pitch: interpolate(progress, [0, 0.25, 0.75, 1], [25, 55, 55, 30], {
+			extrapolateLeft: 'clamp',
+			extrapolateRight: 'clamp',
+			easing: Easing.inOut(Easing.cubic),
+		}),
+	};
 };
 
 export const MyComposition = () => {
@@ -200,16 +225,17 @@ export const MyComposition = () => {
 	const {delayRender, continueRender} = useDelayRender();
 	const {durationInFrames, height, width} = useVideoConfig();
 	const [map, setMap] = useState<Map | null>(null);
-	const [loadingHandle] = useState(() => delayRender('Loading MapLibre map'));
+	const [loadingHandle] = useState(() => delayRender('Loading Mapbox map'));
 
 	useEffect(() => {
 		if (!containerRef.current) {
 			return;
 		}
 
-		const mapInstance = new maplibregl.Map({
+		const mapInstance = new mapboxgl.Map({
+			accessToken: mapboxAccessToken,
 			container: containerRef.current,
-			style: 'https://demotiles.maplibre.org/style.json',
+			style: 'mapbox://styles/mapbox/standard',
 			center: zurich,
 			zoom: 7,
 			interactive: false,
@@ -275,7 +301,7 @@ export const MyComposition = () => {
 				},
 			});
 
-			mapInstance.jumpTo(getCameraOptions(mapInstance, 0, 180000, 1.1));
+			mapInstance.jumpTo(getCameraOptions(0));
 			mapInstance.once('idle', () => {
 				setMap(mapInstance);
 				continueRender(loadingHandle);
@@ -288,7 +314,7 @@ export const MyComposition = () => {
 			return;
 		}
 
-		const handle = delayRender('Rendering MapLibre frame');
+		const handle = delayRender('Rendering Mapbox frame');
 		const timelineProgress = interpolate(frame, [0, durationInFrames - 1], [0, 1], {
 			extrapolateLeft: 'clamp',
 			extrapolateRight: 'clamp',
@@ -298,37 +324,10 @@ export const MyComposition = () => {
 			extrapolateRight: 'clamp',
 			easing: Easing.inOut(Easing.cubic),
 		});
-		const cameraAltitudeMeters = interpolate(
-			timelineProgress,
-			[0, 0.28, 0.74, 1],
-			[180000, 2200000, 2200000, 180000],
-			{
-				extrapolateLeft: 'clamp',
-				extrapolateRight: 'clamp',
-				easing: Easing.inOut(Easing.cubic),
-			},
-		);
-		const cameraLatitudeOffset = interpolate(
-			timelineProgress,
-			[0, 0.28, 0.74, 1],
-			[1.1, 8, 8, 1.1],
-			{
-				extrapolateLeft: 'clamp',
-				extrapolateRight: 'clamp',
-				easing: Easing.inOut(Easing.cubic),
-			},
-		);
 		const trace = map.getSource('trace') as GeoJSONSource | undefined;
 
 		trace?.setData(getPartialTargetRoute(travelProgress));
-		map.jumpTo(
-			getCameraOptions(
-				map,
-				travelProgress,
-				cameraAltitudeMeters,
-				cameraLatitudeOffset,
-			),
-		);
+		map.jumpTo(getCameraOptions(travelProgress));
 
 		map.once('idle', () => continueRender(handle));
 		// Force an idle event even if the camera parameters are unchanged from the previous frame.
@@ -345,33 +344,18 @@ export const MyComposition = () => {
 
 ## Camera guidance
 
-Use MapLibre's camera helper for camera movement:
+For most route animations, animate `center`, `zoom`, `bearing`, and `pitch` with `jumpTo()`:
 
 ```ts
-map.calculateCameraOptionsFromTo(cameraLngLat, cameraAltitudeMeters, targetLngLat);
+map.jumpTo({
+	center,
+	zoom,
+	bearing,
+	pitch,
+});
 ```
 
-A good pattern is to keep two concepts separate:
-
-- `targetRoute`: where the animated line is and where the camera looks.
-- `cameraRoute`: where the camera moves.
-
-Then use Turf to read positions from both routes for the same progress value:
-
-```ts
-const target = turf.along(targetRoute, targetDistance * progress).geometry.coordinates;
-const camera = turf.along(cameraRoute, cameraDistance * progress).geometry.coordinates;
-
-map.jumpTo(
-	map.calculateCameraOptionsFromTo(
-		new maplibregl.LngLat(camera[0], camera[1]),
-		cameraAltitudeMeters,
-		new maplibregl.LngLat(target[0], target[1]),
-	),
-);
-```
-
-For zoom-out / travel / zoom-in animations, animate travel progress separately from camera altitude. Camera altitude is measured in meters. This avoids heavy custom camera math.
+Keep route progress and camera progress separate if the camera needs to lead, lag, zoom out, or zoom back in. For cinematic 3D camera moves, use Mapbox's free camera APIs only when the project needs that extra control.
 
 ## Lines
 
@@ -439,13 +423,13 @@ Make marker sizes and label font sizes large enough for the composition resoluti
 
 ## Styles
 
-Default to the stock MapLibre demo style:
+Default to Mapbox Standard:
 
 ```ts
-style: 'https://demotiles.maplibre.org/style.json'
+style: 'mapbox://styles/mapbox/standard'
 ```
 
-If the user requests another style, use any valid MapLibre style JSON URL.
+If the user requests another style, use any valid Mapbox style URL.
 
 ## Rendering
 

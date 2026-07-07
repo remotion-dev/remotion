@@ -353,8 +353,7 @@ See [rules/parameters.md](rules/parameters.md) for making a composition parametr
 
 ## Maps
 
-For simple maps with little flyovers, consider using static map images.
-For complex maps with animated routes or flyovers, load the maps rule: [rules/maplibre.md](rules/maplibre.md)
+See [rules/map.md](rules/map.md) for choosing between simple static maps, Mapbox maps, and MapLibre maps.
 
 ## Voiceover
 
