@@ -44,9 +44,16 @@ Safari MP4:
 ```bash
 ffmpeg -y -i /tmp/<asset>-master.mov \
   -vf scale=540:540 \
-  -c:v hevc_videotoolbox \
-  -tag:v hvc1 \
-  -an /tmp/<safari-name>.mp4
+  -c:v prores_ks \
+  -profile:v 4 \
+  -pix_fmt yuva444p10le \
+  -an /tmp/<asset>-540-prores.mov
+
+avconvert \
+  --source /tmp/<asset>-540-prores.mov \
+  --preset PresetHEVCHighestQualityWithAlpha \
+  --output /tmp/<safari-name>.mp4 \
+  --replace
 ```
 
 3. Copy both outputs into both app folders:
@@ -70,5 +77,7 @@ ffmpeg -y -i /tmp/<asset>-master.mov \
 ```
 
 The master should report `prores (4444)` and a `yuva...` pixel format. `alphaextract` should succeed, and the alpha image should not be fully opaque. A common failure mode is `alphaextract` succeeding but every sampled pixel is opaque; in that case, the master was rendered with a black/opaque background or a stale opaque master was reused.
+
+The Safari MP4 should look like the known-good `editing-safari.mp4`: `major_brand: mp42`, `compatible_brands: isommp41mp42`, `Video: hevc (Main) (hvc1)`, and `handler_name: Core Media Video`. If it reports `h264 (avc1)`, it is the wrong file and will show a black background in Safari.
 
 Do not add ProRes `.mov` files to the homepage PR; they are too large. Safari should use the small `.mp4` fallback. Chrome should use the transparent `.webm`.
