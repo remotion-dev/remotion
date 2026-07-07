@@ -41,6 +41,12 @@ export const TableOfContents: React.FC = () => {
 					<strong>evolvePath()</strong>
 					<div>Animate an SVG path</div>
 				</TOCItem>
+				<TOCItem link="/docs/paths/center-path">
+					<strong>centerPath()</strong>
+					<div>
+						Translates an SVG path to center it around a target point
+					</div>
+				</TOCItem>
 				<TOCItem link="/docs/paths/translate-path">
 					<strong>translatePath()</strong>
 					<div>Translates the position of an path against X/Y coordinates</div>

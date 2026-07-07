@@ -1,4 +1,4 @@
-import {parsePath} from '@remotion/paths';
+import {centerPath, parsePath} from '@remotion/paths';
 import {makeCircle, makeRect} from '@remotion/shapes';
 import React from 'react';
 import {
@@ -8,7 +8,6 @@ import {
 	useCurrentFrame,
 	useVideoConfig,
 } from 'remotion';
-import {centerPath} from '../center';
 import {BLUE} from '../colors';
 import {makeElement, transformElement} from '../element';
 import {Faces} from '../Faces';
