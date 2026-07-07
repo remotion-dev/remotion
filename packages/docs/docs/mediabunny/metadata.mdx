@@ -35,7 +35,7 @@ export const getMediaMetadata = async (src: string) => {
       }
     : null;
   const packetStats = await videoTrack?.computePacketStats(50);
-  const fps = packetStats?.averagePacketRate ?? null;
+  const fps = packetStats ? Math.round(packetStats.averagePacketRate) : null;
 
   return {
     durationInSeconds,
@@ -52,6 +52,7 @@ export const getMediaMetadata = async (src: string) => {
   <p>By setting `getRetryDelay` to `() => null`, we prevent Mediabunny from infinitely retrying if the request fails.</p>
   <p>We compute the duration, the dimensions and the frame rate. If the media file is an audio file, we return `null` for the dimensions and the frame rate.</p>
   <p>To avoid reading the entire file, we at most read 50 packets to compute the frame rate.</p>
+  <p>The FPS is an estimate based on packet timestamps. We round it because container timestamp rounding can return values such as `29.999` or `30.006` for videos that are nominally 30 FPS.</p>
 </details>
 
 ```tsx twoslash title="Usage example"
@@ -75,7 +76,7 @@ export const getMediaMetadata = async (src: string) => {
       }
     : null;
   const packetStats = await videoTrack?.computePacketStats(50);
-  const fps = packetStats?.averagePacketRate ?? null;
+  const fps = packetStats ? Math.round(packetStats.averagePacketRate) : null;
 
   return {
     durationInSeconds,
