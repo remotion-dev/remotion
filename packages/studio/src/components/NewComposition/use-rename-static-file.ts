@@ -14,6 +14,13 @@ export const getStaticFileBaseName = (relativePath: string) => {
 	return slashIndex === -1 ? relativePath : relativePath.slice(slashIndex + 1);
 };
 
+export const getStaticFileRenameSelection = (
+	fileName: string,
+): [number, number] => {
+	const dotIndex = fileName.lastIndexOf('.');
+	return [0, dotIndex > 0 ? dotIndex : fileName.length];
+};
+
 export const getRenamedStaticFilePath = ({
 	newName,
 	relativePath,

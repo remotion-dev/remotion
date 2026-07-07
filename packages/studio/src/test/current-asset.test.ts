@@ -5,6 +5,7 @@ import {
 } from '../components/CurrentAsset';
 import {
 	getRenamedStaticFilePath,
+	getStaticFileRenameSelection,
 	validateStaticFileRename,
 } from '../components/NewComposition/use-rename-static-file';
 
@@ -104,4 +105,11 @@ test('validates renamed asset names', () => {
 			staticFiles,
 		}),
 	).toBe(null);
+});
+
+test('selects asset names without their extension for renaming', () => {
+	expect(getStaticFileRenameSelection('clip.mp4')).toEqual([0, 4]);
+	expect(getStaticFileRenameSelection('clip.final.mp4')).toEqual([0, 10]);
+	expect(getStaticFileRenameSelection('README')).toEqual([0, 6]);
+	expect(getStaticFileRenameSelection('.env')).toEqual([0, 4]);
 });

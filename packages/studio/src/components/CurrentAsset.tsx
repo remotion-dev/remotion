@@ -16,7 +16,10 @@ import {
 	InspectorInfoHeader,
 	InspectorInfoSubtitle,
 } from './InspectorInfoHeader';
-import {useRenameStaticFile} from './NewComposition/use-rename-static-file';
+import {
+	getStaticFileRenameSelection,
+	useRenameStaticFile,
+} from './NewComposition/use-rename-static-file';
 import {useStaticFiles} from './use-static-files';
 
 export const CURRENT_ASSET_HEIGHT = INSPECTOR_INFO_HEADER_MIN_HEIGHT;
@@ -137,6 +140,7 @@ export const CurrentAsset: React.FC<{
 			<InlineEditableTitle
 				value={fileName}
 				canRename={canRename}
+				getInitialSelection={getStaticFileRenameSelection}
 				onCommit={onRename}
 				title={assetName}
 			/>

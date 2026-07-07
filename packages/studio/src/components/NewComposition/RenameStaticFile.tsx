@@ -20,6 +20,7 @@ import {RemotionInput} from './RemInput';
 import {
 	getRenamedStaticFilePath,
 	getStaticFileBaseName,
+	getStaticFileRenameSelection,
 	validateStaticFileRename,
 	useRenameStaticFile,
 } from './use-rename-static-file';
@@ -48,9 +49,8 @@ export const RenameStaticFileModal: React.FC<{
 	useEffect(() => {
 		const input = inputRef.current;
 		if (!input) return;
-		const dotIndex = newName.lastIndexOf('.');
-		const stemEnd = dotIndex === -1 ? newName.length : dotIndex;
-		input.setSelectionRange(0, stemEnd);
+		const [start, end] = getStaticFileRenameSelection(newName);
+		input.setSelectionRange(start, end);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
