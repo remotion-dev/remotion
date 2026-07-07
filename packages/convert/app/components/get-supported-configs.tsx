@@ -79,11 +79,11 @@ const shouldPrioritizeVideoCopyOverReencode = (routeAction: RouteAction) => {
 	}
 
 	if (routeAction.type === 'generic-trim') {
-		return true;
+		return false;
 	}
 
 	if (routeAction.type === 'trim-format') {
-		return true;
+		return false;
 	}
 
 	if (routeAction.type === 'timing-editor') {
