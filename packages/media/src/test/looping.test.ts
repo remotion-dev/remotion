@@ -36,6 +36,7 @@ test(
 			const result = await extractFrame({
 				src: '/video.mp4',
 				timeInSeconds: timeInFrames / fps,
+				durationInSeconds: 1 / fps,
 				logLevel: 'info',
 				loop,
 				trimAfter,
@@ -55,12 +56,12 @@ test(
 		const mappedFrames = realTimestamps.map((time) => Math.round(time * fps));
 		expect(mappedFrames).toEqual([194, 196, 198, 100, 102, 104]);
 		expect(outputTimestamps).toEqual([
-			6.44 * 1_000_000,
-			6.52 * 1_000_000,
+			6.48 * 1_000_000,
+			6.56 * 1_000_000,
 			6.6 * 1_000_000,
-			3.32 * 1_000_000,
+			3.36 * 1_000_000,
 			3.4 * 1_000_000,
-			3.44 * 1_000_000,
+			3.48 * 1_000_000,
 		]);
 	},
 );

@@ -41,6 +41,7 @@ export type KeyframeBank = {
 };
 
 const BIGGEST_ALLOWED_JUMP_FORWARD_SECONDS = 3;
+const TIMESTAMP_EPSILON_IN_SECONDS = 0.000000001;
 
 export const makeKeyframeBank = async ({
 	logLevel: parentLogLevel,
@@ -72,7 +73,7 @@ export const makeKeyframeBank = async ({
 		}
 
 		const nextTimestamp = frameTimestamps[index + 1];
-		if (!nextTimestamp) {
+		if (nextTimestamp === undefined) {
 			return null;
 		}
 
@@ -128,7 +129,7 @@ export const makeKeyframeBank = async ({
 
 	const hasDecodedEnoughForTimestamp = (timestamp: number) => {
 		const lastFrameTimestamp = frameTimestamps[frameTimestamps.length - 1];
-		if (!lastFrameTimestamp) {
+		if (lastFrameTimestamp === undefined) {
 			return false;
 		}
 
@@ -144,7 +145,7 @@ export const makeKeyframeBank = async ({
 			(lastFrame as VideoSample).duration;
 
 		return (
-			roundTo4Digits(lastFrameTimestamp + duration) > roundTo4Digits(timestamp)
+			lastFrameTimestamp + duration > timestamp + TIMESTAMP_EPSILON_IN_SECONDS
 		);
 	};
 
@@ -228,10 +229,8 @@ export const makeKeyframeBank = async ({
 			}
 
 			if (
-				roundTo4Digits(sample.timestamp) <= roundTo4Digits(adjustedTimestamp) ||
-				// Match 0.3333333333 to 0.33355555
-				// this does not satisfy the previous condition, since one rounds up and one rounds down
-				Math.abs(sample.timestamp - adjustedTimestamp) <= 0.001
+				sample.timestamp <=
+				adjustedTimestamp + TIMESTAMP_EPSILON_IN_SECONDS
 			) {
 				return sample;
 			}

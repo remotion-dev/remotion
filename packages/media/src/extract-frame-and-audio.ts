@@ -45,6 +45,7 @@ export const extractFrameAndAudio = async ({
 				? extractFrame({
 						src,
 						timeInSeconds,
+						durationInSeconds,
 						logLevel,
 						loop,
 						trimAfter,

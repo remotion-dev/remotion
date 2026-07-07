@@ -2,6 +2,7 @@ import {Internals, type LogLevel} from 'remotion';
 import {keyframeManager} from '../caches';
 import {getSink} from '../get-sink';
 import {getTimeInSeconds} from '../get-time-in-seconds';
+import {getVideoFrameSelectionTimeInSeconds} from '../get-video-frame-selection-time';
 import type {MediaRequestInit} from '../request-init';
 
 type ExtractFrameResult =
@@ -19,6 +20,7 @@ type ExtractFrameResult =
 type ExtractFrameParams = {
 	src: string;
 	timeInSeconds: number;
+	durationInSeconds: number;
 	logLevel: LogLevel;
 	loop: boolean;
 	trimAfter: number | undefined;
@@ -33,6 +35,7 @@ type ExtractFrameParams = {
 const extractFrameInternal = async ({
 	src,
 	timeInSeconds: unloopedTimeInSeconds,
+	durationInSeconds,
 	logLevel,
 	loop,
 	trimAfter,
@@ -98,13 +101,35 @@ const extractFrameInternal = async ({
 		};
 	}
 
+	const videoFrameSelectionTimeInSeconds = getVideoFrameSelectionTimeInSeconds({
+		loop,
+		mediaDurationInSeconds,
+		unloopedTimeInSeconds,
+		durationInSeconds,
+		src,
+		trimAfter,
+		playbackRate,
+		trimBefore,
+		fps,
+		ifNoMediaDuration: 'fail',
+	});
+
+	if (videoFrameSelectionTimeInSeconds === null) {
+		return {
+			type: 'success',
+			frame: null,
+			rotation: 0,
+			durationInSeconds: await sink.getDuration(),
+		};
+	}
+
 	// Must catch https://github.com/Vanilagy/mediabunny/issues/235
 	// https://discord.com/channels/@me/1127949286789881897/1455728482150518906
 	// Should be able to remove once upgraded to Chrome 145
 	try {
 		const keyframeBank = await keyframeManager.requestKeyframeBank({
 			videoSampleSink: video.sampleSink,
-			timestamp: timeInSeconds,
+			timestamp: videoFrameSelectionTimeInSeconds,
 			src,
 			logLevel,
 			maxCacheSize,
@@ -120,7 +145,10 @@ const extractFrameInternal = async ({
 			};
 		}
 
-		const frame = await keyframeBank.getFrameFromTimestamp(timeInSeconds, fps);
+		const frame = await keyframeBank.getFrameFromTimestamp(
+			videoFrameSelectionTimeInSeconds,
+			fps,
+		);
 		const rotation = frame?.rotation ?? 0;
 
 		return {
@@ -132,7 +160,7 @@ const extractFrameInternal = async ({
 	} catch (err) {
 		Internals.Log.info(
 			{logLevel, tag: '@remotion/media'},
-			`Error decoding ${src} at time ${timeInSeconds}: ${err}`,
+			`Error decoding ${src} at time ${videoFrameSelectionTimeInSeconds}: ${err}`,
 			err,
 		);
 		return {type: 'cannot-decode', durationInSeconds: mediaDurationInSeconds};

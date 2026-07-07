@@ -34,6 +34,49 @@ const makeVideoSampleSink = (samples: VideoSample[]): VideoSampleSink => {
 	};
 };
 
+test('selects the source frame at the center-sampled timestamp', async () => {
+	const samples = [
+		makeSample({timestamp: 2.967, duration: 0.033}),
+		makeSample({timestamp: 3, duration: 0.033}),
+		makeSample({timestamp: 3.033, duration: 0.033}),
+	];
+
+	const bank = await makeKeyframeBank({
+		logLevel: 'error',
+		src: 'center-sampled-frame.mp4',
+		videoSampleSink: makeVideoSampleSink(samples),
+		initialTimestampRequest: 2.9994,
+	});
+
+	const frame = await bank.getFrameFromTimestamp(3.016, 30);
+
+	expect(frame?.timestamp).toBe(3);
+
+	bank.prepareForDeletion('error', 'test');
+});
+
+test('does not select a future frame only because it is within one millisecond', async () => {
+	const samples = [
+		makeSample({timestamp: 2.967, duration: 0.033}),
+		makeSample({timestamp: 3, duration: 0.033}),
+		makeSample({timestamp: 3.033, duration: 0.033}),
+	];
+
+	const bank = await makeKeyframeBank({
+		logLevel: 'error',
+		src: 'near-boundary-frame.mp4',
+		videoSampleSink: makeVideoSampleSink(samples),
+		initialTimestampRequest: 2.9994,
+	});
+
+	await bank.getFrameFromTimestamp(3.016, 30);
+	const frame = await bank.getFrameFromTimestamp(2.9994, 30);
+
+	expect(frame?.timestamp).toBe(2.967);
+
+	bank.prepareForDeletion('error', 'test');
+});
+
 test('a long frame duration can satisfy requests beyond the jump threshold', async () => {
 	const samples = [
 		makeSample({timestamp: 0.3, duration: 12}),

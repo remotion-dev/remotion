@@ -171,6 +171,7 @@ test('in rendering, should also be smart', async (t) => {
 		const frame = await extractFrame({
 			src: '/no-frames-in-beginning.webm',
 			timeInSeconds: i * 0.4,
+			durationInSeconds: 1 / 30,
 			logLevel: 'info',
 			loop: false,
 			trimAfter: undefined,
@@ -194,6 +195,7 @@ test('in rendering, should also be smart', async (t) => {
 	const firstRealFrame = await extractFrame({
 		src: '/no-frames-in-beginning.webm',
 		timeInSeconds: 5,
+		durationInSeconds: 1 / 30,
 		logLevel: 'info',
 		loop: false,
 		trimAfter: undefined,

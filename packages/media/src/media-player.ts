@@ -19,6 +19,7 @@ import {
 import {drawPreviewOverlay} from './debug-overlay/preview-overlay';
 import {getDurationOrCompute} from './get-duration-or-compute';
 import {calculateEndTime, getTimeInSeconds} from './get-time-in-seconds';
+import {getVideoFrameSelectionTimeInSeconds} from './get-video-frame-selection-time';
 import {resolveAudioTrack} from './helpers/resolve-audio-track';
 import {isNetworkError} from './is-type-of-error';
 import type {Nonce, NonceManager} from './nonce-manager';
@@ -341,8 +342,10 @@ export class MediaPlayer {
 			}
 
 			const startTime = this.getTrimmedTime(startTimeUnresolved);
+			const videoStartTime =
+				this.getTrimmedVideoFrameSelectionTime(startTimeUnresolved);
 
-			if (startTime === null) {
+			if (startTime === null || videoStartTime === null) {
 				throw new Error(`should have asserted that the time is not null`);
 			}
 
@@ -412,7 +415,10 @@ export class MediaPlayer {
 							})
 						: Promise.resolve(),
 					this.videoIteratorManager
-						? this.videoIteratorManager.startVideoIterator(startTime, nonce)
+						? this.videoIteratorManager.startVideoIterator(
+								videoStartTime,
+								nonce,
+							)
 						: Promise.resolve(),
 				]);
 			} catch (error) {
@@ -449,28 +455,45 @@ export class MediaPlayer {
 		}
 	}
 
-	private seekToWithQueue = async (newTime: number) => {
+	private seekToWithQueue = async ({
+		newTime,
+		videoFrameSelectionTime,
+	}: {
+		newTime: number;
+		videoFrameSelectionTime: number;
+	}) => {
 		const nonce = this.nonceManager.createAsyncOperation();
 		await this.seekPromiseChain;
 
-		this.seekPromiseChain = this.seekToDoNotCallDirectly(newTime, nonce);
+		this.seekPromiseChain = this.seekToDoNotCallDirectly({
+			newTime,
+			videoFrameSelectionTime,
+			nonce,
+		});
 		await this.seekPromiseChain;
 	};
 
 	public async seekTo(time: number): Promise<void> {
 		const newTime = this.getTrimmedTime(time);
+		const videoFrameSelectionTime =
+			this.getTrimmedVideoFrameSelectionTime(time);
 
-		if (newTime === null) {
+		if (newTime === null || videoFrameSelectionTime === null) {
 			throw new Error(`should have asserted that the time is not null`);
 		}
 
-		await this.seekToWithQueue(newTime);
+		await this.seekToWithQueue({newTime, videoFrameSelectionTime});
 	}
 
-	private async seekToDoNotCallDirectly(
-		newTime: number,
-		nonce: Nonce,
-	): Promise<void> {
+	private async seekToDoNotCallDirectly({
+		newTime,
+		videoFrameSelectionTime,
+		nonce,
+	}: {
+		newTime: number;
+		videoFrameSelectionTime: number;
+		nonce: Nonce;
+	}): Promise<void> {
 		if (nonce.isStale()) {
 			return;
 		}
@@ -478,7 +501,7 @@ export class MediaPlayer {
 		try {
 			await Promise.all([
 				this.videoIteratorManager?.seek({
-					newTime,
+					newTime: videoFrameSelectionTime,
 					nonce,
 				}),
 				this.audioIteratorManager?.seek({
@@ -545,6 +568,23 @@ export class MediaPlayer {
 	private getTrimmedTime(unloopedTimeInSeconds: number): number | null {
 		return getTimeInSeconds({
 			unloopedTimeInSeconds,
+			playbackRate: this.playbackRate,
+			loop: this.loop,
+			trimBefore: this.trimBefore,
+			trimAfter: this.trimAfter,
+			mediaDurationInSeconds: this.totalDuration ?? null,
+			fps: this.fps,
+			ifNoMediaDuration: 'infinity',
+			src: this.src,
+		});
+	}
+
+	private getTrimmedVideoFrameSelectionTime(
+		unloopedTimeInSeconds: number,
+	): number | null {
+		return getVideoFrameSelectionTimeInSeconds({
+			unloopedTimeInSeconds,
+			durationInSeconds: 1 / this.fps,
 			playbackRate: this.playbackRate,
 			loop: this.loop,
 			trimBefore: this.trimBefore,

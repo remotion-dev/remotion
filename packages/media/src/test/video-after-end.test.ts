@@ -8,6 +8,7 @@ test('Should render last frame for timestamps after video end', async () => {
 	const result = await extractFrame({
 		src: '/video.mp4',
 		timeInSeconds: 12.041666666666666, // 194 frames at 24fps = 8.08 seconds
+		durationInSeconds: 1 / 24,
 		logLevel: 'info',
 		loop: false,
 		trimAfter: undefined,

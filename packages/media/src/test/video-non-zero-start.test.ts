@@ -12,6 +12,7 @@ test('Should render first frame for videos starting after timestamp 0', async ()
 	const result = await extractFrame({
 		src: '/video-start-offset.mp4',
 		timeInSeconds: 0,
+		durationInSeconds: 1 / 30,
 		logLevel: 'info',
 		loop: false,
 		trimAfter: undefined,
