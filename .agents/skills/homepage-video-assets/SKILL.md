@@ -78,6 +78,18 @@ ffmpeg -y -i /tmp/<asset>-master.mov \
 
 The master should report `prores (4444)` and a `yuva...` pixel format. `alphaextract` should succeed, and the alpha image should not be fully opaque. A common failure mode is `alphaextract` succeeding but every sampled pixel is opaque; in that case, the master was rendered with a black/opaque background or a stale opaque master was reused.
 
-The Safari MP4 should look like the known-good `editing-safari.mp4`: `major_brand: mp42`, `compatible_brands: isommp41mp42`, `Video: hevc (Main) (hvc1)`, and `handler_name: Core Media Video`. If it reports `h264 (avc1)`, it is the wrong file and will show a black background in Safari.
+Verify every copied Chrome WebM and Safari MP4 is exactly `540x540`:
+
+```bash
+for f in \
+  ../promo-pages/public/img/<chrome-name>.webm \
+  ../promo-pages/public/img/<safari-name>.mp4 \
+  ../docs/static/img/<chrome-name>.webm \
+  ../docs/static/img/<safari-name>.mp4; do
+  ffmpeg -i "$f"
+done
+```
+
+The Safari MP4 should look like the known-good file shape: `major_brand: mp42`, `compatible_brands: isommp41mp42`, `Video: hevc (Main) (hvc1)`, `540x540`, and `handler_name: Core Media Video`. If it reports `h264 (avc1)` or dimensions such as `960x540`, it is the wrong file and will render differently in Safari.
 
 Do not add ProRes `.mov` files to the homepage PR; they are too large. Safari should use the small `.mp4` fallback. Chrome should use the transparent `.webm`.
