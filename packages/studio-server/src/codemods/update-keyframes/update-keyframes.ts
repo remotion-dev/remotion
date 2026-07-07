@@ -15,6 +15,7 @@ import {
 	getKeyframeInterpolationFunctionForSchemaField,
 	isKeyframeInterpolationFunction,
 	isSchemaFieldKeyframable,
+	CUBIC_KEYFRAME_EASING,
 	LINEAR_KEYFRAME_EASING,
 	parseSpringEasingConfig,
 	type KeyframeInterpolationFunction,
@@ -412,10 +413,15 @@ const getKeyframeEasing = (node: Expression): KeyframeEasing | null => {
 		node.object.type === 'Identifier' &&
 		node.object.name === 'Easing' &&
 		node.property.type === 'Identifier' &&
-		node.property.name === 'linear' &&
 		node.computed === false
 	) {
-		return {type: 'linear'};
+		if (node.property.name === 'linear') {
+			return {type: 'linear'};
+		}
+
+		if (node.property.name === 'cubic') {
+			return CUBIC_KEYFRAME_EASING;
+		}
 	}
 
 	if (

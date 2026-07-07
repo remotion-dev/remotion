@@ -15,6 +15,7 @@ import type {
 import {RenderInternals} from '@remotion/renderer';
 import type {SubscribeToSequencePropsResponse} from '@remotion/studio-shared';
 import {
+	CUBIC_KEYFRAME_EASING,
 	isKeyframeInterpolationFunction,
 	LINEAR_KEYFRAME_EASING,
 	parseSpringEasingConfig,
@@ -279,10 +280,15 @@ const getKeyframeEasing = (node: Expression): PropEasing[number] | null => {
 		node.object.type === 'Identifier' &&
 		node.object.name === 'Easing' &&
 		node.property.type === 'Identifier' &&
-		node.property.name === 'linear' &&
 		node.computed === false
 	) {
-		return {type: 'linear'};
+		if (node.property.name === 'linear') {
+			return {type: 'linear'};
+		}
+
+		if (node.property.name === 'cubic') {
+			return CUBIC_KEYFRAME_EASING;
+		}
 	}
 
 	if (

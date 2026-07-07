@@ -392,6 +392,14 @@ export const Index: React.FC = () => {
 					durationInFrames={120}
 				/>
 				<Composition
+					id="cubic-easing-interpolation-test"
+					lazyComponent={() => import('./CubicEasingInterpolationTest')}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={120}
+				/>
+				<Composition
 					id="trim-before-support-test"
 					lazyComponent={() => import('./TrimBeforeSupportTest')}
 					width={1280}

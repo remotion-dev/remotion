@@ -208,6 +208,7 @@ export {
 	hotMiddlewareOptions,
 } from './hot-middleware';
 export {
+	CUBIC_KEYFRAME_EASING,
 	KEYFRAME_EASING_PRESETS,
 	LINEAR_KEYFRAME_EASING,
 	type KeyframeEasing,

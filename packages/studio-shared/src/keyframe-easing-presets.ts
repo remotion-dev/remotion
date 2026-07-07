@@ -16,6 +16,14 @@ export type KeyframeEasingPreset = {
 
 export const LINEAR_KEYFRAME_EASING: KeyframeEasing = {type: 'linear'};
 
+export const CUBIC_KEYFRAME_EASING: KeyframeEasing = {
+	type: 'bezier',
+	x1: 1 / 3,
+	y1: 0,
+	x2: 2 / 3,
+	y2: 0,
+};
+
 export const KEYFRAME_EASING_PRESETS: KeyframeEasingPreset[] = [
 	{
 		id: 'ease-in',
