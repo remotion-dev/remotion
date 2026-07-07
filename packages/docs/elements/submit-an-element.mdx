@@ -95,6 +95,61 @@ Every `Interactive.*` wrapper should have a descriptive `name`.
 Avoid repeating the Element display name inside source names; the dragged wrapper already gets named from `displayName`.
 For the main inner editable element, use a generic name such as `Container`.
 
+For a single editable object, use one named wrapper:
+
+```tsx twoslash title="Single editable object"
+import {Interactive, interpolate, useCurrentFrame} from 'remotion';
+
+export const Badge = () => {
+  const frame = useCurrentFrame();
+
+  return (
+    <Interactive.Div
+      name="Container"
+      style={{
+        opacity: interpolate(frame, [0, 20], [0, 1]),
+        translate: interpolate(frame, [0, 20], ['0px 24px', '0px 0px']),
+        padding: 24,
+        borderRadius: 16,
+        backgroundColor: 'white',
+      }}
+    >
+      Launch day
+    </Interactive.Div>
+  );
+};
+```
+
+If a child has separate useful controls, make the child interactive and name it:
+
+```tsx twoslash title="Named child controls"
+import {Interactive} from 'remotion';
+
+export const Badge = () => {
+  return (
+    <Interactive.Div
+      name="Container"
+      style={{
+        padding: 24,
+        borderRadius: 16,
+        backgroundColor: 'white',
+      }}
+    >
+      <Interactive.Div
+        name="Title"
+        style={{
+          color: 'black',
+          fontSize: 44,
+          fontWeight: 700,
+        }}
+      >
+        Launch day
+      </Interactive.Div>
+    </Interactive.Div>
+  );
+};
+```
+
 ## Assets and dependencies
 
 Prefer zero dependencies.
