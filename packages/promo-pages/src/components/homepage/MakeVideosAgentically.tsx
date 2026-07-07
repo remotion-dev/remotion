@@ -1,4 +1,5 @@
-import React, {useEffect, useRef} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
+import {isWebkit} from './IfYouKnowReact';
 import {MakeVideosLinks, type MakeVideosLink} from './MakeVideosLinks';
 
 export const MakeVideosAgentically: React.FC<{
@@ -8,6 +9,7 @@ export const MakeVideosAgentically: React.FC<{
 	readonly links?: readonly MakeVideosLink[];
 	readonly showVideo?: boolean;
 	readonly videoSrc?: string;
+	readonly fallbackVideoSrc?: string;
 }> = ({
 	title = (
 		<>
@@ -23,11 +25,15 @@ export const MakeVideosAgentically: React.FC<{
 	],
 	showVideo = true,
 	videoSrc = '/img/render-progress.webm',
+	fallbackVideoSrc = '/img/render-progress.mp4',
 }) => {
 	const ref = useRef<HTMLDivElement>(null);
 	const videoRef = useRef<HTMLVideoElement>(null);
-	// eslint-disable-next-line no-warning-comments
-	// TODO: Add an opaque fallback for browsers that do not support transparent WebM.
+	const [src, setSrc] = useState(videoSrc);
+
+	useEffect(() => {
+		setSrc(isWebkit() ? fallbackVideoSrc : videoSrc);
+	}, [fallbackVideoSrc, videoSrc]);
 
 	useEffect(() => {
 		const {current} = ref;
@@ -56,7 +62,7 @@ export const MakeVideosAgentically: React.FC<{
 				{showVideo ? (
 					<video
 						ref={videoRef}
-						src={videoSrc}
+						src={src}
 						muted
 						autoPlay
 						playsInline

@@ -1,4 +1,5 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
+import {isWebkit} from './IfYouKnowReact';
 import {MakeVideosLinks, type MakeVideosLink} from './MakeVideosLinks';
 
 export const MakeVideosProgrammatically: React.FC<{
@@ -7,6 +8,8 @@ export const MakeVideosProgrammatically: React.FC<{
 	readonly showLinks?: boolean;
 	readonly links?: readonly MakeVideosLink[];
 	readonly showVideo?: boolean;
+	readonly videoSrc?: string;
+	readonly fallbackVideoSrc?: string;
 }> = ({
 	title = (
 		<>
@@ -18,17 +21,21 @@ export const MakeVideosProgrammatically: React.FC<{
 	showLinks = true,
 	links = [],
 	showVideo = true,
+	videoSrc = '/img/what-is-remotion.webm',
+	fallbackVideoSrc = '/img/what-is-remotion.mp4',
 }) => {
-	// eslint-disable-next-line no-warning-comments
-	// TODO: Add an opaque fallback for browsers that do not support transparent WebM.
-	const videoSrc = '/img/what-is-remotion.webm';
+	const [src, setSrc] = useState(videoSrc);
+
+	useEffect(() => {
+		setSrc(isWebkit() ? fallbackVideoSrc : videoSrc);
+	}, [fallbackVideoSrc, videoSrc]);
 
 	return (
 		<div className={'flex min-w-0 basis-0 flex-col flex-1'}>
 			<div className="flex aspect-square w-full items-start">
 				{showVideo ? (
 					<video
-						src={videoSrc}
+						src={src}
 						muted
 						autoPlay
 						playsInline

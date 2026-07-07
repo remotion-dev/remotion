@@ -39,7 +39,10 @@ export const NewLanding: React.FC<{
 						<WriteInReact />
 						<br />
 						<div className={makeVideosRowClassName}>
-							<MakeVideosAgentically videoSrc="/img/homepage-assets-master.webm" />
+							<MakeVideosAgentically
+								videoSrc="/img/homepage-assets-master.webm"
+								fallbackVideoSrc="/img/homepage-assets-master.mp4"
+							/>
 							<MakeVideosInteractively />
 							<MakeVideosProgrammatically
 								links={[
