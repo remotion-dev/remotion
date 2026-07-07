@@ -15,7 +15,7 @@ When a value is shown as computed in the Studio, it often means that the value i
 When converting a component for Studio interactivity, apply all of these rules together:
 
 - Use `Interactive.*` for editable HTML or SVG elements, or [`Interactive.withSchema()`](/docs/interactive-with-schema) for custom components.
-- Add a descriptive `name` prop to the editable element or custom component.
+- Add a non-empty, descriptive `name` prop to the editable element or custom component.
 - Keep every editable or keyframed value inline at the JSX prop that the Studio edits.
 - Keep `interpolate()` keyframe arrays as hardcoded numeric arrays, such as `[0, 30]`.
 - Use Studio-editable style props such as `translate`, `scale`, `rotate`, `transformOrigin` and `opacity` instead of hiding values in a `transform` string.
@@ -28,7 +28,9 @@ Use the [`Interactive`](/docs/interactive) namespace when an HTML or SVG element
 
 ```tsx title="Interactive elements"
 // 👍 Selectable and editable in the Studio
-<Interactive.Div style={{fontSize: 80, padding: 24}}>Hello</Interactive.Div>
+<Interactive.Div name="Greeting card" style={{fontSize: 80, padding: 24}}>
+  Hello
+</Interactive.Div>
 
 // 👎 A regular element is not Studio-editable
 <div style={{fontSize: 80, padding: 24}}>Hello</div>
@@ -37,12 +39,12 @@ Use the [`Interactive`](/docs/interactive) namespace when an HTML or SVG element
 For a custom component, see [Make a component interactive](/docs/studio/make-component-interactive).
 
 ```txt title="Prompt"
-/remotion-best-practices Make this element editable in Remotion Studio. Use Interactive.* for tweakable HTML/SVG elements and keep editable style values inline.
+/remotion-best-practices Make this element editable in Remotion Studio. Use Interactive.* for tweakable HTML/SVG elements, add a non-empty name prop and keep editable style values inline.
 ```
 
 ## Give interactive elements a descriptive name {#give-interactive-elements-a-descriptive-name}
 
-Add a `name` prop to interactive elements and custom interactive components.
+Add a non-empty `name` prop to interactive elements and custom interactive components.
 Use a short label that describes the element in the scene, not an empty string.
 
 The name is shown in the Studio timeline and helps agents identify the correct element when making visual edits.
@@ -50,6 +52,11 @@ The name is shown in the Studio timeline and helps agents identify the correct e
 ```tsx title="Interactive names"
 // 👍 Easy to find in the Studio timeline and by agents
 <Interactive.Div name="Hero title" style={{fontSize: 80}}>
+  Launch day
+</Interactive.Div>
+
+// 👎 Empty names are hard to identify in the Studio timeline and by agents
+<Interactive.Div name="" style={{fontSize: 80}}>
   Launch day
 </Interactive.Div>
 ```
@@ -67,6 +74,7 @@ The input range must use hardcoded numbers, not variables or expressions such as
 ```tsx title="Inline values"
 // 👍 Inline values can be standardized and keyframed
 <Interactive.Div
+  name="Product card"
   style={{
     color: 'white',
     fontSize: 80,
@@ -87,6 +95,7 @@ const translateY = interpolate(frame, [0, 30], [0, 120]);
 const rotation = interpolate(frame, [0, 30], [0, 20]);
 
 <Interactive.Div
+  name="Product card"
   style={{
     ...container,
     transform: `translateY(${translateY}px) rotate(${rotation}deg)`,
@@ -137,6 +146,7 @@ const easedProgress = Easing.out(Easing.cubic)(
 );
 
 <Interactive.Div
+  name="Prompt bubble"
   style={{
     position: 'absolute',
     right: 56,
