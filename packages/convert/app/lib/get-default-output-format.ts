@@ -73,34 +73,16 @@ const getSameOutputFormat = (
 	return null;
 };
 
-const shouldKeepInputContainerByDefault = (action: RouteAction) => {
-	if (action.type === 'convert' || action.type === 'generic-convert') {
-		return false;
-	}
-
-	if (
-		action.type === 'generic-rotate' ||
-		action.type === 'rotate-format' ||
-		action.type === 'generic-mirror' ||
-		action.type === 'mirror-format' ||
-		action.type === 'generic-resize' ||
-		action.type === 'resize-format' ||
-		action.type === 'generic-crop' ||
-		action.type === 'crop-format' ||
-		action.type === 'generic-trim' ||
-		action.type === 'trim-format' ||
-		action.type === 'generic-probe' ||
-		action.type === 'report' ||
-		action.type === 'transcribe' ||
-		action.type === 'timing-editor'
-	) {
-		return true;
-	}
-
-	throw new Error('Unsupported action: ' + (action satisfies never));
+export const getDefaultEditOutputFormat = (
+	inputContainer: InputFormat,
+): OutputContainer => {
+	return (
+		getSameOutputFormat(inputContainer) ??
+		getDefaultConversionFormat(inputContainer)
+	);
 };
 
-export const getDefaultOutputFormat = ({
+export const getDefaultConvertOutputFormat = ({
 	inputContainer,
 	action,
 }: {
@@ -109,13 +91,6 @@ export const getDefaultOutputFormat = ({
 }): OutputContainer => {
 	if (action.type === 'convert') {
 		return action.output;
-	}
-
-	if (shouldKeepInputContainerByDefault(action)) {
-		const sameFormat = getSameOutputFormat(inputContainer);
-		if (sameFormat) {
-			return sameFormat;
-		}
 	}
 
 	return getDefaultConversionFormat(inputContainer);
