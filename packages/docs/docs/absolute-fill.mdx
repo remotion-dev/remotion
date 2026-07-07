@@ -26,13 +26,14 @@ const style: React.CSSProperties = {
 This component is useful for layering content on top of each other. For example, you can use it to create a full-screen video background:
 
 ```tsx twoslash title="Layer example"
-import {AbsoluteFill, OffthreadVideo} from 'remotion';
+import {AbsoluteFill} from 'remotion';
+import {Video} from '@remotion/media';
 
 const MyComp = () => {
   return (
     <AbsoluteFill>
       <AbsoluteFill>
-        <OffthreadVideo src="https://example.com/video.mp4" />
+        <Video src="https://example.com/video.mp4" />
       </AbsoluteFill>
       <AbsoluteFill>
         <h1>This text is written on top!</h1>
