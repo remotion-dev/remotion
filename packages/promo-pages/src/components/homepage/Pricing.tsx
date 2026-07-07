@@ -3,10 +3,18 @@ import {CompanyPricing, EnterpriseLicense, FreePricing} from './FreePricing';
 
 export const Pricing: React.FC<{
 	readonly faqHref?: string;
-}> = ({faqHref = '/docs/pricing#faq'}) => {
+	readonly termsHref?: string;
+}> = ({
+	faqHref = '/docs/license-pricing-compliance/faq',
+	termsHref = 'https://www.remotion.pro/terms',
+}) => {
 	const faqLinkTarget = useMemo(() => {
 		return faqHref.startsWith('http') ? '_blank' : undefined;
 	}, [faqHref]);
+
+	const termsLinkTarget = useMemo(() => {
+		return termsHref.startsWith('http') ? '_blank' : undefined;
+	}, [termsHref]);
 
 	return (
 		<div
@@ -36,11 +44,7 @@ export const Pricing: React.FC<{
 						FAQ
 					</a>{' '}
 					and{' '}
-					<a
-						target="_blank"
-						className="bluelink"
-						href="https://www.remotion.pro/terms"
-					>
+					<a target={termsLinkTarget} className="bluelink" href={termsHref}>
 						Terms and Conditions
 					</a>{' '}
 					for more details.

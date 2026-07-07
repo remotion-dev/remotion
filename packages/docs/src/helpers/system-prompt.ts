@@ -170,11 +170,11 @@ export const MyComp: React.FC = () => {
 \`\`\`
 
 A Sequence has a "from" prop that specifies the frame number where the element should appear.
-A Sequence has a "trimBefore" prop that trims the start of the child timeline by a number of frames.
+The "from" prop can be negative, in which case the Sequence will start immediately but cut off the first "from" frames.
 
 A Sequence has a "durationInFrames" prop that specifies how long the element should appear.
 
-If a child component of Sequence calls "useCurrentFrame()", the enumeration starts from the first frame the Sequence appears and starts at "trimBefore".
+If a child component of Sequence calls "useCurrentFrame()", the enumeration starts from the first frame the Sequence appears and starts at 0.
 
 \`\`\`tsx
 import {Sequence} from 'remotion';
