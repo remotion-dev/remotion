@@ -3,10 +3,12 @@ import React from 'react';
 import {
 	AbsoluteFill,
 	Easing,
+	Interactive,
 	interpolate,
 	staticFile,
 	useCurrentFrame,
 } from 'remotion';
+import {z} from 'zod';
 import {ExtrudeDiv} from '../3DContext/Div3D';
 import {
 	RotateX,
@@ -21,13 +23,13 @@ const width = 1080;
 const height = 600;
 const depth = 95;
 const cornerRadius = 42;
-const promptLines = ['Animate from', 'LA to NY'] as const;
 const thinking = 'Thinking';
+const responseTokens = ['Do', 'ne', '.'] as const;
 const fontFamily = 'GT Planar';
 const shineLoopInFrames = 60;
-const sendStartFrame = 16;
-const promptTravelDurationInFrames = 28;
-const thinkingStartFrame = 58;
+const sendStartFrame = 12;
+const thinkingStartFrame = 42;
+const responseStartFrame = 131;
 
 loadFont({
 	family: fontFamily,
@@ -35,37 +37,29 @@ loadFont({
 	weight: '500',
 });
 
+export const codingPromptSchema = z.object({
+	promptLine1: z.string(),
+	promptLine2: z.string(),
+});
+
+export type CodingPromptProps = z.infer<typeof codingPromptSchema>;
+
 const FrontFace: React.FC<{
+	readonly promptLine1: string;
+	readonly promptLine2: string;
 	readonly shineProgress: number;
 	readonly frame: number;
-}> = ({shineProgress, frame}) => {
+}> = ({promptLine1, promptLine2, shineProgress, frame}) => {
 	const shinePosition = 140 - shineProgress * 180;
-	const sendProgress = Easing.out(Easing.cubic)(
-		interpolate(
-			frame,
-			[sendStartFrame, sendStartFrame + promptTravelDurationInFrames],
-			[0, 1],
-			{extrapolateLeft: 'clamp', extrapolateRight: 'clamp'},
-		),
-	);
-	const promptBubbleTop = interpolate(sendProgress, [0, 1], [378, 56]);
-	const promptBubbleScale = interpolate(sendProgress, [0, 1], [0.86, 1]);
-	const promptBubbleOpacity = interpolate(
-		frame,
-		[sendStartFrame - 4, sendStartFrame + 8],
-		[0, 1],
-		{extrapolateLeft: 'clamp', extrapolateRight: 'clamp'},
-	);
-	const inputPromptOpacity = interpolate(
-		frame,
-		[sendStartFrame, sendStartFrame + 12],
-		[1, 0],
-		{extrapolateLeft: 'clamp', extrapolateRight: 'clamp'},
-	);
 	const thinkingOpacity = interpolate(
 		frame,
-		[thinkingStartFrame, thinkingStartFrame + 12],
-		[0, 1],
+		[
+			thinkingStartFrame,
+			thinkingStartFrame + 12,
+			responseStartFrame - 12,
+			responseStartFrame,
+		],
+		[0, 1, 1, 0],
 		{extrapolateLeft: 'clamp', extrapolateRight: 'clamp'},
 	);
 	const thinkingTranslateY = interpolate(
@@ -96,11 +90,26 @@ const FrontFace: React.FC<{
 				position: 'relative',
 			}}
 		>
-			<div
+			<Interactive.Div
+				name="Sent prompt bubble"
 				style={{
 					position: 'absolute',
 					right: 56,
-					top: promptBubbleTop,
+					top: 56,
+					translate: interpolate(frame, [12, 28], ['0px 322px', '0px 0px'], {
+						easing: [
+							Easing.spring({
+								damping: 200,
+								mass: 1,
+								stiffness: 100,
+								allowTail: true,
+								durationRestThreshold: 0.02,
+								overshootClamping: false,
+							}),
+						],
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'clamp',
+					}),
 					color: '#332f2a',
 					fontSize: 58,
 					backgroundColor: '#ffffff',
@@ -113,16 +122,34 @@ const FrontFace: React.FC<{
 					boxShadow: '0 10px 0 rgba(5, 5, 5, 0.08)',
 					boxSizing: 'border-box',
 					textAlign: 'right',
-					opacity: promptBubbleOpacity,
-					transform: `scale(${promptBubbleScale})`,
+					opacity: interpolate(frame, [12, 24], [0, 1], {
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'clamp',
+					}),
+					scale: interpolate(frame, [12, 28], [0.86, 1], {
+						easing: [
+							Easing.spring({
+								damping: 200,
+								mass: 1,
+								stiffness: 100,
+								allowTail: true,
+								durationRestThreshold: 0.02,
+								overshootClamping: false,
+							}),
+						],
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'clamp',
+					}),
 					transformOrigin: '100% 100%',
 				}}
 			>
-				{promptLines.map((line) => {
-					return <div key={line}>{line}</div>;
-				})}
-			</div>
-
+				<Interactive.Div name="Sent prompt line 1">
+					{promptLine1}
+				</Interactive.Div>
+				<Interactive.Div name="Sent prompt line 2">
+					{promptLine2}
+				</Interactive.Div>
+			</Interactive.Div>
 			<div
 				style={{
 					position: 'absolute',
@@ -158,6 +185,35 @@ const FrontFace: React.FC<{
 				style={{
 					position: 'absolute',
 					left: 56,
+					top: 252,
+					color: '#332f2a',
+					fontSize: 64,
+					fontWeight: 500,
+					lineHeight: 1.18,
+				}}
+			>
+				{responseTokens.map((token, index) => {
+					const tokenOpacity = interpolate(
+						frame,
+						[
+							responseStartFrame + index * 3 - 1,
+							responseStartFrame + index * 3,
+						],
+						[0, 1],
+						{extrapolateLeft: 'clamp', extrapolateRight: 'clamp'},
+					);
+
+					return (
+						<span key={token} style={{opacity: tokenOpacity}}>
+							{token}
+						</span>
+					);
+				})}
+			</div>
+			<div
+				style={{
+					position: 'absolute',
+					left: 56,
 					right: 56,
 					bottom: 56,
 					height: 96,
@@ -171,18 +227,7 @@ const FrontFace: React.FC<{
 					boxShadow: '0 10px 0 rgba(5, 5, 5, 0.08)',
 				}}
 			>
-				<div
-					style={{
-						flex: 1,
-						color: '#332f2a',
-						fontSize: 42,
-						fontWeight: 500,
-						opacity: inputPromptOpacity,
-						whiteSpace: 'nowrap',
-					}}
-				>
-					{promptLines.join(' ')}
-				</div>
+				<div style={{flex: 1}} />
 				<div
 					style={{
 						width: 68,
@@ -215,7 +260,10 @@ const FrontFace: React.FC<{
 	);
 };
 
-export const CodingPrompt: React.FC = () => {
+export const CodingPrompt: React.FC<CodingPromptProps> = ({
+	promptLine1,
+	promptLine2,
+}) => {
 	const frame = useCurrentFrame();
 	const shineFrame = Math.max(0, frame - thinkingStartFrame);
 	const shineProgress = (shineFrame % shineLoopInFrames) / shineLoopInFrames;
@@ -243,7 +291,12 @@ export const CodingPrompt: React.FC = () => {
 											/>
 										}
 									>
-										<FrontFace shineProgress={shineProgress} frame={frame} />
+										<FrontFace
+											promptLine1={promptLine1}
+											promptLine2={promptLine2}
+											shineProgress={shineProgress}
+											frame={frame}
+										/>
 									</ExtrudeDiv>
 								</RotateX>
 							</RotateY>
