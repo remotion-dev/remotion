@@ -59,8 +59,8 @@ import {FolderTreeComposition} from './HomepageAssets/FolderTree';
 import {Map} from './HomepageAssets/Map';
 import {
 	HomepageAssetMaster,
-	homepageAssetMasterSchema,
 	homepageAssetMasterDurationInFrames,
+	homepageAssetMasterSchema,
 } from './HomepageAssets/Master';
 import {NpmIniVideo} from './HomepageAssets/NpmInitVideo/NpmInitVideo';
 import {RemotionTriangleComposition} from './HomepageAssets/RemotionTriangle';
@@ -88,6 +88,7 @@ import {
 	htmlInCanvasAllEffectsDefaultProps,
 	htmlInCanvasAllEffectsSchema,
 } from './Showcase/HtmlInCanvasAllEffects';
+import {TestPleaseDontCommit} from './TestPleaseDontCommit';
 import {
 	FlyingCardsLeft,
 	flyingCardsLeftSchema,
@@ -686,6 +687,14 @@ export const RemotionRoot: React.FC = () => {
 				fps={30}
 				width={EFFECT_SHOWCASE_WIDTH}
 				height={EFFECT_SHOWCASE_HEIGHT}
+			/>
+			<Composition
+				id="test-please-dont-commit"
+				component={TestPleaseDontCommit}
+				durationInFrames={150}
+				fps={30}
+				width={1920}
+				height={1080}
 			/>
 		</>
 	);
