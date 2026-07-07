@@ -39,10 +39,13 @@ export const getVideoFrameSelectionTimeInSeconds = ({
 		return null;
 	}
 
+	const unloopedSelectionTime =
+		unloopedTimeInSeconds + durationInSeconds / 2 / Math.max(playbackRate, 1);
+
 	const frameCenterTime = getTimeInSeconds({
 		loop,
 		mediaDurationInSeconds,
-		unloopedTimeInSeconds: unloopedTimeInSeconds + durationInSeconds / 2,
+		unloopedTimeInSeconds: unloopedSelectionTime,
 		src,
 		trimAfter,
 		playbackRate,

@@ -20,6 +20,24 @@ test('selects video from the center of the output frame', () => {
 	expect(time).toBeLessThan(3.017);
 });
 
+test('keeps speed-up playback anchored to the first represented input frame', () => {
+	const time = getVideoFrameSelectionTimeInSeconds({
+		loop: false,
+		mediaDurationInSeconds: null,
+		unloopedTimeInSeconds: 1 / 30,
+		durationInSeconds: 1 / 30,
+		src: 'test.mp4',
+		trimAfter: undefined,
+		trimBefore: undefined,
+		fps: 30,
+		playbackRate: 4,
+		ifNoMediaDuration: 'infinity',
+	});
+
+	expect(time).toBeGreaterThan(4 / 30);
+	expect(time).toBeLessThan(5 / 30);
+});
+
 test('falls back to frame start if the center is trimmed away', () => {
 	const time = getVideoFrameSelectionTimeInSeconds({
 		loop: false,
