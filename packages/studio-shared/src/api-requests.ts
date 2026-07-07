@@ -298,11 +298,13 @@ export type UnsubscribeFromSequencePropsRequest = {
 	effectKeys: string[][];
 };
 
+export type SerializedSequencePropValue = string;
+
 export type SaveSequencePropEdit = {
 	fileName: string;
 	nodePath: SequencePropsSubscriptionKey;
 	key: string;
-	value: string;
+	value: SerializedSequencePropValue;
 	defaultValue: string | null;
 	schema: InteractivitySchema;
 };
