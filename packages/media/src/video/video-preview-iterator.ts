@@ -46,7 +46,6 @@ export const createVideoIterator = async (
 	const getNextOrNullIfNotAvailable = () => {
 		if (peekedFrame) {
 			const frame = peekedFrame;
-			setLastReturnedFrame(frame);
 			const retValue = {
 				type: 'got-frame-or-end' as const,
 				frame,
@@ -60,22 +59,11 @@ export const createVideoIterator = async (
 		if (next.type === 'pending') {
 			return {
 				type: 'need-to-wait-for-it' as const,
-				waitPromise: async () => {
-					const res = await next.wait();
-					if (res) {
-						setLastReturnedFrame(res);
-					} else {
-						iteratorEnded = true;
-					}
-
-					return res;
-				},
+				waitPromise: next.wait,
 			};
 		}
 
-		if (next.frame) {
-			setLastReturnedFrame(next.frame);
-		} else {
+		if (!next.frame) {
 			iteratorEnded = true;
 		}
 
@@ -113,7 +101,7 @@ export const createVideoIterator = async (
 		if (lastReturnedFrame) {
 			const frameTimestamp = roundTo4Digits(lastReturnedFrame.timestamp);
 
-			if (timestamp < frameTimestamp) {
+			if (time + Number.EPSILON < lastReturnedFrame.timestamp) {
 				const lastFrameWasInitialFrame = lastReturnedFrame === initialFrame;
 				const firstFrameDoesSatisfy =
 					lastFrameWasInitialFrame &&
@@ -150,6 +138,24 @@ export const createVideoIterator = async (
 					frame: lastReturnedFrame,
 				};
 			}
+
+			if (frameTimestamp <= timestamp) {
+				const nextFrame = await peek();
+				if (!nextFrame) {
+					iteratorEnded = true;
+					return {
+						type: 'satisfied' as const,
+						frame: lastReturnedFrame,
+					};
+				}
+
+				if (nextFrame.timestamp > time + Number.EPSILON) {
+					return {
+						type: 'satisfied' as const,
+						frame: lastReturnedFrame,
+					};
+				}
+			}
 		}
 
 		if (iteratorEnded) {
@@ -168,45 +174,45 @@ export const createVideoIterator = async (
 
 		while (true) {
 			const frame = getNextOrNullIfNotAvailable();
+			const nextFrame =
+				frame.type === 'need-to-wait-for-it'
+					? await frame.waitPromise()
+					: frame.frame;
 
-			if (frame.type === 'need-to-wait-for-it') {
+			if (nextFrame === null) {
+				iteratorEnded = true;
+				if (lastReturnedFrame) {
+					return {
+						type: 'satisfied' as const,
+						frame: lastReturnedFrame,
+					};
+				}
+
 				return {
 					type: 'not-satisfied' as const,
-					reason: 'iterator did not have frame ready',
+					reason: 'iterator ended and did not have frame ready',
 				};
 			}
 
-			if (frame.type === 'got-frame-or-end') {
-				if (frame.frame === null) {
-					iteratorEnded = true;
-					if (lastReturnedFrame) {
-						return {
-							type: 'satisfied' as const,
-							frame: lastReturnedFrame,
-						};
-					}
-
-					return {
-						type: 'not-satisfied' as const,
-						reason: 'iterator ended and did not have frame ready',
-					};
-				}
-
-				const frameTimestamp = roundTo4Digits(frame.frame.timestamp);
-				const frameEndTimestamp = roundTo4Digits(
-					frame.frame.timestamp + frame.frame.duration,
-				);
-				if (frameTimestamp <= timestamp && frameEndTimestamp > timestamp) {
-					return {
-						type: 'satisfied' as const,
-						frame: frame.frame,
-					};
-				}
-
-				continue;
+			const frameTimestamp = roundTo4Digits(nextFrame.timestamp);
+			if (nextFrame.timestamp > time + Number.EPSILON && lastReturnedFrame) {
+				peekedFrame = nextFrame;
+				return {
+					type: 'satisfied' as const,
+					frame: lastReturnedFrame,
+				};
 			}
 
-			throw new Error('Unreachable');
+			const frameEndTimestamp = roundTo4Digits(
+				nextFrame.timestamp + nextFrame.duration,
+			);
+			setLastReturnedFrame(nextFrame);
+			if (frameTimestamp <= timestamp && frameEndTimestamp > timestamp) {
+				return {
+					type: 'satisfied' as const,
+					frame: nextFrame,
+				};
+			}
 		}
 	};
 

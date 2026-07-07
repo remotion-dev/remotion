@@ -34,6 +34,65 @@ const makeVideoSampleSink = (samples: VideoSample[]): VideoSampleSink => {
 	};
 };
 
+test('does not select a near future frame', async () => {
+	const samples = [
+		makeSample({timestamp: 0, duration: 0.01}),
+		makeSample({timestamp: 0.033, duration: 0.033}),
+	];
+
+	const bank = await makeKeyframeBank({
+		logLevel: 'error',
+		src: 'near-future-frame.mp4',
+		videoSampleSink: makeVideoSampleSink(samples),
+		initialTimestampRequest: 0.0325,
+	});
+
+	const frame = await bank.getFrameFromTimestamp(0.0325, 30);
+	expect(frame?.timestamp).toBe(0);
+
+	bank.prepareForDeletion('error', 'test');
+	samples[1].close();
+});
+
+test('selects the latest timestamp for out-of-order samples', async () => {
+	const samples = [
+		makeSample({timestamp: 0.08, duration: 0.033}),
+		makeSample({timestamp: 0.04, duration: 0.033}),
+	];
+
+	const bank = await makeKeyframeBank({
+		logLevel: 'error',
+		src: 'out-of-order-frames.mp4',
+		videoSampleSink: makeVideoSampleSink(samples),
+		initialTimestampRequest: 0.09,
+	});
+
+	const frame = await bank.getFrameFromTimestamp(0.09, 30);
+	expect(frame?.timestamp).toBe(0.08);
+
+	bank.prepareForDeletion('error', 'test');
+	samples[1].close();
+});
+
+test('can reuse the initial clamp frame', async () => {
+	const samples = [
+		makeSample({timestamp: 0.02004, duration: 0.033}),
+		makeSample({timestamp: 0.053, duration: 0.033}),
+	];
+
+	const bank = await makeKeyframeBank({
+		logLevel: 'error',
+		src: 'initial-clamp.mp4',
+		videoSampleSink: makeVideoSampleSink(samples),
+		initialTimestampRequest: 0.019,
+	});
+
+	expect(bank.canSatisfyTimestamp(0.019)).toBe(true);
+
+	bank.prepareForDeletion('error', 'test');
+	samples[1].close();
+});
+
 test('a long frame duration can satisfy requests beyond the jump threshold', async () => {
 	const samples = [
 		makeSample({timestamp: 0.3, duration: 12}),

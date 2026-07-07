@@ -69,7 +69,7 @@ test('in preview, should properly buffer and draw frames', async (t) => {
 	});
 
 	const iteratorsCreated2 = manager.getVideoIteratorsCreated();
-	expect(iteratorsCreated2).toBe(2);
+	expect(iteratorsCreated2).toBe(1);
 
 	manager.destroy();
 });
