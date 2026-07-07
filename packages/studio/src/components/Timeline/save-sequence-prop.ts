@@ -1,4 +1,7 @@
-import {optimisticUpdateForPropStatuses} from '@remotion/studio-shared';
+import {
+	optimisticUpdateForPropStatuses,
+	type SaveSequencePropSourceEdit,
+} from '@remotion/studio-shared';
 import type {
 	CanUpdateSequencePropsResponse,
 	SequencePropsSubscriptionKey,
@@ -21,6 +24,7 @@ export type SaveSequencePropChange = {
 	value: unknown;
 	defaultValue: string | null;
 	schema: InteractivitySchema;
+	sourceEdit?: SaveSequencePropSourceEdit;
 };
 
 type SaveSequencePropsOptions = {
@@ -29,6 +33,14 @@ type SaveSequencePropsOptions = {
 	clientId: string;
 	undoLabel: string;
 	redoLabel: string;
+};
+
+const serializeSequencePropValue = (value: unknown) => {
+	if (value === undefined) {
+		return {type: 'undefined' as const};
+	}
+
+	return {type: 'json' as const, serialized: JSON.stringify(value)};
 };
 
 export const saveSequenceProps = ({
@@ -66,9 +78,10 @@ export const saveSequenceProps = ({
 							fileName: change.fileName,
 							nodePath: change.nodePath,
 							key: change.fieldKey,
-							value: JSON.stringify(change.value),
+							value: serializeSequencePropValue(change.value),
 							defaultValue: change.defaultValue,
 							schema: change.schema,
+							sourceEdit: change.sourceEdit ?? null,
 						},
 					],
 					clientId,
@@ -97,9 +110,10 @@ export const saveSequenceProps = ({
 				fileName: change.fileName,
 				nodePath: change.nodePath,
 				key: change.fieldKey,
-				value: JSON.stringify(change.value),
+				value: serializeSequencePropValue(change.value),
 				defaultValue: change.defaultValue,
 				schema: change.schema,
+				sourceEdit: change.sourceEdit ?? null,
 			};
 		}),
 		clientId,

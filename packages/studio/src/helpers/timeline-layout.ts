@@ -10,6 +10,7 @@ import {
 	type PropStatuses,
 	type SchemaFieldInfo,
 	type SequenceControls,
+	type SaveSequencePropSourceEdit,
 } from '@remotion/studio-shared';
 import type {
 	GetDragOverrides,
@@ -48,7 +49,14 @@ export const TIMELINE_TRACK_EXPANDED_HEIGHT = 100;
 export const TREE_GROUP_ROW_HEIGHT = 22;
 export const EXPANDED_SECTION_PADDING_RIGHT = 10;
 
-export type TimelineFieldOnSave = (value: unknown) => Promise<void>;
+export type TimelineFieldOnSave = (
+	value: unknown,
+	options?: {
+		// Extra source-code transformation applied atomically with this value save.
+		// Used by Google Font selection to insert @remotion/google-fonts imports/loadFont().
+		sourceEdit?: SaveSequencePropSourceEdit;
+	},
+) => Promise<void>;
 export type TimelineFieldOnDragValueChange = (value: unknown) => void;
 
 export type TimelineEffectGroupInfo = {

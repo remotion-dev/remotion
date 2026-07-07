@@ -35,11 +35,30 @@ type ResolvedSequencePropEdit = {
 	defaultValue: unknown | null;
 	defaultValueString: string | null;
 	schema: SaveSequencePropEdit['schema'];
+	sourceEdit: SaveSequencePropEdit['sourceEdit'];
 };
 
 type SequencePropEditGroup = {
 	fileRelativeToRoot: string;
 	edits: ResolvedSequencePropEdit[];
+};
+
+const parseSequencePropEditValue = (
+	value: SaveSequencePropEdit['value'],
+): unknown => {
+	if (value.type === 'undefined') {
+		return undefined;
+	}
+
+	return JSON.parse(value.serialized);
+};
+
+const stringifySequencePropEditValue = (value: unknown): string => {
+	if (value === undefined) {
+		return 'undefined';
+	}
+
+	return JSON.stringify(value);
 };
 
 type SequencePropUndoSnapshot = {
@@ -59,7 +78,7 @@ type SequencePropEditResult = {
 export const convertSequencePropEditToCodemodChange = (
 	edit: Pick<
 		ResolvedSequencePropEdit,
-		'nodePath' | 'key' | 'value' | 'defaultValue' | 'schema'
+		'nodePath' | 'key' | 'value' | 'defaultValue' | 'schema' | 'sourceEdit'
 	>,
 ): SequencePropsNodeUpdate => {
 	return {
@@ -69,6 +88,8 @@ export const convertSequencePropEditToCodemodChange = (
 				key: edit.key,
 				value: edit.value,
 				defaultValue: edit.defaultValue,
+				googleFont:
+					edit.sourceEdit?.type === 'google-font' ? edit.sourceEdit.font : null,
 			},
 		],
 		schema: edit.schema,
@@ -76,9 +97,16 @@ export const convertSequencePropEditToCodemodChange = (
 };
 
 export const shouldSuppressHmrForSequencePropEdits = (
-	edits: readonly {key: string}[],
+	edits: readonly {
+		key: string;
+		sourceEdit?: SaveSequencePropEdit['sourceEdit'];
+	}[],
 ): boolean => {
-	return edits.every((edit) => edit.key !== 'showInTimeline');
+	return edits.every(
+		(edit) =>
+			edit.key !== 'showInTimeline' &&
+			(edit.sourceEdit === null || edit.sourceEdit === undefined),
+	);
 };
 
 export const saveSequencePropsHandler: ApiHandler<
@@ -102,7 +130,7 @@ export const saveSequencePropsHandler: ApiHandler<
 		const editGroups = new Map<string, SequencePropEditGroup>();
 
 		for (const [index, edit] of edits.entries()) {
-			const parsedValue = JSON.parse(edit.value);
+			const parsedValue = parseSequencePropEditValue(edit.value);
 			const parsedDefaultValue =
 				edit.defaultValue !== null ? JSON.parse(edit.defaultValue) : null;
 			const {absolutePath, fileRelativeToRoot} = resolveFileInsideProject({
@@ -121,13 +149,14 @@ export const saveSequencePropsHandler: ApiHandler<
 				nodePath: edit.nodePath,
 				key: edit.key,
 				value: parsedValue,
-				valueString: JSON.stringify(parsedValue),
+				valueString: stringifySequencePropEditValue(parsedValue),
 				defaultValue: parsedDefaultValue,
 				defaultValueString:
 					parsedDefaultValue !== null
 						? JSON.stringify(parsedDefaultValue)
 						: null,
 				schema: edit.schema,
+				sourceEdit: edit.sourceEdit,
 			});
 			editGroups.set(absolutePath, group);
 		}

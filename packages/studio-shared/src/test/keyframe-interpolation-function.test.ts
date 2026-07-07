@@ -45,6 +45,20 @@ test('isSchemaFieldKeyframable rejects boolean fields', () => {
 	expect(isSchemaFieldKeyframable({schema, key: 'loop'})).toBe(false);
 });
 
+test('isSchemaFieldKeyframable rejects font-family fields', () => {
+	const schema = {
+		'style.fontFamily': {
+			type: 'font-family',
+			default: undefined,
+			keyframable: false,
+		},
+	} satisfies InteractivitySchema;
+
+	expect(isSchemaFieldKeyframable({schema, key: 'style.fontFamily'})).toBe(
+		false,
+	);
+});
+
 test('isSchemaFieldKeyframable rejects boolean fields in enum variants', () => {
 	const schema = {
 		layout: {

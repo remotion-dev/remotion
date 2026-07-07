@@ -73,6 +73,8 @@ export {
 	ReorderSequenceResponse,
 	RestartStudioRequest,
 	RestartStudioResponse,
+	GoogleFontSourceEdit,
+	SaveSequencePropSourceEdit,
 	SaveEffectPropsRequest,
 	SaveEffectPropsResponse,
 	SaveSequencePropEdit,
