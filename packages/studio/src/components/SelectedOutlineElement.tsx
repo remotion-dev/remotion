@@ -593,7 +593,7 @@ const SelectedOutlinePolygon: React.FC<{
 
 					dragStarted = true;
 					onDraggingChange(true);
-					forceSpecificCursor('move');
+					forceSpecificCursor('default');
 				}
 
 				const axisLockedDirection = axisLocked
