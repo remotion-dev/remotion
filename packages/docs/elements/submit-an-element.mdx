@@ -81,9 +81,19 @@ export const MyElement = () => {
 ```
 
 Use this for overlays, lower thirds, callouts, motion graphics, cards, badges, and data animations.
-Size the Element to the smallest useful bounding box. Avoid using a full-video canvas, internal placement padding, or fullscreen wrappers unless the Element is a background.
-Use `previewPadding` on the `ElementPage` if the docs preview needs more breathing room without changing the Element's drag dimensions.
+Size the Element to the smallest useful bounding box. `elementWidth` and `elementHeight` should describe the useful import bounds, not the decorative preview bounds.
+Use `previewPadding` on the `ElementPage` if the docs preview needs more breathing room without changing the Element's drag dimensions or adding source padding.
+Let the Studio-inserted [`<Sequence>`](/docs/sequence) handle placement in the video. Avoid static `left`, `right`, `top`, and `bottom` placement inside the Element source unless it is intrinsic to the visual.
+Separate placement from animation: the outer placement shell can position the Element in a video, while inner Element styles can animate entrance values such as `translate`, `scale`, and `opacity`.
 Do not put the wrapper [`<Sequence>`](/docs/sequence) into the Element source file.
+
+## Interactivity
+
+Only add `Interactive.*` wrappers when they expose useful Studio controls.
+Avoid redundant nested `Interactive.*` wrappers that represent the same visual object.
+Every `Interactive.*` wrapper should have a descriptive `name`.
+Avoid repeating the Element display name inside source names; the dragged wrapper already gets named from `displayName`.
+For the main inner editable element, use a generic name such as `Container`.
 
 ## Assets and dependencies
 
