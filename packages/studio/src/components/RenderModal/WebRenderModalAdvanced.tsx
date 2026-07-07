@@ -1,3 +1,4 @@
+import type {WebRendererPageResponsiveness} from '@remotion/web-renderer';
 import type React from 'react';
 import {useCallback, useMemo} from 'react';
 import {Checkmark} from '../../icons/Checkmark';
@@ -27,6 +28,10 @@ type WebRenderModalAdvancedProps = {
 	) => void;
 	readonly allowHtmlInCanvas: boolean;
 	readonly setAllowHtmlInCanvas: React.Dispatch<React.SetStateAction<boolean>>;
+	readonly pageResponsiveness: WebRendererPageResponsiveness;
+	readonly setPageResponsiveness: React.Dispatch<
+		React.SetStateAction<WebRendererPageResponsiveness>
+	>;
 };
 
 const tabContainer: React.CSSProperties = {
@@ -43,6 +48,8 @@ export const WebRenderModalAdvanced: React.FC<WebRenderModalAdvancedProps> = ({
 	setHardwareAcceleration,
 	allowHtmlInCanvas,
 	setAllowHtmlInCanvas,
+	pageResponsiveness,
+	setPageResponsiveness,
 }) => {
 	const toggleCustomMediaCacheSizeInBytes = useCallback(() => {
 		setMediaCacheSizeInBytes((previous) => {
@@ -118,6 +125,87 @@ export const WebRenderModalAdvanced: React.FC<WebRenderModalAdvancedProps> = ({
 		];
 	}, [hardwareAcceleration, setHardwareAcceleration]);
 
+	const selectedPageResponsiveness =
+		typeof pageResponsiveness === 'number' ? 'custom' : pageResponsiveness;
+
+	const pageResponsivenessOptions = useMemo((): ComboboxValue[] => {
+		return [
+			{
+				label: 'Disabled',
+				onClick: () => setPageResponsiveness('disabled'),
+				leftItem:
+					selectedPageResponsiveness === 'disabled' ? <Checkmark /> : null,
+				id: 'disabled',
+				keyHint: null,
+				quickSwitcherLabel: null,
+				subMenu: null,
+				type: 'item',
+				value: 'disabled',
+			},
+			{
+				label: 'Low (100ms)',
+				onClick: () => setPageResponsiveness('low'),
+				leftItem: selectedPageResponsiveness === 'low' ? <Checkmark /> : null,
+				id: 'low',
+				keyHint: null,
+				quickSwitcherLabel: null,
+				subMenu: null,
+				type: 'item',
+				value: 'low',
+			},
+			{
+				label: 'Medium (33ms)',
+				onClick: () => setPageResponsiveness('medium'),
+				leftItem:
+					selectedPageResponsiveness === 'medium' ? <Checkmark /> : null,
+				id: 'medium',
+				keyHint: null,
+				quickSwitcherLabel: null,
+				subMenu: null,
+				type: 'item',
+				value: 'medium',
+			},
+			{
+				label: 'High (16ms)',
+				onClick: () => setPageResponsiveness('high'),
+				leftItem: selectedPageResponsiveness === 'high' ? <Checkmark /> : null,
+				id: 'high',
+				keyHint: null,
+				quickSwitcherLabel: null,
+				subMenu: null,
+				type: 'item',
+				value: 'high',
+			},
+			{
+				label: 'Custom',
+				onClick: () =>
+					setPageResponsiveness((previous) =>
+						typeof previous === 'number' ? previous : 33,
+					),
+				leftItem:
+					selectedPageResponsiveness === 'custom' ? <Checkmark /> : null,
+				id: 'custom',
+				keyHint: null,
+				quickSwitcherLabel: null,
+				subMenu: null,
+				type: 'item',
+				value: 'custom',
+			},
+		];
+	}, [selectedPageResponsiveness, setPageResponsiveness]);
+
+	const setCustomPageResponsiveness: React.Dispatch<
+		React.SetStateAction<number>
+	> = useCallback(
+		(value) => {
+			setPageResponsiveness((previous) => {
+				const currentValue = typeof previous === 'number' ? previous : 33;
+				return typeof value === 'function' ? value(currentValue) : value;
+			});
+		},
+		[setPageResponsiveness],
+	);
+
 	return (
 		<div style={tabContainer}>
 			<NumberSetting
@@ -182,6 +270,32 @@ export const WebRenderModalAdvanced: React.FC<WebRenderModalAdvancedProps> = ({
 					/>
 				</div>
 			</div>
+
+			{renderMode === 'still' ? null : (
+				<>
+					<div style={optionRow}>
+						<div style={label}>Page Responsiveness</div>
+						<div style={rightRow}>
+							<Combobox
+								values={pageResponsivenessOptions}
+								selectedId={selectedPageResponsiveness}
+								title="Page Responsiveness"
+							/>
+						</div>
+					</div>
+					{typeof pageResponsiveness === 'number' ? (
+						<NumberSetting
+							name="Responsiveness Interval"
+							formatter={(v) => `${v}ms`}
+							min={1}
+							max={1000000000}
+							step={1}
+							value={pageResponsiveness}
+							onValueChanged={setCustomPageResponsiveness}
+						/>
+					) : null}
+				</>
+			)}
 		</div>
 	);
 };
