@@ -593,6 +593,7 @@ const SelectedOutlinePolygon: React.FC<{
 
 					dragStarted = true;
 					onDraggingChange(true);
+					forceSpecificCursor('default');
 				}
 
 				const axisLockedDirection = axisLocked
@@ -692,6 +693,7 @@ const SelectedOutlinePolygon: React.FC<{
 				window.removeEventListener('keydown', onKeyChange);
 				window.removeEventListener('keyup', onKeyChange);
 				if (dragStarted) {
+					stopForcingSpecificCursor();
 					onDraggingChange(false);
 				}
 
