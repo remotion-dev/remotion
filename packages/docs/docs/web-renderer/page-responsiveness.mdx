@@ -25,8 +25,7 @@ Page responsiveness controls how often Remotion tries to free the event loop bet
 By default, [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web) uses `"medium"` page responsiveness.
 Every `33ms` of rendering work, Remotion tries to free the event loop so the page can stay responsive.
 
-The default favors an interactive page: progress indicators update more regularly, buttons remain easier to click and the tab feels less blocked.
-
+The default favors an interactive page.
 The tradeoff is render speed. Freeing the event loop gives the browser time to work, so a render may finish later than if page responsiveness is disabled.
 
 ## Changing the setting
