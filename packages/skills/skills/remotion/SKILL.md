@@ -26,6 +26,7 @@ Before designing visual scenes, layouts, promos, motion graphics, or text-heavy 
 Animate properties using `useCurrentFrame()` and `interpolate()`. Prefer `interpolate()` over `spring()` unless physics-based motion is explicitly needed. Use `Easing.bezier()` to customize timing, including jumpy or overshooting motion.
 
 For animations that should be editable in Remotion Studio, keep the `interpolate()` call inline in the `style` prop and use individual CSS transform properties (`scale`, `translate`, `rotate`) instead of composing a `transform` string.
+To make an element or custom component interactive in Remotion Studio, follow https://www.remotion.dev/docs/studio/make-component-interactive.
 
 ```tsx
 import { useCurrentFrame, Easing, interpolate, useVideoConfig } from "remotion";
