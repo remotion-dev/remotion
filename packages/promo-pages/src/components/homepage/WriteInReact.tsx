@@ -1,5 +1,4 @@
 import React from 'react';
-import {ChooseTemplate} from './ChooseTemplate';
 import {GetStarted} from './GetStartedStrip';
 
 export const WriteInReact: React.FC = () => {
@@ -28,7 +27,6 @@ export const WriteInReact: React.FC = () => {
 			</div>
 			<br />
 			<br />
-			<ChooseTemplate />
 		</div>
 	);
 };
