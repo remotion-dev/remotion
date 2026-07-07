@@ -9,18 +9,21 @@ export const isSubmitDisabled = ({
 	videoConfigIndexSelection,
 	enableConvert,
 	enableRotateOrMirror,
+	enableTrim,
 }: {
 	supportedConfigs: SupportedConfigs | null;
 	audioConfigIndexSelection: Record<number, string>;
 	videoConfigIndexSelection: Record<number, string>;
 	enableConvert: boolean;
 	enableRotateOrMirror: RotateOrMirrorOrCropState;
+	enableTrim: boolean;
 }) => {
 	if (!supportedConfigs) {
 		return true;
 	}
 
-	const allActionsDisabled = !enableConvert && enableRotateOrMirror === null;
+	const allActionsDisabled =
+		!enableConvert && enableRotateOrMirror === null && !enableTrim;
 
 	if (allActionsDisabled) {
 		return true;
@@ -42,5 +45,5 @@ export const isSubmitDisabled = ({
 			enableConvert,
 		});
 
-	return !(isRotatingOrMirroring || isConverting);
+	return !(isRotatingOrMirroring || isConverting || enableTrim);
 };

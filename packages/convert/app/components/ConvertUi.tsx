@@ -61,7 +61,12 @@ const ConvertUI = ({
 	tracks,
 	setSrc,
 	durationInSeconds,
+	fps,
 	action,
+	trim,
+	setTrim,
+	trimInFrame,
+	trimOutFrame,
 	enableRotateOrMirror,
 	setEnableRotateOrMirror,
 	userRotation,
@@ -87,9 +92,14 @@ const ConvertUI = ({
 	readonly videoThumbnailRef: React.RefObject<VideoThumbnailRef | null>;
 	readonly dimensions: Dimensions | null | undefined;
 	readonly durationInSeconds: number | null;
+	readonly fps: number | null | undefined;
 	readonly rotation: number | null;
 	readonly inputContainer: InputFormat;
 	readonly action: RouteAction;
+	readonly trim: boolean;
+	readonly setTrim: React.Dispatch<React.SetStateAction<boolean>>;
+	readonly trimInFrame: number | null;
+	readonly trimOutFrame: number | null;
 	readonly name: string;
 	readonly input: Input;
 	readonly enableRotateOrMirror: RotateOrMirrorOrCropState;
@@ -252,6 +262,16 @@ const ConvertUI = ({
 				const conversion = await Conversion.init({
 					input,
 					output,
+					trim:
+						trim && fps
+							? {
+									start: trimInFrame === null ? undefined : trimInFrame / fps,
+									end:
+										trimOutFrame === null
+											? undefined
+											: (trimOutFrame + 1) / fps,
+								}
+							: undefined,
 					video: (videoTrack) => {
 						const operation = getActualVideoOperation({
 							enableConvert,
@@ -423,6 +443,10 @@ const ConvertUI = ({
 		outputContainer,
 		resizeOperation,
 		supportedConfigs,
+		fps,
+		trim,
+		trimInFrame,
+		trimOutFrame,
 		userRotation,
 		videoOperationSelection,
 		crop,
@@ -586,6 +610,7 @@ const ConvertUI = ({
 		videoConfigIndexSelection: videoOperationSelection,
 		enableConvert,
 		enableRotateOrMirror,
+		enableTrim: trim,
 	});
 
 	const canPixelManipulate = canRotateOrMirror({
@@ -712,6 +737,22 @@ const ConvertUI = ({
 								{crop ? (
 									<div className="text-gray-700 text-sm mt-2">
 										Use the handles above to crop the video.
+									</div>
+								) : null}
+							</div>
+						);
+					}
+
+					if (section === 'trim') {
+						return (
+							<div key="trim">
+								<ConvertUiSection active={trim} setActive={setTrim}>
+									Trim
+								</ConvertUiSection>
+								{trim ? (
+									<div className="text-gray-700 text-sm mt-2">
+										Use the handles below the player to choose the start and end
+										of the video.
 									</div>
 								) : null}
 							</div>

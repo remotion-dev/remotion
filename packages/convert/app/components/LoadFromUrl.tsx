@@ -57,7 +57,7 @@ export const LoadFromUrl: React.FC = () => {
 	return (
 		<>
 			<RemotionButton
-				className="font-brand text-brand rounded-full text-sm h-10"
+				className="font-brand text-black rounded-full text-sm h-10"
 				onClick={onOpenUrl}
 			>
 				Load from URL
