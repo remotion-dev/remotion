@@ -229,7 +229,11 @@ export const getFrameIncrementFromWidth = (
 	durationInFrames: number,
 	width: number,
 ) => {
-	return (width - TIMELINE_PADDING * 2) / durationInFrames;
+	return getUsableTimelineWidth(width) / durationInFrames;
+};
+
+const getUsableTimelineWidth = (width: number) => {
+	return Math.max(1, width - TIMELINE_PADDING * 2);
 };
 
 export const getFrameWhileScrollingRight = ({
@@ -272,7 +276,7 @@ export const getFrameFromX = ({
 		Math.round(
 			interpolate(
 				pos,
-				[0, width - TIMELINE_PADDING * 2],
+				[0, getUsableTimelineWidth(width)],
 				[0, durationInFrames],
 				{
 					extrapolateLeft: extrapolate,
