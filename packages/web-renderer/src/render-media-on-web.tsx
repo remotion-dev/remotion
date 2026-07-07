@@ -35,6 +35,11 @@ import {
 	type WebRendererVideoCodec,
 } from './mediabunny-mappings';
 import type {WebRendererOutputTarget} from './output-target';
+import {
+	createPageResponsivenessController,
+	resolvePageResponsivenessInterval,
+	type WebRendererPageResponsiveness,
+} from './page-responsiveness';
 import type {CompositionCalculateMetadataOrExplicit} from './props-if-has-props';
 import {onlyOneRenderAtATimeQueue} from './render-operations-queue';
 import {resolveAudioCodec} from './resolve-audio-codec';
@@ -126,6 +131,7 @@ type OptionalRenderMediaOnWebOptions<Schema extends $ZodObject> = {
 	transparent: boolean;
 	onArtifact: WebRendererOnArtifact | null;
 	onFrame: OnFrameCallback | null;
+	pageResponsiveness: WebRendererPageResponsiveness;
 	outputTarget: WebRendererOutputTarget | null;
 	licenseKey: string | null;
 	isProduction: boolean;
@@ -175,6 +181,7 @@ const internalRenderMediaOnWeb = async <
 	transparent,
 	onArtifact,
 	onFrame,
+	pageResponsiveness,
 	outputTarget: userDesiredOutputTarget,
 	licenseKey,
 	muted,
@@ -187,6 +194,8 @@ const internalRenderMediaOnWeb = async <
 	Props
 >): Promise<RenderMediaOnWebResult> => {
 	validateScale(scale);
+	const pageResponsivenessIntervalInMilliseconds =
+		resolvePageResponsivenessInterval(pageResponsiveness);
 
 	let htmlInCanvasLayerOutcomeReported = false;
 	const onHtmlInCanvasLayerOutcome = (outcome: HtmlInCanvasLayerOutcome) => {
@@ -359,6 +368,14 @@ const internalRenderMediaOnWeb = async <
 	}
 
 	using internalState = makeInternalState();
+	const pageResponsivenessController = createPageResponsivenessController({
+		intervalInMilliseconds: pageResponsivenessIntervalInMilliseconds,
+		now: () => performance.now(),
+		wait: () =>
+			new Promise<void>((resolve) => {
+				setTimeout(resolve, 0);
+			}),
+	});
 
 	using keepalive = createBackgroundKeepalive({
 		fps: resolved.fps,
@@ -625,6 +642,12 @@ const internalRenderMediaOnWeb = async <
 			if (signal?.aborted) {
 				throw new Error('renderMediaOnWeb() was cancelled');
 			}
+
+			await pageResponsivenessController.waitIfNeeded();
+
+			if (signal?.aborted) {
+				throw new Error('renderMediaOnWeb() was cancelled');
+			}
 		}
 
 		// Call progress one final time to ensure final state is reported
@@ -736,6 +759,7 @@ export const renderMediaOnWeb = <
 				transparent: options.transparent ?? false,
 				onArtifact: options.onArtifact ?? null,
 				onFrame: options.onFrame ?? null,
+				pageResponsiveness: options.pageResponsiveness ?? 'disabled',
 				outputTarget: options.outputTarget ?? null,
 				licenseKey: options.licenseKey ?? null,
 				muted: options.muted ?? false,

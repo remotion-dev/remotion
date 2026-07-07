@@ -120,6 +120,23 @@ const onProgress: RenderMediaOnWebProgressCallback = ({
 };
 ```
 
+### `pageResponsiveness?`<AvailableFrom v="4.0.487" />
+
+_string | number_ <TsType type="WebRendererPageResponsiveness" source="@remotion/web-renderer" href="/docs/web-renderer/types#webrendererpageresponsiveness" />
+
+Controls whether rendering intentionally pauses between frames so the page stays responsive.
+
+Default is `"disabled"`, which prioritizes render speed.
+
+- `"disabled"`: Do not pause rendering.
+- `"low"`: Pause after at least `100ms` of rendering work.
+- `"medium"`: Pause after at least `33ms` of rendering work.
+- `"high"`: Pause after at least `16ms` of rendering work.
+
+Pass a positive number to customize the interval in milliseconds.
+
+This option is best effort. If one frame takes a long time to render, the page cannot update until that frame has finished.
+
 ### `videoBitrate?`
 
 _number | string_ <TsType type="WebRendererQuality" source="@remotion/web-renderer" href="/docs/web-renderer/types#webrendererquality" />

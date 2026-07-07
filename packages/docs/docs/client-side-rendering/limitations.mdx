@@ -196,6 +196,13 @@ There is no multithreading for client-side rendering.
 However, it is fundamentally more efficient because there is less interprocess communication.  
 In addition, in the headful browser, GPU is usually available, which brings performance benefits.
 
+## Page responsiveness
+
+By default, [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web) prioritizes render speed.
+Pass [`pageResponsiveness`](/docs/web-renderer/render-media-on-web#pageresponsiveness) to intentionally pause between frames and keep the page more responsive.
+
+Higher responsiveness settings make renders slower.
+
 ## Background tabs
 
 When the browser tab running the render is moved to the background, browsers throttle `requestAnimationFrame` to conserve resources. This could cause rendering to pause or slow down significantly.
