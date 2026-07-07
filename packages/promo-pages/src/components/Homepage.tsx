@@ -47,7 +47,7 @@ export const NewLanding: React.FC<{
 							<MakeVideosProgrammatically
 								links={[
 									{label: 'API Docs', href: '/docs/api'},
-									{label: 'Resources', href: '/docs/api'},
+									{label: 'Resources', href: '/docs/resources'},
 								]}
 							/>
 						</div>
