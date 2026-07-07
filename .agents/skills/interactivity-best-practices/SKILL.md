@@ -10,3 +10,12 @@ Use the canonical interactivity best-practices page instead:
 
 To make an element or custom component interactive, use:
 [packages/docs/docs/studio/make-component-interactive.mdx](../../../packages/docs/docs/studio/make-component-interactive.mdx)
+
+When applying this skill, do not stop after wrapping elements in `Interactive.*`.
+Also enforce the practices that keep Studio values editable:
+
+- Give editable elements and components a descriptive `name`.
+- Keep editable and keyframed values inline at the JSX prop the Studio edits.
+- Use `style.translate`, `style.scale`, `style.rotate`, `style.transformOrigin` and `style.opacity` directly.
+- Replace `transform` strings such as `` `scale(${value})` `` with individual style props.
+- Use `translate` for animated movement and canvas dragging. Keep `top`, `left`, `right` and `bottom` for static anchoring.

@@ -10,6 +10,17 @@ Write editable Remotion components so the [Studio interactivity](/docs/studio/in
 
 When a value is shown as computed in the Studio, it often means that the value is hidden behind a variable, helper function, conditional expression or transform string.
 
+## Quick checklist {#quick-checklist}
+
+When converting a component for Studio interactivity, apply all of these rules together:
+
+- Use `Interactive.*` for editable HTML or SVG elements, or [`Interactive.withSchema()`](/docs/interactive-with-schema) for custom components.
+- Add a descriptive `name` prop to the editable element or custom component.
+- Keep every editable or keyframed value inline at the JSX prop that the Studio edits.
+- Use Studio-editable style props such as `translate`, `scale`, `rotate`, `transformOrigin` and `opacity` instead of hiding values in a `transform` string.
+- Use `translate` for animated movement and canvas dragging. Keep `top`, `left`, `right` and `bottom` for static anchoring.
+- Keep `<Composition>` metadata and `defaultProps` inline unless the value is truly dynamic.
+
 ## Use `Interactive.*` for tweakable elements {#use-interactive-for-tweakable-elements}
 
 Use the [`Interactive`](/docs/interactive) namespace when an HTML or SVG element should be selected, moved or edited in the Studio.
@@ -47,6 +58,9 @@ The name is shown in the Studio timeline and helps agents identify the correct e
 Put values that should be edited in the Studio directly into the JSX.
 This applies to static style values, keyframes, easing and transform props.
 
+If the Studio should expose a property such as `opacity`, `translate`, `scale` or `rotate`, keep the `interpolate()` call on that exact style property.
+Do not calculate the value in a local variable and pass the variable into `style`.
+
 ```tsx title="Inline values"
 // 👍 Inline values can be standardized and keyframed
 <Interactive.Div
@@ -80,8 +94,43 @@ const rotation = interpolate(frame, [0, 30], [0, 20]);
 Use standalone [`spring()`](/docs/spring) only when the animation needs a frame-driven physical spring simulation.
 Use individual CSS transform properties such as `scale`, `rotate` and `translate` instead of composing a `transform` string.
 
+```tsx title="Animated position"
+// 👍 Motion, opacity and scale are visible to the Studio
+<Interactive.Div
+  name="Prompt bubble"
+  style={{
+    position: 'absolute',
+    right: 56,
+    top: 96,
+    opacity: interpolate(frame, [0, 20], [0, 1]),
+    translate: interpolate(frame, [0, 20], ['0px 32px', '0px 0px']),
+    scale: interpolate(frame, [0, 20], [0.92, 1]),
+    transformOrigin: '100% 100%',
+  }}
+/>
+
+// 👎 The Studio sees computed values instead of editable props
+const promptBubbleTop = interpolate(frame, [0, 20], [128, 96]);
+const promptBubbleOpacity = interpolate(frame, [0, 20], [0, 1]);
+const promptBubbleScale = interpolate(frame, [0, 20], [0.92, 1]);
+
+<Interactive.Div
+  style={{
+    position: 'absolute',
+    right: 56,
+    top: promptBubbleTop,
+    opacity: promptBubbleOpacity,
+    transform: `scale(${promptBubbleScale})`,
+    transformOrigin: '100% 100%',
+  }}
+/>
+```
+
+Use `top`, `left`, `right` and `bottom` for static layout anchors.
+When the value changes over time or should be draggable/keyframable in the Studio, put the moving part into `translate`.
+
 ```txt title="Prompt"
-/remotion-best-practices Fix computed values in Remotion Studio. Follow https://www.remotion.dev/docs/studio/interactivity-best-practices#keep-editable-values-visible. Move editable values into the JSX style object, keep interpolate() keyframes inline, use Easing.spring() as easing, and replace transform strings with scale/rotate/translate.
+/remotion-best-practices Fix computed values in Remotion Studio. Follow https://www.remotion.dev/docs/studio/interactivity-best-practices#keep-editable-values-visible. Move editable values into the JSX style object, keep interpolate() keyframes inline, inline opacity/scale/rotate/translate values, use Easing.spring() as easing, replace transform strings with scale/rotate/translate, and use translate instead of animated top/left/right/bottom.
 ```
 
 ## Keep composition metadata inline {#keep-composition-metadata-inline}
