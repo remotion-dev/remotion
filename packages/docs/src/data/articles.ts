@@ -8069,6 +8069,15 @@ export const articles = [
 		slug: 'web-renderer/index',
 	},
 	{
+		id: 'page-responsiveness',
+		title: 'Page responsiveness',
+		relativePath: 'docs/web-renderer/page-responsiveness.mdx',
+		compId: 'articles-docs-web-renderer-page-responsiveness',
+		crumb: '@remotion/web-renderer',
+		noAi: false,
+		slug: 'web-renderer/page-responsiveness',
+	},
+	{
 		id: 'render-media-on-web',
 		title: 'renderMediaOnWeb()',
 		relativePath: 'docs/web-renderer/render-media-on-web.mdx',

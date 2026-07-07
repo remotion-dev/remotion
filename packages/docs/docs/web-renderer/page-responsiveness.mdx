@@ -1,0 +1,119 @@
+---
+image: /generated/articles-docs-web-renderer-page-responsiveness.png
+id: page-responsiveness
+title: Page responsiveness
+crumb: '@remotion/web-renderer'
+---
+
+# Page responsiveness<AvailableFrom v="4.0.487" />
+
+:::warning
+Experimental feature - expect bugs and breaking changes at any time.  
+[Track progress on GitHub](https://github.com/remotion-dev/remotion/issues/5913) and discuss in the [`#web-renderer`](https://remotion.dev/discord) channel on Discord.
+:::
+
+The Web Renderer runs in the same browser tab as the page that starts the render.
+
+A render can do expensive synchronous work.
+Capturing one frame can involve measuring layout, walking the DOM, capturing elements and textures and drawing them to a canvas.
+While this work is running, the browser may not be able to paint updates or react to clicks.
+
+Page responsiveness controls how often Remotion intentionally pauses between expensive render phases so the browser can update the page.
+
+## Default behavior
+
+By default, [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web) uses `"medium"` page responsiveness.
+This means Remotion pauses after at least `33ms` of rendering work.
+
+The default favors an interactive page: progress indicators update more regularly, buttons remain easier to click and the tab feels less blocked.
+
+The tradeoff is render speed. Pausing gives the browser time to work, so a render may finish later than if page responsiveness is disabled.
+
+## Changing the setting
+
+Pass [`pageResponsiveness`](/docs/web-renderer/render-media-on-web#pageresponsiveness) to [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web).
+
+```tsx twoslash title="render.tsx"
+import {renderMediaOnWeb} from '@remotion/web-renderer';
+
+const Component: React.FC = () => null;
+
+await renderMediaOnWeb({
+  composition: {
+    id: 'my-composition',
+    component: Component,
+    durationInFrames: 100,
+    fps: 30,
+    width: 1920,
+    height: 1080,
+  },
+  pageResponsiveness: 'high',
+});
+```
+
+## Available values
+
+### `"disabled"`
+
+Do not pause rendering for page responsiveness.
+This prioritizes render speed, but can make the page less responsive.
+
+Use this when the page does not need to stay interactive while the render runs.
+
+### `"low"`
+
+Pause after at least `100ms` of rendering work.
+
+Use this if render speed matters more than immediate page updates, but the page should not feel fully blocked.
+
+### `"medium"`
+
+Pause after at least `33ms` of rendering work.
+
+This is the default.
+
+### `"high"`
+
+Pause after at least `16ms` of rendering work.
+
+Use this when keeping the page responsive matters more than finishing the render as fast as possible.
+
+### Number
+
+Pass a positive number to set the interval in milliseconds.
+
+```tsx twoslash title="render.tsx"
+import {renderMediaOnWeb} from '@remotion/web-renderer';
+
+const Component: React.FC = () => null;
+
+await renderMediaOnWeb({
+  composition: {
+    id: 'my-composition',
+    component: Component,
+    durationInFrames: 100,
+    fps: 30,
+    width: 1920,
+    height: 1080,
+  },
+  pageResponsiveness: 50,
+});
+```
+
+## In Remotion Studio
+
+When rendering with the Web Renderer in Remotion Studio, the render modal exposes a **Page Responsiveness** setting in the **Other** tab.
+The default is **Medium**.
+
+## Limitations
+
+This option is best effort.
+Remotion pauses between safe points in the render pipeline, but it cannot interrupt a single long synchronous browser or graphics operation.
+
+If one frame contains especially expensive work, the page may still be blocked until that operation finishes.
+
+## See also
+
+- [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web)
+- [Client-side rendering limitations](/docs/client-side-rendering/limitations)
+- [How client-side rendering works](/docs/client-side-rendering/how-it-works)
