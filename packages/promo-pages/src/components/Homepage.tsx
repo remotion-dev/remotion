@@ -18,7 +18,7 @@ import {BuiltWithRemotionShowcase} from './homepage/VideoAppsShowcase';
 import {SectionTitle} from './homepage/VideoAppsTitle';
 import {WriteInReact} from './homepage/WriteInReact';
 
-const makeVideosRowClassName = 'flex flex-col lg:flex-row gap-10';
+const makeVideosRowClassName = 'mt-4 md:mt-6 flex flex-col lg:flex-row gap-10';
 
 export const NewLanding: React.FC<{
 	readonly colorMode: ColorMode;
