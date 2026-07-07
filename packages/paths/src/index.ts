@@ -2,6 +2,7 @@ import {cutPath} from './cut-path';
 import {debugPath} from './debug-path';
 import {getBoundingBoxFromInstructions} from './get-bounding-box';
 
+export {centerPath, type CenterPathTarget} from './center-path';
 export {cutPath} from './cut-path';
 export {evolvePath} from './evolve-path';
 export {extendViewBox} from './extend-viewbox';

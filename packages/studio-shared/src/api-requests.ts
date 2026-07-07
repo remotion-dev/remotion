@@ -298,15 +298,34 @@ export type UnsubscribeFromSequencePropsRequest = {
 	effectKeys: string[][];
 };
 
-export type SerializedSequencePropValue = string;
+export type GoogleFontSourceEdit = {
+	fontFamily: string;
+	importName: string;
+	style: string;
+	weights: string[];
+	subsets: string[];
+};
+
+export type SaveSequencePropSourceEdit = {
+	type: 'google-font';
+	font: GoogleFontSourceEdit;
+};
 
 export type SaveSequencePropEdit = {
 	fileName: string;
 	nodePath: SequencePropsSubscriptionKey;
 	key: string;
-	value: SerializedSequencePropValue;
+	value:
+		| {
+				type: 'json';
+				serialized: string;
+		  }
+		| {
+				type: 'undefined';
+		  };
 	defaultValue: string | null;
 	schema: InteractivitySchema;
+	sourceEdit: SaveSequencePropSourceEdit | null;
 };
 
 export type SaveSequencePropsRequest = {

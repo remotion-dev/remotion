@@ -179,6 +179,11 @@ test('getFieldsToShow sorts fields by inspector group order', () => {
 				type: 'color',
 				default: undefined,
 			},
+			'style.fontFamily': {
+				type: 'font-family',
+				default: undefined,
+				keyframable: false,
+			},
 			'style.rotate': {
 				type: 'rotation-css',
 				default: '0deg',
@@ -221,6 +226,7 @@ test('getFieldsToShow sorts fields by inspector group order', () => {
 		'style.opacity',
 		'style.fontSize',
 		'style.color',
+		'style.fontFamily',
 		'style.letterSpacing',
 		'style.textAlign',
 	]);
@@ -230,6 +236,7 @@ test('getFieldsToShow sorts fields by inspector group order', () => {
 		'transforms',
 		'transforms',
 		'transforms',
+		'text',
 		'text',
 		'text',
 		'text',

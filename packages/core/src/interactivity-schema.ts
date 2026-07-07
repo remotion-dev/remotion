@@ -101,6 +101,13 @@ export type TextContentFieldSchema = {
 	keyframable?: false;
 };
 
+export type FontFamilyFieldSchema = {
+	type: 'font-family';
+	default: string | undefined;
+	description?: string;
+	keyframable?: false;
+};
+
 export type EnumFieldSchema = {
 	type: 'enum';
 	default: string;
@@ -181,6 +188,7 @@ export type VisibleFieldSchema =
 	| UvCoordinateFieldSchema
 	| ColorFieldSchema
 	| TextContentFieldSchema
+	| FontFamilyFieldSchema
 	| ArrayFieldSchema
 	| EnumFieldSchema;
 
@@ -235,6 +243,12 @@ export const textSchema = {
 		type: 'color',
 		default: undefined,
 		description: 'Color',
+	},
+	'style.fontFamily': {
+		type: 'font-family',
+		default: undefined,
+		description: 'Font family',
+		keyframable: false,
 	},
 	'style.fontSize': {
 		type: 'number',

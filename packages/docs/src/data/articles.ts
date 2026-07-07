@@ -4790,6 +4790,15 @@ export const articles = [
 		slug: 'passing-props',
 	},
 	{
+		id: 'paths/center-path',
+		title: 'centerPath()',
+		relativePath: 'docs/paths/center-path.mdx',
+		compId: 'articles-docs-paths-center-path',
+		crumb: '@remotion/paths',
+		noAi: false,
+		slug: 'paths/center-path',
+	},
+	{
 		id: 'paths/cut-path',
 		title: 'cutPath()',
 		relativePath: 'docs/paths/cut-path.mdx',
