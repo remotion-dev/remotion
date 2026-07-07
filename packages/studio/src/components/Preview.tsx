@@ -239,6 +239,8 @@ const CompWhenItHasDimensions: React.FC<{
 				yCorrection={yCorrection}
 			/>
 			<SelectedOutlineOverlay
+				compositionHeight={(contentDimensions as Dimensions).height}
+				compositionWidth={(contentDimensions as Dimensions).width}
 				scale={scale}
 				translationX={previewSize.translation.x}
 				translationY={previewSize.translation.y}
