@@ -13,6 +13,7 @@ export const handleTextNode = async ({
 	rootElement,
 	onlyBackgroundClipText,
 	scale,
+	waitForPageResponsiveness,
 }: {
 	node: Text;
 	context: OffscreenCanvasRenderingContext2D;
@@ -22,6 +23,7 @@ export const handleTextNode = async ({
 	rootElement: HTMLElement | SVGElement;
 	onlyBackgroundClipText: boolean;
 	scale: number;
+	waitForPageResponsiveness: (() => Promise<void>) | null;
 }): Promise<ProcessNodeReturnValue> => {
 	const span = document.createElement('span');
 
@@ -42,6 +44,7 @@ export const handleTextNode = async ({
 		internalState,
 		rootElement,
 		scale,
+		waitForPageResponsiveness,
 	});
 
 	// Undo the layout manipulation
