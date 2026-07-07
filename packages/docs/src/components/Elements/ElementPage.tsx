@@ -3,7 +3,7 @@ import {
 	type ComponentDimensions,
 } from '@remotion/studio-shared';
 import React, {useMemo, type ComponentType, type ReactNode} from 'react';
-import {Sequence} from 'remotion';
+import {AbsoluteFill, Sequence} from 'remotion';
 import {setElementDragData, setElementDragImage} from './element-drag-data';
 import {ElementPreview} from './ElementPreview';
 
@@ -16,6 +16,7 @@ type ElementPageProps = {
 	readonly elementWidth?: number;
 	readonly fps?: number;
 	readonly height?: number;
+	readonly previewPadding?: number;
 	readonly slug?: string;
 	readonly sourceCode?: string;
 	readonly width?: number;
@@ -44,10 +45,22 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 	elementWidth,
 	fps = 30,
 	height = 1080,
+	previewPadding = 0,
 	slug,
 	sourceCode,
 	width = 1920,
 }) => {
+	const hasElementDimensions =
+		elementWidth !== undefined && elementHeight !== undefined;
+	const previewWidth =
+		hasElementDimensions && previewPadding > 0
+			? elementWidth + previewPadding * 2
+			: width;
+	const previewHeight =
+		hasElementDimensions && previewPadding > 0
+			? elementHeight + previewPadding * 2
+			: height;
+
 	const dragData = useMemo(() => {
 		if (
 			!slug ||
@@ -73,20 +86,49 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 	}, [displayName, elementHeight, elementWidth, slug, sourceCode]);
 
 	const PreviewComponent = useMemo(() => {
-		if (elementWidth === undefined || elementHeight === undefined) {
+		if (!hasElementDimensions) {
 			return component;
 		}
 
 		const Component = component;
 
 		return () => {
+			if (previewPadding > 0) {
+				return (
+					<AbsoluteFill
+						style={{
+							alignItems: 'center',
+							justifyContent: 'center',
+						}}
+					>
+						<Sequence height={elementHeight} layout="none" width={elementWidth}>
+							<div
+								style={{
+									height: elementHeight,
+									position: 'relative',
+									width: elementWidth,
+								}}
+							>
+								<Component />
+							</div>
+						</Sequence>
+					</AbsoluteFill>
+				);
+			}
+
 			return (
 				<Sequence height={elementHeight} width={elementWidth}>
 					<Component />
 				</Sequence>
 			);
 		};
-	}, [component, elementHeight, elementWidth]);
+	}, [
+		component,
+		elementHeight,
+		elementWidth,
+		hasElementDimensions,
+		previewPadding,
+	]);
 
 	return (
 		<>
@@ -95,8 +137,8 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 				component={PreviewComponent}
 				durationInFrames={durationInFrames}
 				fps={fps}
-				height={height}
-				width={width}
+				height={previewHeight}
+				width={previewWidth}
 			/>
 
 			<h2>Use it</h2>
