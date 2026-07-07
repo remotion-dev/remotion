@@ -76,24 +76,28 @@ export const FileAvailable: React.FC<{
 			<div>
 				<BackButton setSrc={setSrc} />
 				<div className="h-4" />
-				<VideoPlayer
-					src={src}
-					isAudio={isAudio}
-					waveform={waveform}
-					crop={enableRotateOrMirrow === 'crop'}
-					trim={enableTrim}
-					trimInFrame={trimInFrame}
-					trimOutFrame={trimOutFrame}
-					setTrimInFrame={setTrimInFrame}
-					setTrimOutFrame={setTrimOutFrame}
-					setUnclampedRect={setCropOperation}
-					unclampedRect={cropOperation}
-					dimensions={probeResult.dimensions}
-					durationInSeconds={probeResult.durationInSeconds}
-					fps={probeResult.fps}
-					onPlaybackTimeChange={setPlaybackTime}
-				/>
-				<div className="h-8" />
+				{probeResult.error ? null : (
+					<>
+						<VideoPlayer
+							src={src}
+							isAudio={isAudio}
+							waveform={waveform}
+							crop={enableRotateOrMirrow === 'crop'}
+							trim={enableTrim}
+							trimInFrame={trimInFrame}
+							trimOutFrame={trimOutFrame}
+							setTrimInFrame={setTrimInFrame}
+							setTrimOutFrame={setTrimOutFrame}
+							setUnclampedRect={setCropOperation}
+							unclampedRect={cropOperation}
+							dimensions={probeResult.dimensions}
+							durationInSeconds={probeResult.durationInSeconds}
+							fps={probeResult.fps}
+							onPlaybackTimeChange={setPlaybackTime}
+						/>
+						<div className="h-8" />
+					</>
+				)}
 				<div className="lg:inline-flex lg:flex-row items-start">
 					<Probe
 						isAudio={isAudio}

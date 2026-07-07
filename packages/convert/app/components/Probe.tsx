@@ -125,6 +125,7 @@ export const Probe: React.FC<{
 	const images = useMemo(() => {
 		return metadata?.images ?? null;
 	}, [metadata]);
+	const canShowDetails = !error;
 
 	return (
 		<div
@@ -163,18 +164,20 @@ export const Probe: React.FC<{
 								{error.message}
 							</CardDescription>
 						) : null}
-						<CardDescription
-							className={clsx('mt-0! truncate', styles['fade-in'])}
-						>
-							{done ? (
-								<SourceLabel src={src} />
-							) : (
-								<span id="not-done">0% read</span>
-							)}
-						</CardDescription>
+						{canShowDetails ? (
+							<CardDescription
+								className={clsx('mt-0! truncate', styles['fade-in'])}
+							>
+								{done ? (
+									<SourceLabel src={src} />
+								) : (
+									<span id="not-done">0% read</span>
+								)}
+							</CardDescription>
+						) : null}
 					</CardHeader>
 				</div>
-				{showPackets ? (
+				{canShowDetails && showPackets ? (
 					<div className="pr-6 border-b-2 border-black overflow-y-auto">
 						<Button variant="link" onClick={() => setShowPackets(false)}>
 							<svg
@@ -191,7 +194,7 @@ export const Probe: React.FC<{
 							Track {selectedTrack?.id} Packets
 						</Button>
 					</div>
-				) : sortedTracks.length && probeDetails ? (
+				) : canShowDetails && sortedTracks.length && probeDetails ? (
 					<div className="pr-6 border-b-2 border-black overflow-y-auto">
 						<TrackSwitcher
 							selectedTrack={trackDetails}
@@ -202,7 +205,7 @@ export const Probe: React.FC<{
 						/>
 					</div>
 				) : null}
-				{isNarrow ? null : (
+				{canShowDetails && !isNarrow ? (
 					<>
 						<ScrollArea height={300} className="flex-1">
 							{selectedTrack === null ? (
@@ -235,17 +238,19 @@ export const Probe: React.FC<{
 						</ScrollArea>
 						<Separator orientation="horizontal" />
 					</>
-				)}
-				<div className="flex flex-row items-center justify-center">
-					<Button
-						className="w-full h-full hover:bg-slate-100 transition-colors"
-						disabled={!tracks}
-						variant="ghost"
-						onClick={onClick}
-					>
-						{probeDetails ? 'Hide details' : 'Show details'}
-					</Button>
-				</div>
+				) : null}
+				{canShowDetails ? (
+					<div className="flex flex-row items-center justify-center">
+						<Button
+							className="w-full h-full hover:bg-slate-100 transition-colors"
+							disabled={!tracks}
+							variant="ghost"
+							onClick={onClick}
+						>
+							{probeDetails ? 'Hide details' : 'Show details'}
+						</Button>
+					</div>
+				) : null}
 			</Card>
 		</div>
 	);
