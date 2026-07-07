@@ -1,6 +1,6 @@
 ---
 name: homepage-video-assets
-description: Use when rendering or replacing Remotion homepage creator strip videos, especially transparent Chrome WebM and Safari MOV assets copied into both promo-pages and docs.
+description: Use when rendering or replacing Remotion homepage creator strip videos, especially transparent Chrome WebM and Safari MP4 assets copied into both promo-pages and docs.
 ---
 
 # Homepage Video Assets
@@ -39,37 +39,36 @@ ffmpeg -y -i /tmp/<asset>-master.mov \
   -an /tmp/<chrome-name>.webm
 ```
 
-Safari MOV:
+Safari MP4:
 
 ```bash
 ffmpeg -y -i /tmp/<asset>-master.mov \
   -vf scale=540:540 \
-  -c:v prores_ks \
-  -profile:v 4 \
-  -pix_fmt yuva444p10le \
-  -an /tmp/<safari-name>.mov
+  -c:v hevc_videotoolbox \
+  -tag:v hvc1 \
+  -an /tmp/<safari-name>.mp4
 ```
 
 3. Copy both outputs into both app folders:
 
 ```bash
 cp /tmp/<chrome-name>.webm ../promo-pages/public/img/<chrome-name>.webm
-cp /tmp/<safari-name>.mov ../promo-pages/public/img/<safari-name>.mov
+cp /tmp/<safari-name>.mp4 ../promo-pages/public/img/<safari-name>.mp4
 cp /tmp/<chrome-name>.webm ../docs/static/img/<chrome-name>.webm
-cp /tmp/<safari-name>.mov ../docs/static/img/<safari-name>.mov
+cp /tmp/<safari-name>.mp4 ../docs/static/img/<safari-name>.mp4
 ```
 
 ## Verification
 
-Verify the ProRes master and Safari MOV have real alpha:
+Verify the ProRes master has real alpha before converting, and verify the Safari MP4 exists in both folders:
 
 ```bash
 ffmpeg -i /tmp/<asset>-master.mov
-ffmpeg -i ../promo-pages/public/img/<safari-name>.mov
-ffmpeg -y -i ../promo-pages/public/img/<safari-name>.mov \
+ffmpeg -i ../promo-pages/public/img/<safari-name>.mp4
+ffmpeg -y -i /tmp/<asset>-master.mov \
   -vf alphaextract -frames:v 1 /tmp/<asset>-alpha.png
 ```
 
-The MOV should report `prores (4444)` and a `yuva...` pixel format. `alphaextract` should succeed, and the alpha image should not be fully opaque. A common failure mode is `alphaextract` succeeding but every sampled pixel is opaque; in that case, the master was rendered with a black/opaque background or a stale opaque master was reused.
+The master should report `prores (4444)` and a `yuva...` pixel format. `alphaextract` should succeed, and the alpha image should not be fully opaque. A common failure mode is `alphaextract` succeeding but every sampled pixel is opaque; in that case, the master was rendered with a black/opaque background or a stale opaque master was reused.
 
-Do not use HEVC for these Safari fallbacks unless you can verify actual alpha playback in Safari. Local `hevc_videotoolbox`/`avconvert` can produce plain `hvc1 yuv420p` and silently drop alpha.
+Do not add ProRes `.mov` files to the homepage PR; they are too large. Safari should use the small `.mp4` fallback. Chrome should use the transparent `.webm`.
