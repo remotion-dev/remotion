@@ -4,4 +4,5 @@ const config = remotionFlatConfig({react: true});
 
 export default {
 	...config,
+	ignores: [...(config.ignores ?? []), 'src/HomepageAssets/**'],
 };

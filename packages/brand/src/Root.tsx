@@ -17,6 +17,7 @@ import {
 	whatIsRemotionCalculateMetadata,
 	whatIsRemotionSchema,
 } from './Compose/WhatIsRemotion';
+import {DesignSystems} from './DesignSystems';
 import {
 	DocsPagesShowcase,
 	INSTAGRAM_POST_HEIGHT,
@@ -53,6 +54,21 @@ import {
 	zigzagLinearBlurShowcaseDurationInFrames,
 } from './effects/ZigzagLinearBlurShowcase';
 import {EmailSignature} from './EmailSignature';
+import {CodingPrompt} from './HomepageAssets/CodingPrompt';
+import {FolderTreeComposition} from './HomepageAssets/FolderTree';
+import {Map} from './HomepageAssets/Map';
+import {
+	HomepageAssetMaster,
+	homepageAssetMasterDurationInFrames,
+} from './HomepageAssets/Master';
+import {NpmIniVideo} from './HomepageAssets/NpmInitVideo/NpmInitVideo';
+import {RemotionTriangleComposition} from './HomepageAssets/RemotionTriangle';
+import {
+	OuterRenderProgress,
+	renderProgressDurationInFrames,
+} from './HomepageAssets/RenderProgress';
+import {OuterStudio, studioDurationInFrames} from './HomepageAssets/Studio';
+import {TemplateRecorderEndcardComposition} from './HomepageAssets/TemplateRecorderEndcard';
 import './index.css';
 import {Logo} from './Logo';
 import {LogoCollab, logoCollabSchema} from './LogoCollab/LogoCollab';
@@ -140,16 +156,78 @@ export const RemotionRoot: React.FC = () => {
 					}}
 				/>
 			</Folder>
-			<Composition
-				id="WhatIsRemotion"
-				component={WhatIsRemotion}
-				width={1080}
-				fps={30}
-				durationInFrames={273}
-				schema={whatIsRemotionSchema}
-				defaultProps={{fade: false, whiteBackground: false, reel: false}}
-				calculateMetadata={whatIsRemotionCalculateMetadata}
-			/>
+			<Folder name="homepage-assets">
+				<Composition
+					id="NpmInitVideo"
+					component={NpmIniVideo}
+					durationInFrames={600}
+					fps={30}
+					width={1920}
+					height={1080}
+				/>
+				<Composition
+					id="RenderProgress"
+					component={OuterRenderProgress}
+					durationInFrames={renderProgressDurationInFrames}
+					fps={30}
+					width={1080}
+					height={1080}
+				/>
+				<Composition
+					id="Studio"
+					component={OuterStudio}
+					durationInFrames={studioDurationInFrames}
+					fps={25}
+					width={1080}
+					height={1080}
+				/>
+				<FolderTreeComposition />
+				<RemotionTriangleComposition />
+				<TemplateRecorderEndcardComposition />
+				<Composition
+					id="coding-prompt"
+					component={CodingPrompt}
+					durationInFrames={120}
+					fps={30}
+					width={1920}
+					height={1080}
+				/>
+				<Composition
+					id="map"
+					component={Map}
+					durationInFrames={120}
+					fps={30}
+					width={1920}
+					height={1080}
+				/>
+				<Composition
+					id="homepage-assets-master"
+					component={HomepageAssetMaster}
+					durationInFrames={homepageAssetMasterDurationInFrames}
+					fps={30}
+					width={1080}
+					height={1080}
+				/>
+				<Composition
+					id="WhatIsRemotion"
+					component={WhatIsRemotion}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={273}
+					schema={whatIsRemotionSchema}
+					defaultProps={{fade: false, whiteBackground: false, reel: false}}
+					calculateMetadata={whatIsRemotionCalculateMetadata}
+				/>
+				<Composition
+					id="DesignSystems"
+					component={DesignSystems}
+					durationInFrames={150}
+					fps={30}
+					width={1080}
+					height={1080}
+				/>
+			</Folder>
 			<Composition
 				component={ProductHuntLogo}
 				width={240}
