@@ -356,13 +356,6 @@ export const Filmstrip: React.FC<{
 					style={{height: FILMSTRIP_HEIGHT}}
 				/>
 				<div
-					className="border-brand pointer-events-none absolute top-0 h-full rounded-md border-2"
-					style={{
-						left: activeAreaLeft,
-						width: activeAreaWidth,
-					}}
-				/>
-				<div
 					className="pointer-events-none absolute top-0 h-full bg-black/45"
 					style={{left: 0, width: activeAreaLeft}}
 				/>
@@ -374,11 +367,18 @@ export const Filmstrip: React.FC<{
 					}}
 				/>
 				<div
+					className="border-brand pointer-events-none absolute top-0 h-full rounded-md border-2"
+					style={{
+						left: activeAreaLeft,
+						width: activeAreaWidth,
+					}}
+				/>
+				<div
 					aria-label="Trim start"
 					aria-valuemax={currentOutFrame - minimumFrameDistance}
 					aria-valuemin={0}
 					aria-valuenow={currentInFrame}
-					className="bg-brand absolute top-0 z-20 h-full cursor-ew-resize overflow-hidden rounded-l-md border-r border-blue-800"
+					className="bg-brand absolute top-0 h-full cursor-ew-resize overflow-hidden rounded-l-md border-r border-blue-800"
 					role="slider"
 					style={{
 						left: startHandleLeft,
@@ -425,7 +425,7 @@ export const Filmstrip: React.FC<{
 					aria-valuemax={durationInFrames - 1}
 					aria-valuemin={currentInFrame + minimumFrameDistance}
 					aria-valuenow={currentOutFrame}
-					className="bg-brand absolute top-0 z-20 h-full cursor-ew-resize overflow-hidden rounded-r-md border-l border-blue-800"
+					className="bg-brand absolute top-0 h-full cursor-ew-resize overflow-hidden rounded-r-md border-l border-blue-800"
 					role="slider"
 					style={{
 						left: endHandleLeft,

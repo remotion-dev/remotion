@@ -137,7 +137,6 @@ export function VideoPlayer({
 	const containerRef = useRef<HTMLDivElement>(null);
 	const playerRef = useRef<PlayerRef>(null);
 	const videoSourceUrl = useVideoSourceUrl(source);
-	const [playbackTimeInSeconds, setPlaybackTimeInSeconds] = useState(0);
 
 	const playerFps = getPlayerFps(fps);
 	const durationInFrames = getDurationInFrames({
@@ -171,10 +170,6 @@ export function VideoPlayer({
 			: null;
 
 	useEffect(() => {
-		setPlaybackTimeInSeconds(0);
-	}, [videoSourceUrl]);
-
-	useEffect(() => {
 		const {current} = playerRef;
 		if (!current) {
 			return;
@@ -182,7 +177,6 @@ export function VideoPlayer({
 
 		const onFrameChange = (event: {detail: {frame: number}}) => {
 			const timeInSeconds = event.detail.frame / playerFps;
-			setPlaybackTimeInSeconds(timeInSeconds);
 			onPlaybackTimeChange(timeInSeconds);
 		};
 
@@ -267,20 +261,6 @@ export function VideoPlayer({
 					onTrim={(nextTrim) => {
 						setTrimInFrame(nextTrim.inFrame);
 						setTrimOutFrame(nextTrim.outFrame);
-
-						const currentFrame = Math.round(playbackTimeInSeconds * playerFps);
-						const nextInFrame = nextTrim.inFrame ?? 0;
-						const nextOutFrame = nextTrim.outFrame ?? durationInFrames - 1;
-						const nextFrame = Math.min(
-							Math.max(currentFrame, nextInFrame),
-							nextOutFrame,
-						);
-						if (nextFrame !== currentFrame) {
-							const nextTimeInSeconds = nextFrame / playerFps;
-							playerRef.current?.seekTo(nextFrame);
-							setPlaybackTimeInSeconds(nextTimeInSeconds);
-							onPlaybackTimeChange(nextTimeInSeconds);
-						}
 					}}
 				/>
 			) : null}
