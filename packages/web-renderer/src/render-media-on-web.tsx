@@ -377,6 +377,13 @@ const internalRenderMediaOnWeb = async <
 			}),
 	});
 
+	const waitForPageResponsiveness = async () => {
+		await pageResponsivenessController.waitIfNeeded();
+		if (signal?.aborted) {
+			throw new Error('renderMediaOnWeb() was cancelled');
+		}
+	};
+
 	using keepalive = createBackgroundKeepalive({
 		fps: resolved.fps,
 		logLevel,
@@ -551,6 +558,8 @@ const internalRenderMediaOnWeb = async <
 					throw new Error('renderMediaOnWeb() was cancelled');
 				}
 
+				await waitForPageResponsiveness();
+
 				const videoFrame = new VideoFrame(layer.canvas, {
 					timestamp,
 				});
@@ -569,6 +578,7 @@ const internalRenderMediaOnWeb = async <
 						expectedHeight: Math.round(resolved.height * scale),
 						expectedTimestamp: timestamp,
 					});
+					await waitForPageResponsiveness();
 				}
 			}
 
@@ -603,14 +613,14 @@ const internalRenderMediaOnWeb = async <
 				});
 			}
 
-			if (signal?.aborted) {
-				throw new Error('renderMediaOnWeb() was cancelled');
-			}
+			await waitForPageResponsiveness();
 
 			const audio = muted
 				? null
 				: onlyInlineAudio({assets, fps: resolved.fps, timestamp, sampleRate});
 			internalState.addAudioMixingTime(performance.now() - audioCombineStart);
+
+			await waitForPageResponsiveness();
 
 			const addSampleStart = performance.now();
 			const encodingPromises: Promise<void>[] = [];
@@ -643,15 +653,13 @@ const internalRenderMediaOnWeb = async <
 				throw new Error('renderMediaOnWeb() was cancelled');
 			}
 
-			await pageResponsivenessController.waitIfNeeded();
-
-			if (signal?.aborted) {
-				throw new Error('renderMediaOnWeb() was cancelled');
-			}
+			await waitForPageResponsiveness();
 		}
 
 		// Call progress one final time to ensure final state is reported
 		onProgress?.(getProgressPayload());
+
+		await waitForPageResponsiveness();
 
 		videoSampleSource?.videoSampleSource.close();
 		audioSampleSource?.audioSampleSource.close();
