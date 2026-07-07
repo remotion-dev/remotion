@@ -124,15 +124,15 @@ const onProgress: RenderMediaOnWebProgressCallback = ({
 
 _string | number_ <TsType type="WebRendererPageResponsiveness" source="@remotion/web-renderer" href="/docs/web-renderer/types#webrendererpageresponsiveness" />
 
-Controls whether rendering intentionally pauses between expensive render phases so the page stays responsive.
+Controls whether rendering tries to free the event loop between expensive render phases so the page stays responsive.
 See [Page responsiveness](/docs/web-renderer/page-responsiveness) for guidance.
 
 Default is `"medium"`.
 
 - `"disabled"`: Do not pause rendering for page responsiveness. This prioritizes render speed but can make the page less responsive.
-- `"low"`: Pause after at least `100ms` of rendering work.
-- `"medium"`: Pause after at least `33ms` of rendering work.
-- `"high"`: Pause after at least `16ms` of rendering work.
+- `"low"`: Every `100ms` of rendering work, try to free the event loop.
+- `"medium"`: Every `33ms` of rendering work, try to free the event loop.
+- `"high"`: Every `16ms` of rendering work, try to free the event loop.
 
 Pass a positive number to customize the interval in milliseconds.
 

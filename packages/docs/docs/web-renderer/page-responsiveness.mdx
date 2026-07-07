@@ -18,16 +18,16 @@ A render can do expensive synchronous work.
 Capturing one frame can involve measuring layout, walking the DOM, capturing elements and textures and drawing them to a canvas.
 While this work is running, the browser may not be able to paint updates or react to clicks.
 
-Page responsiveness controls how often Remotion intentionally pauses between expensive render phases so the browser can update the page.
+Page responsiveness controls how often Remotion tries to free the event loop between expensive render phases so the browser can update the page.
 
 ## Default behavior
 
 By default, [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web) uses `"medium"` page responsiveness.
-This means Remotion pauses after at least `33ms` of rendering work.
+Every `33ms` of rendering work, Remotion tries to free the event loop so the page can stay responsive.
 
 The default favors an interactive page: progress indicators update more regularly, buttons remain easier to click and the tab feels less blocked.
 
-The tradeoff is render speed. Pausing gives the browser time to work, so a render may finish later than if page responsiveness is disabled.
+The tradeoff is render speed. Freeing the event loop gives the browser time to work, so a render may finish later than if page responsiveness is disabled.
 
 ## Changing the setting
 
@@ -62,19 +62,19 @@ Use this when the page does not need to stay interactive while the render runs.
 
 ### `"low"`
 
-Pause after at least `100ms` of rendering work.
+Every `100ms` of rendering work, Remotion tries to free the event loop.
 
 Use this if render speed matters more than immediate page updates, but the page should not feel fully blocked.
 
 ### `"medium"`
 
-Pause after at least `33ms` of rendering work.
+Every `33ms` of rendering work, Remotion tries to free the event loop.
 
 This is the default.
 
 ### `"high"`
 
-Pause after at least `16ms` of rendering work.
+Every `16ms` of rendering work, Remotion tries to free the event loop.
 
 Use this when keeping the page responsive matters more than finishing the render as fast as possible.
 
@@ -108,7 +108,7 @@ The default is **Medium**.
 ## Limitations
 
 This option is best effort.
-Remotion pauses between safe points in the render pipeline, but it cannot interrupt a single long synchronous browser or graphics operation.
+Remotion only frees the event loop between safe points in the render pipeline, so it cannot interrupt a single long synchronous browser or graphics operation.
 
 If one frame contains especially expensive work, the page may still be blocked until that operation finishes.
 

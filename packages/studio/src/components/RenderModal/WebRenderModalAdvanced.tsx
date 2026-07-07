@@ -68,9 +68,9 @@ const PageResponsivenessExplainer: React.FC = () => {
 				can block the tab while Remotion captures frames.
 			</p>
 			<p style={paragraph}>
-				The default is <code>Medium</code>, which pauses between expensive
-				render phases so progress updates and UI interactions can stay
-				responsive.
+				The default is <code>Medium</code>, which tries to free the event loop
+				every 33ms of rendering work so progress updates and UI interactions can
+				stay responsive.
 			</p>
 			<p style={lastParagraph}>
 				Choose <code>Disabled</code> to prioritize render speed, or{' '}
