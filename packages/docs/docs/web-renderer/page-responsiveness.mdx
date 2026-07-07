@@ -33,9 +33,9 @@ The tradeoff is render speed. Freeing the event loop gives the browser time to w
 Pass [`pageResponsiveness`](/docs/web-renderer/render-media-on-web#pageresponsiveness) to [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web).
 
 ```tsx twoslash title="render.tsx"
-import {renderMediaOnWeb} from '@remotion/web-renderer';
-
 const Component: React.FC = () => null;
+// ---cut---
+import {renderMediaOnWeb} from '@remotion/web-renderer';
 
 await renderMediaOnWeb({
   composition: {
