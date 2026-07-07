@@ -42,26 +42,16 @@ export const MyElement = () => {
 };
 ```
 
-## 3. Keep the source file portable
+## 3. Ensure portability
 
 The source file should work when dragged or copied into a project.
 
-Prefer:
+- Must be a self-contained TSX file
+- Assets must be remote with stable public URLs, no local ones
+- Non-websafe fonts must be loaded through Google Fonts
+- No highly branded videos
 
-- One self-contained TSX file
-- Zero dependencies
-- Remote assets with stable public URLs
-- Explicit font loading if a specific font is used
-
-Avoid:
-
-- Private APIs or private assets
-- Large apps with many moving parts
-- Highly specific branded videos
-- Full video templates with many unrelated parts
-- Maps, Three.js, WebGL, Canvas, or R3F-heavy Elements for the first batch
-
-## 4. Set the import bounds
+## 4. Define size
 
 To give an Element a fixed size, set `elementWidth` and `elementHeight` on the `ElementPage` in `index.mdx`:
 
@@ -83,10 +73,7 @@ export const MyElement = () => {
 };
 ```
 
-Use fixed bounds for overlays, lower thirds, callouts, motion graphics, cards, badges, and data animations.
-
 Size the Element to the smallest useful bounding box.
-`elementWidth` and `elementHeight` should describe the useful import bounds, not the decorative preview bounds.
 
 Use `previewPadding` on the `ElementPage` if the docs preview needs more breathing room without changing the Element's drag dimensions or adding source padding.
 
@@ -95,9 +82,8 @@ Do not put the wrapper [`<Sequence>`](/docs/sequence) into the Element source fi
 ## 5. Separate placement from animation
 
 Let the Studio-inserted [`<Sequence>`](/docs/sequence) handle placement in the video.
-Avoid static `left`, `right`, `top`, and `bottom` placement inside the Element source unless it is intrinsic to the visual.
+Don't use `left`, `right`, `top`, and `bottom`, etc. to position your element.
 
-The outer placement shell can position the Element in a video.
 Inner Element styles can animate entrance values such as `translate`, `scale`, and `opacity`.
 
 For animation, keep the timing inside the component but let the surrounding project decide how long the Element appears:
@@ -136,7 +122,7 @@ Avoid:
 
 For the main inner editable element, use a generic name such as `Container`.
 
-For broader rules on editable styles and animation values, see [Interactivity best practices](/docs/studio/interactivity-best-practices).
+You should follow [Interactivity best practices](/docs/studio/interactivity-best-practices).
 
 For a single editable object, use one named wrapper:
 
@@ -193,19 +179,7 @@ export const Badge = () => {
 };
 ```
 
-## 7. Reference assets by URL
-
-Prefer zero dependencies.
-If an Element needs binary assets, reference them by URL:
-
-```tsx twoslash title="Remote assets"
-const imageUrl = 'https://remotion.media/element-image.png';
-const videoUrl = 'https://remotion.media/element-video.mp4';
-```
-
-Remote assets should be publicly accessible and stable.
-
-## 8. Open the pull request
+## 7. Open the pull request
 
 When submitting an Element as a pull request, include:
 
