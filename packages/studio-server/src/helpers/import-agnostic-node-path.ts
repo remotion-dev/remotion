@@ -90,6 +90,31 @@ const getUseCurrentFrameLocalNames = (ast: File): Set<string> => {
 	return names;
 };
 
+const getGoogleFontLoadFontLocalNames = (ast: File): Set<string> => {
+	const names = new Set<string>();
+	for (const statement of ast.program.body) {
+		if (
+			statement.type !== 'ImportDeclaration' ||
+			typeof statement.source.value !== 'string' ||
+			!statement.source.value.startsWith('@remotion/google-fonts/')
+		) {
+			continue;
+		}
+
+		for (const specifier of statement.specifiers) {
+			if (
+				specifier.type === 'ImportSpecifier' &&
+				specifier.imported.type === 'Identifier' &&
+				specifier.imported.name === 'loadFont'
+			) {
+				names.add(specifier.local?.name ?? 'loadFont');
+			}
+		}
+	}
+
+	return names;
+};
+
 const isUseCurrentFrameCall = (
 	node: Node | null | undefined,
 	useCurrentFrameLocalNames: ReadonlySet<string>,
@@ -119,15 +144,27 @@ const isUseCurrentFrameStatement = (
 	);
 };
 
+const isGoogleFontLoadFontStatement = (
+	node: Node,
+	googleFontLoadFontLocalNames: ReadonlySet<string>,
+): boolean => {
+	return (
+		node.type === 'ExpressionStatement' &&
+		node.expression.type === 'CallExpression' &&
+		node.expression.callee.type === 'Identifier' &&
+		googleFontLoadFontLocalNames.has(node.expression.callee.name)
+	);
+};
+
 const getIgnoredNodePredicate = (ast: File): IgnoredNodePredicate => {
 	const useCurrentFrameLocalNames = getUseCurrentFrameLocalNames(ast);
+	const googleFontLoadFontLocalNames = getGoogleFontLoadFontLocalNames(ast);
 	return (node, {parent, property}) => {
-		if (
-			parent.type === 'Program' &&
-			property === 'body' &&
-			node.type === 'ImportDeclaration'
-		) {
-			return true;
+		if (parent.type === 'Program' && property === 'body') {
+			return (
+				node.type === 'ImportDeclaration' ||
+				isGoogleFontLoadFontStatement(node, googleFontLoadFontLocalNames)
+			);
 		}
 
 		if (parent.type === 'BlockStatement' && property === 'body') {

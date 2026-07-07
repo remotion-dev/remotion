@@ -7,20 +7,23 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import {Internals} from 'remotion';
-import {renameStaticFile} from '../../api/rename-static-file';
-import {pushUrl} from '../../helpers/url-state';
 import {ModalsContext} from '../../state/modals';
 import {Button} from '../Button';
 import {Row, Spacing} from '../layout';
 import {ModalFooterContainer} from '../ModalFooter';
 import {ModalHeader} from '../ModalHeader';
-import {showNotification} from '../Notifications/NotificationCenter';
 import {label, optionRow, rightRow} from '../RenderModal/layout';
 import {useStaticFiles} from '../use-static-files';
 import {DismissableModal} from './DismissableModal';
 import {InputAndValidationContainer} from './InputAndValidationContainer';
 import {RemotionInput} from './RemInput';
+import {
+	getRenamedStaticFilePath,
+	getStaticFileBaseName,
+	getStaticFileRenameSelection,
+	validateStaticFileRename,
+	useRenameStaticFile,
+} from './use-rename-static-file';
 import {ValidationMessage} from './ValidationMessage';
 
 const content: React.CSSProperties = {
@@ -31,65 +34,38 @@ const content: React.CSSProperties = {
 	minWidth: 500,
 };
 
-const getParent = (relativePath: string) => {
-	const slashIndex = relativePath.lastIndexOf('/');
-	return slashIndex === -1 ? '' : relativePath.slice(0, slashIndex);
-};
-
-const getBaseName = (relativePath: string) => {
-	const slashIndex = relativePath.lastIndexOf('/');
-	return slashIndex === -1 ? relativePath : relativePath.slice(slashIndex + 1);
-};
-
 export const RenameStaticFileModal: React.FC<{
 	readonly relativePath: string;
 }> = ({relativePath}) => {
 	const {setSelectedModal} = useContext(ModalsContext);
-	const {canvasContent} = useContext(Internals.CompositionManager);
-	const {setCanvasContent} = useContext(Internals.CompositionSetters);
 	const staticFiles = useStaticFiles();
-	const [newName, setNewName] = useState(() => getBaseName(relativePath));
+	const [newName, setNewName] = useState(() =>
+		getStaticFileBaseName(relativePath),
+	);
 	const [submitting, setSubmitting] = useState(false);
 	const inputRef = useRef<HTMLInputElement>(null);
+	const renameFile = useRenameStaticFile({relativePath, staticFiles});
 
 	useEffect(() => {
 		const input = inputRef.current;
 		if (!input) return;
-		const dotIndex = newName.lastIndexOf('.');
-		const stemEnd = dotIndex === -1 ? newName.length : dotIndex;
-		input.setSelectionRange(0, stemEnd);
+		const [start, end] = getStaticFileRenameSelection(newName);
+		input.setSelectionRange(start, end);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-	const parent = useMemo(() => getParent(relativePath), [relativePath]);
 	const newRelativePath = useMemo(() => {
-		return [parent, newName].filter(Boolean).join('/');
-	}, [newName, parent]);
+		return getRenamedStaticFilePath({newName, relativePath});
+	}, [newName, relativePath]);
 	const changed = newRelativePath !== relativePath;
 
 	const validationMessage = useMemo(() => {
-		const trimmedName = newName.trim();
-		if (trimmedName.length === 0) {
-			return 'Name cannot be empty';
-		}
-
-		if (trimmedName !== newName) {
-			return 'Name cannot start or end with whitespace';
-		}
-
-		if (newName.includes('/') || newName.includes('\\')) {
-			return 'Name cannot include slashes';
-		}
-
-		const existingFile = staticFiles.find((file) => {
-			return file.name === newRelativePath && file.name !== relativePath;
+		return validateStaticFileRename({
+			newName,
+			newRelativePath,
+			relativePath,
+			staticFiles,
 		});
-
-		if (existingFile) {
-			return 'An asset with this name already exists';
-		}
-
-		return null;
 	}, [newName, newRelativePath, relativePath, staticFiles]);
 
 	const valid = changed && validationMessage === null;
@@ -107,39 +83,19 @@ export const RenameStaticFileModal: React.FC<{
 		}
 
 		setSubmitting(true);
-		const notification = showNotification(`Renaming ${relativePath}...`, null);
-
-		renameStaticFile({
-			oldRelativePath: relativePath,
-			newRelativePath,
-		})
-			.then(() => {
-				setSelectedModal(null);
-				if (
-					canvasContent?.type === 'asset' &&
-					canvasContent.asset === relativePath
-				) {
-					setCanvasContent({type: 'asset', asset: newRelativePath});
-					pushUrl(`/assets/${newRelativePath}`);
+		renameFile(newName)
+			.then((renamed) => {
+				if (!renamed) {
+					setSubmitting(false);
+					return;
 				}
 
-				notification.replaceContent(`Renamed to ${newRelativePath}`, 2000);
+				setSelectedModal(null);
 			})
-			.catch((err) => {
+			.catch(() => {
 				setSubmitting(false);
-				notification.replaceContent(
-					`Could not rename ${relativePath}: ${(err as Error).message}`,
-					3000,
-				);
 			});
-	}, [
-		canvasContent,
-		newRelativePath,
-		relativePath,
-		setCanvasContent,
-		setSelectedModal,
-		valid,
-	]);
+	}, [newName, renameFile, setSelectedModal, valid]);
 
 	const onSubmit: React.FormEventHandler<HTMLFormElement> = useCallback(
 		(e) => {

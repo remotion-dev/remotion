@@ -1,4 +1,5 @@
 import {
+	centerPath,
 	getBoundingBox,
 	parsePath,
 	resetPath,
@@ -8,7 +9,6 @@ import {
 import {makeRect} from '@remotion/shapes';
 import {Font} from 'opentype.js';
 import {interpolate, spring} from 'remotion';
-import {centerPath} from '../center';
 import {makeElement, ThreeDElement, transformElement} from '../element';
 import {turnInto3D} from '../fix-z';
 import {getText} from '../get-char';

@@ -8,7 +8,7 @@ export const AlternativePickFileOptions: React.FC<{
 	return (
 		<div className="flex flex-row items-center justify-center gap-3">
 			<Button
-				className="font-brand text-brand rounded-full text-sm h-10"
+				className="font-brand text-black rounded-full text-sm h-10"
 				onClick={onSampleFile}
 			>
 				Use a sample file

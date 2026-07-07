@@ -36,6 +36,7 @@
 		"@remotion/paths": "workspace:*",
 		"@remotion/player": "workspace:*",
 		"@remotion/shapes": "workspace:*",
+		"@remotion/timeline-utils": "workspace:*",
 		"@remotion/whisper-web": "workspace:*",
 		"@vercel/remix": "2.16.7",
 		"@vidstack/react": "1.12.13",
