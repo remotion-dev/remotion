@@ -209,6 +209,16 @@ export const KeyboardShortcutsExplainer: React.FC = () => {
 						</div>
 						<div style={right}>Exit fullscreen</div>
 					</Row>
+					<Row align="center">
+						<div style={left}>
+							<kbd style={key}>
+								<ShiftIcon />
+							</kbd>
+							<Spacing x={0.3} />
+							<kbd style={key}>M</kbd>
+						</div>
+						<div style={right}>Enable snapping</div>
+					</Row>
 				</Column>
 				<Spacing x={8} />
 				<Column>

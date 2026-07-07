@@ -12,6 +12,7 @@ import {
 } from '../helpers/colors';
 import {formatFileLocation} from '../helpers/format-file-location';
 import {openOriginalPositionInEditor} from '../helpers/open-in-editor';
+import {EditorSnappingContext} from '../state/editor-snapping';
 import {ModalsContext} from '../state/modals';
 import {callApi} from './call-api';
 import {useConfirmationDialog} from './ConfirmationDialog';
@@ -128,6 +129,7 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 	const {setDragOverrides, clearDragOverrides, setPropStatuses} = useContext(
 		Internals.VisualModeSettersContext,
 	);
+	const {editorSnapping} = useContext(EditorSnappingContext);
 	const transformOriginDrag = target?.transformOriginDrag ?? null;
 
 	const parsed = useMemo(
@@ -232,11 +234,13 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 					lockedAxis === null
 						? point
 						: getUvHandlePosition(outline.points, axisLockedUv);
-				const snappedUv = snapSelectedOutlineTransformOriginUv({
-					point: snapPoint,
-					points: outline.points,
-					uv: axisLockedUv,
-				});
+				const snappedUv = editorSnapping
+					? snapSelectedOutlineTransformOriginUv({
+							point: snapPoint,
+							points: outline.points,
+							uv: axisLockedUv,
+						})
+					: axisLockedUv;
 				const nextUv = applySelectedOutlineTransformOriginAxisLock({
 					lockedAxis,
 					startUv: uv,
@@ -415,6 +419,7 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 		},
 		[
 			clearDragOverrides,
+			editorSnapping,
 			onDraggingChange,
 			outline,
 			parsed,
@@ -519,6 +524,7 @@ const SelectedOutlinePolygon: React.FC<{
 	const {setPropStatuses, setDragOverrides, clearDragOverrides} = useContext(
 		Internals.VisualModeSettersContext,
 	);
+	const {editorSnapping} = useContext(EditorSnappingContext);
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const timelinePositionRef = useRef(timelinePosition);
 	timelinePositionRef.current = timelinePosition;
@@ -570,7 +576,7 @@ const SelectedOutlinePolygon: React.FC<{
 			let currentPointerY = startPointerY;
 			let axisLocked = false;
 			let dragStarted = false;
-			let snappingDisabled = event.ctrlKey;
+			let snappingDisabled = event.metaKey || event.ctrlKey;
 
 			const updateDragOverrides = () => {
 				const screenDeltaX = currentPointerX - startPointerX;
@@ -601,7 +607,7 @@ const SelectedOutlinePolygon: React.FC<{
 				});
 				let {deltaX, deltaY} = dragDelta;
 
-				if (!snappingDisabled) {
+				if (editorSnapping && !snappingDisabled) {
 					const snapResult = findSelectedOutlineSnap({
 						allowX: axisLockedDirection !== 'vertical',
 						allowY: axisLockedDirection !== 'horizontal',
@@ -661,7 +667,7 @@ const SelectedOutlinePolygon: React.FC<{
 				currentPointerX = moveEvent.clientX;
 				currentPointerY = moveEvent.clientY;
 				axisLocked = moveEvent.shiftKey;
-				snappingDisabled = moveEvent.ctrlKey;
+				snappingDisabled = moveEvent.metaKey || moveEvent.ctrlKey;
 				updateDragOverrides();
 			};
 
@@ -761,6 +767,7 @@ const SelectedOutlinePolygon: React.FC<{
 			allDragOutlines,
 			clearDragOverrides,
 			drag,
+			editorSnapping,
 			getDragOverrides,
 			onDraggingChange,
 			onSelect,
@@ -1192,6 +1199,7 @@ const SelectedOutlineRotationCornerHandle: React.FC<{
 	const {setPropStatuses, setDragOverrides, clearDragOverrides} = useContext(
 		Internals.VisualModeSettersContext,
 	);
+	const {editorSnapping} = useContext(EditorSnappingContext);
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const timelinePositionRef = useRef(timelinePosition);
 	timelinePositionRef.current = timelinePosition;
@@ -1259,12 +1267,13 @@ const SelectedOutlineRotationCornerHandle: React.FC<{
 			let dragStarted = false;
 
 			const updateRotationDragOverrides = () => {
-				const rotationDeltaDegrees = rotationLocked
-					? snapSelectedOutlineRotationDeltaDegrees({
-							dragStates,
-							rotationDeltaDegrees: accumulatedDelta,
-						})
-					: accumulatedDelta;
+				const rotationDeltaDegrees =
+					rotationLocked && editorSnapping
+						? snapSelectedOutlineRotationDeltaDegrees({
+								dragStates,
+								rotationDeltaDegrees: accumulatedDelta,
+							})
+						: accumulatedDelta;
 				lastValues = getSelectedOutlineRotationDragValues({
 					dragStates,
 					rotationDeltaDegrees,
@@ -1434,6 +1443,7 @@ const SelectedOutlineRotationCornerHandle: React.FC<{
 			allRotationDragTargets,
 			clearDragOverrides,
 			cornerInfo,
+			editorSnapping,
 			getDragOverrides,
 			onDraggingChange,
 			outline.dimensions,

@@ -21,6 +21,7 @@ import {drawRef} from '../state/canvas-ref';
 import {CheckerboardContext} from '../state/checkerboard';
 import {EditorShowGuidesContext} from '../state/editor-guides';
 import {EditorShowRulersContext} from '../state/editor-rulers';
+import {EditorSnappingContext} from '../state/editor-snapping';
 import {EditorZoomGesturesContext} from '../state/editor-zoom-gestures';
 import type {ModalState} from '../state/modals';
 import {ModalsContext} from '../state/modals';
@@ -224,6 +225,7 @@ export const useMenuStructure = (
 	const {editorShowGuides, setEditorShowGuides} = useContext(
 		EditorShowGuidesContext,
 	);
+	const {editorSnapping, setEditorSnapping} = useContext(EditorSnappingContext);
 	const {size, setSize} = useContext(Internals.PreviewSizeContext);
 	const {canvasContent, compositions} = useContext(
 		Internals.CompositionManager,
@@ -467,6 +469,22 @@ export const useMenuStructure = (
 						quickSwitcherLabel: editorShowGuides
 							? 'Hide Guides'
 							: 'Show Guides',
+					},
+					{
+						id: 'enable-snapping',
+						keyHint: areKeyboardShortcutsDisabled() ? null : 'Shift+M',
+						label: 'Enable Snapping',
+						onClick: () => {
+							closeMenu();
+							setEditorSnapping((c) => !c);
+						},
+						type: 'item' as const,
+						value: 'enable-snapping',
+						leftItem: editorSnapping ? <Checkmark /> : null,
+						subMenu: null,
+						quickSwitcherLabel: editorSnapping
+							? 'Disable Snapping'
+							: 'Enable Snapping',
 					},
 					{
 						id: 'timeline-divider-1',
@@ -983,6 +1001,7 @@ export const useMenuStructure = (
 		editorZoomGestures,
 		editorShowRulers,
 		editorShowGuides,
+		editorSnapping,
 		sidebarCollapsedStateLeft,
 		sidebarCollapsedStateRight,
 		checkerboard,
@@ -994,6 +1013,7 @@ export const useMenuStructure = (
 		setEditorZoomGestures,
 		setEditorShowRulers,
 		setEditorShowGuides,
+		setEditorSnapping,
 		setSidebarCollapsedState,
 		setCheckerboard,
 		setSelectedModal,
