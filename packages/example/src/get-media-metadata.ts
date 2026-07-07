@@ -17,7 +17,7 @@ export const getMediaMetadata = async (src: string) => {
 			}
 		: null;
 	const packetStats = await videoTrack?.computePacketStats(50);
-	const fps = packetStats?.averagePacketRate ?? null;
+	const fps = packetStats ? Math.round(packetStats.averagePacketRate) : null;
 
 	return {
 		durationInSeconds,
