@@ -46,6 +46,7 @@ export const MakeVideosInteractively: React.FC<{
 						muted
 						playsInline
 						loop
+						preload="metadata"
 						style={{
 							width: 500,
 							maxWidth: '100%',

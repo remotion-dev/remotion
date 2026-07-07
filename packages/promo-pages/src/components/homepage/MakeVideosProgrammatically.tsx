@@ -40,6 +40,7 @@ export const MakeVideosProgrammatically: React.FC<{
 						autoPlay
 						playsInline
 						loop
+						preload="metadata"
 						className="relative max-h-full max-w-full cursor-default! object-contain lg:mb-0 lg:mt-0"
 					/>
 				) : null}

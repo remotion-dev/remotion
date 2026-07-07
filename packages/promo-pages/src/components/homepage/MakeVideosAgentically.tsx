@@ -67,6 +67,7 @@ export const MakeVideosAgentically: React.FC<{
 						autoPlay
 						playsInline
 						loop
+						preload="metadata"
 						style={{
 							width: 400,
 							maxWidth: '100%',
