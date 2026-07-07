@@ -1,11 +1,13 @@
 import type {WebRendererPageResponsiveness} from '@remotion/web-renderer';
 import type React from 'react';
 import {useCallback, useMemo} from 'react';
+import {BLUE} from '../../helpers/colors';
 import {Checkmark} from '../../icons/Checkmark';
 import {Checkbox} from '../Checkbox';
 import {Spacing} from '../layout';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {Combobox} from '../NewComposition/ComboBox';
+import {InfoBubble} from './InfoBubble';
 import {label, optionRow, rightRow} from './layout';
 import {NumberSetting} from './NumberSetting';
 import {OptionExplainerBubble} from './OptionExplainerBubble';
@@ -36,6 +38,53 @@ type WebRenderModalAdvancedProps = {
 
 const tabContainer: React.CSSProperties = {
 	flex: 1,
+};
+
+const explainerContainer: React.CSSProperties = {
+	fontSize: 14,
+	maxWidth: 420,
+	padding: '10px 20px',
+};
+
+const paragraph: React.CSSProperties = {
+	margin: 0,
+	marginBottom: 8,
+};
+
+const lastParagraph: React.CSSProperties = {
+	margin: 0,
+};
+
+const link: React.CSSProperties = {
+	color: BLUE,
+	textDecoration: 'none',
+};
+
+const PageResponsivenessExplainer: React.FC = () => {
+	return (
+		<div style={explainerContainer}>
+			<p style={paragraph}>
+				The Web Renderer runs in the same browser tab as the Studio. Rendering
+				can block the tab while Remotion captures frames.
+			</p>
+			<p style={paragraph}>
+				The default is <code>Medium</code>, which pauses between expensive
+				render phases so progress updates and UI interactions can stay
+				responsive.
+			</p>
+			<p style={lastParagraph}>
+				Choose <code>Disabled</code> to prioritize render speed, or{' '}
+				<code>High</code> to give the browser more chances to update.{' '}
+				<a
+					href="https://www.remotion.dev/docs/web-renderer/page-responsiveness"
+					style={link}
+					target="_blank"
+				>
+					Docs
+				</a>
+			</p>
+		</div>
+	);
 };
 
 export const WebRenderModalAdvanced: React.FC<WebRenderModalAdvancedProps> = ({
@@ -274,7 +323,12 @@ export const WebRenderModalAdvanced: React.FC<WebRenderModalAdvancedProps> = ({
 			{renderMode === 'still' ? null : (
 				<>
 					<div style={optionRow}>
-						<div style={label}>Page Responsiveness</div>
+						<div style={label}>
+							Page Responsiveness <Spacing x={0.5} />
+							<InfoBubble title="Learn more about page responsiveness">
+								<PageResponsivenessExplainer />
+							</InfoBubble>
+						</div>
 						<div style={rightRow}>
 							<Combobox
 								values={pageResponsivenessOptions}
