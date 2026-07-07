@@ -23,6 +23,7 @@ import {
 import {copyText} from '../helpers/copy-text';
 import type {AssetFolder, AssetStructure} from '../helpers/create-folder-tree';
 import {useMobileLayout} from '../helpers/mobile-layout';
+import {openInRemotionConvert} from '../helpers/open-in-remotion-convert';
 import {
 	markAssetSidebarScrollFromRowClick,
 	maybeScrollAssetSidebarRowIntoView,
@@ -422,6 +423,10 @@ const AssetSelectorItem: React.FC<{
 		});
 	}, [relativePath]);
 
+	const openAssetInConvert = useCallback(() => {
+		openInRemotionConvert({relativePath});
+	}, [relativePath]);
+
 	const serverActionDisabled =
 		readOnlyStudio || connectionStatus !== 'connected';
 
@@ -495,6 +500,18 @@ const AssetSelectorItem: React.FC<{
 				id: 'asset-file-actions-divider',
 			},
 			{
+				id: 'open-asset-in-convert',
+				keyHint: null,
+				label: 'Open in Remotion Convert',
+				leftItem: null,
+				onClick: openAssetInConvert,
+				quickSwitcherLabel: 'Open asset in Remotion Convert',
+				subMenu: null,
+				type: 'item',
+				value: 'open-asset-in-convert',
+				disabled: serverActionDisabled,
+			},
+			{
 				id: 'open-asset-in-explorer',
 				keyHint: null,
 				label: 'Open in Explorer',
@@ -540,6 +557,7 @@ const AssetSelectorItem: React.FC<{
 	}, [
 		copyFileName,
 		copyStaticFilePath,
+		openAssetInConvert,
 		openAssetInExplorer,
 		deleteAsset,
 		relativePath,

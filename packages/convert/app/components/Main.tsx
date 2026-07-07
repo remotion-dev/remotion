@@ -1,6 +1,7 @@
 import {useLocation} from '@remix-run/react';
 import React, {useState} from 'react';
 import type {Source} from '~/lib/convert-state';
+import {getStudioBridgeSession} from '~/lib/studio-bridge';
 import {TitleProvider} from '~/lib/title-context';
 import type {RouteAction} from '~/seo';
 import {getHeaderTitle} from '~/seo';
@@ -16,6 +17,7 @@ export const Main: React.FC<{
 	const [src, setSrc] = useState<Source | null>(() => {
 		return url.has('url') ? {type: 'url', url: url.get('url') as string} : null;
 	});
+	const [studioBridgeSession] = useState(() => getStudioBridgeSession(url));
 
 	return (
 		<TitleProvider routeAction={routeAction}>
@@ -26,6 +28,7 @@ export const Main: React.FC<{
 						routeAction={routeAction}
 						src={src}
 						setSrc={setSrc}
+						studioBridgeSession={studioBridgeSession}
 					/>
 				) : (
 					<PickFile

@@ -4,12 +4,14 @@ import {Internals, staticFile} from 'remotion';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {formatMediaDuration} from '../helpers/format-media-duration';
 import {getPreviewFileType} from '../helpers/get-preview-file-type';
+import {openInRemotionConvert} from '../helpers/open-in-remotion-convert';
 import {
 	renderHumanReadableAudioCodec,
 	renderHumanReadableVideoCodec,
 } from '../helpers/render-codec-label';
 import type {MediaMetadata} from '../helpers/use-media-metadata';
 import {useMediaMetadata} from '../helpers/use-media-metadata';
+import {Button} from './Button';
 import {InlineEditableTitle} from './InlineEditableTitle';
 import {
 	INSPECTOR_INFO_HEADER_MIN_HEIGHT,
@@ -23,6 +25,14 @@ import {
 import {useStaticFiles} from './use-static-files';
 
 export const CURRENT_ASSET_HEIGHT = INSPECTOR_INFO_HEADER_MIN_HEIGHT;
+
+const convertButtonContainer: React.CSSProperties = {
+	marginTop: 12,
+};
+
+const convertButtonStyle: React.CSSProperties = {
+	width: '100%',
+};
 
 export const getCurrentAssetMetadataSource = (assetName: string | null) => {
 	if (!assetName) {
@@ -103,12 +113,20 @@ export const CurrentAsset: React.FC<{
 	const src = getCurrentAssetMetadataSource(assetName);
 	const mediaMetadata = useMediaMetadata(src);
 	const canRename = connectionStatus === 'connected' && !readOnlyStudio;
+	const canOpenConvert = connectionStatus === 'connected' && !readOnlyStudio;
 	const onRename = useCallback(
 		(newName: string) => {
 			renameFile(newName).catch(() => undefined);
 		},
 		[renameFile],
 	);
+	const onOpenConvert = useCallback(() => {
+		if (!assetName) {
+			return;
+		}
+
+		openInRemotionConvert({relativePath: assetName});
+	}, [assetName]);
 
 	if (!assetName) {
 		return <InspectorInfoHeader />;
@@ -157,6 +175,18 @@ export const CurrentAsset: React.FC<{
 			{mediaDetailLines.map((line) => {
 				return <InspectorInfoSubtitle key={line}>{line}</InspectorInfoSubtitle>;
 			})}
+			{src ? (
+				<div style={convertButtonContainer}>
+					<Button
+						onClick={onOpenConvert}
+						disabled={!canOpenConvert}
+						size="compact"
+						style={convertButtonStyle}
+					>
+						Open in Remotion Convert
+					</Button>
+				</div>
+			) : null}
 		</InspectorInfoHeader>
 	);
 };

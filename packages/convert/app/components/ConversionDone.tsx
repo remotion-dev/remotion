@@ -1,6 +1,8 @@
 import {Button, Button as RemotionButton} from '@remotion/design';
-import React, {useCallback} from 'react';
+import React, {useCallback, useState} from 'react';
 import type {ConvertState, Source} from '~/lib/convert-state';
+import type {StudioBridgeSession} from '~/lib/studio-bridge';
+import {saveFileToStudio} from '~/lib/studio-bridge';
 import {CloneIcon} from './icons/clone';
 import {UndoIcon} from './icons/undo';
 
@@ -8,10 +10,28 @@ export const ConversionDone: React.FC<{
 	readonly state: ConvertState;
 	readonly setState: React.Dispatch<React.SetStateAction<ConvertState>>;
 	readonly setSrc: React.Dispatch<React.SetStateAction<Source | null>>;
-}> = ({state, setState, setSrc}) => {
+	readonly studioBridgeSession: StudioBridgeSession | null;
+}> = ({state, setState, setSrc, studioBridgeSession}) => {
 	if (state.type !== 'done') {
 		throw new Error('Expected state to be done');
 	}
+
+	const [saveToStudioState, setSaveToStudioState] = useState<
+		| {
+				type: 'idle';
+		  }
+		| {
+				type: 'saving';
+		  }
+		| {
+				type: 'saved';
+				filename: string;
+		  }
+		| {
+				type: 'error';
+				message: string;
+		  }
+	>({type: 'idle'});
 
 	const onDownload = useCallback(async () => {
 		try {
@@ -28,6 +48,28 @@ export const ConversionDone: React.FC<{
 		}
 	}, [setState, state]);
 
+	const onSaveToStudio = useCallback(async () => {
+		if (!studioBridgeSession) {
+			return;
+		}
+
+		setSaveToStudioState({type: 'saving'});
+		try {
+			const file = await state.download();
+			const filename = await saveFileToStudio({
+				file,
+				filename: state.newName,
+				session: studioBridgeSession,
+			});
+			setSaveToStudioState({type: 'saved', filename});
+		} catch (err) {
+			setSaveToStudioState({
+				type: 'error',
+				message: (err as Error).message,
+			});
+		}
+	}, [state, studioBridgeSession]);
+
 	const useAsInput = useCallback(async () => {
 		const file = await state.download();
 
@@ -43,6 +85,27 @@ export const ConversionDone: React.FC<{
 
 	return (
 		<>
+			{studioBridgeSession ? (
+				<>
+					<RemotionButton
+						className="block w-full"
+						onClick={onSaveToStudio}
+						disabled={saveToStudioState.type === 'saving'}
+					>
+						{saveToStudioState.type === 'saving'
+							? 'Saving to Studio...'
+							: saveToStudioState.type === 'saved'
+								? 'Saved to Studio'
+								: 'Save to Studio'}
+					</RemotionButton>
+					{saveToStudioState.type === 'error' ? (
+						<div className="text-sm text-red-600 mt-2">
+							{saveToStudioState.message}
+						</div>
+					) : null}
+					<div className="h-2" />
+				</>
+			) : null}
 			<RemotionButton className="block w-full" onClick={onDownload}>
 				Download
 			</RemotionButton>

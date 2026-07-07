@@ -12,6 +12,49 @@ import {RenderInternals} from '@remotion/renderer';
 import {getValueContentRangeHeader} from './dev-middleware/middleware';
 import {parseRange} from './dev-middleware/range-parser';
 
+const isAllowedStaticCorsOrigin = (origin: string): boolean => {
+	try {
+		const url = new URL(origin);
+		return (
+			url.hostname === 'localhost' ||
+			url.hostname === '127.0.0.1' ||
+			url.hostname === '[::1]' ||
+			url.hostname === 'www.remotion.dev' ||
+			url.hostname === 'convert.remotion.dev'
+		);
+	} catch {
+		return false;
+	}
+};
+
+const applyStaticCorsHeaders = ({
+	req,
+	res,
+}: {
+	req: IncomingMessage;
+	res: ServerResponse;
+}) => {
+	const {origin} = req.headers;
+	if (!origin || !isAllowedStaticCorsOrigin(origin)) {
+		return false;
+	}
+
+	res.setHeader('Access-Control-Allow-Origin', origin);
+	res.setHeader('Vary', 'Origin');
+	res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
+	res.setHeader('Access-Control-Allow-Headers', 'Range, Content-Type');
+	res.setHeader(
+		'Access-Control-Expose-Headers',
+		'Accept-Ranges, Content-Length, Content-Range',
+	);
+
+	if (req.headers['access-control-request-private-network']) {
+		res.setHeader('Access-Control-Allow-Private-Network', 'true');
+	}
+
+	return true;
+};
+
 export const serveStatic = async function ({
 	root,
 	path,
@@ -25,6 +68,14 @@ export const serveStatic = async function ({
 	res: ServerResponse;
 	allowOutsidePublicFolder: boolean;
 }): Promise<void> {
+	applyStaticCorsHeaders({req, res});
+
+	if (req.method === 'OPTIONS') {
+		res.statusCode = 204;
+		res.end();
+		return;
+	}
+
 	if (req.method !== 'GET' && req.method !== 'HEAD') {
 		// method not allowed
 		res.statusCode = 405;

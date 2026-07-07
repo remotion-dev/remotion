@@ -5,6 +5,7 @@ import type {Source} from '~/lib/convert-state';
 import type {RotateOrMirrorOrCropState} from '~/lib/default-ui';
 import {defaultRotateOrMirorState} from '~/lib/default-ui';
 import {isAudioOnly} from '~/lib/is-audio-container';
+import type {StudioBridgeSession} from '~/lib/studio-bridge';
 import type {RouteAction} from '~/seo';
 import {BackButton} from './BackButton';
 import ConvertUI from './ConvertUi';
@@ -21,7 +22,8 @@ export const FileAvailable: React.FC<{
 	readonly src: Source;
 	readonly setSrc: React.Dispatch<React.SetStateAction<Source | null>>;
 	readonly routeAction: RouteAction;
-}> = ({src, setSrc, routeAction}) => {
+	readonly studioBridgeSession: StudioBridgeSession | null;
+}> = ({src, setSrc, routeAction, studioBridgeSession}) => {
 	const [probeDetails, setProbeDetails] = useState(
 		() => routeAction.type === 'generic-probe',
 	);
@@ -156,6 +158,7 @@ export const FileAvailable: React.FC<{
 											name={probeResult.name}
 											input={probeResult.input}
 											cropRect={cropOperation}
+											studioBridgeSession={studioBridgeSession}
 										/>
 									</div>
 								) : null}

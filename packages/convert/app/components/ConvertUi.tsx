@@ -41,6 +41,7 @@ import type {MediabunnyResize} from '~/lib/mediabunny-calculate-resize-option';
 import {calculateMediabunnyResizeOption} from '~/lib/mediabunny-calculate-resize-option';
 import {getMediabunnyOutput} from '~/lib/output-container';
 import type {ConvertProgressType} from '~/lib/progress';
+import type {StudioBridgeSession} from '~/lib/studio-bridge';
 import {makeWaveformVisualizer} from '~/lib/waveform-visualizer';
 import {makeWebFsTarget} from '~/lib/web-fs-target';
 import type {OutputContainer, RouteAction} from '~/seo';
@@ -87,6 +88,7 @@ const ConvertUI = ({
 	input,
 	crop,
 	cropRect,
+	studioBridgeSession,
 }: {
 	readonly setSrc: React.Dispatch<React.SetStateAction<Source | null>>;
 	readonly currentAudioCodec: InputAudioTrack['codec'] | null;
@@ -118,6 +120,7 @@ const ConvertUI = ({
 	readonly crop: boolean;
 	readonly sampleRate: number | null;
 	readonly cropRect: CropRectangle;
+	readonly studioBridgeSession: StudioBridgeSession | null;
 }) => {
 	const [enableConvert, setEnableConvert] = useState(() =>
 		isConvertEnabledByDefault(action),
@@ -609,7 +612,10 @@ const ConvertUI = ({
 				/>
 				<div className="h-2" />
 				<ConversionDone
-					{...{container: actualOutputContainer, name, setState, state, setSrc}}
+					setState={setState}
+					state={state}
+					setSrc={setSrc}
+					studioBridgeSession={studioBridgeSession}
 				/>
 			</>
 		);
