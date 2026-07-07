@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import AutomationsSection from './homepage/AutomationsSection';
 import {BackgroundAnimation} from './homepage/BackgroundAnimation';
+import {CanvasSectionTitle} from './homepage/CanvasSectionTitle';
 import CommunityStats from './homepage/CommunityStats';
 import {Demo} from './homepage/Demo';
 import EvaluateRemotionSection from './homepage/EvaluateRemotion';
@@ -50,12 +50,38 @@ export const NewLanding: React.FC<{
 						</div>
 						<br />
 						<br />
-						<br />
-						<div className="pt-6 md:pt-8">
-							<AutomationsSection />
+						<CanvasSectionTitle>Automate video production</CanvasSectionTitle>
+						<div className={makeVideosRowClassName}>
+							<MakeVideosProgrammatically
+								title="Design systems"
+								description="Create a library of animated assets for your organization."
+								showVideo={false}
+							/>
+							<MakeVideosAgentically
+								title="Batch rendering"
+								description="Render millions of videos on your own infrastructure."
+								links={[
+									{
+										label: 'Server-side rendering',
+										href: '/docs/compare-ssr',
+									},
+									{
+										label: 'Client-side rendering',
+										href: '/docs/client-side-rendering',
+									},
+								]}
+							/>
+							<MakeVideosInteractively
+								title="Applications"
+								description="Publish a simple tool or a complex video editor."
+								showVideo={false}
+								links={[
+									{label: 'Player', href: '/docs/player'},
+									{label: 'Editor Starter', href: '/editor-starter'},
+								]}
+							/>
 						</div>
-						<br />
-						<br />
+
 						<Demo />
 						<br />
 						<br />
