@@ -64,6 +64,11 @@ for (const inputs of seo.inputContainers) {
 	});
 
 	extraPages.push({
+		type: 'trim-format',
+		format: inputs,
+	});
+
+	extraPages.push({
 		type: 'resize-format',
 		format: inputs,
 	});
@@ -108,6 +113,10 @@ extraPages.push({
 
 extraPages.push({
 	type: 'generic-crop',
+});
+
+extraPages.push({
+	type: 'generic-trim',
 });
 
 extraPages.push({

@@ -32,6 +32,10 @@ export const FileAvailable: React.FC<{
 		useState<RotateOrMirrorOrCropState>(() =>
 			defaultRotateOrMirorState(routeAction),
 		);
+	const [enableTrim, setEnableTrim] = useState(
+		() =>
+			routeAction.type === 'generic-trim' || routeAction.type === 'trim-format',
+	);
 
 	const probeResult = useProbe({
 		src,
@@ -48,6 +52,8 @@ export const FileAvailable: React.FC<{
 			height: Infinity,
 		};
 	});
+	const [trimInFrame, setTrimInFrame] = useState<number | null>(null);
+	const [trimOutFrame, setTrimOutFrame] = useState<number | null>(null);
 
 	const [waveform, setWaveform] = useState<number[]>([]);
 
@@ -75,6 +81,11 @@ export const FileAvailable: React.FC<{
 					isAudio={isAudio}
 					waveform={waveform}
 					crop={enableRotateOrMirrow === 'crop'}
+					trim={enableTrim}
+					trimInFrame={trimInFrame}
+					trimOutFrame={trimOutFrame}
+					setTrimInFrame={setTrimInFrame}
+					setTrimOutFrame={setTrimOutFrame}
 					setUnclampedRect={setCropOperation}
 					unclampedRect={cropOperation}
 					dimensions={probeResult.dimensions}
@@ -122,6 +133,11 @@ export const FileAvailable: React.FC<{
 											dimensions={probeResult.dimensions}
 											durationInSeconds={probeResult.durationInSeconds ?? null}
 											action={routeAction}
+											trim={enableTrim}
+											setTrim={setEnableTrim}
+											trimInFrame={trimInFrame}
+											trimOutFrame={trimOutFrame}
+											fps={probeResult.fps}
 											enableRotateOrMirror={enableRotateOrMirrow}
 											setEnableRotateOrMirror={setEnableRotateOrMirror}
 											userRotation={actualUserRotation}

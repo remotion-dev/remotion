@@ -5,6 +5,10 @@ test('treats crop as a video-only operation section', () => {
 	expect(isVideoOnlySection('crop')).toBe(true);
 });
 
+test('treats trim as a video-only operation section', () => {
+	expect(isVideoOnlySection('trim')).toBe(true);
+});
+
 test('treats rotate, mirror, and resize as video-only operation sections', () => {
 	expect(isVideoOnlySection('rotate')).toBe(true);
 	expect(isVideoOnlySection('mirror')).toBe(true);

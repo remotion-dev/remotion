@@ -13,6 +13,7 @@ import type {Source} from '~/lib/convert-state';
 import {cn} from '~/lib/utils';
 import {AudioWaveForm, AudioWaveformContainer} from './AudioWaveform';
 import {CropUI} from './crop-ui/CropUi';
+import {Filmstrip} from './player/filmstrip';
 
 export const getPlayerFps = (fps: number | null | undefined) => {
 	if (typeof fps !== 'number' || !Number.isFinite(fps) || fps <= 0) {
@@ -103,6 +104,11 @@ export function VideoPlayer({
 	isAudio,
 	waveform,
 	crop,
+	trim,
+	trimInFrame,
+	trimOutFrame,
+	setTrimInFrame,
+	setTrimOutFrame,
 	setUnclampedRect,
 	unclampedRect,
 	dimensions,
@@ -114,6 +120,11 @@ export function VideoPlayer({
 	readonly waveform: number[];
 	readonly isAudio: boolean;
 	readonly crop: boolean;
+	readonly trim: boolean;
+	readonly trimInFrame: number | null;
+	readonly trimOutFrame: number | null;
+	readonly setTrimInFrame: React.Dispatch<React.SetStateAction<number | null>>;
+	readonly setTrimOutFrame: React.Dispatch<React.SetStateAction<number | null>>;
 	readonly unclampedRect: CropRectangle;
 	readonly dimensions: Dimensions | null | undefined;
 	readonly durationInSeconds: number | null | undefined;
@@ -135,6 +146,28 @@ export function VideoPlayer({
 	const playerDimensions = isAudio
 		? {width: 732, height: 197}
 		: (dimensions ?? null);
+	const actualInFrame =
+		trim &&
+		trimInFrame !== null &&
+		durationInFrames &&
+		trimInFrame > 0 &&
+		trimInFrame <= durationInFrames - 1
+			? trimInFrame
+			: null;
+	const actualOutFrame =
+		trim && trimOutFrame !== null && durationInFrames
+			? (() => {
+					const minimumPreviewOutFrame = (actualInFrame ?? 0) + 1;
+					const previewOutFrame = Math.max(
+						trimOutFrame,
+						minimumPreviewOutFrame,
+					);
+
+					return previewOutFrame < durationInFrames - 1
+						? previewOutFrame
+						: null;
+				})()
+			: null;
 
 	useEffect(() => {
 		const {current} = playerRef;
@@ -187,6 +220,8 @@ export function VideoPlayer({
 						compositionWidth={playerDimensions.width}
 						compositionHeight={playerDimensions.height}
 						fps={playerFps}
+						inFrame={actualInFrame}
+						outFrame={actualOutFrame}
 						controls={!crop}
 						acknowledgeRemotionLicense
 						style={{width: '100%'}}
@@ -212,6 +247,23 @@ export function VideoPlayer({
 					/>
 				) : null}
 			</div>
+			{!isAudio &&
+			trim &&
+			videoSourceUrl &&
+			durationInSeconds &&
+			durationInFrames ? (
+				<Filmstrip
+					src={videoSourceUrl}
+					durationInSeconds={durationInSeconds}
+					durationInFrames={durationInFrames}
+					inFrame={trimInFrame}
+					outFrame={trimOutFrame}
+					onTrim={(nextTrim) => {
+						setTrimInFrame(nextTrim.inFrame);
+						setTrimOutFrame(nextTrim.outFrame);
+					}}
+				/>
+			) : null}
 		</div>
 	);
 }
