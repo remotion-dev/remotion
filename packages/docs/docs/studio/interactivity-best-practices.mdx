@@ -28,6 +28,20 @@ For a custom component, see [Make a component interactive](/docs/studio/make-com
 /remotion-best-practices Make this element editable in Remotion Studio. Use Interactive.* for tweakable HTML/SVG elements and keep editable style values inline.
 ```
 
+## Give interactive elements a descriptive name {#give-interactive-elements-a-descriptive-name}
+
+Add a `name` prop to interactive elements and custom interactive components.
+Use a short label that describes the element in the scene, not an empty string.
+
+The name is shown in the Studio timeline and helps agents identify the correct element when making visual edits.
+
+```tsx title="Interactive names"
+// 👍 Easy to find in the Studio timeline and by agents
+<Interactive.Div name="Hero title" style={{fontSize: 80}}>
+  Launch day
+</Interactive.Div>
+```
+
 ## Keep editable values visible {#keep-editable-values-visible}
 
 Put values that should be edited in the Studio directly into the JSX.

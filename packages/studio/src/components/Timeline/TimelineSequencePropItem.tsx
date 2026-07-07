@@ -108,7 +108,7 @@ const Value: React.FC<{
 			: null;
 
 	const onSave = useCallback<TimelineFieldOnSave>(
-		(value) => {
+		(value, options) => {
 			if (!clientId) {
 				return Promise.reject(new Error('Not connected to studio server'));
 			}
@@ -143,6 +143,7 @@ const Value: React.FC<{
 						value,
 						defaultValue,
 						schema,
+						sourceEdit: options?.sourceEdit,
 					},
 				],
 				setPropStatuses,

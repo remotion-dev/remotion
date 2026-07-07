@@ -68,9 +68,10 @@ const titleInput: React.CSSProperties = {
 export const InlineEditableTitle: React.FC<{
 	readonly value: string;
 	readonly canRename: boolean;
+	readonly getInitialSelection?: (value: string) => [number, number];
 	readonly onCommit: (newValue: string) => void;
 	readonly title?: string;
-}> = ({value, canRename, onCommit, title}) => {
+}> = ({value, canRename, getInitialSelection, onCommit, title}) => {
 	const [isEditing, setIsEditing] = useState(false);
 	const [isHovered, setIsHovered] = useState(false);
 	const [draftValue, setDraftValue] = useState(value);
@@ -83,16 +84,25 @@ export const InlineEditableTitle: React.FC<{
 		}
 	}, [isEditing, value]);
 
-	const focusInput = useCallback((input: HTMLInputElement | null) => {
-		inputRef.current = input;
+	const focusInput = useCallback(
+		(input: HTMLInputElement | null) => {
+			inputRef.current = input;
 
-		if (!input) {
-			return;
-		}
+			if (!input) {
+				return;
+			}
 
-		input.focus();
-		input.select();
-	}, []);
+			input.focus();
+			if (getInitialSelection) {
+				const [start, end] = getInitialSelection(value);
+				input.setSelectionRange(start, end);
+				return;
+			}
+
+			input.select();
+		},
+		[getInitialSelection, value],
+	);
 
 	const commit = useCallback(
 		(newValue: string) => {

@@ -115,6 +115,7 @@ test('textSchema exposes common text style fields', () => {
 	expect(Object.keys(textSchema).sort()).toEqual(
 		[
 			'style.color',
+			'style.fontFamily',
 			'style.fontSize',
 			'style.fontStyle',
 			'style.fontWeight',
@@ -125,6 +126,11 @@ test('textSchema exposes common text style fields', () => {
 	);
 	expect(textSchema['style.color'].type).toBe('color');
 	expect(textSchema['style.color'].default).toBeUndefined();
+	expect(textSchema['style.fontFamily']).toMatchObject({
+		type: 'font-family',
+		default: undefined,
+		keyframable: false,
+	});
 	expect(textSchema['style.fontSize']).toMatchObject({
 		type: 'number',
 		default: undefined,

@@ -298,17 +298,42 @@ export type UnsubscribeFromSequencePropsRequest = {
 	effectKeys: string[][];
 };
 
+export type GoogleFontSourceEdit = {
+	fontFamily: string;
+	importName: string;
+	style: string;
+	weights: string[];
+	subsets: string[];
+};
+
+export type SaveSequencePropSourceEdit = {
+	type: 'google-font';
+	font: GoogleFontSourceEdit;
+};
+
 export type SaveSequencePropEdit = {
 	fileName: string;
 	nodePath: SequencePropsSubscriptionKey;
 	key: string;
-	value: string;
+	value:
+		| {
+				type: 'json';
+				serialized: string;
+		  }
+		| {
+				type: 'undefined';
+		  };
 	defaultValue: string | null;
 	schema: InteractivitySchema;
+	sourceEdit: SaveSequencePropSourceEdit | null;
 };
 
 export type SaveSequencePropsRequest = {
 	edits: SaveSequencePropEdit[];
+	movedKeyframes?: {
+		sequenceKeyframes: MoveSequenceKeyframe[];
+		effectKeyframes: MoveEffectKeyframe[];
+	};
 	clientId: string;
 	undoLabel: string;
 	redoLabel: string;
