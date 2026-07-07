@@ -15,9 +15,7 @@ import {
 	getKeyframeInterpolationFunctionForSchemaField,
 	isKeyframeInterpolationFunction,
 	isSchemaFieldKeyframable,
-	CUBIC_KEYFRAME_EASING,
 	LINEAR_KEYFRAME_EASING,
-	parseSpringEasingConfig,
 	type KeyframeInterpolationFunction,
 } from '@remotion/studio-shared';
 import type {ExpressionKind, SpreadElementKind} from 'ast-types/lib/gen/kinds';
@@ -30,6 +28,7 @@ import type {
 	InteractivitySchema,
 } from 'remotion';
 import {getAstNodePath} from '../../helpers/get-ast-node-path';
+import {parseKeyframeEasingExpression} from '../../helpers/parse-keyframe-easing-expression';
 import {
 	extractStaticValue,
 	findJsxElementAtNodePath,
@@ -403,78 +402,8 @@ const setOptionsProperty = ({
 
 const isLinearEasing = (easing: KeyframeEasing) => easing.type === 'linear';
 
-const getKeyframeEasing = (node: Expression): KeyframeEasing | null => {
-	if (node.type === 'TSAsExpression') {
-		return getKeyframeEasing(node.expression as Expression);
-	}
-
-	if (
-		node.type === 'MemberExpression' &&
-		node.object.type === 'Identifier' &&
-		node.object.name === 'Easing' &&
-		node.property.type === 'Identifier' &&
-		node.computed === false
-	) {
-		if (node.property.name === 'linear') {
-			return {type: 'linear'};
-		}
-
-		if (node.property.name === 'cubic') {
-			return CUBIC_KEYFRAME_EASING;
-		}
-	}
-
-	if (
-		node.type !== 'CallExpression' ||
-		node.callee.type !== 'MemberExpression' ||
-		node.callee.object.type !== 'Identifier' ||
-		node.callee.object.name !== 'Easing' ||
-		node.callee.property.type !== 'Identifier' ||
-		node.callee.computed
-	) {
-		return null;
-	}
-
-	if (node.callee.property.name === 'spring') {
-		if (node.arguments.length > 1) {
-			return null;
-		}
-
-		const springConfig = node.arguments[0];
-		if (
-			springConfig?.type === 'ArgumentPlaceholder' ||
-			springConfig?.type === 'JSXNamespacedName' ||
-			springConfig?.type === 'SpreadElement'
-		) {
-			return null;
-		}
-
-		return parseSpringEasingConfig(springConfig);
-	}
-
-	if (node.callee.property.name !== 'bezier' || node.arguments.length !== 4) {
-		return null;
-	}
-
-	const values = node.arguments.map((arg) => {
-		if (
-			arg.type === 'ArgumentPlaceholder' ||
-			arg.type === 'JSXNamespacedName' ||
-			arg.type === 'SpreadElement'
-		) {
-			return null;
-		}
-
-		return getNumericValue(arg as Expression);
-	});
-
-	if (values.some((value) => value === null)) {
-		return null;
-	}
-
-	const [x1, y1, x2, y2] = values as [number, number, number, number];
-	return {type: 'bezier', x1, y1, x2, y2};
-};
+const getKeyframeEasing = (node: Expression): KeyframeEasing | null =>
+	parseKeyframeEasingExpression(node);
 
 const getKeyframeEasingArray = ({
 	easingNode,

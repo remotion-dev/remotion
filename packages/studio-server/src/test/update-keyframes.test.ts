@@ -232,6 +232,35 @@ export const Example: React.FC = () => {
 	).toBe(2);
 });
 
+test('updateSequenceKeyframes represents Easing.back as bezier when editing keyframes', async () => {
+	const input = `import React from 'react';
+import {AbsoluteFill, Easing, interpolate, useCurrentFrame} from 'remotion';
+
+export const Example: React.FC = () => {
+\tconst frame = useCurrentFrame();
+\treturn (
+\t\t<AbsoluteFill>
+\t\t\t<div style={{scale: interpolate(frame, [0, 100], [0, 1], {easing: Easing.back(2)})}} />
+\t\t</AbsoluteFill>
+\t);
+};
+`;
+	const {output} = await updateSequenceKeyframes({
+		input,
+		nodePath: lineColumnToNodePath(input, getLine(input, 'scale')),
+		updates: [
+			{
+				key: 'style.scale',
+				operation: {type: 'add', frame: 50, value: 0.25},
+			},
+		],
+	});
+
+	expect(output).toContain('interpolate(frame, [0, 50, 100]');
+	expect(output.match(/Easing\.bezier\(/g)?.length).toBe(2);
+	expect(output.match(/-0\.6666666666666666/g)?.length).toBe(2);
+});
+
 test('updateSequenceKeyframes updates a keyframe at the same frame', async () => {
 	const {output, oldValueStrings, newValueStrings} =
 		await updateSequenceKeyframes({
