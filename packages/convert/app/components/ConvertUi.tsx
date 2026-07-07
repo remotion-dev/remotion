@@ -117,7 +117,7 @@ const ConvertUI = ({
 	readonly cropRect: CropRectangle;
 }) => {
 	const [outputContainer, setOutputContainer] = useState<OutputContainer>(() =>
-		getDefaultOutputFormat(inputContainer),
+		getDefaultOutputFormat({inputContainer, action}),
 	);
 	const [videoOperationSelection, setVideoOperationKey] = useState<
 		Record<number, string>

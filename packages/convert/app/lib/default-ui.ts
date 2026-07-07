@@ -80,7 +80,7 @@ export const isConvertEnabledByDefault = (action: RouteAction) => {
 	}
 
 	if (action.type === 'generic-probe') {
-		return true;
+		return false;
 	}
 
 	if (action.type === 'generic-convert') {
@@ -88,55 +88,55 @@ export const isConvertEnabledByDefault = (action: RouteAction) => {
 	}
 
 	if (action.type === 'generic-rotate') {
-		return true;
+		return false;
 	}
 
 	if (action.type === 'rotate-format') {
-		return true;
+		return false;
 	}
 
 	if (action.type === 'mirror-format') {
-		return true;
+		return false;
 	}
 
 	if (action.type === 'generic-mirror') {
-		return true;
+		return false;
 	}
 
 	if (action.type === 'generic-resize') {
-		return true;
+		return false;
 	}
 
 	if (action.type === 'resize-format') {
-		return true;
+		return false;
 	}
 
 	if (action.type === 'report') {
-		return true;
+		return false;
 	}
 
 	if (action.type === 'transcribe') {
-		return true;
+		return false;
 	}
 
 	if (action.type === 'generic-crop') {
-		return true;
+		return false;
 	}
 
 	if (action.type === 'crop-format') {
-		return true;
+		return false;
 	}
 
 	if (action.type === 'generic-trim') {
-		return true;
+		return false;
 	}
 
 	if (action.type === 'trim-format') {
-		return true;
+		return false;
 	}
 
 	if (action.type === 'timing-editor') {
-		return true;
+		return false;
 	}
 
 	throw new Error(
