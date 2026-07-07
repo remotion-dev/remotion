@@ -14,6 +14,7 @@ export const walkOverNode = ({
 	rootElement,
 	onlyBackgroundClipText,
 	scale,
+	waitForPageResponsiveness,
 }: {
 	node: Node;
 	context: OffscreenCanvasRenderingContext2D;
@@ -23,6 +24,7 @@ export const walkOverNode = ({
 	rootElement: HTMLElement | SVGElement;
 	onlyBackgroundClipText: boolean;
 	scale: number;
+	waitForPageResponsiveness?: () => Promise<void>;
 }): Promise<ProcessNodeReturnValue> => {
 	if (node instanceof HTMLElement || node instanceof SVGElement) {
 		return processNode({
@@ -34,6 +36,7 @@ export const walkOverNode = ({
 			internalState,
 			rootElement,
 			scale,
+			waitForPageResponsiveness,
 		});
 	}
 

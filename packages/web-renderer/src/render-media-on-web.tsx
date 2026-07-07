@@ -550,6 +550,7 @@ const internalRenderMediaOnWeb = async <
 					onHtmlInCanvasLayerOutcome: htmlInCanvasContext
 						? onHtmlInCanvasLayerOutcome
 						: undefined,
+					waitForPageResponsiveness,
 				});
 				internalState.addCreateFrameTime(performance.now() - createFrameStart);
 				layerCanvas = layer.canvas;

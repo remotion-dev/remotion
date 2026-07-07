@@ -33,6 +33,7 @@ export const compose = async ({
 	internalState,
 	onlyBackgroundClipText,
 	scale,
+	waitForPageResponsiveness,
 }: {
 	element: HTMLElement | SVGElement;
 	context: OffscreenCanvasRenderingContext2D;
@@ -41,6 +42,7 @@ export const compose = async ({
 	internalState: InternalState;
 	onlyBackgroundClipText: boolean;
 	scale: number;
+	waitForPageResponsiveness?: () => Promise<void>;
 }) => {
 	const treeWalker = document.createTreeWalker(
 		element,
@@ -73,6 +75,7 @@ export const compose = async ({
 			rootElement: element,
 			onlyBackgroundClipText,
 			scale,
+			waitForPageResponsiveness,
 		});
 		if (val.type === 'skip-children') {
 			if (!skipToNextNonDescendant(treeWalker)) {
@@ -87,5 +90,7 @@ export const compose = async ({
 				break;
 			}
 		}
+
+		await waitForPageResponsiveness?.();
 	}
 };

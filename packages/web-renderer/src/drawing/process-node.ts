@@ -32,6 +32,7 @@ export const processNode = async ({
 	internalState,
 	rootElement,
 	scale,
+	waitForPageResponsiveness,
 }: {
 	element: HTMLElement | SVGElement;
 	context: OffscreenCanvasRenderingContext2D;
@@ -41,6 +42,7 @@ export const processNode = async ({
 	internalState: InternalState;
 	rootElement: HTMLElement | SVGElement;
 	scale: number;
+	waitForPageResponsiveness?: () => Promise<void>;
 }): Promise<ProcessNodeReturnValue> => {
 	using transforms = calculateTransforms({
 		element,
@@ -130,7 +132,9 @@ export const processNode = async ({
 			internalState,
 			scale,
 			onlyBackgroundClipText: false,
+			waitForPageResponsiveness,
 		});
+		await waitForPageResponsiveness?.();
 
 		let drawable: OffscreenCanvas | null = tempContext.canvas;
 
@@ -152,6 +156,7 @@ export const processNode = async ({
 				tempContext,
 				scale,
 			});
+			await waitForPageResponsiveness?.();
 		}
 
 		if (precompositing.needs3DTransformViaWebGL) {
@@ -166,6 +171,8 @@ export const processNode = async ({
 			if (t) {
 				drawable = t;
 			}
+
+			await waitForPageResponsiveness?.();
 		}
 
 		const previousTransform = context.getTransform();
@@ -203,6 +210,7 @@ export const processNode = async ({
 		}
 
 		context.setTransform(previousTransform);
+		await waitForPageResponsiveness?.();
 
 		Internals.Log.trace(
 			{
