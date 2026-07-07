@@ -1,5 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
-import {isWebkit} from './IfYouKnowReact';
+import React, {useRef} from 'react';
 import {MakeVideosLinks, type MakeVideosLink} from './MakeVideosLinks';
 
 export const MakeVideosInteractively: React.FC<{
@@ -25,11 +24,6 @@ export const MakeVideosInteractively: React.FC<{
 	fallbackVideoSrc = '/img/editing-safari.mp4',
 }) => {
 	const ref = useRef<HTMLDivElement>(null);
-	const [src, setSrc] = useState(videoSrc);
-
-	useEffect(() => {
-		setSrc(isWebkit() ? fallbackVideoSrc : videoSrc);
-	}, [fallbackVideoSrc, videoSrc]);
 
 	return (
 		<div
@@ -41,7 +35,6 @@ export const MakeVideosInteractively: React.FC<{
 			<div className="flex aspect-square w-full items-start">
 				{showVideo ? (
 					<video
-						src={src}
 						autoPlay
 						muted
 						playsInline
@@ -55,7 +48,10 @@ export const MakeVideosInteractively: React.FC<{
 							overflow: 'hidden',
 						}}
 						className="object-contain"
-					/>
+					>
+						<source src={fallbackVideoSrc} type="video/mp4" />
+						<source src={videoSrc} type="video/webm" />
+					</video>
 				) : null}
 			</div>
 			<div className="font-brand">
