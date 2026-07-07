@@ -352,11 +352,7 @@ See [rules/parameters.md](rules/parameters.md) for making a composition parametr
 
 ## Maps
 
-For simple maps with little flyovers, consider using static map images.
-For complex maps with animated routes or flyovers, ask the user which renderer they want:
-
-- Mapbox: nicer default styles and animations, requires a Mapbox access token. Then load [rules/mapbox.md](rules/mapbox.md).
-- MapLibre: open-source renderer, no Mapbox token required for the default demo style. Then load [rules/maplibre.md](rules/maplibre.md).
+See [rules/map.md](rules/map.md) for choosing between simple static maps, Mapbox maps, and MapLibre maps.
 
 ## Voiceover
 
