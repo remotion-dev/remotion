@@ -864,6 +864,15 @@ export const articles = [
 		slug: 'client-side-rendering/migration',
 	},
 	{
+		id: 'page-responsiveness',
+		title: 'Page responsiveness',
+		relativePath: 'docs/client-side-rendering/page-responsiveness.mdx',
+		compId: 'articles-docs-client-side-rendering-page-responsiveness',
+		crumb: 'Client-side rendering',
+		noAi: false,
+		slug: 'client-side-rendering/page-responsiveness',
+	},
+	{
 		id: 'client-side-rendering/telemetry',
 		title: 'Telemetry in client-side rendering',
 		relativePath: 'docs/client-side-rendering/telemetry.mdx',
@@ -8067,15 +8076,6 @@ export const articles = [
 		crumb: 'API',
 		noAi: false,
 		slug: 'web-renderer/index',
-	},
-	{
-		id: 'page-responsiveness',
-		title: 'Page responsiveness',
-		relativePath: 'docs/web-renderer/page-responsiveness.mdx',
-		compId: 'articles-docs-web-renderer-page-responsiveness',
-		crumb: '@remotion/web-renderer',
-		noAi: false,
-		slug: 'web-renderer/page-responsiveness',
 	},
 	{
 		id: 'render-media-on-web',

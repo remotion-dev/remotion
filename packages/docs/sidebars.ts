@@ -1182,7 +1182,7 @@ const sidebars: SidebarsConfig = {
 				'client-side-rendering/limitations',
 				'client-side-rendering/migration',
 				'client-side-rendering/html-in-canvas',
-				'web-renderer/page-responsiveness',
+				'client-side-rendering/page-responsiveness',
 				'client-side-rendering/cancellation',
 				'client-side-rendering/telemetry',
 				{
