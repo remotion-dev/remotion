@@ -28,7 +28,7 @@ export const createLayer = async ({
 	cutout: DOMRect;
 	htmlInCanvasContext?: HtmlInCanvasContext | null;
 	onHtmlInCanvasLayerOutcome?: (outcome: HtmlInCanvasLayerOutcome) => void;
-	waitForPageResponsiveness?: () => Promise<void>;
+	waitForPageResponsiveness: (() => Promise<void>) | null;
 }) => {
 	const scaledWidth = Math.ceil(cutout.width * scale);
 	const scaledHeight = Math.ceil(cutout.height * scale);

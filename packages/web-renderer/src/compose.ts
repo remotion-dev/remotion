@@ -42,7 +42,7 @@ export const compose = async ({
 	internalState: InternalState;
 	onlyBackgroundClipText: boolean;
 	scale: number;
-	waitForPageResponsiveness?: () => Promise<void>;
+	waitForPageResponsiveness: (() => Promise<void>) | null;
 }) => {
 	const treeWalker = document.createTreeWalker(
 		element,
@@ -91,6 +91,8 @@ export const compose = async ({
 			}
 		}
 
-		await waitForPageResponsiveness?.();
+		if (waitForPageResponsiveness !== null) {
+			await waitForPageResponsiveness();
+		}
 	}
 };
