@@ -6,11 +6,11 @@ export const AtRemotionButton: React.FC<{progress: number}> = () => {
 			<div
 				className="text-black text-[42px] font-brand"
 				style={{
-					fontFamily: 'Helvetica',
+					fontFamily: 'GT Planar',
 					fontWeight: 'bold',
 				}}
 			>
-				Follow @JNYBGR
+				@remotion
 			</div>
 		</AbsoluteFill>
 	);
