@@ -11,8 +11,9 @@ import {useTimelineSelection} from './Timeline/TimelineSelection';
 export const InspectorPanel: React.FC<{
 	readonly composition: _InternalTypes['AnyComposition'] | null;
 	readonly currentDefaultProps: Record<string, unknown>;
+	readonly readOnlyStudio: boolean;
 	readonly setDefaultProps: UpdaterFunction<Record<string, unknown>>;
-}> = ({composition, currentDefaultProps, setDefaultProps}) => {
+}> = ({composition, currentDefaultProps, readOnlyStudio, setDefaultProps}) => {
 	const {selectedItems} = useTimelineSelection();
 	const sameSequenceInspectorSelection = useMemo(
 		() => getSameSequenceInspectorSelection(selectedItems),
@@ -24,6 +25,7 @@ export const InspectorPanel: React.FC<{
 			<DefaultInspector
 				composition={composition}
 				currentDefaultProps={currentDefaultProps}
+				readOnlyStudio={readOnlyStudio}
 				setDefaultProps={setDefaultProps}
 			/>
 		);

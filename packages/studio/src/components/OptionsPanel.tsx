@@ -281,6 +281,7 @@ export const OptionsPanel: React.FC<{
 				<InspectorPanel
 					composition={composition}
 					currentDefaultProps={currentDefaultProps}
+					readOnlyStudio={readOnlyStudio}
 					setDefaultProps={setDefaultProps}
 				/>
 			) : !renderingAvailable ? null : (
