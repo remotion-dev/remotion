@@ -1025,6 +1025,11 @@ const sidebars: SidebarsConfig = {
 			],
 		},
 		{
+			type: 'link',
+			label: 'Templates',
+			href: '/templates',
+		},
+		{
 			type: 'category',
 			label: 'Designing visuals',
 			items: [
