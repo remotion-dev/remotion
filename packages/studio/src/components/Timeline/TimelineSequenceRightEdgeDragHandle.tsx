@@ -10,6 +10,7 @@ import React, {
 	useState,
 } from 'react';
 import type {
+	CanUpdateSequencePropStatusKeyframed,
 	OverrideIdToNodePaths,
 	PropStatuses,
 	SequencePropsSubscriptionKey,
@@ -27,6 +28,10 @@ import {
 	forceSpecificCursor,
 	stopForcingSpecificCursor,
 } from '../ForceSpecificCursor';
+import type {
+	MoveEffectKeyframeChange,
+	MoveSequenceKeyframeChange,
+} from './call-move-keyframe';
 import {
 	saveSequenceProps,
 	type SaveSequencePropChange,
@@ -65,9 +70,94 @@ export type TimelineSequenceLeftEdgeDragTarget = {
 };
 
 export type TimelineSequenceFromDragTarget = {
+	readonly effectKeyframes: TimelineSequenceEffectKeyframeDragTarget[];
 	readonly fileName: string;
 	readonly initialFrom: number;
 	readonly nodePath: SequencePropsSubscriptionKey;
+	readonly sequenceKeyframes: TimelineSequenceKeyframeDragTarget[];
+};
+
+type TimelineSequenceKeyframeDragTarget = {
+	readonly fieldKey: string;
+	readonly schema: InteractivitySchema;
+	readonly status: CanUpdateSequencePropStatusKeyframed;
+};
+
+type TimelineSequenceEffectKeyframeDragTarget =
+	TimelineSequenceKeyframeDragTarget & {
+		readonly effectIndex: number;
+	};
+
+const getKeyframedSequenceDragTargets = ({
+	nodePath,
+	sequence,
+	propStatuses,
+}: {
+	readonly nodePath: SequencePropsSubscriptionKey;
+	readonly sequence: TSequence;
+	readonly propStatuses: PropStatuses;
+}): {
+	readonly effectKeyframes: TimelineSequenceEffectKeyframeDragTarget[];
+	readonly sequenceKeyframes: TimelineSequenceKeyframeDragTarget[];
+} => {
+	const status =
+		propStatuses[Internals.makeSequencePropsSubscriptionKey(nodePath)];
+	if (status === null || status === undefined || !status.canUpdate) {
+		return {effectKeyframes: [], sequenceKeyframes: []};
+	}
+
+	const sequenceSchema = sequence.controls?.schema;
+	const sequenceKeyframes =
+		sequenceSchema === undefined
+			? []
+			: Object.entries(status.props).flatMap(([fieldKey, propStatus]) =>
+					propStatus.status === 'keyframed'
+						? [{fieldKey, schema: sequenceSchema, status: propStatus}]
+						: [],
+				);
+
+	const effectKeyframes = status.effects.flatMap((effectStatus) => {
+		if (!effectStatus.canUpdate) {
+			return [];
+		}
+
+		const effectSchema = sequence.effects[effectStatus.effectIndex]?.schema;
+		if (effectSchema === undefined) {
+			return [];
+		}
+
+		return Object.entries(effectStatus.props).flatMap(
+			([fieldKey, propStatus]) =>
+				propStatus.status === 'keyframed'
+					? [
+							{
+								effectIndex: effectStatus.effectIndex,
+								fieldKey,
+								schema: effectSchema,
+								status: propStatus,
+							},
+						]
+					: [],
+		);
+	});
+
+	return {effectKeyframes, sequenceKeyframes};
+};
+
+const shiftKeyframedStatus = ({
+	status,
+	deltaFrames,
+}: {
+	readonly status: CanUpdateSequencePropStatusKeyframed;
+	readonly deltaFrames: number;
+}): CanUpdateSequencePropStatusKeyframed => {
+	return {
+		...status,
+		keyframes: status.keyframes.map((keyframe) => ({
+			...keyframe,
+			frame: keyframe.frame + deltaFrames,
+		})),
+	};
 };
 
 const canUpdateDurationInFrames = ({
@@ -303,6 +393,49 @@ export const getTimelineSequenceFromDragChanges = ({
 			},
 		];
 	});
+};
+
+export const getTimelineSequenceFromDragKeyframeMoves = ({
+	targets,
+	deltaFrames,
+}: {
+	readonly targets: readonly TimelineSequenceFromDragTarget[];
+	readonly deltaFrames: number;
+}): {
+	readonly effectKeyframes: MoveEffectKeyframeChange[];
+	readonly sequenceKeyframes: MoveSequenceKeyframeChange[];
+} => {
+	if (deltaFrames === 0) {
+		return {effectKeyframes: [], sequenceKeyframes: []};
+	}
+
+	return {
+		sequenceKeyframes: targets.flatMap((target) =>
+			target.sequenceKeyframes.flatMap((keyframeTarget) =>
+				keyframeTarget.status.keyframes.map((keyframe) => ({
+					fileName: target.fileName,
+					nodePath: target.nodePath,
+					fieldKey: keyframeTarget.fieldKey,
+					fromFrame: keyframe.frame,
+					toFrame: keyframe.frame + deltaFrames,
+					schema: keyframeTarget.schema,
+				})),
+			),
+		),
+		effectKeyframes: targets.flatMap((target) =>
+			target.effectKeyframes.flatMap((keyframeTarget) =>
+				keyframeTarget.status.keyframes.map((keyframe) => ({
+					fileName: target.fileName,
+					nodePath: target.nodePath,
+					effectIndex: keyframeTarget.effectIndex,
+					fieldKey: keyframeTarget.fieldKey,
+					fromFrame: keyframe.frame,
+					toFrame: keyframe.frame + deltaFrames,
+					schema: keyframeTarget.schema,
+				})),
+			),
+		),
+	};
 };
 
 const findSequenceTrack = ({
@@ -548,10 +681,18 @@ export const getTimelineSequenceFromDragTargets = ({
 
 		const key = stringifySequenceSubscriptionKey(nodePath);
 		if (!targets.has(key)) {
+			const {effectKeyframes, sequenceKeyframes} =
+				getKeyframedSequenceDragTargets({
+					nodePath,
+					sequence: originalSequence,
+					propStatuses,
+				});
 			targets.set(key, {
+				effectKeyframes,
 				fileName: nodePath.absolutePath,
 				initialFrom: originalSequence.from,
 				nodePath,
+				sequenceKeyframes,
 			});
 		}
 	}
@@ -585,13 +726,24 @@ const clearDurationDragOverrides = ({
 
 const clearFromDragOverrides = ({
 	clearDragOverrides,
+	clearEffectDragOverrides,
 	targets,
 }: {
 	readonly clearDragOverrides: (nodePath: SequencePropsSubscriptionKey) => void;
+	readonly clearEffectDragOverrides: (
+		nodePath: SequencePropsSubscriptionKey,
+		effectIndex: number,
+	) => void;
 	readonly targets: readonly TimelineSequenceFromDragTarget[];
 }) => {
 	for (const target of targets) {
 		clearDragOverrides(target.nodePath);
+		const effectIndexes = new Set(
+			target.effectKeyframes.map((keyframe) => keyframe.effectIndex),
+		);
+		for (const effectIndex of effectIndexes) {
+			clearEffectDragOverrides(target.nodePath, effectIndex);
+		}
 	}
 };
 
@@ -857,9 +1009,13 @@ export const useTimelineSequenceFromDrag = ({
 	readonly windowWidth: number;
 	readonly timelineDurationInFrames: number;
 }) => {
-	const {setPropStatuses, setDragOverrides, clearDragOverrides} = useContext(
-		Internals.VisualModeSettersContext,
-	);
+	const {
+		setPropStatuses,
+		setDragOverrides,
+		clearDragOverrides,
+		setEffectDragOverrides,
+		clearEffectDragOverrides,
+	} = useContext(Internals.VisualModeSettersContext);
 	const propStatusesRef = useContext(
 		Internals.VisualModePropStatusesRefContext,
 	);
@@ -884,6 +1040,8 @@ export const useTimelineSequenceFromDrag = ({
 		setPropStatuses,
 		setDragOverrides,
 		clearDragOverrides,
+		setEffectDragOverrides,
+		clearEffectDragOverrides,
 		previewServerState,
 		overrideIdToNodePathMappings,
 	});
@@ -892,6 +1050,8 @@ export const useTimelineSequenceFromDrag = ({
 		setPropStatuses,
 		setDragOverrides,
 		clearDragOverrides,
+		setEffectDragOverrides,
+		clearEffectDragOverrides,
 		previewServerState,
 		overrideIdToNodePathMappings,
 	};
@@ -910,6 +1070,7 @@ export const useTimelineSequenceFromDrag = ({
 		const {
 			setPropStatuses: latestSetPropStatuses,
 			clearDragOverrides: latestClear,
+			clearEffectDragOverrides: latestClearEffect,
 			previewServerState: latestServerState,
 		} = latestRef.current;
 
@@ -917,14 +1078,21 @@ export const useTimelineSequenceFromDrag = ({
 			targets: dragState.targets,
 			deltaFrames: dragState.latestDeltaFrames,
 		});
+		const keyframeMoves = getTimelineSequenceFromDragKeyframeMoves({
+			targets: dragState.targets,
+			deltaFrames: dragState.latestDeltaFrames,
+		});
 
 		if (
 			!commit ||
 			latestServerState.type !== 'connected' ||
-			changes.length === 0
+			(changes.length === 0 &&
+				keyframeMoves.sequenceKeyframes.length === 0 &&
+				keyframeMoves.effectKeyframes.length === 0)
 		) {
 			clearFromDragOverrides({
 				clearDragOverrides: latestClear,
+				clearEffectDragOverrides: latestClearEffect,
 				targets: dragState.targets,
 			});
 			return;
@@ -932,12 +1100,18 @@ export const useTimelineSequenceFromDrag = ({
 
 		const savePromise = saveSequenceProps({
 			changes,
+			movedKeyframes: {
+				sequenceKeyframes: keyframeMoves.sequenceKeyframes,
+				effectKeyframes: keyframeMoves.effectKeyframes,
+			},
 			setPropStatuses: latestSetPropStatuses,
 			clientId: latestServerState.clientId,
 			undoLabel:
-				changes.length > 1 ? 'Move selected sequences' : 'Move sequence',
+				dragState.targets.length > 1
+					? 'Move selected sequences'
+					: 'Move sequence',
 			redoLabel:
-				changes.length > 1
+				dragState.targets.length > 1
 					? 'Move selected sequences back'
 					: 'Move sequence back',
 		});
@@ -953,6 +1127,7 @@ export const useTimelineSequenceFromDrag = ({
 			.finally(() => {
 				clearFromDragOverrides({
 					clearDragOverrides: latestClear,
+					clearEffectDragOverrides: latestClearEffect,
 					targets: dragState.targets,
 				});
 			});
@@ -1028,16 +1203,43 @@ export const useTimelineSequenceFromDrag = ({
 			const deltaFrames = Math.round(dx / dragState.pxPerFrame);
 			dragState.latestDeltaFrames = deltaFrames;
 			for (const target of dragState.targets) {
+				const nextFrom = getTimelineSequenceFromDragValue({
+					initialFrom: target.initialFrom,
+					deltaFrames,
+				});
 				latestRef.current.setDragOverrides(
 					target.nodePath,
 					'from',
-					Internals.makeStaticDragOverride(
-						getTimelineSequenceFromDragValue({
-							initialFrom: target.initialFrom,
-							deltaFrames,
-						}),
-					),
+					Internals.makeStaticDragOverride(nextFrom),
 				);
+				for (const keyframeTarget of target.sequenceKeyframes) {
+					latestRef.current.setDragOverrides(
+						target.nodePath,
+						keyframeTarget.fieldKey,
+						{
+							type: 'keyframed',
+							status: shiftKeyframedStatus({
+								status: keyframeTarget.status,
+								deltaFrames,
+							}),
+						},
+					);
+				}
+
+				for (const keyframeTarget of target.effectKeyframes) {
+					latestRef.current.setEffectDragOverrides(
+						target.nodePath,
+						keyframeTarget.effectIndex,
+						keyframeTarget.fieldKey,
+						{
+							type: 'keyframed',
+							status: shiftKeyframedStatus({
+								status: keyframeTarget.status,
+								deltaFrames,
+							}),
+						},
+					);
+				}
 			}
 		};
 

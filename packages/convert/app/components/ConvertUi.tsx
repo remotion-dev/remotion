@@ -29,7 +29,10 @@ import {
 	getActualAudioOperation,
 	getActualVideoOperation,
 } from '~/lib/get-audio-video-config-index';
-import {getDefaultOutputFormat} from '~/lib/get-default-output-format';
+import {
+	getDefaultConvertOutputFormat,
+	getDefaultEditOutputFormat,
+} from '~/lib/get-default-output-format';
 import {getDurationOrCompute} from '~/lib/get-duration-or-compute';
 import {getInitialResizeSuggestion} from '~/lib/get-initial-resize-suggestion';
 import {isReencoding} from '~/lib/is-reencoding';
@@ -61,7 +64,12 @@ const ConvertUI = ({
 	tracks,
 	setSrc,
 	durationInSeconds,
+	fps,
 	action,
+	trim,
+	setTrim,
+	trimInFrame,
+	trimOutFrame,
 	enableRotateOrMirror,
 	setEnableRotateOrMirror,
 	userRotation,
@@ -87,9 +95,14 @@ const ConvertUI = ({
 	readonly videoThumbnailRef: React.RefObject<VideoThumbnailRef | null>;
 	readonly dimensions: Dimensions | null | undefined;
 	readonly durationInSeconds: number | null;
+	readonly fps: number | null | undefined;
 	readonly rotation: number | null;
 	readonly inputContainer: InputFormat;
 	readonly action: RouteAction;
+	readonly trim: boolean;
+	readonly setTrim: React.Dispatch<React.SetStateAction<boolean>>;
+	readonly trimInFrame: number | null;
+	readonly trimOutFrame: number | null;
 	readonly name: string;
 	readonly input: Input;
 	readonly enableRotateOrMirror: RotateOrMirrorOrCropState;
@@ -106,9 +119,20 @@ const ConvertUI = ({
 	readonly sampleRate: number | null;
 	readonly cropRect: CropRectangle;
 }) => {
-	const [outputContainer, setOutputContainer] = useState<OutputContainer>(() =>
-		getDefaultOutputFormat(inputContainer),
+	const [enableConvert, setEnableConvert] = useState(() =>
+		isConvertEnabledByDefault(action),
 	);
+	const editOutputContainer = useMemo(
+		() => getDefaultEditOutputFormat(inputContainer),
+		[inputContainer],
+	);
+	const [convertOutputContainer, setConvertOutputContainer] =
+		useState<OutputContainer>(() =>
+			getDefaultConvertOutputFormat({inputContainer, action}),
+		);
+	const actualOutputContainer = enableConvert
+		? convertOutputContainer
+		: editOutputContainer;
 	const [videoOperationSelection, setVideoOperationKey] = useState<
 		Record<number, string>
 	>({});
@@ -117,9 +141,6 @@ const ConvertUI = ({
 	>({});
 	const [state, setState] = useState<ConvertState>({type: 'idle'});
 	useState<number | null>(null);
-	const [enableConvert, setEnableConvert] = useState(() =>
-		isConvertEnabledByDefault(action),
-	);
 	const [resizeOperation, setResizeOperation] =
 		useState<MediabunnyResize | null>(() => {
 			return (action.type === 'resize-format' ||
@@ -158,7 +179,7 @@ const ConvertUI = ({
 	}, [resampleRate, canResample, resampleUserPreferenceActive]);
 
 	const supportedConfigs = useSupportedConfigs({
-		outputContainer,
+		outputContainer: actualOutputContainer,
 		tracks,
 		action,
 		userRotation,
@@ -209,7 +230,7 @@ const ConvertUI = ({
 			onWaveformBars,
 		});
 
-		const format = getMediabunnyOutput(outputContainer);
+		const format = getMediabunnyOutput(actualOutputContainer);
 
 		let cancelConversion = () => {};
 
@@ -252,6 +273,16 @@ const ConvertUI = ({
 				const conversion = await Conversion.init({
 					input,
 					output,
+					trim:
+						trim && fps
+							? {
+									start: trimInFrame === null ? undefined : trimInFrame / fps,
+									end:
+										trimOutFrame === null
+											? undefined
+											: (trimOutFrame + 1) / fps,
+								}
+							: undefined,
 					video: (videoTrack) => {
 						const operation = getActualVideoOperation({
 							enableConvert,
@@ -412,6 +443,7 @@ const ConvertUI = ({
 		};
 	}, [
 		audioOperationSelection,
+		actualOutputContainer,
 		dimensions,
 		enableConvert,
 		enableRotateOrMirror,
@@ -420,9 +452,12 @@ const ConvertUI = ({
 		input,
 		name,
 		onWaveformBars,
-		outputContainer,
 		resizeOperation,
 		supportedConfigs,
+		fps,
+		trim,
+		trimInFrame,
+		trimOutFrame,
 		userRotation,
 		videoOperationSelection,
 		crop,
@@ -574,7 +609,7 @@ const ConvertUI = ({
 				/>
 				<div className="h-2" />
 				<ConversionDone
-					{...{container: outputContainer, name, setState, state, setSrc}}
+					{...{container: actualOutputContainer, name, setState, state, setSrc}}
 				/>
 			</>
 		);
@@ -586,6 +621,7 @@ const ConvertUI = ({
 		videoConfigIndexSelection: videoOperationSelection,
 		enableConvert,
 		enableRotateOrMirror,
+		enableTrim: trim,
 	});
 
 	const canPixelManipulate = canRotateOrMirror({
@@ -616,8 +652,8 @@ const ConvertUI = ({
 										<div className="h-2" />
 										<ConvertForm
 											{...{
-												container: outputContainer,
-												setContainer: setOutputContainer,
+												container: convertOutputContainer,
+												setContainer: setConvertOutputContainer,
 												flipHorizontal,
 												flipVertical,
 												setFlipHorizontal,
@@ -712,6 +748,22 @@ const ConvertUI = ({
 								{crop ? (
 									<div className="text-gray-700 text-sm mt-2">
 										Use the handles above to crop the video.
+									</div>
+								) : null}
+							</div>
+						);
+					}
+
+					if (section === 'trim') {
+						return (
+							<div key="trim">
+								<ConvertUiSection active={trim} setActive={setTrim}>
+									Trim
+								</ConvertUiSection>
+								{trim ? (
+									<div className="text-gray-700 text-sm mt-2">
+										Use the handles below the player to choose the start and end
+										of the video.
 									</div>
 								) : null}
 							</div>

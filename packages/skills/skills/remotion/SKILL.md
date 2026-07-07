@@ -27,6 +27,7 @@ Animate properties using `useCurrentFrame()` and `interpolate()`. Prefer `interp
 
 For animations that should be editable in Remotion Studio, keep the `interpolate()` call inline in the `style` prop and use individual CSS transform properties (`scale`, `translate`, `rotate`) instead of composing a `transform` string.
 To make an element or custom component interactive in Remotion Studio, follow https://www.remotion.dev/docs/studio/make-component-interactive.
+When using `Interactive.*` or custom interactive components, set a descriptive `name` prop such as `name="Hero title"` so the element is identifiable in the Studio timeline and by agents. Do not use `name=""`.
 
 ```tsx
 import { useCurrentFrame, Easing, interpolate, useVideoConfig } from "remotion";
@@ -352,8 +353,7 @@ See [rules/parameters.md](rules/parameters.md) for making a composition parametr
 
 ## Maps
 
-For simple maps with little flyovers, consider using static map images.
-For complex maps with animated routes or flyovers, load the maps rule: [rules/maplibre.md](rules/maplibre.md)
+See [rules/map.md](rules/map.md) for choosing between simple static maps, Mapbox maps, and MapLibre maps.
 
 ## Voiceover
 

@@ -32,6 +32,7 @@ import {PlaybackRateSelector} from './PlaybackRateSelector';
 import {PlayPause} from './PlayPause';
 import {RenderButton} from './RenderButton';
 import {SizeSelector} from './SizeSelector';
+import {SnappingToggle} from './SnappingToggle';
 import {TimelineZoomControls} from './Timeline/TimelineZoomControls';
 import {TimelineInOutPointToggle} from './TimelineInOutToggle';
 
@@ -261,6 +262,9 @@ export const PreviewToolbar: React.FC<{
 					</PreviewToolbarControl>
 					<PreviewToolbarControl>
 						<OutlineToggle />
+					</PreviewToolbarControl>
+					<PreviewToolbarControl>
+						<SnappingToggle />
 					</PreviewToolbarControl>
 				</>
 			) : null}

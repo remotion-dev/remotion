@@ -72,6 +72,7 @@ const TRANSFORM_FIELD_KEYS = new Set([
 const TEXT_FIELD_KEYS = new Set([
 	'children',
 	'style.color',
+	'style.fontFamily',
 	'style.fontSize',
 	'style.lineHeight',
 	'style.fontWeight',
@@ -115,6 +116,7 @@ const SUPPORTED_SCHEMA_TYPES = [
 	'uv-coordinate',
 	'color',
 	'text-content',
+	'font-family',
 	'array',
 	'enum',
 	'hidden',

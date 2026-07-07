@@ -1,4 +1,10 @@
-import {getBoundingBox, parsePath, resetPath, scalePath} from '@remotion/paths';
+import {
+	centerPath,
+	getBoundingBox,
+	parsePath,
+	resetPath,
+	scalePath,
+} from '@remotion/paths';
 import {makeRect, makeTriangle} from '@remotion/shapes';
 import React from 'react';
 import {
@@ -8,7 +14,6 @@ import {
 	useCurrentFrame,
 	useVideoConfig,
 } from 'remotion';
-import {centerPath} from './center';
 import {BLUE, GREEN} from './colors';
 import {makeElement, transformElement} from './element';
 import {Faces} from './Faces';

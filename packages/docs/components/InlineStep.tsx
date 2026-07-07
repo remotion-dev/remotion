@@ -73,6 +73,7 @@ export const Step: React.FC<{
 				marginBottom: 4,
 				cursor: 'pointer',
 				textDecoration: 'none',
+				color: 'white',
 			}}
 			href={`#${children!.toString()}`}
 		>
