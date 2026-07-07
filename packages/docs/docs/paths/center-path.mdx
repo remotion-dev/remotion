@@ -1,0 +1,46 @@
+---
+image: /generated/articles-docs-paths-center-path.png
+title: centerPath()
+crumb: "@remotion/paths"
+---
+
+_Part of the [`@remotion/paths`](/docs/paths) package. Available from v4.0.486_
+
+Translates an SVG path so that the center of the [bounding box](/docs/paths/get-bounding-box) is at a target point.
+
+By default, the path is centered around `0, 0`.
+
+```tsx twoslash title="center-path.ts"
+import { centerPath } from "@remotion/paths";
+
+const newPath = centerPath("M 10 10 L 20 20"); // M -5 -5 L 5 5
+```
+
+## Arguments
+
+### path
+
+The original SVG path.
+
+### target?
+
+The point that the center of the bounding box should be translated to. Default: `{x: 0, y: 0}`.
+
+```tsx twoslash title="center-path-target.ts"
+import { centerPath } from "@remotion/paths";
+
+const newPath = centerPath("M 10 10 L 20 20", { x: 100, y: 50 }); // M 95 45 L 105 55
+```
+
+## Return value
+
+Returns a new `string` containing the translated path.
+
+This function will throw if the SVG path is invalid.
+
+## See also
+
+- [`resetPath()`](/docs/paths/reset-path)
+- [`translatePath()`](/docs/paths/translate-path)
+- [`getBoundingBox()`](/docs/paths/get-bounding-box)
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/paths/src/center-path.ts)
