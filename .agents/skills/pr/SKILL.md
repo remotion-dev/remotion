@@ -37,6 +37,7 @@ Use the `gh` CLI to create a pull request and use the same format as above for t
 When creating the PR, do not pass the PR body inline through a shell command (for example, avoid `--body "..."` or heredocs in `bash`). Instead:
 
 1. Write the PR body to a temporary Markdown file in the system temp directory (for example `/tmp/remotion-pr-body.md`, or a unique file created under `/tmp`).
+   - If the current work was started from, fixes, or is otherwise tied to a GitHub issue, include a closing keyword in the PR body such as `Closes #1234` or `Closes https://github.com/owner/repo/issues/1234`. Preserve the issue number or URL from the user's original request if they provided one.
 2. Create the PR with `gh pr create --title "<title>" --body-file <path-to-temp-md-file>`.
 
 Example:

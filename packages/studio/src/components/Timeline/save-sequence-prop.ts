@@ -8,6 +8,11 @@ import type {
 	InteractivitySchema,
 } from 'remotion';
 import {callApi} from '../call-api';
+import {
+	applyOptimisticKeyframeMoves,
+	type MoveEffectKeyframeChange,
+	type MoveSequenceKeyframeChange,
+} from './call-move-keyframe';
 import {enqueueSavePropChange} from './save-prop-queue';
 
 export type SetPropStatuses = (
@@ -29,6 +34,10 @@ export type SaveSequencePropChange = {
 
 type SaveSequencePropsOptions = {
 	changes: SaveSequencePropChange[];
+	movedKeyframes?: {
+		sequenceKeyframes: MoveSequenceKeyframeChange[];
+		effectKeyframes: MoveEffectKeyframeChange[];
+	};
 	setPropStatuses: SetPropStatuses;
 	clientId: string;
 	undoLabel: string;
@@ -45,16 +54,27 @@ const serializeSequencePropValue = (value: unknown) => {
 
 export const saveSequenceProps = ({
 	changes,
+	movedKeyframes,
 	setPropStatuses,
 	clientId,
 	undoLabel,
 	redoLabel,
 }: SaveSequencePropsOptions): Promise<void> => {
-	if (changes.length === 0) {
+	const sequenceKeyframes = movedKeyframes?.sequenceKeyframes ?? [];
+	const effectKeyframes = movedKeyframes?.effectKeyframes ?? [];
+	if (
+		changes.length === 0 &&
+		sequenceKeyframes.length === 0 &&
+		effectKeyframes.length === 0
+	) {
 		return Promise.resolve();
 	}
 
-	if (changes.length === 1) {
+	if (
+		changes.length === 1 &&
+		sequenceKeyframes.length === 0 &&
+		effectKeyframes.length === 0
+	) {
 		const change = changes[0];
 		if (change === undefined) {
 			throw new Error('Expected a sequence prop change');
@@ -92,6 +112,12 @@ export const saveSequenceProps = ({
 		});
 	}
 
+	applyOptimisticKeyframeMoves({
+		sequenceKeyframes,
+		effectKeyframes,
+		setPropStatuses,
+	});
+
 	for (const change of changes) {
 		setPropStatuses(change.nodePath, (prev) =>
 			optimisticUpdateForPropStatuses({
@@ -116,6 +142,25 @@ export const saveSequenceProps = ({
 				sourceEdit: change.sourceEdit ?? null,
 			};
 		}),
+		movedKeyframes: {
+			sequenceKeyframes: sequenceKeyframes.map((keyframe) => ({
+				fileName: keyframe.fileName,
+				nodePath: keyframe.nodePath,
+				key: keyframe.fieldKey,
+				fromFrame: keyframe.fromFrame,
+				toFrame: keyframe.toFrame,
+				schema: keyframe.schema,
+			})),
+			effectKeyframes: effectKeyframes.map((keyframe) => ({
+				fileName: keyframe.fileName,
+				sequenceNodePath: keyframe.nodePath,
+				effectIndex: keyframe.effectIndex,
+				key: keyframe.fieldKey,
+				fromFrame: keyframe.fromFrame,
+				toFrame: keyframe.toFrame,
+				schema: keyframe.schema,
+			})),
+		},
 		clientId,
 		undoLabel,
 		redoLabel,

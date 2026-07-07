@@ -101,6 +101,7 @@ import {
 	getTimelineSequenceDurationDragTargets,
 	getTimelineSequenceDurationDragValue,
 	getTimelineSequenceFromDragChanges,
+	getTimelineSequenceFromDragKeyframeMoves,
 	getTimelineSequenceFromDragTargets,
 	getTimelineSequenceFromDragValue,
 	getTimelineSequenceLeftEdgeDragChanges,
@@ -1433,6 +1434,140 @@ test('Timeline from drag applies the same delta to selected sequences', () => {
 	).toEqual([12, 22]);
 });
 
+test('Timeline from drag moves all owned sequence keyframes by the same delta', () => {
+	const schema = {
+		'style.translate': {type: 'translate', default: '0px 0px'},
+		opacity: {type: 'number', default: 1, hiddenFromList: false},
+	} satisfies InteractivitySchema;
+	const nodePathInfo = makeNodePathInfo(['body', 0], []);
+	const nodePath = nodePathInfo.sequenceSubscriptionKey;
+	const propStatuses = makeFromPropStatuses([nodePath]);
+	propStatuses[Internals.makeSequencePropsSubscriptionKey(nodePath)] = {
+		canUpdate: true,
+		props: {
+			from: {status: 'static', codeValue: 0},
+			'style.translate': {
+				status: 'keyframed',
+				interpolationFunction: 'interpolate',
+				keyframes: [
+					{frame: 0, value: '0px 0px'},
+					{frame: 40, value: '100px 50px'},
+				],
+				easing: [{type: 'linear'}],
+				clamping: {left: 'extend', right: 'extend'},
+				posterize: undefined,
+			},
+			opacity: {
+				status: 'keyframed',
+				interpolationFunction: 'interpolate',
+				keyframes: [
+					{frame: 10, value: 0},
+					{frame: 20, value: 1},
+				],
+				easing: [{type: 'linear'}],
+				clamping: {left: 'clamp', right: 'clamp'},
+				posterize: undefined,
+			},
+		},
+		effects: [],
+	};
+	const targets = getTimelineSequenceFromDragTargets({
+		draggedNodePathInfo: nodePathInfo,
+		selectedItems: [{type: 'sequence', nodePathInfo}],
+		sequences: [
+			makeTimelineSequence({
+				schema,
+				duration: 40,
+				from: 0,
+			}),
+		],
+		overrideIdsToNodePaths: {override: nodePath},
+		propStatuses,
+	});
+
+	expect(
+		getTimelineSequenceFromDragKeyframeMoves({
+			targets: targets ?? [],
+			deltaFrames: 12,
+		}).sequenceKeyframes.map((keyframe) => [
+			keyframe.fieldKey,
+			keyframe.fromFrame,
+			keyframe.toFrame,
+		]),
+	).toEqual([
+		['style.translate', 0, 12],
+		['style.translate', 40, 52],
+		['opacity', 10, 22],
+		['opacity', 20, 32],
+	]);
+});
+
+test('Timeline from drag moves owned effect keyframes by the same delta', () => {
+	const schema = {} satisfies InteractivitySchema;
+	const effectSchema = {
+		intensity: {type: 'number', default: 0, hiddenFromList: false},
+	} satisfies InteractivitySchema;
+	const nodePathInfo = makeNodePathInfo(['body', 0], [], true, [
+		['0', 'intensity'],
+	]);
+	const nodePath = nodePathInfo.sequenceSubscriptionKey;
+	const propStatuses = makeFromPropStatuses([nodePath]);
+	propStatuses[Internals.makeSequencePropsSubscriptionKey(nodePath)] = {
+		canUpdate: true,
+		props: {
+			from: {status: 'static', codeValue: 0},
+		},
+		effects: [
+			{
+				canUpdate: true,
+				callee: 'halftone',
+				importPath: '@remotion/effects/halftone',
+				effectIndex: 0,
+				props: {
+					intensity: {
+						status: 'keyframed',
+						interpolationFunction: 'interpolate',
+						keyframes: [
+							{frame: 5, value: 10},
+							{frame: 25, value: 20},
+						],
+						easing: [{type: 'linear'}],
+						clamping: {left: 'clamp', right: 'clamp'},
+						posterize: undefined,
+					},
+				},
+			},
+		],
+	};
+	const targets = getTimelineSequenceFromDragTargets({
+		draggedNodePathInfo: nodePathInfo,
+		selectedItems: [{type: 'sequence', nodePathInfo}],
+		sequences: [
+			makeTimelineSequence({
+				schema,
+				effects: [{schema: effectSchema}],
+			}),
+		],
+		overrideIdsToNodePaths: {override: nodePath},
+		propStatuses,
+	});
+
+	expect(
+		getTimelineSequenceFromDragKeyframeMoves({
+			targets: targets ?? [],
+			deltaFrames: -7,
+		}).effectKeyframes.map((keyframe) => [
+			keyframe.effectIndex,
+			keyframe.fieldKey,
+			keyframe.fromFrame,
+			keyframe.toFrame,
+		]),
+	).toEqual([
+		[0, 'intensity', 5, -2],
+		[0, 'intensity', 25, 18],
+	]);
+});
+
 test('Timeline from drag supports negative offsets', () => {
 	expect(
 		getTimelineSequenceFromDragValue({
@@ -1536,9 +1671,11 @@ test('Timeline from drag removes the prop at the default value', () => {
 	const [change] = getTimelineSequenceFromDragChanges({
 		targets: [
 			{
+				effectKeyframes: [],
 				fileName: nodePathInfo.sequenceSubscriptionKey.absolutePath,
 				initialFrom: 5,
 				nodePath: nodePathInfo.sequenceSubscriptionKey,
+				sequenceKeyframes: [],
 			},
 		],
 		deltaFrames: -5,
