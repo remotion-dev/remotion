@@ -13,7 +13,7 @@ export const MakeVideosAgentically: React.FC<{
 }> = ({
 	title = (
 		<>
-			<span className="text-gray-500">Make videos</span>
+			<span className="text-[var(--subtitle)]">Make videos</span>
 			<br /> agentically
 		</>
 	),

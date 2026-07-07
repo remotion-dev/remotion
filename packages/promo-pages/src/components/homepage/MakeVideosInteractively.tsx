@@ -13,7 +13,7 @@ export const MakeVideosInteractively: React.FC<{
 }> = ({
 	title = (
 		<>
-			<span className="text-gray-500">Make videos</span>
+			<span className="text-[var(--subtitle)]">Make videos</span>
 			<br /> interactively
 		</>
 	),
@@ -22,7 +22,7 @@ export const MakeVideosInteractively: React.FC<{
 	links = [{label: 'Remotion Studio', href: '/docs/studio'}],
 	showVideo = true,
 	videoSrc = '/img/editing-vp9-chrome.webm',
-	fallbackVideoSrc = '/img/editing-safari.mp4',
+	fallbackVideoSrc = '/img/editing-safari.mov',
 }) => {
 	const ref = useRef<HTMLDivElement>(null);
 	const [src, setSrc] = useState(videoSrc);

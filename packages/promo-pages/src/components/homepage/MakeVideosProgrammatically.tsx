@@ -13,16 +13,16 @@ export const MakeVideosProgrammatically: React.FC<{
 }> = ({
 	title = (
 		<>
-			<span className="text-gray-500">Make videos</span>
+			<span className="text-[var(--subtitle)]">Make videos</span>
 			<br /> programmatically
 		</>
 	),
-	description = 'Connect data, and manage complexity with code.',
+	description = 'Connect data and manage complexity with code.',
 	showLinks = true,
 	links = [],
 	showVideo = true,
 	videoSrc = '/img/what-is-remotion.webm',
-	fallbackVideoSrc = '/img/what-is-remotion.mp4',
+	fallbackVideoSrc = '/img/what-is-remotion.mov',
 }) => {
 	const [src, setSrc] = useState(videoSrc);
 

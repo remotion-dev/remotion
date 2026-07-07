@@ -290,6 +290,10 @@ export const CodingPrompt: React.FC<CodingPromptProps> = ({
 												}}
 											/>
 										}
+										style={{
+											scale: 0.955,
+											translate: '-105.3px 39px',
+										}}
 									>
 										<FrontFace
 											promptLine1={promptLine1}
