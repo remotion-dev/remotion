@@ -28,10 +28,9 @@ import {
 	forceSpecificCursor,
 	stopForcingSpecificCursor,
 } from '../ForceSpecificCursor';
-import {
-	callMoveKeyframes,
-	type MoveEffectKeyframeChange,
-	type MoveSequenceKeyframeChange,
+import type {
+	MoveEffectKeyframeChange,
+	MoveSequenceKeyframeChange,
 } from './call-move-keyframe';
 import {
 	saveSequenceProps,
@@ -1099,27 +1098,23 @@ export const useTimelineSequenceFromDrag = ({
 			return;
 		}
 
-		const savePromise = Promise.all([
-			saveSequenceProps({
-				changes,
-				setPropStatuses: latestSetPropStatuses,
-				clientId: latestServerState.clientId,
-				undoLabel:
-					dragState.targets.length > 1
-						? 'Move selected sequences'
-						: 'Move sequence',
-				redoLabel:
-					dragState.targets.length > 1
-						? 'Move selected sequences back'
-						: 'Move sequence back',
-			}),
-			callMoveKeyframes({
+		const savePromise = saveSequenceProps({
+			changes,
+			movedKeyframes: {
 				sequenceKeyframes: keyframeMoves.sequenceKeyframes,
 				effectKeyframes: keyframeMoves.effectKeyframes,
-				setPropStatuses: latestSetPropStatuses,
-				clientId: latestServerState.clientId,
-			}),
-		]);
+			},
+			setPropStatuses: latestSetPropStatuses,
+			clientId: latestServerState.clientId,
+			undoLabel:
+				dragState.targets.length > 1
+					? 'Move selected sequences'
+					: 'Move sequence',
+			redoLabel:
+				dragState.targets.length > 1
+					? 'Move selected sequences back'
+					: 'Move sequence back',
+		});
 
 		savePromise
 			.catch((err) => {

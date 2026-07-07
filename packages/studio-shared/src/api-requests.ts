@@ -309,6 +309,10 @@ export type SaveSequencePropEdit = {
 
 export type SaveSequencePropsRequest = {
 	edits: SaveSequencePropEdit[];
+	movedKeyframes?: {
+		sequenceKeyframes: MoveSequenceKeyframe[];
+		effectKeyframes: MoveEffectKeyframe[];
+	};
 	clientId: string;
 	undoLabel: string;
 	redoLabel: string;
