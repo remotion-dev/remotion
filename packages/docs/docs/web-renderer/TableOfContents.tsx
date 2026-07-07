@@ -18,10 +18,6 @@ export const TableOfContents: React.FC = () => {
 					<strong>{'canRenderMediaOnWeb()'}</strong>
 					<div>Check if a render can be performed</div>
 				</TOCItem>
-				<TOCItem link="/docs/web-renderer/page-responsiveness">
-					<strong>{'Page responsiveness'}</strong>
-					<div>Keep the browser tab interactive while rendering</div>
-				</TOCItem>
 				<TOCItem link="/docs/web-renderer/get-encodable-video-codecs">
 					<strong>{'getEncodableVideoCodecs()'}</strong>
 					<div>Get video codecs the browser can encode</div>
