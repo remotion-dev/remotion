@@ -130,7 +130,7 @@ Forward it to the `<Sequence>` that registers the component in the timeline.
 An [`InteractivitySchema`](/docs/interactivity-schema) that describes which props are editable in Remotion Studio.
 
 Use [`Interactive.baseSchema`](/docs/interactive#interactivebaseschema) for Sequence-like timeline props. Use [`Interactive.transformSchema`](/docs/interactive#interactivetransformschema) if the component accepts a `style` prop and should expose transform controls.
-For reliable source updates, follow [Interactivity best practices](/docs/studio/interactivity-best-practices): Keep editable values inline, use `translate`, `scale`, `rotate` and `opacity` directly, and avoid animated layout props or `transform` strings.
+For reliable source updates, follow [Interactivity best practices](/docs/studio/interactivity-best-practices): Keep editable values inline, use hardcoded `interpolate()` keyframe arrays, use `translate`, `scale`, `rotate` and `opacity` directly, and avoid animated layout props or `transform` strings.
 
 ### `componentIdentity`
 
