@@ -12,7 +12,7 @@ export const LowerThird: React.FC = () => {
 
 	return (
 		<Interactive.Div
-			name="Lower third"
+			name="Container"
 			style={{
 				display: 'flex',
 				alignItems: 'center',
