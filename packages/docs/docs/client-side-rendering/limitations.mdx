@@ -198,8 +198,8 @@ In addition, in the headful browser, GPU is usually available, which brings perf
 
 ## Page responsiveness
 
-By default, [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web) prioritizes render speed.
-Pass [`pageResponsiveness`](/docs/web-renderer/render-media-on-web#pageresponsiveness) to intentionally pause between frames and keep the page more responsive.
+By default, [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web) intentionally pauses between expensive render phases to keep the page responsive.
+Set [`pageResponsiveness`](/docs/web-renderer/render-media-on-web#pageresponsiveness) to `"disabled"` to prioritize render speed instead.
 
 Higher responsiveness settings make renders slower.
 

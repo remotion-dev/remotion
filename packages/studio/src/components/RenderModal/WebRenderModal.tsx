@@ -283,7 +283,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	);
 	const [pageResponsiveness, setPageResponsiveness] =
 		useState<WebRendererPageResponsiveness>(
-			initialPageResponsiveness ?? 'disabled',
+			initialPageResponsiveness ?? 'medium',
 		);
 
 	const encodableAudioCodecs = useEncodableAudioCodecs(container);

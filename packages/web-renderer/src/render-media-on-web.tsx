@@ -768,7 +768,7 @@ export const renderMediaOnWeb = <
 				transparent: options.transparent ?? false,
 				onArtifact: options.onArtifact ?? null,
 				onFrame: options.onFrame ?? null,
-				pageResponsiveness: options.pageResponsiveness ?? 'disabled',
+				pageResponsiveness: options.pageResponsiveness ?? 'medium',
 				outputTarget: options.outputTarget ?? null,
 				licenseKey: options.licenseKey ?? null,
 				muted: options.muted ?? false,
