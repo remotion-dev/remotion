@@ -39,7 +39,7 @@ Use the [`Interactive`](/docs/interactive) namespace when an HTML or SVG element
 For a custom component, see [Make a component interactive](/docs/studio/make-component-interactive).
 
 ```txt title="Prompt"
-/remotion-best-practices Make this element editable in Remotion Studio. Use Interactive.* for tweakable HTML/SVG elements, add a descriptive name prop and keep editable style values inline.
+Make this interactive in the Remotion Studio: https://www.remotion.dev/docs/studio/interactivity-best-practices.md
 ```
 
 ## Give interactive elements a descriptive name {#give-interactive-elements-a-descriptive-name}
@@ -162,7 +162,7 @@ Use `top`, `left`, `right` and `bottom` for static layout anchors.
 When the value changes over time or should be draggable/keyframable in the Studio, put the moving part into `translate`.
 
 ```txt title="Prompt"
-/remotion-best-practices Fix computed values in Remotion Studio. Follow https://www.remotion.dev/docs/studio/interactivity-best-practices#keep-editable-values-visible. Move editable values into the JSX style object, inline opacity/scale/rotate/translate values, use hardcoded numeric interpolate() keyframe arrays such as [30, 50], pass easing in the interpolate() options, replace transform strings with scale/rotate/translate, and use translate instead of animated top/left/right/bottom.
+Make this interactive in the Remotion Studio: https://www.remotion.dev/docs/studio/interactivity-best-practices.md
 ```
 
 ## Keep composition metadata inline {#keep-composition-metadata-inline}
@@ -204,7 +204,7 @@ const calculateMetadata = () => {
 Use [`calculateMetadata()`](/docs/calculate-metadata) when metadata depends on dynamic input props, fetched data or asset metadata.
 
 ```txt title="Prompt"
-/remotion-best-practices Fix Composition metadata for Remotion Studio. Keep defaultProps, width, height, fps, and durationInFrames inline on the Composition unless calculateMetadata needs dynamic data.
+Make this interactive in the Remotion Studio: https://www.remotion.dev/docs/studio/interactivity-best-practices.md
 ```
 
 ## Keep effects editable {#keep-effects-editable}
@@ -243,7 +243,7 @@ const center = [0.5, 0.5] as const;
 Render separate elements if one version should have effects and another should not.
 
 ```txt title="Prompt"
-/remotion-best-practices Fix computed effect controls in Remotion Studio. Keep effect parameters inline in the effect call and keep the effects array shape unconditional.
+Make this interactive in the Remotion Studio: https://www.remotion.dev/docs/studio/interactivity-best-practices.md
 ```
 
 ## See also
