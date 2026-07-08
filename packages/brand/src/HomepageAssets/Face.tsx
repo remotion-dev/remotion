@@ -11,14 +11,12 @@ export const Face: React.FC<
 	{
 		points: ThreeDReducedInstruction[];
 		color: string;
-		opacity?: number;
 		strokeColor: string;
 		strokeWidth: number;
 		crispEdges: boolean;
 	} & FaceSVGProps
 > = ({
 	color,
-	opacity,
 	points,
 	strokeColor,
 	strokeWidth,
@@ -48,7 +46,6 @@ export const Face: React.FC<
 			<path
 				d={d}
 				fill={color}
-				opacity={opacity}
 				mask={strokeWidth ? `url(#${id})` : undefined}
 				stroke={strokeColor}
 				strokeMiterlimit={strokeMiterlimit}

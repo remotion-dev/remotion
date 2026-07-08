@@ -27,18 +27,14 @@ export const Faces: React.FC<
 				const sortedFaces = sortFacesZIndex(element.faces);
 
 				return (
-					<React.Fragment key={i}>
+					<g key={i} opacity={element.opacity}>
 						{sortedFaces.map(
-							(
-								{points, color, opacity, strokeWidth, strokeColor, crispEdges},
-								i,
-							) => {
+							({points, color, strokeWidth, strokeColor, crispEdges}, i) => {
 								return (
 									<Face
 										key={JSON.stringify(points) + i}
 										strokeColor={strokeColor}
 										color={color}
-										opacity={opacity}
 										points={points}
 										strokeWidth={strokeWidth}
 										crispEdges={crispEdges}
@@ -47,7 +43,7 @@ export const Faces: React.FC<
 								);
 							},
 						)}
-					</React.Fragment>
+					</g>
 				);
 			})}
 		</>

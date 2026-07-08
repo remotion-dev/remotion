@@ -50,12 +50,7 @@ const withOpacity = (
 	return elements.map((element) => {
 		return {
 			...element,
-			faces: element.faces.map((face) => {
-				return {
-					...face,
-					opacity,
-				};
-			}),
+			opacity,
 		};
 	});
 };

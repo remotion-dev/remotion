@@ -11,7 +11,6 @@ import {
 
 export type FaceType = {
 	color: string;
-	opacity?: number;
 	points: ThreeDReducedInstruction[];
 	centerPoint: Vector4D;
 	strokeWidth: number;
