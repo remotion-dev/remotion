@@ -133,11 +133,12 @@ export const createVideoIterator = async (
 			}
 
 			let lastFrameDuration = lastReturnedFrame.duration;
-			if (lastFrameDuration === 0) {
-				const peeked = await peek();
-				if (peeked) {
-					lastFrameDuration = peeked.timestamp - lastReturnedFrame.timestamp;
-				}
+
+			// We need to always peek because of this:
+			// https://github.com/remotion-dev/remotion/issues/8916
+			const peeked = await peek();
+			if (peeked) {
+				lastFrameDuration = peeked.timestamp - lastReturnedFrame.timestamp;
 			}
 
 			const frameEndTimestamp = roundTo4Digits(
