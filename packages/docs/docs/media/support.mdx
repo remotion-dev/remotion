@@ -5,7 +5,7 @@ sidebar_label: Supported media
 crumb: '@remotion/media'
 ---
 
-The new [`<Audio>`](/docs/media/audio) and [`<Video>`](/docs/media/video) tags from `@remotion/media` are based on [Mediabunny](https://mediabunny.dev) and WebCodecs.
+The [`<Audio>`](/docs/media/audio) and [`<Video>`](/docs/media/video) tags from `@remotion/media` are based on [Mediabunny](https://mediabunny.dev) and WebCodecs.
 
 ## CORS
 
@@ -23,8 +23,10 @@ For example: If you want to render the third minute of a 10 minute audio, the fi
 
 Prefer non-Matroska-based files (`.mp4`, `.mov`, `.m4a`) when you are doing distributed rendering (e.g. on Lambda) if possible.
 
-## Fallback to `<OffthreadVideo>`
+## Automatic fallback
 
-If a media file cannot be decoded, be it because of an unsupported codec or because it does not support CORS, or it has an alpha channel and the browser does not support WebGL which is required to decode the alpha channel, then `@remotion/media` automatically falls back to [`<OffthreadVideo>`](/docs/offthreadvideo) or [`<Html5Audio>`](/docs/html5-audio) from the [`remotion`](/docs/remotion) package.
+If a media file cannot be decoded because of an unsupported codec, missing CORS support, or an alpha channel without browser WebGL support, then `@remotion/media` may automatically use fallback tags from the [`remotion`](/docs/remotion) package: [`<OffthreadVideo>`](/docs/offthreadvideo) for video and [`<Html5Audio>`](/docs/html5-audio) for audio.
 
-See: [Fallback from `@remotion/media` to `<OffthreadVideo>` or `<Html5Audio>`](/docs/media/fallback)
+This is automatic fallback behavior, not the default API choice for new code.
+
+See: [Fallback behavior in `@remotion/media`](/docs/media/fallback)

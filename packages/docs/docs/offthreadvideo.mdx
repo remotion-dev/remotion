@@ -9,7 +9,9 @@ crumb: 'API'
 
 This component imports and displays a video, similar to [`<Html5Video/>`](/docs/html5-video), but during rendering, extracts the exact frame from the video and displays it in a [`<Img>`](/docs/img) tag. This extraction process happens outside the browser using FFmpeg.
 
-This component was designed to combat limitations of the default `<Html5Video>` element. See: [Comparison of video tags](/docs/video-tags).
+This component was designed to combat limitations of the `<Html5Video>` element. See: [Comparison of video tags](/docs/video-tags).
+
+For new video usage, prefer [`<Video>`](/docs/media/video) from [`@remotion/media`](/docs/media). Use this page when you need to configure `<OffthreadVideo>` directly or understand the fallback behavior used by `<Video>`.
 
 :::warning Not supported in client-side rendering
 `<OffthreadVideo>` is not supported in [`@remotion/web-renderer`](/docs/client-side-rendering). Use [`<Video>`](/docs/media/video) from `@remotion/media` instead.

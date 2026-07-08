@@ -4258,7 +4258,7 @@ export const articles = [
 	},
 	{
 		id: 'media/fallback',
-		title: 'Fallback from @remotion/media to <OffthreadVideo> or <Html5Audio>',
+		title: 'Fallback behavior in @remotion/media',
 		relativePath: 'docs/media/fallback.mdx',
 		compId: 'articles-docs-media-fallback',
 		crumb: '@remotion/media',
@@ -4348,7 +4348,7 @@ export const articles = [
 	},
 	{
 		id: 'mediabunny/new-video',
-		title: 'New <Video> and <Audio> tags',
+		title: '<Video> and <Audio> tags',
 		relativePath: 'docs/mediabunny/new-video.mdx',
 		compId: 'articles-docs-mediabunny-new-video',
 		crumb: 'Mediabunny',
@@ -7947,7 +7947,7 @@ export const articles = [
 		title: 'Comparison of video tags',
 		relativePath: 'docs/video-tags.mdx',
 		compId: 'articles-docs-video-tags',
-		crumb: '<Video>, <Html5Video>, <OffthreadVideo>',
+		crumb: '<Video>, <OffthreadVideo>, <Html5Video>',
 		noAi: false,
 		slug: 'video-tags',
 	},

@@ -7,7 +7,9 @@ crumb: 'API - remotion'
 
 [_previously called `<Audio>`_](/docs/mediabunny/new-video)
 
-Using this component, you can add audio to your video. All audio formats which are supported by Chrome are supported by the component.
+This is the HTML5 audio component from the [`remotion`](/docs/remotion) package. For new audio usage, prefer [`<Audio>`](/docs/media/audio) from [`@remotion/media`](/docs/media).
+
+Use this component when you specifically need direct HTML5 audio behavior or fallback props for [`<Audio>`](/docs/media/audio). All audio formats supported by Chrome are supported by the component.
 
 :::warning Not supported in client-side rendering
 `<Html5Audio>` is not supported in [`@remotion/web-renderer`](/docs/client-side-rendering). Use [`<Audio>`](/docs/media/audio) from `@remotion/media` instead.
@@ -252,8 +254,8 @@ To prevent synthetic amplification, set a volume not higher than 1.
 - [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/audio/html5-audio.tsx)
 - [Using audio](/docs/using-audio)
 - [Audio visualization](/docs/audio/visualization)
-- [`<Html5Video />`](/docs/html5-video)
 - [`<Audio />` (from `@remotion/media`)](/docs/media/audio)
+- [`<Html5Video />`](/docs/html5-video)
 
 <Credits
   contributors={[
