@@ -17,8 +17,8 @@ export type GuideState = {
 	setDraggingGuideId: (cb: (prevState: string | null) => string | null) => void;
 	setHoveredGuideId: (cb: (prevState: string | null) => string | null) => void;
 	hoveredGuideId: string | null;
-	shouldCreateGuideRef: React.MutableRefObject<boolean>;
-	shouldDeleteGuideRef: React.MutableRefObject<boolean>;
+	shouldCreateGuideRef: React.RefObject<boolean>;
+	shouldDeleteGuideRef: React.RefObject<boolean>;
 };
 
 export const persistEditorShowGuidesOption = (option: boolean) => {

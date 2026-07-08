@@ -57,7 +57,7 @@ const SeriesInner: FC<SeriesProps> = (props) => {
 				| {
 						props: SeriesSequenceProps;
 						type: typeof SeriesSequence;
-						ref: React.MutableRefObject<HTMLDivElement>;
+						ref: React.RefObject<HTMLDivElement>;
 				  }
 				| string;
 			if (typeof castedChild === 'string') {

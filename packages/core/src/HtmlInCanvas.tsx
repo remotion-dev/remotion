@@ -384,8 +384,7 @@ const HtmlInCanvasContent = forwardRef<
 				if (typeof ref === 'function') {
 					ref(node);
 				} else if (ref) {
-					(ref as React.MutableRefObject<HTMLCanvasElement | null>).current =
-						node;
+					(ref as React.RefObject<HTMLCanvasElement | null>).current = node;
 				}
 			},
 			[ref],
@@ -676,8 +675,7 @@ const HtmlInCanvasInner = forwardRef<
 				if (typeof ref === 'function') {
 					ref(node);
 				} else if (ref) {
-					(ref as React.MutableRefObject<HTMLCanvasElement | null>).current =
-						node;
+					(ref as React.RefObject<HTMLCanvasElement | null>).current = node;
 				}
 			},
 			[ref],

@@ -14,7 +14,7 @@ export type TSplitterContext = {
 	defaultFlex: number;
 	id: string;
 	persistFlex: (value: number) => void;
-	isDragging: React.MutableRefObject<
+	isDragging: React.RefObject<
 		| false
 		| {
 				x: number;
