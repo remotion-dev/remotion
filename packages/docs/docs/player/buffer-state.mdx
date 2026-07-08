@@ -15,10 +15,11 @@ Remotion has a native buffer state, which can be used to pause the video when th
 
 ## TL;DR
 
-You can add a `pauseWhenBuffering` prop to your [`<Html5Video>`](/docs/html5-video/#pausewhenbuffering), [`<OffthreadVideo>`](/docs/offthreadvideo/#pausewhenbuffering), [`<Html5Audio>`](/docs/html5-audio/#pausewhenbuffering) tags.  
-The prop is called `pauseWhenLoading` for [`<Img>`](/docs/img/#pausewhenloading) tags.  
 For [`<Video>`](/docs/media/video) and [`<Audio>`](/docs/media/audio) from [`@remotion/media`](/docs/media), the buffer state is enabled by default.
-By doing so, the Player will briefly pause until your media is loaded.
+
+For [`<Html5Video>`](/docs/html5-video/#pausewhenbuffering), [`<OffthreadVideo>`](/docs/offthreadvideo/#pausewhenbuffering), and [`<Html5Audio>`](/docs/html5-audio/#pausewhenbuffering), add `pauseWhenBuffering`. For [`<Img>`](/docs/img/#pausewhenloading), add `pauseWhenLoading`.
+
+By using the buffer state, the Player will briefly pause until your media is loaded.
 
 ## Mechanism
 
@@ -216,8 +217,8 @@ export const App: React.FC = () => {
 
 You can enable buffering on the following components:
 
-- [`<Audio>`](/docs/media/audio) - enabled by default
 - [`<Video>`](/docs/media/video) - enabled by default
+- [`<Audio>`](/docs/media/audio) - enabled by default
 - [`<Html5Audio>`](/docs/html5-audio#pausewhenbuffering) - add the `pauseWhenBuffering` prop
 - [`<Html5Video>`](/docs/html5-video#pausewhenbuffering) - add the `pauseWhenBuffering` prop
 - [`<OffthreadVideo>`](/docs/offthreadvideo#pausewhenbuffering) - add the `pauseWhenBuffering` prop
@@ -320,7 +321,7 @@ const MyApp: React.FC = () => {
 
 ## Upcoming changes in Remotion 5.0
 
-In Remotion 4.0, the tags `<Html5Audio>`, `<Html5Video>`, `<OffthreadVideo>` will need to opt-in to use the buffer state.
+In Remotion 4.0, [`<Video>`](/docs/media/video) and [`<Audio>`](/docs/media/audio) from [`@remotion/media`](/docs/media) already use the buffer state by default. The tags `<Html5Audio>`, `<Html5Video>`, and `<OffthreadVideo>` need to opt in.
 
 In Remotion 5.0, it is planned that `<Html5Audio>`, `<Html5Video>` and `<OffthreadVideo>` will automatically use the buffer state, but they can opt out of it.
 
