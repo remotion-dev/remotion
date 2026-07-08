@@ -60,7 +60,19 @@ export default function middleware(request: Request) {
 	const pathname = url.pathname;
 
 	if (pathname === '/pricing') {
-		return Response.redirect(new URL('/docs/pricing', request.url), 308);
+		return Response.redirect(new URL('/docs/license/pricing', request.url), 308);
+	}
+
+	if (pathname === '/docs/pricing') {
+		return Response.redirect(new URL('/docs/license/pricing', request.url), 308);
+	}
+
+	if (pathname === '/docs/license-pricing-compliance/faq') {
+		return Response.redirect(new URL('/docs/license/license-faq', request.url), 308);
+	}
+
+	if (pathname === '/docs/trust') {
+		return Response.redirect(new URL('/docs/license', request.url), 308);
 	}
 
 	if (!pathname.startsWith('/docs/') && !pathname.startsWith('/elements/')) {
