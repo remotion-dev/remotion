@@ -149,7 +149,17 @@ This only works if the speed is constant. See also: [Changing the speed of a vid
 
 ## Looping
 
-See: [`loop`](/docs/media/video#loop) on [`<Video>`](/docs/media/video).
+Use the [`loop`](/docs/media/video#loop) prop to restart the video when it reaches the end.
+
+```tsx twoslash title="Looping a video"
+import React from 'react';
+import {Video} from '@remotion/media';
+import {staticFile} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  return <Video src={staticFile('video.mp4')} loop />;
+};
+```
 
 ## GIFs
 
