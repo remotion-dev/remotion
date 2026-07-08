@@ -17,7 +17,8 @@ When converting a component for Studio interactivity, apply all of these rules t
 - Use `Interactive.*` for editable HTML or SVG elements, or [`Interactive.withSchema()`](/docs/interactive-with-schema) for custom components.
 - Add a descriptive `name` prop to the editable element or custom component.
 - Keep every editable or keyframed value inline at the JSX prop that the Studio edits.
-- Keep `interpolate()` keyframe arrays as hardcoded numeric arrays, such as `[0, 30]`.
+- Write animations as inline `interpolate()` calls.
+- Keep `interpolate()` input and output ranges as hardcoded arrays, such as `[0, 30]`.
 - Use Studio-editable style props such as `translate`, `scale`, `rotate`, `transformOrigin` and `opacity` instead of hiding values in a `transform` string.
 - Use `translate` for animated movement and canvas dragging. Keep `top`, `left`, `right` and `bottom` for static anchoring.
 - Keep `<Composition>` metadata and `defaultProps` inline unless the value is truly dynamic.
@@ -66,9 +67,10 @@ The name is shown in the Studio timeline and helps agents identify the correct e
 Put values that should be edited in the Studio directly into the JSX.
 This applies to static style values, keyframes, easing and transform props.
 
-If the Studio should expose a property such as `opacity`, `translate`, `scale` or `rotate`, keep the `interpolate()` call on that exact style property.
+Write animations as inline `interpolate()` calls on the property that changes.
 Do not calculate the value in a local variable and pass the variable into `style`.
-Keep the input range and output range directly in that `interpolate()` call.
+Do not animate with frame math such as `frame * 2`, modulo expressions, helper functions or transform strings.
+Keep the input range and output range directly in the `interpolate()` call.
 The input range must use hardcoded numbers, not variables or expressions such as `[sendStartFrame, sendStartFrame + duration]`.
 
 ```tsx title="Inline values"
@@ -210,6 +212,7 @@ Make this interactive in the Remotion Studio: https://www.remotion.dev/docs/stud
 ## Keep effects editable {#keep-effects-editable}
 
 Keep editable effect parameters inline in the effect call and keep the effect array shape unconditional.
+If an effect parameter is animated, write it as an inline `interpolate()` call in the effect call.
 
 ```tsx title="Effects"
 // 👍 Parameters are inline and the array shape is stable
@@ -220,14 +223,17 @@ Keep editable effect parameters inline in the effect call and keep the effect ar
   effects={[
     radialProgressiveBlur({
       center: [0.5, 0.5],
-      point1: [0.86, 0.36],
-      point2: [0.68, 0.84],
+      width: 1.2,
+      height: 0.8,
+      start: 0.2,
+      rotation: interpolate(frame, [0, 120], [0, 180]),
     }),
   ]}
 />
 
 // 👎 Values are hidden and the effect only exists conditionally
 const center = [0.5, 0.5] as const;
+const rotation = frame * 1.5;
 <CanvasImage
   src={src}
   width={1280}
@@ -235,6 +241,7 @@ const center = [0.5, 0.5] as const;
   effects={enabled ? [
     radialProgressiveBlur({
       center,
+      rotation,
     }),
   ] : []}
 />
