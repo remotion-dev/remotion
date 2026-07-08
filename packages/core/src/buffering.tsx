@@ -50,11 +50,22 @@ const useBufferManager = (
 
 	const buffering = useRef(false);
 
+	// Keep the latest context values in refs so `checkBuffering` and `addBlock`
+	// stay referentially stable and the memoized manager is created only once.
+	// They are only read inside event handlers / effects, never during render,
+	// so reading the current value at call-time is what we want.
+	const logLevelRef = useRef(logLevel);
+	logLevelRef.current = logLevel;
+	const mountTimeRef = useRef(mountTime);
+	mountTimeRef.current = mountTime;
+	const renderingRef = useRef(rendering);
+	renderingRef.current = rendering;
+
 	// Fire callbacks only on the `0 <-> >0` blocks transition.
 	// `buffering` holds the last reported state, so intermediate changes
 	// (e.g. 2 -> 3 blocks) are no-ops and never re-notify listeners.
 	const checkBuffering = useCallback(() => {
-		if (rendering) {
+		if (renderingRef.current) {
 			return;
 		}
 
@@ -69,25 +80,25 @@ const useBufferManager = (
 			// Iterate a copy: a callback may remove itself while being called.
 			[...onBufferingCallbacks.current].forEach((c) => c());
 			playbackLogging({
-				logLevel,
+				logLevel: logLevelRef.current,
 				message: 'Player is entering buffer state',
-				mountTime,
+				mountTime: mountTimeRef.current,
 				tag: 'player',
 			});
 		} else {
 			[...onResumeCallbacks.current].forEach((c) => c());
 			playbackLogging({
-				logLevel,
+				logLevel: logLevelRef.current,
 				message: 'Player is exiting buffer state',
-				mountTime,
+				mountTime: mountTimeRef.current,
 				tag: 'player',
 			});
 		}
-	}, [logLevel, mountTime, rendering]);
+	}, []);
 
 	const addBlock: AddBlock = useCallback(
 		(block: Block) => {
-			if (rendering) {
+			if (renderingRef.current) {
 				return {
 					unblock: () => undefined,
 				};
@@ -109,7 +120,7 @@ const useBufferManager = (
 				},
 			};
 		},
-		[checkBuffering, rendering],
+		[checkBuffering],
 	);
 
 	const listenForBuffering: ListenForBuffering = useCallback(
