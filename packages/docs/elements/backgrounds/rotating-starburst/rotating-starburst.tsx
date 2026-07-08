@@ -4,7 +4,6 @@ import {Solid, useCurrentFrame} from 'remotion';
 
 export const RotatingStarburst: React.FC = () => {
 	const frame = useCurrentFrame();
-	const rotation = (frame * 0.18) % 360;
 
 	return (
 		<Solid
@@ -14,9 +13,8 @@ export const RotatingStarburst: React.FC = () => {
 			effects={[
 				starburst({
 					rays: 28,
-					colors: ['#111827', '#f97316', '#fde68a'],
-					rotation,
-					smoothness: 0.04,
+					colors: ['#111827', '#f97316'],
+					rotation: (frame * 0.18) % 360,
 					origin: [0.5, 0.5],
 				}),
 			]}
