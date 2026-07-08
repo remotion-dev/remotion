@@ -1,16 +1,17 @@
 import type {WebRendererPageResponsiveness} from '@remotion/web-renderer';
 import type React from 'react';
 import {useCallback, useMemo} from 'react';
-import {BLUE} from '../../helpers/colors';
 import {Checkmark} from '../../icons/Checkmark';
 import {Checkbox} from '../Checkbox';
 import {Spacing} from '../layout';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {Combobox} from '../NewComposition/ComboBox';
-import {InfoBubble} from './InfoBubble';
 import {label, optionRow, rightRow} from './layout';
 import {NumberSetting} from './NumberSetting';
-import {OptionExplainerBubble} from './OptionExplainerBubble';
+import {
+	WebRendererCustomOptionExplainerBubble,
+	WebRendererOptionExplainerBubble,
+} from './OptionExplainerBubble';
 import type {RenderType} from './WebRenderModal';
 
 type WebRenderModalAdvancedProps = {
@@ -40,12 +41,6 @@ const tabContainer: React.CSSProperties = {
 	flex: 1,
 };
 
-const explainerContainer: React.CSSProperties = {
-	fontSize: 14,
-	maxWidth: 420,
-	padding: '10px 20px',
-};
-
 const paragraph: React.CSSProperties = {
 	margin: 0,
 	marginBottom: 8,
@@ -55,14 +50,9 @@ const lastParagraph: React.CSSProperties = {
 	margin: 0,
 };
 
-const link: React.CSSProperties = {
-	color: BLUE,
-	textDecoration: 'none',
-};
-
-const PageResponsivenessExplainer: React.FC = () => {
+const PageResponsivenessDescription: React.FC = () => {
 	return (
-		<div style={explainerContainer}>
+		<>
 			<p style={paragraph}>
 				The Web Renderer runs in the same browser tab as the Studio. Rendering
 				can block the tab while Remotion captures frames.
@@ -74,16 +64,9 @@ const PageResponsivenessExplainer: React.FC = () => {
 			</p>
 			<p style={lastParagraph}>
 				Choose <code>Disabled</code> to prioritize render speed, or{' '}
-				<code>High</code> to give the browser more chances to update.{' '}
-				<a
-					href="https://www.remotion.dev/docs/web-renderer/page-responsiveness"
-					style={link}
-					target="_blank"
-				>
-					Docs
-				</a>
+				<code>High</code> to give the browser more chances to update.
 			</p>
-		</div>
+		</>
 	);
 };
 
@@ -270,7 +253,10 @@ export const WebRenderModalAdvanced: React.FC<WebRenderModalAdvancedProps> = ({
 			<div style={optionRow}>
 				<div style={label}>
 					Custom @remotion/media cache size <Spacing x={0.5} />
-					<OptionExplainerBubble id="mediaCacheSizeInBytesOption" />
+					<WebRendererOptionExplainerBubble
+						apiName="mediaCacheSizeInBytes"
+						id="mediaCacheSizeInBytesOption"
+					/>
 				</div>
 				<div style={rightRow}>
 					<Checkbox
@@ -309,7 +295,10 @@ export const WebRenderModalAdvanced: React.FC<WebRenderModalAdvancedProps> = ({
 			<div style={optionRow}>
 				<div style={label}>
 					Allow HTML-in-canvas <Spacing x={0.5} />
-					<OptionExplainerBubble id="allowHtmlInCanvasOption" />
+					<WebRendererOptionExplainerBubble
+						apiName="allowHtmlInCanvas"
+						id="allowHtmlInCanvasOption"
+					/>
 				</div>
 				<div style={rightRow}>
 					<Checkbox
@@ -325,9 +314,12 @@ export const WebRenderModalAdvanced: React.FC<WebRenderModalAdvancedProps> = ({
 					<div style={optionRow}>
 						<div style={label}>
 							Page Responsiveness <Spacing x={0.5} />
-							<InfoBubble title="Learn more about page responsiveness">
-								<PageResponsivenessExplainer />
-							</InfoBubble>
+							<WebRendererCustomOptionExplainerBubble
+								apiName="pageResponsiveness"
+								description={<PageResponsivenessDescription />}
+								docLink="https://www.remotion.dev/docs/client-side-rendering/page-responsiveness"
+								name="Page responsiveness"
+							/>
 						</div>
 						<div style={rightRow}>
 							<Combobox
