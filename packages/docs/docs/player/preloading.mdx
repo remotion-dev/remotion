@@ -37,7 +37,7 @@ Prefetch is not recommended for most cases. [See recommendations](/docs/troubles
 :::
 
 By prefetching, the full media is downloaded and turned into a Blob URL using [`URL.createObjectURL()`](https://developer.mozilla.org/en-US/docs/Web/API/URL/createObjectURL).  
-If you pass the original URL into either an [`<Video>`](/docs/media/video), [`<Audio>`](/docs/media/audio), [`<Html5Audio>`](/docs/html5-audio), [`<Html5Video>`](/docs/html5-video), [`<OffthreadVideo>`](/docs/offthreadvideo), or [`<Img>`](/docs/img) tag and the asset is prefetched, those components will use Blob URL instead.
+If you pass the original URL into a [`<Video>`](/docs/media/video), [`<Audio>`](/docs/media/audio), [`<Img>`](/docs/img), or a media tag from [`remotion`](/docs/remotion) such as [`<Html5Audio>`](/docs/html5-audio), [`<Html5Video>`](/docs/html5-video), or [`<OffthreadVideo>`](/docs/offthreadvideo), and the asset is prefetched, those components will use Blob URL instead.
 
 ```tsx twoslash
 import {prefetch} from 'remotion';
@@ -80,7 +80,7 @@ free();
   </tr>
   <tr>
     <td>Works with</td>
-    <td>HTML5 audio/video tags, images and fonts</td>
+    <td>HTML5 audio/video tags, images, and fonts</td>
     <td>
       <a href="/docs/media/video">
         <code>{'<Video/>'}</code>
@@ -89,10 +89,11 @@ free();
       <a href="/docs/media/audio">
         <code>{'<Audio/>'}</code>
       </a>
-      , legacy media tags and{' '}
+      ,{' '}
       <a href="/docs/img">
         <code>{'<Img/>'}</code>
       </a>
+      , and media tags from <code>remotion</code>
     </td>
   </tr>
   <tr>
