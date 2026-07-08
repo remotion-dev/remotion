@@ -23,7 +23,7 @@ const cycleOffsets = [-1, 0, 1] as const;
 const progressStartFrame = -60;
 const fadeInDurationInFrames = 6;
 const fadeOutStartFrame = 82;
-const fadeOutDurationInFrames = 4;
+const fadeOutDurationInFrames = 6;
 
 const modulo = (value: number, by: number) => {
 	return ((value % by) + by) % by;
