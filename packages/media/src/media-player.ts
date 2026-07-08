@@ -1,4 +1,4 @@
-import {ALL_FORMATS, Input, UrlSource} from 'mediabunny';
+import type {Input} from 'mediabunny';
 import type {
 	EffectChainState,
 	EffectDefinitionAndStack,
@@ -18,6 +18,7 @@ import {
 } from './audio/get-scheduled-time';
 import {drawPreviewOverlay} from './debug-overlay/preview-overlay';
 import {getDurationOrCompute} from './get-duration-or-compute';
+import {acquireSharedInput, releaseSharedInput} from './get-shared-input';
 import {calculateEndTime, getTimeInSeconds} from './get-time-in-seconds';
 import {resolveAudioTrack} from './helpers/resolve-audio-track';
 import {isNetworkError} from './is-type-of-error';
@@ -25,7 +26,6 @@ import type {Nonce, NonceManager} from './nonce-manager';
 import {makeNonceManager} from './nonce-manager';
 import {PremountAwareDelayPlayback} from './premount-aware-delay-playback';
 import type {MediaRequestInit} from './request-init';
-import {resolveRequestInit} from './request-init';
 import type {SharedAudioContextForMediaPlayer} from './shared-audio-context-for-media-player';
 import type {VideoIteratorManager} from './video-iterator-manager';
 import {videoIteratorManager} from './video-iterator-manager';
@@ -162,18 +162,16 @@ export class MediaPlayer {
 		this.onVideoFrameCallback = onVideoFrameCallback;
 		this.playing = playing;
 		this.sequenceOffset = sequenceOffset;
-		const resolvedRequestInit = resolveRequestInit({credentials, requestInit});
-		this.input = new Input({
-			source: new UrlSource(
-				this.src,
-				resolvedRequestInit
-					? {
-							requestInit: resolvedRequestInit,
-						}
-					: undefined,
-			),
-			formats: ALL_FORMATS,
+		// Reuse a shared, reference-counted Input per (src, credentials,
+		// requestInit) so mounting a new range does not re-parse the container or
+		// cold-seek — the byte cache and demuxer state stay warm across ranges.
+		const {input, cacheKey} = acquireSharedInput({
+			src: this.src,
+			credentials,
+			requestInit,
 		});
+		this.input = input;
+		this.inputCacheKey = cacheKey;
 		this.tagType = tagType;
 		this.getEffects = getEffects;
 		this.getEffectChainState = getEffectChainState;
@@ -195,9 +193,16 @@ export class MediaPlayer {
 	}
 
 	private input: Input;
+	// Key into the shared-input cache; released (ref count decremented) on dispose.
+	private inputCacheKey: string;
+	// Per-player disposal flag. The Input is now shared and reference counted, so
+	// `this.input.disposed` no longer tells us whether THIS player was disposed
+	// (the Input stays alive while other players hold it). This flag tracks our
+	// own lifecycle instead.
+	private disposed = false;
 
 	private isDisposalError(): boolean {
-		return this.input.disposed === true;
+		return this.disposed || this.input.disposed === true;
 	}
 
 	public initialize(
@@ -250,7 +255,7 @@ export class MediaPlayer {
 	): Promise<MediaPlayerInitResult> {
 		using _ = this.delayPlaybackHandleIfNotPremounting();
 		try {
-			if (this.input.disposed) {
+			if (this.isDisposalError()) {
 				return {type: 'disposed'};
 			}
 
@@ -281,7 +286,7 @@ export class MediaPlayer {
 				this.input.getPrimaryVideoTrack(),
 				this.input.getAudioTracks(),
 			]);
-			if (this.input.disposed) {
+			if (this.isDisposalError()) {
 				return {type: 'disposed'};
 			}
 
@@ -318,7 +323,7 @@ export class MediaPlayer {
 					return {type: 'cannot-decode'};
 				}
 
-				if (this.input.disposed) {
+				if (this.isDisposalError()) {
 					return {type: 'disposed'};
 				}
 
@@ -366,7 +371,7 @@ export class MediaPlayer {
 					return {type: 'cannot-decode'};
 				}
 
-				if (this.input.disposed) {
+				if (this.isDisposalError()) {
 					return {type: 'disposed'};
 				}
 
@@ -663,6 +668,15 @@ export class MediaPlayer {
 	}
 
 	public async dispose(): Promise<void> {
+		// Guard against double-dispose: releasing the shared Input twice would
+		// over-decrement its ref count and tear it down while other players still
+		// use it.
+		if (this.disposed) {
+			return;
+		}
+
+		this.disposed = true;
+
 		if (this.initializationPromise) {
 			try {
 				// wait for the init to finished
@@ -678,7 +692,9 @@ export class MediaPlayer {
 		this.nonceManager.createAsyncOperation();
 		this.videoIteratorManager?.destroy();
 		this.audioIteratorManager?.destroyIterator();
-		this.input.dispose();
+		// Release our reference to the shared Input; it is only disposed once the
+		// last MediaPlayer using this src releases it.
+		releaseSharedInput(this.inputCacheKey);
 	}
 
 	private getTargetTime = (
