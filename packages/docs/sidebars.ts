@@ -1236,7 +1236,6 @@ const sidebars: SidebarsConfig = {
 						'lambda/troubleshooting/unrecognizedclientexception',
 						'lambda/troubleshooting/bucket-disallows-acl',
 						'lambda/troubleshooting/security-token',
-						'lambda/troubleshooting/chrome-133-situation',
 					],
 				},
 				{

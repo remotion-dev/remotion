@@ -3555,15 +3555,6 @@ export const articles = [
 		slug: 'lambda/troubleshooting/bucket-disallows-acl',
 	},
 	{
-		id: 'chrome-133-situation',
-		title: 'Chrome 133 situation',
-		relativePath: 'docs/lambda/troubleshooting/chrome-133-situation.mdx',
-		compId: 'articles-docs-lambda-troubleshooting-chrome-133-situation',
-		crumb: 'Lambda',
-		noAi: false,
-		slug: 'lambda/troubleshooting/chrome-133-situation',
-	},
-	{
 		id: 'debug',
 		title: 'Debugging failed Lambda renders',
 		relativePath: 'docs/lambda/troubleshooting/debug.mdx',

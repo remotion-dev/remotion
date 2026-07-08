@@ -32,8 +32,12 @@ unpreloadAudio();
 
 _Available in v3.2.23_
 
+:::note
+Prefetch is not recommended for most cases. [See recommendations](/docs/troubleshooting/player-flicker#strategies).
+:::
+
 By prefetching, the full media is downloaded and turned into a Blob URL using [`URL.createObjectURL()`](https://developer.mozilla.org/en-US/docs/Web/API/URL/createObjectURL).  
-If you pass the original URL into either an [`<Audio>`](/docs/media/audio), [`<Video>`](/docs/media/video), [`<OffthreadVideo>`](/docs/offthreadvideo), [`<Html5Audio>`](/docs/html5-audio), [`<Html5Video>`](/docs/html5-video), or [`<Img>`](/docs/img) tag and the asset is prefetched, those components will use Blob URL instead.
+If you pass the original URL into either an [`<Video>`](/docs/media/video), [`<Audio>`](/docs/media/audio), [`<Html5Audio>`](/docs/html5-audio), [`<Html5Video>`](/docs/html5-video), [`<OffthreadVideo>`](/docs/offthreadvideo), or [`<Img>`](/docs/img) tag and the asset is prefetched, those components will use Blob URL instead.
 
 ```tsx twoslash
 import {prefetch} from 'remotion';
@@ -62,6 +66,10 @@ free();
         <code>preloadAudio()</code>
         <br />
         <code>preloadVideo()</code>
+        <br />
+        <code>preloadImage()</code>
+        <br />
+        <code>preloadFont()</code>
       </div>
     </th>
     <th>
@@ -72,30 +80,18 @@ free();
   </tr>
   <tr>
     <td>Works with</td>
-    <td>All audio and video APIs, images and fonts</td>
+    <td>HTML5 audio/video tags, images and fonts</td>
     <td>
-      <a href="/docs/media/audio">
-        <code>{'<Audio/>'}</code>
-      </a>
-      ,{' '}
       <a href="/docs/media/video">
         <code>{'<Video/>'}</code>
       </a>
       ,{' '}
-      <a href="/docs/html5-audio">
-        <code>{'<Html5Audio/>'}</code>
+      <a href="/docs/media/audio">
+        <code>{'<Audio/>'}</code>
       </a>
-      ,{' '}
-      <a href="/docs/html5-video">
-        <code>{'<Html5Video/>'}</code>
-      </a>
-      ,{' '}
+      , legacy media tags and{' '}
       <a href="/docs/img">
         <code>{'<Img/>'}</code>
-      </a>
-      ,{' '}
-      <a href="/docs/offthreadvideo">
-        <code>{'<OffthreadVideo/>'}</code>
       </a>
     </td>
   </tr>
