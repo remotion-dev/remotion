@@ -161,7 +161,6 @@ export const Controls: React.FC<{
 	renderCustomControls,
 }) => {
 	const playButtonRef = useRef<HTMLButtonElement | null>(null);
-	const didMountRef = useRef(false);
 	const [playButtonFocusVisible, setPlayButtonFocusVisible] = useState(false);
 	const [supportsFullscreen, setSupportsFullscreen] = useState(false);
 	const hovered = useHoverState(
@@ -227,11 +226,6 @@ export const Controls: React.FC<{
 	}, [buffering, playing, renderPlayPauseButton]);
 
 	useEffect(() => {
-		if (!didMountRef.current) {
-			didMountRef.current = true;
-			return;
-		}
-
 		if (playButtonRef.current && spaceKeyToPlayOrPause) {
 			// This switches focus to play button when player.playing flag changes
 			playButtonRef.current.focus({
@@ -327,11 +321,6 @@ export const Controls: React.FC<{
 			setPlayButtonFocusVisible(isFocusVisible(e.currentTarget));
 		}, []);
 
-	const onPlayButtonPointerDown: React.PointerEventHandler<HTMLButtonElement> =
-		useCallback(() => {
-			setPlayButtonFocusVisible(false);
-		}, []);
-
 	const onPlayButtonBlur = useCallback(() => {
 		setPlayButtonFocusVisible(false);
 	}, []);
@@ -351,7 +340,6 @@ export const Controls: React.FC<{
 						style={playPauseButtonStyle}
 						onClick={toggle}
 						onFocus={onPlayButtonFocus}
-						onPointerDown={onPlayButtonPointerDown}
 						onBlur={onPlayButtonBlur}
 						aria-label={playing ? 'Pause video' : 'Play video'}
 						title={playing ? 'Pause video' : 'Play video'}
