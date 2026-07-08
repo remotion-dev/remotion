@@ -1,6 +1,6 @@
 import {starburst} from '@remotion/starburst';
 import React from 'react';
-import {Solid, useCurrentFrame} from 'remotion';
+import {interpolate, Solid, useCurrentFrame} from 'remotion';
 
 export const RotatingStarburst: React.FC = () => {
 	const frame = useCurrentFrame();
@@ -14,7 +14,7 @@ export const RotatingStarburst: React.FC = () => {
 				starburst({
 					rays: 28,
 					colors: ['#111827', '#f97316'],
-					rotation: (frame * 0.18) % 360,
+					rotation: interpolate(frame, [0, 2000], [0, 360]),
 					origin: [0.5, 0.5],
 				}),
 			]}
