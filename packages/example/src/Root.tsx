@@ -224,6 +224,10 @@ import {
 } from './PlayRangesMediaVideo';
 import {PremountOnTransitionSeries} from './PremountOnTransitionSeries';
 import {PrintProps} from './PrintProps';
+import {
+	ProResMediaVideo,
+	calculateProResMediaVideoMetadata,
+} from './ProResMediaVideo';
 import {SfxExample} from './Sfx';
 import {CanvasImg} from './SimpleImg/CanvasImg';
 import {ImgEffects} from './SimpleImg/ImgEffects';
@@ -1042,6 +1046,11 @@ export const Index: React.FC = () => {
 					height={1080}
 					durationInFrames={150}
 					fps={30}
+				/>
+				<Composition
+					id="prores-media-video"
+					component={ProResMediaVideo}
+					calculateMetadata={calculateProResMediaVideoMetadata}
 				/>
 				<Composition
 					id="video-testing-mp4"

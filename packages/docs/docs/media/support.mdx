@@ -15,6 +15,8 @@ Any assets must be either CORS-enabled or served from the bundle using [`staticF
 
 The supported formats and codecs are defined here: [Mediabunny - Supported formats and codecs](/docs/mediabunny/formats).
 
+Apple ProRes decoding can be enabled from <AvailableFrom v="4.0.487" inline /> using `@mediabunny/prores`. See [Supported formats and codecs by Mediabunny](/docs/mediabunny/formats#prores).
+
 ## Matroska limitation
 
 Matroska-based files (`.mkv`, `.webm`) are supported, but for the audio to be extracted, the entire audio up to the point of extraction must be extracted as well because Matroska containers only store millisecond-precise timestamps in the container, but more precision is needed correctly concatenate audio parts.
