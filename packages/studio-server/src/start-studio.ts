@@ -220,12 +220,6 @@ export const startStudio = async ({
 		logLevel,
 		onBeforeOpenBrowser: clearPrintPortMessageTimeout,
 	});
-	if (openBrowserShortcut.registered) {
-		RenderInternals.Log.info(
-			{indent: false, logLevel},
-			'Press "s" to open the Studio in your browser.',
-		);
-	}
 
 	try {
 		await maybeOpenBrowser({
