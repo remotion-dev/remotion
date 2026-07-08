@@ -4348,7 +4348,7 @@ export const articles = [
 	},
 	{
 		id: 'mediabunny/new-video',
-		title: 'Recommended <Video> and <Audio> tags',
+		title: '<Video> and <Audio> tags',
 		relativePath: 'docs/mediabunny/new-video.mdx',
 		compId: 'articles-docs-mediabunny-new-video',
 		crumb: 'Mediabunny',
