@@ -13,11 +13,9 @@ export const useBufferStateEmitter = (
 
 	useLayoutEffect(() => {
 		const clear1 = bufferManager.listenForBuffering(() => {
-			bufferManager.buffering.current = true;
 			emitter.dispatchWaiting({});
 		});
 		const clear2 = bufferManager.listenForResume(() => {
-			bufferManager.buffering.current = false;
 			emitter.dispatchResume({});
 		});
 
