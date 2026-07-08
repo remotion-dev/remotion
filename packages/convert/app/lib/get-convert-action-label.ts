@@ -43,7 +43,7 @@ export const getConvertActionLabel = ({
 	readonly supportedConfigs: SupportedConfigs | null;
 	readonly tracks: InputTrack[] | null;
 	readonly videoConfigIndexSelection: Record<number, string>;
-}): 'Convert' | 'Re-encode' => {
+}): 'Convert' | 'Remux' | 'Re-encode' => {
 	if (!enableConvert || supportedConfigs === null || tracks === null) {
 		return 'Convert';
 	}
@@ -53,6 +53,7 @@ export const getConvertActionLabel = ({
 	}
 
 	let hasReencodeOperation = false;
+	let hasTrackOperation = false;
 
 	for (const option of supportedConfigs.videoTrackOptions) {
 		const operation = getActualVideoOperation({
@@ -62,7 +63,8 @@ export const getConvertActionLabel = ({
 			operations: option.operations,
 		});
 
-		if (operation.type === 'copy') {
+		if (operation.type === 'copy' || operation.type === 'drop') {
+			hasTrackOperation = true;
 			continue;
 		}
 
@@ -75,6 +77,7 @@ export const getConvertActionLabel = ({
 			return 'Convert';
 		}
 
+		hasTrackOperation = true;
 		hasReencodeOperation = true;
 	}
 
@@ -86,7 +89,8 @@ export const getConvertActionLabel = ({
 			operations: option.operations,
 		});
 
-		if (operation.type === 'copy') {
+		if (operation.type === 'copy' || operation.type === 'drop') {
+			hasTrackOperation = true;
 			continue;
 		}
 
@@ -99,8 +103,13 @@ export const getConvertActionLabel = ({
 			return 'Convert';
 		}
 
+		hasTrackOperation = true;
 		hasReencodeOperation = true;
 	}
 
-	return hasReencodeOperation ? 'Re-encode' : 'Convert';
+	if (hasReencodeOperation) {
+		return 'Re-encode';
+	}
+
+	return hasTrackOperation ? 'Remux' : 'Convert';
 };

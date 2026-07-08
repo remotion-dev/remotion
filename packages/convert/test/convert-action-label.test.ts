@@ -129,7 +129,7 @@ test('labels same-container same-codec audio re-encoding as re-encode', () => {
 	).toBe('Re-encode');
 });
 
-test('keeps convert label if tracks are only copied', () => {
+test('labels same-container copy-only operations as remux', () => {
 	const operation = {type: 'copy'} as const;
 	const supportedConfigs: SupportedConfigs = {
 		videoTrackOptions: [
@@ -151,5 +151,5 @@ test('keeps convert label if tracks are only copied', () => {
 			tracks: [videoTrack(1, 'avc')],
 			videoConfigIndexSelection: {1: getVideoOperationId(operation)},
 		}),
-	).toBe('Convert');
+	).toBe('Remux');
 });
