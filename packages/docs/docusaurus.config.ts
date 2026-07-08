@@ -84,6 +84,7 @@ const config: Config = {
 						{to: '/docs/editor-starter', label: 'Editor Starter'},
 						{to: '/docs/timeline', label: 'Timeline'},
 						{to: '/docs/recorder', label: 'Recorder'},
+						{to: 'https://remotion.dev/convert', label: 'Convert'},
 					],
 				},
 				{
@@ -100,7 +101,6 @@ const config: Config = {
 						},
 						{to: 'blog', label: 'Blog'},
 						{to: 'showcase', label: 'Showcase'},
-						{to: 'https://remotion.dev/convert', label: 'Convert a video'},
 						{to: '/docs/support', label: 'Support'},
 					],
 				},
