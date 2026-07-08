@@ -178,6 +178,9 @@ const ConvertUI = ({
 		return resampleRate;
 	}, [resampleRate, canResample, resampleUserPreferenceActive]);
 
+	const disableVideoCopy =
+		enableRotateOrMirror !== null || trim || resizeOperation !== null;
+
 	const supportedConfigs = useSupportedConfigs({
 		outputContainer: actualOutputContainer,
 		tracks,
@@ -186,6 +189,7 @@ const ConvertUI = ({
 		inputContainer,
 		resizeOperation,
 		sampleRate: actualResampleRate,
+		disableVideoCopy,
 	});
 
 	const isH264Reencode = supportedConfigs?.videoTrackOptions.some((o) => {
