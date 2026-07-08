@@ -63,7 +63,10 @@ import {
 	SHRINKWRAP_PREVIEW_PARAMS,
 } from '../../components/effects/effects-shrinkwrap-preview';
 import {EffectsSpecklePreview} from '../../components/effects/effects-speckle-preview';
-import {EffectsStarburstPreview} from '../../components/effects/effects-starburst-preview';
+import {
+	EffectsStarburstPreview,
+	STARBURST_PREVIEW_PARAMS,
+} from '../../components/effects/effects-starburst-preview';
 import {EffectsThermalVisionPreview} from '../../components/effects/effects-thermal-vision-preview';
 import {EffectsTintPreview} from '../../components/effects/effects-tint-preview';
 import {
@@ -762,12 +765,7 @@ export const RemotionRoot: React.FC = () => {
 					component={EffectsStarburstPreview}
 					width={1280}
 					height={720}
-					defaultProps={{
-						rays: 16,
-						rotation: 0,
-						smoothness: 0,
-						origin: [0.5, 0.5],
-					}}
+					defaultProps={STARBURST_PREVIEW_PARAMS}
 				/>
 				<Still
 					id="effects-light-leak-preview"

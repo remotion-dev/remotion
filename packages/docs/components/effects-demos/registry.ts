@@ -117,7 +117,10 @@ import {
 	SHRINKWRAP_PREVIEW_PARAMS,
 } from '../effects/effects-shrinkwrap-preview';
 import {EffectsSpecklePreview} from '../effects/effects-speckle-preview';
-import {EffectsStarburstPreview} from '../effects/effects-starburst-preview';
+import {
+	EffectsStarburstPreview,
+	STARBURST_PREVIEW_PARAMS,
+} from '../effects/effects-starburst-preview';
 import {EffectsThermalVisionPreview} from '../effects/effects-thermal-vision-preview';
 import {EffectsTintPreview} from '../effects/effects-tint-preview';
 import {
@@ -626,10 +629,7 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/starburst',
 		comp: EffectsStarburstPreview,
 		schema: starburstEffectSchema,
-		initialValues: {
-			rays: 16,
-			colors: ['#ff6600', '#ffff00'],
-		},
+		initialValues: STARBURST_PREVIEW_PARAMS,
 	},
 	{
 		...defaults,
