@@ -43,18 +43,6 @@ const getCardOpacity = (y: number) => {
 	return Math.min(fadeIn, fadeOut);
 };
 
-const withOpacity = (
-	elements: ThreeDElement[],
-	opacity: number,
-): ThreeDElement[] => {
-	return elements.map((element) => {
-		return {
-			...element,
-			opacity,
-		};
-	});
-};
-
 export const RenderProgress: React.FC = () => {
 	const currentFrame = useCurrentFrame();
 	const {durationInFrames, fps} = useVideoConfig();
@@ -80,8 +68,8 @@ export const RenderProgress: React.FC = () => {
 			const y = initialY + i * spacing - scroll + cycleOffset * cycleHeight;
 			const localFrame = frame - itemIndex * itemSpacingInFrames;
 
-			return withOpacity(
-				getButton({
+			return {
+				elements: getButton({
 					font,
 					phrase,
 					depth,
@@ -91,16 +79,29 @@ export const RenderProgress: React.FC = () => {
 					frame: localFrame,
 					fps,
 				}),
-				getCardOpacity(y),
-			);
+				opacity: getCardOpacity(y),
+			};
 		});
 	});
 
 	return (
 		<AbsoluteFill>
-			<svg viewBox={viewBox.join(' ')} style={{overflow: 'visible'}}>
-				<Faces elements={rendered.flat(1)} />
-			</svg>
+			{rendered.map((item, i) => {
+				return (
+					<svg
+						key={i}
+						viewBox={viewBox.join(' ')}
+						style={{
+							inset: 0,
+							opacity: item.opacity,
+							overflow: 'visible',
+							position: 'absolute',
+						}}
+					>
+						<Faces elements={item.elements} />
+					</svg>
+				);
+			})}
 		</AbsoluteFill>
 	);
 };

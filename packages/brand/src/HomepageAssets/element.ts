@@ -13,7 +13,6 @@ export type ThreeDElement = {
 	faces: FaceType[];
 	id: string;
 	description: string;
-	opacity?: number;
 	centerPoint: Vector4D;
 };
 
