@@ -12,6 +12,7 @@ import type {
 import {getFileWatcherRegistry} from './file-watcher';
 import {getNetworkAddress} from './get-network-address';
 import {maybeOpenBrowser} from './maybe-open-browser';
+import {registerOpenBrowserShortcut} from './open-browser-shortcut';
 import type {QueueMethods} from './preview-server/api-types';
 import {noOpUntilRestart} from './preview-server/close-and-restart';
 import {getAbsolutePublicDir} from './preview-server/get-absolute-public-dir';
@@ -210,16 +211,34 @@ export const startStudio = async ({
 
 	printServerReadyComment('Server ready', logLevel);
 	RenderInternals.Log.info({indent: false, logLevel}, 'Building...');
-
-	await maybeOpenBrowser({
+	const studioUrl = `http://localhost:${port}`;
+	const openBrowserShortcut = registerOpenBrowserShortcut({
 		browserArgs,
 		browserFlag,
-		shouldOpenBrowser,
-		url: `http://localhost:${port}`,
+		url: studioUrl,
 		logLevel,
 	});
+	if (openBrowserShortcut.registered) {
+		RenderInternals.Log.info(
+			{indent: false, logLevel},
+			'Press "s" to open the Studio in your browser.',
+		);
+	}
 
-	await noOpUntilRestart();
+	try {
+		await maybeOpenBrowser({
+			browserArgs,
+			browserFlag,
+			shouldOpenBrowser,
+			url: studioUrl,
+			logLevel,
+		});
+
+		await noOpUntilRestart();
+	} finally {
+		openBrowserShortcut.cleanup();
+	}
+
 	RenderInternals.Log.info(
 		{indent: false, logLevel},
 		'Closing server to restart...',
