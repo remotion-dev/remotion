@@ -12,6 +12,7 @@ import type {
 } from '../components/NewComposition/ComboBox';
 import {showNotification} from '../components/Notifications/NotificationCenter';
 import type {TQuickSwitcherResult} from '../components/QuickSwitcher/QuickSwitcherResult';
+import {openInFileExplorer} from '../components/RenderQueue/actions';
 import {getPreviewSizeLabel, getUniqueSizes} from '../components/SizeSelector';
 import {useResolvedStack} from '../components/Timeline/use-resolved-stack';
 import {inOutHandles} from '../components/TimelineInOutToggle';
@@ -151,10 +152,10 @@ const getFileMenu = ({
 					quickSwitcherLabel: 'Render on web...',
 				}
 			: null,
-		window.remotion_editorName && !readOnlyStudio
+		!readOnlyStudio
 			? {
 					type: 'divider' as const,
-					id: 'open-in-editor-divider',
+					id: 'open-project-divider',
 				}
 			: null,
 		window.remotion_editorName && !readOnlyStudio
@@ -192,6 +193,30 @@ const getFileMenu = ({
 					leftItem: null,
 					subMenu: null,
 					quickSwitcherLabel: 'Open in editor...',
+				}
+			: null,
+		!readOnlyStudio
+			? {
+					id: 'open-project-in-explorer',
+					value: 'open-project-in-explorer',
+					label: 'Open in Explorer',
+					onClick: () => {
+						closeMenu();
+						openInFileExplorer({directory: window.remotion_cwd}).catch(
+							(err) => {
+								showNotification(
+									`Could not open project: ${err.message}`,
+									2000,
+								);
+							},
+						);
+					},
+					type: 'item' as const,
+					keyHint: null,
+					leftItem: null,
+					subMenu: null,
+					quickSwitcherLabel: 'Open project in Explorer',
+					disabled: previewServerState !== 'connected',
 				}
 			: null,
 
