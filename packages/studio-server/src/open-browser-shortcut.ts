@@ -2,6 +2,7 @@ import * as readline from 'node:readline';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {maybeOpenBrowser} from './maybe-open-browser';
+import {clearPrintPortMessageTimeout} from './preview-server/live-events';
 
 type Key = {
 	name?: string;
@@ -14,13 +15,11 @@ export const registerOpenBrowserShortcut = ({
 	browserFlag,
 	url,
 	logLevel,
-	onBeforeOpenBrowser,
 }: {
 	browserArgs: string;
 	browserFlag: string;
 	url: string;
 	logLevel: LogLevel;
-	onBeforeOpenBrowser: () => void;
 }): {registered: boolean; cleanup: () => void} => {
 	if (!process.stdin.isTTY) {
 		return {registered: false, cleanup: () => undefined};
@@ -60,7 +59,7 @@ export const registerOpenBrowserShortcut = ({
 		}
 
 		isOpeningBrowser = true;
-		onBeforeOpenBrowser();
+		clearPrintPortMessageTimeout();
 		maybeOpenBrowser({
 			browserArgs,
 			browserFlag,
