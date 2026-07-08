@@ -5,14 +5,14 @@ sidebar_label: Adding a video
 crumb: 'How To'
 ---
 
-You can embed existing videos into Remotion by using the [`<OffthreadVideo>`](/docs/offthreadvideo) component.
+You can embed existing videos into Remotion by using the [`<Video>` from `@remotion/media`](/docs/media/video) component.
 
 ```tsx twoslash
 import React from 'react';
-import {OffthreadVideo, staticFile} from 'remotion';
+import {Video} from '@remotion/media';
 
 export const MyComp: React.FC = () => {
-  return <OffthreadVideo src="https://remotion.media/BigBuckBunny.mp4" />;
+  return <Video src="https://remotion.media/BigBuckBunny.mp4" />;
 };
 ```
 
@@ -22,35 +22,39 @@ Put a file into the [`public` folder](/docs/terminology/public-dir) and referenc
 
 ```tsx twoslash
 import React from 'react';
-import {OffthreadVideo, staticFile} from 'remotion';
+import {Video} from '@remotion/media';
+import {staticFile} from 'remotion';
 
 export const MyComp: React.FC = () => {
-  return <OffthreadVideo src={staticFile('video.mp4')} />;
+  return <Video src={staticFile('video.mp4')} />;
 };
 ```
 
 ## Trimming
 
-By using the [`trimBefore`](/docs/offthreadvideo#trimbefore) prop, you can remove the first few seconds of the video.  
+By using the [`trimBefore`](/docs/media/video#trimbefore) prop, you can remove the first few seconds of the video.
+
 In the example below, the first two seconds of the video are skipped (assuming a composition FPS of 30).
 
 ```tsx twoslash
 import React from 'react';
-import {OffthreadVideo, staticFile} from 'remotion';
+import {Video} from '@remotion/media';
+import {staticFile} from 'remotion';
 
 export const MyComp: React.FC = () => {
-  return <OffthreadVideo src={staticFile('video.mp4')} trimBefore={60} />;
+  return <Video src={staticFile('video.mp4')} trimBefore={60} />;
 };
 ```
 
-Similarly, you can use [`trimAfter`](/docs/offthreadvideo#trimafter) to trim the end of the video.
+Similarly, you can use [`trimAfter`](/docs/media/video#trimafter) to trim the end of the video.
 
 ```tsx twoslash
 import React from 'react';
-import {OffthreadVideo, staticFile} from 'remotion';
+import {Video} from '@remotion/media';
+import {staticFile} from 'remotion';
 
 export const MyComp: React.FC = () => {
-  return <OffthreadVideo src={staticFile('video.mp4')} trimBefore={60} trimAfter={120} />;
+  return <Video src={staticFile('video.mp4')} trimBefore={60} trimAfter={120} />;
 };
 ```
 
@@ -61,12 +65,13 @@ In the example below, the video will start playing at frame 60.
 
 ```tsx twoslash
 import React from 'react';
-import {OffthreadVideo, staticFile, Sequence} from 'remotion';
+import {Video} from '@remotion/media';
+import {Sequence, staticFile} from 'remotion';
 
 export const MyComp: React.FC = () => {
   return (
     <Sequence from={60}>
-      <OffthreadVideo src={staticFile('video.mp4')} />
+      <Video src={staticFile('video.mp4')} />
     </Sequence>
   );
 };
@@ -79,11 +84,12 @@ You'll find the properties `width`, `height`, `position`, `left`, `top`, `right`
 
 ```tsx twoslash
 import React from 'react';
-import {OffthreadVideo, staticFile} from 'remotion';
+import {Video} from '@remotion/media';
+import {staticFile} from 'remotion';
 
 export const MyComp: React.FC = () => {
   return (
-    <OffthreadVideo
+    <Video
       src={staticFile('video.mp4')}
       style={{
         width: 640,
@@ -99,25 +105,27 @@ export const MyComp: React.FC = () => {
 
 ## Volume
 
-You can set the volume of the video using the [`volume`](/docs/offthreadvideo#volume) prop.
+You can set the volume of the video using the [`volume`](/docs/media/video#volume) prop.
 
 ```tsx twoslash
 import React from 'react';
-import {OffthreadVideo, staticFile} from 'remotion';
+import {Video} from '@remotion/media';
+import {staticFile} from 'remotion';
 
 export const MyComp: React.FC = () => {
-  return <OffthreadVideo src={staticFile('video.mp4')} volume={0.5} />;
+  return <Video src={staticFile('video.mp4')} volume={0.5} />;
 };
 ```
 
-You can also mute a video using the [`muted`](/docs/offthreadvideo#muted) prop.
+You can also mute a video using the [`muted`](/docs/media/video#muted) prop.
 
 ```tsx twoslash
 import React from 'react';
-import {OffthreadVideo, staticFile} from 'remotion';
+import {Video} from '@remotion/media';
+import {staticFile} from 'remotion';
 
 export const MyComp: React.FC = () => {
-  return <OffthreadVideo src={staticFile('video.mp4')} muted />;
+  return <Video src={staticFile('video.mp4')} muted />;
 };
 ```
 
@@ -125,14 +133,15 @@ See [Using Audio](/docs/audio/volume) for more ways you can control volume.
 
 ## Speed
 
-You can use the [`playbackRate`](/docs/offthreadvideo#playbackrate) prop to change the speed of the video.
+You can use the [`playbackRate`](/docs/media/video#playbackrate) prop to change the speed of the video.
 
 ```tsx twoslash
 import React from 'react';
-import {OffthreadVideo, staticFile} from 'remotion';
+import {Video} from '@remotion/media';
+import {staticFile} from 'remotion';
 
 export const MyComp: React.FC = () => {
-  return <OffthreadVideo src={staticFile('video.mp4')} playbackRate={2} />;
+  return <Video src={staticFile('video.mp4')} playbackRate={2} />;
 };
 ```
 
@@ -140,7 +149,7 @@ This only works if the speed is constant. See also: [Changing the speed of a vid
 
 ## Looping
 
-See: [Looping an `<OffthreadVideo>`](/docs/offthreadvideo#looping-a-offthreadvideo)
+See: [`loop`](/docs/media/video#loop) on [`<Video>`](/docs/media/video).
 
 ## GIFs
 
@@ -148,5 +157,6 @@ See: [Using GIFs](/docs/gif)
 
 ## See also
 
-- [`<OffthreadVideo>`](/docs/offthreadvideo)
+- [`<Video>` from `@remotion/media`](/docs/media/video)
+- [Comparison of video tags](/docs/video-tags)
 - [Using Audio](/docs/using-audio)
