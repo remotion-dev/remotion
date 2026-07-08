@@ -10,15 +10,26 @@ import {
 } from 'remotion';
 import {ExtrudeDiv} from '../3DContext/Div3D';
 
+const panelWidth = 360;
+const panelHeight = 98;
+const panelRadius = 8;
+const contentPadding = 4;
+const rowHeight = 32;
+const rowGap = 1;
+const selectionHeight = 28;
+const selectionRadius = Math.max(panelRadius - contentPadding, 0);
+const childRowOffset = rowHeight + rowGap;
+const finalSelectionY = panelHeight - contentPadding - selectionHeight;
+
 export const FolderTree: React.FC = () => {
 	const frame = useCurrentFrame();
 
 	return (
 		<AbsoluteFill className="justify-center items-center">
 			<ExtrudeDiv
-				height={98}
+				height={panelHeight}
 				depth={27}
-				cornerRadius={8}
+				cornerRadius={panelRadius}
 				translationX={-15}
 				translationY={5}
 				scaleX={1.15}
@@ -31,7 +42,7 @@ export const FolderTree: React.FC = () => {
 					<Interactive.Div
 						style={{
 							backgroundColor: '#141414',
-							borderRadius: 8,
+							borderRadius: panelRadius,
 							height: '100%',
 							width: '100%',
 						}}
@@ -42,26 +53,31 @@ export const FolderTree: React.FC = () => {
 				<Interactive.Div
 					style={{
 						backgroundColor: 'rgb(31,36,40)',
-						borderRadius: 8,
-						height: 98,
+						borderRadius: panelRadius,
+						height: panelHeight,
 						overflow: 'hidden',
 						position: 'relative',
-						width: 360,
+						width: panelWidth,
 					}}
 				>
 					<Interactive.Div
 						style={{
 							backgroundColor: 'hsla(0, 0%, 100%, 0.15)',
-							borderRadius: Math.max(8 - 4, 0),
-							height: 28,
-							left: 4,
+							borderRadius: selectionRadius,
+							height: selectionHeight,
+							left: contentPadding,
 							position: 'absolute',
-							right: 4,
+							right: contentPadding,
 							top: 0,
 							translate: interpolate(
 								frame,
 								[0, 18, 84, 119],
-								['0px 35px', '0px 35px', '0px 68px', '0px 68px'],
+								[
+									`0px ${childRowOffset + contentPadding / 2}px`,
+									`0px ${childRowOffset + contentPadding / 2}px`,
+									`0px ${finalSelectionY}px`,
+									`0px ${finalSelectionY}px`,
+								],
 								{
 									easing: Easing.bezier(0.16, 1, 0.3, 1),
 									extrapolateLeft: 'clamp',
@@ -78,13 +94,13 @@ export const FolderTree: React.FC = () => {
 							fontFamily:
 								'-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
 							fontSize: 13,
-							height: 32,
-							left: 4,
+							height: rowHeight,
+							left: contentPadding,
 							lineHeight: '18px',
 							paddingLeft: 12,
 							paddingRight: 10,
 							position: 'absolute',
-							right: 4,
+							right: contentPadding,
 							top: 0,
 							translate: '0px 0px',
 							userSelect: 'none',
@@ -123,15 +139,15 @@ export const FolderTree: React.FC = () => {
 							fontFamily:
 								'-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
 							fontSize: 13,
-							height: 32,
-							left: 4,
+							height: rowHeight,
+							left: contentPadding,
 							lineHeight: '18px',
 							paddingLeft: 20,
 							paddingRight: 10,
 							position: 'absolute',
-							right: 4,
+							right: contentPadding,
 							top: 0,
-							translate: '0px 33px',
+							translate: `0px ${childRowOffset}px`,
 							userSelect: 'none',
 						}}
 					>
@@ -184,15 +200,15 @@ export const FolderTree: React.FC = () => {
 							fontFamily:
 								'-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
 							fontSize: 13,
-							height: 32,
-							left: 4,
+							height: rowHeight,
+							left: contentPadding,
 							lineHeight: '18px',
 							paddingLeft: 20,
 							paddingRight: 10,
 							position: 'absolute',
-							right: 4,
+							right: contentPadding,
 							top: 0,
-							translate: '0px 66px',
+							translate: `0px ${childRowOffset * 2}px`,
 							userSelect: 'none',
 						}}
 					>

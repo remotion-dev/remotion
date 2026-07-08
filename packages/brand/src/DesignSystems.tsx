@@ -46,8 +46,8 @@ export const DesignSystems: React.FC = () => {
 				durationInFrames={160}
 				style={{
 					position: 'absolute',
-					translate: '69.6px 448.4px',
-					scale: 2.409,
+					translate: '171.6px 436.5px',
+					scale: 3.156,
 				}}
 			>
 				<FolderTree />
