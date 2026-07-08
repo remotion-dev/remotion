@@ -6,7 +6,6 @@ import {
 	useCurrentFrame,
 	useVideoConfig,
 } from 'remotion';
-import {ThreeDElement} from './element';
 import {Faces} from './Faces';
 import {useFont} from './get-char';
 import {rotateX, rotateY, translateY} from './matrix';
@@ -21,24 +20,34 @@ export const renderProgressDurationInFrames = 268;
 const rotationReferenceDurationInFrames = 1200;
 const phrases = ['video.mp4', 'thumb.png', 'sound.wav', 'doc.pdf'] as const;
 const cycleOffsets = [-1, 0, 1] as const;
-const fadeInStartY = 1100;
-const fadeInEndY = 850;
-const fadeOutStartY = -720;
-const fadeOutEndY = -900;
+const progressStartFrame = -60;
+const fadeInDurationInFrames = 12;
+const fadeOutStartFrame = 82;
+const fadeOutDurationInFrames = 8;
 
 const modulo = (value: number, by: number) => {
 	return ((value % by) + by) % by;
 };
 
-const getCardOpacity = (y: number) => {
-	const fadeIn = interpolate(y, [fadeInEndY, fadeInStartY], [1, 0], {
-		extrapolateLeft: 'clamp',
-		extrapolateRight: 'clamp',
-	});
-	const fadeOut = interpolate(y, [fadeOutEndY, fadeOutStartY], [0, 1], {
-		extrapolateLeft: 'clamp',
-		extrapolateRight: 'clamp',
-	});
+const getCardOpacity = (localFrame: number) => {
+	const fadeIn = interpolate(
+		localFrame,
+		[progressStartFrame - fadeInDurationInFrames - 4, progressStartFrame - 4],
+		[0, 1],
+		{
+			extrapolateLeft: 'clamp',
+			extrapolateRight: 'clamp',
+		},
+	);
+	const fadeOut = interpolate(
+		localFrame,
+		[fadeOutStartFrame, fadeOutStartFrame + fadeOutDurationInFrames],
+		[1, 0],
+		{
+			extrapolateLeft: 'clamp',
+			extrapolateRight: 'clamp',
+		},
+	);
 
 	return Math.min(fadeIn, fadeOut);
 };
@@ -79,7 +88,7 @@ export const RenderProgress: React.FC = () => {
 					frame: localFrame,
 					fps,
 				}),
-				opacity: getCardOpacity(y),
+				opacity: getCardOpacity(localFrame),
 			};
 		});
 	});
