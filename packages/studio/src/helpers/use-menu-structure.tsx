@@ -193,6 +193,7 @@ const getFileMenu = ({
 					leftItem: null,
 					subMenu: null,
 					quickSwitcherLabel: 'Open in editor...',
+					disabled: previewServerState !== 'connected',
 				}
 			: null,
 		!readOnlyStudio
