@@ -35,7 +35,7 @@ type BufferManager = {
 	addBlock: AddBlock;
 	listenForBuffering: ListenForBuffering;
 	listenForResume: ListenForResume;
-	buffering: React.MutableRefObject<boolean>;
+	buffering: React.RefObject<boolean>;
 };
 
 const useBufferManager = (
