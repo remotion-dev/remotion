@@ -7,10 +7,12 @@ export const MakeVideosInteractively: React.FC<{
 	readonly showLinks?: boolean;
 	readonly links?: readonly MakeVideosLink[];
 	readonly showVideo?: boolean;
+	readonly videoSrc?: string;
+	readonly fallbackVideoSrc?: string;
 }> = ({
 	title = (
 		<>
-			<span className="text-gray-500">Make videos</span>
+			<span className="text-[var(--subtitle)]">Make videos</span>
 			<br /> interactively
 		</>
 	),
@@ -18,11 +20,10 @@ export const MakeVideosInteractively: React.FC<{
 	showLinks = true,
 	links = [{label: 'Remotion Studio', href: '/docs/studio'}],
 	showVideo = true,
+	videoSrc = '/img/editing-vp9-chrome.webm',
+	fallbackVideoSrc = '/img/editing-safari.mp4',
 }) => {
 	const ref = useRef<HTMLDivElement>(null);
-	// eslint-disable-next-line no-warning-comments
-	// TODO: Add an opaque fallback for browsers that do not support transparent WebM.
-	const videoSrc = '/img/editing-vp9-chrome.webm';
 
 	return (
 		<div
@@ -34,11 +35,11 @@ export const MakeVideosInteractively: React.FC<{
 			<div className="flex aspect-square w-full items-start">
 				{showVideo ? (
 					<video
-						src={videoSrc}
 						autoPlay
 						muted
 						playsInline
 						loop
+						preload="metadata"
 						style={{
 							width: 500,
 							maxWidth: '100%',
@@ -47,7 +48,10 @@ export const MakeVideosInteractively: React.FC<{
 							overflow: 'hidden',
 						}}
 						className="object-contain"
-					/>
+					>
+						<source src={fallbackVideoSrc} type="video/mp4" />
+						<source src={videoSrc} type="video/webm" />
+					</video>
 				) : null}
 			</div>
 			<div className="font-brand">

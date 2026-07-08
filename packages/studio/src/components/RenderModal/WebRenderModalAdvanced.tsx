@@ -1,10 +1,13 @@
+import type {WebRendererPageResponsiveness} from '@remotion/web-renderer';
 import type React from 'react';
 import {useCallback, useMemo} from 'react';
+import {BLUE} from '../../helpers/colors';
 import {Checkmark} from '../../icons/Checkmark';
 import {Checkbox} from '../Checkbox';
 import {Spacing} from '../layout';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {Combobox} from '../NewComposition/ComboBox';
+import {InfoBubble} from './InfoBubble';
 import {label, optionRow, rightRow} from './layout';
 import {NumberSetting} from './NumberSetting';
 import {OptionExplainerBubble} from './OptionExplainerBubble';
@@ -27,10 +30,61 @@ type WebRenderModalAdvancedProps = {
 	) => void;
 	readonly allowHtmlInCanvas: boolean;
 	readonly setAllowHtmlInCanvas: React.Dispatch<React.SetStateAction<boolean>>;
+	readonly pageResponsiveness: WebRendererPageResponsiveness;
+	readonly setPageResponsiveness: React.Dispatch<
+		React.SetStateAction<WebRendererPageResponsiveness>
+	>;
 };
 
 const tabContainer: React.CSSProperties = {
 	flex: 1,
+};
+
+const explainerContainer: React.CSSProperties = {
+	fontSize: 14,
+	maxWidth: 420,
+	padding: '10px 20px',
+};
+
+const paragraph: React.CSSProperties = {
+	margin: 0,
+	marginBottom: 8,
+};
+
+const lastParagraph: React.CSSProperties = {
+	margin: 0,
+};
+
+const link: React.CSSProperties = {
+	color: BLUE,
+	textDecoration: 'none',
+};
+
+const PageResponsivenessExplainer: React.FC = () => {
+	return (
+		<div style={explainerContainer}>
+			<p style={paragraph}>
+				The Web Renderer runs in the same browser tab as the Studio. Rendering
+				can block the tab while Remotion captures frames.
+			</p>
+			<p style={paragraph}>
+				The default is <code>Medium</code>, which tries to free the event loop
+				every 33ms of rendering work so progress updates and UI interactions can
+				stay responsive.
+			</p>
+			<p style={lastParagraph}>
+				Choose <code>Disabled</code> to prioritize render speed, or{' '}
+				<code>High</code> to give the browser more chances to update.{' '}
+				<a
+					href="https://www.remotion.dev/docs/web-renderer/page-responsiveness"
+					style={link}
+					target="_blank"
+				>
+					Docs
+				</a>
+			</p>
+		</div>
+	);
 };
 
 export const WebRenderModalAdvanced: React.FC<WebRenderModalAdvancedProps> = ({
@@ -43,6 +97,8 @@ export const WebRenderModalAdvanced: React.FC<WebRenderModalAdvancedProps> = ({
 	setHardwareAcceleration,
 	allowHtmlInCanvas,
 	setAllowHtmlInCanvas,
+	pageResponsiveness,
+	setPageResponsiveness,
 }) => {
 	const toggleCustomMediaCacheSizeInBytes = useCallback(() => {
 		setMediaCacheSizeInBytes((previous) => {
@@ -118,6 +174,87 @@ export const WebRenderModalAdvanced: React.FC<WebRenderModalAdvancedProps> = ({
 		];
 	}, [hardwareAcceleration, setHardwareAcceleration]);
 
+	const selectedPageResponsiveness =
+		typeof pageResponsiveness === 'number' ? 'custom' : pageResponsiveness;
+
+	const pageResponsivenessOptions = useMemo((): ComboboxValue[] => {
+		return [
+			{
+				label: 'Disabled',
+				onClick: () => setPageResponsiveness('disabled'),
+				leftItem:
+					selectedPageResponsiveness === 'disabled' ? <Checkmark /> : null,
+				id: 'disabled',
+				keyHint: null,
+				quickSwitcherLabel: null,
+				subMenu: null,
+				type: 'item',
+				value: 'disabled',
+			},
+			{
+				label: 'Low (100ms)',
+				onClick: () => setPageResponsiveness('low'),
+				leftItem: selectedPageResponsiveness === 'low' ? <Checkmark /> : null,
+				id: 'low',
+				keyHint: null,
+				quickSwitcherLabel: null,
+				subMenu: null,
+				type: 'item',
+				value: 'low',
+			},
+			{
+				label: 'Medium (33ms)',
+				onClick: () => setPageResponsiveness('medium'),
+				leftItem:
+					selectedPageResponsiveness === 'medium' ? <Checkmark /> : null,
+				id: 'medium',
+				keyHint: null,
+				quickSwitcherLabel: null,
+				subMenu: null,
+				type: 'item',
+				value: 'medium',
+			},
+			{
+				label: 'High (16ms)',
+				onClick: () => setPageResponsiveness('high'),
+				leftItem: selectedPageResponsiveness === 'high' ? <Checkmark /> : null,
+				id: 'high',
+				keyHint: null,
+				quickSwitcherLabel: null,
+				subMenu: null,
+				type: 'item',
+				value: 'high',
+			},
+			{
+				label: 'Custom',
+				onClick: () =>
+					setPageResponsiveness((previous) =>
+						typeof previous === 'number' ? previous : 33,
+					),
+				leftItem:
+					selectedPageResponsiveness === 'custom' ? <Checkmark /> : null,
+				id: 'custom',
+				keyHint: null,
+				quickSwitcherLabel: null,
+				subMenu: null,
+				type: 'item',
+				value: 'custom',
+			},
+		];
+	}, [selectedPageResponsiveness, setPageResponsiveness]);
+
+	const setCustomPageResponsiveness: React.Dispatch<
+		React.SetStateAction<number>
+	> = useCallback(
+		(value) => {
+			setPageResponsiveness((previous) => {
+				const currentValue = typeof previous === 'number' ? previous : 33;
+				return typeof value === 'function' ? value(currentValue) : value;
+			});
+		},
+		[setPageResponsiveness],
+	);
+
 	return (
 		<div style={tabContainer}>
 			<NumberSetting
@@ -182,6 +319,37 @@ export const WebRenderModalAdvanced: React.FC<WebRenderModalAdvancedProps> = ({
 					/>
 				</div>
 			</div>
+
+			{renderMode === 'still' ? null : (
+				<>
+					<div style={optionRow}>
+						<div style={label}>
+							Page Responsiveness <Spacing x={0.5} />
+							<InfoBubble title="Learn more about page responsiveness">
+								<PageResponsivenessExplainer />
+							</InfoBubble>
+						</div>
+						<div style={rightRow}>
+							<Combobox
+								values={pageResponsivenessOptions}
+								selectedId={selectedPageResponsiveness}
+								title="Page Responsiveness"
+							/>
+						</div>
+					</div>
+					{typeof pageResponsiveness === 'number' ? (
+						<NumberSetting
+							name="Responsiveness Interval"
+							formatter={(v) => `${v}ms`}
+							min={1}
+							max={1000000000}
+							step={1}
+							value={pageResponsiveness}
+							onValueChanged={setCustomPageResponsiveness}
+						/>
+					) : null}
+				</>
+			)}
 		</div>
 	);
 };

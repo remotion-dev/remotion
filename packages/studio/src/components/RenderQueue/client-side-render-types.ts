@@ -3,6 +3,7 @@ import type {
 	RenderStillOnWebImageFormat,
 	WebRendererAudioCodec,
 	WebRendererContainer,
+	WebRendererPageResponsiveness,
 	WebRendererQuality,
 	WebRendererVideoCodec,
 } from '@remotion/web-renderer';
@@ -66,6 +67,7 @@ export type ClientVideoRenderJob = ClientRenderJobBase & {
 	keyframeIntervalInSeconds: number;
 	transparent: boolean;
 	muted: boolean;
+	pageResponsiveness: WebRendererPageResponsiveness;
 } & ClientRenderJobDynamicStatus;
 
 export type RestoredClientRenderJob = CompletedClientRender & {

@@ -7,34 +7,37 @@ export const MakeVideosProgrammatically: React.FC<{
 	readonly showLinks?: boolean;
 	readonly links?: readonly MakeVideosLink[];
 	readonly showVideo?: boolean;
+	readonly videoSrc?: string;
+	readonly fallbackVideoSrc?: string;
 }> = ({
 	title = (
 		<>
-			<span className="text-gray-500">Make videos</span>
+			<span className="text-[var(--subtitle)]">Make videos</span>
 			<br /> programmatically
 		</>
 	),
-	description = 'Connect data, and manage complexity with code.',
+	description = 'Connect data and manage complexity with code.',
 	showLinks = true,
 	links = [],
 	showVideo = true,
+	videoSrc = '/img/what-is-remotion.webm',
+	fallbackVideoSrc = '/img/what-is-remotion.mp4',
 }) => {
-	// eslint-disable-next-line no-warning-comments
-	// TODO: Add an opaque fallback for browsers that do not support transparent WebM.
-	const videoSrc = '/img/what-is-remotion.webm';
-
 	return (
 		<div className={'flex min-w-0 basis-0 flex-col flex-1'}>
 			<div className="flex aspect-square w-full items-start">
 				{showVideo ? (
 					<video
-						src={videoSrc}
 						muted
 						autoPlay
 						playsInline
 						loop
+						preload="metadata"
 						className="relative max-h-full max-w-full cursor-default! object-contain lg:mb-0 lg:mt-0"
-					/>
+					>
+						<source src={fallbackVideoSrc} type="video/mp4" />
+						<source src={videoSrc} type="video/webm" />
+					</video>
 				) : null}
 			</div>
 			<div className="font-brand">

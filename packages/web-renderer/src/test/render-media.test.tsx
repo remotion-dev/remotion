@@ -52,6 +52,27 @@ test('should render media on web', async (t) => {
 	});
 });
 
+test('should reject invalid page responsiveness values', async () => {
+	const Component: React.FC = () => null;
+
+	await expect(
+		renderMediaOnWeb({
+			composition: {
+				component: Component,
+				id: 'invalid-page-responsiveness-test',
+				width: 100,
+				height: 100,
+				fps: 30,
+				durationInFrames: 1,
+			},
+			inputProps: {},
+			pageResponsiveness: 'fast' as never,
+		}),
+	).rejects.toThrow(
+		'"pageResponsiveness" must be one of "disabled", "low", "medium", "high", or a number, but got "fast"',
+	);
+});
+
 test('should not increase page scroll dimensions while rendering', async (t) => {
 	if (t.task.file.projectName === 'webkit') {
 		t.skip();

@@ -8,10 +8,11 @@ export const MakeVideosAgentically: React.FC<{
 	readonly links?: readonly MakeVideosLink[];
 	readonly showVideo?: boolean;
 	readonly videoSrc?: string;
+	readonly fallbackVideoSrc?: string;
 }> = ({
 	title = (
 		<>
-			<span className="text-gray-500">Make videos</span>
+			<span className="text-[var(--subtitle)]">Make videos</span>
 			<br /> agentically
 		</>
 	),
@@ -23,11 +24,10 @@ export const MakeVideosAgentically: React.FC<{
 	],
 	showVideo = true,
 	videoSrc = '/img/render-progress.webm',
+	fallbackVideoSrc = '/img/render-progress.mp4',
 }) => {
 	const ref = useRef<HTMLDivElement>(null);
 	const videoRef = useRef<HTMLVideoElement>(null);
-	// eslint-disable-next-line no-warning-comments
-	// TODO: Add an opaque fallback for browsers that do not support transparent WebM.
 
 	useEffect(() => {
 		const {current} = ref;
@@ -56,11 +56,11 @@ export const MakeVideosAgentically: React.FC<{
 				{showVideo ? (
 					<video
 						ref={videoRef}
-						src={videoSrc}
 						muted
 						autoPlay
 						playsInline
 						loop
+						preload="metadata"
 						style={{
 							width: 400,
 							maxWidth: '100%',
@@ -69,7 +69,10 @@ export const MakeVideosAgentically: React.FC<{
 							overflow: 'hidden',
 						}}
 						className="cursor-default! relative object-contain"
-					/>
+					>
+						<source src={fallbackVideoSrc} type="video/mp4" />
+						<source src={videoSrc} type="video/webm" />
+					</video>
 				) : null}
 			</div>
 			<div className="font-brand">

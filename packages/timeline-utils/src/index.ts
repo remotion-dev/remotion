@@ -40,4 +40,6 @@ export {
 	getDurationOfOneFrame,
 	WEBCODECS_TIMESCALE,
 } from './render-frame-strip';
+export {renderFrameStripToCanvas} from './render-frame-strip-to-canvas';
+export type {RenderFrameStripToCanvasOptions} from './render-frame-strip-to-canvas';
 export {resizeVideoFrame} from './resize-video-frame';

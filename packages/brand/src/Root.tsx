@@ -54,11 +54,12 @@ import {
 	zigzagLinearBlurShowcaseDurationInFrames,
 } from './effects/ZigzagLinearBlurShowcase';
 import {EmailSignature} from './EmailSignature';
-import {CodingPrompt} from './HomepageAssets/CodingPrompt';
+import {CodingPrompt, codingPromptSchema} from './HomepageAssets/CodingPrompt';
 import {FolderTreeComposition} from './HomepageAssets/FolderTree';
 import {Map} from './HomepageAssets/Map';
 import {
 	HomepageAssetMaster,
+	homepageAssetMasterSchema,
 	homepageAssetMasterDurationInFrames,
 } from './HomepageAssets/Master';
 import {NpmIniVideo} from './HomepageAssets/NpmInitVideo/NpmInitVideo';
@@ -191,6 +192,11 @@ export const RemotionRoot: React.FC = () => {
 					fps={30}
 					width={1920}
 					height={1080}
+					schema={codingPromptSchema}
+					defaultProps={{
+						promptLine1: 'Animate from',
+						promptLine2: 'LA to NY',
+					}}
 				/>
 				<Composition
 					id="map"
@@ -207,6 +213,11 @@ export const RemotionRoot: React.FC = () => {
 					fps={30}
 					width={1080}
 					height={1080}
+					schema={homepageAssetMasterSchema}
+					defaultProps={{
+						promptLine1: 'Animate from',
+						promptLine2: 'LA to NY',
+					}}
 				/>
 				<Composition
 					id="WhatIsRemotion"

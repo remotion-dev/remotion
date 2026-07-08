@@ -2,20 +2,20 @@ import React from 'react';
 import type {CalculateMetadataFunction} from 'remotion';
 import {
 	Easing,
-	interpolate,
 	Interactive,
 	Internals,
+	interpolate,
 	measureSpring,
 	OffthreadVideo,
 	Sequence,
 	spring,
 	staticFile,
+	useCurrentFrame,
+	useVideoConfig,
 	type InteractiveBaseProps,
 	type InteractiveTransformProps,
 	type InteractivitySchema,
 	type SequenceControls,
-	useCurrentFrame,
-	useVideoConfig,
 } from 'remotion';
 import {z} from 'zod';
 import {ExtrudeDiv} from '../3DContext/Div3D';
@@ -538,6 +538,7 @@ export const WhatIsRemotion = ({
 								style={{
 									position: 'absolute',
 									inset: 0,
+									display: 'flex',
 									justifyContent: 'center',
 									alignItems: 'center',
 								}}

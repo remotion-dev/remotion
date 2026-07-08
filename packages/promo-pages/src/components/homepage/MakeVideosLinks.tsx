@@ -13,7 +13,7 @@ export type MakeVideosLink = {
 export const MakeVideosLinkItem: React.FC<MakeVideosLink> = ({href, label}) => {
 	return (
 		<a
-			className="no-underline text-gray-500 font-brand font-medium text-sm inline-flex flex-row items-center"
+			className="no-underline text-[var(--subtitle)] font-brand font-medium text-sm inline-flex flex-row items-center"
 			href={href}
 		>
 			{label}

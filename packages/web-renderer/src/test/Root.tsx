@@ -31,6 +31,7 @@ import {flexContainer} from './fixtures/flex-container';
 import {flexPositionedScaled} from './fixtures/flex-positioned-scaled';
 import {gradientTransparentKeyword} from './fixtures/gradient-transparent-keyword';
 import {hugeImageTransform} from './fixtures/huge-image-transform';
+import {inlineScaleAfterOutline} from './fixtures/inline-scale-after-outline';
 import {inside3dTransform} from './fixtures/inside-3d-transform';
 import {issue6211MaskWheel} from './fixtures/issue-6211-mask-wheel';
 import {issue7050Minimal} from './fixtures/issue-7050-minimal';
@@ -144,6 +145,7 @@ export const Root: React.FC = () => {
 				<Composition {...gradientTransparentKeyword} />
 			</Folder>
 			<Composition {...outline} />
+			<Composition {...inlineScaleAfterOutline} />
 			<Composition {...boxShadow} />
 			<Folder name="Filter">
 				<Composition {...filter} />

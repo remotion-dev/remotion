@@ -38,8 +38,9 @@ import {
 export const DefaultInspector: React.FC<{
 	readonly composition: _InternalTypes['AnyComposition'] | null;
 	readonly currentDefaultProps: Record<string, unknown>;
+	readonly readOnlyStudio: boolean;
 	readonly setDefaultProps: UpdaterFunction<Record<string, unknown>>;
-}> = ({composition, currentDefaultProps, setDefaultProps}) => {
+}> = ({composition, currentDefaultProps, readOnlyStudio, setDefaultProps}) => {
 	const {canvasContent} = useContext(Internals.CompositionManager);
 	const hasSelectedAsset = canvasContent?.type === 'asset';
 	const z = useZodIfPossible();
@@ -104,7 +105,7 @@ export const DefaultInspector: React.FC<{
 		return (
 			<div style={scrollableContainer} className={VERTICAL_SCROLLBAR_CLASSNAME}>
 				<div style={compositionSection}>
-					<CurrentAsset />
+					<CurrentAsset readOnlyStudio={readOnlyStudio} />
 				</div>
 			</div>
 		);

@@ -1,6 +1,7 @@
 import {formatBytes} from '@remotion/studio-shared';
-import React, {useContext, useMemo} from 'react';
+import React, {useCallback, useContext, useMemo} from 'react';
 import {Internals, staticFile} from 'remotion';
+import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {formatMediaDuration} from '../helpers/format-media-duration';
 import {getPreviewFileType} from '../helpers/get-preview-file-type';
 import {
@@ -9,12 +10,16 @@ import {
 } from '../helpers/render-codec-label';
 import type {MediaMetadata} from '../helpers/use-media-metadata';
 import {useMediaMetadata} from '../helpers/use-media-metadata';
+import {InlineEditableTitle} from './InlineEditableTitle';
 import {
 	INSPECTOR_INFO_HEADER_MIN_HEIGHT,
 	InspectorInfoHeader,
 	InspectorInfoSubtitle,
-	InspectorInfoTitle,
 } from './InspectorInfoHeader';
+import {
+	getStaticFileRenameSelection,
+	useRenameStaticFile,
+} from './NewComposition/use-rename-static-file';
 import {useStaticFiles} from './use-static-files';
 
 export const CURRENT_ASSET_HEIGHT = INSPECTOR_INFO_HEADER_MIN_HEIGHT;
@@ -70,13 +75,21 @@ export const getCurrentAssetMediaDetailLines = (
 	return detailLines;
 };
 
-export const CurrentAsset: React.FC = () => {
+export const CurrentAsset: React.FC<{
+	readonly readOnlyStudio: boolean;
+}> = ({readOnlyStudio}) => {
 	const {canvasContent} = useContext(Internals.CompositionManager);
+	const connectionStatus = useContext(StudioServerConnectionCtx)
+		.previewServerState.type;
 
 	const assetName =
 		canvasContent?.type === 'asset' ? canvasContent.asset : null;
 
 	const staticFiles = useStaticFiles();
+	const renameFile = useRenameStaticFile({
+		relativePath: assetName ?? '',
+		staticFiles,
+	});
 
 	const sizeInBytes = useMemo(() => {
 		if (!assetName) {
@@ -89,6 +102,13 @@ export const CurrentAsset: React.FC = () => {
 
 	const src = getCurrentAssetMetadataSource(assetName);
 	const mediaMetadata = useMediaMetadata(src);
+	const canRename = connectionStatus === 'connected' && !readOnlyStudio;
+	const onRename = useCallback(
+		(newName: string) => {
+			renameFile(newName).catch(() => undefined);
+		},
+		[renameFile],
+	);
 
 	if (!assetName) {
 		return <InspectorInfoHeader />;
@@ -117,7 +137,13 @@ export const CurrentAsset: React.FC = () => {
 
 	return (
 		<InspectorInfoHeader>
-			<InspectorInfoTitle>{fileName}</InspectorInfoTitle>
+			<InlineEditableTitle
+				value={fileName}
+				canRename={canRename}
+				getInitialSelection={getStaticFileRenameSelection}
+				onCommit={onRename}
+				title={assetName}
+			/>
 			{subtitleParts.length > 0 ? (
 				<InspectorInfoSubtitle>
 					{subtitleParts.join(' · ')}

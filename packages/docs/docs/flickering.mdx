@@ -52,57 +52,11 @@ Otherwise, it will take a screenshot of a loading state.
 
 ### Solution
 
-<Step>1</Step> Use the
-<a>
-  <code>&lt;Img&gt;</code>
-</a>
-,
-<a>
-  <code>&lt;Video&gt;</code>
-</a>
-,
-<a>
-  <code>&lt;OffthreadVideo&gt;</code>
-</a>
-,
-<a>
-  <code>&lt;Audio&gt;</code>
-</a>
-,
-<a>
-  <code>&lt;Iframe&gt;</code>
-</a>
-and
-<a>
-  <code>&lt;Gif&gt;</code>
-</a>
-as they wait for the assets to be loaded. <br />
-<Step>2</Step> When loading data, use the
-<a href="/docs/delay-render">
-  <code>delayRender()</code>
-</a>
-function.
-<br />
-<Step>3</Step> Ensure you correctly wait <a href="/docs/fonts">for fonts to load</a>.<br />
-<Step>4</Step> Only call
-<a href="/docs/layout-utils/fit-text">
-  <code>fitText()</code>
-</a>
-,
-<a href="/docs/layout-utils/fill-text-box">
-  <code>fillTextBox()</code>
-</a>
-and
-<a href="/docs/layout-utils/measure-text">
-  <code>measureText()</code>
-</a>
-once fonts are loaded.
-<br />
-<Step>5</Step> Avoid using the
-<a href="/docs/troubleshooting/background-image">
-  <code>background-image</code> and <code>mask-image</code> CSS properties
-</a>
-.
+- <Step>1</Step> Use [`<Video>`](/docs/media/video), [`<Audio>`](/docs/media/audio), [`<Img>`](/docs/img), [`<OffthreadVideo>`](/docs/offthreadvideo), [`<IFrame>`](/docs/iframe), and [`<Gif>`](/docs/gif) as they wait for assets to be loaded.
+- <Step>2</Step> When loading data, use [`delayRender()`](/docs/delay-render).
+- <Step>3</Step> Ensure you correctly wait [for fonts to load](/docs/fonts).
+- <Step>4</Step> Only call [`fitText()`](/docs/layout-utils/fit-text), [`fillTextBox()`](/docs/layout-utils/fill-text-box), and [`measureText()`](/docs/layout-utils/measure-text) once fonts are loaded.
+- <Step>5</Step> Avoid using the [`background-image` and `mask-image` CSS properties](/docs/troubleshooting/background-image).
 
 ## Flickering `<Html5Video>` tag
 

@@ -18,7 +18,7 @@ import {BuiltWithRemotionShowcase} from './homepage/VideoAppsShowcase';
 import {SectionTitle} from './homepage/VideoAppsTitle';
 import {WriteInReact} from './homepage/WriteInReact';
 
-const makeVideosRowClassName = 'flex flex-col lg:flex-row gap-10';
+const makeVideosRowClassName = 'mt-4 md:mt-6 flex flex-col lg:flex-row gap-10';
 
 export const NewLanding: React.FC<{
 	readonly colorMode: ColorMode;
@@ -39,12 +39,15 @@ export const NewLanding: React.FC<{
 						<WriteInReact />
 						<br />
 						<div className={makeVideosRowClassName}>
-							<MakeVideosAgentically videoSrc="/img/homepage-assets-master.webm" />
+							<MakeVideosAgentically
+								videoSrc="/img/homepage-assets-master.webm"
+								fallbackVideoSrc="/img/homepage-assets-master.mp4"
+							/>
 							<MakeVideosInteractively />
 							<MakeVideosProgrammatically
 								links={[
 									{label: 'API Docs', href: '/docs/api'},
-									{label: 'Resources', href: '/docs/api'},
+									{label: 'Resources', href: '/docs/resources'},
 								]}
 							/>
 						</div>

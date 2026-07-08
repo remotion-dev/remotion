@@ -150,6 +150,10 @@ export const Map: React.FC<{
 												}}
 											/>
 										}
+										style={{
+											scale: 0.907,
+											translate: '-37.2px -1px',
+										}}
 									>
 										<FrontFace lineStartFrame={lineStartFrame} />
 									</ExtrudeDiv>

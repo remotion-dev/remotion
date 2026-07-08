@@ -5,6 +5,7 @@ import type {
 	WebRendererAudioCodec,
 	WebRendererContainer,
 	WebRendererHardwareAcceleration,
+	WebRendererPageResponsiveness,
 	WebRendererQuality,
 	WebRendererVideoCodec,
 } from '@remotion/web-renderer';
@@ -86,6 +87,7 @@ type WebRenderModalProps = {
 	readonly initialMuted: boolean | null;
 	readonly initialMediaCacheSizeInBytes: number | null;
 	readonly initialAllowHtmlInCanvas: boolean;
+	readonly initialPageResponsiveness: WebRendererPageResponsiveness;
 };
 
 export type RenderType = 'still' | 'video' | 'audio';
@@ -190,6 +192,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	initialTransparent,
 	initialMuted,
 	initialAllowHtmlInCanvas,
+	initialPageResponsiveness,
 }) => {
 	const context = useContext(ResolvedCompositionContext);
 	const {setSelectedModal} = useContext(ModalsContext);
@@ -278,6 +281,10 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	const [allowHtmlInCanvas, setAllowHtmlInCanvas] = useState(
 		initialAllowHtmlInCanvas ?? false,
 	);
+	const [pageResponsiveness, setPageResponsiveness] =
+		useState<WebRendererPageResponsiveness>(
+			initialPageResponsiveness ?? 'medium',
+		);
 
 	const encodableAudioCodecs = useEncodableAudioCodecs(container);
 	const encodableVideoCodecs = useEncodableVideoCodecs(container);
@@ -578,6 +585,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 					licenseKey,
 					scale,
 					allowHtmlInCanvas,
+					pageResponsiveness,
 				},
 				compositionRef,
 			);
@@ -622,6 +630,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		addClientVideoJob,
 		scale,
 		allowHtmlInCanvas,
+		pageResponsiveness,
 	]);
 
 	return (
@@ -787,6 +796,8 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 							setHardwareAcceleration={setHardwareAcceleration}
 							allowHtmlInCanvas={allowHtmlInCanvas}
 							setAllowHtmlInCanvas={setAllowHtmlInCanvas}
+							pageResponsiveness={pageResponsiveness}
+							setPageResponsiveness={setPageResponsiveness}
 						/>
 					) : (
 						<WebRenderModalLicense

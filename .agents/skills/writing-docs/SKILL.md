@@ -195,14 +195,3 @@ After adding or editing a page, generate social media preview cards:
 ```bash
 cd packages/docs && bun render-cards.ts
 ```
-
-## Verifying docs compile
-
-To check that documentation builds without errors:
-
-```bash
-# from the monorepo root
-bun run build-docs
-```
-
-This validates MDX syntax, twoslash snippets, and broken links.

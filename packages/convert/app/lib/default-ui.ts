@@ -57,6 +57,14 @@ export const defaultRotateOrMirorState = (
 		return 'crop';
 	}
 
+	if (action.type === 'generic-trim') {
+		return null;
+	}
+
+	if (action.type === 'trim-format') {
+		return null;
+	}
+
 	if (action.type === 'timing-editor') {
 		return null;
 	}
@@ -72,7 +80,7 @@ export const isConvertEnabledByDefault = (action: RouteAction) => {
 	}
 
 	if (action.type === 'generic-probe') {
-		return true;
+		return false;
 	}
 
 	if (action.type === 'generic-convert') {
@@ -80,47 +88,55 @@ export const isConvertEnabledByDefault = (action: RouteAction) => {
 	}
 
 	if (action.type === 'generic-rotate') {
-		return true;
+		return false;
 	}
 
 	if (action.type === 'rotate-format') {
-		return true;
+		return false;
 	}
 
 	if (action.type === 'mirror-format') {
-		return true;
+		return false;
 	}
 
 	if (action.type === 'generic-mirror') {
-		return true;
+		return false;
 	}
 
 	if (action.type === 'generic-resize') {
-		return true;
+		return false;
 	}
 
 	if (action.type === 'resize-format') {
-		return true;
+		return false;
 	}
 
 	if (action.type === 'report') {
-		return true;
+		return false;
 	}
 
 	if (action.type === 'transcribe') {
-		return true;
+		return false;
 	}
 
 	if (action.type === 'generic-crop') {
-		return true;
+		return false;
 	}
 
 	if (action.type === 'crop-format') {
-		return true;
+		return false;
+	}
+
+	if (action.type === 'generic-trim') {
+		return false;
+	}
+
+	if (action.type === 'trim-format') {
+		return false;
 	}
 
 	if (action.type === 'timing-editor') {
-		return true;
+		return false;
 	}
 
 	throw new Error(
@@ -134,6 +150,7 @@ export type ConvertSections =
 	| 'mirror'
 	| 'resize'
 	| 'crop'
+	| 'trim'
 	| 'resample';
 
 export const isVideoOnlySection = (section: ConvertSections): boolean => {
@@ -141,7 +158,8 @@ export const isVideoOnlySection = (section: ConvertSections): boolean => {
 		section === 'rotate' ||
 		section === 'mirror' ||
 		section === 'resize' ||
-		section === 'crop'
+		section === 'crop' ||
+		section === 'trim'
 	) {
 		return true;
 	}
@@ -162,8 +180,21 @@ export const getOrderOfSections = (
 			resize: 1,
 			rotate: 2,
 			mirror: 3,
-			convert: 4,
-			resample: 5,
+			trim: 4,
+			convert: 5,
+			resample: 6,
+		};
+	}
+
+	if (action.type === 'generic-trim' || action.type === 'trim-format') {
+		return {
+			trim: 0,
+			crop: 1,
+			resize: 2,
+			rotate: 3,
+			mirror: 4,
+			convert: 5,
+			resample: 6,
 		};
 	}
 
@@ -173,8 +204,9 @@ export const getOrderOfSections = (
 			resize: 1,
 			crop: 2,
 			mirror: 3,
-			convert: 4,
-			resample: 5,
+			trim: 4,
+			convert: 5,
+			resample: 6,
 		};
 	}
 
@@ -185,7 +217,8 @@ export const getOrderOfSections = (
 			resize: 2,
 			rotate: 3,
 			mirror: 4,
-			resample: 5,
+			trim: 5,
+			resample: 6,
 		};
 	}
 
@@ -196,7 +229,8 @@ export const getOrderOfSections = (
 			crop: 2,
 			rotate: 3,
 			mirror: 4,
-			resample: 5,
+			trim: 5,
+			resample: 6,
 		};
 	}
 
@@ -206,8 +240,9 @@ export const getOrderOfSections = (
 			resize: 1,
 			crop: 2,
 			rotate: 3,
-			convert: 4,
-			resample: 5,
+			trim: 4,
+			convert: 5,
+			resample: 6,
 		};
 	}
 
@@ -223,8 +258,9 @@ export const getOrderOfSections = (
 			rotate: 1,
 			crop: 2,
 			mirror: 3,
-			convert: 4,
-			resample: 5,
+			trim: 4,
+			convert: 5,
+			resample: 6,
 		};
 	}
 

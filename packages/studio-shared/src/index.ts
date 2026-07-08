@@ -73,6 +73,8 @@ export {
 	ReorderSequenceResponse,
 	RestartStudioRequest,
 	RestartStudioResponse,
+	GoogleFontSourceEdit,
+	SaveSequencePropSourceEdit,
 	SaveEffectPropsRequest,
 	SaveEffectPropsResponse,
 	SaveSequencePropEdit,
@@ -206,8 +208,14 @@ export {
 	hotMiddlewareOptions,
 } from './hot-middleware';
 export {
+	CUBIC_KEYFRAME_EASING,
+	EASE_KEYFRAME_EASING,
+	getBackKeyframeEasing,
+	getOutKeyframeEasing,
+	getPolyKeyframeEasing,
 	KEYFRAME_EASING_PRESETS,
 	LINEAR_KEYFRAME_EASING,
+	QUAD_KEYFRAME_EASING,
 	type KeyframeEasing,
 	type KeyframeEasingPreset,
 } from './keyframe-easing-presets';

@@ -730,6 +730,90 @@ export const Example: React.FC = () => {
 	});
 });
 
+test('computeSequencePropsStatus should represent Easing.cubic as bezier easing metadata', () => {
+	const input = `import React from 'react';
+import {Easing, Sequence, interpolate, useCurrentFrame} from 'remotion';
+
+export const Example: React.FC = () => {
+\tconst frame = useCurrentFrame();
+\treturn (
+\t\t<Sequence style={{scale: interpolate(frame, [0, 100], [1, 3], {
+\t\t\teasing: Easing.cubic,
+\t\t})}} />
+\t);
+};
+`;
+
+	const result = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 7),
+		componentIdentity: null,
+		keys: ['style.scale'],
+		effects: [],
+	});
+
+	expect(result.canUpdate).toBe(true);
+	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
+
+	expect(result.props['style.scale']).toEqual({
+		status: 'keyframed',
+		interpolationFunction: 'interpolate',
+		keyframes: [
+			{frame: 0, value: 1},
+			{frame: 100, value: 3},
+		],
+		easing: [{type: 'bezier', x1: 1 / 3, y1: 0, x2: 2 / 3, y2: 0}],
+		clamping: {left: 'extend', right: 'extend'},
+		posterize: undefined,
+	});
+});
+
+test('computeSequencePropsStatus should represent supported Easing helpers as bezier easing metadata', () => {
+	const input = `import React from 'react';
+import {Easing, Sequence, interpolate, useCurrentFrame} from 'remotion';
+
+export const Example: React.FC = () => {
+\tconst frame = useCurrentFrame();
+\treturn (
+\t\t<Sequence style={{scale: interpolate(frame, [0, 20, 40, 60, 80, 100, 120, 140, 160], [0, 1, 2, 3, 4, 5, 6, 7, 8], {
+\t\t\teasing: [Easing.ease, Easing.quad, Easing.back(), Easing.back(2), Easing.poly(2), Easing.in(Easing.cubic), Easing.out(Easing.quad), Easing.out(Easing.ease)],
+\t\t})}} />
+\t);
+};
+`;
+
+	const result = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 7),
+		componentIdentity: null,
+		keys: ['style.scale'],
+		effects: [],
+	});
+
+	expect(result.canUpdate).toBe(true);
+	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
+
+	expect(result.props['style.scale']).toMatchObject({
+		status: 'keyframed',
+		easing: [
+			{type: 'bezier', x1: 0.42, y1: 0, x2: 1, y2: 1},
+			{type: 'bezier', x1: 1 / 3, y1: 0, x2: 2 / 3, y2: 1 / 3},
+			{type: 'bezier', x1: 1 / 3, y1: 0, x2: 2 / 3, y2: -1.70158 / 3},
+			{type: 'bezier', x1: 1 / 3, y1: 0, x2: 2 / 3, y2: -2 / 3},
+			{type: 'bezier', x1: 1 / 3, y1: 0, x2: 2 / 3, y2: 1 / 3},
+			{type: 'bezier', x1: 1 / 3, y1: 0, x2: 2 / 3, y2: 0},
+			{
+				type: 'bezier',
+				x1: 1 - 2 / 3,
+				y1: 1 - 1 / 3,
+				x2: 1 - 1 / 3,
+				y2: 1,
+			},
+			{type: 'bezier', x1: 0, y1: 0, x2: 1 - 0.42, y2: 1},
+		],
+	});
+});
+
 test('computeSequencePropsStatus should bail on unsupported easing expressions', () => {
 	const input = `import React from 'react';
 import {Easing, Sequence, interpolate, useCurrentFrame} from 'remotion';
@@ -738,7 +822,7 @@ export const Example: React.FC = () => {
 \tconst frame = useCurrentFrame();
 \treturn (
 \t\t<Sequence style={{scale: interpolate(frame, [0, 100], [1, 3], {
-\t\t\teasing: Easing.inOut(Easing.linear),
+\t\t\teasing: Easing.inOut(Easing.quad),
 \t\t})}} />
 \t);
 };
