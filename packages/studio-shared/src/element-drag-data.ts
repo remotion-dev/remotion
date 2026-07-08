@@ -12,7 +12,7 @@ export type ElementDragData = {
 		slug: string;
 		displayName: string;
 		sourceCode: string;
-		dimensions: ComponentDimensions;
+		dimensions?: ComponentDimensions;
 	};
 };
 
@@ -117,7 +117,7 @@ export const makeElementDragData = ({
 			slug,
 			displayName,
 			sourceCode,
-			dimensions,
+			...(dimensions ? {dimensions} : {}),
 		},
 	};
 };
@@ -145,7 +145,7 @@ export const parseElementDragData = (value: string): ElementDragData | null => {
 			!isSourceCode(sourceCode) ||
 			getElementComponentNameFromSourceCode(sourceCode) === null ||
 			makeElementFileNameFromSlug(slug) === null ||
-			!isDimensions(dimensions)
+			(dimensions !== undefined && !isDimensions(dimensions))
 		) {
 			return null;
 		}

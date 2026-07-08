@@ -74,6 +74,10 @@ const makeRelativeImportPath = ({
 const validateDimensions = (
 	dimensions: InsertElementRequest['element']['dimensions'],
 ) => {
+	if (dimensions === undefined) {
+		return;
+	}
+
 	if (
 		!Number.isFinite(dimensions.width) ||
 		!Number.isFinite(dimensions.height) ||
@@ -186,14 +190,16 @@ export const insertElementHandler: ApiHandler<
 					importName: componentName,
 					importPath,
 					props: [],
-					position: null,
+					position: element.dimensions ? null : position,
 				},
 				prettierConfigOverride: null,
-				wrapInSequence: {
-					dimensions: element.dimensions,
-					name: element.displayName,
-					position,
-				},
+				wrapInSequence: element.dimensions
+					? {
+							dimensions: element.dimensions,
+							name: element.displayName,
+							position,
+						}
+					: null,
 			});
 
 			pushTransactionToUndoStack({
