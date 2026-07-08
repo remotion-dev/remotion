@@ -1,6 +1,7 @@
+import {Video} from '@remotion/media';
 import {Player} from '@remotion/player';
 import React, {useCallback, useRef} from 'react';
-import {AbsoluteFill, OffthreadVideo, useVideoConfig} from 'remotion';
+import {AbsoluteFill, useVideoConfig} from 'remotion';
 
 export const VideoOnCanvas: React.FC = () => {
 	const canvas = useRef<HTMLCanvasElement>(null);
@@ -27,7 +28,7 @@ export const VideoOnCanvas: React.FC = () => {
 	return (
 		<AbsoluteFill>
 			<AbsoluteFill>
-				<OffthreadVideo
+				<Video
 					onVideoFrame={onVideoFrame}
 					style={{opacity: 0}}
 					trimBefore={300}
