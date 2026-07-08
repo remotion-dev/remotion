@@ -17,6 +17,7 @@ import type {QueueMethods} from './preview-server/api-types';
 import {noOpUntilRestart} from './preview-server/close-and-restart';
 import {getAbsolutePublicDir} from './preview-server/get-absolute-public-dir';
 import {
+	clearPrintPortMessageTimeout,
 	setLiveEventsListener,
 	waitForLiveEventsListener,
 } from './preview-server/live-events';
@@ -217,6 +218,7 @@ export const startStudio = async ({
 		browserFlag,
 		url: studioUrl,
 		logLevel,
+		onBeforeOpenBrowser: clearPrintPortMessageTimeout,
 	});
 	if (openBrowserShortcut.registered) {
 		RenderInternals.Log.info(

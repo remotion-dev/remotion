@@ -14,11 +14,13 @@ export const registerOpenBrowserShortcut = ({
 	browserFlag,
 	url,
 	logLevel,
+	onBeforeOpenBrowser,
 }: {
 	browserArgs: string;
 	browserFlag: string;
 	url: string;
 	logLevel: LogLevel;
+	onBeforeOpenBrowser: () => void;
 }): {registered: boolean; cleanup: () => void} => {
 	if (!process.stdin.isTTY) {
 		return {registered: false, cleanup: () => undefined};
@@ -58,6 +60,7 @@ export const registerOpenBrowserShortcut = ({
 		}
 
 		isOpeningBrowser = true;
+		onBeforeOpenBrowser();
 		RenderInternals.Log.info(
 			{indent: false, logLevel},
 			`Opening ${url} in browser...`,
