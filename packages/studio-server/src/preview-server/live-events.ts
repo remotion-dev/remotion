@@ -29,6 +29,13 @@ const serializeMessage = (message: EventSourceEvent) => {
 
 let printPortMessageTimeout: Timer | null = null;
 
+export const clearPrintPortMessageTimeout = () => {
+	if (printPortMessageTimeout) {
+		clearTimeout(printPortMessageTimeout);
+		printPortMessageTimeout = null;
+	}
+};
+
 export type InitialUndoRedoState = {
 	undoFile: string | null;
 	redoFile: string | null;
@@ -70,9 +77,7 @@ export const makeLiveEventsRouter = (
 		};
 		clients.push(newClient);
 		newClientListeners.forEach((cb) => cb());
-		if (printPortMessageTimeout) {
-			clearTimeout(printPortMessageTimeout);
-		}
+		clearPrintPortMessageTimeout();
 
 		request.on('close', () => {
 			unsubscribeClientDefaultPropsWatchers(clientId);
@@ -82,9 +87,7 @@ export const makeLiveEventsRouter = (
 
 			// If all clients disconnected, print a comment so user can easily restart it.
 			if (clients.length === 0) {
-				if (printPortMessageTimeout) {
-					clearTimeout(printPortMessageTimeout);
-				}
+				clearPrintPortMessageTimeout();
 
 				printPortMessageTimeout = setTimeout(() => {
 					printServerReadyComment('To restart', logLevel);
