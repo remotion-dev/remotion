@@ -1,4 +1,4 @@
-import type {ComponentType, LazyExoticComponent, MutableRefObject} from 'react';
+import type {ComponentType, LazyExoticComponent, RefObject} from 'react';
 import React, {
 	forwardRef,
 	useEffect,
@@ -174,7 +174,7 @@ const PlayerFn = <
 		initialVolume,
 		...componentProps
 	}: PlayerProps<Schema, Props>,
-	ref: MutableRefObject<PlayerRef>,
+	ref: RefObject<PlayerRef>,
 ) => {
 	if (typeof window !== 'undefined') {
 		window.remotion_isPlayer = true;
@@ -517,10 +517,7 @@ const PlayerFn = <
 };
 
 const forward = forwardRef as <T, P = {}>(
-	render: (
-		props: P,
-		ref: React.MutableRefObject<T>,
-	) => React.ReactElement | null,
+	render: (props: P, ref: React.RefObject<T>) => React.ReactElement | null,
 ) => (props: P & React.RefAttributes<T>) => React.ReactElement | null;
 
 /*
