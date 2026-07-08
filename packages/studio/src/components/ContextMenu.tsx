@@ -255,9 +255,8 @@ export const ContextMenu = React.forwardRef<HTMLDivElement, ContextMenuProps>(
 				}
 
 				if (forwardedRef) {
-					(
-						forwardedRef as React.MutableRefObject<HTMLDivElement | null>
-					).current = node;
+					(forwardedRef as React.RefObject<HTMLDivElement | null>).current =
+						node;
 				}
 			},
 			[forwardedRef],

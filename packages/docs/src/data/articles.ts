@@ -3555,15 +3555,6 @@ export const articles = [
 		slug: 'lambda/troubleshooting/bucket-disallows-acl',
 	},
 	{
-		id: 'chrome-133-situation',
-		title: 'Chrome 133 situation',
-		relativePath: 'docs/lambda/troubleshooting/chrome-133-situation.mdx',
-		compId: 'articles-docs-lambda-troubleshooting-chrome-133-situation',
-		crumb: 'Lambda',
-		noAi: false,
-		slug: 'lambda/troubleshooting/chrome-133-situation',
-	},
-	{
 		id: 'debug',
 		title: 'Debugging failed Lambda renders',
 		relativePath: 'docs/lambda/troubleshooting/debug.mdx',
@@ -4267,7 +4258,7 @@ export const articles = [
 	},
 	{
 		id: 'media/fallback',
-		title: 'Fallback from @remotion/media to <OffthreadVideo> or <Html5Audio>',
+		title: 'Fallback behavior in @remotion/media',
 		relativePath: 'docs/media/fallback.mdx',
 		compId: 'articles-docs-media-fallback',
 		crumb: '@remotion/media',
@@ -4357,7 +4348,7 @@ export const articles = [
 	},
 	{
 		id: 'mediabunny/new-video',
-		title: 'New <Video> and <Audio> tags',
+		title: '<Video> and <Audio> tags',
 		relativePath: 'docs/mediabunny/new-video.mdx',
 		compId: 'articles-docs-mediabunny-new-video',
 		crumb: 'Mediabunny',
@@ -7956,7 +7947,7 @@ export const articles = [
 		title: 'Comparison of video tags',
 		relativePath: 'docs/video-tags.mdx',
 		compId: 'articles-docs-video-tags',
-		crumb: '<Video>, <Html5Video>, <OffthreadVideo>',
+		crumb: '<Video>, <OffthreadVideo>, <Html5Video>',
 		noAi: false,
 		slug: 'video-tags',
 	},

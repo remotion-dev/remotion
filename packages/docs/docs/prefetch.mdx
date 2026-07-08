@@ -7,9 +7,13 @@ crumb: 'API'
 
 _Available in v3.2.23_
 
+:::note
+Prefetch is not recommended for most cases. [See recommendations](/docs/troubleshooting/player-flicker#strategies).
+:::
+
 By calling `prefetch()`, an asset will be fetched and kept in memory so it is ready when you want to play it in a [`<Player>`](/docs/player).
 
-If you pass the original URL into either an [`<Html5Audio>`](/docs/html5-audio), [`<Audio>`](/docs/media/audio), [`<Video>`](/docs/media/video), [`<Html5Video>`](/docs/html5-video), [`<OffthreadVideo>`](/docs/offthreadvideo) or [`<Img>`](/docs/img) tag and the asset is fully fetched, those components will use Blob URL instead.
+If you pass the original URL into either a [`<Video>`](/docs/media/video), [`<Audio>`](/docs/media/audio), [`<Html5Audio>`](/docs/html5-audio), [`<Html5Video>`](/docs/html5-video), [`<OffthreadVideo>`](/docs/offthreadvideo) or [`<Img>`](/docs/img) tag and the asset is fully fetched, those components will use Blob URL instead.
 
 :::note
 Remote assets need to support [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS).

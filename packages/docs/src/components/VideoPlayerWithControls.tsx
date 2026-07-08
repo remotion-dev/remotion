@@ -2,7 +2,7 @@ import Hls from 'hls.js';
 import type Plyr from 'plyr';
 // eslint-disable-next-line no-restricted-imports
 import 'plyr/dist/plyr.css';
-import type {MutableRefObject} from 'react';
+import type {RefObject} from 'react';
 import React, {
 	forwardRef,
 	useCallback,
@@ -19,10 +19,10 @@ export interface HTMLVideoElementWithPlyr extends HTMLVideoElement {
 const useCombinedRefs = function (
 	...refs: (
 		| ((instance: HTMLVideoElementWithPlyr | null) => void)
-		| MutableRefObject<HTMLVideoElementWithPlyr | null>
+		| RefObject<HTMLVideoElementWithPlyr | null>
 		| null
 	)[]
-): MutableRefObject<HTMLVideoElementWithPlyr | null> {
+): RefObject<HTMLVideoElementWithPlyr | null> {
 	const targetRef = useRef(null);
 
 	useEffect(() => {

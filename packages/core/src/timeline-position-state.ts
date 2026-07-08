@@ -1,4 +1,4 @@
-import type {MutableRefObject} from 'react';
+import type {RefObject} from 'react';
 import {useContext, useMemo} from 'react';
 import {
 	AbsoluteTimeContext,
@@ -121,7 +121,7 @@ export const useTimelineSetFrame = (): ((
 type PlayingReturnType = readonly [
 	boolean,
 	(u: React.SetStateAction<boolean>) => void,
-	MutableRefObject<boolean>,
+	RefObject<boolean>,
 ];
 
 export const usePlayingState = (): PlayingReturnType => {

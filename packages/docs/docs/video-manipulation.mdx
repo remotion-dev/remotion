@@ -8,7 +8,7 @@ crumb: 'How To'
 
 import {VideoCanvasExamples} from '../components/GreenscreenExamples/index';
 
-You can draw frames of a [`<OffthreadVideo>`](/docs/offthreadvideo), [`<Video>`](/docs/media/video) or a [`<Html5Video>`](/docs/html5-video) onto a `<canvas>` element using the [`drawImage()`](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/drawImage) API.
+You can draw frames of a [`<Video>` from `@remotion/media`](/docs/media/video), [`<OffthreadVideo>`](/docs/offthreadvideo) or a [`<Html5Video>`](/docs/html5-video) onto a `<canvas>` element using the [`drawImage()`](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/drawImage) API.
 
 :::note
 During preview, makes use of the [`requestVideoFrameCallback()`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLVideoElement/requestVideoFrameCallback) API.  
@@ -17,18 +17,19 @@ Browser support: Firefox 130 (August 2024), Chrome 83, Safari 15.4.
 
 ## Basic example
 
-In this example, an [`<OffthreadVideo>`](/docs/offthreadvideo) is rendered and made invisible.  
+In this example, a [`<Video>` from `@remotion/media`](/docs/media/video) is rendered and made invisible.
+
 Every frame that is emitted is drawn to a Canvas and a grayscale [`filter`](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/filter) is applied.
 
 <VideoCanvasExamples />
 <br />
 
 ```tsx twoslash
-import React, {useCallback, useEffect, useRef} from 'react';
-import {AbsoluteFill, useVideoConfig, OffthreadVideo} from 'remotion';
+import React, {useCallback, useRef} from 'react';
+import {Video} from '@remotion/media';
+import {AbsoluteFill, useVideoConfig} from 'remotion';
 // ---cut---
 export const VideoOnCanvas: React.FC = () => {
-  const video = useRef<HTMLVideoElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const {width, height} = useVideoConfig();
 
@@ -53,7 +54,7 @@ export const VideoOnCanvas: React.FC = () => {
   return (
     <AbsoluteFill>
       <AbsoluteFill>
-        <OffthreadVideo
+        <Video
           // Hide the original video tag
           style={{opacity: 0}}
           onVideoFrame={onVideoFrame}

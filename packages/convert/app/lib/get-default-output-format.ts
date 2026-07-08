@@ -39,7 +39,7 @@ const getDefaultConversionFormat = (
 	throw new Error('not all input formats handled: ' + inputContainer.name);
 };
 
-const getSameOutputFormat = (
+export const getSameOutputFormat = (
 	inputContainer: InputFormat,
 ): OutputContainer | null => {
 	if (inputContainer === MP4) {
