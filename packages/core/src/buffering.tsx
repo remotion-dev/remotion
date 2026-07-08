@@ -2,7 +2,6 @@ import React, {
 	useCallback,
 	useContext,
 	useEffect,
-	useLayoutEffect,
 	useMemo,
 	useRef,
 	useState,
@@ -42,18 +41,49 @@ const useBufferManager = (
 	logLevel: LogLevel,
 	mountTime: number | null,
 ): BufferManager => {
-	const [blocks, setBlocks] = useState<Block[]>([]);
-	const [onBufferingCallbacks, setOnBufferingCallbacks] = useState<
-		OnBufferingCallback[]
-	>([]);
-	const [onResumeCallbacks, setOnResumeCallbacks] = useState<
-		OnBufferingCallback[]
-	>([]);
+	const blocks = useRef<Block[]>([]);
+	const onBufferingCallbacks = useRef<OnBufferingCallback[]>([]);
+	const onResumeCallbacks = useRef<OnResumeCallback[]>([]);
 
 	const env = useRemotionEnvironment();
 	const rendering = env.isRendering;
 
 	const buffering = useRef(false);
+
+	// Fire callbacks only on the `0 <-> >0` blocks transition.
+	// `buffering` holds the last reported state, so intermediate changes
+	// (e.g. 2 -> 3 blocks) are no-ops and never re-notify listeners.
+	const checkBuffering = useCallback(() => {
+		if (rendering) {
+			return;
+		}
+
+		const isBuffering = blocks.current.length > 0;
+		if (isBuffering === buffering.current) {
+			return;
+		}
+
+		buffering.current = isBuffering;
+
+		if (isBuffering) {
+			// Iterate a copy: a callback may remove itself while being called.
+			[...onBufferingCallbacks.current].forEach((c) => c());
+			playbackLogging({
+				logLevel,
+				message: 'Player is entering buffer state',
+				mountTime,
+				tag: 'player',
+			});
+		} else {
+			[...onResumeCallbacks.current].forEach((c) => c());
+			playbackLogging({
+				logLevel,
+				message: 'Player is exiting buffer state',
+				mountTime,
+				tag: 'player',
+			});
+		}
+	}, [logLevel, mountTime, rendering]);
 
 	const addBlock: AddBlock = useCallback(
 		(block: Block) => {
@@ -65,7 +95,8 @@ const useBufferManager = (
 
 			let unblocked = false;
 
-			setBlocks((b) => [...b, block]);
+			blocks.current.push(block);
+			checkBuffering();
 			return {
 				unblock: () => {
 					if (unblocked) {
@@ -73,27 +104,23 @@ const useBufferManager = (
 					}
 
 					unblocked = true;
-					setBlocks((b) => {
-						const newArr = b.filter((bx) => bx !== block);
-						if (newArr.length === b.length) {
-							return b;
-						}
-
-						return newArr;
-					});
+					blocks.current = blocks.current.filter((bx) => bx !== block);
+					checkBuffering();
 				},
 			};
 		},
-		[rendering],
+		[checkBuffering, rendering],
 	);
 
 	const listenForBuffering: ListenForBuffering = useCallback(
 		(callback: OnBufferingCallback) => {
-			setOnBufferingCallbacks((c) => [...c, callback]);
+			onBufferingCallbacks.current.push(callback);
 
 			return {
 				remove: () => {
-					setOnBufferingCallbacks((c) => c.filter((cb) => cb !== callback));
+					onBufferingCallbacks.current = onBufferingCallbacks.current.filter(
+						(cb) => cb !== callback,
+					);
 				},
 			};
 		},
@@ -102,61 +129,18 @@ const useBufferManager = (
 
 	const listenForResume: ListenForResume = useCallback(
 		(callback: OnResumeCallback) => {
-			setOnResumeCallbacks((c) => [...c, callback]);
+			onResumeCallbacks.current.push(callback);
 
 			return {
 				remove: () => {
-					setOnResumeCallbacks((c) => c.filter((cb) => cb !== callback));
+					onResumeCallbacks.current = onResumeCallbacks.current.filter(
+						(cb) => cb !== callback,
+					);
 				},
 			};
 		},
 		[],
 	);
-
-	useEffect(() => {
-		if (rendering) {
-			return;
-		}
-
-		if (blocks.length > 0) {
-			onBufferingCallbacks.forEach((c) => c());
-			playbackLogging({
-				logLevel,
-				message: 'Player is entering buffer state',
-				mountTime,
-				tag: 'player',
-			});
-		}
-
-		// Intentionally only firing when blocks change, not the callbacks
-		// otherwise a buffering callback might remove itself after being called
-		// and trigger again
-
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [blocks]);
-
-	if (typeof window !== 'undefined') {
-		// eslint-disable-next-line react-hooks/rules-of-hooks
-		useLayoutEffect(() => {
-			if (rendering) {
-				return;
-			}
-
-			if (blocks.length === 0) {
-				onResumeCallbacks.forEach((c) => c());
-				playbackLogging({
-					logLevel,
-					message: 'Player is exiting buffer state',
-					mountTime,
-					tag: 'player',
-				});
-			}
-			// Intentionally only firing when blocks change, not the callbacks
-			// otherwise a resume callback might remove itself after being called
-			// and trigger again
-			// eslint-disable-next-line react-hooks/exhaustive-deps
-		}, [blocks]);
-	}
 
 	return useMemo(() => {
 		return {addBlock, listenForBuffering, listenForResume, buffering};
@@ -194,12 +178,16 @@ export const useIsPlayerBuffering = (bufferManager: BufferManager) => {
 			setIsBuffering(false);
 		};
 
-		bufferManager.listenForBuffering(onBuffer);
-		bufferManager.listenForResume(onResume);
+		const buffer = bufferManager.listenForBuffering(onBuffer);
+		const resume = bufferManager.listenForResume(onResume);
+
+		// Sync in case the buffer state flipped between the initial render and
+		// this subscription (e.g. a media element blocked before we listened).
+		setIsBuffering(bufferManager.buffering.current);
 
 		return () => {
-			bufferManager.listenForBuffering(() => undefined);
-			bufferManager.listenForResume(() => undefined);
+			buffer.remove();
+			resume.remove();
 		};
 	}, [bufferManager]);
 
