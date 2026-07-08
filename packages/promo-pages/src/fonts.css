@@ -28,11 +28,3 @@
 	font-style: normal;
 	font-feature-settings: 'ss03' on;
 }
-
-@font-face {
-	font-family: 'GTPlanarVF';
-	src: url('../public/img/gt-planar-variable.woff2') format('woff2');
-	font-weight: 100 900;
-	font-style: oblique -45deg 45deg;
-	font-feature-settings: 'ss03' on;
-}

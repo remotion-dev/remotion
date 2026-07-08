@@ -2,7 +2,6 @@
 
 import React from 'react';
 import {BackgroundAnimation} from './homepage/BackgroundAnimation';
-import {CanvasSectionTitle} from './homepage/CanvasSectionTitle';
 import CommunityStats from './homepage/CommunityStats';
 import {Demo} from './homepage/Demo';
 import EvaluateRemotionSection from './homepage/EvaluateRemotion';
@@ -53,7 +52,6 @@ export const NewLanding: React.FC<{
 						</div>
 						<br />
 						<br />
-						<CanvasSectionTitle>Automate video production</CanvasSectionTitle>
 						<div className={makeVideosRowClassName}>
 							<MakeVideosProgrammatically
 								title="Design systems"
