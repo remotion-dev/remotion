@@ -61,11 +61,6 @@ export const registerOpenBrowserShortcut = ({
 
 		isOpeningBrowser = true;
 		onBeforeOpenBrowser();
-		RenderInternals.Log.info(
-			{indent: false, logLevel},
-			`Opening ${url} in browser...`,
-		);
-
 		maybeOpenBrowser({
 			browserArgs,
 			browserFlag,
@@ -73,6 +68,14 @@ export const registerOpenBrowserShortcut = ({
 			url,
 			logLevel,
 		})
+			.then((result) => {
+				if (result.didOpenBrowser) {
+					RenderInternals.Log.info(
+						{indent: false, logLevel},
+						`Opened ${url} in browser`,
+					);
+				}
+			})
 			.catch((err) => {
 				RenderInternals.Log.error(
 					{indent: false, logLevel},
