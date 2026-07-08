@@ -32,7 +32,7 @@ crumb: '@remotion/my-package'
 
 **Use headings for all fields**: When documenting API options or return values, each property should be its own heading. Use `###` for top-level properties and `####` for nested properties within an options object. Do not use bullet points for individual fields.
 
-**Version indicators**: If an API, feature, parameter, or behavior was added in a specific version, add `<AvailableFrom>` at the page, section, or field where the reader first needs to know it.
+**Version indicators**: If an API, feature, parameter, or behavior was added in a specific version, add `<AvailableFrom>` at the page, section, or field where the reader first needs to know it. For example: `# prefetch()<AvailableFrom v="4.0.0" />`.
 
 **Compatibility tables**: API pages should ideally include a `## Compatibility` section with `<CompatibilityTable>` before `## See also`.
 
