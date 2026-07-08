@@ -1,10 +1,12 @@
 import React from 'react';
 import {
 	AbsoluteFill,
+	interpolate,
 	Sequence,
 	useCurrentFrame,
 	useVideoConfig,
 } from 'remotion';
+import {ThreeDElement} from './element';
 import {Faces} from './Faces';
 import {useFont} from './get-char';
 import {rotateX, rotateY, translateY} from './matrix';
@@ -19,9 +21,43 @@ export const renderProgressDurationInFrames = 268;
 const rotationReferenceDurationInFrames = 1200;
 const phrases = ['video.mp4', 'thumb.png', 'sound.wav', 'doc.pdf'] as const;
 const cycleOffsets = [-1, 0, 1] as const;
+const fadeInStartY = 1000;
+const fadeInEndY = 650;
+const fadeOutStartY = -650;
+const fadeOutEndY = -1000;
 
 const modulo = (value: number, by: number) => {
 	return ((value % by) + by) % by;
+};
+
+const getCardOpacity = (y: number) => {
+	const fadeIn = interpolate(y, [fadeInEndY, fadeInStartY], [1, 0], {
+		extrapolateLeft: 'clamp',
+		extrapolateRight: 'clamp',
+	});
+	const fadeOut = interpolate(y, [fadeOutEndY, fadeOutStartY], [0, 1], {
+		extrapolateLeft: 'clamp',
+		extrapolateRight: 'clamp',
+	});
+
+	return Math.min(fadeIn, fadeOut);
+};
+
+const withOpacity = (
+	elements: ThreeDElement[],
+	opacity: number,
+): ThreeDElement[] => {
+	return elements.map((element) => {
+		return {
+			...element,
+			faces: element.faces.map((face) => {
+				return {
+					...face,
+					opacity,
+				};
+			}),
+		};
+	});
 };
 
 export const RenderProgress: React.FC = () => {
@@ -49,16 +85,19 @@ export const RenderProgress: React.FC = () => {
 			const y = initialY + i * spacing - scroll + cycleOffset * cycleHeight;
 			const localFrame = frame - itemIndex * itemSpacingInFrames;
 
-			return getButton({
-				font,
-				phrase,
-				depth,
-				color,
-				delay: 0,
-				transformations: [translateY(y), ...commonTransformations],
-				frame: localFrame,
-				fps,
-			});
+			return withOpacity(
+				getButton({
+					font,
+					phrase,
+					depth,
+					color,
+					delay: 0,
+					transformations: [translateY(y), ...commonTransformations],
+					frame: localFrame,
+					fps,
+				}),
+				getCardOpacity(y),
+			);
 		});
 	});
 
