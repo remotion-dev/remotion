@@ -7,10 +7,13 @@ import type {
 	ExportSpecifier,
 	File,
 	FunctionDeclaration,
+	ImportDefaultSpecifier,
 	ImportDeclaration,
 	ImportSpecifier,
 	JSXAttribute,
 	JSXElement,
+	JSXSpreadAttribute,
+	ObjectProperty,
 	VariableDeclaration,
 } from '@babel/types';
 import {
@@ -21,8 +24,10 @@ import {
 } from '@remotion/studio-shared';
 import type {namedTypes} from 'ast-types';
 import * as recast from 'recast';
+import {NoReactInternals} from 'remotion/no-react';
 import {formatFileContent} from '../codemods/format-file-content';
 import {parseAst, serializeAst} from '../codemods/parse-ast';
+import {parseValueExpression} from '../codemods/update-nested-prop';
 import {
 	ensureNamedImport,
 	getImportedName,
@@ -185,7 +190,7 @@ const getComponentIdentifier = (element: JSXElement) => {
 };
 
 const isRecord = (value: unknown): value is Record<string, unknown> => {
-	return typeof value === 'object' && value !== null;
+	return typeof value === 'object' && value !== null && !Array.isArray(value);
 };
 
 const findDynamicImportPath = (value: unknown): string | null => {
@@ -931,12 +936,14 @@ const createComponentElement = ({
 const createSequenceWrappedElement = ({
 	child,
 	dimensions,
+	durationInFrames,
 	name,
 	position,
 	sequenceLocalName,
 }: {
 	child: namedTypes.JSXElement;
 	dimensions: {width: number; height: number};
+	durationInFrames: number | null;
 	name: string | null;
 	position: InsertableCompositionElementPosition | null;
 	sequenceLocalName: string;
@@ -948,6 +955,9 @@ const createSequenceWrappedElement = ({
 				...(name === null ? [] : [createStringAttribute('name', name)]),
 				createNumberAttribute('width', dimensions.width),
 				createNumberAttribute('height', dimensions.height),
+				...(durationInFrames === null
+					? []
+					: [createNumberAttribute('durationInFrames', durationInFrames)]),
 				createPositionAbsoluteStyleAttribute(position),
 			],
 			false,
@@ -1383,6 +1393,291 @@ const ensureComponentImport = ({
 	});
 };
 
+const identifierRegex = /^[A-Za-z_$][0-9A-Za-z_$]*$/;
+
+const toPascalCaseIdentifier = (value: string) => {
+	const words = value.match(/[a-zA-Z0-9]+/g) ?? [];
+	const candidate = words
+		.map((word) => `${word.charAt(0).toUpperCase()}${word.slice(1)}`)
+		.join('');
+
+	if (!candidate) {
+		return 'CompositionComponent';
+	}
+
+	if (/^[0-9]/.test(candidate)) {
+		return `Composition${candidate}`;
+	}
+
+	return identifierRegex.test(candidate) ? candidate : 'CompositionComponent';
+};
+
+const getAvailableLocalName = ({
+	ast,
+	baseName,
+}: {
+	ast: File;
+	baseName: string;
+}) => {
+	if (!hasTopLevelBinding({ast, name: baseName})) {
+		return baseName;
+	}
+
+	const suffixed = `${baseName}Composition`;
+	if (!hasTopLevelBinding({ast, name: suffixed})) {
+		return suffixed;
+	}
+
+	for (let i = 2; i < 100; i++) {
+		const candidate = `${suffixed}${i}`;
+		if (!hasTopLevelBinding({ast, name: candidate})) {
+			return candidate;
+		}
+	}
+
+	throw new Error(`Cannot find a local name for ${baseName}`);
+};
+
+const getImportPathBetweenFiles = ({
+	fromFile,
+	toFile,
+}: {
+	fromFile: string;
+	toFile: string;
+}) => {
+	let relativeImport = path
+		.relative(path.dirname(fromFile), toFile)
+		.replaceAll(path.sep, '/')
+		.replace(/\.(tsx|ts|jsx|js)$/, '');
+
+	if (!relativeImport.startsWith('.')) {
+		relativeImport = `./${relativeImport}`;
+	}
+
+	return relativeImport;
+};
+
+const ensureDefaultImport = ({
+	ast,
+	localName,
+	sourcePath,
+}: {
+	ast: File;
+	localName: string;
+	sourcePath: string;
+}) => {
+	for (const declaration of getImportDeclarations({ast, sourcePath})) {
+		const defaultSpecifier = declaration.specifiers?.find(
+			(specifier) => specifier.type === 'ImportDefaultSpecifier',
+		);
+		if (defaultSpecifier?.local?.name) {
+			return defaultSpecifier.local.name;
+		}
+	}
+
+	const importSpecifier = recast.types.builders.importDefaultSpecifier(
+		recast.types.builders.identifier(localName),
+	) as unknown as ImportDefaultSpecifier;
+	const existingImport = getImportDeclarations({ast, sourcePath}).find(
+		(declaration) => {
+			return !declaration.specifiers?.some(
+				(specifier) => specifier.type === 'ImportNamespaceSpecifier',
+			);
+		},
+	);
+
+	if (existingImport) {
+		existingImport.specifiers = [
+			importSpecifier,
+			...(existingImport.specifiers ?? []),
+		];
+		return localName;
+	}
+
+	const importDeclaration = recast.types.builders.importDeclaration(
+		[importSpecifier as never],
+		recast.types.builders.stringLiteral(sourcePath),
+	) as unknown as ImportDeclaration;
+	insertImportDeclaration(ast, importDeclaration);
+	return localName;
+};
+
+const ensureCompositionComponentImport = async ({
+	ast,
+	compositionFile,
+	compositionId,
+	destinationFileName,
+	remotionRoot,
+}: {
+	ast: File;
+	compositionFile: string;
+	compositionId: string;
+	destinationFileName: string;
+	remotionRoot: string;
+}) => {
+	const sourceLocation = await resolveCompositionComponentWithFile({
+		remotionRoot,
+		compositionFile,
+		compositionId,
+	});
+
+	if (sourceLocation.fileName === destinationFileName) {
+		if (sourceLocation.exportName === 'default') {
+			throw new Error(
+				'Cannot insert a composition whose component is a default export in the same file',
+			);
+		}
+
+		if (!hasTopLevelBinding({ast, name: sourceLocation.exportName})) {
+			throw new Error(
+				`Cannot find component "${sourceLocation.exportName}" in this file`,
+			);
+		}
+
+		return sourceLocation.exportName;
+	}
+
+	const sourcePath = getImportPathBetweenFiles({
+		fromFile: destinationFileName,
+		toFile: sourceLocation.fileName,
+	});
+
+	if (sourceLocation.exportName === 'default') {
+		return ensureDefaultImport({
+			ast,
+			localName: getAvailableLocalName({
+				ast,
+				baseName: toPascalCaseIdentifier(compositionId),
+			}),
+			sourcePath,
+		});
+	}
+
+	return ensureNamedImport({
+		ast,
+		importedName: sourceLocation.exportName,
+		sourcePath,
+		localName: getAvailableLocalName({
+			ast,
+			baseName: sourceLocation.exportName,
+		}),
+	});
+};
+
+const parseSerializedCompositionProps = (
+	serializedResolvedPropsWithCustomSchema: string,
+) => {
+	const parsed: unknown = JSON.parse(serializedResolvedPropsWithCustomSchema);
+	if (!isRecord(parsed)) {
+		throw new Error('Resolved composition props must be an object');
+	}
+
+	return parsed;
+};
+
+const containsFileToken = (value: unknown): boolean => {
+	if (typeof value === 'string') {
+		return value.startsWith(NoReactInternals.FILE_TOKEN);
+	}
+
+	if (Array.isArray(value)) {
+		return value.some(containsFileToken);
+	}
+
+	if (isRecord(value)) {
+		return Object.values(value).some(containsFileToken);
+	}
+
+	return false;
+};
+
+const createExpressionAttribute = (
+	name: string,
+	value: unknown,
+): namedTypes.JSXAttribute => {
+	return recast.types.builders.jsxAttribute(
+		recast.types.builders.jsxIdentifier(name),
+		recast.types.builders.jsxExpressionContainer(
+			parseValueExpression(value) as never,
+		),
+	) as unknown as namedTypes.JSXAttribute;
+};
+
+const createCompositionPropAttribute = ({
+	name,
+	value,
+}: {
+	name: string;
+	value: unknown;
+}): namedTypes.JSXAttribute => {
+	if (
+		typeof value === 'string' &&
+		!value.startsWith(NoReactInternals.FILE_TOKEN) &&
+		!value.startsWith(NoReactInternals.DATE_TOKEN)
+	) {
+		return createStringAttribute(name, value) as namedTypes.JSXAttribute;
+	}
+
+	return createExpressionAttribute(name, value);
+};
+
+const createCompositionObjectProperty = ({
+	name,
+	value,
+}: {
+	name: string;
+	value: unknown;
+}): ObjectProperty => {
+	return recast.types.builders.objectProperty(
+		identifierRegex.test(name)
+			? recast.types.builders.identifier(name)
+			: recast.types.builders.stringLiteral(name),
+		parseValueExpression(value) as never,
+	) as unknown as ObjectProperty;
+};
+
+const createCompositionComponentElement = ({
+	localName,
+	props,
+}: {
+	localName: string;
+	props: Record<string, unknown>;
+}) => {
+	const directAttributes: namedTypes.JSXAttribute[] = [];
+	const spreadProperties: ObjectProperty[] = [];
+
+	for (const [name, value] of Object.entries(props)) {
+		if (identifierRegex.test(name)) {
+			directAttributes.push(createCompositionPropAttribute({name, value}));
+		} else {
+			spreadProperties.push(createCompositionObjectProperty({name, value}));
+		}
+	}
+
+	const attributes: (JSXAttribute | JSXSpreadAttribute)[] = [
+		...(directAttributes as unknown as JSXAttribute[]),
+		...(spreadProperties.length === 0
+			? []
+			: [
+					recast.types.builders.jsxSpreadAttribute(
+						recast.types.builders.objectExpression(
+							spreadProperties as never,
+						) as never,
+					) as unknown as JSXSpreadAttribute,
+				]),
+	];
+
+	return recast.types.builders.jsxElement(
+		recast.types.builders.jsxOpeningElement(
+			recast.types.builders.jsxIdentifier(localName),
+			attributes as never,
+			true,
+		),
+		null,
+		[],
+	);
+};
+
 const addElementToComponentRoot = ({
 	ast,
 	exportName,
@@ -1693,12 +1988,16 @@ export const resolveCompositionComponent = async ({
 const createInsertableJsxElement = ({
 	addPositionStyleToComponent,
 	ast,
+	destinationFileName,
 	element,
+	remotionRoot,
 }: {
 	addPositionStyleToComponent: boolean;
 	ast: File;
+	destinationFileName: string;
 	element: InsertableCompositionElement;
-}) => {
+	remotionRoot: string;
+}): Promise<namedTypes.JSXElement> | namedTypes.JSXElement => {
 	if (element.type === 'solid') {
 		const solidLocalName = ensureSolidImport(ast);
 
@@ -1723,6 +2022,27 @@ const createInsertableJsxElement = ({
 			localName: componentLocalName,
 			props: element.props,
 			position: element.position,
+		});
+	}
+
+	if (element.type === 'composition') {
+		return Promise.resolve(
+			ensureCompositionComponentImport({
+				ast,
+				compositionFile: element.compositionFile,
+				compositionId: element.compositionId,
+				destinationFileName,
+				remotionRoot,
+			}),
+		).then((localName) => {
+			const props = parseSerializedCompositionProps(
+				element.serializedResolvedPropsWithCustomSchema,
+			);
+			if (containsFileToken(props)) {
+				ensureStaticFileImport(ast);
+			}
+
+			return createCompositionComponentElement({localName, props});
 		});
 	}
 
@@ -1776,6 +2096,7 @@ export const insertJsxElementIntoComposition = async ({
 	prettierConfigOverride: Record<string, unknown> | null;
 	wrapInSequence?: {
 		dimensions: {width: number; height: number};
+		durationInFrames?: number | null;
 		name: string | null;
 		position: InsertableCompositionElementPosition | null;
 	} | null;
@@ -1803,17 +2124,36 @@ export const insertJsxElementIntoComposition = async ({
 		fileName: location.fileName,
 	});
 	const ast = parseAst(input);
-	const elementToInsert = createInsertableJsxElement({
-		addPositionStyleToComponent: wrapInSequence === null,
+	if (
+		element.type === 'composition' &&
+		element.compositionId === compositionId
+	) {
+		throw new Error('Cannot insert a composition into itself');
+	}
+
+	const sequenceWrapper =
+		element.type === 'composition'
+			? {
+					dimensions: {width: element.width, height: element.height},
+					durationInFrames: element.durationInFrames,
+					name: element.compositionId,
+					position: element.position,
+				}
+			: wrapInSequence;
+	const elementToInsert = await createInsertableJsxElement({
+		addPositionStyleToComponent: sequenceWrapper === null,
 		ast,
+		destinationFileName: location.fileName,
 		element,
+		remotionRoot,
 	});
-	const finalElementToInsert = wrapInSequence
+	const finalElementToInsert = sequenceWrapper
 		? createSequenceWrappedElement({
 				child: elementToInsert,
-				dimensions: wrapInSequence.dimensions,
-				name: wrapInSequence.name,
-				position: wrapInSequence.position,
+				dimensions: sequenceWrapper.dimensions,
+				durationInFrames: sequenceWrapper.durationInFrames ?? null,
+				name: sequenceWrapper.name,
+				position: sequenceWrapper.position,
 				sequenceLocalName: ensureSequenceImport(ast),
 			})
 		: elementToInsert;

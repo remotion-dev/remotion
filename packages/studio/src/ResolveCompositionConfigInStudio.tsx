@@ -7,7 +7,7 @@ import React, {
 	useMemo,
 	useState,
 } from 'react';
-import {getInputProps, Internals} from 'remotion';
+import {getInputProps, Internals, type VideoConfig} from 'remotion';
 import {FastRefreshContext} from './fast-refresh-context';
 
 type VideoConfigState =
@@ -204,6 +204,52 @@ export const ResolveCompositionConfigInStudio: React.FC<
 
 	const currentComposition =
 		canvasContent?.type === 'composition' ? canvasContent.compositionId : null;
+	const resolveComposition = useCallback(
+		async (compositionId: string): Promise<VideoConfig> => {
+			const composition = compositions.find((c) => c.id === compositionId);
+			if (!composition) {
+				throw new Error(`Could not find composition with id ${compositionId}`);
+			}
+
+			const editorProps = allEditorProps[composition.id] ?? {};
+			const defaultProps = {
+				...(composition.defaultProps ?? {}),
+				...(editorProps ?? {}),
+			};
+			const combinedProps = {
+				...defaultProps,
+				...(inputProps ?? {}),
+			};
+			const controller = new AbortController();
+			const result = Internals.resolveVideoConfigOrCatch({
+				compositionId: composition.id,
+				calculateMetadata: composition.calculateMetadata,
+				inputProps: combinedProps,
+				signal: controller.signal,
+				defaultProps,
+				compositionDurationInFrames: composition.durationInFrames ?? null,
+				compositionFps: composition.fps ?? null,
+				compositionHeight: composition.height ?? null,
+				compositionWidth: composition.width ?? null,
+			});
+
+			if (result.type === 'error') {
+				throw result.error;
+			}
+
+			const resolved = await Promise.resolve(result.result);
+			setResolvedConfigs((configs) => ({
+				...configs,
+				[composition.id]: {
+					type: 'success',
+					result: resolved,
+				},
+			}));
+
+			return resolved;
+		},
+		[allEditorProps, compositions, inputProps],
+	);
 
 	useImperativeHandle(
 		Internals.resolveCompositionsRef,
@@ -212,6 +258,7 @@ export const ResolveCompositionConfigInStudio: React.FC<
 				setCurrentRenderModalComposition: (id: string | null) => {
 					setCurrentRenderModalComposition(id);
 				},
+				resolveComposition,
 				reloadCurrentlySelectedComposition: () => {
 					if (!currentComposition) {
 						return;
@@ -258,6 +305,7 @@ export const ResolveCompositionConfigInStudio: React.FC<
 			currentComposition,
 			doResolution,
 			inputProps,
+			resolveComposition,
 		],
 	);
 

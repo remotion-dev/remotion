@@ -29,6 +29,58 @@ type Transform = {
 	boundingClientRect: DOMRect | null;
 };
 
+const isReplacedElement = (element: Element) => {
+	return (
+		element instanceof HTMLImageElement ||
+		element instanceof HTMLVideoElement ||
+		element instanceof HTMLCanvasElement ||
+		element instanceof HTMLIFrameElement ||
+		element instanceof HTMLInputElement ||
+		element instanceof HTMLTextAreaElement ||
+		element instanceof HTMLSelectElement ||
+		element instanceof HTMLObjectElement ||
+		element instanceof HTMLEmbedElement
+	);
+};
+
+const canApplyCssTransforms = ({
+	element,
+	computedStyle,
+}: {
+	element: HTMLElement | SVGElement;
+	computedStyle: CSSStyleDeclaration;
+}) => {
+	if (element instanceof SVGElement) {
+		return true;
+	}
+
+	if (computedStyle.display !== 'inline') {
+		return true;
+	}
+
+	return isReplacedElement(element);
+};
+
+const makeTransformResetter = (element: HTMLElement | SVGElement) => {
+	const {transform, scale, rotate} = element.style;
+
+	return (hasApplicableTransformCssValue: boolean) => {
+		if (hasApplicableTransformCssValue) {
+			element.style.transform = 'none';
+			element.style.scale = 'none';
+			element.style.rotate = 'none';
+		}
+
+		return () => {
+			if (hasApplicableTransformCssValue) {
+				element.style.transform = transform;
+				element.style.scale = scale;
+				element.style.rotate = rotate;
+			}
+		};
+	};
+};
+
 const getInternalTransformOrigin = (transform: Transform) => {
 	const centerX = transform.boundingClientRect!.width / 2;
 	const centerY = transform.boundingClientRect!.height / 2;
@@ -106,13 +158,19 @@ export const calculateTransforms = ({
 			});
 		}
 
-		if (hasAnyTransformCssValue(computedStyle) || parent === element) {
-			const toParse = hasTransformCssValue(computedStyle)
-				? computedStyle.transform
-				: undefined;
+		const hasApplicableTransformCssValue =
+			canApplyCssTransforms({computedStyle, element: parent}) &&
+			hasAnyTransformCssValue(computedStyle);
+
+		if (hasApplicableTransformCssValue || parent === element) {
+			const toParse =
+				hasApplicableTransformCssValue && hasTransformCssValue(computedStyle)
+					? computedStyle.transform
+					: undefined;
 			const matrix = new DOMMatrix(toParse);
 
-			const {transform, scale, rotate} = parent.style;
+			const resetTransforms = makeTransformResetter(parent);
+			const {scale, rotate} = parent.style;
 			const additionalMatrices: DOMMatrix[] = [];
 
 			// The order of transformations is:
@@ -120,19 +178,21 @@ export const calculateTransforms = ({
 			// 2. Rotate
 			// 3. Scale
 			// 4. CSS "transform"
-			if (rotate !== '' && rotate !== 'none') {
+			if (
+				hasApplicableTransformCssValue &&
+				rotate !== '' &&
+				rotate !== 'none'
+			) {
 				additionalMatrices.push(new DOMMatrix(`rotate(${rotate})`));
 			}
 
-			if (scale !== '' && scale !== 'none') {
+			if (hasApplicableTransformCssValue && scale !== '' && scale !== 'none') {
 				additionalMatrices.push(new DOMMatrix(`scale(${scale})`));
 			}
 
 			additionalMatrices.push(matrix);
 
-			parent.style.transform = 'none';
-			parent.style.scale = 'none';
-			parent.style.rotate = 'none';
+			const cleanup = resetTransforms(hasApplicableTransformCssValue);
 
 			transforms.push({
 				element: parent,
@@ -142,9 +202,7 @@ export const calculateTransforms = ({
 			});
 			const parentRef = parent;
 			toReset.push(() => {
-				parentRef!.style.transform = transform;
-				parentRef!.style.scale = scale;
-				parentRef!.style.rotate = rotate;
+				cleanup();
 				parentRef!.style.transition = originalTransition;
 			});
 		} else {

@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/elevenlabs"
 	},
 	"name": "@remotion/elevenlabs",
-	"version": "4.0.485",
+	"version": "4.0.486",
 	"description": "Work with the output of the ElevenLabs API",
 	"main": "dist/index.js",
 	"bugs": {

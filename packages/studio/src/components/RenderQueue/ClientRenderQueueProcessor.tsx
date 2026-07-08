@@ -147,6 +147,7 @@ export const ClientRenderQueueProcessor: React.FC = () => {
 				outputTarget: 'web-fs',
 				licenseKey: job.licenseKey ?? undefined,
 				allowHtmlInCanvas: job.allowHtmlInCanvas,
+				pageResponsiveness: job.pageResponsiveness,
 			});
 
 			return {

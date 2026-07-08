@@ -12,6 +12,7 @@ import type {
 } from '../components/NewComposition/ComboBox';
 import {showNotification} from '../components/Notifications/NotificationCenter';
 import type {TQuickSwitcherResult} from '../components/QuickSwitcher/QuickSwitcherResult';
+import {openInFileExplorer} from '../components/RenderQueue/actions';
 import {getPreviewSizeLabel, getUniqueSizes} from '../components/SizeSelector';
 import {useResolvedStack} from '../components/Timeline/use-resolved-stack';
 import {inOutHandles} from '../components/TimelineInOutToggle';
@@ -21,6 +22,7 @@ import {drawRef} from '../state/canvas-ref';
 import {CheckerboardContext} from '../state/checkerboard';
 import {EditorShowGuidesContext} from '../state/editor-guides';
 import {EditorShowRulersContext} from '../state/editor-rulers';
+import {EditorSnappingContext} from '../state/editor-snapping';
 import {EditorZoomGesturesContext} from '../state/editor-zoom-gestures';
 import type {ModalState} from '../state/modals';
 import {ModalsContext} from '../state/modals';
@@ -59,6 +61,33 @@ const getFileMenu = ({
 	setSelectedModal: (value: React.SetStateAction<ModalState | null>) => void;
 }) => {
 	const items: ComboboxValue[] = [
+		readOnlyStudio
+			? null
+			: {
+					id: 'new-folder',
+					value: 'new-folder',
+					label: 'New Folder...',
+					onClick: () => {
+						closeMenu();
+						setSelectedModal({
+							type: 'new-folder',
+							parentName: null,
+							stack: null,
+						});
+					},
+					type: 'item' as const,
+					keyHint: null,
+					leftItem: null,
+					subMenu: null,
+					quickSwitcherLabel: 'New folder...',
+					disabled: previewServerState !== 'connected',
+				},
+		readOnlyStudio
+			? null
+			: {
+					type: 'divider' as const,
+					id: 'new-folder-divider',
+				},
 		window.remotion_isReadOnlyStudio
 			? {
 					id: 'input-props-override',
@@ -123,10 +152,10 @@ const getFileMenu = ({
 					quickSwitcherLabel: 'Render on web...',
 				}
 			: null,
-		window.remotion_editorName && !readOnlyStudio
+		!readOnlyStudio
 			? {
 					type: 'divider' as const,
-					id: 'open-in-editor-divider',
+					id: 'open-project-divider',
 				}
 			: null,
 		window.remotion_editorName && !readOnlyStudio
@@ -164,6 +193,31 @@ const getFileMenu = ({
 					leftItem: null,
 					subMenu: null,
 					quickSwitcherLabel: 'Open in editor...',
+					disabled: previewServerState !== 'connected',
+				}
+			: null,
+		!readOnlyStudio
+			? {
+					id: 'open-project-in-explorer',
+					value: 'open-project-in-explorer',
+					label: 'Open in Explorer',
+					onClick: () => {
+						closeMenu();
+						openInFileExplorer({directory: window.remotion_cwd}).catch(
+							(err) => {
+								showNotification(
+									`Could not open project: ${err.message}`,
+									2000,
+								);
+							},
+						);
+					},
+					type: 'item' as const,
+					keyHint: null,
+					leftItem: null,
+					subMenu: null,
+					quickSwitcherLabel: 'Open project in Explorer',
+					disabled: previewServerState !== 'connected',
 				}
 			: null,
 
@@ -197,6 +251,7 @@ export const useMenuStructure = (
 	const {editorShowGuides, setEditorShowGuides} = useContext(
 		EditorShowGuidesContext,
 	);
+	const {editorSnapping, setEditorSnapping} = useContext(EditorSnappingContext);
 	const {size, setSize} = useContext(Internals.PreviewSizeContext);
 	const {canvasContent, compositions} = useContext(
 		Internals.CompositionManager,
@@ -440,6 +495,22 @@ export const useMenuStructure = (
 						quickSwitcherLabel: editorShowGuides
 							? 'Hide Guides'
 							: 'Show Guides',
+					},
+					{
+						id: 'enable-snapping',
+						keyHint: areKeyboardShortcutsDisabled() ? null : 'Shift+M',
+						label: 'Enable Snapping',
+						onClick: () => {
+							closeMenu();
+							setEditorSnapping((c) => !c);
+						},
+						type: 'item' as const,
+						value: 'enable-snapping',
+						leftItem: editorSnapping ? <Checkmark /> : null,
+						subMenu: null,
+						quickSwitcherLabel: editorSnapping
+							? 'Disable Snapping'
+							: 'Enable Snapping',
 					},
 					{
 						id: 'timeline-divider-1',
@@ -956,6 +1027,7 @@ export const useMenuStructure = (
 		editorZoomGestures,
 		editorShowRulers,
 		editorShowGuides,
+		editorSnapping,
 		sidebarCollapsedStateLeft,
 		sidebarCollapsedStateRight,
 		checkerboard,
@@ -967,6 +1039,7 @@ export const useMenuStructure = (
 		setEditorZoomGestures,
 		setEditorShowRulers,
 		setEditorShowGuides,
+		setEditorSnapping,
 		setSidebarCollapsedState,
 		setCheckerboard,
 		setSelectedModal,

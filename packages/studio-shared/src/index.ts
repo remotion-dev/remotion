@@ -73,6 +73,8 @@ export {
 	ReorderSequenceResponse,
 	RestartStudioRequest,
 	RestartStudioResponse,
+	GoogleFontSourceEdit,
+	SaveSequencePropSourceEdit,
 	SaveEffectPropsRequest,
 	SaveEffectPropsResponse,
 	SaveSequencePropEdit,
@@ -123,6 +125,12 @@ export {
 	type ComponentDragData,
 	type ComponentProp,
 } from './component-drag-data';
+export {
+	COMPOSITION_DRAG_MIME_TYPE,
+	makeCompositionDragData,
+	parseCompositionDragData,
+	type CompositionDragData,
+} from './composition-drag-data';
 export {DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS} from './default-buffer-state-delay-in-milliseconds';
 export {getDefinePluginDefinitions} from './define-plugin-definitions';
 export {
@@ -200,8 +208,14 @@ export {
 	hotMiddlewareOptions,
 } from './hot-middleware';
 export {
+	CUBIC_KEYFRAME_EASING,
+	EASE_KEYFRAME_EASING,
+	getBackKeyframeEasing,
+	getOutKeyframeEasing,
+	getPolyKeyframeEasing,
 	KEYFRAME_EASING_PRESETS,
 	LINEAR_KEYFRAME_EASING,
+	QUAD_KEYFRAME_EASING,
 	type KeyframeEasing,
 	type KeyframeEasingPreset,
 } from './keyframe-easing-presets';

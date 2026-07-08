@@ -39,6 +39,8 @@ type UndoEntryType =
 	| 'rename-composition'
 	| 'new-composition'
 	| 'duplicate-composition'
+	| 'move-composition-to-folder'
+	| 'new-folder'
 	| 'delete-folder'
 	| 'rename-folder';
 
@@ -79,6 +81,8 @@ type UndoEntry = {
 	| {entryType: 'rename-composition'}
 	| {entryType: 'new-composition'}
 	| {entryType: 'duplicate-composition'}
+	| {entryType: 'move-composition-to-folder'}
+	| {entryType: 'new-folder'}
 	| {entryType: 'delete-folder'}
 	| {entryType: 'rename-folder'}
 );

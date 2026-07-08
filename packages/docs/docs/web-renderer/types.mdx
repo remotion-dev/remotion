@@ -58,6 +58,17 @@ import type {WebRendererOutputTarget} from '@remotion/web-renderer';
 - `'arraybuffer'`: Returns the output as a `Blob` in memory
 - `'web-fs'`: Uses the [File System Access API](https://developer.mozilla.org/en-US/docs/Web/API/File_System_API) to write to a file
 
+## `WebRendererPageResponsiveness`<AvailableFrom v="4.0.487" />
+
+```tsx twoslash
+import type {WebRendererPageResponsiveness} from '@remotion/web-renderer';
+//                ^?
+```
+
+Controls intentional pauses while using [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web#pageresponsiveness).
+See [Page responsiveness](/docs/client-side-rendering/page-responsiveness) for guidance.
+The default is `"medium"`.
+
 ## `FrameRange`
 
 ```tsx twoslash

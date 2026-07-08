@@ -8,12 +8,21 @@ const fullSize: React.CSSProperties = {
 	height: '100%',
 };
 
+export const STARBURST_PREVIEW_PARAMS = {
+	rays: 16,
+	colors: ['#ff6600', '#ffff00'],
+	rotation: 0,
+	smoothness: 0,
+	origin: [0.5, 0.5] as const,
+} as const;
+
 export const EffectsStarburstPreview: React.FC<{
 	readonly rays: number;
+	readonly colors: readonly string[];
 	readonly rotation: number;
 	readonly smoothness: number;
 	readonly origin: readonly [number, number];
-}> = ({rays, rotation, smoothness, origin}) => {
+}> = ({rays, colors, rotation, smoothness, origin}) => {
 	return (
 		<CanvasImage
 			src={EFFECTS_PREVIEW_IMAGE_SRC}
@@ -24,7 +33,7 @@ export const EffectsStarburstPreview: React.FC<{
 			effects={[
 				starburst({
 					rays,
-					colors: ['#dff4ff', '#7cc6ff'],
+					colors,
 					rotation,
 					smoothness,
 					origin,

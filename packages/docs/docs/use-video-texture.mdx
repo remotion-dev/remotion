@@ -31,7 +31,7 @@ To convert the video to a video texture, place the `useVideoTexture()` hook in t
 
 ```tsx twoslash
 import React from 'react';
-const videoRef: React.MutableRefObject<HTMLVideoElement | null> = React.useRef(null);
+const videoRef: React.RefObject<HTMLVideoElement | null> = React.useRef(null);
 // ---cut---
 import {useVideoTexture} from '@remotion/three';
 
@@ -45,7 +45,7 @@ The return type of it is a `THREE.VideoTexture | null` which you can assign as a
 ```tsx twoslash
 import React from 'react';
 import {useVideoTexture} from '@remotion/three';
-const videoRef: React.MutableRefObject<HTMLVideoElement | null> = React.useRef(null);
+const videoRef: React.RefObject<HTMLVideoElement | null> = React.useRef(null);
 const videoTexture = useVideoTexture(videoRef);
 // ---cut---
 {

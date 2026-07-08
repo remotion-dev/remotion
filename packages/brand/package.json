@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/brand"
 	},
 	"name": "@remotion/brand",
-	"version": "4.0.485",
+	"version": "4.0.486",
 	"private": true,
 	"sideEffects": [
 		"*.css"
@@ -12,7 +12,8 @@
 		"dev": "remotion studio",
 		"bundle": "remotion bundle --rspack --public-path /brand/",
 		"capture-docs": "bun scripts/capture-doc-pages.ts",
-		"lint": "eslint src"
+		"lint": "eslint src",
+		"render-homepage-assets": "./render-homepage-assets.sh"
 	},
 	"devDependencies": {
 		"@remotion/cli": "workspace:*",
@@ -30,10 +31,12 @@
 		"@remotion/captions": "workspace:*",
 		"@remotion/tailwind-v4": "workspace:*",
 		"@remotion/transitions": "workspace:*",
+		"@types/opentype.js": "1.3.4",
 		"@types/styled-components": "5.1.34",
 		"@typescript/native-preview": "catalog:",
 		"eslint": "catalog:",
 		"mediabunny": "catalog:",
+		"opentype.js": "1.3.4",
 		"polished": "4.3.1",
 		"react": "catalog:",
 		"react-dom": "catalog:",

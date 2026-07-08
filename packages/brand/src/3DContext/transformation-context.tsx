@@ -10,6 +10,15 @@ import {
 	translateZ,
 } from '@remotion/svg-3d-engine';
 import React, {useContext, useMemo} from 'react';
+import {
+	Interactive,
+	Internals,
+	Sequence,
+	type InteractiveBaseProps,
+	type InteractivitySchema,
+	type InteractivitySchemaField,
+	type SequenceControls,
+} from 'remotion';
 
 type Context = MatrixTransform4D;
 
@@ -87,82 +96,192 @@ export const NewTransform: React.FC<{
 	);
 };
 
-export const RotateX: React.FC<{
+type TransformBaseProps = InteractiveBaseProps & {
 	readonly children: React.ReactNode;
-	readonly radians: number;
-}> = ({children, radians}) => {
-	return (
-		<NewTransform transform={useMemo(() => rotateX(radians), [radians])}>
-			{children}
-		</NewTransform>
+} & Partial<{
+		readonly stack: string;
+	}>;
+
+type TransformInnerProps<ValueKey extends string> = TransformBaseProps &
+	Readonly<Record<ValueKey, number>> & {
+		readonly controls: SequenceControls | undefined;
+	};
+
+const transformDocumentationLink =
+	'https://www.remotion.dev/docs/studio/make-component-interactive';
+
+const make3DTransform = <ValueKey extends string>({
+	componentName,
+	valueKey,
+	schemaField,
+	makeTransform,
+	defaultValue,
+}: {
+	componentName: string;
+	valueKey: ValueKey;
+	schemaField: InteractivitySchemaField;
+	makeTransform: (value: number) => MatrixTransform4D;
+	defaultValue: number;
+}) => {
+	type Props = TransformBaseProps & Readonly<Record<ValueKey, number>>;
+
+	const schema = {
+		...Interactive.baseSchema,
+		[valueKey]: schemaField,
+	} as const satisfies InteractivitySchema;
+
+	const Inner = React.forwardRef<never, TransformInnerProps<ValueKey>>(
+		(rawProps, _ref) => {
+			const props = rawProps as TransformInnerProps<ValueKey>;
+			const {
+				children,
+				durationInFrames,
+				from,
+				trimBefore,
+				freeze,
+				hidden,
+				name,
+				showInTimeline,
+				stack,
+				controls,
+			} = props;
+			const value = props[valueKey] ?? defaultValue;
+			const transform = useMemo(() => makeTransform(value), [value]);
+
+			return (
+				<Sequence
+					layout="none"
+					from={from ?? 0}
+					trimBefore={trimBefore}
+					durationInFrames={durationInFrames ?? Infinity}
+					freeze={freeze}
+					hidden={hidden}
+					name={name ?? componentName}
+					showInTimeline={showInTimeline ?? true}
+					controls={controls ?? undefined}
+					_remotionInternalStack={stack}
+					_remotionInternalDocumentationLink={transformDocumentationLink}
+				>
+					<NewTransform transform={transform}>{children}</NewTransform>
+				</Sequence>
+			);
+		},
 	);
+
+	Inner.displayName = componentName;
+
+	const Wrapped = Interactive.withSchema({
+		Component: Inner,
+		componentName,
+		componentIdentity: null,
+		schema,
+		supportsEffects: false,
+	}) as unknown as React.FC<Props>;
+
+	Wrapped.displayName = componentName.slice(1, -1);
+	Internals.addSequenceStackTraces(Wrapped);
+
+	return Wrapped;
 };
 
-export const RotateZ: React.FC<{
-	readonly children: React.ReactNode;
-	readonly radians: number;
-}> = ({children, radians}) => {
-	return (
-		<NewTransform transform={useMemo(() => rotateZ(radians), [radians])}>
-			{children}
-		</NewTransform>
-	);
-};
+export const RotateX = make3DTransform({
+	componentName: '<RotateX>',
+	valueKey: 'radians',
+	defaultValue: 0,
+	schemaField: {
+		type: 'number',
+		step: 0.01,
+		default: 0,
+		description: 'Radians',
+		hiddenFromList: false,
+	},
+	makeTransform: rotateX,
+});
 
-export const TranslateY: React.FC<{
-	readonly children: React.ReactNode;
-	readonly px: number;
-}> = ({children, px}) => {
-	return (
-		<NewTransform transform={useMemo(() => translateY(px), [px])}>
-			{children}
-		</NewTransform>
-	);
-};
+export const RotateZ = make3DTransform({
+	componentName: '<RotateZ>',
+	valueKey: 'radians',
+	defaultValue: 0,
+	schemaField: {
+		type: 'number',
+		step: 0.01,
+		default: 0,
+		description: 'Radians',
+		hiddenFromList: false,
+	},
+	makeTransform: rotateZ,
+});
 
-export const TranslateX: React.FC<{
-	readonly children: React.ReactNode;
-	readonly px: number;
-}> = ({children, px}) => {
-	return (
-		<NewTransform transform={useMemo(() => translateX(px), [px])}>
-			{children}
-		</NewTransform>
-	);
-};
+export const TranslateY = make3DTransform({
+	componentName: '<TranslateY>',
+	valueKey: 'px',
+	defaultValue: 0,
+	schemaField: {
+		type: 'number',
+		step: 1,
+		default: 0,
+		description: 'Pixels',
+		hiddenFromList: false,
+	},
+	makeTransform: translateY,
+});
 
-export const TranslateZ: React.FC<{
-	readonly children: React.ReactNode;
-	readonly px: number;
-}> = ({children, px}) => {
-	return (
-		<NewTransform transform={useMemo(() => translateZ(px), [px])}>
-			{children}
-		</NewTransform>
-	);
-};
+export const TranslateX = make3DTransform({
+	componentName: '<TranslateX>',
+	valueKey: 'px',
+	defaultValue: 0,
+	schemaField: {
+		type: 'number',
+		step: 1,
+		default: 0,
+		description: 'Pixels',
+		hiddenFromList: false,
+	},
+	makeTransform: translateX,
+});
 
-export const RotateY: React.FC<{
-	readonly children: React.ReactNode;
-	readonly radians: number;
-}> = ({children, radians}) => {
-	return (
-		<NewTransform transform={useMemo(() => rotateY(radians), [radians])}>
-			{children}
-		</NewTransform>
-	);
-};
+export const TranslateZ = make3DTransform({
+	componentName: '<TranslateZ>',
+	valueKey: 'px',
+	defaultValue: 0,
+	schemaField: {
+		type: 'number',
+		step: 1,
+		default: 0,
+		description: 'Pixels',
+		hiddenFromList: false,
+	},
+	makeTransform: translateZ,
+});
 
-export const Scale: React.FC<{
-	readonly children: React.ReactNode;
-	readonly factor: number;
-}> = ({children, factor}) => {
-	return (
-		<NewTransform transform={useMemo(() => scaled(factor), [factor])}>
-			{children}
-		</NewTransform>
-	);
-};
+export const RotateY = make3DTransform({
+	componentName: '<RotateY>',
+	valueKey: 'radians',
+	defaultValue: 0,
+	schemaField: {
+		type: 'number',
+		step: 0.01,
+		default: 0,
+		description: 'Radians',
+		hiddenFromList: false,
+	},
+	makeTransform: rotateY,
+});
+
+export const Scale = make3DTransform({
+	componentName: '<Scale>',
+	valueKey: 'factor',
+	defaultValue: 1,
+	schemaField: {
+		type: 'number',
+		min: 0,
+		step: 0.01,
+		default: 1,
+		description: 'Factor',
+		hiddenFromList: false,
+	},
+	makeTransform: scaled,
+});
 
 export const useTransformations = () => {
 	return useContext(TransformContext);

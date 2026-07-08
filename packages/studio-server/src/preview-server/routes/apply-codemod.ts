@@ -59,6 +59,19 @@ const getCodemodUndoDescription = (codemod: ApplyCodemodRequest['codemod']) => {
 		};
 	}
 
+	if (codemod.type === 'move-composition-to-folder') {
+		const destination =
+			codemod.folderName === null
+				? 'to root'
+				: `into folder "${codemod.parentName ? `${codemod.parentName}/` : ''}${codemod.folderName}"`;
+		const label = `composition "${codemod.idToMove}" ${destination}`;
+		return {
+			undoMessage: `↩️  Move of ${label}`,
+			redoMessage: `↪️  Move of ${label}`,
+			entryType: codemod.type,
+		};
+	}
+
 	if (codemod.type === 'new-composition') {
 		return {
 			undoMessage: `↩️  Creation of composition "${codemod.newId}"`,
@@ -72,6 +85,15 @@ const getCodemodUndoDescription = (codemod: ApplyCodemodRequest['codemod']) => {
 		return {
 			undoMessage: `↩️  Deletion of ${label}`,
 			redoMessage: `↪️  Deletion of ${label}`,
+			entryType: codemod.type,
+		};
+	}
+
+	if (codemod.type === 'new-folder') {
+		const label = `folder "${codemod.parentName ? `${codemod.parentName}/` : ''}${codemod.folderName}"`;
+		return {
+			undoMessage: `↩️  Creation of ${label}`,
+			redoMessage: `↪️  Creation of ${label}`,
 			entryType: codemod.type,
 		};
 	}

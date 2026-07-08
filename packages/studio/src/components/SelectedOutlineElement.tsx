@@ -12,6 +12,7 @@ import {
 } from '../helpers/colors';
 import {formatFileLocation} from '../helpers/format-file-location';
 import {openOriginalPositionInEditor} from '../helpers/open-in-editor';
+import {EditorSnappingContext} from '../state/editor-snapping';
 import {ModalsContext} from '../state/modals';
 import {callApi} from './call-api';
 import {useConfirmationDialog} from './ConfirmationDialog';
@@ -69,6 +70,11 @@ import {
 	type SelectedOutlineRotationCorner,
 } from './selected-outline-measurement';
 import {
+	findSelectedOutlineSnap,
+	type SelectedOutlineSnapPoint,
+	type SelectedOutlineSnapTarget,
+} from './selected-outline-snap';
+import {
 	rotateFieldKey,
 	scaleFieldKey,
 	transformOriginFieldKey,
@@ -115,7 +121,7 @@ import {useSelectAsset} from './use-select-asset';
 
 const emptyContextMenuValues: readonly ComboboxValue[] = [];
 
-const SelectedOutlineTransformOriginHandle: React.FC<{
+export const SelectedOutlineTransformOriginHandle: React.FC<{
 	readonly outline: SelectedOutline;
 	readonly onDraggingChange: (dragging: boolean) => void;
 	readonly target: SelectedOutlineTarget | undefined;
@@ -123,6 +129,7 @@ const SelectedOutlineTransformOriginHandle: React.FC<{
 	const {setDragOverrides, clearDragOverrides, setPropStatuses} = useContext(
 		Internals.VisualModeSettersContext,
 	);
+	const {editorSnapping} = useContext(EditorSnappingContext);
 	const transformOriginDrag = target?.transformOriginDrag ?? null;
 
 	const parsed = useMemo(
@@ -227,11 +234,13 @@ const SelectedOutlineTransformOriginHandle: React.FC<{
 					lockedAxis === null
 						? point
 						: getUvHandlePosition(outline.points, axisLockedUv);
-				const snappedUv = snapSelectedOutlineTransformOriginUv({
-					point: snapPoint,
-					points: outline.points,
-					uv: axisLockedUv,
-				});
+				const snappedUv = editorSnapping
+					? snapSelectedOutlineTransformOriginUv({
+							point: snapPoint,
+							points: outline.points,
+							uv: axisLockedUv,
+						})
+					: axisLockedUv;
 				const nextUv = applySelectedOutlineTransformOriginAxisLock({
 					lockedAxis,
 					startUv: uv,
@@ -410,6 +419,7 @@ const SelectedOutlineTransformOriginHandle: React.FC<{
 		},
 		[
 			clearDragOverrides,
+			editorSnapping,
 			onDraggingChange,
 			outline,
 			parsed,
@@ -472,6 +482,7 @@ const SelectedOutlineTransformOriginHandle: React.FC<{
 
 const SelectedOutlinePolygon: React.FC<{
 	readonly allDragTargets: readonly SelectedOutlineDragTarget[];
+	readonly allDragOutlines: readonly SelectedOutline[];
 	readonly contextMenuValues: readonly ComboboxValue[];
 	readonly dragging: boolean;
 	readonly hovered: boolean;
@@ -479,15 +490,20 @@ const SelectedOutlinePolygon: React.FC<{
 	readonly outline: SelectedOutline;
 	readonly onDraggingChange: (dragging: boolean) => void;
 	readonly onHoverChange: (key: string | null) => void;
+	readonly onSnapPointsChange: (
+		snapPoints: readonly SelectedOutlineSnapPoint[],
+	) => void;
 	readonly onSelect: (
 		item: TimelineSelection,
 		interaction: TimelineSelectionInteraction,
 	) => void;
 	readonly onTextEditStart: (target: SelectedOutlineTarget) => void;
 	readonly scale: number;
+	readonly snapTargets: readonly SelectedOutlineSnapTarget[];
 	readonly target: SelectedOutlineTarget | undefined;
 }> = ({
 	allDragTargets,
+	allDragOutlines,
 	contextMenuValues,
 	dragging,
 	hovered,
@@ -495,9 +511,11 @@ const SelectedOutlinePolygon: React.FC<{
 	outline,
 	onDraggingChange,
 	onHoverChange,
+	onSnapPointsChange,
 	onSelect,
 	onTextEditStart,
 	scale,
+	snapTargets,
 	target,
 }) => {
 	const {getDragOverrides} = useContext(
@@ -506,6 +524,7 @@ const SelectedOutlinePolygon: React.FC<{
 	const {setPropStatuses, setDragOverrides, clearDragOverrides} = useContext(
 		Internals.VisualModeSettersContext,
 	);
+	const {editorSnapping} = useContext(EditorSnappingContext);
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const timelinePositionRef = useRef(timelinePosition);
 	timelinePositionRef.current = timelinePosition;
@@ -557,6 +576,7 @@ const SelectedOutlinePolygon: React.FC<{
 			let currentPointerY = startPointerY;
 			let axisLocked = false;
 			let dragStarted = false;
+			let snappingDisabled = event.metaKey || event.ctrlKey;
 
 			const updateDragOverrides = () => {
 				const screenDeltaX = currentPointerX - startPointerX;
@@ -573,18 +593,49 @@ const SelectedOutlinePolygon: React.FC<{
 
 					dragStarted = true;
 					onDraggingChange(true);
+					forceSpecificCursor('default');
 				}
 
+				const axisLockedDirection = axisLocked
+					? Math.abs(screenDeltaX) >= Math.abs(screenDeltaY)
+						? 'horizontal'
+						: 'vertical'
+					: null;
 				const dragDelta = applySelectedOutlineDragAxisLock({
 					deltaX: screenDeltaX / scale,
 					deltaY: screenDeltaY / scale,
 					axisLocked,
 				});
+				let {deltaX, deltaY} = dragDelta;
+
+				if (editorSnapping && !snappingDisabled) {
+					const snapResult = findSelectedOutlineSnap({
+						allowX: axisLockedDirection !== 'vertical',
+						allowY: axisLockedDirection !== 'horizontal',
+						deltaX,
+						deltaY,
+						outlines: selected ? allDragOutlines : [outline],
+						scale,
+						targets: snapTargets,
+					});
+
+					if (snapResult.snapOffsetX !== null) {
+						deltaX += snapResult.snapOffsetX;
+					}
+
+					if (snapResult.snapOffsetY !== null) {
+						deltaY += snapResult.snapOffsetY;
+					}
+
+					onSnapPointsChange(snapResult.activeSnapPoints);
+				} else {
+					onSnapPointsChange([]);
+				}
 
 				lastValues = getSelectedOutlineDragValues({
 					dragStates,
-					deltaX: dragDelta.deltaX,
-					deltaY: dragDelta.deltaY,
+					deltaX,
+					deltaY,
 				});
 				for (const dragState of dragStates) {
 					const value = lastValues.get(dragState.key);
@@ -617,6 +668,7 @@ const SelectedOutlinePolygon: React.FC<{
 				currentPointerX = moveEvent.clientX;
 				currentPointerY = moveEvent.clientY;
 				axisLocked = moveEvent.shiftKey;
+				snappingDisabled = moveEvent.metaKey || moveEvent.ctrlKey;
 				updateDragOverrides();
 			};
 
@@ -641,6 +693,7 @@ const SelectedOutlinePolygon: React.FC<{
 				window.removeEventListener('keydown', onKeyChange);
 				window.removeEventListener('keyup', onKeyChange);
 				if (dragStarted) {
+					stopForcingSpecificCursor();
 					onDraggingChange(false);
 				}
 
@@ -713,15 +766,20 @@ const SelectedOutlinePolygon: React.FC<{
 		},
 		[
 			allDragTargets,
+			allDragOutlines,
 			clearDragOverrides,
 			drag,
+			editorSnapping,
 			getDragOverrides,
 			onDraggingChange,
 			onSelect,
+			onSnapPointsChange,
+			outline,
 			scale,
 			selected,
 			setPropStatuses,
 			setDragOverrides,
+			snapTargets,
 			target,
 		],
 	);
@@ -1143,6 +1201,7 @@ const SelectedOutlineRotationCornerHandle: React.FC<{
 	const {setPropStatuses, setDragOverrides, clearDragOverrides} = useContext(
 		Internals.VisualModeSettersContext,
 	);
+	const {editorSnapping} = useContext(EditorSnappingContext);
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const timelinePositionRef = useRef(timelinePosition);
 	timelinePositionRef.current = timelinePosition;
@@ -1210,12 +1269,13 @@ const SelectedOutlineRotationCornerHandle: React.FC<{
 			let dragStarted = false;
 
 			const updateRotationDragOverrides = () => {
-				const rotationDeltaDegrees = rotationLocked
-					? snapSelectedOutlineRotationDeltaDegrees({
-							dragStates,
-							rotationDeltaDegrees: accumulatedDelta,
-						})
-					: accumulatedDelta;
+				const rotationDeltaDegrees =
+					rotationLocked && editorSnapping
+						? snapSelectedOutlineRotationDeltaDegrees({
+								dragStates,
+								rotationDeltaDegrees: accumulatedDelta,
+							})
+						: accumulatedDelta;
 				lastValues = getSelectedOutlineRotationDragValues({
 					dragStates,
 					rotationDeltaDegrees,
@@ -1385,6 +1445,7 @@ const SelectedOutlineRotationCornerHandle: React.FC<{
 			allRotationDragTargets,
 			clearDragOverrides,
 			cornerInfo,
+			editorSnapping,
 			getDragOverrides,
 			onDraggingChange,
 			outline.dimensions,
@@ -1437,6 +1498,7 @@ const SelectedOutlineRotationCornerHandle: React.FC<{
 
 export const SelectedOutlineElement: React.FC<{
 	readonly allDragTargets: readonly SelectedOutlineDragTarget[];
+	readonly allDragOutlines: readonly SelectedOutline[];
 	readonly allRotationDragTargets: readonly SelectedOutlineRotationDragTarget[];
 	readonly allScaleDragTargets: readonly SelectedOutlineScaleDragTarget[];
 	readonly dragging: boolean;
@@ -1444,14 +1506,19 @@ export const SelectedOutlineElement: React.FC<{
 	readonly outline: SelectedOutline;
 	readonly onDraggingChange: (dragging: boolean) => void;
 	readonly onHoverChange: (key: string | null) => void;
+	readonly onSnapPointsChange: (
+		snapPoints: readonly SelectedOutlineSnapPoint[],
+	) => void;
 	readonly onSelect: (
 		item: TimelineSelection,
 		interaction: TimelineSelectionInteraction,
 	) => void;
 	readonly scale: number;
+	readonly snapTargets: readonly SelectedOutlineSnapTarget[];
 	readonly target: SelectedOutlineTarget | undefined;
 }> = ({
 	allDragTargets,
+	allDragOutlines,
 	allRotationDragTargets,
 	allScaleDragTargets,
 	dragging,
@@ -1459,8 +1526,10 @@ export const SelectedOutlineElement: React.FC<{
 	outline,
 	onDraggingChange,
 	onHoverChange,
+	onSnapPointsChange,
 	onSelect,
 	scale,
+	snapTargets,
 	target,
 }) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
@@ -1688,6 +1757,7 @@ export const SelectedOutlineElement: React.FC<{
 		<>
 			<SelectedOutlinePolygon
 				allDragTargets={allDragTargets}
+				allDragOutlines={allDragOutlines}
 				contextMenuValues={emptyContextMenuValues}
 				dragging={dragging}
 				hovered={hovered}
@@ -1695,9 +1765,11 @@ export const SelectedOutlineElement: React.FC<{
 				onContextMenuOpen={onContextMenuOpen}
 				onDraggingChange={onDraggingChange}
 				onHoverChange={onHoverChange}
+				onSnapPointsChange={onSnapPointsChange}
 				onSelect={onSelect}
 				onTextEditStart={onTextEditStart}
 				scale={scale}
+				snapTargets={snapTargets}
 				target={target}
 			/>
 			{target?.containsSelection || hovered
@@ -1736,11 +1808,6 @@ export const SelectedOutlineElement: React.FC<{
 						/>
 					))
 				: null}
-			<SelectedOutlineTransformOriginHandle
-				outline={outline}
-				onDraggingChange={onDraggingChange}
-				target={target}
-			/>
 		</>
 	);
 };

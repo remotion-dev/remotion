@@ -3,6 +3,7 @@ import {
 	detectFileType,
 	getRequiredPackageForInsertableElement,
 	isUrl,
+	type CompositionDragData,
 	type ComponentDragData,
 	type ComponentProp,
 	type DownloadRemoteAssetResponse,
@@ -11,7 +12,8 @@ import {
 	type InsertableCompositionElement,
 	type InsertableCompositionElementPosition,
 } from '@remotion/studio-shared';
-import {staticFile} from 'remotion';
+import {Internals, staticFile} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {getStaticFiles} from '../api/get-static-files';
 import {writeStaticFile} from '../api/write-static-file';
 import {installRequiredPackages} from '../helpers/install-required-package';
@@ -818,6 +820,87 @@ export const insertComponent = async ({
 	} catch (error) {
 		showNotification(
 			`Could not add component: ${
+				error instanceof Error ? error.message : String(error)
+			}`,
+			4000,
+		);
+	}
+};
+
+const serializeResolvedPropsForSourceCode = (
+	props: Record<string, unknown>,
+) => {
+	return NoReactInternals.serializeJSONWithSpecialTypes({
+		data: props,
+		indent: undefined,
+		staticBase: window.remotion_staticBase,
+	}).serializedString;
+};
+
+export const insertComposition = async ({
+	composition,
+	compositionFile,
+	compositionId,
+	dropPosition,
+}: {
+	composition: CompositionDragData;
+	compositionFile: string;
+	compositionId: string;
+	dropPosition: InsertElementDropPosition | null;
+}) => {
+	if (composition.compositionId === compositionId) {
+		showNotification('Cannot add a composition to itself', 3000);
+		return;
+	}
+
+	if (composition.compositionFile === null) {
+		showNotification('Could not find composition source file', 3000);
+		return;
+	}
+
+	try {
+		const resolver = Internals.resolveCompositionsRef.current;
+		if (!resolver) {
+			throw new Error('No composition resolver available');
+		}
+
+		const calculated = await resolver.resolveComposition(
+			composition.compositionId,
+		);
+		const dimensions = {
+			width: calculated.width,
+			height: calculated.height,
+		};
+		const inserted = await insertAssetElement({
+			compositionFile,
+			compositionId,
+			element: {
+				type: 'composition',
+				compositionId: composition.compositionId,
+				compositionFile: composition.compositionFile,
+				durationInFrames: calculated.durationInFrames,
+				width: calculated.width,
+				height: calculated.height,
+				serializedResolvedPropsWithCustomSchema:
+					serializeResolvedPropsForSourceCode(calculated.props),
+				position: getCenteredPosition({
+					dimensions,
+					dropPosition,
+				}),
+			},
+		});
+
+		if (!inserted) {
+			return;
+		}
+
+		showNotification(
+			`Added ${composition.compositionId} to ${compositionId}`,
+			2000,
+		);
+	} catch (error) {
+		showNotification(
+			`Could not add composition: ${
 				error instanceof Error ? error.message : String(error)
 			}`,
 			4000,

@@ -29,6 +29,7 @@ export type {
 	WebRendererVideoCodec,
 } from './mediabunny-mappings';
 export type {WebRendererOutputTarget} from './output-target';
+export type {WebRendererPageResponsiveness} from './page-responsiveness';
 export {renderMediaOnWeb} from './render-media-on-web';
 export type {
 	RenderMediaOnWebOptions,

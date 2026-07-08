@@ -27,6 +27,10 @@ export const getRequiredPackageForInsertableElement = (
 		return getRequiredPackageForImportPath(element.importPath);
 	}
 
+	if (element.type === 'composition') {
+		return null;
+	}
+
 	if (element.assetType === 'video' || element.assetType === 'audio') {
 		return '@remotion/media';
 	}

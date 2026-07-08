@@ -2,6 +2,7 @@ import React, {useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {BLUE, SELECTED_OUTLINE_UV_DROP_SHADOW, WHITE} from '../helpers/colors';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
+import {EditorSnappingContext} from '../state/editor-snapping';
 import {
 	forceSpecificCursor,
 	stopForcingSpecificCursor,
@@ -624,6 +625,7 @@ const SelectedUvEllipseRotationHandle: React.FC<{
 }> = ({control, onDraggingChange}) => {
 	const {setEffectDragOverrides, clearEffectDragOverrides, setPropStatuses} =
 		useContext(Internals.VisualModeSettersContext);
+	const {editorSnapping} = useContext(EditorSnappingContext);
 	const {rotationControl} = control;
 	const field = rotationControl?.field;
 
@@ -660,9 +662,10 @@ const SelectedUvEllipseRotationHandle: React.FC<{
 
 			const updateRotationDragOverride = () => {
 				const rawValue = control.rotation + accumulatedDelta;
-				const snappedValue = rotationLocked
-					? snapRotationDegrees(rawValue)
-					: rawValue;
+				const snappedValue =
+					rotationLocked && editorSnapping
+						? snapRotationDegrees(rawValue)
+						: rawValue;
 				const nextValue = roundNumericUvEllipseValue(
 					snappedValue,
 					field.fieldSchema,
@@ -764,6 +767,7 @@ const SelectedUvEllipseRotationHandle: React.FC<{
 		[
 			clearEffectDragOverrides,
 			control,
+			editorSnapping,
 			field,
 			onDraggingChange,
 			rotationControl,
@@ -831,6 +835,7 @@ const SelectedUvHandleCircle: React.FC<{
 }> = ({handle, nodePathInfo, onDraggingChange, onSelect, outline}) => {
 	const {setEffectDragOverrides, clearEffectDragOverrides, setPropStatuses} =
 		useContext(Internals.VisualModeSettersContext);
+	const {editorSnapping} = useContext(EditorSnappingContext);
 	const position = useMemo(
 		() => getUvHandlePosition(outline.points, handle.value),
 		[handle.value, outline.points],
@@ -882,11 +887,13 @@ const SelectedUvHandleCircle: React.FC<{
 					rect: svgRect,
 				});
 				const rawUv = getUvCoordinateForPoint(outline.points, point);
-				const snappedUv = snapSelectedOutlineUv({
-					point,
-					points: outline.points,
-					uv: rawUv,
-				});
+				const snappedUv = editorSnapping
+					? snapSelectedOutlineUv({
+							point,
+							points: outline.points,
+							uv: rawUv,
+						})
+					: rawUv;
 				const nextValue = roundUvCoordinate(
 					constrainUv(snappedUv, handle.fieldSchema),
 					handle.fieldSchema,
@@ -996,6 +1003,7 @@ const SelectedUvHandleCircle: React.FC<{
 		},
 		[
 			clearEffectDragOverrides,
+			editorSnapping,
 			handle,
 			nodePathInfo,
 			onDraggingChange,
