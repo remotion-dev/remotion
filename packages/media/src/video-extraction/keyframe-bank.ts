@@ -128,7 +128,7 @@ export const makeKeyframeBank = async ({
 
 	const hasDecodedEnoughForTimestamp = (timestamp: number) => {
 		const lastFrameTimestamp = frameTimestamps[frameTimestamps.length - 1];
-		if (lastFrameTimestamp === undefined) {
+		if (!lastFrameTimestamp) {
 			return false;
 		}
 
@@ -139,18 +139,13 @@ export const makeKeyframeBank = async ({
 			return true;
 		}
 
-		if (lastFrameTimestamp > timestamp + Number.EPSILON) {
-			return true;
-		}
-
 		const duration =
 			getDurationOfFrame(lastFrameTimestamp) ??
 			(lastFrame as VideoSample).duration;
-		if (lastFrameTimestamp + duration > timestamp + Number.EPSILON) {
-			return true;
-		}
 
-		return hasReachedEndOfVideo;
+		return (
+			roundTo4Digits(lastFrameTimestamp + duration) > roundTo4Digits(timestamp)
+		);
 	};
 
 	const addFrame = (frame: VideoSample, logLevel: LogLevel) => {
@@ -160,7 +155,6 @@ export const makeKeyframeBank = async ({
 
 		frames[frame.timestamp] = frame;
 		frameTimestamps.push(frame.timestamp);
-		frameTimestamps.sort((a, b) => a - b);
 		allocationSize += getAllocationSize(frame);
 
 		lastUsed = Date.now();
@@ -233,7 +227,12 @@ export const makeKeyframeBank = async ({
 				return null;
 			}
 
-			if (sample.timestamp <= adjustedTimestamp + Number.EPSILON) {
+			if (
+				roundTo4Digits(sample.timestamp) <= roundTo4Digits(adjustedTimestamp) ||
+				// Match 0.3333333333 to 0.33355555
+				// this does not satisfy the previous condition, since one rounds up and one rounds down
+				Math.abs(sample.timestamp - adjustedTimestamp) <= 0.001
+			) {
 				return sample;
 			}
 		}
@@ -344,13 +343,11 @@ export const makeKeyframeBank = async ({
 		}
 
 		if (roundedTimestamp < firstFrameTimestamp) {
-			const firstTimestamp = frameTimestamps[0];
 			const firstFrameIsInitialFrame =
-				firstTimestamp === startTimestampInSeconds;
+				firstFrameTimestamp === startTimestampInSeconds;
 
 			const firstFrameDoesSatisfy =
-				firstFrameIsInitialFrame &&
-				timestamp + Number.EPSILON >= initialTimestampRequest;
+				firstFrameIsInitialFrame && roundedTimestamp >= initialTimestampRequest;
 
 			return firstFrameDoesSatisfy;
 		}

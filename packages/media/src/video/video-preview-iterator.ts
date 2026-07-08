@@ -3,6 +3,38 @@ import {releaseStableFrame} from '../canvas-ahead-of-time';
 import {roundTo4Digits} from '../helpers/round-to-4-digits';
 import type {PrewarmedVideoIteratorCache} from '../prewarm-iterator-for-looping';
 
+const MAX_FUTURE_FRAME_DISTANCE_IN_SECONDS = 0.003;
+const MAX_FUTURE_FRAME_DISTANCE_RATIO = 0.1;
+
+const shouldUseNextFrameForTimestamp = ({
+	time,
+	previousFrame,
+	nextFrame,
+}: {
+	time: number;
+	previousFrame: WrappedCanvas;
+	nextFrame: WrappedCanvas;
+}) => {
+	const mediaFrameDuration = nextFrame.timestamp - previousFrame.timestamp;
+
+	if (mediaFrameDuration <= 0) {
+		return false;
+	}
+
+	const nextDistance = nextFrame.timestamp - time;
+	const previousDistance = time - previousFrame.timestamp;
+
+	if (nextDistance <= 0 || previousDistance < 0) {
+		return false;
+	}
+
+	return (
+		nextDistance < previousDistance &&
+		nextDistance <= MAX_FUTURE_FRAME_DISTANCE_IN_SECONDS &&
+		nextDistance <= mediaFrameDuration * MAX_FUTURE_FRAME_DISTANCE_RATIO
+	);
+};
+
 export const createVideoIterator = async (
 	timeToSeek: number,
 	cache: PrewarmedVideoIteratorCache,
@@ -98,6 +130,30 @@ export const createVideoIterator = async (
 		  }
 	> => {
 		const timestamp = roundTo4Digits(time);
+		const chooseBetweenPreviousAndNext = (nextFrame: WrappedCanvas) => {
+			if (!lastReturnedFrame) {
+				setLastReturnedFrame(nextFrame);
+				return nextFrame;
+			}
+
+			const selectedFrame = shouldUseNextFrameForTimestamp({
+				time,
+				previousFrame: lastReturnedFrame,
+				nextFrame,
+			})
+				? nextFrame
+				: lastReturnedFrame;
+
+			if (selectedFrame === nextFrame) {
+				setLastReturnedFrame(nextFrame);
+				if (peekedFrame === nextFrame) {
+					peekedFrame = null;
+				}
+			}
+
+			return selectedFrame;
+		};
+
 		if (lastReturnedFrame) {
 			const frameTimestamp = roundTo4Digits(lastReturnedFrame.timestamp);
 
@@ -133,13 +189,17 @@ export const createVideoIterator = async (
 			);
 
 			if (frameTimestamp <= timestamp && frameEndTimestamp > timestamp) {
-				return {
-					type: 'satisfied' as const,
-					frame: lastReturnedFrame,
-				};
-			}
+				const shouldCheckNextFrame =
+					lastReturnedFrame.duration > 0 &&
+					time - lastReturnedFrame.timestamp >= lastFrameDuration / 2;
 
-			if (frameTimestamp <= timestamp) {
+				if (!shouldCheckNextFrame) {
+					return {
+						type: 'satisfied' as const,
+						frame: lastReturnedFrame,
+					};
+				}
+
 				const nextFrame = await peek();
 				if (!nextFrame) {
 					iteratorEnded = true;
@@ -152,7 +212,23 @@ export const createVideoIterator = async (
 				if (nextFrame.timestamp > time + Number.EPSILON) {
 					return {
 						type: 'satisfied' as const,
+						frame: chooseBetweenPreviousAndNext(nextFrame),
+					};
+				}
+			} else if (frameTimestamp <= timestamp) {
+				const nextFrame = await peek();
+				if (!nextFrame) {
+					iteratorEnded = true;
+					return {
+						type: 'satisfied' as const,
 						frame: lastReturnedFrame,
+					};
+				}
+
+				if (nextFrame.timestamp > time + Number.EPSILON) {
+					return {
+						type: 'satisfied' as const,
+						frame: chooseBetweenPreviousAndNext(nextFrame),
 					};
 				}
 			}
@@ -199,7 +275,7 @@ export const createVideoIterator = async (
 				peekedFrame = nextFrame;
 				return {
 					type: 'satisfied' as const,
-					frame: lastReturnedFrame,
+					frame: chooseBetweenPreviousAndNext(nextFrame),
 				};
 			}
 

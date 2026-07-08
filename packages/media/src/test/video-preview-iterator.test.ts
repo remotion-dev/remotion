@@ -7,21 +7,21 @@ const makeFrame = (timestamp: number, duration: number) => ({
 	canvas: new OffscreenCanvas(1, 1),
 });
 
-const makeIterator = async (
+const makeIterator = (
 	frames: {timestamp: number; duration: number; canvas: OffscreenCanvas}[],
 ) => {
 	let index = 0;
 	return createVideoIterator(0, {
 		makeIteratorOrUsePrewarmed: () => ({
 			next: () => ({type: 'ready' as const, frame: frames[index++] ?? null}),
-			closeIterator: async () => undefined,
+			closeIterator: () => Promise.resolve(),
 		}),
 		destroy: () => undefined,
 		prewarmIteratorForLooping: () => undefined,
 	});
 };
 
-test('does not recreate while stepping sequentially', async () => {
+test('keeps the previous frame when the next frame is still too far away', async () => {
 	const iterator = await makeIterator([
 		makeFrame(0, 0.01),
 		makeFrame(0.033, 0.033),
@@ -49,10 +49,10 @@ test('awaits a pending next frame instead of reporting not satisfied', async () 
 
 				return {
 					type: 'pending' as const,
-					wait: async () => frame,
+					wait: () => Promise.resolve(frame),
 				};
 			},
-			closeIterator: async () => undefined,
+			closeIterator: () => Promise.resolve(),
 		}),
 		destroy: () => undefined,
 		prewarmIteratorForLooping: () => undefined,
@@ -67,32 +67,25 @@ test('awaits a pending next frame instead of reporting not satisfied', async () 
 	iterator.destroy();
 });
 
-test('keeps the previous frame when the next frame is in the future', async () => {
-	const iterator = await makeIterator([
-		makeFrame(0, 0.01),
-		makeFrame(0.033, 0.033),
-	]);
+test('selects each frame when metadata FPS is slightly higher than sample timestamps', async () => {
+	const fpsFromPacketStats = 30.00600120624245;
+	const frames = Array.from({length: 20}, (_, index) => {
+		return makeFrame(Math.round((index / 30) * 1000) / 1000, 1 / 30);
+	});
+	const iterator = await makeIterator(frames);
+	const selectedTimestamps: number[] = [];
 
-	const result = await iterator.tryToSatisfySeek(0.02);
-	expect(result.type).toBe('satisfied');
-	if (result.type === 'satisfied') {
-		expect(result.frame.timestamp).toBe(0);
+	for (let frame = 0; frame < frames.length; frame++) {
+		const result = await iterator.tryToSatisfySeek(frame / fpsFromPacketStats);
+		expect(result.type).toBe('satisfied');
+		if (result.type !== 'satisfied') {
+			throw new Error(result.reason);
+		}
+
+		selectedTimestamps.push(result.frame.timestamp);
 	}
 
-	iterator.destroy();
-});
-
-test('does not accept a rounded future frame', async () => {
-	const iterator = await makeIterator([
-		makeFrame(0, 0.005),
-		makeFrame(0.02004, 0.033),
-	]);
-
-	const result = await iterator.tryToSatisfySeek(0.02);
-	expect(result.type).toBe('satisfied');
-	if (result.type === 'satisfied') {
-		expect(result.frame.timestamp).toBe(0);
-	}
+	expect(selectedTimestamps).toEqual(frames.map((frame) => frame.timestamp));
 
 	iterator.destroy();
 });
