@@ -194,12 +194,12 @@ export const useIsPlayerBuffering = (bufferManager: BufferManager) => {
 			setIsBuffering(false);
 		};
 
-		bufferManager.listenForBuffering(onBuffer);
-		bufferManager.listenForResume(onResume);
+		const buffer = bufferManager.listenForBuffering(onBuffer);
+		const resume = bufferManager.listenForResume(onResume);
 
 		return () => {
-			bufferManager.listenForBuffering(() => undefined);
-			bufferManager.listenForResume(() => undefined);
+			buffer.remove();
+			resume.remove();
 		};
 	}, [bufferManager]);
 
