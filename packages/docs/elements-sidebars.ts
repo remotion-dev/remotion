@@ -16,7 +16,10 @@ const sidebars: SidebarsConfig = {
 			label: 'Backgrounds',
 			link: {type: 'doc', id: 'backgrounds/index'},
 			collapsed: false,
-			items: ['backgrounds/paper-texture/index'],
+			items: [
+				'backgrounds/paper-texture/index',
+				'backgrounds/rotating-starburst/index',
+			],
 		},
 		{
 			type: 'category',
