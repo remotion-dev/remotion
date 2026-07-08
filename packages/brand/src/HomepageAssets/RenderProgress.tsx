@@ -21,10 +21,10 @@ export const renderProgressDurationInFrames = 268;
 const rotationReferenceDurationInFrames = 1200;
 const phrases = ['video.mp4', 'thumb.png', 'sound.wav', 'doc.pdf'] as const;
 const cycleOffsets = [-1, 0, 1] as const;
-const fadeInStartY = 1000;
-const fadeInEndY = 650;
-const fadeOutStartY = -650;
-const fadeOutEndY = -1000;
+const fadeInStartY = 1100;
+const fadeInEndY = 850;
+const fadeOutStartY = -720;
+const fadeOutEndY = -900;
 
 const modulo = (value: number, by: number) => {
 	return ((value % by) + by) % by;
