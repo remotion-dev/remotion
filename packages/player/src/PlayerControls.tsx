@@ -91,6 +91,14 @@ const flex1: React.CSSProperties = {
 
 const fullscreen: React.CSSProperties = {};
 
+const isFocusVisible = (element: HTMLElement): boolean => {
+	try {
+		return element.matches(':focus-visible');
+	} catch {
+		return true;
+	}
+};
+
 export const Controls: React.FC<{
 	readonly fps: number;
 	readonly durationInFrames: number;
@@ -153,7 +161,8 @@ export const Controls: React.FC<{
 	renderCustomControls,
 }) => {
 	const playButtonRef = useRef<HTMLButtonElement | null>(null);
-	const [playButtonFocused, setPlayButtonFocused] = useState(false);
+	const didMountRef = useRef(false);
+	const [playButtonFocusVisible, setPlayButtonFocusVisible] = useState(false);
 	const [supportsFullscreen, setSupportsFullscreen] = useState(false);
 	const hovered = useHoverState(
 		containerRef,
@@ -218,11 +227,17 @@ export const Controls: React.FC<{
 	}, [buffering, playing, renderPlayPauseButton]);
 
 	useEffect(() => {
+		if (!didMountRef.current) {
+			didMountRef.current = true;
+			return;
+		}
+
 		if (playButtonRef.current && spaceKeyToPlayOrPause) {
 			// This switches focus to play button when player.playing flag changes
 			playButtonRef.current.focus({
 				preventScroll: true,
 			});
+			setPlayButtonFocusVisible(isFocusVisible(playButtonRef.current));
 		}
 	}, [playing, spaceKeyToPlayOrPause]);
 
@@ -307,12 +322,18 @@ export const Controls: React.FC<{
 			[onDoubleClick],
 		);
 
-	const onPlayButtonFocus = useCallback(() => {
-		setPlayButtonFocused(true);
-	}, []);
+	const onPlayButtonFocus: React.FocusEventHandler<HTMLButtonElement> =
+		useCallback((e) => {
+			setPlayButtonFocusVisible(isFocusVisible(e.currentTarget));
+		}, []);
+
+	const onPlayButtonPointerDown: React.PointerEventHandler<HTMLButtonElement> =
+		useCallback(() => {
+			setPlayButtonFocusVisible(false);
+		}, []);
 
 	const onPlayButtonBlur = useCallback(() => {
-		setPlayButtonFocused(false);
+		setPlayButtonFocusVisible(false);
 	}, []);
 
 	return (
@@ -330,6 +351,7 @@ export const Controls: React.FC<{
 						style={playPauseButtonStyle}
 						onClick={toggle}
 						onFocus={onPlayButtonFocus}
+						onPointerDown={onPlayButtonPointerDown}
 						onBlur={onPlayButtonBlur}
 						aria-label={playing ? 'Pause video' : 'Play video'}
 						title={playing ? 'Pause video' : 'Play video'}
@@ -337,7 +359,7 @@ export const Controls: React.FC<{
 						{renderPlayPauseButton === null ? (
 							<DefaultPlayPauseButton
 								buffering={buffering}
-								focused={playButtonFocused}
+								focused={playButtonFocusVisible}
 								playing={playing}
 							/>
 						) : (
