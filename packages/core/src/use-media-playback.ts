@@ -9,6 +9,7 @@ import {
 import {useMediaStartsAt} from './audio/use-audio-frame.js';
 import {useBufferUntilFirstFrame} from './buffer-until-first-frame.js';
 import {BufferingContextReact, useIsPlayerBuffering} from './buffering.js';
+import {getMediaSyncAction} from './get-media-sync-action.js';
 import {useLogLevel, useMountTime} from './log-level-context.js';
 import {Log} from './log.js';
 import {useCurrentTimeOfMediaTagWithUpdateTimeStamp} from './media-tag-current-time-timestamp.js';
@@ -223,96 +224,76 @@ export const useMediaPlayback = ({
 			);
 		}
 
-		const {duration} = mediaRef.current;
-		const shouldBeTime =
-			!Number.isNaN(duration) && Number.isFinite(duration)
-				? Math.min(duration, desiredUnclampedTime)
-				: desiredUnclampedTime;
+		const {current} = mediaRef;
 
-		const mediaTagTime = mediaTagCurrentTime.current.time;
-		const rvcTime = rvcCurrentTime.current?.time ?? null;
+		const action = getMediaSyncAction({
+			duration: current.duration,
+			currentTime: current.currentTime,
+			paused: current.paused,
+			ended: current.ended,
+			desiredUnclampedTime,
+			mediaTagTime: mediaTagCurrentTime.current.time,
+			mediaTagLastUpdate: mediaTagCurrentTime.current.lastUpdate,
+			rvcTime: rvcCurrentTime.current?.time ?? null,
+			rvcLastUpdate: rvcCurrentTime.current?.lastUpdate ?? null,
+			isVariableFpsVideo: Boolean(isVariableFpsVideoMap.current[src]),
+			acceptableTimeShift: acceptableTimeShiftButLessThanDuration,
+			lastSeekDueToShift: lastSeekDueToShift.current,
+			playing,
+			playbackRate,
+			mediaTagBufferingOrStalled: isMediaTagBuffering || isBuffering(),
+			playerBuffering: buffering.buffering.current,
+			absoluteFrame,
+			onlyWarnForMediaSeekingError,
+			isPremounting,
+			isPostmounting,
+			pauseWhenBuffering,
+		});
 
-		const isVariableFpsVideo = isVariableFpsVideoMap.current[src];
+		if (action.type === 'none') {
+			return;
+		}
 
-		const timeShiftMediaTag = Math.abs(shouldBeTime - mediaTagTime);
-		const timeShiftRvcTag = rvcTime ? Math.abs(shouldBeTime - rvcTime) : null;
-
-		const mostRecentTimeshift =
-			rvcCurrentTime.current?.lastUpdate &&
-			rvcCurrentTime.current.time > mediaTagCurrentTime.current.lastUpdate
-				? (timeShiftRvcTag as number)
-				: timeShiftMediaTag;
-
-		const timeShift =
-			timeShiftRvcTag && !isVariableFpsVideo
-				? mostRecentTimeshift
-				: timeShiftMediaTag;
-
-		if (
-			timeShift > acceptableTimeShiftButLessThanDuration &&
-			lastSeekDueToShift.current !== shouldBeTime
-		) {
-			// If scrubbing around, adjust timing
-			// or if time shift is bigger than 0.45sec
-
+		if (action.type === 'seek-due-to-shift') {
 			lastSeek.current = seek({
-				mediaRef: mediaRef.current,
-				time: shouldBeTime,
+				mediaRef: current,
+				time: action.shouldBeTime,
 				logLevel,
-				why: `because time shift is too big. shouldBeTime = ${shouldBeTime}, isTime = ${mediaTagTime}, requestVideoCallbackTime = ${rvcTime}, timeShift = ${timeShift}${isVariableFpsVideo ? ', isVariableFpsVideo = true' : ''}, isPremounting = ${isPremounting}, isPostmounting = ${isPostmounting}, pauseWhenBuffering = ${pauseWhenBuffering}`,
+				why: action.why,
 				mountTime,
 			});
 			lastSeekDueToShift.current = lastSeek.current;
-			if (playing) {
-				if (playbackRate > 0) {
-					bufferUntilFirstFrame(shouldBeTime);
-				}
 
-				if (mediaRef.current.paused) {
-					playAndHandleNotAllowedError({
-						mediaRef,
-						mediaType,
-						onAutoPlayError,
-						logLevel,
-						mountTime,
-						reason:
-							'player is playing but media tag is paused, and just seeked',
-						isPlayer: env.isPlayer,
-					});
-				}
+			if (action.bufferUntilFirstFrame) {
+				bufferUntilFirstFrame(action.shouldBeTime);
 			}
 
-			if (!onlyWarnForMediaSeekingError) {
-				warnAboutNonSeekableMedia(
-					mediaRef.current,
-					onlyWarnForMediaSeekingError ? 'console-warning' : 'console-error',
-				);
+			if (action.playReason !== null) {
+				playAndHandleNotAllowedError({
+					mediaRef,
+					mediaType,
+					onAutoPlayError,
+					logLevel,
+					mountTime,
+					reason: action.playReason,
+					isPlayer: env.isPlayer,
+				});
+			}
+
+			if (action.warnAboutNonSeekable) {
+				warnAboutNonSeekableMedia(current, 'console-error');
 			}
 
 			return;
 		}
 
-		const seekThreshold = playing ? 0.15 : 0.01;
-
-		// Only perform a seek if the time is not already the same.
-		// Chrome rounds to 6 digits, so 0.033333333 -> 0.033333,
-		// therefore a threshold is allowed.
-		// Refer to the https://github.com/remotion-dev/video-buffering-example
-		// which is fixed by only seeking conditionally.
-		const makesSenseToSeek =
-			Math.abs(mediaRef.current.currentTime - shouldBeTime) > seekThreshold;
-
-		const isMediaTagBufferingOrStalled = isMediaTagBuffering || isBuffering();
-		const isSomethingElseBuffering =
-			buffering.buffering.current && !isMediaTagBufferingOrStalled;
-
-		if (!playing || isSomethingElseBuffering) {
-			if (makesSenseToSeek) {
+		if (action.type === 'seek-if-not-playing') {
+			if (action.why !== null) {
 				lastSeek.current = seek({
-					mediaRef: mediaRef.current,
-					time: shouldBeTime,
+					mediaRef: current,
+					time: action.shouldBeTime,
 					logLevel,
-					why: `not playing or something else is buffering. time offset is over seek threshold (${seekThreshold})`,
+					why: action.why,
 					mountTime,
 				});
 			}
@@ -320,39 +301,28 @@ export const useMediaPlayback = ({
 			return;
 		}
 
-		if (!playing || buffering.buffering.current) {
-			return;
-		}
-
-		// We now assured we are in playing state and not buffering
-		const pausedCondition = mediaRef.current.paused && !mediaRef.current.ended;
-		const firstFrameCondition = absoluteFrame === 0;
-		if (pausedCondition || firstFrameCondition) {
-			const reason = pausedCondition
-				? 'media tag is paused'
-				: 'absolute frame is 0';
-			if (makesSenseToSeek) {
-				lastSeek.current = seek({
-					mediaRef: mediaRef.current,
-					time: shouldBeTime,
-					logLevel,
-					why: `is over timeshift threshold (threshold = ${seekThreshold}) and ${reason}`,
-					mountTime,
-				});
-			}
-
-			playAndHandleNotAllowedError({
-				mediaRef,
-				mediaType,
-				onAutoPlayError,
+		// action.type === 'play-and-seek'
+		if (action.why !== null) {
+			lastSeek.current = seek({
+				mediaRef: current,
+				time: action.shouldBeTime,
 				logLevel,
+				why: action.why,
 				mountTime,
-				reason: `player is playing and ${reason}`,
-				isPlayer: env.isPlayer,
 			});
-			if (!isVariableFpsVideo && playbackRate > 0) {
-				bufferUntilFirstFrame(shouldBeTime);
-			}
+		}
+
+		playAndHandleNotAllowedError({
+			mediaRef,
+			mediaType,
+			onAutoPlayError,
+			logLevel,
+			mountTime,
+			reason: action.playReason,
+			isPlayer: env.isPlayer,
+		});
+		if (action.bufferUntilFirstFrame) {
+			bufferUntilFirstFrame(action.shouldBeTime);
 		}
 	}, [
 		absoluteFrame,
