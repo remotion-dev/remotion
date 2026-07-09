@@ -31,7 +31,7 @@
 		"capabilities": ["Read", "Write"],
 		"websiteURL": "https://remotion.dev",
 		"privacyPolicyURL": "https://remotion.pro/privacy",
-		"termsOfServiceURL": "https://remotion.pro/terms",
+		"termsOfServiceURL": "https://www.remotion.dev/docs/license/terms",
 		"defaultPrompt": [
 			"Create an animated chart with 5 bars",
 			"Make an animated call-to-action subscribe button for our YouTube channel",

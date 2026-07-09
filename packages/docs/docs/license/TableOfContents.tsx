@@ -14,6 +14,10 @@ export const TableOfContents: React.FC = () => {
 					<strong>{'License FAQ'}</strong>
 					<div>Frequently asked questions about licensing and pricing</div>
 				</TOCItem>
+				<TOCItem link="/docs/license/terms">
+					<strong>{'Terms and Conditions'}</strong>
+					<div>Legal terms governing the use of Remotion</div>
+				</TOCItem>
 			</Grid>
 		</div>
 	);

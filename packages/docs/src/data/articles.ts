@@ -3762,6 +3762,15 @@ export const articles = [
 		slug: 'license/faq',
 	},
 	{
+		id: 'license/terms',
+		title: 'Terms and Conditions of Remotion (v5.0)',
+		relativePath: 'docs/license/terms.mdx',
+		compId: 'articles-docs-license-terms',
+		crumb: 'License, Pricing and Compliance',
+		noAi: false,
+		slug: 'license/terms',
+	},
+	{
 		id: 'license',
 		title: 'License, Pricing and Compliance',
 		relativePath: 'docs/license.mdx',

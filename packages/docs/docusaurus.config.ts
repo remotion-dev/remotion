@@ -265,7 +265,7 @@ const config: Config = {
 						},
 						{
 							label: 'Terms and Conditions',
-							href: 'https://remotion.pro/terms',
+							href: 'https://www.remotion.dev/docs/license/terms',
 						},
 						{
 							label: 'Privacy Policy',
