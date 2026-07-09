@@ -26,6 +26,7 @@ Not directly - pass the `licenseKey` option in the renderer package you use.
 
 - [`@remotion/cloudrun`](/docs/cloudrun): No telemetry is implemented. Use [`@remotion/licensing`](/docs/licensing) directly to track usage.
 - [`@remotion/webcodecs`](/docs/webcodecs): Telemetry was removed in v4.0.399 because this package is no longer monetized.
+
 </details>
 
 On your Company License dashboard on [remotion.pro](https://remotion.pro), you can find your license keys on the License keys page.
@@ -72,6 +73,12 @@ For client-side rendering using [`@remotion/web-renderer`](/docs/client-side-ren
 
 Telemetry data is currently retained indefinitely and is not regularly deleted.  
 This data is not shared with any third parties. It is only used internally by Remotion for license accountability.
+
+We plan to introduce a retention policy that automatically deletes telemetry data after a defined period. This has not been implemented yet, but is on our roadmap for the future.
+
+### Note for GDPR Compliance
+
+If you utilize client-side rendering, our licensing package transmits the end-user's IP address to Remotion strictly for license verification and billing metrics. You should ensure your app's privacy policy reflects that limited operational telemetry is shared with technical service providers under Legitimate Interest.
 
 ### Does telemetry affect renders?
 
