@@ -2088,6 +2088,15 @@ export const articles = [
 		slug: 'effects/rings',
 	},
 	{
+		id: 'effects/roughen-edges',
+		title: 'roughenEdges()',
+		relativePath: 'docs/effects/roughen-edges.mdx',
+		compId: 'articles-docs-effects-roughen-edges',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/roughen-edges',
+	},
+	{
 		id: 'effects/saturation',
 		title: 'saturation()',
 		relativePath: 'docs/effects/saturation.mdx',

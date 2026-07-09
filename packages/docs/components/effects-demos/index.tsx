@@ -2,7 +2,6 @@ import {useColorMode} from '@docusaurus/theme-common';
 import {Player} from '@remotion/player';
 import React, {useCallback, useMemo, useState} from 'react';
 import {AbsoluteFill} from 'remotion';
-import styles from '../demos/styles.module.css';
 import {
 	makeEffectDragData,
 	setEffectDragData,
@@ -15,6 +14,7 @@ import {
 } from './get-default-props-from-schema';
 import {effectsDemos} from './registry';
 import {SchemaControl} from './schema-control';
+import styles from '../demos/styles.module.css';
 
 const container: React.CSSProperties = {
 	overflow: 'hidden',
