@@ -190,16 +190,14 @@ export const insertElementHandler: ApiHandler<
 					importName: componentName,
 					importPath,
 					props: [],
-					position: element.dimensions ? null : position,
+					position: null,
 				},
 				prettierConfigOverride: null,
-				wrapInSequence: element.dimensions
-					? {
-							dimensions: element.dimensions,
-							name: element.displayName,
-							position,
-						}
-					: null,
+				wrapInSequence: {
+					dimensions: element.dimensions,
+					name: element.displayName,
+					position,
+				},
 			});
 
 			pushTransactionToUndoStack({
