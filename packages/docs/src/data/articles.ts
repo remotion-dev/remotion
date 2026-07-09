@@ -3744,13 +3744,13 @@ export const articles = [
 		slug: 'legacy-babel',
 	},
 	{
-		id: 'license/license-faq',
+		id: 'license/faq',
 		title: 'License FAQ',
-		relativePath: 'docs/license/license-faq.mdx',
+		relativePath: 'docs/license/faq.mdx',
 		compId: 'articles-docs-license-pricing-compliance-faq',
 		crumb: 'License, Pricing and Compliance',
 		noAi: false,
-		slug: 'license/license-faq',
+		slug: 'license/faq',
 	},
 	{
 		id: 'license',

@@ -7,7 +7,7 @@ export const Pricing: React.FC<{
 	readonly licenseHref?: string;
 	readonly termsHref?: string;
 }> = ({
-	faqHref = '/docs/license/license-faq',
+	faqHref = '/docs/license/faq',
 	faqLabel = 'License FAQ',
 	licenseHref = 'https://github.com/remotion-dev/remotion/blob/main/LICENSE.md',
 	termsHref = 'https://www.remotion.pro/terms',

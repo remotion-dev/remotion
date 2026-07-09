@@ -68,11 +68,11 @@ export default function middleware(request: Request) {
 	}
 
 	if (pathname === '/docs/license-pricing-compliance/faq') {
-		return Response.redirect(new URL('/docs/license/license-faq', request.url), 308);
+		return Response.redirect(new URL('/docs/license/faq', request.url), 308);
 	}
 
-	if (pathname === '/docs/trust') {
-		return Response.redirect(new URL('/docs/license', request.url), 308);
+	if (pathname === '/docs/license/license-faq') {
+		return Response.redirect(new URL('/docs/license/faq', request.url), 308);
 	}
 
 	if (!pathname.startsWith('/docs/') && !pathname.startsWith('/elements/')) {

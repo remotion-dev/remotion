@@ -10,7 +10,7 @@ export const TableOfContents: React.FC = () => {
 					<strong>{'License & Pricing'}</strong>
 					<div>Free license eligibility, company and enterprise pricing</div>
 				</TOCItem>
-				<TOCItem link="/docs/license/license-faq">
+				<TOCItem link="/docs/license/faq">
 					<strong>{'License FAQ'}</strong>
 					<div>Frequently asked questions about licensing and pricing</div>
 				</TOCItem>
