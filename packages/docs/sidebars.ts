@@ -1612,9 +1612,9 @@ const sidebars: SidebarsConfig = {
 			label: 'License, Pricing and Compliance',
 			link: {
 				type: 'doc',
-				id: 'license-pricing-compliance/index',
+				id: 'license',
 			},
-			items: ['pricing', 'license-pricing-compliance/faq'],
+			items: ['license/pricing', 'license/faq'],
 		},
 		'acknowledgements',
 
