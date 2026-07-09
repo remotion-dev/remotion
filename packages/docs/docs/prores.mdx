@@ -1,7 +1,7 @@
 ---
 image: /generated/articles-docs-prores.png
 id: prores
-title: ProRes
+title: Rendering ProRes
 sidebar_label: ProRes
 crumb: 'Rendering'
 ---
@@ -12,7 +12,9 @@ Use it when the rendered file is going into Final Cut Pro, Adobe Premiere Pro, D
 ProRes files are large and are not suitable for browser playback.
 For web delivery, use [H.264](/docs/encoding), [H.265](/docs/encoding), [VP8 or VP9](/docs/encoding), or [AV1](/docs/encoding) instead.
 
-## Rendering ProRes<AvailableFrom v="2.1.7" />
+If you want to use an existing ProRes video in a Remotion composition, see [Embedding ProRes](/docs/videos/prores).
+
+## Render a ProRes file<AvailableFrom v="2.1.7" />
 
 Pass `prores` as the codec and use a `.mov` output file:
 
@@ -108,50 +110,8 @@ In the Studio, enable the checkerboard background to inspect transparency.
 
 For more context, see [Rendering transparent videos](/docs/transparent-videos) and [Creating overlays](/docs/overlay).
 
-## Using ProRes with `@remotion/media`<AvailableFrom v="4.0.487" />
-
-[`<Video>`](/docs/media/video) from [`@remotion/media`](/docs/media) is based on Mediabunny and WebCodecs.
-ProRes is not natively supported by WebCodecs and is not enabled by default in `@remotion/media`.
-
-Install the ProRes decoder:
-
-```bash title="Terminal"
-npx remotion add @mediabunny/prores
-```
-
-Register it before rendering a composition that uses ProRes media:
-
-```tsx twoslash title="src/index.ts"
-// @filename: ./Root.tsx
-export const RemotionRoot = () => <></>;
-
-// @filename: index.ts
-// ---cut---
-import {registerRoot} from 'remotion';
-import {registerProresDecoder} from '@mediabunny/prores';
-import {RemotionRoot} from './Root';
-
-registerProresDecoder();
-registerRoot(RemotionRoot);
-```
-
-After that, a `.mov` file with a ProRes video track can be used in [`<Video>`](/docs/media/video):
-
-```tsx twoslash title="MyComposition.tsx"
-import {staticFile} from 'remotion';
-import {Video} from '@remotion/media';
-
-export const MyComposition = () => {
-  return <Video src={staticFile('clip.mov')} />;
-};
-```
-
-For maximum performance, `@mediabunny/prores` uses shared-memory multithreading when the page is [cross-origin isolated](/docs/miscellaneous/cross-origin-isolation).
-If cross-origin isolation is not enabled, ProRes decoding still works, but falls back to a slower algorithm.
-
 ## See also
 
+- [Embedding ProRes](/docs/videos/prores)
 - [Encoding Guide](/docs/encoding)
 - [Rendering transparent videos](/docs/transparent-videos)
-- [`@remotion/media` - Supported media](/docs/media/support)
-- [Supported formats and codecs by Mediabunny](/docs/mediabunny/formats)

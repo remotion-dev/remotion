@@ -5221,7 +5221,7 @@ export const articles = [
 	},
 	{
 		id: 'prores',
-		title: 'ProRes',
+		title: 'Rendering ProRes',
 		relativePath: 'docs/prores.mdx',
 		compId: 'articles-docs-prores',
 		crumb: 'Rendering',
@@ -7975,6 +7975,15 @@ export const articles = [
 		crumb: 'Video behavior',
 		noAi: false,
 		slug: 'videos/media-fragments',
+	},
+	{
+		id: 'videos/prores',
+		title: 'Embedding ProRes',
+		relativePath: 'docs/videos/prores.mdx',
+		compId: 'articles-docs-videos-prores',
+		crumb: 'How To',
+		noAi: false,
+		slug: 'videos/prores',
 	},
 	{
 		id: 'videos/sequence',
