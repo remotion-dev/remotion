@@ -62,20 +62,17 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 			: height;
 
 	const dragData = useMemo(() => {
-		if (
-			!slug ||
-			!displayName ||
-			!sourceCode ||
-			elementWidth === undefined ||
-			elementHeight === undefined
-		) {
+		if (!slug || !displayName || !sourceCode) {
 			return null;
 		}
 
-		const dimensions: ComponentDimensions = {
-			width: elementWidth,
-			height: elementHeight,
-		};
+		const dimensions: ComponentDimensions | null =
+			elementWidth !== undefined && elementHeight !== undefined
+				? {
+						width: elementWidth,
+						height: elementHeight,
+					}
+				: null;
 
 		return makeElementDragData({
 			dimensions,

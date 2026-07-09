@@ -74,6 +74,10 @@ const makeRelativeImportPath = ({
 const validateDimensions = (
 	dimensions: InsertElementRequest['element']['dimensions'],
 ) => {
+	if (dimensions === null) {
+		return;
+	}
+
 	if (
 		!Number.isFinite(dimensions.width) ||
 		!Number.isFinite(dimensions.height) ||
