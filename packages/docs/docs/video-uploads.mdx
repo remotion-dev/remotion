@@ -5,18 +5,19 @@ title: Handling user video uploads
 crumb: 'Building video apps'
 ---
 
-In an app where users can upload videos and edit them, we can create a better user experience by loading the video into a player even before the upload is finished. Good news: This can be done pretty easily!
+In an app where users can upload videos and edit them, we can create a better user experience by loading the video into a player even before the upload is finished.
 
 ## Allowing user uploads
 
-We have a component which returns a [`<OffthreadVideo>`](/docs/offthreadvideo) tag that includes an URL as source.
+Start with a component that renders a [`<Video>`](/docs/media/video) from [`@remotion/media`](/docs/media) and accepts a URL as its source.
 
 ```tsx twoslash title="MyComposition.tsx"
 const upload = async (file: File) => {
   return 'https://example.com';
 };
 // ---cut---
-import {AbsoluteFill, OffthreadVideo} from 'remotion';
+import {Video} from '@remotion/media';
+import {AbsoluteFill} from 'remotion';
 
 type VideoProps = {
   videoURL: string;
@@ -25,7 +26,7 @@ type VideoProps = {
 export const MyComponent: React.FC<VideoProps> = ({videoURL}) => {
   return (
     <AbsoluteFill>
-      <OffthreadVideo src={videoURL} />
+      <Video src={videoURL} />
     </AbsoluteFill>
   );
 };
@@ -73,11 +74,11 @@ export const RemotionPlayer: React.FC = () => {
 };
 ```
 
-The implementation of the `upload()` function is provider-specific and we do not show an implementation in this article. We assume it is a function that takes a file, uploads it and returns an URL.
+The implementation of the `upload()` function is provider-specific and we do not show an implementation in this article. We assume it is a function that takes a file, uploads it and returns a URL.
 
 ## Optimistic updates
 
-When we start the upload of the file, we can create a blob URL using `URL.createObjectURL()` which can be used to display the local file in a [`<Video>`](/docs/media/video) tag. When the file is done uploading and we get the remote URL, the component shall use remote URL as source.
+When we start the upload of the file, we can create a blob URL using `URL.createObjectURL()` which can be used to display the local file in a [`<Video>`](/docs/media/video) tag. When the file is done uploading and we get the remote URL, the component should use the remote URL as its source.
 
 ```tsx twoslash title="App.tsx"
 const MyComposition: React.FC<{videoUrl: string}> = ({videoUrl}) => {
