@@ -39,6 +39,7 @@ type OptionalParameters = {
 		bypassBucketNameValidation?: boolean;
 		keyboardShortcutsEnabled?: boolean;
 		askAIEnabled?: boolean;
+		interactivityEnabled?: boolean;
 		experimentalClientSideRenderingEnabled?: boolean;
 		rspack?: boolean;
 	};
@@ -133,6 +134,7 @@ const mandatoryDeploySite = async ({
 			onSymlinkDetected: () => undefined,
 			outDir: null,
 			askAIEnabled: options?.askAIEnabled ?? true,
+			interactivityEnabled: options?.interactivityEnabled ?? true,
 			audioLatencyHint: null,
 			experimentalClientSideRenderingEnabled:
 				options?.experimentalClientSideRenderingEnabled ?? false,

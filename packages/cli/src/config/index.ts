@@ -96,6 +96,7 @@ const {
 	askAIOption,
 	publicLicenseKeyOption,
 	experimentalClientSideRenderingOption,
+	interactivityOption,
 	keyboardShortcutsOption,
 	forceNewStudioOption,
 	numberOfSharedAudioTagsOption,
@@ -179,6 +180,12 @@ declare global {
 		 * @default true
 		 */
 		readonly setKeyboardShortcutsEnabled: (enableShortcuts: boolean) => void;
+		/**
+		 * Enable interactive editing in the Remotion Studio.
+		 * @param enabled Boolean whether to enable interactive editing
+		 * @default true
+		 */
+		readonly setInteractivityEnabled: (enabled: boolean) => void;
 		/**
 		 * Enable WIP client-side rendering in the Remotion Studio.
 		 * See https://www.remotion.dev/docs/client-side-rendering/ for notes.
@@ -704,6 +711,7 @@ export const Config: FlatConfig = {
 	},
 	setMaxTimelineTracks: StudioServerInternals.setMaxTimelineTracks,
 	setKeyboardShortcutsEnabled: keyboardShortcutsOption.setConfig,
+	setInteractivityEnabled: interactivityOption.setConfig,
 	setExperimentalClientSideRenderingEnabled:
 		experimentalClientSideRenderingOption.setConfig,
 	setAllowHtmlInCanvasEnabled: allowHtmlInCanvasOption.setConfig,

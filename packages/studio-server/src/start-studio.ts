@@ -56,6 +56,7 @@ export const startStudio = async ({
 	previewSampleRate,
 	enableCrossSiteIsolation,
 	askAIEnabled,
+	interactivityEnabled,
 	forceNew,
 	rspack,
 }: {
@@ -87,6 +88,7 @@ export const startStudio = async ({
 	binariesDirectory: string | null;
 	forceIPv4: boolean;
 	askAIEnabled: boolean;
+	interactivityEnabled: boolean;
 	forceNew: boolean;
 	rspack: boolean;
 }): Promise<StartStudioResult> => {
@@ -167,6 +169,7 @@ export const startStudio = async ({
 		previewSampleRate,
 		enableCrossSiteIsolation,
 		askAIEnabled,
+		interactivityEnabled,
 		forceNew,
 		rspack,
 	});
