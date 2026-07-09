@@ -30,10 +30,10 @@ const sidebars: SidebarsConfig = {
 		},
 		{
 			type: 'category',
-			label: 'Text',
-			link: {type: 'doc', id: 'text/index'},
+			label: 'Data',
+			link: {type: 'doc', id: 'data/index'},
 			collapsed: false,
-			items: ['text/number-wheel/index'],
+			items: ['data/number-counter/index'],
 		},
 	],
 };

@@ -7,13 +7,13 @@ loadFont('normal', {
 	weights: ['800'],
 });
 
-export const NumberWheel: React.FC = () => {
+export const NumberCounter: React.FC = () => {
 	const frame = useCurrentFrame();
 
 	const progress = interpolate(frame, [0, 90], [0, 1], {
 		extrapolateLeft: 'clamp',
 		extrapolateRight: 'clamp',
-		easing: Easing.inOut(Easing.cubic),
+		easing: Easing.out(Easing.exp),
 	});
 
 	const current = Math.round(progress * 24813);
