@@ -13,6 +13,7 @@ import {
 	preloadCompositionComponentInfo,
 	useCachedCompositionComponentInfo,
 } from '../helpers/open-in-editor';
+import {ReactIcon} from '../icons/react';
 import {StillIcon} from '../icons/still';
 import {FilmIcon} from '../icons/video';
 import {renderFrame} from '../state/render-frame';
@@ -32,6 +33,10 @@ const sourceLocationIconStyle: CSSProperties = {
 	flexShrink: 0,
 	height: 13,
 	width: 13,
+};
+
+const renderReactIcon = (color: string) => {
+	return <ReactIcon color={color} style={sourceLocationIconStyle} />;
 };
 
 export const CurrentComposition = () => {
@@ -137,6 +142,7 @@ export const CurrentComposition = () => {
 						location={componentLocation}
 						canOpen={componentLocation !== null}
 						onOpen={openComponentLocation}
+						renderIcon={renderReactIcon}
 					/>
 					<InspectorInfoSubtitle>
 						{video.width}x{video.height}
