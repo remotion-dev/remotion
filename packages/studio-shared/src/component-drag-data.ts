@@ -1,5 +1,4 @@
-export const COMPONENT_DRAG_MIME_TYPE =
-	'application/vnd.remotion.component+json';
+export {COMPONENT_DRAG_MIME_TYPE} from './drag-mime-types';
 
 export type ComponentProp = {
 	name: string;

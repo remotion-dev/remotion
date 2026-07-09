@@ -3,7 +3,7 @@ import {
 	type ComponentDimensions,
 } from './component-drag-data';
 
-export const ELEMENT_DRAG_MIME_TYPE = 'application/vnd.remotion.element+json';
+export {ELEMENT_DRAG_MIME_TYPE} from './drag-mime-types';
 
 export type ElementDragData = {
 	type: 'remotion-element';

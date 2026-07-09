@@ -141,6 +141,11 @@ export {
 	type ImageFileType,
 } from './detect-file-type';
 export {
+	isRemotionDragMimeType,
+	REMOTION_DRAG_MIME_TYPES,
+	type RemotionDragMimeType,
+} from './drag-mime-types';
+export {
 	parseEasingClipboardData,
 	parseEasingClipboardDataResult,
 	type EasingClipboardData,
