@@ -1,5 +1,5 @@
 ---
-image: /generated/articles-docs-miscellaneous-snippets-accelerated-video.png
+image: /generated/articles-docs-videos-accelerated-video.png
 title: 'Change the speed of a video over time'
 sidebar_label: Changing speed over time
 crumb: 'Snippets'
@@ -9,7 +9,7 @@ crumb: 'Snippets'
 This does not work with [`<Video>`](/docs/media/video) from [`@remotion/media`](/docs/media) yet.
 :::
 
-import {AcceleratedVideoExample} from '../../../components/AcceleratedVideoPlayerExample.tsx';
+import {AcceleratedVideoExample} from '../../components/AcceleratedVideoPlayerExample.tsx';
 
 To speed up a video over time - for example to start with regular speed and then increasingly make it faster - we need to write some code to ensure we stay within Remotion's rules.
 
@@ -55,7 +55,7 @@ export const AcceleratedVideo: React.FC = () => {
 ```
 
 :::note
-We are [disabling the media fragment hints](/docs/media-fragments) being appended to the video URL by adding `#disable` to the end of the URL.
+We are [disabling the media fragment hints](/docs/videos/media-fragments) being appended to the video URL by adding `#disable` to the end of the URL.
 :::
 
 Note that the timeline in the Remotion Studio might move as you play the video because we reposition the sequence over time. This is okay as long as we calculate the frame in an idempotent way.

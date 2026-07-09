@@ -1,12 +1,11 @@
 ---
-image: /generated/articles-docs-video-manipulation.png
-id: video-manipulation
+image: /generated/articles-docs-videos-video-manipulation.png
 title: Video manipulation
 sidebar_label: Manipulating pixels
 crumb: 'How To'
 ---
 
-import {VideoCanvasExamples} from '../components/GreenscreenExamples/index';
+import {VideoCanvasExamples} from '../../components/GreenscreenExamples/index';
 
 You can draw frames of a [`<Video>` from `@remotion/media`](/docs/media/video), [`<OffthreadVideo>`](/docs/offthreadvideo) or a [`<Html5Video>`](/docs/html5-video) onto a `<canvas>` element using the [`drawImage()`](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/drawImage) API.
 
@@ -71,10 +70,10 @@ export const VideoOnCanvas: React.FC = () => {
 
 ## Alternative: Effects
 
-You can also apply effects to canvas-based components such as [`<Video>`](/docs/media/video) using [`@remotion/effects`](/docs/effects/api). For example, [`colorKey()`](/docs/effects/color-key) removes a chosen color — see the [Greenscreen](/docs/greenscreen) page.
+You can also apply effects to canvas-based components such as [`<Video>`](/docs/media/video) using [`@remotion/effects`](/docs/effects/api). For example, [`colorKey()`](/docs/effects/color-key) removes a chosen color — see the [Greenscreen](/docs/videos/greenscreen) page.
 
 ## Before v4.0.190
 
 Before v4.0.190, the `onVideoFrame` prop of [`<OffthreadVideo>`](/docs/offthreadvideo) and [`<Html5Video>`](/docs/html5-video) was not supported.  
 You could only manipulate a `<Html5Video>` using the `requestVideoFrameCallback` API.  
-Click [here](https://github.com/remotion-dev/remotion/blob/b966d0e99cfb91478ca697675f822284da1f9055/packages/docs/docs/video-manipulation.mdx) to see the old version of this page.
+Click [here](https://github.com/remotion-dev/remotion/blob/b966d0e99cfb91478ca697675f822284da1f9055/packages/docs/docs/videos/video-manipulation.mdx) to see the old version of this page.

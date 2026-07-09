@@ -55,7 +55,7 @@ export const MyComposition = () => {
 };
 ```
 
-For more information on HLS support, see the [HLS documentation](/docs/hls).
+For more information on HLS support, see the [HLS documentation](/docs/videos/hls).
 
 ## Props
 
@@ -321,7 +321,7 @@ Customize the [number of retries](/docs/delay-render#retrying) of the [`delayRen
 ### `onVideoFrame?`
 
 A callback function that gets called when a frame is extracted from the video.  
-Useful for [video manipulation](/docs/video-manipulation).  
+Useful for [video manipulation](/docs/videos/video-manipulation).
 The callback is called with a [`CanvasImageSource`](https://developer.mozilla.org/en-US/docs/Web/API/CanvasImageSource) object, more specifically, either an `ImageBitmap` or a `VideoFrame`.
 
 ### `audioStreamIndex?`
@@ -469,8 +469,8 @@ Shows a debug overlay on the video. This is useful for debugging the video playb
 ## See also
 
 - [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/media/src/video/video.tsx)
-- [HLS support (HTTP Live Streaming)](/docs/hls)
-- [Comparison of video tags](/docs/video-tags)
+- [HLS support (HTTP Live Streaming)](/docs/videos/hls)
+- [Comparison of video tags](/docs/videos/video-tags)
 - [`<Audio>` (from `@remotion/media`)](/docs/media/audio)
 - [`<Html5Video>` (from `remotion`)](/docs/html5-video)
 - [`<OffthreadVideo>`](/docs/offthreadvideo)

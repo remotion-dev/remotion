@@ -73,10 +73,6 @@ export const DifferentSegmentsAtDifferentSpeeds: React.FC = () => {
 							trimBefore={segment.passedVideoTime}
 							playbackRate={segment.speed}
 							debugOverlay
-							style={{
-								height: '100%',
-								width: '100%',
-							}}
 						/>
 					</Series.Sequence>
 				))}

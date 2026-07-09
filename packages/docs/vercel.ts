@@ -124,12 +124,17 @@ export const config: VercelConfig = {
 		),
 		routes.redirect('/support', '/docs/support', {permanent: true}),
 		routes.redirect('/webcodecs', '/docs/webcodecs', {permanent: true}),
-		routes.redirect('/docs/miscellaneous/snippets/hls', '/docs/hls', {
+		routes.redirect('/docs/miscellaneous/snippets/hls', '/docs/videos/hls', {
 			permanent: true,
 		}),
 		routes.redirect(
 			'/docs/miscellaneous/snippets/align-duration',
 			'/docs/videos/align-duration',
+			{permanent: true},
+		),
+		routes.redirect(
+			'/docs/miscellaneous/snippets/accelerated-video',
+			'/docs/videos/accelerated-video',
 			{permanent: true},
 		),
 		routes.redirect(
@@ -147,6 +152,23 @@ export const config: VercelConfig = {
 			'/docs/videos/freeze-portions',
 			{permanent: true},
 		),
+		routes.redirect(
+			'/docs/video-manipulation',
+			'/docs/videos/video-manipulation',
+			{permanent: true},
+		),
+		routes.redirect('/docs/greenscreen', '/docs/videos/greenscreen', {
+			permanent: true,
+		}),
+		routes.redirect('/docs/video-tags', '/docs/videos/video-tags', {
+			permanent: true,
+		}),
+		routes.redirect('/docs/hls', '/docs/videos/hls', {
+			permanent: true,
+		}),
+		routes.redirect('/docs/media-fragments', '/docs/videos/media-fragments', {
+			permanent: true,
+		}),
 		routes.redirect('/docs/player/api', '/docs/player/player', {
 			permanent: true,
 		}),
@@ -301,9 +323,11 @@ export const config: VercelConfig = {
 			'/docs/animation-math',
 			{permanent: false},
 		),
-		routes.redirect('/docs/video-vs-offthreadvideo', '/docs/video-tags', {
-			permanent: false,
-		}),
+		routes.redirect(
+			'/docs/video-vs-offthreadvideo',
+			'/docs/videos/video-tags',
+			{permanent: false},
+		),
 		routes.redirect(
 			'/bbb.webm',
 			'https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.720p.vp9.webm',
@@ -342,7 +366,7 @@ export const config: VercelConfig = {
 		routes.redirect('/investors', '/docs/investors', {permanent: false}),
 		routes.redirect(
 			'/docs/miscellaneous/snippets/offthread-video-while-rendering',
-			'/docs/video-tags#using-a-different-tag-in-preview-and-rendering',
+			'/docs/videos/video-tags#using-a-different-tag-in-preview-and-rendering',
 			{permanent: false},
 		),
 		routes.redirect('/docs/video', '/docs/html5-video', {permanent: false}),
