@@ -1,16 +1,17 @@
 import type {Size} from '@remotion/player';
 import {
 	ASSET_DRAG_MIME_TYPE,
-	COMPOSITION_DRAG_MIME_TYPE,
 	COMPONENT_DRAG_MIME_TYPE,
+	COMPOSITION_DRAG_MIME_TYPE,
 	ELEMENT_DRAG_MIME_TYPE,
 	parseAssetDragData,
-	parseCompositionDragData,
 	parseComponentDragData,
+	parseCompositionDragData,
 	parseSfxDragData,
 	SFX_DRAG_MIME_TYPE,
-	type CompositionDragData,
 	type ComponentDragData,
+	type CompositionDragData,
+	type ElementInstallRequest,
 } from '@remotion/studio-shared';
 import React, {
 	useCallback,
@@ -46,6 +47,8 @@ import {useKeybinding} from '../helpers/use-keybinding';
 import {canvasRef} from '../state/canvas-ref';
 import {EditorShowGuidesContext} from '../state/editor-guides';
 import {EditorZoomGesturesContext} from '../state/editor-zoom-gestures';
+import {callApi} from './call-api';
+import {useConfirmationDialog} from './ConfirmationDialog';
 import EditorGuides from './EditorGuides';
 import {EditorRulers} from './EditorRuler';
 import {useIsRulerVisible} from './EditorRuler/use-is-ruler-visible';
@@ -54,8 +57,8 @@ import {getElementDragData} from './element-drag-and-drop';
 import {
 	importAssets,
 	importRemoteAsset,
-	insertComposition,
 	insertComponent,
+	insertComposition,
 	insertElement,
 	insertExistingAssets,
 	insertRemoteAudio,
@@ -65,6 +68,35 @@ import {SPACING_UNIT} from './layout';
 import {VideoPreview} from './Preview';
 import {ResetZoomButton} from './ResetZoomButton';
 import {useResolvedStack} from './Timeline/use-resolved-stack';
+
+const elementInstallCompositionIdStyle: React.CSSProperties = {
+	fontFamily: 'monospace',
+	fontSize: 13,
+};
+
+const elementInstallCodeDetailsStyle: React.CSSProperties = {
+	marginTop: 12,
+	fontSize: 13,
+};
+
+const elementInstallCodeSummaryStyle: React.CSSProperties = {
+	cursor: 'pointer',
+	fontSize: 13,
+	fontWeight: 500,
+};
+
+const elementInstallCodeBlockStyle: React.CSSProperties = {
+	marginTop: 8,
+	marginBottom: 0,
+	maxHeight: 240,
+	overflow: 'auto',
+	padding: 12,
+	borderRadius: 6,
+	backgroundColor: 'rgba(255, 255, 255, 0.06)',
+	fontSize: 12,
+	lineHeight: 1.5,
+	whiteSpace: 'pre',
+};
 
 const getContainerStyle = (
 	editorZoomGestures: boolean,
@@ -272,12 +304,29 @@ export const Canvas: React.FC<{
 		initialZoom: number;
 	} | null>(null);
 	const keybindings = useKeybinding();
+	const confirm = useConfirmationDialog();
 	const config = Internals.useUnsafeVideoConfig();
 	const areRulersVisible = useIsRulerVisible();
 	const {editorShowGuides} = useContext(EditorShowGuidesContext);
 	const {compositions} = useContext(Internals.CompositionManager);
-	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const {previewServerState, subscribeToEvent} = useContext(
+		StudioServerConnectionCtx,
+	);
+	const previewServerClientId =
+		previewServerState.type === 'connected'
+			? previewServerState.clientId
+			: null;
 	const [isAddingAsset, setIsAddingAsset] = useState(false);
+	const [installingElementName, setInstallingElementName] = useState<
+		string | null
+	>(null);
+	const [pendingElementInstallRequests, setPendingElementInstallRequests] =
+		useState<ElementInstallRequest[]>([]);
+	const [activeElementInstallRequest, setActiveElementInstallRequest] =
+		useState<ElementInstallRequest | null>(null);
+	const lastFocusedAtRef = useRef<number | null>(
+		typeof document === 'undefined' || document.hasFocus() ? Date.now() : null,
+	);
 
 	const [assetResolution, setAssetResolution] = useState<AssetMetadata | null>(
 		null,
@@ -304,13 +353,13 @@ export const Canvas: React.FC<{
 		compositionFile,
 		compositionId: currentCompositionId,
 	});
-	const canDropAssets =
-		previewServerState.type === 'connected' &&
+	const canInstallElements =
+		previewServerClientId !== null &&
 		!window.remotion_isReadOnlyStudio &&
 		compositionComponentInfo?.canAddSequence === true &&
 		currentCompositionId !== null &&
-		compositionFile !== null &&
-		!isAddingAsset;
+		compositionFile !== null;
+	const canDropAssets = canInstallElements && !isAddingAsset;
 
 	const contentDimensions = useMemo(() => {
 		if (
@@ -761,6 +810,163 @@ export const Canvas: React.FC<{
 	useEffect(() => {
 		fetchMetadata();
 	}, [fetchMetadata]);
+
+	const updateElementInstallTarget = useCallback(() => {
+		if (previewServerClientId === null) {
+			return;
+		}
+
+		callApi('/api/update-element-install-target', {
+			clientId: previewServerClientId,
+			compositionFile: canInstallElements ? compositionFile : null,
+			compositionId: canInstallElements ? currentCompositionId : null,
+			canInstall: canInstallElements,
+			lastFocusedAt: lastFocusedAtRef.current,
+			readOnly: window.remotion_isReadOnlyStudio,
+		}).catch(() => undefined);
+	}, [
+		canInstallElements,
+		compositionFile,
+		currentCompositionId,
+		previewServerClientId,
+	]);
+
+	useEffect(() => {
+		updateElementInstallTarget();
+		const interval = window.setInterval(updateElementInstallTarget, 2000);
+
+		return () => {
+			window.clearInterval(interval);
+		};
+	}, [updateElementInstallTarget]);
+
+	useEffect(() => {
+		const markFocused = () => {
+			lastFocusedAtRef.current = Date.now();
+			updateElementInstallTarget();
+		};
+
+		window.addEventListener('focus', markFocused);
+		document.addEventListener('pointerdown', markFocused, {capture: true});
+
+		return () => {
+			window.removeEventListener('focus', markFocused);
+			document.removeEventListener('pointerdown', markFocused, {capture: true});
+		};
+	}, [updateElementInstallTarget]);
+
+	useEffect(() => {
+		if (installingElementName === null) {
+			return;
+		}
+
+		const previousTitle = document.title;
+		document.title = `📦 Install ${installingElementName} - Remotion Studio`;
+
+		return () => {
+			document.title = previousTitle;
+		};
+	}, [installingElementName]);
+
+	useEffect(() => {
+		if (previewServerClientId === null) {
+			return;
+		}
+
+		return subscribeToEvent('element-install-request', (event) => {
+			if (
+				event.type !== 'element-install-request' ||
+				event.request.clientId !== previewServerClientId
+			) {
+				return;
+			}
+
+			setPendingElementInstallRequests((requests) => [
+				...requests,
+				event.request,
+			]);
+		});
+	}, [previewServerClientId, subscribeToEvent]);
+
+	useEffect(() => {
+		if (
+			activeElementInstallRequest !== null ||
+			pendingElementInstallRequests.length === 0
+		) {
+			return;
+		}
+
+		const [nextRequest, ...remainingRequests] = pendingElementInstallRequests;
+		if (!nextRequest) {
+			throw new Error('Expected pending Element install request');
+		}
+
+		setActiveElementInstallRequest(nextRequest);
+		setPendingElementInstallRequests(remainingRequests);
+	}, [activeElementInstallRequest, pendingElementInstallRequests]);
+
+	useEffect(() => {
+		if (activeElementInstallRequest === null) {
+			return;
+		}
+
+		let canceled = false;
+
+		const handleInstallRequest = async () => {
+			setInstallingElementName(activeElementInstallRequest.element.displayName);
+			const accepted = await confirm({
+				title: 'Install Element',
+				message: (
+					<>
+						Install “{activeElementInstallRequest.element.displayName}” into{' '}
+						<code style={elementInstallCompositionIdStyle}>
+							{activeElementInstallRequest.compositionId}
+						</code>{' '}
+						composition? This will create an Element source file and update the
+						composition source.
+						<details style={elementInstallCodeDetailsStyle}>
+							<summary style={elementInstallCodeSummaryStyle}>
+								Preview Element source
+							</summary>
+							<pre style={elementInstallCodeBlockStyle}>
+								<code>{activeElementInstallRequest.element.sourceCode}</code>
+							</pre>
+						</details>
+					</>
+				),
+				confirmLabel: 'Install',
+				cancelLabel: 'Cancel',
+			});
+
+			if (accepted && !canceled) {
+				await insertElement({
+					element: activeElementInstallRequest.element,
+					compositionFile: activeElementInstallRequest.compositionFile,
+					compositionId: activeElementInstallRequest.compositionId,
+					dropPosition: null,
+				});
+			}
+		};
+
+		handleInstallRequest()
+			.finally(() => {
+				if (canceled) {
+					return;
+				}
+
+				setInstallingElementName(null);
+				setActiveElementInstallRequest(null);
+			})
+			.catch((err) => {
+				setTimeout(() => {
+					throw err;
+				}, 0);
+			});
+
+		return () => {
+			canceled = true;
+		};
+	}, [activeElementInstallRequest, confirm]);
 
 	const onDragOver = useCallback(
 		(event: DragEvent) => {

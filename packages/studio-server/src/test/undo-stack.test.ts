@@ -23,7 +23,7 @@ test('undo and redo restore every file in a transaction', () => {
 		closeConnections: () => Promise.resolve(),
 		router: () => Promise.resolve(),
 		sendEventToClient: () => undefined,
-		sendEventToClientId: () => undefined,
+		sendEventToClientId: () => true,
 	});
 	const dir = mkdtempSync(join(tmpdir(), 'remotion-undo-stack-'));
 	const firstFile = join(dir, 'first.tsx');

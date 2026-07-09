@@ -180,7 +180,7 @@ test('splitJsxSequenceHandler writes success and failure responses', async () =>
 	);
 	const cleanupLiveEvents = setLiveEventsListener({
 		sendEventToClient: () => undefined,
-		sendEventToClientId: () => undefined,
+		sendEventToClientId: () => true,
 		router: () => Promise.resolve(),
 		closeConnections: () => Promise.resolve(),
 		addNewClientListener: () => () => undefined,
