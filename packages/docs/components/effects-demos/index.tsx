@@ -2,6 +2,7 @@ import {useColorMode} from '@docusaurus/theme-common';
 import {Player} from '@remotion/player';
 import React, {useCallback, useMemo, useState} from 'react';
 import {AbsoluteFill} from 'remotion';
+import controlStyles from '../demos/styles.module.css';
 import {
 	makeEffectDragData,
 	setEffectDragData,
@@ -14,27 +15,7 @@ import {
 } from './get-default-props-from-schema';
 import {effectsDemos} from './registry';
 import {SchemaControl} from './schema-control';
-import styles from '../demos/styles.module.css';
-
-const container: React.CSSProperties = {
-	overflow: 'hidden',
-	width: '100%',
-	border: '1px solid var(--ifm-color-emphasis-300)',
-	borderRadius: 'var(--ifm-pre-border-radius)',
-	marginBottom: 40,
-};
-
-const dragHandle: React.CSSProperties = {
-	alignItems: 'center',
-	borderBottom: '1px solid var(--ifm-color-emphasis-300)',
-	cursor: 'grab',
-	display: 'flex',
-	fontSize: 13,
-	fontWeight: 600,
-	gap: 6,
-	padding: '8px 10px',
-	userSelect: 'none',
-};
+import styles from './styles.module.css';
 
 export const EffectsDemo: React.FC<{
 	readonly type: string;
@@ -87,65 +68,73 @@ export const EffectsDemo: React.FC<{
 	);
 
 	return (
-		<div style={container}>
-			<Player
-				key={key}
-				acknowledgeRemotionLicense
-				component={demo.comp}
-				compositionWidth={demo.compWidth}
-				compositionHeight={demo.compHeight}
-				durationInFrames={demo.durationInFrames}
-				fps={demo.fps}
-				style={{
-					width: '100%',
-					aspectRatio: demo.compWidth / demo.compHeight,
-					borderBottom:
-						activeFields.length > 0
-							? '1px solid var(--ifm-color-emphasis-300)'
-							: 0,
-				}}
-				logLevel={demo.logLevel}
-				errorFallback={({error}) => {
-					return (
-						<AbsoluteFill
-							style={{
-								justifyContent: 'center',
-								alignItems: 'center',
-								fontSize: 30,
-								textAlign: 'center',
-								lineHeight: 1.5,
-							}}
-						>
-							{error.message}
-							<br />
-							<button
-								style={{
-									fontSize: 30,
-								}}
-								onClick={restart}
-								type="button"
-							>
-								Restart
-							</button>
-						</AbsoluteFill>
-					);
-				}}
-				inputProps={{...state, darkMode: colorMode === 'dark'}}
-				autoPlay={demo.autoPlay}
-				controls={demo.controls}
-				initiallyMuted
-				loop
-			/>
-			<div
-				draggable
-				onDragStart={onDragStart}
-				style={dragHandle}
-				title="Drag this effect into Remotion Studio"
-			>
-				<span aria-hidden="true">::</span>
-				<span>Drag current effect onto a layer in the Studio</span>
+		<div className={styles.container}>
+			<div className={styles.preview}>
+				<div
+					className={styles.playerShell}
+					style={{
+						borderBottom:
+							activeFields.length > 0
+								? '1px solid var(--ifm-color-emphasis-300)'
+								: 0,
+					}}
+				>
+					<Player
+						key={key}
+						acknowledgeRemotionLicense
+						component={demo.comp}
+						compositionWidth={demo.compWidth}
+						compositionHeight={demo.compHeight}
+						durationInFrames={demo.durationInFrames}
+						fps={demo.fps}
+						style={{
+							width: '100%',
+							aspectRatio: demo.compWidth / demo.compHeight,
+						}}
+						logLevel={demo.logLevel}
+						errorFallback={({error}) => {
+							return (
+								<AbsoluteFill
+									style={{
+										justifyContent: 'center',
+										alignItems: 'center',
+										fontSize: 30,
+										textAlign: 'center',
+										lineHeight: 1.5,
+									}}
+								>
+									{error.message}
+									<br />
+									<button
+										style={{
+											fontSize: 30,
+										}}
+										onClick={restart}
+										type="button"
+									>
+										Restart
+									</button>
+								</AbsoluteFill>
+							);
+						}}
+						inputProps={{...state, darkMode: colorMode === 'dark'}}
+						autoPlay={demo.autoPlay}
+						controls={demo.controls}
+						initiallyMuted
+						loop
+					/>
+				</div>
+				<div
+					draggable
+					onDragStart={onDragStart}
+					className={styles.dragHandle}
+					title="Drag this effect into Remotion Studio"
+				>
+					<span aria-hidden="true">::</span>
+					<span>Drag current effect onto a layer in the Studio</span>
+				</div>
 			</div>
-			<div className={styles.containerrow}>
+			<div className={`${controlStyles.containerrow} ${styles.controls}`}>
 				{activeFields.map(([fieldKey, field]) => {
 					return (
 						<SchemaControl
