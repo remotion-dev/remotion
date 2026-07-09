@@ -8,8 +8,6 @@ export const RotatingStarburst: React.FC = () => {
 	return (
 		<Solid
 			color="#dff4ff"
-			width={1920}
-			height={1080}
 			effects={[
 				starburst({
 					rays: 28,
