@@ -1,6 +1,7 @@
 import {expect, test} from 'bun:test';
-import type {InputAudioTrack} from 'mediabunny';
+import type {InputAudioTrack, InputTrack} from 'mediabunny';
 import {Mp3OutputFormat, Mp4OutputFormat} from 'mediabunny';
+import {getSupportedConfigs} from '../app/components/get-supported-configs';
 import {getAudioTranscodingOptions} from '../app/lib/can-transcode-or-copy';
 
 const makeAudioTrack = (sampleRate: number) =>
@@ -55,4 +56,31 @@ test('registers extension-backed audio encoders for supported containers', async
 	expect(codecs).toContain('flac');
 	expect(codecs).toContain('ac3');
 	expect(codecs).toContain('eac3');
+});
+
+test('offers only drop for audio tracks with unknown codecs', async () => {
+	const configs = await getSupportedConfigs({
+		tracks: [
+			{
+				id: 0,
+				codec: null,
+				isAudioTrack: () => true,
+				isVideoTrack: () => false,
+			} as unknown as InputTrack,
+		],
+		container: new Mp4OutputFormat(),
+		action: {type: 'generic-convert'},
+		userRotation: 0,
+		resizeOperation: null,
+		sampleRate: null,
+		disableVideoCopy: false,
+	});
+
+	expect(configs.audioTrackOptions).toEqual([
+		{
+			trackId: 0,
+			audioCodec: null,
+			operations: [{type: 'drop'}],
+		},
+	]);
 });
