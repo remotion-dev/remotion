@@ -120,6 +120,24 @@ const onProgress: RenderMediaOnWebProgressCallback = ({
 };
 ```
 
+### `pageResponsiveness?`<AvailableFrom v="4.0.487" />
+
+_string | number_ <TsType type="WebRendererPageResponsiveness" source="@remotion/web-renderer" href="/docs/web-renderer/types#webrendererpageresponsiveness" />
+
+Controls whether rendering tries to free the event loop between expensive render phases so the page stays responsive.
+See [Page responsiveness](/docs/client-side-rendering/page-responsiveness) for guidance.
+
+Default is `"medium"`.
+
+- `"disabled"`: Do not pause rendering for page responsiveness. This prioritizes render speed but can make the page less responsive.
+- `"low"`: Every `100ms` of rendering work, try to free the event loop.
+- `"medium"`: Every `33ms` of rendering work, try to free the event loop.
+- `"high"`: Every `16ms` of rendering work, try to free the event loop.
+
+Pass a positive number to customize the interval in milliseconds.
+
+This option is best effort. Long synchronous browser or graphics operations may still block the page until they complete.
+
 ### `videoBitrate?`
 
 _number | string_ <TsType type="WebRendererQuality" source="@remotion/web-renderer" href="/docs/web-renderer/types#webrendererquality" />

@@ -9,27 +9,24 @@ crumb: 'Audio'
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-The [`<Html5Audio />`](/docs/html5-audio) tag supports the [`trimBefore`](/docs/html5-audio#trimbefore--trimafter) and [`trimAfter`](/docs/html5-audio#trimbefore--trimafter) props.  
-With it, you can trim off parts of the audio.
+The [`<Audio />`](/docs/media/audio) and [`<Video />`](/docs/media/video) tags support the [`trimBefore`](/docs/media/audio#trimbefore) and [`trimAfter`](/docs/media/audio#trimafter) props.  
+[`<Html5Audio />`](/docs/html5-audio) also supports these props.
 
 ```tsx twoslash {8} title="MyComp.tsx"
-import {AbsoluteFill, Html5Audio, staticFile, useVideoConfig} from 'remotion';
+import {AbsoluteFill, staticFile, useVideoConfig} from 'remotion';
+import {Video} from '@remotion/media';
 
 export const MyComposition = () => {
   const {fps} = useVideoConfig();
 
   return (
     <AbsoluteFill>
-      <Html5Audio src={staticFile('audio.mp3')} trimBefore={2 * fps} trimAfter={4 * fps} />
+      <Video src={staticFile('video.mp4')} trimBefore={2 * fps} trimAfter={4 * fps} />
     </AbsoluteFill>
   );
 };
 ```
 
-This will result the audio to play the range from `00:02:00` to `00:04:00`, meaning the audio will play for 2 seconds.
+This makes the media play the range from `00:02:00` to `00:04:00`, meaning it will play for 2 seconds.
 
 The audio will still play immediately at the beginning - to see how to shift the audio to appear later in the composition, see the [next article](/docs/audio/delaying).
-
-:::note Legacy props
-You can also use the deprecated `startFrom` and `endAt` props, but the new `trimBefore` and `trimAfter` props are preferred.
-:::

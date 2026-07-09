@@ -43,6 +43,7 @@ import {
 	ExpandedTracksSetterContext,
 	type GetIsExpanded,
 } from '../ExpandedTracksProvider';
+import {selectOptionsSidebarInspectorPanel} from '../options-sidebar-tabs';
 import {getNodeHasKeyframes, getNodeKeyframes} from './get-node-keyframes';
 import {getTimelineEasingSegments} from './get-timeline-easing-segments';
 import {
@@ -1245,6 +1246,7 @@ export const TimelineSelectionProvider: React.FC<{
 				return;
 			}
 
+			selectOptionsSidebarInspectorPanel();
 			expandParentsForSelectionItem(item);
 			if (options.reveal) {
 				requestRevealSelectionItem(item);
@@ -1284,6 +1286,10 @@ export const TimelineSelectionProvider: React.FC<{
 		) => {
 			if (!items.every(canSelectItem)) {
 				return;
+			}
+
+			if (items.length > 0) {
+				selectOptionsSidebarInspectorPanel();
 			}
 
 			selectionScope.current = timelineSelectionScope;

@@ -45,7 +45,9 @@ Especially 1.x releases could timeout when importing large assets
 
 ### Video needs to be downloaded
 
-If you render a video using [`<OffthreadVideo>`](/docs/offthreadvideo), then the video needs to be downloaded before it can be read. [If the video is large and takes longer than the timeout to be downloaded, then the timeout will be triggered](/docs/troubleshooting/delay-render-proxy). In that you should increase the [timeout](#increase-timeout).
+If you render a video using [`<OffthreadVideo>`](/docs/offthreadvideo), then the video needs to be downloaded before it can be read. [If the video is large and takes longer than the timeout to be downloaded, then the timeout will be triggered](/docs/troubleshooting/delay-render-proxy). In that case, increase the [timeout](#increase-timeout).
+
+[`<Video>` from `@remotion/media`](/docs/media/video) does not have this limitation and is preferred for new projects.
 
 ### Not helpful?
 

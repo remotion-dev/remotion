@@ -15,6 +15,7 @@ export const useSupportedConfigs = ({
 	inputContainer,
 	resizeOperation,
 	sampleRate,
+	disableVideoCopy,
 }: {
 	outputContainer: OutputContainer;
 	tracks: InputTrack[] | null;
@@ -23,6 +24,7 @@ export const useSupportedConfigs = ({
 	resizeOperation: MediabunnyResize | null;
 	inputContainer: InputFormat | null;
 	sampleRate: number | null;
+	disableVideoCopy: boolean;
 }) => {
 	const [state, setState] = useState<
 		Record<OutputFormat['mimeType'], SupportedConfigs | null | undefined>
@@ -44,6 +46,7 @@ export const useSupportedConfigs = ({
 			userRotation,
 			resizeOperation,
 			sampleRate,
+			disableVideoCopy,
 		}).then((supportedConfigs) => {
 			setState((prev) => ({
 				...prev,
@@ -59,7 +62,28 @@ export const useSupportedConfigs = ({
 		tracks,
 		userRotation,
 		sampleRate,
+		disableVideoCopy,
 	]);
 
-	return state[outputContainer] ?? null;
+	const cachedSupportedConfigs = state[outputContainer] ?? null;
+
+	return useMemo(() => {
+		if (!disableVideoCopy || cachedSupportedConfigs === null) {
+			return cachedSupportedConfigs;
+		}
+
+		return {
+			...cachedSupportedConfigs,
+			videoTrackOptions: cachedSupportedConfigs.videoTrackOptions.map(
+				(track) => {
+					return {
+						...track,
+						operations: track.operations.filter((operation) => {
+							return operation.type !== 'copy';
+						}),
+					};
+				},
+			),
+		};
+	}, [cachedSupportedConfigs, disableVideoCopy]);
 };

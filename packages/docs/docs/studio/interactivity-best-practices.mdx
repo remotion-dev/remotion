@@ -17,7 +17,8 @@ When converting a component for Studio interactivity, apply all of these rules t
 - Use `Interactive.*` for editable HTML or SVG elements, or [`Interactive.withSchema()`](/docs/interactive-with-schema) for custom components.
 - Add a descriptive `name` prop to the editable element or custom component.
 - Keep every editable or keyframed value inline at the JSX prop that the Studio edits.
-- Keep `interpolate()` keyframe arrays as hardcoded numeric arrays, such as `[0, 30]`.
+- Write animations as inline `interpolate()` calls.
+- Keep `interpolate()` input and output ranges as hardcoded arrays, such as `[0, 30]`.
 - Use Studio-editable style props such as `translate`, `scale`, `rotate`, `transformOrigin` and `opacity` instead of hiding values in a `transform` string.
 - Use `translate` for animated movement and canvas dragging. Keep `top`, `left`, `right` and `bottom` for static anchoring.
 - Keep `<Composition>` metadata and `defaultProps` inline unless the value is truly dynamic.
@@ -28,7 +29,9 @@ Use the [`Interactive`](/docs/interactive) namespace when an HTML or SVG element
 
 ```tsx title="Interactive elements"
 // 👍 Selectable and editable in the Studio
-<Interactive.Div style={{fontSize: 80, padding: 24}}>Hello</Interactive.Div>
+<Interactive.Div name="Greeting card" style={{fontSize: 80, padding: 24}}>
+  Hello
+</Interactive.Div>
 
 // 👎 A regular element is not Studio-editable
 <div style={{fontSize: 80, padding: 24}}>Hello</div>
@@ -37,19 +40,24 @@ Use the [`Interactive`](/docs/interactive) namespace when an HTML or SVG element
 For a custom component, see [Make a component interactive](/docs/studio/make-component-interactive).
 
 ```txt title="Prompt"
-/remotion-best-practices Make this element editable in Remotion Studio. Use Interactive.* for tweakable HTML/SVG elements and keep editable style values inline.
+Make this interactive in the Remotion Studio: https://www.remotion.dev/docs/studio/interactivity-best-practices.md
 ```
 
 ## Give interactive elements a descriptive name {#give-interactive-elements-a-descriptive-name}
 
 Add a `name` prop to interactive elements and custom interactive components.
-Use a short label that describes the element in the scene, not an empty string.
+Use a short label that describes the element in the scene.
 
 The name is shown in the Studio timeline and helps agents identify the correct element when making visual edits.
 
 ```tsx title="Interactive names"
 // 👍 Easy to find in the Studio timeline and by agents
 <Interactive.Div name="Hero title" style={{fontSize: 80}}>
+  Launch day
+</Interactive.Div>
+
+// 👎 Omitted names are hard to identify in the Studio timeline and by agents
+<Interactive.Div style={{fontSize: 80}}>
   Launch day
 </Interactive.Div>
 ```
@@ -59,14 +67,16 @@ The name is shown in the Studio timeline and helps agents identify the correct e
 Put values that should be edited in the Studio directly into the JSX.
 This applies to static style values, keyframes, easing and transform props.
 
-If the Studio should expose a property such as `opacity`, `translate`, `scale` or `rotate`, keep the `interpolate()` call on that exact style property.
+Write animations as inline `interpolate()` calls on the property that changes.
 Do not calculate the value in a local variable and pass the variable into `style`.
-Keep the input range and output range directly in that `interpolate()` call.
+Do not animate with frame math such as `frame * 2`, modulo expressions, helper functions or transform strings.
+Keep the input range and output range directly in the `interpolate()` call.
 The input range must use hardcoded numbers, not variables or expressions such as `[sendStartFrame, sendStartFrame + duration]`.
 
 ```tsx title="Inline values"
 // 👍 Inline values can be standardized and keyframed
 <Interactive.Div
+  name="Product card"
   style={{
     color: 'white',
     fontSize: 80,
@@ -87,6 +97,7 @@ const translateY = interpolate(frame, [0, 30], [0, 120]);
 const rotation = interpolate(frame, [0, 30], [0, 20]);
 
 <Interactive.Div
+  name="Product card"
   style={{
     ...container,
     transform: `translateY(${translateY}px) rotate(${rotation}deg)`,
@@ -137,6 +148,7 @@ const easedProgress = Easing.out(Easing.cubic)(
 );
 
 <Interactive.Div
+  name="Prompt bubble"
   style={{
     position: 'absolute',
     right: 56,
@@ -152,7 +164,7 @@ Use `top`, `left`, `right` and `bottom` for static layout anchors.
 When the value changes over time or should be draggable/keyframable in the Studio, put the moving part into `translate`.
 
 ```txt title="Prompt"
-/remotion-best-practices Fix computed values in Remotion Studio. Follow https://www.remotion.dev/docs/studio/interactivity-best-practices#keep-editable-values-visible. Move editable values into the JSX style object, inline opacity/scale/rotate/translate values, use hardcoded numeric interpolate() keyframe arrays such as [30, 50], pass easing in the interpolate() options, replace transform strings with scale/rotate/translate, and use translate instead of animated top/left/right/bottom.
+Make this interactive in the Remotion Studio: https://www.remotion.dev/docs/studio/interactivity-best-practices.md
 ```
 
 ## Keep composition metadata inline {#keep-composition-metadata-inline}
@@ -194,12 +206,13 @@ const calculateMetadata = () => {
 Use [`calculateMetadata()`](/docs/calculate-metadata) when metadata depends on dynamic input props, fetched data or asset metadata.
 
 ```txt title="Prompt"
-/remotion-best-practices Fix Composition metadata for Remotion Studio. Keep defaultProps, width, height, fps, and durationInFrames inline on the Composition unless calculateMetadata needs dynamic data.
+Make this interactive in the Remotion Studio: https://www.remotion.dev/docs/studio/interactivity-best-practices.md
 ```
 
 ## Keep effects editable {#keep-effects-editable}
 
 Keep editable effect parameters inline in the effect call and keep the effect array shape unconditional.
+If an effect parameter is animated, write it as an inline `interpolate()` call in the effect call.
 
 ```tsx title="Effects"
 // 👍 Parameters are inline and the array shape is stable
@@ -210,14 +223,17 @@ Keep editable effect parameters inline in the effect call and keep the effect ar
   effects={[
     radialProgressiveBlur({
       center: [0.5, 0.5],
-      point1: [0.86, 0.36],
-      point2: [0.68, 0.84],
+      width: 1.2,
+      height: 0.8,
+      start: 0.2,
+      rotation: interpolate(frame, [0, 120], [0, 180]),
     }),
   ]}
 />
 
 // 👎 Values are hidden and the effect only exists conditionally
 const center = [0.5, 0.5] as const;
+const rotation = frame * 1.5;
 <CanvasImage
   src={src}
   width={1280}
@@ -225,6 +241,7 @@ const center = [0.5, 0.5] as const;
   effects={enabled ? [
     radialProgressiveBlur({
       center,
+      rotation,
     }),
   ] : []}
 />
@@ -233,7 +250,7 @@ const center = [0.5, 0.5] as const;
 Render separate elements if one version should have effects and another should not.
 
 ```txt title="Prompt"
-/remotion-best-practices Fix computed effect controls in Remotion Studio. Keep effect parameters inline in the effect call and keep the effects array shape unconditional.
+Make this interactive in the Remotion Studio: https://www.remotion.dev/docs/studio/interactivity-best-practices.md
 ```
 
 ## See also

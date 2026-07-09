@@ -153,7 +153,6 @@ export const Controls: React.FC<{
 	renderCustomControls,
 }) => {
 	const playButtonRef = useRef<HTMLButtonElement | null>(null);
-	const [playButtonFocused, setPlayButtonFocused] = useState(false);
 	const [supportsFullscreen, setSupportsFullscreen] = useState(false);
 	const hovered = useHoverState(
 		containerRef,
@@ -206,16 +205,6 @@ export const Controls: React.FC<{
 			opacity: Number(shouldShow),
 		};
 	}, [hovered, shouldShowInitially, playing, alwaysShowControls]);
-	const playPauseButtonStyle = useMemo((): React.CSSProperties => {
-		if (renderPlayPauseButton !== null || (playing && buffering)) {
-			return playerButtonStyle;
-		}
-
-		return {
-			...playerButtonStyle,
-			outline: 'none',
-		};
-	}, [buffering, playing, renderPlayPauseButton]);
 
 	useEffect(() => {
 		if (playButtonRef.current && spaceKeyToPlayOrPause) {
@@ -307,14 +296,6 @@ export const Controls: React.FC<{
 			[onDoubleClick],
 		);
 
-	const onPlayButtonFocus = useCallback(() => {
-		setPlayButtonFocused(true);
-	}, []);
-
-	const onPlayButtonBlur = useCallback(() => {
-		setPlayButtonFocused(false);
-	}, []);
-
 	return (
 		<div
 			ref={ref}
@@ -327,19 +308,13 @@ export const Controls: React.FC<{
 					<button
 						ref={playButtonRef}
 						type="button"
-						style={playPauseButtonStyle}
+						style={playerButtonStyle}
 						onClick={toggle}
-						onFocus={onPlayButtonFocus}
-						onBlur={onPlayButtonBlur}
 						aria-label={playing ? 'Pause video' : 'Play video'}
 						title={playing ? 'Pause video' : 'Play video'}
 					>
 						{renderPlayPauseButton === null ? (
-							<DefaultPlayPauseButton
-								buffering={buffering}
-								focused={playButtonFocused}
-								playing={playing}
-							/>
+							<DefaultPlayPauseButton buffering={buffering} playing={playing} />
 						) : (
 							(renderPlayPauseButton({
 								playing,
@@ -347,7 +322,6 @@ export const Controls: React.FC<{
 							}) ?? (
 								<DefaultPlayPauseButton
 									buffering={buffering}
-									focused={false}
 									playing={playing}
 								/>
 							))

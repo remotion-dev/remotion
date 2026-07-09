@@ -1,11 +1,15 @@
 import {Button} from '@remotion/design';
 import {renderFrameStripToCanvas} from '@remotion/timeline-utils';
 import {Minus, Plus} from 'lucide-react';
-import {useEffect, useRef, useState} from 'react';
+import {useCallback, useEffect, useRef, useState} from 'react';
+import {useIsNarrow} from '~/lib/is-narrow';
 import {useElementSize} from './use-element-size';
 
 const FILMSTRIP_HEIGHT = 48;
-const HANDLE_WIDTH = 14;
+const DESKTOP_HANDLE_WIDTH = 14;
+const MOBILE_HANDLE_WIDTH = 20;
+const INITIAL_REPEAT_DELAY = 350;
+const REPEAT_INTERVAL = 80;
 
 const clamp = (value: number, min: number, max: number) => {
 	return Math.min(Math.max(value, min), max);
@@ -29,15 +33,17 @@ const getFrameFromPointer = ({
 	clientX,
 	durationInFrames,
 	element,
+	handleWidth,
 }: {
 	clientX: number;
 	durationInFrames: number;
 	element: HTMLDivElement;
+	handleWidth: number;
 }) => {
 	const rect = element.getBoundingClientRect();
-	const originRailWidth = Math.max(1, rect.width - HANDLE_WIDTH * 2);
+	const originRailWidth = Math.max(1, rect.width - handleWidth * 2);
 	const progress = clamp(
-		(clientX - rect.left - HANDLE_WIDTH) / originRailWidth,
+		(clientX - rect.left - handleWidth) / originRailWidth,
 		0,
 		1,
 	);
@@ -48,35 +54,126 @@ const getFrameFromPointer = ({
 const getOriginX = ({
 	durationInFrames,
 	frame,
+	handleWidth,
 	width,
 }: {
 	durationInFrames: number;
 	frame: number;
+	handleWidth: number;
 	width: number;
 }) => {
 	const progress = frame / (durationInFrames - 1);
-	const originRailWidth = Math.max(1, width - HANDLE_WIDTH * 2);
+	const originRailWidth = Math.max(1, width - handleWidth * 2);
 
-	return HANDLE_WIDTH + progress * originRailWidth;
+	return handleWidth + progress * originRailWidth;
 };
 
 const FrameStepButton: React.FC<{
 	readonly 'aria-label': string;
 	readonly disabled: boolean;
 	readonly icon: 'minus' | 'plus';
-	readonly onClick: () => void;
-}> = ({'aria-label': ariaLabel, disabled, icon, onClick}) => {
+	readonly onStep: () => void;
+}> = ({'aria-label': ariaLabel, disabled, icon, onStep}) => {
 	const Icon = icon === 'minus' ? Minus : Plus;
+	const repeatTimeoutRef = useRef<number | null>(null);
+	const repeatIntervalRef = useRef<number | null>(null);
+	const suppressClickRef = useRef(false);
+	const disabledRef = useRef(disabled);
+	const onStepRef = useRef(onStep);
+
+	disabledRef.current = disabled;
+	onStepRef.current = onStep;
+
+	const stopRepeating = useCallback(() => {
+		if (repeatTimeoutRef.current !== null) {
+			window.clearTimeout(repeatTimeoutRef.current);
+			repeatTimeoutRef.current = null;
+		}
+
+		if (repeatIntervalRef.current !== null) {
+			window.clearInterval(repeatIntervalRef.current);
+			repeatIntervalRef.current = null;
+		}
+	}, []);
+
+	useEffect(() => {
+		return stopRepeating;
+	}, [stopRepeating]);
+
+	const step = useCallback(() => {
+		if (disabledRef.current) {
+			stopRepeating();
+			return;
+		}
+
+		onStepRef.current();
+	}, [stopRepeating]);
+
+	useEffect(() => {
+		if (disabled) {
+			stopRepeating();
+		}
+	}, [disabled, stopRepeating]);
+
+	const endPress = useCallback(() => {
+		stopRepeating();
+		window.setTimeout(() => {
+			suppressClickRef.current = false;
+		}, 0);
+	}, [stopRepeating]);
 
 	return (
 		<Button
 			aria-label={ariaLabel}
-			className="h-6 w-6 rounded-full px-0 text-xs"
+			className="h-8 w-8 select-none rounded-full px-0 text-xs touch-manipulation lg:h-6 lg:w-6"
 			depth={0.5}
 			disabled={disabled}
-			onClick={onClick}
+			onContextMenu={(event) => {
+				event.preventDefault();
+			}}
+			onClick={(event) => {
+				event.stopPropagation();
+
+				if (suppressClickRef.current) {
+					suppressClickRef.current = false;
+					event.preventDefault();
+					return;
+				}
+
+				step();
+			}}
+			onPointerDown={(event) => {
+				if (event.button !== 0 || disabled) {
+					return;
+				}
+
+				event.preventDefault();
+				event.stopPropagation();
+				event.currentTarget.setPointerCapture(event.pointerId);
+				suppressClickRef.current = true;
+				step();
+
+				repeatTimeoutRef.current = window.setTimeout(() => {
+					step();
+					repeatIntervalRef.current = window.setInterval(step, REPEAT_INTERVAL);
+				}, INITIAL_REPEAT_DELAY);
+			}}
+			onPointerUp={(event) => {
+				if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+					event.currentTarget.releasePointerCapture(event.pointerId);
+				}
+
+				endPress();
+			}}
+			onPointerCancel={(event) => {
+				if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+					event.currentTarget.releasePointerCapture(event.pointerId);
+				}
+
+				endPress();
+			}}
 		>
-			<Icon aria-hidden className="h-3 w-3" strokeWidth={3} />
+			<Icon aria-hidden className="h-4 w-4 lg:h-3 lg:w-3" strokeWidth={3} />
 		</Button>
 	);
 };
@@ -103,10 +200,12 @@ export const Filmstrip: React.FC<{
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const dragPointerOffsetRef = useRef(0);
 	const size = useElementSize(wrapperRef);
+	const isNarrow = useIsNarrow();
 	const [dragging, setDragging] = useState<'in' | 'out' | null>(null);
 	const currentInFrame = inFrame ?? 0;
 	const currentOutFrame = outFrame ?? durationInFrames - 1;
 	const minimumFrameDistance = 0;
+	const handleWidth = isNarrow ? MOBILE_HANDLE_WIDTH : DESKTOP_HANDLE_WIDTH;
 
 	const setInFrameFromPointer = (clientX: number) => {
 		const {current} = wrapperRef;
@@ -118,6 +217,7 @@ export const Filmstrip: React.FC<{
 			clientX,
 			durationInFrames,
 			element: current,
+			handleWidth,
 		});
 		const maxInFrame = currentOutFrame - minimumFrameDistance;
 		const nextInFrame = clamp(frame, 0, maxInFrame);
@@ -135,6 +235,7 @@ export const Filmstrip: React.FC<{
 			clientX,
 			durationInFrames,
 			element: current,
+			handleWidth,
 		});
 		const minOutFrame = currentInFrame + minimumFrameDistance;
 		const nextOutFrame = clamp(frame, minOutFrame, durationInFrames - 1);
@@ -188,6 +289,7 @@ export const Filmstrip: React.FC<{
 			getOriginX({
 				durationInFrames,
 				frame: minFrame,
+				handleWidth,
 				width: rect.width,
 			});
 		const maxClientX =
@@ -195,6 +297,7 @@ export const Filmstrip: React.FC<{
 			getOriginX({
 				durationInFrames,
 				frame: maxFrame,
+				handleWidth,
 				width: rect.width,
 			});
 
@@ -213,6 +316,7 @@ export const Filmstrip: React.FC<{
 			getOriginX({
 				durationInFrames,
 				frame,
+				handleWidth,
 				width: rect.width,
 			});
 
@@ -305,6 +409,7 @@ export const Filmstrip: React.FC<{
 		? getOriginX({
 				durationInFrames,
 				frame: currentInFrame,
+				handleWidth,
 				width: stripWidth,
 			})
 		: null;
@@ -312,36 +417,37 @@ export const Filmstrip: React.FC<{
 		? getOriginX({
 				durationInFrames,
 				frame: currentOutFrame,
+				handleWidth,
 				width: stripWidth,
 			})
 		: null;
 	const startHandleLeft =
 		startOriginX === null
-			? `calc(${inProgress * 100}% - ${inProgress * HANDLE_WIDTH * 2}px)`
-			: startOriginX - HANDLE_WIDTH;
+			? `calc(${inProgress * 100}% - ${inProgress * handleWidth * 2}px)`
+			: startOriginX - handleWidth;
 	const endHandleLeft =
 		endOriginX === null
-			? `calc(${outProgress * 100}% + ${HANDLE_WIDTH - outProgress * HANDLE_WIDTH * 2}px)`
+			? `calc(${outProgress * 100}% + ${handleWidth - outProgress * handleWidth * 2}px)`
 			: endOriginX;
 	const activeAreaLeft = startHandleLeft;
 	const activeAreaWidth =
 		startOriginX === null || endOriginX === null
 			? `calc(${(outProgress - inProgress) * 100}% + ${
-					HANDLE_WIDTH * 2 - (outProgress - inProgress) * HANDLE_WIDTH * 2
+					handleWidth * 2 - (outProgress - inProgress) * handleWidth * 2
 				}px)`
-			: endOriginX - startOriginX + HANDLE_WIDTH * 2;
+			: endOriginX - startOriginX + handleWidth * 2;
 	const rightInactiveLeft =
 		endOriginX === null
 			? `calc(${outProgress * 100}% + ${
-					HANDLE_WIDTH * 2 - outProgress * HANDLE_WIDTH * 2
+					handleWidth * 2 - outProgress * handleWidth * 2
 				}px)`
-			: endOriginX + HANDLE_WIDTH;
+			: endOriginX + handleWidth;
 	const rightInactiveWidth =
 		stripWidth === undefined || endOriginX === null
 			? `calc(${(1 - outProgress) * 100}% - ${
-					(1 - outProgress) * HANDLE_WIDTH * 2
+					(1 - outProgress) * handleWidth * 2
 				}px)`
-			: stripWidth - endOriginX - HANDLE_WIDTH;
+			: stripWidth - endOriginX - handleWidth;
 
 	return (
 		<div className="mt-2 w-full">
@@ -382,7 +488,7 @@ export const Filmstrip: React.FC<{
 					role="slider"
 					style={{
 						left: startHandleLeft,
-						width: HANDLE_WIDTH,
+						width: handleWidth,
 					}}
 					tabIndex={0}
 					onContextMenu={() => {
@@ -429,7 +535,7 @@ export const Filmstrip: React.FC<{
 					role="slider"
 					style={{
 						left: endHandleLeft,
-						width: HANDLE_WIDTH,
+						width: handleWidth,
 					}}
 					tabIndex={0}
 					onContextMenu={() => {
@@ -476,7 +582,7 @@ export const Filmstrip: React.FC<{
 							aria-label="Move trim start back by 1 frame"
 							disabled={currentInFrame === 0}
 							icon="minus"
-							onClick={() => moveInFrame(-1)}
+							onStep={() => moveInFrame(-1)}
 						/>
 						<FrameStepButton
 							aria-label="Move trim start forward by 1 frame"
@@ -484,7 +590,7 @@ export const Filmstrip: React.FC<{
 								currentInFrame >= currentOutFrame - minimumFrameDistance
 							}
 							icon="plus"
-							onClick={() => moveInFrame(1)}
+							onStep={() => moveInFrame(1)}
 						/>
 					</div>
 				</div>
@@ -497,13 +603,13 @@ export const Filmstrip: React.FC<{
 								currentOutFrame <= currentInFrame + minimumFrameDistance
 							}
 							icon="minus"
-							onClick={() => moveOutFrame(-1)}
+							onStep={() => moveOutFrame(-1)}
 						/>
 						<FrameStepButton
 							aria-label="Move trim end forward by 1 frame"
 							disabled={currentOutFrame === durationInFrames - 1}
 							icon="plus"
-							onClick={() => moveOutFrame(1)}
+							onStep={() => moveOutFrame(1)}
 						/>
 					</div>
 				</div>

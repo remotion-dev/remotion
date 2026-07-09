@@ -29,6 +29,7 @@ import {
 	getActualAudioOperation,
 	getActualVideoOperation,
 } from '~/lib/get-audio-video-config-index';
+import {getConvertActionLabel} from '~/lib/get-convert-action-label';
 import {
 	getDefaultConvertOutputFormat,
 	getDefaultEditOutputFormat,
@@ -178,6 +179,9 @@ const ConvertUI = ({
 		return resampleRate;
 	}, [resampleRate, canResample, resampleUserPreferenceActive]);
 
+	const disableVideoCopy =
+		enableRotateOrMirror !== null || trim || resizeOperation !== null;
+
 	const supportedConfigs = useSupportedConfigs({
 		outputContainer: actualOutputContainer,
 		tracks,
@@ -186,6 +190,7 @@ const ConvertUI = ({
 		inputContainer,
 		resizeOperation,
 		sampleRate: actualResampleRate,
+		disableVideoCopy,
 	});
 
 	const isH264Reencode = supportedConfigs?.videoTrackOptions.some((o) => {
@@ -630,6 +635,16 @@ const ConvertUI = ({
 		enableConvert,
 	});
 
+	const convertActionLabel = getConvertActionLabel({
+		audioConfigIndexSelection: audioOperationSelection,
+		enableConvert,
+		inputContainer,
+		outputContainer: actualOutputContainer,
+		supportedConfigs,
+		tracks,
+		videoConfigIndexSelection: videoOperationSelection,
+	});
+
 	return (
 		<>
 			<div className="w-full gap-4 flex flex-col">
@@ -645,7 +660,7 @@ const ConvertUI = ({
 									active={enableConvert}
 									setActive={setEnableConvert}
 								>
-									Convert
+									{convertActionLabel}
 								</ConvertUiSection>
 								{enableConvert ? (
 									<>
@@ -813,7 +828,7 @@ const ConvertUI = ({
 				disabled={disableSubmit}
 				onClick={onClick}
 			>
-				Convert
+				{convertActionLabel}
 			</Button>
 		</>
 	);

@@ -148,6 +148,12 @@ By default, the [`<OffthreadVideo>`](/docs/offthreadvideo) does not add an alpha
 Add the [`transparent`](/docs/offthreadvideo#transparent) prop to flag that the video has an alpha channel.  
 This slightly reduces the performance of the render.
 
+## Transparency when using `<Video>`
+
+[`<Video>` from `@remotion/media`](/docs/media/video) is recommended for embedding transparent videos.
+
+No `transparent` prop is needed when the video is decoded by [`@remotion/media`](/docs/media). If it falls back to [`<OffthreadVideo>`](/docs/media/fallback), transparency is enabled on the fallback by default.
+
 ## Creating a fallback version
 
 Given the poor browser support, consider making two versions of a video, one with alpha channel, and an opaque video as a fallback. You can achieve this in Remotion using standard React props:

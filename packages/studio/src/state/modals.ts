@@ -17,6 +17,7 @@ import type {
 	WebRendererAudioCodec,
 	WebRendererContainer,
 	WebRendererHardwareAcceleration,
+	WebRendererPageResponsiveness,
 	WebRendererQuality,
 	WebRendererVideoCodec,
 } from '@remotion/web-renderer';
@@ -53,6 +54,7 @@ export type WebRenderModalState = {
 	initialLicenseKey: string | null;
 	initialMediaCacheSizeInBytes: number | null;
 	initialAllowHtmlInCanvas: boolean;
+	initialPageResponsiveness: WebRendererPageResponsiveness;
 };
 
 export type RenderModalState = {

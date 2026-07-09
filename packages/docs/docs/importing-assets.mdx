@@ -75,23 +75,26 @@ const MyComp: React.FC = () => {
 
 ## Using videos
 
-Use the [`<OffthreadVideo />`](/docs/offthreadvideo), [`<Video />`](/docs/media/video) or [`<Html5Video />`](/docs/html5-video) component to keep the timeline and your video in sync.
+Use the [`<Video />` from `@remotion/media`](/docs/media/video) component to keep the timeline and your video in sync.
+
+[`<OffthreadVideo />`](/docs/offthreadvideo) and [`<Html5Video />`](/docs/html5-video) are legacy alternatives.
 
 ```tsx twoslash
-import {OffthreadVideo, staticFile} from 'remotion';
+import {Video} from '@remotion/media';
+import {staticFile} from 'remotion';
 
 export const MyComp: React.FC = () => {
-  return <OffthreadVideo src={staticFile('vid.webm')} />;
+  return <Video src={staticFile('vid.webm')} />;
 };
 ```
 
 Loading videos via URL is also possible:
 
 ```tsx twoslash
-import {OffthreadVideo} from 'remotion';
+import {Video} from '@remotion/media';
 
 export const MyComp: React.FC = () => {
-  return <OffthreadVideo src="https://remotion.media/BigBuckBunny.mp4" />;
+  return <Video src="https://remotion.media/BigBuckBunny.mp4" />;
 };
 ```
 
@@ -99,23 +102,24 @@ See also: [Which video formats does Remotion support?](/docs/miscellaneous/video
 
 ## Using Audio
 
-Use the [`<Html5Audio>`](/docs/html5-audio) component.
+Use the [`<Audio>` from `@remotion/media`](/docs/media/audio) component.
 
 ```tsx twoslash
-import {Html5Audio, staticFile} from 'remotion';
+import {Audio} from '@remotion/media';
+import {staticFile} from 'remotion';
 
 export const MyComp: React.FC = () => {
-  return <Html5Audio src={staticFile('tune.mp3')} />;
+  return <Audio src={staticFile('tune.mp3')} />;
 };
 ```
 
 Loading audio from an URL is also possible:
 
 ```tsx twoslash
-import {Html5Audio} from 'remotion';
+import {Audio} from '@remotion/media';
 
 export const MyComp: React.FC = () => {
-  return <Html5Audio src="https://file-examples.com/storage/fe48a63c5264cbd519788b3/2017/11/file_example_MP3_700KB.mp3" />;
+  return <Audio src="https://file-examples.com/storage/fe48a63c5264cbd519788b3/2017/11/file_example_MP3_700KB.mp3" />;
 };
 ```
 
@@ -199,7 +203,7 @@ However, if you use the [server-side rendering APIs](/docs/ssr-node), you can ad
 ## Use `<Img>`, `<Video>` and `<Audio>`
 
 **Use [`<Img />`](/docs/img) or [`<Gif />`](/docs/gif)** over the native `<img>` tag, `<Image>` from Next.js and CSS `background-image`.  
-**Use [`<OffthreadVideo />`](/docs/offthreadvideo), [`<Video />`](/docs/media/video) or [`<Html5Video />`](/docs/html5-video)** over the native `<video>` tag.  
+**Use [`<Video />` from `@remotion/media`](/docs/media/video), [`<OffthreadVideo />`](/docs/offthreadvideo) or [`<Html5Video />`](/docs/html5-video)** over the native `<video>` tag.
 **Use [`<Audio />`](/docs/media/audio) or [`<Html5Audio />`](/docs/html5-audio)** over the native `<audio>` tag.  
 **Use [`<IFrame />`](/docs/iframe)** over the native `<iframe>` tag.
 

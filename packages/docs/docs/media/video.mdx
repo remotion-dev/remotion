@@ -4,12 +4,9 @@ title: '<Video>'
 crumb: 'API - @remotion/media'
 ---
 
-:::note
-This is documentation for the new `<Video>` tag.  
-Not to be confused with the older [`<Html5Video>` / `<Video>`](/docs/html5-video) tag from `remotion`.
-:::
+[`<Video>` from `@remotion/media`](/docs/media/video) is the recommended component for embedding videos in Remotion.
 
-This component imports and displays a video, similar to [`<OffthreadVideo/>`](/docs/offthreadvideo) but during rendering, extracts the exact frame from the video using [Mediabunny](/docs/mediabunny) and displays it in a `<canvas>` tag.
+During rendering, it extracts the exact frame from the video using [Mediabunny](/docs/mediabunny) and displays it in a `<canvas>` tag. This keeps the video in sync with Remotion's timeline.
 
 This component has [native buffering support](/docs/player/buffer-state) enabled by default. When used in the Player, it automatically pauses playback when buffering and resumes when ready.
 
@@ -270,11 +267,7 @@ import {Video} from '@remotion/media';
 export const MyComposition = () => {
   return (
     <AbsoluteFill>
-      <Video
-        src={staticFile('video.webm')}
-        style={{width: '100%', height: '100%'}}
-        objectFit="cover"
-      />
+      <Video src={staticFile('video.webm')} style={{width: '100%', height: '100%'}} objectFit="cover" />
     </AbsoluteFill>
   );
 };

@@ -1025,6 +1025,11 @@ const sidebars: SidebarsConfig = {
 			],
 		},
 		{
+			type: 'link',
+			label: 'Templates',
+			href: '/templates',
+		},
+		{
 			type: 'category',
 			label: 'Designing visuals',
 			items: [
@@ -1178,17 +1183,18 @@ const sidebars: SidebarsConfig = {
 				id: 'client-side-rendering/index',
 			},
 			items: [
+				'client-side-rendering/how-it-works',
+				'client-side-rendering/limitations',
+				'client-side-rendering/migration',
+				'client-side-rendering/html-in-canvas',
+				'client-side-rendering/page-responsiveness',
+				'client-side-rendering/cancellation',
+				'client-side-rendering/telemetry',
 				{
 					type: 'link',
 					href: '/docs/web-renderer',
 					label: 'API Reference',
 				},
-				'client-side-rendering/how-it-works',
-				'client-side-rendering/limitations',
-				'client-side-rendering/migration',
-				'client-side-rendering/cancellation',
-				'client-side-rendering/telemetry',
-				'client-side-rendering/html-in-canvas',
 			],
 		},
 		{
@@ -1230,7 +1236,6 @@ const sidebars: SidebarsConfig = {
 						'lambda/troubleshooting/unrecognizedclientexception',
 						'lambda/troubleshooting/bucket-disallows-acl',
 						'lambda/troubleshooting/security-token',
-						'lambda/troubleshooting/chrome-133-situation',
 					],
 				},
 				{
