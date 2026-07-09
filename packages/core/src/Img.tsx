@@ -1,4 +1,10 @@
-import React, {useCallback, useContext, useLayoutEffect, useRef} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useLayoutEffect,
+	useRef,
+	useState,
+} from 'react';
 import type {IsExact} from './audio/props.js';
 import type {ImageFit} from './calculate-image-fit.js';
 import {CanvasImage} from './canvas-image/index.js';
@@ -91,6 +97,7 @@ const ImgContent: React.FC<ImgContentProps> = ({
 	const errors = useRef<Record<string, number>>({});
 	const {delayPlayback} = useBufferState();
 	const sequenceContext = useContext(SequenceContext);
+	const [isLoading, setIsLoading] = useState(false);
 
 	const _propsValid: IsExact<typeof props, Omit<Expected, 'decoding'>> = true;
 
@@ -139,6 +146,8 @@ const ImgContent: React.FC<ImgContentProps> = ({
 	}, []);
 
 	const {delayRender, continueRender, cancelRender} = useDelayRender();
+	const isPremounting = Boolean(sequenceContext?.premounting);
+	const isPostmounting = Boolean(sequenceContext?.postmounting);
 
 	const didGetError = useCallback(
 		(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
@@ -187,8 +196,21 @@ const ImgContent: React.FC<ImgContentProps> = ({
 	);
 
 	if (typeof window !== 'undefined') {
-		const isPremounting = Boolean(sequenceContext?.premounting);
-		const isPostmounting = Boolean(sequenceContext?.postmounting);
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		useLayoutEffect(() => {
+			if (!pauseWhenLoading || !isLoading || isPremounting || isPostmounting) {
+				return;
+			}
+
+			return delayPlayback().unblock;
+		}, [
+			delayPlayback,
+			isLoading,
+			isPostmounting,
+			isPremounting,
+			pauseWhenLoading,
+		]);
+
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		useLayoutEffect(() => {
 			if (window.process?.env?.NODE_ENV === 'test') {
@@ -204,6 +226,7 @@ const ImgContent: React.FC<ImgContentProps> = ({
 				return;
 			}
 
+			setIsLoading(true);
 			const newHandle = delayRender(
 				'Loading <Img> with src=' + truncateSrcForLabel(actualSrc),
 				{
@@ -211,10 +234,6 @@ const ImgContent: React.FC<ImgContentProps> = ({
 					timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
 				},
 			);
-			const unblock =
-				pauseWhenLoading && !isPremounting && !isPostmounting
-					? delayPlayback().unblock
-					: () => undefined;
 
 			let unmounted = false;
 
@@ -239,7 +258,7 @@ const ImgContent: React.FC<ImgContentProps> = ({
 					onImageFrame?.(current);
 				}
 
-				unblock();
+				setIsLoading(false);
 				continueRender(newHandle);
 			};
 
@@ -274,17 +293,12 @@ const ImgContent: React.FC<ImgContentProps> = ({
 			return () => {
 				unmounted = true;
 				current.removeEventListener('load', onComplete);
-				unblock();
 				continueRender(newHandle);
 			};
 		}, [
 			actualSrc,
-			delayPlayback,
 			delayRenderRetries,
 			delayRenderTimeoutInMilliseconds,
-			pauseWhenLoading,
-			isPremounting,
-			isPostmounting,
 			onImageFrame,
 			continueRender,
 			delayRender,
