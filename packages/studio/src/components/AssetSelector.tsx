@@ -1,7 +1,7 @@
 import React, {useCallback, useContext, useMemo, useState} from 'react';
 import {writeStaticFile} from '../api/write-static-file';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
-import {BACKGROUND, CLEAR_HOVER, LIGHT_TEXT} from '../helpers/colors';
+import {BACKGROUND, WHITE_ALPHA_06, LIGHT_TEXT} from '../helpers/colors';
 import {buildAssetFolderStructure} from '../helpers/create-folder-tree';
 import {toggleBooleanMapKey} from '../helpers/persist-boolean-map';
 import {persistExpandedFolders} from '../helpers/persist-open-folders';
@@ -188,7 +188,7 @@ export const AssetSelector: React.FC<{
 					className="__remotion-vertical-scrollbar"
 					style={{
 						...list,
-						backgroundColor: isDropDiv ? CLEAR_HOVER : BACKGROUND,
+						backgroundColor: isDropDiv ? WHITE_ALPHA_06 : BACKGROUND,
 					}}
 					onDragEnter={onDragEnter}
 					onDragLeave={onDragLeave}

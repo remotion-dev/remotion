@@ -21,17 +21,37 @@ export const pixelFormatOption = {
 	ssrName: 'pixelFormat' as const,
 	docLink: 'https://www.remotion.dev/docs/config#setpixelformat',
 	type: DEFAULT_PIXEL_FORMAT as PixelFormat,
-	getValue: ({commandLine}) => {
+	getValue: (
+		{commandLine},
+		options?: {
+			uiPixelFormat: PixelFormat | null;
+			compositionDefaultPixelFormat: PixelFormat | null;
+		},
+	) => {
+		if (options?.uiPixelFormat) {
+			return {
+				source: 'via UI',
+				value: options.uiPixelFormat,
+			};
+		}
+
 		if (commandLine[cliFlag] !== undefined) {
 			return {
-				source: 'cli',
+				source: 'from --pixel-format flag',
 				value: commandLine[cliFlag] as PixelFormat,
+			};
+		}
+
+		if (options && options.compositionDefaultPixelFormat !== null) {
+			return {
+				source: 'via calculateMetadata',
+				value: options.compositionDefaultPixelFormat,
 			};
 		}
 
 		if (currentPixelFormat !== DEFAULT_PIXEL_FORMAT) {
 			return {
-				source: 'config',
+				source: 'Config file',
 				value: currentPixelFormat,
 			};
 		}

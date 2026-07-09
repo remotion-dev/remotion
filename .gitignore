@@ -3,6 +3,7 @@ dist
 tsconfig.tsbuildinfo
 .DS_Store
 coverage
+.vitest-attachments
 /.idea/
 */**/.env
 .cache

@@ -1,11 +1,15 @@
 import type {Size} from '@remotion/player';
 import {
 	ASSET_DRAG_MIME_TYPE,
+	COMPOSITION_DRAG_MIME_TYPE,
 	COMPONENT_DRAG_MIME_TYPE,
+	ELEMENT_DRAG_MIME_TYPE,
 	parseAssetDragData,
+	parseCompositionDragData,
 	parseComponentDragData,
 	parseSfxDragData,
 	SFX_DRAG_MIME_TYPE,
+	type CompositionDragData,
 	type ComponentDragData,
 } from '@remotion/studio-shared';
 import React, {
@@ -46,10 +50,13 @@ import EditorGuides from './EditorGuides';
 import {EditorRulers} from './EditorRuler';
 import {useIsRulerVisible} from './EditorRuler/use-is-ruler-visible';
 import {getEffectDragData} from './effect-drag-and-drop';
+import {getElementDragData} from './element-drag-and-drop';
 import {
 	importAssets,
 	importRemoteAsset,
+	insertComposition,
 	insertComponent,
+	insertElement,
 	insertExistingAssets,
 	insertRemoteAudio,
 	type InsertElementDropPosition,
@@ -100,6 +107,18 @@ const isComponentDragEvent = (event: DragEvent): boolean => {
 	);
 };
 
+const isCompositionDragEvent = (event: DragEvent): boolean => {
+	return Array.from(event.dataTransfer?.types ?? []).includes(
+		COMPOSITION_DRAG_MIME_TYPE,
+	);
+};
+
+const isElementDragEvent = (event: DragEvent): boolean => {
+	return Array.from(event.dataTransfer?.types ?? []).includes(
+		ELEMENT_DRAG_MIME_TYPE,
+	);
+};
+
 const isSfxDragEvent = (event: DragEvent): boolean => {
 	return Array.from(event.dataTransfer?.types ?? []).includes(
 		SFX_DRAG_MIME_TYPE,
@@ -110,7 +129,9 @@ const isRemoteAssetDragEvent = (event: DragEvent): boolean => {
 	return (
 		!isFileDragEvent(event) &&
 		!isAssetDragEvent(event) &&
+		!isCompositionDragEvent(event) &&
 		!isComponentDragEvent(event) &&
+		!isElementDragEvent(event) &&
 		!isSfxDragEvent(event) &&
 		hasRemoteAssetDragData(event.dataTransfer)
 	);
@@ -123,6 +144,17 @@ const getAssetDragPath = (event: DragEvent): string | null => {
 	}
 
 	return parseAssetDragData(value)?.assetPath ?? null;
+};
+
+const getCompositionDragData = (
+	event: DragEvent,
+): CompositionDragData | null => {
+	const value = event.dataTransfer?.getData(COMPOSITION_DRAG_MIME_TYPE);
+	if (!value) {
+		return null;
+	}
+
+	return parseCompositionDragData(value);
 };
 
 const getComponentDragData = (event: DragEvent): ComponentDragData | null => {
@@ -736,7 +768,9 @@ export const Canvas: React.FC<{
 				!canDropAssets ||
 				(!isFileDragEvent(event) &&
 					!isAssetDragEvent(event) &&
+					!isCompositionDragEvent(event) &&
 					!isComponentDragEvent(event) &&
+					!isElementDragEvent(event) &&
 					!isSfxDragEvent(event) &&
 					!isRemoteAssetDragEvent(event)) ||
 				!isDragEventInsideCanvas(event)
@@ -760,7 +794,9 @@ export const Canvas: React.FC<{
 				currentCompositionId === null ||
 				(!isFileDragEvent(event) &&
 					!isAssetDragEvent(event) &&
+					!isCompositionDragEvent(event) &&
 					!isComponentDragEvent(event) &&
+					!isElementDragEvent(event) &&
 					!isSfxDragEvent(event) &&
 					!isRemoteAssetDragEvent(event)) ||
 				!isDragEventInsideCanvas(event)
@@ -824,7 +860,30 @@ export const Canvas: React.FC<{
 						compositionFile,
 						compositionId: currentCompositionId,
 					});
+				} else if (isCompositionDragEvent(event)) {
+					const compositionDragData = getCompositionDragData(event);
+					if (compositionDragData === null) {
+						return;
+					}
+
+					await insertComposition({
+						composition: compositionDragData,
+						compositionFile,
+						compositionId: currentCompositionId,
+						dropPosition,
+					});
 				} else {
+					const elementDragData = getElementDragData(event.dataTransfer);
+					if (elementDragData !== null) {
+						await insertElement({
+							element: elementDragData.element,
+							compositionFile,
+							compositionId: currentCompositionId,
+							dropPosition,
+						});
+						return;
+					}
+
 					const componentDragData = getComponentDragData(event);
 					if (componentDragData !== null) {
 						await insertComponent({

@@ -64,6 +64,11 @@ for (const inputs of seo.inputContainers) {
 	});
 
 	extraPages.push({
+		type: 'trim-format',
+		format: inputs,
+	});
+
+	extraPages.push({
 		type: 'resize-format',
 		format: inputs,
 	});
@@ -80,8 +85,7 @@ const getContentWithTitle = (title: string, description: string) => {
 		throw new Error('Could not find title');
 	}
 
-	const descriptionMatcher =
-		'<meta name="description" content="Remotion Convert"/>';
+	const descriptionMatcher = `<meta name="description" content="${seo.getDescription({type: 'generic-convert'})}"/>`;
 	if (!c.includes(descriptionMatcher)) {
 		throw new Error('Could not find description');
 	}
@@ -108,6 +112,10 @@ extraPages.push({
 
 extraPages.push({
 	type: 'generic-crop',
+});
+
+extraPages.push({
+	type: 'generic-trim',
 });
 
 extraPages.push({

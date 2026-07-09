@@ -10,6 +10,7 @@ Studio interactivity means visual edits that are written back to your codebase.
 
 Edits can be undone with <kbd>⌘/Ctrl</kbd> + <kbd>Z</kbd> and redone with <kbd>⌘/Ctrl</kbd> + <kbd>Y</kbd>.
 
+To write code that remains editable, see [Interactivity best practices](/docs/studio/interactivity-best-practices).
 To make a custom component selectable and editable, see [Make a component interactive](/docs/studio/make-component-interactive).
 
 ## Selecting edit targets
@@ -56,8 +57,30 @@ To make a custom component selectable and editable, see [Make a component intera
 - Copy one selected easing segment with <kbd>⌘/Ctrl</kbd> + <kbd>C</kbd> and paste it onto selected easing segments with <kbd>⌘/Ctrl</kbd> + <kbd>V</kbd>.
 - Press <kbd>Delete</kbd> or <kbd>Backspace</kbd> to reset selected easing segments to linear when only easing segments are selected.
 
+### Supported source easing expressions
+
+Studio can edit easing segments when the [`interpolate()`](/docs/interpolate) or [`interpolateColors()`](/docs/interpolate-colors) `easing` option is inline and uses one of these expressions:
+
+- [`Easing.linear`](/docs/easing#linear)
+- [`Easing.bezier(x1, y1, x2, y2)`](/docs/easing#bezier) with numeric arguments
+- [`Easing.spring()`](/docs/easing#spring) with an inline static config
+- Exact Bezier-compatible helpers<AvailableFrom v="4.0.487" inline />: [`Easing.ease`](/docs/easing#ease), [`Easing.quad`](/docs/easing#quad), [`Easing.cubic`](/docs/easing#cubic), [`Easing.back()`](/docs/easing#back), `Easing.back(s)` with a numeric argument, `Easing.poly(1)`, `Easing.poly(2)` and `Easing.poly(3)`
+- `Easing.in(...)` around a supported easing
+- `Easing.out(...)` around a supported Bezier or linear easing
+- `Easing.inOut(Easing.linear)`
+
+When editing exact Bezier-compatible helpers, Studio writes the easing back as an explicit `Easing.bezier(...)`.
+
+Other helpers such as `Easing.sin`, `Easing.circle`, `Easing.exp`, `Easing.bounce`, `Easing.elastic`, `Easing.poly(4)` and non-linear `Easing.inOut(...)` calls are shown as computed values because they cannot be represented exactly as a single cubic Bezier easing segment.
+
 ## Deleting, resetting and duplicating
 
 - Press <kbd>Delete</kbd> or <kbd>Backspace</kbd> to delete selected keyframes, sequences, effects or all effects where supported.
 - Reset selected sequence or effect props to their defaults with <kbd>Delete</kbd> or <kbd>Backspace</kbd> when deletion does not apply.
 - Press <kbd>⌘/Ctrl</kbd> + <kbd>D</kbd> to duplicate selected sequences.
+
+## See also
+
+- [Interactivity best practices](/docs/studio/interactivity-best-practices)
+- [Make a component interactive](/docs/studio/make-component-interactive)
+- [`Interactive`](/docs/interactive)

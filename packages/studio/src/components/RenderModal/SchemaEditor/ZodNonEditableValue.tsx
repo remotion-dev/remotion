@@ -1,5 +1,5 @@
 import React from 'react';
-import {VERY_LIGHT_TEXT} from '../../../helpers/colors';
+import {WHITE_ALPHA_30} from '../../../helpers/colors';
 import {Fieldset} from './Fieldset';
 import {SchemaLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
@@ -10,7 +10,7 @@ const fullWidth: React.CSSProperties = {
 
 const emptyLabel: React.CSSProperties = {
 	width: '100%',
-	color: VERY_LIGHT_TEXT,
+	color: WHITE_ALPHA_30,
 	fontFamily: 'sans-serif',
 	fontSize: 14,
 };

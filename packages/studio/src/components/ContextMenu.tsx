@@ -50,6 +50,30 @@ type ContextMenuProps = {
 	readonly onPointerDown?: React.PointerEventHandler<HTMLDivElement>;
 };
 
+const CONTEXT_MENU_Z_INDEX = 1001;
+
+const contextMenuFullScreenOverlay: React.CSSProperties = {
+	...fullScreenOverlay,
+	pointerEvents: 'none',
+	zIndex: CONTEXT_MENU_Z_INDEX,
+};
+
+const contextMenuOuterPortal: React.CSSProperties = {
+	...outerPortal,
+	pointerEvents: 'auto',
+};
+
+const contextMenuOpenedEvent = 'remotion-context-menu-opened';
+let nextContextMenuId = 0;
+
+const notifyContextMenuOpened = (id: number) => {
+	window.dispatchEvent(
+		new CustomEvent(contextMenuOpenedEvent, {
+			detail: id,
+		}),
+	);
+};
+
 const ContextMenuPortal: React.FC<{
 	readonly sizeSource: ContextMenuSizeSource;
 	readonly currentZIndex: number;
@@ -57,6 +81,7 @@ const ContextMenuPortal: React.FC<{
 	readonly opened: OpenedState;
 	readonly values: ComboboxValue[];
 }> = ({sizeSource, currentZIndex, onHide, opened, values}) => {
+	const menuRef = useRef<HTMLDivElement>(null);
 	const size = PlayerInternals.useElementSize(sizeSource, {
 		triggerOnWindowResize: true,
 		shouldApplyCssTransforms: true,
@@ -122,6 +147,45 @@ const ContextMenuPortal: React.FC<{
 		spaceToBottom,
 	]);
 
+	useEffect(() => {
+		const preventNativeContextMenu = (event: MouseEvent) => {
+			event.preventDefault();
+		};
+
+		window.addEventListener('contextmenu', preventNativeContextMenu, true);
+
+		return () => {
+			window.removeEventListener('contextmenu', preventNativeContextMenu, true);
+		};
+	}, []);
+
+	useEffect(() => {
+		const dismissWithoutClickThrough = (event: PointerEvent) => {
+			if (event.button !== 0) {
+				return;
+			}
+
+			if (menuRef.current?.contains(event.target as Node)) {
+				return;
+			}
+
+			event.preventDefault();
+			event.stopPropagation();
+			event.stopImmediatePropagation();
+			onHide();
+		};
+
+		window.addEventListener('pointerdown', dismissWithoutClickThrough, true);
+
+		return () => {
+			window.removeEventListener(
+				'pointerdown',
+				dismissWithoutClickThrough,
+				true,
+			);
+		};
+	}, [onHide]);
+
 	// Prevent deselection of a selected item
 	const onMenuPointerDown = useCallback(
 		(e: React.PointerEvent<HTMLDivElement>) => {
@@ -135,10 +199,18 @@ const ContextMenuPortal: React.FC<{
 	}
 
 	return ReactDOM.createPortal(
-		<div style={fullScreenOverlay}>
-			<div style={outerPortal} className="css-reset">
-				<HigherZIndex onOutsideClick={onHide} onEscape={onHide}>
-					<div style={portalStyle} onPointerDown={onMenuPointerDown}>
+		<div style={contextMenuFullScreenOverlay}>
+			<div style={contextMenuOuterPortal} className="css-reset">
+				<HigherZIndex
+					onOutsideClick={onHide}
+					onEscape={onHide}
+					outsideClickButton="primary"
+				>
+					<div
+						ref={menuRef}
+						style={portalStyle}
+						onPointerDown={onMenuPointerDown}
+					>
 						<MenuContent
 							onNextMenu={noop}
 							onPreviousMenu={noop}
@@ -170,6 +242,7 @@ export const ContextMenu = React.forwardRef<HTMLDivElement, ContextMenuProps>(
 		forwardedRef,
 	) => {
 		const ref = useRef<HTMLDivElement>(null);
+		const idRef = useRef(nextContextMenuId++);
 		const [opened, setOpened] = useState<OpenState>({type: 'not-open'});
 		const {currentZIndex} = useZIndex();
 
@@ -182,9 +255,8 @@ export const ContextMenu = React.forwardRef<HTMLDivElement, ContextMenuProps>(
 				}
 
 				if (forwardedRef) {
-					(
-						forwardedRef as React.MutableRefObject<HTMLDivElement | null>
-					).current = node;
+					(forwardedRef as React.RefObject<HTMLDivElement | null>).current =
+						node;
 				}
 			},
 			[forwardedRef],
@@ -203,6 +275,7 @@ export const ContextMenu = React.forwardRef<HTMLDivElement, ContextMenuProps>(
 					return false;
 				}
 
+				notifyContextMenuOpened(idRef.current);
 				setOpened({type: 'open', left: e.clientX, top: e.clientY});
 
 				return false;
@@ -218,6 +291,25 @@ export const ContextMenu = React.forwardRef<HTMLDivElement, ContextMenuProps>(
 		const onHide = useCallback(() => {
 			setOpened({type: 'not-open'});
 		}, []);
+
+		useEffect(() => {
+			const onOtherContextMenuOpened = (event: Event) => {
+				if ((event as CustomEvent<number>).detail === idRef.current) {
+					return;
+				}
+
+				onHide();
+			};
+
+			window.addEventListener(contextMenuOpenedEvent, onOtherContextMenuOpened);
+
+			return () => {
+				window.removeEventListener(
+					contextMenuOpenedEvent,
+					onOtherContextMenuOpened,
+				);
+			};
+		}, [onHide]);
 
 		return (
 			<>
@@ -251,6 +343,7 @@ export const ContextMenuForTarget: React.FC<{
 	readonly values: ComboboxValue[];
 	readonly onOpen: ContextMenuTargetOpenHandler | null;
 }> = ({triggerRef, values, onOpen}) => {
+	const idRef = useRef(nextContextMenuId++);
 	const [opened, setOpened] = useState<OpenState>({type: 'not-open'});
 	const [openedValues, setOpenedValues] =
 		useState<readonly ComboboxValue[]>(values);
@@ -284,6 +377,7 @@ export const ContextMenuForTarget: React.FC<{
 				return false;
 			}
 
+			notifyContextMenuOpened(idRef.current);
 			setOpenedValues(nextValues);
 			setOpened({type: 'open', left: e.clientX, top: e.clientY});
 
@@ -300,6 +394,25 @@ export const ContextMenuForTarget: React.FC<{
 	const onHide = useCallback(() => {
 		setOpened({type: 'not-open'});
 	}, []);
+
+	useEffect(() => {
+		const onOtherContextMenuOpened = (event: Event) => {
+			if ((event as CustomEvent<number>).detail === idRef.current) {
+				return;
+			}
+
+			onHide();
+		};
+
+		window.addEventListener(contextMenuOpenedEvent, onOtherContextMenuOpened);
+
+		return () => {
+			window.removeEventListener(
+				contextMenuOpenedEvent,
+				onOtherContextMenuOpened,
+			);
+		};
+	}, [onHide]);
 
 	return opened.type === 'open' ? (
 		<ContextMenuPortal

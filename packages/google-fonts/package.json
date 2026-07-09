@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/google-fonts"
 	},
 	"name": "@remotion/google-fonts",
-	"version": "4.0.481",
+	"version": "4.0.486",
 	"description": "Use Google Fonts in Remotion",
 	"main": "dist/cjs/index.js",
 	"module": "dist/esm/index.mjs",
@@ -1704,6 +1704,9 @@
 			"GeistMono": [
 				"dist/cjs/GeistMono.d.ts"
 			],
+			"GeistPixel": [
+				"dist/cjs/GeistPixel.d.ts"
+			],
 			"Gelasio": [
 				"dist/cjs/Gelasio.d.ts"
 			],
@@ -2969,6 +2972,9 @@
 			],
 			"MonteCarlo": [
 				"dist/cjs/MonteCarlo.d.ts"
+			],
+			"MontenegrinGothicOne": [
+				"dist/cjs/MontenegrinGothicOne.d.ts"
 			],
 			"Montez": [
 				"dist/cjs/Montez.d.ts"
@@ -5432,6 +5438,12 @@
 			],
 			"YuseiMagic": [
 				"dist/cjs/YuseiMagic.d.ts"
+			],
+			"Yuyu": [
+				"dist/cjs/Yuyu.d.ts"
+			],
+			"YuyuShort": [
+				"dist/cjs/YuyuShort.d.ts"
 			],
 			"ZCOOLKuaiLe": [
 				"dist/cjs/ZCOOLKuaiLe.d.ts"

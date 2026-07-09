@@ -49,6 +49,52 @@ test('optimisticDeleteSequenceKeyframe removes the matching keyframe and an easi
 	expect(status.easing).toEqual([{type: 'linear'}]);
 });
 
+test('optimisticDeleteSequenceKeyframe preserves the left segment easing when removing a middle keyframe', () => {
+	const previous: CanUpdateSequencePropsResponse = {
+		canUpdate: true,
+		props: {
+			'style.opacity': {
+				status: 'keyframed',
+				interpolationFunction: 'interpolate',
+				keyframes: [
+					{frame: 0, value: 0},
+					{frame: 31, value: 0.5},
+					{frame: 38, value: 0.75},
+					{frame: 60, value: 1},
+				],
+				easing: [
+					{type: 'linear'},
+					{type: 'bezier', x1: 0.42, y1: 0, x2: 1, y2: 1},
+					{type: 'bezier', x1: 0.42, y1: 0, x2: 1, y2: 1},
+				],
+				clamping: {left: 'extend', right: 'extend'},
+				posterize: undefined,
+			},
+		},
+		effects: [],
+	};
+
+	const updated = optimisticDeleteSequenceKeyframe({
+		previous,
+		fieldKey: 'style.opacity',
+		frame: 38,
+	});
+
+	if (!updated.canUpdate) {
+		throw new Error('expected canUpdate true');
+	}
+
+	const status = updated.props['style.opacity'];
+	if (status.status !== 'keyframed') {
+		throw new Error('expected keyframed status');
+	}
+
+	expect(status.easing).toEqual([
+		{type: 'linear'},
+		{type: 'bezier', x1: 0.42, y1: 0, x2: 1, y2: 1},
+	]);
+});
+
 test('optimisticDeleteSequenceKeyframe converts the last keyframe to a static value', () => {
 	const previous: CanUpdateSequencePropsResponse = {
 		canUpdate: true,

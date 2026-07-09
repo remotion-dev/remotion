@@ -1,12 +1,15 @@
 ---
 image: /generated/articles-docs-media-fallback.png
-title: 'Fallback from @remotion/media to <OffthreadVideo> or <Html5Audio>'
-sidebar_label: 'Fallback to <OffthreadVideo>'
+title: 'Fallback behavior in @remotion/media'
+sidebar_label: 'Fallback behavior'
 crumb: '@remotion/media'
 ---
 
-Sometimes, a media file cannot be embedded using [`@remotion/media`](/docs/media)'s [`<Video>`](/docs/media/video) and [`<Audio>`](/docs/media/audio) tags.  
-In such cases, a fallback to [`<OffthreadVideo>`](/docs/offthreadvideo) or [`<Html5Audio>`](/docs/html5-audio) from the `remotion` package is attempted.
+Use [`<Video>`](/docs/media/video) and [`<Audio>`](/docs/media/audio) from [`@remotion/media`](/docs/media) as the primary tags for media.
+
+If a media file cannot be embedded using these tags, Remotion may automatically fall back to [`<OffthreadVideo>`](/docs/offthreadvideo) for video or [`<Html5Audio>`](/docs/html5-audio) for audio from the [`remotion`](/docs/remotion) package.
+
+You usually do not need to choose these fallback tags manually. Configure them only when you need to prevent or customize fallback behavior.
 
 ## When a fallback is attempted
 

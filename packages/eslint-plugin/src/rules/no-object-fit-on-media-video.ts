@@ -19,8 +19,7 @@ const NoObjectFitInClassName = [
 	'See: https://remotion.dev/docs/media/video#objectfit',
 ].join('\n');
 
-const objectFitClassPattern =
-	/\bobject-(contain|cover|fill|none|scale-down)\b/;
+const objectFitClassPattern = /\bobject-(contain|cover|fill|none|scale-down)\b/;
 
 export default createRule<Options, MessageIds>({
 	name: 'no-object-fit-on-media-video',

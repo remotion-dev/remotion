@@ -23,7 +23,6 @@ import {getGitSource} from './get-github-repository';
 import {gpuCommand} from './gpu';
 import {supportsHyperlink} from './hyperlinks/is-supported';
 import {makeHyperlink} from './hyperlinks/make-link';
-import {getVideoImageFormat} from './image-formats';
 import {initializeCli} from './initialize-cli';
 import {lambdaCommand} from './lambda-command';
 import {listOfRemotionPackages} from './list-of-remotion-packages';
@@ -193,7 +192,6 @@ export const CliInternals = {
 	determineFinalStillImageFormat,
 	minimist,
 	findEntryPoint,
-	getVideoImageFormat,
 	printCompositions,
 	listOfRemotionPackages,
 	shouldUseNonOverlayingLogger,

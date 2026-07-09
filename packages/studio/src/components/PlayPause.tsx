@@ -1,6 +1,7 @@
 import {PlayerInternals} from '@remotion/player';
 import React, {useCallback, useEffect, useState} from 'react';
 import {Internals} from 'remotion';
+import {WHITE} from '../helpers/colors';
 import {useIsStill} from '../helpers/is-current-selected-still';
 import {useKeybinding} from '../helpers/use-keybinding';
 import {JumpToStart} from '../icons/jump-to-start';
@@ -15,18 +16,18 @@ import {ensureFrameIsInViewport} from './Timeline/timeline-scroll-logic';
 
 const backStyle = {
 	height: 18,
-	color: 'white',
+	color: WHITE,
 };
 
 const forwardBackStyle = {
 	height: 16,
-	color: 'white',
+	color: WHITE,
 };
 
 const iconButton: React.CSSProperties = {
 	height: 14,
 	width: 14,
-	color: 'white',
+	color: WHITE,
 };
 
 export const PlayPause: React.FC<{

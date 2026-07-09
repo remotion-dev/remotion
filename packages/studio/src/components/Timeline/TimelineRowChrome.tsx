@@ -8,7 +8,7 @@ import {
 } from './timeline-row-layout';
 import type {TimelineSelectionInteraction} from './TimelineSelection';
 import {
-	TIMELINE_SELECTED_BACKGROUND,
+	getTimelineRowHighlightBackground,
 	type TimelineSelection,
 	useTimelineFocusableItem,
 } from './TimelineSelection';
@@ -116,17 +116,17 @@ export const TimelineRowChrome: React.FC<{
 		[onSelect],
 	);
 
-	const highlightBackground =
-		showSelectedBackground && (selected || containsSelection)
-			? TIMELINE_SELECTED_BACKGROUND
-			: undefined;
+	const highlightBackground = getTimelineRowHighlightBackground({
+		showSelectedBackground,
+		selected,
+		containsSelection,
+	});
 
 	const innerRowStyle = useMemo(
 		(): React.CSSProperties => ({
 			...rowBase,
 			...style,
-			backgroundColor:
-				outerHeight === undefined ? highlightBackground : undefined,
+			backgroundColor: outerHeight === null ? highlightBackground : undefined,
 		}),
 		[style, outerHeight, highlightBackground],
 	);

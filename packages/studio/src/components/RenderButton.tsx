@@ -15,8 +15,12 @@ import type {_InternalTypes} from 'remotion';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {
+	CURRENT_COLOR,
+	CURRENT_COLOR_LOWERCASE,
 	INPUT_BACKGROUND,
-	INPUT_BORDER_COLOR_UNHOVERED,
+	BLACK_ALPHA_60,
+	TRANSPARENT,
+	WHITE,
 } from '../helpers/colors';
 import {SHOW_BROWSER_RENDERING} from '../helpers/show-browser-rendering';
 import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
@@ -42,7 +46,7 @@ const splitButtonContainer: React.CSSProperties = {
 	flexDirection: 'row',
 	alignItems: 'stretch',
 	borderRadius: 4,
-	border: `1px solid ${INPUT_BORDER_COLOR_UNHOVERED}`,
+	border: `1px solid ${BLACK_ALPHA_60}`,
 	backgroundColor: INPUT_BACKGROUND,
 	overflow: 'hidden',
 };
@@ -52,9 +56,9 @@ const mainButtonStyle: React.CSSProperties = {
 	paddingRight: 7,
 	paddingTop: 7,
 	paddingBottom: 7,
-	background: 'transparent',
+	background: TRANSPARENT,
 	border: 'none',
-	color: 'white',
+	color: WHITE,
 	cursor: 'pointer',
 	display: 'flex',
 	alignItems: 'center',
@@ -64,7 +68,7 @@ const mainButtonStyle: React.CSSProperties = {
 
 const dividerStyle: React.CSSProperties = {
 	width: 1,
-	backgroundColor: INPUT_BORDER_COLOR_UNHOVERED,
+	backgroundColor: BLACK_ALPHA_60,
 	alignSelf: 'stretch',
 };
 
@@ -73,9 +77,9 @@ const dropdownTriggerStyle: React.CSSProperties = {
 	paddingRight: 6,
 	paddingTop: 7,
 	paddingBottom: 7,
-	background: 'transparent',
+	background: TRANSPARENT,
 	border: 'none',
-	color: 'white',
+	color: WHITE,
 	cursor: 'pointer',
 	display: 'flex',
 	alignItems: 'center',
@@ -229,7 +233,7 @@ export const RenderButton: React.FC<{readonly readOnlyStudio: boolean}> = ({
 		return {
 			style: {
 				height: 16,
-				color: 'currentColor',
+				color: CURRENT_COLOR,
 			},
 		};
 	}, []);
@@ -348,6 +352,7 @@ export const RenderButton: React.FC<{readonly readOnlyStudio: boolean}> = ({
 			initialMuted: null,
 			initialMediaCacheSizeInBytes: defaults.mediaCacheSizeInBytes,
 			initialAllowHtmlInCanvas: defaults.allowHtmlInCanvas,
+			initialPageResponsiveness: 'medium',
 		});
 	}, [video, setSelectedModal, getCurrentFrame, props, inFrame, outFrame]);
 
@@ -488,7 +493,7 @@ export const RenderButton: React.FC<{readonly readOnlyStudio: boolean}> = ({
 	const containerStyle = useMemo((): React.CSSProperties => {
 		return {
 			...splitButtonContainer,
-			borderColor: INPUT_BORDER_COLOR_UNHOVERED,
+			borderColor: BLACK_ALPHA_60,
 			opacity: canRender ? 1 : 0.7,
 			cursor: canRender ? 'pointer' : 'inherit',
 		};
@@ -541,7 +546,10 @@ export const RenderButton: React.FC<{readonly readOnlyStudio: boolean}> = ({
 					disabled={!canRender}
 				>
 					<Row align="center" style={mainButtonContent}>
-						<ThinRenderIcon fill="currentcolor" svgProps={iconStyle} />
+						<ThinRenderIcon
+							fill={CURRENT_COLOR_LOWERCASE}
+							svgProps={iconStyle}
+						/>
 						<Spacing x={1} />
 						<span style={label}>{renderLabel}</span>
 					</Row>

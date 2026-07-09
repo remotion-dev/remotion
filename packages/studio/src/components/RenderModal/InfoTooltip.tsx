@@ -1,5 +1,5 @@
 import React, {useMemo} from 'react';
-import {BORDER_COLOR} from '../../helpers/colors';
+import {BLACK_HEX, WHITE} from '../../helpers/colors';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {SHADOW_TOWARDS_BOTTOM, SHADOW_TOWARDS_TOP} from '../Menu/styles';
 
@@ -30,8 +30,8 @@ export const InfoTooltip: React.FC<{
 			boxShadow:
 				arrowDirection === 'down' ? SHADOW_TOWARDS_TOP : SHADOW_TOWARDS_BOTTOM,
 			background: backgroundColor,
-			color: 'white',
-			border: '0.5px solid ' + BORDER_COLOR,
+			color: WHITE,
+			border: '0.5px solid ' + BLACK_HEX,
 			maxHeight: 200,
 			overflow: 'auto',
 			borderRadius: '4px',
@@ -54,7 +54,7 @@ export const InfoTooltip: React.FC<{
 						d={`M 14 0 L 7 7 L 0 0`}
 						fill={backgroundColor}
 						strokeLinecap="butt"
-						stroke={BORDER_COLOR}
+						stroke={BLACK_HEX}
 						strokeWidth={0.5}
 					/>
 				</svg>
@@ -65,7 +65,7 @@ export const InfoTooltip: React.FC<{
 						d={`M 0 7 L 7 0 L 14 7`}
 						fill={backgroundColor}
 						strokeLinecap="butt"
-						stroke={BORDER_COLOR}
+						stroke={BLACK_HEX}
 						strokeWidth={0.5}
 					/>
 				</svg>

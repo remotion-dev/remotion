@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/effects",
-	"version": "4.0.481",
+	"version": "4.0.486",
 	"description": "Effects that can be applied to Remotion-based canvas components",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -159,6 +159,16 @@
 			"module": "./dist/esm/lines.mjs",
 			"import": "./dist/esm/lines.mjs"
 		},
+		"./linear-gradient": {
+			"types": "./dist/linear-gradient.d.ts",
+			"module": "./dist/esm/linear-gradient.mjs",
+			"import": "./dist/esm/linear-gradient.mjs"
+		},
+		"./linear-gradient-tint": {
+			"types": "./dist/linear-gradient-tint.d.ts",
+			"module": "./dist/esm/linear-gradient-tint.mjs",
+			"import": "./dist/esm/linear-gradient-tint.mjs"
+		},
 		"./linear-progressive-blur": {
 			"types": "./dist/linear-progressive-blur.d.ts",
 			"module": "./dist/esm/linear-progressive-blur.mjs",
@@ -189,10 +199,20 @@
 			"module": "./dist/esm/noise-displacement.mjs",
 			"import": "./dist/esm/noise-displacement.mjs"
 		},
+		"./paper": {
+			"types": "./dist/paper.d.ts",
+			"module": "./dist/esm/paper.mjs",
+			"import": "./dist/esm/paper.mjs"
+		},
 		"./pattern": {
 			"types": "./dist/pattern.d.ts",
 			"module": "./dist/esm/pattern.mjs",
 			"import": "./dist/esm/pattern.mjs"
+		},
+		"./radial-progressive-blur": {
+			"types": "./dist/radial-progressive-blur.d.ts",
+			"module": "./dist/esm/radial-progressive-blur.mjs",
+			"import": "./dist/esm/radial-progressive-blur.mjs"
 		},
 		"./rings": {
 			"types": "./dist/rings.d.ts",
@@ -248,6 +268,11 @@
 			"types": "./dist/tv-signal-off.d.ts",
 			"module": "./dist/esm/tv-signal-off.mjs",
 			"import": "./dist/esm/tv-signal-off.mjs"
+		},
+		"./venetian-blinds": {
+			"types": "./dist/venetian-blinds.d.ts",
+			"module": "./dist/esm/venetian-blinds.mjs",
+			"import": "./dist/esm/venetian-blinds.mjs"
 		},
 		"./vignette": {
 			"types": "./dist/vignette.d.ts",
@@ -358,6 +383,12 @@
 			"lines": [
 				"dist/lines.d.ts"
 			],
+			"linear-gradient": [
+				"dist/linear-gradient.d.ts"
+			],
+			"linear-gradient-tint": [
+				"dist/linear-gradient-tint.d.ts"
+			],
 			"linear-progressive-blur": [
 				"dist/linear-progressive-blur.d.ts"
 			],
@@ -376,8 +407,14 @@
 			"noise-displacement": [
 				"dist/noise-displacement.d.ts"
 			],
+			"paper": [
+				"dist/paper.d.ts"
+			],
 			"pattern": [
 				"dist/pattern.d.ts"
+			],
+			"radial-progressive-blur": [
+				"dist/radial-progressive-blur.d.ts"
 			],
 			"rings": [
 				"dist/rings.d.ts"
@@ -411,6 +448,9 @@
 			],
 			"tv-signal-off": [
 				"dist/tv-signal-off.d.ts"
+			],
+			"venetian-blinds": [
+				"dist/venetian-blinds.d.ts"
 			],
 			"vignette": [
 				"dist/vignette.d.ts"

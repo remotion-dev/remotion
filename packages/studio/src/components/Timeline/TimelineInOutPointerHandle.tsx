@@ -1,14 +1,15 @@
 import React, {createRef, useContext, useMemo} from 'react';
 import {useVideoConfig} from 'remotion';
-import {LIGHT_TRANSPARENT} from '../../helpers/colors';
+import {WHITE_ALPHA_70, WHITE_ALPHA_10} from '../../helpers/colors';
 import {getXPositionOfItemInTimelineImperatively} from '../../helpers/get-left-of-timeline-slider';
+import {TIMELINE_SCRUBBER_ATTR} from './TimelineSelection';
 import {TimelineWidthContext} from './TimelineWidthProvider';
 
 const line: React.CSSProperties = {
 	height: '100%',
 	width: 1,
 	position: 'absolute',
-	backgroundColor: 'rgba(255, 255, 255, 0.1)',
+	backgroundColor: WHITE_ALPHA_10,
 	cursor: 'ew-resize',
 	paddingLeft: 1,
 	paddingRight: 1,
@@ -34,9 +35,7 @@ const InnerTimelineInOutPointerHandle: React.FC<
 	const style: React.CSSProperties = useMemo(() => {
 		return {
 			...line,
-			backgroundColor: dragging
-				? LIGHT_TRANSPARENT
-				: 'rgba(255, 255, 255, 0.1)',
+			backgroundColor: dragging ? WHITE_ALPHA_70 : WHITE_ALPHA_10,
 			transform: `translateX(${getXPositionOfItemInTimelineImperatively(
 				atFrame,
 				videoConfig.durationInFrames,
@@ -51,6 +50,7 @@ const InnerTimelineInOutPointerHandle: React.FC<
 			ref={type === 'in' ? inPointerHandle : outPointerHandle}
 			style={style}
 			onPointerDown={onPointerDown}
+			{...{[TIMELINE_SCRUBBER_ATTR]: true}}
 		/>
 	);
 };

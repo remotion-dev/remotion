@@ -2,7 +2,10 @@ import React from 'react';
 import {cmdOrCtrlCharacter} from '../error-overlay/remotion-overlay/ShortcutHint';
 import {
 	INPUT_BACKGROUND,
-	INPUT_BORDER_COLOR_UNHOVERED,
+	BLACK_ALPHA_60,
+	KEYBOARD_SHORTCUT_KEY_COLOR,
+	WHITE,
+	WHITE_ALPHA_10,
 } from '../helpers/colors';
 import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
 import {ArrowLeft, ArrowRight, ShiftIcon} from '../icons/keys';
@@ -17,9 +20,9 @@ const left: React.CSSProperties = {
 const key: React.CSSProperties = {
 	background: INPUT_BACKGROUND,
 	padding: '3px 6px',
-	color: 'white',
+	color: WHITE,
 	borderRadius: 3,
-	border: '1px solid ' + INPUT_BORDER_COLOR_UNHOVERED,
+	border: '1px solid ' + BLACK_ALPHA_60,
 	borderBottomWidth: 3,
 	fontSize: 14,
 	fontFamily: 'monospace',
@@ -27,7 +30,7 @@ const key: React.CSSProperties = {
 
 const right: React.CSSProperties = {
 	fontSize: 14,
-	color: '#eee',
+	color: KEYBOARD_SHORTCUT_KEY_COLOR,
 };
 
 const container: React.CSSProperties = {
@@ -39,7 +42,7 @@ const container: React.CSSProperties = {
 
 const title: React.CSSProperties = {
 	fontWeight: 'bold',
-	color: 'white',
+	color: WHITE,
 	fontSize: 14,
 	marginBottom: 10,
 };
@@ -48,7 +51,7 @@ const keyboardShortcutsDisabled: React.CSSProperties = {
 	padding: 12,
 	width: '100%',
 	fontSize: 14,
-	backgroundColor: 'rgba(255, 255, 255, 0.1)',
+	backgroundColor: WHITE_ALPHA_10,
 };
 
 const ul: React.CSSProperties = {
@@ -205,6 +208,16 @@ export const KeyboardShortcutsExplainer: React.FC = () => {
 							<kbd style={key}>Esc</kbd>
 						</div>
 						<div style={right}>Exit fullscreen</div>
+					</Row>
+					<Row align="center">
+						<div style={left}>
+							<kbd style={key}>
+								<ShiftIcon />
+							</kbd>
+							<Spacing x={0.3} />
+							<kbd style={key}>M</kbd>
+						</div>
+						<div style={right}>Enable snapping</div>
 					</Row>
 				</Column>
 				<Spacing x={8} />

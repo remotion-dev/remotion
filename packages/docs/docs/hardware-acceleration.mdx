@@ -12,7 +12,8 @@ Besides rendering frames, encoding is one of the two steps required to create a 
 From Remotion v4.0.228, Remotion supports hardware-accelerated encoding in some cases.  
 Since encoding is platform- and codec-specific, only a few scenarios are supported at the moment.
 
-- Currently, only macOS is supported (Acceleration using VideoToolbox)
+- macOS: Acceleration using VideoToolbox
+- Linux and Windows: Acceleration using NVENC (requires an NVIDIA GPU)<AvailableFrom v="4.0.484" inline />
 - ProRes is supported from v4.0.228, H.264 and H.265 are supported from v4.0.236
 
 ## Enable hardware accelerated encoding
@@ -55,7 +56,7 @@ await renderMedia({
 
 ### In the CLI
 
-Use the [`--hardware-acceleration`](/docs/cli/render#--hardware-acceleration) option in the `npx remotion studio` command.
+Use the [`--hardware-acceleration`](/docs/cli/render#--hardware-acceleration) option in the `npx remotion render` command.
 
 ```bash
 npx remotion render MyComp --codec prores --hardware-acceleration if-possible
@@ -79,6 +80,21 @@ Config.setHardwareAcceleration('if-possible');
 
 These options are not supported in Remotion Lambda and Cloud Run, because those cloud services do not support hardware acceleration.
 
+## Prerequisites for NVENC (Linux/Windows)
+
+To use hardware-accelerated encoding on Linux and Windows, you need:
+
+- An NVIDIA GPU (GeForce, Quadro, or Tesla)
+- NVIDIA drivers installed (version 525+ recommended)
+- FFmpeg compiled with `h264_nvenc` or `hevc_nvenc` encoder support
+
+The FFmpeg binaries bundled with Remotion include NVENC support on Linux x64 only. NVENC on Linux ARM64 is not supported. On Windows, point Remotion to an FFmpeg build that includes NVENC using [`--binaries-directory`](/docs/cli/render#--binaries-directory) or [`binariesDirectory`](/docs/renderer/render-media#binariesdirectory).
+
+Set `--hardware-acceleration if-possible` and Remotion will use NVENC if the configured FFmpeg build supports it.
+
+Note that NVENC encoding is only available for H.264 and H.265 codecs. Other codecs will fall back to software encoding.
+
+
 ## Controlling quality using `--video-bitrate`
 
 Note that the file size is significantly larger by default when using hardware acceleration, likely because less compression is applied.  
@@ -95,6 +111,7 @@ If the render is using hardware acceleration, you will see a log message like th
 
 ```
 Encoder: prores_videotoolbox, hardware accelerated: true
+Encoder: h264_nvenc, hardware accelerated: true
 ```
 
 Don't rely on the exact wording of the log message to determine if hardware acceleration is being used.

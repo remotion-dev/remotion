@@ -61,7 +61,10 @@ export const makeConfig = ({
 			plugins: {
 				'@remotion': remotionPlugin,
 			},
-			rules: remotionPlugin.configs.recommended.rules,
+			rules: {
+				...remotionPlugin.configs.recommended.rules,
+				'@remotion/valid-composition-and-folder-name': 'error',
+			},
 			...(remotionDir ? {files: [remotionDir]} : {}),
 		},
 	) as Linter.Config[];

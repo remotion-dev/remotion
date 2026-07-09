@@ -22,7 +22,7 @@ import {
 import {suppressBundlerUpdateForFile} from '../watch-ignore-next-change';
 import {logEffectUpdate} from './log-updates/log-effect-update';
 import {logUpdate} from './log-updates/log-update';
-import {withSavePropsLock} from './save-props-mutex';
+import {withSourceFileWriteQueue} from './source-file-write-queue';
 
 type ResolvedSequenceKeyframe = MoveSequenceKeyframe & {
 	index: number;
@@ -350,7 +350,7 @@ export const moveKeyframesHandler: ApiHandler<
 	remotionRoot,
 	logLevel,
 }) =>
-	withSavePropsLock(async () => {
+	withSourceFileWriteQueue(async () => {
 		RenderInternals.Log.trace(
 			{indent: false, logLevel},
 			`[move-keyframes] Received request to move ${

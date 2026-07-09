@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/core"
 	},
 	"name": "remotion",
-	"version": "4.0.481",
+	"version": "4.0.486",
 	"description": "Make videos programmatically",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
@@ -11,7 +11,7 @@
 	"scripts": {
 		"formatting": "oxfmt src --check",
 		"format": "oxfmt src",
-		"prepublishOnly": "bun ensure-correct-version.ts && cp ../../README.md .",
+		"prepublishOnly": "bun ensure-correct-version.ts && cp ../../README.md . && cp ../../LICENSE.md .",
 		"lint": "eslint src",
 		"test": "bun test src/test",
 		"make": "tsgo -d && bun --env-file=../.env.bundle bundle.ts"

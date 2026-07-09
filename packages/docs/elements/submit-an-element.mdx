@@ -7,135 +7,185 @@ description: Submit a Remotion Element for the Elements gallery.
 
 Have a small, remixable Remotion Element? We'd like to see it.
 
-A strong Element is easy to preview, easy to copy into a Remotion project, and useful as a building block inside a [`<Sequence>`](/docs/sequence).
+Follow this checklist from top to bottom when preparing an Element.
 
-## Preferred Element format
+## 1. Choose a focused idea
 
-An Element should ideally be a single, self-contained TSX file.
+A strong Element can be previewed, copied into a Remotion project, and used as a video building block.
 
-Each Element should live in its own folder: `packages/docs/elements/<category>/<slug>/`.
-Put the MDX page at `packages/docs/elements/<category>/<slug>/index.mdx` and the TSX source next to it.
+Good Elements are:
+
+- Focused on one visual idea, technique, or workflow
+- Copy-pastable and useful in more than one Remotion project
+- Remixable
+- HTML, CSS, and React-first
+- Free of unexpected global styles, layout side effects, and fullscreen assumptions unless it is explicitly a background
+- **Building blocks, not compositions:** The hosted docs page provides the preview size, frame rate, and duration.
+
+If two variants are worth showing, make two separate Element pages instead of adding a variant prop.
+
+## 2. Create the Element files
 
 Start from the reusable template in `packages/docs/elements-template/`.
 
-The MDX page imports that TSX file for the live preview, and shows the exact same code in a fenced `tsx` code block. Keeping the displayed code inline means both readers in the browser and AI agents reading the served Markdown see the full source. A test (`src/test/elements.test.ts`) enforces that the code block stays identical to the source file.
+Add:
 
-The preferred format is:
-
-- Export the Element component
-- Export fixed `width`, `height`, `fps`, and `durationInFrames`
-- Define the Remotion [`<Composition>`](/docs/composition) directly in the file
-- No local imports, except from npm packages
-- No multiple files required to understand or use the Element
-- Copy-pastable into a Remotion project
-- HTML, CSS, and React-first
-- Zero-dependency where possible
-- Binary assets use remote URLs only
-- Remote assets are publicly accessible and stable
+- An Element folder in `packages/docs/elements/<category>/<slug>/`
+- An `index.mdx` page
+- One self-contained TSX source file exporting a React component
 
 For example:
 
 ```tsx twoslash title="Element.tsx"
-import {Composition} from 'remotion';
+export const MyElement = () => {
+  return <div style={{width: '100%', height: '100%'}}>...</div>;
+};
+```
 
-export const width = 1920;
-export const height = 1080;
-export const fps = 30;
-export const durationInFrames = 120;
+## 3. Ensure portability
+
+The source file should work when dragged or copied into a project.
+
+- Must be a self-contained TSX file
+- Assets must be remote with stable public URLs, no local ones
+- Non-websafe fonts must be loaded through Google Fonts
+- No highly branded videos
+
+## 4. Define size
+
+To give an Element a fixed size, set `elementWidth` and `elementHeight` on the `ElementPage` in `index.mdx`:
+
+```tsx title="index.mdx"
+<ElementPage
+  component={MyElement}
+  elementWidth={900}
+  elementHeight={260}
+>
+```
+
+Then make the Element fill that area in its source file:
+
+```tsx title="my-element.tsx"
+import {AbsoluteFill} from 'remotion';
 
 export const MyElement = () => {
-	return <div>...</div>;
-};
-
-export const RemotionRoot = () => {
-	return (
-		<Composition
-			id="MyElement"
-			component={MyElement}
-			width={width}
-			height={height}
-			fps={fps}
-			durationInFrames={durationInFrames}
-		/>
-	);
+  return <AbsoluteFill>...</AbsoluteFill>;
 };
 ```
 
-The MDX page can then use the shared page template, which renders a preview, a "Use it" section, and the source code:
+Size the Element to the smallest useful bounding box.
 
-````mdx title="index.mdx"
-import {ElementPage} from '@site/src/components/Elements/ElementPage';
-import {
-	MyElement,
-	durationInFrames,
-	fps,
-	height,
-	width,
-} from './my-element';
+Use `previewPadding` on the `ElementPage` if the docs preview needs more breathing room without changing the Element's drag dimensions or adding source padding.
 
-<ElementPage
-	component={MyElement}
-	durationInFrames={durationInFrames}
-	fps={fps}
-	height={height}
-	width={width}
->
+Do not put the wrapper [`<Sequence>`](/docs/sequence) into the Element source file.
 
-```tsx twoslash title="my-element.tsx"
-// Paste the full contents of my-element.tsx here.
-// It must match the file exactly — a test enforces this.
+## 5. Separate placement from animation
+
+Let the Studio-inserted [`<Sequence>`](/docs/sequence) handle placement in the video.
+Don't use `left`, `right`, `top`, and `bottom`, etc. to position your element.
+
+Inner Element styles can animate entrance values such as `translate`, `scale`, and `opacity`.
+
+For animation, keep the timing inside the component but let the surrounding project decide how long the Element appears:
+
+```tsx twoslash title="AnimatedElement.tsx"
+import {Interactive, interpolate, useCurrentFrame} from 'remotion';
+
+export const AnimatedElement = () => {
+  const frame = useCurrentFrame();
+
+  return (
+    <Interactive.Div
+      name="Container"
+      style={{
+        width: '100%',
+        height: '100%',
+        opacity: interpolate(frame, [0, 20], [0, 1]),
+        translate: interpolate(frame, [0, 20], ['0px 40px', '0px 0px']),
+      }}
+    >
+      Hello
+    </Interactive.Div>
+  );
+};
 ```
 
-</ElementPage>
-````
+## 6. Add interactivity where useful
 
-The fenced code block must be an exact copy of the colocated TSX file. This is intentional: it keeps the source visible in the served Markdown for agents while the imported module powers the live preview.
+Only add `Interactive.*` wrappers when they expose useful Studio controls.
+Every `Interactive.*` wrapper should have a descriptive `name`.
 
-If an Element needs binary assets, reference them by URL:
+Avoid:
 
-```tsx twoslash title="Remote assets"
-const imageUrl = 'https://remotion.media/element-image.png';
-const videoUrl = 'https://remotion.media/element-video.mp4';
+- Redundant nested `Interactive.*` wrappers that represent the same visual object
+- Repeating the Element display name inside source names; the dragged wrapper already gets named from `displayName`
+
+For the main inner editable element, use a generic name such as `Container`.
+
+You should follow [Interactivity best practices](/docs/studio/interactivity-best-practices).
+
+For a single editable object, use one named wrapper:
+
+```tsx twoslash title="Single editable object"
+import {Interactive, interpolate, useCurrentFrame} from 'remotion';
+
+export const Badge = () => {
+  const frame = useCurrentFrame();
+
+  return (
+    <Interactive.Div
+      name="Container"
+      style={{
+        opacity: interpolate(frame, [0, 20], [0, 1]),
+        translate: interpolate(frame, [0, 20], ['0px 24px', '0px 0px']),
+        padding: 24,
+        borderRadius: 16,
+        backgroundColor: 'white',
+      }}
+    >
+      Launch day
+    </Interactive.Div>
+  );
+};
 ```
 
-## What makes a good Element?
+If a child has separate useful controls, make the child interactive and name it:
 
-A good Element is:
+```tsx twoslash title="Named child controls"
+import {Interactive} from 'remotion';
 
-- Small enough to understand quickly
-- Useful in more than one project
-- Easy to remix
-- Focused on one visual idea, technique, or workflow
-- Designed to be placed inside a `<Sequence>`
-- Possible to preview with a short rendered video or still image
-- Actionable for a Remotion user
+export const Badge = () => {
+  return (
+    <Interactive.Div
+      name="Container"
+      style={{
+        padding: 24,
+        borderRadius: 16,
+        backgroundColor: 'white',
+      }}
+    >
+      <Interactive.Div
+        name="Title"
+        style={{
+          color: 'black',
+          fontSize: 44,
+          fontWeight: 700,
+        }}
+      >
+        Launch day
+      </Interactive.Div>
+    </Interactive.Div>
+  );
+};
+```
 
-## What to include
+## 7. Open the pull request
 
 When submitting an Element as a pull request, include:
 
-- An Element folder in `packages/docs/elements/<category>/<slug>/`
-- An `index.mdx` page and the single-file TSX source code in that folder
-- What the viewer should see
-- A rendered preview, if available
+- The Element folder
 - What makes it useful
-- Required npm dependencies or remote asset URLs
+- A rendered preview, if available
 - Links to inspiration, if any
-
-## Not a great fit
-
-These are usually less suitable:
-
-- Full video templates with many unrelated parts
-- Highly specific branded videos
-- Elements requiring private APIs or private assets
-- Large apps with many moving parts
-- Maps, Three.js, WebGL, Canvas, or R3F-heavy Elements for the first batch
-- Elements with unexpected global styles or layout side effects
-- Elements that cannot be previewed meaningfully
-
-## Submit your Element
-
-Submit Elements by opening a pull request against the Remotion repository.
 
 [Open a pull request on GitHub](https://github.com/remotion-dev/remotion/compare)

@@ -15,7 +15,7 @@ If your composition plays well there, you should have no problems elsewhere.
 
 ## Trigger the play from a user event
 
-If you autoplay audio (through an `<Audio>`, `<Html5Audio>`, `<Video>`, `<OffthreadVideo>`, or `<Html5Video>` tag) on site load, browsers will block the audio.
+If you autoplay audio (through a `<Video>`, `<Audio>`, `<Html5Audio>`, `<Html5Video>`, or `<OffthreadVideo>` tag) on site load, browsers will block the audio.
 
 The [`autoPlay`](/docs/player/player#autoplay) prop of the [`<Player>`](/docs/player/player) is therefore discouraged if your video contains any audio.
 
@@ -64,18 +64,19 @@ Media that contains audio and that plays without user interaction requires speci
 Consider the following scenario:
 
 ```tsx twoslash
-import {AbsoluteFill, Html5Audio, OffthreadVideo, Sequence, staticFile} from 'remotion';
+import {Audio, Video} from '@remotion/media';
+import {AbsoluteFill, Sequence, staticFile} from 'remotion';
 
 // ---cut---
 export const MyComp = () => {
   return (
     <AbsoluteFill>
-      <Html5Audio src={staticFile('audio.mp3')} />
+      <Audio src={staticFile('audio.mp3')} />
       <Sequence from={120}>
-        <Html5Audio src={staticFile('audio2.mp3')} />
+        <Audio src={staticFile('audio2.mp3')} />
       </Sequence>
       <Sequence from={120}>
-        <OffthreadVideo src={staticFile('video.mp4')} />
+        <Video src={staticFile('video.mp4')} />
       </Sequence>
     </AbsoluteFill>
   );
@@ -84,12 +85,12 @@ export const MyComp = () => {
 
 There are three different cases here:
 
-<Step>1</Step> An `<Html5Audio>` tag that plays immediately.  ✅ This is fine because we have user interaction.
+<Step>1</Step> An `<Audio>` tag that plays immediately.  ✅ This is fine because we have user interaction.
 <div style={{marginTop: -14}} />
-<Step>2</Step> An `<Html5Audio>` tag that plays after 120 frames. ⚠️ May be subject to browser autoplay policies, but there is a workaround
+<Step>2</Step> An `<Audio>` tag that plays after 120 frames. ⚠️ May be subject to browser autoplay policies. If you are using `<Html5Audio>`, there is a workaround:
 → [Using the `numberOfSharedAudioTags` prop](/docs/player/autoplay#using-the-numberofsharedaudiotags-prop)
 <div style={{marginTop: -14}} />
-<Step>3</Step> A `<OffthreadVideo>` tag that plays after 120 frames. ⛔ May be subject to browser autoplay policies, which might restrict the video from playing with audio → [Dealing with an autoplay failure](/docs/player/autoplay#dealing-with-an-autoplay-failure)
+<Step>3</Step> A `<Video>` tag that plays after 120 frames. ⛔ May be subject to browser autoplay policies, which might restrict the video from playing with audio → [Dealing with an autoplay failure](/docs/player/autoplay#dealing-with-an-autoplay-failure)
 
 ## Using the `numberOfSharedAudioTags` prop
 
@@ -104,20 +105,23 @@ If the browser blocks a video from being autoplayed due to it having sound and n
 
 **By default**: The video will be muted, and played without audio. A console message will be printed.
 
-**Custom behavior**: You may handle an autoplay failure using the [`onAutoPlayError`](/docs/offthreadvideo#onautoplayerror) prop of `<OffthreadVideo>` and `<Video>`:
+**Custom behavior**: You may handle an autoplay failure using the [`onAutoPlayError`](/docs/offthreadvideo#onautoplayerror) prop of `<OffthreadVideo>`. For [`<Video>` from `@remotion/media`](/docs/media/video), use [`fallbackOffthreadVideoProps.onAutoPlayError`](/docs/media/video#onautoplayerror):
 
 ```tsx twoslash
-import {OffthreadVideo, staticFile} from 'remotion';
+import {Video} from '@remotion/media';
+import {staticFile} from 'remotion';
 import type {PlayerRef} from '@remotion/player';
 
 export const MyComp: React.FC<{
   playerRef: React.RefObject<PlayerRef>;
 }> = ({playerRef}) => {
   return (
-    <OffthreadVideo
+    <Video
       src={staticFile('video.mp4')}
-      onAutoPlayError={() => {
-        playerRef.current?.pause();
+      fallbackOffthreadVideoProps={{
+        onAutoPlayError: () => {
+          playerRef.current?.pause();
+        },
       }}
     />
   );

@@ -31,7 +31,7 @@ Allows you to insert your custom Webpack config. [See the page about custom Webp
 import {Config} from '@remotion/cli/config';
 // ---cut---
 Config.overrideWebpackConfig((currentConfiguration) => {
-  // Return a new Webpack configuration
+  // Return a new Webpack configuration or mutate this one and return it
   return {
     ...currentConfiguration,
     // new configuration

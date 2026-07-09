@@ -17,11 +17,33 @@ import {
 	whatIsRemotionCalculateMetadata,
 	whatIsRemotionSchema,
 } from './Compose/WhatIsRemotion';
+import {DesignSystems} from './DesignSystems';
+import {
+	DocsPagesShowcase,
+	INSTAGRAM_POST_HEIGHT,
+	INSTAGRAM_POST_WIDTH,
+	calculateDocsPagesShowcaseMetadata,
+	docsPagesShowcaseDefaultProps,
+	docsPagesShowcaseSchema,
+} from './DocsPagesShowcase';
+import {
+	CornerPinEffectShowcase,
+	cornerPinEffectShowcaseDurationInFrames,
+} from './effects/CornerPinEffectShowcase';
 import {EffectsAnnouncement} from './effects/EffectsAnnouncement';
+import {
+	HEIGHT as EFFECT_SHOWCASE_HEIGHT,
+	WIDTH as EFFECT_SHOWCASE_WIDTH,
+} from './effects/EffectShowcaseScaffold';
+import {BillboardForeground} from './effects/experiments/BillboardForeground';
 import {FxIconComposition} from './effects/FxIconComposition';
 import {Goal} from './effects/Goal';
 import {MetallicSwirl} from './effects/MetallicSwirl';
 import {NewsHeadline} from './effects/NewsHeadline';
+import {
+	PatternEffectShowcase,
+	patternEffectShowcaseDurationInFrames,
+} from './effects/PatternEffectShowcase';
 import {
 	StarburstEffectShowcase,
 	starburstEffectShowcaseDurationInFrames,
@@ -32,6 +54,22 @@ import {
 	zigzagLinearBlurShowcaseDurationInFrames,
 } from './effects/ZigzagLinearBlurShowcase';
 import {EmailSignature} from './EmailSignature';
+import {CodingPrompt, codingPromptSchema} from './HomepageAssets/CodingPrompt';
+import {FolderTreeComposition} from './HomepageAssets/FolderTree';
+import {Map} from './HomepageAssets/Map';
+import {
+	HomepageAssetMaster,
+	homepageAssetMasterSchema,
+	homepageAssetMasterDurationInFrames,
+} from './HomepageAssets/Master';
+import {NpmIniVideo} from './HomepageAssets/NpmInitVideo/NpmInitVideo';
+import {RemotionTriangleComposition} from './HomepageAssets/RemotionTriangle';
+import {
+	OuterRenderProgress,
+	renderProgressDurationInFrames,
+} from './HomepageAssets/RenderProgress';
+import {OuterStudio, studioDurationInFrames} from './HomepageAssets/Studio';
+import {TemplateRecorderEndcardComposition} from './HomepageAssets/TemplateRecorderEndcard';
 import './index.css';
 import {Logo} from './Logo';
 import {LogoCollab, logoCollabSchema} from './LogoCollab/LogoCollab';
@@ -42,6 +80,7 @@ import {
 	rulesEnumerationSchema,
 } from './RulesEnumeration/RulesEnumeration';
 import {ProductHuntLogo} from './ScalingLogo';
+import {ShipCard, shipCardDurationInFrames} from './ShipCard';
 import {
 	HTML_IN_CANVAS_ALL_EFFECTS_DURATION,
 	HtmlInCanvasAllEffects,
@@ -69,6 +108,19 @@ import {UpperThird, upperThirdSchema} from './video-elements/UpperThird';
 export const RemotionRoot: React.FC = () => {
 	return (
 		<>
+			<Folder name="docs">
+				<Composition
+					id="1000-documentation-pages"
+					component={DocsPagesShowcase}
+					width={INSTAGRAM_POST_WIDTH}
+					height={INSTAGRAM_POST_HEIGHT}
+					fps={30}
+					durationInFrames={90}
+					schema={docsPagesShowcaseSchema}
+					defaultProps={docsPagesShowcaseDefaultProps}
+					calculateMetadata={calculateDocsPagesShowcaseMetadata}
+				/>
+			</Folder>
 			<Folder name="static-logo">
 				<Composition
 					component={Logo}
@@ -105,16 +157,88 @@ export const RemotionRoot: React.FC = () => {
 					}}
 				/>
 			</Folder>
-			<Composition
-				id="WhatIsRemotion"
-				component={WhatIsRemotion}
-				width={1080}
-				fps={30}
-				durationInFrames={273}
-				schema={whatIsRemotionSchema}
-				defaultProps={{fade: false, whiteBackground: false, reel: false}}
-				calculateMetadata={whatIsRemotionCalculateMetadata}
-			/>
+			<Folder name="homepage-assets">
+				<Composition
+					id="NpmInitVideo"
+					component={NpmIniVideo}
+					durationInFrames={600}
+					fps={30}
+					width={1920}
+					height={1080}
+				/>
+				<Composition
+					id="RenderProgress"
+					component={OuterRenderProgress}
+					durationInFrames={renderProgressDurationInFrames}
+					fps={30}
+					width={1080}
+					height={1080}
+				/>
+				<Composition
+					id="Studio"
+					component={OuterStudio}
+					durationInFrames={studioDurationInFrames}
+					fps={25}
+					width={1080}
+					height={1080}
+				/>
+				<FolderTreeComposition />
+				<RemotionTriangleComposition />
+				<TemplateRecorderEndcardComposition />
+				<Composition
+					id="coding-prompt"
+					component={CodingPrompt}
+					durationInFrames={120}
+					fps={30}
+					width={1920}
+					height={1080}
+					schema={codingPromptSchema}
+					defaultProps={{
+						promptLine1: 'Animate from',
+						promptLine2: 'LA to NY',
+					}}
+				/>
+				<Composition
+					id="map"
+					component={Map}
+					durationInFrames={120}
+					fps={30}
+					width={1920}
+					height={1080}
+				/>
+				<Composition
+					id="homepage-assets-master"
+					component={HomepageAssetMaster}
+					durationInFrames={homepageAssetMasterDurationInFrames}
+					fps={30}
+					width={1080}
+					height={1080}
+					schema={homepageAssetMasterSchema}
+					defaultProps={{
+						promptLine1: 'Animate from',
+						promptLine2: 'LA to NY',
+					}}
+				/>
+				<Composition
+					id="WhatIsRemotion"
+					component={WhatIsRemotion}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={273}
+					schema={whatIsRemotionSchema}
+					defaultProps={{fade: false, whiteBackground: false, reel: false}}
+					calculateMetadata={whatIsRemotionCalculateMetadata}
+				/>
+				<Composition
+					id="DesignSystems"
+					component={DesignSystems}
+					durationInFrames={150}
+					fps={30}
+					width={1080}
+					height={1080}
+				/>
+			</Folder>
 			<Composition
 				component={ProductHuntLogo}
 				width={240}
@@ -162,6 +286,32 @@ export const RemotionRoot: React.FC = () => {
 				/>
 			</Folder>
 			<Folder name="effects">
+				<Composition
+					id="corner-pin-effect-showcase"
+					component={CornerPinEffectShowcase}
+					durationInFrames={cornerPinEffectShowcaseDurationInFrames}
+					fps={30}
+					width={1080}
+					height={1350}
+				/>
+				<Composition
+					id="pattern-effect-showcase"
+					component={PatternEffectShowcase}
+					width={1080}
+					height={1350}
+					fps={30}
+					durationInFrames={patternEffectShowcaseDurationInFrames}
+				/>
+				<Folder name="experiments">
+					<Composition
+						id="billboard-foreground"
+						component={BillboardForeground}
+						width={1080}
+						height={675}
+						fps={30}
+						durationInFrames={120}
+					/>
+				</Folder>
 				<Composition
 					id="starburst-effect-showcase"
 					component={StarburstEffectShowcase}
@@ -529,6 +679,14 @@ export const RemotionRoot: React.FC = () => {
 					height={1080}
 				/>
 			</Folder>
+			<Composition
+				id="ShipCard"
+				component={ShipCard}
+				durationInFrames={shipCardDurationInFrames}
+				fps={30}
+				width={EFFECT_SHOWCASE_WIDTH}
+				height={EFFECT_SHOWCASE_HEIGHT}
+			/>
 		</>
 	);
 };

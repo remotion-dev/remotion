@@ -4,6 +4,7 @@ import {
 	BACKGROUND,
 	LIGHT_TEXT,
 	TIMELINE_TRACK_SEPARATOR,
+	WHITE_ALPHA_15,
 } from '../../helpers/colors';
 import {
 	TIMELINE_ITEM_BORDER_BOTTOM,
@@ -28,7 +29,7 @@ const container: React.CSSProperties = {
 
 const tick: React.CSSProperties = {
 	width: 1,
-	backgroundColor: 'rgba(255, 255, 255, 0.15)',
+	backgroundColor: WHITE_ALPHA_15,
 	height: 20,
 	position: 'absolute',
 };

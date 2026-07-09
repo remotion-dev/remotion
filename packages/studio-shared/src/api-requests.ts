@@ -30,6 +30,7 @@ import type {
 	EffectClipboardPasteType,
 	EffectClipboardSnapshot,
 } from './effect-clipboard-data';
+import type {ElementDragData} from './element-drag-data';
 import type {PackageManager} from './package-manager';
 import type {ProjectInfo} from './project-info';
 import type {
@@ -297,17 +298,42 @@ export type UnsubscribeFromSequencePropsRequest = {
 	effectKeys: string[][];
 };
 
+export type GoogleFontSourceEdit = {
+	fontFamily: string;
+	importName: string;
+	style: string;
+	weights: string[];
+	subsets: string[];
+};
+
+export type SaveSequencePropSourceEdit = {
+	type: 'google-font';
+	font: GoogleFontSourceEdit;
+};
+
 export type SaveSequencePropEdit = {
 	fileName: string;
 	nodePath: SequencePropsSubscriptionKey;
 	key: string;
-	value: string;
+	value:
+		| {
+				type: 'json';
+				serialized: string;
+		  }
+		| {
+				type: 'undefined';
+		  };
 	defaultValue: string | null;
 	schema: InteractivitySchema;
+	sourceEdit: SaveSequencePropSourceEdit | null;
 };
 
 export type SaveSequencePropsRequest = {
 	edits: SaveSequencePropEdit[];
+	movedKeyframes?: {
+		sequenceKeyframes: MoveSequenceKeyframe[];
+		effectKeyframes: MoveEffectKeyframe[];
+	};
 	clientId: string;
 	undoLabel: string;
 	redoLabel: string;
@@ -640,6 +666,22 @@ export type DuplicateJsxNodeResponse =
 			stack: string;
 	  };
 
+export type SplitJsxSequenceRequest = {
+	fileName: string;
+	nodePath: SequenceNodePath;
+	splitFrame: number;
+};
+
+export type SplitJsxSequenceResponse =
+	| {
+			success: true;
+	  }
+	| {
+			success: false;
+			reason: string;
+			stack: string;
+	  };
+
 export type InsertableCompositionElement =
 	| {
 			type: 'solid';
@@ -665,6 +707,16 @@ export type InsertableCompositionElement =
 				height: number;
 			} | null;
 			position: InsertableCompositionElementPosition | null;
+	  }
+	| {
+			type: 'composition';
+			compositionId: string;
+			compositionFile: string;
+			durationInFrames: number;
+			width: number;
+			height: number;
+			serializedResolvedPropsWithCustomSchema: string;
+			position: InsertableCompositionElementPosition | null;
 	  };
 
 export type InsertableCompositionElementPosition = {
@@ -679,6 +731,23 @@ export type InsertJsxElementRequest = {
 };
 
 export type InsertJsxElementResponse =
+	| {
+			success: true;
+	  }
+	| {
+			success: false;
+			reason: string;
+			stack: string;
+	  };
+
+export type InsertElementRequest = {
+	compositionFile: string;
+	compositionId: string;
+	element: ElementDragData['element'];
+	position: InsertableCompositionElementPosition | null;
+};
+
+export type InsertElementResponse =
 	| {
 			success: true;
 	  }
@@ -843,10 +912,15 @@ export type ApiRoutes = {
 		DuplicateJsxNodeRequest,
 		DuplicateJsxNodeResponse
 	>;
+	'/api/split-jsx-sequence': ReqAndRes<
+		SplitJsxSequenceRequest,
+		SplitJsxSequenceResponse
+	>;
 	'/api/insert-jsx-element': ReqAndRes<
 		InsertJsxElementRequest,
 		InsertJsxElementResponse
 	>;
+	'/api/insert-element': ReqAndRes<InsertElementRequest, InsertElementResponse>;
 	'/api/download-remote-asset': ReqAndRes<
 		DownloadRemoteAssetRequest,
 		DownloadRemoteAssetResponse

@@ -4,10 +4,13 @@ import {
 	type AnySchemaFieldInfo,
 	type DragOverrides,
 	type EffectSchemaFieldInfo,
+	type InteractivitySchemaFieldInfo,
+	type SchemaFieldGroup,
+	type SchemaFieldGroupInfo,
 	type PropStatuses,
 	type SchemaFieldInfo,
 	type SequenceControls,
-	type InteractivitySchemaFieldInfo,
+	type SaveSequencePropSourceEdit,
 } from '@remotion/studio-shared';
 import type {
 	GetDragOverrides,
@@ -19,18 +22,22 @@ import type {GetIsExpanded} from '../components/ExpandedTracksProvider';
 import type {SequenceNodePathInfo} from './get-timeline-sequence-sort-key';
 
 export {
+	SCHEMA_FIELD_GROUPS,
 	getEffectFieldsToShow,
 	getFieldsToShow,
+	getSchemaFieldGroup,
 	SCHEMA_FIELD_ROW_HEIGHT,
 } from '@remotion/studio-shared';
 export type {
 	AnySchemaFieldInfo,
 	DragOverrides,
 	EffectSchemaFieldInfo,
+	InteractivitySchemaFieldInfo,
 	PropStatuses,
+	SchemaFieldGroup,
+	SchemaFieldGroupInfo,
 	SchemaFieldInfo,
 	SequenceControls,
-	InteractivitySchemaFieldInfo,
 };
 
 export const TIMELINE_PADDING = 16;
@@ -42,7 +49,14 @@ export const TIMELINE_TRACK_EXPANDED_HEIGHT = 100;
 export const TREE_GROUP_ROW_HEIGHT = 22;
 export const EXPANDED_SECTION_PADDING_RIGHT = 10;
 
-export type TimelineFieldOnSave = (value: unknown) => Promise<void>;
+export type TimelineFieldOnSave = (
+	value: unknown,
+	options?: {
+		// Extra source-code transformation applied atomically with this value save.
+		// Used by Google Font selection to insert @remotion/google-fonts imports/loadFont().
+		sourceEdit?: SaveSequencePropSourceEdit;
+	},
+) => Promise<void>;
 export type TimelineFieldOnDragValueChange = (value: unknown) => void;
 
 export type TimelineEffectGroupInfo = {
@@ -75,12 +89,14 @@ export const buildTimelineTree = ({
 	getDragOverrides,
 	getEffectDragOverrides,
 	propStatuses,
+	includeTextContent,
 }: {
 	sequence: TSequence;
 	nodePathInfo: SequenceNodePathInfo;
 	getDragOverrides: GetDragOverrides;
 	getEffectDragOverrides: GetEffectDragOverrides;
 	propStatuses: PropStatuses;
+	includeTextContent: boolean;
 }): TimelineTreeNode[] => {
 	const roots: TimelineTreeNode[] = [];
 	const {sequenceSubscriptionKey, index, auxiliaryKeys, supportsEffects} =
@@ -93,6 +109,7 @@ export const buildTimelineTree = ({
 		getDragOverrides,
 		propStatuses,
 		nodePath: sequenceSubscriptionKey,
+		includeTextContent,
 	});
 
 	if (controlFields && controlFields.length > 0) {
@@ -231,6 +248,7 @@ export const getExpandedTrackHeight = ({
 		getDragOverrides: () => ({}),
 		getEffectDragOverrides: () => ({}),
 		propStatuses,
+		includeTextContent: false,
 	});
 	const flat = flattenVisibleTreeNodes({nodes: tree, getIsExpanded});
 

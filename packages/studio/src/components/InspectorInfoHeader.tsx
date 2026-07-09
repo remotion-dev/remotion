@@ -1,12 +1,12 @@
 import React from 'react';
-import {BACKGROUND, LIGHT_TEXT} from '../helpers/colors';
+import {BACKGROUND, LIGHT_TEXT, WHITE} from '../helpers/colors';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from './InspectorPanelLayout';
 
 export const INSPECTOR_INFO_HEADER_MIN_HEIGHT = 84;
 
 const container: React.CSSProperties = {
 	backgroundColor: BACKGROUND,
-	color: 'white',
+	color: WHITE,
 	display: 'block',
 	minHeight: INSPECTOR_INFO_HEADER_MIN_HEIGHT,
 	padding: `6px ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px`,
@@ -27,7 +27,7 @@ const content: React.CSSProperties = {
 
 const title: React.CSSProperties = {
 	backgroundColor: BACKGROUND,
-	color: 'white',
+	color: WHITE,
 	fontSize: 12,
 	lineHeight: '18px',
 	overflow: 'hidden',

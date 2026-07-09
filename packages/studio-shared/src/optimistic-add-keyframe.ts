@@ -10,6 +10,25 @@ import {
 	isSchemaFieldKeyframable,
 } from './keyframe-interpolation-function';
 
+const getEasingIndexToDuplicate = ({
+	insertedKeyframeIndex,
+	easingLength,
+	keyframeCount,
+}: {
+	insertedKeyframeIndex: number;
+	easingLength: number;
+	keyframeCount: number;
+}): number | null => {
+	const isSplittingExistingSegment =
+		insertedKeyframeIndex > 0 && insertedKeyframeIndex < keyframeCount - 1;
+
+	if (!isSplittingExistingSegment || easingLength === 0) {
+		return null;
+	}
+
+	return Math.min(insertedKeyframeIndex - 1, easingLength - 1);
+};
+
 const addKeyframeToPropStatus = ({
 	status,
 	fieldKey,
@@ -42,6 +61,19 @@ const addKeyframeToPropStatus = ({
 			(first, second) => first.frame - second.frame,
 		);
 		const easing = [...status.easing];
+		const insertedKeyframeIndex = keyframes.findIndex(
+			(keyframe) => keyframe.frame === frame,
+		);
+		const easingIndexToDuplicate = getEasingIndexToDuplicate({
+			insertedKeyframeIndex,
+			easingLength: easing.length,
+			keyframeCount: keyframes.length,
+		});
+		const easingToDuplicate =
+			easingIndexToDuplicate === null
+				? LINEAR_KEYFRAME_EASING
+				: easing[easingIndexToDuplicate];
+		easing.splice(insertedKeyframeIndex, 0, easingToDuplicate);
 		while (easing.length < keyframes.length - 1) {
 			easing.push(LINEAR_KEYFRAME_EASING);
 		}

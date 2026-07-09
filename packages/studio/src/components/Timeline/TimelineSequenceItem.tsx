@@ -3,6 +3,14 @@ import React, {useCallback, useContext, useMemo, useState} from 'react';
 import type {SequencePropsSubscriptionKey, TSequence} from 'remotion';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
+import {
+	BLACK_ALPHA_85,
+	BORDER_TIMELINE_DROP_BLUE,
+	BORDER_WHITE_ALPHA_20,
+	TIMELINE_BLUE,
+	TIMELINE_DROP_BLUE_ALPHA_16,
+	WHITE,
+} from '../../helpers/colors';
 import {formatFileLocation} from '../../helpers/format-file-location';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {
@@ -49,6 +57,7 @@ import {
 } from './TimelineSelection';
 import {TimelineSequenceName} from './TimelineSequenceName';
 import {useOpenSequenceInEditor} from './use-open-sequence-in-editor';
+import {useRenameSequence} from './use-rename-sequence';
 import {useSequenceFreezeFrameMenuItem} from './use-sequence-freeze-frame-menu-item';
 import {useTimelineExpandedTree} from './use-timeline-expanded-tree';
 
@@ -61,8 +70,8 @@ const labelContainerStyle: React.CSSProperties = {
 };
 
 const effectDropHighlight: React.CSSProperties = {
-	backgroundColor: 'rgba(0, 155, 255, 0.16)',
-	outline: '1px solid rgba(0, 155, 255, 0.75)',
+	backgroundColor: TIMELINE_DROP_BLUE_ALPHA_16,
+	outline: BORDER_TIMELINE_DROP_BLUE,
 	outlineOffset: -1,
 };
 
@@ -88,6 +97,7 @@ const TimelineSequenceExpandArrow: React.FC<{
 	const {filteredTree} = useTimelineExpandedTree({
 		sequence,
 		nodePathInfo,
+		includeTextContent: false,
 	});
 
 	if (filteredTree.length === 0) {
@@ -109,7 +119,7 @@ const sequenceReorderWrapper: React.CSSProperties = {
 };
 
 const sequenceReorderLineBase: React.CSSProperties = {
-	backgroundColor: '#0b84ff',
+	backgroundColor: TIMELINE_BLUE,
 	height: 2,
 	left: 0,
 	pointerEvents: 'none',
@@ -119,10 +129,10 @@ const sequenceReorderLineBase: React.CSSProperties = {
 };
 
 const sequenceReorderRejectionStyle: React.CSSProperties = {
-	backgroundColor: 'rgba(0, 0, 0, 0.85)',
-	border: '1px solid rgba(255, 255, 255, 0.2)',
+	backgroundColor: BLACK_ALPHA_85,
+	border: BORDER_WHITE_ALPHA_20,
 	borderRadius: 4,
-	color: 'white',
+	color: WHITE,
 	fontSize: 11,
 	lineHeight: 1.2,
 	maxWidth: 260,
@@ -216,7 +226,6 @@ export const TimelineSequenceItem: React.FC<{
 	const previewConnected = previewServerState.type === 'connected';
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {toggleTrack} = useContext(ExpandedTracksSetterContext);
-	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {setSelectedModal} = useContext(ModalsContext);
 	const {isHighestContext} = useKeybinding();
@@ -260,6 +269,22 @@ export const TimelineSequenceItem: React.FC<{
 			column: originalLocation.column ?? 0,
 		};
 	}, [originalLocation]);
+
+	const {
+		canRename: canRenameThisSequence,
+		displayName,
+		fallbackDisplayName,
+		propStatusesForOverride,
+		saveName,
+	} = useRenameSequence({
+		clientId:
+			previewServerState.type === 'connected'
+				? previewServerState.clientId
+				: null,
+		nodePathInfo,
+		sequence,
+		validatedLocation,
+	});
 
 	const canDeleteFromSource = Boolean(nodePath && validatedLocation?.source);
 	const nodePathKey = useMemo(
@@ -588,31 +613,7 @@ export const TimelineSequenceItem: React.FC<{
 		toggleTrack(nodePathInfo);
 	}, [nodePathInfo, toggleTrack]);
 
-	const onShowInEditorDoubleClick = useCallback(
-		(e: React.MouseEvent<HTMLDivElement>) => {
-			if (!canOpenInEditor) {
-				return;
-			}
-
-			if (isTimelineSelectionModifierEvent(e)) {
-				e.stopPropagation();
-				return;
-			}
-
-			e.stopPropagation();
-			openInEditor();
-		},
-		[canOpenInEditor, openInEditor],
-	);
-
-	const propStatusesForOverride = useMemo(() => {
-		return nodePath
-			? Internals.getPropStatusesCtx(propStatuses, nodePath)
-			: undefined;
-	}, [propStatuses, nodePath]);
-
 	const codeHiddenStatus = propStatusesForOverride?.hidden;
-	const codeNameStatus = propStatusesForOverride?.name;
 
 	const isItemHidden = useMemo(() => {
 		const propStatus =
@@ -624,18 +625,6 @@ export const TimelineSequenceItem: React.FC<{
 		const effective = (propStatus ?? runtimeValue) as boolean | undefined;
 		return effective ?? false;
 	}, [codeHiddenStatus, sequence.controls?.currentRuntimeValueDotNotation]);
-
-	const displayName = useMemo(() => {
-		if (
-			codeNameStatus &&
-			codeNameStatus.status === 'static' &&
-			typeof codeNameStatus.codeValue === 'string'
-		) {
-			return codeNameStatus.codeValue;
-		}
-
-		return sequence.displayName;
-	}, [codeNameStatus, sequence.displayName]);
 
 	const onToggleVisibility = useCallback(
 		(type: 'enable' | 'disable') => {
@@ -696,7 +685,7 @@ export const TimelineSequenceItem: React.FC<{
 	const inner: React.CSSProperties = useMemo(() => {
 		return {
 			height: TIMELINE_LIST_ITEM_ROW_HEIGHT,
-			color: 'white',
+			color: WHITE,
 			fontFamily: 'Arial, Helvetica, sans-serif',
 			wordBreak: 'break-all',
 			textAlign: 'left',
@@ -725,15 +714,23 @@ export const TimelineSequenceItem: React.FC<{
 		codeHiddenStatus !== null &&
 		codeHiddenStatus.status === 'static';
 
-	const canRenameThisSequence =
-		previewServerState.type === 'connected' &&
-		!window.remotion_isReadOnlyStudio &&
-		Boolean(sequence.controls) &&
-		nodePath !== null &&
-		validatedLocation !== null &&
-		codeNameStatus !== undefined &&
-		codeNameStatus !== null &&
-		codeNameStatus.status === 'static';
+	const onSequenceDoubleClick = useCallback(
+		(e: React.MouseEvent<HTMLDivElement>) => {
+			if (isTimelineSelectionModifierEvent(e)) {
+				e.stopPropagation();
+				return;
+			}
+
+			e.stopPropagation();
+			if (canRenameThisSequence) {
+				setIsRenaming(true);
+				return;
+			}
+
+			openInEditor();
+		},
+		[canRenameThisSequence, openInEditor],
+	);
 
 	const canRenameSelectedSequence =
 		canRenameThisSequence &&
@@ -747,50 +744,10 @@ export const TimelineSequenceItem: React.FC<{
 
 	const onSaveName = useCallback(
 		async (name: string) => {
-			if (
-				!canRenameThisSequence ||
-				previewServerState.type !== 'connected' ||
-				!sequence.controls ||
-				!nodePath ||
-				!validatedLocation
-			) {
-				setIsRenaming(false);
-				return;
-			}
-
-			if (name === displayName) {
-				setIsRenaming(false);
-				return;
-			}
-
-			const savePromise = saveSequenceProps({
-				changes: [
-					{
-						fileName: validatedLocation.source,
-						nodePath,
-						fieldKey: 'name',
-						value: name,
-						defaultValue: null,
-						schema: sequence.controls.schema,
-					},
-				],
-				setPropStatuses,
-				clientId: previewServerState.clientId,
-				undoLabel: 'Rename sequence',
-				redoLabel: 'Rename sequence again',
-			});
 			setIsRenaming(false);
-			await savePromise;
+			await saveName(name);
 		},
-		[
-			canRenameThisSequence,
-			displayName,
-			nodePath,
-			previewServerState,
-			sequence.controls,
-			setPropStatuses,
-			validatedLocation,
-		],
+		[saveName],
 	);
 
 	React.useEffect(() => {
@@ -937,7 +894,7 @@ export const TimelineSequenceItem: React.FC<{
 					subMenu: null,
 					value: 'rename-sequence',
 				},
-				freezeFrameMenuItem,
+				...(freezeFrameMenuItem ? [freezeFrameMenuItem] : []),
 			],
 		});
 	}, [
@@ -1084,11 +1041,16 @@ export const TimelineSequenceItem: React.FC<{
 			onDragLeave={canDropEffect ? onEffectDragLeave : undefined}
 			onDragOver={canDropEffect ? onEffectDragOver : undefined}
 			onDrop={canDropEffect ? onEffectDrop : undefined}
-			onDoubleClick={canOpenInEditor ? onShowInEditorDoubleClick : undefined}
+			onDoubleClick={
+				canRenameThisSequence || canOpenInEditor
+					? onSequenceDoubleClick
+					: undefined
+			}
 		>
 			<div style={labelContainerStyle}>
 				<TimelineSequenceName
 					displayName={displayName}
+					fallbackDisplayName={fallbackDisplayName}
 					selected={selected}
 					containsSelection={containsSelection}
 					editing={isRenaming}

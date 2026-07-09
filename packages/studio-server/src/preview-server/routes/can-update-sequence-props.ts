@@ -4,6 +4,7 @@ import type {
 	Expression,
 	File,
 	JSXAttribute,
+	JSXElement,
 	JSXOpeningElement,
 	NewExpression,
 	ObjectExpression,
@@ -16,7 +17,6 @@ import type {SubscribeToSequencePropsResponse} from '@remotion/studio-shared';
 import {
 	isKeyframeInterpolationFunction,
 	LINEAR_KEYFRAME_EASING,
-	parseSpringEasingConfig,
 } from '@remotion/studio-shared';
 import * as recast from 'recast';
 import type {
@@ -31,11 +31,12 @@ import {NoReactInternals} from 'remotion/no-react';
 import {parseAst} from '../../codemods/parse-ast';
 import {getAstNodePath} from '../../helpers/get-ast-node-path';
 import {toImportAgnosticNodePath} from '../../helpers/import-agnostic-node-path';
+import {parseKeyframeEasingExpression} from '../../helpers/parse-keyframe-easing-expression';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import {
 	getJsxComponentIdentity,
-	JsxElementIdentityMismatchError,
 	jsxComponentIdentitiesMatch,
+	JsxElementIdentityMismatchError,
 } from '../jsx-component-identity';
 import {JsxElementNotFoundAtLocationError} from '../jsx-element-not-found-at-location-error';
 import {computeEffectPropStatus} from './can-update-effect-props';
@@ -268,73 +269,8 @@ const getExtrapolateType = (node: Expression): ExtrapolateType | null => {
 	return null;
 };
 
-const getKeyframeEasing = (node: Expression): PropEasing[number] | null => {
-	if (node.type === 'TSAsExpression') {
-		return getKeyframeEasing(node.expression as Expression);
-	}
-
-	if (
-		node.type === 'MemberExpression' &&
-		node.object.type === 'Identifier' &&
-		node.object.name === 'Easing' &&
-		node.property.type === 'Identifier' &&
-		node.property.name === 'linear' &&
-		node.computed === false
-	) {
-		return {type: 'linear'};
-	}
-
-	if (
-		node.type !== 'CallExpression' ||
-		node.callee.type !== 'MemberExpression' ||
-		node.callee.object.type !== 'Identifier' ||
-		node.callee.object.name !== 'Easing' ||
-		node.callee.property.type !== 'Identifier' ||
-		node.callee.computed
-	) {
-		return null;
-	}
-
-	if (node.callee.property.name === 'spring') {
-		if (node.arguments.length > 1) {
-			return null;
-		}
-
-		const springConfig = node.arguments[0];
-		if (
-			springConfig?.type === 'ArgumentPlaceholder' ||
-			springConfig?.type === 'JSXNamespacedName' ||
-			springConfig?.type === 'SpreadElement'
-		) {
-			return null;
-		}
-
-		return parseSpringEasingConfig(springConfig);
-	}
-
-	if (node.callee.property.name !== 'bezier' || node.arguments.length !== 4) {
-		return null;
-	}
-
-	const values = node.arguments.map((arg) => {
-		if (
-			arg.type === 'ArgumentPlaceholder' ||
-			arg.type === 'JSXNamespacedName' ||
-			arg.type === 'SpreadElement'
-		) {
-			return null;
-		}
-
-		return getNumericValue(arg as Expression);
-	});
-
-	if (values.some((v) => v === null)) {
-		return null;
-	}
-
-	const [x1, y1, x2, y2] = values as [number, number, number, number];
-	return {type: 'bezier', x1, y1, x2, y2};
-};
+const getKeyframeEasing = (node: Expression): PropEasing[number] | null =>
+	parseKeyframeEasingExpression(node);
 
 const getKeyframeEasingArray = ({
 	easingNode,
@@ -749,17 +685,123 @@ const getNodePathForRecastPath = (
 	return toImportAgnosticNodePath({ast, nodePath: segments});
 };
 
-export const findJsxElementAtNodePath = (
+export const findJsxElementPathAtNodePath = (
 	ast: File,
 	nodePath: SequenceNodePath,
-): JSXOpeningElement | null => {
+) => {
 	const current = getAstNodePath(ast, nodePath);
 	if (!current) {
 		return null;
 	}
 
 	if (recast.types.namedTypes.JSXOpeningElement.check(current.value)) {
-		return current.value as unknown as JSXOpeningElement;
+		return current;
+	}
+
+	return null;
+};
+
+export const findJsxElementAtNodePath = (
+	ast: File,
+	nodePath: SequenceNodePath,
+): JSXOpeningElement | null => {
+	const current = findJsxElementPathAtNodePath(ast, nodePath);
+	return current ? (current.value as unknown as JSXOpeningElement) : null;
+};
+
+export const findJsxElementNodeAtNodePath = (
+	ast: File,
+	nodePath: SequenceNodePath,
+): JSXElement | null => {
+	const current = findJsxElementPathAtNodePath(ast, nodePath);
+	if (!current) {
+		return null;
+	}
+
+	if (recast.types.namedTypes.JSXElement.check(current.parentPath?.value)) {
+		return current.parentPath.value as unknown as JSXElement;
+	}
+
+	return null;
+};
+
+export type StaticJsxTextContent =
+	| {kind: 'jsx-text'; value: string}
+	| {kind: 'string-expression'; value: string};
+
+const findJsxChildrenAttribute = (
+	jsxElement: JSXOpeningElement,
+): JSXAttribute | null => {
+	const childrenAttr = jsxElement.attributes.find((attr) => {
+		return (
+			attr.type === 'JSXAttribute' &&
+			attr.name.type === 'JSXIdentifier' &&
+			attr.name.name === 'children'
+		);
+	});
+
+	return childrenAttr && childrenAttr.type === 'JSXAttribute'
+		? childrenAttr
+		: null;
+};
+
+export const getStaticJsxChildrenAttribute = (
+	jsxElement: JSXOpeningElement,
+): StaticJsxTextContent | null => {
+	const childrenAttr = findJsxChildrenAttribute(jsxElement);
+	if (!childrenAttr?.value) {
+		return null;
+	}
+
+	if (childrenAttr.value.type === 'StringLiteral') {
+		return {kind: 'jsx-text', value: childrenAttr.value.value};
+	}
+
+	if (
+		childrenAttr.value.type === 'JSXExpressionContainer' &&
+		childrenAttr.value.expression.type === 'StringLiteral'
+	) {
+		return {
+			kind: 'string-expression',
+			value: childrenAttr.value.expression.value,
+		};
+	}
+
+	return null;
+};
+
+export const hasJsxChildrenAttribute = (
+	jsxElement: JSXOpeningElement,
+): boolean => findJsxChildrenAttribute(jsxElement) !== null;
+
+export const getStaticJsxTextContent = (
+	jsxElement: JSXElement,
+): StaticJsxTextContent | null => {
+	const meaningfulChildren = jsxElement.children.filter((candidate) => {
+		return !(candidate.type === 'JSXText' && candidate.value.trim() === '');
+	});
+
+	if (meaningfulChildren.length === 0) {
+		return {kind: 'jsx-text', value: ''};
+	}
+
+	if (meaningfulChildren.length !== 1) {
+		return null;
+	}
+
+	const child = meaningfulChildren[0];
+	if (child.type === 'JSXText') {
+		return {
+			kind: 'jsx-text',
+			value: child.value.includes('\n') ? child.value.trim() : child.value,
+		};
+	}
+
+	if (
+		child.type === 'JSXExpressionContainer' &&
+		child.expression.type === 'StringLiteral'
+	) {
+		return {kind: 'string-expression', value: child.expression.value};
 	}
 
 	return null;
@@ -903,16 +945,37 @@ const computeEffectsForJsx = ({
 
 const computeSequenceOnlyPropsRecord = ({
 	jsxElement,
+	jsxElementNode,
 	ast,
 	keys,
 }: {
 	jsxElement: JSXOpeningElement;
+	jsxElementNode: JSXElement;
 	ast: File;
 	keys: string[];
 }): Record<string, CanUpdatePropStatus> => {
 	const allProps = getPropsStatus(jsxElement, ast);
 	const filteredProps: Record<string, CanUpdatePropStatus> = {};
 	for (const key of keys) {
+		if (key === 'children') {
+			const staticChildrenAttribute = getStaticJsxChildrenAttribute(jsxElement);
+			if (staticChildrenAttribute) {
+				filteredProps[key] = staticStatus(staticChildrenAttribute.value);
+				continue;
+			}
+
+			if (hasJsxChildrenAttribute(jsxElement)) {
+				filteredProps[key] = computedStatus();
+				continue;
+			}
+
+			const staticTextContent = getStaticJsxTextContent(jsxElementNode);
+			filteredProps[key] = staticTextContent
+				? staticStatus(staticTextContent.value)
+				: computedStatus();
+			continue;
+		}
+
 		const dotIndex = key.indexOf('.');
 		if (dotIndex !== -1) {
 			filteredProps[key] = getNestedPropStatus(
@@ -946,9 +1009,10 @@ export const computeSequencePropsStatusFromContent = ({
 }): CanUpdateSequencePropsResponseTrue => {
 	const ast = parseAst(fileContents);
 
-	const jsxElement = findJsxElementAtNodePath(ast, nodePath);
+	const jsxElementNode = findJsxElementNodeAtNodePath(ast, nodePath);
+	const jsxElement = jsxElementNode?.openingElement ?? null;
 
-	if (!jsxElement) {
+	if (!jsxElement || !jsxElementNode) {
 		throw new JsxElementNotFoundAtLocationError();
 	}
 
@@ -961,7 +1025,12 @@ export const computeSequencePropsStatusFromContent = ({
 		throw new JsxElementIdentityMismatchError();
 	}
 
-	const filteredProps = computeSequenceOnlyPropsRecord({jsxElement, ast, keys});
+	const filteredProps = computeSequenceOnlyPropsRecord({
+		jsxElement,
+		jsxElementNode,
+		ast,
+		keys,
+	});
 	const effectsStatuses = computeEffectsForJsx({ast, jsxElement, effects});
 
 	return {

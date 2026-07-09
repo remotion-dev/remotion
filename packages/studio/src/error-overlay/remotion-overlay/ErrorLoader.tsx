@@ -1,5 +1,6 @@
 import {getLocationFromBuildError} from '@remotion/studio-shared';
 import React, {useEffect, useState} from 'react';
+import {WHITE} from '../../helpers/colors';
 import {wasErrorLoggedByServer} from '../error-origin';
 import type {ErrorRecord} from '../react-overlay/listen-to-runtime-errors';
 import {getErrorRecord} from '../react-overlay/listen-to-runtime-errors';
@@ -20,13 +21,13 @@ const container: React.CSSProperties = {
 };
 
 const errorWhileErrorStyle: React.CSSProperties = {
-	color: 'white',
+	color: WHITE,
 	lineHeight: 1.5,
 	whiteSpace: 'pre',
 };
 
 const errorWhileSymbolicatingStyle: React.CSSProperties = {
-	color: 'white',
+	color: WHITE,
 	lineHeight: 1.5,
 	marginTop: 24,
 	opacity: 0.7,

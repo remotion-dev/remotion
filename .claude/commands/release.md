@@ -1,1 +1,1 @@
-../../.agents/skills/release/SKILL.md
+../../.agents/commands/release.md

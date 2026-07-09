@@ -1,107 +1,97 @@
+import {loadFont} from '@remotion/google-fonts/Inter';
 import React from 'react';
-import {
-	AbsoluteFill,
-	Composition,
-	interpolate,
-	spring,
-	useCurrentFrame,
-	useVideoConfig,
-} from 'remotion';
+import {Easing, Interactive, interpolate, useCurrentFrame} from 'remotion';
 
-export const durationInFrames = 120;
-export const fps = 30;
-export const width = 1920;
-export const height = 1080;
+loadFont('normal', {
+	subsets: ['latin'],
+	weights: ['500', '600', '700'],
+});
 
 export const LowerThird: React.FC = () => {
 	const frame = useCurrentFrame();
-	const {fps: videoFps} = useVideoConfig();
-
-	const entrance = spring({
-		frame,
-		fps: videoFps,
-		config: {
-			damping: 18,
-			stiffness: 120,
-		},
-	});
-
-	const exit = interpolate(frame, [95, 115], [1, 0], {
-		extrapolateLeft: 'clamp',
-		extrapolateRight: 'clamp',
-	});
-
-	const progress = entrance * exit;
 
 	return (
-		<AbsoluteFill
+		<Interactive.Div
+			name="Container"
 			style={{
-				fontFamily: 'Inter, system-ui, sans-serif',
-				pointerEvents: 'none',
+				display: 'flex',
+				alignItems: 'center',
+				gap: 24,
+				width: 680,
+				boxSizing: 'border-box',
+				padding: 24,
+				borderRadius: 24,
+				fontFamily: 'Inter',
+				backgroundColor: 'rgba(255, 255, 255, 0.94)',
+				boxShadow: '0 6px 12px rgba(24, 24, 27, 0.2)',
+				border: '1px solid rgba(24, 24, 27, 0.08)',
+				opacity: interpolate(frame, [0, 18], [0, 1], {
+					extrapolateRight: 'clamp',
+				}),
+				translate: interpolate(frame, [0, 24], ['32px 0px', '0px 0px'], {
+					extrapolateRight: 'clamp',
+					easing: Easing.spring({
+						damping: 180,
+						stiffness: 120,
+					}),
+				}),
+				scale: interpolate(frame, [0, 22], [0.96, 1], {
+					extrapolateRight: 'clamp',
+					easing: Easing.bezier(0.33, 1, 0.68, 1),
+				}),
+				transformOrigin: 'left bottom',
 			}}
 		>
-			<div
+			<Interactive.Div
+				name="Initials badge"
 				style={{
-					position: 'absolute',
-					left: 120,
-					bottom: 130,
-					transform: `translateX(${interpolate(progress, [0, 1], [-90, 0])}px)`,
-					opacity: progress,
+					display: 'flex',
+					alignItems: 'center',
+					justifyContent: 'center',
+					width: 88,
+					height: 88,
+					borderRadius: 20,
+					background: 'linear-gradient(135deg, #2563eb, #60a5fa)',
+					color: 'white',
+					fontSize: 34,
+					fontWeight: 600,
+					lineHeight: 1,
+					boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.3)',
 				}}
 			>
-				<div
+				AM
+			</Interactive.Div>
+			<div
+				style={{
+					display: 'flex',
+					flexDirection: 'column',
+					gap: 2,
+					minWidth: 0,
+				}}
+			>
+				<Interactive.Div
+					name="Name"
 					style={{
-						width: 660,
-						padding: '34px 42px',
-						borderRadius: 28,
-						background: 'rgba(255, 255, 255, 0.92)',
-						boxShadow: '0 24px 80px rgba(0, 0, 0, 0.3)',
+						color: '#18181b',
+						fontSize: 48,
+						fontWeight: 700,
+						lineHeight: 1,
 					}}
 				>
-					<div
-						style={{
-							fontSize: 54,
-							fontWeight: 800,
-							color: '#111827',
-							letterSpacing: -1.5,
-						}}
-					>
-						Alex Morgan
-					</div>
-					<div
-						style={{
-							fontSize: 30,
-							fontWeight: 600,
-							color: '#2563eb',
-							marginTop: 10,
-						}}
-					>
-						Creative Developer
-					</div>
-				</div>
-				<div
+					Alex Morgan
+				</Interactive.Div>
+				<Interactive.Div
+					name="Title"
 					style={{
-						width: interpolate(progress, [0, 1], [0, 520]),
-						height: 10,
-						borderRadius: 999,
-						background: '#60a5fa',
-						marginTop: 18,
+						color: '#52525b',
+						fontSize: 26,
+						fontWeight: 500,
+						lineHeight: 1,
 					}}
-				/>
+				>
+					Creative Developer
+				</Interactive.Div>
 			</div>
-		</AbsoluteFill>
-	);
-};
-
-export const RemotionRoot: React.FC = () => {
-	return (
-		<Composition
-			id="LowerThird"
-			component={LowerThird}
-			durationInFrames={durationInFrames}
-			fps={fps}
-			height={height}
-			width={width}
-		/>
+		</Interactive.Div>
 	);
 };

@@ -26,6 +26,7 @@ import {
 import type {AbsoluteFillLayout} from './Sequence.js';
 import {Sequence} from './Sequence.js';
 import {useDelayRender} from './use-delay-render.js';
+import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {useVideoConfig} from './use-video-config.js';
 import {withInteractivitySchema} from './with-interactivity-schema.js';
 
@@ -264,6 +265,13 @@ function resolveHtmlInCanvasPixelDensity(
 	return pixelDensity;
 }
 
+const isMissingPaintRecordError = (error: unknown): boolean => {
+	return error instanceof DOMException && error.name === 'InvalidStateError';
+};
+
+const missingPaintRecordMessage =
+	'HtmlInCanvas: Expected the element to be inside the viewport during rendering, but Chrome had no cached paint record for it.';
+
 const resizeOffscreenCanvas = ({
 	offscreen,
 	width,
@@ -359,6 +367,7 @@ const HtmlInCanvasContent = forwardRef<
 		const canvasWidth = Math.ceil(width * resolvedPixelDensity);
 		const canvasHeight = Math.ceil(height * resolvedPixelDensity);
 		const {continueRender, cancelRender} = useDelayRender();
+		const {isRendering} = useRemotionEnvironment();
 
 		if (!isHtmlInCanvasSupported()) {
 			cancelRender(new Error(HTML_IN_CANVAS_UNSUPPORTED_MESSAGE));
@@ -375,8 +384,7 @@ const HtmlInCanvasContent = forwardRef<
 				if (typeof ref === 'function') {
 					ref(node);
 				} else if (ref) {
-					(ref as React.MutableRefObject<HTMLCanvasElement | null>).current =
-						node;
+					(ref as React.RefObject<HTMLCanvasElement | null>).current = node;
 				}
 			},
 			[ref],
@@ -428,43 +436,76 @@ const HtmlInCanvasContent = forwardRef<
 
 				const handle = delayRender('onPaint');
 				if (!initializedRef.current) {
-					initializedRef.current = true;
 					// `onInit` may be async (e.g. WebGPU `requestAdapter`/`requestDevice`).
 					// Capture an `ElementImage` here only for `onInit` consumers — do NOT
 					// reuse it for the paint handler below, because awaiting `onInit`
 					// can invalidate the capture's paint context, leaving subsequent
 					// uploads (e.g. `copyElementImageToTexture`) failing with
 					// "No context found for ElementImage" on the very first paint.
-					const initImage = placeholderCanvas.captureElementImage(element);
-					const currentOnInit = onInitRef.current;
-					if (currentOnInit) {
-						const cleanup = await currentOnInit({
-							canvas: offscreen,
-							element,
-							elementImage: initImage!,
-							pixelDensity: resolvedPixelDensity,
-						});
-						if (typeof cleanup !== 'function') {
-							throw new Error(
-								'HtmlInCanvas: when `onInit` is provided, it must return a cleanup function, or a Promise that resolves to one.',
-							);
-						}
-
-						if (unmountedRef.current) {
-							cleanup();
+					let initImage: ElementImage | null = null;
+					try {
+						initImage = placeholderCanvas.captureElementImage(element);
+					} catch (error) {
+						if (isMissingPaintRecordError(error) && !isRendering) {
+							// Element may be outside viewport (no cached paint record).
+							// Skip init — will retry on the next paint cycle.
+						} else if (isMissingPaintRecordError(error)) {
+							throw new Error(missingPaintRecordMessage);
 						} else {
-							onInitCleanupRef.current = cleanup;
+							throw error;
+						}
+					}
+
+					if (initImage) {
+						initializedRef.current = true;
+						const currentOnInit = onInitRef.current;
+						if (currentOnInit) {
+							const cleanup = await currentOnInit({
+								canvas: offscreen,
+								element,
+								elementImage: initImage,
+								pixelDensity: resolvedPixelDensity,
+							});
+							if (typeof cleanup !== 'function') {
+								throw new Error(
+									'HtmlInCanvas: when `onInit` is provided, it must return a cleanup function, or a Promise that resolves to one.',
+								);
+							}
+
+							if (unmountedRef.current) {
+								cleanup();
+							} else {
+								onInitCleanupRef.current = cleanup;
+							}
 						}
 					}
 				}
 
 				const handler = onPaintRef.current ?? defaultOnPaint;
 
-				const elImage = placeholderCanvas.captureElementImage(element);
+				let elImage: ElementImage;
+				try {
+					elImage = placeholderCanvas.captureElementImage(element);
+				} catch (error) {
+					// `captureElementImage` throws `InvalidStateError` when the
+					// element is outside the viewport (no cached paint record).
+					// Skip this paint cycle — the canvas retains its last state.
+					if (isMissingPaintRecordError(error) && !isRendering) {
+						continueRender(handle);
+						return;
+					}
+
+					if (isMissingPaintRecordError(error)) {
+						throw new Error(missingPaintRecordMessage);
+					}
+
+					throw error;
+				}
+
 				await handler({
 					canvas: offscreen,
 					element,
-					elementImage: elImage!,
+					elementImage: elImage,
 					pixelDensity: resolvedPixelDensity,
 				});
 
@@ -488,6 +529,7 @@ const HtmlInCanvasContent = forwardRef<
 			continueRender,
 			cancelRender,
 			resolvedPixelDensity,
+			isRendering,
 		]);
 
 		// Transfer control once per layout canvas instance, then listen for paint on
@@ -633,8 +675,7 @@ const HtmlInCanvasInner = forwardRef<
 				if (typeof ref === 'function') {
 					ref(node);
 				} else if (ref) {
-					(ref as React.MutableRefObject<HTMLCanvasElement | null>).current =
-						node;
+					(ref as React.RefObject<HTMLCanvasElement | null>).current = node;
 				}
 			},
 			[ref],

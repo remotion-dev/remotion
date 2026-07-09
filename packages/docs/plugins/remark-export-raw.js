@@ -1,6 +1,11 @@
+import {expandElementSourceReferences} from './element-source-utils.js';
+
 export default function remarkExportRaw() {
 	return (tree, file) => {
-		const raw = String(file.value ?? '');
+		const raw = expandElementSourceReferences({
+			raw: String(file.value ?? ''),
+			sourceFilePath: file.path,
+		});
 		const escaped = JSON.stringify(raw);
 
 		tree.children.unshift({

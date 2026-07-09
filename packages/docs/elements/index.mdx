@@ -20,13 +20,14 @@ They are practical video building blocks: captions, lower thirds, overlays, call
 
 An Element should be:
 
-- Small, focused, and useful in real videos
+- Building block for a video: an overlay, transition, motion graphic, data animation, etc.
 - Designed to live inside one `<Sequence>`
-- Remixable source code that users can edit, not a black-box dependency
-- HTML, CSS, and React-first for the first version
-- Zero-dependency where possible, with Remotion Effects as an exception
+- Free of specific colors or branding, so users can easily remix it
+- HTML, CSS, and React-first
+- Zero-dependency where possible, with [Remotion Effects](/docs/effects) as an exception
 - Safe to compose in Studio with normal z-layering
 - Free of unexpected global styles, layout side effects, and fullscreen assumptions unless it is explicitly a background
+- Sized to the smallest useful bounding box; placement in a video should come from the surrounding `<Sequence>`, not from internal padding or fullscreen wrappers
 
 Heavier Maps, Three.js, WebGL, Canvas, and R3F Elements can come later as separate batches of work.
 

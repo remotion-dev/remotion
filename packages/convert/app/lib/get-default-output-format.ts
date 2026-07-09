@@ -10,9 +10,9 @@ import {
 	WAVE,
 	WEBM,
 } from 'mediabunny';
-import type {OutputContainer} from '~/seo';
+import type {OutputContainer, RouteAction} from '~/seo';
 
-export const getDefaultOutputFormat = (
+const getDefaultConversionFormat = (
 	inputContainer: InputFormat,
 ): OutputContainer => {
 	if (inputContainer === MP4 || inputContainer === QTFF) {
@@ -37,4 +37,61 @@ export const getDefaultOutputFormat = (
 	}
 
 	throw new Error('not all input formats handled: ' + inputContainer.name);
+};
+
+export const getSameOutputFormat = (
+	inputContainer: InputFormat,
+): OutputContainer | null => {
+	if (inputContainer === MP4) {
+		return 'mp4';
+	}
+
+	if (inputContainer === QTFF) {
+		return 'mov';
+	}
+
+	if (inputContainer === WEBM) {
+		return 'webm';
+	}
+
+	if (inputContainer === MATROSKA) {
+		return 'mkv';
+	}
+
+	if (inputContainer === WAVE) {
+		return 'wav';
+	}
+
+	if (inputContainer === ADTS) {
+		return 'aac';
+	}
+
+	if (inputContainer === MP3) {
+		return 'mp3';
+	}
+
+	return null;
+};
+
+export const getDefaultEditOutputFormat = (
+	inputContainer: InputFormat,
+): OutputContainer => {
+	return (
+		getSameOutputFormat(inputContainer) ??
+		getDefaultConversionFormat(inputContainer)
+	);
+};
+
+export const getDefaultConvertOutputFormat = ({
+	inputContainer,
+	action,
+}: {
+	inputContainer: InputFormat;
+	action: RouteAction;
+}): OutputContainer => {
+	if (action.type === 'convert') {
+		return action.output;
+	}
+
+	return getDefaultConversionFormat(inputContainer);
 };

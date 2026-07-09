@@ -10,6 +10,7 @@ import {
 	sequenceSchema,
 	sequenceSchemaWithoutFrom,
 	sequenceStyleSchema,
+	textContentSchema,
 	textSchema,
 	transformSchema,
 } from '../interactivity-schema.js';
@@ -114,6 +115,7 @@ test('textSchema exposes common text style fields', () => {
 	expect(Object.keys(textSchema).sort()).toEqual(
 		[
 			'style.color',
+			'style.fontFamily',
 			'style.fontSize',
 			'style.fontStyle',
 			'style.fontWeight',
@@ -124,6 +126,11 @@ test('textSchema exposes common text style fields', () => {
 	);
 	expect(textSchema['style.color'].type).toBe('color');
 	expect(textSchema['style.color'].default).toBeUndefined();
+	expect(textSchema['style.fontFamily']).toMatchObject({
+		type: 'font-family',
+		default: undefined,
+		keyframable: false,
+	});
 	expect(textSchema['style.fontSize']).toMatchObject({
 		type: 'number',
 		default: undefined,
@@ -183,6 +190,22 @@ test('readValuesFromProps reads dot-notation keys via getNestedValue', () => {
 	expect(values['style.scale']).toBe(1.74);
 	expect(values['style.opacity']).toBe(0.5);
 	expect(values['style.rotate']).toBeUndefined();
+});
+
+test('readValuesFromProps ignores non-string text content runtime values', () => {
+	const props = {
+		children: {type: 'span'},
+	};
+	const flatSchema = getFlatSchemaWithAllKeys(textContentSchema);
+	const values = readValuesFromProps(props, ['children'], flatSchema);
+	expect(values.children).toBeUndefined();
+
+	const stringValues = readValuesFromProps(
+		{children: 'Hello'},
+		['children'],
+		flatSchema,
+	);
+	expect(stringValues.children).toBe('Hello');
 });
 
 test('selectActiveKeys returns only the hidden + layout keys when layout=none', () => {
@@ -245,6 +268,7 @@ test('mergeValues writes nested values back into props with dot keys', () => {
 	const props = {layout: 'absolute-fill', style: {scale: 1}};
 	const values = {layout: 'absolute-fill', 'style.scale': 2};
 	const merged = mergeValues({
+		flatSchema: getFlatSchemaWithAllKeys(sequenceSchema),
 		props,
 		valuesDotNotation: values,
 		schemaKeys: ['layout', 'style.scale'],
@@ -254,12 +278,26 @@ test('mergeValues writes nested values back into props with dot keys', () => {
 	expect((merged.style as {scale: number}).scale).toBe(2);
 });
 
+test('mergeValues preserves non-string text content props', () => {
+	const children = {type: 'span'};
+	const merged = mergeValues({
+		flatSchema: getFlatSchemaWithAllKeys(textContentSchema),
+		props: {children},
+		valuesDotNotation: {children: undefined},
+		schemaKeys: ['children'],
+		propsToDelete: new Set(),
+	});
+	expect(merged.children).toBe(children);
+});
+
 test('end-to-end: layout=none drops style.scale from active props', () => {
 	const props = {layout: 'none', style: {scale: 2}};
 	const flatKeys = Object.keys(getFlatSchemaWithAllKeys(sequenceSchema));
 	const values = readValuesFromProps(props, flatKeys);
 	const activeKeys = selectActiveKeys(sequenceSchema, values);
+	const flatSchema = getFlatSchemaWithAllKeys(sequenceSchema);
 	const merged = mergeValues({
+		flatSchema,
 		props,
 		valuesDotNotation: values,
 		schemaKeys: activeKeys,

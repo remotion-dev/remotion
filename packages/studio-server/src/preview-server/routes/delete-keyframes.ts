@@ -31,7 +31,7 @@ import {
 } from './can-update-sequence-props';
 import {logEffectUpdate} from './log-updates/log-effect-update';
 import {logUpdate} from './log-updates/log-update';
-import {withSavePropsLock} from './save-props-mutex';
+import {withSourceFileWriteQueue} from './source-file-write-queue';
 
 type ResolvedSequenceKeyframe = DeleteSequenceKeyframe & {
 	index: number;
@@ -383,7 +383,7 @@ export const deleteKeyframesHandler: ApiHandler<
 	remotionRoot,
 	logLevel,
 }) =>
-	withSavePropsLock(async () => {
+	withSourceFileWriteQueue(async () => {
 		RenderInternals.Log.trace(
 			{indent: false, logLevel},
 			`[delete-keyframes] Received request to delete ${

@@ -5,8 +5,8 @@ import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	buildTimelineTree,
 	flattenVisibleTreeNodes,
-	getTreeRowHeight,
 	getTimelineLayerHeight,
+	getTreeRowHeight,
 	TIMELINE_ITEM_BORDER_BOTTOM,
 } from '../../helpers/timeline-layout';
 import {ExpandedTracksGetterContext} from '../ExpandedTracksProvider';
@@ -62,6 +62,7 @@ export const useTimelineHeight = ({
 					getDragOverrides,
 					getEffectDragOverrides,
 					propStatuses,
+					includeTextContent: false,
 				});
 				const filteredTree = filterTimelineExpandedTree({
 					nodes: tree,

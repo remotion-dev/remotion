@@ -1,6 +1,11 @@
 import React, {useCallback, useContext, useEffect} from 'react';
 import {cmdOrCtrlCharacter} from '../error-overlay/remotion-overlay/ShortcutHint';
 import {
+	BORDER_CURRENT_COLOR,
+	CURRENT_COLOR,
+	TRANSPARENT,
+} from '../helpers/colors';
+import {
 	areKeyboardShortcutsDisabled,
 	useKeybinding,
 } from '../helpers/use-keybinding';
@@ -13,9 +18,9 @@ const style: React.CSSProperties = {
 	width: 16,
 	height: 16,
 	minWidth: 16,
-	border: '1px solid currentColor',
+	border: BORDER_CURRENT_COLOR,
 	borderRadius: 3,
-	color: 'currentColor',
+	color: CURRENT_COLOR,
 	position: 'relative',
 };
 
@@ -31,7 +36,7 @@ export const SidebarCollapserControls: React.FC<{}> = () => {
 				width: '35%',
 				height: '100%',
 				borderRight: '1px solid ' + color,
-				background: leftSidebarStatus === 'expanded' ? color : 'transparent',
+				background: leftSidebarStatus === 'expanded' ? color : TRANSPARENT,
 			};
 		},
 		[leftSidebarStatus],
@@ -46,7 +51,7 @@ export const SidebarCollapserControls: React.FC<{}> = () => {
 				position: 'absolute',
 				borderLeft: '1px solid ' + color,
 				background:
-					sidebarCollapsedStateRight === 'expanded' ? color : 'transparent',
+					sidebarCollapsedStateRight === 'expanded' ? color : TRANSPARENT,
 			};
 		},
 		[sidebarCollapsedStateRight],

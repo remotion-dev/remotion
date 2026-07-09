@@ -7,36 +7,48 @@ metadata:
 
 A `<Composition>` defines the component, width, height, fps and duration of a renderable video.
 
-## Default Props
+## Default Props and scaffold metadata
 
 Pass `defaultProps` to provide initial values for your component.  
 Values must be JSON-serializable (`Date`, `Map`, `Set`, and `staticFile()` are supported).
+Use `defaultProps` for composition-wide values that should be visible and editable before the video renders.
+
+For Studio editing, keep `defaultProps` as an inline object literal on `<Composition>` or `<Still>`.
+Do not store it in a variable, import it, spread it, create it with a helper, or wrap it in `satisfies`.
+When scaffolding, keep the component and `<Composition>` registration in the same file so `width`, `height`, `fps`, `durationInFrames`, and `defaultProps` are visible next to the code that uses them.
+Use `type` declarations for props rather than `interface` to ensure `defaultProps` type safety.
 
 ```tsx
-import { Composition } from "remotion";
-import { MyComposition, MyCompositionProps } from "./MyComposition";
-
-export const RemotionRoot = () => {
-  return (
-    <Composition
-      id="MyComposition"
-      component={MyComposition}
-      durationInFrames={100}
-      fps={30}
-      width={1080}
-      height={1080}
-      defaultProps={
-        {
-          title: "Hello World",
-          color: "#ff0000",
-        } satisfies MyCompositionProps
-      }
-    />
-  );
+type Props = {
+  readonly title: string;
 };
-```
 
-Use `type` declarations for props rather than `interface` to ensure `defaultProps` type safety.
+export const MyComposition = ({ title }: Props) => <h1>{title}</h1>;
+
+const defaultProps = { title: "Hello World" };
+
+// 👍 Inline metadata and defaults
+<Composition
+  id="MyComposition"
+  component={MyComposition}
+  durationInFrames={100}
+  fps={30}
+  width={1080}
+  height={1080}
+  defaultProps={{ title: "Hello World" }}
+/>;
+
+// 👎 Hidden defaults cannot be saved back by Studio
+<Composition
+  id="OtherComposition"
+  component={MyComposition}
+  durationInFrames={100}
+  fps={30}
+  width={1080}
+  height={1080}
+  defaultProps={defaultProps}
+/>;
+```
 
 ## Folders
 
@@ -81,15 +93,14 @@ export const RemotionRoot = () => {
 
 ## Calculate Metadata
 
-Use `calculateMetadata` to make dimensions, duration, or props dynamic based on data.
+Use `calculateMetadata` to make dimensions, duration, or props dynamic based on input props, fetched data, or asset metadata.
+For static dimensions, duration, FPS, and initial props, inline the values on `<Composition>`.
 
 ```tsx
-import { Composition, CalculateMetadataFunction } from "remotion";
-import { MyComposition, MyCompositionProps } from "./MyComposition";
-
-const calculateMetadata: CalculateMetadataFunction<
-  MyCompositionProps
-> = async ({ props, abortSignal }) => {
+const calculateMetadata: CalculateMetadataFunction<Props> = async ({
+  props,
+  abortSignal,
+}) => {
   const data = await fetch(`https://api.example.com/video/${props.videoId}`, {
     signal: abortSignal,
   }).then((res) => res.json());
@@ -103,19 +114,15 @@ const calculateMetadata: CalculateMetadataFunction<
   };
 };
 
-export const RemotionRoot = () => {
-  return (
-    <Composition
-      id="MyComposition"
-      component={MyComposition}
-      fps={30}
-      width={1080}
-      height={1080}
-      defaultProps={{ videoId: "abc123" }}
-      calculateMetadata={calculateMetadata}
-    />
-  );
-};
+<Composition
+  id="MyComposition"
+  component={MyComposition}
+  fps={30}
+  width={1080}
+  height={1080}
+  defaultProps={{ videoId: "abc123" }}
+  calculateMetadata={calculateMetadata}
+/>;
 ```
 
 The function can return `props`, `durationInFrames`, `width`, `height`, `fps`, and codec-related defaults. It runs once before rendering begins.

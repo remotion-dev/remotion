@@ -33,19 +33,17 @@ const groupByNodePath = <T extends {nodePath: SequencePropsSubscriptionKey}>(
 	return [...groups.values()];
 };
 
-export const callMoveKeyframes = ({
+export const applyOptimisticKeyframeMoves = ({
 	sequenceKeyframes,
 	effectKeyframes,
 	setPropStatuses,
-	clientId,
 }: {
 	sequenceKeyframes: MoveSequenceKeyframeChange[];
 	effectKeyframes: MoveEffectKeyframeChange[];
 	setPropStatuses: SetPropStatuses;
-	clientId: string;
-}): Promise<void> => {
+}) => {
 	if (sequenceKeyframes.length === 0 && effectKeyframes.length === 0) {
-		return Promise.resolve();
+		return;
 	}
 
 	for (const keyframes of groupByNodePath(sequenceKeyframes)) {
@@ -84,6 +82,28 @@ export const callMoveKeyframes = ({
 			}),
 		);
 	}
+};
+
+export const callMoveKeyframes = ({
+	sequenceKeyframes,
+	effectKeyframes,
+	setPropStatuses,
+	clientId,
+}: {
+	sequenceKeyframes: MoveSequenceKeyframeChange[];
+	effectKeyframes: MoveEffectKeyframeChange[];
+	setPropStatuses: SetPropStatuses;
+	clientId: string;
+}): Promise<void> => {
+	if (sequenceKeyframes.length === 0 && effectKeyframes.length === 0) {
+		return Promise.resolve();
+	}
+
+	applyOptimisticKeyframeMoves({
+		sequenceKeyframes,
+		effectKeyframes,
+		setPropStatuses,
+	});
 
 	return callApi('/api/move-keyframes', {
 		sequenceKeyframes: sequenceKeyframes.map((keyframe) => ({

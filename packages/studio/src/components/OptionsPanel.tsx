@@ -1,5 +1,4 @@
 import React, {
-	createRef,
 	useCallback,
 	useContext,
 	useImperativeHandle,
@@ -14,6 +13,7 @@ import {SHOW_BROWSER_RENDERING} from '../helpers/show-browser-rendering';
 import {useZodIfPossible, useZodTypesIfPossible} from './get-zod-if-possible';
 import {InspectorPanel} from './InspectorPanel';
 import {showNotification} from './Notifications/NotificationCenter';
+import {optionsSidebarTabs} from './options-sidebar-tabs';
 import {deepEqual} from './RenderModal/SchemaEditor/deep-equal';
 import {extractEnumJsonPaths} from './RenderModal/SchemaEditor/extract-enum-json-paths';
 import {SchemaResetButton} from './RenderModal/SchemaEditor/SchemaResetButton';
@@ -51,10 +51,6 @@ export const persistSelectedOptionsSidebarPanel = (
 	localStorage.setItem(localStorageKey, panel);
 };
 
-export const optionsSidebarTabs = createRef<{
-	selectRendersPanel: () => void;
-}>();
-
 export const OptionsPanel: React.FC<{
 	readonly readOnlyStudio: boolean;
 }> = ({readOnlyStudio}) => {
@@ -91,6 +87,10 @@ export const OptionsPanel: React.FC<{
 
 	useImperativeHandle(optionsSidebarTabs, () => {
 		return {
+			selectInspectorPanel: () => {
+				setPanel('inspector');
+				persistSelectedOptionsSidebarPanel('inspector');
+			},
 			selectRendersPanel: () => {
 				setPanel('renders');
 				persistSelectedOptionsSidebarPanel('renders');
@@ -281,6 +281,7 @@ export const OptionsPanel: React.FC<{
 				<InspectorPanel
 					composition={composition}
 					currentDefaultProps={currentDefaultProps}
+					readOnlyStudio={readOnlyStudio}
 					setDefaultProps={setDefaultProps}
 				/>
 			) : !renderingAvailable ? null : (

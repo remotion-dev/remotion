@@ -32,6 +32,10 @@ export const FileAvailable: React.FC<{
 		useState<RotateOrMirrorOrCropState>(() =>
 			defaultRotateOrMirorState(routeAction),
 		);
+	const [enableTrim, setEnableTrim] = useState(
+		() =>
+			routeAction.type === 'generic-trim' || routeAction.type === 'trim-format',
+	);
 
 	const probeResult = useProbe({
 		src,
@@ -48,6 +52,8 @@ export const FileAvailable: React.FC<{
 			height: Infinity,
 		};
 	});
+	const [trimInFrame, setTrimInFrame] = useState<number | null>(null);
+	const [trimOutFrame, setTrimOutFrame] = useState<number | null>(null);
 
 	const [waveform, setWaveform] = useState<number[]>([]);
 
@@ -70,19 +76,28 @@ export const FileAvailable: React.FC<{
 			<div>
 				<BackButton setSrc={setSrc} />
 				<div className="h-4" />
-				<VideoPlayer
-					src={src}
-					isAudio={isAudio}
-					waveform={waveform}
-					crop={enableRotateOrMirrow === 'crop'}
-					setUnclampedRect={setCropOperation}
-					unclampedRect={cropOperation}
-					dimensions={probeResult.dimensions}
-					durationInSeconds={probeResult.durationInSeconds}
-					fps={probeResult.fps}
-					onPlaybackTimeChange={setPlaybackTime}
-				/>
-				<div className="h-8" />
+				{probeResult.error ? null : (
+					<>
+						<VideoPlayer
+							src={src}
+							isAudio={isAudio}
+							waveform={waveform}
+							crop={enableRotateOrMirrow === 'crop'}
+							trim={enableTrim}
+							trimInFrame={trimInFrame}
+							trimOutFrame={trimOutFrame}
+							setTrimInFrame={setTrimInFrame}
+							setTrimOutFrame={setTrimOutFrame}
+							setUnclampedRect={setCropOperation}
+							unclampedRect={cropOperation}
+							dimensions={probeResult.dimensions}
+							durationInSeconds={probeResult.durationInSeconds}
+							fps={probeResult.fps}
+							onPlaybackTimeChange={setPlaybackTime}
+						/>
+						<div className="h-8" />
+					</>
+				)}
 				<div className="lg:inline-flex lg:flex-row items-start">
 					<Probe
 						isAudio={isAudio}
@@ -122,6 +137,11 @@ export const FileAvailable: React.FC<{
 											dimensions={probeResult.dimensions}
 											durationInSeconds={probeResult.durationInSeconds ?? null}
 											action={routeAction}
+											trim={enableTrim}
+											setTrim={setEnableTrim}
+											trimInFrame={trimInFrame}
+											trimOutFrame={trimOutFrame}
+											fps={probeResult.fps}
 											enableRotateOrMirror={enableRotateOrMirrow}
 											setEnableRotateOrMirror={setEnableRotateOrMirror}
 											userRotation={actualUserRotation}

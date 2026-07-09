@@ -12,7 +12,7 @@ import {
 	makeTriangle,
 } from '@remotion/shapes';
 import type {ComponentDragData} from '@remotion/studio-shared';
-import type {ShapeName} from './shapes-info';
+import {shapeNames, type ShapeName} from './shapes-info';
 
 export type ShapeDragInfo = {
 	readonly fill: string;
@@ -20,20 +20,6 @@ export type ShapeDragInfo = {
 	readonly path: string;
 	readonly width: number;
 };
-
-const shapeNames: readonly ShapeName[] = [
-	'Arrow',
-	'Callout',
-	'Circle',
-	'Ellipse',
-	'Heart',
-	'Pie',
-	'Polygon',
-	'Rect',
-	'Spark',
-	'Star',
-	'Triangle',
-];
 
 const isShapeName = (value: string): value is ShapeName => {
 	return shapeNames.includes(value as ShapeName);
@@ -226,7 +212,9 @@ export const getShapeDragInfo = (
 				}),
 				props,
 			);
-		default:
-			return null;
+		default: {
+			const exhaustiveCheck: never = shape;
+			return exhaustiveCheck;
+		}
 	}
 };

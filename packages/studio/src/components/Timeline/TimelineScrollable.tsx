@@ -1,4 +1,8 @@
 import React, {useMemo} from 'react';
+import {
+	BORDER_TIMELINE_MARQUEE_BLUE,
+	TIMELINE_MARQUEE_BLUE_ALPHA_16,
+} from '../../helpers/colors';
 import {HORIZONTAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {scrollableRef} from './timeline-refs';
 import {
@@ -16,8 +20,8 @@ const outer: React.CSSProperties = {
 };
 
 const marqueeStyle: React.CSSProperties = {
-	backgroundColor: 'rgba(70, 130, 255, 0.16)',
-	border: '1px solid rgba(70, 130, 255, 0.75)',
+	backgroundColor: TIMELINE_MARQUEE_BLUE_ALPHA_16,
+	border: BORDER_TIMELINE_MARQUEE_BLUE,
 	boxSizing: 'border-box',
 	pointerEvents: 'none',
 	position: 'fixed',

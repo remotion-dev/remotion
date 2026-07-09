@@ -4,11 +4,12 @@ import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {NoRegisterRoot} from './components/NoRegisterRoot';
 import {startErrorOverlay} from './error-overlay/entry-basic';
+import {BACKGROUND_HEX} from './helpers/colors';
 import {enableHotMiddleware} from './hot-middleware-client/client';
 import {Studio} from './Studio';
 
 Internals.CSSUtils.injectCSS(
-	Internals.CSSUtils.makeDefaultPreviewCSS(null, '#1f2428'),
+	Internals.CSSUtils.makeDefaultPreviewCSS(null, BACKGROUND_HEX),
 );
 
 declare global {

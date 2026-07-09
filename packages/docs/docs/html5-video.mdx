@@ -10,7 +10,7 @@ crumb: 'API - remotion'
 Wraps the native [`<video>`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLVideoElement) element to include video in your component that is synchronized with Remotion's time.
 
 :::note
-Prefer [one of the other video tags](/docs/video-tags) which perform better.
+For new video usage, prefer [`<Video>`](/docs/media/video) from [`@remotion/media`](/docs/media). Use `<Html5Video>` when you specifically need native HTML5 `<video>` behavior.
 :::
 
 :::warning Not supported in client-side rendering
@@ -327,10 +327,11 @@ Remotion will download the whole video during render in order to mix its audio. 
 
 See: [Which video formats does Remotion support?](/docs/miscellaneous/video-formats)
 
-## Alternatives: `<OffthreadVideo>` and `@remotion/media`
+## Alternatives: `@remotion/media` and `<OffthreadVideo>`
 
-[`<OffthreadVideo>`](/docs/offthreadvideo) is a Rust-based alternative to `<Html5Video>`.  
-[`@remotion/media`](/docs/media/video) is an experimental component that will replace `<Html5Video>` at some point.
+[`<Video>` from `@remotion/media`](/docs/media/video) is the recommended video component for new code.
+
+[`<OffthreadVideo>`](/docs/offthreadvideo) is an alternative for direct server-side frame extraction and can also be used as a fallback target by `@remotion/media`.
 
 To decide which tag to use, see: [Comparison of video tags](/docs/video-tags)
 
@@ -341,8 +342,8 @@ To decide which tag to use, see: [Comparison of video tags](/docs/video-tags)
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/video/html5-video.tsx)
+- [`<Video />` (from `@remotion/media`)](/docs/media/video)
 - [`<Html5Audio />`](/docs/html5-audio)
 - [`<OffthreadVideo />`](/docs/offthreadvideo)
-- [`<Video />` (from `@remotion/media`)](/docs/media/video)
 - [Comparison of video tags](/docs/video-tags)
 - [`Change the speed of a video over time`](/docs/miscellaneous/snippets/accelerated-video)

@@ -12,7 +12,7 @@ import {
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import type {LoopDisplay} from 'remotion';
 import {Internals} from 'remotion';
-import {LIGHT_TRANSPARENT} from '../helpers/colors';
+import {WHITE_ALPHA_70, WHITE_ALPHA_60} from '../helpers/colors';
 import {TIMELINE_BORDER} from '../helpers/timeline-layout';
 
 const EMPTY_PEAKS = new Float32Array(0);
@@ -103,7 +103,7 @@ const drawLoopedWaveform = ({
 	drawBars({
 		canvas: targetCanvas,
 		peaks,
-		color: 'rgba(255, 255, 255, 0.6)',
+		color: WHITE_ALPHA_60,
 		volume,
 		width: targetCanvas.width,
 	});
@@ -335,7 +335,7 @@ export const AudioWaveform: React.FC<{
 			drawBars({
 				canvas: canvasElement,
 				peaks: portionPeaks ?? EMPTY_PEAKS,
-				color: 'rgba(255, 255, 255, 0.6)',
+				color: WHITE_ALPHA_60,
 				volume: parsedVolume,
 				width: w,
 			});
@@ -393,7 +393,7 @@ export const AudioWaveform: React.FC<{
 				context.lineTo(x, y);
 			}
 		});
-		context.strokeStyle = LIGHT_TRANSPARENT;
+		context.strokeStyle = WHITE_ALPHA_70;
 		context.stroke();
 	}, [height, parsedVolume, shouldRenderVolumeOverlay, visualizationWidth]);
 

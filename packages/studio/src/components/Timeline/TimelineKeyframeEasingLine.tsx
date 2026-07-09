@@ -5,7 +5,7 @@ import {
 import React, {useCallback, useContext, useMemo, useRef} from 'react';
 import {Internals, useVideoConfig} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
-import {BLUE} from '../../helpers/colors';
+import {BLUE, WHITE_ALPHA_10} from '../../helpers/colors';
 import {getXPositionOfItemInTimelineImperatively} from '../../helpers/get-left-of-timeline-slider';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
@@ -38,7 +38,7 @@ const easingLineButton: React.CSSProperties = {
 };
 
 const easingLine: React.CSSProperties = {
-	backgroundColor: 'rgba(255, 255, 255, 0.1)',
+	backgroundColor: WHITE_ALPHA_10,
 	borderRadius: lineHeight / 2,
 	height: lineHeight,
 	left: 0,
@@ -46,6 +46,24 @@ const easingLine: React.CSSProperties = {
 	right: 0,
 	top: '50%',
 	transform: 'translateY(-50%)',
+};
+
+export const getTimelineKeyframeEasingLineStyle = (
+	selected: boolean,
+): React.CSSProperties => ({
+	...easingLine,
+	outline: selected ? `1px solid ${BLUE}` : undefined,
+});
+
+export const TimelineKeyframeEasingLineVisual: React.FC<{
+	readonly selected: boolean;
+}> = ({selected}) => {
+	const lineStyle = useMemo(
+		() => getTimelineKeyframeEasingLineStyle(selected),
+		[selected],
+	);
+
+	return <div style={lineStyle} />;
 };
 
 const TimelineKeyframeEasingLineUnmemoized: React.FC<{
@@ -197,14 +215,6 @@ const TimelineKeyframeEasingLineUnmemoized: React.FC<{
 		videoConfig.durationInFrames,
 	]);
 
-	const lineStyle = useMemo(
-		(): React.CSSProperties => ({
-			...easingLine,
-			outline: selected ? `1px solid ${BLUE}` : undefined,
-		}),
-		[selected],
-	);
-
 	const onPointerDown = useTimelineEasingKeyframeDrag({
 		onSelect,
 		selectable,
@@ -227,7 +237,7 @@ const TimelineKeyframeEasingLineUnmemoized: React.FC<{
 				aria-label={`Select easing from frame ${fromFrame} to ${toFrame}`}
 				onPointerDown={selectable ? onPointerDown : undefined}
 			>
-				<div style={lineStyle} />
+				<TimelineKeyframeEasingLineVisual selected={selected} />
 			</button>
 			<ContextMenuForTarget
 				triggerRef={buttonRef}

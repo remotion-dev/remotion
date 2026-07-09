@@ -7,6 +7,7 @@ import {
 import {
 	SCHEMA_FIELD_ROW_HEIGHT,
 	getEffectFieldsToShow,
+	getFieldsToShow,
 } from '../schema-field-info';
 
 const effect = {
@@ -155,4 +156,132 @@ test('getEffectFieldsToShow sizes array fields from the current value', () => {
 
 	const colors = fields.find((field) => field.key === 'colors');
 	expect(colors?.rowHeight).toBe(SCHEMA_FIELD_ROW_HEIGHT * 4);
+});
+
+test('getFieldsToShow sorts fields by inspector group order', () => {
+	const fields = getFieldsToShow({
+		schema: {
+			'style.translate': {
+				type: 'translate',
+				default: '0px 0px',
+			},
+			playbackRate: {
+				type: 'number',
+				default: 1,
+				hiddenFromList: false,
+			},
+			'style.fontSize': {
+				type: 'number',
+				default: undefined,
+				hiddenFromList: false,
+			},
+			'style.color': {
+				type: 'color',
+				default: undefined,
+			},
+			'style.fontFamily': {
+				type: 'font-family',
+				default: undefined,
+				keyframable: false,
+			},
+			'style.rotate': {
+				type: 'rotation-css',
+				default: '0deg',
+			},
+			'style.opacity': {
+				type: 'number',
+				default: 1,
+				hiddenFromList: false,
+			},
+			volume: {
+				type: 'number',
+				default: 1,
+				hiddenFromList: false,
+			},
+			'style.letterSpacing': {
+				type: 'number',
+				default: undefined,
+				hiddenFromList: false,
+			},
+			'style.textAlign': {
+				type: 'enum',
+				default: 'left',
+				variants: {
+					left: {},
+					center: {},
+				},
+			},
+		},
+		currentRuntimeValueDotNotation: {},
+		getDragOverrides: () => ({}),
+		propStatuses: {},
+		nodePath,
+	});
+
+	expect(fields?.map((field) => field.key)).toEqual([
+		'playbackRate',
+		'volume',
+		'style.translate',
+		'style.rotate',
+		'style.opacity',
+		'style.fontSize',
+		'style.color',
+		'style.fontFamily',
+		'style.letterSpacing',
+		'style.textAlign',
+	]);
+	expect(fields?.map((field) => field.group)).toEqual([
+		'controls',
+		'controls',
+		'transforms',
+		'transforms',
+		'transforms',
+		'text',
+		'text',
+		'text',
+		'text',
+		'text',
+	]);
+});
+
+test('getEffectFieldsToShow sorts fields by inspector group order', () => {
+	const fields = getEffectFieldsToShow({
+		effect: {
+			...effect,
+			schema: {
+				'style.scale': {
+					type: 'scale',
+					default: 1,
+				},
+				intensity: {
+					type: 'number',
+					default: 1,
+					hiddenFromList: false,
+				},
+				'style.fontWeight': {
+					type: 'enum',
+					default: '400',
+					variants: {
+						'400': {},
+						'700': {},
+					},
+				},
+				'style.translate': {
+					type: 'translate',
+					default: '0px 0px',
+				},
+			},
+		},
+		effectIndex: 0,
+		nodePath: null,
+		propStatuses: {},
+		getEffectDragOverrides: () => ({}),
+	});
+
+	expect(fields.map((field) => field.key)).toEqual([
+		'intensity',
+		'style.scale',
+		'style.translate',
+		'style.fontWeight',
+	]);
 });

@@ -1,4 +1,5 @@
 import type {Config} from '@docusaurus/types';
+import remarkElementSource from './plugins/remark-element-source.js';
 import remarkExportRaw from './plugins/remark-export-raw.js';
 
 const lowMemoryBuild =
@@ -83,6 +84,7 @@ const config: Config = {
 						{to: '/docs/editor-starter', label: 'Editor Starter'},
 						{to: '/docs/timeline', label: 'Timeline'},
 						{to: '/docs/recorder', label: 'Recorder'},
+						{to: 'https://remotion.dev/convert', label: 'Convert'},
 					],
 				},
 				{
@@ -90,6 +92,7 @@ const config: Config = {
 					label: 'Resources',
 					position: 'left',
 					items: [
+						{to: '/templates', label: 'Templates'},
 						{to: 'https://remotion.dev/prompts', label: 'Prompts'},
 						{to: 'learn', label: 'Learn'},
 						{
@@ -98,10 +101,7 @@ const config: Config = {
 						},
 						{to: 'blog', label: 'Blog'},
 						{to: 'showcase', label: 'Showcase'},
-						{to: 'https://remotion.dev/convert', label: 'Convert a video'},
-						{to: 'https://remotion.dev/timing-editor', label: 'Timing Editor'},
 						{to: '/docs/support', label: 'Support'},
-						{to: '/templates', label: 'Templates'},
 					],
 				},
 				{
@@ -109,7 +109,7 @@ const config: Config = {
 					label: 'Commercial',
 					position: 'left',
 					items: [
-						{to: 'https://remotion.pro/license', label: 'License + Pricing'},
+						{to: '/docs/pricing', label: 'License + Pricing'},
 						{to: 'https://remotion.pro/store', label: 'Store'},
 						{to: 'success-stories', label: 'Success Stories'},
 						{to: 'experts', label: 'Experts'},
@@ -182,8 +182,8 @@ const config: Config = {
 							href: 'https://github.com/remotion-dev/remotion',
 						},
 						{
-							label: 'Company License',
-							href: 'https://remotion.pro/license',
+							label: 'License + Pricing',
+							to: '/docs/pricing',
 						},
 					],
 				},
@@ -333,6 +333,7 @@ const config: Config = {
 				editUrl:
 					'https://github.com/remotion-dev/remotion/edit/main/packages/docs/',
 				showLastUpdateTime: showGitLastUpdate,
+				beforeDefaultRemarkPlugins: [remarkElementSource],
 				remarkPlugins: [remarkExportRaw],
 			},
 		],

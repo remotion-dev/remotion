@@ -3,6 +3,7 @@ import React, {
 	useCallback,
 	useContext,
 	useEffect,
+	useLayoutEffect,
 	useMemo,
 	useRef,
 	useState,
@@ -11,6 +12,7 @@ import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {useKeybinding} from '../helpers/use-keybinding';
+import {EditorShowGuidesContext} from '../state/editor-guides';
 import {EditorShowOutlinesContext} from '../state/editor-outlines';
 import {ScaleLockContext} from '../state/scale-lock';
 import {showNotification} from './Notifications/NotificationCenter';
@@ -22,8 +24,8 @@ import {
 	getSelectedOutlineDragValues,
 	getSelectedOutlineKeyboardNudgeDeltas,
 	getSelectedOutlineKeyboardNudgeDirection,
-	type SelectedOutlineKeyframedDragChange,
 	type SelectedOutlineKeyboardNudgeDirection,
+	type SelectedOutlineKeyframedDragChange,
 	type SelectedOutlineStaticDragChange,
 } from './selected-outline-drag';
 import {type SelectedOutline} from './selected-outline-geometry';
@@ -37,6 +39,11 @@ import {
 	outlinesAreEqual,
 } from './selected-outline-measurement';
 import {
+	getSelectedOutlineSnapTargets,
+	selectedOutlineSnapIndicatorColor,
+	type SelectedOutlineSnapPoint,
+} from './selected-outline-snap';
+import {
 	rotateFieldKey,
 	scaleFieldKey,
 	transformOriginFieldKey,
@@ -45,7 +52,10 @@ import {
 	type SelectedOutlineTarget,
 } from './selected-outline-types';
 import {getSelectedUvHandles} from './selected-outline-uv';
-import {SelectedOutlineElement} from './SelectedOutlineElement';
+import {
+	SelectedOutlineElement,
+	SelectedOutlineTransformOriginHandle,
+} from './SelectedOutlineElement';
 import {
 	SelectedOutlineUvHandleCircleLayer,
 	SelectedOutlineUvHandleConnectionLayer,
@@ -55,9 +65,9 @@ import {getCurrentDuration, getCurrentFps} from './Timeline/imperative-state';
 import {saveSequenceProps} from './Timeline/save-sequence-prop';
 import {ensureFrameIsInViewport} from './Timeline/timeline-scroll-logic';
 import {
+	useTimelineSelection,
 	type TimelineSelection,
 	type TimelineSelectionInteraction,
-	useTimelineSelection,
 } from './Timeline/TimelineSelection';
 
 export {
@@ -78,11 +88,11 @@ export {
 	getSelectedOutlineScaleEdgeInfo,
 	getSelectedOutlineTransformOriginLockedAxis,
 	isSelectedOutlineDragPastThreshold,
-	selectedOutlineUvSnapThresholdPx,
 	selectedOutlineTransformOriginSnapThresholdPx,
+	selectedOutlineUvSnapThresholdPx,
 	snapSelectedOutlineRotationDeltaDegrees,
-	snapSelectedOutlineUv,
 	snapSelectedOutlineTransformOriginUv,
+	snapSelectedOutlineUv,
 } from './selected-outline-drag';
 export {
 	getOutlineSelectionInteraction,
@@ -108,6 +118,53 @@ const outlineContainer: React.CSSProperties = {
 	overflow: 'visible',
 };
 
+const SelectedOutlineSnapIndicators: React.FC<{
+	readonly activeSnapPoints: readonly SelectedOutlineSnapPoint[];
+	readonly compositionHeight: number;
+	readonly compositionWidth: number;
+	readonly scale: number;
+}> = ({activeSnapPoints, compositionHeight, compositionWidth, scale}) => {
+	if (activeSnapPoints.length === 0) {
+		return null;
+	}
+
+	return (
+		<g pointerEvents="none">
+			{activeSnapPoints.map((snapPoint) => {
+				if (snapPoint.target.axis === 'x') {
+					const x = snapPoint.target.position * scale;
+					return (
+						<line
+							key={`${snapPoint.target.axis}-${snapPoint.target.type}-${snapPoint.target.position}-${snapPoint.edge}`}
+							x1={x}
+							x2={x}
+							y1={0}
+							y2={compositionHeight * scale}
+							stroke={selectedOutlineSnapIndicatorColor}
+							strokeWidth={1}
+							vectorEffect="non-scaling-stroke"
+						/>
+					);
+				}
+
+				const y = snapPoint.target.position * scale;
+				return (
+					<line
+						key={`${snapPoint.target.axis}-${snapPoint.target.type}-${snapPoint.target.position}-${snapPoint.edge}`}
+						x1={0}
+						x2={compositionWidth * scale}
+						y1={y}
+						y2={y}
+						stroke={selectedOutlineSnapIndicatorColor}
+						strokeWidth={1}
+						vectorEffect="non-scaling-stroke"
+					/>
+				);
+			})}
+		</g>
+	);
+};
+
 export const orderOutlinesForRendering = ({
 	outlines,
 	targetsByKey,
@@ -124,10 +181,21 @@ export const orderOutlinesForRendering = ({
 };
 
 export const SelectedOutlineOverlay: React.FC<{
+	readonly compositionHeight: number;
+	readonly compositionWidth: number;
 	readonly scale: number;
-}> = ({scale}) => {
+	readonly translationX: number;
+	readonly translationY: number;
+}> = ({
+	compositionHeight,
+	compositionWidth,
+	scale,
+	translationX,
+	translationY,
+}) => {
 	const {selectedItems, selectItem} = useTimelineSelection();
 	const {sequences} = useContext(Internals.SequenceManager);
+	const {canvasContent} = useContext(Internals.CompositionManager);
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {overrideIdToNodePathMappings} = useContext(
@@ -141,6 +209,7 @@ export const SelectedOutlineOverlay: React.FC<{
 	);
 	const {getScaleLockState} = useContext(ScaleLockContext);
 	const {editorShowOutlines} = useContext(EditorShowOutlinesContext);
+	const {editorShowGuides, guidesList} = useContext(EditorShowGuidesContext);
 	const {frameBack, frameForward, getCurrentFrame, seek} =
 		PlayerInternals.usePlayer();
 	const keybindings = useKeybinding();
@@ -150,6 +219,9 @@ export const SelectedOutlineOverlay: React.FC<{
 		null,
 	);
 	const [draggingOutline, setDraggingOutline] = useState(false);
+	const [activeSnapPoints, setActiveSnapPoints] = useState<
+		readonly SelectedOutlineSnapPoint[]
+	>([]);
 	const overlayRef = useRef<SVGSVGElement>(null);
 	const keyboardNudgeSessionRef =
 		useRef<SelectedOutlineKeyboardNudgeSession | null>(null);
@@ -159,8 +231,16 @@ export const SelectedOutlineOverlay: React.FC<{
 		setDraggingOutline(dragging);
 		if (dragging) {
 			setHoveredOutlineKey(null);
+		} else {
+			setActiveSnapPoints([]);
 		}
 	}, []);
+	const onSnapPointsChange = useCallback(
+		(snapPoints: readonly SelectedOutlineSnapPoint[]) => {
+			setActiveSnapPoints(snapPoints);
+		},
+		[],
+	);
 	const selectOutlineItem = useCallback(
 		(item: TimelineSelection, interaction?: TimelineSelectionInteraction) => {
 			selectItem(item, interaction, undefined, {reveal: true});
@@ -223,6 +303,8 @@ export const SelectedOutlineOverlay: React.FC<{
 				activeSchema?.[transformOriginFieldKey];
 			const transformOriginPropStatus =
 				nodePropStatuses?.[transformOriginFieldKey];
+			const textContentFieldSchema = activeSchema?.children;
+			const textContentPropStatus = nodePropStatuses?.children;
 			const transformOriginValueForRotation =
 				transformOriginFieldSchema?.type === 'transform-origin' &&
 				(transformOriginPropStatus?.status === 'static' ||
@@ -290,6 +372,11 @@ export const SelectedOutlineOverlay: React.FC<{
 			const canDropEffect =
 				previewServerState.type === 'connected' &&
 				controls?.supportsEffects === true;
+			const canTextEdit =
+				previewServerState.type === 'connected' &&
+				controls !== null &&
+				textContentFieldSchema?.type === 'text-content' &&
+				textContentPropStatus !== undefined;
 
 			return {
 				key,
@@ -417,6 +504,12 @@ export const SelectedOutlineOverlay: React.FC<{
 							),
 						}
 					: null,
+				textEdit: canTextEdit
+					? {
+							nodePath,
+							propStatus: textContentPropStatus,
+						}
+					: null,
 				uvHandles: containsSelection
 					? getSelectedUvHandles({
 							propStatuses,
@@ -458,6 +551,9 @@ export const SelectedOutlineOverlay: React.FC<{
 	const outlinesForRendering = useMemo(() => {
 		return orderOutlinesForRendering({outlines, targetsByKey});
 	}, [outlines, targetsByKey]);
+	const outlinesByKey = useMemo(() => {
+		return new Map(outlines.map((outline) => [outline.key, outline]));
+	}, [outlines]);
 	const allDragTargets = useMemo(() => {
 		return outlineTargets.flatMap((target) =>
 			(target.selected || target.containsSelection) && target.drag !== null
@@ -465,6 +561,19 @@ export const SelectedOutlineOverlay: React.FC<{
 				: [],
 		);
 	}, [outlineTargets]);
+	const allDragOutlines = useMemo(() => {
+		return outlineTargets.flatMap((target) => {
+			if (
+				(!target.selected && !target.containsSelection) ||
+				target.drag === null
+			) {
+				return [];
+			}
+
+			const outline = outlinesByKey.get(target.key);
+			return outline === undefined ? [] : [outline];
+		});
+	}, [outlineTargets, outlinesByKey]);
 	const allScaleDragTargets = useMemo(() => {
 		return outlineTargets.flatMap((target) =>
 			target.selected && target.scaleDrag !== null ? [target.scaleDrag] : [],
@@ -477,6 +586,22 @@ export const SelectedOutlineOverlay: React.FC<{
 				: [],
 		);
 	}, [outlineTargets]);
+	const guidesForSnap = useMemo(() => {
+		if (!editorShowGuides || canvasContent?.type !== 'composition') {
+			return [];
+		}
+
+		return guidesList.filter(
+			(guide) => guide.compositionId === canvasContent.compositionId,
+		);
+	}, [canvasContent, editorShowGuides, guidesList]);
+	const snapTargets = useMemo(() => {
+		return getSelectedOutlineSnapTargets({
+			compositionHeight,
+			compositionWidth,
+			guides: guidesForSnap,
+		});
+	}, [compositionHeight, compositionWidth, guidesForSnap]);
 
 	const saveKeyboardNudgeSession = useCallback(() => {
 		const session = keyboardNudgeSessionRef.current;
@@ -769,40 +894,63 @@ export const SelectedOutlineOverlay: React.FC<{
 		};
 	}, [keybindings, onArrowKeyDown, onArrowKeyUp, saveKeyboardNudgeSession]);
 
-	useEffect(() => {
-		if (outlineTargets.length === 0) {
+	const updateOutlines = useCallback(() => {
+		if (overlayRef.current === null || outlineTargets.length === 0) {
 			setOutlines((prevOutlines) =>
 				prevOutlines.length === 0 ? prevOutlines : [],
 			);
 			return;
 		}
 
+		const nextOutlines = measureOutlines(overlayRef.current, outlineTargets);
+		setOutlines((prevOutlines) =>
+			outlinesAreEqual(prevOutlines, nextOutlines)
+				? prevOutlines
+				: nextOutlines,
+		);
+	}, [outlineTargets]);
+
+	useLayoutEffect(() => {
+		updateOutlines();
+	}, [outlineTargets, scale, translationX, translationY, updateOutlines]);
+
+	useLayoutEffect(() => {
+		if (outlineTargets.length === 0 || typeof ResizeObserver === 'undefined') {
+			return;
+		}
+
 		let animationFrame: number | null = null;
 
-		const updateOutlines = () => {
-			if (overlayRef.current) {
-				const nextOutlines = measureOutlines(
-					overlayRef.current,
-					outlineTargets,
-				);
-				setOutlines((prevOutlines) =>
-					outlinesAreEqual(prevOutlines, nextOutlines)
-						? prevOutlines
-						: nextOutlines,
-				);
+		const scheduleUpdate = () => {
+			if (animationFrame !== null) {
+				return;
 			}
 
-			animationFrame = requestAnimationFrame(updateOutlines);
+			animationFrame = requestAnimationFrame(() => {
+				animationFrame = null;
+				updateOutlines();
+			});
 		};
 
-		updateOutlines();
+		const resizeObserver = new ResizeObserver(scheduleUpdate);
+		if (overlayRef.current !== null) {
+			resizeObserver.observe(overlayRef.current);
+		}
+
+		for (const target of outlineTargets) {
+			if (target.ref.current !== null) {
+				resizeObserver.observe(target.ref.current);
+			}
+		}
 
 		return () => {
 			if (animationFrame !== null) {
 				cancelAnimationFrame(animationFrame);
 			}
+
+			resizeObserver.disconnect();
 		};
-	}, [outlineTargets]);
+	}, [outlineTargets, updateOutlines]);
 
 	if (outlineTargets.length === 0) {
 		return null;
@@ -816,10 +964,17 @@ export const SelectedOutlineOverlay: React.FC<{
 			height="100%"
 			aria-hidden="true"
 		>
+			<SelectedOutlineSnapIndicators
+				activeSnapPoints={activeSnapPoints}
+				compositionHeight={compositionHeight}
+				compositionWidth={compositionWidth}
+				scale={scale}
+			/>
 			{outlinesForRendering.map((outline) => (
 				<SelectedOutlineElement
 					key={outline.key}
 					allDragTargets={allDragTargets}
+					allDragOutlines={allDragOutlines}
 					allRotationDragTargets={allRotationDragTargets}
 					allScaleDragTargets={allScaleDragTargets}
 					dragging={draggingOutline}
@@ -827,8 +982,19 @@ export const SelectedOutlineOverlay: React.FC<{
 					outline={outline}
 					onDraggingChange={onDraggingChange}
 					onHoverChange={setHoveredOutlineKey}
+					onSnapPointsChange={onSnapPointsChange}
 					onSelect={selectOutlineItem}
 					scale={scale}
+					snapTargets={snapTargets}
+					target={targetsByKey.get(outline.key)}
+				/>
+			))}
+			{/* Keep transform-origin handles above every transparent outline polygon so SVG hit-testing reaches the selected knob first. */}
+			{outlinesForRendering.map((outline) => (
+				<SelectedOutlineTransformOriginHandle
+					key={`${outline.key}-transform-origin`}
+					outline={outline}
+					onDraggingChange={onDraggingChange}
 					target={targetsByKey.get(outline.key)}
 				/>
 			))}

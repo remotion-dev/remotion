@@ -1,15 +1,25 @@
 import {routes, type VercelConfig} from '@vercel/config/v1';
 
+const browserStudioIsolationHeaders = [
+	{key: 'Cross-Origin-Embedder-Policy', value: 'credentialless'},
+	{key: 'Cross-Origin-Opener-Policy', value: 'same-origin'},
+];
+
+const browserStudioAssetHeaders = [
+	{key: 'Cache-Control', value: 'public, max-age=31536000, immutable'},
+	...browserStudioIsolationHeaders,
+];
+
 export const config: VercelConfig = {
 	buildCommand:
 		'cd .. && timeout 20m bunx turbo run build-docs --no-update-notifier --concurrency=2',
 	headers: [
-		routes.cacheControl('/assets/(.*)', {
-			public: true,
-			maxAge: '365days',
-			immutable: true,
-		}),
+		routes.header('/assets/(.*)', browserStudioAssetHeaders),
 		routes.header('/_raw/docs/(.*).md', [
+			{key: 'Content-Type', value: 'text/plain; charset=utf-8'},
+			{key: 'Vary', value: 'Accept'},
+		]),
+		routes.header('/_raw/elements/(.*).md', [
 			{key: 'Content-Type', value: 'text/plain; charset=utf-8'},
 			{key: 'Vary', value: 'Accept'},
 		]),
@@ -30,6 +40,7 @@ export const config: VercelConfig = {
 			{key: 'Cross-Origin-Embedder-Policy', value: 'require-corp'},
 			{key: 'Cross-Origin-Opener-Policy', value: 'same-origin'},
 		]),
+		routes.header('/experimental_new(.*)', browserStudioIsolationHeaders),
 		routes.header('/convert/assets/(.*)', [
 			{key: 'Cross-Origin-Embedder-Policy', value: 'require-corp'},
 			{key: 'Cross-Origin-Opener-Policy', value: 'same-origin'},

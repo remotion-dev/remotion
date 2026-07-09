@@ -7,7 +7,7 @@ import {TimelineKeyframeDiamond} from './TimelineKeyframeDiamond';
 import {TimelineKeyframeEasingLine} from './TimelineKeyframeEasingLine';
 import {
 	getTimelineSelectedTrackHighlightStyle,
-	useTimelineRowSelection,
+	useTimelineRowHighlightBackground,
 } from './TimelineSelection';
 import {TimelineWidthContext} from './TimelineWidthProvider';
 
@@ -27,7 +27,8 @@ const TimelineExpandedKeyframeRowUnmemoized: React.FC<{
 	readonly showSeparator: boolean;
 }> = ({height, keyframes, canEditEasing, nodePathInfo, showSeparator}) => {
 	const timelineWidth = useContext(TimelineWidthContext);
-	const {selected: rowSelected} = useTimelineRowSelection(nodePathInfo);
+	const rowHighlightBackground =
+		useTimelineRowHighlightBackground(nodePathInfo);
 	const easingSegments = canEditEasing
 		? getTimelineEasingSegments(keyframes)
 		: [];
@@ -36,8 +37,13 @@ const TimelineExpandedKeyframeRowUnmemoized: React.FC<{
 		<>
 			{showSeparator ? <div style={rowSeparator} /> : null}
 			<div style={{...row, height}}>
-				{rowSelected && timelineWidth !== null ? (
-					<div style={getTimelineSelectedTrackHighlightStyle(timelineWidth)} />
+				{rowHighlightBackground && timelineWidth !== null ? (
+					<div
+						style={getTimelineSelectedTrackHighlightStyle(
+							timelineWidth,
+							rowHighlightBackground,
+						)}
+					/>
 				) : null}
 				{easingSegments.map((segment) => (
 					<TimelineKeyframeEasingLine

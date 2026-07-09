@@ -1,5 +1,11 @@
 import type React from 'react';
-import {BACKGROUND, BLUE} from '../../helpers/colors';
+import {
+	BACKGROUND,
+	BLUE,
+	SHADOW_BLACK_ALPHA_50_TOWARDS_BOTTOM,
+	SHADOW_BLACK_ALPHA_50_TOWARDS_TOP,
+	WHITE,
+} from '../../helpers/colors';
 
 export const MENU_VERTICAL_PADDING = 4;
 export const SUBMENU_LEFT_INSET = -8;
@@ -10,13 +16,13 @@ export const MAX_MOBILE_MENU_WIDTH = 300;
 const menuContainer: React.CSSProperties = {
 	backgroundColor: BACKGROUND,
 	position: 'fixed',
-	color: 'white',
+	color: WHITE,
 	userSelect: 'none',
 	WebkitUserSelect: 'none',
 };
 
-export const SHADOW_TOWARDS_BOTTOM = '0 2px 8px rgba(0, 0, 0, 0.5)';
-export const SHADOW_TOWARDS_TOP = '0 -2px 8px rgba(0, 0, 0, 0.5)';
+export const SHADOW_TOWARDS_BOTTOM = SHADOW_BLACK_ALPHA_50_TOWARDS_BOTTOM;
+export const SHADOW_TOWARDS_TOP = SHADOW_BLACK_ALPHA_50_TOWARDS_TOP;
 
 export const menuContainerTowardsBottom: React.CSSProperties = {
 	...menuContainer,

@@ -10,22 +10,22 @@ export const getPrecomposeRectForMask = (element: HTMLElement | SVGElement) => {
 
 export const handleMask = ({
 	gradientInfo,
-	rect,
+	maskRect,
 	precomposeRect,
 	tempContext,
 	scale,
 }: {
 	gradientInfo: LinearGradientInfo;
-	rect: DOMRect;
+	maskRect: DOMRect;
 	precomposeRect: DOMRect;
 	tempContext: OffscreenCanvasRenderingContext2D;
 	scale: number;
 }) => {
 	const rectToFill = new DOMRect(
-		(rect.left - precomposeRect.left) * scale,
-		(rect.top - precomposeRect.top) * scale,
-		rect.width * scale,
-		rect.height * scale,
+		(maskRect.left - precomposeRect.left) * scale,
+		(maskRect.top - precomposeRect.top) * scale,
+		maskRect.width * scale,
+		maskRect.height * scale,
 	);
 
 	const gradient = createCanvasGradient({

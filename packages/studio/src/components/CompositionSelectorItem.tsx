@@ -1,4 +1,9 @@
-import type {KeyboardEvent, MouseEvent} from 'react';
+import {
+	COMPOSITION_DRAG_MIME_TYPE,
+	makeCompositionDragData,
+	parseCompositionDragData,
+} from '@remotion/studio-shared';
+import type {DragEvent, KeyboardEvent, MouseEvent} from 'react';
 import React, {
 	useCallback,
 	useContext,
@@ -12,8 +17,11 @@ import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {
 	BACKGROUND,
 	LIGHT_TEXT,
+	WHITE,
+	WHITE_ALPHA_12,
 	getBackgroundFromHoverState,
 } from '../helpers/colors';
+import {getFolderId} from '../helpers/get-folder-id';
 import {isCompositionStill} from '../helpers/is-composition-still';
 import {noop} from '../helpers/noop';
 import {
@@ -30,6 +38,8 @@ import {ContextMenu} from './ContextMenu';
 import {getFolderMenuItems} from './folder-menu-items';
 import {Row, Spacing} from './layout';
 import type {ComboboxValue} from './NewComposition/ComboBox';
+import {showNotification} from './Notifications/NotificationCenter';
+import {applyCodemod} from './RenderQueue/actions';
 import {SidebarRenderButton} from './SidebarRenderButton';
 import {useResolvedStack} from './Timeline/use-resolved-stack';
 
@@ -98,6 +108,7 @@ export const CompositionSelectorItem: React.FC<{
 		folderName: string,
 		parentName: string | null,
 	) => void;
+	readonly clearRootDragHover: () => void;
 	readonly level: number;
 }> = ({
 	item,
@@ -106,6 +117,7 @@ export const CompositionSelectorItem: React.FC<{
 	tabIndex,
 	selectComposition,
 	toggleFolder,
+	clearRootDragHover,
 }) => {
 	const selected = useMemo(() => {
 		if (item.type === 'composition') {
@@ -122,6 +134,7 @@ export const CompositionSelectorItem: React.FC<{
 	const onPointerLeave = useCallback(() => {
 		setHovered(false);
 	}, []);
+	const [dragHovered, setDragHovered] = useState(false);
 
 	const compositionRowRef = useRef<HTMLAnchorElement>(null);
 	const compositionId =
@@ -141,15 +154,17 @@ export const CompositionSelectorItem: React.FC<{
 	const style: React.CSSProperties = useMemo(() => {
 		return {
 			...itemStyle,
-			backgroundColor: getBackgroundFromHoverState({hovered, selected}),
+			backgroundColor: dragHovered
+				? WHITE_ALPHA_12
+				: getBackgroundFromHoverState({hovered, selected}),
 			paddingLeft: 12 + level * 8,
 		};
-	}, [hovered, level, selected]);
+	}, [dragHovered, hovered, level, selected]);
 
 	const label = useMemo(() => {
 		return {
 			...labelStyle,
-			color: selected || hovered ? 'white' : LIGHT_TEXT,
+			color: selected || hovered ? WHITE : LIGHT_TEXT,
 		};
 	}, [hovered, selected]);
 
@@ -204,6 +219,141 @@ export const CompositionSelectorItem: React.FC<{
 		});
 	}, [connectionStatus, item, resolvedLocation, setSelectedModal]);
 
+	const onCompositionDragStart = useCallback(
+		(event: DragEvent<HTMLElement>) => {
+			if (item.type !== 'composition' || window.remotion_isReadOnlyStudio) {
+				event.preventDefault();
+				return;
+			}
+
+			event.dataTransfer.effectAllowed = 'copyMove';
+			event.dataTransfer.setData(
+				COMPOSITION_DRAG_MIME_TYPE,
+				JSON.stringify(
+					makeCompositionDragData({
+						compositionFile: resolvedLocation?.source ?? null,
+						compositionId: item.composition.id,
+					}),
+				),
+			);
+		},
+		[item, resolvedLocation?.source],
+	);
+
+	const onFolderDragOver = useCallback(
+		(event: DragEvent<HTMLElement>) => {
+			if (
+				item.type !== 'folder' ||
+				window.remotion_isReadOnlyStudio ||
+				!Array.from(event.dataTransfer.types).includes(
+					COMPOSITION_DRAG_MIME_TYPE,
+				)
+			) {
+				return;
+			}
+
+			event.preventDefault();
+			event.stopPropagation();
+			event.dataTransfer.dropEffect = 'move';
+			clearRootDragHover();
+			setDragHovered(true);
+		},
+		[clearRootDragHover, item],
+	);
+
+	const onFolderDragLeave = useCallback(() => {
+		setDragHovered(false);
+	}, []);
+
+	const onFolderChildListDragOver = useCallback(
+		(event: DragEvent<HTMLElement>) => {
+			if (
+				item.type !== 'folder' ||
+				window.remotion_isReadOnlyStudio ||
+				!Array.from(event.dataTransfer.types).includes(
+					COMPOSITION_DRAG_MIME_TYPE,
+				)
+			) {
+				return;
+			}
+
+			event.preventDefault();
+			event.stopPropagation();
+			event.dataTransfer.dropEffect = 'move';
+			clearRootDragHover();
+		},
+		[clearRootDragHover, item],
+	);
+
+	const onFolderDrop = useCallback(
+		async (event: DragEvent<HTMLElement>) => {
+			if (item.type !== 'folder' || window.remotion_isReadOnlyStudio) {
+				return;
+			}
+
+			const raw = event.dataTransfer.getData(COMPOSITION_DRAG_MIME_TYPE);
+			const parsed = raw ? parseCompositionDragData(raw) : null;
+			if (parsed === null) {
+				return;
+			}
+
+			event.preventDefault();
+			event.stopPropagation();
+			clearRootDragHover();
+			setDragHovered(false);
+
+			const isAlreadyDirectChild = item.items.some((child) => {
+				return (
+					child.type === 'composition' &&
+					child.composition.id === parsed.compositionId
+				);
+			});
+			if (isAlreadyDirectChild) {
+				return;
+			}
+
+			const folderId = getFolderId({
+				folderName: item.folderName,
+				parentName: item.parentName,
+			});
+			const notification = showNotification(
+				`Moving ${parsed.compositionId}...`,
+				null,
+			);
+			const controller = new AbortController();
+
+			try {
+				const result = await applyCodemod({
+					codemod: {
+						type: 'move-composition-to-folder',
+						idToMove: parsed.compositionId,
+						folderName: item.folderName,
+						parentName: item.parentName,
+					},
+					dryRun: false,
+					signal: controller.signal,
+					symbolicatedStack: null,
+				});
+
+				notification.replaceContent(
+					result.success
+						? `Moved ${parsed.compositionId} to ${folderId}`
+						: result.reason,
+					result.success ? 2000 : 4000,
+				);
+				if (result.success && !item.expanded) {
+					toggleFolder(item.folderName, item.parentName);
+				}
+			} catch (err) {
+				notification.replaceContent(
+					err instanceof Error ? err.message : String(err),
+					4000,
+				);
+			}
+		},
+		[clearRootDragHover, item, toggleFolder],
+	);
+
 	if (item.type === 'folder') {
 		return (
 			<>
@@ -216,17 +366,20 @@ export const CompositionSelectorItem: React.FC<{
 							tabIndex={tabIndex}
 							onClick={onClick}
 							onKeyDown={onKeyDown}
+							onDragOver={onFolderDragOver}
+							onDragLeave={onFolderDragLeave}
+							onDrop={onFolderDrop}
 							title={item.folderName}
 							role="button"
 						>
 							{item.expanded ? (
 								<ExpandedFolderIcon
 									style={iconStyle}
-									color={hovered || selected ? 'white' : LIGHT_TEXT}
+									color={hovered || selected ? WHITE : LIGHT_TEXT}
 								/>
 							) : (
 								<CollapsedFolderIcon
-									color={hovered || selected ? 'white' : LIGHT_TEXT}
+									color={hovered || selected ? WHITE : LIGHT_TEXT}
 									style={iconStyle}
 								/>
 							)}
@@ -240,8 +393,9 @@ export const CompositionSelectorItem: React.FC<{
 						</div>
 					</Row>
 				</ContextMenu>
-				{item.expanded
-					? item.items.map((childItem) => {
+				{item.expanded ? (
+					<div onDragOver={onFolderChildListDragOver} onDrop={onFolderDrop}>
+						{item.items.map((childItem) => {
 							return (
 								<CompositionSelectorItem
 									key={childItem.key + childItem.type}
@@ -251,10 +405,12 @@ export const CompositionSelectorItem: React.FC<{
 									tabIndex={tabIndex}
 									level={level + 1}
 									toggleFolder={toggleFolder}
+									clearRootDragHover={clearRootDragHover}
 								/>
 							);
-						})
-					: null}
+						})}
+					</div>
+				) : null}
 			</>
 		);
 	}
@@ -270,6 +426,8 @@ export const CompositionSelectorItem: React.FC<{
 					tabIndex={tabIndex}
 					onClick={onClick}
 					onKeyDown={onKeyDown}
+					draggable={!window.remotion_isReadOnlyStudio}
+					onDragStart={onCompositionDragStart}
 					type="button"
 					title={item.composition.id}
 					className="__remotion-composition"
@@ -277,12 +435,12 @@ export const CompositionSelectorItem: React.FC<{
 				>
 					{isCompositionStill(item.composition) ? (
 						<StillIcon
-							color={hovered || selected ? 'white' : LIGHT_TEXT}
+							color={hovered || selected ? WHITE : LIGHT_TEXT}
 							style={iconStyle}
 						/>
 					) : (
 						<FilmIcon
-							color={hovered || selected ? 'white' : LIGHT_TEXT}
+							color={hovered || selected ? WHITE : LIGHT_TEXT}
 							style={iconStyle}
 						/>
 					)}

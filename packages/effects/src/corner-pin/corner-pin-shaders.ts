@@ -21,57 +21,60 @@ uniform vec2 uTopRight;
 uniform vec2 uBottomRight;
 uniform vec2 uBottomLeft;
 
-float cross2(vec2 a, vec2 b) {
-	return a.x * b.y - a.y * b.x;
-}
+bool solveProjectiveInverse(vec2 p, out vec2 uv) {
+	vec2 p0 = uBottomLeft;
+	vec2 p1 = uBottomRight;
+	vec2 p2 = uTopRight;
+	vec2 p3 = uTopLeft;
 
-bool solveBilinearInverse(vec2 p, out vec2 uv) {
-	vec2 a = uBottomLeft;
-	vec2 b = uBottomRight - uBottomLeft;
-	vec2 c = uTopLeft - uBottomLeft;
-	vec2 d = uBottomLeft - uBottomRight + uTopRight - uTopLeft;
-	vec2 q = p - a;
+	vec2 dx1 = p1 - p2;
+	vec2 dx2 = p3 - p2;
+	vec2 dx3 = p0 - p1 + p2 - p3;
 
-	float linearDenominator = cross2(b, c);
-	if (abs(cross2(b, d)) < 0.000001) {
-		if (abs(linearDenominator) < 0.000001) {
+	float g = 0.0;
+	float h = 0.0;
+
+	if (abs(dx3.x) > 0.000001 || abs(dx3.y) > 0.000001) {
+		float denominator = dx1.x * dx2.y - dx2.x * dx1.y;
+		if (abs(denominator) < 0.000001) {
 			return false;
 		}
 
-		uv.x = cross2(q, c) / linearDenominator;
-		uv.y = cross2(q, b) / cross2(c, b);
-		return true;
+		g = (dx3.x * dx2.y - dx2.x * dx3.y) / denominator;
+		h = (dx1.x * dx3.y - dx3.x * dx1.y) / denominator;
 	}
 
-	float qa = -cross2(b, d);
-	float qb = cross2(q, d) - cross2(b, c);
-	float qc = cross2(q, c);
-	float discriminant = qb * qb - 4.0 * qa * qc;
+	float a = p1.x - p0.x + g * p1.x;
+	float b = p3.x - p0.x + h * p3.x;
+	float c = p0.x;
+	float d = p1.y - p0.y + g * p1.y;
+	float e = p3.y - p0.y + h * p3.y;
+	float f = p0.y;
 
-	if (discriminant < 0.0) {
+	float inverseX =
+		(e - f * h) * p.x +
+		(c * h - b) * p.y +
+		(b * f - c * e);
+	float inverseY =
+		(f * g - d) * p.x +
+		(a - c * g) * p.y +
+		(c * d - a * f);
+	float inverseW =
+		(d * h - e * g) * p.x +
+		(b * g - a * h) * p.y +
+		(a * e - b * d);
+
+	if (abs(inverseW) < 0.000001) {
 		return false;
 	}
 
-	float sqrtDiscriminant = sqrt(discriminant);
-	float u1 = (-qb + sqrtDiscriminant) / (2.0 * qa);
-	float u2 = (-qb - sqrtDiscriminant) / (2.0 * qa);
-	float u = u1;
-	if (u1 < -0.001 || u1 > 1.001) {
-		u = u2;
-	}
-
-	vec2 denominator = c + d * u;
-	float v = abs(denominator.x) > abs(denominator.y)
-		? (q.x - b.x * u) / denominator.x
-		: (q.y - b.y * u) / denominator.y;
-
-	uv = vec2(u, v);
+	uv = vec2(inverseX / inverseW, inverseY / inverseW);
 	return true;
 }
 
 void main() {
 	vec2 sourceUv;
-	if (!solveBilinearInverse(vUv, sourceUv)) {
+	if (!solveProjectiveInverse(vUv, sourceUv)) {
 		fragColor = vec4(0.0);
 		return;
 	}

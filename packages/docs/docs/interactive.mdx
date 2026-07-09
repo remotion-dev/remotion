@@ -25,6 +25,9 @@ export const MyComp: React.FC = () => {
 };
 ```
 
+For code that stays editable in the Studio, follow [Interactivity best practices](/docs/studio/interactivity-best-practices):
+Keep editable values inline, use hardcoded `interpolate()` keyframe arrays, use `translate`, `scale`, `rotate` and `opacity` directly, and avoid animated `top`/`left` values or `transform` strings.
+
 ## Components
 
 The component name is the PascalCase version of the underlying element:
@@ -87,12 +90,15 @@ Controls for transform-related style props:
 `style.transformOrigin`, `style.translate`, `style.scale`, `style.rotate` and `style.opacity`.
 
 Use it for components that accept a `style` prop and apply it to the rendered element.
+Keep these values inline in JSX if the Studio should edit or keyframe them.
 
 ### `Interactive.textSchema`<AvailableFrom v="4.0.481" />
 
 Controls for text-related style props:
 
-`style.color`, `style.fontSize`, `style.lineHeight`, `style.fontWeight`, `style.fontStyle`, `style.textAlign` and `style.letterSpacing`.
+`style.color`, `style.fontFamily`, `style.fontSize`, `style.lineHeight`, `style.fontWeight`, `style.fontStyle`, `style.textAlign` and `style.letterSpacing`.
+
+`style.fontFamily` is available from <AvailableFrom v="4.0.486" inline />.
 
 Use it for components that accept a `style` prop and render text.
 
@@ -176,4 +182,6 @@ For example, `<Interactive.Div>` accepts `<div>` props, and `<Interactive.Svg>` 
 ## See also
 
 - [Source code for this API](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/Interactive.tsx)
+- [Interactivity best practices](/docs/studio/interactivity-best-practices)
+- [Studio interactivity](/docs/studio/interactivity)
 - [`<Sequence>`](/docs/sequence)

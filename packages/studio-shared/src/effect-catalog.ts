@@ -183,6 +183,28 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-linear-gradient',
+		category: 'Color',
+		label: 'linearGradient()',
+		description: 'Two-stop gradient effect',
+		effect: {
+			name: 'linearGradient',
+			importPath: '@remotion/effects/linear-gradient',
+			config: {},
+		},
+	},
+	{
+		id: 'effects-linear-gradient-tint',
+		category: 'Color',
+		label: 'linearGradientTint()',
+		description: 'Gradient tint effect',
+		effect: {
+			name: 'linearGradientTint',
+			importPath: '@remotion/effects/linear-gradient-tint',
+			config: {},
+		},
+	},
+	{
 		id: 'effects-thermal-vision',
 		category: 'Color',
 		label: 'thermalVision()',
@@ -214,6 +236,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		effect: {
 			name: 'linearProgressiveBlur',
 			importPath: '@remotion/effects/linear-progressive-blur',
+			config: {},
+		},
+	},
+	{
+		id: 'effects-radial-progressive-blur',
+		category: 'Blur & Shadow',
+		label: 'radialProgressiveBlur()',
+		description: 'Ellipse-controlled blur effect',
+		effect: {
+			name: 'radialProgressiveBlur',
+			importPath: '@remotion/effects/radial-progressive-blur',
 			config: {},
 		},
 	},
@@ -269,6 +302,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		effect: {
 			name: 'evolve',
 			importPath: '@remotion/effects/evolve',
+			config: {},
+		},
+	},
+	{
+		id: 'effects-venetian-blinds',
+		category: 'Reveal',
+		label: 'venetianBlinds()',
+		description: 'Slatted reveal effect',
+		effect: {
+			name: 'venetianBlinds',
+			importPath: '@remotion/effects/venetian-blinds',
 			config: {},
 		},
 	},
@@ -453,6 +497,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 				biasDirection: 313,
 				biasAmount: 1,
 			},
+		},
+	},
+	{
+		id: 'effects-paper',
+		category: 'Stylize',
+		label: 'paper()',
+		description: 'Procedural paper texture effect',
+		effect: {
+			name: 'paper',
+			importPath: '@remotion/effects/paper',
+			config: {},
 		},
 	},
 	{

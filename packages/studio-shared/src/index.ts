@@ -2,10 +2,10 @@ export {splitAnsi, stripAnsi} from './ansi';
 export {
 	AddEffectKeyframeRequest,
 	AddEffectKeyframeResponse,
-	AddKeyframesRequest,
-	AddKeyframesResponse,
 	AddEffectRequest,
 	AddEffectResponse,
+	AddKeyframesRequest,
+	AddKeyframesResponse,
 	AddRenderRequest,
 	AddSequenceKeyframeRequest,
 	AddSequenceKeyframeResponse,
@@ -40,6 +40,8 @@ export {
 	DuplicateEffectResponse,
 	DuplicateJsxNodeRequest,
 	DuplicateJsxNodeResponse,
+	InsertElementRequest,
+	InsertElementResponse,
 	InsertJsxElementRequest,
 	InsertJsxElementResponse,
 	InsertableCompositionElement,
@@ -71,6 +73,8 @@ export {
 	ReorderSequenceResponse,
 	RestartStudioRequest,
 	RestartStudioResponse,
+	GoogleFontSourceEdit,
+	SaveSequencePropSourceEdit,
 	SaveEffectPropsRequest,
 	SaveEffectPropsResponse,
 	SaveSequencePropEdit,
@@ -78,6 +82,8 @@ export {
 	SaveSequencePropsResponse,
 	SaveSequencePropsResult,
 	SimpleDiff,
+	SplitJsxSequenceRequest,
+	SplitJsxSequenceResponse,
 	SubscribeToDefaultPropsRequest,
 	SubscribeToDefaultPropsResponse,
 	SubscribeToFileExistenceRequest,
@@ -97,9 +103,9 @@ export {
 	UpdateEffectKeyframeSettingsResponse,
 	UpdateSequenceKeyframeSettingsRequest,
 	UpdateSequenceKeyframeSettingsResponse,
-	type KeyframeSettings,
 	type AddEffectKeyframe,
 	type AddSequenceKeyframe,
+	type KeyframeSettings,
 } from './api-requests';
 export {
 	ASSET_DRAG_MIME_TYPE,
@@ -119,13 +125,14 @@ export {
 	type ComponentDragData,
 	type ComponentProp,
 } from './component-drag-data';
-export {DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS} from './default-buffer-state-delay-in-milliseconds';
 export {
-	KEYFRAME_EASING_PRESETS,
-	LINEAR_KEYFRAME_EASING,
-	type KeyframeEasing,
-	type KeyframeEasingPreset,
-} from './keyframe-easing-presets';
+	COMPOSITION_DRAG_MIME_TYPE,
+	makeCompositionDragData,
+	parseCompositionDragData,
+	type CompositionDragData,
+} from './composition-drag-data';
+export {DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS} from './default-buffer-state-delay-in-milliseconds';
+export {getDefinePluginDefinitions} from './define-plugin-definitions';
 export {
 	detectFileType,
 	isImageFileType,
@@ -139,6 +146,17 @@ export {
 	type EasingClipboardData,
 	type EasingClipboardDataParseResult,
 } from './easing-clipboard-data';
+export {
+	EFFECT_CATALOG,
+	getEffectCatalogCategories,
+	getEffectDocumentationLink,
+	getEffectDocumentationPath,
+	getEffectPreviewAlt,
+	getEffectPreviewSource,
+	makeEffectDragDataFromCatalogItem,
+	type EffectCatalogCategory,
+	type EffectCatalogItem,
+} from './effect-catalog';
 export {
 	parseEffectClipboardData,
 	parseEffectClipboardDataResult,
@@ -165,16 +183,14 @@ export {
 	type EffectDragData,
 } from './effect-drag-data';
 export {
-	EFFECT_CATALOG,
-	getEffectCatalogCategories,
-	getEffectDocumentationLink,
-	getEffectDocumentationPath,
-	getEffectPreviewAlt,
-	getEffectPreviewSource,
-	makeEffectDragDataFromCatalogItem,
-	type EffectCatalogCategory,
-	type EffectCatalogItem,
-} from './effect-catalog';
+	ELEMENT_DRAG_MIME_TYPE,
+	getElementComponentNameFromSourceCode,
+	isLowercaseElementFileName,
+	makeElementDragData,
+	makeElementFileNameFromSlug,
+	parseElementDragData,
+	type ElementDragData,
+} from './element-drag-data';
 export {EventSourceEvent} from './event-source-event';
 export {formatBytes} from './format-bytes';
 export {getAllSchemaKeys} from './get-all-keys';
@@ -192,19 +208,26 @@ export {
 	hotMiddlewareOptions,
 } from './hot-middleware';
 export {
+	CUBIC_KEYFRAME_EASING,
+	EASE_KEYFRAME_EASING,
+	getBackKeyframeEasing,
+	getOutKeyframeEasing,
+	getPolyKeyframeEasing,
+	KEYFRAME_EASING_PRESETS,
+	LINEAR_KEYFRAME_EASING,
+	QUAD_KEYFRAME_EASING,
+	type KeyframeEasing,
+	type KeyframeEasingPreset,
+} from './keyframe-easing-presets';
+export {
 	getKeyframeInterpolationFunction,
 	getKeyframeInterpolationFunctionForSchemaField,
+	isInteractivitySchemaFieldKeyframable,
 	isKeyframeInterpolationFunction,
 	isSchemaFieldKeyframable,
-	isInteractivitySchemaFieldKeyframable,
 	keyframeInterpolationFunctions,
 	type KeyframeInterpolationFunction,
 } from './keyframe-interpolation-function';
-export {
-	DEFAULT_SPRING_EASING,
-	parseSpringEasingConfig,
-	type SpringKeyframeEasing,
-} from './parse-spring-easing-config';
 export {DEFAULT_TIMELINE_TRACKS} from './max-timeline-tracks';
 export {
 	Pkgs,
@@ -216,6 +239,11 @@ export {
 	type ExtraPackage,
 } from './package-info';
 export {PackageManager} from './package-manager';
+export {
+	DEFAULT_SPRING_EASING,
+	parseSpringEasingConfig,
+	type SpringKeyframeEasing,
+} from './parse-spring-easing-config';
 export {ProjectInfo} from './project-info';
 export type {RenderDefaults} from './render-defaults';
 export {
@@ -240,18 +268,22 @@ export {
 	getRequiredPackageForInsertableElement,
 } from './required-package';
 export {
+	SCHEMA_FIELD_GROUPS,
 	SCHEMA_FIELD_ROW_HEIGHT,
 	getEffectFieldsToShow,
 	getFieldsToShow,
+	getSchemaFieldGroup,
 } from './schema-field-info';
 export type {
 	AnySchemaFieldInfo,
 	DragOverrides,
 	EffectSchemaFieldInfo,
+	InteractivitySchemaFieldInfo,
 	PropStatuses,
+	SchemaFieldGroup,
+	SchemaFieldGroupInfo,
 	SchemaFieldInfo,
 	SequenceControls,
-	InteractivitySchemaFieldInfo,
 } from './schema-field-info';
 export {
 	SFX_DRAG_MIME_TYPE,
@@ -264,6 +296,11 @@ export {
 	StackFrame,
 	SymbolicatedStackFrame,
 } from './stack-types';
+export {
+	getStudioEntryPoints,
+	type StudioEntryPointPaths,
+} from './studio-entry-points';
+export {studioHtml, type StudioHtmlOptions} from './studio-html';
 export {EnumPath, stringifyDefaultProps} from './stringify-default-props';
 
 export type {VisualControlChange} from './codemods';

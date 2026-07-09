@@ -16,9 +16,14 @@ import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {
 	BACKGROUND,
 	BLUE,
+	EASING_SELECTED_BACKGROUND,
 	INPUT_BACKGROUND,
-	INPUT_BORDER_COLOR_HOVERED,
+	WHITE_ALPHA_05,
 	LIGHT_TEXT,
+	WHITE,
+	WHITE_ALPHA_12,
+	WHITE_ALPHA_35,
+	WHITE_ALPHA_72,
 } from '../../helpers/colors';
 import {Checkbox} from '../Checkbox';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
@@ -43,7 +48,11 @@ type SpringEasing = Extract<TimelineEasingValue, {type: 'spring'}>;
 type HandleIndex = 0 | 1;
 type Coordinate = 'x' | 'y';
 type EditorMode = 'bezier' | 'spring';
-type SpringNumberKey = 'damping' | 'mass' | 'stiffness';
+type SpringNumberKey =
+	| 'damping'
+	| 'durationRestThreshold'
+	| 'mass'
+	| 'stiffness';
 type EasingGraphLabels = {
 	readonly start: string;
 	readonly end: string;
@@ -68,7 +77,7 @@ const DEFAULT_EASING_GRAPH_LABELS: EasingGraphLabels = {
 	start: '0',
 	end: '1',
 };
-const EASING_GRAPH_GUIDE_COLOR = 'rgba(255, 255, 255, 0.12)';
+const EASING_GRAPH_GUIDE_COLOR = WHITE_ALPHA_12;
 const EASING_GRAPH_LABEL_FONT_SIZE = 13;
 const EASING_GRAPH_LABEL_HEIGHT = 20;
 const EASING_GRAPH_LABEL_HORIZONTAL_PADDING = 4;
@@ -78,9 +87,12 @@ const PRESET_PREVIEW_HEIGHT = 30;
 const PRESET_PREVIEW_PADDING = 5;
 const PRESET_PREVIEW_Y_MIN = -0.35;
 const PRESET_PREVIEW_Y_MAX = 1.45;
+const DEFAULT_DURATION_REST_THRESHOLD = 0.02;
 const DEFAULT_SPRING_EASING: SpringEasing = {
 	type: 'spring',
+	allowTail: true,
 	damping: 10,
+	durationRestThreshold: DEFAULT_DURATION_REST_THRESHOLD,
 	mass: 1,
 	overshootClamping: false,
 	stiffness: 100,
@@ -103,14 +115,23 @@ const SPRING_LIMITS: Record<
 	}
 > = {
 	damping: {min: 1, max: 200, step: 1},
+	durationRestThreshold: {min: 0.001, max: 0.5, step: 0.001},
 	mass: {min: 0.1, max: 20, step: 0.1},
 	stiffness: {min: 1, max: 1000, step: 1},
 };
 
 const SPRING_DECIMAL_PLACES: Record<SpringNumberKey, number> = {
 	damping: 0,
+	durationRestThreshold: 3,
 	mass: 2,
 	stiffness: 0,
+};
+
+const SPRING_FALLBACKS: Record<SpringNumberKey, number> = {
+	damping: DEFAULT_SPRING_EASING.damping,
+	durationRestThreshold: DEFAULT_DURATION_REST_THRESHOLD,
+	mass: DEFAULT_SPRING_EASING.mass,
+	stiffness: DEFAULT_SPRING_EASING.stiffness,
 };
 
 const inlineContainer: React.CSSProperties = {
@@ -121,8 +142,8 @@ const inlineContainer: React.CSSProperties = {
 const segmentedControlWrapper: React.CSSProperties = {
 	display: 'flex',
 	justifyContent: 'flex-start',
+	marginTop: 8,
 	padding: `0 ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px`,
-	marginBottom: 10,
 };
 
 const presetButtonsWrapper: React.CSSProperties = {
@@ -134,10 +155,15 @@ const presetButtonsWrapper: React.CSSProperties = {
 	padding: `0 ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px`,
 };
 
+const inspectorPresetButtonsWrapper: React.CSSProperties = {
+	...presetButtonsWrapper,
+	padding: `8px ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px 0`,
+};
+
 const presetButtonBase: React.CSSProperties = {
 	alignItems: 'center',
 	backgroundColor: INPUT_BACKGROUND,
-	border: `1px solid ${INPUT_BORDER_COLOR_HOVERED}`,
+	border: `1px solid ${WHITE_ALPHA_05}`,
 	borderRadius: 4,
 	display: 'inline-flex',
 	height: 34,
@@ -164,7 +190,7 @@ const coordinateRow: React.CSSProperties = {
 
 const coordinateLabel: React.CSSProperties = {
 	fontSize: 13,
-	color: 'rgba(255, 255, 255, 0.72)',
+	color: WHITE_ALPHA_72,
 	paddingLeft: 6,
 };
 
@@ -275,11 +301,20 @@ const sanitizeSpringValue = (
 
 const sanitizeSpring = (spring: SpringEasing): SpringEasing => ({
 	type: 'spring',
+	allowTail: spring.allowTail,
 	damping: sanitizeSpringValue(
 		spring.damping,
 		'damping',
 		DEFAULT_SPRING_EASING.damping,
 	),
+	durationRestThreshold:
+		spring.durationRestThreshold === null
+			? null
+			: sanitizeSpringValue(
+					spring.durationRestThreshold,
+					'durationRestThreshold',
+					DEFAULT_DURATION_REST_THRESHOLD,
+				),
 	mass: sanitizeSpringValue(spring.mass, 'mass', DEFAULT_SPRING_EASING.mass),
 	overshootClamping: spring.overshootClamping,
 	stiffness: sanitizeSpringValue(
@@ -317,6 +352,9 @@ const springFormatters: Record<
 	(value: number | string) => string
 > = {
 	damping: formatNumberWithDecimalPlaces(SPRING_DECIMAL_PLACES.damping),
+	durationRestThreshold: formatNumberWithDecimalPlaces(
+		SPRING_DECIMAL_PLACES.durationRestThreshold,
+	),
 	mass: formatNumberWithDecimalPlaces(SPRING_DECIMAL_PLACES.mass),
 	stiffness: formatNumberWithDecimalPlaces(SPRING_DECIMAL_PLACES.stiffness),
 };
@@ -339,7 +377,9 @@ const areEasingsEqual = (
 		case 'spring':
 			return (
 				second.type === 'spring' &&
+				first.allowTail === second.allowTail &&
 				first.damping === second.damping &&
+				first.durationRestThreshold === second.durationRestThreshold &&
 				first.mass === second.mass &&
 				first.overshootClamping === second.overshootClamping &&
 				first.stiffness === second.stiffness
@@ -464,7 +504,9 @@ const getEasingFunction = (easing: TimelineEasingValue) => {
 			return Easing.bezier(easing.x1, easing.y1, easing.x2, easing.y2);
 		case 'spring':
 			return Easing.spring({
+				allowTail: easing.allowTail ?? undefined,
 				damping: easing.damping,
+				durationRestThreshold: easing.durationRestThreshold ?? undefined,
 				mass: easing.mass,
 				overshootClamping: easing.overshootClamping,
 				stiffness: easing.stiffness,
@@ -598,8 +640,8 @@ const EasingPresetButton: React.FC<{
 	const style = useMemo(
 		(): React.CSSProperties => ({
 			...presetButtonBase,
-			backgroundColor: selected ? 'rgba(11, 132, 243, 0.18)' : INPUT_BACKGROUND,
-			borderColor: selected ? BLUE : INPUT_BORDER_COLOR_HOVERED,
+			backgroundColor: selected ? EASING_SELECTED_BACKGROUND : INPUT_BACKGROUND,
+			borderColor: selected ? BLUE : WHITE_ALPHA_05,
 			cursor: disabled ? 'not-allowed' : 'pointer',
 			opacity: disabled ? 0.45 : 1,
 		}),
@@ -629,7 +671,7 @@ const EasingPresetButton: React.FC<{
 				<path
 					d={path}
 					fill="none"
-					stroke="white"
+					stroke={WHITE}
 					strokeWidth={2}
 					strokeLinecap="round"
 					strokeLinejoin="round"
@@ -883,7 +925,7 @@ export const EasingEditor: React.FC<{
 		(key: SpringNumberKey, value: number, commit: boolean) => {
 			const next = {
 				...springRef.current,
-				[key]: sanitizeSpringValue(value, key, DEFAULT_SPRING_EASING[key]),
+				[key]: sanitizeSpringValue(value, key, SPRING_FALLBACKS[key]),
 			};
 			const version = setSpringAndPreview(next);
 
@@ -898,6 +940,15 @@ export const EasingEditor: React.FC<{
 		const next = {
 			...springRef.current,
 			overshootClamping: !springRef.current.overshootClamping,
+		};
+		const version = setSpringAndPreview(next);
+		commitEasing(serializeSpring(next), version);
+	}, [commitEasing, setSpringAndPreview]);
+
+	const setAllowTail = useCallback(() => {
+		const next = {
+			...springRef.current,
+			allowTail: !(springRef.current.allowTail ?? false),
 		};
 		const version = setSpringAndPreview(next);
 		commitEasing(serializeSpring(next), version);
@@ -1045,7 +1096,9 @@ export const EasingEditor: React.FC<{
 	}, [endPoint, firstHandle, secondHandle, startPoint]);
 	const springPath = useMemo(() => {
 		const easing = Easing.spring({
+			allowTail: spring.allowTail ?? undefined,
 			damping: spring.damping,
+			durationRestThreshold: spring.durationRestThreshold ?? undefined,
 			mass: spring.mass,
 			overshootClamping: spring.overshootClamping,
 			stiffness: spring.stiffness,
@@ -1093,21 +1146,20 @@ export const EasingEditor: React.FC<{
 		}),
 		[],
 	);
+	const modeSwitcher = (
+		<div style={segmentedControlWrapper}>
+			<SegmentedControl items={modeItems} needsWrapping={false} />
+		</div>
+	);
 
 	return (
 		<div style={inlineContainer}>
-			{renderHeader ? (
-				renderHeader(modeItems)
-			) : (
-				<div style={segmentedControlWrapper}>
-					<SegmentedControl
-						items={modeItems}
-						needsWrapping={false}
-						size="compact"
-					/>
-				</div>
-			)}
-			<div style={presetButtonsWrapper}>
+			{renderHeader ? renderHeader(modeItems) : null}
+			<div
+				style={
+					renderHeader ? inspectorPresetButtonsWrapper : presetButtonsWrapper
+				}
+			>
 				{EDITOR_EASING_PRESETS.map((preset) => (
 					<EasingPresetButton
 						key={preset.id}
@@ -1134,7 +1186,7 @@ export const EasingEditor: React.FC<{
 							y1={startPoint.y}
 							x2={firstHandle.x}
 							y2={firstHandle.y}
-							stroke="rgba(255, 255, 255, 0.35)"
+							stroke={WHITE_ALPHA_35}
 							strokeWidth={1}
 						/>
 						<line
@@ -1142,17 +1194,17 @@ export const EasingEditor: React.FC<{
 							y1={endPoint.y}
 							x2={secondHandle.x}
 							y2={secondHandle.y}
-							stroke="rgba(255, 255, 255, 0.35)"
+							stroke={WHITE_ALPHA_35}
 							strokeWidth={1}
 						/>
 						<path d={bezierPath} fill="none" stroke={BLUE} strokeWidth={3} />
-						<circle cx={startPoint.x} cy={startPoint.y} r={4} fill="white" />
-						<circle cx={endPoint.x} cy={endPoint.y} r={4} fill="white" />
+						<circle cx={startPoint.x} cy={startPoint.y} r={4} fill={WHITE} />
+						<circle cx={endPoint.x} cy={endPoint.y} r={4} fill={WHITE} />
 						<circle
 							cx={firstHandle.x}
 							cy={firstHandle.y}
 							r={6}
-							fill="white"
+							fill={WHITE}
 							stroke={BLUE}
 							strokeWidth={2}
 							vectorEffect="non-scaling-stroke"
@@ -1164,7 +1216,7 @@ export const EasingEditor: React.FC<{
 							cx={secondHandle.x}
 							cy={secondHandle.y}
 							r={6}
-							fill="white"
+							fill={WHITE}
 							stroke={BLUE}
 							strokeWidth={2}
 							vectorEffect="non-scaling-stroke"
@@ -1173,6 +1225,7 @@ export const EasingEditor: React.FC<{
 							onPointerDown={(event) => onHandlePointerDown(1, event)}
 						/>
 					</svg>
+					{modeSwitcher}
 					<div style={coordinatesGrid}>
 						<div style={coordinateRow}>
 							<div style={coordinateLabel}>X1</div>
@@ -1279,9 +1332,10 @@ export const EasingEditor: React.FC<{
 					>
 						<EasingGraphScaffold labels={graphLabels} />
 						<path d={springPath} fill="none" stroke={BLUE} strokeWidth={3} />
-						<circle cx={xToSvg(0)} cy={yToSvg(0)} r={4} fill="white" />
-						<circle cx={xToSvg(1)} cy={yToSvg(1)} r={4} fill="white" />
+						<circle cx={xToSvg(0)} cy={yToSvg(0)} r={4} fill={WHITE} />
+						<circle cx={xToSvg(1)} cy={yToSvg(1)} r={4} fill={WHITE} />
 					</svg>
+					{modeSwitcher}
 					<div style={coordinatesGrid}>
 						<div style={coordinateRow}>
 							<div style={coordinateLabel}>Damping</div>
@@ -1362,12 +1416,55 @@ export const EasingEditor: React.FC<{
 							</div>
 						</div>
 						<div style={coordinateRow}>
+							<div style={coordinateLabel}>Rest threshold</div>
+							<div style={coordinateInputWrapper}>
+								<InputDragger
+									type="number"
+									value={
+										spring.durationRestThreshold ??
+										DEFAULT_DURATION_REST_THRESHOLD
+									}
+									status="ok"
+									onValueChange={(value) =>
+										setSpringNumber('durationRestThreshold', value, false)
+									}
+									onValueChangeEnd={(value) =>
+										setSpringNumber('durationRestThreshold', value, true)
+									}
+									onTextChange={() => undefined}
+									min={SPRING_LIMITS.durationRestThreshold.min}
+									max={SPRING_LIMITS.durationRestThreshold.max}
+									step={SPRING_LIMITS.durationRestThreshold.step}
+									formatter={springFormatters.durationRestThreshold}
+									rightAlign={false}
+									style={numberInputStyle}
+									snapToStep={false}
+									dragDecimalPlaces={
+										SPRING_DECIMAL_PLACES.durationRestThreshold
+									}
+									disabled={disabled}
+								/>
+							</div>
+						</div>
+						<div style={coordinateRow}>
 							<div style={coordinateLabel}>Clamp overshoot</div>
 							<div style={checkboxWrapper}>
 								<Checkbox
 									checked={spring.overshootClamping}
 									onChange={setOvershootClamping}
 									name="spring-overshoot-clamping"
+									disabled={disabled}
+									variant="small"
+								/>
+							</div>
+						</div>
+						<div style={coordinateRow}>
+							<div style={coordinateLabel}>Allow tail</div>
+							<div style={checkboxWrapper}>
+								<Checkbox
+									checked={spring.allowTail ?? false}
+									onChange={setAllowTail}
+									name="spring-allow-tail"
 									disabled={disabled}
 									variant="small"
 								/>

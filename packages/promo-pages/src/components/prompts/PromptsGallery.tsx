@@ -191,8 +191,7 @@ export const PromptsGalleryPage: React.FC<{
 						>
 							Remotion Skills
 						</a>{' '}
-						and a coding agent like Claude Code, Codex, or OpenCode. Want to
-						make your own?
+						and coding agents like Claude Code, Codex, or OpenCode.
 					</p>
 				</div>
 				<div className="flex items-center gap-2">
@@ -214,12 +213,6 @@ export const PromptsGalleryPage: React.FC<{
 							/>
 						</svg>
 						<div className="text-sm">Create your own video</div>
-					</Button>
-					<Button
-						href="/prompts/submit"
-						className="font-brand rounded-full text-sm"
-					>
-						Share your video
 					</Button>
 				</div>
 

@@ -540,6 +540,65 @@ test('Should handle getting a frame from a WebM when it is not transparent', asy
 	await compositor.waitForDone();
 });
 
+test(
+	'Should handle a cold transparent WebM seek at and after the last keyframe',
+	async () => {
+		const extractFrameFromFreshCompositor = async (time: number) => {
+			const compositor = startLongRunningCompositor({
+				maximumFrameCacheItemsInBytes: null,
+				logLevel: 'info',
+				indent: false,
+				binariesDirectory: null,
+				extraThreads: 1,
+			});
+
+			let frame: Uint8Array | null = null;
+			let commandError: unknown = null;
+			try {
+				frame = await compositor.executeCommand('ExtractFrame', {
+					src: exampleVideos.redHeartWebm,
+					original_src: exampleVideos.redHeartWebm,
+					time,
+					transparent: true,
+					tone_mapped: true,
+				});
+			} catch (err) {
+				commandError = err;
+			}
+
+			try {
+				await compositor.shutDownOrKill();
+			} catch (err) {
+				if (commandError === null) {
+					throw err;
+				}
+			}
+
+			if (commandError !== null) {
+				throw commandError;
+			}
+
+			return frame as Uint8Array;
+		};
+
+		const beforeLastKeyframe = await extractFrameFromFreshCompositor(1.35);
+		const atLastKeyframe = await extractFrameFromFreshCompositor(1.367);
+		const afterLastKeyframe = await extractFrameFromFreshCompositor(1.5106);
+
+		for (const frame of [
+			beforeLastKeyframe,
+			atLastKeyframe,
+			afterLastKeyframe,
+		]) {
+			expect(Buffer.from(frame.subarray(0, 8)).toString('hex')).toBe(
+				'89504e470d0a1a0a',
+			);
+			expect(frame.length).toBeGreaterThan(100000);
+		}
+	},
+	{timeout: 20000},
+);
+
 test('Should handle a video with no frames at the beginning', async () => {
 	const compositor = startLongRunningCompositor({
 		maximumFrameCacheItemsInBytes: null,

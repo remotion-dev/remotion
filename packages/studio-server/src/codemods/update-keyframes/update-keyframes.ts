@@ -16,7 +16,6 @@ import {
 	isKeyframeInterpolationFunction,
 	isSchemaFieldKeyframable,
 	LINEAR_KEYFRAME_EASING,
-	parseSpringEasingConfig,
 	type KeyframeInterpolationFunction,
 } from '@remotion/studio-shared';
 import type {ExpressionKind, SpreadElementKind} from 'ast-types/lib/gen/kinds';
@@ -29,6 +28,7 @@ import type {
 	InteractivitySchema,
 } from 'remotion';
 import {getAstNodePath} from '../../helpers/get-ast-node-path';
+import {parseKeyframeEasingExpression} from '../../helpers/parse-keyframe-easing-expression';
 import {
 	extractStaticValue,
 	findJsxElementAtNodePath,
@@ -402,73 +402,8 @@ const setOptionsProperty = ({
 
 const isLinearEasing = (easing: KeyframeEasing) => easing.type === 'linear';
 
-const getKeyframeEasing = (node: Expression): KeyframeEasing | null => {
-	if (node.type === 'TSAsExpression') {
-		return getKeyframeEasing(node.expression as Expression);
-	}
-
-	if (
-		node.type === 'MemberExpression' &&
-		node.object.type === 'Identifier' &&
-		node.object.name === 'Easing' &&
-		node.property.type === 'Identifier' &&
-		node.property.name === 'linear' &&
-		node.computed === false
-	) {
-		return {type: 'linear'};
-	}
-
-	if (
-		node.type !== 'CallExpression' ||
-		node.callee.type !== 'MemberExpression' ||
-		node.callee.object.type !== 'Identifier' ||
-		node.callee.object.name !== 'Easing' ||
-		node.callee.property.type !== 'Identifier' ||
-		node.callee.computed
-	) {
-		return null;
-	}
-
-	if (node.callee.property.name === 'spring') {
-		if (node.arguments.length > 1) {
-			return null;
-		}
-
-		const springConfig = node.arguments[0];
-		if (
-			springConfig?.type === 'ArgumentPlaceholder' ||
-			springConfig?.type === 'JSXNamespacedName' ||
-			springConfig?.type === 'SpreadElement'
-		) {
-			return null;
-		}
-
-		return parseSpringEasingConfig(springConfig);
-	}
-
-	if (node.callee.property.name !== 'bezier' || node.arguments.length !== 4) {
-		return null;
-	}
-
-	const values = node.arguments.map((arg) => {
-		if (
-			arg.type === 'ArgumentPlaceholder' ||
-			arg.type === 'JSXNamespacedName' ||
-			arg.type === 'SpreadElement'
-		) {
-			return null;
-		}
-
-		return getNumericValue(arg as Expression);
-	});
-
-	if (values.some((value) => value === null)) {
-		return null;
-	}
-
-	const [x1, y1, x2, y2] = values as [number, number, number, number];
-	return {type: 'bezier', x1, y1, x2, y2};
-};
+const getKeyframeEasing = (node: Expression): KeyframeEasing | null =>
+	parseKeyframeEasingExpression(node);
 
 const getKeyframeEasingArray = ({
 	easingNode,
@@ -583,6 +518,22 @@ const createEasingExpression = (easing: KeyframeEasing): ExpressionKind => {
 							b.identifier('stiffness'),
 							parseValueExpression(easing.stiffness),
 						),
+						...(easing.allowTail === null
+							? []
+							: [
+									b.objectProperty(
+										b.identifier('allowTail'),
+										b.booleanLiteral(easing.allowTail),
+									),
+								]),
+						...(easing.durationRestThreshold === null
+							? []
+							: [
+									b.objectProperty(
+										b.identifier('durationRestThreshold'),
+										parseValueExpression(easing.durationRestThreshold),
+									),
+								]),
 						b.objectProperty(
 							b.identifier('overshootClamping'),
 							b.booleanLiteral(easing.overshootClamping),
@@ -656,10 +607,14 @@ const normalizeEasingAfterAddingKeyframe = ({
 	extraArgs,
 	previousSegmentCount,
 	nextSegmentCount,
+	insertedKeyframeIndex,
+	nextKeyframeCount,
 }: {
 	extraArgs: (ExpressionKind | SpreadElementKind)[];
 	previousSegmentCount: number;
 	nextSegmentCount: number;
+	insertedKeyframeIndex: number;
+	nextKeyframeCount: number;
 }): {
 	extraArgs: (ExpressionKind | SpreadElementKind)[];
 	needsEasingImport: boolean;
@@ -677,6 +632,23 @@ const normalizeEasingAfterAddingKeyframe = ({
 		return {extraArgs, needsEasingImport: false};
 	}
 
+	if (easing.length < nextSegmentCount) {
+		const isSplittingExistingSegment =
+			insertedKeyframeIndex > 0 &&
+			insertedKeyframeIndex < nextKeyframeCount - 1;
+		const easingIndexToDuplicate =
+			isSplittingExistingSegment && easing.length > 0
+				? Math.min(insertedKeyframeIndex - 1, easing.length - 1)
+				: null;
+		easing.splice(
+			insertedKeyframeIndex,
+			0,
+			easingIndexToDuplicate === null
+				? LINEAR_KEYFRAME_EASING
+				: easing[easingIndexToDuplicate],
+		);
+	}
+
 	while (easing.length < nextSegmentCount) {
 		easing.push(LINEAR_KEYFRAME_EASING);
 	}
@@ -685,6 +657,24 @@ const normalizeEasingAfterAddingKeyframe = ({
 		extraArgs: getExtraArgsWithOptions({extraArgs, options}),
 		needsEasingImport: setEasingOption({options, easing}),
 	};
+};
+
+const getEasingIndexToRemove = ({
+	removedKeyframeIndex,
+	keyframeCountBeforeRemoval,
+}: {
+	removedKeyframeIndex: number;
+	keyframeCountBeforeRemoval: number;
+}) => {
+	if (removedKeyframeIndex === 0) {
+		return 0;
+	}
+
+	if (removedKeyframeIndex === keyframeCountBeforeRemoval - 1) {
+		return removedKeyframeIndex - 1;
+	}
+
+	return removedKeyframeIndex;
 };
 
 const normalizeEasingAfterRemovingKeyframe = ({
@@ -715,8 +705,10 @@ const normalizeEasingAfterRemovingKeyframe = ({
 	}
 
 	if (easing.length > 0) {
-		const easingIndexToRemove =
-			removedKeyframeIndex === 0 ? 0 : removedKeyframeIndex - 1;
+		const easingIndexToRemove = getEasingIndexToRemove({
+			removedKeyframeIndex,
+			keyframeCountBeforeRemoval: previousSegmentCount + 1,
+		});
 		easing.splice(easingIndexToRemove, 1);
 	}
 
@@ -761,15 +753,22 @@ const normalizeEasingAfterRemovingKeyframes = ({
 		return {extraArgs, needsEasingImport: false};
 	}
 
-	for (const removedKeyframeIndex of [...removedKeyframeIndexes].sort(
-		(first, second) => second - first,
-	)) {
+	for (const {removedKeyframeIndex, keyframeCountBeforeRemoval} of [
+		...removedKeyframeIndexes,
+	]
+		.sort((first, second) => second - first)
+		.map((keyframeIndex, index) => ({
+			removedKeyframeIndex: keyframeIndex,
+			keyframeCountBeforeRemoval: previousSegmentCount + 1 - index,
+		}))) {
 		if (easing.length === 0) {
 			break;
 		}
 
-		const easingIndexToRemove =
-			removedKeyframeIndex === 0 ? 0 : removedKeyframeIndex - 1;
+		const easingIndexToRemove = getEasingIndexToRemove({
+			removedKeyframeIndex,
+			keyframeCountBeforeRemoval,
+		});
 		easing.splice(easingIndexToRemove, 1);
 	}
 
@@ -1015,6 +1014,10 @@ const addKeyframe = ({
 						extraArgs: existing.extraArgs,
 						previousSegmentCount: Math.max(existing.keyframes.length - 1, 0),
 						nextSegmentCount: Math.max(nextKeyframes.length - 1, 0),
+						insertedKeyframeIndex: [...nextKeyframes]
+							.sort((first, second) => first.frame - second.frame)
+							.findIndex((keyframe) => keyframe.frame === frame),
+						nextKeyframeCount: nextKeyframes.length,
 					})
 				: {extraArgs: existing.extraArgs, needsEasingImport: false};
 

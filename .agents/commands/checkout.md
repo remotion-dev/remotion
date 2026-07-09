@@ -1,0 +1,1 @@
+../skills/checkout/SKILL.md

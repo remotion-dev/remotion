@@ -31,6 +31,8 @@ import {
 	LIGHT_TRAIL_PREVIEW_PARAMS,
 	LightTrailTextSource,
 } from '../../components/effects/effects-light-trail-preview';
+import {EffectsLinearGradientPreview} from '../../components/effects/effects-linear-gradient-preview';
+import {EffectsLinearGradientTintPreview} from '../../components/effects/effects-linear-gradient-tint-preview';
 import {EffectsLinearProgressiveBlurPreview} from '../../components/effects/effects-linear-progressive-blur-preview';
 import {EffectsLinesPreview} from '../../components/effects/effects-lines-preview';
 import {EffectsMirrorPreview} from '../../components/effects/effects-mirror-preview';
@@ -40,9 +42,17 @@ import {
 	NoiseDisplacementTextSource,
 } from '../../components/effects/effects-noise-displacement-preview';
 import {EffectsNoisePreview} from '../../components/effects/effects-noise-preview';
+import {
+	EffectsPaperPreview,
+	PAPER_PREVIEW_PARAMS,
+} from '../../components/effects/effects-paper-preview';
 import {EffectsPatternPreview} from '../../components/effects/effects-pattern-preview';
 import {EffectsPixelDissolvePreview} from '../../components/effects/effects-pixel-dissolve-preview';
 import {EffectsPixelatePreview} from '../../components/effects/effects-pixelate-preview';
+import {
+	EffectsRadialProgressiveBlurPreview,
+	RADIAL_PROGRESSIVE_BLUR_PREVIEW_PARAMS,
+} from '../../components/effects/effects-radial-progressive-blur-preview';
 import {EffectsRingsPreview} from '../../components/effects/effects-rings-preview';
 import {EffectsSaturationPreview} from '../../components/effects/effects-saturation-preview';
 import {EffectsScalePreview} from '../../components/effects/effects-scale-preview';
@@ -53,7 +63,10 @@ import {
 	SHRINKWRAP_PREVIEW_PARAMS,
 } from '../../components/effects/effects-shrinkwrap-preview';
 import {EffectsSpecklePreview} from '../../components/effects/effects-speckle-preview';
-import {EffectsStarburstPreview} from '../../components/effects/effects-starburst-preview';
+import {
+	EffectsStarburstPreview,
+	STARBURST_PREVIEW_PARAMS,
+} from '../../components/effects/effects-starburst-preview';
 import {EffectsThermalVisionPreview} from '../../components/effects/effects-thermal-vision-preview';
 import {EffectsTintPreview} from '../../components/effects/effects-tint-preview';
 import {
@@ -61,6 +74,7 @@ import {
 	EffectsXyTranslatePreview,
 } from '../../components/effects/effects-translate-preview';
 import {EffectsTvSignalOffPreview} from '../../components/effects/effects-tv-signal-off-preview';
+import {EffectsVenetianBlindsPreview} from '../../components/effects/effects-venetian-blinds-preview';
 import {EffectsVignettePreview} from '../../components/effects/effects-vignette-preview';
 import {EffectsWavePreview} from '../../components/effects/effects-wave-preview';
 import {EffectsWavesPreview} from '../../components/effects/effects-waves-preview';
@@ -211,6 +225,17 @@ export const RemotionRoot: React.FC = () => {
 						progress: 0.55,
 						direction: 'left',
 						feather: 0.18,
+					}}
+				/>
+				<Still
+					id="effects-venetian-blinds-preview"
+					component={EffectsVenetianBlindsPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						progress: 0.58,
+						direction: 'vertical',
+						slats: 14,
 					}}
 				/>
 				<Still
@@ -384,6 +409,38 @@ export const RemotionRoot: React.FC = () => {
 					}}
 				/>
 				<Still
+					id="effects-linear-gradient-preview"
+					component={EffectsLinearGradientPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						start: [0, 0.5],
+						end: [1, 0.5],
+						startColor: '#0b84f3',
+						endColor: '#ff5c8a',
+					}}
+				/>
+				<Still
+					id="effects-linear-gradient-tint-preview"
+					component={EffectsLinearGradientTintPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						start: [0, 0.5],
+						end: [1, 0.5],
+						startColor: '#0b84f3',
+						endColor: '#ff5c8a',
+						amount: 0.75,
+					}}
+				/>
+				<Still
+					id="effects-radial-progressive-blur-preview"
+					component={EffectsRadialProgressiveBlurPreview}
+					width={1280}
+					height={720}
+					defaultProps={RADIAL_PROGRESSIVE_BLUR_PREVIEW_PARAMS}
+				/>
+				<Still
 					id="effects-light-trail-text-source"
 					component={LightTrailTextSource}
 					width={1920}
@@ -544,6 +601,13 @@ export const RemotionRoot: React.FC = () => {
 					defaultProps={NOISE_DISPLACEMENT_PREVIEW_PARAMS}
 				/>
 				<Still
+					id="effects-paper-preview"
+					component={EffectsPaperPreview}
+					width={1280}
+					height={720}
+					defaultProps={PAPER_PREVIEW_PARAMS}
+				/>
+				<Still
 					id="effects-white-noise-preview"
 					component={EffectsWhiteNoisePreview}
 					width={1280}
@@ -701,12 +765,7 @@ export const RemotionRoot: React.FC = () => {
 					component={EffectsStarburstPreview}
 					width={1280}
 					height={720}
-					defaultProps={{
-						rays: 16,
-						rotation: 0,
-						smoothness: 0,
-						origin: [0.5, 0.5],
-					}}
+					defaultProps={STARBURST_PREVIEW_PARAMS}
 				/>
 				<Still
 					id="effects-light-leak-preview"

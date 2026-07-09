@@ -4,11 +4,11 @@ import type {OriginalPosition} from '../error-overlay/react-overlay/utils/get-so
 import {isCompositionStill} from '../helpers/is-composition-still';
 import {openOriginalPositionInEditor} from '../helpers/open-in-editor';
 import {renderFrame} from '../state/render-frame';
+import {InlineCompositionName} from './InlineCompositionName';
 import {
 	INSPECTOR_INFO_HEADER_MIN_HEIGHT,
 	InspectorInfoHeader,
 	InspectorInfoSubtitle,
-	InspectorInfoTitle,
 } from './InspectorInfoHeader';
 import {InspectorSourceLocation} from './InspectorSourceLocation';
 import {showNotification} from './Notifications/NotificationCenter';
@@ -60,7 +60,12 @@ export const CurrentComposition = () => {
 		<InspectorInfoHeader>
 			{video ? (
 				<>
-					<InspectorInfoTitle>{video.id}</InspectorInfoTitle>
+					<InlineCompositionName
+						key={video.id}
+						compositionId={video.id}
+						stack={currentComposition?.stack ?? null}
+						compositions={compositions}
+					/>
 					<InspectorSourceLocation
 						location={validatedLocation}
 						canOpen={validatedLocation !== null}

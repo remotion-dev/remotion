@@ -23,6 +23,8 @@ import {halftone} from '../halftone.js';
 import {hue} from '../hue.js';
 import {invert} from '../invert.js';
 import {lightTrail} from '../light-trail/index.js';
+import {linearGradientTint} from '../linear-gradient-tint.js';
+import {linearGradient} from '../linear-gradient.js';
 import {linearProgressiveBlur} from '../linear-progressive-blur/index.js';
 import {lines} from '../lines.js';
 import {mirror} from '../mirror.js';
@@ -31,9 +33,11 @@ import {
 	type NoiseDisplacementParams,
 } from '../noise-displacement.js';
 import {noise} from '../noise.js';
+import {paper} from '../paper.js';
 import {pattern} from '../pattern.js';
 import {pixelDissolve} from '../pixel-dissolve.js';
 import {pixelate} from '../pixelate.js';
+import {radialProgressiveBlur} from '../radial-progressive-blur/index.js';
 import {rings} from '../rings.js';
 import {saturation} from '../saturation.js';
 import {scale} from '../scale.js';
@@ -46,6 +50,7 @@ import {tint} from '../tint.js';
 import {uvTranslate, xyTranslate} from '../translate.js';
 import {tvSignalOff} from '../tv-signal-off.js';
 import {publicUvToShaderUv} from '../uv-coordinate.js';
+import {venetianBlinds} from '../venetian-blinds.js';
 import {vignette} from '../vignette.js';
 import {wave} from '../wave/index.js';
 import {waves} from '../waves.js';
@@ -147,6 +152,12 @@ test('@remotion/effects expose documentation links', () => {
 	expect(lines().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/lines',
 	);
+	expect(linearGradient().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/linear-gradient',
+	);
+	expect(linearGradientTint().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/linear-gradient-tint',
+	);
 	expect(linearProgressiveBlur().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/linear-progressive-blur',
 	);
@@ -166,8 +177,14 @@ test('@remotion/effects expose documentation links', () => {
 		noiseDisplacement({center: [0.5, 0.5], radius: 0.25}).definition
 			.documentationLink,
 	).toBe('https://www.remotion.dev/docs/effects/noise-displacement');
+	expect(paper().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/paper',
+	);
 	expect(pattern().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/pattern',
+	);
+	expect(radialProgressiveBlur().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/radial-progressive-blur',
 	);
 	expect(rings().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/rings',
@@ -198,6 +215,9 @@ test('@remotion/effects expose documentation links', () => {
 	);
 	expect(tvSignalOff().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/tv-signal-off',
+	);
+	expect(venetianBlinds().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/venetian-blinds',
 	);
 	expect(uvTranslate().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/uv-translate',
@@ -252,6 +272,8 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(hue().definition.label).toBe('hue()');
 	expect(invert().definition.label).toBe('invert()');
 	expect(lines().definition.label).toBe('lines()');
+	expect(linearGradient().definition.label).toBe('linearGradient()');
+	expect(linearGradientTint().definition.label).toBe('linearGradientTint()');
 	expect(linearProgressiveBlur().definition.label).toBe(
 		'linearProgressiveBlur()',
 	);
@@ -262,7 +284,11 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(
 		noiseDisplacement({center: [0.5, 0.5], radius: 0.25}).definition.label,
 	).toBe('noiseDisplacement()');
+	expect(paper().definition.label).toBe('paper()');
 	expect(pattern().definition.label).toBe('pattern()');
+	expect(radialProgressiveBlur().definition.label).toBe(
+		'radialProgressiveBlur()',
+	);
 	expect(rings().definition.label).toBe('rings()');
 	expect(saturation().definition.label).toBe('saturation()');
 	expect(scanlines().definition.label).toBe('scanlines()');
@@ -273,6 +299,7 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(thermalVision().definition.label).toBe('thermalVision()');
 	expect(tint({color: '#fff'}).definition.label).toBe('tint()');
 	expect(tvSignalOff().definition.label).toBe('tvSignalOff()');
+	expect(venetianBlinds().definition.label).toBe('venetianBlinds()');
 	expect(uvTranslate().definition.label).toBe('uvTranslate()');
 	expect(vignette().definition.label).toBe('vignette()');
 	expect(xyTranslate().definition.label).toBe('xyTranslate()');
@@ -1062,6 +1089,82 @@ test('evolve() parameters produce distinct effect keys', () => {
 	).toBe(4);
 });
 
+test('venetianBlinds() accepts default params', () => {
+	expect(() => venetianBlinds()).not.toThrow();
+});
+
+test('venetianBlinds() rejects non-finite progress', () => {
+	expect(() => venetianBlinds({progress: Number.NaN})).toThrow(
+		'"progress" must be a finite number',
+	);
+});
+
+test('venetianBlinds() rejects progress below range', () => {
+	expect(() => venetianBlinds({progress: -0.1})).toThrow(
+		'"progress" must be >= 0',
+	);
+});
+
+test('venetianBlinds() rejects progress above range', () => {
+	expect(() => venetianBlinds({progress: 1.1})).toThrow(
+		'"progress" must be <= 1',
+	);
+});
+
+test('venetianBlinds() rejects direction outside the enum', () => {
+	expect(() => venetianBlinds({direction: 'diagonal' as 'vertical'})).toThrow(
+		'"direction" must be "vertical" or "horizontal", but got "diagonal"',
+	);
+});
+
+test('venetianBlinds() rejects non-finite slats', () => {
+	expect(() => venetianBlinds({slats: Number.NaN})).toThrow(
+		'"slats" must be a finite number',
+	);
+});
+
+test('venetianBlinds() rejects fractional slats', () => {
+	expect(() => venetianBlinds({slats: 6.5})).toThrow(
+		'"slats" must be an integer',
+	);
+});
+
+test('venetianBlinds() rejects non-positive slats', () => {
+	expect(() => venetianBlinds({slats: 0})).toThrow('"slats" must be >= 1');
+});
+
+test('venetianBlinds() parameters produce distinct effect keys', () => {
+	const full = venetianBlinds({
+		progress: 1,
+		direction: 'vertical',
+		slats: 12,
+	});
+	const half = venetianBlinds({
+		progress: 0.5,
+		direction: 'vertical',
+		slats: 12,
+	});
+	const otherDirection = venetianBlinds({
+		progress: 0.5,
+		direction: 'horizontal',
+		slats: 12,
+	});
+	const otherSlats = venetianBlinds({
+		progress: 0.5,
+		direction: 'horizontal',
+		slats: 18,
+	});
+
+	expect(
+		new Set([
+			full.effectKey,
+			half.effectKey,
+			otherDirection.effectKey,
+			otherSlats.effectKey,
+		]).size,
+	).toBe(4);
+});
+
 test('dropShadow() accepts default params', () => {
 	expect(() => dropShadow()).not.toThrow();
 });
@@ -1461,7 +1564,10 @@ test('halftoneLinearGradient() connects its stop position controls', () => {
 		halftoneLinearGradient().definition.schema.firstStopPosition,
 	).toMatchObject({
 		type: 'uv-coordinate',
-		lineTo: 'secondStopPosition',
+		visual: {
+			type: 'line',
+			to: 'secondStopPosition',
+		},
 	});
 });
 
@@ -1551,6 +1657,131 @@ test('halftoneLinearGradient() parameters produce distinct effect keys', () => {
 			shiftedFirstPosition.effectKey,
 			sourceColor.effectKey,
 			masked.effectKey,
+		]).size,
+	).toBe(6);
+});
+
+test('linearGradient() accepts default params', () => {
+	expect(() => linearGradient()).not.toThrow();
+});
+
+test('linearGradient() connects its stop position controls', () => {
+	expect(linearGradient().definition.schema.start).toMatchObject({
+		type: 'uv-coordinate',
+		visual: {
+			type: 'line',
+			to: 'end',
+		},
+	});
+});
+
+test('linearGradient() rejects start outside the tuple shape', () => {
+	expect(() =>
+		linearGradient({
+			start: [0, 0.5, 1] as unknown as [number, number],
+		}),
+	).toThrow('"start" must be a [number, number] tuple');
+});
+
+test('linearGradient() rejects end outside the tuple shape', () => {
+	expect(() =>
+		linearGradient({
+			end: [0, Number.NaN],
+		}),
+	).toThrow('"end" must be a [number, number] tuple');
+});
+
+test('linearGradient() rejects empty colors', () => {
+	expect(() => linearGradient({startColor: ''})).toThrow(
+		'"startColor" must be a non-empty string',
+	);
+	expect(() => linearGradient({endColor: ''})).toThrow(
+		'"endColor" must be a non-empty string',
+	);
+});
+
+test('linearGradient() parameters produce distinct effect keys', () => {
+	const defaultGradient = linearGradient();
+	const shiftedStart = linearGradient({start: [0.2, 0.5]});
+	const shiftedEnd = linearGradient({end: [0.8, 0.5]});
+	const customStartColor = linearGradient({startColor: '#ff0000'});
+	const customEndColor = linearGradient({endColor: '#0000ff'});
+
+	expect(
+		new Set([
+			defaultGradient.effectKey,
+			shiftedStart.effectKey,
+			shiftedEnd.effectKey,
+			customStartColor.effectKey,
+			customEndColor.effectKey,
+		]).size,
+	).toBe(5);
+});
+
+test('linearGradientTint() accepts default params', () => {
+	expect(() => linearGradientTint()).not.toThrow();
+});
+
+test('linearGradientTint() connects its stop position controls', () => {
+	expect(linearGradientTint().definition.schema.start).toMatchObject({
+		type: 'uv-coordinate',
+		visual: {
+			type: 'line',
+			to: 'end',
+		},
+	});
+});
+
+test('linearGradientTint() rejects start outside the tuple shape', () => {
+	expect(() =>
+		linearGradientTint({
+			start: [0, 0.5, 1] as unknown as [number, number],
+		}),
+	).toThrow('"start" must be a [number, number] tuple');
+});
+
+test('linearGradientTint() rejects end outside the tuple shape', () => {
+	expect(() =>
+		linearGradientTint({
+			end: [0, Number.NaN],
+		}),
+	).toThrow('"end" must be a [number, number] tuple');
+});
+
+test('linearGradientTint() rejects empty colors', () => {
+	expect(() => linearGradientTint({startColor: ''})).toThrow(
+		'"startColor" must be a non-empty string',
+	);
+	expect(() => linearGradientTint({endColor: ''})).toThrow(
+		'"endColor" must be a non-empty string',
+	);
+});
+
+test('linearGradientTint() rejects amount outside unit interval', () => {
+	expect(() => linearGradientTint({amount: -0.1})).toThrow(
+		'"amount" must be >= 0',
+	);
+	expect(() => linearGradientTint({amount: 1.1})).toThrow(
+		'"amount" must be <= 1',
+	);
+});
+
+test('linearGradientTint() parameters produce distinct effect keys', () => {
+	const defaultGradient = linearGradientTint();
+	const shiftedStart = linearGradientTint({start: [0.2, 0.5]});
+	const shiftedEnd = linearGradientTint({end: [0.8, 0.5]});
+	const customStartColor = linearGradientTint({startColor: '#ff0000'});
+	const customEndColor = linearGradientTint({endColor: '#0000ff'});
+	const strongerAmount = linearGradientTint({amount: 1});
+
+	expect(
+		new Set([
+			defaultGradient.effectKey,
+			shiftedStart.effectKey,
+			shiftedEnd.effectKey,
+			customStartColor.effectKey,
+			customEndColor.effectKey,
+			strongerAmount.effectKey,
 		]).size,
 	).toBe(6);
 });
@@ -2180,6 +2411,96 @@ test('noiseDisplacement() parameters produce distinct effect keys', () => {
 	).toBe(10);
 });
 
+test('paper() accepts default params', () => {
+	expect(() => paper()).not.toThrow();
+});
+
+test('paper() accepts valid params', () => {
+	expect(() =>
+		paper({
+			amount: 0.8,
+			colorFront: '#fff4d0',
+			colorBack: '#94774d',
+			contrast: 0.6,
+			roughness: 0.5,
+			fiber: 0.4,
+			fiberSize: 0.6,
+			crumples: 0.35,
+			crumpleSize: 0.45,
+			folds: 0.25,
+			foldCount: 8,
+			drops: 0.1,
+			fade: 0.2,
+			seed: 12.34,
+			scale: 0.8,
+		}),
+	).not.toThrow();
+});
+
+test('paper() rejects non-finite amount', () => {
+	expect(() => paper({amount: Number.NaN})).toThrow(
+		'"amount" must be a finite number',
+	);
+});
+
+test('paper() rejects amount above range', () => {
+	expect(() => paper({amount: 1.1})).toThrow('"amount" must be <= 1');
+});
+
+test('paper() rejects empty color strings', () => {
+	expect(() => paper({colorFront: ''})).toThrow(
+		'"colorFront" must be a non-empty string, but got ""',
+	);
+	expect(() => paper({colorBack: ''})).toThrow(
+		'"colorBack" must be a non-empty string, but got ""',
+	);
+});
+
+test('paper() rejects invalid paper texture params', () => {
+	expect(() => paper({fiberSize: 0})).toThrow(
+		'"fiberSize" must be greater than 0',
+	);
+	expect(() => paper({crumpleSize: 0})).toThrow(
+		'"crumpleSize" must be greater than 0',
+	);
+	expect(() => paper({foldCount: 16})).toThrow('"foldCount" must be <= 15');
+	expect(() => paper({seed: -1})).toThrow('"seed" must be >= 0');
+	expect(() => paper({scale: 0})).toThrow('"scale" must be greater than 0');
+	expect(() => paper({scale: 4.1})).toThrow('"scale" must be <= 4');
+});
+
+test('paper() parameters produce distinct effect keys', () => {
+	const defaults = paper();
+	const subtle = paper({amount: 0.6});
+	const frontColored = paper({colorFront: '#fff4d0'});
+	const backColored = paper({colorBack: '#94774d'});
+	const rough = paper({roughness: 0.8});
+	const fibrous = paper({fiber: 0.7, fiberSize: 0.35});
+	const crumpled = paper({crumples: 0.75, crumpleSize: 0.3});
+	const folded = paper({folds: 0.55, foldCount: 10});
+	const dotted = paper({drops: 0.3});
+	const faded = paper({fade: 0.6});
+	const seeded = paper({seed: 12});
+	const scaled = paper({scale: 1.2});
+
+	expect(
+		new Set([
+			defaults.effectKey,
+			subtle.effectKey,
+			frontColored.effectKey,
+			backColored.effectKey,
+			rough.effectKey,
+			fibrous.effectKey,
+			crumpled.effectKey,
+			folded.effectKey,
+			dotted.effectKey,
+			faded.effectKey,
+			seeded.effectKey,
+			scaled.effectKey,
+		]).size,
+	).toBe(12);
+});
+
 test('pattern() accepts default params', () => {
 	expect(() => pattern()).not.toThrow();
 });
@@ -2557,7 +2878,10 @@ test('linearProgressiveBlur() accepts default params', () => {
 test('linearProgressiveBlur() connects its start and end controls', () => {
 	expect(linearProgressiveBlur().definition.schema.start).toMatchObject({
 		type: 'uv-coordinate',
-		lineTo: 'end',
+		visual: {
+			type: 'line',
+			to: 'end',
+		},
 	});
 });
 
@@ -2608,6 +2932,103 @@ test('linearProgressiveBlur() parameters produce distinct effect keys', () => {
 			moreEndBlur.effectKey,
 		]).size,
 	).toBe(5);
+});
+
+test('radialProgressiveBlur() accepts default params', () => {
+	expect(() => radialProgressiveBlur()).not.toThrow();
+});
+
+test('radialProgressiveBlur() connects its ellipse controls', () => {
+	const {schema} = radialProgressiveBlur().definition;
+	expect(schema.center).toMatchObject({
+		type: 'uv-coordinate',
+		visual: {
+			type: 'ellipse',
+			width: 'width',
+			height: 'height',
+			rotation: 'rotation',
+			innerScale: 'start',
+		},
+	});
+	expect(schema.width).toMatchObject({type: 'number'});
+	expect(schema.height).toMatchObject({type: 'number'});
+	expect(schema.rotation).toMatchObject({type: 'rotation-degrees'});
+	expect(schema.width).not.toHaveProperty('max');
+	expect(schema.height).not.toHaveProperty('max');
+});
+
+test('radialProgressiveBlur() rejects invalid ellipse params', () => {
+	expect(() =>
+		radialProgressiveBlur({
+			center: [0.5] as unknown as [number, number],
+		}),
+	).toThrow('"center" must be a [number, number] tuple');
+	expect(() => radialProgressiveBlur({width: Number.NaN})).toThrow(
+		'"width" must be a finite number',
+	);
+	expect(() => radialProgressiveBlur({height: Number.NaN})).toThrow(
+		'"height" must be a finite number',
+	);
+	expect(() => radialProgressiveBlur({rotation: Number.NaN})).toThrow(
+		'"rotation" must be a finite number',
+	);
+	expect(() => radialProgressiveBlur({width: -0.1})).toThrow(
+		'"width" must be >= 0',
+	);
+	expect(() => radialProgressiveBlur({height: -0.1})).toThrow(
+		'"height" must be >= 0',
+	);
+});
+
+test('radialProgressiveBlur() rejects non-finite blur radii', () => {
+	expect(() => radialProgressiveBlur({start: Number.NaN})).toThrow(
+		'"start" must be a finite number',
+	);
+	expect(() => radialProgressiveBlur({startBlur: Number.NaN})).toThrow(
+		'"startBlur" must be a finite number',
+	);
+	expect(() => radialProgressiveBlur({endBlur: Number.NaN})).toThrow(
+		'"endBlur" must be a finite number',
+	);
+});
+
+test('radialProgressiveBlur() rejects progress outside the unit interval', () => {
+	expect(() => radialProgressiveBlur({start: -0.1})).toThrow(
+		'"start" must be >= 0',
+	);
+	expect(() => radialProgressiveBlur({start: 1.1})).toThrow(
+		'"start" must be <= 1',
+	);
+});
+
+test('radialProgressiveBlur() clamps negative blur radii', () => {
+	const clamped = radialProgressiveBlur({startBlur: -10, endBlur: -1});
+	const zero = radialProgressiveBlur({startBlur: 0, endBlur: 0});
+	expect(clamped.effectKey).toBe(zero.effectKey);
+});
+
+test('radialProgressiveBlur() parameters produce distinct effect keys', () => {
+	const defaults = radialProgressiveBlur();
+	const shiftedCenter = radialProgressiveBlur({center: [0.4, 0.5]});
+	const wider = radialProgressiveBlur({width: 1.2});
+	const taller = radialProgressiveBlur({height: 1.2});
+	const rotated = radialProgressiveBlur({rotation: 15});
+	const shiftedStart = radialProgressiveBlur({start: 0.2});
+	const moreStartBlur = radialProgressiveBlur({startBlur: 12});
+	const moreEndBlur = radialProgressiveBlur({endBlur: 80});
+
+	expect(
+		new Set([
+			defaults.effectKey,
+			shiftedCenter.effectKey,
+			wider.effectKey,
+			taller.effectKey,
+			rotated.effectKey,
+			shiftedStart.effectKey,
+			moreStartBlur.effectKey,
+			moreEndBlur.effectKey,
+		]).size,
+	).toBe(8);
 });
 
 test('zoomBlur() accepts default params', () => {

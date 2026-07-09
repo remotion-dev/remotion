@@ -18,6 +18,7 @@ import {
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import type {LoopDisplay} from 'remotion';
 import {useVideoConfig} from 'remotion';
+import {BLACK_ALPHA_30} from '../../helpers/colors';
 import {
 	TIMELINE_LAYER_FILMSTRIP_HEIGHT,
 	TIMELINE_VIDEO_INFO_WAVEFORM_HEIGHT,
@@ -35,7 +36,7 @@ const outerStyle: React.CSSProperties = {
 
 const filmstripContainerStyle: React.CSSProperties = {
 	height: TIMELINE_LAYER_FILMSTRIP_HEIGHT,
-	backgroundColor: 'rgba(0, 0, 0, 0.3)',
+	backgroundColor: BLACK_ALPHA_30,
 	display: 'flex',
 	borderTopLeftRadius: 2,
 	fontSize: 10,

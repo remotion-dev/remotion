@@ -3,6 +3,13 @@ import type {
 	ArrayFieldSchema,
 	CanUpdateSequencePropStatusStatic,
 } from 'remotion';
+import {
+	BLACK_FULL_HEX,
+	BORDER_WHITE_ALPHA_12,
+	WHITE,
+	WHITE_ALPHA_08,
+	WHITE_ALPHA_45,
+} from '../../helpers/colors';
 import type {
 	SchemaFieldInfo,
 	TimelineFieldOnDragValueChange,
@@ -30,7 +37,7 @@ const itemContainer: React.CSSProperties = {
 };
 
 const itemLabel: React.CSSProperties = {
-	color: 'rgba(255, 255, 255, 0.45)',
+	color: WHITE_ALPHA_45,
 	fontSize: 11,
 	fontVariantNumeric: 'tabular-nums',
 	width: 18,
@@ -38,10 +45,10 @@ const itemLabel: React.CSSProperties = {
 };
 
 const button: React.CSSProperties = {
-	background: 'rgba(255, 255, 255, 0.08)',
-	border: '1px solid rgba(255, 255, 255, 0.12)',
+	background: WHITE_ALPHA_08,
+	border: BORDER_WHITE_ALPHA_12,
 	borderRadius: 3,
-	color: 'white',
+	color: WHITE,
 	cursor: 'pointer',
 	fontSize: 10,
 	height: 18,
@@ -86,7 +93,7 @@ const getFallbackItemValue = (field: ArrayFieldSchema): unknown => {
 	}
 
 	if (field.item.type === 'color') {
-		return '#000000';
+		return BLACK_FULL_HEX;
 	}
 
 	if (field.item.type === 'enum') {

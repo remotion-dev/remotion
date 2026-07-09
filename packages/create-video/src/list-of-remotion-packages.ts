@@ -8,6 +8,7 @@ export const listOfRemotionPackages = [
 	'@remotion/bugs',
 	'@remotion/brand',
 	'@remotion/bundler',
+	'@remotion/browser-studio',
 	'@remotion/canvas-capture',
 	'@remotion/cli',
 	'@remotion/cloudrun',

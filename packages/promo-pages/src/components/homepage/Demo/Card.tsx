@@ -18,11 +18,11 @@ const arePositionsEqual = (a: Position[], b: Position[]) => {
 
 export const Card: React.FC<{
 	readonly index: number;
-	readonly refsToUse: React.MutableRefObject<HTMLDivElement>[];
+	readonly refsToUse: React.RefObject<HTMLDivElement>[];
 	readonly onUpdate: (newIndices: number[]) => void;
 	readonly content: React.ReactNode;
-	readonly positions: React.MutableRefObject<Position[]>;
-	readonly shouldBePositions: React.MutableRefObject<Position[]>;
+	readonly positions: React.RefObject<Position[]>;
+	readonly shouldBePositions: React.RefObject<Position[]>;
 	readonly indices: number[];
 	readonly theme: 'dark' | 'light';
 	readonly withSwitcher: boolean;

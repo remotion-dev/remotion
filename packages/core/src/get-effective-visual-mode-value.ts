@@ -34,6 +34,7 @@ export const resolveDragOverrideValue = ({
 	}
 
 	const interpolated = interpolateKeyframedStatus({
+		forceSpringAllowTail: null,
 		frame,
 		status: dragOverrideValue.status,
 	});
@@ -70,6 +71,7 @@ export const getEffectiveVisualModeValue = ({
 	if (propStatus.status === 'keyframed') {
 		if (frame !== null) {
 			return interpolateKeyframedStatus({
+				forceSpringAllowTail: null,
 				frame,
 				status: propStatus,
 			});

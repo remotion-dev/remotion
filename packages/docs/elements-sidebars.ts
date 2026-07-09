@@ -13,6 +13,16 @@ const sidebars: SidebarsConfig = {
 		},
 		{
 			type: 'category',
+			label: 'Backgrounds',
+			link: {type: 'doc', id: 'backgrounds/index'},
+			collapsed: false,
+			items: [
+				'backgrounds/paper-texture/index',
+				'backgrounds/rotating-starburst/index',
+			],
+		},
+		{
+			type: 'category',
 			label: 'Overlays',
 			link: {type: 'doc', id: 'overlays/index'},
 			collapsed: false,

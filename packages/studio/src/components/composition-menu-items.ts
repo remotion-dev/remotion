@@ -135,6 +135,9 @@ export const getCompositionMenuItems = ({
 				closeMenu();
 				setSelectedModal({
 					type: 'new-comp',
+					folderName: null,
+					parentName: null,
+					stack: null,
 				});
 			},
 			quickSwitcherLabel: 'New composition...',

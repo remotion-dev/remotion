@@ -1,4 +1,5 @@
 import React, {useCallback, useContext, useMemo} from 'react';
+import {CURRENT_COLOR} from '../../helpers/colors';
 import type {RenderInlineAction} from '../InlineAction';
 import {InlineAction} from '../InlineAction';
 import {showNotification} from '../Notifications/NotificationCenter';
@@ -31,7 +32,7 @@ export const RenderQueueCancelButton: React.FC<{
 	const icon: React.CSSProperties = useMemo(() => {
 		return {
 			height: 14,
-			color: 'currentColor',
+			color: CURRENT_COLOR,
 		};
 	}, []);
 

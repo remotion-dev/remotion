@@ -1,12 +1,16 @@
 // Taken from https://github.com/facebook/react-native/blob/0b9ea60b4fee8cacc36e7160e31b91fc114dbc0d/Libraries/Animated/src/Easing.js
 
 import {bezier} from './bezier.js';
-import {spring} from './spring/index.js';
+import type {EasingFunction} from './interpolate.js';
+import {measureSpring, spring} from './spring/index.js';
 import type {SpringConfig} from './spring/spring-utils.js';
 
 export type EasingSpringConfig = Partial<
 	Pick<SpringConfig, 'damping' | 'mass' | 'stiffness' | 'overshootClamping'>
->;
+> & {
+	readonly allowTail?: boolean;
+	readonly durationRestThreshold?: number;
+};
 
 // Some easing curves are only defined on [0, 1] (e.g. quarter circle, bounce segments).
 // `interpolate(..., { extrapolate: 'extend' })` can pass values outside that interval; clamp
@@ -70,14 +74,32 @@ export class Easing {
 		return (t): number => t * t * ((s + 1) * t - s);
 	}
 
-	static spring(config: EasingSpringConfig = {}): (t: number) => number {
-		return (t): number => {
+	static spring({
+		allowTail = false,
+		durationRestThreshold,
+		...config
+	}: EasingSpringConfig = {}): (t: number) => number {
+		const easing: EasingFunction = (t): number => {
 			if (t <= 0) {
 				return 0;
 			}
 
-			if (t >= 1) {
+			if (!allowTail && t >= 1) {
 				return 1;
+			}
+
+			if (allowTail) {
+				return spring({
+					fps: springEasingDurationInFrames,
+					frame:
+						t *
+						measureSpring({
+							fps: springEasingDurationInFrames,
+							config,
+							threshold: durationRestThreshold,
+						}),
+					config,
+				});
 			}
 
 			return spring({
@@ -85,8 +107,13 @@ export class Easing {
 				frame: t * springEasingDurationInFrames,
 				config,
 				durationInFrames: springEasingDurationInFrames,
+				durationRestThreshold,
 			});
 		};
+
+		return Object.assign(easing, {
+			remotionShouldExtendRight: allowTail,
+		});
 	}
 
 	static bounce(t: number): number {

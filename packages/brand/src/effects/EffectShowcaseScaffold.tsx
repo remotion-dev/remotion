@@ -12,9 +12,9 @@ export const SOLID_CREAM = '#fff4d8';
 
 const BOTTOM_PANEL_LEFT_PADDING = 220;
 const EFFECT_HEADER_LEFT_PADDING = 183;
-const PARAM_ROW_HEIGHT = 48;
-const EFFECT_HEADER_HEIGHT = 56;
-const PARAM_FONT_SIZE = 24;
+const PARAM_ROW_HEIGHT = 60;
+const EFFECT_HEADER_HEIGHT = 70;
+const PARAM_FONT_SIZE = 30;
 const KEYFRAME_INACTIVE = '#A6A7A9';
 const BORDER = '#13161b';
 const INPUT_BACKGROUND = '#2f363d';
@@ -24,7 +24,7 @@ const KEYFRAME_DIAMOND_SIZE = 22;
 const EFFECT_TOGGLE_ANIMATION_DURATION = 12;
 const EFFECT_EXPAND_DURATION = 14;
 const PREVIEW_FADE_DURATION = 14;
-const UV_KNOB_RADIUS = 16;
+const UV_KNOB_RADIUS = 12;
 const UV_KNOB_STROKE_WIDTH = 4;
 
 export const clamp = {
@@ -276,11 +276,12 @@ const getHighlightBackground = (opacity: number) => {
 
 const KeyframeDiamond: React.FC<{
 	readonly active: boolean;
-}> = ({active}) => {
+	readonly size?: number;
+}> = ({active, size = KEYFRAME_DIAMOND_SIZE}) => {
 	return (
 		<svg
-			width={KEYFRAME_DIAMOND_SIZE}
-			height={KEYFRAME_DIAMOND_SIZE}
+			width={size}
+			height={size}
 			viewBox="0 0 12 12"
 			style={{display: 'block', overflow: 'visible'}}
 		>
@@ -298,14 +299,28 @@ const KeyframeDiamond: React.FC<{
 export const ParamRow: React.FC<{
 	readonly label: string;
 	readonly activeDiamond?: boolean;
+	readonly fontSize?: number;
 	readonly highlightOpacity?: number;
+	readonly keyframeDiamondSize?: number;
+	readonly labelWidth?: number;
+	readonly rowHeight?: number;
 	readonly children: React.ReactNode;
-}> = ({label, activeDiamond = false, highlightOpacity = 0, children}) => {
+}> = ({
+	label,
+	activeDiamond = false,
+	fontSize = PARAM_FONT_SIZE,
+	highlightOpacity = 0,
+	keyframeDiamondSize = KEYFRAME_DIAMOND_SIZE,
+	labelWidth = 190,
+	rowHeight = PARAM_ROW_HEIGHT,
+	children,
+}) => {
 	return (
 		<div
 			style={{
 				...rowStyle,
 				backgroundColor: getHighlightBackground(highlightOpacity),
+				height: rowHeight,
 			}}
 		>
 			<div style={rowContent}>
@@ -317,9 +332,9 @@ export const ParamRow: React.FC<{
 						width: 52,
 					}}
 				>
-					<KeyframeDiamond active={activeDiamond} />
+					<KeyframeDiamond active={activeDiamond} size={keyframeDiamondSize} />
 				</div>
-				<div style={rowLabel}>{label}</div>
+				<div style={{...rowLabel, fontSize, width: labelWidth}}>{label}</div>
 				<div
 					style={{
 						alignItems: 'center',
@@ -379,12 +394,18 @@ export const EnumValue: React.FC<{
 
 const EffectArrow: React.FC<{
 	readonly expandProgress: number;
-}> = ({expandProgress}) => {
+	readonly size?: number;
+}> = ({expandProgress, size = 23}) => {
 	return (
 		<div
 			style={{...effectArrow, transform: `rotate(${expandProgress * 90}deg)`}}
 		>
-			<svg width="23" height="23" viewBox="0 0 8 8" style={{display: 'block'}}>
+			<svg
+				width={size}
+				height={size}
+				viewBox="0 0 8 8"
+				style={{display: 'block'}}
+			>
 				<path d="M2 1L6 4L2 7Z" fill="#ccc" />
 			</svg>
 		</div>
@@ -394,9 +415,11 @@ const EffectArrow: React.FC<{
 const EffectToggle: React.FC<{
 	readonly enabled: boolean;
 	readonly iconScale?: number;
-}> = ({enabled, iconScale = 1}) => {
+	readonly iconSize?: number;
+	readonly size?: number;
+}> = ({enabled, iconScale = 1, iconSize = 31, size = 36}) => {
 	return (
-		<div style={effectToggle}>
+		<div style={{...effectToggle, height: size, width: size}}>
 			{enabled ? (
 				<div
 					style={{
@@ -407,10 +430,16 @@ const EffectToggle: React.FC<{
 					<div
 						style={{
 							...effectToggleIconWrapper,
+							height: iconSize,
 							transform: `scale(${iconScale})`,
+							width: iconSize,
 						}}
 					>
-						<svg viewBox="0 0 16 16" fill="none" style={effectToggleIcon}>
+						<svg
+							viewBox="0 0 16 16"
+							fill="none"
+							style={{...effectToggleIcon, height: iconSize, width: iconSize}}
+						>
 							<path
 								d="M4.405 4.48C4.575 3.82 4.865 3.325 5.275 2.995C5.695 2.665 6.25 2.5 6.94 2.5H9.235V4.06H7.045C6.555 4.06 6.235 4.3 6.085 4.78L5.83 5.68H7.975V7.255H5.395L3.805 13H2.02L3.625 7.255H1.96V5.68H4.075L4.405 4.48ZM8.57102 9.085L6.87602 5.68H8.79602L9.86102 7.99L11.991 5.68H14.331L10.686 9.415L12.426 13H10.491L9.35102 10.585L7.02602 13H4.68602L8.57102 9.085Z"
 								fill="white"
@@ -424,28 +453,44 @@ const EffectToggle: React.FC<{
 };
 
 export const EffectHeader: React.FC<{
+	readonly arrowSize?: number;
+	readonly contentPaddingLeft?: number;
 	readonly label: string;
 	readonly enabled: boolean;
 	readonly expandProgress?: number;
+	readonly fontSize?: number;
 	readonly highlightOpacity?: number;
+	readonly toggleIconSize?: number;
 	readonly iconScale?: number;
+	readonly toggleSize?: number;
 }> = ({
+	arrowSize,
+	contentPaddingLeft = EFFECT_HEADER_LEFT_PADDING,
 	label,
 	enabled,
 	expandProgress = 1,
+	fontSize = PARAM_FONT_SIZE,
 	highlightOpacity = 0,
+	toggleIconSize,
 	iconScale,
+	toggleSize,
 }) => {
 	return (
 		<div
 			style={{
 				...effectLabel,
 				backgroundColor: getHighlightBackground(highlightOpacity),
+				fontSize,
 			}}
 		>
-			<div style={effectHeaderContent}>
-				<EffectToggle enabled={enabled} iconScale={iconScale} />
-				<EffectArrow expandProgress={expandProgress} />
+			<div style={{...effectHeaderContent, paddingLeft: contentPaddingLeft}}>
+				<EffectToggle
+					enabled={enabled}
+					iconScale={iconScale}
+					iconSize={toggleIconSize}
+					size={toggleSize}
+				/>
+				<EffectArrow expandProgress={expandProgress} size={arrowSize} />
 				{label}
 			</div>
 		</div>
@@ -455,12 +500,18 @@ export const EffectHeader: React.FC<{
 export const EffectProperties: React.FC<{
 	readonly children: React.ReactNode;
 	readonly expandProgress?: number;
+	readonly rowHeight?: number;
 	readonly rowCount: number;
-}> = ({children, expandProgress = 1, rowCount}) => {
+}> = ({
+	children,
+	expandProgress = 1,
+	rowHeight = PARAM_ROW_HEIGHT,
+	rowCount,
+}) => {
 	return (
 		<div
 			style={{
-				height: rowCount * PARAM_ROW_HEIGHT * expandProgress,
+				height: rowCount * rowHeight * expandProgress,
 				overflow: 'hidden',
 			}}
 		>

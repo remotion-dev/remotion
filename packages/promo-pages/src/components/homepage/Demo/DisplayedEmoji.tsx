@@ -5,7 +5,7 @@ import {
 	type LottieAnimationData,
 } from '@remotion/lottie';
 import React, {useEffect, useMemo, useState} from 'react';
-import {useDelayRender, useVideoConfig} from 'remotion';
+import {useDelayRender, useRemotionEnvironment, useVideoConfig} from 'remotion';
 
 type Data = {
 	duration: number;
@@ -21,6 +21,7 @@ export const DisplayedEmoji: React.FC<{
 		typeof document !== 'undefined',
 	);
 	const {delayRender, continueRender, cancelRender} = useDelayRender();
+	const {isRendering} = useRemotionEnvironment();
 
 	const src = useMemo(() => {
 		if (emoji === 'melting') {
@@ -51,9 +52,15 @@ export const DisplayedEmoji: React.FC<{
 				continueRender(handle);
 			})
 			.catch((err) => {
-				cancelRender(err);
+				if (isRendering) {
+					cancelRender(err);
+				}
+
+				// eslint-disable-next-line no-console
+				console.warn('Could not load emoji animation', err);
+				continueRender(handle);
 			});
-	}, [handle, src, continueRender, cancelRender]);
+	}, [handle, src, continueRender, cancelRender, isRendering]);
 
 	useEffect(() => {
 		if (typeof document !== 'undefined') {

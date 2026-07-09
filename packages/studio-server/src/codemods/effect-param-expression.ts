@@ -108,6 +108,22 @@ const makeEasingExpression = ({
 							b.identifier('stiffness'),
 							parseValueExpression(easing.stiffness),
 						),
+						...(easing.allowTail === null
+							? []
+							: [
+									b.objectProperty(
+										b.identifier('allowTail'),
+										b.booleanLiteral(easing.allowTail),
+									),
+								]),
+						...(easing.durationRestThreshold === null
+							? []
+							: [
+									b.objectProperty(
+										b.identifier('durationRestThreshold'),
+										parseValueExpression(easing.durationRestThreshold),
+									),
+								]),
 						b.objectProperty(
 							b.identifier('overshootClamping'),
 							b.booleanLiteral(easing.overshootClamping),

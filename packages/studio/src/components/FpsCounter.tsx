@@ -6,9 +6,10 @@ import React, {
 	useState,
 } from 'react';
 import {Internals} from 'remotion';
+import {RED, WHITE} from '../helpers/colors';
 
 const label: React.CSSProperties = {
-	color: 'white',
+	color: WHITE,
 	fontSize: 15,
 	fontFamily: 'Arial, Helvetica, sans-serif',
 	whiteSpace: 'nowrap',
@@ -83,7 +84,7 @@ export const FpsCounter: React.FC<{
 
 		return {
 			...label,
-			color: fps < expectedFps * 0.9 ? 'red' : 'white',
+			color: fps < expectedFps * 0.9 ? RED : WHITE,
 		};
 	}, [fps, playbackSpeed, videoConfig]);
 

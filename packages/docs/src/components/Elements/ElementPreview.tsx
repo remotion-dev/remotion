@@ -28,12 +28,15 @@ export const ElementPreview: React.FC<ElementPreviewProps> = ({
 		>
 			<Player
 				acknowledgeRemotionLicense
+				autoPlay
 				component={component}
 				durationInFrames={durationInFrames}
 				fps={fps}
 				compositionWidth={width}
 				compositionHeight={height}
 				controls
+				initiallyMuted
+				loop
 				style={{
 					width: '100%',
 				}}

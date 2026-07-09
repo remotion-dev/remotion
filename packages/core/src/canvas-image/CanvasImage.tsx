@@ -2,8 +2,8 @@ import {
 	forwardRef,
 	useCallback,
 	useContext,
-	useEffect,
 	useImperativeHandle,
+	useLayoutEffect,
 	useMemo,
 	useRef,
 	useState,
@@ -52,6 +52,12 @@ type LoadedImage = {
 	readonly element: HTMLImageElement;
 	readonly width: number;
 	readonly height: number;
+};
+
+type PendingLoadDelay = {
+	readonly handle: number;
+	readonly unblock: () => void;
+	continued: boolean;
 };
 
 const makeAbortError = () => {
@@ -144,6 +150,20 @@ function exponentialBackoff(errorCount: number): number {
 	return 1000 * 2 ** (errorCount - 1);
 }
 
+const waitForNextFrame = ({
+	onFrame,
+}: {
+	readonly onFrame: () => void;
+}): (() => void) => {
+	if (typeof requestAnimationFrame === 'undefined') {
+		onFrame();
+		return () => undefined;
+	}
+
+	const frame = requestAnimationFrame(onFrame);
+	return () => cancelAnimationFrame(frame);
+};
+
 type CanvasImageContentProps = Pick<
 	CanvasImageProps,
 	| 'className'
@@ -202,6 +222,19 @@ const CanvasImageContent = forwardRef<
 			overrideId: controls?.overrideId ?? null,
 		});
 		const sequenceContext = useContext(SequenceContext);
+		const pendingLoadDelayRef = useRef<PendingLoadDelay | null>(null);
+
+		const continuePendingLoadDelay = useCallback(() => {
+			const pending = pendingLoadDelayRef.current;
+			if (!pending || pending.continued) {
+				return;
+			}
+
+			pending.continued = true;
+			pending.unblock();
+			continueRender(pending.handle);
+			pendingLoadDelayRef.current = null;
+		}, [continueRender]);
 
 		const sourceCanvas = useMemo(() => {
 			if (typeof document === 'undefined') {
@@ -227,7 +260,7 @@ const CanvasImageContent = forwardRef<
 			[ref, refForOutline],
 		);
 
-		useEffect(() => {
+		useLayoutEffect(() => {
 			const isPremounting = Boolean(sequenceContext?.premounting);
 			const isPostmounting = Boolean(sequenceContext?.postmounting);
 
@@ -245,20 +278,14 @@ const CanvasImageContent = forwardRef<
 
 			const controller = new AbortController();
 			let cancelled = false;
-			let continued = false;
 			let errorCount = 0;
 			let timeoutId: ReturnType<typeof setTimeout> | null = null;
 
 			setLoadedImage(null);
-
-			const continueRenderOnce = () => {
-				if (continued) {
-					return;
-				}
-
-				continued = true;
-				unblock();
-				continueRender(handle);
+			pendingLoadDelayRef.current = {
+				handle,
+				unblock,
+				continued: false,
 			};
 
 			const attemptLoad = () => {
@@ -270,14 +297,9 @@ const CanvasImageContent = forwardRef<
 
 						setLoadedImage(image);
 					})
-					.then(() => {
-						if (!cancelled) {
-							continueRenderOnce();
-						}
-					})
 					.catch((err) => {
 						if ((err as Error).name === 'AbortError') {
-							continueRenderOnce();
+							continuePendingLoadDelay();
 							return;
 						}
 
@@ -295,7 +317,7 @@ const CanvasImageContent = forwardRef<
 							}, backoff);
 						} else if (onError) {
 							onError(err as Error);
-							continueRenderOnce();
+							continuePendingLoadDelay();
 						} else {
 							cancelRender(err);
 						}
@@ -311,12 +333,12 @@ const CanvasImageContent = forwardRef<
 				}
 
 				controller.abort();
-				continueRenderOnce();
+				continuePendingLoadDelay();
 			};
 		}, [
 			actualSrc,
 			cancelRender,
-			continueRender,
+			continuePendingLoadDelay,
 			delayPlayback,
 			delayRender,
 			delayRenderRetries,
@@ -328,7 +350,7 @@ const CanvasImageContent = forwardRef<
 			sequenceContext?.premounting,
 		]);
 
-		useEffect(() => {
+		useLayoutEffect(() => {
 			if (!loadedImage || !outputCanvas || !sourceCanvas) {
 				return;
 			}
@@ -339,6 +361,7 @@ const CanvasImageContent = forwardRef<
 
 			let cancelled = false;
 			let continued = false;
+			let cancelWaitForNextFrame: () => void = () => undefined;
 
 			const continueRenderOnce = () => {
 				if (continued) {
@@ -390,7 +413,16 @@ const CanvasImageContent = forwardRef<
 			})
 				.then((completed) => {
 					if (completed && !cancelled) {
-						continueRenderOnce();
+						cancelWaitForNextFrame = waitForNextFrame({
+							onFrame: () => {
+								if (cancelled) {
+									return;
+								}
+
+								continueRenderOnce();
+								continuePendingLoadDelay();
+							},
+						});
 					}
 				})
 				.catch((err) => {
@@ -401,6 +433,7 @@ const CanvasImageContent = forwardRef<
 					if (onError) {
 						onError(err as Error);
 						continueRenderOnce();
+						continuePendingLoadDelay();
 					} else {
 						cancelRender(err);
 					}
@@ -408,6 +441,7 @@ const CanvasImageContent = forwardRef<
 
 			return () => {
 				cancelled = true;
+				cancelWaitForNextFrame();
 				continueRenderOnce();
 			};
 		}, [
@@ -415,6 +449,7 @@ const CanvasImageContent = forwardRef<
 			cancelRender,
 			chainState,
 			continueRender,
+			continuePendingLoadDelay,
 			delayRender,
 			fit,
 			height,

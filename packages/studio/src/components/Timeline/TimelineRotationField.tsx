@@ -6,12 +6,12 @@ import type {
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
 import {InputDragger} from '../NewComposition/InputDragger';
-import {formatTimelineFieldValueForDisplay} from './timeline-field-display-utils';
 import {
 	draggerStyle,
 	getTimelineDisplayDecimalPlaces,
 	normalizeTimelineNumber,
 } from './timeline-field-utils';
+import {formatTimelineRotationFieldValue} from './timeline-rotation-field-utils';
 import {
 	parseCssRotationToDegrees,
 	serializeCssRotation,
@@ -118,12 +118,13 @@ export const TimelineRotationField: React.FC<{
 
 	const formatter = useCallback(
 		(v: number | string) => {
-			return formatTimelineFieldValueForDisplay({
+			return formatTimelineRotationFieldValue({
+				decimalPlaces,
 				fieldSchema: field.fieldSchema,
 				value: v,
 			});
 		},
-		[field.fieldSchema],
+		[decimalPlaces, field.fieldSchema],
 	);
 
 	return (

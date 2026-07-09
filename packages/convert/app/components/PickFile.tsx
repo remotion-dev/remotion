@@ -55,6 +55,11 @@ export const PickFile: React.FC<{
 						{title}
 					</h1>
 				</div>
+				<p className="m-auto max-w-[720px] px-4 font-brand text-base text-slate-600 text-balance">
+					Load MP4, WebM, MOV/ProRes, MKV, MP3, WAV, AAC, FLAC, or HLS streams,
+					then convert, trim, crop, resize, rotate, mirror, probe, or transcribe
+					locally in your browser.
+				</p>
 				<div className="h-4" />
 				<div className="p-4 w-full text-center">
 					<DropFileBox setSrc={setSrc} />
@@ -65,7 +70,7 @@ export const PickFile: React.FC<{
 				<div className="h-10" />
 			</div>
 			<div className="w-full bg-slate-50">
-				<WhyRemotionConvert />
+				<WhyRemotionConvert routeAction={action} />
 			</div>
 		</div>
 	);

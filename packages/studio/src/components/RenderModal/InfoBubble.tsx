@@ -1,7 +1,7 @@
 import {PlayerInternals} from '@remotion/player';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
-import {INPUT_BACKGROUND, LIGHT_TEXT} from '../../helpers/colors';
+import {INPUT_BACKGROUND, LIGHT_TEXT, WHITE} from '../../helpers/colors';
 import {HigherZIndex, useZIndex} from '../../state/z-index';
 import {getPortal} from '../Menu/portals';
 import {outerPortal} from '../Menu/styles';
@@ -117,7 +117,7 @@ export const InfoBubble: React.FC<{
 			...container,
 			userSelect: 'none',
 			WebkitUserSelect: 'none',
-			color: 'white',
+			color: WHITE,
 			display: 'inline-flex',
 			flexDirection: 'row',
 			alignItems: 'center',
@@ -136,7 +136,7 @@ export const InfoBubble: React.FC<{
 			>
 				<svg style={icon} viewBox="0 0 512 512">
 					<path
-						fill={hovered ? 'white' : LIGHT_TEXT}
+						fill={hovered ? WHITE : LIGHT_TEXT}
 						d="M256 48a208 208 0 1 1 0 416 208 208 0 1 1 0-416zm0 464A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM216 336c-13.3 0-24 10.7-24 24s10.7 24 24 24h80c13.3 0 24-10.7 24-24s-10.7-24-24-24h-8V248c0-13.3-10.7-24-24-24H216c-13.3 0-24 10.7-24 24s10.7 24 24 24h24v64H216zm40-144a32 32 0 1 0 0-64 32 32 0 1 0 0 64z"
 					/>
 				</svg>

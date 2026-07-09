@@ -1,4 +1,4 @@
-import type {FC} from 'react';
+import type {FC, ReactNode} from 'react';
 import {createContext, useContext, useEffect, useMemo} from 'react';
 import {CompositionSetters} from './CompositionManagerContext.js';
 import type {NonceHistory} from './nonce.js';
@@ -29,7 +29,7 @@ export const FolderContext = createContext<FolderContextType>({
  */
 export const Folder: FC<{
 	readonly name: string;
-	readonly children: React.ReactNode;
+	readonly children?: ReactNode;
 }> = (props) => {
 	const {name, children} = props;
 	const parent = useContext(FolderContext);

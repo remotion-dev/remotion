@@ -122,7 +122,11 @@ import StarTest from './Shapes/StarTest';
 import TriangleTest from './Shapes/TriangleTest';
 import {SimpleImg} from './SimpleImg';
 import {SkipZeroFrame} from './SkipZeroFrame';
-import {BaseSpring, SpringWithDuration} from './Spring/base-spring';
+import {
+	BaseSpring,
+	RestThresholdSpringSquare,
+	SpringWithDuration,
+} from './Spring/base-spring';
 import {SeriesTesting} from './StaggerTesting';
 import {StaticDemo} from './StaticServer';
 import {StillHelloWorld} from './StillHelloWorld';
@@ -194,6 +198,7 @@ import {EffectsTestbed} from './EffectsTestbed/EffectsTestbed';
 import {HalftoneGradient} from './EffectsTestbed/HalftoneGradient';
 import {NoiseDisplacementText} from './EffectsTestbed/NoiseDisplacementText';
 import {PaletteMapEffect} from './EffectsTestbed/PaletteMapEffect';
+import {RadialProgressiveBlurTest} from './EffectsTestbed/RadialProgressiveBlur';
 import {VideoEffectsFastRefresh} from './EffectsTestbed/VideoEffectsFastRefresh';
 import {Empty} from './Empty';
 import {JumpCuts, SAMPLE_SECTIONS, calculateMetadataJumpCuts} from './JumpCuts';
@@ -219,6 +224,10 @@ import {
 } from './PlayRangesMediaVideo';
 import {PremountOnTransitionSeries} from './PremountOnTransitionSeries';
 import {PrintProps} from './PrintProps';
+import {
+	ProResMediaVideo,
+	calculateProResMediaVideoMetadata,
+} from './ProResMediaVideo';
 import {SfxExample} from './Sfx';
 import {CanvasImg} from './SimpleImg/CanvasImg';
 import {ImgEffects} from './SimpleImg/ImgEffects';
@@ -381,6 +390,14 @@ export const Index: React.FC = () => {
 				<Composition
 					id="keyframed-props-test"
 					lazyComponent={() => import('./KeyframedPropsTest')}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={120}
+				/>
+				<Composition
+					id="cubic-easing-interpolation-test"
+					lazyComponent={() => import('./CubicEasingInterpolationTest')}
 					width={1080}
 					height={1080}
 					fps={30}
@@ -597,6 +614,22 @@ export const Index: React.FC = () => {
 					height={1080}
 					fps={30}
 					durationInFrames={100}
+				/>
+				<Composition
+					id="rest-threshold-spring-square"
+					component={RestThresholdSpringSquare}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={90}
+				/>
+				<Composition
+					id="tail-spring-square"
+					component={RestThresholdSpringSquare}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={90}
 				/>
 			</Folder>
 			<Folder name="documentation">
@@ -1013,6 +1046,11 @@ export const Index: React.FC = () => {
 					height={1080}
 					durationInFrames={150}
 					fps={30}
+				/>
+				<Composition
+					id="prores-media-video"
+					component={ProResMediaVideo}
+					calculateMetadata={calculateProResMediaVideoMetadata}
 				/>
 				<Composition
 					id="video-testing-mp4"
@@ -1996,6 +2034,14 @@ export const Index: React.FC = () => {
 					height={1080}
 					fps={30}
 					durationInFrames={150}
+				/>
+				<Composition
+					id="radial-progressive-blur-test"
+					component={RadialProgressiveBlurTest}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={120}
 				/>
 				<Composition
 					id="custom-effects-sample"

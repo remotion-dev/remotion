@@ -1,10 +1,5 @@
 import React from 'react';
-import {AbsoluteFill, Composition} from 'remotion';
-
-export const width = 1920;
-export const height = 1080;
-export const fps = 30;
-export const durationInFrames = 120;
+import {AbsoluteFill} from 'remotion';
 
 export const ElementComponent: React.FC = () => {
 	return (
@@ -22,18 +17,5 @@ export const ElementComponent: React.FC = () => {
 		>
 			Element
 		</AbsoluteFill>
-	);
-};
-
-export const RemotionRoot: React.FC = () => {
-	return (
-		<Composition
-			id="Element"
-			component={ElementComponent}
-			durationInFrames={durationInFrames}
-			fps={fps}
-			height={height}
-			width={width}
-		/>
 	);
 };

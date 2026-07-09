@@ -8,6 +8,8 @@ metadata:
 # Using calculateMetadata
 
 Use `calculateMetadata` on a `<Composition>` to dynamically set duration, dimensions, and transform props before rendering.
+Use it when metadata depends on input props, fetched data, or asset metadata.
+For static dimensions, duration, FPS, and initial props, inline the values on `<Composition>` instead.
 
 ```tsx
 <Composition

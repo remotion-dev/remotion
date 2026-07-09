@@ -1,6 +1,6 @@
 import type {SVGProps} from 'react';
 import React, {useMemo} from 'react';
-import {FAIL_COLOR, WARNING_COLOR} from '../../helpers/colors';
+import {FAIL_COLOR, WARNING_COLOR, WHITE} from '../../helpers/colors';
 import {Row, Spacing} from '../layout';
 
 export const WarningTriangle: React.FC<SVGProps<SVGSVGElement>> = (props) => {
@@ -24,13 +24,22 @@ const compactStyle: React.CSSProperties = {
 };
 
 const container: React.CSSProperties = {
+	width: '100%',
 	maxWidth: 500,
+	minWidth: 0,
+};
+
+const row: React.CSSProperties = {
+	minWidth: 0,
 };
 
 const label: React.CSSProperties = {
 	fontSize: 13,
-	color: 'white',
+	color: WHITE,
 	fontFamily: 'sans-serif',
+	minWidth: 0,
+	whiteSpace: 'normal',
+	overflowWrap: 'anywhere',
 };
 
 const compactLabel: React.CSSProperties = {
@@ -58,7 +67,7 @@ export const ValidationMessage: React.FC<{
 
 	return (
 		<div style={container}>
-			<Row align="center" justify={align}>
+			<Row align="center" justify={align} style={row}>
 				<WarningTriangle style={finalStyle} />
 				<Spacing x={size === 'compact' ? 0.75 : 1} />
 				<div style={labelStyle}>{message}</div>

@@ -60,6 +60,7 @@ export const validateQualitySettings = ({
 	encodingMaxRate,
 	encodingBufferSize,
 	hardwareAcceleration,
+	hardwareAccelerated,
 }: {
 	crf: unknown;
 	codec: Codec;
@@ -67,14 +68,21 @@ export const validateQualitySettings = ({
 	encodingMaxRate: string | null;
 	encodingBufferSize: string | null;
 	hardwareAcceleration: HardwareAccelerationOption;
+	hardwareAccelerated: boolean;
 }): string[] => {
-	if (crf && videoBitrate) {
+	const hasExplicitCrf = crf !== null && typeof crf !== 'undefined';
+
+	if (hasExplicitCrf && videoBitrate) {
 		throw new Error(
 			'"crf" and "videoBitrate" can not both be set. Choose one of either.',
 		);
 	}
 
-	if (crf && hardwareAcceleration === 'required') {
+	if (hasExplicitCrf && hardwareAcceleration === 'required') {
+		throw new Error('"crf" option is not supported with hardware acceleration');
+	}
+
+	if (hasExplicitCrf && hardwareAccelerated) {
 		throw new Error('"crf" option is not supported with hardware acceleration');
 	}
 
@@ -104,6 +112,10 @@ export const validateQualitySettings = ({
 	}
 
 	if (crf === null || typeof crf === 'undefined') {
+		if (hardwareAccelerated) {
+			return [...bufSizeArray, ...maxRateArray];
+		}
+
 		const actualCrf = getDefaultCrfForCodec(codec);
 		if (actualCrf === null) {
 			return [...bufSizeArray, ...maxRateArray];

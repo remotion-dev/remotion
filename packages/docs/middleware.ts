@@ -1,7 +1,7 @@
 import {rewrite} from '@vercel/functions';
 
 export const config = {
-	matcher: '/docs/:path*',
+	matcher: ['/pricing', '/docs/:path*', '/elements/:path*'],
 };
 
 function parseAcceptHeader(acceptHeader: string): string[] {
@@ -59,20 +59,25 @@ export default function middleware(request: Request) {
 	const url = new URL(request.url);
 	const pathname = url.pathname;
 
-	if (!pathname.startsWith('/docs/')) {
+	if (pathname === '/pricing') {
+		return Response.redirect(new URL('/docs/pricing', request.url), 308);
+	}
+
+	if (!pathname.startsWith('/docs/') && !pathname.startsWith('/elements/')) {
 		return;
 	}
 
 	// Case 1: .md extension - rewrite to raw markdown
 	// Example: /docs/preview.md → /_raw/docs/preview.md
+	// Example: /elements/overlays/lower-third.md → /_raw/elements/overlays/lower-third.md
 	if (pathname.endsWith('.md')) {
-		const targetPath = pathname.replace(/^\/docs\//, '/_raw/docs/');
+		const targetPath = pathname.replace(/^\/(docs|elements)\//, '/_raw/$1/');
 		return rewrite(new URL(targetPath, request.url));
 	}
 
 	// Case 2: Accept header or user agent prefers markdown - rewrite to raw markdown
 	// Example: /docs/preview + Accept: text/markdown → /_raw/docs/preview.md
-	// Example: /docs/preview + User-Agent: Claude → /_raw/docs/preview.md
+	// Example: /elements/overlays/lower-third + User-Agent: Claude → /_raw/elements/overlays/lower-third.md
 	const acceptHeader = request.headers.get('accept');
 	const userAgent = request.headers.get('user-agent');
 	if (prefersMarkdown(acceptHeader, userAgent)) {

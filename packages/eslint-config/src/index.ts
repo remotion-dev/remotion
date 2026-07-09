@@ -467,6 +467,7 @@ const getRules = (typescript: boolean) => {
 
 		'react-hooks/rules-of-hooks': 'error',
 		'react-hooks/exhaustive-deps': 'warn',
+		'@remotion/valid-composition-and-folder-name': 'error',
 		// Turning off rules that are too strict or don't apply to Remotion
 		'react/jsx-no-constructed-context-values': 'off',
 		'no-console': 'off',

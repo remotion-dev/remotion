@@ -132,7 +132,7 @@ test('includes Remotion and extra packages that only exist in pnpm catalog entri
 		},
 		targetVersion: '4.0.462',
 		extraPackageVersions: {
-			mediabunny: '1.45.0',
+			mediabunny: '1.50.7',
 			zod: '4.3.6',
 		},
 	});
@@ -141,7 +141,7 @@ test('includes Remotion and extra packages that only exist in pnpm catalog entri
 	expect(result.catalogPackages).toEqual([
 		{pkg: 'remotion', version: '4.0.462'},
 		{pkg: '@remotion/player', version: '4.0.462'},
-		{pkg: 'mediabunny', version: '1.45.0'},
+		{pkg: 'mediabunny', version: '1.50.7'},
 	]);
 });
 

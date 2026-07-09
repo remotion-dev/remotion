@@ -1,13 +1,13 @@
 ---
 name: remotion-best-practices
-description: Best practices for Remotion - Video creation in React
+description: Best practices and domain knowledge for building videos programmatically with Remotion (videos in React/TypeScript, rendered to MP4). Use whenever writing or editing Remotion code — scaffolding a video project, animating with interpolate/spring over useCurrentFrame(), sequencing scenes and transitions, captions/subtitles, audio, GIFs/Lottie/3D, charts, visual effects, dynamic duration via calculateMetadata, or rendering. Consult before reaching for a Remotion API, since its components and props evolve (e.g. @remotion/media).
 metadata:
   tags: remotion, video, react, animation, composition
 ---
 
 ## When to use
 
-Use this skills whenever you are dealing with Remotion code to obtain the domain-specific knowledge.
+Use this skill whenever you are dealing with Remotion code to obtain the domain-specific knowledge.
 
 ## New project setup
 
@@ -26,6 +26,8 @@ Before designing visual scenes, layouts, promos, motion graphics, or text-heavy 
 Animate properties using `useCurrentFrame()` and `interpolate()`. Prefer `interpolate()` over `spring()` unless physics-based motion is explicitly needed. Use `Easing.bezier()` to customize timing, including jumpy or overshooting motion.
 
 For animations that should be editable in Remotion Studio, keep the `interpolate()` call inline in the `style` prop and use individual CSS transform properties (`scale`, `translate`, `rotate`) instead of composing a `transform` string.
+To make an element or custom component interactive in Remotion Studio, follow https://www.remotion.dev/docs/studio/make-component-interactive.
+When using `Interactive.*` or custom interactive components, set a descriptive `name` prop such as `name="Hero title"` so the element is identifiable in the Studio timeline and by agents. Do not use `name=""`.
 
 ```tsx
 import { useCurrentFrame, Easing, interpolate, useVideoConfig } from "remotion";
@@ -44,23 +46,21 @@ export const FadeIn = () => {
 };
 ```
 
-Prefer:
-
 ```tsx
+// 👍 Inline editable keyframes and transform shorthands
 style={{
   scale: interpolate(frame, [0, 100], [0, 1]),
   translate: interpolate(frame, [0, 100], ["0px 0px", "100px 100px"]),
   rotate: interpolate(frame, [0, 100], ["20deg", "90deg"]),
 }}
-```
 
-Over:
-
-```tsx
+// 👎 Hidden values and transform strings become harder to edit in Studio
 const scale = interpolate(frame, [0, 100], [0, 1]);
+const translateY = interpolate(frame, [0, 100], [0, 120]);
+const rotation = interpolate(frame, [0, 100], [0, 20]);
 
 style={{
-  transform: `scale(${scale})`,
+  transform: `scale(${scale}) translateY(${translateY}px) rotate(${rotation}deg)`,
 }}
 ```
 
@@ -176,15 +176,16 @@ export const RemotionRoot = () => {
 };
 ```
 
-Metadata can also be calculated dynamically:
+For scaffolds that should stay editable in Studio, keep the component and `<Composition>` registration in the same file so the dimensions, duration, FPS, and defaults stay visible next to the rendered code.
+Use `defaultProps` for composition-wide values and keep it as an inline object literal on `<Composition>` or `<Still>`.
+
+Metadata can also be calculated dynamically when it depends on input props, fetched data, or asset metadata:
 
 ```tsx
-import { Composition, CalculateMetadataFunction } from "remotion";
-import { MyComposition, MyCompositionProps } from "./MyComposition";
-
-const calculateMetadata: CalculateMetadataFunction<
-  MyCompositionProps
-> = async ({ props, abortSignal }) => {
+const calculateMetadata: CalculateMetadataFunction<Props> = async ({
+  props,
+  abortSignal,
+}) => {
   const data = await fetch(`https://api.example.com/video/${props.videoId}`, {
     signal: abortSignal,
   }).then((res) => res.json());
@@ -200,19 +201,15 @@ const calculateMetadata: CalculateMetadataFunction<
   };
 };
 
-export const RemotionRoot = () => {
-  return (
-    <Composition
-      id="MyComposition"
-      component={MyComposition}
-      fps={30}
-      width={1080}
-      height={1080}
-      defaultProps={{ videoId: "abc123" }}
-      calculateMetadata={calculateMetadata}
-    />
-  );
-};
+<Composition
+  id="MyComposition"
+  component={MyComposition}
+  fps={30}
+  width={1080}
+  height={1080}
+  defaultProps={{ videoId: "abc123" }}
+  calculateMetadata={calculateMetadata}
+/>;
 ```
 
 ## Starting preview
@@ -260,7 +257,7 @@ When creating a visual effect, prefer: 1. normal Remotion/HTML/CSS/SVG/filter/bl
 
 For light leak overlays, see [rules/light-leaks.md](rules/light-leaks.md). Docs: https://www.remotion.dev/docs/effects
 
-Available effects: `brightness()`, `contrast()`, `colorKey()`, `duotone()`, `grayscale()`, `hue()`, `invert()`, `saturation()`, `tint()`, `thermalVision()`, `blur()`, `linearProgressiveBlur()`, `zoomBlur()`, `dropShadow()`, `glow()`, `lightTrail()`, `evolve()`, `mirror()`, `scale()`, `uvTranslate()`, `xyTranslate()`, `barrelDistortion()`, `chromaticAberration()`, `fisheye()`, `cornerPin()`, `wave()`, `burlap()`, `emboss()`, `dotGrid()`, `halftone()`, `noise()`, `noiseDisplacement()`, `pattern()`, `pixelate()`, `pixelDissolve()`, `scanlines()`, `speckle()`, `shine()`, `shrinkwrap()`, `vignette()`, `contourLines()`, `checkerboard()`, `halftoneLinearGradient()`, `gridlines()`, `whiteNoise()`, `tvSignalOff()`, `lines()`, `rings()`, `waves()`, `zigzag()`, `lightLeak()`, `starburst()`.
+Available effects: `brightness()`, `contrast()`, `colorKey()`, `duotone()`, `grayscale()`, `hue()`, `invert()`, `saturation()`, `tint()`, `linearGradient()`, `linearGradientTint()`, `thermalVision()`, `blur()`, `linearProgressiveBlur()`, `radialProgressiveBlur()`, `zoomBlur()`, `dropShadow()`, `glow()`, `lightTrail()`, `evolve()`, `venetianBlinds()`, `mirror()`, `scale()`, `uvTranslate()`, `xyTranslate()`, `barrelDistortion()`, `chromaticAberration()`, `fisheye()`, `cornerPin()`, `wave()`, `burlap()`, `emboss()`, `dotGrid()`, `halftone()`, `noise()`, `noiseDisplacement()`, `paper()`, `pattern()`, `pixelate()`, `pixelDissolve()`, `scanlines()`, `speckle()`, `shine()`, `shrinkwrap()`, `vignette()`, `contourLines()`, `checkerboard()`, `halftoneLinearGradient()`, `gridlines()`, `whiteNoise()`, `tvSignalOff()`, `lines()`, `rings()`, `waves()`, `zigzag()`, `lightLeak()`, `starburst()`.
 
 ## 3D content
 
@@ -356,8 +353,7 @@ See [rules/parameters.md](rules/parameters.md) for making a composition parametr
 
 ## Maps
 
-For simple maps with little flyovers, consider using static map images.
-For complex maps with animated routes or flyovers, load the maps rule: [rules/maplibre.md](rules/maplibre.md)
+See [rules/map.md](rules/map.md) for choosing between simple static maps, Mapbox maps, and MapLibre maps.
 
 ## Voiceover
 

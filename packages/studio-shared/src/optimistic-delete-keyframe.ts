@@ -3,6 +3,24 @@ import {
 	type CanUpdateSequencePropStatus,
 } from 'remotion';
 
+const getEasingIndexToRemove = ({
+	removedKeyframeIndex,
+	keyframeCountBeforeRemoval,
+}: {
+	removedKeyframeIndex: number;
+	keyframeCountBeforeRemoval: number;
+}) => {
+	if (removedKeyframeIndex === 0) {
+		return 0;
+	}
+
+	if (removedKeyframeIndex === keyframeCountBeforeRemoval - 1) {
+		return removedKeyframeIndex - 1;
+	}
+
+	return removedKeyframeIndex;
+};
+
 const removeKeyframeFromPropStatus = ({
 	status,
 	frame,
@@ -32,7 +50,10 @@ const removeKeyframeFromPropStatus = ({
 	// keyframe so the invariant keeps holding until the server responds.
 	const easing = [...status.easing];
 	if (easing.length > 0) {
-		const easingIndexToRemove = index === 0 ? 0 : index - 1;
+		const easingIndexToRemove = getEasingIndexToRemove({
+			removedKeyframeIndex: index,
+			keyframeCountBeforeRemoval: status.keyframes.length,
+		});
 		easing.splice(easingIndexToRemove, 1);
 	}
 

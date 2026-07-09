@@ -45,7 +45,9 @@ Transform-related style props: `style.transformOrigin`, `style.translate`, `styl
 
 ### `Interactive.textSchema`<AvailableFrom v="4.0.481" />
 
-Text-related style props: `style.color`, `style.fontSize`, `style.lineHeight`, `style.fontWeight`, `style.fontStyle`, `style.textAlign` and `style.letterSpacing`.
+Text-related style props: `style.color`, `style.fontFamily`, `style.fontSize`, `style.lineHeight`, `style.fontWeight`, `style.fontStyle`, `style.textAlign` and `style.letterSpacing`.
+
+`style.fontFamily` is available from <AvailableFrom v="4.0.486" inline />.
 
 ### `Interactive.premountSchema`
 
@@ -66,6 +68,12 @@ Shows an on/off control.
 ### `color`
 
 Shows a color control. The value is a CSS color string.
+
+### `font-family`<AvailableFrom v="4.0.485" />
+
+Shows a font family control. The value is a CSS font family string.
+
+When choosing a Google Font in Studio, Remotion adds the matching `loadFont()` call from `@remotion/google-fonts` to the composition file.
 
 ### `enum`
 
@@ -99,6 +107,74 @@ Shows a scale control. The value may be a number or a CSS scale string.
 
 Shows a normalized two-dimensional coordinate as `[x, y]`.
 
+`[0, 0]` is the top-left corner and `[1, 1]` is the bottom-right corner.
+
+#### `visual?`
+
+Optional metadata for drawing related Visual Mode controls in the preview.
+
+This metadata does not change the stored value. It only tells Remotion Studio how a `uv-coordinate` relates to other schema fields.
+
+##### Line
+
+Draws a line from this coordinate to another `uv-coordinate` field in the same schema.
+
+```ts
+start: {
+  type: 'uv-coordinate',
+  default: [0, 0],
+  visual: {
+    type: 'line',
+    to: 'end',
+  },
+},
+end: {
+  type: 'uv-coordinate',
+  default: [1, 1],
+},
+```
+
+##### Ellipse
+
+Draws an ellipse centered on this coordinate. The `width`, `height`, `rotation` and `innerScale` properties point to numeric fields in the same schema.
+
+```ts
+center: {
+  type: 'uv-coordinate',
+  default: [0.5, 0.5],
+  visual: {
+    type: 'ellipse',
+    width: 'width',
+    height: 'height',
+    rotation: 'rotation',
+    innerScale: 'start',
+  },
+},
+width: {
+  type: 'number',
+  default: 1,
+  hiddenFromList: false,
+},
+height: {
+  type: 'number',
+  default: 1,
+  hiddenFromList: false,
+},
+rotation: {
+  type: 'rotation-degrees',
+  default: 0,
+},
+start: {
+  type: 'number',
+  min: 0,
+  max: 1,
+  default: 0,
+  hiddenFromList: false,
+},
+```
+
+`innerScale` is optional. When present, Remotion Studio draws a second ellipse using the same center, width, height and rotation multiplied by that numeric field.
+
 ### `hidden`
 
 Keeps a field in the schema without rendering a visible control.
@@ -125,7 +201,7 @@ Controls whether the field can be animated with keyframes.
 
 Default: `true` for `number`, `boolean`, `rotation-css`, `rotation-degrees`, `translate`, `transform-origin`, `scale`, `uv-coordinate` and `color` fields.
 
-`array` and `enum` fields are not keyframable. Fields inside an `enum` variant schema can still be keyframed according to their own `keyframable` setting.
+`array`, `enum` and `font-family` fields are not keyframable. Fields inside an `enum` variant schema can still be keyframed according to their own `keyframable` setting.
 
 Set `keyframable: false` on a keyframable field to show a static control.
 

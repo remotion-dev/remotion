@@ -38,6 +38,7 @@ export const TimelineKeyframedValue: React.FC<{
 }) => {
 	const computedValue = useMemo(() => {
 		const raw = Internals.interpolateKeyframedStatus({
+			forceSpringAllowTail: false,
 			frame: sourceFrame,
 			status: propStatus,
 		});

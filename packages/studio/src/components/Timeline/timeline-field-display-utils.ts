@@ -387,6 +387,9 @@ export const formatTimelineFieldValueForDisplay = ({
 				formatUnknownTimelineValueForDisplay(value)
 			);
 
+		case 'text-content':
+			return String(value);
+
 		case 'array':
 		case 'boolean':
 		case 'color':

@@ -44,12 +44,12 @@ test('Should expose absolute-fill variant fields when active', () => {
 	});
 	expect(schemaFields?.map((s) => s.key)).toEqual([
 		'layout',
+		'premountFor',
 		'style.transformOrigin',
 		'style.translate',
 		'style.scale',
 		'style.rotate',
 		'style.opacity',
-		'premountFor',
 	]);
 });
 

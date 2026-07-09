@@ -19,7 +19,7 @@ import {suppressBundlerUpdateForFile} from '../watch-ignore-next-change';
 import {computeEffectPropStatus} from './can-update-effect-props';
 import {findJsxElementAtNodePath} from './can-update-sequence-props';
 import {logEffectUpdate} from './log-updates/log-effect-update';
-import {withSavePropsLock} from './save-props-mutex';
+import {withSourceFileWriteQueue} from './source-file-write-queue';
 
 export const updateEffectKeyframeSettingsHandler: ApiHandler<
 	UpdateEffectKeyframeSettingsRequest,
@@ -37,7 +37,7 @@ export const updateEffectKeyframeSettingsHandler: ApiHandler<
 	remotionRoot,
 	logLevel,
 }) =>
-	withSavePropsLock(async () => {
+	withSourceFileWriteQueue(async () => {
 		RenderInternals.Log.trace(
 			{indent: false, logLevel},
 			`[update-effect-keyframe-settings] Received request for fileName="${fileName}" effectIndex=${effectIndex} key="${key}"`,

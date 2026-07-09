@@ -505,6 +505,101 @@ test('Clamp right test', () => {
 	).toEqual(-1000);
 });
 
+test('Allow tail spring extends right extrapolation', () => {
+	const tailValue = interpolate(60, [0, 30], [1000, 0], {
+		extrapolateRight: 'clamp',
+		easing: Easing.spring({
+			allowTail: true,
+			damping: 200,
+			durationRestThreshold: 0.1,
+			mass: 1,
+			stiffness: 100,
+		}),
+	});
+
+	expect(tailValue).toBeGreaterThan(0);
+	expect(tailValue).toBeLessThan(10);
+
+	expect(
+		interpolate(60, [0, 30], [1000, 0], {
+			extrapolateRight: 'clamp',
+			easing: Easing.spring({
+				damping: 200,
+				durationRestThreshold: 0.1,
+				mass: 1,
+				stiffness: 100,
+			}),
+		}),
+	).toBe(0);
+});
+
+test('Allow tail spring keeps previous string segment settling while the next segment starts', () => {
+	const parseTranslate = (value: string): [number, number] => {
+		const [x, y] = value.split(' ');
+		return [Number(x.replace('px', '')), Number(y.replace('px', ''))];
+	};
+
+	const withoutTail = interpolate(
+		45,
+		[0, 30, 60],
+		['0px 1000px', '0px 0px', '1000px 0px'],
+		{
+			extrapolateLeft: 'clamp',
+			extrapolateRight: 'extend',
+			easing: [
+				Easing.spring({
+					damping: 200,
+					durationRestThreshold: 0.03,
+					mass: 1,
+					stiffness: 100,
+				}),
+				Easing.spring({
+					damping: 200,
+					durationRestThreshold: 0.03,
+					mass: 1,
+					stiffness: 100,
+				}),
+			],
+		},
+	);
+	const withTail = interpolate(
+		45,
+		[0, 30, 60],
+		['0px 1000px', '0px 0px', '1000px 0px'],
+		{
+			extrapolateLeft: 'clamp',
+			extrapolateRight: 'extend',
+			easing: [
+				Easing.spring({
+					allowTail: true,
+					damping: 200,
+					durationRestThreshold: 0.03,
+					mass: 1,
+					stiffness: 100,
+					overshootClamping: false,
+				}),
+				Easing.spring({
+					allowTail: true,
+					damping: 200,
+					durationRestThreshold: 0.03,
+					mass: 1,
+					stiffness: 100,
+					overshootClamping: false,
+				}),
+			],
+		},
+	);
+
+	const [xWithoutTail, yWithoutTail] = parseTranslate(withoutTail);
+	const [xWithTail, yWithTail] = parseTranslate(withTail);
+
+	expect(xWithoutTail).toBeGreaterThan(0);
+	expect(xWithTail).toBeGreaterThan(0);
+	expect(yWithoutTail).toBe(0);
+	expect(yWithTail).toBeGreaterThan(0);
+	expect(yWithTail).toBeLessThan(10);
+});
+
 test('Clamp left test', () => {
 	expect(
 		interpolate(-2000, [0, 1, 1000], [Math.PI, 1, -1000], {

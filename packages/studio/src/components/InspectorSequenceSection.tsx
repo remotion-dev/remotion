@@ -2,17 +2,23 @@ import React, {useCallback, useContext, useMemo, useState} from 'react';
 import type {TSequence} from 'remotion';
 import type {CodePosition} from '../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
-import {LIGHT_TEXT, LINE_COLOR} from '../helpers/colors';
+import {LIGHT_TEXT, WHITE} from '../helpers/colors';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 import {
+	SCHEMA_FIELD_GROUPS,
 	flattenVisibleTreeNodes,
 	type FlatTreeRow,
+	type SchemaFieldGroupInfo,
 	type TimelineTreeNode,
 } from '../helpers/timeline-layout';
 import {Plus} from '../icons/plus';
 import {ModalsContext} from '../state/modals';
 import {InlineAction} from './InlineAction';
-import {sectionHeaderRow, sectionHeaderTitle} from './InspectorPanel/styles';
+import {
+	sectionHeaderRow,
+	sectionHeaderTitle,
+	sequenceHeaderDivider,
+} from './InspectorPanel/styles';
 import {TimelineExpandedRow} from './Timeline/TimelineExpandedRow';
 import {
 	getTimelineSelectionFromNodePathInfo,
@@ -22,7 +28,7 @@ import {
 import {useTimelineExpandedTree} from './Timeline/use-timeline-expanded-tree';
 
 const container: React.CSSProperties = {
-	color: 'white',
+	color: WHITE,
 	display: 'flex',
 	flexDirection: 'column',
 	fontFamily: 'Arial, Helvetica, sans-serif',
@@ -37,15 +43,8 @@ const emptyState: React.CSSProperties = {
 	padding: '0 12px 8px',
 };
 
-const divider: React.CSSProperties = {
-	backgroundColor: LINE_COLOR,
-	flexShrink: 0,
-	height: 1,
-	margin: '4px 0',
-};
-
 const controlsEffectsDivider: React.CSSProperties = {
-	...divider,
+	...sequenceHeaderDivider,
 	margin: '8px 0 4px',
 };
 
@@ -70,12 +69,69 @@ const isEffectsRoot = (
 	return auxiliaryKeys[auxiliaryKeys.length - 1] === 'effects';
 };
 
+const INSPECTOR_COLLAPSED_ROWS_SESSION_STORAGE_KEY =
+	'remotion.editor.inspectorCollapsedRows';
+
 const getInspectorExpansionKey = (nodePathInfo: SequenceNodePathInfo) => {
 	return JSON.stringify(nodePathInfo);
 };
 
+const loadInspectorCollapsedKeys = (): ReadonlySet<string> => {
+	if (typeof window === 'undefined') {
+		return new Set();
+	}
+
+	try {
+		const raw = window.sessionStorage.getItem(
+			INSPECTOR_COLLAPSED_ROWS_SESSION_STORAGE_KEY,
+		);
+		if (raw === null) {
+			return new Set();
+		}
+
+		const parsed: unknown = JSON.parse(raw);
+		if (!Array.isArray(parsed)) {
+			return new Set();
+		}
+
+		return new Set(parsed.filter((key) => typeof key === 'string'));
+	} catch {
+		return new Set();
+	}
+};
+
+const persistInspectorCollapsedKeys = (keys: ReadonlySet<string>): void => {
+	if (typeof window === 'undefined') {
+		return;
+	}
+
+	try {
+		window.sessionStorage.setItem(
+			INSPECTOR_COLLAPSED_ROWS_SESSION_STORAGE_KEY,
+			JSON.stringify([...keys]),
+		);
+	} catch {
+		// Ignore quota errors or disabled storage.
+	}
+};
+
 type SequenceWithControls = TSequence & {
 	readonly controls: NonNullable<TSequence['controls']>;
+};
+
+type InspectorControlGroup = SchemaFieldGroupInfo & {
+	readonly rows: FlatTreeRow[];
+};
+
+const getInspectorControlGroups = (
+	rows: readonly FlatTreeRow[],
+): InspectorControlGroup[] => {
+	return SCHEMA_FIELD_GROUPS.map((group) => ({
+		...group,
+		rows: rows.filter(({node}) => {
+			return node.kind === 'field' && node.field?.group === group.id;
+		}),
+	})).filter((group) => group.rows.length > 0);
 };
 
 export const getInspectorSelectableItems = (
@@ -109,9 +165,10 @@ export const InspectorSequenceSection: React.FC<{
 	const {tree} = useTimelineExpandedTree({
 		sequence,
 		nodePathInfo,
+		includeTextContent: true,
 	});
 	const [collapsedKeys, setCollapsedKeys] = useState<ReadonlySet<string>>(
-		() => new Set(),
+		loadInspectorCollapsedKeys,
 	);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {setSelectedModal} = useContext(ModalsContext);
@@ -133,6 +190,7 @@ export const InspectorSequenceSection: React.FC<{
 				next.add(key);
 			}
 
+			persistInspectorCollapsedKeys(next);
 			return next;
 		});
 	}, []);
@@ -171,6 +229,10 @@ export const InspectorSequenceSection: React.FC<{
 	const effectSelectableItems = useMemo(
 		() => getInspectorSelectableItems(effectRows),
 		[effectRows],
+	);
+	const controlGroups = useMemo(
+		() => getInspectorControlGroups(controlRows),
+		[controlRows],
 	);
 
 	const {schema} = sequence.controls;
@@ -238,7 +300,7 @@ export const InspectorSequenceSection: React.FC<{
 	if (controlRows.length === 0 && !showEffectsSection) {
 		return (
 			<div style={container}>
-				<div style={divider} />
+				<div style={sequenceHeaderDivider} />
 				<div style={emptyState}>No schema</div>
 			</div>
 		);
@@ -246,11 +308,18 @@ export const InspectorSequenceSection: React.FC<{
 
 	return (
 		<div style={container}>
-			<div style={divider} />
-			{controlRows.length > 0 ? renderSectionHeader('Controls') : null}
-			<TimelineSelectionOrderProvider items={controlSelectableItems}>
-				{controlRows.map(renderRow)}
-			</TimelineSelectionOrderProvider>
+			<div style={sequenceHeaderDivider} />
+			{controlRows.length > 0 ? (
+				<TimelineSelectionOrderProvider items={controlSelectableItems}>
+					{controlGroups.map((group, i) => (
+						<React.Fragment key={group.id}>
+							{i === 0 ? null : <div style={controlsEffectsDivider} />}
+							{renderSectionHeader(group.label)}
+							{group.rows.map(renderRow)}
+						</React.Fragment>
+					))}
+				</TimelineSelectionOrderProvider>
+			) : null}
 			{showEffectsSection ? (
 				<>
 					{showControlsEffectsDivider ? (

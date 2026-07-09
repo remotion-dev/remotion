@@ -21,6 +21,7 @@ import {
 	suppressUndoStackInvalidation,
 } from '../undo-stack';
 import {checkIfTypeScriptFile} from './can-update-default-props';
+import {withSourceFileWriteQueue} from './source-file-write-queue';
 
 const formatNewCompositionFile = (componentName: string) => {
 	return formatOutput(`import React from 'react';
@@ -58,6 +59,19 @@ const getCodemodUndoDescription = (codemod: ApplyCodemodRequest['codemod']) => {
 		};
 	}
 
+	if (codemod.type === 'move-composition-to-folder') {
+		const destination =
+			codemod.folderName === null
+				? 'to root'
+				: `into folder "${codemod.parentName ? `${codemod.parentName}/` : ''}${codemod.folderName}"`;
+		const label = `composition "${codemod.idToMove}" ${destination}`;
+		return {
+			undoMessage: `↩️  Move of ${label}`,
+			redoMessage: `↪️  Move of ${label}`,
+			entryType: codemod.type,
+		};
+	}
+
 	if (codemod.type === 'new-composition') {
 		return {
 			undoMessage: `↩️  Creation of composition "${codemod.newId}"`,
@@ -71,6 +85,15 @@ const getCodemodUndoDescription = (codemod: ApplyCodemodRequest['codemod']) => {
 		return {
 			undoMessage: `↩️  Deletion of ${label}`,
 			redoMessage: `↪️  Deletion of ${label}`,
+			entryType: codemod.type,
+		};
+	}
+
+	if (codemod.type === 'new-folder') {
+		const label = `folder "${codemod.parentName ? `${codemod.parentName}/` : ''}${codemod.folderName}"`;
+		return {
+			undoMessage: `↩️  Creation of ${label}`,
+			redoMessage: `↪️  Creation of ${label}`,
 			entryType: codemod.type,
 		};
 	}
@@ -96,145 +119,147 @@ const getCodemodUndoDescription = (codemod: ApplyCodemodRequest['codemod']) => {
 export const applyCodemodHandler: ApiHandler<
 	ApplyCodemodRequest,
 	ApplyCodemodResponse
-> = async ({
+> = ({
 	input: {codemod, dryRun, symbolicatedStack},
 	logLevel,
 	remotionRoot,
 	entryPoint,
 }) => {
-	try {
-		const time = Date.now();
+	return withSourceFileWriteQueue(async () => {
+		try {
+			const time = Date.now();
 
-		const filePath = symbolicatedStack
-			? resolveFilePathFromSymbolicatedStack(remotionRoot, symbolicatedStack)
-			: (await getProjectInfo(remotionRoot, entryPoint)).rootFile;
+			const filePath = symbolicatedStack
+				? resolveFilePathFromSymbolicatedStack(remotionRoot, symbolicatedStack)
+				: (await getProjectInfo(remotionRoot, entryPoint)).rootFile;
 
-		if (!filePath) {
-			throw new Error('Cannot find file for composition in project');
-		}
+			if (!filePath) {
+				throw new Error('Cannot find file for composition in project');
+			}
 
-		checkIfTypeScriptFile(filePath);
+			checkIfTypeScriptFile(filePath);
 
-		const newCompositionComponentFilePath =
-			codemod.type === 'new-composition'
-				? path.join(path.dirname(filePath), `${codemod.componentName}.tsx`)
-				: null;
+			const newCompositionComponentFilePath =
+				codemod.type === 'new-composition'
+					? path.join(path.dirname(filePath), `${codemod.componentName}.tsx`)
+					: null;
 
-		if (
-			codemod.type === 'new-composition' &&
-			newCompositionComponentFilePath &&
-			existsSync(newCompositionComponentFilePath)
-		) {
-			throw new Error(
-				`Cannot create ${path.relative(
-					remotionRoot,
-					newCompositionComponentFilePath,
-				)} because it already exists`,
-			);
-		}
+			if (
+				codemod.type === 'new-composition' &&
+				newCompositionComponentFilePath &&
+				existsSync(newCompositionComponentFilePath)
+			) {
+				throw new Error(
+					`Cannot create ${path.relative(
+						remotionRoot,
+						newCompositionComponentFilePath,
+					)} because it already exists`,
+				);
+			}
 
-		const input = readFileSync(filePath, 'utf-8');
-		const formatted = await applyCodemodToFile({
-			filePath,
-			codeMod: codemod,
-		});
+			const input = readFileSync(filePath, 'utf-8');
+			const formatted = await applyCodemodToFile({
+				filePath,
+				codeMod: codemod,
+			});
 
-		const diff = simpleDiff({
-			oldLines: input.split('\n'),
-			newLines: formatted.split('\n'),
-		});
+			const diff = simpleDiff({
+				oldLines: input.split('\n'),
+				newLines: formatted.split('\n'),
+			});
 
-		if (!dryRun) {
-			const {entryType, undoMessage, redoMessage} =
-				getCodemodUndoDescription(codemod);
-			const snapshots: Parameters<
-				typeof pushTransactionToUndoStack
-			>[0]['snapshots'] = [
-				{
-					filePath,
-					oldContents: input,
-					newContents: null,
-					logLine: symbolicatedStack?.originalLineNumber ?? 1,
-				},
-			];
-			let componentFilePath: string | null = null;
-			let componentFileContents: string | null = null;
+			if (!dryRun) {
+				const {entryType, undoMessage, redoMessage} =
+					getCodemodUndoDescription(codemod);
+				const snapshots: Parameters<
+					typeof pushTransactionToUndoStack
+				>[0]['snapshots'] = [
+					{
+						filePath,
+						oldContents: input,
+						newContents: null,
+						logLine: symbolicatedStack?.originalLineNumber ?? 1,
+					},
+				];
+				let componentFilePath: string | null = null;
+				let componentFileContents: string | null = null;
 
-			if (codemod.type === 'new-composition') {
-				componentFilePath = newCompositionComponentFilePath;
-				if (componentFilePath === null) {
-					throw new Error('Could not determine the new component file path');
+				if (codemod.type === 'new-composition') {
+					componentFilePath = newCompositionComponentFilePath;
+					if (componentFilePath === null) {
+						throw new Error('Could not determine the new component file path');
+					}
+
+					componentFileContents = await formatNewCompositionFile(
+						codemod.componentName,
+					);
+					snapshots.push({
+						filePath: componentFilePath,
+						oldContents: null,
+						newContents: componentFileContents,
+						logLine: 1,
+					});
+					pushTransactionToUndoStack({
+						snapshots,
+						logLevel,
+						remotionRoot,
+						description: {
+							undoMessage,
+							redoMessage,
+						},
+						entryType,
+						suppressHmrOnFileRestore: false,
+					});
+				} else {
+					pushToUndoStack({
+						filePath,
+						oldContents: input,
+						newContents: null,
+						logLevel,
+						remotionRoot,
+						logLine: symbolicatedStack?.originalLineNumber ?? 1,
+						description: {
+							undoMessage,
+							redoMessage,
+						},
+						entryType,
+						suppressHmrOnFileRestore: false,
+					});
 				}
 
-				componentFileContents = await formatNewCompositionFile(
-					codemod.componentName,
+				suppressUndoStackInvalidation(filePath);
+				if (componentFilePath) {
+					suppressUndoStackInvalidation(componentFilePath);
+				}
+
+				writeFileAndNotifyFileWatchers(filePath, formatted, undefined);
+				if (componentFilePath && componentFileContents !== null) {
+					writeFileAndNotifyFileWatchers(
+						componentFilePath,
+						componentFileContents,
+						undefined,
+					);
+				}
+
+				const end = Date.now() - time;
+				const relativePath = path.relative(remotionRoot, filePath);
+				RenderInternals.Log.info(
+					{indent: false, logLevel},
+					RenderInternals.chalk.blue(`Edited ${relativePath} in ${end}ms`),
 				);
-				snapshots.push({
-					filePath: componentFilePath,
-					oldContents: null,
-					newContents: componentFileContents,
-					logLine: 1,
-				});
-				pushTransactionToUndoStack({
-					snapshots,
-					logLevel,
-					remotionRoot,
-					description: {
-						undoMessage,
-						redoMessage,
-					},
-					entryType,
-					suppressHmrOnFileRestore: false,
-				});
-			} else {
-				pushToUndoStack({
-					filePath,
-					oldContents: input,
-					newContents: null,
-					logLevel,
-					remotionRoot,
-					logLine: symbolicatedStack?.originalLineNumber ?? 1,
-					description: {
-						undoMessage,
-						redoMessage,
-					},
-					entryType,
-					suppressHmrOnFileRestore: false,
-				});
+				printUndoHint(logLevel);
 			}
 
-			suppressUndoStackInvalidation(filePath);
-			if (componentFilePath) {
-				suppressUndoStackInvalidation(componentFilePath);
-			}
-
-			writeFileAndNotifyFileWatchers(filePath, formatted, undefined);
-			if (componentFilePath && componentFileContents !== null) {
-				writeFileAndNotifyFileWatchers(
-					componentFilePath,
-					componentFileContents,
-					undefined,
-				);
-			}
-
-			const end = Date.now() - time;
-			const relativePath = path.relative(remotionRoot, filePath);
-			RenderInternals.Log.info(
-				{indent: false, logLevel},
-				RenderInternals.chalk.blue(`Edited ${relativePath} in ${end}ms`),
-			);
-			printUndoHint(logLevel);
+			return {
+				success: true,
+				diff,
+			};
+		} catch (err) {
+			return {
+				success: false,
+				reason: (err as Error).message,
+				stack: (err as Error).stack as string,
+			};
 		}
-
-		return {
-			success: true,
-			diff,
-		};
-	} catch (err) {
-		return {
-			success: false,
-			reason: (err as Error).message,
-			stack: (err as Error).stack as string,
-		};
-	}
+	});
 };

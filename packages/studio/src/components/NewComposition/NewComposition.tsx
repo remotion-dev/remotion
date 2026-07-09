@@ -1,18 +1,17 @@
-import type {RecastCodemod} from '@remotion/studio-shared';
 import type {ChangeEventHandler} from 'react';
-import React, {useCallback, useContext, useMemo, useState} from 'react';
-import {Internals, type _InternalTypes} from 'remotion';
-import {pushUrl} from '../../helpers/url-state';
+import React, {useCallback, useContext, useState} from 'react';
+import {Internals} from 'remotion';
 import {
-	validateCompositionDimension,
-	validateCompositionName,
-} from '../../helpers/validate-new-comp-data';
+	getUniqueCompositionName,
+	useCreateComposition,
+} from '../../helpers/use-create-composition';
 import {Spacing} from '../layout';
 import {ModalFooterContainer} from '../ModalFooter';
 import {ModalHeader} from '../ModalHeader';
 import {label, optionRow, rightRow} from '../RenderModal/layout';
 import {CodemodFooter} from './CodemodFooter';
 import {DismissableModal} from './DismissableModal';
+import {InputAndValidationContainer} from './InputAndValidationContainer';
 import {InputDragger} from './InputDragger';
 import {NewCompDuration} from './NewCompDuration';
 import {RemotionInput} from './RemInput';
@@ -26,56 +25,15 @@ const content: React.CSSProperties = {
 	minWidth: 500,
 };
 
-const toPascalCase = (value: string) => {
-	const words = value.match(/[a-zA-Z0-9]+/g) ?? [];
-	const candidate = words
-		.map((word) => `${word.charAt(0).toUpperCase()}${word.slice(1)}`)
-		.join('');
-
-	if (!candidate) {
-		return 'NewComposition';
-	}
-
-	if (/^[0-9]/.test(candidate)) {
-		return `Composition${candidate}`;
-	}
-
-	return candidate;
+const folderPathStyle: React.CSSProperties = {
+	fontSize: 14,
 };
 
-const waitForComposition = (compositionId: string) => {
-	return new Promise<void>((resolve) => {
-		const started = Date.now();
-		const interval = window.setInterval(() => {
-			const compositionNames = window.remotion_getCompositionNames?.() ?? [];
-			if (
-				compositionNames.includes(compositionId) ||
-				Date.now() - started > 10000
-			) {
-				window.clearInterval(interval);
-				resolve();
-			}
-		}, 100);
-	});
-};
-
-const getUniqueCompositionName = (
-	compositions: _InternalTypes['AnyComposition'][],
-) => {
-	let counter = 1;
-
-	while (true) {
-		const name = counter === 1 ? 'NewComposition' : `NewComposition${counter}`;
-		const err = validateCompositionName(name, compositions);
-		if (!err) {
-			return name;
-		}
-
-		counter++;
-	}
-};
-
-const NewCompositionLoaded: React.FC = () => {
+const NewCompositionLoaded: React.FC<{
+	readonly folderName: string | null;
+	readonly parentName: string | null;
+	readonly stack: string | null;
+}> = ({folderName, parentName, stack}) => {
 	const {compositions} = useContext(Internals.CompositionManager);
 	const [newId, setName] = useState(() =>
 		getUniqueCompositionName(compositions),
@@ -138,58 +96,46 @@ const NewCompositionLoaded: React.FC = () => {
 		setFrameRate(newFps);
 	}, []);
 
-	const compNameErrMessage = validateCompositionName(newId, compositions);
-	const compWidthErrMessage = validateCompositionDimension('Width', size.width);
-	const compHeightErrMessage = validateCompositionDimension(
-		'Height',
-		size.height,
-	);
-	const componentName = toPascalCase(newId);
-
-	const valid =
-		compNameErrMessage === null &&
-		compWidthErrMessage === null &&
-		compHeightErrMessage === null;
-
-	const codemod: RecastCodemod = useMemo(() => {
-		return {
-			type: 'new-composition',
-			newDurationInFrames: Number(durationInFrames),
-			newFps: Number(selectedFrameRate),
-			newHeight: Number(size.height),
-			newWidth: Number(size.width),
-			newId,
-			componentName,
-			componentImportPath: `./${componentName}`,
-		};
-	}, [
-		componentName,
+	const {
+		codemod,
+		createComposition,
+		heightValidationMessage: compHeightErrMessage,
+		nameValidationMessage: compNameErrMessage,
+		valid,
+		widthValidationMessage: compWidthErrMessage,
+	} = useCreateComposition({
+		compositions,
 		durationInFrames,
+		folderName,
 		newId,
+		parentName,
 		selectedFrameRate,
-		size.height,
-		size.width,
-	]);
-
-	const onSuccess = useCallback(() => {
-		waitForComposition(newId).then(() => {
-			pushUrl(`/${newId}`);
-		});
-	}, [newId]);
+		size,
+	});
 
 	const onSubmit: React.FormEventHandler<HTMLFormElement> = useCallback((e) => {
 		e.preventDefault();
 	}, []);
+
+	const folderPath = [parentName, folderName].filter(Boolean).join('/');
 
 	return (
 		<>
 			<ModalHeader title="New composition" />
 			<form onSubmit={onSubmit}>
 				<div style={content}>
+					{folderPath ? (
+						<div style={optionRow}>
+							<div style={label}>Folder</div>
+							<div style={rightRow}>
+								<span style={folderPathStyle}>{folderPath}</span>
+							</div>
+						</div>
+					) : null}
 					<div style={optionRow}>
 						<div style={label}>ID</div>
 						<div style={rightRow}>
-							<div>
+							<InputAndValidationContainer>
 								<RemotionInput
 									value={newId}
 									onChange={onNameChange}
@@ -209,67 +155,71 @@ const NewCompositionLoaded: React.FC = () => {
 										/>
 									</>
 								) : null}
-							</div>
+							</InputAndValidationContainer>
 						</div>
 					</div>
 					<div style={optionRow}>
 						<div style={label}>Width</div>
 						<div style={rightRow}>
-							<InputDragger
-								type="number"
-								value={size.width}
-								placeholder="Width"
-								onTextChange={onWidthChanged}
-								name="width"
-								step={2}
-								min={2}
-								required
-								status="ok"
-								formatter={(w) => `${w}px`}
-								max={100000000}
-								onValueChange={onWidthDirectlyChanged}
-								rightAlign={false}
-							/>
-							{compWidthErrMessage ? (
-								<>
-									<Spacing y={1} block />
-									<ValidationMessage
-										align="flex-start"
-										message={compWidthErrMessage}
-										type="error"
-									/>
-								</>
-							) : null}
+							<InputAndValidationContainer>
+								<InputDragger
+									type="number"
+									value={size.width}
+									placeholder="Width"
+									onTextChange={onWidthChanged}
+									name="width"
+									step={2}
+									min={2}
+									required
+									status="ok"
+									formatter={(w) => `${w}px`}
+									max={100000000}
+									onValueChange={onWidthDirectlyChanged}
+									rightAlign={false}
+								/>
+								{compWidthErrMessage ? (
+									<>
+										<Spacing y={1} block />
+										<ValidationMessage
+											align="flex-start"
+											message={compWidthErrMessage}
+											type="error"
+										/>
+									</>
+								) : null}
+							</InputAndValidationContainer>
 						</div>
 					</div>
 					<div style={optionRow}>
 						<div style={label}>Height</div>
 						<div style={rightRow}>
-							<InputDragger
-								type="number"
-								value={size.height}
-								onTextChange={onHeightChanged}
-								placeholder="Height"
-								name="height"
-								step={2}
-								required
-								formatter={(h) => `${h}px`}
-								min={2}
-								status="ok"
-								max={100000000}
-								onValueChange={onHeightDirectlyChanged}
-								rightAlign={false}
-							/>
-							{compHeightErrMessage ? (
-								<>
-									<Spacing y={1} block />
-									<ValidationMessage
-										align="flex-start"
-										message={compHeightErrMessage}
-										type="error"
-									/>
-								</>
-							) : null}
+							<InputAndValidationContainer>
+								<InputDragger
+									type="number"
+									value={size.height}
+									onTextChange={onHeightChanged}
+									placeholder="Height"
+									name="height"
+									step={2}
+									required
+									formatter={(h) => `${h}px`}
+									min={2}
+									status="ok"
+									max={100000000}
+									onValueChange={onHeightDirectlyChanged}
+									rightAlign={false}
+								/>
+								{compHeightErrMessage ? (
+									<>
+										<Spacing y={1} block />
+										<ValidationMessage
+											align="flex-start"
+											message={compHeightErrMessage}
+											type="error"
+										/>
+									</>
+								) : null}
+							</InputAndValidationContainer>
 						</div>
 					</div>
 					<NewCompDuration
@@ -304,9 +254,15 @@ const NewCompositionLoaded: React.FC = () => {
 						genericSubmitLabel="Add to root file"
 						submitLabel={({relativeRootPath}) => `Add to ${relativeRootPath}`}
 						codemod={codemod}
-						stack={null}
+						stack={stack}
 						valid={valid}
-						onSuccess={onSuccess}
+						onSuccess={null}
+						applyCodemod={({signal, symbolicatedStack}) =>
+							createComposition({
+								signal,
+								symbolicatedStack,
+							})
+						}
 						fallbackToRootFile
 					/>
 				</ModalFooterContainer>
@@ -315,10 +271,18 @@ const NewCompositionLoaded: React.FC = () => {
 	);
 };
 
-export const NewComposition: React.FC = () => {
+export const NewComposition: React.FC<{
+	readonly folderName: string | null;
+	readonly parentName: string | null;
+	readonly stack: string | null;
+}> = ({folderName, parentName, stack}) => {
 	return (
 		<DismissableModal>
-			<NewCompositionLoaded />
+			<NewCompositionLoaded
+				folderName={folderName}
+				parentName={parentName}
+				stack={stack}
+			/>
 		</DismissableModal>
 	);
 };

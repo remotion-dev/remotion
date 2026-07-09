@@ -11,6 +11,7 @@ import staticFileNoRelative from './rules/staticfile-no-relative';
 import staticFileNoRemote from './rules/staticfile-no-remote';
 import useGifComponent from './rules/use-gif-component';
 import v4Import from './rules/v4-import';
+import validCompositionAndFolderName from './rules/valid-composition-and-folder-name';
 import volumeCallback from './rules/volume-callback';
 import warnNativeMediaTag from './rules/warn-native-media-tag';
 
@@ -30,6 +31,7 @@ const rules = {
 	'slow-css-property': slowCssProperty,
 	'v4-config-import': v4Import,
 	'no-object-fit-on-media-video': noObjectFitOnMediaVideo,
+	'valid-composition-and-folder-name': validCompositionAndFolderName,
 };
 
 const recommendedRuleConfig = {
@@ -47,6 +49,7 @@ const recommendedRuleConfig = {
 	'@remotion/non-pure-animation': 'warn',
 	'@remotion/v4-config-import': 'error',
 	'@remotion/no-object-fit-on-media-video': 'warn',
+	'@remotion/valid-composition-and-folder-name': 'error',
 } as const;
 
 const configs = {

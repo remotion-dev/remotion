@@ -1,19 +1,10 @@
 import {describe, expect, test} from 'bun:test';
 import {existsSync, readdirSync, readFileSync, statSync} from 'fs';
 import path from 'path';
+import {expandElementSourceReferences} from '../../plugins/element-source-utils';
 
 const elementsRoot = path.join(__dirname, '..', '..', 'elements');
 const templateRoot = path.join(__dirname, '..', '..', 'elements-template');
-
-// Exports every element source file must define so that the colocated MDX page
-// can import them and pass them to <Player>.
-const requiredExports = [
-	'durationInFrames',
-	'fps',
-	'width',
-	'height',
-	'RemotionRoot',
-];
 
 type Element = {
 	name: string;
@@ -52,10 +43,9 @@ const findElements = (root: string): Element[] => {
 	return elements;
 };
 
-// Extracts the first ```tsx fenced code block from an MDX file.
-const extractTsxBlock = (mdx: string): string | null => {
-	const match = mdx.match(/```tsx[^\n]*\n([\s\S]*?)\n```/);
-	return match ? match[1] : null;
+const getRelativeTsxPath = (tsxPath: string, mdxPath: string) => {
+	const relative = path.relative(path.dirname(mdxPath), tsxPath);
+	return relative.startsWith('.') ? relative : `./${relative}`;
 };
 
 const allElements = [
@@ -73,12 +63,14 @@ describe('Elements must follow the colocated single-file format', () => {
 			const tsx = readFileSync(element.tsxPath, 'utf8');
 			const mdx = readFileSync(element.mdxPath, 'utf8');
 
-			test('source file defines the required exports', () => {
-				for (const exp of requiredExports) {
-					expect(tsx).toContain(`export const ${exp}`);
-				}
-
-				expect(tsx).toContain('<Composition');
+			test('source file is an Element, not a composition or wrapper Sequence', () => {
+				expect(tsx).not.toContain('export const durationInFrames');
+				expect(tsx).not.toContain('export const fps');
+				expect(tsx).not.toContain('export const width');
+				expect(tsx).not.toContain('export const height');
+				expect(tsx).not.toContain('export const RemotionRoot');
+				expect(tsx).not.toContain('<Composition');
+				expect(tsx).not.toContain('<Sequence');
 			});
 
 			test('MDX uses the ElementPage template', () => {
@@ -89,12 +81,49 @@ describe('Elements must follow the colocated single-file format', () => {
 				expect(mdx).toMatch(/from '\.\/[\w-]+';/);
 			});
 
-			test('displayed code block matches the source file', () => {
-				const block = extractTsxBlock(mdx);
-				expect(block).not.toBeNull();
-				// The fenced code block is the single source of truth shown to both
-				// humans and agents; it must be identical to the runnable .tsx file.
-				expect(block?.trim()).toBe(tsx.trim());
+			test('MDX references the source file from ElementPage', () => {
+				const relativeTsxPath = getRelativeTsxPath(
+					element.tsxPath,
+					element.mdxPath,
+				);
+
+				expect(mdx).toContain(`sourceFile="${relativeTsxPath}"`);
+				expect(mdx).not.toContain('<ElementSource');
+				expect(mdx).not.toContain('<RemotionElementSource');
+				expect(mdx).not.toContain('remotion-element-source');
+				expect(mdx).not.toContain(tsx.trim());
+			});
+
+			test('ElementPage sourceFile expands to the source file', () => {
+				const expanded = expandElementSourceReferences({
+					raw: mdx,
+					sourceFilePath: element.mdxPath,
+				});
+
+				expect(expanded).toContain(
+					`\`\`\`tsx twoslash title="${path.basename(element.tsxPath)}"\n${tsx.trim()}\n\`\`\``,
+				);
+			});
+
+			test('MDX does not duplicate source metadata for drag payloads', () => {
+				expect(mdx).not.toContain('?raw');
+				expect(mdx).not.toContain('sourceCode=');
+				expect(mdx).not.toContain('componentName=');
+				expect(mdx).not.toMatch(/export const \w+Source = /);
+			});
+
+			test('Element drag file name is derived from the slug', () => {
+				expect(mdx).not.toContain('fileName=');
+
+				const match = mdx.match(/slug="([^"]+)"/);
+				if (!match) {
+					return;
+				}
+
+				const lastSlugSegment = match[1].split('/').at(-1);
+				expect(lastSlugSegment).toBeTruthy();
+				expect(lastSlugSegment).toBe(lastSlugSegment?.toLowerCase());
+				expect(lastSlugSegment).not.toContain('..');
 			});
 		});
 	}

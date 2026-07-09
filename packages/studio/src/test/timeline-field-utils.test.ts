@@ -5,6 +5,7 @@ import {
 	getDecimalPlaces,
 	getTimelineDisplayDecimalPlaces,
 } from '../components/Timeline/timeline-field-utils';
+import {formatTimelineRotationFieldValue} from '../components/Timeline/timeline-rotation-field-utils';
 
 test('getDecimalPlaces supports scientific notation', () => {
 	expect(getDecimalPlaces(1e-7)).toBe(7);
@@ -88,6 +89,20 @@ test('formatTimelineFieldValueForDisplay formats rotation fields as degrees', ()
 			value: '0.7853981633974483rad',
 		}),
 	).toBe('45°');
+});
+
+test('formatTimelineRotationFieldValue formats numeric CSS rotations as degrees', () => {
+	expect(
+		formatTimelineRotationFieldValue({
+			decimalPlaces: 1,
+			fieldSchema: {
+				type: 'rotation-css',
+				default: '0deg',
+				step: 1,
+			},
+			value: 12,
+		}),
+	).toBe('12°');
 });
 
 test('formatTimelineFieldValueForDisplay formats translate fields as pixels', () => {

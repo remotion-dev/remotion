@@ -7,6 +7,7 @@ import {SHOW_BROWSER_RENDERING} from '../helpers/show-browser-rendering';
 import {timelineNodePathInfoToKey} from '../helpers/timeline-node-path-key';
 import {useKeybinding} from '../helpers/use-keybinding';
 import {CheckerboardContext} from '../state/checkerboard';
+import {EditorSnappingContext} from '../state/editor-snapping';
 import {ModalsContext} from '../state/modals';
 import {askAiModalRef} from './AskAiModal';
 import {useCompositionNavigation} from './CompositionSelector';
@@ -32,6 +33,7 @@ export const GlobalKeybindings: React.FC<{
 	const keybindings = useKeybinding();
 	const {setSelectedModal} = useContext(ModalsContext);
 	const {setCheckerboard} = useContext(CheckerboardContext);
+	const {setEditorSnapping} = useContext(EditorSnappingContext);
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	const {sequences} = useContext(Internals.SequenceManager);
 	const videoConfig = Internals.useUnsafeVideoConfig();
@@ -147,20 +149,6 @@ export const GlobalKeybindings: React.FC<{
 			}
 		};
 
-		const nKey = keybindings.registerKeybinding({
-			event: 'keypress',
-			key: 'n',
-			callback: () => {
-				showNotification(
-					`To make a new composition, right-click an existing one and select "Duplicate"`,
-					5000,
-				);
-			},
-			commandCtrlKey: false,
-			preventDefault: true,
-			triggerIfInputFieldFocused: false,
-			keepRegisteredWhenNotHighestContext: false,
-		});
 		const cmdKKey = keybindings.registerKeybinding({
 			event: 'keydown',
 			key: 'k',
@@ -248,8 +236,24 @@ export const GlobalKeybindings: React.FC<{
 			keepRegisteredWhenNotHighestContext: false,
 		});
 
+		const shiftMKey = keybindings.registerKeybinding({
+			event: 'keydown',
+			key: 'm',
+			callback: (event) => {
+				if (!event.shiftKey) {
+					return;
+				}
+
+				setEditorSnapping((current) => !current);
+				event.preventDefault();
+			},
+			commandCtrlKey: false,
+			preventDefault: false,
+			triggerIfInputFieldFocused: false,
+			keepRegisteredWhenNotHighestContext: false,
+		});
+
 		return () => {
-			nKey.unregister();
 			for (const sequencePropKey of sequencePropKeys) {
 				sequencePropKey.unregister();
 			}
@@ -260,12 +264,14 @@ export const GlobalKeybindings: React.FC<{
 			cmdIKey?.unregister();
 			pageDown.unregister();
 			pageUp.unregister();
+			shiftMKey.unregister();
 		};
 	}, [
 		keybindings,
 		openRenderModal,
 		selectSequenceProp,
 		setCheckerboard,
+		setEditorSnapping,
 		setSelectedModal,
 		navigateToNextComposition,
 		navigateToPreviousComposition,

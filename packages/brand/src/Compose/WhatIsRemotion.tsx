@@ -1,8 +1,9 @@
 import React from 'react';
 import type {CalculateMetadataFunction} from 'remotion';
 import {
-	AbsoluteFill,
 	Easing,
+	Interactive,
+	Internals,
 	interpolate,
 	measureSpring,
 	OffthreadVideo,
@@ -11,6 +12,10 @@ import {
 	staticFile,
 	useCurrentFrame,
 	useVideoConfig,
+	type InteractiveBaseProps,
+	type InteractiveTransformProps,
+	type InteractivitySchema,
+	type SequenceControls,
 } from 'remotion';
 import {z} from 'zod';
 import {ExtrudeDiv} from '../3DContext/Div3D';
@@ -27,163 +32,118 @@ import {EndCard} from './EndCard';
 import {LabelOpacityContext, useLabelOpacity} from './LabelOpacity';
 import {Rotations} from './Rotations';
 
-const height = 700;
-const width = (height / 16) * 9;
-const cornerRadius = 10;
-const depth = 60;
-const animationStart = 55;
-
-const Label: React.FC<React.HTMLAttributes<HTMLDivElement>> = (rest) => {
-	const opacity = useLabelOpacity();
-	return (
-		<div
-			className="text-white "
-			style={{
-				fontFamily: 'GT Planar',
-				height: '100%',
-				display: 'flex',
-				flexDirection: 'column',
-				justifyContent: 'center',
-				paddingLeft: 20,
-				fontSize: 24,
-				opacity,
-			}}
-			{...rest}
-		/>
-	);
-};
-
-const getActualLayerWidth = (progress: number) => {
-	return {
-		width: interpolate(progress, [0, 1], [width * 1.5, width]),
-		height: interpolate(progress, [0, 1], [height, height]),
+type LabelProps = InteractiveBaseProps &
+	InteractiveTransformProps &
+	Partial<{
+		readonly stack: string;
+	}> & {
+		readonly children: string;
 	};
+
+const labelSchema = {
+	...Interactive.baseSchema,
+	...Interactive.transformSchema,
+	...Interactive.textSchema,
+	children: {
+		type: 'text-content',
+		default: '',
+		description: 'Text',
+		keyframable: false,
+	},
+} as const satisfies InteractivitySchema;
+
+const setRef = <ElementType,>(
+	ref: React.ForwardedRef<ElementType>,
+	value: ElementType | null,
+) => {
+	if (typeof ref === 'function') {
+		ref(value);
+	} else if (ref) {
+		ref.current = value;
+	}
 };
 
-const VideoLayers: React.FC<{
-	readonly label: string;
-	readonly delay: number;
-	readonly footage?: boolean;
-	readonly bRoll?: boolean;
-	readonly boxWidth: number;
-	readonly boxHeight: number;
-	readonly codeFrame?: boolean;
-	readonly endCard?: boolean;
-}> = ({
-	label,
-	delay,
-	footage,
-	boxHeight,
-	boxWidth,
-	codeFrame,
-	bRoll,
-	endCard,
-}) => {
-	return (
-		<Rotations zIndexHack={false} delay={delay}>
-			<ExtrudeDiv
-				width={boxWidth}
-				height={boxHeight}
-				depth={depth}
-				cornerRadius={10}
-				backFace={
-					<AbsoluteFill
-						className="bg-gray-700"
-						style={{
-							borderRadius: cornerRadius,
-							border: '3px solid black',
-						}}
-					>
-						{codeFrame && <CodeFrame />}
-					</AbsoluteFill>
-				}
-				bottomFace={<Label>{label}</Label>}
-			>
-				<div
-					style={{
-						borderRadius: cornerRadius,
-						overflow: 'hidden',
-						fontFamily: 'GT Planar',
-						backgroundColor: 'black',
-						border: '3px solid black',
-					}}
-					className="text-black flex justify-center items-center font-sans text-2xl font-bold flex-1"
-				>
-					<div
-						style={{
-							backgroundColor: 'black',
-							width: '100%',
-							height: '100%',
-							overflow: 'hidden',
-						}}
-					>
-						{footage ? (
-							<Sequence from={animationStart} layout="none">
-								<OffthreadVideo
-									muted
-									style={{width: '100%', height: '100%', objectFit: 'cover'}}
-									src={staticFile('video.mp4')}
-								/>
-							</Sequence>
-						) : null}
-						{bRoll ? (
-							<Sequence from={animationStart} layout="none">
-								<OffthreadVideo
-									muted
-									style={{width: '100%', height: '100%', objectFit: 'cover'}}
-									src={staticFile('spiral_.mp4')}
-								/>
-							</Sequence>
-						) : null}
-						{endCard ? (
-							<AbsoluteFill
-								className="bg-white"
-								style={{borderRadius: cornerRadius, border: '3px solid black'}}
-							/>
-						) : null}
-					</div>
-				</div>
-			</ExtrudeDiv>
-		</Rotations>
-	);
-};
+const LabelInner = React.forwardRef<
+	HTMLDivElement,
+	LabelProps & {
+		readonly controls: SequenceControls | undefined;
+	}
+>(
+	(
+		{
+			children,
+			durationInFrames,
+			from,
+			trimBefore,
+			freeze,
+			hidden,
+			name,
+			showInTimeline,
+			stack,
+			controls,
+			style,
+		},
+		ref,
+	) => {
+		const opacity = useLabelOpacity();
+		const outlineRef = React.useRef<HTMLDivElement | null>(null);
+		const callbackRef = React.useCallback(
+			(element: HTMLDivElement | null) => {
+				outlineRef.current = element;
+				setRef(ref, element);
+			},
+			[ref],
+		);
 
-const CaptionLayers: React.FC<{
-	readonly delay: number;
-}> = ({delay}) => {
-	return (
-		<Rotations zIndexHack delay={1 + delay}>
-			<ExtrudeDiv
-				width={300}
-				height={60}
-				depth={depth}
-				cornerRadius={10}
-				bottomFace={<Label>&lt;Captions /&gt;</Label>}
-				backFace={
-					<AbsoluteFill
-						className="bg-black"
-						style={{borderRadius: cornerRadius, overflow: 'hidden'}}
-					/>
-				}
+		return (
+			<Sequence
+				layout="none"
+				from={from ?? 0}
+				trimBefore={trimBefore}
+				durationInFrames={durationInFrames ?? Infinity}
+				freeze={freeze}
+				hidden={hidden}
+				name={name ?? '<Label>'}
+				showInTimeline={showInTimeline ?? true}
+				controls={controls ?? undefined}
+				_remotionInternalStack={stack}
+				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/studio/make-component-interactive"
+				outlineRef={outlineRef}
 			>
 				<div
+					ref={callbackRef}
+					className="text-white "
 					style={{
-						borderRadius: cornerRadius,
-						overflow: 'hidden',
 						fontFamily: 'GT Planar',
-						backgroundColor: 'white',
-						border: '3px solid black',
+						height: '100%',
+						display: 'flex',
+						flexDirection: 'column',
+						justifyContent: 'center',
+						paddingLeft: 20,
+						fontSize: 24,
+						opacity,
+						...style,
 					}}
-					className="text-black flex justify-center items-center font-sans text-2xl font-bold flex-1"
 				>
-					<Sequence from={animationStart}>
-						<Captions />
-					</Sequence>
+					{children}
 				</div>
-			</ExtrudeDiv>
-		</Rotations>
-	);
-};
+			</Sequence>
+		);
+	},
+);
+
+LabelInner.displayName = '<Label>';
+
+const Label = Interactive.withSchema({
+	Component: LabelInner,
+	componentName: '<Label>',
+	componentIdentity: null,
+	schema: labelSchema,
+	supportsEffects: false,
+});
+
+Label.displayName = 'Label';
+Internals.addSequenceStackTraces(Label);
 
 export const whatIsRemotionSchema = z.object({
 	fade: z.boolean(),
@@ -195,6 +155,7 @@ export const whatIsRemotionCalculateMetadata: CalculateMetadataFunction<
 	z.infer<typeof whatIsRemotionSchema>
 > = ({props}) => {
 	return {
+		width: props.reel ? 1080 : 1080,
 		height: props.reel ? 1920 : 1080,
 		durationInFrames: props.reel ? 276 : 273,
 		props,
@@ -208,109 +169,153 @@ export const WhatIsRemotion = ({
 }: z.infer<typeof whatIsRemotionSchema>) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
-	const bRollEnter = spring({
-		fps,
-		frame,
-		config: {
-			damping: 200,
-		},
-		delay: 50 + animationStart,
-		durationInFrames: 25,
-		durationRestThreshold: 0.0001,
-	});
-	const bRollExit = spring({
-		fps,
-		frame,
-		config: {
-			damping: 200,
-		},
-		delay: 90 + animationStart,
-		durationInFrames: 25,
-		durationRestThreshold: 0.0001,
-	});
-
-	const endCard = interpolate(
-		frame,
-		[120 + animationStart, 145 + animationStart],
-		[0, 1],
-		{
-			extrapolateLeft: 'clamp',
-			extrapolateRight: 'clamp',
-			easing: Easing.bezier(0.42, 0, 0.58, 1),
-		},
-	);
-
-	const layerDownProgress =
-		interpolate(bRollEnter, [0, 0.5], [0, 1], {
-			extrapolateRight: 'clamp',
-		}) -
-		interpolate(bRollExit, [0.5, 1], [0, 1], {
-			extrapolateLeft: 'clamp',
-		});
-
-	const firstX = interpolate(endCard, [0.7, 1], [0, -1500], {
-		extrapolateLeft: 'clamp',
-	});
-	const secondX = interpolate(endCard, [0, 1], [1500, 0], {
-		extrapolateLeft: 'clamp',
-	});
-
-	const liftCaptions = interpolate(endCard, [0, 1], [0, -2000]);
-
-	const outAnimation = spring({
-		fps,
-		frame,
-		config: {
-			damping: 200,
-		},
-		delay: 250,
-		durationInFrames: 20,
-	});
-
-	const spr = spring({
-		fps,
-		frame,
-		delay: animationStart,
-		config: {
-			damping: 200,
-		},
-		durationInFrames: measureSpring({fps, config: {}}),
-	});
-	const actual = getActualLayerWidth(spr);
-
-	const outActual = getActualLayerWidth(1 - outAnimation);
 
 	return (
-		<AbsoluteFill
+		<Sequence
 			style={{
 				backgroundColor: whiteBackground ? 'white' : undefined,
+				scale: 1.13,
 			}}
 			className="flex justify-center items-center"
 		>
 			<Scale factor={reel ? 1.3 : 1.1}>
-				<AbsoluteFill
+				<Interactive.Div
 					style={{
+						position: 'absolute',
+						inset: 0,
 						maskImage:
 							frame > 100 && fade
 								? 'linear-gradient( -98deg, transparent 5%, red 15%, red 80%, transparent 90%)'
 								: 'none',
 					}}
 				>
-					<TranslateX px={firstX}>
-						<TranslateZ px={1.5 * depth * layerDownProgress}>
-							<VideoLayers
-								footage
-								codeFrame
-								delay={animationStart}
-								boxHeight={actual.height}
-								boxWidth={actual.width}
-								label="<Video />"
-							/>
+					<TranslateX
+						px={interpolate(
+							interpolate(frame, [175, 200], [0, 1], {
+								extrapolateLeft: 'clamp',
+								extrapolateRight: 'clamp',
+								easing: Easing.bezier(0.42, 0, 0.58, 1),
+							}),
+							[0.7, 1],
+							[0, -1500],
+							{
+								extrapolateLeft: 'clamp',
+							},
+						)}
+					>
+						<TranslateZ
+							px={
+								1.5 *
+								60 *
+								(interpolate(
+									spring({
+										fps,
+										frame,
+										config: {
+											damping: 200,
+										},
+										delay: 105,
+										durationInFrames: 25,
+										durationRestThreshold: 0.0001,
+									}),
+									[0, 0.5],
+									[0, 1],
+									{
+										extrapolateRight: 'clamp',
+									},
+								) -
+									interpolate(
+										spring({
+											fps,
+											frame,
+											config: {
+												damping: 200,
+											},
+											delay: 145,
+											durationInFrames: 25,
+											durationRestThreshold: 0.0001,
+										}),
+										[0.5, 1],
+										[0, 1],
+										{
+											extrapolateLeft: 'clamp',
+										},
+									))
+							}
+						>
+							<Rotations zIndexHack={false} delay={55}>
+								<ExtrudeDiv
+									width={interpolate(
+										spring({
+											fps,
+											frame,
+											delay: 55,
+											config: {
+												damping: 200,
+											},
+											durationInFrames: measureSpring({fps, config: {}}),
+										}),
+										[0, 1],
+										[590.625, 393.75],
+									)}
+									height={700}
+									depth={60}
+									cornerRadius={10}
+									backFace={
+										<Interactive.Div
+											className="bg-gray-700"
+											style={{
+												position: 'absolute',
+												inset: 0,
+												borderRadius: 10,
+												border: '3px solid black',
+											}}
+										>
+											<CodeFrame />
+										</Interactive.Div>
+									}
+									bottomFace={<Label>&lt;Video /&gt;</Label>}
+								>
+									<Interactive.Div
+										style={{
+											borderRadius: 10,
+											overflow: 'hidden',
+											fontFamily: 'GT Planar',
+											backgroundColor: 'black',
+											border: '3px solid black',
+										}}
+										className="text-black flex justify-center items-center font-sans text-2xl font-bold flex-1"
+									>
+										<Interactive.Div
+											style={{
+												backgroundColor: 'black',
+												width: '100%',
+												height: '100%',
+												overflow: 'hidden',
+											}}
+										>
+											<Sequence from={55} layout="none">
+												<OffthreadVideo
+													muted
+													style={{
+														width: '100%',
+														height: '100%',
+														objectFit: 'cover',
+													}}
+													src={staticFile('video.mp4')}
+												/>
+											</Sequence>
+										</Interactive.Div>
+									</Interactive.Div>
+								</ExtrudeDiv>
+							</Rotations>
 						</TranslateZ>
 					</TranslateX>
-				</AbsoluteFill>
-				<AbsoluteFill
+				</Interactive.Div>
+				<Interactive.Div
 					style={{
+						position: 'absolute',
+						inset: 0,
 						maskImage: fade
 							? 'linear-gradient( -7deg, transparent 6%, red 15%, red 84%, transparent 94%)'
 							: 'none',
@@ -318,78 +323,293 @@ export const WhatIsRemotion = ({
 				>
 					<TranslateY
 						px={interpolate(
-							bRollEnter + bRollExit,
+							spring({
+								fps,
+								frame,
+								config: {
+									damping: 200,
+								},
+								delay: 105,
+								durationInFrames: 25,
+								durationRestThreshold: 0.0001,
+							}) +
+								spring({
+									fps,
+									frame,
+									config: {
+										damping: 200,
+									},
+									delay: 145,
+									durationInFrames: 25,
+									durationRestThreshold: 0.0001,
+								}),
 							[0, 1, 2],
 							[1900, 0, -1900],
 						)}
 					>
-						<VideoLayers
-							bRoll
-							boxWidth={width}
-							boxHeight={height}
-							delay={animationStart}
-							label="<BRoll />"
-						/>
+						<Rotations zIndexHack={false} delay={55}>
+							<ExtrudeDiv
+								width={393.75}
+								height={700}
+								depth={60}
+								cornerRadius={10}
+								backFace={
+									<Interactive.Div
+										className="bg-gray-700"
+										style={{
+											position: 'absolute',
+											inset: 0,
+											borderRadius: 10,
+											border: '3px solid black',
+										}}
+									/>
+								}
+								bottomFace={<Label>&lt;BRoll /&gt;</Label>}
+							>
+								<Interactive.Div
+									style={{
+										borderRadius: 10,
+										overflow: 'hidden',
+										fontFamily: 'GT Planar',
+										backgroundColor: 'black',
+										border: '3px solid black',
+									}}
+									className="text-black flex justify-center items-center font-sans text-2xl font-bold flex-1"
+								>
+									<Interactive.Div
+										style={{
+											backgroundColor: 'black',
+											width: '100%',
+											height: '100%',
+											overflow: 'hidden',
+										}}
+									>
+										<Sequence from={55} layout="none">
+											<OffthreadVideo
+												muted
+												style={{
+													width: '100%',
+													height: '100%',
+													objectFit: 'cover',
+												}}
+												src={staticFile('spiral_.mp4')}
+											/>
+										</Sequence>
+									</Interactive.Div>
+								</Interactive.Div>
+							</ExtrudeDiv>
+						</Rotations>
 					</TranslateY>
-				</AbsoluteFill>
-				<AbsoluteFill
+				</Interactive.Div>
+				<Interactive.Div
 					style={{
+						position: 'absolute',
+						inset: 0,
 						maskImage:
 							frame > 100 && fade
 								? 'linear-gradient( -98deg, transparent 10%, red 18%, red 80%, transparent 90%)'
 								: 'none',
 					}}
 				>
-					{endCard > 0 && (
-						<TranslateX px={secondX}>
-							<RotateY radians={Math.PI * outAnimation}>
-								<LabelOpacityContext.Provider value={1 - outAnimation}>
-									<VideoLayers
-										boxHeight={outActual.height}
-										boxWidth={outActual.width}
-										delay={animationStart}
-										label="<EndCard />"
-										endCard
-									/>
+					{interpolate(frame, [175, 200], [0, 1], {
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'clamp',
+						easing: Easing.bezier(0.42, 0, 0.58, 1),
+					}) > 0 && (
+						<TranslateX
+							px={interpolate(frame, [175, 200], [1500, 0], {
+								extrapolateLeft: 'clamp',
+								extrapolateRight: 'clamp',
+								easing: Easing.bezier(0.42, 0, 0.58, 1),
+							})}
+						>
+							<RotateY
+								radians={interpolate(
+									spring({
+										fps,
+										frame,
+										config: {
+											damping: 200,
+										},
+										delay: 250,
+										durationInFrames: 20,
+									}),
+									[0, 1],
+									[0, Math.PI],
+								)}
+							>
+								<LabelOpacityContext.Provider
+									value={
+										1 -
+										spring({
+											fps,
+											frame,
+											config: {
+												damping: 200,
+											},
+											delay: 250,
+											durationInFrames: 20,
+										})
+									}
+								>
+									<Rotations zIndexHack={false} delay={55}>
+										<ExtrudeDiv
+											width={interpolate(
+												spring({
+													fps,
+													frame,
+													config: {
+														damping: 200,
+													},
+													delay: 250,
+													durationInFrames: 20,
+												}),
+												[0, 1],
+												[393.75, 590.625],
+											)}
+											height={700}
+											depth={60}
+											cornerRadius={10}
+											backFace={
+												<Interactive.Div
+													className="bg-gray-700"
+													style={{
+														position: 'absolute',
+														inset: 0,
+														borderRadius: 10,
+														border: '3px solid black',
+													}}
+												/>
+											}
+											bottomFace={<Label>&lt;EndCard /&gt;</Label>}
+										>
+											<Interactive.Div
+												style={{
+													borderRadius: 10,
+													overflow: 'hidden',
+													fontFamily: 'GT Planar',
+													backgroundColor: 'black',
+													border: '3px solid black',
+												}}
+												className="text-black flex justify-center items-center font-sans text-2xl font-bold flex-1"
+											>
+												<Interactive.Div
+													style={{
+														backgroundColor: 'black',
+														width: '100%',
+														height: '100%',
+														overflow: 'hidden',
+													}}
+												>
+													<Interactive.Div
+														className="bg-white"
+														style={{
+															position: 'absolute',
+															inset: 0,
+															borderRadius: 10,
+															border: '3px solid black',
+														}}
+													/>
+												</Interactive.Div>
+											</Interactive.Div>
+										</ExtrudeDiv>
+									</Rotations>
 								</LabelOpacityContext.Provider>
 							</RotateY>
 						</TranslateX>
 					)}
-					<AbsoluteFill
+					<Interactive.Div
 						style={{
+							position: 'absolute',
+							inset: 0,
 							maskImage: fade
 								? 'linear-gradient(to bottom, transparent , black 10%)'
 								: undefined,
 						}}
 					>
-						<TranslateX px={secondX}>
-							<AbsoluteFill
+						<TranslateX
+							px={interpolate(frame, [175, 200], [1500, 0], {
+								extrapolateLeft: 'clamp',
+								extrapolateRight: 'clamp',
+								easing: Easing.bezier(0.42, 0, 0.58, 1),
+							})}
+						>
+							<Interactive.Div
 								style={{
+									position: 'absolute',
+									inset: 0,
+									display: 'flex',
 									justifyContent: 'center',
 									alignItems: 'center',
 								}}
 							>
 								<Sequence layout="none" from={100}>
-									<div
+									<Interactive.Div
 										style={{
-											width,
-											height,
+											width: 393.75,
+											height: 700,
 											position: 'relative',
 										}}
 									>
-										{endCard ? <EndCard cornerRadius={cornerRadius} /> : null}
-									</div>
+										{interpolate(frame, [175, 200], [0, 1], {
+											extrapolateLeft: 'clamp',
+											extrapolateRight: 'clamp',
+											easing: Easing.bezier(0.42, 0, 0.58, 1),
+										}) ? (
+											<EndCard cornerRadius={10} />
+										) : null}
+									</Interactive.Div>
 								</Sequence>
-							</AbsoluteFill>
+							</Interactive.Div>
 						</TranslateX>
-					</AbsoluteFill>
-				</AbsoluteFill>
+					</Interactive.Div>
+				</Interactive.Div>
 				<TranslateY px={190}>
-					<TranslateZ px={-depth * 2 + liftCaptions}>
-						<CaptionLayers delay={animationStart} />
+					<TranslateZ
+						px={interpolate(frame, [175, 200], [-120, -2120], {
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+							easing: Easing.bezier(0.42, 0, 0.58, 1),
+						})}
+					>
+						<Rotations zIndexHack delay={56}>
+							<ExtrudeDiv
+								width={300}
+								height={60}
+								depth={60}
+								cornerRadius={10}
+								bottomFace={<Label>&lt;Captions /&gt;</Label>}
+								backFace={
+									<Interactive.Div
+										className="bg-black"
+										style={{
+											position: 'absolute',
+											inset: 0,
+											borderRadius: 10,
+											overflow: 'hidden',
+										}}
+									/>
+								}
+							>
+								<Interactive.Div
+									style={{
+										borderRadius: 10,
+										overflow: 'hidden',
+										fontFamily: 'GT Planar',
+										backgroundColor: 'white',
+										border: '3px solid black',
+									}}
+									className="text-black flex justify-center items-center font-sans text-2xl font-bold flex-1"
+								>
+									<Sequence from={55}>
+										<Captions />
+									</Sequence>
+								</Interactive.Div>
+							</ExtrudeDiv>
+						</Rotations>
 					</TranslateZ>
 				</TranslateY>
 			</Scale>
-		</AbsoluteFill>
+		</Sequence>
 	);
 };

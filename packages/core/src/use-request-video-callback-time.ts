@@ -9,7 +9,7 @@ export const useRequestVideoCallbackTime = ({
 }: {
 	mediaRef: RefObject<HTMLVideoElement | HTMLAudioElement | null>;
 	mediaType: 'video' | 'audio';
-	lastSeek: React.MutableRefObject<number | null>;
+	lastSeek: React.RefObject<number | null>;
 	onVariableFpsVideoDetected: () => void;
 }) => {
 	const currentTime = useRef<{

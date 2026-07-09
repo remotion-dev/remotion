@@ -240,6 +240,8 @@ test('New composition appends to root and adds imports', () => {
 			newId: 'FreshVideo',
 			componentName: 'FreshVideo',
 			componentImportPath: './FreshVideo',
+			folderName: null,
+			parentName: null,
 			newDurationInFrames: 150,
 			newFps: 30,
 			newHeight: 1080,

@@ -11,7 +11,11 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import {LIGHT_TEXT, getBackgroundFromHoverState} from '../helpers/colors';
+import {
+	LIGHT_TEXT,
+	WHITE,
+	getBackgroundFromHoverState,
+} from '../helpers/colors';
 import {useKeybinding} from '../helpers/use-keybinding';
 import {ModalsContext, type AddEffectModalState} from '../state/modals';
 import {ContextMenu} from './ContextMenu';
@@ -98,7 +102,7 @@ const EffectPickerResult: React.FC<{
 	const labelStyle = useMemo((): React.CSSProperties => {
 		return {
 			...label,
-			color: selected || hovered ? 'white' : LIGHT_TEXT,
+			color: selected || hovered ? WHITE : LIGHT_TEXT,
 		};
 	}, [hovered, selected]);
 

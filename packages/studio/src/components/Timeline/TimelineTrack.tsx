@@ -9,8 +9,7 @@ import {ExpandedTracksGetterContext} from '../ExpandedTracksProvider';
 import {TimelineExpandedTrackKeyframes} from './TimelineExpandedTrackKeyframes';
 import {
 	getTimelineSelectedTrackHighlightStyle,
-	useTimelineRowContainsSelection,
-	useTimelineRowSelection,
+	useTimelineRowHighlightBackground,
 } from './TimelineSelection';
 import {TimelineSequence} from './TimelineSequence';
 import {TimelineWidthContext} from './TimelineWidthProvider';
@@ -22,8 +21,9 @@ const TimelineTrackUnmemoized: React.FC<{
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const previewServerConnected = previewServerState.type === 'connected';
 	const timelineWidth = useContext(TimelineWidthContext);
-	const {selected: rowSelected} = useTimelineRowSelection(track.nodePathInfo);
-	const containsSelection = useTimelineRowContainsSelection(track.nodePathInfo);
+	const rowHighlightBackground = useTimelineRowHighlightBackground(
+		track.nodePathInfo,
+	);
 
 	const layerStyle = useMemo(
 		(): React.CSSProperties => ({
@@ -39,14 +39,16 @@ const TimelineTrackUnmemoized: React.FC<{
 		previewServerConnected &&
 		getIsExpanded(track.nodePathInfo);
 
-	const showRowHighlight =
-		track.nodePathInfo !== null && (rowSelected || containsSelection);
-
 	return (
 		<div>
 			<div style={layerStyle}>
-				{showRowHighlight && timelineWidth !== null ? (
-					<div style={getTimelineSelectedTrackHighlightStyle(timelineWidth)} />
+				{rowHighlightBackground && timelineWidth !== null ? (
+					<div
+						style={getTimelineSelectedTrackHighlightStyle(
+							timelineWidth,
+							rowHighlightBackground,
+						)}
+					/>
 				) : null}
 				<TimelineSequence
 					s={track.sequence}

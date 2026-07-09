@@ -1,6 +1,6 @@
 import React, {useMemo} from 'react';
 import {Internals} from 'remotion';
-import {VERY_LIGHT_TEXT} from '../../helpers/colors';
+import {WHITE_ALPHA_30} from '../../helpers/colors';
 import {getTimelineAssetLinkInfo} from './timeline-asset-link';
 
 const lineStyle: React.CSSProperties = {
@@ -9,7 +9,7 @@ const lineStyle: React.CSSProperties = {
 	textOverflow: 'ellipsis',
 	minWidth: 0,
 	fontSize: 12,
-	color: VERY_LIGHT_TEXT,
+	color: WHITE_ALPHA_30,
 	display: 'inline-block',
 };
 
@@ -19,7 +19,7 @@ const useAssetLink = (src: string) => {
 	const fileNameStyle: React.CSSProperties = useMemo(
 		() => ({
 			...lineStyle,
-			color: VERY_LIGHT_TEXT,
+			color: WHITE_ALPHA_30,
 			textDecoration: 'none',
 			display: 'inline-block',
 			overflow: 'hidden',

@@ -2,10 +2,12 @@ import type {SVGProps} from 'react';
 import React, {useCallback, useMemo} from 'react';
 import {
 	INPUT_BACKGROUND,
-	INPUT_BORDER_COLOR_HOVERED,
-	INPUT_BORDER_COLOR_UNHOVERED,
+	WHITE_ALPHA_05,
+	BLACK_ALPHA_60,
 	LIGHT_TEXT,
+	TRANSPARENT,
 	WARNING_COLOR,
+	WHITE,
 } from '../../helpers/colors';
 import {AngleDown} from '../../icons/caret';
 import {Spacing} from '../layout';
@@ -15,7 +17,7 @@ const style: React.CSSProperties = {
 	display: 'inline-flex',
 	justifyContent: 'center',
 	alignItems: 'center',
-	backgroundColor: 'transparent',
+	backgroundColor: TRANSPARENT,
 	color: LIGHT_TEXT,
 	borderStyle: 'solid',
 	borderWidth: 1,
@@ -69,11 +71,9 @@ export const WarningIndicatorButton: React.FC<{
 	const buttonStyle: React.CSSProperties = useMemo(() => {
 		return {
 			...(size === 'compact' ? compactStyle : style),
-			backgroundColor: showWarning ? INPUT_BACKGROUND : 'transparent',
-			borderColor: showWarning
-				? INPUT_BORDER_COLOR_HOVERED
-				: INPUT_BORDER_COLOR_UNHOVERED,
-			color: showWarning ? 'white' : LIGHT_TEXT,
+			backgroundColor: showWarning ? INPUT_BACKGROUND : TRANSPARENT,
+			borderColor: showWarning ? WHITE_ALPHA_05 : BLACK_ALPHA_60,
+			color: showWarning ? WHITE : LIGHT_TEXT,
 		};
 	}, [showWarning, size]);
 

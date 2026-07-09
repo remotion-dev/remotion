@@ -61,6 +61,13 @@ export type RouteAction =
 			format: InputContainer;
 	  }
 	| {
+			type: 'generic-trim';
+	  }
+	| {
+			type: 'trim-format';
+			format: InputContainer;
+	  }
+	| {
 			type: 'generic-resize';
 	  }
 	| {
@@ -137,6 +144,14 @@ export const getHeaderTitle = (routeAction: RouteAction) => {
 		return `Fast ${renderHumanReadableContainer(routeAction.format)} cropping in the browser`;
 	}
 
+	if (routeAction.type === 'generic-trim') {
+		return 'Fast video trimming in the browser';
+	}
+
+	if (routeAction.type === 'trim-format') {
+		return `Fast ${renderHumanReadableContainer(routeAction.format)} trimming in the browser`;
+	}
+
 	throw new Error(`Invalid route action ${routeAction satisfies never}`);
 };
 
@@ -197,12 +212,20 @@ export const getPageTitle = (routeAction: RouteAction) => {
 		return `Online ${renderHumanReadableContainer(routeAction.format)} Cropper - Remotion Convert`;
 	}
 
+	if (routeAction.type === 'generic-trim') {
+		return 'Online Video Trimmer - Remotion Convert';
+	}
+
+	if (routeAction.type === 'trim-format') {
+		return `Online ${renderHumanReadableContainer(routeAction.format)} Trimmer - Remotion Convert`;
+	}
+
 	throw new Error(`Invalid route action ${routeAction satisfies never}`);
 };
 
 export const getDescription = (routeAction: RouteAction) => {
 	if (routeAction.type === 'generic-convert') {
-		return 'The fastest online video converter, powered by WebCodecs. No upload required, no watermarks, no limits.';
+		return 'Convert MP4, WebM, MOV, MKV, ProRes, HLS streams, MP3, WAV, AAC, and FLAC in your browser. No upload required, no watermarks, no limits.';
 	}
 
 	if (routeAction.type === 'convert') {
@@ -263,6 +286,14 @@ export const getDescription = (routeAction: RouteAction) => {
 		return `The fastest online ${renderHumanReadableContainer(routeAction.format)} cropper, powered by WebCodecs. No upload required, no watermarks, no limits.`;
 	}
 
+	if (routeAction.type === 'generic-trim') {
+		return `The fastest online video trimmer, powered by WebCodecs. No upload required, no watermarks, no limits.`;
+	}
+
+	if (routeAction.type === 'trim-format') {
+		return `The fastest online ${renderHumanReadableContainer(routeAction.format)} trimmer, powered by WebCodecs. No upload required, no watermarks, no limits.`;
+	}
+
 	throw new Error(`Invalid route action ${routeAction satisfies never}`);
 };
 
@@ -321,6 +352,14 @@ export const makeSlug = (routeAction: RouteAction) => {
 
 	if (routeAction.type === 'crop-format') {
 		return `/crop/${routeAction.format}`;
+	}
+
+	if (routeAction.type === 'generic-trim') {
+		return '/trim';
+	}
+
+	if (routeAction.type === 'trim-format') {
+		return `/trim/${routeAction.format}`;
 	}
 
 	throw new Error(`Invalid route action ${routeAction satisfies never}`);

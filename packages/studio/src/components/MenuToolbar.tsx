@@ -1,6 +1,6 @@
 import type {SetStateAction} from 'react';
 import React, {useCallback, useMemo, useState} from 'react';
-import {BACKGROUND} from '../helpers/colors';
+import {BACKGROUND, BORDER_BLACK, WHITE} from '../helpers/colors';
 import {useMobileLayout} from '../helpers/mobile-layout';
 import {useMenuStructure} from '../helpers/use-menu-structure';
 import {Row, Spacing} from './layout';
@@ -17,8 +17,8 @@ const row: React.CSSProperties = {
 	alignItems: 'center',
 	flexDirection: 'row',
 	display: 'flex',
-	color: 'white',
-	borderBottom: '1px solid black',
+	color: WHITE,
+	borderBottom: BORDER_BLACK,
 	boxSizing: 'border-box',
 	fontSize: 13,
 	height: MENU_TOOLBAR_HEIGHT,

@@ -8,7 +8,7 @@ import type {
 	CanUpdateSequencePropStatusKeyframed,
 	SequencePropsSubscriptionKey,
 } from 'remotion';
-import {Internals} from 'remotion';
+import {Internals, useVideoConfig} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
@@ -18,6 +18,7 @@ import {callApi} from '../call-api';
 import {ContextMenu} from '../ContextMenu';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {callAddEffectKeyframe} from './call-add-keyframe';
+import {getAnimationItemSelectionForSourceFrame} from './get-animation-item-selection-for-frame';
 import {getComputedStatusLabel} from './get-timeline-keyframes';
 import {saveEffectProp} from './save-effect-prop';
 import {enqueueSavePropChange} from './save-prop-queue';
@@ -32,8 +33,16 @@ import {
 import {TimelineKeyframedValue} from './TimelineKeyframedValue';
 import {TimelineLayerEyeSpacer} from './TimelineLayerEye';
 import {TimelineRowChrome} from './TimelineRowChrome';
-import {TimelineFieldValue, UnsupportedStatus} from './TimelineSchemaField';
-import {useTimelineRowSelection} from './TimelineSelection';
+import {
+	TIMELINE_COMPUTED_EFFECT_FIX_LINK,
+	TimelineFieldValue,
+	UnsupportedStatus,
+} from './TimelineSchemaField';
+import {
+	useTimelineRowSelection,
+	useTimelineSelection,
+} from './TimelineSelection';
+import {canEditEasingForInterpolationFunction} from './update-selected-easing';
 
 const fieldRowBase: React.CSSProperties = {};
 
@@ -251,7 +260,12 @@ export const TimelineEffectPropValue: React.FC<{
 
 	if (effectStatus.type === 'cannot-update-effect') {
 		if (effectStatus.reason === 'computed') {
-			return <UnsupportedStatus label="computed" />;
+			return (
+				<UnsupportedStatus
+					label="computed"
+					fixHref={TIMELINE_COMPUTED_EFFECT_FIX_LINK}
+				/>
+			);
 		}
 
 		if (effectStatus.reason === 'not-call-expression') {
@@ -301,7 +315,12 @@ export const TimelineEffectPropValue: React.FC<{
 	}
 
 	if (propStatus.status === 'computed') {
-		return <UnsupportedStatus label={getComputedStatusLabel(propStatus)} />;
+		return (
+			<UnsupportedStatus
+				label={getComputedStatusLabel(propStatus)}
+				fixHref={TIMELINE_COMPUTED_EFFECT_FIX_LINK}
+			/>
+		);
 	}
 
 	const effectiveValue = Internals.getEffectiveVisualModeValue({
@@ -350,6 +369,9 @@ export const TimelineEffectPropItem: React.FC<{
 		Internals.VisualModeDragOverridesContext,
 	);
 	const selection = useTimelineRowSelection(nodePathInfo);
+	const {selectItems} = useTimelineSelection();
+	const setFrame = Internals.useTimelineSetFrame();
+	const videoConfig = useVideoConfig();
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const sourceFrame = timelinePosition - keyframeDisplayOffset;
 	const style = useMemo(() => {
@@ -530,6 +552,101 @@ export const TimelineEffectPropItem: React.FC<{
 		propStatus,
 	]);
 
+	const seekToDisplayFrame = useCallback(
+		(frame: number) => {
+			setFrame((current) => {
+				const next = {...current, [videoConfig.id]: frame};
+				Internals.persistCurrentFrame(next);
+				return next;
+			});
+		},
+		[setFrame, videoConfig.id],
+	);
+
+	const onPropertyDoubleClick = useCallback<
+		React.MouseEventHandler<HTMLDivElement>
+	>(
+		(event) => {
+			if (propStatus === null || propStatus.status === 'computed') {
+				return;
+			}
+
+			const keyframeSelection = {
+				type: 'keyframe' as const,
+				nodePathInfo,
+				frame: sourceFrame + keyframeDisplayOffset,
+			};
+
+			if (propStatus.status === 'static') {
+				if (!keyframable || previewServerState.type !== 'connected') {
+					return;
+				}
+
+				const value = Internals.getEffectiveVisualModeValue({
+					propStatus,
+					dragOverrideValue,
+					frame: sourceFrame,
+					defaultValue: field.fieldSchema.default,
+					shouldResortToDefaultValueIfUndefined: true,
+				});
+
+				event.stopPropagation();
+				callAddEffectKeyframe({
+					fileName: validatedLocation.source,
+					nodePath,
+					effectIndex: field.effectIndex,
+					fieldKey: field.key,
+					sourceFrame,
+					value,
+					schema: field.effectSchema,
+					setPropStatuses,
+					clientId: previewServerState.clientId,
+				}).catch(() => undefined);
+				selectItems([keyframeSelection], {reveal: true});
+				seekToDisplayFrame(keyframeSelection.frame);
+				return;
+			}
+
+			const targetSelection = getAnimationItemSelectionForSourceFrame({
+				includeEasings: canEditEasingForInterpolationFunction(
+					propStatus.interpolationFunction,
+				),
+				keyframeDisplayOffset,
+				keyframes: propStatus.keyframes,
+				nodePathInfo,
+				sourceFrame,
+			});
+
+			if (targetSelection === null) {
+				return;
+			}
+
+			event.stopPropagation();
+			selectItems([targetSelection], {reveal: true});
+			if (targetSelection.type === 'keyframe') {
+				seekToDisplayFrame(targetSelection.frame);
+			}
+		},
+		[
+			dragOverrideValue,
+			field.effectIndex,
+			field.effectSchema,
+			field.fieldSchema.default,
+			field.key,
+			keyframeDisplayOffset,
+			keyframable,
+			nodePath,
+			nodePathInfo,
+			previewServerState,
+			propStatus,
+			seekToDisplayFrame,
+			selectItems,
+			setPropStatuses,
+			sourceFrame,
+			validatedLocation.source,
+		],
+	);
+
 	const row = (
 		<TimelineRowChrome
 			depth={rowDepth}
@@ -541,6 +658,7 @@ export const TimelineEffectPropItem: React.FC<{
 			selectable={selection.selectable}
 			selectionItem={selection.selectionItem}
 			onSelect={selection.onSelect}
+			onDoubleClick={onPropertyDoubleClick}
 			showSelectedBackground
 			containsSelection={false}
 			outerHeight={null}

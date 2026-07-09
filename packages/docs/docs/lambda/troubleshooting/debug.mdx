@@ -105,6 +105,22 @@ The chunks that are missing are the ones that failed to render.
 
 After you've identified which chunks are missing, [inspect the logs](#inspecting-the-logs) for that chunk to find the cause of the error.
 
+### Stuck chunks while loading media from Cloudflare R2
+
+If one chunk remains running much longer than the others, check whether it is loading a remote video or audio file.
+
+When using [`<Video>`](/docs/media/video) or [`<Audio>`](/docs/media/audio) from [`@remotion/media`](/docs/media), Remotion may load only the required byte ranges from the source file. This reduces data transfer, but a slow or uncached range request can make one chunk wait much longer than the rest of the render.
+
+If your assets are served from Cloudflare R2:
+
+- Serve the assets through a custom domain with Cloudflare Cache enabled. The `r2.dev` development URL does not support caching.
+- Configure a Cloudflare Cache Rule for the media URLs. If the response header is `CF-Cache-Status: DYNAMIC`, the request was not served from Cloudflare Cache.
+- If the source video has long intervals between keyframes, consider re-encoding it with a shorter keyframe interval so seeking requires less data.
+
+See [Data transfer cost: Use an alternate CDN for storing assets](/docs/lambda/data-transfer-cost#option-1-use-an-alternate-cdn-for-storing-assets) for details.
+
+To make a stalled media load fail before the Lambda function reaches its execution timeout, set [`delayRenderTimeoutInMilliseconds`](/docs/media/video#delayrendertimeoutinmilliseconds) on the media component to a value below the Lambda function timeout. Use [`delayRenderRetries`](/docs/media/video#delayrenderretries) if the load should be retried.
+
 ### Increasing the timeout
 
 Note that two types of timeouts come into play in Remotion:

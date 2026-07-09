@@ -20,6 +20,7 @@ export const ResolveCompositionContext =
 export const resolveCompositionsRef = createRef<{
 	setCurrentRenderModalComposition: (compositionId: string | null) => void;
 	reloadCurrentlySelectedComposition: () => void;
+	resolveComposition: (compositionId: string) => Promise<VideoConfig>;
 }>();
 
 type VideoConfigState =

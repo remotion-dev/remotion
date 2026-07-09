@@ -38,10 +38,12 @@ export type CanUpdateSequencePropStatusBezierEasing = {
 
 export type CanUpdateSequencePropStatusSpringEasing = {
 	type: 'spring';
+	allowTail: boolean | null;
 	damping: number;
 	mass: number;
 	stiffness: number;
 	overshootClamping: boolean;
+	durationRestThreshold: number | null;
 };
 
 export type CanUpdateSequencePropStatusEasing =
@@ -51,6 +53,25 @@ export type CanUpdateSequencePropStatusEasing =
 
 export const DEFAULT_LINEAR_EASING: CanUpdateSequencePropStatusLinearEasing = {
 	type: 'linear',
+};
+
+const getEasingIndexToDuplicate = ({
+	insertedKeyframeIndex,
+	easingLength,
+	keyframeCount,
+}: {
+	insertedKeyframeIndex: number;
+	easingLength: number;
+	keyframeCount: number;
+}): number | null => {
+	const isSplittingExistingSegment =
+		insertedKeyframeIndex > 0 && insertedKeyframeIndex < keyframeCount - 1;
+
+	if (!isSplittingExistingSegment || easingLength === 0) {
+		return null;
+	}
+
+	return Math.min(insertedKeyframeIndex - 1, easingLength - 1);
 };
 
 export type CanUpdateSequencePropStatusClamping = {
@@ -143,6 +164,22 @@ export const makeKeyframedDragOverride = ({
 					index === existingIndex ? {frame, value} : keyframe,
 				);
 	const easing = [...status.easing];
+	if (existingIndex === -1) {
+		const insertedKeyframeIndex = keyframes.findIndex(
+			(keyframe) => keyframe.frame === frame,
+		);
+		const easingIndexToDuplicate = getEasingIndexToDuplicate({
+			insertedKeyframeIndex,
+			easingLength: easing.length,
+			keyframeCount: keyframes.length,
+		});
+		const easingToDuplicate =
+			easingIndexToDuplicate === null
+				? DEFAULT_LINEAR_EASING
+				: easing[easingIndexToDuplicate];
+		easing.splice(insertedKeyframeIndex, 0, easingToDuplicate);
+	}
+
 	while (easing.length < keyframes.length - 1) {
 		easing.push(DEFAULT_LINEAR_EASING);
 	}
@@ -239,6 +276,7 @@ export const computeEffectiveSchemaValuesDotNotation = ({
 					value = dragOverride.value;
 				} else if (frame !== null) {
 					const interpolated = interpolateKeyframedStatus({
+						forceSpringAllowTail: null,
 						frame,
 						status,
 					});

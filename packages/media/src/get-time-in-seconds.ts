@@ -27,7 +27,7 @@ export const getTimeInSeconds = ({
 		);
 	}
 
-	const loopDuration = loop
+	const loopDurationInFrames = loop
 		? Internals.calculateMediaDuration({
 				trimAfter,
 				mediaDurationInFrames: mediaDurationInSeconds
@@ -36,10 +36,13 @@ export const getTimeInSeconds = ({
 				// Playback rate was already specified before
 				playbackRate: 1,
 				trimBefore,
-			}) / fps
+			})
 		: Infinity;
 
-	const timeInSeconds = (unloopedTimeInSeconds * playbackRate) % loopDuration;
+	const timeInSeconds = loop
+		? ((unloopedTimeInSeconds * playbackRate * fps) % loopDurationInFrames) /
+			fps
+		: unloopedTimeInSeconds * playbackRate;
 
 	if ((trimAfter ?? null) !== null && !loop) {
 		const time = (trimAfter! - (trimBefore ?? 0)) / fps;

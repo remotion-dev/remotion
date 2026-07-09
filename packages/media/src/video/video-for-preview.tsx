@@ -169,6 +169,9 @@ const VideoForPreviewAssertedShowing: React.FC<
 	const effectsRef = useRef(effects);
 	effectsRef.current = effects;
 
+	const onErrorRef = useRef(onError);
+	onErrorRef.current = onError;
+
 	const effectChainStateRef = useRef(effectChainState);
 	effectChainStateRef.current = effectChainState;
 
@@ -256,33 +259,23 @@ const VideoForPreviewAssertedShowing: React.FC<
 	}, [_experimentalInitiallyDrawCachedFrame, src]);
 
 	useEffect(() => {
-		if (!sharedAudioContext) return;
-		if (!sharedAudioContext.audioContext) return;
-
-		const {
-			audioContext,
-			gainNode,
-			audioSyncAnchor,
-			scheduleAudioNode,
-			unscheduleAudioNode,
-		} = sharedAudioContext;
-
-		if (!gainNode) {
-			return;
-		}
+		const sharedAudioContextForMediaPlayer =
+			sharedAudioContext?.audioContext && sharedAudioContext.gainNode
+				? {
+						audioContext: sharedAudioContext.audioContext,
+						gainNode: sharedAudioContext.gainNode,
+						audioSyncAnchor: sharedAudioContext.audioSyncAnchor,
+						scheduleAudioNode: sharedAudioContext.scheduleAudioNode,
+						unscheduleAudioNode: sharedAudioContext.unscheduleAudioNode,
+					}
+				: null;
 
 		try {
 			const player = new MediaPlayer({
 				canvas: canvasRef.current,
 				src: preloadedSrc,
 				logLevel,
-				sharedAudioContext: {
-					audioContext,
-					gainNode,
-					audioSyncAnchor,
-					scheduleAudioNode,
-					unscheduleAudioNode,
-				},
+				sharedAudioContext: sharedAudioContextForMediaPlayer,
 				loop,
 				trimAfter: initialTrimAfterRef.current,
 				trimBefore: initialTrimBeforeRef.current,
@@ -316,7 +309,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 
 					const handleError = (error: Error, fallbackMessage: string) => {
 						const [action, errorToUse] = callOnErrorAndResolve({
-							onError,
+							onError: onErrorRef.current,
 							error,
 							disallowFallback: disallowFallbackToOffthreadVideo,
 							isClientSideRendering: false,
@@ -375,7 +368,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 				})
 				.catch((error) => {
 					const [action, errorToUse] = callOnErrorAndResolve({
-						onError,
+						onError: onErrorRef.current,
 						error,
 						disallowFallback: disallowFallbackToOffthreadVideo,
 						isClientSideRendering: false,
@@ -395,7 +388,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 		} catch (error) {
 			const [action, errorToUse] = callOnErrorAndResolve({
 				error: error as Error,
-				onError,
+				onError: onErrorRef.current,
 				disallowFallback: disallowFallbackToOffthreadVideo,
 				isClientSideRendering: false,
 				clientSideError: error as Error,
@@ -436,7 +429,6 @@ const VideoForPreviewAssertedShowing: React.FC<
 		preloadedSrc,
 		sharedAudioContext,
 		videoConfig.fps,
-		onError,
 		credentials,
 		initialRequestInit,
 		setMediaDurationInSeconds,

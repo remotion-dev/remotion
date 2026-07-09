@@ -4,10 +4,10 @@ import type {
 	CanUpdateSequencePropStatus,
 	CanUpdateSequencePropStatusKeyframed,
 	CanUpdateSequencePropStatusStatic,
-	SequencePropsSubscriptionKey,
 	InteractivitySchema,
+	SequencePropsSubscriptionKey,
 } from 'remotion';
-import {Internals} from 'remotion';
+import {Internals, useVideoConfig} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
@@ -20,6 +20,7 @@ import {ModalsContext} from '../../state/modals';
 import {ContextMenu} from '../ContextMenu';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {callAddSequenceKeyframe} from './call-add-keyframe';
+import {getAnimationItemSelectionForSourceFrame} from './get-animation-item-selection-for-frame';
 import {saveSequenceProps} from './save-sequence-prop';
 import {timelineFieldValueColumnStyle} from './timeline-field-row-layout';
 import {TimelineExpandArrowSpacer} from './TimelineExpandArrowButton';
@@ -36,7 +37,11 @@ import {
 	TimelineFieldValue,
 	TimelineNonEditableStatus,
 } from './TimelineSchemaField';
-import {useTimelineRowSelection} from './TimelineSelection';
+import {
+	useTimelineRowSelection,
+	useTimelineSelection,
+} from './TimelineSelection';
+import {canEditEasingForInterpolationFunction} from './update-selected-easing';
 
 const fieldRowBase: React.CSSProperties = {};
 
@@ -103,15 +108,17 @@ const Value: React.FC<{
 			: null;
 
 	const onSave = useCallback<TimelineFieldOnSave>(
-		(value) => {
+		(value, options) => {
 			if (!clientId) {
 				return Promise.reject(new Error('Not connected to studio server'));
 			}
 
 			const defaultValue =
-				field.fieldSchema.default !== undefined
-					? JSON.stringify(field.fieldSchema.default)
-					: null;
+				field.fieldSchema.type === 'text-content'
+					? null
+					: field.fieldSchema.default !== undefined
+						? JSON.stringify(field.fieldSchema.default)
+						: null;
 
 			const stringifiedValue = JSON.stringify(value);
 			const fieldLabel = field.description ?? field.key;
@@ -136,6 +143,7 @@ const Value: React.FC<{
 						value,
 						defaultValue,
 						schema,
+						sourceEdit: options?.sourceEdit,
 					},
 				],
 				setPropStatuses,
@@ -149,6 +157,7 @@ const Value: React.FC<{
 			clientId,
 			field.description,
 			field.fieldSchema.default,
+			field.fieldSchema.type,
 			field.key,
 			nodePath,
 			schema,
@@ -300,6 +309,9 @@ export const TimelineSequencePropItem: React.FC<{
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {setSelectedModal} = useContext(ModalsContext);
 	const selection = useTimelineRowSelection(nodePathInfo);
+	const {selectItems} = useTimelineSelection();
+	const setFrame = Internals.useTimelineSetFrame();
+	const videoConfig = useVideoConfig();
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const sourceFrame = timelinePosition - keyframeDisplayOffset;
 
@@ -477,6 +489,99 @@ export const TimelineSequencePropItem: React.FC<{
 		previewServerState,
 	]);
 
+	const seekToDisplayFrame = useCallback(
+		(frame: number) => {
+			setFrame((current) => {
+				const next = {...current, [videoConfig.id]: frame};
+				Internals.persistCurrentFrame(next);
+				return next;
+			});
+		},
+		[setFrame, videoConfig.id],
+	);
+
+	const onPropertyDoubleClick = useCallback<
+		React.MouseEventHandler<HTMLDivElement>
+	>(
+		(event) => {
+			if (propStatus === null || propStatus.status === 'computed') {
+				return;
+			}
+
+			const keyframeSelection = {
+				type: 'keyframe' as const,
+				nodePathInfo,
+				frame: sourceFrame + keyframeDisplayOffset,
+			};
+
+			if (propStatus.status === 'static') {
+				if (!keyframable || previewServerState.type !== 'connected') {
+					return;
+				}
+
+				const value = Internals.getEffectiveVisualModeValue({
+					propStatus,
+					dragOverrideValue,
+					frame: sourceFrame,
+					defaultValue: field.fieldSchema.default,
+					shouldResortToDefaultValueIfUndefined: true,
+				});
+
+				event.stopPropagation();
+				callAddSequenceKeyframe({
+					fileName: validatedLocation.source,
+					nodePath,
+					fieldKey: field.key,
+					sourceFrame,
+					value,
+					schema,
+					setPropStatuses,
+					clientId: previewServerState.clientId,
+				}).catch(() => undefined);
+				selectItems([keyframeSelection], {reveal: true});
+				seekToDisplayFrame(keyframeSelection.frame);
+				return;
+			}
+
+			const targetSelection = getAnimationItemSelectionForSourceFrame({
+				includeEasings: canEditEasingForInterpolationFunction(
+					propStatus.interpolationFunction,
+				),
+				keyframeDisplayOffset,
+				keyframes: propStatus.keyframes,
+				nodePathInfo,
+				sourceFrame,
+			});
+
+			if (targetSelection === null) {
+				return;
+			}
+
+			event.stopPropagation();
+			selectItems([targetSelection], {reveal: true});
+			if (targetSelection.type === 'keyframe') {
+				seekToDisplayFrame(targetSelection.frame);
+			}
+		},
+		[
+			dragOverrideValue,
+			field.fieldSchema.default,
+			field.key,
+			keyframeDisplayOffset,
+			keyframable,
+			nodePath,
+			nodePathInfo,
+			previewServerState,
+			propStatus,
+			schema,
+			seekToDisplayFrame,
+			selectItems,
+			setPropStatuses,
+			sourceFrame,
+			validatedLocation.source,
+		],
+	);
+
 	if (propStatus === null) {
 		return null;
 	}
@@ -492,6 +597,7 @@ export const TimelineSequencePropItem: React.FC<{
 			selectable={selection.selectable}
 			selectionItem={selection.selectionItem}
 			onSelect={selection.onSelect}
+			onDoubleClick={onPropertyDoubleClick}
 			showSelectedBackground
 			containsSelection={false}
 			outerHeight={null}

@@ -7,6 +7,7 @@ import React, {
 	useRef,
 } from 'react';
 import {Internals, useVideoConfig} from 'remotion';
+import {TIMELINE_PLAYHEAD_COLOR} from '../../helpers/colors';
 import {getXPositionOfItemInTimelineImperatively} from '../../helpers/get-left-of-timeline-slider';
 import {TIMELINE_MIN_ZOOM, TimelineZoomCtx} from '../../state/timeline-zoom';
 import {getCurrentDuration} from './imperative-state';
@@ -21,11 +22,33 @@ const container: React.CSSProperties = {
 	pointerEvents: 'none',
 };
 
+const PLAYHEAD_LINE_WIDTH = 1;
+
 const line: React.CSSProperties = {
 	height: '100vh',
-	width: 1,
+	width: PLAYHEAD_LINE_WIDTH,
 	position: 'fixed',
-	backgroundColor: '#f02c00',
+	backgroundColor: TIMELINE_PLAYHEAD_COLOR,
+};
+
+const PLAYHEAD_CENTER_OFFSET = PLAYHEAD_LINE_WIDTH / 2;
+
+const getTimelineSliderTransform = ({
+	durationInFrames,
+	frame,
+	width,
+}: {
+	durationInFrames: number;
+	frame: number;
+	width: number;
+}) => {
+	const left = getXPositionOfItemInTimelineImperatively(
+		frame,
+		durationInFrames,
+		width,
+	);
+
+	return `translateX(${left - PLAYHEAD_CENTER_OFFSET}px)`;
 };
 
 export const redrawTimelineSliderFast = createRef<{
@@ -66,11 +89,11 @@ const TimelineSliderInner: React.FC = () => {
 			return;
 		}
 
-		el.style.transform = `translateX(${getXPositionOfItemInTimelineImperatively(
-			timelinePosition,
-			videoConfig.durationInFrames,
-			measuredWidth,
-		)}px)`;
+		el.style.transform = getTimelineSliderTransform({
+			durationInFrames: videoConfig.durationInFrames,
+			frame: timelinePosition,
+			width: measuredWidth,
+		});
 	}, [
 		timelinePosition,
 		videoConfig.durationInFrames,
@@ -86,11 +109,11 @@ const TimelineSliderInner: React.FC = () => {
 					throw new Error('unexpectedly did not have ref to timelineslider');
 				}
 
-				current.style.transform = `translateX(${getXPositionOfItemInTimelineImperatively(
+				current.style.transform = getTimelineSliderTransform({
+					durationInFrames: getCurrentDuration(),
 					frame,
-					getCurrentDuration(),
-					width ?? (sliderAreaRef.current?.clientWidth as number) ?? 0,
-				)}px)`;
+					width: width ?? (sliderAreaRef.current?.clientWidth as number) ?? 0,
+				});
 			},
 		};
 	}, []);

@@ -1,6 +1,8 @@
 export type SpringKeyframeEasing = {
 	readonly type: 'spring';
+	allowTail: boolean | null;
 	damping: number;
+	durationRestThreshold: number | null;
 	mass: number;
 	overshootClamping: boolean;
 	stiffness: number;
@@ -8,7 +10,9 @@ export type SpringKeyframeEasing = {
 
 export const DEFAULT_SPRING_EASING: SpringKeyframeEasing = {
 	type: 'spring',
+	allowTail: null,
 	damping: 10,
+	durationRestThreshold: null,
 	mass: 1,
 	overshootClamping: false,
 	stiffness: 100,
@@ -107,7 +111,12 @@ export const parseSpringEasingConfig = (
 			return null;
 		}
 
-		if (key === 'damping' || key === 'mass' || key === 'stiffness') {
+		if (
+			key === 'damping' ||
+			key === 'mass' ||
+			key === 'stiffness' ||
+			key === 'durationRestThreshold'
+		) {
 			const numericValue = getNumericValue(prop.value);
 			if (
 				numericValue === null ||
@@ -121,13 +130,13 @@ export const parseSpringEasingConfig = (
 			continue;
 		}
 
-		if (key === 'overshootClamping') {
+		if (key === 'overshootClamping' || key === 'allowTail') {
 			const booleanValue = getBooleanValue(prop.value);
 			if (booleanValue === null) {
 				return null;
 			}
 
-			spring.overshootClamping = booleanValue;
+			spring[key] = booleanValue;
 			continue;
 		}
 

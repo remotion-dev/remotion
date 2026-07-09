@@ -16,6 +16,7 @@ import {deleteStaticFileHandler} from './routes/delete-static-file';
 import {downloadRemoteAssetHandler} from './routes/download-remote-asset';
 import {duplicateEffectHandler} from './routes/duplicate-effect';
 import {duplicateJsxNodeHandler} from './routes/duplicate-jsx-node';
+import {insertElementHandler} from './routes/insert-element';
 import {insertJsxElementHandler} from './routes/insert-jsx-element';
 import {handleInstallPackage} from './routes/install-dependency';
 import {logStudioErrorHandler} from './routes/log-studio-error';
@@ -33,6 +34,7 @@ import {reorderSequenceHandler} from './routes/reorder-sequence';
 import {handleRestartStudio} from './routes/restart-studio';
 import {saveEffectPropsHandler} from './routes/save-effect-props';
 import {saveSequencePropsHandler} from './routes/save-sequence-props';
+import {splitJsxSequenceHandler} from './routes/split-jsx-sequence';
 import {subscribeToDefaultProps} from './routes/subscribe-to-default-props';
 import {subscribeToFileExistence} from './routes/subscribe-to-file-existence';
 import {subscribeToSequenceProps} from './routes/subscribe-to-sequence-props';
@@ -87,6 +89,7 @@ export const allApiRoutes: {
 	'/api/paste-effects': pasteEffectsHandler,
 	'/api/delete-jsx-node': deleteJsxNodeHandler,
 	'/api/duplicate-jsx-node': duplicateJsxNodeHandler,
+	'/api/split-jsx-sequence': splitJsxSequenceHandler,
 	'/api/update-available': handleUpdate,
 	'/api/project-info': projectInfoHandler,
 	'/api/delete-static-file': deleteStaticFileHandler,
@@ -94,6 +97,7 @@ export const allApiRoutes: {
 	'/api/restart-studio': handleRestartStudio,
 	'/api/install-package': handleInstallPackage,
 	'/api/insert-jsx-element': insertJsxElementHandler,
+	'/api/insert-element': insertElementHandler,
 	'/api/download-remote-asset': downloadRemoteAssetHandler,
 	'/api/undo': undoHandler,
 	'/api/redo': redoHandler,

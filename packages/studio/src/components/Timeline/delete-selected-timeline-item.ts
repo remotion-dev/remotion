@@ -1,4 +1,5 @@
-import type {OverrideIdToNodePaths, TSequence} from 'remotion';
+import type {OverrideIdToNodePaths, PropStatuses, TSequence} from 'remotion';
+import {Internals} from 'remotion';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {callApi} from '../call-api';
 import type {ConfirmationDialogFunction} from '../ConfirmationDialog-types';
@@ -7,11 +8,15 @@ import {
 	deleteSelectedKeyframe,
 	deleteSelectedKeyframes,
 } from './delete-selected-keyframe';
+import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
+import {getEasingSelectionAfterKeyframeDelete} from './get-easing-selection-after-keyframe-delete';
+import {parseKeyframeFieldFromNodePath} from './parse-keyframe-field-from-node-path';
 import type {SetPropStatuses} from './save-sequence-prop';
 import {
 	getTimelineSelectionKey,
 	type TimelineSelection,
 } from './TimelineSelection';
+import {canEditEasingForInterpolationFunction} from './update-selected-easing';
 
 const confirmDeletingDuplicatedSequences = (
 	nodePathInfos: SequenceNodePathInfo[],
@@ -239,9 +244,131 @@ const getSequenceSelectionAfterDeletingEffect = (
 	};
 };
 
-export const getTimelineSelectionAfterDeletingItems = (
-	selections: readonly TimelineSelection[],
-): readonly TimelineSelection[] => {
+const getEasingSelectionAfterDeletingKeyframes = ({
+	selections,
+	sequences,
+	overrideIdsToNodePaths,
+	propStatuses,
+	timelinePosition,
+}: {
+	readonly selections: readonly TimelineSelection[];
+	readonly sequences: TSequence[] | undefined;
+	readonly overrideIdsToNodePaths: OverrideIdToNodePaths | undefined;
+	readonly propStatuses: PropStatuses | undefined;
+	readonly timelinePosition: number | undefined;
+}): TimelineSelection | null => {
+	if (
+		sequences === undefined ||
+		overrideIdsToNodePaths === undefined ||
+		propStatuses === undefined ||
+		timelinePosition === undefined
+	) {
+		return null;
+	}
+
+	const keyframeSelections = selections.filter(isKeyframeSelection);
+	if (keyframeSelections.length !== 1) {
+		return null;
+	}
+
+	const [selection] = keyframeSelections;
+	if (!selection) {
+		return null;
+	}
+
+	const field = parseKeyframeFieldFromNodePath(
+		selection.nodePathInfo.auxiliaryKeys,
+	);
+	if (field === null) {
+		return null;
+	}
+
+	const track = findTrackForNodePathInfo({
+		sequences,
+		overrideIdsToNodePaths,
+		nodePathInfo: selection.nodePathInfo,
+	});
+	if (!track || !track.sequence.controls) {
+		return null;
+	}
+
+	const nodePath = selection.nodePathInfo.sequenceSubscriptionKey;
+	const sourceFrame = selection.frame - track.keyframeDisplayOffset;
+
+	if (field.type === 'sequence') {
+		const sequencePropStatus = Internals.getPropStatusesCtx(
+			propStatuses,
+			nodePath,
+		)?.[field.fieldKey];
+		if (
+			sequencePropStatus?.status !== 'keyframed' ||
+			!canEditEasingForInterpolationFunction(
+				sequencePropStatus.interpolationFunction,
+			)
+		) {
+			return null;
+		}
+
+		return getEasingSelectionAfterKeyframeDelete({
+			deletedSourceFrames: [sourceFrame],
+			keyframeDisplayOffset: track.keyframeDisplayOffset,
+			nodePathInfo: selection.nodePathInfo,
+			propStatus: sequencePropStatus,
+			timelinePosition,
+		});
+	}
+
+	const effectStatus = Internals.getEffectPropStatusesCtx({
+		propStatuses,
+		nodePath,
+		effectIndex: field.effectIndex,
+	});
+	const effectPropStatus =
+		effectStatus.type === 'can-update-effect'
+			? effectStatus.props[field.fieldKey]
+			: null;
+	if (
+		effectPropStatus?.status !== 'keyframed' ||
+		!canEditEasingForInterpolationFunction(
+			effectPropStatus.interpolationFunction,
+		)
+	) {
+		return null;
+	}
+
+	return getEasingSelectionAfterKeyframeDelete({
+		deletedSourceFrames: [sourceFrame],
+		keyframeDisplayOffset: track.keyframeDisplayOffset,
+		nodePathInfo: selection.nodePathInfo,
+		propStatus: effectPropStatus,
+		timelinePosition,
+	});
+};
+
+export const getTimelineSelectionAfterDeletingItems = ({
+	selections,
+	sequences,
+	overrideIdsToNodePaths,
+	propStatuses,
+	timelinePosition,
+}: {
+	readonly selections: readonly TimelineSelection[];
+	readonly sequences?: TSequence[];
+	readonly overrideIdsToNodePaths?: OverrideIdToNodePaths;
+	readonly propStatuses?: PropStatuses;
+	readonly timelinePosition?: number;
+}): readonly TimelineSelection[] => {
+	const easingSelection = getEasingSelectionAfterDeletingKeyframes({
+		selections,
+		sequences,
+		overrideIdsToNodePaths,
+		propStatuses,
+		timelinePosition,
+	});
+	if (easingSelection !== null) {
+		return [easingSelection];
+	}
+
 	const nextSelections = new Map<string, TimelineSelection>();
 
 	for (const selection of selections) {

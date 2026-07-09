@@ -1,4 +1,5 @@
 import React, {createContext, useCallback, useMemo, useState} from 'react';
+import {flushSync} from 'react-dom';
 import {
 	getCurrentDuration,
 	getCurrentFrame,
@@ -41,28 +42,30 @@ export const TimelineZoomContext: React.FC<{
 			callback: (prevZoomLevel: number) => number,
 			options?: TimelineSetZoomOptions,
 		) => {
-			setZoomState((prevZoomMap) => {
-				const newZoomWithFloatingPointErrors = Math.min(
-					TIMELINE_MAX_ZOOM,
-					Math.max(
-						TIMELINE_MIN_ZOOM,
-						callback(prevZoomMap[compositionId] ?? TIMELINE_MIN_ZOOM),
-					),
-				);
-				const newZoom = Math.round(newZoomWithFloatingPointErrors * 10) / 10;
+			flushSync(() => {
+				setZoomState((prevZoomMap) => {
+					const newZoomWithFloatingPointErrors = Math.min(
+						TIMELINE_MAX_ZOOM,
+						Math.max(
+							TIMELINE_MIN_ZOOM,
+							callback(prevZoomMap[compositionId] ?? TIMELINE_MIN_ZOOM),
+						),
+					);
+					const newZoom = Math.round(newZoomWithFloatingPointErrors * 10) / 10;
 
-				const anchorFrame = options?.anchorFrame ?? null;
-				const anchorContentX = options?.anchorContentX ?? null;
+					const anchorFrame = options?.anchorFrame ?? null;
+					const anchorContentX = options?.anchorContentX ?? null;
 
-				zoomAndPreserveCursor({
-					oldZoom: prevZoomMap[compositionId] ?? TIMELINE_MIN_ZOOM,
-					newZoom,
-					currentDurationInFrames: getCurrentDuration(),
-					currentFrame: getCurrentFrame(),
-					anchorFrame,
-					anchorContentX,
+					zoomAndPreserveCursor({
+						oldZoom: prevZoomMap[compositionId] ?? TIMELINE_MIN_ZOOM,
+						newZoom,
+						currentDurationInFrames: getCurrentDuration(),
+						currentFrame: getCurrentFrame(),
+						anchorFrame,
+						anchorContentX,
+					});
+					return {...prevZoomMap, [compositionId]: newZoom};
 				});
-				return {...prevZoomMap, [compositionId]: newZoom};
 			});
 		},
 		[],

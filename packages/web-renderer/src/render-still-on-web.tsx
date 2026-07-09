@@ -203,6 +203,7 @@ async function internalRenderStillOnWeb<
 			onHtmlInCanvasLayerOutcome: htmlInCanvasContext
 				? onHtmlInCanvasLayerOutcome
 				: undefined,
+			waitForPageResponsiveness: null,
 		});
 
 		const {canvas} = capturedFrame;

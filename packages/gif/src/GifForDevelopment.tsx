@@ -61,6 +61,14 @@ export const GifForDevelopment = forwardRef<
 		currentOnError.current = onError;
 
 		useEffect(() => {
+			const parsedGif =
+				volatileGifCache.get(cacheKey) ?? manuallyManagedGifCache.get(cacheKey);
+			if (parsedGif !== undefined) {
+				update(parsedGif as GifState);
+				currentOnLoad.current?.(parsedGif as GifState);
+				return;
+			}
+
 			let done = false;
 			let aborted = false;
 			const {prom, cancel} = parseWithWorker({

@@ -1,3 +1,4 @@
+import path from 'node:path';
 import {RenderInternals} from '@remotion/renderer';
 import {
 	areComponentProps,
@@ -19,7 +20,7 @@ import {
 	suppressUndoStackInvalidation,
 } from '../undo-stack';
 import {warnAboutPrettierOnce} from './log-updates/log-update';
-import {withSavePropsLock} from './save-props-mutex';
+import {withSourceFileWriteQueue} from './source-file-write-queue';
 
 const validateDimension = (name: string, value: number) => {
 	if (!Number.isFinite(value) || value < 1) {
@@ -39,7 +40,48 @@ const validatePosition = (
 	}
 };
 
-const validateElement = (element: InsertableCompositionElement) => {
+const isInsideRemotionRoot = ({
+	fileName,
+	remotionRoot,
+}: {
+	fileName: string;
+	remotionRoot: string;
+}) => {
+	const relativePath = path.relative(remotionRoot, fileName);
+	return !relativePath.startsWith('..') && !path.isAbsolute(relativePath);
+};
+
+const hasParentDirectorySegment = (fileName: string) => {
+	return fileName.split('/').includes('..');
+};
+
+const validateCompositionFile = ({
+	compositionFile,
+	remotionRoot,
+}: {
+	compositionFile: string;
+	remotionRoot: string;
+}) => {
+	if (
+		!compositionFile ||
+		compositionFile.includes('\0') ||
+		compositionFile.includes('\\') ||
+		compositionFile.startsWith('/') ||
+		hasParentDirectorySegment(compositionFile)
+	) {
+		throw new Error('Unsupported composition file');
+	}
+
+	const resolved = path.resolve(remotionRoot, compositionFile);
+	if (!isInsideRemotionRoot({fileName: resolved, remotionRoot})) {
+		throw new Error('Unsupported composition file');
+	}
+};
+
+const validateElement = (
+	element: InsertableCompositionElement,
+	remotionRoot: string,
+) => {
 	validatePosition(element.position);
 
 	if (element.type === 'solid') {
@@ -85,6 +127,38 @@ const validateElement = (element: InsertableCompositionElement) => {
 		return;
 	}
 
+	if (element.type === 'composition') {
+		if (typeof element.compositionId !== 'string' || !element.compositionId) {
+			throw new Error('Unsupported composition ID');
+		}
+
+		if (typeof element.compositionFile !== 'string') {
+			throw new Error('Unsupported composition file');
+		}
+
+		validateCompositionFile({
+			compositionFile: element.compositionFile,
+			remotionRoot,
+		});
+
+		validateDimension('width', element.width);
+		validateDimension('height', element.height);
+		validateDimension('durationInFrames', element.durationInFrames);
+
+		const parsedProps: unknown = JSON.parse(
+			element.serializedResolvedPropsWithCustomSchema,
+		);
+		if (
+			typeof parsedProps !== 'object' ||
+			parsedProps === null ||
+			Array.isArray(parsedProps)
+		) {
+			throw new Error('Resolved composition props must be an object');
+		}
+
+		return;
+	}
+
 	throw new Error('Unsupported element type');
 };
 
@@ -119,6 +193,10 @@ const getElementLabel = (element: InsertableCompositionElement) => {
 		return `<${element.componentName}>`;
 	}
 
+	if (element.type === 'composition') {
+		return `composition "${element.compositionId}"`;
+	}
+
 	throw new Error('Unsupported element type');
 };
 
@@ -130,9 +208,9 @@ export const insertJsxElementHandler: ApiHandler<
 	remotionRoot,
 	logLevel,
 }) =>
-	withSavePropsLock(async () => {
+	withSourceFileWriteQueue(async () => {
 		try {
-			validateElement(element);
+			validateElement(element, remotionRoot);
 			const elementLabel = getElementLabel(element);
 
 			RenderInternals.Log.trace(

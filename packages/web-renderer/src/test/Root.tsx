@@ -31,12 +31,15 @@ import {flexContainer} from './fixtures/flex-container';
 import {flexPositionedScaled} from './fixtures/flex-positioned-scaled';
 import {gradientTransparentKeyword} from './fixtures/gradient-transparent-keyword';
 import {hugeImageTransform} from './fixtures/huge-image-transform';
+import {inlineScaleAfterOutline} from './fixtures/inline-scale-after-outline';
 import {inside3dTransform} from './fixtures/inside-3d-transform';
+import {issue6211MaskWheel} from './fixtures/issue-6211-mask-wheel';
 import {issue7050Minimal} from './fixtures/issue-7050-minimal';
 import {issue7050Repro} from './fixtures/issue-7050-repro';
 import {issue7199ScaleAndDropShadow} from './fixtures/issue-7199-scale-and-drop-shadow';
 import {issue7243SvgJapaneseText} from './fixtures/issue-7243-svg-japanese-text';
 import {issue7489Minimal} from './fixtures/issue-7489-minimal';
+import {issue8650LottieControlChars} from './fixtures/issue-8650-lottie-control-chars';
 import {lineHeight} from './fixtures/line-height';
 import {linearGradient} from './fixtures/linear-gradient';
 import {manyLayers} from './fixtures/many-layers';
@@ -71,6 +74,11 @@ import {fontVariantCaps} from './fixtures/text/font-variant-caps';
 import {letterSpacing} from './fixtures/text/letter-spacing';
 import {paragraphs} from './fixtures/text/paragraphs';
 import {textFixture} from './fixtures/text/text';
+import {
+	textDecoration,
+	textDecorationStyles,
+	textDecorationWavy,
+} from './fixtures/text/text-decoration';
 import {textShadow} from './fixtures/text/text-shadow';
 import {textShadowScale} from './fixtures/text/text-shadow-scale';
 import {textTransform} from './fixtures/text/text-transform';
@@ -137,6 +145,7 @@ export const Root: React.FC = () => {
 				<Composition {...gradientTransparentKeyword} />
 			</Folder>
 			<Composition {...outline} />
+			<Composition {...inlineScaleAfterOutline} />
 			<Composition {...boxShadow} />
 			<Folder name="Filter">
 				<Composition {...filter} />
@@ -160,6 +169,9 @@ export const Root: React.FC = () => {
 				<Composition {...paragraphs} />
 				<Composition {...letterSpacing} />
 				<Composition {...textTransform} />
+				<Composition {...textDecoration} />
+				<Composition {...textDecorationStyles} />
+				<Composition {...textDecorationWavy} />
 				<Composition {...fontStyle} />
 				<Composition {...fontVariantCaps} />
 				<Composition {...lineHeight} />
@@ -189,6 +201,7 @@ export const Root: React.FC = () => {
 				<Composition {...threeDFlattening} />
 				<Composition {...issue7050Repro} />
 				<Composition {...issue7050Minimal} />
+				<Composition {...issue6211MaskWheel} />
 				<Composition {...issue7199ScaleAndDropShadow} />
 				<Composition {...issue7243SvgJapaneseText} />
 				<Composition {...issue7489Minimal} />
@@ -204,6 +217,9 @@ export const Root: React.FC = () => {
 				<Composition {...transitionWipe} />
 				<Composition {...transitionClockWipe} />
 				<Composition {...transitionIris} />
+			</Folder>
+			<Folder name="Issue8650">
+				<Composition {...issue8650LottieControlChars} />
 			</Folder>
 		</>
 	);

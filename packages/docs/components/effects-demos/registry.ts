@@ -22,14 +22,18 @@ import {halftoneLinearGradient} from '@remotion/effects/halftone-linear-gradient
 import {hue} from '@remotion/effects/hue';
 import {invert} from '@remotion/effects/invert';
 import {lightTrail} from '@remotion/effects/light-trail';
+import {linearGradient} from '@remotion/effects/linear-gradient';
+import {linearGradientTint} from '@remotion/effects/linear-gradient-tint';
 import {linearProgressiveBlur} from '@remotion/effects/linear-progressive-blur';
 import {lines} from '@remotion/effects/lines';
 import {mirror} from '@remotion/effects/mirror';
 import {noise} from '@remotion/effects/noise';
 import {noiseDisplacement} from '@remotion/effects/noise-displacement';
+import {paper} from '@remotion/effects/paper';
 import {pattern} from '@remotion/effects/pattern';
 import {pixelDissolve} from '@remotion/effects/pixel-dissolve';
 import {pixelate} from '@remotion/effects/pixelate';
+import {radialProgressiveBlur} from '@remotion/effects/radial-progressive-blur';
 import {rings} from '@remotion/effects/rings';
 import {saturation} from '@remotion/effects/saturation';
 import {scale} from '@remotion/effects/scale';
@@ -41,6 +45,7 @@ import {thermalVision} from '@remotion/effects/thermal-vision';
 import {tint} from '@remotion/effects/tint';
 import {uvTranslate, xyTranslate} from '@remotion/effects/translate';
 import {tvSignalOff} from '@remotion/effects/tv-signal-off';
+import {venetianBlinds} from '@remotion/effects/venetian-blinds';
 import {vignette} from '@remotion/effects/vignette';
 import {wave} from '@remotion/effects/wave';
 import {waves} from '@remotion/effects/waves';
@@ -77,6 +82,8 @@ import {
 	EffectsLightTrailPreview,
 	LIGHT_TRAIL_PREVIEW_PARAMS,
 } from '../effects/effects-light-trail-preview';
+import {EffectsLinearGradientPreview} from '../effects/effects-linear-gradient-preview';
+import {EffectsLinearGradientTintPreview} from '../effects/effects-linear-gradient-tint-preview';
 import {EffectsLinearProgressiveBlurPreview} from '../effects/effects-linear-progressive-blur-preview';
 import {EffectsLinesPreview} from '../effects/effects-lines-preview';
 import {EffectsMirrorPreview} from '../effects/effects-mirror-preview';
@@ -89,9 +96,17 @@ import {
 	EffectsPaletteMapPreview,
 	paletteMap,
 } from '../effects/effects-palette-map-preview';
+import {
+	EffectsPaperPreview,
+	PAPER_PREVIEW_PARAMS,
+} from '../effects/effects-paper-preview';
 import {EffectsPatternPreview} from '../effects/effects-pattern-preview';
 import {EffectsPixelDissolvePreview} from '../effects/effects-pixel-dissolve-preview';
 import {EffectsPixelatePreview} from '../effects/effects-pixelate-preview';
+import {
+	EffectsRadialProgressiveBlurPreview,
+	RADIAL_PROGRESSIVE_BLUR_PREVIEW_PARAMS,
+} from '../effects/effects-radial-progressive-blur-preview';
 import {EffectsRingsPreview} from '../effects/effects-rings-preview';
 import {EffectsSaturationPreview} from '../effects/effects-saturation-preview';
 import {EffectsScalePreview} from '../effects/effects-scale-preview';
@@ -102,7 +117,10 @@ import {
 	SHRINKWRAP_PREVIEW_PARAMS,
 } from '../effects/effects-shrinkwrap-preview';
 import {EffectsSpecklePreview} from '../effects/effects-speckle-preview';
-import {EffectsStarburstPreview} from '../effects/effects-starburst-preview';
+import {
+	EffectsStarburstPreview,
+	STARBURST_PREVIEW_PARAMS,
+} from '../effects/effects-starburst-preview';
 import {EffectsThermalVisionPreview} from '../effects/effects-thermal-vision-preview';
 import {EffectsTintPreview} from '../effects/effects-tint-preview';
 import {
@@ -110,6 +128,7 @@ import {
 	EffectsXyTranslatePreview,
 } from '../effects/effects-translate-preview';
 import {EffectsTvSignalOffPreview} from '../effects/effects-tv-signal-off-preview';
+import {EffectsVenetianBlindsPreview} from '../effects/effects-venetian-blinds-preview';
 import {EffectsVignettePreview} from '../effects/effects-vignette-preview';
 import {EffectsWavePreview} from '../effects/effects-wave-preview';
 import {EffectsWavesPreview} from '../effects/effects-waves-preview';
@@ -201,6 +220,14 @@ export const effectsDemos: EffectsDemoType[] = [
 	},
 	{
 		...defaults,
+		id: 'effects-venetian-blinds',
+		effectName: 'venetianBlinds',
+		effectImportPath: '@remotion/effects/venetian-blinds',
+		comp: EffectsVenetianBlindsPreview,
+		schema: venetianBlinds().definition.schema,
+	},
+	{
+		...defaults,
 		id: 'effects-drop-shadow',
 		effectName: 'dropShadow',
 		effectImportPath: '@remotion/effects/drop-shadow',
@@ -260,6 +287,22 @@ export const effectsDemos: EffectsDemoType[] = [
 	},
 	{
 		...defaults,
+		id: 'effects-linear-gradient',
+		effectName: 'linearGradient',
+		effectImportPath: '@remotion/effects/linear-gradient',
+		comp: EffectsLinearGradientPreview,
+		schema: linearGradient().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-linear-gradient-tint',
+		effectName: 'linearGradientTint',
+		effectImportPath: '@remotion/effects/linear-gradient-tint',
+		comp: EffectsLinearGradientTintPreview,
+		schema: linearGradientTint().definition.schema,
+	},
+	{
+		...defaults,
 		id: 'effects-thermal-vision',
 		effectName: 'thermalVision',
 		effectImportPath: '@remotion/effects/thermal-vision',
@@ -316,6 +359,15 @@ export const effectsDemos: EffectsDemoType[] = [
 		schema: noiseDisplacement(NOISE_DISPLACEMENT_PREVIEW_PARAMS).definition
 			.schema,
 		initialValues: NOISE_DISPLACEMENT_PREVIEW_PARAMS,
+	},
+	{
+		...defaults,
+		id: 'effects-paper',
+		effectName: 'paper',
+		effectImportPath: '@remotion/effects/paper',
+		comp: EffectsPaperPreview,
+		schema: paper().definition.schema,
+		initialValues: PAPER_PREVIEW_PARAMS,
 	},
 	{
 		...defaults,
@@ -450,6 +502,15 @@ export const effectsDemos: EffectsDemoType[] = [
 	},
 	{
 		...defaults,
+		id: 'effects-radial-progressive-blur',
+		effectName: 'radialProgressiveBlur',
+		effectImportPath: '@remotion/effects/radial-progressive-blur',
+		comp: EffectsRadialProgressiveBlurPreview,
+		schema: radialProgressiveBlur().definition.schema,
+		initialValues: RADIAL_PROGRESSIVE_BLUR_PREVIEW_PARAMS,
+	},
+	{
+		...defaults,
 		id: 'effects-light-trail',
 		effectName: 'lightTrail',
 		effectImportPath: '@remotion/effects/light-trail',
@@ -568,10 +629,7 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/starburst',
 		comp: EffectsStarburstPreview,
 		schema: starburstEffectSchema,
-		initialValues: {
-			rays: 16,
-			colors: ['#ff6600', '#ffff00'],
-		},
+		initialValues: STARBURST_PREVIEW_PARAMS,
 	},
 	{
 		...defaults,

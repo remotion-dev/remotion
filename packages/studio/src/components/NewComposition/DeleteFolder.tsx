@@ -4,6 +4,7 @@ import {getFolderId} from '../../helpers/get-folder-id';
 import {inlineCodeSnippet} from '../Menu/styles';
 import {ModalFooterContainer} from '../ModalFooter';
 import {ModalHeader} from '../ModalHeader';
+import {applyCodemod} from '../RenderQueue/actions';
 import {CodemodFooter} from './CodemodFooter';
 import {DismissableModal} from './DismissableModal';
 
@@ -58,6 +59,14 @@ export const DeleteFolder: React.FC<{
 						stack={stack}
 						valid
 						onSuccess={null}
+						applyCodemod={({signal, symbolicatedStack}) =>
+							applyCodemod({
+								codemod,
+								dryRun: false,
+								signal,
+								symbolicatedStack,
+							})
+						}
 					/>
 				</ModalFooterContainer>
 			</form>

@@ -33,11 +33,14 @@ type UndoEntryType =
 	| 'reorder-sequence'
 	| 'delete-jsx-node'
 	| 'duplicate-jsx-node'
+	| 'split-jsx-sequence'
 	| 'insert-jsx-element'
 	| 'delete-composition'
 	| 'rename-composition'
 	| 'new-composition'
 	| 'duplicate-composition'
+	| 'move-composition-to-folder'
+	| 'new-folder'
 	| 'delete-folder'
 	| 'rename-folder';
 
@@ -72,11 +75,14 @@ type UndoEntry = {
 	| {entryType: 'reorder-sequence'}
 	| {entryType: 'delete-jsx-node'}
 	| {entryType: 'duplicate-jsx-node'}
+	| {entryType: 'split-jsx-sequence'}
 	| {entryType: 'insert-jsx-element'}
 	| {entryType: 'delete-composition'}
 	| {entryType: 'rename-composition'}
 	| {entryType: 'new-composition'}
 	| {entryType: 'duplicate-composition'}
+	| {entryType: 'move-composition-to-folder'}
+	| {entryType: 'new-folder'}
 	| {entryType: 'delete-folder'}
 	| {entryType: 'rename-folder'}
 );

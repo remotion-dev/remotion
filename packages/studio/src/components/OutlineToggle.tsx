@@ -1,5 +1,5 @@
 import React, {useCallback, useContext} from 'react';
-import {BLUE} from '../helpers/colors';
+import {BLUE, WHITE} from '../helpers/colors';
 import {EditorShowOutlinesContext} from '../state/editor-outlines';
 import {ControlButton} from './ControlButton';
 
@@ -12,7 +12,7 @@ export const OutlineToggle: React.FC = () => {
 		setEditorShowOutlines((current) => !current);
 	}, [setEditorShowOutlines]);
 
-	const color = editorShowOutlines ? BLUE : 'white';
+	const color = editorShowOutlines ? BLUE : WHITE;
 	const accessibilityLabel = editorShowOutlines
 		? 'Hide outlines'
 		: 'Show outlines';

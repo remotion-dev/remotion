@@ -47,7 +47,7 @@ export type SelectedEasingUpdate =
 			readonly propStatus: CanUpdateSequencePropStatusKeyframed;
 	  };
 
-const canEditEasingForInterpolationFunction = (
+export const canEditEasingForInterpolationFunction = (
 	interpolationFunction: string,
 ): boolean =>
 	interpolationFunction === 'interpolate' ||

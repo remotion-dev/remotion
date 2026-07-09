@@ -70,7 +70,18 @@ export type UvCoordinateFieldSchema = {
 	min?: number;
 	max?: number;
 	step?: number;
-	lineTo?: string;
+	visual?:
+		| {
+				readonly type: 'line';
+				readonly to: string;
+		  }
+		| {
+				readonly type: 'ellipse';
+				readonly width: string;
+				readonly height: string;
+				readonly rotation?: string;
+				readonly innerScale?: string;
+		  };
 	default: readonly [number, number] | undefined;
 	description?: string;
 	keyframable?: boolean;
@@ -81,6 +92,20 @@ export type ColorFieldSchema = {
 	default: string | undefined;
 	description?: string;
 	keyframable?: boolean;
+};
+
+export type TextContentFieldSchema = {
+	type: 'text-content';
+	default: string;
+	description?: string;
+	keyframable?: false;
+};
+
+export type FontFamilyFieldSchema = {
+	type: 'font-family';
+	default: string | undefined;
+	description?: string;
+	keyframable?: false;
 };
 
 export type EnumFieldSchema = {
@@ -162,6 +187,8 @@ export type VisibleFieldSchema =
 	| ScaleFieldSchema
 	| UvCoordinateFieldSchema
 	| ColorFieldSchema
+	| TextContentFieldSchema
+	| FontFamilyFieldSchema
 	| ArrayFieldSchema
 	| EnumFieldSchema;
 
@@ -216,6 +243,12 @@ export const textSchema = {
 		type: 'color',
 		default: undefined,
 		description: 'Color',
+	},
+	'style.fontFamily': {
+		type: 'font-family',
+		default: undefined,
+		description: 'Font family',
+		keyframable: false,
 	},
 	'style.fontSize': {
 		type: 'number',
@@ -280,6 +313,15 @@ export const textSchema = {
 		step: 0.1,
 		description: 'Letter spacing',
 		hiddenFromList: false,
+	},
+} as const satisfies InteractivitySchema;
+
+export const textContentSchema = {
+	children: {
+		type: 'text-content',
+		default: '',
+		description: 'Text',
+		keyframable: false,
 	},
 } as const satisfies InteractivitySchema;
 

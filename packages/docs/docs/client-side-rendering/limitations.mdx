@@ -73,7 +73,8 @@ The `font-kerning` property is <a style={{color: 'green'}}>supported</a>.
 The `font-stretch` property is <a style={{color: 'green'}}>supported</a>.
 The `direction` HTML attribute is <a style={{color: 'green'}}>supported</a>.
 The `writing-mode` property is <a style={{color: 'red'}}>not supported</a>.
-The `text-decoration` property is <a style={{color: 'red'}}>not supported</a>.
+The `text-decoration` property is <a style={{color: 'green'}}>supported</a> for `solid`, `dotted`, `dashed`, `double`, and `wavy` `text-decoration-style` values on `underline`, `overline`, and `line-through` lines with `text-decoration-color` and `text-decoration-thickness`.
+`wavy` lines are approximated with Bézier curves and may not exactly match the browser-native wave shape. Pixel-perfect line positions are <a style={{color: 'red'}}>not supported</a>.
 The `text-shadow` property is <a style={{color: 'green'}}>supported</a>.
 The `-webkit-text-stroke`, `-webkit-text-stroke-color`, `-webkit-text-stroke-width`, `paint-order` properties are <a style={{color: 'green'}}>supported</a>.
 
@@ -194,6 +195,13 @@ The limitations from [`@remotion/media`](/docs/media/support) apply.
 There is no multithreading for client-side rendering.  
 However, it is fundamentally more efficient because there is less interprocess communication.  
 In addition, in the headful browser, GPU is usually available, which brings performance benefits.
+
+## Page responsiveness
+
+By default, [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web) tries to free the event loop between expensive render phases to keep the page responsive.
+Set [`pageResponsiveness`](/docs/client-side-rendering/page-responsiveness) to `"disabled"` to prioritize render speed instead.
+
+Higher responsiveness settings make renders slower.
 
 ## Background tabs
 

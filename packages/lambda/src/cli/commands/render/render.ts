@@ -324,10 +324,19 @@ export const renderCommand = async ({
 		},
 	);
 
-	const imageFormat = CliInternals.getVideoImageFormat({
-		codec,
-		uiImageFormat: null,
-	});
+	const imageFormat = BrowserSafeApis.options.videoImageFormatOption.getValue(
+		{
+			commandLine: CliInternals.parsedCli,
+		},
+		{
+			codec,
+			uiVideoImageFormat: null,
+			compositionDefaultVideoImageFormat: null,
+		},
+	).value;
+	if (imageFormat === null) {
+		throw new Error('Expected image format to be resolved');
+	}
 
 	const functionName = await findFunctionName({logLevel, providerSpecifics});
 

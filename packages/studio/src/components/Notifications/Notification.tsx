@@ -1,16 +1,21 @@
 import React, {useEffect} from 'react';
-import {TEXT_COLOR} from '../../helpers/colors';
+import {
+	NOTIFICATION_BACKGROUND,
+	NOTIFICATION_BORDER,
+	NOTIFICATION_SHADOW,
+	WHITE_HEX,
+} from '../../helpers/colors';
 
 const notification: React.CSSProperties = {
-	backgroundColor: '#111111',
-	color: TEXT_COLOR,
+	backgroundColor: NOTIFICATION_BACKGROUND,
+	color: WHITE_HEX,
 	fontFamily: 'Arial, Helvetica, sans-serif',
 	display: 'inline-flex',
 	padding: '6px 14px',
 	borderRadius: 6,
 	fontSize: 13,
-	border: '0.25px solid rgba(255, 255, 255, 0.1)',
-	boxShadow: '0 2px 3px rgba(0, 0, 0, 1)',
+	border: NOTIFICATION_BORDER,
+	boxShadow: NOTIFICATION_SHADOW,
 	marginTop: 3,
 	marginBottom: 3,
 	alignItems: 'center',

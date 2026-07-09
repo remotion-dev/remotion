@@ -1,10 +1,16 @@
 import type React from 'react';
-import {BACKGROUND, BLUE, LIGHT_TEXT, LINE_COLOR} from '../../helpers/colors';
+import {
+	BACKGROUND,
+	BLUE,
+	LIGHT_TEXT,
+	LINE_COLOR,
+	WHITE,
+} from '../../helpers/colors';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 
 export const container: React.CSSProperties = {
 	backgroundColor: BACKGROUND,
-	color: 'white',
+	color: WHITE,
 	display: 'flex',
 	flex: 1,
 	flexDirection: 'column',
@@ -36,11 +42,19 @@ export const inspectorSectionDivider: React.CSSProperties = {
 	borderBottom: `1px solid ${LINE_COLOR}`,
 };
 
+export const sequenceHeaderDivider: React.CSSProperties = {
+	backgroundColor: LINE_COLOR,
+	flexShrink: 0,
+	height: 1,
+	margin: '4px 0',
+};
+
 export const sectionHeader: React.CSSProperties = {
 	color: LIGHT_TEXT,
 	fontSize: 12,
 	fontWeight: 'bold',
 	padding: `8px ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px`,
+	userSelect: 'none',
 };
 
 export const sequenceHeader: React.CSSProperties = {
@@ -52,11 +66,11 @@ export const sequenceHeader: React.CSSProperties = {
 };
 
 export const sequenceHeaderTitle: React.CSSProperties = {
-	alignSelf: 'flex-start',
+	alignSelf: 'stretch',
 	backgroundColor: BACKGROUND,
 	border: 'none',
-	color: 'white',
-	display: 'inline-flex',
+	color: WHITE,
+	display: 'flex',
 	fontFamily: 'sans-serif',
 	fontSize: 12,
 	lineHeight: '18px',
@@ -106,6 +120,7 @@ export const sectionHeaderTitle: React.CSSProperties = {
 	minWidth: 0,
 	overflow: 'hidden',
 	textOverflow: 'ellipsis',
+	userSelect: 'none',
 	whiteSpace: 'nowrap',
 };
 
@@ -184,7 +199,7 @@ export const detailLabel: React.CSSProperties = {
 };
 
 export const detailValue: React.CSSProperties = {
-	color: 'white',
+	color: WHITE,
 	fontSize: 13,
 	fontVariantNumeric: 'tabular-nums',
 	minWidth: 0,
