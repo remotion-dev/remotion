@@ -31,7 +31,7 @@ export const makeAudioIterator = ({
 }: {
 	startFromSecond: number;
 	maximumTimestamp: number;
-	loopStartInSeconds?: number;
+	loopStartInSeconds: number;
 	logLevel: LogLevel;
 	audioSink: AudioBufferSink;
 	loop: boolean;

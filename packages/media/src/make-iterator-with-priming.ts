@@ -87,7 +87,7 @@ export const makeIteratorWithPriming = ({
 	audioSink: AudioBufferSink;
 	timeToSeek: number;
 	maximumTimestamp: number;
-	loopStartInSeconds?: number;
+	loopStartInSeconds: number;
 	loop: boolean;
 	playbackRate: number;
 	sequenceDurationInSeconds: number;
@@ -96,7 +96,7 @@ export const makeIteratorWithPriming = ({
 		return makeLoopingIterator({
 			audioSink,
 			timeToSeek,
-			segmentStartInSeconds: loopStartInSeconds ?? timeToSeek,
+			segmentStartInSeconds: loopStartInSeconds,
 			segmentEndInSeconds: maximumTimestamp,
 			playbackRate,
 			sequenceDurationInSeconds,

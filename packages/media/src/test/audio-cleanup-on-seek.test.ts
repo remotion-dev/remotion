@@ -42,6 +42,7 @@ test('destroy should stop nodes when the audio anchor changed (seek to different
 	const iterator = makeAudioIterator({
 		startFromSecond: 0,
 		maximumTimestamp: Infinity,
+		loopStartInSeconds: 0,
 		audioSink: audioBufferSink,
 		logLevel: 'info',
 		loop: false,
