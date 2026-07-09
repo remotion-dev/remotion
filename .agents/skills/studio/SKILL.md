@@ -20,12 +20,13 @@ bun i && bun run build
 2. Start Studio from the example package:
 
 ```bash
-cd packages/example && bunx remotion studio
+cd packages/example && bunx remotion studio --no-open
 ```
 
-Use `bunx`, not `npx`.
+Use `bunx`, not `npx`. Always pass `--no-open`; Codex should open the printed URL explicitly instead of letting the CLI open a browser.
 
-3. Keep the server process running and read its output for the local URL. The expected default is `http://localhost:3000`, but follow the printed URL if Remotion chooses another port.
-4. If the output says the server is already running on port 3000, confirm it with `curl http://localhost:3000` and open that URL if it responds.
-5. Open the URL in the Codex in-app browser. If no browser tool is available yet, use `tool_search` for the in-app browser control tool, then navigate to the local URL.
-6. Tell the user the Studio URL and whether this is a newly started or already running server.
+3. Do not check `localhost:3000` before starting Studio. Another worktree may already be using that port, and probing it first can open the wrong Studio.
+4. Keep the server process running and read its output for the local URL. The expected default is `http://localhost:3000`, but the CLI output is the source of truth.
+5. If the CLI says Studio is already running, use the exact URL printed by that CLI invocation. Only verify with `curl` after the CLI has identified the URL for this worktree.
+6. Open the exact CLI URL in the Codex in-app browser yourself. If no browser tool is available yet, use `tool_search` for the in-app browser control tool, then navigate to the local URL.
+7. Tell the user the Studio URL and whether this is a newly started or already running server.
