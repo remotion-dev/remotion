@@ -336,6 +336,7 @@
         "@remotion/captions": "workspace:*",
         "@remotion/design": "workspace:*",
         "@remotion/layout-utils": "workspace:*",
+        "@remotion/media": "workspace:*",
         "@remotion/paths": "workspace:*",
         "@remotion/player": "workspace:*",
         "@remotion/shapes": "workspace:*",
