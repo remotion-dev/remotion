@@ -10,12 +10,14 @@ import React, {
 	type ReactNode,
 } from 'react';
 import {AbsoluteFill, Sequence} from 'remotion';
+import {Credits, type Contributor} from '../Credits';
 import {setElementDragData, setElementDragImage} from './element-drag-data';
 import {ElementPreview} from './ElementPreview';
 
 type ElementPageProps = {
 	readonly children?: ReactNode;
 	readonly component: ComponentType<Record<string, never>>;
+	readonly contributors?: Contributor[];
 	readonly displayName?: string;
 	readonly durationInFrames?: number;
 	readonly elementHeight?: number;
@@ -137,6 +139,7 @@ const findBestInstallTarget = async (): Promise<
 export const ElementPage: React.FC<ElementPageProps> = ({
 	children,
 	component,
+	contributors,
 	displayName,
 	durationInFrames = 120,
 	elementHeight,
@@ -360,6 +363,8 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 					) : null}
 				</>
 			)}
+
+			{contributors?.length ? <Credits contributors={contributors} /> : null}
 
 			<h2>Source</h2>
 			{children}
