@@ -7,6 +7,7 @@ import {getAudioTranscodingOptions} from '../app/lib/can-transcode-or-copy';
 const makeAudioTrack = (sampleRate: number) =>
 	({
 		codec: 'pcm-s16',
+		getCodec: () => Promise.resolve('pcm-s16'),
 		canDecode: () => Promise.resolve(true),
 		getSampleRate: () => Promise.resolve(sampleRate),
 	}) as unknown as InputAudioTrack;
@@ -64,6 +65,7 @@ test('offers only drop for audio tracks with unknown codecs', async () => {
 			{
 				id: 0,
 				codec: null,
+				getCodec: () => Promise.resolve(null),
 				isAudioTrack: () => true,
 				isVideoTrack: () => false,
 			} as unknown as InputTrack,
@@ -81,6 +83,38 @@ test('offers only drop for audio tracks with unknown codecs', async () => {
 			trackId: 0,
 			audioCodec: null,
 			operations: [{type: 'drop'}],
+		},
+	]);
+});
+
+test('uses async codec resolution for audio copy checks', async () => {
+	const configs = await getSupportedConfigs({
+		tracks: [
+			{
+				id: 0,
+				get codec(): never {
+					throw new Error('Use getCodec() instead');
+				},
+				getCodec: () => Promise.resolve('aac'),
+				getSampleRate: () => Promise.resolve(48000),
+				canDecode: () => Promise.resolve(false),
+				isAudioTrack: () => true,
+				isVideoTrack: () => false,
+			} as unknown as InputTrack,
+		],
+		container: new Mp4OutputFormat(),
+		action: {type: 'generic-convert'},
+		userRotation: 0,
+		resizeOperation: null,
+		sampleRate: null,
+		disableVideoCopy: false,
+	});
+
+	expect(configs.audioTrackOptions).toEqual([
+		{
+			trackId: 0,
+			audioCodec: 'aac',
+			operations: [{type: 'copy'}, {type: 'drop'}],
 		},
 	]);
 });
