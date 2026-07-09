@@ -10,9 +10,9 @@ import {assertEffectParamsObject} from './validate-effect-param.js';
 const {createEffect, createWebGL2ContextError} = Internals;
 
 const DEFAULT_AMOUNT = 1 as const;
-const DEFAULT_BORDER = 18 as const;
-const DEFAULT_SCALE = 0.6 as const;
-const DEFAULT_SEED = 6 as const;
+const DEFAULT_BORDER = 26.5 as const;
+const DEFAULT_SCALE = 0.07 as const;
+const DEFAULT_SEED = 231.2 as const;
 const MAX_BORDER = 200 as const;
 const MAX_SEED = 1000 as const;
 const NOISE_TEXTURE_SIZE = 256;
@@ -59,11 +59,11 @@ const roughenEdgesSchema = {
 export type RoughenEdgesParams = {
 	/** Strength of the roughened edge from `0` to `1`. Defaults to `1`. */
 	readonly amount?: number;
-	/** Size of the roughened edge in pixels. Defaults to `18`. */
+	/** Size of the roughened edge in pixels. Defaults to `26.5`. */
 	readonly border?: number;
-	/** Scale of the generated edge noise from `0.01` to `4`. Defaults to `0.6`. */
+	/** Scale of the generated edge noise from `0.01` to `4`. Defaults to `0.07`. */
 	readonly scale?: number;
-	/** Seed for the generated edge pattern from `0` to `1000`. Defaults to `6`. */
+	/** Seed for the generated edge pattern from `0` to `1000`. Defaults to `231.2`. */
 	readonly seed?: number;
 };
 

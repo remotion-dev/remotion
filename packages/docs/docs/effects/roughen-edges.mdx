@@ -34,9 +34,9 @@ export const MyComp: React.FC = () => {
         fit="contain"
         effects={[
           roughenEdges({
-            border: 24,
-            scale: 0.5,
-            seed: 12,
+            border: 26.5,
+            scale: 0.07,
+            seed: 231.2,
           }),
         ]}
       />
@@ -57,19 +57,19 @@ Use `0` to leave the layer unchanged.
 
 ### `border?`
 
-Size of the roughened edge in pixels. Defaults to `18`.
+Size of the roughened edge in pixels. Defaults to `26.5`.
 
 Higher values allow the edge to move farther inward and outward. Must be between `0` and `200`.
 
 ### `scale?`
 
-Scale of the generated edge noise from `0.01` to `4`. Defaults to `0.6`.
+Scale of the generated edge noise from `0.01` to `4`. Defaults to `0.07`.
 
 Smaller values create finer edge detail. Larger values create broader, wavier edges.
 
 ### `seed?`
 
-Seed for the generated edge pattern from `0` to `1000`. Defaults to `6`.
+Seed for the generated edge pattern from `0` to `1000`. Defaults to `231.2`.
 
 Change it to get a different static edge pattern. To animate the edge, pass a value derived from [`useCurrentFrame()`](/docs/use-current-frame).
 

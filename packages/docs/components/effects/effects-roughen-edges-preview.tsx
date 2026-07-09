@@ -7,9 +7,9 @@ export const ROUGHEN_EDGES_TEXT_IMAGE_SRC =
 
 export const ROUGHEN_EDGES_PREVIEW_PARAMS = {
 	amount: 1,
-	border: 18,
-	scale: 0.6,
-	seed: 6,
+	border: 26.5,
+	scale: 0.07,
+	seed: 231.2,
 } as const;
 
 const container: React.CSSProperties = {
