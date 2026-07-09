@@ -26,3 +26,15 @@ test('Should register the ProRes decoder', () => {
 	};
 	expect(packageJson.dependencies['@mediabunny/prores']).toBe('catalog:');
 });
+
+test('Should use Mediabunny-backed preview components', () => {
+	const mediaPlayer = readPackageFile('../app/components/MediaPlayer.tsx');
+	expect(mediaPlayer).toContain(
+		"import {Audio, Video} from '@remotion/media';",
+	);
+
+	const packageJson = JSON.parse(readPackageFile('../package.json')) as {
+		dependencies: Record<string, string>;
+	};
+	expect(packageJson.dependencies['@remotion/media']).toBe('workspace:*');
+});

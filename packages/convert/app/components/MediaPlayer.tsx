@@ -1,13 +1,8 @@
+import {Audio, Video} from '@remotion/media';
 import {Player, type PlayerRef} from '@remotion/player';
 import type {CropRectangle} from 'mediabunny';
 import {useEffect, useRef, useState} from 'react';
-import {
-	AbsoluteFill,
-	Audio,
-	useCurrentFrame,
-	useVideoConfig,
-	Video,
-} from 'remotion';
+import {AbsoluteFill, useCurrentFrame, useVideoConfig} from 'remotion';
 import type {Dimensions} from '~/lib/calculate-new-dimensions-from-dimensions';
 import type {Source} from '~/lib/convert-state';
 import {cn} from '~/lib/utils';
@@ -79,10 +74,10 @@ const RemotionMediaPreview: React.FC<{
 			<AbsoluteFill style={{backgroundColor: 'black'}}>
 				<Video
 					src={src}
+					objectFit="contain"
 					style={{
 						width: '100%',
 						height: '100%',
-						objectFit: 'contain',
 					}}
 				/>
 			</AbsoluteFill>
