@@ -1,0 +1,71 @@
+.container {
+	container-type: inline-size;
+	margin-bottom: 40px;
+	overflow: visible;
+	width: 100%;
+}
+
+.preview {
+	position: sticky;
+	top: calc(var(--ifm-navbar-height, 60px) + 12px);
+	z-index: 1;
+}
+
+.playerShell {
+	background: var(--ifm-background-surface-color);
+	border-top-left-radius: var(--ifm-pre-border-radius);
+	border-top-right-radius: var(--ifm-pre-border-radius);
+	line-height: 0;
+	overflow: hidden;
+}
+
+.dragHandle {
+	align-items: center;
+	background: var(--ifm-background-surface-color);
+	border-bottom: 1px solid var(--ifm-color-emphasis-300);
+	border-left: 1px solid var(--ifm-color-emphasis-300);
+	border-right: 1px solid var(--ifm-color-emphasis-300);
+	border-radius: 0;
+	cursor: grab;
+	display: flex;
+	font-size: 13px;
+	font-weight: 600;
+	gap: 6px;
+	padding: 8px 10px;
+	user-select: none;
+}
+
+.controls {
+	border: 1px solid var(--ifm-color-emphasis-300);
+	border-top: 0;
+	min-width: 0;
+}
+
+@container (min-width: 760px) {
+	.container {
+		align-items: start;
+		display: grid;
+		grid-template-columns: minmax(280px, 52%) minmax(260px, 1fr);
+	}
+
+	.preview {
+		border-right: 1px solid var(--ifm-color-emphasis-300);
+	}
+
+	.dragHandle {
+		border-bottom: 0;
+		border-left: 0;
+		border-right: 0;
+	}
+
+	.controls {
+		border-left: 0;
+		border-top: 1px solid var(--ifm-color-emphasis-300);
+	}
+}
+
+@media screen and (max-width: 996px) {
+	.preview {
+		position: static;
+	}
+}
