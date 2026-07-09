@@ -10,7 +10,9 @@ const sourceLocationStyle: React.CSSProperties = {
 	backgroundColor: BACKGROUND,
 	border: 'none',
 	boxSizing: 'border-box',
-	display: 'block',
+	display: 'flex',
+	alignItems: 'center',
+	gap: 4,
 	fontFamily: 'sans-serif',
 	fontSize: 12,
 	height: 18,
@@ -26,11 +28,19 @@ const sourceLocationStyle: React.CSSProperties = {
 	width: 'fit-content',
 };
 
+const sourceLocationLabelStyle: React.CSSProperties = {
+	minWidth: 0,
+	overflow: 'hidden',
+	textOverflow: 'ellipsis',
+	whiteSpace: 'nowrap',
+};
+
 export const InspectorSourceLocation: React.FC<{
 	readonly location: OriginalPosition | null;
 	readonly canOpen: boolean;
 	readonly onOpen: () => void;
-}> = ({location, canOpen, onOpen}) => {
+	readonly renderIcon?: (color: string) => React.ReactNode;
+}> = ({location, canOpen, onOpen, renderIcon}) => {
 	const [hovered, setHovered] = useState(false);
 
 	const validLocation = useMemo((): OriginalPosition | null => {
@@ -67,6 +77,7 @@ export const InspectorSourceLocation: React.FC<{
 			cursor: canOpen ? 'pointer' : 'default',
 		};
 	}, [canOpen, hovered]);
+	const color = hovered ? LIGHT_COLOR : LIGHT_TEXT;
 
 	const onClick = useCallback(() => {
 		if (!canOpen) {
@@ -89,7 +100,8 @@ export const InspectorSourceLocation: React.FC<{
 			onPointerEnter={() => setHovered(true)}
 			onPointerLeave={() => setHovered(false)}
 		>
-			{label}
+			{renderIcon ? renderIcon(color) : null}
+			<span style={sourceLocationLabelStyle}>{label}</span>
 		</button>
 	);
 };
