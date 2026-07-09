@@ -310,6 +310,7 @@ const sidebars: SidebarsConfig = {
 				'effects/pixelate',
 				'effects/radial-progressive-blur',
 				'effects/rings',
+				'effects/roughen-edges',
 				'effects/saturation',
 				'effects/scale',
 				'effects/scanlines',
@@ -1611,9 +1612,9 @@ const sidebars: SidebarsConfig = {
 			label: 'License, Pricing and Compliance',
 			link: {
 				type: 'doc',
-				id: 'license-pricing-compliance/index',
+				id: 'license',
 			},
-			items: ['pricing', 'license-pricing-compliance/faq'],
+			items: ['license/pricing', 'license/faq'],
 		},
 		'acknowledgements',
 

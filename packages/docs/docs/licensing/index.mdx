@@ -7,7 +7,7 @@ crumb: API
 
 _available from v4.0.237_
 
-This package allows holders of the [Company License](/docs/pricing) to send events to Remotion to track the usage of renders.  
+This package allows holders of the [Company License](/docs/license/pricing) to send events to Remotion to track the usage of renders.  
 Also, it offers an API to programmatically check the usage in order to implement spend controls.
 
 ### How do I use this package?
@@ -26,6 +26,7 @@ Not directly - pass the `licenseKey` option in the renderer package you use.
 
 - [`@remotion/cloudrun`](/docs/cloudrun): No telemetry is implemented. Use [`@remotion/licensing`](/docs/licensing) directly to track usage.
 - [`@remotion/webcodecs`](/docs/webcodecs): Telemetry was removed in v4.0.399 because this package is no longer monetized.
+
 </details>
 
 On your Company License dashboard on [remotion.pro](https://remotion.pro), you can find your license keys on the License keys page.
@@ -40,6 +41,20 @@ If you are not eligible for the Free License, you need to get a Company License 
 From Remotion 5.0, telemetry reporting using the `licenseKey` option is **mandatory** for Remotion for Automators (render-based licensing).
 
 For Remotion for Creators (seat-based licensing), telemetry reporting is optional. Remotion for Creators is meant for low-volume rendering within and for your own company, not to serve (personalized) videos to your end users.
+
+### How do I sign up for a Remotion license/account?
+
+Signing up is only required if you fall under the requirements of the [Company License](/docs/pricing). If you are eligible for the Free License, you do not need an account.
+
+To create an account:
+
+1. Go to the Remotion licensing platform at [remotion.pro/license](https://www.remotion.pro/license).
+2. Create an account using either email, Google, or GitHub.
+3. Once signed up, create a new project/workspace associated with your account. You will be asked to link the project to your company and use case.
+4. After the project/workspace is created, configure your license according to your use case and expected usage.
+5. Invite team members to the project so they can help manage the license.
+
+Holding a Company License also comes with perks such as **priority support** and access to **Remotion templates**, which are available through the licensing platform within your created project.
 
 ### Can I use this package to count renders if I am eligible for the Free License?
 
@@ -73,6 +88,12 @@ For client-side rendering using [`@remotion/web-renderer`](/docs/client-side-ren
 Telemetry data is currently retained indefinitely and is not regularly deleted.  
 This data is not shared with any third parties. It is only used internally by Remotion for license accountability.
 
+We plan to introduce a retention policy that automatically deletes telemetry data after a defined period. This has not been implemented yet, but is on our roadmap for the future.
+
+### Note for GDPR Compliance
+
+If you utilize client-side rendering, our licensing package transmits the end-user's IP address to Remotion strictly for license verification and billing metrics. You should ensure your app's privacy policy reflects that limited operational telemetry is shared with technical service providers under Legitimate Interest.
+
 ### Does telemetry affect renders?
 
 No. Telemetry never blocks or fails a render. Even if the telemetry request fails or licensing is violated, the render will still complete successfully.
@@ -81,7 +102,7 @@ No. Telemetry never blocks or fails a render. Even if the telemetry request fail
 
 For versions below Remotion 5.0, you can opt out by simply not passing a `licenseKey`. The render will still work.
 
-From Remotion 5.0, opt-out is possible under an [Enterprise License](/docs/pricing) agreement if monthly usage reports are provided instead.  
+From Remotion 5.0, opt-out is possible under an [Enterprise License](/docs/license/pricing) agreement if monthly usage reports are provided instead.  
 The Enterprise License has the same per-render pricing, but requires a minimum spend of $500 per month.
 
 ## Installation

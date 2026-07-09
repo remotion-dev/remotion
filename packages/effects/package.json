@@ -204,6 +204,11 @@
 			"module": "./dist/esm/paper.mjs",
 			"import": "./dist/esm/paper.mjs"
 		},
+		"./roughen-edges": {
+			"types": "./dist/roughen-edges.d.ts",
+			"module": "./dist/esm/roughen-edges.mjs",
+			"import": "./dist/esm/roughen-edges.mjs"
+		},
 		"./pattern": {
 			"types": "./dist/pattern.d.ts",
 			"module": "./dist/esm/pattern.mjs",
@@ -409,6 +414,9 @@
 			],
 			"paper": [
 				"dist/paper.d.ts"
+			],
+			"roughen-edges": [
+				"dist/roughen-edges.d.ts"
 			],
 			"pattern": [
 				"dist/pattern.d.ts"

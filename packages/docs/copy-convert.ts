@@ -85,8 +85,7 @@ const getContentWithTitle = (title: string, description: string) => {
 		throw new Error('Could not find title');
 	}
 
-	const descriptionMatcher =
-		'<meta name="description" content="Remotion Convert"/>';
+	const descriptionMatcher = `<meta name="description" content="${seo.getDescription({type: 'generic-convert'})}"/>`;
 	if (!c.includes(descriptionMatcher)) {
 		throw new Error('Could not find description');
 	}

@@ -6,12 +6,12 @@ export const TableOfContents: React.FC = () => {
 	return (
 		<div>
 			<Grid>
-				<TOCItem link="/docs/pricing">
+				<TOCItem link="/docs/license/pricing">
 					<strong>{'License & Pricing'}</strong>
 					<div>Free license eligibility, company and enterprise pricing</div>
 				</TOCItem>
-				<TOCItem link="/docs/license-pricing-compliance/faq">
-					<strong>{'FAQs'}</strong>
+				<TOCItem link="/docs/license/faq">
+					<strong>{'License FAQ'}</strong>
 					<div>Frequently asked questions about licensing and pricing</div>
 				</TOCItem>
 			</Grid>
