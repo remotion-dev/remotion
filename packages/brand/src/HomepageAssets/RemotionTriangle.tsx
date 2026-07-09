@@ -74,7 +74,6 @@ export const RemotionTriangle: React.FC = () => {
 					height: '100%',
 					overflow: 'visible',
 					width: '100%',
-					translate: '-479.8px -11.8px',
 					scale: 0.667,
 				}}
 			>

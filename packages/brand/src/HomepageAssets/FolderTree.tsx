@@ -20,6 +20,19 @@ const selectionHeight = 28;
 const selectionRadius = Math.max(panelRadius - contentPadding, 0);
 const childRowOffset = rowHeight + rowGap;
 const finalSelectionY = panelHeight - contentPadding - selectionHeight;
+export const folderTreeSelectionMoveStart = 58;
+export const folderTreeSelectionMoveEnd = 98;
+const selectionTiming = [
+	0,
+	folderTreeSelectionMoveStart,
+	folderTreeSelectionMoveEnd,
+	119,
+];
+const selectionTransition = {
+	easing: Easing.bezier(0.45, 0, 0.55, 1),
+	extrapolateLeft: 'clamp' as const,
+	extrapolateRight: 'clamp' as const,
+};
 
 export const FolderTree: React.FC = () => {
 	const frame = useCurrentFrame();
@@ -71,18 +84,14 @@ export const FolderTree: React.FC = () => {
 							top: 0,
 							translate: interpolate(
 								frame,
-								[0, 18, 84, 119],
+								selectionTiming,
 								[
 									`0px ${childRowOffset + contentPadding / 2}px`,
 									`0px ${childRowOffset + contentPadding / 2}px`,
 									`0px ${finalSelectionY}px`,
 									`0px ${finalSelectionY}px`,
 								],
-								{
-									easing: Easing.bezier(0.16, 1, 0.3, 1),
-									extrapolateLeft: 'clamp',
-									extrapolateRight: 'clamp',
-								},
+								selectionTransition,
 							),
 						}}
 					/>
@@ -161,11 +170,12 @@ export const FolderTree: React.FC = () => {
 						>
 							<Interactive.Path
 								fill={interpolateColors(
-									interpolate(frame, [0, 18, 84, 119], [1, 1, 0, 0], {
-										easing: Easing.bezier(0.16, 1, 0.3, 1),
-										extrapolateLeft: 'clamp',
-										extrapolateRight: 'clamp',
-									}),
+									interpolate(
+										frame,
+										selectionTiming,
+										[1, 1, 0, 0],
+										selectionTransition,
+									),
 									[0, 1],
 									['#A6A7A9', '#fff'],
 								)}
@@ -175,11 +185,12 @@ export const FolderTree: React.FC = () => {
 						<Interactive.Div
 							style={{
 								color: interpolateColors(
-									interpolate(frame, [0, 18, 84, 119], [1, 1, 0, 0], {
-										easing: Easing.bezier(0.16, 1, 0.3, 1),
-										extrapolateLeft: 'clamp',
-										extrapolateRight: 'clamp',
-									}),
+									interpolate(
+										frame,
+										selectionTiming,
+										[1, 1, 0, 0],
+										selectionTransition,
+									),
 									[0, 1],
 									['#A6A7A9', '#fff'],
 								),
@@ -222,11 +233,12 @@ export const FolderTree: React.FC = () => {
 						>
 							<Interactive.Path
 								fill={interpolateColors(
-									interpolate(frame, [0, 18, 84, 119], [0, 0, 1, 1], {
-										easing: Easing.bezier(0.16, 1, 0.3, 1),
-										extrapolateLeft: 'clamp',
-										extrapolateRight: 'clamp',
-									}),
+									interpolate(
+										frame,
+										selectionTiming,
+										[0, 0, 1, 1],
+										selectionTransition,
+									),
 									[0, 1],
 									['#A6A7A9', '#fff'],
 								)}
@@ -236,11 +248,12 @@ export const FolderTree: React.FC = () => {
 						<Interactive.Div
 							style={{
 								color: interpolateColors(
-									interpolate(frame, [0, 18, 84, 119], [0, 0, 1, 1], {
-										easing: Easing.bezier(0.16, 1, 0.3, 1),
-										extrapolateLeft: 'clamp',
-										extrapolateRight: 'clamp',
-									}),
+									interpolate(
+										frame,
+										selectionTiming,
+										[0, 0, 1, 1],
+										selectionTransition,
+									),
 									[0, 1],
 									['#A6A7A9', '#fff'],
 								),

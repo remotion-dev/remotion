@@ -1,13 +1,30 @@
 import React from 'react';
 import {Easing, Sequence, interpolate, useCurrentFrame} from 'remotion';
-import {FolderTree} from './HomepageAssets/FolderTree';
+import {
+	FolderTree,
+	folderTreeSelectionMoveEnd,
+	folderTreeSelectionMoveStart,
+} from './HomepageAssets/FolderTree';
 import {RemotionTriangle} from './HomepageAssets/RemotionTriangle';
 import {TemplateRecorderEndcard} from './HomepageAssets/TemplateRecorderEndcard';
 
-const selectionTransitionStart = 84;
-const selectionTransitionEnd = 119;
-const selectionTransition = {
-	easing: Easing.bezier(0.16, 1, 0.3, 1),
+const endcardSequenceStart = folderTreeSelectionMoveStart;
+const animatedLogoExitEnd = 72;
+const assetScaleOverlap = 8;
+const endcardEnterStart = animatedLogoExitEnd - assetScaleOverlap;
+const scaleSpring = Easing.spring({
+	damping: 200,
+	mass: 1,
+	overshootClamping: true,
+	stiffness: 100,
+});
+const exitTransition = {
+	easing: Easing.out(scaleSpring),
+	extrapolateLeft: 'clamp' as const,
+	extrapolateRight: 'clamp' as const,
+};
+const enterTransition = {
+	easing: scaleSpring,
 	extrapolateLeft: 'clamp' as const,
 	extrapolateRight: 'clamp' as const,
 };
@@ -16,15 +33,21 @@ export const DesignSystems: React.FC = () => {
 	const frame = useCurrentFrame();
 	const animatedLogoScale = interpolate(
 		frame,
-		[selectionTransitionStart, selectionTransitionEnd],
+		[folderTreeSelectionMoveStart, animatedLogoExitEnd],
 		[1.3, 0],
-		selectionTransition,
+		exitTransition,
 	);
 	const endcardScale = interpolate(
 		frame,
-		[72, selectionTransitionEnd],
-		[0.42, 0.513],
-		selectionTransition,
+		[endcardEnterStart, folderTreeSelectionMoveEnd],
+		[0, 0.513],
+		enterTransition,
+	);
+	const endcardOpacity = interpolate(
+		frame,
+		[endcardEnterStart, endcardEnterStart + 3],
+		[0, 1],
+		enterTransition,
 	);
 
 	return (
@@ -47,7 +70,7 @@ export const DesignSystems: React.FC = () => {
 				durationInFrames={150}
 				style={{
 					position: 'absolute',
-					translate: '847.2px 224.6px',
+					translate: '189.6px 162px',
 					opacity: interpolate(frame, [75], [1], {
 						extrapolateLeft: 'clamp',
 						extrapolateRight: 'clamp',
@@ -64,9 +87,10 @@ export const DesignSystems: React.FC = () => {
 				style={{
 					position: 'absolute',
 					translate: '170.7px -145.5px',
+					opacity: endcardOpacity,
 					scale: endcardScale,
 				}}
-				from={72}
+				from={endcardSequenceStart}
 			>
 				<TemplateRecorderEndcard />
 			</Sequence>
