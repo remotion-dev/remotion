@@ -319,6 +319,7 @@
         "@mediabunny/ac3": "catalog:",
         "@mediabunny/flac-encoder": "catalog:",
         "@mediabunny/mp3-encoder": "catalog:",
+        "@mediabunny/prores": "catalog:",
         "@mux/upchunk": "3.5.0",
         "@radix-ui/react-checkbox": "1.1.2",
         "@radix-ui/react-dialog": "1.1.15",
