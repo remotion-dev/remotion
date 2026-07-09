@@ -1785,6 +1785,7 @@ test('Canvas outline rendering puts selected outlines last', () => {
 			makeOutline('child'),
 			makeOutline('sibling'),
 		],
+		sequences: [],
 		targetsByKey: new Map([
 			['parent', makeTarget(true)],
 			['child', makeTarget(false)],
@@ -1834,6 +1835,14 @@ const makeOutlineTarget = ({
 		sequence: {id, parent},
 	}) as SelectedOutlineTarget;
 
+const makeOutlineSequence = ({
+	id,
+	parent,
+}: {
+	readonly id: string;
+	readonly parent: string | null;
+}) => ({id, parent});
+
 test('Canvas outline rendering keeps smaller nested hit targets above parents', () => {
 	const orderedOutlines = orderOutlinesForRendering({
 		outlines: [
@@ -1851,6 +1860,10 @@ test('Canvas outline rendering keeps smaller nested hit targets above parents', 
 				width: 50,
 				height: 50,
 			}),
+		],
+		sequences: [
+			makeOutlineSequence({id: 'parent', parent: null}),
+			makeOutlineSequence({id: 'child', parent: 'parent'}),
 		],
 		targetsByKey: new Map([
 			['parent', makeOutlineTarget({id: 'parent', parent: null})],
@@ -1889,6 +1902,11 @@ test('Canvas outline rendering puts equal-area child hit targets below parents',
 				height: 50,
 			}),
 		],
+		sequences: [
+			makeOutlineSequence({id: 'parent', parent: null}),
+			makeOutlineSequence({id: 'container', parent: 'parent'}),
+			makeOutlineSequence({id: 'label', parent: 'container'}),
+		],
 		targetsByKey: new Map([
 			['parent', makeOutlineTarget({id: 'parent', parent: null})],
 			['container', makeOutlineTarget({id: 'container', parent: 'parent'})],
@@ -1900,6 +1918,125 @@ test('Canvas outline rendering puts equal-area child hit targets below parents',
 		'container',
 		'parent',
 		'label',
+	]);
+});
+
+test('Canvas outline rendering orders equal-area children deterministically with unrelated outlines', () => {
+	const orderedOutlines = orderOutlinesForRendering({
+		outlines: [
+			makeTestOutline({
+				key: 'lower-third-wrapper',
+				left: 0,
+				top: 0,
+				width: 100,
+				height: 100,
+			}),
+			makeTestOutline({
+				key: 'unrelated-keyframed-sequence',
+				left: 200,
+				top: 200,
+				width: 100,
+				height: 100,
+			}),
+			makeTestOutline({
+				key: 'lower-third-container',
+				left: 0,
+				top: 0,
+				width: 100,
+				height: 100,
+			}),
+			makeTestOutline({
+				key: 'lower-third-title',
+				left: 25,
+				top: 25,
+				width: 50,
+				height: 50,
+			}),
+		],
+		sequences: [
+			makeOutlineSequence({id: 'lower-third-wrapper', parent: null}),
+			makeOutlineSequence({id: 'unrelated-keyframed-sequence', parent: null}),
+			makeOutlineSequence({
+				id: 'lower-third-container',
+				parent: 'lower-third-wrapper',
+			}),
+			makeOutlineSequence({
+				id: 'lower-third-title',
+				parent: 'lower-third-container',
+			}),
+		],
+		targetsByKey: new Map([
+			[
+				'lower-third-wrapper',
+				makeOutlineTarget({id: 'lower-third-wrapper', parent: null}),
+			],
+			[
+				'unrelated-keyframed-sequence',
+				makeOutlineTarget({id: 'unrelated-keyframed-sequence', parent: null}),
+			],
+			[
+				'lower-third-container',
+				makeOutlineTarget({
+					id: 'lower-third-container',
+					parent: 'lower-third-wrapper',
+				}),
+			],
+			[
+				'lower-third-title',
+				makeOutlineTarget({
+					id: 'lower-third-title',
+					parent: 'lower-third-container',
+				}),
+			],
+		]),
+	});
+
+	expect(orderedOutlines.map((outline) => outline.key)).toEqual([
+		'lower-third-container',
+		'lower-third-wrapper',
+		'unrelated-keyframed-sequence',
+		'lower-third-title',
+	]);
+});
+
+test('Canvas outline rendering follows hidden intermediate ancestors', () => {
+	const orderedOutlines = orderOutlinesForRendering({
+		outlines: [
+			makeTestOutline({
+				key: 'visible-parent',
+				left: 0,
+				top: 0,
+				width: 100,
+				height: 100,
+			}),
+			makeTestOutline({
+				key: 'visible-child',
+				left: 0,
+				top: 0,
+				width: 100,
+				height: 100,
+			}),
+		],
+		sequences: [
+			makeOutlineSequence({id: 'visible-parent', parent: null}),
+			makeOutlineSequence({id: 'hidden-wrapper', parent: 'visible-parent'}),
+			makeOutlineSequence({id: 'visible-child', parent: 'hidden-wrapper'}),
+		],
+		targetsByKey: new Map([
+			[
+				'visible-parent',
+				makeOutlineTarget({id: 'visible-parent', parent: null}),
+			],
+			[
+				'visible-child',
+				makeOutlineTarget({id: 'visible-child', parent: 'hidden-wrapper'}),
+			],
+		]),
+	});
+
+	expect(orderedOutlines.map((outline) => outline.key)).toEqual([
+		'visible-child',
+		'visible-parent',
 	]);
 });
 

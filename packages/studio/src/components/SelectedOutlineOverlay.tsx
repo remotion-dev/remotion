@@ -188,18 +188,46 @@ const outlinesHaveEquivalentHitArea = (
 	return true;
 };
 
+type OutlineSequenceParent = {
+	readonly id: string;
+	readonly parent: string | null;
+};
+
 const getSequenceId = (target: SelectedOutlineTarget | undefined) => {
 	return target?.sequence?.id ?? null;
+};
+
+const getParentBySequenceId = ({
+	sequences,
+	targetsByKey,
+}: {
+	readonly sequences: readonly OutlineSequenceParent[];
+	readonly targetsByKey: ReadonlyMap<string, SelectedOutlineTarget>;
+}) => {
+	const parentBySequenceId = new Map<string, string | null>();
+
+	for (const sequence of sequences) {
+		parentBySequenceId.set(sequence.id, sequence.parent);
+	}
+
+	for (const target of targetsByKey.values()) {
+		const sequenceId = getSequenceId(target);
+		if (sequenceId !== null && !parentBySequenceId.has(sequenceId)) {
+			parentBySequenceId.set(sequenceId, target.sequence.parent);
+		}
+	}
+
+	return parentBySequenceId;
 };
 
 const isAncestorTarget = ({
 	ancestor,
 	descendant,
-	targetsBySequenceId,
+	parentBySequenceId,
 }: {
 	readonly ancestor: SelectedOutlineTarget;
 	readonly descendant: SelectedOutlineTarget;
-	readonly targetsBySequenceId: ReadonlyMap<string, SelectedOutlineTarget>;
+	readonly parentBySequenceId: ReadonlyMap<string, string | null>;
 }): boolean => {
 	const ancestorId = getSequenceId(ancestor);
 	if (ancestorId === null) {
@@ -212,68 +240,171 @@ const isAncestorTarget = ({
 			return true;
 		}
 
-		parentId = targetsBySequenceId.get(parentId)?.sequence?.parent ?? null;
+		parentId = parentBySequenceId.get(parentId) ?? null;
 	}
 
 	return false;
 };
 
-export const orderOutlinesForRendering = ({
+const orderOutlineGroup = ({
 	outlines,
+	parentBySequenceId,
 	targetsByKey,
 }: {
 	readonly outlines: readonly SelectedOutline[];
+	readonly parentBySequenceId: ReadonlyMap<string, string | null>;
 	readonly targetsByKey: ReadonlyMap<string, SelectedOutlineTarget>;
 }): readonly SelectedOutline[] => {
-	const targetsBySequenceId = new Map<string, SelectedOutlineTarget>();
-	for (const target of targetsByKey.values()) {
-		const sequenceId = getSequenceId(target);
-		if (sequenceId !== null) {
-			targetsBySequenceId.set(sequenceId, target);
-		}
+	const incomingEdges = new Map<string, Set<string>>();
+	const outlinesByKey = new Map(
+		outlines.map((outline) => [outline.key, outline]),
+	);
+
+	for (const outline of outlines) {
+		incomingEdges.set(outline.key, new Set());
 	}
 
-	return [...outlines].sort((a, b) => {
-		const aTarget = targetsByKey.get(a.key);
-		const bTarget = targetsByKey.get(b.key);
-		const aSelected = aTarget?.selected ?? false;
-		const bSelected = bTarget?.selected ?? false;
-
-		if (aSelected !== bSelected) {
-			return Number(aSelected) - Number(bSelected);
+	const addEdge = (before: SelectedOutline, after: SelectedOutline) => {
+		if (before.key === after.key) {
+			return;
 		}
 
-		if (aTarget === undefined || bTarget === undefined) {
-			return 0;
+		const edges = incomingEdges.get(after.key);
+		if (edges === undefined) {
+			throw new Error('Expected outline to be registered before adding edge');
 		}
 
-		const aAncestorOfB = isAncestorTarget({
-			ancestor: aTarget,
-			descendant: bTarget,
-			targetsBySequenceId,
-		});
-		const bAncestorOfA = isAncestorTarget({
-			ancestor: bTarget,
-			descendant: aTarget,
-			targetsBySequenceId,
-		});
+		edges.add(before.key);
+	};
 
-		if (!aAncestorOfB && !bAncestorOfA) {
-			return 0;
-		}
-
-		const equivalentHitArea = outlinesHaveEquivalentHitArea(a, b);
-
+	const addAncestorConstraint = ({
+		ancestor,
+		descendant,
+		equivalentHitArea,
+	}: {
+		readonly ancestor: SelectedOutline;
+		readonly descendant: SelectedOutline;
+		readonly equivalentHitArea: boolean;
+	}) => {
 		// Usually, children should be above parents so nested elements are directly
 		// selectable. If a child has the same hit area as its parent though, it makes
 		// the parent impossible to select from the canvas. Put that equal-area child
 		// below its parent, while still allowing smaller descendants to sit above it.
-		if (aAncestorOfB) {
-			return equivalentHitArea ? 1 : -1;
+		if (equivalentHitArea) {
+			addEdge(descendant, ancestor);
+		} else {
+			addEdge(ancestor, descendant);
+		}
+	};
+
+	for (let i = 0; i < outlines.length; i++) {
+		for (let j = i + 1; j < outlines.length; j++) {
+			const a = outlines[i];
+			const b = outlines[j];
+			const aTarget = targetsByKey.get(a.key);
+			const bTarget = targetsByKey.get(b.key);
+
+			if (aTarget === undefined || bTarget === undefined) {
+				continue;
+			}
+
+			const aAncestorOfB = isAncestorTarget({
+				ancestor: aTarget,
+				descendant: bTarget,
+				parentBySequenceId,
+			});
+			const bAncestorOfA = isAncestorTarget({
+				ancestor: bTarget,
+				descendant: aTarget,
+				parentBySequenceId,
+			});
+
+			if (!aAncestorOfB && !bAncestorOfA) {
+				continue;
+			}
+
+			const equivalentHitArea = outlinesHaveEquivalentHitArea(a, b);
+
+			if (aAncestorOfB) {
+				addAncestorConstraint({
+					ancestor: a,
+					descendant: b,
+					equivalentHitArea,
+				});
+			} else {
+				addAncestorConstraint({
+					ancestor: b,
+					descendant: a,
+					equivalentHitArea,
+				});
+			}
+		}
+	}
+
+	const emitted = new Set<string>();
+	const visiting = new Set<string>();
+	const ordered: SelectedOutline[] = [];
+
+	const visit = (outline: SelectedOutline) => {
+		if (emitted.has(outline.key)) {
+			return;
 		}
 
-		return equivalentHitArea ? -1 : 1;
-	});
+		if (visiting.has(outline.key)) {
+			throw new Error('Could not determine a stable outline rendering order');
+		}
+
+		visiting.add(outline.key);
+		for (const dependencyKey of incomingEdges.get(outline.key) ?? []) {
+			const dependency = outlinesByKey.get(dependencyKey);
+			if (dependency === undefined) {
+				throw new Error('Expected outline dependency to exist');
+			}
+
+			visit(dependency);
+		}
+
+		visiting.delete(outline.key);
+		emitted.add(outline.key);
+		ordered.push(outline);
+	};
+
+	for (const outline of outlines) {
+		visit(outline);
+	}
+
+	return ordered;
+};
+
+export const orderOutlinesForRendering = ({
+	outlines,
+	sequences,
+	targetsByKey,
+}: {
+	readonly outlines: readonly SelectedOutline[];
+	readonly sequences: readonly OutlineSequenceParent[];
+	readonly targetsByKey: ReadonlyMap<string, SelectedOutlineTarget>;
+}): readonly SelectedOutline[] => {
+	const parentBySequenceId = getParentBySequenceId({sequences, targetsByKey});
+	const unselectedOutlines = outlines.filter(
+		(outline) => targetsByKey.get(outline.key)?.selected !== true,
+	);
+	const selectedOutlines = outlines.filter(
+		(outline) => targetsByKey.get(outline.key)?.selected === true,
+	);
+
+	return [
+		...orderOutlineGroup({
+			outlines: unselectedOutlines,
+			parentBySequenceId,
+			targetsByKey,
+		}),
+		...orderOutlineGroup({
+			outlines: selectedOutlines,
+			parentBySequenceId,
+			targetsByKey,
+		}),
+	];
 };
 
 export const SelectedOutlineOverlay: React.FC<{
@@ -645,8 +776,8 @@ export const SelectedOutlineOverlay: React.FC<{
 		return new Map(outlineTargets.map((target) => [target.key, target]));
 	}, [outlineTargets]);
 	const outlinesForRendering = useMemo(() => {
-		return orderOutlinesForRendering({outlines, targetsByKey});
-	}, [outlines, targetsByKey]);
+		return orderOutlinesForRendering({outlines, sequences, targetsByKey});
+	}, [outlines, sequences, targetsByKey]);
 	const outlinesByKey = useMemo(() => {
 		return new Map(outlines.map((outline) => [outline.key, outline]));
 	}, [outlines]);
