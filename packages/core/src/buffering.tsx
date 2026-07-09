@@ -118,7 +118,11 @@ const useBufferManager = (
 			return;
 		}
 
-		if (blocks.length > 0) {
+		// Only fire on the `false -> true` transition: adding a block while
+		// already buffering (e.g. a second media element starts loading) must
+		// not re-dispatch `waiting` to listeners.
+		if (blocks.length > 0 && !buffering.current) {
+			buffering.current = true;
 			onBufferingCallbacks.forEach((c) => c());
 			playbackLogging({
 				logLevel,
@@ -142,7 +146,11 @@ const useBufferManager = (
 				return;
 			}
 
-			if (blocks.length === 0) {
+			// Only fire on the `true -> false` transition: the initial mount and
+			// a block that was added and removed within the same commit must not
+			// dispatch `resume` to listeners.
+			if (blocks.length === 0 && buffering.current) {
+				buffering.current = false;
 				onResumeCallbacks.forEach((c) => c());
 				playbackLogging({
 					logLevel,
@@ -194,12 +202,12 @@ export const useIsPlayerBuffering = (bufferManager: BufferManager) => {
 			setIsBuffering(false);
 		};
 
-		bufferManager.listenForBuffering(onBuffer);
-		bufferManager.listenForResume(onResume);
+		const buffer = bufferManager.listenForBuffering(onBuffer);
+		const resume = bufferManager.listenForResume(onResume);
 
 		return () => {
-			bufferManager.listenForBuffering(() => undefined);
-			bufferManager.listenForResume(() => undefined);
+			buffer.remove();
+			resume.remove();
 		};
 	}, [bufferManager]);
 

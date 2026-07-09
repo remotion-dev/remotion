@@ -50,6 +50,7 @@ const {
 	webpackPollOption,
 	keyboardShortcutsOption,
 	experimentalClientSideRenderingOption,
+	interactivityOption,
 	imageSequencePatternOption,
 	scaleOption,
 	overwriteOption,
@@ -156,6 +157,9 @@ export type CommandLineOptions = {
 	[experimentalClientSideRenderingOption.cliFlag]: TypeOfOption<
 		typeof experimentalClientSideRenderingOption
 	>;
+	[interactivityOption.cliFlag]: TypeOfOption<
+		typeof interactivityOption
+	> | null;
 	[mutedOption.cliFlag]: TypeOfOption<typeof mutedOption>;
 	[overrideHeightOption.cliFlag]: TypeOfOption<typeof overrideHeightOption>;
 	[overrideWidthOption.cliFlag]: TypeOfOption<typeof overrideWidthOption>;
@@ -210,6 +214,7 @@ export const BooleanFlags = [
 	ignoreCertificateErrorsOption.cliFlag,
 	headlessOption.cliFlag,
 	keyboardShortcutsOption.cliFlag,
+	interactivityOption.cliFlag,
 	allowHtmlInCanvasOption.cliFlag,
 	experimentalClientSideRenderingOption.cliFlag,
 	ipv4Option.cliFlag,
@@ -236,6 +241,7 @@ export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
 		[ignoreCertificateErrorsOption.cliFlag]: null,
 		[headlessOption.cliFlag]: null,
 		[keyboardShortcutsOption.cliFlag]: null,
+		[interactivityOption.cliFlag]: null,
 		[ipv4Option.cliFlag]: null,
 		[beepOnFinishOption.cliFlag]: null,
 		[disallowParallelEncodingOption.cliFlag]: null,

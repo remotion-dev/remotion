@@ -43,6 +43,7 @@ export const webpackConfig = async ({
 	poll,
 	experimentalClientSideRenderingEnabled,
 	askAIEnabled,
+	interactivityEnabled,
 	extraPlugins,
 }: {
 	entry: string;
@@ -58,6 +59,7 @@ export const webpackConfig = async ({
 	remotionRoot: string;
 	poll: number | null;
 	askAIEnabled: boolean;
+	interactivityEnabled: boolean;
 	experimentalClientSideRenderingEnabled: boolean;
 	extraPlugins: webpack.WebpackPluginInstance[];
 }): Promise<[string, WebpackConfiguration]> => {
@@ -74,6 +76,7 @@ export const webpackConfig = async ({
 		getDefinePluginDefinitions({
 			maxTimelineTracks,
 			askAIEnabled,
+			interactivityEnabled,
 			keyboardShortcutsEnabled,
 			bufferStateDelayInMilliseconds,
 			experimentalClientSideRenderingEnabled,

@@ -177,6 +177,18 @@ Config.setKeyboardShortcutsEnabled(false);
 
 The [command line flag](/docs/cli/studio#--disable-keyboard-shortcuts) `--disable-keyboard-shortcuts` will take precedence over this option.
 
+## `setInteractivityEnabled()`<AvailableFrom v="4.0.487" />
+
+<Options id="disable-interactivity" />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setInteractivityEnabled(false);
+```
+
+The [command line flag](/docs/cli/studio#--disable-interactivity) `--disable-interactivity` will take precedence over this option.
+
 ## `setExperimentalClientSideRenderingEnabled()`<AvailableFrom v="4.0.387" />
 
 <Options id="enable-experimental-client-side-rendering" />

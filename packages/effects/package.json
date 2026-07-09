@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/effects",
-	"version": "4.0.486",
+	"version": "4.0.487",
 	"description": "Effects that can be applied to Remotion-based canvas components",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -203,6 +203,11 @@
 			"types": "./dist/paper.d.ts",
 			"module": "./dist/esm/paper.mjs",
 			"import": "./dist/esm/paper.mjs"
+		},
+		"./roughen-edges": {
+			"types": "./dist/roughen-edges.d.ts",
+			"module": "./dist/esm/roughen-edges.mjs",
+			"import": "./dist/esm/roughen-edges.mjs"
 		},
 		"./pattern": {
 			"types": "./dist/pattern.d.ts",
@@ -409,6 +414,9 @@
 			],
 			"paper": [
 				"dist/paper.d.ts"
+			],
+			"roughen-edges": [
+				"dist/roughen-edges.d.ts"
 			],
 			"pattern": [
 				"dist/pattern.d.ts"

@@ -26,6 +26,10 @@ import {CssLoaderTest} from './CssLoaderTest';
 import {DarkModeTest} from './DarkModeTest';
 import {DecoderDemo} from './DecoderDemo';
 import {
+	DIFFERENT_SEGMENTS_AT_DIFFERENT_SPEEDS_DURATION,
+	DifferentSegmentsAtDifferentSpeeds,
+} from './DifferentSegmentsAtDifferentSpeeds';
+import {
 	DiscriminatedUnionSchemaTest,
 	discriminatedUnionRootSchema,
 } from './DiscriminatedUnionSchemaTest';
@@ -224,6 +228,10 @@ import {
 } from './PlayRangesMediaVideo';
 import {PremountOnTransitionSeries} from './PremountOnTransitionSeries';
 import {PrintProps} from './PrintProps';
+import {
+	ProResMediaVideo,
+	calculateProResMediaVideoMetadata,
+} from './ProResMediaVideo';
 import {SfxExample} from './Sfx';
 import {CanvasImg} from './SimpleImg/CanvasImg';
 import {ImgEffects} from './SimpleImg/ImgEffects';
@@ -1044,6 +1052,11 @@ export const Index: React.FC = () => {
 					fps={30}
 				/>
 				<Composition
+					id="prores-media-video"
+					component={ProResMediaVideo}
+					calculateMetadata={calculateProResMediaVideoMetadata}
+				/>
+				<Composition
 					id="video-testing-mp4"
 					component={VideoTesting}
 					width={1080}
@@ -1410,6 +1423,14 @@ export const Index: React.FC = () => {
 						url: PLAY_RANGES_MEDIA_VIDEO_URL_DEFAULT,
 						playRanges: PLAY_RANGES_MEDIA_ZIP_DEFAULT,
 					}}
+				/>
+				<Composition
+					id="different-segments-at-different-speeds"
+					component={DifferentSegmentsAtDifferentSpeeds}
+					width={640}
+					height={360}
+					fps={30}
+					durationInFrames={DIFFERENT_SEGMENTS_AT_DIFFERENT_SPEEDS_DURATION}
 				/>
 				<Composition
 					id="fractional-sequence-video"

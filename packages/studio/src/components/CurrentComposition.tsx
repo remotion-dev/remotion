@@ -1,8 +1,21 @@
-import {useCallback, useContext, useMemo} from 'react';
+import {
+	type CSSProperties,
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+} from 'react';
 import {Internals} from 'remotion';
 import type {OriginalPosition} from '../error-overlay/react-overlay/utils/get-source-map';
 import {isCompositionStill} from '../helpers/is-composition-still';
-import {openOriginalPositionInEditor} from '../helpers/open-in-editor';
+import {
+	openOriginalPositionInEditor,
+	preloadCompositionComponentInfo,
+	useCachedCompositionComponentInfo,
+} from '../helpers/open-in-editor';
+import {ReactIcon} from '../icons/react';
+import {StillIcon} from '../icons/still';
+import {FilmIcon} from '../icons/video';
 import {renderFrame} from '../state/render-frame';
 import {InlineCompositionName} from './InlineCompositionName';
 import {
@@ -15,6 +28,16 @@ import {showNotification} from './Notifications/NotificationCenter';
 import {useResolvedStack} from './Timeline/use-resolved-stack';
 
 export const CURRENT_COMPOSITION_HEIGHT = INSPECTOR_INFO_HEADER_MIN_HEIGHT;
+
+const sourceLocationIconStyle: CSSProperties = {
+	flexShrink: 0,
+	height: 13,
+	width: 13,
+};
+
+const renderReactIcon = (color: string) => {
+	return <ReactIcon color={color} style={sourceLocationIconStyle} />;
+};
 
 export const CurrentComposition = () => {
 	const video = Internals.useVideo();
@@ -46,6 +69,26 @@ export const CurrentComposition = () => {
 			source: resolvedCompositionLocation.source,
 		};
 	}, [resolvedCompositionLocation]);
+	const compositionFile = validatedLocation?.source ?? null;
+	const compositionId = currentComposition?.id ?? null;
+	const compositionComponentInfo = useCachedCompositionComponentInfo({
+		compositionFile,
+		compositionId,
+	});
+	const componentLocation: OriginalPosition | null =
+		compositionComponentInfo?.location ?? null;
+
+	useEffect(() => {
+		if (compositionFile === null || compositionId === null) {
+			return;
+		}
+
+		preloadCompositionComponentInfo({
+			compositionFile,
+			compositionId,
+		});
+	}, [compositionFile, compositionId]);
+
 	const openFileLocation = useCallback(() => {
 		if (!validatedLocation) {
 			return;
@@ -55,6 +98,29 @@ export const CurrentComposition = () => {
 			showNotification((err as Error).message, 2000);
 		});
 	}, [validatedLocation]);
+	const openComponentLocation = useCallback(() => {
+		if (!componentLocation) {
+			return;
+		}
+
+		openOriginalPositionInEditor(componentLocation).catch((err) => {
+			showNotification((err as Error).message, 2000);
+		});
+	}, [componentLocation]);
+	const renderCompositionIcon = useCallback(
+		(color: string) => {
+			if (!video) {
+				return null;
+			}
+
+			return isCompositionStill(video) ? (
+				<StillIcon color={color} style={sourceLocationIconStyle} />
+			) : (
+				<FilmIcon color={color} style={sourceLocationIconStyle} />
+			);
+		},
+		[video],
+	);
 
 	return (
 		<InspectorInfoHeader>
@@ -70,6 +136,13 @@ export const CurrentComposition = () => {
 						location={validatedLocation}
 						canOpen={validatedLocation !== null}
 						onOpen={openFileLocation}
+						renderIcon={renderCompositionIcon}
+					/>
+					<InspectorSourceLocation
+						location={componentLocation}
+						canOpen={componentLocation !== null}
+						onOpen={openComponentLocation}
+						renderIcon={renderReactIcon}
 					/>
 					<InspectorInfoSubtitle>
 						{video.width}x{video.height}

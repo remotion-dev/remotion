@@ -53,3 +53,23 @@ test('a long frame duration can satisfy requests beyond the jump threshold', asy
 	bank.prepareForDeletion('error', 'test');
 	samples[1].close();
 });
+
+test('uses next sample timestamp instead of reported duration while rendering', async () => {
+	const samples = [
+		makeSample({timestamp: 0, duration: 10}),
+		makeSample({timestamp: 1, duration: 0.1}),
+	];
+
+	const bank = await makeKeyframeBank({
+		logLevel: 'error',
+		src: 'wrong-duration-frame.mp4',
+		videoSampleSink: makeVideoSampleSink(samples),
+		initialTimestampRequest: 0,
+	});
+
+	const frame = await bank.getFrameFromTimestamp(1.5, 30);
+
+	expect(frame?.timestamp).toBe(1);
+
+	bank.prepareForDeletion('error', 'test');
+});

@@ -54,6 +54,11 @@ import {
 	RADIAL_PROGRESSIVE_BLUR_PREVIEW_PARAMS,
 } from '../../components/effects/effects-radial-progressive-blur-preview';
 import {EffectsRingsPreview} from '../../components/effects/effects-rings-preview';
+import {
+	EffectsRoughenEdgesPreview,
+	ROUGHEN_EDGES_PREVIEW_PARAMS,
+	RoughenEdgesTextSource,
+} from '../../components/effects/effects-roughen-edges-preview';
 import {EffectsSaturationPreview} from '../../components/effects/effects-saturation-preview';
 import {EffectsScalePreview} from '../../components/effects/effects-scale-preview';
 import {EffectsScanlinesPreview} from '../../components/effects/effects-scanlines-preview';
@@ -63,7 +68,10 @@ import {
 	SHRINKWRAP_PREVIEW_PARAMS,
 } from '../../components/effects/effects-shrinkwrap-preview';
 import {EffectsSpecklePreview} from '../../components/effects/effects-speckle-preview';
-import {EffectsStarburstPreview} from '../../components/effects/effects-starburst-preview';
+import {
+	EffectsStarburstPreview,
+	STARBURST_PREVIEW_PARAMS,
+} from '../../components/effects/effects-starburst-preview';
 import {EffectsThermalVisionPreview} from '../../components/effects/effects-thermal-vision-preview';
 import {EffectsTintPreview} from '../../components/effects/effects-tint-preview';
 import {
@@ -605,6 +613,19 @@ export const RemotionRoot: React.FC = () => {
 					defaultProps={PAPER_PREVIEW_PARAMS}
 				/>
 				<Still
+					id="effects-roughen-edges-text-source"
+					component={RoughenEdgesTextSource}
+					width={1280}
+					height={720}
+				/>
+				<Still
+					id="effects-roughen-edges-preview"
+					component={EffectsRoughenEdgesPreview}
+					width={1280}
+					height={720}
+					defaultProps={ROUGHEN_EDGES_PREVIEW_PARAMS}
+				/>
+				<Still
 					id="effects-white-noise-preview"
 					component={EffectsWhiteNoisePreview}
 					width={1280}
@@ -762,12 +783,7 @@ export const RemotionRoot: React.FC = () => {
 					component={EffectsStarburstPreview}
 					width={1280}
 					height={720}
-					defaultProps={{
-						rays: 16,
-						rotation: 0,
-						smoothness: 0,
-						origin: [0.5, 0.5],
-					}}
+					defaultProps={STARBURST_PREVIEW_PARAMS}
 				/>
 				<Still
 					id="effects-light-leak-preview"

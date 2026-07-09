@@ -2,6 +2,9 @@ import {Links, Outlet, Scripts, ScrollRestoration} from '@remix-run/react';
 import {ForceSpecificCursor} from './components/crop-ui/force-specific-cursor';
 import './tailwind.css';
 import {DEFAULT_FAVICON} from './lib/default-favicon';
+import {getDescription} from './seo';
+
+const defaultDescription = getDescription({type: 'generic-convert'});
 
 export const Layout = ({children}: {readonly children: React.ReactNode}) => {
 	return (
@@ -10,7 +13,7 @@ export const Layout = ({children}: {readonly children: React.ReactNode}) => {
 				<meta charSet="utf-8" />
 				<meta name="viewport" content="width=device-width, initial-scale=1" />
 				<title>Remotion Convert</title>
-				<meta name="description" content="Remotion Convert" />
+				<meta name="description" content={defaultDescription} />
 				<link rel="icon" href={DEFAULT_FAVICON} />
 				<link
 					rel="manifest"

@@ -66,6 +66,7 @@ export const startServer = async (options: {
 	previewSampleRate: number | null;
 	enableCrossSiteIsolation: boolean;
 	askAIEnabled: boolean;
+	interactivityEnabled: boolean;
 	forceNew: boolean;
 	rspack: boolean;
 }): Promise<StartServerResult> => {
@@ -108,6 +109,7 @@ export const startServer = async (options: {
 		poll: options.poll,
 		bufferStateDelayInMilliseconds: options.bufferStateDelayInMilliseconds,
 		askAIEnabled: options.askAIEnabled,
+		interactivityEnabled: options.interactivityEnabled,
 		extraPlugins: [watchIgnorePlugin],
 	};
 

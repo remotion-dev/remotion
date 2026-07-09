@@ -23,6 +23,7 @@ const {
 	disableGitSourceOption,
 	enableCrossSiteIsolationOption,
 	askAIOption,
+	interactivityOption,
 	experimentalClientSideRenderingOption,
 	keyboardShortcutsOption,
 	forceNewStudioOption,
@@ -139,6 +140,9 @@ export const studioCommand = async (
 	const askAIEnabled = askAIOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const interactivityEnabled = interactivityOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	const gitSource = getGitSource({remotionRoot, disableGitSource, logLevel});
 
@@ -191,6 +195,7 @@ export const studioCommand = async (
 		}).value,
 		enableCrossSiteIsolation,
 		askAIEnabled,
+		interactivityEnabled,
 		forceNew: forceNewStudioOption.getValue({commandLine: parsedCli}).value,
 		rspack: useRspack,
 	});

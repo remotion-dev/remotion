@@ -18,6 +18,7 @@ import {
 	SEQUENCE_BORDER_WIDTH,
 } from '../../helpers/get-timeline-sequence-layout';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
+import {studioInteractivityEnabled} from '../../helpers/interactivity-enabled';
 import {openOriginalPositionInEditor} from '../../helpers/open-in-editor';
 import {
 	getTimelineLayerHeight,
@@ -267,16 +268,20 @@ const TimelineSequenceInner: React.FC<{
 			: undefined;
 	}, [propStatuses, nodePath]);
 	const durationCanUpdate = Boolean(
+		studioInteractivityEnabled &&
 		propStatusesForOverride?.durationInFrames?.status === 'static',
 	);
 	const fromCanUpdate = Boolean(
+		studioInteractivityEnabled &&
 		propStatusesForOverride?.from?.status === 'static',
 	);
 	const trimBeforeCanUpdate = Boolean(
+		studioInteractivityEnabled &&
 		propStatusesForOverride?.trimBefore?.status === 'static',
 	);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const previewConnected = previewServerState.type === 'connected';
+	const previewInteractive = previewConnected && studioInteractivityEnabled;
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const selectAsset = useSelectAsset();
@@ -304,10 +309,10 @@ const TimelineSequenceInner: React.FC<{
 	}, [canOpenInEditor, originalLocation]);
 	const canDeleteFromSource = Boolean(nodePath && validatedLocation?.source);
 	const deleteDisabled =
-		!previewConnected || !s.controls || !canDeleteFromSource;
+		!previewInteractive || !s.controls || !canDeleteFromSource;
 	const duplicateDisabled = deleteDisabled;
 	const disableInteractivityDisabled =
-		!previewConnected ||
+		!previewInteractive ||
 		!s.showInTimeline ||
 		!nodePath ||
 		!validatedLocation?.source;
@@ -396,7 +401,7 @@ const TimelineSequenceInner: React.FC<{
 	]);
 	const freezeFrameMenuItem = useSequenceFreezeFrameMenuItem({
 		clientId:
-			previewServerState.type === 'connected'
+			previewInteractive && previewServerState.type === 'connected'
 				? previewServerState.clientId
 				: null,
 		nodePath,
@@ -419,7 +424,7 @@ const TimelineSequenceInner: React.FC<{
 			disableInteractivityDisabled,
 			duplicateDisabled,
 			fileLocation,
-			includeSourceEditItems: true,
+			includeSourceEditItems: studioInteractivityEnabled,
 			onDeleteSequenceFromSource,
 			onDisableSequenceInteractivity,
 			onDuplicateSequenceFromSource,
@@ -427,7 +432,10 @@ const TimelineSequenceInner: React.FC<{
 			originalLocation,
 			selectAsset,
 			sequence: s,
-			sourceActions: freezeFrameMenuItem ? [freezeFrameMenuItem] : [],
+			sourceActions:
+				studioInteractivityEnabled && freezeFrameMenuItem
+					? [freezeFrameMenuItem]
+					: [],
 		});
 	}, [
 		assetLinkInfo,

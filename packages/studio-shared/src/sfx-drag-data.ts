@@ -1,6 +1,6 @@
 import {isUrl} from './url';
 
-export const SFX_DRAG_MIME_TYPE = 'application/vnd.remotion.sfx+json';
+export {SFX_DRAG_MIME_TYPE} from './drag-mime-types';
 
 export type SfxDragData = {
 	type: 'remotion-sfx';

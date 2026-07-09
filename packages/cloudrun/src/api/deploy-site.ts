@@ -30,6 +30,7 @@ type Options = {
 	gitSource?: GitSource | null;
 	keyboardShortcutsEnabled?: boolean;
 	askAIEnabled?: boolean;
+	interactivityEnabled?: boolean;
 	experimentalClientSideRenderingEnabled?: boolean;
 	rspack?: boolean;
 };
@@ -110,6 +111,7 @@ export const internalDeploySiteRaw = async ({
 				options?.experimentalClientSideRenderingEnabled ?? false,
 			renderDefaults: null,
 			askAIEnabled: options?.askAIEnabled ?? true,
+			interactivityEnabled: options?.interactivityEnabled ?? true,
 			keyboardShortcutsEnabled: options?.keyboardShortcutsEnabled ?? true,
 			rspack: options?.rspack ?? false,
 			symlinkPublicDir: false,

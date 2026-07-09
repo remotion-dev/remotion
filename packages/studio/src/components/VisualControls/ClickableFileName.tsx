@@ -2,7 +2,7 @@ import {useCallback, useMemo, useState} from 'react';
 import type {OriginalPosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {BORDER_WHITE, LIGHT_COLOR, WHITE_HEX} from '../../helpers/colors';
 import {openOriginalPositionInEditor} from '../../helpers/open-in-editor';
-import {SCHEMA_EDITOR_FIELDSET_PADDING} from '../RenderModal/SchemaEditor/Fieldset';
+import {getSchemaEditorFieldsetPadding} from '../RenderModal/SchemaEditor/Fieldset';
 import {getOriginalSourceAttribution} from '../Timeline/TimelineStack/source-attribution';
 
 export type OriginalFileNameState =
@@ -19,8 +19,8 @@ export type OriginalFileNameState =
 	  };
 
 const container: React.CSSProperties = {
-	paddingLeft: SCHEMA_EDITOR_FIELDSET_PADDING,
-	paddingTop: SCHEMA_EDITOR_FIELDSET_PADDING / 2,
+	paddingLeft: getSchemaEditorFieldsetPadding(),
+	paddingTop: getSchemaEditorFieldsetPadding() / 2,
 };
 
 export const ClickableFileName = ({

@@ -110,15 +110,21 @@ export type ExtraPackage = {
 export const extraPackages: ExtraPackage[] = [
 	{
 		name: 'mediabunny',
-		version: '1.50.3',
+		version: '1.50.7',
 		description: 'Multimedia library used by Remotion',
 		docsUrl: 'https://www.remotion.dev/docs/mediabunny/version',
 	},
 	{
 		name: '@mediabunny/ac3',
-		version: '1.50.3',
+		version: '1.50.7',
 		description: 'AC-3 and E-AC-3 audio codec support for Mediabunny',
 		docsUrl: 'https://www.remotion.dev/docs/mediabunny/formats#ac-3-and-e-ac-3',
+	},
+	{
+		name: '@mediabunny/prores',
+		version: '1.50.7',
+		description: 'Apple ProRes decoder support for Mediabunny',
+		docsUrl: 'https://www.remotion.dev/docs/mediabunny/formats',
 	},
 	{
 		name: 'zod',

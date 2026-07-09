@@ -6,6 +6,11 @@ export const getSchemaEditorFieldsetPadding = () => {
 	return SCHEMA_EDITOR_FIELDSET_PADDING;
 };
 
+export const getSchemaEditorRootInset = (contentInset: number) => {
+	const fieldsetPadding = getSchemaEditorFieldsetPadding();
+	return Math.max(0, contentInset - fieldsetPadding);
+};
+
 type AlreadyPaddedContext = boolean;
 
 const AlreadyPaddedRightContext = createContext<AlreadyPaddedContext>(false);
