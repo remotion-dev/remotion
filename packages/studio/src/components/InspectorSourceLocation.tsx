@@ -29,6 +29,11 @@ const sourceLocationStyle: React.CSSProperties = {
 };
 
 const sourceLocationLabelStyle: React.CSSProperties = {
+	color: 'inherit',
+	display: 'block',
+	fontFamily: 'sans-serif',
+	fontSize: 12,
+	lineHeight: '18px',
 	minWidth: 0,
 	overflow: 'hidden',
 	textOverflow: 'ellipsis',
