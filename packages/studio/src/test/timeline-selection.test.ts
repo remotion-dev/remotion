@@ -1799,6 +1799,110 @@ test('Canvas outline rendering puts selected outlines last', () => {
 	]);
 });
 
+const makeTestOutline = ({
+	key,
+	left,
+	top,
+	width,
+	height,
+}: {
+	readonly key: string;
+	readonly left: number;
+	readonly top: number;
+	readonly width: number;
+	readonly height: number;
+}): SelectedOutline => ({
+	key,
+	dimensions: {width, height},
+	points: [
+		{x: left, y: top},
+		{x: left + width, y: top},
+		{x: left + width, y: top + height},
+		{x: left, y: top + height},
+	],
+});
+
+const makeOutlineTarget = ({
+	id,
+	parent,
+}: {
+	readonly id: string;
+	readonly parent: string | null;
+}): SelectedOutlineTarget =>
+	({
+		selected: false,
+		sequence: {id, parent},
+	}) as SelectedOutlineTarget;
+
+test('Canvas outline rendering keeps smaller nested hit targets above parents', () => {
+	const orderedOutlines = orderOutlinesForRendering({
+		outlines: [
+			makeTestOutline({
+				key: 'parent',
+				left: 0,
+				top: 0,
+				width: 100,
+				height: 100,
+			}),
+			makeTestOutline({
+				key: 'child',
+				left: 25,
+				top: 25,
+				width: 50,
+				height: 50,
+			}),
+		],
+		targetsByKey: new Map([
+			['parent', makeOutlineTarget({id: 'parent', parent: null})],
+			['child', makeOutlineTarget({id: 'child', parent: 'parent'})],
+		]),
+	});
+
+	expect(orderedOutlines.map((outline) => outline.key)).toEqual([
+		'parent',
+		'child',
+	]);
+});
+
+test('Canvas outline rendering puts equal-area child hit targets below parents', () => {
+	const orderedOutlines = orderOutlinesForRendering({
+		outlines: [
+			makeTestOutline({
+				key: 'parent',
+				left: 0,
+				top: 0,
+				width: 100,
+				height: 100,
+			}),
+			makeTestOutline({
+				key: 'container',
+				left: 0,
+				top: 0,
+				width: 100,
+				height: 100,
+			}),
+			makeTestOutline({
+				key: 'label',
+				left: 25,
+				top: 25,
+				width: 50,
+				height: 50,
+			}),
+		],
+		targetsByKey: new Map([
+			['parent', makeOutlineTarget({id: 'parent', parent: null})],
+			['container', makeOutlineTarget({id: 'container', parent: 'parent'})],
+			['label', makeOutlineTarget({id: 'label', parent: 'container'})],
+		]),
+	});
+
+	expect(orderedOutlines.map((outline) => outline.key)).toEqual([
+		'container',
+		'parent',
+		'label',
+	]);
+});
+
 test('Canvas outline hit targets exclude sequences hidden from the timeline', () => {
 	const schema = {} satisfies InteractivitySchema;
 	const refForOutline = {current: null};

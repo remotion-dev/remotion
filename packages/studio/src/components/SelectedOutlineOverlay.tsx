@@ -166,6 +166,58 @@ const SelectedOutlineSnapIndicators: React.FC<{
 	);
 };
 
+const outlinePointEqualityTolerance = 0.5;
+
+const outlinesHaveEquivalentHitArea = (
+	a: SelectedOutline,
+	b: SelectedOutline,
+): boolean => {
+	if (a.points.length !== b.points.length) {
+		return false;
+	}
+
+	for (let i = 0; i < a.points.length; i++) {
+		if (
+			Math.abs(a.points[i].x - b.points[i].x) > outlinePointEqualityTolerance ||
+			Math.abs(a.points[i].y - b.points[i].y) > outlinePointEqualityTolerance
+		) {
+			return false;
+		}
+	}
+
+	return true;
+};
+
+const getSequenceId = (target: SelectedOutlineTarget | undefined) => {
+	return target?.sequence?.id ?? null;
+};
+
+const isAncestorTarget = ({
+	ancestor,
+	descendant,
+	targetsBySequenceId,
+}: {
+	readonly ancestor: SelectedOutlineTarget;
+	readonly descendant: SelectedOutlineTarget;
+	readonly targetsBySequenceId: ReadonlyMap<string, SelectedOutlineTarget>;
+}): boolean => {
+	const ancestorId = getSequenceId(ancestor);
+	if (ancestorId === null) {
+		return false;
+	}
+
+	let parentId = descendant.sequence?.parent ?? null;
+	while (parentId !== null) {
+		if (parentId === ancestorId) {
+			return true;
+		}
+
+		parentId = targetsBySequenceId.get(parentId)?.sequence?.parent ?? null;
+	}
+
+	return false;
+};
+
 export const orderOutlinesForRendering = ({
 	outlines,
 	targetsByKey,
@@ -173,11 +225,54 @@ export const orderOutlinesForRendering = ({
 	readonly outlines: readonly SelectedOutline[];
 	readonly targetsByKey: ReadonlyMap<string, SelectedOutlineTarget>;
 }): readonly SelectedOutline[] => {
-	return [...outlines].sort((a, b) => {
-		const aSelected = targetsByKey.get(a.key)?.selected ?? false;
-		const bSelected = targetsByKey.get(b.key)?.selected ?? false;
+	const targetsBySequenceId = new Map<string, SelectedOutlineTarget>();
+	for (const target of targetsByKey.values()) {
+		const sequenceId = getSequenceId(target);
+		if (sequenceId !== null) {
+			targetsBySequenceId.set(sequenceId, target);
+		}
+	}
 
-		return Number(aSelected) - Number(bSelected);
+	return [...outlines].sort((a, b) => {
+		const aTarget = targetsByKey.get(a.key);
+		const bTarget = targetsByKey.get(b.key);
+		const aSelected = aTarget?.selected ?? false;
+		const bSelected = bTarget?.selected ?? false;
+
+		if (aSelected !== bSelected) {
+			return Number(aSelected) - Number(bSelected);
+		}
+
+		if (aTarget === undefined || bTarget === undefined) {
+			return 0;
+		}
+
+		const aAncestorOfB = isAncestorTarget({
+			ancestor: aTarget,
+			descendant: bTarget,
+			targetsBySequenceId,
+		});
+		const bAncestorOfA = isAncestorTarget({
+			ancestor: bTarget,
+			descendant: aTarget,
+			targetsBySequenceId,
+		});
+
+		if (!aAncestorOfB && !bAncestorOfA) {
+			return 0;
+		}
+
+		const equivalentHitArea = outlinesHaveEquivalentHitArea(a, b);
+
+		// Usually, children should be above parents so nested elements are directly
+		// selectable. If a child has the same hit area as its parent though, it makes
+		// the parent impossible to select from the canvas. Put that equal-area child
+		// below its parent, while still allowing smaller descendants to sit above it.
+		if (aAncestorOfB) {
+			return equivalentHitArea ? 1 : -1;
+		}
+
+		return equivalentHitArea ? -1 : 1;
 	});
 };
 
