@@ -11,6 +11,7 @@ import {
 	type TimelineSelection,
 	useTimelineSelection,
 } from '../Timeline/TimelineSelection';
+import {AlignmentControls} from './AlignmentControls';
 import {InspectorMessage, InspectorSectionHeader} from './common';
 import type {SequenceSectionSelection} from './inspector-selection';
 import {
@@ -82,6 +83,7 @@ const SequenceExpandedInspector: React.FC<{
 			onPointerDown={selectSequenceOnInspectorPointerDown}
 		>
 			<SequenceInspectorHeader sourceLocation={sourceLocation} track={track} />
+			<AlignmentControls track={track} />
 			<InspectorSequenceSection
 				sequence={track.sequence}
 				validatedLocation={validatedLocation}
