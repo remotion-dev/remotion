@@ -4518,6 +4518,15 @@ export const articles = [
 		slug: 'miscellaneous/snippets/combine-compositions',
 	},
 	{
+		id: 'miscellaneous/snippets/freeze-portions',
+		title: 'Freeze portions of a sequence',
+		relativePath: 'docs/miscellaneous/snippets/freeze-portions.mdx',
+		compId: 'articles-docs-miscellaneous-snippets-freeze-portions',
+		crumb: 'Snippets',
+		noAi: false,
+		slug: 'miscellaneous/snippets/freeze-portions',
+	},
+	{
 		id: 'miscellaneous/snippets/player-in-iframe',
 		title: 'Embedding a <Player> into an <iframe>',
 		relativePath: 'docs/miscellaneous/snippets/player-in-iframe.mdx',
@@ -7903,15 +7912,6 @@ export const articles = [
 		crumb: 'Snippets',
 		noAi: false,
 		slug: 'videos/different-segments-at-different-speeds',
-	},
-	{
-		id: 'videos/freeze-portions',
-		title: 'Freeze portions of a sequence',
-		relativePath: 'docs/videos/freeze-portions.mdx',
-		compId: 'articles-docs-videos-freeze-portions',
-		crumb: 'Snippets',
-		noAi: false,
-		slug: 'videos/freeze-portions',
 	},
 	{
 		id: 'videos/greenscreen',

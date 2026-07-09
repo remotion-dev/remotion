@@ -1064,7 +1064,6 @@ const sidebars: SidebarsConfig = {
 				'videos/accelerated-video',
 				'videos/jumpcuts',
 				'videos/different-segments-at-different-speeds',
-				'videos/freeze-portions',
 				'videos/video-tags',
 				'videos/hls',
 				'videos/media-fragments',
@@ -1467,6 +1466,7 @@ const sidebars: SidebarsConfig = {
 			type: 'category',
 			label: 'Snippets',
 			items: [
+				'miscellaneous/snippets/freeze-portions',
 				'miscellaneous/snippets/player-in-iframe',
 				'miscellaneous/snippets/combine-compositions',
 			],

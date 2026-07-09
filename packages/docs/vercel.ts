@@ -148,8 +148,8 @@ export const config: VercelConfig = {
 			{permanent: true},
 		),
 		routes.redirect(
-			'/docs/miscellaneous/snippets/freeze-portions',
 			'/docs/videos/freeze-portions',
+			'/docs/miscellaneous/snippets/freeze-portions',
 			{permanent: true},
 		),
 		routes.redirect(
