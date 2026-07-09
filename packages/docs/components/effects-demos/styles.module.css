@@ -48,10 +48,6 @@
 		grid-template-columns: minmax(280px, 52%) minmax(260px, 1fr);
 	}
 
-	.dragHandle {
-		border-bottom: 0;
-	}
-
 	.controls {
 		border-top: 1px solid var(--ifm-color-emphasis-300);
 	}
