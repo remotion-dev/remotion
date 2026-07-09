@@ -8,6 +8,8 @@ export const PaperTexture: React.FC = () => {
 	return (
 		<Solid
 			color="white"
+			width={1920}
+			height={1080}
 			effects={[
 				paper({
 					colorFront: 'white',
