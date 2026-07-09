@@ -22,6 +22,7 @@ export type QueuedPeriod = {
 export const makeAudioIterator = ({
 	startFromSecond,
 	maximumTimestamp,
+	loopStartInSeconds,
 	audioSink,
 	loop,
 	playbackRate,
@@ -30,6 +31,7 @@ export const makeAudioIterator = ({
 }: {
 	startFromSecond: number;
 	maximumTimestamp: number;
+	loopStartInSeconds?: number;
 	logLevel: LogLevel;
 	audioSink: AudioBufferSink;
 	loop: boolean;
@@ -42,6 +44,7 @@ export const makeAudioIterator = ({
 		audioSink,
 		timeToSeek: startFromSecond,
 		maximumTimestamp,
+		loopStartInSeconds,
 		loop,
 		playbackRate,
 		sequenceDurationInSeconds,

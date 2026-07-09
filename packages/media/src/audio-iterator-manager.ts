@@ -361,7 +361,9 @@ export const audioIteratorManager = ({
 			return;
 		}
 
-		const maximumTimestamp = getMediaEndTimestamp();
+		const maximumTimestamp = loop
+			? Math.min(getMediaEndTimestamp(), getSequenceEndTimestamp())
+			: getMediaEndTimestamp();
 		if (startFromSecond >= maximumTimestamp) {
 			return;
 		}
@@ -375,6 +377,7 @@ export const audioIteratorManager = ({
 		const iterator = makeAudioIterator({
 			startFromSecond,
 			maximumTimestamp,
+			loopStartInSeconds: getStartTime(),
 			audioSink,
 			logLevel,
 			loop,

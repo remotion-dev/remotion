@@ -6,14 +6,18 @@ import {makeNonceManager} from '../nonce-manager';
 
 const prepare = async (options?: {
 	fps?: number;
+	loop?: boolean;
 	playbackRate?: number;
 	mediaEndTimestamp?: number;
+	sequenceDurationInSeconds?: number;
 	sequenceEndTimestamp?: number;
 }) => {
 	const {
 		fps = 30,
+		loop = false,
 		playbackRate = 1,
 		mediaEndTimestamp = Infinity,
+		sequenceDurationInSeconds = 10,
 		sequenceEndTimestamp = Infinity,
 	} = options ?? {};
 	const input = new Input({
@@ -56,7 +60,7 @@ const prepare = async (options?: {
 		},
 		getMediaEndTimestamp: () => mediaEndTimestamp,
 		getSequenceEndTimestamp: () => sequenceEndTimestamp,
-		getSequenceDurationInSeconds: () => 10,
+		getSequenceDurationInSeconds: () => sequenceDurationInSeconds,
 		getStartTime: () => 0,
 		initialMuted: false,
 		drawDebugOverlay: () => {},
@@ -65,18 +69,27 @@ const prepare = async (options?: {
 		initialTrimAfter: undefined,
 		initialSequenceOffset: 0,
 		initialSequenceDurationInFrames: 10,
-		initialLoop: false,
+		initialLoop: loop,
 		initialFps: 30,
 	});
 
 	const scheduledChunks: number[] = [];
+	const scheduledNodes: {
+		mediaTimestamp: number;
+		originalUnloopedMediaTimestamp: number;
+	}[] = [];
 	const waiters: {count: number; resolve: () => void}[] = [];
 
 	const scheduleAudioNode = (
 		_node: AudioBufferSourceNode,
 		mediaTimestamp: number,
+		originalUnloopedMediaTimestamp: number,
 	): ScheduleAudioNodeResult => {
 		scheduledChunks.push(mediaTimestamp);
+		scheduledNodes.push({
+			mediaTimestamp,
+			originalUnloopedMediaTimestamp,
+		});
 		for (let i = waiters.length - 1; i >= 0; i--) {
 			if (scheduledChunks.length >= waiters[i].count) {
 				waiters[i].resolve();
@@ -98,7 +111,7 @@ const prepare = async (options?: {
 			playbackRate,
 			getTargetTime: (mediaTimestamp: number) => mediaTimestamp,
 			logLevel: 'info',
-			loop: false,
+			loop,
 			trimBefore: undefined,
 			trimAfter: undefined,
 			sequenceOffset: 0,
@@ -113,6 +126,7 @@ const prepare = async (options?: {
 		manager,
 		fps,
 		scheduledChunks,
+		scheduledNodes,
 		seek,
 		audioContextCurrentTime,
 	};
@@ -295,4 +309,28 @@ test('should not decode + schedule audio chunks beyond the end time', async () =
 	}
 
 	expect(scheduledChunks.length).toBe(23);
+});
+
+test('should keep looped audio scheduling from the true loop start after a mid-loop seek', async () => {
+	const {seek, manager, scheduledNodes, audioContextCurrentTime} =
+		await prepare({
+			loop: true,
+			mediaEndTimestamp: 1,
+			sequenceDurationInSeconds: 3,
+			sequenceEndTimestamp: 3,
+		});
+
+	audioContextCurrentTime.current = 0.8;
+	seek({
+		time: 0.8,
+	});
+
+	await manager.waitForNScheduledNodes(70);
+
+	const thirdLoopStart = scheduledNodes.find(
+		(node) => node.mediaTimestamp >= 2,
+	);
+
+	expect(thirdLoopStart).toBeDefined();
+	expect(thirdLoopStart?.originalUnloopedMediaTimestamp).toBeLessThan(0.1);
 });

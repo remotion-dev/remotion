@@ -29,45 +29,46 @@ async function* makeIteratorWithPrimingInner(
 
 async function* makeLoopingIterator({
 	audioSink,
+	timeToSeek,
 	segmentStartInSeconds,
 	segmentEndInSeconds,
 	playbackRate,
 	sequenceDurationInSeconds,
 }: {
 	audioSink: AudioBufferSink;
+	timeToSeek: number;
 	segmentStartInSeconds: number;
 	segmentEndInSeconds: number;
 	playbackRate: number;
 	sequenceDurationInSeconds: number;
 }): AsyncGenerator<BufferWithMediaTimestamp, void, unknown> {
 	const duration = segmentEndInSeconds - segmentStartInSeconds;
+	if (duration <= 0) {
+		return;
+	}
+
 	let iteration = 0;
 
-	let broken = false;
 	while (true) {
+		const startTimestamp = iteration === 0 ? timeToSeek : segmentStartInSeconds;
+		const timestampOffset = iteration === 0 ? 0 : iteration * duration;
 		for await (const item of makeIteratorWithPrimingInner(
 			audioSink,
-			segmentStartInSeconds,
+			startTimestamp,
 			segmentEndInSeconds,
 		)) {
-			const timestamp = item.timestamp + iteration * duration;
+			const timestamp = item.timestamp + timestampOffset;
 
 			const endTimestamp =
-				duration * iteration +
-				(item.timestamp - segmentStartInSeconds + item.buffer.duration);
+				timestamp - segmentStartInSeconds + item.buffer.duration;
 			if (endTimestamp > sequenceDurationInSeconds * playbackRate) {
-				broken = true;
-				break;
+				return;
 			}
 
 			yield {
 				buffer: item.buffer,
 				timestamp,
 			};
-		}
-
-		if (broken) {
-			break;
 		}
 
 		iteration++;
@@ -78,6 +79,7 @@ export const makeIteratorWithPriming = ({
 	audioSink,
 	timeToSeek,
 	maximumTimestamp,
+	loopStartInSeconds,
 	loop,
 	playbackRate,
 	sequenceDurationInSeconds,
@@ -85,6 +87,7 @@ export const makeIteratorWithPriming = ({
 	audioSink: AudioBufferSink;
 	timeToSeek: number;
 	maximumTimestamp: number;
+	loopStartInSeconds?: number;
 	loop: boolean;
 	playbackRate: number;
 	sequenceDurationInSeconds: number;
@@ -92,7 +95,8 @@ export const makeIteratorWithPriming = ({
 	if (loop) {
 		return makeLoopingIterator({
 			audioSink,
-			segmentStartInSeconds: timeToSeek,
+			timeToSeek,
+			segmentStartInSeconds: loopStartInSeconds ?? timeToSeek,
 			segmentEndInSeconds: maximumTimestamp,
 			playbackRate,
 			sequenceDurationInSeconds,
