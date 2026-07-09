@@ -11,7 +11,7 @@ To add sound to a transition, you may use this function to wrap any [presentatio
 
 ```tsx twoslash title="add-sound.tsx"
 import {TransitionPresentation, TransitionPresentationComponentProps} from '@remotion/transitions';
-import {Html5Audio} from 'remotion';
+import {Audio} from '@remotion/media';
 
 export function addSound<T extends Record<string, unknown>>(transition: TransitionPresentation<T>, src: string): TransitionPresentation<T> {
   const {component: Component, ...other} = transition;
@@ -21,7 +21,7 @@ export function addSound<T extends Record<string, unknown>>(transition: Transiti
   const NewComponent: React.FC<TransitionPresentationComponentProps<T>> = (p) => {
     return (
       <>
-        {p.presentationDirection === 'entering' ? <Html5Audio src={src} /> : null}
+        {p.presentationDirection === 'entering' ? <Audio src={src} /> : null}
         <C {...p} />
       </>
     );
@@ -34,13 +34,13 @@ export function addSound<T extends Record<string, unknown>>(transition: Transiti
 }
 ```
 
-Customize the volume, offset, playback rate, and other properties of the [`<Html5Audio>`](/docs/html5-audio) component as you wish.
+Customize the volume, offset, playback rate, and other properties of the [`<Audio>`](/docs/media/audio) component as you wish.
 
 You may use it like this:
 
 ```tsx twoslash title="example.tsx"
 import {TransitionPresentation, TransitionPresentationComponentProps} from '@remotion/transitions';
-import {Html5Audio} from 'remotion';
+import {Audio} from '@remotion/media';
 
 export function addSound<T extends Record<string, unknown>>(transition: TransitionPresentation<T>, src: string): TransitionPresentation<T> {
   const {component: Component, ...other} = transition;
@@ -50,7 +50,7 @@ export function addSound<T extends Record<string, unknown>>(transition: Transiti
   const NewComponent: React.FC<TransitionPresentationComponentProps<T>> = (p) => {
     return (
       <>
-        {p.presentationDirection === 'entering' ? <Html5Audio src={src} /> : null}
+        {p.presentationDirection === 'entering' ? <Audio src={src} /> : null}
         <C {...p} />
       </>
     );
@@ -75,5 +75,5 @@ Now you can use `withSound` in place of `presentation`.
 
 ## See also
 
-- [`<Html5Audio>`](/docs/html5-audio)
+- [`<Audio>`](/docs/media/audio)
 - [Using audio](/docs/using-audio)
