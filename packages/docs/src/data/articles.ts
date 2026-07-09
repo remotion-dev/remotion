@@ -5220,6 +5220,15 @@ export const articles = [
 		slug: 'license/pricing',
 	},
 	{
+		id: 'prores',
+		title: 'ProRes',
+		relativePath: 'docs/prores.mdx',
+		compId: 'articles-docs-prores',
+		crumb: 'Rendering',
+		noAi: false,
+		slug: 'prores',
+	},
+	{
 		id: 'quality',
 		title: 'Quality Guide',
 		relativePath: 'docs/quality.mdx',

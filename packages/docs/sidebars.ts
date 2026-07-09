@@ -1067,6 +1067,7 @@ const sidebars: SidebarsConfig = {
 				'videos/different-segments-at-different-speeds',
 				'video-tags',
 				'hls',
+				'prores',
 				'videos/media-fragments',
 				'videos/as-threejs-texture',
 			],

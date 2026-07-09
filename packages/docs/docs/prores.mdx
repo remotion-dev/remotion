@@ -1,0 +1,157 @@
+---
+image: /generated/articles-docs-prores.png
+id: prores
+title: ProRes
+sidebar_label: ProRes
+crumb: 'Rendering'
+---
+
+Apple ProRes is a high-bitrate codec for video editing workflows.
+Use it when the rendered file is going into Final Cut Pro, Adobe Premiere Pro, DaVinci Resolve or another editor.
+
+ProRes files are large and are not suitable for browser playback.
+For web delivery, use [H.264](/docs/encoding), [H.265](/docs/encoding), [VP8 or VP9](/docs/encoding), or [AV1](/docs/encoding) instead.
+
+## Rendering ProRes<AvailableFrom v="2.1.7" />
+
+Pass `prores` as the codec and use a `.mov` output file:
+
+```bash title="Terminal"
+npx remotion render MyComp out/video.mov --codec=prores
+```
+
+In the Studio, choose `Apple ProRes` in the render dialog.
+
+When rendering with [`renderMedia()`](/docs/renderer/render-media), pass `codec: "prores"`:
+
+```ts twoslash title="render.ts"
+import {renderMedia} from '@remotion/renderer';
+import type {VideoConfig} from 'remotion';
+
+declare const serveUrl: string;
+declare const composition: VideoConfig;
+// ---cut---
+await renderMedia({
+  composition,
+  serveUrl,
+  codec: 'prores',
+  outputLocation: 'out/video.mov',
+});
+```
+
+To make ProRes the default codec for CLI renders, set it in `remotion.config.ts`:
+
+```tsx twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+
+Config.setCodec('prores');
+```
+
+You can also return `defaultCodec: "prores"` from [`calculateMetadata()`](/docs/calculate-metadata).
+
+## Choosing a ProRes profile
+
+Use the [`--prores-profile`](/docs/cli/render#--prores-profile) CLI flag, the [`proResProfile`](/docs/renderer/render-media#proresprofile) option, [`Config.setProResProfile()`](/docs/config#setproresprofile), or `defaultProResProfile` from [`calculateMetadata()`](/docs/calculate-metadata).
+
+```bash title="Terminal"
+npx remotion render MyComp out/video.mov --codec=prores --prores-profile=hq
+```
+
+```ts twoslash title="render.ts"
+import {renderMedia} from '@remotion/renderer';
+import type {VideoConfig} from 'remotion';
+
+declare const serveUrl: string;
+declare const composition: VideoConfig;
+// ---cut---
+await renderMedia({
+  composition,
+  serveUrl,
+  codec: 'prores',
+  proResProfile: 'hq',
+  outputLocation: 'out/video.mov',
+});
+```
+
+| Value            | FFmpeg setting | Approximate bitrate | Alpha channel |
+| ---------------- | -------------- | ------------------- | ------------- |
+| `"proxy"`        | `0`            | 45 Mbps             | No            |
+| `"light"`        | `1`            | 102 Mbps            | No            |
+| `"standard"`     | `2`            | 147 Mbps            | No            |
+| `"hq"` (default) | `3`            | 220 Mbps            | No            |
+| `"4444"`         | `4`            | 330 Mbps            | Yes           |
+| `"4444-xq"`      | `5`            | 500 Mbps            | Yes           |
+
+Higher profiles produce larger files.
+ProRes does not support [`crf`](/docs/cli/render#--crf), and [`videoBitrate`](/docs/cli/render#--video-bitrate) is ignored.
+
+## Transparent ProRes
+
+To export a transparent overlay or transition for a video editor, use a ProRes profile with alpha support: `"4444"` or `"4444-xq"`.
+The video must be rendered with PNG frames and the `yuva444p10le` pixel format.
+
+```bash title="Terminal"
+npx remotion render MyComp out/overlay.mov --codec=prores --prores-profile=4444 --image-format=png --pixel-format=yuva444p10le
+```
+
+```tsx twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+
+Config.setCodec('prores');
+Config.setProResProfile('4444');
+Config.setVideoImageFormat('png');
+Config.setPixelFormat('yuva444p10le');
+```
+
+Make sure the composition has no opaque background.
+In the Studio, enable the checkerboard background to inspect transparency.
+
+For more context, see [Rendering transparent videos](/docs/transparent-videos) and [Creating overlays](/docs/overlay).
+
+## Using ProRes with `@remotion/media`<AvailableFrom v="4.0.487" />
+
+[`<Video>`](/docs/media/video) from [`@remotion/media`](/docs/media) is based on Mediabunny and WebCodecs.
+ProRes is not natively supported by WebCodecs and is not enabled by default in `@remotion/media`.
+
+Install the ProRes decoder:
+
+```bash title="Terminal"
+npx remotion add @mediabunny/prores
+```
+
+Register it before rendering a composition that uses ProRes media:
+
+```tsx twoslash title="src/index.ts"
+// @filename: ./Root.tsx
+export const RemotionRoot = () => <></>;
+
+// @filename: index.ts
+// ---cut---
+import {registerRoot} from 'remotion';
+import {registerProresDecoder} from '@mediabunny/prores';
+import {RemotionRoot} from './Root';
+
+registerProresDecoder();
+registerRoot(RemotionRoot);
+```
+
+After that, a `.mov` file with a ProRes video track can be used in [`<Video>`](/docs/media/video):
+
+```tsx twoslash title="MyComposition.tsx"
+import {staticFile} from 'remotion';
+import {Video} from '@remotion/media';
+
+export const MyComposition = () => {
+  return <Video src={staticFile('clip.mov')} />;
+};
+```
+
+For maximum performance, `@mediabunny/prores` uses shared-memory multithreading when the page is [cross-origin isolated](/docs/miscellaneous/cross-origin-isolation).
+If cross-origin isolation is not enabled, ProRes decoding still works, but falls back to a slower algorithm.
+
+## See also
+
+- [Encoding Guide](/docs/encoding)
+- [Rendering transparent videos](/docs/transparent-videos)
+- [`@remotion/media` - Supported media](/docs/media/support)
+- [Supported formats and codecs by Mediabunny](/docs/mediabunny/formats)

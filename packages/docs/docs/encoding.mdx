@@ -179,68 +179,9 @@ This option is incompatible with other quality options.
 
 _Applies only to `prores` codec_.
 
-For ProRes, there is no CRF option, but there are profiles which you can set using the [`--prores-profile` flag](/docs/cli/render#--prores-profile) or the [`setProResProfile`](/docs/config#setproresprofile) config file option.
+For ProRes, there is no CRF option, but there are profiles which you can set using the [`--prores-profile` flag](/docs/cli/render#--prores-profile), the [`proResProfile`](/docs/renderer/render-media#proresprofile) render option, or the [`setProResProfile()`](/docs/config#setproresprofile) config file option.
 
-<table>
-  <tr>
-    <th>Value</th>
-    <th>FFmpeg setting</th>
-    <th>Bitrate</th>
-    <th>
-      <a href="/docs/transparent-videos">Supports alpha channel</a>
-    </th>
-  </tr>
-  <tr>
-    <td>
-      <code>"proxy"</code>
-    </td>
-    <td>0</td>
-    <td>~45Mbps</td>
-    <td>No</td>
-  </tr>
-  <tr>
-    <td>
-      <code>"light"</code>
-    </td>
-    <td>1</td>
-    <td>~102Mbps</td>
-    <td>No</td>
-  </tr>
-  <tr>
-    <td>
-      <code>"standard"</code> (default)
-    </td>
-    <td>2</td>
-    <td>~147Mbps</td>
-    <td>No</td>
-  </tr>
-  <tr>
-    <td>
-      <code>"hq"</code>
-    </td>
-    <td>3</td>
-    <td>~220Mbps</td>
-    <td>No</td>
-  </tr>
-  <tr>
-    <td>
-      <code>"4444"</code>
-    </td>
-    <td>4</td>
-    <td>~330Mbps</td>
-    <td>Yes</td>
-  </tr>
-  <tr>
-    <td>
-      <code>"4444-xq"</code>
-    </td>
-    <td>4</td>
-    <td>~500Mbps</td>
-    <td>Yes</td>
-  </tr>
-</table>
-
-Higher bitrate means higher quality and higher file size.
+See the [ProRes guide](/docs/prores#choosing-a-prores-profile) for all profile values and alpha channel support.
 
 ## Audio-only export
 
