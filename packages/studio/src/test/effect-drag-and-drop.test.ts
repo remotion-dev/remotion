@@ -2,6 +2,7 @@ import {expect, test} from 'bun:test';
 import {
 	ASSET_DRAG_MIME_TYPE,
 	EFFECT_DRAG_MIME_TYPE,
+	ELEMENT_DRAG_MIME_TYPE,
 	type EffectDragData,
 } from '@remotion/studio-shared';
 import {
@@ -61,6 +62,16 @@ test('does not treat asset imports as effect drags', () => {
 		hasEffectDragType(
 			makeDataTransfer({
 				types: [ASSET_DRAG_MIME_TYPE, 'application/json', 'text/plain'],
+			}),
+		),
+	).toBe(false);
+});
+
+test('does not treat element imports as effect drags', () => {
+	expect(
+		hasEffectDragType(
+			makeDataTransfer({
+				types: [ELEMENT_DRAG_MIME_TYPE, 'application/json', 'text/plain'],
 			}),
 		),
 	).toBe(false);
