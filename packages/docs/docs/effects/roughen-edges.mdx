@@ -1,0 +1,92 @@
+---
+image: /generated/articles-docs-effects-roughen-edges.png
+slug: /effects/roughen-edges
+title: roughenEdges()
+sidebar_label: roughenEdges()
+crumb: '@remotion/effects'
+---
+
+# roughenEdges()<AvailableFrom v="4.0.487" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+Roughens the alpha boundary of canvas-based components such as [`<Video>`](/docs/media/video), [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas), [`<CanvasImage>`](/docs/canvasimage) and [`<Solid>`](/docs/solid).
+
+Use it on transparent logos, text, masks and cutouts to create an irregular paper-like edge without adding the full [`paper()`](/docs/effects/paper) texture.
+
+Based on the open-source [Paper Shaders](https://shaders.paper.design) noise helpers.
+
+## Preview
+
+<EffectsDemo type="effects-roughen-edges" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {roughenEdges} from '@remotion/effects/roughen-edges';
+import {AbsoluteFill, CanvasImage, staticFile} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  return (
+    <AbsoluteFill>
+      <CanvasImage
+        src={staticFile('logo-with-alpha.png')}
+        width={1280}
+        height={720}
+        fit="contain"
+        effects={[
+          roughenEdges({
+            border: 26.5,
+            scale: 0.07,
+            seed: 231.2,
+          }),
+        ]}
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+## API
+
+Pass an object with the following properties. You can also call `roughenEdges()` without arguments.
+
+### `amount?`
+
+Strength of the roughened edge from `0` to `1`. Defaults to `1`.
+
+Use `0` to leave the layer unchanged.
+
+### `border?`
+
+Size of the roughened edge in pixels. Defaults to `26.5`.
+
+Higher values allow the edge to move farther inward and outward. Must be between `0` and `200`.
+
+### `scale?`
+
+Scale of the generated edge noise from `0.01` to `4`. Defaults to `0.07`.
+
+Smaller values create finer edge detail. Larger values create broader, wavier edges.
+
+### `seed?`
+
+Seed for the generated edge pattern from `0` to `1000`. Defaults to `231.2`.
+
+Change it to get a different static edge pattern. To animate the edge, pass a value derived from [`useCurrentFrame()`](/docs/use-current-frame).
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Requirements
+
+`roughenEdges()` uses a WebGL2 backend. During renders, enable WebGL via [`Config.setChromiumOpenGlRenderer('angle')`](/docs/config#setchromiumopenglrenderer). See [Using WebGL during renders](/docs/remotion/html-in-canvas#using-webgl-during-renders).
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`paper()`](/docs/effects/paper)
+- [`speckle()`](/docs/effects/speckle)
+- [`vignette()`](/docs/effects/vignette)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/roughen-edges.ts)
