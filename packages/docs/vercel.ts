@@ -124,7 +124,7 @@ export const config: VercelConfig = {
 		),
 		routes.redirect('/support', '/docs/support', {permanent: true}),
 		routes.redirect('/webcodecs', '/docs/webcodecs', {permanent: true}),
-		routes.redirect('/docs/miscellaneous/snippets/hls', '/docs/videos/hls', {
+		routes.redirect('/docs/miscellaneous/snippets/hls', '/docs/hls', {
 			permanent: true,
 		}),
 		routes.redirect(
@@ -157,13 +157,13 @@ export const config: VercelConfig = {
 			'/docs/videos/video-manipulation',
 			{permanent: true},
 		),
-		routes.redirect('/docs/greenscreen', '/docs/videos/greenscreen', {
+		routes.redirect('/docs/videos/greenscreen', '/docs/greenscreen', {
 			permanent: true,
 		}),
-		routes.redirect('/docs/video-tags', '/docs/videos/video-tags', {
+		routes.redirect('/docs/videos/video-tags', '/docs/video-tags', {
 			permanent: true,
 		}),
-		routes.redirect('/docs/hls', '/docs/videos/hls', {
+		routes.redirect('/docs/videos/hls', '/docs/hls', {
 			permanent: true,
 		}),
 		routes.redirect('/docs/media-fragments', '/docs/videos/media-fragments', {
@@ -325,7 +325,7 @@ export const config: VercelConfig = {
 		),
 		routes.redirect(
 			'/docs/video-vs-offthreadvideo',
-			'/docs/videos/video-tags',
+			'/docs/video-tags',
 			{permanent: false},
 		),
 		routes.redirect(
@@ -366,7 +366,7 @@ export const config: VercelConfig = {
 		routes.redirect('/investors', '/docs/investors', {permanent: false}),
 		routes.redirect(
 			'/docs/miscellaneous/snippets/offthread-video-while-rendering',
-			'/docs/videos/video-tags#using-a-different-tag-in-preview-and-rendering',
+			'/docs/video-tags#using-a-different-tag-in-preview-and-rendering',
 			{permanent: false},
 		),
 		routes.redirect('/docs/video', '/docs/html5-video', {permanent: false}),
