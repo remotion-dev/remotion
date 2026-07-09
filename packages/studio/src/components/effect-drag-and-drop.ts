@@ -5,9 +5,11 @@ import {
 	EFFECT_DRAG_MIME_TYPE,
 	ELEMENT_DRAG_MIME_TYPE,
 	getRequiredPackageForEffectImportPath,
+	isRemotionDragMimeType,
 	parseEffectDragData,
 	SFX_DRAG_MIME_TYPE,
 	type EffectDragData,
+	type RemotionDragMimeType,
 } from '@remotion/studio-shared';
 import type {SequencePropsSubscriptionKey} from 'remotion';
 import {installRequiredPackages} from '../helpers/install-required-package';
@@ -17,7 +19,11 @@ import {showNotification} from './Notifications/NotificationCenter';
 export const hasEffectDragType = (dataTransfer: DataTransfer) => {
 	const types = Array.from(dataTransfer.types);
 	const hasExplicitEffectType = types.includes(EFFECT_DRAG_MIME_TYPE);
-	if (!hasExplicitEffectType && hasImportableAssetDragType(dataTransfer)) {
+	if (
+		!hasExplicitEffectType &&
+		(hasNonEffectRemotionDragType(dataTransfer) ||
+			hasNonRemotionImportableAssetDragType(dataTransfer))
+	) {
 		return false;
 	}
 
@@ -34,18 +40,36 @@ const isGenericDragType = (type: string) => {
 	return type === 'application/json' || type === 'text/plain';
 };
 
-const hasImportableAssetDragType = (dataTransfer: DataTransfer) => {
-	return Array.from(dataTransfer.types).some(
-		(type) =>
-			type === 'Files' ||
-			type === ASSET_DRAG_MIME_TYPE ||
-			type === COMPOSITION_DRAG_MIME_TYPE ||
-			type === COMPONENT_DRAG_MIME_TYPE ||
-			type === ELEMENT_DRAG_MIME_TYPE ||
-			type === SFX_DRAG_MIME_TYPE ||
-			type === 'text/uri-list' ||
-			type === 'text/html',
-	);
+const isNonEffectRemotionDragType = (mimeType: RemotionDragMimeType) => {
+	switch (mimeType) {
+		case EFFECT_DRAG_MIME_TYPE:
+			return false;
+		case ASSET_DRAG_MIME_TYPE:
+		case COMPOSITION_DRAG_MIME_TYPE:
+		case COMPONENT_DRAG_MIME_TYPE:
+		case ELEMENT_DRAG_MIME_TYPE:
+		case SFX_DRAG_MIME_TYPE:
+			return true;
+		default:
+			mimeType satisfies never;
+			throw new Error(`Unhandled Remotion drag MIME type: ${mimeType}`);
+	}
+};
+
+const hasNonEffectRemotionDragType = (dataTransfer: DataTransfer) => {
+	return Array.from(dataTransfer.types).some((type) => {
+		if (!isRemotionDragMimeType(type)) {
+			return false;
+		}
+
+		return isNonEffectRemotionDragType(type);
+	});
+};
+
+const hasNonRemotionImportableAssetDragType = (dataTransfer: DataTransfer) => {
+	return Array.from(dataTransfer.types).some((type) => {
+		return type === 'Files' || type === 'text/uri-list' || type === 'text/html';
+	});
 };
 
 export const getEffectDragData = (

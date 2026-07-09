@@ -1,5 +1,4 @@
-export const COMPOSITION_DRAG_MIME_TYPE =
-	'application/vnd.remotion.composition+json';
+export {COMPOSITION_DRAG_MIME_TYPE} from './drag-mime-types';
 
 export type CompositionDragData = {
 	type: 'remotion-composition';
