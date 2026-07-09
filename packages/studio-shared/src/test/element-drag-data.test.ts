@@ -22,17 +22,16 @@ test('parses element drag data', () => {
 	});
 });
 
-test('accepts element drag data without dimensions', () => {
-	const elementWithoutDimensions = {...validElement};
-	delete (elementWithoutDimensions as any).dimensions;
+test('accepts element drag data with null dimensions', () => {
+	const elementWithoutDimensions = {...validElement, dimensions: null};
 	expect(
 		parseElementDragData(
-			JSON.stringify(makeElementDragData(elementWithoutDimensions as any)),
+			JSON.stringify(makeElementDragData(elementWithoutDimensions)),
 		),
 	).toEqual({
 		type: 'remotion-element',
 		version: 1,
-		element: elementWithoutDimensions as any,
+		element: elementWithoutDimensions,
 	});
 });
 
@@ -101,15 +100,6 @@ test('rejects invalid element drag data', () => {
 				type: 'remotion-element',
 				version: 1,
 				element: {...validElement, sourceCode: ''},
-			}),
-		),
-	).toBe(null);
-	expect(
-		parseElementDragData(
-			JSON.stringify({
-				type: 'remotion-element',
-				version: 1,
-				element: {...validElement, dimensions: null},
 			}),
 		),
 	).toBe(null);

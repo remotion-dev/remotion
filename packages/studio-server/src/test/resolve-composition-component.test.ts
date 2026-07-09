@@ -1354,6 +1354,7 @@ test('wraps a component in a dimensionless Sequence', async () => {
 			},
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 			wrapInSequence: {
+				dimensions: null,
 				name: 'Lower Third',
 				position: {x: 120, y: 80.5},
 			},

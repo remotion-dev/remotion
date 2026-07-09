@@ -942,7 +942,7 @@ const createSequenceWrappedElement = ({
 	sequenceLocalName,
 }: {
 	child: namedTypes.JSXElement;
-	dimensions?: {width: number; height: number};
+	dimensions: {width: number; height: number} | null;
 	durationInFrames: number | null;
 	name: string | null;
 	position: InsertableCompositionElementPosition | null;
@@ -953,7 +953,7 @@ const createSequenceWrappedElement = ({
 			recast.types.builders.jsxIdentifier(sequenceLocalName),
 			[
 				...(name === null ? [] : [createStringAttribute('name', name)]),
-				...(dimensions
+				...(dimensions !== null
 					? [
 							createNumberAttribute('width', dimensions.width),
 							createNumberAttribute('height', dimensions.height),
@@ -2099,7 +2099,7 @@ export const insertJsxElementIntoComposition = async ({
 	element: InsertableCompositionElement;
 	prettierConfigOverride: Record<string, unknown> | null;
 	wrapInSequence?: {
-		dimensions?: {width: number; height: number};
+		dimensions: {width: number; height: number} | null;
 		durationInFrames?: number | null;
 		name: string | null;
 		position: InsertableCompositionElementPosition | null;

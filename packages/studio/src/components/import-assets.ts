@@ -925,7 +925,7 @@ export const insertElement = async ({
 			compositionId,
 			element,
 			position: getCenteredPosition({
-				dimensions: element.dimensions ?? null,
+				dimensions: element.dimensions,
 				dropPosition,
 			}),
 		});

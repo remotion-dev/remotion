@@ -66,13 +66,13 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 			return null;
 		}
 
-		const dimensions: ComponentDimensions | undefined =
+		const dimensions: ComponentDimensions | null =
 			elementWidth !== undefined && elementHeight !== undefined
 				? {
 						width: elementWidth,
 						height: elementHeight,
 					}
-				: undefined;
+				: null;
 
 		return makeElementDragData({
 			dimensions,
