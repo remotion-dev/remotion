@@ -1,8 +1,12 @@
-import {useCallback, useContext, useMemo} from 'react';
+import {useCallback, useContext, useEffect, useMemo} from 'react';
 import {Internals} from 'remotion';
 import type {OriginalPosition} from '../error-overlay/react-overlay/utils/get-source-map';
 import {isCompositionStill} from '../helpers/is-composition-still';
-import {openOriginalPositionInEditor} from '../helpers/open-in-editor';
+import {
+	openOriginalPositionInEditor,
+	preloadCompositionComponentInfo,
+	useCachedCompositionComponentInfo,
+} from '../helpers/open-in-editor';
 import {renderFrame} from '../state/render-frame';
 import {InlineCompositionName} from './InlineCompositionName';
 import {
@@ -46,6 +50,26 @@ export const CurrentComposition = () => {
 			source: resolvedCompositionLocation.source,
 		};
 	}, [resolvedCompositionLocation]);
+	const compositionFile = validatedLocation?.source ?? null;
+	const compositionId = currentComposition?.id ?? null;
+	const compositionComponentInfo = useCachedCompositionComponentInfo({
+		compositionFile,
+		compositionId,
+	});
+	const componentLocation: OriginalPosition | null =
+		compositionComponentInfo?.location ?? null;
+
+	useEffect(() => {
+		if (compositionFile === null || compositionId === null) {
+			return;
+		}
+
+		preloadCompositionComponentInfo({
+			compositionFile,
+			compositionId,
+		});
+	}, [compositionFile, compositionId]);
+
 	const openFileLocation = useCallback(() => {
 		if (!validatedLocation) {
 			return;
@@ -55,6 +79,15 @@ export const CurrentComposition = () => {
 			showNotification((err as Error).message, 2000);
 		});
 	}, [validatedLocation]);
+	const openComponentLocation = useCallback(() => {
+		if (!componentLocation) {
+			return;
+		}
+
+		openOriginalPositionInEditor(componentLocation).catch((err) => {
+			showNotification((err as Error).message, 2000);
+		});
+	}, [componentLocation]);
 
 	return (
 		<InspectorInfoHeader>
@@ -70,6 +103,11 @@ export const CurrentComposition = () => {
 						location={validatedLocation}
 						canOpen={validatedLocation !== null}
 						onOpen={openFileLocation}
+					/>
+					<InspectorSourceLocation
+						location={componentLocation}
+						canOpen={componentLocation !== null}
+						onOpen={openComponentLocation}
 					/>
 					<InspectorInfoSubtitle>
 						{video.width}x{video.height}
