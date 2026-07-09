@@ -35,8 +35,14 @@ const sourceLocationIconStyle: CSSProperties = {
 	width: 13,
 };
 
+const reactSourceLocationIconStyle: CSSProperties = {
+	...sourceLocationIconStyle,
+	height: 16,
+	width: 16,
+};
+
 const renderReactIcon = (color: string) => {
-	return <ReactIcon color={color} style={sourceLocationIconStyle} />;
+	return <ReactIcon color={color} style={reactSourceLocationIconStyle} />;
 };
 
 export const CurrentComposition = () => {
