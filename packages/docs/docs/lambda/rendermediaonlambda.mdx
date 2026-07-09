@@ -66,7 +66,7 @@ The `framesPerLambda` parameter cannot result in more than 200 functions being s
 :::
 
 :::note
-When rendering [transparent WebM videos](/docs/transparent-videos#rendering-transparent-webm-on-lambda), chunk boundaries can be visible in the alpha channel. Increase `framesPerLambda` to reduce boundaries, or render WebM in one pass if the artifact appears.
+When rendering transparent WebM videos, chunk boundaries can be visible in the alpha channel. See [Known problem: Rendering transparent WebM on Lambda](/docs/transparent-videos#known-problem-rendering-transparent-webm-on-lambda). Increase `framesPerLambda` to reduce boundaries, or render WebM in one pass if the artifact appears.
 :::
 
 ### `concurrency?`<AvailableFrom v="4.0.322" />

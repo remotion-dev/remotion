@@ -86,15 +86,13 @@ const calculateMetadata: CalculateMetadataFunction<Props> = async ({
 />;
 ```
 
-### Rendering transparent WebM on Lambda
+### Known problem: Rendering transparent WebM on Lambda
 
-:::warning
-Transparent WebM videos (`vp8` or `vp9` with `yuva420p`) can flicker at Lambda chunk boundaries.
+Transparent WebM videos (`vp8` or `vp9` with `yuva420p`) can flicker at chunk boundaries.
 
 Lambda renders chunks independently and stitches them together. VP8 and VP9 alpha encoding can depend on previous frames, so the alpha channel can look different at the beginning of each chunk.
 
 For transparent videos on Lambda, prefer ProRes with alpha if your workflow supports it. If you need WebM, render it in one pass locally. Increasing [`framesPerLambda`](/docs/lambda/rendermediaonlambda#framesperlambda) can reduce the number of chunk boundaries, at the cost of less parallelism.
-:::
 
 ## Creating a ProRes video with Alpha channels
 
