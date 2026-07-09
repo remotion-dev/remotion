@@ -4,6 +4,7 @@ import {calculateTimeline} from '../../helpers/calculate-timeline';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {BACKGROUND} from '../../helpers/colors';
 import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
+import {studioInteractivityEnabled} from '../../helpers/interactivity-enabled';
 import {useIsStill} from '../../helpers/is-current-selected-still';
 import {useCachedCompositionComponentInfo} from '../../helpers/open-in-editor';
 import {callApi} from '../call-api';
@@ -65,6 +66,7 @@ const TimelineContextMenuArea: React.FC<{
 	const [isAddingAsset, setIsAddingAsset] = useState(false);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const previewConnected = previewServerState.type === 'connected';
+	const previewInteractive = previewConnected && studioInteractivityEnabled;
 
 	const currentCompositionId =
 		canvasContent?.type === 'composition' ? canvasContent.compositionId : null;
@@ -89,7 +91,7 @@ const TimelineContextMenuArea: React.FC<{
 	});
 
 	const canInsertSolid =
-		previewConnected &&
+		previewInteractive &&
 		compositionComponentInfo?.canAddSequence === true &&
 		currentCompositionId !== null &&
 		compositionFile !== null &&
@@ -97,7 +99,7 @@ const TimelineContextMenuArea: React.FC<{
 		!isAddingSolid;
 
 	const canInsertAsset =
-		previewConnected &&
+		previewInteractive &&
 		!window.remotion_isReadOnlyStudio &&
 		compositionComponentInfo?.canAddSequence === true &&
 		currentCompositionId !== null &&
@@ -220,6 +222,7 @@ const TimelineInner: React.FC = () => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 
 	const previewConnected = previewServerState.type === 'connected';
+	const previewInteractive = previewConnected && studioInteractivityEnabled;
 
 	const videoConfigIsNull = videoConfig === null;
 
@@ -253,7 +256,7 @@ const TimelineInner: React.FC = () => {
 	return (
 		<TimelineContextMenuArea>
 			{sequences.map((sequence) => {
-				if (!shouldSubscribeToSequenceProps(sequence, previewConnected)) {
+				if (!shouldSubscribeToSequenceProps(sequence, previewInteractive)) {
 					return null;
 				}
 
@@ -268,10 +271,12 @@ const TimelineInner: React.FC = () => {
 					/>
 				);
 			})}
-			<SequencePropsObserver />
+			{studioInteractivityEnabled ? <SequencePropsObserver /> : null}
 			<TimelineKeyframeTracksProvider tracks={filtered}>
 				<TimelineSelectableItemsProvider timeline={shown}>
-					<TimelineSelectAllKeybindings timeline={shown} />
+					{studioInteractivityEnabled ? (
+						<TimelineSelectAllKeybindings timeline={shown} />
+					) : null}
 					<TimelineHeightContainer shown={shown} hasBeenCut={hasBeenCut}>
 						{isStill ? (
 							<TimelineList timeline={shown} />
@@ -302,7 +307,9 @@ const TimelineInner: React.FC = () => {
 											<TimelineInOutPointer />
 											<TimelineTimeIndicators />
 											<TimelineDragHandler />
-											<TimelineInOutDragHandler />
+											{studioInteractivityEnabled ? (
+												<TimelineInOutDragHandler />
+											) : null}
 											<TimelineSlider />
 										</TimelineScrollable>
 									</SplitterElement>

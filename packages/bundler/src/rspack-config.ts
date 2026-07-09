@@ -29,6 +29,7 @@ export const rspackConfig = async ({
 	poll,
 	experimentalClientSideRenderingEnabled,
 	askAIEnabled,
+	interactivityEnabled,
 	extraPlugins,
 }: {
 	entry: string;
@@ -44,6 +45,7 @@ export const rspackConfig = async ({
 	remotionRoot: string;
 	poll: number | null;
 	askAIEnabled: boolean;
+	interactivityEnabled: boolean;
 	experimentalClientSideRenderingEnabled: boolean;
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	extraPlugins: any[];
@@ -54,6 +56,7 @@ export const rspackConfig = async ({
 		getDefinePluginDefinitions({
 			maxTimelineTracks,
 			askAIEnabled,
+			interactivityEnabled,
 			keyboardShortcutsEnabled,
 			bufferStateDelayInMilliseconds,
 			experimentalClientSideRenderingEnabled,
