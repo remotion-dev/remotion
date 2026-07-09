@@ -167,6 +167,8 @@ const SelectedOutlineSnapIndicators: React.FC<{
 };
 
 const outlinePointEqualityTolerance = 0.5;
+const outlineAreaEqualityTolerance = 0.5;
+const outlineBoundsOverlapTolerance = 0.5;
 
 const outlinesHaveEquivalentHitArea = (
 	a: SelectedOutline,
@@ -186,6 +188,45 @@ const outlinesHaveEquivalentHitArea = (
 	}
 
 	return true;
+};
+
+const getOutlineHitArea = (outline: SelectedOutline): number => {
+	let area = 0;
+
+	for (let i = 0; i < outline.points.length; i++) {
+		const current = outline.points[i];
+		const next = outline.points[(i + 1) % outline.points.length];
+		area += current.x * next.y - next.x * current.y;
+	}
+
+	return Math.abs(area) / 2;
+};
+
+const getOutlineBounds = (outline: SelectedOutline) => {
+	const xs = outline.points.map((point) => point.x);
+	const ys = outline.points.map((point) => point.y);
+
+	return {
+		maxX: Math.max(...xs),
+		maxY: Math.max(...ys),
+		minX: Math.min(...xs),
+		minY: Math.min(...ys),
+	};
+};
+
+const outlineBoundsOverlap = (
+	a: SelectedOutline,
+	b: SelectedOutline,
+): boolean => {
+	const aBounds = getOutlineBounds(a);
+	const bBounds = getOutlineBounds(b);
+
+	return (
+		aBounds.minX <= bBounds.maxX + outlineBoundsOverlapTolerance &&
+		aBounds.maxX + outlineBoundsOverlapTolerance >= bBounds.minX &&
+		aBounds.minY <= bBounds.maxY + outlineBoundsOverlapTolerance &&
+		aBounds.maxY + outlineBoundsOverlapTolerance >= bBounds.minY
+	);
 };
 
 type OutlineSequenceParent = {
@@ -256,25 +297,72 @@ const orderOutlineGroup = ({
 	readonly targetsByKey: ReadonlyMap<string, SelectedOutlineTarget>;
 }): readonly SelectedOutline[] => {
 	const incomingEdges = new Map<string, Set<string>>();
+	const outgoingEdges = new Map<string, Set<string>>();
 	const outlinesByKey = new Map(
 		outlines.map((outline) => [outline.key, outline]),
 	);
 
 	for (const outline of outlines) {
 		incomingEdges.set(outline.key, new Set());
+		outgoingEdges.set(outline.key, new Set());
 	}
 
-	const addEdge = (before: SelectedOutline, after: SelectedOutline) => {
+	const hasPath = ({
+		fromKey,
+		seen,
+		toKey,
+	}: {
+		readonly fromKey: string;
+		readonly seen: Set<string>;
+		readonly toKey: string;
+	}): boolean => {
+		if (fromKey === toKey) {
+			return true;
+		}
+
+		if (seen.has(fromKey)) {
+			return false;
+		}
+
+		seen.add(fromKey);
+		for (const nextKey of outgoingEdges.get(fromKey) ?? []) {
+			if (hasPath({fromKey: nextKey, seen, toKey})) {
+				return true;
+			}
+		}
+
+		return false;
+	};
+
+	const addEdge = (
+		before: SelectedOutline,
+		after: SelectedOutline,
+		options?: {readonly skipIfCycle: boolean},
+	) => {
 		if (before.key === after.key) {
 			return;
 		}
 
-		const edges = incomingEdges.get(after.key);
-		if (edges === undefined) {
+		const incoming = incomingEdges.get(after.key);
+		const outgoing = outgoingEdges.get(before.key);
+		if (incoming === undefined || outgoing === undefined) {
 			throw new Error('Expected outline to be registered before adding edge');
 		}
 
-		edges.add(before.key);
+		if (outgoing.has(after.key)) {
+			return;
+		}
+
+		if (hasPath({fromKey: after.key, seen: new Set(), toKey: before.key})) {
+			if (options?.skipIfCycle) {
+				return;
+			}
+
+			throw new Error('Could not determine a stable outline rendering order');
+		}
+
+		incoming.add(before.key);
+		outgoing.add(after.key);
 	};
 
 	const addAncestorConstraint = ({
@@ -341,6 +429,50 @@ const orderOutlineGroup = ({
 		}
 	}
 
+	// For unrelated overlapping outlines, put broader hit targets below
+	// smaller ones so a large selected sequence cannot swallow clicks on
+	// a more specific element in the same canvas area.
+	for (let i = 0; i < outlines.length; i++) {
+		for (let j = i + 1; j < outlines.length; j++) {
+			const a = outlines[i];
+			const b = outlines[j];
+			const aTarget = targetsByKey.get(a.key);
+			const bTarget = targetsByKey.get(b.key);
+
+			if (aTarget === undefined || bTarget === undefined) {
+				continue;
+			}
+
+			const aAncestorOfB = isAncestorTarget({
+				ancestor: aTarget,
+				descendant: bTarget,
+				parentBySequenceId,
+			});
+			const bAncestorOfA = isAncestorTarget({
+				ancestor: bTarget,
+				descendant: aTarget,
+				parentBySequenceId,
+			});
+
+			if (aAncestorOfB || bAncestorOfA || !outlineBoundsOverlap(a, b)) {
+				continue;
+			}
+
+			const aArea = getOutlineHitArea(a);
+			const bArea = getOutlineHitArea(b);
+
+			if (Math.abs(aArea - bArea) <= outlineAreaEqualityTolerance) {
+				continue;
+			}
+
+			if (aArea > bArea) {
+				addEdge(a, b, {skipIfCycle: true});
+			} else {
+				addEdge(b, a, {skipIfCycle: true});
+			}
+		}
+	}
+
 	const emitted = new Set<string>();
 	const visiting = new Set<string>();
 	const ordered: SelectedOutline[] = [];
@@ -386,25 +518,12 @@ export const orderOutlinesForRendering = ({
 	readonly targetsByKey: ReadonlyMap<string, SelectedOutlineTarget>;
 }): readonly SelectedOutline[] => {
 	const parentBySequenceId = getParentBySequenceId({sequences, targetsByKey});
-	const unselectedOutlines = outlines.filter(
-		(outline) => targetsByKey.get(outline.key)?.selected !== true,
-	);
-	const selectedOutlines = outlines.filter(
-		(outline) => targetsByKey.get(outline.key)?.selected === true,
-	);
 
-	return [
-		...orderOutlineGroup({
-			outlines: unselectedOutlines,
-			parentBySequenceId,
-			targetsByKey,
-		}),
-		...orderOutlineGroup({
-			outlines: selectedOutlines,
-			parentBySequenceId,
-			targetsByKey,
-		}),
-	];
+	return orderOutlineGroup({
+		outlines,
+		parentBySequenceId,
+		targetsByKey,
+	});
 };
 
 export const SelectedOutlineOverlay: React.FC<{

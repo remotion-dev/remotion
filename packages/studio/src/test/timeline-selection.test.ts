@@ -1765,7 +1765,7 @@ test('Canvas outline hit targets render nested sequences above parents', () => {
 	]);
 });
 
-test('Canvas outline rendering puts selected outlines last', () => {
+test('Canvas outline rendering preserves unconstrained outline order', () => {
 	const makeOutline = (key: string): SelectedOutline => ({
 		key,
 		dimensions: null,
@@ -1794,9 +1794,9 @@ test('Canvas outline rendering puts selected outlines last', () => {
 	});
 
 	expect(orderedOutlines.map((outline) => outline.key)).toEqual([
+		'parent',
 		'child',
 		'sibling',
-		'parent',
 	]);
 });
 
@@ -1826,12 +1826,14 @@ const makeTestOutline = ({
 const makeOutlineTarget = ({
 	id,
 	parent,
+	selected = false,
 }: {
 	readonly id: string;
 	readonly parent: string | null;
+	readonly selected?: boolean;
 }): SelectedOutlineTarget =>
 	({
-		selected: false,
+		selected,
 		sequence: {id, parent},
 	}) as SelectedOutlineTarget;
 
@@ -1918,6 +1920,73 @@ test('Canvas outline rendering puts equal-area child hit targets below parents',
 		'container',
 		'parent',
 		'label',
+	]);
+});
+
+test('Canvas outline rendering keeps lower-third wrappers reachable below larger overlapping sequences', () => {
+	const orderedOutlines = orderOutlinesForRendering({
+		outlines: [
+			makeTestOutline({
+				key: 'lower-third-wrapper',
+				left: 200,
+				top: 854,
+				width: 680,
+				height: 138,
+			}),
+			makeTestOutline({
+				key: 'overlapping-keyframed-sequence',
+				left: 100,
+				top: 700,
+				width: 1000,
+				height: 400,
+			}),
+			makeTestOutline({
+				key: 'lower-third-container',
+				left: 200,
+				top: 854,
+				width: 680,
+				height: 138,
+			}),
+		],
+		sequences: [
+			makeOutlineSequence({id: 'lower-third-wrapper', parent: null}),
+			makeOutlineSequence({
+				id: 'overlapping-keyframed-sequence',
+				parent: null,
+			}),
+			makeOutlineSequence({
+				id: 'lower-third-container',
+				parent: 'lower-third-wrapper',
+			}),
+		],
+		targetsByKey: new Map([
+			[
+				'lower-third-wrapper',
+				makeOutlineTarget({id: 'lower-third-wrapper', parent: null}),
+			],
+			[
+				'overlapping-keyframed-sequence',
+				makeOutlineTarget({
+					id: 'overlapping-keyframed-sequence',
+					parent: null,
+					selected: true,
+				}),
+			],
+			[
+				'lower-third-container',
+				makeOutlineTarget({
+					id: 'lower-third-container',
+					parent: 'lower-third-wrapper',
+					selected: true,
+				}),
+			],
+		]),
+	});
+
+	expect(orderedOutlines.map((outline) => outline.key)).toEqual([
+		'overlapping-keyframed-sequence',
+		'lower-third-container',
+		'lower-third-wrapper',
 	]);
 });
 
