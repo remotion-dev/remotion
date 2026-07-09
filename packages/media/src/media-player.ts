@@ -27,6 +27,7 @@ import {PremountAwareDelayPlayback} from './premount-aware-delay-playback';
 import type {MediaRequestInit} from './request-init';
 import {resolveRequestInit} from './request-init';
 import type {SharedAudioContextForMediaPlayer} from './shared-audio-context-for-media-player';
+import {shouldFallbackForUntaggedSdH264} from './should-fallback-for-untagged-sd-h264';
 import type {VideoIteratorManager} from './video-iterator-manager';
 import {videoIteratorManager} from './video-iterator-manager';
 
@@ -34,6 +35,7 @@ export type MediaPlayerInitResult =
 	| {type: 'success'; durationInSeconds: number}
 	| {type: 'unknown-container-format'}
 	| {type: 'cannot-decode'}
+	| {type: 'fallback-untagged-sd-h264'}
 	| {type: 'network-error'}
 	| {type: 'no-tracks'}
 	| {type: 'disposed'};
@@ -310,6 +312,10 @@ export class MediaPlayer {
 						'Streams with UNIX timestamps are not currently supported by Remotion. Sorry! Source: ' +
 							this.src,
 					);
+				}
+
+				if (await shouldFallbackForUntaggedSdH264(videoTrack)) {
+					return {type: 'fallback-untagged-sd-h264'};
 				}
 
 				const canDecode = await videoTrack.canDecode();

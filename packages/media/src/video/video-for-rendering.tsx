@@ -202,6 +202,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 			maxCacheSize,
 			credentials,
 			requestInit: initialRequestInit,
+			fallbackForUntaggedSdH264: true,
 		})
 			.then(async (result) => {
 				const handleError = (
@@ -272,6 +273,20 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 							`Cannot render video "${src}": The alpha channel could not be decoded by the browser.`,
 						),
 						`Cannot decode alpha component for ${src}, falling back to <OffthreadVideo>`,
+						result.durationInSeconds,
+					);
+					return;
+				}
+
+				if (result.type === 'fallback-untagged-sd-h264') {
+					handleError(
+						new Error(
+							`Cannot safely decode ${src}: The H.264 video has no color-space metadata and SD dimensions, which can cause browsers to infer the wrong color matrix.`,
+						),
+						new Error(
+							`Cannot render video "${src}": The H.264 video has no color-space metadata and SD dimensions, which can cause browsers to infer the wrong color matrix.`,
+						),
+						`${src} is an untagged SD H.264 video, falling back to <OffthreadVideo> to preserve colors`,
 						result.durationInSeconds,
 					);
 					return;

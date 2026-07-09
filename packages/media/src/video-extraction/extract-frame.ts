@@ -13,6 +13,7 @@ type ExtractFrameResult =
 	  }
 	| {type: 'cannot-decode'; durationInSeconds: number | null}
 	| {type: 'cannot-decode-alpha'; durationInSeconds: number | null}
+	| {type: 'fallback-untagged-sd-h264'; durationInSeconds: number | null}
 	| {type: 'unknown-container-format'}
 	| {type: 'network-error'};
 
@@ -28,6 +29,7 @@ type ExtractFrameParams = {
 	maxCacheSize: number;
 	credentials: RequestCredentials | undefined;
 	requestInit?: MediaRequestInit;
+	fallbackForUntaggedSdH264?: boolean;
 };
 
 const extractFrameInternal = async ({
@@ -42,17 +44,25 @@ const extractFrameInternal = async ({
 	maxCacheSize,
 	credentials,
 	requestInit,
+	fallbackForUntaggedSdH264 = false,
 }: ExtractFrameParams): Promise<ExtractFrameResult> => {
 	const sink = await getSink(src, logLevel, credentials, requestInit);
 
-	const [video, mediaDurationInSecondsRaw] = await Promise.all([
-		sink.getVideo(),
-		loop ? sink.getDuration() : Promise.resolve(null),
-	]);
-
 	const mediaDurationInSeconds: number | null = loop
-		? mediaDurationInSecondsRaw
+		? await sink.getDuration()
 		: null;
+
+	if (
+		fallbackForUntaggedSdH264 &&
+		(await sink.shouldFallbackForUntaggedSdH264())
+	) {
+		return {
+			type: 'fallback-untagged-sd-h264',
+			durationInSeconds: mediaDurationInSeconds,
+		};
+	}
+
+	const video = await sink.getVideo();
 
 	if (video === 'no-video-track') {
 		throw new Error(`No video track found for ${src}`);

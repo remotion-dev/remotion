@@ -22,6 +22,7 @@ export const extractFrameAndAudio = async ({
 	maxCacheSize,
 	credentials,
 	requestInit,
+	fallbackForUntaggedSdH264 = false,
 }: {
 	src: string;
 	timeInSeconds: number;
@@ -38,6 +39,7 @@ export const extractFrameAndAudio = async ({
 	maxCacheSize: number;
 	credentials: RequestCredentials | undefined;
 	requestInit?: MediaRequestInit;
+	fallbackForUntaggedSdH264?: boolean;
 }): Promise<ExtractFrameViaBroadcastChannelResult> => {
 	try {
 		const [video, audio] = await Promise.all([
@@ -54,6 +56,7 @@ export const extractFrameAndAudio = async ({
 						maxCacheSize,
 						credentials,
 						requestInit,
+						fallbackForUntaggedSdH264,
 					})
 				: null,
 			includeAudio
@@ -89,6 +92,13 @@ export const extractFrameAndAudio = async ({
 		if (video?.type === 'cannot-decode-alpha') {
 			return {
 				type: 'cannot-decode-alpha',
+				durationInSeconds: video.durationInSeconds,
+			};
+		}
+
+		if (video?.type === 'fallback-untagged-sd-h264') {
+			return {
+				type: 'fallback-untagged-sd-h264',
 				durationInSeconds: video.durationInSeconds,
 			};
 		}

@@ -351,6 +351,16 @@ const VideoForPreviewAssertedShowing: React.FC<
 						return;
 					}
 
+					if (result.type === 'fallback-untagged-sd-h264') {
+						handleError(
+							new Error(
+								`Cannot safely decode ${preloadedSrc}: The H.264 video has no color-space metadata and SD dimensions, which can cause browsers to infer the wrong color matrix.`,
+							),
+							`${preloadedSrc} is an untagged SD H.264 video, falling back to <Html5Video> to preserve colors`,
+						);
+						return;
+					}
+
 					if (result.type === 'no-tracks') {
 						handleError(
 							new Error(`No video or audio tracks found for ${preloadedSrc}.`),

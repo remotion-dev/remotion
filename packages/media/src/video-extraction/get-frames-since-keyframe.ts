@@ -17,6 +17,7 @@ import {resolveAudioTrack} from '../helpers/resolve-audio-track';
 import {isNetworkError} from '../is-type-of-error';
 import type {MediaRequestInit} from '../request-init';
 import {resolveRequestInit} from '../request-init';
+import {shouldFallbackForUntaggedSdH264} from '../should-fallback-for-untagged-sd-h264';
 import {rememberActualMatroskaTimestamps} from './remember-actual-matroska-timestamps';
 
 type VideoSinks = {
@@ -134,6 +135,15 @@ export const getSinks = async (
 		};
 	};
 
+	const getShouldFallbackForUntaggedSdH264 = async () => {
+		if (format === 'network-error' || format === null) {
+			return false;
+		}
+
+		const videoTrack = await input.getPrimaryVideoTrack();
+		return videoTrack ? shouldFallbackForUntaggedSdH264(videoTrack) : false;
+	};
+
 	let videoSinksPromise: Promise<VideoSinkResult> | null = null;
 	const getVideoSinksPromise = () => {
 		if (videoSinksPromise) {
@@ -142,6 +152,17 @@ export const getSinks = async (
 
 		videoSinksPromise = getVideoSinks();
 		return videoSinksPromise;
+	};
+
+	let shouldFallbackForUntaggedSdH264Promise: Promise<boolean> | null = null;
+	const getShouldFallbackForUntaggedSdH264Promise = () => {
+		if (shouldFallbackForUntaggedSdH264Promise) {
+			return shouldFallbackForUntaggedSdH264Promise;
+		}
+
+		shouldFallbackForUntaggedSdH264Promise =
+			getShouldFallbackForUntaggedSdH264();
+		return shouldFallbackForUntaggedSdH264Promise;
 	};
 
 	// audioSinksPromise is now a record indexed by audio track index
@@ -205,6 +226,8 @@ export const getSinks = async (
 		getDuration: () => {
 			return getDurationOrCompute(input);
 		},
+		shouldFallbackForUntaggedSdH264: () =>
+			getShouldFallbackForUntaggedSdH264Promise(),
 	};
 };
 

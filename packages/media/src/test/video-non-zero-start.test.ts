@@ -47,3 +47,25 @@ test('Should render first frame for videos starting after timestamp 0', async ()
 
 	keyframeManager.clearAll('info');
 });
+
+test('can opt into fallback for untagged SD H.264', async () => {
+	keyframeManager.clearAll('info');
+
+	const result = await extractFrame({
+		src: '/video-start-offset.mp4',
+		timeInSeconds: 0,
+		logLevel: 'info',
+		loop: false,
+		trimAfter: undefined,
+		trimBefore: undefined,
+		playbackRate: 1,
+		fps: 30,
+		maxCacheSize: getMaxVideoCacheSize('info'),
+		credentials: undefined,
+		fallbackForUntaggedSdH264: true,
+	});
+
+	expect(result.type).toBe('fallback-untagged-sd-h264');
+
+	keyframeManager.clearAll('info');
+});

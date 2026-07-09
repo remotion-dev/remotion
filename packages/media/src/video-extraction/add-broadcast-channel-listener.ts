@@ -27,6 +27,11 @@ export type MessageFromMainTab =
 			durationInSeconds: number | null;
 	  }
 	| {
+			type: 'response-fallback-untagged-sd-h264';
+			id: string;
+			durationInSeconds: number | null;
+	  }
+	| {
 			type: 'response-network-error';
 			id: string;
 	  }
@@ -56,6 +61,7 @@ export type ExtractFrameRequest = {
 	maxCacheSize: number;
 	credentials: RequestCredentials | undefined;
 	requestInit?: MediaRequestInit;
+	fallbackForUntaggedSdH264?: boolean;
 };
 
 // Send to other channels a message to let them know that the
@@ -107,6 +113,7 @@ export const addBroadcastChannelListener = () => {
 						maxCacheSize: data.maxCacheSize,
 						credentials: data.credentials,
 						requestInit: data.requestInit,
+						fallbackForUntaggedSdH264: data.fallbackForUntaggedSdH264 ?? false,
 					});
 
 					if (result.type === 'cannot-decode') {
@@ -129,6 +136,19 @@ export const addBroadcastChannelListener = () => {
 
 						window.remotion_broadcastChannel!.postMessage(
 							cannotDecodeAlphaResponse,
+						);
+						return;
+					}
+
+					if (result.type === 'fallback-untagged-sd-h264') {
+						const fallbackUntaggedSdH264Response: MessageFromMainTab = {
+							type: 'response-fallback-untagged-sd-h264',
+							id: data.id,
+							durationInSeconds: result.durationInSeconds,
+						};
+
+						window.remotion_broadcastChannel!.postMessage(
+							fallbackUntaggedSdH264Response,
 						);
 						return;
 					}

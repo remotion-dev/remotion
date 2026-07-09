@@ -188,6 +188,12 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 					);
 				}
 
+				if (result.type === 'fallback-untagged-sd-h264') {
+					throw new Error(
+						`Cannot safely decode ${src}, and 'disallowFallbackToHtml5Audio' was set. But this should never happen, since you used the <Audio> tag. Please report this as a bug.`,
+					);
+				}
+
 				if (result.type === 'network-error') {
 					handleError(
 						new Error(`Network error fetching ${src}.`),

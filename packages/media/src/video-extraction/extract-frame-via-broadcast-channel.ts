@@ -23,6 +23,7 @@ export type ExtractFrameViaBroadcastChannelResult =
 	  }
 	| {type: 'cannot-decode'; durationInSeconds: number | null}
 	| {type: 'cannot-decode-alpha'; durationInSeconds: number | null}
+	| {type: 'fallback-untagged-sd-h264'; durationInSeconds: number | null}
 	| {type: 'network-error'}
 	| {type: 'unknown-container-format'};
 
@@ -45,6 +46,7 @@ export const extractFrameViaBroadcastChannel = async ({
 	maxCacheSize,
 	credentials,
 	requestInit,
+	fallbackForUntaggedSdH264 = false,
 }: {
 	src: string;
 	timeInSeconds: number;
@@ -62,6 +64,7 @@ export const extractFrameViaBroadcastChannel = async ({
 	maxCacheSize: number;
 	credentials: RequestCredentials | undefined;
 	requestInit?: MediaRequestInit;
+	fallbackForUntaggedSdH264?: boolean;
 }): Promise<ExtractFrameViaBroadcastChannelResult> => {
 	if (isClientSideRendering || window.remotion_isMainTab) {
 		return extractFrameAndAudio({
@@ -80,6 +83,7 @@ export const extractFrameViaBroadcastChannel = async ({
 			maxCacheSize,
 			credentials,
 			requestInit,
+			fallbackForUntaggedSdH264,
 		});
 	}
 
@@ -96,6 +100,10 @@ export const extractFrameViaBroadcastChannel = async ({
 		  }
 		| {type: 'cannot-decode'; durationInSeconds: number | null}
 		| {type: 'cannot-decode-alpha'; durationInSeconds: number | null}
+		| {
+				type: 'fallback-untagged-sd-h264';
+				durationInSeconds: number | null;
+		  }
 		| {type: 'network-error'}
 		| {type: 'unknown-container-format'}
 	>((resolve, reject) => {
@@ -181,6 +189,18 @@ export const extractFrameViaBroadcastChannel = async ({
 				return;
 			}
 
+			if (data.type === 'response-fallback-untagged-sd-h264') {
+				resolve({
+					type: 'fallback-untagged-sd-h264',
+					durationInSeconds: data.durationInSeconds,
+				});
+				window.remotion_broadcastChannel!.removeEventListener(
+					'message',
+					onMessage,
+				);
+				return;
+			}
+
 			throw new Error(
 				`Invalid message: ${JSON.stringify(data satisfies never)}`,
 			);
@@ -207,6 +227,7 @@ export const extractFrameViaBroadcastChannel = async ({
 		maxCacheSize,
 		credentials,
 		requestInit: normalizeMediaRequestInit(requestInit),
+		fallbackForUntaggedSdH264,
 	};
 
 	window.remotion_broadcastChannel!.postMessage(request);

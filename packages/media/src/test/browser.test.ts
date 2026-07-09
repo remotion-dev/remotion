@@ -39,6 +39,10 @@ test('Should be able to extract a frame', async () => {
 		throw new Error('Cannot decode alpha');
 	}
 
+	if (result.type === 'fallback-untagged-sd-h264') {
+		throw new Error('Fallback for untagged SD H.264');
+	}
+
 	const {audio, frame} = result;
 	assert(audio);
 	assert(frame);
@@ -89,6 +93,10 @@ test('Should be able to extract the last frame', async () => {
 
 	if (result.type === 'cannot-decode-alpha') {
 		throw new Error('Cannot decode alpha');
+	}
+
+	if (result.type === 'fallback-untagged-sd-h264') {
+		throw new Error('Fallback for untagged SD H.264');
 	}
 
 	const {audio, frame} = result;
@@ -172,6 +180,10 @@ test('Should be apply volume correctly', async () => {
 		throw new Error('Cannot decode alpha');
 	}
 
+	if (result.type === 'fallback-untagged-sd-h264') {
+		throw new Error('Fallback for untagged SD H.264');
+	}
+
 	const {audio: audioAtFullVolume, frame} = result;
 
 	const totalAudioAtFullVolume = audioAtFullVolume?.data.reduce((acc, curr) => {
@@ -225,6 +237,10 @@ test('Should be able to loop', async () => {
 
 	if (result.type === 'cannot-decode-alpha') {
 		throw new Error('Cannot decode alpha');
+	}
+
+	if (result.type === 'fallback-untagged-sd-h264') {
+		throw new Error('Fallback for untagged SD H.264');
 	}
 
 	const {frame} = result;
