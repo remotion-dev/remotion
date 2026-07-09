@@ -788,6 +788,11 @@ for (const preset of hlsPresets) {
 		}
 	}
 
+	const playlistAliases = preset.label === 'ts' ? ['video.m3u8'] : [];
+	for (const playlistAlias of playlistAliases) {
+		copyFileSync(targetPath, path.join(outDir, playlistAlias));
+	}
+
 	const segmentFiles: string[] = [];
 	for await (const segFile of new Bun.Glob(
 		`hls-${preset.label}-*.${preset.segmentExt}`,
@@ -806,10 +811,34 @@ for (const preset of hlsPresets) {
 		videoCodec: 'h264',
 		audioCodec: 'aac',
 		container: 'm3u8',
-		fileNames: [outputName, ...segmentFiles.sort()],
+		fileNames: [...playlistAliases, outputName, ...segmentFiles.sort()],
 		size: stat.size,
 		category: 'hls',
 	});
 }
+
+const audioHlsName = 'audio.m3u8';
+const audioHlsTargetPath = path.join(outDir, audioHlsName);
+const audioHlsSegmentPattern = path.join(outDir, 'audio-%d.ts');
+
+if (!(await Bun.file(audioHlsTargetPath).exists())) {
+	console.log(`Generating ${audioHlsName}`);
+	await $`ffmpeg -i ${tonePath} -t 10 -vn -c:a aac -hls_time 2 -hls_playlist_type vod -hls_segment_type mpegts -hls_segment_filename ${audioHlsSegmentPattern} ${audioHlsTargetPath} -y`;
+}
+
+const audioSegmentFiles: string[] = [];
+for await (const segFile of new Bun.Glob('audio-*.ts').scan(outDir)) {
+	audioSegmentFiles.push(segFile);
+}
+
+const audioHlsStat = await Bun.file(audioHlsTargetPath).stat();
+variants.push({
+	videoCodec: 'none',
+	audioCodec: 'aac',
+	container: 'm3u8',
+	fileNames: [audioHlsName, ...audioSegmentFiles.sort()],
+	size: audioHlsStat.size,
+	category: 'hls',
+});
 
 await Bun.write('variants.json', JSON.stringify(variants, null, 2));
