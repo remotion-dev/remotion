@@ -127,6 +127,26 @@ export const config: VercelConfig = {
 		routes.redirect('/docs/miscellaneous/snippets/hls', '/docs/hls', {
 			permanent: true,
 		}),
+		routes.redirect(
+			'/docs/miscellaneous/snippets/align-duration',
+			'/docs/videos/align-duration',
+			{permanent: true},
+		),
+		routes.redirect(
+			'/docs/miscellaneous/snippets/jumpcuts',
+			'/docs/videos/jumpcuts',
+			{permanent: true},
+		),
+		routes.redirect(
+			'/docs/miscellaneous/snippets/different-segments-at-different-speeds',
+			'/docs/videos/different-segments-at-different-speeds',
+			{permanent: true},
+		),
+		routes.redirect(
+			'/docs/miscellaneous/snippets/freeze-portions',
+			'/docs/videos/freeze-portions',
+			{permanent: true},
+		),
 		routes.redirect('/docs/player/api', '/docs/player/player', {
 			permanent: true,
 		}),

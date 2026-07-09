@@ -26,6 +26,10 @@ import {CssLoaderTest} from './CssLoaderTest';
 import {DarkModeTest} from './DarkModeTest';
 import {DecoderDemo} from './DecoderDemo';
 import {
+	DIFFERENT_SEGMENTS_AT_DIFFERENT_SPEEDS_DURATION,
+	DifferentSegmentsAtDifferentSpeeds,
+} from './DifferentSegmentsAtDifferentSpeeds';
+import {
 	DiscriminatedUnionSchemaTest,
 	discriminatedUnionRootSchema,
 } from './DiscriminatedUnionSchemaTest';
@@ -1419,6 +1423,14 @@ export const Index: React.FC = () => {
 						url: PLAY_RANGES_MEDIA_VIDEO_URL_DEFAULT,
 						playRanges: PLAY_RANGES_MEDIA_ZIP_DEFAULT,
 					}}
+				/>
+				<Composition
+					id="different-segments-at-different-speeds"
+					component={DifferentSegmentsAtDifferentSpeeds}
+					width={640}
+					height={360}
+					fps={30}
+					durationInFrames={DIFFERENT_SEGMENTS_AT_DIFFERENT_SPEEDS_DURATION}
 				/>
 				<Composition
 					id="fractional-sequence-video"
