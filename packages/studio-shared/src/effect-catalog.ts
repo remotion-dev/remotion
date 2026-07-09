@@ -511,6 +511,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-roughen-edges',
+		category: 'Stylize',
+		label: 'roughenEdges()',
+		description: 'Procedural alpha-edge roughening',
+		effect: {
+			name: 'roughenEdges',
+			importPath: '@remotion/effects/roughen-edges',
+			config: {},
+		},
+	},
+	{
 		id: 'effects-pattern',
 		category: 'Stylize',
 		label: 'pattern()',

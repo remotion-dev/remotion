@@ -39,6 +39,7 @@ import {pixelDissolve} from '../pixel-dissolve.js';
 import {pixelate} from '../pixelate.js';
 import {radialProgressiveBlur} from '../radial-progressive-blur/index.js';
 import {rings} from '../rings.js';
+import {roughenEdges} from '../roughen-edges.js';
 import {saturation} from '../saturation.js';
 import {scale} from '../scale.js';
 import {scanlines} from '../scanlines.js';
@@ -180,6 +181,9 @@ test('@remotion/effects expose documentation links', () => {
 	expect(paper().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/paper',
 	);
+	expect(roughenEdges().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/roughen-edges',
+	);
 	expect(pattern().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/pattern',
 	);
@@ -285,6 +289,7 @@ test('@remotion/effects expose API names as Studio labels', () => {
 		noiseDisplacement({center: [0.5, 0.5], radius: 0.25}).definition.label,
 	).toBe('noiseDisplacement()');
 	expect(paper().definition.label).toBe('paper()');
+	expect(roughenEdges().definition.label).toBe('roughenEdges()');
 	expect(pattern().definition.label).toBe('pattern()');
 	expect(radialProgressiveBlur().definition.label).toBe(
 		'radialProgressiveBlur()',
@@ -2499,6 +2504,57 @@ test('paper() parameters produce distinct effect keys', () => {
 			scaled.effectKey,
 		]).size,
 	).toBe(12);
+});
+
+test('roughenEdges() accepts default params', () => {
+	expect(() => roughenEdges()).not.toThrow();
+});
+
+test('roughenEdges() accepts valid params', () => {
+	expect(() =>
+		roughenEdges({
+			amount: 0.8,
+			border: 24,
+			scale: 0.9,
+			seed: 12.34,
+		}),
+	).not.toThrow();
+});
+
+test('roughenEdges() rejects non-finite amount', () => {
+	expect(() => roughenEdges({amount: Number.NaN})).toThrow(
+		'"amount" must be a finite number',
+	);
+});
+
+test('roughenEdges() rejects invalid edge params', () => {
+	expect(() => roughenEdges({amount: 1.1})).toThrow('"amount" must be <= 1');
+	expect(() => roughenEdges({border: -1})).toThrow('"border" must be >= 0');
+	expect(() => roughenEdges({border: 201})).toThrow('"border" must be <= 200');
+	expect(() => roughenEdges({seed: -1})).toThrow('"seed" must be >= 0');
+	expect(() => roughenEdges({seed: 1001})).toThrow('"seed" must be <= 1000');
+	expect(() => roughenEdges({scale: 0})).toThrow(
+		'"scale" must be greater than 0',
+	);
+	expect(() => roughenEdges({scale: 4.1})).toThrow('"scale" must be <= 4');
+});
+
+test('roughenEdges() parameters produce distinct effect keys', () => {
+	const defaults = roughenEdges();
+	const subtle = roughenEdges({amount: 0.6});
+	const wider = roughenEdges({border: 30});
+	const scaled = roughenEdges({scale: 1.2});
+	const seeded = roughenEdges({seed: 12});
+
+	expect(
+		new Set([
+			defaults.effectKey,
+			subtle.effectKey,
+			wider.effectKey,
+			scaled.effectKey,
+			seeded.effectKey,
+		]).size,
+	).toBe(5);
 });
 
 test('pattern() accepts default params', () => {
