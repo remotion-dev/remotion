@@ -62,15 +62,15 @@ func inputPropsKey(hash string) string {
 // the Lambda client in invocations.go.
 func newS3Client(region string, forcePathStyle bool) *s3.S3 {
 	sess := session.Must(session.NewSessionWithOptions(session.Options{
-		Config:            aws.Config{Region: aws.String(region)},
+		Config:            aws.Config{Region: new(region)},
 		SharedConfigState: session.SharedConfigEnable,
 	}))
-	return s3.New(sess, &aws.Config{S3ForcePathStyle: aws.Bool(forcePathStyle)})
+	return s3.New(sess, &aws.Config{S3ForcePathStyle: new(forcePathStyle)})
 }
 
 // isBucketInRegion reports whether the given bucket lives in region.
 func isBucketInRegion(svc bucketLocationGetter, bucket string, region string) (bool, error) {
-	out, err := svc.GetBucketLocation(&s3.GetBucketLocationInput{Bucket: aws.String(bucket)})
+	out, err := svc.GetBucketLocation(&s3.GetBucketLocationInput{Bucket: new(bucket)})
 	if err != nil {
 		if awsErr, ok := err.(awserr.Error); ok && awsErr.Code() == s3.ErrCodeNoSuchBucket {
 			return false, nil
@@ -126,10 +126,10 @@ func getOrCreateBucket(svc *s3.S3, region string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	input := &s3.CreateBucketInput{Bucket: aws.String(bucket)}
+	input := &s3.CreateBucketInput{Bucket: new(bucket)}
 	if region != regionUsEast1 {
 		input.CreateBucketConfiguration = &s3.CreateBucketConfiguration{
-			LocationConstraint: aws.String(region),
+			LocationConstraint: new(region),
 		}
 	}
 	if _, err := svc.CreateBucket(input); err != nil {
@@ -141,10 +141,10 @@ func getOrCreateBucket(svc *s3.S3, region string) (string, error) {
 // uploadInputPropsToS3 writes the serialized props to S3 as private JSON.
 func uploadInputPropsToS3(svc objectUploader, bucket string, key string, payload string) error {
 	_, err := svc.PutObject(&s3.PutObjectInput{
-		Bucket:      aws.String(bucket),
-		Key:         aws.String(key),
+		Bucket:      new(bucket),
+		Key:         new(key),
 		Body:        strings.NewReader(payload),
-		ContentType: aws.String("application/json"),
+		ContentType: new("application/json"),
 	})
 	if err != nil {
 		return fmt.Errorf("failed to upload inputProps to S3: %w", err)

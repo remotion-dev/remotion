@@ -144,13 +144,13 @@ func TestIsBucketInRegion(t *testing.T) {
 	}{
 		{
 			name:   "matching region",
-			output: &s3.GetBucketLocationOutput{LocationConstraint: aws.String("eu-west-1")},
+			output: &s3.GetBucketLocationOutput{LocationConstraint: new("eu-west-1")},
 			region: "eu-west-1",
 			want:   true,
 		},
 		{
 			name:   "different region",
-			output: &s3.GetBucketLocationOutput{LocationConstraint: aws.String("eu-west-1")},
+			output: &s3.GetBucketLocationOutput{LocationConstraint: new("eu-west-1")},
 			region: "us-west-1",
 			want:   false,
 		},
