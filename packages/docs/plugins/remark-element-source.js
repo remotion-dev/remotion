@@ -74,7 +74,7 @@ const getSourceCodeNode = ({node, sourceFilePath}) => {
 	};
 };
 
-const insertElementPageSourceNodes = ({node, sourceFilePath}) => {
+const attachElementPageSourceNodes = ({node, sourceFilePath}) => {
 	if (!node.children) {
 		return;
 	}
@@ -82,13 +82,14 @@ const insertElementPageSourceNodes = ({node, sourceFilePath}) => {
 	const children = [];
 
 	for (const child of node.children) {
-		insertElementPageSourceNodes({node: child, sourceFilePath});
-		children.push(child);
+		attachElementPageSourceNodes({node: child, sourceFilePath});
 
 		const sourceCodeNode = getSourceCodeNode({node: child, sourceFilePath});
 		if (sourceCodeNode) {
-			children.push(sourceCodeNode);
+			child.children = [...(child.children ?? []), sourceCodeNode];
 		}
+
+		children.push(child);
 	}
 
 	node.children = children;
@@ -96,7 +97,7 @@ const insertElementPageSourceNodes = ({node, sourceFilePath}) => {
 
 export default function remarkElementSource() {
 	return (tree, file) => {
-		insertElementPageSourceNodes({
+		attachElementPageSourceNodes({
 			node: tree,
 			sourceFilePath: file.path,
 		});
