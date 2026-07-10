@@ -28,6 +28,13 @@ const sidebars: SidebarsConfig = {
 			collapsed: false,
 			items: ['overlays/lower-third/index'],
 		},
+		{
+			type: 'category',
+			label: 'Data',
+			link: {type: 'doc', id: 'data/index'},
+			collapsed: false,
+			items: ['data/number-counter/index'],
+		},
 	],
 };
 

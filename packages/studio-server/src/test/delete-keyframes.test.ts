@@ -40,7 +40,7 @@ test('deleteKeyframes batches sequence and effect deletes into one undo entry', 
 		closeConnections: () => Promise.resolve(),
 		router: () => Promise.resolve(),
 		sendEventToClient: () => undefined,
-		sendEventToClientId: () => undefined,
+		sendEventToClientId: () => true,
 	});
 	const dir = mkdtempSync(join(tmpdir(), 'remotion-delete-keyframes-'));
 	const fileName = 'Comp.tsx';

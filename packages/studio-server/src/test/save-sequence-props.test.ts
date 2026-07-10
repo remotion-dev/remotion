@@ -107,7 +107,7 @@ test('saveSequenceProps batches sequence movement and keyframe movement into one
 		closeConnections: () => Promise.resolve(),
 		router: () => Promise.resolve(),
 		sendEventToClient: () => undefined,
-		sendEventToClientId: () => undefined,
+		sendEventToClientId: () => true,
 	});
 	const dir = mkdtempSync(join(tmpdir(), 'remotion-save-sequence-props-'));
 	const fileName = 'Comp.tsx';

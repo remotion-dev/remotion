@@ -1332,5 +1332,47 @@
     "size": 122958,
     "category": "sound-effects",
     "attribution": "Triggered -- https://www.myinstants.com/en/instant/core-sound-effect-57998/"
+  },
+  {
+    "videoCodec": "h264",
+    "audioCodec": "aac",
+    "container": "m3u8",
+    "fileNames": [
+      "video.m3u8",
+      "hls-ts.m3u8",
+      "hls-ts-0.ts",
+      "hls-ts-1.ts"
+    ],
+    "size": 173,
+    "category": "hls"
+  },
+  {
+    "videoCodec": "h264",
+    "audioCodec": "aac",
+    "container": "m3u8",
+    "fileNames": [
+      "hls-fmp4.m3u8",
+      "hls-fmp4-0.m4s",
+      "hls-fmp4-1.m4s",
+      "hls-fmp4-init.mp4"
+    ],
+    "size": 214,
+    "category": "hls"
+  },
+  {
+    "videoCodec": "none",
+    "audioCodec": "aac",
+    "container": "m3u8",
+    "fileNames": [
+      "audio.m3u8",
+      "audio-0.ts",
+      "audio-1.ts",
+      "audio-2.ts",
+      "audio-3.ts",
+      "audio-4.ts",
+      "audio-5.ts"
+    ],
+    "size": 287,
+    "category": "hls"
   }
 ]

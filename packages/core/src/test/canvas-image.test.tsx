@@ -1,6 +1,7 @@
 import {afterEach, beforeEach, expect, test} from 'bun:test';
-import {cleanup, render, waitFor} from '@testing-library/react';
+import {act, cleanup, render, waitFor} from '@testing-library/react';
 import React from 'react';
+import {BufferingContextReact} from '../buffering.js';
 import {CanvasImage} from '../canvas-image/index.js';
 import type {TSequence} from '../CompositionManager.js';
 import type {
@@ -9,6 +10,8 @@ import type {
 	EffectDescriptor,
 } from '../effects/effect-types.js';
 import {Internals} from '../internals.js';
+import type {SequenceContextType} from '../SequenceContext.js';
+import {SequenceContext} from '../SequenceContext.js';
 import type {SequenceManagerContext} from '../SequenceManager.js';
 import {SequenceManager} from '../SequenceManager.js';
 import {WrapSequenceContext} from './wrap-sequence-context.js';
@@ -106,6 +109,69 @@ const studioEnv = {
 	isStudio: true,
 	isReadOnlyStudio: false,
 };
+
+const makeSequenceContext = (premounting: boolean): SequenceContextType => ({
+	absoluteFrom: 0,
+	cumulatedFrom: 0,
+	cumulatedNegativeFrom: 0,
+	durationInFrames: 100,
+	height: 1080,
+	id: 'parent',
+	parentFrom: 0,
+	postmountDisplay: null,
+	postmounting: false,
+	premountDisplay: null,
+	premounting,
+	relativeFrom: 0,
+	width: 1080,
+});
+
+const BufferingEvents: React.FC<{
+	readonly events: string[];
+}> = ({events}) => {
+	const manager = React.useContext(BufferingContextReact);
+
+	React.useLayoutEffect(() => {
+		if (!manager) {
+			throw new Error('Expected BufferingContextReact');
+		}
+
+		const buffering = manager.listenForBuffering(() => {
+			events.push('waiting');
+		});
+		const resume = manager.listenForResume(() => {
+			events.push('resume');
+		});
+
+		return () => {
+			buffering.remove();
+			resume.remove();
+		};
+	}, [events, manager]);
+
+	return null;
+};
+
+const wrapCanvasImage = (element: React.ReactElement) => {
+	return (
+		<Internals.RemotionEnvironmentContext value={studioEnv}>
+			<WrapSequenceContext>{element}</WrapSequenceContext>
+		</Internals.RemotionEnvironmentContext>
+	);
+};
+
+const canvasImageInSequence = ({
+	events,
+	premounting,
+}: {
+	readonly events?: string[];
+	readonly premounting: boolean;
+}) => (
+	<SequenceContext.Provider value={makeSequenceContext(premounting)}>
+		{events ? <BufferingEvents events={events} /> : null}
+		<CanvasImage src="test.png" pauseWhenLoading width={100} height={50} />
+	</SequenceContext.Provider>
+);
 
 const SequenceRegistrationWrapper: React.FC<{
 	readonly children: React.ReactNode;
@@ -389,6 +455,60 @@ test('<CanvasImage> keeps rendering delayed until the drawn canvas is presented'
 	await Promise.resolve();
 
 	expect(getDelayRenderState().remotion_renderReady).toBe(true);
+});
+
+test('<CanvasImage> does not reload when premounting ends after drawing', async () => {
+	const {rerender} = render(
+		wrapCanvasImage(canvasImageInSequence({premounting: true})),
+	);
+
+	await waitFor(() => {
+		expect(getDelayRenderState().remotion_renderReady).toBe(true);
+	});
+	expect(imageLoadCount).toBe(1);
+
+	rerender(wrapCanvasImage(canvasImageInSequence({premounting: false})));
+
+	expect(imageLoadCount).toBe(1);
+});
+
+test('<CanvasImage> buffers playback when premounting ends before drawing finishes', async () => {
+	const events: string[] = [];
+	let decodeResolver: (() => void) | null = null;
+	class DeferredDecodeImage extends MockImage {
+		public decode = () =>
+			new Promise<void>((resolve) => {
+				decodeResolver = resolve;
+			});
+	}
+
+	globalThis.Image = DeferredDecodeImage as unknown as typeof Image;
+
+	const {rerender} = render(
+		wrapCanvasImage(canvasImageInSequence({events, premounting: true})),
+	);
+
+	await waitFor(() => {
+		expect(decodeResolver).not.toBeNull();
+	});
+	expect(events).toEqual([]);
+
+	rerender(
+		wrapCanvasImage(canvasImageInSequence({events, premounting: false})),
+	);
+
+	await waitFor(() => {
+		expect(events).toEqual(['waiting']);
+	});
+
+	act(() => {
+		decodeResolver?.();
+	});
+
+	await waitFor(() => {
+		expect(events).toEqual(['waiting', 'resume']);
+	});
+	expect(imageLoadCount).toBe(1);
 });
 
 test('<CanvasImage> does not reload the source image when effect keys change', async () => {

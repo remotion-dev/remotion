@@ -10,7 +10,7 @@ import {CreateVideoTemplateFlags} from '../../components/CreateVideoTemplateFlag
 Scaffold a new Remotion project.
 
 ```bash
-npx create-video <directory>
+npx create-video --yes --blank my-video
 ```
 
 If no arguments are passed, an interactive TUI will guide you through the setup.
@@ -20,6 +20,12 @@ If no arguments are passed, an interactive TUI will guide you through the setup.
 ### `<directory>`
 
 The directory in which the project should be created.
+
+The recommended starter command creates a blank project in the `my-video` directory:
+
+```bash
+npx create-video --yes --blank my-video
+```
 
 ## Flags
 
@@ -58,6 +64,18 @@ Create the project in a temporary directory instead of specifying a directory na
 ```bash
 npx create-video --yes --blank --tmp
 ```
+
+### `--help`<AvailableFrom v="4.0.488" />
+
+Print a short overview of the arguments, flags and template flags.
+
+```bash
+npx create-video --help
+```
+
+### `-h`<AvailableFrom v="4.0.488" />
+
+Alias for `--help`.
 
 ### Template flags
 

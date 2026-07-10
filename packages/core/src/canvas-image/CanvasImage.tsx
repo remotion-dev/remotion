@@ -56,7 +56,6 @@ type LoadedImage = {
 
 type PendingLoadDelay = {
 	readonly handle: number;
-	readonly unblock: () => void;
 	continued: boolean;
 };
 
@@ -223,18 +222,27 @@ const CanvasImageContent = forwardRef<
 		});
 		const sequenceContext = useContext(SequenceContext);
 		const pendingLoadDelayRef = useRef<PendingLoadDelay | null>(null);
+		const [isLoadPending, setIsLoadPending] = useState(false);
+		const isPremounting = Boolean(sequenceContext?.premounting);
+		const isPostmounting = Boolean(sequenceContext?.postmounting);
 
-		const continuePendingLoadDelay = useCallback(() => {
-			const pending = pendingLoadDelayRef.current;
-			if (!pending || pending.continued) {
-				return;
-			}
+		const continuePendingLoadDelay = useCallback(
+			({markAsReady}: {readonly markAsReady: boolean}) => {
+				const pending = pendingLoadDelayRef.current;
+				if (!pending || pending.continued) {
+					return;
+				}
 
-			pending.continued = true;
-			pending.unblock();
-			continueRender(pending.handle);
-			pendingLoadDelayRef.current = null;
-		}, [continueRender]);
+				pending.continued = true;
+				if (markAsReady) {
+					setIsLoadPending(false);
+				}
+
+				continueRender(pending.handle);
+				pendingLoadDelayRef.current = null;
+			},
+			[continueRender],
+		);
 
 		const sourceCanvas = useMemo(() => {
 			if (typeof document === 'undefined') {
@@ -261,9 +269,25 @@ const CanvasImageContent = forwardRef<
 		);
 
 		useLayoutEffect(() => {
-			const isPremounting = Boolean(sequenceContext?.premounting);
-			const isPostmounting = Boolean(sequenceContext?.postmounting);
+			if (
+				!pauseWhenLoading ||
+				!isLoadPending ||
+				isPremounting ||
+				isPostmounting
+			) {
+				return;
+			}
 
+			return delayPlayback().unblock;
+		}, [
+			delayPlayback,
+			isLoadPending,
+			isPostmounting,
+			isPremounting,
+			pauseWhenLoading,
+		]);
+
+		useLayoutEffect(() => {
 			const handle = delayRender(
 				`Rendering <CanvasImage> with src="${truncateSrcForLabel(actualSrc)}"`,
 				{
@@ -271,10 +295,6 @@ const CanvasImageContent = forwardRef<
 					timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
 				},
 			);
-			const unblock =
-				pauseWhenLoading && !isPremounting && !isPostmounting
-					? delayPlayback().unblock
-					: () => undefined;
 
 			const controller = new AbortController();
 			let cancelled = false;
@@ -282,9 +302,9 @@ const CanvasImageContent = forwardRef<
 			let timeoutId: ReturnType<typeof setTimeout> | null = null;
 
 			setLoadedImage(null);
+			setIsLoadPending(true);
 			pendingLoadDelayRef.current = {
 				handle,
-				unblock,
 				continued: false,
 			};
 
@@ -299,7 +319,7 @@ const CanvasImageContent = forwardRef<
 					})
 					.catch((err) => {
 						if ((err as Error).name === 'AbortError') {
-							continuePendingLoadDelay();
+							continuePendingLoadDelay({markAsReady: false});
 							return;
 						}
 
@@ -317,7 +337,7 @@ const CanvasImageContent = forwardRef<
 							}, backoff);
 						} else if (onError) {
 							onError(err as Error);
-							continuePendingLoadDelay();
+							continuePendingLoadDelay({markAsReady: true});
 						} else {
 							cancelRender(err);
 						}
@@ -333,21 +353,17 @@ const CanvasImageContent = forwardRef<
 				}
 
 				controller.abort();
-				continuePendingLoadDelay();
+				continuePendingLoadDelay({markAsReady: false});
 			};
 		}, [
 			actualSrc,
 			cancelRender,
 			continuePendingLoadDelay,
-			delayPlayback,
 			delayRender,
 			delayRenderRetries,
 			delayRenderTimeoutInMilliseconds,
 			maxRetries,
 			onError,
-			pauseWhenLoading,
-			sequenceContext?.postmounting,
-			sequenceContext?.premounting,
 		]);
 
 		useLayoutEffect(() => {
@@ -420,7 +436,7 @@ const CanvasImageContent = forwardRef<
 								}
 
 								continueRenderOnce();
-								continuePendingLoadDelay();
+								continuePendingLoadDelay({markAsReady: true});
 							},
 						});
 					}
@@ -433,7 +449,7 @@ const CanvasImageContent = forwardRef<
 					if (onError) {
 						onError(err as Error);
 						continueRenderOnce();
-						continuePendingLoadDelay();
+						continuePendingLoadDelay({markAsReady: true});
 					} else {
 						cancelRender(err);
 					}

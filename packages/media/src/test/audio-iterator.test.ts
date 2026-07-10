@@ -1,20 +1,31 @@
 import {ALL_FORMATS, Input, UrlSource} from 'mediabunny';
 import type {ScheduleAudioNodeResult} from 'remotion';
 import {expect, test} from 'vitest';
-import {audioIteratorManager} from '../audio-iterator-manager';
+import {
+	anchorToContinuousTime,
+	audioIteratorManager,
+} from '../audio-iterator-manager';
 import {makeNonceManager} from '../nonce-manager';
 
 const prepare = async (options?: {
 	fps?: number;
 	playbackRate?: number;
+	localPlaybackRate?: number;
 	mediaEndTimestamp?: number;
 	sequenceEndTimestamp?: number;
+	sequenceDurationInSeconds?: number;
+	startTime?: number;
+	loop?: boolean;
 }) => {
 	const {
 		fps = 30,
 		playbackRate = 1,
+		localPlaybackRate = playbackRate,
 		mediaEndTimestamp = Infinity,
 		sequenceEndTimestamp = Infinity,
+		sequenceDurationInSeconds = 10,
+		startTime = 0,
+		loop = false,
 	} = options ?? {};
 	const input = new Input({
 		source: new UrlSource('https://remotion.media/video.mp4'),
@@ -56,8 +67,8 @@ const prepare = async (options?: {
 		},
 		getMediaEndTimestamp: () => mediaEndTimestamp,
 		getSequenceEndTimestamp: () => sequenceEndTimestamp,
-		getSequenceDurationInSeconds: () => 10,
-		getStartTime: () => 0,
+		getSequenceDurationInSeconds: () => sequenceDurationInSeconds,
+		getStartTime: () => startTime,
 		initialMuted: false,
 		drawDebugOverlay: () => {},
 		initialPlaybackRate: 1,
@@ -65,18 +76,23 @@ const prepare = async (options?: {
 		initialTrimAfter: undefined,
 		initialSequenceOffset: 0,
 		initialSequenceDurationInFrames: 10,
-		initialLoop: false,
+		initialLoop: loop,
 		initialFps: 30,
 	});
 
 	const scheduledChunks: number[] = [];
+	const scheduledStartOffsets: number[] = [];
 	const waiters: {count: number; resolve: () => void}[] = [];
 
 	const scheduleAudioNode = (
 		_node: AudioBufferSourceNode,
 		mediaTimestamp: number,
+		_originalUnloopedMediaTimestamp: number,
+		sourceOffsetInSeconds: number,
+		_sourceDurationInSeconds: number,
 	): ScheduleAudioNodeResult => {
 		scheduledChunks.push(mediaTimestamp);
+		scheduledStartOffsets.push(sourceOffsetInSeconds);
 		for (let i = waiters.length - 1; i >= 0; i--) {
 			if (scheduledChunks.length >= waiters[i].count) {
 				waiters[i].resolve();
@@ -90,15 +106,23 @@ const prepare = async (options?: {
 		};
 	};
 
-	const seek = ({time}: {time: number}) => {
+	const seek = ({
+		time,
+		unloopedTime = time,
+	}: {
+		time: number;
+		unloopedTime?: number;
+	}) => {
 		manager.seek({
 			newTime: time,
+			unloopedNewTime: unloopedTime,
 			scheduleAudioNode,
 			nonce: makeNonceManager().createAsyncOperation(),
 			playbackRate,
+			localPlaybackRate,
 			getTargetTime: (mediaTimestamp: number) => mediaTimestamp,
 			logLevel: 'info',
-			loop: false,
+			loop,
 			trimBefore: undefined,
 			trimAfter: undefined,
 			sequenceOffset: 0,
@@ -113,10 +137,33 @@ const prepare = async (options?: {
 		manager,
 		fps,
 		scheduledChunks,
+		scheduledStartOffsets,
 		seek,
 		audioContextCurrentTime,
 	};
 };
+
+test('anchor maps unlooped time using the local playback rate', () => {
+	const anchor = {
+		unloopedStartInSeconds: 10,
+		mediaStartInSeconds: 4,
+	};
+
+	expect(
+		anchorToContinuousTime({
+			anchor,
+			unloopedTimeInSeconds: 12,
+			playbackRate: 0.5,
+		}),
+	).toBe(5);
+	expect(
+		anchorToContinuousTime({
+			anchor,
+			unloopedTimeInSeconds: 12,
+			playbackRate: 2,
+		}),
+	).toBe(8);
+});
 
 test('media player should work', async () => {
 	const {manager, scheduledChunks, seek, audioContextCurrentTime} =
@@ -128,9 +175,7 @@ test('media player should work', async () => {
 	});
 
 	await manager.waitForNScheduledNodes(3);
-	expect(scheduledChunks).toEqual([
-		9.941333333333333, 9.962666666666667, 9.984,
-	]);
+	expect(scheduledChunks).toEqual([9.96, 9.962666666666667, 9.984]);
 
 	scheduledChunks.length = 0;
 	seek({
@@ -177,7 +222,7 @@ test('should not create too many iterators when the audio ends', async () => {
 	const created = manager.getAudioIteratorsCreated();
 	expect(created).toBe(1);
 
-	expect(scheduledChunks).toEqual([9.962666666666667, 9.984]);
+	expect(scheduledChunks).toEqual([9.97, 9.984]);
 });
 
 test('should not create too many iterators when the audio ends (variant)', async () => {
@@ -198,7 +243,7 @@ test('should not create too many iterators when the audio ends (variant)', async
 	const created = manager.getAudioIteratorsCreated();
 	expect(created).toBe(1);
 
-	expect(scheduledChunks).toEqual([9.962666666666667, 9.984]);
+	expect(scheduledChunks).toEqual([9.97, 9.984]);
 });
 
 test('should create more iterators when seeking ', async () => {
@@ -224,7 +269,7 @@ test('should create more iterators when seeking ', async () => {
 	expect(created).toBe(2);
 
 	expect(scheduledChunks).toEqual([
-		1.984, 2.005333333333333, 2.026666666666667, 2.048, 2.0693333333333332,
+		2, 2.005333333333333, 2.026666666666667, 2.048, 2.0693333333333332,
 		2.0906666666666665,
 	]);
 });
@@ -266,6 +311,42 @@ test('should not schedule duplicate chunks with playbackRate=0.5', async () => {
 	const uniqueChunks = [...new Set(scheduledChunks)];
 	expect(uniqueChunks.length).toEqual(30);
 	expect(scheduledChunks.length).toBe(uniqueChunks.length);
+});
+
+test('looping keeps continuous timestamps and reuses the iterator after a wrapped seek', async () => {
+	const {manager, seek, scheduledChunks, scheduledStartOffsets} = await prepare(
+		{
+			playbackRate: 1,
+			localPlaybackRate: 0.5,
+			mediaEndTimestamp: 0.1,
+			sequenceDurationInSeconds: 1,
+			loop: true,
+		},
+	);
+
+	seek({time: 0.08, unloopedTime: 0.08});
+	await manager.waitForNScheduledNodes(8);
+
+	expect(scheduledChunks.length).toBeGreaterThanOrEqual(8);
+	for (let i = 1; i < scheduledChunks.length; i++) {
+		expect(scheduledChunks[i]).toBeGreaterThan(scheduledChunks[i - 1]);
+	}
+
+	expect(scheduledChunks.some((timestamp) => timestamp >= 0.1)).toBe(true);
+	expect(scheduledStartOffsets.some((offset) => offset > 0)).toBe(true);
+
+	// The wrapped media time differs, but the unlooped time maps into the
+	// already queued continuous period using localPlaybackRate.
+	seek({time: 0, unloopedTime: 0.12});
+	expect(manager.getAudioIteratorsCreated()).toBe(1);
+
+	// Seeking by exactly one loop duration produces the same wrapped media time
+	// and must not recreate the iterator either.
+	seek({time: 0, unloopedTime: 0.22});
+	expect(manager.getAudioIteratorsCreated()).toBe(1);
+
+	manager.destroyIterator();
+	expect(manager.getCurrentAnchor()).toBe(null);
 });
 
 test('should not decode + schedule audio chunks beyond the end time', async () => {

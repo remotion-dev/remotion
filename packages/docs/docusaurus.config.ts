@@ -99,6 +99,7 @@ const config: Config = {
 							to: '/docs/resources',
 							label: 'Resources',
 						},
+						{to: 'https://remotion.media', label: 'Test media'},
 						{to: 'blog', label: 'Blog'},
 						{to: 'showcase', label: 'Showcase'},
 						{to: '/docs/support', label: 'Support'},

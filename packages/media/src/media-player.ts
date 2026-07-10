@@ -8,6 +8,7 @@ import type {
 } from 'remotion';
 import {Internals} from 'remotion';
 import {
+	anchorToContinuousTime,
 	audioIteratorManager,
 	type AudioIteratorManager,
 } from './audio-iterator-manager';
@@ -401,6 +402,7 @@ export class MediaPlayer {
 								nonce,
 								playbackRate: this.playbackRate * this.globalPlaybackRate,
 								startFromSecond: startTime,
+								unloopedStartFromSecond: startTimeUnresolved,
 								scheduleAudioNode: this.scheduleAudioNode,
 								getTargetTime: this.getTargetTime,
 								logLevel: this.logLevel,
@@ -449,11 +451,18 @@ export class MediaPlayer {
 		}
 	}
 
-	private seekToWithQueue = async (newTime: number) => {
+	private seekToWithQueue = async (
+		newTime: number,
+		unloopedNewTime: number,
+	) => {
 		const nonce = this.nonceManager.createAsyncOperation();
 		await this.seekPromiseChain;
 
-		this.seekPromiseChain = this.seekToDoNotCallDirectly(newTime, nonce);
+		this.seekPromiseChain = this.seekToDoNotCallDirectly(
+			newTime,
+			unloopedNewTime,
+			nonce,
+		);
 		await this.seekPromiseChain;
 	};
 
@@ -464,11 +473,12 @@ export class MediaPlayer {
 			throw new Error(`should have asserted that the time is not null`);
 		}
 
-		await this.seekToWithQueue(newTime);
+		await this.seekToWithQueue(newTime, time);
 	}
 
 	private async seekToDoNotCallDirectly(
 		newTime: number,
+		unloopedNewTime: number,
 		nonce: Nonce,
 	): Promise<void> {
 		if (nonce.isStale()) {
@@ -483,8 +493,10 @@ export class MediaPlayer {
 				}),
 				this.audioIteratorManager?.seek({
 					newTime,
+					unloopedNewTime,
 					nonce,
 					playbackRate: this.playbackRate * this.globalPlaybackRate,
+					localPlaybackRate: this.playbackRate,
 					getTargetTime: this.getTargetTime,
 					logLevel: this.logLevel,
 					loop: this.loop,
@@ -695,7 +707,23 @@ export class MediaPlayer {
 
 		const timeInSeconds = globalTime - this.sequenceOffset;
 
-		const localTime = this.getTrimmedTime(timeInSeconds);
+		// When looping, the audio iterator emits timestamps that continue
+		// monotonically across loop iterations, while the looped media time
+		// wraps at every iteration. Comparing against the wrapped time would
+		// schedule each chunk one loop duration later per iteration. Use the
+		// anchor established when the iterator was started to convert the
+		// current time into the same continuous frame instead.
+		const anchor = this.loop
+			? (this.audioIteratorManager?.getCurrentAnchor() ?? null)
+			: null;
+
+		const localTime = anchor
+			? anchorToContinuousTime({
+					anchor,
+					unloopedTimeInSeconds: timeInSeconds,
+					playbackRate: this.playbackRate,
+				})
+			: this.getTrimmedTime(timeInSeconds);
 
 		if (localTime === null) {
 			return null;
@@ -712,6 +740,8 @@ export class MediaPlayer {
 		node: AudioBufferSourceNode,
 		mediaTimestamp: number,
 		originalUnloopedMediaTimestamp: number,
+		sourceOffsetInSeconds: number,
+		sourceDurationInSeconds: number,
 	): ScheduleAudioNodeResult => {
 		if (!this.sharedAudioContext) {
 			throw new Error('Shared audio context not found');
@@ -734,20 +764,19 @@ export class MediaPlayer {
 		}
 
 		const sequenceStartTime = this.getStartTime();
-		const loopSegmentMediaEndTimestamp = this.getLoopSegmentMediaEndTimestamp();
 
 		const offset = getTrimStartForAudioNode({
 			mediaTimestamp,
 			targetTime,
 			sequenceStartTime,
 			combinedPlaybackRate,
+			sourceStartOffsetInSeconds: sourceOffsetInSeconds,
 		});
 
 		const duration = getDurationOfNode({
-			bufferDuration: node.buffer?.duration ?? 0,
-			loopSegmentMediaEndTimestamp,
+			sourceDurationInSeconds,
+			sourceOffsetInSeconds,
 			offset,
-			originalUnloopedMediaTimestamp,
 		});
 
 		const scheduledTime = getScheduledTime({
@@ -760,6 +789,7 @@ export class MediaPlayer {
 		return this.sharedAudioContext.scheduleAudioNode({
 			node,
 			mediaTimestamp,
+			sourceOffset: sourceOffsetInSeconds,
 			scheduledTime,
 			duration,
 			offset,
