@@ -36,6 +36,26 @@ export type AudioIteratorAnchor = {
 	mediaStartInSeconds: number;
 };
 
+// Convert an unlooped composition time into the iterator's continuous media
+// timeline using the anchor established when the iterator was started. The
+// looping iterator emits timestamps that continue monotonically across loop
+// iterations, so both the scheduler (getTargetTime) and the seek dedup must
+// map times into this same frame via the identical formula.
+export const anchorToContinuousTime = ({
+	anchor,
+	unloopedTimeInSeconds,
+	playbackRate,
+}: {
+	anchor: AudioIteratorAnchor;
+	unloopedTimeInSeconds: number;
+	playbackRate: number;
+}): number => {
+	return (
+		anchor.mediaStartInSeconds +
+		(unloopedTimeInSeconds - anchor.unloopedStartInSeconds) * playbackRate
+	);
+};
+
 export const audioIteratorManager = ({
 	audioTrack,
 	delayPlaybackHandleIfNotPremounting,
@@ -506,9 +526,11 @@ export const audioIteratorManager = ({
 			// frame so it can be compared against the queued period.
 			const timeToCheck =
 				loop && currentAnchor
-					? currentAnchor.mediaStartInSeconds +
-						(unloopedNewTime - currentAnchor.unloopedStartInSeconds) *
-							localPlaybackRate
+					? anchorToContinuousTime({
+							anchor: currentAnchor,
+							unloopedTimeInSeconds: unloopedNewTime,
+							playbackRate: localPlaybackRate,
+						})
 					: newTime;
 			const queuedPeriod = audioBufferIterator.getQueuedPeriod();
 			// If there is a missing period, but we'd have no chance to schedule nodes,
@@ -567,6 +589,10 @@ export const audioIteratorManager = ({
 		destroyIterator: () => {
 			audioBufferIterator?.destroy();
 			audioBufferIterator = null;
+			// Drop the anchor together with the iterator it described, so
+			// getCurrentAnchor() cannot hand out a stale mapping (from a previous
+			// rate/trim) during the window before a new iterator is started.
+			currentAnchor = null;
 			unblockCurrentDelayHandle();
 		},
 		seek,

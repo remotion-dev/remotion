@@ -8,6 +8,7 @@ import type {
 } from 'remotion';
 import {Internals} from 'remotion';
 import {
+	anchorToContinuousTime,
 	audioIteratorManager,
 	type AudioIteratorManager,
 } from './audio-iterator-manager';
@@ -717,8 +718,11 @@ export class MediaPlayer {
 			: null;
 
 		const localTime = anchor
-			? anchor.mediaStartInSeconds +
-				(timeInSeconds - anchor.unloopedStartInSeconds) * this.playbackRate
+			? anchorToContinuousTime({
+					anchor,
+					unloopedTimeInSeconds: timeInSeconds,
+					playbackRate: this.playbackRate,
+				})
 			: this.getTrimmedTime(timeInSeconds);
 
 		if (localTime === null) {
