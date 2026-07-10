@@ -91,41 +91,9 @@ export const RemotionRoot = () => {
 };
 ```
 
-## Calculate Metadata
+## Dynamic duration, width, and height
 
-Use `calculateMetadata` to make dimensions, duration, or props dynamic based on input props, fetched data, or asset metadata.
-For static dimensions, duration, FPS, and initial props, inline the values on `<Composition>`.
-
-```tsx
-const calculateMetadata: CalculateMetadataFunction<Props> = async ({
-  props,
-  abortSignal,
-}) => {
-  const data = await fetch(`https://api.example.com/video/${props.videoId}`, {
-    signal: abortSignal,
-  }).then((res) => res.json());
-
-  return {
-    durationInFrames: Math.ceil(data.duration * 30),
-    props: {
-      ...props,
-      videoUrl: data.url,
-    },
-  };
-};
-
-<Composition
-  id="MyComposition"
-  component={MyComposition}
-  fps={30}
-  width={1080}
-  height={1080}
-  defaultProps={{ videoId: "abc123" }}
-  calculateMetadata={calculateMetadata}
-/>;
-```
-
-The function can return `props`, `durationInFrames`, `width`, `height`, `fps`, and codec-related defaults. It runs once before rendering begins.
+Use [`calculateMetadata`](./calculate-metadata) to make dimensions, duration, or props dynamic based on input props, fetched data, or asset metadata.
 
 ## Nesting compositions within another
 

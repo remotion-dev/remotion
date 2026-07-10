@@ -1,11 +1,11 @@
 ---
-name: subtitles
-description: subtitles and caption rules
+name: remotion-captions
+description: Dealing with captions in Remotion
 metadata:
   tags: subtitles, captions, remotion, json
 ---
 
-All captions must be processed in JSON. The captions must use the `Caption` type which is the following:
+All captions must be processed in JSON. The captions must use the [`Caption`](https://www.remotion.dev/docs/captions/caption.md) type which is the following:
 
 ```ts
 import type { Caption } from "@remotion/captions";
