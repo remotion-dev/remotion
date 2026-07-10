@@ -44,7 +44,7 @@ export const Button: React.FC<Props> = (props) => {
 					props.style?.padding ??
 					(props.size === 'sm' ? '10px 16px' : '16px 22px'),
 				color: props.color,
-				cursor: props.disabled ? 'default' : 'pointer',
+				cursor: actualDisabled ? 'default' : (props.style?.cursor ?? 'pointer'),
 				backgroundColor: props.background,
 				// @ts-expect-error
 				'--hover-color': props.hoverColor ?? props.background,
