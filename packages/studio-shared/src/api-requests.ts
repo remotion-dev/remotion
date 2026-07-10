@@ -18,10 +18,10 @@ import type {
 	CanUpdateSequencePropsResponseTrue,
 	CanUpdateSequencePropStatus,
 	ExtrapolateType,
+	InteractivitySchema,
 	JsxComponentIdentity,
 	SequenceNodePath,
 	SequencePropsSubscriptionKey,
-	InteractivitySchema,
 } from 'remotion';
 import type {RecastCodemod, VisualControlChange} from './codemods';
 import type {ComponentProp} from './component-drag-data';
@@ -757,6 +757,27 @@ export type InsertElementResponse =
 			stack: string;
 	  };
 
+export type ElementInstallRequest = {
+	id: string;
+	clientId: string;
+	createdAt: number;
+	compositionFile: string;
+	compositionId: string;
+	element: ElementDragData['element'];
+	position: InsertableCompositionElementPosition | null;
+};
+
+export type UpdateElementInstallTargetRequest = {
+	clientId: string;
+	compositionFile: string | null;
+	compositionId: string | null;
+	canInstall: boolean;
+	lastFocusedAt: number | null;
+	readOnly: boolean;
+};
+
+export type UpdateElementInstallTargetResponse = {};
+
 export type DownloadRemoteAssetRequest = {
 	url: string;
 };
@@ -921,6 +942,10 @@ export type ApiRoutes = {
 		InsertJsxElementResponse
 	>;
 	'/api/insert-element': ReqAndRes<InsertElementRequest, InsertElementResponse>;
+	'/api/update-element-install-target': ReqAndRes<
+		UpdateElementInstallTargetRequest,
+		UpdateElementInstallTargetResponse
+	>;
 	'/api/download-remote-asset': ReqAndRes<
 		DownloadRemoteAssetRequest,
 		DownloadRemoteAssetResponse

@@ -1,5 +1,5 @@
 #!/usr/bin/env bun
-import {build, S3Client, type BuildConfig} from 'bun';
+import {$, build, S3Client, type BuildConfig} from 'bun';
 import plugin from 'bun-plugin-tailwind';
 import {cpSync, existsSync, readdirSync, writeFileSync} from 'fs';
 import {rm} from 'fs/promises';
@@ -126,6 +126,20 @@ const formatFileSize = (bytes: number): string => {
 	return `${size.toFixed(2)} ${units[unitIndex]}`;
 };
 
+const hlsContentTypes: Record<string, string> = {
+	'.m3u8': 'application/vnd.apple.mpegurl',
+	'.m4s': 'video/iso.segment',
+	'.ts': 'video/mp2t',
+};
+
+const getContentType = (file: string) => {
+	return hlsContentTypes[path.extname(file)];
+};
+
+const r2Endpoint =
+	'https://2fe488b3b0f4deee223aef7464784c46.r2.cloudflarestorage.com';
+const r2Bucket = 'parser-media';
+
 console.log('\n🚀 Starting build process...\n');
 
 // Parse CLI arguments with our magical parser
@@ -203,22 +217,29 @@ if (!Bun.env.AWS_ACCESS_KEY_ID || !Bun.env.AWS_SECRET_ACCESS_KEY) {
 	const client = new S3Client({
 		accessKeyId: Bun.env.AWS_ACCESS_KEY_ID,
 		secretAccessKey: Bun.env.AWS_SECRET_ACCESS_KEY,
-		endpoint:
-			'https://2fe488b3b0f4deee223aef7464784c46.r2.cloudflarestorage.com',
-		bucket: 'parser-media',
+		endpoint: r2Endpoint,
+		bucket: r2Bucket,
 	});
 
 	for (const file of readdirSync(filesDir)) {
+		const filePath = path.join(filesDir, file);
 		const exists = await client.exists(file);
-		const fileToUpload = Bun.file(path.join(filesDir, file));
+		const contentType = getContentType(file);
+		const fileToUpload = Bun.file(filePath);
 		if (exists) {
 			const stat = await client.stat(file);
-			if (stat.size === fileToUpload.size) {
+			if (stat.size === fileToUpload.size && !contentType) {
 				console.log(
 					`Skipping ${file} because it already exists and is the same size`,
 				);
 				continue;
 			}
+		}
+
+		if (contentType) {
+			await $`AWS_DEFAULT_REGION=auto AWS_EC2_METADATA_DISABLED=true aws --endpoint-url ${r2Endpoint} s3 cp ${filePath} ${`s3://${r2Bucket}/${file}`} --content-type ${contentType} --only-show-errors`;
+			console.log(`Uploaded ${file}`);
+			continue;
 		}
 
 		await client.write(file, fileToUpload);

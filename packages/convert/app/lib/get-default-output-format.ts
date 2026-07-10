@@ -2,6 +2,7 @@ import type {InputFormat} from 'mediabunny';
 import {
 	ADTS,
 	FLAC,
+	HLS,
 	MATROSKA,
 	MP3,
 	MP4,
@@ -20,6 +21,10 @@ const getDefaultConversionFormat = (
 	}
 
 	if (inputContainer === WEBM || inputContainer === MATROSKA) {
+		return 'mp4';
+	}
+
+	if (inputContainer === HLS) {
 		return 'mp4';
 	}
 

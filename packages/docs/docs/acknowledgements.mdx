@@ -10,7 +10,7 @@ Remotion would not be possible without the work of many others.
 
 | Software       | License                                                            | Source Code                                                         | Notes                                                                                                  |
 | :------------- | :----------------------------------------------------------------- | :------------------------------------------------------------------ | :----------------------------------------------------------------------------------------------------- |
-| **FFmpeg**     | [LGPLv2.1](http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html) | [View Source](https://github.com/remotion-dev/rust-ffmpeg-splitter) | Core video processing code ([ffmpeg.org](http://ffmpeg.org))                                           |
+| **FFmpeg**     | [GPLv2+](https://www.gnu.org/licenses/old-licenses/gpl-2.0.html)   | [View Source](https://github.com/remotion-dev/rust-ffmpeg-splitter) | Core video processing code ([ffmpeg.org](http://ffmpeg.org))                                           |
 | **Chromium**   | [BSD 3-Clause](https://opensource.org/license/bsd-3-clause)        | [View Source](https://chromium.googlesource.com/chromium/src)       | Browser engine used for rendering videos ([chromium.org](https://www.chromium.org/chromium-projects/)) |
 | **Mediabunny** | [MPLv2.0](https://www.mozilla.org/en-US/MPL/2.0/)                  | [View Source](https://github.com/Vanilagy/mediabunny)               | Media processing library ([mediabunny.dev](https://mediabunny.dev/))                                   |
 | **Webpack**    | [MIT](https://opensource.org/license/mit)                          | [View Source](https://github.com/webpack/webpack)                   | JavaScript module bundler ([webpack.js.org](https://webpack.js.org/))                                  |
@@ -18,6 +18,8 @@ Remotion would not be possible without the work of many others.
 | **Zod**        | [MIT](https://opensource.org/license/mit)                          | [View Source](https://github.com/colinhacks/zod)                    | TypeScript schema validation ([zod.dev](https://zod.dev/))                                             |
 
 Remotion depends on many JavaScript packages. View the list of packages for each package that we distribute [here](https://github.com/remotion-dev/remotion/tree/main/packages).
+
+The bundled FFmpeg binaries are built with GPL components such as x264 and x265. The bundled AAC support uses [`fdk-aac-free`](https://github.com/remotion-dev/rust-ffmpeg-splitter/blob/main/compile-fdkaac.mjs), as shown in the FFmpeg build script.
 
 ## Contributors
 

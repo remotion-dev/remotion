@@ -19,10 +19,6 @@ export const AudioCodecSelection: React.FC<{
 	readonly setIndex: (v: string) => void;
 	readonly currentAudioCodec: InputAudioTrack['codec'];
 }> = ({audioTrackOptions, index, setIndex, currentAudioCodec}) => {
-	if (!currentAudioCodec) {
-		throw new Error('No current audio codec, should not render this component');
-	}
-
 	const disabled = audioTrackOptions.length < 2;
 
 	return (

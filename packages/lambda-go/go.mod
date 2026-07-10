@@ -1,9 +1,11 @@
 module github.com/remotion-dev/lambda_go_sdk
 
-go 1.26.1
+go 1.26
+
+toolchain go1.26.5
 
 require (
-	github.com/aws/aws-sdk-go v1.44.257
+	github.com/aws/aws-sdk-go v1.55.8
 	github.com/go-playground/validator/v10 v10.13.0
 )
 

@@ -196,7 +196,7 @@ const runCompositionCodemodUndoRedoTest = async ({
 	);
 	const cleanupLiveEvents = setLiveEventsListener({
 		sendEventToClient: () => undefined,
-		sendEventToClientId: () => undefined,
+		sendEventToClientId: () => true,
 		router: () => Promise.resolve(),
 		closeConnections: () => Promise.resolve(),
 		addNewClientListener: () => () => undefined,
@@ -325,7 +325,7 @@ test('applyCodemodHandler pushes composition moves to undo and redo stacks', asy
 	);
 	const cleanupLiveEvents = setLiveEventsListener({
 		sendEventToClient: () => undefined,
-		sendEventToClientId: () => undefined,
+		sendEventToClientId: () => true,
 		router: () => Promise.resolve(),
 		closeConnections: () => Promise.resolve(),
 		addNewClientListener: () => () => undefined,
@@ -388,7 +388,7 @@ test('applyCodemodHandler pushes composition moves to root to undo and redo stac
 	);
 	const cleanupLiveEvents = setLiveEventsListener({
 		sendEventToClient: () => undefined,
-		sendEventToClientId: () => undefined,
+		sendEventToClientId: () => true,
 		router: () => Promise.resolve(),
 		closeConnections: () => Promise.resolve(),
 		addNewClientListener: () => () => undefined,
@@ -451,7 +451,7 @@ test('applyCodemodHandler creates new composition files with undo and redo', asy
 	);
 	const cleanupLiveEvents = setLiveEventsListener({
 		sendEventToClient: () => undefined,
-		sendEventToClientId: () => undefined,
+		sendEventToClientId: () => true,
 		router: () => Promise.resolve(),
 		closeConnections: () => Promise.resolve(),
 		addNewClientListener: () => () => undefined,

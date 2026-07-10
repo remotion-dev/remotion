@@ -2,7 +2,6 @@ import {Button} from '@remotion/design';
 import type {
 	CropRectangle,
 	Input,
-	InputAudioTrack,
 	InputFormat,
 	InputTrack,
 	InputVideoTrack,
@@ -60,7 +59,6 @@ import {useSupportedConfigs} from './use-supported-configs';
 import type {VideoThumbnailRef} from './VideoThumbnail';
 
 const ConvertUI = ({
-	currentAudioCodec,
 	currentVideoCodec,
 	tracks,
 	setSrc,
@@ -90,7 +88,6 @@ const ConvertUI = ({
 	cropRect,
 }: {
 	readonly setSrc: React.Dispatch<React.SetStateAction<Source | null>>;
-	readonly currentAudioCodec: InputAudioTrack['codec'] | null;
 	readonly currentVideoCodec: InputVideoTrack['codec'] | null;
 	readonly tracks: InputTrack[] | null;
 	readonly videoThumbnailRef: React.RefObject<VideoThumbnailRef | null>;
@@ -678,7 +675,6 @@ const ConvertUI = ({
 												videoConfigIndexSelection: videoOperationSelection,
 												setAudioConfigIndex,
 												setVideoConfigIndex,
-												currentAudioCodec,
 												currentVideoCodec,
 											}}
 										/>
