@@ -80,9 +80,8 @@ func main() {
 		return
 	}
 
-	fmt.Print(renderResponse.RenderId)
 	/// Get bucket information
-	fmt.Printf("bucketName: %s\nRenderId: %s\n", renderResponse.RenderId, renderResponse.RenderId)
+	fmt.Printf("bucketName: %s\nRenderId: %s\n", renderResponse.BucketName, renderResponse.RenderId)
 	// Render Progress request
 	renderProgressInputRequest := lambda_go_sdk.RenderConfig{
 		FunctionName: functionName,

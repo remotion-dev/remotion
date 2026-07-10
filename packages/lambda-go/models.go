@@ -68,13 +68,13 @@ type renderInternalOptions struct {
 	ProResProfile                  interface{}            `json:"proResProfile"`
 	PixelFormat                    interface{}            `json:"pixelFormat"`
 	ImageFormat                    string                 `json:"imageFormat"`
-	Crf                            interface{}            `json:"crf"`
+	Crf                            *int                   `json:"crf"`
 	EnvVariables                   interface{}            `json:"envVariables,omitempty"`
 	Metadata                       interface{}            `json:"metadata,omitempty"`
 	JpegQuality                    int                    `json:"jpegQuality"`
 	MaxRetries                     int                    `json:"maxRetries"`
 	Privacy                        string                 `json:"privacy"`
-	ColorSpace                     interface{}            `json:"colorSpace"`
+	ColorSpace                     *string                `json:"colorSpace"`
 	LogLevel                       string                 `json:"logLevel"`
 	FrameRange                     interface{}            `json:"frameRange"`
 	OutName                        interface{}            `json:"outName"`
@@ -111,7 +111,7 @@ type renderInternalOptions struct {
 	ForceBucketName                string                 `json:"forceBucketName,omitempty"`
 	Gl                             *string                `json:"gl,omitempty"`
 	X264Preset                     interface{}            `json:"x264Preset"`
-	GopSize                        interface{}            `json:"gopSize"`
+	GopSize                        *int                   `json:"gopSize"`
 	DeleteAfter                    *string                `json:"deleteAfter"`
 	IsProduction                   *bool                  `json:"isProduction"`
 	SampleRate                     int                    `json:"sampleRate"`

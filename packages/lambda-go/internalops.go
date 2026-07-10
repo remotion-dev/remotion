@@ -1,8 +1,6 @@
 package lambda_go_sdk
 
 import (
-	"log"
-
 	"github.com/go-playground/validator/v10"
 )
 
@@ -11,7 +9,7 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 	inputProps, serializeError := serializeInputProps(options.InputProps, options.Region, "video-or-audio", options.ForceBucketName)
 
 	if serializeError != nil {
-		log.Fatal("Error in serializing input props", serializeError)
+		return nil, serializeError
 	}
 	validate := validator.New()
 	validationErrors := validate.Struct(options)
@@ -76,20 +74,18 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 	} else {
 		internalParams.ImageFormat = options.ImageFormat
 	}
-	if options.Crf == 0 {
-		internalParams.Crf = nil
-	} else {
-		internalParams.Crf = options.Crf
+	if options.Crf != 0 {
+		crf := options.Crf
+		internalParams.Crf = &crf
 	}
 	if options.Privacy == "" {
 		internalParams.Privacy = "public"
 	} else {
 		internalParams.Privacy = options.Privacy
 	}
-	if options.ColorSpace == "" {
-		internalParams.ColorSpace = nil
-	} else {
-		internalParams.ColorSpace = options.ColorSpace
+	if options.ColorSpace != "" {
+		colorSpace := options.ColorSpace
+		internalParams.ColorSpace = &colorSpace
 	}
 	if options.LogLevel == "" {
 		internalParams.LogLevel = "info"

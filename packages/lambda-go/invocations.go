@@ -2,6 +2,7 @@ package lambda_go_sdk
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -27,8 +28,7 @@ func invokeRenderLambda(options RemotionOptions) (*RemotionRenderResponse, error
 
 	internalParamJsonObject, marshallingError := json.Marshal(internalParams)
 	if marshallingError != nil {
-
-		return nil, marshallingError
+		return nil, fmt.Errorf("could not serialize render parameters: %w", marshallingError)
 	}
 
 	invocationPayload := &lambda.InvokeInput{
@@ -40,7 +40,7 @@ func invokeRenderLambda(options RemotionOptions) (*RemotionRenderResponse, error
 	invocationResult, invocationError := svc.Invoke(invocationPayload)
 
 	if invocationError != nil {
-		return nil, invocationError
+		return nil, fmt.Errorf("could not invoke Lambda function %q: %w", options.FunctionName, invocationError)
 	}
 
 	// Unmarshal response from Lambda function
@@ -49,7 +49,7 @@ func invokeRenderLambda(options RemotionOptions) (*RemotionRenderResponse, error
 	responseMarshallingError := json.Unmarshal(invocationResult.Payload, &renderResponseOutput)
 
 	if responseMarshallingError != nil {
-		return nil, responseMarshallingError
+		return nil, fmt.Errorf("could not parse Lambda response: %w", responseMarshallingError)
 	}
 
 	return &renderResponseOutput, nil
@@ -74,8 +74,7 @@ func invokeRenderProgressLambda(config RenderConfig) (*RenderProgress, error) {
 
 	internalParamsJSON, marshallingError := json.Marshal(internalParams)
 	if marshallingError != nil {
-
-		return nil, marshallingError
+		return nil, fmt.Errorf("could not serialize progress parameters: %w", marshallingError)
 	}
 
 	invocationParams := &lambda.InvokeInput{
@@ -87,7 +86,7 @@ func invokeRenderProgressLambda(config RenderConfig) (*RenderProgress, error) {
 	invokeResult, invokeError := svc.Invoke(invocationParams)
 
 	if invokeError != nil {
-		return nil, invokeError
+		return nil, fmt.Errorf("could not invoke Lambda function %q: %w", config.FunctionName, invokeError)
 	}
 
 	// Unmarshal response from Lambda function
@@ -95,7 +94,7 @@ func invokeRenderProgressLambda(config RenderConfig) (*RenderProgress, error) {
 
 	resultUnmarshallError := json.Unmarshal(invokeResult.Payload, &renderProgressOutput)
 	if resultUnmarshallError != nil {
-		return nil, resultUnmarshallError
+		return nil, fmt.Errorf("could not parse Lambda progress response: %w", resultUnmarshallError)
 	}
 
 	return &renderProgressOutput, nil
