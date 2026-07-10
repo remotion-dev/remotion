@@ -109,6 +109,25 @@ const scale = interpolate(frame, [0, 20], [0, 1], {
 });
 ```
 
+## Example: Scaling feels slow? Use exponential output<AvailableFrom v="4.0.488" />
+
+For `scale` or zoom-like values, additive interpolation can feel like it slows down as the number grows.
+Use `output: 'exponential'` to distribute values by equal ratios after easing.
+
+```tsx twoslash title="MyComposition.tsx"
+import {Easing, interpolate, useCurrentFrame} from 'remotion';
+
+const frame = useCurrentFrame();
+const scale = interpolate(frame, [0, 60], [0.5, 2], {
+  easing: Easing.out(Easing.cubic),
+  extrapolateLeft: 'clamp',
+  extrapolateRight: 'clamp',
+  output: 'exponential',
+});
+```
+
+Every output value must be greater than `0` when using `output: 'exponential'`.
+
 ## Example: CSS transform values<AvailableFrom v="4.0.472" />
 
 `outputRange` may contain scale, translate, rotate, or transform origin strings.
@@ -253,6 +272,22 @@ interpolate(frame, [0, 100, 200], [0, 1, 2], {
 });
 ```
 
+### output?<AvailableFrom v="4.0.488" />
+
+_Default_: `linear`
+
+Controls how the eased progress maps to the `outputRange`.
+Use `output: 'linear'` for additive interpolation.
+For `[1, 2]` at progress `0.5`, the result is `1.5`.
+
+Use `output: 'exponential'` for multiplicative interpolation.
+For `[1, 2]` at progress `0.5`, the result is `Math.sqrt(2)`.
+This is useful for `scale`, camera zoom, and other values where equal ratios feel more natural than equal deltas.
+
+`easing` still controls time and progress.
+`output` controls the value distribution after easing.
+All numeric output values must be greater than `0` when using `output: 'exponential'`.
+
 ### posterize<AvailableFrom v="4.0.470" />
 
 _Default_: no posterization
@@ -281,6 +316,7 @@ import {ExtrapolateType, InterpolateOptions} from 'remotion';
 const extrapolate: ExtrapolateType = 'clamp';
 const option: InterpolateOptions = {
   extrapolateLeft: extrapolate,
+  output: 'exponential',
   posterize: 3,
 };
 ```
