@@ -7,11 +7,15 @@ export type BufferWithMediaTimestamp = {
 	timestamp: number;
 };
 
-async function* makeIteratorWithPrimingInner(
-	audioSink: AudioBufferSink,
-	timeToSeek: number,
-	maximumTimestamp: number,
-): AsyncGenerator<BufferWithMediaTimestamp, void, unknown> {
+export async function* makeIteratorWithPriming({
+	audioSink,
+	timeToSeek,
+	maximumTimestamp,
+}: {
+	audioSink: AudioBufferSink;
+	timeToSeek: number;
+	maximumTimestamp: number;
+}): AsyncGenerator<BufferWithMediaTimestamp, void, unknown> {
 	const primingStart = Math.max(0, timeToSeek - AUDIO_PRIMING_SECONDS);
 	const iterator = audioSink.buffers(primingStart, maximumTimestamp);
 
@@ -32,22 +36,26 @@ type MakeLoopingIteratorOptions = {
 	seekTimeInSeconds: number;
 	loopStartInSeconds: number;
 	segmentEndInSeconds: number;
-	playbackRate: number;
-	sequenceDurationInSeconds: number;
+	maximumContinuousTimestamp: number;
 };
 
-async function* makeLoopingIterator({
+export async function* makeLoopingIterator({
 	audioSink,
 	seekTimeInSeconds,
 	loopStartInSeconds,
 	segmentEndInSeconds,
-	playbackRate,
-	sequenceDurationInSeconds,
+	maximumContinuousTimestamp,
 }: MakeLoopingIteratorOptions): AsyncGenerator<
 	BufferWithMediaTimestamp,
 	void,
 	unknown
 > {
+	if (segmentEndInSeconds <= loopStartInSeconds) {
+		throw new Error(
+			`Cannot loop audio over an empty range (${loopStartInSeconds} to ${segmentEndInSeconds})`,
+		);
+	}
+
 	// The first pass starts at the seek position, every following pass replays
 	// the full loop segment from its start. Timestamps continue monotonically
 	// across passes so that chunks belonging to a later loop iteration can be
@@ -55,20 +63,19 @@ async function* makeLoopingIterator({
 	let passStartInSeconds = seekTimeInSeconds;
 	let passBaseTimestamp = seekTimeInSeconds;
 
-	let broken = false;
 	while (true) {
-		for await (const item of makeIteratorWithPrimingInner(
+		let yieldedInPass = false;
+		for await (const item of makeIteratorWithPriming({
 			audioSink,
-			passStartInSeconds,
-			segmentEndInSeconds,
-		)) {
+			timeToSeek: passStartInSeconds,
+			maximumTimestamp: segmentEndInSeconds,
+		})) {
+			yieldedInPass = true;
 			const timestamp =
 				passBaseTimestamp + (item.timestamp - passStartInSeconds);
 
-			const endTimestamp = timestamp - seekTimeInSeconds + item.buffer.duration;
-			if (endTimestamp > sequenceDurationInSeconds * playbackRate) {
-				broken = true;
-				break;
+			if (timestamp + item.buffer.duration > maximumContinuousTimestamp) {
+				return;
 			}
 
 			yield {
@@ -77,42 +84,13 @@ async function* makeLoopingIterator({
 			};
 		}
 
-		if (broken) {
-			break;
+		if (!yieldedInPass) {
+			throw new Error(
+				`Audio loop pass from ${passStartInSeconds} to ${segmentEndInSeconds} yielded no buffers`,
+			);
 		}
 
 		passBaseTimestamp += segmentEndInSeconds - passStartInSeconds;
 		passStartInSeconds = loopStartInSeconds;
 	}
 }
-
-export const makeIteratorWithPriming = ({
-	audioSink,
-	timeToSeek,
-	maximumTimestamp,
-	loop,
-	loopStartInSeconds,
-	playbackRate,
-	sequenceDurationInSeconds,
-}: {
-	audioSink: AudioBufferSink;
-	timeToSeek: number;
-	maximumTimestamp: number;
-	loop: boolean;
-	loopStartInSeconds: number;
-	playbackRate: number;
-	sequenceDurationInSeconds: number;
-}): AsyncGenerator<BufferWithMediaTimestamp, void, unknown> => {
-	if (loop) {
-		return makeLoopingIterator({
-			audioSink,
-			seekTimeInSeconds: timeToSeek,
-			loopStartInSeconds,
-			segmentEndInSeconds: maximumTimestamp,
-			playbackRate,
-			sequenceDurationInSeconds,
-		});
-	}
-
-	return makeIteratorWithPrimingInner(audioSink, timeToSeek, maximumTimestamp);
-};

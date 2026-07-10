@@ -19,7 +19,11 @@ import {
 	waitForTurn,
 } from './audio/sort-by-priority';
 import type {DelayPlaybackIfNotPremounting} from './delay-playback-if-not-premounting';
-import type {BufferWithMediaTimestamp} from './make-iterator-with-priming';
+import {
+	makeIteratorWithPriming,
+	makeLoopingIterator,
+	type BufferWithMediaTimestamp,
+} from './make-iterator-with-priming';
 import type {Nonce} from './nonce-manager';
 import type {SharedAudioContextForMediaPlayer} from './shared-audio-context-for-media-player';
 
@@ -202,6 +206,7 @@ export const audioIteratorManager = ({
 			timestamp: mediaTimestamp,
 			buffer,
 			scheduledTime: started.scheduledTime,
+			playbackRate,
 			scheduledAtAnchor: sharedAudioContext.audioSyncAnchor.value,
 		});
 	};
@@ -410,15 +415,24 @@ export const audioIteratorManager = ({
 			mediaStartInSeconds: startFromSecond,
 		};
 
+		const maximumContinuousTimestamp =
+			startFromSecond + getSequenceDurationInSeconds() * playbackRate;
+		const source = loop
+			? makeLoopingIterator({
+					audioSink,
+					seekTimeInSeconds: startFromSecond,
+					loopStartInSeconds: getStartTime(),
+					segmentEndInSeconds: maximumTimestamp,
+					maximumContinuousTimestamp,
+				})
+			: makeIteratorWithPriming({
+					audioSink,
+					timeToSeek: startFromSecond,
+					maximumTimestamp,
+				});
 		const iterator = makeAudioIterator({
 			startFromSecond,
-			maximumTimestamp,
-			audioSink,
-			logLevel,
-			loop,
-			loopStartInSeconds: getStartTime(),
-			playbackRate,
-			sequenceDurationInSeconds: getSequenceDurationInSeconds(),
+			iterator: source,
 			unscheduleAudioNode,
 		});
 		audioIteratorsCreated++;

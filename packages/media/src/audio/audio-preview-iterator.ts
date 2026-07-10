@@ -1,6 +1,4 @@
-import type {AudioBufferSink} from 'mediabunny';
-import type {LogLevel} from 'remotion';
-import {makeIteratorWithPriming} from '../make-iterator-with-priming';
+import type {BufferWithMediaTimestamp} from '../make-iterator-with-priming';
 
 export const HEALTHY_BUFFER_THRESHOLD_SECONDS = 1;
 export const ALLOWED_GLOBAL_TIME_ANCHOR_SHIFT = 0.1;
@@ -21,36 +19,16 @@ export type QueuedPeriod = {
 
 export type MakeAudioIteratorOptions = {
 	startFromSecond: number;
-	maximumTimestamp: number;
-	logLevel: LogLevel;
-	audioSink: AudioBufferSink;
-	loop: boolean;
-	loopStartInSeconds: number;
-	playbackRate: number;
-	sequenceDurationInSeconds: number;
+	iterator: AsyncGenerator<BufferWithMediaTimestamp, void, unknown>;
 	unscheduleAudioNode: (node: AudioBufferSourceNode) => void;
 };
 
 export const makeAudioIterator = ({
 	startFromSecond,
-	maximumTimestamp,
-	audioSink,
-	loop,
-	loopStartInSeconds,
-	playbackRate,
-	sequenceDurationInSeconds,
+	iterator,
 	unscheduleAudioNode,
 }: MakeAudioIteratorOptions) => {
 	let destroyed = false;
-	const iterator = makeIteratorWithPriming({
-		audioSink,
-		timeToSeek: startFromSecond,
-		maximumTimestamp,
-		loop,
-		loopStartInSeconds,
-		playbackRate,
-		sequenceDurationInSeconds,
-	});
 	const queuedAudioNodes: QueuedNode[] = [];
 	let mostRecentTimestamp = -Infinity;
 
@@ -60,7 +38,8 @@ export const makeAudioIterator = ({
 			try {
 				node.stop();
 			} catch {
-				// Node may not have been started
+				// AudioBufferSourceNode.stop() throws if the node was never started.
+				// Cleanup is a safe boundary: it must continue stopping other nodes.
 			}
 		}
 
@@ -84,6 +63,9 @@ export const makeAudioIterator = ({
 		destroy: () => {
 			cleanupAudioQueue();
 			destroyed = true;
+			// Returning an async generator can reject if its underlying media input
+			// was disposed. Destruction is fire-and-forget and has no caller to
+			// propagate to, so intentionally consume that teardown-only rejection.
 			iterator.return().catch(() => undefined);
 		},
 		getNextFn,
@@ -91,21 +73,8 @@ export const makeAudioIterator = ({
 			return destroyed;
 		},
 
-		addQueuedAudioNode: ({
-			node,
-			timestamp,
-			buffer,
-			scheduledTime,
-			scheduledAtAnchor,
-		}: Omit<QueuedNode, 'playbackRate'>) => {
-			queuedAudioNodes.push({
-				node,
-				timestamp,
-				buffer,
-				scheduledTime,
-				playbackRate,
-				scheduledAtAnchor,
-			});
+		addQueuedAudioNode: (queuedNode: QueuedNode) => {
+			queuedAudioNodes.push(queuedNode);
 		},
 		guessNextTimestamp: () => {
 			return !Number.isFinite(mostRecentTimestamp)
