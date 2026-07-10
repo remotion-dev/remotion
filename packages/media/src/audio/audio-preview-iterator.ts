@@ -1,4 +1,4 @@
-import type {BufferWithMediaTimestamp} from '../make-iterator-with-priming';
+import type {AudioBufferSlice} from '../make-iterator-with-priming';
 
 export const HEALTHY_BUFFER_THRESHOLD_SECONDS = 1;
 export const ALLOWED_GLOBAL_TIME_ANCHOR_SHIFT = 0.1;
@@ -7,7 +7,7 @@ export type QueuedNode = {
 	node: AudioBufferSourceNode;
 	timestamp: number;
 	buffer: AudioBuffer;
-	timelineDurationInSeconds: number;
+	sourceDurationInSeconds: number;
 	scheduledTime: number;
 	playbackRate: number;
 	scheduledAtAnchor: number;
@@ -20,7 +20,7 @@ export type QueuedPeriod = {
 
 export type MakeAudioIteratorOptions = {
 	startFromSecond: number;
-	iterator: AsyncGenerator<BufferWithMediaTimestamp, void, unknown>;
+	iterator: AsyncGenerator<AudioBufferSlice, void, unknown>;
 	unscheduleAudioNode: (node: AudioBufferSourceNode) => void;
 };
 
@@ -53,7 +53,7 @@ export const makeAudioIterator = ({
 		if (next.value) {
 			mostRecentTimestamp = Math.max(
 				mostRecentTimestamp,
-				next.value.timestamp + next.value.timelineDurationInSeconds,
+				next.value.timelineTimestamp + next.value.sourceDurationInSeconds,
 			);
 		}
 
@@ -87,10 +87,7 @@ export const makeAudioIterator = ({
 			let from = Infinity;
 
 			for (const node of queuedAudioNodes) {
-				until = Math.max(
-					until,
-					node.timestamp + node.timelineDurationInSeconds,
-				);
+				until = Math.max(until, node.timestamp + node.sourceDurationInSeconds);
 				from = Math.min(from, node.timestamp);
 			}
 

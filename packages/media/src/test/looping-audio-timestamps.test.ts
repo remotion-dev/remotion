@@ -1,6 +1,10 @@
 import type {AudioBufferSink, WrappedAudioBuffer} from 'mediabunny';
 import {expect, test} from 'vitest';
 import {
+	getDurationOfNode,
+	getTrimStartForAudioNode,
+} from '../audio/get-scheduled-time';
+import {
 	makeIteratorWithPriming,
 	makeLoopingIterator,
 } from '../make-iterator-with-priming';
@@ -27,7 +31,7 @@ const makeMockAudioSink = (mediaDurationInSeconds: number) => {
 
 const collect = async (
 	iterator: AsyncGenerator<
-		{buffer: WrappedAudioBuffer; timestamp: number},
+		{buffer: WrappedAudioBuffer; timelineTimestamp: number},
 		void,
 		unknown
 	>,
@@ -36,7 +40,7 @@ const collect = async (
 	const chunks: {timestamp: number; rawTimestamp: number}[] = [];
 	for await (const chunk of iterator) {
 		chunks.push({
-			timestamp: chunk.timestamp,
+			timestamp: chunk.timelineTimestamp,
 			rawTimestamp: chunk.buffer.timestamp,
 		});
 		if (chunks.length >= count) {
@@ -137,7 +141,27 @@ test('one-pass iterator does not wrap', async () => {
 	expect(chunks.map((chunk) => chunk.rawTimestamp)).toEqual([8, 9]);
 });
 
-test('a priming buffer crossing the loop start is clipped on every pass', async () => {
+test('scheduler trimming is additional to the source slice offset', () => {
+	const sourceOffsetInSeconds = 0.013;
+	const offset = getTrimStartForAudioNode({
+		mediaTimestamp: 3,
+		sequenceStartTime: 3.002,
+		targetTime: -0.003,
+		combinedPlaybackRate: 2,
+		sourceStartOffsetInSeconds: sourceOffsetInSeconds,
+	});
+
+	expect(offset).toBeCloseTo(0.021);
+	expect(
+		getDurationOfNode({
+			sourceDurationInSeconds: 0.03,
+			sourceOffsetInSeconds,
+			offset,
+		}),
+	).toBeCloseTo(0.022);
+});
+
+test('boundary buffers are represented as source slices on every pass', async () => {
 	const crossingBufferSink = {
 		async *buffers(_start: number, _end: number) {
 			yield {
@@ -157,17 +181,21 @@ test('a priming buffer crossing the loop start is clipped on every pass', async 
 		audioSink: crossingBufferSink,
 		seekTimeInSeconds: 3,
 		loopStartInSeconds: 3,
-		segmentEndInSeconds: 3.029,
-		maximumContinuousTimestamp: 3.058,
+		segmentEndInSeconds: 3.02,
+		maximumContinuousTimestamp: 3.04,
 	});
 
 	const first = await iterator.next();
 	const second = await iterator.next();
 	const third = await iterator.next();
 
-	expect(first.value?.timestamp).toBe(3);
-	expect(first.value?.startOffsetInSeconds).toBeCloseTo(0.013);
-	expect(second.value?.timestamp).toBeCloseTo(3.008);
-	expect(third.value?.timestamp).toBeCloseTo(3.029);
-	expect(third.value?.startOffsetInSeconds).toBeCloseTo(0.013);
+	expect(first.value?.timelineTimestamp).toBe(3);
+	expect(first.value?.sourceOffsetInSeconds).toBeCloseTo(0.013);
+	expect(first.value?.sourceDurationInSeconds).toBeCloseTo(0.008);
+	expect(second.value?.timelineTimestamp).toBeCloseTo(3.008);
+	expect(second.value?.sourceOffsetInSeconds).toBe(0);
+	expect(second.value?.sourceDurationInSeconds).toBeCloseTo(0.012);
+	expect(third.value?.timelineTimestamp).toBeCloseTo(3.02);
+	expect(third.value?.sourceOffsetInSeconds).toBeCloseTo(0.013);
+	expect(third.value?.sourceDurationInSeconds).toBeCloseTo(0.008);
 });

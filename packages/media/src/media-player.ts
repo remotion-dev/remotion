@@ -740,7 +740,8 @@ export class MediaPlayer {
 		node: AudioBufferSourceNode,
 		mediaTimestamp: number,
 		originalUnloopedMediaTimestamp: number,
-		startOffsetInSeconds: number,
+		sourceOffsetInSeconds: number,
+		sourceDurationInSeconds: number,
 	): ScheduleAudioNodeResult => {
 		if (!this.sharedAudioContext) {
 			throw new Error('Shared audio context not found');
@@ -763,21 +764,19 @@ export class MediaPlayer {
 		}
 
 		const sequenceStartTime = this.getStartTime();
-		const loopSegmentMediaEndTimestamp = this.getLoopSegmentMediaEndTimestamp();
 
 		const offset = getTrimStartForAudioNode({
 			mediaTimestamp,
 			targetTime,
 			sequenceStartTime,
 			combinedPlaybackRate,
-			sourceStartOffsetInSeconds: startOffsetInSeconds,
+			sourceStartOffsetInSeconds: sourceOffsetInSeconds,
 		});
 
 		const duration = getDurationOfNode({
-			bufferDuration: node.buffer?.duration ?? 0,
-			loopSegmentMediaEndTimestamp,
+			sourceDurationInSeconds,
+			sourceOffsetInSeconds,
 			offset,
-			originalUnloopedMediaTimestamp,
 		});
 
 		const scheduledTime = getScheduledTime({
@@ -790,6 +789,7 @@ export class MediaPlayer {
 		return this.sharedAudioContext.scheduleAudioNode({
 			node,
 			mediaTimestamp,
+			sourceOffset: sourceOffsetInSeconds,
 			scheduledTime,
 			duration,
 			offset,

@@ -2,16 +2,13 @@ import type {AudioBufferSink, WrappedAudioBuffer} from 'mediabunny';
 
 const AUDIO_PRIMING_SECONDS = 0.5;
 
-export type BufferWithMediaTimestamp = {
+export type AudioBufferSlice = {
 	buffer: WrappedAudioBuffer;
-	timestamp: number;
-	// Number of seconds to skip at the start of the underlying buffer. This is
-	// needed when a priming buffer crosses the beginning of a pass.
-	startOffsetInSeconds: number;
-	// Span occupied by this item on the emitted timeline. Looping items shift
-	// their timestamp to the audible boundary, so their source offset is not
-	// part of this duration.
-	timelineDurationInSeconds: number;
+	// Position where the audible slice begins on the continuous timeline.
+	timelineTimestamp: number;
+	// Range to play from the underlying AudioBuffer.
+	sourceOffsetInSeconds: number;
+	sourceDurationInSeconds: number;
 };
 
 export async function* makeIteratorWithPriming({
@@ -22,20 +19,26 @@ export async function* makeIteratorWithPriming({
 	audioSink: AudioBufferSink;
 	timeToSeek: number;
 	maximumTimestamp: number;
-}): AsyncGenerator<BufferWithMediaTimestamp, void, unknown> {
+}): AsyncGenerator<AudioBufferSlice, void, unknown> {
 	const primingStart = Math.max(0, timeToSeek - AUDIO_PRIMING_SECONDS);
 	const iterator = audioSink.buffers(primingStart, maximumTimestamp);
 
 	for await (const buffer of iterator) {
-		if (buffer.timestamp + buffer.duration <= timeToSeek) {
+		const sourceStart = Math.max(buffer.timestamp, timeToSeek);
+		const sourceEnd = Math.min(
+			buffer.timestamp + buffer.duration,
+			maximumTimestamp,
+		);
+
+		if (sourceEnd <= sourceStart) {
 			continue;
 		}
 
 		yield {
 			buffer,
-			timestamp: buffer.timestamp,
-			startOffsetInSeconds: Math.max(0, timeToSeek - buffer.timestamp),
-			timelineDurationInSeconds: buffer.duration,
+			timelineTimestamp: sourceStart,
+			sourceOffsetInSeconds: sourceStart - buffer.timestamp,
+			sourceDurationInSeconds: sourceEnd - sourceStart,
 		};
 	}
 }
@@ -55,7 +58,7 @@ export async function* makeLoopingIterator({
 	segmentEndInSeconds,
 	maximumContinuousTimestamp,
 }: MakeLoopingIteratorOptions): AsyncGenerator<
-	BufferWithMediaTimestamp,
+	AudioBufferSlice,
 	void,
 	unknown
 > {
@@ -80,26 +83,29 @@ export async function* makeLoopingIterator({
 			maximumTimestamp: segmentEndInSeconds,
 		})) {
 			yieldedInPass = true;
-			// A priming buffer may begin before the pass boundary. Put its audible
-			// start exactly at the continuous pass boundary and retain the source
-			// offset so Web Audio skips the pre-boundary samples on every pass.
-			const timestamp =
-				passBaseTimestamp +
-				(item.timestamp - passStartInSeconds) +
-				item.startOffsetInSeconds;
-			const effectiveDuration =
-				item.buffer.duration - item.startOffsetInSeconds;
+			const timelineTimestamp =
+				passBaseTimestamp + (item.timelineTimestamp - passStartInSeconds);
+			const sourceDurationInSeconds = Math.min(
+				item.sourceDurationInSeconds,
+				maximumContinuousTimestamp - timelineTimestamp,
+			);
 
-			if (timestamp + effectiveDuration > maximumContinuousTimestamp) {
+			if (sourceDurationInSeconds <= 0) {
 				return;
 			}
 
 			yield {
-				buffer: item.buffer,
-				timestamp,
-				startOffsetInSeconds: item.startOffsetInSeconds,
-				timelineDurationInSeconds: effectiveDuration,
+				...item,
+				timelineTimestamp,
+				sourceDurationInSeconds,
 			};
+
+			if (
+				timelineTimestamp + sourceDurationInSeconds >=
+				maximumContinuousTimestamp
+			) {
+				return;
+			}
 		}
 
 		if (!yieldedInPass) {

@@ -88,10 +88,11 @@ const prepare = async (options?: {
 		_node: AudioBufferSourceNode,
 		mediaTimestamp: number,
 		_originalUnloopedMediaTimestamp: number,
-		startOffsetInSeconds: number,
+		sourceOffsetInSeconds: number,
+		_sourceDurationInSeconds: number,
 	): ScheduleAudioNodeResult => {
 		scheduledChunks.push(mediaTimestamp);
-		scheduledStartOffsets.push(startOffsetInSeconds);
+		scheduledStartOffsets.push(sourceOffsetInSeconds);
 		for (let i = waiters.length - 1; i >= 0; i--) {
 			if (scheduledChunks.length >= waiters[i].count) {
 				waiters[i].resolve();
@@ -174,9 +175,7 @@ test('media player should work', async () => {
 	});
 
 	await manager.waitForNScheduledNodes(3);
-	expect(scheduledChunks).toEqual([
-		9.941333333333333, 9.962666666666667, 9.984,
-	]);
+	expect(scheduledChunks).toEqual([9.96, 9.962666666666667, 9.984]);
 
 	scheduledChunks.length = 0;
 	seek({
@@ -223,7 +222,7 @@ test('should not create too many iterators when the audio ends', async () => {
 	const created = manager.getAudioIteratorsCreated();
 	expect(created).toBe(1);
 
-	expect(scheduledChunks).toEqual([9.962666666666667, 9.984]);
+	expect(scheduledChunks).toEqual([9.97, 9.984]);
 });
 
 test('should not create too many iterators when the audio ends (variant)', async () => {
@@ -244,7 +243,7 @@ test('should not create too many iterators when the audio ends (variant)', async
 	const created = manager.getAudioIteratorsCreated();
 	expect(created).toBe(1);
 
-	expect(scheduledChunks).toEqual([9.962666666666667, 9.984]);
+	expect(scheduledChunks).toEqual([9.97, 9.984]);
 });
 
 test('should create more iterators when seeking ', async () => {
@@ -270,7 +269,7 @@ test('should create more iterators when seeking ', async () => {
 	expect(created).toBe(2);
 
 	expect(scheduledChunks).toEqual([
-		1.984, 2.005333333333333, 2.026666666666667, 2.048, 2.0693333333333332,
+		2, 2.005333333333333, 2.026666666666667, 2.048, 2.0693333333333332,
 		2.0906666666666665,
 	]);
 });

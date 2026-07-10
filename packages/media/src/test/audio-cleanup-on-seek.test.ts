@@ -1,6 +1,6 @@
 import {expect, test} from 'vitest';
 import {makeAudioIterator} from '../audio/audio-preview-iterator';
-import type {BufferWithMediaTimestamp} from '../make-iterator-with-priming';
+import type {AudioBufferSlice} from '../make-iterator-with-priming';
 
 const makeMockNode = () => {
 	let stopped = false;
@@ -23,7 +23,7 @@ const makeMockBuffer = (duration: number) => {
 };
 
 async function* makeEmptySource(): AsyncGenerator<
-	BufferWithMediaTimestamp,
+	AudioBufferSlice,
 	void,
 	unknown
 > {}
@@ -42,7 +42,7 @@ test('destroy should stop nodes when the audio anchor changed (seek to different
 		node: mock1.node,
 		timestamp: 0,
 		buffer: makeMockBuffer(0.021),
-		timelineDurationInSeconds: 0.021,
+		sourceDurationInSeconds: 0.021,
 		scheduledTime: 0.1,
 		playbackRate: 1,
 		scheduledAtAnchor: 0,
@@ -51,7 +51,7 @@ test('destroy should stop nodes when the audio anchor changed (seek to different
 		node: mock2.node,
 		timestamp: 0.021,
 		buffer: makeMockBuffer(0.021),
-		timelineDurationInSeconds: 0.021,
+		sourceDurationInSeconds: 0.021,
 		scheduledTime: 0.121,
 		playbackRate: 1,
 		scheduledAtAnchor: 0,
