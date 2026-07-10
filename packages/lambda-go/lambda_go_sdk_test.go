@@ -1,11 +1,41 @@
 package lambda_go_sdk
 
 import (
+	"bytes"
 	"encoding/json"
+	"errors"
+	"io"
 	"log"
 	"strings"
 	"testing"
+
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/awserr"
+	"github.com/aws/aws-sdk-go/service/s3"
 )
+
+type bucketLocationGetterMock struct {
+	output *s3.GetBucketLocationOutput
+	err    error
+}
+
+func (mock bucketLocationGetterMock) GetBucketLocation(
+	*s3.GetBucketLocationInput,
+) (*s3.GetBucketLocationOutput, error) {
+	return mock.output, mock.err
+}
+
+type objectUploaderMock struct {
+	input *s3.PutObjectInput
+	err   error
+}
+
+func (mock *objectUploaderMock) PutObject(
+	input *s3.PutObjectInput,
+) (*s3.PutObjectOutput, error) {
+	mock.input = input
+	return &s3.PutObjectOutput{}, mock.err
+}
 
 func TestPrintVersion(t *testing.T) {
 	payload, err := constructRenderInternals(&RemotionOptions{
@@ -74,6 +104,150 @@ func TestNeedsUpload(t *testing.T) {
 				t.Fatalf("needsUpload(%d, %q) = %v, want %v", test.payloadSize, test.inputType, got, test.want)
 			}
 		})
+	}
+}
+
+func TestNeedsUploadWarningRounding(t *testing.T) {
+	previousWriter := log.Writer()
+	var output bytes.Buffer
+	log.SetOutput(&output)
+	t.Cleanup(func() {
+		log.SetOutput(previousWriter)
+	})
+
+	if !needsUpload(maxVideoInlinePayloadSize+1, "video-or-audio") {
+		t.Fatal("video payload above the limit should need upload")
+	}
+	if !strings.Contains(output.String(), "over 194KB") {
+		t.Fatalf("expected rounded video limit in warning, got %q", output.String())
+	}
+
+	output.Reset()
+	if !needsUpload(maxStillInlinePayloadSize+1, "still") {
+		t.Fatal("still payload above the limit should need upload")
+	}
+	if !strings.Contains(output.String(), "over 4994KB") {
+		t.Fatalf("expected rounded still limit in warning, got %q", output.String())
+	}
+}
+
+func TestIsBucketInRegion(t *testing.T) {
+	accessDenied := awserr.New("AccessDenied", "denied", nil)
+	tests := []struct {
+		name       string
+		output     *s3.GetBucketLocationOutput
+		err        error
+		region     string
+		want       bool
+		wantErr    bool
+		wrappedErr error
+	}{
+		{
+			name:   "matching region",
+			output: &s3.GetBucketLocationOutput{LocationConstraint: aws.String("eu-west-1")},
+			region: "eu-west-1",
+			want:   true,
+		},
+		{
+			name:   "different region",
+			output: &s3.GetBucketLocationOutput{LocationConstraint: aws.String("eu-west-1")},
+			region: "us-west-1",
+			want:   false,
+		},
+		{
+			name:   "empty location is us-east-1",
+			output: &s3.GetBucketLocationOutput{},
+			region: regionUsEast1,
+			want:   true,
+		},
+		{
+			name:   "missing bucket",
+			err:    awserr.New(s3.ErrCodeNoSuchBucket, "missing", nil),
+			region: regionUsEast1,
+			want:   false,
+		},
+		{
+			name:       "access error",
+			err:        accessDenied,
+			region:     regionUsEast1,
+			wantErr:    true,
+			wrappedErr: accessDenied,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			got, err := isBucketInRegion(bucketLocationGetterMock{
+				output: test.output,
+				err:    test.err,
+			}, "remotionlambda-test", test.region)
+			if got != test.want {
+				t.Fatalf("isBucketInRegion() = %v, want %v", got, test.want)
+			}
+			if (err != nil) != test.wantErr {
+				t.Fatalf("isBucketInRegion() error = %v, wantErr %v", err, test.wantErr)
+			}
+			if test.wrappedErr != nil && !errors.Is(err, test.wrappedErr) {
+				t.Fatalf("expected error to wrap %v, got %v", test.wrappedErr, err)
+			}
+		})
+	}
+}
+
+func TestUploadInputPropsOmitsACL(t *testing.T) {
+	uploader := &objectUploaderMock{}
+	if err := uploadInputPropsToS3(uploader, "bucket", "input-props/hash.json", `{"hello":"world"}`); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if uploader.input == nil {
+		t.Fatal("PutObject was not called")
+	}
+	if uploader.input.ACL != nil {
+		t.Fatalf("expected no object ACL, got %q", aws.StringValue(uploader.input.ACL))
+	}
+	if got := aws.StringValue(uploader.input.ContentType); got != "application/json" {
+		t.Fatalf("unexpected content type: %q", got)
+	}
+	payload, err := io.ReadAll(uploader.input.Body)
+	if err != nil {
+		t.Fatalf("could not read uploaded payload: %v", err)
+	}
+	if got := string(payload); got != `{"hello":"world"}` {
+		t.Fatalf("unexpected uploaded payload: %q", got)
+	}
+}
+
+func TestUploadInputPropsWrapsErrors(t *testing.T) {
+	uploadError := errors.New("upload failed")
+	err := uploadInputPropsToS3(&objectUploaderMock{err: uploadError}, "bucket", "key", "payload")
+	if !errors.Is(err, uploadError) {
+		t.Fatalf("expected wrapped upload error, got %v", err)
+	}
+}
+
+func TestPayloadDataAlias(t *testing.T) {
+	serialized := &SerializedInputProps{Type: "payload", Payload: "{}"}
+	var legacy *PayloadData = serialized
+	if legacy != serialized {
+		t.Fatal("PayloadData alias changed the pointer")
+	}
+}
+
+func TestRandomHashFormat(t *testing.T) {
+	const alphabet = "abcdefghijklmnopqrstuvwxyz0123456789"
+	for i := 0; i < 100; i++ {
+		hash, err := randomHash()
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if len(hash) != 10 {
+			t.Fatalf("expected 10 character hash, got %q", hash)
+		}
+		for _, char := range hash {
+			if !strings.ContainsRune(alphabet, char) {
+				t.Fatalf("unexpected character %q in hash %q", char, hash)
+			}
+		}
 	}
 }
 

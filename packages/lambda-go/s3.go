@@ -17,6 +17,14 @@ import (
 const bucketNamePrefix = "remotionlambda-"
 const regionUsEast1 = "us-east-1"
 
+type bucketLocationGetter interface {
+	GetBucketLocation(*s3.GetBucketLocationInput) (*s3.GetBucketLocationOutput, error)
+}
+
+type objectUploader interface {
+	PutObject(*s3.PutObjectInput) (*s3.PutObjectOutput, error)
+}
+
 // hashPayload returns the SHA256 hex digest used as the input-props object name.
 func hashPayload(payload string) string {
 	sum := sha256.Sum256([]byte(payload))
@@ -61,7 +69,7 @@ func newS3Client(region string, forcePathStyle bool) *s3.S3 {
 }
 
 // isBucketInRegion reports whether the given bucket lives in region.
-func isBucketInRegion(svc *s3.S3, bucket string, region string) (bool, error) {
+func isBucketInRegion(svc bucketLocationGetter, bucket string, region string) (bool, error) {
 	out, err := svc.GetBucketLocation(&s3.GetBucketLocationInput{Bucket: aws.String(bucket)})
 	if err != nil {
 		if awsErr, ok := err.(awserr.Error); ok && awsErr.Code() == s3.ErrCodeNoSuchBucket {
@@ -131,7 +139,7 @@ func getOrCreateBucket(svc *s3.S3, region string) (string, error) {
 }
 
 // uploadInputPropsToS3 writes the serialized props to S3 as private JSON.
-func uploadInputPropsToS3(svc *s3.S3, bucket string, key string, payload string) error {
+func uploadInputPropsToS3(svc objectUploader, bucket string, key string, payload string) error {
 	_, err := svc.PutObject(&s3.PutObjectInput{
 		Bucket:      aws.String(bucket),
 		Key:         aws.String(key),
