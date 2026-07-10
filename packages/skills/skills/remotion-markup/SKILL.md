@@ -182,7 +182,7 @@ When needing to visualize audio (spectrum bars, waveforms, bass-reactive effects
 
 ## Captions
 
-When dealing with captions or subtitles, load the [./rules/subtitles.md](./rules/subtitles.md) file for more information.
+When dealing with captions or subtitles, load the [Remotion Captions](../remotion-captions/SKILL.md) skill for more information.
 
 ## Google Fonts
 

@@ -7,7 +7,7 @@ metadata:
 
 # Adding AI voiceover to a Remotion composition
 
-Use ElevenLabs TTS to generate speech audio per scene, then use [`calculateMetadata`](./calculate-metadata) to dynamically size the composition to match the audio.
+Use ElevenLabs TTS to generate speech audio per scene, then use [`calculateMetadata`](./calculate-metadata.md) to dynamically size the composition to match the audio.
 
 ## Prerequisites
 
@@ -55,7 +55,7 @@ writeFileSync(`public/voiceover/${compositionId}/${scene.id}.mp3`, audioBuffer);
 
 ## Dynamic composition duration with calculateMetadata
 
-Use [`calculateMetadata`](./calculate-metadata.md) to measure the [audio durations](./get-audio-duration.md) and set the composition length accordingly.
+Use [`calculateMetadata`](./calculate-metadata.md) to measure the [audio durations](../../mediabunny/rules/get-audio-duration.md) and set the composition length accordingly.
 
 ```tsx
 import { CalculateMetadataFunction, staticFile } from "remotion";

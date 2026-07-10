@@ -93,7 +93,7 @@ export const RemotionRoot = () => {
 
 ## Dynamic duration, width, and height
 
-Use [`calculateMetadata`](./calculate-metadata) to make dimensions, duration, or props dynamic based on input props, fetched data, or asset metadata.
+Use [`calculateMetadata`](./calculate-metadata.md) to make dimensions, duration, or props dynamic based on input props, fetched data, or asset metadata.
 
 ## Nesting compositions within another
 

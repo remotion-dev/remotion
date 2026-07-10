@@ -26,7 +26,7 @@ Keep the scaffold and add React Markup. Follow [Remotion React Markup Best Pract
 
 ## Interactivity Best Practices
 
-By structuring the React Markup following [../remotion-interactivity/SKILL.md](Remotion Interactivity Best Practices), you allow the user to make edits in the Studio which write back to code.
+By structuring the React Markup following [Remotion Interactivity Best Practices](../remotion-interactivity/SKILL.md), you allow the user to make edits in the Studio which write back to code.
 
 
 ## TailwindCSS

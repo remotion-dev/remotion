@@ -5,10 +5,6 @@ metadata:
   tags: remotion, saas, player, rendering, templates, lambda
 ---
 
-# Remotion SaaS
-
-## Overview
-
 Help users choose the right Remotion template, rendering method, and Player setup for a web app or SaaS product. Do not duplicate the docs; link canonical pages and local template references.
 
 If the task is about authoring animation/video code, also use Remotion best-practices guidance. If the task is about Studio Visual Mode editability, also use interactivity guidance.

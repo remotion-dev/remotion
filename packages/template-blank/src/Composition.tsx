@@ -1,6 +1,6 @@
 import { CalculateMetadataFunction, Composition } from "remotion";
 
-type Props = {};
+type Props = Record<string, unknown>;
 
 const calculateMetadata: CalculateMetadataFunction<Props> = () => {
   return {};
