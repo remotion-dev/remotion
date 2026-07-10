@@ -17,7 +17,7 @@ import {
 	whatIsRemotionCalculateMetadata,
 	whatIsRemotionSchema,
 } from './Compose/WhatIsRemotion';
-import {DesignSystems} from './DesignSystems';
+import {DesignSystems, designSystemsDurationInFrames} from './DesignSystems';
 import {
 	DocsPagesShowcase,
 	INSTAGRAM_POST_HEIGHT,
@@ -233,7 +233,7 @@ export const RemotionRoot: React.FC = () => {
 				<Composition
 					id="DesignSystems"
 					component={DesignSystems}
-					durationInFrames={150}
+					durationInFrames={designSystemsDurationInFrames}
 					fps={30}
 					width={1080}
 					height={1080}

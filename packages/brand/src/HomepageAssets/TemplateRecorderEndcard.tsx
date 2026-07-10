@@ -132,8 +132,11 @@ const IconRow: React.FC<{
 	);
 };
 
-const TemplateRecorderEndcardFace: React.FC = () => {
-	const frame = useCurrentFrame();
+const TemplateRecorderEndcardFace: React.FC<{
+	readonly frame?: number;
+}> = ({frame: frameOverride}) => {
+	const currentFrame = useCurrentFrame();
+	const frame = frameOverride ?? currentFrame;
 	const {fps, width} = useVideoConfig();
 	const totalLinks = remotionSocialRows.length + remotionLinks.length;
 	const slideUp = spring({
@@ -323,7 +326,9 @@ const FlatSelectionOutline: React.FC = () => {
 	);
 };
 
-export const TemplateRecorderEndcard: React.FC = () => {
+export const TemplateRecorderEndcard: React.FC<{
+	readonly frame?: number;
+}> = ({frame}) => {
 	return (
 		<AbsoluteFill className="justify-center items-center">
 			<ExtrudeDiv
@@ -369,7 +374,7 @@ export const TemplateRecorderEndcard: React.FC = () => {
 							translate: '-36.3px 0px',
 						}}
 					>
-						<TemplateRecorderEndcardFace />
+						<TemplateRecorderEndcardFace frame={frame} />
 					</Interactive.Div>
 				</Interactive.Div>
 			</ExtrudeDiv>

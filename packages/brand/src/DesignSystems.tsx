@@ -8,6 +8,8 @@ import {
 import {RemotionTriangle} from './HomepageAssets/RemotionTriangle';
 import {TemplateRecorderEndcard} from './HomepageAssets/TemplateRecorderEndcard';
 
+const forwardDurationInFrames = 150;
+export const designSystemsDurationInFrames = forwardDurationInFrames * 2 - 1;
 const endcardSequenceStart = folderTreeSelectionMoveStart;
 const animatedLogoExitEnd = 72;
 const assetScaleOverlap = 8;
@@ -31,20 +33,25 @@ const enterTransition = {
 
 export const DesignSystems: React.FC = () => {
 	const frame = useCurrentFrame();
+	const pingPongFrame =
+		frame < forwardDurationInFrames
+			? frame
+			: designSystemsDurationInFrames - 1 - frame;
+	const endcardFrame = Math.max(0, pingPongFrame - endcardSequenceStart);
 	const animatedLogoScale = interpolate(
-		frame,
+		pingPongFrame,
 		[folderTreeSelectionMoveStart, animatedLogoExitEnd],
 		[1.3, 0],
 		exitTransition,
 	);
 	const endcardScale = interpolate(
-		frame,
+		pingPongFrame,
 		[endcardEnterStart, folderTreeSelectionMoveEnd],
 		[0, 0.513],
 		enterTransition,
 	);
 	const endcardOpacity = interpolate(
-		frame,
+		pingPongFrame,
 		[endcardEnterStart, endcardEnterStart + 3],
 		[0, 1],
 		enterTransition,
@@ -55,35 +62,35 @@ export const DesignSystems: React.FC = () => {
 			<Sequence
 				width={480}
 				height={160}
-				durationInFrames={160}
+				durationInFrames={designSystemsDurationInFrames}
 				style={{
 					position: 'absolute',
 					translate: '157px 264.7px',
 					scale: 3.233,
 				}}
 			>
-				<FolderTree />
+				<FolderTree frame={pingPongFrame} />
 			</Sequence>
 			<Sequence
 				width={1080}
 				height={1080}
-				durationInFrames={150}
+				durationInFrames={designSystemsDurationInFrames}
 				style={{
 					position: 'absolute',
 					translate: '189.6px 162px',
-					opacity: interpolate(frame, [75], [1], {
+					opacity: interpolate(pingPongFrame, [75], [1], {
 						extrapolateLeft: 'clamp',
 						extrapolateRight: 'clamp',
 					}),
 					scale: animatedLogoScale,
 				}}
 			>
-				<RemotionTriangle />
+				<RemotionTriangle frame={pingPongFrame} />
 			</Sequence>
 			<Sequence
 				width={1080}
 				height={1620}
-				durationInFrames={200}
+				durationInFrames={designSystemsDurationInFrames}
 				style={{
 					position: 'absolute',
 					translate: '170.7px -145.5px',
@@ -92,7 +99,7 @@ export const DesignSystems: React.FC = () => {
 				}}
 				from={endcardSequenceStart}
 			>
-				<TemplateRecorderEndcard />
+				<TemplateRecorderEndcard frame={endcardFrame} />
 			</Sequence>
 		</>
 	);

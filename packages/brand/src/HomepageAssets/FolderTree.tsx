@@ -34,8 +34,11 @@ const selectionTransition = {
 	extrapolateRight: 'clamp' as const,
 };
 
-export const FolderTree: React.FC = () => {
-	const frame = useCurrentFrame();
+export const FolderTree: React.FC<{
+	readonly frame?: number;
+}> = ({frame: frameOverride}) => {
+	const currentFrame = useCurrentFrame();
+	const frame = frameOverride ?? currentFrame;
 
 	return (
 		<AbsoluteFill className="justify-center items-center">
