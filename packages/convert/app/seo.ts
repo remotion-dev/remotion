@@ -225,7 +225,7 @@ export const getPageTitle = (routeAction: RouteAction) => {
 
 export const getDescription = (routeAction: RouteAction) => {
 	if (routeAction.type === 'generic-convert') {
-		return 'The fastest online video converter, powered by WebCodecs. No upload required, no watermarks, no limits.';
+		return 'Convert MP4, WebM, MOV, MKV, ProRes, HLS streams, MP3, WAV, AAC, and FLAC in your browser. No upload required, no watermarks, no limits.';
 	}
 
 	if (routeAction.type === 'convert') {

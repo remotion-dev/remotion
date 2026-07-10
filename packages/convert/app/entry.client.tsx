@@ -1,6 +1,7 @@
 import {registerAacEncoder} from '@mediabunny/aac-encoder';
 import {registerFlacEncoder} from '@mediabunny/flac-encoder';
 import {registerMp3Encoder} from '@mediabunny/mp3-encoder';
+import {registerProresDecoder} from '@mediabunny/prores';
 import {RemixBrowser} from '@remix-run/react';
 import {startTransition} from 'react';
 import {hydrateRoot} from 'react-dom/client';
@@ -8,6 +9,7 @@ import {hydrateRoot} from 'react-dom/client';
 registerMp3Encoder();
 registerAacEncoder();
 registerFlacEncoder();
+registerProresDecoder();
 
 const registerServiceWorker = () => {
 	if ('serviceWorker' in navigator) {

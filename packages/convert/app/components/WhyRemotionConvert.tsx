@@ -1,11 +1,18 @@
 import {Card} from '@remotion/design';
+import clsx from 'clsx';
 import React from 'react';
+import {convertTools, getActiveConvertTool} from '~/lib/convert-tools';
+import type {RouteAction} from '~/seo';
 import {AwesomeIcon} from './AwesomeIcon';
 import {BoltIcon} from './BoltIcon';
 import {Footer} from './Footer';
 import {LockIcon} from './LockIcon';
 
-export const WhyRemotionConvert: React.FC = () => {
+export const WhyRemotionConvert: React.FC<{
+	readonly routeAction: RouteAction;
+}> = ({routeAction}) => {
+	const activeTool = getActiveConvertTool(routeAction);
+
 	return (
 		<div className="text-left lg:text-center px-8 block m-auto">
 			<h2 className="font-brand text-xl font-bold mt-14">
@@ -60,8 +67,50 @@ export const WhyRemotionConvert: React.FC = () => {
 						</div>
 					</Card>
 				</div>
+				<div className="h-14" />
+				<div className="m-auto max-w-[760px] text-left">
+					<nav aria-label="Remotion tools" className="grid grid-cols-1 gap-y-2">
+						<div>
+							<a
+								href="https://remotion.dev/?utm_source=convert"
+								target="_blank"
+								className="font-brand text-sm leading-6 text-slate-600 transition-colors hover:text-brand"
+							>
+								<span className="font-bold text-foreground">remotion.dev</span>
+								{' - '}Make videos programmatically
+							</a>
+						</div>
+						{convertTools.map((tool) => {
+							const active = tool.key === activeTool;
+
+							return (
+								<div key={tool.key}>
+									<a
+										href={tool.href}
+										aria-current={active ? 'page' : undefined}
+										className={clsx(
+											'font-brand text-sm leading-6 text-slate-600 transition-colors hover:text-brand',
+											active && 'text-brand',
+										)}
+									>
+										<span
+											className={clsx(
+												'font-bold',
+												active ? 'text-brand' : 'text-foreground',
+											)}
+										>
+											{tool.displayUrl}
+										</span>
+										{' - '}
+										{tool.description}
+									</a>
+								</div>
+							);
+						})}
+					</nav>
+				</div>
 				<div className="h-20" />
-				<Footer routeAction={{type: 'generic-convert'}} />
+				<Footer routeAction={routeAction} />
 			</div>
 			<div className="h-10" />
 		</div>

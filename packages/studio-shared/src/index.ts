@@ -40,6 +40,8 @@ export {
 	DuplicateEffectResponse,
 	DuplicateJsxNodeRequest,
 	DuplicateJsxNodeResponse,
+	ElementInstallRequest,
+	GoogleFontSourceEdit,
 	InsertElementRequest,
 	InsertElementResponse,
 	InsertJsxElementRequest,
@@ -73,11 +75,10 @@ export {
 	ReorderSequenceResponse,
 	RestartStudioRequest,
 	RestartStudioResponse,
-	GoogleFontSourceEdit,
-	SaveSequencePropSourceEdit,
 	SaveEffectPropsRequest,
 	SaveEffectPropsResponse,
 	SaveSequencePropEdit,
+	SaveSequencePropSourceEdit,
 	SaveSequencePropsRequest,
 	SaveSequencePropsResponse,
 	SaveSequencePropsResult,
@@ -101,6 +102,8 @@ export {
 	UpdateDefaultPropsResponse,
 	UpdateEffectKeyframeSettingsRequest,
 	UpdateEffectKeyframeSettingsResponse,
+	UpdateElementInstallTargetRequest,
+	UpdateElementInstallTargetResponse,
 	UpdateSequenceKeyframeSettingsRequest,
 	UpdateSequenceKeyframeSettingsResponse,
 	type AddEffectKeyframe,
@@ -140,6 +143,11 @@ export {
 	type FileType,
 	type ImageFileType,
 } from './detect-file-type';
+export {
+	REMOTION_DRAG_MIME_TYPES,
+	isRemotionDragMimeType,
+	type RemotionDragMimeType,
+} from './drag-mime-types';
 export {
 	parseEasingClipboardData,
 	parseEasingClipboardDataResult,
@@ -210,12 +218,12 @@ export {
 export {
 	CUBIC_KEYFRAME_EASING,
 	EASE_KEYFRAME_EASING,
-	getBackKeyframeEasing,
-	getOutKeyframeEasing,
-	getPolyKeyframeEasing,
 	KEYFRAME_EASING_PRESETS,
 	LINEAR_KEYFRAME_EASING,
 	QUAD_KEYFRAME_EASING,
+	getBackKeyframeEasing,
+	getOutKeyframeEasing,
+	getPolyKeyframeEasing,
 	type KeyframeEasing,
 	type KeyframeEasingPreset,
 } from './keyframe-easing-presets';
@@ -296,12 +304,12 @@ export {
 	StackFrame,
 	SymbolicatedStackFrame,
 } from './stack-types';
+export {EnumPath, stringifyDefaultProps} from './stringify-default-props';
 export {
 	getStudioEntryPoints,
 	type StudioEntryPointPaths,
 } from './studio-entry-points';
 export {studioHtml, type StudioHtmlOptions} from './studio-html';
-export {EnumPath, stringifyDefaultProps} from './stringify-default-props';
 
 export type {VisualControlChange} from './codemods';
 export {

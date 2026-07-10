@@ -93,7 +93,7 @@ test('addKeyframes batches sequence and effect adds into one undo entry', async 
 		closeConnections: () => Promise.resolve(),
 		router: () => Promise.resolve(),
 		sendEventToClient: () => undefined,
-		sendEventToClientId: () => undefined,
+		sendEventToClientId: () => true,
 	});
 	const dir = mkdtempSync(join(tmpdir(), 'remotion-add-keyframes-'));
 	const fileName = 'Comp.tsx';
@@ -167,7 +167,7 @@ test('addKeyframes adds a missing effect prop before keyframing it', async () =>
 		closeConnections: () => Promise.resolve(),
 		router: () => Promise.resolve(),
 		sendEventToClient: () => undefined,
-		sendEventToClientId: () => undefined,
+		sendEventToClientId: () => true,
 	});
 	const dir = mkdtempSync(join(tmpdir(), 'remotion-add-missing-effect-'));
 	const fileName = 'Comp.tsx';

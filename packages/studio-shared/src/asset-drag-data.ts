@@ -1,4 +1,4 @@
-export const ASSET_DRAG_MIME_TYPE = 'application/vnd.remotion.asset+json';
+export {ASSET_DRAG_MIME_TYPE} from './drag-mime-types';
 
 export type AssetDragData = {
 	type: 'remotion-asset';

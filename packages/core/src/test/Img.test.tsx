@@ -1,6 +1,7 @@
 import {afterEach, beforeEach, expect, test} from 'bun:test';
-import {cleanup, fireEvent, render, waitFor} from '@testing-library/react';
+import {act, cleanup, fireEvent, render, waitFor} from '@testing-library/react';
 import React from 'react';
+import {BufferingContextReact} from '../buffering.js';
 import type {
 	EffectApplyParams,
 	EffectDefinition,
@@ -9,6 +10,8 @@ import type {
 import {Img, imgSchema} from '../Img.js';
 import type {RemotionEnvironment} from '../remotion-environment-context.js';
 import {RemotionEnvironmentContext} from '../remotion-environment-context.js';
+import type {SequenceContextType} from '../SequenceContext.js';
+import {SequenceContext} from '../SequenceContext.js';
 import {WrapSequenceContext} from './wrap-sequence-context.js';
 
 const drawImageCalls: unknown[][] = [];
@@ -112,16 +115,87 @@ const previewEnvironment: RemotionEnvironment = {
 	isStudio: false,
 };
 
+const wrapImg = (
+	element: React.ReactElement,
+	environment: RemotionEnvironment = previewEnvironment,
+) => {
+	return (
+		<RemotionEnvironmentContext.Provider value={environment}>
+			<WrapSequenceContext>{element}</WrapSequenceContext>
+		</RemotionEnvironmentContext.Provider>
+	);
+};
+
 const renderImg = (
 	element: React.ReactElement,
 	environment: RemotionEnvironment = previewEnvironment,
 ) => {
-	return render(
-		<RemotionEnvironmentContext.Provider value={environment}>
-			<WrapSequenceContext>{element}</WrapSequenceContext>
-		</RemotionEnvironmentContext.Provider>,
-	);
+	return render(wrapImg(element, environment));
 };
+
+const makeSequenceContext = (premounting: boolean): SequenceContextType => ({
+	absoluteFrom: 0,
+	cumulatedFrom: 0,
+	cumulatedNegativeFrom: 0,
+	durationInFrames: 100,
+	height: 1080,
+	id: 'parent',
+	parentFrom: 0,
+	postmountDisplay: null,
+	postmounting: false,
+	premountDisplay: null,
+	premounting,
+	relativeFrom: 0,
+	width: 1080,
+});
+
+const BufferingEvents: React.FC<{
+	readonly events: string[];
+}> = ({events}) => {
+	const manager = React.useContext(BufferingContextReact);
+
+	React.useLayoutEffect(() => {
+		if (!manager) {
+			throw new Error('Expected BufferingContextReact');
+		}
+
+		const buffering = manager.listenForBuffering(() => {
+			events.push('waiting');
+		});
+		const resume = manager.listenForResume(() => {
+			events.push('resume');
+		});
+
+		return () => {
+			buffering.remove();
+			resume.remove();
+		};
+	}, [events, manager]);
+
+	return null;
+};
+
+const forceNodeEnv = (nodeEnv: string) => {
+	const originalNodeEnv = window.process.env.NODE_ENV;
+	window.process.env.NODE_ENV = nodeEnv;
+
+	return () => {
+		window.process.env.NODE_ENV = originalNodeEnv;
+	};
+};
+
+const imgInSequence = ({
+	events,
+	premounting,
+}: {
+	readonly events?: string[];
+	readonly premounting: boolean;
+}) => (
+	<SequenceContext.Provider value={makeSequenceContext(premounting)}>
+		{events ? <BufferingEvents events={events} /> : null}
+		<Img src="blob:http://localhost/test-image" pauseWhenLoading />
+	</SequenceContext.Provider>
+);
 
 test('Img component renders img tag', () => {
 	const ref = React.createRef<HTMLImageElement>();
@@ -166,6 +240,70 @@ test('Img with an empty effects array still renders an img tag', () => {
 	renderImg(<Img ref={ref} src={testImgUrl} effects={[]} />);
 
 	expect(ref.current?.tagName).toBe('IMG');
+});
+
+test('<Img> does not decode again when premounting ends after loading', async () => {
+	const originalDecode = HTMLImageElement.prototype.decode;
+	const restoreNodeEnv = forceNodeEnv('development');
+	let decodeCalls = 0;
+	HTMLImageElement.prototype.decode = () => {
+		decodeCalls++;
+		return Promise.resolve();
+	};
+
+	try {
+		const {rerender} = render(wrapImg(imgInSequence({premounting: true})));
+
+		await waitFor(() => {
+			expect(decodeCalls).toBe(1);
+		});
+
+		rerender(wrapImg(imgInSequence({premounting: false})));
+
+		expect(decodeCalls).toBe(1);
+	} finally {
+		HTMLImageElement.prototype.decode = originalDecode;
+		restoreNodeEnv();
+	}
+});
+
+test('<Img> buffers playback when premounting ends before loading finishes', async () => {
+	const originalDecode = HTMLImageElement.prototype.decode;
+	const restoreNodeEnv = forceNodeEnv('development');
+	const events: string[] = [];
+	let decodeResolver: (() => void) | null = null;
+	HTMLImageElement.prototype.decode = () =>
+		new Promise<void>((resolve) => {
+			decodeResolver = resolve;
+		});
+
+	try {
+		const {rerender} = render(
+			wrapImg(imgInSequence({events, premounting: true})),
+		);
+
+		await waitFor(() => {
+			expect(decodeResolver).not.toBeNull();
+		});
+		expect(events).toEqual([]);
+
+		rerender(wrapImg(imgInSequence({events, premounting: false})));
+
+		await waitFor(() => {
+			expect(events).toEqual(['waiting']);
+		});
+
+		act(() => {
+			decodeResolver?.();
+		});
+
+		await waitFor(() => {
+			expect(events).toEqual(['waiting', 'resume']);
+		});
+	} finally {
+		HTMLImageElement.prototype.decode = originalDecode;
+		restoreNodeEnv();
+	}
 });
 
 test('Img with effects renders through the canvas image path', async () => {

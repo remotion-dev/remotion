@@ -35,6 +35,7 @@ import {pixelDissolve} from '@remotion/effects/pixel-dissolve';
 import {pixelate} from '@remotion/effects/pixelate';
 import {radialProgressiveBlur} from '@remotion/effects/radial-progressive-blur';
 import {rings} from '@remotion/effects/rings';
+import {roughenEdges} from '@remotion/effects/roughen-edges';
 import {saturation} from '@remotion/effects/saturation';
 import {scale} from '@remotion/effects/scale';
 import {scanlines} from '@remotion/effects/scanlines';
@@ -108,6 +109,7 @@ import {
 	RADIAL_PROGRESSIVE_BLUR_PREVIEW_PARAMS,
 } from '../effects/effects-radial-progressive-blur-preview';
 import {EffectsRingsPreview} from '../effects/effects-rings-preview';
+import {EffectsRoughenEdgesPreview} from '../effects/effects-roughen-edges-preview';
 import {EffectsSaturationPreview} from '../effects/effects-saturation-preview';
 import {EffectsScalePreview} from '../effects/effects-scale-preview';
 import {EffectsScanlinesPreview} from '../effects/effects-scanlines-preview';
@@ -368,6 +370,14 @@ export const effectsDemos: EffectsDemoType[] = [
 		comp: EffectsPaperPreview,
 		schema: paper().definition.schema,
 		initialValues: PAPER_PREVIEW_PARAMS,
+	},
+	{
+		...defaults,
+		id: 'effects-roughen-edges',
+		effectName: 'roughenEdges',
+		effectImportPath: '@remotion/effects/roughen-edges',
+		comp: EffectsRoughenEdgesPreview,
+		schema: roughenEdges().definition.schema,
 	},
 	{
 		...defaults,

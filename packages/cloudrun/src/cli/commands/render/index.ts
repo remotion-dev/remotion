@@ -51,6 +51,7 @@ const {
 	overrideFpsOption,
 	overrideDurationOption,
 	sampleRateOption,
+	concurrencyOption,
 } = BrowserSafeApis.options;
 
 export const renderCommand = async (
@@ -108,6 +109,9 @@ export const renderCommand = async (
 	const durationInFrames = overrideDurationOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
+	const concurrency = concurrencyOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	});
 
 	const pixelFormat = pixelFormatOption.getValue({
 		commandLine: CliInternals.parsedCli,
@@ -385,7 +389,7 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 		delayRenderTimeoutInMilliseconds: puppeteerTimeout,
 		// Special case: Should not use default local concurrency, or from
 		// config file, just when explicitly set
-		concurrency: CliInternals.parsedCli.concurrency ?? null,
+		concurrency: concurrency.source === 'cli' ? concurrency.value : null,
 		enforceAudioTrack,
 		preferLossless: false,
 		offthreadVideoCacheSizeInBytes,

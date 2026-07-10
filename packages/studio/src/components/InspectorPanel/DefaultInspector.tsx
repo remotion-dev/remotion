@@ -1,6 +1,7 @@
 import React, {useContext, useEffect, useMemo, useState} from 'react';
 import type {_InternalTypes} from 'remotion';
 import {Internals} from 'remotion';
+import {studioInteractivityEnabled} from '../../helpers/interactivity-enabled';
 import {VisualControlsContext} from '../../visual-controls/VisualControls';
 import {CurrentAsset} from '../CurrentAsset';
 import {CurrentComposition} from '../CurrentComposition';
@@ -49,7 +50,8 @@ export const DefaultInspector: React.FC<{
 	const [defaultPropsMode, setDefaultPropsMode] =
 		useState<DataEditorMode>('schema');
 	const compositionId = composition?.id ?? null;
-	const hasVisualControls = Object.keys(visualControlHandles).length > 0;
+	const hasVisualControls =
+		studioInteractivityEnabled && Object.keys(visualControlHandles).length > 0;
 
 	useEffect(() => {
 		setDefaultPropsMode('schema');

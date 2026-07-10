@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {MP4, QTFF, WEBM} from 'mediabunny';
+import {HLS, MP4, QTFF, WEBM} from 'mediabunny';
 import {
 	isConvertEnabledByDefault,
 	isVideoOnlySection,
@@ -51,6 +51,7 @@ test('keeps the input container by default on editing pages', () => {
 	expect(getDefaultEditOutputFormat(MP4)).toBe('mp4');
 	expect(getDefaultEditOutputFormat(WEBM)).toBe('webm');
 	expect(getDefaultEditOutputFormat(QTFF)).toBe('mov');
+	expect(getDefaultEditOutputFormat(HLS)).toBe('mp4');
 });
 
 test('uses conversion defaults when enabling convert controls', () => {
@@ -60,6 +61,12 @@ test('uses conversion defaults when enabling convert controls', () => {
 			action: {type: 'generic-trim'},
 		}),
 	).toBe('webm');
+	expect(
+		getDefaultConvertOutputFormat({
+			inputContainer: HLS,
+			action: {type: 'generic-trim'},
+		}),
+	).toBe('mp4');
 	expect(
 		getDefaultConvertOutputFormat({
 			inputContainer: MP4,
@@ -75,4 +82,10 @@ test('uses conversion defaults on conversion pages', () => {
 			action: {type: 'generic-convert'},
 		}),
 	).toBe('webm');
+	expect(
+		getDefaultConvertOutputFormat({
+			inputContainer: HLS,
+			action: {type: 'generic-convert'},
+		}),
+	).toBe('mp4');
 });
