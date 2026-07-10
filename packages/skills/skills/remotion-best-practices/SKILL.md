@@ -26,6 +26,7 @@ Before designing visual scenes, layouts, promos, motion graphics, or text-heavy 
 Animate properties using `useCurrentFrame()` and `interpolate()`. Prefer `interpolate()` over `spring()` unless physics-based motion is explicitly needed. Use `Easing.bezier()` to customize timing, including jumpy or overshooting motion.
 
 For animations that should be editable in Remotion Studio, keep the `interpolate()` call inline in the `style` prop and use individual CSS transform properties (`scale`, `translate`, `rotate`) instead of composing a `transform` string.
+For full Studio interactivity guidance, use the [Remotion interactivity skill](../remotion-interactivity/SKILL.md).
 To make an element or custom component interactive in Remotion Studio, follow https://www.remotion.dev/docs/studio/make-component-interactive.
 When using `Interactive.*` or custom interactive components, set a descriptive `name` prop such as `name="Hero title"` so the element is identifiable in the Studio timeline and by agents. Do not use `name=""`.
 
