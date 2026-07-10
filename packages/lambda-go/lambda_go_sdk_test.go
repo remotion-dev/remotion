@@ -54,17 +54,26 @@ func TestSerializeInlineInputProps(t *testing.T) {
 }
 
 func TestNeedsUpload(t *testing.T) {
-	if needsUpload(1000, "video-or-audio") {
-		t.Fatal("small video payload should not need upload")
+	tests := []struct {
+		name        string
+		payloadSize int
+		inputType   string
+		want        bool
+	}{
+		{name: "video below limit", payloadSize: maxVideoInlinePayloadSize - 1, inputType: "video-or-audio", want: false},
+		{name: "video at limit", payloadSize: maxVideoInlinePayloadSize, inputType: "video-or-audio", want: false},
+		{name: "video above limit", payloadSize: maxVideoInlinePayloadSize + 1, inputType: "video-or-audio", want: true},
+		{name: "still below limit", payloadSize: maxStillInlinePayloadSize - 1, inputType: "still", want: false},
+		{name: "still at limit", payloadSize: maxStillInlinePayloadSize, inputType: "still", want: false},
+		{name: "still above limit", payloadSize: maxStillInlinePayloadSize + 1, inputType: "still", want: true},
 	}
-	if !needsUpload(maxVideoInlinePayloadSize, "video-or-audio") {
-		t.Fatal("video payload at the limit should need upload")
-	}
-	if needsUpload(maxVideoInlinePayloadSize, "still") {
-		t.Fatal("still payload has a larger inline budget and should not need upload here")
-	}
-	if !needsUpload(maxStillInlinePayloadSize, "still") {
-		t.Fatal("still payload at the limit should need upload")
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			if got := needsUpload(test.payloadSize, test.inputType); got != test.want {
+				t.Fatalf("needsUpload(%d, %q) = %v, want %v", test.payloadSize, test.inputType, got, test.want)
+			}
+		})
 	}
 }
 

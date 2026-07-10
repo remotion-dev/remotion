@@ -5,9 +5,11 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"math/big"
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 )
@@ -25,11 +27,12 @@ func hashPayload(payload string) string {
 func randomHash() (string, error) {
 	const alphabet = "abcdefghijklmnopqrstuvwxyz0123456789"
 	b := make([]byte, 10)
-	if _, err := rand.Read(b); err != nil {
-		return "", fmt.Errorf("could not generate random hash: %w", err)
-	}
 	for i := range b {
-		b[i] = alphabet[int(b[i])%len(alphabet)]
+		index, err := rand.Int(rand.Reader, big.NewInt(int64(len(alphabet))))
+		if err != nil {
+			return "", fmt.Errorf("could not generate random hash: %w", err)
+		}
+		b[i] = alphabet[index.Int64()]
 	}
 	return string(b), nil
 }
@@ -58,13 +61,16 @@ func newS3Client(region string, forcePathStyle bool) *s3.S3 {
 }
 
 // isBucketInRegion reports whether the given bucket lives in region.
-func isBucketInRegion(svc *s3.S3, bucket string, region string) bool {
+func isBucketInRegion(svc *s3.S3, bucket string, region string) (bool, error) {
 	out, err := svc.GetBucketLocation(&s3.GetBucketLocationInput{Bucket: aws.String(bucket)})
 	if err != nil {
-		return false
+		if awsErr, ok := err.(awserr.Error); ok && awsErr.Code() == s3.ErrCodeNoSuchBucket {
+			return false, nil
+		}
+		return false, fmt.Errorf("could not get location of S3 bucket %q: %w", bucket, err)
 	}
 	location := aws.StringValue(out.LocationConstraint)
-	return location == region || (location == "" && region == regionUsEast1)
+	return location == region || (location == "" && region == regionUsEast1), nil
 }
 
 // getRemotionBuckets lists the Remotion buckets that exist in region.
@@ -79,7 +85,11 @@ func getRemotionBuckets(svc *s3.S3, region string) ([]string, error) {
 		if !strings.HasPrefix(name, bucketNamePrefix) {
 			continue
 		}
-		if isBucketInRegion(svc, name, region) {
+		isInRegion, err := isBucketInRegion(svc, name, region)
+		if err != nil {
+			return nil, err
+		}
+		if isInRegion {
 			buckets = append(buckets, name)
 		}
 	}
@@ -127,7 +137,6 @@ func uploadInputPropsToS3(svc *s3.S3, bucket string, key string, payload string)
 		Key:         aws.String(key),
 		Body:        strings.NewReader(payload),
 		ContentType: aws.String("application/json"),
-		ACL:         aws.String("private"),
 	})
 	if err != nil {
 		return fmt.Errorf("failed to upload inputProps to S3: %w", err)

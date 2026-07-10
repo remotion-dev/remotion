@@ -229,3 +229,6 @@ type SerializedInputProps struct {
 	Hash       string `json:"hash,omitempty"`
 	BucketName string `json:"bucketName,omitempty"`
 }
+
+// PayloadData is kept as an alias for backwards compatibility.
+type PayloadData = SerializedInputProps

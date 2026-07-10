@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"math"
 )
 
 // inline payload margin, matching the client SDK reference implementations:
@@ -20,13 +21,13 @@ func needsUpload(payloadSize int, inputType string) bool {
 		maxSize = maxStillInlinePayloadSize
 	}
 
-	if payloadSize < maxSize {
+	if payloadSize <= maxSize {
 		return false
 	}
 
 	log.Printf(
 		"Warning: The props are over %dKB (%dKB) in size. Uploading them to S3 to circumvent the AWS Lambda payload size limit, which may lead to slowdown.",
-		maxSize/1000, (payloadSize+1023)/1024,
+		int(math.Round(float64(maxSize)/1000)), (payloadSize+1023)/1024,
 	)
 	return true
 }
