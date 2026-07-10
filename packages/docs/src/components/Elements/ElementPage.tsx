@@ -364,10 +364,10 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 				</>
 			)}
 
-			{contributors?.length ? <Credits contributors={contributors} /> : null}
-
 			<h2>Source</h2>
 			{children}
+
+			{contributors?.length ? <Credits contributors={contributors} /> : null}
 		</>
 	);
 };
