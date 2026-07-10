@@ -22,7 +22,7 @@ import type {DelayPlaybackIfNotPremounting} from './delay-playback-if-not-premou
 import {
 	makeIteratorWithPriming,
 	makeLoopingIterator,
-	type BufferWithMediaTimestamp,
+	type AudioBufferSlice,
 } from './make-iterator-with-priming';
 import type {Nonce} from './nonce-manager';
 import type {SharedAudioContextForMediaPlayer} from './shared-audio-context-for-media-player';
@@ -31,6 +31,8 @@ type ScheduleAudioNode = (
 	node: AudioBufferSourceNode,
 	mediaTimestamp: number,
 	originalUnloopedMediaTimestamp: number,
+	sourceOffsetInSeconds: number,
+	sourceDurationInSeconds: number,
 ) => ScheduleAudioNodeResult;
 
 export type AudioIteratorAnchor = {
@@ -159,6 +161,8 @@ export const audioIteratorManager = ({
 		buffer,
 		mediaTimestamp,
 		originalUnloopedMediaTimestamp,
+		sourceOffsetInSeconds,
+		sourceDurationInSeconds,
 		playbackRate,
 		scheduleAudioNode,
 		logLevel,
@@ -169,6 +173,8 @@ export const audioIteratorManager = ({
 		scheduleAudioNode: ScheduleAudioNode;
 		logLevel: LogLevel;
 		originalUnloopedMediaTimestamp: number;
+		sourceOffsetInSeconds: number;
+		sourceDurationInSeconds: number;
 	}) => {
 		if (!audioBufferIterator) {
 			throw new Error('Audio buffer iterator not found');
@@ -187,6 +193,8 @@ export const audioIteratorManager = ({
 			node,
 			mediaTimestamp,
 			originalUnloopedMediaTimestamp,
+			sourceOffsetInSeconds,
+			sourceDurationInSeconds,
 		);
 
 		if (started.type === 'not-started') {
@@ -205,6 +213,7 @@ export const audioIteratorManager = ({
 			node,
 			timestamp: mediaTimestamp,
 			buffer,
+			sourceDurationInSeconds,
 			scheduledTime: started.scheduledTime,
 			playbackRate,
 			scheduledAtAnchor: sharedAudioContext.audioSyncAnchor.value,
@@ -217,7 +226,7 @@ export const audioIteratorManager = ({
 		scheduleAudioNode,
 		logLevel,
 	}: {
-		buffer: BufferWithMediaTimestamp;
+		buffer: AudioBufferSlice;
 		playbackRate: number;
 		scheduleAudioNode: ScheduleAudioNode;
 		logLevel: LogLevel;
@@ -230,28 +239,33 @@ export const audioIteratorManager = ({
 		const sequenceEndTime = getSequenceEndTimestamp();
 
 		// Skip chunks entirely outside the range
-		if (buffer.timestamp + buffer.buffer.duration <= startTime) {
+		if (
+			buffer.timelineTimestamp + buffer.sourceDurationInSeconds <=
+			startTime
+		) {
 			return;
 		}
 
-		if (buffer.timestamp >= sequenceEndTime) {
+		if (buffer.timelineTimestamp >= sequenceEndTime) {
 			return;
 		}
 
-		const scheduledStart = Math.max(buffer.timestamp, startTime);
+		const scheduledStart = Math.max(buffer.timelineTimestamp, startTime);
 		const scheduledEnd = Math.min(
-			buffer.timestamp + buffer.buffer.duration,
+			buffer.timelineTimestamp + buffer.sourceDurationInSeconds,
 			sequenceEndTime,
 		);
 		totalAudioScheduledInSeconds += Math.max(0, scheduledEnd - scheduledStart);
 
 		scheduleAudioChunk({
 			buffer: buffer.buffer.buffer,
-			mediaTimestamp: buffer.timestamp,
+			mediaTimestamp: buffer.timelineTimestamp,
 			playbackRate,
 			scheduleAudioNode,
 			logLevel,
 			originalUnloopedMediaTimestamp: buffer.buffer.timestamp,
+			sourceOffsetInSeconds: buffer.sourceOffsetInSeconds,
+			sourceDurationInSeconds: buffer.sourceDurationInSeconds,
 		});
 
 		drawDebugOverlay();
@@ -326,7 +340,7 @@ export const audioIteratorManager = ({
 					return;
 				}
 
-				onScheduled(result.value.timestamp);
+				onScheduled(result.value.timelineTimestamp);
 				notifyNodeScheduled();
 
 				onAudioChunk({

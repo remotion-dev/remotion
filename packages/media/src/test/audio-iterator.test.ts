@@ -81,13 +81,18 @@ const prepare = async (options?: {
 	});
 
 	const scheduledChunks: number[] = [];
+	const scheduledStartOffsets: number[] = [];
 	const waiters: {count: number; resolve: () => void}[] = [];
 
 	const scheduleAudioNode = (
 		_node: AudioBufferSourceNode,
 		mediaTimestamp: number,
+		_originalUnloopedMediaTimestamp: number,
+		sourceOffsetInSeconds: number,
+		_sourceDurationInSeconds: number,
 	): ScheduleAudioNodeResult => {
 		scheduledChunks.push(mediaTimestamp);
+		scheduledStartOffsets.push(sourceOffsetInSeconds);
 		for (let i = waiters.length - 1; i >= 0; i--) {
 			if (scheduledChunks.length >= waiters[i].count) {
 				waiters[i].resolve();
@@ -132,6 +137,7 @@ const prepare = async (options?: {
 		manager,
 		fps,
 		scheduledChunks,
+		scheduledStartOffsets,
 		seek,
 		audioContextCurrentTime,
 	};
@@ -169,9 +175,7 @@ test('media player should work', async () => {
 	});
 
 	await manager.waitForNScheduledNodes(3);
-	expect(scheduledChunks).toEqual([
-		9.941333333333333, 9.962666666666667, 9.984,
-	]);
+	expect(scheduledChunks).toEqual([9.96, 9.962666666666667, 9.984]);
 
 	scheduledChunks.length = 0;
 	seek({
@@ -218,7 +222,7 @@ test('should not create too many iterators when the audio ends', async () => {
 	const created = manager.getAudioIteratorsCreated();
 	expect(created).toBe(1);
 
-	expect(scheduledChunks).toEqual([9.962666666666667, 9.984]);
+	expect(scheduledChunks).toEqual([9.97, 9.984]);
 });
 
 test('should not create too many iterators when the audio ends (variant)', async () => {
@@ -239,7 +243,7 @@ test('should not create too many iterators when the audio ends (variant)', async
 	const created = manager.getAudioIteratorsCreated();
 	expect(created).toBe(1);
 
-	expect(scheduledChunks).toEqual([9.962666666666667, 9.984]);
+	expect(scheduledChunks).toEqual([9.97, 9.984]);
 });
 
 test('should create more iterators when seeking ', async () => {
@@ -265,7 +269,7 @@ test('should create more iterators when seeking ', async () => {
 	expect(created).toBe(2);
 
 	expect(scheduledChunks).toEqual([
-		1.984, 2.005333333333333, 2.026666666666667, 2.048, 2.0693333333333332,
+		2, 2.005333333333333, 2.026666666666667, 2.048, 2.0693333333333332,
 		2.0906666666666665,
 	]);
 });
@@ -310,13 +314,15 @@ test('should not schedule duplicate chunks with playbackRate=0.5', async () => {
 });
 
 test('looping keeps continuous timestamps and reuses the iterator after a wrapped seek', async () => {
-	const {manager, seek, scheduledChunks} = await prepare({
-		playbackRate: 1,
-		localPlaybackRate: 0.5,
-		mediaEndTimestamp: 0.1,
-		sequenceDurationInSeconds: 1,
-		loop: true,
-	});
+	const {manager, seek, scheduledChunks, scheduledStartOffsets} = await prepare(
+		{
+			playbackRate: 1,
+			localPlaybackRate: 0.5,
+			mediaEndTimestamp: 0.1,
+			sequenceDurationInSeconds: 1,
+			loop: true,
+		},
+	);
 
 	seek({time: 0.08, unloopedTime: 0.08});
 	await manager.waitForNScheduledNodes(8);
@@ -327,6 +333,7 @@ test('looping keeps continuous timestamps and reuses the iterator after a wrappe
 	}
 
 	expect(scheduledChunks.some((timestamp) => timestamp >= 0.1)).toBe(true);
+	expect(scheduledStartOffsets.some((offset) => offset > 0)).toBe(true);
 
 	// The wrapped media time differs, but the unlooped time maps into the
 	// already queued continuous period using localPlaybackRate.

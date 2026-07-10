@@ -2,9 +2,13 @@ import type {AudioBufferSink, WrappedAudioBuffer} from 'mediabunny';
 
 const AUDIO_PRIMING_SECONDS = 0.5;
 
-export type BufferWithMediaTimestamp = {
+export type AudioBufferSlice = {
 	buffer: WrappedAudioBuffer;
-	timestamp: number;
+	// Position where the audible slice begins on the continuous timeline.
+	timelineTimestamp: number;
+	// Range to play from the underlying AudioBuffer.
+	sourceOffsetInSeconds: number;
+	sourceDurationInSeconds: number;
 };
 
 export async function* makeIteratorWithPriming({
@@ -15,18 +19,26 @@ export async function* makeIteratorWithPriming({
 	audioSink: AudioBufferSink;
 	timeToSeek: number;
 	maximumTimestamp: number;
-}): AsyncGenerator<BufferWithMediaTimestamp, void, unknown> {
+}): AsyncGenerator<AudioBufferSlice, void, unknown> {
 	const primingStart = Math.max(0, timeToSeek - AUDIO_PRIMING_SECONDS);
 	const iterator = audioSink.buffers(primingStart, maximumTimestamp);
 
 	for await (const buffer of iterator) {
-		if (buffer.timestamp + buffer.duration <= timeToSeek) {
+		const sourceStart = Math.max(buffer.timestamp, timeToSeek);
+		const sourceEnd = Math.min(
+			buffer.timestamp + buffer.duration,
+			maximumTimestamp,
+		);
+
+		if (sourceEnd <= sourceStart) {
 			continue;
 		}
 
 		yield {
 			buffer,
-			timestamp: buffer.timestamp,
+			timelineTimestamp: sourceStart,
+			sourceOffsetInSeconds: sourceStart - buffer.timestamp,
+			sourceDurationInSeconds: sourceEnd - sourceStart,
 		};
 	}
 }
@@ -46,7 +58,7 @@ export async function* makeLoopingIterator({
 	segmentEndInSeconds,
 	maximumContinuousTimestamp,
 }: MakeLoopingIteratorOptions): AsyncGenerator<
-	BufferWithMediaTimestamp,
+	AudioBufferSlice,
 	void,
 	unknown
 > {
@@ -71,17 +83,29 @@ export async function* makeLoopingIterator({
 			maximumTimestamp: segmentEndInSeconds,
 		})) {
 			yieldedInPass = true;
-			const timestamp =
-				passBaseTimestamp + (item.timestamp - passStartInSeconds);
+			const timelineTimestamp =
+				passBaseTimestamp + (item.timelineTimestamp - passStartInSeconds);
+			const sourceDurationInSeconds = Math.min(
+				item.sourceDurationInSeconds,
+				maximumContinuousTimestamp - timelineTimestamp,
+			);
 
-			if (timestamp + item.buffer.duration > maximumContinuousTimestamp) {
+			if (sourceDurationInSeconds <= 0) {
 				return;
 			}
 
 			yield {
-				buffer: item.buffer,
-				timestamp,
+				...item,
+				timelineTimestamp,
+				sourceDurationInSeconds,
 			};
+
+			if (
+				timelineTimestamp + sourceDurationInSeconds >=
+				maximumContinuousTimestamp
+			) {
+				return;
+			}
 		}
 
 		if (!yieldedInPass) {
