@@ -495,6 +495,7 @@ export class MediaPlayer {
 					unloopedNewTime,
 					nonce,
 					playbackRate: this.playbackRate * this.globalPlaybackRate,
+					localPlaybackRate: this.playbackRate,
 					getTargetTime: this.getTargetTime,
 					logLevel: this.logLevel,
 					loop: this.loop,
@@ -717,8 +718,7 @@ export class MediaPlayer {
 
 		const localTime = anchor
 			? anchor.mediaStartInSeconds +
-				(timeInSeconds - anchor.unloopedStartInSeconds) *
-					(this.playbackRate * this.globalPlaybackRate)
+				(timeInSeconds - anchor.unloopedStartInSeconds) * this.playbackRate
 			: this.getTrimmedTime(timeInSeconds);
 
 		if (localTime === null) {

@@ -97,6 +97,7 @@ const prepare = async (options?: {
 			scheduleAudioNode,
 			nonce: makeNonceManager().createAsyncOperation(),
 			playbackRate,
+			localPlaybackRate: playbackRate,
 			getTargetTime: (mediaTimestamp: number) => mediaTimestamp,
 			logLevel: 'info',
 			loop: false,

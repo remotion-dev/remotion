@@ -143,6 +143,7 @@ test('same goes for audio', async () => {
 		unloopedNewTime: 0.10007241372413796,
 		nonce: nonceManager.createAsyncOperation(),
 		playbackRate: 1,
+		localPlaybackRate: 1,
 		scheduleAudioNode: () => ({
 			type: 'started',
 			scheduledTime: 0,

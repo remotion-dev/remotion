@@ -437,6 +437,7 @@ export const audioIteratorManager = ({
 		unloopedNewTime,
 		nonce,
 		playbackRate,
+		localPlaybackRate,
 		scheduleAudioNode,
 		getTargetTime,
 		logLevel,
@@ -452,6 +453,7 @@ export const audioIteratorManager = ({
 		unloopedNewTime: number;
 		nonce: Nonce;
 		playbackRate: number;
+		localPlaybackRate: number;
 		scheduleAudioNode: ScheduleAudioNode;
 		getTargetTime: (
 			mediaTimestamp: number,
@@ -506,7 +508,7 @@ export const audioIteratorManager = ({
 				loop && currentAnchor
 					? currentAnchor.mediaStartInSeconds +
 						(unloopedNewTime - currentAnchor.unloopedStartInSeconds) *
-							playbackRate
+							localPlaybackRate
 					: newTime;
 			const queuedPeriod = audioBufferIterator.getQueuedPeriod();
 			// If there is a missing period, but we'd have no chance to schedule nodes,
