@@ -136,3 +136,38 @@ test('one-pass iterator does not wrap', async () => {
 	const chunks = await collect(iterator, 1000);
 	expect(chunks.map((chunk) => chunk.rawTimestamp)).toEqual([8, 9]);
 });
+
+test('a priming buffer crossing the loop start is clipped on every pass', async () => {
+	const crossingBufferSink = {
+		async *buffers(_start: number, _end: number) {
+			yield {
+				timestamp: 2.987,
+				duration: 0.021,
+				buffer: null,
+			} as unknown as WrappedAudioBuffer;
+			yield {
+				timestamp: 3.008,
+				duration: 0.021,
+				buffer: null,
+			} as unknown as WrappedAudioBuffer;
+		},
+	} as unknown as AudioBufferSink;
+
+	const iterator = makeLoopingIterator({
+		audioSink: crossingBufferSink,
+		seekTimeInSeconds: 3,
+		loopStartInSeconds: 3,
+		segmentEndInSeconds: 3.029,
+		maximumContinuousTimestamp: 3.058,
+	});
+
+	const first = await iterator.next();
+	const second = await iterator.next();
+	const third = await iterator.next();
+
+	expect(first.value?.timestamp).toBe(3);
+	expect(first.value?.startOffsetInSeconds).toBeCloseTo(0.013);
+	expect(second.value?.timestamp).toBeCloseTo(3.008);
+	expect(third.value?.timestamp).toBeCloseTo(3.029);
+	expect(third.value?.startOffsetInSeconds).toBeCloseTo(0.013);
+});

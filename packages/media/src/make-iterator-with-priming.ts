@@ -5,6 +5,13 @@ const AUDIO_PRIMING_SECONDS = 0.5;
 export type BufferWithMediaTimestamp = {
 	buffer: WrappedAudioBuffer;
 	timestamp: number;
+	// Number of seconds to skip at the start of the underlying buffer. This is
+	// needed when a priming buffer crosses the beginning of a pass.
+	startOffsetInSeconds: number;
+	// Span occupied by this item on the emitted timeline. Looping items shift
+	// their timestamp to the audible boundary, so their source offset is not
+	// part of this duration.
+	timelineDurationInSeconds: number;
 };
 
 export async function* makeIteratorWithPriming({
@@ -27,6 +34,8 @@ export async function* makeIteratorWithPriming({
 		yield {
 			buffer,
 			timestamp: buffer.timestamp,
+			startOffsetInSeconds: Math.max(0, timeToSeek - buffer.timestamp),
+			timelineDurationInSeconds: buffer.duration,
 		};
 	}
 }
@@ -71,16 +80,25 @@ export async function* makeLoopingIterator({
 			maximumTimestamp: segmentEndInSeconds,
 		})) {
 			yieldedInPass = true;
+			// A priming buffer may begin before the pass boundary. Put its audible
+			// start exactly at the continuous pass boundary and retain the source
+			// offset so Web Audio skips the pre-boundary samples on every pass.
 			const timestamp =
-				passBaseTimestamp + (item.timestamp - passStartInSeconds);
+				passBaseTimestamp +
+				(item.timestamp - passStartInSeconds) +
+				item.startOffsetInSeconds;
+			const effectiveDuration =
+				item.buffer.duration - item.startOffsetInSeconds;
 
-			if (timestamp + item.buffer.duration > maximumContinuousTimestamp) {
+			if (timestamp + effectiveDuration > maximumContinuousTimestamp) {
 				return;
 			}
 
 			yield {
 				buffer: item.buffer,
 				timestamp,
+				startOffsetInSeconds: item.startOffsetInSeconds,
+				timelineDurationInSeconds: effectiveDuration,
 			};
 		}
 

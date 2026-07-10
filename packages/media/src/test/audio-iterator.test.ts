@@ -81,13 +81,17 @@ const prepare = async (options?: {
 	});
 
 	const scheduledChunks: number[] = [];
+	const scheduledStartOffsets: number[] = [];
 	const waiters: {count: number; resolve: () => void}[] = [];
 
 	const scheduleAudioNode = (
 		_node: AudioBufferSourceNode,
 		mediaTimestamp: number,
+		_originalUnloopedMediaTimestamp: number,
+		startOffsetInSeconds: number,
 	): ScheduleAudioNodeResult => {
 		scheduledChunks.push(mediaTimestamp);
+		scheduledStartOffsets.push(startOffsetInSeconds);
 		for (let i = waiters.length - 1; i >= 0; i--) {
 			if (scheduledChunks.length >= waiters[i].count) {
 				waiters[i].resolve();
@@ -132,6 +136,7 @@ const prepare = async (options?: {
 		manager,
 		fps,
 		scheduledChunks,
+		scheduledStartOffsets,
 		seek,
 		audioContextCurrentTime,
 	};
@@ -310,13 +315,15 @@ test('should not schedule duplicate chunks with playbackRate=0.5', async () => {
 });
 
 test('looping keeps continuous timestamps and reuses the iterator after a wrapped seek', async () => {
-	const {manager, seek, scheduledChunks} = await prepare({
-		playbackRate: 1,
-		localPlaybackRate: 0.5,
-		mediaEndTimestamp: 0.1,
-		sequenceDurationInSeconds: 1,
-		loop: true,
-	});
+	const {manager, seek, scheduledChunks, scheduledStartOffsets} = await prepare(
+		{
+			playbackRate: 1,
+			localPlaybackRate: 0.5,
+			mediaEndTimestamp: 0.1,
+			sequenceDurationInSeconds: 1,
+			loop: true,
+		},
+	);
 
 	seek({time: 0.08, unloopedTime: 0.08});
 	await manager.waitForNScheduledNodes(8);
@@ -327,6 +334,7 @@ test('looping keeps continuous timestamps and reuses the iterator after a wrappe
 	}
 
 	expect(scheduledChunks.some((timestamp) => timestamp >= 0.1)).toBe(true);
+	expect(scheduledStartOffsets.some((offset) => offset > 0)).toBe(true);
 
 	// The wrapped media time differs, but the unlooped time maps into the
 	// already queued continuous period using localPlaybackRate.

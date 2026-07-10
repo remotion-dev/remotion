@@ -7,6 +7,7 @@ export type QueuedNode = {
 	node: AudioBufferSourceNode;
 	timestamp: number;
 	buffer: AudioBuffer;
+	timelineDurationInSeconds: number;
 	scheduledTime: number;
 	playbackRate: number;
 	scheduledAtAnchor: number;
@@ -52,7 +53,7 @@ export const makeAudioIterator = ({
 		if (next.value) {
 			mostRecentTimestamp = Math.max(
 				mostRecentTimestamp,
-				next.value.timestamp + next.value.buffer.duration,
+				next.value.timestamp + next.value.timelineDurationInSeconds,
 			);
 		}
 
@@ -86,7 +87,10 @@ export const makeAudioIterator = ({
 			let from = Infinity;
 
 			for (const node of queuedAudioNodes) {
-				until = Math.max(until, node.timestamp + node.buffer.duration);
+				until = Math.max(
+					until,
+					node.timestamp + node.timelineDurationInSeconds,
+				);
 				from = Math.min(from, node.timestamp);
 			}
 
