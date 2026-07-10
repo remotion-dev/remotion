@@ -6,7 +6,7 @@ metadata:
 ---
 
 These are instructions for making a new Remotion project.  
-If this is not the next task, see [../remotion-best-practices/SKILL.md](Remotion Best Practices)
+If this is not the next task, see [Remotion Best Practices](../remotion-best-practices/SKILL.md)
 
 Ensure Node.js and Git is installed, and the current folder is appropriate for starting a new project.
 
@@ -22,7 +22,7 @@ Replace `my-video` with a suitable project name.
 
 ## Designing a video
 
-Keep the scaffold and add React Markup. Follow [../remotion-markup/SKILL.md](Remotion React Markup Best Practices) and [rules/video-layout.md](rules/video-layout.md) for video-first layout and text sizing guidance.
+Keep the scaffold and add React Markup. Follow [Remotion React Markup Best Practices](../remotion-markup/SKILL.md) and [Video Layout Rules](rules/video-layout.md) for video-first layout and text sizing guidance.
 
 ## Interactivity Best Practices
 
@@ -44,3 +44,4 @@ This will start a long-running process and print the server URL for the preview.
 ## Follow-up
 
 The video creation process has finished.
+For follow-up prompts, use [Remotion Best Practices](../remotion-best-practices/SKILL.md)
