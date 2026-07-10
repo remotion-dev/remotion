@@ -5,14 +5,6 @@ metadata:
   tags: remotion, video, react, animation, composition
 ---
 
-## When to use
-
-Use this skill whenever you are dealing with Remotion code to obtain the domain-specific knowledge.
-
-## Related skill routing
-
-For Remotion SaaS apps, template selection, Player integration in a web app, Lambda setup, Vercel Sandbox, Web Renderer, Express render servers, or choosing a rendering architecture, use the [Remotion SaaS skill](../remotion-saas/SKILL.md).
-
 ## New project setup
 
 When in an empty folder or workspace with no existing Remotion project, scaffold one using:
@@ -27,29 +19,41 @@ Replace `my-video` with a suitable project name.
 
 Before designing visual scenes, layouts, promos, motion graphics, or text-heavy videos, load [rules/video-layout.md](rules/video-layout.md) for video-first layout and text sizing guidance.
 
-Animate properties using `useCurrentFrame()` and `interpolate()`. Prefer `interpolate()` over `spring()` unless physics-based motion is explicitly needed. Use `Easing.bezier()` to customize timing, including jumpy or overshooting motion.
+Animate properties using `useCurrentFrame()` and `interpolate()`.
 
-For animations that should be editable in Remotion Studio, keep the `interpolate()` call inline in the `style` prop and use individual CSS transform properties (`scale`, `translate`, `rotate`) instead of composing a `transform` string.
-For full Studio interactivity guidance, use the [Remotion interactivity skill](../remotion-interactivity/SKILL.md).
-To make an element or custom component interactive in Remotion Studio, follow https://www.remotion.dev/docs/studio/make-component-interactive.
-When using `Interactive.*` or custom interactive components, set a descriptive `name` prop such as `name="Hero title"` so the element is identifiable in the Studio timeline and by agents. Do not use `name=""`.
+Use `interpolate()` over `spring()`.
+
+Use `Easing.bezier()` to customize timing, including jumpy or overshooting motion.
+Use `Easing.spring()` if you want spring animations
+
+HTML Elements which make sense to be dragged should use `Interactive`: `<div>` -> `<Interactive.Div>`.  
+Set a descriptive `name` prop such as `name="Hero title"` for `Interactive`, `Solid`, `Sequence`.
 
 ```tsx
-import { useCurrentFrame, Easing, interpolate, useVideoConfig } from "remotion";
+import { useCurrentFrame, Easing, interpolate, Interactive } from "remotion";
 
 export const FadeIn = () => {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
 
-  const opacity = interpolate(frame, [0, 2 * fps], [0, 1], {
-    extrapolateRight: "clamp",
-    extrapolateLeft: "clamp",
-    easing: Easing.bezier(0.16, 1, 0.3, 1),
-  });
-
-  return <div style={{ opacity }}>Hello World!</div>;
+  return (
+    <Interactive.Div
+      name="Title"
+      style={{
+        opacity: interpolate(frame, [0, 60], [0, 1], {
+          extrapolateRight: "clamp",
+          extrapolateLeft: "clamp",
+          easing: Easing.bezier(0.16, 1, 0.3, 1),
+        }),
+      }}
+    >
+      Hello World!
+    </Interactive.Div>
+  );
 };
 ```
+
+Keep the `interpolate()` call inline in the `style` prop.
+Prefer `scale`, `translate`, `rotate` CSS properties over `transform`.
 
 ```tsx
 // 👍 Inline editable keyframes and transform shorthands
@@ -86,35 +90,20 @@ export const MyComposition = () => {
 };
 ```
 
-Add videos using the `<Video>` component from `@remotion/media`:
+Add video and audio using `@remotion/media`. Use `staticFile()` for files in `public/` or pass a remote URL directly:
 
 ```tsx
-import { Video } from "@remotion/media";
+import { Audio, Video } from "@remotion/media";
 import { staticFile } from "remotion";
 
 export const MyComposition = () => {
-  return <Video src={staticFile("video.mp4")} style={{ opacity: 0.5 }} />;
-};
-```
-
-Add audio using the `<Audio>` component from `@remotion/media`:
-
-```tsx
-import { Audio } from "@remotion/media";
-import { staticFile } from "remotion";
-
-export const MyComposition = () => {
-  return <Audio src={staticFile("audio.mp3")} />;
-};
-```
-
-Assets can be also referenced as remote URLs:
-
-```tsx
-import { Video } from "@remotion/media";
-
-export const MyComposition = () => {
-  return <Video src="https://remotion.media/video.mp4" />
+  return (
+    <>
+      <Video src={staticFile("video.mp4")} style={{ opacity: 0.5 }} />
+      <Audio src={staticFile("audio.mp3")} />
+      <Video src="https://remotion.media/video.mp4" />
+    </>
+  );
 };
 ```
 
@@ -123,19 +112,23 @@ To limit the duration of an element, use `durationInFrames` of `<Sequence>`.
 `<Sequence>` by default is an absolute fill. For inline content, use `layout="none"`.
 
 ```tsx
-import { Sequence } from "remotion";
 
 export const Title = () => {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
 
-  const opacity = interpolate(frame, [0, 2 * fps], [0, 1], {
-    extrapolateRight: "clamp",
-    extrapolateLeft: "clamp",
-    easing: Easing.bezier(0.16, 1, 0.3, 1),
-  });
-
-  return <div style={{ opacity }}>Title</div>;
+  return (
+    <div
+      style={{
+        opacity: interpolate(frame, [0, 60], [0, 1], {
+          extrapolateRight: "clamp",
+          extrapolateLeft: "clamp",
+          easing: Easing.bezier(0.16, 1, 0.3, 1),
+        }),
+      }}
+    >
+      Title
+    </div>
+  );
 };
 
 export const Subtitle = () => {
@@ -363,3 +356,7 @@ See [rules/map.md](rules/map.md) for choosing between simple static maps, Mapbox
 ## Voiceover
 
 See [rules/voiceover.md](rules/voiceover.md) for adding AI-generated voiceover to Remotion compositions using ElevenLabs TTS.
+
+## Creating a SaaS, automation or application
+
+For Remotion SaaS apps, template selection, Player integration in a web app, Lambda setup, Vercel Sandbox, Web Renderer, Express render servers, or choosing a rendering architecture, use the [Remotion SaaS skill](../remotion-saas/SKILL.md).
