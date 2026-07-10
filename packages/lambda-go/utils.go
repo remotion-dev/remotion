@@ -53,7 +53,10 @@ func serializeInputProps(inputProps interface{}, region string, inputType string
 		}, nil
 	}
 
-	svc := newS3Client(region, forcePathStyle)
+	svc, err := newS3Client(region, forcePathStyle)
+	if err != nil {
+		return nil, err
+	}
 
 	bucketName := userSpecifiedBucketName
 	if bucketName == "" {

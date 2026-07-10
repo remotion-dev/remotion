@@ -1,28 +1,31 @@
 package lambda_go_sdk
 
 import (
+	"context"
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"math/big"
 	"strings"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/awserr"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/aws/aws-sdk-go-v2/service/s3/types"
+	"github.com/aws/smithy-go"
 )
 
 const bucketNamePrefix = "remotionlambda-"
 const regionUsEast1 = "us-east-1"
 
 type bucketLocationGetter interface {
-	GetBucketLocation(*s3.GetBucketLocationInput) (*s3.GetBucketLocationOutput, error)
+	GetBucketLocation(context.Context, *s3.GetBucketLocationInput, ...func(*s3.Options)) (*s3.GetBucketLocationOutput, error)
 }
 
 type objectUploader interface {
-	PutObject(*s3.PutObjectInput) (*s3.PutObjectOutput, error)
+	PutObject(context.Context, *s3.PutObjectInput, ...func(*s3.Options)) (*s3.PutObjectOutput, error)
 }
 
 // hashPayload returns the SHA256 hex digest used as the input-props object name.
@@ -60,36 +63,42 @@ func inputPropsKey(hash string) string {
 
 // newS3Client creates an S3 client using the same shared config resolution as
 // the Lambda client in invocations.go.
-func newS3Client(region string, forcePathStyle bool) *s3.S3 {
-	sess := session.Must(session.NewSessionWithOptions(session.Options{
-		Config:            aws.Config{Region: new(region)},
-		SharedConfigState: session.SharedConfigEnable,
-	}))
-	return s3.New(sess, &aws.Config{S3ForcePathStyle: new(forcePathStyle)})
+func newS3Client(region string, forcePathStyle bool) (*s3.Client, error) {
+	awsConfig, err := config.LoadDefaultConfig(
+		context.TODO(),
+		config.WithRegion(region),
+	)
+	if err != nil {
+		return nil, fmt.Errorf("could not load AWS config: %w", err)
+	}
+	return s3.NewFromConfig(awsConfig, func(options *s3.Options) {
+		options.UsePathStyle = forcePathStyle
+	}), nil
 }
 
 // isBucketInRegion reports whether the given bucket lives in region.
 func isBucketInRegion(svc bucketLocationGetter, bucket string, region string) (bool, error) {
-	out, err := svc.GetBucketLocation(&s3.GetBucketLocationInput{Bucket: new(bucket)})
+	out, err := svc.GetBucketLocation(context.TODO(), &s3.GetBucketLocationInput{Bucket: new(bucket)})
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok && awsErr.Code() == s3.ErrCodeNoSuchBucket {
+		var awsErr smithy.APIError
+		if errors.As(err, &awsErr) && awsErr.ErrorCode() == "NoSuchBucket" {
 			return false, nil
 		}
 		return false, fmt.Errorf("could not get location of S3 bucket %q: %w", bucket, err)
 	}
-	location := aws.StringValue(out.LocationConstraint)
+	location := string(out.LocationConstraint)
 	return location == region || (location == "" && region == regionUsEast1), nil
 }
 
 // getRemotionBuckets lists the Remotion buckets that exist in region.
-func getRemotionBuckets(svc *s3.S3, region string) ([]string, error) {
-	out, err := svc.ListBuckets(&s3.ListBucketsInput{})
+func getRemotionBuckets(svc *s3.Client, region string) ([]string, error) {
+	out, err := svc.ListBuckets(context.TODO(), &s3.ListBucketsInput{})
 	if err != nil {
 		return nil, fmt.Errorf("could not list S3 buckets: %w", err)
 	}
 	buckets := []string{}
 	for _, bucket := range out.Buckets {
-		name := aws.StringValue(bucket.Name)
+		name := aws.ToString(bucket.Name)
 		if !strings.HasPrefix(name, bucketNamePrefix) {
 			continue
 		}
@@ -106,7 +115,7 @@ func getRemotionBuckets(svc *s3.S3, region string) ([]string, error) {
 
 // getOrCreateBucket returns the single existing Remotion bucket in the region,
 // creating one if none exist. It errors if multiple candidate buckets exist.
-func getOrCreateBucket(svc *s3.S3, region string) (string, error) {
+func getOrCreateBucket(svc *s3.Client, region string) (string, error) {
 	buckets, err := getRemotionBuckets(svc, region)
 	if err != nil {
 		return "", err
@@ -128,11 +137,11 @@ func getOrCreateBucket(svc *s3.S3, region string) (string, error) {
 	}
 	input := &s3.CreateBucketInput{Bucket: new(bucket)}
 	if region != regionUsEast1 {
-		input.CreateBucketConfiguration = &s3.CreateBucketConfiguration{
-			LocationConstraint: new(region),
+		input.CreateBucketConfiguration = &types.CreateBucketConfiguration{
+			LocationConstraint: types.BucketLocationConstraint(region),
 		}
 	}
-	if _, err := svc.CreateBucket(input); err != nil {
+	if _, err := svc.CreateBucket(context.TODO(), input); err != nil {
 		return "", fmt.Errorf("failed to create bucket: %w", err)
 	}
 	return bucket, nil
@@ -140,7 +149,7 @@ func getOrCreateBucket(svc *s3.S3, region string) (string, error) {
 
 // uploadInputPropsToS3 writes the serialized props to S3 as private JSON.
 func uploadInputPropsToS3(svc objectUploader, bucket string, key string, payload string) error {
-	_, err := svc.PutObject(&s3.PutObjectInput{
+	_, err := svc.PutObject(context.TODO(), &s3.PutObjectInput{
 		Bucket:      new(bucket),
 		Key:         new(key),
 		Body:        strings.NewReader(payload),

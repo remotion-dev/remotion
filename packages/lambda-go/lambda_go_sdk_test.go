@@ -2,6 +2,7 @@ package lambda_go_sdk
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"io"
@@ -9,9 +10,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/awserr"
-	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/aws/aws-sdk-go-v2/service/s3/types"
+	"github.com/aws/smithy-go"
 )
 
 type bucketLocationGetterMock struct {
@@ -20,7 +22,9 @@ type bucketLocationGetterMock struct {
 }
 
 func (mock bucketLocationGetterMock) GetBucketLocation(
-	*s3.GetBucketLocationInput,
+	_ context.Context,
+	_ *s3.GetBucketLocationInput,
+	_ ...func(*s3.Options),
 ) (*s3.GetBucketLocationOutput, error) {
 	return mock.output, mock.err
 }
@@ -31,7 +35,9 @@ type objectUploaderMock struct {
 }
 
 func (mock *objectUploaderMock) PutObject(
+	_ context.Context,
 	input *s3.PutObjectInput,
+	_ ...func(*s3.Options),
 ) (*s3.PutObjectOutput, error) {
 	mock.input = input
 	return &s3.PutObjectOutput{}, mock.err
@@ -132,7 +138,7 @@ func TestNeedsUploadWarningRounding(t *testing.T) {
 }
 
 func TestIsBucketInRegion(t *testing.T) {
-	accessDenied := awserr.New("AccessDenied", "denied", nil)
+	accessDenied := &smithy.GenericAPIError{Code: "AccessDenied", Message: "denied"}
 	tests := []struct {
 		name       string
 		output     *s3.GetBucketLocationOutput
@@ -144,13 +150,13 @@ func TestIsBucketInRegion(t *testing.T) {
 	}{
 		{
 			name:   "matching region",
-			output: &s3.GetBucketLocationOutput{LocationConstraint: new("eu-west-1")},
+			output: &s3.GetBucketLocationOutput{LocationConstraint: types.BucketLocationConstraint("eu-west-1")},
 			region: "eu-west-1",
 			want:   true,
 		},
 		{
 			name:   "different region",
-			output: &s3.GetBucketLocationOutput{LocationConstraint: new("eu-west-1")},
+			output: &s3.GetBucketLocationOutput{LocationConstraint: types.BucketLocationConstraint("eu-west-1")},
 			region: "us-west-1",
 			want:   false,
 		},
@@ -162,7 +168,7 @@ func TestIsBucketInRegion(t *testing.T) {
 		},
 		{
 			name:   "missing bucket",
-			err:    awserr.New(s3.ErrCodeNoSuchBucket, "missing", nil),
+			err:    &smithy.GenericAPIError{Code: "NoSuchBucket", Message: "missing"},
 			region: regionUsEast1,
 			want:   false,
 		},
@@ -202,10 +208,10 @@ func TestUploadInputPropsOmitsACL(t *testing.T) {
 	if uploader.input == nil {
 		t.Fatal("PutObject was not called")
 	}
-	if uploader.input.ACL != nil {
-		t.Fatalf("expected no object ACL, got %q", aws.StringValue(uploader.input.ACL))
+	if uploader.input.ACL != "" {
+		t.Fatalf("expected no object ACL, got %q", uploader.input.ACL)
 	}
-	if got := aws.StringValue(uploader.input.ContentType); got != "application/json" {
+	if got := aws.ToString(uploader.input.ContentType); got != "application/json" {
 		t.Fatalf("unexpected content type: %q", got)
 	}
 	payload, err := io.ReadAll(uploader.input.Body)
@@ -248,6 +254,21 @@ func TestRandomHashFormat(t *testing.T) {
 				t.Fatalf("unexpected character %q in hash %q", char, hash)
 			}
 		}
+	}
+}
+
+func TestNewS3ClientConfiguration(t *testing.T) {
+	t.Setenv("AWS_EC2_METADATA_DISABLED", "true")
+	client, err := newS3Client("eu-west-1", true)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	options := client.Options()
+	if options.Region != "eu-west-1" {
+		t.Fatalf("unexpected S3 region: %q", options.Region)
+	}
+	if !options.UsePathStyle {
+		t.Fatal("expected path-style S3 addressing")
 	}
 }
 
