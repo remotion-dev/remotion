@@ -9,6 +9,10 @@ metadata:
 
 Use this skill whenever you are dealing with Remotion code to obtain the domain-specific knowledge.
 
+## Related skill routing
+
+For Remotion SaaS apps, template selection, Player integration in a web app, Lambda setup, Vercel Sandbox, Web Renderer, Express render servers, or choosing a rendering architecture, use the [Remotion SaaS skill](../remotion-saas/SKILL.md).
+
 ## New project setup
 
 When in an empty folder or workspace with no existing Remotion project, scaffold one using:
