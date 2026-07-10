@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import variants from '../variants.json';
+import {getCategoryLabel} from './agents';
 import './index.css';
 
 const CopyLink = ({href}: {readonly href: string}) => {
@@ -87,22 +88,6 @@ const VideoVariant = ({
 		</div>
 	);
 };
-
-const categoryLabelMap: Record<string, string> = {
-	codecs: 'Codecs',
-	dimensions: 'Dimensions',
-	durations: 'Durations',
-	audio: 'Audio',
-	fps: 'FPS',
-	'sample-rates': 'Sample Rates',
-	greenscreen: 'Green Screen',
-	'edge-cases': 'Edge Cases',
-	'sound-effects': 'Sound Effects',
-	hls: 'HLS',
-};
-
-const getCategoryLabel = (category: string) =>
-	categoryLabelMap[category] ?? category;
 
 const CategoryGroup = ({
 	category,
@@ -238,6 +223,12 @@ export function App() {
 				Hosted on Cloudflare R2 Free Tier, allowing for theoretically unlimited
 				bandwidth. <br />
 				Files may be used royalty-free and without attribution.
+				<br />
+				For agents, use{' '}
+				<a href="/AGENTS.md" className="font-brand text-brand hover:underline">
+					AGENTS.md
+				</a>
+				.
 			</p>
 			<div className="flex gap-8 items-start">
 				<Sidebar
