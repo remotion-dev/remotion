@@ -1314,6 +1314,69 @@ test('inserts a component into the resolved composition component', async () => 
 	}
 });
 
+test('wraps a component in a dimensionless Sequence', async () => {
+	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
+	try {
+		await fs.writeFile(
+			path.join(tempDir, 'Root.tsx'),
+			[
+				"import {Composition} from 'remotion';",
+				"import {MyComp} from './MyComp';",
+				'export const RemotionRoot = () => {',
+				'\treturn <Composition id="test" component={MyComp} />;',
+				'};',
+				'',
+			].join('\n'),
+		);
+		await fs.writeFile(
+			path.join(tempDir, 'MyComp.tsx'),
+			[
+				"import {AbsoluteFill} from 'remotion';",
+				'',
+				'export const MyComp: React.FC = () => {',
+				'\treturn <AbsoluteFill>hello</AbsoluteFill>;',
+				'};',
+				'',
+			].join('\n'),
+		);
+
+		const result = await insertJsxElementIntoComposition({
+			remotionRoot: tempDir,
+			compositionFile: 'Root.tsx',
+			compositionId: 'test',
+			element: {
+				type: 'component',
+				componentName: 'LowerThird',
+				importName: 'LowerThird',
+				importPath: './lower-third.element',
+				props: [],
+				position: null,
+			},
+			prettierConfigOverride: {singleQuote: true, useTabs: true},
+			wrapInSequence: {
+				dimensions: null,
+				name: 'Lower Third',
+				position: {x: 120, y: 80.5},
+			},
+		});
+
+		expect(result.output).toContain(
+			"import { AbsoluteFill, Sequence } from 'remotion';",
+		);
+		expect(result.output).toContain(
+			"import { LowerThird } from './lower-third.element';",
+		);
+		expect(result.output).toContain('<Sequence');
+		expect(result.output).toContain('name="Lower Third"');
+		expect(result.output).toContain("translate: '120px 80.5px'");
+		expect(result.output).toContain('<LowerThird />');
+		expect(result.output).not.toContain('width={');
+		expect(result.output).not.toContain('height={');
+	} finally {
+		await fs.rm(tempDir, {recursive: true, force: true});
+	}
+});
+
 test('inserts a composition as a duration-aware Sequence', async () => {
 	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
 	try {

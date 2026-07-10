@@ -22,6 +22,19 @@ test('parses element drag data', () => {
 	});
 });
 
+test('accepts element drag data with null dimensions', () => {
+	const elementWithoutDimensions = {...validElement, dimensions: null};
+	expect(
+		parseElementDragData(
+			JSON.stringify(makeElementDragData(elementWithoutDimensions)),
+		),
+	).toEqual({
+		type: 'remotion-element',
+		version: 1,
+		element: elementWithoutDimensions,
+	});
+});
+
 test('derives element file name from slug', () => {
 	expect(makeElementFileNameFromSlug('overlays/lower-third')).toBe(
 		'lower-third.element.tsx',
@@ -87,15 +100,6 @@ test('rejects invalid element drag data', () => {
 				type: 'remotion-element',
 				version: 1,
 				element: {...validElement, sourceCode: ''},
-			}),
-		),
-	).toBe(null);
-	expect(
-		parseElementDragData(
-			JSON.stringify({
-				type: 'remotion-element',
-				version: 1,
-				element: {...validElement, dimensions: undefined},
 			}),
 		),
 	).toBe(null);

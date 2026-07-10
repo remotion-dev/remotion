@@ -13,6 +13,7 @@ import {
 } from '../../helpers/colors';
 import {formatFileLocation} from '../../helpers/format-file-location';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
+import {studioInteractivityEnabled} from '../../helpers/interactivity-enabled';
 import {
 	getTimelineLayerHeight,
 	TIMELINE_ITEM_BORDER_BOTTOM,
@@ -224,6 +225,7 @@ export const TimelineSequenceItem: React.FC<{
 	const nodePath = nodePathInfo?.sequenceSubscriptionKey ?? null;
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const previewConnected = previewServerState.type === 'connected';
+	const previewInteractive = previewConnected && studioInteractivityEnabled;
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {toggleTrack} = useContext(ExpandedTracksSetterContext);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
@@ -278,7 +280,7 @@ export const TimelineSequenceItem: React.FC<{
 		saveName,
 	} = useRenameSequence({
 		clientId:
-			previewServerState.type === 'connected'
+			previewInteractive && previewServerState.type === 'connected'
 				? previewServerState.clientId
 				: null,
 		nodePathInfo,
@@ -294,36 +296,36 @@ export const TimelineSequenceItem: React.FC<{
 	);
 	const parentId = sequence.parent ?? null;
 	const canReorderSequence =
-		previewConnected &&
+		previewInteractive &&
 		Boolean(nodePath && nodePathKey && validatedLocation?.source) &&
 		nodePathInfo?.numberOfSequencesWithThisNodePath === 1;
-	const canHandleSequenceDrag = previewConnected;
+	const canHandleSequenceDrag = previewInteractive;
 	const confirm = useConfirmationDialog();
 
 	const deleteDisabled = useMemo(
-		() => !previewConnected || !sequence.controls || !canDeleteFromSource,
-		[previewConnected, sequence.controls, canDeleteFromSource],
+		() => !previewInteractive || !sequence.controls || !canDeleteFromSource,
+		[previewInteractive, sequence.controls, canDeleteFromSource],
 	);
 
 	const duplicateDisabled = deleteDisabled;
 	const disableInteractivityDisabled =
-		!previewConnected ||
+		!previewInteractive ||
 		!sequence.showInTimeline ||
 		!nodePath ||
 		!validatedLocation?.source;
 
 	const onDuplicateSequenceFromSource = useCallback(() => {
-		if (!validatedLocation?.source || !nodePathInfo) {
+		if (duplicateDisabled || !validatedLocation?.source || !nodePathInfo) {
 			return;
 		}
 
 		duplicateSequencesFromSource([nodePathInfo], confirm).catch(
 			() => undefined,
 		);
-	}, [confirm, nodePathInfo, validatedLocation?.source]);
+	}, [confirm, duplicateDisabled, nodePathInfo, validatedLocation?.source]);
 
 	const onDeleteSequenceFromSource = useCallback(async () => {
-		if (!validatedLocation?.source || !nodePath) {
+		if (deleteDisabled || !validatedLocation?.source || !nodePath) {
 			return;
 		}
 
@@ -358,7 +360,13 @@ export const TimelineSequenceItem: React.FC<{
 		} catch (err) {
 			showNotification((err as Error).message, 4000);
 		}
-	}, [confirm, nodePath, validatedLocation?.source, nodePathInfo]);
+	}, [
+		confirm,
+		deleteDisabled,
+		nodePath,
+		validatedLocation?.source,
+		nodePathInfo,
+	]);
 
 	const onDisableSequenceInteractivity = useCallback(() => {
 		if (
@@ -703,10 +711,11 @@ export const TimelineSequenceItem: React.FC<{
 	}, [effectDropHovered, inner]);
 
 	const hasExpandableContent =
-		Boolean(sequence.controls) || sequence.effects.length > 0;
+		studioInteractivityEnabled &&
+		(Boolean(sequence.controls) || sequence.effects.length > 0);
 
 	const canToggleVisibility =
-		previewConnected &&
+		previewInteractive &&
 		Boolean(sequence.controls) &&
 		nodePath !== null &&
 		validatedLocation !== null &&
@@ -798,7 +807,7 @@ export const TimelineSequenceItem: React.FC<{
 
 	const freezeFrameMenuItem = useSequenceFreezeFrameMenuItem({
 		clientId:
-			previewServerState.type === 'connected'
+			previewInteractive && previewServerState.type === 'connected'
 				? previewServerState.clientId
 				: null,
 		nodePath,
@@ -812,7 +821,7 @@ export const TimelineSequenceItem: React.FC<{
 
 	const canAddEffect =
 		nodePathInfo?.supportsEffects === true &&
-		previewServerState.type === 'connected' &&
+		previewInteractive &&
 		Boolean(validatedLocation?.source);
 
 	const onAddEffect = useCallback(() => {
@@ -851,7 +860,7 @@ export const TimelineSequenceItem: React.FC<{
 			disableInteractivityDisabled,
 			duplicateDisabled,
 			fileLocation,
-			includeSourceEditItems: true,
+			includeSourceEditItems: studioInteractivityEnabled,
 			onDeleteSequenceFromSource,
 			onDisableSequenceInteractivity,
 			onDuplicateSequenceFromSource,
@@ -859,43 +868,45 @@ export const TimelineSequenceItem: React.FC<{
 			originalLocation,
 			selectAsset,
 			sequence,
-			sourceActions: [
-				...(nodePathInfo?.supportsEffects
-					? [
-							{
-								type: 'item' as const,
-								id: 'add-effect',
-								keyHint: null,
-								label: 'Add effect...',
-								leftItem: null,
-								disabled: !canAddEffect,
-								onClick: onAddEffect,
-								quickSwitcherLabel: null,
-								subMenu: null,
-								value: 'add-effect',
+			sourceActions: studioInteractivityEnabled
+				? [
+						...(nodePathInfo?.supportsEffects
+							? [
+									{
+										type: 'item' as const,
+										id: 'add-effect',
+										keyHint: null,
+										label: 'Add effect...',
+										leftItem: null,
+										disabled: !canAddEffect,
+										onClick: onAddEffect,
+										quickSwitcherLabel: null,
+										subMenu: null,
+										value: 'add-effect',
+									},
+									{
+										type: 'divider' as const,
+										id: 'add-effect-divider',
+									},
+								]
+							: []),
+						{
+							type: 'item' as const,
+							id: 'rename-sequence',
+							keyHint: null,
+							label: 'Rename...',
+							leftItem: null,
+							disabled: !canRenameThisSequence,
+							onClick: () => {
+								onRenameSequence();
 							},
-							{
-								type: 'divider' as const,
-								id: 'add-effect-divider',
-							},
-						]
-					: []),
-				{
-					type: 'item' as const,
-					id: 'rename-sequence',
-					keyHint: null,
-					label: 'Rename...',
-					leftItem: null,
-					disabled: !canRenameThisSequence,
-					onClick: () => {
-						onRenameSequence();
-					},
-					quickSwitcherLabel: null,
-					subMenu: null,
-					value: 'rename-sequence',
-				},
-				...(freezeFrameMenuItem ? [freezeFrameMenuItem] : []),
-			],
+							quickSwitcherLabel: null,
+							subMenu: null,
+							value: 'rename-sequence',
+						},
+						...(freezeFrameMenuItem ? [freezeFrameMenuItem] : []),
+					]
+				: [],
 		});
 	}, [
 		assetLinkInfo,
@@ -920,7 +931,7 @@ export const TimelineSequenceItem: React.FC<{
 		sequence,
 	]);
 	const canDropEffect =
-		previewServerState.type === 'connected' &&
+		previewInteractive &&
 		nodePath !== null &&
 		validatedLocation !== null &&
 		sequence.controls?.supportsEffects === true;
@@ -1020,7 +1031,7 @@ export const TimelineSequenceItem: React.FC<{
 			arrow={
 				hasExpandableContent && nodePathInfo !== null ? (
 					<TimelineSequenceExpandArrow
-						disabled={!previewConnected}
+						disabled={!previewInteractive}
 						isExpanded={isExpanded}
 						nodePathInfo={nodePathInfo}
 						onToggleExpand={onToggleExpand}
@@ -1101,6 +1112,7 @@ export const TimelineSequenceItem: React.FC<{
 				draggableTrackRow
 			)}
 			{previewConnected &&
+			studioInteractivityEnabled &&
 			isExpanded &&
 			hasExpandableContent &&
 			nodePathInfo &&

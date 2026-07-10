@@ -29,6 +29,7 @@ import type {
 	SequenceNodePathInfo,
 	TrackWithHash,
 } from '../../helpers/get-timeline-sequence-sort-key';
+import {studioInteractivityEnabled} from '../../helpers/interactivity-enabled';
 import {
 	buildTimelineTree,
 	flattenVisibleTreeNodes,
@@ -1044,6 +1045,7 @@ export const TimelineSelectionProvider: React.FC<{
 		canvasContent?.type === 'composition' ? canvasContent.compositionId : null;
 	const {expandParentTracks} = useContext(ExpandedTracksSetterContext);
 	const canSelect =
+		studioInteractivityEnabled &&
 		previewServerState.type === 'connected' &&
 		!window.remotion_isReadOnlyStudio;
 	const [selectedItems, setSelectedItems] = useState<

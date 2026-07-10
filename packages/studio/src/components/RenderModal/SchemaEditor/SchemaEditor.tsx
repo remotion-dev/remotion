@@ -1,7 +1,7 @@
 import React from 'react';
 import {useZodIfPossible} from '../../get-zod-if-possible';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../../Menu/is-menu-item';
-import {getSchemaEditorFieldsetPadding} from './Fieldset';
+import {getSchemaEditorRootInset} from './Fieldset';
 import {TopLevelZodValue, type SchemaErrorMode} from './SchemaErrorMessages';
 import {defaultPropsEditorScrollableAreaRef} from './scroll-to-default-props-path';
 import type {AnyZodSchema} from './zod-schema-type';
@@ -33,8 +33,7 @@ const getContainerStyle = ({
 		return base;
 	}
 
-	const fieldsetPadding = getSchemaEditorFieldsetPadding();
-	const rootInset = Math.max(0, contentInset - fieldsetPadding);
+	const rootInset = getSchemaEditorRootInset(contentInset);
 
 	return {
 		...base,

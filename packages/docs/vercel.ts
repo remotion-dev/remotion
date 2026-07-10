@@ -127,6 +127,48 @@ export const config: VercelConfig = {
 		routes.redirect('/docs/miscellaneous/snippets/hls', '/docs/hls', {
 			permanent: true,
 		}),
+		routes.redirect(
+			'/docs/miscellaneous/snippets/align-duration',
+			'/docs/videos/align-duration',
+			{permanent: true},
+		),
+		routes.redirect(
+			'/docs/miscellaneous/snippets/accelerated-video',
+			'/docs/videos/accelerated-video',
+			{permanent: true},
+		),
+		routes.redirect(
+			'/docs/miscellaneous/snippets/jumpcuts',
+			'/docs/videos/jumpcuts',
+			{permanent: true},
+		),
+		routes.redirect(
+			'/docs/miscellaneous/snippets/different-segments-at-different-speeds',
+			'/docs/videos/different-segments-at-different-speeds',
+			{permanent: true},
+		),
+		routes.redirect(
+			'/docs/videos/freeze-portions',
+			'/docs/miscellaneous/snippets/freeze-portions',
+			{permanent: true},
+		),
+		routes.redirect(
+			'/docs/video-manipulation',
+			'/docs/videos/video-manipulation',
+			{permanent: true},
+		),
+		routes.redirect('/docs/videos/greenscreen', '/docs/greenscreen', {
+			permanent: true,
+		}),
+		routes.redirect('/docs/videos/video-tags', '/docs/video-tags', {
+			permanent: true,
+		}),
+		routes.redirect('/docs/videos/hls', '/docs/hls', {
+			permanent: true,
+		}),
+		routes.redirect('/docs/media-fragments', '/docs/videos/media-fragments', {
+			permanent: true,
+		}),
 		routes.redirect('/docs/player/api', '/docs/player/player', {
 			permanent: true,
 		}),
@@ -281,9 +323,11 @@ export const config: VercelConfig = {
 			'/docs/animation-math',
 			{permanent: false},
 		),
-		routes.redirect('/docs/video-vs-offthreadvideo', '/docs/video-tags', {
-			permanent: false,
-		}),
+		routes.redirect(
+			'/docs/video-vs-offthreadvideo',
+			'/docs/video-tags',
+			{permanent: false},
+		),
 		routes.redirect(
 			'/bbb.webm',
 			'https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.720p.vp9.webm',

@@ -1,4 +1,9 @@
-import type {InputAudioTrack, InputVideoTrack, OutputFormat} from 'mediabunny';
+import type {
+	AudioCodec,
+	InputAudioTrack,
+	InputVideoTrack,
+	OutputFormat,
+} from 'mediabunny';
 import {getEncodableAudioCodecs, getEncodableVideoCodecs} from 'mediabunny';
 import type {AudioOperation, VideoOperation} from './audio-operation';
 import {
@@ -13,14 +18,10 @@ const canEncodeAudioCodec = async ({
 	sampleRate,
 	allowFallbackSampleRate,
 }: {
-	codec: InputAudioTrack['codec'];
+	codec: AudioCodec;
 	sampleRate: number;
 	allowFallbackSampleRate: boolean;
 }) => {
-	if (codec === null) {
-		return false;
-	}
-
 	await ensureAudioEncoderRegistered(codec);
 
 	const codecs = await getEncodableAudioCodecs([codec], {sampleRate});
@@ -45,7 +46,8 @@ export const getAudioTranscodingOptions = async ({
 	outputContainer: OutputFormat;
 	sampleRate: number | null;
 }): Promise<AudioOperation[]> => {
-	if (inputTrack.codec === null) {
+	const inputAudioCodec = await inputTrack.getCodec();
+	if (inputAudioCodec === null) {
 		return [];
 	}
 
@@ -89,7 +91,8 @@ export const getVideoTranscodingOptions = async ({
 	resizeOperation: MediabunnyResize | null;
 	rotate: number | null;
 }): Promise<VideoOperation[]> => {
-	if (inputTrack.codec === null) {
+	const inputVideoCodec = await inputTrack.getCodec();
+	if (inputVideoCodec === null) {
 		return [];
 	}
 
@@ -101,7 +104,7 @@ export const getVideoTranscodingOptions = async ({
 		height: inputTrack.displayHeight,
 		resizeOperation,
 		rotation: rotate ?? 0,
-		needsToBeMultipleOfTwo: inputTrack.codec === 'avc',
+		needsToBeMultipleOfTwo: inputVideoCodec === 'avc',
 		width: inputTrack.displayWidth,
 	});
 
@@ -127,7 +130,7 @@ export const getVideoTranscodingOptions = async ({
 	return configs;
 };
 
-export const canCopyVideoTrack = ({
+export const canCopyVideoTrack = async ({
 	outputContainer,
 	rotationToApply,
 	resizeOperation,
@@ -138,6 +141,11 @@ export const canCopyVideoTrack = ({
 	outputContainer: OutputFormat;
 	resizeOperation: MediabunnyResize | null;
 }) => {
+	const inputVideoCodec = await inputTrack.getCodec();
+	if (!inputVideoCodec) {
+		return false;
+	}
+
 	if (
 		normalizeVideoRotation(inputTrack.rotation) !==
 		normalizeVideoRotation(rotationToApply)
@@ -145,12 +153,8 @@ export const canCopyVideoTrack = ({
 		return false;
 	}
 
-	if (!inputTrack.codec) {
-		return false;
-	}
-
 	const needsToBeMultipleOfTwo =
-		inputTrack.codec === 'avc' || inputTrack.codec === 'hevc';
+		inputVideoCodec === 'avc' || inputVideoCodec === 'hevc';
 
 	const newDimensions = calculateNewDimensionsFromRotateAndScale({
 		height: inputTrack.displayHeight,
@@ -166,7 +170,7 @@ export const canCopyVideoTrack = ({
 		return false;
 	}
 
-	return outputContainer.getSupportedCodecs().includes(inputTrack.codec);
+	return outputContainer.getSupportedCodecs().includes(inputVideoCodec);
 };
 
 export const canCopyAudioTrack = async ({
@@ -178,7 +182,8 @@ export const canCopyAudioTrack = async ({
 	outputContainer: OutputFormat;
 	sampleRate: number | null;
 }) => {
-	if (!inputTrack.codec) {
+	const inputAudioCodec = await inputTrack.getCodec();
+	if (!inputAudioCodec) {
 		return false;
 	}
 
@@ -186,5 +191,5 @@ export const canCopyAudioTrack = async ({
 		return false;
 	}
 
-	return outputContainer.getSupportedCodecs().includes(inputTrack.codec);
+	return outputContainer.getSupportedCodecs().includes(inputAudioCodec);
 };

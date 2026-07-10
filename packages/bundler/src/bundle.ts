@@ -71,6 +71,7 @@ export type MandatoryLegacyBundleOptions = {
 	onSymlinkDetected: (path: string) => void;
 	keyboardShortcutsEnabled: boolean;
 	askAIEnabled: boolean;
+	interactivityEnabled: boolean;
 	rspack: boolean;
 	/**
 	 * If true, the public directory is symlinked into the bundle output instead of copied.
@@ -124,6 +125,7 @@ export const getConfig = ({
 		poll: null,
 		experimentalClientSideRenderingEnabled,
 		askAIEnabled: options?.askAIEnabled ?? true,
+		interactivityEnabled: options?.interactivityEnabled ?? true,
 		extraPlugins: [],
 	};
 
@@ -458,6 +460,7 @@ export async function bundle(...args: Arguments): Promise<string> {
 			actualArgs.experimentalClientSideRenderingEnabled ?? false,
 		renderDefaults: actualArgs.renderDefaults ?? null,
 		askAIEnabled: actualArgs.askAIEnabled ?? true,
+		interactivityEnabled: actualArgs.interactivityEnabled ?? true,
 		keyboardShortcutsEnabled: actualArgs.keyboardShortcutsEnabled ?? true,
 		rspack: actualArgs.rspack ?? false,
 		symlinkPublicDir: actualArgs.symlinkPublicDir ?? false,

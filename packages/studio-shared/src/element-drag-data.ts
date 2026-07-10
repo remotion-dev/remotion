@@ -3,7 +3,7 @@ import {
 	type ComponentDimensions,
 } from './component-drag-data';
 
-export const ELEMENT_DRAG_MIME_TYPE = 'application/vnd.remotion.element+json';
+export {ELEMENT_DRAG_MIME_TYPE} from './drag-mime-types';
 
 export type ElementDragData = {
 	type: 'remotion-element';
@@ -12,7 +12,7 @@ export type ElementDragData = {
 		slug: string;
 		displayName: string;
 		sourceCode: string;
-		dimensions: ComponentDimensions;
+		dimensions: ComponentDimensions | null;
 	};
 };
 
@@ -145,7 +145,9 @@ export const parseElementDragData = (value: string): ElementDragData | null => {
 			!isSourceCode(sourceCode) ||
 			getElementComponentNameFromSourceCode(sourceCode) === null ||
 			makeElementFileNameFromSlug(slug) === null ||
-			!isDimensions(dimensions)
+			(dimensions !== undefined &&
+				dimensions !== null &&
+				!isDimensions(dimensions))
 		) {
 			return null;
 		}
@@ -154,7 +156,7 @@ export const parseElementDragData = (value: string): ElementDragData | null => {
 			slug,
 			displayName,
 			sourceCode,
-			dimensions,
+			dimensions: dimensions ?? null,
 		});
 	} catch {
 		return null;

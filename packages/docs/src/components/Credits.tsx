@@ -21,7 +21,7 @@ const linkStyle: React.CSSProperties = {
 	color: '#000000',
 };
 
-interface Contributor {
+export interface Contributor {
 	username: string;
 	contribution: string;
 }

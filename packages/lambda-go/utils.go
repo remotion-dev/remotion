@@ -6,8 +6,7 @@ import (
 	"fmt"
 )
 
-func serializeInputProps(inputProps interface{}, region string, inputType string,
-	userSpecifiedBucketName string) (*PayloadData, error) {
+func serializeInputProps(inputProps interface{}, inputType string) (*PayloadData, error) {
 	payload, err := json.Marshal(inputProps)
 
 	if inputProps == nil {

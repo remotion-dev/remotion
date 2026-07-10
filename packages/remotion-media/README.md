@@ -27,3 +27,5 @@ Bundles the catalog UI and uploads to Cloudflare R2 when `AWS_ACCESS_KEY_ID` and
 ```bash
 bun run build
 ```
+
+HLS files are uploaded through the AWS CLI so their MIME types are preserved.

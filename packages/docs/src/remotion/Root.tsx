@@ -54,6 +54,11 @@ import {
 	RADIAL_PROGRESSIVE_BLUR_PREVIEW_PARAMS,
 } from '../../components/effects/effects-radial-progressive-blur-preview';
 import {EffectsRingsPreview} from '../../components/effects/effects-rings-preview';
+import {
+	EffectsRoughenEdgesPreview,
+	ROUGHEN_EDGES_PREVIEW_PARAMS,
+	RoughenEdgesTextSource,
+} from '../../components/effects/effects-roughen-edges-preview';
 import {EffectsSaturationPreview} from '../../components/effects/effects-saturation-preview';
 import {EffectsScalePreview} from '../../components/effects/effects-scale-preview';
 import {EffectsScanlinesPreview} from '../../components/effects/effects-scanlines-preview';
@@ -606,6 +611,19 @@ export const RemotionRoot: React.FC = () => {
 					width={1280}
 					height={720}
 					defaultProps={PAPER_PREVIEW_PARAMS}
+				/>
+				<Still
+					id="effects-roughen-edges-text-source"
+					component={RoughenEdgesTextSource}
+					width={1280}
+					height={720}
+				/>
+				<Still
+					id="effects-roughen-edges-preview"
+					component={EffectsRoughenEdgesPreview}
+					width={1280}
+					height={720}
+					defaultProps={ROUGHEN_EDGES_PREVIEW_PARAMS}
 				/>
 				<Still
 					id="effects-white-noise-preview"

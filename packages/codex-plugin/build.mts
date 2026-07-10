@@ -34,7 +34,7 @@ function copySkillDir(src: string, destName: string) {
 }
 
 const addCodexOnlyInstructions = () => {
-	const remotionSkill = join(skillsOut, 'remotion', 'SKILL.md');
+	const remotionSkill = join(skillsOut, 'remotion-best-practices', 'SKILL.md');
 	if (!existsSync(remotionSkill)) {
 		return;
 	}

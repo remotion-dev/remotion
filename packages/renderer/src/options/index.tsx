@@ -39,6 +39,7 @@ import {headlessOption} from './headless';
 import {ignoreCertificateErrorsOption} from './ignore-certificate-errors';
 import {imageSequenceOption} from './image-sequence';
 import {imageSequencePatternOption} from './image-sequence-pattern';
+import {interactivityOption} from './interactivity';
 import {ipv4Option} from './ipv4';
 import {isProductionOption} from './is-production';
 import {jpegQualityOption} from './jpeg-quality';
@@ -156,6 +157,7 @@ export const allOptions = {
 	publicLicenseKeyOption,
 	isProductionOption,
 	askAIOption,
+	interactivityOption,
 	experimentalClientSideRenderingOption,
 	keyboardShortcutsOption,
 	framesOption,

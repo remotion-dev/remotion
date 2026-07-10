@@ -26,6 +26,10 @@ import {CssLoaderTest} from './CssLoaderTest';
 import {DarkModeTest} from './DarkModeTest';
 import {DecoderDemo} from './DecoderDemo';
 import {
+	DIFFERENT_SEGMENTS_AT_DIFFERENT_SPEEDS_DURATION,
+	DifferentSegmentsAtDifferentSpeeds,
+} from './DifferentSegmentsAtDifferentSpeeds';
+import {
 	DiscriminatedUnionSchemaTest,
 	discriminatedUnionRootSchema,
 } from './DiscriminatedUnionSchemaTest';
@@ -201,6 +205,10 @@ import {PaletteMapEffect} from './EffectsTestbed/PaletteMapEffect';
 import {RadialProgressiveBlurTest} from './EffectsTestbed/RadialProgressiveBlur';
 import {VideoEffectsFastRefresh} from './EffectsTestbed/VideoEffectsFastRefresh';
 import {Empty} from './Empty';
+import {
+	Issue8974IndependentVideosTimeline,
+	Issue8974TransitionSeriesTimeline,
+} from './Issue8974TimelineInteractivity';
 import {JumpCuts, SAMPLE_SECTIONS, calculateMetadataJumpCuts} from './JumpCuts';
 import {LightLeakExample} from './LightLeak';
 import {LightLeakAnimatedSize} from './LightLeak/AnimatedSize';
@@ -1421,6 +1429,14 @@ export const Index: React.FC = () => {
 					}}
 				/>
 				<Composition
+					id="different-segments-at-different-speeds"
+					component={DifferentSegmentsAtDifferentSpeeds}
+					width={640}
+					height={360}
+					fps={30}
+					durationInFrames={DIFFERENT_SEGMENTS_AT_DIFFERENT_SPEEDS_DURATION}
+				/>
+				<Composition
 					id="fractional-sequence-video"
 					component={FractionalSequenceVideo}
 					width={640}
@@ -2577,6 +2593,24 @@ export const Index: React.FC = () => {
 					height={1080}
 					fps={30}
 					durationInFrames={165}
+				/>
+			</Folder>
+			<Folder name="Issue8974">
+				<Composition
+					id="issue-8974-transition-series-timeline"
+					component={Issue8974TransitionSeriesTimeline}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={210}
+				/>
+				<Composition
+					id="issue-8974-independent-videos-timeline"
+					component={Issue8974IndependentVideosTimeline}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={366}
 				/>
 			</Folder>
 			<Folder name="VisualModeTests">

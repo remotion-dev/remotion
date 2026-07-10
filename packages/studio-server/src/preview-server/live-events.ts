@@ -17,7 +17,7 @@ type Client = {
 
 export type LiveEventsServer = {
 	sendEventToClient: (event: EventSourceEvent) => void;
-	sendEventToClientId: (clientId: string, event: EventSourceEvent) => void;
+	sendEventToClientId: (clientId: string, event: EventSourceEvent) => boolean;
 	router: (request: IncomingMessage, response: ServerResponse) => Promise<void>;
 	closeConnections: () => Promise<void>;
 	addNewClientListener: (cb: () => void) => () => void;
@@ -106,9 +106,12 @@ export const makeLiveEventsRouter = (
 
 	const sendEventToClientId = (clientId: string, event: EventSourceEvent) => {
 		const client = clients.find((c) => c.id === clientId);
-		if (client) {
-			client.response.write(serializeMessage(event));
+		if (!client) {
+			return false;
 		}
+
+		client.response.write(serializeMessage(event));
+		return true;
 	};
 
 	const addNewClientListener = (cb: () => void) => {

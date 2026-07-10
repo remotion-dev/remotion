@@ -62,6 +62,7 @@ const {
 	overrideDurationOption,
 	bundleCacheOption,
 	sampleRateOption,
+	stillFrameOption,
 } = BrowserSafeApis.options;
 
 export const render = async (
@@ -93,7 +94,7 @@ export const render = async (
 
 	const fullEntryPoint = convertEntryPointToServeUrl(file);
 
-	if (parsedCli.frame) {
+	if (stillFrameOption.getValue({commandLine: parsedCli}).source === 'cli') {
 		Log.error(
 			{indent: false, logLevel},
 			'--frame flag was passed to the `render` command. This flag only works with the `still` command. Did you mean `--frames`? See reference: https://www.remotion.dev/docs/cli/',

@@ -8,7 +8,6 @@ import {
   useVideoConfig,
 } from "remotion";
 import type { Theme } from "../../../config/themes";
-
 import { Rect, Triangle } from "@remotion/shapes";
 import { AbsoluteFill, interpolateColors } from "remotion";
 import { REGULAR_FONT } from "../../../config/fonts";
@@ -66,6 +65,7 @@ const TriangleToSquare: React.FC<{
         edgeRoundness={rectEdgeRoundness}
         style={{ ...style, marginLeft: correctCenter }}
         fill={color}
+        showInTimeline={false}
       />
     );
   }
@@ -77,6 +77,7 @@ const TriangleToSquare: React.FC<{
       length={length}
       style={style}
       edgeRoundness={triangleEdgeRoundness}
+      showInTimeline={false}
     />
   );
 };
@@ -458,14 +459,16 @@ const Logo: React.FC<{
         transformOrigin: "center center",
         transform: `scale(0.68) translateX(${posX}px) translateY(${posY}px)`,
       }}
+      showInTimeline={false}
     >
-      <Sequence style={{}}>
+      <Sequence style={{}} showInTimeline={false}>
         <Sequence
           style={{
             justifyContent: "center",
             alignItems: "center",
             scale: String(1.2 + anim(2)),
           }}
+          showInTimeline={false}
         >
           <TriangleToSquare
             opacity={getOpacity(theme)}
@@ -483,6 +486,7 @@ const Logo: React.FC<{
             alignItems: "center",
             scale: String(1.2 + anim(1)),
           }}
+          showInTimeline={false}
         >
           <TriangleToSquare
             opacity={0.3}
@@ -500,6 +504,7 @@ const Logo: React.FC<{
             alignItems: "center",
             scale: String(1.2 + Math.max(anim(0), 0)),
           }}
+          showInTimeline={false}
         >
           <TriangleToSquare
             opacity={1}
@@ -520,7 +525,7 @@ const All: React.FC<{
   theme: Theme;
 }> = ({ theme }) => {
   return (
-    <Sequence>
+    <Sequence showInTimeline={false}>
       <Recorder theme={theme} />
       <Logo theme={theme} />
     </Sequence>
@@ -567,6 +572,7 @@ export const RecorderScene: React.FC<{
         alignItems: "center",
         left: (config.width - 1080) / 2,
       }}
+      showInTimeline={false}
     >
       <AbsoluteFill
         style={{

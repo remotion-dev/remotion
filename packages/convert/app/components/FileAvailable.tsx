@@ -130,7 +130,6 @@ export const FileAvailable: React.FC<{
 										<ConvertUI
 											crop={enableRotateOrMirrow === 'crop'}
 											inputContainer={probeResult.container}
-											currentAudioCodec={probeResult.audioCodec ?? null}
 											currentVideoCodec={probeResult.videoCodec ?? null}
 											tracks={probeResult.tracks}
 											setSrc={setSrc}

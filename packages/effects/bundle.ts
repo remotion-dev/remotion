@@ -41,6 +41,7 @@ const effectEntrypoints = [
 	'src/noise.ts',
 	'src/noise-displacement.ts',
 	'src/paper.ts',
+	'src/roughen-edges.ts',
 	'src/pattern.ts',
 	'src/radial-progressive-blur.ts',
 	'src/rings.ts',

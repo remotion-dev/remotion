@@ -121,13 +121,12 @@ export const getSupportedConfigs = async ({
 			const options: VideoOperation[] = [];
 			const canCopy =
 				!disableVideoCopy &&
-				canCopyVideoTrack({
+				(await canCopyVideoTrack({
 					inputTrack: track,
 					outputContainer: container,
 					rotationToApply: userRotation,
 					resizeOperation,
-				}) &&
-				!disableVideoCopy;
+				}));
 			if (canCopy && prioritizeCopyOverReencode) {
 				options.push({
 					type: 'copy',
@@ -159,6 +158,7 @@ export const getSupportedConfigs = async ({
 
 		if (track.isAudioTrack()) {
 			const audioTrackOperations: AudioOperation[] = [];
+			const audioCodec = await track.getCodec();
 
 			const canCopy = await canCopyAudioTrack({
 				outputContainer: container,
@@ -183,7 +183,7 @@ export const getSupportedConfigs = async ({
 			audioTrackOptions.push({
 				trackId: track.id,
 				operations: audioTrackOperations,
-				audioCodec: track.codec,
+				audioCodec,
 			});
 		}
 	}
