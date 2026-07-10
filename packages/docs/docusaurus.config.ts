@@ -94,12 +94,12 @@ const config: Config = {
 					items: [
 						{to: '/templates', label: 'Templates'},
 						{to: 'https://remotion.dev/prompts', label: 'Prompts'},
-						{to: 'https://remotion.media', label: 'Test media'},
 						{to: 'learn', label: 'Learn'},
 						{
 							to: '/docs/resources',
 							label: 'Resources',
 						},
+						{to: 'https://remotion.media', label: 'Test media'},
 						{to: 'blog', label: 'Blog'},
 						{to: 'showcase', label: 'Showcase'},
 						{to: '/docs/support', label: 'Support'},
