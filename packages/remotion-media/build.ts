@@ -1,9 +1,11 @@
 #!/usr/bin/env bun
 import {build, S3Client, type BuildConfig} from 'bun';
 import plugin from 'bun-plugin-tailwind';
-import {cpSync, existsSync, readdirSync} from 'fs';
+import {cpSync, existsSync, readdirSync, writeFileSync} from 'fs';
 import {rm} from 'fs/promises';
 import path from 'path';
+import {makeAgentsMarkdown} from './src/agents';
+import variants from './variants.json';
 
 // Print help text if requested
 if (process.argv.includes('--help') || process.argv.includes('-h')) {
@@ -190,6 +192,8 @@ const files = readdirSync(outdir);
 for (const file of files) {
 	cpSync(path.join(outdir, file), path.join(filesDir, file));
 }
+
+writeFileSync(path.join(filesDir, 'AGENTS.md'), makeAgentsMarkdown(variants));
 
 if (!Bun.env.AWS_ACCESS_KEY_ID || !Bun.env.AWS_SECRET_ACCESS_KEY) {
 	console.log(

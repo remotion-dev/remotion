@@ -94,6 +94,7 @@ const config: Config = {
 					items: [
 						{to: '/templates', label: 'Templates'},
 						{to: 'https://remotion.dev/prompts', label: 'Prompts'},
+						{to: 'https://remotion.media', label: 'Test media'},
 						{to: 'learn', label: 'Learn'},
 						{
 							to: '/docs/resources',
