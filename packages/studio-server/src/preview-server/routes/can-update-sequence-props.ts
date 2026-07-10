@@ -275,7 +275,7 @@ const getInterpolateOutputOption = (
 	node: Expression,
 ): InterpolateOutputOption | null => {
 	if (node.type === 'StringLiteral') {
-		if (node.value === 'linear' || node.value === 'exponential') {
+		if (node.value === 'linear' || node.value === 'perceptual-scale') {
 			return node.value;
 		}
 

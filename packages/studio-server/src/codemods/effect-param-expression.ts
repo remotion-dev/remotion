@@ -176,7 +176,7 @@ const makeKeyframedOptions = ({
 			);
 		}
 
-		if (param.output === 'exponential') {
+		if (param.output === 'perceptual-scale') {
 			properties.push(
 				b.objectProperty(
 					b.identifier('output'),

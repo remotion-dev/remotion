@@ -338,14 +338,14 @@ export const Example: React.FC = () => {
 				operation: {
 					type: 'settings',
 					clamping: {left: 'extend', right: 'extend'},
-					output: 'exponential',
+					output: 'perceptual-scale',
 					posterize: undefined,
 				},
 			},
 		],
 	});
 
-	expect(output).toContain("output: 'exponential'");
+	expect(output).toContain("output: 'perceptual-scale'");
 });
 
 test('updateSequenceKeyframes removes linear output settings', async () => {
@@ -356,7 +356,7 @@ export const Example: React.FC = () => {
 \tconst frame = useCurrentFrame();
 \treturn (
 \t\t<AbsoluteFill>
-\t\t\t<div style={{scale: interpolate(frame, [0, 100], [2, 4], {output: 'exponential'})}} />
+\t\t\t<div style={{scale: interpolate(frame, [0, 100], [2, 4], {output: 'perceptual-scale'})}} />
 \t\t</AbsoluteFill>
 \t);
 };

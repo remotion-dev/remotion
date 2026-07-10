@@ -122,7 +122,7 @@ test('computeEffectPropStatus reports keyframes for inline interpolated effect p
 
 test('computeEffectPropStatus reports output for inline interpolated effect props', () => {
 	const input = buildInput(
-		"[tint({amount: interpolate(frame, [0, 100], [0.2, 0.8], {output: 'exponential'})})]",
+		"[tint({amount: interpolate(frame, [0, 100], [0.2, 0.8], {output: 'perceptual-scale'})})]",
 	);
 	const {ast, jsx} = findJsx(input);
 	const result = computeEffectPropStatus({
@@ -147,7 +147,7 @@ test('computeEffectPropStatus reports output for inline interpolated effect prop
 		easing: [{type: 'linear'}],
 		clamping: {left: 'extend', right: 'extend'},
 		posterize: undefined,
-		output: 'exponential',
+		output: 'perceptual-scale',
 	});
 });
 

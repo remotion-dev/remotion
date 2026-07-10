@@ -32,7 +32,7 @@ export type EffectClipboardClamping = {
 	readonly right: EffectClipboardExtrapolateType;
 };
 
-export type EffectClipboardOutput = 'linear' | 'exponential';
+export type EffectClipboardOutput = 'linear' | 'perceptual-scale';
 
 export type EffectClipboardKeyframedParam = {
 	readonly type: 'keyframed';
@@ -104,7 +104,7 @@ const isRecord = (value: unknown): value is Record<string, unknown> => {
 };
 
 const extrapolateTypes = new Set(['extend', 'identity', 'clamp', 'wrap']);
-const outputOptions = new Set(['linear', 'exponential']);
+const outputOptions = new Set(['linear', 'perceptual-scale']);
 
 const isFiniteNumber = (value: unknown): value is number => {
 	return typeof value === 'number' && Number.isFinite(value);

@@ -3,7 +3,7 @@ import {normalizeNumber} from './normalize-number.js';
 // Taken from https://github.com/facebook/react-native/blob/0b9ea60b4fee8cacc36e7160e31b91fc114dbc0d/Libraries/Animated/src/nodes/AnimatedInterpolation.js
 
 export type ExtrapolateType = 'extend' | 'identity' | 'clamp' | 'wrap';
-export type InterpolateOutputOption = 'linear' | 'exponential';
+export type InterpolateOutputOption = 'linear' | 'perceptual-scale';
 
 /**
  * @description This function allows you to map a range of values to another with a concise syntax
@@ -441,6 +441,22 @@ const serializeStringInterpolationValue = ({
 		.join(' ');
 };
 
+const toSignedArea = (scale: number): number => {
+	if (scale === 0) {
+		return 0;
+	}
+
+	return Math.sign(scale) * scale * scale;
+};
+
+const fromSignedArea = (area: number): number => {
+	if (area === 0) {
+		return 0;
+	}
+
+	return Math.sign(area) * Math.sqrt(Math.abs(area));
+};
+
 function interpolateFunction(
 	input: number,
 	inputRange: [number, number],
@@ -494,8 +510,12 @@ function interpolateFunction(
 	result = easing(result);
 
 	// Output Range
-	if (output === 'exponential') {
-		result = outputMin * (outputMax / outputMin) ** result;
+	if (output === 'perceptual-scale') {
+		const signedAreaMin = toSignedArea(outputMin);
+		const signedAreaMax = toSignedArea(outputMax);
+		result = fromSignedArea(
+			result * (signedAreaMax - signedAreaMin) + signedAreaMin,
+		);
 	} else {
 		result = result * (outputMax - outputMin) + outputMin;
 	}
@@ -520,18 +540,6 @@ const resolveOutputOption = (
 	output: InterpolateOptions['output'],
 ): InterpolateOutputOption => {
 	return output ?? 'linear';
-};
-
-const validateExponentialOutputRange = (outputRange: readonly number[]) => {
-	for (const output of outputRange) {
-		if (output <= 0) {
-			throw new TypeError(
-				`outputRange must contain only positive numbers when output is "exponential", but got [${outputRange.join(
-					',',
-				)}]`,
-			);
-		}
-	}
 };
 
 const shouldExtendRightForEasing = (easing: EasingFunction): boolean => {
@@ -599,9 +607,6 @@ const interpolateNumber = ({
 	options: InterpolateOptions | undefined;
 }): number => {
 	const output = resolveOutputOption(options?.output);
-	if (output === 'exponential') {
-		validateExponentialOutputRange(outputRange);
-	}
 
 	if (inputRange.length === 1) {
 		return outputRange[0];
@@ -880,12 +885,16 @@ export function assertValidInterpolatePosterizeOption(
 function assertValidInterpolateOutputOption(
 	output: InterpolateOptions['output'],
 ) {
-	if (output === undefined || output === 'linear' || output === 'exponential') {
+	if (
+		output === undefined ||
+		output === 'linear' ||
+		output === 'perceptual-scale'
+	) {
 		return;
 	}
 
 	throw new Error(
-		`output must be "linear" or "exponential", but got ${String(output)}`,
+		`output must be "linear" or "perceptual-scale", but got ${String(output)}`,
 	);
 }
 

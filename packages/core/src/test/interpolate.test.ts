@@ -189,101 +189,89 @@ test('Output defaults to linear interpolation', () => {
 	expect(interpolate(30, [0, 60], [1, 2], {output: 'linear'})).toBe(1.5);
 });
 
-test('Exponential output interpolates by equal ratios', () => {
-	expect(interpolate(30, [0, 60], [1, 4], {output: 'exponential'})).toBeCloseTo(
-		2,
-	);
-	expect(interpolate(30, [0, 60], [4, 1], {output: 'exponential'})).toBeCloseTo(
-		2,
+test('Perceptual scale output interpolates signed visual area linearly', () => {
+	expect(
+		interpolate(30, [0, 60], [0, 1], {output: 'perceptual-scale'}),
+	).toBeCloseTo(Math.SQRT1_2);
+	expect(
+		interpolate(30, [0, 60], [0, -1], {output: 'perceptual-scale'}),
+	).toBeCloseTo(-Math.SQRT1_2);
+	expect(
+		interpolate(30, [0, 60], [1, 2], {output: 'perceptual-scale'}),
+	).toBeCloseTo(Math.sqrt(2.5));
+	expect(
+		interpolate(30, [0, 60], [2, 1], {output: 'perceptual-scale'}),
+	).toBeCloseTo(Math.sqrt(2.5));
+	expect(interpolate(30, [0, 60], [1, -1], {output: 'perceptual-scale'})).toBe(
+		0,
 	);
 });
 
-test('Exponential output supports multi-keyframe ranges', () => {
+test('Perceptual scale output supports multi-keyframe ranges', () => {
 	expect(
-		interpolate(45, [0, 30, 60], [1, 4, 16], {
-			output: 'exponential',
+		interpolate(45, [0, 30, 60], [0, 1, 2], {
+			output: 'perceptual-scale',
 		}),
-	).toBeCloseTo(8);
+	).toBeCloseTo(Math.sqrt(2.5));
 });
 
-test('Exponential output applies easing before mapping to the output range', () => {
+test('Perceptual scale output applies easing before mapping to the output range', () => {
 	expect(
-		interpolate(30, [0, 60], [1, 16], {
+		interpolate(30, [0, 60], [0, 1], {
 			easing: Easing.quad,
-			output: 'exponential',
+			output: 'perceptual-scale',
 		}),
-	).toBeCloseTo(2);
+	).toBeCloseTo(0.5);
 });
 
-test('Exponential output supports extrapolation', () => {
-	expect(interpolate(90, [0, 60], [1, 4], {output: 'exponential'})).toBeCloseTo(
-		8,
-	);
+test('Perceptual scale output supports extrapolation', () => {
 	expect(
-		interpolate(90, [0, 60], [1, 4], {
+		interpolate(90, [0, 60], [0, 1], {output: 'perceptual-scale'}),
+	).toBeCloseTo(Math.sqrt(1.5));
+	expect(
+		interpolate(90, [0, 60], [0, 1], {
 			extrapolateRight: 'clamp',
-			output: 'exponential',
+			output: 'perceptual-scale',
 		}),
-	).toBe(4);
+	).toBe(1);
 	expect(
-		interpolate(-30, [0, 60], [1, 4], {
+		interpolate(-30, [0, 60], [0, 1], {
 			extrapolateLeft: 'identity',
-			output: 'exponential',
+			output: 'perceptual-scale',
 		}),
 	).toBe(-30);
 });
 
-test('Exponential output supports tuples and scale strings', () => {
-	expect(
-		interpolate(
-			30,
-			[0, 60],
-			[
-				[1, 4],
-				[4, 16],
-			],
-			{output: 'exponential'},
-		),
-	).toEqual([2, 8]);
-	expect(
-		interpolate(15, [0, 30], ['1 4', '4 16'], {
-			output: 'exponential',
-		}),
-	).toBe('2 8');
+test('Perceptual scale output supports tuples and scale strings', () => {
+	const tuple = interpolate(
+		30,
+		[0, 60],
+		[
+			[0, 0],
+			[1, -1],
+		],
+		{output: 'perceptual-scale'},
+	);
+	expect(tuple[0]).toBeCloseTo(Math.SQRT1_2);
+	expect(tuple[1]).toBeCloseTo(-Math.SQRT1_2);
+
+	const [x, y] = interpolate(15, [0, 30], ['0 -1', '1 -4'], {
+		output: 'perceptual-scale',
+	})
+		.split(' ')
+		.map(Number);
+	expect(x).toBeCloseTo(Math.SQRT1_2);
+	expect(y).toBeCloseTo(-Math.sqrt(8.5));
 });
 
-test('Exponential output validates positive output values', () => {
-	expectToThrow(
-		() => interpolate(30, [0, 60], [0, 4], {output: 'exponential'}),
-		/positive numbers/,
-	);
-	expectToThrow(
-		() => interpolate(30, [0, 60], [-1, 4], {output: 'exponential'}),
-		/positive numbers/,
-	);
-	expectToThrow(
-		() => interpolate(30, [0], [0], {output: 'exponential'}),
-		/positive numbers/,
-	);
-	expectToThrow(
-		() =>
-			interpolate(
-				30,
-				[0, 60],
-				[
-					[1, 0],
-					[4, 16],
-				],
-				{output: 'exponential'},
-			),
-		/positive numbers/,
-	);
-	expectToThrow(
-		() =>
-			interpolate(15, [0, 30], ['0px', '100px'], {
-				output: 'exponential',
-			}),
-		/positive numbers/,
+test('Perceptual scale output supports zero and negative single-value ranges', () => {
+	expect(interpolate(30, [0], [0], {output: 'perceptual-scale'})).toBe(0);
+	expect(interpolate(30, [0], [-1], {output: 'perceptual-scale'})).toBe(-1);
+	expect(
+		interpolate(30, [0, 60], [-1, -2], {output: 'perceptual-scale'}),
+	).toBeCloseTo(-Math.sqrt(2.5));
+	expect(interpolate(30, [0, 60], [-1, 1], {output: 'perceptual-scale'})).toBe(
+		0,
 	);
 });
 
@@ -293,7 +281,7 @@ test('Output option validates the output mapping name', () => {
 			// @ts-expect-error
 			output: 'logarithmic',
 		});
-	}, /output must be "linear" or "exponential"/);
+	}, /output must be "linear" or "perceptual-scale"/);
 });
 
 test('Posterize quantizes the input before interpolating', () => {

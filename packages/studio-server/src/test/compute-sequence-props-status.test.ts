@@ -672,7 +672,7 @@ import {Sequence, interpolate, useCurrentFrame} from 'remotion';
 export const Example: React.FC = () => {
 \tconst frame = useCurrentFrame();
 \treturn (
-\t\t<Sequence style={{scale: interpolate(frame, [0, 100], [1, 3], {output: 'exponential'})}} />
+\t\t<Sequence style={{scale: interpolate(frame, [0, 100], [1, 3], {output: 'perceptual-scale'})}} />
 \t);
 };
 `;
@@ -698,7 +698,7 @@ export const Example: React.FC = () => {
 		easing: [{type: 'linear'}],
 		clamping: {left: 'extend', right: 'extend'},
 		posterize: undefined,
-		output: 'exponential',
+		output: 'perceptual-scale',
 	});
 });
 
@@ -745,7 +745,7 @@ import {Solid, interpolateColors, useCurrentFrame} from 'remotion';
 export const Example: React.FC = () => {
 \tconst frame = useCurrentFrame();
 \treturn (
-\t\t<Solid color={interpolateColors(frame, [0, 100], ['red', 'blue'], {output: 'exponential'})} width={100} height={100} />
+\t\t<Solid color={interpolateColors(frame, [0, 100], ['red', 'blue'], {output: 'perceptual-scale'})} width={100} height={100} />
 \t);
 };
 `;
@@ -801,7 +801,7 @@ import {Sequence, interpolate, useCurrentFrame} from 'remotion';
 
 export const Example: React.FC = () => {
 \tconst frame = useCurrentFrame();
-\tconst output = 'exponential';
+\tconst output = 'perceptual-scale';
 \treturn (
 \t\t<Sequence style={{scale: interpolate(frame, [0, 100], [1, 3], {output})}} />
 \t);

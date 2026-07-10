@@ -110,7 +110,7 @@ test('optimisticUpdateSequenceKeyframeSettings updates output', () => {
 		settings: {
 			type: 'settings',
 			clamping: {left: 'clamp', right: 'wrap'},
-			output: 'exponential',
+			output: 'perceptual-scale',
 			posterize: 3,
 		},
 	});
@@ -124,6 +124,6 @@ test('optimisticUpdateSequenceKeyframeSettings updates output', () => {
 		throw new Error('expected keyframed status');
 	}
 
-	expect(status.output).toBe('exponential');
+	expect(status.output).toBe('perceptual-scale');
 	expect(status.posterize).toBe(3);
 });

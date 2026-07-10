@@ -799,12 +799,16 @@ const validatePosterize = (posterize: number | undefined) => {
 };
 
 const validateOutput = (output: InterpolateOutputOption | undefined) => {
-	if (output === undefined || output === 'linear' || output === 'exponential') {
+	if (
+		output === undefined ||
+		output === 'linear' ||
+		output === 'perceptual-scale'
+	) {
 		return;
 	}
 
 	throw new Error(
-		'Cannot update keyframe settings: output must be "linear" or "exponential"',
+		'Cannot update keyframe settings: output must be "linear" or "perceptual-scale"',
 	);
 };
 

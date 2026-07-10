@@ -21,7 +21,7 @@ test('interpolates linear numeric keyframes', () => {
 	expect(result).toBe(50);
 });
 
-test('interpolates numeric keyframes with exponential output', () => {
+test('interpolates numeric keyframes with perceptual-scale output', () => {
 	const result = interpolateKeyframedStatus({
 		forceSpringAllowTail: null,
 		frame: 30,
@@ -29,16 +29,16 @@ test('interpolates numeric keyframes with exponential output', () => {
 			status: 'keyframed',
 			interpolationFunction: 'interpolate',
 			keyframes: [
-				{frame: 0, value: 1},
-				{frame: 60, value: 4},
+				{frame: 0, value: 0},
+				{frame: 60, value: 1},
 			],
 			easing: [{type: 'linear'}],
 			clamping: {left: 'extend', right: 'extend'},
-			output: 'exponential',
+			output: 'perceptual-scale',
 			posterize: undefined,
 		},
 	});
-	expect(result).toBeCloseTo(2);
+	expect(result).toBeCloseTo(Math.SQRT1_2);
 });
 
 test('interpolates linear tuple keyframes', () => {

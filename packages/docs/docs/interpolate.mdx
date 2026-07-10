@@ -109,24 +109,24 @@ const scale = interpolate(frame, [0, 20], [0, 1], {
 });
 ```
 
-## Example: Scaling feels slow? Use exponential output<AvailableFrom v="4.0.488" />
+## Example: Scaling feels nonlinear? Use perceptual scale output<AvailableFrom v="4.0.488" />
 
-For `scale` or zoom-like values, additive interpolation can feel like it slows down as the number grows.
-Use `output: 'exponential'` to distribute values by equal ratios after easing.
+For `scale` values, additive interpolation changes the CSS number linearly, but the visible area changes with `scale ** 2`.
+Use `output: 'perceptual-scale'` to make the signed visual area change linearly after easing.
 
 ```tsx twoslash title="MyComposition.tsx"
-import {Easing, interpolate, useCurrentFrame} from 'remotion';
+import {interpolate, useCurrentFrame} from 'remotion';
 
 const frame = useCurrentFrame();
-const scale = interpolate(frame, [0, 60], [0.5, 2], {
-  easing: Easing.out(Easing.cubic),
+const scale = interpolate(frame, [0, 60], [0, 1], {
   extrapolateLeft: 'clamp',
   extrapolateRight: 'clamp',
-  output: 'exponential',
+  output: 'perceptual-scale',
 });
 ```
 
-Every output value must be greater than `0` when using `output: 'exponential'`.
+At halfway, this returns `Math.sqrt(0.5)`.
+For negative scales, the sign is preserved, so `[0, -1]` behaves like `[0, 1]` but mirrored.
 
 ## Example: CSS transform values<AvailableFrom v="4.0.472" />
 
@@ -280,13 +280,14 @@ Controls how the eased progress maps to the `outputRange`.
 Use `output: 'linear'` for additive interpolation.
 For `[1, 2]` at progress `0.5`, the result is `1.5`.
 
-Use `output: 'exponential'` for multiplicative interpolation.
-For `[1, 2]` at progress `0.5`, the result is `Math.sqrt(2)`.
-This is useful for `scale`, camera zoom, and other values where equal ratios feel more natural than equal deltas.
+Use `output: 'perceptual-scale'` for scale interpolation where visible area should change linearly.
+Each output value is mapped to `Math.sign(value) * value ** 2`, interpolated linearly, then the interpolated signed area is mapped back with `Math.sign(area) * Math.sqrt(Math.abs(area))`.
+For `[0, 1]` at progress `0.5`, the result is `Math.sqrt(0.5)`.
+For `[1, 2]` at progress `0.5`, the result is `Math.sqrt(2.5)`.
+For `[0, -1]` at progress `0.5`, the result is `-Math.sqrt(0.5)`.
 
 `easing` still controls time and progress.
 `output` controls the value distribution after easing.
-All numeric output values must be greater than `0` when using `output: 'exponential'`.
 
 ### posterize<AvailableFrom v="4.0.470" />
 
@@ -316,7 +317,7 @@ import {ExtrapolateType, InterpolateOptions} from 'remotion';
 const extrapolate: ExtrapolateType = 'clamp';
 const option: InterpolateOptions = {
   extrapolateLeft: extrapolate,
-  output: 'exponential',
+  output: 'perceptual-scale',
   posterize: 3,
 };
 ```

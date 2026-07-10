@@ -87,11 +87,16 @@ const getExtrapolateValues = (
 
 const outputOptions = [
 	'linear',
-	'exponential',
+	'perceptual-scale',
 ] as const satisfies InterpolateOutputOption[];
 
-const labelForOutput = (value: InterpolateOutputOption) =>
-	value[0].toUpperCase() + value.slice(1);
+const labelForOutput = (value: InterpolateOutputOption) => {
+	if (value === 'perceptual-scale') {
+		return 'Perceptual scale';
+	}
+
+	return 'Linear';
+};
 
 const getOutputValues = (
 	onSelect: (value: InterpolateOutputOption) => void,
