@@ -29,7 +29,11 @@ import type {AnimatedImageCanvasRef} from './canvas';
 import {Canvas} from './canvas';
 import type {RemotionImageDecoder} from './decode-image.js';
 import {decodeImage} from './decode-image.js';
-import type {AnimatedImageProps, RemotionAnimatedImageProps} from './props';
+import type {
+	AnimatedImageCanvasProps,
+	AnimatedImageProps,
+	RemotionAnimatedImageProps,
+} from './props';
 import {serializeRequestInit} from './request-init';
 import {resolveAnimatedImageSource} from './resolve-image-source';
 
@@ -47,6 +51,24 @@ const animatedImageSchema = {
 	},
 	...transformSchema,
 } as const satisfies InteractivitySchema;
+
+const getCanvasPropsFromSequenceProps = (
+	props: Record<string, unknown>,
+): AnimatedImageCanvasProps => {
+	const canvasProps: AnimatedImageCanvasProps = {};
+	const mutableCanvasProps = canvasProps as Record<string, unknown>;
+
+	for (const key in props) {
+		if (
+			Object.prototype.hasOwnProperty.call(props, key) &&
+			(key.startsWith('data-') || key.startsWith('aria-'))
+		) {
+			mutableCanvasProps[key] = props[key];
+		}
+	}
+
+	return canvasProps;
+};
 
 type AnimatedImageContentProps = RemotionAnimatedImageProps & {
 	readonly effects: EffectsProp;
@@ -255,6 +277,8 @@ const AnimatedImageInner = ({
 		return actualRef.current as HTMLCanvasElement;
 	}, []);
 
+	const canvasProps = getCanvasPropsFromSequenceProps(sequenceProps);
+
 	const animatedImageProps: RemotionAnimatedImageProps = {
 		src,
 		width,
@@ -267,6 +291,7 @@ const AnimatedImageInner = ({
 		className,
 		style,
 		requestInit,
+		...canvasProps,
 	};
 
 	return (
