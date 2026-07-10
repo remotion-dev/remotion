@@ -1140,7 +1140,6 @@ const sidebars: SidebarsConfig = {
 			},
 			items: [
 				'encoding',
-				'prores',
 				'stills',
 				'scaling',
 				'transparent-videos',
@@ -1150,6 +1149,7 @@ const sidebars: SidebarsConfig = {
 				'dataset-render',
 				'render-all',
 				'miscellaneous/video-formats',
+				'prores',
 				'artifacts',
 				'metadata',
 				'hardware-acceleration',
