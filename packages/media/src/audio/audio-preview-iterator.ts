@@ -19,30 +19,35 @@ export type QueuedPeriod = {
 	until: number;
 };
 
-export const makeAudioIterator = ({
-	startFromSecond,
-	maximumTimestamp,
-	audioSink,
-	loop,
-	playbackRate,
-	sequenceDurationInSeconds,
-	unscheduleAudioNode,
-}: {
+export type MakeAudioIteratorOptions = {
 	startFromSecond: number;
 	maximumTimestamp: number;
 	logLevel: LogLevel;
 	audioSink: AudioBufferSink;
 	loop: boolean;
+	loopStartInSeconds: number;
 	playbackRate: number;
 	sequenceDurationInSeconds: number;
 	unscheduleAudioNode: (node: AudioBufferSourceNode) => void;
-}) => {
+};
+
+export const makeAudioIterator = ({
+	startFromSecond,
+	maximumTimestamp,
+	audioSink,
+	loop,
+	loopStartInSeconds,
+	playbackRate,
+	sequenceDurationInSeconds,
+	unscheduleAudioNode,
+}: MakeAudioIteratorOptions) => {
 	let destroyed = false;
 	const iterator = makeIteratorWithPriming({
 		audioSink,
 		timeToSeek: startFromSecond,
 		maximumTimestamp,
 		loop,
+		loopStartInSeconds,
 		playbackRate,
 		sequenceDurationInSeconds,
 	});
@@ -50,10 +55,10 @@ export const makeAudioIterator = ({
 	let mostRecentTimestamp = -Infinity;
 
 	const cleanupAudioQueue = () => {
-		for (const node of queuedAudioNodes) {
-			unscheduleAudioNode(node.node);
+		for (const {node} of queuedAudioNodes) {
+			unscheduleAudioNode(node);
 			try {
-				node.node.stop();
+				node.stop();
 			} catch {
 				// Node may not have been started
 			}
@@ -92,13 +97,7 @@ export const makeAudioIterator = ({
 			buffer,
 			scheduledTime,
 			scheduledAtAnchor,
-		}: {
-			node: AudioBufferSourceNode;
-			timestamp: number;
-			buffer: AudioBuffer;
-			scheduledTime: number;
-			scheduledAtAnchor: number;
-		}) => {
+		}: Omit<QueuedNode, 'playbackRate'>) => {
 			queuedAudioNodes.push({
 				node,
 				timestamp,

@@ -29,6 +29,13 @@ type ScheduleAudioNode = (
 	originalUnloopedMediaTimestamp: number,
 ) => ScheduleAudioNodeResult;
 
+export type AudioIteratorAnchor = {
+	// The unlooped time in seconds at which the current iterator was started
+	unloopedStartInSeconds: number;
+	// The media timestamp emitted by the current iterator at that unlooped time
+	mediaStartInSeconds: number;
+};
+
 export const audioIteratorManager = ({
 	audioTrack,
 	delayPlaybackHandleIfNotPremounting,
@@ -83,6 +90,10 @@ export const audioIteratorManager = ({
 
 	const audioSink = new AudioBufferSink(audioTrack);
 	let audioBufferIterator: AudioIterator | null = null;
+	// When looping, the iterator emits timestamps that continue monotonically
+	// across loop iterations instead of wrapping. This anchor maps the unlooped
+	// time to that continuous timeline so the scheduler can align chunks.
+	let currentAnchor: AudioIteratorAnchor | null = null;
 	let audioIteratorsCreated = 0;
 	let totalAudioScheduledInSeconds = 0;
 	let currentDelayHandle: {unblock: () => void} | null = null;
@@ -337,6 +348,7 @@ export const audioIteratorManager = ({
 		nonce,
 		playbackRate,
 		startFromSecond,
+		unloopedStartFromSecond,
 		scheduleAudioNode,
 		getTargetTime,
 		logLevel,
@@ -345,6 +357,7 @@ export const audioIteratorManager = ({
 		getAudioContextCurrentTimeMockedInTest,
 	}: {
 		startFromSecond: number;
+		unloopedStartFromSecond: number;
 		nonce: Nonce;
 		playbackRate: number;
 		scheduleAudioNode: ScheduleAudioNode;
@@ -372,12 +385,18 @@ export const audioIteratorManager = ({
 		const delayHandle = delayPlaybackHandleIfNotPremounting();
 		currentDelayHandle = delayHandle;
 
+		currentAnchor = {
+			unloopedStartInSeconds: unloopedStartFromSecond,
+			mediaStartInSeconds: startFromSecond,
+		};
+
 		const iterator = makeAudioIterator({
 			startFromSecond,
 			maximumTimestamp,
 			audioSink,
 			logLevel,
 			loop,
+			loopStartInSeconds: getStartTime(),
 			playbackRate,
 			sequenceDurationInSeconds: getSequenceDurationInSeconds(),
 			unscheduleAudioNode,
@@ -415,6 +434,7 @@ export const audioIteratorManager = ({
 
 	const seek = ({
 		newTime,
+		unloopedNewTime,
 		nonce,
 		playbackRate,
 		scheduleAudioNode,
@@ -429,6 +449,7 @@ export const audioIteratorManager = ({
 		getAudioContextCurrentTimeMockedInTest,
 	}: {
 		newTime: number;
+		unloopedNewTime: number;
 		nonce: Nonce;
 		playbackRate: number;
 		scheduleAudioNode: ScheduleAudioNode;
@@ -478,6 +499,15 @@ export const audioIteratorManager = ({
 		}
 
 		if (audioBufferIterator && !audioBufferIterator.isDestroyed()) {
+			// When looping, queued nodes carry continuous timestamps that don't
+			// wrap at loop boundaries. Map the new time into that continuous
+			// frame so it can be compared against the queued period.
+			const timeToCheck =
+				loop && currentAnchor
+					? currentAnchor.mediaStartInSeconds +
+						(unloopedNewTime - currentAnchor.unloopedStartInSeconds) *
+							playbackRate
+					: newTime;
 			const queuedPeriod = audioBufferIterator.getQueuedPeriod();
 			// If there is a missing period, but we'd have no chance to schedule nodes,
 			// then let's not bother. Let's just leave the gap.
@@ -492,7 +522,7 @@ export const audioIteratorManager = ({
 					}
 				: null;
 			const currentTimeIsAlreadyQueued = isAlreadyQueued(
-				newTime,
+				timeToCheck,
 				queuedPeriodMinusLatency,
 			);
 			if (currentTimeIsAlreadyQueued) {
@@ -503,8 +533,8 @@ export const audioIteratorManager = ({
 
 			const currentIteratorTimestamp = audioBufferIterator.guessNextTimestamp();
 			if (
-				currentIteratorTimestamp < newTime &&
-				Math.abs(currentIteratorTimestamp - newTime) < 1
+				currentIteratorTimestamp < timeToCheck &&
+				Math.abs(currentIteratorTimestamp - timeToCheck) < 1
 			) {
 				processNext();
 				// iterator is less than 1 second behind, we will just let it run
@@ -516,6 +546,7 @@ export const audioIteratorManager = ({
 			nonce,
 			playbackRate,
 			startFromSecond: newTime,
+			unloopedStartFromSecond: unloopedNewTime,
 			scheduleAudioNode,
 			getTargetTime,
 			logLevel,
@@ -530,6 +561,7 @@ export const audioIteratorManager = ({
 	return {
 		startAudioIterator,
 		getAudioBufferIterator: () => audioBufferIterator,
+		getCurrentAnchor: () => currentAnchor,
 		destroyIterator: () => {
 			audioBufferIterator?.destroy();
 			audioBufferIterator = null;

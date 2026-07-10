@@ -93,6 +93,7 @@ const prepare = async (options?: {
 	const seek = ({time}: {time: number}) => {
 		manager.seek({
 			newTime: time,
+			unloopedNewTime: time,
 			scheduleAudioNode,
 			nonce: makeNonceManager().createAsyncOperation(),
 			playbackRate,

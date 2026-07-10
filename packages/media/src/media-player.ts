@@ -401,6 +401,7 @@ export class MediaPlayer {
 								nonce,
 								playbackRate: this.playbackRate * this.globalPlaybackRate,
 								startFromSecond: startTime,
+								unloopedStartFromSecond: startTimeUnresolved,
 								scheduleAudioNode: this.scheduleAudioNode,
 								getTargetTime: this.getTargetTime,
 								logLevel: this.logLevel,
@@ -449,11 +450,18 @@ export class MediaPlayer {
 		}
 	}
 
-	private seekToWithQueue = async (newTime: number) => {
+	private seekToWithQueue = async (
+		newTime: number,
+		unloopedNewTime: number,
+	) => {
 		const nonce = this.nonceManager.createAsyncOperation();
 		await this.seekPromiseChain;
 
-		this.seekPromiseChain = this.seekToDoNotCallDirectly(newTime, nonce);
+		this.seekPromiseChain = this.seekToDoNotCallDirectly(
+			newTime,
+			unloopedNewTime,
+			nonce,
+		);
 		await this.seekPromiseChain;
 	};
 
@@ -464,11 +472,12 @@ export class MediaPlayer {
 			throw new Error(`should have asserted that the time is not null`);
 		}
 
-		await this.seekToWithQueue(newTime);
+		await this.seekToWithQueue(newTime, time);
 	}
 
 	private async seekToDoNotCallDirectly(
 		newTime: number,
+		unloopedNewTime: number,
 		nonce: Nonce,
 	): Promise<void> {
 		if (nonce.isStale()) {
@@ -483,6 +492,7 @@ export class MediaPlayer {
 				}),
 				this.audioIteratorManager?.seek({
 					newTime,
+					unloopedNewTime,
 					nonce,
 					playbackRate: this.playbackRate * this.globalPlaybackRate,
 					getTargetTime: this.getTargetTime,
@@ -695,7 +705,21 @@ export class MediaPlayer {
 
 		const timeInSeconds = globalTime - this.sequenceOffset;
 
-		const localTime = this.getTrimmedTime(timeInSeconds);
+		// When looping, the audio iterator emits timestamps that continue
+		// monotonically across loop iterations, while the looped media time
+		// wraps at every iteration. Comparing against the wrapped time would
+		// schedule each chunk one loop duration later per iteration. Use the
+		// anchor established when the iterator was started to convert the
+		// current time into the same continuous frame instead.
+		const anchor = this.loop
+			? (this.audioIteratorManager?.getCurrentAnchor() ?? null)
+			: null;
+
+		const localTime = anchor
+			? anchor.mediaStartInSeconds +
+				(timeInSeconds - anchor.unloopedStartInSeconds) *
+					(this.playbackRate * this.globalPlaybackRate)
+			: this.getTrimmedTime(timeInSeconds);
 
 		if (localTime === null) {
 			return null;

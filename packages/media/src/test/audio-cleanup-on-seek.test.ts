@@ -45,6 +45,7 @@ test('destroy should stop nodes when the audio anchor changed (seek to different
 		audioSink: audioBufferSink,
 		logLevel: 'info',
 		loop: false,
+		loopStartInSeconds: 0,
 		playbackRate: 1,
 		sequenceDurationInSeconds: 10,
 		unscheduleAudioNode: () => {},
