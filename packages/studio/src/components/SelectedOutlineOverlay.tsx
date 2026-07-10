@@ -170,6 +170,16 @@ const outlinePointEqualityTolerance = 0.5;
 const outlineAreaEqualityTolerance = 0.5;
 const outlineBoundsOverlapTolerance = 0.5;
 
+const outlinePointsAreEquivalent = (
+	a: SelectedOutline['points'][number],
+	b: SelectedOutline['points'][number],
+) => {
+	return (
+		Math.abs(a.x - b.x) <= outlinePointEqualityTolerance &&
+		Math.abs(a.y - b.y) <= outlinePointEqualityTolerance
+	);
+};
+
 const outlinesHaveEquivalentHitArea = (
 	a: SelectedOutline,
 	b: SelectedOutline,
@@ -178,16 +188,21 @@ const outlinesHaveEquivalentHitArea = (
 		return false;
 	}
 
-	for (let i = 0; i < a.points.length; i++) {
-		if (
-			Math.abs(a.points[i].x - b.points[i].x) > outlinePointEqualityTolerance ||
-			Math.abs(a.points[i].y - b.points[i].y) > outlinePointEqualityTolerance
-		) {
-			return false;
+	for (let startIndex = 0; startIndex < b.points.length; startIndex++) {
+		for (const direction of [1, -1]) {
+			const pointsMatch = a.points.every((point, index) => {
+				const bIndex =
+					(startIndex + direction * index + b.points.length) % b.points.length;
+				return outlinePointsAreEquivalent(point, b.points[bIndex]);
+			});
+
+			if (pointsMatch) {
+				return true;
+			}
 		}
 	}
 
-	return true;
+	return false;
 };
 
 const getOutlineHitArea = (outline: SelectedOutline): number => {
@@ -368,64 +383,59 @@ const orderOutlineGroup = ({
 	const addAncestorConstraint = ({
 		ancestor,
 		descendant,
+		descendantContainsSelection,
 		equivalentHitArea,
 	}: {
 		readonly ancestor: SelectedOutline;
 		readonly descendant: SelectedOutline;
+		readonly descendantContainsSelection: boolean;
 		readonly equivalentHitArea: boolean;
 	}) => {
 		// Usually, children should be above parents so nested elements are directly
-		// selectable. If a child has the same hit area as its parent though, it makes
-		// the parent impossible to select from the canvas. Put that equal-area child
-		// below its parent, while still allowing smaller descendants to sit above it.
-		if (equivalentHitArea) {
+		// selectable. If an unselected child has the same hit area as its parent, put
+		// it below the parent so the wrapper can be selected. Once the child or
+		// one of its properties is selected, keep it above the parent so it remains
+		// directly draggable.
+		if (equivalentHitArea && !descendantContainsSelection) {
 			addEdge(descendant, ancestor);
 		} else {
 			addEdge(ancestor, descendant);
 		}
 	};
 
-	for (let i = 0; i < outlines.length; i++) {
-		for (let j = i + 1; j < outlines.length; j++) {
-			const a = outlines[i];
-			const b = outlines[j];
-			const aTarget = targetsByKey.get(a.key);
-			const bTarget = targetsByKey.get(b.key);
+	const outlineBySequenceId = new Map<string, SelectedOutline>();
+	for (const outline of outlines) {
+		const sequenceId = getSequenceId(targetsByKey.get(outline.key));
+		if (sequenceId !== null) {
+			outlineBySequenceId.set(sequenceId, outline);
+		}
+	}
 
-			if (aTarget === undefined || bTarget === undefined) {
-				continue;
-			}
+	// Only constrain each outline against its nearest rendered ancestor. The
+	// resulting graph follows the sequence tree, so pairwise subpixel equivalence
+	// cannot introduce contradictory edges across three nested outlines.
+	for (const descendant of outlines) {
+		const descendantTarget = targetsByKey.get(descendant.key);
+		let parentId = descendantTarget?.sequence?.parent ?? null;
 
-			const aAncestorOfB = isAncestorTarget({
-				ancestor: aTarget,
-				descendant: bTarget,
-				parentBySequenceId,
-			});
-			const bAncestorOfA = isAncestorTarget({
-				ancestor: bTarget,
-				descendant: aTarget,
-				parentBySequenceId,
-			});
-
-			if (!aAncestorOfB && !bAncestorOfA) {
-				continue;
-			}
-
-			const equivalentHitArea = outlinesHaveEquivalentHitArea(a, b);
-
-			if (aAncestorOfB) {
+		while (parentId !== null) {
+			const ancestor = outlineBySequenceId.get(parentId);
+			if (ancestor !== undefined) {
 				addAncestorConstraint({
-					ancestor: a,
-					descendant: b,
-					equivalentHitArea,
+					ancestor,
+					descendant,
+					descendantContainsSelection:
+						(descendantTarget?.selected ?? false) ||
+						(descendantTarget?.containsSelection ?? false),
+					equivalentHitArea: outlinesHaveEquivalentHitArea(
+						ancestor,
+						descendant,
+					),
 				});
-			} else {
-				addAncestorConstraint({
-					ancestor: b,
-					descendant: a,
-					equivalentHitArea,
-				});
+				break;
 			}
+
+			parentId = parentBySequenceId.get(parentId) ?? null;
 		}
 	}
 

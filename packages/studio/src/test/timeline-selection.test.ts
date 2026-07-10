@@ -1923,6 +1923,136 @@ test('Canvas outline rendering puts equal-area child hit targets below parents',
 	]);
 });
 
+test('Canvas outline rendering keeps equal-area children containing selection above parents', () => {
+	const outlines = [
+		makeTestOutline({
+			key: 'parent',
+			left: 0,
+			top: 0,
+			width: 100,
+			height: 100,
+		}),
+		makeTestOutline({
+			key: 'child',
+			left: 0,
+			top: 0,
+			width: 100,
+			height: 100,
+		}),
+	];
+	const sequences = [
+		makeOutlineSequence({id: 'parent', parent: null}),
+		makeOutlineSequence({id: 'child', parent: 'parent'}),
+	];
+
+	for (const selectionState of [{selected: true}, {containsSelection: true}]) {
+		const orderedOutlines = orderOutlinesForRendering({
+			outlines,
+			sequences,
+			targetsByKey: new Map([
+				['parent', makeOutlineTarget({id: 'parent', parent: null})],
+				[
+					'child',
+					{
+						...makeOutlineTarget({id: 'child', parent: 'parent'}),
+						...selectionState,
+					},
+				],
+			]),
+		});
+
+		expect(orderedOutlines.map((outline) => outline.key)).toEqual([
+			'parent',
+			'child',
+		]);
+	}
+});
+
+test('Canvas outline rendering handles transitive subpixel equivalence', () => {
+	const orderedOutlines = orderOutlinesForRendering({
+		outlines: [
+			makeTestOutline({
+				key: 'parent',
+				left: 0,
+				top: 0,
+				width: 100,
+				height: 100,
+			}),
+			makeTestOutline({
+				key: 'child',
+				left: 0.4,
+				top: 0.4,
+				width: 100,
+				height: 100,
+			}),
+			makeTestOutline({
+				key: 'grandchild',
+				left: 0.8,
+				top: 0.8,
+				width: 100,
+				height: 100,
+			}),
+		],
+		sequences: [
+			makeOutlineSequence({id: 'parent', parent: null}),
+			makeOutlineSequence({id: 'child', parent: 'parent'}),
+			makeOutlineSequence({id: 'grandchild', parent: 'child'}),
+		],
+		targetsByKey: new Map([
+			['parent', makeOutlineTarget({id: 'parent', parent: null})],
+			['child', makeOutlineTarget({id: 'child', parent: 'parent'})],
+			['grandchild', makeOutlineTarget({id: 'grandchild', parent: 'child'})],
+		]),
+	});
+
+	expect(orderedOutlines.map((outline) => outline.key)).toEqual([
+		'grandchild',
+		'child',
+		'parent',
+	]);
+});
+
+test('Canvas outline equivalence ignores polygon start vertex and winding', () => {
+	const parent = makeTestOutline({
+		key: 'parent',
+		left: 0,
+		top: 0,
+		width: 100,
+		height: 100,
+	});
+	const child: SelectedOutline = {
+		...makeTestOutline({
+			key: 'child',
+			left: 0,
+			top: 0,
+			width: 100,
+			height: 100,
+		}),
+		points: [
+			{x: 100, y: 100},
+			{x: 100, y: 0},
+			{x: 0, y: 0},
+			{x: 0, y: 100},
+		],
+	};
+	const orderedOutlines = orderOutlinesForRendering({
+		outlines: [parent, child],
+		sequences: [
+			makeOutlineSequence({id: 'parent', parent: null}),
+			makeOutlineSequence({id: 'child', parent: 'parent'}),
+		],
+		targetsByKey: new Map([
+			['parent', makeOutlineTarget({id: 'parent', parent: null})],
+			['child', makeOutlineTarget({id: 'child', parent: 'parent'})],
+		]),
+	});
+
+	expect(orderedOutlines.map((outline) => outline.key)).toEqual([
+		'child',
+		'parent',
+	]);
+});
+
 test('Canvas outline rendering keeps lower-third wrappers reachable below larger overlapping sequences', () => {
 	const orderedOutlines = orderOutlinesForRendering({
 		outlines: [
@@ -1985,8 +2115,8 @@ test('Canvas outline rendering keeps lower-third wrappers reachable below larger
 
 	expect(orderedOutlines.map((outline) => outline.key)).toEqual([
 		'overlapping-keyframed-sequence',
-		'lower-third-container',
 		'lower-third-wrapper',
+		'lower-third-container',
 	]);
 });
 
