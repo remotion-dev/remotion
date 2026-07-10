@@ -27,6 +27,15 @@ async function* makeIteratorWithPrimingInner(
 	}
 }
 
+type MakeLoopingIteratorOptions = {
+	audioSink: AudioBufferSink;
+	seekTimeInSeconds: number;
+	loopStartInSeconds: number;
+	segmentEndInSeconds: number;
+	playbackRate: number;
+	sequenceDurationInSeconds: number;
+};
+
 async function* makeLoopingIterator({
 	audioSink,
 	seekTimeInSeconds,
@@ -34,14 +43,11 @@ async function* makeLoopingIterator({
 	segmentEndInSeconds,
 	playbackRate,
 	sequenceDurationInSeconds,
-}: {
-	audioSink: AudioBufferSink;
-	seekTimeInSeconds: number;
-	loopStartInSeconds: number;
-	segmentEndInSeconds: number;
-	playbackRate: number;
-	sequenceDurationInSeconds: number;
-}): AsyncGenerator<BufferWithMediaTimestamp, void, unknown> {
+}: MakeLoopingIteratorOptions): AsyncGenerator<
+	BufferWithMediaTimestamp,
+	void,
+	unknown
+> {
 	// The first pass starts at the seek position, every following pass replays
 	// the full loop segment from its start. Timestamps continue monotonically
 	// across passes so that chunks belonging to a later loop iteration can be

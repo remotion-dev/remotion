@@ -8,7 +8,7 @@ const CHUNK_DURATION = 1;
 // that straddles the requested start time.
 const makeMockAudioSink = (mediaDurationInSeconds: number) => {
 	return {
-		buffers: async function* (start: number, end: number) {
+		async *buffers(start: number, end: number) {
 			const firstChunk = Math.max(0, Math.floor(start));
 			const lastChunk = Math.min(mediaDurationInSeconds, end);
 			for (let i = firstChunk; i < lastChunk; i += CHUNK_DURATION) {
