@@ -110,6 +110,7 @@ test('parseEffectClipboardData accepts keyframed v3 effect payloads', () => {
 							],
 							easing: [{type: 'linear'}],
 							clamping: {left: 'clamp', right: 'clamp'},
+							output: 'exponential',
 						},
 					},
 				},
@@ -135,11 +136,43 @@ test('parseEffectClipboardData accepts keyframed v3 effect payloads', () => {
 						],
 						easing: [{type: 'linear'}],
 						clamping: {left: 'clamp', right: 'clamp'},
+						output: 'exponential',
 					},
 				},
 			},
 		],
 	});
+});
+
+test('parseEffectClipboardData rejects output for color keyframes', () => {
+	expect(
+		parseEffectClipboardData(
+			JSON.stringify({
+				type: 'effects-additive',
+				version: 3,
+				remotionClipboard: 'effects',
+				effects: [
+					{
+						callee: 'brightness',
+						importPath: '@remotion/effects/brightness',
+						params: {
+							color: {
+								type: 'keyframed',
+								interpolationFunction: 'interpolateColors',
+								keyframes: [
+									{frame: 0, value: 'red'},
+									{frame: 100, value: 'blue'},
+								],
+								easing: [{type: 'linear'}],
+								clamping: {left: 'clamp', right: 'clamp'},
+								output: 'exponential',
+							},
+						},
+					},
+				],
+			}),
+		),
+	).toBe(null);
 });
 
 test('parseEffectClipboardData accepts spring easing payloads', () => {

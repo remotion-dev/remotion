@@ -316,6 +316,70 @@ export const Example: React.FC = () => {
 	expect(output).not.toContain('posterize');
 });
 
+test('updateSequenceKeyframes updates output settings', async () => {
+	const input = `import React from 'react';
+import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
+
+export const Example: React.FC = () => {
+\tconst frame = useCurrentFrame();
+\treturn (
+\t\t<AbsoluteFill>
+\t\t\t<div style={{scale: interpolate(frame, [0, 100], [2, 4])}} />
+\t\t</AbsoluteFill>
+\t);
+};
+`;
+	const {output} = await updateSequenceKeyframes({
+		input,
+		nodePath: lineColumnToNodePath(input, getLine(input, 'scale')),
+		updates: [
+			{
+				key: 'style.scale',
+				operation: {
+					type: 'settings',
+					clamping: {left: 'extend', right: 'extend'},
+					output: 'exponential',
+					posterize: undefined,
+				},
+			},
+		],
+	});
+
+	expect(output).toContain("output: 'exponential'");
+});
+
+test('updateSequenceKeyframes removes linear output settings', async () => {
+	const input = `import React from 'react';
+import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
+
+export const Example: React.FC = () => {
+\tconst frame = useCurrentFrame();
+\treturn (
+\t\t<AbsoluteFill>
+\t\t\t<div style={{scale: interpolate(frame, [0, 100], [2, 4], {output: 'exponential'})}} />
+\t\t</AbsoluteFill>
+\t);
+};
+`;
+	const {output} = await updateSequenceKeyframes({
+		input,
+		nodePath: lineColumnToNodePath(input, getLine(input, 'scale')),
+		updates: [
+			{
+				key: 'style.scale',
+				operation: {
+					type: 'settings',
+					clamping: {left: 'extend', right: 'extend'},
+					output: 'linear',
+					posterize: undefined,
+				},
+			},
+		],
+	});
+
+	expect(output).not.toContain('output');
+});
+
 test('updateSequenceKeyframes sets one easing segment and fills linear segments', async () => {
 	const input = `import React from 'react';
 import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';

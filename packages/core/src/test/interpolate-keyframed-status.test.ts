@@ -21,6 +21,26 @@ test('interpolates linear numeric keyframes', () => {
 	expect(result).toBe(50);
 });
 
+test('interpolates numeric keyframes with exponential output', () => {
+	const result = interpolateKeyframedStatus({
+		forceSpringAllowTail: null,
+		frame: 30,
+		status: {
+			status: 'keyframed',
+			interpolationFunction: 'interpolate',
+			keyframes: [
+				{frame: 0, value: 1},
+				{frame: 60, value: 4},
+			],
+			easing: [{type: 'linear'}],
+			clamping: {left: 'extend', right: 'extend'},
+			output: 'exponential',
+			posterize: undefined,
+		},
+	});
+	expect(result).toBeCloseTo(2);
+});
+
 test('interpolates linear tuple keyframes', () => {
 	const result = interpolateKeyframedStatus({
 		forceSpringAllowTail: null,

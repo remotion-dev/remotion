@@ -102,3 +102,28 @@ test('optimisticUpdateEffectKeyframeSettings updates easing', () => {
 		{type: 'bezier', x1: 0, y1: 0, x2: 0.58, y2: 1},
 	]);
 });
+
+test('optimisticUpdateSequenceKeyframeSettings updates output', () => {
+	const updated = optimisticUpdateSequenceKeyframeSettings({
+		previous,
+		fieldKey: 'scale',
+		settings: {
+			type: 'settings',
+			clamping: {left: 'clamp', right: 'wrap'},
+			output: 'exponential',
+			posterize: 3,
+		},
+	});
+
+	if (!updated.canUpdate) {
+		throw new Error('expected updateable sequence');
+	}
+
+	const status = updated.props.scale;
+	if (!status || status.status !== 'keyframed') {
+		throw new Error('expected keyframed status');
+	}
+
+	expect(status.output).toBe('exponential');
+	expect(status.posterize).toBe(3);
+});

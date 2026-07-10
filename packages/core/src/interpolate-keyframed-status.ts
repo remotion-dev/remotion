@@ -96,6 +96,7 @@ export const interpolateKeyframedStatus = ({
 				),
 				extrapolateLeft: clamping.left,
 				extrapolateRight: clamping.right,
+				output: status.output,
 				posterize: status.posterize,
 			},
 		);

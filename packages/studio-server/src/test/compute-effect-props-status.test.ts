@@ -120,6 +120,37 @@ test('computeEffectPropStatus reports keyframes for inline interpolated effect p
 	});
 });
 
+test('computeEffectPropStatus reports output for inline interpolated effect props', () => {
+	const input = buildInput(
+		"[tint({amount: interpolate(frame, [0, 100], [0.2, 0.8], {output: 'exponential'})})]",
+	);
+	const {ast, jsx} = findJsx(input);
+	const result = computeEffectPropStatus({
+		ast,
+		jsx,
+		effectIndex: 0,
+		keys: ['amount'],
+	});
+
+	expect(result.canUpdate).toBe(true);
+	if (!result.canUpdate) {
+		throw new Error('expected canUpdate true');
+	}
+
+	expect(result.props.amount).toEqual({
+		status: 'keyframed',
+		interpolationFunction: 'interpolate',
+		keyframes: [
+			{frame: 0, value: 0.2},
+			{frame: 100, value: 0.8},
+		],
+		easing: [{type: 'linear'}],
+		clamping: {left: 'extend', right: 'extend'},
+		posterize: undefined,
+		output: 'exponential',
+	});
+});
+
 test('computeEffectPropStatus reports interpolations over computed values as computed', () => {
 	const input = `import {HtmlInCanvas} from '@remotion/html-in-canvas';
 import {tint} from '@remotion/effects/tint';

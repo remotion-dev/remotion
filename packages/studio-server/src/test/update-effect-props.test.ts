@@ -231,6 +231,7 @@ test('updateEffectProps writes keyframed effect params from clipboard data', () 
 				],
 				easing: [{type: 'bezier', x1: 0.1, y1: 0.2, x2: 0.3, y2: 0.4}],
 				clamping: {left: 'clamp', right: 'extend'},
+				output: 'exponential',
 				posterize: 2,
 			},
 			defaultValue: null,
@@ -247,6 +248,7 @@ test('updateEffectProps writes keyframed effect params from clipboard data', () 
 		'opacity: interpolate(frame, [0, 30], [0, 1], {',
 	);
 	expect(serialized).toContain('extrapolateLeft: "clamp"');
+	expect(serialized).toContain('output: "exponential"');
 	expect(serialized).toContain('easing: [Easing.bezier(0.1, 0.2, 0.3, 0.4)]');
 	expect(serialized).toContain('posterize: 2');
 	expect(newValueString).toContain('interpolate(frame, [0, 30], [0, 1]');

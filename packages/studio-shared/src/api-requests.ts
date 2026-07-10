@@ -18,6 +18,7 @@ import type {
 	CanUpdateSequencePropsResponseTrue,
 	CanUpdateSequencePropStatus,
 	ExtrapolateType,
+	InterpolateOutputOption,
 	InteractivitySchema,
 	JsxComponentIdentity,
 	SequenceNodePath,
@@ -558,6 +559,7 @@ export type KeyframeSettings =
 				  }
 				| undefined;
 			posterize: number | undefined;
+			output?: InterpolateOutputOption;
 	  }
 	| {
 			type: 'easing';

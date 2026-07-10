@@ -3,6 +3,7 @@ import React, {useCallback, useContext, useMemo, useState} from 'react';
 import type {
 	CanUpdateSequencePropStatusKeyframed,
 	ExtrapolateType,
+	InterpolateOutputOption,
 	SequencePropsSubscriptionKey,
 	InteractivitySchema,
 } from 'remotion';
@@ -84,6 +85,31 @@ const getExtrapolateValues = (
 	}));
 };
 
+const outputOptions = [
+	'linear',
+	'exponential',
+] as const satisfies InterpolateOutputOption[];
+
+const labelForOutput = (value: InterpolateOutputOption) =>
+	value[0].toUpperCase() + value.slice(1);
+
+const getOutputValues = (
+	onSelect: (value: InterpolateOutputOption) => void,
+): ComboboxValue[] => {
+	return outputOptions.map((value) => ({
+		type: 'item',
+		id: value,
+		keyHint: null,
+		label: labelForOutput(value),
+		leftItem: null,
+		disabled: false,
+		onClick: () => onSelect(value),
+		quickSwitcherLabel: null,
+		subMenu: null,
+		value,
+	}));
+};
+
 export type KeyframeSettingsModalState = {
 	type: 'keyframe-settings';
 	fileName: string;
@@ -103,9 +129,13 @@ export const KeyframeSettingsModal: React.FC<{
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const [left, setLeft] = useState(state.status.clamping.left);
 	const [right, setRight] = useState(state.status.clamping.right);
+	const [output, setOutput] = useState<InterpolateOutputOption>(
+		state.status.output ?? 'linear',
+	);
 	const [posterize, setPosterize] = useState(state.status.posterize ?? 0);
 	const [saving, setSaving] = useState(false);
 	const canEditClamping = state.status.interpolationFunction === 'interpolate';
+	const canEditOutput = state.status.interpolationFunction === 'interpolate';
 
 	const close = useCallback(() => {
 		setSelectedModal(null);
@@ -113,6 +143,7 @@ export const KeyframeSettingsModal: React.FC<{
 
 	const leftOptions = useMemo(() => getExtrapolateValues(setLeft), []);
 	const rightOptions = useMemo(() => getExtrapolateValues(setRight), []);
+	const outputValues = useMemo(() => getOutputValues(setOutput), []);
 
 	const onPosterizeChange = useCallback((value: number) => {
 		setPosterize(Math.max(0, Math.round(value)));
@@ -131,6 +162,7 @@ export const KeyframeSettingsModal: React.FC<{
 		const settings: KeyframeSettings = {
 			type: 'settings',
 			clamping: canEditClamping ? {left, right} : undefined,
+			output: canEditOutput ? output : undefined,
 			posterize: posterize <= 0 ? undefined : posterize,
 		};
 
@@ -162,8 +194,10 @@ export const KeyframeSettingsModal: React.FC<{
 		});
 	}, [
 		canEditClamping,
+		canEditOutput,
 		close,
 		left,
+		output,
 		posterize,
 		previewServerState,
 		right,
@@ -197,6 +231,17 @@ export const KeyframeSettingsModal: React.FC<{
 								style={comboStyle}
 							/>
 						</div>
+						{canEditOutput ? (
+							<div style={row}>
+								<div style={label}>Output</div>
+								<Combobox
+									values={outputValues}
+									selectedId={output}
+									title="Output"
+									style={comboStyle}
+								/>
+							</div>
+						) : null}
 					</>
 				) : null}
 				<div style={row}>

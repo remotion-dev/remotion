@@ -195,6 +195,7 @@ export const Comp = () => {
 						],
 						easing: [{type: 'bezier', x1: 0.1, y1: 0.2, x2: 0.3, y2: 0.4}],
 						clamping: {left: 'clamp', right: 'wrap'},
+						output: 'exponential',
 						posterize: 2,
 					},
 				},
@@ -212,6 +213,7 @@ export const Comp = () => {
 	expect(output).toContain('amount: interpolate(frame, [0, 100], [0, 1], {');
 	expect(output).toContain("extrapolateLeft: 'clamp'");
 	expect(output).toContain("extrapolateRight: 'wrap'");
+	expect(output).toContain("output: 'exponential'");
 	expect(output).toContain('easing: [Easing.bezier(0.1, 0.2, 0.3, 0.4)]');
 	expect(output).toContain('posterize: 2');
 });

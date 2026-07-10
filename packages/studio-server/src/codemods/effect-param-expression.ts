@@ -175,6 +175,15 @@ const makeKeyframedOptions = ({
 				) as ObjectProperty,
 			);
 		}
+
+		if (param.output === 'exponential') {
+			properties.push(
+				b.objectProperty(
+					b.identifier('output'),
+					b.stringLiteral(param.output),
+				) as ObjectProperty,
+			);
+		}
 	}
 
 	if (keyframedParamNeedsEasingImport(param)) {
