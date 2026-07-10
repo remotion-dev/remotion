@@ -4,6 +4,29 @@ import {exec} from 'node:child_process';
 import type {Writable} from 'stream';
 import open = require('open');
 
+const supportedChromiumBrowsers = [
+	'Google Chrome',
+	'Google Chrome Canary',
+	'Microsoft Edge',
+	'Brave Browser',
+	'Vivaldi',
+	'Chromium',
+	'Arc',
+] as const;
+
+export const getChromiumBrowsersToTry = (processes: string) => {
+	const processNames = new Set(
+		processes
+			.split('\n')
+			.map((line) => line.trim())
+			.filter(Boolean),
+	);
+
+	return supportedChromiumBrowsers.filter((browser) =>
+		processNames.has(browser),
+	);
+};
+
 const normalizeURLToMatch = (target: string) => {
 	// We may encounter URL parse error but want to fallback to default behavior
 	try {
@@ -39,17 +62,8 @@ const startBrowserProcess = async ({
 		let appleScriptDenied = false;
 
 		// Will use the first open browser found from list
-		const supportedChromiumBrowsers = [
-			'Google Chrome',
-			'Google Chrome Canary',
-			'Microsoft Edge',
-			'Brave Browser',
-			'Vivaldi',
-			'Chromium',
-			'Arc',
-		] as const;
 		const processes = await new Promise<string>((resolve, reject) => {
-			exec('ps cax', (err, stdout) => {
+			exec('ps -cax -o comm=', (err, stdout) => {
 				if (err) {
 					reject(err);
 				} else {
@@ -58,9 +72,7 @@ const startBrowserProcess = async ({
 			});
 		});
 
-		const browsersToTry = supportedChromiumBrowsers.filter((b) =>
-			processes.includes(b),
-		);
+		const browsersToTry = getChromiumBrowsersToTry(processes);
 
 		for (const chromiumBrowser of browsersToTry) {
 			if (appleScriptDenied) {
