@@ -1,7 +1,19 @@
 import {FEATURED_TEMPLATES} from './templates';
 
+const formatOption = ({
+	flag,
+	description,
+}: {
+	flag: string;
+	description: string;
+}) => {
+	return `  ${flag.padEnd(18)}${description}`;
+};
+
 const formatTemplateFlags = () => {
-	return FEATURED_TEMPLATES.map((template) => `--${template.cliId}`).join(', ');
+	return FEATURED_TEMPLATES.map((template) => `  --${template.cliId}`).join(
+		'\n',
+	);
 };
 
 export const getCreateVideoHelp = () => {
@@ -18,13 +30,26 @@ export const getCreateVideoHelp = () => {
 		'  directory       Directory in which the project should be created.',
 		'',
 		'Options:',
-		'  --yes, -y       Enable non-interactive mode. Requires a template flag and a directory, unless --tmp is used.',
-		'  --no-tailwind  Skip installing TailwindCSS when used with --yes.',
-		'  --tmp          Create the project in a temporary directory.',
-		'  --help, -h     Show this help.',
+		formatOption({
+			flag: '--yes, -y',
+			description:
+				'Enable non-interactive mode. Requires a template flag and a directory, unless --tmp is used.',
+		}),
+		formatOption({
+			flag: '--no-tailwind',
+			description: 'Skip installing TailwindCSS when used with --yes.',
+		}),
+		formatOption({
+			flag: '--tmp',
+			description: 'Create the project in a temporary directory.',
+		}),
+		formatOption({
+			flag: '--help, -h',
+			description: 'Show this help.',
+		}),
 		'',
 		'Template flags:',
-		`  ${formatTemplateFlags()}`,
+		formatTemplateFlags(),
 		'',
 		'Full documentation: https://www.remotion.dev/docs/cli/create-video',
 	].join('\n');

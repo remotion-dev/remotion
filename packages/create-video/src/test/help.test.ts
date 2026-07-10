@@ -11,8 +11,9 @@ test('prints a concise help output for create-video', () => {
 	expect(help).toContain('--tmp');
 	expect(help).toContain('--help, -h');
 	expect(help).toContain('https://www.remotion.dev/docs/cli/create-video');
+	expect(help).toContain('Template flags:\n  --blank\n  --hello-world');
 
 	for (const template of FEATURED_TEMPLATES) {
-		expect(help).toContain(`--${template.cliId}`);
+		expect(help).toContain(`\n  --${template.cliId}`);
 	}
 });
