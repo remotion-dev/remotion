@@ -10,12 +10,12 @@ Here is a compact overview of it's capabilities: https://mediabunny.dev/llms.txt
 
 ## Getting audio duration
 
-See [rules/get-audio-duration.md](rules/get-audio-duration.md) for getting the duration of an audio file in seconds with Mediabunny.
+See [get-audio-duration.md](get-audio-duration.md) for getting the duration of an audio file in seconds with Mediabunny.
 
 ## Getting video dimensions
 
-See [rules/get-video-dimensions.md](rules/get-video-dimensions.md) for getting the width and height of a video file with Mediabunny.
+See [get-video-dimensions.md](get-video-dimensions.md) for getting the width and height of a video file with Mediabunny.
 
 ## Getting video duration
 
-See [rules/get-video-duration.md](rules/get-video-duration.md) for getting the duration of a video file in seconds with Mediabunny.
+See [get-video-duration.md](get-video-duration.md) for getting the duration of a video file in seconds with Mediabunny.

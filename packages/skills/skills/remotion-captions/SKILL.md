@@ -25,12 +25,12 @@ type Caption = {
 
 ## Generating captions
 
-To transcribe video and audio files to generate captions, load the [rules/transcribe-captions.md](rules/transcribe-captions.md) file for more instructions.
+To transcribe video and audio files to generate captions, load the [transcribe-captions.md](transcribe-captions.md) file for more instructions.
 
 ## Displaying captions
 
-To display captions in your video, load the [rules/display-captions.md](rules/display-captions.md) file for more instructions.
+To display captions in your video, load the [display-captions.md](display-captions.md) file for more instructions.
 
 ## Importing captions
 
-To import captions from a .srt file, load the [rules/import-srt-captions.md](rules/import-srt-captions.md) file for more instructions.
+To import captions from a .srt file, load the [import-srt-captions.md](import-srt-captions.md) file for more instructions.

@@ -26,7 +26,7 @@ For static dimensions, duration, FPS, and initial props, inline the values on `<
 
 ## Setting duration based on a video
 
-Use the [`getVideoDuration`](../../mediabunny/rules/get-video-duration.md) and [`getVideoDimensions`](../../mediabunny/rules/get-video-dimensions.md) skills to get the video duration and dimensions:
+Use the [`getVideoDuration`](../mediabunny/get-video-duration.md) and [`getVideoDimensions`](../mediabunny/get-video-dimensions.md) skills to get the video duration and dimensions:
 
 ```tsx
 import { CalculateMetadataFunction } from "remotion";
@@ -45,7 +45,7 @@ const calculateMetadata: CalculateMetadataFunction<Props> = async ({
 
 ## Matching dimensions of a video
 
-Use the [`getVideoDimensions`](../../mediabunny/rules/get-video-dimensions.md) skill to get the video dimensions:
+Use the [`getVideoDimensions`](../mediabunny/get-video-dimensions.md) skill to get the video dimensions:
 
 ```tsx
 import { CalculateMetadataFunction } from "remotion";

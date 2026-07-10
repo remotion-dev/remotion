@@ -138,47 +138,47 @@ export const Subtitle = () => {
 
 ## Maps
 
-See [rules/map.md](rules/map.md) for choosing between simple static maps, Mapbox maps, and MapLibre maps.
+See [map.md](map.md) for choosing between simple static maps, Mapbox maps, and MapLibre maps.
 
 ## Voiceover
 
-See [rules/voiceover.md](rules/voiceover.md) for adding AI-generated voiceover to Remotion compositions using ElevenLabs TTS.
+See [voiceover.md](voiceover.md) for adding AI-generated voiceover to Remotion compositions using ElevenLabs TTS.
 
 ## Trimming
 
-See [rules/trimming.md](rules/trimming.md) for trimming patterns - cutting the beginning or end of animations.
+See [trimming.md](trimming.md) for trimming patterns - cutting the beginning or end of animations.
 
 ## Embedding Videos
 
-See [rules/embedding-videos.md](rules/embedding-videos.md) for advanced knowledge about embedding videos - trimming, volume, speed, looping, pitch.
+See [embedding-videos.md](embedding-videos.md) for advanced knowledge about embedding videos - trimming, volume, speed, looping, pitch.
 
 ## Embedding Audio
 
-See [rules/audio.md](rules/audio.md) for advanced audio features like trimming, volume, speed, pitch.
+See [audio.md](audio.md) for advanced audio features like trimming, volume, speed, pitch.
 
 ## Transitions
 
-See [rules/transitions.md](rules/transitions.md) for scene transition patterns.
+See [transitions.md](transitions.md) for scene transition patterns.
 
 ## Visual and pixel effects
 
-When creating a visual effect, prefer: 1. normal Remotion/HTML/CSS/SVG/filter/blend/mask animation, 2. a listed effect via [rules/effects.md](rules/effects.md), including on HTML rendered through `<HtmlInCanvas>`, 3. a custom `createEffect()` via [rules/effects.md](rules/effects.md) when the user asks for a reusable/project-specific effect, 4. custom `<HtmlInCanvas onPaint>` via [rules/html-in-canvas.md](rules/html-in-canvas.md) only if no effect fits.
+When creating a visual effect, prefer: 1. normal Remotion/HTML/CSS/SVG/filter/blend/mask animation, 2. a listed effect via [effects.md](effects.md), including on HTML rendered through `<HtmlInCanvas>`, 3. a custom `createEffect()` via [effects.md](effects.md) when the user asks for a reusable/project-specific effect, 4. custom `<HtmlInCanvas onPaint>` via [html-in-canvas.md](html-in-canvas.md) only if no effect fits.
 
-For light leak overlays, see [rules/light-leaks.md](rules/light-leaks.md). Docs: https://www.remotion.dev/docs/effects
+For light leak overlays, see [light-leaks.md](light-leaks.md). Docs: https://www.remotion.dev/docs/effects
 
 Available effects: `brightness()`, `contrast()`, `colorKey()`, `duotone()`, `grayscale()`, `hue()`, `invert()`, `saturation()`, `tint()`, `linearGradient()`, `linearGradientTint()`, `thermalVision()`, `blur()`, `linearProgressiveBlur()`, `radialProgressiveBlur()`, `zoomBlur()`, `dropShadow()`, `glow()`, `lightTrail()`, `evolve()`, `venetianBlinds()`, `mirror()`, `scale()`, `uvTranslate()`, `xyTranslate()`, `barrelDistortion()`, `chromaticAberration()`, `fisheye()`, `cornerPin()`, `wave()`, `burlap()`, `emboss()`, `dotGrid()`, `halftone()`, `noise()`, `noiseDisplacement()`, `paper()`, `roughenEdges()`, `pattern()`, `pixelate()`, `pixelDissolve()`, `scanlines()`, `speckle()`, `shine()`, `shrinkwrap()`, `vignette()`, `contourLines()`, `checkerboard()`, `halftoneLinearGradient()`, `gridlines()`, `whiteNoise()`, `tvSignalOff()`, `lines()`, `rings()`, `waves()`, `zigzag()`, `lightLeak()`, `starburst()`.
 
 ## 3D content
 
-See [rules/3d.md](rules/3d.md) for 3D content in Remotion using Three.js and React Three Fiber.
+See [3d.md](3d.md) for 3D content in Remotion using Three.js and React Three Fiber.
 
 ## Sound effects
 
-When needing to use sound effects, load the [./rules/sfx.md](./rules/sfx.md) file for more information.
+When needing to use sound effects, load the [./sfx.md](./sfx.md) file for more information.
 
 ## Audio visualization
 
-When needing to visualize audio (spectrum bars, waveforms, bass-reactive effects), load the [./rules/audio-visualization.md](./rules/audio-visualization.md) file for more information.
+When needing to visualize audio (spectrum bars, waveforms, bass-reactive effects), load the [./audio-visualization.md](./audio-visualization.md) file for more information.
 
 ## Captions
 
@@ -186,59 +186,59 @@ When dealing with captions or subtitles, load the [Remotion Captions](../remotio
 
 ## Google Fonts
 
-Is the recommended way to load fonts in Remotion. See [rules/google-fonts.md](rules/google-fonts.md) for how to load Google Fonts.
+Is the recommended way to load fonts in Remotion. See [google-fonts.md](google-fonts.md) for how to load Google Fonts.
 
 ## Local fonts
 
-See [rules/local-fonts.md](rules/local-fonts.md) for how to load local fonts.
+See [local-fonts.md](local-fonts.md) for how to load local fonts.
 
 ## GIFs
 
-See [rules/gifs.md](rules/gifs.md) for how to display GIFs synchronized with Remotion's timeline.
+See [gifs.md](gifs.md) for how to display GIFs synchronized with Remotion's timeline.
 
 ## Advanced Images
 
-See [rules/images.md](rules/images.md) for sizing and positioning images, dynamic image paths, and getting image dimensions.
+See [images.md](images.md) for sizing and positioning images, dynamic image paths, and getting image dimensions.
 
 ## Lottie animations
 
-See [rules/lottie.md](rules/lottie.md) for embedding Lottie animations in Remotion.
+See [lottie.md](lottie.md) for embedding Lottie animations in Remotion.
 
 ## Advanced timing
 
-See [rules/timing.md](rules/timing.md) for advanced timing with `interpolate` and Bézier easing, and springs.
+See [timing.md](timing.md) for advanced timing with `interpolate` and Bézier easing, and springs.
 
 ## Parameterized videos
 
-See [rules/parameters.md](rules/parameters.md) for making a composition parametrizable by adding a Zod schema.
+See [parameters.md](parameters.md) for making a composition parametrizable by adding a Zod schema.
 
 ## Measuring DOM nodes
 
-See [rules/measuring-dom-nodes.md](rules/measuring-dom-nodes.md) for measuring DOM element dimensions in Remotion.
+See [measuring-dom-nodes.md](measuring-dom-nodes.md) for measuring DOM element dimensions in Remotion.
 
 ## Measuring text
 
-See [rules/measuring-text.md](rules/measuring-text.md) for measuring text dimensions, fitting text to containers, and checking overflow.
+See [measuring-text.md](measuring-text.md) for measuring text dimensions, fitting text to containers, and checking overflow.
 
 ## Using FFmpeg
 
-For some video operations, such as trimming videos or detecting silence, FFmpeg should be used. Load the [./rules/ffmpeg.md](./rules/ffmpeg.md) file for more information.
+For some video operations, such as trimming videos or detecting silence, FFmpeg should be used. Load the [./ffmpeg.md](./ffmpeg.md) file for more information.
 
 ## Silence detection
 
-When needing to detect and trim silent segments from video or audio files, load the [./rules/silence-detection.md](./rules/silence-detection.md) file.
+When needing to detect and trim silent segments from video or audio files, load the [./silence-detection.md](./silence-detection.md) file.
 
 ## Dynamic duration, dimensions and data
 
-See [rules/calculate-metadata.md](rules/calculate-metadata.md) for dynamically set composition duration, dimensions, and props.
+See [calculate-metadata.md](calculate-metadata.md) for dynamically set composition duration, dimensions, and props.
 
 ## Advanced compositions
 
-See [rules/compositions.md](rules/compositions.md) for how to define stills, folders, default props and for how to nest compositions.
+See [compositions.md](compositions.md) for how to define stills, folders, default props and for how to nest compositions.
 
 ## Advanced sequencing
 
-See [rules/sequencing.md](rules/sequencing.md) for more sequencing patterns - delay, trim, limit duration of items.
+See [sequencing.md](sequencing.md) for more sequencing patterns - delay, trim, limit duration of items.
 
 ## Install modules
 

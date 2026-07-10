@@ -55,7 +55,7 @@ writeFileSync(`public/voiceover/${compositionId}/${scene.id}.mp3`, audioBuffer);
 
 ## Dynamic composition duration with calculateMetadata
 
-Use [`calculateMetadata`](./calculate-metadata.md) to measure the [audio durations](../../mediabunny/rules/get-audio-duration.md) and set the composition length accordingly.
+Use [`calculateMetadata`](./calculate-metadata.md) to measure the [audio durations](../mediabunny/get-audio-duration.md) and set the composition length accordingly.
 
 ```tsx
 import { CalculateMetadataFunction, staticFile } from "remotion";
