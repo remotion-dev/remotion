@@ -1,6 +1,6 @@
 ---
 name: remotion-best-practices
-description: Best practices and domain knowledge for building videos programmatically with Remotion (videos in React/TypeScript, rendered to MP4). Use whenever writing or editing Remotion code — scaffolding a video project, animating with interpolate/spring over useCurrentFrame(), sequencing scenes and transitions, captions/subtitles, audio, GIFs/Lottie/3D, charts, visual effects, dynamic duration via calculateMetadata, or rendering. Consult before reaching for a Remotion API, since its components and props evolve (e.g. @remotion/media).
+description: Best practices for Remotion
 metadata:
   tags: remotion, video, react, animation, composition
 ---
@@ -155,27 +155,69 @@ const Main = () => {
 }
 ```
 
-The width, height, fps, and duration of a video is defined in `src/Root.tsx`:
+Use the default blank-template structure for new compositions:
+
+- `src/Composition.tsx` exports both the composition registration component and
+  the rendered video component.
+- `src/Root.tsx` imports the composition registration component and renders it.
+- `src/index.ts` registers `RemotionRoot`.
+
+In `src/Composition.tsx`, keep the component, props type, `calculateMetadata()`,
+and `<Composition>` registration together. Keep static `durationInFrames`,
+`fps`, `width`, and `height` inline on `<Composition>`.
 
 ```tsx
-import { Composition } from "remotion";
-import { MyComposition } from "./MyComposition";
+import { CalculateMetadataFunction, Composition } from "remotion";
 
-export const RemotionRoot = () => {
+type Props = {};
+
+const calculateMetadata: CalculateMetadataFunction<Props> = () => {
+  return {};
+};
+
+export const MyComposition = () => {
   return (
     <Composition
-      id="MyComposition"
-      component={MyComposition}
-      durationInFrames={100}
+      id="MyComp"
+      component={MyComponent}
+      durationInFrames={60}
       fps={30}
-      width={1080}
-      height={1080}
+      width={1280}
+      height={720}
+      calculateMetadata={calculateMetadata}
     />
+  );
+};
+
+export const MyComponent: React.FC<Props> = () => {
+  return null;
+};
+```
+
+In `src/Root.tsx`:
+
+```tsx
+import { MyComposition } from "./Composition";
+
+export const RemotionRoot: React.FC = () => {
+  return (
+    <>
+      <MyComposition />
+    </>
   );
 };
 ```
 
-For scaffolds that should stay editable in Studio, keep the component and `<Composition>` registration in the same file so the dimensions, duration, FPS, and defaults stay visible next to the rendered code.
+In `src/index.ts`:
+
+```tsx
+import { registerRoot } from "remotion";
+import { RemotionRoot } from "./Root";
+
+registerRoot(RemotionRoot);
+```
+
+For scaffolds that should stay editable in Studio, keep the component and `<Composition>` registration in `src/Composition.tsx` so the dimensions, duration, FPS, and defaults stay visible next to the rendered code.
 Use `defaultProps` for composition-wide values and keep it as an inline object literal on `<Composition>` or `<Still>`.
 
 Metadata can also be calculated dynamically when it depends on input props, fetched data, or asset metadata:
@@ -201,8 +243,8 @@ const calculateMetadata: CalculateMetadataFunction<Props> = async ({
 };
 
 <Composition
-  id="MyComposition"
-  component={MyComposition}
+  id="MyComp"
+  component={MyComponent}
   fps={30}
   width={1080}
   height={1080}
@@ -354,7 +396,7 @@ See [rules/trimming.md](rules/trimming.md) for trimming patterns - cutting the b
 
 ## Advanced Videos
 
-See [rules/videos.md](rules/videos.md) for advanced knowledge about embedding videos - trimming, volume, speed, looping, pitch.
+See [rules/embedding-videos.md](rules/embedding-videos.md) for advanced knowledge about embedding videos - trimming, volume, speed, looping, pitch.
 
 ## Parameterized videos
 
