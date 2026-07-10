@@ -90,7 +90,8 @@ export const MyComposition = () => {
 };
 ```
 
-Add video and audio using `@remotion/media`. Use `staticFile()` for files in `public/` or pass a remote URL directly:
+Add video and audio using `@remotion/media`.  
+Use `staticFile()` for files in `public/` or pass a remote URL directly:
 
 ```tsx
 import { Audio, Video } from "@remotion/media";
@@ -143,10 +144,10 @@ const Main = () => {
       <Sequence>
         <Background />
       </Sequence>
-      <Sequence from={1 * fps} durationInFrames={2 * fps} layout="none">
+      <Sequence from={30} durationInFrames={60} layout="none">
         <Title />
       </Sequence>
-      <Sequence from={2 * fps} durationInFrames={2 * fps} layout="none">
+      <Sequence from={60} durationInFrames={60} layout="none">
         <Subtitle />
       </Sequence>
     </AbsoluteFill>
@@ -212,11 +213,21 @@ const calculateMetadata: CalculateMetadataFunction<Props> = async ({
 
 ## Starting preview
 
-Start the Remotion Studio to preview a video:
-
 ```bash
-npx remotion studio
+npx remotion studio --no-open
 ```
+
+This will start a long-running process and print the server URL for the preview.
+
+## Install modules
+
+Use `npx remotion add` to add new packages with the right version:
+
+```
+npx remotion add @remotion/media
+```
+
+This goes for `@remotion/*` packages, `mediabunny`, `@mediabunny/*`, and `zod`.
 
 ## Optional: one-frame render check
 
@@ -359,4 +370,4 @@ See [rules/voiceover.md](rules/voiceover.md) for adding AI-generated voiceover t
 
 ## Creating a SaaS, automation or application
 
-For Remotion SaaS apps, template selection, Player integration in a web app, Lambda setup, Vercel Sandbox, Web Renderer, Express render servers, or choosing a rendering architecture, use the [Remotion SaaS skill](../remotion-saas/SKILL.md).
+Use the [Remotion SaaS skill](../remotion-saas/SKILL.md) for knowledge about Remotion-powered SaaS apps, such as `<Player>`, rendering on Lambda, Vercel, Cloudflare, via Express.js, client-side rendering, or for finding the right SaaS template.
