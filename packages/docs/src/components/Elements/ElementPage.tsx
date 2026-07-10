@@ -4,20 +4,24 @@ import {
 } from '@remotion/studio-shared';
 import React, {
 	useCallback,
+	useId,
 	useMemo,
 	useState,
 	type ComponentType,
 	type ReactNode,
 } from 'react';
 import {AbsoluteFill, Sequence} from 'remotion';
-import {Credits, type Contributor} from '../Credits';
+import {BlueButton, PlainButton} from '../../../components/layout/Button';
+import {type Contributor} from '../Credits';
 import {setElementDragData, setElementDragImage} from './element-drag-data';
 import {ElementPreview} from './ElementPreview';
+import styles from './ElementPage.module.css';
 
 type ElementPageProps = {
 	readonly children?: ReactNode;
 	readonly component: ComponentType<Record<string, never>>;
 	readonly contributors?: Contributor[];
+	readonly description: ReactNode;
 	readonly displayName?: string;
 	readonly durationInFrames?: number;
 	readonly elementHeight?: number;
@@ -28,42 +32,6 @@ type ElementPageProps = {
 	readonly slug?: string;
 	readonly sourceCode?: string;
 	readonly width?: number;
-};
-
-const actionButtonStyle: React.CSSProperties = {
-	display: 'inline-flex',
-	alignItems: 'center',
-	gap: 10,
-	padding: '12px 16px',
-	borderRadius: 10,
-	border: '1px solid var(--ifm-color-emphasis-300)',
-	background: 'var(--ifm-background-surface-color)',
-	boxShadow: '0 6px 20px rgba(0, 0, 0, 0.08)',
-	fontWeight: 700,
-	userSelect: 'none',
-};
-
-const dragButtonStyle: React.CSSProperties = {
-	...actionButtonStyle,
-	cursor: 'grab',
-};
-
-const installButtonStyle: React.CSSProperties = {
-	...actionButtonStyle,
-	cursor: 'pointer',
-};
-
-const disabledInstallButtonStyle: React.CSSProperties = {
-	...installButtonStyle,
-	cursor: 'not-allowed',
-	opacity: 0.65,
-};
-
-const actionRowStyle: React.CSSProperties = {
-	display: 'flex',
-	flexWrap: 'wrap',
-	gap: 12,
-	alignItems: 'center',
 };
 
 type ElementInstallTarget = {
@@ -140,6 +108,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 	children,
 	component,
 	contributors,
+	description,
 	displayName,
 	durationInFrames = 120,
 	elementHeight,
@@ -154,6 +123,8 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 	const [installStatus, setInstallStatus] = useState<InstallStatus>({
 		type: 'idle',
 	});
+	const [isSourceVisible, setIsSourceVisible] = useState(false);
+	const sourceId = useId();
 	const hasElementDimensions =
 		elementWidth !== undefined && elementHeight !== undefined;
 	const previewWidth =
@@ -287,87 +258,152 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 	]);
 
 	return (
-		<>
-			<h2>Preview</h2>
-			<ElementPreview
-				component={PreviewComponent}
-				durationInFrames={durationInFrames}
-				fps={fps}
-				height={previewHeight}
-				width={previewWidth}
-			/>
-
-			<h2>Use it</h2>
-			<p>
-				Copy the source code into your Remotion project. The file exports the
-				Element component. Preview dimensions, frame rate, and duration are
-				supplied by the gallery.
-			</p>
-			{dragData === null ? null : (
-				<>
-					<p style={actionRowStyle}>
-						<button
-							disabled={installStatus.type === 'installing'}
-							onClick={installElement}
-							style={
-								installStatus.type === 'installing'
-									? disabledInstallButtonStyle
-									: installButtonStyle
-							}
-							title="Install into the most recently focused Remotion Studio"
-							type="button"
-						>
-							<span aria-hidden="true">＋</span>
-							{installStatus.type === 'installing'
-								? 'Finding Studio…'
-								: 'Install Element'}
-						</button>
-						<button
-							draggable
-							onDragStart={(event) => {
-								setElementDragData({
-									dataTransfer: event.dataTransfer,
-									dragData,
-								});
-								setElementDragImage(event.dataTransfer);
-							}}
-							style={dragButtonStyle}
-							title="Drag into Remotion Studio"
-							type="button"
-						>
-							<span aria-hidden="true">↘</span>
-							Drag into Remotion Studio
-						</button>
-					</p>
-					{installStatus.type === 'success' ||
-					installStatus.type === 'error' ? (
-						<p
-							style={{
-								color:
-									installStatus.type === 'success'
-										? 'var(--ifm-color-success-dark)'
-										: 'var(--ifm-color-danger-dark)',
-							}}
-						>
-							{installStatus.message}{' '}
-							{installStatus.type === 'success' ? (
-								<a
-									href={installStatus.studioUrl}
-									rel="noreferrer"
-									target="_blank"
-								>
-									Open Studio
-								</a>
-							) : null}
-						</p>
+		<div className={styles.workbench}>
+			<section aria-label="Preview" className={styles.previewColumn}>
+				<div className={styles.previewAndSource}>
+					<ElementPreview
+						component={PreviewComponent}
+						durationInFrames={durationInFrames}
+						fps={fps}
+						height={previewHeight}
+						width={previewWidth}
+					/>
+					{children ? (
+						<div className={styles.sourceArea}>
+							<div
+								aria-label="Element source code"
+								className={`${styles.sourceViewport} ${
+									isSourceVisible ? '' : styles.sourceViewportCollapsed
+								}`}
+								id={sourceId}
+								inert={!isSourceVisible}
+								role="region"
+							>
+								{children}
+							</div>
+							{isSourceVisible ? null : (
+								<div className={styles.sourceReveal}>
+									<button
+										aria-controls={sourceId}
+										aria-expanded={isSourceVisible}
+										className={styles.sourceToggle}
+										onClick={() => setIsSourceVisible(true)}
+										type="button"
+									>
+										View code
+									</button>
+								</div>
+							)}
+						</div>
 					) : null}
-				</>
-			)}
+				</div>
+			</section>
 
-			<h2>Source</h2>
-			{children}
+			<aside
+				aria-label="Element details and actions"
+				className={styles.actionsColumn}
+			>
+				<div className={styles.useIt}>
+					{dragData === null ? null : (
+						<>
+							<div className={styles.actionRow}>
+								<BlueButton
+									fullWidth
+									loading={installStatus.type === 'installing'}
+									onClick={installElement}
+									size="sm"
+									style={{padding: '7px 12px'}}
+									title="Install into the most recently focused Remotion Studio"
+								>
+									{installStatus.type === 'installing'
+										? 'Finding Studio…'
+										: 'Install Element'}
+								</BlueButton>
+								<PlainButton
+									draggable
+									fullWidth
+									loading={false}
+									onDragStart={(event) => {
+										setElementDragData({
+											dataTransfer: event.dataTransfer,
+											dragData,
+										});
+										setElementDragImage(event.dataTransfer);
+									}}
+									size="sm"
+									style={{cursor: 'grab', padding: '7px 12px'}}
+									title="Drag into Remotion Studio"
+								>
+									Drag into Studio
+								</PlainButton>
+							</div>
+							{installStatus.type === 'success' ||
+							installStatus.type === 'error' ? (
+								<p
+									aria-live="polite"
+									className={
+										installStatus.type === 'success'
+											? styles.successStatus
+											: styles.errorStatus
+									}
+								>
+									{installStatus.message}{' '}
+									{installStatus.type === 'success' ? (
+										<a
+											href={installStatus.studioUrl}
+											rel="noreferrer"
+											target="_blank"
+										>
+											Open Studio
+										</a>
+									) : null}
+								</p>
+							) : null}
+						</>
+					)}
 
-			{contributors?.length ? <Credits contributors={contributors} /> : null}
-		</>
+					<div className={styles.details}>
+						<p className={styles.description}>{description}</p>
+						<dl className={styles.metadata}>
+							<div>
+								<dt>Dimensions</dt>
+								<dd>
+									{elementWidth ?? width} × {elementHeight ?? height}px
+								</dd>
+							</div>
+						</dl>
+					</div>
+
+					{contributors?.length ? (
+						<div aria-label="Contributors" className={styles.contributors}>
+							<span className={styles.contributorsLabel}>Created by</span>
+							<div className={styles.contributorList}>
+								{contributors.map((contributor) => (
+									<a
+										key={contributor.username}
+										className={styles.contributor}
+										href={`https://github.com/${contributor.username}`}
+										rel="noopener noreferrer"
+										target="_blank"
+									>
+										<img
+											alt=""
+											className={styles.contributorAvatar}
+											src={`https://github.com/${contributor.username}.png`}
+										/>
+										<span className={styles.contributorText}>
+											<strong>@{contributor.username}</strong>
+											{contributor.contribution === 'Author' ? null : (
+												<span>{contributor.contribution}</span>
+											)}
+										</span>
+									</a>
+								))}
+							</div>
+						</div>
+					) : null}
+				</div>
+			</aside>
+		</div>
 	);
 };

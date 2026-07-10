@@ -63,6 +63,20 @@ h6 {
 	display: none;
 }
 
+@media (min-width: 1200px) {
+	.plugin-id-elements main > .container {
+		max-width: 1440px;
+	}
+
+	.plugin-id-elements main > .container > .row > .col {
+		max-width: 100% !important;
+	}
+}
+
+.plugin-id-elements .theme-doc-markdown > h1:first-child {
+	margin-bottom: 0.75rem;
+}
+
 :root {
 	--ifm-color-primary: #0b84f3;
 	--ifm-color-primary-dark: #0a77db;

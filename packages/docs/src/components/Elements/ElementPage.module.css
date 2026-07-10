@@ -1,0 +1,256 @@
+.workbench {
+	margin-top: 28px;
+	margin-bottom: 28px;
+}
+
+.previewColumn,
+.actionsColumn {
+	min-width: 0;
+}
+
+.previewAndSource {
+	overflow: hidden;
+	border: 1px solid var(--ifm-color-emphasis-300);
+	border-radius: 12px;
+	background: var(--ifm-background-surface-color);
+}
+
+.sourceArea {
+	position: relative;
+	border-top: 1px solid var(--ifm-color-emphasis-300);
+	background: #282a36;
+}
+
+.sourceToggle {
+	border-radius: 8px;
+	font: inherit;
+	font-weight: 700;
+	min-height: 34px;
+	padding: 5px 10px;
+	font-size: 0.875rem;
+	border: 1px solid #4b4d57;
+	background: #18191f;
+	box-shadow: 0 2px 10px rgb(0 0 0 / 35%);
+	color: #fff;
+	cursor: pointer;
+}
+
+.sourceToggle:hover {
+	background: #23242c;
+}
+
+.sourceToggle:focus-visible,
+.contributor:focus-visible {
+	outline: 2px solid var(--ifm-color-primary);
+	outline-offset: 2px;
+}
+
+.sourceViewport {
+	height: 360px;
+	overflow: auto;
+	overscroll-behavior: contain;
+	background: #282a36;
+}
+
+.sourceViewportCollapsed {
+	height: 180px;
+	overflow: hidden;
+	pointer-events: none;
+	user-select: none;
+}
+
+.sourceReveal {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: linear-gradient(
+		to bottom,
+		rgb(40 42 54 / 5%) 0%,
+		rgb(40 42 54 / 72%) 58%,
+		#282a36 100%
+	);
+}
+
+.sourceViewport :global(.theme-code-block),
+.sourceViewport :global([class*='codeBlockContainer']) {
+	margin: 0 !important;
+	border-radius: 0 !important;
+	box-shadow: none !important;
+}
+
+.sourceViewport :global(pre) {
+	min-height: 100%;
+	max-height: none !important;
+	margin: 0 !important;
+	border: 0 !important;
+	border-radius: 0 !important;
+}
+
+.useIt {
+	padding: 12px;
+	border: 1px solid var(--ifm-color-emphasis-300);
+	border-radius: 12px;
+	background: var(--ifm-background-surface-color);
+}
+
+.actionRow {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 10px;
+}
+
+.successStatus,
+.errorStatus {
+	margin: 12px 0 0;
+	font-size: 0.875rem;
+}
+
+.successStatus {
+	color: var(--ifm-color-success-dark);
+}
+
+.errorStatus {
+	color: var(--ifm-color-danger-dark);
+}
+
+.details {
+	margin-top: 16px;
+	padding-top: 16px;
+	border-top: 1px solid var(--ifm-color-emphasis-200);
+}
+
+.description {
+	margin: 0;
+	font-size: 0.875rem;
+	line-height: 1.5;
+	color: var(--ifm-color-emphasis-800);
+}
+
+.metadata {
+	margin: 14px 0 0;
+	font-size: 0.8125rem;
+}
+
+.metadata > div {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 12px;
+}
+
+.metadata dt {
+	font-weight: 600;
+	color: var(--ifm-color-emphasis-700);
+}
+
+.metadata dd {
+	margin: 0;
+	font-variant-numeric: tabular-nums;
+	font-weight: 600;
+}
+
+.contributors {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	min-width: 0;
+}
+
+.contributors:not(:first-child) {
+	margin-top: 16px;
+	padding-top: 16px;
+	border-top: 1px solid var(--ifm-color-emphasis-200);
+}
+
+.contributorsLabel {
+	flex: none;
+	font-size: 0.8125rem;
+	font-weight: 600;
+	color: var(--ifm-color-emphasis-700);
+}
+
+.contributorList {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+	min-width: 0;
+}
+
+.contributors .contributor {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	min-width: 0;
+	padding: 4px 6px;
+	border-radius: 8px;
+	color: var(--ifm-font-color-base);
+	text-decoration: none;
+}
+
+.contributors .contributor:hover {
+	background: var(--ifm-color-emphasis-100);
+	color: var(--ifm-color-primary);
+	text-decoration: none;
+}
+
+.contributorAvatar {
+	width: 28px;
+	height: 28px;
+	flex: none;
+	border-radius: 50%;
+	outline: 1px solid
+		color-mix(in srgb, var(--ifm-font-color-base) 10%, transparent);
+	outline-offset: -1px;
+}
+
+.contributorText {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+	font-size: 0.8125rem;
+	line-height: 1.25;
+}
+
+.contributorText > span {
+	color: var(--ifm-color-emphasis-700);
+}
+
+@media (min-width: 1200px) {
+	.workbench {
+		display: grid;
+		grid-template-columns: minmax(0, 3fr) minmax(260px, 1fr);
+		align-items: start;
+		gap: 24px;
+	}
+
+	.actionsColumn .actionRow,
+	.actionsColumn .contributors,
+	.actionsColumn .contributorList {
+		align-items: stretch;
+		flex-direction: column;
+	}
+}
+
+@media (max-width: 600px) {
+	.sourceViewport {
+		height: 320px;
+	}
+
+	.sourceViewportCollapsed {
+		height: 160px;
+	}
+
+	.actionRow {
+		align-items: stretch;
+		flex-direction: column;
+	}
+
+	.contributors {
+		align-items: flex-start;
+		flex-direction: column;
+		gap: 10px;
+	}
+}
