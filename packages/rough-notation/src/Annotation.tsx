@@ -93,7 +93,7 @@ const paddingSchema = {
 	},
 } as const satisfies InteractivitySchema;
 
-const annotationInteractiveSchema = {
+export const annotationInteractiveSchema: InteractivitySchema = {
 	...Interactive.baseSchema,
 	progress: {
 		type: 'number',
@@ -117,26 +117,6 @@ const annotationInteractiveSchema = {
 	...iterationsSchema,
 	...rtlSchema,
 	...paddingSchema,
-	brackets: {
-		type: 'array',
-		item: {
-			type: 'enum',
-			variants: ['left', 'right', 'top', 'bottom'],
-		},
-		default: ['right'],
-		newItemDefault: 'right',
-		description: 'Brackets',
-	},
-	box: {
-		type: 'enum',
-		default: 'around',
-		description: 'Box',
-		keyframable: false,
-		variants: {
-			inside: {},
-			around: {},
-		},
-	},
 	type: {
 		type: 'enum',
 		default: 'underline',
@@ -146,13 +126,35 @@ const annotationInteractiveSchema = {
 			underline: {},
 			'strike-through': {},
 			box: {},
-			bracket: {},
+			bracket: {
+				brackets: {
+					type: 'array',
+					item: {
+						type: 'enum',
+						variants: ['left', 'right', 'top', 'bottom'],
+					},
+					default: ['right'],
+					newItemDefault: 'right',
+					description: 'Brackets',
+				},
+			},
 			'crossed-off': {},
-			circle: {},
+			circle: {
+				box: {
+					type: 'enum',
+					default: 'around',
+					description: 'Box',
+					keyframable: false,
+					variants: {
+						inside: {},
+						around: {},
+					},
+				},
+			},
 			highlight: {},
 		},
 	},
-} as const satisfies InteractivitySchema;
+};
 
 const AnnotationOnTopInner: React.FC<
 	AnnotationInteractiveProps & {
