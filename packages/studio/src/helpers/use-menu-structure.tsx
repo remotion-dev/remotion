@@ -36,6 +36,7 @@ import {useMobileLayout} from './mobile-layout';
 import {openInEditor, preloadCompositionComponentInfo} from './open-in-editor';
 import {pickColor} from './pick-color';
 import {SHOW_BROWSER_RENDERING} from './show-browser-rendering';
+import {getStudioAskAIEnabled} from './studio-runtime-config';
 import {areKeyboardShortcutsDisabled} from './use-keybinding';
 
 type Structure = Menu[];
@@ -785,7 +786,7 @@ export const useMenuStructure = (
 				label: 'Tools',
 				leaveLeftPadding: false,
 				items: [
-					process.env.ASK_AI_ENABLED
+					getStudioAskAIEnabled()
 						? {
 								id: 'ask-ai',
 								value: 'ask-ai',

@@ -7,6 +7,7 @@ import {
 	WHITE,
 	WHITE_ALPHA_10,
 } from '../helpers/colors';
+import {getStudioAskAIEnabled} from '../helpers/studio-runtime-config';
 import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
 import {ArrowLeft, ArrowRight, ShiftIcon} from '../icons/keys';
 import {Column, Row, Spacing} from './layout';
@@ -401,7 +402,7 @@ export const KeyboardShortcutsExplainer: React.FC = () => {
 						</div>
 						<div style={right}>Delete / reset selection</div>
 					</Row>
-					{process.env.ASK_AI_ENABLED && (
+					{getStudioAskAIEnabled() && (
 						<>
 							<br />
 							<div style={title}>AI</div>

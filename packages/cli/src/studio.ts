@@ -155,6 +155,25 @@ export const studioCommand = async (
 		);
 	}
 
+	const getStudioRuntimeConfig = () => ({
+		maxTimelineTracks: ConfigInternals.getMaxTimelineTracks(),
+		askAIEnabled: askAIOption.getValue({
+			commandLine: parsedCli,
+		}).value,
+		interactivityEnabled: interactivityOption.getValue({
+			commandLine: parsedCli,
+		}).value,
+		keyboardShortcutsEnabled: keyboardShortcutsOption.getValue({
+			commandLine: parsedCli,
+		}).value,
+		bufferStateDelayInMilliseconds:
+			ConfigInternals.getBufferStateDelayInMilliseconds(),
+		experimentalClientSideRenderingEnabled:
+			experimentalClientSideRenderingOption.getValue({
+				commandLine: parsedCli,
+			}).value,
+	});
+
 	const result = await StudioServerInternals.startStudio({
 		previewEntry: require.resolve('@remotion/studio/previewEntry'),
 		browserArgs: parsedCli['browser-args'],
@@ -198,6 +217,7 @@ export const studioCommand = async (
 		interactivityEnabled,
 		forceNew: forceNewStudioOption.getValue({commandLine: parsedCli}).value,
 		rspack: useRspack,
+		getStudioRuntimeConfig,
 	});
 
 	if (result.type === 'already-running') {
