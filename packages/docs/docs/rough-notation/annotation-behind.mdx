@@ -62,9 +62,41 @@ Controls how rough the annotation looks. The default is `3` for highlights and `
 
 Overrides options passed to `roughjs`. If `roughness` is also specified, the `roughness` prop takes precedence.
 
-### Annotation options
+### `type`
 
-Pass one of the options described in [`annotationConfig`](/docs/rough-notation/annotation-config).
+The annotation type. Supported values are `highlight`, `underline`, `strike-through`, `crossed-off`, `box`, `circle` and `bracket`.
+
+### `color?`
+
+Stroke color. Default: `currentColor`.
+
+### `strokeWidth?`
+
+Stroke width in pixels. The default depends on the annotation type.
+
+### `iterations?`
+
+Number of rough strokes to draw. Default: `2` for most annotation types.
+
+### `padding?`
+
+Insets or outsets for the annotation rectangle.
+
+### `rtl?`
+
+Draws supported line annotations right-to-left. Default: `false`.
+
+### `box?`
+
+Accepted by `type="circle"`.
+
+Use `around` to circle around the element bounds and `inside` to fit the ellipse inside the padded box.
+
+### `brackets?`
+
+Accepted by `type="bracket"`.
+
+Array of sides to draw: `left`, `right`, `top` and `bottom`. Default: `['right']`.
 
 `<AnnotationBehind>` is an interactive component in Remotion Studio and also accepts the following [`<Sequence>`](/docs/sequence) props: `durationInFrames`, `from`, `trimBefore`, `freeze`, `hidden`, `name` and `showInTimeline`.
 
@@ -76,4 +108,3 @@ Pass one of the options described in [`annotationConfig`](/docs/rough-notation/a
 
 - [`<AnnotationOnTop>`](/docs/rough-notation/annotation-on-top)
 - [`createAnnotation()`](/docs/rough-notation/create-annotation)
-- [`annotationConfig`](/docs/rough-notation/annotation-config)

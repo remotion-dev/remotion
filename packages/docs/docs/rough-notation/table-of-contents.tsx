@@ -20,12 +20,6 @@ export const TableOfContents: React.FC = () => {
 					</strong>
 					<div>Place an annotation separately from the tracked element</div>
 				</TOCItem>
-				<TOCItem link="/docs/rough-notation/annotation-config">
-					<strong>
-						<code>annotationConfig</code>
-					</strong>
-					<div>Zod schema for annotation options</div>
-				</TOCItem>
 			</Grid>
 		</div>
 	);
