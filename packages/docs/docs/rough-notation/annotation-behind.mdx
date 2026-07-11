@@ -72,7 +72,7 @@ export const MyComp: React.FC = () => {
           })}
           type="highlight"
           color="rgba(255, 236, 79, 0.62)"
-          roughOptions={{maxRandomnessOffset: 10}}
+          maxRandomnessOffset={10}
           roughness={2.3}
           padding={{
             left: 20,
@@ -107,9 +107,65 @@ Controls the random seed. Default: `1`.
 
 Controls how rough the annotation looks. The default is `3` for highlights and `1.5` for other annotation types.
 
-### `roughOptions?`
+### `maxRandomnessOffset?`
 
-Overrides options passed to `roughjs`. If `roughness` is also specified, the `roughness` prop takes precedence.
+Controls how far points may be randomly offset from their ideal position. Default: `5`.
+
+### `bowing?`
+
+Controls how much straight lines bow. Default: `1`.
+
+### `curveFitting?`
+
+Controls how closely curves fit their points. Default: `0.95`.
+
+### `curveTightness?`
+
+Controls curve tightness. Default: `0`.
+
+### `curveStepCount?`
+
+Controls how many steps are used to approximate curves. Default: `9`.
+
+### `fillWeight?`
+
+Controls the weight of fill strokes. Default: `-1`.
+
+### `hachureAngle?`
+
+Controls the hachure fill angle in degrees. Default: `-41`.
+
+### `hachureGap?`
+
+Controls the gap between hachure fill lines. Default: `-1`.
+
+### `dashOffset?`
+
+Controls dashed fill offset. Default: `-1`.
+
+### `dashGap?`
+
+Controls the gap between dashes. Default: `-1`.
+
+### `zigzagOffset?`
+
+Controls zigzag fill offset. Default: `-1`.
+
+### `disableMultiStroke?`
+
+Disables multi-stroke drawing when set to `true`.
+
+### `disableMultiStrokeFill?`
+
+Disables multi-stroke fills when set to `true`. Default: `false`.
+
+### `preserveVertices?`
+
+Preserves vertices when roughening the shape. Default: `false`.
+
+### `fillShapeRoughnessGain?`
+
+Controls how much roughness is added to filled shapes. Default: `1.5`.
 
 ### `type`
 

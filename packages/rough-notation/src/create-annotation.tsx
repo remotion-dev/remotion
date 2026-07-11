@@ -6,10 +6,14 @@ import React, {
 	useState,
 } from 'react';
 import {continueRender, delayRender} from 'remotion';
-import type {ResolvedOptions} from 'roughjs/bin/core';
 import {useElementSize} from './element-size';
 import {render} from './rough';
-import {resolveAnnotationConfig, type AnnotationConfig} from './types';
+import {
+	resolveAnnotationConfig,
+	resolveRoughOptions,
+	type AnnotationConfig,
+	type RoughAnnotationOptions,
+} from './types';
 
 const AnnotationContext = createContext<{
 	readonly svgChildren: React.ReactElement[];
@@ -43,9 +47,7 @@ type AnnotationProps = Readonly<
 	AnnotationConfig & {
 		seed?: number;
 		progress: number;
-		roughness?: number;
-		roughOptions?: Partial<ResolvedOptions>;
-	}
+	} & RoughAnnotationOptions
 >;
 
 export const createAnnotation = () => {
@@ -85,8 +87,22 @@ export const createAnnotation = () => {
 	};
 
 	const Annotation: React.FC<AnnotationProps> = ({
-		roughOptions,
 		roughness,
+		maxRandomnessOffset,
+		bowing,
+		curveFitting,
+		curveTightness,
+		curveStepCount,
+		fillWeight,
+		hachureAngle,
+		hachureGap,
+		dashOffset,
+		dashGap,
+		zigzagOffset,
+		disableMultiStroke,
+		disableMultiStrokeFill,
+		preserveVertices,
+		fillShapeRoughnessGain,
 		seed,
 		progress,
 		...config
@@ -94,6 +110,43 @@ export const createAnnotation = () => {
 		const parsed = useMemo(() => {
 			return resolveAnnotationConfig(config);
 		}, [config]);
+		const roughJsOptions = useMemo(() => {
+			return resolveRoughOptions({
+				roughness,
+				maxRandomnessOffset,
+				bowing,
+				curveFitting,
+				curveTightness,
+				curveStepCount,
+				fillWeight,
+				hachureAngle,
+				hachureGap,
+				dashOffset,
+				dashGap,
+				zigzagOffset,
+				disableMultiStroke,
+				disableMultiStrokeFill,
+				preserveVertices,
+				fillShapeRoughnessGain,
+			});
+		}, [
+			bowing,
+			curveFitting,
+			curveStepCount,
+			curveTightness,
+			dashGap,
+			dashOffset,
+			disableMultiStroke,
+			disableMultiStrokeFill,
+			fillShapeRoughnessGain,
+			fillWeight,
+			hachureAngle,
+			hachureGap,
+			maxRandomnessOffset,
+			preserveVertices,
+			roughness,
+			zigzagOffset,
+		]);
 
 		const [initial] = useState(() => delayRender());
 		const size = useElementSize(ref);
@@ -119,10 +172,7 @@ export const createAnnotation = () => {
 						seed: seed ?? 1,
 						scale,
 						progress,
-						options:
-							roughness === undefined
-								? (roughOptions ?? {})
-								: {...roughOptions, roughness},
+						options: roughJsOptions,
 					})
 				: [];
 

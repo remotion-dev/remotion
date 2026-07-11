@@ -7,9 +7,8 @@ import {
 	type InteractivitySchema,
 	type SequenceControls,
 } from 'remotion';
-import type {ResolvedOptions} from 'roughjs/bin/core';
 import {createAnnotation} from './create-annotation';
-import type {AnnotationConfig} from './types';
+import type {AnnotationConfig, RoughAnnotationOptions} from './types';
 
 type AnnotationComponentProps = Readonly<
 	{
@@ -17,9 +16,8 @@ type AnnotationComponentProps = Readonly<
 		progress: number;
 		seed?: number;
 		style?: React.CSSProperties;
-		roughness?: number;
-		roughOptions?: Partial<ResolvedOptions>;
-	} & AnnotationConfig
+	} & AnnotationConfig &
+		RoughAnnotationOptions
 >;
 
 type AnnotationInteractiveProps = AnnotationComponentProps &
@@ -60,6 +58,121 @@ const rtlSchema = {
 		type: 'boolean',
 		default: false,
 		description: 'Right-to-left',
+	},
+} as const satisfies InteractivitySchema;
+
+const roughJsControlsSchema = {
+	roughness: {
+		type: 'number',
+		min: 0,
+		step: 0.1,
+		default: 1.5,
+		description: 'Roughness',
+		hiddenFromList: false,
+	},
+	maxRandomnessOffset: {
+		type: 'number',
+		min: 0,
+		step: 0.1,
+		default: 5,
+		description: 'Max Randomness Offset',
+		hiddenFromList: false,
+	},
+	bowing: {
+		type: 'number',
+		min: 0,
+		step: 0.1,
+		default: 1,
+		description: 'Bowing',
+		hiddenFromList: false,
+	},
+	curveFitting: {
+		type: 'number',
+		min: 0,
+		step: 0.01,
+		default: 0.95,
+		description: 'Curve Fitting',
+		hiddenFromList: false,
+	},
+	curveTightness: {
+		type: 'number',
+		step: 0.1,
+		default: 0,
+		description: 'Curve Tightness',
+		hiddenFromList: false,
+	},
+	curveStepCount: {
+		type: 'number',
+		min: 1,
+		step: 1,
+		default: 9,
+		description: 'Curve Step Count',
+		hiddenFromList: false,
+	},
+	fillWeight: {
+		type: 'number',
+		step: 0.1,
+		default: -1,
+		description: 'Fill Weight',
+		hiddenFromList: false,
+	},
+	hachureAngle: {
+		type: 'number',
+		step: 1,
+		default: -41,
+		description: 'Hachure Angle',
+		hiddenFromList: false,
+	},
+	hachureGap: {
+		type: 'number',
+		step: 0.1,
+		default: -1,
+		description: 'Hachure Gap',
+		hiddenFromList: false,
+	},
+	dashOffset: {
+		type: 'number',
+		step: 0.1,
+		default: -1,
+		description: 'Dash Offset',
+		hiddenFromList: false,
+	},
+	dashGap: {
+		type: 'number',
+		step: 0.1,
+		default: -1,
+		description: 'Dash Gap',
+		hiddenFromList: false,
+	},
+	zigzagOffset: {
+		type: 'number',
+		step: 0.1,
+		default: -1,
+		description: 'Zigzag Offset',
+		hiddenFromList: false,
+	},
+	disableMultiStroke: {
+		type: 'boolean',
+		default: false,
+		description: 'Disable Multi Stroke',
+	},
+	disableMultiStrokeFill: {
+		type: 'boolean',
+		default: false,
+		description: 'Disable Multi Stroke Fill',
+	},
+	preserveVertices: {
+		type: 'boolean',
+		default: false,
+		description: 'Preserve Vertices',
+	},
+	fillShapeRoughnessGain: {
+		type: 'number',
+		min: 0,
+		step: 0.1,
+		default: 1.5,
+		description: 'Fill Shape Roughness Gain',
+		hiddenFromList: false,
 	},
 } as const satisfies InteractivitySchema;
 
@@ -122,14 +235,7 @@ export const annotationInteractiveSchema: InteractivitySchema = {
 		hiddenFromList: false,
 		keyframable: false,
 	},
-	roughness: {
-		type: 'number',
-		min: 0,
-		step: 0.1,
-		default: 1.5,
-		description: 'Roughness',
-		hiddenFromList: false,
-	},
+	...roughJsControlsSchema,
 	...colorSchema,
 	...Interactive.textSchema,
 	...textContentSchema,

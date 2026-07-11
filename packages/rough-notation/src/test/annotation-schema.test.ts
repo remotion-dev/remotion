@@ -32,6 +32,25 @@ test('annotation schema exposes roughness as a shared Studio control', () => {
 	expect(activeKeysForType('circle')).toContain('roughness');
 });
 
+test('annotation schema exposes rough.js controls as top-level Studio controls', () => {
+	const highlightKeys = activeKeysForType('highlight');
+	expect(highlightKeys).toContain('maxRandomnessOffset');
+	expect(highlightKeys).toContain('bowing');
+	expect(highlightKeys).toContain('curveFitting');
+	expect(highlightKeys).toContain('curveTightness');
+	expect(highlightKeys).toContain('curveStepCount');
+	expect(highlightKeys).toContain('fillWeight');
+	expect(highlightKeys).toContain('hachureAngle');
+	expect(highlightKeys).toContain('hachureGap');
+	expect(highlightKeys).toContain('dashOffset');
+	expect(highlightKeys).toContain('dashGap');
+	expect(highlightKeys).toContain('zigzagOffset');
+	expect(highlightKeys).toContain('disableMultiStroke');
+	expect(highlightKeys).toContain('disableMultiStrokeFill');
+	expect(highlightKeys).toContain('preserveVertices');
+	expect(highlightKeys).toContain('fillShapeRoughnessGain');
+});
+
 test('annotation schema exposes text editing and font controls', () => {
 	const highlightKeys = activeKeysForType('highlight');
 	expect(highlightKeys).toContain('children');

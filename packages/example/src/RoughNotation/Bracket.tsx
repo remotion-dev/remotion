@@ -26,7 +26,7 @@ export const RoughNotationBracket: React.FC = () => {
 					bracketRight
 					bracketTop
 					roughness={1}
-					roughOptions={{bowing: 3}}
+					bowing={3}
 					strokeWidth={8}
 					color="#dc2626"
 				>

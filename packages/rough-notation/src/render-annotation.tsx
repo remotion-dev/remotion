@@ -2,7 +2,11 @@ import {evolvePath} from '@remotion/paths';
 import type {OpSet, ResolvedOptions} from 'roughjs/bin/core';
 import type {Point} from 'roughjs/bin/geometry';
 import {ellipse, line, linearPath, rectangle} from 'roughjs/bin/renderer.js';
-import type {Rect, ResolvedAnnotationConfig} from './types';
+import type {
+	Rect,
+	ResolvedAnnotationConfig,
+	RoughAnnotationOptions,
+} from './types';
 
 const opsToPath = (opList: OpSet[]): string[] => {
 	const paths: string[] = [];
@@ -36,7 +40,7 @@ type RoughOptionsType = 'highlight' | 'single' | 'double';
 const getOptions = (
 	type: RoughOptionsType,
 	seed: number,
-	overrides: Partial<ResolvedOptions>,
+	overrides: RoughAnnotationOptions,
 ): ResolvedOptions => {
 	return {
 		maxRandomnessOffset: 5,
@@ -101,7 +105,7 @@ export function getInstructions({
 	readonly rect: Rect;
 	readonly config: ResolvedAnnotationConfig;
 	readonly seed: number;
-	readonly options: Partial<ResolvedOptions>;
+	readonly options: RoughAnnotationOptions;
 }): {opList: OpSet[]; strokeWidth: number} {
 	if (config.type === 'none') {
 		return {opList: [], strokeWidth: 0};
@@ -318,7 +322,7 @@ export const renderAnnotation = ({
 	readonly config: ResolvedAnnotationConfig;
 	readonly seed: number;
 	readonly progress: number;
-	readonly options: Partial<ResolvedOptions>;
+	readonly options: RoughAnnotationOptions;
 }) => {
 	if (config.type === 'none') {
 		return [];

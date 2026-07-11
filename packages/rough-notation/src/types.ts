@@ -14,6 +14,25 @@ export type Padding = {
 
 export type Box = 'inside' | 'around';
 
+export type RoughAnnotationOptions = {
+	readonly roughness?: number;
+	readonly maxRandomnessOffset?: number;
+	readonly bowing?: number;
+	readonly curveFitting?: number;
+	readonly curveTightness?: number;
+	readonly curveStepCount?: number;
+	readonly fillWeight?: number;
+	readonly hachureAngle?: number;
+	readonly hachureGap?: number;
+	readonly dashOffset?: number;
+	readonly dashGap?: number;
+	readonly zigzagOffset?: number;
+	readonly disableMultiStroke?: boolean;
+	readonly disableMultiStrokeFill?: boolean;
+	readonly preserveVertices?: boolean;
+	readonly fillShapeRoughnessGain?: number;
+};
+
 type SharedConfig = {
 	readonly color?: string;
 	readonly strokeWidth?: number;
@@ -181,6 +200,14 @@ const shared = ({
 		color: color ?? 'currentColor',
 		strokeWidth: strokeWidth ?? defaultStrokeWidth,
 	};
+};
+
+export const resolveRoughOptions = (
+	options: RoughAnnotationOptions,
+): RoughAnnotationOptions => {
+	return Object.fromEntries(
+		Object.entries(options).filter(([, value]) => value !== undefined),
+	);
 };
 
 export const resolveAnnotationConfig = (

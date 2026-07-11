@@ -1,7 +1,10 @@
 import type React from 'react';
-import type {ResolvedOptions} from 'roughjs/bin/core';
 import {renderAnnotation} from './render-annotation';
-import type {Rect, ResolvedAnnotationConfig} from './types';
+import type {
+	Rect,
+	ResolvedAnnotationConfig,
+	RoughAnnotationOptions,
+} from './types';
 
 const svgRect = ({
 	svg,
@@ -39,7 +42,7 @@ export const render = ({
 	readonly config: ResolvedAnnotationConfig;
 	readonly scale: number;
 	readonly progress: number;
-	readonly options: Partial<ResolvedOptions>;
+	readonly options: RoughAnnotationOptions;
 }): React.ReactElement[] => {
 	if (scale === 0) {
 		return [];

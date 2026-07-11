@@ -34,7 +34,7 @@ export const RoughNotationHighlight: React.FC = () => {
 					})}
 					type="highlight"
 					color={'rgba(255, 236, 79, 0.62)'}
-					roughOptions={{maxRandomnessOffset: 10}}
+					maxRandomnessOffset={10}
 					roughness={2.3}
 					padding={{
 						left: 20,
