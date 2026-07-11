@@ -13,6 +13,10 @@ const defaultStudioRuntimeConfig: StudioRuntimeConfig = {
 };
 
 const getStudioRuntimeConfig = (): StudioRuntimeConfig => {
+	if (typeof window === 'undefined') {
+		return defaultStudioRuntimeConfig;
+	}
+
 	return window.remotion_studioConfig ?? defaultStudioRuntimeConfig;
 };
 
