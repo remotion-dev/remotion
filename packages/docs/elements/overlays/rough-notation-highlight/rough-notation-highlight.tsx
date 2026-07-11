@@ -22,6 +22,7 @@ export const RoughNotationHighlight: React.FC = () => {
 			style={{
 				justifyContent: 'center',
 				alignItems: 'center',
+				backgroundColor: '#f5f6f7',
 			}}
 		>
 			<Interactive.Div
