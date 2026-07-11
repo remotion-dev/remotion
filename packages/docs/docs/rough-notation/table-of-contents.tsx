@@ -14,12 +14,6 @@ export const TableOfContents: React.FC = () => {
 					<strong>{'<AnnotationOnTop>'}</strong>
 					<div>Draw an annotation over the wrapped element</div>
 				</TOCItem>
-				<TOCItem link="/docs/rough-notation/create-annotation">
-					<strong>
-						<code>createAnnotation()</code>
-					</strong>
-					<div>Place an annotation separately from the tracked element</div>
-				</TOCItem>
 			</Grid>
 		</div>
 	);

@@ -661,7 +661,6 @@ const sidebars: SidebarsConfig = {
 			items: [
 				'rough-notation/annotation-behind',
 				'rough-notation/annotation-on-top',
-				'rough-notation/create-annotation',
 			],
 		},
 		{
