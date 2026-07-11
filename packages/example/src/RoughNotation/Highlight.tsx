@@ -1,25 +1,38 @@
 import {AnnotationBehind} from '@remotion/rough-notation';
 import React from 'react';
-import {AbsoluteFill, interpolateColors} from 'remotion';
-import {containerStyle, useAnnotationProgress} from './shared';
+import {
+	AbsoluteFill,
+	interpolate,
+	interpolateColors,
+	useCurrentFrame,
+} from 'remotion';
+import {containerStyle} from './shared';
 
 export const RoughNotationHighlight: React.FC = () => {
-	const progress = useAnnotationProgress();
-	const highlightColor = interpolateColors(
-		progress,
-		[0, 1],
-		['rgba(255, 236, 79, 0)', 'rgba(255, 236, 79, 0.9)'],
-	);
+	const frame = useCurrentFrame();
 
 	return (
 		<AbsoluteFill style={containerStyle}>
 			<div>
+				This is a true{' '}
 				<AnnotationBehind
-					progress={progress}
+					name="Highlight annotation"
+					progress={interpolate(frame, [0, 60], [0, 1], {
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'clamp',
+					})}
 					type="highlight"
-					color={highlightColor}
-					iterations={8}
+					color={interpolateColors(
+						frame,
+						[0, 60],
+						['rgba(255, 236, 79, 0)', 'rgba(255, 236, 79, 0.9)'],
+					)}
+					iterations={3}
 					roughOptions={{maxRandomnessOffset: 10}}
+					padding={{
+						right: 18,
+						left: 36,
+					}}
 				>
 					Highlighted
 				</AnnotationBehind>

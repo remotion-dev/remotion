@@ -1,6 +1,5 @@
 import {loadFont} from '@remotion/google-fonts/CormorantGaramond';
 import React from 'react';
-import {spring, useCurrentFrame, useVideoConfig} from 'remotion';
 
 const {fontFamily} = loadFont('normal', {
 	weights: ['700'],
@@ -15,18 +14,4 @@ export const containerStyle: React.CSSProperties = {
 	fontSize: 96,
 	fontWeight: 700,
 	textAlign: 'center',
-};
-
-export const useAnnotationProgress = () => {
-	const {fps} = useVideoConfig();
-	const frame = useCurrentFrame();
-
-	return spring({
-		fps,
-		frame,
-		config: {
-			damping: 200,
-		},
-		durationInFrames: 60,
-	});
 };
