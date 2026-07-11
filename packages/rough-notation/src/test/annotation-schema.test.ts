@@ -23,6 +23,7 @@ test('annotation schema exposes box-specific props only for circle annotations',
 });
 
 test('annotation schema exposes roughness as a shared Studio control', () => {
+	expect(activeKeysForType('none')).toContain('roughness');
 	expect(activeKeysForType('highlight')).toContain('roughness');
 	expect(activeKeysForType('bracket')).toContain('roughness');
 	expect(activeKeysForType('circle')).toContain('roughness');
@@ -36,6 +37,14 @@ test('annotation schema exposes text editing and font controls', () => {
 	expect(highlightKeys).toContain('style.fontWeight');
 	expect(highlightKeys).toContain('style.fontStyle');
 	expect(highlightKeys).toContain('style.letterSpacing');
+});
+
+test('annotation schema supports none to disable annotations', () => {
+	expect(activeKeysForType('none')).toContain('type');
+	expect(
+		(annotationInteractiveSchema.type as {variants: Record<string, unknown>})
+			.variants,
+	).toHaveProperty('none');
 });
 
 test('annotation schema can be flattened without duplicate keys', () => {

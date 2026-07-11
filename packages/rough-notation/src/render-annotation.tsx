@@ -104,6 +104,10 @@ export function getInstructions({
 	readonly seed: number;
 	readonly options: Partial<ResolvedOptions>;
 }): {opList: OpSet[]; strokeWidth: number} {
+	if (config.type === 'none') {
+		return {opList: [], strokeWidth: 0};
+	}
+
 	if (config.type === 'underline') {
 		const o = getOptions('single', seed, options);
 		const {iterations} = config;
@@ -306,6 +310,10 @@ export const renderAnnotation = ({
 	readonly progress: number;
 	readonly options: Partial<ResolvedOptions>;
 }) => {
+	if (config.type === 'none') {
+		return [];
+	}
+
 	const {opList, strokeWidth} = getInstructions({
 		config,
 		rect,

@@ -29,6 +29,9 @@ const box = z.enum(['inside', 'around']);
 
 export const annotationConfig = z.discriminatedUnion('type', [
 	z.object({
+		type: z.literal('none'),
+	}),
+	z.object({
 		type: z.literal('underline'),
 		color: z.string().optional().default('currentColor'),
 		strokeWidth: z.number().optional().default(20),

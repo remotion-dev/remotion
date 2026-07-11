@@ -144,6 +144,7 @@ export const annotationInteractiveSchema: InteractivitySchema = {
 		description: 'Type',
 		keyframable: false,
 		variants: {
+			none: {},
 			underline: {},
 			'strike-through': {},
 			box: {},
