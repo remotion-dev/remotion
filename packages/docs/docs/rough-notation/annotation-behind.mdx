@@ -29,6 +29,7 @@ export const MyComp: React.FC = () => {
           progress={progress}
           type="highlight"
           color="yellow"
+          roughness={3}
           iterations={8}
         >
           important
@@ -51,11 +52,15 @@ Controls the annotation drawing progress from `0` to `1`.
 
 ### `seed?`
 
-Controls the random roughness. Default: `1`.
+Controls the random seed. Default: `1`.
+
+### `roughness?`
+
+Controls how rough the annotation looks. The default is `3` for highlights and `1.5` for other annotation types.
 
 ### `roughOptions?`
 
-Overrides options passed to `roughjs`.
+Overrides options passed to `roughjs`. If `roughness` is also specified, the `roughness` prop takes precedence.
 
 ### Annotation options
 

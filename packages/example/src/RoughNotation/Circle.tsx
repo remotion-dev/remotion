@@ -18,7 +18,8 @@ export const RoughNotationCircle: React.FC = () => {
 					})}
 					type="circle"
 					box="around"
-					roughOptions={{roughness: 3, bowing: 3}}
+					roughness={3}
+					roughOptions={{bowing: 3}}
 					strokeWidth={7}
 					color="#2563eb"
 				>

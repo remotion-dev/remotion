@@ -22,6 +22,12 @@ test('annotation schema exposes box-specific props only for circle annotations',
 	expect(activeKeysForType('circle')).toContain('box');
 });
 
+test('annotation schema exposes roughness as a shared Studio control', () => {
+	expect(activeKeysForType('highlight')).toContain('roughness');
+	expect(activeKeysForType('bracket')).toContain('roughness');
+	expect(activeKeysForType('circle')).toContain('roughness');
+});
+
 test('annotation schema can be flattened without duplicate keys', () => {
 	expect(() =>
 		Internals.getFlatSchemaWithAllKeys(annotationInteractiveSchema),

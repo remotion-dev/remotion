@@ -17,6 +17,7 @@ type AnnotationComponentProps = Readonly<
 		children: React.ReactNode;
 		progress: number;
 		seed?: number;
+		roughness?: number;
 		roughOptions?: Partial<ResolvedOptions>;
 	} & z.input<typeof annotationConfig>
 >;
@@ -111,6 +112,14 @@ export const annotationInteractiveSchema: InteractivitySchema = {
 		description: 'Seed',
 		hiddenFromList: false,
 		keyframable: false,
+	},
+	roughness: {
+		type: 'number',
+		min: 0,
+		step: 0.1,
+		default: 1.5,
+		description: 'Roughness',
+		hiddenFromList: false,
 	},
 	...colorSchema,
 	...strokeWidthSchema,

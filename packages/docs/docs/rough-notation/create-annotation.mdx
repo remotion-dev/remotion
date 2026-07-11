@@ -32,6 +32,7 @@ export const MyComp: React.FC = () => {
           type="box"
           color="red"
           strokeWidth={8}
+          roughness={2}
           padding={{left: 20, right: 20, top: 12, bottom: 12}}
         />
       </AbsoluteFill>
@@ -59,7 +60,7 @@ Tracks the position and size of its children.
 
 Draws the annotation for the current tracker rectangle.
 
-Accepts `progress`, `seed`, `roughOptions` and one of the options described in [`annotationConfig`](/docs/rough-notation/annotation-config).
+Accepts `progress`, `seed`, `roughness`, `roughOptions` and one of the options described in [`annotationConfig`](/docs/rough-notation/annotation-config).
 
 ## Compatibility
 

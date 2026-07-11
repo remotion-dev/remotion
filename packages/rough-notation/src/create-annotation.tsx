@@ -40,6 +40,7 @@ type AnnotationProps = Readonly<
 	z.input<typeof annotationConfig> & {
 		seed?: number;
 		progress: number;
+		roughness?: number;
 		roughOptions?: Partial<ResolvedOptions>;
 	}
 >;
@@ -81,6 +82,7 @@ export const createAnnotation = () => {
 
 	const Annotation: React.FC<AnnotationProps> = ({
 		roughOptions,
+		roughness,
 		seed,
 		progress,
 		...config
@@ -113,7 +115,10 @@ export const createAnnotation = () => {
 						seed: seed ?? 1,
 						scale,
 						progress,
-						options: roughOptions ?? {},
+						options:
+							roughness === undefined
+								? (roughOptions ?? {})
+								: {...roughOptions, roughness},
 					})
 				: [];
 

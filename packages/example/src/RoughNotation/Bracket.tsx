@@ -18,7 +18,8 @@ export const RoughNotationBracket: React.FC = () => {
 					})}
 					type="bracket"
 					brackets={['left', 'right']}
-					roughOptions={{roughness: 1, bowing: 3}}
+					roughness={1}
+					roughOptions={{bowing: 3}}
 					strokeWidth={8}
 					color="#dc2626"
 				>
