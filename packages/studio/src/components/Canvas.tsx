@@ -12,6 +12,7 @@ import {
 	type ComponentDragData,
 	type CompositionDragData,
 	type ElementInstallRequest,
+	type UpdateElementInstallTargetRequest,
 } from '@remotion/studio-shared';
 import React, {
 	useCallback,
@@ -77,6 +78,21 @@ const elementInstallCompositionIdStyle: React.CSSProperties = {
 const elementInstallCodeDetailsStyle: React.CSSProperties = {
 	marginTop: 12,
 	fontSize: 13,
+};
+
+const areElementInstallTargetsEqual = (
+	a: UpdateElementInstallTargetRequest | null,
+	b: UpdateElementInstallTargetRequest,
+) => {
+	return (
+		a !== null &&
+		a.clientId === b.clientId &&
+		a.compositionFile === b.compositionFile &&
+		a.compositionId === b.compositionId &&
+		a.canInstall === b.canInstall &&
+		a.lastFocusedAt === b.lastFocusedAt &&
+		a.readOnly === b.readOnly
+	);
 };
 
 const elementInstallCodeSummaryStyle: React.CSSProperties = {
@@ -327,6 +343,8 @@ export const Canvas: React.FC<{
 	const lastFocusedAtRef = useRef<number | null>(
 		typeof document === 'undefined' || document.hasFocus() ? Date.now() : null,
 	);
+	const lastSentElementInstallTargetRef =
+		useRef<UpdateElementInstallTargetRequest | null>(null);
 
 	const [assetResolution, setAssetResolution] = useState<AssetMetadata | null>(
 		null,
@@ -813,17 +831,32 @@ export const Canvas: React.FC<{
 
 	const updateElementInstallTarget = useCallback(() => {
 		if (previewServerClientId === null) {
+			lastSentElementInstallTargetRef.current = null;
 			return;
 		}
 
-		callApi('/api/update-element-install-target', {
+		const target: UpdateElementInstallTargetRequest = {
 			clientId: previewServerClientId,
 			compositionFile: canInstallElements ? compositionFile : null,
 			compositionId: canInstallElements ? currentCompositionId : null,
 			canInstall: canInstallElements,
 			lastFocusedAt: lastFocusedAtRef.current,
 			readOnly: window.remotion_isReadOnlyStudio,
-		}).catch(() => undefined);
+		};
+
+		if (
+			areElementInstallTargetsEqual(
+				lastSentElementInstallTargetRef.current,
+				target,
+			)
+		) {
+			return;
+		}
+
+		lastSentElementInstallTargetRef.current = target;
+		callApi('/api/update-element-install-target', target).catch(() => {
+			lastSentElementInstallTargetRef.current = null;
+		});
 	}, [
 		canInstallElements,
 		compositionFile,
@@ -833,11 +866,6 @@ export const Canvas: React.FC<{
 
 	useEffect(() => {
 		updateElementInstallTarget();
-		const interval = window.setInterval(updateElementInstallTarget, 2000);
-
-		return () => {
-			window.clearInterval(interval);
-		};
 	}, [updateElementInstallTarget]);
 
 	useEffect(() => {

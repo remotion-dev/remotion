@@ -1,4 +1,4 @@
-export const ELEMENT_INSTALL_TARGET_MAX_AGE = 5000;
+export const ELEMENT_INSTALL_TARGET_MAX_AGE = 5 * 60 * 1000;
 
 export type ElementInstallTarget = {
 	clientId: string;
