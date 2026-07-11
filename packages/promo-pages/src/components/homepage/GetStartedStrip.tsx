@@ -24,15 +24,13 @@ export const GetStarted: React.FC = () => {
 					<Button
 						className="bg-[#333] text-white rounded-lg px-4 font-mono hover:[#444] cursor-pointer w-full"
 						onClick={() => {
-							navigator.clipboard.writeText(
-								'npx create-video --yes --blank my-video',
-							);
+							navigator.clipboard.writeText('npx create-video@latest');
 
 							setClicked(Date.now());
 						}}
 						title="Click to copy"
 					>
-						$ npx create-video --yes --blank my-video
+						$ npm create video
 					</Button>
 				</div>
 			</div>
