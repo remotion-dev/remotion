@@ -1,4 +1,11 @@
 import React, {useMemo} from 'react';
+import {
+	Interactive,
+	Sequence,
+	type InteractiveBaseProps,
+	type InteractivitySchema,
+	type SequenceControls,
+} from 'remotion';
 import type {ResolvedOptions} from 'roughjs/bin/core';
 import type {z} from 'zod';
 import {createAnnotation} from './create-annotation';
@@ -13,21 +20,224 @@ type AnnotationComponentProps = Readonly<
 	} & z.input<typeof annotationConfig>
 >;
 
-export const AnnotationOnTop: React.FC<AnnotationComponentProps> = ({
+type AnnotationOnTopProps = AnnotationComponentProps & InteractiveBaseProps;
+
+const colorSchema = {
+	color: {
+		type: 'color',
+		default: 'currentColor',
+		description: 'Color',
+	},
+} as const satisfies InteractivitySchema;
+
+const strokeWidthSchema = {
+	strokeWidth: {
+		type: 'number',
+		min: 0,
+		step: 1,
+		default: 20,
+		description: 'Stroke Width',
+		hiddenFromList: false,
+	},
+} as const satisfies InteractivitySchema;
+
+const iterationsSchema = {
+	iterations: {
+		type: 'number',
+		min: 1,
+		step: 1,
+		default: 2,
+		description: 'Iterations',
+		hiddenFromList: false,
+	},
+} as const satisfies InteractivitySchema;
+
+const rtlSchema = {
+	rtl: {
+		type: 'boolean',
+		default: false,
+		description: 'Right-to-left',
+	},
+} as const satisfies InteractivitySchema;
+
+const paddingSchema = {
+	'padding.left': {
+		type: 'number',
+		step: 1,
+		default: 0,
+		description: 'Left Padding',
+		hiddenFromList: false,
+	},
+	'padding.right': {
+		type: 'number',
+		step: 1,
+		default: 0,
+		description: 'Right Padding',
+		hiddenFromList: false,
+	},
+	'padding.top': {
+		type: 'number',
+		step: 1,
+		default: 0,
+		description: 'Top Padding',
+		hiddenFromList: false,
+	},
+	'padding.bottom': {
+		type: 'number',
+		step: 1,
+		default: 0,
+		description: 'Bottom Padding',
+		hiddenFromList: false,
+	},
+} as const satisfies InteractivitySchema;
+
+const annotationOnTopSchema = {
+	...Interactive.baseSchema,
+	progress: {
+		type: 'number',
+		min: 0,
+		max: 1,
+		step: 0.01,
+		default: 1,
+		description: 'Progress',
+		hiddenFromList: false,
+	},
+	seed: {
+		type: 'number',
+		step: 1,
+		default: 1,
+		description: 'Seed',
+		hiddenFromList: false,
+		keyframable: false,
+	},
+	type: {
+		type: 'enum',
+		default: 'underline',
+		description: 'Type',
+		keyframable: false,
+		variants: {
+			underline: {
+				...colorSchema,
+				...strokeWidthSchema,
+				...paddingSchema,
+				...iterationsSchema,
+				...rtlSchema,
+			},
+			'strike-through': {
+				...colorSchema,
+				...strokeWidthSchema,
+				...iterationsSchema,
+				...rtlSchema,
+			},
+			box: {
+				...colorSchema,
+				...iterationsSchema,
+				...paddingSchema,
+				strokeWidth: {
+					...strokeWidthSchema.strokeWidth,
+					default: 7,
+				},
+			},
+			bracket: {
+				...colorSchema,
+				...paddingSchema,
+				brackets: {
+					type: 'array',
+					item: {
+						type: 'enum',
+						variants: ['left', 'right', 'top', 'bottom'],
+					},
+					default: ['right'],
+					newItemDefault: 'right',
+					description: 'Brackets',
+				},
+				...strokeWidthSchema,
+			},
+			'crossed-off': {
+				...colorSchema,
+				...iterationsSchema,
+				...rtlSchema,
+				...strokeWidthSchema,
+			},
+			circle: {
+				...colorSchema,
+				...paddingSchema,
+				...strokeWidthSchema,
+				...iterationsSchema,
+				box: {
+					type: 'enum',
+					default: 'around',
+					description: 'Box',
+					variants: {
+						inside: {},
+						around: {},
+					},
+				},
+			},
+			highlight: {
+				...colorSchema,
+				...paddingSchema,
+				...iterationsSchema,
+				...rtlSchema,
+			},
+		},
+	},
+} as const satisfies InteractivitySchema;
+
+const AnnotationOnTopInner: React.FC<
+	AnnotationOnTopProps & {
+		readonly controls: SequenceControls | undefined;
+	}
+> = ({
 	children,
+	durationInFrames,
+	from,
+	trimBefore,
+	freeze,
+	hidden,
+	name,
+	showInTimeline,
+	controls,
 	...props
 }) => {
 	const annotation = useMemo(() => {
 		return createAnnotation();
 	}, []);
+	const outlineRef = React.useRef<HTMLSpanElement | null>(null);
 
 	return (
-		<annotation.Container>
-			<annotation.Tracker>{children}</annotation.Tracker>
-			<annotation.Annotation {...props} />
-		</annotation.Container>
+		<Sequence
+			layout="none"
+			from={from ?? 0}
+			trimBefore={trimBefore}
+			durationInFrames={durationInFrames ?? Infinity}
+			freeze={freeze}
+			hidden={hidden}
+			name={name ?? '<AnnotationOnTop>'}
+			showInTimeline={showInTimeline ?? true}
+			controls={controls}
+			_remotionInternalDocumentationLink="https://www.remotion.dev/docs/rough-notation/annotation-on-top"
+			outlineRef={outlineRef}
+		>
+			<span ref={outlineRef} style={{display: 'inline-block'}}>
+				<annotation.Container>
+					<annotation.Tracker>{children}</annotation.Tracker>
+					<annotation.Annotation {...props} />
+				</annotation.Container>
+			</span>
+		</Sequence>
 	);
 };
+
+export const AnnotationOnTop = Interactive.withSchema({
+	Component: AnnotationOnTopInner,
+	componentName: '<AnnotationOnTop>',
+	componentIdentity: 'dev.remotion.rough-notation.AnnotationOnTop',
+	schema: annotationOnTopSchema,
+	supportsEffects: false,
+}) as React.FC<AnnotationOnTopProps>;
+
+AnnotationOnTop.displayName = 'AnnotationOnTop';
 
 export const AnnotationBehind: React.FC<AnnotationComponentProps> = ({
 	children,
