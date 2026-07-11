@@ -22,8 +22,17 @@ export const writeStaticFile = async ({
 		filePath,
 	}).toString();
 
+	if (!window.remotion_studioAuthToken) {
+		throw new Error('Missing Studio authentication token');
+	}
+
+	const studioAuthToken = window.remotion_studioAuthToken;
+
 	const response = await fetch(url, {
 		method: 'POST',
+		headers: {
+			'x-remotion-studio-token': studioAuthToken,
+		},
 		body: contents,
 	});
 

@@ -63,6 +63,7 @@ declare global {
 		remotion_staticBase: string;
 		remotion_staticFiles: StaticFile[];
 		remotion_publicPath: string;
+		remotion_studioAuthToken: string | null;
 		remotion_publicFolderExists: string | null;
 		remotion_editorName: string | null;
 		remotion_ignoreFastRefreshUpdate: number | null;

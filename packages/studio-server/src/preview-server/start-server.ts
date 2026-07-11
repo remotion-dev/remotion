@@ -1,3 +1,4 @@
+import {randomBytes} from 'node:crypto';
 import type {IncomingMessage} from 'node:http';
 import http from 'node:http';
 import type {WebpackOverrideFn} from '@remotion/bundler';
@@ -74,8 +75,19 @@ export const startServer = async (options: {
 		options?.port ??
 		(process.env.PORT ? Number(process.env.PORT) : undefined) ??
 		undefined;
+	const studioAuthToken = randomBytes(32).toString('hex');
 
-	const portConfig = RenderInternals.getPortConfig(options.forceIPv4);
+	const defaultPortConfig = RenderInternals.getPortConfig(options.forceIPv4);
+	const loopbackHostsToTry = defaultPortConfig.hostsToTry.filter(
+		(host) => host === '::1' || host === '127.0.0.1',
+	);
+	const portConfig = {
+		host: options.forceIPv4
+			? '127.0.0.1'
+			: (loopbackHostsToTry[0] ?? '127.0.0.1'),
+		hostsToTry:
+			loopbackHostsToTry.length > 0 ? loopbackHostsToTry : ['127.0.0.1'],
+	};
 
 	const onPortUnavailable = options.forceNew
 		? undefined
@@ -177,6 +189,7 @@ export const startServer = async (options: {
 					audioLatencyHint: options.audioLatencyHint,
 					previewSampleRate: options.previewSampleRate,
 					enableCrossSiteIsolation: options.enableCrossSiteIsolation,
+					studioAuthToken,
 				});
 			})
 			.catch((err) => {
