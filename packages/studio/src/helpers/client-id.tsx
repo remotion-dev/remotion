@@ -68,7 +68,8 @@ export const PreviewServerConnection: React.FC<{
 		const handleEvent = (newEvent: EventSourceEvent) => {
 			if (
 				newEvent.type === 'new-input-props' ||
-				newEvent.type === 'new-env-variables'
+				newEvent.type === 'new-env-variables' ||
+				newEvent.type === 'config-file-changed'
 			) {
 				reloadUrl();
 			}

@@ -4,6 +4,7 @@ import type {CurrentScaleContextType} from 'remotion';
 import {Internals} from 'remotion';
 import {BACKGROUND} from '../helpers/colors';
 import {noop} from '../helpers/noop';
+import {getStudioBufferStateDelayInMilliseconds} from '../helpers/studio-runtime-config';
 import {drawRef} from '../state/canvas-ref';
 import {ScaleLockProvider} from '../state/scale-lock';
 import {TimelineZoomContext} from '../state/timeline-zoom';
@@ -27,13 +28,8 @@ const background: React.CSSProperties = {
 	position: 'absolute',
 };
 
-const DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS = 300;
-
 export const BUFFER_STATE_DELAY_IN_MILLISECONDS =
-	typeof process.env.BUFFER_STATE_DELAY_IN_MILLISECONDS === 'undefined' ||
-	process.env.BUFFER_STATE_DELAY_IN_MILLISECONDS === null
-		? DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS
-		: Number(process.env.BUFFER_STATE_DELAY_IN_MILLISECONDS);
+	getStudioBufferStateDelayInMilliseconds();
 
 export const Editor: React.FC<{
 	readonly Root: React.FC;

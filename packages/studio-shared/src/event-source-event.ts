@@ -1,7 +1,7 @@
-import type {StaticFile} from 'remotion';
 import type {
 	CanUpdateSequencePropsResponse,
 	SequencePropsSubscriptionKey,
+	StaticFile,
 } from 'remotion';
 import type {
 	CanUpdateDefaultPropsResponse,
@@ -24,6 +24,9 @@ export type EventSourceEvent =
 	| {
 			type: 'new-env-variables';
 			newEnvVariables: Record<string, string>;
+	  }
+	| {
+			type: 'config-file-changed';
 	  }
 	| {
 			type: 'root-file-changed';

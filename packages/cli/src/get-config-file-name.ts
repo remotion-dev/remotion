@@ -9,8 +9,13 @@ const {configOption} = BrowserSafeApis.options;
 
 const defaultConfigFileJavascript = 'remotion.config.js';
 const defaultConfigFileTypescript = 'remotion.config.ts';
+let loadedConfigFile: string | null = null;
 
-export const loadConfig = (remotionRoot: string): Promise<string | null> => {
+export const getLoadedConfigFile = () => loadedConfigFile;
+
+export const loadConfig = async (
+	remotionRoot: string,
+): Promise<string | null> => {
 	const configFile = configOption.getValue({commandLine: parsedCli}).value;
 	if (configFile) {
 		const fullPath = path.resolve(process.cwd(), configFile);
@@ -22,20 +27,37 @@ export const loadConfig = (remotionRoot: string): Promise<string | null> => {
 			process.exit(1);
 		}
 
-		return loadConfigFile(remotionRoot, configFile, fullPath.endsWith('.js'));
+		loadedConfigFile = await loadConfigFile(
+			remotionRoot,
+			configFile,
+			fullPath.endsWith('.js'),
+		);
+		return loadedConfigFile;
 	}
 
 	if (remotionRoot === null) {
-		return Promise.resolve(null);
+		loadedConfigFile = null;
+		return null;
 	}
 
 	if (existsSync(path.resolve(remotionRoot, defaultConfigFileTypescript))) {
-		return loadConfigFile(remotionRoot, defaultConfigFileTypescript, false);
+		loadedConfigFile = await loadConfigFile(
+			remotionRoot,
+			defaultConfigFileTypescript,
+			false,
+		);
+		return loadedConfigFile;
 	}
 
 	if (existsSync(path.resolve(remotionRoot, defaultConfigFileJavascript))) {
-		return loadConfigFile(remotionRoot, defaultConfigFileJavascript, true);
+		loadedConfigFile = await loadConfigFile(
+			remotionRoot,
+			defaultConfigFileJavascript,
+			true,
+		);
+		return loadedConfigFile;
 	}
 
-	return Promise.resolve(null);
+	loadedConfigFile = null;
+	return null;
 };

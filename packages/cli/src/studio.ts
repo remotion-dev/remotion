@@ -4,6 +4,7 @@ import {StudioServerInternals} from '@remotion/studio-server';
 import {ConfigInternals} from './config';
 import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
 import {findEntryPoint} from './entry-point';
+import {getLoadedConfigFile, loadConfig} from './get-config-file-name';
 import {getEnvironmentVariables} from './get-env';
 import {getGitSource} from './get-github-repository';
 import {getInputProps} from './get-input-props';
@@ -82,6 +83,37 @@ export const studioCommand = async (
 		StudioServerInternals.createFileWatcherRegistry(),
 	);
 
+	const configFile = getLoadedConfigFile();
+	if (configFile) {
+		let isReloadingConfig = false;
+		StudioServerInternals.installFileWatcher({
+			file: configFile,
+			existenceOnly: false,
+			onChange: async () => {
+				if (isReloadingConfig) {
+					return;
+				}
+
+				isReloadingConfig = true;
+				try {
+					ConfigInternals.resetConfigOptions();
+					await loadConfig(remotionRoot);
+					Log.info(
+						{indent: false, logLevel},
+						'Config file changed. Reloading Studio...',
+					);
+					StudioServerInternals.waitForLiveEventsListener().then((listener) => {
+						listener.sendEventToClient({
+							type: 'config-file-changed',
+						});
+					});
+				} finally {
+					isReloadingConfig = false;
+				}
+			},
+		});
+	}
+
 	let inputProps = getInputProps((newProps) => {
 		StudioServerInternals.waitForLiveEventsListener().then((listener) => {
 			inputProps = newProps;
@@ -155,6 +187,25 @@ export const studioCommand = async (
 		);
 	}
 
+	const getStudioRuntimeConfig = () => ({
+		maxTimelineTracks: ConfigInternals.getMaxTimelineTracks(),
+		askAIEnabled: askAIOption.getValue({
+			commandLine: parsedCli,
+		}).value,
+		interactivityEnabled: interactivityOption.getValue({
+			commandLine: parsedCli,
+		}).value,
+		keyboardShortcutsEnabled: keyboardShortcutsOption.getValue({
+			commandLine: parsedCli,
+		}).value,
+		bufferStateDelayInMilliseconds:
+			ConfigInternals.getBufferStateDelayInMilliseconds(),
+		experimentalClientSideRenderingEnabled:
+			experimentalClientSideRenderingOption.getValue({
+				commandLine: parsedCli,
+			}).value,
+	});
+
 	const result = await StudioServerInternals.startStudio({
 		previewEntry: require.resolve('@remotion/studio/previewEntry'),
 		browserArgs: parsedCli['browser-args'],
@@ -198,6 +249,7 @@ export const studioCommand = async (
 		interactivityEnabled,
 		forceNew: forceNewStudioOption.getValue({commandLine: parsedCli}).value,
 		rspack: useRspack,
+		getStudioRuntimeConfig,
 	});
 
 	if (result.type === 'already-running') {
