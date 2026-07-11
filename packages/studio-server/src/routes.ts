@@ -385,13 +385,11 @@ const handleFallback = async ({
 const handleFileSource = async ({
 	method,
 	remotionRoot,
-	search,
 	response,
 	request,
 }: {
 	method: string;
 	remotionRoot: string;
-	search: string;
 	response: ServerResponse;
 	request: IncomingMessage;
 }): Promise<void> => {
@@ -403,17 +401,23 @@ const handleFileSource = async ({
 
 	validateSameOrigin(request);
 
-	if (!search.startsWith('?')) {
-		throw new Error('query must start with ?');
+	if (method !== 'POST') {
+		response.writeHead(405);
+		response.end();
+		return Promise.resolve();
 	}
 
-	const query = new URLSearchParams(search);
-	const f = query.get('f');
-	if (typeof f !== 'string') {
-		throw new Error('must pass `f` parameter');
+	const body = await parseRequestBody(request);
+	if (
+		typeof body !== 'object' ||
+		body === null ||
+		!('fileName' in body) ||
+		typeof body.fileName !== 'string'
+	) {
+		throw new Error('must pass `fileName` parameter');
 	}
 
-	const data = await getFileSource(remotionRoot, decodeURIComponent(f));
+	const data = await getFileSource(remotionRoot, body.fileName);
 	response.writeHead(200);
 	response.write(data);
 	response.end();
@@ -600,7 +604,6 @@ export const handleRoutes = ({
 	if (url.pathname === '/api/file-source') {
 		return handleFileSource({
 			remotionRoot,
-			search: url.search,
 			method: request.method as string,
 			response,
 			request,

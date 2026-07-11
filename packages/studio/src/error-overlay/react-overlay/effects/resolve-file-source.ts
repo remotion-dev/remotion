@@ -7,9 +7,13 @@ export const resolveFileSource = async (
 	location: ErrorLocation,
 	contextLines: number,
 ): Promise<SymbolicatedStackFrame> => {
-	const res = await fetch(
-		`/api/file-source?f=${encodeURIComponent(location.fileName)}`,
-	);
+	const res = await fetch('/api/file-source', {
+		body: JSON.stringify({fileName: location.fileName}),
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		method: 'POST',
+	});
 	const text = await res.text();
 
 	const lines = text
