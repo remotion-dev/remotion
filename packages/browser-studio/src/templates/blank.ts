@@ -6,25 +6,39 @@ import { RemotionRoot } from "./Root";
 
 registerRoot(RemotionRoot);
 `,
-	'/project/src/Root.tsx': `import { Composition } from "remotion";
-import { MyComposition } from "./Composition";
+	'/project/src/Root.tsx': `import { MyComposition } from "./Composition";
 
 export const RemotionRoot: React.FC = () => {
   return (
     <>
-      <Composition
-        id="MyComp"
-        component={MyComposition}
-        durationInFrames={60}
-        fps={30}
-        width={1280}
-        height={720}
-      />
+      <MyComposition />
     </>
   );
 };
 `,
-	'/project/src/Composition.tsx': `export const MyComposition = () => {
+	'/project/src/Composition.tsx': `import { CalculateMetadataFunction, Composition } from "remotion";
+
+type Props = {};
+
+const calculateMetadata: CalculateMetadataFunction<Props> = () => {
+  return {};
+};
+
+export const MyComposition = () => {
+  return (
+    <Composition
+      id="MyComp"
+      component={MyComponent}
+      durationInFrames={60}
+      fps={30}
+      width={1280}
+      height={720}
+      calculateMetadata={calculateMetadata}
+    />
+  );
+};
+
+export const MyComponent: React.FC<Props> = () => {
   return null;
 };
 `,
