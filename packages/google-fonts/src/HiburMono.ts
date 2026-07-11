@@ -1,12 +1,13 @@
 import {loadFonts} from './base';
 
 export const getInfo = () => ({
-	fontFamily: 'Noto Serif Old Uyghur',
-	importName: 'NotoSerifOldUyghur',
-	version: 'v5',
-	url: 'https://fonts.googleapis.com/css2?family=Noto+Serif+Old+Uyghur:ital,wght@0,400',
+	fontFamily: 'Hibur Mono',
+	importName: 'HiburMono',
+	version: 'v1',
+	url: 'https://fonts.googleapis.com/css2?family=Hibur+Mono:ital,wght@0,400',
 	unicodeRanges: {
-		'old-uyghur': 'U+0640, U+10AF2, U+10F70-10F89',
+		ethiopic:
+			'U+030E, U+1200-1399, U+2D80-2DDE, U+AB01-AB2E, U+1E7E0-1E7E6, U+1E7E8-1E7EB, U+1E7ED-1E7EE, U+1E7F0-1E7FE',
 		'latin-ext':
 			'U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF',
 		latin:
@@ -15,24 +16,24 @@ export const getInfo = () => ({
 	fonts: {
 		normal: {
 			'400': {
-				'old-uyghur':
-					'https://fonts.gstatic.com/s/notoserifolduyghur/v5/v6-KGZbLJFKIhClqUYqXDiGnrVoFRCW6JdwXm8K6GlWM.woff2',
+				ethiopic:
+					'https://fonts.gstatic.com/s/hiburmono/v1/R70fjyoFkv6fKPKNWxXXiDy0Ugv4.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoserifolduyghur/v5/v6-KGZbLJFKIhClqUYqXDiGnrVoFRCW6JdwXI-OfJ2w.woff2',
+					'https://fonts.gstatic.com/s/hiburmono/v1/R70fjyoFkv6fKPKNWxXXiCO0Ugv4.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoserifolduyghur/v5/v6-KGZbLJFKIhClqUYqXDiGnrVoFRCW6JdwXLeOf.woff2',
+					'https://fonts.gstatic.com/s/hiburmono/v1/R70fjyoFkv6fKPKNWxXXiC20Ug.woff2',
 			},
 		},
 	},
-	subsets: ['latin', 'latin-ext', 'old-uyghur'],
+	subsets: ['ethiopic', 'latin', 'latin-ext'],
 });
 
-export const fontFamily = 'Noto Serif Old Uyghur' as const;
+export const fontFamily = 'Hibur Mono' as const;
 
 type Variants = {
 	normal: {
 		weights: '400';
-		subsets: 'latin' | 'latin-ext' | 'old-uyghur';
+		subsets: 'ethiopic' | 'latin' | 'latin-ext';
 	};
 };
 

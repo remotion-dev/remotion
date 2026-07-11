@@ -2882,6 +2882,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./Geom') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Geomini',
+		importName: 'Geomini',
+		load: () => import('./Geomini') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Georama',
 		importName: 'Georama',
 		load: () => import('./Georama') as Promise<GoogleFont>,
@@ -3230,6 +3235,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Hi Melody',
 		importName: 'HiMelody',
 		load: () => import('./HiMelody') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Hibur Mono',
+		importName: 'HiburMono',
+		load: () => import('./HiburMono') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Hina Mincho',
