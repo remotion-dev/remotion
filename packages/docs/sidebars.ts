@@ -1487,7 +1487,6 @@ const sidebars: SidebarsConfig = {
 				'miscellaneous/live-streaming',
 				'miscellaneous/parse-media-vs-get-video-metadata',
 				'miscellaneous/pexels',
-				'compare/motion-canvas',
 				'lovable-for-motion-graphics',
 			],
 		},
