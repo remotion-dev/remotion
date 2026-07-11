@@ -4,7 +4,10 @@ import {overallProgressKey} from '../constants';
 import {getExpectedOutName} from '../expected-out-name';
 import type {OverallRenderProgress} from '../overall-render-progress';
 import {getProgress} from '../progress';
-import type {ProviderSpecifics} from '../provider-implementation';
+import type {
+	EstimatePriceInput,
+	ProviderSpecifics,
+} from '../provider-implementation';
 import type {RenderMetadata} from '../render-metadata';
 import type {CloudProvider} from '../types';
 
@@ -88,8 +91,10 @@ const progress: OverallRenderProgress<MockProvider> = {
 };
 
 const makeProviderSpecifics = ({
+	onEstimatePrice,
 	onHeadFile,
 }: {
+	onEstimatePrice?: (input: EstimatePriceInput<MockProvider>) => number;
 	onHeadFile: ProviderSpecifics<MockProvider>['headFile'];
 }): ProviderSpecifics<MockProvider> => {
 	return {
@@ -103,7 +108,7 @@ const makeProviderSpecifics = ({
 		createBucket: () => Promise.resolve(),
 		deleteFile: () => Promise.resolve(),
 		deleteFunction: () => Promise.resolve(),
-		estimatePrice: () => 0.01,
+		estimatePrice: (input) => onEstimatePrice?.(input) ?? 0.01,
 		getAccountId: () => Promise.resolve('123456789012'),
 		getBucketPrefix: () => 'remotionlambda-',
 		getBuckets: () => Promise.resolve([]),
@@ -185,4 +190,49 @@ test('getProgress treats an existing output file as finished if postRenderData w
 	);
 	expect(renderProgress.outputSizeInBytes).toBe(1234);
 	expect(renderProgress.errors).toEqual([]);
+});
+
+test('getProgress estimates costs from invoked lambdas only', async () => {
+	const priceInputs: EstimatePriceInput<MockProvider>[] = [];
+	const originalTimings = progress.timings;
+	const originalChunks = progress.chunks;
+	const originalLambdasInvoked = progress.lambdasInvoked;
+
+	try {
+		progress.timings = [];
+		progress.chunks = [];
+		progress.lambdasInvoked = 1;
+
+		const providerSpecifics = makeProviderSpecifics({
+			onEstimatePrice: (input) => {
+				priceInputs.push(input);
+				return input.durationInMilliseconds;
+			},
+			onHeadFile: () => Promise.resolve({ContentLength: 0}),
+		});
+
+		const renderProgress = await getProgress({
+			bucketName,
+			customCredentials: null,
+			expectedBucketOwner: null,
+			forcePathStyle: false,
+			functionName: renderMetadata.functionName,
+			memorySizeInMb: 2048,
+			providerSpecifics,
+			region: 'eu-central-1',
+			renderId,
+			requestHandler: null,
+			timeoutInMilliseconds: 120000,
+		});
+
+		expect(priceInputs).toHaveLength(1);
+		expect(priceInputs[0].lambdasInvoked).toBe(1);
+		expect(renderProgress.estimatedBillingDurationInMilliseconds).toBeLessThan(
+			60000,
+		);
+	} finally {
+		progress.timings = originalTimings;
+		progress.chunks = originalChunks;
+		progress.lambdasInvoked = originalLambdasInvoked;
+	}
 });
