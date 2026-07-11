@@ -2,7 +2,6 @@ import React from 'react';
 import {spring, useCurrentFrame, useVideoConfig} from 'remotion';
 
 export const containerStyle: React.CSSProperties = {
-	backgroundColor: '#f7f2e8',
 	color: '#171717',
 	fontFamily: 'GT Planar, sans-serif',
 	justifyContent: 'center',
