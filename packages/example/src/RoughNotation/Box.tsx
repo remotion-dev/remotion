@@ -23,7 +23,7 @@ export const RoughNotationBox: React.FC = () => {
 					width: 800,
 				}}
 			>
-				<Interactive.Span>Draw a box around </Interactive.Span>
+				<Interactive.Span>Think outside the </Interactive.Span>
 				<AnnotationOnTop
 					name="Box annotation"
 					progress={interpolate(frame, [0, 60], [0, 1], {
@@ -41,9 +41,8 @@ export const RoughNotationBox: React.FC = () => {
 						bottom: 16,
 					}}
 				>
-					this
-				</AnnotationOnTop>{' '}
-				<Interactive.Span>idea</Interactive.Span>
+					box
+				</AnnotationOnTop>
 			</Interactive.Div>
 		</AbsoluteFill>
 	);
