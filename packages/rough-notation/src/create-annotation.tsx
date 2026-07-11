@@ -36,6 +36,10 @@ type ChildrenProps = {
 	readonly children: React.ReactNode;
 };
 
+type TrackerProps = ChildrenProps & {
+	readonly style?: React.CSSProperties;
+};
+
 type AnnotationProps = Readonly<
 	z.input<typeof annotationConfig> & {
 		seed?: number;
@@ -65,17 +69,18 @@ export const createAnnotation = () => {
 		);
 	};
 
-	const Tracker: React.FC<ChildrenProps> = (props) => {
+	const Tracker: React.FC<TrackerProps> = ({children, style}) => {
 		return (
 			<span
 				ref={ref}
 				style={{
+					...style,
 					display: 'inline-block',
 					position: 'relative',
 					whiteSpace: 'pre',
 				}}
 			>
-				{props.children}
+				{children}
 			</span>
 		);
 	};

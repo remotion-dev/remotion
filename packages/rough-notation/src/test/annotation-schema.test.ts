@@ -28,6 +28,16 @@ test('annotation schema exposes roughness as a shared Studio control', () => {
 	expect(activeKeysForType('circle')).toContain('roughness');
 });
 
+test('annotation schema exposes text editing and font controls', () => {
+	const highlightKeys = activeKeysForType('highlight');
+	expect(highlightKeys).toContain('children');
+	expect(highlightKeys).toContain('style.fontFamily');
+	expect(highlightKeys).toContain('style.fontSize');
+	expect(highlightKeys).toContain('style.fontWeight');
+	expect(highlightKeys).toContain('style.fontStyle');
+	expect(highlightKeys).toContain('style.letterSpacing');
+});
+
 test('annotation schema can be flattened without duplicate keys', () => {
 	expect(() =>
 		Internals.getFlatSchemaWithAllKeys(annotationInteractiveSchema),

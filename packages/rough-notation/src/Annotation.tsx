@@ -17,6 +17,7 @@ type AnnotationComponentProps = Readonly<
 		children: React.ReactNode;
 		progress: number;
 		seed?: number;
+		style?: React.CSSProperties;
 		roughness?: number;
 		roughOptions?: Partial<ResolvedOptions>;
 	} & z.input<typeof annotationConfig>
@@ -94,6 +95,15 @@ const paddingSchema = {
 	},
 } as const satisfies InteractivitySchema;
 
+const textContentSchema = {
+	children: {
+		type: 'text-content',
+		default: '',
+		description: 'Text',
+		keyframable: false,
+	},
+} as const satisfies InteractivitySchema;
+
 export const annotationInteractiveSchema: InteractivitySchema = {
 	...Interactive.baseSchema,
 	progress: {
@@ -122,6 +132,8 @@ export const annotationInteractiveSchema: InteractivitySchema = {
 		hiddenFromList: false,
 	},
 	...colorSchema,
+	...Interactive.textSchema,
+	...textContentSchema,
 	...strokeWidthSchema,
 	...iterationsSchema,
 	...rtlSchema,
@@ -181,6 +193,7 @@ const AnnotationOnTopInner: React.FC<
 	showInTimeline,
 	controls,
 	stack,
+	style,
 	...props
 }) => {
 	const annotation = useMemo(() => {
@@ -205,7 +218,7 @@ const AnnotationOnTopInner: React.FC<
 		>
 			<span ref={outlineRef} style={{display: 'inline-block'}}>
 				<annotation.Container>
-					<annotation.Tracker>{children}</annotation.Tracker>
+					<annotation.Tracker style={style}>{children}</annotation.Tracker>
 					<annotation.Annotation {...props} />
 				</annotation.Container>
 			</span>
@@ -243,6 +256,7 @@ const AnnotationBehindInner: React.FC<
 	showInTimeline,
 	controls,
 	stack,
+	style,
 	...props
 }) => {
 	const annotation = useMemo(() => {
@@ -268,7 +282,7 @@ const AnnotationBehindInner: React.FC<
 			<span ref={outlineRef} style={{display: 'inline-block'}}>
 				<annotation.Container>
 					<annotation.Annotation {...props} />
-					<annotation.Tracker>{children}</annotation.Tracker>
+					<annotation.Tracker style={style}>{children}</annotation.Tracker>
 				</annotation.Container>
 			</span>
 		</Sequence>
