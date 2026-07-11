@@ -91,7 +91,7 @@ export const MyComposition = () => {
 
 To delay content wrap it in `<Sequence>` and use `from`.
 To limit the duration of an element, use `durationInFrames` of `<Sequence>`.
-`<Sequence>` by default is an absolute fill convering the scene.  
+`<Sequence>` by default is an absolute fill covering the scene.  
 For inline content, use `layout="none"`.
 
 ```tsx
