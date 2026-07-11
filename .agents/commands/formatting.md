@@ -1,1 +1,0 @@
-../skills/formatting/SKILL.md

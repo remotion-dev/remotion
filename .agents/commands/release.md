@@ -1,1 +1,0 @@
-../skills/release/SKILL.md

@@ -1,1 +1,0 @@
-../skills/upgrade-mediabunny/SKILL.md
