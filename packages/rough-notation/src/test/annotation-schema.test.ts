@@ -10,10 +10,13 @@ const activeKeysForType = (type: string) => {
 	);
 };
 
-test('annotation schema exposes bracket-specific props only for bracket annotations', () => {
-	expect(activeKeysForType('highlight')).not.toContain('brackets');
-	expect(activeKeysForType('box')).not.toContain('brackets');
-	expect(activeKeysForType('bracket')).toContain('brackets');
+test('annotation schema exposes bracket flags only for bracket annotations', () => {
+	expect(activeKeysForType('highlight')).not.toContain('bracketRight');
+	expect(activeKeysForType('box')).not.toContain('bracketRight');
+	expect(activeKeysForType('bracket')).toContain('bracketLeft');
+	expect(activeKeysForType('bracket')).toContain('bracketRight');
+	expect(activeKeysForType('bracket')).toContain('bracketTop');
+	expect(activeKeysForType('bracket')).toContain('bracketBottom');
 });
 
 test('annotation schema exposes box-specific props only for circle annotations', () => {

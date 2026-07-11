@@ -22,7 +22,9 @@ export const RoughNotationBracket: React.FC = () => {
 						extrapolateRight: 'clamp',
 					})}
 					type="bracket"
-					brackets={['left', 'right', 'right']}
+					bracketLeft
+					bracketRight
+					bracketTop
 					roughness={1}
 					roughOptions={{bowing: 3}}
 					strokeWidth={8}

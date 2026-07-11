@@ -148,15 +148,25 @@ export const annotationInteractiveSchema: InteractivitySchema = {
 			'strike-through': {},
 			box: {},
 			bracket: {
-				brackets: {
-					type: 'array',
-					item: {
-						type: 'enum',
-						variants: ['left', 'right', 'top', 'bottom'],
-					},
-					default: ['right'],
-					newItemDefault: 'right',
-					description: 'Brackets',
+				bracketLeft: {
+					type: 'boolean',
+					default: false,
+					description: 'Left Bracket',
+				},
+				bracketRight: {
+					type: 'boolean',
+					default: true,
+					description: 'Right Bracket',
+				},
+				bracketTop: {
+					type: 'boolean',
+					default: false,
+					description: 'Top Bracket',
+				},
+				bracketBottom: {
+					type: 'boolean',
+					default: false,
+					description: 'Bottom Bracket',
 				},
 			},
 			'crossed-off': {},

@@ -12,7 +12,6 @@ export type Padding = {
 	readonly bottom: number;
 };
 
-export type Bracket = 'left' | 'right' | 'top' | 'bottom';
 export type Box = 'inside' | 'around';
 
 type SharedConfig = {
@@ -30,6 +29,13 @@ type IterationConfig = {
 
 type RtlConfig = {
 	readonly rtl?: boolean;
+};
+
+type BracketConfig = {
+	readonly bracketLeft?: boolean;
+	readonly bracketRight?: boolean;
+	readonly bracketTop?: boolean;
+	readonly bracketBottom?: boolean;
 };
 
 export type AnnotationConfig =
@@ -54,8 +60,8 @@ export type AnnotationConfig =
 			IterationConfig)
 	| ({
 			readonly type: 'bracket';
-			readonly brackets?: readonly Bracket[];
-	  } & SharedConfig &
+	  } & BracketConfig &
+			SharedConfig &
 			PaddingConfig)
 	| ({
 			readonly type: 'crossed-off';
@@ -114,8 +120,8 @@ export type ResolvedAnnotationConfig =
 			ResolvedIterationConfig)
 	| ({
 			readonly type: 'bracket';
-			readonly brackets: readonly Bracket[];
-	  } & ResolvedSharedConfig &
+	  } & Required<BracketConfig> &
+			ResolvedSharedConfig &
 			ResolvedPaddingConfig)
 	| ({
 			readonly type: 'crossed-off';
@@ -217,7 +223,10 @@ export const resolveAnnotationConfig = (
 			type: 'bracket',
 			...shared({...config, defaultStrokeWidth: 20}),
 			padding: resolvePadding(config.padding),
-			brackets: config.brackets ?? ['right'],
+			bracketLeft: config.bracketLeft ?? false,
+			bracketRight: config.bracketRight ?? true,
+			bracketTop: config.bracketTop ?? false,
+			bracketBottom: config.bracketBottom ?? false,
 		};
 	}
 

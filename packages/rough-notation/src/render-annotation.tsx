@@ -162,45 +162,56 @@ export function getInstructions({
 	if (config.type === 'bracket') {
 		const o = getOptions('single', seed, options);
 		const opList: OpSet[] = [];
-		const {brackets} = config;
 		const lx = rect.x - config.padding.left * 2;
 		const rx = rect.x + rect.w + config.padding.right * 2;
 		const ty = rect.y - config.padding.top * 2;
 		const by = rect.y + rect.h + config.padding.bottom * 2;
-
-		for (const br of brackets) {
-			let points: Point[];
-			if (br === 'bottom') {
-				points = [
+		const sides: {
+			readonly enabled: boolean;
+			readonly points: Point[];
+		}[] = [
+			{
+				enabled: config.bracketBottom,
+				points: [
 					[lx, rect.y + rect.h],
 					[lx, by],
 					[rx, by],
 					[rx, rect.y + rect.h],
-				];
-			} else if (br === 'top') {
-				points = [
+				],
+			},
+			{
+				enabled: config.bracketTop,
+				points: [
 					[lx, rect.y],
 					[lx, ty],
 					[rx, ty],
 					[rx, rect.y],
-				];
-			} else if (br === 'left') {
-				points = [
+				],
+			},
+			{
+				enabled: config.bracketLeft,
+				points: [
 					[rect.x, ty],
 					[lx, ty],
 					[lx, by],
 					[rect.x, by],
-				];
-			} else {
-				points = [
+				],
+			},
+			{
+				enabled: config.bracketRight,
+				points: [
 					[rect.x + rect.w, ty],
 					[rx, ty],
 					[rx, by],
 					[rect.x + rect.w, by],
-				];
-			}
+				],
+			},
+		];
 
-			opList.push(linearPath(points, false, o));
+		for (const side of sides) {
+			if (side.enabled) {
+				opList.push(linearPath(side.points, false, o));
+			}
 		}
 
 		return {opList, strokeWidth: config.strokeWidth};

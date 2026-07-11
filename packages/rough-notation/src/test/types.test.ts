@@ -16,7 +16,10 @@ test('resolves defaults for annotation configs without zod', () => {
 		color: 'currentColor',
 		strokeWidth: 20,
 		padding: {bottom: 0, left: 0, right: 0, top: 0},
-		brackets: ['right'],
+		bracketLeft: false,
+		bracketRight: true,
+		bracketTop: false,
+		bracketBottom: false,
 	});
 
 	expect(resolveAnnotationConfig({type: 'circle'})).toEqual({
