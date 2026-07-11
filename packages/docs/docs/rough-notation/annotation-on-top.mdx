@@ -1,0 +1,51 @@
+---
+image: /generated/articles-docs-rough-notation-annotation-on-top.png
+title: '<AnnotationOnTop>'
+crumb: '@remotion/rough-notation'
+---
+
+# &lt;AnnotationOnTop&gt;<AvailableFrom v="4.0.489" />
+
+Draws a rough annotation over the element it wraps.
+
+Use it for annotations that should cover the text or element, such as underlines and crossed-off marks.
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {AnnotationOnTop} from '@remotion/rough-notation';
+import {AbsoluteFill, spring, useCurrentFrame, useVideoConfig} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  const frame = useCurrentFrame();
+  const {fps} = useVideoConfig();
+  const progress = spring({fps, frame, durationInFrames: 45});
+
+  return (
+    <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center'}}>
+      <AnnotationOnTop
+        progress={progress}
+        type="underline"
+        color="currentColor"
+        strokeWidth={12}
+      >
+        Underlined text
+      </AnnotationOnTop>
+    </AbsoluteFill>
+  );
+};
+```
+
+## API
+
+Accepts the same props as [`<AnnotationBehind>`](/docs/rough-notation/annotation-behind).
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
+
+## See also
+
+- [`<AnnotationBehind>`](/docs/rough-notation/annotation-behind)
+- [`createAnnotation()`](/docs/rough-notation/create-annotation)
+- [`annotationConfig`](/docs/rough-notation/annotation-config)

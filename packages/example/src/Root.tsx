@@ -236,6 +236,14 @@ import {
 	ProResMediaVideo,
 	calculateProResMediaVideoMetadata,
 } from './ProResMediaVideo';
+import {
+	RoughNotationBracket,
+	RoughNotationCircle,
+	RoughNotationCrossedOff,
+	RoughNotationHighlightAndBox,
+	RoughNotationStrikeThrough,
+	RoughNotationUnderline,
+} from './RoughNotation';
 import {SfxExample} from './Sfx';
 import {CanvasImg} from './SimpleImg/CanvasImg';
 import {ImgEffects} from './SimpleImg/ImgEffects';
@@ -2525,6 +2533,56 @@ export const Index: React.FC = () => {
 					height={1080}
 					fps={30}
 					durationInFrames={120}
+				/>
+			</Folder>
+			<Folder name="rough-notation">
+				<Composition
+					id="rough-notation-highlight-and-box"
+					component={RoughNotationHighlightAndBox}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={90}
+				/>
+				<Composition
+					id="rough-notation-circle"
+					component={RoughNotationCircle}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={90}
+				/>
+				<Composition
+					id="rough-notation-bracket"
+					component={RoughNotationBracket}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={90}
+				/>
+				<Composition
+					id="rough-notation-crossed-off"
+					component={RoughNotationCrossedOff}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={90}
+				/>
+				<Composition
+					id="rough-notation-strike-through"
+					component={RoughNotationStrikeThrough}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={90}
+				/>
+				<Composition
+					id="rough-notation-underline"
+					component={RoughNotationUnderline}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={90}
 				/>
 			</Folder>
 			<Folder name="starburst">

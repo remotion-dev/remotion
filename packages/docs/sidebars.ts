@@ -473,6 +473,20 @@ const sidebars: SidebarsConfig = {
 		},
 		{
 			type: 'category',
+			label: '@remotion/rough-notation',
+			link: {
+				type: 'doc',
+				id: 'rough-notation/rough-notation-api',
+			},
+			items: [
+				'rough-notation/annotation-behind',
+				'rough-notation/annotation-on-top',
+				'rough-notation/create-annotation',
+				'rough-notation/annotation-config',
+			],
+		},
+		{
+			type: 'category',
 			label: '@remotion/lottie',
 			link: {
 				type: 'doc',

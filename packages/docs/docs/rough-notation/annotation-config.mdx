@@ -1,0 +1,109 @@
+---
+image: /generated/articles-docs-rough-notation-annotation-config.png
+title: annotationConfig
+sidebar_label: annotationConfig
+crumb: '@remotion/rough-notation'
+---
+
+# annotationConfig<AvailableFrom v="4.0.489" />
+
+Zod schema describing the annotation options accepted by [`<AnnotationBehind>`](/docs/rough-notation/annotation-behind), [`<AnnotationOnTop>`](/docs/rough-notation/annotation-on-top) and `createAnnotation().Annotation`.
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {AnnotationBehind, annotationConfig} from '@remotion/rough-notation';
+import {z} from 'zod';
+
+type AnnotationOptions = z.input<typeof annotationConfig>;
+
+const options: AnnotationOptions = {
+  type: 'circle',
+  color: 'red',
+  box: 'around',
+};
+
+export const MyComp: React.FC = () => {
+  return (
+    <AnnotationBehind progress={1} {...options}>
+      Circled
+    </AnnotationBehind>
+  );
+};
+```
+
+## Annotation types
+
+### `highlight`
+
+Draws a filled highlight line through the element.
+
+### `underline`
+
+Draws a line below the element.
+
+### `strike-through`
+
+Draws a line through the element.
+
+### `crossed-off`
+
+Draws two crossing diagonal lines over the element.
+
+### `box`
+
+Draws a rectangle around the element.
+
+### `circle`
+
+Draws an ellipse around the element.
+
+### `bracket`
+
+Draws brackets around selected sides of the element.
+
+## Shared options
+
+### `color?`
+
+Stroke color. Default: `currentColor`.
+
+### `strokeWidth?`
+
+Stroke width in pixels. The default depends on the annotation type.
+
+### `iterations?`
+
+Number of rough strokes to draw. Default: `2` for most annotation types.
+
+### `padding?`
+
+Insets or outsets for the annotation rectangle.
+
+### `rtl?`
+
+Draws supported line annotations right-to-left. Default: `false`.
+
+## Type-specific options
+
+### `box`
+
+Accepted by `circle`.
+
+Use `around` to circle around the element bounds and `inside` to fit the ellipse inside the padded box.
+
+### `brackets`
+
+Accepted by `bracket`.
+
+Array of sides to draw: `left`, `right`, `top` and `bottom`. Default: `['right']`.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
+
+## See also
+
+- [`<AnnotationBehind>`](/docs/rough-notation/annotation-behind)
+- [`<AnnotationOnTop>`](/docs/rough-notation/annotation-on-top)
+- [`createAnnotation()`](/docs/rough-notation/create-annotation)

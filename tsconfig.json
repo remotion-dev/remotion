@@ -265,6 +265,9 @@
 			"path": "./packages/light-leaks"
 		},
 		{
+			"path": "./packages/rough-notation"
+		},
+		{
 			"path": "./packages/starburst"
 		},
 		{

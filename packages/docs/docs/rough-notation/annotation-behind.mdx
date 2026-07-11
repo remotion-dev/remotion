@@ -1,0 +1,72 @@
+---
+image: /generated/articles-docs-rough-notation-annotation-behind.png
+title: '<AnnotationBehind>'
+crumb: '@remotion/rough-notation'
+---
+
+# &lt;AnnotationBehind&gt;<AvailableFrom v="4.0.489" />
+
+Draws a rough annotation behind the element it wraps.
+
+Use it for highlights, circles, boxes, brackets, underlines, strike-throughs and crossed-off marks.
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {AnnotationBehind} from '@remotion/rough-notation';
+import {AbsoluteFill, spring, useCurrentFrame, useVideoConfig} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  const frame = useCurrentFrame();
+  const {fps} = useVideoConfig();
+  const progress = spring({fps, frame, durationInFrames: 45});
+
+  return (
+    <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center'}}>
+      <div style={{fontSize: 96}}>
+        This is{' '}
+        <AnnotationBehind
+          progress={progress}
+          type="highlight"
+          color="yellow"
+          iterations={8}
+        >
+          important
+        </AnnotationBehind>
+      </div>
+    </AbsoluteFill>
+  );
+};
+```
+
+## API
+
+### `children`
+
+The element or text to track.
+
+### `progress`
+
+Controls the annotation drawing progress from `0` to `1`.
+
+### `seed?`
+
+Controls the random roughness. Default: `1`.
+
+### `roughOptions?`
+
+Overrides options passed to `roughjs`.
+
+### Annotation options
+
+Pass one of the options described in [`annotationConfig`](/docs/rough-notation/annotation-config).
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
+
+## See also
+
+- [`<AnnotationOnTop>`](/docs/rough-notation/annotation-on-top)
+- [`createAnnotation()`](/docs/rough-notation/create-annotation)
+- [`annotationConfig`](/docs/rough-notation/annotation-config)
