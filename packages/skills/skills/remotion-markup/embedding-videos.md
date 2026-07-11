@@ -1,5 +1,5 @@
 ---
-name: videos
+name: embedding-videos
 description: Embedding videos in Remotion - trimming, volume, speed, looping, pitch
 metadata:
   tags: video, media, trim, volume, speed, loop, pitch
@@ -84,8 +84,8 @@ Use the `style` prop to control size and position:
     position: "absolute",
     top: 100,
     left: 50,
-    objectFit: "cover",
   }}
+  objectFit="cover"
 />
 ```
 
