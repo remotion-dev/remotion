@@ -1,26 +1,34 @@
 ---
 name: remotion-saas
-description: Choose a Remotion app template and rendering architecture for SaaS or product integrations. Use when a user asks how to build a Remotion-powered web app, generate videos from a web app, embed the Player, set up Remotion Lambda, pick between Next.js, React Router, Express render server, Vercel Sandbox, Lambda, SSR, Web Renderer, Cloudflare Workers, or migrate an existing app toward Remotion rendering.
+description: Building video apps with Remotion - framework, rendering and Player advice
 metadata:
   tags: remotion, saas, player, rendering, templates, lambda
 ---
 
-Help users choose the right Remotion template, rendering method, and Player setup for a web app or SaaS product. Do not duplicate the docs; link canonical pages and local template references.
+One can build apps with Remotion.  
+It is possible to have a simple form and hook it up to a render, or have a complex video editor.
 
-If the task is about authoring animation/video code, also use Remotion best-practices guidance. If the task is about Studio Visual Mode editability, also use interactivity guidance.
+## Choosing a template or a framework
 
-## Route by task
+We have several templates for SaaS which can be cloned or used as a reference.
+See [Choosing a framework](framework.md) for help choosing a template or framework. 
 
-- Interactive preview only, no output file in that flow: load [player.md](player.md).
-- Framework or SaaS architecture, templates, Vercel, Lambda, Web Renderer, Cloudflare, or choosing a render location: load [framework.md](framework.md).
-- Node/Bun server-side rendering, custom render servers, render/progress/cancel APIs, or SSR limitations: load [ssr.md](ssr.md).
+## The `<Player>`
 
-## Final recommendation shape
+This component allows embedding a Remotion preview in a React app. See [Player](player.md) for more information about the Player.
 
-When answering, include:
+## Rendering
 
-1. Recommended template.
-2. Recommended rendering method.
-3. Why that path fits the user's constraints.
-4. The docs/template links to inspect next.
-5. One caution, such as cost controls, rate limiting, browser support, or experimental status.
+There are client-side and server-side rendering options available. See [Rendering](rendering.md) for advice on how to choose, and about the Lambda, Vercel, Node.js and Cloudflare options.
+
+## With Vue
+
+See https://www.remotion.dev/docs/vue.md for how to use Remotion with Vue.
+
+## Angular
+
+See https://www.remotion.dev/docs/angular.md for how to use Remotion with Angular.
+
+## Svelte
+
+See https://www.remotion.dev/docs/svelte.md for how to use Remotion with Svelte.
