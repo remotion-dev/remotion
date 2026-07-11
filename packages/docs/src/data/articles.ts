@@ -7040,6 +7040,15 @@ export const articles = [
 		slug: 'testing',
 	},
 	{
+		id: 'text-highlights',
+		title: 'Text highlights',
+		relativePath: 'docs/text-highlights.mdx',
+		compId: 'articles-docs-text-highlights',
+		crumb: 'Designing visuals',
+		noAi: false,
+		slug: 'text-highlights',
+	},
+	{
 		id: 'the-fundamentals',
 		title: 'The fundamentals',
 		relativePath: 'docs/the-fundamentals.mdx',

@@ -1052,6 +1052,7 @@ const sidebars: SidebarsConfig = {
 				'transitioning',
 				'effects',
 				'fonts',
+				'text-highlights',
 				'measuring',
 				'using-randomness',
 				'maps',
