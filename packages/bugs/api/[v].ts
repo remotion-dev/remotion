@@ -6,23 +6,7 @@ type Bug = {
 	versions: string[];
 };
 
-const remotion4PatchVersions = (from: number, to: number): string[] => {
-	const versions: string[] = [];
-	for (let patch = to; patch >= from; patch--) {
-		versions.push(`4.0.${patch}`);
-	}
-
-	return versions;
-};
-
 export const bugs: Bug[] = [
-	{
-		title: 'Remotion Studio exposes unauthenticated file writes',
-		description:
-			'Remotion Studio allowed unauthenticated local network requests to change project files and trigger dependency installation. Upgrade to 4.0.488.',
-		link: 'https://remotion.dev/changelog',
-		versions: remotion4PatchVersions(33, 487),
-	},
 	{
 		title: 'TransitionSeries.Sequence timing is broken',
 		description:
