@@ -1,5 +1,6 @@
 import React, {useContext} from 'react';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
+import {getStudioAskAIEnabled} from '../helpers/studio-runtime-config';
 import {ModalsContext} from '../state/modals';
 import {AskAiModal} from './AskAiModal';
 import {ConfirmationDialog} from './ConfirmationDialog';
@@ -185,7 +186,7 @@ export const Modals: React.FC<{
 			{modalContextType && modalContextType.type === 'confirmation-dialog' && (
 				<ConfirmationDialog state={modalContextType} />
 			)}
-			{process.env.ASK_AI_ENABLED && <AskAiModal />}
+			{getStudioAskAIEnabled() && <AskAiModal />}
 		</>
 	);
 };

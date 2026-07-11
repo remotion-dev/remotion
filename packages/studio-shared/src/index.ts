@@ -310,6 +310,7 @@ export {
 	type StudioEntryPointPaths,
 } from './studio-entry-points';
 export {studioHtml, type StudioHtmlOptions} from './studio-html';
+export type {StudioRuntimeConfig} from './studio-runtime-config';
 
 export type {VisualControlChange} from './codemods';
 export {

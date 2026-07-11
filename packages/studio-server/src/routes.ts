@@ -12,6 +12,7 @@ import type {
 	GitSource,
 	RenderDefaults,
 	RenderJob,
+	StudioRuntimeConfig,
 } from '@remotion/studio-shared';
 import {getProjectName, parseElementDragData} from '@remotion/studio-shared';
 import {getCompletedClientRenders} from './client-render-queue';
@@ -284,6 +285,7 @@ const handleFallback = async ({
 	gitSource,
 	logLevel,
 	enableCrossSiteIsolation,
+	getStudioRuntimeConfig,
 }: {
 	remotionRoot: string;
 	hash: string;
@@ -300,6 +302,7 @@ const handleFallback = async ({
 	gitSource: GitSource | null;
 	logLevel: LogLevel;
 	enableCrossSiteIsolation: boolean;
+	getStudioRuntimeConfig: () => StudioRuntimeConfig;
 }) => {
 	const acceptsHtml = (request.headers.accept ?? '').includes('text/html');
 	if (request.method === 'GET' && acceptsHtml) {
@@ -378,6 +381,7 @@ const handleFallback = async ({
 			mode: 'dev',
 			audioLatencyHint: audioLatencyHint ?? 'playback',
 			sampleRate: previewSampleRate,
+			studioRuntimeConfig: getStudioRuntimeConfig(),
 		}),
 	);
 };
@@ -571,6 +575,7 @@ export const handleRoutes = ({
 	audioLatencyHint,
 	previewSampleRate,
 	enableCrossSiteIsolation,
+	getStudioRuntimeConfig,
 }: {
 	staticHash: string;
 	staticHashPrefix: string;
@@ -594,6 +599,7 @@ export const handleRoutes = ({
 	audioLatencyHint: AudioContextLatencyCategory | null;
 	previewSampleRate: number | null;
 	enableCrossSiteIsolation: boolean;
+	getStudioRuntimeConfig: () => StudioRuntimeConfig;
 }): Promise<void> => {
 	const url = new URL(request.url as string, 'http://localhost');
 
@@ -740,5 +746,6 @@ export const handleRoutes = ({
 		audioLatencyHint,
 		previewSampleRate,
 		enableCrossSiteIsolation,
+		getStudioRuntimeConfig,
 	});
 };

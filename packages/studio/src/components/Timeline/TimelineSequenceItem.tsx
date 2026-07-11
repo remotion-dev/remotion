@@ -14,6 +14,7 @@ import {
 import {formatFileLocation} from '../../helpers/format-file-location';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {studioInteractivityEnabled} from '../../helpers/interactivity-enabled';
+import {getStudioKeyboardShortcutsEnabled} from '../../helpers/studio-runtime-config';
 import {
 	getTimelineLayerHeight,
 	TIMELINE_ITEM_BORDER_BOTTOM,
@@ -760,7 +761,7 @@ export const TimelineSequenceItem: React.FC<{
 	);
 
 	React.useEffect(() => {
-		if (!canRenameSelectedSequence || !process.env.KEYBOARD_SHORTCUTS_ENABLED) {
+		if (!canRenameSelectedSequence || !getStudioKeyboardShortcutsEnabled()) {
 			setIsRenaming(false);
 			return;
 		}
