@@ -4,7 +4,7 @@ export const validateSameOrigin = (req: IncomingMessage): void => {
 	const {origin, host} = req.headers;
 
 	if (typeof origin !== 'string') {
-		if (req.method === 'GET') {
+		if (req.method === 'GET' || req.method === 'HEAD') {
 			return;
 		}
 

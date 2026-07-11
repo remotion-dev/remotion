@@ -192,6 +192,43 @@ test('allows GET API requests without an Origin header', async () => {
 	});
 });
 
+test('allows HEAD API requests without an Origin header', async () => {
+	const response = makeResponse();
+
+	await handleRequest({
+		binariesDirectory: null,
+		entryPoint: '',
+		handler: ({input}) => {
+			return Promise.resolve({input});
+		},
+		logLevel: 'info',
+		methods: {
+			addJob: () => undefined,
+			cancelJob: () => undefined,
+			removeJob: () => undefined,
+		},
+		publicDir: '',
+		remotionRoot: '',
+		request: makeRequest({
+			body: {relativePath: 'logo.png'},
+			host: 'localhost:3000',
+			method: 'HEAD',
+			origin: undefined,
+		}),
+		response,
+	});
+
+	expect(response.statusCode).toBe(200);
+	expect(JSON.parse(response.body)).toEqual({
+		data: {
+			input: {
+				relativePath: 'logo.png',
+			},
+		},
+		success: true,
+	});
+});
+
 test('rejects requests with a mismatched Origin scheme before calling the handler', async () => {
 	const response = makeResponse();
 	let didCallHandler = false;
