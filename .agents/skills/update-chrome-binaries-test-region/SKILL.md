@@ -49,6 +49,6 @@ The Dockerfiles install the local workspace build of `@remotion/cli` plus transi
 
 If a new composition is added to the Docker test matrix, register it in `packages/example/src/BrowserTestRoot.tsx` and add a corresponding `RUN remotion render /usr/app/bundle <id> /usr/app/<filename>.mp4` line plus `docker cp` extraction in `run.sh`.
 
-The `html-in-canvas` composition's runtime check in `packages/example/src/HtmlInCanvas/html-in-canvas.tsx` requires both `ctx.drawElementImage` and `canvas.requestPaint`, which Chrome 149+ exposes when `--enable-features=CanvasDrawElement` is passed. If `html-in-canvas` renders fail with `"HTML in Canvas is not supported"` while `browser-test` passes, the most likely cause is a Chrome version mismatch.
+The `<HtmlInCanvas>` runtime check in `packages/core/src/HtmlInCanvas.tsx` requires `ctx.drawElementImage`, `canvas.requestPaint`, `canvas.captureElementImage`, and `transferControlToOffscreen`, which Chrome 149+ exposes when `--enable-features=CanvasDrawElement` is passed. If `html-in-canvas` renders fail with `"HTML in Canvas is not supported"` while `browser-test` passes, the most likely cause is a Chrome version mismatch.
 
 Do not proceed to publishing all regions until the test region has been verified end-to-end.
