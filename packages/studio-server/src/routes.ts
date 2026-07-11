@@ -391,17 +391,21 @@ const handleFileSource = async ({
 	remotionRoot,
 	search,
 	response,
+	request,
 }: {
 	method: string;
 	remotionRoot: string;
 	search: string;
 	response: ServerResponse;
+	request: IncomingMessage;
 }): Promise<void> => {
 	if (method === 'OPTIONS') {
 		response.writeHead(200);
 		response.end();
 		return Promise.resolve();
 	}
+
+	validateSameOrigin(request);
 
 	if (!search.startsWith('?')) {
 		throw new Error('query must start with ?');
@@ -605,6 +609,7 @@ export const handleRoutes = ({
 			search: url.search,
 			method: request.method as string,
 			response,
+			request,
 		});
 	}
 
