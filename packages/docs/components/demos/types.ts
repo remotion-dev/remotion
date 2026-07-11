@@ -1,4 +1,5 @@
 import type {LogLevel} from 'remotion';
+import {RoughNotationHighlight} from '../../elements/overlays/rough-notation-highlight/rough-notation-highlight';
 import {
 	ClockWipeDemo,
 	CubeDemo,
@@ -1396,6 +1397,19 @@ export const lightLeakDemo: DemoType = {
 			optional: 'no',
 		},
 	],
+};
+
+export const roughNotationHighlightDemo: DemoType = {
+	comp: RoughNotationHighlight,
+	compHeight: 460,
+	compWidth: 1140,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'rough-notation-highlight',
+	autoPlay: true,
+	controls: true,
+	logLevel: 'info',
+	options: [],
 };
 
 export const starburstDemo: DemoType = {
