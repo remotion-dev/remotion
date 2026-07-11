@@ -30,7 +30,7 @@ export const GetStarted: React.FC = () => {
 						}}
 						title="Click to copy"
 					>
-						$ npm create video
+						$ npx create-video@latest
 					</Button>
 				</div>
 			</div>
