@@ -1,6 +1,6 @@
 ---
 name: mediabunny
-description: Achieving
+description: Multimedia handling with the Mediabunny library
 metadata:
   tags: remotion, mediabunny, multimedia, video, audio
 ---
