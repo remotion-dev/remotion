@@ -1,5 +1,4 @@
 import type {LogLevel} from 'remotion';
-import {TextMarker} from '../../elements/text/text-marker/text-marker';
 import {
 	ClockWipeDemo,
 	CubeDemo,
@@ -34,6 +33,7 @@ import {PieDemo} from './Pie';
 import {PolygonDemo} from './Polygon';
 import {RectDemo} from './Rect';
 import {RippleDocsDemo} from './RippleDemo';
+import {RoughNotationHighlightDemo} from './RoughNotationHighlightDemo';
 import {RoundedTextBox} from './RoundedTextBox';
 import {ShaderDemoComp} from './ShaderDemo';
 import {SparkDemo} from './Spark';
@@ -1400,7 +1400,7 @@ export const lightLeakDemo: DemoType = {
 };
 
 export const roughNotationHighlightDemo: DemoType = {
-	comp: TextMarker,
+	comp: RoughNotationHighlightDemo,
 	compHeight: 460,
 	compWidth: 1140,
 	durationInFrames: 90,

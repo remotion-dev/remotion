@@ -25,7 +25,6 @@ type ElementPageProps = {
 	readonly displayName?: string;
 	readonly durationInFrames?: number;
 	readonly elementHeight?: number;
-	readonly elementPadding?: number;
 	readonly elementWidth?: number;
 	readonly fps?: number;
 	readonly height?: number;
@@ -113,7 +112,6 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 	displayName,
 	durationInFrames = 120,
 	elementHeight,
-	elementPadding = 0,
 	elementWidth,
 	fps = 30,
 	height = 1080,
@@ -236,15 +234,6 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 									height: elementHeight,
 									position: 'relative',
 									width: elementWidth,
-									...(elementPadding > 0
-										? {
-												alignItems: 'center',
-												boxSizing: 'border-box',
-												display: 'flex',
-												justifyContent: 'center',
-												padding: elementPadding,
-											}
-										: {}),
 								}}
 							>
 								<Component />
@@ -263,7 +252,6 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 	}, [
 		component,
 		elementHeight,
-		elementPadding,
 		elementWidth,
 		hasElementDimensions,
 		previewPadding,
