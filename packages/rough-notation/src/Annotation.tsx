@@ -156,6 +156,7 @@ const annotationInteractiveSchema = {
 const AnnotationOnTopInner: React.FC<
 	AnnotationInteractiveProps & {
 		readonly controls: SequenceControls | undefined;
+		readonly stack?: string;
 	}
 > = ({
 	children,
@@ -167,6 +168,7 @@ const AnnotationOnTopInner: React.FC<
 	name,
 	showInTimeline,
 	controls,
+	stack,
 	...props
 }) => {
 	const annotation = useMemo(() => {
@@ -185,6 +187,7 @@ const AnnotationOnTopInner: React.FC<
 			name={name ?? '<AnnotationOnTop>'}
 			showInTimeline={showInTimeline ?? true}
 			controls={controls}
+			_remotionInternalStack={stack}
 			_remotionInternalDocumentationLink="https://www.remotion.dev/docs/rough-notation/annotation-on-top"
 			outlineRef={outlineRef}
 		>
@@ -211,6 +214,7 @@ AnnotationOnTop.displayName = 'AnnotationOnTop';
 const AnnotationBehindInner: React.FC<
 	AnnotationInteractiveProps & {
 		readonly controls: SequenceControls | undefined;
+		readonly stack?: string;
 	}
 > = ({
 	children,
@@ -222,6 +226,7 @@ const AnnotationBehindInner: React.FC<
 	name,
 	showInTimeline,
 	controls,
+	stack,
 	...props
 }) => {
 	const annotation = useMemo(() => {
@@ -240,6 +245,7 @@ const AnnotationBehindInner: React.FC<
 			name={name ?? '<AnnotationBehind>'}
 			showInTimeline={showInTimeline ?? true}
 			controls={controls}
+			_remotionInternalStack={stack}
 			_remotionInternalDocumentationLink="https://www.remotion.dev/docs/rough-notation/annotation-behind"
 			outlineRef={outlineRef}
 		>
