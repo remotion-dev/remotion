@@ -86,7 +86,7 @@ export const RoughNotationHighlightExample: React.FC = () => {
 				border: '1px solid var(--ifm-color-emphasis-300)',
 				borderRadius: 'var(--ifm-pre-border-radius)',
 				backgroundColor: 'white',
-				marginBottom: 40,
+				marginBottom: 20,
 			}}
 		/>
 	);
