@@ -1,6 +1,7 @@
-export const ELEMENT_INSTALL_TARGET_MAX_AGE = 5 * 60 * 1000;
+export const ELEMENT_INSTALL_TARGET_MAX_AGE = 5000;
 
 export type ElementInstallTarget = {
+	requestId: string | null;
 	clientId: string;
 	compositionFile: string | null;
 	compositionId: string | null;
@@ -32,13 +33,17 @@ export const updateElementInstallTarget = (
 	});
 };
 
-export const getElementInstallTarget = () => {
+export const getElementInstallTarget = (requestId?: string) => {
 	const now = Date.now();
 	let bestTarget: ElementInstallTarget | null = null;
 
 	for (const [clientId, currentTarget] of targetsByClientId) {
 		if (now - currentTarget.updatedAt >= ELEMENT_INSTALL_TARGET_MAX_AGE) {
 			targetsByClientId.delete(clientId);
+			continue;
+		}
+
+		if (requestId !== undefined && currentTarget.requestId !== requestId) {
 			continue;
 		}
 

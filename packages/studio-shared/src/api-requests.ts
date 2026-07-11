@@ -768,6 +768,7 @@ export type ElementInstallRequest = {
 };
 
 export type UpdateElementInstallTargetRequest = {
+	requestId: string | null;
 	clientId: string;
 	compositionFile: string | null;
 	compositionId: string | null;
