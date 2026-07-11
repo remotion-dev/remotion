@@ -17,33 +17,42 @@ import {StudioServerInternals} from '@remotion/studio-server';
 import {getBrowser} from './browser';
 import {
 	getBufferStateDelayInMilliseconds,
+	resetBufferStateDelayInMilliseconds,
 	setBufferStateDelayInMilliseconds,
 } from './buffer-state-delay-in-milliseconds';
-import {getConcurrency} from './concurrency';
 import type {Concurrency} from './concurrency';
-import {getEntryPoint, setEntryPoint} from './entry-point';
+import {getConcurrency} from './concurrency';
+import {getEntryPoint, resetEntryPoint, setEntryPoint} from './entry-point';
 import {getDotEnvLocation} from './env-file';
 import {
 	getFfmpegOverrideFunction,
+	resetFfmpegOverrideFunction,
 	setFfmpegOverrideFunction,
 } from './ffmpeg-override';
 import {getShouldOutputImageSequence} from './image-sequence';
-import {getMetadata, setMetadata} from './metadata';
-import {getOutputLocation} from './output-location';
-import {setOutputLocation} from './output-location';
+import {getMetadata, resetMetadata, setMetadata} from './metadata';
+import {
+	getOutputLocation,
+	resetOutputLocation,
+	setOutputLocation,
+} from './output-location';
+import type {WebpackOverrideFn} from './override-webpack';
 import {
 	defaultOverrideFunction,
 	getWebpackOverrideFn,
+	overrideWebpackConfig,
+	resetWebpackOverride,
 } from './override-webpack';
-import type {WebpackOverrideFn} from './override-webpack';
-import {overrideWebpackConfig} from './override-webpack';
 import {
 	getRendererPortFromConfigFile,
 	getRendererPortFromConfigFileAndCliFlag,
 	getStudioPort,
+	resetPreviewServerPorts,
+	setPort,
+	setRendererPort,
+	setStudioPort,
 } from './preview-server';
-import {setPort, setRendererPort, setStudioPort} from './preview-server';
-import {getStillFrame, setStillFrame} from './still-frame';
+import {getStillFrame, resetStillFrame, setStillFrame} from './still-frame';
 import {getWebpackCaching} from './webpack-caching';
 import {getWebpackPolling} from './webpack-poll';
 
@@ -125,6 +134,113 @@ const {
 	sampleRateOption,
 	previewSampleRateOption,
 } = BrowserSafeApis.options;
+
+const resetOption = (
+	option: {setConfig: (value: never) => void},
+	value: unknown,
+) => {
+	option.setConfig(value as never);
+};
+
+const resetOptionBypassValidation = (option: unknown) => {
+	const {reset} = option as {reset?: () => void};
+
+	if (!reset) {
+		throw new Error('Expected option to have a reset() method');
+	}
+
+	reset();
+};
+
+const resetBrowserSafeConfigOptions = () => {
+	resetOption(allowHtmlInCanvasOption, false);
+	resetOption(benchmarkConcurrenciesOption, null);
+	resetOption(concurrencyOption, null);
+	resetOption(offthreadVideoCacheSizeInBytesOption, null);
+	resetOption(x264Option, null);
+	resetOption(audioBitrateOption, null);
+	resetOption(videoBitrateOption, null);
+	resetOption(scaleOption, 1);
+	resetOption(crfOption, undefined);
+	resetOption(jpegQualityOption, undefined);
+	resetOption(enforceAudioOption, false);
+	resetOption(overwriteOption, true);
+	resetOption(chromeModeOption, 'headless-shell');
+	resetOption(mutedOption, false);
+	resetOption(videoCodecOption, undefined);
+	resetOption(colorSpaceOption, null);
+	resetOption(disallowParallelEncodingOption, false);
+	resetOption(deleteAfterOption, null);
+	resetOption(folderExpiryOption, null);
+	resetOption(enableMultiprocessOnLinuxOption, true);
+	resetOption(glOption, null);
+	resetOption(gopSizeOption, null);
+	resetOption(headlessOption, true);
+	resetOption(numberOfGifLoopsOption, null);
+	resetOption(beepOnFinishOption, false);
+	resetOption(encodingMaxRateOption, null);
+	resetOption(encodingBufferSizeOption, null);
+	resetOption(reproOption, false);
+	resetOption(enableLambdaInsights, false);
+	resetOption(logLevelOption, 'info');
+	resetOption(delayRenderTimeoutInMillisecondsOption, 30000);
+	resetOption(publicDirOption, null);
+	resetOption(binariesDirectoryOption, null);
+	resetOption(preferLosslessOption, false);
+	resetOption(framesOption, null);
+	resetOption(forSeamlessAacConcatenationOption, false);
+	resetOption(audioCodecOption, null);
+	resetOption(publicPathOption, null);
+	resetOption(hardwareAccelerationOption, 'disable');
+	resetOption(audioLatencyHintOption, null);
+	resetOption(enableCrossSiteIsolationOption, false);
+	resetOption(imageSequencePatternOption, null);
+	resetOption(darkModeOption, false);
+	resetOption(askAIOption, false);
+	resetOption(publicLicenseKeyOption, null);
+	resetOption(experimentalClientSideRenderingOption, false);
+	resetOption(interactivityOption, true);
+	resetOption(keyboardShortcutsOption, true);
+	resetOption(forceNewStudioOption, false);
+	resetOption(numberOfSharedAudioTagsOption, 0);
+	resetOption(ipv4Option, false);
+	resetOption(pixelFormatOption, 'yuv420p');
+	resetOption(browserExecutableOption, null);
+	resetOption(everyNthFrameOption, 1);
+	resetOption(proResProfileOption, undefined);
+	resetOption(stillImageFormatOption, null);
+	resetOption(videoImageFormatOption, null);
+	resetOption(userAgentOption, null);
+	resetOption(disableWebSecurityOption, false);
+	resetOption(ignoreCertificateErrorsOption, false);
+	resetOptionBypassValidation(overrideHeightOption);
+	resetOptionBypassValidation(overrideWidthOption);
+	resetOptionBypassValidation(overrideFpsOption);
+	resetOptionBypassValidation(overrideDurationOption);
+	resetOption(rspackOption, false);
+	resetOption(outDirOption, null);
+	resetOption(webpackPollOption, null);
+	resetOption(imageSequenceOption, false);
+	resetOption(bundleCacheOption, true);
+	resetOption(envFileOption, null);
+	resetOption(runsOption, 3);
+	resetOption(noOpenOption, true);
+	resetOption(sampleRateOption, 48000);
+	resetOption(previewSampleRateOption, null);
+};
+
+const resetConfigOptions = () => {
+	resetBrowserSafeConfigOptions();
+	StudioServerInternals.resetMaxTimelineTracks();
+	resetBufferStateDelayInMilliseconds();
+	resetEntryPoint();
+	resetFfmpegOverrideFunction();
+	resetMetadata();
+	resetOutputLocation();
+	resetWebpackOverride();
+	resetPreviewServerPorts();
+	resetStillFrame();
+};
 
 declare global {
 	interface RemotionBundlingOptions {
@@ -831,4 +947,5 @@ export const ConfigInternals = {
 	getWebpackPolling,
 	getBufferStateDelayInMilliseconds,
 	getOutputCodecOrUndefined: BrowserSafeApis.getOutputCodecOrUndefined,
+	resetConfigOptions,
 };
