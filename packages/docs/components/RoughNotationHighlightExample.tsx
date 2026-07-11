@@ -20,21 +20,21 @@ const containerStyle: React.CSSProperties = {
 	alignItems: 'center',
 };
 
-const annotationTextStyle: React.CSSProperties = {
-	fontSize: 80,
-	fontWeight: 700,
-	lineHeight: 1.1,
-	color: '#171717',
-	fontFamily,
-	width: 800,
-};
-
 const RoughNotationHighlightComposition: React.FC = () => {
 	const frame = useCurrentFrame();
 
 	return (
 		<AbsoluteFill style={containerStyle}>
-			<Interactive.Div style={annotationTextStyle}>
+			<Interactive.Div
+				style={{
+					fontSize: 80,
+					fontWeight: 700,
+					lineHeight: 1.1,
+					color: '#171717',
+					fontFamily,
+					width: 800,
+				}}
+			>
 				<Interactive.Span>A truly </Interactive.Span>
 				<AnnotationBehind
 					name="Highlight annotation"

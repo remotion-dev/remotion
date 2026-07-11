@@ -6,14 +6,23 @@ import {
 	interpolate,
 	useCurrentFrame,
 } from 'remotion';
-import {annotationTextStyle, containerStyle} from './shared';
+import {containerStyle, fontFamily} from './shared';
 
 export const RoughNotationBracket: React.FC = () => {
 	const frame = useCurrentFrame();
 
 	return (
 		<AbsoluteFill style={containerStyle}>
-			<Interactive.Div style={annotationTextStyle}>
+			<Interactive.Div
+				style={{
+					fontSize: 80,
+					fontWeight: 700,
+					lineHeight: 1.1,
+					color: '#171717',
+					fontFamily,
+					width: 800,
+				}}
+			>
 				<Interactive.Span>Mark </Interactive.Span>
 				<AnnotationOnTop
 					name="Bracket annotation"
