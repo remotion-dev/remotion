@@ -55,6 +55,7 @@ export type {_InternalTypes} from 'remotion';
 export type {DownloadBehavior, VideoConfig} from 'remotion/no-react';
 export {VERSION} from 'remotion/version';
 export {Await} from './await';
+export {calculateBillingDuration} from './calculate-billing-duration';
 export {calculateChunkTimes} from './calculate-chunk-times';
 export {
 	compressInputProps,
