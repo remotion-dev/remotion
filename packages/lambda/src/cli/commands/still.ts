@@ -19,9 +19,9 @@ import {parsedLambdaCli} from '../args';
 import {getAwsRegion} from '../get-aws-region';
 import {findFunctionName} from '../helpers/find-function-name';
 import {
+	getS3OutputProviderFromCli,
 	makeOutNameWithCustomCredentials,
-	parseS3OutputProvider,
-} from '../helpers/parse-s3-output-provider';
+} from '../helpers/get-s3-output-provider-from-cli';
 import {quit} from '../helpers/quit';
 import {Log} from '../log';
 import {makeArtifactProgress} from './render/progress';
@@ -222,9 +222,14 @@ export const stillCommand = async ({
 
 	const downloadName = args[2] ?? null;
 	const outName = parsedLambdaCli['out-name'];
-	const s3OutputProvider = parseS3OutputProvider(
-		parsedLambdaCli['s3-output-provider'],
-	);
+	const s3OutputProvider = getS3OutputProviderFromCli({
+		endpoint: parsedLambdaCli['s3-output-provider-endpoint'],
+		accessKeyId: parsedLambdaCli['s3-output-provider-access-key-id'],
+		secretAccessKey: parsedLambdaCli['s3-output-provider-secret-access-key'],
+		region: parsedLambdaCli['s3-output-provider-region'],
+		forcePathStyle:
+			parsedLambdaCli['s3-output-provider-force-path-style'] || undefined,
+	});
 	const resolvedOutName = makeOutNameWithCustomCredentials({
 		bucketName: parsedLambdaCli['force-bucket-name'],
 		key: outName,

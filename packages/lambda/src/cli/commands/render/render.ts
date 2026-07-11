@@ -23,11 +23,11 @@ import {validateMaxRetries} from '../../../shared/validate-retries';
 import {parsedLambdaCli} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
 import {findFunctionName} from '../../helpers/find-function-name';
-import {getWebhookCustomData} from '../../helpers/get-webhook-custom-data';
 import {
+	getS3OutputProviderFromCli,
 	makeOutNameWithCustomCredentials,
-	parseS3OutputProvider,
-} from '../../helpers/parse-s3-output-provider';
+} from '../../helpers/get-s3-output-provider-from-cli';
+import {getWebhookCustomData} from '../../helpers/get-webhook-custom-data';
 import {quit} from '../../helpers/quit';
 import {Log} from '../../log';
 import {makeProgressString} from './progress';
@@ -313,9 +313,14 @@ export const renderCommand = async ({
 	}
 
 	const outName = parsedLambdaCli['out-name'];
-	const s3OutputProvider = parseS3OutputProvider(
-		parsedLambdaCli['s3-output-provider'],
-	);
+	const s3OutputProvider = getS3OutputProviderFromCli({
+		endpoint: parsedLambdaCli['s3-output-provider-endpoint'],
+		accessKeyId: parsedLambdaCli['s3-output-provider-access-key-id'],
+		secretAccessKey: parsedLambdaCli['s3-output-provider-secret-access-key'],
+		region: parsedLambdaCli['s3-output-provider-region'],
+		forcePathStyle:
+			parsedLambdaCli['s3-output-provider-force-path-style'] || undefined,
+	});
 	const resolvedOutName = makeOutNameWithCustomCredentials({
 		bucketName: parsedLambdaCli['force-bucket-name'],
 		key: outName,

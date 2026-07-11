@@ -14,6 +14,7 @@ const LambdaBooleanFlags = [
 	'default-only',
 	'compatible-only',
 	'force-path-style',
+	's3-output-provider-force-path-style',
 ];
 
 type LambdaCommandLineOptions = {
@@ -36,7 +37,11 @@ type LambdaCommandLineOptions = {
 	['concurrency']?: number;
 	['concurrency-per-lambda']?: number;
 	['out-name']: string | undefined;
-	['s3-output-provider']: string | undefined;
+	['s3-output-provider-endpoint']: string | undefined;
+	['s3-output-provider-access-key-id']: string | undefined;
+	['s3-output-provider-secret-access-key']: string | undefined;
+	['s3-output-provider-region']: AwsRegion | (string & {}) | undefined;
+	['s3-output-provider-force-path-style']: boolean;
 	['custom-role-arn']: string | undefined;
 	privacy: Privacy;
 	webhook: string | undefined;
