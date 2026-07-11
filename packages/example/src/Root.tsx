@@ -238,9 +238,10 @@ import {
 } from './ProResMediaVideo';
 import {
 	RoughNotationBracket,
+	RoughNotationBox,
 	RoughNotationCircle,
 	RoughNotationCrossedOff,
-	RoughNotationHighlightAndBox,
+	RoughNotationHighlight,
 	RoughNotationStrikeThrough,
 	RoughNotationUnderline,
 } from './RoughNotation';
@@ -2537,8 +2538,16 @@ export const Index: React.FC = () => {
 			</Folder>
 			<Folder name="rough-notation">
 				<Composition
-					id="rough-notation-highlight-and-box"
-					component={RoughNotationHighlightAndBox}
+					id="rough-notation-highlight"
+					component={RoughNotationHighlight}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={90}
+				/>
+				<Composition
+					id="rough-notation-box"
+					component={RoughNotationBox}
 					width={1080}
 					height={1080}
 					fps={30}
