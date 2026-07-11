@@ -5,9 +5,12 @@ metadata:
   tags: remotion
 ---
 
-These are instructions for making a new Remotion project.  
+These are instructions for making a new Remotion project and composition.  
 If this is not the next task, see [Remotion Best Practices](../remotion-best-practices/SKILL.md)
 
+## Scaffold a project
+
+If a project already exists, skip this.
 Ensure Node.js and Git is installed, and the current folder is appropriate for starting a new project.
 
 Scaffold one using:
@@ -27,7 +30,6 @@ Keep the scaffold and add React Markup. Follow [Remotion React Markup Best Pract
 ## Interactivity Best Practices
 
 By structuring the React Markup following [Remotion Interactivity Best Practices](../remotion-interactivity/SKILL.md), you allow the user to make edits in the Studio which write back to code.
-
 
 ## TailwindCSS
 
