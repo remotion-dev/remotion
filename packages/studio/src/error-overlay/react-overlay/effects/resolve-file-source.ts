@@ -7,19 +7,8 @@ export const resolveFileSource = async (
 	location: ErrorLocation,
 	contextLines: number,
 ): Promise<SymbolicatedStackFrame> => {
-	if (!window.remotion_studioAuthToken) {
-		throw new Error('Missing Studio authentication token');
-	}
-
-	const studioAuthToken = window.remotion_studioAuthToken;
-
 	const res = await fetch(
 		`/api/file-source?f=${encodeURIComponent(location.fileName)}`,
-		{
-			headers: {
-				'x-remotion-studio-token': studioAuthToken,
-			},
-		},
 	);
 	const text = await res.text();
 

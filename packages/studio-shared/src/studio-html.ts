@@ -30,7 +30,6 @@ export type StudioHtmlOptions = {
 	mode: 'dev' | 'bundle';
 	bundleScriptUrl?: string;
 	readOnlyStudio?: boolean;
-	studioAuthToken?: string;
 };
 
 export const studioHtml = ({
@@ -59,7 +58,6 @@ export const studioHtml = ({
 	mode,
 	bundleScriptUrl,
 	readOnlyStudio,
-	studioAuthToken,
 }: StudioHtmlOptions) => {
 	const scriptUrl = bundleScriptUrl ?? `${publicPath}bundle.js`;
 
@@ -90,7 +88,6 @@ export const studioHtml = ({
 		}
 		<script>window.remotion_projectName = ${JSON.stringify(projectName)};</script>
 		<script>window.remotion_publicPath = ${JSON.stringify(publicPath)};</script>
-		<script>window.remotion_studioAuthToken = ${studioAuthToken ? JSON.stringify(studioAuthToken) : 'null'};</script>
 		<script>window.remotion_audioEnabled = true;</script>
 		<script>window.remotion_videoEnabled = true;</script>
 		<script>window.remotion_renderDefaults = ${JSON.stringify(

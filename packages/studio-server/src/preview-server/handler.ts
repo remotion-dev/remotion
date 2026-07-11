@@ -14,7 +14,6 @@ export const handleRequest = async <Req, Res>({
 	methods,
 	binariesDirectory,
 	publicDir,
-	studioAuthToken,
 }: {
 	remotionRoot: string;
 	publicDir: string;
@@ -25,7 +24,6 @@ export const handleRequest = async <Req, Res>({
 	handler: ApiHandler<Req, Res>;
 	logLevel: LogLevel;
 	methods: QueueMethods;
-	studioAuthToken: string;
 }) => {
 	if (request.method === 'OPTIONS') {
 		response.statusCode = 200;
@@ -33,7 +31,7 @@ export const handleRequest = async <Req, Res>({
 		return;
 	}
 
-	validateSameOrigin(request, studioAuthToken);
+	validateSameOrigin(request);
 
 	response.setHeader('content-type', 'application/json');
 	response.writeHead(200);

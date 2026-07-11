@@ -32,11 +32,7 @@ import {parseRequestBody} from './preview-server/parse-body';
 import {fetchFolder, getFiles} from './preview-server/public-folder';
 import {getEditorName} from './preview-server/routes/open-in-editor';
 import {serveStatic} from './preview-server/serve-static';
-import {
-	validateLocalRequest,
-	validateSameOrigin,
-	validateStudioAuthToken,
-} from './preview-server/validate-same-origin';
+import {validateSameOrigin} from './preview-server/validate-same-origin';
 import {reloadPreviouslySuppressedFiles} from './preview-server/watch-ignore-next-change';
 import type {RemotionConfigResponse} from './remotion-config-response';
 const loggedStaticFileHints = new Set<string>();
@@ -288,7 +284,6 @@ const handleFallback = async ({
 	gitSource,
 	logLevel,
 	enableCrossSiteIsolation,
-	studioAuthToken,
 }: {
 	remotionRoot: string;
 	hash: string;
@@ -305,7 +300,6 @@ const handleFallback = async ({
 	gitSource: GitSource | null;
 	logLevel: LogLevel;
 	enableCrossSiteIsolation: boolean;
-	studioAuthToken: string;
 }) => {
 	const acceptsHtml = (request.headers.accept ?? '').includes('text/html');
 	if (request.method === 'GET' && acceptsHtml) {
@@ -384,7 +378,6 @@ const handleFallback = async ({
 			mode: 'dev',
 			audioLatencyHint: audioLatencyHint ?? 'playback',
 			sampleRate: previewSampleRate,
-			studioAuthToken,
 		}),
 	);
 };
@@ -395,14 +388,12 @@ const handleFileSource = async ({
 	search,
 	response,
 	request,
-	studioAuthToken,
 }: {
 	method: string;
 	remotionRoot: string;
 	search: string;
 	response: ServerResponse;
 	request: IncomingMessage;
-	studioAuthToken: string;
 }): Promise<void> => {
 	if (method === 'OPTIONS') {
 		response.writeHead(200);
@@ -410,8 +401,7 @@ const handleFileSource = async ({
 		return Promise.resolve();
 	}
 
-	validateLocalRequest(request);
-	validateStudioAuthToken(request, studioAuthToken);
+	validateSameOrigin(request);
 
 	if (!search.startsWith('?')) {
 		throw new Error('query must start with ?');
@@ -435,16 +425,14 @@ const handleAddAsset = ({
 	res,
 	search,
 	publicDir,
-	studioAuthToken,
 }: {
 	req: IncomingMessage;
 	res: ServerResponse;
 	search: string;
 	publicDir: string;
-	studioAuthToken: string;
 }): Promise<void> => {
 	try {
-		validateSameOrigin(req, studioAuthToken);
+		validateSameOrigin(req);
 
 		const query = new URLSearchParams(search);
 
@@ -481,16 +469,14 @@ const handleUploadOutput = ({
 	res,
 	search,
 	remotionRoot,
-	studioAuthToken,
 }: {
 	req: IncomingMessage;
 	res: ServerResponse;
 	search: string;
 	remotionRoot: string;
-	studioAuthToken: string;
 }): Promise<void> => {
 	try {
-		validateSameOrigin(req, studioAuthToken);
+		validateSameOrigin(req);
 
 		const query = new URLSearchParams(search);
 
@@ -585,7 +571,6 @@ export const handleRoutes = ({
 	audioLatencyHint,
 	previewSampleRate,
 	enableCrossSiteIsolation,
-	studioAuthToken,
 }: {
 	staticHash: string;
 	staticHashPrefix: string;
@@ -609,7 +594,6 @@ export const handleRoutes = ({
 	audioLatencyHint: AudioContextLatencyCategory | null;
 	previewSampleRate: number | null;
 	enableCrossSiteIsolation: boolean;
-	studioAuthToken: string;
 }): Promise<void> => {
 	const url = new URL(request.url as string, 'http://localhost');
 
@@ -620,7 +604,6 @@ export const handleRoutes = ({
 			method: request.method as string,
 			response,
 			request,
-			studioAuthToken,
 		});
 	}
 
@@ -630,7 +613,6 @@ export const handleRoutes = ({
 			res: response,
 			search: url.search,
 			publicDir,
-			studioAuthToken,
 		});
 	}
 
@@ -640,7 +622,6 @@ export const handleRoutes = ({
 			res: response,
 			search: url.search,
 			remotionRoot,
-			studioAuthToken,
 		});
 	}
 
@@ -683,7 +664,6 @@ export const handleRoutes = ({
 				methods,
 				binariesDirectory,
 				publicDir,
-				studioAuthToken,
 			});
 		}
 	}
@@ -760,6 +740,5 @@ export const handleRoutes = ({
 		audioLatencyHint,
 		previewSampleRate,
 		enableCrossSiteIsolation,
-		studioAuthToken,
 	});
 };

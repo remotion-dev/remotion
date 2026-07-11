@@ -1,7 +1,5 @@
 import type {IncomingMessage} from 'node:http';
 
-export const REMOTION_STUDIO_AUTH_HEADER = 'x-remotion-studio-token';
-
 const isLoopbackRemoteAddress = (
 	remoteAddress: string | undefined,
 ): boolean => {
@@ -18,26 +16,9 @@ export const validateLocalRequest = (req: IncomingMessage): void => {
 	}
 };
 
-export const validateStudioAuthToken = (
-	req: IncomingMessage,
-	studioAuthToken: string,
-): void => {
-	const authHeader = req.headers[REMOTION_STUDIO_AUTH_HEADER];
-	if (typeof authHeader !== 'string' || authHeader !== studioAuthToken) {
-		throw new Error('Invalid Studio authentication token');
-	}
-};
-
-export const validateSameOrigin = (
-	req: IncomingMessage,
-	studioAuthToken?: string,
-): void => {
+export const validateSameOrigin = (req: IncomingMessage): void => {
 	const {origin, host} = req.headers;
 	validateLocalRequest(req);
-
-	if (studioAuthToken) {
-		validateStudioAuthToken(req, studioAuthToken);
-	}
 
 	if (typeof origin !== 'string') {
 		throw new Error('Request without Origin header not allowed');

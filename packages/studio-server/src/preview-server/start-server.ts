@@ -1,4 +1,3 @@
-import {randomBytes} from 'node:crypto';
 import type {IncomingMessage} from 'node:http';
 import http from 'node:http';
 import type {WebpackOverrideFn} from '@remotion/bundler';
@@ -24,8 +23,6 @@ import {makeLiveEventsRouter} from './live-events';
 import {clearNodePathCache} from './node-path-cache';
 import {getRedoStack, getUndoStack} from './undo-stack';
 import {setWatchIgnoreNextChangePlugin} from './watch-ignore-next-change';
-
-const studioAuthToken = randomBytes(32).toString('hex');
 
 export type StartServerResult =
 	| {
@@ -190,7 +187,6 @@ export const startServer = async (options: {
 					audioLatencyHint: options.audioLatencyHint,
 					previewSampleRate: options.previewSampleRate,
 					enableCrossSiteIsolation: options.enableCrossSiteIsolation,
-					studioAuthToken,
 				});
 			})
 			.catch((err) => {
