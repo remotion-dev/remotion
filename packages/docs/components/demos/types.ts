@@ -33,6 +33,7 @@ import {PieDemo} from './Pie';
 import {PolygonDemo} from './Polygon';
 import {RectDemo} from './Rect';
 import {RippleDocsDemo} from './RippleDemo';
+import {RoughNotationCircleDemo} from './RoughNotationCircleDemo';
 import {RoughNotationHighlightDemo} from './RoughNotationHighlightDemo';
 import {RoundedTextBox} from './RoundedTextBox';
 import {ShaderDemoComp} from './ShaderDemo';
@@ -1406,6 +1407,19 @@ export const roughNotationHighlightDemo: DemoType = {
 	durationInFrames: 90,
 	fps: 30,
 	id: 'rough-notation-highlight',
+	autoPlay: true,
+	controls: true,
+	logLevel: 'info',
+	options: [],
+};
+
+export const roughNotationCircleDemo: DemoType = {
+	comp: RoughNotationCircleDemo,
+	compHeight: 500,
+	compWidth: 1080,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'rough-notation-circle',
 	autoPlay: true,
 	controls: true,
 	logLevel: 'info',
