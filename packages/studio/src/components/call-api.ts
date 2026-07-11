@@ -5,18 +5,21 @@ export const callApi = <Endpoint extends keyof ApiRoutes>(
 	body: ApiRoutes[Endpoint]['Request'],
 	signal?: AbortSignal,
 ): Promise<ApiRoutes[Endpoint]['Response']> => {
-	if (!window.remotion_studioAuthToken) {
+	const studioAuthToken =
+		typeof window === 'undefined' ? null : window.remotion_studioAuthToken;
+
+	if (typeof window !== 'undefined' && !studioAuthToken) {
 		return Promise.reject(new Error('Missing Studio authentication token'));
 	}
-
-	const studioAuthToken = window.remotion_studioAuthToken;
 
 	return new Promise<ApiRoutes[Endpoint]['Response']>((resolve, reject) => {
 		fetch(endpoint as string, {
 			method: 'post',
 			headers: {
 				'content-type': 'application/json',
-				'x-remotion-studio-token': studioAuthToken,
+				...(studioAuthToken
+					? {'x-remotion-studio-token': studioAuthToken}
+					: {}),
 			},
 			signal,
 			body: JSON.stringify(body),
