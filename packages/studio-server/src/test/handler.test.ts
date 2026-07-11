@@ -83,38 +83,41 @@ test('rejects cross-origin API requests before calling the handler', async () =>
 	expect(response.statusCode).toBe(0);
 });
 
-test('rejects API requests from non-local peers even with matching Host and Origin', async () => {
+test('allows same-origin API requests from non-local peers', async () => {
 	const response = makeResponse();
-	let didCallHandler = false;
 
-	await expect(
-		handleRequest({
-			binariesDirectory: null,
-			entryPoint: '',
-			handler: () => {
-				didCallHandler = true;
-				return Promise.resolve({});
-			},
-			logLevel: 'info',
-			methods: {
-				addJob: () => undefined,
-				cancelJob: () => undefined,
-				removeJob: () => undefined,
-			},
-			publicDir: '',
-			remotionRoot: '',
-			request: makeRequest({
-				body: {relativePath: 'logo.png'},
-				host: 'localhost:3000',
-				origin: 'http://localhost:3000',
-				remoteAddress: '192.168.1.5',
-			}),
-			response,
+	await handleRequest({
+		binariesDirectory: null,
+		entryPoint: '',
+		handler: ({input}) => {
+			return Promise.resolve({input});
+		},
+		logLevel: 'info',
+		methods: {
+			addJob: () => undefined,
+			cancelJob: () => undefined,
+			removeJob: () => undefined,
+		},
+		publicDir: '',
+		remotionRoot: '',
+		request: makeRequest({
+			body: {relativePath: 'logo.png'},
+			host: '192.168.1.10:3000',
+			origin: 'http://192.168.1.10:3000',
+			remoteAddress: '192.168.1.5',
 		}),
-	).rejects.toThrow('Request from non-local address not allowed');
+		response,
+	});
 
-	expect(didCallHandler).toBe(false);
-	expect(response.statusCode).toBe(0);
+	expect(response.statusCode).toBe(200);
+	expect(JSON.parse(response.body)).toEqual({
+		data: {
+			input: {
+				relativePath: 'logo.png',
+			},
+		},
+		success: true,
+	});
 });
 
 test('rejects API requests without an Origin header before calling the handler', async () => {
