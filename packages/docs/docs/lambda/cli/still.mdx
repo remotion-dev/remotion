@@ -87,6 +87,20 @@ How many times a single chunk is being retried if it fails to render. Default `1
 
 The file name of the media output as stored in the S3 bucket. By default, it is `out` plus the appropriate file extension, for example: `out.png`. Must match `/([0-9a-zA-Z-!_.*'()/]+)/g`.
 
+### `--s3-output-provider`
+
+A JSON string matching [`s3OutputProvider`](/docs/lambda/custom-destination#saving-to-another-cloud). Use it to save the rendered still to an S3-compatible provider such as Cloudflare R2.
+
+When using this option, also pass `--force-bucket-name` and `--out-name`:
+
+```bash
+npx remotion lambda still testbed my-comp \
+  --force-bucket-name=my-r2-bucket \
+  --out-name=renders/still.png \
+  --privacy=no-acl \
+  --s3-output-provider='{"endpoint":"https://<account-id>.r2.cloudflarestorage.com","accessKeyId":"<access-key-id>","secretAccessKey":"<secret-access-key>","region":"auto"}'
+```
+
 ### `--image-format`
 
 <Options id="still-image-format" />

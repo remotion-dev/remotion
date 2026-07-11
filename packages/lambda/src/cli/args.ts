@@ -36,6 +36,7 @@ type LambdaCommandLineOptions = {
 	['concurrency']?: number;
 	['concurrency-per-lambda']?: number;
 	['out-name']: string | undefined;
+	['s3-output-provider']: string | undefined;
 	['custom-role-arn']: string | undefined;
 	privacy: Privacy;
 	webhook: string | undefined;

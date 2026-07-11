@@ -219,6 +219,20 @@ A number describing how long the render may take to resolve all [`delayRender()`
 
 The file name of the media output as stored in the S3 bucket. By default, it is `out` plus the appropriate file extension, for example: `out.mp4`. Must match `/([0-9a-zA-Z-!_.*'()/]+)/g`.
 
+### `--s3-output-provider`
+
+A JSON string matching [`s3OutputProvider`](/docs/lambda/custom-destination#saving-to-another-cloud). Use it to save the rendered media to an S3-compatible provider such as Cloudflare R2.
+
+When using this option, also pass `--force-bucket-name` and `--out-name`:
+
+```bash
+npx remotion lambda render testbed my-comp \
+  --force-bucket-name=my-r2-bucket \
+  --out-name=renders/video.mp4 \
+  --privacy=no-acl \
+  --s3-output-provider='{"endpoint":"https://<account-id>.r2.cloudflarestorage.com","accessKeyId":"<access-key-id>","secretAccessKey":"<secret-access-key>","region":"auto"}'
+```
+
 ### `--overwrite`<AvailableFrom v="3.2.25" />
 
 If a custom out name is specified and a file already exists at this key in the S3 bucket, decide whether that file will be deleted before the render begins. Default `false`.
