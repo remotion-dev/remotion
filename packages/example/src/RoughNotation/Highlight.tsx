@@ -2,41 +2,50 @@ import {AnnotationBehind} from '@remotion/rough-notation';
 import React from 'react';
 import {
 	AbsoluteFill,
+	Easing,
+	Interactive,
 	interpolate,
-	interpolateColors,
 	useCurrentFrame,
 } from 'remotion';
-import {containerStyle} from './shared';
+import {annotationTextStyle, containerStyle} from './shared';
 
 export const RoughNotationHighlight: React.FC = () => {
 	const frame = useCurrentFrame();
 
 	return (
 		<AbsoluteFill style={containerStyle}>
-			<div>
-				This is a true{' '}
+			<Interactive.Div style={annotationTextStyle}>
+				<Interactive.Span>A truly </Interactive.Span>
 				<AnnotationBehind
 					name="Highlight annotation"
-					progress={interpolate(frame, [0, 60], [0, 1], {
+					progress={interpolate(frame, [0, 25], [0, 1], {
 						extrapolateLeft: 'clamp',
 						extrapolateRight: 'clamp',
+						easing: [
+							Easing.spring({
+								damping: 200,
+								mass: 1,
+								stiffness: 100,
+								allowTail: true,
+								durationRestThreshold: 0.02,
+								overshootClamping: false,
+							}),
+						],
 					})}
 					type="highlight"
-					color={interpolateColors(
-						frame,
-						[0, 60],
-						['rgba(255, 236, 79, 0)', 'rgba(255, 236, 79, 0.9)'],
-					)}
-					iterations={3}
+					color={'rgba(255, 236, 79, 0.62)'}
 					roughOptions={{maxRandomnessOffset: 10}}
+					roughness={2.3}
 					padding={{
-						right: 18,
-						left: 36,
+						left: 20,
+						right: 20,
+						top: -30,
 					}}
 				>
-					Highlighted
-				</AnnotationBehind>
-			</div>
+					remarkable
+				</AnnotationBehind>{' '}
+				<Interactive.Span>end to the World cup</Interactive.Span>
+			</Interactive.Div>
 		</AbsoluteFill>
 	);
 };

@@ -7,11 +7,15 @@ const {fontFamily} = loadFont('normal', {
 });
 
 export const containerStyle: React.CSSProperties = {
-	color: '#171717',
-	fontFamily,
 	justifyContent: 'center',
 	alignItems: 'center',
-	fontSize: 96,
+};
+
+export const annotationTextStyle: React.CSSProperties = {
+	fontSize: 80,
 	fontWeight: 700,
-	textAlign: 'center',
+	lineHeight: 1.1,
+	color: '#171717',
+	fontFamily,
+	width: 800,
 };

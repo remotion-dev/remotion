@@ -1,15 +1,20 @@
 import {AnnotationOnTop} from '@remotion/rough-notation';
 import React from 'react';
-import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
-import {containerStyle} from './shared';
+import {
+	AbsoluteFill,
+	Interactive,
+	interpolate,
+	useCurrentFrame,
+} from 'remotion';
+import {annotationTextStyle, containerStyle} from './shared';
 
 export const RoughNotationBracket: React.FC = () => {
 	const frame = useCurrentFrame();
 
 	return (
 		<AbsoluteFill style={containerStyle}>
-			<div>
-				Mark{' '}
+			<Interactive.Div style={annotationTextStyle}>
+				<Interactive.Span>Mark </Interactive.Span>
 				<AnnotationOnTop
 					name="Bracket annotation"
 					progress={interpolate(frame, [0, 60], [0, 1], {
@@ -17,7 +22,7 @@ export const RoughNotationBracket: React.FC = () => {
 						extrapolateRight: 'clamp',
 					})}
 					type="bracket"
-					brackets={['left', 'right']}
+					brackets={['left', 'right', 'right']}
 					roughness={1}
 					roughOptions={{bowing: 3}}
 					strokeWidth={8}
@@ -25,8 +30,8 @@ export const RoughNotationBracket: React.FC = () => {
 				>
 					this
 				</AnnotationOnTop>{' '}
-				part
-			</div>
+				<Interactive.Span>part</Interactive.Span>
+			</Interactive.Div>
 		</AbsoluteFill>
 	);
 };
