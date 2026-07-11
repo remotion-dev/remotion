@@ -8,7 +8,7 @@ import type {LogLevel} from './log-level';
 import type {CancelSignal} from './make-cancel-signal';
 import type {NextFrameToRender} from './next-frame-to-render';
 import {renderFrameWithOptionToReject} from './render-frame-with-option-to-reject';
-import type {FrameAndAssets, OnArtifact} from './render-frames';
+import type {FrameAndAssets, OnArtifact, OnFrameBuffer} from './render-frames';
 
 export const renderFrame = ({
 	attempt,
@@ -62,7 +62,7 @@ export const renderFrame = ({
 	stoppedSignal: {stopped: boolean};
 	timeoutInMilliseconds: number;
 	outputDir: string | null;
-	onFrameBuffer: null | ((buffer: Buffer, frame: number) => void) | undefined;
+	onFrameBuffer: OnFrameBuffer | null | undefined;
 	lastFrame: number;
 	onFrameUpdate:
 		| null

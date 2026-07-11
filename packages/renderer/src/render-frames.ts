@@ -63,6 +63,10 @@ import {wrapWithErrorHandling} from './wrap-with-error-handling';
 const MAX_RETRIES_PER_FRAME = 1;
 
 export type OnArtifact = (asset: EmittedArtifact) => void;
+export type OnFrameBuffer = (
+	buffer: Buffer,
+	frame: number,
+) => void | Promise<void>;
 
 type InternalRenderFramesOptions = {
 	onStart: null | ((data: OnStartData) => void);
@@ -82,7 +86,7 @@ type InternalRenderFramesOptions = {
 	puppeteerInstance: HeadlessBrowser | undefined;
 	browserExecutable: BrowserExecutable | null;
 	onBrowserLog: null | ((log: BrowserLog) => void);
-	onFrameBuffer: null | ((buffer: Buffer, frame: number) => void);
+	onFrameBuffer: OnFrameBuffer | null;
 	onDownload: RenderMediaOnDownload | null;
 	chromiumOptions: ChromiumOptions;
 	scale: number;
@@ -117,7 +121,7 @@ type InnerRenderFramesOptions = {
 	frameRange: FrameRange | null;
 	everyNthFrame: number;
 	onBrowserLog: null | ((log: BrowserLog) => void);
-	onFrameBuffer: null | ((buffer: Buffer, frame: number) => void);
+	onFrameBuffer: OnFrameBuffer | null;
 	onArtifact: OnArtifact | null;
 	onDownload: RenderMediaOnDownload | null;
 	timeoutInMilliseconds: number;
@@ -189,7 +193,7 @@ export type RenderFramesOptions = Prettify<
 		puppeteerInstance?: HeadlessBrowser;
 		browserExecutable?: BrowserExecutable;
 		onBrowserLog?: (log: BrowserLog) => void;
-		onFrameBuffer?: (buffer: Buffer, frame: number) => void;
+		onFrameBuffer?: OnFrameBuffer;
 		onDownload?: RenderMediaOnDownload;
 		timeoutInMilliseconds?: number;
 		chromiumOptions?: ChromiumOptions;
@@ -347,9 +351,25 @@ const innerRenderFrames = async ({
 
 	const assets: FrameAndAssets[] = [];
 	const stoppedSignal = {stopped: false};
+	let rejectCancellation = (_error: Error): void => undefined;
+	const cancelPromise = cancelSignal
+		? new Promise<never>((_resolve, reject) => {
+				rejectCancellation = reject;
+			})
+		: null;
+	cancelPromise?.catch(() => undefined);
 	cancelSignal?.(() => {
 		stoppedSignal.stopped = true;
+		rejectCancellation(new Error(cancelErrorMessages.renderFrames));
 	});
+	const onFrameBufferWithCancellation =
+		onFrameBuffer && cancelPromise
+			? (buffer: Buffer, frame: number) =>
+					Promise.race([
+						Promise.resolve(onFrameBuffer(buffer, frame)),
+						cancelPromise,
+					])
+			: onFrameBuffer;
 
 	const frameDir = outputDir ?? downloadMap.compositingDir;
 
@@ -420,13 +440,14 @@ const innerRenderFrames = async ({
 				framesRenderedObj,
 				lastFrame,
 				makeNewPage,
-				onFrameBuffer,
+				onFrameBuffer: onFrameBufferWithCancellation,
 				onFrameUpdate,
 				nextFrameToRender,
 				imageSequencePattern: pattern,
 				trimLeftOffset,
 				trimRightOffset,
 				allFramesAndExtraFrames,
+				cancelPromise,
 			});
 		}),
 	);

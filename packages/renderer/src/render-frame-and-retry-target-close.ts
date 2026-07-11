@@ -11,11 +11,11 @@ import {getRetriesLeftFromError} from './is-delay-render-error-with-retry';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
-import {cancelErrorMessages, isUserCancelledRender} from './make-cancel-signal';
+import {isUserCancelledRender} from './make-cancel-signal';
 import type {NextFrameToRender} from './next-frame-to-render';
 import type {Pool} from './pool';
 import {renderFrame} from './render-frame';
-import type {FrameAndAssets, OnArtifact} from './render-frames';
+import type {FrameAndAssets, OnArtifact, OnFrameBuffer} from './render-frames';
 import type {BrowserReplacer} from './replace-browser';
 
 export const renderFrameAndRetryTargetClose = async ({
@@ -54,6 +54,7 @@ export const renderFrameAndRetryTargetClose = async ({
 	trimLeftOffset,
 	trimRightOffset,
 	allFramesAndExtraFrames,
+	cancelPromise,
 }: {
 	retriesLeft: number;
 	attempt: number;
@@ -83,7 +84,7 @@ export const renderFrameAndRetryTargetClose = async ({
 	concurrencyOrFramesToRender: number;
 	lastFrame: number;
 	framesRenderedObj: {count: number};
-	onFrameBuffer: null | ((buffer: Buffer, frame: number) => void) | undefined;
+	onFrameBuffer: OnFrameBuffer | null | undefined;
 	onFrameUpdate:
 		| null
 		| ((
@@ -96,6 +97,7 @@ export const renderFrameAndRetryTargetClose = async ({
 	trimLeftOffset: number;
 	trimRightOffset: number;
 	allFramesAndExtraFrames: number[];
+	cancelPromise: Promise<never> | null;
 }): Promise<void> => {
 	const currentPool = await poolPromise;
 
@@ -104,50 +106,49 @@ export const renderFrameAndRetryTargetClose = async ({
 	}
 
 	const freePage = await currentPool.acquire();
+	if (stoppedSignal.stopped) {
+		return;
+	}
 
 	const frame = nextFrameToRender.getNextFrame(freePage.pageIndex);
 
 	try {
-		await Promise.race([
-			renderFrame({
-				trimLeftOffset,
-				trimRightOffset,
-				allFramesAndExtraFrames,
-				attempt,
-				assets,
-				binariesDirectory,
-				cancelSignal,
-				countType,
-				downloadMap,
-				frameDir,
-				framesToRender,
-				imageFormat,
-				indent,
-				jpegQuality,
-				logLevel,
-				onArtifact,
-				onDownload,
-				scale,
-				composition,
-				framesRenderedObj,
-				lastFrame,
-				onError,
-				onFrameBuffer,
-				onFrameUpdate,
-				outputDir,
-				stoppedSignal,
-				timeoutInMilliseconds,
-				nextFrameToRender,
-				frame,
-				page: freePage,
-				imageSequencePattern,
-			}),
-			new Promise((_, reject) => {
-				cancelSignal?.(() => {
-					reject(new Error(cancelErrorMessages.renderFrames));
-				});
-			}),
-		]);
+		const renderFrameTask = renderFrame({
+			trimLeftOffset,
+			trimRightOffset,
+			allFramesAndExtraFrames,
+			attempt,
+			assets,
+			binariesDirectory,
+			cancelSignal,
+			countType,
+			downloadMap,
+			frameDir,
+			framesToRender,
+			imageFormat,
+			indent,
+			jpegQuality,
+			logLevel,
+			onArtifact,
+			onDownload,
+			scale,
+			composition,
+			framesRenderedObj,
+			lastFrame,
+			onError,
+			onFrameBuffer,
+			onFrameUpdate,
+			outputDir,
+			stoppedSignal,
+			timeoutInMilliseconds,
+			nextFrameToRender,
+			frame,
+			page: freePage,
+			imageSequencePattern,
+		});
+		await (cancelPromise
+			? Promise.race([renderFrameTask, cancelPromise])
+			: renderFrameTask);
 		currentPool.release(freePage);
 	} catch (err) {
 		const isTargetClosedError = isTargetClosedErr(err as Error);
@@ -227,6 +228,7 @@ export const renderFrameAndRetryTargetClose = async ({
 				trimLeftOffset,
 				trimRightOffset,
 				allFramesAndExtraFrames,
+				cancelPromise,
 			});
 		}
 
@@ -284,6 +286,7 @@ export const renderFrameAndRetryTargetClose = async ({
 			trimLeftOffset,
 			trimRightOffset,
 			allFramesAndExtraFrames,
+			cancelPromise,
 		});
 	}
 };

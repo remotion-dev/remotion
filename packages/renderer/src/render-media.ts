@@ -80,6 +80,7 @@ import {validateOutputFilename} from './validate-output-filename';
 import {validateScale} from './validate-scale';
 import {validateBitrate} from './validate-videobitrate';
 import {wrapWithErrorHandling} from './wrap-with-error-handling';
+import {writeToStitcher} from './write-to-stitcher';
 
 export type StitchingState = 'encoding' | 'muxing';
 
@@ -369,16 +370,13 @@ const internalRenderMediaRaw = ({
 
 	const renderStart = Date.now();
 
-	const {estimatedUsage, freeMemory, hasEnoughMemory} =
-		shouldUseParallelEncoding({
-			height: compositionWithPossibleUnevenDimensions.height,
-			width: compositionWithPossibleUnevenDimensions.width,
-			logLevel,
-		});
+	const {estimatedUsage, freeMemory} = shouldUseParallelEncoding({
+		height: compositionWithPossibleUnevenDimensions.height,
+		width: compositionWithPossibleUnevenDimensions.width,
+		logLevel,
+	});
 	const parallelEncoding =
-		!disallowParallelEncoding &&
-		hasEnoughMemory &&
-		canUseParallelEncoding(codec);
+		!disallowParallelEncoding && canUseParallelEncoding(codec);
 
 	Log.verbose(
 		{
@@ -529,6 +527,7 @@ const internalRenderMediaRaw = ({
 	const cancelStitcher = makeCancelSignal();
 
 	cancelSignal?.(() => {
+		cancelled = true;
 		cancelRenderFrames.cancel();
 	});
 
@@ -717,8 +716,19 @@ const internalRenderMediaRaw = ({
 									);
 								}
 
-								stitcherFfmpeg?.stdin?.write(buffer);
-								stopPerfMeasure(id);
+								const stdin = stitcherFfmpeg?.stdin;
+								if (!stdin) {
+									throw new Error('ERR_STREAM_PREMATURE_CLOSE');
+								}
+
+								try {
+									await writeToStitcher({
+										buffer,
+										stdin,
+									});
+								} finally {
+									stopPerfMeasure(id);
+								}
 
 								setFrameToStitch(
 									Math.min(realFrameRange[1] + 1, frame + everyNthFrame),

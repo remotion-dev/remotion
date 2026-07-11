@@ -17,7 +17,8 @@ import type {VideoImageFormat} from './image-format';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
-import type {FrameAndAssets, OnArtifact} from './render-frames';
+import {raceWithFrameError} from './race-with-frame-error';
+import type {FrameAndAssets, OnArtifact, OnFrameBuffer} from './render-frames';
 import {seekToFrame} from './seek-to-frame';
 import {takeFrame} from './take-frame';
 import {truthy} from './truthy';
@@ -68,7 +69,7 @@ export const renderFrameWithOptionToReject = async ({
 	indent: boolean;
 	logLevel: LogLevel;
 	outputDir: string | null;
-	onFrameBuffer: null | ((buffer: Buffer, frame: number) => void) | undefined;
+	onFrameBuffer: OnFrameBuffer | null | undefined;
 	imageFormat: VideoImageFormat;
 	onError: (err: Error) => void;
 	lastFrame: number;
@@ -108,8 +109,14 @@ export const renderFrameWithOptionToReject = async ({
 		return Promise.reject(new Error('Render was stopped'));
 	}
 
+	let rejectFrameError = (_error: Error): void => undefined;
+	const frameError = new Promise<never>((_resolve, rejectError) => {
+		rejectFrameError = rejectError;
+	});
+	frameError.catch(() => undefined);
 	const errorCallbackOnFrame = (err: Error) => {
 		reject(err);
+		rejectFrameError(err);
 	};
 
 	const cleanupPageError = handleJavascriptException({
@@ -118,17 +125,32 @@ export const renderFrameWithOptionToReject = async ({
 		frame,
 	});
 	page.on('error', errorCallbackOnFrame);
+	let pageErrorCleanedUp = false;
+	const cleanupPageErrors = () => {
+		if (pageErrorCleanedUp) {
+			return;
+		}
+
+		pageErrorCleanedUp = true;
+		cleanupPageError();
+		page.off('error', errorCallbackOnFrame);
+	};
 
 	const startSeeking = Date.now();
 
-	await seekToFrame({
-		frame,
-		page,
-		composition: compId,
-		timeoutInMilliseconds,
-		indent,
-		logLevel,
-		attempt,
+	await raceWithFrameError({
+		cleanup: cleanupPageErrors,
+		frameError,
+		operation: () =>
+			seekToFrame({
+				frame,
+				page,
+				composition: compId,
+				timeoutInMilliseconds,
+				indent,
+				logLevel,
+				attempt,
+			}),
 	});
 
 	const timeToSeek = Date.now() - startSeeking;
@@ -151,44 +173,53 @@ export const renderFrameWithOptionToReject = async ({
 		);
 	}
 
-	const [buffer, collectedAssets] = await Promise.all([
-		takeFrame({
-			freePage: page,
-			height,
-			imageFormat: assetsOnly ? 'none' : imageFormat,
-			output:
-				index === null
-					? null
-					: path.join(
-							frameDir,
-							getFrameOutputFileName({
-								frame,
-								imageFormat,
-								index,
-								countType,
-								lastFrame,
-								totalFrames: framesToRender.length,
-								imageSequencePattern,
-							}),
-						),
-			jpegQuality,
-			width,
-			scale,
-			wantsBuffer: Boolean(onFrameBuffer),
-			timeoutInMilliseconds,
-		}),
-		collectAssets({
-			frame,
-			freePage: page,
-			timeoutInMilliseconds,
-		}),
-	]);
+	const [buffer, collectedAssets] = await raceWithFrameError({
+		cleanup: cleanupPageErrors,
+		frameError,
+		operation: () =>
+			Promise.all([
+				takeFrame({
+					freePage: page,
+					height,
+					imageFormat: assetsOnly ? 'none' : imageFormat,
+					output:
+						index === null
+							? null
+							: path.join(
+									frameDir,
+									getFrameOutputFileName({
+										frame,
+										imageFormat,
+										index,
+										countType,
+										lastFrame,
+										totalFrames: framesToRender.length,
+										imageSequencePattern,
+									}),
+								),
+					jpegQuality,
+					width,
+					scale,
+					wantsBuffer: Boolean(onFrameBuffer),
+					timeoutInMilliseconds,
+				}),
+				collectAssets({
+					frame,
+					freePage: page,
+					timeoutInMilliseconds,
+				}),
+			]),
+	});
 	if (onFrameBuffer && !assetsOnly) {
 		if (!buffer) {
 			throw new Error('unexpected null buffer');
 		}
 
-		onFrameBuffer(buffer, frame);
+		await raceWithFrameError({
+			cleanup: cleanupPageErrors,
+			frameError,
+			operation: () => onFrameBuffer(buffer, frame),
+		});
 	}
 
 	const onlyAvailableAssets = assets.filter(truthy);
@@ -272,8 +303,7 @@ export const renderFrameWithOptionToReject = async ({
 		});
 	}
 
-	cleanupPageError();
-	page.off('error', errorCallbackOnFrame);
+	cleanupPageErrors();
 
 	if (!assetsOnly) {
 		framesRenderedObj.count++;
