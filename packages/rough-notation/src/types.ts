@@ -42,6 +42,12 @@ type PaddingConfig = {
 	readonly padding?: Partial<Padding>;
 };
 
+type UnderlinePaddingConfig = {
+	readonly padding?: {
+		readonly top?: number;
+	};
+};
+
 type IterationConfig = {
 	readonly iterations?: number;
 };
@@ -64,7 +70,7 @@ export type AnnotationConfig =
 	| ({
 			readonly type: 'underline';
 	  } & SharedConfig &
-			PaddingConfig &
+			UnderlinePaddingConfig &
 			IterationConfig &
 			RtlConfig)
 	| ({
