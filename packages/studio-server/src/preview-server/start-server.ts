@@ -75,17 +75,7 @@ export const startServer = async (options: {
 		(process.env.PORT ? Number(process.env.PORT) : undefined) ??
 		undefined;
 
-	const defaultPortConfig = RenderInternals.getPortConfig(options.forceIPv4);
-	const loopbackHostsToTry = defaultPortConfig.hostsToTry.filter(
-		(host) => host === '::1' || host === '127.0.0.1',
-	);
-	const portConfig = {
-		host: options.forceIPv4
-			? '127.0.0.1'
-			: (loopbackHostsToTry[0] ?? '127.0.0.1'),
-		hostsToTry:
-			loopbackHostsToTry.length > 0 ? loopbackHostsToTry : ['127.0.0.1'],
-	};
+	const portConfig = RenderInternals.getPortConfig(options.forceIPv4);
 
 	const onPortUnavailable = options.forceNew
 		? undefined

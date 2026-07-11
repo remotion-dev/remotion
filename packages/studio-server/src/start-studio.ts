@@ -10,6 +10,7 @@ import type {
 	RenderJob,
 } from '@remotion/studio-shared';
 import {getFileWatcherRegistry} from './file-watcher';
+import {getNetworkAddress} from './get-network-address';
 import {maybeOpenBrowser} from './maybe-open-browser';
 import {registerOpenBrowserShortcut} from './open-browser-shortcut';
 import type {QueueMethods} from './preview-server/api-types';
@@ -198,7 +199,18 @@ export const startStudio = async ({
 	const {port, liveEventsServer, close} = result;
 
 	const cleanupLiveEventsListener = setLiveEventsListener(liveEventsServer);
-	setServerReadyComment(`http://localhost:${port}`);
+	const networkAddress = getNetworkAddress();
+	if (networkAddress) {
+		setServerReadyComment(
+			`Local: ${RenderInternals.chalk.underline(
+				`http://localhost:${port}`,
+			)}, Network: ${RenderInternals.chalk.underline(
+				`http://${networkAddress}:${port}`,
+			)}`,
+		);
+	} else {
+		setServerReadyComment(`http://localhost:${port}`);
+	}
 
 	printServerReadyComment('Server ready', logLevel);
 	RenderInternals.Log.info({indent: false, logLevel}, 'Building...');
