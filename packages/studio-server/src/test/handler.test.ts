@@ -8,17 +8,19 @@ const makeRequest = ({
 	host,
 	origin,
 	remoteAddress = '127.0.0.1',
+	method = 'POST',
 }: {
 	body: unknown;
 	host: string;
 	origin: string | undefined;
 	remoteAddress?: string;
+	method?: string;
 }) => {
 	const request = Readable.from([JSON.stringify(body)]) as IncomingMessage;
 	Object.defineProperty(request, 'socket', {
 		value: {remoteAddress},
 	});
-	request.method = 'POST';
+	request.method = method;
 	request.headers = {
 		host,
 	};
@@ -151,6 +153,43 @@ test('rejects API requests without an Origin header before calling the handler',
 
 	expect(didCallHandler).toBe(false);
 	expect(response.statusCode).toBe(0);
+});
+
+test('allows GET API requests without an Origin header', async () => {
+	const response = makeResponse();
+
+	await handleRequest({
+		binariesDirectory: null,
+		entryPoint: '',
+		handler: ({input}) => {
+			return Promise.resolve({input});
+		},
+		logLevel: 'info',
+		methods: {
+			addJob: () => undefined,
+			cancelJob: () => undefined,
+			removeJob: () => undefined,
+		},
+		publicDir: '',
+		remotionRoot: '',
+		request: makeRequest({
+			body: {relativePath: 'logo.png'},
+			host: 'localhost:3000',
+			method: 'GET',
+			origin: undefined,
+		}),
+		response,
+	});
+
+	expect(response.statusCode).toBe(200);
+	expect(JSON.parse(response.body)).toEqual({
+		data: {
+			input: {
+				relativePath: 'logo.png',
+			},
+		},
+		success: true,
+	});
 });
 
 test('rejects requests with a mismatched Origin scheme before calling the handler', async () => {

@@ -1,7 +1,7 @@
 import {expect, test} from 'bun:test';
 import {resolveFileSource} from '../error-overlay/react-overlay/effects/resolve-file-source';
 
-test('resolves file source using a POST request', async () => {
+test('resolves file source using a GET request', async () => {
 	const previousFetch = globalThis.fetch;
 	const calls: {
 		input: string | URL | Request;
@@ -28,16 +28,10 @@ test('resolves file source using a POST request', async () => {
 		);
 
 		expect(calls).toHaveLength(1);
-		expect(calls[0].input).toBe('/api/file-source');
-		expect(calls[0].init).toEqual({
-			body: JSON.stringify({
-				fileName: '../rough-notation/dist/esm/index.mjs',
-			}),
-			headers: {
-				'Content-Type': 'application/json',
-			},
-			method: 'POST',
-		});
+		expect(calls[0].input).toBe(
+			'/api/file-source?f=..%2Frough-notation%2Fdist%2Fesm%2Findex.mjs',
+		);
+		expect(calls[0].init).toBeUndefined();
 		expect(resolved.originalScriptCode).toEqual([
 			{content: 'const a = 1;', highlight: false, lineNumber: 1},
 			{content: 'const b = 2;', highlight: true, lineNumber: 2},

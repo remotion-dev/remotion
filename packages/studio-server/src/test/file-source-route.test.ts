@@ -9,21 +9,23 @@ import type {LiveEventsServer} from '../preview-server/live-events';
 import {handleRoutes} from '../routes';
 
 const makeRequest = ({
-	body,
+	fileName,
 	host,
 	origin,
 }: {
-	body: unknown;
+	fileName: string;
 	host: string;
-	origin: string;
+	origin?: string;
 }) => {
-	const request = Readable.from([JSON.stringify(body)]) as IncomingMessage;
-	request.method = 'POST';
-	request.url = '/api/file-source';
+	const request = Readable.from([]) as IncomingMessage;
+	request.method = 'GET';
+	request.url = `/api/file-source?f=${encodeURIComponent(fileName)}`;
 	request.headers = {
 		host,
-		origin,
 	};
+	if (origin) {
+		request.headers.origin = origin;
+	}
 
 	return request;
 };
@@ -57,7 +59,7 @@ const noopLiveEventsServer: LiveEventsServer = {
 	sendEventToClientId: () => false,
 };
 
-test('serves file source from a same-origin POST request', async () => {
+test('serves file source from an origin-less GET request', async () => {
 	const remotionRoot = await mkdtemp(path.join(tmpdir(), 'remotion-source-'));
 	const fileName = path.join(remotionRoot, 'index.mjs');
 	await writeFile(fileName, 'export const value = 1;');
@@ -89,9 +91,8 @@ test('serves file source from a same-origin POST request', async () => {
 			},
 			remotionRoot,
 			request: makeRequest({
-				body: {fileName},
+				fileName,
 				host: 'localhost:3000',
-				origin: 'http://localhost:3000',
 			}),
 			response,
 			staticHash: '/static',
