@@ -22,3 +22,59 @@ bun create video
 ```
 
 The skills are also available on GitHub [here](https://github.com/remotion-dev/remotion/tree/main/packages/skills).
+
+## Available skills
+
+### `/remotion-best-practices`
+
+The main entry point for Remotion work.
+
+Use this when the task is broadly about Remotion, or when you are not sure which focused skill applies. It routes the agent to the right specialized skill for project setup, React markup, rendering, captions, SaaS architecture, interactivity, or media handling.
+
+This skill also includes the other Remotion skills inside its folder, so updating only `remotion-best-practices` keeps all linked guidance available.
+
+### `/remotion-create`
+
+Guidance for creating a new Remotion project.
+
+Use this when starting from an empty folder, choosing the initial scaffold, or creating the first video composition.
+
+<SuggestedPrompt prompt="/remotion-create Make an animated bar chart with 5 bars" />
+
+### `/remotion-markup`
+
+Best practices for writing Remotion React markup.
+
+Use this when authoring or editing compositions, animations, layout, typography, media elements, effects, maps, audio, fonts, or timing.
+
+<SuggestedPrompt prompt="/remotion-markup Add a map animation, animating from LA to NY. Use Inter font for the labels" />
+
+### `/remotion-render`
+
+Guidance for rendering videos and stills.
+
+Use this when invoking `npx remotion render`, `npx remotion still`, choosing render options, or rendering transparent videos.
+
+### `/remotion-captions`
+
+Guidance for captions and subtitles.
+
+Use this when transcribing media, importing SRT files, displaying captions, or working with the `Caption` JSON format.
+
+### `/remotion-saas`
+
+Architecture guidance for Remotion-powered apps and product integrations.
+
+Use this when building a SaaS app, embedding the [`<Player>`](/docs/player/player), choosing between templates, rendering on Lambda, Vercel, a Node server, or the browser, or designing render/progress/cancel APIs.
+
+### `/remotion-interactivity`
+
+Guidance for making Remotion code editable in Studio Visual Mode.
+
+Use this when elements should be selectable, movable, or editable in Remotion Studio, or when custom components should expose editable props.
+
+### `/mediabunny`
+
+Guidance for browser-based multimedia handling with Mediabunny.
+
+Use this when getting audio duration, video duration, video dimensions, or when an agent needs media metadata before setting composition duration or dimensions.
