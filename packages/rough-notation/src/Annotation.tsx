@@ -205,7 +205,7 @@ const AnnotationOnTopInner: React.FC<
 export const AnnotationOnTop = Interactive.withSchema({
 	Component: AnnotationOnTopInner,
 	componentName: '<AnnotationOnTop>',
-	componentIdentity: 'dev.remotion.rough-notation.AnnotationOnTop',
+	componentIdentity: 'dev.remotion.roughNotation.AnnotationOnTop',
 	schema: annotationInteractiveSchema,
 	supportsEffects: false,
 }) as React.FC<AnnotationInteractiveProps>;
@@ -264,7 +264,7 @@ const AnnotationBehindInner: React.FC<
 export const AnnotationBehind = Interactive.withSchema({
 	Component: AnnotationBehindInner,
 	componentName: '<AnnotationBehind>',
-	componentIdentity: 'dev.remotion.rough-notation.AnnotationBehind',
+	componentIdentity: 'dev.remotion.roughNotation.AnnotationBehind',
 	schema: annotationInteractiveSchema,
 	supportsEffects: false,
 }) as React.FC<AnnotationInteractiveProps>;

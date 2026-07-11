@@ -121,6 +121,39 @@ export const Example: React.FC = () => {
 	).toThrow(JsxElementIdentityMismatchError);
 });
 
+test('computeSequencePropsStatus should match hyphenated package imports by component identity', () => {
+	const input = `import React from 'react';
+import {AnnotationBehind} from '@remotion/rough-notation';
+
+export const Example: React.FC = () => {
+\treturn (
+\t\t<AnnotationBehind progress={1} type="highlight" color="yellow">
+\t\t\tHighlighted
+\t\t</AnnotationBehind>
+\t);
+};
+`;
+	const result = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 6),
+		componentIdentity: 'dev.remotion.roughNotation.AnnotationBehind',
+		keys: ['progress', 'color'],
+		effects: [],
+	});
+
+	expect(result.canUpdate).toBe(true);
+	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
+
+	expect(result.props.progress).toEqual({
+		status: 'static',
+		codeValue: 1,
+	});
+	expect(result.props.color).toEqual({
+		status: 'static',
+		codeValue: 'yellow',
+	});
+});
+
 test('computeSequencePropsStatus should match namespace imports by component identity', () => {
 	const input = `import React from 'react';
 import * as Remotion from 'remotion';
