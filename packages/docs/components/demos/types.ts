@@ -1,5 +1,5 @@
 import type {LogLevel} from 'remotion';
-import {RoughNotationHighlight} from '../../elements/overlays/rough-notation-highlight/rough-notation-highlight';
+import {TextMarker} from '../../elements/text/text-marker/text-marker';
 import {
 	ClockWipeDemo,
 	CubeDemo,
@@ -1400,7 +1400,7 @@ export const lightLeakDemo: DemoType = {
 };
 
 export const roughNotationHighlightDemo: DemoType = {
-	comp: RoughNotationHighlight,
+	comp: TextMarker,
 	compHeight: 460,
 	compWidth: 1140,
 	durationInFrames: 90,

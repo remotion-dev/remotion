@@ -8,7 +8,7 @@ const {fontFamily} = loadFont('normal', {
 	subsets: ['latin'],
 });
 
-export const RoughNotationHighlight: React.FC = () => {
+export const TextMarker: React.FC = () => {
 	const frame = useCurrentFrame();
 
 	return (
