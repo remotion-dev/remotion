@@ -40,6 +40,7 @@ const parsePrompt = (prompt: string) => {
 
 export const SuggestedPrompt: React.FC<Props> = ({prompt}) => {
 	const [copied, setCopied] = useState(false);
+	const [isSkillLinkHovered, setIsSkillLinkHovered] = useState(false);
 	const {command, rest} = useMemo(() => parsePrompt(prompt), [prompt]);
 
 	const onCopy = async () => {
@@ -58,12 +59,13 @@ export const SuggestedPrompt: React.FC<Props> = ({prompt}) => {
 				borderRadius: 18,
 				marginTop: 16,
 				marginBottom: 16,
-				backgroundColor: 'var(--ifm-color-emphasis-100)',
+				border: '1px solid var(--border-color)',
+				backgroundColor: 'var(--ifm-background-color)',
 				color: 'var(--text-color)',
 				display: 'flex',
-				alignItems: 'center',
+				alignItems: 'flex-start',
 				gap: 12,
-				padding: '16px 18px',
+				padding: '8px 8px 16px 18px',
 				boxShadow: '0 6px 24px rgba(0, 0, 0, 0.08)',
 			}}
 		>
@@ -76,14 +78,32 @@ export const SuggestedPrompt: React.FC<Props> = ({prompt}) => {
 					lineHeight: 1.6,
 				}}
 			>
+				<a
+					href="/docs/ai/skills"
+					onMouseEnter={() => setIsSkillLinkHovered(true)}
+					onMouseLeave={() => setIsSkillLinkHovered(false)}
+					style={{
+						color: isSkillLinkHovered
+							? 'var(--ifm-color-primary)'
+							: 'var(--subtitle)',
+						display: 'inline-block',
+						fontSize: 13,
+						fontWeight: 500,
+						lineHeight: 1.2,
+						marginBottom: 6,
+						textDecoration: 'none',
+					}}
+				>
+					Agent Skill
+				</a>
+				<br />
 				{command ? (
 					<span
 						style={{
-							border: '1px solid var(--ifm-color-emphasis-200)',
 							borderRadius: 6,
 							padding: '1px 6px',
 							color: 'var(--ifm-color-primary)',
-							backgroundColor: 'var(--ifm-background-surface-color)',
+							backgroundColor: 'rgba(11, 132, 243, 0.06)',
 							fontWeight: 700,
 							whiteSpace: 'nowrap',
 							display: 'inline-block',
