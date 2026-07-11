@@ -20,7 +20,8 @@ type AnnotationComponentProps = Readonly<
 	} & z.input<typeof annotationConfig>
 >;
 
-type AnnotationOnTopProps = AnnotationComponentProps & InteractiveBaseProps;
+type AnnotationInteractiveProps = AnnotationComponentProps &
+	InteractiveBaseProps;
 
 const colorSchema = {
 	color: {
@@ -91,7 +92,7 @@ const paddingSchema = {
 	},
 } as const satisfies InteractivitySchema;
 
-const annotationOnTopSchema = {
+const annotationInteractiveSchema = {
 	...Interactive.baseSchema,
 	progress: {
 		type: 'number',
@@ -185,7 +186,7 @@ const annotationOnTopSchema = {
 } as const satisfies InteractivitySchema;
 
 const AnnotationOnTopInner: React.FC<
-	AnnotationOnTopProps & {
+	AnnotationInteractiveProps & {
 		readonly controls: SequenceControls | undefined;
 	}
 > = ({
@@ -233,24 +234,63 @@ export const AnnotationOnTop = Interactive.withSchema({
 	Component: AnnotationOnTopInner,
 	componentName: '<AnnotationOnTop>',
 	componentIdentity: 'dev.remotion.rough-notation.AnnotationOnTop',
-	schema: annotationOnTopSchema,
+	schema: annotationInteractiveSchema,
 	supportsEffects: false,
-}) as React.FC<AnnotationOnTopProps>;
+}) as React.FC<AnnotationInteractiveProps>;
 
 AnnotationOnTop.displayName = 'AnnotationOnTop';
 
-export const AnnotationBehind: React.FC<AnnotationComponentProps> = ({
+const AnnotationBehindInner: React.FC<
+	AnnotationInteractiveProps & {
+		readonly controls: SequenceControls | undefined;
+	}
+> = ({
 	children,
+	durationInFrames,
+	from,
+	trimBefore,
+	freeze,
+	hidden,
+	name,
+	showInTimeline,
+	controls,
 	...props
 }) => {
 	const annotation = useMemo(() => {
 		return createAnnotation();
 	}, []);
+	const outlineRef = React.useRef<HTMLSpanElement | null>(null);
 
 	return (
-		<annotation.Container>
-			<annotation.Annotation {...props} />
-			<annotation.Tracker>{children}</annotation.Tracker>
-		</annotation.Container>
+		<Sequence
+			layout="none"
+			from={from ?? 0}
+			trimBefore={trimBefore}
+			durationInFrames={durationInFrames ?? Infinity}
+			freeze={freeze}
+			hidden={hidden}
+			name={name ?? '<AnnotationBehind>'}
+			showInTimeline={showInTimeline ?? true}
+			controls={controls}
+			_remotionInternalDocumentationLink="https://www.remotion.dev/docs/rough-notation/annotation-behind"
+			outlineRef={outlineRef}
+		>
+			<span ref={outlineRef} style={{display: 'inline-block'}}>
+				<annotation.Container>
+					<annotation.Annotation {...props} />
+					<annotation.Tracker>{children}</annotation.Tracker>
+				</annotation.Container>
+			</span>
+		</Sequence>
 	);
 };
+
+export const AnnotationBehind = Interactive.withSchema({
+	Component: AnnotationBehindInner,
+	componentName: '<AnnotationBehind>',
+	componentIdentity: 'dev.remotion.rough-notation.AnnotationBehind',
+	schema: annotationInteractiveSchema,
+	supportsEffects: false,
+}) as React.FC<AnnotationInteractiveProps>;
+
+AnnotationBehind.displayName = 'AnnotationBehind';
