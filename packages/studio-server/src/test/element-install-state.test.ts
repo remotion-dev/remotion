@@ -36,7 +36,7 @@ test('uses the most recently focused Studio target even when older tabs keep upd
 		readOnly: false,
 	});
 
-	expect(getElementInstallTarget()?.clientId).toBe('focused-tab');
+	expect(getElementInstallTarget(null)?.clientId).toBe('focused-tab');
 });
 
 test('falls back to update recency when focus timestamps match', async () => {
@@ -64,7 +64,7 @@ test('falls back to update recency when focus timestamps match', async () => {
 		readOnly: false,
 	});
 
-	expect(getElementInstallTarget()?.clientId).toBe('second-tab');
+	expect(getElementInstallTarget(null)?.clientId).toBe('second-tab');
 });
 
 test('can select a target for a specific request', () => {

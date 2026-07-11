@@ -220,7 +220,7 @@ const handleRequestElementInstall = async ({
 			return;
 		}
 
-		const target = getElementInstallTarget();
+		const target = getElementInstallTarget(null);
 		const now = Date.now();
 		const targetIsLive =
 			target !== null &&

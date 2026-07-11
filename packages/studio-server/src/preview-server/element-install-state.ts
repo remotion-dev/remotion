@@ -33,7 +33,7 @@ export const updateElementInstallTarget = (
 	});
 };
 
-export const getElementInstallTarget = (requestId?: string) => {
+export const getElementInstallTarget = (requestId: string | null) => {
 	const now = Date.now();
 	let bestTarget: ElementInstallTarget | null = null;
 
@@ -43,7 +43,7 @@ export const getElementInstallTarget = (requestId?: string) => {
 			continue;
 		}
 
-		if (requestId !== undefined && currentTarget.requestId !== requestId) {
+		if (requestId !== null && currentTarget.requestId !== requestId) {
 			continue;
 		}
 
