@@ -58,6 +58,27 @@ test('pixelDensity is exposed only by canvas-backed component schemas', () => {
 	expect('pixelDensity' in Interactive.baseSchema).toBe(false);
 });
 
+test('_internalMakeRemotionComponentIdentity normalizes first-party package names', () => {
+	expect(
+		Interactive._internalMakeRemotionComponentIdentity({
+			packageName: 'remotion',
+			componentName: 'Sequence',
+		}),
+	).toBe('dev.remotion.remotion.Sequence');
+	expect(
+		Interactive._internalMakeRemotionComponentIdentity({
+			packageName: '@remotion/light-leaks',
+			componentName: 'LightLeak',
+		}),
+	).toBe('dev.remotion.lightLeaks.LightLeak');
+	expect(
+		Interactive._internalMakeRemotionComponentIdentity({
+			packageName: '@remotion/rough-notation',
+			componentName: 'AnnotationBehind',
+		}),
+	).toBe('dev.remotion.roughNotation.AnnotationBehind');
+});
+
 test('getFlatSchema(sequenceSchema) exposes every variant key', () => {
 	const flat = getFlatSchemaWithAllKeys(sequenceSchema);
 	expect(Object.keys(flat).sort()).toEqual(
