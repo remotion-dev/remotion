@@ -48,7 +48,7 @@
     "eslint": "9.19.0",
     "prettier": "3.8.1",
     "tailwindcss": "4.2.1",
-    "typescript": "5.9.3",
+    "typescript": "7.0.2",
     "vite": "6.4.3"
   }
 }

@@ -6,7 +6,7 @@
     "rootDir": "./src",
     "outDir": "./dist",
     "strict": true,
-    "lib": ["es2015"],
+    "lib": ["es2015", "DOM"],
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,

@@ -6,6 +6,7 @@
     "strict": true,
     "noEmit": true,
     "lib": ["es2015", "DOM"],
+    "types": ["node"],
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,

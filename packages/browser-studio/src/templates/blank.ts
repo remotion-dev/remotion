@@ -52,7 +52,7 @@ export const RemotionRoot: React.FC = () => {
     "@types/web": "0.0.166",
     "eslint": "9.19.0",
     "prettier": "3.8.1",
-    "typescript": "5.9.3"
+    "typescript": "7.0.2"
   },
   "private": true
 }

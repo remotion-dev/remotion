@@ -74,7 +74,6 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
     monacoRef.current = monaco;
     editorRef.current = editorInstance;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const ts = (monaco.languages as any).typescript;
 
     // Configure TypeScript compiler options for JSX support

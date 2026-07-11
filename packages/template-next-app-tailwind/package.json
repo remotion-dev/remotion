@@ -47,12 +47,13 @@
     "eslint": "9.19.0",
     "@next/eslint-plugin-next": "15.1.6",
     "eslint-config-next": "15.1.6",
-    "@typescript-eslint/eslint-plugin": "8.46.0",
-    "@typescript-eslint/parser": "8.46.0",
+    "@babel/core": "8.0.1",
+    "@babel/eslint-parser": "8.0.1",
+    "@babel/preset-react": "8.0.1",
+    "@babel/preset-typescript": "8.0.1",
     "postcss": "8.5.10",
     "prettier": "3.8.1",
     "tailwindcss": "4.2.0",
-    "typescript": "5.9.3",
-    "typescript-eslint": "8.46.0"
+    "typescript": "7.0.2"
   }
 }

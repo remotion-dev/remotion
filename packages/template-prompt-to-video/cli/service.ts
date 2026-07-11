@@ -6,6 +6,20 @@ import { IMAGE_HEIGHT, IMAGE_WIDTH } from "../src/lib/constants";
 
 let apiKey: string | null = null;
 
+type ChatCompletionResponse = {
+  choices: Array<{
+    message?: {
+      content?: string;
+    };
+  }>;
+};
+
+type ImageGenerationResponse = {
+  data: Array<{
+    b64_json: string;
+  }>;
+};
+
 export const setApiKey = (key: string) => {
   apiKey = key;
 };
@@ -43,7 +57,7 @@ export const openaiStructuredCompletion = async <T>(
 
   if (!res.ok) throw new Error(`OpenAI error: ${await res.text()}`);
 
-  const data = await res.json();
+  const data = (await res.json()) as ChatCompletionResponse;
   const content = data.choices[0]?.message?.content;
 
   if (!content) {
@@ -88,7 +102,7 @@ export const generateAiImage = async ({
     });
 
     if (res.ok) {
-      const data = await res.json();
+      const data = (await res.json()) as ImageGenerationResponse;
       const buffer = Buffer.from(data.data[0].b64_json, "base64");
       const uint8Array = new Uint8Array(buffer);
 

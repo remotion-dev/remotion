@@ -38,7 +38,7 @@
     "prettier": "3.8.1",
     "prompts": "2.4.2",
     "tsx": "4.20.6",
-    "typescript": "5.9.3",
+    "typescript": "7.0.2",
     "uuid": "14.0.0",
     "yargs": "18.0.0"
   },

@@ -1,7 +1,7 @@
+import babelParser from "@babel/eslint-parser";
 import js from "@eslint/js";
 import nextPlugin from "@next/eslint-plugin-next";
 import remotion from "@remotion/eslint-plugin";
-import tseslint from "typescript-eslint";
 
 // Build Next.js recommended rules and an "off" map for overrides
 const nextRecommended = nextPlugin.configs.recommended ?? { rules: {} };
@@ -24,8 +24,25 @@ export default [
   },
   // Base JS recommended
   js.configs.recommended,
-  // TypeScript recommended (non type-checked for speed/simplicity)
-  ...tseslint.configs.recommended,
+  {
+    files: ["**/*.{ts,tsx}"],
+    languageOptions: {
+      parser: babelParser,
+      parserOptions: {
+        requireConfigFile: false,
+        babelOptions: {
+          presets: [
+            "@babel/preset-typescript",
+            ["@babel/preset-react", { runtime: "automatic" }],
+          ],
+        },
+      },
+    },
+    rules: {
+      "no-undef": "off",
+      "no-unused-vars": "off",
+    },
+  },
   // Next.js recommended rules applied to app code
   {
     files: ["**/*.{js,jsx,ts,tsx}"],
