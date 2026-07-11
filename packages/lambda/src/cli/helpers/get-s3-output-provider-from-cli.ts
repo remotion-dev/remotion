@@ -1,23 +1,23 @@
+import {LambdaClientInternals} from '@remotion/lambda-client';
 import type {CustomCredentials, OutNameInput} from '@remotion/serverless';
 import type {AwsProvider} from '../../client';
 
+export const S3_OUTPUT_PROVIDER_ACCESS_KEY_ID_ENV_NAME =
+	'REMOTION_S3_OUTPUT_PROVIDER_ACCESS_KEY_ID';
+export const S3_OUTPUT_PROVIDER_SECRET_ACCESS_KEY_ENV_NAME =
+	'REMOTION_S3_OUTPUT_PROVIDER_SECRET_ACCESS_KEY';
+
 export const getS3OutputProviderFromCli = ({
 	endpoint,
-	accessKeyId,
-	secretAccessKey,
 	region,
 	forcePathStyle,
 }: {
 	endpoint: string | undefined;
-	accessKeyId: string | undefined;
-	secretAccessKey: string | undefined;
 	region: AwsProvider['region'] | (string & {}) | undefined;
 	forcePathStyle: boolean | undefined;
 }): CustomCredentials<AwsProvider> | null => {
 	const hasAnyS3OutputProviderFlag =
 		endpoint !== undefined ||
-		accessKeyId !== undefined ||
-		secretAccessKey !== undefined ||
 		region !== undefined ||
 		forcePathStyle !== undefined;
 
@@ -33,8 +33,14 @@ export const getS3OutputProviderFromCli = ({
 
 	return {
 		endpoint,
-		accessKeyId: accessKeyId ?? null,
-		secretAccessKey: secretAccessKey ?? null,
+		accessKeyId:
+			LambdaClientInternals.getEnvVariable(
+				S3_OUTPUT_PROVIDER_ACCESS_KEY_ID_ENV_NAME,
+			) ?? null,
+		secretAccessKey:
+			LambdaClientInternals.getEnvVariable(
+				S3_OUTPUT_PROVIDER_SECRET_ACCESS_KEY_ENV_NAME,
+			) ?? null,
 		region,
 		forcePathStyle,
 	};

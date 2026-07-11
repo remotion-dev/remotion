@@ -224,8 +224,6 @@ export const stillCommand = async ({
 	const outName = parsedLambdaCli['out-name'];
 	const s3OutputProvider = getS3OutputProviderFromCli({
 		endpoint: parsedLambdaCli['s3-output-provider-endpoint'],
-		accessKeyId: parsedLambdaCli['s3-output-provider-access-key-id'],
-		secretAccessKey: parsedLambdaCli['s3-output-provider-secret-access-key'],
 		region: parsedLambdaCli['s3-output-provider-region'],
 		forcePathStyle:
 			parsedLambdaCli['s3-output-provider-force-path-style'] || undefined,
