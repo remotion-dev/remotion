@@ -78,64 +78,11 @@ const RoughHighlightComposition: React.FC = () => {
 	);
 };
 
-const CssSweepHighlightComposition: React.FC = () => {
-	const frame = useCurrentFrame();
-	const progress = interpolate(frame, [8, 44], [0, 1], {
-		extrapolateLeft: 'clamp',
-		extrapolateRight: 'clamp',
-	});
-
-	return (
-		<AbsoluteFill style={layout}>
-			<div
-				style={{
-					fontSize: 78,
-					fontWeight: 700,
-					lineHeight: 1.1,
-					color: '#171717',
-					fontFamily,
-					width: 820,
-				}}
-			>
-				A calmer way to show{' '}
-				<span
-					style={{
-						backgroundImage:
-							'linear-gradient(transparent 52%, rgba(129, 140, 248, 0.42) 52%)',
-						backgroundRepeat: 'no-repeat',
-						backgroundSize: `${progress * 100}% 100%`,
-						padding: '0 0.06em',
-					}}
-				>
-					priority
-				</span>
-				.
-			</div>
-		</AbsoluteFill>
-	);
-};
-
 export const TextHighlightRoughNotationDemo: React.FC = () => {
 	return (
 		<Player
 			acknowledgeRemotionLicense
 			component={RoughHighlightComposition}
-			compositionWidth={1080}
-			compositionHeight={500}
-			durationInFrames={90}
-			fps={30}
-			autoPlay
-			loop
-			style={playerStyle}
-		/>
-	);
-};
-
-export const TextHighlightCssSweepDemo: React.FC = () => {
-	return (
-		<Player
-			acknowledgeRemotionLicense
-			component={CssSweepHighlightComposition}
 			compositionWidth={1080}
 			compositionHeight={500}
 			durationInFrames={90}

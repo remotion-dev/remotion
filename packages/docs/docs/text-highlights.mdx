@@ -5,10 +5,7 @@ title: Text highlights
 crumb: 'Designing visuals'
 ---
 
-import {
-  TextHighlightCssSweepDemo,
-  TextHighlightRoughNotationDemo,
-} from '../components/TextHighlightExamples';
+import {TextHighlightRoughNotationDemo} from '../components/TextHighlightExamples';
 
 # Text highlights
 
@@ -93,71 +90,6 @@ export const RoughHighlight: React.FC = () => {
         </AnnotationBehind>
         <Interactive.Span>.</Interactive.Span>
       </Interactive.Div>
-    </AbsoluteFill>
-  );
-};
-```
-
-</details>
-
-## CSS sweep
-
-For a cleaner graphic style, animate the `backgroundSize` of an inline element.
-This keeps the highlight attached to text wrapping and does not require a package.
-
-<TextHighlightCssSweepDemo />
-
-<details>
-<summary>Show code</summary>
-
-```tsx twoslash title="CssSweepHighlight.tsx"
-import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
-import {loadFont} from '@remotion/google-fonts/CormorantGaramond';
-
-const {fontFamily} = loadFont('normal', {
-  weights: ['700'],
-  subsets: ['latin'],
-});
-
-export const CssSweepHighlight: React.FC = () => {
-  const frame = useCurrentFrame();
-  const progress = interpolate(frame, [8, 44], [0, 1], {
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-  });
-
-  return (
-    <AbsoluteFill
-      style={{
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'white',
-      }}
-    >
-      <div
-        style={{
-          fontSize: 78,
-          fontWeight: 700,
-          lineHeight: 1.1,
-          color: '#171717',
-          fontFamily,
-          width: 820,
-        }}
-      >
-        A calmer way to show{' '}
-        <span
-          style={{
-            backgroundImage:
-              'linear-gradient(transparent 52%, rgba(129, 140, 248, 0.42) 52%)',
-            backgroundRepeat: 'no-repeat',
-            backgroundSize: `${progress * 100}% 100%`,
-            padding: '0 0.06em',
-          }}
-        >
-          priority
-        </span>
-        .
-      </div>
     </AbsoluteFill>
   );
 };
