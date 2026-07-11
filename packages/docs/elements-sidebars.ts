@@ -26,7 +26,10 @@ const sidebars: SidebarsConfig = {
 			label: 'Overlays',
 			link: {type: 'doc', id: 'overlays/index'},
 			collapsed: false,
-			items: ['overlays/lower-third/index'],
+			items: [
+				'overlays/lower-third/index',
+				'overlays/rough-notation-highlight/index',
+			],
 		},
 		{
 			type: 'category',

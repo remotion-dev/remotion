@@ -1,5 +1,4 @@
 import {loadFont} from '@remotion/google-fonts/CormorantGaramond';
-import {Player} from '@remotion/player';
 import {AnnotationBehind} from '@remotion/rough-notation';
 import React from 'react';
 import {
@@ -15,17 +14,18 @@ const {fontFamily} = loadFont('normal', {
 	subsets: ['latin'],
 });
 
-const containerStyle: React.CSSProperties = {
-	justifyContent: 'center',
-	alignItems: 'center',
-};
-
-const RoughNotationHighlightComposition: React.FC = () => {
+export const RoughNotationHighlight: React.FC = () => {
 	const frame = useCurrentFrame();
 
 	return (
-		<AbsoluteFill style={containerStyle}>
+		<AbsoluteFill
+			style={{
+				justifyContent: 'center',
+				alignItems: 'center',
+			}}
+		>
 			<Interactive.Div
+				name="Container"
 				style={{
 					fontSize: 80,
 					fontWeight: 700,
@@ -67,27 +67,5 @@ const RoughNotationHighlightComposition: React.FC = () => {
 				<Interactive.Span>end to the World cup</Interactive.Span>
 			</Interactive.Div>
 		</AbsoluteFill>
-	);
-};
-
-export const RoughNotationHighlightExample: React.FC = () => {
-	return (
-		<Player
-			acknowledgeRemotionLicense
-			component={RoughNotationHighlightComposition}
-			compositionWidth={1080}
-			compositionHeight={500}
-			durationInFrames={90}
-			fps={30}
-			autoPlay
-			loop
-			style={{
-				width: '100%',
-				border: '1px solid var(--ifm-color-emphasis-300)',
-				borderRadius: 'var(--ifm-pre-border-radius)',
-				backgroundColor: 'white',
-				marginBottom: 20,
-			}}
-		/>
 	);
 };
