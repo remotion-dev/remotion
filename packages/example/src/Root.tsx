@@ -2541,7 +2541,7 @@ export const Index: React.FC = () => {
 					id="rough-notation-highlight"
 					component={RoughNotationHighlight}
 					width={1080}
-					height={1080}
+					height={500}
 					fps={30}
 					durationInFrames={90}
 				/>
@@ -2557,7 +2557,7 @@ export const Index: React.FC = () => {
 					id="rough-notation-circle"
 					component={RoughNotationCircle}
 					width={1080}
-					height={1080}
+					height={500}
 					fps={30}
 					durationInFrames={90}
 				/>

@@ -2,10 +2,10 @@ import {AnnotationOnTop} from '@remotion/rough-notation';
 import React from 'react';
 import {
 	AbsoluteFill,
+	Easing,
 	Interactive,
 	interpolate,
 	useCurrentFrame,
-	Easing,
 } from 'remotion';
 import {annotationTextStyle, containerStyle} from './shared';
 
@@ -15,7 +15,7 @@ export const RoughNotationCircle: React.FC = () => {
 	return (
 		<AbsoluteFill style={containerStyle}>
 			<Interactive.Div style={annotationTextStyle}>
-				<Interactive.Span>Straight to the </Interactive.Span>
+				<Interactive.Span>How much </Interactive.Span>
 				<AnnotationOnTop
 					name="Circle annotation"
 					progress={interpolate(frame, [0, 24], [0, 1], {
@@ -44,8 +44,9 @@ export const RoughNotationCircle: React.FC = () => {
 						top: -16,
 					}}
 				>
-					point
-				</AnnotationOnTop>
+					circular
+				</AnnotationOnTop>{' '}
+				<Interactive.Span>financing is in AI?</Interactive.Span>
 			</Interactive.Div>
 		</AbsoluteFill>
 	);
