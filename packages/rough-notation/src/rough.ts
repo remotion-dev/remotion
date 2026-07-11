@@ -1,8 +1,7 @@
 import type React from 'react';
 import type {ResolvedOptions} from 'roughjs/bin/core';
-import type {z} from 'zod';
 import {renderAnnotation} from './render-annotation';
-import type {annotationConfig, Rect} from './types';
+import type {Rect, ResolvedAnnotationConfig} from './types';
 
 const svgRect = ({
 	svg,
@@ -37,7 +36,7 @@ export const render = ({
 	readonly svg: SVGSVGElement;
 	readonly seed: number;
 	readonly element: HTMLElement;
-	readonly config: z.infer<typeof annotationConfig>;
+	readonly config: ResolvedAnnotationConfig;
 	readonly scale: number;
 	readonly progress: number;
 	readonly options: Partial<ResolvedOptions>;

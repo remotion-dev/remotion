@@ -2,8 +2,7 @@ import {evolvePath} from '@remotion/paths';
 import type {OpSet, ResolvedOptions} from 'roughjs/bin/core';
 import type {Point} from 'roughjs/bin/geometry';
 import {ellipse, line, linearPath, rectangle} from 'roughjs/bin/renderer.js';
-import type {z} from 'zod';
-import type {annotationConfig, AnnotationConfig, Rect} from './types';
+import type {Rect, ResolvedAnnotationConfig} from './types';
 
 const opsToPath = (opList: OpSet[]): string[] => {
 	const paths: string[] = [];
@@ -64,7 +63,7 @@ const getOptions = (
 	};
 };
 
-const getCircleItems = (rect: Rect, config: AnnotationConfig) => {
+const getCircleItems = (rect: Rect, config: ResolvedAnnotationConfig) => {
 	if (config.type !== 'circle') {
 		throw new Error('Not a circle');
 	}
@@ -100,7 +99,7 @@ export function getInstructions({
 	options,
 }: {
 	readonly rect: Rect;
-	readonly config: z.output<typeof annotationConfig>;
+	readonly config: ResolvedAnnotationConfig;
 	readonly seed: number;
 	readonly options: Partial<ResolvedOptions>;
 }): {opList: OpSet[]; strokeWidth: number} {
@@ -305,7 +304,7 @@ export const renderAnnotation = ({
 	options,
 }: {
 	readonly rect: Rect;
-	readonly config: z.infer<typeof annotationConfig>;
+	readonly config: ResolvedAnnotationConfig;
 	readonly seed: number;
 	readonly progress: number;
 	readonly options: Partial<ResolvedOptions>;

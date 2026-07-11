@@ -28,8 +28,7 @@
 	"dependencies": {
 		"@remotion/paths": "workspace:*",
 		"remotion": "workspace:*",
-		"roughjs": "4.6.6",
-		"zod": "catalog:"
+		"roughjs": "4.6.6"
 	},
 	"peerDependencies": {
 		"react": ">=16.8.0",

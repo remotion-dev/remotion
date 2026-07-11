@@ -7,10 +7,9 @@ import React, {
 } from 'react';
 import {continueRender, delayRender} from 'remotion';
 import type {ResolvedOptions} from 'roughjs/bin/core';
-import type {z} from 'zod';
 import {useElementSize} from './element-size';
 import {render} from './rough';
-import {annotationConfig} from './types';
+import {resolveAnnotationConfig, type AnnotationConfig} from './types';
 
 const AnnotationContext = createContext<{
 	readonly svgChildren: React.ReactElement[];
@@ -41,7 +40,7 @@ type TrackerProps = ChildrenProps & {
 };
 
 type AnnotationProps = Readonly<
-	z.input<typeof annotationConfig> & {
+	AnnotationConfig & {
 		seed?: number;
 		progress: number;
 		roughness?: number;
@@ -93,7 +92,7 @@ export const createAnnotation = () => {
 		...config
 	}) => {
 		const parsed = useMemo(() => {
-			return annotationConfig.parse(config);
+			return resolveAnnotationConfig(config);
 		}, [config]);
 
 		const [initial] = useState(() => delayRender());

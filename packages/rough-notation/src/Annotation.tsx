@@ -8,9 +8,8 @@ import {
 	type SequenceControls,
 } from 'remotion';
 import type {ResolvedOptions} from 'roughjs/bin/core';
-import type {z} from 'zod';
 import {createAnnotation} from './create-annotation';
-import type {annotationConfig} from './types';
+import type {AnnotationConfig} from './types';
 
 type AnnotationComponentProps = Readonly<
 	{
@@ -20,7 +19,7 @@ type AnnotationComponentProps = Readonly<
 		style?: React.CSSProperties;
 		roughness?: number;
 		roughOptions?: Partial<ResolvedOptions>;
-	} & z.input<typeof annotationConfig>
+	} & AnnotationConfig
 >;
 
 type AnnotationInteractiveProps = AnnotationComponentProps &

@@ -1447,7 +1447,6 @@
         "@remotion/paths": "workspace:*",
         "remotion": "workspace:*",
         "roughjs": "4.6.6",
-        "zod": "catalog:",
       },
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
