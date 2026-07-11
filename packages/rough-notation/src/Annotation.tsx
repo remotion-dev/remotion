@@ -1,5 +1,6 @@
 import React, {useMemo} from 'react';
 import {
+	Internals,
 	Interactive,
 	Sequence,
 	type InteractiveBaseProps,
@@ -210,6 +211,7 @@ export const AnnotationOnTop = Interactive.withSchema({
 }) as React.FC<AnnotationInteractiveProps>;
 
 AnnotationOnTop.displayName = 'AnnotationOnTop';
+Internals.addSequenceStackTraces(AnnotationOnTop);
 
 const AnnotationBehindInner: React.FC<
 	AnnotationInteractiveProps & {
@@ -268,3 +270,4 @@ export const AnnotationBehind = Interactive.withSchema({
 }) as React.FC<AnnotationInteractiveProps>;
 
 AnnotationBehind.displayName = 'AnnotationBehind';
+Internals.addSequenceStackTraces(AnnotationBehind);
