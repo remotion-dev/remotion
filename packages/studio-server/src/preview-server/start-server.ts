@@ -25,6 +25,8 @@ import {clearNodePathCache} from './node-path-cache';
 import {getRedoStack, getUndoStack} from './undo-stack';
 import {setWatchIgnoreNextChangePlugin} from './watch-ignore-next-change';
 
+const studioAuthToken = randomBytes(32).toString('hex');
+
 export type StartServerResult =
 	| {
 			type: 'started';
@@ -75,7 +77,6 @@ export const startServer = async (options: {
 		options?.port ??
 		(process.env.PORT ? Number(process.env.PORT) : undefined) ??
 		undefined;
-	const studioAuthToken = randomBytes(32).toString('hex');
 
 	const defaultPortConfig = RenderInternals.getPortConfig(options.forceIPv4);
 	const loopbackHostsToTry = defaultPortConfig.hostsToTry.filter(
