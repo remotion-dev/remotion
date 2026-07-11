@@ -32,6 +32,13 @@ test('annotation schema exposes roughness as a shared Studio control', () => {
 	expect(activeKeysForType('circle')).toContain('roughness');
 });
 
+test('annotation schema allows keyframing the seed', () => {
+	expect(annotationInteractiveSchema.seed).not.toHaveProperty(
+		'keyframable',
+		false,
+	);
+});
+
 test('annotation schema exposes rough.js controls as top-level Studio controls', () => {
 	const highlightKeys = activeKeysForType('highlight');
 	expect(highlightKeys).toContain('maxRandomnessOffset');

@@ -233,7 +233,6 @@ export const annotationInteractiveSchema: InteractivitySchema = {
 		default: 1,
 		description: 'Seed',
 		hiddenFromList: false,
-		keyframable: false,
 	},
 	...roughJsControlsSchema,
 	...colorSchema,
