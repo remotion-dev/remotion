@@ -4,6 +4,8 @@ title: '<AnnotationBehind>'
 crumb: '@remotion/rough-notation'
 ---
 
+import {RoughNotationHighlightExample} from '../../components/RoughNotationHighlightExample';
+
 # &lt;AnnotationBehind&gt;<AvailableFrom v="4.0.489" />
 
 Draws a rough annotation behind the element it wraps.
@@ -12,29 +14,76 @@ Use it for highlights, circles, boxes, brackets, underlines, strike-throughs and
 
 ## Example
 
+<RoughNotationHighlightExample />
+
 ```tsx twoslash title="MyComp.tsx"
+import {loadFont} from '@remotion/google-fonts/CormorantGaramond';
 import {AnnotationBehind} from '@remotion/rough-notation';
-import {AbsoluteFill, spring, useCurrentFrame, useVideoConfig} from 'remotion';
+import type React from 'react';
+import {
+  AbsoluteFill,
+  Easing,
+  Interactive,
+  interpolate,
+  useCurrentFrame,
+} from 'remotion';
+
+const {fontFamily} = loadFont('normal', {
+  weights: ['700'],
+  subsets: ['latin'],
+});
+
+const containerStyle: React.CSSProperties = {
+  justifyContent: 'center',
+  alignItems: 'center',
+};
+
+const annotationTextStyle: React.CSSProperties = {
+  fontSize: 80,
+  fontWeight: 700,
+  lineHeight: 1.1,
+  color: '#171717',
+  fontFamily,
+  width: 800,
+};
 
 export const MyComp: React.FC = () => {
   const frame = useCurrentFrame();
-  const {fps} = useVideoConfig();
-  const progress = spring({fps, frame, durationInFrames: 45});
 
   return (
-    <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center'}}>
-      <div style={{fontSize: 96}}>
-        This is{' '}
+    <AbsoluteFill style={containerStyle}>
+      <Interactive.Div style={annotationTextStyle}>
+        <Interactive.Span>A truly </Interactive.Span>
         <AnnotationBehind
-          progress={progress}
+          name="Highlight annotation"
+          progress={interpolate(frame, [0, 25], [0, 1], {
+            extrapolateLeft: 'clamp',
+            extrapolateRight: 'clamp',
+            easing: [
+              Easing.spring({
+                damping: 200,
+                mass: 1,
+                stiffness: 100,
+                allowTail: true,
+                durationRestThreshold: 0.02,
+                overshootClamping: false,
+              }),
+            ],
+          })}
           type="highlight"
-          color="yellow"
-          roughness={3}
-          iterations={8}
+          color="rgba(255, 236, 79, 0.62)"
+          roughOptions={{maxRandomnessOffset: 10}}
+          roughness={2.3}
+          padding={{
+            left: 20,
+            right: 20,
+            top: -30,
+          }}
         >
-          important
-        </AnnotationBehind>
-      </div>
+          remarkable
+        </AnnotationBehind>{' '}
+        <Interactive.Span>end to the World cup</Interactive.Span>
+      </Interactive.Div>
     </AbsoluteFill>
   );
 };
