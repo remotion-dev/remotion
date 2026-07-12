@@ -274,6 +274,7 @@ export type {CompletedClientRender} from './render-job';
 export {
 	getRequiredPackageForEffectImportPath,
 	getRequiredPackageForInsertableElement,
+	getRequiredPackagesForElementSourceCode,
 } from './required-package';
 export {
 	SCHEMA_FIELD_GROUPS,

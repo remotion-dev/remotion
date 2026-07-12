@@ -1,6 +1,7 @@
 import {describe, expect, test} from 'bun:test';
 import {existsSync, readdirSync, readFileSync, statSync} from 'fs';
 import path from 'path';
+import {getRequiredPackagesForElementSourceCode} from '@remotion/studio-shared';
 import {expandElementSourceReferences} from '../../plugins/element-source-utils';
 import remarkElementSource from '../../plugins/remark-element-source';
 
@@ -144,6 +145,14 @@ describe('Elements must follow the colocated single-file format', () => {
 				expect(mdx).not.toContain('sourceCode=');
 				expect(mdx).not.toContain('componentName=');
 				expect(mdx).not.toMatch(/export const \w+Source = /);
+			});
+
+			test('MDX declares dependencies imported by the Element', () => {
+				const requiredPackages = getRequiredPackagesForElementSourceCode(tsx);
+
+				for (const requiredPackage of requiredPackages) {
+					expect(mdx).toContain(`'${requiredPackage}'`);
+				}
 			});
 
 			test('Element drag file name is derived from the slug', () => {
