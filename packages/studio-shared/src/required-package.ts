@@ -1,4 +1,5 @@
 import type {InsertableCompositionElement} from './api-requests';
+import {extraPackages, installableMap, packages} from './package-info';
 
 export const getRequiredPackageForImportPath = (
 	importPath: string,
@@ -14,6 +15,48 @@ export const getRequiredPackageForImportPath = (
 
 	const [packageName] = importPath.split('/');
 	return packageName || null;
+};
+
+const firstPartyPackages = new Set(
+	packages
+		.filter((pkg) => installableMap[pkg])
+		.map((pkg) => `@remotion/${pkg}`),
+);
+
+const extraPackageNames = new Set(extraPackages.map((pkg) => pkg.name));
+
+export const isAllowedElementDependencyPackage = (packageName: string) => {
+	return (
+		firstPartyPackages.has(packageName) || extraPackageNames.has(packageName)
+	);
+};
+
+const fromImportPathRegex =
+	/^(?:import|export)\s+(?:type\s+)?.+\s+from\s+['"]([^'"]+)['"]/;
+const sideEffectImportPathRegex = /^import\s+['"]([^'"]+)['"]/;
+
+export const getRequiredPackagesForElementSourceCode = (sourceCode: string) => {
+	const requiredPackages: string[] = [];
+
+	for (const line of sourceCode.split('\n')) {
+		const trimmed = line.trim();
+		const match =
+			trimmed.match(fromImportPathRegex) ??
+			trimmed.match(sideEffectImportPathRegex);
+		const importPath = match?.[1] ?? null;
+		const requiredPackage =
+			importPath === null ? null : getRequiredPackageForImportPath(importPath);
+
+		if (
+			requiredPackage !== null &&
+			isAllowedElementDependencyPackage(requiredPackage) &&
+			!requiredPackages.includes(requiredPackage)
+		) {
+			requiredPackages.push(requiredPackage);
+		}
+	}
+
+	return requiredPackages;
 };
 
 export const getRequiredPackageForInsertableElement = (

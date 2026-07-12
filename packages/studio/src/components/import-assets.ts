@@ -920,6 +920,8 @@ export const insertElement = async ({
 	element: ElementDragData['element'];
 }) => {
 	try {
+		await installRequiredPackages([...element.dependencies]);
+
 		const response = await callApi('/api/insert-element', {
 			compositionFile,
 			compositionId,

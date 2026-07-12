@@ -12,13 +12,18 @@ const validElement = {
 	dimensions: {width: 900, height: 260},
 };
 
+const validElementWithDependencies = {
+	...validElement,
+	dependencies: [],
+};
+
 test('parses element drag data', () => {
 	expect(
 		parseElementDragData(JSON.stringify(makeElementDragData(validElement))),
 	).toEqual({
 		type: 'remotion-element',
 		version: 1,
-		element: validElement,
+		element: validElementWithDependencies,
 	});
 });
 
@@ -31,8 +36,40 @@ test('accepts element drag data with null dimensions', () => {
 	).toEqual({
 		type: 'remotion-element',
 		version: 1,
-		element: elementWithoutDimensions,
+		element: {...elementWithoutDimensions, dependencies: []},
 	});
+});
+
+test('derives element dependencies from source code imports', () => {
+	const element = {
+		...validElement,
+		sourceCode: [
+			"import React from 'react';",
+			"import {loadFont} from '@remotion/google-fonts/Inter';",
+			"import {paper} from '@remotion/effects/paper';",
+			"import {z} from 'zod';",
+			"import {AbsoluteFill} from 'remotion';",
+			'export const LowerThird = () => null;',
+		].join('\n'),
+	};
+
+	expect(makeElementDragData(element).element.dependencies).toEqual([
+		'@remotion/google-fonts',
+		'@remotion/effects',
+		'zod',
+	]);
+});
+
+test('parses old element drag data without dependencies', () => {
+	expect(
+		parseElementDragData(
+			JSON.stringify({
+				type: 'remotion-element',
+				version: 1,
+				element: validElement,
+			}),
+		)?.element.dependencies,
+	).toEqual([]);
 });
 
 test('derives element file name from slug', () => {
@@ -109,6 +146,15 @@ test('rejects invalid element drag data', () => {
 				type: 'remotion-element',
 				version: 1,
 				element: {...validElement, dimensions: {width: 0, height: 260}},
+			}),
+		),
+	).toBe(null);
+	expect(
+		parseElementDragData(
+			JSON.stringify({
+				type: 'remotion-element',
+				version: 1,
+				element: {...validElement, dependencies: ['left-pad']},
 			}),
 		),
 	).toBe(null);

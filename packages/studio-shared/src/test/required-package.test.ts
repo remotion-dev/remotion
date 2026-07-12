@@ -1,6 +1,7 @@
 import {expect, test} from 'bun:test';
 import {
 	getRequiredPackageForEffectImportPath,
+	getRequiredPackagesForElementSourceCode,
 	getRequiredPackageForInsertableElement,
 } from '../required-package';
 
@@ -96,4 +97,25 @@ test('gets required package for effect import paths', () => {
 		'@remotion/starburst',
 	);
 	expect(getRequiredPackageForEffectImportPath('remotion')).toBe(null);
+});
+
+test('gets required packages for element source code', () => {
+	expect(
+		getRequiredPackagesForElementSourceCode(
+			[
+				"import React from 'react';",
+				"import {loadFont} from '@remotion/google-fonts/Inter';",
+				"import {starburst} from '@remotion/starburst';",
+				"import '@remotion/effects/paper';",
+				"import {z} from 'zod';",
+				"import {AbsoluteFill} from 'remotion';",
+				"import ignored from 'left-pad';",
+			].join('\n'),
+		),
+	).toEqual([
+		'@remotion/google-fonts',
+		'@remotion/starburst',
+		'@remotion/effects',
+		'zod',
+	]);
 });

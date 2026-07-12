@@ -2,6 +2,10 @@ import {
 	isComponentIdentifier,
 	type ComponentDimensions,
 } from './component-drag-data';
+import {
+	getRequiredPackagesForElementSourceCode,
+	isAllowedElementDependencyPackage,
+} from './required-package';
 
 export {ELEMENT_DRAG_MIME_TYPE} from './drag-mime-types';
 
@@ -13,7 +17,15 @@ export type ElementDragData = {
 		displayName: string;
 		sourceCode: string;
 		dimensions: ComponentDimensions | null;
+		dependencies: readonly string[];
 	};
+};
+
+type MakeElementDragDataInput = Omit<
+	ElementDragData['element'],
+	'dependencies'
+> & {
+	readonly dependencies?: readonly string[];
 };
 
 const isRecord = (value: unknown): value is Record<string, unknown> => {
@@ -87,6 +99,44 @@ const isDimensions = (value: unknown): value is ComponentDimensions => {
 	);
 };
 
+const isDependencyList = (value: unknown): value is string[] => {
+	if (typeof value === 'undefined') {
+		return true;
+	}
+
+	if (!Array.isArray(value) || value.length > 30) {
+		return false;
+	}
+
+	const seen = new Set<string>();
+	for (const dependency of value) {
+		if (
+			typeof dependency !== 'string' ||
+			dependency.length > 200 ||
+			seen.has(dependency) ||
+			!isAllowedElementDependencyPackage(dependency)
+		) {
+			return false;
+		}
+
+		seen.add(dependency);
+	}
+
+	return true;
+};
+
+const mergeDependencies = (
+	sourceCode: string,
+	dependencies: readonly string[] | undefined,
+) => {
+	return Array.from(
+		new Set([
+			...getRequiredPackagesForElementSourceCode(sourceCode),
+			...(dependencies ?? []),
+		]),
+	);
+};
+
 export const getElementComponentNameFromSourceCode = (sourceCode: string) => {
 	const componentNames = Array.from(
 		sourceCode.matchAll(
@@ -106,10 +156,11 @@ export const getElementComponentNameFromSourceCode = (sourceCode: string) => {
 
 export const makeElementDragData = ({
 	dimensions,
+	dependencies,
 	displayName,
 	slug,
 	sourceCode,
-}: ElementDragData['element']): ElementDragData => {
+}: MakeElementDragDataInput): ElementDragData => {
 	return {
 		type: 'remotion-element',
 		version: 1,
@@ -118,6 +169,7 @@ export const makeElementDragData = ({
 			displayName,
 			sourceCode,
 			dimensions,
+			dependencies: mergeDependencies(sourceCode, dependencies),
 		},
 	};
 };
@@ -137,7 +189,8 @@ export const parseElementDragData = (value: string): ElementDragData | null => {
 			return null;
 		}
 
-		const {dimensions, displayName, slug, sourceCode} = parsed.element;
+		const {dependencies, dimensions, displayName, slug, sourceCode} =
+			parsed.element;
 
 		if (
 			!isSlug(slug) ||
@@ -147,7 +200,8 @@ export const parseElementDragData = (value: string): ElementDragData | null => {
 			makeElementFileNameFromSlug(slug) === null ||
 			(dimensions !== undefined &&
 				dimensions !== null &&
-				!isDimensions(dimensions))
+				!isDimensions(dimensions)) ||
+			!isDependencyList(dependencies)
 		) {
 			return null;
 		}
@@ -157,6 +211,7 @@ export const parseElementDragData = (value: string): ElementDragData | null => {
 			displayName,
 			sourceCode,
 			dimensions: dimensions ?? null,
+			dependencies: mergeDependencies(sourceCode, dependencies),
 		});
 	} catch {
 		return null;
