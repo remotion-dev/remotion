@@ -18,6 +18,12 @@ const getTruncatedDisplayName = (displayName: string): string => {
 	return displayName;
 };
 
+export const getTimelineSequenceRenameSelection = (
+	displayName: string,
+): [number, number] => {
+	return [0, displayName.length];
+};
+
 export const TimelineSequenceName: React.FC<{
 	readonly displayName: string;
 	readonly fallbackDisplayName: string;
@@ -92,10 +98,9 @@ export const TimelineSequenceName: React.FC<{
 		}
 
 		input.focus();
-		const basenameIndex = editableDisplayName.lastIndexOf('.');
-		const selectionEnd =
-			basenameIndex > 0 ? basenameIndex : editableDisplayName.length;
-		input.setSelectionRange(0, selectionEnd);
+		const [selectionStart, selectionEnd] =
+			getTimelineSequenceRenameSelection(editableDisplayName);
+		input.setSelectionRange(selectionStart, selectionEnd);
 	}, [editableDisplayName, editing]);
 
 	const save = useCallback(() => {
