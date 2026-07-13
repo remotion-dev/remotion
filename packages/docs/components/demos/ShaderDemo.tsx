@@ -28,7 +28,7 @@ type BurlFigureState = {
 	};
 };
 
-const DEFAULT_SPEED = 1;
+const DEFAULT_SPEED = 0.4;
 const DEFAULT_SCALE = 0.001;
 const DEFAULT_WARP = 0.6;
 
@@ -295,7 +295,7 @@ export const ShaderDemoComp = () => {
 				effects={[
 					burlFigure({
 						time: frame / fps,
-						speed: 1,
+						speed: 0.4,
 						scale: 0.001,
 						warp: 0.6,
 					}),
