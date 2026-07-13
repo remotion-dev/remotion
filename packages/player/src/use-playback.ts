@@ -10,7 +10,7 @@ import {useIsBackgrounded} from './is-backgrounded.js';
 import {setGlobalTimeAnchor} from './set-global-time-anchor.js';
 import {usePlayer} from './use-player.js';
 
-const shouldForceAnchorChange = (newState: RemotionAudioContextState) => {
+const shouldReanchorOnStateChange = (newState: RemotionAudioContextState) => {
 	if (newState === 'suspended' || newState === 'running-to-suspended') {
 		return true;
 	}
@@ -108,7 +108,11 @@ export const usePlayback = ({
 	}, [config, frame, logLevel, playbackRate, sharedAudioContext, muted]);
 
 	// When the audio context is suspended, we use the opportunity to
-	// re-anchor the time to be exact.
+	// re-anchor the time if it has drifted beyond the allowed shift.
+	// Small drifts are left alone on purpose: suspend() freezes the
+	// scheduled audio nodes in place and resume() unfreezes them
+	// sample-exact, so keeping the anchor lets a plain pause/play cycle
+	// reuse the queued nodes without tearing them down.
 	useLayoutEffect(() => {
 		const audioContext = sharedAudioContext?.audioContext;
 		if (!audioContext) {
@@ -125,15 +129,20 @@ export const usePlayback = ({
 
 		const callback = () => {
 			const newState = sharedAudioContext?.getAudioContextState();
-			if (newState && shouldForceAnchorChange(newState)) {
-				setGlobalTimeAnchor({
+			if (newState && shouldReanchorOnStateChange(newState)) {
+				const changed = setGlobalTimeAnchor({
 					audioContext,
 					audioSyncAnchor: sharedAudioContext.audioSyncAnchor,
 					absoluteTimeInSeconds: getCurrentFrame() / config.fps,
 					globalPlaybackRate: playbackRate,
 					logLevel,
-					force: true,
+					force: false,
 				});
+				// The nodes queued so far were scheduled against the old anchor,
+				// so they have to be rebuilt if the anchor moved.
+				if (changed) {
+					sharedAudioContext.audioSyncAnchorEmitter.dispatch('changed');
+				}
 			}
 		};
 
