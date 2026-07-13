@@ -364,22 +364,30 @@ export const SharedAudioContextProvider: React.FC<{
 
 		audioContextIsPlayingEventually.current = true;
 
-		ctxAndGain.gainNode.gain.cancelScheduledValues(
-			ctxAndGain.audioContext.currentTime,
-		);
-		ctxAndGain.gainNode.gain.setValueAtTime(
-			0,
-			ctxAndGain.audioContext.currentTime,
-		);
-		ctxAndGain.gainNode.gain.linearRampToValueAtTime(
-			1,
-			ctxAndGain.audioContext.currentTime + 0.03,
-		);
+		// Nodes that were scheduled while the context was not running start
+		// mid-waveform, which can produce an audible click - mask it with a
+		// short fade-in. If there are no nodes to start, resume() merely
+		// unfreezes the nodes that suspend() froze in place, which continues
+		// sample-exact - fading would cause an audible dip on every
+		// play/pause toggle.
+		if (nodesToResume.current.size > 0) {
+			ctxAndGain.gainNode.gain.cancelScheduledValues(
+				ctxAndGain.audioContext.currentTime,
+			);
+			ctxAndGain.gainNode.gain.setValueAtTime(
+				0,
+				ctxAndGain.audioContext.currentTime,
+			);
+			ctxAndGain.gainNode.gain.linearRampToValueAtTime(
+				1,
+				ctxAndGain.audioContext.currentTime + 0.03,
+			);
 
-		nodesToResume.current.forEach((r, node) => {
-			node.start(r.scheduledTime, r.offset, r.duration);
-		});
-		nodesToResume.current.clear();
+			nodesToResume.current.forEach((r, node) => {
+				node.start(r.scheduledTime, r.offset, r.duration);
+			});
+			nodesToResume.current.clear();
+		}
 
 		const resumePromise = ctxAndGain.resume();
 
