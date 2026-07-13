@@ -1117,6 +1117,7 @@
         "@remotion/player": "workspace:*",
         "@typescript/native-preview": "catalog:",
         "@vitest/browser-webdriverio": "4.0.9",
+        "esbuild": "0.28.1",
         "eslint": "catalog:",
         "react": "catalog:",
         "react-dom": "catalog:",

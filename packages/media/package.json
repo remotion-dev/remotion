@@ -19,7 +19,7 @@
 		"lint": "eslint src",
 		"watch": "tsgo -w",
 		"test": "node src/test/execute.mjs",
-		"make": "tsgo && bun --env-file=../.env.bundle bundle.ts"
+		"make": "tsgo && node build.mjs && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"dependencies": {
 		"mediabunny": "catalog:",
@@ -34,6 +34,7 @@
 		"@remotion/eslint-config-internal": "workspace:*",
 		"@remotion/player": "workspace:*",
 		"@vitest/browser-webdriverio": "4.0.9",
+		"esbuild": "0.28.1",
 		"eslint": "catalog:",
 		"react": "catalog:",
 		"react-dom": "catalog:",
