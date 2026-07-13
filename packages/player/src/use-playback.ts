@@ -100,7 +100,6 @@ export const usePlayback = ({
 			absoluteTimeInSeconds: frame / config.fps,
 			globalPlaybackRate: playbackRate,
 			logLevel,
-			force: false,
 		});
 		if (changed) {
 			sharedAudioContext.audioSyncAnchorEmitter.dispatch('changed');
@@ -136,7 +135,6 @@ export const usePlayback = ({
 					absoluteTimeInSeconds: getCurrentFrame() / config.fps,
 					globalPlaybackRate: playbackRate,
 					logLevel,
-					force: false,
 				});
 				// The nodes queued so far were scheduled against the old anchor,
 				// so they have to be rebuilt if the anchor moved.
