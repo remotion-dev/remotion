@@ -2,19 +2,21 @@ import {Internals, type LogLevel} from 'remotion';
 
 export const ALLOWED_GLOBAL_TIME_ANCHOR_SHIFT = 0.1;
 
+type SetGlobalTimeAnchorOptions = {
+	audioContext: AudioContext;
+	audioSyncAnchor: {value: number};
+	absoluteTimeInSeconds: number;
+	globalPlaybackRate: number;
+	logLevel: LogLevel;
+};
+
 export const setGlobalTimeAnchor = ({
 	audioContext,
 	audioSyncAnchor,
 	absoluteTimeInSeconds,
 	globalPlaybackRate,
 	logLevel,
-}: {
-	audioContext: AudioContext;
-	audioSyncAnchor: {value: number};
-	absoluteTimeInSeconds: number;
-	globalPlaybackRate: number;
-	logLevel: LogLevel;
-}): boolean => {
+}: SetGlobalTimeAnchorOptions): boolean => {
 	const newAnchor =
 		audioContext.currentTime - absoluteTimeInSeconds / globalPlaybackRate;
 	const shift = newAnchor - audioSyncAnchor.value;
