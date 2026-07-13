@@ -90,21 +90,21 @@ type SharedAudioContextValue = {
 	unscheduleAudioNode: (node: AudioBufferSourceNode) => void;
 };
 
+type RegisterAudioOptions = {
+	aud: AudioHTMLAttributes<HTMLAudioElement>;
+	audioId: string;
+	premounting: boolean;
+	postmounting: boolean;
+};
+
+type UpdateAudioOptions = RegisterAudioOptions & {
+	id: number;
+};
+
 type SharedAudioTagsContextValue = {
-	registerAudio: (options: {
-		aud: AudioHTMLAttributes<HTMLAudioElement>;
-		audioId: string;
-		premounting: boolean;
-		postmounting: boolean;
-	}) => AudioElem;
+	registerAudio: (options: RegisterAudioOptions) => AudioElem;
 	unregisterAudio: (id: number) => void;
-	updateAudio: (options: {
-		id: number;
-		aud: AudioHTMLAttributes<HTMLAudioElement>;
-		audioId: string;
-		premounting: boolean;
-		postmounting: boolean;
-	}) => void;
+	updateAudio: (options: UpdateAudioOptions) => void;
 	playAllAudios: () => void;
 	numberOfAudioTags: number;
 };
@@ -191,12 +191,16 @@ const shouldSaveForLater = (
 	throw new Error(`Unexpected audio context state: ${state satisfies never}`);
 };
 
-export const SharedAudioContextProvider: React.FC<{
+type SharedAudioContextProviderProps = {
 	readonly children: React.ReactNode;
 	readonly audioLatencyHint: AudioContextLatencyCategory;
 	readonly audioEnabled: boolean;
 	readonly previewSampleRate: number | null;
-}> = ({children, audioLatencyHint, audioEnabled, previewSampleRate}) => {
+};
+
+export const SharedAudioContextProvider: React.FC<
+	SharedAudioContextProviderProps
+> = ({children, audioLatencyHint, audioEnabled, previewSampleRate}) => {
 	const logLevel = useLogLevel();
 	const sampleRate = previewSampleRate ?? 48000;
 
@@ -459,10 +463,14 @@ export const SharedAudioContextProvider: React.FC<{
 	);
 };
 
-export const SharedAudioTagsContextProvider: React.FC<{
+type SharedAudioTagsContextProviderProps = {
 	readonly numberOfAudioTags: number;
 	readonly children: React.ReactNode;
-}> = ({children, numberOfAudioTags}) => {
+};
+
+export const SharedAudioTagsContextProvider: React.FC<
+	SharedAudioTagsContextProviderProps
+> = ({children, numberOfAudioTags}) => {
 	const audios = useRef<AudioElem[]>([]);
 	const [initialNumberOfAudioTags] = useState(numberOfAudioTags);
 
@@ -552,12 +560,7 @@ export const SharedAudioTagsContextProvider: React.FC<{
 	}, [refs]);
 
 	const registerAudio = useCallback(
-		(options: {
-			aud: AudioHTMLAttributes<HTMLAudioElement>;
-			audioId: string;
-			premounting: boolean;
-			postmounting: boolean;
-		}) => {
+		(options: RegisterAudioOptions) => {
 			const {aud, audioId, premounting, postmounting} = options;
 			const found = audios.current?.find((a) => a.audioId === audioId);
 			if (found) {
@@ -617,19 +620,7 @@ export const SharedAudioTagsContextProvider: React.FC<{
 	);
 
 	const updateAudio = useCallback(
-		({
-			aud,
-			audioId,
-			id,
-			premounting,
-			postmounting,
-		}: {
-			id: number;
-			aud: AudioHTMLAttributes<HTMLAudioElement>;
-			audioId: string;
-			premounting: boolean;
-			postmounting: boolean;
-		}) => {
+		({aud, audioId, id, premounting, postmounting}: UpdateAudioOptions) => {
 			let changed = false;
 
 			audios.current = audios.current?.map((prevA): AudioElem => {
@@ -728,12 +719,7 @@ export const useSharedAudio = ({
 	audioId,
 	premounting,
 	postmounting,
-}: {
-	aud: AudioHTMLAttributes<HTMLAudioElement>;
-	audioId: string;
-	premounting: boolean;
-	postmounting: boolean;
-}) => {
+}: RegisterAudioOptions) => {
 	const audioCtx = useContext(SharedAudioContext);
 	const tagsCtx = useContext(SharedAudioTagsContext);
 
