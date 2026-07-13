@@ -1,104 +1,306 @@
-import {useCallback, useEffect, useRef} from 'react';
-import {AbsoluteFill, useCurrentFrame, useVideoConfig} from 'remotion';
+import React from 'react';
+import {
+	AbsoluteFill,
+	createEffect,
+	Solid,
+	useCurrentFrame,
+	useVideoConfig,
+	type InteractivitySchema,
+} from 'remotion';
 
-const VERTEX_SHADER = `
-attribute vec2 position;
+type BurlFigureParams = {
+	readonly time?: number;
+	readonly speed?: number;
+	readonly scale?: number;
+	readonly warp?: number;
+};
+
+type BurlFigureState = {
+	readonly gl: WebGL2RenderingContext;
+	readonly program: WebGLProgram;
+	readonly vao: WebGLVertexArrayObject;
+	readonly vbo: WebGLBuffer;
+	readonly uniforms: {
+		readonly time: WebGLUniformLocation | null;
+		readonly resolution: WebGLUniformLocation | null;
+		readonly scale: WebGLUniformLocation | null;
+		readonly warp: WebGLUniformLocation | null;
+	};
+};
+
+const DEFAULT_SPEED = 1;
+const DEFAULT_SCALE = 0.001;
+const DEFAULT_WARP = 0.6;
+
+const burlFigureSchema = {
+	time: {
+		type: 'hidden',
+	},
+	speed: {
+		type: 'number',
+		min: 0,
+		max: 4,
+		step: 0.1,
+		default: DEFAULT_SPEED,
+		description: 'Speed',
+		hiddenFromList: false,
+	},
+	scale: {
+		type: 'number',
+		min: 0.0001,
+		max: 0.01,
+		step: 0.0001,
+		default: DEFAULT_SCALE,
+		description: 'Scale',
+		hiddenFromList: false,
+	},
+	warp: {
+		type: 'number',
+		min: 0,
+		max: 2,
+		step: 0.01,
+		default: DEFAULT_WARP,
+		description: 'Warp',
+		hiddenFromList: false,
+	},
+} as const satisfies InteractivitySchema;
+
+const VERTEX_SHADER = `#version 300 es
+in vec2 aPosition;
+
 void main() {
-  gl_Position = vec4(position, 0.0, 1.0);
+  gl_Position = vec4(aPosition, 0.0, 1.0);
 }
 `;
 
-const FRAGMENT_SHADER = `
-#ifdef GL_ES
-precision mediump float;
-#endif
+const FRAGMENT_SHADER = `#version 300 es
+precision highp float;
 
-uniform float time;
-uniform vec2 resolution;
+out vec4 fragColor;
 
-const float Pi = 3.14159;
+uniform float uTime;
+uniform vec2 uResolution;
+uniform float uScale;
+uniform float uWarp;
 
-void main()
-{
-    vec2 p = 0.001 * gl_FragCoord.xy;
-    for(int i = 1; i < 7; i++)
-    {
-        vec2 newp = p;
-        newp.x += 0.6 / float(i) * cos(float(i) * p.y + (time * 20.0) / 10.0 + 0.3 * float(i)) + 400.0 / 20.0;
-        newp.y += 0.6 / float(i) * cos(float(i) * p.x + (time * 20.0) / 10.0 + 0.3 * float(i + 10)) - 400.0 / 20.0 + 15.0;
-        p = newp;
-    }
-    vec3 col = vec3(0.5 * sin(3.0 * p.x) + 0.5, 0.5 * sin(3.0 * p.y) + 0.5, sin(p.x + p.y));
-    gl_FragColor = vec4(col, 1.0);
+void main() {
+  vec2 center = gl_FragCoord.xy - uResolution * 0.5;
+  vec2 p = center * max(uScale, 0.000001);
+
+  for (int i = 1; i < 7; i++) {
+    float index = float(i);
+    vec2 next = p;
+    next.x += uWarp / index * cos(index * p.y + uTime * 2.0 + 0.3 * index);
+    next.y += uWarp / index * cos(index * p.x + uTime * 2.0 + 0.3 * (index + 10.0));
+    p = next;
+  }
+
+  vec3 color = vec3(
+    0.5 * sin(3.0 * p.x) + 0.5,
+    0.5 * sin(3.0 * p.y) + 0.5,
+    0.5 * sin(p.x + p.y) + 0.5
+  );
+
+  fragColor = vec4(color, 1.0);
 }
 `;
 
-export const ShaderDemoComp: React.FC = () => {
-	const frame = useCurrentFrame();
-	const {fps, width, height} = useVideoConfig();
-	const canvasRef = useRef<HTMLCanvasElement>(null);
-	const glRef = useRef<{
-		gl: WebGLRenderingContext;
-		timeLoc: WebGLUniformLocation;
-		resLoc: WebGLUniformLocation;
-	} | null>(null);
+const resolveParams = ({
+	time = 0,
+	speed = DEFAULT_SPEED,
+	scale = DEFAULT_SCALE,
+	warp = DEFAULT_WARP,
+}: BurlFigureParams): Required<BurlFigureParams> => {
+	return {time, speed, scale, warp};
+};
 
-	const initGl = useCallback((canvas: HTMLCanvasElement) => {
-		const gl = canvas.getContext('webgl');
-		if (!gl) return null;
+const assertOptionalFiniteNumber = (value: unknown, name: string): void => {
+	if (value === undefined) {
+		return;
+	}
 
-		const compile = (type: number, src: string) => {
-			const s = gl.createShader(type)!;
-			gl.shaderSource(s, src);
-			gl.compileShader(s);
-			return s;
-		};
+	if (typeof value !== 'number' || !Number.isFinite(value)) {
+		throw new TypeError(`${name} must be a finite number`);
+	}
+};
 
-		const program = gl.createProgram()!;
-		gl.attachShader(program, compile(gl.VERTEX_SHADER, VERTEX_SHADER));
-		gl.attachShader(program, compile(gl.FRAGMENT_SHADER, FRAGMENT_SHADER));
-		gl.linkProgram(program);
+const validateBurlFigureParams = (params: BurlFigureParams): void => {
+	if (typeof params !== 'object' || params === null || Array.isArray(params)) {
+		throw new TypeError('burlFigure() expects an object');
+	}
+
+	assertOptionalFiniteNumber(params.time, 'time');
+	assertOptionalFiniteNumber(params.speed, 'speed');
+	assertOptionalFiniteNumber(params.scale, 'scale');
+	assertOptionalFiniteNumber(params.warp, 'warp');
+
+	const {speed, scale, warp} = resolveParams(params);
+	if (speed < 0) {
+		throw new TypeError('speed must be greater than or equal to 0');
+	}
+
+	if (scale <= 0) {
+		throw new TypeError('scale must be greater than 0');
+	}
+
+	if (warp < 0) {
+		throw new TypeError('warp must be greater than or equal to 0');
+	}
+};
+
+const compileShader = (
+	gl: WebGL2RenderingContext,
+	type: number,
+	source: string,
+): WebGLShader => {
+	const shader = gl.createShader(type);
+	if (!shader) {
+		throw new Error('Failed to create shader');
+	}
+
+	gl.shaderSource(shader, source);
+	gl.compileShader(shader);
+
+	if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+		const log = gl.getShaderInfoLog(shader);
+		gl.deleteShader(shader);
+		throw new Error(`Shader compile failed: ${log ?? '(no log)'}`);
+	}
+
+	return shader;
+};
+
+const createProgram = (gl: WebGL2RenderingContext): WebGLProgram => {
+	const vertex = compileShader(gl, gl.VERTEX_SHADER, VERTEX_SHADER);
+	const fragment = compileShader(gl, gl.FRAGMENT_SHADER, FRAGMENT_SHADER);
+	const program = gl.createProgram();
+	if (!program) {
+		throw new Error('Failed to create program');
+	}
+
+	gl.attachShader(program, vertex);
+	gl.attachShader(program, fragment);
+	gl.linkProgram(program);
+	gl.deleteShader(vertex);
+	gl.deleteShader(fragment);
+
+	if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+		const log = gl.getProgramInfoLog(program);
+		gl.deleteProgram(program);
+		throw new Error(`Shader program link failed: ${log ?? '(no log)'}`);
+	}
+
+	return program;
+};
+
+const setupBurlFigure = (target: HTMLCanvasElement): BurlFigureState => {
+	const gl = target.getContext('webgl2', {
+		alpha: true,
+		premultipliedAlpha: true,
+		preserveDrawingBuffer: true,
+	});
+
+	if (!gl) {
+		throw new Error(
+			'Could not create a WebGL2 context. Try rendering with --gl=angle.',
+		);
+	}
+
+	const program = createProgram(gl);
+	const vao = gl.createVertexArray();
+	const vbo = gl.createBuffer();
+
+	if (!vao || !vbo) {
+		throw new Error('Failed to create WebGL buffers');
+	}
+
+	gl.bindVertexArray(vao);
+	gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+	gl.bufferData(
+		gl.ARRAY_BUFFER,
+		new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]),
+		gl.STATIC_DRAW,
+	);
+
+	const position = gl.getAttribLocation(program, 'aPosition');
+	if (position === -1) {
+		throw new Error('Could not find aPosition attribute');
+	}
+
+	gl.enableVertexAttribArray(position);
+	gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
+	gl.bindVertexArray(null);
+
+	return {
+		gl,
+		program,
+		vao,
+		vbo,
+		uniforms: {
+			time: gl.getUniformLocation(program, 'uTime'),
+			resolution: gl.getUniformLocation(program, 'uResolution'),
+			scale: gl.getUniformLocation(program, 'uScale'),
+			warp: gl.getUniformLocation(program, 'uWarp'),
+		},
+	};
+};
+
+const burlFigure = createEffect<BurlFigureParams, BurlFigureState>({
+	type: 'com.example.burlFigure',
+	label: 'burlFigure()',
+	documentationLink: null,
+	backend: 'webgl2',
+	calculateKey: (params) => {
+		const {time, speed, scale, warp} = resolveParams(params);
+		return `burl-figure-${time}-${speed}-${scale}-${warp}`;
+	},
+	setup: setupBurlFigure,
+	apply: ({width, height, params, state}) => {
+		const {gl, program, uniforms, vao} = state;
+		const {time, speed, scale, warp} = resolveParams(params);
+
+		gl.viewport(0, 0, width, height);
+		gl.clearColor(0, 0, 0, 0);
+		gl.clear(gl.COLOR_BUFFER_BIT);
 		gl.useProgram(program);
 
-		const buf = gl.createBuffer();
-		gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-		gl.bufferData(
-			gl.ARRAY_BUFFER,
-			new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]),
-			gl.STATIC_DRAW,
-		);
-		const pos = gl.getAttribLocation(program, 'position');
-		gl.enableVertexAttribArray(pos);
-		gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
+		if (uniforms.time) gl.uniform1f(uniforms.time, time * speed);
+		if (uniforms.resolution) gl.uniform2f(uniforms.resolution, width, height);
+		if (uniforms.scale) gl.uniform1f(uniforms.scale, scale);
+		if (uniforms.warp) gl.uniform1f(uniforms.warp, warp);
 
-		return {
-			gl,
-			timeLoc: gl.getUniformLocation(program, 'time')!,
-			resLoc: gl.getUniformLocation(program, 'resolution')!,
-		};
-	}, []);
-
-	useEffect(() => {
-		const canvas = canvasRef.current;
-		if (!canvas || glRef.current) return;
-		glRef.current = initGl(canvas);
-	}, [initGl]);
-
-	useEffect(() => {
-		const ctx = glRef.current;
-		if (!ctx) return;
-		const {gl, timeLoc, resLoc} = ctx;
-
-		const time = frame / fps;
-		gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-		gl.uniform1f(timeLoc, time);
-		gl.uniform2f(resLoc, gl.canvas.width, gl.canvas.height);
+		gl.bindVertexArray(vao);
 		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-	}, [frame, fps]);
+		gl.bindVertexArray(null);
+		gl.useProgram(null);
+	},
+	cleanup: ({gl, program, vao, vbo}) => {
+		gl.deleteBuffer(vbo);
+		gl.deleteProgram(program);
+		gl.deleteVertexArray(vao);
+	},
+	schema: burlFigureSchema,
+	validateParams: validateBurlFigureParams,
+});
+
+export const ShaderDemoComp = () => {
+	const frame = useCurrentFrame();
+	const {fps, width, height} = useVideoConfig();
 
 	return (
 		<AbsoluteFill>
-			<canvas ref={canvasRef} width={width} height={height} />
+			<Solid
+				width={width}
+				height={height}
+				effects={[
+					burlFigure({
+						time: frame / fps,
+						speed: 1,
+						scale: 0.001,
+						warp: 0.6,
+					}),
+				]}
+			/>
 		</AbsoluteFill>
 	);
 };
