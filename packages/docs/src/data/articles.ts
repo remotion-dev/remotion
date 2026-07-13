@@ -1989,6 +1989,15 @@ export const articles = [
 		slug: 'effects/linear-progressive-blur',
 	},
 	{
+		id: 'effects/linear-progressive-pixelate',
+		title: 'linearProgressivePixelate()',
+		relativePath: 'docs/effects/linear-progressive-pixelate.mdx',
+		compId: 'articles-docs-effects-linear-progressive-pixelate',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/linear-progressive-pixelate',
+	},
+	{
 		id: 'effects/lines',
 		title: 'lines()',
 		relativePath: 'docs/effects/lines.mdx',
@@ -2068,6 +2077,15 @@ export const articles = [
 		crumb: '@remotion/effects',
 		noAi: false,
 		slug: 'effects/radial-progressive-blur',
+	},
+	{
+		id: 'effects/radial-progressive-pixelate',
+		title: 'radialProgressivePixelate()',
+		relativePath: 'docs/effects/radial-progressive-pixelate.mdx',
+		compId: 'articles-docs-effects-radial-progressive-pixelate',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/radial-progressive-pixelate',
 	},
 	{
 		id: 'effects/rings',

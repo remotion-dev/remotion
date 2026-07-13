@@ -34,6 +34,10 @@ import {
 import {EffectsLinearGradientPreview} from '../../components/effects/effects-linear-gradient-preview';
 import {EffectsLinearGradientTintPreview} from '../../components/effects/effects-linear-gradient-tint-preview';
 import {EffectsLinearProgressiveBlurPreview} from '../../components/effects/effects-linear-progressive-blur-preview';
+import {
+	EffectsLinearProgressivePixelatePreview,
+	LINEAR_PROGRESSIVE_PIXELATE_PREVIEW_PARAMS,
+} from '../../components/effects/effects-linear-progressive-pixelate-preview';
 import {EffectsLinesPreview} from '../../components/effects/effects-lines-preview';
 import {EffectsMirrorPreview} from '../../components/effects/effects-mirror-preview';
 import {
@@ -53,6 +57,10 @@ import {
 	EffectsRadialProgressiveBlurPreview,
 	RADIAL_PROGRESSIVE_BLUR_PREVIEW_PARAMS,
 } from '../../components/effects/effects-radial-progressive-blur-preview';
+import {
+	EffectsRadialProgressivePixelatePreview,
+	RADIAL_PROGRESSIVE_PIXELATE_PREVIEW_PARAMS,
+} from '../../components/effects/effects-radial-progressive-pixelate-preview';
 import {EffectsRingsPreview} from '../../components/effects/effects-rings-preview';
 import {
 	EffectsRoughenEdgesPreview,
@@ -414,6 +422,13 @@ export const RemotionRoot: React.FC = () => {
 					}}
 				/>
 				<Still
+					id="effects-linear-progressive-pixelate-preview"
+					component={EffectsLinearProgressivePixelatePreview}
+					width={1280}
+					height={720}
+					defaultProps={LINEAR_PROGRESSIVE_PIXELATE_PREVIEW_PARAMS}
+				/>
+				<Still
 					id="effects-linear-gradient-preview"
 					component={EffectsLinearGradientPreview}
 					width={1280}
@@ -444,6 +459,13 @@ export const RemotionRoot: React.FC = () => {
 					width={1280}
 					height={720}
 					defaultProps={RADIAL_PROGRESSIVE_BLUR_PREVIEW_PARAMS}
+				/>
+				<Still
+					id="effects-radial-progressive-pixelate-preview"
+					component={EffectsRadialProgressivePixelatePreview}
+					width={1280}
+					height={720}
+					defaultProps={RADIAL_PROGRESSIVE_PIXELATE_PREVIEW_PARAMS}
 				/>
 				<Still
 					id="effects-light-trail-text-source"
