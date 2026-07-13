@@ -29,6 +29,27 @@ const shouldReanchorOnStateChange = (newState: RemotionAudioContextState) => {
 	);
 };
 
+type QueuedFrameCall =
+	| {
+			type: 'raf';
+			id: number;
+	  }
+	| {
+			type: 'timeout';
+			id: Timer;
+	  };
+
+type UsePlaybackOptions = {
+	loop: boolean;
+	playbackRate: number;
+	moveToBeginningWhenEnded: boolean;
+	inFrame: number | null;
+	outFrame: number | null;
+	browserMediaControlsBehavior: BrowserMediaControlsBehavior;
+	getCurrentFrame: ReturnType<typeof usePlayer>['getCurrentFrame'];
+	muted: boolean;
+};
+
 export const usePlayback = ({
 	loop,
 	playbackRate,
@@ -38,16 +59,7 @@ export const usePlayback = ({
 	browserMediaControlsBehavior,
 	getCurrentFrame,
 	muted,
-}: {
-	loop: boolean;
-	playbackRate: number;
-	moveToBeginningWhenEnded: boolean;
-	inFrame: number | null;
-	outFrame: number | null;
-	browserMediaControlsBehavior: BrowserMediaControlsBehavior;
-	getCurrentFrame: ReturnType<typeof usePlayer>['getCurrentFrame'];
-	muted: boolean;
-}) => {
+}: UsePlaybackOptions) => {
 	const config = Internals.useUnsafeVideoConfig();
 	const frame = Internals.Timeline.useTimelinePosition();
 	const {playing, pause, emitter, isPlaying} = usePlayer();
@@ -168,16 +180,7 @@ export const usePlayback = ({
 		}
 
 		let hasBeenStopped = false;
-		let reqAnimFrameCall:
-			| {
-					type: 'raf';
-					id: number;
-			  }
-			| {
-					type: 'timeout';
-					id: Timer;
-			  }
-			| null = null;
+		let reqAnimFrameCall: QueuedFrameCall | null = null;
 		let startedTime = performance.now();
 		let framesAdvanced = 0;
 
