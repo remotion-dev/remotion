@@ -2,6 +2,7 @@ import {getVideoMetadata} from '@remotion/media-utils';
 import {
 	detectFileType,
 	getRequiredPackageForInsertableElement,
+	getRequiredPackagesForElementSourceCode,
 	isUrl,
 	type CompositionDragData,
 	type ComponentDragData,
@@ -920,6 +921,10 @@ export const insertElement = async ({
 	element: ElementDragData['element'];
 }) => {
 	try {
+		await installRequiredPackages(
+			getRequiredPackagesForElementSourceCode(element.sourceCode),
+		);
+
 		const response = await callApi('/api/insert-element', {
 			compositionFile,
 			compositionId,
