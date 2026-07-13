@@ -74,6 +74,12 @@ export const usePlayback = ({
 
 	const lastTimeUpdateTimestamp = useRef<number>(0);
 
+	// The frame at which suspend() was last requested. The suspended audio
+	// nodes were scheduled against this frame, so the statechange handler
+	// must re-anchor against it rather than reading the live frame at the
+	// (async) moment the 'statechange' event fires.
+	const suspendRequestFrame = useRef<number | null>(null);
+
 	const context = useContext(Internals.BufferingContextReact);
 	if (!context) {
 		throw new Error(
@@ -144,7 +150,8 @@ export const usePlayback = ({
 				const changed = setGlobalTimeAnchor({
 					audioContext,
 					audioSyncAnchor: sharedAudioContext.audioSyncAnchor,
-					absoluteTimeInSeconds: getCurrentFrame() / config.fps,
+					absoluteTimeInSeconds:
+						(suspendRequestFrame.current ?? getCurrentFrame()) / config.fps,
 					globalPlaybackRate: playbackRate,
 					logLevel,
 				});
@@ -175,6 +182,7 @@ export const usePlayback = ({
 		}
 
 		if (!playing) {
+			suspendRequestFrame.current = getCurrentFrame();
 			sharedAudioContext?.suspend?.();
 			return;
 		}
@@ -205,6 +213,7 @@ export const usePlayback = ({
 			}
 
 			if (!isPlaying()) {
+				suspendRequestFrame.current = getCurrentFrame();
 				sharedAudioContext?.suspend?.();
 				return;
 			}
@@ -264,6 +273,7 @@ export const usePlayback = ({
 
 			if (context.buffering.current) {
 				if (!muted) {
+					suspendRequestFrame.current = getCurrentFrame();
 					sharedAudioContext?.suspend?.();
 				}
 
