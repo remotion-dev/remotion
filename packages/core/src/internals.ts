@@ -1,6 +1,7 @@
 import {createRef} from 'react';
 import {getAbsoluteSrc} from './absolute-src.js';
 import {AudioForPreview} from './audio/AudioForPreview.js';
+import {computePitchRatio} from './audio/compute-pitch-ratio.js';
 import type {ScheduleAudioNodeResult} from './audio/shared-audio-tags.js';
 import {
 	SharedAudioContext,
@@ -14,6 +15,7 @@ import {
 	useFrameForVolumeProp,
 	useMediaStartsAt,
 } from './audio/use-audio-frame.js';
+import {WsolaPitchShifter} from './audio/wsola-pitch-shifter.js';
 import {
 	BufferingContextReact,
 	BufferingProvider,
@@ -418,6 +420,8 @@ export const Internals = {
 	durationInFramesField,
 	freezeField,
 	fromField,
+	WsolaPitchShifter,
+	computePitchRatio,
 } as const;
 
 export type {
