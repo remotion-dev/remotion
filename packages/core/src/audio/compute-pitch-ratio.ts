@@ -13,15 +13,17 @@
 //   ⇒ `×R · P = ×(R · toneFrequency)` ⇒ `P = toneFrequency`
 //
 // `P === 1` means the pitch shift is a no-op and can be skipped entirely.
+type ComputePitchRatioOptions = {
+	preservePitch: boolean;
+	toneFrequency: number;
+	combinedPlaybackRate: number;
+};
+
 export const computePitchRatio = ({
 	preservePitch,
 	toneFrequency,
 	combinedPlaybackRate,
-}: {
-	preservePitch: boolean;
-	toneFrequency: number;
-	combinedPlaybackRate: number;
-}): number => {
+}: ComputePitchRatioOptions): number => {
 	if (preservePitch) {
 		if (combinedPlaybackRate === 0) {
 			return 1;
