@@ -9,7 +9,7 @@ You can use WebGL shaders in Remotion by creating an effect with [`createEffect(
 
 ## Example
 
-The following component renders an animated shader on top of a transparent `<Solid>`.
+The following component renders an animated shader on top of a transparent [`<Solid>`](/docs/solid).
 The `time` uniform is computed from `frame / fps`, making the animation frame-accurate during both preview and final output.
 
 <Demo type="shader" />
@@ -309,7 +309,7 @@ Shader source adapted from [GLSL Sandbox](https://glslsandbox.com/e#24303.0).
 
 The same effect factory can be passed to any component that supports the `effects` prop, including [`<Solid>`](/docs/solid), [`<Video>`](/docs/media/video), [`<CanvasImage>`](/docs/canvasimage) and [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas).
 
-Use `<Solid>` for procedural shader backgrounds. Use `<HtmlInCanvas>` when you need to capture DOM content and run shader effects over its pixels.
+Use [`<Solid>`](/docs/solid) for procedural shader backgrounds. Use `<HtmlInCanvas>` when you need to capture DOM content and run shader effects over its pixels.
 
 ## Rendering
 
