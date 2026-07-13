@@ -78,6 +78,8 @@ const prepare = async (options?: {
 		initialSequenceDurationInFrames: 10,
 		initialLoop: loop,
 		initialFps: 30,
+		initialPreservePitch: true,
+		initialToneFrequency: 1,
 	});
 
 	const scheduledChunks: number[] = [];

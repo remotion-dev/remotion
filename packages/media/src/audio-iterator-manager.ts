@@ -79,6 +79,8 @@ export const audioIteratorManager = ({
 	initialSequenceDurationInFrames,
 	initialLoop,
 	initialFps,
+	initialPreservePitch,
+	initialToneFrequency,
 }: {
 	audioTrack: InputAudioTrack;
 	delayPlaybackHandleIfNotPremounting: () => DelayPlaybackIfNotPremounting;
@@ -96,6 +98,8 @@ export const audioIteratorManager = ({
 	initialSequenceDurationInFrames: number;
 	initialLoop: boolean;
 	initialFps: number;
+	initialPreservePitch: boolean;
+	initialToneFrequency: number;
 }) => {
 	let muted = initialMuted;
 	let currentVolume = 1;
@@ -113,6 +117,62 @@ export const audioIteratorManager = ({
 
 	const gainNode = sharedAudioContext.audioContext.createGain();
 	gainNode.connect(sharedAudioContext.gainNode);
+
+	// The pitch shifter (WSOLA) applies a pure, duration-preserving pitch shift
+	// by `P` on top of the native `playbackRate` tempo change. When `P === 1`
+	// the worklet is bypassed entirely (chunks connect straight to `gainNode`),
+	// so behavior is byte-identical to before this feature existed.
+	let currentPitchRatio = Internals.computePitchRatio({
+		preservePitch: initialPreservePitch,
+		toneFrequency: initialToneFrequency,
+		combinedPlaybackRate: initialPlaybackRate,
+	});
+	let useWorklet = currentPitchRatio !== 1;
+	// Persists across seeks, like `gainNode`. Created lazily the first time a
+	// pitch shift is actually needed.
+	let pitchShifterNode: AudioWorkletNode | null = null;
+
+	const getPitchShifterNode = (channels: number): AudioWorkletNode => {
+		if (!pitchShifterNode) {
+			pitchShifterNode = new AudioWorkletNode(
+				sharedAudioContext.audioContext,
+				'remotion-pitch-shifter',
+				{
+					numberOfInputs: 1,
+					numberOfOutputs: 1,
+					outputChannelCount: [channels],
+					channelCount: channels,
+					channelCountMode: 'explicit',
+					channelInterpretation: 'speakers',
+					processorOptions: {pitchRatio: currentPitchRatio},
+				},
+			);
+			pitchShifterNode.connect(gainNode);
+		}
+
+		return pitchShifterNode;
+	};
+
+	const setPitchParams = ({
+		preservePitch,
+		toneFrequency,
+		combinedPlaybackRate,
+	}: {
+		preservePitch: boolean;
+		toneFrequency: number;
+		combinedPlaybackRate: number;
+	}) => {
+		currentPitchRatio = Internals.computePitchRatio({
+			preservePitch,
+			toneFrequency,
+			combinedPlaybackRate,
+		});
+		useWorklet = currentPitchRatio !== 1;
+		pitchShifterNode?.port.postMessage({
+			type: 'pitchRatio',
+			value: currentPitchRatio,
+		});
+	};
 
 	const audioSink = new AudioBufferSink(audioTrack);
 	let audioBufferIterator: AudioIterator | null = null;
@@ -187,7 +247,9 @@ export const audioIteratorManager = ({
 		const node = sharedAudioContext.audioContext.createBufferSource();
 		node.buffer = buffer;
 		node.playbackRate.value = playbackRate;
-		node.connect(gainNode);
+		node.connect(
+			useWorklet ? getPitchShifterNode(buffer.numberOfChannels) : gainNode,
+		);
 
 		const started = scheduleAudioNode(
 			node,
@@ -622,6 +684,9 @@ export const audioIteratorManager = ({
 			// rate/trim) during the window before a new iterator is started.
 			currentAnchor = null;
 			unblockCurrentDelayHandle();
+			// Flush the ~50 ms of stale audio the worklet is holding so it does not
+			// bleed across the seek / rebuild.
+			pitchShifterNode?.port.postMessage({type: 'reset'});
 		},
 		seek,
 		getAudioIteratorsCreated: () => audioIteratorsCreated,
@@ -636,6 +701,7 @@ export const audioIteratorManager = ({
 		},
 		scheduleAudioChunk,
 		waitForNScheduledNodes,
+		setPitchParams,
 	};
 };
 

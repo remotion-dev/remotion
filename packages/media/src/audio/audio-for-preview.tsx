@@ -42,6 +42,7 @@ type NewAudioForPreviewProps = {
 	readonly stack: string | null;
 	readonly disallowFallbackToHtml5Audio: boolean;
 	readonly toneFrequency: number | undefined;
+	readonly preservePitch: boolean;
 	readonly audioStreamIndex: number | undefined;
 	readonly fallbackHtml5AudioProps: FallbackHtml5AudioProps | undefined;
 	readonly onError: MediaOnError | undefined;
@@ -65,6 +66,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 	stack,
 	disallowFallbackToHtml5Audio,
 	toneFrequency,
+	preservePitch,
 	audioStreamIndex,
 	fallbackHtml5AudioProps,
 	onError,
@@ -139,6 +141,8 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 	const initialIsPostmounting = useRef(isPostmounting);
 	const initialGlobalPlaybackRate = useRef(globalPlaybackRate);
 	const initialPlaybackRate = useRef(playbackRate);
+	const initialPreservePitch = useRef(preservePitch);
+	const initialToneFrequency = useRef(toneFrequency ?? 1);
 	const initialMuted = useRef(effectiveMuted);
 	const initialDurationInFrames = useRef(videoConfig.durationInFrames);
 	const initialSequenceOffset = useRef(sequenceOffset);
@@ -156,6 +160,8 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 		userPreferredVolume,
 		playbackRate,
 		globalPlaybackRate,
+		preservePitch,
+		toneFrequency: toneFrequency ?? 1,
 		fps: videoConfig.fps,
 		sequenceOffset,
 		loop,
@@ -206,6 +212,8 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 				isPostmounting: initialIsPostmounting.current,
 				isPremounting: initialIsPremounting.current,
 				globalPlaybackRate: initialGlobalPlaybackRate.current,
+				preservePitch: initialPreservePitch.current,
+				toneFrequency: initialToneFrequency.current,
 				durationInFrames: initialDurationInFrames.current,
 				onVideoFrameCallback: null,
 				playing: initialPlaying.current,
@@ -369,6 +377,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 				showInTimeline={showInTimeline}
 				stack={stack ?? undefined}
 				toneFrequency={toneFrequency}
+				preservePitch={fallbackHtml5AudioProps?.preservePitch ?? preservePitch}
 				audioStreamIndex={audioStreamIndex}
 				pauseWhenBuffering={fallbackHtml5AudioProps?.pauseWhenBuffering}
 				crossOrigin={fallbackHtml5AudioProps?.crossOrigin}
@@ -402,6 +411,7 @@ type InnerAudioProps = {
 	readonly stack: string | null;
 	readonly disallowFallbackToHtml5Audio?: boolean;
 	readonly toneFrequency?: number;
+	readonly preservePitch?: boolean;
 	readonly audioStreamIndex?: number;
 	readonly fallbackHtml5AudioProps?: FallbackHtml5AudioProps;
 	readonly onError?: MediaOnError;
@@ -425,6 +435,7 @@ export const AudioForPreview: React.FC<InnerAudioProps> = ({
 	stack,
 	disallowFallbackToHtml5Audio,
 	toneFrequency,
+	preservePitch = true,
 	audioStreamIndex,
 	fallbackHtml5AudioProps,
 	onError,
@@ -488,6 +499,7 @@ export const AudioForPreview: React.FC<InnerAudioProps> = ({
 			stack={stack}
 			disallowFallbackToHtml5Audio={disallowFallbackToHtml5Audio ?? false}
 			toneFrequency={toneFrequency}
+			preservePitch={preservePitch}
 			onError={onError}
 			credentials={credentials}
 			requestInit={requestInit}

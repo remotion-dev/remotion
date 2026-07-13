@@ -17,6 +17,7 @@ import {
 	getScheduledTime,
 	getTrimStartForAudioNode,
 } from './audio/get-scheduled-time';
+import {ensurePitchWorkletModule} from './audio/pitch-worklet/ensure-pitch-worklet';
 import {drawPreviewOverlay} from './debug-overlay/preview-overlay';
 import {getDurationOrCompute} from './get-duration-or-compute';
 import {calculateEndTime, getTimeInSeconds} from './get-time-in-seconds';
@@ -51,6 +52,8 @@ export class MediaPlayer {
 	private logLevel: LogLevel;
 	private playbackRate: number;
 	private globalPlaybackRate: number;
+	private preservePitch: boolean;
+	private toneFrequency: number;
 	private audioStreamIndex: number | null;
 
 	private sharedAudioContext: SharedAudioContextForMediaPlayer | null;
@@ -97,6 +100,8 @@ export class MediaPlayer {
 		trimAfter,
 		playbackRate,
 		globalPlaybackRate,
+		preservePitch,
+		toneFrequency,
 		audioStreamIndex,
 		fps,
 		debugOverlay,
@@ -122,6 +127,8 @@ export class MediaPlayer {
 		trimAfter: number | undefined;
 		playbackRate: number;
 		globalPlaybackRate: number;
+		preservePitch: boolean;
+		toneFrequency: number;
 		audioStreamIndex: number | null;
 		fps: number;
 		debugOverlay: boolean;
@@ -147,6 +154,8 @@ export class MediaPlayer {
 		this.sharedAudioContext = sharedAudioContext;
 		this.playbackRate = playbackRate;
 		this.globalPlaybackRate = globalPlaybackRate;
+		this.preservePitch = preservePitch;
+		this.toneFrequency = toneFrequency;
 		this.loop = loop;
 		this.trimBefore = trimBefore;
 		this.trimAfter = trimAfter;
@@ -371,6 +380,11 @@ export class MediaPlayer {
 					return {type: 'disposed'};
 				}
 
+				// Ensure the pitch-shifter worklet module is registered before any
+				// AudioWorkletNode is created (it may be created lazily later when the
+				// rate/tone changes, even if no shift is needed at start).
+				await ensurePitchWorkletModule(this.sharedAudioContext.audioContext);
+
 				this.audioIteratorManager = audioIteratorManager({
 					audioTrack,
 					delayPlaybackHandleIfNotPremounting:
@@ -390,6 +404,8 @@ export class MediaPlayer {
 					initialSequenceDurationInFrames: this.sequenceDurationInFrames,
 					initialLoop: this.loop,
 					initialFps: this.fps,
+					initialPreservePitch: this.preservePitch,
+					initialToneFrequency: this.toneFrequency,
 				});
 			}
 
@@ -594,6 +610,16 @@ export class MediaPlayer {
 		this.debugOverlay = debugOverlay;
 	}
 
+	// The pitch-shift ratio `P` depends on the combined playback rate, so it must
+	// be recomputed whenever the rate, tone frequency or preservePitch changes.
+	private updatePitchParams(): void {
+		this.audioIteratorManager?.setPitchParams({
+			preservePitch: this.preservePitch,
+			toneFrequency: this.toneFrequency,
+			combinedPlaybackRate: this.playbackRate * this.globalPlaybackRate,
+		});
+	}
+
 	public async setPlaybackRate(
 		rate: number,
 		unloopedTimeInSeconds: number,
@@ -602,6 +628,7 @@ export class MediaPlayer {
 
 		if (previousRate !== rate) {
 			this.playbackRate = rate;
+			this.updatePitchParams();
 			this.audioIteratorManager?.destroyIterator();
 			await this.seekTo(unloopedTimeInSeconds);
 		}
@@ -614,6 +641,31 @@ export class MediaPlayer {
 		const previousRate = this.globalPlaybackRate;
 		if (previousRate !== rate) {
 			this.globalPlaybackRate = rate;
+			this.updatePitchParams();
+			this.audioIteratorManager?.destroyIterator();
+			await this.seekTo(unloopedTimeInSeconds);
+		}
+	}
+
+	public async setPreservePitch(
+		preservePitch: boolean,
+		unloopedTimeInSeconds: number,
+	): Promise<void> {
+		if (this.preservePitch !== preservePitch) {
+			this.preservePitch = preservePitch;
+			this.updatePitchParams();
+			this.audioIteratorManager?.destroyIterator();
+			await this.seekTo(unloopedTimeInSeconds);
+		}
+	}
+
+	public async setToneFrequency(
+		toneFrequency: number,
+		unloopedTimeInSeconds: number,
+	): Promise<void> {
+		if (this.toneFrequency !== toneFrequency) {
+			this.toneFrequency = toneFrequency;
+			this.updatePitchParams();
 			this.audioIteratorManager?.destroyIterator();
 			await this.seekTo(unloopedTimeInSeconds);
 		}

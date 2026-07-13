@@ -17,6 +17,8 @@ export const useCommonEffects = ({
 	userPreferredVolume,
 	playbackRate,
 	globalPlaybackRate,
+	preservePitch,
+	toneFrequency,
 	fps,
 	sequenceOffset,
 	loop,
@@ -39,6 +41,8 @@ export const useCommonEffects = ({
 	readonly userPreferredVolume: number;
 	readonly playbackRate: number;
 	readonly globalPlaybackRate: number;
+	readonly preservePitch: boolean;
+	readonly toneFrequency: number;
 	readonly fps: number;
 	readonly sequenceOffset: number;
 	readonly loop: boolean;
@@ -139,6 +143,24 @@ export const useCommonEffects = ({
 			currentTimeRef.current,
 		);
 	}, [globalPlaybackRate, mediaPlayerReady, mediaPlayerRef, currentTimeRef]);
+
+	useLayoutEffect(() => {
+		const mediaPlayer = mediaPlayerRef.current;
+		if (!mediaPlayer || !mediaPlayerReady) {
+			return;
+		}
+
+		mediaPlayer.setPreservePitch(preservePitch, currentTimeRef.current);
+	}, [preservePitch, mediaPlayerReady, mediaPlayerRef, currentTimeRef]);
+
+	useLayoutEffect(() => {
+		const mediaPlayer = mediaPlayerRef.current;
+		if (!mediaPlayer || !mediaPlayerReady) {
+			return;
+		}
+
+		mediaPlayer.setToneFrequency(toneFrequency, currentTimeRef.current);
+	}, [toneFrequency, mediaPlayerReady, mediaPlayerRef, currentTimeRef]);
 
 	useLayoutEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;

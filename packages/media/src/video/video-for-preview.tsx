@@ -287,6 +287,10 @@ const VideoForPreviewAssertedShowing: React.FC<
 				isPremounting: initialIsPremounting.current,
 				isPostmounting: initialIsPostmounting.current,
 				globalPlaybackRate: initialGlobalPlaybackRate.current,
+				// Pitch preservation is currently scoped to <Audio>. Passing a
+				// pitch-neutral configuration keeps the worklet bypassed for video.
+				preservePitch: false,
+				toneFrequency: 1,
 				durationInFrames: initialSequenceDuration.current,
 				onVideoFrameCallback: initialOnVideoFrameRef.current ?? null,
 				playing: initialPlaying.current,
@@ -455,6 +459,8 @@ const VideoForPreviewAssertedShowing: React.FC<
 		userPreferredVolume,
 		playbackRate,
 		globalPlaybackRate,
+		preservePitch: false,
+		toneFrequency: 1,
 		fps: videoConfig.fps,
 		sequenceOffset,
 		loop,

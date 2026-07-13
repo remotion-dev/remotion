@@ -12,6 +12,8 @@ test('setTrimBefore and setTrimAfter should update frame when paused', async () 
 		trimAfter: undefined,
 		playbackRate: 1,
 		globalPlaybackRate: 1,
+		preservePitch: true,
+		toneFrequency: 1,
 		audioStreamIndex: 0,
 		fps: 30,
 		debugOverlay: false,

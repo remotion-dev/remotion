@@ -117,6 +117,8 @@ test('same goes for audio', async () => {
 		initialSequenceDurationInFrames: 10,
 		initialLoop: false,
 		initialFps: 30,
+		initialPreservePitch: true,
+		initialToneFrequency: 1,
 	});
 
 	const nonceManager = makeNonceManager();
