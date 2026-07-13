@@ -307,13 +307,6 @@ export const BurlFigure = () => {
 Shader source adapted from [GLSL Sandbox](https://glslsandbox.com/e#24303.0).
 :::
 
-## Interactivity
-
-`createEffect()` adds the returned factory to the same effect system used by [`@remotion/effects`](/docs/effects/api).
-The `schema` fields such as `speed`, `scale` and `warp` can be edited in Studio when the effect is attached to a component that supports effects.
-
-Use a hidden field for animated values such as `time` if the value should be passed by code but not shown as an editable control.
-
 ## Supported components
 
 The same effect factory can be passed to any component that supports the `effects` prop, including [`<Solid>`](/docs/solid), [`<Video>`](/docs/media/video), [`<CanvasImage>`](/docs/canvasimage) and [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas).
