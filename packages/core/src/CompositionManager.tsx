@@ -151,6 +151,8 @@ export type InlineAudioAsset = {
 	timestamp: number;
 	duration: number;
 	toneFrequency: number;
+	preservePitch: boolean;
+	playbackRate: number;
 };
 
 type DiscriminatedArtifact =

@@ -126,12 +126,9 @@ export const createAudio = async ({
 		}),
 	);
 
-	await downloadMap.inlineAudioMixing.finish({
+	downloadMap.inlineAudioMixing.finish({
 		indent,
 		logLevel,
-		binariesDirectory,
-		cancelSignal,
-		sampleRate,
 	});
 
 	const inlinedAudio = downloadMap.inlineAudioMixing.getListOfAssets();

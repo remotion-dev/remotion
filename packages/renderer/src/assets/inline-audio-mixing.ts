@@ -1,10 +1,10 @@
 import fs, {writeSync} from 'node:fs';
 import path from 'node:path';
+import {NoReactInternals} from 'remotion/no-react';
 import type {InlineAudioAsset} from 'remotion/no-react';
 import {deleteDirectory} from '../delete-directory';
 import type {LogLevel} from '../log-level';
-import type {CancelSignal} from '../make-cancel-signal';
-import {applyToneFrequencyUsingFfmpeg} from './apply-tone-frequency';
+import {applyPitchShiftToWav} from './apply-pitch-shift';
 import {makeAndReturn} from './download-map';
 
 const numberTo32BiIntLittleEndian = (num: number) => {
@@ -45,6 +45,8 @@ export const makeInlineAudioMixing = (dir: string, sampleRate: number) => {
 	const openFiles: Record<string, number> = {};
 	const writtenHeaders: Record<string, boolean> = {};
 	const toneFrequencies: Record<string, number> = {};
+	const preservePitches: Record<string, boolean> = {};
+	const playbackRates: Record<string, number> = {};
 
 	const cleanup = () => {
 		for (const fileName of Object.keys(openFiles)) {
@@ -150,35 +152,35 @@ export const makeInlineAudioMixing = (dir: string, sampleRate: number) => {
 		); // Remaining size
 	};
 
-	const finish = async ({
-		binariesDirectory,
+	const finish = ({
 		indent,
 		logLevel,
-		cancelSignal,
-		sampleRate: finishSampleRate,
 	}: {
 		indent: boolean;
 		logLevel: LogLevel;
-		binariesDirectory: string | null;
-		cancelSignal: CancelSignal | undefined;
-		sampleRate: number;
 	}) => {
 		for (const fileName of Object.keys(openFiles)) {
-			const frequency = toneFrequencies[fileName];
-			if (frequency === 1) {
+			// Both preview and render bake the tempo change (playbackRate) into the
+			// signal natively. On top of that a pure, duration-preserving pitch
+			// shift by `P` is applied so `preservePitch` and `toneFrequency` are
+			// honored consistently. `P === 1` is a no-op.
+			const pitchRatio = NoReactInternals.computePitchRatio({
+				preservePitch: preservePitches[fileName] ?? true,
+				toneFrequency: toneFrequencies[fileName] ?? 1,
+				combinedPlaybackRate: playbackRates[fileName] ?? 1,
+			});
+
+			if (pitchRatio === 1) {
 				continue;
 			}
 
 			const tmpFile = fileName.replace(/.wav$/, '-tmp.wav');
-			await applyToneFrequencyUsingFfmpeg({
+			applyPitchShiftToWav({
 				input: fileName,
 				output: tmpFile,
-				toneFrequency: frequency,
+				pitchRatio,
 				indent,
 				logLevel,
-				binariesDirectory,
-				cancelSignal,
-				sampleRate: finishSampleRate,
 			});
 			try {
 				fs.closeSync(openFiles[fileName]);
@@ -222,8 +224,28 @@ export const makeInlineAudioMixing = (dir: string, sampleRate: number) => {
 			);
 		}
 
+		if (
+			preservePitches[filePath] !== undefined &&
+			preservePitches[filePath] !== asset.preservePitch
+		) {
+			throw new Error(
+				`preservePitch must be the same across the entire audio, got ${asset.preservePitch}, but before it was ${preservePitches[filePath]}`,
+			);
+		}
+
+		if (
+			playbackRates[filePath] !== undefined &&
+			playbackRates[filePath] !== asset.playbackRate
+		) {
+			throw new Error(
+				`playbackRate must be the same across the entire audio, got ${asset.playbackRate}, but before it was ${playbackRates[filePath]}`,
+			);
+		}
+
 		const fileDescriptor = openFiles[filePath];
 		toneFrequencies[filePath] = asset.toneFrequency;
+		preservePitches[filePath] = asset.preservePitch;
+		playbackRates[filePath] = asset.playbackRate;
 
 		let arr = new Int16Array(asset.audio);
 		const isFirst = asset.frame === firstFrame;

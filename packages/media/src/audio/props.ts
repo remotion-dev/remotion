@@ -36,6 +36,7 @@ export type AudioProps = {
 	fallbackHtml5AudioProps?: FallbackHtml5AudioProps;
 	disallowFallbackToHtml5Audio?: boolean;
 	toneFrequency?: number;
+	preservePitch?: boolean;
 	delayRenderRetries?: number;
 	delayRenderTimeoutInMilliseconds?: number;
 	onError?: MediaOnError;

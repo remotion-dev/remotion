@@ -376,6 +376,11 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 						duration:
 							(audio.numberOfFrames / getTargetSampleRate()) * 1_000_000,
 						toneFrequency,
+						// Pitch preservation is currently scoped to <Audio>. With
+						// preservePitch=false the pitch shift is P=toneFrequency, matching
+						// the previous behavior for video audio.
+						preservePitch: false,
+						playbackRate: playbackRate ?? 1,
 					});
 				}
 
