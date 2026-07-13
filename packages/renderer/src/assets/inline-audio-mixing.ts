@@ -39,6 +39,28 @@ const BIT_DEPTH = 16;
 const BYTES_PER_SAMPLE = BIT_DEPTH / 8;
 const NUMBER_OF_CHANNELS = 2;
 
+type EnsureAssetOptions = {
+	asset: InlineAudioAsset;
+	fps: number;
+	totalNumberOfFrames: number;
+	trimLeftOffset: number;
+	trimRightOffset: number;
+};
+
+type FinishOptions = {
+	indent: boolean;
+	logLevel: LogLevel;
+};
+
+type AddAssetOptions = {
+	asset: InlineAudioAsset;
+	fps: number;
+	totalNumberOfFrames: number;
+	firstFrame: number;
+	trimLeftOffset: number;
+	trimRightOffset: number;
+};
+
 export const makeInlineAudioMixing = (dir: string, sampleRate: number) => {
 	const folderToAdd = makeAndReturn(dir, 'remotion-inline-audio-mixing');
 	// asset id -> file descriptor
@@ -73,13 +95,7 @@ export const makeInlineAudioMixing = (dir: string, sampleRate: number) => {
 		totalNumberOfFrames,
 		trimLeftOffset,
 		trimRightOffset,
-	}: {
-		asset: InlineAudioAsset;
-		fps: number;
-		totalNumberOfFrames: number;
-		trimLeftOffset: number;
-		trimRightOffset: number;
-	}) => {
+	}: EnsureAssetOptions) => {
 		const filePath = getFilePath(asset);
 		if (!openFiles[filePath]) {
 			openFiles[filePath] = fs.openSync(filePath, 'w');
@@ -152,13 +168,7 @@ export const makeInlineAudioMixing = (dir: string, sampleRate: number) => {
 		); // Remaining size
 	};
 
-	const finish = ({
-		indent,
-		logLevel,
-	}: {
-		indent: boolean;
-		logLevel: LogLevel;
-	}) => {
+	const finish = ({indent, logLevel}: FinishOptions) => {
 		for (const fileName of Object.keys(openFiles)) {
 			// Both preview and render bake the tempo change (playbackRate) into the
 			// signal natively. On top of that a pure, duration-preserving pitch
@@ -197,14 +207,7 @@ export const makeInlineAudioMixing = (dir: string, sampleRate: number) => {
 		firstFrame,
 		trimLeftOffset,
 		trimRightOffset,
-	}: {
-		asset: InlineAudioAsset;
-		fps: number;
-		totalNumberOfFrames: number;
-		firstFrame: number;
-		trimLeftOffset: number;
-		trimRightOffset: number;
-	}) => {
+	}: AddAssetOptions) => {
 		ensureAsset({
 			asset,
 			fps,

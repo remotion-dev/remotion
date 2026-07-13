@@ -20,19 +20,21 @@ const writeAscii = (view: DataView, offset: number, str: string) => {
 // Apply a pure, duration-preserving pitch shift by ratio `pitchRatio` to a
 // 16-bit PCM WAV file, in place. Mirrors the WSOLA shift that the preview
 // applies via the AudioWorklet, so preview and render sound identical.
+type ApplyPitchShiftToWavOptions = {
+	input: string;
+	output: string;
+	pitchRatio: number;
+	indent: boolean;
+	logLevel: LogLevel;
+};
+
 export const applyPitchShiftToWav = ({
 	input,
 	output,
 	pitchRatio,
 	indent,
 	logLevel,
-}: {
-	input: string;
-	output: string;
-	pitchRatio: number;
-	indent: boolean;
-	logLevel: LogLevel;
-}) => {
+}: ApplyPitchShiftToWavOptions) => {
 	const startTimestamp = Date.now();
 
 	const fileBuffer = fs.readFileSync(input);

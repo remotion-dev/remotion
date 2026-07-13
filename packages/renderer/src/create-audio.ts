@@ -24,6 +24,26 @@ export type SeamlessAudioInfo = {
 	trimRightOffset: number;
 };
 
+type CreateAudioOptions = {
+	assets: FrameAndAssets[];
+	onDownload: RenderMediaOnDownload | undefined;
+	fps: number;
+	logLevel: LogLevel;
+	onProgress: (progress: number) => void;
+	downloadMap: DownloadMap;
+	remotionRoot: string;
+	indent: boolean;
+	binariesDirectory: string | null;
+	audioBitrate: string | null;
+	audioCodec: AudioCodec;
+	cancelSignal: CancelSignal | undefined;
+	chunkLengthInSeconds: number;
+	trimLeftOffset: number;
+	trimRightOffset: number;
+	forSeamlessAacConcatenation: boolean;
+	sampleRate: number;
+};
+
 export const createAudio = async ({
 	assets,
 	onDownload,
@@ -42,25 +62,7 @@ export const createAudio = async ({
 	trimRightOffset,
 	forSeamlessAacConcatenation,
 	sampleRate,
-}: {
-	assets: FrameAndAssets[];
-	onDownload: RenderMediaOnDownload | undefined;
-	fps: number;
-	logLevel: LogLevel;
-	onProgress: (progress: number) => void;
-	downloadMap: DownloadMap;
-	remotionRoot: string;
-	indent: boolean;
-	binariesDirectory: string | null;
-	audioBitrate: string | null;
-	audioCodec: AudioCodec;
-	cancelSignal: CancelSignal | undefined;
-	chunkLengthInSeconds: number;
-	trimLeftOffset: number;
-	trimRightOffset: number;
-	forSeamlessAacConcatenation: boolean;
-	sampleRate: number;
-}): Promise<string> => {
+}: CreateAudioOptions): Promise<string> => {
 	const fileUrlAssets = await convertAssetsToFileUrls({
 		assets,
 		onDownload: onDownload ?? (() => () => undefined),
