@@ -23,6 +23,10 @@ import {validateMaxRetries} from '../../../shared/validate-retries';
 import {parsedLambdaCli} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
 import {findFunctionName} from '../../helpers/find-function-name';
+import {
+	getS3OutputProviderFromCli,
+	makeOutNameWithCustomCredentials,
+} from '../../helpers/get-s3-output-provider-from-cli';
 import {getWebhookCustomData} from '../../helpers/get-webhook-custom-data';
 import {quit} from '../../helpers/quit';
 import {Log} from '../../log';
@@ -309,6 +313,17 @@ export const renderCommand = async ({
 	}
 
 	const outName = parsedLambdaCli['out-name'];
+	const s3OutputProvider = getS3OutputProviderFromCli({
+		endpoint: parsedLambdaCli['s3-output-provider-endpoint'],
+		region: parsedLambdaCli['s3-output-provider-region'],
+		forcePathStyle:
+			parsedLambdaCli['s3-output-provider-force-path-style'] || undefined,
+	});
+	const resolvedOutName = makeOutNameWithCustomCredentials({
+		bucketName: parsedLambdaCli['force-bucket-name'],
+		key: outName,
+		s3OutputProvider,
+	});
 	const downloadName = args[2] ?? null;
 
 	const {value: codec, source: reason} = videoCodecOption.getValue(
@@ -371,7 +386,7 @@ export const renderCommand = async ({
 		privacy,
 		logLevel,
 		frameRange: frameRange ?? null,
-		outName: parsedLambdaCli['out-name'] ?? null,
+		outName: resolvedOutName,
 		timeoutInMilliseconds,
 		chromiumOptions,
 		scale,
@@ -517,6 +532,7 @@ export const renderCommand = async ({
 		region: getAwsRegion(),
 		logLevel,
 		skipLambdaInvocation: Boolean(adheresToFunctionNameConvention),
+		s3OutputProvider: s3OutputProvider ?? undefined,
 	});
 	progressBar.update(
 		makeProgressString({
@@ -535,6 +551,7 @@ export const renderCommand = async ({
 			renderId: res.renderId,
 			region: getAwsRegion(),
 			logLevel,
+			s3OutputProvider: s3OutputProvider ?? undefined,
 		});
 		progressBar.update(
 			makeProgressString({
@@ -571,7 +588,7 @@ export const renderCommand = async ({
 					providerSpecifics: providerSpecifics,
 					forcePathStyle: parsedLambdaCli['force-path-style'],
 					signal: new AbortController().signal,
-					customCredentials: null,
+					customCredentials: s3OutputProvider,
 					requestHandler: null,
 				});
 				downloadOrNothing = download;

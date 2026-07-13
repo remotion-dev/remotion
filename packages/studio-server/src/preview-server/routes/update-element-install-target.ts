@@ -17,6 +17,10 @@ export const updateElementInstallTargetHandler: ApiHandler<
 		throw new Error('Invalid client ID');
 	}
 
+	if (input.requestId !== null && typeof input.requestId !== 'string') {
+		throw new Error('Invalid request ID');
+	}
+
 	if (!isFiniteTimestamp(input.lastFocusedAt)) {
 		throw new Error('Invalid focus timestamp');
 	}

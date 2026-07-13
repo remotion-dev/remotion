@@ -1,13 +1,9 @@
-import {DEFAULT_TIMELINE_TRACKS} from '@remotion/studio-shared';
 import React from 'react';
 import {WHITE_ALPHA_10, WHITE_ALPHA_60} from '../../helpers/colors';
+import {getStudioMaxTimelineTracks} from '../../helpers/studio-runtime-config';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 
-export const MAX_TIMELINE_TRACKS =
-	typeof process.env.MAX_TIMELINE_TRACKS === 'undefined' ||
-	process.env.MAX_TIMELINE_TRACKS === null
-		? DEFAULT_TIMELINE_TRACKS
-		: Number(process.env.MAX_TIMELINE_TRACKS);
+export const MAX_TIMELINE_TRACKS = getStudioMaxTimelineTracks();
 
 export const MAX_TIMELINE_TRACKS_NOTICE_HEIGHT = 24;
 

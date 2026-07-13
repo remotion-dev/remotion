@@ -7,6 +7,7 @@ import {askSkills} from './ask-skills';
 import {askTailwind} from './ask-tailwind';
 import {createPublicFolder} from './create-public-folder';
 import {degit} from './degit';
+import {getCreateVideoHelp} from './help';
 import {makeHyperlink} from './hyperlinks/make-link';
 import {installSkills} from './install-skills';
 import {getLatestRemotionVersion} from './latest-remotion-version';
@@ -25,6 +26,7 @@ import prompts from './prompts';
 import {resolveProjectRoot} from './resolve-project-root';
 import {
 	getDirectoryArgument,
+	isHelpFlagSelected,
 	isNoTailwindFlagSelected,
 	isTmpFlagSelected,
 	isYesFlagSelected,
@@ -86,6 +88,11 @@ const getGitStatus = async (root: string): Promise<void> => {
 };
 
 export const init = async () => {
+	if (isHelpFlagSelected()) {
+		Log.info(getCreateVideoHelp());
+		return;
+	}
+
 	Log.info(`Welcome to ${chalk.blue('Remotion')}!`);
 
 	// Get directory argument if provided

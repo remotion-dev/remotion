@@ -1287,15 +1287,6 @@ export const articles = [
 		slug: 'compare-ssr',
 	},
 	{
-		id: 'compare/motion-canvas',
-		title: 'How does Remotion compare to Motion Canvas?',
-		relativePath: 'docs/compare/motion-canvas.mdx',
-		compId: 'articles-docs-compare-motion-canvas',
-		crumb: 'FAQ',
-		noAi: false,
-		slug: 'compare/motion-canvas',
-	},
-	{
 		id: 'composition',
 		title: '<Composition>',
 		relativePath: 'docs/composition.mdx',
@@ -5220,6 +5211,15 @@ export const articles = [
 		slug: 'license/pricing',
 	},
 	{
+		id: 'prores',
+		title: 'Rendering ProRes',
+		relativePath: 'docs/prores.mdx',
+		compId: 'articles-docs-prores',
+		crumb: 'Rendering',
+		noAi: false,
+		slug: 'prores',
+	},
+	{
 		id: 'quality',
 		title: 'Quality Guide',
 		relativePath: 'docs/quality.mdx',
@@ -7966,6 +7966,15 @@ export const articles = [
 		crumb: 'Video behavior',
 		noAi: false,
 		slug: 'videos/media-fragments',
+	},
+	{
+		id: 'videos/prores',
+		title: 'Embedding ProRes',
+		relativePath: 'docs/videos/prores.mdx',
+		compId: 'articles-docs-videos-prores',
+		crumb: 'How To',
+		noAi: false,
+		slug: 'videos/prores',
 	},
 	{
 		id: 'videos/sequence',

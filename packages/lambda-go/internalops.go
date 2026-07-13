@@ -5,7 +5,6 @@ import (
 )
 
 func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions, error) {
-
 	validate := validator.New()
 	validationErrors := validate.Struct(options)
 	if validationErrors != nil {

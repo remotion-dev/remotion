@@ -18,6 +18,10 @@ import {validateMaxRetries} from '../../shared/validate-retries';
 import {parsedLambdaCli} from '../args';
 import {getAwsRegion} from '../get-aws-region';
 import {findFunctionName} from '../helpers/find-function-name';
+import {
+	getS3OutputProviderFromCli,
+	makeOutNameWithCustomCredentials,
+} from '../helpers/get-s3-output-provider-from-cli';
 import {quit} from '../helpers/quit';
 import {Log} from '../log';
 import {makeArtifactProgress} from './render/progress';
@@ -218,6 +222,17 @@ export const stillCommand = async ({
 
 	const downloadName = args[2] ?? null;
 	const outName = parsedLambdaCli['out-name'];
+	const s3OutputProvider = getS3OutputProviderFromCli({
+		endpoint: parsedLambdaCli['s3-output-provider-endpoint'],
+		region: parsedLambdaCli['s3-output-provider-region'],
+		forcePathStyle:
+			parsedLambdaCli['s3-output-provider-force-path-style'] || undefined,
+	});
+	const resolvedOutName = makeOutNameWithCustomCredentials({
+		bucketName: parsedLambdaCli['force-bucket-name'],
+		key: outName,
+		s3OutputProvider,
+	});
 
 	const functionName = await findFunctionName({logLevel, providerSpecifics});
 
@@ -275,7 +290,7 @@ export const stillCommand = async ({
 		frame: stillFrame,
 		jpegQuality,
 		logLevel,
-		outName: outName ?? null,
+		outName: resolvedOutName,
 		chromiumOptions,
 		timeoutInMilliseconds,
 		scale,
@@ -364,7 +379,7 @@ export const stillCommand = async ({
 			providerSpecifics: providerSpecifics,
 			forcePathStyle: parsedLambdaCli['force-path-style'],
 			signal: new AbortController().signal,
-			customCredentials: null,
+			customCredentials: s3OutputProvider,
 			onProgress: () => undefined,
 			requestHandler: null,
 		});

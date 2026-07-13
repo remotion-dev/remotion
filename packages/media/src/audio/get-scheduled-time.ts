@@ -23,29 +23,20 @@ export const getScheduledTime = ({
 };
 
 export const getDurationOfNode = ({
-	bufferDuration,
-	loopSegmentMediaEndTimestamp,
+	sourceDurationInSeconds,
+	sourceOffsetInSeconds,
 	offset,
-	originalUnloopedMediaTimestamp,
 }: {
-	bufferDuration: number;
-	loopSegmentMediaEndTimestamp: number;
+	sourceDurationInSeconds: number;
+	sourceOffsetInSeconds: number;
 	offset: number;
-	originalUnloopedMediaTimestamp: number;
 }) => {
-	const originalUnloopedMediaEndTime =
-		originalUnloopedMediaTimestamp + bufferDuration;
-	const needsTrimEnd =
-		originalUnloopedMediaEndTime > loopSegmentMediaEndTimestamp;
-
-	const durationMinusOffset = bufferDuration - offset;
-
-	const duration = needsTrimEnd
-		? durationMinusOffset -
-			Math.max(0, originalUnloopedMediaEndTime - loopSegmentMediaEndTimestamp)
-		: durationMinusOffset;
-
-	return duration;
+	// The iterator already clipped the source slice to the media range. If the
+	// scheduler starts even later, remove only that additional offset.
+	return Math.max(
+		0,
+		sourceDurationInSeconds - (offset - sourceOffsetInSeconds),
+	);
 };
 
 export const getTrimStartForAudioNode = ({
@@ -53,11 +44,13 @@ export const getTrimStartForAudioNode = ({
 	targetTime,
 	sequenceStartTime,
 	combinedPlaybackRate,
+	sourceStartOffsetInSeconds,
 }: {
 	mediaTimestamp: number;
 	targetTime: number;
 	sequenceStartTime: number;
 	combinedPlaybackRate: number;
+	sourceStartOffsetInSeconds: number;
 }) => {
 	const needsTrimStart = mediaTimestamp < sequenceStartTime;
 
@@ -67,5 +60,7 @@ export const getTrimStartForAudioNode = ({
 	const offsetBecauseOfTooLate =
 		targetTime < 0 ? -targetTime * combinedPlaybackRate : 0;
 
-	return offsetBecauseOfTrim + offsetBecauseOfTooLate;
+	return (
+		sourceStartOffsetInSeconds + offsetBecauseOfTrim + offsetBecauseOfTooLate
+	);
 };

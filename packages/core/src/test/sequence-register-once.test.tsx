@@ -304,6 +304,24 @@ test('AnimatedImage registers its canvas ref for the Studio outline', () => {
 	expect(ref.current).toBe(refForOutline.current);
 });
 
+test('AnimatedImage forwards data and aria attributes to its canvas', () => {
+	const {container} = render(
+		<SequenceTestWrapper onRegisterSequence={() => undefined}>
+			<AnimatedImage
+				aria-label="Animated image preview"
+				data-testid="animated-image-canvas"
+				onError={() => undefined}
+				src="test.gif"
+			/>
+		</SequenceTestWrapper>,
+	);
+
+	const canvas = container.querySelector('canvas');
+
+	expect(canvas?.getAttribute('aria-label')).toBe('Animated image preview');
+	expect(canvas?.getAttribute('data-testid')).toBe('animated-image-canvas');
+});
+
 test('Video media registration accounts for its own negative from', () => {
 	const registeredSequences: TSequence[] = [];
 

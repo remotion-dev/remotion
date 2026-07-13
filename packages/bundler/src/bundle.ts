@@ -422,6 +422,15 @@ export const internalBundle = async (
 		mode: 'bundle',
 		audioLatencyHint: actualArgs.audioLatencyHint ?? 'playback',
 		sampleRate: actualArgs.renderDefaults?.sampleRate ?? 48000,
+		studioRuntimeConfig: {
+			askAIEnabled: actualArgs.askAIEnabled,
+			bufferStateDelayInMilliseconds: actualArgs.bufferStateDelayInMilliseconds,
+			experimentalClientSideRenderingEnabled:
+				actualArgs.experimentalClientSideRenderingEnabled,
+			interactivityEnabled: actualArgs.interactivityEnabled,
+			keyboardShortcutsEnabled: actualArgs.keyboardShortcutsEnabled,
+			maxTimelineTracks: actualArgs.maxTimelineTracks,
+		},
 	});
 
 	fs.writeFileSync(path.join(outDir, 'index.html'), html);

@@ -7,6 +7,9 @@ export type RemotionAnimatedImageLoopBehavior =
 	| 'pause-after-finish'
 	| 'clear-after-finish';
 
+export type AnimatedImageCanvasProps = React.AriaAttributes &
+	Record<`data-${string}`, string | undefined>;
+
 export type RemotionAnimatedImageProps = {
 	src: string;
 	width?: number;
@@ -19,7 +22,7 @@ export type RemotionAnimatedImageProps = {
 	id?: string;
 	className?: string;
 	requestInit?: RequestInit;
-};
+} & AnimatedImageCanvasProps;
 
 export type AnimatedImageProps = InteractiveBaseProps &
 	RemotionAnimatedImageProps & {

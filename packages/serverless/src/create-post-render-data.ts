@@ -7,9 +7,9 @@ import type {
 	RenderMetadata,
 } from '@remotion/serverless-client';
 import {
+	calculateBillingDuration,
 	calculateChunkTimes,
 	getMostExpensiveChunks,
-	OVERHEAD_TIME_PER_LAMBDA,
 } from '@remotion/serverless-client';
 import type {OutputFileMetadata} from './find-output-file-in-bucket';
 
@@ -40,9 +40,11 @@ export const createPostRenderData = <Provider extends CloudProvider>({
 }): PostRenderData<Provider> => {
 	const parsedTimings = overallProgress.timings;
 
-	const estimatedBillingDurationInMilliseconds = parsedTimings
-		.map((p) => p.rendered - p.start + OVERHEAD_TIME_PER_LAMBDA)
-		.reduce((a, b) => a + b);
+	const estimatedBillingDurationInMilliseconds = calculateBillingDuration({
+		timings: parsedTimings,
+		functionsInvoked: parsedTimings.length,
+		elapsedTimeOfUnfinishedChunks: 0,
+	});
 
 	const cost = providerSpecifics.estimatePrice({
 		durationInMilliseconds: estimatedBillingDurationInMilliseconds,

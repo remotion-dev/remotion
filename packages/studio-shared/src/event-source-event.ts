@@ -77,6 +77,10 @@ export type EventSourceEvent =
 			redoFile: string | null;
 	  }
 	| {
+			type: 'request-element-install-target';
+			requestId: string;
+	  }
+	| {
 			type: 'element-install-request';
 			request: ElementInstallRequest;
 	  }

@@ -811,39 +811,33 @@ export const Canvas: React.FC<{
 		fetchMetadata();
 	}, [fetchMetadata]);
 
-	const updateElementInstallTarget = useCallback(() => {
-		if (previewServerClientId === null) {
-			return;
-		}
+	const updateElementInstallTarget = useCallback(
+		(requestId: string) => {
+			if (previewServerClientId === null) {
+				return;
+			}
 
-		callApi('/api/update-element-install-target', {
-			clientId: previewServerClientId,
-			compositionFile: canInstallElements ? compositionFile : null,
-			compositionId: canInstallElements ? currentCompositionId : null,
-			canInstall: canInstallElements,
-			lastFocusedAt: lastFocusedAtRef.current,
-			readOnly: window.remotion_isReadOnlyStudio,
-		}).catch(() => undefined);
-	}, [
-		canInstallElements,
-		compositionFile,
-		currentCompositionId,
-		previewServerClientId,
-	]);
-
-	useEffect(() => {
-		updateElementInstallTarget();
-		const interval = window.setInterval(updateElementInstallTarget, 2000);
-
-		return () => {
-			window.clearInterval(interval);
-		};
-	}, [updateElementInstallTarget]);
+			callApi('/api/update-element-install-target', {
+				requestId,
+				clientId: previewServerClientId,
+				compositionFile: canInstallElements ? compositionFile : null,
+				compositionId: canInstallElements ? currentCompositionId : null,
+				canInstall: canInstallElements,
+				lastFocusedAt: lastFocusedAtRef.current,
+				readOnly: window.remotion_isReadOnlyStudio,
+			}).catch(() => undefined);
+		},
+		[
+			canInstallElements,
+			compositionFile,
+			currentCompositionId,
+			previewServerClientId,
+		],
+	);
 
 	useEffect(() => {
 		const markFocused = () => {
 			lastFocusedAtRef.current = Date.now();
-			updateElementInstallTarget();
 		};
 
 		window.addEventListener('focus', markFocused);
@@ -853,7 +847,17 @@ export const Canvas: React.FC<{
 			window.removeEventListener('focus', markFocused);
 			document.removeEventListener('pointerdown', markFocused, {capture: true});
 		};
-	}, [updateElementInstallTarget]);
+	}, []);
+
+	useEffect(() => {
+		return subscribeToEvent('request-element-install-target', (event) => {
+			if (event.type !== 'request-element-install-target') {
+				return;
+			}
+
+			updateElementInstallTarget(event.requestId);
+		});
+	}, [subscribeToEvent, updateElementInstallTarget]);
 
 	useEffect(() => {
 		if (installingElementName === null) {

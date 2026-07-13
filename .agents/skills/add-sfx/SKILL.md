@@ -74,7 +74,7 @@ This uses `ffmpeg` to sample every exported sound effect into around 2000 wavefo
 
 ### 6. Update the skills rule file
 
-Add the new URL to the list in `packages/skills/skills/remotion-best-practices/rules/sfx.md`.
+Add the new URL to the list in `packages/skills/skills/remotion-markup/sfx.md`.
 
 ### 7. Build
 

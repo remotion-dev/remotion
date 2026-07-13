@@ -1,1 +1,0 @@
-../skills/add-bug/SKILL.md

@@ -3,7 +3,7 @@ import {calculateImageFit} from '../calculate-image-fit.js';
 import type {EffectDefinitionAndStack} from '../effects/effect-types.js';
 import {runEffectChain} from '../effects/run-effect-chain.js';
 import {useEffectChainState} from '../effects/use-effect-chain-state.js';
-import type {AnimatedImageFillMode} from './props';
+import type {AnimatedImageCanvasProps, AnimatedImageFillMode} from './props';
 
 type Props = {
 	readonly width?: number;
@@ -15,7 +15,7 @@ type Props = {
 
 	readonly style?: React.CSSProperties;
 	readonly effects: EffectDefinitionAndStack<unknown>[];
-};
+} & AnimatedImageCanvasProps;
 
 export type AnimatedImageCanvasRef = {
 	readonly draw: (imageData: VideoFrame) => Promise<boolean>;
@@ -26,7 +26,7 @@ export type AnimatedImageCanvasRef = {
 const CanvasRefForwardingFunction: React.ForwardRefRenderFunction<
 	AnimatedImageCanvasRef,
 	Props
-> = ({width, height, fit, className, style, effects}, ref) => {
+> = ({width, height, fit, className, style, effects, ...props}, ref) => {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const chainState = useEffectChainState();
 
@@ -116,7 +116,9 @@ const CanvasRefForwardingFunction: React.ForwardRefRenderFunction<
 		};
 	}, [draw]);
 
-	return <canvas ref={canvasRef} className={className} style={style} />;
+	return (
+		<canvas ref={canvasRef} className={className} style={style} {...props} />
+	);
 };
 
 export const Canvas = React.forwardRef(CanvasRefForwardingFunction);

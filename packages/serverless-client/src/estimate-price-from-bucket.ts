@@ -1,4 +1,4 @@
-import {calculateChunkTimes} from './calculate-chunk-times';
+import {calculateBillingDuration} from './calculate-billing-duration';
 import type {ProviderSpecifics} from './provider-implementation';
 import type {RenderMetadata} from './render-metadata';
 import type {CloudProvider, ParsedTiming} from './types';
@@ -28,20 +28,12 @@ export const estimatePriceFromMetadata = <Provider extends CloudProvider>({
 
 	const now = fatalErrorTimestamp ?? Date.now();
 	const elapsedTime = Math.max(0, now - (renderMetadata?.startedDate ?? 0));
-	const unfinished = Math.max(
-		0,
-		(renderMetadata?.totalChunks ?? 0) - timings.length,
-	);
-	const timeElapsedOfUnfinished = new Array(unfinished)
-		.fill(true)
-		.map(() => elapsedTime)
-		.reduce((a, b) => a + b, 0);
 
-	const estimatedBillingDurationInMilliseconds =
-		calculateChunkTimes({
-			type: 'combined-time-for-cost-calculation',
-			timings,
-		}) + timeElapsedOfUnfinished;
+	const estimatedBillingDurationInMilliseconds = calculateBillingDuration({
+		timings,
+		functionsInvoked,
+		elapsedTimeOfUnfinishedChunks: elapsedTime,
+	});
 
 	const accruedSoFar = Number(
 		providerSpecifics
