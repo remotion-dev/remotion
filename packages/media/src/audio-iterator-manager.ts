@@ -36,6 +36,75 @@ type ScheduleAudioNode = (options: {
 	processingLatencyInSeconds: number;
 }) => ScheduleAudioNodeResult;
 
+type SetPitchParamsOptions = {
+	preservePitch: boolean;
+	toneFrequency: number;
+	combinedPlaybackRate: number;
+};
+
+type ScheduleAudioChunkOptions = {
+	buffer: AudioBuffer;
+	mediaTimestamp: number;
+	playbackRate: number;
+	scheduleAudioNode: ScheduleAudioNode;
+	logLevel: LogLevel;
+	originalUnloopedMediaTimestamp: number;
+	sourceOffsetInSeconds: number;
+	sourceDurationInSeconds: number;
+};
+
+type OnAudioChunkOptions = {
+	buffer: AudioBufferSlice;
+	playbackRate: number;
+	scheduleAudioNode: ScheduleAudioNode;
+	logLevel: LogLevel;
+};
+
+type ProceedSchedulingOptions = {
+	iterator: AudioIterator;
+	nonce: Nonce;
+	getTargetTime: (mediaTimestamp: number, currentTime: number) => number | null;
+	playbackRate: number;
+	scheduleAudioNode: ScheduleAudioNode;
+	onScheduled: (mediaTimestamp: number) => void;
+	onDone: () => void;
+	onDestroyed: () => void;
+	logLevel: LogLevel;
+	currentTime: number;
+	getAudioContextCurrentTimeMockedInTest: () => number;
+};
+
+type StartAudioIteratorOptions = {
+	startFromSecond: number;
+	unloopedStartFromSecond: number;
+	nonce: Nonce;
+	playbackRate: number;
+	scheduleAudioNode: ScheduleAudioNode;
+	getTargetTime: (mediaTimestamp: number, currentTime: number) => number | null;
+	logLevel: LogLevel;
+	loop: boolean;
+	unscheduleAudioNode: (node: AudioBufferSourceNode) => void;
+	getAudioContextCurrentTimeMockedInTest: () => number;
+};
+
+type SeekOptions = {
+	newTime: number;
+	unloopedNewTime: number;
+	nonce: Nonce;
+	playbackRate: number;
+	localPlaybackRate: number;
+	scheduleAudioNode: ScheduleAudioNode;
+	getTargetTime: (mediaTimestamp: number, currentTime: number) => number | null;
+	logLevel: LogLevel;
+	loop: boolean;
+	trimBefore: number | undefined;
+	trimAfter: number | undefined;
+	sequenceOffset: number;
+	sequenceDurationInFrames: number;
+	fps: number;
+	getAudioContextCurrentTimeMockedInTest: () => number;
+};
+
 export type AudioIteratorAnchor = {
 	// The unlooped time in seconds at which the current iterator was started
 	unloopedStartInSeconds: number;
@@ -43,13 +112,15 @@ export type AudioIteratorAnchor = {
 	mediaStartInSeconds: number;
 };
 
+type GetPitchShiftProcessingLatencyOptions = {
+	useWorklet: boolean;
+	sampleRate: number;
+};
+
 export const getPitchShiftProcessingLatency = ({
 	useWorklet,
 	sampleRate,
-}: {
-	useWorklet: boolean;
-	sampleRate: number;
-}): number => {
+}: GetPitchShiftProcessingLatencyOptions): number => {
 	return useWorklet ? Internals.getWsolaLatencyInSeconds(sampleRate) : 0;
 };
 
@@ -58,19 +129,42 @@ export const getPitchShiftProcessingLatency = ({
 // looping iterator emits timestamps that continue monotonically across loop
 // iterations, so both the scheduler (getTargetTime) and the seek dedup must
 // map times into this same frame via the identical formula.
+type AnchorToContinuousTimeOptions = {
+	anchor: AudioIteratorAnchor;
+	unloopedTimeInSeconds: number;
+	playbackRate: number;
+};
+
 export const anchorToContinuousTime = ({
 	anchor,
 	unloopedTimeInSeconds,
 	playbackRate,
-}: {
-	anchor: AudioIteratorAnchor;
-	unloopedTimeInSeconds: number;
-	playbackRate: number;
-}): number => {
+}: AnchorToContinuousTimeOptions): number => {
 	return (
 		anchor.mediaStartInSeconds +
 		(unloopedTimeInSeconds - anchor.unloopedStartInSeconds) * playbackRate
 	);
+};
+
+type AudioIteratorManagerOptions = {
+	audioTrack: InputAudioTrack;
+	delayPlaybackHandleIfNotPremounting: () => DelayPlaybackIfNotPremounting;
+	sharedAudioContext: SharedAudioContextForMediaPlayer;
+	getSequenceEndTimestamp: () => number;
+	getSequenceDurationInSeconds: () => number;
+	getMediaEndTimestamp: () => number;
+	getStartTime: () => number;
+	initialMuted: boolean;
+	drawDebugOverlay: () => void;
+	initialPlaybackRate: number;
+	initialTrimBefore: number | undefined;
+	initialTrimAfter: number | undefined;
+	initialSequenceOffset: number;
+	initialSequenceDurationInFrames: number;
+	initialLoop: boolean;
+	initialFps: number;
+	initialPreservePitch: boolean;
+	initialToneFrequency: number;
 };
 
 export const audioIteratorManager = ({
@@ -92,26 +186,7 @@ export const audioIteratorManager = ({
 	initialFps,
 	initialPreservePitch,
 	initialToneFrequency,
-}: {
-	audioTrack: InputAudioTrack;
-	delayPlaybackHandleIfNotPremounting: () => DelayPlaybackIfNotPremounting;
-	sharedAudioContext: SharedAudioContextForMediaPlayer;
-	getSequenceEndTimestamp: () => number;
-	getSequenceDurationInSeconds: () => number;
-	getMediaEndTimestamp: () => number;
-	getStartTime: () => number;
-	initialMuted: boolean;
-	drawDebugOverlay: () => void;
-	initialPlaybackRate: number;
-	initialTrimBefore: number | undefined;
-	initialTrimAfter: number | undefined;
-	initialSequenceOffset: number;
-	initialSequenceDurationInFrames: number;
-	initialLoop: boolean;
-	initialFps: number;
-	initialPreservePitch: boolean;
-	initialToneFrequency: number;
-}) => {
+}: AudioIteratorManagerOptions) => {
 	let muted = initialMuted;
 	let currentVolume = 1;
 	let currentSeek = {
@@ -172,11 +247,7 @@ export const audioIteratorManager = ({
 		preservePitch,
 		toneFrequency,
 		combinedPlaybackRate,
-	}: {
-		preservePitch: boolean;
-		toneFrequency: number;
-		combinedPlaybackRate: number;
-	}) => {
+	}: SetPitchParamsOptions) => {
 		currentPitchRatio = Internals.computePitchRatio({
 			preservePitch,
 			toneFrequency,
@@ -243,16 +314,7 @@ export const audioIteratorManager = ({
 		playbackRate,
 		scheduleAudioNode,
 		logLevel,
-	}: {
-		buffer: AudioBuffer;
-		mediaTimestamp: number;
-		playbackRate: number;
-		scheduleAudioNode: ScheduleAudioNode;
-		logLevel: LogLevel;
-		originalUnloopedMediaTimestamp: number;
-		sourceOffsetInSeconds: number;
-		sourceDurationInSeconds: number;
-	}) => {
+	}: ScheduleAudioChunkOptions) => {
 		if (!audioBufferIterator) {
 			throw new Error('Audio buffer iterator not found');
 		}
@@ -308,12 +370,7 @@ export const audioIteratorManager = ({
 		playbackRate,
 		scheduleAudioNode,
 		logLevel,
-	}: {
-		buffer: AudioBufferSlice;
-		playbackRate: number;
-		scheduleAudioNode: ScheduleAudioNode;
-		logLevel: LogLevel;
-	}) => {
+	}: OnAudioChunkOptions) => {
 		if (muted) {
 			return;
 		}
@@ -366,22 +423,7 @@ export const audioIteratorManager = ({
 		logLevel,
 		currentTime,
 		getAudioContextCurrentTimeMockedInTest,
-	}: {
-		iterator: AudioIterator;
-		nonce: Nonce;
-		getTargetTime: (
-			mediaTimestamp: number,
-			currentTime: number,
-		) => number | null;
-		playbackRate: number;
-		scheduleAudioNode: ScheduleAudioNode;
-		onScheduled: (mediaTimestamp: number) => void;
-		onDone: () => void;
-		onDestroyed: () => void;
-		logLevel: LogLevel;
-		currentTime: number;
-		getAudioContextCurrentTimeMockedInTest: () => number;
-	}) => {
+	}: ProceedSchedulingOptions) => {
 		waitForTurn({
 			getPriority: () => {
 				if (iterator.isDestroyed()) {
@@ -477,21 +519,7 @@ export const audioIteratorManager = ({
 		loop,
 		unscheduleAudioNode,
 		getAudioContextCurrentTimeMockedInTest,
-	}: {
-		startFromSecond: number;
-		unloopedStartFromSecond: number;
-		nonce: Nonce;
-		playbackRate: number;
-		scheduleAudioNode: ScheduleAudioNode;
-		getTargetTime: (
-			mediaTimestamp: number,
-			currentTime: number,
-		) => number | null;
-		logLevel: LogLevel;
-		loop: boolean;
-		unscheduleAudioNode: (node: AudioBufferSourceNode) => void;
-		getAudioContextCurrentTimeMockedInTest: () => number;
-	}) => {
+	}: StartAudioIteratorOptions) => {
 		if (muted) {
 			return;
 		}
@@ -579,26 +607,7 @@ export const audioIteratorManager = ({
 		sequenceDurationInFrames,
 		fps,
 		getAudioContextCurrentTimeMockedInTest,
-	}: {
-		newTime: number;
-		unloopedNewTime: number;
-		nonce: Nonce;
-		playbackRate: number;
-		localPlaybackRate: number;
-		scheduleAudioNode: ScheduleAudioNode;
-		getTargetTime: (
-			mediaTimestamp: number,
-			currentTime: number,
-		) => number | null;
-		logLevel: LogLevel;
-		loop: boolean;
-		trimBefore: number | undefined;
-		trimAfter: number | undefined;
-		sequenceOffset: number;
-		sequenceDurationInFrames: number;
-		fps: number;
-		getAudioContextCurrentTimeMockedInTest: () => number;
-	}) => {
+	}: SeekOptions) => {
 		if (nonce.isStale()) {
 			return;
 		}

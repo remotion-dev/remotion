@@ -40,6 +40,47 @@ export type MediaPlayerInitResult =
 	| {type: 'no-tracks'}
 	| {type: 'disposed'};
 
+export type MediaPlayerOptions = {
+	canvas: HTMLCanvasElement | OffscreenCanvas | null;
+	src: string;
+	logLevel: LogLevel;
+	sharedAudioContext: SharedAudioContextForMediaPlayer | null;
+	loop: boolean;
+	trimBefore: number | undefined;
+	trimAfter: number | undefined;
+	playbackRate: number;
+	globalPlaybackRate: number;
+	preservePitch: boolean;
+	toneFrequency: number;
+	audioStreamIndex: number | null;
+	fps: number;
+	debugOverlay: boolean;
+	bufferState: ReturnType<typeof useBufferState>;
+	isPremounting: boolean;
+	isPostmounting: boolean;
+	durationInFrames: number;
+	onVideoFrameCallback: null | ((frame: CanvasImageSource) => void);
+	playing: boolean;
+	sequenceOffset: number;
+	credentials: RequestCredentials | undefined;
+	requestInit: MediaRequestInit | undefined;
+	tagType: 'audio' | 'video';
+	getEffects: () => EffectDefinitionAndStack<unknown>[];
+	getEffectChainState: (
+		width: number,
+		height: number,
+	) => EffectChainState | null;
+};
+
+type ScheduleAudioNodeOptions = {
+	node: AudioBufferSourceNode;
+	mediaTimestamp: number;
+	originalUnloopedMediaTimestamp: number;
+	sourceOffsetInSeconds: number;
+	sourceDurationInSeconds: number;
+	processingLatencyInSeconds: number;
+};
+
 export class MediaPlayer {
 	private tagType: 'audio' | 'video';
 	private canvas: HTMLCanvasElement | OffscreenCanvas | null;
@@ -117,37 +158,7 @@ export class MediaPlayer {
 		tagType,
 		getEffects,
 		getEffectChainState,
-	}: {
-		canvas: HTMLCanvasElement | OffscreenCanvas | null;
-		src: string;
-		logLevel: LogLevel;
-		sharedAudioContext: SharedAudioContextForMediaPlayer | null;
-		loop: boolean;
-		trimBefore: number | undefined;
-		trimAfter: number | undefined;
-		playbackRate: number;
-		globalPlaybackRate: number;
-		preservePitch: boolean;
-		toneFrequency: number;
-		audioStreamIndex: number | null;
-		fps: number;
-		debugOverlay: boolean;
-		bufferState: ReturnType<typeof useBufferState>;
-		isPremounting: boolean;
-		isPostmounting: boolean;
-		durationInFrames: number;
-		onVideoFrameCallback: null | ((frame: CanvasImageSource) => void);
-		playing: boolean;
-		sequenceOffset: number;
-		credentials: RequestCredentials | undefined;
-		requestInit: MediaRequestInit | undefined;
-		tagType: 'audio' | 'video';
-		getEffects: () => EffectDefinitionAndStack<unknown>[];
-		getEffectChainState: (
-			width: number,
-			height: number,
-		) => EffectChainState | null;
-	}) {
+	}: MediaPlayerOptions) {
 		this.canvas = canvas ?? null;
 		this.src = src;
 		this.logLevel = logLevel;
@@ -812,14 +823,7 @@ export class MediaPlayer {
 		sourceOffsetInSeconds,
 		sourceDurationInSeconds,
 		processingLatencyInSeconds,
-	}: {
-		node: AudioBufferSourceNode;
-		mediaTimestamp: number;
-		originalUnloopedMediaTimestamp: number;
-		sourceOffsetInSeconds: number;
-		sourceDurationInSeconds: number;
-		processingLatencyInSeconds: number;
-	}): ScheduleAudioNodeResult => {
+	}: ScheduleAudioNodeOptions): ScheduleAudioNodeResult => {
 		if (!this.sharedAudioContext) {
 			throw new Error('Shared audio context not found');
 		}

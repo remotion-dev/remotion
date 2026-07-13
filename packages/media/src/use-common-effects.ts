@@ -4,6 +4,32 @@ import type {LogLevel} from 'remotion';
 import {Internals} from 'remotion';
 import type {MediaPlayer} from './media-player';
 
+type UseCommonEffectsOptions = {
+	readonly mediaPlayerRef: React.RefObject<MediaPlayer | null>;
+	readonly mediaPlayerReady: boolean;
+	readonly currentTimeRef: React.RefObject<number>;
+	readonly playing: boolean;
+	readonly isPlayerBuffering: boolean;
+	readonly frame: number;
+	readonly trimBefore: number | undefined;
+	readonly trimAfter: number | undefined;
+	readonly effectiveMuted: boolean;
+	readonly userPreferredVolume: number;
+	readonly playbackRate: number;
+	readonly globalPlaybackRate: number;
+	readonly preservePitch: boolean;
+	readonly toneFrequency: number;
+	readonly fps: number;
+	readonly sequenceOffset: number;
+	readonly loop: boolean;
+	readonly durationInFrames: number;
+	readonly isPremounting: boolean;
+	readonly isPostmounting: boolean;
+	readonly currentTime: number;
+	readonly logLevel: LogLevel;
+	readonly label: string;
+};
+
 export const useCommonEffects = ({
 	mediaPlayerRef,
 	mediaPlayerReady,
@@ -28,31 +54,7 @@ export const useCommonEffects = ({
 	currentTime,
 	logLevel,
 	label,
-}: {
-	readonly mediaPlayerRef: React.RefObject<MediaPlayer | null>;
-	readonly mediaPlayerReady: boolean;
-	readonly currentTimeRef: React.RefObject<number>;
-	readonly playing: boolean;
-	readonly isPlayerBuffering: boolean;
-	readonly frame: number;
-	readonly trimBefore: number | undefined;
-	readonly trimAfter: number | undefined;
-	readonly effectiveMuted: boolean;
-	readonly userPreferredVolume: number;
-	readonly playbackRate: number;
-	readonly globalPlaybackRate: number;
-	readonly preservePitch: boolean;
-	readonly toneFrequency: number;
-	readonly fps: number;
-	readonly sequenceOffset: number;
-	readonly loop: boolean;
-	readonly durationInFrames: number;
-	readonly isPremounting: boolean;
-	readonly isPostmounting: boolean;
-	readonly currentTime: number;
-	readonly logLevel: LogLevel;
-	readonly label: string;
-}) => {
+}: UseCommonEffectsOptions) => {
 	const sharedAudioContext = useContext(Internals.SharedAudioContext);
 
 	useLayoutEffect(() => {
