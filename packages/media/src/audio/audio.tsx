@@ -124,7 +124,11 @@ const AudioInner: React.FC<
 	}
 
 	validateMediaProps(
-		{playbackRate: props.playbackRate, volume: props.volume},
+		{
+			playbackRate: props.playbackRate,
+			preservePitch: props.preservePitch,
+			volume: props.volume,
+		},
 		'Audio',
 	);
 

@@ -339,8 +339,10 @@ Maps to [`<Html5Audio />` -> `crossOrigin`](/docs/html5-audio#crossorigin)
 
 #### `preservePitch?`<AvailableFrom v="4.0.463" />
 
-Maps to [`<Html5Audio />` -> `preservePitch`](/docs/html5-audio#preservepitch).  
-Only affects preview playback when falling back to [`<Html5Audio>`](/docs/html5-audio).
+Controls whether pitch is preserved when [`playbackRate`](#playbackrate) is not `1`.
+Default for embedded audio: `false`.
+
+Starting from <AvailableFrom v="4.0.490" inline />, this option affects preview and rendering. When falling back to [`<Html5Audio>`](/docs/html5-audio), its browser-compatible default remains `true`. Set this option or [`fallbackHtml5AudioProps.preservePitch`](#fallbackhtml5audioprops) to override it.
 
 ### `disallowFallbackToHtml5Audio?`
 

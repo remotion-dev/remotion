@@ -380,10 +380,7 @@ export class MediaPlayer {
 					return {type: 'disposed'};
 				}
 
-				// Ensure the pitch-shifter worklet module is registered before any
-				// AudioWorkletNode is created (it may be created lazily later when the
-				// rate/tone changes, even if no shift is needed at start).
-				await ensurePitchWorkletModule(this.sharedAudioContext.audioContext);
+				await this.ensurePitchWorkletIfNeeded();
 
 				this.audioIteratorManager = audioIteratorManager({
 					audioTrack,
@@ -620,6 +617,22 @@ export class MediaPlayer {
 		});
 	}
 
+	private ensurePitchWorkletIfNeeded = async (): Promise<void> => {
+		if (!this.sharedAudioContext) {
+			return;
+		}
+
+		const pitchRatio = Internals.computePitchRatio({
+			preservePitch: this.preservePitch,
+			toneFrequency: this.toneFrequency,
+			combinedPlaybackRate: this.playbackRate * this.globalPlaybackRate,
+		});
+
+		if (pitchRatio !== 1) {
+			await ensurePitchWorkletModule(this.sharedAudioContext.audioContext);
+		}
+	};
+
 	public async setPlaybackRate(
 		rate: number,
 		unloopedTimeInSeconds: number,
@@ -628,6 +641,7 @@ export class MediaPlayer {
 
 		if (previousRate !== rate) {
 			this.playbackRate = rate;
+			await this.ensurePitchWorkletIfNeeded();
 			this.updatePitchParams();
 			this.audioIteratorManager?.destroyIterator();
 			await this.seekTo(unloopedTimeInSeconds);
@@ -641,6 +655,7 @@ export class MediaPlayer {
 		const previousRate = this.globalPlaybackRate;
 		if (previousRate !== rate) {
 			this.globalPlaybackRate = rate;
+			await this.ensurePitchWorkletIfNeeded();
 			this.updatePitchParams();
 			this.audioIteratorManager?.destroyIterator();
 			await this.seekTo(unloopedTimeInSeconds);
@@ -653,6 +668,7 @@ export class MediaPlayer {
 	): Promise<void> {
 		if (this.preservePitch !== preservePitch) {
 			this.preservePitch = preservePitch;
+			await this.ensurePitchWorkletIfNeeded();
 			this.updatePitchParams();
 			this.audioIteratorManager?.destroyIterator();
 			await this.seekTo(unloopedTimeInSeconds);
@@ -665,6 +681,7 @@ export class MediaPlayer {
 	): Promise<void> {
 		if (this.toneFrequency !== toneFrequency) {
 			this.toneFrequency = toneFrequency;
+			await this.ensurePitchWorkletIfNeeded();
 			this.updatePitchParams();
 			this.audioIteratorManager?.destroyIterator();
 			await this.seekTo(unloopedTimeInSeconds);
@@ -788,23 +805,31 @@ export class MediaPlayer {
 		return targetTime;
 	};
 
-	private scheduleAudioNode = (
-		node: AudioBufferSourceNode,
-		mediaTimestamp: number,
-		originalUnloopedMediaTimestamp: number,
-		sourceOffsetInSeconds: number,
-		sourceDurationInSeconds: number,
-	): ScheduleAudioNodeResult => {
+	private scheduleAudioNode = ({
+		node,
+		mediaTimestamp,
+		originalUnloopedMediaTimestamp,
+		sourceOffsetInSeconds,
+		sourceDurationInSeconds,
+		processingLatencyInSeconds,
+	}: {
+		node: AudioBufferSourceNode;
+		mediaTimestamp: number;
+		originalUnloopedMediaTimestamp: number;
+		sourceOffsetInSeconds: number;
+		sourceDurationInSeconds: number;
+		processingLatencyInSeconds: number;
+	}): ScheduleAudioNodeResult => {
 		if (!this.sharedAudioContext) {
 			throw new Error('Shared audio context not found');
 		}
 
-		const targetTime = this.getTargetTime(
+		const targetTimeWithoutProcessing = this.getTargetTime(
 			mediaTimestamp,
 			this.sharedAudioContext.audioContext.currentTime,
 		);
 		const combinedPlaybackRate = this.playbackRate * this.globalPlaybackRate;
-		if (targetTime === null) {
+		if (targetTimeWithoutProcessing === null) {
 			return {
 				type: 'not-started',
 				reason:
@@ -814,6 +839,8 @@ export class MediaPlayer {
 					this.sharedAudioContext.audioContext.currentTime.toFixed(3),
 			};
 		}
+
+		const targetTime = targetTimeWithoutProcessing - processingLatencyInSeconds;
 
 		const sequenceStartTime = this.getStartTime();
 

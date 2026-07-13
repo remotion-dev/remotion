@@ -105,6 +105,22 @@ export type WsolaPitchShifterOptions = {
 	channels: number;
 };
 
+const getFrameSize = (sampleRate: number) => {
+	const frame = Math.max(64, Math.round(sampleRate * 0.05));
+	return frame % 2 === 0 ? frame : frame + 1;
+};
+
+const getSearchRadius = (sampleRate: number) => {
+	return Math.max(1, Math.round(sampleRate * 0.01));
+};
+
+// Amount of input the streaming implementation must receive before its first
+// output sample becomes available. Sources routed through the AudioWorklet are
+// scheduled this much earlier to keep their audible output on the timeline.
+export const getWsolaLatencyInSeconds = (sampleRate: number): number => {
+	return (getFrameSize(sampleRate) + getSearchRadius(sampleRate)) / sampleRate;
+};
+
 export class WsolaPitchShifter {
 	private readonly channels: number;
 	private readonly frameSize: number;
@@ -138,14 +154,13 @@ export class WsolaPitchShifter {
 		this.channels = channels;
 
 		// ~50 ms window, 50 % overlap, ~20 ms similarity window, ~10 ms search.
-		const frame = Math.max(64, Math.round(sampleRate * 0.05));
-		this.frameSize = frame % 2 === 0 ? frame : frame + 1;
+		this.frameSize = getFrameSize(sampleRate);
 		this.synthesisHop = this.frameSize / 2;
 		this.seekWindow = Math.min(
 			this.frameSize,
 			Math.max(32, Math.round(sampleRate * 0.02)),
 		);
-		this.searchRadius = Math.max(1, Math.round(sampleRate * 0.01));
+		this.searchRadius = getSearchRadius(sampleRate);
 		this.analysisHop = this.synthesisHop; // P === 1 default.
 
 		this.window = new Float32Array(this.frameSize);

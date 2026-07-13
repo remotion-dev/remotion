@@ -27,19 +27,30 @@ import {
 import type {Nonce} from './nonce-manager';
 import type {SharedAudioContextForMediaPlayer} from './shared-audio-context-for-media-player';
 
-type ScheduleAudioNode = (
-	node: AudioBufferSourceNode,
-	mediaTimestamp: number,
-	originalUnloopedMediaTimestamp: number,
-	sourceOffsetInSeconds: number,
-	sourceDurationInSeconds: number,
-) => ScheduleAudioNodeResult;
+type ScheduleAudioNode = (options: {
+	node: AudioBufferSourceNode;
+	mediaTimestamp: number;
+	originalUnloopedMediaTimestamp: number;
+	sourceOffsetInSeconds: number;
+	sourceDurationInSeconds: number;
+	processingLatencyInSeconds: number;
+}) => ScheduleAudioNodeResult;
 
 export type AudioIteratorAnchor = {
 	// The unlooped time in seconds at which the current iterator was started
 	unloopedStartInSeconds: number;
 	// The media timestamp emitted by the current iterator at that unlooped time
 	mediaStartInSeconds: number;
+};
+
+export const getPitchShiftProcessingLatency = ({
+	useWorklet,
+	sampleRate,
+}: {
+	useWorklet: boolean;
+	sampleRate: number;
+}): number => {
+	return useWorklet ? Internals.getWsolaLatencyInSeconds(sampleRate) : 0;
 };
 
 // Convert an unlooped composition time into the iterator's continuous media
@@ -130,27 +141,31 @@ export const audioIteratorManager = ({
 	let useWorklet = currentPitchRatio !== 1;
 	// Persists across seeks, like `gainNode`. Created lazily the first time a
 	// pitch shift is actually needed.
-	let pitchShifterNode: AudioWorkletNode | null = null;
+	const pitchShifterNodes = new Map<number, AudioWorkletNode>();
 
 	const getPitchShifterNode = (channels: number): AudioWorkletNode => {
-		if (!pitchShifterNode) {
-			pitchShifterNode = new AudioWorkletNode(
-				sharedAudioContext.audioContext,
-				'remotion-pitch-shifter',
-				{
-					numberOfInputs: 1,
-					numberOfOutputs: 1,
-					outputChannelCount: [channels],
-					channelCount: channels,
-					channelCountMode: 'explicit',
-					channelInterpretation: 'speakers',
-					processorOptions: {pitchRatio: currentPitchRatio},
-				},
-			);
-			pitchShifterNode.connect(gainNode);
+		const existing = pitchShifterNodes.get(channels);
+		if (existing) {
+			return existing;
 		}
 
-		return pitchShifterNode;
+		const node = new AudioWorkletNode(
+			sharedAudioContext.audioContext,
+			'remotion-pitch-shifter',
+			{
+				numberOfInputs: 1,
+				numberOfOutputs: 1,
+				outputChannelCount: [channels],
+				channelCount: channels,
+				channelCountMode: 'explicit',
+				channelInterpretation: 'speakers',
+				processorOptions: {pitchRatio: currentPitchRatio},
+			},
+		);
+		node.connect(gainNode);
+		pitchShifterNodes.set(channels, node);
+
+		return node;
 	};
 
 	const setPitchParams = ({
@@ -168,10 +183,12 @@ export const audioIteratorManager = ({
 			combinedPlaybackRate,
 		});
 		useWorklet = currentPitchRatio !== 1;
-		pitchShifterNode?.port.postMessage({
-			type: 'pitchRatio',
-			value: currentPitchRatio,
-		});
+		for (const node of pitchShifterNodes.values()) {
+			node.port.postMessage({
+				type: 'pitchRatio',
+				value: currentPitchRatio,
+			});
+		}
 	};
 
 	const audioSink = new AudioBufferSink(audioTrack);
@@ -251,13 +268,17 @@ export const audioIteratorManager = ({
 			useWorklet ? getPitchShifterNode(buffer.numberOfChannels) : gainNode,
 		);
 
-		const started = scheduleAudioNode(
+		const started = scheduleAudioNode({
 			node,
 			mediaTimestamp,
 			originalUnloopedMediaTimestamp,
 			sourceOffsetInSeconds,
 			sourceDurationInSeconds,
-		);
+			processingLatencyInSeconds: getPitchShiftProcessingLatency({
+				useWorklet,
+				sampleRate: sharedAudioContext.audioContext.sampleRate,
+			}),
+		});
 
 		if (started.type === 'not-started') {
 			Internals.Log.verbose(
@@ -684,9 +705,11 @@ export const audioIteratorManager = ({
 			// rate/trim) during the window before a new iterator is started.
 			currentAnchor = null;
 			unblockCurrentDelayHandle();
-			// Flush the ~50 ms of stale audio the worklet is holding so it does not
+			// Flush the ~60 ms of stale audio the worklet is holding so it does not
 			// bleed across the seek / rebuild.
-			pitchShifterNode?.port.postMessage({type: 'reset'});
+			for (const node of pitchShifterNodes.values()) {
+				node.port.postMessage({type: 'reset'});
+			}
 		},
 		seek,
 		getAudioIteratorsCreated: () => audioIteratorsCreated,

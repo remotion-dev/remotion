@@ -435,7 +435,7 @@ export const AudioForPreview: React.FC<InnerAudioProps> = ({
 	stack,
 	disallowFallbackToHtml5Audio,
 	toneFrequency,
-	preservePitch = true,
+	preservePitch,
 	audioStreamIndex,
 	fallbackHtml5AudioProps,
 	onError,
@@ -443,6 +443,7 @@ export const AudioForPreview: React.FC<InnerAudioProps> = ({
 	requestInit,
 	setMediaDurationInSeconds,
 }) => {
+	const resolvedPreservePitch = preservePitch ?? false;
 	const preloadedSrc = usePreload(src);
 
 	const defaultLogLevel = Internals.useLogLevel();
@@ -499,7 +500,7 @@ export const AudioForPreview: React.FC<InnerAudioProps> = ({
 			stack={stack}
 			disallowFallbackToHtml5Audio={disallowFallbackToHtml5Audio ?? false}
 			toneFrequency={toneFrequency}
-			preservePitch={preservePitch}
+			preservePitch={resolvedPreservePitch}
 			onError={onError}
 			credentials={credentials}
 			requestInit={requestInit}

@@ -20,7 +20,10 @@ export type {RandomSeed} from './random.js';
 export type {VideoConfig} from './video-config';
 
 import {computePitchRatio} from './audio/compute-pitch-ratio';
-import {WsolaPitchShifter} from './audio/wsola-pitch-shifter';
+import {
+	getWsolaLatencyInSeconds,
+	WsolaPitchShifter,
+} from './audio/wsola-pitch-shifter';
 import {
 	DELAY_RENDER_CALLSTACK_TOKEN,
 	DELAY_RENDER_CLEAR_TOKEN,
@@ -79,5 +82,6 @@ export const NoReactInternals = {
 	parseScaleValue,
 	serializeScaleValue,
 	WsolaPitchShifter,
+	getWsolaLatencyInSeconds,
 	computePitchRatio,
 };

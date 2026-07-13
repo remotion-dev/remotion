@@ -34,13 +34,14 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 	name,
 	disallowFallbackToHtml5Audio,
 	toneFrequency,
-	preservePitch = true,
+	preservePitch,
 	trimAfter,
 	trimBefore,
 	onError,
 	credentials,
 	requestInit,
 }) => {
+	const resolvedPreservePitch = preservePitch ?? false;
 	const defaultLogLevel = Internals.useLogLevel();
 	const logLevel = overriddenLogLevel ?? defaultLogLevel;
 	const frame = useCurrentFrame();
@@ -231,7 +232,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 						duration:
 							(audio.numberOfFrames / getTargetSampleRate()) * 1_000_000,
 						toneFrequency: toneFrequency ?? 1,
-						preservePitch,
+						preservePitch: resolvedPreservePitch,
 						playbackRate: playbackRate ?? 1,
 					});
 				}
@@ -269,7 +270,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		volumeProp,
 		audioStreamIndex,
 		toneFrequency,
-		preservePitch,
+		resolvedPreservePitch,
 		trimAfter,
 		trimBefore,
 		replaceWithHtml5Audio,

@@ -15,7 +15,10 @@ import {
 	useFrameForVolumeProp,
 	useMediaStartsAt,
 } from './audio/use-audio-frame.js';
-import {WsolaPitchShifter} from './audio/wsola-pitch-shifter.js';
+import {
+	getWsolaLatencyInSeconds,
+	WsolaPitchShifter,
+} from './audio/wsola-pitch-shifter.js';
 import {
 	BufferingContextReact,
 	BufferingProvider,
@@ -421,6 +424,7 @@ export const Internals = {
 	freezeField,
 	fromField,
 	WsolaPitchShifter,
+	getWsolaLatencyInSeconds,
 	computePitchRatio,
 } as const;
 

@@ -54,9 +54,16 @@ export const applyPitchShiftToWav = ({
 
 	const bytesPerSample = 2;
 	const dataOffset = 44;
-	const dataBytes = fileBuffer.byteLength - dataOffset;
+	const dataBytes = view.getUint32(40, true);
+	const availableDataBytes = Math.min(
+		dataBytes,
+		Math.max(0, fileBuffer.byteLength - dataOffset),
+	);
 	const totalSamples = Math.floor(
 		dataBytes / (bytesPerSample * numberOfChannels),
+	);
+	const availableSamples = Math.floor(
+		availableDataBytes / (bytesPerSample * numberOfChannels),
 	);
 
 	// Deinterleave Int16 PCM into per-channel Float32 [-1, 1].
@@ -65,7 +72,7 @@ export const applyPitchShiftToWav = ({
 		inputChannels.push(new Float32Array(totalSamples));
 	}
 
-	for (let i = 0; i < totalSamples; i++) {
+	for (let i = 0; i < availableSamples; i++) {
 		for (let c = 0; c < numberOfChannels; c++) {
 			const byteIndex =
 				dataOffset + (i * numberOfChannels + c) * bytesPerSample;

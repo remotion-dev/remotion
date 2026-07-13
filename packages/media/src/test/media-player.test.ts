@@ -1,4 +1,4 @@
-import {expect, test} from 'vitest';
+import {expect, test, vi} from 'vitest';
 import {MediaPlayer} from '../media-player';
 import type {SharedAudioContextForMediaPlayer} from '../shared-audio-context-for-media-player';
 
@@ -34,11 +34,16 @@ const makeSharedAudioContext = (): SharedAudioContextForMediaPlayer => {
 };
 
 test('audio-only file should initialize without `audioStreamIndex` (regression for #7210)', async () => {
+	const sharedAudioContext = makeSharedAudioContext();
+	const addModule = vi.spyOn(
+		sharedAudioContext.audioContext.audioWorklet,
+		'addModule',
+	);
 	const player = new MediaPlayer({
 		canvas: null,
 		src: '/voice-note.m4a',
 		logLevel: 'error',
-		sharedAudioContext: makeSharedAudioContext(),
+		sharedAudioContext,
 		loop: false,
 		trimBefore: undefined,
 		trimAfter: undefined,
@@ -66,6 +71,7 @@ test('audio-only file should initialize without `audioStreamIndex` (regression f
 	const result = await player.initialize(0, false);
 
 	expect(result.type).toBe('success');
+	expect(addModule).not.toHaveBeenCalled();
 
 	await player.dispose();
 });

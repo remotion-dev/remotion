@@ -1,5 +1,8 @@
 import {describe, expect, test} from 'bun:test';
-import {WsolaPitchShifter} from '../audio/wsola-pitch-shifter';
+import {
+	getWsolaLatencyInSeconds,
+	WsolaPitchShifter,
+} from '../audio/wsola-pitch-shifter';
 
 const SAMPLE_RATE = 48000;
 
@@ -56,6 +59,11 @@ const runOffline = (
 };
 
 describe('WsolaPitchShifter', () => {
+	test('reports the streaming lookahead', () => {
+		expect(getWsolaLatencyInSeconds(48000)).toBe(0.06);
+		expect(getWsolaLatencyInSeconds(44100)).toBeCloseTo(0.06, 4);
+	});
+
 	test('P === 1 is a bit-exact passthrough', () => {
 		const shifter = new WsolaPitchShifter({
 			sampleRate: SAMPLE_RATE,

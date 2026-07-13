@@ -4,6 +4,7 @@ import {expect, test} from 'vitest';
 import {
 	anchorToContinuousTime,
 	audioIteratorManager,
+	getPitchShiftProcessingLatency,
 } from '../audio-iterator-manager';
 import {makeNonceManager} from '../nonce-manager';
 
@@ -86,13 +87,13 @@ const prepare = async (options?: {
 	const scheduledStartOffsets: number[] = [];
 	const waiters: {count: number; resolve: () => void}[] = [];
 
-	const scheduleAudioNode = (
-		_node: AudioBufferSourceNode,
-		mediaTimestamp: number,
-		_originalUnloopedMediaTimestamp: number,
-		sourceOffsetInSeconds: number,
-		_sourceDurationInSeconds: number,
-	): ScheduleAudioNodeResult => {
+	const scheduleAudioNode = ({
+		mediaTimestamp,
+		sourceOffsetInSeconds,
+	}: {
+		mediaTimestamp: number;
+		sourceOffsetInSeconds: number;
+	}): ScheduleAudioNodeResult => {
 		scheduledChunks.push(mediaTimestamp);
 		scheduledStartOffsets.push(sourceOffsetInSeconds);
 		for (let i = waiters.length - 1; i >= 0; i--) {
@@ -165,6 +166,15 @@ test('anchor maps unlooped time using the local playback rate', () => {
 			playbackRate: 2,
 		}),
 	).toBe(8);
+});
+
+test('reports WSOLA latency to the scheduler when pitch shifting', () => {
+	expect(
+		getPitchShiftProcessingLatency({useWorklet: true, sampleRate: 48000}),
+	).toBe(0.06);
+	expect(
+		getPitchShiftProcessingLatency({useWorklet: false, sampleRate: 48000}),
+	).toBe(0);
 });
 
 test('media player should work', async () => {
