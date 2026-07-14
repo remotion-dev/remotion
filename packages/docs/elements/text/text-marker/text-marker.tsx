@@ -47,8 +47,8 @@ export const TextMarker: React.FC = () => {
 				padding={{
 					left: 20,
 					right: 20,
-					top: -30,
 				}}
+				bowing={0}
 			>
 				remarkable
 			</AnnotationBehind>{' '}
