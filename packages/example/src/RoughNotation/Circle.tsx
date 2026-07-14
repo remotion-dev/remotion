@@ -44,7 +44,6 @@ export const RoughNotationCircle: React.FC = () => {
 					})}
 					type="circle"
 					roughness={0.6}
-					bowing={14.4}
 					strokeWidth={12}
 					color={'rgba(37, 99, 235, 0.57)'}
 					iterations={1}
