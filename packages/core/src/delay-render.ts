@@ -163,33 +163,23 @@ export const continueRenderInternal = ({
 		);
 	}
 
+	const timeoutEntry = scope.remotion_delayRenderTimeouts[handle];
+	if (environment.isRendering && timeoutEntry) {
+		const {label, startTime, timeout} = timeoutEntry;
+		clearTimeout(timeout);
+		const message = [
+			label ? `"${label}"` : 'A handle',
+			DELAY_RENDER_CLEAR_TOKEN,
+			`${Date.now() - startTime}ms`,
+		]
+			.filter(truthy)
+			.join(' ');
+		Log.verbose({logLevel, tag: 'delayRender()'}, message);
+		delete scope.remotion_delayRenderTimeouts[handle];
+	}
+
 	scope.remotion_delayRenderHandles = scope.remotion_delayRenderHandles.filter(
-		(h) => {
-			if (h === handle) {
-				if (environment.isRendering && scope !== undefined) {
-					if (!scope.remotion_delayRenderTimeouts[handle]) {
-						return false;
-					}
-
-					const {label, startTime, timeout} =
-						scope.remotion_delayRenderTimeouts[handle];
-					clearTimeout(timeout);
-					const message = [
-						label ? `"${label}"` : 'A handle',
-						DELAY_RENDER_CLEAR_TOKEN,
-						`${Date.now() - startTime}ms`,
-					]
-						.filter(truthy)
-						.join(' ');
-					Log.verbose({logLevel, tag: 'delayRender()'}, message);
-					delete scope.remotion_delayRenderTimeouts[handle];
-				}
-
-				return false;
-			}
-
-			return true;
-		},
+		(h) => h !== handle,
 	);
 
 	if (scope.remotion_delayRenderHandles.length === 0) {
