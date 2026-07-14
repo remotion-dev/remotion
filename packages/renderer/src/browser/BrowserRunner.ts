@@ -16,7 +16,7 @@
 
 import * as childProcess from 'node:child_process';
 import {join} from 'node:path';
-import {deleteDirectory} from '../delete-directory';
+import {deleteDirectory, deleteDirectoryAsync} from '../delete-directory';
 import {wrapExecutableWithSetprivIfAvailable} from '../linux/wrap-with-setpriv';
 import type {LogLevel} from '../log-level';
 import {isEqualOrBelowLogLevel} from '../log-level';
@@ -42,6 +42,15 @@ const PROCESS_ERROR_EXPLANATION = `Puppeteer was unable to kill the process whic
  Please check your open processes and ensure that the browser processes that Puppeteer launched have been killed.
  If you think this is a bug, please report it on the Puppeteer issue tracker.`;
 
+type MakeBrowserRunnerOptions = {
+	executablePath: string;
+	processArguments: string[];
+	userDataDir: string;
+	logLevel: LogLevel;
+	indent: boolean;
+	timeout: number;
+};
+
 export const makeBrowserRunner = async ({
 	executablePath,
 	processArguments,
@@ -49,14 +58,7 @@ export const makeBrowserRunner = async ({
 	logLevel,
 	indent,
 	timeout,
-}: {
-	executablePath: string;
-	processArguments: string[];
-	userDataDir: string;
-	logLevel: LogLevel;
-	indent: boolean;
-	timeout: number;
-}) => {
+}: MakeBrowserRunnerOptions) => {
 	const dumpio = isEqualOrBelowLogLevel(logLevel, 'verbose');
 	const stdio: ('ignore' | 'pipe')[] = dumpio
 		? ['ignore', 'pipe', 'pipe']
@@ -154,13 +156,9 @@ export const makeBrowserRunner = async ({
 			{indent, logLevel},
 			'Received SIGTERM signal. Killing browser process',
 		);
+		// killProcess() already deletes userDataDir and removes the listeners.
 		killProcess();
 
-		deleteDirectory(userDataDir);
-
-		// Cleanup this listener last, as that makes sure the full callback runs. If we
-		// perform this earlier, then the previous function calls would not happen.
-		removeEventListeners(listeners);
 		return processClosing;
 	};
 
@@ -214,7 +212,7 @@ export const makeBrowserRunner = async ({
 	listeners.push(addEventListener(process, 'SIGTERM', closeProcess));
 	listeners.push(addEventListener(process, 'SIGHUP', closeProcess));
 
-	const deleteBrowserCaches = () => {
+	const deleteBrowserCaches = (): Promise<void> => {
 		// We leave some data:
 		// Default/Cookies
 		// Default/Local Storage
@@ -229,9 +227,9 @@ export const makeBrowserRunner = async ({
 			join(userDataDir, 'Default', 'GPUCache'),
 		];
 
-		for (const p of cachePaths) {
-			deleteDirectory(p);
-		}
+		return Promise.all(cachePaths.map((p) => deleteDirectoryAsync(p))).then(
+			() => undefined,
+		);
 	};
 
 	const rememberEventLoop = (): void => {

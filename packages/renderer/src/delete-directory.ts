@@ -33,3 +33,33 @@ export const deleteDirectory = (directory: string): void => {
 		break;
 	}
 };
+
+export const deleteDirectoryAsync = async (
+	directory: string,
+): Promise<void> => {
+	if (isServeUrl(directory)) {
+		return;
+	}
+
+	if (!existsSync(directory)) {
+		return;
+	}
+
+	// See deleteDirectory() for why we retry manually.
+	let retries = 2;
+	while (retries >= 0) {
+		try {
+			await fs.promises.rm(directory, {
+				maxRetries: 2,
+				recursive: true,
+				force: true,
+				retryDelay: 100,
+			});
+		} catch {
+			retries--;
+			continue;
+		}
+
+		break;
+	}
+};
