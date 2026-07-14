@@ -50,17 +50,19 @@ export type DelayRenderOptions = {
  * This allows useDelayRender to control its own environment source.
  * @private
  */
+type DelayRenderInternalOptions = {
+	scope: DelayRenderScope;
+	environment: RemotionEnvironment;
+	label: string | null;
+	options: DelayRenderOptions;
+};
+
 export const delayRenderInternal = ({
 	scope,
 	environment,
 	label,
 	options,
-}: {
-	scope: DelayRenderScope;
-	environment: RemotionEnvironment;
-	label: string | null;
-	options: DelayRenderOptions;
-}): number => {
+}: DelayRenderInternalOptions): number => {
 	if (typeof label !== 'string' && label !== null) {
 		throw new Error(
 			'The label parameter of delayRender() must be a string or undefined, got: ' +
@@ -135,17 +137,19 @@ export const delayRender = (
  * Internal function that accepts environment as parameter.
  * @private
  */
+type ContinueRenderInternalOptions = {
+	scope: DelayRenderScope;
+	handle: number;
+	environment: RemotionEnvironment;
+	logLevel: LogLevel;
+};
+
 export const continueRenderInternal = ({
 	scope,
 	handle,
 	environment,
 	logLevel,
-}: {
-	scope: DelayRenderScope;
-	handle: number;
-	environment: RemotionEnvironment;
-	logLevel: LogLevel;
-}): void => {
+}: ContinueRenderInternalOptions): void => {
 	if (typeof handle === 'undefined') {
 		throw new TypeError(
 			'The continueRender() method must be called with a parameter that is the return value of delayRender(). No value was passed.',
