@@ -90,3 +90,36 @@ test('bracket padding expands the full bracket bounds', () => {
 	expect(coordinates).toContain(9);
 	expect(coordinates).toContain(73);
 });
+
+test('bracket top padding expands left and right side height', () => {
+	const result = getInstructions({
+		rect: {x: 10, y: 20, w: 100, h: 40},
+		config: {
+			type: 'bracket',
+			color: 'red',
+			strokeWidth: 8,
+			padding: {left: 5, right: 7, top: 11, bottom: 0},
+			bracketLeft: true,
+			bracketRight: true,
+			bracketTop: false,
+			bracketBottom: false,
+		},
+		seed: 1,
+		options: {
+			roughness: 0,
+			maxRandomnessOffset: 0,
+			preserveVertices: true,
+		},
+	});
+
+	expect(result.opList).toHaveLength(2);
+
+	const yCoordinates = result.opList.map((set) =>
+		set.ops.flatMap((op) => op.data.filter((_, index) => index % 2 === 1)),
+	);
+
+	for (const yValues of yCoordinates) {
+		expect(Math.min(...yValues)).toBe(9);
+		expect(Math.max(...yValues)).toBe(60);
+	}
+});

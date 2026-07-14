@@ -177,37 +177,29 @@ export function getInstructions({
 			{
 				enabled: config.bracketBottom,
 				points: [
-					[lx, rect.y + rect.h],
 					[lx, by],
 					[rx, by],
-					[rx, rect.y + rect.h],
 				],
 			},
 			{
 				enabled: config.bracketTop,
 				points: [
-					[lx, rect.y],
 					[lx, ty],
 					[rx, ty],
-					[rx, rect.y],
 				],
 			},
 			{
 				enabled: config.bracketLeft,
 				points: [
-					[rect.x, ty],
 					[lx, ty],
 					[lx, by],
-					[rect.x, by],
 				],
 			},
 			{
 				enabled: config.bracketRight,
 				points: [
-					[rect.x + rect.w, ty],
 					[rx, ty],
 					[rx, by],
-					[rect.x + rect.w, by],
 				],
 			},
 		];
