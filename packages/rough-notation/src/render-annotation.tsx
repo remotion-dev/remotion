@@ -166,10 +166,10 @@ export function getInstructions({
 	if (config.type === 'bracket') {
 		const o = getOptions('single', seed, options);
 		const opList: OpSet[] = [];
-		const lx = rect.x - config.padding.left * 2;
-		const rx = rect.x + rect.w + config.padding.right * 2;
-		const ty = rect.y - config.padding.top * 2;
-		const by = rect.y + rect.h + config.padding.bottom * 2;
+		const lx = rect.x - config.padding.left;
+		const rx = rect.x + rect.w + config.padding.right;
+		const ty = rect.y - config.padding.top;
+		const by = rect.y + rect.h + config.padding.bottom;
 		const sides: {
 			readonly enabled: boolean;
 			readonly points: Point[];

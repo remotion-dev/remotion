@@ -1,6 +1,6 @@
 import {expect, test} from 'bun:test';
 import type {ReactElement} from 'react';
-import {renderAnnotation} from '../render-annotation';
+import {getInstructions, renderAnnotation} from '../render-annotation';
 import type {RoughAnnotationOptions} from '../types';
 
 test('type none renders no annotation paths', () => {
@@ -59,4 +59,34 @@ test('circle iteration seeds cannot be overwritten by rough options', () => {
 	);
 	expect(paths).toHaveLength(2);
 	expect(paths[0]).not.toBe(paths[1]);
+});
+
+test('bracket padding expands the full bracket bounds', () => {
+	const result = getInstructions({
+		rect: {x: 10, y: 20, w: 100, h: 40},
+		config: {
+			type: 'bracket',
+			color: 'red',
+			strokeWidth: 8,
+			padding: {left: 5, right: 7, top: 11, bottom: 13},
+			bracketLeft: true,
+			bracketRight: true,
+			bracketTop: true,
+			bracketBottom: true,
+		},
+		seed: 1,
+		options: {
+			roughness: 0,
+			maxRandomnessOffset: 0,
+			preserveVertices: true,
+		},
+	});
+
+	const coordinates = result.opList.flatMap((set) =>
+		set.ops.flatMap((op) => op.data),
+	);
+	expect(Math.min(...coordinates)).toBe(5);
+	expect(Math.max(...coordinates)).toBe(117);
+	expect(coordinates).toContain(9);
+	expect(coordinates).toContain(73);
 });
