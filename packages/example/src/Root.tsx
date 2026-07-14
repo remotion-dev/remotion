@@ -2549,7 +2549,7 @@ export const Index: React.FC = () => {
 					id="rough-notation-box"
 					component={RoughNotationBox}
 					width={1080}
-					height={1080}
+					height={500}
 					fps={30}
 					durationInFrames={90}
 				/>
@@ -2565,7 +2565,7 @@ export const Index: React.FC = () => {
 					id="rough-notation-bracket"
 					component={RoughNotationBracket}
 					width={1080}
-					height={1080}
+					height={500}
 					fps={30}
 					durationInFrames={90}
 				/>
@@ -2573,7 +2573,7 @@ export const Index: React.FC = () => {
 					id="rough-notation-crossed-off"
 					component={RoughNotationCrossedOff}
 					width={1080}
-					height={1080}
+					height={500}
 					fps={30}
 					durationInFrames={90}
 				/>
@@ -2581,7 +2581,7 @@ export const Index: React.FC = () => {
 					id="rough-notation-strike-through"
 					component={RoughNotationStrikeThrough}
 					width={1080}
-					height={1080}
+					height={500}
 					fps={30}
 					durationInFrames={90}
 				/>
@@ -2589,7 +2589,7 @@ export const Index: React.FC = () => {
 					id="rough-notation-underline"
 					component={RoughNotationUnderline}
 					width={1080}
-					height={1080}
+					height={500}
 					fps={30}
 					durationInFrames={90}
 				/>
