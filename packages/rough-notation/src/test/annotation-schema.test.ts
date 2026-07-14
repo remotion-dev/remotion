@@ -46,16 +46,16 @@ test('annotation schema exposes rough.js controls as top-level Studio controls',
 	expect(highlightKeys).toContain('curveFitting');
 	expect(highlightKeys).toContain('curveTightness');
 	expect(highlightKeys).toContain('curveStepCount');
-	expect(highlightKeys).toContain('fillWeight');
-	expect(highlightKeys).toContain('hachureAngle');
-	expect(highlightKeys).toContain('hachureGap');
-	expect(highlightKeys).toContain('dashOffset');
-	expect(highlightKeys).toContain('dashGap');
-	expect(highlightKeys).toContain('zigzagOffset');
 	expect(highlightKeys).toContain('disableMultiStroke');
-	expect(highlightKeys).toContain('disableMultiStrokeFill');
 	expect(highlightKeys).toContain('preserveVertices');
-	expect(highlightKeys).toContain('fillShapeRoughnessGain');
+	expect(highlightKeys).not.toContain('fillWeight');
+	expect(highlightKeys).not.toContain('hachureAngle');
+	expect(highlightKeys).not.toContain('hachureGap');
+	expect(highlightKeys).not.toContain('dashOffset');
+	expect(highlightKeys).not.toContain('dashGap');
+	expect(highlightKeys).not.toContain('zigzagOffset');
+	expect(highlightKeys).not.toContain('disableMultiStrokeFill');
+	expect(highlightKeys).not.toContain('fillShapeRoughnessGain');
 });
 
 test('annotation schema exposes text editing and font controls', () => {

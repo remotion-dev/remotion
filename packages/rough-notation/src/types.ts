@@ -21,16 +21,8 @@ export type RoughAnnotationOptions = {
 	readonly curveFitting?: number;
 	readonly curveTightness?: number;
 	readonly curveStepCount?: number;
-	readonly fillWeight?: number;
-	readonly hachureAngle?: number;
-	readonly hachureGap?: number;
-	readonly dashOffset?: number;
-	readonly dashGap?: number;
-	readonly zigzagOffset?: number;
 	readonly disableMultiStroke?: boolean;
-	readonly disableMultiStrokeFill?: boolean;
 	readonly preserveVertices?: boolean;
-	readonly fillShapeRoughnessGain?: number;
 };
 
 type SharedConfig = {
