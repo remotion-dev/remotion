@@ -60,10 +60,10 @@ const getOptions = (
 		zigzagOffset: -1,
 		disableMultiStroke: type !== 'double',
 		disableMultiStrokeFill: false,
-		seed,
 		fillShapeRoughnessGain: 1.5,
 		preserveVertices: false,
 		...overrides,
+		seed,
 	};
 };
 
