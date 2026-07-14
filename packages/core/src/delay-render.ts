@@ -163,8 +163,9 @@ export const continueRenderInternal = ({
 		);
 	}
 
+	const handleExists = scope.remotion_delayRenderHandles.includes(handle);
 	const timeoutEntry = scope.remotion_delayRenderTimeouts[handle];
-	if (environment.isRendering && timeoutEntry) {
+	if (handleExists && environment.isRendering && timeoutEntry) {
 		const {label, startTime, timeout} = timeoutEntry;
 		clearTimeout(timeout);
 		const message = [

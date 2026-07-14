@@ -1,5 +1,10 @@
 import {describe, expect, test} from 'bun:test';
-import {continueRender, delayRender} from '../delay-render.js';
+import type {DelayRenderScope} from '../delay-render.js';
+import {
+	continueRender,
+	continueRenderInternal,
+	delayRender,
+} from '../delay-render.js';
 
 describe('Ready Manager tests', () => {
 	let handle: number;
@@ -24,5 +29,39 @@ describe('Ready Manager tests', () => {
 		expect(window.remotion_renderReady).toBe(false);
 		continueRender(handle2);
 		expect(window.remotion_renderReady).toBe(true);
+	});
+
+	test('Does not clear a timeout if the handle does not exist', () => {
+		const unknownHandle = 1;
+		const timeout = setTimeout(() => undefined, 10_000);
+		const scope: DelayRenderScope = {
+			remotion_attempt: 1,
+			remotion_delayRenderHandles: [],
+			remotion_delayRenderTimeouts: {
+				[unknownHandle]: {
+					label: null,
+					startTime: Date.now(),
+					timeout,
+				},
+			},
+			remotion_puppeteerTimeout: 30_000,
+			remotion_renderReady: false,
+		};
+
+		continueRenderInternal({
+			environment: {
+				isClientSideRendering: false,
+				isPlayer: false,
+				isReadOnlyStudio: false,
+				isRendering: true,
+				isStudio: false,
+			},
+			handle: unknownHandle,
+			logLevel: 'info',
+			scope,
+		});
+
+		expect(scope.remotion_delayRenderTimeouts[unknownHandle]).toBeDefined();
+		clearTimeout(timeout);
 	});
 });
