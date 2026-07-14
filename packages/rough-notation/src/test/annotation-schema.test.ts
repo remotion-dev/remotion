@@ -43,9 +43,6 @@ test('annotation schema exposes rough.js controls as top-level Studio controls',
 	const highlightKeys = activeKeysForType('highlight');
 	expect(highlightKeys).toContain('maxRandomnessOffset');
 	expect(highlightKeys).toContain('bowing');
-	expect(highlightKeys).toContain('curveFitting');
-	expect(highlightKeys).toContain('curveTightness');
-	expect(highlightKeys).toContain('curveStepCount');
 	expect(highlightKeys).toContain('disableMultiStroke');
 	expect(highlightKeys).toContain('preserveVertices');
 	expect(highlightKeys).not.toContain('fillWeight');
@@ -56,6 +53,22 @@ test('annotation schema exposes rough.js controls as top-level Studio controls',
 	expect(highlightKeys).not.toContain('zigzagOffset');
 	expect(highlightKeys).not.toContain('disableMultiStrokeFill');
 	expect(highlightKeys).not.toContain('fillShapeRoughnessGain');
+});
+
+test('annotation schema exposes curve controls only for circle annotations', () => {
+	const circleKeys = activeKeysForType('circle');
+	const bracketKeys = activeKeysForType('bracket');
+	const highlightKeys = activeKeysForType('highlight');
+
+	expect(circleKeys).toContain('curveFitting');
+	expect(circleKeys).toContain('curveTightness');
+	expect(circleKeys).toContain('curveStepCount');
+	expect(bracketKeys).not.toContain('curveFitting');
+	expect(bracketKeys).not.toContain('curveTightness');
+	expect(bracketKeys).not.toContain('curveStepCount');
+	expect(highlightKeys).not.toContain('curveFitting');
+	expect(highlightKeys).not.toContain('curveTightness');
+	expect(highlightKeys).not.toContain('curveStepCount');
 });
 
 test('annotation schema exposes text editing and font controls', () => {

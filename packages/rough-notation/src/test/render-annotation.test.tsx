@@ -123,3 +123,58 @@ test('bracket top padding expands left and right side height', () => {
 		expect(Math.max(...yValues)).toBe(60);
 	}
 });
+
+test('curve controls affect circles but not brackets', () => {
+	const rect = {x: 10, y: 20, w: 100, h: 40};
+	const curveOptions = {
+		curveFitting: 0.2,
+		curveTightness: 1,
+		curveStepCount: 3,
+	};
+	const bracketConfig = {
+		type: 'bracket',
+		color: 'red',
+		strokeWidth: 8,
+		padding: {left: 5, right: 7, top: 11, bottom: 13},
+		bracketLeft: true,
+		bracketRight: true,
+		bracketTop: true,
+		bracketBottom: true,
+	} as const;
+	const circleConfig = {
+		type: 'circle',
+		color: 'red',
+		strokeWidth: 8,
+		padding: {left: 5, right: 7, top: 11, bottom: 13},
+		iterations: 1,
+		box: 'inside',
+	} as const;
+
+	const bracketBase = getInstructions({
+		rect,
+		config: bracketConfig,
+		seed: 1,
+		options: {},
+	}).opList;
+	const bracketWithCurves = getInstructions({
+		rect,
+		config: bracketConfig,
+		seed: 1,
+		options: curveOptions,
+	}).opList;
+	const circleBase = getInstructions({
+		rect,
+		config: circleConfig,
+		seed: 1,
+		options: {},
+	}).opList;
+	const circleWithCurves = getInstructions({
+		rect,
+		config: circleConfig,
+		seed: 1,
+		options: curveOptions,
+	}).opList;
+
+	expect(bracketWithCurves).toEqual(bracketBase);
+	expect(circleWithCurves).not.toEqual(circleBase);
+});

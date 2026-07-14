@@ -86,6 +86,19 @@ const roughJsControlsSchema = {
 		description: 'Bowing',
 		hiddenFromList: false,
 	},
+	disableMultiStroke: {
+		type: 'boolean',
+		default: false,
+		description: 'Disable Multi Stroke',
+	},
+	preserveVertices: {
+		type: 'boolean',
+		default: false,
+		description: 'Preserve Vertices',
+	},
+} as const satisfies InteractivitySchema;
+
+const curveControlsSchema = {
 	curveFitting: {
 		type: 'number',
 		min: 0,
@@ -108,16 +121,6 @@ const roughJsControlsSchema = {
 		default: 9,
 		description: 'Curve Step Count',
 		hiddenFromList: false,
-	},
-	disableMultiStroke: {
-		type: 'boolean',
-		default: false,
-		description: 'Disable Multi Stroke',
-	},
-	preserveVertices: {
-		type: 'boolean',
-		default: false,
-		description: 'Preserve Vertices',
 	},
 } as const satisfies InteractivitySchema;
 
@@ -221,6 +224,7 @@ export const annotationInteractiveSchema: InteractivitySchema = {
 			},
 			'crossed-off': {},
 			circle: {
+				...curveControlsSchema,
 				box: {
 					type: 'enum',
 					default: 'around',
