@@ -23,7 +23,7 @@ export const RoughNotationStrikeThrough: React.FC = () => {
 					width: 800,
 				}}
 			>
-				<Interactive.Span>Forget </Interactive.Span>
+				<Interactive.Span>The </Interactive.Span>
 				<AnnotationOnTop
 					name="Strike-through annotation"
 					progress={interpolate(frame, [0, 60], [0, 1], {
@@ -31,12 +31,12 @@ export const RoughNotationStrikeThrough: React.FC = () => {
 						extrapolateRight: 'clamp',
 					})}
 					type="strike-through"
-					color="#111827"
+					color={'#f11515'}
 					strokeWidth={14}
 				>
-					that
+					forbidden
 				</AnnotationOnTop>{' '}
-				<Interactive.Span>draft</Interactive.Span>
+				<Interactive.Span>fruit</Interactive.Span>
 			</Interactive.Div>
 		</AbsoluteFill>
 	);
