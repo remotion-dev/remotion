@@ -251,19 +251,12 @@ export function getInstructions({
 	}
 
 	if (config.type === 'circle') {
-		const o = getOptions('single', seed, options);
 		const {iterations} = config;
 		const opList: OpSet[] = [];
-		const doubleO = getOptions('double', seed, options);
-		const fullItr = Math.floor(iterations / 2);
-		const singleItr = iterations - fullItr * 2;
 		const {width, height, x, y} = getCircleItems(rect, config);
 
-		for (let i = 0; i < fullItr; i++) {
-			opList.push(ellipse(x, y, width, height, doubleO));
-		}
-
-		for (let i = 0; i < singleItr; i++) {
+		for (let i = 0; i < iterations; i++) {
+			const o = getOptions('single', seed + i, options);
 			opList.push(ellipse(x, y, width, height, o));
 		}
 
