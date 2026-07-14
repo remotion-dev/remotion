@@ -5,326 +5,95 @@ title: Shaders
 crumb: 'Designing visuals'
 ---
 
-You can use WebGL shaders in Remotion by creating an effect with [`createEffect()`](/docs/create-effect) and passing it to a canvas-based component such as [`<Solid>`](/docs/solid).
+You can use shader effects in Remotion to generate backgrounds or transform content.
 
-## Example
+## Shaders as backgrounds
 
-The following component renders an animated shader on top of a transparent [`<Solid>`](/docs/solid).
-The `time` uniform is computed from `frame / fps`, making the animation frame-accurate during both preview and final output.
+[`@remotion/effects`](/docs/effects/api) includes many effect presets that can be applied to canvas-based components.
+To create a shader background, apply an effect such as [`halftoneLinearGradient()`](/docs/effects/halftone-linear-gradient) to [`<Solid>`](/docs/solid).
 
 <Demo type="shader" />
 
-```tsx twoslash title="BurlFigure.tsx"
-import React from 'react';
-import {AbsoluteFill, createEffect, Solid, type InteractivitySchema, useCurrentFrame, useVideoConfig} from 'remotion';
+```tsx twoslash title="HalftoneBackground.tsx"
+import {halftoneLinearGradient} from '@remotion/effects/halftone-linear-gradient';
+import {Solid, useVideoConfig} from 'remotion';
 
-type BurlFigureParams = {
-  readonly time?: number;
-  readonly speed?: number;
-  readonly scale?: number;
-  readonly warp?: number;
-};
-
-type BurlFigureState = {
-  readonly gl: WebGL2RenderingContext;
-  readonly program: WebGLProgram;
-  readonly vao: WebGLVertexArrayObject;
-  readonly vbo: WebGLBuffer;
-  readonly uniforms: {
-    readonly time: WebGLUniformLocation | null;
-    readonly resolution: WebGLUniformLocation | null;
-    readonly scale: WebGLUniformLocation | null;
-    readonly warp: WebGLUniformLocation | null;
-  };
-};
-
-const DEFAULT_SPEED = 0.4;
-const DEFAULT_SCALE = 0.001;
-const DEFAULT_WARP = 0.6;
-
-const burlFigureSchema = {
-  time: {
-    type: 'hidden',
-  },
-  speed: {
-    type: 'number',
-    min: 0,
-    max: 4,
-    step: 0.1,
-    default: DEFAULT_SPEED,
-    description: 'Speed',
-    hiddenFromList: false,
-  },
-  scale: {
-    type: 'number',
-    min: 0.0001,
-    max: 0.01,
-    step: 0.0001,
-    default: DEFAULT_SCALE,
-    description: 'Scale',
-    hiddenFromList: false,
-  },
-  warp: {
-    type: 'number',
-    min: 0,
-    max: 2,
-    step: 0.01,
-    default: DEFAULT_WARP,
-    description: 'Warp',
-    hiddenFromList: false,
-  },
-} as const satisfies InteractivitySchema;
-
-const VERTEX_SHADER = `#version 300 es
-in vec2 aPosition;
-
-void main() {
-  gl_Position = vec4(aPosition, 0.0, 1.0);
-}
-`;
-
-const FRAGMENT_SHADER = `#version 300 es
-precision highp float;
-
-out vec4 fragColor;
-
-uniform float uTime;
-uniform vec2 uResolution;
-uniform float uScale;
-uniform float uWarp;
-
-void main() {
-  vec2 center = gl_FragCoord.xy - uResolution * 0.5;
-  vec2 p = center * max(uScale, 0.000001);
-
-  for (int i = 1; i < 7; i++) {
-    float index = float(i);
-    vec2 next = p;
-    next.x += uWarp / index * cos(index * p.y + uTime * 2.0 + 0.3 * index);
-    next.y += uWarp / index * cos(index * p.x + uTime * 2.0 + 0.3 * (index + 10.0));
-    p = next;
-  }
-
-  vec3 color = vec3(
-    0.5 * sin(3.0 * p.x) + 0.5,
-    0.5 * sin(3.0 * p.y) + 0.5,
-    0.5 * sin(p.x + p.y) + 0.5
-  );
-
-  fragColor = vec4(color, 1.0);
-}
-`;
-
-const resolveParams = ({time = 0, speed = DEFAULT_SPEED, scale = DEFAULT_SCALE, warp = DEFAULT_WARP}: BurlFigureParams): Required<BurlFigureParams> => {
-  return {time, speed, scale, warp};
-};
-
-const assertOptionalFiniteNumber = (value: unknown, name: string): void => {
-  if (value === undefined) {
-    return;
-  }
-
-  if (typeof value !== 'number' || !Number.isFinite(value)) {
-    throw new TypeError(`${name} must be a finite number`);
-  }
-};
-
-const validateBurlFigureParams = (params: BurlFigureParams): void => {
-  if (typeof params !== 'object' || params === null || Array.isArray(params)) {
-    throw new TypeError('burlFigure() expects an object');
-  }
-
-  assertOptionalFiniteNumber(params.time, 'time');
-  assertOptionalFiniteNumber(params.speed, 'speed');
-  assertOptionalFiniteNumber(params.scale, 'scale');
-  assertOptionalFiniteNumber(params.warp, 'warp');
-
-  const {speed, scale, warp} = resolveParams(params);
-  if (speed < 0) {
-    throw new TypeError('speed must be greater than or equal to 0');
-  }
-
-  if (scale <= 0) {
-    throw new TypeError('scale must be greater than 0');
-  }
-
-  if (warp < 0) {
-    throw new TypeError('warp must be greater than or equal to 0');
-  }
-};
-
-const compileShader = (gl: WebGL2RenderingContext, type: number, source: string): WebGLShader => {
-  const shader = gl.createShader(type);
-  if (!shader) {
-    throw new Error('Failed to create shader');
-  }
-
-  gl.shaderSource(shader, source);
-  gl.compileShader(shader);
-
-  if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-    const log = gl.getShaderInfoLog(shader);
-    gl.deleteShader(shader);
-    throw new Error(`Shader compile failed: ${log ?? '(no log)'}`);
-  }
-
-  return shader;
-};
-
-const createProgram = (gl: WebGL2RenderingContext): WebGLProgram => {
-  const vertex = compileShader(gl, gl.VERTEX_SHADER, VERTEX_SHADER);
-  const fragment = compileShader(gl, gl.FRAGMENT_SHADER, FRAGMENT_SHADER);
-  const program = gl.createProgram();
-  if (!program) {
-    throw new Error('Failed to create program');
-  }
-
-  gl.attachShader(program, vertex);
-  gl.attachShader(program, fragment);
-  gl.linkProgram(program);
-  gl.deleteShader(vertex);
-  gl.deleteShader(fragment);
-
-  if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-    const log = gl.getProgramInfoLog(program);
-    gl.deleteProgram(program);
-    throw new Error(`Shader program link failed: ${log ?? '(no log)'}`);
-  }
-
-  return program;
-};
-
-const setupBurlFigure = (target: HTMLCanvasElement): BurlFigureState => {
-  const gl = target.getContext('webgl2', {
-    alpha: true,
-    premultipliedAlpha: true,
-    preserveDrawingBuffer: true,
-  });
-
-  if (!gl) {
-    throw new Error('Could not create a WebGL2 context. Try rendering with --gl=angle.');
-  }
-
-  const program = createProgram(gl);
-  const vao = gl.createVertexArray();
-  const vbo = gl.createBuffer();
-
-  if (!vao || !vbo) {
-    throw new Error('Failed to create WebGL buffers');
-  }
-
-  gl.bindVertexArray(vao);
-  gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
-
-  const position = gl.getAttribLocation(program, 'aPosition');
-  if (position === -1) {
-    throw new Error('Could not find aPosition attribute');
-  }
-
-  gl.enableVertexAttribArray(position);
-  gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
-  gl.bindVertexArray(null);
-
-  return {
-    gl,
-    program,
-    vao,
-    vbo,
-    uniforms: {
-      time: gl.getUniformLocation(program, 'uTime'),
-      resolution: gl.getUniformLocation(program, 'uResolution'),
-      scale: gl.getUniformLocation(program, 'uScale'),
-      warp: gl.getUniformLocation(program, 'uWarp'),
-    },
-  };
-};
-
-const burlFigure = createEffect<BurlFigureParams, BurlFigureState>({
-  type: 'com.example.burlFigure',
-  label: 'burlFigure()',
-  documentationLink: null,
-  backend: 'webgl2',
-  calculateKey: (params) => {
-    const {time, speed, scale, warp} = resolveParams(params);
-    return `burl-figure-${time}-${speed}-${scale}-${warp}`;
-  },
-  setup: setupBurlFigure,
-  apply: ({width, height, params, state}) => {
-    const {gl, program, uniforms, vao} = state;
-    const {time, speed, scale, warp} = resolveParams(params);
-
-    gl.viewport(0, 0, width, height);
-    gl.clearColor(0, 0, 0, 0);
-    gl.clear(gl.COLOR_BUFFER_BIT);
-    gl.useProgram(program);
-
-    if (uniforms.time) gl.uniform1f(uniforms.time, time * speed);
-    if (uniforms.resolution) gl.uniform2f(uniforms.resolution, width, height);
-    if (uniforms.scale) gl.uniform1f(uniforms.scale, scale);
-    if (uniforms.warp) gl.uniform1f(uniforms.warp, warp);
-
-    gl.bindVertexArray(vao);
-    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-    gl.bindVertexArray(null);
-    gl.useProgram(null);
-  },
-  cleanup: ({gl, program, vao, vbo}) => {
-    gl.deleteBuffer(vbo);
-    gl.deleteProgram(program);
-    gl.deleteVertexArray(vao);
-  },
-  schema: burlFigureSchema,
-  validateParams: validateBurlFigureParams,
-});
-
-export const BurlFigure = () => {
-  const frame = useCurrentFrame();
-  const {fps, width, height} = useVideoConfig();
+export const HalftoneBackground: React.FC = () => {
+  const {width, height} = useVideoConfig();
 
   return (
-    <AbsoluteFill>
-      <Solid
-        width={width}
-        height={height}
-        effects={[
-          burlFigure({
-            time: frame / fps,
-            speed: 0.4,
-            scale: 0.001,
-            warp: 0.6,
-          }),
-        ]}
-      />
-    </AbsoluteFill>
+    <Solid
+      width={width}
+      height={height}
+      color="black"
+      effects={[
+        halftoneLinearGradient({
+          firstStopDotSize: 0,
+          secondStopDotSize: 42,
+          firstStopPosition: [0, 0.5],
+          secondStopPosition: [1, 0.5],
+          gridSize: 24,
+          dotColor: '#0b84f3',
+        }),
+      ]}
+    />
   );
 };
 ```
 
-:::note
-Shader source adapted from [GLSL Sandbox](https://glslsandbox.com/e#24303.0).
-:::
+You can also vibe code a custom effect using [`createEffect()`](/docs/create-effect).
 
-## Supported components
+## Apply shaders to content
 
-The same effect factory can be passed to any component that supports the `effects` prop, including [`<Solid>`](/docs/solid), [`<Video>`](/docs/media/video), [`<CanvasImage>`](/docs/canvasimage) and [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas).
+Use [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) to capture HTML content and apply shader effects to its pixels.
+This example applies [`fisheye()`](/docs/effects/fisheye) to a DOM element:
 
-Use [`<Solid>`](/docs/solid) for procedural shader backgrounds. Use `<HtmlInCanvas>` when you need to capture DOM content and run shader effects over its pixels.
+```tsx twoslash title="FisheyeContent.tsx"
+import {fisheye} from '@remotion/effects/fisheye';
+import {AbsoluteFill, HtmlInCanvas, useVideoConfig} from 'remotion';
+
+export const FisheyeContent: React.FC = () => {
+  const {width, height} = useVideoConfig();
+
+  return (
+    <HtmlInCanvas
+      width={width}
+      height={height}
+      effects={[
+        fisheye({
+          fieldOfView: 2.5,
+        }),
+      ]}
+    >
+      <AbsoluteFill
+        style={{
+          alignItems: 'center',
+          backgroundColor: '#0b84f3',
+          color: 'white',
+          fontFamily: 'sans-serif',
+          fontSize: 120,
+          justifyContent: 'center',
+        }}
+      >
+        Hello
+      </AbsoluteFill>
+    </HtmlInCanvas>
+  );
+};
+```
 
 ## Rendering
 
 When rendering a video that uses WebGL, pass [`--gl=angle`](/docs/gl-options) to ensure the headless browser can create a WebGL context:
 
 ```bash
-npx remotion render MyComp --gl=angle
+bunx remotion render MyComp --gl=angle
 ```
 
 Without this flag, the headless browser may not have a WebGL context available.
 
 ## See also
 
-- [`createEffect()`](/docs/create-effect)
+- [`@remotion/effects`](/docs/effects/api)
+- [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas)
 - [`<Solid>`](/docs/solid)
-- [Effects](/docs/effects)
-- [`useCurrentFrame()`](/docs/use-current-frame)
-- [`useVideoConfig()`](/docs/use-video-config)
