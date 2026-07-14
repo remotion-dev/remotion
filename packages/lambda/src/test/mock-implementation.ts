@@ -33,14 +33,14 @@ export const getBrowserInstance: GetBrowserInstance = async ({
 const paramsArray: InvokeWebhookParams[] = [];
 
 export const mockServerImplementation: InsideFunctionSpecifics<AwsProvider> = {
-	forgetBrowserEventLoop: ({launchedBrowser}) => {
+	forgetBrowserEventLoop: async ({launchedBrowser}) => {
 		browsersOpen.delete(launchedBrowser.instance.id);
 
 		Log.verbose(
 			{logLevel: 'verbose', indent: false},
 			`Closing browser instance ${launchedBrowser.instance.id}. ${browsersOpen.size} browsers open`,
 		);
-		launchedBrowser.instance.close({silent: false});
+		await launchedBrowser.instance.close({silent: false});
 	},
 	getCurrentRegionInFunction: () => 'eu-central-1',
 	getBrowserInstance,

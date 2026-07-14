@@ -90,13 +90,11 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 
 	browserInstancePromise.then((instance) => {
 		cleanup.push(() => {
-			insideFunctionSpecifics.forgetBrowserEventLoop({
+			return insideFunctionSpecifics.forgetBrowserEventLoop({
 				logLevel:
 					params.type === ServerlessRoutines.still ? params.logLevel : 'error',
 				launchedBrowser: instance,
 			});
-
-			return Promise.resolve();
 		});
 	});
 

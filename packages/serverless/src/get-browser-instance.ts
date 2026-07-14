@@ -52,17 +52,15 @@ const waitForLaunched = () => {
 	});
 };
 
-export const forgetBrowserEventLoopImplementation: ForgetBrowserEventLoop = ({
-	logLevel,
-	launchedBrowser,
-}) => {
-	RenderInternals.Log.info(
-		{indent: false, logLevel},
-		'Keeping browser open for next invocation',
-	);
-	launchedBrowser.instance.runner.forgetEventLoop();
-	launchedBrowser.instance.runner.deleteBrowserCaches();
-};
+export const forgetBrowserEventLoopImplementation: ForgetBrowserEventLoop =
+	async ({logLevel, launchedBrowser}) => {
+		RenderInternals.Log.info(
+			{indent: false, logLevel},
+			'Keeping browser open for next invocation',
+		);
+		launchedBrowser.instance.runner.forgetEventLoop();
+		await launchedBrowser.instance.runner.deleteBrowserCaches();
+	};
 
 export const getBrowserInstanceImplementation: GetBrowserInstance = async <
 	Provider extends CloudProvider,
@@ -137,17 +135,20 @@ export const getBrowserInstanceImplementation: GetBrowserInstance = async <
 				{indent: false, logLevel},
 				'Browser disconnected or crashed.',
 			);
-			insideFunctionSpecifics.forgetBrowserEventLoop({
-				logLevel,
-				launchedBrowser: _browserInstance as LaunchedBrowser,
-			});
-			_browserInstance?.instance?.close({silent: true}).catch((err) => {
-				RenderInternals.Log.info(
-					{indent: false, logLevel},
-					'Could not close browser instance',
-					err,
-				);
-			});
+			const browserInstance = _browserInstance as LaunchedBrowser;
+			insideFunctionSpecifics
+				.forgetBrowserEventLoop({
+					logLevel,
+					launchedBrowser: browserInstance,
+				})
+				.then(() => browserInstance.instance.close({silent: true}))
+				.catch((err) => {
+					RenderInternals.Log.info(
+						{indent: false, logLevel},
+						'Could not close browser instance',
+						err,
+					);
+				});
 			_browserInstance = null;
 		});
 		_browserInstance = {

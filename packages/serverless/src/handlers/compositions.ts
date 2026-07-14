@@ -111,7 +111,7 @@ export const compositionsHandler = async <Provider extends CloudProvider>({
 		});
 	} finally {
 		if (instance) {
-			insideFunctionSpecifics.forgetBrowserEventLoop({
+			await insideFunctionSpecifics.forgetBrowserEventLoop({
 				logLevel: params.logLevel,
 				launchedBrowser: instance,
 			});

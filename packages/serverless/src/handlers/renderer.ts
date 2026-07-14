@@ -533,7 +533,7 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 		});
 	} finally {
 		if (shouldKeepBrowserOpen && instance) {
-			insideFunctionSpecifics.forgetBrowserEventLoop({
+			await insideFunctionSpecifics.forgetBrowserEventLoop({
 				logLevel: params.logLevel,
 				launchedBrowser: instance,
 			});
