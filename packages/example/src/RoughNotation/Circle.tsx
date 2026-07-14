@@ -43,15 +43,19 @@ export const RoughNotationCircle: React.FC = () => {
 						],
 					})}
 					type="circle"
-					box="around"
-					roughness={1.1}
-					bowing={3}
-					strokeWidth={9}
+					roughness={0.6}
+					bowing={14.4}
+					strokeWidth={12}
 					color={'rgba(37, 99, 235, 0.57)'}
 					iterations={1}
 					padding={{
-						top: -16,
+						top: -15,
+						left: -29,
+						right: -22,
+						bottom: -5,
 					}}
+					curveFitting={0.98}
+					curveStepCount={25}
 				>
 					circular
 				</AnnotationOnTop>{' '}

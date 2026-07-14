@@ -21,25 +21,31 @@ export const RoughNotationBox: React.FC = () => {
 					color: '#171717',
 					fontFamily,
 					width: 800,
+					textAlign: 'center',
 				}}
 			>
 				<Interactive.Span>Think outside the </Interactive.Span>
 				<AnnotationOnTop
 					name="Box annotation"
-					progress={interpolate(frame, [0, 60], [0, 1], {
+					progress={interpolate(frame, [0, 23], [0, 1], {
 						extrapolateLeft: 'clamp',
 						extrapolateRight: 'clamp',
 					})}
 					type="box"
 					color="#ef4444"
 					strokeWidth={8}
-					iterations={2}
+					iterations={1}
 					padding={{
-						left: 26,
-						right: 26,
-						top: 16,
-						bottom: 16,
+						left: 3,
+						right: 6,
+						top: -12,
+						bottom: -5,
 					}}
+					seed={interpolate(frame, [0, 89], [1, 10], {
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'clamp',
+					})}
+					roughness={0.9}
 				>
 					box
 				</AnnotationOnTop>

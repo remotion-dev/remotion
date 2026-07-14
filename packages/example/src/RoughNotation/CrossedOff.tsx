@@ -26,13 +26,15 @@ export const RoughNotationCrossedOff: React.FC = () => {
 				<Interactive.Span>Please </Interactive.Span>
 				<AnnotationOnTop
 					name="Crossed off annotation"
-					progress={interpolate(frame, [0, 60], [0, 1], {
+					progress={interpolate(frame, [0, 21], [0, 1], {
 						extrapolateLeft: 'clamp',
 						extrapolateRight: 'clamp',
 					})}
 					type="crossed-off"
-					color="#2563eb"
-					strokeWidth={14}
+					color={'#eb2525'}
+					strokeWidth={6}
+					iterations={10}
+					roughness={2}
 				>
 					remove
 				</AnnotationOnTop>{' '}
