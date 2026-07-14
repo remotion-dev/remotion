@@ -17,15 +17,15 @@ export const FolderTree: React.FC = () => {
 		<AbsoluteFill className="justify-center items-center">
 			<ExtrudeDiv
 				height={98}
-				depth={50}
+				depth={27}
 				cornerRadius={8}
 				translationX={-15}
 				translationY={5}
 				scaleX={1.15}
 				scaleY={1.15}
 				scaleZ={1.15}
-				rotationX={-0.21}
-				rotationY={-0.88}
+				rotationX={0.12}
+				rotationY={-0.54}
 				rotationZ={-0.06}
 				backFace={
 					<Interactive.Div
