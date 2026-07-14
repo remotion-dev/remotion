@@ -3,7 +3,6 @@ import {AnnotationOnTop} from '@remotion/rough-notation';
 import React from 'react';
 import {
 	AbsoluteFill,
-	Easing,
 	Interactive,
 	interpolate,
 	useCurrentFrame,
@@ -14,7 +13,7 @@ const {fontFamily} = loadFont('normal', {
 	subsets: ['latin'],
 });
 
-export const RoughNotationCircleDemo: React.FC = () => {
+export const RoughNotationStrikeThroughDemo: React.FC = () => {
 	const frame = useCurrentFrame();
 
 	return (
@@ -34,30 +33,20 @@ export const RoughNotationCircleDemo: React.FC = () => {
 					width: 800,
 				}}
 			>
-				<Interactive.Span>How much </Interactive.Span>
+				<Interactive.Span>The </Interactive.Span>
 				<AnnotationOnTop
-					name="Circle annotation"
-					progress={interpolate(frame, [0, 43], [0, 1], {
+					name="Strike-through annotation"
+					progress={interpolate(frame, [0, 60], [0, 1], {
 						extrapolateLeft: 'clamp',
 						extrapolateRight: 'clamp',
-						easing: [Easing.bezier(0.42, 0, 0.58, 1)],
-						posterize: 2,
 					})}
-					type="circle"
-					roughness={0.6}
-					strokeWidth={12}
-					color={'rgba(37, 99, 235, 0.57)'}
-					padding={{
-						left: 10,
-						right: 10,
-						top: 10,
-						bottom: 10,
-					}}
-					box={'inside'}
+					type="strike-through"
+					color={'#f11515'}
+					strokeWidth={14}
 				>
-					circular
+					forbidden
 				</AnnotationOnTop>{' '}
-				<Interactive.Span>financing is in AI?</Interactive.Span>
+				<Interactive.Span>fruit</Interactive.Span>
 			</Interactive.Div>
 		</AbsoluteFill>
 	);

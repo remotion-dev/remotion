@@ -22,11 +22,9 @@ export const RoughNotationHighlightDemo: React.FC = () => {
 			style={{
 				justifyContent: 'center',
 				alignItems: 'center',
-				backgroundColor: '#f5f6f7',
 			}}
 		>
 			<Interactive.Div
-				name="Container"
 				style={{
 					fontSize: 80,
 					fontWeight: 700,
@@ -54,7 +52,7 @@ export const RoughNotationHighlightDemo: React.FC = () => {
 						],
 					})}
 					type="highlight"
-					color="rgba(255, 236, 79, 0.62)"
+					color={'rgba(255, 236, 79, 0.62)'}
 					maxRandomnessOffset={10}
 					roughness={2.3}
 					padding={{

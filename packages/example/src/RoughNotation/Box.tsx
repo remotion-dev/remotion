@@ -32,7 +32,7 @@ export const RoughNotationBox: React.FC = () => {
 						extrapolateRight: 'clamp',
 					})}
 					type="box"
-					color="#ef4444"
+					color={'#3fff00'}
 					strokeWidth={8}
 					iterations={1}
 					padding={{
@@ -41,11 +41,12 @@ export const RoughNotationBox: React.FC = () => {
 						top: -12,
 						bottom: -5,
 					}}
+					roughness={0.9}
 					seed={interpolate(frame, [0, 89], [1, 10], {
 						extrapolateLeft: 'clamp',
 						extrapolateRight: 'clamp',
+						posterize: 10,
 					})}
-					roughness={0.9}
 				>
 					box
 				</AnnotationOnTop>

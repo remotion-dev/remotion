@@ -5,26 +5,26 @@ title: Text highlights
 crumb: 'Designing visuals'
 ---
 
-import {TextHighlightRoughNotationDemo} from '../components/TextHighlightExamples';
-
 # Text highlights
 
 Highlighting text can guide attention without changing the layout of the sentence.
-Animate the highlight separately from the text so the reader can first parse the words, then notice the emphasis.
+Animate the annotation separately from the text so the reader can first parse the words, then notice the emphasis.
 
-## Word highlight
+The examples below match the rough notation compositions in `packages/example/src/RoughNotation`.
 
-Use [`<AnnotationBehind>`](/docs/rough-notation/annotation-behind) from [`@remotion/rough-notation`](/docs/rough-notation/api) for a hand-drawn highlight.
-It works well when the video already has editorial, educational or presentation-style graphics.
+## Highlight
 
-<TextHighlightRoughNotationDemo />
+Use [`<AnnotationBehind>`](/docs/rough-notation/annotation-behind) from [`@remotion/rough-notation`](/docs/rough-notation/api) for a hand-drawn highlight behind text.
+
+<Demo type="rough-notation-highlight" />
 
 <details>
 <summary>Show code</summary>
 
-```tsx twoslash title="RoughHighlight.tsx"
+```tsx twoslash title="RoughNotationHighlight.tsx"
 import {loadFont} from '@remotion/google-fonts/CormorantGaramond';
 import {AnnotationBehind} from '@remotion/rough-notation';
+import React from 'react';
 import {
   AbsoluteFill,
   Easing,
@@ -38,17 +38,16 @@ const {fontFamily} = loadFont('normal', {
   subsets: ['latin'],
 });
 
-export const RoughHighlight: React.FC = () => {
+const containerStyle: React.CSSProperties = {
+  justifyContent: 'center',
+  alignItems: 'center',
+};
+
+export const RoughNotationHighlight: React.FC = () => {
   const frame = useCurrentFrame();
 
   return (
-    <AbsoluteFill
-      style={{
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'white',
-      }}
-    >
+    <AbsoluteFill style={containerStyle}>
       <Interactive.Div
         style={{
           fontSize: 80,
@@ -59,10 +58,10 @@ export const RoughHighlight: React.FC = () => {
           width: 800,
         }}
       >
-        <Interactive.Span>The turning point was </Interactive.Span>
+        <Interactive.Span>A truly </Interactive.Span>
         <AnnotationBehind
-          name="Rough highlight"
-          progress={interpolate(frame, [0, 28], [0, 1], {
+          name="Highlight annotation"
+          progress={interpolate(frame, [0, 25], [0, 1], {
             extrapolateLeft: 'clamp',
             extrapolateRight: 'clamp',
             easing: [
@@ -77,18 +76,378 @@ export const RoughHighlight: React.FC = () => {
             ],
           })}
           type="highlight"
-          color="rgba(255, 236, 79, 0.62)"
-          roughness={2.3}
+          color={'rgba(255, 236, 79, 0.62)'}
           maxRandomnessOffset={10}
+          roughness={2.3}
           padding={{
             left: 20,
             right: 20,
           }}
           bowing={0}
         >
-          obvious
-        </AnnotationBehind>
-        <Interactive.Span>.</Interactive.Span>
+          remarkable
+        </AnnotationBehind>{' '}
+        <Interactive.Span>end to the World cup</Interactive.Span>
+      </Interactive.Div>
+    </AbsoluteFill>
+  );
+};
+```
+
+</details>
+
+## Underline
+
+Use [`<AnnotationOnTop>`](/docs/rough-notation/annotation-on-top) with `type="underline"` to add a drawn underline.
+
+<Demo type="rough-notation-underline" />
+
+<details>
+<summary>Show code</summary>
+
+```tsx twoslash title="RoughNotationUnderline.tsx"
+import {loadFont} from '@remotion/google-fonts/CormorantGaramond';
+import {AnnotationOnTop} from '@remotion/rough-notation';
+import React from 'react';
+import {
+  AbsoluteFill,
+  Interactive,
+  interpolate,
+  useCurrentFrame,
+} from 'remotion';
+
+const {fontFamily} = loadFont('normal', {
+  weights: ['700'],
+  subsets: ['latin'],
+});
+
+const containerStyle: React.CSSProperties = {
+  justifyContent: 'center',
+  alignItems: 'center',
+};
+
+export const RoughNotationUnderline: React.FC = () => {
+  const frame = useCurrentFrame();
+
+  return (
+    <AbsoluteFill style={containerStyle}>
+      <Interactive.Div
+        style={{
+          fontSize: 80,
+          fontWeight: 700,
+          lineHeight: 1.1,
+          color: '#171717',
+          fontFamily,
+          width: 800,
+        }}
+      >
+        <Interactive.Span>Underline </Interactive.Span>
+        <AnnotationOnTop
+          name="Underline annotation"
+          progress={interpolate(frame, [0, 60], [0, 1], {
+            extrapolateLeft: 'clamp',
+            extrapolateRight: 'clamp',
+          })}
+          type="underline"
+          color="#355f8f"
+          strokeWidth={10}
+          iterations={3}
+        >
+          this
+        </AnnotationOnTop>{' '}
+        <Interactive.Span>phrase</Interactive.Span>
+      </Interactive.Div>
+    </AbsoluteFill>
+  );
+};
+```
+
+</details>
+
+## Strike-through
+
+Use `type="strike-through"` to cross out a word with a single line.
+
+<Demo type="rough-notation-strike-through" />
+
+<details>
+<summary>Show code</summary>
+
+```tsx twoslash title="RoughNotationStrikeThrough.tsx"
+import {loadFont} from '@remotion/google-fonts/CormorantGaramond';
+import {AnnotationOnTop} from '@remotion/rough-notation';
+import React from 'react';
+import {
+  AbsoluteFill,
+  Interactive,
+  interpolate,
+  useCurrentFrame,
+} from 'remotion';
+
+const {fontFamily} = loadFont('normal', {
+  weights: ['700'],
+  subsets: ['latin'],
+});
+
+const containerStyle: React.CSSProperties = {
+  justifyContent: 'center',
+  alignItems: 'center',
+};
+
+export const RoughNotationStrikeThrough: React.FC = () => {
+  const frame = useCurrentFrame();
+
+  return (
+    <AbsoluteFill style={containerStyle}>
+      <Interactive.Div
+        style={{
+          fontSize: 80,
+          fontWeight: 700,
+          lineHeight: 1.1,
+          color: '#171717',
+          fontFamily,
+          width: 800,
+        }}
+      >
+        <Interactive.Span>The </Interactive.Span>
+        <AnnotationOnTop
+          name="Strike-through annotation"
+          progress={interpolate(frame, [0, 60], [0, 1], {
+            extrapolateLeft: 'clamp',
+            extrapolateRight: 'clamp',
+          })}
+          type="strike-through"
+          color={'#f11515'}
+          strokeWidth={14}
+        >
+          forbidden
+        </AnnotationOnTop>{' '}
+        <Interactive.Span>fruit</Interactive.Span>
+      </Interactive.Div>
+    </AbsoluteFill>
+  );
+};
+```
+
+</details>
+
+## Crossed-off
+
+Use `type="crossed-off"` for a stronger removal mark.
+
+<Demo type="rough-notation-crossed-off" />
+
+<details>
+<summary>Show code</summary>
+
+```tsx twoslash title="RoughNotationCrossedOff.tsx"
+import {loadFont} from '@remotion/google-fonts/CormorantGaramond';
+import {AnnotationOnTop} from '@remotion/rough-notation';
+import React from 'react';
+import {
+  AbsoluteFill,
+  Interactive,
+  interpolate,
+  useCurrentFrame,
+} from 'remotion';
+
+const {fontFamily} = loadFont('normal', {
+  weights: ['700'],
+  subsets: ['latin'],
+});
+
+const containerStyle: React.CSSProperties = {
+  justifyContent: 'center',
+  alignItems: 'center',
+};
+
+export const RoughNotationCrossedOff: React.FC = () => {
+  const frame = useCurrentFrame();
+
+  return (
+    <AbsoluteFill style={containerStyle}>
+      <Interactive.Div
+        style={{
+          fontSize: 80,
+          fontWeight: 700,
+          lineHeight: 1.1,
+          color: '#171717',
+          fontFamily,
+          width: 800,
+        }}
+      >
+        <Interactive.Span>Please </Interactive.Span>
+        <AnnotationOnTop
+          name="Crossed off annotation"
+          progress={interpolate(frame, [0, 21], [0, 1], {
+            extrapolateLeft: 'clamp',
+            extrapolateRight: 'clamp',
+          })}
+          type="crossed-off"
+          color={'#eb2525'}
+          strokeWidth={6}
+          iterations={10}
+          roughness={2}
+        >
+          remove
+        </AnnotationOnTop>{' '}
+        <Interactive.Span>this</Interactive.Span>
+      </Interactive.Div>
+    </AbsoluteFill>
+  );
+};
+```
+
+</details>
+
+## Box
+
+Use `type="box"` to draw a rectangle around text.
+
+<Demo type="rough-notation-box" />
+
+<details>
+<summary>Show code</summary>
+
+```tsx twoslash title="RoughNotationBox.tsx"
+import {loadFont} from '@remotion/google-fonts/CormorantGaramond';
+import {AnnotationOnTop} from '@remotion/rough-notation';
+import React from 'react';
+import {
+  AbsoluteFill,
+  Interactive,
+  interpolate,
+  useCurrentFrame,
+} from 'remotion';
+
+const {fontFamily} = loadFont('normal', {
+  weights: ['700'],
+  subsets: ['latin'],
+});
+
+const containerStyle: React.CSSProperties = {
+  justifyContent: 'center',
+  alignItems: 'center',
+};
+
+export const RoughNotationBox: React.FC = () => {
+  const frame = useCurrentFrame();
+
+  return (
+    <AbsoluteFill style={containerStyle}>
+      <Interactive.Div
+        style={{
+          fontSize: 80,
+          fontWeight: 700,
+          lineHeight: 1.1,
+          color: '#171717',
+          fontFamily,
+          width: 800,
+          textAlign: 'center',
+        }}
+      >
+        <Interactive.Span>Think outside the </Interactive.Span>
+        <AnnotationOnTop
+          name="Box annotation"
+          progress={interpolate(frame, [0, 23], [0, 1], {
+            extrapolateLeft: 'clamp',
+            extrapolateRight: 'clamp',
+          })}
+          type="box"
+          color={'#3fff00'}
+          strokeWidth={8}
+          iterations={1}
+          padding={{
+            left: 3,
+            right: 6,
+            top: -12,
+            bottom: -5,
+          }}
+          roughness={0.9}
+          seed={interpolate(frame, [0, 89], [1, 10], {
+            extrapolateLeft: 'clamp',
+            extrapolateRight: 'clamp',
+            posterize: 10,
+          })}
+        >
+          box
+        </AnnotationOnTop>
+      </Interactive.Div>
+    </AbsoluteFill>
+  );
+};
+```
+
+</details>
+
+## Bracket
+
+Use `type="bracket"` with individual bracket flags to draw selected sides.
+
+<Demo type="rough-notation-bracket" />
+
+<details>
+<summary>Show code</summary>
+
+```tsx twoslash title="RoughNotationBracket.tsx"
+import {loadFont} from '@remotion/google-fonts/CormorantGaramond';
+import {AnnotationOnTop} from '@remotion/rough-notation';
+import React from 'react';
+import {
+  AbsoluteFill,
+  Interactive,
+  interpolate,
+  useCurrentFrame,
+} from 'remotion';
+
+const {fontFamily} = loadFont('normal', {
+  weights: ['700'],
+  subsets: ['latin'],
+});
+
+const containerStyle: React.CSSProperties = {
+  justifyContent: 'center',
+  alignItems: 'center',
+};
+
+export const RoughNotationBracket: React.FC = () => {
+  const frame = useCurrentFrame();
+
+  return (
+    <AbsoluteFill style={containerStyle}>
+      <Interactive.Div
+        style={{
+          fontSize: 80,
+          fontWeight: 700,
+          lineHeight: 1.1,
+          color: '#171717',
+          fontFamily,
+          width: 800,
+        }}
+      >
+        <Interactive.Span>Mark </Interactive.Span>
+        <AnnotationOnTop
+          name="Bracket annotation"
+          progress={interpolate(frame, [0, 60], [0, 1], {
+            extrapolateLeft: 'clamp',
+            extrapolateRight: 'clamp',
+          })}
+          type="bracket"
+          bracketLeft
+          bracketRight
+          bracketTop
+          roughness={1}
+          bowing={3}
+          strokeWidth={8}
+          color="#dc2626"
+          bracketBottom
+          padding={{
+            top: -11,
+          }}
+        >
+          this
+        </AnnotationOnTop>{' '}
+        <Interactive.Span>part</Interactive.Span>
       </Interactive.Div>
     </AbsoluteFill>
   );
@@ -100,14 +459,13 @@ export const RoughHighlight: React.FC = () => {
 ## Circle marker
 
 Use [`<AnnotationOnTop>`](/docs/rough-notation/annotation-on-top) with `type="circle"` when the annotation should sit above the text.
-This works well for calling out a single word without covering it.
 
 <Demo type="rough-notation-circle" />
 
 <details>
 <summary>Show code</summary>
 
-```tsx twoslash title="RoughCircle.tsx"
+```tsx twoslash title="RoughNotationCircle.tsx"
 import {loadFont} from '@remotion/google-fonts/CormorantGaramond';
 import {AnnotationOnTop} from '@remotion/rough-notation';
 import React from 'react';
@@ -124,17 +482,16 @@ const {fontFamily} = loadFont('normal', {
   subsets: ['latin'],
 });
 
-export const RoughCircle: React.FC = () => {
+const containerStyle: React.CSSProperties = {
+  justifyContent: 'center',
+  alignItems: 'center',
+};
+
+export const RoughNotationCircle: React.FC = () => {
   const frame = useCurrentFrame();
 
   return (
-    <AbsoluteFill
-      style={{
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'white',
-      }}
-    >
+    <AbsoluteFill style={containerStyle}>
       <Interactive.Div
         style={{
           fontSize: 80,
@@ -148,34 +505,23 @@ export const RoughCircle: React.FC = () => {
         <Interactive.Span>How much </Interactive.Span>
         <AnnotationOnTop
           name="Circle annotation"
-          progress={interpolate(frame, [0, 24], [0, 1], {
+          progress={interpolate(frame, [0, 43], [0, 1], {
             extrapolateLeft: 'clamp',
             extrapolateRight: 'clamp',
-            easing: [
-              Easing.spring({
-                damping: 200,
-                mass: 1,
-                stiffness: 100,
-                allowTail: true,
-                durationRestThreshold: 0.02,
-                overshootClamping: false,
-              }),
-            ],
+            easing: [Easing.bezier(0.42, 0, 0.58, 1)],
+            posterize: 2,
           })}
           type="circle"
           roughness={0.6}
-          bowing={14.4}
           strokeWidth={12}
-          color="rgba(37, 99, 235, 0.57)"
-          iterations={1}
+          color={'rgba(37, 99, 235, 0.57)'}
           padding={{
-            top: -15,
-            left: -29,
-            right: -22,
-            bottom: -5,
+            left: 10,
+            right: 10,
+            top: 10,
+            bottom: 10,
           }}
-          curveFitting={0.98}
-          curveStepCount={25}
+          box={'inside'}
         >
           circular
         </AnnotationOnTop>{' '}

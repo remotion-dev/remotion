@@ -27,34 +27,23 @@ export const RoughNotationCircle: React.FC = () => {
 				<Interactive.Span>How much </Interactive.Span>
 				<AnnotationOnTop
 					name="Circle annotation"
-					progress={interpolate(frame, [0, 24], [0, 1], {
+					progress={interpolate(frame, [0, 43], [0, 1], {
 						extrapolateLeft: 'clamp',
 						extrapolateRight: 'clamp',
-
-						easing: [
-							Easing.spring({
-								damping: 200,
-								mass: 1,
-								stiffness: 100,
-								allowTail: true,
-								durationRestThreshold: 0.02,
-								overshootClamping: false,
-							}),
-						],
+						easing: [Easing.bezier(0.42, 0, 0.58, 1)],
+						posterize: 2,
 					})}
 					type="circle"
 					roughness={0.6}
 					strokeWidth={12}
 					color={'rgba(37, 99, 235, 0.57)'}
-					iterations={1}
 					padding={{
-						top: -15,
-						left: -29,
-						right: -22,
-						bottom: -5,
+						left: 10,
+						right: 10,
+						top: 10,
+						bottom: 10,
 					}}
-					curveFitting={0.98}
-					curveStepCount={25}
+					box={'inside'}
 				>
 					circular
 				</AnnotationOnTop>{' '}

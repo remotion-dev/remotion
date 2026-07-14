@@ -38,6 +38,10 @@ export const RoughNotationBracket: React.FC = () => {
 					bowing={3}
 					strokeWidth={8}
 					color="#dc2626"
+					bracketBottom
+					padding={{
+						top: -11,
+					}}
 				>
 					this
 				</AnnotationOnTop>{' '}

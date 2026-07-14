@@ -3,7 +3,6 @@ import {AnnotationOnTop} from '@remotion/rough-notation';
 import React from 'react';
 import {
 	AbsoluteFill,
-	Easing,
 	Interactive,
 	interpolate,
 	useCurrentFrame,
@@ -14,7 +13,7 @@ const {fontFamily} = loadFont('normal', {
 	subsets: ['latin'],
 });
 
-export const RoughNotationCircleDemo: React.FC = () => {
+export const RoughNotationBoxDemo: React.FC = () => {
 	const frame = useCurrentFrame();
 
 	return (
@@ -32,32 +31,35 @@ export const RoughNotationCircleDemo: React.FC = () => {
 					color: '#171717',
 					fontFamily,
 					width: 800,
+					textAlign: 'center',
 				}}
 			>
-				<Interactive.Span>How much </Interactive.Span>
+				<Interactive.Span>Think outside the </Interactive.Span>
 				<AnnotationOnTop
-					name="Circle annotation"
-					progress={interpolate(frame, [0, 43], [0, 1], {
+					name="Box annotation"
+					progress={interpolate(frame, [0, 23], [0, 1], {
 						extrapolateLeft: 'clamp',
 						extrapolateRight: 'clamp',
-						easing: [Easing.bezier(0.42, 0, 0.58, 1)],
-						posterize: 2,
 					})}
-					type="circle"
-					roughness={0.6}
-					strokeWidth={12}
-					color={'rgba(37, 99, 235, 0.57)'}
+					type="box"
+					color={'#3fff00'}
+					strokeWidth={8}
+					iterations={1}
 					padding={{
-						left: 10,
-						right: 10,
-						top: 10,
-						bottom: 10,
+						left: 3,
+						right: 6,
+						top: -12,
+						bottom: -5,
 					}}
-					box={'inside'}
+					roughness={0.9}
+					seed={interpolate(frame, [0, 89], [1, 10], {
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'clamp',
+						posterize: 10,
+					})}
 				>
-					circular
-				</AnnotationOnTop>{' '}
-				<Interactive.Span>financing is in AI?</Interactive.Span>
+					box
+				</AnnotationOnTop>
 			</Interactive.Div>
 		</AbsoluteFill>
 	);
