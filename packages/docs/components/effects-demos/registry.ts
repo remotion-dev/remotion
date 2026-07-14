@@ -25,6 +25,7 @@ import {lightTrail} from '@remotion/effects/light-trail';
 import {linearGradient} from '@remotion/effects/linear-gradient';
 import {linearGradientTint} from '@remotion/effects/linear-gradient-tint';
 import {linearProgressiveBlur} from '@remotion/effects/linear-progressive-blur';
+import {linearProgressivePixelate} from '@remotion/effects/linear-progressive-pixelate';
 import {lines} from '@remotion/effects/lines';
 import {mirror} from '@remotion/effects/mirror';
 import {noise} from '@remotion/effects/noise';
@@ -34,6 +35,7 @@ import {pattern} from '@remotion/effects/pattern';
 import {pixelDissolve} from '@remotion/effects/pixel-dissolve';
 import {pixelate} from '@remotion/effects/pixelate';
 import {radialProgressiveBlur} from '@remotion/effects/radial-progressive-blur';
+import {radialProgressivePixelate} from '@remotion/effects/radial-progressive-pixelate';
 import {rings} from '@remotion/effects/rings';
 import {roughenEdges} from '@remotion/effects/roughen-edges';
 import {saturation} from '@remotion/effects/saturation';
@@ -86,6 +88,7 @@ import {
 import {EffectsLinearGradientPreview} from '../effects/effects-linear-gradient-preview';
 import {EffectsLinearGradientTintPreview} from '../effects/effects-linear-gradient-tint-preview';
 import {EffectsLinearProgressiveBlurPreview} from '../effects/effects-linear-progressive-blur-preview';
+import {EffectsLinearProgressivePixelatePreview} from '../effects/effects-linear-progressive-pixelate-preview';
 import {EffectsLinesPreview} from '../effects/effects-lines-preview';
 import {EffectsMirrorPreview} from '../effects/effects-mirror-preview';
 import {
@@ -108,6 +111,7 @@ import {
 	EffectsRadialProgressiveBlurPreview,
 	RADIAL_PROGRESSIVE_BLUR_PREVIEW_PARAMS,
 } from '../effects/effects-radial-progressive-blur-preview';
+import {EffectsRadialProgressivePixelatePreview} from '../effects/effects-radial-progressive-pixelate-preview';
 import {EffectsRingsPreview} from '../effects/effects-rings-preview';
 import {EffectsRoughenEdgesPreview} from '../effects/effects-roughen-edges-preview';
 import {EffectsSaturationPreview} from '../effects/effects-saturation-preview';
@@ -583,6 +587,22 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/pixelate',
 		comp: EffectsPixelatePreview,
 		schema: pixelate().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-linear-progressive-pixelate',
+		effectName: 'linearProgressivePixelate',
+		effectImportPath: '@remotion/effects/linear-progressive-pixelate',
+		comp: EffectsLinearProgressivePixelatePreview,
+		schema: linearProgressivePixelate().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-radial-progressive-pixelate',
+		effectName: 'radialProgressivePixelate',
+		effectImportPath: '@remotion/effects/radial-progressive-pixelate',
+		comp: EffectsRadialProgressivePixelatePreview,
+		schema: radialProgressivePixelate().definition.schema,
 	},
 	{
 		...defaults,

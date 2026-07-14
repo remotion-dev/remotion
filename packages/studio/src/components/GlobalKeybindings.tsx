@@ -4,6 +4,7 @@ import {Internals} from 'remotion';
 import {calculateTimeline} from '../helpers/calculate-timeline';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {SHOW_BROWSER_RENDERING} from '../helpers/show-browser-rendering';
+import {getStudioAskAIEnabled} from '../helpers/studio-runtime-config';
 import {timelineNodePathInfoToKey} from '../helpers/timeline-node-path-key';
 import {useKeybinding} from '../helpers/use-keybinding';
 import {CheckerboardContext} from '../state/checkerboard';
@@ -175,7 +176,7 @@ export const GlobalKeybindings: React.FC<{
 			commandCtrlKey: true,
 			preventDefault: true,
 		});
-		const cmdIKey = process.env.ASK_AI_ENABLED
+		const cmdIKey = getStudioAskAIEnabled()
 			? keybindings.registerKeybinding({
 					event: 'keydown',
 					key: 'i',

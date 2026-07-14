@@ -92,10 +92,7 @@ export const TimelineSequenceName: React.FC<{
 		}
 
 		input.focus();
-		const basenameIndex = editableDisplayName.lastIndexOf('.');
-		const selectionEnd =
-			basenameIndex > 0 ? basenameIndex : editableDisplayName.length;
-		input.setSelectionRange(0, selectionEnd);
+		input.select();
 	}, [editableDisplayName, editing]);
 
 	const save = useCallback(() => {

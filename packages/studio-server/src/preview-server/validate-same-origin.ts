@@ -4,6 +4,10 @@ export const validateSameOrigin = (req: IncomingMessage): void => {
 	const {origin, host} = req.headers;
 
 	if (typeof origin !== 'string') {
+		if (req.method === 'GET' || req.method === 'HEAD') {
+			return;
+		}
+
 		throw new Error('Request without Origin header not allowed');
 	}
 

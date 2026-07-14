@@ -12,6 +12,7 @@ import type {
 	GitSource,
 	RenderDefaults,
 	RenderJob,
+	StudioRuntimeConfig,
 } from '@remotion/studio-shared';
 import {detectRemotionServer} from '../detect-remotion-server';
 import {handleRoutes} from '../routes';
@@ -69,6 +70,7 @@ export const startServer = async (options: {
 	interactivityEnabled: boolean;
 	forceNew: boolean;
 	rspack: boolean;
+	getStudioRuntimeConfig: () => StudioRuntimeConfig;
 }): Promise<StartServerResult> => {
 	const desiredPort =
 		options?.port ??
@@ -177,6 +179,7 @@ export const startServer = async (options: {
 					audioLatencyHint: options.audioLatencyHint,
 					previewSampleRate: options.previewSampleRate,
 					enableCrossSiteIsolation: options.enableCrossSiteIsolation,
+					getStudioRuntimeConfig: options.getStudioRuntimeConfig,
 				});
 			})
 			.catch((err) => {

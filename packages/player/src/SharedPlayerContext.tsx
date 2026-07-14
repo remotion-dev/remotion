@@ -1,7 +1,7 @@
 // Contexts shared between <Player> and <Thumbnail>
 
 import type {ComponentType, LazyExoticComponent} from 'react';
-import React, {useCallback, useMemo, useState} from 'react';
+import React, {useCallback, useMemo, useRef, useState} from 'react';
 import type {
 	CompositionManagerContext,
 	LoggingContextValue,
@@ -115,8 +115,11 @@ export const SharedPlayerContexts: React.FC<{
 		};
 	}, [playerMuted, mediaVolume]);
 
+	const audioContextWasCreated = useRef(false);
 	const shouldCreateAudioContext =
-		audioEnabled && !playerMuted && mediaVolume > 0;
+		audioContextWasCreated.current ||
+		(audioEnabled && !playerMuted && mediaVolume > 0);
+	audioContextWasCreated.current = shouldCreateAudioContext;
 
 	const setMediaVolumeAndPersist = useCallback(
 		(vol: number) => {
