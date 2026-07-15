@@ -155,6 +155,10 @@ const paddingSchema = {
 	},
 } as const satisfies InteractivitySchema;
 
+const underlinePaddingSchema = {
+	'padding.top': paddingSchema['padding.top'],
+} as const satisfies InteractivitySchema;
+
 const textContentSchema = {
 	children: {
 		type: 'text-content',
@@ -189,7 +193,6 @@ export const annotationInteractiveSchema: InteractivitySchema = {
 	...strokeWidthSchema,
 	...iterationsSchema,
 	...rtlSchema,
-	...paddingSchema,
 	type: {
 		type: 'enum',
 		default: 'underline',
@@ -197,10 +200,15 @@ export const annotationInteractiveSchema: InteractivitySchema = {
 		keyframable: false,
 		variants: {
 			none: {},
-			underline: {},
+			underline: {
+				...underlinePaddingSchema,
+			},
 			'strike-through': {},
-			box: {},
+			box: {
+				...paddingSchema,
+			},
 			bracket: {
+				...paddingSchema,
 				bracketLeft: {
 					type: 'boolean',
 					default: false,
@@ -224,6 +232,7 @@ export const annotationInteractiveSchema: InteractivitySchema = {
 			},
 			'crossed-off': {},
 			circle: {
+				...paddingSchema,
 				...curveControlsSchema,
 				box: {
 					type: 'enum',
@@ -236,7 +245,9 @@ export const annotationInteractiveSchema: InteractivitySchema = {
 					},
 				},
 			},
-			highlight: {},
+			highlight: {
+				...paddingSchema,
+			},
 		},
 	},
 };

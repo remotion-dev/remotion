@@ -36,7 +36,7 @@ export const RoughNotationCrossedOffDemo: React.FC = () => {
 				<Interactive.Span>Please </Interactive.Span>
 				<AnnotationOnTop
 					name="Crossed off annotation"
-					progress={interpolate(frame, [0, 21], [0, 1], {
+					progress={interpolate(frame, [18, 39], [0, 1], {
 						extrapolateLeft: 'clamp',
 						extrapolateRight: 'clamp',
 					})}

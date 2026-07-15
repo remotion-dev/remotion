@@ -26,12 +26,12 @@ export const RoughNotationUnderline: React.FC = () => {
 				<Interactive.Span>Underline </Interactive.Span>
 				<AnnotationOnTop
 					name="Underline annotation"
-					progress={interpolate(frame, [0, 60], [0, 1], {
+					progress={interpolate(frame, [14, 35], [0, 1], {
 						extrapolateLeft: 'clamp',
 						extrapolateRight: 'clamp',
 					})}
 					type="underline"
-					color="#355f8f"
+					color={'rgba(53, 95, 143, 0.71)'}
 					strokeWidth={10}
 					iterations={3}
 				>

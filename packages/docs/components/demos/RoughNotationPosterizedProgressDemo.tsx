@@ -1,19 +1,28 @@
+import {loadFont} from '@remotion/google-fonts/CormorantGaramond';
 import {AnnotationOnTop} from '@remotion/rough-notation';
 import React from 'react';
 import {
 	AbsoluteFill,
-	Easing,
 	Interactive,
 	interpolate,
 	useCurrentFrame,
 } from 'remotion';
-import {containerStyle, fontFamily} from './shared';
 
-export const RoughNotationCircle: React.FC = () => {
+const {fontFamily} = loadFont('normal', {
+	weights: ['700'],
+	subsets: ['latin'],
+});
+
+export const RoughNotationPosterizedProgressDemo: React.FC = () => {
 	const frame = useCurrentFrame();
 
 	return (
-		<AbsoluteFill style={containerStyle}>
+		<AbsoluteFill
+			style={{
+				justifyContent: 'center',
+				alignItems: 'center',
+			}}
+		>
 			<Interactive.Div
 				style={{
 					fontSize: 80,
@@ -22,31 +31,23 @@ export const RoughNotationCircle: React.FC = () => {
 					color: '#171717',
 					fontFamily,
 					width: 800,
+					textAlign: 'center',
 				}}
 			>
-				<Interactive.Span>How much </Interactive.Span>
 				<AnnotationOnTop
-					name="Circle annotation"
+					name="Posterized progress annotation"
 					progress={interpolate(frame, [0, 43], [0, 1], {
 						extrapolateLeft: 'clamp',
 						extrapolateRight: 'clamp',
-						easing: [Easing.bezier(0.42, 0, 0.58, 1)],
+						posterize: 10,
 					})}
 					type="circle"
-					roughness={0.6}
-					strokeWidth={12}
-					color={'rgba(37, 99, 235, 0.57)'}
-					padding={{
-						left: 10,
-						right: 10,
-						top: 10,
-						bottom: 10,
-					}}
-					box={'inside'}
+					color={'#2563eb'}
+					strokeWidth={10}
+					roughness={1.8}
 				>
-					circular
-				</AnnotationOnTop>{' '}
-				<Interactive.Span>financing is in AI?</Interactive.Span>
+					motion
+				</AnnotationOnTop>
 			</Interactive.Div>
 		</AbsoluteFill>
 	);

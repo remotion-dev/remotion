@@ -25,6 +25,15 @@ test('annotation schema exposes box-specific props only for circle annotations',
 	expect(activeKeysForType('circle')).toContain('box');
 });
 
+test('annotation schema exposes only top padding for underlines', () => {
+	const underlineKeys = activeKeysForType('underline');
+
+	expect(underlineKeys).toContain('padding.top');
+	expect(underlineKeys).not.toContain('padding.left');
+	expect(underlineKeys).not.toContain('padding.right');
+	expect(underlineKeys).not.toContain('padding.bottom');
+});
+
 test('annotation schema exposes roughness as a shared Studio control', () => {
 	expect(activeKeysForType('none')).toContain('roughness');
 	expect(activeKeysForType('highlight')).toContain('roughness');

@@ -33,11 +33,14 @@ import {PieDemo} from './Pie';
 import {PolygonDemo} from './Polygon';
 import {RectDemo} from './Rect';
 import {RippleDocsDemo} from './RippleDemo';
+import {RoughNotationAnimatedSeedDemo} from './RoughNotationAnimatedSeedDemo';
 import {RoughNotationBoxDemo} from './RoughNotationBoxDemo';
 import {RoughNotationBracketDemo} from './RoughNotationBracketDemo';
 import {RoughNotationCircleDemo} from './RoughNotationCircleDemo';
 import {RoughNotationCrossedOffDemo} from './RoughNotationCrossedOffDemo';
 import {RoughNotationHighlightDemo} from './RoughNotationHighlightDemo';
+import {RoughNotationPosterizedProgressDemo} from './RoughNotationPosterizedProgressDemo';
+import {RoughNotationPosterizedSeedDemo} from './RoughNotationPosterizedSeedDemo';
 import {RoughNotationStrikeThroughDemo} from './RoughNotationStrikeThroughDemo';
 import {RoughNotationUnderlineDemo} from './RoughNotationUnderlineDemo';
 import {RoundedTextBox} from './RoundedTextBox';
@@ -1490,6 +1493,45 @@ export const roughNotationCircleDemo: DemoType = {
 	durationInFrames: 90,
 	fps: 30,
 	id: 'rough-notation-circle',
+	autoPlay: true,
+	controls: true,
+	logLevel: 'info',
+	options: [],
+};
+
+export const roughNotationAnimatedSeedDemo: DemoType = {
+	comp: RoughNotationAnimatedSeedDemo,
+	compHeight: 500,
+	compWidth: 1080,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'rough-notation-animated-seed',
+	autoPlay: true,
+	controls: true,
+	logLevel: 'info',
+	options: [],
+};
+
+export const roughNotationPosterizedSeedDemo: DemoType = {
+	comp: RoughNotationPosterizedSeedDemo,
+	compHeight: 500,
+	compWidth: 1080,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'rough-notation-posterized-seed',
+	autoPlay: true,
+	controls: true,
+	logLevel: 'info',
+	options: [],
+};
+
+export const roughNotationPosterizedProgressDemo: DemoType = {
+	comp: RoughNotationPosterizedProgressDemo,
+	compHeight: 500,
+	compWidth: 1080,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'rough-notation-posterized-progress',
 	autoPlay: true,
 	controls: true,
 	logLevel: 'info',

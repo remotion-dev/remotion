@@ -36,7 +36,7 @@ export const RoughNotationStrikeThroughDemo: React.FC = () => {
 				<Interactive.Span>The </Interactive.Span>
 				<AnnotationOnTop
 					name="Strike-through annotation"
-					progress={interpolate(frame, [0, 60], [0, 1], {
+					progress={interpolate(frame, [10, 25], [0, 1], {
 						extrapolateLeft: 'clamp',
 						extrapolateRight: 'clamp',
 					})}

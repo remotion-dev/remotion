@@ -7,14 +7,11 @@ crumb: 'Designing visuals'
 
 # Text highlights
 
-Highlighting text can guide attention without changing the layout of the sentence.
-Animate the annotation separately from the text so the reader can first parse the words, then notice the emphasis.
-
-The examples below match the rough notation compositions in `packages/example/src/RoughNotation`.
+We recommend [`@remotion/rough-notation`](/docs/rough-notation) to annotate text to add marker highlights, encircle words, box or strike through parts.
 
 ## Highlight
 
-Use [`<AnnotationBehind>`](/docs/rough-notation/annotation-behind) from [`@remotion/rough-notation`](/docs/rough-notation/api) for a hand-drawn highlight behind text.
+Use [`<AnnotationBehind type="highlight">`](/docs/rough-notation/annotation-behind) from [`@remotion/rough-notation`](/docs/rough-notation/api) for a hand-drawn highlight behind text.
 
 <Demo type="rough-notation-highlight" />
 
@@ -144,12 +141,12 @@ export const RoughNotationUnderline: React.FC = () => {
         <Interactive.Span>Underline </Interactive.Span>
         <AnnotationOnTop
           name="Underline annotation"
-          progress={interpolate(frame, [0, 60], [0, 1], {
+          progress={interpolate(frame, [14, 35], [0, 1], {
             extrapolateLeft: 'clamp',
             extrapolateRight: 'clamp',
           })}
           type="underline"
-          color="#355f8f"
+          color={'rgba(53, 95, 143, 0.71)'}
           strokeWidth={10}
           iterations={3}
         >
@@ -212,7 +209,7 @@ export const RoughNotationStrikeThrough: React.FC = () => {
         <Interactive.Span>The </Interactive.Span>
         <AnnotationOnTop
           name="Strike-through annotation"
-          progress={interpolate(frame, [0, 60], [0, 1], {
+          progress={interpolate(frame, [10, 25], [0, 1], {
             extrapolateLeft: 'clamp',
             extrapolateRight: 'clamp',
           })}
@@ -279,7 +276,7 @@ export const RoughNotationCrossedOff: React.FC = () => {
         <Interactive.Span>Please </Interactive.Span>
         <AnnotationOnTop
           name="Crossed off annotation"
-          progress={interpolate(frame, [0, 21], [0, 1], {
+          progress={interpolate(frame, [18, 39], [0, 1], {
             extrapolateLeft: 'clamp',
             extrapolateRight: 'clamp',
           })}
@@ -354,7 +351,7 @@ export const RoughNotationBox: React.FC = () => {
             extrapolateRight: 'clamp',
           })}
           type="box"
-          color={'#3fff00'}
+          color={'#fe0000'}
           strokeWidth={8}
           iterations={1}
           padding={{
@@ -364,11 +361,6 @@ export const RoughNotationBox: React.FC = () => {
             bottom: -5,
           }}
           roughness={0.9}
-          seed={interpolate(frame, [0, 89], [1, 10], {
-            extrapolateLeft: 'clamp',
-            extrapolateRight: 'clamp',
-            posterize: 10,
-          })}
         >
           box
         </AnnotationOnTop>
@@ -509,7 +501,6 @@ export const RoughNotationCircle: React.FC = () => {
             extrapolateLeft: 'clamp',
             extrapolateRight: 'clamp',
             easing: [Easing.bezier(0.42, 0, 0.58, 1)],
-            posterize: 2,
           })}
           type="circle"
           roughness={0.6}
@@ -526,6 +517,211 @@ export const RoughNotationCircle: React.FC = () => {
           circular
         </AnnotationOnTop>{' '}
         <Interactive.Span>financing is in AI?</Interactive.Span>
+      </Interactive.Div>
+    </AbsoluteFill>
+  );
+};
+```
+
+</details>
+
+## Animating the seed
+
+Animate [`seed`](/docs/rough-notation/annotation-behind#seed) to redraw an annotation on every frame.
+
+<Demo type="rough-notation-animated-seed" />
+
+<details>
+<summary>Show code</summary>
+
+```tsx twoslash title="RoughNotationAnimatedSeed.tsx"
+import {loadFont} from '@remotion/google-fonts/CormorantGaramond';
+import {AnnotationOnTop} from '@remotion/rough-notation';
+import React from 'react';
+import {
+  AbsoluteFill,
+  Interactive,
+  interpolate,
+  useCurrentFrame,
+} from 'remotion';
+
+const {fontFamily} = loadFont('normal', {
+  weights: ['700'],
+  subsets: ['latin'],
+});
+
+const containerStyle: React.CSSProperties = {
+  justifyContent: 'center',
+  alignItems: 'center',
+};
+
+export const RoughNotationAnimatedSeed: React.FC = () => {
+  const frame = useCurrentFrame();
+
+  return (
+    <AbsoluteFill style={containerStyle}>
+      <Interactive.Div
+        style={{
+          fontSize: 80,
+          fontWeight: 700,
+          lineHeight: 1.1,
+          color: '#171717',
+          fontFamily,
+          width: 800,
+          textAlign: 'center',
+        }}
+      >
+        <AnnotationOnTop
+          name="Animated seed annotation"
+          progress={1}
+          type="circle"
+          color={'#2563eb'}
+          strokeWidth={10}
+          roughness={1.8}
+          seed={interpolate(frame, [0, 89], [1, 90], {
+            extrapolateLeft: 'clamp',
+            extrapolateRight: 'clamp',
+          })}
+        >
+          motion
+        </AnnotationOnTop>
+      </Interactive.Div>
+    </AbsoluteFill>
+  );
+};
+```
+
+</details>
+
+### Posterized seed
+
+Add [`posterize`](/docs/interpolate#posterize) to [`interpolate`](/docs/interpolate) to lower the frame rate of the seed change.
+
+<Demo type="rough-notation-posterized-seed" />
+
+<details>
+<summary>Show code</summary>
+
+```tsx twoslash title="RoughNotationPosterizedSeed.tsx"
+import {loadFont} from '@remotion/google-fonts/CormorantGaramond';
+import {AnnotationOnTop} from '@remotion/rough-notation';
+import React from 'react';
+import {
+  AbsoluteFill,
+  Interactive,
+  interpolate,
+  useCurrentFrame,
+} from 'remotion';
+
+const {fontFamily} = loadFont('normal', {
+  weights: ['700'],
+  subsets: ['latin'],
+});
+
+const containerStyle: React.CSSProperties = {
+  justifyContent: 'center',
+  alignItems: 'center',
+};
+
+export const RoughNotationPosterizedSeed: React.FC = () => {
+  const frame = useCurrentFrame();
+
+  return (
+    <AbsoluteFill style={containerStyle}>
+      <Interactive.Div
+        style={{
+          fontSize: 80,
+          fontWeight: 700,
+          lineHeight: 1.1,
+          color: '#171717',
+          fontFamily,
+          width: 800,
+          textAlign: 'center',
+        }}
+      >
+        <AnnotationOnTop
+          name="Posterized seed annotation"
+          progress={1}
+          type="circle"
+          color={'#2563eb'}
+          strokeWidth={10}
+          roughness={1.8}
+          seed={interpolate(frame, [0, 89], [1, 90], {
+            extrapolateLeft: 'clamp',
+            extrapolateRight: 'clamp',
+            posterize: 10,
+          })}
+        >
+          motion
+        </AnnotationOnTop>
+      </Interactive.Div>
+    </AbsoluteFill>
+  );
+};
+```
+
+</details>
+
+## Posterizing the progress
+
+Apply [`posterize`](/docs/interpolate#posterize) to `progress` to make the circle draw in discrete steps.
+
+<Demo type="rough-notation-posterized-progress" />
+
+<details>
+<summary>Show code</summary>
+
+```tsx twoslash title="RoughNotationPosterizedProgress.tsx"
+import {loadFont} from '@remotion/google-fonts/CormorantGaramond';
+import {AnnotationOnTop} from '@remotion/rough-notation';
+import React from 'react';
+import {
+  AbsoluteFill,
+  Interactive,
+  interpolate,
+  useCurrentFrame,
+} from 'remotion';
+
+const {fontFamily} = loadFont('normal', {
+  weights: ['700'],
+  subsets: ['latin'],
+});
+
+const containerStyle: React.CSSProperties = {
+  justifyContent: 'center',
+  alignItems: 'center',
+};
+
+export const RoughNotationPosterizedProgress: React.FC = () => {
+  const frame = useCurrentFrame();
+
+  return (
+    <AbsoluteFill style={containerStyle}>
+      <Interactive.Div
+        style={{
+          fontSize: 80,
+          fontWeight: 700,
+          lineHeight: 1.1,
+          color: '#171717',
+          fontFamily,
+          width: 800,
+          textAlign: 'center',
+        }}
+      >
+        <AnnotationOnTop
+          name="Posterized progress annotation"
+          progress={interpolate(frame, [0, 43], [0, 1], {
+            extrapolateLeft: 'clamp',
+            extrapolateRight: 'clamp',
+            posterize: 10,
+          })}
+          type="circle"
+          color={'#2563eb'}
+          strokeWidth={10}
+          roughness={1.8}
+        >
+          motion
+        </AnnotationOnTop>
       </Interactive.Div>
     </AbsoluteFill>
   );
