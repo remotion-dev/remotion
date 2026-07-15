@@ -23,10 +23,10 @@ import * as recast from 'recast';
 import type {
 	CanUpdateSequencePropStatus,
 	ExtrapolateType,
-	InterpolateOutputOption,
-	InteractivitySchemaField,
-	SequenceNodePath,
 	InteractivitySchema,
+	InteractivitySchemaField,
+	InterpolateOutputOption,
+	SequenceNodePath,
 } from 'remotion';
 import {getAstNodePath} from '../../helpers/get-ast-node-path';
 import {parseKeyframeEasingExpression} from '../../helpers/parse-keyframe-easing-expression';
@@ -158,7 +158,7 @@ export type KeyframeOperation =
 				  }
 				| undefined;
 			posterize: number | undefined;
-			output?: InterpolateOutputOption;
+			output: InterpolateOutputOption | undefined;
 	  }
 	| {
 			type: 'easing';

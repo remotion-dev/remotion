@@ -82,6 +82,7 @@ test('timeline keyframe controls visibility follows property selection or keyfra
 		easing: [],
 		clamping: {left: 'extend', right: 'extend'},
 		posterize: undefined,
+		output: undefined,
 	};
 
 	expect(
@@ -126,6 +127,7 @@ test('keyframe navigation visibility follows property selection or keyframed sta
 		easing: [],
 		clamping: {left: 'extend', right: 'extend'},
 		posterize: undefined,
+		output: undefined,
 	};
 
 	expect(

@@ -4,8 +4,8 @@ import {
 	resolveDragOverrideValue,
 } from './get-effective-visual-mode-value.js';
 import type {
-	InteractivitySchemaField,
 	InteractivitySchema,
+	InteractivitySchemaField,
 } from './interactivity-schema.js';
 import {interpolateKeyframedStatus} from './interpolate-keyframed-status.js';
 import type {ExtrapolateType, InterpolateOutputOption} from './interpolate.js';
@@ -94,7 +94,7 @@ export type CanUpdateSequencePropStatusKeyframed = {
 	easing: CanUpdateSequencePropStatusEasing[];
 	clamping: CanUpdateSequencePropStatusClamping;
 	posterize: number | undefined;
-	output?: InterpolateOutputOption;
+	output: InterpolateOutputOption | undefined;
 };
 
 export type CanUpdateSequencePropStatusFalse =

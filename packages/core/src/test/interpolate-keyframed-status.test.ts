@@ -16,6 +16,7 @@ test('interpolates linear numeric keyframes', () => {
 			easing: [{type: 'linear'}],
 			clamping: {left: 'extend', right: 'extend'},
 			posterize: undefined,
+			output: undefined,
 		},
 	});
 	expect(result).toBe(50);
@@ -34,8 +35,8 @@ test('interpolates numeric keyframes with perceptual-scale output', () => {
 			],
 			easing: [{type: 'linear'}],
 			clamping: {left: 'extend', right: 'extend'},
-			output: 'perceptual-scale',
 			posterize: undefined,
+			output: 'perceptual-scale',
 		},
 	});
 	expect(result).toBeCloseTo(Math.SQRT1_2);
@@ -55,6 +56,7 @@ test('interpolates linear tuple keyframes', () => {
 			easing: [{type: 'linear'}],
 			clamping: {left: 'extend', right: 'extend'},
 			posterize: undefined,
+			output: undefined,
 		},
 	});
 	expect(result).toEqual([0.5, 0.5]);
@@ -75,6 +77,7 @@ test('sorts keyframes before interpolating numeric values', () => {
 			easing: [{type: 'linear'}, {type: 'linear'}],
 			clamping: {left: 'extend', right: 'extend'},
 			posterize: undefined,
+			output: undefined,
 		},
 	});
 	expect(result).toBe(75);
@@ -94,6 +97,7 @@ test('clamps when extrapolation is clamp', () => {
 			easing: [{type: 'linear'}],
 			clamping: {left: 'clamp', right: 'clamp'},
 			posterize: undefined,
+			output: undefined,
 		},
 	});
 	expect(result).toBe(100);
@@ -113,6 +117,7 @@ test('posterizes the frame before interpolating numeric keyframes', () => {
 			easing: [{type: 'linear'}],
 			clamping: {left: 'extend', right: 'extend'},
 			posterize: 3,
+			output: undefined,
 		},
 	});
 	expect(result).toBe(25);
@@ -129,6 +134,7 @@ test('returns single keyframe value', () => {
 			easing: [],
 			clamping: {left: 'extend', right: 'extend'},
 			posterize: undefined,
+			output: undefined,
 		},
 	});
 	expect(result).toBe(7);
@@ -148,6 +154,7 @@ test('interpolates colors', () => {
 			easing: [{type: 'linear'}],
 			clamping: {left: 'clamp', right: 'clamp'},
 			posterize: undefined,
+			output: undefined,
 		},
 	});
 	expect(typeof result).toBe('string');
@@ -168,6 +175,7 @@ test('interpolates color keyframes with easing', () => {
 			easing: [{type: 'bezier', x1: 0.42, y1: 0, x2: 1, y2: 1}],
 			clamping: {left: 'clamp', right: 'clamp'},
 			posterize: undefined,
+			output: undefined,
 		},
 	});
 	expect(result).toBe('rgba(80, 80, 80, 1)');
@@ -187,6 +195,7 @@ test('posterizes the frame before interpolating color keyframes', () => {
 			easing: [{type: 'linear'}],
 			clamping: {left: 'clamp', right: 'clamp'},
 			posterize: 3,
+			output: undefined,
 		},
 	});
 	expect(result).toBe('rgba(64, 64, 64, 1)');
@@ -206,6 +215,7 @@ test('interpolates translate keyframes', () => {
 			easing: [{type: 'linear'}],
 			clamping: {left: 'extend', right: 'extend'},
 			posterize: undefined,
+			output: undefined,
 		},
 	});
 	expect(result).toBe('60px 30px');
@@ -247,6 +257,7 @@ test('can force spring allowTail off for timeline value previews', () => {
 		],
 		clamping: {left: 'clamp', right: 'extend'},
 		posterize: undefined,
+		output: undefined,
 	};
 
 	const preserved = interpolateKeyframedStatus({
@@ -287,6 +298,7 @@ test('interpolates rotate keyframes', () => {
 			easing: [{type: 'linear'}],
 			clamping: {left: 'extend', right: 'extend'},
 			posterize: undefined,
+			output: undefined,
 		},
 	});
 	expect(result).toBe('60deg');
@@ -306,6 +318,7 @@ test('uses bezier easing', () => {
 			easing: [{type: 'bezier', x1: 0.42, y1: 0, x2: 0.58, y2: 1}],
 			clamping: {left: 'extend', right: 'extend'},
 			posterize: undefined,
+			output: undefined,
 		},
 	});
 	expect(result).toBeGreaterThan(0);
@@ -326,6 +339,7 @@ test('interpolates scale strings component-wise', () => {
 			easing: [{type: 'linear'}],
 			clamping: {left: 'extend', right: 'extend'},
 			posterize: undefined,
+			output: undefined,
 		},
 	});
 	expect(result).toBe('3 5 2');

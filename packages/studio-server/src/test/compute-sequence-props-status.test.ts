@@ -93,6 +93,7 @@ export const Example: React.FC = () => {
 		easing: [{type: 'linear'}],
 		clamping: {left: 'clamp', right: 'clamp'},
 		posterize: undefined,
+		output: undefined,
 	});
 });
 
@@ -181,6 +182,7 @@ export const Example: React.FC = () => {
 		easing: [{type: 'bezier', x1: 0.42, y1: 0, x2: 1, y2: 1}, {type: 'linear'}],
 		clamping: {left: 'clamp', right: 'clamp'},
 		posterize: 2,
+		output: undefined,
 	});
 });
 
@@ -226,6 +228,7 @@ export const Example: React.FC = () => {
 		],
 		clamping: {left: 'extend', right: 'extend'},
 		posterize: undefined,
+		output: undefined,
 	});
 });
 
@@ -261,6 +264,7 @@ export const Example: React.FC = () => {
 		easing: [{type: 'linear'}],
 		clamping: {left: 'extend', right: 'extend'},
 		posterize: undefined,
+		output: undefined,
 	});
 });
 
@@ -307,6 +311,7 @@ export const Example: React.FC = () => {
 		],
 		clamping: {left: 'clamp', right: 'clamp'},
 		posterize: undefined,
+		output: undefined,
 	});
 });
 
@@ -370,6 +375,7 @@ export const Example: React.FC = () => {
 		easing: [{type: 'linear'}],
 		clamping: {left: 'extend', right: 'extend'},
 		posterize: undefined,
+		output: undefined,
 	});
 });
 
@@ -525,6 +531,7 @@ test('computeSequencePropsStatus should return keyframes for interpolated style 
 		easing: [{type: 'linear'}],
 		clamping: {left: 'extend', right: 'extend'},
 		posterize: undefined,
+		output: undefined,
 	});
 });
 
@@ -579,6 +586,7 @@ export const Example: React.FC = () => {
 		],
 		clamping: {left: 'clamp', right: 'clamp'},
 		posterize: undefined,
+		output: undefined,
 	});
 });
 
@@ -626,6 +634,7 @@ export const Example: React.FC = () => {
 			right: 'identity',
 		},
 		posterize: undefined,
+		output: undefined,
 	});
 });
 
@@ -662,6 +671,7 @@ export const Example: React.FC = () => {
 		easing: [{type: 'linear'}],
 		clamping: {left: 'extend', right: 'extend'},
 		posterize: 3,
+		output: undefined,
 	});
 });
 
@@ -735,6 +745,7 @@ export const Example: React.FC = () => {
 		easing: [{type: 'linear'}],
 		clamping: {left: 'clamp', right: 'clamp'},
 		posterize: 3,
+		output: undefined,
 	});
 });
 
@@ -859,6 +870,7 @@ export const Example: React.FC = () => {
 		easing: [{type: 'bezier', x1: 1 / 3, y1: 0, x2: 2 / 3, y2: 0}],
 		clamping: {left: 'extend', right: 'extend'},
 		posterize: undefined,
+		output: undefined,
 	});
 });
 

@@ -109,7 +109,7 @@ const scale = interpolate(frame, [0, 20], [0, 1], {
 });
 ```
 
-## Example: Scaling feels nonlinear? Use perceptual scale output<AvailableFrom v="4.0.488" />
+## Example: Scaling feels nonlinear? Use perceptual scale output<AvailableFrom v="4.0.490" />
 
 For `scale` values, additive interpolation changes the CSS number linearly, but the visible area changes with `scale ** 2`.
 Use `output: 'perceptual-scale'` to make the signed visual area change linearly after easing.
@@ -272,7 +272,7 @@ interpolate(frame, [0, 100, 200], [0, 1, 2], {
 });
 ```
 
-### output?<AvailableFrom v="4.0.488" />
+### output?<AvailableFrom v="4.0.490" />
 
 _Default_: `linear`
 

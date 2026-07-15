@@ -647,9 +647,7 @@ export const getComputedStatus = (
 		easing: interpolation.easing,
 		clamping: interpolation.clamping,
 		posterize: interpolation.posterize,
-		...(interpolation.output === undefined
-			? {}
-			: {output: interpolation.output}),
+		output: interpolation.output,
 	};
 };
 

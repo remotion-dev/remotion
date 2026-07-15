@@ -305,6 +305,7 @@ export const Example: React.FC = () => {
 					type: 'settings',
 					clamping: {left: 'extend', right: 'wrap'},
 					posterize: undefined,
+					output: undefined,
 				},
 			},
 		],
@@ -338,8 +339,8 @@ export const Example: React.FC = () => {
 				operation: {
 					type: 'settings',
 					clamping: {left: 'extend', right: 'extend'},
-					output: 'perceptual-scale',
 					posterize: undefined,
+					output: 'perceptual-scale',
 				},
 			},
 		],
@@ -370,8 +371,8 @@ export const Example: React.FC = () => {
 				operation: {
 					type: 'settings',
 					clamping: {left: 'extend', right: 'extend'},
-					output: 'linear',
 					posterize: undefined,
+					output: 'linear',
 				},
 			},
 		],
@@ -593,6 +594,7 @@ test('updateSequenceKeyframes only updates posterize for color keyframes', async
 					type: 'settings',
 					clamping: {left: 'extend', right: 'wrap'},
 					posterize: 3,
+					output: undefined,
 				},
 			},
 		],
@@ -899,6 +901,7 @@ export const Example: React.FC = () => {
 		easing: [],
 		clamping: {left: 'clamp', right: 'clamp'},
 		posterize: undefined,
+		output: undefined,
 	});
 });
 
@@ -1043,6 +1046,7 @@ export default CenteredSolid;
 		easing: [],
 		clamping: {left: 'clamp', right: 'clamp'},
 		posterize: undefined,
+		output: undefined,
 	});
 });
 
