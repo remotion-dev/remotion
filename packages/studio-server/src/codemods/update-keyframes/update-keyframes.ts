@@ -340,14 +340,25 @@ const createFrameExpression = (frame: number): ExpressionKind => {
 	return parseValueExpression(frame);
 };
 
-const createClampOptionsExpression = (): ExpressionKind => {
-	return b.objectExpression([
+const createClampOptionsExpression = ({key}: {key: string}): ExpressionKind => {
+	const properties = [
 		b.objectProperty(b.identifier('extrapolateLeft'), b.stringLiteral('clamp')),
 		b.objectProperty(
 			b.identifier('extrapolateRight'),
 			b.stringLiteral('clamp'),
 		),
-	]) as ExpressionKind;
+	];
+
+	if (key === 'style.scale') {
+		properties.push(
+			b.objectProperty(
+				b.identifier('output'),
+				b.stringLiteral('perceptual-scale'),
+			),
+		);
+	}
+
+	return b.objectExpression(properties) as ExpressionKind;
 };
 
 const createEmptyOptionsExpression = (): ObjectExpression =>
@@ -1083,7 +1094,7 @@ const addKeyframe = ({
 	const extraArgs =
 		callee.type === 'Identifier' && callee.name === 'interpolateColors'
 			? []
-			: [createClampOptionsExpression()];
+			: [createClampOptionsExpression({key})];
 
 	return {
 		expression: createInterpolateExpression({

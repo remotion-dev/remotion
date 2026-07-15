@@ -756,6 +756,7 @@ test('updateSequenceKeyframes converts a static value to a single-keyframe inter
 	expect(output).toContain('opacity: interpolate(frame, [0], [0.75], {');
 	expect(output).toContain("extrapolateLeft: 'clamp'");
 	expect(output).toContain("extrapolateRight: 'clamp'");
+	expect(output).not.toContain('perceptual-scale');
 });
 
 test('updateSequenceKeyframes adds a missing nested prop before keyframing it', async () => {
@@ -787,6 +788,7 @@ export const Example: React.FC = () => {
 	expect(output).toContain('scale: interpolate(frame, [30], [2], {');
 	expect(output).toContain("extrapolateLeft: 'clamp'");
 	expect(output).toContain("extrapolateRight: 'clamp'");
+	expect(output).toContain("output: 'perceptual-scale'");
 });
 
 test('updateSequenceKeyframes adds a keyframe to an existing color interpolation', async () => {
