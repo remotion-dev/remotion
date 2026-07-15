@@ -16,7 +16,13 @@ crumb: 'Designing visuals'
   style={{width: '100%', borderRadius: 'var(--ifm-global-radius)', marginBottom: 0, aspectRatio: '3 / 1'}}
 />
 
-<SuggestedPrompts prompts={['use remotion html-in-canvas best practices. create a sample composition and apply a glitch effect to it!', 'use remotion html-in-canvas best practices. make a new composition and implement a subtle CRT convex shape shader on top of a HTML element. content: terminal and remotion themed. the command and output of "npx create-video@latest --yes --blank my-video" should be animated. then "claude" should be invoked and the prompt "Add a CRT effect using HTML-in-canvas " should be shown']} />
+<SuggestedPrompt prompt="/remotion-markup Create a sample composition and apply an HTML-in-canvas glitch effect to it." />
+
+<SuggestedPrompt
+  prompt={
+    '/remotion-markup Make a new composition with a subtle CRT convex-shape shader over an HTML element. Use a terminal and Remotion theme. Animate the command and output of "npx create-video@latest --yes --blank my-video", followed by invoking "claude" and entering the prompt "Add a CRT effect using HTML-in-canvas".'
+  }
+/>
 
 Regular video editors are canvas-based which allows for complex effects and compositing that is not possible with plain CSS.
 
