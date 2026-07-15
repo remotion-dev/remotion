@@ -724,22 +724,21 @@ export const TimelineSequenceItem: React.FC<{
 		codeHiddenStatus !== null &&
 		codeHiddenStatus.status === 'static';
 
-	const onSequenceDoubleClick = useCallback(
+	const onShowInEditorDoubleClick = useCallback(
 		(e: React.MouseEvent<HTMLDivElement>) => {
+			if (!canOpenInEditor) {
+				return;
+			}
+
 			if (isTimelineSelectionModifierEvent(e)) {
 				e.stopPropagation();
 				return;
 			}
 
 			e.stopPropagation();
-			if (canRenameThisSequence) {
-				setIsRenaming(true);
-				return;
-			}
-
 			openInEditor();
 		},
-		[canRenameThisSequence, openInEditor],
+		[canOpenInEditor, openInEditor],
 	);
 
 	const canRenameSelectedSequence =
@@ -1053,11 +1052,7 @@ export const TimelineSequenceItem: React.FC<{
 			onDragLeave={canDropEffect ? onEffectDragLeave : undefined}
 			onDragOver={canDropEffect ? onEffectDragOver : undefined}
 			onDrop={canDropEffect ? onEffectDrop : undefined}
-			onDoubleClick={
-				canRenameThisSequence || canOpenInEditor
-					? onSequenceDoubleClick
-					: undefined
-			}
+			onDoubleClick={canOpenInEditor ? onShowInEditorDoubleClick : undefined}
 		>
 			<div style={labelContainerStyle}>
 				<TimelineSequenceName
