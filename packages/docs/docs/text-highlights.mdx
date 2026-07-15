@@ -1,0 +1,735 @@
+---
+image: /generated/articles-docs-text-highlights.png
+id: text-highlights
+title: Text highlights
+crumb: 'Designing visuals'
+---
+
+# Text highlights
+
+We recommend [`@remotion/rough-notation`](/docs/rough-notation/api) to annotate text to add marker highlights, encircle words, box or strike through parts.
+
+## Highlight
+
+Use [`<Highlight>`](/docs/rough-notation/highlight) from [`@remotion/rough-notation`](/docs/rough-notation/api) for a hand-drawn highlight behind text.
+
+<Demo type="rough-notation-highlight" />
+
+<details>
+<summary>Show code</summary>
+
+```tsx twoslash title="RoughNotationHighlight.tsx"
+import {loadFont} from '@remotion/google-fonts/CormorantGaramond';
+import {Highlight} from '@remotion/rough-notation';
+import React from 'react';
+import {
+  AbsoluteFill,
+  Easing,
+  Interactive,
+  interpolate,
+  useCurrentFrame,
+} from 'remotion';
+
+const {fontFamily} = loadFont('normal', {
+  weights: ['700'],
+  subsets: ['latin'],
+});
+
+const containerStyle: React.CSSProperties = {
+  justifyContent: 'center',
+  alignItems: 'center',
+};
+
+export const RoughNotationHighlight: React.FC = () => {
+  const frame = useCurrentFrame();
+
+  return (
+    <AbsoluteFill style={containerStyle}>
+      <Interactive.Div
+        style={{
+          fontSize: 80,
+          fontWeight: 700,
+          lineHeight: 1.1,
+          color: '#171717',
+          fontFamily,
+          width: 800,
+        }}
+      >
+        <Interactive.Span>A truly </Interactive.Span>
+        <Highlight
+          name="Highlight annotation"
+          progress={interpolate(frame, [0, 25], [0, 1], {
+            extrapolateLeft: 'clamp',
+            extrapolateRight: 'clamp',
+            easing: [
+              Easing.spring({
+                damping: 200,
+                mass: 1,
+                stiffness: 100,
+                allowTail: true,
+                durationRestThreshold: 0.02,
+                overshootClamping: false,
+              }),
+            ],
+          })}
+          color={'rgba(255, 236, 79, 0.62)'}
+          maxRandomnessOffset={10}
+          roughness={2.3}
+          padding={{
+            left: 20,
+            right: 20,
+          }}
+          bowing={0}
+        >
+          remarkable
+        </Highlight>{' '}
+        <Interactive.Span>end to the World cup</Interactive.Span>
+      </Interactive.Div>
+    </AbsoluteFill>
+  );
+};
+```
+
+</details>
+
+## Underline
+
+Use [`<Underline>`](/docs/rough-notation/underline) to add a drawn underline.
+
+<Demo type="rough-notation-underline" />
+
+<details>
+<summary>Show code</summary>
+
+```tsx twoslash title="RoughNotationUnderline.tsx"
+import {loadFont} from '@remotion/google-fonts/CormorantGaramond';
+import {Underline} from '@remotion/rough-notation';
+import React from 'react';
+import {
+  AbsoluteFill,
+  Interactive,
+  interpolate,
+  useCurrentFrame,
+} from 'remotion';
+
+const {fontFamily} = loadFont('normal', {
+  weights: ['700'],
+  subsets: ['latin'],
+});
+
+const containerStyle: React.CSSProperties = {
+  justifyContent: 'center',
+  alignItems: 'center',
+};
+
+export const RoughNotationUnderline: React.FC = () => {
+  const frame = useCurrentFrame();
+
+  return (
+    <AbsoluteFill style={containerStyle}>
+      <Interactive.Div
+        style={{
+          fontSize: 80,
+          fontWeight: 700,
+          lineHeight: 1.1,
+          color: '#171717',
+          fontFamily,
+          width: 800,
+        }}
+      >
+        <Interactive.Span>Underline </Interactive.Span>
+        <Underline
+          name="Underline annotation"
+          progress={interpolate(frame, [14, 35], [0, 1], {
+            extrapolateLeft: 'clamp',
+            extrapolateRight: 'clamp',
+          })}
+          color={'rgba(53, 95, 143, 0.71)'}
+          strokeWidth={10}
+          iterations={3}
+        >
+          this
+        </Underline>{' '}
+        <Interactive.Span>phrase</Interactive.Span>
+      </Interactive.Div>
+    </AbsoluteFill>
+  );
+};
+```
+
+</details>
+
+## Strike-through
+
+Use [`<StrikeThrough>`](/docs/rough-notation/strike-through) to cross out a word with a single line.
+
+<Demo type="rough-notation-strike-through" />
+
+<details>
+<summary>Show code</summary>
+
+```tsx twoslash title="RoughNotationStrikeThrough.tsx"
+import {loadFont} from '@remotion/google-fonts/CormorantGaramond';
+import {StrikeThrough} from '@remotion/rough-notation';
+import React from 'react';
+import {
+  AbsoluteFill,
+  Interactive,
+  interpolate,
+  useCurrentFrame,
+} from 'remotion';
+
+const {fontFamily} = loadFont('normal', {
+  weights: ['700'],
+  subsets: ['latin'],
+});
+
+const containerStyle: React.CSSProperties = {
+  justifyContent: 'center',
+  alignItems: 'center',
+};
+
+export const RoughNotationStrikeThrough: React.FC = () => {
+  const frame = useCurrentFrame();
+
+  return (
+    <AbsoluteFill style={containerStyle}>
+      <Interactive.Div
+        style={{
+          fontSize: 80,
+          fontWeight: 700,
+          lineHeight: 1.1,
+          color: '#171717',
+          fontFamily,
+          width: 800,
+        }}
+      >
+        <Interactive.Span>The </Interactive.Span>
+        <StrikeThrough
+          name="Strike-through annotation"
+          progress={interpolate(frame, [10, 25], [0, 1], {
+            extrapolateLeft: 'clamp',
+            extrapolateRight: 'clamp',
+          })}
+          color={'#f11515'}
+          strokeWidth={14}
+        >
+          forbidden
+        </StrikeThrough>{' '}
+        <Interactive.Span>fruit</Interactive.Span>
+      </Interactive.Div>
+    </AbsoluteFill>
+  );
+};
+```
+
+</details>
+
+## Crossed-off
+
+Use [`<CrossedOff>`](/docs/rough-notation/crossed-off) for a stronger removal mark.
+
+<Demo type="rough-notation-crossed-off" />
+
+<details>
+<summary>Show code</summary>
+
+```tsx twoslash title="RoughNotationCrossedOff.tsx"
+import {loadFont} from '@remotion/google-fonts/CormorantGaramond';
+import {CrossedOff} from '@remotion/rough-notation';
+import React from 'react';
+import {
+  AbsoluteFill,
+  Interactive,
+  interpolate,
+  useCurrentFrame,
+} from 'remotion';
+
+const {fontFamily} = loadFont('normal', {
+  weights: ['700'],
+  subsets: ['latin'],
+});
+
+const containerStyle: React.CSSProperties = {
+  justifyContent: 'center',
+  alignItems: 'center',
+};
+
+export const RoughNotationCrossedOff: React.FC = () => {
+  const frame = useCurrentFrame();
+
+  return (
+    <AbsoluteFill style={containerStyle}>
+      <Interactive.Div
+        style={{
+          fontSize: 80,
+          fontWeight: 700,
+          lineHeight: 1.1,
+          color: '#171717',
+          fontFamily,
+          width: 800,
+        }}
+      >
+        <Interactive.Span>Please </Interactive.Span>
+        <CrossedOff
+          name="Crossed off annotation"
+          progress={interpolate(frame, [18, 39], [0, 1], {
+            extrapolateLeft: 'clamp',
+            extrapolateRight: 'clamp',
+          })}
+          color={'#eb2525'}
+          strokeWidth={6}
+          iterations={10}
+          roughness={2}
+        >
+          remove
+        </CrossedOff>{' '}
+        <Interactive.Span>this</Interactive.Span>
+      </Interactive.Div>
+    </AbsoluteFill>
+  );
+};
+```
+
+</details>
+
+## Box
+
+Use [`<Box>`](/docs/rough-notation/box) to draw a rectangle around text.
+
+<Demo type="rough-notation-box" />
+
+<details>
+<summary>Show code</summary>
+
+```tsx twoslash title="RoughNotationBox.tsx"
+import {loadFont} from '@remotion/google-fonts/CormorantGaramond';
+import {Box} from '@remotion/rough-notation';
+import React from 'react';
+import {
+  AbsoluteFill,
+  Interactive,
+  interpolate,
+  useCurrentFrame,
+} from 'remotion';
+
+const {fontFamily} = loadFont('normal', {
+  weights: ['700'],
+  subsets: ['latin'],
+});
+
+const containerStyle: React.CSSProperties = {
+  justifyContent: 'center',
+  alignItems: 'center',
+};
+
+export const RoughNotationBox: React.FC = () => {
+  const frame = useCurrentFrame();
+
+  return (
+    <AbsoluteFill style={containerStyle}>
+      <Interactive.Div
+        style={{
+          fontSize: 80,
+          fontWeight: 700,
+          lineHeight: 1.1,
+          color: '#171717',
+          fontFamily,
+          width: 800,
+          textAlign: 'center',
+        }}
+      >
+        <Interactive.Span>Think outside the </Interactive.Span>
+        <Box
+          name="Box annotation"
+          progress={interpolate(frame, [0, 23], [0, 1], {
+            extrapolateLeft: 'clamp',
+            extrapolateRight: 'clamp',
+          })}
+          color={'#fe0000'}
+          strokeWidth={8}
+          iterations={1}
+          padding={{
+            left: 3,
+            right: 6,
+            top: -12,
+            bottom: -5,
+          }}
+          roughness={0.9}
+        >
+          box
+        </Box>
+      </Interactive.Div>
+    </AbsoluteFill>
+  );
+};
+```
+
+</details>
+
+## Bracket
+
+Use [`<Bracket>`](/docs/rough-notation/bracket) with individual bracket flags to draw selected sides.
+
+<Demo type="rough-notation-bracket" />
+
+<details>
+<summary>Show code</summary>
+
+```tsx twoslash title="RoughNotationBracket.tsx"
+import {loadFont} from '@remotion/google-fonts/CormorantGaramond';
+import {Bracket} from '@remotion/rough-notation';
+import React from 'react';
+import {
+  AbsoluteFill,
+  Interactive,
+  interpolate,
+  useCurrentFrame,
+} from 'remotion';
+
+const {fontFamily} = loadFont('normal', {
+  weights: ['700'],
+  subsets: ['latin'],
+});
+
+const containerStyle: React.CSSProperties = {
+  justifyContent: 'center',
+  alignItems: 'center',
+};
+
+export const RoughNotationBracket: React.FC = () => {
+  const frame = useCurrentFrame();
+
+  return (
+    <AbsoluteFill style={containerStyle}>
+      <Interactive.Div
+        style={{
+          fontSize: 80,
+          fontWeight: 700,
+          lineHeight: 1.1,
+          color: '#171717',
+          fontFamily,
+          width: 800,
+        }}
+      >
+        <Interactive.Span>Mark </Interactive.Span>
+        <Bracket
+          name="Bracket annotation"
+          progress={interpolate(frame, [0, 60], [0, 1], {
+            extrapolateLeft: 'clamp',
+            extrapolateRight: 'clamp',
+          })}
+          bracketLeft
+          bracketRight
+          bracketTop
+          roughness={1}
+          bowing={3}
+          strokeWidth={8}
+          color="#dc2626"
+          bracketBottom
+          padding={{
+            top: -11,
+          }}
+        >
+          this
+        </Bracket>{' '}
+        <Interactive.Span>part</Interactive.Span>
+      </Interactive.Div>
+    </AbsoluteFill>
+  );
+};
+```
+
+</details>
+
+## Circle marker
+
+Use [`<Circle>`](/docs/rough-notation/circle) when the annotation should sit above the text.
+
+<Demo type="rough-notation-circle" />
+
+<details>
+<summary>Show code</summary>
+
+```tsx twoslash title="RoughNotationCircle.tsx"
+import {loadFont} from '@remotion/google-fonts/CormorantGaramond';
+import {Circle} from '@remotion/rough-notation';
+import React from 'react';
+import {
+  AbsoluteFill,
+  Easing,
+  Interactive,
+  interpolate,
+  useCurrentFrame,
+} from 'remotion';
+
+const {fontFamily} = loadFont('normal', {
+  weights: ['700'],
+  subsets: ['latin'],
+});
+
+const containerStyle: React.CSSProperties = {
+  justifyContent: 'center',
+  alignItems: 'center',
+};
+
+export const RoughNotationCircle: React.FC = () => {
+  const frame = useCurrentFrame();
+
+  return (
+    <AbsoluteFill style={containerStyle}>
+      <Interactive.Div
+        style={{
+          fontSize: 80,
+          fontWeight: 700,
+          lineHeight: 1.1,
+          color: '#171717',
+          fontFamily,
+          width: 800,
+        }}
+      >
+        <Interactive.Span>How much </Interactive.Span>
+        <Circle
+          name="Circle annotation"
+          progress={interpolate(frame, [0, 43], [0, 1], {
+            extrapolateLeft: 'clamp',
+            extrapolateRight: 'clamp',
+            easing: [Easing.bezier(0.42, 0, 0.58, 1)],
+          })}
+          roughness={1.8}
+          strokeWidth={12}
+          color={'rgba(37, 99, 235, 0.57)'}
+          padding={{
+            left: 10,
+            right: 10,
+            top: 10,
+            bottom: 10,
+          }}
+          box={'inside'}
+        >
+          circular
+        </Circle>{' '}
+        <Interactive.Span>financing is in AI?</Interactive.Span>
+      </Interactive.Div>
+    </AbsoluteFill>
+  );
+};
+```
+
+</details>
+
+## Animating the seed
+
+Animate [`seed`](/docs/rough-notation/api#seed) to redraw an annotation on every frame.
+
+<Demo type="rough-notation-animated-seed" />
+
+<details>
+<summary>Show code</summary>
+
+```tsx twoslash title="RoughNotationAnimatedSeed.tsx"
+import {loadFont} from '@remotion/google-fonts/CormorantGaramond';
+import {Circle} from '@remotion/rough-notation';
+import React from 'react';
+import {
+  AbsoluteFill,
+  Interactive,
+  interpolate,
+  useCurrentFrame,
+} from 'remotion';
+
+const {fontFamily} = loadFont('normal', {
+  weights: ['700'],
+  subsets: ['latin'],
+});
+
+const containerStyle: React.CSSProperties = {
+  justifyContent: 'center',
+  alignItems: 'center',
+};
+
+export const RoughNotationAnimatedSeed: React.FC = () => {
+  const frame = useCurrentFrame();
+
+  return (
+    <AbsoluteFill style={containerStyle}>
+      <Interactive.Div
+        style={{
+          fontSize: 80,
+          fontWeight: 700,
+          lineHeight: 1.1,
+          color: '#171717',
+          fontFamily,
+          width: 800,
+          textAlign: 'center',
+        }}
+      >
+        <Circle
+          name="Animated seed annotation"
+          progress={1}
+          color={'#2563eb'}
+          strokeWidth={10}
+          roughness={1.8}
+          seed={interpolate(frame, [0, 89], [1, 90], {
+            extrapolateLeft: 'clamp',
+            extrapolateRight: 'clamp',
+          })}
+        >
+          motion
+        </Circle>
+      </Interactive.Div>
+    </AbsoluteFill>
+  );
+};
+```
+
+</details>
+
+### Posterized seed
+
+Add [`posterize`](/docs/interpolate#posterize) to [`interpolate`](/docs/interpolate) to lower the frame rate of the seed change.
+
+<Demo type="rough-notation-posterized-seed" />
+
+<details>
+<summary>Show code</summary>
+
+```tsx twoslash title="RoughNotationPosterizedSeed.tsx"
+import {loadFont} from '@remotion/google-fonts/CormorantGaramond';
+import {Circle} from '@remotion/rough-notation';
+import React from 'react';
+import {
+  AbsoluteFill,
+  Interactive,
+  interpolate,
+  useCurrentFrame,
+} from 'remotion';
+
+const {fontFamily} = loadFont('normal', {
+  weights: ['700'],
+  subsets: ['latin'],
+});
+
+const containerStyle: React.CSSProperties = {
+  justifyContent: 'center',
+  alignItems: 'center',
+};
+
+export const RoughNotationPosterizedSeed: React.FC = () => {
+  const frame = useCurrentFrame();
+
+  return (
+    <AbsoluteFill style={containerStyle}>
+      <Interactive.Div
+        style={{
+          fontSize: 80,
+          fontWeight: 700,
+          lineHeight: 1.1,
+          color: '#171717',
+          fontFamily,
+          width: 800,
+          textAlign: 'center',
+        }}
+      >
+        <Circle
+          name="Posterized seed annotation"
+          progress={1}
+          color={'#2563eb'}
+          strokeWidth={10}
+          roughness={1.8}
+          seed={interpolate(frame, [0, 89], [1, 90], {
+            extrapolateLeft: 'clamp',
+            extrapolateRight: 'clamp',
+            posterize: 10,
+          })}
+        >
+          motion
+        </Circle>
+      </Interactive.Div>
+    </AbsoluteFill>
+  );
+};
+```
+
+</details>
+
+## Posterizing the progress
+
+Apply [`posterize`](/docs/interpolate#posterize) to `progress` to make the circle draw in discrete steps.
+
+<Demo type="rough-notation-posterized-progress" />
+
+<details>
+<summary>Show code</summary>
+
+```tsx twoslash title="RoughNotationPosterizedProgress.tsx"
+import {loadFont} from '@remotion/google-fonts/CormorantGaramond';
+import {Circle} from '@remotion/rough-notation';
+import React from 'react';
+import {
+  AbsoluteFill,
+  Interactive,
+  interpolate,
+  useCurrentFrame,
+} from 'remotion';
+
+const {fontFamily} = loadFont('normal', {
+  weights: ['700'],
+  subsets: ['latin'],
+});
+
+const containerStyle: React.CSSProperties = {
+  justifyContent: 'center',
+  alignItems: 'center',
+};
+
+export const RoughNotationPosterizedProgress: React.FC = () => {
+  const frame = useCurrentFrame();
+
+  return (
+    <AbsoluteFill style={containerStyle}>
+      <Interactive.Div
+        style={{
+          fontSize: 80,
+          fontWeight: 700,
+          lineHeight: 1.1,
+          color: '#171717',
+          fontFamily,
+          width: 800,
+          textAlign: 'center',
+        }}
+      >
+        <Circle
+          name="Posterized progress annotation"
+          progress={interpolate(frame, [0, 43], [0, 1], {
+            extrapolateLeft: 'clamp',
+            extrapolateRight: 'clamp',
+            posterize: 10,
+          })}
+          color={'#2563eb'}
+          strokeWidth={10}
+          roughness={1.8}
+          iterations={1}
+        >
+          motion
+        </Circle>
+      </Interactive.Div>
+    </AbsoluteFill>
+  );
+};
+```
+
+</details>
+
+## See also
+
+- [`@remotion/rough-notation`](/docs/rough-notation/api)
+- [`<Box>`](/docs/rough-notation/box)
+- [`<Bracket>`](/docs/rough-notation/bracket)
+- [`<Circle>`](/docs/rough-notation/circle)
+- [`<CrossedOff>`](/docs/rough-notation/crossed-off)
+- [`<Highlight>`](/docs/rough-notation/highlight)
+- [`<StrikeThrough>`](/docs/rough-notation/strike-through)
+- [`<Underline>`](/docs/rough-notation/underline)
+- [`interpolate()`](/docs/interpolate)
+- [Fonts](/docs/fonts)

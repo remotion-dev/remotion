@@ -140,6 +140,10 @@ export const Subtitle = () => {
 
 See [map.md](map.md) for choosing between simple static maps, Mapbox maps, and MapLibre maps.
 
+## Text highlights and annotations
+
+See [text-highlights.md](text-highlights.md) for text highlights (highlight markers), circles, underlines, strike-throughs, crossed-off text, boxes, and brackets.
+
 ## Voiceover
 
 See [voiceover.md](voiceover.md) for adding AI-generated voiceover to Remotion compositions using ElevenLabs TTS.

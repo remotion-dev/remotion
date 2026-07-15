@@ -18,7 +18,8 @@
 		"lint": "eslint src components",
 		"test": "bun test src",
 		"remotion": "remotion studio src/remotion/entry.ts",
-		"render-cards": "bun run render-cards.ts"
+		"render-cards": "bun run render-cards.ts",
+		"render-element-previews": "bun run render-element-previews.ts"
 	},
 	"dependencies": {
 		"@aws-sdk/s3-request-presigner": "catalog:",
@@ -61,6 +62,7 @@
 		"@remotion/layout-utils": "workspace:*",
 		"@remotion/licensing": "workspace:*",
 		"@remotion/light-leaks": "workspace:*",
+		"@remotion/rough-notation": "workspace:*",
 		"@remotion/lottie": "workspace:*",
 		"@remotion/media": "workspace:*",
 		"@remotion/media-parser": "workspace:*",

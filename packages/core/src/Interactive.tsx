@@ -1,5 +1,8 @@
 import React, {forwardRef, useCallback, useRef} from 'react';
-import type {SequenceControls} from './CompositionManager.js';
+import type {
+	JsxComponentIdentity,
+	SequenceControls,
+} from './CompositionManager.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import {
 	baseSchema,
@@ -101,6 +104,35 @@ type InteractiveElementComponent<Tag extends InteractiveTag> =
 		InteractiveElementProps<Tag> & React.RefAttributes<ElementForTag<Tag>>
 	>;
 
+type RemotionComponentIdentityPackage = 'remotion' | `@remotion/${string}`;
+
+const sourcePathToIdentityPrefix = (
+	packageName: RemotionComponentIdentityPackage,
+): string => {
+	if (packageName === 'remotion') {
+		return 'dev.remotion.remotion';
+	}
+
+	if (packageName.startsWith('@remotion/')) {
+		const normalizedPackageName = packageName
+			.slice('@remotion/'.length)
+			.replace(/-([a-z])/g, (_, char: string) => char.toUpperCase());
+		return `dev.remotion.${normalizedPackageName}`;
+	}
+
+	throw new Error(`Unsupported Remotion package name: ${packageName}`);
+};
+
+const makeRemotionComponentIdentity = ({
+	packageName,
+	componentName,
+}: {
+	readonly packageName: RemotionComponentIdentityPackage;
+	readonly componentName: string;
+}): JsxComponentIdentity => {
+	return `${sourcePathToIdentityPrefix(packageName)}.${componentName}`;
+};
+
 const interactiveElementSchema = {
 	...baseSchema,
 	...transformSchema,
@@ -183,7 +215,10 @@ const makeInteractiveElement = <Tag extends InteractiveTag>(
 	const Wrapped = withInteractivitySchema({
 		Component: Inner,
 		componentName: displayName,
-		componentIdentity: `dev.remotion.remotion.${displayName.slice(1, -1)}`,
+		componentIdentity: makeRemotionComponentIdentity({
+			packageName: 'remotion',
+			componentName: displayName.slice(1, -1),
+		}),
 		schema: interactiveElementSchema,
 		supportsEffects: false,
 	}) as InteractiveElementComponent<Tag>;
@@ -204,6 +239,7 @@ export const Interactive = {
 	premountSchema,
 	sequenceSchema,
 	withSchema: withInteractivitySchema,
+	_internalMakeRemotionComponentIdentity: makeRemotionComponentIdentity,
 	A: makeInteractiveElement('a', '<Interactive.A>'),
 	Article: makeInteractiveElement('article', '<Interactive.Article>'),
 	Aside: makeInteractiveElement('aside', '<Interactive.Aside>'),
