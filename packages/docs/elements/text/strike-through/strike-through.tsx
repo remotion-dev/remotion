@@ -15,12 +15,15 @@ export const StrikeThroughText: React.FC = () => {
 		<Interactive.Div
 			name="Container"
 			style={{
+				display: 'flex',
+				alignItems: 'center',
+				justifyContent: 'center',
+				height: '100%',
 				fontSize: 80,
 				fontWeight: 700,
 				lineHeight: 1.1,
 				color: '#171717',
 				fontFamily,
-				textAlign: 'center',
 			}}
 		>
 			<Interactive.Span>The </Interactive.Span>
