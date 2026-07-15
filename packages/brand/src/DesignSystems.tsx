@@ -41,6 +41,10 @@ export const DesignSystems: React.FC = () => {
 		0,
 		Math.min(frame, forwardDurationInFrames - 1) - endcardSequenceStart,
 	);
+	const animatedLogoFrame =
+		frame < forwardDurationInFrames
+			? pingPongFrame
+			: 0;
 	const animatedLogoScale = interpolate(
 		pingPongFrame,
 		[folderTreeSelectionMoveStart, animatedLogoExitEnd],
@@ -88,7 +92,7 @@ export const DesignSystems: React.FC = () => {
 					scale: animatedLogoScale,
 				}}
 			>
-				<RemotionTriangle frame={pingPongFrame} />
+				<RemotionTriangle frame={animatedLogoFrame} />
 			</Sequence>
 			<Sequence
 				width={1080}
