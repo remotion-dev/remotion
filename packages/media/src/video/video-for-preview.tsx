@@ -24,6 +24,7 @@ import {
 import {getTimeInSeconds} from '../get-time-in-seconds';
 import {MediaPlayer} from '../media-player';
 import {type MediaOnError, callOnErrorAndResolve} from '../on-error';
+import {proresDecoderNotEnabledMessage} from '../prores-error';
 import type {MediaRequestInit} from '../request-init';
 import {useCommonEffects} from '../use-common-effects';
 import type {
@@ -307,11 +308,18 @@ const VideoForPreviewAssertedShowing: React.FC<
 						return;
 					}
 
-					const handleError = (error: Error, fallbackMessage: string) => {
+					const handleError = (
+						error: Error,
+						fallbackMessage: string,
+						// ProRes forces this to true so it hard-fails by default instead
+						// of silently falling back, while still honoring an explicit
+						// onError override.
+						disallowFallback: boolean = disallowFallbackToOffthreadVideo,
+					) => {
 						const [action, errorToUse] = callOnErrorAndResolve({
 							onError: onErrorRef.current,
 							error,
-							disallowFallback: disallowFallbackToOffthreadVideo,
+							disallowFallback,
 							isClientSideRendering: false,
 							clientSideError: error,
 						});
@@ -347,6 +355,17 @@ const VideoForPreviewAssertedShowing: React.FC<
 						handleError(
 							new Error(`Cannot decode ${preloadedSrc}.`),
 							`Cannot decode ${preloadedSrc}, falling back to <OffthreadVideo>`,
+						);
+						return;
+					}
+
+					if (result.type === 'cannot-decode-prores') {
+						// ProRes defaults to a hard error (registering the decoder is the
+						// actionable fix), regardless of disallowFallbackToOffthreadVideo.
+						handleError(
+							new Error(proresDecoderNotEnabledMessage(preloadedSrc)),
+							`${proresDecoderNotEnabledMessage(preloadedSrc)} Falling back to <OffthreadVideo>.`,
+							true,
 						);
 						return;
 					}

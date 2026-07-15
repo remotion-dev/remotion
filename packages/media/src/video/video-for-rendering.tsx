@@ -26,6 +26,7 @@ import {applyVolume} from '../convert-audiodata/apply-volume';
 import {getTargetSampleRate} from '../convert-audiodata/resample-audiodata';
 import {frameForVolumeProp} from '../looped-frame';
 import {type MediaOnError, callOnErrorAndResolve} from '../on-error';
+import {proresDecoderNotEnabledMessage} from '../prores-error';
 import type {MediaRequestInit} from '../request-init';
 import {extractFrameViaBroadcastChannel} from '../video-extraction/extract-frame-via-broadcast-channel';
 import type {
@@ -209,6 +210,10 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 					clientSideError: Error,
 					fallbackMessage: string,
 					mediaDurationInSeconds: number | null,
+					// ProRes forces this to true so it hard-fails by default instead
+					// of silently falling back, while still honoring an explicit
+					// onError override.
+					disallowFallback: boolean = disallowFallbackToOffthreadVideo,
 				) => {
 					if (environment.isClientSideRendering) {
 						cancelRender(clientSideError);
@@ -218,7 +223,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 					const [action, errorToUse] = callOnErrorAndResolve({
 						onError,
 						error: err,
-						disallowFallback: disallowFallbackToOffthreadVideo,
+						disallowFallback,
 						isClientSideRendering: environment.isClientSideRendering,
 						clientSideError: err,
 					});
@@ -261,6 +266,21 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 						),
 						`Cannot decode ${src}, falling back to <OffthreadVideo>`,
 						result.durationInSeconds,
+					);
+					return;
+				}
+
+				if (result.type === 'cannot-decode-prores') {
+					// ProRes defaults to a hard error (registering the decoder is the
+					// actionable fix), regardless of disallowFallbackToOffthreadVideo.
+					// An explicit onError returning 'fallback' can still opt into
+					// <OffthreadVideo>, which decodes ProRes via the compositor.
+					handleError(
+						new Error(proresDecoderNotEnabledMessage(src)),
+						new Error(proresDecoderNotEnabledMessage(src)),
+						`${proresDecoderNotEnabledMessage(src)} Falling back to <OffthreadVideo>.`,
+						result.durationInSeconds,
+						true,
 					);
 					return;
 				}

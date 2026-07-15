@@ -35,6 +35,7 @@ export type MediaPlayerInitResult =
 	| {type: 'success'; durationInSeconds: number}
 	| {type: 'unknown-container-format'}
 	| {type: 'cannot-decode'}
+	| {type: 'cannot-decode-prores'}
 	| {type: 'network-error'}
 	| {type: 'no-tracks'}
 	| {type: 'disposed'};
@@ -321,6 +322,10 @@ export class MediaPlayer {
 				const canDecode = await videoTrack.canDecode();
 
 				if (!canDecode) {
+					if (videoTrack.codec === 'prores') {
+						return {type: 'cannot-decode-prores'};
+					}
+
 					return {type: 'cannot-decode'};
 				}
 
