@@ -9,7 +9,9 @@ import {RemotionTriangle} from './HomepageAssets/RemotionTriangle';
 import {TemplateRecorderEndcard} from './HomepageAssets/TemplateRecorderEndcard';
 
 const forwardDurationInFrames = 150;
-export const designSystemsDurationInFrames = forwardDurationInFrames * 2 - 1;
+const pingPongDurationInFrames = forwardDurationInFrames * 2 - 1;
+export const designSystemsDurationInFrames =
+	pingPongDurationInFrames - folderTreeSelectionMoveStart;
 const endcardSequenceStart = folderTreeSelectionMoveStart;
 const animatedLogoExitEnd = 72;
 const assetScaleOverlap = 8;
@@ -36,7 +38,7 @@ export const DesignSystems: React.FC = () => {
 	const pingPongFrame =
 		frame < forwardDurationInFrames
 			? frame
-			: designSystemsDurationInFrames - 1 - frame;
+			: pingPongDurationInFrames - 1 - frame;
 	const endcardFrame = Math.max(
 		0,
 		Math.min(frame, forwardDurationInFrames - 1) - endcardSequenceStart,
