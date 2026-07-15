@@ -3,9 +3,9 @@ title: Circle Marker
 description: An animated hand-drawn circle around text.
 ---
 
+import {elementDefinitions} from '@site/src/components/Elements/element-definitions';
 import {ElementPage} from '@site/src/components/Elements/ElementPage';
-import {CircleMarker} from './circle-marker';
 
 # Circle Marker
 
-<ElementPage component={CircleMarker} description="An animated hand-drawn circle with posterized drawing progress and shape changes." displayName="Circle Marker" elementHeight={220} elementWidth={900} previewPadding={120} slug="text/circle-marker" sourceFile="./circle-marker.tsx" />
+<ElementPage definition={elementDefinitions['text/circle-marker']} sourceFile="./circle-marker.tsx" />

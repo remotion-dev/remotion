@@ -7,31 +7,22 @@ import React, {
 	useId,
 	useMemo,
 	useState,
-	type ComponentType,
 	type ReactNode,
 } from 'react';
-import {AbsoluteFill, Sequence} from 'remotion';
 import {BlueButton, PlainButton} from '../../../components/layout/Button';
-import {type Contributor} from '../Credits';
+import type {ElementDefinition} from './element-definitions';
 import {setElementDragData, setElementDragImage} from './element-drag-data';
 import {ElementPreview} from './ElementPreview';
+import {
+	ElementPreviewComposition,
+	getElementPreviewDimensions,
+} from './ElementPreviewComposition';
 import styles from './ElementPage.module.css';
 
 type ElementPageProps = {
 	readonly children?: ReactNode;
-	readonly component: ComponentType<Record<string, never>>;
-	readonly contributors?: Contributor[];
-	readonly description: ReactNode;
-	readonly displayName?: string;
-	readonly durationInFrames?: number;
-	readonly elementHeight?: number;
-	readonly elementWidth?: number;
-	readonly fps?: number;
-	readonly height?: number;
-	readonly previewPadding?: number;
-	readonly slug?: string;
+	readonly definition: ElementDefinition;
 	readonly sourceCode?: string;
-	readonly width?: number;
 };
 
 type ElementInstallTarget = {
@@ -106,43 +97,34 @@ const findBestInstallTarget = async (): Promise<
 
 export const ElementPage: React.FC<ElementPageProps> = ({
 	children,
-	component,
-	contributors,
-	description,
-	displayName,
-	durationInFrames = 120,
-	elementHeight,
-	elementWidth,
-	fps = 30,
-	height = 1080,
-	previewPadding = 0,
-	slug,
+	definition,
 	sourceCode,
-	width = 1920,
 }) => {
+	const {
+		contributors,
+		description,
+		displayName,
+		durationInFrames,
+		elementHeight,
+		elementWidth,
+		fps,
+		slug,
+	} = definition;
 	const [installStatus, setInstallStatus] = useState<InstallStatus>({
 		type: 'idle',
 	});
 	const [isSourceVisible, setIsSourceVisible] = useState(false);
 	const sourceId = useId();
-	const hasElementDimensions =
-		elementWidth !== undefined && elementHeight !== undefined;
-	const previewWidth =
-		hasElementDimensions && previewPadding > 0
-			? elementWidth + previewPadding * 2
-			: width;
-	const previewHeight =
-		hasElementDimensions && previewPadding > 0
-			? elementHeight + previewPadding * 2
-			: height;
+	const {height: previewHeight, width: previewWidth} =
+		getElementPreviewDimensions(definition);
 
 	const dragData = useMemo(() => {
-		if (!slug || !displayName || !sourceCode) {
+		if (!sourceCode) {
 			return null;
 		}
 
 		const dimensions: ComponentDimensions | null =
-			elementWidth !== undefined && elementHeight !== undefined
+			elementWidth !== null && elementHeight !== null
 				? {
 						width: elementWidth,
 						height: elementHeight,
@@ -213,49 +195,8 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 	}, [dragData]);
 
 	const PreviewComponent = useMemo(() => {
-		if (!hasElementDimensions) {
-			return component;
-		}
-
-		const Component = component;
-
-		return () => {
-			if (previewPadding > 0) {
-				return (
-					<AbsoluteFill
-						style={{
-							alignItems: 'center',
-							justifyContent: 'center',
-						}}
-					>
-						<Sequence height={elementHeight} layout="none" width={elementWidth}>
-							<div
-								style={{
-									height: elementHeight,
-									position: 'relative',
-									width: elementWidth,
-								}}
-							>
-								<Component />
-							</div>
-						</Sequence>
-					</AbsoluteFill>
-				);
-			}
-
-			return (
-				<Sequence height={elementHeight} width={elementWidth}>
-					<Component />
-				</Sequence>
-			);
-		};
-	}, [
-		component,
-		elementHeight,
-		elementWidth,
-		hasElementDimensions,
-		previewPadding,
-	]);
+		return () => <ElementPreviewComposition definition={definition} />;
+	}, [definition]);
 
 	return (
 		<div className={styles.workbench}>
@@ -368,13 +309,14 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 							<div>
 								<dt>Dimensions</dt>
 								<dd>
-									{elementWidth ?? width} × {elementHeight ?? height}px
+									{elementWidth ?? definition.width} ×{' '}
+									{elementHeight ?? definition.height}px
 								</dd>
 							</div>
 						</dl>
 					</div>
 
-					{contributors?.length ? (
+					{contributors.length ? (
 						<div aria-label="Contributors" className={styles.contributors}>
 							<span className={styles.contributorsLabel}>Created by</span>
 							<div className={styles.contributorList}>

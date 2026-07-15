@@ -3,9 +3,16 @@ import {existsSync, readdirSync, readFileSync, statSync} from 'fs';
 import path from 'path';
 import {expandElementSourceReferences} from '../../plugins/element-source-utils';
 import remarkElementSource from '../../plugins/remark-element-source';
+import {elementDefinitions} from '../components/Elements/element-definitions';
+import {
+	getElementCompositionId,
+	getElementPreviewUrls,
+} from '../components/Elements/element-utils';
+import {getElementPreviewDimensions} from '../components/Elements/ElementPreviewComposition';
 
 const elementsRoot = path.join(__dirname, '..', '..', 'elements');
 const templateRoot = path.join(__dirname, '..', '..', 'elements-template');
+const elementDefinitionList = Object.values(elementDefinitions);
 
 type Element = {
 	name: string;
@@ -23,8 +30,9 @@ const findElements = (root: string): Element[] => {
 				(f) => f.endsWith('.tsx') && !f.endsWith('.test.tsx'),
 			);
 			if (tsxFiles.length > 0) {
+				const relativeName = path.relative(root, dir) || path.basename(dir);
 				elements.push({
-					name: path.relative(root, dir) || path.basename(dir),
+					name: relativeName.split(path.sep).join('/'),
 					mdxPath: indexMdx,
 					tsxPath: path.join(dir, tsxFiles[0]),
 				});
@@ -49,10 +57,8 @@ const getRelativeTsxPath = (tsxPath: string, mdxPath: string) => {
 	return relative.startsWith('.') ? relative : `./${relative}`;
 };
 
-const allElements = [
-	...findElements(elementsRoot),
-	...findElements(templateRoot),
-];
+const productionElements = findElements(elementsRoot);
+const allElements = [...productionElements, ...findElements(templateRoot)];
 
 describe('Elements must follow the colocated single-file format', () => {
 	test('at least one element exists', () => {
@@ -111,10 +117,6 @@ describe('Elements must follow the colocated single-file format', () => {
 				expect(mdx).toContain('ElementPage');
 			});
 
-			test('MDX imports the colocated source module', () => {
-				expect(mdx).toMatch(/from '\.\/[\w-]+';/);
-			});
-
 			test('MDX references the source file from ElementPage', () => {
 				const relativeTsxPath = getRelativeTsxPath(
 					element.tsxPath,
@@ -146,19 +148,88 @@ describe('Elements must follow the colocated single-file format', () => {
 				expect(mdx).not.toMatch(/export const \w+Source = /);
 			});
 
-			test('Element drag file name is derived from the slug', () => {
+			test('Element drag file name is derived from the definition slug', () => {
 				expect(mdx).not.toContain('fileName=');
 
-				const match = mdx.match(/slug="([^"]+)"/);
-				if (!match) {
+				if (element.mdxPath.startsWith(templateRoot)) {
 					return;
 				}
 
-				const lastSlugSegment = match[1].split('/').at(-1);
+				const definition = elementDefinitionList.find(
+					(entry) => entry.slug === element.name,
+				);
+				expect(definition).toBeDefined();
+
+				const lastSlugSegment = definition?.slug.split('/').at(-1);
 				expect(lastSlugSegment).toBeTruthy();
 				expect(lastSlugSegment).toBe(lastSlugSegment?.toLowerCase());
 				expect(lastSlugSegment).not.toContain('..');
 			});
 		});
 	}
+});
+
+describe('Element preview definitions', () => {
+	test('contains every production Element exactly once', () => {
+		const elementSlugs = productionElements
+			.map((element) => element.name)
+			.sort();
+		const definitionSlugs = elementDefinitionList
+			.map((definition) => definition.slug)
+			.sort();
+		const definitionKeys = Object.keys(elementDefinitions).sort();
+
+		expect(definitionKeys).toEqual(elementSlugs);
+		expect(definitionSlugs).toEqual(elementSlugs);
+		expect(new Set(definitionSlugs).size).toBe(definitionSlugs.length);
+
+		for (const [slug, definition] of Object.entries(elementDefinitions)) {
+			expect(definition.slug).toBe(slug);
+		}
+	});
+
+	test('contains valid render metadata', () => {
+		for (const definition of elementDefinitionList) {
+			expect(Number.isInteger(definition.width)).toBe(true);
+			expect(Number.isInteger(definition.height)).toBe(true);
+			expect(Number.isInteger(definition.fps)).toBe(true);
+			expect(Number.isInteger(definition.durationInFrames)).toBe(true);
+			expect(Number.isInteger(definition.posterFrame)).toBe(true);
+			expect(definition.width).toBeGreaterThan(0);
+			expect(definition.height).toBeGreaterThan(0);
+			expect(definition.fps).toBeGreaterThan(0);
+			expect(definition.durationInFrames).toBeGreaterThan(0);
+			expect(definition.posterFrame).toBeGreaterThanOrEqual(0);
+			expect(definition.posterFrame).toBeLessThan(definition.durationInFrames);
+			expect(definition.elementWidth === null).toBe(
+				definition.elementHeight === null,
+			);
+
+			const dimensions = getElementPreviewDimensions(definition);
+			expect(dimensions.width % 2).toBe(0);
+			expect(dimensions.height % 2).toBe(0);
+		}
+	});
+
+	test('derives stable composition IDs and preview URLs', () => {
+		const compositionIds = elementDefinitionList.map((definition) =>
+			getElementCompositionId(definition.slug),
+		);
+		expect(new Set(compositionIds).size).toBe(compositionIds.length);
+
+		for (const definition of elementDefinitionList) {
+			expect(getElementPreviewUrls(definition.slug)).toEqual({
+				mp4: `https://remotion.media/elements/${definition.slug}/preview.mp4`,
+				png: `https://remotion.media/elements/${definition.slug}/preview.png`,
+			});
+		}
+	});
+
+	test('registers Element compositions in a Folder', () => {
+		const root = readFileSync(
+			path.join(__dirname, '..', 'remotion', 'Root.tsx'),
+			'utf8',
+		);
+		expect(root).toContain('<Folder name="elements">');
+	});
 });
