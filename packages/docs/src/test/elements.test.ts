@@ -3,15 +3,16 @@ import {existsSync, readdirSync, readFileSync, statSync} from 'fs';
 import path from 'path';
 import {expandElementSourceReferences} from '../../plugins/element-source-utils';
 import remarkElementSource from '../../plugins/remark-element-source';
+import {elementDefinitions} from '../components/Elements/element-definitions';
 import {
-	elementDefinitions,
 	getElementCompositionId,
 	getElementPreviewUrls,
-} from '../components/Elements/element-registry';
+} from '../components/Elements/element-utils';
 import {getElementPreviewDimensions} from '../components/Elements/ElementPreviewComposition';
 
 const elementsRoot = path.join(__dirname, '..', '..', 'elements');
 const templateRoot = path.join(__dirname, '..', '..', 'elements-template');
+const elementDefinitionList = Object.values(elementDefinitions);
 
 type Element = {
 	name: string;
@@ -147,14 +148,14 @@ describe('Elements must follow the colocated single-file format', () => {
 				expect(mdx).not.toMatch(/export const \w+Source = /);
 			});
 
-			test('Element drag file name is derived from the registry slug', () => {
+			test('Element drag file name is derived from the definition slug', () => {
 				expect(mdx).not.toContain('fileName=');
 
 				if (element.mdxPath.startsWith(templateRoot)) {
 					return;
 				}
 
-				const definition = elementDefinitions.find(
+				const definition = elementDefinitionList.find(
 					(entry) => entry.slug === element.name,
 				);
 				expect(definition).toBeDefined();
@@ -168,21 +169,27 @@ describe('Elements must follow the colocated single-file format', () => {
 	}
 });
 
-describe('Element preview registry', () => {
+describe('Element preview definitions', () => {
 	test('contains every production Element exactly once', () => {
 		const elementSlugs = productionElements
 			.map((element) => element.name)
 			.sort();
-		const registrySlugs = elementDefinitions
+		const definitionSlugs = elementDefinitionList
 			.map((definition) => definition.slug)
 			.sort();
+		const definitionKeys = Object.keys(elementDefinitions).sort();
 
-		expect(registrySlugs).toEqual(elementSlugs);
-		expect(new Set(registrySlugs).size).toBe(registrySlugs.length);
+		expect(definitionKeys).toEqual(elementSlugs);
+		expect(definitionSlugs).toEqual(elementSlugs);
+		expect(new Set(definitionSlugs).size).toBe(definitionSlugs.length);
+
+		for (const [slug, definition] of Object.entries(elementDefinitions)) {
+			expect(definition.slug).toBe(slug);
+		}
 	});
 
 	test('contains valid render metadata', () => {
-		for (const definition of elementDefinitions) {
+		for (const definition of elementDefinitionList) {
 			expect(Number.isInteger(definition.width)).toBe(true);
 			expect(Number.isInteger(definition.height)).toBe(true);
 			expect(Number.isInteger(definition.fps)).toBe(true);
@@ -205,12 +212,12 @@ describe('Element preview registry', () => {
 	});
 
 	test('derives stable composition IDs and preview URLs', () => {
-		const compositionIds = elementDefinitions.map((definition) =>
+		const compositionIds = elementDefinitionList.map((definition) =>
 			getElementCompositionId(definition.slug),
 		);
 		expect(new Set(compositionIds).size).toBe(compositionIds.length);
 
-		for (const definition of elementDefinitions) {
+		for (const definition of elementDefinitionList) {
 			expect(getElementPreviewUrls(definition.slug)).toEqual({
 				mp4: `https://remotion.media/elements/${definition.slug}/preview.mp4`,
 				png: `https://remotion.media/elements/${definition.slug}/preview.png`,

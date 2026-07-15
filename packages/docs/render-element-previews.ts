@@ -3,11 +3,11 @@ import path from 'path';
 import {bundle} from '@remotion/bundler';
 import {getCompositions, renderMedia, renderStill} from '@remotion/renderer';
 import {S3Client} from 'bun';
+import {elementDefinitions} from './src/components/Elements/element-definitions';
 import {
-	elementDefinitions,
 	getElementCompositionId,
 	getElementPreviewUrls,
-} from './src/components/Elements/element-registry';
+} from './src/components/Elements/element-utils';
 
 const r2Endpoint =
 	'https://2fe488b3b0f4deee223aef7464784c46.r2.cloudflarestorage.com';
@@ -95,7 +95,7 @@ const elementCompositions = compositions.filter((composition) =>
 );
 
 const expectedCompositionIds = new Set(
-	elementDefinitions.map((definition) =>
+	Object.values(elementDefinitions).map((definition) =>
 		getElementCompositionId(definition.slug),
 	),
 );
@@ -115,7 +115,7 @@ for (const actualId of actualCompositionIds) {
 	}
 }
 
-for (const definition of elementDefinitions) {
+for (const definition of Object.values(elementDefinitions)) {
 	const compositionId = getElementCompositionId(definition.slug);
 	const composition = elementCompositions.find(
 		(candidate) => candidate.id === compositionId,

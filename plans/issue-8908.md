@@ -28,13 +28,14 @@ Expected initial output dimensions and durations:
 | Lower Third        |  1280 × 738 | 4 seconds |
 | Number Counter     |   880 × 440 | 4 seconds |
 
-## 1. Add a canonical Element registry
+## 1. Add canonical Element definitions and utilities
 
 Create:
 
-- `packages/docs/src/components/Elements/element-registry.ts`
+- `packages/docs/src/components/Elements/element-definitions.ts`
+- `packages/docs/src/components/Elements/element-utils.ts`
 
-Each registry entry should contain normalized, required values for:
+Each definition should contain normalized, required values for:
 
 - Component
 - Slug and category
@@ -46,9 +47,9 @@ Each registry entry should contain normalized, required values for:
 - Explicit poster frame
 - Contributors
 
-Avoid optional internal fields. Store default values explicitly in the registry so rendering and detail pages cannot apply different defaults.
+Avoid optional internal fields. Store default values explicitly in the definitions so rendering and detail pages cannot apply different defaults.
 
-Update the Element MDX pages to pass their registry definition to `ElementPage` instead of repeating render metadata:
+Update the Element MDX pages to pass their canonical definition to `ElementPage` instead of repeating render metadata:
 
 - `packages/docs/elements/backgrounds/paper-texture/index.mdx`
 - `packages/docs/elements/backgrounds/rotating-starburst/index.mdx`
@@ -61,7 +62,7 @@ Update:
 
 `ElementPage` should accept an Element definition while continuing to receive the source code injected by the existing remark plugin.
 
-The registry should also expose a list of all definitions and helpers for deriving composition IDs and public preview URLs.
+Export the definitions as a single keyed object from `element-definitions.ts`, and keep helpers for deriving composition IDs and public preview URLs in `element-utils.ts`.
 
 ## 2. Share the preview composition
 
@@ -87,7 +88,7 @@ Update:
 
 - `packages/docs/src/remotion/Root.tsx`
 
-Register one `<Composition>` for every registry entry inside a dedicated Remotion folder:
+Register one `<Composition>` for every definition inside a dedicated Remotion folder:
 
 ```tsx
 <Folder name="elements">
@@ -120,7 +121,7 @@ The script should:
 
 1. Bundle `packages/docs/src/remotion/entry.ts`.
 2. Discover compositions whose IDs start with `element-`.
-3. Validate every expected registry entry has a composition.
+3. Validate every expected definition has a composition.
 4. Render a PNG with `renderStill()` at the entry's explicit poster frame.
 5. Render the full timeline with `renderMedia()`.
 6. Encode MP4 using H.264, `yuv420p`, a reasonable CRF such as 23, and audio disabled.
@@ -180,7 +181,7 @@ Update:
 
 Document that a new Element must:
 
-- Have a registry entry
+- Have a definition entry
 - Define its preview dimensions and timing
 - Select an intentional poster frame
 - Pass local preview rendering
@@ -196,7 +197,7 @@ Extend:
 
 Verify:
 
-- Every production Element has exactly one registry entry.
+- Every production Element has exactly one definition.
 - Registry slugs match Element directory paths.
 - Composition IDs are unique.
 - Width, height, FPS, and duration are positive integers.
@@ -204,7 +205,7 @@ Verify:
 - Poster frames are integers within the Element timeline.
 - Preview dimensions are even and compatible with H.264 `yuv420p`.
 - Expected R2 URLs are derived deterministically.
-- Every registry entry resolves to an Element composition during rendering.
+- Every definition resolves to an Element composition during rendering.
 - All Element compositions are registered inside the `elements` `<Folder>`.
 
 Tests must not require R2 credentials or perform uploads.
@@ -225,7 +226,7 @@ Inspect every PNG and play every MP4 locally. Check that:
 - Entrances are not accidentally captured while invisible.
 - Videos loop acceptably.
 - Transparent Elements are legible on the neutral canvas.
-- Output resolution and duration match the registry.
+- Output resolution and duration match the definition.
 - MP4 files contain no audio stream.
 
 Then run package checks:
@@ -253,6 +254,6 @@ Finally upload the assets and verify each public URL with an HTTP HEAD request a
 - No generated binary is committed to Git.
 - Uploading requires an explicit flag and valid R2 credentials.
 - All expected `remotion.media` URLs return successful responses.
-- Adding an Element without registry and preview metadata fails tests.
+- Adding an Element without definition and preview metadata fails tests.
 - Existing Element detail-page previews and install behavior remain unchanged.
 - No gallery or category-page UI is added as part of this issue.

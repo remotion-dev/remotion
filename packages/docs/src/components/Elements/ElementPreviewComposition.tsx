@@ -1,6 +1,7 @@
 import React from 'react';
 import {AbsoluteFill, Sequence} from 'remotion';
-import {getElementDefinition, type ElementDefinition} from './element-registry';
+import type {ElementDefinition} from './element-definitions';
+import {getElementDefinition} from './element-utils';
 
 export const ELEMENT_PREVIEW_BACKGROUND = '#eef1f4';
 

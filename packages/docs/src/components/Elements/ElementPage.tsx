@@ -10,8 +10,8 @@ import React, {
 	type ReactNode,
 } from 'react';
 import {BlueButton, PlainButton} from '../../../components/layout/Button';
+import type {ElementDefinition} from './element-definitions';
 import {setElementDragData, setElementDragImage} from './element-drag-data';
-import {type ElementDefinition} from './element-registry';
 import {ElementPreview} from './ElementPreview';
 import {
 	ElementPreviewComposition,

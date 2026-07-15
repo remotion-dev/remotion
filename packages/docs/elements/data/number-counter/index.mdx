@@ -4,8 +4,8 @@ description: A simple animated counter that counts up from a start value to an e
 ---
 
 import {ElementPage} from '@site/src/components/Elements/ElementPage';
-import {numberCounterDefinition} from '@site/src/components/Elements/element-registry';
+import {elementDefinitions} from '@site/src/components/Elements/element-definitions';
 
 # Number Counter
 
-<ElementPage definition={numberCounterDefinition} sourceFile="./number-counter.tsx" />
+<ElementPage definition={elementDefinitions['data/number-counter']} sourceFile="./number-counter.tsx" />

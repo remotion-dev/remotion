@@ -86,10 +86,8 @@ import {EffectsWavesPreview} from '../../components/effects/effects-waves-previe
 import {EffectsWhiteNoisePreview} from '../../components/effects/effects-white-noise-preview';
 import {EffectsZigzagPreview} from '../../components/effects/effects-zigzag-preview';
 import {EffectsZoomBlurPreview} from '../../components/effects/effects-zoom-blur-preview';
-import {
-	elementDefinitions,
-	getElementCompositionId,
-} from '../components/Elements/element-registry';
+import {elementDefinitions} from '../components/Elements/element-definitions';
+import {getElementCompositionId} from '../components/Elements/element-utils';
 import {
 	ElementAssetComposition,
 	getElementPreviewDimensions,
@@ -116,7 +114,7 @@ export const RemotionRoot: React.FC = () => {
 	return (
 		<>
 			<Folder name="elements">
-				{elementDefinitions.map((definition) => {
+				{Object.values(elementDefinitions).map((definition) => {
 					const dimensions = getElementPreviewDimensions(definition);
 
 					return (
