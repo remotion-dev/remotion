@@ -1,25 +1,21 @@
-import {extraPackages, installableMap} from '@remotion/studio-shared';
 import {getInstalledDependencies} from './get-installed-dependencies';
 
 export const getInstalledInstallablePackages = (
 	remotionRoot: string,
 ): string[] => {
-	const {dependencies, devDependencies, optionalDependencies} =
-		getInstalledDependencies(remotionRoot);
-	const installablePackages = [
-		...dependencies,
-		...devDependencies,
-		...optionalDependencies,
-	];
+	const {
+		dependencies,
+		devDependencies,
+		optionalDependencies,
+		peerDependencies,
+	} = getInstalledDependencies(remotionRoot);
 
-	const remotionPackages = Object.entries(installableMap)
-		.filter(([, _installable]) => _installable)
-		.map(([pkg]) => (pkg === 'core' ? 'remotion' : `@remotion/${pkg}`))
-		.filter((pkg) => installablePackages.includes(pkg));
-
-	const installedExtraPackages = extraPackages
-		.map((pkg) => pkg.name)
-		.filter((pkg) => installablePackages.includes(pkg));
-
-	return [...remotionPackages, ...installedExtraPackages];
+	return Array.from(
+		new Set([
+			...dependencies,
+			...devDependencies,
+			...optionalDependencies,
+			...peerDependencies,
+		]),
+	);
 };

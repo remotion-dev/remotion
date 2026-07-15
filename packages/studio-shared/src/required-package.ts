@@ -1,38 +1,7 @@
 import type {InsertableCompositionElement} from './api-requests';
-import {extraPackages, packages} from './package-info';
+import {isValidPackageName} from './package-name';
 
-const firstPartyPackageNames = new Set(
-	packages.map((pkg) => `@remotion/${pkg}`),
-);
-const extraPackageNames = new Set(extraPackages.map((pkg) => pkg.name));
-
-const isInstallableElementPackage = (packageName: string): boolean => {
-	return (
-		firstPartyPackageNames.has(packageName) ||
-		extraPackageNames.has(packageName)
-	);
-};
-
-const extractImportPaths = (sourceCode: string): string[] => {
-	const importPaths = new Set<string>();
-	const staticImportRegex =
-		/\b(?:import|export)\s+(?:type\s+)?(?:[^'";]*?\s+from\s*)?['"]([^'"]+)['"]/g;
-	const dynamicImportRegex = /\bimport\s*\(\s*['"]([^'"]+)['"]\s*\)/g;
-
-	for (const match of sourceCode.matchAll(staticImportRegex)) {
-		if (match[1]) {
-			importPaths.add(match[1]);
-		}
-	}
-
-	for (const match of sourceCode.matchAll(dynamicImportRegex)) {
-		if (match[1]) {
-			importPaths.add(match[1]);
-		}
-	}
-
-	return [...importPaths];
-};
+export {isValidPackageName} from './package-name';
 
 export const getRequiredPackageForImportPath = (
 	importPath: string,
@@ -43,11 +12,15 @@ export const getRequiredPackageForImportPath = (
 
 	if (importPath.startsWith('@')) {
 		const [scope, scopedPackageName] = importPath.split('/');
-		return scope && scopedPackageName ? `${scope}/${scopedPackageName}` : null;
+		const scopedPackage =
+			scope && scopedPackageName ? `${scope}/${scopedPackageName}` : null;
+		return scopedPackage && isValidPackageName(scopedPackage)
+			? scopedPackage
+			: null;
 	}
 
 	const [packageName] = importPath.split('/');
-	return packageName || null;
+	return packageName && isValidPackageName(packageName) ? packageName : null;
 };
 
 export const getRequiredPackageForInsertableElement = (
@@ -95,19 +68,4 @@ export const getRequiredPackageForEffectImportPath = (
 	}
 
 	return null;
-};
-
-export const getRequiredPackagesForElementSourceCode = (
-	sourceCode: string,
-): string[] => {
-	const requiredPackages = new Set<string>();
-
-	for (const importPath of extractImportPaths(sourceCode)) {
-		const requiredPackage = getRequiredPackageForImportPath(importPath);
-		if (requiredPackage && isInstallableElementPackage(requiredPackage)) {
-			requiredPackages.add(requiredPackage);
-		}
-	}
-
-	return [...requiredPackages];
 };

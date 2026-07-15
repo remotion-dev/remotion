@@ -22,6 +22,7 @@ import styles from './ElementPage.module.css';
 type ElementPageProps = {
 	readonly children?: ReactNode;
 	readonly definition: ElementDefinition;
+	readonly dependencies: string[];
 	readonly sourceCode?: string;
 };
 
@@ -98,6 +99,7 @@ const findBestInstallTarget = async (): Promise<
 export const ElementPage: React.FC<ElementPageProps> = ({
 	children,
 	definition,
+	dependencies,
 	sourceCode,
 }) => {
 	const {
@@ -132,12 +134,20 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 				: null;
 
 		return makeElementDragData({
+			dependencies,
 			dimensions,
 			displayName,
 			slug,
 			sourceCode,
 		});
-	}, [displayName, elementHeight, elementWidth, slug, sourceCode]);
+	}, [
+		dependencies,
+		displayName,
+		elementHeight,
+		elementWidth,
+		slug,
+		sourceCode,
+	]);
 
 	const installElement = useCallback(async () => {
 		if (dragData === null) {

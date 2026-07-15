@@ -1,7 +1,10 @@
 import {describe, expect, test} from 'bun:test';
 import {existsSync, readdirSync, readFileSync, statSync} from 'fs';
 import path from 'path';
-import {expandElementSourceReferences} from '../../plugins/element-source-utils';
+import {
+	expandElementSourceReferences,
+	getRemotionElementDependencies,
+} from '../../plugins/element-source-utils';
 import remarkElementSource from '../../plugins/remark-element-source';
 import {elementDefinitions} from '../components/Elements/element-definitions';
 import {
@@ -96,6 +99,36 @@ describe('Elements must follow the colocated single-file format', () => {
 		expect(
 			elementPage.attributes.some((attr) => attr.name === 'sourceCode'),
 		).toBe(true);
+		const dependencies = elementPage.attributes.find(
+			(attribute) => attribute.name === 'dependencies',
+		);
+		expect(dependencies?.value.value).toBe(
+			JSON.stringify(
+				getRemotionElementDependencies(readFileSync(element.tsxPath, 'utf8')),
+			),
+		);
+	});
+
+	test('extracts dependencies using the TypeScript parser', () => {
+		expect(
+			getRemotionElementDependencies(`
+				import type {FC} from 'react';
+				import {loadFont} from '@remotion/google-fonts/Inter';
+				import {AbsoluteFill} from 'remotion';
+				// import value from 'comment-dependency';
+				const string = "import('string-dependency')";
+				const template = \`import('template-dependency')\`;
+				export {value} from 'actual-reexport';
+				const lazy = import('actual-dynamic');
+
+				export const Element: FC = () => <AbsoluteFill />;
+			`),
+		).toEqual([
+			'react',
+			'@remotion/google-fonts',
+			'actual-reexport',
+			'actual-dynamic',
+		]);
 	});
 
 	for (const element of allElements) {

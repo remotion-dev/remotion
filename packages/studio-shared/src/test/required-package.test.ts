@@ -2,7 +2,7 @@ import {expect, test} from 'bun:test';
 import {
 	getRequiredPackageForEffectImportPath,
 	getRequiredPackageForInsertableElement,
-	getRequiredPackagesForElementSourceCode,
+	isValidPackageName,
 } from '../required-package';
 
 test('gets required package for insertable elements', () => {
@@ -99,45 +99,19 @@ test('gets required package for effect import paths', () => {
 	expect(getRequiredPackageForEffectImportPath('remotion')).toBe(null);
 });
 
-test('gets required packages for element source code', () => {
-	expect(
-		getRequiredPackagesForElementSourceCode(`
-			import {loadFont} from '@remotion/google-fonts/Inter';
-			import {AbsoluteFill} from 'remotion';
-			import React from 'react';
-			import './style.css';
-
-			export const LowerThird = () => null;
-		`),
-	).toEqual(['@remotion/google-fonts']);
-
-	expect(
-		getRequiredPackagesForElementSourceCode(`
-			import {paper} from '@remotion/effects/paper';
-			import {starburst} from '@remotion/starburst';
-			import {z} from 'zod';
-			import {Input} from 'lodash';
-			import {Output} from '@acme/video';
-			import {read} from 'mediabunny';
-			import '@mediabunny/prores';
-
-			export const Element = () => null;
-		`),
-	).toEqual([
-		'@remotion/effects',
-		'@remotion/starburst',
-		'zod',
-		'mediabunny',
-		'@mediabunny/prores',
-	]);
-
-	expect(
-		getRequiredPackagesForElementSourceCode(`
-			import {loadFont} from '@remotion/google-fonts/Inter';
-			import {loadFont as loadFontAgain} from '@remotion/google-fonts/Roboto';
-			const module = import('@remotion/media');
-
-			export const Element = () => null;
-		`),
-	).toEqual(['@remotion/google-fonts', '@remotion/media']);
+test('validates package names', () => {
+	expect(isValidPackageName('lodash')).toBe(true);
+	expect(isValidPackageName('@acme/video')).toBe(true);
+	expect(isValidPackageName('@remotion/effects')).toBe(true);
+	expect(isValidPackageName('@.scope/pkg')).toBe(true);
+	expect(isValidPackageName('@_scope/pkg')).toBe(true);
+	expect(isValidPackageName('--ignore-scripts')).toBe(false);
+	expect(isValidPackageName('@acme/video/extra')).toBe(false);
+	expect(isValidPackageName('Foo')).toBe(false);
+	expect(isValidPackageName('foo~bar')).toBe(false);
+	expect(isValidPackageName('node_modules')).toBe(false);
+	expect(isValidPackageName('favicon.ico')).toBe(false);
+	expect(isValidPackageName('fs')).toBe(false);
+	expect(isValidPackageName('https:')).toBe(false);
+	expect(isValidPackageName('node:path')).toBe(false);
 });
