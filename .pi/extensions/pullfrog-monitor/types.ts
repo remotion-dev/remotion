@@ -2,21 +2,8 @@ export const PULLFROG_GRAPHQL_LOGIN = 'pullfrog';
 export const PULLFROG_REST_LOGIN = 'pullfrog[bot]';
 export const PULLFROG_USER_ID = 226033991;
 export const REVIEW_BRANCH_ENTRY = 'pullfrog-review-branch';
-export const STATE_VERSION = 2;
-
-export type FindingVerdict =
-	| 'agree'
-	| 'disagree'
-	| 'already-addressed'
-	| 'uncertain';
-export type FindingSeverity = 'critical' | 'important' | 'minor';
-export type ReviewStatus =
-	| 'watching'
-	| 'waiting'
-	| 'checking'
-	| 'ready'
-	| 'complete'
-	| 'failed';
+export const REVIEW_COMPLETED_ENTRY = 'pullfrog-review-completed';
+export const STATE_VERSION = 3;
 
 export type GraphqlActor = {login?: string} | null;
 export type RestActor = {login?: string; id?: number} | null;
@@ -73,34 +60,7 @@ export type PullfrogSnapshot = {
 	commits: PullRequestCommit[];
 };
 
-export type FindingEvidence = {
-	path: string;
-	line: number | null;
-	explanation: string;
-};
-
-export type PullfrogFindingVerdict = {
-	sourceId: string;
-	sourceUrl: string;
-	verdict: FindingVerdict;
-	severity: FindingSeverity;
-	confidence: number;
-	title: string;
-	rationale: string;
-	evidence: FindingEvidence[];
-	suggestedDirection: string;
-	suggestedValidation: string[];
-};
-
-export type SanityResult = {
-	fingerprint: string;
-	repository: string;
-	prNumber: number;
-	prUrl: string;
-	reviewedHead: string;
-	summary: string;
-	findings: PullfrogFindingVerdict[];
-};
+export type ReviewStatus = 'watching' | 'ready' | 'reviewed';
 
 export type PullfrogPrState = {
 	repository: string;
@@ -110,15 +70,15 @@ export type PullfrogPrState = {
 	headSha: string;
 	monitoring: boolean;
 	currentFingerprint: string | null;
-	checkedFingerprint: string | null;
-	settleAfter: string | null;
+	reviewedFingerprint: string | null;
 	status: ReviewStatus;
-	result: SanityResult | null;
-	viewed: boolean;
-	error: string | null;
 	detectedAt: string | null;
-	checkedAt: string | null;
+	reviewedAt: string | null;
+	reviewStartedAt: string | null;
+	activeAttemptId: string | null;
+	activeAttemptPid: number | null;
 	notifiedAt: string | null;
+	error: string | null;
 };
 
 export type MonitorState = {
@@ -137,5 +97,5 @@ export type ReviewBranchMetadata = {
 	repository: string;
 	prNumber: number;
 	fingerprint: string;
-	result: SanityResult;
+	attemptId: string;
 };

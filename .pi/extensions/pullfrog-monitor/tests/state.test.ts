@@ -1,8 +1,8 @@
 import {afterEach, describe, expect, test} from 'bun:test';
-import {mkdir, mkdtemp, readFile, rm, writeFile} from 'node:fs/promises';
+import {mkdtemp, readFile, rm, writeFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
-import {acquireCheckLock, readState, reviewKey, updateState} from '../state';
+import {readState, reviewKey, updateState} from '../state';
 
 const directories: string[] = [];
 
@@ -24,7 +24,7 @@ describe('Pullfrog monitor state', () => {
 	test('creates a default state when the file is missing', async () => {
 		const path = await temporaryStatePath();
 		const state = await readState(path);
-		expect(state.version).toBe(2);
+		expect(state.version).toBe(3);
 		expect(state.reviews).toEqual({});
 	});
 
@@ -42,15 +42,15 @@ describe('Pullfrog monitor state', () => {
 						headSha: String(index),
 						monitoring: true,
 						currentFingerprint: null,
-						checkedFingerprint: null,
-						settleAfter: null,
+						reviewedFingerprint: null,
 						status: 'watching',
-						result: null,
-						viewed: true,
-						error: null,
 						detectedAt: null,
-						checkedAt: null,
+						reviewedAt: null,
+						reviewStartedAt: null,
+						activeAttemptId: null,
+						activeAttemptPid: null,
 						notifiedAt: null,
+						error: null,
 					};
 				}),
 			),
@@ -70,34 +70,6 @@ describe('Pullfrog monitor state', () => {
 			new Bun.Glob('state.json.corrupt-*').scanSync(directory),
 		);
 		expect(backups).toHaveLength(1);
-	});
-
-	test('uses a nonblocking per-PR check lock', async () => {
-		const path = await temporaryStatePath();
-		const first = await acquireCheckLock(path, 123);
-		expect(first).not.toBeNull();
-		expect(await acquireCheckLock(path, 123)).toBeNull();
-		await first?.();
-		const second = await acquireCheckLock(path, 123);
-		expect(second).not.toBeNull();
-		await second?.();
 		expect(reviewKey('owner/repo', 123)).toBe('owner/repo#123');
-	});
-
-	test('immediately reclaims a check lock owned by a dead process', async () => {
-		const path = await temporaryStatePath();
-		const lock = join(path.slice(0, path.lastIndexOf('/')), 'locks', 'pr-123');
-		await mkdir(lock, {recursive: true});
-		await writeFile(
-			join(lock, 'owner.json'),
-			JSON.stringify({
-				pid: 99_999_999,
-				token: 'dead-owner',
-				acquiredAt: new Date().toISOString(),
-			}),
-		);
-		const acquired = await acquireCheckLock(path, 123);
-		expect(acquired).not.toBeNull();
-		await acquired?.();
 	});
 });

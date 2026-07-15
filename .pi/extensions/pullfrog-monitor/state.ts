@@ -18,8 +18,7 @@ import {
 } from './types';
 
 const execFileAsync = promisify(execFile);
-const STATE_LOCK_STALE_MS = 60_000;
-export const CHECK_LOCK_STALE_MS = 2 * 60 * 60_000;
+const LOCK_STALE_MS = 60_000;
 
 const runGit = async (cwd: string, args: string[]) => {
 	const result = await execFileAsync('git', args, {
@@ -104,7 +103,7 @@ const writeState = async (path: string, state: MonitorState) => {
 const wait = (milliseconds: number) =>
 	new Promise((resolvePromise) => setTimeout(resolvePromise, milliseconds));
 
-type LockOwner = {pid: number; token: string; acquiredAt: string};
+type LockOwner = {pid: number; token: string};
 
 const readLockOwner = async (lockPath: string): Promise<LockOwner | null> => {
 	try {
@@ -128,28 +127,19 @@ const isProcessAlive = (pid: number) => {
 	}
 };
 
-const acquireDirectoryLock = async (
-	lockPath: string,
-	staleAfter: number,
-	waitForLock: boolean,
-) => {
-	await mkdir(dirname(lockPath), {recursive: true});
-	const attempts = waitForLock ? 200 : 2;
-	for (let attempt = 0; attempt < attempts; attempt++) {
+const acquireStateLock = async (path: string) => {
+	const lockPath = `${path}.lock`;
+	await mkdir(dirname(path), {recursive: true});
+	for (let attempt = 0; attempt < 200; attempt++) {
 		const token = randomUUID();
 		try {
 			await mkdir(lockPath);
-			const owner: LockOwner = {
-				pid: process.pid,
-				token,
-				acquiredAt: new Date().toISOString(),
-			};
 			const handle = await open(join(lockPath, 'owner.json'), 'w');
-			await handle.writeFile(JSON.stringify(owner));
+			await handle.writeFile(JSON.stringify({pid: process.pid, token}));
 			await handle.close();
 			return async () => {
-				const current = await readLockOwner(lockPath);
-				if (current?.token === token) {
+				const owner = await readLockOwner(lockPath);
+				if (owner?.token === token) {
 					await rm(lockPath, {recursive: true, force: true});
 				}
 			};
@@ -161,16 +151,12 @@ const acquireDirectoryLock = async (
 				stat(lockPath).catch(() => null),
 				readLockOwner(lockPath),
 			]);
-			const stale = info && Date.now() - info.mtimeMs > staleAfter;
-			const reclaimable = owner ? !isProcessAlive(owner.pid) : stale;
-			if (reclaimable) {
+			const stale = info && Date.now() - info.mtimeMs > LOCK_STALE_MS;
+			if (stale || (owner && !isProcessAlive(owner.pid))) {
 				await rm(lockPath, {recursive: true, force: true}).catch(
 					() => undefined,
 				);
 				continue;
-			}
-			if (!waitForLock) {
-				return null;
 			}
 			await wait(50);
 		}
@@ -182,14 +168,7 @@ export const updateState = async <T>(
 	path: string,
 	update: (state: MonitorState) => T | Promise<T>,
 ): Promise<{state: MonitorState; result: T}> => {
-	const release = await acquireDirectoryLock(
-		`${path}.lock`,
-		STATE_LOCK_STALE_MS,
-		true,
-	);
-	if (!release) {
-		throw new Error('Could not acquire the Pullfrog monitor state lock');
-	}
+	const release = await acquireStateLock(path);
 	try {
 		const state = await readState(path);
 		const result = await update(state);
@@ -199,10 +178,3 @@ export const updateState = async <T>(
 		await release();
 	}
 };
-
-export const acquireCheckLock = async (statePath: string, prNumber: number) =>
-	acquireDirectoryLock(
-		join(dirname(statePath), 'locks', `pr-${prNumber}`),
-		CHECK_LOCK_STALE_MS,
-		false,
-	);
