@@ -1,6 +1,10 @@
 import {expect, test} from 'bun:test';
 import type {ReactElement} from 'react';
-import {getInstructions, renderAnnotation} from '../render-annotation';
+import {
+	addKeysToPaths,
+	getInstructions,
+	renderAnnotation,
+} from '../render-annotation';
 import type {RoughAnnotationOptions} from '../types';
 
 test('type none renders no annotation paths', () => {
@@ -59,6 +63,15 @@ test('circle iteration seeds cannot be overwritten by rough options', () => {
 	);
 	expect(paths).toHaveLength(2);
 	expect(paths[0]).not.toBe(paths[1]);
+});
+
+test('identical paths receive unique occurrence-aware keys', () => {
+	expect(addKeysToPaths(['same', 'same', 'different', 'same'])).toEqual([
+		{d: 'same', key: 'same-0'},
+		{d: 'same', key: 'same-1'},
+		{d: 'different', key: 'different-0'},
+		{d: 'same', key: 'same-2'},
+	]);
 });
 
 test('bracket padding expands the full bracket bounds', () => {

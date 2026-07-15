@@ -35,6 +35,19 @@ const opsToPath = (opList: OpSet[]): string[] => {
 	return paths;
 };
 
+export const addKeysToPaths = (
+	paths: string[],
+): {readonly d: string; readonly key: string}[] => {
+	const occurrences = new Map<string, number>();
+
+	return paths.map((d) => {
+		const occurrence = occurrences.get(d) ?? 0;
+		occurrences.set(d, occurrence + 1);
+
+		return {d, key: `${d}-${occurrence}`};
+	});
+};
+
 type RoughOptionsType = 'highlight' | 'single' | 'double';
 
 const getOptions = (
@@ -320,13 +333,13 @@ export const renderAnnotation = ({
 		options,
 	});
 
-	const pathStrings = opsToPath(opList);
+	const pathsWithKeys = addKeysToPaths(opsToPath(opList));
 
-	return pathStrings.map((d, i) => {
-		const isLast = i === pathStrings.length - 1;
+	return pathsWithKeys.map(({d, key}, i) => {
+		const isLast = i === pathsWithKeys.length - 1;
 		const progressForIteration = Math.max(
 			0,
-			Math.min(isLast ? Infinity : 1, progress * pathStrings.length - i),
+			Math.min(isLast ? Infinity : 1, progress * pathsWithKeys.length - i),
 		);
 		const {strokeDasharray, strokeDashoffset} = evolvePath(
 			progressForIteration,
@@ -335,7 +348,7 @@ export const renderAnnotation = ({
 
 		return (
 			<path
-				key={d}
+				key={key}
 				d={d}
 				fill="none"
 				stroke={config.color}

@@ -25,6 +25,7 @@
 		"@remotion/media-utils": "workspace:*",
 		"@remotion/noise": "workspace:*",
 		"@remotion/paths": "workspace:*",
+		"@remotion/rough-notation": "workspace:*",
 		"@remotion/shapes": "workspace:*",
 		"@remotion/starburst": "workspace:*",
 		"@remotion/svg-3d-engine": "workspace:*",

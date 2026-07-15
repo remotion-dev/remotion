@@ -106,6 +106,7 @@
         "@remotion/media-utils": "workspace:*",
         "@remotion/noise": "workspace:*",
         "@remotion/paths": "workspace:*",
+        "@remotion/rough-notation": "workspace:*",
         "@remotion/shapes": "workspace:*",
         "@remotion/starburst": "workspace:*",
         "@remotion/svg-3d-engine": "workspace:*",
@@ -1442,7 +1443,7 @@
     },
     "packages/rough-notation": {
       "name": "@remotion/rough-notation",
-      "version": "4.0.490",
+      "version": "4.0.489",
       "dependencies": {
         "@remotion/paths": "workspace:*",
         "remotion": "workspace:*",

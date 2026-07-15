@@ -27,22 +27,24 @@ import {interpolate, useCurrentFrame} from 'remotion';
 
 export const TextAnnotations: React.FC = () => {
   const frame = useCurrentFrame();
-  const progress = interpolate(frame, [15, 40], [0, 1], {
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-  });
 
   return (
     <div style={{fontSize: 80}}>
       This is{' '}
       <Highlight
         color="rgba(255, 236, 79, 0.62)"
-        progress={progress}
+        progress={interpolate(frame, [15, 40], [0, 1], {
+          extrapolateLeft: 'clamp',
+          extrapolateRight: 'clamp',
+        })}
       >
         important
       </Highlight>
       , and this is{' '}
-      <Circle color="#2563eb" progress={progress}>
+      <Circle color="#2563eb" progress={interpolate(frame, [15, 40], [0, 1], {
+        extrapolateLeft: 'clamp',
+        extrapolateRight: 'clamp',
+      })}>
         connected
       </Circle>
       .
@@ -50,5 +52,3 @@ export const TextAnnotations: React.FC = () => {
   );
 };
 ```
-
-Keep the annotated component inline with the surrounding text. Prefer annotating a word or short phrase rather than wrapping the full text block.
