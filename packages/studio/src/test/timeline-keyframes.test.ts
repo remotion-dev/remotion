@@ -98,6 +98,7 @@ const makeKeyframedStatus = (): CanUpdateSequencePropStatusKeyframed => ({
 	easing: [{type: 'linear'}],
 	clamping: {left: 'extend', right: 'extend'},
 	posterize: undefined,
+	output: undefined,
 });
 
 const makeSequenceFieldNode = (key: string): TimelineTreeNode => ({
@@ -245,6 +246,7 @@ test('keyframe display offsets follow the parent sequence context', () => {
 				easing: [{type: 'linear'}],
 				clamping: {left: 'extend', right: 'extend'},
 				posterize: undefined,
+				output: undefined,
 			},
 			getOffset('child'),
 		),
@@ -324,6 +326,7 @@ test('keyframe display offsets account for parent trimBefore', () => {
 				easing: [{type: 'linear'}],
 				clamping: {left: 'extend', right: 'extend'},
 				posterize: undefined,
+				output: undefined,
 			},
 			child?.keyframeDisplayOffset ?? 0,
 		),

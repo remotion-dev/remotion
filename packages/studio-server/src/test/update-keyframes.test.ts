@@ -102,6 +102,27 @@ export const Comp = () => {
 };
 `;
 
+const scaleEffectInput = `import {scale} from '@remotion/effects/scale';
+import {HtmlInCanvas} from '@remotion/html-in-canvas';
+
+export const Comp = () => {
+	return (
+		<HtmlInCanvas effects={[scale({scale: 1})]}>
+			hi
+		</HtmlInCanvas>
+	);
+};
+`;
+
+const scaleEffectSchema = {
+	scale: {
+		type: 'number',
+		default: 1,
+		hiddenFromList: false,
+		defaultKeyframeOutput: 'perceptual-scale',
+	},
+} satisfies InteractivitySchema;
+
 const waveSchema = {
 	phase: {
 		type: 'number',
@@ -305,6 +326,7 @@ export const Example: React.FC = () => {
 					type: 'settings',
 					clamping: {left: 'extend', right: 'wrap'},
 					posterize: undefined,
+					output: undefined,
 				},
 			},
 		],
@@ -314,6 +336,70 @@ export const Example: React.FC = () => {
 	expect(output).toContain("extrapolateLeft: 'extend'");
 	expect(output).toContain("extrapolateRight: 'wrap'");
 	expect(output).not.toContain('posterize');
+});
+
+test('updateSequenceKeyframes updates output settings', async () => {
+	const input = `import React from 'react';
+import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
+
+export const Example: React.FC = () => {
+\tconst frame = useCurrentFrame();
+\treturn (
+\t\t<AbsoluteFill>
+\t\t\t<div style={{scale: interpolate(frame, [0, 100], [2, 4])}} />
+\t\t</AbsoluteFill>
+\t);
+};
+`;
+	const {output} = await updateSequenceKeyframes({
+		input,
+		nodePath: lineColumnToNodePath(input, getLine(input, 'scale')),
+		updates: [
+			{
+				key: 'style.scale',
+				operation: {
+					type: 'settings',
+					clamping: {left: 'extend', right: 'extend'},
+					posterize: undefined,
+					output: 'perceptual-scale',
+				},
+			},
+		],
+	});
+
+	expect(output).toContain("output: 'perceptual-scale'");
+});
+
+test('updateSequenceKeyframes removes linear output settings', async () => {
+	const input = `import React from 'react';
+import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
+
+export const Example: React.FC = () => {
+\tconst frame = useCurrentFrame();
+\treturn (
+\t\t<AbsoluteFill>
+\t\t\t<div style={{scale: interpolate(frame, [0, 100], [2, 4], {output: 'perceptual-scale'})}} />
+\t\t</AbsoluteFill>
+\t);
+};
+`;
+	const {output} = await updateSequenceKeyframes({
+		input,
+		nodePath: lineColumnToNodePath(input, getLine(input, 'scale')),
+		updates: [
+			{
+				key: 'style.scale',
+				operation: {
+					type: 'settings',
+					clamping: {left: 'extend', right: 'extend'},
+					posterize: undefined,
+					output: 'linear',
+				},
+			},
+		],
+	});
+
+	expect(output).not.toContain('output');
 });
 
 test('updateSequenceKeyframes sets one easing segment and fills linear segments', async () => {
@@ -529,6 +615,7 @@ test('updateSequenceKeyframes only updates posterize for color keyframes', async
 					type: 'settings',
 					clamping: {left: 'extend', right: 'wrap'},
 					posterize: 3,
+					output: undefined,
 				},
 			},
 		],
@@ -690,6 +777,7 @@ test('updateSequenceKeyframes converts a static value to a single-keyframe inter
 	expect(output).toContain('opacity: interpolate(frame, [0], [0.75], {');
 	expect(output).toContain("extrapolateLeft: 'clamp'");
 	expect(output).toContain("extrapolateRight: 'clamp'");
+	expect(output).not.toContain('perceptual-scale');
 });
 
 test('updateSequenceKeyframes adds a missing nested prop before keyframing it', async () => {
@@ -721,6 +809,7 @@ export const Example: React.FC = () => {
 	expect(output).toContain('scale: interpolate(frame, [30], [2], {');
 	expect(output).toContain("extrapolateLeft: 'clamp'");
 	expect(output).toContain("extrapolateRight: 'clamp'");
+	expect(output).toContain("output: 'perceptual-scale'");
 });
 
 test('updateSequenceKeyframes adds a keyframe to an existing color interpolation', async () => {
@@ -835,6 +924,7 @@ export const Example: React.FC = () => {
 		easing: [],
 		clamping: {left: 'clamp', right: 'clamp'},
 		posterize: undefined,
+		output: undefined,
 	});
 });
 
@@ -979,6 +1069,7 @@ export default CenteredSolid;
 		easing: [],
 		clamping: {left: 'clamp', right: 'clamp'},
 		posterize: undefined,
+		output: undefined,
 	});
 });
 
@@ -1263,6 +1354,28 @@ test('updateEffectKeyframes converts a static value to a clamped interpolation',
 	expect(serialized).toContain('amount: interpolate(frame, [40], [0.6], {');
 	expect(serialized).toContain('extrapolateLeft: "clamp"');
 	expect(serialized).toContain('extrapolateRight: "clamp"');
+	expect(serialized).not.toContain('perceptual-scale');
+});
+
+test('updateEffectKeyframes uses the schema keyframe output default', () => {
+	const {serialized} = updateEffectKeyframesAst({
+		input: scaleEffectInput,
+		sequenceNodePath: lineColumnToNodePath(
+			scaleEffectInput,
+			getLine(scaleEffectInput, '<HtmlInCanvas'),
+		),
+		effectIndex: 0,
+		schema: scaleEffectSchema,
+		updates: [
+			{
+				key: 'scale',
+				operation: {type: 'add', frame: 40, value: 2},
+			},
+		],
+	});
+
+	expect(serialized).toContain('scale: interpolate(frame, [40], [2], {');
+	expect(serialized).toContain('output: "perceptual-scale"');
 });
 
 test('updateEffectKeyframes adds a missing prop before keyframing it', () => {

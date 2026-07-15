@@ -157,6 +157,7 @@ Use a stable `componentIdentity` so saved Studio edits can be associated with th
 ```tsx twoslash title="Badge.tsx"
 import React, {forwardRef, useImperativeHandle, useRef} from 'react';
 import {
+  Internals,
   Interactive,
   Sequence,
   type InteractiveBaseProps,
@@ -246,7 +247,11 @@ export const Badge = Interactive.withSchema({
   schema: badgeSchema,
   supportsEffects: false,
 });
+
+Internals.addSequenceStackTraces(Badge);
 ```
+
+Registering stack traces is currently an internal step. It lets the Studio find the JSX element where `<Badge>` is used, instead of the internal `<Sequence>` rendered by `BadgeInner`.
 
 ## Use the component
 

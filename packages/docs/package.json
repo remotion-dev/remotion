@@ -61,6 +61,7 @@
 		"@remotion/layout-utils": "workspace:*",
 		"@remotion/licensing": "workspace:*",
 		"@remotion/light-leaks": "workspace:*",
+		"@remotion/rough-notation": "workspace:*",
 		"@remotion/lottie": "workspace:*",
 		"@remotion/media": "workspace:*",
 		"@remotion/media-parser": "workspace:*",

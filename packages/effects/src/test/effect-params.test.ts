@@ -26,6 +26,7 @@ import {lightTrail} from '../light-trail/index.js';
 import {linearGradientTint} from '../linear-gradient-tint.js';
 import {linearGradient} from '../linear-gradient.js';
 import {linearProgressiveBlur} from '../linear-progressive-blur/index.js';
+import {linearProgressivePixelate} from '../linear-progressive-pixelate/index.js';
 import {lines} from '../lines.js';
 import {mirror} from '../mirror.js';
 import {
@@ -38,6 +39,7 @@ import {pattern} from '../pattern.js';
 import {pixelDissolve} from '../pixel-dissolve.js';
 import {pixelate} from '../pixelate.js';
 import {radialProgressiveBlur} from '../radial-progressive-blur/index.js';
+import {radialProgressivePixelate} from '../radial-progressive-pixelate/index.js';
 import {rings} from '../rings.js';
 import {roughenEdges} from '../roughen-edges.js';
 import {saturation} from '../saturation.js';
@@ -162,6 +164,9 @@ test('@remotion/effects expose documentation links', () => {
 	expect(linearProgressiveBlur().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/linear-progressive-blur',
 	);
+	expect(linearProgressivePixelate().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/linear-progressive-pixelate',
+	);
 	expect(lightTrail().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/light-trail',
 	);
@@ -189,6 +194,9 @@ test('@remotion/effects expose documentation links', () => {
 	);
 	expect(radialProgressiveBlur().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/radial-progressive-blur',
+	);
+	expect(radialProgressivePixelate().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/radial-progressive-pixelate',
 	);
 	expect(rings().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/rings',
@@ -281,6 +289,9 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(linearProgressiveBlur().definition.label).toBe(
 		'linearProgressiveBlur()',
 	);
+	expect(linearProgressivePixelate().definition.label).toBe(
+		'linearProgressivePixelate()',
+	);
 	expect(lightTrail().definition.label).toBe('lightTrail()');
 	expect(dotGrid().definition.label).toBe('dotGrid()');
 	expect(mirror().definition.label).toBe('mirror()');
@@ -293,6 +304,9 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(pattern().definition.label).toBe('pattern()');
 	expect(radialProgressiveBlur().definition.label).toBe(
 		'radialProgressiveBlur()',
+	);
+	expect(radialProgressivePixelate().definition.label).toBe(
+		'radialProgressivePixelate()',
 	);
 	expect(rings().definition.label).toBe('rings()');
 	expect(saturation().definition.label).toBe('saturation()');
@@ -3085,6 +3099,102 @@ test('radialProgressiveBlur() parameters produce distinct effect keys', () => {
 			moreEndBlur.effectKey,
 		]).size,
 	).toBe(8);
+});
+
+test('linearProgressivePixelate() accepts default params', () => {
+	expect(() => linearProgressivePixelate()).not.toThrow();
+});
+
+test('linearProgressivePixelate() connects its start and end controls', () => {
+	expect(linearProgressivePixelate().definition.schema.start).toMatchObject({
+		type: 'uv-coordinate',
+		visual: {
+			type: 'line',
+			to: 'end',
+		},
+	});
+});
+
+test('linearProgressivePixelate() validates its parameters', () => {
+	expect(() =>
+		linearProgressivePixelate({
+			start: [0.5] as unknown as [number, number],
+		}),
+	).toThrow('"start" must be a [number, number] tuple');
+	expect(() => linearProgressivePixelate({end: [0.5, Number.NaN]})).toThrow(
+		'"end" must be a [number, number] tuple',
+	);
+	expect(() => linearProgressivePixelate({startBlockSize: Number.NaN})).toThrow(
+		'"startBlockSize" must be a finite number',
+	);
+	expect(() => linearProgressivePixelate({endBlockSize: 0})).toThrow(
+		'"endBlockSize" must be >= 1',
+	);
+});
+
+test('linearProgressivePixelate() parameters produce distinct effect keys', () => {
+	const effects = [
+		linearProgressivePixelate(),
+		linearProgressivePixelate({start: [0.2, 0.5]}),
+		linearProgressivePixelate({end: [0.8, 0.5]}),
+		linearProgressivePixelate({startBlockSize: 4}),
+		linearProgressivePixelate({endBlockSize: 80}),
+	];
+	expect(new Set(effects.map((effect) => effect.effectKey)).size).toBe(5);
+});
+
+test('radialProgressivePixelate() accepts default params', () => {
+	expect(() => radialProgressivePixelate()).not.toThrow();
+});
+
+test('radialProgressivePixelate() connects its ellipse controls', () => {
+	const {schema} = radialProgressivePixelate().definition;
+	expect(schema.center).toMatchObject({
+		type: 'uv-coordinate',
+		visual: {
+			type: 'ellipse',
+			width: 'width',
+			height: 'height',
+			rotation: 'rotation',
+			innerScale: 'start',
+		},
+	});
+	expect(schema.width).not.toHaveProperty('max');
+	expect(schema.height).not.toHaveProperty('max');
+});
+
+test('radialProgressivePixelate() validates its parameters', () => {
+	expect(() =>
+		radialProgressivePixelate({
+			center: [0.5] as unknown as [number, number],
+		}),
+	).toThrow('"center" must be a [number, number] tuple');
+	expect(() => radialProgressivePixelate({width: -0.1})).toThrow(
+		'"width" must be >= 0',
+	);
+	expect(() => radialProgressivePixelate({start: 1.1})).toThrow(
+		'"start" must be <= 1',
+	);
+	expect(() => radialProgressivePixelate({endBlockSize: Number.NaN})).toThrow(
+		'"endBlockSize" must be a finite number',
+	);
+	expect(() => radialProgressivePixelate({startBlockSize: 0})).toThrow(
+		'"startBlockSize" must be >= 1',
+	);
+});
+
+test('radialProgressivePixelate() parameters produce distinct effect keys', () => {
+	const effects = [
+		radialProgressivePixelate(),
+		radialProgressivePixelate({center: [0.4, 0.5]}),
+		radialProgressivePixelate({width: 1.2}),
+		radialProgressivePixelate({height: 1.2}),
+		radialProgressivePixelate({rotation: 15}),
+		radialProgressivePixelate({start: 0.2}),
+		radialProgressivePixelate({startBlockSize: 4}),
+		radialProgressivePixelate({endBlockSize: 80}),
+	];
+	expect(new Set(effects.map((effect) => effect.effectKey)).size).toBe(8);
 });
 
 test('zoomBlur() accepts default params', () => {

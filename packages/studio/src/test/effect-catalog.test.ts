@@ -24,6 +24,12 @@ test('effect catalog exposes documentation links for picker context menu', () =>
 	expect(links.get('pixelate()')).toBe(
 		'https://www.remotion.dev/docs/effects/pixelate',
 	);
+	expect(links.get('linearProgressivePixelate()')).toBe(
+		'https://www.remotion.dev/docs/effects/linear-progressive-pixelate',
+	);
+	expect(links.get('radialProgressivePixelate()')).toBe(
+		'https://www.remotion.dev/docs/effects/radial-progressive-pixelate',
+	);
 	expect(links.get('shrinkwrap()')).toBe(
 		'https://www.remotion.dev/docs/effects/shrinkwrap',
 	);

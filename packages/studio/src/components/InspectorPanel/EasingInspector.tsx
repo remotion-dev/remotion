@@ -30,9 +30,11 @@ import {
 } from './common';
 import {getEasingSelectionFromCurrentKeyframes} from './easing-inspector-selection';
 import {KeyframeEasingNavigator} from './KeyframeEasingNavigator';
+import {KeyframeSettings} from './KeyframeSettings';
 import {SequenceInspectorHeaderWithDivider} from './SequenceInspectorHeader';
 import {
 	detailsContainer,
+	inspectorSectionDivider,
 	sectionHeaderTitle,
 	selectedContainer,
 } from './styles';
@@ -310,7 +312,12 @@ export const EasingInspector: React.FC<{
 		],
 	);
 
-	if (state === null || track === null || currentEasingSelection === null) {
+	if (
+		state === null ||
+		track === null ||
+		currentEasingSelection === null ||
+		easingUpdate === null
+	) {
 		return <InspectorMessage>Easing unavailable</InspectorMessage>;
 	}
 
@@ -322,18 +329,22 @@ export const EasingInspector: React.FC<{
 				state={state}
 				renderHeader={renderHeader}
 			/>
+			<KeyframeSettings update={easingUpdate} />
 			{canAddKeyframeAtPlayhead ? (
-				<div style={detailsContainer}>
-					<InspectorInlineAction
-						disabled={addKeyframeDisabled}
-						onClick={onAddKeyframeAtPlayhead}
-						renderIcon={(color) => (
-							<Plus color={color} style={addKeyframeIcon} />
-						)}
-					>
-						{`Add keyframe at ${addKeyframeTime}`}
-					</InspectorInlineAction>
-				</div>
+				<>
+					<div style={inspectorSectionDivider} />
+					<div style={detailsContainer}>
+						<InspectorInlineAction
+							disabled={addKeyframeDisabled}
+							onClick={onAddKeyframeAtPlayhead}
+							renderIcon={(color) => (
+								<Plus color={color} style={addKeyframeIcon} />
+							)}
+						>
+							{`Add keyframe at ${addKeyframeTime}`}
+						</InspectorInlineAction>
+					</div>
+				</>
 			) : null}
 		</div>
 	);

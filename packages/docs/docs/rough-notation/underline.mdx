@@ -1,0 +1,59 @@
+---
+image: /generated/articles-docs-rough-notation-underline.png
+title: '<Underline>'
+crumb: '@remotion/rough-notation'
+---
+
+# &lt;Underline&gt;<AvailableFrom v="4.0.490" />
+
+Draws an animated hand-drawn underline below the text or element it wraps.
+
+## Example
+
+<Demo type="rough-notation-underline" />
+
+```tsx twoslash title="MyComp.tsx"
+import {Underline} from '@remotion/rough-notation';
+
+export const MyComp: React.FC = () => {
+  return (
+    <Underline
+      progress={1}
+      color="rgba(53, 95, 143, 0.71)"
+      strokeWidth={10}
+      iterations={3}
+    >
+      this
+    </Underline>
+  );
+};
+```
+
+## API
+
+### `strokeWidth?`
+
+The stroke width in pixels. Default: `20`.
+
+### `iterations?`
+
+The number of rough strokes to draw. Default: `2`.
+
+### `padding?`
+
+Accepts a `top` value to move the underline down from the text.
+
+### `rtl?`
+
+Draws the underline right-to-left. Default: `false`.
+
+Also accepts the [common annotation props](/docs/rough-notation/api#common-props).
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
+
+## See also
+
+- [Text highlights](/docs/text-highlights)
+- [`<Highlight>`](/docs/rough-notation/highlight)

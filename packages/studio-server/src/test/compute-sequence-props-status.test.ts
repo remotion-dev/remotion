@@ -93,6 +93,7 @@ export const Example: React.FC = () => {
 		easing: [{type: 'linear'}],
 		clamping: {left: 'clamp', right: 'clamp'},
 		posterize: undefined,
+		output: undefined,
 	});
 });
 
@@ -119,6 +120,39 @@ export const Example: React.FC = () => {
 			effects: [],
 		}),
 	).toThrow(JsxElementIdentityMismatchError);
+});
+
+test('computeSequencePropsStatus should match hyphenated package imports by component identity', () => {
+	const input = `import React from 'react';
+import {Highlight} from '@remotion/rough-notation';
+
+export const Example: React.FC = () => {
+\treturn (
+\t\t<Highlight progress={1} color="yellow">
+\t\t\tHighlighted
+\t\t</Highlight>
+\t);
+};
+`;
+	const result = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 6),
+		componentIdentity: 'dev.remotion.roughNotation.Highlight',
+		keys: ['progress', 'color'],
+		effects: [],
+	});
+
+	expect(result.canUpdate).toBe(true);
+	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
+
+	expect(result.props.progress).toEqual({
+		status: 'static',
+		codeValue: 1,
+	});
+	expect(result.props.color).toEqual({
+		status: 'static',
+		codeValue: 'yellow',
+	});
 });
 
 test('computeSequencePropsStatus should match namespace imports by component identity', () => {
@@ -181,6 +215,7 @@ export const Example: React.FC = () => {
 		easing: [{type: 'bezier', x1: 0.42, y1: 0, x2: 1, y2: 1}, {type: 'linear'}],
 		clamping: {left: 'clamp', right: 'clamp'},
 		posterize: 2,
+		output: undefined,
 	});
 });
 
@@ -226,6 +261,7 @@ export const Example: React.FC = () => {
 		],
 		clamping: {left: 'extend', right: 'extend'},
 		posterize: undefined,
+		output: undefined,
 	});
 });
 
@@ -261,6 +297,7 @@ export const Example: React.FC = () => {
 		easing: [{type: 'linear'}],
 		clamping: {left: 'extend', right: 'extend'},
 		posterize: undefined,
+		output: undefined,
 	});
 });
 
@@ -307,6 +344,7 @@ export const Example: React.FC = () => {
 		],
 		clamping: {left: 'clamp', right: 'clamp'},
 		posterize: undefined,
+		output: undefined,
 	});
 });
 
@@ -370,6 +408,7 @@ export const Example: React.FC = () => {
 		easing: [{type: 'linear'}],
 		clamping: {left: 'extend', right: 'extend'},
 		posterize: undefined,
+		output: undefined,
 	});
 });
 
@@ -525,6 +564,7 @@ test('computeSequencePropsStatus should return keyframes for interpolated style 
 		easing: [{type: 'linear'}],
 		clamping: {left: 'extend', right: 'extend'},
 		posterize: undefined,
+		output: undefined,
 	});
 });
 
@@ -579,6 +619,7 @@ export const Example: React.FC = () => {
 		],
 		clamping: {left: 'clamp', right: 'clamp'},
 		posterize: undefined,
+		output: undefined,
 	});
 });
 
@@ -626,6 +667,7 @@ export const Example: React.FC = () => {
 			right: 'identity',
 		},
 		posterize: undefined,
+		output: undefined,
 	});
 });
 
@@ -662,6 +704,44 @@ export const Example: React.FC = () => {
 		easing: [{type: 'linear'}],
 		clamping: {left: 'extend', right: 'extend'},
 		posterize: 3,
+		output: undefined,
+	});
+});
+
+test('computeSequencePropsStatus should parse output on interpolated props', () => {
+	const input = `import React from 'react';
+import {Sequence, interpolate, useCurrentFrame} from 'remotion';
+
+export const Example: React.FC = () => {
+\tconst frame = useCurrentFrame();
+\treturn (
+\t\t<Sequence style={{scale: interpolate(frame, [0, 100], [1, 3], {output: 'perceptual-scale'})}} />
+\t);
+};
+`;
+
+	const result = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 7),
+		componentIdentity: null,
+		keys: ['style.scale'],
+		effects: [],
+	});
+
+	expect(result.canUpdate).toBe(true);
+	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
+
+	expect(result.props['style.scale']).toEqual({
+		status: 'keyframed',
+		interpolationFunction: 'interpolate',
+		keyframes: [
+			{frame: 0, value: 1},
+			{frame: 100, value: 3},
+		],
+		easing: [{type: 'linear'}],
+		clamping: {left: 'extend', right: 'extend'},
+		posterize: undefined,
+		output: 'perceptual-scale',
 	});
 });
 
@@ -698,6 +778,35 @@ export const Example: React.FC = () => {
 		easing: [{type: 'linear'}],
 		clamping: {left: 'clamp', right: 'clamp'},
 		posterize: 3,
+		output: undefined,
+	});
+});
+
+test('computeSequencePropsStatus should bail on output for interpolated color props', () => {
+	const input = `import React from 'react';
+import {Solid, interpolateColors, useCurrentFrame} from 'remotion';
+
+export const Example: React.FC = () => {
+\tconst frame = useCurrentFrame();
+\treturn (
+\t\t<Solid color={interpolateColors(frame, [0, 100], ['red', 'blue'], {output: 'perceptual-scale'})} width={100} height={100} />
+\t);
+};
+`;
+
+	const result = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 7),
+		componentIdentity: null,
+		keys: ['color'],
+		effects: [],
+	});
+
+	expect(result.canUpdate).toBe(true);
+	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
+
+	expect(result.props.color).toEqual({
+		status: 'computed',
 	});
 });
 
@@ -710,6 +819,35 @@ export const Example: React.FC = () => {
 \tconst posterize = 3;
 \treturn (
 \t\t<Sequence style={{scale: interpolate(frame, [0, 100], [1, 3], {posterize})}} />
+\t);
+};
+`;
+
+	const result = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 8),
+		componentIdentity: null,
+		keys: ['style.scale'],
+		effects: [],
+	});
+
+	expect(result.canUpdate).toBe(true);
+	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
+
+	expect(result.props['style.scale']).toEqual({
+		status: 'computed',
+	});
+});
+
+test('computeSequencePropsStatus should bail on computed output expressions', () => {
+	const input = `import React from 'react';
+import {Sequence, interpolate, useCurrentFrame} from 'remotion';
+
+export const Example: React.FC = () => {
+\tconst frame = useCurrentFrame();
+\tconst output = 'perceptual-scale';
+\treturn (
+\t\t<Sequence style={{scale: interpolate(frame, [0, 100], [1, 3], {output})}} />
 \t);
 };
 `;
@@ -765,6 +903,7 @@ export const Example: React.FC = () => {
 		easing: [{type: 'bezier', x1: 1 / 3, y1: 0, x2: 2 / 3, y2: 0}],
 		clamping: {left: 'extend', right: 'extend'},
 		posterize: undefined,
+		output: undefined,
 	});
 });
 

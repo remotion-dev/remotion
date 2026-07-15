@@ -8,7 +8,13 @@ export const TableOfContents: React.FC = () => {
 			<Grid>
 				<TOCItem link="/docs/ai/coding-agents">
 					<strong>{'Coding Agents'}</strong>
-					<div>Use Claude Code, Codex or OpenCode to prompt Remotion videos</div>
+					<div>
+						Use Claude Code, Codex or OpenCode to prompt Remotion videos
+					</div>
+				</TOCItem>
+				<TOCItem link="/docs/ai/codex-plugin">
+					<strong>{'Codex plugin'}</strong>
+					<div>Use the Remotion plugin in the ChatGPT Codex app</div>
 				</TOCItem>
 				<TOCItem link="/docs/ai/chatbot">
 					<strong>{'Chatbot'}</strong>

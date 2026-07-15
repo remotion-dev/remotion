@@ -50,17 +50,19 @@ export type DelayRenderOptions = {
  * This allows useDelayRender to control its own environment source.
  * @private
  */
+type DelayRenderInternalOptions = {
+	scope: DelayRenderScope;
+	environment: RemotionEnvironment;
+	label: string | null;
+	options: DelayRenderOptions;
+};
+
 export const delayRenderInternal = ({
 	scope,
 	environment,
 	label,
 	options,
-}: {
-	scope: DelayRenderScope;
-	environment: RemotionEnvironment;
-	label: string | null;
-	options: DelayRenderOptions;
-}): number => {
+}: DelayRenderInternalOptions): number => {
 	if (typeof label !== 'string' && label !== null) {
 		throw new Error(
 			'The label parameter of delayRender() must be a string or undefined, got: ' +
@@ -135,17 +137,19 @@ export const delayRender = (
  * Internal function that accepts environment as parameter.
  * @private
  */
+type ContinueRenderInternalOptions = {
+	scope: DelayRenderScope;
+	handle: number;
+	environment: RemotionEnvironment;
+	logLevel: LogLevel;
+};
+
 export const continueRenderInternal = ({
 	scope,
 	handle,
 	environment,
 	logLevel,
-}: {
-	scope: DelayRenderScope;
-	handle: number;
-	environment: RemotionEnvironment;
-	logLevel: LogLevel;
-}): void => {
+}: ContinueRenderInternalOptions): void => {
 	if (typeof handle === 'undefined') {
 		throw new TypeError(
 			'The continueRender() method must be called with a parameter that is the return value of delayRender(). No value was passed.',
@@ -159,33 +163,24 @@ export const continueRenderInternal = ({
 		);
 	}
 
+	const handleExists = scope.remotion_delayRenderHandles.includes(handle);
+	const timeoutEntry = scope.remotion_delayRenderTimeouts[handle];
+	if (handleExists && environment.isRendering && timeoutEntry) {
+		const {label, startTime, timeout} = timeoutEntry;
+		clearTimeout(timeout);
+		const message = [
+			label ? `"${label}"` : 'A handle',
+			DELAY_RENDER_CLEAR_TOKEN,
+			`${Date.now() - startTime}ms`,
+		]
+			.filter(truthy)
+			.join(' ');
+		Log.verbose({logLevel, tag: 'delayRender()'}, message);
+		delete scope.remotion_delayRenderTimeouts[handle];
+	}
+
 	scope.remotion_delayRenderHandles = scope.remotion_delayRenderHandles.filter(
-		(h) => {
-			if (h === handle) {
-				if (environment.isRendering && scope !== undefined) {
-					if (!scope.remotion_delayRenderTimeouts[handle]) {
-						return false;
-					}
-
-					const {label, startTime, timeout} =
-						scope.remotion_delayRenderTimeouts[handle];
-					clearTimeout(timeout);
-					const message = [
-						label ? `"${label}"` : 'A handle',
-						DELAY_RENDER_CLEAR_TOKEN,
-						`${Date.now() - startTime}ms`,
-					]
-						.filter(truthy)
-						.join(' ');
-					Log.verbose({logLevel, tag: 'delayRender()'}, message);
-					delete scope.remotion_delayRenderTimeouts[handle];
-				}
-
-				return false;
-			}
-
-			return true;
-		},
+		(h) => h !== handle,
 	);
 
 	if (scope.remotion_delayRenderHandles.length === 0) {
