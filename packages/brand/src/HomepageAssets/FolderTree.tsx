@@ -20,13 +20,13 @@ const selectionHeight = 28;
 const selectionRadius = Math.max(panelRadius - contentPadding, 0);
 const childRowOffset = rowHeight + rowGap;
 const finalSelectionY = panelHeight - contentPadding - selectionHeight;
-export const folderTreeSelectionMoveStart = 58;
-export const folderTreeSelectionMoveEnd = 98;
+export const folderTreeSelectionMoveStart = 86;
+export const folderTreeSelectionMoveEnd = 126;
 const selectionTiming = [
 	0,
 	folderTreeSelectionMoveStart,
 	folderTreeSelectionMoveEnd,
-	119,
+	149,
 ];
 const selectionTransition = {
 	easing: Easing.bezier(0.45, 0, 0.55, 1),

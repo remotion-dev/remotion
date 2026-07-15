@@ -12,9 +12,9 @@ const forwardDurationInFrames = 150;
 const pingPongDurationInFrames = forwardDurationInFrames * 2 - 1;
 export const designSystemsDurationInFrames =
 	pingPongDurationInFrames - folderTreeSelectionMoveStart;
-const endcardSequenceStart = folderTreeSelectionMoveStart;
-const animatedLogoExitEnd = 72;
-const assetScaleOverlap = 8;
+const endcardSequenceStart = folderTreeSelectionMoveStart - 2;
+const animatedLogoExitEnd = 100;
+const assetScaleOverlap = 1;
 const endcardEnterStart = animatedLogoExitEnd - assetScaleOverlap;
 const scaleSpring = Easing.spring({
 	damping: 200,
