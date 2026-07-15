@@ -15,4 +15,25 @@ Remove the `^` character from the version number to use the exact version.
 
 ## Usage
 
+Choose the component that matches the annotation you want to draw:
+
+```tsx
+import {Circle, Highlight} from '@remotion/rough-notation';
+
+export const MyComp = () => {
+	return (
+		<div>
+			<Highlight progress={1} color="yellow">
+				Highlighted text
+			</Highlight>
+			<Circle progress={1} color="blue">
+				Circled text
+			</Circle>
+		</div>
+	);
+};
+```
+
+The package exports `Highlight`, `Underline`, `StrikeThrough`, `CrossedOff`, `Box`, `Bracket`, and `Circle`.
+
 See the [documentation](https://www.remotion.dev/docs/rough-notation) for more information.

@@ -77,9 +77,9 @@ test('_internalMakeRemotionComponentIdentity normalizes first-party package name
 	expect(
 		Interactive._internalMakeRemotionComponentIdentity({
 			packageName: '@remotion/rough-notation',
-			componentName: 'AnnotationBehind',
+			componentName: 'Highlight',
 		}),
-	).toBe('dev.remotion.roughNotation.AnnotationBehind');
+	).toBe('dev.remotion.roughNotation.Highlight');
 });
 
 test('getFlatSchema(sequenceSchema) exposes every variant key', () => {

@@ -1,0 +1,57 @@
+---
+image: /generated/articles-docs-rough-notation-box.png
+title: '<Box>'
+crumb: '@remotion/rough-notation'
+---
+
+# &lt;Box&gt;<AvailableFrom v="4.0.489" />
+
+Draws an animated hand-drawn box around the text or element it wraps.
+
+## Example
+
+<Demo type="rough-notation-box" />
+
+```tsx twoslash title="MyComp.tsx"
+import {Box} from '@remotion/rough-notation';
+
+export const MyComp: React.FC = () => {
+  return (
+    <Box
+      progress={1}
+      color="#fe0000"
+      strokeWidth={8}
+      iterations={1}
+      roughness={0.9}
+      padding={{left: 3, right: 6, top: -12, bottom: -5}}
+    >
+      box
+    </Box>
+  );
+};
+```
+
+## API
+
+### `strokeWidth?`
+
+The stroke width in pixels. Default: `7`.
+
+### `iterations?`
+
+The number of rough strokes to draw. Default: `2`.
+
+### `padding?`
+
+Insets or outsets for the box. Accepts `left`, `right`, `top` and `bottom`.
+
+Also accepts the [common annotation props](/docs/rough-notation/api#common-props).
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
+
+## See also
+
+- [Text highlights](/docs/text-highlights)
+- [`<Bracket>`](/docs/rough-notation/bracket)

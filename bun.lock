@@ -1442,7 +1442,7 @@
     },
     "packages/rough-notation": {
       "name": "@remotion/rough-notation",
-      "version": "4.0.488",
+      "version": "4.0.489",
       "dependencies": {
         "@remotion/paths": "workspace:*",
         "remotion": "workspace:*",

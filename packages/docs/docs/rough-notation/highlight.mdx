@@ -1,0 +1,112 @@
+---
+image: /generated/articles-docs-rough-notation-highlight.png
+title: '<Highlight>'
+crumb: '@remotion/rough-notation'
+---
+
+# &lt;Highlight&gt;<AvailableFrom v="4.0.489" />
+
+Draws an animated marker highlight behind the text or element it wraps.
+
+## Example
+
+<Demo type="rough-notation-highlight" />
+
+```tsx twoslash title="RoughNotationHighlight.tsx"
+import {loadFont} from '@remotion/google-fonts/CormorantGaramond';
+import {Highlight} from '@remotion/rough-notation';
+import React from 'react';
+import {
+  AbsoluteFill,
+  Easing,
+  Interactive,
+  interpolate,
+  useCurrentFrame,
+} from 'remotion';
+
+const {fontFamily} = loadFont('normal', {
+  weights: ['700'],
+  subsets: ['latin'],
+});
+
+export const RoughNotationHighlight: React.FC = () => {
+  const frame = useCurrentFrame();
+
+  return (
+    <AbsoluteFill
+      style={{
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#f5f6f7',
+      }}
+    >
+      <Interactive.Div
+        name="Container"
+        style={{
+          fontSize: 80,
+          fontWeight: 700,
+          lineHeight: 1.1,
+          color: '#171717',
+          fontFamily,
+          width: 800,
+        }}
+      >
+        <Interactive.Span>A truly </Interactive.Span>
+        <Highlight
+          name="Highlight annotation"
+          progress={interpolate(frame, [0, 25], [0, 1], {
+            extrapolateLeft: 'clamp',
+            extrapolateRight: 'clamp',
+            easing: [
+              Easing.spring({
+                damping: 200,
+                mass: 1,
+                stiffness: 100,
+                allowTail: true,
+                durationRestThreshold: 0.02,
+                overshootClamping: false,
+              }),
+            ],
+          })}
+          color="rgba(255, 236, 79, 0.62)"
+          maxRandomnessOffset={10}
+          roughness={2.3}
+          padding={{
+            left: 20,
+            right: 20,
+          }}
+          bowing={0}
+        >
+          remarkable
+        </Highlight>{' '}
+        <Interactive.Span>end to the World cup</Interactive.Span>
+      </Interactive.Div>
+    </AbsoluteFill>
+  );
+};
+```
+
+## API
+
+### `iterations?`
+
+Number of marker strokes to draw. Default: `2`.
+
+### `padding?`
+
+Insets or outsets for the highlight. Accepts `left`, `right`, `top` and `bottom`.
+
+### `rtl?`
+
+Draws the highlight right-to-left. Default: `false`.
+
+Also accepts the [common annotation props](/docs/rough-notation/api#common-props).
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
+
+## See also
+
+- [Text highlights](/docs/text-highlights)
+- [`<Circle>`](/docs/rough-notation/circle)

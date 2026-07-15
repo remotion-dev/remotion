@@ -661,8 +661,13 @@ const sidebars: SidebarsConfig = {
 				id: 'rough-notation/rough-notation-api',
 			},
 			items: [
-				'rough-notation/annotation-behind',
-				'rough-notation/annotation-on-top',
+				'rough-notation/box',
+				'rough-notation/bracket',
+				'rough-notation/circle',
+				'rough-notation/crossed-off',
+				'rough-notation/highlight',
+				'rough-notation/strike-through',
+				'rough-notation/underline',
 			],
 		},
 		{

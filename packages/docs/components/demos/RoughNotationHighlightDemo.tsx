@@ -1,5 +1,5 @@
 import {loadFont} from '@remotion/google-fonts/CormorantGaramond';
-import {AnnotationBehind} from '@remotion/rough-notation';
+import {Highlight} from '@remotion/rough-notation';
 import React from 'react';
 import {
 	AbsoluteFill,
@@ -35,7 +35,7 @@ export const RoughNotationHighlightDemo: React.FC = () => {
 				}}
 			>
 				<Interactive.Span>A truly </Interactive.Span>
-				<AnnotationBehind
+				<Highlight
 					name="Highlight annotation"
 					progress={interpolate(frame, [0, 25], [0, 1], {
 						extrapolateLeft: 'clamp',
@@ -51,7 +51,6 @@ export const RoughNotationHighlightDemo: React.FC = () => {
 							}),
 						],
 					})}
-					type="highlight"
 					color={'rgba(255, 236, 79, 0.62)'}
 					maxRandomnessOffset={10}
 					roughness={2.3}
@@ -62,7 +61,7 @@ export const RoughNotationHighlightDemo: React.FC = () => {
 					bowing={0}
 				>
 					remarkable
-				</AnnotationBehind>{' '}
+				</Highlight>{' '}
 				<Interactive.Span>end to the World cup</Interactive.Span>
 			</Interactive.Div>
 		</AbsoluteFill>

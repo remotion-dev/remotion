@@ -1,5 +1,5 @@
 import {loadFont} from '@remotion/google-fonts/CormorantGaramond';
-import {AnnotationOnTop} from '@remotion/rough-notation';
+import {Circle} from '@remotion/rough-notation';
 import React from 'react';
 import {
 	AbsoluteFill,
@@ -34,10 +34,9 @@ export const RoughNotationPosterizedSeedDemo: React.FC = () => {
 					textAlign: 'center',
 				}}
 			>
-				<AnnotationOnTop
+				<Circle
 					name="Posterized seed annotation"
 					progress={1}
-					type="circle"
 					color={'#2563eb'}
 					strokeWidth={10}
 					roughness={1.8}
@@ -48,7 +47,7 @@ export const RoughNotationPosterizedSeedDemo: React.FC = () => {
 					})}
 				>
 					motion
-				</AnnotationOnTop>
+				</Circle>
 			</Interactive.Div>
 		</AbsoluteFill>
 	);

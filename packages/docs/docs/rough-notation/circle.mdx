@@ -1,0 +1,73 @@
+---
+image: /generated/articles-docs-rough-notation-circle.png
+title: '<Circle>'
+crumb: '@remotion/rough-notation'
+---
+
+# &lt;Circle&gt;<AvailableFrom v="4.0.489" />
+
+Draws an animated hand-drawn circle around the text or element it wraps.
+
+## Example
+
+<Demo type="rough-notation-circle" />
+
+```tsx twoslash title="MyComp.tsx"
+import {Circle} from '@remotion/rough-notation';
+
+export const MyComp: React.FC = () => {
+  return (
+    <Circle
+      progress={1}
+      color="rgba(37, 99, 235, 0.57)"
+      strokeWidth={12}
+      roughness={0.6}
+      padding={{left: 10, right: 10, top: 10, bottom: 10}}
+      box="inside"
+    >
+      circular
+    </Circle>
+  );
+};
+```
+
+## API
+
+### `strokeWidth?`
+
+The stroke width in pixels. Default: `20`.
+
+### `iterations?`
+
+The number of rough strokes to draw. Each iteration gets a different seed. Default: `2`.
+
+### `padding?`
+
+Insets or outsets for the circle. Accepts `left`, `right`, `top` and `bottom`.
+
+### `box?`
+
+Set to `around` to circle the element bounds or `inside` to fit the ellipse inside the padded box. Default: `around`.
+
+### `curveFitting?`
+
+Controls how closely the curve fits its points. Default: `0.95`.
+
+### `curveTightness?`
+
+Controls the curve tightness. Default: `0`.
+
+### `curveStepCount?`
+
+Controls how many steps approximate the curve. Default: `9`.
+
+Also accepts the [common annotation props](/docs/rough-notation/api#common-props).
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
+
+## See also
+
+- [Text highlights](/docs/text-highlights)
+- [`<Highlight>`](/docs/rough-notation/highlight)

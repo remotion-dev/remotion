@@ -1,4 +1,4 @@
-import {AnnotationOnTop} from '@remotion/rough-notation';
+import {Box} from '@remotion/rough-notation';
 import React from 'react';
 import {
 	AbsoluteFill,
@@ -25,13 +25,12 @@ export const RoughNotationBox: React.FC = () => {
 				}}
 			>
 				<Interactive.Span>Think outside the </Interactive.Span>
-				<AnnotationOnTop
+				<Box
 					name="Box annotation"
 					progress={interpolate(frame, [0, 23], [0, 1], {
 						extrapolateLeft: 'clamp',
 						extrapolateRight: 'clamp',
 					})}
-					type="box"
 					color={'#fe0000'}
 					strokeWidth={8}
 					iterations={1}
@@ -44,7 +43,7 @@ export const RoughNotationBox: React.FC = () => {
 					roughness={0.9}
 				>
 					box
-				</AnnotationOnTop>
+				</Box>
 			</Interactive.Div>
 		</AbsoluteFill>
 	);

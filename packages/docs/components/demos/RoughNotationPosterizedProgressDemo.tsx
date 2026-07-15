@@ -1,5 +1,5 @@
 import {loadFont} from '@remotion/google-fonts/CormorantGaramond';
-import {AnnotationOnTop} from '@remotion/rough-notation';
+import {Circle} from '@remotion/rough-notation';
 import React from 'react';
 import {
 	AbsoluteFill,
@@ -34,20 +34,19 @@ export const RoughNotationPosterizedProgressDemo: React.FC = () => {
 					textAlign: 'center',
 				}}
 			>
-				<AnnotationOnTop
+				<Circle
 					name="Posterized progress annotation"
 					progress={interpolate(frame, [0, 43], [0, 1], {
 						extrapolateLeft: 'clamp',
 						extrapolateRight: 'clamp',
 						posterize: 10,
 					})}
-					type="circle"
 					color={'#2563eb'}
 					strokeWidth={10}
 					roughness={1.8}
 				>
 					motion
-				</AnnotationOnTop>
+				</Circle>
 			</Interactive.Div>
 		</AbsoluteFill>
 	);

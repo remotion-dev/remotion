@@ -17,12 +17,12 @@ Install the package using the same Remotion version as the project:
 bunx remotion add @remotion/rough-notation
 ```
 
-Use `<AnnotationBehind>` for annotations that should appear behind the text, such as a marker highlight. Use `<AnnotationOnTop>` for circles, underlines, strike-throughs, crossed-off text, boxes, and brackets.
+Choose the component that describes the annotation: `<Highlight>`, `<Circle>`, `<Underline>`, `<StrikeThrough>`, `<CrossedOff>`, `<Box>`, or `<Bracket>`. The component determines both the annotation style and whether it renders behind or on top of the text.
 
 Drive `progress` from `useCurrentFrame()` so the annotation is deterministic and synchronized with the video:
 
 ```tsx
-import {AnnotationBehind, AnnotationOnTop} from '@remotion/rough-notation';
+import {Circle, Highlight} from '@remotion/rough-notation';
 import {interpolate, useCurrentFrame} from 'remotion';
 
 export const TextAnnotations: React.FC = () => {
@@ -35,17 +35,16 @@ export const TextAnnotations: React.FC = () => {
   return (
     <div style={{fontSize: 80}}>
       This is{' '}
-      <AnnotationBehind
-        type="highlight"
+      <Highlight
         color="rgba(255, 236, 79, 0.62)"
         progress={progress}
       >
         important
-      </AnnotationBehind>
+      </Highlight>
       , and this is{' '}
-      <AnnotationOnTop type="circle" color="#2563eb" progress={progress}>
+      <Circle color="#2563eb" progress={progress}>
         connected
-      </AnnotationOnTop>
+      </Circle>
       .
     </div>
   );

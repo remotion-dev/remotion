@@ -1,0 +1,50 @@
+---
+image: /generated/articles-docs-rough-notation-strike-through.png
+title: '<StrikeThrough>'
+crumb: '@remotion/rough-notation'
+---
+
+# &lt;StrikeThrough&gt;<AvailableFrom v="4.0.489" />
+
+Draws an animated hand-drawn line through the text or element it wraps.
+
+## Example
+
+<Demo type="rough-notation-strike-through" />
+
+```tsx twoslash title="MyComp.tsx"
+import {StrikeThrough} from '@remotion/rough-notation';
+
+export const MyComp: React.FC = () => {
+  return (
+    <StrikeThrough progress={1} color="#f11515" strokeWidth={14}>
+      forbidden
+    </StrikeThrough>
+  );
+};
+```
+
+## API
+
+### `strokeWidth?`
+
+The stroke width in pixels. Default: `20`.
+
+### `iterations?`
+
+The number of rough strokes to draw. Default: `1`.
+
+### `rtl?`
+
+Draws the line right-to-left. Default: `false`.
+
+Also accepts the [common annotation props](/docs/rough-notation/api#common-props).
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
+
+## See also
+
+- [Text highlights](/docs/text-highlights)
+- [`<CrossedOff>`](/docs/rough-notation/crossed-off)

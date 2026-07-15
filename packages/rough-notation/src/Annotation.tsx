@@ -8,20 +8,59 @@ import {
 	type SequenceControls,
 } from 'remotion';
 import {createAnnotation} from './create-annotation';
-import type {AnnotationConfig, RoughAnnotationOptions} from './types';
+import type {
+	AnnotationConfig,
+	Box as BoxMode,
+	BoxConfig,
+	BracketAnnotationConfig,
+	CircleConfig,
+	CrossedOffConfig,
+	CurveAnnotationOptions,
+	HighlightConfig,
+	Padding,
+	SharedRoughAnnotationOptions,
+	StrikeThroughConfig,
+	UnderlineConfig,
+} from './types';
 
-type AnnotationComponentProps = Readonly<
+type SharedAnnotationComponentProps = Readonly<
 	{
-		children: React.ReactNode;
-		progress: number;
-		seed?: number;
-		style?: React.CSSProperties;
-	} & AnnotationConfig &
-		RoughAnnotationOptions
+		readonly children: React.ReactNode;
+		readonly progress: number;
+		readonly seed?: number;
+		readonly disabled?: boolean;
+		readonly style?: React.CSSProperties;
+	} & SharedRoughAnnotationOptions
 >;
 
-type AnnotationInteractiveProps = AnnotationComponentProps &
+type AnnotationInteractiveProps<Config> = SharedAnnotationComponentProps &
+	Readonly<Config> &
 	InteractiveBaseProps;
+
+export type HighlightProps = AnnotationInteractiveProps<HighlightConfig>;
+export type UnderlineProps = AnnotationInteractiveProps<UnderlineConfig>;
+export type StrikeThroughProps =
+	AnnotationInteractiveProps<StrikeThroughConfig>;
+export type CrossedOffProps = AnnotationInteractiveProps<CrossedOffConfig>;
+export type BoxProps = AnnotationInteractiveProps<BoxConfig>;
+export type BracketProps = AnnotationInteractiveProps<BracketAnnotationConfig>;
+export type CircleProps = AnnotationInteractiveProps<
+	CircleConfig & CurveAnnotationOptions
+>;
+
+type InternalAnnotationProps = SharedAnnotationComponentProps &
+	InteractiveBaseProps & {
+		readonly color?: string;
+		readonly strokeWidth?: number;
+		readonly padding?: Partial<Padding>;
+		readonly iterations?: number;
+		readonly rtl?: boolean;
+		readonly box?: BoxMode;
+		readonly bracketLeft?: boolean;
+		readonly bracketRight?: boolean;
+		readonly bracketTop?: boolean;
+		readonly bracketBottom?: boolean;
+	} & CurveAnnotationOptions;
 
 const colorSchema = {
 	color: {
@@ -31,27 +70,27 @@ const colorSchema = {
 	},
 } as const satisfies InteractivitySchema;
 
-const strokeWidthSchema = {
+const strokeWidthSchema = (defaultValue: number): InteractivitySchema => ({
 	strokeWidth: {
 		type: 'number',
 		min: 0,
 		step: 1,
-		default: 20,
+		default: defaultValue,
 		description: 'Stroke Width',
 		hiddenFromList: false,
 	},
-} as const satisfies InteractivitySchema;
+});
 
-const iterationsSchema = {
+const iterationsSchema = (defaultValue: number): InteractivitySchema => ({
 	iterations: {
 		type: 'number',
 		min: 1,
 		step: 1,
-		default: 2,
+		default: defaultValue,
 		description: 'Iterations',
 		hiddenFromList: false,
 	},
-} as const satisfies InteractivitySchema;
+});
 
 const rtlSchema = {
 	rtl: {
@@ -61,12 +100,14 @@ const rtlSchema = {
 	},
 } as const satisfies InteractivitySchema;
 
-const roughJsControlsSchema = {
+const roughJsControlsSchema = (
+	defaultRoughness: number,
+): InteractivitySchema => ({
 	roughness: {
 		type: 'number',
 		min: 0,
 		step: 0.1,
-		default: 1.5,
+		default: defaultRoughness,
 		description: 'Roughness',
 		hiddenFromList: false,
 	},
@@ -96,7 +137,7 @@ const roughJsControlsSchema = {
 		default: false,
 		description: 'Preserve Vertices',
 	},
-} as const satisfies InteractivitySchema;
+});
 
 const curveControlsSchema = {
 	curveFitting: {
@@ -168,7 +209,7 @@ const textContentSchema = {
 	},
 } as const satisfies InteractivitySchema;
 
-export const annotationInteractiveSchema: InteractivitySchema = {
+const sharedSchema = (defaultRoughness: number): InteractivitySchema => ({
 	...Interactive.baseSchema,
 	progress: {
 		type: 'number',
@@ -179,6 +220,11 @@ export const annotationInteractiveSchema: InteractivitySchema = {
 		description: 'Progress',
 		hiddenFromList: false,
 	},
+	disabled: {
+		type: 'boolean',
+		default: false,
+		description: 'Disabled',
+	},
 	seed: {
 		type: 'number',
 		step: 1,
@@ -186,194 +232,267 @@ export const annotationInteractiveSchema: InteractivitySchema = {
 		description: 'Seed',
 		hiddenFromList: false,
 	},
-	...roughJsControlsSchema,
+	...roughJsControlsSchema(defaultRoughness),
 	...colorSchema,
 	...Interactive.textSchema,
 	...textContentSchema,
-	...strokeWidthSchema,
-	...iterationsSchema,
+});
+
+export const highlightSchema: InteractivitySchema = {
+	...sharedSchema(3),
+	...iterationsSchema(2),
 	...rtlSchema,
-	type: {
+	...paddingSchema,
+};
+
+export const underlineSchema: InteractivitySchema = {
+	...sharedSchema(1.5),
+	...strokeWidthSchema(20),
+	...iterationsSchema(2),
+	...rtlSchema,
+	...underlinePaddingSchema,
+};
+
+export const strikeThroughSchema: InteractivitySchema = {
+	...sharedSchema(1.5),
+	...strokeWidthSchema(20),
+	...iterationsSchema(1),
+	...rtlSchema,
+};
+
+export const crossedOffSchema: InteractivitySchema = {
+	...sharedSchema(1.5),
+	...strokeWidthSchema(20),
+	...iterationsSchema(1),
+	...rtlSchema,
+};
+
+export const boxSchema: InteractivitySchema = {
+	...sharedSchema(1.5),
+	...strokeWidthSchema(7),
+	...iterationsSchema(2),
+	...paddingSchema,
+};
+
+export const bracketSchema: InteractivitySchema = {
+	...sharedSchema(1.5),
+	...strokeWidthSchema(20),
+	...paddingSchema,
+	bracketLeft: {
+		type: 'boolean',
+		default: false,
+		description: 'Left Bracket',
+	},
+	bracketRight: {
+		type: 'boolean',
+		default: true,
+		description: 'Right Bracket',
+	},
+	bracketTop: {
+		type: 'boolean',
+		default: false,
+		description: 'Top Bracket',
+	},
+	bracketBottom: {
+		type: 'boolean',
+		default: false,
+		description: 'Bottom Bracket',
+	},
+};
+
+export const circleSchema: InteractivitySchema = {
+	...sharedSchema(1.5),
+	...strokeWidthSchema(20),
+	...iterationsSchema(2),
+	...paddingSchema,
+	...curveControlsSchema,
+	box: {
 		type: 'enum',
-		default: 'underline',
-		description: 'Type',
+		default: 'around',
+		description: 'Box',
 		keyframable: false,
 		variants: {
-			none: {},
-			underline: {
-				...underlinePaddingSchema,
-			},
-			'strike-through': {},
-			box: {
-				...paddingSchema,
-			},
-			bracket: {
-				...paddingSchema,
-				bracketLeft: {
-					type: 'boolean',
-					default: false,
-					description: 'Left Bracket',
-				},
-				bracketRight: {
-					type: 'boolean',
-					default: true,
-					description: 'Right Bracket',
-				},
-				bracketTop: {
-					type: 'boolean',
-					default: false,
-					description: 'Top Bracket',
-				},
-				bracketBottom: {
-					type: 'boolean',
-					default: false,
-					description: 'Bottom Bracket',
-				},
-			},
-			'crossed-off': {},
-			circle: {
-				...paddingSchema,
-				...curveControlsSchema,
-				box: {
-					type: 'enum',
-					default: 'around',
-					description: 'Box',
-					keyframable: false,
-					variants: {
-						inside: {},
-						around: {},
-					},
-				},
-			},
-			highlight: {
-				...paddingSchema,
-			},
+			inside: {},
+			around: {},
 		},
 	},
 };
 
-const AnnotationOnTopInner: React.FC<
-	AnnotationInteractiveProps & {
-		readonly controls: SequenceControls | undefined;
-		readonly stack?: string;
-	}
-> = ({
-	children,
-	durationInFrames,
-	from,
-	trimBefore,
-	freeze,
-	hidden,
-	name,
-	showInTimeline,
-	controls,
-	stack,
-	style,
-	...props
-}) => {
-	const annotation = useMemo(() => {
-		return createAnnotation();
-	}, []);
-	const outlineRef = React.useRef<HTMLSpanElement | null>(null);
+const annotationSchemas = [
+	highlightSchema,
+	underlineSchema,
+	strikeThroughSchema,
+	crossedOffSchema,
+	boxSchema,
+	bracketSchema,
+	circleSchema,
+];
 
-	return (
-		<Sequence
-			layout="none"
-			from={from ?? 0}
-			trimBefore={trimBefore}
-			durationInFrames={durationInFrames ?? Infinity}
-			freeze={freeze}
-			hidden={hidden}
-			name={name ?? '<AnnotationOnTop>'}
-			showInTimeline={showInTimeline ?? true}
-			controls={controls}
-			_remotionInternalStack={stack}
-			_remotionInternalDocumentationLink="https://www.remotion.dev/docs/rough-notation/annotation-on-top"
-			outlineRef={outlineRef}
-		>
-			<span ref={outlineRef} style={{display: 'inline-block'}}>
-				<annotation.Container>
-					<annotation.Tracker style={style}>{children}</annotation.Tracker>
-					<annotation.Annotation {...props} />
-				</annotation.Container>
-			</span>
-		</Sequence>
-	);
+export {annotationSchemas};
+
+type AnnotationStyle = Exclude<AnnotationConfig['type'], 'none'>;
+type Layer = 'behind' | 'on-top';
+
+const makeAnnotationComponent = ({
+	type,
+	componentName,
+	documentationSlug,
+	layer,
+	schema,
+}: {
+	readonly type: AnnotationStyle;
+	readonly componentName: string;
+	readonly documentationSlug: string;
+	readonly layer: Layer;
+	readonly schema: InteractivitySchema;
+}): React.FC<InternalAnnotationProps> => {
+	const AnnotationInner: React.FC<
+		InternalAnnotationProps & {
+			readonly controls: SequenceControls | undefined;
+			readonly stack?: string;
+		}
+	> = ({
+		children,
+		durationInFrames,
+		from,
+		trimBefore,
+		freeze,
+		hidden,
+		name,
+		showInTimeline,
+		controls,
+		stack,
+		style,
+		progress,
+		seed,
+		disabled,
+		roughness,
+		maxRandomnessOffset,
+		bowing,
+		curveFitting,
+		curveTightness,
+		curveStepCount,
+		disableMultiStroke,
+		preserveVertices,
+		...configProps
+	}) => {
+		const annotation = useMemo(() => {
+			return createAnnotation();
+		}, []);
+		const outlineRef = React.useRef<HTMLSpanElement | null>(null);
+		const config = (
+			disabled ? {type: 'none'} : {...configProps, type}
+		) as AnnotationConfig;
+		const annotationElement = (
+			<annotation.Annotation
+				{...config}
+				progress={progress}
+				seed={seed}
+				roughness={roughness}
+				maxRandomnessOffset={maxRandomnessOffset}
+				bowing={bowing}
+				curveFitting={curveFitting}
+				curveTightness={curveTightness}
+				curveStepCount={curveStepCount}
+				disableMultiStroke={disableMultiStroke}
+				preserveVertices={preserveVertices}
+			/>
+		);
+
+		return (
+			<Sequence
+				layout="none"
+				from={from ?? 0}
+				trimBefore={trimBefore}
+				durationInFrames={durationInFrames ?? Infinity}
+				freeze={freeze}
+				hidden={hidden}
+				name={name ?? `<${componentName}>`}
+				showInTimeline={showInTimeline ?? true}
+				controls={controls}
+				_remotionInternalStack={stack}
+				_remotionInternalDocumentationLink={`https://www.remotion.dev/docs/rough-notation/${documentationSlug}`}
+				outlineRef={outlineRef}
+			>
+				<span ref={outlineRef} style={{display: 'inline-block'}}>
+					<annotation.Container>
+						{layer === 'behind' ? annotationElement : null}
+						<annotation.Tracker style={style}>{children}</annotation.Tracker>
+						{layer === 'on-top' ? annotationElement : null}
+					</annotation.Container>
+				</span>
+			</Sequence>
+		);
+	};
+
+	const Component = Interactive.withSchema({
+		Component: AnnotationInner,
+		componentName: `<${componentName}>`,
+		componentIdentity: Interactive._internalMakeRemotionComponentIdentity({
+			packageName: '@remotion/rough-notation',
+			componentName,
+		}),
+		schema,
+		supportsEffects: false,
+	}) as React.FC<InternalAnnotationProps>;
+
+	Component.displayName = componentName;
+	Internals.addSequenceStackTraces(Component);
+	return Component;
 };
 
-export const AnnotationOnTop = Interactive.withSchema({
-	Component: AnnotationOnTopInner,
-	componentName: '<AnnotationOnTop>',
-	componentIdentity: Interactive._internalMakeRemotionComponentIdentity({
-		packageName: '@remotion/rough-notation',
-		componentName: 'AnnotationOnTop',
-	}),
-	schema: annotationInteractiveSchema,
-	supportsEffects: false,
-}) as React.FC<AnnotationInteractiveProps>;
+export const Highlight = makeAnnotationComponent({
+	type: 'highlight',
+	componentName: 'Highlight',
+	documentationSlug: 'highlight',
+	layer: 'behind',
+	schema: highlightSchema,
+}) as React.FC<HighlightProps>;
 
-AnnotationOnTop.displayName = 'AnnotationOnTop';
-Internals.addSequenceStackTraces(AnnotationOnTop);
+export const Underline = makeAnnotationComponent({
+	type: 'underline',
+	componentName: 'Underline',
+	documentationSlug: 'underline',
+	layer: 'on-top',
+	schema: underlineSchema,
+}) as React.FC<UnderlineProps>;
 
-const AnnotationBehindInner: React.FC<
-	AnnotationInteractiveProps & {
-		readonly controls: SequenceControls | undefined;
-		readonly stack?: string;
-	}
-> = ({
-	children,
-	durationInFrames,
-	from,
-	trimBefore,
-	freeze,
-	hidden,
-	name,
-	showInTimeline,
-	controls,
-	stack,
-	style,
-	...props
-}) => {
-	const annotation = useMemo(() => {
-		return createAnnotation();
-	}, []);
-	const outlineRef = React.useRef<HTMLSpanElement | null>(null);
+export const StrikeThrough = makeAnnotationComponent({
+	type: 'strike-through',
+	componentName: 'StrikeThrough',
+	documentationSlug: 'strike-through',
+	layer: 'on-top',
+	schema: strikeThroughSchema,
+}) as React.FC<StrikeThroughProps>;
 
-	return (
-		<Sequence
-			layout="none"
-			from={from ?? 0}
-			trimBefore={trimBefore}
-			durationInFrames={durationInFrames ?? Infinity}
-			freeze={freeze}
-			hidden={hidden}
-			name={name ?? '<AnnotationBehind>'}
-			showInTimeline={showInTimeline ?? true}
-			controls={controls}
-			_remotionInternalStack={stack}
-			_remotionInternalDocumentationLink="https://www.remotion.dev/docs/rough-notation/annotation-behind"
-			outlineRef={outlineRef}
-		>
-			<span ref={outlineRef} style={{display: 'inline-block'}}>
-				<annotation.Container>
-					<annotation.Annotation {...props} />
-					<annotation.Tracker style={style}>{children}</annotation.Tracker>
-				</annotation.Container>
-			</span>
-		</Sequence>
-	);
-};
+export const CrossedOff = makeAnnotationComponent({
+	type: 'crossed-off',
+	componentName: 'CrossedOff',
+	documentationSlug: 'crossed-off',
+	layer: 'on-top',
+	schema: crossedOffSchema,
+}) as React.FC<CrossedOffProps>;
 
-export const AnnotationBehind = Interactive.withSchema({
-	Component: AnnotationBehindInner,
-	componentName: '<AnnotationBehind>',
-	componentIdentity: Interactive._internalMakeRemotionComponentIdentity({
-		packageName: '@remotion/rough-notation',
-		componentName: 'AnnotationBehind',
-	}),
-	schema: annotationInteractiveSchema,
-	supportsEffects: false,
-}) as React.FC<AnnotationInteractiveProps>;
+export const Box = makeAnnotationComponent({
+	type: 'box',
+	componentName: 'Box',
+	documentationSlug: 'box',
+	layer: 'on-top',
+	schema: boxSchema,
+}) as React.FC<BoxProps>;
 
-AnnotationBehind.displayName = 'AnnotationBehind';
-Internals.addSequenceStackTraces(AnnotationBehind);
+export const Bracket = makeAnnotationComponent({
+	type: 'bracket',
+	componentName: 'Bracket',
+	documentationSlug: 'bracket',
+	layer: 'on-top',
+	schema: bracketSchema,
+}) as React.FC<BracketProps>;
+
+export const Circle = makeAnnotationComponent({
+	type: 'circle',
+	componentName: 'Circle',
+	documentationSlug: 'circle',
+	layer: 'on-top',
+	schema: circleSchema,
+}) as React.FC<CircleProps>;

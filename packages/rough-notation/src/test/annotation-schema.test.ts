@@ -1,105 +1,76 @@
 import {expect, test} from 'bun:test';
-import {Internals} from 'remotion';
-import {annotationInteractiveSchema} from '../Annotation';
+import {Internals, type InteractivitySchema} from 'remotion';
+import {
+	annotationSchemas,
+	boxSchema,
+	bracketSchema,
+	circleSchema,
+	crossedOffSchema,
+	highlightSchema,
+	strikeThroughSchema,
+	underlineSchema,
+} from '../Annotation';
 
-const activeKeysForType = (type: string) => {
-	return Object.keys(
-		Internals.flattenActiveSchema(annotationInteractiveSchema, (key) => {
-			return key === 'type' ? type : undefined;
-		}),
-	);
-};
+const keys = (schema: InteractivitySchema) => Object.keys(schema);
 
-test('annotation schema exposes bracket flags only for bracket annotations', () => {
-	expect(activeKeysForType('highlight')).not.toContain('bracketRight');
-	expect(activeKeysForType('box')).not.toContain('bracketRight');
-	expect(activeKeysForType('bracket')).toContain('bracketLeft');
-	expect(activeKeysForType('bracket')).toContain('bracketRight');
-	expect(activeKeysForType('bracket')).toContain('bracketTop');
-	expect(activeKeysForType('bracket')).toContain('bracketBottom');
+test('named annotation schemas do not expose a type selector', () => {
+	for (const schema of annotationSchemas) {
+		expect(keys(schema)).not.toContain('type');
+		expect(keys(schema)).toContain('disabled');
+	}
 });
 
-test('annotation schema exposes box-specific props only for circle annotations', () => {
-	expect(activeKeysForType('highlight')).not.toContain('box');
-	expect(activeKeysForType('bracket')).not.toContain('box');
-	expect(activeKeysForType('circle')).toContain('box');
+test('underline exposes only effective padding', () => {
+	expect(keys(underlineSchema)).toContain('padding.top');
+	expect(keys(underlineSchema)).not.toContain('padding.left');
+	expect(keys(underlineSchema)).not.toContain('padding.right');
+	expect(keys(underlineSchema)).not.toContain('padding.bottom');
 });
 
-test('annotation schema exposes only top padding for underlines', () => {
-	const underlineKeys = activeKeysForType('underline');
+test('padding is only exposed by annotations that use it', () => {
+	for (const schema of [
+		boxSchema,
+		bracketSchema,
+		circleSchema,
+		highlightSchema,
+	]) {
+		expect(keys(schema)).toContain('padding.left');
+		expect(keys(schema)).toContain('padding.right');
+		expect(keys(schema)).toContain('padding.top');
+		expect(keys(schema)).toContain('padding.bottom');
+	}
 
-	expect(underlineKeys).toContain('padding.top');
-	expect(underlineKeys).not.toContain('padding.left');
-	expect(underlineKeys).not.toContain('padding.right');
-	expect(underlineKeys).not.toContain('padding.bottom');
+	for (const schema of [strikeThroughSchema, crossedOffSchema]) {
+		expect(keys(schema)).not.toContain('padding.left');
+		expect(keys(schema)).not.toContain('padding.top');
+	}
 });
 
-test('annotation schema exposes roughness as a shared Studio control', () => {
-	expect(activeKeysForType('none')).toContain('roughness');
-	expect(activeKeysForType('highlight')).toContain('roughness');
-	expect(activeKeysForType('bracket')).toContain('roughness');
-	expect(activeKeysForType('circle')).toContain('roughness');
+test('component-specific controls are isolated to their schemas', () => {
+	expect(keys(highlightSchema)).not.toContain('strokeWidth');
+	expect(keys(circleSchema)).toContain('curveFitting');
+	expect(keys(circleSchema)).toContain('curveTightness');
+	expect(keys(circleSchema)).toContain('curveStepCount');
+	expect(keys(bracketSchema)).not.toContain('curveFitting');
+	expect(keys(bracketSchema)).toContain('bracketLeft');
+	expect(keys(bracketSchema)).toContain('bracketRight');
+	expect(keys(boxSchema)).not.toContain('bracketRight');
 });
 
-test('annotation schema allows keyframing the seed', () => {
-	expect(annotationInteractiveSchema.seed).not.toHaveProperty(
-		'keyframable',
-		false,
-	);
+test('all named annotations expose text, font, and seed controls', () => {
+	for (const schema of annotationSchemas) {
+		expect(keys(schema)).toContain('children');
+		expect(keys(schema)).toContain('style.fontFamily');
+		expect(keys(schema)).toContain('style.fontSize');
+		expect(keys(schema)).toContain('style.fontWeight');
+		expect(keys(schema)).toContain('style.fontStyle');
+		expect(keys(schema)).toContain('style.letterSpacing');
+		expect(schema.seed).not.toHaveProperty('keyframable', false);
+	}
 });
 
-test('annotation schema exposes rough.js controls as top-level Studio controls', () => {
-	const highlightKeys = activeKeysForType('highlight');
-	expect(highlightKeys).toContain('maxRandomnessOffset');
-	expect(highlightKeys).toContain('bowing');
-	expect(highlightKeys).toContain('disableMultiStroke');
-	expect(highlightKeys).toContain('preserveVertices');
-	expect(highlightKeys).not.toContain('fillWeight');
-	expect(highlightKeys).not.toContain('hachureAngle');
-	expect(highlightKeys).not.toContain('hachureGap');
-	expect(highlightKeys).not.toContain('dashOffset');
-	expect(highlightKeys).not.toContain('dashGap');
-	expect(highlightKeys).not.toContain('zigzagOffset');
-	expect(highlightKeys).not.toContain('disableMultiStrokeFill');
-	expect(highlightKeys).not.toContain('fillShapeRoughnessGain');
-});
-
-test('annotation schema exposes curve controls only for circle annotations', () => {
-	const circleKeys = activeKeysForType('circle');
-	const bracketKeys = activeKeysForType('bracket');
-	const highlightKeys = activeKeysForType('highlight');
-
-	expect(circleKeys).toContain('curveFitting');
-	expect(circleKeys).toContain('curveTightness');
-	expect(circleKeys).toContain('curveStepCount');
-	expect(bracketKeys).not.toContain('curveFitting');
-	expect(bracketKeys).not.toContain('curveTightness');
-	expect(bracketKeys).not.toContain('curveStepCount');
-	expect(highlightKeys).not.toContain('curveFitting');
-	expect(highlightKeys).not.toContain('curveTightness');
-	expect(highlightKeys).not.toContain('curveStepCount');
-});
-
-test('annotation schema exposes text editing and font controls', () => {
-	const highlightKeys = activeKeysForType('highlight');
-	expect(highlightKeys).toContain('children');
-	expect(highlightKeys).toContain('style.fontFamily');
-	expect(highlightKeys).toContain('style.fontSize');
-	expect(highlightKeys).toContain('style.fontWeight');
-	expect(highlightKeys).toContain('style.fontStyle');
-	expect(highlightKeys).toContain('style.letterSpacing');
-});
-
-test('annotation schema supports none to disable annotations', () => {
-	expect(activeKeysForType('none')).toContain('type');
-	expect(
-		(annotationInteractiveSchema.type as {variants: Record<string, unknown>})
-			.variants,
-	).toHaveProperty('none');
-});
-
-test('annotation schema can be flattened without duplicate keys', () => {
-	expect(() =>
-		Internals.getFlatSchemaWithAllKeys(annotationInteractiveSchema),
-	).not.toThrow();
+test('all named annotation schemas can be flattened', () => {
+	for (const schema of annotationSchemas) {
+		expect(() => Internals.getFlatSchemaWithAllKeys(schema)).not.toThrow();
+	}
 });

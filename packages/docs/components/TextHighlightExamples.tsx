@@ -1,6 +1,6 @@
 import {loadFont} from '@remotion/google-fonts/CormorantGaramond';
 import {Player} from '@remotion/player';
-import {AnnotationBehind} from '@remotion/rough-notation';
+import {Highlight} from '@remotion/rough-notation';
 import React from 'react';
 import {
 	AbsoluteFill,
@@ -45,7 +45,7 @@ const RoughHighlightComposition: React.FC = () => {
 				}}
 			>
 				<Interactive.Span>The turning point was </Interactive.Span>
-				<AnnotationBehind
+				<Highlight
 					name="Rough highlight"
 					progress={interpolate(frame, [0, 28], [0, 1], {
 						extrapolateLeft: 'clamp',
@@ -61,7 +61,6 @@ const RoughHighlightComposition: React.FC = () => {
 							}),
 						],
 					})}
-					type="highlight"
 					color="rgba(255, 236, 79, 0.62)"
 					roughness={2.3}
 					maxRandomnessOffset={10}
@@ -72,7 +71,7 @@ const RoughHighlightComposition: React.FC = () => {
 					bowing={0}
 				>
 					obvious
-				</AnnotationBehind>
+				</Highlight>
 				<Interactive.Span>.</Interactive.Span>
 			</Interactive.Div>
 		</AbsoluteFill>

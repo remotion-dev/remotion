@@ -1,4 +1,4 @@
-import {AnnotationOnTop} from '@remotion/rough-notation';
+import {Bracket} from '@remotion/rough-notation';
 import React from 'react';
 import {
 	AbsoluteFill,
@@ -24,13 +24,12 @@ export const RoughNotationBracket: React.FC = () => {
 				}}
 			>
 				<Interactive.Span>Mark </Interactive.Span>
-				<AnnotationOnTop
+				<Bracket
 					name="Bracket annotation"
 					progress={interpolate(frame, [0, 60], [0, 1], {
 						extrapolateLeft: 'clamp',
 						extrapolateRight: 'clamp',
 					})}
-					type="bracket"
 					bracketLeft
 					bracketRight
 					bracketTop
@@ -44,7 +43,7 @@ export const RoughNotationBracket: React.FC = () => {
 					}}
 				>
 					this
-				</AnnotationOnTop>{' '}
+				</Bracket>{' '}
 				<Interactive.Span>part</Interactive.Span>
 			</Interactive.Div>
 		</AbsoluteFill>

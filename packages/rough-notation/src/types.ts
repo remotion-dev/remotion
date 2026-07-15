@@ -25,8 +25,21 @@ export type RoughAnnotationOptions = {
 	readonly preserveVertices?: boolean;
 };
 
-type SharedConfig = {
+export type SharedRoughAnnotationOptions = Omit<
+	RoughAnnotationOptions,
+	'curveFitting' | 'curveTightness' | 'curveStepCount'
+>;
+
+export type CurveAnnotationOptions = Pick<
+	RoughAnnotationOptions,
+	'curveFitting' | 'curveTightness' | 'curveStepCount'
+>;
+
+type ColorConfig = {
 	readonly color?: string;
+};
+
+type StrokeConfig = ColorConfig & {
 	readonly strokeWidth?: number;
 };
 
@@ -55,48 +68,57 @@ type BracketConfig = {
 	readonly bracketBottom?: boolean;
 };
 
+export type UnderlineConfig = StrokeConfig &
+	UnderlinePaddingConfig &
+	IterationConfig &
+	RtlConfig;
+
+export type StrikeThroughConfig = StrokeConfig & IterationConfig & RtlConfig;
+
+export type BoxConfig = StrokeConfig & PaddingConfig & IterationConfig;
+
+export type BracketAnnotationConfig = BracketConfig &
+	StrokeConfig &
+	PaddingConfig;
+
+export type CrossedOffConfig = StrokeConfig & IterationConfig & RtlConfig;
+
+export type CircleConfig = StrokeConfig &
+	PaddingConfig &
+	IterationConfig & {
+		readonly box?: Box;
+	};
+
+export type HighlightConfig = ColorConfig &
+	PaddingConfig &
+	IterationConfig &
+	RtlConfig;
+
 export type AnnotationConfig =
 	| {
 			readonly type: 'none';
 	  }
-	| ({
+	| (UnderlineConfig & {
 			readonly type: 'underline';
-	  } & SharedConfig &
-			UnderlinePaddingConfig &
-			IterationConfig &
-			RtlConfig)
-	| ({
+	  })
+	| (StrikeThroughConfig & {
 			readonly type: 'strike-through';
-	  } & SharedConfig &
-			IterationConfig &
-			RtlConfig)
-	| ({
+	  })
+	| (BoxConfig & {
 			readonly type: 'box';
-	  } & SharedConfig &
-			PaddingConfig &
-			IterationConfig)
-	| ({
+	  })
+	| (BracketAnnotationConfig & {
 			readonly type: 'bracket';
-	  } & BracketConfig &
-			SharedConfig &
-			PaddingConfig)
-	| ({
+	  })
+	| (CrossedOffConfig & {
 			readonly type: 'crossed-off';
-	  } & SharedConfig &
-			IterationConfig &
-			RtlConfig)
-	| ({
+	  })
+	| (CircleConfig & {
 			readonly type: 'circle';
-			readonly box?: Box;
-	  } & SharedConfig &
-			PaddingConfig &
-			IterationConfig)
-	| ({
+	  })
+	| (HighlightConfig & {
 			readonly type: 'highlight';
-	  } & SharedConfig &
-			PaddingConfig &
-			IterationConfig &
-			RtlConfig);
+	  });
 
 type ResolvedSharedConfig = {
 	readonly color: string;
@@ -191,7 +213,7 @@ const shared = ({
 	color,
 	strokeWidth,
 	defaultStrokeWidth,
-}: SharedConfig & {
+}: StrokeConfig & {
 	readonly defaultStrokeWidth: number;
 }) => {
 	return {

@@ -1,4 +1,4 @@
-import {AnnotationOnTop} from '@remotion/rough-notation';
+import {Underline} from '@remotion/rough-notation';
 import React from 'react';
 import {
 	AbsoluteFill,
@@ -24,19 +24,18 @@ export const RoughNotationUnderline: React.FC = () => {
 				}}
 			>
 				<Interactive.Span>Underline </Interactive.Span>
-				<AnnotationOnTop
+				<Underline
 					name="Underline annotation"
 					progress={interpolate(frame, [14, 35], [0, 1], {
 						extrapolateLeft: 'clamp',
 						extrapolateRight: 'clamp',
 					})}
-					type="underline"
 					color={'rgba(53, 95, 143, 0.71)'}
 					strokeWidth={10}
 					iterations={3}
 				>
 					this
-				</AnnotationOnTop>{' '}
+				</Underline>{' '}
 				<Interactive.Span>phrase</Interactive.Span>
 			</Interactive.Div>
 		</AbsoluteFill>

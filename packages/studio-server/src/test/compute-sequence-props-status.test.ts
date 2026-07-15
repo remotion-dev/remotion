@@ -123,20 +123,20 @@ export const Example: React.FC = () => {
 
 test('computeSequencePropsStatus should match hyphenated package imports by component identity', () => {
 	const input = `import React from 'react';
-import {AnnotationBehind} from '@remotion/rough-notation';
+import {Highlight} from '@remotion/rough-notation';
 
 export const Example: React.FC = () => {
 \treturn (
-\t\t<AnnotationBehind progress={1} type="highlight" color="yellow">
+\t\t<Highlight progress={1} color="yellow">
 \t\t\tHighlighted
-\t\t</AnnotationBehind>
+\t\t</Highlight>
 \t);
 };
 `;
 	const result = computeSequencePropsStatusFromContent({
 		fileContents: input,
 		nodePath: getNodePathFromContent(input, 6),
-		componentIdentity: 'dev.remotion.roughNotation.AnnotationBehind',
+		componentIdentity: 'dev.remotion.roughNotation.Highlight',
 		keys: ['progress', 'color'],
 		effects: [],
 	});

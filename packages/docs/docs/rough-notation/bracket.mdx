@@ -1,0 +1,73 @@
+---
+image: /generated/articles-docs-rough-notation-bracket.png
+title: '<Bracket>'
+crumb: '@remotion/rough-notation'
+---
+
+# &lt;Bracket&gt;<AvailableFrom v="4.0.489" />
+
+Draws animated hand-drawn brackets around the text or element it wraps.
+
+## Example
+
+<Demo type="rough-notation-bracket" />
+
+```tsx twoslash title="MyComp.tsx"
+import {Bracket} from '@remotion/rough-notation';
+
+export const MyComp: React.FC = () => {
+  return (
+    <Bracket
+      progress={1}
+      color="#dc2626"
+      strokeWidth={8}
+      roughness={1}
+      bowing={3}
+      bracketLeft
+      bracketRight
+      bracketTop
+      bracketBottom
+      padding={{top: -11}}
+    >
+      this
+    </Bracket>
+  );
+};
+```
+
+## API
+
+### `strokeWidth?`
+
+The stroke width in pixels. Default: `20`.
+
+### `padding?`
+
+Insets or outsets for the complete bracket. Accepts `left`, `right`, `top` and `bottom`.
+
+### `bracketLeft?`
+
+Draws the left bracket. Default: `false`.
+
+### `bracketRight?`
+
+Draws the right bracket. Default: `true`.
+
+### `bracketTop?`
+
+Draws the top bracket. Default: `false`.
+
+### `bracketBottom?`
+
+Draws the bottom bracket. Default: `false`.
+
+Also accepts the [common annotation props](/docs/rough-notation/api#common-props).
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
+
+## See also
+
+- [Text highlights](/docs/text-highlights)
+- [`<Box>`](/docs/rough-notation/box)

@@ -1,5 +1,5 @@
 import {loadFont} from '@remotion/google-fonts/CormorantGaramond';
-import {AnnotationOnTop} from '@remotion/rough-notation';
+import {CrossedOff} from '@remotion/rough-notation';
 import React from 'react';
 import {
 	AbsoluteFill,
@@ -34,20 +34,19 @@ export const RoughNotationCrossedOffDemo: React.FC = () => {
 				}}
 			>
 				<Interactive.Span>Please </Interactive.Span>
-				<AnnotationOnTop
+				<CrossedOff
 					name="Crossed off annotation"
 					progress={interpolate(frame, [18, 39], [0, 1], {
 						extrapolateLeft: 'clamp',
 						extrapolateRight: 'clamp',
 					})}
-					type="crossed-off"
 					color={'#eb2525'}
 					strokeWidth={6}
 					iterations={10}
 					roughness={2}
 				>
 					remove
-				</AnnotationOnTop>{' '}
+				</CrossedOff>{' '}
 				<Interactive.Span>this</Interactive.Span>
 			</Interactive.Div>
 		</AbsoluteFill>

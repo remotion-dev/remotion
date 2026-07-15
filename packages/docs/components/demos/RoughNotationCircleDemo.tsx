@@ -1,5 +1,5 @@
 import {loadFont} from '@remotion/google-fonts/CormorantGaramond';
-import {AnnotationOnTop} from '@remotion/rough-notation';
+import {Circle} from '@remotion/rough-notation';
 import React from 'react';
 import {
 	AbsoluteFill,
@@ -35,14 +35,13 @@ export const RoughNotationCircleDemo: React.FC = () => {
 				}}
 			>
 				<Interactive.Span>How much </Interactive.Span>
-				<AnnotationOnTop
+				<Circle
 					name="Circle annotation"
 					progress={interpolate(frame, [0, 43], [0, 1], {
 						extrapolateLeft: 'clamp',
 						extrapolateRight: 'clamp',
 						easing: [Easing.bezier(0.42, 0, 0.58, 1)],
 					})}
-					type="circle"
 					roughness={0.6}
 					strokeWidth={12}
 					color={'rgba(37, 99, 235, 0.57)'}
@@ -55,7 +54,7 @@ export const RoughNotationCircleDemo: React.FC = () => {
 					box={'inside'}
 				>
 					circular
-				</AnnotationOnTop>{' '}
+				</Circle>{' '}
 				<Interactive.Span>financing is in AI?</Interactive.Span>
 			</Interactive.Div>
 		</AbsoluteFill>

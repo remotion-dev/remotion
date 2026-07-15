@@ -7,7 +7,7 @@ title: '@remotion/rough-notation'
 
 # @remotion/rough-notation<AvailableFrom v="4.0.489" />
 
-Rough annotation primitives for Remotion videos.
+Animated marker highlights, circles, boxes, underlines and other hand-drawn text annotations for Remotion videos.
 
 import {TableOfContents} from './table-of-contents';
 
@@ -16,6 +16,56 @@ import {TableOfContents} from './table-of-contents';
 ## APIs
 
 <TableOfContents />
+
+## Common props
+
+Every component wraps the text or element passed as `children` and accepts these props:
+
+### `children`
+
+The text or element to annotate.
+
+### `style?`
+
+CSS styles applied to the tracked content. Text and font styles can also be edited in Remotion Studio.
+
+### `progress`
+
+Controls how much of the annotation is drawn. Use a value between `0` and `1`.
+
+### `disabled?`
+
+Set to `true` to temporarily hide the annotation while keeping the component and its other props in place. Default: `false`.
+
+### `seed?`
+
+Controls the generated shape. Change the integer on every frame to animate the shape. Default: `1`.
+
+### `color?`
+
+The annotation color. Default: `currentColor`.
+
+### `roughness?`
+
+Controls how rough the annotation looks. The default is `3` for `<Highlight>` and `1.5` for the other components.
+
+### `maxRandomnessOffset?`
+
+Controls how far points may be randomly offset from their ideal position. Default: `5`.
+
+### `bowing?`
+
+Controls how much straight lines bow. Default: `1`.
+
+### `disableMultiStroke?`
+
+Set to `true` to prevent Rough.js from drawing multiple strokes for a line. Default: `false`.
+
+### `preserveVertices?`
+
+Preserves vertices when roughening a shape. Default: `false`.
+
+The components are interactive in Remotion Studio. They support editable text and font controls, as well as the following [`<Sequence>`](/docs/sequence) props: `durationInFrames`, `from`, `trimBefore`, `freeze`, `hidden`, `name` and `showInTimeline`.
 
 ## License
 

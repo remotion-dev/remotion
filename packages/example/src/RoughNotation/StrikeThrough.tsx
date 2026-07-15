@@ -1,4 +1,4 @@
-import {AnnotationOnTop} from '@remotion/rough-notation';
+import {StrikeThrough} from '@remotion/rough-notation';
 import React from 'react';
 import {
 	AbsoluteFill,
@@ -24,18 +24,17 @@ export const RoughNotationStrikeThrough: React.FC = () => {
 				}}
 			>
 				<Interactive.Span>The </Interactive.Span>
-				<AnnotationOnTop
+				<StrikeThrough
 					name="Strike-through annotation"
 					progress={interpolate(frame, [10, 25], [0, 1], {
 						extrapolateLeft: 'clamp',
 						extrapolateRight: 'clamp',
 					})}
-					type="strike-through"
 					color={'#f11515'}
 					strokeWidth={14}
 				>
 					forbidden
-				</AnnotationOnTop>{' '}
+				</StrikeThrough>{' '}
 				<Interactive.Span>fruit</Interactive.Span>
 			</Interactive.Div>
 		</AbsoluteFill>
