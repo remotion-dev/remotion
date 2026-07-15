@@ -16,7 +16,6 @@ import type {
 	TimelineFieldOnDragValueChange,
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
-import {ModalsContext} from '../../state/modals';
 import {ContextMenu} from '../ContextMenu';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {callAddSequenceKeyframe} from './call-add-keyframe';
@@ -307,7 +306,6 @@ export const TimelineSequencePropItem: React.FC<{
 	);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const {setSelectedModal} = useContext(ModalsContext);
 	const selection = useTimelineRowSelection(nodePathInfo);
 	const {selectItems} = useTimelineSelection();
 	const setFrame = Internals.useTimelineSetFrame();
@@ -424,33 +422,8 @@ export const TimelineSequencePropItem: React.FC<{
 		propStatus,
 	]);
 
-	const onOpenKeyframeSettings = useCallback(() => {
-		if (propStatus === null || !isKeyframedStatus(propStatus)) {
-			return;
-		}
-
-		setSelectedModal({
-			type: 'keyframe-settings',
-			fileName: validatedLocation.source,
-			nodePath,
-			fieldKey: field.key,
-			fieldLabel: field.description ?? field.key,
-			status: propStatus,
-			schema,
-			effectIndex: null,
-		});
-	}, [
-		propStatus,
-		field.description,
-		field.key,
-		nodePath,
-		schema,
-		setSelectedModal,
-		validatedLocation.source,
-	]);
-
 	const contextMenuValues = useMemo((): ComboboxValue[] => {
-		const values: ComboboxValue[] = [
+		return [
 			{
 				type: 'item',
 				id: 'reset-sequence-field',
@@ -464,30 +437,7 @@ export const TimelineSequencePropItem: React.FC<{
 				value: 'reset-sequence-field',
 			},
 		];
-
-		if (propStatus !== null && isKeyframedStatus(propStatus)) {
-			values.push({
-				type: 'item',
-				id: 'keyframe-settings-sequence-field',
-				keyHint: null,
-				label: 'Keyframe settings...',
-				leftItem: null,
-				disabled: previewServerState.type !== 'connected',
-				onClick: onOpenKeyframeSettings,
-				quickSwitcherLabel: null,
-				subMenu: null,
-				value: 'keyframe-settings-sequence-field',
-			});
-		}
-
-		return values;
-	}, [
-		canShowReset,
-		propStatus,
-		onOpenKeyframeSettings,
-		onReset,
-		previewServerState,
-	]);
+	}, [canShowReset, onReset]);
 
 	const seekToDisplayFrame = useCallback(
 		(frame: number) => {
