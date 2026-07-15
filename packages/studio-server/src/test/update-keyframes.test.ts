@@ -102,6 +102,27 @@ export const Comp = () => {
 };
 `;
 
+const scaleEffectInput = `import {scale} from '@remotion/effects/scale';
+import {HtmlInCanvas} from '@remotion/html-in-canvas';
+
+export const Comp = () => {
+	return (
+		<HtmlInCanvas effects={[scale({scale: 1})]}>
+			hi
+		</HtmlInCanvas>
+	);
+};
+`;
+
+const scaleEffectSchema = {
+	scale: {
+		type: 'number',
+		default: 1,
+		hiddenFromList: false,
+		defaultKeyframeOutput: 'perceptual-scale',
+	},
+} satisfies InteractivitySchema;
+
 const waveSchema = {
 	phase: {
 		type: 'number',
@@ -756,6 +777,7 @@ test('updateSequenceKeyframes converts a static value to a single-keyframe inter
 	expect(output).toContain('opacity: interpolate(frame, [0], [0.75], {');
 	expect(output).toContain("extrapolateLeft: 'clamp'");
 	expect(output).toContain("extrapolateRight: 'clamp'");
+	expect(output).not.toContain('perceptual-scale');
 });
 
 test('updateSequenceKeyframes adds a missing nested prop before keyframing it', async () => {
@@ -787,6 +809,7 @@ export const Example: React.FC = () => {
 	expect(output).toContain('scale: interpolate(frame, [30], [2], {');
 	expect(output).toContain("extrapolateLeft: 'clamp'");
 	expect(output).toContain("extrapolateRight: 'clamp'");
+	expect(output).toContain("output: 'perceptual-scale'");
 });
 
 test('updateSequenceKeyframes adds a keyframe to an existing color interpolation', async () => {
@@ -1331,6 +1354,28 @@ test('updateEffectKeyframes converts a static value to a clamped interpolation',
 	expect(serialized).toContain('amount: interpolate(frame, [40], [0.6], {');
 	expect(serialized).toContain('extrapolateLeft: "clamp"');
 	expect(serialized).toContain('extrapolateRight: "clamp"');
+	expect(serialized).not.toContain('perceptual-scale');
+});
+
+test('updateEffectKeyframes uses the schema keyframe output default', () => {
+	const {serialized} = updateEffectKeyframesAst({
+		input: scaleEffectInput,
+		sequenceNodePath: lineColumnToNodePath(
+			scaleEffectInput,
+			getLine(scaleEffectInput, '<HtmlInCanvas'),
+		),
+		effectIndex: 0,
+		schema: scaleEffectSchema,
+		updates: [
+			{
+				key: 'scale',
+				operation: {type: 'add', frame: 40, value: 2},
+			},
+		],
+	});
+
+	expect(serialized).toContain('scale: interpolate(frame, [40], [2], {');
+	expect(serialized).toContain('output: "perceptual-scale"');
 });
 
 test('updateEffectKeyframes adds a missing prop before keyframing it', () => {

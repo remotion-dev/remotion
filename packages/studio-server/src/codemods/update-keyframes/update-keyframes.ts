@@ -340,14 +340,26 @@ const createFrameExpression = (frame: number): ExpressionKind => {
 	return parseValueExpression(frame);
 };
 
-const createClampOptionsExpression = (): ExpressionKind => {
-	return b.objectExpression([
+const createClampOptionsExpression = ({
+	defaultOutput,
+}: {
+	defaultOutput: InterpolateOutputOption | null;
+}): ExpressionKind => {
+	const properties = [
 		b.objectProperty(b.identifier('extrapolateLeft'), b.stringLiteral('clamp')),
 		b.objectProperty(
 			b.identifier('extrapolateRight'),
 			b.stringLiteral('clamp'),
 		),
-	]) as ExpressionKind;
+	];
+
+	if (defaultOutput !== null && defaultOutput !== 'linear') {
+		properties.push(
+			b.objectProperty(b.identifier('output'), b.stringLiteral(defaultOutput)),
+		);
+	}
+
+	return b.objectExpression(properties) as ExpressionKind;
 };
 
 const createEmptyOptionsExpression = (): ObjectExpression =>
@@ -1083,7 +1095,11 @@ const addKeyframe = ({
 	const extraArgs =
 		callee.type === 'Identifier' && callee.name === 'interpolateColors'
 			? []
-			: [createClampOptionsExpression()];
+			: [
+					createClampOptionsExpression({
+						defaultOutput: getDefaultKeyframeOutput({schema, key}),
+					}),
+				];
 
 	return {
 		expression: createInterpolateExpression({
@@ -1388,6 +1404,24 @@ const findFieldInSchema = (
 	}
 
 	return undefined;
+};
+
+const getDefaultKeyframeOutput = ({
+	schema,
+	key,
+}: {
+	schema: InteractivitySchema | null;
+	key: string;
+}): InterpolateOutputOption | null => {
+	const field = schema ? findFieldInSchema(schema, key) : undefined;
+	if (
+		(field?.type === 'number' || field?.type === 'scale') &&
+		field.defaultKeyframeOutput !== undefined
+	) {
+		return field.defaultKeyframeOutput;
+	}
+
+	return key === 'style.scale' ? 'perceptual-scale' : null;
 };
 
 const getInitialValueForMissingProp = ({
