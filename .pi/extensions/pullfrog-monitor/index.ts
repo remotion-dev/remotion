@@ -54,42 +54,72 @@ const getReviewMetadata = (
 	return null;
 };
 
-const formatResult = (result: SanityResult) => {
-	const findings = result.findings
-		.map((finding) => {
-			const evidence = finding.evidence
-				.map(
-					(item) =>
-						`- ${item.path}${item.line ? `:${item.line}` : ''}: ${item.explanation}`,
-				)
-				.join('\n');
-			const validation = finding.suggestedValidation
-				.map((item) => `- ${item}`)
-				.join('\n');
-			return [
-				`### [${finding.severity} · ${finding.verdict}] ${finding.title}`,
-				`Source: ${finding.sourceUrl}`,
-				`Confidence: ${Math.round(finding.confidence * 100)}%`,
-				'',
-				finding.rationale,
-				evidence ? `\nEvidence:\n${evidence}` : '',
-				`\nSuggested direction: ${finding.suggestedDirection}`,
-				validation ? `\nSuggested validation:\n${validation}` : '',
-			]
-				.filter(Boolean)
-				.join('\n');
-		})
-		.join('\n\n');
+const compactText = (value: string, maxLength: number) => {
+	const normalized = value.replace(/\s+/g, ' ').trim();
+	if (normalized.length <= maxLength) {
+		return normalized;
+	}
+	return `${normalized.slice(0, maxLength - 1).trimEnd()}…`;
+};
+
+const formatCompactFinding = (
+	finding: SanityResult['findings'][number],
+	includeRationale: boolean,
+) => {
+	const severity =
+		finding.severity[0].toUpperCase() + finding.severity.slice(1);
+	const title = compactText(finding.title, 100);
+	const evidence = finding.evidence[0];
+	const reference = evidence
+		? `\`${evidence.path}${evidence.line ? `:${evidence.line}` : ''}\``
+		: null;
 	return [
-		`## 🐸 Pullfrog sanity review — PR #${result.prNumber}`,
+		`- **${severity} — ${title}**`,
+		includeRationale ? `  ${compactText(finding.rationale, 220)}` : '',
+		`  ${[reference, `[Pullfrog](${finding.sourceUrl})`].filter(Boolean).join(' · ')}`,
+	]
+		.filter(Boolean)
+		.join('\n');
+};
+
+const formatResult = (result: SanityResult) => {
+	const actionable = result.findings.filter(
+		(finding) => finding.verdict === 'agree',
+	);
+	const uncertain = result.findings.filter(
+		(finding) => finding.verdict === 'uncertain',
+	);
+	const dismissed = result.findings.filter(
+		(finding) =>
+			finding.verdict === 'disagree' || finding.verdict === 'already-addressed',
+	);
+	const counts = [
+		`${actionable.length} actionable`,
+		uncertain.length ? `${uncertain.length} uncertain` : '',
+		dismissed.length ? `${dismissed.length} dismissed` : '',
+	].filter(Boolean);
+	return [
+		`## 🐸 Pullfrog review · [PR #${result.prNumber}](${result.prUrl})`,
 		'',
-		`Pull request: ${result.prUrl}`,
-		`Reviewed head: \`${result.reviewedHead}\``,
+		`**${counts.join(' · ')}** · \`${result.reviewedHead.slice(0, 7)}\``,
 		'',
-		result.summary,
+		compactText(result.summary, 260),
+		actionable.length ? '\n### Actionable' : '',
+		actionable.map((finding) => formatCompactFinding(finding, true)).join('\n'),
+		uncertain.length ? '\n### Needs judgment' : '',
+		uncertain.map((finding) => formatCompactFinding(finding, true)).join('\n'),
+		dismissed.length ? '\n### Dismissed' : '',
+		dismissed
+			.map(
+				(finding) =>
+					`- **${finding.verdict === 'disagree' ? 'Disagree' : 'Already addressed'} — ${compactText(finding.title, 110)}** · [Pullfrog](${finding.sourceUrl})`,
+			)
+			.join('\n'),
 		'',
-		findings || 'No concrete findings were reported.',
-	].join('\n');
+		'Ask me to expand any finding or re-check the evidence.',
+	]
+		.filter(Boolean)
+		.join('\n');
 };
 
 const createPrState = (
