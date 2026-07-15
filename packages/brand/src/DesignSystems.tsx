@@ -37,7 +37,10 @@ export const DesignSystems: React.FC = () => {
 		frame < forwardDurationInFrames
 			? frame
 			: designSystemsDurationInFrames - 1 - frame;
-	const endcardFrame = Math.max(0, pingPongFrame - endcardSequenceStart);
+	const endcardFrame = Math.max(
+		0,
+		Math.min(frame, forwardDurationInFrames - 1) - endcardSequenceStart,
+	);
 	const animatedLogoScale = interpolate(
 		pingPongFrame,
 		[folderTreeSelectionMoveStart, animatedLogoExitEnd],
