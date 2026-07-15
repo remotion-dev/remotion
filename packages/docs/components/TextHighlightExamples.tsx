@@ -88,6 +88,7 @@ export const TextHighlightRoughNotationDemo: React.FC = () => {
 			durationInFrames={90}
 			fps={30}
 			autoPlay
+			initiallyMuted
 			loop
 			style={playerStyle}
 		/>
