@@ -23,6 +23,11 @@ const comboStyle: React.CSSProperties = {
 	minWidth: 120,
 };
 
+const keyframeSettingsContainer: React.CSSProperties = {
+	...detailsContainer,
+	paddingBottom: 0,
+};
+
 const extrapolateOptions = [
 	'extend',
 	'clamp',
@@ -199,7 +204,7 @@ export const KeyframeSettings: React.FC<{
 		<>
 			<div style={inspectorSectionDivider} />
 			<InspectorSectionHeader>Keyframe settings</InspectorSectionHeader>
-			<div style={detailsContainer}>
+			<div style={keyframeSettingsContainer}>
 				{canEditInterpolationSettings ? (
 					<>
 						<InspectorDetailRow label="Extrapolate left">
