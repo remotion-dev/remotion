@@ -4,6 +4,7 @@ import {
 	COMPONENT_DRAG_MIME_TYPE,
 	COMPOSITION_DRAG_MIME_TYPE,
 	ELEMENT_DRAG_MIME_TYPE,
+	getRequiredPackagesForElementSourceCode,
 	parseAssetDragData,
 	parseComponentDragData,
 	parseCompositionDragData,
@@ -32,6 +33,7 @@ import {
 	getCenterPointWhileScrolling,
 	getEffectiveTranslation,
 } from '../helpers/get-effective-translation';
+import {getMissingPackages} from '../helpers/install-required-package';
 import {useCachedCompositionComponentInfo} from '../helpers/open-in-editor';
 import {
 	getRemoteAssetUrlFromDataTransfer,
@@ -72,6 +74,20 @@ import {useResolvedStack} from './Timeline/use-resolved-stack';
 const elementInstallCompositionIdStyle: React.CSSProperties = {
 	fontFamily: 'monospace',
 	fontSize: 13,
+};
+
+const elementInstallDependencyListStyle: React.CSSProperties = {
+	marginTop: 8,
+	marginBottom: 0,
+	paddingLeft: 24,
+	listStyleType: 'disc',
+};
+
+const elementInstallDependencyStyle: React.CSSProperties = {
+	color: 'inherit',
+	fontFamily: 'monospace',
+	fontSize: 13,
+	lineHeight: 1.5,
 };
 
 const elementInstallCodeDetailsStyle: React.CSSProperties = {
@@ -918,6 +934,11 @@ export const Canvas: React.FC<{
 
 		const handleInstallRequest = async () => {
 			setInstallingElementName(activeElementInstallRequest.element.displayName);
+			const missingPackages = getMissingPackages(
+				getRequiredPackagesForElementSourceCode(
+					activeElementInstallRequest.element.sourceCode,
+				),
+			);
 			const accepted = await confirm({
 				title: 'Install Element',
 				message: (
@@ -928,6 +949,20 @@ export const Canvas: React.FC<{
 						</code>{' '}
 						composition? This will create an Element source file and update the
 						composition source.
+						{missingPackages.length > 0 ? (
+							<>
+								<br />
+								<br />
+								The following dependencies will also be installed:
+								<ul style={elementInstallDependencyListStyle}>
+									{missingPackages.map((packageName) => (
+										<li key={packageName} style={elementInstallDependencyStyle}>
+											{packageName}
+										</li>
+									))}
+								</ul>
+							</>
+						) : null}
 						<details style={elementInstallCodeDetailsStyle}>
 							<summary style={elementInstallCodeSummaryStyle}>
 								Preview Element source

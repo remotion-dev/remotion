@@ -1,15 +1,17 @@
 import type {InsertableCompositionElement} from './api-requests';
-import {extraPackages, packages} from './package-info';
 
-const firstPartyPackageNames = new Set(
-	packages.map((pkg) => `@remotion/${pkg}`),
-);
-const extraPackageNames = new Set(extraPackages.map((pkg) => pkg.name));
+export const isValidPackageName = (packageName: string): boolean => {
+	if (
+		packageName.length === 0 ||
+		packageName.length > 214 ||
+		packageName === '.' ||
+		packageName === '..'
+	) {
+		return false;
+	}
 
-const isInstallableElementPackage = (packageName: string): boolean => {
-	return (
-		firstPartyPackageNames.has(packageName) ||
-		extraPackageNames.has(packageName)
+	return /^(?:@[a-z0-9][a-z0-9._~-]*\/)?[a-z0-9][a-z0-9._~-]*$/i.test(
+		packageName,
 	);
 };
 
@@ -43,11 +45,15 @@ export const getRequiredPackageForImportPath = (
 
 	if (importPath.startsWith('@')) {
 		const [scope, scopedPackageName] = importPath.split('/');
-		return scope && scopedPackageName ? `${scope}/${scopedPackageName}` : null;
+		const scopedPackage =
+			scope && scopedPackageName ? `${scope}/${scopedPackageName}` : null;
+		return scopedPackage && isValidPackageName(scopedPackage)
+			? scopedPackage
+			: null;
 	}
 
 	const [packageName] = importPath.split('/');
-	return packageName || null;
+	return packageName && isValidPackageName(packageName) ? packageName : null;
 };
 
 export const getRequiredPackageForInsertableElement = (
@@ -104,7 +110,7 @@ export const getRequiredPackagesForElementSourceCode = (
 
 	for (const importPath of extractImportPaths(sourceCode)) {
 		const requiredPackage = getRequiredPackageForImportPath(importPath);
-		if (requiredPackage && isInstallableElementPackage(requiredPackage)) {
+		if (requiredPackage) {
 			requiredPackages.add(requiredPackage);
 		}
 	}

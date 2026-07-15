@@ -275,6 +275,7 @@ export {
 	getRequiredPackageForEffectImportPath,
 	getRequiredPackageForInsertableElement,
 	getRequiredPackagesForElementSourceCode,
+	isValidPackageName,
 } from './required-package';
 export {
 	SCHEMA_FIELD_GROUPS,

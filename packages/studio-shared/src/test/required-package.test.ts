@@ -3,6 +3,7 @@ import {
 	getRequiredPackageForEffectImportPath,
 	getRequiredPackageForInsertableElement,
 	getRequiredPackagesForElementSourceCode,
+	isValidPackageName,
 } from '../required-package';
 
 test('gets required package for insertable elements', () => {
@@ -99,6 +100,16 @@ test('gets required package for effect import paths', () => {
 	expect(getRequiredPackageForEffectImportPath('remotion')).toBe(null);
 });
 
+test('validates package names', () => {
+	expect(isValidPackageName('lodash')).toBe(true);
+	expect(isValidPackageName('@acme/video')).toBe(true);
+	expect(isValidPackageName('@remotion/effects')).toBe(true);
+	expect(isValidPackageName('--ignore-scripts')).toBe(false);
+	expect(isValidPackageName('@acme/video/extra')).toBe(false);
+	expect(isValidPackageName('https:')).toBe(false);
+	expect(isValidPackageName('node:path')).toBe(false);
+});
+
 test('gets required packages for element source code', () => {
 	expect(
 		getRequiredPackagesForElementSourceCode(`
@@ -109,7 +120,7 @@ test('gets required packages for element source code', () => {
 
 			export const LowerThird = () => null;
 		`),
-	).toEqual(['@remotion/google-fonts']);
+	).toEqual(['@remotion/google-fonts', 'react']);
 
 	expect(
 		getRequiredPackagesForElementSourceCode(`
@@ -127,6 +138,8 @@ test('gets required packages for element source code', () => {
 		'@remotion/effects',
 		'@remotion/starburst',
 		'zod',
+		'lodash',
+		'@acme/video',
 		'mediabunny',
 		'@mediabunny/prores',
 	]);
@@ -136,6 +149,8 @@ test('gets required packages for element source code', () => {
 			import {loadFont} from '@remotion/google-fonts/Inter';
 			import {loadFont as loadFontAgain} from '@remotion/google-fonts/Roboto';
 			const module = import('@remotion/media');
+			const builtIn = import('node:path');
+			const remote = import('https://example.com/module.js');
 
 			export const Element = () => null;
 		`),
