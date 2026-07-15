@@ -3,9 +3,11 @@ import {
 	cpSync,
 	existsSync,
 	mkdirSync,
-	rmSync,
 	readdirSync,
+	readFileSync,
+	rmSync,
 	statSync,
+	writeFileSync,
 } from 'fs';
 import {join, resolve} from 'path';
 
@@ -23,6 +25,7 @@ function copySkillDir(src: string, destName: string) {
 	const dest = join(skillsOut, destName);
 	cpSync(src, dest, {
 		recursive: true,
+		dereference: true,
 		filter: (source) => {
 			if (source.endsWith('.tsx')) {
 				return false;
@@ -33,8 +36,50 @@ function copySkillDir(src: string, destName: string) {
 	console.log(`  Copied ${destName}`);
 }
 
+const rewriteEmbeddedBestPracticesLinks = () => {
+	const embeddedRoot = join(skillsOut, 'remotion-best-practices');
+
+	if (!existsSync(embeddedRoot)) {
+		return;
+	}
+
+	const rewriteMarkdownFiles = (dir: string) => {
+		for (const entry of readdirSync(dir, {withFileTypes: true})) {
+			const file = join(dir, entry.name);
+			if (entry.isDirectory()) {
+				rewriteMarkdownFiles(file);
+				continue;
+			}
+
+			if (!entry.isFile() || !file.endsWith('.md')) {
+				continue;
+			}
+
+			const contents = readFileSync(file, 'utf-8');
+			const rewritten = contents.replaceAll(
+				'../remotion-best-practices/',
+				'../',
+			);
+			if (contents !== rewritten) {
+				writeFileSync(file, rewritten);
+			}
+		}
+	};
+
+	for (const entry of readdirSync(embeddedRoot, {withFileTypes: true})) {
+		const child = join(embeddedRoot, entry.name);
+		if (
+			entry.isDirectory() &&
+			entry.name !== 'rules' &&
+			existsSync(join(child, 'SKILL.md'))
+		) {
+			rewriteMarkdownFiles(child);
+		}
+	}
+};
+
 const addCodexOnlyInstructions = () => {
-	const remotionSkill = join(skillsOut, 'remotion', 'SKILL.md');
+	const remotionSkill = join(skillsOut, 'remotion-best-practices', 'SKILL.md');
 	if (!existsSync(remotionSkill)) {
 		return;
 	}
@@ -74,6 +119,7 @@ if (existsSync(packagesSkillsDir)) {
 	for (const folder of skillFolders) {
 		copySkillDir(join(packagesSkillsDir, folder), folder);
 	}
+	rewriteEmbeddedBestPracticesLinks();
 	addCodexOnlyInstructions();
 } else {
 	console.warn('Warning: packages/skills/skills/ not found');

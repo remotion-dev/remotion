@@ -11,6 +11,7 @@ import {
 	type TimelineSelection,
 	useTimelineSelection,
 } from '../Timeline/TimelineSelection';
+import {AlignmentControls} from './AlignmentControls';
 import {InspectorMessage, InspectorSectionHeader} from './common';
 import type {SequenceSectionSelection} from './inspector-selection';
 import {
@@ -90,6 +91,7 @@ const SequenceExpandedInspector: React.FC<{
 				renderSectionHeader={(children) => (
 					<InspectorSectionHeader>{children}</InspectorSectionHeader>
 				)}
+				renderTransformControls={() => <AlignmentControls track={track} />}
 			/>
 		</div>
 	);

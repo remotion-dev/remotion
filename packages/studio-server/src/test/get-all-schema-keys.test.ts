@@ -31,8 +31,8 @@ test('getAllSchemaKeys returns every key across all enum variants', () => {
 	);
 });
 
-test('getFlatSchema throws when discriminated union variants share a key', () => {
-	const conflictingSchema: InteractivitySchema = {
+test('getFlatSchema dedupes keys shared by discriminated union variants', () => {
+	const schema: InteractivitySchema = {
 		mode: {
 			type: 'enum',
 			default: 'a',
@@ -56,7 +56,8 @@ test('getFlatSchema throws when discriminated union variants share a key', () =>
 		},
 	};
 
-	expect(() => getFlatSchemaWithAllKeys(conflictingSchema)).toThrow(
-		'Duplicate key "shared"',
-	);
+	expect(Object.keys(getFlatSchemaWithAllKeys(schema)).sort()).toEqual([
+		'mode',
+		'shared',
+	]);
 });

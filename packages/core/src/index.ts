@@ -214,6 +214,7 @@ export {
 	EasingFunction,
 	ExtrapolateType,
 	interpolate,
+	InterpolateOutputOption,
 	InterpolateOptions,
 	random,
 	RandomSeed,

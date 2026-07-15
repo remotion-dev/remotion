@@ -43,6 +43,7 @@ export const makeConfig = ({
 				...hooksPlugin.configs.recommended.rules,
 				// Turning off rules that are too strict or don't apply to Remotion
 				'no-console': 'off',
+				'@typescript-eslint/no-empty-object-type': 'off',
 				'react/jsx-key': 'off',
 				'react/jsx-no-target-blank': 'off',
 				// In Root.tsx we encourage using fragment for just a single composition

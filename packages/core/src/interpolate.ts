@@ -3,6 +3,7 @@ import {normalizeNumber} from './normalize-number.js';
 // Taken from https://github.com/facebook/react-native/blob/0b9ea60b4fee8cacc36e7160e31b91fc114dbc0d/Libraries/Animated/src/nodes/AnimatedInterpolation.js
 
 export type ExtrapolateType = 'extend' | 'identity' | 'clamp' | 'wrap';
+export type InterpolateOutputOption = 'linear' | 'perceptual-scale';
 
 /**
  * @description This function allows you to map a range of values to another with a concise syntax
@@ -17,6 +18,7 @@ export type InterpolateOptions = Partial<{
 	easing: EasingFunction | readonly EasingFunction[];
 	extrapolateLeft: ExtrapolateType;
 	extrapolateRight: ExtrapolateType;
+	output: InterpolateOutputOption;
 	posterize: number;
 }>;
 
@@ -24,6 +26,7 @@ type InterpolateSegmentResolvedOptions = {
 	easing: EasingFunction;
 	extrapolateLeft: ExtrapolateType;
 	extrapolateRight: ExtrapolateType;
+	output: InterpolateOutputOption;
 };
 
 type StringInterpolationKind = 'scale' | 'translate' | 'rotate';
@@ -438,13 +441,29 @@ const serializeStringInterpolationValue = ({
 		.join(' ');
 };
 
+const toSignedArea = (scale: number): number => {
+	if (scale === 0) {
+		return 0;
+	}
+
+	return Math.sign(scale) * scale * scale;
+};
+
+const fromSignedArea = (area: number): number => {
+	if (area === 0) {
+		return 0;
+	}
+
+	return Math.sign(area) * Math.sqrt(Math.abs(area));
+};
+
 function interpolateFunction(
 	input: number,
 	inputRange: [number, number],
 	outputRange: [number, number],
 	options: InterpolateSegmentResolvedOptions,
 ): number {
-	const {extrapolateLeft, extrapolateRight, easing} = options;
+	const {extrapolateLeft, extrapolateRight, easing, output} = options;
 
 	let result = input;
 	const [inputMin, inputMax] = inputRange;
@@ -491,7 +510,15 @@ function interpolateFunction(
 	result = easing(result);
 
 	// Output Range
-	result = result * (outputMax - outputMin) + outputMin;
+	if (output === 'perceptual-scale') {
+		const signedAreaMin = toSignedArea(outputMin);
+		const signedAreaMax = toSignedArea(outputMax);
+		result = fromSignedArea(
+			result * (signedAreaMax - signedAreaMin) + signedAreaMin,
+		);
+	} else {
+		result = result * (outputMax - outputMin) + outputMin;
+	}
 
 	return result;
 }
@@ -508,6 +535,12 @@ function findRange(input: number, inputRange: readonly number[]) {
 }
 
 const defaultEasing = (num: number): number => num;
+
+const resolveOutputOption = (
+	output: InterpolateOptions['output'],
+): InterpolateOutputOption => {
+	return output ?? 'linear';
+};
 
 const shouldExtendRightForEasing = (easing: EasingFunction): boolean => {
 	return easing.remotionShouldExtendRight === true;
@@ -539,6 +572,7 @@ const interpolateSegment = ({
 	easing,
 	extrapolateLeft,
 	extrapolateRight,
+	output,
 }: {
 	input: number;
 	inputRange: [number, number];
@@ -546,6 +580,7 @@ const interpolateSegment = ({
 	easing: EasingFunction;
 	extrapolateLeft: ExtrapolateType;
 	extrapolateRight: ExtrapolateType;
+	output: InterpolateOutputOption;
 }): number => {
 	return interpolateFunction(input, inputRange, outputRange, {
 		easing,
@@ -556,6 +591,7 @@ const interpolateSegment = ({
 			shouldExtendRightForEasing(easing)
 				? 'extend'
 				: extrapolateRight,
+		output,
 	});
 };
 
@@ -570,6 +606,8 @@ const interpolateNumber = ({
 	outputRange: readonly number[];
 	options: InterpolateOptions | undefined;
 }): number => {
+	const output = resolveOutputOption(options?.output);
+
 	if (inputRange.length === 1) {
 		return outputRange[0];
 	}
@@ -602,6 +640,7 @@ const interpolateNumber = ({
 		easing,
 		extrapolateLeft,
 		extrapolateRight,
+		output,
 	});
 
 	for (let segmentIndex = 0; segmentIndex < range; segmentIndex++) {
@@ -625,6 +664,7 @@ const interpolateNumber = ({
 			easing: previousEasing,
 			extrapolateLeft,
 			extrapolateRight: 'extend',
+			output,
 		});
 		result += continuedSegmentValue - outputRange[segmentIndex + 1];
 	}
@@ -694,16 +734,19 @@ const interpolateString = ({
 		}
 	}
 
+	const values: [number, number, number] = [0, 0, 0];
+	for (let axis = 0; axis < dimensions; axis++) {
+		values[axis] = interpolateNumber({
+			input,
+			inputRange,
+			outputRange: parsedOutputRange.map((parsed) => parsed.values[axis]),
+			options,
+		});
+	}
+
 	return serializeStringInterpolationValue({
 		kind,
-		values: [0, 0, 0].map((_, axis) =>
-			interpolateNumber({
-				input,
-				inputRange,
-				outputRange: parsedOutputRange.map((parsed) => parsed.values[axis]),
-				options,
-			}),
-		) as [number, number, number],
+		values,
 		units,
 		dimensions,
 	});
@@ -839,6 +882,22 @@ export function assertValidInterpolatePosterizeOption(
 	}
 }
 
+function assertValidInterpolateOutputOption(
+	output: InterpolateOptions['output'],
+) {
+	if (
+		output === undefined ||
+		output === 'linear' ||
+		output === 'perceptual-scale'
+	) {
+		return;
+	}
+
+	throw new Error(
+		`output must be "linear" or "perceptual-scale", but got ${String(output)}`,
+	);
+}
+
 /*
  * @description Allows you to map a range of values to another using a concise syntax.
  * @see [Documentation](https://remotion.dev/docs/interpolate)
@@ -907,6 +966,7 @@ export function interpolate(
 
 	assertValidInterpolateEasingOption(options?.easing, inputRange.length);
 	assertValidInterpolatePosterizeOption(options?.posterize);
+	assertValidInterpolateOutputOption(options?.output);
 
 	if (typeof input !== 'number') {
 		throw new TypeError('Cannot interpolate an input which is not a number');

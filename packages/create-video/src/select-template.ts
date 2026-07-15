@@ -11,12 +11,19 @@ type Options = {
 	tmp: boolean;
 	yes: boolean;
 	'no-tailwind': boolean;
+	help: boolean;
 };
 
 const parsed = minimist<Options>(process.argv.slice(2), {
-	boolean: [...ALL_TEMPLATES.map((f) => f.cliId), 'tmp', 'yes', 'no-tailwind'],
+	boolean: [
+		...ALL_TEMPLATES.map((f) => f.cliId),
+		'tmp',
+		'yes',
+		'no-tailwind',
+		'help',
+	],
 	string: ['_'],
-	alias: {y: 'yes'},
+	alias: {y: 'yes', h: 'help'},
 });
 
 export const isTmpFlagSelected = () => parsed.tmp;
@@ -24,6 +31,8 @@ export const isTmpFlagSelected = () => parsed.tmp;
 export const isYesFlagSelected = () => parsed.yes;
 
 export const isNoTailwindFlagSelected = () => parsed['no-tailwind'];
+
+export const isHelpFlagSelected = () => parsed.help;
 
 export const getPositionalArguments = () => parsed._;
 

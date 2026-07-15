@@ -1,4 +1,11 @@
-import {cpSync} from 'node:fs';
+import {
+	cpSync,
+	existsSync,
+	readdirSync,
+	readFileSync,
+	statSync,
+	writeFileSync,
+} from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'path';
 import {$} from 'bun';
@@ -25,6 +32,48 @@ const skillsTemplate: MinimalTemplate = {
 };
 
 const templates = [skillsTemplate, ...folders];
+
+const rewriteEmbeddedBestPracticesLinks = (root: string) => {
+	const embeddedRoot = path.join(root, 'skills', 'remotion-best-practices');
+
+	if (!existsSync(embeddedRoot)) {
+		return;
+	}
+
+	const rewriteMarkdownFiles = (dir: string) => {
+		for (const entry of readdirSync(dir, {withFileTypes: true})) {
+			const file = path.join(dir, entry.name);
+			if (entry.isDirectory()) {
+				rewriteMarkdownFiles(file);
+				continue;
+			}
+
+			if (!entry.isFile() || !file.endsWith('.md')) {
+				continue;
+			}
+
+			const contents = readFileSync(file, 'utf-8');
+			const rewritten = contents.replaceAll(
+				'../remotion-best-practices/',
+				'../',
+			);
+			if (contents !== rewritten) {
+				writeFileSync(file, rewritten);
+			}
+		}
+	};
+
+	for (const entry of readdirSync(embeddedRoot, {withFileTypes: true})) {
+		const child = path.join(embeddedRoot, entry.name);
+		if (
+			entry.isDirectory() &&
+			entry.name !== 'rules' &&
+			statSync(path.join(child, 'SKILL.md'), {throwIfNoEntry: false})?.isFile()
+		) {
+			rewriteMarkdownFiles(child);
+		}
+	}
+};
 
 const publish = async (template: MinimalTemplate) => {
 	const folder = path.join(
@@ -63,13 +112,17 @@ const publish = async (template: MinimalTemplate) => {
 	for (const file of filesInTemplate) {
 		const src = path.join(folder, file);
 		const dst = path.join(workingDir, file);
-		cpSync(src, dst);
+		cpSync(src, dst, {dereference: true, recursive: true});
 
 		if (file === 'package.json') {
 			const dstFile = await Bun.file(dst).text();
 			const currentVersion = dstFile.replaceAll('workspace:*', '^4.0.0');
 			await Bun.write(dst, currentVersion);
 		}
+	}
+
+	if (template.templateInMonorepo === 'skills') {
+		rewriteEmbeddedBestPracticesLinks(workingDir);
 	}
 
 	await $`git add .`.cwd(workingDir).nothrow();

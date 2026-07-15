@@ -1,3 +1,4 @@
-export const SHOW_BROWSER_RENDERING = Boolean(
-	process.env.EXPERIMENTAL_CLIENT_SIDE_RENDERING_ENABLED,
-);
+import {getStudioExperimentalClientSideRenderingEnabled} from './studio-runtime-config';
+
+export const SHOW_BROWSER_RENDERING =
+	getStudioExperimentalClientSideRenderingEnabled();

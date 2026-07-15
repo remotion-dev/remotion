@@ -3,7 +3,10 @@ import type {
 	CanUpdateSequencePropsResponse,
 	SequencePropsSubscriptionKey,
 } from 'remotion';
-import type {CanUpdateDefaultPropsResponse} from './api-requests';
+import type {
+	CanUpdateDefaultPropsResponse,
+	ElementInstallRequest,
+} from './api-requests';
 import type {HotMiddlewareMessage} from './hot-middleware';
 import type {CompletedClientRender, RenderJob} from './render-job';
 
@@ -72,6 +75,14 @@ export type EventSourceEvent =
 			type: 'undo-redo-stack-changed';
 			undoFile: string | null;
 			redoFile: string | null;
+	  }
+	| {
+			type: 'request-element-install-target';
+			requestId: string;
+	  }
+	| {
+			type: 'element-install-request';
+			request: ElementInstallRequest;
 	  }
 	| {
 			type: 'visual-control-values-changed';

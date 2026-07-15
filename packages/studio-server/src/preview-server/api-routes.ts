@@ -46,6 +46,7 @@ import {unsubscribeFromSequenceProps} from './routes/unsubscribe-from-sequence-p
 import {handleUpdate} from './routes/update-available';
 import {updateDefaultPropsHandler} from './routes/update-default-props';
 import {updateEffectKeyframeSettingsHandler} from './routes/update-effect-keyframe-settings';
+import {updateElementInstallTargetHandler} from './routes/update-element-install-target';
 import {updateSequenceKeyframeSettingsHandler} from './routes/update-sequence-keyframe-settings';
 
 export const allApiRoutes: {
@@ -98,6 +99,7 @@ export const allApiRoutes: {
 	'/api/install-package': handleInstallPackage,
 	'/api/insert-jsx-element': insertJsxElementHandler,
 	'/api/insert-element': insertElementHandler,
+	'/api/update-element-install-target': updateElementInstallTargetHandler,
 	'/api/download-remote-asset': downloadRemoteAssetHandler,
 	'/api/undo': undoHandler,
 	'/api/redo': redoHandler,

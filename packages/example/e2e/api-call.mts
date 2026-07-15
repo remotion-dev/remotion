@@ -11,7 +11,10 @@ export const apiCall = async <Endpoint extends keyof ApiRoutes>(
 ): Promise<ApiResponse<Endpoint>> => {
 	const res = await fetch(`${STUDIO_URL}${endpoint}`, {
 		method: 'POST',
-		headers: {'content-type': 'application/json'},
+		headers: {
+			'content-type': 'application/json',
+			origin: STUDIO_URL,
+		},
 		body: JSON.stringify(body),
 	});
 	return (await res.json()) as ApiResponse<Endpoint>;

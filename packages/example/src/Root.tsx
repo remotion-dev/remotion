@@ -205,6 +205,10 @@ import {PaletteMapEffect} from './EffectsTestbed/PaletteMapEffect';
 import {RadialProgressiveBlurTest} from './EffectsTestbed/RadialProgressiveBlur';
 import {VideoEffectsFastRefresh} from './EffectsTestbed/VideoEffectsFastRefresh';
 import {Empty} from './Empty';
+import {
+	Issue8974IndependentVideosTimeline,
+	Issue8974TransitionSeriesTimeline,
+} from './Issue8974TimelineInteractivity';
 import {JumpCuts, SAMPLE_SECTIONS, calculateMetadataJumpCuts} from './JumpCuts';
 import {LightLeakExample} from './LightLeak';
 import {LightLeakAnimatedSize} from './LightLeak/AnimatedSize';
@@ -402,6 +406,16 @@ export const Index: React.FC = () => {
 				<Composition
 					id="cubic-easing-interpolation-test"
 					lazyComponent={() => import('./CubicEasingInterpolationTest')}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={120}
+				/>
+				<Composition
+					id="interpolate-output-effect-scale-comparison"
+					lazyComponent={() =>
+						import('./InterpolateOutputEffectScaleComparison')
+					}
 					width={1080}
 					height={1080}
 					fps={30}
@@ -2589,6 +2603,24 @@ export const Index: React.FC = () => {
 					height={1080}
 					fps={30}
 					durationInFrames={165}
+				/>
+			</Folder>
+			<Folder name="Issue8974">
+				<Composition
+					id="issue-8974-transition-series-timeline"
+					component={Issue8974TransitionSeriesTimeline}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={210}
+				/>
+				<Composition
+					id="issue-8974-independent-videos-timeline"
+					component={Issue8974IndependentVideosTimeline}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={366}
 				/>
 			</Folder>
 			<Folder name="VisualModeTests">

@@ -7,6 +7,7 @@ const makeVideoTrack = () =>
 	({
 		id: 0,
 		codec: 'avc',
+		getCodec: () => Promise.resolve('avc'),
 		rotation: 0,
 		displayHeight: 1080,
 		displayWidth: 1920,

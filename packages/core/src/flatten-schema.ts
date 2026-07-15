@@ -33,9 +33,7 @@ export const getFlatSchemaWithAllKeys = (
 
 	const addKey = (key: string, field: InteractivitySchema[string]) => {
 		if (key in out) {
-			throw new Error(
-				`Duplicate key "${key}" in schema: discriminated union variants must not share keys`,
-			);
+			return;
 		}
 
 		out[key] = field;

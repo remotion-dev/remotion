@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/effects",
-	"version": "4.0.487",
+	"version": "4.0.489",
 	"description": "Effects that can be applied to Remotion-based canvas components",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -174,6 +174,11 @@
 			"module": "./dist/esm/linear-progressive-blur.mjs",
 			"import": "./dist/esm/linear-progressive-blur.mjs"
 		},
+		"./linear-progressive-pixelate": {
+			"types": "./dist/linear-progressive-pixelate.d.ts",
+			"module": "./dist/esm/linear-progressive-pixelate.mjs",
+			"import": "./dist/esm/linear-progressive-pixelate.mjs"
+		},
 		"./light-trail": {
 			"types": "./dist/light-trail.d.ts",
 			"module": "./dist/esm/light-trail.mjs",
@@ -218,6 +223,11 @@
 			"types": "./dist/radial-progressive-blur.d.ts",
 			"module": "./dist/esm/radial-progressive-blur.mjs",
 			"import": "./dist/esm/radial-progressive-blur.mjs"
+		},
+		"./radial-progressive-pixelate": {
+			"types": "./dist/radial-progressive-pixelate.d.ts",
+			"module": "./dist/esm/radial-progressive-pixelate.mjs",
+			"import": "./dist/esm/radial-progressive-pixelate.mjs"
 		},
 		"./rings": {
 			"types": "./dist/rings.d.ts",
@@ -397,6 +407,9 @@
 			"linear-progressive-blur": [
 				"dist/linear-progressive-blur.d.ts"
 			],
+			"linear-progressive-pixelate": [
+				"dist/linear-progressive-pixelate.d.ts"
+			],
 			"light-trail": [
 				"dist/light-trail.d.ts"
 			],
@@ -423,6 +436,9 @@
 			],
 			"radial-progressive-blur": [
 				"dist/radial-progressive-blur.d.ts"
+			],
+			"radial-progressive-pixelate": [
+				"dist/radial-progressive-pixelate.d.ts"
 			],
 			"rings": [
 				"dist/rings.d.ts"

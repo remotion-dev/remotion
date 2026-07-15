@@ -327,13 +327,7 @@ If `render-cards.ts` opportunistically generates unrelated missing cards, remove
 
 Keep the agent-facing Remotion skill in sync with the new effect.
 
-Update `packages/skills/skills/remotion/SKILL.md`:
-
-- Add `effectName()` to the `Available effects:` line under `## Visual and pixel effects`.
-- Keep the list sorted in the same order as `packages/docs/docs/effects/table-of-contents.tsx`.
-- Keep this top-level entry concise; do not add props or examples here.
-
-Do not duplicate the full list in `packages/skills/skills/remotion/rules/effects.md`; keep that rule limited to general usage mechanics unless the new effect changes import or installation conventions.
+Update `packages/skills/skills/remotion-markup/effects.md` only if the new effect changes general usage mechanics, import conventions, installation guidance, or custom-effect recommendations. Do not duplicate the full effect list there; use the docs table of contents as the canonical list.
 
 ## 10. Format, build, and verify
 
@@ -360,7 +354,6 @@ git status --short
 
 - Do not forget `package.json` `exports` and `typesVersions`; subpath imports like `@remotion/effects/my-effect` depend on them.
 - Do not forget `bundle.ts`; otherwise the ESM subpath will not be built.
-- Do not forget to update the top-level available effects list in `packages/skills/skills/remotion/SKILL.md`.
 - Do not leave temporary render entry points in `packages/docs/src/remotion`.
 - Do not use a hand-written SVG for the effect TOC preview.
 - Preserve alpha unless the effect intentionally changes it.

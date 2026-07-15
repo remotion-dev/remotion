@@ -32,12 +32,15 @@ export type EffectClipboardClamping = {
 	readonly right: EffectClipboardExtrapolateType;
 };
 
+export type EffectClipboardOutput = 'linear' | 'perceptual-scale';
+
 export type EffectClipboardKeyframedParam = {
 	readonly type: 'keyframed';
 	readonly interpolationFunction: EffectClipboardInterpolationFunction;
 	readonly keyframes: EffectClipboardKeyframe[];
 	readonly easing: EffectClipboardEasing[];
 	readonly clamping: EffectClipboardClamping;
+	readonly output?: EffectClipboardOutput;
 	readonly posterize?: number;
 };
 
@@ -101,6 +104,7 @@ const isRecord = (value: unknown): value is Record<string, unknown> => {
 };
 
 const extrapolateTypes = new Set(['extend', 'identity', 'clamp', 'wrap']);
+const outputOptions = new Set(['linear', 'perceptual-scale']);
 
 const isFiniteNumber = (value: unknown): value is number => {
 	return typeof value === 'number' && Number.isFinite(value);
@@ -198,6 +202,7 @@ const isEffectClipboardParam = (
 	}
 
 	const {posterize} = value;
+	const {output} = value;
 	const easingLength =
 		Array.isArray(value.keyframes) && value.keyframes.length > 0
 			? value.keyframes.length - 1
@@ -212,6 +217,10 @@ const isEffectClipboardParam = (
 		value.easing.length === easingLength &&
 		value.easing.every(isEasing) &&
 		isClamping(value.clamping) &&
+		(output === undefined ||
+			(value.interpolationFunction === 'interpolate' &&
+				typeof output === 'string' &&
+				outputOptions.has(output))) &&
 		(posterize === undefined || (isFiniteNumber(posterize) && posterize > 0))
 	);
 };

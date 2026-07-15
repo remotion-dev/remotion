@@ -23,9 +23,10 @@ import * as recast from 'recast';
 import type {
 	CanUpdateSequencePropStatus,
 	ExtrapolateType,
-	InteractivitySchemaField,
-	SequenceNodePath,
 	InteractivitySchema,
+	InteractivitySchemaField,
+	InterpolateOutputOption,
+	SequenceNodePath,
 } from 'remotion';
 import {getAstNodePath} from '../../helpers/get-ast-node-path';
 import {parseKeyframeEasingExpression} from '../../helpers/parse-keyframe-easing-expression';
@@ -157,6 +158,7 @@ export type KeyframeOperation =
 				  }
 				| undefined;
 			posterize: number | undefined;
+			output: InterpolateOutputOption | undefined;
 	  }
 	| {
 			type: 'easing';
@@ -338,14 +340,26 @@ const createFrameExpression = (frame: number): ExpressionKind => {
 	return parseValueExpression(frame);
 };
 
-const createClampOptionsExpression = (): ExpressionKind => {
-	return b.objectExpression([
+const createClampOptionsExpression = ({
+	defaultOutput,
+}: {
+	defaultOutput: InterpolateOutputOption | null;
+}): ExpressionKind => {
+	const properties = [
 		b.objectProperty(b.identifier('extrapolateLeft'), b.stringLiteral('clamp')),
 		b.objectProperty(
 			b.identifier('extrapolateRight'),
 			b.stringLiteral('clamp'),
 		),
-	]) as ExpressionKind;
+	];
+
+	if (defaultOutput !== null && defaultOutput !== 'linear') {
+		properties.push(
+			b.objectProperty(b.identifier('output'), b.stringLiteral(defaultOutput)),
+		);
+	}
+
+	return b.objectExpression(properties) as ExpressionKind;
 };
 
 const createEmptyOptionsExpression = (): ObjectExpression =>
@@ -796,10 +810,25 @@ const validatePosterize = (posterize: number | undefined) => {
 	}
 };
 
+const validateOutput = (output: InterpolateOutputOption | undefined) => {
+	if (
+		output === undefined ||
+		output === 'linear' ||
+		output === 'perceptual-scale'
+	) {
+		return;
+	}
+
+	throw new Error(
+		'Cannot update keyframe settings: output must be "linear" or "perceptual-scale"',
+	);
+};
+
 const updateKeyframeSettings = ({
 	expression,
 	clamping,
 	posterize,
+	output,
 }: {
 	expression: Expression;
 	clamping:
@@ -809,8 +838,10 @@ const updateKeyframeSettings = ({
 		  }
 		| undefined;
 	posterize: number | undefined;
+	output: InterpolateOutputOption | undefined;
 }): ExpressionKind => {
 	validatePosterize(posterize);
+	validateOutput(output);
 
 	const existing = getInterpolationExpression(expression);
 	if (!existing) {
@@ -838,6 +869,7 @@ const updateKeyframeSettings = ({
 			propertyName: 'extrapolateRight',
 			value: null,
 		});
+		setOptionsProperty({options, propertyName: 'output', value: null});
 	} else if (clamping) {
 		setOptionsProperty({
 			options,
@@ -848,6 +880,14 @@ const updateKeyframeSettings = ({
 			options,
 			propertyName: 'extrapolateRight',
 			value: b.stringLiteral(clamping.right),
+		});
+	}
+
+	if (!isColorInterpolation && output !== undefined) {
+		setOptionsProperty({
+			options,
+			propertyName: 'output',
+			value: output === 'linear' ? null : b.stringLiteral(output),
 		});
 	}
 
@@ -1055,7 +1095,11 @@ const addKeyframe = ({
 	const extraArgs =
 		callee.type === 'Identifier' && callee.name === 'interpolateColors'
 			? []
-			: [createClampOptionsExpression()];
+			: [
+					createClampOptionsExpression({
+						defaultOutput: getDefaultKeyframeOutput({schema, key}),
+					}),
+				];
 
 	return {
 		expression: createInterpolateExpression({
@@ -1238,6 +1282,7 @@ const applyKeyframeOperation = ({
 				expression,
 				clamping: operation.clamping,
 				posterize: operation.posterize,
+				output: operation.output,
 			}),
 			introduced: noIntroducedIdentifiers,
 		};
@@ -1359,6 +1404,24 @@ const findFieldInSchema = (
 	}
 
 	return undefined;
+};
+
+const getDefaultKeyframeOutput = ({
+	schema,
+	key,
+}: {
+	schema: InteractivitySchema | null;
+	key: string;
+}): InterpolateOutputOption | null => {
+	const field = schema ? findFieldInSchema(schema, key) : undefined;
+	if (
+		(field?.type === 'number' || field?.type === 'scale') &&
+		field.defaultKeyframeOutput !== undefined
+	) {
+		return field.defaultKeyframeOutput;
+	}
+
+	return key === 'style.scale' ? 'perceptual-scale' : null;
 };
 
 const getInitialValueForMissingProp = ({

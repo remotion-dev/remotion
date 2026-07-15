@@ -8,6 +8,7 @@ import type {
 	GitSource,
 	RenderDefaults,
 	RenderJob,
+	StudioRuntimeConfig,
 } from '@remotion/studio-shared';
 import {getFileWatcherRegistry} from './file-watcher';
 import {getNetworkAddress} from './get-network-address';
@@ -59,6 +60,7 @@ export const startStudio = async ({
 	interactivityEnabled,
 	forceNew,
 	rspack,
+	getStudioRuntimeConfig,
 }: {
 	browserArgs: string;
 	browserFlag: string;
@@ -91,6 +93,7 @@ export const startStudio = async ({
 	interactivityEnabled: boolean;
 	forceNew: boolean;
 	rspack: boolean;
+	getStudioRuntimeConfig: () => StudioRuntimeConfig;
 }): Promise<StartStudioResult> => {
 	try {
 		if (typeof Bun === 'undefined') {
@@ -172,6 +175,7 @@ export const startStudio = async ({
 		interactivityEnabled,
 		forceNew,
 		rspack,
+		getStudioRuntimeConfig,
 	});
 
 	if (result.type === 'already-running') {

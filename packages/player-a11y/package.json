@@ -1,7 +1,8 @@
 {
 	"name": "@remotion/player-a11y",
-	"version": "4.0.487",
+	"version": "4.0.489",
 	"description": "Accessible wrapper around @remotion/player with WCAG 2.1 AA controls",
+	"private": true,
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"module": "dist/esm/index.mjs",
@@ -51,9 +52,5 @@
 		"accessibility",
 		"a11y",
 		"wcag"
-	],
-	"publishConfig": {
-		"access": "public"
-	},
-	"homepage": "https://www.remotion.dev/docs/player-a11y"
+	]
 }

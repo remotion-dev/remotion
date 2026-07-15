@@ -2,6 +2,7 @@ import {describe, expect, test} from 'bun:test';
 import {existsSync, readdirSync, readFileSync, statSync} from 'fs';
 import path from 'path';
 import {expandElementSourceReferences} from '../../plugins/element-source-utils';
+import remarkElementSource from '../../plugins/remark-element-source';
 
 const elementsRoot = path.join(__dirname, '..', '..', 'elements');
 const templateRoot = path.join(__dirname, '..', '..', 'elements-template');
@@ -56,6 +57,39 @@ const allElements = [
 describe('Elements must follow the colocated single-file format', () => {
 	test('at least one element exists', () => {
 		expect(allElements.length).toBeGreaterThan(0);
+	});
+
+	test('remark plugin nests source inside ElementPage', () => {
+		const element = allElements[0];
+		const sourceFile = getRelativeTsxPath(element.tsxPath, element.mdxPath);
+		const elementPage = {
+			type: 'mdxJsxFlowElement',
+			name: 'ElementPage',
+			attributes: [
+				{
+					type: 'mdxJsxAttribute',
+					name: 'sourceFile',
+					value: sourceFile,
+				},
+			],
+			children: [],
+		};
+		const tree = {type: 'root', children: [elementPage]};
+
+		remarkElementSource()(tree, {path: element.mdxPath});
+
+		expect(tree.children).toHaveLength(1);
+		expect(elementPage.children).toHaveLength(1);
+		expect(elementPage.children[0]).toMatchObject({
+			type: 'code',
+			lang: 'tsx',
+		});
+		expect(
+			elementPage.attributes.some((attr) => attr.name === 'sourceFile'),
+		).toBe(false);
+		expect(
+			elementPage.attributes.some((attr) => attr.name === 'sourceCode'),
+		).toBe(true);
 	});
 
 	for (const element of allElements) {

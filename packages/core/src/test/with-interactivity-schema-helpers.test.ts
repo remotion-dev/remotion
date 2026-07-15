@@ -1,6 +1,9 @@
 import {expect, test} from 'bun:test';
 import {solidSchema} from '../effects/Solid.js';
-import {getFlatSchemaWithAllKeys} from '../flatten-schema.js';
+import {
+	flattenActiveSchema,
+	getFlatSchemaWithAllKeys,
+} from '../flatten-schema.js';
 import {htmlInCanvasSchema} from '../HtmlInCanvas.js';
 import {Interactive} from '../Interactive.js';
 import {
@@ -81,6 +84,72 @@ test('getFlatSchema(sequenceSchema) exposes every variant key', () => {
 			'trimBefore',
 		].sort(),
 	);
+});
+
+test('getFlatSchema allows enum variants to share prop keys', () => {
+	const schema = {
+		type: {
+			type: 'enum',
+			default: 'underline',
+			description: 'Type',
+			variants: {
+				underline: {
+					color: {
+						type: 'color',
+						default: '#111111',
+						description: 'Underline color',
+					},
+				},
+				highlight: {
+					color: {
+						type: 'color',
+						default: '#eeee00',
+						description: 'Highlight color',
+					},
+				},
+				bracket: {},
+			},
+		},
+	} as const;
+
+	const flat = getFlatSchemaWithAllKeys(schema);
+	expect(Object.keys(flat).sort()).toEqual(['color', 'type']);
+	expect(flat.color.type).toBe('color');
+});
+
+test('flattenActiveSchema resolves shared keys from the selected enum variant', () => {
+	const schema = {
+		type: {
+			type: 'enum',
+			default: 'underline',
+			description: 'Type',
+			variants: {
+				underline: {
+					color: {
+						type: 'color',
+						default: '#111111',
+						description: 'Underline color',
+					},
+				},
+				highlight: {
+					color: {
+						type: 'color',
+						default: '#eeee00',
+						description: 'Highlight color',
+					},
+				},
+			},
+		},
+	} as const;
+
+	const active = flattenActiveSchema(schema, (key) =>
+		key === 'type' ? 'highlight' : undefined,
+	);
+	expect(active.color).toEqual({
+		type: 'color',
+		default: '#eeee00',
+		description: 'Highlight color',
+	});
 });
 
 test('extendSchemaWithSequenceName adds hidden name to wrapped schemas', () => {
