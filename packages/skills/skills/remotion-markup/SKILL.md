@@ -142,7 +142,7 @@ See [map.md](map.md) for choosing between simple static maps, Mapbox maps, and M
 
 ## Text highlights and annotations
 
-See [text-highlights.md](text-highlights.md) for animated text highlights, circles, underlines, strike-throughs, crossed-off text, boxes, and brackets.
+See [text-highlights.md](text-highlights.md) for text highlights (highlight markers), circles, underlines, strike-throughs, crossed-off text, boxes, and brackets.
 
 ## Voiceover
 
