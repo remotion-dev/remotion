@@ -37,6 +37,7 @@ export type VideoSinkResult =
 	| VideoSinks
 	| 'no-video-track'
 	| 'cannot-decode'
+	| 'cannot-decode-prores'
 	| 'cannot-decode-alpha'
 	| 'unknown-container-format'
 	| 'network-error';
@@ -108,6 +109,10 @@ export const getSinks = async (
 		const canDecode = await videoTrack.canDecode();
 
 		if (!canDecode) {
+			if (videoTrack.codec === 'prores') {
+				return 'cannot-decode-prores';
+			}
+
 			return 'cannot-decode';
 		}
 

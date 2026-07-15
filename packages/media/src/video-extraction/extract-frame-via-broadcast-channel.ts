@@ -22,6 +22,7 @@ export type ExtractFrameViaBroadcastChannelResult =
 			durationInSeconds: number | null;
 	  }
 	| {type: 'cannot-decode'; durationInSeconds: number | null}
+	| {type: 'cannot-decode-prores'; durationInSeconds: number | null}
 	| {type: 'cannot-decode-alpha'; durationInSeconds: number | null}
 	| {type: 'network-error'}
 	| {type: 'unknown-container-format'};
@@ -95,6 +96,7 @@ export const extractFrameViaBroadcastChannel = async ({
 				durationInSeconds: number | null;
 		  }
 		| {type: 'cannot-decode'; durationInSeconds: number | null}
+		| {type: 'cannot-decode-prores'; durationInSeconds: number | null}
 		| {type: 'cannot-decode-alpha'; durationInSeconds: number | null}
 		| {type: 'network-error'}
 		| {type: 'unknown-container-format'}
@@ -142,6 +144,18 @@ export const extractFrameViaBroadcastChannel = async ({
 			if (data.type === 'response-cannot-decode') {
 				resolve({
 					type: 'cannot-decode',
+					durationInSeconds: data.durationInSeconds,
+				});
+				window.remotion_broadcastChannel!.removeEventListener(
+					'message',
+					onMessage,
+				);
+				return;
+			}
+
+			if (data.type === 'response-cannot-decode-prores') {
+				resolve({
+					type: 'cannot-decode-prores',
 					durationInSeconds: data.durationInSeconds,
 				});
 				window.remotion_broadcastChannel!.removeEventListener(

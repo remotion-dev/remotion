@@ -188,6 +188,12 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 					);
 				}
 
+				if (result.type === 'cannot-decode-prores') {
+					throw new Error(
+						`Encountered ProRes media for ${src}. But this should never happen, since you used the <Audio> tag. Please report this as a bug.`,
+					);
+				}
+
 				if (result.type === 'network-error') {
 					handleError(
 						new Error(`Network error fetching ${src}.`),
