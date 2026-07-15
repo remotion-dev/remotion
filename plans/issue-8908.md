@@ -27,6 +27,10 @@ Expected initial output dimensions and durations:
 | Rotating Starburst | 1920 × 1080 | 8 seconds |
 | Lower Third        |  1280 × 738 | 4 seconds |
 | Number Counter     |   880 × 440 | 4 seconds |
+| Circle Marker      |  1140 × 460 | 4 seconds |
+| Crossed Off        |  1140 × 460 | 4 seconds |
+| Strike Through     |  1140 × 460 | 4 seconds |
+| Text Marker        |  1140 × 460 | 4 seconds |
 
 ## 1. Add canonical Element definitions and utilities
 
