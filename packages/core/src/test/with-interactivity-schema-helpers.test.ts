@@ -10,6 +10,7 @@ import {htmlInCanvasSchema} from '../HtmlInCanvas.js';
 import {Interactive} from '../Interactive.js';
 import {
 	baseSchema,
+	borderSchema,
 	extendSchemaWithSequenceName,
 	premountSchema,
 	sequenceSchema,
@@ -285,6 +286,39 @@ test('textSchema exposes common text style fields', () => {
 		default: undefined,
 		step: 0.1,
 		hiddenFromList: false,
+	});
+});
+
+test('borderSchema exposes the longhand border style fields', () => {
+	expect(Object.keys(borderSchema).sort()).toEqual(
+		['style.borderColor', 'style.borderStyle', 'style.borderWidth'].sort(),
+	);
+	expect(borderSchema['style.borderWidth']).toMatchObject({
+		type: 'number',
+		default: undefined,
+		min: 0,
+		step: 1,
+		hiddenFromList: false,
+	});
+	expect(borderSchema['style.borderStyle']).toMatchObject({
+		type: 'enum',
+		default: 'none',
+	});
+	expect(Object.keys(borderSchema['style.borderStyle'].variants)).toEqual([
+		'none',
+		'hidden',
+		'solid',
+		'dashed',
+		'dotted',
+		'double',
+		'groove',
+		'ridge',
+		'inset',
+		'outset',
+	]);
+	expect(borderSchema['style.borderColor']).toMatchObject({
+		type: 'color',
+		default: undefined,
 	});
 });
 

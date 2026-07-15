@@ -6,6 +6,7 @@ import type {
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import {
 	baseSchema,
+	borderSchema,
 	premountSchema,
 	sequenceSchema,
 	textContentSchema,
@@ -139,6 +140,7 @@ const makeRemotionComponentIdentity = ({
 const interactiveElementSchema = {
 	...baseSchema,
 	...transformSchema,
+	...borderSchema,
 	...textSchema,
 	...textContentSchema,
 } as const satisfies InteractivitySchema;
@@ -247,6 +249,7 @@ export const Interactive = {
 	baseSchema,
 	transformSchema,
 	textSchema,
+	borderSchema,
 	premountSchema,
 	sequenceSchema,
 	withSchema,
