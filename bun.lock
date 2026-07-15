@@ -454,6 +454,7 @@
       "version": "4.0.489",
       "dependencies": {
         "@aws-sdk/s3-request-presigner": "catalog:",
+        "@babel/parser": "7.24.1",
         "@babel/plugin-transform-modules-commonjs": "7.27.1",
         "@docusaurus/core": "3.10.1",
         "@docusaurus/faster": "3.10.1",

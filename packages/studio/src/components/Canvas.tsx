@@ -4,7 +4,6 @@ import {
 	COMPONENT_DRAG_MIME_TYPE,
 	COMPOSITION_DRAG_MIME_TYPE,
 	ELEMENT_DRAG_MIME_TYPE,
-	getRequiredPackagesForElementSourceCode,
 	parseAssetDragData,
 	parseComponentDragData,
 	parseCompositionDragData,
@@ -935,9 +934,7 @@ export const Canvas: React.FC<{
 		const handleInstallRequest = async () => {
 			setInstallingElementName(activeElementInstallRequest.element.displayName);
 			const missingPackages = getMissingPackages(
-				getRequiredPackagesForElementSourceCode(
-					activeElementInstallRequest.element.sourceCode,
-				),
+				activeElementInstallRequest.element.dependencies,
 			);
 			const accepted = await confirm({
 				title: 'Install Element',

@@ -274,7 +274,6 @@ export type {CompletedClientRender} from './render-job';
 export {
 	getRequiredPackageForEffectImportPath,
 	getRequiredPackageForInsertableElement,
-	getRequiredPackagesForElementSourceCode,
 	isValidPackageName,
 } from './required-package';
 export {

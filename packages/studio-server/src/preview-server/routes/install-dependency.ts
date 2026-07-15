@@ -22,7 +22,7 @@ export const getPackageInstallSpec = (packageName: string): string => {
 		return `${packageName}@${extraVersion}`;
 	}
 
-	if (packageName.startsWith('@remotion/')) {
+	if (packageName === 'remotion' || packageName.startsWith('@remotion/')) {
 		return `${packageName}@${VERSION}`;
 	}
 

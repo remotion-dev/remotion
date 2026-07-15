@@ -21,6 +21,7 @@ type ElementPageProps = {
 	readonly children?: ReactNode;
 	readonly component: ComponentType<Record<string, never>>;
 	readonly contributors?: Contributor[];
+	readonly dependencies: string[];
 	readonly description: ReactNode;
 	readonly displayName?: string;
 	readonly durationInFrames?: number;
@@ -108,6 +109,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 	children,
 	component,
 	contributors,
+	dependencies,
 	description,
 	displayName,
 	durationInFrames = 120,
@@ -150,12 +152,20 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 				: null;
 
 		return makeElementDragData({
+			dependencies,
 			dimensions,
 			displayName,
 			slug,
 			sourceCode,
 		});
-	}, [displayName, elementHeight, elementWidth, slug, sourceCode]);
+	}, [
+		dependencies,
+		displayName,
+		elementHeight,
+		elementWidth,
+		slug,
+		sourceCode,
+	]);
 
 	const installElement = useCallback(async () => {
 		if (dragData === null) {

@@ -3,6 +3,7 @@ import {VERSION} from 'remotion/version';
 import {getPackageInstallSpec} from '../preview-server/routes/install-dependency';
 
 test('uses the matching version for Remotion packages', () => {
+	expect(getPackageInstallSpec('remotion')).toBe(`remotion@${VERSION}`);
 	expect(getPackageInstallSpec('@remotion/effects')).toBe(
 		`@remotion/effects@${VERSION}`,
 	);
