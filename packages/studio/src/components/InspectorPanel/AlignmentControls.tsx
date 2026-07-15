@@ -1,5 +1,5 @@
 import React, {useCallback, useContext, useMemo} from 'react';
-import {Internals} from 'remotion';
+import {Internals, type CanUpdateSequencePropStatus} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
 import {AlignBottomIcon} from '../../icons/align-bottom';
@@ -21,8 +21,7 @@ import {
 import {computeAlignedTranslate} from './alignment-controls';
 
 const isPropStatusDraggable = (
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	propStatus: any,
+	propStatus: CanUpdateSequencePropStatus | undefined,
 ) => {
 	return (
 		!propStatus ||
@@ -56,12 +55,14 @@ const AlignmentButton: React.FC<{
 	readonly onClick: () => void;
 	readonly title: string;
 	readonly Icon: React.FC<React.SVGProps<SVGSVGElement>>;
-}> = ({onClick, title, Icon}) => {
+	readonly disabled: boolean;
+}> = ({onClick, title, Icon, disabled}) => {
 	return (
 		<InlineAction
 			title={title}
 			onClick={onClick}
 			renderAction={(color) => <Icon style={iconStyle} color={color} />}
+			disabled={disabled}
 		/>
 	);
 };
@@ -143,16 +144,10 @@ export const AlignmentControls: React.FC<{
 				return;
 			}
 
-			const r = ref as Element;
-			const compositionContainer =
-				typeof r.closest === 'function'
-					? r.closest('.remotion-studio-composition-container')
-					: null;
-			if (!compositionContainer) {
+			const compositionRect = Internals.portalNode().getBoundingClientRect();
+			if (compositionRect.width === 0 || compositionRect.height === 0) {
 				return;
 			}
-
-			const compositionRect = compositionContainer.getBoundingClientRect();
 
 			const scale = compositionRect.width / currentCompositionMetadata.width;
 
@@ -272,9 +267,7 @@ export const AlignmentControls: React.FC<{
 		return null;
 	}
 
-	if (!isPropStatusDraggable(renderPropStatus)) {
-		return null;
-	}
+	const alignmentDisabled = !isPropStatusDraggable(renderPropStatus);
 
 	return (
 		<div style={container}>
@@ -282,32 +275,38 @@ export const AlignmentControls: React.FC<{
 				title="Align left"
 				onClick={() => handleAlign('left')}
 				Icon={AlignLeftIcon}
+				disabled={alignmentDisabled}
 			/>
 			<AlignmentButton
 				title="Align center horizontally"
 				onClick={() => handleAlign('center-h')}
 				Icon={AlignCenterHorizontalIcon}
+				disabled={alignmentDisabled}
 			/>
 			<AlignmentButton
 				title="Align right"
 				onClick={() => handleAlign('right')}
 				Icon={AlignRightIcon}
+				disabled={alignmentDisabled}
 			/>
 			<div style={verticalDivider} />
 			<AlignmentButton
 				title="Align top"
 				onClick={() => handleAlign('top')}
 				Icon={AlignTopIcon}
+				disabled={alignmentDisabled}
 			/>
 			<AlignmentButton
 				title="Align center vertically"
 				onClick={() => handleAlign('center-v')}
 				Icon={AlignCenterVerticalIcon}
+				disabled={alignmentDisabled}
 			/>
 			<AlignmentButton
 				title="Align bottom"
 				onClick={() => handleAlign('bottom')}
 				Icon={AlignBottomIcon}
+				disabled={alignmentDisabled}
 			/>
 		</div>
 	);
