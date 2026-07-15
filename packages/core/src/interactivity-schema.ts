@@ -1,3 +1,5 @@
+import type {InterpolateOutputOption} from './interpolate.js';
+
 export type HiddenFieldSchema = {
 	type: 'hidden';
 	keyframable?: boolean;
@@ -12,6 +14,7 @@ export type NumberFieldSchema = {
 	description?: string;
 	hiddenFromList: boolean;
 	keyframable?: boolean;
+	defaultKeyframeOutput?: InterpolateOutputOption;
 };
 
 export type BooleanFieldSchema = {
@@ -63,6 +66,7 @@ export type ScaleFieldSchema = {
 	default: number | string | undefined;
 	description?: string;
 	keyframable?: boolean;
+	defaultKeyframeOutput?: InterpolateOutputOption;
 };
 
 export type UvCoordinateFieldSchema = {
@@ -118,7 +122,11 @@ export type EnumFieldSchema = {
 
 export type NumberArrayItemSchema = Omit<
 	NumberFieldSchema,
-	'default' | 'description' | 'hiddenFromList' | 'keyframable'
+	| 'default'
+	| 'description'
+	| 'hiddenFromList'
+	| 'keyframable'
+	| 'defaultKeyframeOutput'
 >;
 
 export type BooleanArrayItemSchema = Omit<
@@ -218,6 +226,7 @@ export const transformSchema = {
 		step: 0.01,
 		default: 1,
 		description: 'Scale',
+		defaultKeyframeOutput: 'perceptual-scale',
 	},
 	'style.rotate': {
 		type: 'rotation-css',
