@@ -108,6 +108,15 @@ export const articles = [
 		slug: 'ai/chatbot',
 	},
 	{
+		id: 'ai/codex-plugin',
+		title: 'Codex plugin',
+		relativePath: 'docs/ai/codex-plugin.mdx',
+		compId: 'articles-docs-ai-codex-plugin',
+		crumb: 'AI',
+		noAi: false,
+		slug: 'ai/codex-plugin',
+	},
+	{
 		id: 'ai/coding-agents',
 		title: 'Prompting videos with coding agents',
 		relativePath: 'docs/ai/coding-agents.mdx',
