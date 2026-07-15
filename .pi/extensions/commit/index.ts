@@ -77,12 +77,18 @@ export default function remotionCommitExtension(pi: ExtensionAPI) {
 			await ctx.waitForIdle();
 		}
 
-		pi.sendMessage(message);
-
 		const currentLeafId = ctx.sessionManager.getLeafId();
 		if (sourceLeafId && currentLeafId && currentLeafId !== sourceLeafId) {
-			await ctx.navigateTree(sourceLeafId, {summarize: false});
+			const navigation = await ctx.navigateTree(sourceLeafId, {
+				summarize: false,
+			});
+			if (navigation.cancelled) {
+				return false;
+			}
 		}
+
+		pi.sendMessage(message);
+		return true;
 	};
 
 	pi.registerCommand('commit', {
@@ -136,11 +142,7 @@ export default function remotionCommitExtension(pi: ExtensionAPI) {
 						: undefined;
 
 				if (assistantError) {
-					if (sourceLeafId && workerLeafId && workerLeafId !== sourceLeafId) {
-						await ctx.navigateTree(sourceLeafId, {summarize: false});
-					}
-
-					await sendResultAtSourceLeaf(ctx, sourceLeafId, {
+					const resultSent = await sendResultAtSourceLeaf(ctx, sourceLeafId, {
 						customType: MESSAGE_TYPE,
 						content: formatFailure(`Commit worker errored: ${assistantError}`),
 						display: true,
@@ -150,16 +152,20 @@ export default function remotionCommitExtension(pi: ExtensionAPI) {
 							status: 'failed',
 						},
 					});
+					if (!resultSent) {
+						ctx.ui.notify(
+							'Commit worker failed, but session tree navigation was cancelled',
+							'warning',
+						);
+						return;
+					}
+
 					ctx.ui.notify(`Commit worker failed:\n${assistantError}`, 'error');
 					return;
 				}
 
 				if (!summary) {
-					if (sourceLeafId && workerLeafId && workerLeafId !== sourceLeafId) {
-						await ctx.navigateTree(sourceLeafId, {summarize: false});
-					}
-
-					await sendResultAtSourceLeaf(ctx, sourceLeafId, {
+					const resultSent = await sendResultAtSourceLeaf(ctx, sourceLeafId, {
 						customType: MESSAGE_TYPE,
 						content: formatFailure(
 							'Commit worker finished without producing a result.',
@@ -171,38 +177,21 @@ export default function remotionCommitExtension(pi: ExtensionAPI) {
 							status: 'failed',
 						},
 					});
-					ctx.ui.notify('Commit worker produced no result', 'error');
-					return;
-				}
-
-				if (sourceLeafId && workerLeafId && workerLeafId !== sourceLeafId) {
-					const navigation = await ctx.navigateTree(sourceLeafId, {
-						summarize: false,
-					});
-					if (navigation.cancelled) {
-						pi.sendMessage({
-							customType: MESSAGE_TYPE,
-							content: formatFailure(
-								'Commit worker finished, but returning to the original session branch was cancelled.',
-							),
-							display: true,
-							details: {
-								userContext,
-								workerLeafId,
-								status: 'failed',
-							},
-						});
+					if (!resultSent) {
 						ctx.ui.notify(
-							'Commit finished, but session tree navigation was cancelled',
+							'Commit worker produced no result, and session tree navigation was cancelled',
 							'warning',
 						);
 						return;
 					}
+
+					ctx.ui.notify('Commit worker produced no result', 'error');
+					return;
 				}
 
 				const workerResult = parseWorkerResult(summary);
 				if (!workerResult) {
-					await sendResultAtSourceLeaf(ctx, sourceLeafId, {
+					const resultSent = await sendResultAtSourceLeaf(ctx, sourceLeafId, {
 						customType: MESSAGE_TYPE,
 						content: formatFailure(
 							'Commit worker returned a malformed result. Inspect its session-tree branch for details.',
@@ -214,11 +203,19 @@ export default function remotionCommitExtension(pi: ExtensionAPI) {
 							status: 'failed',
 						},
 					});
+					if (!resultSent) {
+						ctx.ui.notify(
+							'Commit worker returned a malformed result, and session tree navigation was cancelled',
+							'warning',
+						);
+						return;
+					}
+
 					ctx.ui.notify('Commit worker returned a malformed result', 'error');
 					return;
 				}
 
-				await sendResultAtSourceLeaf(ctx, sourceLeafId, {
+				const resultSent = await sendResultAtSourceLeaf(ctx, sourceLeafId, {
 					customType: MESSAGE_TYPE,
 					content: workerResult.content,
 					display: true,
@@ -228,6 +225,14 @@ export default function remotionCommitExtension(pi: ExtensionAPI) {
 						status: workerResult.displayStatus,
 					},
 				});
+				if (!resultSent) {
+					ctx.ui.notify(
+						'Commit finished, but session tree navigation was cancelled',
+						'warning',
+					);
+					return;
+				}
+
 				ctx.ui.notify(
 					workerResult.displayStatus === 'failed'
 						? `Commit worker failed:\n${workerResult.content}`
@@ -236,16 +241,20 @@ export default function remotionCommitExtension(pi: ExtensionAPI) {
 				);
 			} catch (error) {
 				const message = error instanceof Error ? error.message : String(error);
-				if (sourceLeafId) {
-					await ctx.navigateTree(sourceLeafId, {summarize: false});
-				}
-
-				await sendResultAtSourceLeaf(ctx, sourceLeafId, {
+				const resultSent = await sendResultAtSourceLeaf(ctx, sourceLeafId, {
 					customType: MESSAGE_TYPE,
 					content: formatFailure(`Commit worker failed: ${message}`),
 					display: true,
 					details: {userContext, status: 'failed'},
 				});
+				if (!resultSent) {
+					ctx.ui.notify(
+						'Commit worker failed, and session tree navigation was cancelled',
+						'warning',
+					);
+					return;
+				}
+
 				ctx.ui.notify(`Commit worker failed:\n${message}`, 'error');
 			} finally {
 				ctx.ui.setStatus(STATUS_KEY, undefined);
