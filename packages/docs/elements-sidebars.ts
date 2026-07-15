@@ -40,7 +40,12 @@ const sidebars: SidebarsConfig = {
 			label: 'Text',
 			link: {type: 'doc', id: 'text/index'},
 			collapsed: false,
-			items: ['text/text-marker/index'],
+			items: [
+				'text/circle-marker/index',
+				'text/crossed-off/index',
+				'text/strike-through/index',
+				'text/text-marker/index',
+			],
 		},
 	],
 };
