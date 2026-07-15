@@ -21,7 +21,7 @@
 	"contributors": [
 		"Mohit Yadav <yo@mohitya.dev>"
 	],
-	"license": "Remotion License",
+	"license": "MIT",
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},

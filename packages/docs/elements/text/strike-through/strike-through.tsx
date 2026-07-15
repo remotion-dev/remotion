@@ -20,7 +20,7 @@ export const StrikeThroughText: React.FC = () => {
 				lineHeight: 1.1,
 				color: '#171717',
 				fontFamily,
-				width: 800,
+				textAlign: 'center',
 			}}
 		>
 			<Interactive.Span>The </Interactive.Span>

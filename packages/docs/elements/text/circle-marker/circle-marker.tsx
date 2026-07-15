@@ -30,12 +30,12 @@ export const CircleMarker: React.FC = () => {
 					extrapolateLeft: 'clamp',
 					extrapolateRight: 'clamp',
 					easing: [Easing.bezier(0.42, 0, 0.58, 1)],
-					posterize: 10,
+					posterize: 4,
 				})}
 				seed={interpolate(frame, [0, 89], [1, 90], {
 					extrapolateLeft: 'clamp',
 					extrapolateRight: 'clamp',
-					posterize: 10,
+					posterize: 4,
 				})}
 				roughness={1.8}
 				strokeWidth={12}
