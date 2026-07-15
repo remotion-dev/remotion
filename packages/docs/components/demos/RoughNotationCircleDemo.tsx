@@ -42,7 +42,7 @@ export const RoughNotationCircleDemo: React.FC = () => {
 						extrapolateRight: 'clamp',
 						easing: [Easing.bezier(0.42, 0, 0.58, 1)],
 					})}
-					roughness={0.6}
+					roughness={1.8}
 					strokeWidth={12}
 					color={'rgba(37, 99, 235, 0.57)'}
 					padding={{
