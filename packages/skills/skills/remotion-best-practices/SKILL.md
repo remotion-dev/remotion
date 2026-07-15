@@ -32,3 +32,7 @@ When working with Captions, load [Remotion Captions](remotion-captions/SKILL.md)
 ## Creating a SaaS, automation or application
 
 Use the [Remotion SaaS skill](remotion-saas/SKILL.md) for knowledge about Remotion-powered SaaS apps, such as `<Player>`, rendering on Lambda, Vercel, Cloudflare, via Express.js, client-side rendering, or for finding the right SaaS template.
+
+## Looking up Remotion APIs and documentation
+
+To find and read current Remotion documentation, load [Remotion Docs](remotion-docs/SKILL.md).
