@@ -3,6 +3,12 @@ import {existsSync, readdirSync, readFileSync, statSync} from 'fs';
 import path from 'path';
 import {expandElementSourceReferences} from '../../plugins/element-source-utils';
 import remarkElementSource from '../../plugins/remark-element-source';
+import {
+	elementDefinitions,
+	getElementCompositionId,
+	getElementPreviewUrls,
+} from '../components/Elements/element-registry';
+import {getElementPreviewDimensions} from '../components/Elements/ElementPreviewComposition';
 
 const elementsRoot = path.join(__dirname, '..', '..', 'elements');
 const templateRoot = path.join(__dirname, '..', '..', 'elements-template');
@@ -49,10 +55,8 @@ const getRelativeTsxPath = (tsxPath: string, mdxPath: string) => {
 	return relative.startsWith('.') ? relative : `./${relative}`;
 };
 
-const allElements = [
-	...findElements(elementsRoot),
-	...findElements(templateRoot),
-];
+const productionElements = findElements(elementsRoot);
+const allElements = [...productionElements, ...findElements(templateRoot)];
 
 describe('Elements must follow the colocated single-file format', () => {
 	test('at least one element exists', () => {
@@ -111,10 +115,6 @@ describe('Elements must follow the colocated single-file format', () => {
 				expect(mdx).toContain('ElementPage');
 			});
 
-			test('MDX imports the colocated source module', () => {
-				expect(mdx).toMatch(/from '\.\/[\w-]+';/);
-			});
-
 			test('MDX references the source file from ElementPage', () => {
 				const relativeTsxPath = getRelativeTsxPath(
 					element.tsxPath,
@@ -146,19 +146,82 @@ describe('Elements must follow the colocated single-file format', () => {
 				expect(mdx).not.toMatch(/export const \w+Source = /);
 			});
 
-			test('Element drag file name is derived from the slug', () => {
+			test('Element drag file name is derived from the registry slug', () => {
 				expect(mdx).not.toContain('fileName=');
 
-				const match = mdx.match(/slug="([^"]+)"/);
-				if (!match) {
+				if (element.mdxPath.startsWith(templateRoot)) {
 					return;
 				}
 
-				const lastSlugSegment = match[1].split('/').at(-1);
+				const definition = elementDefinitions.find(
+					(entry) => entry.slug === element.name,
+				);
+				expect(definition).toBeDefined();
+
+				const lastSlugSegment = definition?.slug.split('/').at(-1);
 				expect(lastSlugSegment).toBeTruthy();
 				expect(lastSlugSegment).toBe(lastSlugSegment?.toLowerCase());
 				expect(lastSlugSegment).not.toContain('..');
 			});
 		});
 	}
+});
+
+describe('Element preview registry', () => {
+	test('contains every production Element exactly once', () => {
+		const elementSlugs = productionElements
+			.map((element) => element.name)
+			.sort();
+		const registrySlugs = elementDefinitions
+			.map((definition) => definition.slug)
+			.sort();
+
+		expect(registrySlugs).toEqual(elementSlugs);
+		expect(new Set(registrySlugs).size).toBe(registrySlugs.length);
+	});
+
+	test('contains valid render metadata', () => {
+		for (const definition of elementDefinitions) {
+			expect(Number.isInteger(definition.width)).toBe(true);
+			expect(Number.isInteger(definition.height)).toBe(true);
+			expect(Number.isInteger(definition.fps)).toBe(true);
+			expect(Number.isInteger(definition.durationInFrames)).toBe(true);
+			expect(Number.isInteger(definition.posterFrame)).toBe(true);
+			expect(definition.width).toBeGreaterThan(0);
+			expect(definition.height).toBeGreaterThan(0);
+			expect(definition.fps).toBeGreaterThan(0);
+			expect(definition.durationInFrames).toBeGreaterThan(0);
+			expect(definition.posterFrame).toBeGreaterThanOrEqual(0);
+			expect(definition.posterFrame).toBeLessThan(definition.durationInFrames);
+			expect(definition.elementWidth === null).toBe(
+				definition.elementHeight === null,
+			);
+
+			const dimensions = getElementPreviewDimensions(definition);
+			expect(dimensions.width % 2).toBe(0);
+			expect(dimensions.height % 2).toBe(0);
+		}
+	});
+
+	test('derives stable composition IDs and preview URLs', () => {
+		const compositionIds = elementDefinitions.map((definition) =>
+			getElementCompositionId(definition.slug),
+		);
+		expect(new Set(compositionIds).size).toBe(compositionIds.length);
+
+		for (const definition of elementDefinitions) {
+			expect(getElementPreviewUrls(definition.slug)).toEqual({
+				mp4: `https://remotion.media/elements/${definition.slug}/preview.mp4`,
+				png: `https://remotion.media/elements/${definition.slug}/preview.png`,
+			});
+		}
+	});
+
+	test('registers Element compositions in a Folder', () => {
+		const root = readFileSync(
+			path.join(__dirname, '..', 'remotion', 'Root.tsx'),
+			'utf8',
+		);
+		expect(root).toContain('<Folder name="elements">');
+	});
 });

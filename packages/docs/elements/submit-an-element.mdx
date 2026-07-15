@@ -33,6 +33,7 @@ Add:
 - An Element folder in `packages/docs/elements/<category>/<slug>/`
 - An `index.mdx` page
 - One self-contained TSX source file exporting a React component
+- An entry in `packages/docs/src/components/Elements/element-registry.ts`
 
 For example:
 
@@ -53,14 +54,15 @@ The source file should work when dragged or copied into a project.
 
 ## 4. Define size
 
-To give an Element a fixed size, set `elementWidth` and `elementHeight` on the `ElementPage` in `index.mdx`:
+To give an Element a fixed size, set `elementWidth` and `elementHeight` in its registry entry. Use `null` for both values if the Element should inherit the full composition dimensions.
 
-```tsx title="index.mdx"
-<ElementPage
-  component={MyElement}
-  elementWidth={900}
-  elementHeight={260}
->
+```tsx title="element-registry.ts"
+export const myElementDefinition: ElementDefinition = {
+  // Other metadata...
+  elementWidth: 900,
+  elementHeight: 260,
+  previewPadding: 120,
+};
 ```
 
 Then make the Element fill that area in its source file:
@@ -75,7 +77,7 @@ export const MyElement = () => {
 
 Size the Element to the smallest useful bounding box.
 
-Use `previewPadding` on the `ElementPage` if the docs preview needs more breathing room without changing the Element's drag dimensions or adding source padding.
+Use `previewPadding` in the registry entry if the docs preview needs more breathing room without changing the Element's drag dimensions or adding source padding.
 
 Do not put the wrapper [`<Sequence>`](/docs/sequence) into the Element source file.
 
@@ -179,13 +181,26 @@ export const Badge = () => {
 };
 ```
 
-## 7. Open the pull request
+## 7. Check the preview assets
+
+Set an intentional `posterFrame` in the registry entry. It should show the Element in a representative, visible state.
+
+Render the PNG and MP4 locally:
+
+```bash
+cd packages/docs
+bun run render-element-previews
+```
+
+Inspect both files under `.element-previews/`. The MP4 should cover the Element's full configured duration. Production uploads require maintainer R2 credentials.
+
+## 8. Open the pull request
 
 When submitting an Element as a pull request, include:
 
-- The Element folder
+- The Element folder and registry entry
 - What makes it useful
-- A rendered preview, if available
+- The rendered preview
 - Links to inspiration, if any
 
 [Open a pull request on GitHub](https://github.com/remotion-dev/remotion/compare)

@@ -1,7 +1,7 @@
 import {experts} from '@remotion/promo-pages/dist/experts/experts-data.js';
 import {CreateVideoInternals} from 'create-video';
 import React from 'react';
-import {Folder, Still} from 'remotion';
+import {Composition, Folder, Still} from 'remotion';
 import {EffectsBarrelDistortionPreview} from '../../components/effects/effects-barrel-distortion-preview';
 import {EffectsBlurPreview} from '../../components/effects/effects-blur-preview';
 import {EffectsBrightnessPreview} from '../../components/effects/effects-brightness-preview';
@@ -86,6 +86,14 @@ import {EffectsWavesPreview} from '../../components/effects/effects-waves-previe
 import {EffectsWhiteNoisePreview} from '../../components/effects/effects-white-noise-preview';
 import {EffectsZigzagPreview} from '../../components/effects/effects-zigzag-preview';
 import {EffectsZoomBlurPreview} from '../../components/effects/effects-zoom-blur-preview';
+import {
+	elementDefinitions,
+	getElementCompositionId,
+} from '../components/Elements/element-registry';
+import {
+	ElementAssetComposition,
+	getElementPreviewDimensions,
+} from '../components/Elements/ElementPreviewComposition';
 import {articles} from '../data/articles';
 import {AllTemplates} from './AllTemplates';
 import {Article} from './Article';
@@ -107,6 +115,24 @@ const DEFAULT_THERMAL_PALETTE = [
 export const RemotionRoot: React.FC = () => {
 	return (
 		<>
+			<Folder name="elements">
+				{elementDefinitions.map((definition) => {
+					const dimensions = getElementPreviewDimensions(definition);
+
+					return (
+						<Composition
+							key={definition.slug}
+							component={ElementAssetComposition}
+							defaultProps={{slug: definition.slug}}
+							durationInFrames={definition.durationInFrames}
+							fps={definition.fps}
+							height={dimensions.height}
+							id={getElementCompositionId(definition.slug)}
+							width={dimensions.width}
+						/>
+					);
+				})}
+			</Folder>
 			<Folder name="experts">
 				{experts.map((e) => {
 					return (
