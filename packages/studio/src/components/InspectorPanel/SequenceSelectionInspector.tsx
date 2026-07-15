@@ -83,7 +83,6 @@ const SequenceExpandedInspector: React.FC<{
 			onPointerDown={selectSequenceOnInspectorPointerDown}
 		>
 			<SequenceInspectorHeader sourceLocation={sourceLocation} track={track} />
-			<AlignmentControls track={track} />
 			<InspectorSequenceSection
 				sequence={track.sequence}
 				validatedLocation={validatedLocation}
@@ -92,6 +91,7 @@ const SequenceExpandedInspector: React.FC<{
 				renderSectionHeader={(children) => (
 					<InspectorSectionHeader>{children}</InspectorSectionHeader>
 				)}
+				renderTransformControls={() => <AlignmentControls track={track} />}
 			/>
 		</div>
 	);

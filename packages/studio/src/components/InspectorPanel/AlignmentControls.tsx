@@ -8,6 +8,7 @@ import {AlignCenterVerticalIcon} from '../../icons/align-center-vertical';
 import {AlignLeftIcon} from '../../icons/align-left';
 import {AlignRightIcon} from '../../icons/align-right';
 import {AlignTopIcon} from '../../icons/align-top';
+import {InlineAction} from '../InlineAction';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import {getSelectedOutlineActiveSchema} from '../selected-outline-drag';
 import {translateFieldKey} from '../selected-outline-types';
@@ -18,8 +19,6 @@ import {
 	serializeTranslate,
 } from '../Timeline/timeline-translate-utils';
 import {computeAlignedTranslate} from './alignment-controls';
-import {InspectorSectionHeader} from './common';
-import {inspectorSectionDivider} from './styles';
 
 const isPropStatusDraggable = (
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -42,8 +41,8 @@ const container: React.CSSProperties = {
 };
 
 const iconStyle: React.CSSProperties = {
-	width: 22,
-	height: 22,
+	width: 16,
+	height: 16,
 };
 
 const verticalDivider: React.CSSProperties = {
@@ -56,33 +55,14 @@ const verticalDivider: React.CSSProperties = {
 const AlignmentButton: React.FC<{
 	readonly onClick: () => void;
 	readonly title: string;
-	readonly children: React.ReactNode;
-}> = ({onClick, title, children}) => {
-	const [hover, setHover] = React.useState(false);
+	readonly Icon: React.FC<React.SVGProps<SVGSVGElement>>;
+}> = ({onClick, title, Icon}) => {
 	return (
-		<button
+		<InlineAction
 			title={title}
 			onClick={onClick}
-			onMouseEnter={() => setHover(true)}
-			onMouseLeave={() => setHover(false)}
-			type="button"
-			style={{
-				display: 'inline-flex',
-				alignItems: 'center',
-				justifyContent: 'center',
-				width: 30,
-				height: 30,
-				background: 'none',
-				border: '1px solid',
-				borderColor: hover ? 'rgba(128, 128, 128, 0.5)' : 'transparent',
-				borderRadius: 4,
-				padding: 0,
-				color: 'currentColor',
-				cursor: 'pointer',
-			}}
-		>
-			{children}
-		</button>
+			renderAction={(color) => <Icon style={iconStyle} color={color} />}
+		/>
 	);
 };
 
@@ -297,42 +277,38 @@ export const AlignmentControls: React.FC<{
 	}
 
 	return (
-		<>
-			<InspectorSectionHeader>Alignment</InspectorSectionHeader>
-			<div style={container}>
-				<AlignmentButton title="Align left" onClick={() => handleAlign('left')}>
-					<AlignLeftIcon style={iconStyle} />
-				</AlignmentButton>
-				<AlignmentButton
-					title="Align center horizontally"
-					onClick={() => handleAlign('center-h')}
-				>
-					<AlignCenterHorizontalIcon style={iconStyle} />
-				</AlignmentButton>
-				<AlignmentButton
-					title="Align right"
-					onClick={() => handleAlign('right')}
-				>
-					<AlignRightIcon style={iconStyle} />
-				</AlignmentButton>
-				<div style={verticalDivider} />
-				<AlignmentButton title="Align top" onClick={() => handleAlign('top')}>
-					<AlignTopIcon style={iconStyle} />
-				</AlignmentButton>
-				<AlignmentButton
-					title="Align center vertically"
-					onClick={() => handleAlign('center-v')}
-				>
-					<AlignCenterVerticalIcon style={iconStyle} />
-				</AlignmentButton>
-				<AlignmentButton
-					title="Align bottom"
-					onClick={() => handleAlign('bottom')}
-				>
-					<AlignBottomIcon style={iconStyle} />
-				</AlignmentButton>
-			</div>
-			<div style={inspectorSectionDivider} />
-		</>
+		<div style={container}>
+			<AlignmentButton
+				title="Align left"
+				onClick={() => handleAlign('left')}
+				Icon={AlignLeftIcon}
+			/>
+			<AlignmentButton
+				title="Align center horizontally"
+				onClick={() => handleAlign('center-h')}
+				Icon={AlignCenterHorizontalIcon}
+			/>
+			<AlignmentButton
+				title="Align right"
+				onClick={() => handleAlign('right')}
+				Icon={AlignRightIcon}
+			/>
+			<div style={verticalDivider} />
+			<AlignmentButton
+				title="Align top"
+				onClick={() => handleAlign('top')}
+				Icon={AlignTopIcon}
+			/>
+			<AlignmentButton
+				title="Align center vertically"
+				onClick={() => handleAlign('center-v')}
+				Icon={AlignCenterVerticalIcon}
+			/>
+			<AlignmentButton
+				title="Align bottom"
+				onClick={() => handleAlign('bottom')}
+				Icon={AlignBottomIcon}
+			/>
+		</div>
 	);
 };

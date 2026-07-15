@@ -2,18 +2,18 @@ import type {SVGProps} from 'react';
 import React from 'react';
 
 export const AlignLeftIcon: React.FC<SVGProps<SVGSVGElement>> = (props) => {
+	const color = props.color ?? 'currentColor';
+
 	return (
-		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" {...props}>
-			<rect fill="currentColor" x="2" y="1" width="1" height="14" rx="0.5" />
-			<rect fill="currentColor" x="4.5" y="4" width="9.5" height="2.5" rx="1" />
-			<rect
-				fill="currentColor"
-				x="4.5"
-				y="9.5"
-				width="5.5"
-				height="2.5"
-				rx="1"
+		<svg {...props} viewBox="0 0 16 16" fill="none">
+			<path
+				d="M2 2L2 14"
+				stroke={color}
+				strokeOpacity="0.5"
+				strokeLinecap="square"
 			/>
+			<line x1="4" y1="6" x2="13" y2="6" stroke={color} strokeWidth="2" />
+			<line x1="4" y1="10" x2="11" y2="10" stroke={color} strokeWidth="2" />
 		</svg>
 	);
 };
