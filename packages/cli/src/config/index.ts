@@ -135,113 +135,6 @@ const {
 	previewSampleRateOption,
 } = BrowserSafeApis.options;
 
-const resetOption = (
-	option: {setConfig: (value: never) => void},
-	value: unknown,
-) => {
-	option.setConfig(value as never);
-};
-
-const resetOptionBypassValidation = (option: unknown) => {
-	const {reset} = option as {reset?: () => void};
-
-	if (!reset) {
-		throw new Error('Expected option to have a reset() method');
-	}
-
-	reset();
-};
-
-const resetBrowserSafeConfigOptions = () => {
-	resetOption(allowHtmlInCanvasOption, false);
-	resetOption(benchmarkConcurrenciesOption, null);
-	resetOption(concurrencyOption, null);
-	resetOption(offthreadVideoCacheSizeInBytesOption, null);
-	resetOption(x264Option, null);
-	resetOption(audioBitrateOption, null);
-	resetOption(videoBitrateOption, null);
-	resetOption(scaleOption, 1);
-	resetOption(crfOption, undefined);
-	resetOption(jpegQualityOption, undefined);
-	resetOption(enforceAudioOption, false);
-	resetOption(overwriteOption, true);
-	resetOption(chromeModeOption, 'headless-shell');
-	resetOption(mutedOption, false);
-	resetOption(videoCodecOption, undefined);
-	resetOption(colorSpaceOption, null);
-	resetOption(disallowParallelEncodingOption, false);
-	resetOption(deleteAfterOption, null);
-	resetOption(folderExpiryOption, null);
-	resetOption(enableMultiprocessOnLinuxOption, true);
-	resetOption(glOption, null);
-	resetOption(gopSizeOption, null);
-	resetOption(headlessOption, true);
-	resetOption(numberOfGifLoopsOption, null);
-	resetOption(beepOnFinishOption, false);
-	resetOption(encodingMaxRateOption, null);
-	resetOption(encodingBufferSizeOption, null);
-	resetOption(reproOption, false);
-	resetOption(enableLambdaInsights, false);
-	resetOption(logLevelOption, 'info');
-	resetOption(delayRenderTimeoutInMillisecondsOption, 30000);
-	resetOption(publicDirOption, null);
-	resetOption(binariesDirectoryOption, null);
-	resetOption(preferLosslessOption, false);
-	resetOption(framesOption, null);
-	resetOption(forSeamlessAacConcatenationOption, false);
-	resetOption(audioCodecOption, null);
-	resetOption(publicPathOption, null);
-	resetOption(hardwareAccelerationOption, 'disable');
-	resetOption(audioLatencyHintOption, null);
-	resetOption(enableCrossSiteIsolationOption, false);
-	resetOption(imageSequencePatternOption, null);
-	resetOption(darkModeOption, false);
-	resetOption(askAIOption, false);
-	resetOption(publicLicenseKeyOption, null);
-	resetOption(experimentalClientSideRenderingOption, false);
-	resetOption(interactivityOption, true);
-	resetOption(keyboardShortcutsOption, true);
-	resetOption(forceNewStudioOption, false);
-	resetOption(numberOfSharedAudioTagsOption, 0);
-	resetOption(ipv4Option, false);
-	resetOption(pixelFormatOption, 'yuv420p');
-	resetOption(browserExecutableOption, null);
-	resetOption(everyNthFrameOption, 1);
-	resetOption(proResProfileOption, undefined);
-	resetOption(stillImageFormatOption, null);
-	resetOption(videoImageFormatOption, null);
-	resetOption(userAgentOption, null);
-	resetOption(disableWebSecurityOption, false);
-	resetOption(ignoreCertificateErrorsOption, false);
-	resetOptionBypassValidation(overrideHeightOption);
-	resetOptionBypassValidation(overrideWidthOption);
-	resetOptionBypassValidation(overrideFpsOption);
-	resetOptionBypassValidation(overrideDurationOption);
-	resetOption(rspackOption, false);
-	resetOption(outDirOption, null);
-	resetOption(webpackPollOption, null);
-	resetOption(imageSequenceOption, false);
-	resetOption(bundleCacheOption, true);
-	resetOption(envFileOption, null);
-	resetOption(runsOption, 3);
-	resetOption(noOpenOption, true);
-	resetOption(sampleRateOption, 48000);
-	resetOption(previewSampleRateOption, null);
-};
-
-const resetConfigOptions = () => {
-	resetBrowserSafeConfigOptions();
-	StudioServerInternals.resetMaxTimelineTracks();
-	resetBufferStateDelayInMilliseconds();
-	resetEntryPoint();
-	resetFfmpegOverrideFunction();
-	resetMetadata();
-	resetOutputLocation();
-	resetWebpackOverride();
-	resetPreviewServerPorts();
-	resetStillFrame();
-};
-
 declare global {
 	interface RemotionBundlingOptions {
 		/**
@@ -924,6 +817,69 @@ export const Config: FlatConfig = {
 	setBenchmarkConcurrencies: benchmarkConcurrenciesOption.setConfig,
 	setSampleRate: sampleRateOption.setConfig,
 	setPreviewSampleRate: previewSampleRateOption.setConfig,
+};
+
+type BrowserSafeConfigOption = {
+	cliFlag: string;
+	getValue: (values: {commandLine: Record<string, unknown>}) => {
+		value: unknown;
+		source: string;
+	};
+	setConfig: (value: never) => void;
+	reset?: () => void;
+};
+
+const getDefaultConfigValue = (option: BrowserSafeConfigOption) => {
+	for (const cliValue of [undefined, null]) {
+		const result = option.getValue({
+			commandLine: {[option.cliFlag]: cliValue},
+		});
+		if (result.source !== 'cli') {
+			return result.value;
+		}
+	}
+
+	throw new Error(`Could not determine the default for --${option.cliFlag}`);
+};
+
+const configSetters = new Set(
+	Object.values(Object.getOwnPropertyDescriptors(Config))
+		.map((descriptor) => descriptor.value)
+		.filter(
+			(value): value is (...args: never[]) => unknown =>
+				typeof value === 'function',
+		),
+);
+
+const browserSafeConfigOptionResets = Object.values(BrowserSafeApis.options)
+	.filter((option) => configSetters.has(option.setConfig))
+	.map((untypedOption): (() => void) => {
+		const option = untypedOption as unknown as BrowserSafeConfigOption;
+		if (option.reset) {
+			return option.reset;
+		}
+
+		const defaultValue = getDefaultConfigValue(option);
+		return () => option.setConfig(defaultValue as never);
+	});
+
+const resetBrowserSafeConfigOptions = () => {
+	for (const reset of browserSafeConfigOptionResets) {
+		reset();
+	}
+};
+
+const resetConfigOptions = () => {
+	resetBrowserSafeConfigOptions();
+	StudioServerInternals.resetMaxTimelineTracks();
+	resetBufferStateDelayInMilliseconds();
+	resetEntryPoint();
+	resetFfmpegOverrideFunction();
+	resetMetadata();
+	resetOutputLocation();
+	resetWebpackOverride();
+	resetPreviewServerPorts();
+	resetStillFrame();
 };
 
 export const ConfigInternals = {

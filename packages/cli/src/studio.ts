@@ -4,7 +4,7 @@ import {StudioServerInternals} from '@remotion/studio-server';
 import {ConfigInternals} from './config';
 import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
 import {findEntryPoint} from './entry-point';
-import {getLoadedConfigFile, loadConfig} from './get-config-file-name';
+import {getLoadedConfigFile, reloadConfig} from './get-config-file-name';
 import {getEnvironmentVariables} from './get-env';
 import {getGitSource} from './get-github-repository';
 import {getInputProps} from './get-input-props';
@@ -96,8 +96,13 @@ export const studioCommand = async (
 
 				isReloadingConfig = true;
 				try {
-					ConfigInternals.resetConfigOptions();
-					await loadConfig(remotionRoot);
+					const configWasReloaded = await reloadConfig({
+						resetConfigOptions: ConfigInternals.resetConfigOptions,
+					});
+					if (!configWasReloaded) {
+						return;
+					}
+
 					Log.info(
 						{indent: false, logLevel},
 						'Config file changed. Reloading Studio...',

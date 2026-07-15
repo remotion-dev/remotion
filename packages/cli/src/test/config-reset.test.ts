@@ -43,4 +43,17 @@ test('reset config options restores defaults before reloading config', async () 
 	expect(
 		await ConfigInternals.getWebpackOverrideFn()({mode: 'development'}),
 	).toEqual({mode: 'development'});
+	expect(
+		BrowserSafeApis.options.askAIOption.getValue({commandLine: {}}).value,
+	).toBe(true);
+	expect(
+		BrowserSafeApis.options.jpegQualityOption.getValue({commandLine: {}}).value,
+	).toBe(80);
+	expect(
+		BrowserSafeApis.options.noOpenOption.getValue({commandLine: {}}).value,
+	).toBe(false);
+	expect(
+		BrowserSafeApis.options.overwriteOption.getValue({commandLine: {}}, true)
+			.value,
+	).toBe(true);
 });
