@@ -72,8 +72,7 @@ const remotionSocialRows: readonly {type: IconType; label: string}[] = [
 ];
 
 const remotionLinks: readonly {type: IconType; label: string}[] = [
-	{type: 'link', label: 'remotion.dev/recorder'},
-	{type: 'link', label: 'remotion.dev/discord'},
+	{type: 'link', label: 'remotion.dev'},
 ];
 
 const Icon: React.FC<{
