@@ -27,7 +27,8 @@ export const isInteractivitySchemaFieldKeyframable = (
 		field.type === 'array' ||
 		field.type === 'boolean' ||
 		field.type === 'enum' ||
-		field.type === 'font-family'
+		field.type === 'font-family' ||
+		field.type === 'border'
 	) {
 		return false;
 	}

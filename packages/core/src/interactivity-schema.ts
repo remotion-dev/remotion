@@ -98,6 +98,13 @@ export type ColorFieldSchema = {
 	keyframable?: boolean;
 };
 
+export type BorderFieldSchema = {
+	type: 'border';
+	default: string | undefined;
+	description?: string;
+	keyframable?: false;
+};
+
 export type TextContentFieldSchema = {
 	type: 'text-content';
 	default: string;
@@ -195,6 +202,7 @@ export type VisibleFieldSchema =
 	| ScaleFieldSchema
 	| UvCoordinateFieldSchema
 	| ColorFieldSchema
+	| BorderFieldSchema
 	| TextContentFieldSchema
 	| FontFamilyFieldSchema
 	| ArrayFieldSchema
@@ -322,6 +330,15 @@ export const textSchema = {
 		step: 0.1,
 		description: 'Letter spacing',
 		hiddenFromList: false,
+	},
+} as const satisfies InteractivitySchema;
+
+export const borderSchema = {
+	'style.border': {
+		type: 'border',
+		default: undefined,
+		description: 'Border',
+		keyframable: false,
 	},
 } as const satisfies InteractivitySchema;
 

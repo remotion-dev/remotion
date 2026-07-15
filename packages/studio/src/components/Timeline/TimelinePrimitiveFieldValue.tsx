@@ -11,6 +11,7 @@ import type {
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
 import {TimelineBooleanField} from './TimelineBooleanField';
+import {TimelineBorderField} from './TimelineBorderField';
 import {TimelineColorField} from './TimelineColorField';
 import {TimelineEnumField} from './TimelineEnumField';
 import {TimelineFontFamilyField} from './TimelineFontFamilyField';
@@ -176,6 +177,21 @@ export const TimelinePrimitiveFieldValue: React.FC<{
 		return (
 			<span>
 				<TimelineColorField
+					effectiveValue={effectiveValue}
+					field={field}
+					onDragEnd={onDragEnd}
+					onDragValueChange={onDragValueChange}
+					onSave={onSave}
+					propStatus={propStatus}
+				/>
+			</span>
+		);
+	}
+
+	if (field.typeName === 'border') {
+		return (
+			<span>
+				<TimelineBorderField
 					effectiveValue={effectiveValue}
 					field={field}
 					onDragEnd={onDragEnd}

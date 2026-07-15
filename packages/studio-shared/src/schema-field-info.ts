@@ -115,6 +115,7 @@ const SUPPORTED_SCHEMA_TYPES = [
 	'scale',
 	'uv-coordinate',
 	'color',
+	'border',
 	'text-content',
 	'font-family',
 	'array',
