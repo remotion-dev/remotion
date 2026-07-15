@@ -26,21 +26,23 @@ export const CrossedOffText: React.FC = () => {
 				fontFamily,
 			}}
 		>
-			<Interactive.Span>Please </Interactive.Span>
-			<CrossedOff
-				name="Crossed off annotation"
-				progress={interpolate(frame, [18, 39], [0, 1], {
-					extrapolateLeft: 'clamp',
-					extrapolateRight: 'clamp',
-				})}
-				color="#eb2525"
-				strokeWidth={6}
-				iterations={10}
-				roughness={2}
-			>
-				remove
-			</CrossedOff>{' '}
-			<Interactive.Span>this</Interactive.Span>
+			<div>
+				<Interactive.Span>Please </Interactive.Span>
+				<CrossedOff
+					name="Crossed off annotation"
+					progress={interpolate(frame, [18, 39], [0, 1], {
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'clamp',
+					})}
+					color="#eb2525"
+					strokeWidth={6}
+					iterations={10}
+					roughness={2}
+				>
+					remove
+				</CrossedOff>{' '}
+				<Interactive.Span>this</Interactive.Span>
+			</div>
 		</Interactive.Div>
 	);
 };

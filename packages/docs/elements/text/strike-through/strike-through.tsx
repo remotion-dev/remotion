@@ -26,19 +26,21 @@ export const StrikeThroughText: React.FC = () => {
 				fontFamily,
 			}}
 		>
-			<Interactive.Span>The </Interactive.Span>
-			<StrikeThrough
-				name="Strike-through annotation"
-				progress={interpolate(frame, [10, 25], [0, 1], {
-					extrapolateLeft: 'clamp',
-					extrapolateRight: 'clamp',
-				})}
-				color="#f11515"
-				strokeWidth={14}
-			>
-				forbidden
-			</StrikeThrough>{' '}
-			<Interactive.Span>fruit</Interactive.Span>
+			<div>
+				<Interactive.Span>The </Interactive.Span>
+				<StrikeThrough
+					name="Strike-through annotation"
+					progress={interpolate(frame, [10, 25], [0, 1], {
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'clamp',
+					})}
+					color="#f11515"
+					strokeWidth={14}
+				>
+					forbidden
+				</StrikeThrough>{' '}
+				<Interactive.Span>fruit</Interactive.Span>
+			</div>
 		</Interactive.Div>
 	);
 };
