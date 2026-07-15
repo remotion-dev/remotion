@@ -208,6 +208,9 @@ const effectPropStatusToClipboardParam = (
 		keyframes: prop.keyframes,
 		easing: prop.easing,
 		clamping: prop.clamping,
+		...(prop.output === undefined || prop.output === 'linear'
+			? {}
+			: {output: prop.output}),
 		...(prop.posterize === undefined ? {} : {posterize: prop.posterize}),
 	};
 };

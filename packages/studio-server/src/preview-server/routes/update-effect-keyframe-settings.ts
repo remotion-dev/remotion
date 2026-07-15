@@ -71,6 +71,7 @@ export const updateEffectKeyframeSettingsHandler: ApiHandler<
 									type: 'settings',
 									clamping: settings.clamping,
 									posterize: settings.posterize,
+									output: settings.output,
 								}
 							: {
 									type: 'easing',

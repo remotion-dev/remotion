@@ -34,6 +34,7 @@ const keyframedStatus = {
 	easing: [{type: 'linear'}, {type: 'linear'}],
 	clamping: {left: 'extend', right: 'extend'},
 	posterize: undefined,
+	output: undefined,
 } satisfies CanUpdateSequencePropStatusKeyframed;
 
 test('gets easing selection after deleting an in-between keyframe', () => {

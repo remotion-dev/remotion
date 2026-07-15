@@ -412,6 +412,16 @@ export const Index: React.FC = () => {
 					durationInFrames={120}
 				/>
 				<Composition
+					id="interpolate-output-effect-scale-comparison"
+					lazyComponent={() =>
+						import('./InterpolateOutputEffectScaleComparison')
+					}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={120}
+				/>
+				<Composition
 					id="trim-before-support-test"
 					lazyComponent={() => import('./TrimBeforeSupportTest')}
 					width={1280}

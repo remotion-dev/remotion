@@ -117,6 +117,38 @@ test('computeEffectPropStatus reports keyframes for inline interpolated effect p
 		easing: [{type: 'linear'}],
 		clamping: {left: 'extend', right: 'extend'},
 		posterize: undefined,
+		output: undefined,
+	});
+});
+
+test('computeEffectPropStatus reports output for inline interpolated effect props', () => {
+	const input = buildInput(
+		"[tint({amount: interpolate(frame, [0, 100], [0.2, 0.8], {output: 'perceptual-scale'})})]",
+	);
+	const {ast, jsx} = findJsx(input);
+	const result = computeEffectPropStatus({
+		ast,
+		jsx,
+		effectIndex: 0,
+		keys: ['amount'],
+	});
+
+	expect(result.canUpdate).toBe(true);
+	if (!result.canUpdate) {
+		throw new Error('expected canUpdate true');
+	}
+
+	expect(result.props.amount).toEqual({
+		status: 'keyframed',
+		interpolationFunction: 'interpolate',
+		keyframes: [
+			{frame: 0, value: 0.2},
+			{frame: 100, value: 0.8},
+		],
+		easing: [{type: 'linear'}],
+		clamping: {left: 'extend', right: 'extend'},
+		posterize: undefined,
+		output: 'perceptual-scale',
 	});
 });
 

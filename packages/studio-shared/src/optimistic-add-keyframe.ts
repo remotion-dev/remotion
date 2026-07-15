@@ -1,8 +1,8 @@
 import {
 	type CanUpdateSequencePropStatus,
 	type CanUpdateSequencePropsResponse,
-	type InteractivitySchemaField,
 	type InteractivitySchema,
+	type InteractivitySchemaField,
 } from 'remotion';
 import {LINEAR_KEYFRAME_EASING} from './keyframe-easing-presets';
 import {
@@ -100,6 +100,7 @@ const addKeyframeToPropStatus = ({
 			easing: [],
 			clamping: {left: 'clamp', right: 'clamp'},
 			posterize: undefined,
+			output: undefined,
 		};
 	}
 

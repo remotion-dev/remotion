@@ -23,9 +23,10 @@ import * as recast from 'recast';
 import type {
 	CanUpdateSequencePropStatus,
 	ExtrapolateType,
-	InteractivitySchemaField,
-	SequenceNodePath,
 	InteractivitySchema,
+	InteractivitySchemaField,
+	InterpolateOutputOption,
+	SequenceNodePath,
 } from 'remotion';
 import {getAstNodePath} from '../../helpers/get-ast-node-path';
 import {parseKeyframeEasingExpression} from '../../helpers/parse-keyframe-easing-expression';
@@ -157,6 +158,7 @@ export type KeyframeOperation =
 				  }
 				| undefined;
 			posterize: number | undefined;
+			output: InterpolateOutputOption | undefined;
 	  }
 	| {
 			type: 'easing';
@@ -796,10 +798,25 @@ const validatePosterize = (posterize: number | undefined) => {
 	}
 };
 
+const validateOutput = (output: InterpolateOutputOption | undefined) => {
+	if (
+		output === undefined ||
+		output === 'linear' ||
+		output === 'perceptual-scale'
+	) {
+		return;
+	}
+
+	throw new Error(
+		'Cannot update keyframe settings: output must be "linear" or "perceptual-scale"',
+	);
+};
+
 const updateKeyframeSettings = ({
 	expression,
 	clamping,
 	posterize,
+	output,
 }: {
 	expression: Expression;
 	clamping:
@@ -809,8 +826,10 @@ const updateKeyframeSettings = ({
 		  }
 		| undefined;
 	posterize: number | undefined;
+	output: InterpolateOutputOption | undefined;
 }): ExpressionKind => {
 	validatePosterize(posterize);
+	validateOutput(output);
 
 	const existing = getInterpolationExpression(expression);
 	if (!existing) {
@@ -838,6 +857,7 @@ const updateKeyframeSettings = ({
 			propertyName: 'extrapolateRight',
 			value: null,
 		});
+		setOptionsProperty({options, propertyName: 'output', value: null});
 	} else if (clamping) {
 		setOptionsProperty({
 			options,
@@ -848,6 +868,14 @@ const updateKeyframeSettings = ({
 			options,
 			propertyName: 'extrapolateRight',
 			value: b.stringLiteral(clamping.right),
+		});
+	}
+
+	if (!isColorInterpolation && output !== undefined) {
+		setOptionsProperty({
+			options,
+			propertyName: 'output',
+			value: output === 'linear' ? null : b.stringLiteral(output),
 		});
 	}
 
@@ -1238,6 +1266,7 @@ const applyKeyframeOperation = ({
 				expression,
 				clamping: operation.clamping,
 				posterize: operation.posterize,
+				output: operation.output,
 			}),
 			introduced: noIntroducedIdentifiers,
 		};
