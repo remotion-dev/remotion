@@ -44,6 +44,7 @@ export const RoughNotationPosterizedProgressDemo: React.FC = () => {
 					color={'#2563eb'}
 					strokeWidth={10}
 					roughness={1.8}
+					iterations={1}
 				>
 					motion
 				</Circle>
