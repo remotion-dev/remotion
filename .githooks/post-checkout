@@ -17,24 +17,33 @@ fi
 echo "Worktree detected: $current_dir"
 
 prune_args=(-name ".git" -prune)
+ignored_parent=""
 
-while IFS= read -r dir; do
-	[ -z "$dir" ] && continue
-	prune_args+=(-o -path "$main_repo/$dir" -prune)
+# Asking Git about all directories at once is much faster than starting one
+# `git check-ignore` process for every directory.
+while IFS= read -r -d '' dir; do
+	relative_dir="${dir#./}"
+
+	# `find` emits parents before their children. Once an ignored directory is
+	# pruned, separate rules for its descendants would only slow down the scan.
+	if [ -n "$ignored_parent" ]; then
+		case "$relative_dir/" in
+		"$ignored_parent/"*) continue ;;
+		esac
+	fi
+
+	ignored_parent="$relative_dir"
+	prune_args+=(-o -path "$main_repo/$relative_dir" -prune)
 done < <(
-	find "$main_repo" -mindepth 1 -maxdepth 3 -type d -not -path "*/.git/*" -not -name ".git" | while IFS= read -r candidate; do
-		relative_dir="${candidate#$main_repo/}"
-		if git -C "$main_repo" check-ignore -q "$relative_dir" 2>/dev/null; then
-			echo "$relative_dir"
-		fi
-	done
+	cd "$main_repo"
+	find . -mindepth 1 -maxdepth 3 -type d -not -path "*/.git/*" -not -name ".git" -print0 | git check-ignore --stdin -z || true
 )
 
 copied=0
 skipped=0
 
-while IFS= read -r envfile; do
-	relative_path="${envfile#$main_repo/}"
+while IFS= read -r -d '' envfile; do
+	relative_path="${envfile#"$main_repo"/}"
 	target="$current_dir/$relative_path"
 
 	if [ -f "$target" ]; then
@@ -47,6 +56,6 @@ while IFS= read -r envfile; do
 	cp "$envfile" "$target"
 	echo "  copied $relative_path"
 	copied=$((copied + 1))
-done < <(find "$main_repo" \( "${prune_args[@]}" \) -o -name ".env*" -type f -print)
+done < <(find "$main_repo" \( "${prune_args[@]}" \) -o -name ".env*" -type f -print0)
 
 echo "Environment files synced: $copied copied, $skipped skipped."
