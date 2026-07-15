@@ -29,8 +29,9 @@ const findElements = (root: string): Element[] => {
 				(f) => f.endsWith('.tsx') && !f.endsWith('.test.tsx'),
 			);
 			if (tsxFiles.length > 0) {
+				const relativeName = path.relative(root, dir) || path.basename(dir);
 				elements.push({
-					name: path.relative(root, dir) || path.basename(dir),
+					name: relativeName.split(path.sep).join('/'),
 					mdxPath: indexMdx,
 					tsxPath: path.join(dir, tsxFiles[0]),
 				});
