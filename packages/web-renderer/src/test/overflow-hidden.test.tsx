@@ -1,5 +1,4 @@
 import {expect, test} from 'vitest';
-import {supportsNestedHtmlInCanvas} from '../html-in-canvas';
 import {renderStillOnWeb} from '../render-still-on-web';
 import '../symbol-dispose';
 import {overflowHidden} from './fixtures/overflow-hidden';
@@ -27,7 +26,6 @@ test('Should render overflow: hidden correctly', async () => {
 });
 
 test('Should render overflow: hidden correctly with 3D transform', async () => {
-	const usesNativeHtmlInCanvas = await supportsNestedHtmlInCanvas();
 	const still = await renderStillOnWeb({
 		licenseKey: 'free-license',
 		composition: overflowHidden3dTransform,
@@ -43,11 +41,6 @@ test('Should render overflow: hidden correctly with 3D transform', async () => {
 		allowedMismatchedPixelRatio: 0.02,
 	});
 
-	if (usesNativeHtmlInCanvas) {
-		expect(internalState.getDrawn3dPixels()).toBe(0);
-		expect(internalState.getPrecomposedTiles()).toBe(0);
-	} else {
-		expect([10000, 11236]).toContain(internalState.getDrawn3dPixels());
-		expect(internalState.getPrecomposedTiles()).toBe(1);
-	}
+	expect([10000, 11236]).toContain(internalState.getDrawn3dPixels());
+	expect(internalState.getPrecomposedTiles()).toBe(1);
 });
