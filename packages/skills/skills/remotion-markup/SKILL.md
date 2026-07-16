@@ -156,6 +156,10 @@ See [trimming.md](trimming.md) for trimming patterns - cutting the beginning or 
 
 See [embedding-videos.md](embedding-videos.md) for advanced knowledge about embedding videos - trimming, volume, speed, looping, pitch.
 
+## Video editing
+
+See [video-editing.md](video-editing.md) for structuring editable video timelines in Remotion Studio.
+
 ## Embedding Audio
 
 See [audio.md](audio.md) for advanced audio features like trimming, volume, speed, pitch.

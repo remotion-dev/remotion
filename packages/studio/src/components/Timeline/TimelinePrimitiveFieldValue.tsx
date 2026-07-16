@@ -204,17 +204,15 @@ export const TimelinePrimitiveFieldValue: React.FC<{
 
 	if (field.typeName === 'text-content') {
 		return (
-			<span style={inlineWrapper}>
-				<TimelineTextContentField
-					effectiveValue={effectiveValue}
-					field={field}
-					nodePath={scaleLockNodePath}
-					onDragEnd={onDragEnd}
-					onDragValueChange={onDragValueChange}
-					onSave={onSave}
-					propStatus={propStatus}
-				/>
-			</span>
+			<TimelineTextContentField
+				effectiveValue={effectiveValue}
+				field={field}
+				nodePath={scaleLockNodePath}
+				onDragEnd={onDragEnd}
+				onDragValueChange={onDragValueChange}
+				onSave={onSave}
+				propStatus={propStatus}
+			/>
 		);
 	}
 
