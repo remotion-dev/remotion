@@ -19,7 +19,7 @@
 				"name": "Remotion",
 				"email": "hi@remotion.dev"
 			},
-			"homepage": "https://www.remotion.dev/docs/ai/skills",
+			"homepage": "https://www.remotion.dev/docs/ai/claude-code-plugin",
 			"repository": "https://github.com/remotion-dev/claude-code-plugin",
 			"license": "MIT",
 			"keywords": ["remotion", "video", "react", "animation"],
