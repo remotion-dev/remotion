@@ -9,22 +9,3 @@ import {elementDefinitions} from '@site/src/components/Elements/element-definiti
 # Live / Location Strap
 
 <ElementPage definition={elementDefinitions['overlays/live-location-strap']} sourceFile="./live-location-strap.tsx" />
-
-**Usage**
-
-Place the strap inside a `<Sequence>`:
-
-```tsx title="MyComposition.tsx"
-import {Sequence} from 'remotion';
-import {LiveLocationStrap} from './live-location-strap';
-
-export const MyComposition = () => {
-  return (
-    <Sequence from={30} durationInFrames={120} layout="none">
-      <LiveLocationStrap />
-    </Sequence>
-  );
-};
-```
-
-In Visual Mode, select the **Status label**, **Location**, **Date**, or **Venue** layer to edit its text.
