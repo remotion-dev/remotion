@@ -28,6 +28,7 @@ import {
 	applySelectedOutlineDragAxisLock,
 	applySelectedOutlineTransformOriginAxisLock,
 	compensateTranslateForTransformOrigin,
+	getOutlineDoubleClickAction,
 	getOutlineSelectionInteraction,
 	getSelectedEffectFieldsBySequenceKey,
 	getSelectedOutlineActiveSchema,
@@ -1802,6 +1803,18 @@ test('Canvas outline selection uses conventional modifier keys', () => {
 			ctrlKey: true,
 		}),
 	).toEqual({shiftKey: false, toggleKey: true});
+});
+
+test('Canvas outline double-click preserves text editing as a fallback', () => {
+	expect(getOutlineDoubleClickAction({button: 0, canOpenInEditor: true})).toBe(
+		'open-in-editor',
+	);
+	expect(getOutlineDoubleClickAction({button: 0, canOpenInEditor: false})).toBe(
+		'edit-text',
+	);
+	expect(
+		getOutlineDoubleClickAction({button: 2, canOpenInEditor: true}),
+	).toBeNull();
 });
 
 test('Canvas outline hit targets render nested sequences above parents', () => {

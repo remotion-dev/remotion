@@ -343,6 +343,20 @@ export const getOutlineSelectionInteraction = ({
 	toggleKey: metaKey || ctrlKey,
 });
 
+export const getOutlineDoubleClickAction = ({
+	button,
+	canOpenInEditor,
+}: {
+	readonly button: number;
+	readonly canOpenInEditor: boolean;
+}): 'open-in-editor' | 'edit-text' | null => {
+	if (button !== 0) {
+		return null;
+	}
+
+	return canOpenInEditor ? 'open-in-editor' : 'edit-text';
+};
+
 type SelectedEffectFields = {
 	allFields: boolean;
 	fieldKeys: Set<string>;

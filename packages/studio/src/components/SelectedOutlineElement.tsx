@@ -61,6 +61,7 @@ import type {OutlinePoint, SelectedOutline} from './selected-outline-geometry';
 import {
 	dot,
 	getAngleDegrees,
+	getOutlineDoubleClickAction,
 	getOutlineSelectionInteraction,
 	getRotationCursor,
 	getSelectedOutlineRotationCornerInfo,
@@ -497,7 +498,10 @@ const SelectedOutlinePolygon: React.FC<{
 		item: TimelineSelection,
 		interaction: TimelineSelectionInteraction,
 	) => void;
-	readonly onTextEditStart: (target: SelectedOutlineTarget) => void;
+	readonly onDoubleClickTarget: (
+		target: SelectedOutlineTarget,
+		button: number,
+	) => boolean;
 	readonly scale: number;
 	readonly snapTargets: readonly SelectedOutlineSnapTarget[];
 	readonly target: SelectedOutlineTarget | undefined;
@@ -513,7 +517,7 @@ const SelectedOutlinePolygon: React.FC<{
 	onHoverChange,
 	onSnapPointsChange,
 	onSelect,
-	onTextEditStart,
+	onDoubleClickTarget,
 	scale,
 	snapTargets,
 	target,
@@ -790,11 +794,14 @@ const SelectedOutlinePolygon: React.FC<{
 				return;
 			}
 
+			if (!onDoubleClickTarget(target, event.button)) {
+				return;
+			}
+
 			event.preventDefault();
 			event.stopPropagation();
-			onTextEditStart(target);
 		},
-		[onTextEditStart, target],
+		[onDoubleClickTarget, target],
 	);
 
 	const onEffectDragOver = React.useCallback(
@@ -1575,6 +1582,67 @@ export const SelectedOutlineElement: React.FC<{
 		[onSelect],
 	);
 
+	const resolveOriginalLocation = React.useCallback(
+		async (resolveTarget: SelectedOutlineTarget) => {
+			const stack = resolveTarget.sequence.getStack();
+			if (!stack) {
+				return null;
+			}
+
+			let originalLocation: ResolvedStackLocation | null = null;
+			try {
+				originalLocation = await getOriginalLocationFromStack(
+					stack,
+					'sequence',
+				);
+			} catch (err) {
+				showNotification((err as Error).message, 2000);
+			}
+
+			updateResolvedStackTrace(stack, originalLocation);
+			return originalLocation;
+		},
+		[updateResolvedStackTrace],
+	);
+
+	const onDoubleClickTarget = React.useCallback(
+		(doubleClickTarget: SelectedOutlineTarget, button: number) => {
+			const action = getOutlineDoubleClickAction({
+				button,
+				canOpenInEditor:
+					previewServerState.type === 'connected' &&
+					Boolean(window.remotion_editorName),
+			});
+
+			if (action === null) {
+				return false;
+			}
+
+			if (action === 'edit-text') {
+				onTextEditStart(doubleClickTarget);
+				return true;
+			}
+
+			const openTargetInEditor = async () => {
+				const originalLocation =
+					await resolveOriginalLocation(doubleClickTarget);
+				if (originalLocation === null) {
+					onTextEditStart(doubleClickTarget);
+					return;
+				}
+
+				await openOriginalPositionInEditor(originalLocation);
+			};
+
+			openTargetInEditor().catch((err) => {
+				showNotification((err as Error).message, 2000);
+			});
+
+			return true;
+		},
+		[onTextEditStart, previewServerState.type, resolveOriginalLocation],
+	);
+
 	const onContextMenuOpen = React.useCallback(async () => {
 		if (target === undefined || previewServerState.type !== 'connected') {
 			return false;
@@ -1584,22 +1652,7 @@ export const SelectedOutlineElement: React.FC<{
 			onSelect(target.selection, {shiftKey: false, toggleKey: false});
 		}
 
-		const stack = target.sequence.getStack();
-		let originalLocation: ResolvedStackLocation | null = null;
-		if (stack) {
-			try {
-				originalLocation = await getOriginalLocationFromStack(
-					stack,
-					'sequence',
-				);
-			} catch (err) {
-				showNotification((err as Error).message, 2000);
-			}
-		}
-
-		if (stack) {
-			updateResolvedStackTrace(stack, originalLocation);
-		}
+		const originalLocation = await resolveOriginalLocation(target);
 
 		const fileLocation = formatFileLocation({
 			location: originalLocation,
@@ -1746,11 +1799,11 @@ export const SelectedOutlineElement: React.FC<{
 		confirm,
 		onSelect,
 		previewServerState,
+		resolveOriginalLocation,
 		selectAsset,
 		setSelectedModal,
 		setPropStatuses,
 		target,
-		updateResolvedStackTrace,
 	]);
 
 	return (
@@ -1767,7 +1820,7 @@ export const SelectedOutlineElement: React.FC<{
 				onHoverChange={onHoverChange}
 				onSnapPointsChange={onSnapPointsChange}
 				onSelect={onSelect}
-				onTextEditStart={onTextEditStart}
+				onDoubleClickTarget={onDoubleClickTarget}
 				scale={scale}
 				snapTargets={snapTargets}
 				target={target}

@@ -96,6 +96,7 @@ export {
 	snapSelectedOutlineUv,
 } from './selected-outline-drag';
 export {
+	getOutlineDoubleClickAction,
 	getOutlineSelectionInteraction,
 	getSelectedEffectFieldsBySequenceKey,
 	getSelectedOutlineRotationCornerInfo,
