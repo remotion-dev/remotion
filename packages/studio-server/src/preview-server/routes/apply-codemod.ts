@@ -33,12 +33,60 @@ export const ${componentName}: React.FC = () => {
 `);
 };
 
-const getCodemodLogMessage = (codemod: ApplyCodemodRequest['codemod']) => {
+const getFolderPath = (parentName: string | null, folderName: string) => {
+	return parentName ? `${parentName}/${folderName}` : folderName;
+};
+
+export const getCodemodLogMessage = (
+	codemod: ApplyCodemodRequest['codemod'],
+) => {
+	if (codemod.type === 'new-composition') {
+		const destination = codemod.folderName
+			? ` in folder "${getFolderPath(codemod.parentName, codemod.folderName)}"`
+			: '';
+		return `Created composition "${codemod.newId}"${destination}`;
+	}
+
+	if (codemod.type === 'duplicate-composition') {
+		return `Duplicated composition "${codemod.idToDuplicate}" to "${codemod.newId}"`;
+	}
+
 	if (codemod.type === 'rename-composition') {
 		return `Renamed composition "${codemod.idToRename}" to "${codemod.newId}"`;
 	}
 
-	return null;
+	if (codemod.type === 'delete-composition') {
+		return `Deleted composition "${codemod.idToDelete}"`;
+	}
+
+	if (codemod.type === 'move-composition-to-folder') {
+		const destination = codemod.folderName
+			? `into folder "${getFolderPath(codemod.parentName, codemod.folderName)}"`
+			: 'to root';
+		return `Moved composition "${codemod.idToMove}" ${destination}`;
+	}
+
+	if (codemod.type === 'rename-folder') {
+		const oldName = getFolderPath(codemod.parentName, codemod.folderName);
+		const newName = getFolderPath(codemod.parentName, codemod.newName);
+		return `Renamed folder "${oldName}" to "${newName}"`;
+	}
+
+	if (codemod.type === 'new-folder') {
+		return `Created folder "${getFolderPath(codemod.parentName, codemod.folderName)}"`;
+	}
+
+	if (codemod.type === 'delete-folder') {
+		return `Deleted folder "${getFolderPath(codemod.parentName, codemod.folderName)}"`;
+	}
+
+	if (codemod.changes.length === 1) {
+		return `Updated visual control "${codemod.changes[0].id}"`;
+	}
+
+	return `Updated visual controls ${codemod.changes
+		.map((change) => `"${change.id}"`)
+		.join(', ')}`;
 };
 
 const getCodemodUndoDescription = (codemod: ApplyCodemodRequest['codemod']) => {
@@ -72,7 +120,7 @@ const getCodemodUndoDescription = (codemod: ApplyCodemodRequest['codemod']) => {
 		const destination =
 			codemod.folderName === null
 				? 'to root'
-				: `into folder "${codemod.parentName ? `${codemod.parentName}/` : ''}${codemod.folderName}"`;
+				: `into folder "${getFolderPath(codemod.parentName, codemod.folderName)}"`;
 		const label = `composition "${codemod.idToMove}" ${destination}`;
 		return {
 			undoMessage: `↩️  Move of ${label}`,
@@ -90,7 +138,7 @@ const getCodemodUndoDescription = (codemod: ApplyCodemodRequest['codemod']) => {
 	}
 
 	if (codemod.type === 'delete-folder') {
-		const label = `folder "${codemod.parentName ? `${codemod.parentName}/` : ''}${codemod.folderName}"`;
+		const label = `folder "${getFolderPath(codemod.parentName, codemod.folderName)}"`;
 		return {
 			undoMessage: `↩️  Deletion of ${label}`,
 			redoMessage: `↪️  Deletion of ${label}`,
@@ -99,7 +147,7 @@ const getCodemodUndoDescription = (codemod: ApplyCodemodRequest['codemod']) => {
 	}
 
 	if (codemod.type === 'new-folder') {
-		const label = `folder "${codemod.parentName ? `${codemod.parentName}/` : ''}${codemod.folderName}"`;
+		const label = `folder "${getFolderPath(codemod.parentName, codemod.folderName)}"`;
 		return {
 			undoMessage: `↩️  Creation of ${label}`,
 			redoMessage: `↪️  Creation of ${label}`,
@@ -108,8 +156,8 @@ const getCodemodUndoDescription = (codemod: ApplyCodemodRequest['codemod']) => {
 	}
 
 	if (codemod.type === 'rename-folder') {
-		const oldName = `${codemod.parentName ? `${codemod.parentName}/` : ''}${codemod.folderName}`;
-		const newName = `${codemod.parentName ? `${codemod.parentName}/` : ''}${codemod.newName}`;
+		const oldName = getFolderPath(codemod.parentName, codemod.folderName);
+		const newName = getFolderPath(codemod.parentName, codemod.newName);
 		const label = `folder "${oldName}" to "${newName}"`;
 		return {
 			undoMessage: `↩️  Rename of ${label}`,
@@ -136,7 +184,6 @@ export const applyCodemodHandler: ApiHandler<
 }) => {
 	return withSourceFileWriteQueue(async () => {
 		try {
-			const time = Date.now();
 			const logLine = symbolicatedStack?.originalLineNumber ?? 1;
 
 			const filePath = symbolicatedStack
@@ -251,19 +298,14 @@ export const applyCodemodHandler: ApiHandler<
 					);
 				}
 
-				const end = Date.now() - time;
 				const logMessage = getCodemodLogMessage(codemod);
-				const editMessage = logMessage
-					? `${RenderInternals.chalk.blueBright(
-							formatLogFileLocation({
-								remotionRoot,
-								absolutePath: filePath,
-								line: logLine,
-							}),
-						)} ${logMessage}`
-					: RenderInternals.chalk.blue(
-							`Edited ${path.relative(remotionRoot, filePath)} in ${end}ms`,
-						);
+				const editMessage = `${RenderInternals.chalk.blueBright(
+					formatLogFileLocation({
+						remotionRoot,
+						absolutePath: filePath,
+						line: logLine,
+					}),
+				)} ${logMessage}`;
 				RenderInternals.Log.info({indent: false, logLevel}, editMessage);
 				printUndoHint(logLevel);
 			}
