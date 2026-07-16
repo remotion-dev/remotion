@@ -88,38 +88,18 @@ export const writeEffectsClipboardEnvelope = async (
 	]);
 };
 
-export const readClipboardTextAndEffectsEnvelope = async (): Promise<{
+export const readClipboardTextAndEffectsEnvelope = (
+	clipboardData: DataTransfer,
+): {
 	readonly text: string;
 	readonly envelope: EffectsClipboardEnvelope | null;
-}> => {
-	if (!navigator.clipboard.read) {
-		return {
-			text: await navigator.clipboard.readText(),
-			envelope: null,
-		};
-	}
+} => {
+	const html = clipboardData.types.includes('text/html')
+		? clipboardData.getData('text/html')
+		: '';
 
-	try {
-		const items = await navigator.clipboard.read();
-		let text = '';
-		let envelope: EffectsClipboardEnvelope | null = null;
-
-		for (const item of items) {
-			if (envelope === null && item.types.includes('text/html')) {
-				const html = await (await item.getType('text/html')).text();
-				envelope = parseEffectsClipboardHtml(html);
-			}
-
-			if (text === '' && item.types.includes('text/plain')) {
-				text = await (await item.getType('text/plain')).text();
-			}
-		}
-
-		return {text, envelope};
-	} catch {
-		return {
-			text: await navigator.clipboard.readText(),
-			envelope: null,
-		};
-	}
+	return {
+		text: clipboardData.getData('text/plain'),
+		envelope: html === '' ? null : parseEffectsClipboardHtml(html),
+	};
 };

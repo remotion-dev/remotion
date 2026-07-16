@@ -3,6 +3,7 @@ import type {EffectClipboardData} from '@remotion/studio-shared';
 import {
 	makeEffectsClipboardHtml,
 	parseEffectsClipboardHtml,
+	readClipboardTextAndEffectsEnvelope,
 	type EffectsClipboardEnvelope,
 } from '../components/Timeline/effects-clipboard';
 
@@ -31,6 +32,20 @@ test('effect clipboard data round-trips through marked HTML', () => {
 	expect(html).toContain('>Remotion effect</span>');
 	expect(html).not.toContain(JSON.stringify(payload));
 	expect(parseEffectsClipboardHtml(html)).toEqual(envelope);
+});
+
+test('effect clipboard data is read from a native paste event', () => {
+	const html = makeEffectsClipboardHtml(envelope);
+	const clipboardData = {
+		types: ['text/html', 'text/plain'],
+		getData: (type: string) =>
+			type === 'text/html' ? html : 'Remotion effect',
+	} as unknown as DataTransfer;
+
+	expect(readClipboardTextAndEffectsEnvelope(clipboardData)).toEqual({
+		text: 'Remotion effect',
+		envelope,
+	});
 });
 
 test('effect clipboard HTML rejects invalid envelope data', () => {

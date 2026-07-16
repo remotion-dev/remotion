@@ -24,7 +24,10 @@ import {
 } from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
-import {useKeybinding} from '../../helpers/use-keybinding';
+import {
+	areKeyboardShortcutsDisabled,
+	useKeybinding,
+} from '../../helpers/use-keybinding';
 import {callApi} from '../call-api';
 import {useConfirmationDialog} from '../ConfirmationDialog';
 import {showNotification} from '../Notifications/NotificationCenter';
@@ -858,237 +861,247 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 			keepRegisteredWhenNotHighestContext: false,
 		});
 
-		const paste = keybindings.registerKeybinding({
-			event: 'keydown',
-			key: 'v',
-			callback: (e) => {
-				const {selectedItems} = currentSelection.current;
-				if (selectedItems.length === 0) {
-					return;
-				}
+		const handlePaste = (e: ClipboardEvent) => {
+			const {activeElement} = document;
+			if (
+				activeElement instanceof HTMLInputElement ||
+				activeElement instanceof HTMLTextAreaElement
+			) {
+				return;
+			}
 
-				readClipboardTextAndEffectsEnvelope()
-					.then(({text, envelope}) => {
-						const propStatuses = propStatusesRef.current;
-						const sequences = sequencesRef.current;
-						const easingResult = parseEasingClipboardDataResult(text);
-						if (easingResult.status !== 'invalid') {
-							e.preventDefault();
-							if (easingResult.status === 'unsupported-version') {
-								showNotification(
-									'Cannot paste easing copied from a different Remotion Studio version',
-									4000,
-								);
-								return;
-							}
+			const {selectedItems} = currentSelection.current;
+			if (selectedItems.length === 0 || e.clipboardData === null) {
+				return;
+			}
 
-							const easingSelections = getEasingSelections(selectedItems);
-							if (
-								easingSelections.length === 0 ||
-								easingSelections.length !== selectedItems.length
-							) {
-								showNotification('Select an easing to paste onto', 3000);
-								return;
-							}
-
-							const updatePromise = updateSelectedTimelineEasings({
-								selections: easingSelections,
-								sequences,
-								overrideIdsToNodePaths: overrideIdToNodePathMappings,
-								propStatuses,
-								setPropStatuses,
-								clientId,
-								easing: easingResult.data.easing,
-							});
-
-							if (updatePromise === null) {
-								showNotification(
-									'Cannot paste onto an easing that cannot be updated',
-									3000,
-								);
-								return;
-							}
-
-							return updatePromise
-								.then(() => {
-									showNotification(
-										easingSelections.length === 1
-											? 'Pasted easing'
-											: 'Pasted easing to selected segments',
-										2000,
-									);
-								})
-								.catch((err) => {
-									showNotification(
-										`Could not paste easing: ${(err as Error).message}`,
-										3000,
-									);
-								});
-						}
-
-						const effectPropResult = parseEffectPropClipboardDataResult(text);
-						if (effectPropResult.status !== 'invalid') {
-							e.preventDefault();
-							if (effectPropResult.status === 'unsupported-version') {
-								showNotification(
-									'Cannot paste effect prop copied from a different Remotion Studio version',
-									4000,
-								);
-								return;
-							}
-
-							const effectPropTarget = getPasteEffectPropTarget({
-								selectedItems,
-								payload: effectPropResult.data,
-								propStatuses,
-								sequences,
-								overrideIdsToNodePaths: overrideIdToNodePathMappings,
-							});
-
-							if (effectPropTarget.type !== 'valid') {
-								switch (effectPropTarget.type) {
-									case 'multiple':
-										showNotification(
-											'Select one target effect prop or effect to paste onto',
-											3000,
-										);
-										return;
-									case 'none':
-										showNotification(
-											'Select a matching effect prop or effect to paste onto',
-											3000,
-										);
-										return;
-									case 'unsupported':
-										showNotification(
-											'This sequence does not support effects',
-											3000,
-										);
-										return;
-									case 'effect-type-mismatch':
-										showNotification(
-											'Select an effect of the same type to paste this prop',
-											3000,
-										);
-										return;
-									case 'prop-mismatch':
-										showNotification(
-											'Select the same effect prop, or an effect with that prop',
-											3000,
-										);
-										return;
-									case 'uncopyable':
-										showNotification(
-											'Cannot paste onto an effect prop that cannot be updated',
-											3000,
-										);
-										return;
-									default:
-										throw new Error(
-											`Unexpected paste target: ${effectPropTarget satisfies never}`,
-										);
-								}
-							}
-
-							return saveEffectProp({
-								fileName: effectPropTarget.fileName,
-								nodePath: effectPropTarget.nodePath,
-								effectIndex: effectPropTarget.effectIndex,
-								fieldKey: effectPropTarget.fieldKey,
-								...(effectPropResult.data.param.type === 'static'
-									? {
-											type: 'value' as const,
-											value: effectPropResult.data.param.value,
-										}
-									: {
-											type: 'effect-param' as const,
-											effectParam: effectPropResult.data.param,
-										}),
-								defaultValue: effectPropTarget.defaultValue,
-								schema: effectPropTarget.schema,
-								setPropStatuses,
-								clientId,
-							}).then(() => {
-								showNotification('Pasted effect prop', 2000);
-							});
-						}
-
-						const result =
-							envelope === null
-								? parseEffectClipboardDataResult(text)
-								: {status: 'valid' as const, data: envelope.payload};
-						if (result.status === 'invalid') {
-							return;
-						}
-
+			e.preventDefault();
+			const {text, envelope} = readClipboardTextAndEffectsEnvelope(
+				e.clipboardData,
+			);
+			Promise.resolve()
+				.then(() => {
+					const propStatuses = propStatusesRef.current;
+					const sequences = sequencesRef.current;
+					const easingResult = parseEasingClipboardDataResult(text);
+					if (easingResult.status !== 'invalid') {
 						e.preventDefault();
-
-						if (result.status === 'unsupported-version') {
+						if (easingResult.status === 'unsupported-version') {
 							showNotification(
-								'Cannot paste effects copied from a different Remotion Studio version',
+								'Cannot paste easing copied from a different Remotion Studio version',
 								4000,
 							);
 							return;
 						}
 
-						const {data: payload} = result;
-						const target = getPasteEffectsTarget(selectedItems);
-						if (target.type === 'multiple') {
+						const easingSelections = getEasingSelections(selectedItems);
+						if (
+							easingSelections.length === 0 ||
+							easingSelections.length !== selectedItems.length
+						) {
+							showNotification('Select an easing to paste onto', 3000);
+							return;
+						}
+
+						const updatePromise = updateSelectedTimelineEasings({
+							selections: easingSelections,
+							sequences,
+							overrideIdsToNodePaths: overrideIdToNodePathMappings,
+							propStatuses,
+							setPropStatuses,
+							clientId,
+							easing: easingResult.data.easing,
+						});
+
+						if (updatePromise === null) {
 							showNotification(
-								'Select one target sequence to paste effects',
+								'Cannot paste onto an easing that cannot be updated',
 								3000,
 							);
 							return;
 						}
 
-						if (target.type === 'none') {
-							showNotification('Select a sequence to paste effects onto', 3000);
+						return updatePromise
+							.then(() => {
+								showNotification(
+									easingSelections.length === 1
+										? 'Pasted easing'
+										: 'Pasted easing to selected segments',
+									2000,
+								);
+							})
+							.catch((err) => {
+								showNotification(
+									`Could not paste easing: ${(err as Error).message}`,
+									3000,
+								);
+							});
+					}
+
+					const effectPropResult = parseEffectPropClipboardDataResult(text);
+					if (effectPropResult.status !== 'invalid') {
+						e.preventDefault();
+						if (effectPropResult.status === 'unsupported-version') {
+							showNotification(
+								'Cannot paste effect prop copied from a different Remotion Studio version',
+								4000,
+							);
 							return;
 						}
 
-						if (target.type === 'unsupported') {
-							showNotification('This sequence does not support effects', 3000);
-							return;
-						}
-
-						const {sequenceSubscriptionKey: targetSequenceNodePath} =
-							target.nodePathInfo;
-						const insertAtIndices =
-							envelope?.sourceIdentity === makeTargetKey(targetSequenceNodePath)
-								? envelope.originalEffectIndices
-								: null;
-						return callApi('/api/paste-effects', {
-							targetFileName: targetSequenceNodePath.absolutePath,
-							targetSequenceNodePath,
-							type: payload.type,
-							effects: payload.effects,
-							clientId,
-							insertAtIndices,
-						}).then((pasteResult) => {
-							if (pasteResult.success) {
-								showNotification('Pasted effects', 2000);
-							} else {
-								showNotification(pasteResult.reason, 4000);
-							}
+						const effectPropTarget = getPasteEffectPropTarget({
+							selectedItems,
+							payload: effectPropResult.data,
+							propStatuses,
+							sequences,
+							overrideIdsToNodePaths: overrideIdToNodePathMappings,
 						});
-					})
-					.catch((err) => {
+
+						if (effectPropTarget.type !== 'valid') {
+							switch (effectPropTarget.type) {
+								case 'multiple':
+									showNotification(
+										'Select one target effect prop or effect to paste onto',
+										3000,
+									);
+									return;
+								case 'none':
+									showNotification(
+										'Select a matching effect prop or effect to paste onto',
+										3000,
+									);
+									return;
+								case 'unsupported':
+									showNotification(
+										'This sequence does not support effects',
+										3000,
+									);
+									return;
+								case 'effect-type-mismatch':
+									showNotification(
+										'Select an effect of the same type to paste this prop',
+										3000,
+									);
+									return;
+								case 'prop-mismatch':
+									showNotification(
+										'Select the same effect prop, or an effect with that prop',
+										3000,
+									);
+									return;
+								case 'uncopyable':
+									showNotification(
+										'Cannot paste onto an effect prop that cannot be updated',
+										3000,
+									);
+									return;
+								default:
+									throw new Error(
+										`Unexpected paste target: ${effectPropTarget satisfies never}`,
+									);
+							}
+						}
+
+						return saveEffectProp({
+							fileName: effectPropTarget.fileName,
+							nodePath: effectPropTarget.nodePath,
+							effectIndex: effectPropTarget.effectIndex,
+							fieldKey: effectPropTarget.fieldKey,
+							...(effectPropResult.data.param.type === 'static'
+								? {
+										type: 'value' as const,
+										value: effectPropResult.data.param.value,
+									}
+								: {
+										type: 'effect-param' as const,
+										effectParam: effectPropResult.data.param,
+									}),
+							defaultValue: effectPropTarget.defaultValue,
+							schema: effectPropTarget.schema,
+							setPropStatuses,
+							clientId,
+						}).then(() => {
+							showNotification('Pasted effect prop', 2000);
+						});
+					}
+
+					const result =
+						envelope === null
+							? parseEffectClipboardDataResult(text)
+							: {status: 'valid' as const, data: envelope.payload};
+					if (result.status === 'invalid') {
+						return;
+					}
+
+					e.preventDefault();
+
+					if (result.status === 'unsupported-version') {
 						showNotification(
-							`Could not paste effects: ${(err as Error).message}`,
+							'Cannot paste effects copied from a different Remotion Studio version',
+							4000,
+						);
+						return;
+					}
+
+					const {data: payload} = result;
+					const target = getPasteEffectsTarget(selectedItems);
+					if (target.type === 'multiple') {
+						showNotification(
+							'Select one target sequence to paste effects',
 							3000,
 						);
+						return;
+					}
+
+					if (target.type === 'none') {
+						showNotification('Select a sequence to paste effects onto', 3000);
+						return;
+					}
+
+					if (target.type === 'unsupported') {
+						showNotification('This sequence does not support effects', 3000);
+						return;
+					}
+
+					const {sequenceSubscriptionKey: targetSequenceNodePath} =
+						target.nodePathInfo;
+					const insertAtIndices =
+						envelope?.sourceIdentity === makeTargetKey(targetSequenceNodePath)
+							? envelope.originalEffectIndices
+							: null;
+					return callApi('/api/paste-effects', {
+						targetFileName: targetSequenceNodePath.absolutePath,
+						targetSequenceNodePath,
+						type: payload.type,
+						effects: payload.effects,
+						clientId,
+						insertAtIndices,
+					}).then((pasteResult) => {
+						if (pasteResult.success) {
+							showNotification('Pasted effects', 2000);
+						} else {
+							showNotification(pasteResult.reason, 4000);
+						}
 					});
-			},
-			commandCtrlKey: true,
-			preventDefault: false,
-			triggerIfInputFieldFocused: false,
-			keepRegisteredWhenNotHighestContext: false,
-		});
+				})
+				.catch((err) => {
+					showNotification(
+						`Could not paste effects: ${(err as Error).message}`,
+						3000,
+					);
+				});
+		};
+
+		// Reading ClipboardEvent data avoids the permission prompt caused by
+		// navigator.clipboard.read().
+		if (keybindings.isHighestContext && !areKeyboardShortcutsDisabled()) {
+			document.addEventListener('paste', handlePaste);
+		}
 
 		return () => {
 			copy.unregister();
 			cut.unregister();
-			paste.unregister();
+			document.removeEventListener('paste', handlePaste);
 		};
 	}, [
 		canSelect,
