@@ -2,7 +2,7 @@ import type {ComponentType} from 'react';
 import {PaperTexture} from '../../../elements/backgrounds/paper-texture/paper-texture';
 import {RotatingStarburst} from '../../../elements/backgrounds/rotating-starburst/rotating-starburst';
 import {NumberCounter} from '../../../elements/data/number-counter/number-counter';
-import {LiveLocationStrap} from '../../../elements/overlays/live-location-strap/live-location-strap';
+import {EventLocationStrap} from '../../../elements/overlays/event-location-strap/event-location-strap';
 import {LowerThird} from '../../../elements/overlays/lower-third/lower-third';
 import {CircleMarker} from '../../../elements/text/circle-marker/circle-marker';
 import {CrossedOffText} from '../../../elements/text/crossed-off/crossed-off';
@@ -61,9 +61,9 @@ export const elementDefinitions = {
 		slug: 'backgrounds/rotating-starburst',
 		width: 1920,
 	},
-	'overlays/live-location-strap': {
+	'overlays/event-location-strap': {
 		category: 'overlays',
-		component: LiveLocationStrap,
+		component: EventLocationStrap,
 		contributors: [
 			{
 				username: 'samohovets',
@@ -71,8 +71,8 @@ export const elementDefinitions = {
 			},
 		],
 		description:
-			'An animated broadcast strap for live status, location, venue, and date.',
-		displayName: 'Live / Location Strap',
+			'An animated broadcast strap for event status, location, venue, and date.',
+		displayName: 'Event / Location Strap',
 		durationInFrames: 120,
 		elementHeight: 156,
 		elementWidth: 760,
@@ -80,7 +80,7 @@ export const elementDefinitions = {
 		height: 1080,
 		posterFrame: 60,
 		previewPadding: 260,
-		slug: 'overlays/live-location-strap',
+		slug: 'overlays/event-location-strap',
 		width: 1920,
 	},
 	'overlays/lower-third': {

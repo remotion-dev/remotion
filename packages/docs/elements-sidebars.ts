@@ -34,7 +34,7 @@ const sidebars: SidebarsConfig = {
 			link: {type: 'doc', id: 'overlays/index'},
 			collapsed: false,
 			items: [
-				'overlays/live-location-strap/index',
+				'overlays/event-location-strap/index',
 				'overlays/lower-third/index',
 			],
 		},

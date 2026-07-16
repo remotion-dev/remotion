@@ -1,7 +1,7 @@
 import React from 'react';
 import {Easing, Interactive, interpolate, useCurrentFrame} from 'remotion';
 
-export const LiveLocationStrap: React.FC = () => {
+export const EventLocationStrap: React.FC = () => {
 	const frame = useCurrentFrame();
 
 	return (
@@ -59,7 +59,7 @@ export const LiveLocationStrap: React.FC = () => {
 						whiteSpace: 'nowrap',
 					}}
 				>
-					LIVE
+					DAY 2
 				</Interactive.Div>
 				<Interactive.Div
 					name="Location"
@@ -101,7 +101,7 @@ export const LiveLocationStrap: React.FC = () => {
 						textOverflow: 'ellipsis',
 					}}
 				>
-					June 22
+					July 14
 				</Interactive.Div>
 				<span aria-hidden style={{color: '#94a3b8'}}>
 					·
@@ -114,7 +114,7 @@ export const LiveLocationStrap: React.FC = () => {
 						textOverflow: 'ellipsis',
 					}}
 				>
-					Main Stage
+					Local First Conf
 				</Interactive.Div>
 			</div>
 		</Interactive.Div>
