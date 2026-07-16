@@ -48,6 +48,7 @@ test('Should calculate timeline as expected', () => {
 				doesVolumeChange: false,
 				playbackRate: 1,
 				frozenMediaFrame: null,
+				mediaFrameAtSequenceZero: null,
 				loopDisplay: undefined,
 				effects: [],
 				frozenFrame: null,
@@ -136,6 +137,7 @@ test('Should calculate timeline as expected', () => {
 				doesVolumeChange: false,
 				playbackRate: 1,
 				frozenMediaFrame: null,
+				mediaFrameAtSequenceZero: null,
 				loopDisplay: undefined,
 				effects: [],
 				frozenFrame: null,
@@ -170,6 +172,7 @@ test('Should calculate timeline as expected', () => {
 				doesVolumeChange: false,
 				playbackRate: 1,
 				frozenMediaFrame: null,
+				mediaFrameAtSequenceZero: null,
 				loopDisplay: undefined,
 				effects: [],
 				frozenFrame: null,
@@ -231,6 +234,7 @@ test('Should calculate timeline as expected', () => {
 				doesVolumeChange: false,
 				playbackRate: 1,
 				frozenMediaFrame: null,
+				mediaFrameAtSequenceZero: null,
 				loopDisplay: undefined,
 				effects: [],
 				frozenFrame: null,
@@ -292,6 +296,7 @@ test('Should calculate timeline as expected', () => {
 				doesVolumeChange: false,
 				playbackRate: 1,
 				frozenMediaFrame: null,
+				mediaFrameAtSequenceZero: null,
 				loopDisplay: undefined,
 				effects: [],
 				frozenFrame: null,
@@ -353,6 +358,7 @@ test('Should calculate timeline as expected', () => {
 				doesVolumeChange: false,
 				playbackRate: 1,
 				frozenMediaFrame: null,
+				mediaFrameAtSequenceZero: null,
 				loopDisplay: undefined,
 				effects: [],
 				frozenFrame: null,
@@ -657,6 +663,7 @@ test('Should calculate timeline as expected', () => {
 				doesVolumeChange: true,
 				playbackRate: 1,
 				frozenMediaFrame: null,
+				mediaFrameAtSequenceZero: null,
 				loopDisplay: undefined,
 				effects: [],
 				frozenFrame: null,
@@ -696,6 +703,7 @@ const sequences: TSequence[] = [
 		doesVolumeChange: false,
 		playbackRate: 1,
 		frozenMediaFrame: null,
+		mediaFrameAtSequenceZero: null,
 	},
 	{
 		from: 0,
@@ -967,6 +975,7 @@ const sequences: TSequence[] = [
 		doesVolumeChange: false,
 		playbackRate: 1,
 		frozenMediaFrame: null,
+		mediaFrameAtSequenceZero: null,
 	},
 	{
 		from: 0,
@@ -1238,6 +1247,7 @@ const sequences: TSequence[] = [
 		doesVolumeChange: false,
 		playbackRate: 1,
 		frozenMediaFrame: null,
+		mediaFrameAtSequenceZero: null,
 	},
 	{
 		from: 0,
@@ -1509,6 +1519,7 @@ const sequences: TSequence[] = [
 		doesVolumeChange: false,
 		playbackRate: 1,
 		frozenMediaFrame: null,
+		mediaFrameAtSequenceZero: null,
 	},
 	{
 		from: 0,
@@ -1560,6 +1571,7 @@ const sequences: TSequence[] = [
 		doesVolumeChange: false,
 		playbackRate: 1,
 		frozenMediaFrame: null,
+		mediaFrameAtSequenceZero: null,
 	},
 	{
 		premountDisplay: null,
@@ -1589,6 +1601,7 @@ const sequences: TSequence[] = [
 		doesVolumeChange: false,
 		playbackRate: 1,
 		frozenMediaFrame: null,
+		mediaFrameAtSequenceZero: null,
 	},
 	{
 		premountDisplay: null,
@@ -1618,6 +1631,7 @@ const sequences: TSequence[] = [
 		doesVolumeChange: false,
 		playbackRate: 1,
 		frozenMediaFrame: null,
+		mediaFrameAtSequenceZero: null,
 	},
 	{
 		from: -60,
@@ -1669,6 +1683,7 @@ const sequences: TSequence[] = [
 		doesVolumeChange: false,
 		playbackRate: 1,
 		frozenMediaFrame: null,
+		mediaFrameAtSequenceZero: null,
 	},
 	{
 		from: -120,
@@ -1720,6 +1735,7 @@ const sequences: TSequence[] = [
 		doesVolumeChange: false,
 		playbackRate: 1,
 		frozenMediaFrame: null,
+		mediaFrameAtSequenceZero: null,
 	},
 	{
 		from: -180,
@@ -1991,6 +2007,7 @@ const sequences: TSequence[] = [
 		doesVolumeChange: false,
 		playbackRate: 1,
 		frozenMediaFrame: null,
+		mediaFrameAtSequenceZero: null,
 	},
 	{
 		from: 0,
@@ -2262,6 +2279,7 @@ const sequences: TSequence[] = [
 		doesVolumeChange: false,
 		playbackRate: 1,
 		frozenMediaFrame: null,
+		mediaFrameAtSequenceZero: null,
 	},
 	{
 		from: 0,
@@ -2533,6 +2551,7 @@ const sequences: TSequence[] = [
 		doesVolumeChange: false,
 		playbackRate: 1,
 		frozenMediaFrame: null,
+		mediaFrameAtSequenceZero: null,
 	},
 	{
 		from: 0,
@@ -2804,6 +2823,7 @@ const sequences: TSequence[] = [
 		doesVolumeChange: false,
 		playbackRate: 1,
 		frozenMediaFrame: null,
+		mediaFrameAtSequenceZero: null,
 	},
 	{
 		from: 0,
@@ -3075,6 +3095,7 @@ const sequences: TSequence[] = [
 		doesVolumeChange: false,
 		playbackRate: 1,
 		frozenMediaFrame: null,
+		mediaFrameAtSequenceZero: null,
 	},
 	{
 		from: 0,
@@ -3346,6 +3367,7 @@ const sequences: TSequence[] = [
 		doesVolumeChange: false,
 		playbackRate: 1,
 		frozenMediaFrame: null,
+		mediaFrameAtSequenceZero: null,
 	},
 	{
 		from: 0,
@@ -3617,6 +3639,7 @@ const sequences: TSequence[] = [
 		doesVolumeChange: false,
 		playbackRate: 1,
 		frozenMediaFrame: null,
+		mediaFrameAtSequenceZero: null,
 	},
 	{
 		from: 0,
@@ -3866,6 +3889,7 @@ const sequences: TSequence[] = [
 		doesVolumeChange: true,
 		playbackRate: 1,
 		frozenMediaFrame: null,
+		mediaFrameAtSequenceZero: null,
 	},
 	{
 		from: -10,
@@ -3939,6 +3963,7 @@ const sequences: TSequence[] = [
 		doesVolumeChange: false,
 		playbackRate: 1,
 		frozenMediaFrame: null,
+		mediaFrameAtSequenceZero: null,
 	},
 	{
 		from: 0,
@@ -4188,6 +4213,7 @@ const sequences: TSequence[] = [
 		doesVolumeChange: true,
 		playbackRate: 1,
 		frozenMediaFrame: null,
+		mediaFrameAtSequenceZero: null,
 	},
 	{
 		from: -10,
@@ -4261,6 +4287,7 @@ const sequences: TSequence[] = [
 		doesVolumeChange: false,
 		playbackRate: 1,
 		frozenMediaFrame: null,
+		mediaFrameAtSequenceZero: null,
 	},
 	{
 		from: 0,
@@ -4510,6 +4537,7 @@ const sequences: TSequence[] = [
 		doesVolumeChange: true,
 		playbackRate: 1,
 		frozenMediaFrame: null,
+		mediaFrameAtSequenceZero: null,
 	},
 	{
 		from: -10,

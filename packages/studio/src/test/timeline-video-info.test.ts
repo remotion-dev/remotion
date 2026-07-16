@@ -103,14 +103,37 @@ test('video timeline filmstrip range starts at the registered media frame', () =
 	});
 });
 
-test('video timeline media start applies playback rate after the registered start', () => {
+test('video timeline media start applies playback rate after sequence zero', () => {
 	expect(
 		getTimelineMediaStartFrame({
 			startMediaFrom: 5,
+			mediaFrameAtSequenceZero: 5,
 			sequenceFrameOffset: 10,
 			playbackRate: 2,
 		}),
-	).toBe(15);
+	).toBe(25);
+});
+
+test('video timeline media start includes trimBefore with no sequence offset', () => {
+	expect(
+		getTimelineMediaStartFrame({
+			startMediaFrom: 31,
+			mediaFrameAtSequenceZero: 31,
+			sequenceFrameOffset: 0,
+			playbackRate: 1,
+		}),
+	).toBe(31);
+});
+
+test('legacy video timeline media start keeps its playback rate behavior', () => {
+	expect(
+		getTimelineMediaStartFrame({
+			startMediaFrom: 10,
+			mediaFrameAtSequenceZero: null,
+			sequenceFrameOffset: 10,
+			playbackRate: 2,
+		}),
+	).toBe(10);
 });
 
 test('video timeline filmstrip uses one timestamp for frozen video', () => {

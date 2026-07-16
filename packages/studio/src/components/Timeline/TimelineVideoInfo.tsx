@@ -51,6 +51,7 @@ export const TimelineVideoInfo: React.FC<{
 	readonly visualizationWidth: number;
 	readonly naturalWidth: number;
 	readonly startMediaFrom: number;
+	readonly mediaFrameAtSequenceZero: number | null;
 	readonly sequenceFrameOffset: number;
 	readonly durationInFrames: number;
 	readonly playbackRate: number;
@@ -65,6 +66,7 @@ export const TimelineVideoInfo: React.FC<{
 	visualizationWidth,
 	naturalWidth,
 	startMediaFrom,
+	mediaFrameAtSequenceZero,
 	sequenceFrameOffset,
 	durationInFrames,
 	playbackRate,
@@ -81,6 +83,7 @@ export const TimelineVideoInfo: React.FC<{
 	const aspectRatio = useRef<number | null>(getAspectRatioFromCache(src));
 	const mediaStartFrame = getTimelineMediaStartFrame({
 		startMediaFrom,
+		mediaFrameAtSequenceZero,
 		sequenceFrameOffset,
 		playbackRate,
 	});

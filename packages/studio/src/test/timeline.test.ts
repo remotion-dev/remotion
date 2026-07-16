@@ -245,6 +245,7 @@ test('Should inherit loop display from parent for media tracks', () => {
 				startMediaFrom: 0,
 				playbackRate: 1,
 				frozenMediaFrame: null,
+				mediaFrameAtSequenceZero: null,
 				effects: [],
 				frozenFrame: null,
 			},
@@ -372,6 +373,7 @@ test('Should account for a parent Sequence trimBefore in video thumbnails', () =
 				effects: [],
 				frozenFrame: null,
 				frozenMediaFrame: null,
+				mediaFrameAtSequenceZero: 0,
 				src: 'https://remotion.media/video.mp4',
 				volume: 1,
 				doesVolumeChange: false,
@@ -389,6 +391,7 @@ test('Should account for a parent Sequence trimBefore in video thumbnails', () =
 	expect(
 		getTimelineMediaStartFrame({
 			startMediaFrom: video.sequence.startMediaFrom,
+			mediaFrameAtSequenceZero: video.sequence.mediaFrameAtSequenceZero,
 			sequenceFrameOffset: video.sequenceFrameOffset,
 			playbackRate: video.sequence.playbackRate,
 		}),
