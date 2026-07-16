@@ -61,8 +61,7 @@ export const MyVideo = () => {
 };
 ```
 
-By default, volumes between 0 and 1 are supported, where in iOS Safari, the volume is always 1.  
-See [Volume Limitations](/docs/audio/volume#limitations) for more information.
+By default, volumes between `0` and `1` are supported, and iOS Safari always sets the volume to `1`. Set [`useWebAudioApi`](#usewebaudioapi) to `true` to remove these limitations. This requires `crossOrigin="anonymous"`, and the audio source must support CORS. On Safari, `useWebAudioApi` cannot be combined with [`playbackRate`](#playbackrate); otherwise, volume changes are ignored.
 
 ### `loopVolumeCurveBehavior?`<AvailableFrom v="4.0.142" />
 
@@ -227,7 +226,7 @@ Customize the [number of retries](/docs/delay-render#retrying) of the [`delayRen
 
 ### `useWebAudioApi?`<AvailableFrom v="4.0.306" />
 
-Enable the [Web Audio API](/docs/audio/volume#limitations) for the audio tag.
+Enables the Web Audio API for the audio tag, allowing volume values above `1` and volume control on iOS Safari. Set `crossOrigin="anonymous"` and ensure the audio source supports CORS. On Safari, this cannot be combined with [`playbackRate`](#playbackrate); otherwise, volume changes are ignored.
 
 ### `onError?`<AvailableFrom v="4.0.326" />
 
