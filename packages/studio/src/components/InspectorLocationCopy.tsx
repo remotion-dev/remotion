@@ -26,6 +26,7 @@ const action: React.CSSProperties = {
 	flexShrink: 0,
 	height: 24,
 	marginLeft: 4,
+	marginRight: -4,
 };
 
 const icon: React.CSSProperties = {
@@ -60,17 +61,12 @@ export const InspectorLocationCopy: React.FC<{
 				return;
 			}
 
-			navigator.clipboard
-				.writeText(textToCopy)
-				.then(() => {
-					showNotification('Copied location for agents to clipboard', 1000);
-				})
-				.catch((err) => {
-					showNotification(
-						`Could not copy to clipboard: ${(err as Error).message}`,
-						2000,
-					);
-				});
+			navigator.clipboard.writeText(textToCopy).catch((err) => {
+				showNotification(
+					`Could not copy to clipboard: ${(err as Error).message}`,
+					2000,
+				);
+			});
 		},
 		[textToCopy],
 	);
