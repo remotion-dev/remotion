@@ -24,6 +24,7 @@ import {
 import {getTimeInSeconds} from '../get-time-in-seconds';
 import {MediaPlayer} from '../media-player';
 import {type MediaOnError, callOnErrorAndResolve} from '../on-error';
+import {ProResDecoderNotEnabledError} from '../prores-error';
 import type {MediaRequestInit} from '../request-init';
 import {useCommonEffects} from '../use-common-effects';
 import type {
@@ -351,6 +352,13 @@ const VideoForPreviewAssertedShowing: React.FC<
 						return;
 					}
 
+					if (result.type === 'cannot-decode-prores') {
+						// Unrecoverable: a native <video> can't decode ProRes either, so
+						// we must not fall back. The .catch below notifies onError and
+						// rethrows without falling back.
+						throw new ProResDecoderNotEnabledError(preloadedSrc);
+					}
+
 					if (result.type === 'no-tracks') {
 						handleError(
 							new Error(`No video or audio tracks found for ${preloadedSrc}.`),
@@ -367,6 +375,14 @@ const VideoForPreviewAssertedShowing: React.FC<
 					}
 				})
 				.catch((error) => {
+					// ProRes without a registered decoder is unrecoverable and must not
+					// fall back to a native <video> (which cannot decode it either).
+					// Notify onError once for observability, then rethrow.
+					if (error instanceof ProResDecoderNotEnabledError) {
+						onErrorRef.current?.(error);
+						throw error;
+					}
+
 					const [action, errorToUse] = callOnErrorAndResolve({
 						onError: onErrorRef.current,
 						error,
