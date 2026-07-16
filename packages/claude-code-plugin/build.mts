@@ -11,12 +11,15 @@ import {
 import {join, resolve} from 'node:path';
 
 const __dirname = new URL('.', import.meta.url).pathname;
-const skillsOut = resolve(__dirname, 'skills');
+const legacySkillsOut = resolve(__dirname, 'skills');
+const skillsOut = resolve(__dirname, 'plugins', 'remotion', 'skills');
 
 const packagesSkillsDir = resolve(__dirname, '..', 'skills', 'skills');
 
-if (existsSync(skillsOut)) {
-	rmSync(skillsOut, {recursive: true});
+for (const output of [legacySkillsOut, skillsOut]) {
+	if (existsSync(output)) {
+		rmSync(output, {recursive: true});
+	}
 }
 mkdirSync(skillsOut, {recursive: true});
 
@@ -94,4 +97,6 @@ if (existsSync(packagesSkillsDir)) {
 	console.warn('Warning: packages/skills/skills/ not found');
 }
 
-console.log('\nDone! Skills assembled in packages/claude-code-plugin/skills/');
+console.log(
+	'\nDone! Skills assembled in packages/claude-code-plugin/plugins/remotion/skills/',
+);
