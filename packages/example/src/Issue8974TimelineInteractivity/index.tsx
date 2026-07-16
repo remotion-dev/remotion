@@ -2,7 +2,6 @@ import {Video} from '@remotion/media';
 import {linearTiming, TransitionSeries} from '@remotion/transitions';
 import {fade} from '@remotion/transitions/fade';
 import React from 'react';
-import {Sequence} from 'remotion';
 
 export const Issue8974TransitionSeriesTimeline: React.FC = () => {
 	return (
@@ -75,21 +74,35 @@ export const Issue8974TransitionSeriesTimeline: React.FC = () => {
 export const Issue8974IndependentVideosTimeline: React.FC = () => {
 	return (
 		<>
-			<Sequence name="Independent clip 01" durationInFrames={78}>
-				<Video src="https://remotion.media/video.mp4" trimBefore={0} />
-			</Sequence>
-			<Sequence name="Independent clip 02" from={78} durationInFrames={66}>
-				<Video src="https://remotion.media/video.webm" trimBefore={12} />
-			</Sequence>
-			<Sequence name="Independent clip 03" from={144} durationInFrames={90}>
-				<Video src="https://remotion.media/video.mp4" trimBefore={72} />
-			</Sequence>
-			<Sequence name="Independent clip 04" from={234} durationInFrames={72}>
-				<Video src="https://remotion.media/video.webm" trimBefore={58} />
-			</Sequence>
-			<Sequence name="Independent clip 05" from={306} durationInFrames={60}>
-				<Video src="https://remotion.media/video.mp4" trimBefore={180} />
-			</Sequence>
+			<Video
+				src="https://remotion.media/video.mp4"
+				trimBefore={0}
+				durationInFrames={78}
+			/>
+			<Video
+				src="https://remotion.media/video.webm"
+				trimBefore={12}
+				from={78}
+				durationInFrames={66}
+			/>
+			<Video
+				src="https://remotion.media/video.mp4"
+				trimBefore={72}
+				from={144}
+				durationInFrames={90}
+			/>
+			<Video
+				src="https://remotion.media/video.webm"
+				trimBefore={58}
+				from={234}
+				durationInFrames={72}
+			/>
+			<Video
+				src="https://remotion.media/video.mp4"
+				trimBefore={180}
+				from={306}
+				durationInFrames={60}
+			/>
 		</>
 	);
 };
