@@ -26,6 +26,59 @@ const runGh = async (args: string[], cwd: string, signal?: AbortSignal) => {
 	return result.stdout.trim();
 };
 
+const getCurrentBranch = async (cwd: string) => {
+	try {
+		const result = await execFileAsync(
+			'git',
+			['symbolic-ref', '--quiet', '--short', 'HEAD'],
+			{cwd, encoding: 'utf8'},
+		);
+		return result.stdout.trim() || null;
+	} catch (error) {
+		if ((error as {code?: number}).code === 1) {
+			return null;
+		}
+		throw error;
+	}
+};
+
+const isNoPullRequestError = (error: unknown) => {
+	const processError = error as {message?: string; stderr?: string};
+	const details = `${processError.message ?? ''}\n${processError.stderr ?? ''}`;
+	return /no pull requests? found|no pull request found|could not resolve to a pull request/i.test(
+		details,
+	);
+};
+
+export const getCurrentPullRequest = async ({
+	repository,
+	cwd,
+	signal,
+}: {
+	repository: string;
+	cwd: string;
+	signal?: AbortSignal;
+}): Promise<{number: number; state: 'OPEN' | 'CLOSED' | 'MERGED'} | null> => {
+	const branch = await getCurrentBranch(cwd);
+	if (!branch) {
+		return null;
+	}
+	try {
+		return JSON.parse(
+			await runGh(
+				['pr', 'view', branch, '--repo', repository, '--json', 'number,state'],
+				cwd,
+				signal,
+			),
+		) as {number: number; state: 'OPEN' | 'CLOSED' | 'MERGED'};
+	} catch (error) {
+		if (isNoPullRequestError(error)) {
+			return null;
+		}
+		throw error;
+	}
+};
+
 const isPullfrogGraphqlActor = (actor: GraphqlActor) =>
 	actor?.login?.toLowerCase() === PULLFROG_GRAPHQL_LOGIN;
 
@@ -150,8 +203,10 @@ export const collectPullfrogSnapshot = async ({
 			inReplyToId: comment.in_reply_to_id ?? null,
 		}));
 
-	const reviews = view.reviews
-		.filter((review) => isPullfrogGraphqlActor(review.author ?? null))
+	const submittedPullfrogReviews = view.reviews.filter((review) =>
+		isPullfrogGraphqlActor(review.author ?? null),
+	);
+	const reviews = submittedPullfrogReviews
 		.filter((review) => !isProgressComment(review.body ?? ''))
 		.map((review) => ({
 			id: review.id,
@@ -173,6 +228,9 @@ export const collectPullfrogSnapshot = async ({
 		title: view.title,
 		state: view.state,
 		headSha: view.headRefOid,
+		reviewSubmittedForHead: submittedPullfrogReviews.some(
+			(review) => review.commit?.oid === view.headRefOid,
+		),
 		reviews: hasInlineFindings
 			? reviews
 			: reviews.filter((review) => !isNoIssueSummary(review.body)),

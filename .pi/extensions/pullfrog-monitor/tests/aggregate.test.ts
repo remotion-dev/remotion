@@ -16,6 +16,7 @@ const snapshot = (
 	title: 'Test PR',
 	state: 'OPEN',
 	headSha: 'a'.repeat(40),
+	reviewSubmittedForHead: false,
 	reviews: [],
 	issueComments: [],
 	inlineCommentsAndReplies: [],
@@ -26,6 +27,7 @@ const snapshot = (
 describe('Pullfrog snapshots', () => {
 	test('recognizes inline findings and includes developer replies as context', () => {
 		const value = snapshot({
+			reviewSubmittedForHead: true,
 			inlineCommentsAndReplies: [
 				{
 					id: 1,
@@ -70,6 +72,7 @@ describe('Pullfrog snapshots', () => {
 		expect(
 			hasSubstantiveFeedback(
 				snapshot({
+					reviewSubmittedForHead: true,
 					issueComments: [
 						{
 							id: 'IC_1',
@@ -93,6 +96,7 @@ describe('Pullfrog snapshots', () => {
 		expect(
 			hasSubstantiveFeedback(
 				snapshot({
+					reviewSubmittedForHead: true,
 					reviews: [
 						{
 							id: 'PRR_1',
@@ -107,6 +111,32 @@ describe('Pullfrog snapshots', () => {
 				}),
 			),
 		).toBe(false);
+	});
+
+	test('waits for a submitted review before exposing findings', () => {
+		const inProgress = snapshot({
+			inlineCommentsAndReplies: [
+				{
+					id: 1,
+					body: 'Potential issue discovered while reviewing.',
+					authorLogin: 'pullfrog[bot]',
+					authorId: 226033991,
+					createdAt: '2026-01-01T00:00:00Z',
+					updatedAt: '2026-01-01T00:00:00Z',
+					url: 'https://github.com/owner/repo/pull/123#discussion_r1',
+					commitSha: 'a'.repeat(40),
+					originalCommitSha: 'a'.repeat(40),
+					path: 'src/example.ts',
+					line: 12,
+					originalLine: 12,
+					inReplyToId: null,
+				},
+			],
+		});
+		expect(hasSubstantiveFeedback(inProgress)).toBe(false);
+		expect(
+			hasSubstantiveFeedback({...inProgress, reviewSubmittedForHead: true}),
+		).toBe(true);
 	});
 
 	test('fingerprint is order-independent and changes with the head', () => {

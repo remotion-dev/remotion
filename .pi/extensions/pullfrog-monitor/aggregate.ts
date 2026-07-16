@@ -20,6 +20,9 @@ export const isNoIssueSummary = (body: string) => {
 };
 
 export const hasSubstantiveFeedback = (snapshot: PullfrogSnapshot) => {
+	if (!snapshot.reviewSubmittedForHead) {
+		return false;
+	}
 	if (
 		snapshot.inlineCommentsAndReplies.some(
 			(comment) => !comment.inReplyToId && comment.body.trim().length > 0,
@@ -42,6 +45,7 @@ const canonical = (snapshot: PullfrogSnapshot) => ({
 	title: snapshot.title,
 	state: snapshot.state,
 	headSha: snapshot.headSha,
+	reviewSubmittedForHead: snapshot.reviewSubmittedForHead,
 	reviews: [...snapshot.reviews].sort((a, b) => a.id.localeCompare(b.id)),
 	issueComments: [...snapshot.issueComments].sort((a, b) =>
 		a.id.localeCompare(b.id),

@@ -54,6 +54,7 @@ export type PullfrogSnapshot = {
 	title: string;
 	state: 'OPEN' | 'CLOSED' | 'MERGED';
 	headSha: string;
+	reviewSubmittedForHead: boolean;
 	reviews: PullfrogReview[];
 	issueComments: PullfrogIssueComment[];
 	inlineCommentsAndReplies: PullfrogInlineComment[];

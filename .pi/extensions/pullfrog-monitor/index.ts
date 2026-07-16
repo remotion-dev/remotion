@@ -1,15 +1,16 @@
-import type {
-	ExtensionAPI,
-	ExtensionCommandContext,
-	ExtensionContext,
-} from '@earendil-works/pi-coding-agent';
 import {randomUUID} from 'node:crypto';
+import {
+	BorderedLoader,
+	type ExtensionAPI,
+	type ExtensionCommandContext,
+	type ExtensionContext,
+} from '@earendil-works/pi-coding-agent';
 import {
 	fingerprintSnapshot,
 	formatSnapshotFeedback,
 	hasSubstantiveFeedback,
 } from './aggregate';
-import {collectPullfrogSnapshot} from './github';
+import {collectPullfrogSnapshot, getCurrentPullRequest} from './github';
 import {ringTerminalBell} from './notifications';
 import {
 	getRepositoryContext,
@@ -138,6 +139,7 @@ export default function pullfrogMonitor(pi: ExtensionAPI) {
 	let activeContext: ExtensionContext | null = null;
 	let repository: RepositoryContext | null = null;
 	let statePath: string | null = null;
+	let currentReviewKey: string | null = null;
 	let reviewMetadata: ReviewBranchMetadata | null = null;
 	let pollTimer: NodeJS.Timeout | undefined;
 	let uiTimer: NodeJS.Timeout | undefined;
@@ -169,52 +171,81 @@ export default function pullfrogMonitor(pi: ExtensionAPI) {
 			return;
 		}
 		activeContext.ui.setWidget(REVIEW_WIDGET, undefined);
-		const ready = Object.values((await readState(statePath)).reviews).filter(
-			(entry) => entry.status === 'ready',
-		);
-		if (expectedGeneration !== generation || !activeContext) {
+		const expectedReviewKey = currentReviewKey;
+		const current = expectedReviewKey
+			? (await readState(statePath)).reviews[expectedReviewKey]
+			: undefined;
+		if (
+			expectedGeneration !== generation ||
+			!activeContext ||
+			currentReviewKey !== expectedReviewKey
+		) {
 			return;
 		}
-		if (ready.length === 0) {
-			activeContext.ui.setWidget(READY_WIDGET, undefined);
-		} else if (ready.length === 1) {
+		if (current?.status === 'ready') {
 			activeContext.ui.setWidget(READY_WIDGET, [
-				`🐸 Pullfrog feedback ready on PR #${ready[0].prNumber} · Use /pullfrog`,
+				`🐸 Pullfrog feedback ready on PR #${current.prNumber} · Use /pullfrog`,
 			]);
 		} else {
-			activeContext.ui.setWidget(READY_WIDGET, [
-				`🐸 Pullfrog feedback ready on ${ready.length} PRs · Use /pullfrog`,
-			]);
+			activeContext.ui.setWidget(READY_WIDGET, undefined);
 		}
 	};
 
 	const resolveCurrent = async (ctx: ExtensionContext) => {
 		const repo = repository ?? (await getRepositoryContext(ctx.cwd));
-		let snapshot: PullfrogSnapshot;
+		const current = await getCurrentPullRequest({
+			repository: repo.repository,
+			cwd: repo.root,
+			signal: runtimeAbort?.signal,
+		});
+		if (!current || current.state !== 'OPEN') {
+			currentReviewKey = null;
+			throw new Error('No open pull request found for the current branch.');
+		}
+		currentReviewKey = reviewKey(repo.repository, current.number);
+		const snapshot = await collectPullfrogSnapshot({
+			repository: repo.repository,
+			cwd: repo.root,
+			prNumber: current.number,
+			signal: runtimeAbort?.signal,
+		});
+		return {repo, snapshot};
+	};
+
+	const refreshCurrentReviewKey = async (expectedGeneration: number) => {
+		const expectedRepository = repository;
+		if (!expectedRepository) {
+			if (expectedGeneration === generation) {
+				currentReviewKey = null;
+			}
+			return;
+		}
+		let current: Awaited<ReturnType<typeof getCurrentPullRequest>>;
 		try {
-			snapshot = await collectPullfrogSnapshot({
-				repository: repo.repository,
-				cwd: repo.root,
+			current = await getCurrentPullRequest({
+				repository: expectedRepository.repository,
+				cwd: expectedRepository.root,
 				signal: runtimeAbort?.signal,
 			});
 		} catch (error) {
-			const processError = error as {message?: string; stderr?: string};
-			const details = `${processError.message ?? ''}\n${processError.stderr ?? ''}`;
 			if (
-				/no pull requests? found|no pull request found|could not resolve to a pull request/i.test(
-					details,
-				)
+				expectedGeneration === generation &&
+				repository === expectedRepository
 			) {
-				throw new Error('No open pull request found for the current branch.');
+				currentReviewKey = null;
 			}
 			throw error;
 		}
-		if (snapshot.state !== 'OPEN') {
-			throw new Error(
-				'The pull request associated with the current branch is no longer open.',
-			);
+		if (
+			expectedGeneration !== generation ||
+			repository !== expectedRepository
+		) {
+			return;
 		}
-		return {repo, snapshot};
+		currentReviewKey =
+			current?.state === 'OPEN'
+				? reviewKey(expectedRepository.repository, current.number)
+				: null;
 	};
 
 	const processMonitoredPr = async (entry: PullfrogPrState) => {
@@ -297,13 +328,12 @@ export default function pullfrogMonitor(pi: ExtensionAPI) {
 		}
 		polling = true;
 		try {
-			const state = await readState(statePath);
-			for (const entry of Object.values(state.reviews).filter(
-				(item) => item.monitoring,
-			)) {
-				if (expectedGeneration !== generation) {
-					return;
-				}
+			await refreshCurrentReviewKey(expectedGeneration);
+			if (expectedGeneration !== generation || !currentReviewKey) {
+				return;
+			}
+			const entry = (await readState(statePath)).reviews[currentReviewKey];
+			if (entry?.monitoring) {
 				await processMonitoredPr(entry);
 			}
 		} catch (error) {
@@ -534,14 +564,38 @@ export default function pullfrogMonitor(pi: ExtensionAPI) {
 			return;
 		}
 		const fix = choice === 'Return and fix agreed findings';
-		const navigated = await ctx.navigateTree(metadata.originId, {
-			summarize: fix,
-			customInstructions: fix
-				? 'Carry only the Pullfrog findings the review agreed are valid, with enough file and code context to implement them. Explicitly exclude dismissed, already-addressed, and uncertain findings.'
-				: undefined,
-			label: fix ? `pullfrog-pr-${metadata.prNumber}` : undefined,
-		});
-		if (navigated.cancelled) {
+		const navigate = () =>
+			ctx.navigateTree(metadata.originId, {
+				summarize: fix,
+				customInstructions: fix
+					? 'Carry only the Pullfrog findings the review agreed are valid, with enough file and code context to implement them. Explicitly exclude dismissed, already-addressed, and uncertain findings.'
+					: undefined,
+				label: fix ? `pullfrog-pr-${metadata.prNumber}` : undefined,
+			});
+		let navigationError: unknown;
+		const navigated =
+			fix && ctx.mode === 'tui'
+				? await ctx.ui.custom<Awaited<ReturnType<typeof navigate>> | null>(
+						(tui, theme, _keybindings, done) => {
+							void navigate()
+								.then(done)
+								.catch((error) => {
+									navigationError = error;
+									done(null);
+								});
+							return new BorderedLoader(
+								tui,
+								theme,
+								'Carrying agreed Pullfrog findings back to the main branch...',
+								{cancellable: false},
+							);
+						},
+					)
+				: await navigate();
+		if (navigationError) {
+			throw navigationError;
+		}
+		if (!navigated || navigated.cancelled) {
 			return;
 		}
 		ctx.ui.setEditorText('');
@@ -621,6 +675,7 @@ export default function pullfrogMonitor(pi: ExtensionAPI) {
 		try {
 			repository = await getRepositoryContext(ctx.cwd);
 			statePath = getStatePath(repository);
+			currentReviewKey = null;
 			await renderUi(expectedGeneration);
 			void poll(expectedGeneration);
 			schedulePoll(expectedGeneration);
@@ -700,6 +755,7 @@ export default function pullfrogMonitor(pi: ExtensionAPI) {
 		activeContext = null;
 		repository = null;
 		statePath = null;
+		currentReviewKey = null;
 		reviewMetadata = null;
 		polling = false;
 		ctx.ui.setWidget(READY_WIDGET, undefined);
