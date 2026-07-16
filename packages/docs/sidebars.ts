@@ -1520,6 +1520,7 @@ const sidebars: SidebarsConfig = {
 				'chromium-flags',
 				'miscellaneous/changing-temp-dir',
 				'miscellaneous/chrome-headless-shell',
+				'miscellaneous/ffmpeg-license',
 				'miscellaneous/linux-dependencies',
 				'gl-options',
 				'bun',

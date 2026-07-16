@@ -1,4 +1,5 @@
 import {afterEach, expect, test} from 'bun:test';
+import {getTimelineMediaStartFrame} from '../components/Timeline/get-timeline-media-start-frame';
 import {getTimelineVideoInfoWidths} from '../components/Timeline/get-timeline-video-info-widths';
 import {
 	getTimelineAssetLinkInfo,
@@ -100,6 +101,39 @@ test('video timeline filmstrip range starts at the registered media frame', () =
 		fromSeconds: 908 / 30,
 		toSeconds: (908 + 120) / 30,
 	});
+});
+
+test('video timeline media start applies playback rate after sequence zero', () => {
+	expect(
+		getTimelineMediaStartFrame({
+			startMediaFrom: 5,
+			mediaFrameAtSequenceZero: 5,
+			sequenceFrameOffset: 10,
+			playbackRate: 2,
+		}),
+	).toBe(25);
+});
+
+test('video timeline media start includes trimBefore with no sequence offset', () => {
+	expect(
+		getTimelineMediaStartFrame({
+			startMediaFrom: 31,
+			mediaFrameAtSequenceZero: 31,
+			sequenceFrameOffset: 0,
+			playbackRate: 1,
+		}),
+	).toBe(31);
+});
+
+test('legacy video timeline media start keeps its playback rate behavior', () => {
+	expect(
+		getTimelineMediaStartFrame({
+			startMediaFrom: 10,
+			mediaFrameAtSequenceZero: null,
+			sequenceFrameOffset: 10,
+			playbackRate: 2,
+		}),
+	).toBe(10);
 });
 
 test('video timeline filmstrip uses one timestamp for frozen video', () => {

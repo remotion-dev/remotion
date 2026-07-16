@@ -26,6 +26,7 @@ import {applyVolume} from '../convert-audiodata/apply-volume';
 import {getTargetSampleRate} from '../convert-audiodata/resample-audiodata';
 import {frameForVolumeProp} from '../looped-frame';
 import {type MediaOnError, callOnErrorAndResolve} from '../on-error';
+import {ProResDecoderNotEnabledError} from '../prores-error';
 import type {MediaRequestInit} from '../request-init';
 import {extractFrameViaBroadcastChannel} from '../video-extraction/extract-frame-via-broadcast-channel';
 import type {
@@ -262,6 +263,16 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 						`Cannot decode ${src}, falling back to <OffthreadVideo>`,
 						result.durationInSeconds,
 					);
+					return;
+				}
+
+				if (result.type === 'cannot-decode-prores') {
+					// Unrecoverable: ProRes must not silently fall back to
+					// <OffthreadVideo>. Registering the decoder is the only fix.
+					// Notify onError once for observability, then hard-fail.
+					const proresError = new ProResDecoderNotEnabledError(src);
+					onError?.(proresError);
+					cancelRender(proresError);
 					return;
 				}
 

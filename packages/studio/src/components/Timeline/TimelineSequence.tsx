@@ -571,7 +571,9 @@ const TimelineSequenceInner: React.FC<{
 					src={s.src}
 					visualizationWidth={width}
 					naturalWidth={naturalWidth}
-					trimBefore={s.startMediaFrom}
+					startMediaFrom={s.startMediaFrom}
+					mediaFrameAtSequenceZero={s.mediaFrameAtSequenceZero}
+					sequenceFrameOffset={sequenceFrameOffset}
 					durationInFrames={s.duration}
 					playbackRate={s.playbackRate}
 					volume={s.volume}
