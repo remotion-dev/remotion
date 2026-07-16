@@ -68,7 +68,7 @@ export const Example: React.FC = () => {
 		status: 'static',
 		codeValue: 60,
 		numericExpression: {
-			type: 'videoConfigMultiplication',
+			type: 'video-config-multiplication',
 			identifier: 'fps',
 			multiplier: 2,
 			multiplicand: 30,
@@ -80,7 +80,7 @@ export const Example: React.FC = () => {
 		status: 'static',
 		codeValue: 75,
 		numericExpression: {
-			type: 'videoConfigMultiplication',
+			type: 'video-config-multiplication',
 			factorPosition: 'right',
 		},
 	});
@@ -98,7 +98,7 @@ export const Example: React.FC = () => {
 				frame: 99.9,
 				value: 3,
 				frameExpression: {
-					type: 'videoConfigMultiplication',
+					type: 'video-config-multiplication',
 					identifier: 'fps',
 				},
 			},
@@ -106,7 +106,7 @@ export const Example: React.FC = () => {
 				frame: 120,
 				value: 4,
 				frameExpression: {
-					type: 'videoConfigValue',
+					type: 'video-config-value',
 					identifier: 'durationInFrames',
 				},
 			},

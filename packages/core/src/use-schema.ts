@@ -17,14 +17,12 @@ import type {
 export type CanUpdateSequencePropStatusStatic = {
 	status: 'static';
 	codeValue: unknown;
-	// Optional because this status type is exported from the public entrypoint.
 	numericExpression?: VideoConfigNumericExpression;
 };
 
 export type CanUpdateSequencePropStatusKeyframe = {
 	frame: number;
 	value: unknown;
-	// Optional because this status type is exported from the public entrypoint.
 	frameExpression?: VideoConfigNumericExpression;
 };
 
@@ -34,12 +32,12 @@ export type VideoConfigNumericExpression =
 			value: number;
 	  }
 	| {
-			type: 'videoConfigValue';
+			type: 'video-config-value';
 			identifier: string;
 			value: number;
 	  }
 	| {
-			type: 'videoConfigMultiplication';
+			type: 'video-config-multiplication';
 			identifier: string;
 			multiplier: number;
 			multiplicand: number;

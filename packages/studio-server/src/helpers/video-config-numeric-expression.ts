@@ -75,7 +75,7 @@ export const parseVideoConfigNumericExpression = ({
 
 	const videoConfigValue = getVideoConfigValue({node, videoConfigValues});
 	if (videoConfigValue !== null) {
-		return {type: 'videoConfigValue', ...videoConfigValue};
+		return {type: 'video-config-value', ...videoConfigValue};
 	}
 
 	if (node.type !== 'BinaryExpression' || node.operator !== '*') {
@@ -114,7 +114,7 @@ export const parseVideoConfigNumericExpression = ({
 	}
 
 	return {
-		type: 'videoConfigMultiplication',
+		type: 'video-config-multiplication',
 		identifier: configValue.identifier,
 		multiplier,
 		multiplicand: configValue.value,
@@ -142,13 +142,13 @@ export const updateVideoConfigNumericExpression = ({
 		return numericExpression(value);
 	}
 
-	if (expression.type === 'videoConfigValue') {
+	if (expression.type === 'video-config-value') {
 		return value === expression.value
 			? b.identifier(expression.identifier)
 			: numericExpression(value);
 	}
 
-	if (expression.type !== 'videoConfigMultiplication' || value === 0) {
+	if (expression.type !== 'video-config-multiplication' || value === 0) {
 		return numericExpression(value);
 	}
 
