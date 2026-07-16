@@ -23,5 +23,5 @@ Ask Claude Code to create or edit a Remotion video. Claude automatically loads
 the relevant skills, or you can invoke the main skill directly:
 
 ```text
-/remotion:remotion-best-practices
+/remotion-best-practices
 ```
