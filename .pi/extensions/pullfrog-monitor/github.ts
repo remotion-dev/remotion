@@ -114,6 +114,13 @@ type ViewResponse = {
 	}>;
 };
 
+type WorkflowRunResponse = {
+	id: number;
+	html_url: string;
+	status: string;
+	conclusion: string | null;
+};
+
 type InlineResponse = {
 	id: number;
 	body?: string;
@@ -132,6 +139,13 @@ type InlineResponse = {
 const parsePages = <T>(source: string): T[] => {
 	const pages = JSON.parse(source || '[]') as unknown[];
 	return pages.flatMap((page) => (Array.isArray(page) ? (page as T[]) : []));
+};
+
+const getWorkflowRunId = (body: string) => {
+	const match = body.match(
+		/https:\/\/github\.com\/[^/]+\/[^/]+\/actions\/runs\/(\d+)/i,
+	);
+	return match ? Number(match[1]) : null;
 };
 
 const fields = [
@@ -206,6 +220,32 @@ export const collectPullfrogSnapshot = async ({
 	const submittedPullfrogReviews = view.reviews.filter((review) =>
 		isPullfrogGraphqlActor(review.author ?? null),
 	);
+	const pullfrogIssueComments = view.comments.filter((comment) =>
+		isPullfrogGraphqlActor(comment.author ?? null),
+	);
+	const latestWorkflowRunId = [
+		...submittedPullfrogReviews.map((review) => ({
+			id: getWorkflowRunId(review.body ?? ''),
+			createdAt: review.submittedAt ?? new Date(0).toISOString(),
+		})),
+		...pullfrogIssueComments.map((comment) => ({
+			id: getWorkflowRunId(comment.body ?? ''),
+			createdAt: comment.createdAt ?? new Date(0).toISOString(),
+		})),
+	]
+		.filter((candidate): candidate is {id: number; createdAt: string} =>
+			Number.isSafeInteger(candidate.id),
+		)
+		.sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0]?.id;
+	const workflowRun = latestWorkflowRunId
+		? (JSON.parse(
+				await runGh(
+					['api', `repos/${repository}/actions/runs/${latestWorkflowRunId}`],
+					cwd,
+					signal,
+				),
+			) as WorkflowRunResponse)
+		: null;
 	const reviews = submittedPullfrogReviews
 		.filter((review) => !isProgressComment(review.body ?? ''))
 		.map((review) => ({
@@ -231,11 +271,18 @@ export const collectPullfrogSnapshot = async ({
 		reviewSubmittedForHead: submittedPullfrogReviews.some(
 			(review) => review.commit?.oid === view.headRefOid,
 		),
+		workflowRun: workflowRun
+			? {
+					id: workflowRun.id,
+					url: workflowRun.html_url,
+					status: workflowRun.status,
+					conclusion: workflowRun.conclusion,
+				}
+			: null,
 		reviews: hasInlineFindings
 			? reviews
 			: reviews.filter((review) => !isNoIssueSummary(review.body)),
-		issueComments: view.comments
-			.filter((comment) => isPullfrogGraphqlActor(comment.author ?? null))
+		issueComments: pullfrogIssueComments
 			.filter(
 				(comment) =>
 					!isProgressComment(comment.body ?? '') &&

@@ -17,6 +17,7 @@ const snapshot = (
 	state: 'OPEN',
 	headSha: 'a'.repeat(40),
 	reviewSubmittedForHead: false,
+	workflowRun: null,
 	reviews: [],
 	issueComments: [],
 	inlineCommentsAndReplies: [],
@@ -113,7 +114,7 @@ describe('Pullfrog snapshots', () => {
 		).toBe(false);
 	});
 
-	test('waits for a submitted review before exposing findings', () => {
+	test('waits for the workflow and submitted review before exposing findings', () => {
 		const inProgress = snapshot({
 			inlineCommentsAndReplies: [
 				{
@@ -134,8 +135,28 @@ describe('Pullfrog snapshots', () => {
 			],
 		});
 		expect(hasSubstantiveFeedback(inProgress)).toBe(false);
+		const reviewSubmitted = {...inProgress, reviewSubmittedForHead: true};
 		expect(
-			hasSubstantiveFeedback({...inProgress, reviewSubmittedForHead: true}),
+			hasSubstantiveFeedback({
+				...reviewSubmitted,
+				workflowRun: {
+					id: 123,
+					url: 'https://github.com/owner/repo/actions/runs/123',
+					status: 'in_progress',
+					conclusion: null,
+				},
+			}),
+		).toBe(false);
+		expect(
+			hasSubstantiveFeedback({
+				...reviewSubmitted,
+				workflowRun: {
+					id: 123,
+					url: 'https://github.com/owner/repo/actions/runs/123',
+					status: 'completed',
+					conclusion: 'success',
+				},
+			}),
 		).toBe(true);
 	});
 

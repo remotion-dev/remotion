@@ -47,6 +47,13 @@ export type PullRequestCommit = {
 	committedAt: string;
 };
 
+export type PullfrogWorkflowRun = {
+	id: number;
+	url: string;
+	status: string;
+	conclusion: string | null;
+};
+
 export type PullfrogSnapshot = {
 	repository: string;
 	prNumber: number;
@@ -55,6 +62,7 @@ export type PullfrogSnapshot = {
 	state: 'OPEN' | 'CLOSED' | 'MERGED';
 	headSha: string;
 	reviewSubmittedForHead: boolean;
+	workflowRun: PullfrogWorkflowRun | null;
 	reviews: PullfrogReview[];
 	issueComments: PullfrogIssueComment[];
 	inlineCommentsAndReplies: PullfrogInlineComment[];

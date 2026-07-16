@@ -147,6 +147,37 @@ export default function pullfrogMonitor(pi: ExtensionAPI) {
 	let polling = false;
 	const pendingAttempts = new Set<string>();
 
+	const runWithLoader = async <T>(
+		ctx: ExtensionCommandContext,
+		message: string,
+		operation: () => Promise<T>,
+	): Promise<T> => {
+		if (ctx.mode !== 'tui') {
+			return operation();
+		}
+		let operationError: unknown;
+		const result = await ctx.ui.custom<{value: T} | null>(
+			(tui, theme, _keybindings, done) => {
+				void operation()
+					.then((value) => done({value}))
+					.catch((error) => {
+						operationError = error;
+						done(null);
+					});
+				return new BorderedLoader(tui, theme, message, {
+					cancellable: false,
+				});
+			},
+		);
+		if (operationError) {
+			throw operationError;
+		}
+		if (!result) {
+			throw new Error('Pullfrog operation ended without a result');
+		}
+		return result.value;
+	};
+
 	const clearTimers = () => {
 		if (pollTimer) {
 			clearTimeout(pollTimer);
@@ -273,7 +304,7 @@ export default function pullfrogMonitor(pi: ExtensionAPI) {
 		const fingerprint = fingerprintSnapshot(snapshot);
 		const changed = await updateState(statePath, (state) => {
 			const current = state.reviews[key];
-			if (!current?.monitoring) {
+			if (!current || (!current.monitoring && current.status !== 'ready')) {
 				return false;
 			}
 			updateSnapshotMetadata(current, snapshot);
@@ -294,12 +325,12 @@ export default function pullfrogMonitor(pi: ExtensionAPI) {
 			}
 			if (!substantive) {
 				current.currentFingerprint = fingerprint;
-				current.status = 'watching';
+				current.status = current.monitoring ? 'watching' : 'reviewed';
 				return false;
 			}
 			if (current.reviewedFingerprint === fingerprint) {
 				current.currentFingerprint = fingerprint;
-				current.status = 'watching';
+				current.status = current.monitoring ? 'watching' : 'reviewed';
 				return false;
 			}
 			if (current.currentFingerprint !== fingerprint) {
@@ -333,7 +364,7 @@ export default function pullfrogMonitor(pi: ExtensionAPI) {
 				return;
 			}
 			const entry = (await readState(statePath)).reviews[currentReviewKey];
-			if (entry?.monitoring) {
+			if (entry?.monitoring || entry?.status === 'ready') {
 				await processMonitoredPr(entry);
 			}
 		} catch (error) {
@@ -572,30 +603,14 @@ export default function pullfrogMonitor(pi: ExtensionAPI) {
 					: undefined,
 				label: fix ? `pullfrog-pr-${metadata.prNumber}` : undefined,
 			});
-		let navigationError: unknown;
-		const navigated =
-			fix && ctx.mode === 'tui'
-				? await ctx.ui.custom<Awaited<ReturnType<typeof navigate>> | null>(
-						(tui, theme, _keybindings, done) => {
-							void navigate()
-								.then(done)
-								.catch((error) => {
-									navigationError = error;
-									done(null);
-								});
-							return new BorderedLoader(
-								tui,
-								theme,
-								'Carrying agreed Pullfrog findings back to the main branch...',
-								{cancellable: false},
-							);
-						},
-					)
-				: await navigate();
-		if (navigationError) {
-			throw navigationError;
-		}
-		if (!navigated || navigated.cancelled) {
+		const navigated = fix
+			? await runWithLoader(
+					ctx,
+					'Carrying agreed Pullfrog findings back to the main branch...',
+					navigate,
+				)
+			: await navigate();
+		if (navigated.cancelled) {
 			return;
 		}
 		ctx.ui.setEditorText('');
@@ -770,7 +785,11 @@ export default function pullfrogMonitor(pi: ExtensionAPI) {
 					await finishReview(ctx);
 					return;
 				}
-				const {snapshot} = await resolveCurrent(ctx);
+				const {snapshot} = await runWithLoader(
+					ctx,
+					'Fetching current Pullfrog review state...',
+					() => resolveCurrent(ctx),
+				);
 				await showMenu(ctx, snapshot);
 			} catch (error) {
 				ctx.ui.notify(
