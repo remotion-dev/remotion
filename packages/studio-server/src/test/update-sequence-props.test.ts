@@ -68,6 +68,7 @@ export const Example: React.FC = () => {
 
 test('updateSequenceProps should update a number value', async () => {
 	const {output, oldValueStrings} = await updateSequenceProps({
+		videoConfigValues: null,
 		input: lightLeakInput,
 		nodePath: lineColumnToNodePath(lightLeakInput, 8),
 		updates: [{key: 'hueShift', value: 90, defaultValue: null}],
@@ -84,6 +85,7 @@ test('updateSequenceProps should update a number value', async () => {
 
 test('updateSequenceProps should update durationInFrames', async () => {
 	const {output, oldValueStrings} = await updateSequenceProps({
+		videoConfigValues: null,
 		input: lightLeakInput,
 		nodePath: lineColumnToNodePath(lightLeakInput, 9),
 		updates: [{key: 'durationInFrames', value: 120, defaultValue: null}],
@@ -100,6 +102,7 @@ test('updateSequenceProps should update durationInFrames', async () => {
 
 test('updateSequenceProps should add a new attribute', async () => {
 	const {output, oldValueStrings} = await updateSequenceProps({
+		videoConfigValues: null,
 		input: lightLeakInput,
 		nodePath: lineColumnToNodePath(lightLeakInput, 9),
 		updates: [{key: 'speed', value: 2, defaultValue: null}],
@@ -114,6 +117,7 @@ test('updateSequenceProps should add a new attribute', async () => {
 
 test('updateSequenceProps should remove attribute when value equals default', async () => {
 	const {output, oldValueStrings} = await updateSequenceProps({
+		videoConfigValues: null,
 		input: lightLeakInput,
 		nodePath: lineColumnToNodePath(lightLeakInput, 9),
 		updates: [{key: 'hueShift', value: 0, defaultValue: 0}],
@@ -141,6 +145,7 @@ export const Example: React.FC = () => {
 `;
 
 	const {output, oldValueStrings} = await updateSequenceProps({
+		videoConfigValues: null,
 		input,
 		nodePath: lineColumnToNodePath(input, 5),
 		updates: [{key: 'name', value: '', defaultValue: ''}],
@@ -165,6 +170,7 @@ export const Example: React.FC = () => {
 `;
 
 	const {output, oldValueStrings} = await updateSequenceProps({
+		videoConfigValues: null,
 		input,
 		nodePath: lineColumnToNodePath(input, 5),
 		updates: [{key: 'freeze', value: null, defaultValue: null}],
@@ -178,6 +184,7 @@ export const Example: React.FC = () => {
 
 test('updateSequenceProps should set boolean true as shorthand', async () => {
 	const {output} = await updateSequenceProps({
+		videoConfigValues: null,
 		input: lightLeakInput,
 		nodePath: lineColumnToNodePath(lightLeakInput, 8),
 		updates: [{key: 'loop', value: true, defaultValue: false}],
@@ -192,6 +199,7 @@ test('updateSequenceProps should set boolean true as shorthand', async () => {
 
 test('updateSequenceProps should add showInTimeline false', async () => {
 	const {output, oldValueStrings} = await updateSequenceProps({
+		videoConfigValues: null,
 		input: lightLeakInput,
 		nodePath: lineColumnToNodePath(lightLeakInput, 8),
 		updates: [{key: 'showInTimeline', value: false, defaultValue: true}],
@@ -205,6 +213,7 @@ test('updateSequenceProps should add showInTimeline false', async () => {
 
 test('updateSequenceProps should report oldValueString for computed expressions', async () => {
 	const {oldValueStrings} = await updateSequenceProps({
+		videoConfigValues: null,
 		input: lightLeakInput,
 		nodePath: lineColumnToNodePath(lightLeakInput, 8),
 		updates: [{key: 'seed', value: 5, defaultValue: null}],
@@ -218,6 +227,7 @@ test('updateSequenceProps should report oldValueString for computed expressions'
 
 test('updateSequenceProps should report default as oldValueString for missing attribute', async () => {
 	const {oldValueStrings} = await updateSequenceProps({
+		videoConfigValues: null,
 		input: lightLeakInput,
 		nodePath: lineColumnToNodePath(lightLeakInput, 8),
 		updates: [{key: 'speed', value: 2, defaultValue: 1}],
@@ -232,6 +242,7 @@ test('updateSequenceProps should report default as oldValueString for missing at
 test('updateSequenceProps should throw for non-existent nodePath', async () => {
 	await expect(
 		updateSequenceProps({
+			videoConfigValues: null,
 			input: lightLeakInput,
 			nodePath: ['program', 'body', 999],
 			updates: [{key: 'hueShift', value: 90, defaultValue: null}],
@@ -251,11 +262,13 @@ test('updateMultipleSequenceProps should update multiple nodes in one format pas
 				nodePath: lineColumnToNodePath(lightLeakInput, 8),
 				updates: [{key: 'hueShift', value: 90, defaultValue: null}],
 				schema: NoReactInternals.sequenceSchema,
+				videoConfigValues: null,
 			},
 			{
 				nodePath: lineColumnToNodePath(lightLeakInput, 9),
 				updates: [{key: 'durationInFrames', value: 120, defaultValue: null}],
 				schema: NoReactInternals.sequenceSchema,
+				videoConfigValues: null,
 			},
 		],
 		prettierConfigOverride: null,
@@ -277,6 +290,7 @@ export const Example: React.FC = () => {
 `;
 
 	const {output, oldValueStrings} = await updateSequenceProps({
+		videoConfigValues: null,
 		input,
 		nodePath: lineColumnToNodePath(input, 5),
 		updates: [{key: 'children', value: 'Goodbye', defaultValue: ''}],
@@ -298,6 +312,7 @@ export const Example: React.FC = () => {
 `;
 
 	const {output, oldValueStrings} = await updateSequenceProps({
+		videoConfigValues: null,
 		input,
 		nodePath: lineColumnToNodePath(input, 5),
 		updates: [{key: 'children', value: 'Cool! I ', defaultValue: ''}],
@@ -319,6 +334,7 @@ export const Example: React.FC = () => {
 `;
 
 	const {output, oldValueStrings} = await updateSequenceProps({
+		videoConfigValues: null,
 		input,
 		nodePath: lineColumnToNodePath(input, 5),
 		updates: [{key: 'children', value: 'Goodbye', defaultValue: ''}],
@@ -341,6 +357,7 @@ export const Example: React.FC = () => {
 `;
 
 	const {output, oldValueStrings} = await updateSequenceProps({
+		videoConfigValues: null,
 		input,
 		nodePath: lineColumnToNodePath(input, 5),
 		updates: [{key: 'children', value: 'Goodbye', defaultValue: ''}],
@@ -364,6 +381,7 @@ export const Example: React.FC = () => {
 `;
 
 	const {output, oldValueStrings} = await updateSequenceProps({
+		videoConfigValues: null,
 		input,
 		nodePath: lineColumnToNodePath(input, 5),
 		updates: [{key: 'children', value: 'Hello again', defaultValue: ''}],
@@ -390,6 +408,7 @@ export const Example: React.FC = () => {
 
 	await expect(
 		updateSequenceProps({
+			videoConfigValues: null,
 			input,
 			nodePath: lineColumnToNodePath(input, 6),
 			updates: [{key: 'children', value: 'Goodbye', defaultValue: ''}],

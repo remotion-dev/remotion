@@ -597,6 +597,7 @@ test('Imperative sequence refs update without rerendering ref-only consumers', a
 		nodePath: ['root'],
 		sequenceKeys: [],
 		effectKeys: [],
+		videoConfigValues: null,
 	};
 	let renders = 0;
 	let sequencesRef: React.ContextType<typeof SequenceManagerRefContext> | null =

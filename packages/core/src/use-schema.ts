@@ -17,12 +17,14 @@ import type {
 export type CanUpdateSequencePropStatusStatic = {
 	status: 'static';
 	codeValue: unknown;
+	// Optional because this status type is exported from the public entrypoint.
 	numericExpression?: VideoConfigNumericExpression;
 };
 
 export type CanUpdateSequencePropStatusKeyframe = {
 	frame: number;
 	value: unknown;
+	// Optional because this status type is exported from the public entrypoint.
 	frameExpression?: VideoConfigNumericExpression;
 };
 

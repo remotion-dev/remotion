@@ -33,9 +33,9 @@ const getWatcherKey = (nodePath: {
 	nodePath: SequenceNodePath;
 	sequenceKeys: string[];
 	effectKeys: string[][];
-	videoConfigValues?: VideoConfigValues;
+	videoConfigValues: VideoConfigValues | null;
 }) =>
-	`${stringifySequenceSubscriptionKey(nodePath)}:${JSON.stringify(nodePath.videoConfigValues ?? null)}`;
+	`${stringifySequenceSubscriptionKey(nodePath)}:${JSON.stringify(nodePath.videoConfigValues)}`;
 
 const getSequencePropsStatus = ({
 	fileName,
@@ -296,7 +296,7 @@ export const unsubscribeFromSequencePropsWatchers = ({
 	clientId: string;
 	sequenceKeys: string[];
 	effectKeys: string[][];
-	videoConfigValues: VideoConfigValues | undefined;
+	videoConfigValues: VideoConfigValues | null;
 }) => {
 	const absolutePath = path.resolve(remotionRoot, fileName);
 	const watcherKey = getWatcherKey({

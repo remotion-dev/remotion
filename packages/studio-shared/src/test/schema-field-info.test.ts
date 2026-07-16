@@ -58,6 +58,7 @@ const nodePath: SequencePropsSubscriptionKey = {
 	nodePath: [],
 	sequenceKeys: [],
 	effectKeys: [],
+	videoConfigValues: null,
 };
 
 test('getEffectFieldsToShow uses the active enum variant', () => {

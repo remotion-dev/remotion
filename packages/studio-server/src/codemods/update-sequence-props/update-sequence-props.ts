@@ -54,7 +54,7 @@ export type SequencePropsNodeUpdate = {
 	nodePath: SequenceNodePath;
 	updates: SequencePropUpdate[];
 	schema: InteractivitySchema;
-	videoConfigValues?: VideoConfigValues;
+	videoConfigValues: VideoConfigValues | null;
 };
 
 export type SequencePropsNodeUpdateResult = {
@@ -108,6 +108,7 @@ const removeVariantKey = ({
 		value: undefined,
 		defaultValue: null,
 		isDefault: true,
+		createValueExpression: null,
 	});
 };
 
@@ -943,13 +944,13 @@ export const updateSequencePropsAst = ({
 	nodePath,
 	updates,
 	schema,
-	videoConfigValues = null,
+	videoConfigValues,
 }: {
 	input: string;
 	nodePath: SequenceNodePath;
 	updates: SequencePropUpdate[];
 	schema: InteractivitySchema;
-	videoConfigValues?: VideoConfigValues | null;
+	videoConfigValues: VideoConfigValues | null;
 }): {
 	serialized: string;
 	oldValueStrings: string[];
@@ -997,7 +998,7 @@ export const updateMultipleSequenceProps = async ({
 	const ast = parseAst(input);
 	const allUpdates: SequencePropUpdate[] = [];
 	const results = changes.map(
-		({nodePath, updates, schema, videoConfigValues = null}) => {
+		({nodePath, updates, schema, videoConfigValues}) => {
 			const jsxElement = findJsxElementNodeAtNodePath(ast, nodePath);
 			if (!jsxElement) {
 				throw new Error(
@@ -1037,14 +1038,14 @@ export const updateSequenceProps = async ({
 	updates,
 	schema,
 	prettierConfigOverride,
-	videoConfigValues = null,
+	videoConfigValues,
 }: {
 	input: string;
 	nodePath: SequenceNodePath;
 	updates: SequencePropUpdate[];
 	schema: InteractivitySchema;
 	prettierConfigOverride: PrettierConfigOverride;
-	videoConfigValues?: VideoConfigValues | null;
+	videoConfigValues: VideoConfigValues | null;
 }): Promise<UpdateSequencePropsResult> => {
 	const {serialized, oldValueStrings, logLine, removedProps} =
 		updateSequencePropsAst({

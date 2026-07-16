@@ -174,7 +174,7 @@ export const saveEffectPropsHandler: ApiHandler<
 			keys: getAllSchemaKeys(schema),
 			videoConfigValues: getVideoConfigIdentifierValues({
 				ast,
-				videoConfigValues: sequenceNodePath.videoConfigValues ?? null,
+				videoConfigValues: sequenceNodePath.videoConfigValues,
 			}),
 		});
 	});

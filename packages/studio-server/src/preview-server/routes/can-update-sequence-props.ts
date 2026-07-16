@@ -60,7 +60,7 @@ type PropInterpolationFunction = KeyframedPropStatus['interpolationFunction'];
 
 const staticStatus = (
 	codeValue: unknown,
-	numericExpression: VideoConfigNumericExpression | null = null,
+	numericExpression: VideoConfigNumericExpression | null,
 ): CanUpdatePropStatus => ({
 	status: 'static',
 	codeValue,
@@ -657,7 +657,7 @@ const isCurrentFrameIdentifier = (node: Expression, ast: File): boolean => {
 export const getComputedStatus = (
 	node: Expression,
 	ast: File,
-	videoConfigValues: VideoConfigIdentifierValues = {},
+	videoConfigValues: VideoConfigIdentifierValues,
 ): CanUpdatePropStatus => {
 	const interpolation = getInterpolationKeyframes(node, ast, videoConfigValues);
 	if (!interpolation) {
@@ -699,12 +699,12 @@ const getPropsStatus = (
 		const {value} = attr as JSXAttribute;
 
 		if (!value) {
-			props[name] = staticStatus(true);
+			props[name] = staticStatus(true, null);
 			continue;
 		}
 
 		if (value.type === 'StringLiteral') {
-			props[name] = staticStatus((value as {value: string}).value);
+			props[name] = staticStatus((value as {value: string}).value, null);
 			continue;
 		}
 
@@ -726,7 +726,7 @@ const getPropsStatus = (
 				continue;
 			}
 
-			props[name] = staticStatus(extractStaticValue(expression));
+			props[name] = staticStatus(extractStaticValue(expression), null);
 			continue;
 		}
 
@@ -961,7 +961,7 @@ const getNestedPropStatus = ({
 
 	if (!attr || !attr.value) {
 		// Parent attribute doesn't exist, nested prop can be added
-		return staticStatus(undefined);
+		return staticStatus(undefined, null);
 	}
 
 	if (attr.value.type !== 'JSXExpressionContainer') {
@@ -987,7 +987,7 @@ const getNestedPropStatus = ({
 
 	if (!prop) {
 		// Property not set in the object, can be added
-		return staticStatus(undefined);
+		return staticStatus(undefined, null);
 	}
 
 	const propValue = prop.value as Expression;
@@ -1006,7 +1006,7 @@ const getNestedPropStatus = ({
 		return computedStatus();
 	}
 
-	return staticStatus(propStatus);
+	return staticStatus(propStatus, null);
 };
 
 const computeEffectsForJsx = ({
@@ -1050,7 +1050,7 @@ const computeSequenceOnlyPropsRecord = ({
 		if (key === 'children') {
 			const staticChildrenAttribute = getStaticJsxChildrenAttribute(jsxElement);
 			if (staticChildrenAttribute) {
-				filteredProps[key] = staticStatus(staticChildrenAttribute.value);
+				filteredProps[key] = staticStatus(staticChildrenAttribute.value, null);
 				continue;
 			}
 
@@ -1061,7 +1061,7 @@ const computeSequenceOnlyPropsRecord = ({
 
 			const staticTextContent = getStaticJsxTextContent(jsxElementNode);
 			filteredProps[key] = staticTextContent
-				? staticStatus(staticTextContent.value)
+				? staticStatus(staticTextContent.value, null)
 				: computedStatus();
 			continue;
 		}
@@ -1078,7 +1078,7 @@ const computeSequenceOnlyPropsRecord = ({
 		} else if (key in allProps) {
 			filteredProps[key] = allProps[key];
 		} else {
-			filteredProps[key] = staticStatus(undefined);
+			filteredProps[key] = staticStatus(undefined, null);
 		}
 	}
 
@@ -1091,14 +1091,14 @@ export const computeSequencePropsStatusFromContent = ({
 	componentIdentity,
 	keys,
 	effects,
-	videoConfigValues = null,
+	videoConfigValues,
 }: {
 	fileContents: string;
 	nodePath: SequenceNodePath;
 	componentIdentity: JsxComponentIdentity | null;
 	keys: string[];
 	effects: string[][];
-	videoConfigValues?: VideoConfigValues | null;
+	videoConfigValues: VideoConfigValues | null;
 }): CanUpdateSequencePropsResponseTrue => {
 	const ast = parseAst(fileContents);
 	const videoConfigIdentifierValues = getVideoConfigIdentifierValues({
@@ -1150,7 +1150,7 @@ export const computeSequencePropsStatus = ({
 	keys,
 	effects,
 	remotionRoot,
-	videoConfigValues = null,
+	videoConfigValues,
 }: {
 	fileName: string;
 	nodePath: SequenceNodePath;
@@ -1158,7 +1158,7 @@ export const computeSequencePropsStatus = ({
 	keys: string[];
 	effects: string[][];
 	remotionRoot: string;
-	videoConfigValues?: VideoConfigValues | null;
+	videoConfigValues: VideoConfigValues | null;
 }): CanUpdateSequencePropsResponseTrue => {
 	const {absolutePath} = resolveFileInsideProject({
 		remotionRoot,

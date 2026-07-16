@@ -376,7 +376,7 @@ export const deleteKeyframes = async ({
 			keys: getAllSchemaKeys(keyframe.schema),
 			videoConfigValues: getVideoConfigIdentifierValues({
 				ast,
-				videoConfigValues: keyframe.sequenceNodePath.videoConfigValues ?? null,
+				videoConfigValues: keyframe.sequenceNodePath.videoConfigValues,
 			}),
 		});
 	});

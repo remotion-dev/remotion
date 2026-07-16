@@ -164,7 +164,7 @@ export type SequencePropsSubscriptionKey = {
 	nodePath: SequenceNodePath;
 	sequenceKeys: string[];
 	effectKeys: string[][];
-	videoConfigValues?: VideoConfigValues;
+	videoConfigValues: VideoConfigValues | null;
 };
 
 export type VideoConfigValues = {

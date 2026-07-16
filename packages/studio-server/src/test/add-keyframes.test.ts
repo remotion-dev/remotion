@@ -103,6 +103,7 @@ test('addKeyframes batches sequence and effect adds into one undo entry', async 
 		nodePath: lineColumnToNodePath(input, 7),
 		sequenceKeys: ['style.opacity'],
 		effectKeys: [['amount']],
+		videoConfigValues: null,
 	};
 
 	try {
@@ -177,6 +178,7 @@ test('addKeyframes adds a missing effect prop before keyframing it', async () =>
 		nodePath: lineColumnToNodePath(linearProgressiveBlurInput, 7),
 		sequenceKeys: [],
 		effectKeys: [['start', 'end', 'startBlur', 'endBlur']],
+		videoConfigValues: null,
 	};
 
 	try {

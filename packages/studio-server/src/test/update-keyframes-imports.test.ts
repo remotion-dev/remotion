@@ -48,6 +48,7 @@ export const Example: React.FC = () => {
 };
 `;
 	const {serialized} = updateSequenceKeyframesAst({
+		videoConfigValues: null,
 		input,
 		nodePath: lineColumnToNodePath(input, getLine(input, 'opacity')),
 		updates: [
@@ -73,6 +74,7 @@ export const Example: React.FC = () => {
 };
 `;
 	const {serialized} = updateSequenceKeyframesAst({
+		videoConfigValues: null,
 		input,
 		nodePath: lineColumnToNodePath(input, getLine(input, '<Solid')),
 		updates: [
@@ -95,6 +97,7 @@ export const Example: React.FC = () => {
 };
 `;
 	const {serialized} = updateSequenceKeyframesAst({
+		videoConfigValues: null,
 		input,
 		nodePath: lineColumnToNodePath(input, getLine(input, '<AbsoluteFill')),
 		schema: translateSchema,
@@ -121,6 +124,7 @@ export const Example: React.FC = () => {
 };
 `;
 	const {serialized} = updateSequenceKeyframesAst({
+		videoConfigValues: null,
 		input,
 		nodePath: lineColumnToNodePath(input, getLine(input, '<AbsoluteFill')),
 		schema: rotateSchema,
@@ -148,6 +152,7 @@ export const Example = () => {
 };
 `;
 	const {serialized} = updateSequenceKeyframesAst({
+		videoConfigValues: null,
 		input,
 		nodePath: lineColumnToNodePath(input, getLine(input, '<div')),
 		updates: [
@@ -175,6 +180,7 @@ export const Example: React.FC = () => {
 };
 `;
 	const {serialized} = updateSequenceKeyframesAst({
+		videoConfigValues: null,
 		input,
 		nodePath: lineColumnToNodePath(input, getLine(input, 'opacity')),
 		updates: [
@@ -204,6 +210,7 @@ export const Example: React.FC = () => {
 };
 `;
 	const {serialized} = updateSequenceKeyframesAst({
+		videoConfigValues: null,
 		input,
 		nodePath: lineColumnToNodePath(input, getLine(input, 'opacity')),
 		updates: [
@@ -230,6 +237,7 @@ export const Example: React.FC = () => {
 };
 `;
 	const {serialized} = updateSequenceKeyframesAst({
+		videoConfigValues: null,
 		input,
 		nodePath: lineColumnToNodePath(input, getLine(input, 'opacity')),
 		updates: [{key: 'style.opacity', operation: {type: 'remove', frame: 50}}],
@@ -253,6 +261,7 @@ export const Example: React.FC = () => {
 };
 `;
 	const {serialized} = updateSequenceKeyframesAst({
+		videoConfigValues: null,
 		input,
 		nodePath: lineColumnToNodePath(input, getLine(input, 'opacity')),
 		updates: [
@@ -283,6 +292,7 @@ export const Example: React.FC = () => {
 };
 `;
 	const {serialized} = updateSequenceKeyframesAst({
+		videoConfigValues: null,
 		input,
 		nodePath: lineColumnToNodePath(input, getLine(input, 'opacity')),
 		updates: [
@@ -310,6 +320,7 @@ export const Example: React.FC = () => {
 };
 `;
 	const {serialized} = updateSequenceKeyframesAst({
+		videoConfigValues: null,
 		input,
 		nodePath: lineColumnToNodePath(input, getLine(input, 'opacity')),
 		updates: [
@@ -334,6 +345,7 @@ export function Example() {
 }
 `;
 	const {serialized} = updateSequenceKeyframesAst({
+		videoConfigValues: null,
 		input,
 		nodePath: lineColumnToNodePath(input, getLine(input, 'opacity')),
 		updates: [
@@ -364,6 +376,7 @@ export const Outer: React.FC = () => {
 };
 `;
 	const {serialized} = updateSequenceKeyframesAst({
+		videoConfigValues: null,
 		input,
 		nodePath: lineColumnToNodePath(input, getLine(input, 'opacity')),
 		updates: [
@@ -391,6 +404,7 @@ export const Example: React.FC = () => (
 );
 `;
 	const {serialized} = updateSequenceKeyframesAst({
+		videoConfigValues: null,
 		input,
 		nodePath: lineColumnToNodePath(input, getLine(input, 'opacity')),
 		updates: [
@@ -420,6 +434,7 @@ export const Example: React.FC = () => {
 };
 `;
 	const {serialized} = updateSequenceKeyframesAst({
+		videoConfigValues: null,
 		input,
 		nodePath: lineColumnToNodePath(input, getLine(input, 'opacity')),
 		updates: [
@@ -448,6 +463,7 @@ export const Comp = () => {
 };
 `;
 	const {serialized} = updateEffectKeyframesAst({
+		videoConfigValues: null,
 		input,
 		sequenceNodePath: lineColumnToNodePath(
 			input,
@@ -484,6 +500,7 @@ export const Comp = () => {
 `;
 	const before = (input.match(/const frame = useCurrentFrame/g) ?? []).length;
 	const {serialized} = updateEffectKeyframesAst({
+		videoConfigValues: null,
 		input,
 		sequenceNodePath: lineColumnToNodePath(
 			input,
@@ -516,6 +533,7 @@ export const Comp = () => {
 };
 `;
 	const {serialized} = updateEffectKeyframesAst({
+		videoConfigValues: null,
 		input,
 		sequenceNodePath: lineColumnToNodePath(
 			input,
@@ -542,6 +560,7 @@ export const Example: React.FC = () => {
 };
 `;
 	const {serialized} = updateSequenceKeyframesAst({
+		videoConfigValues: null,
 		input,
 		nodePath: lineColumnToNodePath(input, getLine(input, 'opacity')),
 		updates: [

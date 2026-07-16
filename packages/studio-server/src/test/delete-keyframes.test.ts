@@ -50,6 +50,7 @@ test('deleteKeyframes batches sequence and effect deletes into one undo entry', 
 		nodePath: lineColumnToNodePath(input, 7),
 		sequenceKeys: ['style.opacity'],
 		effectKeys: [['amount']],
+		videoConfigValues: null,
 	};
 
 	try {

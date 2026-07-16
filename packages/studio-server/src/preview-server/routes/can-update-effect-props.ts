@@ -209,13 +209,13 @@ export const computeEffectPropStatus = ({
 	jsx,
 	effectIndex,
 	keys,
-	videoConfigValues = {},
+	videoConfigValues,
 }: {
 	ast: File;
 	jsx: JSXOpeningElement;
 	effectIndex: number;
 	keys: string[];
-	videoConfigValues?: VideoConfigIdentifierValues;
+	videoConfigValues: VideoConfigIdentifierValues;
 }): CanUpdateEffectPropsResponse => {
 	const attr = findEffectsAttr(jsx);
 	const elements = getEffectsArrayElements(attr);
@@ -296,13 +296,13 @@ export const computeEffectPropsStatusesFromContent = ({
 	sequenceNodePath,
 	effects,
 	keysFor,
-	videoConfigValues = null,
+	videoConfigValues,
 }: {
 	fileContents: string;
 	sequenceNodePath: SequenceNodePath;
 	effects: InteractivitySchema[];
 	keysFor: (effect: InteractivitySchema) => string[];
-	videoConfigValues?: VideoConfigValues | null;
+	videoConfigValues: VideoConfigValues | null;
 }): CanUpdateEffectPropsResponse[] => {
 	const ast = parseAst(fileContents);
 	const videoConfigIdentifierValues = getVideoConfigIdentifierValues({
@@ -335,14 +335,14 @@ export const computeEffectPropsStatusesFromFile = ({
 	effects,
 	keysFor,
 	remotionRoot,
-	videoConfigValues = null,
+	videoConfigValues,
 }: {
 	fileName: string;
 	sequenceNodePath: SequenceNodePath;
 	effects: InteractivitySchema[];
 	keysFor: (effect: InteractivitySchema) => string[];
 	remotionRoot: string;
-	videoConfigValues?: VideoConfigValues | null;
+	videoConfigValues: VideoConfigValues | null;
 }): CanUpdateEffectPropsResponse[] => {
 	const {absolutePath} = resolveFileInsideProject({
 		remotionRoot,

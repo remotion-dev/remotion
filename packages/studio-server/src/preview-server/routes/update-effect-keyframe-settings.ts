@@ -138,7 +138,7 @@ export const updateEffectKeyframeSettingsHandler: ApiHandler<
 			keys: getAllSchemaKeys(schema),
 			videoConfigValues: getVideoConfigIdentifierValues({
 				ast,
-				videoConfigValues: sequenceNodePath.videoConfigValues ?? null,
+				videoConfigValues: sequenceNodePath.videoConfigValues,
 			}),
 		});
 	});

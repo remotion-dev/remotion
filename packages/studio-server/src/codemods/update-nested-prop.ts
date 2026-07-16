@@ -205,7 +205,7 @@ export const updateNestedProp = ({
 	value,
 	defaultValue,
 	isDefault,
-	createValueExpression = null,
+	createValueExpression,
 }: {
 	node: JSXOpeningElement;
 	parentKey: string;
@@ -213,7 +213,7 @@ export const updateNestedProp = ({
 	value: unknown;
 	defaultValue: unknown | null;
 	isDefault: boolean;
-	createValueExpression?:
+	createValueExpression:
 		| ((existing: Expression | null) => ExpressionKind)
 		| null;
 }): string => {

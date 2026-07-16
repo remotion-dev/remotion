@@ -27,11 +27,15 @@ import type {
 	InteractivitySchemaField,
 	InterpolateOutputOption,
 	SequenceNodePath,
+	VideoConfigNumericExpression,
 	VideoConfigValues,
 } from 'remotion';
 import {getAstNodePath} from '../../helpers/get-ast-node-path';
 import {parseKeyframeEasingExpression} from '../../helpers/parse-keyframe-easing-expression';
-import {parseVideoConfigNumericExpression} from '../../helpers/video-config-numeric-expression';
+import {
+	parseVideoConfigNumericExpression,
+	updateVideoConfigNumericExpression,
+} from '../../helpers/video-config-numeric-expression';
 import {
 	getVideoConfigIdentifierValues,
 	type VideoConfigIdentifierValues,
@@ -201,6 +205,7 @@ type MissingPropInitialValue = {
 type InterpolateKeyframe = {
 	frame: number;
 	frameExpression: ExpressionKind;
+	frameNumericExpression: VideoConfigNumericExpression;
 	originalFrame: number;
 	output: ExpressionKind;
 	value: unknown;
@@ -284,6 +289,7 @@ const getInterpolationExpression = (
 		keyframes.push({
 			frame: frameExpression.value,
 			frameExpression: inputElement as ExpressionKind,
+			frameNumericExpression: frameExpression,
 			originalFrame: frameExpression.value,
 			output: outputElement as ExpressionKind,
 			value: extractStaticValue(outputElement),
@@ -992,7 +998,10 @@ const createInterpolateExpression = ({
 			sortedKeyframes.map((keyframe) =>
 				keyframe.frame === keyframe.originalFrame
 					? keyframe.frameExpression
-					: createFrameExpression(keyframe.frame),
+					: updateVideoConfigNumericExpression({
+							expression: keyframe.frameNumericExpression,
+							value: keyframe.frame,
+						}),
 			),
 		),
 		b.arrayExpression(sortedKeyframes.map((keyframe) => keyframe.output)),
@@ -1047,13 +1056,14 @@ const addKeyframe = ({
 		const existingIndex = existing.keyframes.findIndex(
 			(keyframe) => keyframe.frame === frame,
 		);
-		const nextKeyframes =
+		const nextKeyframes: InterpolateKeyframe[] =
 			existingIndex === -1
 				? [
 						...existing.keyframes,
 						{
 							frame,
 							frameExpression: createFrameExpression(frame),
+							frameNumericExpression: {type: 'literal', value: frame},
 							originalFrame: frame,
 							output: newOutput,
 							value,
@@ -1109,6 +1119,7 @@ const addKeyframe = ({
 		{
 			frame,
 			frameExpression: createFrameExpression(frame),
+			frameNumericExpression: {type: 'literal', value: frame},
 			originalFrame: frame,
 			output: newOutput,
 			value,
@@ -1684,13 +1695,13 @@ export const updateSequenceKeyframesAst = ({
 	nodePath,
 	updates,
 	schema,
-	videoConfigValues = null,
+	videoConfigValues,
 }: {
 	input: string;
 	nodePath: SequenceNodePath;
 	updates: SequenceKeyframeUpdate[];
 	schema?: InteractivitySchema;
-	videoConfigValues?: VideoConfigValues | null;
+	videoConfigValues: VideoConfigValues | null;
 }): {
 	serialized: string;
 	oldValueStrings: string[];
@@ -1791,14 +1802,14 @@ export const updateSequenceKeyframes = async ({
 	updates,
 	schema,
 	prettierConfigOverride,
-	videoConfigValues = null,
+	videoConfigValues,
 }: {
 	input: string;
 	nodePath: SequenceNodePath;
 	updates: SequenceKeyframeUpdate[];
 	schema?: InteractivitySchema;
 	prettierConfigOverride?: Record<string, unknown> | null;
-	videoConfigValues?: VideoConfigValues | null;
+	videoConfigValues: VideoConfigValues | null;
 }): Promise<{
 	output: string;
 	formatted: boolean;
@@ -1848,14 +1859,14 @@ export const updateEffectKeyframesAst = ({
 	effectIndex,
 	updates,
 	schema,
-	videoConfigValues = null,
+	videoConfigValues,
 }: {
 	input: string;
 	sequenceNodePath: SequenceNodePath;
 	effectIndex: number;
 	updates: EffectKeyframeUpdate[];
 	schema?: InteractivitySchema;
-	videoConfigValues?: VideoConfigValues | null;
+	videoConfigValues: VideoConfigValues | null;
 }): {
 	serialized: string;
 	oldValueStrings: string[];
@@ -1966,7 +1977,7 @@ export const updateEffectKeyframes = async ({
 	updates,
 	schema,
 	prettierConfigOverride,
-	videoConfigValues = null,
+	videoConfigValues,
 }: {
 	input: string;
 	sequenceNodePath: SequenceNodePath;
@@ -1974,7 +1985,7 @@ export const updateEffectKeyframes = async ({
 	updates: EffectKeyframeUpdate[];
 	schema?: InteractivitySchema;
 	prettierConfigOverride?: Record<string, unknown> | null;
-	videoConfigValues?: VideoConfigValues | null;
+	videoConfigValues: VideoConfigValues | null;
 }): Promise<{
 	output: string;
 	formatted: boolean;

@@ -133,6 +133,7 @@ const makeKey = (
 	nodePath,
 	sequenceKeys: ['from', 'durationInFrames'],
 	effectKeys,
+	videoConfigValues: null,
 });
 
 const withMockLocalStorage = (callback: () => void) => {
