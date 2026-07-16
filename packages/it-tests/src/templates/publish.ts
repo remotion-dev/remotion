@@ -206,13 +206,7 @@ const publishClaudeCodePlugin = async () => {
 		await $`rm ${file}`.cwd(workingDir).quiet();
 	}
 
-	const filesToCopy = [
-		'.claude-plugin',
-		'skills',
-		'README.md',
-		'marketplace.json',
-		'plugin.json',
-	];
+	const filesToCopy = ['.claude-plugin', 'skills', 'README.md'];
 	for (const entry of filesToCopy) {
 		const src = path.join(claudeCodePluginDir, entry);
 		const dst = path.join(workingDir, entry);
@@ -222,16 +216,12 @@ const publishClaudeCodePlugin = async () => {
 	const packageJson = JSON.parse(
 		readFileSync(path.join(claudeCodePluginDir, 'package.json'), 'utf-8'),
 	);
-	for (const pluginJsonPath of [
-		path.join(workingDir, '.claude-plugin', 'plugin.json'),
-		path.join(workingDir, 'plugin.json'),
-	]) {
-		const pluginJson = JSON.parse(readFileSync(pluginJsonPath, 'utf-8'));
-		writeFileSync(
-			pluginJsonPath,
-			`${JSON.stringify({...pluginJson, version: packageJson.version}, null, '\t')}\n`,
-		);
-	}
+	const pluginJsonPath = path.join(workingDir, '.claude-plugin', 'plugin.json');
+	const pluginJson = JSON.parse(readFileSync(pluginJsonPath, 'utf-8'));
+	writeFileSync(
+		pluginJsonPath,
+		`${JSON.stringify({...pluginJson, version: packageJson.version}, null, '\t')}\n`,
+	);
 
 	await $`git add .`.cwd(workingDir).nothrow();
 	const hasChanges = await $`git status --porcelain`.cwd(workingDir).text();
