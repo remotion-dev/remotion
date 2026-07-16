@@ -1422,6 +1422,7 @@ const sidebars: SidebarsConfig = {
 			},
 			items: [
 				'ai/coding-agents',
+				'ai/skills',
 				'ai/claude-code-plugin',
 				'ai/codex-plugin',
 				'ai/bolt',
@@ -1429,9 +1430,8 @@ const sidebars: SidebarsConfig = {
 				'ai/generate',
 				'ai/dynamic-compilation',
 				'ai/ai-saas-template',
-				'ai/mcp',
 				'ai/system-prompt',
-				'ai/skills',
+				'ai/mcp',
 			],
 		},
 
