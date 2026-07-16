@@ -6,6 +6,15 @@ Remotion's Model Context Protocol
 
 > [!WARNING]
 > `@remotion/mcp` is deprecated. Install [Remotion Agent Skills](https://www.remotion.dev/docs/ai/skills) and use `/remotion-docs` instead.
+>
+> The hosted MCP will shut down no earlier than August 31, 2026. Follow [GitHub issue #9055](https://github.com/remotion-dev/remotion/issues/9055) for updates.
+
+## Why is the MCP being shut down?
+
+- Its data can be less current than the Remotion documentation.
+- Remotion pays the token costs for MCP requests.
+- Installing MCP servers is difficult, and agents do not invoke them reliably.
+- It duplicates the `/remotion-docs` skill.
 
 ## Migration
 
