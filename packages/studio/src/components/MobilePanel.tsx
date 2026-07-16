@@ -2,8 +2,10 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import {BACKGROUND} from '../helpers/colors';
 import {useZIndex} from '../state/z-index';
+import type {RenderInlineAction} from './InlineAction';
+import {InlineAction} from './InlineAction';
 import {getPortal} from './Menu/portals';
-import {CancelButton} from './NewComposition/CancelButton';
+import {CancelIcon} from './NewComposition/CancelButton';
 
 const container: React.CSSProperties = {
 	position: 'fixed',
@@ -21,11 +23,17 @@ const buttonContainer: React.CSSProperties = {
 	alignItems: 'center',
 	display: 'flex',
 	justifyContent: 'flex-end',
+	paddingRight: 8,
 };
 
 const button: React.CSSProperties = {
-	height: 20,
-	width: 20,
+	height: 16,
+	width: 16,
+	flexShrink: 0,
+};
+
+const renderCloseIcon: RenderInlineAction = (color) => {
+	return <CancelIcon style={{...button, color}} />;
 };
 
 export default function MobilePanel({
@@ -40,7 +48,11 @@ export default function MobilePanel({
 	return ReactDOM.createPortal(
 		<div style={container}>
 			<div style={buttonContainer}>
-				<CancelButton style={button} onPress={onClose} />
+				<InlineAction
+					onClick={onClose}
+					renderAction={renderCloseIcon}
+					title="Close sidebar"
+				/>
 			</div>
 			{children}
 		</div>,
