@@ -9,6 +9,7 @@ import remarkElementSource from '../../plugins/remark-element-source';
 import {elementDefinitions} from '../components/Elements/element-definitions';
 import {
 	getElementCompositionId,
+	getElementDimensionsLabel,
 	getElementPreviewUrls,
 } from '../components/Elements/element-utils';
 import {getElementPreviewDimensions} from '../components/Elements/ElementPreviewComposition';
@@ -242,6 +243,24 @@ describe('Element preview definitions', () => {
 			expect(dimensions.width % 2).toBe(0);
 			expect(dimensions.height % 2).toBe(0);
 		}
+	});
+
+	test('keeps displayed Element dimensions separate from preview dimensions', () => {
+		const adaptiveDefinition = elementDefinitions['backgrounds/paper-texture'];
+		expect(getElementDimensionsLabel(adaptiveDefinition)).toBe(
+			'Adapts to composition',
+		);
+		expect(getElementPreviewDimensions(adaptiveDefinition)).toEqual({
+			height: 1080,
+			width: 1920,
+		});
+
+		const fixedDefinition = elementDefinitions['overlays/lower-third'];
+		expect(getElementDimensionsLabel(fixedDefinition)).toBe('680 × 138px');
+		expect(getElementPreviewDimensions(fixedDefinition)).toEqual({
+			height: 738,
+			width: 1280,
+		});
 	});
 
 	test('dimensionless Solid backgrounds use composition dimensions', () => {
