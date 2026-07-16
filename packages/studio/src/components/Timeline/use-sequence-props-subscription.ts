@@ -43,6 +43,7 @@ export const useSequencePropsSubscription = ({
 	const overrideIdToNodePathMappingsRef = useRef(overrideIdToNodePathMappings);
 	overrideIdToNodePathMappingsRef.current = overrideIdToNodePathMappings;
 	const clientId = state.type === 'connected' ? state.clientId : undefined;
+	const videoConfig = Internals.useUnsafeVideoConfig();
 
 	const effectsSignature = useMemo(
 		() =>
@@ -76,7 +77,8 @@ export const useSequencePropsSubscription = ({
 			!locationSource ||
 			!locationLine ||
 			locationColumn === null ||
-			!schema
+			!schema ||
+			videoConfig === null
 		) {
 			return;
 		}
@@ -93,6 +95,12 @@ export const useSequencePropsSubscription = ({
 			effects,
 			nodePath: nodePathAtResubscribe?.nodePath ?? null,
 			clientId,
+			videoConfigValues: {
+				durationInFrames: videoConfig.durationInFrames,
+				fps: videoConfig.fps,
+				height: videoConfig.height,
+				width: videoConfig.width,
+			},
 			applyOnce: (result) => {
 				if (!result.success) {
 					return;
@@ -145,5 +153,6 @@ export const useSequencePropsSubscription = ({
 		schema,
 		setPropStatuses,
 		setOverrideIdToNodePath,
+		videoConfig,
 	]);
 };

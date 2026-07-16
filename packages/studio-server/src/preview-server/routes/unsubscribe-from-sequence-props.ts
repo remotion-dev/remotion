@@ -16,6 +16,7 @@ export const unsubscribeFromSequenceProps: ApiHandler<
 		clientId,
 		sequenceKeys,
 		effectKeys,
+		videoConfigValues: nodePath.videoConfigValues,
 	});
 	return Promise.resolve(undefined);
 };

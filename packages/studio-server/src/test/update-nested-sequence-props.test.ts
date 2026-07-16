@@ -18,6 +18,7 @@ export const Example: React.FC = () => {
 
 test('updateSequenceProps should update a nested style property', async () => {
 	const {output, oldValueStrings} = await updateSequenceProps({
+		videoConfigValues: null,
 		input: nestedInput,
 		nodePath: lineColumnToNodePath(nestedInput, 7),
 		updates: [{key: 'style.opacity', value: 0.8, defaultValue: null}],
@@ -33,6 +34,7 @@ test('updateSequenceProps should update a nested style property', async () => {
 
 test('updateSequenceProps should add a nested property to existing object', async () => {
 	const {output, oldValueStrings} = await updateSequenceProps({
+		videoConfigValues: null,
 		input: nestedInput,
 		nodePath: lineColumnToNodePath(nestedInput, 7),
 		updates: [{key: 'style.rotate', value: 45, defaultValue: null}],
@@ -50,6 +52,7 @@ test('updateSequenceProps should add a nested property to existing object', asyn
 
 test('updateSequenceProps should create style attribute when it does not exist', async () => {
 	const {output, oldValueStrings} = await updateSequenceProps({
+		videoConfigValues: null,
 		input: nestedInput,
 		nodePath: lineColumnToNodePath(nestedInput, 8),
 		updates: [{key: 'style.opacity', value: 0.3, defaultValue: null}],
@@ -65,6 +68,7 @@ test('updateSequenceProps should create style attribute when it does not exist',
 
 test('updateSequenceProps should remove nested property when value equals default', async () => {
 	const {output, oldValueStrings} = await updateSequenceProps({
+		videoConfigValues: null,
 		input: nestedInput,
 		nodePath: lineColumnToNodePath(nestedInput, 7),
 		updates: [{key: 'style.opacity', value: 1, defaultValue: 1}],
@@ -89,6 +93,7 @@ export const Example: React.FC = () => {
 `;
 
 	const {output, oldValueStrings} = await updateSequenceProps({
+		videoConfigValues: null,
 		input: singlePropInput,
 		nodePath: lineColumnToNodePath(singlePropInput, 4),
 		updates: [{key: 'style.opacity', value: 1, defaultValue: 1}],
@@ -103,6 +108,7 @@ export const Example: React.FC = () => {
 
 test('updateSequenceProps should report default as oldValueString for missing nested property', async () => {
 	const {oldValueStrings} = await updateSequenceProps({
+		videoConfigValues: null,
 		input: nestedInput,
 		nodePath: lineColumnToNodePath(nestedInput, 8),
 		updates: [{key: 'style.opacity', value: 0.5, defaultValue: 1}],
@@ -116,6 +122,7 @@ test('updateSequenceProps should report default as oldValueString for missing ne
 
 test('updateSequenceProps should insert Google Font source loading code', async () => {
 	const {output, oldValueStrings} = await updateSequenceProps({
+		videoConfigValues: null,
 		input: nestedInput,
 		nodePath: lineColumnToNodePath(nestedInput, 7),
 		updates: [
@@ -160,6 +167,7 @@ export const Example: React.FC = () => {
 };
 `;
 	const {output} = await updateSequenceProps({
+		videoConfigValues: null,
 		input,
 		nodePath: lineColumnToNodePath(input, 8),
 		updates: [
@@ -208,6 +216,7 @@ export const Example: React.FC = () => {
 };
 `;
 	const {output} = await updateSequenceProps({
+		videoConfigValues: null,
 		input,
 		nodePath: lineColumnToNodePath(input, 12),
 		updates: [
@@ -254,6 +263,7 @@ export const Example: React.FC = () => {
 };
 `;
 	const {output} = await updateSequenceProps({
+		videoConfigValues: null,
 		input,
 		nodePath: lineColumnToNodePath(input, 13),
 		updates: [
@@ -283,6 +293,7 @@ export const Example: React.FC = () => {
 test('updateSequenceProps should keep node paths stable after inserting Google Font loading code', async () => {
 	const nodePath = lineColumnToNodePath(nestedInput, 7);
 	const first = await updateSequenceProps({
+		videoConfigValues: null,
 		input: nestedInput,
 		nodePath,
 		updates: [
@@ -304,6 +315,7 @@ test('updateSequenceProps should keep node paths stable after inserting Google F
 	});
 
 	const second = await updateSequenceProps({
+		videoConfigValues: null,
 		input: first.output,
 		nodePath,
 		updates: [
@@ -347,6 +359,7 @@ export const Example: React.FC = () => {
 `;
 
 	const {output, oldValueStrings} = await updateSequenceProps({
+		videoConfigValues: null,
 		input,
 		nodePath: lineColumnToNodePath(input, 7),
 		updates: [
@@ -391,6 +404,7 @@ export const Example: React.FC = () => {
 `;
 
 	const {output} = await updateSequenceProps({
+		videoConfigValues: null,
 		input,
 		nodePath: lineColumnToNodePath(input, 18),
 		updates: [
@@ -439,6 +453,7 @@ export const Example: React.FC = () => {
 `;
 
 	const {output} = await updateSequenceProps({
+		videoConfigValues: null,
 		input,
 		nodePath: lineColumnToNodePath(input, 14),
 		updates: [
@@ -480,6 +495,7 @@ export const Example: React.FC = () => {
 };
 `;
 	const {output} = await updateSequenceProps({
+		videoConfigValues: null,
 		input,
 		nodePath: lineColumnToNodePath(input, 9),
 		updates: [

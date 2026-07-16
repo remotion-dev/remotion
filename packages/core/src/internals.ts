@@ -167,6 +167,7 @@ import {
 	type CanUpdateSequencePropsResponseTrue,
 	type SequenceNodePath,
 	type SequencePropsSubscriptionKey,
+	type VideoConfigValues,
 } from './SequenceManager.js';
 import {setupEnvVariables} from './setup-env-variables.js';
 import * as TimelinePosition from './timeline-position-state.js';
@@ -209,6 +210,7 @@ import type {
 	GetEffectDragOverrides,
 	GetEffectPropStatuses,
 	GetPropStatuses,
+	VideoConfigNumericExpression,
 } from './use-schema.js';
 import {
 	computeEffectiveSchemaValuesDotNotation,
@@ -435,6 +437,7 @@ export type {
 	CanUpdateSequencePropStatusFalse,
 	CanUpdateSequencePropStatusKeyframed,
 	CanUpdateSequencePropStatusStatic,
+	VideoConfigNumericExpression,
 	CompositionManagerContext,
 	CompProps,
 	DragOverrides,
@@ -463,6 +466,7 @@ export type {
 	InteractivitySchemaField,
 	SequenceNodePath,
 	SequencePropsSubscriptionKey,
+	VideoConfigValues,
 	InteractivitySchema,
 	SerializedJSONWithCustomFields,
 	SetMediaVolumeContextValue,

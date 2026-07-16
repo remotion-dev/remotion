@@ -377,6 +377,7 @@ test('Series.Sequence duration overrides cascade to later sequences', async () =
 		nodePath: ['body', 0],
 		sequenceKeys: [],
 		effectKeys: [],
+		videoConfigValues: null,
 	};
 	const subscriptionKey = Internals.makeSequencePropsSubscriptionKey(nodePath);
 	const makeDurationOverride = (durationInFrames: number) => ({
@@ -776,6 +777,7 @@ test('Imperative sequence refs update without rerendering ref-only consumers', a
 		nodePath: ['root'],
 		sequenceKeys: [],
 		effectKeys: [],
+		videoConfigValues: null,
 	};
 	let renders = 0;
 	let sequencesRef: React.ContextType<typeof SequenceManagerRefContext> | null =
