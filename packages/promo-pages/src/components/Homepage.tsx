@@ -76,7 +76,8 @@ export const NewLanding: React.FC<{
 							<MakeVideosInteractively
 								title="Applications"
 								description="Publish a simple tool or a complex video editor."
-								showVideo={false}
+								videoSrc="/img/applications.webm"
+								fallbackVideoSrc="/img/applications.mp4"
 								links={[
 									{label: 'Player', href: '/docs/player'},
 									{label: 'Editor Starter', href: '/editor-starter'},
