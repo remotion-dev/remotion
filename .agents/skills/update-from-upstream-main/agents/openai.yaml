@@ -1,4 +1,4 @@
 interface:
   display_name: 'Update from Upstream Main'
   short_description: 'Sync a Remotion branch with latest main'
-  default_prompt: 'Use $update-from-upstream-main to update my current branch from the latest origin/main.'
+  default_prompt: 'Use $update-from-upstream-main to update my current branch from the latest canonical main.'

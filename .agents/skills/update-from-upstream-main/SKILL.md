@@ -42,7 +42,13 @@ Update from the canonical `remotion-dev/remotion` repository while preserving lo
 
    Do not rebase, reset, or force-push. A merge keeps published branch history intact and can be pushed normally.
 
-5. If the merge conflicts, resolve each file deliberately and preserve both the feature intent and upstream changes. Do not accept `ours` or `theirs` across the entire merge. After resolving all conflicts, stage only the resolved files and finish the merge with:
+5. If the merge conflicts, resolve each file deliberately and preserve both the feature intent and upstream changes. Do not accept `ours` or `theirs` across the entire merge. Check every resolved file for leftover conflict markers before staging:
+
+   ```bash
+   rg -n '^(<{7}|={7}|>{7})' -- <resolved-files>
+   ```
+
+   Inspect and remove any matches that are conflict markers. Then stage only the resolved files and finish the merge with:
 
    ```bash
    git commit --no-edit
@@ -58,7 +64,7 @@ Update from the canonical `remotion-dev/remotion` repository while preserving lo
 7. Push only when the user asked to update a published branch or pull request. Use a normal push and stop if it is rejected:
 
    ```bash
-   git push
+   git push <canonical-remote> HEAD
    ```
 
    Never force-push.
