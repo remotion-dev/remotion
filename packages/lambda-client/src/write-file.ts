@@ -87,7 +87,9 @@ export const lambdaWriteFileImplementation = async (
 	try {
 		await tryLambdaWriteFile(params);
 	} catch (err) {
-		if (remainingRetries === 0) {
+		const bodyCanBeRetried =
+			typeof params.body === 'string' || params.body instanceof Uint8Array;
+		if (remainingRetries === 0 || !bodyCanBeRetried) {
 			throw err;
 		}
 
