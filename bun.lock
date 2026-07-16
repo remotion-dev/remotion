@@ -203,6 +203,15 @@
         "eslint": "catalog:",
       },
     },
+    "packages/claude-code-plugin": {
+      "name": "@remotion/claude-code-plugin",
+      "version": "4.0.490",
+      "devDependencies": {
+        "@remotion/eslint-config-internal": "workspace:*",
+        "@typescript/native-preview": "catalog:",
+        "eslint": "catalog:",
+      },
+    },
     "packages/cli": {
       "name": "@remotion/cli",
       "version": "4.0.490",
@@ -3998,6 +4007,8 @@
     "@remotion/canvas-capture": ["@remotion/canvas-capture@workspace:packages/canvas-capture"],
 
     "@remotion/captions": ["@remotion/captions@workspace:packages/captions"],
+
+    "@remotion/claude-code-plugin": ["@remotion/claude-code-plugin@workspace:packages/claude-code-plugin"],
 
     "@remotion/cli": ["@remotion/cli@workspace:packages/cli"],
 
