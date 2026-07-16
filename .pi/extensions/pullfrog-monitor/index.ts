@@ -76,7 +76,9 @@ const createPrState = (
 	title: snapshot.title,
 	headSha: snapshot.headSha,
 	monitoring,
+	monitorMessage: null,
 	currentFingerprint: null,
+	readyFingerprint: null,
 	reviewedFingerprint: null,
 	status: monitoring ? 'watching' : 'reviewed',
 	detectedAt: null,
@@ -104,6 +106,36 @@ const updateSnapshotMetadata = (
 	entry.prUrl = snapshot.prUrl;
 	entry.title = snapshot.title;
 	entry.headSha = snapshot.headSha;
+};
+
+const getMonitoringMessage = (
+	snapshot: PullfrogSnapshot,
+	substantive: boolean,
+) => {
+	const prefix = `PR #${snapshot.prNumber}`;
+	if (snapshot.workflowRunPending) {
+		return `${prefix} · Pullfrog activity detected · Waiting for workflow details`;
+	}
+	if (snapshot.workflowRun) {
+		if (snapshot.workflowRun.status !== 'completed') {
+			return `${prefix} · Pullfrog review is ${snapshot.workflowRun.status.replaceAll('_', ' ')}`;
+		}
+		if (!snapshot.reviewSubmittedForHead) {
+			return `${prefix} · Workflow finished · Waiting for submitted review`;
+		}
+	}
+	if (!snapshot.reviewSubmittedForHead) {
+		const hasActivity =
+			snapshot.reviews.length > 0 ||
+			snapshot.issueComments.length > 0 ||
+			snapshot.inlineCommentsAndReplies.length > 0;
+		return hasActivity
+			? `${prefix} · Pullfrog feedback detected · Waiting for submitted review`
+			: `${prefix} · Watching for Pullfrog feedback`;
+	}
+	return substantive
+		? `${prefix} · Pullfrog feedback found · Confirming review state`
+		: `${prefix} · Pullfrog review finished · No actionable feedback`;
 };
 
 const buildReviewPrompt = (snapshot: PullfrogSnapshot) =>
@@ -213,9 +245,16 @@ export default function pullfrogMonitor(pi: ExtensionAPI) {
 		) {
 			return;
 		}
-		if (current?.status === 'ready') {
+		if (
+			current?.status === 'ready' &&
+			current.readyFingerprint === current.currentFingerprint
+		) {
 			activeContext.ui.setWidget(READY_WIDGET, [
 				`🐸 Pullfrog feedback ready on PR #${current.prNumber} · Use /pullfrog`,
+			]);
+		} else if (current?.monitoring) {
+			activeContext.ui.setWidget(READY_WIDGET, [
+				`🐸 ${current.monitorMessage ?? `PR #${current.prNumber} · Watching for Pullfrog feedback`}`,
 			]);
 		} else {
 			activeContext.ui.setWidget(READY_WIDGET, undefined);
@@ -295,6 +334,7 @@ export default function pullfrogMonitor(pi: ExtensionAPI) {
 				const current = state.reviews[key];
 				if (current) {
 					current.monitoring = false;
+					current.monitorMessage = null;
 					current.status = 'reviewed';
 				}
 			});
@@ -308,6 +348,7 @@ export default function pullfrogMonitor(pi: ExtensionAPI) {
 				return false;
 			}
 			updateSnapshotMetadata(current, snapshot);
+			current.monitorMessage = getMonitoringMessage(snapshot, substantive);
 			current.error = null;
 			const attemptStartedAt = current.reviewStartedAt
 				? Date.parse(current.reviewStartedAt)
@@ -325,23 +366,31 @@ export default function pullfrogMonitor(pi: ExtensionAPI) {
 			}
 			if (!substantive) {
 				current.currentFingerprint = fingerprint;
+				current.readyFingerprint = null;
 				current.status = current.monitoring ? 'watching' : 'reviewed';
 				return false;
 			}
 			if (current.reviewedFingerprint === fingerprint) {
 				current.currentFingerprint = fingerprint;
+				current.readyFingerprint = null;
 				current.status = current.monitoring ? 'watching' : 'reviewed';
 				return false;
 			}
 			if (current.currentFingerprint !== fingerprint) {
 				current.currentFingerprint = fingerprint;
+				current.readyFingerprint = null;
 				current.detectedAt = new Date().toISOString();
+				current.status = 'watching';
+				return false;
+			}
+			const newlyReady =
+				current.readyFingerprint !== fingerprint || current.status !== 'ready';
+			current.readyFingerprint = fingerprint;
+			if (newlyReady) {
 				current.notifiedAt = new Date().toISOString();
-				current.status = 'ready';
-				return true;
 			}
 			current.status = 'ready';
-			return false;
+			return newlyReady;
 		});
 		if (changed.result) {
 			ringTerminalBell();
@@ -408,10 +457,9 @@ export default function pullfrogMonitor(pi: ExtensionAPI) {
 			current.monitoring = true;
 			updateSnapshotMetadata(current, snapshot);
 			current.currentFingerprint = fingerprint;
-			current.status =
-				substantive && current.reviewedFingerprint !== fingerprint
-					? 'ready'
-					: 'watching';
+			current.readyFingerprint = null;
+			current.monitorMessage = getMonitoringMessage(snapshot, substantive);
+			current.status = 'watching';
 			current.detectedAt = substantive ? new Date().toISOString() : null;
 			current.error = null;
 		});
@@ -433,6 +481,7 @@ export default function pullfrogMonitor(pi: ExtensionAPI) {
 				return false;
 			}
 			current.monitoring = false;
+			current.monitorMessage = null;
 			if (current.status === 'watching') {
 				current.status = 'reviewed';
 			}
@@ -459,6 +508,7 @@ export default function pullfrogMonitor(pi: ExtensionAPI) {
 				current.activeAttemptId = null;
 				current.activeAttemptPid = null;
 				current.reviewStartedAt = null;
+				current.readyFingerprint = metadata.fingerprint;
 				current.status = 'ready';
 			}
 		});
@@ -525,6 +575,7 @@ export default function pullfrogMonitor(pi: ExtensionAPI) {
 			}
 			updateSnapshotMetadata(current, snapshot);
 			current.currentFingerprint = fingerprint;
+			current.readyFingerprint = fingerprint;
 			current.status = 'ready';
 			current.activeAttemptId = attemptId;
 			current.activeAttemptPid = process.pid;
@@ -642,6 +693,7 @@ export default function pullfrogMonitor(pi: ExtensionAPI) {
 			state.reviews[reviewKey(snapshot.repository, snapshot.prNumber)];
 		if (
 			current?.status === 'ready' &&
+			current.readyFingerprint === current.currentFingerprint &&
 			current.currentFingerprint === fingerprintSnapshot(snapshot)
 		) {
 			await startForegroundReview(ctx, snapshot);
@@ -748,6 +800,7 @@ export default function pullfrogMonitor(pi: ExtensionAPI) {
 				return;
 			}
 			current.reviewedFingerprint = metadata.fingerprint;
+			current.readyFingerprint = null;
 			current.reviewedAt = new Date().toISOString();
 			current.status = current.monitoring ? 'watching' : 'reviewed';
 		});

@@ -79,7 +79,9 @@ export type PullfrogPrState = {
 	title: string;
 	headSha: string;
 	monitoring: boolean;
+	monitorMessage: string | null;
 	currentFingerprint: string | null;
+	readyFingerprint: string | null;
 	reviewedFingerprint: string | null;
 	status: ReviewStatus;
 	detectedAt: string | null;
