@@ -6,7 +6,9 @@ import {MagnetIcon} from '../icons/magnet';
 import {EditorSnappingContext} from '../state/editor-snapping';
 import {ControlButton} from './ControlButton';
 
-export const SnappingToggle: React.FC = () => {
+export const SnappingToggle: React.FC<{
+	readonly disabled: boolean;
+}> = ({disabled}) => {
 	const {editorSnapping, setEditorSnapping} = useContext(EditorSnappingContext);
 
 	const onClick = useCallback(() => {
@@ -27,6 +29,7 @@ export const SnappingToggle: React.FC = () => {
 			aria-label={accessibilityLabel}
 			aria-pressed={editorSnapping}
 			aria-keyshortcuts="Shift+M"
+			disabled={disabled}
 			onClick={onClick}
 		>
 			<MagnetIcon
