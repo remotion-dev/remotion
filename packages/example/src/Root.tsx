@@ -208,6 +208,7 @@ import {VideoEffectsFastRefresh} from './EffectsTestbed/VideoEffectsFastRefresh'
 import {Empty} from './Empty';
 import {
 	Issue8974IndependentVideosTimeline,
+	Issue8974SeriesTimeline,
 	Issue8974TransitionSeriesTimeline,
 } from './Issue8974TimelineInteractivity';
 import {JumpCuts, SAMPLE_SECTIONS, calculateMetadataJumpCuts} from './JumpCuts';
@@ -2690,6 +2691,14 @@ export const Index: React.FC = () => {
 				<Composition
 					id="video-editing-independent"
 					component={Issue8974IndependentVideosTimeline}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={366}
+				/>
+				<Composition
+					id="video-editing-series"
+					component={Issue8974SeriesTimeline}
 					width={1920}
 					height={1080}
 					fps={30}
