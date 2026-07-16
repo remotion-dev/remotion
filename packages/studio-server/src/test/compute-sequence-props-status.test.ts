@@ -839,6 +839,34 @@ export const Example: React.FC = () => {
 	});
 });
 
+test('computeSequencePropsStatus should bail on arithmetic posterize expressions', () => {
+	const input = `import React from 'react';
+import {Sequence, interpolate, useCurrentFrame} from 'remotion';
+
+export const Example: React.FC = () => {
+\tconst frame = useCurrentFrame();
+\treturn (
+\t\t<Sequence style={{scale: interpolate(frame, [0, 100], [1, 3], {posterize: 5 + 5})}} />
+\t);
+};
+`;
+
+	const result = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 7),
+		componentIdentity: null,
+		keys: ['style.scale'],
+		effects: [],
+	});
+
+	expect(result.canUpdate).toBe(true);
+	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
+
+	expect(result.props['style.scale']).toEqual({
+		status: 'computed',
+	});
+});
+
 test('computeSequencePropsStatus should bail on computed output expressions', () => {
 	const input = `import React from 'react';
 import {Sequence, interpolate, useCurrentFrame} from 'remotion';
