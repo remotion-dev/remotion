@@ -5,40 +5,47 @@ sidebar_label: Playing videos in sequence
 crumb: 'How To'
 ---
 
-If you would like to play multiple videos in sequence, you can:
+To play multiple videos one after another:
 
-<Step>1</Step> Define a component that renders a [`<Series>`](/docs/series) of [`<OffthreadVideo>`](/docs/offthreadvideo) components.
-<br/><Step>2</Step> Create a [`calculateMetadata()`](/docs/calculate-metadata) function that fetches the duration of each video.
-<br/><Step>3</Step> Register a [`<Composition>`](/docs/composition) that specifies a list of videos.
+- <Step>1</Step> Render each [`<Video>`](/docs/media/video) in a [`<Series.Sequence>`](/docs/series).
+- <Step>2</Step> Use [Mediabunny](https://mediabunny.dev) to determine the duration of each video.
+- <Step>3</Step> Return the durations and their sum from [`calculateMetadata()`](/docs/calculate-metadata).
 
-## Basic example
+## Create the video series
 
-Start off by creating a component that renders a list of videos using the [`<Series>`](/docs/series) and [`<OffthreadVideo>`](/docs/offthreadvideo) component:
+Render each [`<Video>`](/docs/media/video) in a [`<Series.Sequence>`](/docs/series) and set its `durationInFrames`:
 
 ```tsx twoslash title="VideosInSequence.tsx"
+import {Video} from '@remotion/media';
 import React from 'react';
-import {OffthreadVideo, Series} from 'remotion';
+import {Series, useVideoConfig} from 'remotion';
 
-type VideoToEmbed = {
+export type VideoToEmbed = {
   src: string;
   durationInFrames: number | null;
 };
 
-type Props = {
+export type VideosInSequenceProps = {
   videos: VideoToEmbed[];
 };
 
-export const VideosInSequence: React.FC<Props> = ({videos}) => {
+export const VideosInSequence: React.FC<VideosInSequenceProps> = ({videos}) => {
+  const {fps} = useVideoConfig();
+
   return (
     <Series>
-      {videos.map((vid) => {
-        if (vid.durationInFrames === null) {
+      {videos.map((video) => {
+        if (video.durationInFrames === null) {
           throw new Error('Could not get video duration');
         }
 
         return (
-          <Series.Sequence key={vid.src} durationInFrames={vid.durationInFrames}>
-            <OffthreadVideo src={vid.src} />
+          <Series.Sequence
+            key={video.src}
+            durationInFrames={video.durationInFrames}
+            premountFor={4 * fps}
+          >
+            <Video src={video.src} />
           </Series.Sequence>
         );
       })}
@@ -47,133 +54,98 @@ export const VideosInSequence: React.FC<Props> = ({videos}) => {
 };
 ```
 
-In the same file, create a function that calculates the metadata for the composition:
+[`premountFor`](/docs/series#premountfor) mounts each video before it enters the timeline, giving it time to load in the Player. `<Video>` uses the [Player buffer state](/docs/player/buffer-state) by default if more data is needed.
 
-<Step>1</Step> Calls [`parseMedia()`](/docs/media-parser) to get the duration of each video.
-<div style={{marginTop: -14}} />
-<Step>2</Step> Create a [`calculateMetadata()`](/docs/calculate-metadata) function that fetches the duration of each video.
-<div style={{marginTop: -14}} />
-<Step>3</Step> Sums up all durations to get the total duration of the composition.
+## Calculate the durations
 
-```tsx twoslash title="VideosInSequence.tsx"
-import React from 'react';
-import {OffthreadVideo, staticFile, Series, CalculateMetadataFunction} from 'remotion';
-import {parseMedia} from '@remotion/media-parser';
+Create a [`calculateMetadata()`](/docs/calculate-metadata) function that gets the duration of each video using Mediabunny's [`computeDuration()`](https://mediabunny.dev/api/Input#computeduration), converts the durations to frames, and returns their sum as the composition duration:
 
-type VideoToEmbed = {
-  src: string;
-  durationInFrames: number | null;
+```tsx twoslash title="calculate-metadata.ts"
+// @filename: VideosInSequence.tsx
+export type VideosInSequenceProps = {
+  videos: {src: string; durationInFrames: number | null}[];
 };
 
-type Props = {
-  videos: VideoToEmbed[];
-};
-
+// @filename: calculate-metadata.ts
 // ---cut---
-export const calculateMetadata: CalculateMetadataFunction<Props> = async ({props}) => {
+import {ALL_FORMATS, Input, UrlSource} from 'mediabunny';
+import type {CalculateMetadataFunction} from 'remotion';
+import type {VideosInSequenceProps} from './VideosInSequence';
+
+const getVideoDuration = async (src: string) => {
+  const input = new Input({
+    formats: ALL_FORMATS,
+    source: new UrlSource(src, {
+      getRetryDelay: () => null,
+    }),
+  });
+
+  return input.computeDuration();
+};
+
+export const calculateMetadata: CalculateMetadataFunction<
+  VideosInSequenceProps
+> = async ({props}) => {
   const fps = 30;
-  const videos = await Promise.all([
-    ...props.videos.map(async (video): Promise<VideoToEmbed> => {
-      const {slowDurationInSeconds} = await parseMedia({
-        src: video.src,
-        fields: {
-          slowDurationInSeconds: true,
-        },
-      });
+  const videos = await Promise.all(
+    props.videos.map(async (video) => {
+      const durationInSeconds = await getVideoDuration(video.src);
 
       return {
-        durationInFrames: Math.floor(slowDurationInSeconds * fps),
-        src: video.src,
+        ...video,
+        durationInFrames: Math.floor(durationInSeconds * fps),
       };
     }),
-  ]);
+  );
 
-  const totalDurationInFrames = videos.reduce((acc, video) => acc + (video.durationInFrames ?? 0), 0);
+  const durationInFrames = videos.reduce(
+    (sum, video) => sum + video.durationInFrames,
+    0,
+  );
 
   return {
+    durationInFrames,
+    fps,
     props: {
       ...props,
       videos,
     },
-    fps,
-    durationInFrames: totalDurationInFrames,
   };
 };
 ```
 
-In your [root file](/docs/terminology/root-file), create a [`<Composition>`](/docs/composition) that uses the `VideosInSequence` component and the exported `calculateMetadata` function:
+Mediabunny loads the assets using `fetch()`. Remote URLs must be [CORS-enabled](/docs/cors-issues); files referenced with [`staticFile()`](/docs/staticfile) are served from the same origin.
+
+## Register the composition
+
+In the [root file](/docs/terminology/root-file), register the component and pass the videos through `defaultProps`:
 
 ```tsx twoslash title="Root.tsx"
 // @filename: VideosInSequence.tsx
 import React from 'react';
-import {OffthreadVideo, staticFile, Series, CalculateMetadataFunction} from 'remotion';
-import {parseMedia} from '@remotion/media-parser';
 
-type VideoToEmbed = {
-  src: string;
-  durationInFrames: number | null;
+export type VideosInSequenceProps = {
+  videos: {src: string; durationInFrames: number | null}[];
 };
 
-type Props = {
-  videos: VideoToEmbed[];
-};
+export const VideosInSequence: React.FC<VideosInSequenceProps> = () => null;
 
-export const calculateMetadata: CalculateMetadataFunction<Props> = async ({props}) => {
-  const fps = 30;
-  const videos = await Promise.all([
-    ...props.videos.map(async (video): Promise<VideoToEmbed> => {
-      const {slowDurationInSeconds} = await parseMedia({
-        src: video.src,
-        fields: {
-          slowDurationInSeconds: true,
-        },
-      });
+// @filename: calculate-metadata.ts
+import type {CalculateMetadataFunction} from 'remotion';
+import type {VideosInSequenceProps} from './VideosInSequence';
 
-      return {
-        durationInFrames: Math.floor(slowDurationInSeconds * fps),
-        src: video.src,
-      };
-    }),
-  ]);
-
-  const totalDurationInFrames = videos.reduce((acc, video) => acc + video.durationInFrames!, 0);
-
-  return {
-    props: {
-      ...props,
-      videos,
-    },
-    fps,
-    durationInFrames: totalDurationInFrames,
-  };
-};
-
-export const VideosInSequence: React.FC<Props> = ({videos}) => {
-  return (
-    <Series>
-      {videos.map((vid) => {
-        if (vid.durationInFrames === null) {
-          throw new Error('Could not get video duration');
-        }
-
-        return (
-          <Series.Sequence key={vid.src} durationInFrames={vid.durationInFrames}>
-            <OffthreadVideo src={staticFile('video.mp4')} />
-          </Series.Sequence>
-        );
-      })}
-    </Series>
-  );
-};
+export const calculateMetadata: CalculateMetadataFunction<
+  VideosInSequenceProps
+> = async ({props}) => ({durationInFrames: 1, props});
 
 // @filename: Root.tsx
 // ---cut---
-
 import React from 'react';
 import {Composition, staticFile} from 'remotion';
-import {VideosInSequence, calculateMetadata} from './VideosInSequence';
+import {calculateMetadata} from './calculate-metadata';
+import {VideosInSequence} from './VideosInSequence';
 
-export const Root: React.FC = () => {
+export const RemotionRoot: React.FC = () => {
   return (
     <Composition
       id="VideosInSequence"
@@ -198,68 +170,17 @@ export const Root: React.FC = () => {
 };
 ```
 
-## Adding premounting
-
-If you only care about the video looking smooth when rendered, you may skip this step.  
-If you also want smooth preview playback in the Player, consider this:
-
-A video will only load when it is about to be played.  
-To create a smoother preview playback, we should do two things to all videos:
-
-<Step>1</Step> Add a [`premountFor`](/docs/series#premountfor) prop to [`<Series.Sequence>`](/docs/series). This will
-invisibly mount the video tag before it is played, giving it some time to load.{' '}
-<div style={{marginTop: -14}} />
-<Step>2</Step> Add the [`pauseWhenBuffering`](/docs/offthreadvideo#pausewhenbuffering) prop. This will transition the Player into a [buffering state](/docs/player/buffer-state), should the video still need to load.
-
-```tsx twoslash title="VideosInSequence.tsx" {12, 13}
-import React from 'react';
-import {OffthreadVideo, Series, useVideoConfig} from 'remotion';
-
-type VideoToEmbed = {
-  src: string;
-  durationInFrames: number | null;
-};
-
-type Props = {
-  videos: VideoToEmbed[];
-};
-
-// ---cut---
-export const VideosInSequence: React.FC<Props> = ({videos}) => {
-  const {fps} = useVideoConfig();
-
-  return (
-    <Series>
-      {videos.map((vid) => {
-        if (vid.durationInFrames === null) {
-          throw new Error('Could not get video duration');
-        }
-
-        return (
-          <Series.Sequence key={vid.src} premountFor={4 * fps} durationInFrames={vid.durationInFrames}>
-            <OffthreadVideo pauseWhenBuffering src={vid.src} />
-          </Series.Sequence>
-        );
-      })}
-    </Series>
-  );
-};
-```
-
 ## Browser autoplay policies
 
-Mobile browsers are more aggressive in blocking autoplaying videos that enter after the start of the composition.
-
-If you want to ensure a smooth playback experience for all videos, also [read the notes about browser autoplay behavior](/docs/player/autoplay#media-that-enters-the-video-after-the-start) and customize the behavior if needed.
+Mobile browsers may block videos that start after the beginning of the composition. See [the notes about browser autoplay behavior](/docs/player/autoplay#media-that-enters-the-video-after-the-start) for the available options.
 
 ## See also
 
-- [`<OffthreadVideo>`](/docs/offthreadvideo)
+- [`<Video>`](/docs/media/video)
 - [`<Series>`](/docs/series)
 - [`calculateMetadata()`](/docs/calculate-metadata)
-- [`parseMedia()`](/docs/media-parser)
+- [Getting metadata using Mediabunny](/docs/mediabunny/metadata)
 - [`<Composition>`](/docs/composition)
-- [Root file](/docs/terminology/root-file)
-- [Player buffering state](/docs/player/buffer-state)
-- [Avoiding flickering in the Player](/docs/troubleshooting/player-flicker)
-- [Combatting autoplay issues](/docs/player/autoplay)
+- [Premounting](/docs/player/premounting)
+- [Player buffer state](/docs/player/buffer-state)
+- [Browser autoplay behavior](/docs/player/autoplay)
