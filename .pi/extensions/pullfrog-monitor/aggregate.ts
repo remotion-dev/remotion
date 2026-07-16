@@ -23,10 +23,10 @@ export const hasSubstantiveFeedback = (snapshot: PullfrogSnapshot) => {
 	if (snapshot.workflowRunPending) {
 		return false;
 	}
-	if (snapshot.workflowRun && snapshot.workflowRun.status !== 'completed') {
-		return false;
-	}
-	if (!snapshot.reviewSubmittedForHead) {
+	if (
+		snapshot.workflowRun?.status !== 'completed' ||
+		snapshot.workflowRun.conclusion !== 'success'
+	) {
 		return false;
 	}
 	if (
@@ -50,8 +50,6 @@ const canonical = (snapshot: PullfrogSnapshot) => ({
 	prUrl: snapshot.prUrl,
 	title: snapshot.title,
 	state: snapshot.state,
-	headSha: snapshot.headSha,
-	reviewSubmittedForHead: snapshot.reviewSubmittedForHead,
 	workflowRun: snapshot.workflowRun,
 	workflowRunPending: snapshot.workflowRunPending,
 	reviews: [...snapshot.reviews].sort((a, b) => a.id.localeCompare(b.id)),
@@ -61,7 +59,6 @@ const canonical = (snapshot: PullfrogSnapshot) => ({
 	inlineCommentsAndReplies: [...snapshot.inlineCommentsAndReplies].sort(
 		(a, b) => a.id - b.id,
 	),
-	commits: [...snapshot.commits].sort((a, b) => a.sha.localeCompare(b.sha)),
 });
 
 export const fingerprintSnapshot = (snapshot: PullfrogSnapshot) =>
@@ -92,7 +89,6 @@ export const formatSnapshotFeedback = (snapshot: PullfrogSnapshot) =>
 				`### review:${review.id}`,
 				`Author: ${review.authorLogin}`,
 				`URL: ${review.url}`,
-				`Reviewed commit: ${review.commitSha ?? 'unknown'}`,
 				'',
 				review.body.trim() || '(empty body)',
 			].join('\n'),

@@ -45,6 +45,7 @@ describe('Pullfrog monitor state', () => {
 						currentFingerprint: null,
 						readyFingerprint: null,
 						reviewedFingerprint: null,
+						reviewOutcome: null,
 						status: 'watching',
 						detectedAt: null,
 						reviewedAt: null,

@@ -13,7 +13,6 @@ export type PullfrogReview = {
 	body: string;
 	authorLogin: string;
 	submittedAt: string;
-	commitSha: string | null;
 	state: string;
 	url: string;
 };
@@ -42,16 +41,13 @@ export type PullfrogInlineComment = {
 	inReplyToId: number | null;
 };
 
-export type PullRequestCommit = {
-	sha: string;
-	committedAt: string;
-};
-
 export type PullfrogWorkflowRun = {
 	id: number;
 	url: string;
 	status: string;
 	conclusion: string | null;
+	createdAt: string;
+	updatedAt: string;
 };
 
 export type PullfrogSnapshot = {
@@ -61,13 +57,11 @@ export type PullfrogSnapshot = {
 	title: string;
 	state: 'OPEN' | 'CLOSED' | 'MERGED';
 	headSha: string;
-	reviewSubmittedForHead: boolean;
 	workflowRun: PullfrogWorkflowRun | null;
 	workflowRunPending: boolean;
 	reviews: PullfrogReview[];
 	issueComments: PullfrogIssueComment[];
 	inlineCommentsAndReplies: PullfrogInlineComment[];
-	commits: PullRequestCommit[];
 };
 
 export type ReviewStatus = 'watching' | 'ready' | 'reviewed';
@@ -83,6 +77,7 @@ export type PullfrogPrState = {
 	currentFingerprint: string | null;
 	readyFingerprint: string | null;
 	reviewedFingerprint: string | null;
+	reviewOutcome: 'clean' | 'reviewed' | null;
 	status: ReviewStatus;
 	detectedAt: string | null;
 	reviewedAt: string | null;

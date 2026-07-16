@@ -5,11 +5,8 @@ import {
 	type ExtensionContext,
 } from '@earendil-works/pi-coding-agent';
 import {randomUUID} from 'node:crypto';
-import {
-	fingerprintSnapshot,
-	formatSnapshotFeedback,
-	hasSubstantiveFeedback,
-} from './aggregate';
+import {fingerprintSnapshot, formatSnapshotFeedback} from './aggregate';
+import {assessPullfrogFeedback} from './classifier';
 import {collectPullfrogSnapshot, getCurrentPullRequest} from './github';
 import {ringTerminalBell} from './notifications';
 import {
@@ -80,6 +77,7 @@ const createPrState = (
 	currentFingerprint: null,
 	readyFingerprint: null,
 	reviewedFingerprint: null,
+	reviewOutcome: null,
 	status: monitoring ? 'watching' : 'reviewed',
 	detectedAt: null,
 	reviewedAt: null,
@@ -108,34 +106,26 @@ const updateSnapshotMetadata = (
 	entry.headSha = snapshot.headSha;
 };
 
-const getMonitoringMessage = (
-	snapshot: PullfrogSnapshot,
-	substantive: boolean,
-) => {
+const workflowIsFinal = (snapshot: PullfrogSnapshot) =>
+	!snapshot.workflowRunPending &&
+	snapshot.workflowRun?.status === 'completed' &&
+	snapshot.workflowRun.conclusion === 'success';
+
+const getMonitoringMessage = (snapshot: PullfrogSnapshot) => {
 	const prefix = `PR #${snapshot.prNumber}`;
 	if (snapshot.workflowRunPending) {
 		return `${prefix} · Pullfrog activity detected · Waiting for workflow details`;
 	}
-	if (snapshot.workflowRun) {
-		if (snapshot.workflowRun.status !== 'completed') {
-			return `${prefix} · Pullfrog review is ${snapshot.workflowRun.status.replaceAll('_', ' ')}`;
-		}
-		if (!snapshot.reviewSubmittedForHead) {
-			return `${prefix} · Workflow finished · Waiting for submitted review`;
-		}
+	if (!snapshot.workflowRun) {
+		return `${prefix} · Watching for Pullfrog feedback`;
 	}
-	if (!snapshot.reviewSubmittedForHead) {
-		const hasActivity =
-			snapshot.reviews.length > 0 ||
-			snapshot.issueComments.length > 0 ||
-			snapshot.inlineCommentsAndReplies.length > 0;
-		return hasActivity
-			? `${prefix} · Pullfrog feedback detected · Waiting for submitted review`
-			: `${prefix} · Watching for Pullfrog feedback`;
+	if (snapshot.workflowRun.status !== 'completed') {
+		return `${prefix} · Pullfrog review is ${snapshot.workflowRun.status.replaceAll('_', ' ')}`;
 	}
-	return substantive
-		? `${prefix} · Pullfrog feedback found · Confirming review state`
-		: `${prefix} · Pullfrog review finished · No actionable feedback`;
+	if (snapshot.workflowRun.conclusion !== 'success') {
+		return `${prefix} · Pullfrog workflow ${snapshot.workflowRun.conclusion ?? 'did not succeed'}`;
+	}
+	return `${prefix} · Pullfrog review finished · Use /pullfrog`;
 };
 
 const buildReviewPrompt = (snapshot: PullfrogSnapshot) =>
@@ -250,7 +240,7 @@ export default function pullfrogMonitor(pi: ExtensionAPI) {
 			current.readyFingerprint === current.currentFingerprint
 		) {
 			activeContext.ui.setWidget(READY_WIDGET, [
-				`🐸 Pullfrog feedback ready on PR #${current.prNumber} · Use /pullfrog`,
+				`🐸 Pullfrog review finished on PR #${current.prNumber} · Use /pullfrog`,
 			]);
 		} else if (current?.monitoring) {
 			activeContext.ui.setWidget(READY_WIDGET, [
@@ -280,6 +270,27 @@ export default function pullfrogMonitor(pi: ExtensionAPI) {
 			signal: runtimeAbort?.signal,
 		});
 		return {repo, snapshot};
+	};
+
+	const waitForFinalizedReview = async (initial: PullfrogSnapshot) => {
+		if (!repository) {
+			throw new Error('Pullfrog repository is unavailable');
+		}
+		let snapshot = initial;
+		while (
+			snapshot.workflowRunPending ||
+			(snapshot.workflowRun !== null &&
+				snapshot.workflowRun.status !== 'completed')
+		) {
+			await new Promise((resolvePromise) => setTimeout(resolvePromise, 5_000));
+			snapshot = await collectPullfrogSnapshot({
+				repository: snapshot.repository,
+				cwd: repository.root,
+				prNumber: snapshot.prNumber,
+				signal: runtimeAbort?.signal,
+			});
+		}
+		return snapshot;
 	};
 
 	const refreshCurrentReviewKey = async (expectedGeneration: number) => {
@@ -319,7 +330,7 @@ export default function pullfrogMonitor(pi: ExtensionAPI) {
 	};
 
 	const processMonitoredPr = async (entry: PullfrogPrState) => {
-		if (!repository || !statePath) {
+		if (!repository || !statePath || !activeContext) {
 			return;
 		}
 		const snapshot = await collectPullfrogSnapshot({
@@ -340,15 +351,19 @@ export default function pullfrogMonitor(pi: ExtensionAPI) {
 			});
 			return;
 		}
-		const substantive = hasSubstantiveFeedback(snapshot);
 		const fingerprint = fingerprintSnapshot(snapshot);
+		const finalized = workflowIsFinal(snapshot);
 		const changed = await updateState(statePath, (state) => {
 			const current = state.reviews[key];
 			if (!current || (!current.monitoring && current.status !== 'ready')) {
 				return false;
 			}
 			updateSnapshotMetadata(current, snapshot);
-			current.monitorMessage = getMonitoringMessage(snapshot, substantive);
+			if (current.currentFingerprint !== fingerprint) {
+				current.reviewOutcome = null;
+			}
+			current.currentFingerprint = fingerprint;
+			current.monitorMessage = getMonitoringMessage(snapshot);
 			current.error = null;
 			const attemptStartedAt = current.reviewStartedAt
 				? Date.parse(current.reviewStartedAt)
@@ -364,29 +379,25 @@ export default function pullfrogMonitor(pi: ExtensionAPI) {
 				current.activeAttemptPid = null;
 				current.reviewStartedAt = null;
 			}
-			if (!substantive) {
-				current.currentFingerprint = fingerprint;
+			if (!finalized) {
 				current.readyFingerprint = null;
 				current.status = current.monitoring ? 'watching' : 'reviewed';
 				return false;
 			}
 			if (current.reviewedFingerprint === fingerprint) {
-				current.currentFingerprint = fingerprint;
 				current.readyFingerprint = null;
+				current.monitorMessage =
+					current.reviewOutcome === 'clean'
+						? `PR #${snapshot.prNumber} · Pullfrog approved · No action required`
+						: `PR #${snapshot.prNumber} · Pullfrog feedback reviewed`;
 				current.status = current.monitoring ? 'watching' : 'reviewed';
-				return false;
-			}
-			if (current.currentFingerprint !== fingerprint) {
-				current.currentFingerprint = fingerprint;
-				current.readyFingerprint = null;
-				current.detectedAt = new Date().toISOString();
-				current.status = 'watching';
 				return false;
 			}
 			const newlyReady =
 				current.readyFingerprint !== fingerprint || current.status !== 'ready';
 			current.readyFingerprint = fingerprint;
 			if (newlyReady) {
+				current.detectedAt = new Date().toISOString();
 				current.notifiedAt = new Date().toISOString();
 			}
 			current.status = 'ready';
@@ -450,17 +461,23 @@ export default function pullfrogMonitor(pi: ExtensionAPI) {
 		}
 		const key = reviewKey(snapshot.repository, snapshot.prNumber);
 		const fingerprint = fingerprintSnapshot(snapshot);
-		const substantive = hasSubstantiveFeedback(snapshot);
+		const finalized = workflowIsFinal(snapshot);
 		await updateState(statePath, (state) => {
 			const current = state.reviews[key] ?? createPrState(snapshot, true);
 			state.reviews[key] = current;
 			current.monitoring = true;
 			updateSnapshotMetadata(current, snapshot);
 			current.currentFingerprint = fingerprint;
-			current.readyFingerprint = null;
-			current.monitorMessage = getMonitoringMessage(snapshot, substantive);
-			current.status = 'watching';
-			current.detectedAt = substantive ? new Date().toISOString() : null;
+			const ready = finalized && current.reviewedFingerprint !== fingerprint;
+			current.readyFingerprint = ready ? fingerprint : null;
+			current.monitorMessage =
+				current.reviewedFingerprint === fingerprint &&
+				current.reviewOutcome === 'clean'
+					? `PR #${snapshot.prNumber} · Pullfrog approved · No action required`
+					: getMonitoringMessage(snapshot);
+			current.status = ready ? 'ready' : 'watching';
+			current.detectedAt = ready ? new Date().toISOString() : null;
+			current.notifiedAt = ready ? new Date().toISOString() : null;
 			current.error = null;
 		});
 		ctx.ui.notify(`🐸 Watching Pullfrog on PR #${snapshot.prNumber}`, 'info');
@@ -521,11 +538,8 @@ export default function pullfrogMonitor(pi: ExtensionAPI) {
 		if (!statePath || !repository) {
 			throw new Error('Pullfrog state is unavailable');
 		}
-		if (!hasSubstantiveFeedback(snapshot)) {
-			ctx.ui.notify(
-				'No completed Pullfrog feedback found on the current PR.',
-				'info',
-			);
+		if (!workflowIsFinal(snapshot)) {
+			ctx.ui.notify('Pullfrog has not finished reviewing this PR.', 'info');
 			return;
 		}
 		const head = await pi.exec('git', ['rev-parse', 'HEAD'], {
@@ -688,6 +702,7 @@ export default function pullfrogMonitor(pi: ExtensionAPI) {
 		if (!statePath) {
 			throw new Error('Pullfrog state is unavailable');
 		}
+		const finalized = workflowIsFinal(snapshot);
 		const state = await readState(statePath);
 		const current =
 			state.reviews[reviewKey(snapshot.repository, snapshot.prNumber)];
@@ -699,20 +714,19 @@ export default function pullfrogMonitor(pi: ExtensionAPI) {
 			await startForegroundReview(ctx, snapshot);
 			return;
 		}
-		const substantive = hasSubstantiveFeedback(snapshot);
 		const options = current?.monitoring
 			? [
-					...(substantive ? ['Review Pullfrog feedback now'] : []),
+					...(finalized ? ['Review Pullfrog feedback now'] : []),
 					'Stop watching',
 				]
 			: [
-					...(substantive ? ['Review existing Pullfrog feedback'] : []),
+					...(finalized ? ['Review existing Pullfrog feedback'] : []),
 					'Watch for future feedback',
 				];
 		const monitoringLabel = current?.monitoring ? 'watching' : 'not watching';
-		const feedbackLabel = substantive
-			? 'feedback available'
-			: 'no feedback yet';
+		const feedbackLabel = finalized
+			? 'review finished'
+			: 'no completed feedback yet';
 		const selected = await ctx.ui.select(
 			`Pullfrog — PR #${snapshot.prNumber} · ${monitoringLabel} · ${feedbackLabel}`,
 			options,
@@ -800,6 +814,7 @@ export default function pullfrogMonitor(pi: ExtensionAPI) {
 				return;
 			}
 			current.reviewedFingerprint = metadata.fingerprint;
+			current.reviewOutcome = 'reviewed';
 			current.readyFingerprint = null;
 			current.reviewedAt = new Date().toISOString();
 			current.status = current.monitoring ? 'watching' : 'reviewed';
@@ -838,11 +853,82 @@ export default function pullfrogMonitor(pi: ExtensionAPI) {
 					await finishReview(ctx);
 					return;
 				}
-				const {snapshot} = await runWithLoader(
+				const {snapshot: initialSnapshot} = await runWithLoader(
 					ctx,
 					'Fetching current Pullfrog review state...',
 					() => resolveCurrent(ctx),
 				);
+				const waiting =
+					initialSnapshot.workflowRunPending ||
+					(initialSnapshot.workflowRun !== null &&
+						initialSnapshot.workflowRun.status !== 'completed');
+				const snapshot = waiting
+					? await runWithLoader(
+							ctx,
+							'Waiting for Pullfrog to finish reviewing...',
+							() => waitForFinalizedReview(initialSnapshot),
+						)
+					: initialSnapshot;
+				if (workflowIsFinal(snapshot)) {
+					if (!statePath) {
+						throw new Error('Pullfrog state is unavailable');
+					}
+					const fingerprint = fingerprintSnapshot(snapshot);
+					const key = reviewKey(snapshot.repository, snapshot.prNumber);
+					const existing = (await readState(statePath)).reviews[key];
+					if (existing?.reviewedFingerprint === fingerprint) {
+						if (existing.reviewOutcome === 'clean') {
+							ctx.ui.notify(
+								'🐸 Pullfrog approved · No action required',
+								'info',
+							);
+							return;
+						}
+						await showMenu(ctx, snapshot);
+						return;
+					}
+					const assessment = await runWithLoader(
+						ctx,
+						'Assessing finalized Pullfrog feedback...',
+						async () => {
+							try {
+								return await assessPullfrogFeedback({
+									ctx,
+									snapshot,
+									signal: runtimeAbort?.signal,
+								});
+							} catch (error) {
+								return {
+									classification: 'uncertain' as const,
+									summary:
+										error instanceof Error
+											? error.message
+											: 'Could not assess Pullfrog feedback.',
+								};
+							}
+						},
+					);
+					if (assessment.classification === 'clean') {
+						await updateState(statePath, (state) => {
+							const current =
+								state.reviews[key] ?? createPrState(snapshot, false);
+							state.reviews[key] = current;
+							updateSnapshotMetadata(current, snapshot);
+							current.currentFingerprint = fingerprint;
+							current.readyFingerprint = null;
+							current.reviewedFingerprint = fingerprint;
+							current.reviewOutcome = 'clean';
+							current.reviewedAt = new Date().toISOString();
+							current.monitorMessage = `PR #${snapshot.prNumber} · Pullfrog approved · No action required`;
+							current.status = current.monitoring ? 'watching' : 'reviewed';
+						});
+						ctx.ui.notify(`🐸 ${assessment.summary}`, 'info');
+						await renderUi(generation);
+						return;
+					}
+					await startForegroundReview(ctx, snapshot);
+					return;
+				}
 				await showMenu(ctx, snapshot);
 			} catch (error) {
 				ctx.ui.notify(

@@ -16,20 +16,24 @@ const snapshot = (
 	title: 'Test PR',
 	state: 'OPEN',
 	headSha: 'a'.repeat(40),
-	reviewSubmittedForHead: false,
-	workflowRun: null,
+	workflowRun: {
+		id: 123,
+		url: 'https://github.com/owner/repo/actions/runs/123',
+		status: 'completed',
+		conclusion: 'success',
+		createdAt: '2026-01-01T00:00:00Z',
+		updatedAt: '2026-01-01T00:05:00Z',
+	},
 	workflowRunPending: false,
 	reviews: [],
 	issueComments: [],
 	inlineCommentsAndReplies: [],
-	commits: [],
 	...overrides,
 });
 
 describe('Pullfrog snapshots', () => {
 	test('recognizes inline findings and includes developer replies as context', () => {
 		const value = snapshot({
-			reviewSubmittedForHead: true,
 			inlineCommentsAndReplies: [
 				{
 					id: 1,
@@ -74,7 +78,6 @@ describe('Pullfrog snapshots', () => {
 		expect(
 			hasSubstantiveFeedback(
 				snapshot({
-					reviewSubmittedForHead: true,
 					issueComments: [
 						{
 							id: 'IC_1',
@@ -98,14 +101,12 @@ describe('Pullfrog snapshots', () => {
 		expect(
 			hasSubstantiveFeedback(
 				snapshot({
-					reviewSubmittedForHead: true,
 					reviews: [
 						{
 							id: 'PRR_1',
 							body: 'No new issues found.',
 							authorLogin: 'pullfrog',
 							submittedAt: '2026-01-01T00:00:00Z',
-							commitSha: 'a'.repeat(40),
 							state: 'COMMENTED',
 							url: 'https://github.com/owner/repo/pull/123',
 						},
@@ -115,8 +116,9 @@ describe('Pullfrog snapshots', () => {
 		).toBe(false);
 	});
 
-	test('waits for the workflow and submitted review before exposing findings', () => {
+	test('waits for the workflow to complete before exposing findings', () => {
 		const inProgress = snapshot({
+			workflowRun: null,
 			inlineCommentsAndReplies: [
 				{
 					id: 1,
@@ -136,48 +138,52 @@ describe('Pullfrog snapshots', () => {
 			],
 		});
 		expect(hasSubstantiveFeedback(inProgress)).toBe(false);
-		const reviewSubmitted = {...inProgress, reviewSubmittedForHead: true};
 		expect(
 			hasSubstantiveFeedback({
-				...reviewSubmitted,
+				...inProgress,
 				workflowRunPending: true,
 			}),
 		).toBe(false);
 		expect(
 			hasSubstantiveFeedback({
-				...reviewSubmitted,
+				...inProgress,
 				workflowRun: {
 					id: 123,
 					url: 'https://github.com/owner/repo/actions/runs/123',
 					status: 'in_progress',
 					conclusion: null,
+					createdAt: '2026-01-01T00:00:00Z',
+					updatedAt: '2026-01-01T00:01:00Z',
 				},
 			}),
 		).toBe(false);
 		expect(
 			hasSubstantiveFeedback({
-				...reviewSubmitted,
+				...inProgress,
 				workflowRun: {
 					id: 123,
 					url: 'https://github.com/owner/repo/actions/runs/123',
 					status: 'completed',
 					conclusion: 'success',
+					createdAt: '2026-01-01T00:00:00Z',
+					updatedAt: '2026-01-01T00:05:00Z',
 				},
 			}),
 		).toBe(true);
 	});
 
-	test('fingerprint is order-independent and changes with the head', () => {
-		const one = snapshot({
-			commits: [
-				{sha: 'b', committedAt: '2026-01-02T00:00:00Z'},
-				{sha: 'a', committedAt: '2026-01-01T00:00:00Z'},
-			],
-		});
-		const two = snapshot({commits: [...one.commits].reverse()});
-		expect(fingerprintSnapshot(one)).toBe(fingerprintSnapshot(two));
-		expect(fingerprintSnapshot({...one, headSha: 'c'.repeat(40)})).not.toBe(
+	test('fingerprint follows the workflow feedback rather than the PR head', () => {
+		const one = snapshot();
+		expect(fingerprintSnapshot({...one, headSha: 'c'.repeat(40)})).toBe(
 			fingerprintSnapshot(one),
 		);
+		expect(
+			fingerprintSnapshot({
+				...one,
+				workflowRun: one.workflowRun
+					? {...one.workflowRun, id: one.workflowRun.id + 1}
+					: null,
+			}),
+		).not.toBe(fingerprintSnapshot(one));
 	});
 });

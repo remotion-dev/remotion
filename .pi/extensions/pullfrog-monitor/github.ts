@@ -1,6 +1,6 @@
 import {execFile} from 'node:child_process';
 import {promisify} from 'node:util';
-import {isNoIssueSummary, isProgressComment} from './aggregate';
+import {isProgressComment} from './aggregate';
 import {
 	PULLFROG_GRAPHQL_LOGIN,
 	PULLFROG_REST_LOGIN,
@@ -99,12 +99,6 @@ type ViewResponse = {
 		author?: GraphqlActor;
 		submittedAt?: string;
 		state?: string;
-		commit?: {oid?: string} | null;
-	}>;
-	commits: Array<{
-		oid: string;
-		committedDate?: string;
-		authoredDate?: string;
 	}>;
 };
 
@@ -122,6 +116,8 @@ type WorkflowRunResponse = {
 	html_url: string;
 	status: string;
 	conclusion: string | null;
+	created_at: string;
+	updated_at: string;
 };
 
 type InlineResponse = {
@@ -158,7 +154,6 @@ const fields = [
 	'state',
 	'headRefOid',
 	'reviews',
-	'commits',
 ].join(',');
 
 export const collectPullfrogSnapshot = async ({
@@ -247,36 +242,46 @@ export const collectPullfrogSnapshot = async ({
 				comment.updated_at ?? comment.created_at ?? new Date(0).toISOString(),
 			url: comment.html_url ?? view.url,
 		}));
-	const latestIssueComment = [...pullfrogIssueComments].sort((a, b) =>
-		b.updatedAt.localeCompare(a.updatedAt),
-	)[0];
-	const latestReviewWithBody = submittedPullfrogReviews
-		.filter((review) => (review.body ?? '').trim().length > 0)
-		.sort((a, b) =>
-			(b.submittedAt ?? '').localeCompare(a.submittedAt ?? ''),
-		)[0];
-	const latestReviewAt = latestReviewWithBody?.submittedAt ?? '';
-	const issueCommentIsLatest =
-		latestIssueComment && latestIssueComment.updatedAt > latestReviewAt;
-	const latestWorkflowSource = issueCommentIsLatest
-		? latestIssueComment
-		: latestReviewWithBody;
-	const latestWorkflowRunId = getWorkflowRunId(
-		latestWorkflowSource?.body ?? '',
-	);
-	const latestPullfrogActivityAt = issueCommentIsLatest
-		? latestIssueComment.updatedAt
-		: latestReviewAt;
+	const linkedActivities = [
+		...pullfrogIssueComments.map((comment) => ({
+			body: comment.body,
+			at: comment.updatedAt,
+		})),
+		...submittedPullfrogReviews.map((review) => ({
+			body: review.body ?? '',
+			at: review.submittedAt ?? '',
+		})),
+		...allInline
+			.filter((comment) => isPullfrogRestActor(comment.user ?? null))
+			.map((comment) => ({
+				body: comment.body ?? '',
+				at: comment.updated_at ?? comment.created_at ?? '',
+			})),
+	]
+		.map((activity) => ({...activity, runId: getWorkflowRunId(activity.body)}))
+		.filter(
+			(activity): activity is {body: string; at: string; runId: number} =>
+				activity.runId !== null,
+		)
+		.sort((a, b) => b.at.localeCompare(a.at));
+	const latestWorkflowActivity = linkedActivities[0];
+	const latestWorkflowRunId = latestWorkflowActivity?.runId ?? null;
+	const latestPullfrogIssueActivityAt = pullfrogIssueComments
+		.map((comment) => comment.updatedAt)
+		.sort((a, b) => b.localeCompare(a))[0];
 	const newerUserTrigger = allIssueComments.some(
 		(comment) =>
 			!isPullfrogRestActor(comment.user ?? null) &&
 			/@pullfrog(?:\[bot\])?\b/i.test(comment.body ?? '') &&
 			(comment.updated_at ?? comment.created_at ?? '') >
-				latestPullfrogActivityAt,
+				(latestWorkflowActivity?.at ?? ''),
 	);
 	const workflowRunPending =
 		newerUserTrigger ||
-		Boolean(issueCommentIsLatest && latestIssueComment && !latestWorkflowRunId);
+		Boolean(
+			latestPullfrogIssueActivityAt &&
+			latestPullfrogIssueActivityAt > (latestWorkflowActivity?.at ?? ''),
+		);
 	const workflowRun = latestWorkflowRunId
 		? (JSON.parse(
 				await runGh(
@@ -286,19 +291,64 @@ export const collectPullfrogSnapshot = async ({
 				),
 			) as WorkflowRunResponse)
 		: null;
+	const inWorkflowWindow = (timestamp: string) =>
+		workflowRun !== null &&
+		timestamp >= workflowRun.created_at &&
+		timestamp <= workflowRun.updated_at;
 	const reviews = submittedPullfrogReviews
-		.filter((review) => !isProgressComment(review.body ?? ''))
+		.filter(
+			(review) =>
+				workflowRun !== null &&
+				(getWorkflowRunId(review.body ?? '') === workflowRun.id ||
+					inWorkflowWindow(review.submittedAt ?? '')),
+		)
+		.filter(
+			(review) =>
+				!isProgressComment(review.body ?? '') &&
+				(review.body ?? '').trim().length > 0,
+		)
 		.map((review) => ({
 			id: review.id,
 			body: review.body ?? '',
 			authorLogin: review.author?.login ?? '',
 			submittedAt: review.submittedAt ?? new Date(0).toISOString(),
-			commitSha: review.commit?.oid ?? null,
 			state: review.state ?? '',
 			url: view.url,
 		}));
-	const hasInlineFindings = inlineCommentsAndReplies.some(
-		(comment) => comment.inReplyToId === null,
+	const issueComments = pullfrogIssueComments
+		.filter(
+			(comment) =>
+				workflowRun !== null &&
+				(getWorkflowRunId(comment.body) === workflowRun.id ||
+					inWorkflowWindow(comment.updatedAt)),
+		)
+		.filter(
+			(comment) =>
+				!isProgressComment(comment.body) && comment.body.trim().length > 0,
+		)
+		.map((comment) => ({
+			id: comment.id,
+			body: comment.body,
+			authorLogin: comment.authorLogin,
+			createdAt: comment.createdAt,
+			url: comment.url,
+		}));
+	const workflowRootIds = new Set(
+		inlineCommentsAndReplies
+			.filter(
+				(comment) =>
+					comment.inReplyToId === null &&
+					workflowRun !== null &&
+					(getWorkflowRunId(comment.body) === workflowRun.id ||
+						inWorkflowWindow(comment.createdAt)),
+			)
+			.map((comment) => comment.id),
+	);
+	const workflowInlineComments = inlineCommentsAndReplies.filter(
+		(comment) =>
+			workflowRootIds.has(comment.id) ||
+			(comment.inReplyToId !== null &&
+				workflowRootIds.has(comment.inReplyToId)),
 	);
 
 	return {
@@ -308,42 +358,19 @@ export const collectPullfrogSnapshot = async ({
 		title: view.title,
 		state: view.state,
 		headSha: view.headRefOid,
-		reviewSubmittedForHead: submittedPullfrogReviews.some(
-			(review) => review.commit?.oid === view.headRefOid,
-		),
 		workflowRun: workflowRun
 			? {
 					id: workflowRun.id,
 					url: workflowRun.html_url,
 					status: workflowRun.status,
 					conclusion: workflowRun.conclusion,
+					createdAt: workflowRun.created_at,
+					updatedAt: workflowRun.updated_at,
 				}
 			: null,
 		workflowRunPending,
-		reviews: hasInlineFindings
-			? reviews
-			: reviews.filter((review) => !isNoIssueSummary(review.body)),
-		issueComments: pullfrogIssueComments
-			.filter(
-				(comment) =>
-					!isProgressComment(comment.body) &&
-					!isNoIssueSummary(comment.body) &&
-					comment.body.trim().length > 0,
-			)
-			.map((comment) => ({
-				id: comment.id,
-				body: comment.body,
-				authorLogin: comment.authorLogin,
-				createdAt: comment.createdAt,
-				url: comment.url,
-			})),
-		inlineCommentsAndReplies,
-		commits: view.commits.map((commit) => ({
-			sha: commit.oid,
-			committedAt:
-				commit.committedDate ??
-				commit.authoredDate ??
-				new Date(0).toISOString(),
-		})),
+		reviews,
+		issueComments,
+		inlineCommentsAndReplies: workflowInlineComments,
 	};
 };
