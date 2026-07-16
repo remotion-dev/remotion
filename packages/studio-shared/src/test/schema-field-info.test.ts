@@ -244,6 +244,24 @@ test('getFieldsToShow sorts fields by inspector group order', () => {
 	]);
 });
 
+test('getFieldsToShow does not reserve extra height for text content fields', () => {
+	const fields = getFieldsToShow({
+		schema: {
+			children: {
+				type: 'text-content',
+				default: '',
+			},
+		},
+		currentRuntimeValueDotNotation: {},
+		getDragOverrides: () => ({}),
+		propStatuses: {},
+		nodePath,
+		includeTextContent: true,
+	});
+
+	expect(fields?.[0].rowHeight).toBe(SCHEMA_FIELD_ROW_HEIGHT);
+});
+
 test('getEffectFieldsToShow sorts fields by inspector group order', () => {
 	const fields = getEffectFieldsToShow({
 		effect: {
