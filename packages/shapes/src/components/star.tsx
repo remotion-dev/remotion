@@ -1,5 +1,5 @@
 import React from 'react';
-import {Internals, Interactive} from 'remotion';
+import {Interactive} from 'remotion';
 import type {MakeStarProps} from '../utils/make-star';
 import {makeStar} from '../utils/make-star';
 import type {AllShapesProps} from './render-svg';
@@ -73,5 +73,3 @@ export const Star = Interactive.withSchema({
 	schema: starSchema,
 	supportsEffects: true,
 }) as React.FC<StarProps>;
-
-Internals.addSequenceStackTraces(Star);

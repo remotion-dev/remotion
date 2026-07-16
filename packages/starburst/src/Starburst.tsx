@@ -444,5 +444,3 @@ export const Starburst = Interactive.withSchema({
 });
 
 Starburst.displayName = 'Starburst';
-
-Internals.addSequenceStackTraces(Starburst);
