@@ -15,6 +15,7 @@ const chromeExecutable =
 export default defineConfig({
 	test: {
 		maxWorkers: process.env.CI ? 1 : 5,
+		setupFiles: ['./src/test/setup.ts'],
 		browser: {
 			enabled: true,
 			provider: playwright(),

@@ -15,6 +15,13 @@ type HTMLCanvasWithLayoutSubtree = HTMLCanvasElement & {
 };
 
 let nestedHtmlInCanvasSupport: Promise<boolean> | null = null;
+let forceDisableHtmlInCanvasForTesting = false;
+
+export const setForceDisableHtmlInCanvasForTesting = (
+	forceDisable: boolean,
+) => {
+	forceDisableHtmlInCanvasForTesting = forceDisable;
+};
 
 export const supportsNativeHtmlInCanvas = (): boolean => {
 	if (typeof document === 'undefined') {
@@ -151,6 +158,10 @@ const runNestedHtmlInCanvasProbe = (): Promise<boolean> => {
 };
 
 export const supportsNestedHtmlInCanvas = (): Promise<boolean> => {
+	if (forceDisableHtmlInCanvasForTesting) {
+		return Promise.resolve(false);
+	}
+
 	if (!nestedHtmlInCanvasSupport) {
 		nestedHtmlInCanvasSupport = runNestedHtmlInCanvasProbe();
 	}

@@ -1,6 +1,7 @@
 import {Internals} from 'remotion';
 import {expect, test, vi} from 'vitest';
 import {
+	setForceDisableHtmlInCanvasForTesting,
 	supportsNativeHtmlInCanvas,
 	supportsNestedHtmlInCanvas,
 } from '../html-in-canvas';
@@ -9,6 +10,8 @@ import {renderStillOnWeb} from '../render-still-on-web';
 import '../symbol-dispose';
 import {nestedHtmlInCanvas} from './fixtures/nested-html-in-canvas';
 import {testImage} from './utils';
+
+setForceDisableHtmlInCanvasForTesting(false);
 
 test('captures three nested HTML-in-canvas effect layers natively', async () => {
 	const supportsNesting = await supportsNestedHtmlInCanvas();
