@@ -92,6 +92,7 @@ import {
 	htmlInCanvasAllEffectsDefaultProps,
 	htmlInCanvasAllEffectsSchema,
 } from './Showcase/HtmlInCanvasAllEffects';
+import {SvgLogoCompositions} from './SvgLogos';
 import {
 	FlyingCardsLeft,
 	flyingCardsLeftSchema,
@@ -161,6 +162,7 @@ export const RemotionRoot: React.FC = () => {
 					}}
 				/>
 			</Folder>
+			<SvgLogoCompositions />
 			<Folder name="homepage-assets">
 				<Composition
 					id="NpmInitVideo"
