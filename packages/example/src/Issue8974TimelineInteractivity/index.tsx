@@ -1,70 +1,45 @@
 import {Video} from '@remotion/media';
-import {linearTiming, TransitionSeries} from '@remotion/transitions';
-import {fade} from '@remotion/transitions/fade';
+import {TransitionSeries} from '@remotion/transitions';
 import React from 'react';
+import {Series} from 'remotion';
 
 export const Issue8974TransitionSeriesTimeline: React.FC = () => {
 	return (
 		<TransitionSeries name="Linked timeline TransitionSeries">
-			<TransitionSeries.Sequence name="Linked clip 01" durationInFrames={42}>
+			<TransitionSeries.Sequence name="Linked clip 01" durationInFrames={39}>
 				<Video
 					name="Linked video 01"
 					src="https://remotion.media/video.mp4"
 					trimBefore={0}
-					trimAfter={42}
-					muted
+					durationInFrames={39}
 				/>
 			</TransitionSeries.Sequence>
-			<TransitionSeries.Transition
-				timing={linearTiming({durationInFrames: 8})}
-				presentation={fade()}
-			/>
-			<TransitionSeries.Sequence name="Linked clip 02" durationInFrames={50}>
+			<TransitionSeries.Sequence name="Linked clip 02" durationInFrames={84}>
 				<Video
 					name="Linked video 02"
 					src="https://remotion.media/video.webm"
 					trimBefore={8}
-					trimAfter={58}
-					muted
 				/>
 			</TransitionSeries.Sequence>
-			<TransitionSeries.Transition
-				timing={linearTiming({durationInFrames: 8})}
-				presentation={fade()}
-			/>
-			<TransitionSeries.Sequence name="Linked clip 03" durationInFrames={36}>
+			<TransitionSeries.Sequence name="Linked clip 03" durationInFrames={43}>
 				<Video
 					name="Linked video 03"
 					src="https://remotion.media/video.mp4"
 					trimBefore={60}
-					trimAfter={96}
-					muted
 				/>
 			</TransitionSeries.Sequence>
-			<TransitionSeries.Transition
-				timing={linearTiming({durationInFrames: 8})}
-				presentation={fade()}
-			/>
-			<TransitionSeries.Sequence name="Linked clip 04" durationInFrames={46}>
+			<TransitionSeries.Sequence name="Linked clip 04" durationInFrames={36}>
 				<Video
 					name="Linked video 04"
 					src="https://remotion.media/video.webm"
-					trimBefore={70}
-					trimAfter={116}
-					muted
+					trimBefore={80}
 				/>
 			</TransitionSeries.Sequence>
-			<TransitionSeries.Transition
-				timing={linearTiming({durationInFrames: 8})}
-				presentation={fade()}
-			/>
-			<TransitionSeries.Sequence name="Linked clip 05" durationInFrames={56}>
+			<TransitionSeries.Sequence name="Linked clip 05" durationInFrames={45}>
 				<Video
 					name="Linked video 05"
 					src="https://remotion.media/video.mp4"
 					trimBefore={120}
-					trimAfter={176}
-					muted
 				/>
 			</TransitionSeries.Sequence>
 		</TransitionSeries>
@@ -104,5 +79,52 @@ export const Issue8974IndependentVideosTimeline: React.FC = () => {
 				durationInFrames={60}
 			/>
 		</>
+	);
+};
+
+export const Issue8974SeriesTimeline: React.FC = () => {
+	return (
+		<Series name="Linked timeline Series">
+			<Series.Sequence name="Linked clip 01" durationInFrames={78}>
+				<Video
+					name="Linked video 01"
+					src="https://remotion.media/video.mp4"
+					trimBefore={0}
+					durationInFrames={78}
+				/>
+			</Series.Sequence>
+			<Series.Sequence name="Linked clip 02" durationInFrames={66}>
+				<Video
+					name="Linked video 02"
+					src="https://remotion.media/video.webm"
+					trimBefore={12}
+					durationInFrames={66}
+				/>
+			</Series.Sequence>
+			<Series.Sequence name="Linked clip 03" durationInFrames={90}>
+				<Video
+					name="Linked video 03"
+					src="https://remotion.media/video.mp4"
+					trimBefore={72}
+					durationInFrames={90}
+				/>
+			</Series.Sequence>
+			<Series.Sequence name="Linked clip 04" durationInFrames={72}>
+				<Video
+					name="Linked video 04"
+					src="https://remotion.media/video.webm"
+					trimBefore={58}
+					durationInFrames={72}
+				/>
+			</Series.Sequence>
+			<Series.Sequence name="Linked clip 05" durationInFrames={60}>
+				<Video
+					name="Linked video 05"
+					src="https://remotion.media/video.mp4"
+					trimBefore={180}
+					durationInFrames={60}
+				/>
+			</Series.Sequence>
+		</Series>
 	);
 };

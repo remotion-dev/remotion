@@ -6,8 +6,13 @@ import type {TSequence} from '../CompositionManager.js';
 import {Img} from '../Img.js';
 import {Interactive} from '../Interactive.js';
 import {Internals} from '../internals.js';
+import type {OverrideIdToNodePaths} from '../sequence-node-path.js';
+import {OverrideIdsToNodePathsGettersContext} from '../sequence-node-path.js';
 import {Sequence} from '../Sequence.js';
-import type {SequenceManagerContext} from '../SequenceManager.js';
+import type {
+	SequenceManagerContext,
+	SequencePropsSubscriptionKey,
+} from '../SequenceManager.js';
 import {
 	SequenceManager,
 	SequenceManagerProvider,
@@ -20,15 +25,33 @@ import {
 import {Series} from '../series/index.js';
 import {useCurrentFrame} from '../use-current-frame.js';
 import type {BasicMediaInTimelineReturnType} from '../use-media-in-timeline.js';
+import type {DragOverrides, PropStatuses} from '../use-schema.js';
 import {WrapSequenceContext} from './wrap-sequence-context.js';
 
 afterEach(cleanup);
 
-const SequenceTestWrapper: React.FC<{
+type SequenceTestWrapperProps = {
 	readonly children: React.ReactNode;
 	readonly onRegisterSequence: (sequence: TSequence) => void;
 	readonly rerenderOnRegister?: boolean;
-}> = ({children, onRegisterSequence, rerenderOnRegister = false}) => {
+};
+
+type VisualModeOverrides = {
+	readonly overrideIdToNodePathMappings: OverrideIdToNodePaths;
+	readonly propStatuses: PropStatuses;
+	readonly dragOverrides: DragOverrides;
+};
+
+const SequenceTestWrapperWithVisualModeOverrides: React.FC<
+	SequenceTestWrapperProps & {
+		readonly visualModeOverrides: VisualModeOverrides | null;
+	}
+> = ({
+	children,
+	onRegisterSequence,
+	rerenderOnRegister = false,
+	visualModeOverrides,
+}) => {
 	const [, setTick] = useState(0);
 
 	const registerSequence = useCallback(
@@ -50,21 +73,28 @@ const SequenceTestWrapper: React.FC<{
 
 	const visualPropStatuses = useMemo(
 		() => ({
-			propStatuses: {},
+			propStatuses: visualModeOverrides?.propStatuses ?? {},
 		}),
-		[],
+		[visualModeOverrides],
 	);
 
 	const visualDragOverrides = useMemo(
 		() => ({
-			getDragOverrides: () => {
-				throw new Error('VisualModeDragOverridesContext not initialized');
-			},
-			getEffectDragOverrides: () => {
-				throw new Error('VisualModeDragOverridesContext not initialized');
-			},
+			getDragOverrides: (nodePath: SequencePropsSubscriptionKey) =>
+				visualModeOverrides?.dragOverrides[
+					Internals.makeSequencePropsSubscriptionKey(nodePath)
+				] ?? {},
+			getEffectDragOverrides: () => ({}),
 		}),
-		[],
+		[visualModeOverrides],
+	);
+
+	const overrideIdToNodePathContext = useMemo(
+		() => ({
+			overrideIdToNodePathMappings:
+				visualModeOverrides?.overrideIdToNodePathMappings ?? {},
+		}),
+		[visualModeOverrides],
 	);
 
 	const visualSetters = useMemo(
@@ -89,19 +119,39 @@ const SequenceTestWrapper: React.FC<{
 					isReadOnlyStudio: false,
 				}}
 			>
-				<SequenceManager.Provider value={ctx}>
-					<VisualModePropStatusesContext.Provider value={visualPropStatuses}>
-						<VisualModeDragOverridesContext.Provider
-							value={visualDragOverrides}
-						>
-							<VisualModeSettersContext.Provider value={visualSetters}>
-								{children}
-							</VisualModeSettersContext.Provider>
-						</VisualModeDragOverridesContext.Provider>
-					</VisualModePropStatusesContext.Provider>
-				</SequenceManager.Provider>
+				<OverrideIdsToNodePathsGettersContext.Provider
+					value={overrideIdToNodePathContext}
+				>
+					<SequenceManager.Provider value={ctx}>
+						<VisualModePropStatusesContext.Provider value={visualPropStatuses}>
+							<VisualModeDragOverridesContext.Provider
+								value={visualDragOverrides}
+							>
+								<VisualModeSettersContext.Provider value={visualSetters}>
+									{children}
+								</VisualModeSettersContext.Provider>
+							</VisualModeDragOverridesContext.Provider>
+						</VisualModePropStatusesContext.Provider>
+					</SequenceManager.Provider>
+				</OverrideIdsToNodePathsGettersContext.Provider>
 			</Internals.RemotionEnvironmentContext>
 		</WrapSequenceContext>
+	);
+};
+
+const SequenceTestWrapper: React.FC<SequenceTestWrapperProps> = ({
+	children,
+	onRegisterSequence,
+	rerenderOnRegister = false,
+}) => {
+	return (
+		<SequenceTestWrapperWithVisualModeOverrides
+			onRegisterSequence={onRegisterSequence}
+			rerenderOnRegister={rerenderOnRegister}
+			visualModeOverrides={null}
+		>
+			{children}
+		</SequenceTestWrapperWithVisualModeOverrides>
 	);
 };
 
@@ -219,8 +269,10 @@ test('Sequence layout="none" uses outlineRef for Studio outlines', () => {
 	expect(registeredSequences[0]?.refForOutline?.current?.tagName).toBe('DIV');
 });
 
-test('Series.Sequence registers without visual controls', () => {
+test('Series.Sequence registers with its own visual controls', () => {
 	const registeredSequences: TSequence[] = [];
+	const firstStack = 'Error\n    at FirstSeriesSequence';
+	const secondStack = 'Error\n    at SecondSeriesSequence';
 
 	render(
 		<SequenceTestWrapper
@@ -229,10 +281,19 @@ test('Series.Sequence registers without visual controls', () => {
 			}}
 		>
 			<Series>
-				<Series.Sequence durationInFrames={10} premountFor={30}>
+				<Series.Sequence
+					durationInFrames={10}
+					premountFor={30}
+					{...({stack: firstStack} as {readonly stack: string})}
+				>
 					First
 				</Series.Sequence>
-				<Series.Sequence durationInFrames={20}>Second</Series.Sequence>
+				<Series.Sequence
+					durationInFrames={20}
+					{...({stack: secondStack} as {readonly stack: string})}
+				>
+					Second
+				</Series.Sequence>
 			</Series>
 		</SequenceTestWrapper>,
 	);
@@ -243,8 +304,126 @@ test('Series.Sequence registers without visual controls', () => {
 
 	expect(seriesSequences).toHaveLength(2);
 	for (const sequence of seriesSequences) {
-		expect(sequence.controls).toBe(null);
+		expect(sequence.controls?.componentIdentity).toBe(
+			'dev.remotion.remotion.Series.Sequence',
+		);
+		expect(sequence.isInsideSeries).toBe(true);
 	}
+
+	expect(
+		seriesSequences.map(
+			(sequence) =>
+				sequence.controls?.currentRuntimeValueDotNotation.durationInFrames,
+		),
+	).toEqual([10, 20]);
+	expect(seriesSequences.map((sequence) => sequence.getStack())).toEqual([
+		firstStack,
+		secondStack,
+	]);
+});
+
+test('Series.Sequence duration overrides cascade to later sequences', async () => {
+	const registeredSequences: TSequence[] = [];
+	const onRegisterSequence = (sequence: TSequence) => {
+		registeredSequences.push(sequence);
+	};
+
+	const renderSeries = ({
+		overrideIdToNodePathMappings,
+		propStatuses,
+		dragOverrides,
+	}: {
+		overrideIdToNodePathMappings: OverrideIdToNodePaths;
+		propStatuses: PropStatuses;
+		dragOverrides: DragOverrides;
+	}) => (
+		<SequenceTestWrapperWithVisualModeOverrides
+			onRegisterSequence={onRegisterSequence}
+			visualModeOverrides={{
+				overrideIdToNodePathMappings,
+				propStatuses,
+				dragOverrides,
+			}}
+		>
+			<Series>
+				<Series.Sequence name="First" durationInFrames={10}>
+					First
+				</Series.Sequence>
+				<Series.Sequence name="Second" durationInFrames={20}>
+					Second
+				</Series.Sequence>
+			</Series>
+		</SequenceTestWrapperWithVisualModeOverrides>
+	);
+
+	const rendered = render(
+		renderSeries({
+			overrideIdToNodePathMappings: {},
+			propStatuses: {},
+			dragOverrides: {},
+		}),
+	);
+	const firstSequence = registeredSequences.find(
+		(sequence) => sequence.displayName === 'First',
+	);
+	if (!firstSequence?.controls) {
+		throw new Error('Expected the first Series.Sequence to be interactive');
+	}
+
+	const firstSequenceControls = firstSequence.controls;
+
+	const nodePath = {
+		absolutePath: '/src/Composition.tsx',
+		nodePath: ['body', 0],
+		sequenceKeys: [],
+		effectKeys: [],
+	};
+	const subscriptionKey = Internals.makeSequencePropsSubscriptionKey(nodePath);
+	const makeDurationOverride = (durationInFrames: number) => ({
+		overrideIdToNodePathMappings: {
+			[firstSequenceControls.overrideId]: nodePath,
+		},
+		propStatuses: {
+			[subscriptionKey]: {
+				canUpdate: true as const,
+				props: {
+					durationInFrames: {status: 'static' as const, codeValue: 10},
+				},
+				effects: [],
+			},
+		},
+		dragOverrides: {
+			[subscriptionKey]: {
+				durationInFrames: Internals.makeStaticDragOverride(durationInFrames),
+			},
+		},
+	});
+
+	registeredSequences.length = 0;
+	rendered.rerender(renderSeries(makeDurationOverride(15)));
+	await waitFor(() => {
+		expect(
+			registeredSequences.find((sequence) => sequence.displayName === 'First')
+				?.duration,
+		).toBe(15);
+		expect(
+			registeredSequences.find((sequence) => sequence.displayName === 'Second')
+				?.from,
+		).toBe(15);
+	});
+
+	registeredSequences.length = 0;
+	rendered.rerender(renderSeries(makeDurationOverride(18)));
+	await waitFor(() => {
+		expect(
+			registeredSequences.find((sequence) => sequence.displayName === 'First')
+				?.duration,
+		).toBe(18);
+		expect(
+			registeredSequences.find((sequence) => sequence.displayName === 'Second')
+				?.from,
+		).toBe(18);
+	});
 });
 
 test('Img registers its documentation link for default labels', () => {
