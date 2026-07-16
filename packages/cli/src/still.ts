@@ -217,8 +217,9 @@ export const still = async (
 		mediaCacheSizeInBytes,
 		askAIEnabled,
 		experimentalClientSideRenderingEnabled:
-			experimentalClientSideRenderingOption.getValue({commandLine: parsedCli})
-				.value,
+			experimentalClientSideRenderingOption.getValue({
+				commandLine: parsedCli,
+			}).value,
 		keyboardShortcutsEnabled,
 		rspack,
 		shouldCache,

@@ -106,8 +106,7 @@ export const startServer = async (options: {
 		maxTimelineTracks: options?.maxTimelineTracks ?? null,
 		remotionRoot: options.remotionRoot,
 		keyboardShortcutsEnabled: options.keyboardShortcutsEnabled,
-		experimentalClientSideRenderingEnabled:
-			options.experimentalClientSideRenderingEnabled,
+		experimentalClientSideRenderingEnabled: true,
 		poll: options.poll,
 		bufferStateDelayInMilliseconds: options.bufferStateDelayInMilliseconds,
 		askAIEnabled: options.askAIEnabled,

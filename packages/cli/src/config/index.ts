@@ -187,10 +187,7 @@ declare global {
 		 */
 		readonly setInteractivityEnabled: (enabled: boolean) => void;
 		/**
-		 * Enable WIP client-side rendering in the Remotion Studio.
-		 * See https://www.remotion.dev/docs/client-side-rendering/ for notes.
-		 * @param enabled Boolean whether to enable client-side rendering
-		 * @default false
+		 * @deprecated Client-side rendering is always enabled. This method is a no-op and can be removed.
 		 */
 		readonly setExperimentalClientSideRenderingEnabled: (
 			enabled: boolean,

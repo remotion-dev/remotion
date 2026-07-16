@@ -232,7 +232,7 @@ export const descriptions: {[key in Pkgs]: string | null} = {
 	'serverless-client': null,
 	media: 'Experimental WebCodecs-based media tags',
 	'remotion-media': null,
-	'web-renderer': 'Render videos in the browser (not yet released)',
+	'web-renderer': 'Render videos in the browser',
 	design: 'Design system',
 	'light-leaks': 'Light leak effects for Remotion',
 	'rough-notation': 'Rough annotation primitives for Remotion',

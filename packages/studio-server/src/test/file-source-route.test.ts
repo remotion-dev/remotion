@@ -79,7 +79,7 @@ test('serves file source from an origin-less GET request', async () => {
 			getStudioRuntimeConfig: () => ({
 				askAIEnabled: false,
 				bufferStateDelayInMilliseconds: null,
-				experimentalClientSideRenderingEnabled: false,
+				experimentalClientSideRenderingEnabled: true,
 				interactivityEnabled: true,
 				keyboardShortcutsEnabled: true,
 				maxTimelineTracks: null,

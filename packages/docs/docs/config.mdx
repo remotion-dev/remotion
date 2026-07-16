@@ -189,17 +189,9 @@ Config.setInteractivityEnabled(false);
 
 The [command line flag](/docs/cli/studio#--disable-interactivity) `--disable-interactivity` will take precedence over this option.
 
-## `setExperimentalClientSideRenderingEnabled()`<AvailableFrom v="4.0.387" />
+## ~~`setExperimentalClientSideRenderingEnabled()`~~<AvailableFrom v="4.0.387" />
 
-<Options id="enable-experimental-client-side-rendering" />
-
-```ts twoslash title="remotion.config.ts"
-import {Config} from '@remotion/cli/config';
-// ---cut---
-Config.setExperimentalClientSideRenderingEnabled(true);
-```
-
-The [command line flag](/docs/cli/studio#--enable-experimental-client-side-rendering) `--enable-experimental-client-side-rendering` will take precedence over this option.
+From Remotion v4.0.491, client-side rendering is always enabled. This method is a no-op and can be removed from your config file.
 
 ## ~~`setAllowHtmlInCanvasEnabled()`~~<AvailableFrom v="4.0.447" />
 

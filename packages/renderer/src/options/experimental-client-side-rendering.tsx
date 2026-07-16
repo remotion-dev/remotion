@@ -1,36 +1,28 @@
 import type {AnyRemotionOption} from './option';
 
-let experimentalClientSideRenderingEnabled = false;
-
 const cliFlag = 'enable-experimental-client-side-rendering' as const;
 
+/**
+ * @deprecated Client-side rendering is always enabled.
+ */
 export const experimentalClientSideRenderingOption = {
-	name: 'Enable Experimental Client-Side Rendering',
+	name: 'Enable Client-Side Rendering (deprecated)',
 	cliFlag,
 	description: () => (
 		<>
-			Enable WIP client-side rendering in the Remotion Studio. See
-			https://www.remotion.dev/docs/client-side-rendering/ for notes.
+			Deprecated in Remotion 4.0.491. Client-side rendering is always enabled
+			and this option has no effect.
 		</>
 	),
 	ssrName: null,
 	docLink: 'https://www.remotion.dev/docs/client-side-rendering',
-	type: false as boolean,
-	getValue: ({commandLine}) => {
-		if (commandLine[cliFlag] !== null) {
-			return {
-				value: commandLine[cliFlag] as boolean,
-				source: 'cli',
-			};
-		}
-
+	type: true as boolean,
+	getValue: (_options: {commandLine: Record<string, unknown>}) => {
 		return {
-			value: experimentalClientSideRenderingEnabled,
-			source: 'config',
+			value: true,
+			source: 'default',
 		};
 	},
-	setConfig(value) {
-		experimentalClientSideRenderingEnabled = value;
-	},
+	setConfig(_value: boolean) {},
 	id: cliFlag,
 } satisfies AnyRemotionOption<boolean>;

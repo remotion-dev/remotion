@@ -134,8 +134,9 @@ export const processVideoJob = async ({
 		imageSequencePattern: null,
 		askAIEnabled,
 		experimentalClientSideRenderingEnabled:
-			experimentalClientSideRenderingOption.getValue({commandLine: parsedCli})
-				.value,
+			experimentalClientSideRenderingOption.getValue({
+				commandLine: parsedCli,
+			}).value,
 		keyboardShortcutsEnabled,
 		rspack,
 		shouldCache,
