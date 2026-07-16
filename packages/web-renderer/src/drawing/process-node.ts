@@ -1,7 +1,10 @@
 import {Internals, type LogLevel} from 'remotion';
 import type {InternalState} from '../internal-state';
 import {createLayer} from '../take-screenshot';
-import {calculateTransforms} from './calculate-transforms';
+import {
+	calculateTransforms,
+	type TransformStyleCache,
+} from './calculate-transforms';
 import {getWiderRectAndExpand} from './clamp-rect-to-parent-bounds';
 import {doRectsIntersect} from './do-rects-intersect';
 import {drawElement} from './draw-element';
@@ -33,6 +36,7 @@ export const processNode = async ({
 	rootElement,
 	scale,
 	waitForPageResponsiveness,
+	transformStyleCache,
 }: {
 	element: HTMLElement | SVGElement;
 	context: OffscreenCanvasRenderingContext2D;
@@ -43,10 +47,12 @@ export const processNode = async ({
 	rootElement: HTMLElement | SVGElement;
 	scale: number;
 	waitForPageResponsiveness: (() => Promise<void>) | null;
+	transformStyleCache: TransformStyleCache;
 }): Promise<ProcessNodeReturnValue> => {
 	using transforms = calculateTransforms({
 		element,
 		rootElement,
+		transformStyleCache,
 	});
 
 	const {opacity, computedStyle, totalMatrix, dimensions, precompositing} =
