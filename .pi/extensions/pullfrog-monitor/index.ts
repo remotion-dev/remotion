@@ -10,7 +10,7 @@ import {
 	hasSubstantiveFeedback,
 } from './aggregate';
 import {collectPullfrogSnapshot} from './github';
-import {notifyPullfrogReady} from './notifications';
+import {ringTerminalBell} from './notifications';
 import {
 	getRepositoryContext,
 	getStatePath,
@@ -282,10 +282,7 @@ export default function pullfrogMonitor(pi: ExtensionAPI) {
 			return false;
 		});
 		if (changed.result) {
-			notifyPullfrogReady(
-				`Pullfrog PR #${snapshot.prNumber}`,
-				'Feedback is ready to review — run /pullfrog',
-			);
+			ringTerminalBell();
 		}
 	};
 
