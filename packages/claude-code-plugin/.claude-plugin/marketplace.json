@@ -10,7 +10,10 @@
 		{
 			"name": "remotion",
 			"displayName": "Remotion",
-			"source": "./plugins/remotion",
+			"source": {
+				"source": "github",
+				"repo": "remotion-dev/claude-code-plugin"
+			},
 			"description": "Create programmatic videos with Remotion and React",
 			"author": {
 				"name": "Remotion",
