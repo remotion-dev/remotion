@@ -158,7 +158,7 @@ const getSchemaFieldRowHeight = ({
 	}
 
 	if (fieldSchema.type === 'text-content') {
-		return SCHEMA_FIELD_ROW_HEIGHT * 2;
+		return SCHEMA_FIELD_ROW_HEIGHT * 3;
 	}
 
 	return SCHEMA_FIELD_ROW_HEIGHT;

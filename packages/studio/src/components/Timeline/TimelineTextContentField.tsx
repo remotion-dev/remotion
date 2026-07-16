@@ -146,7 +146,8 @@ export const TimelineTextContentField: React.FC<{
 			style={{
 				boxSizing: 'border-box',
 				height: 40,
-				width: 160,
+				minWidth: 0,
+				width: '100%',
 			}}
 		/>
 	);

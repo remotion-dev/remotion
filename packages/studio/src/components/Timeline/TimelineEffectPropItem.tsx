@@ -21,9 +21,8 @@ import {getAnimationItemSelectionForSourceFrame} from './get-animation-item-sele
 import {getComputedStatusLabel} from './get-timeline-keyframes';
 import {saveEffectProp} from './save-effect-prop';
 import {enqueueSavePropChange} from './save-prop-queue';
-import {timelineFieldValueColumnStyle} from './timeline-field-row-layout';
 import {TimelineExpandArrowSpacer} from './TimelineExpandArrowButton';
-import {TimelineFieldLabel} from './TimelineFieldLabel';
+import {TimelineFieldRowContent} from './TimelineFieldRowContent';
 import {
 	shouldShowTimelineKeyframeControls,
 	TimelineKeyframeControls,
@@ -612,19 +611,18 @@ export const TimelineEffectPropItem: React.FC<{
 			containsSelection={false}
 			outerHeight={null}
 		>
-			<TimelineFieldLabel
+			<TimelineFieldRowContent
+				field={field}
 				rowDepth={rowDepth}
 				selected={selection.selected}
-				label={field.description ?? field.key}
-			/>
-			<div style={timelineFieldValueColumnStyle}>
+			>
 				<TimelineEffectPropValue
 					field={field}
 					nodePath={nodePath}
 					validatedLocation={validatedLocation}
 					sourceFrame={sourceFrame}
 				/>
-			</div>
+			</TimelineFieldRowContent>
 		</TimelineRowChrome>
 	);
 

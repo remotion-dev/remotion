@@ -23,3 +23,11 @@ export const timelineFieldValueColumnStyle: React.CSSProperties = {
 	minWidth: 0,
 	paddingRight: EXPANDED_SECTION_PADDING_RIGHT,
 };
+
+export const timelineStackedFieldContentStyle: React.CSSProperties = {
+	alignSelf: 'stretch',
+	display: 'flex',
+	flex: 1,
+	flexDirection: 'column',
+	minWidth: 0,
+};
