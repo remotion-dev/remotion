@@ -27,7 +27,6 @@ const {
 	mediaCacheSizeInBytesOption,
 	darkModeOption,
 	askAIOption,
-	experimentalClientSideRenderingOption,
 	keyboardShortcutsOption,
 	rspackOption,
 	browserExecutableOption,
@@ -130,10 +129,6 @@ export const listCompositionsCommand = async (
 		darkMode,
 	};
 
-	const experimentalClientSideRenderingEnabled =
-		experimentalClientSideRenderingOption.getValue({
-			commandLine: parsedCli,
-		}).value;
 	const keyboardShortcutsEnabled = keyboardShortcutsOption.getValue({
 		commandLine: parsedCli,
 	}).value;
@@ -164,7 +159,6 @@ export const listCompositionsCommand = async (
 			maxTimelineTracks: null,
 			publicPath,
 			audioLatencyHint,
-			experimentalClientSideRenderingEnabled,
 			askAIEnabled,
 			keyboardShortcutsEnabled,
 			rspack,

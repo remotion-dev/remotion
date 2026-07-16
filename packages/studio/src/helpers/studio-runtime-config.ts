@@ -6,7 +6,6 @@ export const DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS = 300;
 const defaultStudioRuntimeConfig: StudioRuntimeConfig = {
 	askAIEnabled: false,
 	bufferStateDelayInMilliseconds: null,
-	experimentalClientSideRenderingEnabled: true,
 	interactivityEnabled: true,
 	keyboardShortcutsEnabled: true,
 	maxTimelineTracks: null,

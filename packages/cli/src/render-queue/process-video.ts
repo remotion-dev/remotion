@@ -10,7 +10,6 @@ import {renderVideoFlow} from '../render-flows/render';
 const {
 	publicDirOption,
 	askAIOption,
-	experimentalClientSideRenderingOption,
 	keyboardShortcutsOption,
 	rspackOption,
 	browserExecutableOption,
@@ -133,10 +132,6 @@ export const processVideoJob = async ({
 		audioLatencyHint: null,
 		imageSequencePattern: null,
 		askAIEnabled,
-		experimentalClientSideRenderingEnabled:
-			experimentalClientSideRenderingOption.getValue({
-				commandLine: parsedCli,
-			}).value,
 		keyboardShortcutsEnabled,
 		rspack,
 		shouldCache,

@@ -56,7 +56,6 @@ const {
 	mediaCacheSizeInBytesOption,
 	darkModeOption,
 	askAIOption,
-	experimentalClientSideRenderingOption,
 	keyboardShortcutsOption,
 	rspackOption,
 	pixelFormatOption,
@@ -273,10 +272,6 @@ export const benchmarkCommand = async (
 	const publicDir = publicDirOption.getValue({commandLine: parsedCli}).value;
 	const chromeMode = chromeModeOption.getValue({commandLine: parsedCli}).value;
 	const darkMode = darkModeOption.getValue({commandLine: parsedCli}).value;
-	const experimentalClientSideRenderingEnabled =
-		experimentalClientSideRenderingOption.getValue({
-			commandLine: parsedCli,
-		}).value;
 	const askAIEnabled = askAIOption.getValue({commandLine: parsedCli}).value;
 	const keyboardShortcutsEnabled = keyboardShortcutsOption.getValue({
 		commandLine: parsedCli,
@@ -347,7 +342,6 @@ export const benchmarkCommand = async (
 			maxTimelineTracks: null,
 			publicPath,
 			audioLatencyHint: null,
-			experimentalClientSideRenderingEnabled,
 			askAIEnabled,
 			keyboardShortcutsEnabled,
 			rspack,

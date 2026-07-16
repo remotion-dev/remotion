@@ -19,7 +19,6 @@ const {
 	disableGitSourceOption,
 	audioLatencyHintOption,
 	askAIOption,
-	experimentalClientSideRenderingOption,
 	keyboardShortcutsOption,
 	rspackOption,
 	outDirOption,
@@ -68,10 +67,6 @@ export const bundleCommand = async (
 		process.exit(1);
 	}
 
-	const experimentalClientSideRenderingEnabled =
-		experimentalClientSideRenderingOption.getValue({
-			commandLine: parsedCli,
-		}).value;
 	const askAIEnabled = askAIOption.getValue({commandLine: parsedCli}).value;
 	const keyboardShortcutsEnabled = keyboardShortcutsOption.getValue({
 		commandLine: parsedCli,
@@ -158,7 +153,6 @@ export const bundleCommand = async (
 		maxTimelineTracks: null,
 		publicPath,
 		audioLatencyHint,
-		experimentalClientSideRenderingEnabled,
 		askAIEnabled,
 		keyboardShortcutsEnabled,
 		rspack,

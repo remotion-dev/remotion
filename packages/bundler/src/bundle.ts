@@ -121,7 +121,6 @@ export const getConfig = ({
 		keyboardShortcutsEnabled: options?.keyboardShortcutsEnabled ?? true,
 		bufferStateDelayInMilliseconds,
 		poll: null,
-		experimentalClientSideRenderingEnabled: true,
 		askAIEnabled: options?.askAIEnabled ?? true,
 		interactivityEnabled: options?.interactivityEnabled ?? true,
 		extraPlugins: [],
@@ -143,8 +142,6 @@ type NewBundleOptions = {
 	maxTimelineTracks: number | null;
 	bufferStateDelayInMilliseconds: number | null;
 	audioLatencyHint: AudioContextLatencyCategory | null;
-	/** @deprecated Client-side rendering is always enabled. This option has no effect. */
-	experimentalClientSideRenderingEnabled: boolean;
 	renderDefaults: RenderDefaults | null;
 };
 
@@ -228,7 +225,6 @@ const validateEntryPoint = async (entryPoint: string) => {
 export const internalBundle = async (
 	actualArgs: MandatoryBundleOptions,
 ): Promise<string> => {
-	const clientSideRenderingEnabled = true;
 	const entryPoint = path.resolve(process.cwd(), actualArgs.entryPoint);
 	const resolvedRemotionRoot =
 		actualArgs?.rootDir ??
@@ -423,7 +419,6 @@ export const internalBundle = async (
 		studioRuntimeConfig: {
 			askAIEnabled: actualArgs.askAIEnabled,
 			bufferStateDelayInMilliseconds: actualArgs.bufferStateDelayInMilliseconds,
-			experimentalClientSideRenderingEnabled: clientSideRenderingEnabled,
 			interactivityEnabled: actualArgs.interactivityEnabled,
 			keyboardShortcutsEnabled: actualArgs.keyboardShortcutsEnabled,
 			maxTimelineTracks: actualArgs.maxTimelineTracks,
@@ -462,7 +457,6 @@ export async function bundle(...args: Arguments): Promise<string> {
 		rootDir: actualArgs.rootDir ?? null,
 		webpackOverride: actualArgs.webpackOverride ?? ((f) => f),
 		audioLatencyHint: actualArgs.audioLatencyHint ?? null,
-		experimentalClientSideRenderingEnabled: true,
 		renderDefaults: actualArgs.renderDefaults ?? null,
 		askAIEnabled: actualArgs.askAIEnabled ?? true,
 		interactivityEnabled: actualArgs.interactivityEnabled ?? true,

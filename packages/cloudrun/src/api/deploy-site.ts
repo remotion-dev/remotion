@@ -31,8 +31,6 @@ type Options = {
 	keyboardShortcutsEnabled?: boolean;
 	askAIEnabled?: boolean;
 	interactivityEnabled?: boolean;
-	/** @deprecated Client-side rendering is always enabled. This option has no effect. */
-	experimentalClientSideRenderingEnabled?: boolean;
 	rspack?: boolean;
 };
 
@@ -108,7 +106,6 @@ export const internalDeploySiteRaw = async ({
 			onSymlinkDetected: () => undefined,
 			outDir: null,
 			audioLatencyHint: null,
-			experimentalClientSideRenderingEnabled: true,
 			renderDefaults: null,
 			askAIEnabled: options?.askAIEnabled ?? true,
 			interactivityEnabled: options?.interactivityEnabled ?? true,

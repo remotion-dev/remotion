@@ -147,7 +147,6 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 				studioRuntimeConfig: {
 					askAIEnabled: false,
 					bufferStateDelayInMilliseconds: null,
-					experimentalClientSideRenderingEnabled: true,
 					interactivityEnabled: true,
 					keyboardShortcutsEnabled: true,
 					maxTimelineTracks: null,

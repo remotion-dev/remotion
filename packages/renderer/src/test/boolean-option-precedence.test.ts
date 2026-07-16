@@ -2,7 +2,6 @@ import {expect, test} from 'bun:test';
 import {beepOnFinishOption} from '../options/beep-on-finish';
 import {disableWebSecurityOption} from '../options/disable-web-security';
 import {disallowParallelEncodingOption} from '../options/disallow-parallel-encoding';
-import {experimentalClientSideRenderingOption} from '../options/experimental-client-side-rendering';
 import {forceNewStudioOption} from '../options/force-new-studio';
 import {headlessOption} from '../options/headless';
 import {ignoreCertificateErrorsOption} from '../options/ignore-certificate-errors';
@@ -135,14 +134,4 @@ test('boolean options respect config if CLI flag is absent', () => {
 		forceNewStudioOption.getValue({commandLine: {'force-new': false}}).value,
 	).toEqual(false);
 	forceNewStudioOption.setConfig(false);
-
-	experimentalClientSideRenderingOption.setConfig(false);
-	expect(
-		experimentalClientSideRenderingOption.getValue({commandLine: {}}).value,
-	).toEqual(true);
-	expect(
-		experimentalClientSideRenderingOption.getValue({
-			commandLine: {'enable-experimental-client-side-rendering': false},
-		}).value,
-	).toEqual(true);
 });

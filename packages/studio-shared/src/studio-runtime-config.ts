@@ -4,5 +4,4 @@ export type StudioRuntimeConfig = {
 	readonly interactivityEnabled: boolean;
 	readonly keyboardShortcutsEnabled: boolean;
 	readonly bufferStateDelayInMilliseconds: number | null;
-	readonly experimentalClientSideRenderingEnabled: boolean;
 };

@@ -40,8 +40,6 @@ type OptionalParameters = {
 		keyboardShortcutsEnabled?: boolean;
 		askAIEnabled?: boolean;
 		interactivityEnabled?: boolean;
-		/** @deprecated Client-side rendering is always enabled. This option has no effect. */
-		experimentalClientSideRenderingEnabled?: boolean;
 		rspack?: boolean;
 	};
 	privacy: 'public' | 'no-acl';
@@ -137,7 +135,6 @@ const mandatoryDeploySite = async ({
 			askAIEnabled: options?.askAIEnabled ?? true,
 			interactivityEnabled: options?.interactivityEnabled ?? true,
 			audioLatencyHint: null,
-			experimentalClientSideRenderingEnabled: true,
 			keyboardShortcutsEnabled: options?.keyboardShortcutsEnabled ?? true,
 			renderDefaults: null,
 			rspack: options?.rspack ?? false,

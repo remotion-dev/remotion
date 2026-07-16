@@ -95,7 +95,6 @@ const {
 	darkModeOption,
 	askAIOption,
 	publicLicenseKeyOption,
-	experimentalClientSideRenderingOption,
 	interactivityOption,
 	keyboardShortcutsOption,
 	forceNewStudioOption,
@@ -186,12 +185,6 @@ declare global {
 		 * @default true
 		 */
 		readonly setInteractivityEnabled: (enabled: boolean) => void;
-		/**
-		 * @deprecated Client-side rendering is always enabled. This method is a no-op and can be removed.
-		 */
-		readonly setExperimentalClientSideRenderingEnabled: (
-			enabled: boolean,
-		) => void;
 		/**
 		 * @deprecated HTML-in-canvas is now enabled by default when supported. This method is a no-op and can be removed.
 		 */
@@ -715,8 +708,6 @@ export const Config: FlatConfig = {
 	setMaxTimelineTracks: StudioServerInternals.setMaxTimelineTracks,
 	setKeyboardShortcutsEnabled: keyboardShortcutsOption.setConfig,
 	setInteractivityEnabled: interactivityOption.setConfig,
-	setExperimentalClientSideRenderingEnabled:
-		experimentalClientSideRenderingOption.setConfig,
 	setAllowHtmlInCanvasEnabled,
 	setExperimentalRspackEnabled: rspackOption.setConfig,
 	setNumberOfSharedAudioTags: numberOfSharedAudioTagsOption.setConfig,
