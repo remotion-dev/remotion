@@ -44,6 +44,7 @@ test('pasteEffects appends a copied effect to a target sequence', async () => {
 		targetFileName: 'Comp.tsx',
 		targetSequenceNodePath: target.nodePath,
 		type: 'effects-additive',
+		insertAtIndices: null,
 		effects: [
 			{
 				callee: 'tint',
@@ -58,6 +59,116 @@ test('pasteEffects appends a copied effect to a target sequence', async () => {
 	expect(output).toMatch(/tint\(\{\s*color: ['"]red['"],?\s*\}\)/);
 });
 
+test('pasteEffects inserts a cut effect at its original index', async () => {
+	const input = buildInput(`<>
+		<HtmlInCanvas effects={[blur({radius: 5})]} />
+	</>`);
+	const target = makeNodePath(input, 9);
+
+	const {output} = await pasteEffects({
+		input,
+		targetFileName: 'Comp.tsx',
+		targetSequenceNodePath: target.nodePath,
+		type: 'effects-additive',
+		insertAtIndices: [0],
+		effects: [
+			{
+				callee: 'tint',
+				importPath: '@remotion/effects/tint',
+				params: {color: {type: 'static', value: 'red'}},
+			},
+		],
+	});
+
+	expect(output.indexOf('tint({')).toBeLessThan(output.indexOf('blur({'));
+});
+
+test('pasteEffects restores noncontiguous effects in index order', async () => {
+	const input = buildInput(`<>
+		<HtmlInCanvas effects={[blur({radius: 5}), tint({color: "blue"})]} />
+	</>`);
+	const target = makeNodePath(input, 9);
+
+	const {output} = await pasteEffects({
+		input,
+		targetFileName: 'Comp.tsx',
+		targetSequenceNodePath: target.nodePath,
+		type: 'effects-additive',
+		insertAtIndices: [3, 0],
+		effects: [
+			{
+				callee: 'tint',
+				importPath: '@remotion/effects/tint',
+				params: {color: {type: 'static', value: 'green'}},
+			},
+			{
+				callee: 'blur',
+				importPath: '@remotion/effects/blur',
+				params: {radius: {type: 'static', value: 10}},
+			},
+		],
+	});
+
+	const effects = output.slice(output.indexOf('effects={['));
+	expect(effects.indexOf('radius: 10')).toBeLessThan(
+		effects.indexOf('radius: 5'),
+	);
+	expect(effects.indexOf("color: 'blue'")).toBeLessThan(
+		effects.indexOf("color: 'green'"),
+	);
+});
+
+test('pasteEffects inserts by index when the target has no effects prop', async () => {
+	const input = buildInput(`<>
+		<HtmlInCanvas />
+	</>`);
+	const target = makeNodePath(input, 9);
+
+	const {output} = await pasteEffects({
+		input,
+		targetFileName: 'Comp.tsx',
+		targetSequenceNodePath: target.nodePath,
+		type: 'effects-additive',
+		insertAtIndices: [4],
+		effects: [
+			{
+				callee: 'blur',
+				importPath: '@remotion/effects/blur',
+				params: {radius: {type: 'static', value: 10}},
+			},
+		],
+	});
+
+	expect(output).toContain('effects={[');
+	expect(output).toContain('blur({');
+	expect(output).toContain('radius: 10');
+});
+
+test('pasteEffects rejects invalid insertion indices', async () => {
+	const input = buildInput(`<>
+		<HtmlInCanvas effects={[blur({radius: 5})]} />
+	</>`);
+	const target = makeNodePath(input, 9);
+	const effect = {
+		callee: 'tint',
+		importPath: '@remotion/effects/tint',
+		params: {color: {type: 'static' as const, value: 'red'}},
+	};
+
+	for (const insertAtIndices of [[], [-1], [0.5]]) {
+		await expect(
+			pasteEffects({
+				input,
+				targetFileName: 'Comp.tsx',
+				targetSequenceNodePath: target.nodePath,
+				type: 'effects-additive',
+				insertAtIndices,
+				effects: [effect],
+			}),
+		).rejects.toThrow('invalid insertion indices');
+	}
+});
+
 test('pasteEffects replaces existing effects with all copied effects', async () => {
 	const input = buildInput(`<>
 		<HtmlInCanvas effects={[tint({color: "blue"})]} />
@@ -69,6 +180,7 @@ test('pasteEffects replaces existing effects with all copied effects', async () 
 		targetFileName: 'Comp.tsx',
 		targetSequenceNodePath: target.nodePath,
 		type: 'effects-replacing',
+		insertAtIndices: null,
 		effects: [
 			{
 				callee: 'tint',
@@ -100,6 +212,7 @@ test('pasteEffects can paste after the source sequence no longer exists', async 
 		targetFileName: 'Comp.tsx',
 		targetSequenceNodePath: target.nodePath,
 		type: 'effects-additive',
+		insertAtIndices: null,
 		effects: [
 			{
 				callee: 'tint',
@@ -127,6 +240,7 @@ test('pasteEffects inserts imports for copied effects', async () => {
 		targetFileName: 'Comp.tsx',
 		targetSequenceNodePath: target.nodePath,
 		type: 'effects-additive',
+		insertAtIndices: null,
 		effects: [
 			{
 				callee: 'tint',
@@ -151,6 +265,7 @@ test('pasteEffects does not duplicate an existing copied effect import', async (
 		targetFileName: 'Comp.tsx',
 		targetSequenceNodePath: target.nodePath,
 		type: 'effects-additive',
+		insertAtIndices: null,
 		effects: [
 			{
 				callee: 'tint',
@@ -181,6 +296,7 @@ export const Comp = () => {
 		targetFileName: 'Comp.tsx',
 		targetSequenceNodePath: target.nodePath,
 		type: 'effects-additive',
+		insertAtIndices: null,
 		effects: [
 			{
 				callee: 'brightness',
@@ -234,6 +350,7 @@ export const Comp = () => {
 		targetFileName: 'Comp.tsx',
 		targetSequenceNodePath: target.nodePath,
 		type: 'effects-additive',
+		insertAtIndices: null,
 		effects: [
 			{
 				callee: 'brightness',
@@ -290,6 +407,7 @@ export const Comp = () => {
 		targetFileName: 'Comp.tsx',
 		targetSequenceNodePath: target.nodePath,
 		type: 'effects-additive',
+		insertAtIndices: null,
 		effects: [
 			{
 				callee: 'brightness',
@@ -325,6 +443,7 @@ test('pasteEffects replaces existing effects with mixed static and keyframed par
 		targetFileName: 'Comp.tsx',
 		targetSequenceNodePath: target.nodePath,
 		type: 'effects-replacing',
+		insertAtIndices: null,
 		effects: [
 			{
 				callee: 'tint',
@@ -369,6 +488,7 @@ test('pasteEffects supports interpolated rotate keyframed params', async () => {
 		targetFileName: 'Comp.tsx',
 		targetSequenceNodePath: target.nodePath,
 		type: 'effects-replacing',
+		insertAtIndices: null,
 		effects: [
 			{
 				callee: 'tint',
