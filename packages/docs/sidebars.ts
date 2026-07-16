@@ -1055,6 +1055,7 @@ const sidebars: SidebarsConfig = {
 				'layers',
 				'transforms',
 				'assets',
+				'design-systems',
 				'fonts',
 				'transitioning',
 				'html-in-canvas',

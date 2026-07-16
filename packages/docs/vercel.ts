@@ -252,6 +252,9 @@ export const config: VercelConfig = {
 			permanent: false,
 		}),
 		routes.redirect('/effects', '/docs/effects', {permanent: false}),
+		routes.redirect('/design-systems', '/docs/design-systems', {
+			permanent: false,
+		}),
 		routes.redirect('/skills', '/docs/ai/skills', {permanent: false}),
 		routes.redirect(
 			'/repro',

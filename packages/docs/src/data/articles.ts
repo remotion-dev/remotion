@@ -1467,6 +1467,15 @@ export const articles = [
 		slug: 'deno',
 	},
 	{
+		id: 'design-systems',
+		title: 'Motion Design Systems',
+		relativePath: 'docs/design-systems.mdx',
+		compId: 'articles-docs-design-systems',
+		crumb: 'Designing visuals',
+		noAi: false,
+		slug: 'design-systems',
+	},
+	{
 		id: 'detect-remotion',
 		title: 'Detect if a video was made with Remotion',
 		relativePath: 'docs/detect-remotion.mdx',
