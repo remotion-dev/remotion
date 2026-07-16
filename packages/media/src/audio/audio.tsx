@@ -172,5 +172,3 @@ export const Audio = Interactive.withSchema({
 	schema: audioSchema,
 	supportsEffects: false,
 });
-
-Internals.addSequenceStackTraces(Audio);

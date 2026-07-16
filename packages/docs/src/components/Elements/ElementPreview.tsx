@@ -19,7 +19,7 @@ export const ElementPreview: React.FC<ElementPreviewProps> = ({
 	return (
 		<div
 			style={{
-				backgroundColor: 'var(--ifm-color-emphasis-100)',
+				backgroundColor: '#f5f6f7',
 				overflow: 'hidden',
 			}}
 		>

@@ -897,6 +897,7 @@ const createSolidElement = ({
 			[
 				createNumberAttribute('width', width),
 				createNumberAttribute('height', height),
+				createStringAttribute('color', 'gray'),
 				createPositionAbsoluteStyleAttribute(position),
 			],
 			true,

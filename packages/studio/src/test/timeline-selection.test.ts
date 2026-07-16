@@ -2,8 +2,8 @@ import {expect, test} from 'bun:test';
 import type {RefObject} from 'react';
 import {
 	Internals,
-	type PropStatuses,
 	type InteractivitySchema,
+	type PropStatuses,
 	type SequenceNodePath,
 	type SequencePropsSubscriptionKey,
 	type TSequence,
@@ -16,8 +16,8 @@ import type {SelectedOutlineTarget} from '../components/selected-outline-types';
 import {
 	constrainUv,
 	getSelectedUvHandles,
-	getUvEllipseInteractiveControls,
 	getUvCoordinateForPoint,
+	getUvEllipseInteractiveControls,
 	getUvHandleConnectionEllipses,
 	getUvHandleConnectionLines,
 	getUvHandlePosition,
@@ -49,12 +49,12 @@ import {
 	getTransformedSvgViewportPoints,
 	isSelectedOutlineDragPastThreshold,
 	orderOutlinesForRendering,
-	snapSelectedOutlineRotationDeltaDegrees,
-	snapSelectedOutlineUv,
-	snapSelectedOutlineTransformOriginUv,
 	selectedOutlineDragThresholdPx,
-	selectedOutlineUvSnapThresholdPx,
 	selectedOutlineTransformOriginSnapThresholdPx,
+	selectedOutlineUvSnapThresholdPx,
+	snapSelectedOutlineRotationDeltaDegrees,
+	snapSelectedOutlineTransformOriginUv,
+	snapSelectedOutlineUv,
 	type SelectedOutlineDragState,
 	type SelectedOutlineRotationDragState,
 	type SelectedOutlineScaleDragState,
@@ -81,8 +81,8 @@ import {
 } from '../components/Timeline/TimelineClipboardKeybindings';
 import {getSelectedKeyframeControlNodePathInfos} from '../components/Timeline/TimelineKeyframeControls';
 import {
-	getClampedTimelineMarqueePoint,
 	getAvailableTimelineSelectionState,
+	getClampedTimelineMarqueePoint,
 	getSelectableTimelineItems,
 	getSelectableTimelineSequenceSelections,
 	getTimelineMarqueeSelection,
@@ -107,6 +107,7 @@ import {
 	getTimelineSequenceLeftEdgeDragChanges,
 	getTimelineSequenceLeftEdgeDragTargets,
 	getTimelineSequenceLeftEdgeDragValues,
+	isTimelineSequenceDurationDraggable,
 } from '../components/Timeline/TimelineSequenceRightEdgeDragHandle';
 import {
 	parsedTransformOriginToUv,
@@ -593,6 +594,7 @@ test('copying a keyframed effect creates a structured snapshot', () => {
 							easing: [{type: 'linear'}],
 							clamping: {left: 'clamp', right: 'clamp'},
 							posterize: undefined,
+							output: undefined,
 						},
 					},
 				},
@@ -658,6 +660,7 @@ test('copying a selected effect prop creates an effect prop payload', () => {
 							easing: [{type: 'linear'}],
 							clamping: {left: 'clamp', right: 'clamp'},
 							posterize: undefined,
+							output: undefined,
 						},
 					},
 				},
@@ -727,6 +730,7 @@ test('copying a selected sequence easing creates an easing payload', () => {
 					easing: [easing],
 					clamping: {left: 'clamp', right: 'clamp'},
 					posterize: undefined,
+					output: undefined,
 				},
 			},
 			effects: [],
@@ -787,6 +791,7 @@ test('copying a selected effect easing creates an easing payload', () => {
 							easing: [{type: 'linear'}],
 							clamping: {left: 'clamp', right: 'clamp'},
 							posterize: undefined,
+							output: undefined,
 						},
 					},
 				},
@@ -1043,6 +1048,36 @@ test('Timeline duration drag uses the declared duration for negative from values
 	).toEqual([]);
 });
 
+test('Timeline duration drag supports interactive video clips', () => {
+	const nodePathInfo = makeNodePathInfo(['body', 0], []);
+	const video = makeTimelineSequence({
+		schema: Internals.baseSchema,
+		type: 'video',
+		duration: 78,
+	});
+
+	expect(isTimelineSequenceDurationDraggable(video)).toBe(true);
+	expect(
+		getTimelineSequenceDurationDragTargets({
+			draggedNodePathInfo: nodePathInfo,
+			selectedItems: [{type: 'sequence', nodePathInfo}],
+			sequences: [video],
+			overrideIdsToNodePaths: {
+				override: nodePathInfo.sequenceSubscriptionKey,
+			},
+			propStatuses: makeDurationPropStatuses([
+				nodePathInfo.sequenceSubscriptionKey,
+			]),
+		}),
+	).toEqual([
+		{
+			fileName: nodePathInfo.sequenceSubscriptionKey.absolutePath,
+			initialDuration: 78,
+			nodePath: nodePathInfo.sequenceSubscriptionKey,
+		},
+	]);
+});
+
 test('Timeline duration drag clamps each selected sequence to one frame', () => {
 	expect(
 		getTimelineSequenceDurationDragValue({
@@ -1130,6 +1165,7 @@ test('Timeline duration drag is blocked if one selected sequence duration is key
 				easing: [{type: 'linear'}],
 				clamping: {left: 'clamp', right: 'clamp'},
 				posterize: undefined,
+				output: undefined,
 			},
 		},
 		effects: [],
@@ -1456,6 +1492,7 @@ test('Timeline from drag moves all owned sequence keyframes by the same delta', 
 				easing: [{type: 'linear'}],
 				clamping: {left: 'extend', right: 'extend'},
 				posterize: undefined,
+				output: undefined,
 			},
 			opacity: {
 				status: 'keyframed',
@@ -1467,6 +1504,7 @@ test('Timeline from drag moves all owned sequence keyframes by the same delta', 
 				easing: [{type: 'linear'}],
 				clamping: {left: 'clamp', right: 'clamp'},
 				posterize: undefined,
+				output: undefined,
 			},
 		},
 		effects: [],
@@ -1534,6 +1572,7 @@ test('Timeline from drag moves owned effect keyframes by the same delta', () => 
 						easing: [{type: 'linear'}],
 						clamping: {left: 'clamp', right: 'clamp'},
 						posterize: undefined,
+						output: undefined,
 					},
 				},
 			},
@@ -1765,7 +1804,7 @@ test('Canvas outline hit targets render nested sequences above parents', () => {
 	]);
 });
 
-test('Canvas outline rendering puts selected outlines last', () => {
+test('Canvas outline rendering preserves unconstrained outline order', () => {
 	const makeOutline = (key: string): SelectedOutline => ({
 		key,
 		dimensions: null,
@@ -1785,6 +1824,7 @@ test('Canvas outline rendering puts selected outlines last', () => {
 			makeOutline('child'),
 			makeOutline('sibling'),
 		],
+		sequences: [],
 		targetsByKey: new Map([
 			['parent', makeTarget(true)],
 			['child', makeTarget(false)],
@@ -1793,9 +1833,448 @@ test('Canvas outline rendering puts selected outlines last', () => {
 	});
 
 	expect(orderedOutlines.map((outline) => outline.key)).toEqual([
+		'parent',
 		'child',
 		'sibling',
+	]);
+});
+
+const makeTestOutline = ({
+	key,
+	left,
+	top,
+	width,
+	height,
+}: {
+	readonly key: string;
+	readonly left: number;
+	readonly top: number;
+	readonly width: number;
+	readonly height: number;
+}): SelectedOutline => ({
+	key,
+	dimensions: {width, height},
+	points: [
+		{x: left, y: top},
+		{x: left + width, y: top},
+		{x: left + width, y: top + height},
+		{x: left, y: top + height},
+	],
+});
+
+const makeOutlineTarget = ({
+	id,
+	parent,
+	selected = false,
+}: {
+	readonly id: string;
+	readonly parent: string | null;
+	readonly selected?: boolean;
+}): SelectedOutlineTarget =>
+	({
+		selected,
+		sequence: {id, parent},
+	}) as SelectedOutlineTarget;
+
+const makeOutlineSequence = ({
+	id,
+	parent,
+}: {
+	readonly id: string;
+	readonly parent: string | null;
+}) => ({id, parent});
+
+test('Canvas outline rendering keeps smaller nested hit targets above parents', () => {
+	const orderedOutlines = orderOutlinesForRendering({
+		outlines: [
+			makeTestOutline({
+				key: 'parent',
+				left: 0,
+				top: 0,
+				width: 100,
+				height: 100,
+			}),
+			makeTestOutline({
+				key: 'child',
+				left: 25,
+				top: 25,
+				width: 50,
+				height: 50,
+			}),
+		],
+		sequences: [
+			makeOutlineSequence({id: 'parent', parent: null}),
+			makeOutlineSequence({id: 'child', parent: 'parent'}),
+		],
+		targetsByKey: new Map([
+			['parent', makeOutlineTarget({id: 'parent', parent: null})],
+			['child', makeOutlineTarget({id: 'child', parent: 'parent'})],
+		]),
+	});
+
+	expect(orderedOutlines.map((outline) => outline.key)).toEqual([
 		'parent',
+		'child',
+	]);
+});
+
+test('Canvas outline rendering puts equal-area child hit targets below parents', () => {
+	const orderedOutlines = orderOutlinesForRendering({
+		outlines: [
+			makeTestOutline({
+				key: 'parent',
+				left: 0,
+				top: 0,
+				width: 100,
+				height: 100,
+			}),
+			makeTestOutline({
+				key: 'container',
+				left: 0,
+				top: 0,
+				width: 100,
+				height: 100,
+			}),
+			makeTestOutline({
+				key: 'label',
+				left: 25,
+				top: 25,
+				width: 50,
+				height: 50,
+			}),
+		],
+		sequences: [
+			makeOutlineSequence({id: 'parent', parent: null}),
+			makeOutlineSequence({id: 'container', parent: 'parent'}),
+			makeOutlineSequence({id: 'label', parent: 'container'}),
+		],
+		targetsByKey: new Map([
+			['parent', makeOutlineTarget({id: 'parent', parent: null})],
+			['container', makeOutlineTarget({id: 'container', parent: 'parent'})],
+			['label', makeOutlineTarget({id: 'label', parent: 'container'})],
+		]),
+	});
+
+	expect(orderedOutlines.map((outline) => outline.key)).toEqual([
+		'container',
+		'parent',
+		'label',
+	]);
+});
+
+test('Canvas outline rendering keeps equal-area children containing selection above parents', () => {
+	const outlines = [
+		makeTestOutline({
+			key: 'parent',
+			left: 0,
+			top: 0,
+			width: 100,
+			height: 100,
+		}),
+		makeTestOutline({
+			key: 'child',
+			left: 0,
+			top: 0,
+			width: 100,
+			height: 100,
+		}),
+	];
+	const sequences = [
+		makeOutlineSequence({id: 'parent', parent: null}),
+		makeOutlineSequence({id: 'child', parent: 'parent'}),
+	];
+
+	for (const selectionState of [{selected: true}, {containsSelection: true}]) {
+		const orderedOutlines = orderOutlinesForRendering({
+			outlines,
+			sequences,
+			targetsByKey: new Map([
+				['parent', makeOutlineTarget({id: 'parent', parent: null})],
+				[
+					'child',
+					{
+						...makeOutlineTarget({id: 'child', parent: 'parent'}),
+						...selectionState,
+					},
+				],
+			]),
+		});
+
+		expect(orderedOutlines.map((outline) => outline.key)).toEqual([
+			'parent',
+			'child',
+		]);
+	}
+});
+
+test('Canvas outline rendering handles transitive subpixel equivalence', () => {
+	const orderedOutlines = orderOutlinesForRendering({
+		outlines: [
+			makeTestOutline({
+				key: 'parent',
+				left: 0,
+				top: 0,
+				width: 100,
+				height: 100,
+			}),
+			makeTestOutline({
+				key: 'child',
+				left: 0.4,
+				top: 0.4,
+				width: 100,
+				height: 100,
+			}),
+			makeTestOutline({
+				key: 'grandchild',
+				left: 0.8,
+				top: 0.8,
+				width: 100,
+				height: 100,
+			}),
+		],
+		sequences: [
+			makeOutlineSequence({id: 'parent', parent: null}),
+			makeOutlineSequence({id: 'child', parent: 'parent'}),
+			makeOutlineSequence({id: 'grandchild', parent: 'child'}),
+		],
+		targetsByKey: new Map([
+			['parent', makeOutlineTarget({id: 'parent', parent: null})],
+			['child', makeOutlineTarget({id: 'child', parent: 'parent'})],
+			['grandchild', makeOutlineTarget({id: 'grandchild', parent: 'child'})],
+		]),
+	});
+
+	expect(orderedOutlines.map((outline) => outline.key)).toEqual([
+		'grandchild',
+		'child',
+		'parent',
+	]);
+});
+
+test('Canvas outline equivalence ignores polygon start vertex and winding', () => {
+	const parent = makeTestOutline({
+		key: 'parent',
+		left: 0,
+		top: 0,
+		width: 100,
+		height: 100,
+	});
+	const child: SelectedOutline = {
+		...makeTestOutline({
+			key: 'child',
+			left: 0,
+			top: 0,
+			width: 100,
+			height: 100,
+		}),
+		points: [
+			{x: 100, y: 100},
+			{x: 100, y: 0},
+			{x: 0, y: 0},
+			{x: 0, y: 100},
+		],
+	};
+	const orderedOutlines = orderOutlinesForRendering({
+		outlines: [parent, child],
+		sequences: [
+			makeOutlineSequence({id: 'parent', parent: null}),
+			makeOutlineSequence({id: 'child', parent: 'parent'}),
+		],
+		targetsByKey: new Map([
+			['parent', makeOutlineTarget({id: 'parent', parent: null})],
+			['child', makeOutlineTarget({id: 'child', parent: 'parent'})],
+		]),
+	});
+
+	expect(orderedOutlines.map((outline) => outline.key)).toEqual([
+		'child',
+		'parent',
+	]);
+});
+
+test('Canvas outline rendering keeps lower-third wrappers reachable below larger overlapping sequences', () => {
+	const orderedOutlines = orderOutlinesForRendering({
+		outlines: [
+			makeTestOutline({
+				key: 'lower-third-wrapper',
+				left: 200,
+				top: 854,
+				width: 680,
+				height: 138,
+			}),
+			makeTestOutline({
+				key: 'overlapping-keyframed-sequence',
+				left: 100,
+				top: 700,
+				width: 1000,
+				height: 400,
+			}),
+			makeTestOutline({
+				key: 'lower-third-container',
+				left: 200,
+				top: 854,
+				width: 680,
+				height: 138,
+			}),
+		],
+		sequences: [
+			makeOutlineSequence({id: 'lower-third-wrapper', parent: null}),
+			makeOutlineSequence({
+				id: 'overlapping-keyframed-sequence',
+				parent: null,
+			}),
+			makeOutlineSequence({
+				id: 'lower-third-container',
+				parent: 'lower-third-wrapper',
+			}),
+		],
+		targetsByKey: new Map([
+			[
+				'lower-third-wrapper',
+				makeOutlineTarget({id: 'lower-third-wrapper', parent: null}),
+			],
+			[
+				'overlapping-keyframed-sequence',
+				makeOutlineTarget({
+					id: 'overlapping-keyframed-sequence',
+					parent: null,
+					selected: true,
+				}),
+			],
+			[
+				'lower-third-container',
+				makeOutlineTarget({
+					id: 'lower-third-container',
+					parent: 'lower-third-wrapper',
+					selected: true,
+				}),
+			],
+		]),
+	});
+
+	expect(orderedOutlines.map((outline) => outline.key)).toEqual([
+		'overlapping-keyframed-sequence',
+		'lower-third-wrapper',
+		'lower-third-container',
+	]);
+});
+
+test('Canvas outline rendering orders equal-area children deterministically with unrelated outlines', () => {
+	const orderedOutlines = orderOutlinesForRendering({
+		outlines: [
+			makeTestOutline({
+				key: 'lower-third-wrapper',
+				left: 0,
+				top: 0,
+				width: 100,
+				height: 100,
+			}),
+			makeTestOutline({
+				key: 'unrelated-keyframed-sequence',
+				left: 200,
+				top: 200,
+				width: 100,
+				height: 100,
+			}),
+			makeTestOutline({
+				key: 'lower-third-container',
+				left: 0,
+				top: 0,
+				width: 100,
+				height: 100,
+			}),
+			makeTestOutline({
+				key: 'lower-third-title',
+				left: 25,
+				top: 25,
+				width: 50,
+				height: 50,
+			}),
+		],
+		sequences: [
+			makeOutlineSequence({id: 'lower-third-wrapper', parent: null}),
+			makeOutlineSequence({id: 'unrelated-keyframed-sequence', parent: null}),
+			makeOutlineSequence({
+				id: 'lower-third-container',
+				parent: 'lower-third-wrapper',
+			}),
+			makeOutlineSequence({
+				id: 'lower-third-title',
+				parent: 'lower-third-container',
+			}),
+		],
+		targetsByKey: new Map([
+			[
+				'lower-third-wrapper',
+				makeOutlineTarget({id: 'lower-third-wrapper', parent: null}),
+			],
+			[
+				'unrelated-keyframed-sequence',
+				makeOutlineTarget({id: 'unrelated-keyframed-sequence', parent: null}),
+			],
+			[
+				'lower-third-container',
+				makeOutlineTarget({
+					id: 'lower-third-container',
+					parent: 'lower-third-wrapper',
+				}),
+			],
+			[
+				'lower-third-title',
+				makeOutlineTarget({
+					id: 'lower-third-title',
+					parent: 'lower-third-container',
+				}),
+			],
+		]),
+	});
+
+	expect(orderedOutlines.map((outline) => outline.key)).toEqual([
+		'lower-third-container',
+		'lower-third-wrapper',
+		'unrelated-keyframed-sequence',
+		'lower-third-title',
+	]);
+});
+
+test('Canvas outline rendering follows hidden intermediate ancestors', () => {
+	const orderedOutlines = orderOutlinesForRendering({
+		outlines: [
+			makeTestOutline({
+				key: 'visible-parent',
+				left: 0,
+				top: 0,
+				width: 100,
+				height: 100,
+			}),
+			makeTestOutline({
+				key: 'visible-child',
+				left: 0,
+				top: 0,
+				width: 100,
+				height: 100,
+			}),
+		],
+		sequences: [
+			makeOutlineSequence({id: 'visible-parent', parent: null}),
+			makeOutlineSequence({id: 'hidden-wrapper', parent: 'visible-parent'}),
+			makeOutlineSequence({id: 'visible-child', parent: 'hidden-wrapper'}),
+		],
+		targetsByKey: new Map([
+			[
+				'visible-parent',
+				makeOutlineTarget({id: 'visible-parent', parent: null}),
+			],
+			[
+				'visible-child',
+				makeOutlineTarget({id: 'visible-child', parent: 'hidden-wrapper'}),
+			],
+		]),
+	});
+
+	expect(orderedOutlines.map((outline) => outline.key)).toEqual([
+		'visible-child',
+		'visible-parent',
 	]);
 });
 
@@ -2836,6 +3315,7 @@ test('UV handles are requested for keyframed selected effect props', () => {
 							easing: [{type: 'linear'}],
 							clamping: {left: 'extend', right: 'extend'},
 							posterize: undefined,
+							output: undefined,
 						},
 					},
 				},
@@ -2958,6 +3438,7 @@ test('Derived selectable timeline items follow expanded timeline order', () => {
 					easing: [{type: 'linear'}],
 					clamping: {left: 'extend', right: 'extend'},
 					posterize: undefined,
+					output: undefined,
 				},
 			},
 			effects: [],
@@ -3134,6 +3615,7 @@ test('Backspace reset targets selected keyframed sequence props', () => {
 					easing: [{type: 'linear'}],
 					clamping: {left: 'extend', right: 'extend'},
 					posterize: undefined,
+					output: undefined,
 				},
 			},
 			effects: [],
@@ -3223,6 +3705,7 @@ test('Backspace reset targets flattened built-in keyframed sequence style props'
 					easing: [{type: 'linear'}],
 					clamping: {left: 'extend', right: 'extend'},
 					posterize: undefined,
+					output: undefined,
 				},
 			},
 			effects: [],
@@ -3280,6 +3763,7 @@ test('Backspace reset skips keyframed sequence props without defaults', () => {
 					easing: [{type: 'linear'}],
 					clamping: {left: 'extend', right: 'extend'},
 					posterize: undefined,
+					output: undefined,
 				},
 			},
 			effects: [],
@@ -3591,6 +4075,7 @@ test('Selected outline dragging keyframed translate adds a keyframe at the sourc
 					easing: [{type: 'linear'}],
 					clamping: {left: 'extend', right: 'extend'},
 					posterize: undefined,
+					output: undefined,
 				},
 				fieldDefault: '0px 0px',
 				keyframeDisplayOffset: 30,
@@ -3983,6 +4468,7 @@ test('Selected outline corner dragging keyframed rotation adds a keyframe at the
 					easing: [{type: 'linear'}],
 					clamping: {left: 'extend', right: 'extend'},
 					posterize: undefined,
+					output: undefined,
 				},
 				fieldDefault: '0deg',
 				fieldSchema: schema['style.rotate'],
@@ -4415,6 +4901,7 @@ test('Backspace reset targets selected keyframed effect props', () => {
 							easing: [{type: 'linear'}],
 							clamping: {left: 'extend', right: 'extend'},
 							posterize: undefined,
+							output: undefined,
 						},
 					},
 				},
@@ -4486,6 +4973,7 @@ test('Backspace reset skips keyframed effect props without defaults', () => {
 							easing: [{type: 'linear'}],
 							clamping: {left: 'extend', right: 'extend'},
 							posterize: undefined,
+							output: undefined,
 						},
 					},
 				},
@@ -4723,6 +5211,7 @@ test('Deleting selected keyframe selects remaining easing under playhead', () =>
 					easing: [{type: 'linear'}, {type: 'linear'}],
 					clamping: {left: 'extend', right: 'extend'},
 					posterize: undefined,
+					output: undefined,
 				},
 			},
 			effects: [],
@@ -4778,6 +5267,7 @@ test('Deleting selected keyframe clears selection when playhead is not between r
 					easing: [{type: 'linear'}, {type: 'linear'}],
 					clamping: {left: 'extend', right: 'extend'},
 					posterize: undefined,
+					output: undefined,
 				},
 			},
 			effects: [],

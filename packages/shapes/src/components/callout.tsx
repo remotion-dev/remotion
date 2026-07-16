@@ -1,5 +1,5 @@
 import React from 'react';
-import {Internals, Interactive} from 'remotion';
+import {Interactive} from 'remotion';
 import type {MakeCalloutProps} from '../utils/make-callout';
 import {makeCallout} from '../utils/make-callout';
 import type {AllShapesProps} from './render-svg';
@@ -97,5 +97,3 @@ export const Callout = Interactive.withSchema({
 	schema: calloutSchema,
 	supportsEffects: true,
 }) as React.FC<CalloutProps>;
-
-Internals.addSequenceStackTraces(Callout);

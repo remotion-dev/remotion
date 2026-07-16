@@ -16,9 +16,10 @@ Using the [`visualizeAudio()`](/docs/visualize-audio) API, you can get an audio 
 
 Bar visualizations are ideal for visualizing music.
 
-```tsx twoslash
+```tsx twoslash title="MyComponent.tsx"
+import {Audio} from '@remotion/media';
 import {useAudioData, visualizeAudio} from '@remotion/media-utils';
-import {Html5Audio, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
+import {staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
 
 const music = staticFile('music.mp3');
 
@@ -42,7 +43,7 @@ export const MyComponent: React.FC = () => {
   // the longer the bar
   return (
     <div>
-      <Html5Audio src={music} />
+      <Audio src={music} />
       {visualization.map((v) => {
         return <div style={{width: 1000 * v, height: 15, backgroundColor: 'blue'}} />;
       })}

@@ -1,5 +1,5 @@
 import React from 'react';
-import {Internals, Interactive} from 'remotion';
+import {Interactive} from 'remotion';
 import type {MakeSparkProps} from '../utils/make-spark';
 import {makeSpark} from '../utils/make-spark';
 import type {AllShapesProps} from './render-svg';
@@ -64,5 +64,3 @@ export const Spark = Interactive.withSchema({
 	schema: sparkSchema,
 	supportsEffects: true,
 }) as React.FC<SparkProps>;
-
-Internals.addSequenceStackTraces(Spark);

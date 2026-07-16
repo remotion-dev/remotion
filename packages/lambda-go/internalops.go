@@ -1,23 +1,23 @@
 package lambda_go_sdk
 
 import (
-	"log"
-
 	"github.com/go-playground/validator/v10"
 )
 
 func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions, error) {
-
-	inputProps, serializeError := serializeInputProps(options.InputProps, "video-or-audio")
-
-	if serializeError != nil {
-		log.Fatal("Error in serializing input props", serializeError)
-	}
 	validate := validator.New()
 	validationErrors := validate.Struct(options)
 	if validationErrors != nil {
 
 		return nil, validationErrors
+	}
+
+	// Serialize (and, if too large, upload) inputProps only after validation so
+	// that an invalid request does not trigger S3 side effects.
+	inputProps, serializeError := serializeInputProps(options.InputProps, options.Region, "video-or-audio", options.ForceBucketName, options.ForcePathStyle)
+
+	if serializeError != nil {
+		return nil, serializeError
 	}
 
 	jpegQuality := 80
@@ -76,20 +76,18 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 	} else {
 		internalParams.ImageFormat = options.ImageFormat
 	}
-	if options.Crf == 0 {
-		internalParams.Crf = nil
-	} else {
-		internalParams.Crf = options.Crf
+	if options.Crf != 0 {
+		crf := options.Crf
+		internalParams.Crf = &crf
 	}
 	if options.Privacy == "" {
 		internalParams.Privacy = "public"
 	} else {
 		internalParams.Privacy = options.Privacy
 	}
-	if options.ColorSpace == "" {
-		internalParams.ColorSpace = nil
-	} else {
-		internalParams.ColorSpace = options.ColorSpace
+	if options.ColorSpace != "" {
+		colorSpace := options.ColorSpace
+		internalParams.ColorSpace = &colorSpace
 	}
 	if options.LogLevel == "" {
 		internalParams.LogLevel = "info"

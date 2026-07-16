@@ -1,5 +1,5 @@
 import React from 'react';
-import {Internals, Interactive} from 'remotion';
+import {Interactive} from 'remotion';
 import type {MakePolygonProps} from '../utils/make-polygon';
 import {makePolygon} from '../utils/make-polygon';
 import type {AllShapesProps} from './render-svg';
@@ -56,5 +56,3 @@ export const Polygon = Interactive.withSchema({
 	schema: polygonSchema,
 	supportsEffects: true,
 }) as React.FC<PolygonProps>;
-
-Internals.addSequenceStackTraces(Polygon);

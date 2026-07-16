@@ -2,13 +2,14 @@ import React from 'react';
 
 export const CommandCopyButton: React.FC<{
 	readonly copied: boolean;
-}> = ({copied}) => {
+	readonly size?: number;
+}> = ({copied, size = 20}) => {
 	return copied ? (
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
 			viewBox="0 0 448 512"
 			style={{
-				height: 20,
+				height: size,
 			}}
 		>
 			<path
@@ -21,7 +22,7 @@ export const CommandCopyButton: React.FC<{
 			xmlns="http://www.w3.org/2000/svg"
 			viewBox="0 0 384 512"
 			style={{
-				height: 20,
+				height: size,
 			}}
 		>
 			<path

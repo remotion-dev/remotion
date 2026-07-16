@@ -1,1 +1,0 @@
-../skills/update-chrome-binaries-test-region/SKILL.md

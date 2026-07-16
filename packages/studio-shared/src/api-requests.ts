@@ -19,6 +19,7 @@ import type {
 	CanUpdateSequencePropStatus,
 	ExtrapolateType,
 	InteractivitySchema,
+	InterpolateOutputOption,
 	JsxComponentIdentity,
 	SequenceNodePath,
 	SequencePropsSubscriptionKey,
@@ -558,6 +559,7 @@ export type KeyframeSettings =
 				  }
 				| undefined;
 			posterize: number | undefined;
+			output: InterpolateOutputOption | undefined;
 	  }
 	| {
 			type: 'easing';
@@ -768,6 +770,7 @@ export type ElementInstallRequest = {
 };
 
 export type UpdateElementInstallTargetRequest = {
+	requestId: string | null;
 	clientId: string;
 	compositionFile: string | null;
 	compositionId: string | null;

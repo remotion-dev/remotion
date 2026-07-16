@@ -27,6 +27,7 @@ import {TableOfContents as PreloadTableOfContents} from '../../docs/preload/tabl
 import {TableOfContents as RemotionTableOfContents} from '../../docs/remotion/table-of-contents';
 import {TableOfContents as RendererTableOfContents} from '../../docs/renderer/TableOfContents';
 import {TableOfContents as RiveTableOfContents} from '../../docs/rive/table-of-contents';
+import {TableOfContents as RoughNotationTableOfContents} from '../../docs/rough-notation/table-of-contents';
 import {TableOfContents as SfxTableOfContents} from '../../docs/sfx/table-of-contents';
 import {TableOfContents as ShapesTableOfContents} from '../../docs/shapes/table-of-contents';
 import {TableOfContents as SkiaTableOfContents} from '../../docs/skia/TableOfContents';
@@ -110,6 +111,9 @@ export const TableOfContents: React.FC = () => {
 			<h2>@remotion/light-leaks</h2>
 			<p>Light Leak effects</p>
 			<LightLeaksTableOfContents />
+			<h2>@remotion/rough-notation</h2>
+			<p>Rough annotation primitives</p>
+			<RoughNotationTableOfContents />
 			<h2>@remotion/lottie</h2>
 			<p>Include a Lottie animation in your video</p>
 			<LottieTableOfContents apisOnly />

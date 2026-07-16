@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Serif Old Uyghur',
 	importName: 'NotoSerifOldUyghur',
-	version: 'v4',
+	version: 'v5',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Serif+Old+Uyghur:ital,wght@0,400',
 	unicodeRanges: {
 		'old-uyghur': 'U+0640, U+10AF2, U+10F70-10F89',
@@ -16,11 +16,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'old-uyghur':
-					'https://fonts.gstatic.com/s/notoserifolduyghur/v4/v6-KGZbLJFKIhClqUYqXDiGnrVoFRCW6JdwXm8K6GlWM.woff2',
+					'https://fonts.gstatic.com/s/notoserifolduyghur/v5/v6-KGZbLJFKIhClqUYqXDiGnrVoFRCW6JdwXm8K6GlWM.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoserifolduyghur/v4/v6-KGZbLJFKIhClqUYqXDiGnrVoFRCW6JdwXI-OfJ2w.woff2',
+					'https://fonts.gstatic.com/s/notoserifolduyghur/v5/v6-KGZbLJFKIhClqUYqXDiGnrVoFRCW6JdwXI-OfJ2w.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoserifolduyghur/v4/v6-KGZbLJFKIhClqUYqXDiGnrVoFRCW6JdwXLeOf.woff2',
+					'https://fonts.gstatic.com/s/notoserifolduyghur/v5/v6-KGZbLJFKIhClqUYqXDiGnrVoFRCW6JdwXLeOf.woff2',
 			},
 		},
 	},

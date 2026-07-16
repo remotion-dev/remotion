@@ -14,6 +14,7 @@ import type {HardwareAccelerationOption} from '@remotion/renderer/client';
 import type {_InternalTypes} from 'remotion';
 import type {GitSource} from './git-source';
 import type {PackageManager} from './package-manager';
+import type {StudioRuntimeConfig} from './studio-runtime-config';
 
 export type RenderDefaults = {
 	jpegQuality: number;
@@ -67,5 +68,6 @@ declare global {
 		remotion_gitSource: GitSource | null;
 		remotion_installedPackages: string[] | null;
 		remotion_packageManager: PackageManager | 'unknown';
+		remotion_studioConfig: StudioRuntimeConfig | null;
 	}
 }

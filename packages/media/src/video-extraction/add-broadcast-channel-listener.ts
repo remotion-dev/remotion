@@ -22,6 +22,11 @@ export type MessageFromMainTab =
 			durationInSeconds: number | null;
 	  }
 	| {
+			type: 'response-cannot-decode-prores';
+			id: string;
+			durationInSeconds: number | null;
+	  }
+	| {
 			type: 'response-cannot-decode-alpha';
 			id: string;
 			durationInSeconds: number | null;
@@ -117,6 +122,19 @@ export const addBroadcastChannelListener = () => {
 						};
 
 						window.remotion_broadcastChannel!.postMessage(cannotDecodeResponse);
+						return;
+					}
+
+					if (result.type === 'cannot-decode-prores') {
+						const cannotDecodeProresResponse: MessageFromMainTab = {
+							type: 'response-cannot-decode-prores',
+							id: data.id,
+							durationInSeconds: result.durationInSeconds,
+						};
+
+						window.remotion_broadcastChannel!.postMessage(
+							cannotDecodeProresResponse,
+						);
 						return;
 					}
 

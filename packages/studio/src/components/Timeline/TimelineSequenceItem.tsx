@@ -14,6 +14,7 @@ import {
 import {formatFileLocation} from '../../helpers/format-file-location';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {studioInteractivityEnabled} from '../../helpers/interactivity-enabled';
+import {getStudioKeyboardShortcutsEnabled} from '../../helpers/studio-runtime-config';
 import {
 	getTimelineLayerHeight,
 	TIMELINE_ITEM_BORDER_BOTTOM,
@@ -723,22 +724,21 @@ export const TimelineSequenceItem: React.FC<{
 		codeHiddenStatus !== null &&
 		codeHiddenStatus.status === 'static';
 
-	const onSequenceDoubleClick = useCallback(
+	const onShowInEditorDoubleClick = useCallback(
 		(e: React.MouseEvent<HTMLDivElement>) => {
+			if (!canOpenInEditor) {
+				return;
+			}
+
 			if (isTimelineSelectionModifierEvent(e)) {
 				e.stopPropagation();
 				return;
 			}
 
 			e.stopPropagation();
-			if (canRenameThisSequence) {
-				setIsRenaming(true);
-				return;
-			}
-
 			openInEditor();
 		},
-		[canRenameThisSequence, openInEditor],
+		[canOpenInEditor, openInEditor],
 	);
 
 	const canRenameSelectedSequence =
@@ -760,7 +760,7 @@ export const TimelineSequenceItem: React.FC<{
 	);
 
 	React.useEffect(() => {
-		if (!canRenameSelectedSequence || !process.env.KEYBOARD_SHORTCUTS_ENABLED) {
+		if (!canRenameSelectedSequence || !getStudioKeyboardShortcutsEnabled()) {
 			setIsRenaming(false);
 			return;
 		}
@@ -1052,11 +1052,7 @@ export const TimelineSequenceItem: React.FC<{
 			onDragLeave={canDropEffect ? onEffectDragLeave : undefined}
 			onDragOver={canDropEffect ? onEffectDragOver : undefined}
 			onDrop={canDropEffect ? onEffectDrop : undefined}
-			onDoubleClick={
-				canRenameThisSequence || canOpenInEditor
-					? onSequenceDoubleClick
-					: undefined
-			}
+			onDoubleClick={canOpenInEditor ? onShowInEditorDoubleClick : undefined}
 		>
 			<div style={labelContainerStyle}>
 				<TimelineSequenceName

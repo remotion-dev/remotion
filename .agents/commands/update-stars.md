@@ -1,1 +1,0 @@
-../skills/update-stars/SKILL.md

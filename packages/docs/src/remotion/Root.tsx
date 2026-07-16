@@ -1,7 +1,7 @@
 import {experts} from '@remotion/promo-pages/dist/experts/experts-data.js';
 import {CreateVideoInternals} from 'create-video';
 import React from 'react';
-import {Folder, Still} from 'remotion';
+import {Composition, Folder, Still} from 'remotion';
 import {EffectsBarrelDistortionPreview} from '../../components/effects/effects-barrel-distortion-preview';
 import {EffectsBlurPreview} from '../../components/effects/effects-blur-preview';
 import {EffectsBrightnessPreview} from '../../components/effects/effects-brightness-preview';
@@ -34,6 +34,10 @@ import {
 import {EffectsLinearGradientPreview} from '../../components/effects/effects-linear-gradient-preview';
 import {EffectsLinearGradientTintPreview} from '../../components/effects/effects-linear-gradient-tint-preview';
 import {EffectsLinearProgressiveBlurPreview} from '../../components/effects/effects-linear-progressive-blur-preview';
+import {
+	EffectsLinearProgressivePixelatePreview,
+	LINEAR_PROGRESSIVE_PIXELATE_PREVIEW_PARAMS,
+} from '../../components/effects/effects-linear-progressive-pixelate-preview';
 import {EffectsLinesPreview} from '../../components/effects/effects-lines-preview';
 import {EffectsMirrorPreview} from '../../components/effects/effects-mirror-preview';
 import {
@@ -53,6 +57,10 @@ import {
 	EffectsRadialProgressiveBlurPreview,
 	RADIAL_PROGRESSIVE_BLUR_PREVIEW_PARAMS,
 } from '../../components/effects/effects-radial-progressive-blur-preview';
+import {
+	EffectsRadialProgressivePixelatePreview,
+	RADIAL_PROGRESSIVE_PIXELATE_PREVIEW_PARAMS,
+} from '../../components/effects/effects-radial-progressive-pixelate-preview';
 import {EffectsRingsPreview} from '../../components/effects/effects-rings-preview';
 import {
 	EffectsRoughenEdgesPreview,
@@ -86,6 +94,12 @@ import {EffectsWavesPreview} from '../../components/effects/effects-waves-previe
 import {EffectsWhiteNoisePreview} from '../../components/effects/effects-white-noise-preview';
 import {EffectsZigzagPreview} from '../../components/effects/effects-zigzag-preview';
 import {EffectsZoomBlurPreview} from '../../components/effects/effects-zoom-blur-preview';
+import {elementDefinitions} from '../components/Elements/element-definitions';
+import {getElementCompositionId} from '../components/Elements/element-utils';
+import {
+	ElementAssetComposition,
+	getElementPreviewDimensions,
+} from '../components/Elements/ElementPreviewComposition';
 import {articles} from '../data/articles';
 import {AllTemplates} from './AllTemplates';
 import {Article} from './Article';
@@ -107,6 +121,24 @@ const DEFAULT_THERMAL_PALETTE = [
 export const RemotionRoot: React.FC = () => {
 	return (
 		<>
+			<Folder name="elements">
+				{Object.values(elementDefinitions).map((definition) => {
+					const dimensions = getElementPreviewDimensions(definition);
+
+					return (
+						<Composition
+							key={definition.slug}
+							component={ElementAssetComposition}
+							defaultProps={{slug: definition.slug}}
+							durationInFrames={definition.durationInFrames}
+							fps={definition.fps}
+							height={dimensions.height}
+							id={getElementCompositionId(definition.slug)}
+							width={dimensions.width}
+						/>
+					);
+				})}
+			</Folder>
 			<Folder name="experts">
 				{experts.map((e) => {
 					return (
@@ -414,6 +446,13 @@ export const RemotionRoot: React.FC = () => {
 					}}
 				/>
 				<Still
+					id="effects-linear-progressive-pixelate-preview"
+					component={EffectsLinearProgressivePixelatePreview}
+					width={1280}
+					height={720}
+					defaultProps={LINEAR_PROGRESSIVE_PIXELATE_PREVIEW_PARAMS}
+				/>
+				<Still
 					id="effects-linear-gradient-preview"
 					component={EffectsLinearGradientPreview}
 					width={1280}
@@ -444,6 +483,13 @@ export const RemotionRoot: React.FC = () => {
 					width={1280}
 					height={720}
 					defaultProps={RADIAL_PROGRESSIVE_BLUR_PREVIEW_PARAMS}
+				/>
+				<Still
+					id="effects-radial-progressive-pixelate-preview"
+					component={EffectsRadialProgressivePixelatePreview}
+					width={1280}
+					height={720}
+					defaultProps={RADIAL_PROGRESSIVE_PIXELATE_PREVIEW_PARAMS}
 				/>
 				<Still
 					id="effects-light-trail-text-source"

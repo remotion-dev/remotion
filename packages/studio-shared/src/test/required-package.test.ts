@@ -2,6 +2,7 @@ import {expect, test} from 'bun:test';
 import {
 	getRequiredPackageForEffectImportPath,
 	getRequiredPackageForInsertableElement,
+	isValidPackageName,
 } from '../required-package';
 
 test('gets required package for insertable elements', () => {
@@ -96,4 +97,21 @@ test('gets required package for effect import paths', () => {
 		'@remotion/starburst',
 	);
 	expect(getRequiredPackageForEffectImportPath('remotion')).toBe(null);
+});
+
+test('validates package names', () => {
+	expect(isValidPackageName('lodash')).toBe(true);
+	expect(isValidPackageName('@acme/video')).toBe(true);
+	expect(isValidPackageName('@remotion/effects')).toBe(true);
+	expect(isValidPackageName('@.scope/pkg')).toBe(true);
+	expect(isValidPackageName('@_scope/pkg')).toBe(true);
+	expect(isValidPackageName('--ignore-scripts')).toBe(false);
+	expect(isValidPackageName('@acme/video/extra')).toBe(false);
+	expect(isValidPackageName('Foo')).toBe(false);
+	expect(isValidPackageName('foo~bar')).toBe(false);
+	expect(isValidPackageName('node_modules')).toBe(false);
+	expect(isValidPackageName('favicon.ico')).toBe(false);
+	expect(isValidPackageName('fs')).toBe(false);
+	expect(isValidPackageName('https:')).toBe(false);
+	expect(isValidPackageName('node:path')).toBe(false);
 });

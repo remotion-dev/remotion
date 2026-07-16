@@ -1,5 +1,5 @@
 import React from 'react';
-import {Internals, Interactive} from 'remotion';
+import {Interactive} from 'remotion';
 import type {MakeRectOptions} from '../utils/make-rect';
 import {makeRect} from '../utils/make-rect';
 import type {AllShapesProps} from './render-svg';
@@ -58,5 +58,3 @@ export const Rect = Interactive.withSchema({
 	schema: rectSchema,
 	supportsEffects: true,
 }) as React.FC<RectProps>;
-
-Internals.addSequenceStackTraces(Rect);

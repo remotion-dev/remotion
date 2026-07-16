@@ -16,15 +16,13 @@ import type {
 	TimelineFieldOnDragValueChange,
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
-import {ModalsContext} from '../../state/modals';
 import {ContextMenu} from '../ContextMenu';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {callAddSequenceKeyframe} from './call-add-keyframe';
 import {getAnimationItemSelectionForSourceFrame} from './get-animation-item-selection-for-frame';
 import {saveSequenceProps} from './save-sequence-prop';
-import {timelineFieldValueColumnStyle} from './timeline-field-row-layout';
 import {TimelineExpandArrowSpacer} from './TimelineExpandArrowButton';
-import {TimelineFieldLabel} from './TimelineFieldLabel';
+import {TimelineFieldRowContent} from './TimelineFieldRowContent';
 import {
 	shouldShowTimelineKeyframeControls,
 	TimelineKeyframeControls,
@@ -307,7 +305,6 @@ export const TimelineSequencePropItem: React.FC<{
 	);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const {setSelectedModal} = useContext(ModalsContext);
 	const selection = useTimelineRowSelection(nodePathInfo);
 	const {selectItems} = useTimelineSelection();
 	const setFrame = Internals.useTimelineSetFrame();
@@ -353,12 +350,11 @@ export const TimelineSequencePropItem: React.FC<{
 			/>
 		) : null;
 
-	const style = useMemo(() => {
-		return {
-			...fieldRowBase,
-			height: field.rowHeight,
-		};
-	}, [field.rowHeight]);
+	const style = useMemo((): React.CSSProperties => {
+		return field.typeName === 'text-content'
+			? fieldRowBase
+			: {...fieldRowBase, height: field.rowHeight};
+	}, [field.rowHeight, field.typeName]);
 
 	const canResetToDefault = useMemo(() => {
 		if (!propStatus || propStatus.status === 'computed') {
@@ -424,33 +420,8 @@ export const TimelineSequencePropItem: React.FC<{
 		propStatus,
 	]);
 
-	const onOpenKeyframeSettings = useCallback(() => {
-		if (propStatus === null || !isKeyframedStatus(propStatus)) {
-			return;
-		}
-
-		setSelectedModal({
-			type: 'keyframe-settings',
-			fileName: validatedLocation.source,
-			nodePath,
-			fieldKey: field.key,
-			fieldLabel: field.description ?? field.key,
-			status: propStatus,
-			schema,
-			effectIndex: null,
-		});
-	}, [
-		propStatus,
-		field.description,
-		field.key,
-		nodePath,
-		schema,
-		setSelectedModal,
-		validatedLocation.source,
-	]);
-
 	const contextMenuValues = useMemo((): ComboboxValue[] => {
-		const values: ComboboxValue[] = [
+		return [
 			{
 				type: 'item',
 				id: 'reset-sequence-field',
@@ -464,30 +435,7 @@ export const TimelineSequencePropItem: React.FC<{
 				value: 'reset-sequence-field',
 			},
 		];
-
-		if (propStatus !== null && isKeyframedStatus(propStatus)) {
-			values.push({
-				type: 'item',
-				id: 'keyframe-settings-sequence-field',
-				keyHint: null,
-				label: 'Keyframe settings...',
-				leftItem: null,
-				disabled: previewServerState.type !== 'connected',
-				onClick: onOpenKeyframeSettings,
-				quickSwitcherLabel: null,
-				subMenu: null,
-				value: 'keyframe-settings-sequence-field',
-			});
-		}
-
-		return values;
-	}, [
-		canShowReset,
-		propStatus,
-		onOpenKeyframeSettings,
-		onReset,
-		previewServerState,
-	]);
+	}, [canShowReset, onReset]);
 
 	const seekToDisplayFrame = useCallback(
 		(frame: number) => {
@@ -586,6 +534,27 @@ export const TimelineSequencePropItem: React.FC<{
 		return null;
 	}
 
+	const fieldValue = isKeyframedStatus(propStatus) ? (
+		<TimelineSequenceKeyframedValue
+			field={field}
+			fileName={validatedLocation.source}
+			nodePath={nodePath}
+			schema={schema}
+			propStatus={propStatus}
+			sourceFrame={sourceFrame}
+		/>
+	) : propStatus.status === 'static' ? (
+		<Value
+			field={field}
+			nodePath={nodePath}
+			validatedLocation={validatedLocation}
+			schema={schema}
+			propStatus={propStatus}
+		/>
+	) : (
+		<TimelineNonEditableStatus propStatus={propStatus} />
+	);
+
 	const row = (
 		<TimelineRowChrome
 			depth={rowDepth}
@@ -602,37 +571,13 @@ export const TimelineSequencePropItem: React.FC<{
 			containsSelection={false}
 			outerHeight={null}
 		>
-			<TimelineFieldLabel
+			<TimelineFieldRowContent
+				field={field}
 				rowDepth={rowDepth}
 				selected={selection.selected}
-				label={field.description ?? field.key}
-			/>
-			{isKeyframedStatus(propStatus) ? (
-				<div style={timelineFieldValueColumnStyle}>
-					<TimelineSequenceKeyframedValue
-						field={field}
-						fileName={validatedLocation.source}
-						nodePath={nodePath}
-						schema={schema}
-						propStatus={propStatus}
-						sourceFrame={sourceFrame}
-					/>
-				</div>
-			) : propStatus.status === 'static' ? (
-				<div style={timelineFieldValueColumnStyle}>
-					<Value
-						field={field}
-						nodePath={nodePath}
-						validatedLocation={validatedLocation}
-						schema={schema}
-						propStatus={propStatus}
-					/>
-				</div>
-			) : (
-				<div style={timelineFieldValueColumnStyle}>
-					<TimelineNonEditableStatus propStatus={propStatus} />
-				</div>
-			)}
+			>
+				{fieldValue}
+			</TimelineFieldRowContent>
 		</TimelineRowChrome>
 	);
 

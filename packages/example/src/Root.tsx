@@ -237,6 +237,15 @@ import {
 	ProResMediaVideo,
 	calculateProResMediaVideoMetadata,
 } from './ProResMediaVideo';
+import {
+	RoughNotationBox,
+	RoughNotationBracket,
+	RoughNotationCircle,
+	RoughNotationCrossedOff,
+	RoughNotationHighlight,
+	RoughNotationStrikeThrough,
+	RoughNotationUnderline,
+} from './RoughNotation';
 import {SfxExample} from './Sfx';
 import {CanvasImg} from './SimpleImg/CanvasImg';
 import {ImgEffects} from './SimpleImg/ImgEffects';
@@ -407,6 +416,16 @@ export const Index: React.FC = () => {
 				<Composition
 					id="cubic-easing-interpolation-test"
 					lazyComponent={() => import('./CubicEasingInterpolationTest')}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={120}
+				/>
+				<Composition
+					id="interpolate-output-effect-scale-comparison"
+					lazyComponent={() =>
+						import('./InterpolateOutputEffectScaleComparison')
+					}
 					width={1080}
 					height={1080}
 					fps={30}
@@ -1469,7 +1488,6 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={2 * 60 * 60 * 30}
 				/>
-
 				<Composition
 					id="video-speed"
 					component={VideoSpeed}
@@ -2200,7 +2218,6 @@ export const Index: React.FC = () => {
 					durationInFrames={150}
 					schema={schemaTestSchema}
 				/>
-
 				<Composition
 					id="zod-v4-schema-test"
 					component={ZodV4SchemaTest}
@@ -2218,7 +2235,6 @@ export const Index: React.FC = () => {
 						nested: {a: 'asdfadsf', b: 99},
 					}}
 				/>
-
 				<Composition
 					id="discriminated-union-root"
 					component={DiscriminatedUnionSchemaTest}
@@ -2536,6 +2552,64 @@ export const Index: React.FC = () => {
 					durationInFrames={120}
 				/>
 			</Folder>
+			<Folder name="rough-notation">
+				<Composition
+					id="rough-notation-highlight"
+					component={RoughNotationHighlight}
+					width={1080}
+					height={500}
+					fps={30}
+					durationInFrames={90}
+				/>
+				<Composition
+					id="rough-notation-box"
+					component={RoughNotationBox}
+					width={1080}
+					height={500}
+					fps={30}
+					durationInFrames={90}
+				/>
+				<Composition
+					id="rough-notation-circle"
+					component={RoughNotationCircle}
+					width={1080}
+					height={500}
+					fps={30}
+					durationInFrames={90}
+				/>
+				<Composition
+					id="rough-notation-bracket"
+					component={RoughNotationBracket}
+					width={1080}
+					height={500}
+					fps={30}
+					durationInFrames={90}
+				/>
+				<Composition
+					id="rough-notation-crossed-off"
+					component={RoughNotationCrossedOff}
+					width={1080}
+					height={500}
+					fps={30}
+					durationInFrames={90}
+				/>
+				<Composition
+					id="rough-notation-strike-through"
+					component={RoughNotationStrikeThrough}
+					width={1080}
+					height={500}
+					fps={30}
+					durationInFrames={90}
+				/>
+				<Composition
+					id="rough-notation-underline"
+					component={RoughNotationUnderline}
+					width={1080}
+					height={500}
+					fps={30}
+					durationInFrames={90}
+				/>
+			</Folder>
 			<Folder name="starburst">
 				<Composition
 					id="starburst"
@@ -2604,9 +2678,9 @@ export const Index: React.FC = () => {
 					durationInFrames={165}
 				/>
 			</Folder>
-			<Folder name="Issue8974">
+			<Folder name="video-editing">
 				<Composition
-					id="issue-8974-transition-series-timeline"
+					id="video-editing-cascading"
 					component={Issue8974TransitionSeriesTimeline}
 					width={1920}
 					height={1080}
@@ -2614,7 +2688,7 @@ export const Index: React.FC = () => {
 					durationInFrames={210}
 				/>
 				<Composition
-					id="issue-8974-independent-videos-timeline"
+					id="video-editing-independent"
 					component={Issue8974IndependentVideosTimeline}
 					width={1920}
 					height={1080}
