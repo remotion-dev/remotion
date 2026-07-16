@@ -1,5 +1,8 @@
 import React, {forwardRef, useCallback, useRef} from 'react';
-import type {SequenceControls} from './CompositionManager.js';
+import type {
+	JsxComponentIdentity,
+	SequenceControls,
+} from './CompositionManager.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import {
 	baseSchema,
@@ -12,7 +15,10 @@ import {
 } from './interactivity-schema.js';
 import type {AbsoluteFillLayout, SequenceProps} from './Sequence.js';
 import {Sequence} from './Sequence.js';
-import {withInteractivitySchema} from './with-interactivity-schema.js';
+import {
+	withInteractivitySchema,
+	type WithInteractivitySchemaOptions,
+} from './with-interactivity-schema.js';
 
 type InteractiveHtmlTag =
 	| 'a'
@@ -101,6 +107,35 @@ type InteractiveElementComponent<Tag extends InteractiveTag> =
 		InteractiveElementProps<Tag> & React.RefAttributes<ElementForTag<Tag>>
 	>;
 
+type RemotionComponentIdentityPackage = 'remotion' | `@remotion/${string}`;
+
+const sourcePathToIdentityPrefix = (
+	packageName: RemotionComponentIdentityPackage,
+): string => {
+	if (packageName === 'remotion') {
+		return 'dev.remotion.remotion';
+	}
+
+	if (packageName.startsWith('@remotion/')) {
+		const normalizedPackageName = packageName
+			.slice('@remotion/'.length)
+			.replace(/-([a-z])/g, (_, char: string) => char.toUpperCase());
+		return `dev.remotion.${normalizedPackageName}`;
+	}
+
+	throw new Error(`Unsupported Remotion package name: ${packageName}`);
+};
+
+const makeRemotionComponentIdentity = ({
+	packageName,
+	componentName,
+}: {
+	readonly packageName: RemotionComponentIdentityPackage;
+	readonly componentName: string;
+}): JsxComponentIdentity => {
+	return `${sourcePathToIdentityPrefix(packageName)}.${componentName}`;
+};
+
 const interactiveElementSchema = {
 	...baseSchema,
 	...transformSchema,
@@ -117,6 +152,15 @@ const setRef = <ElementType,>(
 	} else if (ref) {
 		ref.current = value;
 	}
+};
+
+const withSchema = <S extends InteractivitySchema, Props extends object>(
+	options: WithInteractivitySchemaOptions<S, Props>,
+): React.ComponentType<Props> => {
+	const Wrapped = withInteractivitySchema(options);
+	addSequenceStackTraces(Wrapped);
+
+	return Wrapped;
 };
 
 const makeInteractiveElement = <Tag extends InteractiveTag>(
@@ -180,16 +224,18 @@ const makeInteractiveElement = <Tag extends InteractiveTag>(
 
 	Inner.displayName = displayName;
 
-	const Wrapped = withInteractivitySchema({
+	const Wrapped = withSchema({
 		Component: Inner,
 		componentName: displayName,
-		componentIdentity: `dev.remotion.remotion.${displayName.slice(1, -1)}`,
+		componentIdentity: makeRemotionComponentIdentity({
+			packageName: 'remotion',
+			componentName: displayName.slice(1, -1),
+		}),
 		schema: interactiveElementSchema,
 		supportsEffects: false,
 	}) as InteractiveElementComponent<Tag>;
 
 	Wrapped.displayName = displayName;
-	addSequenceStackTraces(Wrapped);
 
 	return Wrapped;
 };
@@ -203,7 +249,8 @@ export const Interactive = {
 	textSchema,
 	premountSchema,
 	sequenceSchema,
-	withSchema: withInteractivitySchema,
+	withSchema,
+	_internalMakeRemotionComponentIdentity: makeRemotionComponentIdentity,
 	A: makeInteractiveElement('a', '<Interactive.A>'),
 	Article: makeInteractiveElement('article', '<Interactive.Article>'),
 	Aside: makeInteractiveElement('aside', '<Interactive.Aside>'),

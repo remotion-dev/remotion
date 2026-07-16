@@ -39,3 +39,21 @@ export const formatFileLocation = ({
 
 	return `${stripLeadingDotSlash(relativeSource)}:${location.line}`;
 };
+
+export const formatLocationForAgents = ({
+	name,
+	location,
+	root,
+}: {
+	readonly name: string | null;
+	readonly location: FileLocation | null;
+	readonly root: string;
+}) => {
+	const fileLocation = formatFileLocation({location, root});
+
+	if (!name || !fileLocation) {
+		return null;
+	}
+
+	return `${name} in ${fileLocation}`;
+};

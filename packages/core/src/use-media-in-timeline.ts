@@ -210,6 +210,7 @@ export const useMediaInTimeline = ({
 			showInTimeline: true,
 			nonce: nonce.get(),
 			startMediaFrom: 0 - startsAt,
+			mediaFrameAtSequenceZero: null,
 			doesVolumeChange,
 			loopDisplay,
 			playbackRate,

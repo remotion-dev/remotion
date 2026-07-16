@@ -423,6 +423,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 					src: isMedia.data.src,
 					getStack: () => stackRef.current,
 					startMediaFrom: startMediaFrom ?? isMedia.data.startMediaFrom,
+					mediaFrameAtSequenceZero,
 					volume: isMedia.data.volumes,
 					refForOutline: refForOutline ?? null,
 					isInsideSeries,
@@ -488,6 +489,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		isInsideSeries,
 		registeredFrozenFrame,
 		startMediaFrom,
+		mediaFrameAtSequenceZero,
 		frozenMediaFrame,
 	]);
 

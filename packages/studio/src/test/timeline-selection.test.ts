@@ -72,6 +72,7 @@ import {getTimelinePropResetTargets} from '../components/Timeline/reset-selected
 import {shouldSubscribeToSequenceProps} from '../components/Timeline/should-subscribe-to-sequence-props';
 import {
 	getEasingClipboardDataFromSelection,
+	getEffectsClipboardEnvelopeFromSelections,
 	getEffectPropClipboardDataFromSelection,
 	getPasteEffectPropTarget,
 	getPasteEffectsTarget,
@@ -107,6 +108,7 @@ import {
 	getTimelineSequenceLeftEdgeDragChanges,
 	getTimelineSequenceLeftEdgeDragTargets,
 	getTimelineSequenceLeftEdgeDragValues,
+	isTimelineSequenceDurationDraggable,
 } from '../components/Timeline/TimelineSequenceRightEdgeDragHandle';
 import {
 	parsedTransformOriginToUv,
@@ -630,6 +632,38 @@ test('copying a keyframed effect creates a structured snapshot', () => {
 	]);
 });
 
+test('cut effect clipboard metadata preserves source order', () => {
+	const nodePathInfo = makeNodePathInfo(['body', 0], ['effects', '0'], true, [
+		['0'],
+	]);
+	const blur = {
+		callee: 'blur',
+		importPath: '@remotion/effects/blur',
+		params: {},
+	};
+	const brightness = {
+		callee: 'brightness',
+		importPath: '@remotion/effects/brightness',
+		params: {},
+	};
+	const envelope = getEffectsClipboardEnvelopeFromSelections({
+		selectedItems: [
+			{type: 'sequence-effect', nodePathInfo, i: 1},
+			{type: 'sequence-effect', nodePathInfo, i: 0},
+		],
+		payload: {
+			type: 'effects-additive',
+			version: 3,
+			remotionClipboard: 'effects',
+			effects: [blur, brightness],
+		},
+	});
+
+	expect(envelope.sourceIdentity).not.toBe(null);
+	expect(envelope.originalEffectIndices).toEqual([0, 1]);
+	expect(envelope.payload.effects).toEqual([brightness, blur]);
+});
+
 test('copying a selected effect prop creates an effect prop payload', () => {
 	const effectPropNodePathInfo = makeNodePathInfo(
 		['body', 0],
@@ -1045,6 +1079,36 @@ test('Timeline duration drag uses the declared duration for negative from values
 			deltaFrames: 0,
 		}),
 	).toEqual([]);
+});
+
+test('Timeline duration drag supports interactive video clips', () => {
+	const nodePathInfo = makeNodePathInfo(['body', 0], []);
+	const video = makeTimelineSequence({
+		schema: Internals.baseSchema,
+		type: 'video',
+		duration: 78,
+	});
+
+	expect(isTimelineSequenceDurationDraggable(video)).toBe(true);
+	expect(
+		getTimelineSequenceDurationDragTargets({
+			draggedNodePathInfo: nodePathInfo,
+			selectedItems: [{type: 'sequence', nodePathInfo}],
+			sequences: [video],
+			overrideIdsToNodePaths: {
+				override: nodePathInfo.sequenceSubscriptionKey,
+			},
+			propStatuses: makeDurationPropStatuses([
+				nodePathInfo.sequenceSubscriptionKey,
+			]),
+		}),
+	).toEqual([
+		{
+			fileName: nodePathInfo.sequenceSubscriptionKey.absolutePath,
+			initialDuration: 78,
+			nodePath: nodePathInfo.sequenceSubscriptionKey,
+		},
+	]);
 });
 
 test('Timeline duration drag clamps each selected sequence to one frame', () => {

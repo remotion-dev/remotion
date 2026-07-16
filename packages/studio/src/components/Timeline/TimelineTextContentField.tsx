@@ -14,6 +14,18 @@ import {
 	registerFocusInspectorFieldElement,
 } from './focus-inspector-field';
 
+const textAreaStyle: React.CSSProperties = {
+	boxSizing: 'border-box',
+	maxHeight: 160,
+	minHeight: 40,
+	minWidth: 0,
+	overflowY: 'auto',
+	width: '100%',
+	...({
+		fieldSizing: 'content',
+	} satisfies React.CSSProperties & {fieldSizing: 'content'}),
+};
+
 export const TimelineTextContentField: React.FC<{
 	readonly field: SchemaFieldInfo;
 	readonly effectiveValue: unknown;
@@ -143,11 +155,7 @@ export const TimelineTextContentField: React.FC<{
 			onBlur={commitPending}
 			onChange={onChange}
 			onKeyDownCapture={onKeyDownCapture}
-			style={{
-				boxSizing: 'border-box',
-				height: 40,
-				width: 160,
-			}}
+			style={textAreaStyle}
 		/>
 	);
 };

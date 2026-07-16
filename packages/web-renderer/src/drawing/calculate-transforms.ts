@@ -29,6 +29,25 @@ type Transform = {
 	boundingClientRect: DOMRect | null;
 };
 
+type TransformStyle = Pick<
+	CSSStyleDeclaration,
+	'display' | 'rotate' | 'scale' | 'transform' | 'transformOrigin'
+>;
+
+export type TransformStyleCache = WeakMap<Element, TransformStyle>;
+
+const snapshotTransformStyle = (
+	computedStyle: CSSStyleDeclaration,
+): TransformStyle => {
+	return {
+		display: computedStyle.display,
+		rotate: computedStyle.rotate,
+		scale: computedStyle.scale,
+		transform: computedStyle.transform,
+		transformOrigin: computedStyle.transformOrigin,
+	};
+};
+
 const isReplacedElement = (element: Element) => {
 	return (
 		element instanceof HTMLImageElement ||
@@ -48,7 +67,7 @@ const canApplyCssTransforms = ({
 	computedStyle,
 }: {
 	element: HTMLElement | SVGElement;
-	computedStyle: CSSStyleDeclaration;
+	computedStyle: Pick<CSSStyleDeclaration, 'display'>;
 }) => {
 	if (element instanceof SVGElement) {
 		return true;
@@ -105,9 +124,11 @@ const getGlobalTransformOrigin = ({transform}: {transform: Transform}) => {
 export const calculateTransforms = ({
 	element,
 	rootElement,
+	transformStyleCache,
 }: {
 	element: HTMLElement | SVGElement;
 	rootElement: HTMLElement | SVGElement;
+	transformStyleCache: TransformStyleCache;
 }) => {
 	// Compute the cumulative transform by traversing parent nodes
 	let parent: HTMLElement | SVGElement | null = element;
@@ -119,15 +140,35 @@ export const calculateTransforms = ({
 	let maskImageInfo: LinearGradientInfo | null = null;
 	let filterForPrecompositing: string | null = null;
 	while (parent) {
+		// Each node walks its ancestors, so reuse their immutable transform fields
+		// for the remainder of this composition.
+		const cachedTransformStyle = transformStyleCache.get(parent);
+		const shouldReadComputedStyle =
+			parent === element || cachedTransformStyle === undefined;
+
 		// Neutralize transition before reading computed style to prevent
 		// CSS transitions from returning intermediate (t=0) transform values
 		// when we set transform to 'none' for measurement
 		const originalTransition = parent.style.transition;
 		parent.style.transition = 'none';
 
-		const computedStyle = getComputedStyle(parent);
+		const computedStyle = shouldReadComputedStyle
+			? getComputedStyle(parent)
+			: null;
+		const transformStyle =
+			computedStyle === null
+				? cachedTransformStyle!
+				: snapshotTransformStyle(computedStyle);
+
+		if (computedStyle !== null) {
+			transformStyleCache.set(parent, transformStyle);
+		}
 
 		if (parent === element) {
+			if (computedStyle === null) {
+				throw new Error('Element computed style not found');
+			}
+
 			elementComputedStyle = computedStyle;
 			opacity = parseFloat(computedStyle.opacity);
 			const maskImageValue = getMaskImageValue(computedStyle);
@@ -159,13 +200,13 @@ export const calculateTransforms = ({
 		}
 
 		const hasApplicableTransformCssValue =
-			canApplyCssTransforms({computedStyle, element: parent}) &&
-			hasAnyTransformCssValue(computedStyle);
+			canApplyCssTransforms({computedStyle: transformStyle, element: parent}) &&
+			hasAnyTransformCssValue(transformStyle);
 
 		if (hasApplicableTransformCssValue || parent === element) {
 			const toParse =
-				hasApplicableTransformCssValue && hasTransformCssValue(computedStyle)
-					? computedStyle.transform
+				hasApplicableTransformCssValue && hasTransformCssValue(transformStyle)
+					? transformStyle.transform
 					: undefined;
 			const matrix = new DOMMatrix(toParse);
 
@@ -196,7 +237,7 @@ export const calculateTransforms = ({
 
 			transforms.push({
 				element: parent,
-				transformOrigin: computedStyle.transformOrigin,
+				transformOrigin: transformStyle.transformOrigin,
 				boundingClientRect: null,
 				matrices: additionalMatrices,
 			});

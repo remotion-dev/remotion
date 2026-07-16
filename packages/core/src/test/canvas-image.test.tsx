@@ -41,17 +41,16 @@ const stub2dContext = (canvas: HTMLCanvasElement) => ({
 	putImageData: () => undefined,
 });
 
-(
-	HTMLCanvasElement.prototype as unknown as {
-		getContext: (kind: string) => unknown;
-	}
-).getContext = function (kind: string) {
-	if (kind === '2d') {
-		return stub2dContext(this as HTMLCanvasElement);
-	}
+Object.defineProperty(HTMLCanvasElement.prototype, 'getContext', {
+	configurable: true,
+	value(this: HTMLCanvasElement, kind: string) {
+		if (kind === '2d') {
+			return stub2dContext(this);
+		}
 
-	return null;
-};
+		return null;
+	},
+});
 
 class MockImage {
 	public onload: (() => void) | null = null;

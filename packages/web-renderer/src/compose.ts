@@ -1,4 +1,5 @@
 import type {LogLevel} from 'remotion';
+import type {TransformStyleCache} from './drawing/calculate-transforms';
 import type {InternalState} from './internal-state';
 import {createTreeWalkerCleanupAfterChildren} from './tree-walker-cleanup-after-children';
 import {walkOverNode} from './walk-over-node';
@@ -51,6 +52,7 @@ export const compose = async ({
 			: NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT,
 		getFilterFunction,
 	);
+	const transformStyleCache: TransformStyleCache = new WeakMap();
 
 	// Skip to the first text node
 	if (onlyBackgroundClipText) {
@@ -76,6 +78,7 @@ export const compose = async ({
 			onlyBackgroundClipText,
 			scale,
 			waitForPageResponsiveness,
+			transformStyleCache,
 		});
 		if (val.type === 'skip-children') {
 			if (!skipToNextNonDescendant(treeWalker)) {

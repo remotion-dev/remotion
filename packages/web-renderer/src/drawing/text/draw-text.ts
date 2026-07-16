@@ -108,12 +108,11 @@ export const drawText = ({
 		const blurScale = Math.hypot(ctm.a, ctm.b);
 
 		const {strokeFirst} = parsePaintOrder(paintOrder);
+		const measurements = contextToDraw.measureText(originalText);
+		const {fontBoundingBoxDescent, fontBoundingBoxAscent} = measurements;
+		const fontHeight = fontBoundingBoxAscent + fontBoundingBoxDescent;
 
 		for (const token of tokens) {
-			const measurements = contextToDraw.measureText(originalText);
-			const {fontBoundingBoxDescent, fontBoundingBoxAscent} = measurements;
-
-			const fontHeight = fontBoundingBoxAscent + fontBoundingBoxDescent;
 			// Calculate leading
 			const leading = token.rect.height - fontHeight;
 			const halfLeading = leading / 2;

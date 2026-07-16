@@ -2,7 +2,6 @@ import {getVideoMetadata} from '@remotion/media-utils';
 import {
 	detectFileType,
 	getRequiredPackageForInsertableElement,
-	getRequiredPackagesForElementSourceCode,
 	isUrl,
 	type CompositionDragData,
 	type ComponentDragData,
@@ -236,6 +235,20 @@ const getCenteredPosition = ({
 		x: dropPosition.centerX - dimensions.width / 2,
 		y: dropPosition.centerY - dimensions.height / 2,
 	};
+};
+
+export const getElementPositionForDrop = ({
+	dimensions,
+	dropPosition,
+}: {
+	dimensions: Dimensions | null;
+	dropPosition: InsertElementDropPosition | null;
+}): InsertableCompositionElementPosition | null => {
+	if (dimensions === null) {
+		return null;
+	}
+
+	return getCenteredPosition({dimensions, dropPosition});
 };
 
 const getComponentPropNumber = (props: ComponentProp[], name: string) => {
@@ -921,15 +934,13 @@ export const insertElement = async ({
 	element: ElementDragData['element'];
 }) => {
 	try {
-		await installRequiredPackages(
-			getRequiredPackagesForElementSourceCode(element.sourceCode),
-		);
+		await installRequiredPackages(element.dependencies);
 
 		const response = await callApi('/api/insert-element', {
 			compositionFile,
 			compositionId,
 			element,
-			position: getCenteredPosition({
+			position: getElementPositionForDrop({
 				dimensions: element.dimensions,
 				dropPosition,
 			}),

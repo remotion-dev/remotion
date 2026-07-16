@@ -93,6 +93,7 @@ export const listOfRemotionPackages = [
 	'@remotion/web-renderer',
 	'@remotion/design',
 	'@remotion/light-leaks',
+	'@remotion/rough-notation',
 	'@remotion/starburst',
 	'@remotion/vercel',
 	'@remotion/sfx',

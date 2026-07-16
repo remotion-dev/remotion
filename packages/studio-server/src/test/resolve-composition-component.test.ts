@@ -537,6 +537,7 @@ test('inserts a Solid into the resolved composition component', async () => {
 		expect(result.output).toContain('<Solid');
 		expect(result.output).toContain('width={1280}');
 		expect(result.output).toContain('height={720}');
+		expect(result.output).toContain('color="gray"');
 		expect(result.output).toContain("position: 'absolute'");
 	} finally {
 		await fs.rm(tempDir, {recursive: true, force: true});

@@ -122,6 +122,39 @@ export const Example: React.FC = () => {
 	).toThrow(JsxElementIdentityMismatchError);
 });
 
+test('computeSequencePropsStatus should match hyphenated package imports by component identity', () => {
+	const input = `import React from 'react';
+import {Highlight} from '@remotion/rough-notation';
+
+export const Example: React.FC = () => {
+\treturn (
+\t\t<Highlight progress={1} color="yellow">
+\t\t\tHighlighted
+\t\t</Highlight>
+\t);
+};
+`;
+	const result = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 6),
+		componentIdentity: 'dev.remotion.roughNotation.Highlight',
+		keys: ['progress', 'color'],
+		effects: [],
+	});
+
+	expect(result.canUpdate).toBe(true);
+	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
+
+	expect(result.props.progress).toEqual({
+		status: 'static',
+		codeValue: 1,
+	});
+	expect(result.props.color).toEqual({
+		status: 'static',
+		codeValue: 'yellow',
+	});
+});
+
 test('computeSequencePropsStatus should match namespace imports by component identity', () => {
 	const input = `import React from 'react';
 import * as Remotion from 'remotion';
@@ -793,6 +826,34 @@ export const Example: React.FC = () => {
 	const result = computeSequencePropsStatusFromContent({
 		fileContents: input,
 		nodePath: getNodePathFromContent(input, 8),
+		componentIdentity: null,
+		keys: ['style.scale'],
+		effects: [],
+	});
+
+	expect(result.canUpdate).toBe(true);
+	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
+
+	expect(result.props['style.scale']).toEqual({
+		status: 'computed',
+	});
+});
+
+test('computeSequencePropsStatus should bail on arithmetic posterize expressions', () => {
+	const input = `import React from 'react';
+import {Sequence, interpolate, useCurrentFrame} from 'remotion';
+
+export const Example: React.FC = () => {
+\tconst frame = useCurrentFrame();
+\treturn (
+\t\t<Sequence style={{scale: interpolate(frame, [0, 100], [1, 3], {posterize: 5 + 5})}} />
+\t);
+};
+`;
+
+	const result = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 7),
 		componentIdentity: null,
 		keys: ['style.scale'],
 		effects: [],

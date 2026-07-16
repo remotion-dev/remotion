@@ -1,9 +1,7 @@
 # @remotion/player-a11y
 
-Accessible wrapper around @remotion/player with WCAG 2.1 AA controls
-
-This is an internal Remotion package and is not published to npm.
+Internal accessibility wrapper around @remotion/player
 
 ## Usage
 
-Use this package from within the Remotion monorepo only.
+This is an internal package and has no documentation.

@@ -277,6 +277,14 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 						return;
 					}
 
+					if (result.type === 'cannot-decode-prores') {
+						// ProRes is video-only, so the MediaPlayer never returns this for
+						// an audio track. Guard it to keep the union exhaustive.
+						throw new Error(
+							`Encountered ProRes media for ${preloadedSrc}. But this should never happen, since you used the <Audio> tag. Please report this as a bug.`,
+						);
+					}
+
 					if (result.type === 'success') {
 						setMediaPlayerReady(true);
 						setMediaDurationInSeconds(result.durationInSeconds);

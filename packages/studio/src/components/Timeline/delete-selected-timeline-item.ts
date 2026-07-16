@@ -134,15 +134,15 @@ const deleteEffects = (
 							: 'Removed effects from source files',
 					2000,
 				);
-			} else {
-				showNotification(result.reason, 4000);
+				return true;
 			}
 
-			return true;
+			showNotification(result.reason, 4000);
+			return false;
 		})
 		.catch((err) => {
 			showNotification((err as Error).message, 4000);
-			return true;
+			return false;
 		});
 };
 

@@ -364,5 +364,3 @@ export const Video = Interactive.withSchema({
 	schema: videoSchema,
 	supportsEffects: true,
 });
-
-Internals.addSequenceStackTraces(Video);

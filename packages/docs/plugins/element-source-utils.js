@@ -1,5 +1,80 @@
 import fs from 'fs';
 import path from 'path';
+import {parse} from '@babel/parser';
+
+const getPackageName = (importPath) => {
+	if (
+		importPath === 'remotion' ||
+		importPath.startsWith('.') ||
+		importPath.startsWith('/') ||
+		importPath.includes(':')
+	) {
+		return null;
+	}
+
+	if (importPath.startsWith('@')) {
+		const [scope, name] = importPath.split('/');
+		return scope && name ? `${scope}/${name}` : null;
+	}
+
+	return importPath.split('/')[0] || null;
+};
+
+const getStringLiteralValue = (node) => {
+	return node?.type === 'StringLiteral' ? node.value : null;
+};
+
+export const getRemotionElementDependencies = (source) => {
+	const ast = parse(source, {
+		plugins: ['jsx', 'typescript'],
+		sourceType: 'module',
+	});
+	const importPaths = new Set();
+
+	const visit = (node) => {
+		if (!node || typeof node !== 'object') {
+			return;
+		}
+
+		if (
+			node.type === 'ImportDeclaration' ||
+			node.type === 'ExportNamedDeclaration' ||
+			node.type === 'ExportAllDeclaration'
+		) {
+			const value = getStringLiteralValue(node.source);
+			if (value) {
+				importPaths.add(value);
+			}
+		} else if (node.type === 'ImportExpression') {
+			const value = getStringLiteralValue(node.source);
+			if (value) {
+				importPaths.add(value);
+			}
+		} else if (
+			node.type === 'CallExpression' &&
+			node.callee?.type === 'Import'
+		) {
+			const value = getStringLiteralValue(node.arguments?.[0]);
+			if (value) {
+				importPaths.add(value);
+			}
+		}
+
+		for (const value of Object.values(node)) {
+			if (Array.isArray(value)) {
+				value.forEach(visit);
+			} else if (value && typeof value === 'object') {
+				visit(value);
+			}
+		}
+	};
+
+	visit(ast);
+
+	return Array.from(
+		new Set(Array.from(importPaths, getPackageName).filter(Boolean)),
+	);
+};
 
 const getFence = (source) => {
 	const longestBacktickRun = Math.max(

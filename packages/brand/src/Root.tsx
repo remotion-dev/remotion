@@ -45,6 +45,10 @@ import {
 	patternEffectShowcaseDurationInFrames,
 } from './effects/PatternEffectShowcase';
 import {
+	RoughNotationShowcase,
+	roughNotationShowcaseDurationInFrames,
+} from './effects/RoughNotationShowcase';
+import {
 	StarburstEffectShowcase,
 	starburstEffectShowcaseDurationInFrames,
 } from './effects/StarburstEffectShowcase';
@@ -286,6 +290,14 @@ export const RemotionRoot: React.FC = () => {
 				/>
 			</Folder>
 			<Folder name="effects">
+				<Composition
+					id="rough-notation-showcase"
+					component={RoughNotationShowcase}
+					durationInFrames={roughNotationShowcaseDurationInFrames}
+					fps={30}
+					width={1080}
+					height={1080}
+				/>
 				<Composition
 					id="corner-pin-effect-showcase"
 					component={CornerPinEffectShowcase}

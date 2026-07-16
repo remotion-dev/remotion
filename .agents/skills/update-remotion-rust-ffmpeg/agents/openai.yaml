@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Update Remotion Rust FFmpeg'
+  short_description: 'Rebuild compositor binaries and open a PR'
+  default_prompt: 'Use $update-remotion-rust-ffmpeg with the merged rust-ffmpeg commit hash, rebuild all compositor targets, and open a draft PR.'

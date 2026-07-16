@@ -3,6 +3,7 @@ import {
 	getAssetElement,
 	getAssetElementFromPath,
 	getComponentDimensions,
+	getElementPositionForDrop,
 } from '../components/import-assets';
 
 test('maps audio file types to Audio assets', () => {
@@ -127,4 +128,31 @@ test('falls back to generic component dimensions', () => {
 			],
 		}),
 	).toEqual({width: 320, height: 180});
+});
+
+test('places dimensionless Elements at the composition origin', () => {
+	expect(
+		getElementPositionForDrop({
+			dimensions: null,
+			dropPosition: {centerX: 500, centerY: 300},
+		}),
+	).toBe(null);
+});
+
+test('centers fixed-size Elements at the drop position', () => {
+	expect(
+		getElementPositionForDrop({
+			dimensions: {width: 680, height: 138},
+			dropPosition: {centerX: 500, centerY: 300},
+		}),
+	).toEqual({x: 160, y: 231});
+});
+
+test('does not position Elements without a drop position', () => {
+	expect(
+		getElementPositionForDrop({
+			dimensions: {width: 680, height: 138},
+			dropPosition: null,
+		}),
+	).toBe(null);
 });

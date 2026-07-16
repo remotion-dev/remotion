@@ -36,7 +36,6 @@ import type {
 import {mapToAlignment, mapToFit} from './map-enums.js';
 
 const {
-	addSequenceStackTraces,
 	runEffectChain,
 	useEffectChainState,
 	useMemoizedEffectDefinitions,
@@ -502,8 +501,6 @@ export const RemotionRiveCanvas = Interactive.withSchema({
 }) as React.ForwardRefExoticComponent<
 	RemotionRiveCanvasProps & React.RefAttributes<RiveCanvasRef>
 >;
-
-addSequenceStackTraces(RemotionRiveCanvas);
 
 (RemotionRiveCanvas as unknown as {displayName: string}).displayName =
 	'RemotionRiveCanvas';
