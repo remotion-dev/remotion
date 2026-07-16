@@ -4473,6 +4473,15 @@ export const articles = [
 		slug: 'miscellaneous/emojis',
 	},
 	{
+		id: 'miscellaneous/ffmpeg-license',
+		title: 'FFmpeg license',
+		relativePath: 'docs/miscellaneous/ffmpeg-license.mdx',
+		compId: 'articles-docs-miscellaneous-ffmpeg-license',
+		crumb: 'Miscellaneous',
+		noAi: false,
+		slug: 'miscellaneous/ffmpeg-license',
+	},
+	{
 		id: 'miscellaneous/linux-dependencies',
 		title: 'Linux Dependencies',
 		relativePath: 'docs/miscellaneous/linux-dependencies.mdx',
