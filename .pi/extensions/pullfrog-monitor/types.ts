@@ -63,6 +63,7 @@ export type PullfrogSnapshot = {
 	headSha: string;
 	reviewSubmittedForHead: boolean;
 	workflowRun: PullfrogWorkflowRun | null;
+	workflowRunPending: boolean;
 	reviews: PullfrogReview[];
 	issueComments: PullfrogIssueComment[];
 	inlineCommentsAndReplies: PullfrogInlineComment[];

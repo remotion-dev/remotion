@@ -1,10 +1,10 @@
-import {randomUUID} from 'node:crypto';
 import {
 	BorderedLoader,
 	type ExtensionAPI,
 	type ExtensionCommandContext,
 	type ExtensionContext,
 } from '@earendil-works/pi-coding-agent';
+import {randomUUID} from 'node:crypto';
 import {
 	fingerprintSnapshot,
 	formatSnapshotFeedback,

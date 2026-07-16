@@ -18,6 +18,7 @@ const snapshot = (
 	headSha: 'a'.repeat(40),
 	reviewSubmittedForHead: false,
 	workflowRun: null,
+	workflowRunPending: false,
 	reviews: [],
 	issueComments: [],
 	inlineCommentsAndReplies: [],
@@ -136,6 +137,12 @@ describe('Pullfrog snapshots', () => {
 		});
 		expect(hasSubstantiveFeedback(inProgress)).toBe(false);
 		const reviewSubmitted = {...inProgress, reviewSubmittedForHead: true};
+		expect(
+			hasSubstantiveFeedback({
+				...reviewSubmitted,
+				workflowRunPending: true,
+			}),
+		).toBe(false);
 		expect(
 			hasSubstantiveFeedback({
 				...reviewSubmitted,

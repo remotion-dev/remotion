@@ -84,7 +84,8 @@ const isPullfrogGraphqlActor = (actor: GraphqlActor) =>
 
 const isPullfrogRestActor = (actor: RestActor) =>
 	actor?.id === PULLFROG_USER_ID ||
-	actor?.login?.toLowerCase() === PULLFROG_REST_LOGIN;
+	actor?.login?.toLowerCase() === PULLFROG_REST_LOGIN ||
+	actor?.login?.toLowerCase() === PULLFROG_GRAPHQL_LOGIN;
 
 type ViewResponse = {
 	number: number;
@@ -100,18 +101,20 @@ type ViewResponse = {
 		state?: string;
 		commit?: {oid?: string} | null;
 	}>;
-	comments: Array<{
-		id: string;
-		body?: string;
-		author?: GraphqlActor;
-		createdAt?: string;
-		url?: string;
-	}>;
 	commits: Array<{
 		oid: string;
 		committedDate?: string;
 		authoredDate?: string;
 	}>;
+};
+
+type IssueCommentResponse = {
+	id: number;
+	body?: string;
+	html_url?: string;
+	user?: RestActor;
+	created_at?: string;
+	updated_at?: string;
 };
 
 type WorkflowRunResponse = {
@@ -155,7 +158,6 @@ const fields = [
 	'state',
 	'headRefOid',
 	'reviews',
-	'comments',
 	'commits',
 ].join(',');
 
@@ -176,17 +178,31 @@ export const collectPullfrogSnapshot = async ({
 	}
 	viewArgs.push('--json', fields);
 	const view = JSON.parse(await runGh(viewArgs, cwd, signal)) as ViewResponse;
-	const inlineSource = await runGh(
-		[
-			'api',
-			'--paginate',
-			'--slurp',
-			`repos/${repository}/pulls/${view.number}/comments`,
-		],
-		cwd,
-		signal,
-	);
+	const [inlineSource, issueCommentsSource] = await Promise.all([
+		runGh(
+			[
+				'api',
+				'--paginate',
+				'--slurp',
+				`repos/${repository}/pulls/${view.number}/comments`,
+			],
+			cwd,
+			signal,
+		),
+		runGh(
+			[
+				'api',
+				'--paginate',
+				'--slurp',
+				`repos/${repository}/issues/${view.number}/comments`,
+			],
+			cwd,
+			signal,
+		),
+	]);
 	const allInline = parsePages<InlineResponse>(inlineSource);
+	const allIssueComments =
+		parsePages<IssueCommentResponse>(issueCommentsSource);
 	const pullfrogRoots = new Set(
 		allInline
 			.filter((comment) => isPullfrogRestActor(comment.user ?? null))
@@ -220,23 +236,47 @@ export const collectPullfrogSnapshot = async ({
 	const submittedPullfrogReviews = view.reviews.filter((review) =>
 		isPullfrogGraphqlActor(review.author ?? null),
 	);
-	const pullfrogIssueComments = view.comments.filter((comment) =>
-		isPullfrogGraphqlActor(comment.author ?? null),
+	const pullfrogIssueComments = allIssueComments
+		.filter((comment) => isPullfrogRestActor(comment.user ?? null))
+		.map((comment) => ({
+			id: String(comment.id),
+			body: comment.body ?? '',
+			authorLogin: comment.user?.login ?? '',
+			createdAt: comment.created_at ?? new Date(0).toISOString(),
+			updatedAt:
+				comment.updated_at ?? comment.created_at ?? new Date(0).toISOString(),
+			url: comment.html_url ?? view.url,
+		}));
+	const latestIssueComment = [...pullfrogIssueComments].sort((a, b) =>
+		b.updatedAt.localeCompare(a.updatedAt),
+	)[0];
+	const latestReviewWithBody = submittedPullfrogReviews
+		.filter((review) => (review.body ?? '').trim().length > 0)
+		.sort((a, b) =>
+			(b.submittedAt ?? '').localeCompare(a.submittedAt ?? ''),
+		)[0];
+	const latestReviewAt = latestReviewWithBody?.submittedAt ?? '';
+	const issueCommentIsLatest =
+		latestIssueComment && latestIssueComment.updatedAt > latestReviewAt;
+	const latestWorkflowSource = issueCommentIsLatest
+		? latestIssueComment
+		: latestReviewWithBody;
+	const latestWorkflowRunId = getWorkflowRunId(
+		latestWorkflowSource?.body ?? '',
 	);
-	const latestWorkflowRunId = [
-		...submittedPullfrogReviews.map((review) => ({
-			id: getWorkflowRunId(review.body ?? ''),
-			createdAt: review.submittedAt ?? new Date(0).toISOString(),
-		})),
-		...pullfrogIssueComments.map((comment) => ({
-			id: getWorkflowRunId(comment.body ?? ''),
-			createdAt: comment.createdAt ?? new Date(0).toISOString(),
-		})),
-	]
-		.filter((candidate): candidate is {id: number; createdAt: string} =>
-			Number.isSafeInteger(candidate.id),
-		)
-		.sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0]?.id;
+	const latestPullfrogActivityAt = issueCommentIsLatest
+		? latestIssueComment.updatedAt
+		: latestReviewAt;
+	const newerUserTrigger = allIssueComments.some(
+		(comment) =>
+			!isPullfrogRestActor(comment.user ?? null) &&
+			/@pullfrog(?:\[bot\])?\b/i.test(comment.body ?? '') &&
+			(comment.updated_at ?? comment.created_at ?? '') >
+				latestPullfrogActivityAt,
+	);
+	const workflowRunPending =
+		newerUserTrigger ||
+		Boolean(issueCommentIsLatest && latestIssueComment && !latestWorkflowRunId);
 	const workflowRun = latestWorkflowRunId
 		? (JSON.parse(
 				await runGh(
@@ -279,22 +319,23 @@ export const collectPullfrogSnapshot = async ({
 					conclusion: workflowRun.conclusion,
 				}
 			: null,
+		workflowRunPending,
 		reviews: hasInlineFindings
 			? reviews
 			: reviews.filter((review) => !isNoIssueSummary(review.body)),
 		issueComments: pullfrogIssueComments
 			.filter(
 				(comment) =>
-					!isProgressComment(comment.body ?? '') &&
-					!isNoIssueSummary(comment.body ?? '') &&
-					(comment.body ?? '').trim().length > 0,
+					!isProgressComment(comment.body) &&
+					!isNoIssueSummary(comment.body) &&
+					comment.body.trim().length > 0,
 			)
 			.map((comment) => ({
 				id: comment.id,
-				body: comment.body ?? '',
-				authorLogin: comment.author?.login ?? '',
-				createdAt: comment.createdAt ?? new Date(0).toISOString(),
-				url: comment.url ?? view.url,
+				body: comment.body,
+				authorLogin: comment.authorLogin,
+				createdAt: comment.createdAt,
+				url: comment.url,
 			})),
 		inlineCommentsAndReplies,
 		commits: view.commits.map((commit) => ({
