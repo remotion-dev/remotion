@@ -24,6 +24,7 @@ import {
 	TIMELINE_VIDEO_INFO_WAVEFORM_HEIGHT,
 } from '../../helpers/timeline-layout';
 import {AudioWaveform} from '../AudioWaveform';
+import {getTimelineMediaStartFrame} from './get-timeline-media-start-frame';
 import {getTimelineVideoInfoWidths} from './get-timeline-video-info-widths';
 import {getTimelineVideoFilmstripTimes} from './timeline-video-filmstrip-times';
 
@@ -49,7 +50,8 @@ export const TimelineVideoInfo: React.FC<{
 	readonly src: string;
 	readonly visualizationWidth: number;
 	readonly naturalWidth: number;
-	readonly trimBefore: number;
+	readonly startMediaFrom: number;
+	readonly sequenceFrameOffset: number;
 	readonly durationInFrames: number;
 	readonly playbackRate: number;
 	readonly volume: string | number;
@@ -62,7 +64,8 @@ export const TimelineVideoInfo: React.FC<{
 	src,
 	visualizationWidth,
 	naturalWidth,
-	trimBefore,
+	startMediaFrom,
+	sequenceFrameOffset,
 	durationInFrames,
 	playbackRate,
 	volume,
@@ -76,6 +79,11 @@ export const TimelineVideoInfo: React.FC<{
 	const ref = useRef<HTMLDivElement>(null);
 	const [error, setError] = useState<Error | null>(null);
 	const aspectRatio = useRef<number | null>(getAspectRatioFromCache(src));
+	const mediaStartFrame = getTimelineMediaStartFrame({
+		startMediaFrom,
+		sequenceFrameOffset,
+		playbackRate,
+	});
 	const {mediaVisualizationWidth, mediaNaturalWidth} = useMemo(() => {
 		return getTimelineVideoInfoWidths({
 			visualizationWidth,
@@ -155,7 +163,7 @@ export const TimelineVideoInfo: React.FC<{
 		};
 
 		const times = getTimelineVideoFilmstripTimes({
-			trimBefore,
+			trimBefore: mediaStartFrame,
 			durationInFrames,
 			playbackRate,
 			fps,
@@ -425,9 +433,9 @@ export const TimelineVideoInfo: React.FC<{
 		loopDisplay,
 		mediaNaturalWidth,
 		mediaVisualizationWidth,
+		mediaStartFrame,
 		playbackRate,
 		src,
-		trimBefore,
 	]);
 
 	const audioWidth = mediaVisualizationWidth;
@@ -456,7 +464,7 @@ export const TimelineVideoInfo: React.FC<{
 					src={src}
 					height={TIMELINE_VIDEO_INFO_WAVEFORM_HEIGHT}
 					visualizationWidth={audioWidth}
-					startFrom={trimBefore}
+					startFrom={mediaStartFrame}
 					durationInFrames={durationInFrames}
 					volume={volume}
 					doesVolumeChange={doesVolumeChange}
