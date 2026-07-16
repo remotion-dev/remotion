@@ -23,6 +23,7 @@ import {
 	InspectorInfoHeader,
 	InspectorInfoSubtitle,
 } from './InspectorInfoHeader';
+import {InspectorLocationCopy} from './InspectorLocationCopy';
 import {InspectorSourceLocation} from './InspectorSourceLocation';
 import {showNotification} from './Notifications/NotificationCenter';
 import {useResolvedStack} from './Timeline/use-resolved-stack';
@@ -126,24 +127,26 @@ export const CurrentComposition = () => {
 		<InspectorInfoHeader>
 			{video ? (
 				<>
-					<InlineCompositionName
-						key={video.id}
-						compositionId={video.id}
-						stack={currentComposition?.stack ?? null}
-						compositions={compositions}
-					/>
-					<InspectorSourceLocation
-						location={validatedLocation}
-						canOpen={validatedLocation !== null}
-						onOpen={openFileLocation}
-						renderIcon={renderCompositionIcon}
-					/>
-					<InspectorSourceLocation
-						location={componentLocation}
-						canOpen={componentLocation !== null}
-						onOpen={openComponentLocation}
-						renderIcon={renderReactIcon}
-					/>
+					<InspectorLocationCopy location={validatedLocation} name={video.id}>
+						<InlineCompositionName
+							key={video.id}
+							compositionId={video.id}
+							stack={currentComposition?.stack ?? null}
+							compositions={compositions}
+						/>
+						<InspectorSourceLocation
+							location={validatedLocation}
+							canOpen={validatedLocation !== null}
+							onOpen={openFileLocation}
+							renderIcon={renderCompositionIcon}
+						/>
+						<InspectorSourceLocation
+							location={componentLocation}
+							canOpen={componentLocation !== null}
+							onOpen={openComponentLocation}
+							renderIcon={renderReactIcon}
+						/>
+					</InspectorLocationCopy>
 					<InspectorInfoSubtitle>
 						{video.width}x{video.height}
 						{isCompositionStill(video) ? null : `, ${video.fps} FPS`}
