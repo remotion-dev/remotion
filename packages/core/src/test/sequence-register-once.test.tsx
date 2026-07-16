@@ -377,6 +377,7 @@ test('Series.Sequence duration overrides cascade to later sequences', async () =
 		nodePath: ['body', 0],
 		sequenceKeys: [],
 		effectKeys: [],
+		videoConfigValues: null,
 	};
 	const subscriptionKey = Internals.makeSequencePropsSubscriptionKey(nodePath);
 	const makeDurationOverride = (durationInFrames: number) => ({
