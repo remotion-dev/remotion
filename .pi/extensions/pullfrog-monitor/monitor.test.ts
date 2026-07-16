@@ -49,12 +49,12 @@ test('waits for a workflow link newer than the Pullfrog trigger', async () => {
 	expect(monitor.status).toEqual({
 		kind: 'pending',
 		prNumber: 42,
-		commentUrl: 'https://github.com/owner/repo/pull/42#issuecomment-1',
+		reviewUrl: null,
 	});
 	expect(workflowRequests).toBe(0);
 });
 
-test('finds a completed workflow linked from a submitted review', async () => {
+test('treats a submitted Pullfrog review as final without waiting for its workflow', async () => {
 	let workflowRequests = 0;
 	const pi = {
 		exec: async (command: string, args: string[]) => {
@@ -86,6 +86,21 @@ test('finds a completed workflow linked from a submitted review', async () => {
 					}),
 				);
 			}
+			if (args.some((arg) => arg.includes('/pulls/42/reviews'))) {
+				return result(
+					JSON.stringify([
+						[
+							{
+								body: 'https://github.com/owner/repo/actions/runs/101/job/202',
+								html_url:
+									'https://github.com/owner/repo/pull/42#pullrequestreview-123',
+								submitted_at: '2026-01-01T00:01:00Z',
+								user: {id: 226033991, login: 'pullfrog[bot]'},
+							},
+						],
+					]),
+				);
+			}
 			workflowRequests++;
 			return result(
 				JSON.stringify({id: 101, status: 'completed', conclusion: 'success'}),
@@ -99,6 +114,7 @@ test('finds a completed workflow linked from a submitted review', async () => {
 		prNumber: 42,
 		runId: 101,
 		conclusion: 'success',
+		reviewUrl: 'https://github.com/owner/repo/pull/42#pullrequestreview-123',
 	});
 	const second = await fetchMonitorStatus({
 		pi,
@@ -106,5 +122,5 @@ test('finds a completed workflow linked from a submitted review', async () => {
 		cachedRun: first.run,
 	});
 	expect(second.status).toEqual(first.status);
-	expect(workflowRequests).toBe(1);
+	expect(workflowRequests).toBe(0);
 });

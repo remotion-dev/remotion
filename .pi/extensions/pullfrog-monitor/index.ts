@@ -27,21 +27,36 @@ type PullRequestReview = {
 	submittedAt?: string;
 };
 
+type RestPullRequestReview = {
+	body?: string;
+	html_url?: string;
+	submitted_at?: string;
+	user?: {id?: number; login?: string};
+};
+
 type WorkflowRun = {
 	id: number;
 	status: string;
 	conclusion: string | null;
+	reviewUrl: string | null;
 };
 
 type MonitorStatus =
 	| {kind: 'idle'}
-	| {kind: 'pending'; prNumber: number; commentUrl: string | null}
-	| {kind: 'running'; prNumber: number; runId: number; status: string}
+	| {kind: 'pending'; prNumber: number; reviewUrl: string | null}
+	| {
+			kind: 'running';
+			prNumber: number;
+			runId: number;
+			status: string;
+			reviewUrl: string | null;
+	  }
 	| {
 			kind: 'completed';
 			prNumber: number;
 			runId: number;
 			conclusion: string | null;
+			reviewUrl: string | null;
 	  };
 
 const getReviewMetadata = (
@@ -78,6 +93,52 @@ const getWorkflowRunId = (body: string) => {
 		/https:\/\/github\.com\/[^/]+\/[^/]+\/actions\/runs\/(\d+)/i,
 	);
 	return match ? Number(match[1]) : null;
+};
+
+const parsePages = <T>(source: string): T[] => {
+	const pages = JSON.parse(source || '[]') as unknown[];
+	return pages.flatMap((page) => (Array.isArray(page) ? (page as T[]) : []));
+};
+
+const fetchSubmittedReviewUrl = async ({
+	pi,
+	cwd,
+	repository,
+	prNumber,
+	runId,
+}: {
+	pi: ExtensionAPI;
+	cwd: string;
+	repository: string;
+	prNumber: number;
+	runId: number;
+}) => {
+	const result = await pi.exec(
+		'gh',
+		[
+			'api',
+			'--paginate',
+			'--slurp',
+			`repos/${repository}/pulls/${prNumber}/reviews?per_page=100`,
+		],
+		{cwd, timeout: 30_000},
+	);
+	if (result.code !== 0) {
+		return null;
+	}
+	return (
+		parsePages<RestPullRequestReview>(result.stdout)
+			.filter(
+				(review) =>
+					(review.user?.id === PULLFROG_USER_ID ||
+						review.user?.login?.toLowerCase() === 'pullfrog[bot]' ||
+						review.user?.login?.toLowerCase() === 'pullfrog') &&
+					getWorkflowRunId(review.body ?? '') === runId,
+			)
+			.sort((a, b) =>
+				(b.submitted_at ?? '').localeCompare(a.submitted_at ?? ''),
+			)[0]?.html_url ?? null
+	);
 };
 
 export const fetchMonitorStatus = async ({
@@ -145,35 +206,39 @@ export const fetchMonitorStatus = async ({
 			.map((comment) => ({
 				body: comment.body ?? '',
 				at: comment.createdAt ?? '',
+				url: comment.url ?? null,
+				source: 'comment' as const,
 			})),
 		...(pullRequest.reviews ?? [])
 			.filter((review) => isPullfrog(review))
 			.map((review) => ({
 				body: review.body ?? '',
 				at: review.submittedAt ?? '',
+				url: null,
+				source: 'review' as const,
 			})),
 	].sort((a, b) => b.at.localeCompare(a.at));
-	const latestLinkedActivity = pullfrogActivities
-		.map((activity) => ({
-			activity,
-			runId: getWorkflowRunId(activity.body),
-		}))
-		.find(
-			(
-				linked,
-			): linked is {
-				activity: {body: string; at: string};
-				runId: number;
-			} => linked.runId !== null,
-		);
+	const latestActivityWithWorkflow = pullfrogActivities.find(
+		(activity) => getWorkflowRunId(activity.body) !== null,
+	);
+	const linkedRunId = latestActivityWithWorkflow
+		? getWorkflowRunId(latestActivityWithWorkflow.body)
+		: null;
+	const latestLinkedActivity =
+		latestActivityWithWorkflow && linkedRunId !== null
+			? {activity: latestActivityWithWorkflow, runId: linkedRunId}
+			: null;
 	const latestLinkedAt = latestLinkedActivity?.activity.at ?? '';
 	const hasNewerTrigger = (latestTrigger?.createdAt ?? '') > latestLinkedAt;
 	if (hasNewerTrigger || (!latestLinkedActivity && latestTrigger)) {
+		const pullfrogActivityAfterTrigger = pullfrogActivities.find(
+			(activity) => activity.at > (latestTrigger?.createdAt ?? ''),
+		);
 		return {
 			status: {
 				kind: 'pending',
 				prNumber: pullRequest.number,
-				commentUrl: latestTrigger?.url ?? null,
+				reviewUrl: pullfrogActivityAfterTrigger?.url ?? null,
 			},
 			run: cachedRun,
 		};
@@ -183,6 +248,37 @@ export const fetchMonitorStatus = async ({
 	}
 
 	let run = cachedRun;
+	let reviewUrl: string | null;
+	if (latestLinkedActivity.activity.source === 'review') {
+		reviewUrl =
+			run?.id === latestLinkedActivity.runId && run.status === 'completed'
+				? run.reviewUrl
+				: await fetchSubmittedReviewUrl({
+						pi,
+						cwd,
+						repository,
+						prNumber: pullRequest.number,
+						runId: latestLinkedActivity.runId,
+					});
+		run = {
+			id: latestLinkedActivity.runId,
+			status: 'completed',
+			conclusion: 'success',
+			reviewUrl,
+		};
+		return {
+			status: {
+				kind: 'completed',
+				prNumber: pullRequest.number,
+				runId: run.id,
+				conclusion: run.conclusion,
+				reviewUrl,
+			},
+			run,
+		};
+	}
+
+	reviewUrl = latestLinkedActivity.activity.url;
 	if (
 		!run ||
 		run.id !== latestLinkedActivity.runId ||
@@ -201,7 +297,11 @@ export const fetchMonitorStatus = async ({
 		if (runResult.code !== 0) {
 			throw new Error(runResult.stderr || 'Could not read Pullfrog workflow');
 		}
-		run = JSON.parse(runResult.stdout) as WorkflowRun;
+		const workflow = JSON.parse(runResult.stdout) as Omit<
+			WorkflowRun,
+			'reviewUrl'
+		>;
+		run = {...workflow, reviewUrl};
 	}
 	if (run.status !== 'completed') {
 		return {
@@ -210,6 +310,7 @@ export const fetchMonitorStatus = async ({
 				prNumber: pullRequest.number,
 				runId: run.id,
 				status: run.status,
+				reviewUrl,
 			},
 			run,
 		};
@@ -220,6 +321,7 @@ export const fetchMonitorStatus = async ({
 			prNumber: pullRequest.number,
 			runId: run.id,
 			conclusion: run.conclusion,
+			reviewUrl,
 		},
 		run,
 	};
@@ -233,20 +335,27 @@ const getMonitorLine = (status: MonitorStatus, handledRunId: number | null) => {
 		case 'idle':
 			return null;
 		case 'pending': {
-			const commentLink = status.commentUrl
-				? ` · ${terminalLink('request comment ↗', status.commentUrl)}`
+			const reviewLink = status.reviewUrl
+				? ` · ${terminalLink('Pullfrog review ↗', status.reviewUrl)}`
 				: '';
-			return `🐸 PR #${status.prNumber} · Pullfrog requested · Waiting for workflow${commentLink}`;
+			return `🐸 PR #${status.prNumber} · Pullfrog requested · Waiting for workflow${reviewLink}`;
 		}
-		case 'running':
-			return `🐸 PR #${status.prNumber} · Pullfrog review is ${status.status.replaceAll('_', ' ')}`;
+		case 'running': {
+			const reviewLink = status.reviewUrl
+				? ` · ${terminalLink('Pullfrog review ↗', status.reviewUrl)}`
+				: '';
+			return `🐸 PR #${status.prNumber} · Pullfrog review is ${status.status.replaceAll('_', ' ')}${reviewLink}`;
+		}
 		case 'completed':
 			if (status.runId === handledRunId) {
 				return null;
 			}
+			const reviewLink = status.reviewUrl
+				? ` · ${terminalLink('Pullfrog review ↗', status.reviewUrl)}`
+				: '';
 			return status.conclusion === 'success'
-				? `🐸 Pullfrog finished PR #${status.prNumber} · Use /pullfrog`
-				: `🐸 Pullfrog workflow ${status.conclusion ?? 'finished'} on PR #${status.prNumber}`;
+				? `🐸 Pullfrog finished PR #${status.prNumber} · Use /pullfrog${reviewLink}`
+				: `🐸 Pullfrog workflow ${status.conclusion ?? 'finished'} on PR #${status.prNumber}${reviewLink}`;
 	}
 };
 
