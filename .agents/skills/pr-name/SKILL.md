@@ -23,3 +23,15 @@ If the change is about docs only:
 ```
 Docs: Add page about heart shape
 ```
+
+If the change adds or modifies a skill, or is otherwise internal monorepo work, use the `remotion-monorepo` prefix:
+
+```
+`remotion-monorepo`: Add PR naming skill
+```
+
+If the change relates to Remotion Elements, use the `Elements:` prefix:
+
+```
+Elements: Add animated title element
+```
