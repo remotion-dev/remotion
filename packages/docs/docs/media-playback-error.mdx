@@ -18,7 +18,7 @@ or
 - Error: Could not play audio with src [source] [object MediaError]
 ```
 
-This error happens when you are trying to embed a [`<Html5Video/>`](/docs/html5-video) or [`<Html5Audio/>`](/docs/html5-audio) tag in your Remotion project but the browser is unable to load and play the media. Although the browser does not report the exact error, there are two common reasons for this error.
+This error can occur with [`<Html5Video>`](/docs/html5-video), [`<OffthreadVideo>`](/docs/offthreadvideo), or [`<Html5Audio>`](/docs/html5-audio) when the browser is unable to load and play the media. Although the browser does not report the exact error, there are several common reasons for this error.
 
 ## Codec not supported by Chrome
 
@@ -88,7 +88,7 @@ export default function SBSVideo() {
 }
 ```
 
-If you ruled out this possibility, use [`<OffthreadVideo>`](/docs/offthreadvideo) instead as it does not rely on a `<video>` tag.
+If you ruled out this possibility, use [`<Video>`](/docs/media/video) from [`@remotion/media`](/docs/media) instead. It decodes supported media using WebCodecs and does not create a native `<video>` element.
 
 ## Recover from this error<AvailableFrom v="3.3.89" />
 

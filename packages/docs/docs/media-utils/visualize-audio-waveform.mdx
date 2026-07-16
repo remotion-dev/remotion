@@ -16,7 +16,7 @@ This function is suitable for visualizing voice. For visualizing music, use [`vi
 ```tsx twoslash title="Usage"
 import {createSmoothSvgPath, useAudioData, visualizeAudioWaveform, AudioData} from '@remotion/media-utils';
 import React from 'react';
-import {AbsoluteFill, Audio, useCurrentFrame, useVideoConfig, staticFile} from 'remotion';
+import {AbsoluteFill, useCurrentFrame, useVideoConfig, staticFile} from 'remotion';
 
 const frame = useCurrentFrame();
 const audioData = useAudioData(staticFile('podcast.wav')) as AudioData;
@@ -92,9 +92,10 @@ The array is of length defined by the `numberOfSamples` parameter.
 ### Basic example
 
 ```tsx twoslash
+import {Audio} from '@remotion/media';
 import {createSmoothSvgPath, useAudioData, visualizeAudioWaveform} from '@remotion/media-utils';
 import React from 'react';
-import {AbsoluteFill, Html5Audio, useCurrentFrame, useVideoConfig, staticFile} from 'remotion';
+import {AbsoluteFill, useCurrentFrame, useVideoConfig, staticFile} from 'remotion';
 
 const height = 300;
 
@@ -126,7 +127,7 @@ const BaseExample: React.FC = () => {
 
   return (
     <div style={{flex: 1}}>
-      <Html5Audio src={staticFile('podcast.wav')} />
+      <Audio src={staticFile('podcast.wav')} />
       <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center'}}>
         <svg style={{backgroundColor: ' #0B84F3'}} viewBox={`0 0 ${width} ${height}`} width={width} height={height}>
           <path stroke="white" fill="none" strokeWidth={10} d={p as string} />
@@ -147,7 +148,7 @@ By increasing the `windowInSeconds` by tenfold, the audiogram starts moving to t
 ```tsx twoslash {6}
 import {createSmoothSvgPath, useAudioData, visualizeAudioWaveform, AudioData} from '@remotion/media-utils';
 import React from 'react';
-import {AbsoluteFill, Html5Audio, useCurrentFrame, useVideoConfig, staticFile} from 'remotion';
+import {AbsoluteFill, useCurrentFrame, useVideoConfig, staticFile} from 'remotion';
 
 const frame = useCurrentFrame();
 const audioDataVoice = useAudioData(staticFile('podcast.wav')) as AudioData;
@@ -173,7 +174,7 @@ By only calculating the waveform every third frame, we make the waveform calmer 
 ```tsx twoslash {3}
 import {createSmoothSvgPath, useAudioData, visualizeAudioWaveform, AudioData} from '@remotion/media-utils';
 import React from 'react';
-import {AbsoluteFill, Html5Audio, useCurrentFrame, useVideoConfig, staticFile} from 'remotion';
+import {AbsoluteFill, useCurrentFrame, useVideoConfig, staticFile} from 'remotion';
 
 const frame = useCurrentFrame();
 const audioDataVoice = useAudioData(staticFile('podcast.wav')) as AudioData;
@@ -197,5 +198,5 @@ const waveform = visualizeAudioWaveform({
 - [Audio visualization](/docs/audio/visualization)
 - [`useAudioData()`](/docs/use-audio-data)
 - [`getAudioData()`](/docs/get-audio-data)
-- [`<Html5Audio/>`](/docs/html5-audio)
+- [`<Audio>` from `@remotion/media`](/docs/media/audio)
 - [Using audio](/docs/using-audio)
