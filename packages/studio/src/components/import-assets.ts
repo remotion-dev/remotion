@@ -237,6 +237,20 @@ const getCenteredPosition = ({
 	};
 };
 
+export const getElementPositionForDrop = ({
+	dimensions,
+	dropPosition,
+}: {
+	dimensions: Dimensions | null;
+	dropPosition: InsertElementDropPosition | null;
+}): InsertableCompositionElementPosition | null => {
+	if (dimensions === null) {
+		return null;
+	}
+
+	return getCenteredPosition({dimensions, dropPosition});
+};
+
 const getComponentPropNumber = (props: ComponentProp[], name: string) => {
 	const prop = props.find((p) => p.name === name);
 	return typeof prop?.value === 'number' ? prop.value : null;
@@ -926,7 +940,7 @@ export const insertElement = async ({
 			compositionFile,
 			compositionId,
 			element,
-			position: getCenteredPosition({
+			position: getElementPositionForDrop({
 				dimensions: element.dimensions,
 				dropPosition,
 			}),
