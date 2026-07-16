@@ -43,7 +43,7 @@ export const VideosInSequence: React.FC<VideosInSequenceProps> = ({videos}) => {
           <Series.Sequence
             key={video.src}
             durationInFrames={video.durationInFrames}
-            premountFor={4 * fps}
+            premountFor={fps}
           >
             <Video src={video.src} />
           </Series.Sequence>
@@ -54,7 +54,7 @@ export const VideosInSequence: React.FC<VideosInSequenceProps> = ({videos}) => {
 };
 ```
 
-[`premountFor`](/docs/series#premountfor) mounts each video before it enters the timeline, giving it time to load in the Player. `<Video>` uses the [Player buffer state](/docs/player/buffer-state) by default if more data is needed.
+[`premountFor`](/docs/series#premountfor) mounts each video one second before it enters the timeline, giving it time to load in the Player. `<Video>` uses the [Player buffer state](/docs/player/buffer-state) by default if more data is needed.
 
 ## Calculate the durations
 
