@@ -9,13 +9,9 @@ function truthy<T>(value: T): value is Truthy<T> {
 	return Boolean(value);
 }
 
-const chromeExecutable =
-	process.env.REMOTION_WEB_RENDERER_CHROME_EXECUTABLE ?? null;
-
 export default defineConfig({
 	test: {
 		maxWorkers: process.env.CI ? 1 : 5,
-		setupFiles: ['./src/test/setup.ts'],
 		browser: {
 			enabled: true,
 			provider: playwright(),
@@ -24,28 +20,20 @@ export default defineConfig({
 					browser: 'chromium',
 					provider: playwright({
 						launchOptions: {
-							...(chromeExecutable
-								? {executablePath: chromeExecutable}
-								: {channel: 'chrome' as const}),
-							args: [
-								'--enable-blink-features=CanvasDrawElement',
-								'--use-gl=angle',
-							],
+							channel: 'chrome',
 						},
 						actionTimeout: 5_000,
 					}),
 					viewport: {width: 1280, height: 720},
 				} as const,
-				!chromeExecutable &&
-					({
-						browser: 'firefox',
-						viewport: {width: 1280, height: 720},
-					} as const),
-				!chromeExecutable &&
-					({
-						browser: 'webkit',
-						viewport: {width: 1280, height: 720},
-					} as const),
+				{
+					browser: 'firefox',
+					viewport: {width: 1280, height: 720},
+				} as const,
+				{
+					browser: 'webkit',
+					viewport: {width: 1280, height: 720},
+				} as const,
 			].filter(truthy),
 			headless: true,
 			screenshotFailures: false,
