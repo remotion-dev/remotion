@@ -3,6 +3,7 @@ import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-sou
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
 import {InlineEditableTitle} from '../InlineEditableTitle';
+import {InspectorLocationCopy} from '../InspectorLocationCopy';
 import {InspectorSourceLocation} from '../InspectorSourceLocation';
 import {useOpenSequenceInEditor} from '../Timeline/use-open-sequence-in-editor';
 import {useRenameSequence} from '../Timeline/use-rename-sequence';
@@ -100,30 +101,35 @@ export const SequenceInspectorHeader: React.FC<{
 
 	return (
 		<div style={sequenceHeader}>
-			<div style={sequenceHeaderTitle}>
-				<InlineEditableTitle
-					value={sequenceDisplayName}
-					canRename={canRename}
-					onCommit={onRename}
-				/>
-			</div>
-			{documentationLink ? (
-				<button
-					type="button"
-					style={subtitleStyle}
-					title="Open component docs"
-					onClick={openDocumentationLink}
-				>
-					{componentName}
-				</button>
-			) : (
-				<div style={subtitleStyle}>{componentName}</div>
-			)}
-			<InspectorSourceLocation
+			<InspectorLocationCopy
 				location={sourceLocation.validatedLocation}
-				canOpen={sourceLocation.canOpenInEditor}
-				onOpen={sourceLocation.openFileLocation}
-			/>
+				name={componentName ?? null}
+			>
+				<div style={sequenceHeaderTitle}>
+					<InlineEditableTitle
+						value={sequenceDisplayName}
+						canRename={canRename}
+						onCommit={onRename}
+					/>
+				</div>
+				{documentationLink ? (
+					<button
+						type="button"
+						style={subtitleStyle}
+						title="Open component docs"
+						onClick={openDocumentationLink}
+					>
+						{componentName}
+					</button>
+				) : (
+					<div style={subtitleStyle}>{componentName}</div>
+				)}
+				<InspectorSourceLocation
+					location={sourceLocation.validatedLocation}
+					canOpen={sourceLocation.canOpenInEditor}
+					onOpen={sourceLocation.openFileLocation}
+				/>
+			</InspectorLocationCopy>
 		</div>
 	);
 };

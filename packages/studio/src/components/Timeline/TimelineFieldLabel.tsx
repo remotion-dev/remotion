@@ -1,5 +1,6 @@
 import React, {useMemo} from 'react';
 import {WHITE_ALPHA_80} from '../../helpers/colors';
+import {SCHEMA_FIELD_ROW_HEIGHT} from '../../helpers/timeline-layout';
 import {getTimelineFieldLabelRowStyle} from './timeline-field-row-layout';
 import {
 	getTimelineColor,
@@ -21,14 +22,16 @@ export const TimelineFieldLabel: React.FC<{
 	readonly rowDepth: number;
 	readonly selected: boolean;
 	readonly label: string;
-}> = ({rowDepth, selected, label}) => {
+	readonly stacked?: boolean;
+}> = ({rowDepth, selected, label, stacked = false}) => {
 	const labelRowStyle = useMemo(
 		(): React.CSSProperties => ({
 			...getTimelineFieldLabelRowStyle(rowDepth),
 			...getTimelineSelectedLabelStyle(selected, true),
+			...(stacked ? {flex: `0 0 ${SCHEMA_FIELD_ROW_HEIGHT}px`} : null),
 			alignSelf: 'stretch',
 		}),
-		[rowDepth, selected],
+		[rowDepth, selected, stacked],
 	);
 
 	const fieldNameStyle = useMemo(
