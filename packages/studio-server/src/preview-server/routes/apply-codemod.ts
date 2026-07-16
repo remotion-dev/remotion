@@ -13,6 +13,7 @@ import {formatOutput} from '../../codemods/duplicate-composition';
 import {simpleDiff} from '../../codemods/simple-diff';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import type {ApiHandler} from '../api-types';
+import {formatLogFileLocation} from '../format-log-file-location';
 import {getProjectInfo} from '../project-info';
 import {
 	printUndoHint,
@@ -30,6 +31,14 @@ export const ${componentName}: React.FC = () => {
 	return null;
 };
 `);
+};
+
+const getCodemodLogMessage = (codemod: ApplyCodemodRequest['codemod']) => {
+	if (codemod.type === 'rename-composition') {
+		return `Renamed composition "${codemod.idToRename}" to "${codemod.newId}"`;
+	}
+
+	return null;
 };
 
 const getCodemodUndoDescription = (codemod: ApplyCodemodRequest['codemod']) => {
@@ -128,6 +137,7 @@ export const applyCodemodHandler: ApiHandler<
 	return withSourceFileWriteQueue(async () => {
 		try {
 			const time = Date.now();
+			const logLine = symbolicatedStack?.originalLineNumber ?? 1;
 
 			const filePath = symbolicatedStack
 				? resolveFilePathFromSymbolicatedStack(remotionRoot, symbolicatedStack)
@@ -178,7 +188,7 @@ export const applyCodemodHandler: ApiHandler<
 						filePath,
 						oldContents: input,
 						newContents: null,
-						logLine: symbolicatedStack?.originalLineNumber ?? 1,
+						logLine,
 					},
 				];
 				let componentFilePath: string | null = null;
@@ -217,7 +227,7 @@ export const applyCodemodHandler: ApiHandler<
 						newContents: null,
 						logLevel,
 						remotionRoot,
-						logLine: symbolicatedStack?.originalLineNumber ?? 1,
+						logLine,
 						description: {
 							undoMessage,
 							redoMessage,
@@ -242,11 +252,19 @@ export const applyCodemodHandler: ApiHandler<
 				}
 
 				const end = Date.now() - time;
-				const relativePath = path.relative(remotionRoot, filePath);
-				RenderInternals.Log.info(
-					{indent: false, logLevel},
-					RenderInternals.chalk.blue(`Edited ${relativePath} in ${end}ms`),
-				);
+				const logMessage = getCodemodLogMessage(codemod);
+				const editMessage = logMessage
+					? `${RenderInternals.chalk.blueBright(
+							formatLogFileLocation({
+								remotionRoot,
+								absolutePath: filePath,
+								line: logLine,
+							}),
+						)} ${logMessage}`
+					: RenderInternals.chalk.blue(
+							`Edited ${path.relative(remotionRoot, filePath)} in ${end}ms`,
+						);
+				RenderInternals.Log.info({indent: false, logLevel}, editMessage);
 				printUndoHint(logLevel);
 			}
 

@@ -1,4 +1,4 @@
-import {expect, test} from 'bun:test';
+import {expect, spyOn, test} from 'bun:test';
 import {
 	existsSync,
 	mkdtempSync,
@@ -161,17 +161,19 @@ const getHandlerOptions = <T>({
 	input,
 	entryPoint,
 	remotionRoot,
+	logLevel = 'error',
 }: {
 	input: T;
 	entryPoint: string;
 	remotionRoot: string;
+	logLevel?: 'error' | 'info';
 }) => ({
 	input,
 	entryPoint,
 	remotionRoot,
 	request: {} as never,
 	response: {} as never,
-	logLevel: 'error' as const,
+	logLevel,
 	methods: {
 		removeJob: () => undefined,
 		cancelJob: () => undefined,
@@ -185,10 +187,12 @@ const runCompositionCodemodUndoRedoTest = async ({
 	codemod,
 	assertApplied,
 	expectedUndoMessage,
+	expectedLogMessage,
 }: {
 	codemod: RecastCodemod;
 	assertApplied: (contents: string) => void;
 	expectedUndoMessage: string;
+	expectedLogMessage?: string;
 }) => {
 	const remotionRoot = mkdtempSync(path.join(tmpdir(), 'remotion-codemod-'));
 	const cleanupFileWatcher = setFileWatcherRegistry(
@@ -201,6 +205,9 @@ const runCompositionCodemodUndoRedoTest = async ({
 		closeConnections: () => Promise.resolve(),
 		addNewClientListener: () => () => undefined,
 	});
+	const consoleSpy = expectedLogMessage
+		? spyOn(console, 'log').mockImplementation(() => undefined)
+		: null;
 
 	try {
 		clearUndoRedoStacks();
@@ -222,6 +229,7 @@ const runCompositionCodemodUndoRedoTest = async ({
 				},
 				entryPoint,
 				remotionRoot,
+				logLevel: expectedLogMessage ? 'info' : 'error',
 			}),
 		);
 
@@ -230,6 +238,11 @@ const runCompositionCodemodUndoRedoTest = async ({
 		expect(getUndoStack().length).toBe(1);
 		expect(getUndoStack()[0].description.undoMessage).toBe(expectedUndoMessage);
 		expect(getRedoStack().length).toBe(0);
+		if (expectedLogMessage) {
+			const logOutput = consoleSpy?.mock.calls.flat().join(' ');
+			expect(logOutput).toContain('Root.tsx:9');
+			expect(logOutput).toContain(expectedLogMessage);
+		}
 
 		const undoResponse = await undoHandler(
 			getHandlerOptions({input: {}, entryPoint, remotionRoot}),
@@ -250,6 +263,7 @@ const runCompositionCodemodUndoRedoTest = async ({
 		clearUndoRedoStacks();
 		cleanupLiveEvents();
 		cleanupFileWatcher();
+		consoleSpy?.mockRestore();
 		rmSync(remotionRoot, {recursive: true, force: true});
 	}
 };
@@ -265,7 +279,7 @@ test('applyCodemodHandler pushes composition deletions to undo and redo stacks',
 	});
 });
 
-test('applyCodemodHandler pushes composition renames to undo and redo stacks', async () => {
+test('applyCodemodHandler logs composition renames and pushes them to the undo and redo stacks', async () => {
 	await runCompositionCodemodUndoRedoTest({
 		codemod: {
 			type: 'rename-composition',
@@ -278,6 +292,7 @@ test('applyCodemodHandler pushes composition renames to undo and redo stacks', a
 			expect(contents).toContain('id="KeepMe"');
 		},
 		expectedUndoMessage: '↩️  Rename of composition "DeleteMe" to "Renamed"',
+		expectedLogMessage: 'Renamed composition "DeleteMe" to "Renamed"',
 	});
 });
 
