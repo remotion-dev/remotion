@@ -201,17 +201,9 @@ Config.setExperimentalClientSideRenderingEnabled(true);
 
 The [command line flag](/docs/cli/studio#--enable-experimental-client-side-rendering) `--enable-experimental-client-side-rendering` will take precedence over this option.
 
-## `setAllowHtmlInCanvasEnabled()`<AvailableFrom v="4.0.447" />
+## ~~`setAllowHtmlInCanvasEnabled()`~~<AvailableFrom v="4.0.447" />
 
-<Options id="allow-html-in-canvas" />
-
-```ts twoslash title="remotion.config.ts"
-import {Config} from '@remotion/cli/config';
-// ---cut---
-Config.setAllowHtmlInCanvasEnabled(true);
-```
-
-The [command line flag](/docs/cli/studio#--allow-html-in-canvas) `--allow-html-in-canvas` will take precedence over this option.
+From Remotion v4.0.491, this method is a no-op and can be removed from your config file. [`@remotion/web-renderer`](/docs/web-renderer) automatically uses HTML-in-canvas when the browser supports nested captures.
 
 ## `setExperimentalRspackEnabled()`<AvailableFrom v="4.0.426" />
 

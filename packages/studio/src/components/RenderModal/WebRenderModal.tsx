@@ -86,7 +86,6 @@ type WebRenderModalProps = {
 	readonly initialTransparent: boolean | null;
 	readonly initialMuted: boolean | null;
 	readonly initialMediaCacheSizeInBytes: number | null;
-	readonly initialAllowHtmlInCanvas: boolean;
 	readonly initialPageResponsiveness: WebRendererPageResponsiveness;
 };
 
@@ -191,7 +190,6 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	initialKeyframeIntervalInSeconds,
 	initialTransparent,
 	initialMuted,
-	initialAllowHtmlInCanvas,
 	initialPageResponsiveness,
 }) => {
 	const context = useContext(ResolvedCompositionContext);
@@ -278,9 +276,6 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 
 	const [licenseKey, setLicenseKey] = useState(initialLicenseKey);
 
-	const [allowHtmlInCanvas, setAllowHtmlInCanvas] = useState(
-		initialAllowHtmlInCanvas ?? false,
-	);
 	const [pageResponsiveness, setPageResponsiveness] =
 		useState<WebRendererPageResponsiveness>(
 			initialPageResponsiveness ?? 'medium',
@@ -555,7 +550,6 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 					logLevel,
 					licenseKey,
 					scale,
-					allowHtmlInCanvas,
 				},
 				compositionRef,
 			);
@@ -584,7 +578,6 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 					logLevel,
 					licenseKey,
 					scale,
-					allowHtmlInCanvas,
 					pageResponsiveness,
 				},
 				compositionRef,
@@ -629,7 +622,6 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		addClientStillJob,
 		addClientVideoJob,
 		scale,
-		allowHtmlInCanvas,
 		pageResponsiveness,
 	]);
 
@@ -794,8 +786,6 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 							setMediaCacheSizeInBytes={setMediaCacheSizeInBytes}
 							hardwareAcceleration={hardwareAcceleration}
 							setHardwareAcceleration={setHardwareAcceleration}
-							allowHtmlInCanvas={allowHtmlInCanvas}
-							setAllowHtmlInCanvas={setAllowHtmlInCanvas}
 							pageResponsiveness={pageResponsiveness}
 							setPageResponsiveness={setPageResponsiveness}
 						/>

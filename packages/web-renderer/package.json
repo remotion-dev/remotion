@@ -27,6 +27,7 @@
 		"mediabunny": "catalog:"
 	},
 	"devDependencies": {
+		"@remotion/effects": "workspace:*",
 		"@react-three/fiber": "catalog:",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"@remotion/paths": "workspace:*",

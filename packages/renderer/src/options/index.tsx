@@ -1,4 +1,3 @@
-import {allowHtmlInCanvasOption} from './allow-html-in-canvas';
 import {apiKeyOption} from './api-key';
 import {askAIOption} from './ask-ai';
 import {audioBitrateOption} from './audio-bitrate';
@@ -93,7 +92,6 @@ import {webpackPollOption} from './webpack-poll';
 import {x264Option} from './x264-preset';
 
 export const allOptions = {
-	allowHtmlInCanvasOption,
 	audioCodecOption,
 	benchmarkConcurrenciesOption,
 	browserExecutableOption,
