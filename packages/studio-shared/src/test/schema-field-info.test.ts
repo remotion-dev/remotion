@@ -244,7 +244,7 @@ test('getFieldsToShow sorts fields by inspector group order', () => {
 	]);
 });
 
-test('getFieldsToShow leaves room for a stacked text content field', () => {
+test('getFieldsToShow does not reserve extra height for text content fields', () => {
 	const fields = getFieldsToShow({
 		schema: {
 			children: {
@@ -259,7 +259,7 @@ test('getFieldsToShow leaves room for a stacked text content field', () => {
 		includeTextContent: true,
 	});
 
-	expect(fields?.[0].rowHeight).toBe(SCHEMA_FIELD_ROW_HEIGHT * 3);
+	expect(fields?.[0].rowHeight).toBe(SCHEMA_FIELD_ROW_HEIGHT);
 });
 
 test('getEffectFieldsToShow sorts fields by inspector group order', () => {

@@ -372,12 +372,9 @@ export const TimelineEffectPropItem: React.FC<{
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const sourceFrame = timelinePosition - keyframeDisplayOffset;
 	const style = useMemo((): React.CSSProperties => {
-		return {
-			...fieldRowBase,
-			...(field.typeName === 'text-content'
-				? {minHeight: field.rowHeight}
-				: {height: field.rowHeight}),
-		};
+		return field.typeName === 'text-content'
+			? fieldRowBase
+			: {...fieldRowBase, height: field.rowHeight};
 	}, [field.rowHeight, field.typeName]);
 
 	const effectStatus = useMemo(
