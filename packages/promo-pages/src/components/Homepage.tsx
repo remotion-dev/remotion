@@ -58,6 +58,9 @@ export const NewLanding: React.FC<{
 								description="Create a library of animated assets for your organization."
 								videoSrc="/img/design-systems.webm"
 								fallbackVideoSrc="/img/design-systems.mp4"
+								links={[
+									{label: 'Motion design systems', href: '/design-systems'},
+								]}
 							/>
 							<MakeVideosAgentically
 								title="Batch rendering"
