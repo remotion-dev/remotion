@@ -107,6 +107,7 @@ import {
 	getTimelineSequenceLeftEdgeDragChanges,
 	getTimelineSequenceLeftEdgeDragTargets,
 	getTimelineSequenceLeftEdgeDragValues,
+	isTimelineSequenceDurationDraggable,
 } from '../components/Timeline/TimelineSequenceRightEdgeDragHandle';
 import {
 	parsedTransformOriginToUv,
@@ -1045,6 +1046,36 @@ test('Timeline duration drag uses the declared duration for negative from values
 			deltaFrames: 0,
 		}),
 	).toEqual([]);
+});
+
+test('Timeline duration drag supports interactive video clips', () => {
+	const nodePathInfo = makeNodePathInfo(['body', 0], []);
+	const video = makeTimelineSequence({
+		schema: Internals.baseSchema,
+		type: 'video',
+		duration: 78,
+	});
+
+	expect(isTimelineSequenceDurationDraggable(video)).toBe(true);
+	expect(
+		getTimelineSequenceDurationDragTargets({
+			draggedNodePathInfo: nodePathInfo,
+			selectedItems: [{type: 'sequence', nodePathInfo}],
+			sequences: [video],
+			overrideIdsToNodePaths: {
+				override: nodePathInfo.sequenceSubscriptionKey,
+			},
+			propStatuses: makeDurationPropStatuses([
+				nodePathInfo.sequenceSubscriptionKey,
+			]),
+		}),
+	).toEqual([
+		{
+			fileName: nodePathInfo.sequenceSubscriptionKey.absolutePath,
+			initialDuration: 78,
+			nodePath: nodePathInfo.sequenceSubscriptionKey,
+		},
+	]);
 });
 
 test('Timeline duration drag clamps each selected sequence to one frame', () => {

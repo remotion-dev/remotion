@@ -47,6 +47,7 @@ import {TimelineSequenceFrame} from './TimelineSequenceFrame';
 import {
 	TimelineSequenceLeftEdgeDragHandle,
 	TimelineSequenceRightEdgeDragHandle,
+	isTimelineSequenceDurationDraggable,
 	useTimelineSequenceFromDrag,
 } from './TimelineSequenceRightEdgeDragHandle';
 import {TimelineVideoInfo} from './TimelineVideoInfo';
@@ -518,9 +519,7 @@ const TimelineSequenceInner: React.FC<{
 	}, [marginLeft, s.type, width]);
 
 	const showRightEdgeDragHandle =
-		(s.type === 'sequence' || s.type === 'image') &&
-		!s.loopDisplay &&
-		!s.isInsideSeries &&
+		isTimelineSequenceDurationDraggable(s) &&
 		nodePath !== null &&
 		validatedLocation !== null &&
 		durationCanUpdate;

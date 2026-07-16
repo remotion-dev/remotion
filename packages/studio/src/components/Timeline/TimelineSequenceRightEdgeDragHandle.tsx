@@ -199,9 +199,12 @@ const canUpdateTrimBefore = ({
 	return status === 'static';
 };
 
-const isDurationDraggableSequence = (sequence: TSequence) => {
+export const isTimelineSequenceDurationDraggable = (sequence: TSequence) => {
 	return (
-		(sequence.type === 'sequence' || sequence.type === 'image') &&
+		(sequence.type === 'sequence' ||
+			sequence.type === 'image' ||
+			sequence.type === 'audio' ||
+			sequence.type === 'video') &&
 		!sequence.loopDisplay &&
 		!sequence.isInsideSeries &&
 		Boolean(sequence.controls)
@@ -510,7 +513,7 @@ export const getTimelineSequenceDurationDragTargets = ({
 			!track ||
 			!track.nodePathInfo ||
 			!originalSequence ||
-			!isDurationDraggableSequence(originalSequence)
+			!isTimelineSequenceDurationDraggable(originalSequence)
 		) {
 			return null;
 		}
