@@ -244,6 +244,26 @@ describe('Element preview definitions', () => {
 		}
 	});
 
+	test('dimensionless Solid backgrounds use composition dimensions', () => {
+		for (const slug of [
+			'backgrounds/paper-texture',
+			'backgrounds/rotating-starburst',
+		] as const) {
+			const definition = elementDefinitions[slug];
+			const element = productionElements.find((entry) => entry.name === slug);
+			if (!element) {
+				throw new Error(`Could not find Element source for ${slug}`);
+			}
+
+			const source = readFileSync(element.tsxPath, 'utf8');
+			expect(definition.elementWidth).toBe(null);
+			expect(definition.elementHeight).toBe(null);
+			expect(source).toContain('useVideoConfig()');
+			expect(source).not.toContain(`width={${definition.width}}`);
+			expect(source).not.toContain(`height={${definition.height}}`);
+		}
+	});
+
 	test('derives stable composition IDs and preview URLs', () => {
 		const compositionIds = elementDefinitionList.map((definition) =>
 			getElementCompositionId(definition.slug),
