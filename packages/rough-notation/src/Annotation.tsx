@@ -1,6 +1,5 @@
 import React, {useMemo} from 'react';
 import {
-	Internals,
 	Interactive,
 	Sequence,
 	type InteractiveBaseProps,
@@ -437,7 +436,6 @@ const makeAnnotationComponent = ({
 	}) as React.FC<InternalAnnotationProps>;
 
 	Component.displayName = componentName;
-	Internals.addSequenceStackTraces(Component);
 	return Component;
 };
 

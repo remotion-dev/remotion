@@ -15,7 +15,10 @@ import {
 } from './interactivity-schema.js';
 import type {AbsoluteFillLayout, SequenceProps} from './Sequence.js';
 import {Sequence} from './Sequence.js';
-import {withInteractivitySchema} from './with-interactivity-schema.js';
+import {
+	withInteractivitySchema,
+	type WithInteractivitySchemaOptions,
+} from './with-interactivity-schema.js';
 
 type InteractiveHtmlTag =
 	| 'a'
@@ -151,6 +154,15 @@ const setRef = <ElementType,>(
 	}
 };
 
+const withSchema = <S extends InteractivitySchema, Props extends object>(
+	options: WithInteractivitySchemaOptions<S, Props>,
+): React.ComponentType<Props> => {
+	const Wrapped = withInteractivitySchema(options);
+	addSequenceStackTraces(Wrapped);
+
+	return Wrapped;
+};
+
 const makeInteractiveElement = <Tag extends InteractiveTag>(
 	tag: Tag,
 	displayName: string,
@@ -212,7 +224,7 @@ const makeInteractiveElement = <Tag extends InteractiveTag>(
 
 	Inner.displayName = displayName;
 
-	const Wrapped = withInteractivitySchema({
+	const Wrapped = withSchema({
 		Component: Inner,
 		componentName: displayName,
 		componentIdentity: makeRemotionComponentIdentity({
@@ -224,7 +236,6 @@ const makeInteractiveElement = <Tag extends InteractiveTag>(
 	}) as InteractiveElementComponent<Tag>;
 
 	Wrapped.displayName = displayName;
-	addSequenceStackTraces(Wrapped);
 
 	return Wrapped;
 };
@@ -238,7 +249,7 @@ export const Interactive = {
 	textSchema,
 	premountSchema,
 	sequenceSchema,
-	withSchema: withInteractivitySchema,
+	withSchema,
 	_internalMakeRemotionComponentIdentity: makeRemotionComponentIdentity,
 	A: makeInteractiveElement('a', '<Interactive.A>'),
 	Article: makeInteractiveElement('article', '<Interactive.Article>'),

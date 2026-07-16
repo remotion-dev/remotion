@@ -1,5 +1,7 @@
 import {expect, test} from 'bun:test';
+import type {SequenceControls} from '../CompositionManager.js';
 import {solidSchema} from '../effects/Solid.js';
+import {getComponentsToAddStacksTo} from '../enable-sequence-stack-traces.js';
 import {
 	flattenActiveSchema,
 	getFlatSchemaWithAllKeys,
@@ -80,6 +82,23 @@ test('_internalMakeRemotionComponentIdentity normalizes first-party package name
 			componentName: 'Highlight',
 		}),
 	).toBe('dev.remotion.roughNotation.Highlight');
+});
+
+test('Interactive.withSchema() adds Sequence stack traces automatically', () => {
+	const Component = (_props: {
+		readonly controls: SequenceControls | undefined;
+	}) => null;
+	const Wrapped = Interactive.withSchema({
+		Component,
+		componentName: '<Component>',
+		componentIdentity: 'com.example.Component',
+		schema: {},
+		supportsEffects: false,
+	});
+
+	expect(
+		getComponentsToAddStacksTo().filter((component) => component === Wrapped),
+	).toHaveLength(1);
 });
 
 test('getFlatSchema(sequenceSchema) exposes every variant key', () => {

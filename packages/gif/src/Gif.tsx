@@ -15,11 +15,7 @@ import {GifForDevelopment} from './GifForDevelopment';
 import {GifForRendering} from './GifForRendering';
 import type {RemotionGifProps} from './props';
 
-const {
-	addSequenceStackTraces,
-	useMemoizedEffectDefinitions,
-	useMemoizedEffects,
-} = Internals;
+const {useMemoizedEffectDefinitions, useMemoizedEffects} = Internals;
 
 export type GifProps = InteractiveBaseProps &
 	InteractiveTransformProps &
@@ -128,5 +124,3 @@ export const Gif = Interactive.withSchema({
 });
 
 Gif.displayName = 'Gif';
-
-addSequenceStackTraces(Gif);

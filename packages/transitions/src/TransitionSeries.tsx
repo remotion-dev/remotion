@@ -732,5 +732,3 @@ TransitionSeries.Transition = TransitionSeriesTransition;
 TransitionSeries.Overlay = SeriesOverlay;
 
 export {TransitionSeries};
-
-Internals.addSequenceStackTraces(TransitionSeries);
