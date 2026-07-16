@@ -22,7 +22,6 @@ import {
 	TRANSPARENT,
 	WHITE,
 } from '../helpers/colors';
-import {SHOW_BROWSER_RENDERING} from '../helpers/show-browser-rendering';
 import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
 import {CaretDown} from '../icons/caret';
 import {ThinRenderIcon} from '../icons/render';
@@ -99,10 +98,6 @@ export type RenderType = 'server-render' | 'client-render' | 'render-command';
 const RENDER_TYPE_STORAGE_KEY = 'remotion.renderType';
 
 const getInitialRenderType = (readOnlyStudio: boolean): RenderType => {
-	if (!SHOW_BROWSER_RENDERING) {
-		return readOnlyStudio ? 'render-command' : 'server-render';
-	}
-
 	if (readOnlyStudio) {
 		return 'client-render';
 	}
@@ -197,25 +192,15 @@ export const RenderButton: React.FC<{readonly readOnlyStudio: boolean}> = ({
 		.previewServerState.type;
 	const canServerRender = connectionStatus === 'connected';
 
-	const canRender = canServerRender || SHOW_BROWSER_RENDERING || readOnlyStudio;
-
 	const renderType: RenderType = useMemo(() => {
 		if (readOnlyStudio) {
-			if (!SHOW_BROWSER_RENDERING) {
-				return 'render-command';
-			}
-
 			return preferredRenderType === 'render-command'
 				? 'render-command'
 				: 'client-render';
 		}
 
-		if (connectionStatus === 'disconnected' && SHOW_BROWSER_RENDERING) {
+		if (connectionStatus === 'disconnected') {
 			return 'client-render';
-		}
-
-		if (!SHOW_BROWSER_RENDERING) {
-			return 'server-render';
 		}
 
 		return preferredRenderType;
@@ -225,9 +210,7 @@ export const RenderButton: React.FC<{readonly readOnlyStudio: boolean}> = ({
 	const tooltip =
 		renderType === 'render-command'
 			? 'Copy a CLI command to render this composition ' + shortcut
-			: canRender
-				? 'Export the current composition ' + shortcut
-				: 'Connect to the Studio server to render';
+			: 'Export the current composition ' + shortcut;
 
 	const iconStyle: SVGProps<SVGSVGElement> = useMemo(() => {
 		return {
@@ -361,7 +344,7 @@ export const RenderButton: React.FC<{readonly readOnlyStudio: boolean}> = ({
 			return;
 		}
 
-		if (!SHOW_BROWSER_RENDERING || renderType === 'server-render') {
+		if (renderType === 'server-render') {
 			openServerRenderModal(false);
 		} else {
 			openClientRenderModal();
@@ -493,10 +476,10 @@ export const RenderButton: React.FC<{readonly readOnlyStudio: boolean}> = ({
 		return {
 			...splitButtonContainer,
 			borderColor: BLACK_ALPHA_60,
-			opacity: canRender ? 1 : 0.7,
-			cursor: canRender ? 'pointer' : 'inherit',
+			opacity: 1,
+			cursor: 'pointer',
 		};
-	}, [canRender]);
+	}, []);
 
 	const renderLabel =
 		renderType === 'server-render'
@@ -504,18 +487,6 @@ export const RenderButton: React.FC<{readonly readOnlyStudio: boolean}> = ({
 			: renderType === 'render-command'
 				? 'Render via CLI'
 				: 'Render on web';
-
-	const shouldShowDropdown = useMemo(() => {
-		if (readOnlyStudio) {
-			return SHOW_BROWSER_RENDERING;
-		}
-
-		if (!SHOW_BROWSER_RENDERING) {
-			return false;
-		}
-
-		return true;
-	}, [readOnlyStudio]);
 
 	if (!video) {
 		return null;
@@ -542,7 +513,6 @@ export const RenderButton: React.FC<{readonly readOnlyStudio: boolean}> = ({
 					style={mainButtonStyle}
 					onClick={onClick}
 					id="render-modal-button"
-					disabled={!canRender}
 				>
 					<Row align="center" style={mainButtonContent}>
 						<ThinRenderIcon
@@ -553,22 +523,17 @@ export const RenderButton: React.FC<{readonly readOnlyStudio: boolean}> = ({
 						<span style={label}>{renderLabel}</span>
 					</Row>
 				</button>
-				{shouldShowDropdown ? (
-					<>
-						<div style={dividerStyle} />
-						<button
-							ref={dropdownRef}
-							type="button"
-							style={dropdownTriggerStyle}
-							disabled={!readOnlyStudio && connectionStatus !== 'connected'}
-							className={MENU_INITIATOR_CLASSNAME}
-							onPointerDown={onPointerDown}
-							onClick={onClickDropdown}
-						>
-							<CaretDown />
-						</button>
-					</>
-				) : null}
+				<div style={dividerStyle} />
+				<button
+					ref={dropdownRef}
+					type="button"
+					style={dropdownTriggerStyle}
+					className={MENU_INITIATOR_CLASSNAME}
+					onPointerDown={onPointerDown}
+					onClick={onClickDropdown}
+				>
+					<CaretDown />
+				</button>
 			</div>
 			{portalStyle
 				? ReactDOM.createPortal(

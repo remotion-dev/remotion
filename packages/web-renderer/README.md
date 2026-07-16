@@ -1,6 +1,6 @@
 # @remotion/web-renderer
 
-Render videos in the browser (not yet released)
+Render videos in the browser
 
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/web-renderer.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/@remotion/web-renderer?minimal=true)
 

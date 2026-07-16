@@ -27,7 +27,6 @@ const {
 	mediaCacheSizeInBytesOption,
 	darkModeOption,
 	askAIOption,
-	experimentalClientSideRenderingOption,
 	keyboardShortcutsOption,
 	rspackOption,
 	browserExecutableOption,
@@ -130,10 +129,6 @@ export const listCompositionsCommand = async (
 		darkMode,
 	};
 
-	const experimentalClientSideRenderingEnabled =
-		experimentalClientSideRenderingOption.getValue({
-			commandLine: parsedCli,
-		}).value;
 	const keyboardShortcutsEnabled = keyboardShortcutsOption.getValue({
 		commandLine: parsedCli,
 	}).value;
@@ -141,13 +136,6 @@ export const listCompositionsCommand = async (
 	const shouldCache = bundleCacheOption.getValue({
 		commandLine: parsedCli,
 	}).value;
-
-	if (experimentalClientSideRenderingEnabled) {
-		Log.warn(
-			{indent: false, logLevel},
-			'Enabling WIP client-side rendering. Please see caveats on https://www.remotion.dev/docs/client-side-rendering/.',
-		);
-	}
 
 	const {urlOrBundle: bundled, cleanup: cleanupBundle} =
 		await bundleOnCliOrTakeServeUrl({
@@ -171,7 +159,6 @@ export const listCompositionsCommand = async (
 			maxTimelineTracks: null,
 			publicPath,
 			audioLatencyHint,
-			experimentalClientSideRenderingEnabled,
 			askAIEnabled,
 			keyboardShortcutsEnabled,
 			rspack,

@@ -57,7 +57,6 @@ import {
 import type {UpdaterFunction} from './SchemaEditor/ZodSwitch';
 import {useEncodableAudioCodecs} from './use-encodable-audio-codecs';
 import {useEncodableVideoCodecs} from './use-encodable-video-codecs';
-import {WebRendererExperimentalBadge} from './WebRendererExperimentalBadge';
 import {WebRenderModalAdvanced} from './WebRenderModalAdvanced';
 import {WebRenderModalAudio} from './WebRenderModalAudio';
 import {WebRenderModalBasic} from './WebRenderModalBasic';
@@ -640,9 +639,6 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 					Render {renderMode}
 					<ShortcutHint keyToPress="↵" cmdOrCtrl />
 				</Button>
-			</div>
-			<div style={containerStyle}>
-				<WebRendererExperimentalBadge />
 			</div>
 			<div style={horizontalLayout}>
 				<div style={leftSidebar}>

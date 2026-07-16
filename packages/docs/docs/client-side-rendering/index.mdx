@@ -5,14 +5,9 @@ sidebar_label: Overview
 title: Client-side rendering
 ---
 
-:::warning
-Experimental feature - expect bugs and breaking changes at any time.  
-[Track progress on GitHub](https://github.com/remotion-dev/remotion/issues/5913) and discuss in the [`#web-renderer`](https://remotion.dev/discord) channel on Discord.
-:::
+Client-side rendering is a Remotion capability that allows you to render videos, images, and audio directly in the browser, without requiring server-side infrastructure.
 
-Client-side rendering is a new additional capability of Remotion that allows you to render videos, images, and audio directly in the browser, without requiring server-side infrastructure.
-
-It is currently released as an experimental alpha under the [`@remotion/web-renderer`](/docs/web-renderer) package.
+It is available through the [`@remotion/web-renderer`](/docs/web-renderer) package and is stable from <AvailableFrom v="4.0.491" inline />.
 
 ## Key differences from server-side rendering
 
@@ -39,7 +34,7 @@ The package provides APIs called [`renderStillOnWeb()`](/docs/web-renderer/rende
 
 Here is an example of how to use it:
 
-```tsx twoslash title="Tentative API example"
+```tsx twoslash title="Example"
 import {renderMediaOnWeb} from '@remotion/web-renderer';
 
 const Component: React.FC = () => {
@@ -64,21 +59,9 @@ const {getBlob} = await renderMediaOnWeb({
 });
 ```
 
-## Enable in the Studio
+## Remotion Studio
 
-To enable client-side rendering in the Studio, you need to call `Config.setExperimentalClientSideRenderingEnabled(true)` in your `remotion.config.ts` file.
-
-```ts twoslash title="remotion.config.ts"
-import {Config} from '@remotion/cli/config';
-// ---cut---
-Config.setExperimentalClientSideRenderingEnabled(true);
-```
-
-## Status
-
-Client-side rendering is currently in heavy iteration.
-
-[View the current status and progress →](https://github.com/remotion-dev/remotion/issues/5913)
+Client-side rendering is always enabled in the Remotion Studio from <AvailableFrom v="4.0.491" inline />. Use the "Render on web" button to render in the browser.
 
 ## See also
 

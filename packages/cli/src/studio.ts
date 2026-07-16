@@ -24,7 +24,6 @@ const {
 	enableCrossSiteIsolationOption,
 	askAIOption,
 	interactivityOption,
-	experimentalClientSideRenderingOption,
 	keyboardShortcutsOption,
 	forceNewStudioOption,
 	numberOfSharedAudioTagsOption,
@@ -109,18 +108,6 @@ export const studioCommand = async (
 		commandLine: parsedCli,
 	}).value;
 
-	const experimentalClientSideRenderingEnabled =
-		experimentalClientSideRenderingOption.getValue({
-			commandLine: parsedCli,
-		}).value;
-
-	if (experimentalClientSideRenderingEnabled) {
-		Log.warn(
-			{indent: false, logLevel},
-			'Enabling WIP client-side rendering. Please see caveats on https://www.remotion.dev/docs/client-side-rendering/.',
-		);
-	}
-
 	const binariesDirectory = binariesDirectoryOption.getValue({
 		commandLine: parsedCli,
 	}).value;
@@ -168,10 +155,6 @@ export const studioCommand = async (
 		}).value,
 		bufferStateDelayInMilliseconds:
 			ConfigInternals.getBufferStateDelayInMilliseconds(),
-		experimentalClientSideRenderingEnabled:
-			experimentalClientSideRenderingOption.getValue({
-				commandLine: parsedCli,
-			}).value,
 	});
 
 	const result = await StudioServerInternals.startStudio({
@@ -185,7 +168,6 @@ export const studioCommand = async (
 		getEnvVariables: () => envVariables,
 		desiredPort,
 		keyboardShortcutsEnabled,
-		experimentalClientSideRenderingEnabled,
 		maxTimelineTracks: ConfigInternals.getMaxTimelineTracks(),
 		remotionRoot,
 		relativePublicDir,

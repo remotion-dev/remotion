@@ -95,7 +95,6 @@ const {
 	darkModeOption,
 	askAIOption,
 	publicLicenseKeyOption,
-	experimentalClientSideRenderingOption,
 	interactivityOption,
 	keyboardShortcutsOption,
 	forceNewStudioOption,
@@ -186,15 +185,6 @@ declare global {
 		 * @default true
 		 */
 		readonly setInteractivityEnabled: (enabled: boolean) => void;
-		/**
-		 * Enable WIP client-side rendering in the Remotion Studio.
-		 * See https://www.remotion.dev/docs/client-side-rendering/ for notes.
-		 * @param enabled Boolean whether to enable client-side rendering
-		 * @default false
-		 */
-		readonly setExperimentalClientSideRenderingEnabled: (
-			enabled: boolean,
-		) => void;
 		/**
 		 * @deprecated HTML-in-canvas is now enabled by default when supported. This method is a no-op and can be removed.
 		 */
@@ -718,8 +708,6 @@ export const Config: FlatConfig = {
 	setMaxTimelineTracks: StudioServerInternals.setMaxTimelineTracks,
 	setKeyboardShortcutsEnabled: keyboardShortcutsOption.setConfig,
 	setInteractivityEnabled: interactivityOption.setConfig,
-	setExperimentalClientSideRenderingEnabled:
-		experimentalClientSideRenderingOption.setConfig,
 	setAllowHtmlInCanvasEnabled,
 	setExperimentalRspackEnabled: rspackOption.setConfig,
 	setNumberOfSharedAudioTags: numberOfSharedAudioTagsOption.setConfig,
