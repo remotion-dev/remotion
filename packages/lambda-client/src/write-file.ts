@@ -87,6 +87,8 @@ export const lambdaWriteFileImplementation = async (
 	try {
 		await tryLambdaWriteFile(params);
 	} catch (err) {
+		// A failed upload may have consumed a Readable, and we cannot recreate it here.
+		// Retrying it could upload an empty body and mask the original error.
 		const bodyCanBeRetried =
 			typeof params.body === 'string' || params.body instanceof Uint8Array;
 		if (remainingRetries === 0 || !bodyCanBeRetried) {
