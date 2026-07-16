@@ -350,12 +350,14 @@ export const TimelineSequencePropItem: React.FC<{
 			/>
 		) : null;
 
-	const style = useMemo(() => {
+	const style = useMemo((): React.CSSProperties => {
 		return {
 			...fieldRowBase,
-			height: field.rowHeight,
+			...(field.typeName === 'text-content'
+				? {minHeight: field.rowHeight}
+				: {height: field.rowHeight}),
 		};
-	}, [field.rowHeight]);
+	}, [field.rowHeight, field.typeName]);
 
 	const canResetToDefault = useMemo(() => {
 		if (!propStatus || propStatus.status === 'computed') {
