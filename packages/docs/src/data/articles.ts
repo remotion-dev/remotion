@@ -1471,7 +1471,7 @@ export const articles = [
 		title: 'Motion Design Systems',
 		relativePath: 'docs/design-systems.mdx',
 		compId: 'articles-docs-design-systems',
-		crumb: 'Designing visuals',
+		crumb: 'Parameterized videos',
 		noAi: false,
 		slug: 'design-systems',
 	},

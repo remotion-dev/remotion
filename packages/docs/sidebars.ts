@@ -1055,7 +1055,6 @@ const sidebars: SidebarsConfig = {
 				'layers',
 				'transforms',
 				'assets',
-				'design-systems',
 				'fonts',
 				'transitioning',
 				'html-in-canvas',
@@ -1128,6 +1127,7 @@ const sidebars: SidebarsConfig = {
 				'data-fetching',
 				'dynamic-metadata',
 				'props-resolution',
+				'design-systems',
 			],
 		},
 
