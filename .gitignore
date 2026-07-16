@@ -40,3 +40,4 @@ packages/docs/out
 packages/cloudrun/container/ensure-browser.mjs
 packages/skills-evals/.runs
 packages/skills-evals/.site
+packages/skills-evals/.playground
