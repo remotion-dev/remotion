@@ -622,6 +622,7 @@ export type PasteEffectsRequest = {
 	type: EffectClipboardPasteType;
 	effects: EffectClipboardSnapshot[];
 	clientId: string;
+	insertAtIndices: number[] | null;
 };
 
 export type PasteEffectsResponse =

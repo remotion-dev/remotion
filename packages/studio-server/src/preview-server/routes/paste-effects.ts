@@ -30,7 +30,14 @@ export const pasteEffectsHandler: ApiHandler<
 	PasteEffectsRequest,
 	PasteEffectsResponse
 > = ({
-	input: {targetFileName, targetSequenceNodePath, type, effects, clientId},
+	input: {
+		targetFileName,
+		targetSequenceNodePath,
+		type,
+		effects,
+		clientId,
+		insertAtIndices,
+	},
 	remotionRoot,
 	logLevel,
 }) => {
@@ -58,6 +65,7 @@ export const pasteEffectsHandler: ApiHandler<
 				targetSequenceNodePath: targetSequenceNodePath.nodePath,
 				type,
 				effects,
+				insertAtIndices,
 			});
 
 			const effectDescription = getPastedEffectDescription(effectLabels);

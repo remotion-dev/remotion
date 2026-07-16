@@ -390,6 +390,14 @@ export const KeyboardShortcutsExplainer: React.FC = () => {
 						<div style={left}>
 							<kbd style={key}>{cmdOrCtrlCharacter}</kbd>
 							<Spacing x={0.3} />
+							<kbd style={key}>X</kbd>
+						</div>
+						<div style={right}>Cut effects</div>
+					</Row>
+					<Row align="center">
+						<div style={left}>
+							<kbd style={key}>{cmdOrCtrlCharacter}</kbd>
+							<Spacing x={0.3} />
 							<kbd style={key}>V</kbd>
 						</div>
 						<div style={right}>Paste effects / values</div>

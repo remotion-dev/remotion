@@ -72,6 +72,7 @@ import {getTimelinePropResetTargets} from '../components/Timeline/reset-selected
 import {shouldSubscribeToSequenceProps} from '../components/Timeline/should-subscribe-to-sequence-props';
 import {
 	getEasingClipboardDataFromSelection,
+	getEffectsClipboardEnvelopeFromSelections,
 	getEffectPropClipboardDataFromSelection,
 	getPasteEffectPropTarget,
 	getPasteEffectsTarget,
@@ -628,6 +629,38 @@ test('copying a keyframed effect creates a structured snapshot', () => {
 			},
 		},
 	]);
+});
+
+test('cut effect clipboard metadata preserves source order', () => {
+	const nodePathInfo = makeNodePathInfo(['body', 0], ['effects', '0'], true, [
+		['0'],
+	]);
+	const blur = {
+		callee: 'blur',
+		importPath: '@remotion/effects/blur',
+		params: {},
+	};
+	const brightness = {
+		callee: 'brightness',
+		importPath: '@remotion/effects/brightness',
+		params: {},
+	};
+	const envelope = getEffectsClipboardEnvelopeFromSelections({
+		selectedItems: [
+			{type: 'sequence-effect', nodePathInfo, i: 1},
+			{type: 'sequence-effect', nodePathInfo, i: 0},
+		],
+		payload: {
+			type: 'effects-additive',
+			version: 3,
+			remotionClipboard: 'effects',
+			effects: [blur, brightness],
+		},
+	});
+
+	expect(envelope.sourceIdentity).not.toBe(null);
+	expect(envelope.originalEffectIndices).toEqual([0, 1]);
+	expect(envelope.payload.effects).toEqual([brightness, blur]);
 });
 
 test('copying a selected effect prop creates an effect prop payload', () => {
