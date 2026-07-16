@@ -29,15 +29,94 @@ import {validateDurationInFrames} from './validate.js';
 
 const {SequenceWithoutSchema} = Internals;
 
-const TransitionSeriesTransition = function <
+type ResolvedTransitionSeriesTransitionProps<
 	PresentationProps extends Record<string, unknown>,
->(_props: TransitionSeriesTransitionProps<PresentationProps>) {
+> = TransitionSeriesTransitionProps<PresentationProps> & {
+	readonly controls: SequenceControls | null | undefined;
+	readonly stack: string | null;
+};
+
+type InternalTransitionSeriesTransitionProps<
+	PresentationProps extends Record<string, unknown>,
+> = ResolvedTransitionSeriesTransitionProps<PresentationProps> & {
+	readonly _remotionInternalRender:
+		| ((
+				props: ResolvedTransitionSeriesTransitionProps<PresentationProps>,
+		  ) => React.ReactNode)
+		| null;
+};
+
+const TransitionSeriesTransitionInner = <
+	PresentationProps extends Record<string, unknown>,
+>({
+	stack = null,
+	_remotionInternalRender = null,
+	...props
+}: InternalTransitionSeriesTransitionProps<PresentationProps>) => {
+	if (_remotionInternalRender) {
+		return _remotionInternalRender({...props, stack});
+	}
+
 	return null;
 };
 
-const SeriesOverlay: FC<TransitionSeriesOverlayProps> = () => {
+type TransitionSeriesTransitionComponent = <
+	PresentationProps extends Record<string, unknown>,
+>(
+	props: TransitionSeriesTransitionProps<PresentationProps>,
+) => React.ReactNode;
+
+const transitionSeriesTransitionSchema = {} satisfies InteractivitySchema;
+
+const TransitionSeriesTransition = Interactive.withSchema({
+	Component: TransitionSeriesTransitionInner as unknown as React.ComponentType<
+		TransitionSeriesTransitionProps<Record<string, unknown>> & {
+			readonly controls: SequenceControls | undefined;
+		}
+	>,
+	componentName: '<TransitionSeries.Transition>',
+	componentIdentity: 'dev.remotion.transitions.TransitionSeries.Transition',
+	schema: transitionSeriesTransitionSchema,
+	supportsEffects: false,
+}) as TransitionSeriesTransitionComponent;
+
+type ResolvedTransitionSeriesOverlayProps = TransitionSeriesOverlayProps & {
+	readonly controls: SequenceControls | null | undefined;
+	readonly stack: string | null;
+};
+
+type InternalTransitionSeriesOverlayProps =
+	ResolvedTransitionSeriesOverlayProps & {
+		readonly _remotionInternalRender:
+			| ((props: ResolvedTransitionSeriesOverlayProps) => React.ReactNode)
+			| null;
+	};
+
+const SeriesOverlayInner: FC<InternalTransitionSeriesOverlayProps> = ({
+	stack = null,
+	_remotionInternalRender = null,
+	...props
+}) => {
+	if (_remotionInternalRender) {
+		return _remotionInternalRender({...props, stack});
+	}
+
 	return null;
 };
+
+const transitionSeriesOverlaySchema = {} satisfies InteractivitySchema;
+
+const SeriesOverlay = Interactive.withSchema({
+	Component: SeriesOverlayInner as unknown as React.ComponentType<
+		TransitionSeriesOverlayProps & {
+			readonly controls: SequenceControls | undefined;
+		}
+	>,
+	componentName: '<TransitionSeries.Overlay>',
+	componentIdentity: 'dev.remotion.transitions.TransitionSeries.Overlay',
+	schema: transitionSeriesOverlaySchema,
+	supportsEffects: false,
+}) as FC<TransitionSeriesOverlayProps>;
 
 type LayoutBasedProps =
 	true extends typeof NoReactInternals.ENABLE_V5_BREAKING_CHANGES
@@ -229,6 +308,8 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 			readonly halfDuration: number;
 			readonly children: React.ReactNode;
 			readonly index: number;
+			readonly controls: SequenceControls | null | undefined;
+			readonly stack: string | null;
 		};
 
 		type RenderState = {
@@ -258,6 +339,8 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 						durationInFrames={info.durationInFrames}
 						name="<TS.Overlay>"
 						_remotionInternalDocumentationLink="https://www.remotion.dev/docs/transitions/transitionseries"
+						_remotionInternalStack={info.stack ?? undefined}
+						controls={info.controls ?? undefined}
 						layout="absolute-fill"
 					>
 						{info.children}
@@ -331,69 +414,78 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 					);
 				}
 
-				const overlayProps = (current as OverlayType).props;
+				const castedOverlay = current as React.ReactElement<
+					InternalTransitionSeriesOverlayProps,
+					typeof SeriesOverlay
+				>;
 
-				validateDurationInFrames(overlayProps.durationInFrames, {
-					component: `of a <TransitionSeries.Overlay /> component`,
-					allowFloats: false,
-				});
+				return React.cloneElement(castedOverlay, {
+					_remotionInternalRender: (overlayProps) => {
+						validateDurationInFrames(overlayProps.durationInFrames, {
+							component: `of a <TransitionSeries.Overlay /> component`,
+							allowFloats: false,
+						});
 
-				const overlayOffset = overlayProps.offset ?? 0;
-				if (Number.isNaN(overlayOffset)) {
-					throw new TypeError(
-						`The "offset" property of a <TransitionSeries.Overlay /> must not be NaN, but got NaN.`,
-					);
-				}
+						const overlayOffset = overlayProps.offset ?? 0;
+						if (Number.isNaN(overlayOffset)) {
+							throw new TypeError(
+								`The "offset" property of a <TransitionSeries.Overlay /> must not be NaN, but got NaN.`,
+							);
+						}
 
-				if (!Number.isFinite(overlayOffset)) {
-					throw new TypeError(
-						`The "offset" property of a <TransitionSeries.Overlay /> must be finite, but got ${overlayOffset}.`,
-					);
-				}
+						if (!Number.isFinite(overlayOffset)) {
+							throw new TypeError(
+								`The "offset" property of a <TransitionSeries.Overlay /> must be finite, but got ${overlayOffset}.`,
+							);
+						}
 
-				if (overlayOffset % 1 !== 0) {
-					throw new TypeError(
-						`The "offset" property of a <TransitionSeries.Overlay /> must be an integer, but got ${overlayOffset}.`,
-					);
-				}
+						if (overlayOffset % 1 !== 0) {
+							throw new TypeError(
+								`The "offset" property of a <TransitionSeries.Overlay /> must be an integer, but got ${overlayOffset}.`,
+							);
+						}
 
-				// Find the previous sequence (the cut point is at startFrame + transitionOffsets)
-				const cutPoint = startFrame + transitionOffsets;
-				const halfDuration = overlayProps.durationInFrames / 2;
-				const overlayFrom = cutPoint - halfDuration + overlayOffset;
+						// Find the previous sequence (the cut point is at startFrame + transitionOffsets)
+						const cutPoint = startFrame + transitionOffsets;
+						const halfDuration = overlayProps.durationInFrames / 2;
+						const overlayFrom = cutPoint - halfDuration + overlayOffset;
 
-				if (overlayFrom < 0) {
-					throw new TypeError(
-						`A <TransitionSeries.Overlay /> extends before frame 0. The overlay starts at frame ${overlayFrom}. Reduce the duration or adjust the offset.`,
-					);
-				}
+						if (overlayFrom < 0) {
+							throw new TypeError(
+								`A <TransitionSeries.Overlay /> extends before frame 0. The overlay starts at frame ${overlayFrom}. Reduce the duration or adjust the offset.`,
+							);
+						}
 
-				// Validate: overlay must not exceed the previous sequence duration
-				const prevSeqIdx = sequenceDurations.length - 1;
-				if (prevSeqIdx >= 0) {
-					const overlayStartInPrev = halfDuration - overlayOffset;
-					if (overlayStartInPrev > sequenceDurations[prevSeqIdx]) {
-						throw new TypeError(
-							`A <TransitionSeries.Overlay /> extends beyond the previous sequence. The overlay needs ${overlayStartInPrev} frames before the cut, but the previous sequence is only ${sequenceDurations[prevSeqIdx]} frames long.`,
-						);
-					}
-				}
+						// Validate: overlay must not exceed the previous sequence duration
+						const prevSeqIdx = sequenceDurations.length - 1;
+						if (prevSeqIdx >= 0) {
+							const overlayStartInPrev = halfDuration - overlayOffset;
+							if (overlayStartInPrev > sequenceDurations[prevSeqIdx]) {
+								throw new TypeError(
+									`A <TransitionSeries.Overlay /> extends beyond the previous sequence. The overlay needs ${overlayStartInPrev} frames before the cut, but the previous sequence is only ${sequenceDurations[prevSeqIdx]} frames long.`,
+								);
+							}
+						}
 
-				// Store overlay info for deferred rendering and validate the other
-				// side once the next sequence has resolved its interactive props.
-				const overlayRender: OverlayRender = {
-					cutPoint,
-					overlayFrom,
-					durationInFrames: overlayProps.durationInFrames,
-					overlayOffset,
-					halfDuration,
-					children: overlayProps.children,
-					index: i,
-				};
+						// Store overlay info for deferred rendering and validate the other
+						// side once the next sequence has resolved its interactive props.
+						const overlayRender: OverlayRender = {
+							cutPoint,
+							overlayFrom,
+							durationInFrames: overlayProps.durationInFrames,
+							overlayOffset,
+							halfDuration,
+							children: overlayProps.children,
+							index: i,
+							controls: overlayProps.controls,
+							stack: overlayProps.stack,
+						};
 
-				return renderNext({
-					overlayRenders: [...overlayRenders, overlayRender],
-					pendingOverlayValidation: true,
+						return renderNext({
+							overlayRenders: [...overlayRenders, overlayRender],
+							pendingOverlayValidation: true,
+						});
+					},
 				});
 			}
 
@@ -414,7 +506,36 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 					);
 				}
 
-				return renderNext();
+				const castedTransition = current as React.ReactElement<
+					InternalTransitionSeriesTransitionProps<Record<string, unknown>>,
+					typeof TransitionSeriesTransition
+				>;
+
+				return React.cloneElement(castedTransition, {
+					_remotionInternalRender: (transitionProps) => {
+						const transitionDuration =
+							transitionProps.timing.getDurationInFrames({fps});
+						const transitionFrom =
+							startFrame + transitionOffsets - transitionDuration;
+
+						return (
+							<>
+								{transitionDuration > 0 ? (
+									<SequenceWithoutSchema
+										from={transitionFrom}
+										durationInFrames={transitionDuration}
+										name="<TS.Transition>"
+										_remotionInternalDocumentationLink="https://www.remotion.dev/docs/transitions/transitionseries"
+										_remotionInternalStack={transitionProps.stack ?? undefined}
+										controls={transitionProps.controls ?? undefined}
+										layout="none"
+									/>
+								) : null}
+								{renderNext()}
+							</>
+						);
+					},
+				});
 			}
 
 			if (current.type !== SeriesSequence) {
