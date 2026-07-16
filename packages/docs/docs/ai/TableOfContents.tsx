@@ -12,6 +12,10 @@ export const TableOfContents: React.FC = () => {
 						Use Claude Code, Codex or OpenCode to prompt Remotion videos
 					</div>
 				</TOCItem>
+				<TOCItem link="/docs/ai/claude-code-plugin">
+					<strong>{'Claude Code plugin'}</strong>
+					<div>Use the Remotion plugin in Claude Code</div>
+				</TOCItem>
 				<TOCItem link="/docs/ai/codex-plugin">
 					<strong>{'Codex plugin'}</strong>
 					<div>Use the Remotion plugin in the ChatGPT Codex app</div>

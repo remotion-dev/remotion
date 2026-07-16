@@ -1421,6 +1421,7 @@ const sidebars: SidebarsConfig = {
 			},
 			items: [
 				'ai/coding-agents',
+				'ai/claude-code-plugin',
 				'ai/codex-plugin',
 				'ai/bolt',
 				'ai/chatbot',
