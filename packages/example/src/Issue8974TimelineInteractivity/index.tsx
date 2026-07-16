@@ -1,5 +1,7 @@
 import {Video} from '@remotion/media';
-import {TransitionSeries} from '@remotion/transitions';
+import {linearTiming, TransitionSeries} from '@remotion/transitions';
+import {fade} from '@remotion/transitions/fade';
+import {slide} from '@remotion/transitions/slide';
 import React from 'react';
 import {Series} from 'remotion';
 
@@ -14,6 +16,10 @@ export const Issue8974TransitionSeriesTimeline: React.FC = () => {
 					durationInFrames={39}
 				/>
 			</TransitionSeries.Sequence>
+			<TransitionSeries.Transition
+				presentation={fade()}
+				timing={linearTiming({durationInFrames: 15})}
+			/>
 			<TransitionSeries.Sequence name="Linked clip 02" durationInFrames={84}>
 				<Video
 					name="Linked video 02"
@@ -28,6 +34,10 @@ export const Issue8974TransitionSeriesTimeline: React.FC = () => {
 					trimBefore={60}
 				/>
 			</TransitionSeries.Sequence>
+			<TransitionSeries.Transition
+				presentation={slide({direction: 'from-right'})}
+				timing={linearTiming({durationInFrames: 22})}
+			/>
 			<TransitionSeries.Sequence name="Linked clip 04" durationInFrames={36}>
 				<Video
 					name="Linked video 04"
