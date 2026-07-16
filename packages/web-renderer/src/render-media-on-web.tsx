@@ -388,6 +388,17 @@ const internalRenderMediaOnWeb = async <
 		fps: resolved.fps,
 		logLevel,
 	});
+	const waitForRenderReady = async () => {
+		await waitForReady({
+			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds,
+			scope: delayRenderScope,
+			signal,
+			apiName: 'renderMediaOnWeb',
+			internalState,
+			keepalive,
+		});
+		checkForError(errorHolder);
+	};
 
 	const artifactsHandler = handleArtifacts();
 
@@ -415,15 +426,7 @@ const internalRenderMediaOnWeb = async <
 			throw new Error('renderMediaOnWeb() was cancelled');
 		}
 
-		await waitForReady({
-			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds,
-			scope: delayRenderScope,
-			signal,
-			apiName: 'renderMediaOnWeb',
-			internalState,
-			keepalive,
-		});
-		checkForError(errorHolder);
+		await waitForRenderReady();
 
 		if (signal?.aborted) {
 			throw new Error('renderMediaOnWeb() was cancelled');
@@ -516,15 +519,7 @@ const internalRenderMediaOnWeb = async <
 
 			timeUpdater.current?.update(frame);
 
-			await waitForReady({
-				timeoutInMilliseconds: delayRenderTimeoutInMilliseconds,
-				scope: delayRenderScope,
-				signal,
-				apiName: 'renderMediaOnWeb',
-				keepalive,
-				internalState,
-			});
-			checkForError(errorHolder);
+			await waitForRenderReady();
 
 			if (signal?.aborted) {
 				throw new Error('renderMediaOnWeb() was cancelled');
@@ -551,6 +546,7 @@ const internalRenderMediaOnWeb = async <
 						? onHtmlInCanvasLayerOutcome
 						: undefined,
 					waitForPageResponsiveness,
+					waitForRenderReady,
 				});
 				internalState.addCreateFrameTime(performance.now() - createFrameStart);
 				layerCanvas = layer.canvas;

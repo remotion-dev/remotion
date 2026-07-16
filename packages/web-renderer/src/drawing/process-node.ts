@@ -133,6 +133,7 @@ export const processNode = async ({
 			scale,
 			onlyBackgroundClipText: false,
 			waitForPageResponsiveness,
+			waitForRenderReady: () => Promise.resolve(),
 		});
 		if (waitForPageResponsiveness !== null) {
 			await waitForPageResponsiveness();

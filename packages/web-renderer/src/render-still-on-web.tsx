@@ -172,12 +172,7 @@ async function internalRenderStillOnWeb<
 	}
 
 	const artifactsHandler = handleArtifacts();
-
-	try {
-		if (signal?.aborted) {
-			throw new Error('renderStillOnWeb() was cancelled');
-		}
-
+	const waitForRenderReady = async () => {
 		await waitForReady({
 			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds,
 			scope: delayRenderScope,
@@ -187,6 +182,14 @@ async function internalRenderStillOnWeb<
 			keepalive: null,
 		});
 		checkForError(errorHolder);
+	};
+
+	try {
+		if (signal?.aborted) {
+			throw new Error('renderStillOnWeb() was cancelled');
+		}
+
+		await waitForRenderReady();
 
 		if (signal?.aborted) {
 			throw new Error('renderStillOnWeb() was cancelled');
@@ -204,6 +207,7 @@ async function internalRenderStillOnWeb<
 				? onHtmlInCanvasLayerOutcome
 				: undefined,
 			waitForPageResponsiveness: null,
+			waitForRenderReady,
 		});
 
 		const {canvas} = capturedFrame;

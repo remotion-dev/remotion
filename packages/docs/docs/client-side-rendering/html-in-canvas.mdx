@@ -106,6 +106,8 @@ HTML-in-canvas depends on Chromium flag `chrome://flags/#canvas-draw-element`, w
 
 Use a recent Chrome or Chromium version with the flag enabled for full support. Very old Chromium builds may expose [`drawElementImage`](https://github.com/WICG/html-in-canvas#2-drawelementimage-and-webglwebgpu-equivalents) but omit `canvas.requestPaint()`. Without `requestPaint()`, the renderer cannot synchronize paint operations, which can lead to repeated or incorrect frames.
 
+Capturing a composition that contains an [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) component through this path requires Chrome or Chromium `152.0.7944.0` or later. The renderer capture canvas and the component form a nested HTML-in-canvas tree. On older versions, Remotion falls back to the built-in DOM composer.
+
 ## See also
 
 - [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas)

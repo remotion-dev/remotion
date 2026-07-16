@@ -371,6 +371,87 @@ test('<HtmlInCanvas> does not apply pixel density to the live DOM transform', as
 		);
 	});
 });
+
+test('<HtmlInCanvas> propagates paints through nested layers', async () => {
+	let deepestPaintCalled = false;
+	let innerPaintCalled = false;
+	let outerPaintCalled = false;
+
+	const {container} = render(
+		<SequenceTestWrapper onRegisterSequence={() => undefined}>
+			<HtmlInCanvas
+				width={100}
+				height={100}
+				onPaint={() => {
+					outerPaintCalled = true;
+				}}
+			>
+				<HtmlInCanvas
+					width={50}
+					height={50}
+					onPaint={() => {
+						innerPaintCalled = true;
+					}}
+				>
+					<div>Nested</div>
+					<HtmlInCanvas
+						width={25}
+						height={25}
+						onPaint={() => {
+							deepestPaintCalled = true;
+						}}
+					>
+						<div>Deepest</div>
+					</HtmlInCanvas>
+				</HtmlInCanvas>
+			</HtmlInCanvas>
+		</SequenceTestWrapper>,
+	);
+
+	await waitFor(() => {
+		expect(container.querySelectorAll('canvas')).toHaveLength(3);
+	});
+
+	const [outerCanvas, innerCanvas, deepestCanvas] =
+		container.querySelectorAll('canvas');
+	expect(outerCanvas.contains(innerCanvas)).toBe(true);
+	expect(innerCanvas.contains(deepestCanvas)).toBe(true);
+
+	let innerPaintRequested = false;
+	let outerPaintRequested = false;
+	Object.defineProperty(innerCanvas, 'requestPaint', {
+		configurable: true,
+		value: () => {
+			innerPaintRequested = true;
+		},
+	});
+	Object.defineProperty(outerCanvas, 'requestPaint', {
+		configurable: true,
+		value: () => {
+			outerPaintRequested = true;
+		},
+	});
+
+	// Chromium 152+ dispatches nested paint events from deepest to shallowest.
+	// Remotion requests another parent paint after each async layer completes.
+	deepestCanvas.dispatchEvent(new Event('paint'));
+	await waitFor(() => {
+		expect(deepestPaintCalled).toBe(true);
+		expect(innerPaintRequested).toBe(true);
+	});
+
+	innerCanvas.dispatchEvent(new Event('paint'));
+	await waitFor(() => {
+		expect(innerPaintCalled).toBe(true);
+		expect(outerPaintRequested).toBe(true);
+	});
+
+	outerCanvas.dispatchEvent(new Event('paint'));
+	await waitFor(() => {
+		expect(outerPaintCalled).toBe(true);
+	});
+});
+
 test('<HtmlInCanvas> lets onInit choose a WebGL2 context', async () => {
 	let gotWebGl2Context = false;
 	let paintCalled = false;

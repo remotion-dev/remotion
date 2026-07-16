@@ -326,7 +326,13 @@ export type HtmlInCanvasProps = Omit<InteractiveBaseProps, 'children'> &
 	};
 /* eslint-enable react/require-default-props */
 
-const HtmlInCanvasAncestorContext = createContext(false);
+type HtmlInCanvasAncestor = {
+	readonly requestParentPaint: () => void;
+};
+
+const HtmlInCanvasAncestorContext = createContext<HtmlInCanvasAncestor | null>(
+	null,
+);
 
 type HtmlInCanvasContentProps = {
 	readonly width: number;
@@ -358,10 +364,7 @@ const HtmlInCanvasContent = forwardRef<
 		},
 		ref,
 	) => {
-		const isInsideAncestorHtmlInCanvas = useContext(
-			HtmlInCanvasAncestorContext,
-		);
-
+		const ancestor = useContext(HtmlInCanvasAncestorContext);
 		assertHtmlInCanvasDimensions(width, height);
 		const resolvedPixelDensity = resolveHtmlInCanvasPixelDensity(pixelDensity);
 		const canvasWidth = Math.ceil(width * resolvedPixelDensity);
@@ -407,6 +410,8 @@ const HtmlInCanvasContent = forwardRef<
 		const initializedRef = useRef(false);
 		const onInitCleanupRef = useRef<HtmlInCanvasOnInitCleanup | null>(null);
 		const unmountedRef = useRef(false);
+		const ancestorRef = useRef(ancestor);
+		ancestorRef.current = ancestor;
 
 		const onPaintCb = useCallback(async () => {
 			const element = divRef.current;
@@ -518,6 +523,11 @@ const HtmlInCanvasContent = forwardRef<
 					height: canvasHeight,
 				});
 
+				// Effects may complete after Chromium has dispatched the parent's
+				// paint event. Repaint the direct parent so deeply nested canvases
+				// propagate their final pixels through every ancestor.
+				ancestorRef.current?.requestParentPaint();
+
 				continueRender(handle);
 			} catch (error) {
 				cancelRender(error);
@@ -615,14 +625,16 @@ const HtmlInCanvasContent = forwardRef<
 			};
 		}, [height, style, width]);
 
-		if (isInsideAncestorHtmlInCanvas) {
-			throw new Error(
-				'<HtmlInCanvas> effects cannot be nested together. Chrome will only display the outer effect. Consider merging the effects into one if you can.',
-			);
-		}
+		const ancestorValue = useMemo<HtmlInCanvasAncestor>(() => {
+			return {
+				requestParentPaint: () => {
+					canvas2dRef.current?.requestPaint?.();
+				},
+			};
+		}, []);
 
 		return (
-			<HtmlInCanvasAncestorContext.Provider value>
+			<HtmlInCanvasAncestorContext.Provider value={ancestorValue}>
 				<canvas
 					key={canvasSizeKey}
 					ref={setLayoutCanvasRef}
