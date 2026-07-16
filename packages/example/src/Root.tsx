@@ -237,8 +237,8 @@ import {
 	calculateProResMediaVideoMetadata,
 } from './ProResMediaVideo';
 import {
-	RoughNotationBracket,
 	RoughNotationBox,
+	RoughNotationBracket,
 	RoughNotationCircle,
 	RoughNotationCrossedOff,
 	RoughNotationHighlight,
@@ -1479,7 +1479,6 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={2 * 60 * 60 * 30}
 				/>
-
 				<Composition
 					id="video-speed"
 					component={VideoSpeed}
@@ -2210,7 +2209,6 @@ export const Index: React.FC = () => {
 					durationInFrames={150}
 					schema={schemaTestSchema}
 				/>
-
 				<Composition
 					id="zod-v4-schema-test"
 					component={ZodV4SchemaTest}
@@ -2228,7 +2226,6 @@ export const Index: React.FC = () => {
 						nested: {a: 'asdfadsf', b: 99},
 					}}
 				/>
-
 				<Composition
 					id="discriminated-union-root"
 					component={DiscriminatedUnionSchemaTest}
@@ -2672,9 +2669,9 @@ export const Index: React.FC = () => {
 					durationInFrames={165}
 				/>
 			</Folder>
-			<Folder name="Issue8974">
+			<Folder name="video-editing">
 				<Composition
-					id="issue-8974-transition-series-timeline"
+					id="video-editing-cascading"
 					component={Issue8974TransitionSeriesTimeline}
 					width={1920}
 					height={1080}
@@ -2682,7 +2679,7 @@ export const Index: React.FC = () => {
 					durationInFrames={210}
 				/>
 				<Composition
-					id="issue-8974-independent-videos-timeline"
+					id="video-editing-independent"
 					component={Issue8974IndependentVideosTimeline}
 					width={1920}
 					height={1080}
