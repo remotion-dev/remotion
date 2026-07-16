@@ -65,6 +65,8 @@ const stub2dContext = () => {
 	};
 };
 
+let transferControlToOffscreenCalls = 0;
+
 Object.defineProperties(HTMLCanvasElement.prototype, {
 	getContext: {
 		configurable: true,
@@ -93,6 +95,7 @@ Object.defineProperties(HTMLCanvasElement.prototype, {
 	transferControlToOffscreen: {
 		configurable: true,
 		value(this: HTMLCanvasElement) {
+			transferControlToOffscreenCalls++;
 			let contextMode: string | null = null;
 			const webgl2Context = {
 				drawingBufferHeight: this.height,
@@ -150,6 +153,7 @@ const resetDelayRenderState = () => {
 afterEach(() => {
 	cleanup();
 	resetDelayRenderState();
+	transferControlToOffscreenCalls = 0;
 });
 
 const SequenceTestWrapper: React.FC<{
@@ -344,6 +348,7 @@ test('<HtmlInCanvas> can use a higher backing density', async () => {
 	expect(paintParams.canvas.width).toBe(100);
 	expect(paintParams.canvas.height).toBe(100);
 	expect(paintParams.pixelDensity).toBe(2);
+	expect(transferControlToOffscreenCalls).toBe(1);
 });
 
 test('<HtmlInCanvas> does not apply pixel density to the live DOM transform', async () => {
@@ -449,6 +454,38 @@ test('<HtmlInCanvas> propagates paints through nested layers', async () => {
 	outerCanvas.dispatchEvent(new Event('paint'));
 	await waitFor(() => {
 		expect(outerPaintCalled).toBe(true);
+	});
+});
+
+test('<HtmlInCanvas> paints default nested layers directly on their layout canvases', async () => {
+	const {container} = render(
+		<SequenceTestWrapper onRegisterSequence={() => undefined}>
+			<HtmlInCanvas width={100} height={100}>
+				<HtmlInCanvas width={50} height={50}>
+					<HtmlInCanvas width={25} height={25}>
+						<div>Deepest</div>
+					</HtmlInCanvas>
+				</HtmlInCanvas>
+			</HtmlInCanvas>
+		</SequenceTestWrapper>,
+	);
+
+	await waitFor(() => {
+		expect(container.querySelectorAll('canvas')).toHaveLength(3);
+	});
+
+	expect(transferControlToOffscreenCalls).toBe(0);
+
+	const [outerCanvas, innerCanvas, deepestCanvas] =
+		container.querySelectorAll('canvas');
+	deepestCanvas.dispatchEvent(new Event('paint'));
+	innerCanvas.dispatchEvent(new Event('paint'));
+	outerCanvas.dispatchEvent(new Event('paint'));
+
+	await waitFor(() => {
+		expect(deepestCanvas.querySelector('div')?.style.transform).toBe(
+			new DOMMatrix().toString(),
+		);
 	});
 });
 

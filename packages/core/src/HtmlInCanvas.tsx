@@ -272,28 +272,32 @@ const isMissingPaintRecordError = (error: unknown): boolean => {
 const missingPaintRecordMessage =
 	'HtmlInCanvas: Expected the element to be inside the viewport during rendering, but Chrome had no cached paint record for it.';
 
-const resizeOffscreenCanvas = ({
-	offscreen,
+type HtmlInCanvasPaintTarget = HTMLCanvasElement | OffscreenCanvas;
+
+const resizePaintTarget = ({
+	target,
 	width,
 	height,
 }: {
-	offscreen: OffscreenCanvas;
+	target: HtmlInCanvasPaintTarget;
 	width: number;
 	height: number;
 }) => {
-	if (offscreen.width !== width) {
-		offscreen.width = width;
+	if (target.width !== width) {
+		target.width = width;
 	}
 
-	if (offscreen.height !== height) {
-		offscreen.height = height;
+	if (target.height !== height) {
+		target.height = height;
 	}
 };
 
-const defaultOnPaint: HtmlInCanvasOnPaint = ({
+const defaultOnPaint = ({
 	canvas,
 	element,
 	elementImage,
+}: Omit<HtmlInCanvasOnPaintParams, 'canvas'> & {
+	readonly canvas: HtmlInCanvasPaintTarget;
 }) => {
 	const ctx = canvas.getContext('2d');
 	if (!ctx) {
@@ -371,15 +375,17 @@ const HtmlInCanvasContent = forwardRef<
 		const canvasHeight = Math.ceil(height * resolvedPixelDensity);
 		const {continueRender, cancelRender} = useDelayRender();
 		const {isRendering} = useRemotionEnvironment();
+		const usesDirectLayoutCanvas =
+			onPaint === undefined && onInit === undefined;
 
 		if (!isHtmlInCanvasSupported()) {
 			cancelRender(new Error(HTML_IN_CANVAS_UNSUPPORTED_MESSAGE));
 		}
 
 		const canvas2dRef = useRef<HTMLCanvasElement | null>(null);
-		const offscreenRef = useRef<OffscreenCanvas | null>(null);
+		const paintTargetRef = useRef<HtmlInCanvasPaintTarget | null>(null);
 		const divRef = useRef<HTMLDivElement | null>(null);
-		const canvasSizeKey = `${width}x${height}@${resolvedPixelDensity}`;
+		const canvasSizeKey = `${width}x${height}@${resolvedPixelDensity}-${usesDirectLayoutCanvas ? 'direct' : 'offscreen'}`;
 
 		const setLayoutCanvasRef = useCallback(
 			(node: HTMLCanvasElement | null) => {
@@ -420,15 +426,15 @@ const HtmlInCanvasContent = forwardRef<
 				throw new Error('Canvas or scene element not found');
 			}
 
-			const offscreen = offscreenRef.current;
-			if (!offscreen) {
+			const paintTarget = paintTargetRef.current;
+			if (!paintTarget) {
 				throw new Error(
-					'HtmlInCanvas: offscreen canvas not ready (transferControlToOffscreen failed or canvas is remounting)',
+					'HtmlInCanvas: paint target is not ready because the canvas is remounting',
 				);
 			}
 
-			resizeOffscreenCanvas({
-				offscreen,
+			resizePaintTarget({
+				target: paintTarget,
 				width: canvasWidth,
 				height: canvasHeight,
 			});
@@ -465,8 +471,14 @@ const HtmlInCanvasContent = forwardRef<
 						initializedRef.current = true;
 						const currentOnInit = onInitRef.current;
 						if (currentOnInit) {
+							if (paintTarget instanceof HTMLCanvasElement) {
+								throw new Error(
+									'HtmlInCanvas: onInit requires an OffscreenCanvas paint target',
+								);
+							}
+
 							const cleanup = await currentOnInit({
-								canvas: offscreen,
+								canvas: paintTarget,
 								element,
 								elementImage: initImage,
 								pixelDensity: resolvedPixelDensity,
@@ -485,8 +497,6 @@ const HtmlInCanvasContent = forwardRef<
 						}
 					}
 				}
-
-				const handler = onPaintRef.current ?? defaultOnPaint;
 
 				let elImage: ElementImage;
 				try {
@@ -507,18 +517,37 @@ const HtmlInCanvasContent = forwardRef<
 					throw error;
 				}
 
-				await handler({
-					canvas: offscreen,
-					element,
-					elementImage: elImage,
-					pixelDensity: resolvedPixelDensity,
-				});
+				const currentOnPaint = onPaintRef.current;
+				if (currentOnPaint) {
+					if (paintTarget instanceof HTMLCanvasElement) {
+						throw new Error(
+							'HtmlInCanvas: onPaint requires an OffscreenCanvas paint target',
+						);
+					}
+
+					const paintResult = currentOnPaint({
+						canvas: paintTarget,
+						element,
+						elementImage: elImage,
+						pixelDensity: resolvedPixelDensity,
+					});
+					if (paintResult) {
+						await paintResult;
+					}
+				} else {
+					defaultOnPaint({
+						canvas: paintTarget,
+						element,
+						elementImage: elImage,
+						pixelDensity: resolvedPixelDensity,
+					});
+				}
 
 				await runEffectChain({
 					state: chainState.get(canvasWidth, canvasHeight)!,
-					source: offscreen,
+					source: paintTarget,
 					effects: effectsRef.current,
-					output: offscreen,
+					output: paintTarget,
 					width: canvasWidth,
 					height: canvasHeight,
 				});
@@ -542,8 +571,9 @@ const HtmlInCanvasContent = forwardRef<
 			isRendering,
 		]);
 
-		// Transfer control once per layout canvas instance, then listen for paint on
-		// the placeholder (capture) while drawing on the linked offscreen surface.
+		// Default paint handlers draw synchronously on the layout canvas itself so
+		// Chromium can include their final pixels during its deepest-first nested
+		// paint traversal. Custom handlers retain the transferred OffscreenCanvas API.
 		useLayoutEffect(() => {
 			const placeholder = canvas2dRef.current;
 			if (!placeholder) {
@@ -552,10 +582,13 @@ const HtmlInCanvasContent = forwardRef<
 
 			placeholder.layoutSubtree = true;
 
-			const offscreen = placeholder.transferControlToOffscreen();
-			offscreenRef.current = offscreen;
-			resizeOffscreenCanvas({
-				offscreen,
+			const paintTarget = usesDirectLayoutCanvas
+				? placeholder
+				: placeholder.transferControlToOffscreen();
+
+			paintTargetRef.current = paintTarget;
+			resizePaintTarget({
+				target: paintTarget,
 				width: canvasWidth,
 				height: canvasHeight,
 			});
@@ -567,13 +600,19 @@ const HtmlInCanvasContent = forwardRef<
 
 			return () => {
 				placeholder.removeEventListener('paint', onPaintCb);
-				offscreenRef.current = null;
+				paintTargetRef.current = null;
 				initializedRef.current = false;
 				unmountedRef.current = true;
 				onInitCleanupRef.current?.();
 				onInitCleanupRef.current = null;
 			};
-		}, [onPaintCb, cancelRender, canvasWidth, canvasHeight]);
+		}, [
+			onPaintCb,
+			cancelRender,
+			canvasWidth,
+			canvasHeight,
+			usesDirectLayoutCanvas,
+		]);
 
 		const onPaintChangedRef = useRef(false);
 		useLayoutEffect(() => {
