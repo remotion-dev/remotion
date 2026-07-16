@@ -1,9 +1,11 @@
 import {fisheye} from '@remotion/effects/fisheye';
 import {halftone} from '@remotion/effects/halftone';
 import {wave} from '@remotion/effects/wave';
-import {AbsoluteFill, HtmlInCanvas} from 'remotion';
+import {AbsoluteFill, HtmlInCanvas, useCurrentFrame} from 'remotion';
 
 const Component: React.FC = () => {
+	const frame = useCurrentFrame();
+
 	return (
 		<HtmlInCanvas
 			width={320}
@@ -32,7 +34,7 @@ const Component: React.FC = () => {
 					effects={[
 						wave({
 							amplitude: 10,
-							phase: 0,
+							phase: frame * 0.08,
 							wavelength: 60,
 						}),
 					]}
@@ -71,5 +73,5 @@ export const nestedHtmlInCanvas = {
 	width: 320,
 	height: 180,
 	fps: 30,
-	durationInFrames: 1,
+	durationInFrames: 5,
 } as const;

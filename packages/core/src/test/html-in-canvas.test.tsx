@@ -160,7 +160,13 @@ const SequenceTestWrapper: React.FC<{
 	readonly children: React.ReactNode;
 	readonly onRegisterSequence: (sequence: TSequence) => void;
 	readonly isRendering?: boolean;
-}> = ({children, onRegisterSequence, isRendering = false}) => {
+	readonly isClientSideRendering?: boolean;
+}> = ({
+	children,
+	onRegisterSequence,
+	isRendering = false,
+	isClientSideRendering = false,
+}) => {
 	const registerSequence = useCallback(
 		(sequence: TSequence) => {
 			onRegisterSequence(sequence);
@@ -212,7 +218,7 @@ const SequenceTestWrapper: React.FC<{
 		<WrapSequenceContext>
 			<Internals.RemotionEnvironmentContext
 				value={{
-					isClientSideRendering: false,
+					isClientSideRendering,
 					isPlayer: false,
 					isReadOnlyStudio: false,
 					isRendering,
@@ -646,5 +652,84 @@ test('<HtmlInCanvas> asserts during rendering when element is outside viewport',
 
 		w.remotion_cancelledError = undefined;
 		window.removeEventListener('error', onExpectedError);
+	}
+});
+
+test('<HtmlInCanvas> retries a missing paint record during client-side rendering', async () => {
+	const originalDescriptor = Object.getOwnPropertyDescriptor(
+		HTMLCanvasElement.prototype,
+		'captureElementImage',
+	);
+
+	const w = window as unknown as {remotion_cancelledError?: string};
+	w.remotion_cancelledError = undefined;
+
+	let captureCalls = 0;
+	Object.defineProperty(HTMLCanvasElement.prototype, 'captureElementImage', {
+		configurable: true,
+		value: () => {
+			captureCalls++;
+			if (captureCalls === 1) {
+				throw new DOMException(
+					'No cached paint record for element',
+					'InvalidStateError',
+				);
+			}
+
+			return {
+				close: () => undefined,
+				height: 1,
+				width: 1,
+			};
+		},
+	});
+
+	let paintCalled = false;
+
+	try {
+		const {container} = render(
+			<SequenceTestWrapper
+				isClientSideRendering
+				isRendering
+				onRegisterSequence={() => undefined}
+			>
+				<HtmlInCanvas
+					width={50}
+					height={50}
+					onPaint={() => {
+						paintCalled = true;
+					}}
+				>
+					<div>Test</div>
+				</HtmlInCanvas>
+			</SequenceTestWrapper>,
+		);
+
+		await waitFor(() => {
+			expect(container.querySelector('canvas')).not.toBeNull();
+		});
+
+		const canvas = container.querySelector('canvas')!;
+		canvas.dispatchEvent(new Event('paint'));
+
+		expect(paintCalled).toBe(false);
+		expect(w.remotion_cancelledError).toBeUndefined();
+
+		canvas.dispatchEvent(new Event('paint'));
+		await waitFor(() => {
+			expect(paintCalled).toBe(true);
+		});
+		expect(captureCalls).toBe(2);
+		expect(w.remotion_cancelledError).toBeUndefined();
+	} finally {
+		if (originalDescriptor) {
+			Object.defineProperty(
+				HTMLCanvasElement.prototype,
+				'captureElementImage',
+				originalDescriptor,
+			);
+		}
+
+		w.remotion_cancelledError = undefined;
 	}
 });

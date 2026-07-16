@@ -4,6 +4,7 @@ import {
 	supportsNativeHtmlInCanvas,
 	supportsNestedHtmlInCanvas,
 } from '../html-in-canvas';
+import {renderMediaOnWeb} from '../render-media-on-web';
 import {renderStillOnWeb} from '../render-still-on-web';
 import '../symbol-dispose';
 import {nestedHtmlInCanvas} from './fixtures/nested-html-in-canvas';
@@ -21,7 +22,6 @@ test('captures three nested HTML-in-canvas effect layers natively', async () => 
 
 	try {
 		const nested = await renderStillOnWeb({
-			allowHtmlInCanvas: true,
 			composition: nestedHtmlInCanvas,
 			frame: 0,
 			inputProps: {},
@@ -45,7 +45,75 @@ test('captures three nested HTML-in-canvas effect layers natively', async () => 
 	}
 });
 
-test('falls back when native HTML-in-canvas does not support nesting', async () => {
+test('captures three nested HTML-in-canvas effect layers across video frames', async () => {
+	const supportsNesting = await supportsNestedHtmlInCanvas();
+	if (!supportsNesting) {
+		return;
+	}
+
+	await renderMediaOnWeb({
+		composition: nestedHtmlInCanvas,
+		inputProps: {},
+		licenseKey: 'free-license',
+		muted: true,
+	});
+});
+
+test('retries a transient missing nested paint record during a client-side render', async () => {
+	const supportsNesting = await supportsNestedHtmlInCanvas();
+	if (!supportsNesting) {
+		return;
+	}
+
+	const descriptor = Object.getOwnPropertyDescriptor(
+		HTMLCanvasElement.prototype,
+		'captureElementImage',
+	);
+	if (!descriptor || typeof descriptor.value !== 'function') {
+		throw new Error('Expected captureElementImage() to be available');
+	}
+
+	const originalCapture = descriptor.value as (
+		this: HTMLCanvasElement,
+		element: Element,
+	) => ElementImage;
+	let simulatedMissingRecord = false;
+
+	Object.defineProperty(HTMLCanvasElement.prototype, 'captureElementImage', {
+		...descriptor,
+		value(this: HTMLCanvasElement, element: Element) {
+			const ancestorCanvas = this.parentElement?.closest('canvas');
+			if (!simulatedMissingRecord && ancestorCanvas) {
+				simulatedMissingRecord = true;
+				throw new DOMException(
+					'No cached paint record for element',
+					'InvalidStateError',
+				);
+			}
+
+			return originalCapture.call(this, element);
+		},
+	});
+
+	try {
+		await renderMediaOnWeb({
+			composition: nestedHtmlInCanvas,
+			inputProps: {},
+			licenseKey: 'free-license',
+			muted: true,
+		});
+	} finally {
+		Object.defineProperty(
+			HTMLCanvasElement.prototype,
+			'captureElementImage',
+			descriptor,
+		);
+	}
+
+	expect(simulatedMissingRecord).toBe(true);
+});
+
+test('uses the DOM composer when native HTML-in-canvas does not support nesting', async () => {
 	if (!supportsNativeHtmlInCanvas() || (await supportsNestedHtmlInCanvas())) {
 		return;
 	}
@@ -56,7 +124,6 @@ test('falls back when native HTML-in-canvas does not support nesting', async () 
 
 	try {
 		await renderStillOnWeb({
-			allowHtmlInCanvas: true,
 			composition: nestedHtmlInCanvas,
 			frame: 0,
 			inputProps: {},
@@ -68,12 +135,10 @@ test('falls back when native HTML-in-canvas does not support nesting', async () 
 				call.some(
 					(value) =>
 						typeof value === 'string' &&
-						value.includes(
-							'Nested HTML-in-canvas capture requires Chromium 152.0.7944.0 or later',
-						),
+						value.includes('Using Chromium experimental HTML-in-canvas'),
 				),
 			),
-		).toBe(true);
+		).toBe(false);
 	} finally {
 		warn.mockRestore();
 	}

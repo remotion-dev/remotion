@@ -12,7 +12,7 @@ import {canUseWebFsWriter} from './can-use-webfs-target';
 import {createAudioSampleSource} from './create-audio-sample-source';
 import {checkForError, createScaffold} from './create-scaffold';
 import {getRealFrameRange, type FrameRange} from './frame-range';
-import {supportsNativeHtmlInCanvas} from './html-in-canvas';
+import {supportsNestedHtmlInCanvas} from './html-in-canvas';
 import type {InternalState} from './internal-state';
 import {makeInternalState} from './internal-state';
 import {
@@ -137,7 +137,6 @@ type OptionalRenderMediaOnWebOptions<Schema extends $ZodObject> = {
 	isProduction: boolean;
 	muted: boolean;
 	scale: number;
-	allowHtmlInCanvas: boolean;
 	sampleRate: number;
 };
 
@@ -187,7 +186,6 @@ const internalRenderMediaOnWeb = async <
 	muted,
 	scale,
 	isProduction,
-	allowHtmlInCanvas,
 	sampleRate,
 }: InternalRenderMediaOnWebOptions<
 	Schema,
@@ -313,6 +311,8 @@ const internalRenderMediaOnWeb = async <
 		return Promise.reject(new Error('renderMediaOnWeb() was cancelled'));
 	}
 
+	const useHtmlInCanvas = await supportsNestedHtmlInCanvas();
+
 	using scaffold = createScaffold({
 		width: resolved.width,
 		height: resolved.height,
@@ -330,7 +330,7 @@ const internalRenderMediaOnWeb = async <
 		initialFrame: 0,
 		defaultCodec: resolved.defaultCodec,
 		defaultOutName: resolved.defaultOutName,
-		allowHtmlInCanvas,
+		useHtmlInCanvas,
 		pixelDensity: scale,
 	});
 
@@ -342,30 +342,6 @@ const internalRenderMediaOnWeb = async <
 		errorHolder,
 		htmlInCanvasContext,
 	} = scaffold;
-
-	if (allowHtmlInCanvas && !htmlInCanvasContext) {
-		if (!supportsNativeHtmlInCanvas()) {
-			onHtmlInCanvasLayerOutcome({
-				native: false,
-				reason:
-					'This browser does not expose CanvasRenderingContext2D.prototype.drawElementImage. In Chromium, enable chrome://flags/#canvas-draw-element and use a version that ships the API.',
-				shouldWarn: false,
-			});
-		} else {
-			onHtmlInCanvasLayerOutcome({
-				native: false,
-				reason:
-					'drawElementImage is available but canvas.requestPaint() is missing. Use a Chromium version that ships requestPaint.',
-				shouldWarn: true,
-			});
-		}
-	} else if (!allowHtmlInCanvas) {
-		onHtmlInCanvasLayerOutcome({
-			native: false,
-			reason: 'allowHtmlInCanvas is false; using the built-in DOM composer.',
-			shouldWarn: false,
-		});
-	}
 
 	using internalState = makeInternalState();
 	const pageResponsivenessController = createPageResponsivenessController({
@@ -770,7 +746,6 @@ export const renderMediaOnWeb = <
 				muted: options.muted ?? false,
 				scale: options.scale ?? 1,
 				isProduction: options.isProduction ?? true,
-				allowHtmlInCanvas: options.allowHtmlInCanvas ?? false,
 				sampleRate: options.sampleRate ?? 48000,
 			}),
 		);

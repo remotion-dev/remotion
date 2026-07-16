@@ -50,7 +50,6 @@ import {getWebpackPolling} from './webpack-poll';
 export type {Concurrency, WebpackConfiguration, WebpackOverrideFn};
 
 const {
-	allowHtmlInCanvasOption,
 	benchmarkConcurrenciesOption,
 	concurrencyOption,
 	offthreadVideoCacheSizeInBytesOption,
@@ -195,11 +194,6 @@ declare global {
 		readonly setExperimentalClientSideRenderingEnabled: (
 			enabled: boolean,
 		) => void;
-		/**
-		 * Allow the experimental HTML-in-canvas capture path in Studio client-side renders.
-		 * @default false
-		 */
-		readonly setAllowHtmlInCanvasEnabled: (enabled: boolean) => void;
 		/**
 		 * Enable experimental Rspack bundler instead of Webpack.
 		 * @param enabled Boolean whether to enable the Rspack bundler
@@ -714,7 +708,6 @@ export const Config: FlatConfig = {
 	setInteractivityEnabled: interactivityOption.setConfig,
 	setExperimentalClientSideRenderingEnabled:
 		experimentalClientSideRenderingOption.setConfig,
-	setAllowHtmlInCanvasEnabled: allowHtmlInCanvasOption.setConfig,
 	setExperimentalRspackEnabled: rspackOption.setConfig,
 	setNumberOfSharedAudioTags: numberOfSharedAudioTagsOption.setConfig,
 	setWebpackPollingInMilliseconds: webpackPollOption.setConfig,

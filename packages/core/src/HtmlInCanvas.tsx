@@ -374,7 +374,8 @@ const HtmlInCanvasContent = forwardRef<
 		const canvasWidth = Math.ceil(width * resolvedPixelDensity);
 		const canvasHeight = Math.ceil(height * resolvedPixelDensity);
 		const {continueRender, cancelRender} = useDelayRender();
-		const {isRendering} = useRemotionEnvironment();
+		const {isClientSideRendering, isRendering} = useRemotionEnvironment();
+		const canRetryMissingPaintRecord = !isRendering || isClientSideRendering;
 		const usesDirectLayoutCanvas =
 			onPaint === undefined && onInit === undefined;
 
@@ -447,30 +448,36 @@ const HtmlInCanvasContent = forwardRef<
 
 				const handle = delayRender('onPaint');
 				if (!initializedRef.current) {
-					// `onInit` may be async (e.g. WebGPU `requestAdapter`/`requestDevice`).
-					// Capture an `ElementImage` here only for `onInit` consumers — do NOT
-					// reuse it for the paint handler below, because awaiting `onInit`
-					// can invalidate the capture's paint context, leaving subsequent
-					// uploads (e.g. `copyElementImageToTexture`) failing with
-					// "No context found for ElementImage" on the very first paint.
-					let initImage: ElementImage | null = null;
-					try {
-						initImage = placeholderCanvas.captureElementImage(element);
-					} catch (error) {
-						if (isMissingPaintRecordError(error) && !isRendering) {
-							// Element may be outside viewport (no cached paint record).
-							// Skip init — will retry on the next paint cycle.
-						} else if (isMissingPaintRecordError(error)) {
-							throw new Error(missingPaintRecordMessage);
-						} else {
+					const currentOnInit = onInitRef.current;
+					if (!currentOnInit) {
+						initializedRef.current = true;
+					} else {
+						// `onInit` may be async (e.g. WebGPU
+						// `requestAdapter`/`requestDevice`). Do not reuse this capture for
+						// `onPaint`: awaiting initialization can invalidate its paint context.
+						let initImage: ElementImage;
+						try {
+							initImage = placeholderCanvas.captureElementImage(element);
+						} catch (error) {
+							if (
+								isMissingPaintRecordError(error) &&
+								canRetryMissingPaintRecord
+							) {
+								// The web renderer explicitly drives additional paint cycles, so a
+								// transient missing record can be retried without failing the render.
+								continueRender(handle);
+								return;
+							}
+
+							if (isMissingPaintRecordError(error)) {
+								throw new Error(missingPaintRecordMessage);
+							}
+
 							throw error;
 						}
-					}
 
-					if (initImage) {
 						initializedRef.current = true;
-						const currentOnInit = onInitRef.current;
-						if (currentOnInit) {
+						try {
 							if (paintTarget instanceof HTMLCanvasElement) {
 								throw new Error(
 									'HtmlInCanvas: onInit requires an OffscreenCanvas paint target',
@@ -494,6 +501,8 @@ const HtmlInCanvasContent = forwardRef<
 							} else {
 								onInitCleanupRef.current = cleanup;
 							}
+						} finally {
+							initImage.close();
 						}
 					}
 				}
@@ -505,7 +514,7 @@ const HtmlInCanvasContent = forwardRef<
 					// `captureElementImage` throws `InvalidStateError` when the
 					// element is outside the viewport (no cached paint record).
 					// Skip this paint cycle — the canvas retains its last state.
-					if (isMissingPaintRecordError(error) && !isRendering) {
+					if (isMissingPaintRecordError(error) && canRetryMissingPaintRecord) {
 						continueRender(handle);
 						return;
 					}
@@ -517,40 +526,44 @@ const HtmlInCanvasContent = forwardRef<
 					throw error;
 				}
 
-				const currentOnPaint = onPaintRef.current;
-				if (currentOnPaint) {
-					if (paintTarget instanceof HTMLCanvasElement) {
-						throw new Error(
-							'HtmlInCanvas: onPaint requires an OffscreenCanvas paint target',
-						);
+				try {
+					const currentOnPaint = onPaintRef.current;
+					if (currentOnPaint) {
+						if (paintTarget instanceof HTMLCanvasElement) {
+							throw new Error(
+								'HtmlInCanvas: onPaint requires an OffscreenCanvas paint target',
+							);
+						}
+
+						const paintResult = currentOnPaint({
+							canvas: paintTarget,
+							element,
+							elementImage: elImage,
+							pixelDensity: resolvedPixelDensity,
+						});
+						if (paintResult) {
+							await paintResult;
+						}
+					} else {
+						defaultOnPaint({
+							canvas: paintTarget,
+							element,
+							elementImage: elImage,
+							pixelDensity: resolvedPixelDensity,
+						});
 					}
 
-					const paintResult = currentOnPaint({
-						canvas: paintTarget,
-						element,
-						elementImage: elImage,
-						pixelDensity: resolvedPixelDensity,
+					await runEffectChain({
+						state: chainState.get(canvasWidth, canvasHeight)!,
+						source: paintTarget,
+						effects: effectsRef.current,
+						output: paintTarget,
+						width: canvasWidth,
+						height: canvasHeight,
 					});
-					if (paintResult) {
-						await paintResult;
-					}
-				} else {
-					defaultOnPaint({
-						canvas: paintTarget,
-						element,
-						elementImage: elImage,
-						pixelDensity: resolvedPixelDensity,
-					});
+				} finally {
+					elImage.close();
 				}
-
-				await runEffectChain({
-					state: chainState.get(canvasWidth, canvasHeight)!,
-					source: paintTarget,
-					effects: effectsRef.current,
-					output: paintTarget,
-					width: canvasWidth,
-					height: canvasHeight,
-				});
 
 				// Effects may complete after Chromium has dispatched the parent's
 				// paint event. Repaint the direct parent so deeply nested canvases
@@ -568,7 +581,7 @@ const HtmlInCanvasContent = forwardRef<
 			continueRender,
 			cancelRender,
 			resolvedPixelDensity,
-			isRendering,
+			canRetryMissingPaintRecord,
 		]);
 
 		// Default paint handlers draw synchronously on the layout canvas itself so

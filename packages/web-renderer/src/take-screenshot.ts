@@ -5,7 +5,6 @@ import type {HtmlInCanvasContext} from './html-in-canvas';
 import {
 	containsLayoutSubtreeCanvas,
 	drawWithHtmlInCanvas,
-	supportsNestedHtmlInCanvas,
 } from './html-in-canvas';
 import type {InternalState} from './internal-state';
 
@@ -46,32 +45,18 @@ export const createLayer = async ({
 		onHtmlInCanvasLayerOutcome
 	) {
 		const hasNestedHtmlInCanvas = containsLayoutSubtreeCanvas(element);
-		const canCaptureNestedHtmlInCanvas = hasNestedHtmlInCanvas
-			? await supportsNestedHtmlInCanvas()
-			: true;
-
-		if (!canCaptureNestedHtmlInCanvas) {
-			onHtmlInCanvasLayerOutcome({
-				native: false,
-				reason:
-					'This composition contains an HTML-in-canvas canvas inside the renderer capture canvas. Nested HTML-in-canvas capture requires Chromium 152.0.7944.0 or later; using the built-in DOM composer.',
-				shouldWarn: true,
-			});
-		}
 
 		try {
-			if (canCaptureNestedHtmlInCanvas) {
-				const offCtx = await drawWithHtmlInCanvas({
-					htmlInCanvasContext,
-					element,
-					scaledWidth,
-					scaledHeight,
-					waitForRenderReady,
-					useElementImage: hasNestedHtmlInCanvas,
-				});
-				onHtmlInCanvasLayerOutcome({native: true});
-				return offCtx;
-			}
+			const offCtx = await drawWithHtmlInCanvas({
+				htmlInCanvasContext,
+				element,
+				scaledWidth,
+				scaledHeight,
+				waitForRenderReady,
+				useElementImage: hasNestedHtmlInCanvas,
+			});
+			onHtmlInCanvasLayerOutcome({native: true});
+			return offCtx;
 		} catch (err) {
 			const detail = err instanceof Error ? err.message : JSON.stringify(err);
 			onHtmlInCanvasLayerOutcome({
