@@ -96,6 +96,7 @@ export {
 	snapSelectedOutlineUv,
 } from './selected-outline-drag';
 export {
+	getOutlineDoubleClickAction,
 	getOutlineSelectionInteraction,
 	getSelectedEffectFieldsBySequenceKey,
 	getSelectedOutlineRotationCornerInfo,
@@ -659,8 +660,6 @@ export const SelectedOutlineOverlay: React.FC<{
 				activeSchema?.[transformOriginFieldKey];
 			const transformOriginPropStatus =
 				nodePropStatuses?.[transformOriginFieldKey];
-			const textContentFieldSchema = activeSchema?.children;
-			const textContentPropStatus = nodePropStatuses?.children;
 			const transformOriginValueForRotation =
 				transformOriginFieldSchema?.type === 'transform-origin' &&
 				(transformOriginPropStatus?.status === 'static' ||
@@ -728,12 +727,6 @@ export const SelectedOutlineOverlay: React.FC<{
 			const canDropEffect =
 				previewServerState.type === 'connected' &&
 				controls?.supportsEffects === true;
-			const canTextEdit =
-				previewServerState.type === 'connected' &&
-				controls !== null &&
-				textContentFieldSchema?.type === 'text-content' &&
-				textContentPropStatus !== undefined;
-
 			return {
 				key,
 				containsSelection,
@@ -858,12 +851,6 @@ export const SelectedOutlineOverlay: React.FC<{
 									shouldResortToDefaultValueIfUndefined: true,
 								}) ?? fieldSchema.default,
 							),
-						}
-					: null,
-				textEdit: canTextEdit
-					? {
-							nodePath,
-							propStatus: textContentPropStatus,
 						}
 					: null,
 				uvHandles: containsSelection

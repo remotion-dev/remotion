@@ -1,12 +1,16 @@
 import React, {
-	Children,
 	forwardRef,
 	useMemo,
 	type FC,
 	type PropsWithChildren,
 } from 'react';
+import type {SequenceControls} from '../CompositionManager.js';
 import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
-import {sequenceSchemaDefaultLayoutNone} from '../interactivity-schema.js';
+import {Interactive} from '../Interactive.js';
+import {
+	sequenceSchemaDefaultLayoutNone,
+	type InteractivitySchema,
+} from '../interactivity-schema.js';
 import type {LayoutAndStyle, SequenceProps} from '../Sequence.js';
 import {Sequence, SequenceWithoutSchema} from '../Sequence.js';
 import {validateDurationInFrames} from '../validation/validate-duration-in-frames.js';
@@ -18,6 +22,7 @@ import {
 	useRequireToBeInsideSeries,
 } from './is-inside-series.js';
 
+/* eslint-disable react/require-default-props -- public API props stay optional and are normalized by SeriesSequenceInner */
 type SeriesSequenceProps = PropsWithChildren<
 	{
 		readonly durationInFrames: number;
@@ -29,18 +34,72 @@ type SeriesSequenceProps = PropsWithChildren<
 	> &
 		LayoutAndStyle
 >;
+/* eslint-enable react/require-default-props */
 
-const SeriesSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
-	HTMLDivElement,
-	SeriesSequenceProps
-> = ({children}, _ref) => {
-	useRequireToBeInsideSeries();
-	// Discard ref
-
-	return <IsNotInsideSeriesProvider>{children}</IsNotInsideSeriesProvider>;
+type ResolvedSeriesSequenceProps = SeriesSequenceProps & {
+	readonly controls: SequenceControls | null | undefined;
+	readonly stack: string | null;
 };
 
-const SeriesSequence = forwardRef(SeriesSequenceRefForwardingFunction);
+type InternalSeriesSequenceProps = ResolvedSeriesSequenceProps & {
+	readonly _remotionInternalRender:
+		| ((
+				props: ResolvedSeriesSequenceProps,
+				ref: React.ForwardedRef<HTMLDivElement>,
+		  ) => React.ReactNode)
+		| null;
+};
+
+const seriesSequenceSchema = {
+	durationInFrames: Interactive.baseSchema.durationInFrames,
+	name: Interactive.sequenceSchema.name,
+	hidden: Interactive.sequenceSchema.hidden,
+	showInTimeline: Interactive.sequenceSchema.showInTimeline,
+	freeze: Interactive.baseSchema.freeze,
+	layout: Interactive.sequenceSchema.layout,
+} as const satisfies InteractivitySchema;
+
+const SeriesSequenceInner = forwardRef<
+	HTMLDivElement,
+	InternalSeriesSequenceProps
+>(
+	(
+		{
+			offset = 0,
+			className = '',
+			stack = null,
+			_remotionInternalRender = null,
+			...props
+		},
+		ref,
+	) => {
+		useRequireToBeInsideSeries();
+		if (_remotionInternalRender) {
+			return _remotionInternalRender(
+				{...props, offset, className: className || undefined, stack},
+				ref,
+			);
+		}
+
+		return (
+			<IsNotInsideSeriesProvider>{props.children}</IsNotInsideSeriesProvider>
+		);
+	},
+);
+
+const SeriesSequence = Interactive.withSchema({
+	Component: SeriesSequenceInner as unknown as React.ComponentType<
+		SeriesSequenceProps & {
+			readonly controls: SequenceControls | undefined;
+		}
+	>,
+	componentName: '<Series.Sequence>',
+	componentIdentity: 'dev.remotion.remotion.Series.Sequence',
+	schema: seriesSequenceSchema,
+	supportsEffects: false,
+}) as React.ForwardRefExoticComponent<
+	SeriesSequenceProps & React.RefAttributes<HTMLDivElement>
+>;
 
 type SeriesProps = SequenceProps;
 const SequenceWithoutSchemaWithRef =
@@ -48,22 +107,66 @@ const SequenceWithoutSchemaWithRef =
 		SequenceProps & {readonly ref?: React.Ref<HTMLDivElement>}
 	>;
 
+const validateSeriesSequenceProps = ({
+	durationInFrames,
+	offset: offsetProp,
+	index,
+	childrenLength,
+}: {
+	readonly durationInFrames: number;
+	readonly offset: number | undefined;
+	readonly index: number;
+	readonly childrenLength: number;
+}) => {
+	const debugInfo = `index = ${index}, duration = ${durationInFrames}`;
+	if (index !== childrenLength - 1 || durationInFrames !== Infinity) {
+		validateDurationInFrames(durationInFrames, {
+			component: `of a <Series.Sequence /> component`,
+			allowFloats: true,
+		});
+	}
+
+	const offset = offsetProp ?? 0;
+	if (Number.isNaN(offset)) {
+		throw new TypeError(
+			`The "offset" property of a <Series.Sequence /> must not be NaN, but got NaN (${debugInfo}).`,
+		);
+	}
+
+	if (!Number.isFinite(offset)) {
+		throw new TypeError(
+			`The "offset" property of a <Series.Sequence /> must be finite, but got ${offset} (${debugInfo}).`,
+		);
+	}
+
+	if (offset % 1 !== 0) {
+		throw new TypeError(
+			`The "offset" property of a <Series.Sequence /> must be finite, but got ${offset} (${debugInfo}).`,
+		);
+	}
+
+	return offset;
+};
+
 const SeriesInner: FC<SeriesProps> = (props) => {
 	const childrenValue = useMemo(() => {
-		let startFrame = 0;
 		const flattenedChildren = flattenChildren(props.children);
-		return Children.map(flattenedChildren, (child, i) => {
+		const renderChildren = (i: number, startFrame: number): React.ReactNode => {
+			if (i === flattenedChildren.length) {
+				return null;
+			}
+
+			const child = flattenedChildren[i];
 			const castedChild = child as unknown as
 				| {
-						props: SeriesSequenceProps;
+						props: InternalSeriesSequenceProps;
 						type: typeof SeriesSequence;
-						ref: React.RefObject<HTMLDivElement>;
 				  }
 				| string;
 			if (typeof castedChild === 'string') {
 				// Don't throw if it's just some accidential whitespace
 				if (castedChild.trim() === '') {
-					return null;
+					return renderChildren(i + 1, startFrame);
 				}
 
 				throw new TypeError(
@@ -77,64 +180,67 @@ const SeriesInner: FC<SeriesProps> = (props) => {
 				);
 			}
 
-			const debugInfo = `index = ${i}, duration = ${castedChild.props.durationInFrames}`;
+			const castedElement = castedChild as React.ReactElement<
+				InternalSeriesSequenceProps,
+				typeof SeriesSequence
+			>;
+			validateSeriesSequenceProps({
+				durationInFrames: castedElement.props.durationInFrames,
+				offset: castedElement.props.offset,
+				index: i,
+				childrenLength: flattenedChildren.length,
+			});
 
-			const durationInFramesProp = castedChild.props.durationInFrames;
-			const {
-				durationInFrames,
-				children: _children,
-				from,
-				name,
-				...passedProps
-			} = castedChild.props as SeriesSequenceProps & {from: never}; // `from` is not accepted and must be filtered out if used in JS
+			return React.cloneElement(castedElement, {
+				_remotionInternalRender: (resolvedProps, ref) => {
+					const durationInFramesProp = resolvedProps.durationInFrames;
+					const {
+						durationInFrames: _durationInFrames,
+						children: sequenceChildren,
+						offset: offsetProp,
+						controls,
+						stack,
+						from: _from,
+						name,
+						...passedProps
+					} = resolvedProps as InternalSeriesSequenceProps & {from: never}; // `from` is not accepted and must be filtered out if used in JS
 
-			if (
-				i !== flattenedChildren.length - 1 ||
-				durationInFramesProp !== Infinity
-			) {
-				validateDurationInFrames(durationInFramesProp, {
-					component: `of a <Series.Sequence /> component`,
-					allowFloats: true,
-				});
-			}
+					const offset = validateSeriesSequenceProps({
+						durationInFrames: durationInFramesProp,
+						offset: offsetProp,
+						index: i,
+						childrenLength: flattenedChildren.length,
+					});
 
-			const offset = castedChild.props.offset ?? 0;
-			if (Number.isNaN(offset)) {
-				throw new TypeError(
-					`The "offset" property of a <Series.Sequence /> must not be NaN, but got NaN (${debugInfo}).`,
-				);
-			}
+					const currentStartFrame = startFrame + offset;
+					const nextStartFrame = startFrame + durationInFramesProp + offset;
 
-			if (!Number.isFinite(offset)) {
-				throw new TypeError(
-					`The "offset" property of a <Series.Sequence /> must be finite, but got ${offset} (${debugInfo}).`,
-				);
-			}
+					return (
+						<>
+							<SequenceWithoutSchemaWithRef
+								ref={ref}
+								name={name || '<Series.Sequence>'}
+								_remotionInternalDocumentationLink={
+									name ? undefined : 'https://www.remotion.dev/docs/series'
+								}
+								_remotionInternalStack={stack ?? undefined}
+								controls={controls ?? undefined}
+								from={currentStartFrame}
+								durationInFrames={durationInFramesProp}
+								{...passedProps}
+							>
+								<IsNotInsideSeriesProvider>
+									{sequenceChildren}
+								</IsNotInsideSeriesProvider>
+							</SequenceWithoutSchemaWithRef>
+							{renderChildren(i + 1, nextStartFrame)}
+						</>
+					);
+				},
+			});
+		};
 
-			if (offset % 1 !== 0) {
-				throw new TypeError(
-					`The "offset" property of a <Series.Sequence /> must be finite, but got ${offset} (${debugInfo}).`,
-				);
-			}
-
-			const currentStartFrame = startFrame + offset;
-			startFrame += durationInFramesProp + offset;
-
-			return (
-				<SequenceWithoutSchemaWithRef
-					ref={castedChild.ref}
-					name={name || '<Series.Sequence>'}
-					_remotionInternalDocumentationLink={
-						name ? undefined : 'https://www.remotion.dev/docs/series'
-					}
-					from={currentStartFrame}
-					durationInFrames={durationInFramesProp}
-					{...passedProps}
-				>
-					{child}
-				</SequenceWithoutSchemaWithRef>
-			);
-		});
+		return renderChildren(0, 0);
 	}, [props.children]);
 
 	return (

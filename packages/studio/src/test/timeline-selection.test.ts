@@ -28,6 +28,7 @@ import {
 	applySelectedOutlineDragAxisLock,
 	applySelectedOutlineTransformOriginAxisLock,
 	compensateTranslateForTransformOrigin,
+	getOutlineDoubleClickAction,
 	getOutlineSelectionInteraction,
 	getSelectedEffectFieldsBySequenceKey,
 	getSelectedOutlineActiveSchema,
@@ -1050,6 +1051,12 @@ test('Timeline duration drag applies the same delta to selected sequences', () =
 			deltaFrames: -10,
 		}).map((change) => change.value),
 	).toEqual([30, 5]);
+	expect(
+		getTimelineSequenceDurationDragChanges({
+			targets: targets ?? [],
+			deltaFrames: -10,
+		}).map((change) => change.schema),
+	).toEqual([schema, schema]);
 });
 
 test('Timeline duration drag uses the declared duration for negative from values', () => {
@@ -1108,8 +1115,26 @@ test('Timeline duration drag supports interactive video clips', () => {
 			fileName: nodePathInfo.sequenceSubscriptionKey.absolutePath,
 			initialDuration: 78,
 			nodePath: nodePathInfo.sequenceSubscriptionKey,
+			schema: Internals.baseSchema,
 		},
 	]);
+});
+
+test('Timeline duration drag supports interactive Series.Sequence rows', () => {
+	const baseSequence = makeTimelineSequence({
+		schema: Internals.baseSchema,
+		duration: 78,
+	});
+	const seriesSequence = {
+		...baseSequence,
+		isInsideSeries: true,
+		controls: {
+			...baseSequence.controls!,
+			componentIdentity: 'dev.remotion.remotion.Series.Sequence',
+		},
+	} satisfies TSequence;
+
+	expect(isTimelineSequenceDurationDraggable(seriesSequence)).toBe(true);
 });
 
 test('Timeline duration drag clamps each selected sequence to one frame', () => {
@@ -1803,6 +1828,18 @@ test('Canvas outline selection uses conventional modifier keys', () => {
 			ctrlKey: true,
 		}),
 	).toEqual({shiftKey: false, toggleKey: true});
+});
+
+test('Canvas outline double-click only handles opening the editor', () => {
+	expect(getOutlineDoubleClickAction({button: 0, canOpenInEditor: true})).toBe(
+		'open-in-editor',
+	);
+	expect(getOutlineDoubleClickAction({button: 0, canOpenInEditor: false})).toBe(
+		null,
+	);
+	expect(
+		getOutlineDoubleClickAction({button: 2, canOpenInEditor: true}),
+	).toBeNull();
 });
 
 test('Canvas outline hit targets render nested sequences above parents', () => {

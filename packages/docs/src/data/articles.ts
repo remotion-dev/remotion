@@ -108,6 +108,15 @@ export const articles = [
 		slug: 'ai/chatbot',
 	},
 	{
+		id: 'ai/claude-code-plugin',
+		title: 'Claude Code plugin',
+		relativePath: 'docs/ai/claude-code-plugin.mdx',
+		compId: 'articles-docs-ai-claude-code-plugin',
+		crumb: 'AI',
+		noAi: false,
+		slug: 'ai/claude-code-plugin',
+	},
+	{
 		id: 'ai/codex-plugin',
 		title: 'Codex plugin',
 		relativePath: 'docs/ai/codex-plugin.mdx',
@@ -1465,6 +1474,15 @@ export const articles = [
 		crumb: 'Runtime support',
 		noAi: false,
 		slug: 'deno',
+	},
+	{
+		id: 'design-systems',
+		title: 'Motion Design Systems',
+		relativePath: 'docs/design-systems.mdx',
+		compId: 'articles-docs-design-systems',
+		crumb: 'Parameterized videos',
+		noAi: false,
+		slug: 'design-systems',
 	},
 	{
 		id: 'detect-remotion',

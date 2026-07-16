@@ -1127,6 +1127,7 @@ const sidebars: SidebarsConfig = {
 				'data-fetching',
 				'dynamic-metadata',
 				'props-resolution',
+				'design-systems',
 			],
 		},
 
@@ -1421,6 +1422,7 @@ const sidebars: SidebarsConfig = {
 			},
 			items: [
 				'ai/coding-agents',
+				'ai/claude-code-plugin',
 				'ai/codex-plugin',
 				'ai/bolt',
 				'ai/chatbot',
