@@ -1127,6 +1127,7 @@ const sidebars: SidebarsConfig = {
 				'data-fetching',
 				'dynamic-metadata',
 				'props-resolution',
+				'design-systems',
 			],
 		},
 
