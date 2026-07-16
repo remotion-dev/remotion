@@ -2,6 +2,7 @@ import type {ComponentType} from 'react';
 import {PaperTexture} from '../../../elements/backgrounds/paper-texture/paper-texture';
 import {RotatingStarburst} from '../../../elements/backgrounds/rotating-starburst/rotating-starburst';
 import {NumberCounter} from '../../../elements/data/number-counter/number-counter';
+import {LiveLocationStrap} from '../../../elements/overlays/live-location-strap/live-location-strap';
 import {LowerThird} from '../../../elements/overlays/lower-third/lower-third';
 import {CircleMarker} from '../../../elements/text/circle-marker/circle-marker';
 import {CrossedOffText} from '../../../elements/text/crossed-off/crossed-off';
@@ -11,7 +12,7 @@ import type {Contributor} from '../Credits';
 
 export type ElementDefinition = {
 	readonly category: string;
-	readonly component: ComponentType<Record<string, never>>;
+	readonly component: ComponentType<Record<never, never>>;
 	readonly contributors: readonly Contributor[];
 	readonly description: string;
 	readonly displayName: string;
@@ -58,6 +59,28 @@ export const elementDefinitions = {
 		posterFrame: 120,
 		previewPadding: 0,
 		slug: 'backgrounds/rotating-starburst',
+		width: 1920,
+	},
+	'overlays/live-location-strap': {
+		category: 'overlays',
+		component: LiveLocationStrap,
+		contributors: [
+			{
+				username: 'samohovets',
+				contribution: 'Author',
+			},
+		],
+		description:
+			'An animated broadcast strap for live status, location, venue, and date.',
+		displayName: 'Live / Location Strap',
+		durationInFrames: 120,
+		elementHeight: 156,
+		elementWidth: 760,
+		fps: 30,
+		height: 1080,
+		posterFrame: 60,
+		previewPadding: 260,
+		slug: 'overlays/live-location-strap',
 		width: 1920,
 	},
 	'overlays/lower-third': {

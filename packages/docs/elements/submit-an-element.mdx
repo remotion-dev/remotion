@@ -83,7 +83,9 @@ Size the Element to the smallest useful bounding box.
 
 Use `previewPadding` in the definition entry if the docs preview needs more breathing room without changing the Element's drag dimensions or adding source padding.
 
-Do not put the wrapper [`<Sequence>`](/docs/sequence) into the Element source file.
+Do not put the placement wrapper [`<Sequence>`](/docs/sequence) into the Element source file.
+
+A custom component using [`Interactive.withSchema()`](/docs/interactive-with-schema) may use one internal `<Sequence layout="none">` to forward `controls` and `outlineRef`. Do not use this Sequence for placement, dimensions, or timing.
 
 ## 5. Separate placement from animation
 

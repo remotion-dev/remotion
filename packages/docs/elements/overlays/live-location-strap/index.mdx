@@ -1,0 +1,33 @@
+---
+title: Live / Location Strap
+description: An animated broadcast strap for live status, location, venue, and date.
+---
+
+import {ElementPage} from '@site/src/components/Elements/ElementPage';
+import {elementDefinitions} from '@site/src/components/Elements/element-definitions';
+
+# Live / Location Strap
+
+<ElementPage definition={elementDefinitions['overlays/live-location-strap']} sourceFile="./live-location-strap.tsx" />
+
+## Usage
+
+Place the strap inside a `<Sequence>` and set only the fields you need:
+
+```tsx title="MyComposition.tsx"
+import {Sequence} from 'remotion';
+import {LiveLocationStrap} from './live-location-strap';
+
+export const MyComposition = () => {
+  return (
+    <Sequence from={30} durationInFrames={120} layout="none">
+      <LiveLocationStrap
+        statusLabel="On location"
+        location="NAB Show"
+        venue="Main Stage"
+        date="June 22"
+      />
+    </Sequence>
+  );
+};
+```
