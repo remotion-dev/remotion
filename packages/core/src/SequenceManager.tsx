@@ -164,6 +164,14 @@ export type SequencePropsSubscriptionKey = {
 	nodePath: SequenceNodePath;
 	sequenceKeys: string[];
 	effectKeys: string[][];
+	videoConfigValues?: VideoConfigValues;
+};
+
+export type VideoConfigValues = {
+	durationInFrames: number;
+	fps: number;
+	height: number;
+	width: number;
 };
 
 const effectDragOverridesKey = (

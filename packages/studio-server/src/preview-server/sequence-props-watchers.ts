@@ -5,7 +5,11 @@ import {
 	stringifySequenceSubscriptionKey,
 	type SubscribeToSequencePropsResponse,
 } from '@remotion/studio-shared';
-import type {JsxComponentIdentity, SequenceNodePath} from 'remotion';
+import type {
+	JsxComponentIdentity,
+	SequenceNodePath,
+	VideoConfigValues,
+} from 'remotion';
 import {installFileWatcher} from '../file-watcher';
 import {JsxElementIdentityMismatchError} from './jsx-component-identity';
 import {JsxElementNotFoundAtLocationError} from './jsx-element-not-found-at-location-error';
@@ -24,6 +28,15 @@ type WatcherInfo = {
 
 const sequencePropsWatchers: Record<string, Record<string, WatcherInfo>> = {};
 
+const getWatcherKey = (nodePath: {
+	absolutePath: string;
+	nodePath: SequenceNodePath;
+	sequenceKeys: string[];
+	effectKeys: string[][];
+	videoConfigValues?: VideoConfigValues;
+}) =>
+	`${stringifySequenceSubscriptionKey(nodePath)}:${JSON.stringify(nodePath.videoConfigValues ?? null)}`;
+
 const getSequencePropsStatus = ({
 	fileName,
 	line,
@@ -34,6 +47,7 @@ const getSequencePropsStatus = ({
 	effects,
 	remotionRoot,
 	logLevel,
+	videoConfigValues,
 }: {
 	fileName: string;
 	line: number;
@@ -44,6 +58,7 @@ const getSequencePropsStatus = ({
 	effects: string[][];
 	remotionRoot: string;
 	logLevel: LogLevel;
+	videoConfigValues: VideoConfigValues;
 }): SubscribeToSequencePropsResponse => {
 	if (preferredNodePath) {
 		try {
@@ -54,6 +69,7 @@ const getSequencePropsStatus = ({
 				keys,
 				effects,
 				remotionRoot,
+				videoConfigValues,
 			});
 			return {
 				status: fromNodePath,
@@ -62,6 +78,7 @@ const getSequencePropsStatus = ({
 					nodePath: preferredNodePath,
 					sequenceKeys: keys,
 					effectKeys: effects,
+					videoConfigValues,
 				},
 				success: true,
 			};
@@ -90,6 +107,7 @@ const getSequencePropsStatus = ({
 					keys,
 					effects,
 					remotionRoot,
+					videoConfigValues,
 				});
 			} catch (error) {
 				if (
@@ -111,6 +129,7 @@ const getSequencePropsStatus = ({
 					nodePath: cachedNodePath,
 					sequenceKeys: keys,
 					effectKeys: effects,
+					videoConfigValues,
 				},
 				success: true,
 			};
@@ -125,6 +144,7 @@ const getSequencePropsStatus = ({
 		effects,
 		remotionRoot,
 		logLevel,
+		videoConfigValues,
 	});
 
 	return status;
@@ -141,6 +161,7 @@ export const subscribeToSequencePropsWatchers = ({
 	remotionRoot,
 	clientId,
 	logLevel,
+	videoConfigValues,
 }: {
 	fileName: string;
 	line: number;
@@ -152,6 +173,7 @@ export const subscribeToSequencePropsWatchers = ({
 	remotionRoot: string;
 	clientId: string;
 	logLevel: LogLevel;
+	videoConfigValues: VideoConfigValues;
 }): SubscribeToSequencePropsResponse => {
 	const initialResult = getSequencePropsStatus({
 		fileName,
@@ -163,6 +185,7 @@ export const subscribeToSequencePropsWatchers = ({
 		effects,
 		remotionRoot,
 		logLevel,
+		videoConfigValues,
 	});
 
 	if (!initialResult.success) {
@@ -175,7 +198,7 @@ export const subscribeToSequencePropsWatchers = ({
 	setCachedNodePath(fileName, line, column, initialResult.nodePath.nodePath);
 
 	const {nodePath} = initialResult;
-	const watcherKey = stringifySequenceSubscriptionKey(nodePath);
+	const watcherKey = getWatcherKey(nodePath);
 
 	// If a watcher already exists for this key, just bump the ref count
 	if (sequencePropsWatchers[clientId]?.[watcherKey]) {
@@ -202,6 +225,7 @@ export const subscribeToSequencePropsWatchers = ({
 					componentIdentity,
 					keys,
 					effects,
+					videoConfigValues,
 				});
 				const previousEffectChain = result.effects.map(
 					(effect) => effect.canUpdate && effect.callee,
@@ -264,6 +288,7 @@ export const unsubscribeFromSequencePropsWatchers = ({
 	clientId,
 	sequenceKeys,
 	effectKeys,
+	videoConfigValues,
 }: {
 	fileName: string;
 	nodePath: SequenceNodePath;
@@ -271,13 +296,15 @@ export const unsubscribeFromSequencePropsWatchers = ({
 	clientId: string;
 	sequenceKeys: string[];
 	effectKeys: string[][];
+	videoConfigValues: VideoConfigValues | undefined;
 }) => {
 	const absolutePath = path.resolve(remotionRoot, fileName);
-	const watcherKey = stringifySequenceSubscriptionKey({
+	const watcherKey = getWatcherKey({
 		absolutePath,
 		nodePath,
 		sequenceKeys,
 		effectKeys,
+		videoConfigValues,
 	});
 
 	if (

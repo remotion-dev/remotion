@@ -22,6 +22,74 @@ export const Example: React.FC = () => {
 };
 `;
 
+const videoConfigValues = {
+	durationInFrames: 120,
+	fps: 30,
+	height: 1080,
+	width: 1920,
+};
+
+test('updateSequenceKeyframes preserves representable video config frame expressions', async () => {
+	const input = `import React from 'react';
+import {Sequence, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
+
+export const Example: React.FC = () => {
+	const frame = useCurrentFrame();
+	const {fps, durationInFrames} = useVideoConfig();
+	return (
+		<Sequence style={{scale: interpolate(frame, [0, 3.33 * fps, durationInFrames], [2, 3, 4])}} />
+	);
+};
+`;
+	const added = await updateSequenceKeyframes({
+		input,
+		nodePath: lineColumnToNodePath(input, 8),
+		updates: [
+			{
+				key: 'style.scale',
+				operation: {type: 'add', frame: 50, value: 2.5},
+			},
+		],
+		videoConfigValues,
+	});
+	expect(added.output).toContain('[0, 50, 3.33 * fps, durationInFrames]');
+
+	const {output, updatedNodePath} = await updateSequenceKeyframes({
+		input: added.output,
+		nodePath: added.updatedNodePath,
+		updates: [
+			{
+				key: 'style.scale',
+				operation: {
+					type: 'move',
+					moves: [{fromFrame: 99.9, toFrame: 100}],
+				},
+			},
+		],
+		videoConfigValues,
+	});
+
+	expect(output).toContain('[0, 50, 100, durationInFrames]');
+	expect(output).not.toContain('3.33 * fps');
+	const status = computeSequencePropsStatusFromContent({
+		fileContents: output,
+		nodePath: updatedNodePath,
+		componentIdentity: null,
+		keys: ['style.scale'],
+		effects: [],
+		videoConfigValues,
+	});
+	expect(status.props['style.scale']).toMatchObject({
+		status: 'keyframed',
+		keyframes: [
+			{frame: 0, value: 2},
+			{frame: 50, value: 2.5},
+			{frame: 100, value: 3},
+			{frame: 120, value: 4},
+		],
+	});
+});
+
 const colorInput = `import React from 'react';
 import {Solid, interpolateColors, useCurrentFrame} from 'remotion';
 

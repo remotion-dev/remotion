@@ -30,6 +30,90 @@ const getNodePathFromContent = (content: string, line: number) => {
 	return result;
 };
 
+const videoConfigValues = {
+	durationInFrames: 120,
+	fps: 30,
+	height: 1080,
+	width: 1920,
+};
+
+test('computeSequencePropsStatus should parse video config numeric expressions', () => {
+	const input = `import React from 'react';
+import {Sequence, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
+
+export const Example: React.FC = () => {
+	const frame = useCurrentFrame();
+	const {fps, durationInFrames} = useVideoConfig();
+	return (
+		<Sequence
+			premountFor={(2 * fps) as number}
+			postmountFor={fps * 2.5}
+			offset={-1 * fps}
+			from={fps / 2}
+			style={{scale: interpolate(frame, [0, 3.33 * fps, durationInFrames], [2, 3, 4])}}
+		/>
+	);
+};
+`;
+	const result = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 8),
+		componentIdentity: null,
+		keys: ['premountFor', 'postmountFor', 'offset', 'from', 'style.scale'],
+		effects: [],
+		videoConfigValues,
+	});
+
+	expect(result.props.premountFor).toEqual({
+		status: 'static',
+		codeValue: 60,
+		numericExpression: {
+			type: 'videoConfigMultiplication',
+			identifier: 'fps',
+			multiplier: 2,
+			multiplicand: 30,
+			factorPosition: 'left',
+			value: 60,
+		},
+	});
+	expect(result.props.postmountFor).toMatchObject({
+		status: 'static',
+		codeValue: 75,
+		numericExpression: {
+			type: 'videoConfigMultiplication',
+			factorPosition: 'right',
+		},
+	});
+	expect(result.props.from).toEqual({status: 'computed'});
+	expect(result.props.offset).toMatchObject({
+		status: 'static',
+		codeValue: -30,
+		numericExpression: {multiplier: -1},
+	});
+	expect(result.props['style.scale']).toMatchObject({
+		status: 'keyframed',
+		keyframes: [
+			{frame: 0, value: 2},
+			{
+				frame: 99.9,
+				value: 3,
+				frameExpression: {
+					type: 'videoConfigMultiplication',
+					identifier: 'fps',
+				},
+			},
+			{
+				frame: 120,
+				value: 4,
+				frameExpression: {
+					type: 'videoConfigValue',
+					identifier: 'durationInFrames',
+				},
+			},
+		],
+	});
+});
+
 test('canUpdateSequenceProps should flag computed props', () => {
 	const filePath = path.join(__dirname, 'snapshots', 'light-leak-computed.tsx');
 	const result = computeSequencePropsStatus({

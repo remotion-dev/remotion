@@ -9,6 +9,7 @@ import {parseAst} from '../../codemods/parse-ast';
 import {updateEffectProps} from '../../codemods/update-effect-props/update-effect-props';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
+import {getVideoConfigIdentifierValues} from '../../helpers/video-config-values';
 import type {ApiHandler} from '../api-types';
 import {
 	printUndoHint,
@@ -171,5 +172,9 @@ export const saveEffectPropsHandler: ApiHandler<
 			jsx,
 			effectIndex,
 			keys: getAllSchemaKeys(schema),
+			videoConfigValues: getVideoConfigIdentifierValues({
+				ast,
+				videoConfigValues: sequenceNodePath.videoConfigValues ?? null,
+			}),
 		});
 	});

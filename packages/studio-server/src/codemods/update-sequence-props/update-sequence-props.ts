@@ -10,9 +10,22 @@ import type {
 	Statement,
 } from '@babel/types';
 import type {GoogleFontSourceEdit} from '@remotion/studio-shared';
+import type {ExpressionKind} from 'ast-types/lib/gen/kinds';
 import * as recast from 'recast';
-import type {InteractivitySchema, SequenceNodePath} from 'remotion';
+import type {
+	InteractivitySchema,
+	SequenceNodePath,
+	VideoConfigValues,
+} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
+import {
+	parseVideoConfigNumericExpression,
+	updateVideoConfigNumericExpression,
+} from '../../helpers/video-config-numeric-expression';
+import {
+	getVideoConfigIdentifierValues,
+	type VideoConfigIdentifierValues,
+} from '../../helpers/video-config-values';
 import {
 	findJsxElementNodeAtNodePath,
 	getStaticJsxChildrenAttribute,
@@ -41,6 +54,7 @@ export type SequencePropsNodeUpdate = {
 	nodePath: SequenceNodePath;
 	updates: SequencePropUpdate[];
 	schema: InteractivitySchema;
+	videoConfigValues?: VideoConfigValues;
 };
 
 export type SequencePropsNodeUpdateResult = {
@@ -737,10 +751,12 @@ const updateSequencePropsNode = ({
 	jsxElement,
 	updates,
 	schema,
+	videoConfigValues,
 }: {
 	jsxElement: JSXElementLike;
 	updates: SequencePropUpdate[];
 	schema: InteractivitySchema;
+	videoConfigValues: VideoConfigIdentifierValues;
 }): {
 	oldValueStrings: string[];
 	logLine: number;
@@ -757,6 +773,29 @@ const updateSequencePropsNode = ({
 			return dot === -1 ? key : key.slice(0, dot);
 		}),
 	);
+	const createValueExpression = ({
+		existing,
+		value,
+	}: {
+		existing: Expression | null;
+		value: unknown;
+	}) => {
+		if (existing === null || typeof value !== 'number') {
+			return parseValueExpression(value);
+		}
+
+		const expression = parseVideoConfigNumericExpression({
+			node: existing,
+			videoConfigValues,
+		});
+		if (expression === null) {
+			return parseValueExpression(value);
+		}
+
+		return expression.value === value
+			? (existing as ExpressionKind)
+			: updateVideoConfigNumericExpression({expression, value});
+	};
 
 	for (const {key, value, defaultValue} of updates) {
 		let oldValueString = '';
@@ -785,6 +824,8 @@ const updateSequencePropsNode = ({
 				value,
 				defaultValue,
 				isDefault,
+				createValueExpression: (existing) =>
+					createValueExpression({existing, value}),
 			});
 		} else {
 			const attrIndex = node.attributes?.findIndex((a) => {
@@ -823,7 +864,16 @@ const updateSequencePropsNode = ({
 					node.attributes.splice(attrIndex!, 1);
 				}
 			} else {
-				const parsed = parseValueExpression(value);
+				const existingExpression =
+					attr?.type === 'JSXAttribute' &&
+					attr.value?.type === 'JSXExpressionContainer' &&
+					attr.value.expression.type !== 'JSXEmptyExpression'
+						? (attr.value.expression as Expression)
+						: null;
+				const parsed = createValueExpression({
+					existing: existingExpression,
+					value,
+				});
 
 				const newValue =
 					value === true ? null : b.jsxExpressionContainer(parsed);
@@ -893,11 +943,13 @@ export const updateSequencePropsAst = ({
 	nodePath,
 	updates,
 	schema,
+	videoConfigValues = null,
 }: {
 	input: string;
 	nodePath: SequenceNodePath;
 	updates: SequencePropUpdate[];
 	schema: InteractivitySchema;
+	videoConfigValues?: VideoConfigValues | null;
 }): {
 	serialized: string;
 	oldValueStrings: string[];
@@ -905,6 +957,10 @@ export const updateSequencePropsAst = ({
 	removedProps: RemovedProp[];
 } => {
 	const ast = parseAst(input);
+	const videoConfigIdentifierValues = getVideoConfigIdentifierValues({
+		ast,
+		videoConfigValues,
+	});
 
 	const jsxElement = findJsxElementNodeAtNodePath(ast, nodePath);
 	if (!jsxElement) {
@@ -917,6 +973,7 @@ export const updateSequencePropsAst = ({
 		jsxElement,
 		updates,
 		schema,
+		videoConfigValues: videoConfigIdentifierValues,
 	});
 	applyGoogleFontSourceEdits({ast, updates});
 
@@ -939,17 +996,27 @@ export const updateMultipleSequenceProps = async ({
 }): Promise<UpdateMultipleSequencePropsResult> => {
 	const ast = parseAst(input);
 	const allUpdates: SequencePropUpdate[] = [];
-	const results = changes.map(({nodePath, updates, schema}) => {
-		const jsxElement = findJsxElementNodeAtNodePath(ast, nodePath);
-		if (!jsxElement) {
-			throw new Error(
-				'Could not find a JSX element at the specified line to update',
-			);
-		}
+	const results = changes.map(
+		({nodePath, updates, schema, videoConfigValues = null}) => {
+			const jsxElement = findJsxElementNodeAtNodePath(ast, nodePath);
+			if (!jsxElement) {
+				throw new Error(
+					'Could not find a JSX element at the specified line to update',
+				);
+			}
 
-		allUpdates.push(...updates);
-		return updateSequencePropsNode({jsxElement, updates, schema});
-	});
+			allUpdates.push(...updates);
+			return updateSequencePropsNode({
+				jsxElement,
+				updates,
+				schema,
+				videoConfigValues: getVideoConfigIdentifierValues({
+					ast,
+					videoConfigValues,
+				}),
+			});
+		},
+	);
 	applyGoogleFontSourceEdits({ast, updates: allUpdates});
 
 	const {output, formatted} = await formatFileContent({
@@ -970,12 +1037,14 @@ export const updateSequenceProps = async ({
 	updates,
 	schema,
 	prettierConfigOverride,
+	videoConfigValues = null,
 }: {
 	input: string;
 	nodePath: SequenceNodePath;
 	updates: SequencePropUpdate[];
 	schema: InteractivitySchema;
 	prettierConfigOverride: PrettierConfigOverride;
+	videoConfigValues?: VideoConfigValues | null;
 }): Promise<UpdateSequencePropsResult> => {
 	const {serialized, oldValueStrings, logLine, removedProps} =
 		updateSequencePropsAst({
@@ -983,6 +1052,7 @@ export const updateSequenceProps = async ({
 			nodePath,
 			updates,
 			schema,
+			videoConfigValues,
 		});
 
 	const {output, formatted} = await formatFileContent({

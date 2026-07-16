@@ -10,6 +10,7 @@ import type {
 	ObjectExpression,
 	ObjectProperty,
 	StringLiteral,
+	Expression,
 } from '@babel/types';
 import {stringifyDefaultProps} from '@remotion/studio-shared';
 import type {ExpressionKind} from 'ast-types/lib/gen/kinds';
@@ -152,19 +153,24 @@ const setNestedProp = ({
 	parentKey,
 	childKey,
 	value,
+	createValueExpression,
 }: {
 	attr: JSXAttribute | undefined;
 	attributes: (JSXAttribute | JSXSpreadAttribute)[];
 	parentKey: string;
 	childKey: string;
 	value: unknown;
+	createValueExpression:
+		| ((existing: Expression | null) => ExpressionKind)
+		| null;
 }) => {
-	const parsedValue = parseValueExpression(value);
-
 	if (attr) {
 		const objExpr = getObjectExpression(attr);
 		if (objExpr) {
 			const {prop} = findObjectProperty(objExpr, childKey);
+			const parsedValue = createValueExpression
+				? createValueExpression((prop?.value as Expression | undefined) ?? null)
+				: parseValueExpression(value);
 			if (prop) {
 				prop.value = parsedValue as ObjectExpression | ArrayExpression;
 			} else {
@@ -177,6 +183,9 @@ const setNestedProp = ({
 			}
 		}
 	} else {
+		const parsedValue = createValueExpression
+			? createValueExpression(null)
+			: parseValueExpression(value);
 		const objExpr = b.objectExpression([
 			b.objectProperty(b.identifier(childKey), parsedValue),
 		]);
@@ -196,6 +205,7 @@ export const updateNestedProp = ({
 	value,
 	defaultValue,
 	isDefault,
+	createValueExpression = null,
 }: {
 	node: JSXOpeningElement;
 	parentKey: string;
@@ -203,6 +213,9 @@ export const updateNestedProp = ({
 	value: unknown;
 	defaultValue: unknown | null;
 	isDefault: boolean;
+	createValueExpression?:
+		| ((existing: Expression | null) => ExpressionKind)
+		| null;
 }): string => {
 	if (!node.attributes) {
 		node.attributes = [];
@@ -216,7 +229,14 @@ export const updateNestedProp = ({
 	if (isDefault) {
 		removeNestedProp({attr, attrIndex, attributes, childKey});
 	} else {
-		setNestedProp({attr, attributes, parentKey, childKey, value});
+		setNestedProp({
+			attr,
+			attributes,
+			parentKey,
+			childKey,
+			value,
+			createValueExpression,
+		});
 	}
 
 	return oldValueString;

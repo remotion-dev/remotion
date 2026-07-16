@@ -13,6 +13,7 @@ import type {
 	CanUpdateSequencePropStatus,
 	SequenceNodePath,
 	InteractivitySchema,
+	VideoConfigValues,
 } from 'remotion';
 import {parseAst} from '../../codemods/parse-ast';
 import {
@@ -20,6 +21,11 @@ import {
 	type EffectArrayElement,
 } from '../../codemods/update-effect-props/update-effect-props';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
+import {parseVideoConfigNumericExpression} from '../../helpers/video-config-numeric-expression';
+import {
+	getVideoConfigIdentifierValues,
+	type VideoConfigIdentifierValues,
+} from '../../helpers/video-config-values';
 import {
 	extractStaticValue,
 	findJsxElementAtNodePath,
@@ -148,10 +154,12 @@ const getPropsFromObjectExpression = ({
 	ast,
 	objExpr,
 	keys,
+	videoConfigValues,
 }: {
 	ast: File;
 	objExpr: ObjectExpression;
 	keys: string[];
+	videoConfigValues: VideoConfigIdentifierValues;
 }): Record<string, CanUpdateSequencePropStatus> => {
 	const out: Record<string, CanUpdateSequencePropStatus> = {};
 
@@ -171,7 +179,19 @@ const getPropsFromObjectExpression = ({
 
 		const valueExpr = prop.value as Expression;
 		if (!isStaticValue(valueExpr)) {
-			out[key] = getComputedStatus(valueExpr, ast);
+			const numericExpression = parseVideoConfigNumericExpression({
+				node: valueExpr,
+				videoConfigValues,
+			});
+			out[key] = numericExpression
+				? {
+						status: 'static',
+						codeValue: numericExpression.value,
+						...(numericExpression.type === 'literal'
+							? {}
+							: {numericExpression}),
+					}
+				: getComputedStatus(valueExpr, ast, videoConfigValues);
 			continue;
 		}
 
@@ -189,11 +209,13 @@ export const computeEffectPropStatus = ({
 	jsx,
 	effectIndex,
 	keys,
+	videoConfigValues = {},
 }: {
 	ast: File;
 	jsx: JSXOpeningElement;
 	effectIndex: number;
 	keys: string[];
+	videoConfigValues?: VideoConfigIdentifierValues;
 }): CanUpdateEffectPropsResponse => {
 	const attr = findEffectsAttr(jsx);
 	const elements = getEffectsArrayElements(attr);
@@ -257,6 +279,7 @@ export const computeEffectPropStatus = ({
 		ast,
 		objExpr: firstArg as ObjectExpression,
 		keys,
+		videoConfigValues,
 	});
 
 	return {
@@ -273,13 +296,19 @@ export const computeEffectPropsStatusesFromContent = ({
 	sequenceNodePath,
 	effects,
 	keysFor,
+	videoConfigValues = null,
 }: {
 	fileContents: string;
 	sequenceNodePath: SequenceNodePath;
 	effects: InteractivitySchema[];
 	keysFor: (effect: InteractivitySchema) => string[];
+	videoConfigValues?: VideoConfigValues | null;
 }): CanUpdateEffectPropsResponse[] => {
 	const ast = parseAst(fileContents);
+	const videoConfigIdentifierValues = getVideoConfigIdentifierValues({
+		ast,
+		videoConfigValues,
+	});
 	const jsx = findJsxElementAtNodePath(ast, sequenceNodePath);
 	if (!jsx) {
 		return effects.map((_effect, effectIndex) => ({
@@ -295,6 +324,7 @@ export const computeEffectPropsStatusesFromContent = ({
 			jsx,
 			effectIndex,
 			keys: keysFor(effect),
+			videoConfigValues: videoConfigIdentifierValues,
 		}),
 	);
 };
@@ -305,12 +335,14 @@ export const computeEffectPropsStatusesFromFile = ({
 	effects,
 	keysFor,
 	remotionRoot,
+	videoConfigValues = null,
 }: {
 	fileName: string;
 	sequenceNodePath: SequenceNodePath;
 	effects: InteractivitySchema[];
 	keysFor: (effect: InteractivitySchema) => string[];
 	remotionRoot: string;
+	videoConfigValues?: VideoConfigValues | null;
 }): CanUpdateEffectPropsResponse[] => {
 	const {absolutePath} = resolveFileInsideProject({
 		remotionRoot,
@@ -324,5 +356,6 @@ export const computeEffectPropsStatusesFromFile = ({
 		sequenceNodePath,
 		effects,
 		keysFor,
+		videoConfigValues,
 	});
 };

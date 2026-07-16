@@ -20,6 +20,52 @@ export const LightLeakExample: React.FC = () => {
 };
 `;
 
+const videoConfigValues = {
+	durationInFrames: 120,
+	fps: 30,
+	height: 1080,
+	width: 1920,
+};
+
+test('updateSequenceProps preserves video config multiplication expressions', async () => {
+	const input = `import {Sequence, useVideoConfig} from 'remotion';
+
+export const Example: React.FC = () => {
+	const {fps} = useVideoConfig();
+	return (
+		<Sequence
+			premountFor={(2 * fps) as number}
+			postmountFor={fps * 2}
+			durationInFrames={(2 * fps) as number}
+			from={2 * fps}
+			style={{opacity: 2 * fps}}
+		/>
+	);
+};
+`;
+	const {output} = await updateSequenceProps({
+		input,
+		nodePath: lineColumnToNodePath(input, 6),
+		updates: [
+			{key: 'premountFor', value: 75, defaultValue: null},
+			{key: 'postmountFor', value: 90, defaultValue: null},
+			{key: 'durationInFrames', value: 60, defaultValue: null},
+			{key: 'from', value: 0, defaultValue: null},
+			{key: 'style.opacity', value: 120, defaultValue: null},
+		],
+		schema: NoReactInternals.sequenceSchema,
+		prettierConfigOverride: null,
+		videoConfigValues,
+	});
+
+	expect(output).toContain('premountFor={2.5 * fps}');
+	expect(output).toContain('postmountFor={fps * 3}');
+	expect(output).toContain('durationInFrames={(2 * fps) as number}');
+	expect(output).toContain('from={0}');
+	expect(output).not.toContain('0 * fps');
+	expect(output).toContain('opacity: 4 * fps');
+});
+
 test('updateSequenceProps should update a number value', async () => {
 	const {output, oldValueStrings} = await updateSequenceProps({
 		input: lightLeakInput,
