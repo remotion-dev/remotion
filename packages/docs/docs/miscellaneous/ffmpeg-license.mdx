@@ -1,0 +1,26 @@
+---
+image: /generated/articles-docs-miscellaneous-ffmpeg-license.png
+sidebar_label: FFmpeg license
+title: FFmpeg license
+crumb: 'Miscellaneous'
+---
+
+Remotion distributes a compiled FFmpeg binary under the [GPLv2+ license](https://www.gnu.org/licenses/old-licenses/gpl-2.0.html). The [source and build scripts](https://github.com/remotion-dev/rust-ffmpeg-splitter) are publicly available.
+
+## x264 and x265
+
+x264 and x265 are licensed under the GPL, not the LGPL. Therefore, Remotion's FFmpeg binary cannot be distributed under the LGPL.
+
+## fdk-aac
+
+Remotion does not use the official fdk-aac distribution. The [build script](https://github.com/remotion-dev/rust-ffmpeg-splitter/blob/main/compile-fdkaac.mjs) shows that Remotion's FFmpeg binary uses the free `fdk-aac-free` variant, which has no licensing concerns.
+
+## Other components
+
+No other components in Remotion's FFmpeg binary should raise licensing concerns.
+
+Remotion has carefully verified the licensing information on this page. Concerns can be sent to [hi@remotion.dev](mailto:hi@remotion.dev).
+
+## See also
+
+- [Acknowledgements](/docs/acknowledgements)
