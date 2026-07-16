@@ -46,7 +46,7 @@ bun install-toolchain.ts
 bun run build-all
 ```
 
-The all-platform build must complete for macOS ARM64/x64 and Linux ARM64/x64 GNU/musl. It refreshes both the `remotion` executables and the FFmpeg shared libraries/CLI files in their platform packages. Do not substitute a native-only build.
+The all-platform build must complete for Windows x64 GNU, macOS ARM64/x64, and Linux ARM64/x64 GNU/musl. On macOS, ensure an MSVCRT-targeting `x86_64-w64-mingw32-gcc` linker is available before running the build; do not use a UCRT-defaulting toolchain. It refreshes both the `remotion` executables and the FFmpeg shared libraries/CLI files in their platform packages. Do not substitute a native-only build.
 
 From the repository root, run:
 
@@ -59,15 +59,15 @@ git diff --check
 Inspect the diff. It may contain:
 
 - `packages/compositor/Cargo.toml` and `packages/compositor/Cargo.lock`;
-- rebuilt files under the six `packages/compositor-{darwin,linux}-*` platform packages.
+- rebuilt files under the six `packages/compositor-{darwin,linux}-*` platform packages and `packages/compositor-win32-x64-msvc`.
 
-Stop if unrelated tracked files changed. Confirm that no Windows compositor file changed because the current `build-all` target list does not include Windows.
+Stop if unrelated tracked files changed. Confirm that the Windows compositor package changed, including `remotion.exe` and the FFmpeg files from the updated archive. Run `objdump -p packages/compositor-win32-x64-msvc/remotion.exe`: require `msvcrt.dll` and reject `api-ms-win-crt-*` or `ucrtbase.dll` imports.
 
 ## Commit, push, and open the PR
 
 Before committing, check for an existing pull request for the current branch. If one exists, report it and stop instead of duplicating or rewriting it.
 
-Stage only the two Cargo files, the six rebuilt compositor platform packages, and any intentional update to this skill. Use this commit and PR title:
+Stage only the two Cargo files, the seven rebuilt compositor platform packages, `packages/compositor/build.ts`, and any intentional update to this skill. Use this commit and PR title:
 
 ```text
 `@remotion/compositor`: Update rust-ffmpeg and rebuild binaries
@@ -75,7 +75,7 @@ Stage only the two Cargo files, the six rebuilt compositor platform packages, an
 
 Push once with `git push -u origin HEAD`. Never force-push. If the push is rejected, stop and report it.
 
-Write a concise PR body to a temporary Markdown file. Include the full `rust-ffmpeg` and `rust-ffmpeg-sys` SHAs, the splitter source SHA if available in the handoff, the six rebuilt targets, and validation results. Create a draft PR against `main` with `gh pr create --draft --body-file`; do not pass the body inline.
+Write a concise PR body to a temporary Markdown file. Include the full `rust-ffmpeg` and `rust-ffmpeg-sys` SHAs, the splitter source SHA if available in the handoff, the seven rebuilt targets, and validation results. Create a draft PR against `main` with `gh pr create --draft --body-file`; do not pass the body inline.
 
 ## Finish the chain
 
