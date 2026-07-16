@@ -1805,12 +1805,12 @@ test('Canvas outline selection uses conventional modifier keys', () => {
 	).toEqual({shiftKey: false, toggleKey: true});
 });
 
-test('Canvas outline double-click preserves text editing as a fallback', () => {
+test('Canvas outline double-click only handles opening the editor', () => {
 	expect(getOutlineDoubleClickAction({button: 0, canOpenInEditor: true})).toBe(
 		'open-in-editor',
 	);
 	expect(getOutlineDoubleClickAction({button: 0, canOpenInEditor: false})).toBe(
-		'edit-text',
+		null,
 	);
 	expect(
 		getOutlineDoubleClickAction({button: 2, canOpenInEditor: true}),

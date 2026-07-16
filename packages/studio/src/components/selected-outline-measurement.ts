@@ -349,13 +349,8 @@ export const getOutlineDoubleClickAction = ({
 }: {
 	readonly button: number;
 	readonly canOpenInEditor: boolean;
-}): 'open-in-editor' | 'edit-text' | null => {
-	if (button !== 0) {
-		return null;
-	}
-
-	return canOpenInEditor ? 'open-in-editor' : 'edit-text';
-};
+}): 'open-in-editor' | null =>
+	button === 0 && canOpenInEditor ? 'open-in-editor' : null;
 
 type SelectedEffectFields = {
 	allFields: boolean;

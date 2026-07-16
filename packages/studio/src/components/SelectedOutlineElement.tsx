@@ -1,5 +1,4 @@
 import React, {useContext, useMemo, useRef, useState} from 'react';
-import {flushSync} from 'react-dom';
 import type {ResolvedStackLocation} from 'remotion';
 import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
@@ -29,7 +28,6 @@ import {
 } from './ForceSpecificCursor';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {showNotification} from './Notifications/NotificationCenter';
-import {optionsSidebarTabs} from './options-sidebar-tabs';
 import {
 	applySelectedOutlineDragAxisLock,
 	applySelectedOutlineTransformOriginAxisLock,
@@ -97,10 +95,7 @@ import {
 } from './Timeline/call-add-keyframe';
 import {disableSequenceInteractivity} from './Timeline/disable-sequence-interactivity';
 import {duplicateSequencesFromSource} from './Timeline/duplicate-selected-timeline-item';
-import {
-	commitPendingInspectorFields,
-	requestFocusInspectorField,
-} from './Timeline/focus-inspector-field';
+import {commitPendingInspectorFields} from './Timeline/focus-inspector-field';
 import {getSequenceContextMenuItems} from './Timeline/get-sequence-context-menu-items';
 import {saveSequenceProps} from './Timeline/save-sequence-prop';
 import {getTimelineAssetLinkInfo} from './Timeline/timeline-asset-link';
@@ -1548,40 +1543,6 @@ export const SelectedOutlineElement: React.FC<{
 	const selectAsset = useSelectAsset();
 	const {setSelectedModal} = useContext(ModalsContext);
 
-	const onTextEditStart = React.useCallback(
-		(editTarget: SelectedOutlineTarget) => {
-			const {textEdit} = editTarget;
-			if (textEdit === null) {
-				return;
-			}
-
-			if (
-				textEdit.propStatus.status !== 'static' ||
-				typeof textEdit.propStatus.codeValue !== 'string'
-			) {
-				showNotification(
-					'This text is computed and cannot be edited visually',
-					3000,
-				);
-				return;
-			}
-
-			flushSync(() => {
-				if (!editTarget.selected) {
-					onSelect(editTarget.selection, {shiftKey: false, toggleKey: false});
-				}
-
-				optionsSidebarTabs.current?.selectInspectorPanel();
-			});
-
-			requestFocusInspectorField({
-				fieldKey: 'children',
-				nodePath: textEdit.nodePath,
-			});
-		},
-		[onSelect],
-	);
-
 	const resolveOriginalLocation = React.useCallback(
 		async (resolveTarget: SelectedOutlineTarget) => {
 			const stack = resolveTarget.sequence.getStack();
@@ -1618,16 +1579,10 @@ export const SelectedOutlineElement: React.FC<{
 				return false;
 			}
 
-			if (action === 'edit-text') {
-				onTextEditStart(doubleClickTarget);
-				return true;
-			}
-
 			const openTargetInEditor = async () => {
 				const originalLocation =
 					await resolveOriginalLocation(doubleClickTarget);
 				if (originalLocation === null) {
-					onTextEditStart(doubleClickTarget);
 					return;
 				}
 
@@ -1640,7 +1595,7 @@ export const SelectedOutlineElement: React.FC<{
 
 			return true;
 		},
-		[onTextEditStart, previewServerState.type, resolveOriginalLocation],
+		[previewServerState.type, resolveOriginalLocation],
 	);
 
 	const onContextMenuOpen = React.useCallback(async () => {
