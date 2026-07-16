@@ -5,6 +5,7 @@ import {
 	Sequence,
 	staticFile,
 	useCurrentFrame,
+	Easing,
 } from 'remotion';
 import {ApplicationRenderButton} from './Applications/RenderButton';
 import {ApplicationSimpleApp} from './Applications/SimpleApp';
@@ -27,18 +28,31 @@ export function Applications() {
 				style={{
 					translate: interpolate(
 						frame,
-						[0, 90, 119, 120, 210, 239],
-						[
-							'0px 0px',
-							'0px 0px',
-							'-1198.6666666666667px 0px',
-							'1240px 0px',
-							'1240px 0px',
-							'0px 0px',
-						],
+						[0, 113, 127, 223, 239],
+						['0px 0px', '0px 0px', '-1240px 0px', '-1240px 0px', '0px 0px'],
 						{
 							extrapolateLeft: 'clamp',
 							extrapolateRight: 'clamp',
+							easing: [
+								Easing.linear,
+								Easing.spring({
+									damping: 200,
+									mass: 1,
+									stiffness: 100,
+									allowTail: true,
+									durationRestThreshold: 0.02,
+									overshootClamping: false,
+								}),
+								Easing.linear,
+								Easing.spring({
+									damping: 200,
+									mass: 1,
+									stiffness: 100,
+									allowTail: true,
+									durationRestThreshold: 0.02,
+									overshootClamping: false,
+								}),
+							],
 						},
 					),
 				}}
@@ -51,11 +65,31 @@ export function Applications() {
 				style={{
 					translate: interpolate(
 						frame,
-						[0, 90, 120, 210, 239],
-						['1240px 0px', '1240px 0px', '0px 0px', '0px 0px', '-1240px 0px'],
+						[0, 113, 127, 223, 239],
+						['1240px 0px', '1240px 0px', '0px 0px', '0px 0px', '1240px 0px'],
 						{
 							extrapolateLeft: 'clamp',
 							extrapolateRight: 'clamp',
+							easing: [
+								Easing.linear,
+								Easing.spring({
+									damping: 200,
+									mass: 1,
+									stiffness: 100,
+									allowTail: true,
+									durationRestThreshold: 0.02,
+									overshootClamping: false,
+								}),
+								Easing.linear,
+								Easing.spring({
+									damping: 200,
+									mass: 1,
+									stiffness: 100,
+									allowTail: true,
+									durationRestThreshold: 0.02,
+									overshootClamping: false,
+								}),
+							],
 						},
 					),
 				}}
