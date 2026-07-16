@@ -23,13 +23,3 @@ the relevant skills, or you can invoke the main skill directly:
 ```text
 /remotion:remotion-best-practices
 ```
-
-## Local development
-
-From this directory in the Remotion monorepo:
-
-```bash
-bun run build
-claude plugin validate .
-claude --plugin-dir .
-```

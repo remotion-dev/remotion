@@ -213,6 +213,16 @@ const publishClaudeCodePlugin = async () => {
 		cpSync(src, dst, {recursive: true});
 	}
 
+	const packageJson = JSON.parse(
+		readFileSync(path.join(claudeCodePluginDir, 'package.json'), 'utf-8'),
+	);
+	const pluginJsonPath = path.join(workingDir, '.claude-plugin', 'plugin.json');
+	const pluginJson = JSON.parse(readFileSync(pluginJsonPath, 'utf-8'));
+	writeFileSync(
+		pluginJsonPath,
+		`${JSON.stringify({...pluginJson, version: packageJson.version}, null, '\t')}\n`,
+	);
+
 	await $`git add .`.cwd(workingDir).nothrow();
 	const hasChanges = await $`git status --porcelain`.cwd(workingDir).text();
 	if (!hasChanges) {
