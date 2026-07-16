@@ -8,8 +8,7 @@ Give the user a notice.
 ## Nesting
 
 `<HtmlInCanvas>` components may be nested in Chrome 152.0.7944.0 and later.
-Older Chrome versions support a single `<HtmlInCanvas>`, but do not correctly
-paint nested HTML-in-canvas subtrees.
+Older Chrome versions support a single `<HtmlInCanvas>`, but do not correctly paint nested HTML-in-canvas subtrees.
 
 ## Enabling WebGL during renders
 
