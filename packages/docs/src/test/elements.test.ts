@@ -137,27 +137,14 @@ describe('Elements must follow the colocated single-file format', () => {
 			const tsx = readFileSync(element.tsxPath, 'utf8');
 			const mdx = readFileSync(element.mdxPath, 'utf8');
 
-			test('source file is an Element, not a composition or placement wrapper', () => {
+			test('source file is an Element, not a composition or wrapper Sequence', () => {
 				expect(tsx).not.toContain('export const durationInFrames');
 				expect(tsx).not.toContain('export const fps');
 				expect(tsx).not.toContain('export const width');
 				expect(tsx).not.toContain('export const height');
 				expect(tsx).not.toContain('export const RemotionRoot');
 				expect(tsx).not.toContain('<Composition');
-
-				const sequenceTags = tsx.match(/<Sequence(?:\s[^>]*)?>/gs) ?? [];
-				if (tsx.includes('Interactive.withSchema(')) {
-					expect(sequenceTags).toHaveLength(1);
-					const registrationSequence = sequenceTags[0];
-					expect(registrationSequence).toContain('layout="none"');
-					expect(registrationSequence).toContain('controls={controls}');
-					expect(registrationSequence).toContain('outlineRef={outlineRef}');
-					expect(registrationSequence).not.toMatch(
-						/\b(?:from|durationInFrames|trimBefore|freeze|premountFor|postmountFor|width|height|style|className)\s*=/,
-					);
-				} else {
-					expect(sequenceTags).toHaveLength(0);
-				}
+				expect(tsx).not.toContain('<Sequence');
 			});
 
 			test('MDX uses the ElementPage template', () => {

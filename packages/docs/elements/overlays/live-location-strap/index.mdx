@@ -12,7 +12,7 @@ import {elementDefinitions} from '@site/src/components/Elements/element-definiti
 
 ## Usage
 
-Place the strap inside a `<Sequence>` and set only the fields you need:
+Place the strap inside a `<Sequence>`:
 
 ```tsx title="MyComposition.tsx"
 import {Sequence} from 'remotion';
@@ -21,13 +21,10 @@ import {LiveLocationStrap} from './live-location-strap';
 export const MyComposition = () => {
   return (
     <Sequence from={30} durationInFrames={120} layout="none">
-      <LiveLocationStrap
-        statusLabel="On location"
-        location="NAB Show"
-        venue="Main Stage"
-        date="June 22"
-      />
+      <LiveLocationStrap />
     </Sequence>
   );
 };
 ```
+
+In Visual Mode, select the **Status label**, **Location**, **Date**, or **Venue** layer to edit its text.

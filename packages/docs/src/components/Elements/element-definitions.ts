@@ -12,7 +12,7 @@ import type {Contributor} from '../Credits';
 
 export type ElementDefinition = {
 	readonly category: string;
-	readonly component: ComponentType<Record<never, never>>;
+	readonly component: ComponentType<Record<string, never>>;
 	readonly contributors: readonly Contributor[];
 	readonly description: string;
 	readonly displayName: string;
