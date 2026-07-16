@@ -348,6 +348,57 @@ test('Video media registration accounts for its own negative from', () => {
 	);
 
 	expect(videoSequence?.startMediaFrom).toBe(15);
+	expect(videoSequence?.mediaFrameAtSequenceZero).toBe(5);
+});
+
+test('Video media registration keeps trimBefore at sequence frame zero', () => {
+	const registeredSequences: TSequence[] = [];
+	const onRegisterSequence = (sequence: TSequence) => {
+		registeredSequences.push(sequence);
+	};
+
+	const {rerender} = render(
+		<SequenceTestWrapper onRegisterSequence={onRegisterSequence}>
+			<Sequence
+				layout="none"
+				from={31}
+				durationInFrames={47}
+				_remotionInternalIsMedia={{
+					type: 'video',
+					data: makeMediaInTimelineData({startMediaFrom: 31}),
+				}}
+			/>
+		</SequenceTestWrapper>,
+	);
+
+	const videoSequence = registeredSequences.find(
+		(sequence) => sequence.type === 'video',
+	);
+
+	expect(videoSequence?.from).toBe(31);
+	expect(videoSequence?.duration).toBe(47);
+	expect(videoSequence?.mediaFrameAtSequenceZero).toBe(31);
+
+	rerender(
+		<SequenceTestWrapper onRegisterSequence={onRegisterSequence}>
+			<Sequence
+				layout="none"
+				from={31}
+				durationInFrames={47}
+				_remotionInternalIsMedia={{
+					type: 'video',
+					data: makeMediaInTimelineData({startMediaFrom: 41}),
+				}}
+			/>
+		</SequenceTestWrapper>,
+	);
+
+	const updatedVideoSequence = registeredSequences.at(-1);
+	if (updatedVideoSequence?.type !== 'video') {
+		throw new Error('Expected an updated video sequence');
+	}
+
+	expect(updatedVideoSequence.mediaFrameAtSequenceZero).toBe(41);
 });
 
 test('Video media registration accounts for Sequence trimBefore', () => {
@@ -376,6 +427,7 @@ test('Video media registration accounts for Sequence trimBefore', () => {
 	);
 
 	expect(videoSequence?.startMediaFrom).toBe(15);
+	expect(videoSequence?.mediaFrameAtSequenceZero).toBe(5);
 });
 
 test('Video media registration stores frozen media frame', () => {
@@ -407,6 +459,7 @@ test('Video media registration stores frozen media frame', () => {
 	);
 
 	expect(videoSequence?.frozenFrame).toBe(12);
+	expect(videoSequence?.mediaFrameAtSequenceZero).toBe(5);
 	expect(videoSequence?.frozenMediaFrame).toBe(29);
 });
 
@@ -437,6 +490,7 @@ test('Video media registration keeps frozen frame sequence-local for negative fr
 	);
 
 	expect(videoSequence?.startMediaFrom).toBe(15);
+	expect(videoSequence?.mediaFrameAtSequenceZero).toBe(5);
 	expect(videoSequence?.frozenFrame).toBe(12);
 	expect(videoSequence?.frozenMediaFrame).toBe(17);
 });

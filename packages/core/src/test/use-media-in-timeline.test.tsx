@@ -89,6 +89,9 @@ test('useMediaInTimeline registers and unregisters new sequence', () => {
 		},
 	);
 	expect(registerSequence).toHaveBeenCalled();
+	expect(registerSequence.mock.calls[0]?.[0]).toMatchObject({
+		mediaFrameAtSequenceZero: null,
+	});
 	unmount();
 	expect(unregisterSequence).toHaveBeenCalled();
 });
