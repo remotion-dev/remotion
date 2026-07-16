@@ -61,16 +61,12 @@ bun test src/test/elements.test.ts
 Perform the preview verification required by the contributor guide:
 
 ```bash
+cd packages/docs
 bun run render-element-previews
-```
-
-Inspect `.element-previews/<category>/<slug>/preview.png` and `preview.mp4`, and give those paths to the developer for review. This command renders every Element and clears the previous preview output. Do not commit the ignored output or pass `--upload` unless uploading was explicitly requested and maintainer R2 credentials are available.
-
-Return to the repository root:
-
-```bash
 cd ../..
 ```
+
+Inspect `packages/docs/.element-previews/<category>/<slug>/preview.png` and `preview.mp4`, and give those paths to the developer for review. This command renders every Element and clears the previous preview output. Do not commit the ignored output or pass `--upload` unless uploading was explicitly requested and maintainer R2 credentials are available.
 
 ## 6. Run final repository checks
 
