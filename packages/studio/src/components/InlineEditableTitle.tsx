@@ -164,11 +164,11 @@ export const InlineEditableTitle: React.FC<{
 		return {
 			...titleInner,
 			backgroundColor,
-			cursor: isEditing ? 'text' : canRename ? 'pointer' : 'default',
+			cursor: isEditing ? 'text' : 'default',
 			userSelect: isEditing ? 'text' : 'none',
 			width: isEditing ? '100%' : undefined,
 		};
-	}, [backgroundColor, canRename, isEditing]);
+	}, [backgroundColor, isEditing]);
 
 	return (
 		<div style={titleWrapper} title={title ?? value}>
