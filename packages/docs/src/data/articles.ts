@@ -4369,7 +4369,7 @@ export const articles = [
 		title: 'Remotion and Mediabunny',
 		relativePath: 'docs/mediabunny/index.mdx',
 		compId: 'articles-docs-mediabunny-index',
-		crumb: 'Migration',
+		crumb: 'Mediabunny',
 		noAi: false,
 		slug: 'mediabunny/index',
 	},

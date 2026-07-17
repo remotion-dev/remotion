@@ -1,45 +1,72 @@
 ---
 image: /generated/articles-docs-mediabunny-index.png
 title: Remotion and Mediabunny
-crumb: 'Migration'
+crumb: 'Mediabunny'
 sidebar_label: Remotion and Mediabunny
 ---
 
-[On September 1st 2025, we announced](/blog/mediabunny) that we are combining our efforts and are helping Mediabunny become the definitive multimedia library for the web!
+[Mediabunny](https://mediabunny.dev) is the multimedia library Remotion uses for decoding and encoding media on the web.
 
-As a result, we will be slowing phasing out [`@remotion/media-parser`](/docs/media-parser) and [`@remotion/webcodecs`](/docs/webcodecs) and deprecate it when Mediabunny has reached the same capabilities.
+[On September 1st 2025, we announced](/blog/mediabunny) that we are combining our efforts and are helping Mediabunny become the definitive multimedia library for the web.
 
-## Should I use Mediabunny or Media Parser?
+## Installation
 
-As of February 2026, we recommend that you now [migrate to Mediabunny](https://mediabunny.dev/guide/quick-start).  
-Media Parser is now deprecated.
+If you use Mediabunny as a direct dependency in your project, install the version that matches your Remotion installation:
 
-See the snippets in this documentation section to help you migrate.
+```bash
+bunx remotion add mediabunny
+```
 
-## Differences in features
+This installs `mediabunny` at the version [compatible with your Remotion version](/docs/mediabunny/version).  
+`npx remotion add mediabunny` works the same way if you prefer npm.
 
-Some features are available in Media Parser but not (yet) in Mediabunny, and vice versa.  
-Here are some notable ones:
+## Upgrading
 
-**Features exclusive to Media Parser**:
+Upgrade Remotion and Mediabunny together so their versions stay paired:
 
-- `.avi` container support
-- Foreign file probing
+```bash
+bunx remotion upgrade
+```
 
-**Features exclusive to Mediabunny**:
+If `mediabunny` is already installed, this upgrades it to the version compatible with the new Remotion release.  
+See also: [`npx remotion upgrade`](/docs/cli/upgrade).
 
-- `.ogg`, `.adts` container support
+You can confirm the installed versions with:
+
+```bash
+bunx remotion versions
+```
+
+## Where Remotion uses Mediabunny
+
+These Remotion packages rely on Mediabunny:
+
+- [`@remotion/media`](/docs/media) ([`<Video>`](/docs/media/video) and [`<Audio>`](/docs/media/audio))
+- [`@remotion/media-utils`](/docs/media-utils)
+- [`@remotion/web-renderer`](/docs/web-renderer) for [client-side rendering](/docs/client-side-rendering)
+
+This documentation section covers common Mediabunny tasks in a Remotion context:
+
+- [`<Video>` and `<Audio>` tags](/docs/mediabunny/new-video)
+- [Getting metadata](/docs/mediabunny/metadata)
+- [Extracting a thumbnail](/docs/mediabunny/extract-thumbnail)
+- [Extracting frames](/docs/mediabunny/extract-frames)
+- [Checking if a file can be decoded](/docs/mediabunny/can-decode)
+- [Supported formats](/docs/mediabunny/formats)
+
+For the full Mediabunny API, see the [Mediabunny quick start](https://mediabunny.dev/guide/quick-start).
+
+## Capabilities
+
+Mediabunny includes:
+
+- Broad container support, including `.ogg` and `.adts`
 - Compression
 - Media Player
 - Video creation
 - Live recording and streaming
 - Tree shaking
-
-Mediabunny is generally faster.  
-Media Parser has higher-level APIs ("`extractFrames()`") while Mediabunny's API is lower-level.  
-Mediabunny has a more permissive license (see below).
-
-If one of these characteristics is important for you, let this influence your choice.
+- A more permissive license (see below)
 
 ## How are Remotion and Mediabunny related?
 
@@ -53,12 +80,12 @@ If an issue also concerns Remotion usage described in our docs, you can file it 
 
 ## License
 
-Remotion (the framework), `@remotion/media-parser` and `@remotion/webcodecs` continue to use the [Remotion License](/docs/license).
+Remotion (the framework) continues to use the [Remotion License](/docs/license).  
 If you are using Remotion and are not eligible for the Free License, you continue to require a Company License.
 
 [Mediabunny](https://mediabunny.dev) has a more permissive MPL 2.0 license.  
 If you are a company and you are only interested in the multimedia library, you don't need a Company License to use Mediabunny - it is truly open source!
 
-## What happens with remotion.dev/convert?
+## remotion.dev/convert
 
-As of October 20th 2025, [remotion.dev/convert](https://remotion.dev/convert) is now updated to use Mediabunny!
+[remotion.dev/convert](https://remotion.dev/convert) is powered by Mediabunny.
