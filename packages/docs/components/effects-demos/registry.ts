@@ -43,6 +43,7 @@ import {scale} from '@remotion/effects/scale';
 import {scanlines} from '@remotion/effects/scanlines';
 import {shine} from '@remotion/effects/shine';
 import {shrinkwrap} from '@remotion/effects/shrinkwrap';
+import {skew} from '@remotion/effects/skew';
 import {speckle} from '@remotion/effects/speckle';
 import {thermalVision} from '@remotion/effects/thermal-vision';
 import {tint} from '@remotion/effects/tint';
@@ -122,6 +123,7 @@ import {
 	EffectsShrinkwrapPreview,
 	SHRINKWRAP_PREVIEW_PARAMS,
 } from '../effects/effects-shrinkwrap-preview';
+import {EffectsSkewPreview} from '../effects/effects-skew-preview';
 import {EffectsSpecklePreview} from '../effects/effects-speckle-preview';
 import {
 	EffectsStarburstPreview,
@@ -322,6 +324,14 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/shine',
 		comp: EffectsShinePreview,
 		schema: shine().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-skew',
+		effectName: 'skew',
+		effectImportPath: '@remotion/effects/skew',
+		comp: EffectsSkewPreview,
+		schema: skew().definition.schema,
 	},
 	{
 		...defaults,

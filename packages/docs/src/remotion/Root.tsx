@@ -75,6 +75,7 @@ import {
 	EffectsShrinkwrapPreview,
 	SHRINKWRAP_PREVIEW_PARAMS,
 } from '../../components/effects/effects-shrinkwrap-preview';
+import {EffectsSkewPreview} from '../../components/effects/effects-skew-preview';
 import {EffectsSpecklePreview} from '../../components/effects/effects-speckle-preview';
 import {
 	EffectsStarburstPreview,
@@ -809,6 +810,13 @@ export const RemotionRoot: React.FC = () => {
 						haloIntensity: 0.3,
 						coreIntensity: 0.4,
 					}}
+				/>
+				<Still
+					id="effects-skew-preview"
+					component={EffectsSkewPreview}
+					width={1280}
+					height={720}
+					defaultProps={{x: 24, y: 0}}
 				/>
 				<Still
 					id="effects-shrinkwrap-preview"

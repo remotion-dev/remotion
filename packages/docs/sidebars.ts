@@ -318,6 +318,7 @@ const sidebars: SidebarsConfig = {
 				'effects/scanlines',
 				'effects/shine',
 				'effects/shrinkwrap',
+				'effects/skew',
 				'effects/speckle',
 				'effects/thermal-vision',
 				'effects/tint',

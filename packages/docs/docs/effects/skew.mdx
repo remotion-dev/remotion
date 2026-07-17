@@ -1,0 +1,68 @@
+---
+image: /generated/articles-docs-effects-skew.png
+slug: /effects/skew
+title: skew()
+sidebar_label: skew()
+crumb: '@remotion/effects'
+---
+
+# skew()<AvailableFrom v="4.0.491" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+Skews a canvas-based component horizontally and vertically with a WebGL2 shader.
+
+Pixels moved outside the canvas are clipped. Newly uncovered regions are transparent.
+
+## Preview
+
+<EffectsDemo type="effects-skew" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {AbsoluteFill, Video, staticFile} from 'remotion';
+import {skew} from '@remotion/effects/skew';
+
+export const MyComp: React.FC = () => {
+  return (
+    <AbsoluteFill>
+      <Video
+        src={staticFile('video.mp4')}
+        effects={[skew({x: 24, y: 0})]}
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+## API
+
+Pass an object with the following properties. You can also call `skew()` without arguments.
+
+### `x?`
+
+Horizontal skew angle in degrees. Defaults to `20`.
+
+Must be greater than `-89` and less than `89`.
+
+### `y?`
+
+Vertical skew angle in degrees. Defaults to `0`.
+
+Must be greater than `-89` and less than `89`.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Requirements
+
+`skew()` uses a WebGL2 backend. During renders, enable WebGL via [`Config.setChromiumOpenGlRenderer('angle')`](/docs/config#setchromiumopenglrenderer). See [Using WebGL during renders](/docs/remotion/html-in-canvas#using-webgl-during-renders).
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`cornerPin()`](/docs/effects/corner-pin)
+- [`xyTranslate()`](/docs/effects/xy-translate)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/skew.ts)

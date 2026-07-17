@@ -47,6 +47,7 @@ import {scale} from '../scale.js';
 import {scanlines} from '../scanlines.js';
 import {shine} from '../shine.js';
 import {shrinkwrap} from '../shrinkwrap.js';
+import {skew} from '../skew.js';
 import {speckle} from '../speckle.js';
 import {thermalVision} from '../thermal-vision.js';
 import {tint} from '../tint.js';
@@ -213,6 +214,9 @@ test('@remotion/effects expose documentation links', () => {
 	expect(shine().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/shine',
 	);
+	expect(skew().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/skew',
+	);
 	expect(shrinkwrap().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/shrinkwrap',
 	);
@@ -313,6 +317,7 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(scanlines().definition.label).toBe('scanlines()');
 	expect(scale({scale: 1}).definition.label).toBe('scale()');
 	expect(shine().definition.label).toBe('shine()');
+	expect(skew().definition.label).toBe('skew()');
 	expect(shrinkwrap().definition.label).toBe('shrinkwrap()');
 	expect(speckle().definition.label).toBe('speckle()');
 	expect(thermalVision().definition.label).toBe('thermalVision()');
@@ -3463,6 +3468,28 @@ test('shine() parameters produce distinct effect keys', () => {
 			brighter.effectKey,
 		]).size,
 	).toBe(6);
+});
+
+test('skew() accepts default and valid params', () => {
+	expect(() => skew()).not.toThrow();
+	expect(() => skew({x: -30, y: 15})).not.toThrow();
+});
+
+test('skew() rejects invalid angles', () => {
+	expect(() => skew({x: Number.NaN})).toThrow('"x" must be a finite number');
+	expect(() => skew({x: 89})).toThrow(
+		'"x" must be greater than -89 and less than 89',
+	);
+	expect(() => skew({y: -89})).toThrow(
+		'"y" must be greater than -89 and less than 89',
+	);
+});
+
+test('skew() parameters produce distinct effect keys', () => {
+	const keys = [skew(), skew({x: 10}), skew({y: 10})].map(
+		(effect) => effect.effectKey,
+	);
+	expect(new Set(keys).size).toBe(keys.length);
 });
 
 test('shrinkwrap() accepts default params', () => {
