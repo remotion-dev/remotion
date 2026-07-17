@@ -100,6 +100,12 @@ describe('Elements must follow the colocated single-file format', () => {
 		expect(
 			elementPage.attributes.some((attr) => attr.name === 'sourceCode'),
 		).toBe(true);
+		const sourceCode = elementPage.attributes.find(
+			(attribute) => attribute.name === 'sourceCode',
+		);
+		expect(sourceCode?.value.value).toContain('element-source-file-loader.cjs');
+		expect(sourceCode?.value.value).toContain(sourceFile.replaceAll('\\', '/'));
+		expect(sourceCode?.value.value).toMatch(/^require\(/);
 		const dependencies = elementPage.attributes.find(
 			(attribute) => attribute.name === 'dependencies',
 		);

@@ -1,7 +1,31 @@
+import path from 'path';
+import {fileURLToPath} from 'url';
 import {
 	getRemotionElementDependencies,
 	getRemotionElementSource,
 } from './element-source-utils.js';
+
+const ELEMENT_SOURCE_LOADER = path
+	.resolve(
+		path.dirname(fileURLToPath(import.meta.url)),
+		'element-source-file-loader.cjs',
+	)
+	.replaceAll('\\', '/');
+
+const toPosixPath = (filePath) => filePath.replaceAll('\\', '/');
+
+const getWebpackElementSourceRequest = ({file, sourceFilePath}) => {
+	const absoluteSourcePath = path.resolve(path.dirname(sourceFilePath), file);
+	const relativeSourcePath = toPosixPath(
+		path.relative(path.dirname(sourceFilePath), absoluteSourcePath),
+	);
+	const webpackResource = relativeSourcePath.startsWith('.')
+		? relativeSourcePath
+		: `./${relativeSourcePath}`;
+
+	// !! disables other loaders so .tsx is read as text, not compiled as JS.
+	return `!!${ELEMENT_SOURCE_LOADER}!${webpackResource}`;
+};
 
 const getAttributeValue = (node, name) => {
 	const attribute = node.attributes?.find((attr) => attr.name === name);
@@ -13,8 +37,8 @@ const getAttributeValue = (node, name) => {
 	return attribute.value;
 };
 
-const sourceCodeAttribute = (sourceCode) => {
-	const value = JSON.stringify(sourceCode);
+const sourceCodeAttribute = (webpackRequest) => {
+	const value = `require(${JSON.stringify(webpackRequest)})`;
 
 	return {
 		type: 'mdxJsxAttribute',
@@ -29,9 +53,19 @@ const sourceCodeAttribute = (sourceCode) => {
 						{
 							type: 'ExpressionStatement',
 							expression: {
-								type: 'Literal',
-								value: sourceCode,
-								raw: value,
+								type: 'CallExpression',
+								callee: {
+									type: 'Identifier',
+									name: 'require',
+								},
+								arguments: [
+									{
+										type: 'Literal',
+										value: webpackRequest,
+										raw: JSON.stringify(webpackRequest),
+									},
+								],
+								optional: false,
 							},
 						},
 					],
@@ -74,7 +108,7 @@ const dependenciesAttribute = (dependencies) => {
 	};
 };
 
-const setElementPageSource = ({dependencies, node, sourceCode}) => {
+const setElementPageSource = ({dependencies, node, webpackRequest}) => {
 	const attributesWithoutSourceFile = (node.attributes ?? []).filter(
 		(attribute) => attribute.name !== 'sourceFile',
 	);
@@ -85,7 +119,7 @@ const setElementPageSource = ({dependencies, node, sourceCode}) => {
 
 	node.attributes = [
 		...attributesWithoutGeneratedValues,
-		sourceCodeAttribute(sourceCode),
+		sourceCodeAttribute(webpackRequest),
 		dependenciesAttribute(dependencies),
 	];
 };
@@ -103,7 +137,8 @@ const getSourceCodeNode = ({node, sourceFilePath}) => {
 
 	const sourceCode = getRemotionElementSource({file, sourceFilePath});
 	const dependencies = getRemotionElementDependencies(sourceCode);
-	setElementPageSource({dependencies, node, sourceCode});
+	const webpackRequest = getWebpackElementSourceRequest({file, sourceFilePath});
+	setElementPageSource({dependencies, node, webpackRequest});
 
 	return {
 		type: 'code',
@@ -141,4 +176,4 @@ export default function remarkElementSource() {
 			sourceFilePath: file.path,
 		});
 	};
-}
+};

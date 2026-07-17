@@ -56,4 +56,10 @@ Follow the [interactivity best practices](/docs/studio/interactivity-best-practi
 
 Choose a poster frame that shows the Element in a visible, representative state. The video preview should cover the complete configured duration, including entrance and exit animations.
 
+## Local docs development
+
+When you run the docs site locally, edits to an Element MDX page and its colocated `.tsx` source should refresh on the Elements route without restarting the server. The Element page wires the `.tsx` file through Webpack so the preview, displayed source, and Studio drag payload stay in sync.
+
+If Elements look stale after a production deploy, purge the Cloudflare cache for the Elements routes (or the whole zone). Manual cache intervention has been needed before when CDN HTML or assets served an older Elements build.
+
 When the Element satisfies these guidelines, see [Submit an Element](/elements/submit-an-element).
