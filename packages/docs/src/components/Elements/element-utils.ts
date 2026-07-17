@@ -3,6 +3,8 @@ import {
 	type ElementDefinition,
 } from './element-definitions';
 
+export {getElementPreviewUrls} from './element-og';
+
 export const getElementDimensionsLabel = (definition: ElementDefinition) => {
 	if (definition.elementWidth === null || definition.elementHeight === null) {
 		return 'Adapts to composition';
@@ -13,15 +15,6 @@ export const getElementDimensionsLabel = (definition: ElementDefinition) => {
 
 export const getElementCompositionId = (slug: string) => {
 	return `element-${slug.replaceAll('/', '-')}`;
-};
-
-export const getElementPreviewUrls = (slug: string) => {
-	const base = `https://remotion.media/elements/${slug}`;
-
-	return {
-		mp4: `${base}/preview.mp4`,
-		png: `${base}/preview.png`,
-	};
 };
 
 export const getElementDefinition = (slug: string) => {

@@ -1,3 +1,5 @@
+import Head from '@docusaurus/Head';
+import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import {
 	makeElementDragData,
 	type ComponentDimensions,
@@ -10,8 +12,10 @@ import React, {
 	type ReactNode,
 } from 'react';
 import {BlueButton, PlainButton} from '../../../components/layout/Button';
+import {Seo} from '../Seo';
 import type {ElementDefinition} from './element-definitions';
 import {setElementDragData, setElementDragImage} from './element-drag-data';
+import {getElementOgMetadata} from './element-og';
 import {getElementDimensionsLabel} from './element-utils';
 import {ElementPreview} from './ElementPreview';
 import {
@@ -103,6 +107,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 	dependencies,
 	sourceCode,
 }) => {
+	const context = useDocusaurusContext();
 	const {
 		contributors,
 		description,
@@ -120,6 +125,10 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 	const sourceId = useId();
 	const {height: previewHeight, width: previewWidth} =
 		getElementPreviewDimensions(definition);
+	const ogMetadata = getElementOgMetadata({
+		definition,
+		previewDimensions: {height: previewHeight, width: previewWidth},
+	});
 
 	const dragData = useMemo(() => {
 		if (!sourceCode) {
@@ -211,6 +220,26 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 
 	return (
 		<div className={styles.workbench}>
+			<Head>
+				{Seo.renderImage(
+					ogMetadata.imageUrl,
+					context.siteConfig.url,
+					ogMetadata.width === null || ogMetadata.height === null
+						? undefined
+						: {height: ogMetadata.height, width: ogMetadata.width},
+				)}
+				{ogMetadata.videoUrl === null ||
+				ogMetadata.width === null ||
+				ogMetadata.height === null
+					? null
+					: Seo.renderVideo({
+							src: ogMetadata.videoUrl,
+							domain: context.siteConfig.url,
+							width: ogMetadata.width,
+							height: ogMetadata.height,
+							durationSeconds: ogMetadata.durationSeconds ?? undefined,
+						})}
+			</Head>
 			<section aria-label="Preview" className={styles.previewColumn}>
 				<div className={styles.previewAndSource}>
 					<ElementPreview

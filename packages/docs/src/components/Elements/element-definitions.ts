@@ -21,6 +21,12 @@ export type ElementDefinition = {
 	readonly elementHeight: number | null;
 	readonly elementWidth: number | null;
 	readonly fps: number;
+	/**
+	 * When false, Element pages fall back to the site social preview image and
+	 * omit OG video tags. Defaults to true for published Elements with preview
+	 * assets at remotion.media.
+	 */
+	readonly hasPreviewAssets?: boolean;
 	readonly height: number;
 	readonly posterFrame: number;
 	readonly previewPadding: number;
