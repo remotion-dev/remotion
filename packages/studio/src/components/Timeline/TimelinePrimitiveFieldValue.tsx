@@ -14,6 +14,7 @@ import {TimelineBooleanField} from './TimelineBooleanField';
 import {TimelineColorField} from './TimelineColorField';
 import {TimelineEnumField} from './TimelineEnumField';
 import {TimelineFontFamilyField} from './TimelineFontFamilyField';
+import {TimelineFontWeightField} from './TimelineFontWeightField';
 import {TimelineNumberField} from './TimelineNumberField';
 import {TimelineRotationField} from './TimelineRotationField';
 import {TimelineScaleField} from './TimelineScaleField';
@@ -220,6 +221,21 @@ export const TimelinePrimitiveFieldValue: React.FC<{
 		return (
 			<span style={inlineWrapper}>
 				<TimelineFontFamilyField
+					effectiveValue={effectiveValue}
+					field={field}
+					onDragEnd={onDragEnd}
+					onDragValueChange={onDragValueChange}
+					onSave={onSave}
+					propStatus={propStatus}
+				/>
+			</span>
+		);
+	}
+
+	if (field.typeName === 'font-weight') {
+		return (
+			<span style={inlineWrapper}>
+				<TimelineFontWeightField
 					effectiveValue={effectiveValue}
 					field={field}
 					onDragEnd={onDragEnd}

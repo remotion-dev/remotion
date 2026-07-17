@@ -1,4 +1,4 @@
-import type {InteractivitySchemaField, InteractivitySchema} from 'remotion';
+import type {InteractivitySchema, InteractivitySchemaField} from 'remotion';
 
 export const keyframeInterpolationFunctions = [
 	'interpolate',
@@ -27,7 +27,8 @@ export const isInteractivitySchemaFieldKeyframable = (
 		field.type === 'array' ||
 		field.type === 'boolean' ||
 		field.type === 'enum' ||
-		field.type === 'font-family'
+		field.type === 'font-family' ||
+		field.type === 'font-weight'
 	) {
 		return false;
 	}

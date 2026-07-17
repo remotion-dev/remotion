@@ -117,6 +117,7 @@ const SUPPORTED_SCHEMA_TYPES = [
 	'color',
 	'text-content',
 	'font-family',
+	'font-weight',
 	'array',
 	'enum',
 	'hidden',
