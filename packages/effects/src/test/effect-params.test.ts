@@ -15,6 +15,7 @@ import {duotone} from '../duotone.js';
 import {emboss} from '../emboss.js';
 import {evolve} from '../evolve.js';
 import {fisheye} from '../fisheye/index.js';
+import {flannel} from '../flannel.js';
 import {glow} from '../glow/index.js';
 import {grayscale} from '../grayscale.js';
 import {gridlines} from '../gridlines.js';
@@ -124,6 +125,9 @@ test('@remotion/effects expose documentation links', () => {
 	);
 	expect(fisheye().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/fisheye',
+	);
+	expect(flannel().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/flannel',
 	);
 	expect(cornerPin().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/corner-pin',
@@ -272,6 +276,7 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(dropShadow().definition.label).toBe('dropShadow()');
 	expect(emboss().definition.label).toBe('emboss()');
 	expect(fisheye().definition.label).toBe('fisheye()');
+	expect(flannel().definition.label).toBe('flannel()');
 	expect(cornerPin().definition.label).toBe('cornerPin()');
 	expect(glow().definition.label).toBe('glow()');
 	expect(grayscale().definition.label).toBe('grayscale()');
@@ -2228,6 +2233,44 @@ test('burlap() parameters produce distinct effect keys', () => {
 			colored.effectKey,
 		]).size,
 	).toBe(6);
+});
+
+test('flannel() accepts default and valid params', () => {
+	expect(() => flannel()).not.toThrow();
+	expect(() =>
+		flannel({
+			amount: 0.8,
+			size: 72,
+			softness: 0.25,
+			baseColor: '#b51f2e',
+			stripeColor: '#16233f',
+		}),
+	).not.toThrow();
+});
+
+test('flannel() rejects invalid params', () => {
+	expect(() => flannel({amount: Number.NaN})).toThrow(
+		'"amount" must be a finite number',
+	);
+	expect(() => flannel({amount: 1.1})).toThrow('"amount" must be <= 1');
+	expect(() => flannel({size: 0})).toThrow('"size" must be greater than 0');
+	expect(() => flannel({softness: -0.1})).toThrow('"softness" must be >= 0');
+	expect(() => flannel({baseColor: ''})).toThrow(
+		'"baseColor" must be a non-empty string',
+	);
+});
+
+test('flannel() parameters produce distinct effect keys', () => {
+	const keys = [
+		flannel(),
+		flannel({amount: 0.8}),
+		flannel({size: 72}),
+		flannel({softness: 0.3}),
+		flannel({baseColor: '#224422'}),
+		flannel({stripeColor: '#eee8d5'}),
+	].map((effect) => effect.effectKey);
+
+	expect(new Set(keys).size).toBe(keys.length);
 });
 
 test('emboss() accepts default params', () => {

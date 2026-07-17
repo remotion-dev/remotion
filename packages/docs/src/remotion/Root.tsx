@@ -18,6 +18,7 @@ import {EffectsDuotonePreview} from '../../components/effects/effects-duotone-pr
 import {EffectsEmbossPreview} from '../../components/effects/effects-emboss-preview';
 import {EffectsEvolvePreview} from '../../components/effects/effects-evolve-preview';
 import {EffectsFisheyePreview} from '../../components/effects/effects-fisheye-preview';
+import {EffectsFlannelPreview} from '../../components/effects/effects-flannel-preview';
 import {EffectsGlowPreview} from '../../components/effects/effects-glow-preview';
 import {EffectsGrayscalePreview} from '../../components/effects/effects-grayscale-preview';
 import {EffectsGridlinesPreview} from '../../components/effects/effects-gridlines-preview';
@@ -206,6 +207,19 @@ export const RemotionRoot: React.FC = () => {
 						roughness: 0.85,
 						seed: 1,
 						color: '#3b2818',
+					}}
+				/>
+				<Still
+					id="effects-flannel-preview"
+					component={EffectsFlannelPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						amount: 0.82,
+						size: 96,
+						softness: 0.18,
+						baseColor: '#b51f2e',
+						stripeColor: '#16233f',
 					}}
 				/>
 				<Still

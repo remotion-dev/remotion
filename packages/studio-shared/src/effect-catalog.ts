@@ -434,6 +434,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-flannel',
+		category: 'Stylize',
+		label: 'flannel()',
+		description: 'Plaid woven fabric treatment',
+		effect: {
+			name: 'flannel',
+			importPath: '@remotion/effects/flannel',
+			config: {},
+		},
+	},
+	{
 		id: 'effects-emboss',
 		category: 'Stylize',
 		label: 'emboss()',

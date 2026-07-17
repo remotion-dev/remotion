@@ -21,6 +21,7 @@ const effectEntrypoints = [
 	'src/emboss.ts',
 	'src/evolve.ts',
 	'src/fisheye.ts',
+	'src/flannel.ts',
 	'src/corner-pin.ts',
 	'src/glow.ts',
 	'src/grayscale.ts',
