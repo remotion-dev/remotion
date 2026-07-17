@@ -2,24 +2,46 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const CONFIG_IMPORT = `import {Config} from '@remotion/cli/config';`;
-const SETTER_REGEX = /Config\.setPublicLicenseKey\(\s*(['"])([\s\S]*?)\1\s*\)/;
+const LICENSE_KEY_PREFIX = 'rm_pub_';
+const LICENSE_KEY_LENGTH = 55;
+const SETTER_REGEX =
+	/Config\.setPublicLicenseKey\(\s*(['"`])([\s\S]*?)\1\s*\)/g;
+const COMPLEX_TEMPLATE_SETTER_REGEX =
+	/Config\.setPublicLicenseKey\(\s*`[^`]*\$\{/;
 const CONFIG_IMPORT_REGEX =
 	/import\s*\{[^}]*\bConfig\b[^}]*\}\s*from\s*['"]@remotion\/cli\/config['"]/;
 
 export const validatePublicLicenseKey = (licenseKey: string | null) => {
-	if (
-		licenseKey !== null &&
-		licenseKey !== 'free-license' &&
-		!licenseKey.startsWith('rm_pub_')
-	) {
+	if (licenseKey === null || licenseKey === 'free-license') {
+		return;
+	}
+
+	if (!licenseKey.startsWith(LICENSE_KEY_PREFIX)) {
 		throw new Error(
 			'Invalid public license key. It must start with "rm_pub_" or be "free-license".',
 		);
 	}
+
+	const afterPrefix = licenseKey.slice(LICENSE_KEY_PREFIX.length);
+	if (!/^[a-zA-Z0-9]+$/.test(afterPrefix)) {
+		throw new Error(
+			'Invalid public license key. After "rm_pub_" it must contain only alphanumeric characters.',
+		);
+	}
+
+	if (licenseKey.length !== LICENSE_KEY_LENGTH) {
+		throw new Error(
+			`Invalid public license key. It must be ${LICENSE_KEY_LENGTH} characters long.`,
+		);
+	}
+};
+
+const formatSetterCall = (licenseKey: string) => {
+	return `Config.setPublicLicenseKey(${JSON.stringify(licenseKey)})`;
 };
 
 const formatSetter = (licenseKey: string) => {
-	return `Config.setPublicLicenseKey('${licenseKey}');`;
+	return `${formatSetterCall(licenseKey)};`;
 };
 
 const resolveConfigFile = (remotionRoot: string): string => {
@@ -73,6 +95,7 @@ export const setPublicLicenseKeyInConfig = ({
 
 	const configFile = resolveConfigFile(remotionRoot);
 	const setterLine = formatSetter(licenseKey);
+	const setterCall = formatSetterCall(licenseKey);
 
 	if (!fs.existsSync(configFile)) {
 		fs.writeFileSync(configFile, `${CONFIG_IMPORT}\n\n${setterLine}\n`);
@@ -80,25 +103,26 @@ export const setPublicLicenseKeyInConfig = ({
 	}
 
 	const config = fs.readFileSync(configFile, 'utf-8');
-	const lines = config.replace(/\n$/, '').split('\n');
+
+	if (COMPLEX_TEMPLATE_SETTER_REGEX.test(config)) {
+		throw new Error(
+			'Found Config.setPublicLicenseKey() using a template literal with ${}. Replace it with a string literal manually, then try again.',
+		);
+	}
 
 	let replaced = false;
-	const updatedLines = lines.map((line) => {
-		const nextLine = line.replace(
-			SETTER_REGEX,
-			`Config.setPublicLicenseKey('${licenseKey}')`,
-		);
-		if (nextLine !== line) {
-			replaced = true;
-		}
-
-		return nextLine;
+	const replacedConfig = config.replace(SETTER_REGEX, () => {
+		replaced = true;
+		return setterCall;
 	});
 
-	const nextLines = replaced
-		? updatedLines
-		: [...ensureConfigImport(updatedLines), setterLine];
+	if (replaced) {
+		fs.writeFileSync(configFile, replacedConfig.replace(/\n?$/, '\n'));
+		return {configFile};
+	}
 
+	const lines = config.replace(/\n$/, '').split('\n');
+	const nextLines = [...ensureConfigImport(lines), setterLine];
 	fs.writeFileSync(configFile, `${nextLines.join('\n')}\n`);
 
 	return {configFile};
